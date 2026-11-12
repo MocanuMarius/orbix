@@ -1,78 +1,49 @@
-# Emberwing
+# Wispbound
 
-A portrait mobile-browser phoenix roguelite. Five flight encounters and two support stops make a seven-stop expedition. The flight scene uses **PixiJS 8.23.0 / WebGL** with a live **Three.js 0.187.0** phoenix. Flight and collisions remain on a 2D plane. A mesh/Canvas fallback is available if GPU initialization fails.
+A one-handed, portrait-browser flight roguelite, formerly Emberwing. The branching seven-stop expedition and three-card builds remain intact. The active game now uses original low-resolution pixel scenery and elemental wisp sprites, with a grim, muted atmosphere inspired by Salt and Sanctuary. No reference-game art is copied.
 
-## Play
+Choose a **Fire** or **Ice** player wisp before an expedition; its carrier companion uses the opposite glow. This choice changes appearance, preserving the same controls and build mechanics. Existing saves, cards, banked currency and skill ranks continue under the same save key.
 
-Open the published game on a phone. Tap **Take Flight**, pick a starter card, then tap a glowing destination on the illustrated map. Scroll upward to scout future locations. Terrain, difficulty, challenge, and reward are shown before launching.
+## Controls and collection
 
-- **Flap:** the large lower-right button. A wingbeat costs **6 Flame in a refuge, 8 in a cavern, or 7 in a gauntlet**. Glide between taps to conserve effort. Below the displayed wingbeat cost, the phoenix cannot flap until an ember refuels it.
-- **Flame vitality:** start with 100. A normal ember restores **22–28** depending on the route, a heart ember **38–44**, and a converted thorn mote **6**, capped at 100. Gliding spends no Flame. The HUD shows the reserve, and the phoenix's fire dims as it runs low. Collision hearts track injuries separately.
-- **Boost:** the smaller button next to Flap. A protected burst; a visible timer shows recharge. Flights end at a fixed exit distance, so Boost and travel-speed cards save time and wingbeats.
-- **Pause:** hold Boost for half a second. Backgrounding or rotating the phone also pauses. Resume deliberately.
-- **Desktop testing:** Space / Up to flap, B / Shift to boost, Escape to pause.
-- **Cards:** choose between two offers. Three flexible slots, no reserve inventory. When full, swipe the equipped card to choose a replacement, then Replace or Keep.
-- **Progress:** expedition cards reset each run. Collected embers are banked at the end, including on defeat. The Ascension tree contains seven permanent skills in Wisp, Flame, and Rebirth branches.
+- **Lift:** large lower-right button, or Space / Up. A pulse costs 6 Glow in a refuge, 8 in a cavern, or 7 in a gauntlet. Glide between pulses. A successful press immediately flares and stretches the wisp; there are no slow wing animations.
+- **Boost:** smaller right button, or B / Shift. Protected forward travel helps reach the fixed exit sooner. Hold the button for half a second, or press Escape, to pause. Backgrounding/rotation also pauses.
+- **Direct pickup:** touch a spark with the player wisp to receive fuel and currency immediately. The forgiving 24-unit pickup radius is independent of the carrier. Reservations never block player contact.
+- **Carrier:** searches for the nearest spark within 100 units, flies out, carries it home, then rests for **5.5 seconds**. Fuel arrives on delivery. The player can keep collecting normally throughout its fetch and rest. A collision and a carrier cannot pay for the same spark twice.
+- **Fuel:** normal sparks restore 22–28 Glow; larger heart sparks restore 38–44, capped at 100. Lift is unavailable when reserves are too low; gliding continues. Collision hearts remain separate.
 
-Progress is stored only in this browser. Reloading during flight restarts the current passage from its saved checkpoint, without retaining duplicate rewards from the abandoned attempt. Clearing browser data removes progress. Skill purchases are available between expeditions.
+## Light and progression
 
-Remaining Flame carries between flights. Clearing a passage lets the phoenix catch its breath up to a minimum reserve of 35. Resting at a camp or recovery event refills Flame; gathering glow at a camp instead restores 22 and awards currency. Existing saves receive a full reserve when first loaded with this system.
+The player light reveals nearby terrain and pickups through a dithered darkness mask. Dim silhouettes remain readable beyond it for fair warning. The carrier casts a smaller light at its actual position.
 
-The map now has real three-lane forks and merges, a maximum of two reachable choices, and a single final ascent. Choosing a route changes the support stops and future branches within reach. Refuge routes offer frequent fuel and Wisp/Ash drafts; caverns are shorter, cost more effort and reward Wing/Wisp builds; elite gauntlets have leaner fuel and richer Flame/Wing rewards. Fuel shrines trade a full reserve against a new card. Preview each route before launching, and tap the top-left arrow to reconsider. Start **New Expedition** to receive the new graph; old saved routes can still finish, and starting fresh banks their collected embers.
+**Inner Glow** has three permanent ranks: visible radius 175 → 210 → 245 → 280. It changes reveal area independently of movement and collection reach. Carrier Reach remains 100 → 125 → 150 → 175. Recovery ranks reduce the 5.5-second rest to 4.675 / 3.85 / 3.025 seconds. The skill screen previews each change. Skills apply to the next expedition; three active cards and rewards remain run-specific.
 
-Refuges are tested from 35 Flame and caverns from the advised 60, with 288 fuel-aware simulated flights across terrains, seeds and contrasting builds. These are automated clearability checks; physical-phone performance and subjective balance still need playtesting.
+Seven stops retain branching routes, support events, ordinary/elite tradeoffs, card drafts and a finale. Encounter geometry, terrain-associated fuel placements, and safe Boost exits remain the tested simulation. Remaining Glow carries between passages; clearing a flight provides a minimum reserve of 35, while rest can refill it.
 
-The phoenix is a genuine, continuously rendered 3D model, viewed side-on through an orthographic camera. Volumetric feather geometry, independently articulated shoulder/elbow/wrist joints, feather fans and flexible tail chains move through depth. Each successful tap drives a damped power stroke and recovery; Boost folds the wings. PBR feather materials include fine barb normals, rough reflections and cool moon/warm fire lighting. Pixi composites the live Three.js canvas every frame, with curved blaze ribbons, curling heat wisps, bounded spark/cinder pools and Boost shockwaves. GPU failure uses the earlier painted mesh rig as a fallback.
+## Run locally
 
-The photographic terrain materials are Poly Haven CC0 Rock Boulder Dry and Bark Willow, supplied as local 1K diffuse, OpenGL normal and roughness maps. Authors, original download URLs, license and checksums are included in `dist/assets/pbr-materials-sources.json` and `pbr-materials-license.txt`. The generated backdrop and fallback art retain their recorded prompts and provenance.
-
-## Run the source
-
-Embers are sparse discoveries attached to scenery: relics below ruin arches, dew near canopy branches and thorn hearts, and rewards beside storm spires. Route-specific quiet stretches separate pickups; occupied features hold one accessible fuel ember and sometimes a larger, riskier reward. An early approach ember and bounded distances between fuel sources support deliberate flight from a low checkpoint reserve. The autonomous wisp chooses the closest unclaimed ember within its 100-unit search range, flies out, carries it home, and delivers the fuel and currency on return. It then rests for 1.8 seconds before fetching again. The spirit's moving glow and trail follow its actual position; a faint halo at the phoenix shows search reach, and a recovery arc plus flight status shows its cooldown. The phoenix can still collect an ember by touching it directly. Hungry Wisp expands search reach by 60% during Boost. The permanent Spirit branch has three ranks of Reach (125/150/175 range) and Recovery (1.53/1.26/0.99 seconds of rest). Upgrade prices grow per rank, and purchases apply to the next expedition. Large heart embers pay three currency but count as one pickup for card triggers and challenges. Kindled Spirit triggers every three pickups; Warm Heart heals after eight. Collection challenges require six to nine pickups. All placements reserve phoenix clearance across the full canopy sway envelope.
-
-Flight stays on a 2D plane while the phoenix is rendered in 3D. Terrain now has authored biome profiles: eroded sandstone terraces and escarpments, rounded root banks and concave boughs, and alpine ridges with asymmetric saddles. Monotone sampled contours replace the repeated triangular wedge. Encounter timing, route gaps, RNG sequence and fuel budgets are preserved; rendered edges are the collision edges.
-
-Each landform has a stable, cached macro relief field: rounded exposed lips, eroded buttresses, slanted bedding, crevice occlusion and slope-dependent snow, lichen or moss. This is 2.5D material relief, not volumetric terrain geometry. Its normals combine with the photographic normal map. A matching height map supports restrained soft self-shadows from the orange phoenix and neutral white wisp. Local mineral grain varies micro normals, roughness and dielectric reflectance; GGX shading and specular anti-aliasing keep highlights subtle and stable. Material coordinates remain attached to the world as the camera scrolls. The GPU material path requires WebGL 2; Canvas remains the fallback.
-
-Requires Node.js 20+. No installation step is needed for the packaged playable build: PixiJS, Three.js and all local assets are included.
+Requires Node.js 20+. No install or build step is needed.
 
 ```sh
 node server.mjs
 ```
 
-Open http://localhost:4173. On another device, use this computer's reachable LAN address or the published HTTPS game URL. A phone's localhost points to the phone itself.
+Open http://localhost:4173. Phones must use this computer's reachable LAN address or the published HTTPS URL; phone localhost points to the phone itself.
 
 ```sh
 npm test
 ```
 
-The tests cover seeded maps and authored terrain, cards and skill bounds, polygon collision geometry, safe boost exits, finite card triggers, rebirth, exact map challenges, whole expeditions, reloads, currency banking, and fixed-step behavior at 30/60/120 display Hz. Browser QA covers portrait layout, direct map selection, genuine Pixi/WebGL initialization and console health. Physical phone performance and subjective balance need continued playtesting.
+## Source and validation
 
-## Assets and source
+- `dist/wisp-renderer.mjs`: production 195-pixel-wide Canvas2D view, pixel sprite animation, authored terrain scenery, fog reveal, particles and carrier presentation.
+- `dist/flight.mjs`: fixed-step flight, direct collection, terrain collisions, fuel and Boost. Exports WispFlight plus the legacy PhoenixFlight alias for development tools.
+- `dist/wisp.mjs`: nearest-target carrier fetching, return delivery, cooldown and shared tuning.
+- `dist/model.mjs`: branching routes, card builds, saves, elemental appearance and permanent progression.
+- `dist/app.mjs`, `style.css`, `game.css`: mobile game UI, pixel map glyphs and card icons.
 
-- `dist/app.mjs`: portrait game interface and application flow.
-- `dist/model.mjs`: seeded expedition, card, event, save, and skill model.
-- `dist/flight.mjs`: deterministic flight simulation and collision geometry.
-- `dist/wisp.mjs`: autonomous nearest-target fetching, return delivery, and companion recovery.
-- `dist/pixi-renderer.mjs`: layered GPU scenery, terrain and character integration.
-- `dist/phoenix-3d.mjs`: live 3D anatomy, feather geometry, materials, joints and lighting.
-- `dist/phoenix-rig.mjs` and `dist/phoenix-motion.mjs`: mesh fallback and shared damped joint response.
-- `dist/flame-effects.mjs`: curved blaze ribbons, shaded particles and Boost shockwaves.
-- `dist/assets/prompts.txt`: exact art prompts, built-in generation mode, and asset QA.
-- `dist/vendor/PIXI-LICENSE.txt` and `THREE-LICENSE.txt`: engine MIT licenses.
+The renderer draws at 195px and uses nearest-neighbor scaling. Its cache is bounded; it never changes game state. The active game loads no PixiJS, Three.js, photographic terrain maps or painted phoenix sprites. Earlier rendering prototypes and diagnostic pages remain in the source for reference, but the production entry point does not import them.
 
-All generated art is stored inside the project. No external runtime assets, sign-in, analytics, card payments, or cloud-save account are required by the game itself. The private hosted site may require its owner's ChatGPT sign-in.
+Tests cover the 288-route fuel-aware flight matrix, direct collection during carrier cooldown, no duplicate pickup rewards, full expeditions and reloads, card/skill bounds, light-radius progression, terrain geometry and fixed-step consistency. Browser QA checks portrait controls, selectable map nodes, pixel rendering, Fire/Ice identity and light reveal. Physical-phone frame-rate and subjective balance need continued playtesting.
 
-## Material-lighting verification
-
-Run `node tests/lighting-server.mjs`, open http://localhost:4180, and choose **Run GPU checks**. This diagnostic imports the production terrain shader, keeps the photographic stone texture fixed, and reads back the same rendered pixel patch under moon fill, nearby/distant fire, and nearby/distant white wisp light. It verifies actual brightness changes, moving falloff, and distinct fire/white reflections. Checked at 390px and 430px widths. The diagnostic is outside the published static build.
-
-## Motion preview
-
-Run `node tests/lighting-server.mjs` and open http://localhost:4180/motion for a larger preview using the production rig and fire-effect components. Its six-second recorder exports a WebM clip. Motion tests cover interrupted strokes, anchored roots, tail continuity, gentle glide flex and consistent 30/60/120 Hz response. This diagnostic is outside the published static build.
-
-## Terrain inspection
-
-`node tests/lighting-server.mjs` also serves `/terrain`. This diagnostic uses the production renderer, with biome/cave selection, frozen lighting and relief/grain comparisons. GPU checks compare pixel readback with macro relief or mineral grain disabled. All diagnostic pages stay outside the published build. Tests cover bounded geometry-following material fields, stable world coordinates, distinct biome profiles, connected terrain, full-sway safe corridors and unchanged seeded pickup budgets.
-
-Reference direction: [Airborn's Ori environment workflow](https://airborn-studios.com/projects/ori/) emphasizes composing readable art around tested gameplay blockouts; [Moon Studios' Ori art talk](https://www.gdcvault.com/play/1027375/The-Art-of-Ori-and) covers artistic goals and iterative scene construction. Our implementation uses original authored contours and procedural relief, without copying their assets. The specular response follows [Filament's PBR reference](https://google.github.io/filament/main/filament.html), with a nonmetal dielectric response near 4% and filtered microstructure.
+The game requires no account, analytics, payment or cloud-save service. The existing private hosted Site may require the owner's ChatGPT sign-in. Progress is local to the browser; clearing browser data removes it.

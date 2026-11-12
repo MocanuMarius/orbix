@@ -1,8 +1,9 @@
 /** Seeded, DOM-free campaign model. Public commands mutate their run/profile and return booleans. */
 import { FLAME_TUNING } from './vitality.mjs';
+import { WISP_TUNING } from './wisp.mjs';
 export const SAVE_KEY = 'emberwing.save.v1';
 export const TERRAINS = Object.freeze({
-  ruins: { id: 'ruins', name: 'Sunken Ruins', color: '#e8b36b', description: 'Ancient arches, sweeping gates, and golden wisp trails.' },
+  ruins: { id: 'ruins', name: 'Sunken Ruins', color: '#e8b36b', description: 'Ancient arches, sweeping gates, and golden spark trails.' },
   canopy: { id: 'canopy', name: 'Luminous Canopy', color: '#87e9b3', description: 'Living branches frame winding trails of forest light.' },
   storm: { id: 'storm', name: 'Stormglass Peaks', color: '#c0b3ff', description: 'Watch the gathering wind and ride between crystal spires.' },
 });
@@ -10,21 +11,22 @@ export const TERRAINS = Object.freeze({
 const card = (id, name, tag, description, detail, color, icon) => ({ id, name, tag, description, detail, color, icon });
 export const CARDS = Object.freeze({
   'hungry-wisp': card('hungry-wisp', 'Hungry Wisp', 'Wisp', 'Boosting sends your wisp searching farther.', 'Your companion searches 60% farther for the closest ember during a boost, then fetches it and returns. Pair with Kindled Spirit to keep the flame moving.', '#8ce5c4', '✧'),
-  'kindled-spirit': card('kindled-spirit', 'Kindled Spirit', 'Wisp', 'Every three collected wisps quicken your next boost.', 'Every three base embers collected reduce the boost cooldown by one second. Bonus rewards never trigger this again.', '#f8c778', '✦'),
-  'golden-wake': card('golden-wake', 'Golden Wake', 'Wisp', 'Collecting during boost doubles the pickup score.', 'Boosted wisp pickups grant +100% score. This changes score, not permanent ember currency.', '#ffdc81', '◈'),
+  'kindled-spirit': card('kindled-spirit', 'Kindled Spirit', 'Wisp', 'Every three collected sparks quicken your next boost.', 'Every three base embers collected reduce the boost cooldown by one second. Bonus rewards never trigger this again.', '#f8c778', '✦'),
+  'golden-wake': card('golden-wake', 'Golden Wake', 'Wisp', 'Collecting during boost doubles the pickup score.', 'Boosted spark pickups grant +100% score. This changes score, not permanent ember currency.', '#ffdc81', '◈'),
   'storm-feeder': card('storm-feeder', 'Storm Feeder', 'Flame', 'Turn the mountain wind into boost energy.', 'Boost cooldown is 4% shorter everywhere. In gusts, recover another second of cooldown once each second.', '#b3c6ff', 'ϟ'),
-  'soft-descent': card('soft-descent', 'Soft Descent', 'Wing', 'Fall gently and guide smaller wingbeats.', 'Gravity is 10% lighter and flaps are 6% gentler. A steady choice for precise passages.', '#a5dce9', '⌄'),
-  'high-wing': card('high-wing', 'High Wing', 'Wing', 'Climb higher and travel faster.', 'Flaps are 10% stronger and travel is 5% faster. Favor deliberate taps and high wisp trails.', '#e9b7ff', '⌃'),
-  tailwind: card('tailwind', 'Tailwind', 'Wing', 'Fly faster for a richer ember trail.', 'Travel is 8% faster and earned ember rewards are 12% greater. The phoenix needs quicker decisions.', '#facb9b', '»'),
+  'soft-descent': card('soft-descent', 'Soft Descent', 'Drift', 'Fall gently and guide smaller lift pulses.', 'Gravity is 10% lighter and lift pulses are 6% gentler. A steady choice for precise passages.', '#a5dce9', '⌄'),
+  'high-wing': card('high-wing', 'Rising Spirit', 'Drift', 'Climb higher and travel faster.', 'Lift pulses are 10% stronger and travel is 5% faster. Favor deliberate taps and high spark trails.', '#e9b7ff', '⌃'),
+  tailwind: card('tailwind', 'Tailwind', 'Drift', 'Fly faster for a richer ember trail.', 'Travel is 8% faster and earned ember rewards are 12% greater. The wisp needs quicker decisions.', '#facb9b', '»'),
   'ash-ward': card('ash-ward', 'Ash Ward', 'Ash', 'Begin each flight protected by a circle of ash.', 'A ward absorbs one hit each flight, while boost recharges 12% more slowly. Checkpoint wards remain separate.', '#d4c5ec', '◇'),
-  'glass-phoenix': card('glass-phoenix', 'Glass Phoenix', 'Ash', 'A fragile body, a brilliant reward.', 'Maximum health becomes two hearts; earned ember rewards increase by 25%. Replacing this card restores capacity, not health.', '#a9e7fa', '♢'),
-  'steady-flame': card('steady-flame', 'Steady Flame', 'Wing', 'Keep your course through difficult currents.', 'Wind has less influence, and gravity is 3% lighter. A calm choice for the Stormglass Peaks.', '#d3d6f3', '≈'),
-  'fire-wake': card('fire-wake', 'Fire Wake', 'Flame', 'Burn soft thorns into a trail of bonus wisps.', 'Boost lasts 8% longer. Each soft thorn burned during a boost releases three collectible bonus motes.', '#ff9d77', '♨'),
-  'warm-heart': card('warm-heart', 'Warm Heart', 'Ash', 'A rich wisp trail can mend a wounded heart.', 'Collect eight base embers in a flight to heal one heart, once per flight. Bonus embers cannot retrigger it.', '#f2a6ba', '♡'),
+  'glass-phoenix': card('glass-phoenix', 'Glass Wisp', 'Ash', 'A fragile body, a brilliant reward.', 'Maximum health becomes two hearts; earned ember rewards increase by 25%. Replacing this card restores capacity, not health.', '#a9e7fa', '♢'),
+  'steady-flame': card('steady-flame', 'Steady Flame', 'Drift', 'Keep your course through difficult currents.', 'Wind has less influence, and gravity is 3% lighter. A calm choice for the Stormglass Peaks.', '#d3d6f3', '≈'),
+  'fire-wake': card('fire-wake', 'Shatter Wake', 'Flame', 'Shatter soft thorns into a trail of bonus sparks.', 'Boost lasts 8% longer. Each soft thorn shattered during a boost releases three collectible bonus motes.', '#ff9d77', '♨'),
+  'warm-heart': card('warm-heart', 'Warm Heart', 'Ash', 'A rich spark trail can mend a wounded heart.', 'Collect eight base embers in a flight to heal one heart, once per flight. Bonus embers cannot retrigger it.', '#f2a6ba', '♡'),
 });
 
 const skill = (id, name, branch, cost, requires, description, maxRank = 1) => ({ id, name, branch, cost, requires, maxRank, description });
 export const SKILLS = Object.freeze({
+  'wisp-light': skill('wisp-light', 'Inner Glow', 'Wisp', 60, null, 'Illuminate 35 more units of terrain per rank. See paths and pickups farther ahead.', 3),
   'wisp-reach': skill('wisp-reach', 'Wisp Reach', 'Wisp', 80, null, 'Each rank expands your companion’s ember search range by 25%, up to 75% farther.', 3),
   'wisp-recovery': skill('wisp-recovery', 'Wisp Recovery', 'Wisp', 90, null, 'Each rank shortens the wait after your wisp returns by 15% of the base cooldown.', 3),
   'wisp-bounty': skill('wisp-bounty', 'Wisp Bounty', 'Wisp', 160, 'wisp-reach', 'Earn 10% more embers from flight pickups.'),
@@ -68,7 +70,7 @@ export function newState() {
     version: 1,
     profile: { embers: 0, skills: {}, stats: { completedRuns: 0, wins: 0, totalScore: 0, bestScore: 0 }, bankedRuns: [] },
     run: null,
-    settings: { sound: true, reducedMotion: false },
+    settings: { sound: true, reducedMotion: false, element: 'fire' },
   };
 }
 
@@ -129,9 +131,17 @@ export function loadState(storage) {
     if (parsed?.version !== 1) return newState();
     const state = newState();
     state.profile = cleanProfile(parsed.profile);
-    state.settings = { sound: parsed.settings?.sound !== false, reducedMotion: parsed.settings?.reducedMotion === true };
+    state.settings = { sound: parsed.settings?.sound !== false, reducedMotion: parsed.settings?.reducedMotion === true,
+      element: parsed.settings?.element === 'ice' ? 'ice' : 'fire' };
     if (validRun(parsed.run)) {
       state.run = parsed.run;
+      state.run.element = parsed.run.element === 'ice' ? 'ice' : 'fire';
+      for (const node of [...state.run.map.flat(), ...(state.run.current ? [state.run.current] : [])]) {
+        if (node.draftTags) node.draftTags = node.draftTags.map(tag => tag === 'Wing' ? 'Drift' : tag);
+        if (node.draftTheme) node.draftTheme = node.draftTheme.replace(/Wing/g, 'Drift');
+        if (node.name) node.name = node.name.replace(/Phoenix Gate/g, 'Hollow Gate');
+        if (node.challenge) node.challenge = node.challenge.replace(/wisps/g, 'sparks');
+      }
       state.run.skills = cleanProfile({ skills: parsed.run.skills }).skills;
       state.run.hp = clamp(state.run.hp, 0, getModifiers(state.run.cards, state.run.skills).maxHp);
       state.run.flame = clamp(Number.isFinite(state.run.flame) ? state.run.flame : FLAME_TUNING.maximum, 0, FLAME_TUNING.maximum);
@@ -146,11 +156,11 @@ export function loadState(storage) {
   } catch { return newState(); }
 }
 
-const EVENT_NAMES = ['Ash Spring', 'Cinder Bargain', 'Abandoned Nest', 'Molting Shrine', 'Luminous Well', 'The Ember Archive'];
+const EVENT_NAMES = ['Ash Spring', 'Cinder Bargain', 'Abandoned Lantern', 'Weathered Shrine', 'Luminous Well', 'The Ember Archive'];
 export const ROUTE_PROFILES = Object.freeze({
-  refuge: { routeStyle: 'refuge', passage: 'open', fuelCadence: 2, fuelBonus: 6, flameDrain: 0.92, routeReward: 1, durationScale: 1, draftTags: ['Wisp', 'Ash'], fuelPreview: 'Abundant fuel · +6 Flame per ember', riskPreview: 'Open passages · gentler Flame cost' },
-  cavern: { routeStyle: 'cavern', passage: 'cavern', fuelCadence: 3, fuelBonus: 0, flameDrain: 1.08, routeReward: 1.25, durationScale: 0.80, draftTags: ['Wing', 'Wisp'], fuelPreview: 'Spaced fuel · conserve your wingbeats', riskPreview: 'Short cave route · tighter roof and floor' },
-  gauntlet: { routeStyle: 'gauntlet', passage: 'gauntlet', fuelCadence: 4, fuelBonus: 2, flameDrain: 1, routeReward: 1.45, durationScale: 0.90, draftTags: ['Flame', 'Wing'], fuelPreview: 'Sparse fuel · time Boost between embers', riskPreview: 'Elite passages · richest ember rewards' },
+  refuge: { routeStyle: 'refuge', passage: 'open', fuelCadence: 2, fuelBonus: 6, flameDrain: 0.92, routeReward: 1, durationScale: 1, draftTags: ['Wisp', 'Ash'], fuelPreview: 'Abundant fuel · +6 Glow per spark', riskPreview: 'Open passages · gentler Glow cost' },
+  cavern: { routeStyle: 'cavern', passage: 'cavern', fuelCadence: 3, fuelBonus: 0, flameDrain: 1.08, routeReward: 1.25, durationScale: 0.80, draftTags: ['Drift', 'Wisp'], fuelPreview: 'Spaced fuel · conserve your lift pulses', riskPreview: 'Short cave route · tighter roof and floor' },
+  gauntlet: { routeStyle: 'gauntlet', passage: 'gauntlet', fuelCadence: 4, fuelBonus: 2, flameDrain: 1, routeReward: 1.45, durationScale: 0.90, draftTags: ['Flame', 'Drift'], fuelPreview: 'Sparse fuel · time Boost between embers', riskPreview: 'Elite passages · richest ember rewards' },
 });
 
 function makeMap(seed) {
@@ -170,7 +180,7 @@ function makeMap(seed) {
     const draftTheme = draftTags.join(' + ');
     const challengeId = routeStyle === 'refuge' ? 'wisps' : routeStyle === 'cavern' ? 'clean' : 'boosts';
     const challengeTarget = challengeId === 'wisps' ? 6 + Math.floor(row / 2) : challengeId === 'boosts' ? 2 : 0;
-    const challenge = challengeId === 'wisps' ? `Collect ${challengeTarget} wisps` : challengeId === 'boosts' ? 'Boost twice' : 'Finish without a hit';
+    const challenge = challengeId === 'wisps' ? `Collect ${challengeTarget} sparks` : challengeId === 'boosts' ? 'Boost twice' : 'Finish without a hit';
     const routeName = { refuge: 'Ember Refuge', cavern: 'Crystal Cavern', gauntlet: 'Flame Gauntlet' }[routeStyle];
     const baseDuration = row === 0 ? 34 : 38 + row * 2;
     const bonusEmbers = support ? 0 : finale ? 35 : routeStyle === 'refuge' ? 10 : elite ? 26 : 18;
@@ -216,7 +226,7 @@ export function createRun(profile = newState().profile, seed = freshSeed()) {
   const skills = cleanProfile({ skills: profile?.skills }).skills;
   const run = {
     id: `${normalizedSeed}-${freshSeed()}`, seed: normalizedSeed, step: 0, map: makeMap(normalizedSeed), path: [], current: null,
-    cards: [], skills, hp: 3, maxHp: 3, flame: FLAME_TUNING.maximum, shield: 0, embers: 0, score: 0, usedRebirth: false,
+    cards: [], skills, element: 'fire', hp: 3, maxHp: 3, flame: FLAME_TUNING.maximum, shield: 0, embers: 0, score: 0, usedRebirth: false,
     offers: [], phase: 'starter', success: false, banked: false, supportChoices: [],
     stats: { collected: 0, collisions: 0, boosts: 0, flights: 0, elites: 0, challenges: 0, events: 0 },
   };
@@ -424,6 +434,7 @@ export function getModifiers(cardIds = [], skills = {}) {
   const result = {
     gravity: 1, flap: 1, speed: 1, attract: 1 + 0.25 * skillRank(skills, 'wisp-reach'),
     wispCooldown: Math.round((1 - 0.15 * skillRank(skills, 'wisp-recovery')) * 100) / 100,
+    lightRadius: WISP_TUNING.lightRadius + 35 * skillRank(skills, 'wisp-light'),
     boostCooldown: 1, boostDuration: 1, reward: 1,
     maxHp: 3, rebirth: !!skillRank(skills, 'rebirth-spark'), rebirthHp: skillRank(skills, 'rebirth-grace') ? 2 : 1,
     ward: ids.has('ash-ward') ? 1 : 0, steady: ids.has('steady-flame'),

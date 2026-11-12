@@ -20,6 +20,12 @@ function canvas() {
 function fly(options, diagnostics = {}) {
   let result;
   const flight = new PhoenixFlight({ ...options, canvas: canvas(), onFinish: value => { result = value; } });
+  diagnostics.directWhileCooling = 0;
+  const collect = flight.collect.bind(flight);
+  flight.collect = ember => {
+    if (!ember.collected && !ember.deliveredByWisp && flight.wisp.phase === 'cooldown') diagnostics.directWhileCooling++;
+    return collect(ember);
+  };
   if (options.ignoreFuel) flight.layout.embers = [];
   if (options.isolated) flight.layout = { obstacles: [], embers: [] };
   flight.start();
@@ -28,19 +34,23 @@ function fly(options, diagnostics = {}) {
     const next = flight.layout.obstacles.find(obstacle => !obstacle.destroyed &&
       obstacle.x - flight.distance + obstacle.width * 2.5 >= flight.player.x - flight.player.radius);
     const wisp = flight.getWispState();
-    // The spirit fetches autonomously. With a healthy reserve the phoenix can
-    // concentrate on its passage; a reserved or carried ember is already owned.
+    // A free companion can intercept fuel at its home offset. While it is
+    // fetching or cooling down, the player must meet other fuel directly.
+    // Reserved fuel is still pending delivery, so do not count it as income.
+    const carrierReady = wisp.phase === 'ready';
+    const interceptX = carrierReady ? wisp.homeX : flight.player.x;
     const fuel = flight.flame < 48 ? flight.layout.embers.find(ember => ember.fuel && !ember.generated &&
-      !ember.collected && !ember.attracted && !ember.carried && ember.x - flight.distance > flight.player.x - 55 &&
+      !ember.collected && !ember.attracted && !ember.carried && ember.x - flight.distance > interceptX - (carrierReady ? 55 : 16) &&
       ember.x - flight.distance < flight.player.x + 280) : null;
-    const target = fuel ? fuel.y + 12 : next ? flight.obstacleCenter(next) : flight.height * .5;
+    const desiredFuelY = fuel ? fuel.y - (carrierReady ? wisp.homeY - flight.player.y : 0) : 0;
+    const target = fuel ? desiredFuelY : next ? flight.obstacleCenter(next) : flight.height * .5;
     const speed = flight.baseSpeed * (flight.boostTime > 0 ? 1.48 : 1);
-    const intercept = fuel ? (fuel.x - flight.distance - wisp.homeX) / speed : Infinity;
+    const intercept = fuel ? (fuel.x - flight.distance - interceptX) / speed : Infinity;
     let shouldFlap = flight.player.y > target + 8 && flight.player.vy > 0;
     if (fuel && intercept > 0 && intercept < 1.4) {
       // Time the next wingbeat to meet a visible fuel ember, including waiting
       // when a later tap would be more accurate and spend the same effort.
-      const desired = fuel.y - (wisp.homeY - flight.player.y);
+      const desired = desiredFuelY;
       const gravity = 300 * flight.scaleY * (flight.mod.gravity || 1);
       const coast = flight.player.y + flight.player.vy * intercept + gravity * intercept ** 2 / 2;
       let bestError = Math.abs(coast - desired), bestDelay = Infinity;
@@ -93,12 +103,15 @@ test('baseline and three contrasting builds can clear the same authored terrain 
 });
 
 test('fuel collection sustains a route that cannot be cleared by spending the initial reserve alone', () => {
-  const options = { terrain: 'canopy', seed: 'qa-shared-flight', duration: 38, hp: 3 };
-  const supplied = fly(options);
+  const options = { terrain: 'canopy', seed: 'qa-shared-flight', duration: 38,
+    node: ROUTE_PROFILES.refuge, hp: 3, flame: 35 };
+  const diagnostics = {};
+  const supplied = fly(options, diagnostics);
   const starved = fly({ ...options, ignoreFuel: true });
   assert.equal(supplied.success, true);
   assert.ok(supplied.stats.flameRestored > 0);
   assert.ok(supplied.stats.effortSpent > 100, 'the route actually needs gathered fuel');
+  assert.ok(diagnostics.directWhileCooling > 0, 'body contact collects fuel while the companion recovers');
   assert.equal(starved.success, false);
   assert.ok(starved.flame < 7);
 });

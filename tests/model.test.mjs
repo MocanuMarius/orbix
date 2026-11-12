@@ -551,3 +551,27 @@ test('save handling tolerates corruption, old schemas and unavailable storage wh
     else delete globalThis.localStorage;
   }
 });
+
+
+test('Inner Glow upgrades reveal farther without changing pickup range or movement', () => {
+  const base = getModifiers([]);
+  for (let rank = 0; rank <= 3; rank++) {
+    const upgraded = getModifiers([], { 'wisp-light': rank });
+    assert.equal(upgraded.lightRadius, 175 + 35 * rank);
+    for (const key of ['gravity', 'flap', 'speed', 'attract', 'wispCooldown']) assert.equal(upgraded[key], base[key]);
+  }
+  assert.equal(getModifiers([], { 'wisp-light': 99 }).lightRadius, 280);
+});
+
+test('fire and ice identity persist while active expedition identity remains fixed', () => {
+  const state = newState(); state.settings.element = 'ice'; state.run = createRun(state.profile, 'element-save');
+  state.run.element = 'ice';
+  const data = new Map(); const memory = { setItem: (k,v) => data.set(k,v), getItem: k => data.get(k) };
+  assert.equal(saveState(state, memory), true);
+  const loaded = loadState(memory);
+  assert.equal(loaded.settings.element, 'ice'); assert.equal(loaded.run.element, 'ice');
+  loaded.settings.element = 'fire'; assert.equal(loaded.run.element, 'ice', 'the next-run choice cannot recolour an active expedition');
+  loaded.settings.element = 'unknown'; loaded.run.element = 'unknown'; saveState(loaded, memory);
+  const repaired = loadState(memory);
+  assert.equal(repaired.settings.element, 'fire'); assert.equal(repaired.run.element, 'fire');
+});

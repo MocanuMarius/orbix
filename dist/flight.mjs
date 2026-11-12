@@ -1,14 +1,13 @@
 /* Emberwing's self-contained canvas flight simulation and renderer. */
 import { FLAME_TUNING } from './vitality.mjs';
 import { WispCompanion, wispHome } from './wisp.mjs';
-import { PhoenixMotion } from './phoenix-motion.mjs';
 export { FLAME_TUNING } from './vitality.mjs';
 const TAU = Math.PI * 2;
 const STEP = 1 / 60;
 const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
 const lerp = (a, b, t) => a + (b - a) * t;
 export const FLIGHT_TUNING = Object.freeze({ gravity: 300, flapImpulse: 205,
-  forwardSpeed: 154, terminalFall: 245 });
+  forwardSpeed: 154, terminalFall: 245, pickupRadius: 24 });
 
 export function seededRandom(seed = 1) {
   let state = 2166136261;
@@ -282,9 +281,9 @@ function roundedRect(ctx, x, y, w, h, r = 8) {
   ctx.closePath();
 }
 
-export class PhoenixFlight {
+export class WispFlight {
   constructor(options = {}) {
-    if (!options.canvas) throw new Error('PhoenixFlight needs a canvas.');
+    if (!options.canvas) throw new Error('WispFlight needs a canvas.');
     this.canvas = options.canvas;
     this.ctx = this.canvas.getContext('2d', { alpha: false });
     if (!this.ctx) throw new Error('A Canvas 2D context is unavailable.');
@@ -327,7 +326,7 @@ export class PhoenixFlight {
     this.particles = []; this.trail = []; this.pickupEffects = []; this.emitClock = 0;
     this.wispBoost = 0;
     this.cosmeticRng = seededRandom(`${this.seed}:cosmetics`);
-    this.rigImage = null; this.background = null; this.canvasMotion = new PhoenixMotion();
+    this.rigImage = null; this.background = null;
     this.audio = null; this.muted = false; this.lastFlapSound = 0;
     this.reducedMotion = typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches;
     this._resize = this.resize.bind(this);
@@ -346,7 +345,7 @@ export class PhoenixFlight {
     this.challengeIndex = Math.floor(seededRandom(`${this.seed}:challenge`)() * 3);
     this.challengeId = options.challengeId || options.node?.challengeId || ['wisps', 'clean', 'boosts'][this.challengeIndex];
     this.challengeTarget = Number(options.challengeTarget ?? options.node?.challengeTarget) || (this.challengeId === 'wisps' ? 7 : this.challengeId === 'boosts' ? 3 : 0);
-    this.challengeText = this.challengeId === 'wisps' ? `Gather ${this.challengeTarget} embers`
+    this.challengeText = this.challengeId === 'wisps' ? `Gather ${this.challengeTarget} sparks`
       : this.challengeId === 'boosts' ? `Use Boost ${this.challengeTarget} times` : 'Finish without a hit';
     this.stars = Array.from({ length: 45 }, () => ({ x: this.cosmeticRng() * 390,
       y: this.cosmeticRng() * this.height * .57, size: .4 + this.cosmeticRng() * 1.1,
@@ -360,21 +359,21 @@ export class PhoenixFlight {
     this.loadImage(options.assets?.background, 'background');
     this.render();
     this.notify();
-    if (typeof window !== 'undefined' && this.canvas.ownerDocument) this.initPixi();
+    if (typeof window !== 'undefined' && this.canvas.ownerDocument) this.initPixelView();
   }
 
-  async initPixi() {
+  async initPixelView() {
     try {
-      const { PixiFlightView } = await import('./pixi-renderer.mjs');
+      const { WispFlightView } = await import('./wisp-renderer.mjs');
       if (this.destroyed) return;
-      this.pixiView = new PixiFlightView(this);
+      this.pixiView = new WispFlightView(this);
       const initialized = await this.pixiView.init();
       if (this.destroyed) { this.pixiView.destroy(); return; }
       this.pixiReady = initialized !== false && this.pixiView.ready !== false;
       this.pixiView.resize();
       this.render(); this.notify();
     } catch (error) {
-      this.rendererError = error?.message || 'GPU renderer unavailable';
+      this.rendererError = error?.message || 'Pixel renderer unavailable';
       this.pixiReady = false;
       this.pixiView?.destroy();
       this.pixiView = null;
@@ -598,7 +597,7 @@ export class PhoenixFlight {
           }
           this.layout.embers.sort((a, b) => a.x - b.x);
           this.burst(x + obstacle.width / 2, this.player.y, 25, '#ffc478');
-          this.setEvent('Fire Wake · vines cleared');
+          this.setEvent('Shatter Wake · thorns cleared');
         } else if (this.boostTime > 0 || this.exitProtection > 0) {
           // Returning from a protected burst always places the body inside the
           // opening, so the next unprotected frame cannot be an unavoidable hit.
@@ -626,7 +625,7 @@ export class PhoenixFlight {
       if (ember.collected || ember.carried) continue;
       const x = ember.x - this.distance;
       if (x < -40 || x > this.width + 20) continue;
-      if (Math.hypot(this.player.x - x, this.player.y - ember.y) < 17) this.collect(ember);
+      if (Math.hypot(this.player.x - x, this.player.y - ember.y) < FLIGHT_TUNING.pickupRadius) this.collect(ember);
     }
     this.wisp.update(this, dt);
 
@@ -701,8 +700,8 @@ export class PhoenixFlight {
     this.bonusEmbers += value - 1;
     this.score += value * ((ember.boostedPickup ?? this.boostTime > 0) && this.cards.has('golden-wake') ? 20 : 10);
     this.burst(this.player.x - 9, this.player.y + 7, value === 3 ? 14 : 5, value === 3 ? '#fff2c4' : '#ffe4a2');
-    if (value === 3) this.setEvent(`Heart ember · +${restored} Flame`);
-    else if (restored > 0 && this.flame <= 45) this.setEvent(`Flame rekindled · +${restored}`);
+    if (value === 3) this.setEvent(`Heart ember · +${restored} Glow`);
+    else if (restored > 0 && this.flame <= 45) this.setEvent(`Glow rekindled · +${restored}`);
     if (this.cards.has('kindled-spirit') && this.baseEmbers % 3 === 0) {
       this.cooldown = Math.max(0, this.cooldown - 1);
       this.setEvent('Kindled Spirit · Boost charged');
@@ -730,7 +729,7 @@ export class PhoenixFlight {
       boostReady: this.cooldown <= .001 && this.boostTime <= 0,
       boostTime: this.boostTime, progress: clamp(this.distance / this.totalDistance, 0, 1),
       shield: this.shield, event: this.time < this.eventUntil ? this.event : '',
-      renderer: this.pixiReady ? 'pixi' : 'canvas',
+      renderer: this.pixiReady ? 'pixel-canvas' : 'canvas',
       paused: this.paused, finished: this.finished, rebirthUsed: this.rebirthUsed,
       time: this.time, remaining: Math.max(0, (this.totalDistance - this.distance) / this.baseSpeed),
       challenge: this.challengeText, challengeComplete: this.challengeComplete() };
@@ -1088,34 +1087,14 @@ export class PhoenixFlight {
   }
 
   drawPhoenix(c) {
-    const p = this.player, boosted = this.boostTime > 0;
-    c.save(); c.translate(p.x, this.renderPlayerY ?? p.y);
-    c.rotate(this.visualBank || 0);
-    const auraRadius = boosted ? 53 : 36;
-    const aura = c.createRadialGradient(-8, 2, 2, -8, 2, auraRadius);
-    aura.addColorStop(0, boosted ? 'rgba(255,196,96,.36)' : 'rgba(255,144,61,.15)'); aura.addColorStop(1, 'rgba(255,145,58,0)');
-    c.fillStyle = aura; c.fillRect(-auraRadius - 8, -auraRadius, auraRadius * 2, auraRadius * 2);
-    if (this.shield > 0 || this.invincible > 0 || this.exitProtection > 0 || boosted) {
-      c.strokeStyle = boosted ? 'rgba(255,223,153,.68)' : 'rgba(164,232,229,.65)';
-      c.lineWidth = boosted ? 1.7 : 1.1;
-      c.globalAlpha = this.invincible > 0 ? .45 + Math.sin(this.time * 18) * .2 : .7;
-      c.beginPath(); c.ellipse(0, 0, 35, 30, 0, 0, TAU); c.stroke(); c.globalAlpha = 1;
-    }
-    const pose = this.canvasMotion.update(this, this.visualTime ?? this.time);
-    if (this.rigImage) {
-      const image = this.rigImage, sw = image.width / 2, sh = image.height / 2;
-      const part = (index, hingeX, hingeY, size, x, y, rotation = 0, fold = 1) => {
-        c.save(); c.translate(x, y); c.rotate(rotation); c.scale(1, fold);
-        c.drawImage(image, (index % 2) * sw, Math.floor(index / 2) * sh, sw, sh,
-          -hingeX * size, -hingeY * size, 512 * size, 512 * size); c.restore();
-      };
-      c.globalAlpha = .84; part(2, 475, 400, .13, -3, -6, pose.farShoulder, pose.fold);
-      c.globalAlpha = 1; part(3, 495, 95, .13, -19, 3, Math.sin(pose.time * 6) * .04 - pose.tail * .12);
-      part(0, 280, 350, 72 / 512, 0, pose.heave, -pose.tail * .025);
-      part(1, 470, 435, .15, -5, -3, pose.shoulder + pose.elbow * .15, pose.fold);
-    } else this.drawProceduralPhoenix(c, boosted);
-    this.drawFireRibbons(c, boosted);
-    c.restore();
+    const ice = this.options.element === 'ice', t = this.visualTime ?? this.time;
+    const p = this.player, y = this.renderPlayerY ?? p.y;
+    c.save(); c.translate(Math.round(p.x), Math.round(y));
+    c.fillStyle = ice ? '#4f8590' : '#a35436';
+    c.fillRect(-10, -8, 18, 18); c.fillRect(-6, -15, 10, 7);
+    c.fillRect(-17 - Math.round(Math.sin(t * 14) * 3), 4, 10, 5);
+    c.fillStyle = ice ? '#b0d7d8' : '#edb26b'; c.fillRect(-6, -5, 12, 13);
+    c.fillStyle = '#eee7ca'; c.fillRect(-2, -1, 6, 7); c.restore();
   }
 
   drawFireRibbons(c, boosted) {
@@ -1223,3 +1202,6 @@ export class PhoenixFlight {
     }
   }
 }
+
+// Preserve the simulation API used by existing saves and development tools.
+export { WispFlight as PhoenixFlight };

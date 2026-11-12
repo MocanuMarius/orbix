@@ -1,5 +1,5 @@
 const clamp = (value, lo, hi) => Math.min(hi, Math.max(lo, value));
-export const WISP_TUNING = Object.freeze({ range: 100, cooldown: 1.8, outboundSpeed: 500, returnSpeed: 620 });
+export const WISP_TUNING = Object.freeze({ range: 100, cooldown: 5.5, lightRadius: 175, outboundSpeed: 500, returnSpeed: 620 });
 
 export function wispHome(player, time) {
   return { x: player.x - 29 + Math.sin(time * 3) * 3,

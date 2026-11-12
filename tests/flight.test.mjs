@@ -194,7 +194,7 @@ test('the autonomous wisp fetches the closest ember, carries it home, and awards
   assert.equal(flight.wisp.cargo, null);
   const arrived = flight.getWispState();
   assert.ok(Math.hypot(arrived.x - arrived.homeX, arrived.y - arrived.homeY) < 5, 'returns to the moving phoenix');
-  assert.equal(flight.wisp.cooldown, 1.8);
+  assert.equal(flight.wisp.cooldown, 5.5);
   flight.collect(near);
   assert.equal(flight.embers, 3, 'the carried pickup cannot be paid twice');
   flight.destroy();
@@ -207,7 +207,7 @@ test('the wisp rests after delivery, cannot fetch during recovery, and resumes w
   tickSpirit(flight); untilSpirit(flight, 'cooldown');
   const next = { x: 0, y: home.y + 10 };
   flight.layout.embers.push(next);
-  for (let i = 0; i < 90; i++) {
+  for (let i = 0; i < 300; i++) {
     next.x = flight.distance + home.homeX + 65;
     tickSpirit(flight);
     assert.equal(flight.wisp.target, null);
@@ -219,7 +219,7 @@ test('the wisp rests after delivery, cannot fetch during recovery, and resumes w
   flight.tick(5000);
   assert.equal(flight.wisp.cooldown, remaining, 'pausing also freezes companion recovery');
   flight.paused = false;
-  for (let i = 0; i < 25; i++) { next.x = flight.distance + home.homeX + 65; tickSpirit(flight); }
+  for (let i = 0; i < 35; i++) { next.x = flight.distance + home.homeX + 65; tickSpirit(flight); }
   assert.equal(flight.wisp.phase, 'outbound');
   assert.equal(flight.wisp.target, next);
   flight.destroy();
@@ -235,24 +235,39 @@ test('upgrades extend real search range and shorten real recovery; Hungry Wisp e
   assert.equal(normal.wisp.phase, 'ready');
   assert.equal(upgraded.wisp.phase, 'outbound');
   untilSpirit(upgraded, 'cooldown');
-  assert.ok(Math.abs(upgraded.wisp.cooldown - .99) < .00001);
+  assert.ok(Math.abs(upgraded.wisp.cooldown - 3.025) < .00001);
   assert.equal(upgraded.getWispState().radius, 175);
   upgraded.wispBoost = 1;
   assert.equal(upgraded.getWispState().radius, 280);
   normal.destroy(); upgraded.destroy();
 });
 
-test('a body pickup during a fetch cancels the delivery without duplicating currency or fuel', () => {
+test('direct body contact collects reserved sparks before the carrier can claim them', () => {
   const flight = makeFlight({ flame: 0 });
-  const home = flight.getWispState();
-  const ember = { x: home.x + 70, y: home.y + 10 };
+  const ember = { x: flight.player.x + flight.baseSpeed / 60, y: flight.player.y, attracted: true };
   flight.layout = { obstacles: [], embers: [ember] };
-  tickSpirit(flight);
-  flight.collect(ember);
+  flight.wisp.phase = 'outbound'; flight.wisp.target = ember;
+  flight.step(1 / 60);
+  assert.equal(ember.collected, true, 'actual collision collects, not a direct test call to collect()');
+  assert.equal(ember.deliveredByWisp, undefined);
   untilSpirit(flight, 'cooldown');
-  assert.equal(flight.flame, 22);
-  assert.equal(flight.embers, 1);
-  assert.equal(flight.baseEmbers, 1);
+  assert.equal(flight.flame, 22); assert.equal(flight.embers, 1); assert.equal(flight.baseEmbers, 1);
+  assert.equal(flight.wisp.cargo, null);
+  flight.destroy();
+});
+
+test('the player can collect sparks throughout the carrier cooldown and resume lifting', () => {
+  const flight = makeFlight({ flame: 0 }); flight.running = true;
+  flight.wisp.phase = 'cooldown'; flight.wisp.cooldown = flight.wisp.cooldownMax = 5.5;
+  const ember = { x: flight.player.x + flight.baseSpeed / 60 + 19, y: flight.player.y };
+  flight.layout = { obstacles: [], embers: [ember] };
+  flight.step(1 / 60);
+  assert.equal(ember.collected, true, 'the wisp body has a forgiving pickup area');
+  assert.equal(ember.deliveredByWisp, undefined);
+  assert.equal(flight.wisp.phase, 'cooldown'); assert.ok(flight.wisp.cooldown > 5.4);
+  assert.equal(flight.flame, 22); assert.equal(flight.baseEmbers, 1);
+  assert.equal(flight.flap(), true, 'direct fuel restores a paid lift pulse immediately');
+  flight.step(1 / 60); assert.equal(flight.baseEmbers, 1, 'contact cannot pay twice');
   flight.destroy();
 });
 
