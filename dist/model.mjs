@@ -2,7 +2,7 @@
 import { FLAME_TUNING, AFTERGLOW_TUNING, LIFE_TUNING, FLIGHT_POINTS_TUNING } from './vitality.mjs';
 import { WISP_TUNING } from './wisp.mjs';
 import { LEVELS, getLevelIdentity } from './level-catalog.mjs';
-import { normalizeCompanionRole } from './companion-abilities.mjs';
+import { COMPANION_ABILITIES, normalizeCompanionRole } from './companion-abilities.mjs';
 import { getAscentInfo } from './ascent.mjs';
 import { LEVEL_LENGTH, getLevelLengthScale } from './level-length.mjs';
 export const SAVE_KEY = 'emberwing.save.v1';
@@ -235,6 +235,23 @@ export function adjustFlightTuning(run, axis, delta) {
 export function resetFlightTuning(run) {
   if (!getFlightTuningState(run).canEdit) return false;
   run.flightTuning = tuningAllocation({}, tuningBudget(run));
+  return true;
+}
+
+export function canChangeCompanion(run) {
+  if (!run || run.tuningRestReady !== true || run.attemptActive || run.banked || count(run.lives) <= 0
+    || !['support', 'map', 'reward', 'briefing'].includes(run.phase)
+    || !tuningRows(run).some(row => row <= run.step)) return false;
+  const reattempt = run.phase === 'briefing' && run.current
+    && run.lastAttempt?.nodeId === run.current.id && run.lastAttempt.success !== true;
+  return !reattempt;
+}
+
+/** Rest preparation changes the current ascent's role only, never its resources or defaults. */
+export function changeCompanion(run, role) {
+  if (!canChangeCompanion(run) || typeof role !== 'string'
+    || !Object.hasOwn(COMPANION_ABILITIES, role) || run.companionRole === role) return false;
+  run.companionRole = role;
   return true;
 }
 
@@ -757,6 +774,8 @@ function restoreAttemptEntry(run) {
   const entry = run.attemptEntry;
   if (entry && entry.step === run.step && entry.nodeId === run.current?.id) {
     const attempts = count(run.stats?.attempts), deaths = count(run.stats?.deaths);
+    run.companionRole = normalizeCompanionRole(typeof entry.companionRole === 'string'
+      && Object.hasOwn(COMPANION_ABILITIES, entry.companionRole) ? entry.companionRole : run.companionRole);
     run.flame = clamp(finite(entry.startGlow, run.flame), 0, FLAME_TUNING.maximum);
     run.afterglow = energy(entry.afterglow);
     run.afterglowDrawStep = entry.afterglowDrawStep;
@@ -784,7 +803,8 @@ export function beginFlightAttempt(run) {
     || !run.current || run.current.type === 'support') return false;
   run.flightTuning = tuningAllocation(run.flightTuning, tuningBudget(run));
   run.tuningRestReady = false;
-  run.attemptEntry = { step: run.step, nodeId: run.current.id, flightTuning: { ...run.flightTuning }, tuningRestReady: false,
+  run.attemptEntry = { step: run.step, nodeId: run.current.id,
+    companionRole: normalizeCompanionRole(run.companionRole), flightTuning: { ...run.flightTuning }, tuningRestReady: false,
     startGlow: run.flame, afterglow: run.afterglow, afterglowDrawStep: run.afterglowDrawStep,
     pendingSpent: run.afterglowPendingSpent, totals: copy(run.afterglowTotals || afterglowReport(run.afterglow)),
     embers: run.embers, pendingRewards: copy(run.pendingRewards || []), score: run.score, discoveryClears: run.discoveryClears,

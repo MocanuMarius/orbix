@@ -2,7 +2,7 @@
 
 A one-handed, portrait-browser flight roguelite, formerly Emberwing. The branching seven-stop expedition and three-card builds remain intact. The active game uses original pixel scenery and neutral light wisps, with a grim, muted atmosphere inspired by Salt and Sanctuary. No reference-game art is copied.
 
-The player is a neutral light wisp. Choose a neutral companion before an expedition: **Swift** provides Boost, **Anchor** provides a level glide, and **Scout** provides Reveal. The companion sets the second flight button and stays fixed for that expedition and its retries. Pearl, Amber and Lilac glow colours remain optional cosmetics; range, recovery and collection upgrades remain independent. Old saves default to Swift without losing progress.
+The player is a neutral light wisp. Choose a neutral companion before an expedition: **Swift** provides Boost, **Anchor** provides a level glide, and **Scout** provides Reveal. Switch companions at a rest checkpoint, with that choice remaining editable through preparation for the next flight. Each flight and its retries keep their entry companion. Pearl, Amber and Lilac glow colours remain optional cosmetics; range, recovery and collection upgrades remain independent. Old saves default to Swift without losing progress.
 
 ## Controls and collection
 
@@ -31,6 +31,10 @@ Companion abilities have separate tactical uses, with duration and recharge modi
 | Scout | REVEAL | 3s / 12s | Expand the upgraded reveal radius by up to 45%, with a smooth fade. Dark-packet dimming still applies. |
 
 The base sight radius remains 175. Lower visibility is deferred until playtesting can establish whether it preserves enough warning for the tighter passages. Reveal is an optional scouting advantage rather than a requirement for seeing the normal route. Hungry Wisp, Golden Wake, recharge powers and Shatter Wake now respond to any selected active ability, preserving build choices across companions.
+
+Companions have distinct original pixel bodies: Swift is a winged crescent, Anchor is a squat bell, and Scout is a tall lantern with antennae and an eye. The same sprite shapes appear in flight, the home selector, the resting menu and the briefing. Tint changes colour independently of the role. The main wisp remains circular.
+
+At a support/rest stop, choose among the three companions without spending currency or consuming the stop's recovery/event choice. The rest preparation window stays open through a following power draft, map and briefing, until flight begins. Switching changes only the active companion and its ability; it does not refill fuel, lives or reserve, grant points, or alter cards. Home selection during an active run still sets the next expedition's preference. Retry and interrupted-attempt snapshots preserve the entry companion.
 
 The player wisp now has a true circular silhouette, reduced from a 16-pixel to a 13-pixel core radius, with a smaller glow envelope and no trailing flame or exhaust. Collision and direct-pickup radii are unchanged. Pickup and collision bursts remain. The companion follows a smooth 2.5-second elliptical orbit when idle or cooling, and resumes the orbit after fetching. Reduced Motion holds its orbital phase still.
 
@@ -111,6 +115,7 @@ npm test
 - `dist/flight.mjs`: fixed-step flight, direct collection, terrain collisions, fuel and Boost. Exports WispFlight plus the legacy PhoenixFlight alias for development tools.
 - `dist/wisp.mjs`: nearest-target carrier fetching, return delivery, cooldown and shared tuning.
 - `dist/companion-abilities.mjs`: shared Swift, Anchor and Scout definitions for flight, controls, tutorials and loadout selection.
+- `dist/companion-art.mjs`: shared original pixel silhouettes and matching menu SVG artwork for the three neutral companions.
 - `dist/level-length.mjs`: shared length multiplier, duration bounds, reward scale and compact time formatting.
 - `dist/model.mjs`: branching routes, card builds, saves, companion appearance and permanent progression.
 - `dist/app.mjs`, `style.css`, `game.css`: mobile game UI, pixel map glyphs and card icons.
@@ -121,6 +126,6 @@ Power drafts distinguish automatic expedition-long powers from light packets. Ca
 
 Earlier tests cover engine and campaign rules; their easy-flight success targets predate the difficulty changes. Historical focused simulations compare the previous build and sparse placement with matched reserves and bounded local controllers; they do not represent current wind tuning or human success rates. Per the latest user instruction, further simulations, broad testing and balance fine-tuning are deferred until the feature backlog is addressed.
 
-Development policy: keep subsequent changes local and batch publication after the backlog is ready. Do not deploy each feature chunk; release again when the user requests it.
+Development policy: the user has started live feedback. Publish completed feedback batches after source checks, preserving the existing Site and audience; avoid deploying each minor source edit. Simulations and broad playtesting remain deferred.
 
 The game requires no account, analytics, payment or cloud-save service. The existing private hosted Site may require the owner's ChatGPT sign-in. Progress is local to the browser; clearing browser data removes it.

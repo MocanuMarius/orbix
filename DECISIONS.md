@@ -13,7 +13,7 @@ Updated 13 November 2026. Wispbound is the working title. This log records the c
 - Keep the game interface compact. Graphics, icons, numbers and card effects carry the information; remove repeated instructions and narrative paragraphs.
 - Keep Glow as fuel for lift pulses, with sparks restoring it. Gliding remains free. Use three lives for the whole ascension, with fatal collisions and same-level retries; health points are removed.
 - Prioritise the feature backlog. Defer further simulations, broad testing and balance fine-tuning until the larger backlog is addressed, as explicitly requested in the latest feedback. Earlier focused simulations remain historical evidence.
-- Keep subsequent feature work local. Batch publication after the backlog is ready instead of deploying each feature chunk; publish again only when the user asks to release it.
+- The user has started live feedback: publish completed feedback batches after source checks, avoiding deployments for every minor edit. Preserve the existing Site and audience.
 
 ## Ten confirmed decisions
 
@@ -159,7 +159,7 @@ Three terrains, ordinary and optional elite routes, support events, three ascens
 
 ## Companions define the active tool
 
-- Keep Lift fixed and let the chosen neutral companion define the second button. Select before the expedition; the role stays fixed through the climb and retries. Glow colours remain cosmetic and distinct from roles.
+- Keep Lift fixed and let the chosen neutral companion define the second button. Select before the expedition and allow changes during rest preparation. Each flight and its retries keep their entry companion. Glow colours remain cosmetic and distinct from roles.
 - Swift provides BOOST: 0.9 seconds of existing faster travel and local draft resistance, with a nine-second base recharge.
 - Anchor provides LEVEL: a 1.8-second level glide with an eleven-second recharge. Arrest vertical drift and cancel gravity, while local drafts can still nudge. Pressing Lift cancels the hold immediately; restore gravity smoothly after release.
 - Scout provides REVEAL: expand the upgraded light radius by up to 45% for three seconds, with a twelve-second recharge and smooth entry/exit. Apply dark-packet dimming after the reveal expansion.
@@ -182,7 +182,16 @@ Three terrains, ordinary and optional elite routes, support events, three ascens
 
 ## Batch release requested
 
-On 13 November 2026, the user requested deployment of the current backlog build for hands-on feedback. Publish the accumulated changes together to the existing Site, preserving its current audience and saved progress. Keep the three-life fatal-collision rule; the proposed shield still awaits a choice. Existing started retries retain their original length; starting a new ascension exposes the complete new companion and extended-level setup. Keep simulations and broad testing deferred. Future feature chunks stay local until another release is requested.
+On 13 November 2026, the user requested deployment of the current backlog build for hands-on feedback. Publish the accumulated changes together to the existing Site, preserving its current audience and saved progress. Keep the three-life fatal-collision rule; the proposed shield still awaits a choice. Existing started retries retain their original length; starting a new ascension exposes the complete new companion and extended-level setup. Keep simulations and broad testing deferred. The user has now started live feedback; publish completed feedback batches while avoiding deployment for each minor source edit.
+
+## Distinct companions and rest-site switching
+
+- Give each companion a distinct pixel body: Swift is a winged crescent, Anchor a squat bell, and Scout a tall lantern with antennae and an eye. Use the same original sprite data for flight and menu previews. Keep neutral light shading, independent cosmetic tints and the circular main wisp.
+- Add a compact three-choice companion selector at support/rest checkpoints. Picking a companion is free and does not consume the separate recovery, power or event choice.
+- Reuse the existing rest preparation window: after reaching a rest stop, the companion can change through the following power draft, map and briefing, until the next flight begins. Initial home selection still sets the starting companion; home changes during a live run set the next run's preference.
+- Switching changes only the run's companion role. Preserve cards, tuning, currency, fuel, reserve, lives and statistics. Retain the common fallback collection rules and separate carrier cooldown.
+- Keep roles locked during flight, retry and interrupted-attempt recovery. Snapshot the entry companion along with the rest of the attempt's build, preserving older saves without a role snapshot.
+- Keep exactly two flight controls and the existing ability mechanics. Publish this feedback update to the existing Site after syntax checks, preserving its audience. Simulations and broad playtesting remain deferred.
 
 ## Rendering direction proposed after the first review
 

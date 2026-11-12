@@ -1,5 +1,6 @@
 import { sceneryIdentity, drawIdentityBackground, drawIdentityMaterial } from './level-scenery.mjs';
 import { getCompanionAbility, normalizeCompanionRole } from './companion-abilities.mjs';
+import { companionSprite, companionPalette } from './companion-art.mjs';
 
 const TAU = Math.PI * 2;
 const WIDTH = 260;
@@ -30,11 +31,6 @@ const MATERIALS = {
   glass: { stone: '#303f4a', face: '#4a6673', grain: '#7999a7', rim: '#b6ced0' },
 };
 const MAIN_LIGHT = { outer: '#9daaa0', mid: '#ccd6c6', core: '#f0f1d8', bright: '#ffffec' };
-const COMPANION_TINTS = {
-  pearl: { outer: '#9daaa5', mid: '#cbd5cc', core: '#eff0df', bright: '#fffdec' },
-  amber: { outer: '#a28d68', mid: '#cfbc91', core: '#f0dfb5', bright: '#fff0d0' },
-  lilac: { outer: '#8f899e', mid: '#beb5ce', core: '#e4ddee', bright: '#f4eef7' },
-};
 const GLYPHS = {
   '0': ['111', '101', '101', '101', '111'], '1': ['010', '110', '010', '010', '111'],
   '2': ['111', '001', '111', '100', '111'], '3': ['111', '001', '111', '001', '111'],
@@ -491,6 +487,27 @@ export class WispFlightView {
     c.restore();
   }
 
+  drawCarrierSpirit(x, y, role, tint, intensity = 1) {
+    const c = this.bufferContext, art = companionSprite(role);
+    const power = clamp(intensity, .18, 1);
+    const inks = [null, tint.outer, tint.mid, tint.core, tint.bright];
+    c.save();
+    this.glow(x, y, Math.round(10 * ART_SCALE), tint.outer, .12 * power);
+    c.globalAlpha = power;
+    const left = Math.floor(art.width / 2), top = Math.floor(art.height / 2);
+    art.rows.forEach((row, yy) => {
+      for (let xx = 0; xx < row.length;) {
+        const shade = Number(row[xx]), start = xx;
+        while (xx < row.length && Number(row[xx]) === shade) xx++;
+        if (inks[shade]) {
+          c.fillStyle = inks[shade];
+          c.fillRect(x + start - left, y + yy - top, xx - start, 1);
+        }
+      }
+    });
+    c.restore();
+  }
+
   drawCarrier(e, t, distance, state, tint) {
     const c = this.bufferContext, s = this.scale;
     const x = Math.round(state.x * s), y = Math.round(state.y * s);
@@ -504,17 +521,17 @@ export class WispFlightView {
       c.fillRect(Math.round(homeX + Math.cos(angle) * radius), Math.round(homeY + Math.sin(angle) * radius), 1, 1);
     }
     c.globalAlpha = 1;
-    this.drawSpirit(x, y, tint, t, { small: true, reduced: e.reducedMotion,
-      intensity: (cooling ? .25 + state.recovery * .45 : 1) * (this.lightIntensity || 1) });
+    this.drawCarrierSpirit(x, y, e.companionRole || e.options?.companionRole, tint,
+      (cooling ? .25 + state.recovery * .45 : 1) * (this.lightIntensity || 1));
     if (cooling) {
       for (let i = 0; i < 10; i++) {
         const angle = i / 10 * TAU;
         c.fillStyle = i / 10 < state.recovery ? tint.mid : '#3a4747';
-        c.fillRect(Math.round(x + Math.cos(angle) * 6), Math.round(y + Math.sin(angle) * 6), 1, 1);
+        c.fillRect(Math.round(x + Math.cos(angle) * 9), Math.round(y + Math.sin(angle) * 9), 1, 1);
       }
     }
     if (state.carrying) {
-      this.drawPacket(x + 5, y + 4, { tiny: true, dark: state.cargoKind === 'dark' });
+      this.drawPacket(x + 8, y + 6, { tiny: true, dark: state.cargoKind === 'dark' });
     }
   }
 
@@ -541,9 +558,9 @@ export class WispFlightView {
         pixelLine(c, playerX + side * 22, playerY - 2, playerX + side * 22, playerY + 2, '#a4b99f');
       }
       const x = carrier.x * this.scale, y = carrier.y * this.scale;
-      pixelLine(c, x - 5, y + 7, x + 5, y + 7, '#cbd8bc');
-      c.fillStyle = '#a4b99f'; c.fillRect(Math.round(x - 5), Math.round(y + 6), 1, 2);
-      c.fillRect(Math.round(x + 5), Math.round(y + 6), 1, 2);
+      pixelLine(c, x - 5, y + 10, x + 5, y + 10, '#cbd8bc');
+      c.fillStyle = '#a4b99f'; c.fillRect(Math.round(x - 5), Math.round(y + 9), 1, 2);
+      c.fillRect(Math.round(x + 5), Math.round(y + 9), 1, 2);
     } else if (role === 'scout') {
       if (e.reducedMotion) {
         const x = carrier.x * this.scale, y = carrier.y * this.scale;
@@ -746,8 +763,8 @@ export class WispFlightView {
     const identity = sceneryIdentity(e);
     const palette = { ...(PALETTES[e.terrain] || PALETTES.ruins), ...(MATERIALS[identity.scene] || {}) };
     this.canvas.dataset.levelIdentity = identity.id;
-    const companionName = Object.hasOwn(COMPANION_TINTS, e.options?.companionTint) ? e.options.companionTint : 'pearl';
-    const companion = COMPANION_TINTS[companionName];
+    const companionName = ['pearl', 'amber', 'lilac'].includes(e.options?.companionTint) ? e.options.companionTint : 'pearl';
+    const companion = companionPalette(companionName);
     const role = normalizeCompanionRole(e.companionRole || e.options?.companionRole);
     const config = getCompanionAbility(role);
     const ability = e.getAbilityState?.() || { role, active: role === 'swift' ? e.boostTime > 0 : e.abilityTime > 0,
