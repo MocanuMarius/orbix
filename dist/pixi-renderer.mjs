@@ -3,6 +3,7 @@ import { obstaclePolygons } from './flight.mjs';
 import { PhoenixRig } from './phoenix-rig.mjs';
 import { Phoenix3D } from './phoenix-3d.mjs';
 import { PhoenixFlameEffects } from './flame-effects.mjs';
+import { bakeLandform } from './landform-material.mjs';
 
 // Native Pixi scene objects share the simulation's polygon geometry. The legacy
 // canvas is retained only as a layout/input fallback when WebGL is unavailable.
@@ -31,16 +32,19 @@ const LIGHT_VERTEX = `precision highp float;
 
 // Photo albedo and independently captured normal/roughness surfaces share the
 // exact polygon masks and UV transforms. No relief is inferred from colour.
-export function makeTerrainLight(normalTexture = PIXI.Texture.WHITE, roughTexture = PIXI.Texture.WHITE) {
+export function makeTerrainLight(normalTexture = PIXI.Texture.WHITE, roughTexture = PIXI.Texture.WHITE, formTexture = PIXI.Texture.WHITE) {
   return new PIXI.Filter({
-    glProgram: PIXI.GlProgram.from({ vertex: LIGHT_VERTEX,
-      fragment: `precision highp float;
+    glProgram: PIXI.GlProgram.from({ vertex: '#version 300 es\n' + LIGHT_VERTEX,
+      fragment: `#version 300 es
+        precision highp float;
         in vec2 vTextureCoord;
         uniform sampler2D uTexture;
         uniform sampler2D uNormalTexture;
         uniform sampler2D uRoughTexture;
+        uniform sampler2D uFormTexture;
         uniform vec4 uInputSize;
         uniform vec2 uMapSize;
+        uniform vec2 uWorldOffset;
         uniform vec2 uFire;
         uniform vec2 uWisp;
         uniform vec2 uWake;
@@ -48,14 +52,52 @@ export function makeTerrainLight(normalTexture = PIXI.Texture.WHITE, roughTextur
         uniform float uSpirit;
         uniform float uScale;
         uniform float uNormalStrength;
+        uniform float uGrainStrength;
+        uniform float uMineralFacets;
+        uniform float uFormStrength;
+        uniform float uFormShadowStrength;
         out vec4 finalColor;
         const float PI = 3.14159265359;
+        // Smooth, stationary mineral microstructure. Gradients are analytic;
+        // noise never depends on time or screen resolution.
+        float grainHash(vec2 p) {
+          vec3 q = fract(vec3(p.xyx) * .1031);
+          q += dot(q, q.yzx + 33.33);
+          return fract((q.x + q.y) * q.z);
+        }
+        vec3 grainNoise(vec2 p) {
+          vec2 cell = floor(p), f = fract(p);
+          vec2 u = f * f * (3.0 - 2.0 * f);
+          vec2 derivative = 6.0 * f * (1.0 - f);
+          float a = grainHash(cell), b = grainHash(cell + vec2(1.0, 0.0));
+          float c = grainHash(cell + vec2(0.0, 1.0)), d = grainHash(cell + vec2(1.0));
+          float value = mix(mix(a, b, u.x), mix(c, d, u.x), u.y);
+          return vec3(value, mix(b - a, d - c, u.y) * derivative.x,
+            mix(c - a, d - b, u.x) * derivative.y);
+        }
+        float formShadow(vec2 pixel, vec2 lightPixel, float surfaceHeight) {
+          if (uFormStrength < .001 || uFormShadowStrength < .001) return 1.0;
+          float visibility = 1.0;
+          for (int i = 1; i <= 4; i++) {
+            float t = float(i) * .14;
+            vec2 uv = mix(pixel, lightPixel, t) / max(uMapSize, vec2(1.0));
+            if (uv.x < 0.0 || uv.x > 1.0 || uv.y < 0.0 || uv.y > 1.0) continue;
+            vec4 blocker = texture(uFormTexture, uv);
+            if (blocker.a < .08) continue;
+            float height = blocker.b / max(blocker.a, .001) * 96.0;
+            float rayHeight = mix(surfaceHeight, 110.0, t);
+            float occlusion = smoothstep(1.5, 9.5, height - rayHeight);
+            visibility = min(visibility, 1.0 - occlusion * .86);
+          }
+          return mix(1.0, visibility, clamp(uFormStrength * uFormShadowStrength, 0.0, 1.0));
+        }
         vec3 illuminate(vec3 albedo, vec3 normal, vec2 pixel, vec2 origin,
-                        vec3 tint, float radius, float power, float roughness) {
+                        vec3 tint, float radius, float power, float roughness,
+                        float reflectance, float surfaceHeight) {
           vec2 offset = (origin - pixel) / max(uScale, .001);
           float t = clamp(1.0 - length(offset) / radius, 0.0, 1.0);
           float attenuation = t * t * (3.0 - 2.0 * t);
-          vec3 lightDirection = normalize(vec3(offset, 77.0));
+          vec3 lightDirection = normalize(vec3(offset, max(25.0, 110.0 - surfaceHeight)));
           vec3 viewDirection = vec3(0.0, 0.0, 1.0);
           vec3 halfway = normalize(lightDirection + viewDirection);
           float nl = max(dot(normal, lightDirection), 0.0);
@@ -65,12 +107,14 @@ export function makeTerrainLight(normalTexture = PIXI.Texture.WHITE, roughTextur
           float a = roughness * roughness;
           float a2 = a * a;
           float denominator = nh * nh * (a2 - 1.0) + 1.0;
-          float distribution = a2 / max(PI * denominator * denominator, .001);
-          float k = (roughness + 1.0) * (roughness + 1.0) / 8.0;
-          float geometry = (nl / max(nl * (1.0 - k) + k, .001))
-            * (nv / max(nv * (1.0 - k) + k, .001));
-          vec3 fresnel = vec3(.04) + vec3(.96) * pow(1.0 - vh, 5.0);
-          vec3 specular = distribution * geometry * fresnel / max(4.0 * nl * nv, .001);
+          float distribution = a2 / max(PI * denominator * denominator, .00001);
+          // Height-correlated Smith visibility and a colourless dielectric
+          // Fresnel response, rather than metallic flakes or emissive glitter.
+          float visibilityV = nl * sqrt(max(nv * nv * (1.0 - a2) + a2, .00001));
+          float visibilityL = nv * sqrt(max(nl * nl * (1.0 - a2) + a2, .00001));
+          float visibility = .5 / max(visibilityV + visibilityL, .0001);
+          vec3 fresnel = vec3(reflectance) + vec3(1.0 - reflectance) * pow(1.0 - vh, 5.0);
+          vec3 specular = distribution * visibility * fresnel;
           vec3 diffuse = albedo * (vec3(1.0) - fresnel) / PI;
           return (diffuse + specular) * tint * power * attenuation * nl;
         }
@@ -81,20 +125,71 @@ export function makeTerrainLight(normalTexture = PIXI.Texture.WHITE, roughTextur
           vec2 mapUv = clamp(pixel / max(uMapSize, vec2(1.0)), vec2(0.0), vec2(1.0));
           vec4 sampledNormal = texture(uNormalTexture, mapUv);
           vec4 sampledRoughness = texture(uRoughTexture, mapUv);
+          vec4 sampledForm = texture(uFormTexture, mapUv);
           vec3 encoded = sampledNormal.rgb / max(sampledNormal.a, .001);
           vec3 tangentNormal = sampledNormal.a > .05 ? encoded * 2.0 - 1.0 : vec3(0.0, 0.0, 1.0);
           // The supplied maps use OpenGL tangent +Y. The 2D world has downward
           // positive Y, so only the decoded Y component changes convention.
-          vec3 normal = normalize(vec3(tangentNormal.x * uNormalStrength,
+          vec3 fineNormal = normalize(vec3(tangentNormal.x * uNormalStrength,
             -tangentNormal.y * uNormalStrength, max(tangentNormal.z, .12)));
           float roughness = sampledRoughness.a > .05
             ? clamp(sampledRoughness.r / max(sampledRoughness.a, .001), .16, .97) : .84;
+          vec2 world = pixel / max(uScale, .001) + uWorldOffset;
+          float pixelFootprint = max(length(dFdx(world)), length(dFdy(world)));
+          float coarseResolved = 1.0 - smoothstep(.65, 1.3, pixelFootprint / 3.2);
+          float fineResolved = 1.0 - smoothstep(.45, .95, pixelFootprint / 1.15);
+          vec3 coarseGrain = grainNoise(world / 3.2);
+          vec3 fineGrain = grainNoise(world / 1.15 + vec2(19.3, 7.1));
+          float grainStrength = clamp(uGrainStrength, 0.0, 1.0);
+          fineNormal = normalize(fineNormal + vec3(
+            (coarseGrain.yz * .036 * coarseResolved + fineGrain.yz * .016 * fineResolved) * grainStrength, 0.0));
+          roughness = clamp(roughness + ((coarseGrain.x - .5) * .10 * coarseResolved
+            + (fineGrain.x - .5) * .035 * fineResolved) * grainStrength, .22, .97);
+          float reflectance = mix(.04, .037 + .006 * coarseGrain.x, grainStrength);
+          // Sparse quartz/feldspar-like faces sit within the rough stone, not
+          // on a metallic or emissive overlay. Their placement never animates.
+          vec2 mineralCell = floor(world / 4.8);
+          vec2 mineralLocal = fract(world / 4.8) - .5;
+          float mineralChoice = grainHash(mineralCell + vec2(83.7, 31.9));
+          vec2 mineralAxis = normalize(vec2(grainHash(mineralCell + vec2(7.3, 61.1)),
+            grainHash(mineralCell + vec2(47.8, 13.2))) - .49);
+          vec2 mineralPosition = vec2(dot(mineralLocal, mineralAxis),
+            dot(mineralLocal, vec2(-mineralAxis.y, mineralAxis.x))) / vec2(.33, .26);
+          float mineralDistance = length(mineralPosition);
+          float mineralEdge = clamp(fwidth(mineralDistance), .08, .7);
+          float mineralResolved = 1.0 - smoothstep(.22, .48, pixelFootprint / 4.8);
+          float mineralMask = smoothstep(.82, .88, mineralChoice)
+            * (1.0 - smoothstep(1.0 - mineralEdge * .5, 1.0 + mineralEdge * .5, mineralDistance))
+            * mineralResolved * grainStrength * clamp(uMineralFacets, 0.0, 1.0);
+          vec2 mineralTilt = (vec2(grainHash(mineralCell + vec2(26.2, 8.7)),
+            grainHash(mineralCell + vec2(5.4, 93.1))) - .5) * .24;
+          fineNormal = normalize(fineNormal + vec3(mineralTilt * mineralMask, 0.0));
+          float mineralRoughness = .35 + .13 * grainHash(mineralCell + vec2(14.8, 37.6));
+          roughness = mix(roughness, mineralRoughness, mineralMask);
+          reflectance = mix(reflectance, .04, mineralMask);
+          vec3 encodedForm = sampledForm.rgb / max(sampledForm.a, .001);
+          float formStrength = sampledForm.a > .08 ? clamp(uFormStrength, 0.0, 1.0) : 0.0;
+          vec2 macroXY = (encodedForm.rg * 2.0 - 1.0) * formStrength;
+          vec3 macroNormal = normalize(vec3(macroXY, sqrt(max(.05, 1.0 - dot(macroXY, macroXY)))));
+          vec3 tangent = normalize(vec3(macroNormal.z, 0.0, -macroNormal.x));
+          vec3 bitangent = normalize(cross(macroNormal, tangent));
+          vec3 normal = normalize(tangent * fineNormal.x + bitangent * fineNormal.y + macroNormal * fineNormal.z);
+          float surfaceHeight = clamp(encodedForm.b, 0.0, 1.0) * 96.0 * formStrength;
+          float ao = mix(1.0, clamp(sampledForm.a, .45, 1.0), formStrength);
+          // Filter under-resolved normal variance into GGX's lobe width. This
+          // keeps moving fine stone from producing unstable white sparkles.
+          vec3 normalDx = dFdx(normal), normalDy = dFdy(normal);
+          float variance = .15 * (dot(normalDx, normalDx) + dot(normalDy, normalDy));
+          roughness = pow(clamp(pow(roughness, 4.0) + min(2.0 * variance, .08), .0023, 1.0), .25);
           vec3 albedo = pow(max(surface.rgb / max(surface.a, .001), vec3(0.0)), vec3(2.2));
           float moon = max(dot(normal, normalize(vec3(-.30, -.61, .74))), 0.0);
-          vec3 lit = albedo * vec3(.075, .105, .17) * (.7 + moon * .7);
-          lit += illuminate(albedo, normal, pixel, uFire, vec3(1.0, .30, .055), 275.0, uHeat * 5.0, roughness);
-          lit += illuminate(albedo, normal, pixel, uWake, vec3(1.0, .19, .035), 160.0, uHeat * 1.5, roughness);
-          lit += illuminate(albedo, normal, pixel, uWisp, vec3(.97, .99, 1.0), 180.0, uSpirit * 4.1, roughness);
+          vec3 lit = albedo * vec3(.075, .105, .17) * (.7 + moon * .7) * ao;
+          vec3 diffusePigment = albedo * (.86 + .14 * ao);
+          float fireVisibility = formShadow(pixel, uFire, surfaceHeight);
+          float wispVisibility = formShadow(pixel, uWisp, surfaceHeight);
+          lit += illuminate(diffusePigment, normal, pixel, uFire, vec3(1.0, .30, .055), 275.0, uHeat * 5.0, roughness, reflectance, surfaceHeight) * fireVisibility;
+          lit += illuminate(diffusePigment, normal, pixel, uWake, vec3(1.0, .19, .035), 160.0, uHeat * 1.5, roughness, reflectance, surfaceHeight) * mix(1.0, fireVisibility, .6);
+          lit += illuminate(diffusePigment, normal, pixel, uWisp, vec3(.97, .99, 1.0), 180.0, uSpirit * 4.1, roughness, reflectance, surfaceHeight) * wispVisibility;
           vec3 mapped = vec3(1.0) - exp(-lit * 1.45);
           finalColor = vec4(pow(mapped, vec3(1.0 / 2.2)) * surface.a, surface.a);
         }`,
@@ -102,13 +197,18 @@ export function makeTerrainLight(normalTexture = PIXI.Texture.WHITE, roughTextur
     resources: {
       uNormalTexture: normalTexture.source,
       uRoughTexture: roughTexture.source,
+      uFormTexture: formTexture.source,
       lighting: {
         uFire: { value: new Float32Array([98, 310]), type: 'vec2<f32>' },
         uWisp: { value: new Float32Array([68, 330]), type: 'vec2<f32>' },
         uWake: { value: new Float32Array([40, 320]), type: 'vec2<f32>' },
         uMapSize: { value: new Float32Array([390, 620]), type: 'vec2<f32>' },
+        uWorldOffset: { value: new Float32Array([0, 0]), type: 'vec2<f32>' },
         uHeat: { value: 1, type: 'f32' }, uSpirit: { value: 1, type: 'f32' },
         uScale: { value: 1, type: 'f32' }, uNormalStrength: { value: 1.2, type: 'f32' },
+        uGrainStrength: { value: 1, type: 'f32' }, uMineralFacets: { value: 1, type: 'f32' },
+        uFormStrength: { value: 0, type: 'f32' },
+        uFormShadowStrength: { value: .5, type: 'f32' },
       },
     },
   });
@@ -169,6 +269,7 @@ export class PixiFlightView {
         height: Math.max(1, bounds.height), resolution: Math.min(2, globalThis.devicePixelRatio || 1),
         autoDensity: true, antialias: true, autoStart: false, preference: 'webgl',
         powerPreference: 'high-performance', background: '#102a31', clearBeforeRender: true });
+      if (this.application.renderer.context.webGLVersion < 2) throw new Error('The material renderer requires WebGL 2.');
       if (this.destroyed || engine.destroyed) { this.destroy(); return false; }
       this.buildScene();
       engine.canvas.parentElement.appendChild(view);
@@ -234,10 +335,14 @@ export class PixiFlightView {
     this.terrainLayer = new PIXI.Container();
     this.normalRoot = new PIXI.Container(); this.normalLayer = new PIXI.Container();
     this.roughRoot = new PIXI.Container(); this.roughLayer = new PIXI.Container();
+    this.formRoot = new PIXI.Container(); this.formLayer = new PIXI.Container();
     this.normalRoot.addChild(this.normalLayer); this.roughRoot.addChild(this.roughLayer);
+    this.formRoot.addChild(this.formLayer);
     this.normalTarget = PIXI.RenderTexture.create({ width: 1, height: 1, resolution: 1, antialias: false });
     this.roughTarget = PIXI.RenderTexture.create({ width: 1, height: 1, resolution: 1, antialias: false });
-    this.terrainLight = makeTerrainLight(this.normalTarget, this.roughTarget);
+    this.formTarget = PIXI.RenderTexture.create({ width: 1, height: 1, resolution: 1, antialias: false });
+    this.terrainLight = makeTerrainLight(this.normalTarget, this.roughTarget, this.formTarget);
+    this.terrainLight.resources.lighting.uniforms.uFormStrength = 1;
     this.terrainLayer.filters = [this.terrainLight];
     this.terrainLayer.filterArea = new PIXI.Rectangle(0, 0, engine.width, engine.height);
     this.coinLayer = new PIXI.Container();
@@ -414,9 +519,9 @@ export class PixiFlightView {
   async loadTerrainMaterials() {
     const load = async name => {
       const [colorTexture, normalTexture, roughTexture] = await Promise.all([
-        PIXI.Assets.load(`assets/pbr-${name}-color.jpg`),
-        PIXI.Assets.load(`assets/pbr-${name}-normal.jpg`),
-        PIXI.Assets.load(`assets/pbr-${name}-roughness.jpg`),
+        PIXI.Assets.load(new URL(`./assets/pbr-${name}-color.jpg`, import.meta.url).href),
+        PIXI.Assets.load(new URL(`./assets/pbr-${name}-normal.jpg`, import.meta.url).href),
+        PIXI.Assets.load(new URL(`./assets/pbr-${name}-roughness.jpg`, import.meta.url).href),
       ]);
       return { color: colorTexture, normal: normalTexture, roughness: roughTexture };
     };
@@ -426,6 +531,9 @@ export class PixiFlightView {
       rock: loaded[0].status === 'fulfilled' ? loaded[0].value : null,
       bark: loaded[1].status === 'fulfilled' ? loaded[1].value : null,
     };
+    const selected = this.engine.terrain === 'canopy' ? 1 : 0;
+    this.canvas.dataset.terrainMaterial = loaded[selected].status === 'fulfilled' ? 'photographic-pbr' : 'fallback';
+    if (loaded[selected].status !== 'fulfilled') this.canvas.dataset.materialError = String(loaded[selected].reason?.message || 'unavailable');
     for (const item of this.obstacles.values()) this.destroyTerrain(item);
     this.obstacles.clear();
     this.render(this.engine);
@@ -435,10 +543,11 @@ export class PixiFlightView {
     if (!this.normalTarget || !this.roughTarget) return;
     const W = Math.max(1, Math.round(width)), H = Math.max(1, Math.round(height));
     if (this.normalTarget.width !== W || this.normalTarget.height !== H) {
-      this.normalTarget.resize(W, H, 1); this.roughTarget.resize(W, H, 1);
+      this.normalTarget.resize(W, H, 1); this.roughTarget.resize(W, H, 1); this.formTarget.resize(W, H, 1);
     }
     this.normalRoot.scale.copyFrom(this.scene.scale);
     this.roughRoot.scale.copyFrom(this.scene.scale);
+    this.formRoot.scale.copyFrom(this.scene.scale);
     const uniforms = this.terrainLight.resources.lighting.uniforms;
     uniforms.uMapSize[0] = W; uniforms.uMapSize[1] = H;
   }
@@ -447,15 +556,20 @@ export class PixiFlightView {
     const renderer = this.application.renderer;
     this.normalRoot.position.set(this.world.x * this.scene.scale.x, this.world.y * this.scene.scale.y);
     this.roughRoot.position.copyFrom(this.normalRoot.position);
+    this.formRoot.position.copyFrom(this.normalRoot.position);
     renderer.render({ container: this.normalRoot, target: this.normalTarget, clear: true });
     renderer.render({ container: this.roughRoot, target: this.roughTarget, clear: true });
+    renderer.render({ container: this.formRoot, target: this.formTarget, clear: true });
   }
 
   destroyTerrain(item) {
     if (!item) return;
     if (item.normalCompanion && !item.normalCompanion.destroyed) item.normalCompanion.destroy({ children: true });
     if (item.roughCompanion && !item.roughCompanion.destroyed) item.roughCompanion.destroy({ children: true });
+    if (item.formCompanion && !item.formCompanion.destroyed) item.formCompanion.destroy({ children: true });
     if (!item.destroyed) item.destroy({ children: true });
+    for (const texture of item.bakedTextures || []) texture.destroy(true);
+    item.bakedTextures = [];
   }
 
   createTerrain(obstacle) {
@@ -463,6 +577,8 @@ export class PixiFlightView {
     const container = new PIXI.Container();
     container.normalCompanion = new PIXI.Container();
     container.roughCompanion = new PIXI.Container();
+    container.formCompanion = new PIXI.Container();
+    container.bakedTextures = [];
     const center = obstacle.center + Math.sin(viewTime(engine) * .9 + obstacle.phase) * obstacle.motion;
     const polygons = obstaclePolygons(obstacle, viewTime(engine))
       .map(polygon => polygon.map(([x, y]) => [x - obstacle.x, y - center]));
@@ -475,6 +591,15 @@ export class PixiFlightView {
     ];
     for (let index = 0; index < polygons.length; index++) {
       const points = polygons[index], flat = flatten(points);
+      const top = Boolean(obstacle.topShape) && index === 0;
+      const baked = bakeLandform({ points, top, terrain: engine.terrain, seed: obstacle.id + (top ? 71 : 0),
+        scale: engine.height / 620, clipY: [-center - 24, engine.height - center + 24] });
+      const bitmapTexture = data => {
+        const canvas = document.createElement('canvas'); canvas.width = baked.width; canvas.height = baked.height;
+        canvas.getContext('2d').putImageData(new ImageData(data, baked.width, baked.height), 0, 0);
+        const texture = PIXI.Texture.from(canvas); container.bakedTextures.push(texture); return texture;
+      };
+      const formTexture = bitmapTexture(baked.form), weatherTexture = bitmapTexture(baked.weather);
       const minX = Math.min(...points.map(p => p[0])), maxX = Math.max(...points.map(p => p[0]));
       const minY = Math.min(...points.map(p => p[1])), maxY = Math.max(...points.map(p => p[1]));
       for (const layer of layers) {
@@ -493,6 +618,15 @@ export class PixiFlightView {
         }
         layer.target.addChild(piece);
       }
+      const stamp = (texture, target, data = false) => {
+        const surface = new PIXI.Sprite(texture); surface.position.set(baked.minX, baked.minY);
+        if (data) surface.blendMode = 'none';
+        surface.width = baked.sizeX; surface.height = baked.sizeY;
+        const mask = new PIXI.Graphics().poly(flat).fill(0xffffff);
+        target.addChild(surface, mask); surface.mask = mask;
+      };
+      stamp(formTexture, container.formCompanion, true);
+      stamp(weatherTexture, container);
       // A very slight inset rim adds thickness without covering the photograph
       // with the old painted facets, fake crystal patches, or masonry grids.
       const rim = new PIXI.Graphics().poly(flat)
@@ -502,6 +636,7 @@ export class PixiFlightView {
     this.terrainLayer.addChild(container);
     this.normalLayer.addChild(container.normalCompanion);
     this.roughLayer.addChild(container.roughCompanion);
+    this.formLayer.addChild(container.formCompanion);
     return container;
   }
 
@@ -512,6 +647,7 @@ export class PixiFlightView {
     const lighting = this.terrainLight.resources.lighting.uniforms;
     const scale = this.application.renderer.screen.width / W;
     lighting.uScale = scale;
+    lighting.uMineralFacets = engine.terrain === 'canopy' ? 0 : 1;
     lighting.uFire[0] = engine.player.x * scale; lighting.uFire[1] = viewY(engine) * scale;
     lighting.uWisp[0] = spirit.x * scale; lighting.uWisp[1] = spirit.y * scale;
     const wake = engine.trail[Math.max(0, engine.trail.length - 13)];
@@ -556,6 +692,8 @@ export class PixiFlightView {
     }
     this.world.position.set(engine.reducedMotion ? 0 : Math.sin(time * 77) * engine.shake,
       engine.reducedMotion ? 0 : Math.cos(time * 63) * engine.shake * .5);
+    lighting.uWorldOffset[0] = distance - this.world.x;
+    lighting.uWorldOffset[1] = -this.world.y;
     const visibleObstacles = new Set();
     for (const obstacle of engine.layout.obstacles) {
       const x = obstacle.x - distance;
@@ -567,6 +705,7 @@ export class PixiFlightView {
       item.position.set(x, obstacle.center + Math.sin(time * .9 + obstacle.phase) * obstacle.motion);
       item.normalCompanion.position.copyFrom(item.position);
       item.roughCompanion.position.copyFrom(item.position);
+      item.formCompanion.position.copyFrom(item.position);
     }
     for (const [id, item] of this.obstacles) if (!visibleObstacles.has(id)) {
       this.destroyTerrain(item); this.obstacles.delete(id);
@@ -764,9 +903,11 @@ export class PixiFlightView {
     this.obstacles.clear();
     this.normalRoot?.destroy({ children: true }); this.normalRoot = null;
     this.roughRoot?.destroy({ children: true }); this.roughRoot = null;
+    this.formRoot?.destroy({ children: true }); this.formRoot = null;
     this.normalLayer = null; this.roughLayer = null;
     this.normalTarget?.destroy(true); this.normalTarget = null;
     this.roughTarget?.destroy(true); this.roughTarget = null;
+    this.formTarget?.destroy(true); this.formTarget = null;
     this.terrainMaterials = null;
     if (this.engine.canvas.style) this.engine.canvas.style.visibility = this.originalVisibility;
     this.flames?.destroy(); this.flames = null;

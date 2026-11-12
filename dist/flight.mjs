@@ -68,16 +68,123 @@ export function obstaclePolygons(obstacle, time = 0) {
   return polygons;
 }
 
-function makeTerrainShape(width, scale, top, variant, rng) {
-  // Authored mountain slopes and cave vaults connect beyond the viewport.
-  // The opening is bounded by natural peaks, shelves and stalactites.
-  const points = top
-    ? [[-.80, -900], [2.45, -900], [2.45, -180], [1.92, -118], [1.48, -66],
-      [1.06, -24], [.79, -38], [.57, 0], [.35, -25], [.04, -42], [-.46, -120], [-.80, -190]]
-    : [[-.80, 900], [2.45, 900], [2.45, 180], [1.94, 121], [1.47, 65],
-      [1.08, 35], [.83, 8], [.62, 0], [.37, 25], [.03, 49], [-.43, 110], [-.80, 180]];
-  return points.map(([px, py], i) => [px * width,
-    (py + (i >= 4 && i <= 10 ? Math.sin(i * 1.7 + variant) * 4 : 0)) * scale]);
+// Deliberate landform families share a safe footprint, rather than repeating a
+// noisy triangle under different textures. Depths are measured away from the
+// playable opening, so erosion and vaults can never nibble into its clearance.
+const RIDGE_X = [-.80, -.46, -.12, .15, .39, .62, .83, 1.08, 1.39, 1.74, 2.10, 2.45];
+const VAULT_X = [-.80, -.46, -.12, .24, .57, .76, .96, 1.20, 1.42, 1.62, 1.82, 2.02, 2.20, 2.45];
+const TERRAIN_CONTOURS = Object.freeze({
+  ruins: {
+    // A weathered massif, a worn terrace, a steep escarpment, a folded ridge.
+    ground: [
+      [190, 133, 82, 46, 19, 0, 8, 37, 61, 88, 132, 190],
+      [185, 137, 91, 49, 17, 3, 0, 15, 24, 72, 128, 190],
+      [192, 148, 101, 58, 34, 9, 0, 21, 63, 109, 150, 192],
+      [185, 139, 86, 51, 28, 0, 6, 32, 39, 79, 137, 188],
+    ],
+    vault: [
+      [195, 145, 85, 48, 6, 18, 52, 83, 94, 76, 54, 38, 68, 185],
+      [195, 145, 85, 48, 6, 24, 60, 76, 82, 64, 48, 36, 65, 190],
+    ],
+  },
+  canopy: {
+    // Buttress roots grow into broad, rounded banks with shallow hollows.
+    ground: [
+      [185, 112, 65, 29, 7, 0, 5, 18, 48, 91, 136, 185],
+      [183, 120, 59, 20, 0, 4, 10, 29, 37, 78, 131, 185],
+      [190, 129, 73, 38, 15, 0, 4, 13, 37, 75, 132, 189],
+      [185, 123, 76, 33, 5, 0, 9, 20, 55, 96, 139, 190],
+    ],
+    vault: [
+      [185, 116, 55, 14, 0, 10, 38, 65, 74, 60, 28, 4, 38, 185],
+      [190, 124, 58, 11, 0, 17, 47, 70, 81, 56, 21, 7, 43, 189],
+    ],
+  },
+  storm: {
+    // Alpine faces rise into asymmetrical summits and eroded wind saddles.
+    ground: [
+      [200, 151, 104, 62, 27, 0, 19, 43, 60, 103, 161, 200],
+      [195, 141, 94, 55, 17, 0, 12, 49, 72, 83, 143, 198],
+      [200, 150, 97, 49, 15, 0, 24, 31, 66, 117, 154, 200],
+      [198, 143, 107, 67, 32, 8, 0, 29, 55, 96, 155, 200],
+    ],
+    vault: [
+      [200, 145, 79, 28, 0, 23, 62, 97, 104, 82, 40, 8, 51, 200],
+      [200, 147, 74, 19, 0, 32, 68, 91, 108, 87, 31, 5, 45, 200],
+    ],
+  },
+});
+
+// Large-scale erosion must change the skyline, not merely add samples to an
+// apex. These lower formations carve broad caps, benches and saddles out of
+// the established clearance envelope; no new ground can rise into the route.
+const ERODED_GROUND_DEPTHS = Object.freeze({
+  ruins: [
+    // A long weathered mesa; a stepped cliff; an escarpment; a broken shelf.
+    [195, 146, 100, 52, 52, 52, 52, 52, 72, 118, 152, 198],
+    [195, 146, 108, 68, 38, 38, 38, 66, 105, 106, 154, 198],
+    [200, 160, 118, 79, 45, 45, 45, 45, 80, 146, 166, 200],
+    [195, 147, 109, 66, 48, 48, 73, 73, 73, 115, 156, 195],
+  ],
+  storm: [
+    // Twin summit with a deep saddle; a wind-cut bench; forked ridge; arete.
+    [206, 164, 123, 72, 94, 114, 92, 58, 78, 120, 167, 206],
+    [202, 156, 112, 69, 52, 52, 52, 76, 102, 117, 160, 204],
+    [205, 161, 119, 68, 84, 100, 89, 56, 79, 132, 174, 206],
+    [204, 159, 124, 84, 56, 48, 48, 56, 82, 124, 171, 205],
+  ],
+});
+
+function sampleTerrainContour(xs, depths) {
+  const secants = depths.slice(1).map((value, i) => (value - depths[i]) / (xs[i + 1] - xs[i]));
+  const slopes = depths.map((_, i) => i === 0 ? secants[0] : i === depths.length - 1 ? secants.at(-1)
+    : secants[i - 1] * secants[i] <= 0 ? 0 : (secants[i - 1] + secants[i]) * .5);
+  // Monotone Hermite tangents preserve authored shelves and peaks without
+  // overshoot, while making the whole silhouette continuously curved.
+  for (let i = 0; i < secants.length; i++) {
+    if (secants[i] === 0) { slopes[i] = slopes[i + 1] = 0; continue; }
+    const a = slopes[i] / secants[i], b = slopes[i + 1] / secants[i];
+    const magnitude = Math.hypot(a, b);
+    if (magnitude > 3) {
+      slopes[i] = a * 3 / magnitude * secants[i];
+      slopes[i + 1] = b * 3 / magnitude * secants[i];
+    }
+  }
+  const points = [];
+  for (let i = 0; i < secants.length; i++) {
+    const width = xs[i + 1] - xs[i];
+    for (let sample = 0; sample < 6; sample++) {
+      const t = sample / 6, t2 = t * t, t3 = t2 * t;
+      const depth = (2 * t3 - 3 * t2 + 1) * depths[i]
+        + (t3 - 2 * t2 + t) * width * slopes[i]
+        + (-2 * t3 + 3 * t2) * depths[i + 1]
+        + (t3 - t2) * width * slopes[i + 1];
+      points.push([lerp(xs[i], xs[i + 1], t), clamp(depth, Math.min(depths[i], depths[i + 1]), Math.max(depths[i], depths[i + 1]))]);
+    }
+  }
+  points.push([xs.at(-1), depths.at(-1)]);
+  return points;
+}
+
+function makeTerrainShape(width, scale, top, variant, terrain, passage) {
+  const family = TERRAIN_CONTOURS[terrain] || TERRAIN_CONTOURS.ruins;
+  const roof = top && (passage === 'cavern' || terrain === 'canopy');
+  const profiles = roof ? family.vault : family.ground;
+  const depths = profiles[variant % profiles.length];
+  const surface = sampleTerrainContour(roof ? VAULT_X : RIDGE_X, depths);
+  if (!top && ERODED_GROUND_DEPTHS[terrain]) {
+    const erosion = ERODED_GROUND_DEPTHS[terrain];
+    const carved = sampleTerrainContour(RIDGE_X, erosion[variant % erosion.length]);
+    for (let i = 0; i < surface.length; i++) surface[i][1] = Math.max(surface[i][1], carved[i][1]);
+  }
+  const sign = top ? -1 : 1;
+  // Broad rounded vaults expose more roof for longer than the former sharp
+  // wedges. Erode their sandstone lip upward to preserve forgiving headroom.
+  const vaultHeadroom = roof && terrain === 'ruins' ? 20 : 0;
+  // Renderer contract: two offscreen closure points, then the entire visible
+  // surface RIGHT-to-LEFT. Neighbours overlap below their eroded shoulders.
+  return [[-.80 * width, sign * 900 * scale], [2.45 * width, sign * 900 * scale],
+    ...surface.reverse().map(([x, depth]) => [x * width, sign * (depth + vaultHeadroom) * scale])];
 }
 
 export function buildFlightLayout({ seed = 1, terrain = 'ruins', elite = false,
@@ -108,8 +215,8 @@ export function buildFlightLayout({ seed = 1, terrain = 'ruins', elite = false,
         : terrain === 'canopy' ? ['root-hollow', 'moon-grove', 'branch-arch'][index % 3]
         : ['temple-slope', 'fallen-arch', 'moon-terrace'][index % 3];
       const ceiling = passage === 'cavern' ? index % 6 !== 5 : terrain === 'canopy' ? index % 3 === 2 : index % 4 === 2;
-      obstacle.topShape = ceiling ? makeTerrainShape(width, height / 620, true, index, rng) : null;
-      obstacle.bottomShape = makeTerrainShape(width, height / 620, false, index + 1, rng);
+      obstacle.topShape = ceiling ? makeTerrainShape(width, height / 620, true, index, terrain, passage) : null;
+      obstacle.bottomShape = makeTerrainShape(width, height / 620, false, index + 1, terrain, passage);
       obstacles.push(obstacle);
       // Preserve terrain seeds independently of the collectible design.
       for (let j = 0; j < 4; j++) rng();

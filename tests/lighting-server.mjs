@@ -7,7 +7,7 @@ const root = path.resolve(tests, '../dist');
 const mime = { '.html': 'text/html', '.mjs': 'text/javascript', '.js': 'text/javascript', '.jpg': 'image/jpeg', '.png': 'image/png' };
 http.createServer(async (req, res) => {
   const pathname = new URL(req.url, 'http://localhost').pathname;
-  const fixture = pathname === '/' ? 'lighting-proof.html' : pathname === '/motion' ? 'phoenix-motion-proof.html' : null;
+  const fixture = pathname === '/' ? 'lighting-proof.html' : pathname === '/motion' ? 'phoenix-motion-proof.html' : pathname === '/terrain' ? 'terrain-proof.html' : null;
   const filename = fixture ? path.join(tests, fixture) : path.resolve(root, '.' + pathname);
   if (!fixture && !filename.startsWith(root + path.sep)) { res.writeHead(403).end(); return; }
   try {
