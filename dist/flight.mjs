@@ -1,6 +1,7 @@
 /* Emberwing's self-contained canvas flight simulation and renderer. */
 import { FLAME_TUNING } from './vitality.mjs';
 import { WispCompanion, wispHome } from './wisp.mjs';
+import { PhoenixMotion } from './phoenix-motion.mjs';
 export { FLAME_TUNING } from './vitality.mjs';
 const TAU = Math.PI * 2;
 const STEP = 1 / 60;
@@ -200,6 +201,7 @@ export class PhoenixFlight {
     this.hp = clamp(Number(options.hp ?? this.maxHp), 1, this.maxHp);
     this.flame = clamp(Number.isFinite(options.flame) ? options.flame : FLAME_TUNING.maximum, 0, FLAME_TUNING.maximum);
     this.flaps = 0; this.effortSpent = 0; this.flameRestored = 0;
+    this.lastFlapTime = -1000;
     this.shield = Math.max(0, Number(options.shield || 0)) + Math.max(0, Number(this.mod.ward || 0));
     this.rebirthAvailable = Boolean(options.rebirthAvailable ?? this.mod.rebirth);
     this.rebirthUsed = false;
@@ -218,7 +220,7 @@ export class PhoenixFlight {
     this.particles = []; this.trail = []; this.pickupEffects = []; this.emitClock = 0;
     this.wispBoost = 0;
     this.cosmeticRng = seededRandom(`${this.seed}:cosmetics`);
-    this.atlas = null; this.background = null;
+    this.rigImage = null; this.background = null; this.canvasMotion = new PhoenixMotion();
     this.audio = null; this.muted = false; this.lastFlapSound = 0;
     this.reducedMotion = typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches;
     this._resize = this.resize.bind(this);
@@ -247,7 +249,7 @@ export class PhoenixFlight {
       window.addEventListener('orientationchange', this._orientation);
       document.addEventListener('visibilitychange', this._visibility);
     }
-    this.loadImage(options.assets?.phoenixAtlas, 'atlas');
+    this.loadImage(options.assets?.phoenixRig, 'rigImage');
     this.loadImage(options.assets?.background, 'background');
     this.render();
     this.notify();
@@ -330,6 +332,7 @@ export class PhoenixFlight {
     }
     this.flame -= this.flapCost;
     this.flaps++; this.effortSpent += this.flapCost;
+    this.lastFlapTime = this.time;
     this.player.vy = -FLIGHT_TUNING.flapImpulse * this.scaleY * clamp(Number(this.mod.flap) || 1, .80, 1.20);
     this.burst(this.player.x - 10, this.player.y + 7, 5, '#ffbd53');
     this.sound('flap');
@@ -991,17 +994,18 @@ export class PhoenixFlight {
       c.globalAlpha = this.invincible > 0 ? .45 + Math.sin(this.time * 18) * .2 : .7;
       c.beginPath(); c.ellipse(0, 0, 35, 30, 0, 0, TAU); c.stroke(); c.globalAlpha = 1;
     }
-    if (this.atlas && this.atlas.width >= 3 && this.atlas.height >= 2) {
-      const phase = this.wingPhase + (this.accumulator / STEP) * this.wingRate * STEP;
-      const frame = Math.floor(phase) % 6, fraction = phase % 1;
-      const sw = this.atlas.width / 3, sh = this.atlas.height / 2;
-      // The generated atlas torso is at x≈320/512, not the cell center.
-      // Anchor that body to the collider and blend poses at display frequency.
-      for (const [pose, alpha] of [[frame, 1 - fraction], [(frame + 1) % 6, fraction]]) {
-        c.globalAlpha = alpha;
-        c.drawImage(this.atlas, (pose % 3) * sw, Math.floor(pose / 3) * sh, sw, sh, -60, -51, 96, 96);
-      }
-      c.globalAlpha = 1;
+    const pose = this.canvasMotion.update(this, this.visualTime ?? this.time);
+    if (this.rigImage) {
+      const image = this.rigImage, sw = image.width / 2, sh = image.height / 2;
+      const part = (index, hingeX, hingeY, size, x, y, rotation = 0, fold = 1) => {
+        c.save(); c.translate(x, y); c.rotate(rotation); c.scale(1, fold);
+        c.drawImage(image, (index % 2) * sw, Math.floor(index / 2) * sh, sw, sh,
+          -hingeX * size, -hingeY * size, 512 * size, 512 * size); c.restore();
+      };
+      c.globalAlpha = .84; part(2, 475, 400, .13, -3, -6, pose.farShoulder, pose.fold);
+      c.globalAlpha = 1; part(3, 495, 95, .13, -19, 3, Math.sin(pose.time * 6) * .04 - pose.tail * .12);
+      part(0, 280, 350, 72 / 512, 0, pose.heave, -pose.tail * .025);
+      part(1, 470, 435, .15, -5, -3, pose.shoulder + pose.elbow * .15, pose.fold);
     } else this.drawProceduralPhoenix(c, boosted);
     this.drawFireRibbons(c, boosted);
     c.restore();

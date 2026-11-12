@@ -1,5 +1,7 @@
 import * as PIXI from './vendor/pixi.mjs';
 import { obstaclePolygons } from './flight.mjs';
+import { PhoenixRig } from './phoenix-rig.mjs';
+import { PhoenixFlameEffects } from './flame-effects.mjs';
 
 // Native Pixi scene objects share the simulation's polygon geometry. The legacy
 // canvas is retained only as a layout/input fallback when WebGL is unavailable.
@@ -224,6 +226,8 @@ export class PixiFlightView {
     this.trailRibbon = new PIXI.Graphics();
     this.trailRibbon.blendMode = 'add';
     this.world.addChild(this.terrainLayer, this.coinLayer, this.trailRibbon, this.particleLayer);
+    this.flames = new PhoenixFlameEffects({glowTexture:this.glowTexture,sparkTexture:this.sparkTexture});
+    this.world.addChild(this.flames.container);
     this.wind = new PIXI.Graphics();
     this.world.addChild(this.wind);
     this.windText = new PIXI.Text({ text: '', style: { fontFamily: 'system-ui, sans-serif',
@@ -266,15 +270,6 @@ export class PixiFlightView {
     this.phoenix.addChild(this.tail);
     this.bodyFallback = new PIXI.Graphics();
     this.phoenix.addChild(this.bodyFallback);
-    this.bodyA = new PIXI.Sprite(PIXI.Texture.EMPTY);
-    this.bodyB = new PIXI.Sprite(PIXI.Texture.EMPTY);
-    for (const body of [this.bodyA, this.bodyB]) {
-      body.position.set(-68.75, -58.4);
-      body.width = 110;
-      body.height = 108;
-      body.visible = false;
-      this.phoenix.addChild(body);
-    }
     this.shield = new PIXI.Graphics();
     this.phoenix.addChild(this.shield);
     this.world.addChild(this.phoenix);
@@ -334,15 +329,10 @@ export class PixiFlightView {
         this.backdrop.alpha = engine.passage === 'cavern' ? .57 : .93;
         this.resize();
       }),
-      assets.phoenixAtlas && PIXI.Assets.load(assets.phoenixAtlas).then(texture => {
+      PIXI.Assets.load(assets.phoenixRig || 'assets/phoenix-rig.png').then(texture => {
         if (this.destroyed) return;
-        const width = texture.width / 3, height = texture.height / 2;
-        this.frames = Array.from({ length: 6 }, (_, index) => new PIXI.Texture({
-          source: texture.source, frame: new PIXI.Rectangle(index % 3 * width,
-            Math.floor(index / 3) * height, width, height) }));
-        this.bodyA.visible = true;
-        this.bodyB.visible = true;
-        this.bodyFallback.visible = false;
+        this.rig = new PhoenixRig(texture); this.phoenix.addChildAt(this.rig.container, 3);
+        this.bodyFallback.visible = false; this.tail.visible = false;
         this.render(engine);
       }),
       PIXI.Assets.load(assets.terrainAtlas || 'assets/moon-materials.png').then(texture => {
@@ -625,32 +615,7 @@ export class PixiFlightView {
     for (const [id, item] of this.embers) if (!visibleEmbers.has(id)) {
       item.destroy({ children: true }); this.embers.delete(id);
     }
-    this.drawTrail(engine);
-    while (this.particleSprites.length < engine.particles.length) {
-      const sprite = new PIXI.Container();
-      sprite.glow = new PIXI.Sprite(this.glowTexture);
-      sprite.glow.anchor.set(.5); sprite.glow.blendMode = 'add';
-      sprite.core = new PIXI.Sprite(this.sparkTexture);
-      sprite.core.anchor.set(.5); sprite.core.blendMode = 'add';
-      sprite.addChild(sprite.glow, sprite.core);
-      this.particleLayer.addChild(sprite); this.particleSprites.push(sprite);
-    }
-    this.particleSprites.forEach((sprite, index) => {
-      const particle = engine.particles[index]; sprite.visible = Boolean(particle);
-      if (!particle) return;
-      sprite.position.set(particle.x, particle.y);
-      const life = clamp(particle.life / particle.maxLife, 0, 1);
-      sprite.rotation = particle.rotation || -.18;
-      const length = (particle.length || particle.size * 3.5) * (.45 + life * .55);
-      sprite.core.width = length;
-      sprite.core.height = Math.max(.65, particle.size * (particle.type === 'spark' ? .40 : .68)) * (.4 + life * .6);
-      sprite.core.tint = particle.type === 'spark' ? 0xffedc6 : color(particle.color);
-      sprite.core.alpha = life * .85;
-      sprite.glow.width = length * 2.1;
-      sprite.glow.height = Math.max(5, length * .95);
-      sprite.glow.tint = color(particle.color);
-      sprite.glow.alpha = life * .15 * (Number(particle.glow) || 1);
-    });
+    this.flames.render(engine);
     this.drawPhoenix(engine);
     this.drawPickups(engine);
     this.drawWind(engine);
@@ -706,14 +671,8 @@ export class PixiFlightView {
         .stroke({ color: [0xffbd58, 0xec743b, 0xffd88a][strand], width: 2.3 - strand * .4,
           alpha: boosted ? .75 : .42 });
     }
-    if (this.frames.length) {
-      const rate = engine.wingRate ?? (boosted ? 9 : 5.8);
-      const phase = engine.wingPhase + (time - engine.time) * rate;
-      const frame = Math.floor(phase) % 6, fade = phase - Math.floor(phase);
-      this.bodyA.texture = this.frames[frame];
-      this.bodyB.texture = this.frames[(frame + 1) % 6];
-      for (const body of [this.bodyA, this.bodyB]) { body.width = 110; body.height = 108; }
-      this.bodyA.alpha = 1 - fade; this.bodyB.alpha = fade;
+    if (this.rig) {
+      this.rig.render(engine, time);
     } else {
       const wing = -21 - Math.sin(time * 15) * 13;
       this.bodyFallback.clear().ellipse(-2, 1, 21, 10).fill(0xf4ad56)
@@ -750,31 +709,6 @@ export class PixiFlightView {
         .lineTo(b.x - viewDistance(engine) - wx, b.y - wy)
         .stroke({ color: carrying ? 0xffd997 : 0xe9efff, width: 1.5,
           alpha: i / history.length * .65 });
-    }
-  }
-
-  drawTrail(engine) {
-    this.trailRibbon.clear();
-    const history = engine.trail || [];
-    if (history.length < 2) return;
-    const now = viewTime(engine), distance = viewDistance(engine), maxAge = 1.20;
-    for (let layer = 0; layer < 3; layer++) {
-      for (let index = 1; index < history.length; index++) {
-        const a = history[index - 1], b = history[index];
-        const ageA = now - a.time, ageB = now - b.time;
-        if (ageA > maxAge || ageB < 0) continue;
-        const fadeA = clamp(1 - ageA / maxAge, 0, 1);
-        const fadeB = clamp(1 - ageB / maxAge, 0, 1);
-        const multiplier = [1.7, .82, .23][layer];
-        const wa = Math.max(.05, (a.width || 6) * fadeA ** 1.5 * multiplier);
-        const wb = Math.max(.05, (b.width || 6) * fadeB ** 1.5 * multiplier);
-        const ax = a.worldX - distance, bx = b.worldX - distance;
-        const ay = a.y + Math.sin(a.time * 17) * (1 - fadeA) * 3;
-        const by = b.y + Math.sin(b.time * 17) * (1 - fadeB) * 3;
-        this.trailRibbon.poly([ax, ay - wa, bx, by - wb, bx, by + wb, ax, ay + wa])
-          .fill({ color: [0xe66d31, 0xf7ab53, 0xffe6ac][layer],
-            alpha: [.055, .19, .39][layer] * Math.max(fadeA, fadeB) });
-      }
     }
   }
 
@@ -818,6 +752,8 @@ export class PixiFlightView {
   destroy() {
     this.destroyed = true; this.ready = false;
     if (this.engine.canvas.style) this.engine.canvas.style.visibility = this.originalVisibility;
+    this.flames?.destroy(); this.flames = null;
+    this.rig?.destroy(); this.rig = null;
     if (this.application?.renderer) {
       try { this.application.destroy({ removeView: true }, { children: true, texture: false, textureSource: false, context: true }); } catch { /* An interrupted init may not own a complete renderer. */ }
     }

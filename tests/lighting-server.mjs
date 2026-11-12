@@ -7,8 +7,9 @@ const root = path.resolve(tests, '../dist');
 const mime = { '.html': 'text/html', '.mjs': 'text/javascript', '.png': 'image/png' };
 http.createServer(async (req, res) => {
   const pathname = new URL(req.url, 'http://localhost').pathname;
-  const filename = pathname === '/' ? path.join(tests, 'lighting-proof.html') : path.resolve(root, '.' + pathname);
-  if (pathname !== '/' && !filename.startsWith(root + path.sep)) { res.writeHead(403).end(); return; }
+  const fixture = pathname === '/' ? 'lighting-proof.html' : pathname === '/motion' ? 'phoenix-motion-proof.html' : null;
+  const filename = fixture ? path.join(tests, fixture) : path.resolve(root, '.' + pathname);
+  if (!fixture && !filename.startsWith(root + path.sep)) { res.writeHead(403).end(); return; }
   try {
     const data = await fs.readFile(filename);
     res.writeHead(200, { 'Content-Type': mime[path.extname(filename)] || 'application/octet-stream', 'Cache-Control': 'no-cache' }).end(data);

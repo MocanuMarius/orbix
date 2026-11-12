@@ -22,6 +22,10 @@ The map now has real three-lane forks and merges, a maximum of two reachable cho
 
 Refuges are tested from 35 Flame and caverns from the advised 60, with 288 fuel-aware simulated flights across terrains, seeds and contrasting builds. These are automated clearability checks; physical-phone performance and subjective balance still need playtesting.
 
+The phoenix is now a continuous articulated rig: one fixed painted body, two deforming wing meshes, and a flexible tail mesh. Each successful tap drives a fast power stroke and slower recovery through damped shoulder, elbow and wrist joints. Feather tips and tail plumes lag behind; Boost folds the wings smoothly. The Canvas fallback uses the same fixed parts with continuous transforms. Fire uses curved layered ribbons, curling heat wisps, shaded spark/cinder pools and Boost shockwaves. Pools and vertex buffers are bounded; reduced-motion settings reduce decorative effects.
+
+The original generated rig artwork preserves the painted style. Free CC0 assets were researched but were pixel sprite sheets; their sources and the exact rig-generation prompt are recorded in `dist/assets/phoenix-rig-notes.txt`.
+
 ## Run the source
 
 Embers are sparse discoveries attached to scenery: relics below ruin arches, dew near canopy branches and thorn hearts, and rewards beside storm spires. Route-specific quiet stretches separate pickups; occupied features hold one accessible fuel ember and sometimes a larger, riskier reward. An early approach ember and bounded distances between fuel sources support deliberate flight from a low checkpoint reserve. The autonomous wisp chooses the closest unclaimed ember within its 100-unit search range, flies out, carries it home, and delivers the fuel and currency on return. It then rests for 1.8 seconds before fetching again. The spirit's moving glow and trail follow its actual position; a faint halo at the phoenix shows search reach, and a recovery arc plus flight status shows its cooldown. The phoenix can still collect an ember by touching it directly. Hungry Wisp expands search reach by 60% during Boost. The permanent Spirit branch has three ranks of Reach (125/150/175 range) and Recovery (1.53/1.26/0.99 seconds of rest). Upgrade prices grow per rank, and purchases apply to the next expedition. Large heart embers pay three currency but count as one pickup for card triggers and challenges. Kindled Spirit triggers every three pickups; Warm Heart heals after eight. Collection challenges require six to nine pickups. All placements reserve phoenix clearance across the full canopy sway envelope.
@@ -48,7 +52,9 @@ The tests cover seeded maps and authored terrain, cards and skill bounds, polygo
 - `dist/model.mjs`: seeded expedition, card, event, save, and skill model.
 - `dist/flight.mjs`: deterministic flight simulation and collision geometry.
 - `dist/wisp.mjs`: autonomous nearest-target fetching, return delivery, and companion recovery.
-- `dist/pixi-renderer.mjs`: layered GPU scenery, terrain, sprite animation, and effects.
+- `dist/pixi-renderer.mjs`: layered GPU scenery, terrain and character integration.
+- `dist/phoenix-rig.mjs` and `dist/phoenix-motion.mjs`: continuous mesh deformation and joint response.
+- `dist/flame-effects.mjs`: curved blaze ribbons, shaded particles and Boost shockwaves.
 - `dist/assets/prompts.txt`: exact art prompts, built-in generation mode, and asset QA.
 - `dist/vendor/PIXI-LICENSE.txt`: PixiJS MIT license.
 
@@ -57,3 +63,7 @@ All generated art is stored inside the project. No external runtime assets, sign
 ## Material-lighting verification
 
 Run `node tests/lighting-server.mjs`, open http://localhost:4180, and choose **Run GPU checks**. This diagnostic imports the production terrain shader, keeps the stone texture fixed, and reads back the same rendered pixel patch under moon fill, nearby/distant fire, and nearby/distant white wisp light. It verifies actual brightness changes, moving falloff, and distinct fire/white reflections. Checked at 390px and 430px widths. The diagnostic is outside the published static build.
+
+## Motion preview
+
+Run `node tests/lighting-server.mjs` and open http://localhost:4180/motion for a larger preview using the production rig and fire-effect components. Its six-second recorder exports a WebM clip. Motion tests cover interrupted strokes, anchored roots, tail continuity, gentle glide flex and consistent 30/60/120 Hz response. This diagnostic is outside the published static build.
