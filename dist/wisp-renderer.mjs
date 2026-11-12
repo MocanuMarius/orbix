@@ -401,15 +401,59 @@ export class WispFlightView {
     for (const ember of e.layout.embers) {
       if (ember.collected || ember.carried) continue;
       const x = Math.round((ember.x - distance) * s), y = Math.round(ember.y * s);
-      if (x < -8 || x > WIDTH + 8) continue;
+      if (x < -13 || x > WIDTH + 13) continue;
       const rich = ember.value === 3;
-      c.globalAlpha = .22; pixelDisc(c, x, y, rich ? 6 : 4, element.outer); c.globalAlpha = 1;
-      c.fillStyle = element.edge; c.fillRect(x - 2, y - 2, rich ? 5 : 4, 5);
-      c.fillStyle = element.mid; c.fillRect(x - 1, y - 3, rich ? 3 : 2, 6);
-      c.fillStyle = element.core; c.fillRect(x, y - 2, 1, 4); c.fillRect(x - 1, y, 3, 1);
-      c.fillStyle = element.bright; c.fillRect(x + (rich ? 1 : 0), y - 1, 1, 2);
-      if (rich) pixelText(c, '3', x - 1, y + 5, element.core);
+      // A small pool of light belongs to this cache, not to the entire screen.
+      // It is still shaded by the fog pass, so scouting and carrier light matter.
+      this.glow(x, y, rich ? 11 : 5, element.outer, rich ? .19 : .10);
+      if (ember.pocket) {
+        const side = ember.pocketSide === 'ceiling' ? -1 : 1;
+        c.globalAlpha = rich ? .30 : .18;
+        c.fillStyle = element.outer;
+        c.fillRect(x - (rich ? 3 : 1), y + side * (rich ? 9 : 6), rich ? 7 : 3, 1);
+        c.globalAlpha = 1;
+      }
+      if (rich) {
+        // One enclosure and one joined base read as one valuable object. The
+        // three attached facets cannot be mistaken for a trail of three hits.
+        const pulse = e.reducedMotion ? .43 : .39 + Math.sin(t * 2.3 + ember.phase) * .075;
+        c.globalAlpha = pulse;
+        pixelLine(c, x, y - 8, x + 7, y, element.mid);
+        pixelLine(c, x + 7, y, x, y + 8, element.mid);
+        pixelLine(c, x, y + 8, x - 7, y, element.mid);
+        pixelLine(c, x - 7, y, x, y - 8, element.mid);
+        c.globalAlpha = .74;
+        c.fillStyle = element.core;
+        c.fillRect(x - 1, y - 8, 3, 1); c.fillRect(x - 1, y + 8, 3, 1);
+        c.fillRect(x - 7, y - 1, 1, 3); c.fillRect(x + 7, y - 1, 1, 3);
+        c.globalAlpha = 1;
+        c.fillStyle = element.edge;
+        c.fillRect(x - 4, y - 1, 9, 6);
+        c.fillRect(x - 2, y - 5, 5, 9);
+        c.fillRect(x - 5, y, 3, 4); c.fillRect(x + 3, y - 2, 3, 6);
+        c.fillStyle = element.mid;
+        c.fillRect(x - 1, y - 4, 3, 8);
+        c.fillRect(x - 4, y + 1, 2, 3); c.fillRect(x + 3, y - 1, 2, 5);
+        c.fillRect(x - 3, y + 3, 7, 1);
+        c.fillStyle = element.core;
+        c.fillRect(x, y - 4, 1, 7);
+        c.fillRect(x - 3, y + 1, 1, 2); c.fillRect(x + 3, y - 1, 1, 3);
+        c.fillStyle = element.bright;
+        c.fillRect(x, y - 5, 1, 2); c.fillRect(x - 1, y - 2, 2, 2);
+        c.fillRect(x + 3, y - 2, 1, 1);
+      } else {
+        // Ordinary fuel keeps a quiet, single-facet silhouette.
+        c.fillStyle = element.edge;
+        c.fillRect(x - 1, y - 3, 3, 6); c.fillRect(x - 2, y - 1, 5, 2);
+        c.fillStyle = element.mid;
+        c.fillRect(x, y - 2, 1, 5); c.fillRect(x - 1, y - 1, 3, 2);
+        c.fillStyle = element.core;
+        c.fillRect(x, y - 2, 1, 3);
+        c.fillStyle = element.bright;
+        c.fillRect(x, y - 2, 1, 1);
+      }
     }
+    c.globalAlpha = 1;
   }
 
   drawTrails(e, t, distance, element) {

@@ -7,7 +7,7 @@ const STEP = 1 / 60;
 const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
 const lerp = (a, b, t) => a + (b - a) * t;
 export const FLIGHT_TUNING = Object.freeze({ gravity: 300, flapImpulse: 205,
-  forwardSpeed: 154, terminalFall: 245, pickupRadius: 24 });
+  forwardSpeed: 154, terminalFall: 245, pickupRadius: 16 });
 
 export function seededRandom(seed = 1) {
   let state = 2166136261;
@@ -186,6 +186,49 @@ function makeTerrainShape(width, scale, top, variant, terrain, passage) {
     ...surface.reverse().map(([x, depth]) => [x * width, sign * (depth + vaultHeadroom) * scale])];
 }
 
+function terrainEdgeY(shape, localX) {
+  const surface = shape.slice(2);
+  for (let i = 1; i < surface.length; i++) {
+    const a = surface[i - 1], b = surface[i];
+    if (localX >= Math.min(a[0], b[0]) && localX <= Math.max(a[0], b[0])) {
+      return lerp(a[1], b[1], (localX - a[0]) / (b[0] - a[0] || 1));
+    }
+  }
+  return surface[0]?.[1] || 0;
+}
+
+function cachePocketX(obstacle, side, first) {
+  const shape = side < 0 ? obstacle.topShape : obstacle.bottomShape;
+  const surface = shape.slice(2);
+  const depths = surface.map(point => side * point[1]);
+  const crest = Math.min(...depths);
+  const crown = surface.filter((point, index) => depths[index] <= crest + 2);
+  const preferredX = first ? -obstacle.width * .25 : crown.reduce((sum, point) => sum + point[0], 0) / crown.length;
+  return surface.reduce((best, point) => Math.abs(point[0] - preferredX) < Math.abs(best[0] - preferredX) ? point : best, surface[0])[0];
+}
+
+function carveCachePocket(obstacle, side, first, rich, height) {
+  const shape = side < 0 ? obstacle.topShape : obstacle.bottomShape;
+  const surface = shape.slice(2), scale = height / 620;
+  const localX = cachePocketX(obstacle, side, first), halfWidth = first ? 50 : rich ? 54 : 49;
+  const depth = (first ? 26 : rich ? 42 : 34) * scale;
+  for (const point of surface) {
+    const dx = Math.abs(point[0] - localX);
+    if (first && dx < halfWidth * 1.85) {
+      // An attached leading shelf introduces edge collection before the first
+      // main ridge. It stays outside the established central flight opening.
+      const blend = 1 - clamp((dx - halfWidth * .82) / (halfWidth * 1.03), 0, 1);
+      const eased = blend * blend * (3 - 2 * blend);
+      point[1] = lerp(point[1], 0, eased);
+    }
+    if (dx < halfWidth) {
+      const bowl = (1 - (dx / halfWidth) ** 2) ** 2;
+      point[1] += side * depth * bowl;
+    }
+  }
+  return { localX, side, mouth: halfWidth * 2, depth, first, rich };
+}
+
 export function buildFlightLayout({ seed = 1, terrain = 'ruins', elite = false,
   duration = 38, speed = 154, height = 620, passage = 'open', fuelCadence = 3 } = {}) {
   const rng = seededRandom(`${seed}:layout`);
@@ -227,45 +270,70 @@ export function buildFlightLayout({ seed = 1, terrain = 'ruins', elite = false,
   const loot = seededRandom(`${seed}:ember-routes`);
   const cadence = clamp(Math.round(fuelCadence), 2, 4);
   const quietSection = Math.floor(loot() * cadence);
-  for (const [i, obstacle] of obstacles.entries()) {
-    // Long empty stretches make each discovery count. Rewards belong to a
-    // particular piece of scenery, rather than a repeating mid-air coin trail.
-    if (cadence === 2 ? i % 4 === quietSection : i % cadence === quietSection || (cadence === 4 && i % 4 === (quietSection + 1) % 4)) continue;
-    let side = terrain === 'ruins' ? -1 : terrain === 'canopy' ? 1 : loot() < .5 ? -1 : 1;
-    if (!obstacle.topShape) side = 1;
-    if (!obstacle.bottomShape) side = -1;
-    const shape = side < 0 ? obstacle.topShape : obstacle.bottomShape;
-    const inward = [...shape].sort((a, b) => side * (a[1] - b[1]))[0];
-    const feature = terrain === 'ruins' ? 'arch-relic' : terrain === 'canopy'
-      ? obstacle.soft ? 'thorn-heart' : 'branch-dew' : 'spire-shelter';
-    const rich = obstacle.soft || i % 4 === 1;
-    const add = (dx, value = 1, fuel = false) => {
-      const ex = obstacle.x + (fuel ? clamp(inward[0] + dx, 0, 28) : inward[0] + dx);
-      let ey = clamp(obstacle.center + side * obstacle.gap / 2 + inward[1]
-        - side * (obstacle.motion + 34), 42, height - 42);
-      // Fuel sits inward from its landform so a deliberate, gentle approach
-      // can sustain flight. Larger relics stay beside the actual terrain edge.
-      if (fuel) ey = lerp(ey, obstacle.center, .60);
-      // Adjacent scenery also participates, including every possible sway.
-      const clear = () => obstacles.every(other =>
-        Math.abs(other.x - ex) > 460 || obstaclePolygons({ ...other, motion: 0 }).every(p =>
-          !circleHitsPolygon(ex, ey, 23 + other.motion, p)));
-      for (let attempt = 0; !clear() && attempt < 12; attempt++) ey = lerp(ey, obstacle.center, .2);
-      if (!clear()) return;
-      embers.push({ id: `${i}:${embers.length}`, x: ex, y: ey, value, feature,
-        fuel, anchor: i, collected: false, attracted: false, phase: loot() * TAU });
-    };
-    // Ruins: relic below an arch. Canopy: dew along a branch, richer at thorns.
-    // Storm: a reward tucked behind the trailing face of a spire.
-    const dx = terrain === 'storm' ? obstacle.width * .30 : 0;
-    add(dx - 48, 1, true);
-    if (rich) add(dx + 25, 3);
-  }
   if (obstacles.length) {
-    const first = obstacles[0];
-    embers.push({ id: 'approach-flame', x: first.x - 270, y: height * .5 + 12,
-      value: 1, feature: 'approach', fuel: true, anchor: 0,
-      collected: false, attracted: false, phase: loot() * TAU });
+    // Preserve the route-density ordering while removing roughly two fifths
+    // of the old pickup budget. Every remaining object is a deliberate cache.
+    let formerBudget = 1;
+    for (const [i, obstacle] of obstacles.entries()) {
+      const quiet = cadence === 2 ? i % 4 === quietSection
+        : i % cadence === quietSection || (cadence === 4 && i % 4 === (quietSection + 1) % 4);
+      if (!quiet) formerBudget += 1 + (obstacle.soft || i % 4 === 1 ? 1 : 0);
+    }
+    const cacheCount = clamp(Math.round(formerBudget * .62), Math.min(2, obstacles.length), obstacles.length);
+    const sites = Array.from({ length: cacheCount }, (_, i) => Math.round(i * (obstacles.length - 1) / Math.max(1, cacheCount - 1)));
+    let heart = Math.max(1, Math.floor(cacheCount * .43));
+    while (heart > 1 && sites[heart] - sites[heart - 1] < 2) heart--;
+    const plans = sites.map((anchor, order) => {
+      const obstacle = obstacles[anchor];
+      const sides = order === 0 || !obstacle.topShape ? [1] : [1, -1];
+      const positions = sides.map(side => obstacle.x + cachePocketX(obstacle, side, order === 0));
+      return { anchor, order, obstacle, minX: Math.min(...positions), maxX: Math.max(...positions), side: 1, group: 0 };
+    });
+    const groups = [];
+    for (const plan of plans) {
+      const previous = plans[plan.order - 1];
+      // Any plausible crest placement less than three nominal seconds away
+      // belongs to one collection encounter. Its pickups share an edge, so
+      // the player never needs an instant roof-to-ground reversal.
+      if (!previous || (plan.minX - previous.maxX) / speed >= 3) groups.push([]);
+      groups.at(-1).push(plan);
+    }
+    let previousSide = -1;
+    for (const [group, members] of groups.entries()) {
+      const side = group === 0 ? 1 : previousSide > 0 && members.every(plan => plan.obstacle.topShape) ? -1 : 1;
+      for (const plan of members) { plan.side = side; plan.group = group; }
+      previousSide = side;
+    }
+    const pockets = sites.map((anchor, order) => {
+      const obstacle = obstacles[anchor];
+      const { side, group } = plans[order];
+      const rich = cacheCount >= 4 && (order === heart || (cacheCount >= 9 && order === cacheCount - 2));
+      const pocket = carveCachePocket(obstacle, side, order === 0, rich, height);
+      obstacle.cachePocket = { ...pocket, anchor, group };
+      return { obstacle, anchor, order, pocket, group };
+    });
+    for (const { obstacle, anchor, order, pocket, group } of pockets) {
+      const shape = pocket.side < 0 ? obstacle.topShape : obstacle.bottomShape;
+      const ex = obstacle.x + pocket.localX;
+      const edgeY = obstacle.center + pocket.side * obstacle.gap / 2 + terrainEdgeY(shape, pocket.localX);
+      let clearance = pocket.first ? 28 : pocket.rich ? 22 : 21;
+      let ey;
+      const clear = y => obstacles.every(other => Math.abs(other.x - ex) > 520 || [-1, 1].every(sign =>
+        obstaclePolygons({ ...other, motion: 0, center: other.center + sign * other.motion }).every(polygon => !circleHitsPolygon(ex, y, 18, polygon))));
+      for (; clearance <= 37; clearance += 2) {
+        ey = clamp(edgeY - pocket.side * (clearance + obstacle.motion), 37, height - 37);
+        if (clear(ey)) break;
+      }
+      // Never slide a failed placement to the centerline. An unusable niche
+      // stays empty instead of silently turning into a free floating reward.
+      if (!clear(ey)) continue;
+      const feature = terrain === 'ruins' ? 'arch-relic' : terrain === 'canopy'
+        ? obstacle.soft ? 'thorn-heart' : 'branch-dew' : 'spire-shelter';
+      embers.push({ id: `cache-${anchor}`, x: ex, y: ey, value: pocket.rich ? 3 : 1,
+        feature, fuel: true, anchor, pocket: true, pocketSide: pocket.side < 0 ? 'ceiling' : 'ground',
+        pocketMouth: pocket.mouth, pocketDepth: pocket.depth, clearance, cacheGroup: group,
+        intro: order === 0, collected: false, attracted: false, phase: loot() * TAU });
+    }
   }
   // Both renderers and the collection broad phase rely on world-X ordering.
   embers.sort((a, b) => a.x - b.x);
@@ -305,7 +373,7 @@ export class WispFlight {
       rebirth: false, rebirthHp: 2, ward: 0, steady: false, ...options.modifiers };
     this.maxHp = Math.max(1, Number(options.maxHp ?? this.mod.maxHp) || 3);
     this.hp = clamp(Number(options.hp ?? this.maxHp), 1, this.maxHp);
-    this.flame = clamp(Number.isFinite(options.flame) ? options.flame : FLAME_TUNING.maximum, 0, FLAME_TUNING.maximum);
+    this.flame = clamp(Number.isFinite(options.flame) ? options.flame : FLAME_TUNING.starting, 0, FLAME_TUNING.maximum);
     this.flaps = 0; this.effortSpent = 0; this.flameRestored = 0;
     this.lastFlapTime = -1000;
     this.shield = Math.max(0, Number(options.shield || 0)) + Math.max(0, Number(this.mod.ward || 0));
@@ -706,7 +774,7 @@ export class WispFlight {
       this.cooldown = Math.max(0, this.cooldown - 1);
       this.setEvent('Kindled Spirit · Boost charged');
     }
-    if (this.cards.has('warm-heart') && this.baseEmbers >= 8 && !this.healedFromWarmHeart) {
+    if (this.cards.has('warm-heart') && this.baseEmbers >= FLAME_TUNING.healPickups && !this.healedFromWarmHeart) {
       this.healedFromWarmHeart = true;
       this.hp = Math.min(this.maxHp, this.hp + 1);
       this.setEvent('Warm Heart · restored');

@@ -21,7 +21,7 @@ export const CARDS = Object.freeze({
   'glass-phoenix': card('glass-phoenix', 'Glass Wisp', 'Ash', 'A fragile body, a brilliant reward.', 'Maximum health becomes two hearts; earned ember rewards increase by 25%. Replacing this card restores capacity, not health.', '#a9e7fa', '♢'),
   'steady-flame': card('steady-flame', 'Steady Flame', 'Drift', 'Keep your course through difficult currents.', 'Wind has less influence, and gravity is 3% lighter. A calm choice for the Stormglass Peaks.', '#d3d6f3', '≈'),
   'fire-wake': card('fire-wake', 'Shatter Wake', 'Flame', 'Shatter soft thorns into a trail of bonus sparks.', 'Boost lasts 8% longer. Each soft thorn shattered during a boost releases three collectible bonus motes.', '#ff9d77', '♨'),
-  'warm-heart': card('warm-heart', 'Warm Heart', 'Ash', 'A rich spark trail can mend a wounded heart.', 'Collect eight base embers in a flight to heal one heart, once per flight. Bonus embers cannot retrigger it.', '#f2a6ba', '♡'),
+  'warm-heart': card('warm-heart', 'Warm Heart', 'Ash', 'A well-timed cache route can mend a wounded heart.', 'Collect four base sparks in a flight to heal one heart, once per flight. Bonus sparks cannot retrigger it.', '#f2a6ba', '♡'),
 });
 
 const skill = (id, name, branch, cost, requires, description, maxRank = 1) => ({ id, name, branch, cost, requires, maxRank, description });
@@ -141,7 +141,18 @@ export function loadState(storage) {
         if (node.draftTheme) node.draftTheme = node.draftTheme.replace(/Wing/g, 'Drift');
         if (node.name) node.name = node.name.replace(/Phoenix Gate/g, 'Hollow Gate');
         if (node.challenge) node.challenge = node.challenge.replace(/wisps/g, 'sparks');
+        if (state.run.fuelRevision !== 2 && node.type !== 'support' && ROUTE_PROFILES[node.routeStyle]) {
+          const profile = ROUTE_PROFILES[node.routeStyle];
+          node.fuelBonus = node.type === 'finale' ? 1 : profile.fuelBonus;
+          node.fuelPreview = profile.fuelPreview;
+          node.riskPreview = profile.riskPreview;
+          if (node.challengeId === 'wisps') {
+            node.challengeTarget = 4 + Math.floor(node.row / 2);
+            node.challenge = `Collect ${node.challengeTarget} sparks`;
+          }
+        }
       }
+      state.run.fuelRevision = 2;
       state.run.skills = cleanProfile({ skills: parsed.run.skills }).skills;
       state.run.hp = clamp(state.run.hp, 0, getModifiers(state.run.cards, state.run.skills).maxHp);
       state.run.flame = clamp(Number.isFinite(state.run.flame) ? state.run.flame : FLAME_TUNING.maximum, 0, FLAME_TUNING.maximum);
@@ -158,9 +169,9 @@ export function loadState(storage) {
 
 const EVENT_NAMES = ['Ash Spring', 'Cinder Bargain', 'Abandoned Lantern', 'Weathered Shrine', 'Luminous Well', 'The Ember Archive'];
 export const ROUTE_PROFILES = Object.freeze({
-  refuge: { routeStyle: 'refuge', passage: 'open', fuelCadence: 2, fuelBonus: 6, flameDrain: 0.92, routeReward: 1, durationScale: 1, draftTags: ['Wisp', 'Ash'], fuelPreview: 'Abundant fuel · +6 Glow per spark', riskPreview: 'Open passages · gentler Glow cost' },
+  refuge: { routeStyle: 'refuge', passage: 'open', fuelCadence: 2, fuelBonus: 2, flameDrain: 0.92, routeReward: 1, durationScale: 1, draftTags: ['Wisp', 'Ash'], fuelPreview: 'Measured caches · +2 Glow per spark', riskPreview: 'Open passages · deliberate edge pickups' },
   cavern: { routeStyle: 'cavern', passage: 'cavern', fuelCadence: 3, fuelBonus: 0, flameDrain: 1.08, routeReward: 1.25, durationScale: 0.80, draftTags: ['Drift', 'Wisp'], fuelPreview: 'Spaced fuel · conserve your lift pulses', riskPreview: 'Short cave route · tighter roof and floor' },
-  gauntlet: { routeStyle: 'gauntlet', passage: 'gauntlet', fuelCadence: 4, fuelBonus: 2, flameDrain: 1, routeReward: 1.45, durationScale: 0.90, draftTags: ['Flame', 'Drift'], fuelPreview: 'Sparse fuel · time Boost between embers', riskPreview: 'Elite passages · richest ember rewards' },
+  gauntlet: { routeStyle: 'gauntlet', passage: 'gauntlet', fuelCadence: 4, fuelBonus: 1, flameDrain: 1, routeReward: 1.45, durationScale: 0.90, draftTags: ['Flame', 'Drift'], fuelPreview: 'Lean caches · time Boost between sparks', riskPreview: 'Elite passages · richest ember rewards' },
 });
 
 function makeMap(seed) {
@@ -179,7 +190,7 @@ function makeMap(seed) {
     const draftTags = support ? [] : [...profile.draftTags];
     const draftTheme = draftTags.join(' + ');
     const challengeId = routeStyle === 'refuge' ? 'wisps' : routeStyle === 'cavern' ? 'clean' : 'boosts';
-    const challengeTarget = challengeId === 'wisps' ? 6 + Math.floor(row / 2) : challengeId === 'boosts' ? 2 : 0;
+    const challengeTarget = challengeId === 'wisps' ? 4 + Math.floor(row / 2) : challengeId === 'boosts' ? 2 : 0;
     const challenge = challengeId === 'wisps' ? `Collect ${challengeTarget} sparks` : challengeId === 'boosts' ? 'Boost twice' : 'Finish without a hit';
     const routeName = { refuge: 'Ember Refuge', cavern: 'Crystal Cavern', gauntlet: 'Flame Gauntlet' }[routeStyle];
     const baseDuration = row === 0 ? 34 : 38 + row * 2;
@@ -188,7 +199,7 @@ function makeMap(seed) {
       id: `n-${row}-${['a', 'b', 'c'][lane]}`, row, lane, nextIds: [],
       type: support ? 'support' : finale ? 'finale' : 'flight', kind, terrain, elite, draftTags, draftTheme,
       routeStyle, passage: profile.passage, fuelCadence: finale ? 3 : profile.fuelCadence,
-      fuelBonus: finale ? 2 : profile.fuelBonus, flameDrain: finale ? 1 : profile.flameDrain,
+      fuelBonus: finale ? 1 : profile.fuelBonus, flameDrain: finale ? 1 : profile.flameDrain,
       routeReward: finale ? 1.25 : profile.routeReward,
       fuelPreview: support ? lane === 0 ? 'Full Flame refill available' : lane === 2 ? 'Fuel or a new card' : 'Preview the event before committing' : finale ? 'Balanced fuel · final ascent' : profile.fuelPreview,
       riskPreview: support ? lane === 0 ? 'Recover before the next fork' : lane === 2 ? 'Build strength or secure your reserve' : 'A resource trade or fresh opportunity' : finale ? 'The routes converge at the summit' : profile.riskPreview,
@@ -226,8 +237,8 @@ export function createRun(profile = newState().profile, seed = freshSeed()) {
   const skills = cleanProfile({ skills: profile?.skills }).skills;
   const run = {
     id: `${normalizedSeed}-${freshSeed()}`, seed: normalizedSeed, step: 0, map: makeMap(normalizedSeed), path: [], current: null,
-    cards: [], skills, element: 'fire', hp: 3, maxHp: 3, flame: FLAME_TUNING.maximum, shield: 0, embers: 0, score: 0, usedRebirth: false,
-    offers: [], phase: 'starter', success: false, banked: false, supportChoices: [],
+    cards: [], skills, element: 'fire', hp: 3, maxHp: 3, flame: FLAME_TUNING.starting, shield: 0, embers: 0, score: 0, usedRebirth: false,
+    offers: [], phase: 'starter', success: false, banked: false, supportChoices: [], fuelRevision: 2,
     stats: { collected: 0, collisions: 0, boosts: 0, flights: 0, elites: 0, challenges: 0, events: 0 },
   };
   run.mapVersion = 2;
