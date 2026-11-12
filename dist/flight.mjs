@@ -697,14 +697,9 @@ export class WispFlight {
     }
     this.wisp.update(this, dt);
 
-    this.trail.push({ worldX: this.distance + this.player.x - 23,
-      y: this.player.y + 6, time: this.time, width: this.boostTime > 0 ? 9 : 4.6,
-      boost: this.boostTime > 0 });
-    while (this.trail.length && (this.trail.length > 72 || this.time - this.trail[0].time > 1.15)) this.trail.shift();
+    // Wisps pulse in place; only discrete pickup/hit bursts leave particles.
     for (const effect of this.pickupEffects) effect.life -= dt;
     this.pickupEffects = this.pickupEffects.filter(effect => effect.life > 0);
-    this.emitClock += dt * (this.boostTime > 0 ? 84 : 20 + 25 * this.flame / FLAME_TUNING.maximum);
-    while (this.emitClock >= 1) { this.emitClock--; this.emitFlame(); }
     for (let i = this.particles.length - 1; i >= 0; i--) {
       const p = this.particles[i];
       p.life -= dt; p.x += p.vx * dt; p.y += p.vy * dt; p.vy -= 8 * dt;

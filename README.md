@@ -9,14 +9,16 @@ Choose a **Fire** or **Ice** player wisp before an expedition; its carrier compa
 - **Lift:** large lower-right button, or Space / Up. A pulse costs 6 Glow in a refuge, 8 in a cavern, or 7 in a gauntlet. Glide between pulses. A successful press immediately flares and stretches the wisp; there are no slow wing animations.
 - **Boost:** smaller right button, or B / Shift. Protected forward travel helps reach the fixed exit sooner. Hold the button for half a second, or press Escape, to pause. Backgrounding/rotation also pauses.
 - **Direct pickup:** touch a cache with the player wisp to receive fuel and currency immediately. The precise 16-unit pickup radius is independent of the carrier. Reservations never block player contact.
-- **Carrier:** searches for the nearest spark within 100 units, flies out, carries it home, then rests for **5.5 seconds**. Fuel arrives on delivery. The player can keep collecting normally throughout its fetch and rest. A collision and a carrier cannot pay for the same spark twice.
+- **Carrier:** orbits the player, searches for the nearest spark within 100 units of the player, flies out, carries it back to its orbit, then rests for **5.5 seconds**. A dotted circle shows the actual search radius, including upgrades and Boost effects. The circle and companion dim during recovery. Fuel arrives on delivery. The player can keep collecting normally throughout its fetch and rest. A collision and a carrier cannot pay for the same spark twice.
 - **Fuel:** expeditions start with 60 Glow. Normal caches restore 24–26 Glow; larger heart caches restore 40–42, capped at 100. Lift is unavailable when reserves are too low; gliding continues. Collision hearts remain separate.
 
 Fuel appears in sparse rock, root and spire pockets rather than easy centreline strings. Each pocket contains one pickup; a connected three-shard crest identifies a richer cache. The pocket is carved into the same polygon used for rendering and collision. Nearby caches share an edge; roof-to-floor changes get at least three nominal seconds. Some pairs arrive before the carrier can recover, rewarding direct collection or a different build. The first cache is attached to a gentler leading shelf with about 3.6 seconds of approach time.
 
 ## Light and progression
 
-The player light reveals nearby terrain and pickups through a dithered darkness mask. Dim silhouettes remain readable beyond it for fair warning. The carrier casts a smaller light at its actual position.
+The larger player wisp has twice the previous sprite dimensions and no trailing flame or exhaust. Pickup and collision bursts remain. The companion follows a smooth 2.5-second elliptical orbit when idle or cooling, and resumes the orbit after fetching. Reduced Motion holds its orbital phase still.
+
+The player light reveals nearby terrain and pickups through a dithered darkness mask. Landscape beyond the light is now nearly black, with only faint silhouettes. The far scenery is also subdued independently of the lit terrain. The carrier casts a smaller light at its actual position, dimming during cooldown.
 
 **Inner Glow** has three permanent ranks: visible radius 175 → 210 → 245 → 280. It changes reveal area independently of movement and collection reach. Carrier Reach remains 100 → 125 → 150 → 175. Recovery ranks reduce the 5.5-second rest to 4.675 / 3.85 / 3.025 seconds. The skill screen previews each change. Skills apply to the next expedition; three active cards and rewards remain run-specific.
 

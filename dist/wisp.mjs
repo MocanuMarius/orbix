@@ -1,16 +1,22 @@
 const clamp = (value, lo, hi) => Math.min(hi, Math.max(lo, value));
 export const WISP_TUNING = Object.freeze({ range: 100, cooldown: 5.5, lightRadius: 175, outboundSpeed: 500, returnSpeed: 620 });
 
-export function wispHome(player, time) {
-  return { x: player.x - 29 + Math.sin(time * 3) * 3,
-    y: player.y + 19 + Math.cos(time * 2.4) * 5 };
+export function wispHome(player) {
+  return { x: player.x, y: player.y };
+}
+
+export function wispOrbit(player, time = 0) {
+  const angle = (Number.isFinite(time) ? time : 0) * Math.PI * 2 / 2.5 + Math.PI;
+  return { x: player.x + Math.cos(angle) * 44,
+    y: player.y + Math.sin(angle) * 34 };
 }
 
 // A single fetch owns one ember until delivery. No reward or card trigger is
 // issued at interception, and the recovery timer begins only after returning.
 export class WispCompanion {
   constructor(home) {
-    this.x = this.previousX = home.x; this.y = this.previousY = home.y;
+    const orbit = wispOrbit(home, 0);
+    this.x = this.previousX = orbit.x; this.y = this.previousY = orbit.y;
     this.phase = 'ready'; this.target = null; this.cargo = null;
     this.cooldown = 0; this.cooldownMax = WISP_TUNING.cooldown;
     this.vx = 0; this.vy = 0;
@@ -22,7 +28,7 @@ export class WispCompanion {
   }
 
   state(engine, y = engine.player.y, time = engine.time) {
-    const home = wispHome({ ...engine.player, y }, time);
+    const home = wispHome({ ...engine.player, y });
     const blend = time === engine.time ? 1 : clamp(engine.accumulator * 60, 0, 1);
     const recovery = this.phase === 'ready' ? 1 : this.phase === 'cooldown' ? 1 - this.cooldown / this.cooldownMax : 0;
     return { x: this.previousX + (this.x - this.previousX) * blend,
@@ -52,10 +58,11 @@ export class WispCompanion {
 
   update(engine, dt) {
     this.previousX = this.x; this.previousY = this.y; this.clock += dt;
-    const home = wispHome(engine.player, engine.time);
+    const home = wispHome(engine.player);
+    const orbit = wispOrbit(engine.player, engine.reducedMotion ? 0 : engine.time);
     if (this.phase === 'ready' || this.phase === 'cooldown') {
       const follow = 1 - Math.exp(-dt * 16);
-      this.x += (home.x - this.x) * follow; this.y += (home.y - this.y) * follow;
+      this.x += (orbit.x - this.x) * follow; this.y += (orbit.y - this.y) * follow;
       this.vx = (this.x - this.previousX) / dt; this.vy = (this.y - this.previousY) / dt;
       if (this.phase === 'cooldown') {
         this.cooldown = Math.max(0, this.cooldown - dt);
@@ -83,7 +90,7 @@ export class WispCompanion {
         this.cargo = target; this.target = null; this.phase = 'returning';
       }
     } else if (this.phase === 'returning') {
-      if (this.moveTo(home.x, home.y, WISP_TUNING.returnSpeed, dt)) {
+      if (this.moveTo(orbit.x, orbit.y, WISP_TUNING.returnSpeed, dt)) {
         if (this.cargo) {
           const delivered = this.cargo; this.cargo = null; delivered.carried = false;
           delivered.deliveredByWisp = true;

@@ -22,7 +22,7 @@ All ten recommended options are confirmed. The element and carrier pair is selec
 | --- | --- | --- | --- | --- |
 | 1 | Fire and ice identity | Appearance changes; controls and statistics remain the same. | Keep another balance system out of this graphics pivot. | Confirmed |
 | 2 | Element and carrier selection | Choose Fire or Ice before an expedition; the carrier has the opposite element. The pair stays fixed for that expedition. | Clear identities without another inventory. | Confirmed |
-| 3 | Visibility beyond the light | Distant terrain remains a dim silhouette. Nearby detail becomes clearer inside the light. | Darkness matters while hazards retain warning time. | Confirmed |
+| 3 | Visibility beyond the light | Distant landscape is nearly black with very faint silhouettes. Nearby detail becomes clearer inside the light. | Make the upgradeable light radius more meaningful. | Confirmed; darkened further by latest feedback |
 | 4 | Light versus fuel | Spending Glow dims the player sprite; the reveal radius remains fixed by upgrades. | Avoid combining low fuel with sudden blindness. | Confirmed |
 | 5 | Light progression | Inner Glow is a permanent utility skill with three ranks: radius 175, 210, 245 and 280. | Give light an explicit progression path independent of collection range. | Confirmed |
 | 6 | Carrier recovery | Base rest is 5.5 seconds after delivery. Recovery upgrades can shorten it. | Leave meaningful windows for direct collection. | Confirmed |
@@ -51,6 +51,13 @@ Three terrains, ordinary and optional elite routes, support events, shared exped
 - Preserve gravity, lift strength, travel speed, the 5.5-second carrier rest and free protected Boost. Increase difficulty through placement, precision and resource availability instead of faster tapping.
 - Reduce Warm Heart's trigger to four base pickups and collection challenge targets to match the sparse pool.
 - Simulations compare centre-lane, pickup-seeking and Boost-assisted controllers, including zero permanent upgrades. They guide tuning; they do not establish human success rates or prove that every seed requires every tool.
+
+## Wisp silhouette and companion motion
+
+- Double the main wisp sprite dimensions and remove its directional tail and continuous particle trail. Keep local pickup and hit bursts. The gameplay collision radius stays unchanged.
+- The carrier orbits the player on a 44 by 34 unit ellipse over 2.5 seconds while ready or cooling, clearing the larger player sprite. Fetching interrupts the orbit; returning rejoins it. Reduced Motion freezes the orbital phase.
+- Centre the carrier's real search range on the player and draw that range as a persistent dotted circle. Range upgrades and temporary expansions use the same value as collection logic. Dim the circle and companion through cooldown.
+- Darken the landscape outside the light substantially and subdue the distant parallax layers. Keep the existing player light-radius upgrades.
 
 ## Deferred elemental gameplay
 

@@ -456,16 +456,8 @@ export class WispFlightView {
     c.globalAlpha = 1;
   }
 
-  drawTrails(e, t, distance, element) {
+  drawBurstEffects(e, element) {
     const c = this.bufferContext, s = this.scale;
-    const trail = e.trail || [];
-    for (let i = Math.max(0, trail.length - 48); i < trail.length; i += 2) {
-      const point = trail[i], age = t - point.time;
-      if (age < 0 || age > .75) continue;
-      c.globalAlpha = clamp((1 - age / .75) * .52, 0, .52);
-      c.fillStyle = age < .2 ? element.mid : element.trail;
-      c.fillRect(Math.round((point.worldX - distance) * s), Math.round(point.y * s), point.boost ? 4 : 2, point.boost ? 2 : 1);
-    }
     for (const p of (e.particles || []).slice(-90)) {
       c.globalAlpha = clamp(p.life / p.maxLife, 0, 1) * .7;
       c.fillStyle = p.type === 'spark' ? element.core : element.outer;
@@ -478,7 +470,8 @@ export class WispFlightView {
     const c = this.bufferContext, W = this.buffer.width, H = this.buffer.height, s = this.scale;
     this.lightRadius = Math.max(40, Number(e.mod?.lightRadius) || 175);
     const radius = this.lightRadius * s, radius2 = radius * radius;
-    const carrierX = state.x * s, carrierY = state.y * s, carrierRadius2 = (e.wisp?.phase === 'cooldown' ? 20 : 29) ** 2;
+    const carrierX = state.x * s, carrierY = state.y * s;
+    const carrierRadius2 = (state.phase === 'cooldown' ? 13 + state.recovery * 7 : 26) ** 2;
     const pixels = this.fogPixels.data, dither = [0, 8, 2, 10, 12, 4, 14, 6, 3, 11, 1, 9, 15, 7, 13, 5];
     for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
       const distance2 = (x - playerX) ** 2 + (y - playerY) ** 2;
@@ -486,10 +479,10 @@ export class WispFlightView {
       const playerShade = clamp((distance2 / radius2 - .10) / .90, 0, 1);
       const carrierShade = clamp((carrier2 / carrierRadius2 - .08) / .92, 0, 1);
       const shade = Math.min(playerShade, carrierShade);
-      const grain = (dither[(y & 3) * 4 + (x & 3)] / 15 - .5) * .10;
-      const alpha = clamp(Math.round((.035 + shade * .60 + grain) * 12) / 12, 0, .66);
+      const grain = (dither[(y & 3) * 4 + (x & 3)] / 15 - .5) * .035;
+      const alpha = clamp(Math.round((.025 + shade * .93 + grain) * 24) / 24, 0, .96);
       const index = (y * W + x) * 4;
-      pixels[index] = 5; pixels[index + 1] = 10; pixels[index + 2] = 14; pixels[index + 3] = Math.round(alpha * 255);
+      pixels[index] = 2; pixels[index + 1] = 5; pixels[index + 2] = 8; pixels[index + 3] = Math.round(alpha * 255);
     }
     this.fogContext.putImageData(this.fogPixels, 0, 0);
     c.drawImage(this.fog, 0, 0);
@@ -505,26 +498,23 @@ export class WispFlightView {
     c.restore();
   }
 
-  drawSpirit(x, y, element, t, { small = false, boost = false, tap = 0, fuel = 1, reduced = false } = {}) {
+  drawSpirit(x, y, element, t, { small = false, boost = false, tap = 0, fuel = 1, reduced = false, intensity = 1 } = {}) {
     const c = this.bufferContext;
+    c.save();
     const flicker = reduced ? 0 : Math.sin(t * (boost ? 22 : 12));
-    this.glow(x, y, small ? 10 : boost ? 23 : 17, element.outer, small ? .12 : .18);
+    this.glow(x, y, small ? 10 : boost ? 32 : 27, element.outer, (small ? .12 : .22) * intensity);
     if (small) {
+      c.globalAlpha *= intensity;
       c.fillStyle = element.edge; c.fillRect(x - 2, y - 2, 5, 5);
       c.fillStyle = element.outer; c.fillRect(x - 1, y - 4, 3, 7);
       c.fillStyle = element.mid; c.fillRect(x - 2, y, 5, 2);
       c.fillStyle = element.core; c.fillRect(x, y - 2, 2, 4);
       c.fillStyle = element.bright; c.fillRect(x, y - 1, 2, 2);
       if (element === ELEMENTS.ice) { c.fillStyle = element.mid; c.fillRect(x - 3, y, 1, 1); c.fillRect(x + 3, y, 1, 1); }
-      return;
+      c.restore(); return;
     }
-    const tail = boost ? 17 : 9;
-    for (let i = tail; i > 0; i--) {
-      const yy = y + Math.round((reduced ? 0 : Math.sin(t * (boost ? 18 : 10) - i * .5)) * (i / tail) * 2);
-      c.globalAlpha = (1 - i / (tail + 2)) * .75;
-      c.fillStyle = i > tail * .6 ? element.trail : element.outer;
-      c.fillRect(x - 3 - i, yy - (boost ? 1 : 0), boost ? 3 : 2, boost ? 3 : 2);
-    }
+    // Twice the sprite size, with a round halo instead of a directional tail.
+    c.translate(x, y); c.scale(2, 2); x = 0; y = 0;
     c.globalAlpha = clamp(.58 + fuel * .42, .58, 1);
     const rows = SPIRIT_PIXELS[element === ELEMENTS.ice ? 'ice' : 'fire'];
     const inks = [null, element.edge, element.outer, element.mid, element.core];
@@ -549,28 +539,25 @@ export class WispFlightView {
       }
       c.globalAlpha = 1;
     }
+    c.restore();
   }
 
   drawCarrier(e, t, distance, state, element) {
     const c = this.bufferContext, s = this.scale;
     const x = Math.round(state.x * s), y = Math.round(state.y * s);
-    for (const point of (e.wisp?.history || []).filter((_, i) => i % 3 === 0)) {
-      c.globalAlpha = .3 * clamp(1 - (t - point.time) / .45, 0, 1);
-      c.fillStyle = element.outer; c.fillRect(Math.round((point.x - distance) * s), Math.round(point.y * s), 1, 1);
-    }
-    c.globalAlpha = state.phase === 'cooldown' ? .52 : 1;
-    this.drawSpirit(x, y, element, t, { small: true, reduced: e.reducedMotion });
-    c.globalAlpha = 1;
     const homeX = state.homeX * s, homeY = state.homeY * s;
-    if (state.phase === 'outbound' || state.phase === 'returning') {
-      c.globalAlpha = .18;
-      for (let dot = 0; dot < 14; dot++) {
-        const angle = dot / 14 * TAU;
-        c.fillStyle = element.outer; c.fillRect(Math.round(homeX + Math.cos(angle) * state.radius * s), Math.round(homeY + Math.sin(angle) * state.radius * s), 1, 1);
-      }
-      c.globalAlpha = 1;
+    const cooling = state.phase === 'cooldown';
+    const radius = state.radius * s, dots = Math.round(TAU * radius / 4);
+    c.globalAlpha = cooling ? .07 + state.recovery * .12 : state.phase === 'ready' ? .46 : .25;
+    for (let dot = 0; dot < dots; dot++) {
+      const angle = dot / dots * TAU;
+      c.fillStyle = element.core;
+      c.fillRect(Math.round(homeX + Math.cos(angle) * radius), Math.round(homeY + Math.sin(angle) * radius), 1, 1);
     }
-    if (state.phase === 'cooldown') {
+    c.globalAlpha = 1;
+    this.drawSpirit(x, y, element, t, { small: true, reduced: e.reducedMotion,
+      intensity: cooling ? .25 + state.recovery * .45 : 1 });
+    if (cooling) {
       for (let i = 0; i < 10; i++) {
         const angle = i / 10 * TAU;
         c.fillStyle = i / 10 < state.recovery ? element.mid : '#3a4747';
@@ -618,10 +605,11 @@ export class WispFlightView {
     this.canvas.dataset.element = chosen;
     c.setTransform(1, 0, 0, 1, 0, 0); c.globalAlpha = 1; c.globalCompositeOperation = 'source-over';
     this.drawSky(e, t, distance, palette);
+    c.globalAlpha = .34; c.fillStyle = '#03080b'; c.fillRect(0, 0, this.buffer.width, this.buffer.height); c.globalAlpha = 1;
     this.drawWind(e, t);
     this.drawTerrain(e, t, distance, palette);
     this.drawCollectibles(e, t, distance, element);
-    this.drawTrails(e, t, distance, element);
+    this.drawBurstEffects(e, element);
     this.drawMist(e, t, distance, palette);
     const state = e.getWispState?.(yOf(e), t) || { x: e.player.x - 29, y: yOf(e) + 19, homeX: e.player.x - 29, homeY: yOf(e) + 19, radius: 100, phase: 'ready', recovery: 1, carrying: false };
     const playerX = Math.round(e.player.x * s), playerY = Math.round(yOf(e) * s);
