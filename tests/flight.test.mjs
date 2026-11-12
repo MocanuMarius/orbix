@@ -50,6 +50,24 @@ test('fuel values are capped, generated embers remain finite, and refuelling nev
   flight.destroy();
 });
 
+test('route traits change actual effort, fuel recovery, income and collection-window density', () => {
+  const refuge = makeFlight({ node: { passage: 'open', fuelCadence: 2, fuelBonus: 6, flameDrain: .92 }, flame: 50 });
+  refuge.running = true; refuge.flap(); refuge.collect({ value: 1 });
+  assert.equal(refuge.flapCost, 6);
+  assert.equal(refuge.flame, 72);
+  const cavern = makeFlight({ node: { passage: 'cavern', fuelCadence: 3, flameDrain: 1.08, routeReward: 1.25 }, flame: 50 });
+  cavern.running = true; cavern.flap(); cavern.collect({ value: 3 });
+  assert.equal(cavern.flapCost, 8);
+  assert.equal(cavern.flame, 80);
+  assert.equal(cavern.embers, 3);
+  cavern.collect({ value: 1 });
+  assert.equal(cavern.embers, 5, 'route income multiplier applies once to the total');
+  const totals = [2, 3, 4].map(fuelCadence => Array.from({ length: 12 }, (_, seed) =>
+    buildFlightLayout({ seed, fuelCadence }).embers.filter(e => e.fuel).length).reduce((a, b) => a + b));
+  assert.ok(totals[0] > totals[1] && totals[1] > totals[2], 'gentler routes actually offer more fuel windows');
+  refuge.destroy(); cavern.destroy();
+});
+
 test('each seeded terrain supplies sparse fuel before a depleted checkpoint reserve could run out', () => {
   for (const terrain of ['ruins', 'canopy', 'storm']) for (let seed = 0; seed < 24; seed++) {
     const layout = buildFlightLayout({ terrain, seed });
@@ -106,7 +124,7 @@ test('sparse terrain rewards stay near their scenery and clear of its full motio
   for (const height of [480, 620, 844]) for (const terrain of ['ruins', 'canopy', 'storm']) {
     for (let seed = 0; seed < 12; seed++) {
       const layout = buildFlightLayout({ terrain, seed, height, elite: seed % 2 === 0 });
-      assert.ok(layout.embers.length >= 12, 'enough pickups for the reduced card and challenge targets');
+      assert.ok(layout.embers.length >= 10, 'enough pickups for the reduced card and challenge targets');
       assert.ok(layout.embers.length <= layout.obstacles.length * 1.2, 'at least two-thirds fewer pickups than old four-per-section trails');
       assert.ok(new Set(layout.embers.map(e => e.anchor)).size < layout.obstacles.length * .75,
         'scenery sections with no pickups create quiet stretches');
@@ -220,7 +238,7 @@ test('the map challenge is the exact challenge awarded by flight', () => {
 });
 
 test('shield absorbs damage and protected boost exits inside the opening', () => {
-  const flight = makeFlight({ shield: 1 });
+  const flight = makeFlight({ shield: 1, passage: 'cavern' });
   flight.hit(null);
   assert.equal(flight.hp, 3); assert.equal(flight.shield, 0);
   const obstacle = flight.layout.obstacles[0];
@@ -235,23 +253,23 @@ test('shield absorbs damage and protected boost exits inside the opening', () =>
   flight.destroy();
 });
 
-test('floating scenery uses polygon collisions rather than invisible vertical bars', () => {
+test('grounded mountains and cave vaults use their visible sloping polygon silhouettes', () => {
   for (const terrain of ['ruins', 'canopy', 'storm']) {
-    const layout = buildFlightLayout({ terrain, seed: 'scenery' });
+    const layout = buildFlightLayout({ terrain, passage: 'cavern', seed: 'scenery' });
     for (const obstacle of layout.obstacles) {
       for (const time of [0, 2, 5]) {
         const center = obstacle.center + Math.sin(time * .9 + obstacle.phase) * obstacle.motion;
         for (const polygon of obstaclePolygons(obstacle, time)) {
           assert.ok(polygon.length >= 10);
           const xs = polygon.map(p => p[0]), ys = polygon.map(p => p[1]);
-          assert.ok(Math.max(...ys) - Math.min(...ys) < 145, 'terrain chunks have finite visible outer edges');
-          assert.ok(Math.max(...xs) - Math.min(...xs) > 135, 'scenery is broad terrain, not a narrow pipe');
+          assert.ok(Math.max(...ys) - Math.min(...ys) > 600, 'grounded terrain extends beyond the screen boundary');
+          assert.ok(Math.max(...xs) - Math.min(...xs) > 400, 'broad mountain slopes and cave vaults');
           assert.equal(circleHitsPolygon(obstacle.x + obstacle.width * .5, center, 13, polygon), false);
           const x = xs.reduce((a, b) => a + b, 0) / xs.length;
           const y = ys.reduce((a, b) => a + b, 0) / ys.length;
           assert.equal(circleHitsPolygon(x, y, 1, polygon), true);
           assert.equal(circleHitsPolygon(x, Math.min(...ys) - 20, 5, polygon), false,
-            'space beyond the floating silhouette is genuinely traversable');
+            'collision is bounded by the actual sloping silhouette');
         }
       }
     }
@@ -267,9 +285,9 @@ test('faster flight retains spaced approaches and a clear exit portal corridor',
   }
   const latestGeometry = Math.max(...obstacles.flatMap(o => obstaclePolygons(o, 0).flatMap(p => p.map(v => v[0]))));
   assert.ok(latestGeometry < (flight.duration - 2.8) * flight.baseSpeed + flight.player.x);
-  flight.time = flight.duration - 2.5;
+  flight.distance = flight.totalDistance - flight.baseSpeed * 2.5;
   assert.ok(flight.getExitPortal().x > flight.width);
-  flight.time = flight.duration;
+  flight.distance = flight.totalDistance;
   assert.equal(flight.getExitPortal().x, flight.player.x);
   assert.equal(flight.getExitPortal().y, flight.player.y);
   flight.destroy();

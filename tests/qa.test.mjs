@@ -1,9 +1,9 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { PhoenixFlight } from '../dist/flight.mjs';
+import { PhoenixFlight, obstaclePolygons, circleHitsPolygon } from '../dist/flight.mjs';
 import { newState, createRun, applyStarter, getChoices, selectNode, finishFlight,
   takeCard, getSupportChoices, resolveSupport, getModifiers, saveState,
-  loadState, bankRun } from '../dist/model.mjs';
+  loadState, bankRun, ROUTE_PROFILES } from '../dist/model.mjs';
 
 globalThis.requestAnimationFrame = () => 1;
 globalThis.cancelAnimationFrame = () => {};
@@ -17,19 +17,59 @@ function canvas() {
   return { getContext: () => context, getBoundingClientRect: () => ({ width: 390, height: 620 }) };
 }
 
-function fly(options) {
+function fly(options, diagnostics = {}) {
   let result;
   const flight = new PhoenixFlight({ ...options, canvas: canvas(), onFinish: value => { result = value; } });
   if (options.ignoreFuel) flight.layout.embers = [];
+  if (options.isolated) flight.layout = { obstacles: [], embers: [] };
   flight.start();
+  let lastFlap = -2;
   for (let frame = 0; frame < 9000 && !flight.finished; frame++) {
     const next = flight.layout.obstacles.find(obstacle => !obstacle.destroyed &&
-      obstacle.x - flight.distance + obstacle.width >= flight.player.x - flight.player.radius);
-    const target = next ? flight.obstacleCenter(next) : flight.height * .5;
-    if (flight.player.y > target + 8 && flight.player.vy > 0) flight.flap();
-    if (flight.cooldown === 0 && frame > 240) flight.boost();
+      obstacle.x - flight.distance + obstacle.width * 2.5 >= flight.player.x - flight.player.radius);
+    const fuel = flight.layout.embers.find(ember => ember.fuel && !ember.generated &&
+      !ember.collected && !ember.attracted && ember.x - flight.distance > flight.player.x - 55 &&
+      ember.x - flight.distance < flight.player.x + 280);
+    const target = fuel ? fuel.y + 12 : next ? flight.obstacleCenter(next) : flight.height * .5;
+    const wisp = flight.getWispState();
+    const speed = flight.baseSpeed * (flight.boostTime > 0 ? 1.48 : 1);
+    const intercept = fuel ? (fuel.x - flight.distance - wisp.x) / speed : Infinity;
+    let shouldFlap = flight.player.y > target + 8 && flight.player.vy > 0;
+    if (fuel && intercept > 0 && intercept < 1.4) {
+      // Time the next wingbeat to meet a visible fuel ember, including waiting
+      // when a later tap would be more accurate and spend the same effort.
+      const desired = fuel.y - (wisp.y - flight.player.y);
+      const gravity = 300 * flight.scaleY * (flight.mod.gravity || 1);
+      const coast = flight.player.y + flight.player.vy * intercept + gravity * intercept ** 2 / 2;
+      let bestError = Math.abs(coast - desired), bestDelay = Infinity;
+      for (let delay = 0; delay < intercept; delay += .035) {
+        const waitY = flight.player.y + flight.player.vy * delay + gravity * delay ** 2 / 2;
+        const remaining = intercept - delay;
+        const arrival = waitY - 205 * flight.scaleY * (flight.mod.flap || 1) * remaining + gravity * remaining ** 2 / 2;
+        const error = Math.abs(arrival - desired);
+        if (error < bestError - 1) { bestError = error; bestDelay = delay; }
+      }
+      shouldFlap = coast > desired + 12 && bestDelay < .036;
+    }
+    // Do not chase a collectible through a visible slope. A short ballistic
+    // lookahead uses the same geometry a player can see, without moving it.
+    const lead = .23, gravity = 300 * flight.scaleY * (flight.mod.gravity || 1);
+    const futureX = flight.distance + flight.player.x + speed * lead;
+    const coastY = flight.player.y + flight.player.vy * lead + gravity * lead ** 2 / 2;
+    const flapY = flight.player.y - 205 * flight.scaleY * (flight.mod.flap || 1) * lead + gravity * lead ** 2 / 2;
+    const collides = y => y < 28 || y > flight.height - 29 || flight.layout.obstacles.some(obstacle =>
+      !obstacle.destroyed && Math.abs(obstacle.x - futureX) < 480 &&
+      obstaclePolygons(obstacle, flight.time + lead).some(polygon => circleHitsPolygon(futureX, y, 13, polygon)));
+    if (collides(coastY) && !collides(flapY)) shouldFlap = true;
+    if (!collides(coastY) && collides(flapY)) shouldFlap = false;
+    if (options.isolated) shouldFlap = frame % 81 === 0;
+    if (shouldFlap && flight.time - lastFlap > .35 && flight.flap()) lastFlap = flight.time;
+    if (options.useBoost !== false && flight.cooldown === 0 && frame > 240) flight.boost();
     flight.step(1 / 60);
   }
+  diagnostics.time = flight.time;
+  diagnostics.distance = flight.distance;
+  diagnostics.totalDistance = flight.totalDistance;
   flight.destroy();
   assert.ok(result, 'flight terminates within its bounded duration');
   return result;
@@ -83,12 +123,12 @@ test('an entire seven-stop expedition integrates flight challenges, rewards, rel
       const node = run.current;
       const modifiers = getModifiers(run.cards, run.skills);
       const result = fly({ seed: `${run.seed}:${node.id}`, terrain: node.terrain,
-        elite: node.elite, duration: node.duration, cards: run.cards, modifiers,
+        elite: node.elite, duration: node.duration, node, cards: run.cards, modifiers,
         hp: run.hp, maxHp: run.maxHp, shield: run.shield, flame: run.flame,
         rebirthAvailable: modifiers.rebirth && !run.usedRebirth,
         challengeId: node.challengeId, challengeTarget: node.challengeTarget });
       const before = run.embers;
-      assert.ok(result.success, 'ordinary flight remains clearable without purchased skills');
+      assert.ok(result.success, `ordinary ${node.id}/${node.routeStyle} ${node.terrain} from ${run.flame} Flame: ${JSON.stringify(result)}`);
       assert.ok(finishFlight(run, result));
       assert.equal(run.embers, before + result.embers + node.bonusEmbers +
         (result.challengeComplete ? node.challengeBonus : 0), 'pickup and challenge rewards are paid once');
@@ -117,6 +157,40 @@ test('an entire seven-stop expedition integrates flight challenges, rewards, rel
   state = loadState(storage);
   assert.equal(bankRun(state), false);
   assert.equal(state.profile.embers, earned);
+});
+
+test('ordinary route profiles remain supplied from their advised starting reserves', () => {
+  const failures = [];
+  const builds = [[], ['hungry-wisp', 'kindled-spirit', 'golden-wake'],
+    ['storm-feeder', 'steady-flame', 'high-wing'], ['ash-ward', 'soft-descent', 'warm-heart']];
+  for (let seed = 0; seed < 12; seed++) for (const terrain of ['ruins', 'canopy', 'storm']) {
+    for (const profile of [ROUTE_PROFILES.refuge, ROUTE_PROFILES.cavern]) for (const cards of builds) {
+      const result = fly({ terrain, seed: `qa-reserve-${seed}`, duration: Math.round(38 * profile.durationScale),
+        node: profile, hp: 3, flame: profile.routeStyle === 'refuge' ? 35 : 60, cards, modifiers: getModifiers(cards) });
+      if (!result.success) failures.push({ seed, terrain, cards, route: profile.routeStyle,
+        hp: result.hp, flame: result.flame, collected: result.collected, ...result.stats });
+    }
+  }
+  assert.deepEqual(failures, [], 'ordinary profiles have feasible fuel-aware routes without permanent upgrades');
+});
+
+test('Boost and travel-speed cards cover the same passage sooner with fewer wingbeats', () => {
+  const common = { terrain: 'ruins', seed: 'qa-distance-efficiency', duration: 15,
+    node: ROUTE_PROFILES.refuge, hp: 3, flame: 100, isolated: true };
+  const coastTime = {}, boostTime = {}, tailwindTime = {};
+  const coast = fly({ ...common, useBoost: false, modifiers: getModifiers([]) }, coastTime);
+  const boosted = fly({ ...common, useBoost: true, modifiers: getModifiers([]) }, boostTime);
+  const tailwind = fly({ ...common, useBoost: false, cards: ['tailwind'],
+    modifiers: getModifiers(['tailwind']) }, tailwindTime);
+  assert.equal(coast.success, true);
+  assert.equal(boosted.success, true);
+  assert.equal(tailwind.success, true);
+  assert.equal(coastTime.totalDistance, boostTime.totalDistance);
+  assert.equal(coastTime.totalDistance, tailwindTime.totalDistance);
+  assert.ok(boostTime.time < coastTime.time - .75, 'two 0.9-second bursts at +48% speed save about 0.86 seconds');
+  assert.ok(tailwindTime.time < coastTime.time - 1, 'speed stats reach the same exit sooner');
+  assert.ok(boosted.stats.flaps < coast.stats.flaps, 'Boost saves wingbeats over the fixed passage');
+  assert.ok(tailwind.stats.flaps < coast.stats.flaps, 'speed saves wingbeats over the fixed passage');
 });
 
 test('fixed-step flight advances consistently at 30, 60 and 120 display frames per second', () => {

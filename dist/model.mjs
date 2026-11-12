@@ -87,7 +87,16 @@ function validRun(run) {
   if (!run || typeof run !== 'object' || typeof run.id !== 'string' || typeof run.seed !== 'string') return false;
   if (!PHASES.has(run.phase) || !Number.isInteger(run.step) || run.step < 0 || run.step > 7) return false;
   if (run.step === 7 && run.phase !== 'ended') return false;
-  if (!Array.isArray(run.map) || run.map.length !== 7 || run.map.some((row, i) => !Array.isArray(row) || row.length !== 2 || row.some(node => !node || node.row !== i || typeof node.id !== 'string' || !Object.hasOwn(TERRAINS, node.terrain) || !['flight', 'support', 'finale'].includes(node.type) || !Number.isFinite(node.bonusEmbers) || !Number.isFinite(node.challengeBonus)))) return false;
+  if (!Array.isArray(run.map) || run.map.length !== 7 || run.map.some((row, i) => !Array.isArray(row) || row.length < 1 || row.length > 3 || row.some(node => !node || node.row !== i || typeof node.id !== 'string' || !Object.hasOwn(TERRAINS, node.terrain) || !['flight', 'support', 'finale'].includes(node.type) || !Number.isFinite(node.bonusEmbers) || !Number.isFinite(node.challengeBonus)))) return false;
+  const nodes = run.map.flat();
+  if (new Set(nodes.map(node => node.id)).size !== nodes.length) return false;
+  if (run.startNodeIds !== undefined && (!Array.isArray(run.startNodeIds) || run.startNodeIds.length !== 2 || new Set(run.startNodeIds).size !== 2 || run.startNodeIds.some(id => !run.map[0].some(node => node.id === id)))) return false;
+  // Legacy saves have no adjacency. Keep those routes intact instead of rerolling an active expedition.
+  for (const node of nodes) if (node.nextIds !== undefined) {
+    if (!Array.isArray(node.nextIds) || node.nextIds.length > 2 || new Set(node.nextIds).size !== node.nextIds.length) return false;
+    if (node.row < 6 && !node.nextIds.length) return false;
+    if (node.nextIds.some(id => !run.map[node.row + 1]?.some(next => next.id === id))) return false;
+  }
   if (!Array.isArray(run.path) || run.path.length > 7 || !Array.isArray(run.cards) || run.cards.length > 3 || new Set(run.cards).size !== run.cards.length || run.cards.some(id => !Object.hasOwn(CARDS, id))) return false;
   if (!Array.isArray(run.offers) || run.offers.some(id => !Object.hasOwn(CARDS, id)) || new Set(run.offers).size !== run.offers.length) return false;
   if (!Number.isFinite(run.hp) || !Number.isFinite(run.embers) || !Number.isFinite(run.score)) return false;
@@ -134,47 +143,64 @@ export function loadState(storage) {
 }
 
 const EVENT_NAMES = ['Ash Spring', 'Cinder Bargain', 'Abandoned Nest', 'Molting Shrine', 'Luminous Well', 'The Ember Archive'];
+export const ROUTE_PROFILES = Object.freeze({
+  refuge: { routeStyle: 'refuge', passage: 'open', fuelCadence: 2, fuelBonus: 6, flameDrain: 0.92, routeReward: 1, durationScale: 1, draftTags: ['Wisp', 'Ash'], fuelPreview: 'Abundant fuel · +6 Flame per ember', riskPreview: 'Open passages · gentler Flame cost' },
+  cavern: { routeStyle: 'cavern', passage: 'cavern', fuelCadence: 3, fuelBonus: 0, flameDrain: 1.08, routeReward: 1.25, durationScale: 0.80, draftTags: ['Wing', 'Wisp'], fuelPreview: 'Spaced fuel · conserve your wingbeats', riskPreview: 'Short cave route · tighter roof and floor' },
+  gauntlet: { routeStyle: 'gauntlet', passage: 'gauntlet', fuelCadence: 4, fuelBonus: 2, flameDrain: 1, routeReward: 1.45, durationScale: 0.90, draftTags: ['Flame', 'Wing'], fuelPreview: 'Sparse fuel · time Boost between embers', riskPreview: 'Elite passages · richest ember rewards' },
+});
+
 function makeMap(seed) {
   const rng = randomFor(`${seed}|map`);
   const terrains = shuffled(Object.keys(TERRAINS), rng);
-  let previousEvent = null;
-  const themes = [['Flame', 'Wing'], ['Wisp', 'Ash'], ['Wing', 'Ash'], ['Flame', 'Wisp']];
-  return Array.from({ length: 7 }, (_, row) => [0, 1].map(lane => {
+  const events = shuffled(Array.from({ length: EVENT_NAMES.length }, (_, i) => i), rng);
+  const rows = Array.from({ length: 7 }, (_, row) => (row === 0 ? [0, 1] : row === 6 ? [1] : [0, 1, 2]).map(lane => {
     const terrain = terrains[(Math.floor(row / 2) + lane) % terrains.length];
     const support = row === 1 || row === 4;
     const finale = row === 6;
-    const elite = !support && !finale && row > 0 && lane === 1;
-    const kind = support ? (lane ? 'event' : 'camp') : finale ? 'finale' : elite ? 'elite' : 'normal';
-    let eventIndex = Math.floor(rng() * EVENT_NAMES.length);
-    if (support && lane === 1) {
-      if (eventIndex === previousEvent) eventIndex = (eventIndex + 1) % EVENT_NAMES.length;
-      previousEvent = eventIndex;
-    }
-    const draftTags = elite ? themes[Math.floor(rng() * themes.length)] : [];
+    const routeStyle = lane === 0 ? 'refuge' : lane === 1 ? 'cavern' : 'gauntlet';
+    const profile = ROUTE_PROFILES[routeStyle];
+    const elite = !support && !finale && lane === 2;
+    const kind = support ? lane === 0 ? 'camp' : lane === 2 ? 'shrine' : 'event' : finale ? 'finale' : elite ? 'elite' : 'normal';
+    const eventIndex = events[row === 1 ? 0 : 1];
+    const draftTags = support ? [] : [...profile.draftTags];
     const draftTheme = draftTags.join(' + ');
-    const challengeId = ['wisps', 'clean', 'boosts'][Math.floor(rng() * 3)];
+    const challengeId = routeStyle === 'refuge' ? 'wisps' : routeStyle === 'cavern' ? 'clean' : 'boosts';
     const challengeTarget = challengeId === 'wisps' ? 6 + Math.floor(row / 2) : challengeId === 'boosts' ? 2 : 0;
     const challenge = challengeId === 'wisps' ? `Collect ${challengeTarget} wisps` : challengeId === 'boosts' ? 'Boost twice' : 'Finish without a hit';
+    const routeName = { refuge: 'Ember Refuge', cavern: 'Crystal Cavern', gauntlet: 'Flame Gauntlet' }[routeStyle];
+    const baseDuration = row === 0 ? 34 : 38 + row * 2;
+    const bonusEmbers = support ? 0 : finale ? 35 : routeStyle === 'refuge' ? 10 : elite ? 26 : 18;
     return {
-      id: `n-${row}-${lane ? 'b' : 'a'}`, row, lane,
+      id: `n-${row}-${['a', 'b', 'c'][lane]}`, row, lane, nextIds: [],
       type: support ? 'support' : finale ? 'finale' : 'flight', kind, terrain, elite, draftTags, draftTheme,
-      name: support ? lane ? EVENT_NAMES[eventIndex] : 'Emberwell Camp' : finale ? `${TERRAINS[terrain].name} · Ascension` : `${TERRAINS[terrain].name}${elite ? ' · Trial' : ''}`,
-      description: support ? lane ? 'An encounter with two clear outcomes. Choose what your current flight needs.' : 'Restore a heart or gather embers for your permanent growth.' : `${TERRAINS[terrain].description}${elite ? ' The trial adds a faster, tighter passage.' : ''}`,
-      duration: support ? 0 : finale ? 55 : row === 0 ? 34 : 38 + row * 2,
-      eventIndex: support && lane ? eventIndex : null,
+      routeStyle, passage: profile.passage, fuelCadence: finale ? 3 : profile.fuelCadence,
+      fuelBonus: finale ? 2 : profile.fuelBonus, flameDrain: finale ? 1 : profile.flameDrain,
+      routeReward: finale ? 1.25 : profile.routeReward,
+      fuelPreview: support ? lane === 0 ? 'Full Flame refill available' : lane === 2 ? 'Fuel or a new card' : 'Preview the event before committing' : finale ? 'Balanced fuel · final ascent' : profile.fuelPreview,
+      riskPreview: support ? lane === 0 ? 'Recover before the next fork' : lane === 2 ? 'Build strength or secure your reserve' : 'A resource trade or fresh opportunity' : finale ? 'The routes converge at the summit' : profile.riskPreview,
+      name: support ? lane === 0 ? 'Emberwell Camp' : lane === 2 ? 'Flamekeeper Shrine' : EVENT_NAMES[eventIndex] : finale ? `${TERRAINS[terrain].name} · Ascension` : `${routeName} · ${TERRAINS[terrain].name}`,
+      description: support ? lane === 0 ? 'Restore health and refill Flame, or gather embers. This fork keeps the refuge and cavern routes open.' : lane === 2 ? 'A Flamekeeper offers fuel or new inspiration. The next fork leads toward refuge or an elite passage.' : 'A branching encounter opens the cavern and elite routes. Preview the trade before choosing.' : finale ? `${TERRAINS[terrain].description} Conserve enough Flame for the last climb.` : `${TERRAINS[terrain].description} ${profile.riskPreview}. ${profile.fuelPreview}.`,
+      duration: support ? 0 : finale ? 55 : Math.round(baseDuration * profile.durationScale),
+      eventIndex: support && lane === 1 ? eventIndex : null,
       challenge: support ? '' : challenge,
       challengeId: support ? '' : challengeId,
       challengeTarget: support ? 0 : challengeTarget,
       challengeBonus: support ? 0 : 8,
-      bonusEmbers: support ? 0 : finale ? 35 : elite ? 22 : 12,
-      reward: support ? lane ? 'A choice of boons and bargains' : 'Heal 1 heart or gather 18 embers' : finale ? '35 embers · complete the journey' : elite ? `22 embers · ${draftTheme} card draft` : '12 embers · choose a card',
+      bonusEmbers,
+      reward: support ? lane === 0 ? 'Full refill or 18 embers + 22 Flame' : lane === 2 ? '40 Flame + 10 embers or a card draft' : 'A choice of boons and bargains' : finale ? '35 embers · complete the journey' : `${bonusEmbers} embers · ${draftTheme} card draft · ${Math.round((profile.routeReward - 1) * 100)}% extra pickup rewards`,
     };
   }));
+  for (let row = 0; row < rows.length - 1; row++) for (const node of rows[row]) {
+    const next = rows[row + 1];
+    const lanes = node.lane === 0 ? [0, 1] : node.lane === 1 ? [1, 2] : [0, 2];
+    node.nextIds = next.length === 1 ? [next[0].id] : lanes.map(lane => next.find(item => item.lane === lane).id);
+  }
+  return rows;
 }
 
 function draft(run, label) {
   let available = Object.keys(CARDS).filter(id => !run.cards.includes(id));
-  if (label === 'flight-reward' && run.current?.elite && run.current.draftTags?.length) {
+  if (label === 'flight-reward' && run.current?.draftTags?.length) {
     const themed = available.filter(id => run.current.draftTags.includes(CARDS[id].tag));
     if (themed.length >= 2) available = themed;
   }
@@ -190,6 +216,8 @@ export function createRun(profile = newState().profile, seed = freshSeed()) {
     offers: [], phase: 'starter', success: false, banked: false, supportChoices: [],
     stats: { collected: 0, collisions: 0, boosts: 0, flights: 0, elites: 0, challenges: 0, events: 0 },
   };
+  run.mapVersion = 2;
+  run.startNodeIds = run.map[0].map(node => node.id);
   run.offers = draft(run, 'starter');
   return run;
 }
@@ -198,7 +226,9 @@ export function getChoices(run) {
   if (!run || run.phase !== 'map' || run.step > 6) return [];
   const completed = run.path.map(id => run.map.flat().find(node => node.id === id)).filter(node => node && node.type !== 'support');
   const previousElite = completed.at(-1)?.elite === true;
-  return run.map[run.step].filter(node => !(previousElite && node.elite));
+  const previous = run.map.flat().find(node => node.id === run.path.at(-1));
+  const reachable = run.step === 0 ? run.startNodeIds : previous?.nextIds;
+  return run.map[run.step].filter(node => (!Array.isArray(reachable) || reachable.includes(node.id)) && !(previousElite && node.elite));
 }
 
 function reconcileHealth(run) {
@@ -298,6 +328,10 @@ function makeSupportChoices(run) {
   if (run.current.kind === 'camp') return [
     choice('rest', healingTitle, healingText, healOrWard),
     choice('gather', 'Gather the glow', 'Gain 18 embers and recover 22 Flame.', { embers: 18, flame: 22 }),
+  ];
+  if (run.current.kind === 'shrine') return [
+    choice('shrine-fuel', 'Stoke the inner flame', 'Recover 40 Flame and gain 10 embers before the next fork.', { flame: 40, embers: 10 }),
+    choice('shrine-inspiration', 'Read the rising sparks', 'Choose a temporary card and recover 8 Flame. Keep a reserve for the next passage.', { draft: true, flame: 8 }),
   ];
   switch (run.current.eventIndex) {
     case 0: return [

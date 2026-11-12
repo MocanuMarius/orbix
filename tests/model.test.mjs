@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {
-  CARDS, SKILLS, SAVE_KEY, newState, createRun, getChoices, selectNode, applyStarter,
+  CARDS, SKILLS, ROUTE_PROFILES, SAVE_KEY, newState, createRun, getChoices, selectNode, applyStarter,
   takeCard, finishFlight, getSupportChoices, resolveSupport, bankRun, buySkill,
   getModifiers, saveState, loadState,
 } from '../dist/model.mjs';
@@ -72,6 +72,145 @@ test('many generated maps preserve the seven-stop structure, a safe path, and no
     assert.equal(run.path.length, 7);
     assert.equal(run.cards.length, 3);
   }
+});
+
+test('the first route commits to different reachable forks instead of offering every next node', () => {
+  const refuge = freshRun('branch-commitment');
+  const cave = freshRun('branch-commitment');
+  assert.deepEqual(refuge.map.map(row => row.length), [2, 3, 3, 3, 3, 3, 1]);
+  assert.deepEqual(getChoices(refuge).map(node => node.routeStyle), ['refuge', 'cavern']);
+  selectNode(refuge, getChoices(refuge)[0].id);
+  selectNode(cave, getChoices(cave)[1].id);
+  clearCurrent(refuge);
+  clearCurrent(cave);
+  assert.deepEqual(getChoices(refuge).map(node => node.kind), ['camp', 'event']);
+  assert.deepEqual(getChoices(cave).map(node => node.kind), ['event', 'shrine']);
+  assert.equal(selectNode(refuge, refuge.map[1][2].id), false);
+  assert.equal(selectNode(cave, cave.map[1][0].id), false);
+  selectNode(refuge, refuge.map[1][0].id);
+  selectNode(cave, cave.map[1][1].id);
+  clearCurrent(refuge);
+  clearCurrent(cave);
+  assert.deepEqual(getChoices(refuge).map(node => node.routeStyle), ['refuge', 'cavern']);
+  assert.deepEqual(getChoices(cave).map(node => node.routeStyle), ['cavern', 'gauntlet']);
+});
+
+test('every reachable branch finishes, offers an ordinary continuation, and merges into the final ascent', () => {
+  let completedPaths = 0;
+  function visit(run, lastFlightElite = false) {
+    if (run.phase === 'ended') {
+      assert.equal(run.success, true);
+      assert.equal(run.path.length, 7);
+      assert.equal(run.current.id, run.map[6][0].id);
+      completedPaths++;
+      return;
+    }
+    const choices = getChoices(run);
+    assert.ok(choices.length >= 1 && choices.length <= 2, `dead end at ${run.seed}/${run.path.join('.')}`);
+    assert.ok(choices.some(node => !node.elite));
+    for (const node of choices) {
+      const branch = structuredClone(run);
+      const previous = branch.map.flat().find(item => item.id === branch.path.at(-1));
+      if (previous) assert.ok(previous.nextIds.includes(node.id));
+      if (node.type !== 'support') assert.equal(lastFlightElite && node.elite, false);
+      assert.equal(selectNode(branch, node.id), true);
+      clearCurrent(branch);
+      visit(branch, node.type === 'support' ? lastFlightElite : node.elite);
+    }
+  }
+  for (let seed = 0; seed < 12; seed++) visit(freshRun(`every-branch-${seed}`));
+  assert.ok(completedPaths >= 200, `only ${completedPaths} complete branches checked`);
+});
+
+test('route profiles expose distinct real fuel, passage, timing and themed-reward tradeoffs', () => {
+  const run = freshRun('route-traits');
+  const [refuge, cave, elite] = run.map[2];
+  assert.equal(refuge.routeStyle, 'refuge');
+  assert.equal(cave.routeStyle, 'cavern');
+  assert.equal(elite.routeStyle, 'gauntlet');
+  assert.ok(refuge.fuelCadence < cave.fuelCadence && cave.fuelCadence < elite.fuelCadence);
+  assert.ok(refuge.fuelBonus > cave.fuelBonus);
+  assert.ok(refuge.flameDrain < cave.flameDrain);
+  assert.ok(cave.duration < refuge.duration);
+  assert.ok(refuge.routeReward < cave.routeReward && cave.routeReward < elite.routeReward);
+  assert.ok(refuge.bonusEmbers < cave.bonusEmbers && cave.bonusEmbers < elite.bonusEmbers);
+  assert.deepEqual([refuge.passage, cave.passage, elite.passage], ['open', 'cavern', 'gauntlet']);
+  for (const profile of Object.values(ROUTE_PROFILES)) {
+    // Five or more cards guarantee two unowned choices for every possible three-card loadout.
+    assert.ok(Object.values(CARDS).filter(card => profile.draftTags.includes(card.tag)).length >= 5);
+  }
+  for (const initial of [0, 1]) {
+    const branch = freshRun(`ordinary-theme-${initial}`);
+    const node = getChoices(branch)[initial];
+    assert.ok(node.draftTheme);
+    selectNode(branch, node.id);
+    win(branch);
+    assert.ok(branch.offers.every(id => node.draftTags.includes(CARDS[id].tag)));
+  }
+});
+
+test('fuel shrine makes a visible fuel-versus-new-card decision and persists the generated choice', () => {
+  for (const pick of [0, 1]) {
+    const state = newState();
+    state.run = freshRun(`fuel-shrine-${pick}`);
+    selectNode(state.run, getChoices(state.run)[1].id);
+    clearCurrent(state.run);
+    state.run.flame = 18;
+    const shrine = getChoices(state.run).find(node => node.kind === 'shrine');
+    assert.ok(shrine);
+    selectNode(state.run, shrine.id);
+    const memory = storage();
+    saveState(state, memory);
+    const restored = loadState(memory).run;
+    assert.deepEqual(getSupportChoices(restored), getSupportChoices(state.run));
+    assert.equal(resolveSupport(restored, pick), true);
+    assert.equal(restored.flame, pick === 0 ? 58 : 26);
+    assert.equal(restored.phase, pick === 0 ? 'map' : 'reward');
+    if (pick === 1) assert.equal(takeCard(restored, restored.offers[0]), true);
+    assert.equal(restored.step, 2);
+  }
+});
+
+test('old seven-by-two saves without adjacency continue through their original choices', () => {
+  const state = newState();
+  state.profile.embers = 77;
+  state.run = freshRun('legacy-map');
+  const run = state.run;
+  run.map = run.map.map((row, index) => {
+    const pair = row.length === 1 ? [structuredClone(row[0]), structuredClone(row[0])] : row.slice(0, 2);
+    return pair.map((node, lane) => {
+      node.id = `legacy-${index}-${lane}`;
+      node.lane = lane;
+      delete node.nextIds;
+      return node;
+    });
+  });
+  delete run.startNodeIds;
+  delete run.mapVersion;
+  const memory = storage();
+  saveState(state, memory);
+  const restored = loadState(memory);
+  assert.equal(restored.profile.embers, 77);
+  assert.equal(restored.run.seed, 'legacy-map');
+  while (restored.run.phase !== 'ended') {
+    const options = getChoices(restored.run);
+    assert.equal(options.length, 2);
+    selectNode(restored.run, options[1].id);
+    clearCurrent(restored.run);
+  }
+  assert.equal(restored.run.success, true);
+});
+
+test('a corrupt graph link discards only the invalid run while preserving permanent progress', () => {
+  const state = newState();
+  state.profile.embers = 123;
+  state.run = freshRun('bad-edge');
+  state.run.map[0][0].nextIds = ['does-not-exist'];
+  const memory = storage();
+  saveState(state, memory);
+  const restored = loadState(memory);
+  assert.equal(restored.profile.embers, 123);
+  assert.equal(restored.run, null);
 });
 
 test('invalid or repeated progression commands leave the run unchanged', () => {

@@ -67,20 +67,19 @@ export function obstaclePolygons(obstacle, time = 0) {
 }
 
 function makeTerrainShape(width, scale, top, variant, rng) {
-  // Broad, finite floating landforms: offsets stagger the two pieces rather
-  // than producing aligned bars. Every visible solid edge is this collider.
-  const offset = top ? -18 - rng() * 16 : 15 + rng() * 17;
+  // Authored mountain slopes and cave vaults connect beyond the viewport.
+  // The opening is bounded by natural peaks, shelves and stalactites.
   const points = top
-    ? [[-.12, -46], [.02, -86], [.27, -109], [.52, -91], [.78, -104], [1.09, -58],
-      [1.03, -24], [.81, -7], [.58, -17], [.32, 0], [.09, -12]]
-    : [[-.09, 44], [.03, 16], [.26, 0], [.51, 10], [.76, -3], [1.05, 21],
-      [1.13, 57], [.91, 92], [.56, 117], [.28, 98], [.04, 79]];
-  return points.map(([px, py], i) => [px * width + offset + (rng() - .5) * 7,
-    (py + (i > 0 && i < 5 ? (rng() - .5) * 9 : 0) + Math.sin(i * 2.7 + variant) * 3) * scale]);
+    ? [[-.80, -900], [2.45, -900], [2.45, -180], [1.92, -118], [1.48, -66],
+      [1.06, -24], [.79, -38], [.57, 0], [.35, -25], [.04, -42], [-.46, -120], [-.80, -190]]
+    : [[-.80, 900], [2.45, 900], [2.45, 180], [1.94, 121], [1.47, 65],
+      [1.08, 35], [.83, 8], [.62, 0], [.37, 25], [.03, 49], [-.43, 110], [-.80, 180]];
+  return points.map(([px, py], i) => [px * width,
+    (py + (i >= 4 && i <= 10 ? Math.sin(i * 1.7 + variant) * 4 : 0)) * scale]);
 }
 
 export function buildFlightLayout({ seed = 1, terrain = 'ruins', elite = false,
-  duration = 38, speed = 154, height = 620 } = {}) {
+  duration = 38, speed = 154, height = 620, passage = 'open', fuelCadence = 3 } = {}) {
   const rng = seededRandom(`${seed}:layout`);
   const motifs = FLIGHT_PATTERNS[terrain] || FLIGHT_PATTERNS.ruins;
   const obstacles = [], embers = [];
@@ -91,19 +90,24 @@ export function buildFlightLayout({ seed = 1, terrain = 'ruins', elite = false,
     for (const normalized of pattern.centers) {
       const center = clamp(height * normalized + (rng() - .5) * height * .025,
         previous - height * .115, previous + height * .115);
-      const gap = height * (elite ? .305 : .34) * pattern.gap;
+      const gap = height * (elite ? .315 : passage === 'cavern' ? .33 : .37) * pattern.gap;
       const width = 132 + rng() * 35;
-      if (x + width * 1.3 + 35 > extent) break sections;
+      if (x + width * 2.5 + 35 > extent) break sections;
       const obstacle = {
         id: index, x, width, center,
         gap, phase: rng() * TAU, pattern: pattern.id,
-        motion: terrain === 'canopy' ? height * .025 : 0,
+        motion: terrain === 'canopy' ? height * .008 : 0,
         soft: terrain === 'canopy' && index % 3 === 2,
         destroyed: false, hit: false, passed: false,
         variation: Math.floor(rng() * 4),
       };
-      obstacle.topShape = index % 7 === 4 ? null : makeTerrainShape(width, height / 620, true, index, rng);
-      obstacle.bottomShape = index % 7 === 1 ? null : makeTerrainShape(width * 1.08, height / 620, false, index + 1, rng);
+      obstacle.landmark = passage === 'cavern' ? ['cave-mouth', 'crystal-vault', 'stone-arch', 'skylight'][index % 4]
+        : terrain === 'storm' ? ['mountain-pass', 'spire-ridge', 'wind-saddle'][index % 3]
+        : terrain === 'canopy' ? ['root-hollow', 'moon-grove', 'branch-arch'][index % 3]
+        : ['temple-slope', 'fallen-arch', 'moon-terrace'][index % 3];
+      const ceiling = passage === 'cavern' ? index % 6 !== 5 : terrain === 'canopy' ? index % 3 === 2 : index % 4 === 2;
+      obstacle.topShape = ceiling ? makeTerrainShape(width, height / 620, true, index, rng) : null;
+      obstacle.bottomShape = makeTerrainShape(width, height / 620, false, index + 1, rng);
       obstacles.push(obstacle);
       // Preserve terrain seeds independently of the collectible design.
       for (let j = 0; j < 4; j++) rng();
@@ -113,11 +117,12 @@ export function buildFlightLayout({ seed = 1, terrain = 'ruins', elite = false,
     }
   }
   const loot = seededRandom(`${seed}:ember-routes`);
-  const quietSection = Math.floor(loot() * 3);
+  const cadence = clamp(Math.round(fuelCadence), 2, 4);
+  const quietSection = Math.floor(loot() * cadence);
   for (const [i, obstacle] of obstacles.entries()) {
     // Long empty stretches make each discovery count. Rewards belong to a
     // particular piece of scenery, rather than a repeating mid-air coin trail.
-    if (i % 3 === quietSection) continue;
+    if (cadence === 2 ? i % 4 === quietSection : i % cadence === quietSection || (cadence === 4 && i % 4 === (quietSection + 1) % 4)) continue;
     let side = terrain === 'ruins' ? -1 : terrain === 'canopy' ? 1 : loot() < .5 ? -1 : 1;
     if (!obstacle.topShape) side = 1;
     if (!obstacle.bottomShape) side = -1;
@@ -135,7 +140,7 @@ export function buildFlightLayout({ seed = 1, terrain = 'ruins', elite = false,
       if (fuel) ey = lerp(ey, obstacle.center, .60);
       // Adjacent scenery also participates, including every possible sway.
       const clear = () => obstacles.every(other =>
-        Math.abs(other.x - ex) > 300 || obstaclePolygons({ ...other, motion: 0 }).every(p =>
+        Math.abs(other.x - ex) > 460 || obstaclePolygons({ ...other, motion: 0 }).every(p =>
           !circleHitsPolygon(ex, ey, 23 + other.motion, p)));
       for (let attempt = 0; !clear() && attempt < 12; attempt++) ey = lerp(ey, obstacle.center, .2);
       if (!clear()) return;
@@ -179,6 +184,13 @@ export class PhoenixFlight {
     this.elite = Boolean(options.elite);
     this.seed = options.seed ?? 1;
     this.duration = clamp(Number(options.duration) || 38, 15, 120);
+    const route = options.node || options;
+    this.passage = ['open', 'cavern', 'gauntlet'].includes(route.passage) ? route.passage : 'open';
+    this.fuelCadence = clamp(Number(route.fuelCadence) || 3, 2, 4);
+    this.fuelBonus = clamp(Number(route.fuelBonus) || 0, 0, 10);
+    this.flameDrain = clamp(Number(route.flameDrain) || 1, .8, 1.2);
+    this.routeReward = clamp(Number(route.routeReward) || 1, 1, 1.5);
+    this.totalDistance = this.duration * FLIGHT_TUNING.forwardSpeed;
     this.cards = new Set(options.cards || []);
     this.mod = { gravity: 1, flap: 1, speed: 1, attract: 1,
       boostCooldown: 1, boostDuration: 1, reward: 1, maxHp: 3,
@@ -218,7 +230,8 @@ export class PhoenixFlight {
     this.previousPlayerY = this.player.y; this.previousDistance = this.distance;
     this.visualBank = 0; this.wingPhase = 0;
     this.layout = buildFlightLayout({ seed: this.seed, terrain: this.terrain,
-      elite: this.elite, duration: this.duration, speed: this.baseSpeed, height: this.height });
+      elite: this.elite, duration: this.duration, speed: FLIGHT_TUNING.forwardSpeed, height: this.height,
+      passage: this.passage, fuelCadence: this.fuelCadence });
     this.challengeIndex = Math.floor(seededRandom(`${this.seed}:challenge`)() * 3);
     this.challengeId = options.challengeId || options.node?.challengeId || ['wisps', 'clean', 'boosts'][this.challengeIndex];
     this.challengeTarget = Number(options.challengeTarget ?? options.node?.challengeTarget) || (this.challengeId === 'wisps' ? 7 : this.challengeId === 'boosts' ? 3 : 0);
@@ -261,8 +274,9 @@ export class PhoenixFlight {
   get baseSpeed() { return FLIGHT_TUNING.forwardSpeed * clamp(Number(this.mod.speed) || 1, .80, 1.25) * (this.elite ? 1.045 : 1); }
   get boostDuration() { return .9 * clamp(Number(this.mod.boostDuration) || 1, .5, 2.5); }
   get boostCooldown() { return 9 * clamp(Number(this.mod.boostCooldown) || 1, .35, 2); }
-  get wingRate() { return this.boostTime > 0 ? 9 : this.flame < FLAME_TUNING.flapCost ? .45 : 5.8; }
-  get embers() { return Math.floor((this.baseEmbers + this.bonusEmbers) * Math.max(0, Number(this.mod.reward) || 1)); }
+  get flapCost() { return Math.round(FLAME_TUNING.flapCost * this.flameDrain); }
+  get wingRate() { return this.boostTime > 0 ? 9 : this.flame < this.flapCost ? .45 : 5.8; }
+  get embers() { return Math.floor((this.baseEmbers + this.bonusEmbers) * Math.max(0, Number(this.mod.reward) || 1) * this.routeReward); }
 
   loadImage(url, property) {
     if (!url || typeof Image === 'undefined') return;
@@ -307,12 +321,12 @@ export class PhoenixFlight {
 
   flap() {
     if (!this.running || this.paused || this.finished) return false;
-    if (this.flame < FLAME_TUNING.flapCost) {
+    if (this.flame < this.flapCost) {
       this.setEvent('Flame exhausted · glide toward an ember'); this.notify();
       return false;
     }
-    this.flame -= FLAME_TUNING.flapCost;
-    this.flaps++; this.effortSpent += FLAME_TUNING.flapCost;
+    this.flame -= this.flapCost;
+    this.flaps++; this.effortSpent += this.flapCost;
     this.player.vy = -FLIGHT_TUNING.flapImpulse * this.scaleY * clamp(Number(this.mod.flap) || 1, .80, 1.20);
     this.burst(this.player.x - 10, this.player.y + 7, 5, '#ffbd53');
     this.sound('flap');
@@ -392,6 +406,20 @@ export class PhoenixFlight {
     return obstacle.center + Math.sin(this.time * .9 + obstacle.phase) * obstacle.motion;
   }
 
+  clearTerrainY(desiredY) {
+    const worldX = this.distance + this.player.x;
+    const polygons = this.layout.obstacles.filter(o => !o.destroyed && worldX > o.x - o.width && worldX < o.x + o.width * 2.6)
+      .flatMap(o => obstaclePolygons(o, this.time));
+    const clear = y => y >= 28 && y <= this.height - 29 &&
+      polygons.every(polygon => !circleHitsPolygon(worldX, y, this.player.radius + 5, polygon));
+    if (clear(desiredY)) return desiredY;
+    for (let offset = 4; offset < this.height; offset += 4) {
+      if (clear(desiredY - offset)) return desiredY - offset;
+      if (clear(desiredY + offset)) return desiredY + offset;
+    }
+    return clamp(desiredY, 28, this.height - 29);
+  }
+
   getWispState(y = this.player.y, time = this.time) {
     const reach = 35 * clamp(Number(this.mod.attract) || 1, .5, 4);
     return { x: this.player.x - 29 + Math.sin(time * 3) * 3,
@@ -445,8 +473,8 @@ export class PhoenixFlight {
 
     for (const obstacle of this.layout.obstacles) {
       const x = obstacle.x - this.distance;
-      if (x > this.width + 100) break;
-      if (x + obstacle.width * 1.4 < -30 || obstacle.destroyed) continue;
+      if (x > this.width + 250) break;
+      if (x + obstacle.width * 2.5 < -30 || obstacle.destroyed) continue;
       const center = this.obstacleCenter(obstacle);
       const top = center - obstacle.gap / 2, bottom = center + obstacle.gap / 2;
       const polygons = obstaclePolygons(obstacle, this.time);
@@ -467,16 +495,16 @@ export class PhoenixFlight {
           // Returning from a protected burst always places the body inside the
           // opening, so the next unprotected frame cannot be an unavoidable hit.
           if (this.boostTime === 0) {
-            this.player.y = clamp(this.player.y, top + 20, bottom - 20);
+            this.player.y = this.clearTerrainY(clamp(this.player.y, top + 20, bottom - 20));
             this.player.vy *= .6;
           }
         } else if (!obstacle.hit) {
           this.hit(obstacle);
-          this.player.y = clamp(this.player.y, top + 23, bottom - 23);
+          this.player.y = this.clearTerrainY(clamp(this.player.y, top + 23, bottom - 23));
           this.player.vy *= .25;
         }
       }
-      if (!obstacle.passed && x + obstacle.width * 1.4 < this.player.x - this.player.radius) {
+      if (!obstacle.passed && x + obstacle.width * 2.5 < this.player.x - this.player.radius) {
         obstacle.passed = true; this.score += 25;
         const edge = Math.min(Math.abs(this.player.y - top), Math.abs(bottom - this.player.y));
         if (edge < 36 && !obstacle.hit) {
@@ -526,7 +554,7 @@ export class PhoenixFlight {
     }
     this.updateClock += dt;
     if (this.updateClock >= .10) { this.updateClock = 0; this.notify(); }
-    if (!this.finished && this.time >= this.duration) this.finish(true);
+    if (!this.finished && this.distance >= this.totalDistance) this.finish(true);
   }
 
   hit(obstacle) {
@@ -561,7 +589,7 @@ export class PhoenixFlight {
   collect(ember) {
     if (ember.collected || this.finished) return;
     ember.collected = true;
-    const fuel = ember.generated ? FLAME_TUNING.generatedFuel : ember.value === 3 ? FLAME_TUNING.heartFuel : FLAME_TUNING.emberFuel;
+    const fuel = ember.generated ? FLAME_TUNING.generatedFuel : (ember.value === 3 ? FLAME_TUNING.heartFuel : FLAME_TUNING.emberFuel) + this.fuelBonus;
     const restored = Math.min(fuel, FLAME_TUNING.maximum - this.flame);
     this.flame += restored; this.flameRestored += restored;
     const origin = ember.attracted ? this.getWispState() : this.player;
@@ -604,15 +632,15 @@ export class PhoenixFlight {
 
   getState() {
     return { hp: this.hp, maxHp: this.maxHp, score: Math.floor(this.score), embers: this.embers,
-      flame: this.flame, maxFlame: FLAME_TUNING.maximum, flapCost: FLAME_TUNING.flapCost,
-      canFlap: this.flame >= FLAME_TUNING.flapCost, flaps: this.flaps,
+      flame: this.flame, maxFlame: FLAME_TUNING.maximum, flapCost: this.flapCost,
+      canFlap: this.flame >= this.flapCost, flaps: this.flaps,
       collected: this.baseEmbers, boostCooldown: this.cooldown,
       boostReady: this.cooldown <= .001 && this.boostTime <= 0,
-      boostTime: this.boostTime, progress: clamp(this.time / this.duration, 0, 1),
+      boostTime: this.boostTime, progress: clamp(this.distance / this.totalDistance, 0, 1),
       shield: this.shield, event: this.time < this.eventUntil ? this.event : '',
       renderer: this.pixiReady ? 'pixi' : 'canvas',
       paused: this.paused, finished: this.finished, rebirthUsed: this.rebirthUsed,
-      time: this.time, remaining: Math.max(0, this.duration - this.time),
+      time: this.time, remaining: Math.max(0, (this.totalDistance - this.distance) / this.baseSpeed),
       challenge: this.challengeText, challengeComplete: this.challengeComplete() };
   }
 
@@ -705,8 +733,8 @@ export class PhoenixFlight {
     this.drawWind(c, W, H);
     for (const o of this.layout.obstacles) {
       const x = o.x - this.renderDistance;
-      if (x > W + 80) break;
-      if (x + o.width < -70 || o.destroyed) continue;
+      if (x > W + 250) break;
+      if (x + o.width * 2.5 < -70 || o.destroyed) continue;
       this.drawObstacle(c, o, x, H);
     }
     this.drawEmbers(c);
@@ -995,7 +1023,7 @@ export class PhoenixFlight {
   }
 
   getExitPortal() {
-    const remaining = this.duration - this.time;
+    const remaining = (this.totalDistance - this.distance) / this.baseSpeed;
     if (remaining > 2.5) return null;
     const progress = clamp(1 - remaining / 2.5, 0, 1);
     return { x: lerp(this.width + 55, this.player.x, progress),

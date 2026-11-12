@@ -12,12 +12,7 @@ const viewTime = engine => engine.visualTime ?? engine.time;
 const viewDistance = engine => engine.renderDistance ?? engine.distance;
 const viewY = engine => engine.renderPlayerY ?? engine.player.y;
 
-// One screen-sized material pass keeps painted detail while local fire and
-// wisp light move across it. All geometry and collisions remain strictly 2D.
-function makeTerrainLight() {
-  return new PIXI.Filter({
-    glProgram: PIXI.GlProgram.from({
-      vertex: `precision highp float;
+const LIGHT_VERTEX = `precision highp float;
         in vec2 aPosition;
         out vec2 vTextureCoord;
         uniform vec4 uInputSize;
@@ -29,7 +24,14 @@ function makeTerrainLight() {
           position.y = position.y * (2.0 * uOutputTexture.z / uOutputTexture.y) - uOutputTexture.z;
           gl_Position = vec4(position, 0.0, 1.0);
           vTextureCoord = aPosition * (uOutputFrame.zw * uInputSize.zw);
-        }`,
+        }`;
+
+// One screen-sized material pass keeps painted detail while local fire and
+// wisp light move across it. All geometry and collisions remain strictly 2D.
+function makeTerrainLight() {
+  return new PIXI.Filter({
+    glProgram: PIXI.GlProgram.from({
+      vertex: LIGHT_VERTEX,
       fragment: `precision highp float;
         in vec2 vTextureCoord;
         uniform sampler2D uTexture;
@@ -38,25 +40,54 @@ function makeTerrainLight() {
         uniform vec2 uWisp;
         uniform float uHeat;
         uniform float uReach;
+        uniform float uScale;
         out vec4 finalColor;
         void main() {
           vec4 surface = texture(uTexture, vTextureCoord);
           vec2 pixel = vTextureCoord * uInputSize.xy;
-          float fire = pow(max(0.0, 1.0 - distance(pixel, uFire) / 235.0), 2.0);
-          float spirit = pow(max(0.0, 1.0 - distance(pixel, uWisp) / (95.0 + uReach)), 2.0);
+          float fire = pow(max(0.0, 1.0 - distance(pixel, uFire) / (235.0 * uScale)), 2.0);
+          float spirit = pow(max(0.0, 1.0 - distance(pixel, uWisp) / (95.0 * uScale + uReach)), 2.0);
           float luminance = dot(surface.rgb, vec3(.2126, .7152, .0722));
           vec3 material = mix(vec3(luminance), surface.rgb, .91);
-          vec3 light = vec3(.84, .88, .94) + vec3(1.65, .80, .30) * fire * uHeat
-            + vec3(.20, 1.15, .92) * spirit;
-          finalColor = vec4(material * light, surface.a);
+          vec2 texel = uInputSize.zw;
+          vec3 left = texture(uTexture, vTextureCoord - vec2(texel.x * 2.0, 0.0)).rgb;
+          vec3 up = texture(uTexture, vTextureCoord - vec2(0.0, texel.y * 2.0)).rgb;
+          vec3 relief = normalize(vec3((luminance - dot(left, vec3(.333))) * 2.4,
+            (luminance - dot(up, vec3(.333))) * 2.4, 1.0));
+          vec3 direction = normalize(vec3(uFire - pixel, 100.0));
+          float bevel = max(.25, dot(relief, direction));
+          vec3 light = vec3(.48, .58, .86) + vec3(2.8, 1.35, .48) * fire * uHeat * bevel
+            + vec3(.30, 2.0, 1.65) * spirit;
+          vec3 emissive = max(vec3(0.0), material - vec3(.40, .43, .36)) * vec3(.15, .20, .32);
+          finalColor = vec4(material * light + emissive, surface.a);
         }`,
     }),
     resources: { lighting: {
       uFire: { value: new Float32Array([98, 310]), type: 'vec2<f32>' },
       uWisp: { value: new Float32Array([68, 330]), type: 'vec2<f32>' },
-      uHeat: { value: 1, type: 'f32' }, uReach: { value: 35, type: 'f32' },
+      uHeat: { value: 1, type: 'f32' }, uReach: { value: 35, type: 'f32' }, uScale: { value: 1, type: 'f32' },
     } },
   });
+}
+
+function makeRadiance() {
+  return new PIXI.Filter({ glProgram: PIXI.GlProgram.from({ vertex: LIGHT_VERTEX,
+    fragment: `precision highp float;
+      in vec2 vTextureCoord;
+      uniform sampler2D uTexture;
+      uniform vec4 uInputSize;
+      out vec4 finalColor;
+      vec3 bright(vec2 uv) { return max(texture(uTexture, uv).rgb - vec3(.57), vec3(0.0)); }
+      void main() {
+        vec4 base = texture(uTexture, vTextureCoord);
+        vec2 stepSize = uInputSize.zw * 4.0;
+        vec3 glow = bright(vTextureCoord + vec2(stepSize.x, 0.0))
+          + bright(vTextureCoord - vec2(stepSize.x, 0.0))
+          + bright(vTextureCoord + vec2(0.0, stepSize.y))
+          + bright(vTextureCoord - vec2(0.0, stepSize.y));
+        finalColor = vec4(base.rgb + glow * .20, base.a);
+      }`,
+  }) });
 }
 
 export class PixiFlightView {
@@ -116,6 +147,8 @@ export class PixiFlightView {
     this.scene = new PIXI.Container();
     this.scene.eventMode = 'none';
     app.stage.addChild(this.scene);
+    this.radiance = makeRadiance(); this.scene.filters = [this.radiance];
+    this.scene.filterArea = new PIXI.Rectangle(0, 0, engine.width, engine.height);
     this.sky = new PIXI.Graphics();
     this.scene.addChild(this.sky);
     this.backdrop = new PIXI.Sprite(PIXI.Texture.WHITE);
@@ -263,7 +296,7 @@ export class PixiFlightView {
       assets.background && PIXI.Assets.load(assets.background).then(texture => {
         if (this.destroyed) return;
         this.backdrop.texture = texture;
-        this.backdrop.alpha = engine.terrain === 'storm' ? .70 : .86;
+        this.backdrop.alpha = engine.passage === 'cavern' ? .57 : .93;
         this.resize();
       }),
       assets.phoenixAtlas && PIXI.Assets.load(assets.phoenixAtlas).then(texture => {
@@ -277,12 +310,12 @@ export class PixiFlightView {
         this.bodyFallback.visible = false;
         this.render(engine);
       }),
-      PIXI.Assets.load(assets.terrainAtlas || 'assets/terrain-atlas.png').then(texture => {
+      PIXI.Assets.load(assets.terrainAtlas || 'assets/moon-materials.png').then(texture => {
         if (this.destroyed) return;
-        const width = texture.width / 3, height = texture.height / 2;
-        this.terrainFrames = Array.from({ length: 6 }, (_, index) => new PIXI.Texture({
+        const width = texture.width / 3, height = texture.height;
+        this.terrainFrames = Array.from({ length: 3 }, (_, index) => new PIXI.Texture({
           source: texture.source, frame: new PIXI.Rectangle(index % 3 * width,
-            Math.floor(index / 3) * height, width, height) }));
+            0, width, height) }));
         for (const item of this.obstacles.values()) item.destroy({ children: true });
         this.obstacles.clear();
         this.render(engine);
@@ -306,9 +339,9 @@ export class PixiFlightView {
       this.backdrop.width = texture.width * scale;
       this.backdrop.height = texture.height * scale;
       this.backdrop.y = (H - this.backdrop.height) / 2;
-      this.backdrop.tint = engine.terrain === 'canopy' ? 0xc5d3ce : engine.terrain === 'storm' ? 0xafbfd2 : 0xe1d3c2;
+      this.backdrop.tint = 0xcbdcff;
     }
-    this.sun.position.set(W * .77, H * .24);
+    this.sun.position.set(W * .73, H * .17);
     this.sun.width = this.sun.height = 200;
     this.foreground.clear();
     for (let band = 0; band < 8; band++) {
@@ -343,17 +376,14 @@ export class PixiFlightView {
       const minX = Math.min(...points.map(point => point[0])), maxX = Math.max(...points.map(point => point[0]));
       const minY = Math.min(...points.map(point => point[1])), maxY = Math.max(...points.map(point => point[1]));
       const terrainColumn = { ruins: 0, canopy: 1, storm: 2 }[engine.terrain];
-      const paintedFrame = this.terrainFrames[rows[index] * 3 + terrainColumn];
+      const paintedFrame = this.terrainFrames[terrainColumn];
       if (paintedFrame) {
-        const painting = new PIXI.Sprite(paintedFrame);
-        // Map the opaque painted mass, rather than transparent cell padding,
-        // over the solid collider. These bounds were measured from the atlas.
-        const bounds = [[16, 88, 496, 408], [16, 104, 492, 416], [8, 124, 500, 384],
-          [16, 16, 492, 456], [12, 44, 496, 440], [16, 48, 500, 440]][rows[index] * 3 + terrainColumn];
-        const width = (maxX - minX) * 512 / (bounds[2] - bounds[0]);
-        const height = (maxY - minY) * 512 / (bounds[3] - bounds[1]);
-        painting.position.set(minX - bounds[0] / 512 * width, minY - bounds[1] / 512 * height);
-        painting.width = width; painting.height = height; painting.alpha = .98;
+        const painting = new PIXI.TilingSprite({ texture: paintedFrame,
+          width: maxX - minX, height: maxY - minY });
+        painting.position.set(minX, minY);
+        painting.tileScale.set(.62);
+        painting.tilePosition.set(-obstacle.x * .2, rows[index] ? -100 : 20);
+        painting.alpha = .98;
         const mask = new PIXI.Graphics().poly(flatten(points)).fill(0xffffff);
         piece.addChild(painting, mask);
         painting.mask = mask;
@@ -452,20 +482,23 @@ export class PixiFlightView {
     const W = engine.width, H = engine.height, time = viewTime(engine), distance = viewDistance(engine);
     const spirit = engine.getWispState(viewY(engine), time);
     const lighting = this.terrainLight.resources.lighting.uniforms;
-    lighting.uFire[0] = engine.player.x; lighting.uFire[1] = viewY(engine);
-    lighting.uWisp[0] = spirit.x; lighting.uWisp[1] = spirit.y;
-    lighting.uReach = spirit.radius;
+    const scale = this.application.renderer.screen.width / W;
+    lighting.uScale = scale;
+    lighting.uFire[0] = engine.player.x * scale; lighting.uFire[1] = viewY(engine) * scale;
+    lighting.uWisp[0] = spirit.x * scale; lighting.uWisp[1] = spirit.y * scale;
+    lighting.uReach = spirit.radius * scale;
     lighting.uHeat = (engine.boostTime > 0 ? 1.65 : .50 + engine.flame / 200) + (engine.reducedMotion ? 0 : Math.sin(time * 8) * .055);
-    this.terrainLayer.filterArea.width = W; this.terrainLayer.filterArea.height = H;
-    this.backdrop.x = (W - this.backdrop.width) / 2 + Math.sin(distance * .0006) * 12;
-    this.sun.alpha = engine.terrain === 'storm' ? .18 : .31;
+    this.terrainLayer.filterArea.width = W * scale; this.terrainLayer.filterArea.height = H * scale;
+    this.scene.filterArea.width = W * scale; this.scene.filterArea.height = H * scale;
+    this.backdrop.x = W * .73 - this.backdrop.width * .84 + Math.sin(distance * .0003) * 8;
+    this.sun.tint = 0x91b9ff; this.sun.alpha = engine.passage === 'cavern' ? .12 : .32;
     this.sunRays.clear();
     for (let ray = 0; ray < 4; ray++) {
       const x = W * .77 + ray * 12;
       const drift = Math.sin(time * .13 + ray) * 11;
       this.sunRays.poly([x - 3, H * .22, x + 6, H * .22,
         W * .14 + ray * 56 + drift, H, W * -.13 + ray * 50 + drift, H])
-        .fill({ color: 0xf5d5a7, alpha: engine.terrain === 'storm' ? .009 : .015 });
+        .fill({ color: 0x96bfff, alpha: engine.passage === 'cavern' ? .008 : .018 });
     }
     this.ambientEmbers.children.forEach((ember, index) => {
       ember.position.set(((index * 83 - distance * .12) % (W + 40) + W + 40) % (W + 40) - 20,
@@ -485,9 +518,9 @@ export class PixiFlightView {
       for (let index = -1; index < 7; index++) {
         const x = index * 100 - shift % 100;
         const y = H * (.70 + layer * .105) + Math.sin(index * 1.7 + Math.floor(shift / 100) * 1.7) * 32;
-        graphic.poly([x - 20, y, x + 11, y - 14, x + 68, y - 9,
-          x + 91, y + 9, x + 42, y + 37, x + 4, y + 19])
-          .fill({ color: [0x34505a, 0x244a4c, 0x173c40][layer], alpha: .15 + layer * .07 });
+        graphic.poly([x - 50, H + 30, x - 50, y + 60, x + 11, y - 28,
+          x + 48, y + 10, x + 78, y - 4, x + 140, y + 60, x + 140, H + 30])
+          .fill({ color: [0x20315e, 0x172c52, 0x102240][layer], alpha: .12 + layer * .04 });
       }
     }
     this.world.position.set(engine.reducedMotion ? 0 : Math.sin(time * 77) * engine.shake,
@@ -495,8 +528,8 @@ export class PixiFlightView {
     const visibleObstacles = new Set();
     for (const obstacle of engine.layout.obstacles) {
       const x = obstacle.x - distance;
-      if (x > W + 100) break;
-      if (x + obstacle.width * 1.3 < -80 || obstacle.destroyed) continue;
+      if (x > W + 250) break;
+      if (x + obstacle.width * 2.5 < -80 || obstacle.destroyed) continue;
       visibleObstacles.add(obstacle.id);
       let item = this.obstacles.get(obstacle.id);
       if (!item) { item = this.createTerrain(obstacle); this.obstacles.set(obstacle.id, item); }
@@ -621,8 +654,8 @@ export class PixiFlightView {
     this.phoenix.position.set(engine.player.x, viewY(engine));
     this.phoenix.rotation = Number.isFinite(engine.visualBank) ? engine.visualBank : clamp(engine.player.vy / (800 * engine.scaleY), -.37, .53);
     this.aura.position.set(-12, 4);
-    this.aura.width = this.aura.height = boosted ? 100 : 76;
-    this.aura.alpha = boosted ? .35 : .17;
+    this.aura.width = this.aura.height = boosted ? 145 : 98;
+    this.aura.alpha = boosted ? .48 : .26;
     this.coreLight.position.set(-3, 1);
     this.coreLight.width = this.coreLight.height = boosted ? 40 : 28;
     this.coreLight.alpha = boosted ? .27 : .16;
@@ -738,6 +771,7 @@ export class PixiFlightView {
     this.application = null;
     this.canvas?.remove();
     this.terrainLight?.destroy(); this.terrainLight = null;
+    this.radiance?.destroy(); this.radiance = null;
     for (const frame of this.frames) frame.destroy(false);
     this.frames = [];
     for (const frame of this.terrainFrames) frame.destroy(false);
