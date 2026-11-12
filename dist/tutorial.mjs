@@ -1,3 +1,4 @@
+import {getCompanionAbility} from './companion-abilities.mjs';
 // Practice is an authored flight using the same controls, fuel and colliders.
 // This module contains guidance and lesson scenery; it never grants rewards.
 const clamp = (n, lo, hi) => Math.min(hi, Math.max(lo, n));
@@ -102,35 +103,41 @@ export function getTutorialHint(engine) {
   const hint = (id, title, text, step) => ({ id, title, text, step, total: 4,
     waitingForLift: Boolean(engine.tutorialAwaitingLift) });
   if (engine.tutorialAwaitingLift) return hint('launch', 'Tap Lift to begin',
-    'One thumb, two controls. LIFT sends your wisp upward; the world waits for your first tap.', 1);
-  if (engine.flame < engine.flapCost * 2) return hint('low-glow', 'Find a gold spark',
-    'Gliding costs no Glow. Touch a spark yourself, or let your carrier bring one back.', 2);
+    'LIFT sends your wisp upward. Rock or screen edges end this attempt. Three tries per ascension.', 1);
+  if (engine.flame < engine.flapCost * 2) return hint('low-glow', 'Find a light packet',
+    'Gliding costs no Glow. Touch a light packet yourself, or let your carrier bring one back.', 2);
   if (state.lesson === 'glide') {
     if (!state.directPickups) {
       if (state.glideSeconds < 1) return hint('glide', 'Lift, then let go',
-        'Each Lift spends Glow. Release it to glide toward the gold spark on the low shelf.', 2);
-      return hint('direct', 'Touch the gold spark',
-        'Move through a spark to refill Glow. Your carrier is waiting so you can try it yourself.', 2);
+        'Each Lift spends Glow. Release it to glide toward the light packet on the low shelf.', 2);
+      return hint('direct', 'Touch the light packet',
+        'Move through a light packet to refill Glow. Your carrier is waiting so you can try it yourself.', 2);
     }
     if (!state.carrierDeliveries) return hint('carrier', 'A companion lends a hand',
-      engine.wisp.phase === 'returning' ? 'It is bringing a spark home. Glow arrives when the carrier returns.'
-        : 'Your opposite spirit fetches one nearby spark automatically, then brings it back to you.', 3);
+      engine.wisp.phase === 'returning' ? 'It is bringing a light packet home. Glow arrives when the carrier returns.'
+        : 'Your companion waits for your attempt, then fetches a missed light packet still inside its circle.', 3);
     if (engine.wisp.phase === 'cooldown') return hint('rest', 'Collect while it rests',
-      'The carrier needs a short rest after each fetch. You can still touch sparks yourself.', 3);
+      'The carrier needs a short rest after each fetch. You can still touch light packets yourself.', 3);
     return hint('glide-ready', 'A little Glow goes a long way',
-      'Lift only when you need height. Glide between sparks and fly into the gate.', 4);
+      'Lift only when you need height. Glide between light packets and reach the waylight.', 4);
   }
-  const gust = engine.gustState();
-  if (!engine.boosts) return hint('boost', gust.warning ? 'A gust is coming' : 'Try a protected Boost',
-    gust.warning ? 'The arrows show its push. Tap BOOST to cut through the gust with protection.'
-      : 'The smaller right-hand control gives a protected speed burst and resists the wind.', 2);
-  if (gust.warning || gust.active) return hint('wind', gust.warning ? 'Read the wind warning' : 'Ride the wind',
-    gust.direction > 0 ? 'The gust pushes down. Keep room above the rocks; Boost can help you cross.'
-      : 'The gust slows your fall. Glide and leave room above your wisp.', 3);
-  if (!state.finishedWind) return hint('watch-wind', 'Watch for the arrows',
-    'The next warning shows the wind direction before it arrives. Save Boost for a useful moment.', 3);
+  const gust = engine.gustState(), ability = getCompanionAbility(engine.companionRole || engine.options?.companionRole);
+  const lesson = {
+    swift: 'BOOST adds speed and resists local drafts. Rock and screen edges still end the attempt.',
+    anchor: 'LEVEL holds your height briefly. Drafts still nudge you, and Lift ends Level immediately.',
+    scout: 'REVEAL reaches 45% farther briefly. Use it before a bend, and keep steering clear of rock.'
+  }[ability.id];
+  if (!engine.boosts) return hint('ability', `Try ${ability.label}`, lesson, 2);
+  if (gust.warning || gust.active) return hint('wind', gust.warning ? 'Choose a way past' : 'Inside the draft puff',
+    ability.id === 'swift'
+      ? 'This puff nudges only inside it. Fly above or below, or BOOST across with room to spare.'
+      : ability.id === 'anchor'
+        ? 'Drafts still nudge you during LEVEL. Fly around the puff, or leave room for its push.'
+        : 'REVEAL shows more of the path; it does not resist drafts. Fly above or below the puff.', 3);
+  if (!state.finishedWind) return hint('watch-wind', 'Find the little draft puff',
+    'One gentle puff waits along this route. Its curls show where it pushes; you can fly around it.', 3);
   const recharge = clamp(engine.cooldown, 0, 99);
   return hint('ready', 'You choose the rhythm', recharge > .1
-    ? 'Glide, collect and give Boost time to recover. The gate completes your practice.'
-    : 'Boost is ready again. Use it when the path or the wind calls for it.', 4);
+    ? `Glide, collect and give ${ability.label} time to recover. Reach the waylight to complete practice.`
+    : `${ability.label} is ready again. Choose a useful moment for your companion.`, 4);
 }

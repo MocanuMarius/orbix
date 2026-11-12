@@ -1,3 +1,6 @@
+import { sceneryIdentity, drawIdentityBackground, drawIdentityMaterial } from './level-scenery.mjs';
+import { getCompanionAbility, normalizeCompanionRole } from './companion-abilities.mjs';
+
 const TAU = Math.PI * 2;
 const WIDTH = 260;
 const ART_SCALE = WIDTH / 195;
@@ -15,17 +18,22 @@ const PALETTES = {
   canopy: { sky: ['#0c1515', '#172321', '#26342b'], far: '#203029', middle: '#2b3b30', near: '#3c4836', stone: '#2c342a', shade: '#1d2823', face: '#414b35', grain: '#5b6145', rim: '#82866a', mist: '#78826a' },
   storm: { sky: ['#111821', '#202b34', '#344147'], far: '#2c3940', middle: '#3d4a4d', near: '#4b5758', stone: '#343f44', shade: '#232f35', face: '#4d5b5d', grain: '#6a7878', rim: '#a2afaa', mist: '#879a9b' },
 };
-const ELEMENTS = {
-  fire: { edge: '#623d2d', outer: '#b36b39', mid: '#dfa65b', core: '#f2d79a', bright: '#fff0c8', trail: '#98603b' },
-  ice: { edge: '#344e58', outer: '#638f9b', mid: '#a0c7c8', core: '#deebe2', bright: '#f4f2d8', trail: '#527a88' },
+const MATERIALS = {
+  aqueduct: { stone: '#36382f', face: '#4a4638', grain: '#746c51', rim: '#9d9272' },
+  belfry: { stone: '#363c38', face: '#4e554c', shade: '#202e2c', grain: '#747b63', rim: '#9ca38b' },
+  ossuary: { stone: '#393c36', face: '#51564a', grain: '#92977d', rim: '#b0b99a' },
+  elder: { stone: '#30332a', face: '#514a34', grain: '#75714d', rim: '#929571' },
+  fen: { stone: '#26342d', face: '#3a5141', grain: '#656f45', rim: '#90a074' },
+  hanging: { stone: '#26352f', face: '#415849', grain: '#61836a', rim: '#91b89e' },
+  ridge: { stone: '#363f45', face: '#526169', grain: '#6f7d83', rim: '#a4b4b6' },
+  chasm: { stone: '#2f343f', face: '#454f60', grain: '#69768c', rim: '#9da9bc' },
+  glass: { stone: '#303f4a', face: '#4a6673', grain: '#7999a7', rim: '#b6ced0' },
 };
-const SPIRIT_PIXELS = {
-  fire: ['0000000001000000', '0000000012100000', '0000000012210000', '0000000122210000', '0000001222210000', '0000012232210000', '0000122333221000', '0001223343322100', '0012233444332210', '0122334454433221', '1223344554433221', '1233445555443321', '1233445544443321', '0123344444332210', '0012334433322100', '0001223332221000', '0000122221110000', '0000011111000000'],
-  ice: ['0000000010000000', '0000000121000000', '0000001232100000', '0000012232210000', '0000122333221000', '0001223343322100', '0012233444332210', '0122334454433221', '1223344555443321', '0123344554433210', '1233445555443321', '0123344544333210', '0012334443322100', '0001223433221000', '0000122332210000', '0000012232100000', '0000001231000000', '0000000120000000', '0000000010000000'],
-};
-const CACHE_PIXELS = {
-  normal: ['0001000', '0012100', '0123210', '1234321', '1235431', '0124310', '0012100', '0001000'],
-  rich: ['0000001000000', '0000012100000', '0000123210000', '0000124310000', '0010124310100', '0121124321210', '1232124432321', '1233234433321', '1233344433321', '1234544544321', '0123444443210', '0012334432100', '0001223321000', '0000112210000', '0000011100000'],
+const MAIN_LIGHT = { outer: '#9daaa0', mid: '#ccd6c6', core: '#f0f1d8', bright: '#ffffec' };
+const COMPANION_TINTS = {
+  pearl: { outer: '#9daaa5', mid: '#cbd5cc', core: '#eff0df', bright: '#fffdec' },
+  amber: { outer: '#a28d68', mid: '#cfbc91', core: '#f0dfb5', bright: '#fff0d0' },
+  lilac: { outer: '#8f899e', mid: '#beb5ce', core: '#e4ddee', bright: '#f4eef7' },
 };
 const GLYPHS = {
   '0': ['111', '101', '101', '101', '111'], '1': ['010', '110', '010', '010', '111'],
@@ -164,24 +172,8 @@ export class WispFlightView {
       if (i % 17 === 0) c.fillRect(x - 1, y + 1, 3, 1);
     }
     c.globalAlpha = 1;
-    const moonX = Math.round(W * .77), moonY = Math.round(H * .15), moonR = Math.round(Math.min(18, H * .065));
-    c.globalAlpha = .30; pixelDisc(c, moonX, moonY, moonR + 3, '#626e64');
-    c.globalAlpha = 1; pixelDisc(c, moonX, moonY, moonR, '#a5afa0');
-    pixelDisc(c, moonX + 6, moonY - 4, moonR - 2, palette.sky[0]);
-    for (let layer = 0; layer < 3; layer++) {
-      c.fillStyle = [palette.far, palette.middle, palette.near][layer];
-      const points = [[0, H], [0, H * .8]], scroll = distance * this.scale * (.035 + layer * .045);
-      for (let x = -4; x <= W + 4; x += 4) {
-        const world = x + scroll;
-        let ridge = Math.sin(world * .022 + layer * 1.4) * .55 + Math.sin(world * .049 + layer * 4.2) * .24 + Math.cos(world * .011) * .22;
-        if (e.terrain === 'ruins') ridge = Math.round(ridge * 5) / 5;
-        if (e.terrain === 'storm') ridge = Math.abs(ridge) * 1.3 - .25;
-        points.push([x, Math.round(H * (.67 + layer * .09) + ridge * H * (.095 - layer * .015))]);
-      }
-      points.push([W, H]); path(c, points); c.fill();
-    }
-    if (e.terrain === 'canopy') this.drawDeadForest(t, distance, palette);
-    else this.drawDistantRuins(distance, palette, e.terrain === 'storm');
+    drawIdentityBackground(c, { identity: sceneryIdentity(e), width: W, height: H, distance, palette },
+      { line: pixelLine, disc: pixelDisc, polygon: path });
     // Low, broken cloud and mist strips keep the world atmospheric without blurred assets.
     c.globalAlpha = .12;
     for (let i = 0; i < 13; i++) {
@@ -248,8 +240,12 @@ export class WispFlightView {
 
   drawMist(e, t, distance, palette) {
     const c = this.bufferContext, H = this.buffer.height;
-    for (let layer = 0; layer < 4; layer++) {
-      const y = Math.round(H * (.52 + layer * .125));
+    const scene = sceneryIdentity(e).scene;
+    const [start, spacing, layers] = ({ belfry: [.76, .05, 4], fen: [.72, .06, 4],
+      hanging: [.18, .20, 3], glass: [.36, .37, 2], chasm: [.79, .10, 2],
+      elder: [.57, .12, 4], ridge: [.33, .22, 3] })[scene] || [.57, .14, 3];
+    for (let layer = 0; layer < layers; layer++) {
+      const y = Math.round(H * (start + layer * spacing));
       const shift = (distance * (.012 + layer * .007) + (e.reducedMotion ? 0 : t * 1.4)) % 80;
       c.globalAlpha = .055 + layer * .012; c.fillStyle = palette.mist;
       for (let patch = -1; patch < 4; patch++) {
@@ -327,7 +323,8 @@ export class WispFlightView {
   }
 
   terrainImage(e, obstacle, shape, top, palette) {
-    const key = `${obstacle.id}:${top ? 'top' : 'floor'}:${this.buffer.height}:${e.terrain}`;
+    const identity = sceneryIdentity(e);
+    const key = `${identity.id}:${obstacle.sectionId || ''}:${obstacle.id}:${top ? 'top' : 'floor'}:${this.buffer.height}`;
     const cached = this.terrainCache.get(key);
     if (cached) return cached;
     const s = this.scale, minX = Math.min(...shape.map(p => p[0])), minY = Math.min(...shape.map(p => p[1]));
@@ -338,38 +335,19 @@ export class WispFlightView {
     c.imageSmoothingEnabled = false;
     path(c, shape, ox, oy, s); c.fillStyle = palette.stone; c.fill();
     c.save(); c.clip();
-    const seed = Number(obstacle.id) || 0;
-    for (let y = 0; y < canvas.height; y += 8) {
-      c.fillStyle = (Math.floor(y / 8) + seed) % 3 === 0 ? palette.shade : palette.face;
-      for (let x = 0; x < canvas.width; x += 12) c.fillRect(x, y + Math.floor(hash(Math.floor(x / 12), Math.floor(y / 8), seed) * 3), 12, 2);
-    }
-    for (let y = 1; y < canvas.height; y += 4) for (let x = 1; x < canvas.width; x += 4) {
-      const n = hash(x, y, seed + 11);
-      if (n < .23) { c.fillStyle = n < .10 ? palette.grain : palette.shade; c.fillRect(x + (y % 3), y, n < .05 ? 2 : 1, 1); }
-    }
     const surface = shape.slice(2).reverse().map(([x, y]) => [Math.round(x * s + ox), Math.round(y * s + oy)]);
+    const section = e.layout.sections?.find(item => item.id === obstacle.sectionId);
+    const hardEntry = Boolean(section?.hard && e.layout.obstacles.find(item => item.sectionId === section.id) === obstacle);
+    drawIdentityMaterial(c, { identity, surface, top, palette, width: canvas.width,
+      height: canvas.height, obstacle, hardEntry }, { line: pixelLine, polygon: path });
     const inward = top ? -1 : 1;
     for (let i = 1; i < surface.length; i++) {
       const a = surface[i - 1], b = surface[i];
       pixelLine(c, a[0], a[1] + inward * 2, b[0], b[1] + inward * 2, palette.face, 2);
       pixelLine(c, a[0], a[1], b[0], b[1], palette.rim);
     }
-    for (let i = 3; i < surface.length - 2; i += 7) {
-      const [x, y] = surface[i];
-      if (e.terrain === 'canopy') {
-        for (let step = 0; step < 10; step++) {
-          const xx = x + Math.round(Math.sin(step * .5 + i) * 3);
-          c.fillStyle = palette.shade; c.fillRect(xx, y + inward * (4 + step * 2), 2, 3);
-          if (step < 3) { c.fillStyle = palette.grain; c.fillRect(xx - 2, y + inward * step, 3, 1); }
-        }
-      } else {
-        pixelLine(c, x, y + inward * 6, x + (i % 2 ? 4 : -3), y + inward * 20, palette.shade);
-        if (e.terrain === 'ruins') { c.fillStyle = palette.shade; c.fillRect(x - 4, y + inward * 9, 6, 2); }
-        else { pixelLine(c, x - 3, y + inward, x + 3, y + inward, '#a7b8b5'); }
-      }
-    }
     if (obstacle.soft) {
-      // Fire Wake's convertible brambles stay inside the real silhouette but
+      // Shatter Wake's convertible brambles stay inside the real silhouette but
       // carry a distinct dry-vine weave and a few dormant amber thorn tips.
       for (let i = 5; i < surface.length - 3; i += 9) {
         const [x, y] = surface[i];
@@ -379,7 +357,6 @@ export class WispFlightView {
         c.fillStyle = '#be9356'; c.fillRect(x + 6, y + inward * 5, 1, 1);
       }
     }
-    this.drawTerrainStory(c, surface, top, palette, obstacle, e.terrain, canvas.width);
     c.restore();
     const item = { canvas, x: minX, y: minY, pad: 2 };
     this.terrainCache.set(key, item);
@@ -405,55 +382,44 @@ export class WispFlightView {
   }
 
   drawCollectibles(e, t, distance) {
-    const c = this.bufferContext, s = this.scale;
-    // Fuel keeps one warm-gold identity for both Fire and Ice players.
-    const element = ELEMENTS.fire;
+    const s = this.scale;
     for (const ember of e.layout.embers) {
       if (ember.collected || ember.carried) continue;
       const x = Math.round((ember.x - distance) * s), y = Math.round(ember.y * s);
       if (x < -13 || x > WIDTH + 13) continue;
-      const rich = ember.value === 3;
-      // A small pool of light belongs to this cache, not to the entire screen.
-      // It is still shaded by the fog pass, so scouting and carrier light matter.
-      this.glow(x, y, rich ? 15 : 7, element.outer, rich ? .19 : .10);
-      if (ember.pocket) {
-        const side = ember.pocketSide === 'ceiling' ? -1 : 1;
-        c.globalAlpha = rich ? .30 : .18;
-        c.fillStyle = element.outer;
-        c.fillRect(x - (rich ? 4 : 2), y + side * (rich ? 12 : 8), rich ? 9 : 5, 1);
-        c.globalAlpha = 1;
-      }
-      if (rich) {
-        // One enclosure and one joined base read as one valuable object. The
-        // three attached facets cannot be mistaken for a trail of three hits.
-        const pulse = e.reducedMotion ? .43 : .39 + Math.sin(t * 2.3 + ember.phase) * .075;
-        c.globalAlpha = pulse;
-        pixelLine(c, x, y - 11, x + 9, y, element.mid);
-        pixelLine(c, x + 9, y, x, y + 11, element.mid);
-        pixelLine(c, x, y + 11, x - 9, y, element.mid);
-        pixelLine(c, x - 9, y, x, y - 11, element.mid);
-        c.globalAlpha = .74;
-        c.fillStyle = element.core;
-        c.fillRect(x - 1, y - 11, 3, 1); c.fillRect(x - 1, y + 11, 3, 1);
-        c.fillRect(x - 9, y - 1, 1, 3); c.fillRect(x + 9, y - 1, 1, 3);
-        c.globalAlpha = 1;
-      }
-      const rows = CACHE_PIXELS[rich ? 'rich' : 'normal'];
-      const inks = [null, element.edge, element.outer, element.mid, element.core, element.bright];
-      const left = Math.floor(rows[0].length / 2), top = Math.floor(rows.length / 2);
-      for (let yy = 0; yy < rows.length; yy++) for (let xx = 0; xx < rows[yy].length; xx++) {
-        const ink = inks[Number(rows[yy][xx])];
-        if (ink) { c.fillStyle = ink; c.fillRect(x + xx - left, y + yy - top, 1, 1); }
-      }
+      this.drawPacket(x, y, { dark: ember.kind === 'dark' || ember.harmful === true,
+        rich: ember.value === 3, tiny: ember.generated === true });
     }
-    c.globalAlpha = 1;
   }
 
-  drawBurstEffects(e, element) {
+  drawPacket(x, y, { dark = false, rich = false, tiny = false, alpha = 1 } = {}) {
+    const c = this.bufferContext, r = tiny ? 1 : rich ? 4 : 2;
+    c.save();
+    if (dark) {
+      // An occluding halo and a broken ash edge distinguish this from a light
+      // packet. There is no emissive crystal, bright outline or elemental mark.
+      c.globalAlpha = alpha * .32; pixelDisc(c, x, y, 10, '#010205');
+      c.globalAlpha = alpha * .7; pixelDisc(c, x, y, 5, '#333a3e');
+      c.globalAlpha = alpha; pixelDisc(c, x, y, 4, '#020306');
+      pixelDisc(c, x, y, 2, '#000000');
+      c.globalAlpha = alpha * .35;
+      c.fillStyle = '#6c7172'; c.fillRect(x - 4, y - 1, 1, 2); c.fillRect(x + 2, y + 4, 2, 1);
+    } else {
+      this.glow(x, y, tiny ? 4 : rich ? 12 : 7, '#cabb99', (tiny ? .08 : rich ? .17 : .11) * alpha);
+      c.globalAlpha = alpha * .5; pixelDisc(c, x, y, r + 1, '#bfaf8d');
+      c.globalAlpha = alpha * .9; pixelDisc(c, x, y, r, '#e4d9b8');
+      pixelDisc(c, x - (rich ? 2 : 1), y + 1, tiny ? 1 : 2, '#e4d9b8');
+      c.globalAlpha = alpha; pixelDisc(c, x, y - 1, Math.max(1, r - 1), '#fff1cd');
+      c.fillStyle = '#fffdec'; c.fillRect(x - 1, y - 1, rich ? 3 : 2, 2);
+    }
+    c.restore();
+  }
+
+  drawBurstEffects(e, tint) {
     const c = this.bufferContext, s = this.scale;
     for (const p of (e.particles || []).slice(-90)) {
       c.globalAlpha = clamp(p.life / p.maxLife, 0, 1) * .7;
-      c.fillStyle = p.type === 'spark' ? element.core : element.outer;
+      c.fillStyle = p.type === 'spark' ? tint.core : tint.outer;
       c.fillRect(Math.round(p.x * s), Math.round(p.y * s), p.type === 'spark' ? 2 : 1, 1);
     }
     c.globalAlpha = 1;
@@ -461,17 +427,23 @@ export class WispFlightView {
 
   lightFog(e, state, playerX, playerY) {
     const c = this.bufferContext, W = this.buffer.width, H = this.buffer.height, s = this.scale;
-    this.lightRadius = Math.max(40, Number(e.mod?.lightRadius) || 175);
+    const light = e.getLightState?.() || e.light || {};
+    this.currentLightState = light;
+    const baseRadius = Number(light.baseRadius) || Number(e.mod?.lightRadius) || 175;
+    this.lightRadius = Math.max(24, Number(light.radius) || baseRadius);
+    this.lightIntensity = clamp(Number.isFinite(light.intensity) ? light.intensity : 1, .25, 1);
+    const dimScale = clamp(this.lightRadius / baseRadius, .6, 1);
+    this.lightDimScale = dimScale;
     const radius = this.lightRadius * s, radius2 = radius * radius;
     const carrierX = state.x * s, carrierY = state.y * s;
-    const carrierRadius2 = ((state.phase === 'cooldown' ? 13 + state.recovery * 7 : 26) * ART_SCALE) ** 2;
+    const carrierRadius2 = ((state.phase === 'cooldown' ? 13 + state.recovery * 7 : 26) * ART_SCALE * dimScale) ** 2;
     const pixels = this.fogPixels.data, dither = [0, 8, 2, 10, 12, 4, 14, 6, 3, 11, 1, 9, 15, 7, 13, 5];
     for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
       const distance2 = (x - playerX) ** 2 + (y - playerY) ** 2;
       const carrier2 = (x - carrierX) ** 2 + (y - carrierY) ** 2;
       const playerShade = clamp((distance2 / radius2 - .10) / .90, 0, 1);
       const carrierShade = clamp((carrier2 / carrierRadius2 - .08) / .92, 0, 1);
-      const shade = Math.min(playerShade, carrierShade);
+      const shade = 1 - Math.max(1 - playerShade, 1 - carrierShade) * this.lightIntensity;
       const grain = (dither[(y & 3) * 4 + (x & 3)] / 15 - .5) * .035;
       const alpha = clamp(Math.round((.025 + shade * .93 + grain) * 24) / 24, 0, .96);
       const index = (y * W + x) * 4;
@@ -491,160 +463,304 @@ export class WispFlightView {
     c.restore();
   }
 
-  drawSpirit(x, y, element, t, { small = false, boost = false, tap = 0, fuel = 1, reduced = false, intensity = 1 } = {}) {
+  drawSpirit(x, y, tint, t, { small = false, boost = false, tap = 0, fuel = 1, reduced = false, intensity = 1 } = {}) {
     const c = this.bufferContext;
     c.save();
-    const flicker = reduced ? 0 : Math.sin(t * (boost ? 22 : 12));
-    this.glow(x, y, Math.round((small ? 10 : boost ? 32 : 27) * ART_SCALE), element.outer, (small ? .12 : .22) * intensity);
-    if (small) {
-      c.globalAlpha *= intensity;
-      c.fillStyle = element.edge; c.fillRect(x - 3, y - 3, 7, 7);
-      c.fillStyle = element.outer; c.fillRect(x - 2, y - 5, 5, 9);
-      c.fillStyle = element.mid; c.fillRect(x - 3, y - 1, 7, 4);
-      c.fillStyle = element.core; c.fillRect(x - 1, y - 3, 3, 6);
-      c.fillStyle = element.bright; c.fillRect(x, y - 2, 2, 3);
-      if (element === ELEMENTS.ice) { c.fillStyle = element.mid; c.fillRect(x - 4, y, 1, 1); c.fillRect(x + 4, y, 1, 1); }
-      c.restore(); return;
-    }
-    // A finer original sprite keeps the large silhouette on the denser grid.
-    c.translate(x, y); c.scale(2, 2); x = 0; y = 0;
-    c.globalAlpha = clamp(.58 + fuel * .42, .58, 1);
-    const rows = SPIRIT_PIXELS[element === ELEMENTS.ice ? 'ice' : 'fire'];
-    const inks = [null, element.edge, element.outer, element.mid, element.core, element.bright];
-    const sway = Math.round(flicker + tap * 1.5);
-    for (let yy = 0; yy < rows.length; yy++) for (let xx = 0; xx < rows[yy].length; xx++) {
-      const value = Number(rows[yy][xx]);
-      if (!value) continue;
-      c.fillStyle = inks[value];
-      c.fillRect(x + xx - 8 + (yy < 6 ? sway : 0), y + yy - 9 - (yy < 6 ? Math.round(tap * 2) : 0), 1, 1);
-    }
-    c.fillStyle = element.bright; c.fillRect(x, y - 1, 1, 3);
-    if (element === ELEMENTS.ice) {
-      c.fillStyle = element.mid; c.fillRect(x - 9, y, 1, 1); c.fillRect(x + 9, y, 1, 1);
-      c.fillStyle = element.bright; c.fillRect(x, y + 9, 1, 1);
-    }
-    c.globalAlpha = 1;
-    if (tap > .05) {
-      c.globalAlpha = tap * .7;
-      for (let i = 0; i < 9; i++) {
-        const angle = i / 9 * TAU, r = 10 + (1 - tap) * 4;
-        c.fillStyle = element.mid; c.fillRect(Math.round(x + Math.cos(angle) * r), Math.round(y + Math.sin(angle) * r), 1, 1);
-      }
-      c.globalAlpha = 1;
+    const breath = reduced ? 0 : Math.sin(t * 2.3) * .28;
+    const radius = small ? 4 : 13 + breath + tap * .4;
+    const power = clamp(intensity, .18, 1) * (small ? 1 : .72 + fuel * .28);
+    this.glow(x, y, Math.round((small ? 10 : boost ? 28 : 23) * ART_SCALE), tint.outer, (small ? .12 : .22) * power);
+    const disc = (cx, cy, r, ink) => {
+      if (small) { pixelDisc(c, cx, cy, r, ink); return; }
+      // Rasterize a true circle into the pixel scene rather than a stepped
+      // polygon whose bright corners can read as a diamond.
+      c.fillStyle = ink; c.beginPath(); c.arc(cx, cy, r, 0, TAU); c.fill();
+    };
+    // Nested translucent round cores form a soft light, with no pointed flame,
+    // crystal body, elemental glyph, or persistent particle tail.
+    c.globalAlpha = power * .22; disc(x, y, radius + 1, tint.outer);
+    c.globalAlpha = power * .44; disc(x, y, radius, tint.mid);
+    c.globalAlpha = power * .72; disc(x, y, Math.max(2, radius - 2), tint.core);
+    c.globalAlpha = power * .9; disc(x, y, Math.max(1, radius - (small ? 3 : 5)), tint.core);
+    c.globalAlpha = Math.max(.35, power) * .94;
+    disc(x - (small ? 0 : 2), y - (small ? 1 : 2), small ? 1 : 4, tint.bright);
+    if (!small && tap > .05) {
+      c.globalAlpha = tap * power * .24;
+      disc(x, y, radius + 2, tint.core);
     }
     c.restore();
   }
 
-  drawCarrier(e, t, distance, state, element) {
+  drawCarrier(e, t, distance, state, tint) {
     const c = this.bufferContext, s = this.scale;
     const x = Math.round(state.x * s), y = Math.round(state.y * s);
     const homeX = state.homeX * s, homeY = state.homeY * s;
     const cooling = state.phase === 'cooldown';
     const radius = state.radius * s, dots = Math.round(TAU * radius / 4);
-    c.globalAlpha = cooling ? .07 + state.recovery * .12 : state.phase === 'ready' ? .46 : .25;
+    c.globalAlpha = (cooling ? .07 + state.recovery * .12 : state.phase === 'ready' ? .46 : .25) * (this.lightIntensity || 1);
     for (let dot = 0; dot < dots; dot++) {
       const angle = dot / dots * TAU;
-      c.fillStyle = element.core;
+      c.fillStyle = tint.core;
       c.fillRect(Math.round(homeX + Math.cos(angle) * radius), Math.round(homeY + Math.sin(angle) * radius), 1, 1);
     }
     c.globalAlpha = 1;
-    this.drawSpirit(x, y, element, t, { small: true, reduced: e.reducedMotion,
-      intensity: cooling ? .25 + state.recovery * .45 : 1 });
+    this.drawSpirit(x, y, tint, t, { small: true, reduced: e.reducedMotion,
+      intensity: (cooling ? .25 + state.recovery * .45 : 1) * (this.lightIntensity || 1) });
     if (cooling) {
       for (let i = 0; i < 10; i++) {
         const angle = i / 10 * TAU;
-        c.fillStyle = i / 10 < state.recovery ? element.mid : '#3a4747';
+        c.fillStyle = i / 10 < state.recovery ? tint.mid : '#3a4747';
         c.fillRect(Math.round(x + Math.cos(angle) * 6), Math.round(y + Math.sin(angle) * 6), 1, 1);
       }
     }
     if (state.carrying) {
-      c.fillStyle = '#a18b51'; c.fillRect(x + 3, y + 3, 3, 3);
-      c.fillStyle = '#e2cd8c'; c.fillRect(x + 4, y + 3, 1, 2);
+      this.drawPacket(x + 5, y + 4, { tiny: true, dark: state.cargoKind === 'dark' });
+    }
+  }
+
+  drawCompanionAbility(e, t, playerX, playerY, carrier, ability) {
+    if (!ability.active) return;
+    const c = this.bufferContext, role = normalizeCompanionRole(ability.role || ability.id);
+    const duration = Math.max(.1, Number(ability.duration) || 1);
+    const progress = clamp(1 - (Number(ability.remaining) || 0) / duration, 0, 1);
+    const light = this.lightIntensity || 1;
+    c.save();
+    if (role === 'swift') {
+      if (!e.reducedMotion) for (let i = 0; i < 4; i++) {
+        const shift = (progress * 4 + i * .21) % 1;
+        const x = playerX - 19 - i * 5 - shift * 3;
+        const y = playerY + (i % 2 ? -1 : 1) * (4 + i);
+        c.globalAlpha = light * (.22 + (1 - shift) * .32);
+        pixelLine(c, x, y, x + 4 + i % 2 * 2, y - 1, '#d7dbc4');
+      }
+    } else if (role === 'anchor') {
+      // Horizontal level marks, never a circular guard or immunity cue.
+      c.globalAlpha = light * .68;
+      for (const side of [-1, 1]) {
+        pixelLine(c, playerX + side * 16, playerY, playerX + side * 22, playerY, '#cbd8bc');
+        pixelLine(c, playerX + side * 22, playerY - 2, playerX + side * 22, playerY + 2, '#a4b99f');
+      }
+      const x = carrier.x * this.scale, y = carrier.y * this.scale;
+      pixelLine(c, x - 5, y + 7, x + 5, y + 7, '#cbd8bc');
+      c.fillStyle = '#a4b99f'; c.fillRect(Math.round(x - 5), Math.round(y + 6), 1, 2);
+      c.fillRect(Math.round(x + 5), Math.round(y + 6), 1, 2);
+    } else if (role === 'scout') {
+      if (e.reducedMotion) {
+        const x = carrier.x * this.scale, y = carrier.y * this.scale;
+        c.globalAlpha = light * .5;
+        pixelLine(c, x + 7, y - 3, x + 10, y - 4, '#d0d3df');
+        pixelLine(c, x + 7, y + 3, x + 10, y + 4, '#d0d3df');
+      } else {
+        // The soft front follows the actual reveal radius, including upgrades
+        // and dark-packet dimming. It adds no independent terrain illumination.
+        const radius = (Number(this.currentLightState?.radius) || this.lightRadius) * this.scale;
+        c.strokeStyle = '#c7ced5'; c.lineWidth = 1;
+        for (const inset of [0, 1.5, 3]) {
+          c.globalAlpha = light * (.045 + Math.sin(progress * Math.PI) * .035) * (1 - inset / 5);
+          for (const [start, end] of [[-.55, .25], [.62, 1.02], [-1.12, -.86]]) {
+            c.beginPath(); c.arc(playerX, playerY, Math.max(20, radius - inset), start, end); c.stroke();
+          }
+        }
+      }
+    }
+    c.restore();
+  }
+
+  drawAbsorptions(e, t, playerX, playerY) {
+    const c = this.bufferContext, s = this.scale;
+    for (const effect of e.absorptionEffects || []) {
+      const duration = Math.max(.1, Number(effect.duration) || .8);
+      const age = Number.isFinite(effect.bornAt) ? t - effect.bornAt : duration - effect.life;
+      const progress = clamp(age / duration, 0, 1);
+      if (age < 0 || progress >= 1) continue;
+      const dark = effect.kind === 'dark';
+      const start = Math.max(0, Number(effect.startRadius) || 0);
+      const orbit = clamp(Math.max(38, start), 34, 44);
+      const initialAngle = Number(effect.initialAngle) || 0;
+      const radiusAt = p => {
+        if (e.reducedMotion) return start * (1 - p) ** 2;
+        if (p < .20) return start + (orbit - start) * (1 - (1 - p / .20) ** 3);
+        if (p < .48) return orbit;
+        return orbit * (1 - clamp((p - .48) / .42, 0, 1) ** 3);
+      };
+      const angleAt = p => initialAngle + (e.reducedMotion ? 0 : TAU * (.35 * p + 3.4 * p ** 3));
+      const pointAt = p => {
+        const radius = radiusAt(p) * s, angle = angleAt(p);
+        return [playerX + Math.cos(angle) * radius, playerY + Math.sin(angle) * radius];
+      };
+      // These short ghosts belong only to the retrieved packet's .8s orbit.
+      // They follow the current player; they never leave a main-character trail.
+      const ghosts = e.reducedMotion ? 0 : 3;
+      for (let i = ghosts; i >= 0; i--) {
+        const sample = progress - i * .025;
+        if (sample < 0) continue;
+        const [x, y] = pointAt(sample);
+        this.drawPacket(Math.round(x), Math.round(y), { dark, tiny: !dark,
+          alpha: (i ? .16 * (1 - i / 4) : 1) * clamp((1 - progress) * 3, 0, 1) });
+      }
+      if (progress > .84) {
+        const impact = (progress - .84) / .16;
+        const pulse = Math.sin(impact * Math.PI) * (e.reducedMotion ? .5 : 1);
+        c.save();
+        if (dark) {
+          c.globalAlpha = pulse * .20; pixelDisc(c, playerX, playerY, Math.round(10 + impact * 12), '#010205');
+          c.globalAlpha = pulse * .76; pixelDisc(c, playerX, playerY, Math.round(4 + pulse * 3), '#000000');
+        } else {
+          this.glow(playerX, playerY, Math.round(10 + pulse * 11), '#e8e3c5', pulse * .17);
+          c.globalAlpha = pulse * .6; pixelDisc(c, playerX, playerY, Math.round(3 + pulse * 5), '#ffffe9');
+        }
+        c.restore();
+      }
     }
   }
 
   drawWind(e, t, lightState) {
-    const gust = e.gustState?.();
-    if (!gust?.active && !gust?.warning) return;
+    const puffs = e.getDraftPuffs?.(t) || [];
+    if (!puffs.length) return;
     const c = this.bufferContext, H = this.buffer.height, s = this.scale;
     const px = e.player.x * s, py = yOf(e) * s;
     const radius = Math.max(27, (this.lightRadius || Number(e.mod?.lightRadius) || 175) * s);
     const carrier = lightState || e.getWispState?.(yOf(e), t);
     const carrierX = (carrier?.x ?? e.player.x) * s, carrierY = (carrier?.y ?? yOf(e)) * s;
-    const carrierRadius = (carrier?.phase === 'cooldown' ? 13 + carrier.recovery * 7 : 26) * ART_SCALE;
-    const direction = gust.direction < 0 ? -1 : 1;
-    const intensity = clamp(Number(gust.intensity) || .6, .35, 1.3);
-    const warningProgress = clamp(Number(gust.warningProgress) || 0, 0, 1);
-    const power = gust.active ? clamp(Number(gust.strength) || 0, 0, 1) : .08 + warningProgress * .18;
-    const warning = gust.warning && !gust.active;
-    const ink = warning ? '#bcb59c' : '#aac5c2';
-    c.save();
-    // This pass sits above fog, but its mask is restricted to light that is
-    // already present. A gust must not expose remote terrain or hidden caches.
-    c.beginPath(); c.arc(px, py, radius * .92, 0, TAU);
-    if (carrier) { c.moveTo(carrierX + carrierRadius, carrierY); c.arc(carrierX, carrierY, carrierRadius, 0, TAU); }
-    c.clip();
-    if (!e.reducedMotion) {
-      const count = warning ? 12 : Math.round(14 + intensity * 11);
-      const span = H + 34, speed = warning ? 12 + warningProgress * 11 : 42 + intensity * 34;
-      const distance = distanceOf(e);
-      for (let i = 0; i < count; i++) {
-        const x = Math.round(px - radius + (((i * 31 - distance * .025) % (radius * 2)) + radius * 2) % (radius * 2));
-        const y = Math.round((((i * 53 + t * speed * direction) % span) + span) % span - 17);
-        const playerDistance = ((x - px) ** 2 + (y - py) ** 2) / (radius * radius);
-        const carrierDistance = ((x - carrierX) ** 2 + (y - carrierY) ** 2) / (carrierRadius * carrierRadius);
-        const visibility = Math.max(clamp((1 - playerDistance) * 1.7, 0, 1), carrier ? clamp((1 - carrierDistance) * .75, 0, .75) : 0);
-        if (visibility <= .025) continue;
-        const length = Math.round(warning ? 3 + warningProgress * 3 : 5 + intensity * 4 + power * 4 + i % 3);
-        const curl = Math.round(Math.sin(t * 1.5 + i * 1.7) * (warning ? 1 : 2));
-        c.globalAlpha = visibility * (warning ? .12 + warningProgress * .20 : .19 + power * .31);
-        pixelLine(c, x + curl, y - direction * length, x, y, ink);
-        if (!warning && power > .3) {
-          c.globalAlpha = visibility * (.20 + power * .32);
-          c.fillStyle = '#dde3d7'; c.fillRect(x, y, 1, 2);
+    const carrierRadius = (carrier?.phase === 'cooldown' ? 13 + carrier.recovery * 7 : 26) * ART_SCALE * (this.lightDimScale || 1);
+    const visibility = (x, y) => {
+      const playerDistance = ((x - px) ** 2 + (y - py) ** 2) / (radius * radius);
+      const carrierDistance = ((x - carrierX) ** 2 + (y - carrierY) ** 2) / (carrierRadius * carrierRadius);
+      const lit = Math.max(clamp((1 - playerDistance) * 1.5, 0, 1),
+        carrier ? clamp((1 - carrierDistance) * .75, 0, .75) : 0) * (this.lightIntensity || 1);
+      // A faint local mist hint can be scouted. This pass never clears fog or
+      // changes the light on the terrain underneath it.
+      return .12 + lit * .88;
+    };
+    for (const puff of puffs) {
+      if (![puff.x, puff.y, puff.rx, puff.ry].every(Number.isFinite)) continue;
+      const x = (puff.x - distanceOf(e)) * s, y = puff.y * s;
+      const rx = puff.rx * s, ry = puff.ry * s;
+      if (rx <= 0 || ry <= 0 || x + rx < -2 || x - rx > WIDTH + 2 || y + ry < 0 || y - ry > H) continue;
+      const progress = clamp(Number(puff.progress) || 0, 0, 1);
+      const power = clamp(Number(puff.strength) || 0, 0, 1);
+      const opacity = clamp(Number.isFinite(puff.opacity) ? puff.opacity : 1, 0, 1);
+      const warning = puff.phase === 'warning' || puff.phase === 'gather';
+      const fading = puff.phase === 'fade' || puff.phase === 'fading';
+      if (!opacity || puff.phase === 'idle' || puff.phase === 'spent') continue;
+      const direction = puff.direction < 0 ? -1 : 1;
+      const expansion = e.reducedMotion ? .94 : warning ? .66 + progress * .28 : .87 + progress * .10;
+      const drift = e.reducedMotion ? 0 : (progress - .5) * ry * .14 * direction;
+      const fade = fading ? 1 - progress : 1;
+      const baseAlpha = opacity * fade * (warning ? .12 + progress * .10 : .20 + power * .20);
+      const ink = warning ? '#adb6a3' : '#b1c8c1';
+      c.save();
+      // Exactly the physical field bounds, used only as a clip. There is no
+      // drawn ellipse/range ring, solid AOE panel or whole-screen weather.
+      c.beginPath(); c.ellipse(x, y, rx, ry, 0, 0, TAU); c.clip();
+      const segment = (a, b, alpha = 1) => {
+        const mx = (a[0] + b[0]) / 2, my = (a[1] + b[1]) / 2;
+        const edge = clamp((1 - ((mx - x) / rx) ** 2 - ((my - y) / ry) ** 2) / .48, 0, 1);
+        c.globalAlpha = baseAlpha * edge * visibility(mx, my) * alpha;
+        if (c.globalAlpha > .008) pixelLine(c, ...a, ...b, ink);
+      };
+      const curls = [[-.50, -.24], [.10, -.54], [.48, -.08], [-.20, .40], [.35, .48], [0, -.77], [-.05, .77]];
+      for (let i = 0; i < curls.length; i++) {
+        const [u, v] = curls[i], cx = x + u * rx * expansion, cy = y + v * ry * expansion + drift;
+        const turn = e.reducedMotion ? i * .7 : i * .7 + progress * direction * .65;
+        const coilX = rx * (i < 5 ? .27 : .20) * expansion;
+        const coilY = ry * (i < 5 ? .16 : .10) * expansion;
+        let previous;
+        for (let step = 0; step <= 12; step++) {
+          const angle = turn + step / 12 * Math.PI * 1.35;
+          const taper = 1 - step / 12 * .42;
+          const point = [cx + Math.cos(angle) * coilX * taper, cy + Math.sin(angle) * coilY * taper];
+          if (previous) segment(previous, point, i < 5 ? 1 : .6);
+          previous = point;
         }
       }
+      const arrowX = x + rx * .15, arrowY = y - direction * ry * .12;
+      const arrows = !warning && power > .55 ? 2 : 1;
+      for (let i = 0; i < arrows; i++) {
+        const yy = arrowY + direction * i * 6;
+        c.globalAlpha = opacity * fade * visibility(arrowX, yy) * (warning ? .27 : .46);
+        pixelLine(c, arrowX - 3, yy - direction * 2, arrowX, yy + direction, ink);
+        pixelLine(c, arrowX, yy + direction, arrowX + 3, yy - direction * 2, ink);
+      }
+      c.restore();
     }
-    // Compact arrowheads communicate upward versus downward force before the
-    // pulse arrives, including a static readable mode for reduced motion.
-    const arrowX = Math.round(px + radius * .73);
-    const arrowY = Math.round(clamp(py + direction * radius * .25, 16, H - 16));
-    const arrows = warning ? (warningProgress > .58 ? 2 : 1) : intensity > .95 ? 3 : 2;
-    c.globalAlpha = warning ? .32 + warningProgress * .37 : .50 + power * .35;
-    for (let i = 0; i < arrows; i++) {
-      const y = arrowY + direction * i * 6;
-      pixelLine(c, arrowX - 3, y - direction * 2, arrowX, y + direction, warning ? '#d0c5a7' : '#dce5d9');
-      pixelLine(c, arrowX, y + direction, arrowX + 3, y - direction * 2, warning ? '#d0c5a7' : '#dce5d9');
-    }
-    c.restore();
   }
 
   drawPortal(e, t) {
-    const portal = e.getExitPortal?.();
-    if (!portal) return;
-    const c = this.bufferContext, x = Math.round(portal.x * this.scale), y = Math.round(portal.y * this.scale);
-    this.glow(x, y, 22, '#a9b9a0', .12);
-    for (let i = 0; i < 40; i++) {
-      const a = i / 40 * TAU;
-      c.fillStyle = i % 4 === Math.floor(t * 6) % 4 ? '#e3e6c4' : '#879d8e';
-      c.fillRect(Math.round(x + Math.cos(a) * 7), Math.round(y + Math.sin(a) * 17), 1, 2);
+    const refuge = e.getExitLandmark?.() || e.getExitPortal?.();
+    if (!refuge) return;
+    const c = this.bufferContext, x = Math.round(refuge.x * this.scale), y = Math.round(refuge.y * this.scale);
+    c.save();
+    this.glow(x, y, 16, '#b6bea5', .11);
+    if (e.terrain === 'canopy') {
+      // A little woven light under a living root roof, rather than a gateway.
+      pixelLine(c, x - 13, y + 21, x - 10, y + 4, '#384b3a', 3);
+      pixelLine(c, x - 10, y + 4, x - 9, y - 8, '#536345', 2);
+      pixelLine(c, x + 14, y + 22, x + 10, y - 6, '#384b3a', 3);
+      path(c, [[x - 15, y - 5], [x - 8, y - 15], [x + 4, y - 13],
+        [x + 15, y - 5], [x + 6, y - 7], [x - 4, y - 4]]);
+      c.fillStyle = '#4b6045'; c.fill();
+      pixelLine(c, x - 8, y - 12, x + 9, y - 7, '#778466');
+      pixelLine(c, x, y - 10, x, y - 3, '#6d7959');
+      c.fillStyle = '#66775b'; c.fillRect(x - 4, y - 2, 9, 11); c.fillRect(x - 3, y - 4, 7, 14);
+      c.fillStyle = '#b9c2a0'; c.fillRect(x - 2, y - 1, 5, 8);
+      c.fillStyle = '#526347'; c.fillRect(x - 3, y + 2, 7, 1); c.fillRect(x - 3, y + 6, 7, 1);
+      pixelLine(c, x - 13, y + 20, x - 20, y + 24, '#44563b', 2);
+      pixelLine(c, x + 12, y + 20, x + 20, y + 23, '#44563b', 2);
+    } else if (e.terrain === 'storm') {
+      // Uneven cairn stones carry a hooded waylight in the mountain pass.
+      for (const [dx, dy, width, height] of [[-13, 22, 26, 4], [-10, 18, 22, 4], [-7, 13, 16, 5]]) {
+        c.fillStyle = '#444f50'; c.fillRect(x + dx, y + dy, width, height);
+        c.fillStyle = '#79837b'; c.fillRect(x + dx + 2, y + dy, width - 5, 1);
+      }
+      c.fillStyle = '#404c4c'; c.fillRect(x - 7, y - 6, 15, 19);
+      c.fillStyle = '#8d9888'; c.fillRect(x - 7, y - 7, 15, 2); c.fillRect(x - 9, y - 5, 19, 2);
+      c.fillStyle = '#222e2f'; c.fillRect(x - 5, y - 3, 11, 13);
+      c.fillStyle = '#c9d0af'; c.fillRect(x - 3, y - 1, 7, 8);
+      c.fillStyle = '#65736b'; c.fillRect(x - 5, y + 8, 11, 2); c.fillRect(x, y - 2, 1, 11);
+    } else {
+      // Crooked old timber and a tarnished bracket support the refuge lantern.
+      c.fillStyle = '#434c3d'; c.fillRect(x - 10, y + 23, 25, 4); c.fillRect(x - 6, y + 20, 19, 3);
+      c.fillStyle = '#73775d'; c.fillRect(x - 7, y + 23, 12, 1);
+      pixelLine(c, x + 11, y + 22, x + 13, y - 19, '#4b4835', 3);
+      pixelLine(c, x + 12, y - 19, x - 3, y - 25, '#645e45', 3);
+      pixelLine(c, x + 12, y - 8, x + 4, y - 21, '#4b4835', 2);
+      pixelLine(c, x + 14, y + 19, x + 15, y - 18, '#8b8160');
+      pixelLine(c, x - 2, y - 23, x - 1, y - 7, '#8d8b6c');
+      c.fillStyle = '#545b43'; c.fillRect(x - 6, y - 6, 11, 16);
+      c.fillStyle = '#929779'; c.fillRect(x - 7, y - 6, 13, 2); c.fillRect(x - 6, y + 9, 11, 2);
+      c.fillStyle = '#bfc6a0'; c.fillRect(x - 4, y - 2, 7, 9);
+      c.fillStyle = '#535d46'; c.fillRect(x - 1, y - 3, 1, 13);
     }
-    c.fillStyle = '#69736a'; c.fillRect(x - 10, y + 17, 20, 2);
+    c.globalAlpha = .9; c.fillStyle = '#eef0cf'; c.fillRect(x - 1, y, 2, 4);
+    // Two quiet flecks suggest warm air; no orbit, rune or encircling effect.
+    c.globalAlpha = .2; c.fillStyle = '#aeb99b';
+    const drift = e.reducedMotion ? 0 : Math.round(Math.sin(t * .9) * 1.5);
+    c.fillRect(x - 8, y + 4 + drift, 1, 1); c.fillRect(x + 7, y - 7 - drift, 1, 1);
+    c.restore();
   }
 
   render(e = this.engine) {
     if (!this.ready || this.destroyed || !this.context) return;
     const c = this.bufferContext, t = timeOf(e), distance = distanceOf(e), s = this.scale;
-    const palette = PALETTES[e.terrain] || PALETTES.ruins;
-    const chosen = e.options?.element === 'ice' ? 'ice' : 'fire';
-    const element = ELEMENTS[chosen], companion = ELEMENTS[chosen === 'fire' ? 'ice' : 'fire'];
-    this.canvas.dataset.element = chosen;
+    const identity = sceneryIdentity(e);
+    const palette = { ...(PALETTES[e.terrain] || PALETTES.ruins), ...(MATERIALS[identity.scene] || {}) };
+    this.canvas.dataset.levelIdentity = identity.id;
+    const companionName = Object.hasOwn(COMPANION_TINTS, e.options?.companionTint) ? e.options.companionTint : 'pearl';
+    const companion = COMPANION_TINTS[companionName];
+    const role = normalizeCompanionRole(e.companionRole || e.options?.companionRole);
+    const config = getCompanionAbility(role);
+    const ability = e.getAbilityState?.() || { role, active: role === 'swift' ? e.boostTime > 0 : e.abilityTime > 0,
+      remaining: role === 'swift' ? e.boostTime : e.abilityTime, duration: config.duration };
+    this.canvas.dataset.player = 'light';
+    this.canvas.dataset.companionTint = companionName;
+    this.canvas.dataset.companionRole = role;
     c.setTransform(1, 0, 0, 1, 0, 0); c.globalAlpha = 1; c.globalCompositeOperation = 'source-over';
     this.drawSky(e, t, distance, palette);
     c.globalAlpha = .34; c.fillStyle = '#03080b'; c.fillRect(0, 0, this.buffer.width, this.buffer.height); c.globalAlpha = 1;
     this.drawTerrain(e, t, distance, palette);
     this.drawCollectibles(e, t, distance);
-    this.drawBurstEffects(e, element);
+    this.drawBurstEffects(e, MAIN_LIGHT);
     this.drawMist(e, t, distance, palette);
     const state = e.getWispState?.(yOf(e), t) || { x: e.player.x - 29, y: yOf(e) + 19, homeX: e.player.x - 29, homeY: yOf(e) + 19, radius: 100, phase: 'ready', recovery: 1, carrying: false };
     const playerX = Math.round(e.player.x * s), playerY = Math.round(yOf(e) * s);
@@ -652,18 +768,13 @@ export class WispFlightView {
     this.drawWind(e, t, state);
     this.drawCarrier(e, t, distance, state, companion);
     const tapAge = t - (e.lastFlapTime ?? -1000), tap = tapAge >= 0 && tapAge < .16 ? 1 - tapAge / .16 : 0;
-    const speed = (Number(e.baseSpeed) || 154) / 154;
-    const boosted = e.boostTime > 0;
-    this.drawSpirit(playerX, playerY, element, t * speed, { boost: boosted, tap, fuel: clamp((e.flame ?? 100) / 100, 0, 1), reduced: e.reducedMotion });
-    if (e.shield > 0 || e.invincible > 0 || e.exitProtection > 0) {
-      c.globalAlpha = e.shield > 0 ? .7 : .45;
-      for (let i = 0; i < 18; i++) {
-        const angle = i / 18 * TAU + (e.reducedMotion ? 0 : t * .3);
-        c.fillStyle = '#bac8ad'; c.fillRect(Math.round(playerX + Math.cos(angle) * 9), Math.round(playerY + Math.sin(angle) * 9), 1, 1);
-      }
-      c.globalAlpha = 1;
-    }
+    const boosted = role === 'swift' && ability.active;
+    this.drawSpirit(playerX, playerY, MAIN_LIGHT, t, { boost: boosted, tap,
+      fuel: clamp((e.flame ?? 100) / 100, 0, 1), reduced: e.reducedMotion, intensity: this.lightIntensity });
+    this.drawCompanionAbility(e, t, playerX, playerY, state, ability);
+    this.drawAbsorptions(e, t, playerX, playerY);
     for (const effect of e.pickupEffects || []) {
+      if (effect.kind === 'dark' || effect.harmful) continue;
       const progress = 1 - clamp(effect.life / .72, 0, 1);
       c.globalAlpha = 1 - progress;
       const label = effect.restored > 0 ? `+${effect.restored} GLOW` : 'FULL';

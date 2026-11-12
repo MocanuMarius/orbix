@@ -1,27 +1,31 @@
 /** Seeded, DOM-free campaign model. Public commands mutate their run/profile and return booleans. */
-import { FLAME_TUNING, AFTERGLOW_TUNING } from './vitality.mjs';
+import { FLAME_TUNING, AFTERGLOW_TUNING, LIFE_TUNING, FLIGHT_POINTS_TUNING } from './vitality.mjs';
 import { WISP_TUNING } from './wisp.mjs';
+import { LEVELS, getLevelIdentity } from './level-catalog.mjs';
+import { normalizeCompanionRole } from './companion-abilities.mjs';
+import { getAscentInfo } from './ascent.mjs';
+import { LEVEL_LENGTH, getLevelLengthScale } from './level-length.mjs';
 export const SAVE_KEY = 'emberwing.save.v1';
 export const TERRAINS = Object.freeze({
-  ruins: { id: 'ruins', name: 'Sunken Ruins', color: '#e8b36b', description: 'Ancient arches, sweeping gates, and golden spark trails.' },
+  ruins: { id: 'ruins', name: 'Sunken Ruins', color: '#e8b36b', description: 'Ancient arches, sweeping gates, and trails of light packets.' },
   canopy: { id: 'canopy', name: 'Luminous Canopy', color: '#87e9b3', description: 'Living branches frame winding trails of forest light.' },
-  storm: { id: 'storm', name: 'Stormglass Peaks', color: '#c0b3ff', description: 'Watch the gathering wind and ride between crystal spires.' },
+  storm: { id: 'storm', name: 'Stormglass Peaks', color: '#c0b3ff', description: 'Fly between crystal spires and around occasional gentle draft puffs.' },
 });
 
 const card = (id, name, tag, description, detail, color, icon) => ({ id, name, tag, description, detail, color, icon });
 export const CARDS = Object.freeze({
-  'hungry-wisp': card('hungry-wisp', 'Hungry Wisp', 'Wisp', 'Boosting sends your wisp searching farther.', 'Your companion searches 60% farther for the closest ember during a boost, then fetches it and returns. Pair with Kindled Spirit to keep the flame moving.', '#8ce5c4', '✧'),
-  'kindled-spirit': card('kindled-spirit', 'Kindled Spirit', 'Wisp', 'Every three collected sparks quicken your next boost.', 'Every three base embers collected reduce the boost cooldown by one second. Bonus rewards never trigger this again.', '#f8c778', '✦'),
-  'golden-wake': card('golden-wake', 'Golden Wake', 'Wisp', 'Collecting during boost doubles the pickup score.', 'Boosted spark pickups grant +100% score. This changes score, not permanent ember currency.', '#ffdc81', '◈'),
-  'storm-feeder': card('storm-feeder', 'Storm Feeder', 'Flame', 'Turn the mountain wind into boost energy.', 'Boost cooldown is 4% shorter everywhere. In gusts, recover another second of cooldown once each second.', '#b3c6ff', 'ϟ'),
+  'hungry-wisp': card('hungry-wisp', 'Hungry Wisp', 'Wisp', 'Using your companion ability sends it searching farther.', 'Your companion searches 60% farther for the closest light packet while any companion ability is active, then fetches it and returns. Pair with Kindled Spirit to keep your ability ready.', '#8ce5c4', '✧'),
+  'kindled-spirit': card('kindled-spirit', 'Kindled Spirit', 'Wisp', 'Every three collected light packets quicken your next ability.', 'Every three natural light packets collected reduce the ability cooldown by one second. Bonus rewards never trigger this again.', '#f8c778', '✦'),
+  'golden-wake': card('golden-wake', 'Golden Wake', 'Wisp', 'Collecting while your ability is active doubles pickup score.', 'Light packets collected during any active ability grant +100% score. Higher flight score contributes to the capped clear bonus; pickup ember currency is not directly multiplied.', '#ffdc81', '◈'),
+  'storm-feeder': card('storm-feeder', 'Draft Feeder', 'Flame', 'Cross a local draft puff to quicken your ability.', 'Ability cooldown is 4% shorter everywhere. While inside a visible draft puff, recover another second of cooldown once each second.', '#b3c6ff', 'ϟ'),
   'soft-descent': card('soft-descent', 'Soft Descent', 'Drift', 'Fall gently and guide smaller lift pulses.', 'Gravity is 10% lighter and lift pulses are 6% gentler. A steady choice for precise passages.', '#a5dce9', '⌄'),
-  'high-wing': card('high-wing', 'Rising Spirit', 'Drift', 'Climb higher and travel faster.', 'Lift pulses are 10% stronger and travel is 5% faster. Favor deliberate taps and high spark trails.', '#e9b7ff', '⌃'),
+  'high-wing': card('high-wing', 'Rising Spirit', 'Drift', 'Climb higher and travel faster.', 'Lift pulses are 10% stronger and travel is 5% faster. Favor deliberate taps and high light packet trails.', '#e9b7ff', '⌃'),
   tailwind: card('tailwind', 'Tailwind', 'Drift', 'Fly faster for a richer ember trail.', 'Travel is 8% faster and earned ember rewards are 12% greater. The wisp needs quicker decisions.', '#facb9b', '»'),
-  'ash-ward': card('ash-ward', 'Ash Ward', 'Ash', 'Begin each flight protected by a circle of ash.', 'A ward absorbs one hit each flight, while boost recharges 12% more slowly. Checkpoint wards remain separate.', '#d4c5ec', '◇'),
-  'glass-phoenix': card('glass-phoenix', 'Glass Wisp', 'Ash', 'A fragile body, a brilliant reward.', 'Maximum health becomes two hearts; earned ember rewards increase by 25%. Replacing this card restores capacity, not health.', '#a9e7fa', '♢'),
-  'steady-flame': card('steady-flame', 'Steady Flame', 'Drift', 'Keep your course through difficult currents.', 'Gust force is 55% weaker and gravity is 3% lighter. A controlled choice for exposed routes.', '#d3d6f3', '≈'),
-  'fire-wake': card('fire-wake', 'Shatter Wake', 'Flame', 'Shatter soft thorns into a trail of bonus sparks.', 'Boost lasts 8% longer. Each soft thorn shattered during a boost releases three collectible bonus motes.', '#ff9d77', '♨'),
-  'warm-heart': card('warm-heart', 'Warm Heart', 'Ash', 'A well-timed cache route can mend a wounded heart.', 'Collect four base sparks in a flight to heal one heart, once per flight. Bonus sparks cannot retrigger it.', '#f2a6ba', '♡'),
+  'ash-ward': card('ash-ward', 'Ash Reserve', 'Ash', 'Natural light packets carry more Glow.', 'Natural light packets restore 4 more Glow, while your ability recharges 12% more slowly. Bonus motes receive no extra fuel.', '#d4c5ec', '◇'),
+  'glass-phoenix': card('glass-phoenix', 'Restless Light', 'Ash', 'Richer rewards. Stronger local drift.', 'Earn 25% more pickup embers, while local draft force is 20% stronger. Puffs only push while you are inside them; you can fly around them.', '#a9e7fa', '♢'),
+  'steady-flame': card('steady-flame', 'Steady Light', 'Drift', 'Cross a local draft with less drift.', 'Local draft force is 55% weaker and gravity is 3% lighter. Puffs only affect you inside their visible area.', '#d3d6f3', '≈'),
+  'fire-wake': card('fire-wake', 'Shatter Wake', 'Flame', 'Shatter soft thorns into a trail of bonus light motes.', 'Your ability lasts 8% longer. Each designated soft thorn shattered while any ability is active releases three collectible bonus motes.', '#ff9d77', '♨'),
+  'warm-heart': card('warm-heart', 'Warm Core', 'Ash', 'A steady cache route rekindles your core.', 'Collect four natural light packets to restore 12 Glow, once per flight. Bonus motes cannot retrigger it.', '#f2a6ba', '✦'),
 });
 
 const BASE_POWERS = Object.freeze(['soft-descent', 'high-wing', 'ash-ward', 'warm-heart']);
@@ -35,19 +39,19 @@ const POWER_DISCOVERY = Object.freeze([
 const skill = (id, name, branch, cost, requires, description, maxRank = 1) => ({ id, name, branch, cost, requires, maxRank, description });
 export const SKILLS = Object.freeze({
   'wisp-light': skill('wisp-light', 'Inner Glow', 'Wisp', 60, null, 'Illuminate 35 more units of terrain per rank. See paths and pickups farther ahead.', 3),
-  'wisp-reach': skill('wisp-reach', 'Wisp Reach', 'Wisp', 80, null, 'Each rank expands your companion’s ember search range by 25%, up to 75% farther.', 3),
+  'wisp-reach': skill('wisp-reach', 'Wisp Reach', 'Wisp', 80, null, 'Each rank expands your companion’s light packet search range by 25%, up to 75% farther.', 3),
   'wisp-recovery': skill('wisp-recovery', 'Wisp Recovery', 'Wisp', 90, null, 'Each rank shortens the wait after your wisp returns by 15% of the base cooldown.', 3),
   'wisp-bounty': skill('wisp-bounty', 'Wisp Bounty', 'Wisp', 160, 'wisp-reach', 'Earn 10% more embers from flight pickups.'),
-  'boost-focus': skill('boost-focus', 'Focused Flame', 'Boost', 80, null, 'Boost cooldown becomes 10% shorter.'),
-  'boost-flare': skill('boost-flare', 'Lasting Flame', 'Boost', 160, 'boost-focus', 'Boost lasts 15% longer.'),
-  'rebirth-spark': skill('rebirth-spark', 'Rebirth Spark', 'Rebirth', 120, null, 'Unlock one rebirth per run, returning with one heart.'),
-  'rebirth-grace': skill('rebirth-grace', 'Rebirth Grace', 'Rebirth', 200, 'rebirth-spark', 'Your single rebirth returns two hearts.'),
+  'boost-focus': skill('boost-focus', 'Quickening', 'Boost', 80, null, 'Your selected companion ability recharges 10% sooner.'),
+  'boost-flare': skill('boost-flare', 'Lasting Bond', 'Boost', 160, 'boost-focus', 'Your selected companion ability lasts 15% longer.'),
   'afterglow-vessel': skill('afterglow-vessel', 'Ember Vessel', 'Afterglow', 70, null, 'Carry 15 more Afterglow per rank between flights and expeditions.', 3),
   'afterglow-retention': skill('afterglow-retention', 'Lasting Light', 'Afterglow', 80, 'afterglow-vessel', 'Retain 10 percentage points more surplus Glow per rank.', 2),
   'afterglow-anchor': skill('afterglow-anchor', 'Ash Anchor', 'Afterglow', 90, 'afterglow-vessel', 'Lose 10 percentage points less Afterglow when an expedition ends in failure.', 2),
 });
 
-const PHASES = new Set(['starter', 'map', 'briefing', 'support', 'reward', 'ended']);
+const companionTint = (value, legacy) => ['pearl', 'amber', 'lilac'].includes(value) ? value : legacy === 'fire' ? 'amber' : 'pearl';
+
+const PHASES = new Set(['starter', 'map', 'briefing', 'support', 'reward', 'retry', 'ended']);
 const clamp = (n, lo, hi) => Math.min(hi, Math.max(lo, n));
 const finite = (n, fallback = 0) => Number.isFinite(n) ? n : fallback;
 const count = (n, limit = 1e9) => Math.floor(clamp(finite(n), 0, limit));
@@ -55,6 +59,184 @@ const copy = value => JSON.parse(JSON.stringify(value));
 const skillRank = (skills, id) => count(skills?.[id], Object.hasOwn(SKILLS, id) ? SKILLS[id].maxRank : 0);
 const energy = n => Math.round(Math.max(0, finite(n)) * 1000) / 1000;
 const powerIds = ids => [...new Set((Array.isArray(ids) ? ids : []).filter(id => Object.hasOwn(CARDS, id)))];
+const REWARD_LEDGER_VERSION = 1;
+
+function flightDepth(run, node) {
+  return run.isTutorial ? Math.max(1, run.map.slice(0, node.row + 1).filter(row => row.some(item => item.type !== 'support')).length)
+    : getAscentInfo(node).level;
+}
+
+function completionReward(node, depth) {
+  return (node.type === 'finale' ? 36 : 20 + 4 * (clamp(count(depth), 1, 5) - 1) + (node.elite ? 12 : 0)) * getLevelLengthScale(node);
+}
+
+function flightRewardPreview(node) {
+  const cap = 8 * getLevelLengthScale(node);
+  return `${node.bonusEmbers} clear embers · up to ${cap} score bonus · ${node.type === 'finale' ? 'complete the journey' : `${node.draftTheme || 'temporary'} card draft`}`;
+}
+
+function normalizeFlightLengths(run) {
+  const migration = run.lengthVersion !== LEVEL_LENGTH.version;
+  const currentId = run.current?.id;
+  const priorAttempt = currentId && run.lastAttempt?.nodeId === currentId && run.lastAttempt.success !== true;
+  const locked = run.attemptActive || run.phase === 'retry' || priorAttempt
+    || ['reward', 'ended'].includes(run.phase);
+  for (const node of run.map.flat()) {
+    if (run.isTutorial || node.tutorialLesson || node.type === 'support') {
+      node.flightLengthScale = 1;
+      continue;
+    }
+    const unplayed = node.row > run.step || node.row === run.step
+      && ['starter', 'map', 'briefing'].includes(run.phase) && !(locked && node.id === currentId);
+    if (migration && unplayed && getLevelLengthScale(node) !== LEVEL_LENGTH.multiplier) {
+      node.duration = Math.min(LEVEL_LENGTH.maximumDuration,
+        Math.max(15, count(node.duration) || 38) * LEVEL_LENGTH.multiplier);
+      node.flightLengthScale = LEVEL_LENGTH.multiplier;
+      if (node.challengeId === 'wisps' || node.challengeId === 'boosts')
+        node.challengeTarget = count(node.challengeTarget) * LEVEL_LENGTH.multiplier;
+    } else node.flightLengthScale = getLevelLengthScale(node);
+    node.bonusEmbers = completionReward(node, getAscentInfo(node).level);
+    node.challengeBonus = 8 * getLevelLengthScale(node);
+    node.performanceBonusCap = 8 * getLevelLengthScale(node);
+    if (node.challengeId === 'wisps') node.challenge = `Collect ${count(node.challengeTarget)} light packets`;
+    else if (node.challengeId === 'boosts') node.challenge = `Use ability ${count(node.challengeTarget)} times`;
+    node.reward = flightRewardPreview(node);
+  }
+  if (run.current) {
+    const node = run.map[run.current.row]?.find(item => item.id === currentId);
+    if (node) Object.assign(run.current, node);
+  }
+  run.lengthVersion = LEVEL_LENGTH.version;
+  return migration;
+}
+
+function queueReward(run, amount, kind, nodeId = run.current?.id) {
+  amount = count(amount);
+  if (!amount || run.isTutorial) return;
+  run.embers = count(run.embers) + amount;
+  run.pendingRewards ??= [];
+  run.pendingRewards.push({ kind, nodeId: nodeId || null, amount });
+}
+
+function spendPending(run, amount) {
+  run.embers = count(run.embers - amount);
+  let remaining = amount;
+  for (let i = (run.pendingRewards || []).length - 1; i >= 0 && remaining > 0; i--) {
+    const spent = Math.min(count(run.pendingRewards[i].amount), remaining);
+    run.pendingRewards[i].amount -= spent; remaining -= spent;
+  }
+  run.pendingRewards = (run.pendingRewards || []).filter(reward => reward.amount > 0);
+}
+
+/** Atomically persist the returned state after this command. No end-of-run cashout is needed. */
+export function settleCheckpoint(state) {
+  const run = state?.run, profile = state?.profile;
+  if (!run || !profile || run.isTutorial || run.banked || profile.bankedRuns?.includes(run.id)) return 0;
+  const legacy = run.rewardLedgerVersion !== REWARD_LEDGER_VERSION;
+  if (!legacy && (run.phase === 'retry' || run.phase === 'ended' && !run.success)) return 0;
+  const amount = count(run.embers);
+  let remaining = amount;
+  const rewards = [];
+  for (const reward of run.pendingRewards || []) {
+    const secured = Math.min(remaining, count(reward.amount));
+    if (!secured) continue;
+    remaining -= secured;
+    rewards.push({ kind: reward.kind, nodeId: reward.nodeId || null, amount: secured });
+    if (reward.kind === 'flight' && run.lastFlight?.nodeId === reward.nodeId)
+      run.lastFlight.securedEmbers = count(run.lastFlight.securedEmbers) + secured;
+  }
+  if (remaining) rewards.push({ kind: legacy ? 'legacy' : 'checkpoint', nodeId: null, amount: remaining });
+  profile.embers = count(profile.embers + amount);
+  profile.clearedFlights = Math.max(count(profile.clearedFlights), count(run.discoveryClears));
+  profile.knownPowers = powerIds([...getPowerDiscovery(profile).unlocked, ...getPowerDiscovery(run).unlocked]);
+  run.securedEmbers = count(run.securedEmbers) + amount;
+  run.embers = 0;
+  run.pendingRewards = [];
+  run.rewardLedgerVersion = REWARD_LEDGER_VERSION;
+  if (amount) run.lastCheckpointReward = rewards.length === 1 ? rewards[0]
+    : { kind: 'checkpoint', nodeId: null, amount, rewards };
+  // Legacy entry snapshots may contain the purse just secured above. Do not
+  // resurrect that purse if an interrupted attempt later restores its entry.
+  if (run.attemptEntry) { run.attemptEntry.embers = 0; run.attemptEntry.pendingRewards = []; }
+  return amount;
+}
+
+function tuningRows(run) {
+  const supportRows = new Set((run?.map || []).flat().filter(node => node.type === 'support').map(node => node.row));
+  return [...new Set((Array.isArray(run?.tuningRestRows) ? run.tuningRestRows : [])
+    .filter(row => Number.isInteger(row) && supportRows.has(row)))].sort((a, b) => a - b);
+}
+
+function tuningBudget(run) {
+  if (!run) return 0;
+  const rests = tuningRows(run).length;
+  return run.isTutorial ? rests > 0 ? FLIGHT_POINTS_TUNING.tutorialRest : FLIGHT_POINTS_TUNING.tutorialStarting
+    : Math.min(FLIGHT_POINTS_TUNING.maximum, FLIGHT_POINTS_TUNING.starting + rests * FLIGHT_POINTS_TUNING.perRest);
+}
+
+function tuningAllocation(value = {}, budget = FLIGHT_POINTS_TUNING.maximum) {
+  let remaining = count(budget, FLIGHT_POINTS_TUNING.maximum);
+  const allocation = {};
+  for (const axis of FLIGHT_POINTS_TUNING.axes) {
+    allocation[axis] = Math.min(remaining, count(value?.[axis], FLIGHT_POINTS_TUNING.maxPerStat));
+    remaining -= allocation[axis];
+  }
+  return allocation;
+}
+
+function normalizeFlightTuning(run) {
+  const nodes = (run.map || []).flat();
+  const visited = (run.path || []).map(id => nodes.find(node => node.id === id))
+    .filter(node => node?.type === 'support').map(node => node.row);
+  run.tuningRestRows = [...new Set([...tuningRows(run), ...visited])].sort((a, b) => a - b);
+  const budget = tuningBudget(run);
+  const fallback = run.isTutorial ? {} : FLIGHT_POINTS_TUNING.defaultAllocation;
+  run.flightTuning = tuningAllocation(run.flightTuning || fallback, budget);
+  if (typeof run.tuningRestReady !== 'boolean') run.tuningRestReady = !run.attemptActive
+    && !['retry', 'ended'].includes(run.phase) && budget > 0;
+  if (run.attemptActive || ['retry', 'ended'].includes(run.phase)) run.tuningRestReady = false;
+  if (!run.tuningLastGrant && run.tuningRestRows.length) run.tuningLastGrant = {
+    row: run.tuningRestRows.at(-1), points: run.isTutorial ? FLIGHT_POINTS_TUNING.tutorialRest : FLIGHT_POINTS_TUNING.perRest, budget };
+}
+
+function grantRestTuning(run, row) {
+  run.tuningRestRows = tuningRows(run);
+  const before = tuningBudget(run);
+  if (!run.tuningRestRows.includes(row)) {
+    run.tuningRestRows.push(row);
+    run.tuningRestRows.sort((a, b) => a - b);
+    const budget = tuningBudget(run);
+    run.tuningLastGrant = { row, points: budget - before, budget };
+  }
+  run.flightTuning = tuningAllocation(run.flightTuning, tuningBudget(run));
+  run.tuningRestReady = true;
+}
+
+export function getFlightTuningState(run) {
+  const budget = tuningBudget(run), allocation = tuningAllocation(run?.flightTuning, budget);
+  const spent = Object.values(allocation).reduce((sum, rank) => sum + rank, 0);
+  const canEdit = !!run && budget > 0 && run.tuningRestReady === true && !run.attemptActive && !run.banked
+    && ['starter', 'map', 'support', 'reward', 'briefing'].includes(run.phase);
+  return { budget, spent, remaining: budget - spent, allocation, maxPerStat: FLIGHT_POINTS_TUNING.maxPerStat,
+    canEdit, axisLabels: { speed: 'Speed', lift: 'Lift height', collector: 'Collector', boost: 'Ability' },
+    modifiers: getModifiers(run?.cards || [], run?.skills || {}, allocation), lastGrant: run?.tuningLastGrant || null };
+}
+
+export function adjustFlightTuning(run, axis, delta) {
+  if (!FLIGHT_POINTS_TUNING.axes.includes(axis) || (delta !== 1 && delta !== -1)) return false;
+  const state = getFlightTuningState(run);
+  if (!state.canEdit || (delta > 0 && state.remaining === 0)) return false;
+  const rank = state.allocation[axis] + delta;
+  if (rank < 0 || rank > state.maxPerStat) return false;
+  run.flightTuning = { ...state.allocation, [axis]: rank };
+  return true;
+}
+
+export function resetFlightTuning(run) {
+  if (!getFlightTuningState(run).canEdit) return false;
+  run.flightTuning = tuningAllocation({}, tuningBudget(run));
+  return true;
+}
 
 function liveSource(source) {
   if (source?.run && !source.run.banked) return source.run;
@@ -75,7 +257,7 @@ export function getAfterglowState(source) {
   const amount = energy(clamp(finite(value.afterglow), 0, rules.cap));
   const practice = value.isTutorial === true;
   const drawUsed = Number.isInteger(value.afterglowDrawStep) && value.afterglowDrawStep === value.step;
-  const drawable = value.phase === 'briefing' && !value.banked && !drawUsed
+  const drawable = value.phase === 'briefing' && !value.attemptActive && !value.banked && !drawUsed
     ? energy(Math.min(amount, rules.drawLimit, Math.max(0, FLAME_TUNING.maximum - finite(value.flame)))) : 0;
   return { ...rules, failureLoss: practice ? 0 : rules.failureLoss, amount, drawable, drawUsed, practice };
 }
@@ -147,15 +329,22 @@ export function newState() {
   return {
     version: 1,
     profile: { embers: 0, skills: {}, afterglow: 0, clearedFlights: 0, knownPowers: [...BASE_POWERS], tutorialComplete: false,
-      stats: { completedRuns: 0, wins: 0, totalScore: 0, bestScore: 0 }, bankedRuns: [] },
+      rebirthRefunded: false, stats: { completedRuns: 0, wins: 0, totalScore: 0, bestScore: 0, attempts: 0, deaths: 0 }, bankedRuns: [] },
     run: null,
-    settings: { sound: true, reducedMotion: false, element: 'fire' },
+    settings: { sound: true, reducedMotion: false, companionTint: 'pearl', companionRole: 'swift' },
   };
 }
 
 function cleanProfile(value) {
   const profile = newState().profile;
   profile.embers = count(value?.embers);
+  profile.rebirthRefunded = value?.rebirthRefunded === true;
+  const retiredRefund = (count(value?.skills?.['rebirth-spark'], 1) ? 120 : 0)
+    + (count(value?.skills?.['rebirth-grace'], 1) ? 200 : 0);
+  if (retiredRefund && !profile.rebirthRefunded) {
+    profile.embers += retiredRefund;
+    profile.rebirthRefunded = true;
+  }
   for (const id of Object.keys(SKILLS)) {
     const rank = skillRank(value?.skills, id);
     if (rank) profile.skills[id] = rank;
@@ -191,8 +380,8 @@ function validRun(run) {
   }
   if (!Array.isArray(run.path) || run.path.length > stops || !Array.isArray(run.cards) || run.cards.length > 3 || new Set(run.cards).size !== run.cards.length || run.cards.some(id => !Object.hasOwn(CARDS, id))) return false;
   if (!Array.isArray(run.offers) || run.offers.some(id => !Object.hasOwn(CARDS, id)) || new Set(run.offers).size !== run.offers.length) return false;
-  if (!Number.isFinite(run.hp) || !Number.isFinite(run.embers) || !Number.isFinite(run.score)) return false;
-  if (['briefing', 'support', 'reward'].includes(run.phase) && (!run.current || !run.map[run.step]?.some(node => node.id === run.current.id))) return false;
+  if ((!Number.isFinite(run.lives) && !Number.isFinite(run.hp)) || !Number.isFinite(run.embers) || !Number.isFinite(run.score)) return false;
+  if (['briefing', 'support', 'reward', 'retry'].includes(run.phase) && (!run.current || !run.map[run.step]?.some(node => node.id === run.current.id))) return false;
   if (run.phase === 'support' && (!Array.isArray(run.supportChoices) || run.supportChoices.length !== 2)) return false;
   if (['starter', 'reward'].includes(run.phase) && run.offers.length !== 2) return false;
   return true;
@@ -217,16 +406,32 @@ export function loadState(storage) {
     if (parsed?.version !== 1) return newState();
     const state = newState();
     state.profile = cleanProfile(parsed.profile);
+    let repairSave = (state.profile.rebirthRefunded && parsed.profile?.rebirthRefunded !== true)
+      || Object.hasOwn(parsed.profile?.skills || {}, 'rebirth-spark') || Object.hasOwn(parsed.profile?.skills || {}, 'rebirth-grace')
+      || Object.hasOwn(parsed.settings || {}, 'element') || Object.hasOwn(parsed.run || {}, 'element')
+      || parsed.settings?.companionRole !== normalizeCompanionRole(parsed.settings?.companionRole);
     state.settings = { sound: parsed.settings?.sound !== false, reducedMotion: parsed.settings?.reducedMotion === true,
-      element: parsed.settings?.element === 'ice' ? 'ice' : 'fire' };
+      companionTint: companionTint(parsed.settings?.companionTint, parsed.settings?.element),
+      companionRole: normalizeCompanionRole(parsed.settings?.companionRole) };
     if (validRun(parsed.run)) {
       state.run = parsed.run;
-      state.run.element = parsed.run.element === 'ice' ? 'ice' : 'fire';
+      state.run.companionTint = companionTint(parsed.run.companionTint, parsed.run.element);
+      delete state.run.element;
+      repairSave ||= state.run.companionRole !== normalizeCompanionRole(state.run.companionRole);
+      state.run.companionRole = normalizeCompanionRole(state.run.companionRole);
       for (const node of [...state.run.map.flat(), ...(state.run.current ? [state.run.current] : [])]) {
         if (node.draftTags) node.draftTags = node.draftTags.map(tag => tag === 'Wing' ? 'Drift' : tag);
         if (node.draftTheme) node.draftTheme = node.draftTheme.replace(/Wing/g, 'Drift');
         if (node.name) node.name = node.name.replace(/Phoenix Gate/g, 'Hollow Gate');
-        if (node.challenge) node.challenge = node.challenge.replace(/wisps/g, 'sparks');
+        if (node.challenge) node.challenge = node.challenge.replace(/wisps|sparks/g, 'light packets');
+        if (node.challengeId === 'boosts') node.challenge = `Use ability ${count(node.challengeTarget) || 2} times`;
+        if (node.description) node.description = node.description.replace(/Restore health and refill Flame/g, 'Refill Glow');
+        if (!state.run.isTutorial && node.type !== 'support') {
+          const bonus = completionReward(node, getAscentInfo(node).level);
+          repairSave ||= node.bonusEmbers !== bonus;
+          node.bonusEmbers = bonus;
+          node.reward = flightRewardPreview(node);
+        }
         if (state.run.fuelRevision !== 2 && node.type !== 'support' && ROUTE_PROFILES[node.routeStyle]) {
           const profile = ROUTE_PROFILES[node.routeStyle];
           node.fuelBonus = node.type === 'finale' ? 1 : profile.fuelBonus;
@@ -234,20 +439,35 @@ export function loadState(storage) {
           node.riskPreview = profile.riskPreview;
           if (node.challengeId === 'wisps') {
             node.challengeTarget = 4 + Math.floor(node.row / 2);
-            node.challenge = `Collect ${node.challengeTarget} sparks`;
+            node.challenge = `Collect ${node.challengeTarget} light packets`;
           }
         }
       }
+      const locationsChanged = assignLevelIdentities(state.run.map, state.run.seed);
+      if (state.run.current) {
+        const locationNode = state.run.map.flat().find(node => node.id === state.run.current.id);
+        if (locationNode) for (const key of ['levelId', 'locationName', 'setpiecePreview', 'name']) {
+          if (locationNode[key] !== undefined) state.run.current[key] = locationNode[key];
+        }
+      }
+      repairSave ||= locationsChanged;
       state.run.fuelRevision = 2;
       state.run.skills = cleanProfile({ skills: parsed.run.skills }).skills;
-      state.run.hp = clamp(state.run.hp, 0, getModifiers(state.run.cards, state.run.skills).maxHp);
+      const legacyLifeFields = state.run.hp !== undefined || state.run.maxHp !== undefined || state.run.shield !== undefined || state.run.usedRebirth !== undefined;
+      state.run.lives = Number.isFinite(state.run.lives) ? count(state.run.lives, LIFE_TUNING.lives)
+        : state.run.phase === 'ended' && !state.run.success ? 0 : LIFE_TUNING.lives;
+      state.run.maxLives = LIFE_TUNING.lives;
+      delete state.run.hp; delete state.run.maxHp; delete state.run.shield; delete state.run.usedRebirth;
+      repairSave ||= legacyLifeFields;
       state.run.flame = clamp(Number.isFinite(state.run.flame) ? state.run.flame : FLAME_TUNING.maximum, 0, FLAME_TUNING.maximum);
-      state.run.maxHp = getModifiers(state.run.cards, state.run.skills).maxHp;
       state.run.embers = count(state.run.embers);
+      state.run.securedEmbers = count(state.run.securedEmbers);
+      state.run.pendingRewards = (Array.isArray(state.run.pendingRewards) ? state.run.pendingRewards : [])
+        .filter(reward => reward && typeof reward.kind === 'string' && Number.isFinite(reward.amount) && reward.amount > 0)
+        .slice(-24).map(reward => ({ kind: reward.kind, nodeId: typeof reward.nodeId === 'string' ? reward.nodeId : null,
+          amount: count(reward.amount) }));
       state.run.score = count(state.run.score);
-      state.run.shield = count(state.run.shield, 2);
-      state.run.usedRebirth = state.run.usedRebirth === true;
-      state.run.stats = { collected: 0, collisions: 0, boosts: 0, flights: 0, elites: 0, challenges: 0, events: 0, ...(state.run.stats || {}) };
+      state.run.stats = { collected: 0, collisions: 0, boosts: 0, flights: 0, elites: 0, challenges: 0, events: 0, attempts: 0, deaths: 0, ...(state.run.stats || {}) };
       state.run.isTutorial = state.run.isTutorial === true;
       state.run.afterglowPractice = state.run.isTutorial;
       const reserveRules = getAfterglowRules(state.run.skills);
@@ -266,18 +486,77 @@ export function loadState(storage) {
       if (state.run.lastFlight) {
         state.run.lastFlight.afterglow = afterglowReport(state.run.afterglow, state.run.lastFlight.afterglow);
         state.run.lastFlight.unlockedPowers = powerIds(state.run.lastFlight.unlockedPowers);
+        state.run.lastFlight.securedEmbers = count(state.run.lastFlight.securedEmbers);
+        state.run.lastFlight.pickupEmbers = count(state.run.lastFlight.pickupEmbers ?? state.run.lastFlight.embers);
       }
+      const migrateTuning = !state.run.flightTuning || !Array.isArray(state.run.tuningRestRows)
+        || typeof state.run.tuningRestReady !== 'boolean';
+      normalizeFlightTuning(state.run);
+      repairSave ||= migrateTuning;
+      if (state.run.attemptActive && !state.run.banked && state.run.phase === 'briefing') {
+        const restoredGlow = restoreAttemptEntry(state.run);
+        state.run.lastAttempt = { success: false, interrupted: true, step: state.run.step,
+          nodeId: state.run.current?.id, livesLost: 0, livesRemaining: state.run.lives, restoredGlow };
+        state.run.phase = 'briefing';
+        repairSave = true;
+      } else if (state.run.phase !== 'briefing') {
+        state.run.attemptActive = false;
+        state.run.attemptEntry = null;
+      }
+      repairSave = normalizeFlightLengths(state.run) || repairSave;
+      const legacyLedger = state.run.rewardLedgerVersion !== REWARD_LEDGER_VERSION;
+      if (state.profile.bankedRuns.includes(state.run.id) || state.run.banked) {
+        repairSave ||= legacyLedger || state.run.embers > 0 || state.run.banked !== true;
+        if (legacyLedger) state.run.securedEmbers = count(state.run.securedEmbers || state.run.embers);
+        state.run.banked = true;
+        state.run.embers = 0;
+        state.run.pendingRewards = [];
+        state.run.rewardLedgerVersion = REWARD_LEDGER_VERSION;
+      } else if (state.run.phase === 'ended') {
+        // Old endings had not yet secured their purse. Resolve that document
+        // once; the wallet and the banked-run marker share the same save.
+        if (legacyLedger || state.run.success) settleCheckpoint(state);
+        bankRun(state);
+        repairSave = true;
+      } else {
+        const secured = settleCheckpoint(state);
+        repairSave ||= legacyLedger || secured > 0;
+      }
+      if (state.run.phase === 'support') state.run.supportChoices = makeSupportChoices(state.run, state.profile);
     }
+    if (repairSave) saveState(state, storage);
     return state;
   } catch { return newState(); }
 }
 
 const EVENT_NAMES = ['Ash Spring', 'Cinder Bargain', 'Abandoned Lantern', 'Weathered Shrine', 'Luminous Well', 'The Ember Archive'];
 export const ROUTE_PROFILES = Object.freeze({
-  refuge: { routeStyle: 'refuge', passage: 'open', fuelCadence: 2, fuelBonus: 2, flameDrain: 0.92, routeReward: 1, durationScale: 1, draftTags: ['Wisp', 'Ash'], fuelPreview: 'Measured caches · +2 Glow per spark', riskPreview: 'Open passages · deliberate edge pickups' },
-  cavern: { routeStyle: 'cavern', passage: 'cavern', fuelCadence: 3, fuelBonus: 0, flameDrain: 1.08, routeReward: 1.25, durationScale: 0.80, draftTags: ['Drift', 'Wisp'], fuelPreview: 'Spaced fuel · conserve your lift pulses', riskPreview: 'Short cave route · tighter roof and floor' },
-  gauntlet: { routeStyle: 'gauntlet', passage: 'gauntlet', fuelCadence: 4, fuelBonus: 1, flameDrain: 1, routeReward: 1.45, durationScale: 0.90, draftTags: ['Flame', 'Drift'], fuelPreview: 'Lean caches · time Boost between sparks', riskPreview: 'Elite passages · richest ember rewards' },
+  refuge: { routeStyle: 'refuge', passage: 'open', fuelCadence: 2, fuelBonus: 2, flameDrain: 0.92, routeReward: 1, durationScale: 1, draftTags: ['Wisp', 'Ash'], fuelPreview: 'Measured light packets · +2 Glow each', riskPreview: 'Open passages · deliberate edge packets' },
+  cavern: { routeStyle: 'cavern', passage: 'cavern', fuelCadence: 3, fuelBonus: 0, flameDrain: 1.08, routeReward: 1.25, durationScale: 0.80, draftTags: ['Drift', 'Wisp'], fuelPreview: 'Spaced light packets · conserve Lift', riskPreview: 'Short cave route · tighter roof and floor' },
+  gauntlet: { routeStyle: 'gauntlet', passage: 'gauntlet', fuelCadence: 4, fuelBonus: 1, flameDrain: 1, routeReward: 1.45, durationScale: 0.90, draftTags: ['Flame', 'Drift'], fuelPreview: 'Lean light packets · time your ability between them', riskPreview: 'Elite passages · richest ember rewards' },
 });
+
+function assignLevelIdentities(rows, seed) {
+  const visits = { ruins: 0, canopy: 0, storm: 0 };
+  let changed = false;
+  for (const node of rows.flat()) {
+    if (node.type === 'support') continue;
+    const offset = visits[node.terrain]++;
+    const practice = node.tutorialLesson === 'glide' ? 'ruins-aqueduct'
+      : node.tutorialLesson === 'wind' ? 'storm-ridge' : null;
+    const level = LEVELS.find(item => item.id === (practice || node.levelId) && item.terrain === node.terrain)
+      || getLevelIdentity(node.terrain, seed, offset);
+    const practiceName = node.tutorialLesson === 'wind' ? 'Cross a Draft' : node.name;
+    const fields = { levelId: level.id, locationName: practice ? practiceName : level.name,
+      setpiecePreview: node.tutorialLesson === 'wind' ? 'Practice · one gentle draft puff' : practice ? node.setpiecePreview || 'Practice · open passages' : level.signature,
+      name: practice ? practiceName : node.type === 'finale' ? `${level.name} · Ascension` : level.name,
+      ...(node.tutorialLesson === 'wind' ? { description: 'One gentle draft puff nudges only inside its visible area. Fly around it or try your companion ability in clear air.' } : {}) };
+    for (const [key, value] of Object.entries(fields)) {
+      if (node[key] !== value) { node[key] = value; changed = true; }
+    }
+  }
+  return changed;
+}
 
 function makeMap(seed) {
   const rng = randomFor(`${seed}|map`);
@@ -295,11 +574,12 @@ function makeMap(seed) {
     const draftTags = support ? [] : [...profile.draftTags];
     const draftTheme = draftTags.join(' + ');
     const challengeId = routeStyle === 'refuge' ? 'wisps' : routeStyle === 'cavern' ? 'clean' : 'boosts';
-    const challengeTarget = challengeId === 'wisps' ? 4 + Math.floor(row / 2) : challengeId === 'boosts' ? 2 : 0;
-    const challenge = challengeId === 'wisps' ? `Collect ${challengeTarget} sparks` : challengeId === 'boosts' ? 'Boost twice' : 'Finish without a hit';
+    const challengeTarget = (challengeId === 'wisps' ? 4 + Math.floor(row / 2) : challengeId === 'boosts' ? 2 : 0) * LEVEL_LENGTH.multiplier;
+    const challenge = challengeId === 'wisps' ? `Collect ${challengeTarget} light packets` : challengeId === 'boosts' ? `Use ability ${challengeTarget} times` : 'Finish without a hit';
     const routeName = { refuge: 'Ember Refuge', cavern: 'Crystal Cavern', gauntlet: 'Flame Gauntlet' }[routeStyle];
     const baseDuration = row === 0 ? 34 : 38 + row * 2;
-    const bonusEmbers = support ? 0 : finale ? 35 : routeStyle === 'refuge' ? 10 : elite ? 26 : 18;
+    const depth = getAscentInfo({ row, type: finale ? 'finale' : support ? 'support' : 'flight' }).level;
+    const bonusEmbers = support ? 0 : completionReward({ type: finale ? 'finale' : 'flight', elite, flightLengthScale: LEVEL_LENGTH.multiplier }, depth);
     return {
       id: `n-${row}-${['a', 'b', 'c'][lane]}`, row, lane, nextIds: [],
       type: support ? 'support' : finale ? 'finale' : 'flight', kind, terrain, elite, draftTags, draftTheme,
@@ -308,16 +588,18 @@ function makeMap(seed) {
       routeReward: finale ? 1.25 : profile.routeReward,
       fuelPreview: support ? lane === 0 ? 'Full Flame refill available' : lane === 2 ? 'Fuel or a new card' : 'Preview the event before committing' : finale ? 'Balanced fuel · final ascent' : profile.fuelPreview,
       riskPreview: support ? lane === 0 ? 'Recover before the next fork' : lane === 2 ? 'Build strength or secure your reserve' : 'A resource trade or fresh opportunity' : finale ? 'The routes converge at the summit' : profile.riskPreview,
-      name: support ? lane === 0 ? 'Emberwell Camp' : lane === 2 ? 'Flamekeeper Shrine' : EVENT_NAMES[eventIndex] : finale ? `${TERRAINS[terrain].name} · Ascension` : `${routeName} · ${TERRAINS[terrain].name}`,
-      description: support ? lane === 0 ? 'Restore health and refill Flame, or gather embers. This fork keeps the refuge and cavern routes open.' : lane === 2 ? 'A Flamekeeper offers fuel or new inspiration. The next fork leads toward refuge or an elite passage.' : 'A branching encounter opens the cavern and elite routes. Preview the trade before choosing.' : finale ? `${TERRAINS[terrain].description} Conserve enough Flame for the last climb.` : `${TERRAINS[terrain].description} ${profile.riskPreview}. ${profile.fuelPreview}.`,
-      duration: support ? 0 : finale ? 55 : Math.round(baseDuration * profile.durationScale),
+      name: support ? lane === 0 ? 'Emberwell Camp' : lane === 2 ? 'Lightkeeper Shrine' : EVENT_NAMES[eventIndex] : finale ? `${TERRAINS[terrain].name} · Ascension` : `${routeName} · ${TERRAINS[terrain].name}`,
+      description: support ? lane === 0 ? 'Refill Glow or gather embers. This fork keeps the refuge and cavern routes open.' : lane === 2 ? 'A Lightkeeper offers fuel or new inspiration. The next fork leads toward refuge or an elite passage.' : 'A branching encounter opens the cavern and elite routes. Preview the trade before choosing.' : finale ? `${TERRAINS[terrain].description} Conserve enough Glow for the last climb.` : `${TERRAINS[terrain].description} ${profile.riskPreview}. ${profile.fuelPreview}.`,
+      duration: support ? 0 : (finale ? 55 : Math.round(baseDuration * profile.durationScale)) * LEVEL_LENGTH.multiplier,
+      flightLengthScale: support ? 1 : LEVEL_LENGTH.multiplier,
       eventIndex: support && lane === 1 ? eventIndex : null,
       challenge: support ? '' : challenge,
       challengeId: support ? '' : challengeId,
       challengeTarget: support ? 0 : challengeTarget,
-      challengeBonus: support ? 0 : 8,
+      challengeBonus: support ? 0 : 8 * LEVEL_LENGTH.multiplier,
+      performanceBonusCap: support ? 0 : 8 * LEVEL_LENGTH.multiplier,
       bonusEmbers,
-      reward: support ? lane === 0 ? 'Full refill or 18 embers + 22 Flame' : lane === 2 ? '40 Flame + 10 embers or a card draft' : 'A choice of boons and bargains' : finale ? '35 embers · complete the journey' : `${bonusEmbers} embers · ${draftTheme} card draft · ${Math.round((profile.routeReward - 1) * 100)}% extra pickup rewards`,
+      reward: support ? lane === 0 ? 'Full refill or 18 embers + 22 Glow' : lane === 2 ? '40 Glow + 10 embers or a card draft' : 'A choice of boons and bargains' : `${bonusEmbers} clear embers · up to ${8 * LEVEL_LENGTH.multiplier} score bonus · ${finale ? 'complete the journey' : `${draftTheme} card draft`}`,
     };
   }));
   for (let row = 0; row < rows.length - 1; row++) for (const node of rows[row]) {
@@ -325,6 +607,7 @@ function makeMap(seed) {
     const lanes = node.lane === 0 ? [0, 1] : node.lane === 1 ? [1, 2] : [0, 2];
     node.nextIds = next.length === 1 ? [next[0].id] : lanes.map(lane => next.find(item => item.lane === lane).id);
   }
+  assignLevelIdentities(rows, seed);
   return rows;
 }
 
@@ -351,12 +634,15 @@ export function createRun(profile = newState().profile, seed = freshSeed()) {
   const departure = cleanProfile(profile), skills = departure.skills;
   const run = {
     id: `${normalizedSeed}-${freshSeed()}`, seed: normalizedSeed, step: 0, map: makeMap(normalizedSeed), path: [], current: null,
-    cards: [], skills, element: 'fire', hp: 3, maxHp: 3, flame: FLAME_TUNING.starting, shield: 0, embers: 0, score: 0, usedRebirth: false,
-    offers: [], phase: 'starter', success: false, banked: false, supportChoices: [], fuelRevision: 2,
+    cards: [], skills, companionTint: 'pearl', companionRole: 'swift', lives: LIFE_TUNING.lives, maxLives: LIFE_TUNING.lives,
+    flame: FLAME_TUNING.starting, embers: 0, securedEmbers: 0, pendingRewards: [], rewardLedgerVersion: REWARD_LEDGER_VERSION,
+    score: 0, attemptActive: false, attemptEntry: null,
+    offers: [], phase: 'starter', success: false, banked: false, supportChoices: [], fuelRevision: 2, lengthVersion: LEVEL_LENGTH.version,
     afterglow: departure.afterglow, afterglowDrawStep: -1, afterglowPendingSpent: 0,
     afterglowTotals: afterglowReport(departure.afterglow), afterglowLossApplied: false, afterglowPractice: false,
     discoveryClears: departure.clearedFlights, knownPowers: [...departure.knownPowers], newlyDiscoveredPowers: [],
-    stats: { collected: 0, collisions: 0, boosts: 0, flights: 0, elites: 0, challenges: 0, events: 0 },
+    flightTuning: { ...FLIGHT_POINTS_TUNING.defaultAllocation }, tuningRestRows: [], tuningRestReady: true, tuningLastGrant: null,
+    stats: { collected: 0, collisions: 0, boosts: 0, flights: 0, elites: 0, challenges: 0, events: 0, attempts: 0, deaths: 0 },
   };
   run.mapVersion = 2;
   run.startNodeIds = run.map[0].map(node => node.id);
@@ -368,26 +654,32 @@ export function createTutorial(profile = newState().profile, seed = freshSeed())
   const run = createRun(profile, seed);
   const original = run.map;
   const first = { ...copy(original[0][0]), id: 'tutorial-glide', row: 0, lane: 1,
-    type: 'flight', kind: 'normal', terrain: 'ruins', name: 'First Light', duration: 22,
-    tutorialLesson: 'glide', elite: false, routeStyle: 'refuge', passage: 'open',
+    type: 'flight', kind: 'normal', terrain: 'ruins', name: 'First Light', duration: 22, flightLengthScale: 1, performanceBonusCap: 0,
+    tutorialLesson: 'glide', levelId: 'ruins-aqueduct', locationName: 'First Light', setpiecePreview: 'Practice · open terraces',
+    elite: false, routeStyle: 'refuge', passage: 'open',
     fuelCadence: 2, fuelBonus: 0, flameDrain: 1, routeReward: 1,
-    description: 'Lift, glide, and collect a visible spark. This is a practice flight.',
+    description: 'Lift, glide, and collect a visible light packet. This is a practice flight.',
     reward: 'Choose a practice power', bonusEmbers: 0, challengeBonus: 0,
     challenge: '', challengeId: '', challengeTarget: 0,
     nextIds: ['tutorial-checkpoint'] };
   const checkpoint = { ...copy(original[1][0]), id: 'tutorial-checkpoint', row: 1, lane: 1,
     type: 'support', kind: 'camp', terrain: 'ruins', name: 'A Quiet Ember', duration: 0,
     tutorialLesson: 'reserve', description: 'Your Afterglow here is practice light. Draw it before the next flight, or keep it.',
-    reward: 'Prepare for the wind', bonusEmbers: 0, challengeBonus: 0,
+    reward: 'Prepare for a local draft', bonusEmbers: 0, challengeBonus: 0,
     nextIds: ['tutorial-wind'] };
   const finale = { ...copy(original[6][0]), id: 'tutorial-wind', row: 2, lane: 1,
-    type: 'finale', kind: 'finale', terrain: 'storm', name: 'Ride the Wind', duration: 26,
-    tutorialLesson: 'wind', elite: false, routeStyle: 'refuge', passage: 'open',
+    type: 'finale', kind: 'finale', terrain: 'storm', name: 'Cross a Draft', duration: 26, flightLengthScale: 1, performanceBonusCap: 0,
+    tutorialLesson: 'wind', levelId: 'storm-ridge', locationName: 'Cross a Draft', setpiecePreview: 'Practice · one gentle draft puff',
+    elite: false, routeStyle: 'refuge', passage: 'open',
     fuelCadence: 2, fuelBonus: 0, flameDrain: 1, routeReward: 1,
-    description: 'Watch the wind warning and use Boost when the current rises.',
+    description: 'One gentle draft puff nudges only inside its visible area. Fly around it or try your companion ability in clear air.',
     reward: 'Finish the practice journey', bonusEmbers: 0, challengeBonus: 0,
     challenge: '', challengeId: '', challengeTarget: 0, nextIds: [] };
   run.isTutorial = true;
+  run.flightTuning = tuningAllocation({}, 0);
+  run.tuningRestRows = [];
+  run.tuningRestReady = false;
+  run.tuningLastGrant = null;
   run.afterglowPractice = true;
   run.afterglow = AFTERGLOW_TUNING.practiceReserve;
   run.afterglowTotals = afterglowReport(run.afterglow);
@@ -396,7 +688,7 @@ export function createTutorial(profile = newState().profile, seed = freshSeed())
   run.phase = 'map';
   run.offers = [];
   run.cards = [];
-  run.hp = run.maxHp = 3;
+  run.lives = run.maxLives = LIFE_TUNING.lives;
   run.flame = 80;
   run.knownPowers = powerIds([...run.knownPowers, 'hungry-wisp']);
   return run;
@@ -404,23 +696,18 @@ export function createTutorial(profile = newState().profile, seed = freshSeed())
 
 export function getChoices(run) {
   if (!run || run.phase !== 'map' || run.step >= run.map.length) return [];
-  const completed = run.path.map(id => run.map.flat().find(node => node.id === id)).filter(node => node && node.type !== 'support');
+  const prior = run.path.map(id => run.map.flat().find(node => node.id === id)).filter(node => node && node.row < run.step);
+  const completed = prior.filter(node => node.type !== 'support');
   const previousElite = completed.at(-1)?.elite === true;
-  const previous = run.map.flat().find(node => node.id === run.path.at(-1));
+  const previous = prior.at(-1);
   const reachable = run.step === 0 ? run.startNodeIds : previous?.nextIds;
   return run.map[run.step].filter(node => (!Array.isArray(reachable) || reachable.includes(node.id)) && !(previousElite && node.elite));
-}
-
-function reconcileHealth(run) {
-  run.maxHp = getModifiers(run.cards, run.skills).maxHp;
-  run.hp = clamp(run.hp, 0, run.maxHp);
 }
 
 export function applyStarter(run, cardId) {
   if (!run || run.phase !== 'starter' || !run.offers.includes(cardId)) return false;
   run.cards = [cardId];
   run.offers = [];
-  reconcileHealth(run);
   run.phase = 'map';
   return true;
 }
@@ -429,10 +716,14 @@ export function selectNode(run, nodeId) {
   const node = getChoices(run).find(item => item.id === nodeId);
   if (!node) return false;
   run.current = node;
+  run.path = run.path.filter(id => run.map.flat().some(previous => previous.id === id && previous.row < run.step));
   run.path.push(node.id);
   run.phase = node.type === 'support' ? 'support' : 'briefing';
   run.offers = [];
-  if (node.type === 'support') run.supportChoices = makeSupportChoices(run);
+  if (node.type === 'support') {
+    grantRestTuning(run, node.row);
+    run.supportChoices = makeSupportChoices(run);
+  }
   return true;
 }
 
@@ -448,7 +739,7 @@ function advance(run) {
 export function takeCard(run, cardId, replaceIndex = null) {
   if (!run || run.phase !== 'reward') return false;
   if (cardId == null || cardId === 'skip') {
-    if (!run.isTutorial) run.embers += 8;
+    queueReward(run, 8, 'draft-skip');
     advance(run);
     return true;
   }
@@ -458,16 +749,77 @@ export function takeCard(run, cardId, replaceIndex = null) {
     if (!Number.isInteger(replaceIndex) || replaceIndex < 0 || replaceIndex > 2) return false;
     run.cards[replaceIndex] = cardId;
   }
-  reconcileHealth(run);
   advance(run);
   return true;
 }
 
+function restoreAttemptEntry(run) {
+  const entry = run.attemptEntry;
+  if (entry && entry.step === run.step && entry.nodeId === run.current?.id) {
+    const attempts = count(run.stats?.attempts), deaths = count(run.stats?.deaths);
+    run.flame = clamp(finite(entry.startGlow, run.flame), 0, FLAME_TUNING.maximum);
+    run.afterglow = energy(entry.afterglow);
+    run.afterglowDrawStep = entry.afterglowDrawStep;
+    run.afterglowPendingSpent = energy(entry.pendingSpent);
+    run.afterglowTotals = afterglowReport(run.afterglow, entry.totals);
+    run.embers = count(entry.embers);
+    run.pendingRewards = copy(entry.pendingRewards || []);
+    run.score = count(entry.score);
+    run.discoveryClears = count(entry.discoveryClears);
+    run.knownPowers = powerIds(entry.knownPowers);
+    run.newlyDiscoveredPowers = powerIds(entry.newlyDiscoveredPowers);
+    run.stats = { ...(entry.stats || {}), attempts, deaths };
+    if (entry.flightTuning) run.flightTuning = tuningAllocation(entry.flightTuning, tuningBudget(run));
+    if (entry.lastFlight) run.lastFlight = copy(entry.lastFlight);
+    else delete run.lastFlight;
+  }
+  run.attemptActive = false;
+  run.attemptEntry = null;
+  run.tuningRestReady = false;
+  return run.flame;
+}
+
+export function beginFlightAttempt(run) {
+  if (!run || run.phase !== 'briefing' || run.attemptActive || run.banked || count(run.lives) <= 0
+    || !run.current || run.current.type === 'support') return false;
+  run.flightTuning = tuningAllocation(run.flightTuning, tuningBudget(run));
+  run.tuningRestReady = false;
+  run.attemptEntry = { step: run.step, nodeId: run.current.id, flightTuning: { ...run.flightTuning }, tuningRestReady: false,
+    startGlow: run.flame, afterglow: run.afterglow, afterglowDrawStep: run.afterglowDrawStep,
+    pendingSpent: run.afterglowPendingSpent, totals: copy(run.afterglowTotals || afterglowReport(run.afterglow)),
+    embers: run.embers, pendingRewards: copy(run.pendingRewards || []), score: run.score, discoveryClears: run.discoveryClears,
+    knownPowers: [...run.knownPowers], newlyDiscoveredPowers: [...(run.newlyDiscoveredPowers || [])],
+    stats: copy(run.stats), lastFlight: run.lastFlight ? copy(run.lastFlight) : null };
+  run.attemptActive = true;
+  run.stats.attempts = count(run.stats.attempts) + 1;
+  return true;
+}
+
+export function retryFlight(run) {
+  if (!run || run.phase !== 'retry' || run.attemptActive || count(run.lives) <= 0 || !run.current) return false;
+  run.tuningRestReady = false;
+  run.phase = 'briefing';
+  return true;
+}
+
 export function finishFlight(run, result) {
-  if (!run || run.phase !== 'briefing' || !run.current || run.current.type === 'support' || !result || typeof result.success !== 'boolean') return false;
+  if (!run || run.phase !== 'briefing' || !run.attemptActive || !run.current || run.current.type === 'support' || !result || typeof result.success !== 'boolean') return false;
+  if (!result.success) {
+    const restoredGlow = restoreAttemptEntry(run);
+    run.lives = Math.max(0, count(run.lives, LIFE_TUNING.lives) - 1);
+    run.stats.deaths = count(run.stats.deaths) + 1;
+    run.success = false;
+    run.offers = [];
+    run.lastAttempt = { success: false, interrupted: false, step: run.step, nodeId: run.current.id,
+      livesLost: 1, livesRemaining: run.lives, restoredGlow };
+    run.phase = run.lives > 0 ? 'retry' : 'ended';
+    return true;
+  }
   const node = run.current;
-  const success = result.success && finite(result.hp) > 0;
-  run.hp = clamp(finite(result.hp), 0, run.maxHp);
+  const success = true;
+  run.attemptActive = false;
+  run.attemptEntry = null;
+  run.lastAttempt = { success: true, step: run.step, nodeId: node.id, livesLost: 0, livesRemaining: run.lives };
   const remainingFlame = clamp(Number.isFinite(result.flame) ? result.flame : run.flame ?? FLAME_TUNING.maximum, 0, FLAME_TUNING.maximum);
   const rules = getAfterglowRules(run.skills);
   run.afterglow = energy(clamp(finite(run.afterglow), 0, rules.cap));
@@ -483,10 +835,7 @@ export function finishFlight(run, result) {
   run.afterglowTotals = afterglowReport(run.afterglow, run.afterglowTotals);
   run.afterglowTotals.stored = energy(run.afterglowTotals.stored + stored);
   run.afterglowTotals.rawStored = energy(run.afterglowTotals.rawStored + rawStored);
-  if (!run.isTutorial) run.embers += count(result.embers);
   run.score += count(result.score);
-  run.shield = 0;
-  run.usedRebirth ||= result.rebirthUsed === true;
   run.stats.flights += 1;
   run.stats.elites += node.elite ? 1 : 0;
   run.stats.collected += count(result.collected);
@@ -495,18 +844,23 @@ export function finishFlight(run, result) {
   for (const key of ['nearMisses', 'gustSeconds', 'baseEmbers']) run.stats[key] = finite(run.stats[key]) + count(result.stats?.[key]);
   const challengeComplete = success && result.challengeComplete === true;
   if (challengeComplete && !run.isTutorial) {
-    run.embers += node.challengeBonus;
     run.stats.challenges += 1;
   }
-  if (success && !run.isTutorial) run.embers += node.bonusEmbers;
+  const completionBonus = run.isTutorial ? 0 : completionReward(node, flightDepth(run, node));
+  const flightLengthScale = getLevelLengthScale(node);
+  const performanceBonusCap = run.isTutorial ? 0 : 8 * flightLengthScale;
+  const performanceBonus = run.isTutorial ? 0 : Math.min(performanceBonusCap, Math.floor(count(result.score) / 100));
+  const pickupEmbers = run.isTutorial ? 0 : count(result.embers);
+  const challengeBonus = challengeComplete && !run.isTutorial ? count(node.challengeBonus) : 0;
+  queueReward(run, completionBonus + performanceBonus + pickupEmbers + challengeBonus, 'flight', node.id);
   let unlockedPowers = [];
   if (success && !run.isTutorial) {
     run.discoveryClears = count(run.discoveryClears) + 1;
     unlockedPowers = recordPowerDiscovery(run, getPowerDiscovery(run).unlocked);
   }
-  run.lastFlight = { success, terrain: node.terrain, elite: node.elite,
-    embers: run.isTutorial ? 0 : count(result.embers), completionBonus: success && !run.isTutorial ? node.bonusEmbers : 0,
-    challengeBonus: challengeComplete && !run.isTutorial ? node.challengeBonus : 0,
+  run.lastFlight = { success, nodeId: node.id, step: run.step, depth: flightDepth(run, node), terrain: node.terrain, elite: node.elite,
+    embers: pickupEmbers, pickupEmbers, completionBonus, performanceBonus, performanceBonusCap,
+    flightLengthScale, challengeBonus, securedEmbers: 0,
     score: count(result.score), collected: count(result.collected), flame: remainingFlame,
     recoveredFlame: Math.max(0, run.flame - postStorage), unlockedPowers,
     afterglow: afterglowReport(run.afterglow, { stored, rawStored, spent: run.afterglowPendingSpent }) };
@@ -524,34 +878,38 @@ export function finishFlight(run, result) {
 }
 
 const choice = (id, title, description, effect, detail = description) => ({ id, title, description, detail, effect });
-function makeSupportChoices(run) {
-  const canHeal = run.hp < run.maxHp;
-  const healOrWard = canHeal ? { hp: 1, flame: 100 } : { shield: 1, flame: 100 };
-  const healingTitle = canHeal ? 'Restore a heart' : 'Carry an ash ward';
-  const healingText = (canHeal ? 'Recover 1 heart before the next flight.' : 'Absorb one extra hit during the next flight.') + ' Refill Flame to 100.';
+function makeSupportChoices(run, profile = null) {
+  const wallet = count(profile ? profile.embers : run.embers);
+  const walletLabel = profile ? 'saved embers' : 'run embers';
+  const reserveChoice = (id, title, amount) => {
+    const gain = energy(Math.min(amount, Math.max(0, getAfterglowRules(run.skills).cap - finite(run.afterglow))));
+    return gain > 0 ? choice(id, title, `Store ${Math.round(gain * 100) / 100} Afterglow for a later flight.`, { afterglow: gain })
+      : choice(id, 'Gather the remaining embers', 'Your reserve is full. Gain 12 embers instead.', { embers: 12 });
+  };
+  const refill = choice('rest', 'Refill your Glow', 'Refill Glow to 100 before the next flight.', { flame: 100 });
   if (run.isTutorial) return [
-    choice('practice-rest', canHeal ? 'Mend a heart' : 'Carry a practice ward', canHeal ? 'Recover 1 heart. Your practice Afterglow stays ready for the next briefing.' : 'Protect one hit. Your practice Afterglow stays ready for the next briefing.', canHeal ? { hp: 1 } : { shield: 1 }),
-    choice('practice-glow', 'Gather a little light', 'Recover 8 practice Glow. You can draw Afterglow before the wind flight.', { flame: 8 }),
+    choice('practice-glow', 'Gather a little light', 'Recover 12 practice Glow before the draft flight.', { flame: 12 }),
+    reserveChoice('practice-reserve', 'Keep practice light', 8),
   ];
   if (run.current.kind === 'camp') return [
-    choice('rest', healingTitle, healingText, healOrWard),
+    finite(run.flame) < FLAME_TUNING.maximum ? refill : reserveChoice('rest', 'Seal a little Afterglow', 10),
     choice('gather', 'Gather the glow', 'Gain 18 embers and recover 22 Flame.', { embers: 18, flame: 22 }),
   ];
   if (run.current.kind === 'shrine') return [
     choice('shrine-fuel', 'Stoke the inner flame', 'Recover 40 Flame and gain 10 embers before the next fork.', { flame: 40, embers: 10 }),
-    choice('shrine-inspiration', 'Read the rising sparks', 'Choose a temporary card and recover 8 Flame. Keep a reserve for the next passage.', { draft: true, flame: 8 }),
+    choice('shrine-inspiration', 'Read the rising light', 'Choose a temporary card and recover 8 Glow. Keep a reserve for the next passage.', { draft: true, flame: 8 }),
   ];
   switch (run.current.eventIndex) {
     case 0: return [
-      choice('spring', healingTitle, `${healingText}${run.embers >= 12 ? ' Costs 12 run embers.' : ''}`, { ...healOrWard, embers: run.embers >= 12 ? -12 : 0 }),
+      choice('spring', 'Kindle the spring', `Refill Glow to 100.${wallet >= 12 ? ` Costs 12 ${walletLabel}.` : ''}`, { flame: 100, embers: wallet >= 12 ? -12 : 0 }),
       choice('spring-gold', 'Follow the golden stream', 'Gain 16 embers and leave the spring untouched.', { embers: 16 }),
     ];
     case 1: return [
-      run.hp >= 2 ? choice('bargain', 'Give a little flame', 'Lose 1 heart and gain 35 embers.', { hp: -1, embers: 35 }) : choice('bargain-shield', 'Keep the last spark', 'Protect your last heart with an ash ward.', { shield: 1 }),
-      choice('bargain-safe', 'Take the scattered embers', 'Gain 12 embers with no health cost.', { embers: 12 }),
+      finite(run.flame) >= 20 ? choice('bargain', 'Trade a little Glow', 'Spend 15 Glow and gain 35 embers.', { flame: -15, embers: 35 }) : reserveChoice('bargain-reserve', 'Keep the last light', 6),
+      choice('bargain-safe', 'Take the scattered embers', 'Gain 12 embers without spending Glow.', { embers: 12 }),
     ];
     case 2: return [
-      choice('nest-ward', 'Wear the abandoned ward', 'An ash ward absorbs one hit during the next flight.', { shield: 1 }),
+      choice('nest-glow', 'Kindle the abandoned lantern', 'Recover 24 Glow before the next flight.', { flame: 24 }),
       choice('nest-gold', 'Gather the nesting embers', 'Gain 22 embers.', { embers: 22 }),
     ];
     case 3: return [
@@ -559,29 +917,42 @@ function makeSupportChoices(run) {
       choice('shrine-keep', 'Keep your present form', 'Keep your loadout and gain 20 embers.', { embers: 20 }),
     ];
     case 4: return [
-      choice('well', canHeal ? 'Drink the luminous water' : 'Seal the light in a ward', canHeal ? 'Recover up to 2 hearts and refill Flame.' : healingText, canHeal ? { hp: 2, flame: 100 } : { shield: 1, flame: 100 }),
-      choice('well-gold', 'Catch the reflected light', 'Gain 15 embers and 150 score.', { embers: 15, score: 150 }),
+      choice('well', 'Gather the luminous water', 'Refill Glow to 100.', { flame: 100 }),
+      reserveChoice('well-reserve', 'Seal the reflected light', 10),
     ];
     default: return [
-      choice('archive-draft', 'Read a forgotten flame', `Choose a new card.${run.embers >= 10 ? ' Costs 10 run embers.' : ''}`, { draft: true, embers: run.embers >= 10 ? -10 : 0 }),
-      choice('archive-rest', healingTitle, healingText, healOrWard),
+      choice('archive-draft', 'Read a forgotten flame', `Choose a new card.${wallet >= 10 ? ` Costs 10 ${walletLabel}.` : ''}`, { draft: true, embers: wallet >= 10 ? -10 : 0 }),
+      reserveChoice('archive-reserve', 'Save a forgotten light', 8),
     ];
   }
 }
 
-export function getSupportChoices(run) {
-  return run?.phase === 'support' ? copy(run.supportChoices) : [];
+export function getSupportChoices(run, profile = null) {
+  if (run?.phase !== 'support') return [];
+  if (profile) run.supportChoices = makeSupportChoices(run, profile);
+  return copy(run.supportChoices);
 }
 
-export function resolveSupport(run, index) {
+export function resolveSupport(run, index, profile = null) {
   if (!run || run.phase !== 'support' || !Number.isInteger(index) || index < 0 || index > 1) return false;
+  if (profile) run.supportChoices = makeSupportChoices(run, profile);
   const effect = run.supportChoices[index]?.effect;
-  if (!effect || run.embers + finite(effect.embers) < 0 || run.hp + finite(effect.hp) <= 0) return false;
-  run.embers = count(run.embers + finite(effect.embers));
+  const wallet = count(profile ? profile.embers : run.embers);
+  if (!effect || wallet + Math.min(0, finite(effect.embers)) < 0
+    || (run.flame ?? FLAME_TUNING.maximum) + finite(effect.flame) < 0
+    || finite(run.afterglow) + finite(effect.afterglow) < 0) return false;
+  const emberDelta = finite(effect.embers);
+  if (emberDelta < 0) {
+    if (profile && !run.isTutorial) profile.embers = count(wallet + emberDelta);
+    else if (!run.isTutorial) spendPending(run, -emberDelta);
+  } else queueReward(run, emberDelta, 'support');
   run.score = count(run.score + finite(effect.score));
-  run.hp = clamp(run.hp + finite(effect.hp), 0, run.maxHp);
   run.flame = clamp((run.flame ?? FLAME_TUNING.maximum) + finite(effect.flame), 0, FLAME_TUNING.maximum);
-  run.shield = count(run.shield + finite(effect.shield), 2);
+  const reserveGain = energy(Math.min(finite(effect.afterglow), getAfterglowRules(run.skills).cap - finite(run.afterglow)));
+  run.afterglow = energy(clamp(finite(run.afterglow) + finite(effect.afterglow), 0, getAfterglowRules(run.skills).cap));
+  run.afterglowTotals = afterglowReport(run.afterglow, run.afterglowTotals);
+  run.afterglowTotals.stored = energy(run.afterglowTotals.stored + reserveGain);
+  if (finite(effect.afterglow) < 0) run.afterglowTotals.spent = energy(run.afterglowTotals.spent - effect.afterglow);
   run.stats.events += 1;
   if (effect.draft) {
     run.phase = 'reward';
@@ -594,6 +965,7 @@ export function resolveSupport(run, index) {
 export function bankRun(state) {
   const run = state?.run;
   if (!state?.profile || !run || run.phase !== 'ended' || run.banked || state.profile.bankedRuns.includes(run.id)) return false;
+  if (run.attemptActive) restoreAttemptEntry(run);
   if (run.isTutorial) {
     if (run.success) {
       state.profile.tutorialComplete = true;
@@ -605,6 +977,11 @@ export function bankRun(state) {
     state.profile.bankedRuns = state.profile.bankedRuns.slice(-128);
     return true;
   }
+  if (run.rewardLedgerVersion !== REWARD_LEDGER_VERSION) settleCheckpoint(state);
+  // Every modern clear was already secured at its checkpoint. Ending an
+  // attempt or ascension never creates a second currency payment.
+  run.embers = 0;
+  run.pendingRewards = [];
   let loss = 0;
   if (!run.success && !run.afterglowLossApplied) {
     loss = energy(finite(run.afterglow) * getAfterglowRules(run.skills).failureLoss);
@@ -620,11 +997,12 @@ export function bankRun(state) {
   state.profile.afterglow = energy(clamp(finite(run.afterglow), 0, getAfterglowRules(state.profile.skills).cap));
   state.profile.clearedFlights = Math.max(count(state.profile.clearedFlights), count(run.discoveryClears));
   state.profile.knownPowers = powerIds([...getPowerDiscovery(state.profile).unlocked, ...getPowerDiscovery(run).unlocked]);
-  state.profile.embers = count(state.profile.embers + count(run.embers));
   state.profile.stats.completedRuns += 1;
   state.profile.stats.wins += run.success ? 1 : 0;
   state.profile.stats.totalScore += count(run.score);
   state.profile.stats.bestScore = Math.max(state.profile.stats.bestScore, count(run.score));
+  state.profile.stats.attempts = count(state.profile.stats.attempts) + count(run.stats.attempts);
+  state.profile.stats.deaths = count(state.profile.stats.deaths) + count(run.stats.deaths);
   state.profile.bankedRuns.push(run.id);
   state.profile.bankedRuns = state.profile.bankedRuns.slice(-128);
   run.banked = true;
@@ -649,17 +1027,35 @@ export function buySkill(profile, skillId) {
   return true;
 }
 
-export function getModifiers(cardIds = [], skills = {}) {
+export function canBuyCheckpointSkills(state) {
+  if (!state?.profile) return false;
+  const run = state.run;
+  if (!run || run.phase === 'ended') return true;
+  if (run.isTutorial || run.banked || run.attemptActive
+    || !['starter', 'map', 'support', 'reward', 'briefing'].includes(run.phase)) return false;
+  const reattempt = run.phase === 'briefing' && run.current
+    && run.lastAttempt?.nodeId === run.current.id && run.lastAttempt.success !== true;
+  return !reattempt;
+}
+
+/** Checkpoint purchases apply to the next new flight; a retry keeps its entry build. */
+export function buyCheckpointSkill(state, skillId) {
+  if (!canBuyCheckpointSkills(state) || !buySkill(state.profile, skillId)) return false;
+  if (state.run && state.run.phase !== 'ended') state.run.skills = { ...state.profile.skills };
+  return true;
+}
+
+export function getModifiers(cardIds = [], skills = {}, flightTuning = {}) {
   const ids = new Set(Array.isArray(cardIds) ? cardIds.filter(id => Object.hasOwn(CARDS, id)) : []);
   const result = {
     gravity: 1, flap: 1, speed: 1, attract: 1 + 0.25 * skillRank(skills, 'wisp-reach'),
     wispCooldown: Math.round((1 - 0.15 * skillRank(skills, 'wisp-recovery')) * 100) / 100,
     lightRadius: WISP_TUNING.lightRadius + 35 * skillRank(skills, 'wisp-light'),
     boostCooldown: 1, boostDuration: 1, reward: 1,
-    maxHp: 3, rebirth: !!skillRank(skills, 'rebirth-spark'), rebirthHp: skillRank(skills, 'rebirth-grace') ? 2 : 1,
-    ward: ids.has('ash-ward') ? 1 : 0, steady: ids.has('steady-flame'),
+    cacheFuelBonus: ids.has('ash-ward') ? 4 : 0, windSensitivity: ids.has('glass-phoenix') ? 1.2 : 1,
+    warmCore: ids.has('warm-heart'), steady: ids.has('steady-flame'),
     hungryWisp: ids.has('hungry-wisp'), kindledSpirit: ids.has('kindled-spirit'), goldenWake: ids.has('golden-wake'),
-    stormFeeder: ids.has('storm-feeder'), fireWake: ids.has('fire-wake'), warmHeart: ids.has('warm-heart'),
+    stormFeeder: ids.has('storm-feeder'), fireWake: ids.has('fire-wake'),
   };
   if (skillRank(skills, 'wisp-bounty')) result.reward *= 1.10;
   if (skillRank(skills, 'boost-focus')) result.boostCooldown *= 0.90;
@@ -667,7 +1063,7 @@ export function getModifiers(cardIds = [], skills = {}) {
   if (ids.has('soft-descent')) { result.gravity *= 0.90; result.flap *= 0.94; }
   if (ids.has('high-wing')) { result.flap *= 1.10; result.speed *= 1.05; }
   if (ids.has('tailwind')) { result.speed *= 1.08; result.reward *= 1.12; }
-  if (ids.has('glass-phoenix')) { result.maxHp = 2; result.reward *= 1.25; }
+  if (ids.has('glass-phoenix')) result.reward *= 1.25;
   if (ids.has('ash-ward')) result.boostCooldown *= 1.12;
   if (ids.has('steady-flame')) result.gravity *= 0.97;
   if (ids.has('storm-feeder')) result.boostCooldown *= 0.96;
@@ -679,5 +1075,11 @@ export function getModifiers(cardIds = [], skills = {}) {
   result.boostCooldown = clamp(result.boostCooldown, 0.65, 1.20);
   result.boostDuration = clamp(result.boostDuration, 0.80, 1.45);
   result.reward = clamp(result.reward, 0.75, 1.65);
+  const points = tuningAllocation(flightTuning);
+  result.speed = Math.min(1.23, result.speed * (1 + .03 * points.speed));
+  result.flap = Math.min(1.20, result.flap * Math.sqrt(1 + .06 * points.lift));
+  result.attract = Math.min(2.5, result.attract * (1 + .12 * points.collector));
+  result.boostDuration = Math.min(1.45, result.boostDuration * (1 + .05 * points.boost));
+  result.boostCooldown = Math.max(.65, result.boostCooldown * (1 - .04 * points.boost));
   return result;
 }

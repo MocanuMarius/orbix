@@ -1,6 +1,11 @@
 /* Emberwing's self-contained canvas flight simulation and renderer. */
-import { FLAME_TUNING } from './vitality.mjs';
+import { FLAME_TUNING, LIGHT_PACKET_TUNING } from './vitality.mjs';
 import { WispCompanion, wispHome } from './wisp.mjs';
+import { getAscentInfo } from './ascent.mjs';
+import { LEVEL_LENGTH, getLevelLengthScale } from './level-length.mjs';
+import { resolveLevelIdentity } from './level-catalog.mjs';
+import { DraftField, DRAFT_TUNING } from './drafts.mjs';
+import { normalizeCompanionRole, getCompanionAbility } from './companion-abilities.mjs';
 import { createTutorialState, buildTutorialLayout, recordTutorialPickup,
   updateTutorial, updateTutorialCompanion, getTutorialHint } from './tutorial.mjs';
 export { FLAME_TUNING } from './vitality.mjs';
@@ -9,11 +14,10 @@ const STEP = 1 / 60;
 const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
 const lerp = (a, b, t) => a + (b - a) * t;
 export const FLIGHT_TUNING = Object.freeze({ gravity: 300, flapImpulse: 205,
-  forwardSpeed: 154, terminalFall: 245, pickupRadius: 16 });
-export const WIND_TUNING = Object.freeze({ warning: 1.4, ramp: .5, boostResistance: .72,
-  ruins: Object.freeze({ force: 160, period: 10.8, duration: 2.4, first: 6.2 }),
-  canopy: Object.freeze({ force: 240, period: 9, duration: 2.8, first: 5.6 }),
-  storm: Object.freeze({ force: 420, period: 7.6, duration: 3.2, first: 4.8 }) });
+  forwardSpeed: 154, terminalFall: 245, pickupRadius: LIGHT_PACKET_TUNING.pickupRadius });
+export { DRAFT_TUNING } from './drafts.mjs';
+// Retain the public tuning name for consumers; wind now has no global cycle.
+export const WIND_TUNING = DRAFT_TUNING;
 
 export function seededRandom(seed = 1) {
   let state = 2166136261;
@@ -51,6 +55,47 @@ export const FLIGHT_PATTERNS = Object.freeze({
     { id: 'thunder-steps', centers: [.44, .51, .56, .49], gap: 1.10, spacing: 1.13 },
     { id: 'calm-between', centers: [.49, .54, .50, .45], gap: 1.16, spacing: 1.08 },
   ],
+});
+
+// center, opening, width, next spacing, occupancy, landform. These are macro
+// phrases with a deliberate entry, hard maneuver and recovery, not gap rolls.
+const MACRO_COURSES = Object.freeze({
+  'ruins-aqueduct': { name: 'The low aqueduct',
+    entry: [[.50,232,142,330,'floor','terrace'],[.56,258,166,320,'both','underpass']],
+    hard: [[.58,148,154,290,'both','underpass'],[.51,136,132,285,'both','underpass'],[.44,154,148,320,'both','terrace']],
+    rest: [[.43,286,170,350,'floor','terrace'],[.48,300,152,360,'floor','terrace']] },
+  'ruins-belfry': { name: 'The fallen bell stair',
+    entry: [[.50,232,142,330,'floor','terrace'],[.54,280,110,350,'roof','shelf']],
+    hard: [[.57,184,116,280,'floor','shelf'],[.50,144,108,285,'both','shelf'],[.43,132,128,320,'both','shelf']],
+    rest: [[.44,280,176,360,'floor','terrace'],[.49,310,148,355,'floor','shelf']] },
+  'ruins-ossuary': { name: 'The ossuary neck',
+    entry: [[.50,232,142,330,'floor','terrace'],[.49,270,170,320,'both','vault']],
+    hard: [[.49,160,164,290,'both','vault'],[.48,124,118,280,'both','vault'],[.45,148,140,320,'both','vault']],
+    rest: [[.43,278,174,350,'both','vault'],[.48,300,160,370,'floor','terrace']] },
+  'canopy-elder': { name: 'The elder root bend',
+    entry: [[.50,232,142,330,'floor','root'],[.55,280,168,330,'both','root']],
+    hard: [[.55,160,164,285,'both','root'],[.48,142,146,290,'both','root'],[.43,152,150,330,'both','root']],
+    rest: [[.46,292,172,355,'floor','root'],[.51,310,160,365,'both','root']] },
+  'canopy-fen': { name: 'The thorn hollow',
+    entry: [[.50,232,142,330,'floor','root'],[.57,292,172,340,'floor','hollow']],
+    hard: [[.58,196,160,285,'floor','hollow'],[.53,144,140,290,'both','thorn'],[.47,158,152,320,'both','root']],
+    rest: [[.48,300,178,355,'floor','hollow'],[.53,318,164,375,'floor','root']] },
+  'canopy-hanging': { name: 'The hanging root dip',
+    entry: [[.50,232,142,330,'floor','root'],[.44,282,170,340,'both','hanging']],
+    hard: [[.43,184,152,300,'roof','hanging'],[.50,138,144,290,'both','hanging'],[.56,150,160,330,'both','root']],
+    rest: [[.54,300,166,370,'floor','root'],[.49,316,152,365,'both','hanging']] },
+  'storm-ridge': { name: 'The razor saddle climb',
+    entry: [[.50,232,142,330,'floor','ridge'],[.57,280,168,330,'floor','ridge']],
+    hard: [[.58,176,154,285,'floor','ridge'],[.51,148,142,290,'both','razor'],[.44,132,126,320,'both','razor']],
+    rest: [[.42,294,174,370,'floor','ridge'],[.48,316,162,365,'floor','ridge']] },
+  'storm-chasm': { name: 'The chasm landing',
+    entry: [[.50,232,142,330,'floor','cliff'],[.45,282,164,350,'floor','cliff']],
+    hard: [[.44,220,162,320,'floor','cliff'],[.50,282,144,400,'roof','overhang'],[.56,164,170,300,'floor','landing'],[.51,138,128,330,'both','cliff']],
+    rest: [[.49,312,162,365,'floor','landing'],[.45,300,174,375,'floor','cliff']] },
+  'storm-glass': { name: 'The crystal tooth squeeze',
+    entry: [[.50,232,142,330,'floor','ridge'],[.50,282,166,330,'both','tooth']],
+    hard: [[.50,154,146,285,'both','tooth'],[.47,128,120,285,'both','tooth'],[.53,136,136,325,'both','tooth']],
+    rest: [[.52,294,172,355,'both','vault'],[.48,318,164,375,'floor','ridge']] },
 });
 
 export function circleHitsPolygon(x, y, radius, polygon) {
@@ -192,6 +237,47 @@ function makeTerrainShape(width, scale, top, variant, terrain, passage) {
     ...surface.reverse().map(([x, depth]) => [x * width, sign * (depth + vaultHeadroom) * scale])];
 }
 
+function makeCourseLandform(width, scale, top, variant, terrain, passage, form, tight) {
+  const shape = makeTerrainShape(width, scale, top, variant, terrain, passage);
+  const side = top ? -1 : 1;
+  for (const point of shape.slice(2)) {
+    const nx = point[0] / width;
+    let depth = side * point[1];
+    if (form === 'shelf' && nx > -.1 && nx < 1.45) depth = Math.round(depth / (18 * scale)) * 18 * scale;
+    if ((form === 'cliff' || form === 'landing') && !top && nx > -.1 && nx < 1.6) {
+      const drop = clamp((nx - .78) / .55, 0, 1);
+      depth = Math.min(depth, (22 + 150 * drop * drop * (3 - 2 * drop)) * scale);
+    }
+    if (tight) {
+      // The two grounded faces share an authored aperture. This removes the
+      // old incidental extra headroom from deep mesas/valleys at hard spots.
+      const distance = Math.abs(nx - .58);
+      const blend = 1 - clamp((distance - .20) / .62, 0, 1);
+      depth *= 1 - blend * blend * (3 - 2 * blend);
+    }
+    point[1] = side * Math.max(0, depth);
+  }
+  return shape;
+}
+
+function referenceEncounterCount(seed, terrain, extent) {
+  const rng = seededRandom(`${seed}:layout`), motifs = FLIGHT_PATTERNS[terrain] || FLIGHT_PATTERNS.ruins;
+  let x = 690, count = 0;
+  while (x < extent) {
+    const pattern = motifs[Math.floor(rng() * motifs.length)];
+    for (const unused of pattern.centers) {
+      rng();
+      const width = 132 + rng() * 35;
+      if (x + width * 2.5 + 35 > extent) return count;
+      rng(); rng();
+      for (let j = 0; j < 4; j++) rng();
+      x += (286 + rng() * 27) * pattern.spacing;
+      count++;
+    }
+  }
+  return count;
+}
+
 function terrainEdgeY(shape, localX) {
   const surface = shape.slice(2);
   for (let i = 1; i < surface.length; i++) {
@@ -236,41 +322,113 @@ function carveCachePocket(obstacle, side, first, rich, height) {
 }
 
 export function buildFlightLayout({ seed = 1, terrain = 'ruins', elite = false,
-  duration = 38, speed = 154, height = 620, passage = 'open', fuelCadence = 3 } = {}) {
-  const rng = seededRandom(`${seed}:layout`);
-  const motifs = FLIGHT_PATTERNS[terrain] || FLIGHT_PATTERNS.ruins;
-  const obstacles = [], embers = [];
+  duration = 38, speed = 154, height = 620, passage = 'open', fuelCadence = 3,
+  levelId, stage = 0, lengthScale = 1 } = {}) {
+  const ascent = getAscentInfo(stage);
+  const legCount = lengthScale === LEVEL_LENGTH.multiplier ? LEVEL_LENGTH.multiplier : 1;
+  const identity = resolveLevelIdentity(levelId, terrain, seed);
+  const course = MACRO_COURSES[identity.id] || MACRO_COURSES['ruins-aqueduct'];
+  const rng = seededRandom(`${seed}:${identity.id}:macro-course`);
+  const obstacles = [], embers = [], sections = [];
   let x = 690, previous = height * .5, index = 0;
   const extent = (Math.max(15, duration) - 2.8) * speed + 98;
-  sections: while (x < extent) {
-    const pattern = motifs[Math.floor(rng() * motifs.length)];
-    for (const normalized of pattern.centers) {
-      const center = clamp(height * normalized + (rng() - .5) * height * .025,
-        previous - height * .115, previous + height * .115);
-      const gap = height * (elite ? .315 : passage === 'cavern' ? .33 : .37) * pattern.gap;
-      const width = 132 + rng() * 35;
-      if (x + width * 2.5 + 35 > extent) break sections;
+  const legStart = x;
+  const legs = Array.from({ length: legCount }, (_, leg) => ({ index: leg,
+    start: lerp(legStart, extent, leg / legCount), end: lerp(legStart, extent, (leg + 1) / legCount) }));
+  const spacingScale = elite ? .96 : 1;
+  const fits = (cells, limit = extent) => {
+    let cursor = x;
+    for (const cell of cells) {
+      if (cursor + cell[2] * 2.5 + 35 > limit) return false;
+      cursor += cell[3] * spacingScale;
+    }
+    return true;
+  };
+  const appendSection = (kind, cells, repetition = 0, limit = extent, leg = 0) => {
+    const hard = kind === 'challenge', first = obstacles.length;
+    const sectionId = `${identity.id}:${kind}:${sections.length}`;
+    for (const cell of cells) {
+      const [flow, opening, width, spacing, occupancy, form] = cell;
+      if (x + width * 2.5 + 35 > limit) break;
+      const shift = Math.min(48, height * .075);
+      const center = clamp(height * (flow + (repetition % 2 ? .012 : 0)), previous - shift, previous + shift);
+      const tight = hard && occupancy === 'both' && opening <= 184;
+      const baseGap = tight ? clamp(opening * height / 620 * (elite ? .88 : 1), elite ? 104 : 120, elite ? 148 : 164)
+        : clamp(opening * height / 620 * (passage === 'cavern' ? .96 : 1), height * .28, height * .58);
+      // Scale the finished authored aperture, so capped openings also tighten
+      // visibly with depth. Intro and recovery sections retain their full gap.
+      const gap = hard ? Math.max(tight ? elite ? 104 : 120 : height * .28,
+        baseGap * ascent.hardGapScale) : baseGap;
       const obstacle = {
         id: index, x, width, center,
-        gap, phase: rng() * TAU, pattern: pattern.id,
-        motion: terrain === 'canopy' ? height * .008 : 0,
-        soft: terrain === 'canopy' && index % 3 === 2,
+        gap, phase: rng() * TAU, pattern: `${identity.scene}-${form}`,
+        motion: terrain === 'canopy' ? height * (tight ? .003 : .008) : 0,
+        soft: terrain === 'canopy' && form === 'thorn',
         destroyed: false, hit: false, passed: false,
-        variation: Math.floor(rng() * 4),
+        variation: (index + identity.variant + repetition) % 4,
+        levelId: identity.id, sectionId, hard, setpiece: form, leg,
+        ascentLevel: ascent.level, hardGapScale: hard ? ascent.hardGapScale : 1,
+        landmark: `${identity.scene}-${form}`, cacheEligible: occupancy !== 'roof',
+        windShelter: tight ? .32 : 1,
+        shelterStart: x - width * .15, shelterEnd: x + width * 1.5,
       };
-      obstacle.landmark = passage === 'cavern' ? ['cave-mouth', 'crystal-vault', 'stone-arch', 'skylight'][index % 4]
-        : terrain === 'storm' ? ['mountain-pass', 'spire-ridge', 'wind-saddle'][index % 3]
-        : terrain === 'canopy' ? ['root-hollow', 'moon-grove', 'branch-arch'][index % 3]
-        : ['temple-slope', 'fallen-arch', 'moon-terrace'][index % 3];
-      const ceiling = passage === 'cavern' ? index % 6 !== 5 : terrain === 'canopy' ? index % 3 === 2 : index % 4 === 2;
-      obstacle.topShape = ceiling ? makeTerrainShape(width, height / 620, true, index, terrain, passage) : null;
-      obstacle.bottomShape = makeTerrainShape(width, height / 620, false, index + 1, terrain, passage);
+      obstacle.topShape = occupancy !== 'floor' ? makeCourseLandform(width, height / 620, true, index, terrain,
+        form === 'vault' || form === 'root' || form === 'hanging' ? 'cavern' : passage, form, tight) : null;
+      obstacle.bottomShape = occupancy !== 'roof' ? makeCourseLandform(width, height / 620, false, index + 1, terrain, passage, form, tight) : null;
       obstacles.push(obstacle);
-      // Preserve terrain seeds independently of the collectible design.
-      for (let j = 0; j < 4; j++) rng();
       previous = center;
-      x += (286 + rng() * 27) * pattern.spacing;
+      x += spacing * spacingScale;
       index++;
+    }
+    if (obstacles.length === first) return false;
+    const members = obstacles.slice(first), firstMember = members[0], last = members.at(-1);
+    sections.push({ id: sectionId, name: hard ? course.name : kind === 'intro' ? `${identity.name} approach` : `${identity.name} breathing room`,
+      start: firstMember.x - firstMember.width * .8, end: last.x + last.width * 2.45,
+      kind, hard, difficulty: hard ? elite ? 3 : Math.min(3, 2 + (ascent.level - 1) * .25) : 0,
+      ascentLevel: ascent.level, hardGapScale: hard ? ascent.hardGapScale : 1, leg,
+      setpiece: identity.motif,
+      landmark: identity.scene, warningStart: firstMember.x - firstMember.width * .8 - 180,
+      windShelter: Math.min(...members.map(obstacle => obstacle.windShelter)) });
+    return true;
+  };
+  const requestedWindows = Math.max(ascent.requestedHardWindows, elite ? 2 : 1);
+  if (legCount === 1) {
+    // Preserve the original seeded course for old attempts and short fixtures.
+    appendSection('intro', course.entry);
+    for (let window = 0; window < requestedWindows; window++) {
+      if (!fits(course.hard)) break;
+      appendSection('challenge', course.hard, window);
+      if (window < requestedWindows - 1 && !appendSection('breather', course.rest, window)) break;
+    }
+    let recovery = 0;
+    while (x < extent && appendSection(extent - x < 1100 ? 'outro' : 'breather', course.rest, recovery++)) { /* authored recovery phrases */ }
+  } else {
+    appendSection('intro', course.entry, 0, legs[0].end, 0);
+    let recovery = 0;
+    for (const leg of legs) {
+      // Keep the authored cells and center-change limits. Only their placement
+      // in three paced legs changes; no new random passage geometry is added.
+      for (let window = 0; window < requestedWindows; window++) {
+        const target = lerp(leg.start, leg.end, (window + .35) / requestedWindows);
+        const remaining = [];
+        for (let next = window; next < requestedWindows; next++) {
+          if (next > window) remaining.push(...course.rest);
+          remaining.push(...course.hard);
+        }
+        // Spend spare room on recovery before each hard window, reserving
+        // space for the remaining authored challenges whenever they fit.
+        while (x < target && fits([...course.rest, ...remaining], leg.end)) {
+          if (!appendSection('breather', course.rest, recovery++, leg.end, leg.index)) break;
+        }
+        if (!fits(course.hard, leg.end)) break;
+        appendSection('challenge', course.hard, leg.index * requestedWindows + window, leg.end, leg.index);
+        if (window < requestedWindows - 1) {
+          if (!fits([...course.rest, ...course.hard], leg.end)) break;
+          appendSection('breather', course.rest, recovery++, leg.end, leg.index);
+        }
+      }
+      while (x < leg.end && appendSection(leg.index === legCount - 1 && extent - x < 1100 ? 'outro' : 'breather',
+        course.rest, recovery++, leg.end, leg.index)) { /* recover to the next leg */ }
     }
   }
   const loot = seededRandom(`${seed}:ember-routes`);
@@ -280,18 +438,34 @@ export function buildFlightLayout({ seed = 1, terrain = 'ruins', elite = false,
     // Preserve the route-density ordering while removing roughly two fifths
     // of the old pickup budget. Every remaining object is a deliberate cache.
     let formerBudget = 1;
-    for (const [i, obstacle] of obstacles.entries()) {
+    const referenceCount = referenceEncounterCount(seed, terrain, extent);
+    for (let i = 0; i < referenceCount; i++) {
       const quiet = cadence === 2 ? i % 4 === quietSection
         : i % cadence === quietSection || (cadence === 4 && i % 4 === (quietSection + 1) % 4);
-      if (!quiet) formerBudget += 1 + (obstacle.soft || i % 4 === 1 ? 1 : 0);
+      if (!quiet) formerBudget += 1 + ((terrain === 'canopy' && i % 3 === 2) || i % 4 === 1 ? 1 : 0);
     }
-    const cacheCount = clamp(Math.round(formerBudget * .62), Math.min(2, obstacles.length), obstacles.length);
-    const sites = Array.from({ length: cacheCount }, (_, i) => Math.round(i * (obstacles.length - 1) / Math.max(1, cacheCount - 1)));
+    const usable = obstacles.map((obstacle, anchor) => ({ obstacle, anchor }))
+      .filter(({ obstacle }) => obstacle.cacheEligible && (obstacle.bottomShape || obstacle.topShape)).map(({ anchor }) => anchor);
+    const cacheCount = clamp(Math.round(formerBudget * .62), Math.min(2, usable.length), usable.length);
+    const sites = Array.from({ length: cacheCount }, (_, i) => usable[Math.round(i * (usable.length - 1) / Math.max(1, cacheCount - 1))]);
     let heart = Math.max(1, Math.floor(cacheCount * .43));
     while (heart > 1 && sites[heart] - sites[heart - 1] < 2) heart--;
+    const richOrders = new Set();
+    if (legCount === 1) {
+      if (cacheCount >= 4) richOrders.add(heart);
+      if (cacheCount >= 9) richOrders.add(cacheCount - 2);
+    } else for (let leg = 0; leg < legCount; leg++) {
+      const orders = sites.map((anchor, order) => ({ anchor, order }))
+        .filter(item => obstacles[item.anchor].leg === leg).map(item => item.order);
+      if (orders.length < 4) continue;
+      let middle = Math.max(1, Math.floor(orders.length * .43));
+      while (middle > 1 && sites[orders[middle]] - sites[orders[middle - 1]] < 2) middle--;
+      richOrders.add(orders[middle]);
+      if (orders.length >= 9) richOrders.add(orders.at(-2));
+    }
     const plans = sites.map((anchor, order) => {
       const obstacle = obstacles[anchor];
-      const sides = order === 0 || !obstacle.topShape ? [1] : [1, -1];
+      const sides = [1, -1].filter(side => (side > 0 ? obstacle.bottomShape : obstacle.topShape) && (order !== 0 || side > 0));
       const positions = sides.map(side => obstacle.x + cachePocketX(obstacle, side, order === 0));
       return { anchor, order, obstacle, minX: Math.min(...positions), maxX: Math.max(...positions), side: 1, group: 0 };
     });
@@ -301,19 +475,22 @@ export function buildFlightLayout({ seed = 1, terrain = 'ruins', elite = false,
       // Any plausible crest placement less than three nominal seconds away
       // belongs to one collection encounter. Its pickups share an edge, so
       // the player never needs an instant roof-to-ground reversal.
-      if (!previous || (plan.minX - previous.maxX) / speed >= 3) groups.push([]);
+      const common = groups.at(-1)?.reduce((sides, member) => sides.filter(side => side > 0 ? member.obstacle.bottomShape : member.obstacle.topShape), [1, -1]) || [];
+      if (!previous || (plan.minX - previous.maxX) / speed >= 3
+        || !common.some(side => side > 0 ? plan.obstacle.bottomShape : plan.obstacle.topShape)) groups.push([]);
       groups.at(-1).push(plan);
     }
     let previousSide = -1;
     for (const [group, members] of groups.entries()) {
-      const side = group === 0 ? 1 : previousSide > 0 && members.every(plan => plan.obstacle.topShape) ? -1 : 1;
+      const common = [1, -1].filter(side => members.every(plan => side > 0 ? plan.obstacle.bottomShape : plan.obstacle.topShape));
+      const side = group === 0 && common.includes(1) ? 1 : common.includes(-previousSide) ? -previousSide : common[0];
       for (const plan of members) { plan.side = side; plan.group = group; }
       previousSide = side;
     }
     const pockets = sites.map((anchor, order) => {
       const obstacle = obstacles[anchor];
       const { side, group } = plans[order];
-      const rich = cacheCount >= 4 && (order === heart || (cacheCount >= 9 && order === cacheCount - 2));
+      const rich = richOrders.has(order);
       const pocket = carveCachePocket(obstacle, side, order === 0, rich, height);
       obstacle.cachePocket = { ...pocket, anchor, group };
       return { obstacle, anchor, order, pocket, group };
@@ -324,7 +501,8 @@ export function buildFlightLayout({ seed = 1, terrain = 'ruins', elite = false,
       const edgeY = obstacle.center + pocket.side * obstacle.gap / 2 + terrainEdgeY(shape, pocket.localX);
       let clearance = pocket.first ? 28 : pocket.rich ? 22 : 21;
       let ey;
-      const clear = y => obstacles.every(other => Math.abs(other.x - ex) > 520 || [-1, 1].every(sign =>
+      const clear = y => obstacles.every(other => ex + 18 < other.x - other.width * .8
+        || ex - 18 > other.x + other.width * 2.45 || [-1, 1].every(sign =>
         obstaclePolygons({ ...other, motion: 0, center: other.center + sign * other.motion }).every(polygon => !circleHitsPolygon(ex, y, 18, polygon))));
       for (; clearance <= 37; clearance += 2) {
         ey = clamp(edgeY - pocket.side * (clearance + obstacle.motion), 37, height - 37);
@@ -335,15 +513,60 @@ export function buildFlightLayout({ seed = 1, terrain = 'ruins', elite = false,
       if (!clear(ey)) continue;
       const feature = terrain === 'ruins' ? 'arch-relic' : terrain === 'canopy'
         ? obstacle.soft ? 'thorn-heart' : 'branch-dew' : 'spire-shelter';
-      embers.push({ id: `cache-${anchor}`, x: ex, y: ey, value: pocket.rich ? 3 : 1,
+      embers.push({ id: `cache-${anchor}`, kind: 'light', x: ex, y: ey, value: pocket.rich ? 3 : 1,
         feature, fuel: true, anchor, pocket: true, pocketSide: pocket.side < 0 ? 'ceiling' : 'ground',
         pocketMouth: pocket.mouth, pocketDepth: pocket.depth, clearance, cacheGroup: group,
         intro: order === 0, collected: false, attracted: false, phase: loot() * TAU });
     }
   }
+  // Optional dark niches are added after the complete food budget. They use
+  // the same real surfaces and never occupy a compulsory challenge passage.
+  const darkPerLeg = stage > 0 || elite ? (elite || stage >= 6 ? 2 : 1) : 0;
+  const darkCount = darkPerLeg * legCount;
+  if (darkCount) {
+    const darkRng = seededRandom(`${seed}:${identity.id}:dark-packets`);
+    const candidates = [], scale = height / 620;
+    for (const obstacle of obstacles) {
+      if (obstacle.hard || obstacle.gap < height * .38) continue;
+      for (const side of [1, -1]) {
+        const shape = side > 0 ? obstacle.bottomShape : obstacle.topShape;
+        if (!shape) continue;
+        const localX = obstacle.width * (.28 + darkRng() * .8), ex = obstacle.x + localX;
+        if (ex < 1450 || ex > duration * speed - 650
+          || sections.some(section => section.hard && ex > section.start - 110 && ex < section.end + 110)) continue;
+        const edge = terrainEdgeY(shape, localX);
+        if (!Number.isFinite(edge)) continue;
+        const ey = obstacle.center + side * obstacle.gap / 2 + edge
+          - side * (31 * scale + Math.abs(obstacle.motion));
+        if (ey < 45 || ey > height - 45 || Math.abs(ey - obstacle.center) < 82 * scale) continue;
+        if (embers.some(ember => Math.hypot(ember.x - ex, ember.y - ey) < 190)) continue;
+        const clear = obstacles.every(other => [-1, 1].every(sign =>
+          obstaclePolygons({ ...other, motion: 0, center: other.center + sign * Math.abs(other.motion) })
+            .every(polygon => !circleHitsPolygon(ex, ey, 22, polygon))));
+        if (clear) candidates.push({ x: ex, y: ey, anchor: obstacle.id,
+          pocketSide: side > 0 ? 'ground' : 'ceiling' });
+      }
+    }
+    const selected = [];
+    for (let i = 0; i < darkCount; i++) {
+      const fraction = legCount === 1 ? darkCount === 1 ? .56 : .40 + i * .32
+        : (Math.floor(i / darkPerLeg) + (darkPerLeg === 1 ? .56 : .40 + (i % darkPerLeg) * .32)) / legCount;
+      const target = duration * speed * fraction;
+      const available = candidates.filter(site => selected.every(other => Math.abs(other.x - site.x) > 850));
+      available.sort((a, b) => Math.abs(a.x - target) - Math.abs(b.x - target));
+      if (!available.length) continue;
+      const site = available[0]; selected.push(site);
+      embers.push({ ...site, id: `dark-${i}`, kind: 'dark', harmful: true,
+        value: 0, fuel: false, feature: 'dark-niche', pocket: true,
+        collected: false, attracted: false, phase: darkRng() * TAU });
+    }
+  }
   // Both renderers and the collection broad phase rely on world-X ordering.
   embers.sort((a, b) => a.x - b.x);
-  return { obstacles, embers };
+  return { obstacles, embers, sections, levelIdentity: identity, ascent, lengthScale: legCount,
+    legs: legs.map(leg => ({ ...leg, hardWindows: sections.filter(section => section.hard && section.leg === leg.index).length })),
+    requestedHardWindowsPerLeg: requestedWindows, requestedHardWindows: requestedWindows * legCount,
+    hardWindows: sections.filter(section => section.hard).length };
 }
 
 function roundedRect(ctx, x, y, w, h, r = 8) {
@@ -362,21 +585,20 @@ export class WispFlight {
     this.ctx = this.canvas.getContext('2d', { alpha: false });
     if (!this.ctx) throw new Error('A Canvas 2D context is unavailable.');
     this.options = options;
+    this.companionRole = normalizeCompanionRole(options.companionRole);
+    this.companionAbility = getCompanionAbility(this.companionRole);
     this.terrain = ['ruins', 'canopy', 'storm'].includes(options.terrain) ? options.terrain : 'ruins';
     this.elite = Boolean(options.elite);
     this.seed = options.seed ?? 1;
-    this.duration = clamp(Number(options.duration) || 38, 15, 120);
     const route = options.node || options;
+    this.lengthScale = getLevelLengthScale(route);
+    this.duration = clamp(Number(options.duration) || LEVEL_LENGTH.defaultDuration, 15, LEVEL_LENGTH.maximumDuration);
+    this.levelIdentity = resolveLevelIdentity(route.levelId, this.terrain, this.seed);
+    this.locationName = route.locationName || this.levelIdentity.name;
     this.tutorial = createTutorialState(route);
+    this.ascentInfo = getAscentInfo(route, Boolean(this.tutorial));
     this.tutorialAwaitingLift = Boolean(this.tutorial);
     this.passage = ['open', 'cavern', 'gauntlet'].includes(route.passage) ? route.passage : 'open';
-    this.windExposure = (this.passage === 'cavern' ? .65 : 1)
-      * (this.passage === 'gauntlet' || this.elite || route.type === 'finale' ? 1.15 : 1)
-      * (1 + clamp(Number(route.row) || 0, 0, 6) * .02);
-    if (this.tutorial) this.windExposure = this.tutorial.lesson === 'wind' ? .55 : 0;
-    const windSeed = seededRandom(`${this.seed}:wind`);
-    this.windDelay = windSeed() * .7;
-    this.windDirection = windSeed() < .5 ? -1 : 1;
     this.fuelCadence = clamp(Number(route.fuelCadence) || 3, 2, 4);
     this.fuelBonus = clamp(Number(route.fuelBonus) || 0, 0, 10);
     this.flameDrain = clamp(Number(route.flameDrain) || 1, .8, 1.2);
@@ -384,16 +606,12 @@ export class WispFlight {
     this.totalDistance = this.duration * FLIGHT_TUNING.forwardSpeed;
     this.cards = new Set(options.cards || []);
     this.mod = { gravity: 1, flap: 1, speed: 1, attract: 1,
-      boostCooldown: 1, boostDuration: 1, reward: 1, maxHp: 3,
-      rebirth: false, rebirthHp: 2, ward: 0, steady: false, ...options.modifiers };
-    this.maxHp = Math.max(1, Number(options.maxHp ?? this.mod.maxHp) || 3);
-    this.hp = clamp(Number(options.hp ?? this.maxHp), 1, this.maxHp);
+      boostCooldown: 1, boostDuration: 1, reward: 1, cacheFuelBonus: 0,
+      warmCore: false, windSensitivity: 1, steady: false, ...options.modifiers };
+    this.alive = true;
     this.flame = clamp(Number.isFinite(options.flame) ? options.flame : FLAME_TUNING.starting, 0, FLAME_TUNING.maximum);
     this.flaps = 0; this.effortSpent = 0; this.flameRestored = 0;
     this.lastFlapTime = -1000;
-    this.shield = Math.max(0, Number(options.shield || 0)) + Math.max(0, Number(this.mod.ward || 0));
-    this.rebirthAvailable = Boolean(options.rebirthAvailable ?? this.mod.rebirth);
-    this.rebirthUsed = false;
     this.onUpdate = options.onUpdate || (() => {});
     this.onFinish = options.onFinish || (() => {});
     this.onPause = options.onPause || (() => {});
@@ -401,12 +619,15 @@ export class WispFlight {
     this.time = 0; this.distance = 0; this.accumulator = 0; this.lastFrame = 0;
     this.running = false; this.paused = false; this.finished = false; this.destroyed = false;
     this.raf = null; this.score = 0; this.baseEmbers = 0; this.bonusEmbers = 0; this.collisions = 0;
-    this.boosts = 0; this.boostTime = 0; this.cooldown = 0; this.invincible = 0;
+    this.boosts = 0; this.boostTime = 0; this.cooldown = 0;
+    this.abilityTime = 0; this.abilityStartedAt = -1000; this.levelRecovery = 0;
     this.exitProtection = 0; this.flash = 0; this.shake = 0;
     this.event = ''; this.eventUntil = 0; this.updateClock = 0;
     this.nearMisses = 0; this.destroyedThorns = 0; this.gustSeconds = 0;
-    this.stormFeedClock = 0; this.healedFromWarmHeart = false;
+    this.stormFeedClock = 0; this.warmCoreUsed = false;
     this.particles = []; this.trail = []; this.pickupEffects = []; this.emitClock = 0;
+    this.absorptionEffects = []; this.absorptionSequence = 0;
+    this.lightPenalties = []; this.lightDimming = 0;
     this.wispBoost = 0;
     this.cosmeticRng = seededRandom(`${this.seed}:cosmetics`);
     this.rigImage = null; this.background = null;
@@ -427,12 +648,16 @@ export class WispFlight {
         height: this.height, speed: FLIGHT_TUNING.forwardSpeed })
       : buildFlightLayout({ seed: this.seed, terrain: this.terrain,
         elite: this.elite, duration: this.duration, speed: FLIGHT_TUNING.forwardSpeed, height: this.height,
-        passage: this.passage, fuelCadence: this.fuelCadence });
+        passage: this.passage, fuelCadence: this.fuelCadence,
+        levelId: this.levelIdentity.id, stage: this.ascentInfo.row, lengthScale: this.lengthScale });
+    this.drafts = new DraftField({ seed: this.seed, terrain: this.terrain, elite: this.elite,
+      duration: this.duration, height: this.height, totalDistance: this.totalDistance,
+      layout: this.layout, lesson: this.tutorial?.lesson || null, lengthScale: this.lengthScale });
     this.challengeIndex = Math.floor(seededRandom(`${this.seed}:challenge`)() * 3);
     this.challengeId = options.challengeId || options.node?.challengeId || ['wisps', 'clean', 'boosts'][this.challengeIndex];
-    this.challengeTarget = Number(options.challengeTarget ?? options.node?.challengeTarget) || (this.challengeId === 'wisps' ? 7 : this.challengeId === 'boosts' ? 3 : 0);
+    this.challengeTarget = Number(options.challengeTarget ?? options.node?.challengeTarget) || (this.challengeId === 'wisps' ? 7 : this.challengeId === 'boosts' ? 2 : 0);
     this.challengeText = this.challengeId === 'wisps' ? `Gather ${this.challengeTarget} sparks`
-      : this.challengeId === 'boosts' ? `Use Boost ${this.challengeTarget} times` : 'Finish without a hit';
+      : this.challengeId === 'boosts' ? `Use your ability ${this.challengeTarget} times` : 'Finish without a hit';
     this.stars = Array.from({ length: 45 }, () => ({ x: this.cosmeticRng() * 390,
       y: this.cosmeticRng() * this.height * .57, size: .4 + this.cosmeticRng() * 1.1,
       phase: this.cosmeticRng() * TAU }));
@@ -468,8 +693,10 @@ export class WispFlight {
 
   get scaleY() { return this.height / 620; }
   get baseSpeed() { return FLIGHT_TUNING.forwardSpeed * clamp(Number(this.mod.speed) || 1, .80, 1.25) * (this.elite ? 1.045 : 1); }
-  get boostDuration() { return .9 * clamp(Number(this.mod.boostDuration) || 1, .5, 2.5); }
-  get boostCooldown() { return 9 * clamp(Number(this.mod.boostCooldown) || 1, .35, 2); }
+  get abilityDuration() { return this.companionAbility.duration * clamp(Number(this.mod.boostDuration) || 1, .5, 2.5); }
+  get abilityCooldown() { return this.companionAbility.cooldown * clamp(Number(this.mod.boostCooldown) || 1, .35, 2); }
+  get boostDuration() { return this.abilityDuration; }
+  get boostCooldown() { return this.abilityCooldown; }
   get flapCost() { return Math.round(FLAME_TUNING.flapCost * this.flameDrain); }
   get wingRate() { return this.boostTime > 0 ? 9 : this.flame < this.flapCost ? .45 : 5.8; }
   get embers() { return Math.floor((this.baseEmbers + this.bonusEmbers) * Math.max(0, Number(this.mod.reward) || 1) * this.routeReward); }
@@ -500,10 +727,12 @@ export class WispFlight {
         for (const shape of [o.topShape, o.bottomShape]) if (shape) shape.forEach(point => { point[1] *= factor; });
       });
       this.layout.embers.forEach(e => { e.y *= factor; if (e.pullY !== undefined) e.pullY *= factor; });
+      this.drafts?.resize(factor);
       this.stars.forEach(s => { s.y *= factor; });
       this.particles.length = 0;
       this.wisp.y *= factor; this.wisp.previousY = this.wisp.y; this.wisp.history.length = 0;
       this.pickupEffects.length = 0;
+      this.absorptionEffects.length = 0;
       this.trail.length = 0;
     }
     if (this.player && (!this.running || this.paused)) this.render();
@@ -518,7 +747,11 @@ export class WispFlight {
   }
 
   flap() {
-    if (!this.running || this.paused || this.finished) return false;
+    if (!this.running || this.paused || this.finished || !this.alive) return false;
+    if (this.companionRole === 'anchor' && this.abilityTime > 0) {
+      this.abilityTime = 0;
+      this.levelRecovery = .25;
+    }
     if (this.flame < this.flapCost) {
       this.setEvent('Flame exhausted · glide toward an ember'); this.notify();
       return false;
@@ -537,19 +770,24 @@ export class WispFlight {
     return true;
   }
 
-  boost() {
-    if (!this.running || this.paused || this.finished || this.cooldown > .001 || this.boostTime > 0) return false;
+  activateAbility() {
+    if (!this.running || this.paused || this.finished || !this.alive || this.cooldown > .001 || this.abilityTime > 0) return false;
     if (this.tutorialAwaitingLift) return false;
-    this.boostTime = this.boostDuration;
-    this.cooldown = this.boostCooldown;
+    this.abilityTime = this.abilityDuration;
+    this.abilityStartedAt = this.time;
+    this.boostTime = this.companionRole === 'swift' ? this.abilityTime : 0;
+    this.cooldown = this.abilityCooldown;
     this.boosts++;
-    this.player.vy *= .65;
-    this.setEvent('Flame Boost');
-    this.burst(this.player.x - 10, this.player.y, 23, '#fff1b5');
+    if (this.companionRole === 'swift') this.player.vy *= .65;
+    if (this.companionRole === 'anchor') this.levelRecovery = 0;
+    this.setEvent(`${this.companionAbility.name} · ${this.companionAbility.label}`);
+    this.burst(this.player.x - 10, this.player.y, this.companionRole === 'swift' ? 23 : 10, '#e6e4d3');
     this.sound('boost');
     this.notify();
     return true;
   }
+
+  boost() { return this.activateAbility(); }
 
   pause(fromSystem = false) {
     if (!this.running || this.paused || this.finished || this.destroyed) return;
@@ -572,6 +810,8 @@ export class WispFlight {
 
   destroy() {
     this.destroyed = true; this.running = false;
+    this.absorptionEffects.length = 0;
+    this.lightPenalties.length = 0;
     if (this.raf != null) cancelAnimationFrame(this.raf);
     if (typeof window !== 'undefined') {
       window.removeEventListener('resize', this._resize);
@@ -600,74 +840,105 @@ export class WispFlight {
     while (this.accumulator >= STEP && !this.finished) {
       this.step(STEP); this.accumulator -= STEP;
     }
+    if (this.finished || this.destroyed) return;
     this.render();
     if (!this.finished && !this.destroyed) this.raf = requestAnimationFrame(t => this.tick(t));
   }
 
+  getDraftPuffs(time = this.time) { return this.drafts?.visible(time) || []; }
+
   gustState() {
-    if (this.tutorial?.lesson === 'glide') return { active: false, warning: false,
-      direction: 0, strength: 0, force: 0, intensity: 0, warningProgress: 0 };
-    const tuning = WIND_TUNING[this.terrain];
-    const elapsed = this.time - tuning.first - this.windDelay + WIND_TUNING.warning;
-    if (elapsed < 0) return { active: false, warning: false, direction: this.windDirection, strength: 0, force: 0, intensity: 0, warningProgress: 0 };
-    const cycle = Math.floor(elapsed / tuning.period), phase = elapsed % tuning.period;
-    const direction = this.windDirection * (cycle % 2 ? -1 : 1);
-    const warning = phase < WIND_TUNING.warning;
-    const age = phase - WIND_TUNING.warning;
-    const active = age >= 0 && age < tuning.duration;
-    const edge = clamp(Math.min(age, tuning.duration - age) / WIND_TUNING.ramp, 0, 1);
-    const strength = active ? edge * edge * (3 - 2 * edge) : 0;
-    const peak = Math.min(520, tuning.force * this.windExposure);
-    return { active, warning, direction, strength, force: peak * strength,
-      intensity: peak / WIND_TUNING.storm.force,
-      warningProgress: warning ? phase / WIND_TUNING.warning : 0 };
+    return this.drafts.sample(this.time, this.distance + this.player.x,
+      this.player.y, this.mod.windSensitivity);
   }
 
   obstacleCenter(obstacle) {
     return obstacle.center + Math.sin(this.time * .9 + obstacle.phase) * obstacle.motion;
   }
 
-  clearTerrainY(desiredY) {
-    const worldX = this.distance + this.player.x;
-    const polygons = this.layout.obstacles.filter(o => !o.destroyed && worldX > o.x - o.width && worldX < o.x + o.width * 2.6)
-      .flatMap(o => obstaclePolygons(o, this.time));
-    const clear = y => y >= 28 && y <= this.height - 29 &&
-      polygons.every(polygon => !circleHitsPolygon(worldX, y, this.player.radius + 5, polygon));
-    if (clear(desiredY)) return desiredY;
-    for (let offset = 4; offset < this.height; offset += 4) {
-      if (clear(desiredY - offset)) return desiredY - offset;
-      if (clear(desiredY + offset)) return desiredY + offset;
-    }
-    return clamp(desiredY, 28, this.height - 29);
-  }
-
   getWispState(y = this.player.y, time = this.time) {
     return this.wisp.state(this, y, time);
   }
 
+  getAbilityState() {
+    const active = this.abilityTime > 0;
+    return { id: this.companionRole, role: this.companionRole,
+      action: this.companionAbility.action, label: this.companionAbility.label,
+      active, remaining: this.abilityTime, duration: this.abilityDuration,
+      cooldown: this.cooldown, cooldownTotal: this.abilityCooldown,
+      ready: this.alive && !this.finished && !this.destroyed && !this.tutorialAwaitingLift
+        && this.cooldown <= .001 && !active,
+      progress: clamp(active ? 1 - this.abilityTime / this.abilityDuration : 1 - this.cooldown / this.abilityCooldown, 0, 1) };
+  }
+
+  getLightState() {
+    const configured = Number(this.mod.lightRadius);
+    const baseRadius = Number.isFinite(configured) && configured > 0 ? configured : LIGHT_PACKET_TUNING.baseRadius;
+    const reduction = clamp(this.lightDimming, 0, 1 - LIGHT_PACKET_TUNING.minimumLight);
+    const edge = this.companionRole === 'scout' && this.abilityTime > 0
+      ? clamp(Math.min((this.time - this.abilityStartedAt) / .25, this.abilityTime / .45), 0, 1) : 0;
+    const revealBonus = .45 * edge * edge * (3 - 2 * edge);
+    const revealedRadius = baseRadius * (1 + revealBonus);
+    return { baseRadius, revealedRadius, revealBonus, radius: revealedRadius * (1 - reduction),
+      intensity: 1 - reduction * .65, dimmed: reduction > .005,
+      stacks: this.lightPenalties.length,
+      remaining: Math.max(0, ...this.lightPenalties.map(until => until - this.time)),
+      maximumStacks: LIGHT_PACKET_TUNING.darkMaximumStacks,
+      penaltyPerStack: LIGHT_PACKET_TUNING.darkPenalty };
+  }
+
+  absorbPacket(ember, kind) {
+    const origin = ember.deliveredByWisp ? this.getWispState()
+      : { x: ember.x - this.distance, y: ember.y };
+    const dx = origin.x - this.player.x, dy = origin.y - this.player.y;
+    const duration = LIGHT_PACKET_TUNING.absorptionDuration;
+    this.absorptionEffects.push({ id: `absorb:${this.absorptionSequence++}`, kind,
+      startX: origin.x, startY: origin.y, initialAngle: Math.atan2(dy, dx),
+      startRadius: Math.hypot(dx, dy), bornAt: this.time, duration, life: duration });
+    while (this.absorptionEffects.length > LIGHT_PACKET_TUNING.absorptionLimit) this.absorptionEffects.shift();
+  }
+
   step(dt) {
-    if (this.tutorialAwaitingLift) return;
+    if (this.destroyed || this.finished || !this.alive || this.tutorialAwaitingLift) return;
     this.previousPlayerY = this.player.y; this.previousDistance = this.distance;
     this.time += dt;
+    this.lightPenalties = this.lightPenalties.filter(until => until > this.time);
+    const dimTarget = this.lightPenalties.reduce((sum, until) => {
+      const fade = clamp((until - this.time) / LIGHT_PACKET_TUNING.recoveryFade, 0, 1);
+      return sum + LIGHT_PACKET_TUNING.darkPenalty * fade * fade * (3 - 2 * fade);
+    }, 0);
+    this.lightDimming = lerp(this.lightDimming, dimTarget, 1 - Math.exp(-dt * LIGHT_PACKET_TUNING.dimResponse));
     this.wingPhase += dt * this.wingRate;
-    const oldBoost = this.boostTime;
-    this.boostTime = Math.max(0, this.boostTime - dt);
-    const wispTarget = this.boostTime > 0 && this.cards.has('hungry-wisp') ? 1 : 0;
+    const oldBoost = this.boostTime, oldAbility = this.abilityTime;
+    this.abilityTime = Math.max(0, this.abilityTime - dt);
+    this.boostTime = this.companionRole === 'swift' ? this.abilityTime : 0;
+    this.levelRecovery = Math.max(0, this.levelRecovery - dt);
+    if (this.companionRole === 'anchor' && oldAbility > 0 && this.abilityTime === 0) this.levelRecovery = .25;
+    const wispTarget = this.abilityTime > 0 && this.cards.has('hungry-wisp') ? 1 : 0;
     this.wispBoost += clamp(wispTarget - this.wispBoost, -dt * 5, dt * 5);
     this.cooldown = Math.max(0, this.cooldown - dt);
-    this.invincible = Math.max(0, this.invincible - dt);
     this.exitProtection = Math.max(0, this.exitProtection - dt);
     this.flash = Math.max(0, this.flash - dt * 2.5);
     this.shake = Math.max(0, this.shake - dt * 18);
     if (oldBoost > 0 && this.boostTime === 0) this.exitProtection = .45;
     this.distance += this.baseSpeed * (this.boostTime > 0 ? 1.48 : 1) * dt;
 
+    this.drafts.update(this.time, this.distance + this.player.x,
+      this.baseSpeed * (this.boostTime > 0 ? 1.48 : 1));
     const gust = this.gustState();
-    let gravity = FLIGHT_TUNING.gravity * this.scaleY * clamp(Number(this.mod.gravity) || 1, .80, 1.20);
+    const leveling = this.companionRole === 'anchor' && this.abilityTime > 0;
+    let gravityBlend = leveling ? 0 : 1;
+    if (!leveling && this.levelRecovery > 0) {
+      const t = 1 - this.levelRecovery / .25;
+      gravityBlend = t * t * (3 - 2 * t);
+    }
+    if (leveling) this.player.vy *= Math.exp(-dt * 12);
+    let gravity = FLIGHT_TUNING.gravity * this.scaleY * clamp(Number(this.mod.gravity) || 1, .80, 1.20) * gravityBlend;
     if (gust.active) {
       this.gustSeconds += dt;
       // Boost can break through a downdraft or arrest an unwanted updraft.
-      // Its wind resistance fades out with the existing safe-exit window.
+      // Wind resistance fades out briefly after the burst. It gives no
+      // immunity to terrain or the playfield boundary.
       const windGuard = this.boostTime > 0 ? 1 - WIND_TUNING.boostResistance
         : 1 - WIND_TUNING.boostResistance * clamp(this.exitProtection / .45, 0, 1);
       gravity += gust.direction * gust.force * this.scaleY * (this.mod.steady ? .45 : 1) * windGuard;
@@ -676,7 +947,7 @@ export class WispFlight {
         if (this.stormFeedClock >= 1) {
           this.stormFeedClock -= 1;
           this.cooldown = Math.max(0, this.cooldown - 1);
-          this.setEvent('Storm Feeder · Boost −1s');
+          this.setEvent(`Draft Feeder · ${this.companionAbility.label} −1s`);
           this.burst(this.player.x, this.player.y, 4, '#88e5ef');
         }
       }
@@ -687,9 +958,8 @@ export class WispFlight {
     this.visualBank = lerp(this.visualBank, clamp(this.player.vy / (690 * this.scaleY), -.30, .35) + breathingBank, 1 - Math.exp(-dt * 9));
 
     if (this.player.y < 27 || this.player.y > this.height - 28) {
-      this.player.y = clamp(this.player.y, 28, this.height - 29);
-      this.player.vy = this.player.y < 50 ? 70 : -150 * this.scaleY;
       this.hit(null);
+      return;
     }
 
     for (const obstacle of this.layout.obstacles) {
@@ -701,10 +971,10 @@ export class WispFlight {
       const polygons = obstaclePolygons(obstacle, this.time);
       const colliding = polygons.some(polygon => circleHitsPolygon(this.distance + this.player.x, this.player.y, this.player.radius, polygon));
       if (colliding) {
-        if (this.boostTime > 0 && obstacle.soft && this.cards.has('fire-wake')) {
+        if (this.abilityTime > 0 && obstacle.soft && this.cards.has('fire-wake')) {
           obstacle.destroyed = true; this.destroyedThorns++;
           for (let i = 0; i < 3; i++) {
-            this.layout.embers.push({ id: `thorn:${obstacle.id}:${i}`, generated: true,
+            this.layout.embers.push({ id: `thorn:${obstacle.id}:${i}`, kind: 'light', generated: true,
               x: this.distance + this.player.x + 12 + i * 14,
               y: this.player.y + (i - 1) * 10, collected: false, attracted: false,
               phase: i * 1.7 });
@@ -712,17 +982,9 @@ export class WispFlight {
           this.layout.embers.sort((a, b) => a.x - b.x);
           this.burst(x + obstacle.width / 2, this.player.y, 25, '#ffc478');
           this.setEvent('Shatter Wake · thorns cleared');
-        } else if (this.boostTime > 0 || this.exitProtection > 0) {
-          // Returning from a protected burst always places the body inside the
-          // opening, so the next unprotected frame cannot be an unavoidable hit.
-          if (this.boostTime === 0) {
-            this.player.y = this.clearTerrainY(clamp(this.player.y, top + 20, bottom - 20));
-            this.player.vy *= .6;
-          }
-        } else if (!obstacle.hit) {
+        } else {
           this.hit(obstacle);
-          this.player.y = this.clearTerrainY(clamp(this.player.y, top + 23, bottom - 23));
-          this.player.vy *= .25;
+          return;
         }
       }
       if (!obstacle.passed && x + obstacle.width * 2.5 < this.player.x - this.player.radius) {
@@ -749,6 +1011,8 @@ export class WispFlight {
     // Wisps pulse in place; only discrete pickup/hit bursts leave particles.
     for (const effect of this.pickupEffects) effect.life -= dt;
     this.pickupEffects = this.pickupEffects.filter(effect => effect.life > 0);
+    for (const effect of this.absorptionEffects) effect.life -= dt;
+    this.absorptionEffects = this.absorptionEffects.filter(effect => effect.life > 0);
     for (let i = this.particles.length - 1; i >= 0; i--) {
       const p = this.particles[i];
       p.life -= dt; p.x += p.vx * dt; p.y += p.vy * dt; p.vy -= 8 * dt;
@@ -761,39 +1025,37 @@ export class WispFlight {
   }
 
   hit(obstacle) {
-    if (this.invincible > 0 || this.boostTime > 0 || this.exitProtection > 0 || this.finished) return;
+    if (!this.alive || this.finished || this.destroyed) return;
     if (obstacle) obstacle.hit = true;
     this.collisions++;
-    this.invincible = 1.35; this.flash = .22; this.shake = this.reducedMotion ? 0 : 4;
-    if (this.shield > 0) {
-      this.shield--; this.setEvent('Ash Ward · protected');
-      this.burst(this.player.x, this.player.y, 22, '#a0e6ed'); this.sound('shield');
-    } else {
-      this.hp--; this.setEvent('One heart lost');
-      this.burst(this.player.x, this.player.y, 18, '#ff9b77'); this.sound('hit');
-      if (this.hp <= 0) {
-        if (this.rebirthAvailable && !this.rebirthUsed) {
-          this.rebirthUsed = true; this.rebirthAvailable = false;
-          this.hp = Math.min(this.maxHp, Math.max(1, Number(this.mod.rebirthHp) || 1));
-          this.flame = Math.max(this.flame, FLAME_TUNING.checkpointMinimum);
-          this.invincible = 2.3;
-          this.player.vy = -90 * this.scaleY;
-          this.trail.length = 0;
-          this.setEvent('Rebirth · rise again');
-          this.burst(this.player.x, this.player.y, 42, '#fff0bd'); this.sound('rebirth');
-        } else {
-          this.finish(false);
-        }
-      }
-    }
-    this.notify();
+    this.alive = false;
+    this.flash = .22; this.shake = this.reducedMotion ? 0 : 4;
+    this.setEvent('Collision · attempt ended');
+    this.burst(this.player.x, this.player.y, 18, '#ff9b77'); this.sound('hit');
+    this.finish(false);
   }
 
   collect(ember) {
-    if (ember.collected || this.finished) return;
+    if (ember.collected || !this.alive || this.finished || this.destroyed) return;
+    const harmful = ember.harmful || ember.kind === 'dark';
+    if (harmful) {
+      // Body-only hazard: never turn a stale carrier reservation into a hit.
+      if (ember.deliveredByWisp) return;
+      ember.collected = true;
+      this.absorbPacket(ember, 'dark');
+      if (this.lightPenalties.length >= LIGHT_PACKET_TUNING.darkMaximumStacks) this.lightPenalties.shift();
+      this.lightPenalties.push(this.time + LIGHT_PACKET_TUNING.darkDuration);
+      this.setEvent('Light dimmed');
+      return;
+    }
     if (this.tutorial) recordTutorialPickup(this, ember);
     ember.collected = true;
-    const fuel = ember.generated ? FLAME_TUNING.generatedFuel : (ember.value === 3 ? FLAME_TUNING.heartFuel : FLAME_TUNING.emberFuel) + this.fuelBonus;
+    this.absorbPacket(ember, 'light');
+    const cleansed = !ember.generated && this.lightPenalties.length > 0;
+    if (cleansed) this.lightPenalties.pop();
+    const fuel = ember.generated ? FLAME_TUNING.generatedFuel
+      : (ember.value === 3 ? FLAME_TUNING.heartFuel : FLAME_TUNING.emberFuel)
+        + this.fuelBonus + clamp(Number(this.mod.cacheFuelBonus) || 0, 0, 32);
     const restored = Math.min(fuel, FLAME_TUNING.maximum - this.flame);
     this.flame += restored; this.flameRestored += restored;
     const origin = ember.deliveredByWisp ? this.getWispState() : this.player;
@@ -811,21 +1073,23 @@ export class WispFlight {
     this.baseEmbers++;
     const value = ember.value === 3 ? 3 : 1;
     this.bonusEmbers += value - 1;
-    this.score += value * ((ember.boostedPickup ?? this.boostTime > 0) && this.cards.has('golden-wake') ? 20 : 10);
+    this.score += value * ((ember.boostedPickup ?? this.abilityTime > 0) && this.cards.has('golden-wake') ? 20 : 10);
     this.burst(this.player.x - 9, this.player.y + 7, value === 3 ? 14 : 5, value === 3 ? '#fff2c4' : '#ffe4a2');
     if (value === 3) this.setEvent(restored > 0 ? `Glow cache · +${restored} Glow` : 'Glow full');
     else if (restored > 0 && this.flame <= 45) this.setEvent(`Glow rekindled · +${restored}`);
     if (this.cards.has('kindled-spirit') && this.baseEmbers % 3 === 0) {
       this.cooldown = Math.max(0, this.cooldown - 1);
-      this.setEvent('Kindled Spirit · Boost −1s');
+      this.setEvent(`Kindled Spirit · ${this.companionAbility.label} −1s`);
     }
-    if (this.cards.has('warm-heart') && this.baseEmbers >= FLAME_TUNING.healPickups && !this.healedFromWarmHeart) {
-      this.healedFromWarmHeart = true;
-      const healed = this.hp < this.maxHp;
-      this.hp = Math.min(this.maxHp, this.hp + 1);
-      this.setEvent(healed ? 'Warm Heart · +1 heart' : 'Warm Heart · health full');
-      this.burst(this.player.x, this.player.y, 12, '#bde9b5');
+    if ((this.mod.warmCore || this.cards.has('warm-heart')) && this.baseEmbers >= (FLAME_TUNING.warmCorePickups || 4) && !this.warmCoreUsed) {
+      this.warmCoreUsed = true;
+      const bonus = Math.min(12, FLAME_TUNING.maximum - this.flame);
+      this.flame += bonus; this.flameRestored += bonus;
+      this.pickupEffects.at(-1).restored += bonus;
+      this.setEvent(bonus > 0 ? `Warm Core · +${bonus} Glow` : 'Warm Core · Glow full');
+      this.burst(this.player.x, this.player.y, 12, '#ffd79a');
     }
+    if (cleansed) this.setEvent('Light restored · dark packet cleansed');
     this.sound('collect');
   }
 
@@ -835,16 +1099,21 @@ export class WispFlight {
   }
 
   getState() {
-    return { hp: this.hp, maxHp: this.maxHp, score: Math.floor(this.score), embers: this.embers,
+    return { alive: this.alive, score: Math.floor(this.score), embers: this.embers,
+      ascent: this.ascentInfo,
       flame: this.flame, maxFlame: FLAME_TUNING.maximum, flapCost: this.flapCost,
-      canFlap: this.flame >= this.flapCost, flaps: this.flaps,
+      canFlap: this.alive && !this.finished && this.flame >= this.flapCost, flaps: this.flaps,
       wisp: this.getWispState(),
+      ability: this.getAbilityState(),
+      light: this.getLightState(),
       collected: this.baseEmbers, boostCooldown: this.cooldown,
-      boostReady: this.cooldown <= .001 && this.boostTime <= 0,
+      boostCooldownTotal: this.boostCooldown, boostDurationTotal: this.boostDuration,
+      boostReady: this.getAbilityState().ready,
+      boostActive: this.boostTime > 0,
       boostTime: this.boostTime, progress: clamp(this.distance / this.totalDistance, 0, 1),
-      shield: this.shield, event: this.time < this.eventUntil ? this.event : '',
+      event: this.time < this.eventUntil ? this.event : '',
       renderer: this.pixiReady ? 'pixel-canvas' : 'canvas',
-      paused: this.paused, finished: this.finished, rebirthUsed: this.rebirthUsed,
+      paused: this.paused, finished: this.finished, reducedMotion: this.reducedMotion,
       tutorialHintState: getTutorialHint(this), tutorialAwaitingLift: this.tutorialAwaitingLift,
       time: this.time, remaining: Math.max(0, (this.totalDistance - this.distance) / this.baseSpeed),
       challenge: this.challengeText, challengeComplete: this.challengeComplete() };
@@ -857,12 +1126,13 @@ export class WispFlight {
   finish(success) {
     if (this.finished || this.destroyed) return;
     this.finished = true; this.running = false;
+    this.alive = Boolean(success) && this.alive;
     if (this.raf != null) cancelAnimationFrame(this.raf);
     this.raf = null;
-    const result = { success, hp: Math.max(0, this.hp), embers: this.embers,
+    const result = { success: Boolean(success) && this.alive, alive: this.alive, embers: this.embers,
       flame: this.flame,
       score: Math.floor(this.score), collected: this.baseEmbers, collisions: this.collisions,
-      boosts: this.boosts, rebirthUsed: this.rebirthUsed,
+      boosts: this.boosts,
       challengeComplete: success && this.challengeComplete(),
       stats: { baseEmbers: this.baseEmbers, bonusEmbers: this.bonusEmbers, nearMisses: this.nearMisses,
         flaps: this.flaps, effortSpent: this.effortSpent, flameRestored: this.flameRestored,
@@ -909,8 +1179,7 @@ export class WispFlight {
       if (type === 'flap' && now - this.lastFlapSound < .10) return;
       if (type === 'flap') this.lastFlapSound = now;
       const tones = { flap: [220, 150, .06, .018], collect: [780, 1280, .075, .025],
-        boost: [120, 610, .26, .045], hit: [130, 65, .16, .035],
-        shield: [500, 900, .2, .035], rebirth: [280, 1120, .48, .04] };
+        boost: [120, 610, .26, .045], hit: [130, 65, .16, .035] };
       const [from, to, length, volume] = tones[type] || tones.flap;
       const oscillator = this.audio.createOscillator(), gain = this.audio.createGain();
       oscillator.type = type === 'hit' ? 'triangle' : 'sine';
@@ -1097,6 +1366,12 @@ export class WispFlight {
       if (ember.collected || x < -20) continue;
       const animation = this.reducedMotion ? 0 : this.time;
       const y = ember.y + (ember.attracted ? 0 : Math.sin(animation * 2.8 + ember.phase) * 2);
+      if (ember.harmful || ember.kind === 'dark') {
+        c.save(); c.fillStyle = '#0a0911'; c.strokeStyle = '#776881'; c.lineWidth = 1;
+        c.beginPath(); c.arc(x, y, 4, 0, TAU); c.fill(); c.stroke();
+        c.fillStyle = '#afa5bb'; c.fillRect(Math.round(x - 2), Math.round(y - 3), 1, 1);
+        c.restore(); continue;
+      }
       const rich = ember.value === 3;
       c.save(); c.translate(x, y);
       c.fillStyle = 'rgba(255,161,62,.20)'; c.beginPath();
@@ -1132,7 +1407,7 @@ export class WispFlight {
       c.beginPath(); c.arc(effect.x, effect.y, 23, 0, TAU); c.fill();
       c.globalAlpha = Math.min(1, (1 - t) * 3); c.font = 'bold 18px system-ui'; c.textAlign = 'center';
       c.font = effect.restored > 0 ? 'bold 13px system-ui' : 'bold 18px system-ui';
-      c.fillText(effect.restored > 0 ? `+${effect.restored} FLAME` : `+${effect.value}`, effect.x + 15, effect.y - 22 - (this.reducedMotion ? 0 : t * 32));
+      c.fillText(effect.restored > 0 ? `+${effect.restored} GLOW` : `+${effect.value}`, effect.x + 15, effect.y - 22 - (this.reducedMotion ? 0 : t * 32));
     }
     c.restore();
   }
@@ -1202,14 +1477,15 @@ export class WispFlight {
   }
 
   drawPhoenix(c) {
-    const ice = this.options.element === 'ice', t = this.visualTime ?? this.time;
+    const t = this.visualTime ?? this.time;
     const p = this.player, y = this.renderPlayerY ?? p.y;
     c.save(); c.translate(Math.round(p.x), Math.round(y));
-    c.fillStyle = ice ? '#4f8590' : '#a35436';
-    c.fillRect(-10, -8, 18, 18); c.fillRect(-6, -15, 10, 7);
-    c.fillRect(-17 - Math.round(Math.sin(t * 14) * 3), 4, 10, 5);
-    c.fillStyle = ice ? '#b0d7d8' : '#edb26b'; c.fillRect(-6, -5, 12, 13);
-    c.fillStyle = '#eee7ca'; c.fillRect(-2, -1, 6, 7); c.restore();
+    const pulse = this.reducedMotion ? 1 : 1 + Math.sin(t * 4) * .035;
+    c.scale(pulse, pulse);
+    for (const [radius, ink] of [[19, '#688d80'], [17, '#c6d8c6'], [13, '#f3f6e6']]) {
+      c.fillStyle = ink; c.beginPath(); c.arc(0, 0, radius, 0, TAU); c.fill();
+    }
+    c.fillStyle = '#fffff1'; c.beginPath(); c.arc(-4, -4, 5, 0, TAU); c.fill(); c.restore();
   }
 
   drawFireRibbons(c, boosted) {
@@ -1225,31 +1501,32 @@ export class WispFlight {
     c.restore();
   }
 
-  getExitPortal() {
+  getExitLandmark() {
     const remaining = (this.totalDistance - this.distance) / this.baseSpeed;
     if (remaining > 2.5) return null;
     const progress = clamp(1 - remaining / 2.5, 0, 1);
-    return { x: lerp(this.width + 55, this.player.x, progress),
-      y: lerp(this.height * .5, this.renderPlayerY ?? this.player.y, progress * progress), progress };
+    return { x: this.player.x + this.totalDistance - (this.renderDistance ?? this.distance),
+      y: this.height * .5, progress };
   }
 
+  // Retain the old renderer hook for development tools; this is a refuge light.
+  getExitPortal() { return this.getExitLandmark(); }
+
   drawPortal(c, W, H) {
-    const portal = this.getExitPortal();
-    if (!portal) return;
-    const t = this.visualTime ?? this.time;
-    c.save(); c.translate(portal.x, portal.y);
-    const glow = c.createRadialGradient(0, 0, 10, 0, 0, 130);
-    glow.addColorStop(0, 'rgba(235,249,201,.31)'); glow.addColorStop(.45, 'rgba(183,237,201,.15)'); glow.addColorStop(1, 'rgba(174,221,197,0)');
-    c.fillStyle = glow; c.fillRect(-140, -150, 280, 300);
-    for (let i = 0; i < 4; i++) {
-      c.strokeStyle = ['rgba(242,224,156,.85)', 'rgba(187,239,210,.75)', 'rgba(255,247,199,.47)', 'rgba(137,201,185,.38)'][i];
-      c.lineWidth = 2.5 - i * .4;
-      c.beginPath(); c.ellipse(0, 0, 30 + i * 6 + Math.sin(t * 2 + i) * 2, 106 + i * 4, Math.sin(t + i) * .035, 0, TAU); c.stroke();
-    }
-    for (let i = 0; i < 12; i++) {
-      const angle = t * .5 + i * TAU / 12;
-      c.fillStyle = '#ffedb4'; c.beginPath(); c.arc(Math.cos(angle) * 38, Math.sin(angle) * 113, 1.6, 0, TAU); c.fill();
-    }
+    const refuge = this.getExitLandmark();
+    if (!refuge) return;
+    c.save(); c.translate(refuge.x, refuge.y);
+    const glow = c.createRadialGradient(0, 0, 2, 0, 0, 60);
+    glow.addColorStop(0, 'rgba(231,235,202,.20)'); glow.addColorStop(1, 'rgba(174,199,168,0)');
+    c.fillStyle = glow; c.fillRect(-60, -60, 120, 120);
+    c.fillStyle = '#434a3e'; c.fillRect(-21, 23, 42, 8); c.fillRect(-15, 17, 30, 7);
+    c.fillStyle = '#6d7460'; c.fillRect(-16, 23, 19, 2); c.fillRect(-11, 17, 18, 2);
+    c.strokeStyle = '#515443'; c.lineWidth = 4;
+    c.beginPath(); c.moveTo(-12, 18); c.lineTo(-14, -24); c.lineTo(5, -28); c.stroke();
+    c.strokeStyle = '#85846b'; c.lineWidth = 1; c.beginPath(); c.moveTo(3, -27); c.lineTo(3, -13); c.stroke();
+    c.fillStyle = '#777d66'; c.fillRect(-5, -14, 16, 3); c.fillRect(-5, 7, 16, 3);
+    c.fillStyle = '#c9cfaa'; c.fillRect(-2, -10, 10, 16);
+    c.fillStyle = '#f0efd2'; c.fillRect(1, -7, 4, 10);
     c.restore();
   }
 
@@ -1287,19 +1564,22 @@ export class WispFlight {
   }
 
   drawWind(c, W, H) {
-    const gust = this.gustState();
-    if (!gust.active && !gust.warning) return;
-    c.save(); c.strokeStyle = gust.warning ? 'rgba(184,227,232,.15)' : 'rgba(184,227,232,.29)';
-    c.lineWidth = 1;
-    for (let i = 0; i < 13; i++) {
-      const x = ((i * 73 + this.time * 46) % (W + 100)) - 50;
-      const y = ((i * 91 - this.time * gust.direction * 52) % H + H) % H;
-      c.beginPath(); c.moveTo(x, y); c.bezierCurveTo(x + 8, y - gust.direction * 15, x + 18, y - gust.direction * 31, x + 28, y - gust.direction * 47); c.stroke();
+    for (const puff of this.getDraftPuffs(this.renderTime ?? this.time)) {
+      const x = puff.x - (this.renderDistance ?? this.distance);
+      if (x + puff.rx < 0 || x - puff.rx > W) continue;
+      c.save(); c.beginPath(); c.ellipse(x, puff.y, puff.rx, puff.ry, 0, 0, TAU); c.clip();
+      c.strokeStyle = `rgba(184,207,205,${puff.opacity * .34})`; c.lineWidth = 1;
+      for (let i = 0; i < 7; i++) {
+        const phase = this.reducedMotion ? .5 : (puff.progress + i * .137) % 1;
+        const px = x + (i % 3 - 1) * puff.rx * .48;
+        const py = puff.y + (phase - .5) * puff.ry * 1.6 * -puff.direction;
+        c.beginPath(); c.moveTo(px - 11, py + puff.direction * 8);
+        c.quadraticCurveTo(px + 10, py, px + 4, py - puff.direction * 13); c.stroke();
+      }
+      c.beginPath(); c.moveTo(x - 4, puff.y + puff.direction * 3);
+      c.lineTo(x, puff.y - puff.direction * 3); c.lineTo(x + 4, puff.y + puff.direction * 3); c.stroke();
+      c.restore();
     }
-    c.font = '600 9px system-ui, sans-serif'; c.textAlign = 'center';
-    c.fillStyle = 'rgba(207,239,236,.78)';
-    c.fillText(gust.warning ? 'WIND APPROACHING' : (gust.direction < 0 ? 'RISING WIND' : 'FALLING WIND'), W / 2, 28);
-    c.restore();
   }
 
   drawForeground(c, W, H) {
