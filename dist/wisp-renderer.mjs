@@ -1,5 +1,6 @@
 const TAU = Math.PI * 2;
-const WIDTH = 195;
+const WIDTH = 260;
+const ART_SCALE = WIDTH / 195;
 const clamp = (n, lo, hi) => Math.max(lo, Math.min(hi, n));
 const hash = (x, y = 0, seed = 0) => {
   let n = Math.imul(x | 0, 374761393) ^ Math.imul(y | 0, 668265263) ^ Math.imul(seed | 0, 1274126177);
@@ -19,8 +20,12 @@ const ELEMENTS = {
   ice: { edge: '#344e58', outer: '#638f9b', mid: '#a0c7c8', core: '#deebe2', bright: '#f4f2d8', trail: '#527a88' },
 };
 const SPIRIT_PIXELS = {
-  fire: ['00000010000', '00000121000', '00001221000', '00012221000', '00122322100', '01233433210', '12344444321', '12344444321', '01234443210', '00123332100', '00012221000', '00001110000'],
-  ice: ['00000100000', '00001210000', '00012321000', '00123332100', '01233433210', '12334443321', '01234443210', '12334443321', '01233433210', '00123332100', '00012321000', '00001210000', '00000100000'],
+  fire: ['0000000001000000', '0000000012100000', '0000000012210000', '0000000122210000', '0000001222210000', '0000012232210000', '0000122333221000', '0001223343322100', '0012233444332210', '0122334454433221', '1223344554433221', '1233445555443321', '1233445544443321', '0123344444332210', '0012334433322100', '0001223332221000', '0000122221110000', '0000011111000000'],
+  ice: ['0000000010000000', '0000000121000000', '0000001232100000', '0000012232210000', '0000122333221000', '0001223343322100', '0012233444332210', '0122334454433221', '1223344555443321', '0123344554433210', '1233445555443321', '0123344544333210', '0012334443322100', '0001223433221000', '0000122332210000', '0000012232100000', '0000001231000000', '0000000120000000', '0000000010000000'],
+};
+const CACHE_PIXELS = {
+  normal: ['0001000', '0012100', '0123210', '1234321', '1235431', '0124310', '0012100', '0001000'],
+  rich: ['0000001000000', '0000012100000', '0000123210000', '0000124310000', '0010124310100', '0121124321210', '1232124432321', '1233234433321', '1233344433321', '1234544544321', '0123444443210', '0012334432100', '0001223321000', '0000112210000', '0000011100000'],
 };
 const GLYPHS = {
   '0': ['111', '101', '101', '101', '111'], '1': ['010', '110', '010', '010', '111'],
@@ -29,6 +34,9 @@ const GLYPHS = {
   '6': ['111', '100', '111', '101', '111'], '7': ['111', '001', '010', '010', '010'],
   '8': ['111', '101', '111', '101', '111'], '9': ['111', '101', '111', '001', '111'],
   '+': ['000', '010', '111', '010', '000'],
+  G: ['111', '100', '101', '101', '111'], L: ['100', '100', '100', '100', '111'],
+  O: ['111', '101', '101', '101', '111'], W: ['101', '101', '101', '111', '101'],
+  F: ['111', '100', '110', '100', '100'], U: ['101', '101', '101', '101', '111'],
 };
 
 function pixelText(c, value, x, y, ink) {
@@ -396,8 +404,10 @@ export class WispFlightView {
     }
   }
 
-  drawCollectibles(e, t, distance, element) {
+  drawCollectibles(e, t, distance) {
     const c = this.bufferContext, s = this.scale;
+    // Fuel keeps one warm-gold identity for both Fire and Ice players.
+    const element = ELEMENTS.fire;
     for (const ember of e.layout.embers) {
       if (ember.collected || ember.carried) continue;
       const x = Math.round((ember.x - distance) * s), y = Math.round(ember.y * s);
@@ -405,12 +415,12 @@ export class WispFlightView {
       const rich = ember.value === 3;
       // A small pool of light belongs to this cache, not to the entire screen.
       // It is still shaded by the fog pass, so scouting and carrier light matter.
-      this.glow(x, y, rich ? 11 : 5, element.outer, rich ? .19 : .10);
+      this.glow(x, y, rich ? 15 : 7, element.outer, rich ? .19 : .10);
       if (ember.pocket) {
         const side = ember.pocketSide === 'ceiling' ? -1 : 1;
         c.globalAlpha = rich ? .30 : .18;
         c.fillStyle = element.outer;
-        c.fillRect(x - (rich ? 3 : 1), y + side * (rich ? 9 : 6), rich ? 7 : 3, 1);
+        c.fillRect(x - (rich ? 4 : 2), y + side * (rich ? 12 : 8), rich ? 9 : 5, 1);
         c.globalAlpha = 1;
       }
       if (rich) {
@@ -418,39 +428,22 @@ export class WispFlightView {
         // three attached facets cannot be mistaken for a trail of three hits.
         const pulse = e.reducedMotion ? .43 : .39 + Math.sin(t * 2.3 + ember.phase) * .075;
         c.globalAlpha = pulse;
-        pixelLine(c, x, y - 8, x + 7, y, element.mid);
-        pixelLine(c, x + 7, y, x, y + 8, element.mid);
-        pixelLine(c, x, y + 8, x - 7, y, element.mid);
-        pixelLine(c, x - 7, y, x, y - 8, element.mid);
+        pixelLine(c, x, y - 11, x + 9, y, element.mid);
+        pixelLine(c, x + 9, y, x, y + 11, element.mid);
+        pixelLine(c, x, y + 11, x - 9, y, element.mid);
+        pixelLine(c, x - 9, y, x, y - 11, element.mid);
         c.globalAlpha = .74;
         c.fillStyle = element.core;
-        c.fillRect(x - 1, y - 8, 3, 1); c.fillRect(x - 1, y + 8, 3, 1);
-        c.fillRect(x - 7, y - 1, 1, 3); c.fillRect(x + 7, y - 1, 1, 3);
+        c.fillRect(x - 1, y - 11, 3, 1); c.fillRect(x - 1, y + 11, 3, 1);
+        c.fillRect(x - 9, y - 1, 1, 3); c.fillRect(x + 9, y - 1, 1, 3);
         c.globalAlpha = 1;
-        c.fillStyle = element.edge;
-        c.fillRect(x - 4, y - 1, 9, 6);
-        c.fillRect(x - 2, y - 5, 5, 9);
-        c.fillRect(x - 5, y, 3, 4); c.fillRect(x + 3, y - 2, 3, 6);
-        c.fillStyle = element.mid;
-        c.fillRect(x - 1, y - 4, 3, 8);
-        c.fillRect(x - 4, y + 1, 2, 3); c.fillRect(x + 3, y - 1, 2, 5);
-        c.fillRect(x - 3, y + 3, 7, 1);
-        c.fillStyle = element.core;
-        c.fillRect(x, y - 4, 1, 7);
-        c.fillRect(x - 3, y + 1, 1, 2); c.fillRect(x + 3, y - 1, 1, 3);
-        c.fillStyle = element.bright;
-        c.fillRect(x, y - 5, 1, 2); c.fillRect(x - 1, y - 2, 2, 2);
-        c.fillRect(x + 3, y - 2, 1, 1);
-      } else {
-        // Ordinary fuel keeps a quiet, single-facet silhouette.
-        c.fillStyle = element.edge;
-        c.fillRect(x - 1, y - 3, 3, 6); c.fillRect(x - 2, y - 1, 5, 2);
-        c.fillStyle = element.mid;
-        c.fillRect(x, y - 2, 1, 5); c.fillRect(x - 1, y - 1, 3, 2);
-        c.fillStyle = element.core;
-        c.fillRect(x, y - 2, 1, 3);
-        c.fillStyle = element.bright;
-        c.fillRect(x, y - 2, 1, 1);
+      }
+      const rows = CACHE_PIXELS[rich ? 'rich' : 'normal'];
+      const inks = [null, element.edge, element.outer, element.mid, element.core, element.bright];
+      const left = Math.floor(rows[0].length / 2), top = Math.floor(rows.length / 2);
+      for (let yy = 0; yy < rows.length; yy++) for (let xx = 0; xx < rows[yy].length; xx++) {
+        const ink = inks[Number(rows[yy][xx])];
+        if (ink) { c.fillStyle = ink; c.fillRect(x + xx - left, y + yy - top, 1, 1); }
       }
     }
     c.globalAlpha = 1;
@@ -471,7 +464,7 @@ export class WispFlightView {
     this.lightRadius = Math.max(40, Number(e.mod?.lightRadius) || 175);
     const radius = this.lightRadius * s, radius2 = radius * radius;
     const carrierX = state.x * s, carrierY = state.y * s;
-    const carrierRadius2 = (state.phase === 'cooldown' ? 13 + state.recovery * 7 : 26) ** 2;
+    const carrierRadius2 = ((state.phase === 'cooldown' ? 13 + state.recovery * 7 : 26) * ART_SCALE) ** 2;
     const pixels = this.fogPixels.data, dither = [0, 8, 2, 10, 12, 4, 14, 6, 3, 11, 1, 9, 15, 7, 13, 5];
     for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
       const distance2 = (x - playerX) ** 2 + (y - playerY) ** 2;
@@ -502,39 +495,39 @@ export class WispFlightView {
     const c = this.bufferContext;
     c.save();
     const flicker = reduced ? 0 : Math.sin(t * (boost ? 22 : 12));
-    this.glow(x, y, small ? 10 : boost ? 32 : 27, element.outer, (small ? .12 : .22) * intensity);
+    this.glow(x, y, Math.round((small ? 10 : boost ? 32 : 27) * ART_SCALE), element.outer, (small ? .12 : .22) * intensity);
     if (small) {
       c.globalAlpha *= intensity;
-      c.fillStyle = element.edge; c.fillRect(x - 2, y - 2, 5, 5);
-      c.fillStyle = element.outer; c.fillRect(x - 1, y - 4, 3, 7);
-      c.fillStyle = element.mid; c.fillRect(x - 2, y, 5, 2);
-      c.fillStyle = element.core; c.fillRect(x, y - 2, 2, 4);
-      c.fillStyle = element.bright; c.fillRect(x, y - 1, 2, 2);
-      if (element === ELEMENTS.ice) { c.fillStyle = element.mid; c.fillRect(x - 3, y, 1, 1); c.fillRect(x + 3, y, 1, 1); }
+      c.fillStyle = element.edge; c.fillRect(x - 3, y - 3, 7, 7);
+      c.fillStyle = element.outer; c.fillRect(x - 2, y - 5, 5, 9);
+      c.fillStyle = element.mid; c.fillRect(x - 3, y - 1, 7, 4);
+      c.fillStyle = element.core; c.fillRect(x - 1, y - 3, 3, 6);
+      c.fillStyle = element.bright; c.fillRect(x, y - 2, 2, 3);
+      if (element === ELEMENTS.ice) { c.fillStyle = element.mid; c.fillRect(x - 4, y, 1, 1); c.fillRect(x + 4, y, 1, 1); }
       c.restore(); return;
     }
-    // Twice the sprite size, with a round halo instead of a directional tail.
+    // A finer original sprite keeps the large silhouette on the denser grid.
     c.translate(x, y); c.scale(2, 2); x = 0; y = 0;
     c.globalAlpha = clamp(.58 + fuel * .42, .58, 1);
     const rows = SPIRIT_PIXELS[element === ELEMENTS.ice ? 'ice' : 'fire'];
-    const inks = [null, element.edge, element.outer, element.mid, element.core];
+    const inks = [null, element.edge, element.outer, element.mid, element.core, element.bright];
     const sway = Math.round(flicker + tap * 1.5);
     for (let yy = 0; yy < rows.length; yy++) for (let xx = 0; xx < rows[yy].length; xx++) {
       const value = Number(rows[yy][xx]);
       if (!value) continue;
       c.fillStyle = inks[value];
-      c.fillRect(x + xx - 5 + (yy < 4 ? sway : 0), y + yy - 6 - (yy < 4 ? Math.round(tap * 2) : 0), 1, 1);
+      c.fillRect(x + xx - 8 + (yy < 6 ? sway : 0), y + yy - 9 - (yy < 6 ? Math.round(tap * 2) : 0), 1, 1);
     }
     c.fillStyle = element.bright; c.fillRect(x, y - 1, 1, 3);
     if (element === ELEMENTS.ice) {
-      c.fillStyle = element.mid; c.fillRect(x - 6, y, 1, 1); c.fillRect(x + 6, y, 1, 1);
-      c.fillStyle = element.bright; c.fillRect(x, y + 6, 1, 1);
+      c.fillStyle = element.mid; c.fillRect(x - 9, y, 1, 1); c.fillRect(x + 9, y, 1, 1);
+      c.fillStyle = element.bright; c.fillRect(x, y + 9, 1, 1);
     }
     c.globalAlpha = 1;
     if (tap > .05) {
       c.globalAlpha = tap * .7;
       for (let i = 0; i < 9; i++) {
-        const angle = i / 9 * TAU, r = 7 + (1 - tap) * 4;
+        const angle = i / 9 * TAU, r = 10 + (1 - tap) * 4;
         c.fillStyle = element.mid; c.fillRect(Math.round(x + Math.cos(angle) * r), Math.round(y + Math.sin(angle) * r), 1, 1);
       }
       c.globalAlpha = 1;
@@ -578,7 +571,7 @@ export class WispFlightView {
     const radius = Math.max(27, (this.lightRadius || Number(e.mod?.lightRadius) || 175) * s);
     const carrier = lightState || e.getWispState?.(yOf(e), t);
     const carrierX = (carrier?.x ?? e.player.x) * s, carrierY = (carrier?.y ?? yOf(e)) * s;
-    const carrierRadius = carrier?.phase === 'cooldown' ? 17 : 25;
+    const carrierRadius = (carrier?.phase === 'cooldown' ? 13 + carrier.recovery * 7 : 26) * ART_SCALE;
     const direction = gust.direction < 0 ? -1 : 1;
     const intensity = clamp(Number(gust.intensity) || .6, .35, 1.3);
     const warningProgress = clamp(Number(gust.warningProgress) || 0, 0, 1);
@@ -650,7 +643,7 @@ export class WispFlightView {
     this.drawSky(e, t, distance, palette);
     c.globalAlpha = .34; c.fillStyle = '#03080b'; c.fillRect(0, 0, this.buffer.width, this.buffer.height); c.globalAlpha = 1;
     this.drawTerrain(e, t, distance, palette);
-    this.drawCollectibles(e, t, distance, element);
+    this.drawCollectibles(e, t, distance);
     this.drawBurstEffects(e, element);
     this.drawMist(e, t, distance, palette);
     const state = e.getWispState?.(yOf(e), t) || { x: e.player.x - 29, y: yOf(e) + 19, homeX: e.player.x - 29, homeY: yOf(e) + 19, radius: 100, phase: 'ready', recovery: 1, carrying: false };
@@ -673,7 +666,9 @@ export class WispFlightView {
     for (const effect of e.pickupEffects || []) {
       const progress = 1 - clamp(effect.life / .72, 0, 1);
       c.globalAlpha = 1 - progress;
-      pixelText(c, `+${effect.restored || effect.value || 1}`, Math.round(effect.x * s + 3), Math.round(effect.y * s - 9 - progress * 8), element.core);
+      const label = effect.restored > 0 ? `+${effect.restored} GLOW` : 'FULL';
+      const labelX = clamp(Math.round(effect.x * s - label.length * 2), 2, WIDTH - label.length * 4 - 2);
+      pixelText(c, label, labelX, Math.round(effect.y * s - 28 - progress * 10), '#f2d79a');
     }
     c.globalAlpha = 1;
     this.drawPortal(e, t);

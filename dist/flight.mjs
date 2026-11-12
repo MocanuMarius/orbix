@@ -653,7 +653,7 @@ export class WispFlight {
         if (this.stormFeedClock >= 1) {
           this.stormFeedClock -= 1;
           this.cooldown = Math.max(0, this.cooldown - 1);
-          this.setEvent('Storm Feeder · Boost charged');
+          this.setEvent('Storm Feeder · Boost −1s');
           this.burst(this.player.x, this.player.y, 4, '#88e5ef');
         }
       }
@@ -786,16 +786,17 @@ export class WispFlight {
     this.bonusEmbers += value - 1;
     this.score += value * ((ember.boostedPickup ?? this.boostTime > 0) && this.cards.has('golden-wake') ? 20 : 10);
     this.burst(this.player.x - 9, this.player.y + 7, value === 3 ? 14 : 5, value === 3 ? '#fff2c4' : '#ffe4a2');
-    if (value === 3) this.setEvent(`Heart ember · +${restored} Glow`);
+    if (value === 3) this.setEvent(restored > 0 ? `Glow cache · +${restored} Glow` : 'Glow full');
     else if (restored > 0 && this.flame <= 45) this.setEvent(`Glow rekindled · +${restored}`);
     if (this.cards.has('kindled-spirit') && this.baseEmbers % 3 === 0) {
       this.cooldown = Math.max(0, this.cooldown - 1);
-      this.setEvent('Kindled Spirit · Boost charged');
+      this.setEvent('Kindled Spirit · Boost −1s');
     }
     if (this.cards.has('warm-heart') && this.baseEmbers >= FLAME_TUNING.healPickups && !this.healedFromWarmHeart) {
       this.healedFromWarmHeart = true;
+      const healed = this.hp < this.maxHp;
       this.hp = Math.min(this.maxHp, this.hp + 1);
-      this.setEvent('Warm Heart · restored');
+      this.setEvent(healed ? 'Warm Heart · +1 heart' : 'Warm Heart · health full');
       this.burst(this.player.x, this.player.y, 12, '#bde9b5');
     }
     this.sound('collect');

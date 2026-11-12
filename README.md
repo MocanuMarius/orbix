@@ -41,14 +41,16 @@ npm test
 
 ## Source and validation
 
-- `dist/wisp-renderer.mjs`: production 195-pixel-wide Canvas2D view, pixel sprite animation, authored terrain scenery, fog reveal, particles and carrier presentation.
+- `dist/wisp-renderer.mjs`: production 260-pixel-wide Canvas2D view, finer original wisp and fuel sprites, authored terrain scenery, fog reveal, particles and carrier presentation.
 - `dist/flight.mjs`: fixed-step flight, direct collection, terrain collisions, fuel and Boost. Exports WispFlight plus the legacy PhoenixFlight alias for development tools.
 - `dist/wisp.mjs`: nearest-target carrier fetching, return delivery, cooldown and shared tuning.
 - `dist/model.mjs`: branching routes, card builds, saves, elemental appearance and permanent progression.
 - `dist/app.mjs`, `style.css`, `game.css`: mobile game UI, pixel map glyphs and card icons.
 
-The renderer draws at 195px and uses nearest-neighbor scaling. Its cache is bounded; it never changes game state. The active game loads no PixiJS, Three.js, photographic terrain maps or painted phoenix sprites. Earlier rendering prototypes and diagnostic pages remain in the source for reference, but the production entry point does not import them.
+The renderer draws at 260px, raised modestly from 195px, and uses nearest-neighbor scaling. Finer original sprites preserve the large player's silhouette, companion light footprint and world-space range circles. Its cache is bounded; it never changes game state. The active game loads no PixiJS, Three.js, photographic terrain maps or painted phoenix sprites. Earlier rendering prototypes and diagnostic pages remain in the source for reference, but the production entry point does not import them.
 
-Earlier tests cover engine and campaign rules; their easy-flight success targets predate this difficulty pass. Per the user's request, this iteration uses focused real-engine balance simulations rather than another broad test pass. The simulator compares the previous build and the new placement with matched starting reserves and bounded local controllers. Automated clears demonstrate particular controller paths, not human difficulty or universal solvability; physical-phone playtesting remains necessary.
+Power drafts distinguish automatic expedition-long powers from fuel pickups. Cards show a trigger, benefit and exact tradeoff; equipped powers can be tapped at checkpoints for optional details. Inspection never equips or replaces a card. In flight, warm-gold fuel pickups explicitly show restored Glow or FULL; health and Boost effects name the resource they change. Flight still has only Lift and Boost.
+
+Earlier tests cover engine and campaign rules; their easy-flight success targets predate the difficulty changes. Historical focused simulations compare the previous build and sparse placement with matched reserves and bounded local controllers; they do not represent current wind tuning or human success rates. Per the latest user instruction, further simulations, broad testing and balance fine-tuning are deferred until the feature backlog is addressed.
 
 The game requires no account, analytics, payment or cloud-save service. The existing private hosted Site may require the owner's ChatGPT sign-in. Progress is local to the browser; clearing browser data removes it.

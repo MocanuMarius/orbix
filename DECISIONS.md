@@ -12,7 +12,7 @@ Updated 12 November 2026. Wispbound is the working title. This log records the c
 - Give the player wisp an upgradeable light radius that reveals more terrain and pickups.
 - Keep the game interface compact. Graphics, icons, numbers and card effects carry the information; remove repeated instructions and narrative paragraphs.
 - Keep Glow as fuel for lift pulses, with sparks restoring it. Gliding remains free. Collision hearts are separate.
-- Skip broad test passes. The subsequent difficulty request explicitly asks for focused balance simulations; use those to check fuel budgets and collection pressure before the next integrated play session.
+- Prioritise the feature backlog. Defer further simulations, broad testing and balance fine-tuning until the larger backlog is addressed, as explicitly requested in the latest feedback. Earlier focused simulations remain historical evidence.
 
 ## Ten confirmed decisions
 
@@ -39,7 +39,7 @@ Three terrains, ordinary and optional elite routes, support events, shared exped
 
 - Fire and Ice are visual choices at present; no distinct elemental combat or terrain abilities have been added.
 - Carrier search range and player light radius are separate statistics.
-- The active renderer uses a 195-pixel Canvas scene and nearest-neighbour scaling. The game no longer loads the previous 3D renderer or photographic assets.
+- The active renderer now uses a 260-pixel Canvas scene, raised modestly from 195, with nearest-neighbour scaling and finer original sprites. The game no longer loads the previous 3D renderer or photographic assets.
 - Existing saves keep the same storage key. Display names can change without changing saved card identifiers.
 - The pixel graphics and compact UI iteration is deployed. The next difficulty iteration adds sparse terrain-attached caches and focused balance simulations at the user's request.
 
@@ -66,6 +66,14 @@ Three terrains, ordinary and optional elite routes, support events, shared exped
 - Reduce cave exposure by 35%; increase it on elite/finale routes and by 2% per later map row. Cap peak force at 520. Preserve the existing base lift, gravity, fuel budget and two-button controls.
 - Let Boost suppress 72% of gust force, fading through its 0.45-second protected exit. Steady Flame retains 55% wind resistance, giving exposed-route builds a clear purpose.
 - Draw vertical wind streaks and directional chevrons above fog, restricted to the existing light. Keep the far landscape dark. Add only a compact wind icon and pips to the encounter preview.
+
+## Clear powers and finer pixel detail
+
+- Keep pixel art, but raise the scene width from 195 to 260 logical pixels. Use finer original player, companion and cache details while preserving the large wisp and world-space light/collection radii.
+- Call the draft choices powers. Explain their trigger, benefit and tradeoff in short lines, and state that they act automatically for the expedition.
+- Make equipped powers tappable for optional checkpoint inspection, with one Close action. Inspection never selects or replaces a power and adds no flight controls.
+- Give fuel a consistent warm-gold identity for both elements. Label pickup feedback with the actual Glow restored, or FULL; distinguish healing and Boost reductions explicitly.
+- Finish feature chunks and publish them promptly. Defer additional simulation and balance passes until the backlog is addressed.
 
 ## Deferred elemental gameplay
 
