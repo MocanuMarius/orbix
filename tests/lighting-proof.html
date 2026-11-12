@@ -10,13 +10,17 @@ const app = new PIXI.Application();
 let width=390, height=420;
 await app.init({width,height,resolution:1,antialias:true,autoStart:false,preference:'webgl',background:'#091221'});
 document.querySelector('#view').append(app.canvas);
-const atlas = await PIXI.Assets.load('/assets/moon-materials.png');
+const [texture,normalTexture,roughnessTexture] = await Promise.all([
+  PIXI.Assets.load('/assets/pbr-rock-color.jpg'),
+  PIXI.Assets.load('/assets/pbr-rock-normal.jpg'),
+  PIXI.Assets.load('/assets/pbr-rock-roughness.jpg'),
+]);
 const wall = new PIXI.Container();
-const texture = new PIXI.Texture({source:atlas.source,frame:new PIXI.Rectangle(0,0,atlas.width/3,atlas.height)});
 const stone = new PIXI.Sprite(texture);stone.width=width;stone.height=height;
 wall.addChild(stone);app.stage.addChild(wall);
-const filter = makeTerrainLight();wall.filters=[filter];wall.filterArea=new PIXI.Rectangle(0,0,width,height);
+const filter = makeTerrainLight(normalTexture,roughnessTexture);wall.filters=[filter];wall.filterArea=new PIXI.Rectangle(0,0,width,height);
 const uniforms=filter.resources.lighting.uniforms;
+uniforms.uMapSize.set([width,height]);
 let preset='both';
 function light(mode){
   preset=mode;const scale=width/390;
@@ -37,10 +41,11 @@ async function patch(){
 for(const name of ['moon','fire-left','fire-right','wisp-left','wisp-right','both'])document.getElementById(name).onclick=()=>light(name);
 document.querySelector('#width').onclick=()=>{
   width=width===390?430:390;height=420*width/390;app.renderer.resize(width,height);stone.width=width;stone.height=height;wall.filterArea.height=height;
-  wall.filterArea.width=width;document.querySelector('#width').textContent=`Width ${width===390?430:390}`;light(preset);
+  wall.filterArea.width=width;uniforms.uMapSize.set([width,height]);document.querySelector('#width').textContent=`Width ${width===390?430:390}`;light(preset);
 };
 document.querySelector('#check').onclick=async()=>{
   const entries={};for(const mode of ['moon','fire-left','fire-right','wisp-left','wisp-right']){light(mode);entries[mode]=await patch();}
+  light('fire-left');uniforms.uNormalStrength=0;app.render();const flat=await patch();uniforms.uNormalStrength=1.2;light('fire-left');
   const lum=rgb=>rgb[0]*.2126+rgb[1]*.7152+rgb[2]*.0722;
   const warm=rgb=>rgb[0]/Math.max(1,rgb[2]);
   const tests=[
@@ -49,10 +54,11 @@ document.querySelector('#check').onclick=async()=>{
     ['white wisp lights the existing pixels',lum(entries['wisp-left'])>lum(entries.moon)*1.8],
     ['white wisp moves off those pixels',lum(entries['wisp-left'])>lum(entries['wisp-right'])*1.5],
     ['wisp reflection differs from orange fire',warm(entries['fire-left'])>warm(entries['wisp-left'])*1.25],
+    ['photographic normal map changes the reflection',entries['fire-left'].some((value,index)=>Math.abs(value-flat[index])>.25)],
   ];
   const output=document.querySelector('#result');output.className=tests.every(t=>t[1])?'pass':'fail';
   output.textContent=tests.map(([name,pass])=>`${pass?'PASS':'FAIL'} ${name}`).join('\n')+'\n'+Object.entries(entries).map(([mode,rgb])=>`${mode}: RGB ${rgb.map(n=>n.toFixed(1)).join(', ')}`).join('\n');
   light('both');
 };
-light('both');document.querySelector('#result').textContent='Ready. Compare the same rock pixels as each light moves, or run the GPU checks.';
+light('both');document.querySelector('#result').textContent='Ready. Photographic Rock Boulder Dry diffuse + OpenGL normal + roughness maps. Compare the same rock pixels as each light moves, or run the GPU checks.';
 </script></html>

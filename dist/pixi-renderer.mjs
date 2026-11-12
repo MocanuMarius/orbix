@@ -1,6 +1,7 @@
 import * as PIXI from './vendor/pixi.mjs';
 import { obstaclePolygons } from './flight.mjs';
 import { PhoenixRig } from './phoenix-rig.mjs';
+import { Phoenix3D } from './phoenix-3d.mjs';
 import { PhoenixFlameEffects } from './flame-effects.mjs';
 
 // Native Pixi scene objects share the simulation's polygon geometry. The legacy
@@ -28,75 +29,88 @@ const LIGHT_VERTEX = `precision highp float;
           vTextureCoord = aPosition * (uOutputFrame.zw * uInputSize.zw);
         }`;
 
-// One screen-sized material pass keeps painted detail while local fire and
-// wisp light move across it. All geometry and collisions remain strictly 2D.
-export function makeTerrainLight() {
+// Photo albedo and independently captured normal/roughness surfaces share the
+// exact polygon masks and UV transforms. No relief is inferred from colour.
+export function makeTerrainLight(normalTexture = PIXI.Texture.WHITE, roughTexture = PIXI.Texture.WHITE) {
   return new PIXI.Filter({
-    glProgram: PIXI.GlProgram.from({
-      vertex: LIGHT_VERTEX,
+    glProgram: PIXI.GlProgram.from({ vertex: LIGHT_VERTEX,
       fragment: `precision highp float;
         in vec2 vTextureCoord;
         uniform sampler2D uTexture;
+        uniform sampler2D uNormalTexture;
+        uniform sampler2D uRoughTexture;
         uniform vec4 uInputSize;
+        uniform vec2 uMapSize;
         uniform vec2 uFire;
         uniform vec2 uWisp;
         uniform vec2 uWake;
         uniform float uHeat;
         uniform float uSpirit;
         uniform float uScale;
+        uniform float uNormalStrength;
         out vec4 finalColor;
-        const vec3 LUMA = vec3(.2126, .7152, .0722);
-        vec3 pigment(vec4 sampleValue) {
-          return sampleValue.rgb / max(sampleValue.a, .001);
-        }
-        float heightAt(vec2 uv, float fallback) {
-          vec4 sampleValue = texture(uTexture, uv);
-          return sampleValue.a < .1 ? fallback : dot(pigment(sampleValue), LUMA);
-        }
+        const float PI = 3.14159265359;
         vec3 illuminate(vec3 albedo, vec3 normal, vec2 pixel, vec2 origin,
                         vec3 tint, float radius, float power, float roughness) {
-          vec2 offset = (origin - pixel) / uScale;
+          vec2 offset = (origin - pixel) / max(uScale, .001);
           float t = clamp(1.0 - length(offset) / radius, 0.0, 1.0);
-          float falloff = t * t * (3.0 - 2.0 * t);
-          vec3 direction = normalize(vec3(offset, 75.0));
-          float diffuse = max(dot(normal, direction), 0.0);
-          vec3 halfway = normalize(direction + vec3(0.0, 0.0, 1.0));
-          float specular = pow(max(dot(normal, halfway), 0.0), mix(48.0, 14.0, roughness));
-          // Diffuse is multiplied by the original pigment. The moving highlight
-          // is a separate material reflection, not an air-glow painted over it.
-          return tint * power * falloff * (albedo * (.20 + diffuse * 1.65)
-            + vec3(specular * .16 * (1.0 - roughness * .6)));
+          float attenuation = t * t * (3.0 - 2.0 * t);
+          vec3 lightDirection = normalize(vec3(offset, 77.0));
+          vec3 viewDirection = vec3(0.0, 0.0, 1.0);
+          vec3 halfway = normalize(lightDirection + viewDirection);
+          float nl = max(dot(normal, lightDirection), 0.0);
+          float nv = max(normal.z, .001);
+          float nh = max(dot(normal, halfway), .001);
+          float vh = max(dot(viewDirection, halfway), .001);
+          float a = roughness * roughness;
+          float a2 = a * a;
+          float denominator = nh * nh * (a2 - 1.0) + 1.0;
+          float distribution = a2 / max(PI * denominator * denominator, .001);
+          float k = (roughness + 1.0) * (roughness + 1.0) / 8.0;
+          float geometry = (nl / max(nl * (1.0 - k) + k, .001))
+            * (nv / max(nv * (1.0 - k) + k, .001));
+          vec3 fresnel = vec3(.04) + vec3(.96) * pow(1.0 - vh, 5.0);
+          vec3 specular = distribution * geometry * fresnel / max(4.0 * nl * nv, .001);
+          vec3 diffuse = albedo * (vec3(1.0) - fresnel) / PI;
+          return (diffuse + specular) * tint * power * attenuation * nl;
         }
         void main() {
           vec4 surface = texture(uTexture, vTextureCoord);
           if (surface.a < .001) { finalColor = vec4(0.0); return; }
           vec2 pixel = vTextureCoord * uInputSize.xy;
-          vec3 raw = pigment(surface);
-          float height = dot(raw, LUMA);
-          vec2 stepSize = uInputSize.zw * 2.0;
-          float dx = heightAt(vTextureCoord + vec2(stepSize.x, 0.0), height)
-            - heightAt(vTextureCoord - vec2(stepSize.x, 0.0), height);
-          float dy = heightAt(vTextureCoord + vec2(0.0, stepSize.y), height)
-            - heightAt(vTextureCoord - vec2(0.0, stepSize.y), height);
-          vec3 normal = normalize(vec3(-dx * 7.0, -dy * 7.0, 1.0));
-          // The art supplies colour and relief; illumination is evaluated anew
-          // for every pixel and frame in linear light, with restrained moon fill.
-          vec3 albedo = pow(max(mix(vec3(height), raw, .52), vec3(0.0)), vec3(2.2));
-          float roughness = clamp(.70 - abs(dx + dy) * 1.7, .28, .78);
-          vec3 lit = albedo * vec3(.13, .16, .24);
-          lit += illuminate(albedo, normal, pixel, uFire, vec3(1.0, .29, .045), 270.0, uHeat * 4.2, roughness);
-          lit += illuminate(albedo, normal, pixel, uWake, vec3(1.0, .18, .025), 155.0, uHeat * 1.1, roughness);
-          lit += illuminate(albedo, normal, pixel, uWisp, vec3(.97, .99, 1.0), 175.0, uSpirit * 3.4, roughness);
-          vec3 mapped = vec3(1.0) - exp(-lit * 1.25);
+          vec2 mapUv = clamp(pixel / max(uMapSize, vec2(1.0)), vec2(0.0), vec2(1.0));
+          vec4 sampledNormal = texture(uNormalTexture, mapUv);
+          vec4 sampledRoughness = texture(uRoughTexture, mapUv);
+          vec3 encoded = sampledNormal.rgb / max(sampledNormal.a, .001);
+          vec3 tangentNormal = sampledNormal.a > .05 ? encoded * 2.0 - 1.0 : vec3(0.0, 0.0, 1.0);
+          // The supplied maps use OpenGL tangent +Y. The 2D world has downward
+          // positive Y, so only the decoded Y component changes convention.
+          vec3 normal = normalize(vec3(tangentNormal.x * uNormalStrength,
+            -tangentNormal.y * uNormalStrength, max(tangentNormal.z, .12)));
+          float roughness = sampledRoughness.a > .05
+            ? clamp(sampledRoughness.r / max(sampledRoughness.a, .001), .16, .97) : .84;
+          vec3 albedo = pow(max(surface.rgb / max(surface.a, .001), vec3(0.0)), vec3(2.2));
+          float moon = max(dot(normal, normalize(vec3(-.30, -.61, .74))), 0.0);
+          vec3 lit = albedo * vec3(.075, .105, .17) * (.7 + moon * .7);
+          lit += illuminate(albedo, normal, pixel, uFire, vec3(1.0, .30, .055), 275.0, uHeat * 5.0, roughness);
+          lit += illuminate(albedo, normal, pixel, uWake, vec3(1.0, .19, .035), 160.0, uHeat * 1.5, roughness);
+          lit += illuminate(albedo, normal, pixel, uWisp, vec3(.97, .99, 1.0), 180.0, uSpirit * 4.1, roughness);
+          vec3 mapped = vec3(1.0) - exp(-lit * 1.45);
           finalColor = vec4(pow(mapped, vec3(1.0 / 2.2)) * surface.a, surface.a);
         }`,
     }),
-    resources: { lighting: {
-      uFire: { value: new Float32Array([98, 310]), type: 'vec2<f32>' },
-      uWisp: { value: new Float32Array([68, 330]), type: 'vec2<f32>' },
-      uWake: { value: new Float32Array([40, 320]), type: 'vec2<f32>' },
-      uHeat: { value: 1, type: 'f32' }, uSpirit: { value: 1, type: 'f32' }, uScale: { value: 1, type: 'f32' },
-    } },
+    resources: {
+      uNormalTexture: normalTexture.source,
+      uRoughTexture: roughTexture.source,
+      lighting: {
+        uFire: { value: new Float32Array([98, 310]), type: 'vec2<f32>' },
+        uWisp: { value: new Float32Array([68, 330]), type: 'vec2<f32>' },
+        uWake: { value: new Float32Array([40, 320]), type: 'vec2<f32>' },
+        uMapSize: { value: new Float32Array([390, 620]), type: 'vec2<f32>' },
+        uHeat: { value: 1, type: 'f32' }, uSpirit: { value: 1, type: 'f32' },
+        uScale: { value: 1, type: 'f32' }, uNormalStrength: { value: 1.2, type: 'f32' },
+      },
+    },
   });
 }
 
@@ -218,7 +232,12 @@ export class PixiFlightView {
     this.world = new PIXI.Container();
     this.scene.addChild(this.world);
     this.terrainLayer = new PIXI.Container();
-    this.terrainLight = makeTerrainLight();
+    this.normalRoot = new PIXI.Container(); this.normalLayer = new PIXI.Container();
+    this.roughRoot = new PIXI.Container(); this.roughLayer = new PIXI.Container();
+    this.normalRoot.addChild(this.normalLayer); this.roughRoot.addChild(this.roughLayer);
+    this.normalTarget = PIXI.RenderTexture.create({ width: 1, height: 1, resolution: 1, antialias: false });
+    this.roughTarget = PIXI.RenderTexture.create({ width: 1, height: 1, resolution: 1, antialias: false });
+    this.terrainLight = makeTerrainLight(this.normalTarget, this.roughTarget);
     this.terrainLayer.filters = [this.terrainLight];
     this.terrainLayer.filterArea = new PIXI.Rectangle(0, 0, engine.width, engine.height);
     this.coinLayer = new PIXI.Container();
@@ -329,22 +348,32 @@ export class PixiFlightView {
         this.backdrop.alpha = engine.passage === 'cavern' ? .57 : .93;
         this.resize();
       }),
-      PIXI.Assets.load(assets.phoenixRig || 'assets/phoenix-rig.png').then(texture => {
+      Promise.resolve().then(() => {
+        if (this.destroyed) return;
+        this.model3D = new Phoenix3D();
+        this.model3D.render(engine, viewTime(engine));
+        this.modelTexture = PIXI.Texture.from(this.model3D.canvas);
+        this.modelSprite = new PIXI.Sprite(this.modelTexture);
+        this.modelSprite.anchor.set(.5);
+        this.modelSprite.width = this.modelSprite.height = 180;
+        this.phoenix.addChildAt(this.modelSprite, 3);
+        this.bodyFallback.visible = false; this.tail.visible = false;
+        this.canvas.dataset.phoenixRenderer = 'three-webgl-3d';
+        this.render(engine);
+      }).catch(() => {
+        this.modelSprite?.destroy(); this.modelSprite = null;
+        this.modelTexture?.destroy(true); this.modelTexture = null;
+        this.model3D?.destroy(); this.model3D = null;
+        if (this.destroyed) return;
+        return PIXI.Assets.load(assets.phoenixRig || 'assets/phoenix-rig.png').then(texture => {
         if (this.destroyed) return;
         this.rig = new PhoenixRig(texture); this.phoenix.addChildAt(this.rig.container, 3);
         this.bodyFallback.visible = false; this.tail.visible = false;
+        this.canvas.dataset.phoenixRenderer = 'mesh-fallback';
         this.render(engine);
+        });
       }),
-      PIXI.Assets.load(assets.terrainAtlas || 'assets/moon-materials.png').then(texture => {
-        if (this.destroyed) return;
-        const width = texture.width / 3, height = texture.height;
-        this.terrainFrames = Array.from({ length: 3 }, (_, index) => new PIXI.Texture({
-          source: texture.source, frame: new PIXI.Rectangle(index % 3 * width,
-            0, width, height) }));
-        for (const item of this.obstacles.values()) item.destroy({ children: true });
-        this.obstacles.clear();
-        this.render(engine);
-      }),
+      this.loadTerrainMaterials(),
     ].filter(Boolean);
     await Promise.allSettled(loads);
     if (!this.destroyed && (engine.paused || !engine.running)) this.render(engine);
@@ -356,6 +385,7 @@ export class PixiFlightView {
     const width = Math.max(1, bounds.width), height = Math.max(1, bounds.height);
     this.application.renderer.resize(width, height);
     this.scene.scale.set(width / engine.width, height / engine.height);
+    this.resizeTerrainMaps(width, height);
     const H = engine.height, W = engine.width;
     this.sky.clear().rect(0, 0, W, H).fill(engine.terrain === 'canopy' ? 0x18323a : engine.terrain === 'storm' ? 0x132737 : 0x23333d);
     if (this.backdrop.texture !== PIXI.Texture.WHITE) {
@@ -375,130 +405,103 @@ export class PixiFlightView {
     this.flash.clear().rect(0, 0, W, H).fill(0xffe2b0);
     this.flash.alpha = 0;
     if (this.lastHeight && this.lastHeight !== H) {
-      for (const entry of this.obstacles.values()) entry.destroy({ children: true });
+      for (const entry of this.obstacles.values()) this.destroyTerrain(entry);
       this.obstacles.clear();
     }
     this.lastHeight = H;
   }
 
+  async loadTerrainMaterials() {
+    const load = async name => {
+      const [colorTexture, normalTexture, roughTexture] = await Promise.all([
+        PIXI.Assets.load(`assets/pbr-${name}-color.jpg`),
+        PIXI.Assets.load(`assets/pbr-${name}-normal.jpg`),
+        PIXI.Assets.load(`assets/pbr-${name}-roughness.jpg`),
+      ]);
+      return { color: colorTexture, normal: normalTexture, roughness: roughTexture };
+    };
+    const loaded = await Promise.allSettled([load('rock'), load('bark')]);
+    if (this.destroyed) return;
+    this.terrainMaterials = {
+      rock: loaded[0].status === 'fulfilled' ? loaded[0].value : null,
+      bark: loaded[1].status === 'fulfilled' ? loaded[1].value : null,
+    };
+    for (const item of this.obstacles.values()) this.destroyTerrain(item);
+    this.obstacles.clear();
+    this.render(this.engine);
+  }
+
+  resizeTerrainMaps(width, height) {
+    if (!this.normalTarget || !this.roughTarget) return;
+    const W = Math.max(1, Math.round(width)), H = Math.max(1, Math.round(height));
+    if (this.normalTarget.width !== W || this.normalTarget.height !== H) {
+      this.normalTarget.resize(W, H, 1); this.roughTarget.resize(W, H, 1);
+    }
+    this.normalRoot.scale.copyFrom(this.scene.scale);
+    this.roughRoot.scale.copyFrom(this.scene.scale);
+    const uniforms = this.terrainLight.resources.lighting.uniforms;
+    uniforms.uMapSize[0] = W; uniforms.uMapSize[1] = H;
+  }
+
+  renderTerrainMaps() {
+    const renderer = this.application.renderer;
+    this.normalRoot.position.set(this.world.x * this.scene.scale.x, this.world.y * this.scene.scale.y);
+    this.roughRoot.position.copyFrom(this.normalRoot.position);
+    renderer.render({ container: this.normalRoot, target: this.normalTarget, clear: true });
+    renderer.render({ container: this.roughRoot, target: this.roughTarget, clear: true });
+  }
+
+  destroyTerrain(item) {
+    if (!item) return;
+    if (item.normalCompanion && !item.normalCompanion.destroyed) item.normalCompanion.destroy({ children: true });
+    if (item.roughCompanion && !item.roughCompanion.destroyed) item.roughCompanion.destroy({ children: true });
+    if (!item.destroyed) item.destroy({ children: true });
+  }
+
   createTerrain(obstacle) {
     const engine = this.engine;
     const container = new PIXI.Container();
+    container.normalCompanion = new PIXI.Container();
+    container.roughCompanion = new PIXI.Container();
     const center = obstacle.center + Math.sin(viewTime(engine) * .9 + obstacle.phase) * obstacle.motion;
     const polygons = obstaclePolygons(obstacle, viewTime(engine))
       .map(polygon => polygon.map(([x, y]) => [x - obstacle.x, y - center]));
-    const rows = [...(obstacle.topShape ? [0] : []), ...(obstacle.bottomShape ? [1] : [])];
+    const material = this.terrainMaterials?.[engine.terrain === 'canopy' ? 'bark' : 'rock'];
+    const tileScale = engine.terrain === 'canopy' ? .32 : .38;
+    const layers = [
+      { target: container, texture: material?.color, fallback: engine.terrain === 'canopy' ? 0x655b46 : 0x92908a },
+      { target: container.normalCompanion, texture: material?.normal, fallback: 0x8080ff },
+      { target: container.roughCompanion, texture: material?.roughness, fallback: 0xd6d6d6 },
+    ];
     for (let index = 0; index < polygons.length; index++) {
-      const points = polygons[index];
-      const piece = new PIXI.Container();
-      const background = new PIXI.Graphics();
-      const graphic = new PIXI.Graphics();
-      const colors = engine.terrain === 'canopy' ? [0x244b43, 0x54735c, 0x93a675]
-        : engine.terrain === 'storm' ? [0x283e53, 0x57748c, 0xa7ced4]
-        : [0x514749, 0x8a7b6b, 0xc8b18a];
-      background.poly(flatten(points)).fill(colors[0]);
-      piece.addChild(background);
-      const minX = Math.min(...points.map(point => point[0])), maxX = Math.max(...points.map(point => point[0]));
-      const minY = Math.min(...points.map(point => point[1])), maxY = Math.max(...points.map(point => point[1]));
-      const terrainColumn = { ruins: 0, canopy: 1, storm: 2 }[engine.terrain];
-      const paintedFrame = this.terrainFrames[terrainColumn];
-      if (paintedFrame) {
-        const painting = new PIXI.TilingSprite({ texture: paintedFrame,
-          width: maxX - minX, height: maxY - minY });
-        painting.position.set(minX, minY);
-        painting.tileScale.set(.62);
-        painting.tilePosition.set(-obstacle.x * .2, rows[index] ? -100 : 20);
-        painting.alpha = .98;
-        const mask = new PIXI.Graphics().poly(flatten(points)).fill(0xffffff);
-        piece.addChild(painting, mask);
-        painting.mask = mask;
+      const points = polygons[index], flat = flatten(points);
+      const minX = Math.min(...points.map(p => p[0])), maxX = Math.max(...points.map(p => p[0]));
+      const minY = Math.min(...points.map(p => p[1])), maxY = Math.max(...points.map(p => p[1]));
+      for (const layer of layers) {
+        const piece = new PIXI.Container();
+        const backing = new PIXI.Graphics().poly(flat).fill(layer.fallback);
+        piece.addChild(backing);
+        if (layer.texture) {
+          const surface = new PIXI.TilingSprite({ texture: layer.texture,
+            width: Math.max(1, maxX - minX), height: Math.max(1, maxY - minY) });
+          surface.position.set(minX, minY);
+          surface.tileScale.set(tileScale);
+          // Every map uses exactly the same tile phase, scale, extent and mask.
+          surface.tilePosition.set(-(obstacle.x + minX), -(center + minY));
+          const mask = new PIXI.Graphics().poly(flat).fill(0xffffff);
+          piece.addChild(surface, mask); surface.mask = mask;
+        }
+        layer.target.addChild(piece);
       }
-      const cx = points.reduce((sum, point) => sum + point[0], 0) / points.length;
-      const cy = points.reduce((sum, point) => sum + point[1], 0) / points.length;
-      const inset = points.map(([x, y]) => [mix(cx, x, .92), mix(cy, y, .92)]);
-      graphic.poly(flatten(inset)).fill({ color: colors[1], alpha: paintedFrame ? .055 : .62 });
-      // Broad angular facets stay inside the exact collidable silhouette.
-      for (let vertex = 0; vertex < points.length; vertex += 2) {
-        const next = (vertex + 1) % points.length;
-        graphic.poly([cx, cy, ...points[vertex], ...points[next]])
-          .fill({ color: vertex % 4 ? colors[0] : colors[2], alpha: paintedFrame ? .05 : .16 });
-      }
-      const ridge = points.filter(point => point[1] < cy).sort((a, b) => a[0] - b[0]);
-      if (ridge.length > 1) {
-        graphic.moveTo(...ridge[0]);
-        for (const point of ridge.slice(1)) graphic.lineTo(...point);
-        graphic.stroke({ color: colors[2], width: paintedFrame ? 1 : 2.5, alpha: paintedFrame ? .25 : .55 });
-      }
-      const detail = new PIXI.Graphics();
-      const detailAlpha = paintedFrame ? .30 : .90;
-      if (engine.terrain === 'canopy') {
-        // Grain, forked roots, and clustered foliage read as living woodland,
-        // not a green rock. Cache all of this with the individual landform.
-        for (let grain = 0; grain < 7; grain++) {
-          const y = cy - 32 + grain * 10;
-          detail.moveTo(minX - 5, y).bezierCurveTo(cx - 37, y + 18,
-            cx + 21, y - 14, maxX + 5, y + 7)
-            .stroke({ color: grain % 2 ? 0x26382f : 0xafaa71,
-              width: grain % 2 ? 2.1 : 1.1, alpha: .38 * detailAlpha });
-        }
-        for (let branch = 0; branch < 5; branch++) {
-          const bx = minX + 18 + branch * (maxX - minX - 30) / 4;
-          const by = cy + Math.sin(branch * 1.3 + obstacle.id) * 20;
-          detail.moveTo(bx - 16, by + 20).quadraticCurveTo(bx - 4, by - 8, bx + 16, by - 23)
-            .stroke({ color: 0x384d36, width: 4.7, alpha: detailAlpha });
-          for (let leaf = 0; leaf < 6; leaf++) {
-            const lx = bx - 7 + leaf * 4.2, ly = by + 7 - leaf * 5;
-            detail.ellipse(lx + (leaf % 2 ? 5 : -5), ly, 10 + leaf % 3 * 2, 5.5)
-              .fill({ color: [0x386c4c, 0x6c925b, 0x98ad6c][(leaf + branch) % 3], alpha: detailAlpha });
-            detail.ellipse(lx + (leaf % 2 ? 3 : -6), ly - 1.4, 5, 1.2)
-              .fill({ color: 0xc1ce8c, alpha: detailAlpha * .24 });
-          }
-        }
-        for (let mote = 0; mote < 4; mote++) detail.circle(cx - 38 + mote * 25,
-          cy - 18 + Math.sin(mote * 2 + obstacle.id) * 25, 1.3)
-          .fill({ color: 0xc3efaa, alpha: .7 });
-      } else if (engine.terrain === 'storm') {
-        for (let shard = 0; shard < 9; shard++) {
-          const x = minX + 14 + shard * (maxX - minX - 26) / 8;
-          const y = cy + Math.sin(shard * 1.7 + obstacle.id) * 24;
-          const h = 14 + (shard * 13 + obstacle.id * 7) % 24;
-          detail.poly([x - 8, y + 10, x - 5, y - h, x + 1, y - h - 7,
-            x + 9, y - h + 3, x + 10, y + 8, x + 1, y + 16])
-            .fill({ color: 0x3f7995, alpha: detailAlpha });
-          detail.poly([x + 1, y - h - 7, x + 9, y - h + 3, x + 10, y + 8, x + 1, y + 16])
-            .fill({ color: 0x8bc7db, alpha: detailAlpha * .78 });
-          detail.moveTo(x + 1, y - h + 1).lineTo(x + 1, y + 10)
-            .stroke({ color: 0xd4edf1, width: .9, alpha: detailAlpha * .9 });
-        }
-      } else {
-        for (let course = 0; course < 5; course++) {
-          const y = minY + 13 + course * (maxY - minY - 20) / 4;
-          detail.moveTo(minX - 5, y).lineTo(maxX + 5, y + Math.sin(course + obstacle.id) * 4)
-            .stroke({ color: 0x302f32, width: 1.6, alpha: detailAlpha * .55 });
-          for (let joint = 0; joint < 4; joint++) {
-            const x = minX + 15 + joint * 43 + course % 2 * 19;
-            detail.moveTo(x, y).lineTo(x + 1, y + (maxY - minY) / 5)
-              .stroke({ color: 0xd1bb91, width: .8, alpha: detailAlpha * .32 });
-          }
-        }
-        detail.moveTo(cx - 22, cy + 20).lineTo(cx - 22, cy - 3)
-          .quadraticCurveTo(cx - 5, cy - 30, cx + 12, cy - 3).lineTo(cx + 12, cy + 20)
-          .stroke({ color: 0xccb78b, width: 5, alpha: detailAlpha * .38 });
-        for (let rune = 0; rune < 3; rune++) {
-          const x = cx + 28 + rune * 12, y = cy - 12 + rune % 2 * 17;
-          detail.moveTo(x, y - 5).lineTo(x, y + 6).moveTo(x - 3, y - 2).lineTo(x + 4, y + 2)
-            .stroke({ color: 0xe2c587, width: 1, alpha: detailAlpha * .6 });
-        }
-      }
-      const detailMask = new PIXI.Graphics().poly(flatten(points)).fill(0xffffff);
-      piece.addChild(graphic, detail, detailMask);
-      detail.mask = detailMask;
-      const outline = new PIXI.Graphics().poly(flatten(points))
-        .stroke({ color: colors[2], width: .8, alpha: paintedFrame ? .28 : .5 });
-      piece.addChild(outline);
-      container.addChild(piece);
+      // A very slight inset rim adds thickness without covering the photograph
+      // with the old painted facets, fake crystal patches, or masonry grids.
+      const rim = new PIXI.Graphics().poly(flat)
+        .stroke({ color: 0x15232a, width: 1.1, alpha: .11, alignment: 1 });
+      container.addChild(rim);
     }
     this.terrainLayer.addChild(container);
+    this.normalLayer.addChild(container.normalCompanion);
+    this.roughLayer.addChild(container.roughCompanion);
     return container;
   }
 
@@ -562,10 +565,13 @@ export class PixiFlightView {
       let item = this.obstacles.get(obstacle.id);
       if (!item) { item = this.createTerrain(obstacle); this.obstacles.set(obstacle.id, item); }
       item.position.set(x, obstacle.center + Math.sin(time * .9 + obstacle.phase) * obstacle.motion);
+      item.normalCompanion.position.copyFrom(item.position);
+      item.roughCompanion.position.copyFrom(item.position);
     }
     for (const [id, item] of this.obstacles) if (!visibleObstacles.has(id)) {
-      item.destroy({ children: true }); this.obstacles.delete(id);
+      this.destroyTerrain(item); this.obstacles.delete(id);
     }
+    this.renderTerrainMaps();
     const visibleEmbers = new Set();
     for (const ember of engine.layout.embers) {
       if (ember.carried || ember.collected) continue;
@@ -671,7 +677,10 @@ export class PixiFlightView {
         .stroke({ color: [0xffbd58, 0xec743b, 0xffd88a][strand], width: 2.3 - strand * .4,
           alpha: boosted ? .75 : .42 });
     }
-    if (this.rig) {
+    if (this.model3D) {
+      this.model3D.render(engine, time);
+      this.modelTexture.source.update();
+    } else if (this.rig) {
       this.rig.render(engine, time);
     } else {
       const wing = -21 - Math.sin(time * 15) * 13;
@@ -751,9 +760,19 @@ export class PixiFlightView {
 
   destroy() {
     this.destroyed = true; this.ready = false;
+    for (const item of this.obstacles.values()) this.destroyTerrain(item);
+    this.obstacles.clear();
+    this.normalRoot?.destroy({ children: true }); this.normalRoot = null;
+    this.roughRoot?.destroy({ children: true }); this.roughRoot = null;
+    this.normalLayer = null; this.roughLayer = null;
+    this.normalTarget?.destroy(true); this.normalTarget = null;
+    this.roughTarget?.destroy(true); this.roughTarget = null;
+    this.terrainMaterials = null;
     if (this.engine.canvas.style) this.engine.canvas.style.visibility = this.originalVisibility;
     this.flames?.destroy(); this.flames = null;
     this.rig?.destroy(); this.rig = null;
+    this.model3D?.destroy(); this.model3D = null;
+    this.modelTexture?.destroy(true); this.modelTexture = null;
     if (this.application?.renderer) {
       try { this.application.destroy({ removeView: true }, { children: true, texture: false, textureSource: false, context: true }); } catch { /* An interrupted init may not own a complete renderer. */ }
     }

@@ -1,0 +1,118 @@
+{
+  "retrievedAt": "2026-11-12T20:00:54.969713+00:00",
+  "license": "CC0-1.0",
+  "licenseSource": "https://polyhaven.com/license",
+  "offlineBundled": true,
+  "materials": [
+    {
+      "asset": "rock_boulder_dry",
+      "name": "Rock Boulder Dry",
+      "source": "https://polyhaven.com/a/rock_boulder_dry",
+      "metadata": "https://api.polyhaven.com/info/rock_boulder_dry",
+      "license": "CC0-1.0",
+      "licenseSource": "https://polyhaven.com/license",
+      "authors": {
+        "Dimitrios Savva": "Photography",
+        "Rico Cilliers": "Processing"
+      },
+      "description": "Free 16K texture of a dry, weathered rock boulder with rough, chipped and cracked surfaces, small pits and uneven, eroded pale sandy-gray tones.",
+      "normalConvention": "OpenGL (+Y)",
+      "files": [
+        {
+          "file": "pbr-rock-color.jpg",
+          "role": "color",
+          "source": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/rock_boulder_dry/rock_boulder_dry_diff_1k.jpg",
+          "bytes": 859211,
+          "dimensions": [
+            1024,
+            1024
+          ],
+          "sha256": "20f653a42fb24f42aa40641663070d578678da49af18cc1049dbdd4ed8679f3c",
+          "md5": "da794cd9be3db91e3160cf081109f322",
+          "colorSpace": "sRGB"
+        },
+        {
+          "file": "pbr-rock-normal.jpg",
+          "role": "normal",
+          "source": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/rock_boulder_dry/rock_boulder_dry_nor_gl_1k.jpg",
+          "bytes": 802497,
+          "dimensions": [
+            1024,
+            1024
+          ],
+          "sha256": "5915fea28a97357c78a04fb31c2516f1f7ed1b3a9cef4ae25aa93e4655e6c595",
+          "md5": "6f1c575ceed560ae253f65518cf748e2",
+          "colorSpace": "linear / non-color"
+        },
+        {
+          "file": "pbr-rock-roughness.jpg",
+          "role": "roughness",
+          "source": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/rock_boulder_dry/rock_boulder_dry_rough_1k.jpg",
+          "bytes": 668127,
+          "dimensions": [
+            1024,
+            1024
+          ],
+          "sha256": "cc5229dd6bbdc4e817cb647e60242224b8e4f0237473ac018861ea243f2e8130",
+          "md5": "0c8b15df3e31c15256da5f8e1b0d0759",
+          "colorSpace": "linear / non-color"
+        }
+      ]
+    },
+    {
+      "asset": "bark_willow",
+      "name": "Bark Willow",
+      "source": "https://polyhaven.com/a/bark_willow",
+      "metadata": "https://api.polyhaven.com/info/bark_willow",
+      "license": "CC0-1.0",
+      "licenseSource": "https://polyhaven.com/license",
+      "authors": {
+        "Dario Barresi": "Processing",
+        "Dimitrios Savva": "Photography"
+      },
+      "description": "Free 8K texture of willow bark, dark brown and sallow with deep fibrous furrows, rough uneven ridges and a coarse wooden surface.",
+      "normalConvention": "OpenGL (+Y)",
+      "files": [
+        {
+          "file": "pbr-bark-color.jpg",
+          "role": "color",
+          "source": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/bark_willow/bark_willow_diff_1k.jpg",
+          "bytes": 779438,
+          "dimensions": [
+            1024,
+            1024
+          ],
+          "sha256": "c7de3072c2320934a3d9f5bc6c9cb58819952c0b3bd04f4e71b24cf89dbb6ad6",
+          "md5": "792d4f8467fe360092eee335ee60b698",
+          "colorSpace": "sRGB"
+        },
+        {
+          "file": "pbr-bark-normal.jpg",
+          "role": "normal",
+          "source": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/bark_willow/bark_willow_nor_gl_1k.jpg",
+          "bytes": 1438304,
+          "dimensions": [
+            1024,
+            1024
+          ],
+          "sha256": "9d5a771315a85c2d890526af9826843e7967ed3330da49bef7e86c3e5a6c0b6a",
+          "md5": "91ffa6e3a1ba8cccb714908ef50122d5",
+          "colorSpace": "linear / non-color"
+        },
+        {
+          "file": "pbr-bark-roughness.jpg",
+          "role": "roughness",
+          "source": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/bark_willow/bark_willow_rough_1k.jpg",
+          "bytes": 372597,
+          "dimensions": [
+            1024,
+            1024
+          ],
+          "sha256": "4de7f44cbd2c787555a8504ca35fe2f036a33e4d180d0ee9b17d3c20380ac965",
+          "md5": "794115a3942e6e435274aabfa0967818",
+          "colorSpace": "linear / non-color"
+        }
+      ]
+    }
+  ]
+}

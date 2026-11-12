@@ -1,6 +1,6 @@
 # Emberwing
 
-A portrait mobile-browser phoenix roguelite. Five flight encounters and two support stops make a seven-stop expedition. The flight scene uses **PixiJS 8.23.0 / WebGL**, with Canvas fallback if GPU initialization is unavailable.
+A portrait mobile-browser phoenix roguelite. Five flight encounters and two support stops make a seven-stop expedition. The flight scene uses **PixiJS 8.23.0 / WebGL** with a live **Three.js 0.187.0** phoenix. Flight and collisions remain on a 2D plane. A mesh/Canvas fallback is available if GPU initialization fails.
 
 ## Play
 
@@ -22,17 +22,17 @@ The map now has real three-lane forks and merges, a maximum of two reachable cho
 
 Refuges are tested from 35 Flame and caverns from the advised 60, with 288 fuel-aware simulated flights across terrains, seeds and contrasting builds. These are automated clearability checks; physical-phone performance and subjective balance still need playtesting.
 
-The phoenix is now a continuous articulated rig: one fixed painted body, two deforming wing meshes, and a flexible tail mesh. Each successful tap drives a fast power stroke and slower recovery through damped shoulder, elbow and wrist joints. Feather tips and tail plumes lag behind; Boost folds the wings smoothly. The Canvas fallback uses the same fixed parts with continuous transforms. Fire uses curved layered ribbons, curling heat wisps, shaded spark/cinder pools and Boost shockwaves. Pools and vertex buffers are bounded; reduced-motion settings reduce decorative effects.
+The phoenix is a genuine, continuously rendered 3D model, viewed side-on through an orthographic camera. Volumetric feather geometry, independently articulated shoulder/elbow/wrist joints, feather fans and flexible tail chains move through depth. Each successful tap drives a damped power stroke and recovery; Boost folds the wings. PBR feather materials include fine barb normals, rough reflections and cool moon/warm fire lighting. Pixi composites the live Three.js canvas every frame, with curved blaze ribbons, curling heat wisps, bounded spark/cinder pools and Boost shockwaves. GPU failure uses the earlier painted mesh rig as a fallback.
 
-The original generated rig artwork preserves the painted style. Free CC0 assets were researched but were pixel sprite sheets; their sources and the exact rig-generation prompt are recorded in `dist/assets/phoenix-rig-notes.txt`.
+The photographic terrain materials are Poly Haven CC0 Rock Boulder Dry and Bark Willow, supplied as local 1K diffuse, OpenGL normal and roughness maps. Authors, original download URLs, license and checksums are included in `dist/assets/pbr-materials-sources.json` and `pbr-materials-license.txt`. The generated backdrop and fallback art retain their recorded prompts and provenance.
 
 ## Run the source
 
 Embers are sparse discoveries attached to scenery: relics below ruin arches, dew near canopy branches and thorn hearts, and rewards beside storm spires. Route-specific quiet stretches separate pickups; occupied features hold one accessible fuel ember and sometimes a larger, riskier reward. An early approach ember and bounded distances between fuel sources support deliberate flight from a low checkpoint reserve. The autonomous wisp chooses the closest unclaimed ember within its 100-unit search range, flies out, carries it home, and delivers the fuel and currency on return. It then rests for 1.8 seconds before fetching again. The spirit's moving glow and trail follow its actual position; a faint halo at the phoenix shows search reach, and a recovery arc plus flight status shows its cooldown. The phoenix can still collect an ember by touching it directly. Hungry Wisp expands search reach by 60% during Boost. The permanent Spirit branch has three ranks of Reach (125/150/175 range) and Recovery (1.53/1.26/0.99 seconds of rest). Upgrade prices grow per rank, and purchases apply to the next expedition. Large heart embers pay three currency but count as one pickup for card triggers and challenges. Kindled Spirit triggers every three pickups; Warm Heart heals after eight. Collection challenges require six to nine pickups. All placements reserve phoenix clearance across the full canopy sway envelope.
 
-The game remains fully 2D. A WebGL material pass derives surface normals and roughness from the painted terrain and evaluates moving light per pixel in linear colour space. Warm orange phoenix and fire-wake lights produce diffuse shading and moving highlights; the autonomous wisp casts neutral white light from its actual position. Restrained moon fill replaces the stronger constant blue cast on grounded mountain slopes and cave vaults. A second radiance shader blooms bright fire, moonlight and particles. Boost increases the fire illumination. The generated moonlit backdrop and three-column opaque material atlas replace the floating-island presentation. The Canvas fallback uses clipped warm and white light gradients. The lighting and texture-derived relief are simulated in 2D; terrain collisions use the same polygon silhouettes that clip the painted materials.
+The gameplay remains 2D while the phoenix is rendered in 3D. Terrain material lighting uses photographic colour plus authored normal/roughness maps. Warm orange phoenix and fire-wake lights and the autonomous white wisp illuminate the surface detail as they move. Moon fill and restrained bloom keep the night atmosphere. Terrain collisions still use the same polygon silhouettes that clip the materials. The Canvas fallback uses clipped warm and white gradients.
 
-Requires Node.js 20+. No installation step is needed for the packaged playable build: PixiJS and all generated assets are included.
+Requires Node.js 20+. No installation step is needed for the packaged playable build: PixiJS, Three.js and all local assets are included.
 
 ```sh
 node server.mjs
@@ -53,16 +53,17 @@ The tests cover seeded maps and authored terrain, cards and skill bounds, polygo
 - `dist/flight.mjs`: deterministic flight simulation and collision geometry.
 - `dist/wisp.mjs`: autonomous nearest-target fetching, return delivery, and companion recovery.
 - `dist/pixi-renderer.mjs`: layered GPU scenery, terrain and character integration.
-- `dist/phoenix-rig.mjs` and `dist/phoenix-motion.mjs`: continuous mesh deformation and joint response.
+- `dist/phoenix-3d.mjs`: live 3D anatomy, feather geometry, materials, joints and lighting.
+- `dist/phoenix-rig.mjs` and `dist/phoenix-motion.mjs`: mesh fallback and shared damped joint response.
 - `dist/flame-effects.mjs`: curved blaze ribbons, shaded particles and Boost shockwaves.
 - `dist/assets/prompts.txt`: exact art prompts, built-in generation mode, and asset QA.
-- `dist/vendor/PIXI-LICENSE.txt`: PixiJS MIT license.
+- `dist/vendor/PIXI-LICENSE.txt` and `THREE-LICENSE.txt`: engine MIT licenses.
 
 All generated art is stored inside the project. No external runtime assets, sign-in, analytics, card payments, or cloud-save account are required by the game itself. The private hosted site may require its owner's ChatGPT sign-in.
 
 ## Material-lighting verification
 
-Run `node tests/lighting-server.mjs`, open http://localhost:4180, and choose **Run GPU checks**. This diagnostic imports the production terrain shader, keeps the stone texture fixed, and reads back the same rendered pixel patch under moon fill, nearby/distant fire, and nearby/distant white wisp light. It verifies actual brightness changes, moving falloff, and distinct fire/white reflections. Checked at 390px and 430px widths. The diagnostic is outside the published static build.
+Run `node tests/lighting-server.mjs`, open http://localhost:4180, and choose **Run GPU checks**. This diagnostic imports the production terrain shader, keeps the photographic stone texture fixed, and reads back the same rendered pixel patch under moon fill, nearby/distant fire, and nearby/distant white wisp light. It verifies actual brightness changes, moving falloff, and distinct fire/white reflections. Checked at 390px and 430px widths. The diagnostic is outside the published static build.
 
 ## Motion preview
 

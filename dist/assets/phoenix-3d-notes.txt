@@ -1,0 +1,7 @@
+Primary phoenix renderer: phoenix-3d.mjs, using vendored Three.js 0.187.0 (MIT).
+
+The character is original procedural 3D geometry. It does not animate a sprite atlas or switch pre-rendered frames. An orthographic camera views the anatomical model side-on, preserving the 2D flight and collision rules. Independently articulated near/far wings, layered volumetric feathers, feather fans, flexible tail chains and procedural feather-barb normals are rendered continuously to a transparent WebGL canvas. PixiJS composites that live render with the game scenery and particles each frame.
+
+The older generated phoenix-rig.png remains a GPU-initialization fallback. Its exact original generation prompt and provenance remain in phoenix-rig-notes.txt. The generated moonlit background is scenic artwork; terrain material surfaces use the photographic CC0 maps documented in pbr-materials-license.txt.
+
+The model is a stylized fantasy phoenix, not a photogrammetric animal scan. No third-party character model or animation clip is included.

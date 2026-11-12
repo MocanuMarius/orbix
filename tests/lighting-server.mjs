@@ -4,7 +4,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 const tests = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(tests, '../dist');
-const mime = { '.html': 'text/html', '.mjs': 'text/javascript', '.png': 'image/png' };
+const mime = { '.html': 'text/html', '.mjs': 'text/javascript', '.js': 'text/javascript', '.jpg': 'image/jpeg', '.png': 'image/png' };
 http.createServer(async (req, res) => {
   const pathname = new URL(req.url, 'http://localhost').pathname;
   const fixture = pathname === '/' ? 'lighting-proof.html' : pathname === '/motion' ? 'phoenix-motion-proof.html' : null;
