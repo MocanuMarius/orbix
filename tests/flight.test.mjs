@@ -159,37 +159,113 @@ test('sparse terrain rewards stay near their scenery and clear of its full motio
   }
 });
 
-test('pickup pull-in is visible before scoring, pays once, and its effect expires', () => {
-  const flight = makeFlight();
-  const ember = { id: 'nearby', x: flight.player.x + 10, y: flight.player.y, value: 3, phase: 0 };
-  flight.layout = { obstacles: [], embers: [ember] };
-  flight.step(1 / 60);
-  assert.equal(ember.attracted, true);
-  assert.equal(flight.embers, 0, 'the pull-in has time to animate');
-  for (let i = 0; i < 20; i++) flight.step(1 / 60);
+function tickSpirit(flight, frames = 1) {
+  for (let i = 0; i < frames; i++) {
+    flight.time += 1 / 60; flight.distance += flight.baseSpeed / 60;
+    flight.wisp.update(flight, 1 / 60);
+  }
+}
+function untilSpirit(flight, phase, limit = 180) {
+  for (let i = 0; i < limit && flight.wisp.phase !== phase; i++) tickSpirit(flight);
+  assert.equal(flight.wisp.phase, phase, `spirit reaches ${phase}`);
+}
+
+test('the autonomous wisp fetches the closest ember, carries it home, and awards it once on return', () => {
+  const flight = makeFlight({ flame: 30 });
+  const home = flight.getWispState();
+  const near = { id: 'near', x: home.x + 40, y: home.y + 45, value: 3, phase: 0 };
+  const far = { id: 'far', x: home.x + 85, y: home.y + 15, value: 1, phase: 0 };
+  flight.layout = { obstacles: [], embers: [near, far] };
+  tickSpirit(flight);
+  assert.equal(flight.wisp.target, near);
+  assert.equal(far.attracted, undefined, 'one fetch reserves only one ember');
+  const dockX = flight.wisp.x;
+  tickSpirit(flight, 2);
+  assert.notEqual(flight.wisp.x, dockX, 'the companion itself travels, not just the ember');
+  untilSpirit(flight, 'returning');
+  assert.equal(near.carried, true);
+  assert.equal(flight.embers, 0);
+  assert.equal(flight.flame, 30, 'fuel arrives with the companion');
+  flight.player.y -= 30;
+  untilSpirit(flight, 'cooldown');
+  assert.equal(flight.flame, 68);
   assert.equal(flight.embers, 3);
-  assert.equal(flight.pickupEffects.length, 1);
-  assert.equal(flight.pickupEffects[0].value, 3);
-  for (let i = 0; i < 50; i++) flight.step(1 / 60);
-  assert.equal(flight.embers, 3);
-  assert.equal(flight.pickupEffects.length, 0);
+  assert.equal(flight.baseEmbers, 1);
+  assert.equal(flight.wisp.cargo, null);
+  const arrived = flight.getWispState();
+  assert.ok(Math.hypot(arrived.x - arrived.homeX, arrived.y - arrived.homeY) < 5, 'returns to the moving phoenix');
+  assert.equal(flight.wisp.cooldown, 1.8);
+  flight.collect(near);
+  assert.equal(flight.embers, 3, 'the carried pickup cannot be paid twice');
   flight.destroy();
 });
 
-test('the wisp reach shrinks after collection, recovers smoothly, and matches Boost and upgrades', () => {
-  const flight = makeFlight({ cards: ['hungry-wisp'], modifiers: { attract: 1.25 } });
-  const full = flight.getWispState().radius;
-  assert.equal(full, 43.75);
-  flight.collect({ value: 1 });
-  const spent = flight.getWispState().radius;
-  assert.ok(spent < full * .6);
-  flight.step(.2);
-  assert.ok(flight.getWispState().radius > spent && flight.getWispState().radius < full);
-  for (let i = 0; i < 40; i++) flight.step(1 / 60);
-  assert.equal(flight.getWispState().radius, full);
+test('the wisp rests after delivery, cannot fetch during recovery, and resumes when ready', () => {
+  const flight = makeFlight();
+  const home = flight.getWispState();
+  flight.layout = { obstacles: [], embers: [{ x: home.x + 60, y: home.y + 10 }] };
+  tickSpirit(flight); untilSpirit(flight, 'cooldown');
+  const next = { x: 0, y: home.y + 10 };
+  flight.layout.embers.push(next);
+  for (let i = 0; i < 90; i++) {
+    next.x = flight.distance + home.homeX + 65;
+    tickSpirit(flight);
+    assert.equal(flight.wisp.target, null);
+  }
+  assert.equal(flight.wisp.phase, 'cooldown');
+  assert.ok(flight.getWispState().recovery > .8);
+  flight.running = true; flight.paused = true;
+  const remaining = flight.wisp.cooldown;
+  flight.tick(5000);
+  assert.equal(flight.wisp.cooldown, remaining, 'pausing also freezes companion recovery');
+  flight.paused = false;
+  for (let i = 0; i < 25; i++) { next.x = flight.distance + home.homeX + 65; tickSpirit(flight); }
+  assert.equal(flight.wisp.phase, 'outbound');
+  assert.equal(flight.wisp.target, next);
+  flight.destroy();
+});
+
+test('upgrades extend real search range and shorten real recovery; Hungry Wisp expands search during Boost', () => {
+  const normal = makeFlight(), upgraded = makeFlight({ modifiers: { attract: 1.75, wispCooldown: .55 } });
+  for (const flight of [normal, upgraded]) {
+    const home = flight.getWispState();
+    flight.layout = { obstacles: [], embers: [{ x: home.x + 145, y: home.y }] };
+    tickSpirit(flight);
+  }
+  assert.equal(normal.wisp.phase, 'ready');
+  assert.equal(upgraded.wisp.phase, 'outbound');
+  untilSpirit(upgraded, 'cooldown');
+  assert.ok(Math.abs(upgraded.wisp.cooldown - .99) < .00001);
+  assert.equal(upgraded.getWispState().radius, 175);
+  upgraded.wispBoost = 1;
+  assert.equal(upgraded.getWispState().radius, 280);
+  normal.destroy(); upgraded.destroy();
+});
+
+test('a body pickup during a fetch cancels the delivery without duplicating currency or fuel', () => {
+  const flight = makeFlight({ flame: 0 });
+  const home = flight.getWispState();
+  const ember = { x: home.x + 70, y: home.y + 10 };
+  flight.layout = { obstacles: [], embers: [ember] };
+  tickSpirit(flight);
+  flight.collect(ember);
+  untilSpirit(flight, 'cooldown');
+  assert.equal(flight.flame, 22);
+  assert.equal(flight.embers, 1);
+  assert.equal(flight.baseEmbers, 1);
+  flight.destroy();
+});
+
+test('Golden Wake uses the Boost state when the wisp intercepts, even if Boost ends on its return', () => {
+  const flight = makeFlight({ cards: ['golden-wake'] });
+  const home = flight.getWispState();
+  flight.layout = { obstacles: [], embers: [{ x: home.x + 80, y: home.y + 20, value: 3 }] };
   flight.boostTime = 1;
-  for (let i = 0; i < 15; i++) flight.step(1 / 60);
-  assert.equal(flight.getWispState().radius, full * 1.6);
+  tickSpirit(flight); untilSpirit(flight, 'returning');
+  flight.boostTime = 0;
+  untilSpirit(flight, 'cooldown');
+  assert.equal(flight.score, 60);
+  assert.equal(flight.baseEmbers, 1);
   flight.destroy();
 });
 

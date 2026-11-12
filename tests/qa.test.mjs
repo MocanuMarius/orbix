@@ -27,18 +27,20 @@ function fly(options, diagnostics = {}) {
   for (let frame = 0; frame < 9000 && !flight.finished; frame++) {
     const next = flight.layout.obstacles.find(obstacle => !obstacle.destroyed &&
       obstacle.x - flight.distance + obstacle.width * 2.5 >= flight.player.x - flight.player.radius);
-    const fuel = flight.layout.embers.find(ember => ember.fuel && !ember.generated &&
-      !ember.collected && !ember.attracted && ember.x - flight.distance > flight.player.x - 55 &&
-      ember.x - flight.distance < flight.player.x + 280);
-    const target = fuel ? fuel.y + 12 : next ? flight.obstacleCenter(next) : flight.height * .5;
     const wisp = flight.getWispState();
+    // The spirit fetches autonomously. With a healthy reserve the phoenix can
+    // concentrate on its passage; a reserved or carried ember is already owned.
+    const fuel = flight.flame < 48 ? flight.layout.embers.find(ember => ember.fuel && !ember.generated &&
+      !ember.collected && !ember.attracted && !ember.carried && ember.x - flight.distance > flight.player.x - 55 &&
+      ember.x - flight.distance < flight.player.x + 280) : null;
+    const target = fuel ? fuel.y + 12 : next ? flight.obstacleCenter(next) : flight.height * .5;
     const speed = flight.baseSpeed * (flight.boostTime > 0 ? 1.48 : 1);
-    const intercept = fuel ? (fuel.x - flight.distance - wisp.x) / speed : Infinity;
+    const intercept = fuel ? (fuel.x - flight.distance - wisp.homeX) / speed : Infinity;
     let shouldFlap = flight.player.y > target + 8 && flight.player.vy > 0;
     if (fuel && intercept > 0 && intercept < 1.4) {
       // Time the next wingbeat to meet a visible fuel ember, including waiting
       // when a later tap would be more accurate and spend the same effort.
-      const desired = fuel.y - (wisp.y - flight.player.y);
+      const desired = fuel.y - (wisp.homeY - flight.player.y);
       const gravity = 300 * flight.scaleY * (flight.mod.gravity || 1);
       const coast = flight.player.y + flight.player.vy * intercept + gravity * intercept ** 2 / 2;
       let bestError = Math.abs(coast - desired), bestDelay = Infinity;

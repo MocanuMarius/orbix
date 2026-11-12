@@ -9,7 +9,7 @@ export const TERRAINS = Object.freeze({
 
 const card = (id, name, tag, description, detail, color, icon) => ({ id, name, tag, description, detail, color, icon });
 export const CARDS = Object.freeze({
-  'hungry-wisp': card('hungry-wisp', 'Hungry Wisp', 'Wisp', 'Boosting draws nearby wisps toward you.', 'Wisp attraction is 60% stronger during a boost. Pair with Kindled Spirit to keep the flame moving.', '#8ce5c4', '✧'),
+  'hungry-wisp': card('hungry-wisp', 'Hungry Wisp', 'Wisp', 'Boosting sends your wisp searching farther.', 'Your companion searches 60% farther for the closest ember during a boost, then fetches it and returns. Pair with Kindled Spirit to keep the flame moving.', '#8ce5c4', '✧'),
   'kindled-spirit': card('kindled-spirit', 'Kindled Spirit', 'Wisp', 'Every three collected wisps quicken your next boost.', 'Every three base embers collected reduce the boost cooldown by one second. Bonus rewards never trigger this again.', '#f8c778', '✦'),
   'golden-wake': card('golden-wake', 'Golden Wake', 'Wisp', 'Collecting during boost doubles the pickup score.', 'Boosted wisp pickups grant +100% score. This changes score, not permanent ember currency.', '#ffdc81', '◈'),
   'storm-feeder': card('storm-feeder', 'Storm Feeder', 'Flame', 'Turn the mountain wind into boost energy.', 'Boost cooldown is 4% shorter everywhere. In gusts, recover another second of cooldown once each second.', '#b3c6ff', 'ϟ'),
@@ -23,9 +23,10 @@ export const CARDS = Object.freeze({
   'warm-heart': card('warm-heart', 'Warm Heart', 'Ash', 'A rich wisp trail can mend a wounded heart.', 'Collect eight base embers in a flight to heal one heart, once per flight. Bonus embers cannot retrigger it.', '#f2a6ba', '♡'),
 });
 
-const skill = (id, name, branch, cost, requires, description) => ({ id, name, branch, cost, requires, maxRank: 1, description });
+const skill = (id, name, branch, cost, requires, description, maxRank = 1) => ({ id, name, branch, cost, requires, maxRank, description });
 export const SKILLS = Object.freeze({
-  'wisp-reach': skill('wisp-reach', 'Wisp Reach', 'Wisp', 80, null, 'Wisp attraction grows by 25%.'),
+  'wisp-reach': skill('wisp-reach', 'Wisp Reach', 'Wisp', 80, null, 'Each rank expands your companion’s ember search range by 25%, up to 75% farther.', 3),
+  'wisp-recovery': skill('wisp-recovery', 'Wisp Recovery', 'Wisp', 90, null, 'Each rank shortens the wait after your wisp returns by 15% of the base cooldown.', 3),
   'wisp-bounty': skill('wisp-bounty', 'Wisp Bounty', 'Wisp', 160, 'wisp-reach', 'Earn 10% more embers from flight pickups.'),
   'boost-focus': skill('boost-focus', 'Focused Flame', 'Boost', 80, null, 'Boost cooldown becomes 10% shorter.'),
   'boost-flare': skill('boost-flare', 'Lasting Flame', 'Boost', 160, 'boost-focus', 'Boost lasts 15% longer.'),
@@ -38,7 +39,7 @@ const clamp = (n, lo, hi) => Math.min(hi, Math.max(lo, n));
 const finite = (n, fallback = 0) => Number.isFinite(n) ? n : fallback;
 const count = (n, limit = 1e9) => Math.floor(clamp(finite(n), 0, limit));
 const copy = value => JSON.parse(JSON.stringify(value));
-const skillRank = (skills, id) => count(skills?.[id], 1);
+const skillRank = (skills, id) => count(skills?.[id], Object.hasOwn(SKILLS, id) ? SKILLS[id].maxRank : 0);
 const freshSeed = () => globalThis.crypto?.getRandomValues
   ? Array.from(globalThis.crypto.getRandomValues(new Uint32Array(2)), n => n.toString(36)).join('-')
   : `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 9)}`;
@@ -74,7 +75,10 @@ export function newState() {
 function cleanProfile(value) {
   const profile = newState().profile;
   profile.embers = count(value?.embers);
-  for (const id of Object.keys(SKILLS)) if (skillRank(value?.skills, id)) profile.skills[id] = 1;
+  for (const id of Object.keys(SKILLS)) {
+    const rank = skillRank(value?.skills, id);
+    if (rank) profile.skills[id] = rank;
+  }
   // A damaged/edited save cannot activate the second skill without the first.
   for (const item of Object.values(SKILLS)) if (item.requires && !profile.skills[item.requires]) delete profile.skills[item.id];
   for (const key of Object.keys(profile.stats)) profile.stats[key] = count(value?.stats?.[key]);
@@ -397,25 +401,35 @@ export function bankRun(state) {
   return true;
 }
 
+/** Price of the next rank, or null for an unknown/fully upgraded skill. */
+export function getSkillCost(profile, skillId) {
+  const item = typeof skillId === 'string' && Object.hasOwn(SKILLS, skillId) ? SKILLS[skillId] : null;
+  if (!item) return null;
+  const rank = skillRank(profile?.skills, skillId);
+  return rank >= item.maxRank ? null : Math.round(item.cost * 1.5 ** rank);
+}
+
 export function buySkill(profile, skillId) {
   const item = typeof skillId === 'string' && Object.hasOwn(SKILLS, skillId) ? SKILLS[skillId] : null;
-  if (!profile || !item || !Number.isFinite(profile.embers) || profile.embers < item.cost || skillRank(profile.skills, skillId) >= item.maxRank || (item.requires && !skillRank(profile.skills, item.requires))) return false;
+  const cost = getSkillCost(profile, skillId);
+  if (!profile || !item || cost === null || !Number.isFinite(profile.embers) || profile.embers < cost || (item.requires && !skillRank(profile.skills, item.requires))) return false;
   profile.skills ||= {};
-  profile.embers -= item.cost;
-  profile.skills[skillId] = 1;
+  profile.embers -= cost;
+  profile.skills[skillId] = skillRank(profile.skills, skillId) + 1;
   return true;
 }
 
 export function getModifiers(cardIds = [], skills = {}) {
   const ids = new Set(Array.isArray(cardIds) ? cardIds.filter(id => Object.hasOwn(CARDS, id)) : []);
   const result = {
-    gravity: 1, flap: 1, speed: 1, attract: 1, boostCooldown: 1, boostDuration: 1, reward: 1,
+    gravity: 1, flap: 1, speed: 1, attract: 1 + 0.25 * skillRank(skills, 'wisp-reach'),
+    wispCooldown: Math.round((1 - 0.15 * skillRank(skills, 'wisp-recovery')) * 100) / 100,
+    boostCooldown: 1, boostDuration: 1, reward: 1,
     maxHp: 3, rebirth: !!skillRank(skills, 'rebirth-spark'), rebirthHp: skillRank(skills, 'rebirth-grace') ? 2 : 1,
     ward: ids.has('ash-ward') ? 1 : 0, steady: ids.has('steady-flame'),
     hungryWisp: ids.has('hungry-wisp'), kindledSpirit: ids.has('kindled-spirit'), goldenWake: ids.has('golden-wake'),
     stormFeeder: ids.has('storm-feeder'), fireWake: ids.has('fire-wake'), warmHeart: ids.has('warm-heart'),
   };
-  if (skillRank(skills, 'wisp-reach')) result.attract *= 1.25;
   if (skillRank(skills, 'wisp-bounty')) result.reward *= 1.10;
   if (skillRank(skills, 'boost-focus')) result.boostCooldown *= 0.90;
   if (skillRank(skills, 'boost-flare')) result.boostDuration *= 1.15;

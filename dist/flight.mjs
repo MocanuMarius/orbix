@@ -1,5 +1,6 @@
 /* Emberwing's self-contained canvas flight simulation and renderer. */
 import { FLAME_TUNING } from './vitality.mjs';
+import { WispCompanion, wispHome } from './wisp.mjs';
 export { FLAME_TUNING } from './vitality.mjs';
 const TAU = Math.PI * 2;
 const STEP = 1 / 60;
@@ -215,7 +216,7 @@ export class PhoenixFlight {
     this.nearMisses = 0; this.destroyedThorns = 0; this.gustSeconds = 0;
     this.stormFeedClock = 0; this.healedFromWarmHeart = false;
     this.particles = []; this.trail = []; this.pickupEffects = []; this.emitClock = 0;
-    this.wispRecovery = 1; this.wispBoost = 0;
+    this.wispBoost = 0;
     this.cosmeticRng = seededRandom(`${this.seed}:cosmetics`);
     this.atlas = null; this.background = null;
     this.audio = null; this.muted = false; this.lastFlapSound = 0;
@@ -227,6 +228,7 @@ export class PhoenixFlight {
     this._orientation = () => { if (this.running && !this.paused) this.pause(true); this.resize(); };
     this.resize();
     this.player = { x: 98, y: this.height * .5, vy: 0, radius: 11 };
+    this.wisp = new WispCompanion(wispHome(this.player, this.time));
     this.previousPlayerY = this.player.y; this.previousDistance = this.distance;
     this.visualBank = 0; this.wingPhase = 0;
     this.layout = buildFlightLayout({ seed: this.seed, terrain: this.terrain,
@@ -306,6 +308,7 @@ export class PhoenixFlight {
       this.layout.embers.forEach(e => { e.y *= factor; if (e.pullY !== undefined) e.pullY *= factor; });
       this.stars.forEach(s => { s.y *= factor; });
       this.particles.length = 0;
+      this.wisp.y *= factor; this.wisp.previousY = this.wisp.y; this.wisp.history.length = 0;
       this.pickupEffects.length = 0;
       this.trail.length = 0;
     }
@@ -421,11 +424,7 @@ export class PhoenixFlight {
   }
 
   getWispState(y = this.player.y, time = this.time) {
-    const reach = 35 * clamp(Number(this.mod.attract) || 1, .5, 4);
-    return { x: this.player.x - 29 + Math.sin(time * 3) * 3,
-      y: y + 19 + Math.cos(time * 2.4) * 5,
-      radius: reach * (1 + this.wispBoost * .6) * (.55 + this.wispRecovery * .45),
-      recovery: this.wispRecovery };
+    return this.wisp.state(this, y, time);
   }
 
   step(dt) {
@@ -434,7 +433,6 @@ export class PhoenixFlight {
     this.wingPhase += dt * this.wingRate;
     const oldBoost = this.boostTime;
     this.boostTime = Math.max(0, this.boostTime - dt);
-    this.wispRecovery = Math.min(1, this.wispRecovery + dt / .85);
     const wispTarget = this.boostTime > 0 && this.cards.has('hungry-wisp') ? 1 : 0;
     this.wispBoost += clamp(wispTarget - this.wispBoost, -dt * 5, dt * 5);
     this.cooldown = Math.max(0, this.cooldown - dt);
@@ -514,29 +512,13 @@ export class PhoenixFlight {
       }
     }
 
-    const wisp = this.getWispState();
-    const attract = wisp.radius;
     for (const ember of this.layout.embers) {
-      if (ember.collected) continue;
-      let x = ember.x - this.distance;
-      if (x > this.width + 80) break;
-      if (x < -40 && !ember.attracted) continue;
-      const dx = wisp.x - x, dy = wisp.y - ember.y;
-      const distance = Math.hypot(dx, dy);
-      const touchingPhoenix = Math.hypot(this.player.x - x, this.player.y - ember.y) < 17;
-      if (distance < attract || touchingPhoenix || ember.attracted) {
-        if (!ember.attracted) {
-          ember.attracted = true; ember.pullTime = 0;
-          ember.pullX = x; ember.pullY = ember.y;
-        }
-        ember.pullTime += dt;
-        const t = clamp(ember.pullTime / .32, 0, 1), ease = t * t * (3 - 2 * t);
-        const curl = this.reducedMotion ? 0 : Math.sin(t * Math.PI) * 24;
-        ember.x = this.distance + lerp(ember.pullX, wisp.x, ease) + curl * .45;
-        ember.y = lerp(ember.pullY, wisp.y, ease) - curl;
-        if (t >= 1) this.collect(ember);
-      }
+      if (ember.collected || ember.carried) continue;
+      const x = ember.x - this.distance;
+      if (x < -40 || x > this.width + 20) continue;
+      if (Math.hypot(this.player.x - x, this.player.y - ember.y) < 17) this.collect(ember);
     }
+    this.wisp.update(this, dt);
 
     this.trail.push({ worldX: this.distance + this.player.x - 23,
       y: this.player.y + 6, time: this.time, width: this.boostTime > 0 ? 9 : 4.6,
@@ -592,8 +574,7 @@ export class PhoenixFlight {
     const fuel = ember.generated ? FLAME_TUNING.generatedFuel : (ember.value === 3 ? FLAME_TUNING.heartFuel : FLAME_TUNING.emberFuel) + this.fuelBonus;
     const restored = Math.min(fuel, FLAME_TUNING.maximum - this.flame);
     this.flame += restored; this.flameRestored += restored;
-    const origin = ember.attracted ? this.getWispState() : this.player;
-    this.wispRecovery = 0;
+    const origin = ember.deliveredByWisp ? this.getWispState() : this.player;
     this.pickupEffects.push({ x: origin.x, y: origin.y,
       value: ember.value === 3 ? 3 : 1, restored, life: .72 });
     if (this.pickupEffects.length > 12) this.pickupEffects.shift();
@@ -608,7 +589,7 @@ export class PhoenixFlight {
     this.baseEmbers++;
     const value = ember.value === 3 ? 3 : 1;
     this.bonusEmbers += value - 1;
-    this.score += value * (this.boostTime > 0 && this.cards.has('golden-wake') ? 20 : 10);
+    this.score += value * ((ember.boostedPickup ?? this.boostTime > 0) && this.cards.has('golden-wake') ? 20 : 10);
     this.burst(this.player.x - 9, this.player.y + 7, value === 3 ? 14 : 5, value === 3 ? '#fff2c4' : '#ffe4a2');
     if (value === 3) this.setEvent(`Heart ember · +${restored} Flame`);
     else if (restored > 0 && this.flame <= 45) this.setEvent(`Flame rekindled · +${restored}`);
@@ -634,6 +615,7 @@ export class PhoenixFlight {
     return { hp: this.hp, maxHp: this.maxHp, score: Math.floor(this.score), embers: this.embers,
       flame: this.flame, maxFlame: FLAME_TUNING.maximum, flapCost: this.flapCost,
       canFlap: this.flame >= this.flapCost, flaps: this.flaps,
+      wisp: this.getWispState(),
       collected: this.baseEmbers, boostCooldown: this.cooldown,
       boostReady: this.cooldown <= .001 && this.boostTime <= 0,
       boostTime: this.boostTime, progress: clamp(this.distance / this.totalDistance, 0, 1),
@@ -885,6 +867,7 @@ export class PhoenixFlight {
 
   drawEmbers(c) {
     for (const ember of this.layout.embers) {
+      if (ember.carried || ember.collected) continue;
       const x = ember.x - (this.renderDistance ?? this.distance);
       if (x > this.width + 30) break;
       if (ember.collected || x < -20) continue;
@@ -964,19 +947,34 @@ export class PhoenixFlight {
   }
 
   drawWisp(c) {
-    const { x, y, radius: reach } = this.getWispState(this.renderPlayerY ?? this.player.y, this.visualTime ?? this.time);
-    const field = c.createRadialGradient(x, y, 0, x, y, reach);
-    field.addColorStop(0, 'rgba(119,245,214,.12)'); field.addColorStop(.7, 'rgba(119,245,214,.025)'); field.addColorStop(1, 'rgba(119,245,214,0)');
-    c.fillStyle = field; c.fillRect(x - reach, y - reach, reach * 2, reach * 2);
-    c.strokeStyle = 'rgba(151,246,220,.22)'; c.lineWidth = .8;
-    c.beginPath(); c.arc(x, y, reach, 0, TAU); c.stroke();
-    const radius = this.boostTime > 0 && this.cards.has('hungry-wisp') ? 11 : 7;
-    const glow = c.createRadialGradient(x, y, 0, x, y, radius * 2.5);
-    glow.addColorStop(0, 'rgba(190,255,228,.7)'); glow.addColorStop(.35, 'rgba(115,225,208,.25)'); glow.addColorStop(1, 'rgba(115,225,208,0)');
-    c.fillStyle = glow; c.fillRect(x - radius * 3, y - radius * 3, radius * 6, radius * 6);
-    c.fillStyle = '#d9ffe8'; c.beginPath(); c.arc(x, y, 2.5, 0, TAU); c.fill();
-    c.strokeStyle = 'rgba(162,239,212,.42)'; c.lineWidth = 1;
-    c.beginPath(); c.moveTo(x, y + 2); c.quadraticCurveTo(x - 12, y + 14, x - 15, y + 3); c.stroke();
+    const state = this.getWispState(this.renderPlayerY ?? this.player.y, this.visualTime ?? this.time);
+    const { x, y, homeX, homeY, radius: reach, recovery, phase, carrying } = state;
+    c.save();
+    const field = c.createRadialGradient(homeX, homeY, 0, homeX, homeY, reach);
+    field.addColorStop(0, phase === 'ready' ? 'rgba(119,245,214,.08)' : 'rgba(119,245,214,.025)');
+    field.addColorStop(1, 'rgba(119,245,214,0)');
+    c.fillStyle = field; c.fillRect(homeX - reach, homeY - reach, reach * 2, reach * 2);
+    c.strokeStyle = phase === 'ready' ? 'rgba(151,246,220,.18)' : 'rgba(151,246,220,.05)'; c.lineWidth = .8;
+    c.beginPath(); c.arc(homeX, homeY, reach, 0, TAU); c.stroke();
+    if (phase === 'cooldown') {
+      c.strokeStyle = 'rgba(151,246,220,.7)'; c.lineWidth = 1.4;
+      c.beginPath(); c.arc(homeX, homeY, 13, -Math.PI / 2, -Math.PI / 2 + TAU * recovery); c.stroke();
+    }
+    const history = this.wisp.history;
+    c.strokeStyle = carrying ? '#ffdc99' : '#a5f4db'; c.lineWidth = 1.4;
+    for (let i = 1; i < history.length; i++) {
+      c.globalAlpha = i / history.length * .6; c.beginPath();
+      c.moveTo(history[i - 1].x - (this.renderDistance ?? this.distance), history[i - 1].y);
+      c.lineTo(history[i].x - (this.renderDistance ?? this.distance), history[i].y); c.stroke();
+    }
+    c.globalAlpha = 1;
+    const glow = c.createRadialGradient(x, y, 0, x, y, 28);
+    glow.addColorStop(0, carrying ? 'rgba(255,223,158,.8)' : 'rgba(190,255,228,.8)');
+    glow.addColorStop(.35, 'rgba(115,225,208,.25)'); glow.addColorStop(1, 'rgba(115,225,208,0)');
+    c.fillStyle = glow; c.fillRect(x - 28, y - 28, 56, 56);
+    c.fillStyle = '#d9ffe8'; c.beginPath(); c.arc(x, y, 3, 0, TAU); c.fill();
+    if (carrying) { c.fillStyle = '#ffd38a'; c.beginPath(); c.ellipse(x + 8, y + 3, 3, 5, 0, 0, TAU); c.fill(); }
+    c.restore();
   }
 
   drawPhoenix(c) {

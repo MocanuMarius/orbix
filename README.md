@@ -12,7 +12,7 @@ Open the published game on a phone. Tap **Take Flight**, pick a starter card, th
 - **Pause:** hold Boost for half a second. Backgrounding or rotating the phone also pauses. Resume deliberately.
 - **Desktop testing:** Space / Up to flap, B / Shift to boost, Escape to pause.
 - **Cards:** choose between two offers. Three flexible slots, no reserve inventory. When full, swipe the equipped card to choose a replacement, then Replace or Keep.
-- **Progress:** expedition cards reset each run. Collected embers are banked at the end, including on defeat. The Ascension tree contains six permanent upgrades in Wisp, Flame, and Rebirth branches.
+- **Progress:** expedition cards reset each run. Collected embers are banked at the end, including on defeat. The Ascension tree contains seven permanent skills in Wisp, Flame, and Rebirth branches.
 
 Progress is stored only in this browser. Reloading during flight restarts the current passage from its saved checkpoint, without retaining duplicate rewards from the abandoned attempt. Clearing browser data removes progress. Skill purchases are available between expeditions.
 
@@ -24,7 +24,7 @@ Refuges are tested from 35 Flame and caverns from the advised 60, with 288 fuel-
 
 ## Run the source
 
-Embers are sparse discoveries attached to scenery: relics below ruin arches, dew near canopy branches and thorn hearts, and rewards beside storm spires. Route-specific quiet stretches separate pickups; occupied features hold one accessible fuel ember and sometimes a larger, riskier reward. An early approach ember and bounded distances between fuel sources support deliberate flight from a low checkpoint reserve. Collection curls into the wisp over 0.32 seconds, then flashes with a ring and rising reward number. Its faint halo shows the actual attraction radius: collecting contracts it to 55%, recovering over 0.85 seconds. Hungry Wisp's Boost expansion also eases in and out. Large heart embers pay three currency but count as one pickup for card triggers and challenges. Kindled Spirit triggers every three pickups; Warm Heart heals after eight. Collection challenges require six to nine pickups. All placements reserve phoenix clearance across the full canopy sway envelope.
+Embers are sparse discoveries attached to scenery: relics below ruin arches, dew near canopy branches and thorn hearts, and rewards beside storm spires. Route-specific quiet stretches separate pickups; occupied features hold one accessible fuel ember and sometimes a larger, riskier reward. An early approach ember and bounded distances between fuel sources support deliberate flight from a low checkpoint reserve. The autonomous wisp chooses the closest unclaimed ember within its 100-unit search range, flies out, carries it home, and delivers the fuel and currency on return. It then rests for 1.8 seconds before fetching again. The spirit's moving glow and trail follow its actual position; a faint halo at the phoenix shows search reach, and a recovery arc plus flight status shows its cooldown. The phoenix can still collect an ember by touching it directly. Hungry Wisp expands search reach by 60% during Boost. The permanent Spirit branch has three ranks of Reach (125/150/175 range) and Recovery (1.53/1.26/0.99 seconds of rest). Upgrade prices grow per rank, and purchases apply to the next expedition. Large heart embers pay three currency but count as one pickup for card triggers and challenges. Kindled Spirit triggers every three pickups; Warm Heart heals after eight. Collection challenges require six to nine pickups. All placements reserve phoenix clearance across the full canopy sway envelope.
 
 The game remains fully 2D. A WebGL material pass adds warm phoenix light, cool wisp light, and texture-derived relief shading to grounded mountain slopes and connected cave vaults. A second radiance shader blooms bright fire, moonlight and particles. Boost increases the fire illumination. The generated moonlit backdrop and three-column opaque material atlas replace the floating-island presentation. The Canvas fallback uses clipped light gradients. The lighting and texture-derived relief are simulated in 2D; terrain collisions use the same polygon silhouettes that clip the painted materials.
 
@@ -47,6 +47,7 @@ The tests cover seeded maps and authored terrain, cards and skill bounds, polygo
 - `dist/app.mjs`: portrait game interface and application flow.
 - `dist/model.mjs`: seeded expedition, card, event, save, and skill model.
 - `dist/flight.mjs`: deterministic flight simulation and collision geometry.
+- `dist/wisp.mjs`: autonomous nearest-target fetching, return delivery, and companion recovery.
 - `dist/pixi-renderer.mjs`: layered GPU scenery, terrain, sprite animation, and effects.
 - `dist/assets/prompts.txt`: exact art prompts, built-in generation mode, and asset QA.
 - `dist/vendor/PIXI-LICENSE.txt`: PixiJS MIT license.

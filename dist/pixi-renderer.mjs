@@ -209,12 +209,19 @@ export class PixiFlightView {
     this.wispGlow.blendMode = 'add';
     this.wispCore = new PIXI.Graphics().circle(0, 0, 2.3).fill(0xe6fff0);
     this.wispTrail = new PIXI.Graphics();
-    this.wispField = new PIXI.Graphics().circle(0, 0, 1)
-      .fill({ color: 0x8cebd0, alpha: .025 }).stroke({ color: 0xa7f4dd, width: .025, alpha: .23 });
+    this.wispField = new PIXI.Graphics().circle(0, 0, 100)
+      .fill({ color: 0x8cebd0, alpha: .025 }).stroke({ color: 0xa7f4dd, width: .8, alpha: .23 });
     this.wispFieldGlow = new PIXI.Sprite(this.glowTexture);
     this.wispFieldGlow.anchor.set(.5); this.wispFieldGlow.tint = 0x7dedd0;
     this.wispFieldGlow.alpha = .13; this.wispFieldGlow.blendMode = 'add';
-    this.wisp.addChild(this.wispFieldGlow, this.wispField, this.wispGlow, this.wispTrail, this.wispCore);
+    this.wispRange = new PIXI.Container();
+    this.wispRange.addChild(this.wispFieldGlow, this.wispField);
+    this.wispRecoveryArc = new PIXI.Graphics(); this.wispRange.addChild(this.wispRecoveryArc);
+    this.world.addChild(this.wispRange);
+    this.wispCargo = new PIXI.Sprite(this.moteTexture);
+    this.wispCargo.anchor.set(.5); this.wispCargo.width = 9; this.wispCargo.height = 14;
+    this.wispCargo.position.set(9, 3); this.wispCargo.visible = false;
+    this.wisp.addChild(this.wispGlow, this.wispTrail, this.wispCargo, this.wispCore);
     this.world.addChild(this.wisp);
     this.phoenix = new PIXI.Container();
     this.aura = new PIXI.Sprite(this.glowTexture);
@@ -540,6 +547,7 @@ export class PixiFlightView {
     }
     const visibleEmbers = new Set();
     for (const ember of engine.layout.embers) {
+      if (ember.carried || ember.collected) continue;
       const x = ember.x - distance;
       if (x > W + 50) break;
       if (ember.collected || x < -40) continue;
@@ -574,7 +582,7 @@ export class PixiFlightView {
       }
       const animation = engine.reducedMotion ? 0 : time;
       item.position.set(x, ember.y + (ember.attracted ? 0 : Math.sin(animation * 2.8 + ember.phase) * 2));
-      const pull = ember.attracted ? Math.sin(Math.min(1, ember.pullTime / .32) * Math.PI) : 0;
+      const pull = ember.attracted ? .45 + Math.sin(animation * 7) * .15 : 0;
       item.scale.set(1 + Math.sin(animation * 3 + ember.phase) * .07 + pull * .55);
       item.children[0].alpha = .45 + pull * .5;
       item.orbit.children.forEach((spark, j) => {
@@ -689,15 +697,29 @@ export class PixiFlightView {
         .stroke({ color: boosted ? 0xffd994 : 0xa6e5da, width: boosted ? 1.5 : 1,
           alpha: engine.invincible > 0 ? .35 + Math.sin(time * 18) * .18 : .45 });
     }
-    const { x: wx, y: wy, radius: reach, recovery } = engine.getWispState(viewY(engine), time);
+    const { x: wx, y: wy, homeX, homeY, radius: reach, recovery, phase, carrying } = engine.getWispState(viewY(engine), time);
     this.wisp.position.set(wx, wy);
-    this.wispField.scale.set(reach);
-    this.wispFieldGlow.width = this.wispFieldGlow.height = reach * 2;
-    this.wispField.alpha = .65 + recovery * .35;
+    this.wispRange.position.set(homeX, homeY);
+    this.wispField.scale.set(reach / 100);
+    this.wispFieldGlow.width = this.wispFieldGlow.height = reach * 2 * (.45 + recovery * .55);
+    this.wispField.alpha = phase === 'ready' ? .75 : .2;
+    this.wispFieldGlow.alpha = phase === 'ready' ? .12 : .035 + recovery * .055;
+    this.wispRecoveryArc.clear();
+    if (phase === 'cooldown') this.wispRecoveryArc.arc(0, 0, 13, -Math.PI / 2, -Math.PI / 2 + Math.PI * 2 * recovery)
+      .stroke({ color: 0xa6eed6, alpha: .7, width: 1.4 });
     this.wispCore.scale.set(.92 + Math.sin(time * 3.1) * .12);
-    this.wispGlow.width = this.wispGlow.height = boosted && engine.cards.has('hungry-wisp') ? 48 : 31;
-    this.wispTrail.clear().moveTo(0, 1).quadraticCurveTo(-10, 14, -16, 4)
-      .stroke({ color: 0xa6eed6, width: 1, alpha: .45 });
+    this.wispGlow.width = this.wispGlow.height = carrying ? 48 : phase === 'cooldown' ? 24 : 38;
+    this.wispGlow.tint = carrying ? 0xffd79b : 0x87e7c8;
+    this.wispCargo.visible = carrying;
+    this.wispTrail.clear();
+    const history = engine.wisp.history;
+    for (let i = 1; i < history.length; i++) {
+      const a = history[i - 1], b = history[i];
+      this.wispTrail.moveTo(a.x - viewDistance(engine) - wx, a.y - wy)
+        .lineTo(b.x - viewDistance(engine) - wx, b.y - wy)
+        .stroke({ color: carrying ? 0xffd997 : 0x9cf4dc, width: 1.5,
+          alpha: i / history.length * .65 });
+    }
   }
 
   drawTrail(engine) {

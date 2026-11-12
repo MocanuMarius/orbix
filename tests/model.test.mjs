@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import {
   CARDS, SKILLS, ROUTE_PROFILES, SAVE_KEY, newState, createRun, getChoices, selectNode, applyStarter,
   takeCard, finishFlight, getSupportChoices, resolveSupport, bankRun, buySkill,
-  getModifiers, saveState, loadState,
+  getModifiers, getSkillCost, saveState, loadState,
 } from '../dist/model.mjs';
 
 const storage = () => {
@@ -391,20 +391,96 @@ test('every event has two affordable nonlethal choices; draft events use normal 
   }
 });
 
-test('skill purchases require currency, prerequisites and an unowned rank', () => {
+test('skill purchases require currency and prerequisites; single-rank skills cannot be bought twice', () => {
   const profile = newState().profile;
   profile.embers = 1000;
   assert.equal(buySkill(profile, 'wisp-bounty'), false);
   assert.equal(buySkill(profile, 'wisp-reach'), true);
   assert.equal(profile.embers, 920);
-  assert.equal(buySkill(profile, 'wisp-reach'), false);
   assert.equal(buySkill(profile, 'wisp-bounty'), true);
   assert.equal(profile.embers, 760);
+  assert.equal(buySkill(profile, 'wisp-bounty'), false);
+  assert.equal(getSkillCost(profile, 'wisp-bounty'), null);
   assert.equal(buySkill(profile, 'toString'), false);
   assert.equal(buySkill(profile, '__proto__'), false);
   profile.embers = 0;
   assert.equal(buySkill(profile, 'boost-focus'), false);
   assert.ok(Object.values(profile.skills).every(rank => rank === 1));
+});
+
+test('wisp reach and recovery each have three escalating ranks with independent first purchases', () => {
+  const profile = newState().profile;
+  profile.embers = 2000;
+  const costs = {
+    'wisp-reach': [80, 120, 180],
+    'wisp-recovery': [90, 135, 203],
+  };
+  for (const [id, prices] of Object.entries(costs)) {
+    for (let rank = 0; rank < 3; rank++) {
+      assert.equal(getSkillCost(profile, id), prices[rank]);
+      const balance = profile.embers;
+      assert.equal(buySkill(profile, id), true);
+      assert.equal(profile.skills[id], rank + 1);
+      assert.equal(profile.embers, balance - prices[rank]);
+    }
+    assert.equal(getSkillCost(profile, id), null);
+    const before = JSON.stringify(profile);
+    assert.equal(buySkill(profile, id), false);
+    assert.equal(JSON.stringify(profile), before);
+  }
+  const independent = newState().profile;
+  independent.embers = 90;
+  assert.equal(buySkill(independent, 'wisp-recovery'), true);
+  assert.equal(independent.skills['wisp-reach'], undefined);
+  assert.equal(independent.embers, 0);
+  assert.equal(getSkillCost(independent, 'missing'), null);
+  assert.equal(getSkillCost(independent, '__proto__'), null);
+});
+
+test('wisp ranks affect companion search radius and return cooldown without changing flap or boost', () => {
+  const expectedRange = [1, 1.25, 1.5, 1.75];
+  const expectedCooldown = [1, 0.85, 0.70, 0.55];
+  for (let rank = 0; rank <= 3; rank++) {
+    const modifiers = getModifiers([], { 'wisp-reach': rank, 'wisp-recovery': rank });
+    assert.equal(modifiers.attract, expectedRange[rank]);
+    assert.equal(modifiers.wispCooldown, expectedCooldown[rank]);
+    assert.equal(modifiers.flap, 1);
+    assert.equal(modifiers.boostCooldown, 1);
+  }
+  assert.equal(getModifiers([], { 'wisp-reach': 99 }).attract, 1.75);
+  assert.equal(getModifiers([], { 'wisp-recovery': 99 }).wispCooldown, 0.55);
+});
+
+test('multi-rank saves retain old purchases, clamp invalid ranks, and keep active departure snapshots', () => {
+  const state = newState();
+  state.profile.embers = 1000;
+  state.profile.skills = { 'wisp-reach': 1, 'wisp-bounty': 1 };
+  state.run = createRun(state.profile, 'wisp-snapshot');
+  assert.equal(buySkill(state.profile, 'wisp-reach'), true);
+  assert.equal(buySkill(state.profile, 'wisp-recovery'), true);
+  assert.equal(state.run.skills['wisp-reach'], 1);
+  assert.equal(state.run.skills['wisp-recovery'], undefined);
+  const memory = storage();
+  saveState(state, memory);
+  const restored = loadState(memory);
+  assert.equal(restored.profile.skills['wisp-reach'], 2);
+  assert.equal(restored.profile.skills['wisp-recovery'], 1);
+  assert.equal(restored.profile.skills['wisp-bounty'], 1);
+  assert.equal(restored.run.skills['wisp-reach'], 1);
+  assert.equal(getModifiers([], restored.run.skills).attract, 1.25);
+  assert.equal(getModifiers([], restored.run.skills).wispCooldown, 1);
+  restored.profile.skills = { 'wisp-reach': 30, 'wisp-recovery': 30, 'boost-focus': 30, 'wisp-bounty': 30 };
+  saveState(restored, memory);
+  const clamped = loadState(memory).profile;
+  assert.deepEqual(clamped.skills, { 'wisp-reach': 3, 'wisp-recovery': 3, 'wisp-bounty': 1, 'boost-focus': 1 });
+  assert.equal(getSkillCost(clamped, 'wisp-reach'), null);
+  const legacy = newState();
+  legacy.profile.skills = { 'wisp-reach': 1, 'wisp-bounty': 1 };
+  saveState(legacy, memory);
+  const old = loadState(memory).profile;
+  assert.equal(old.skills['wisp-reach'], 1);
+  assert.equal(old.skills['wisp-bounty'], 1);
+  assert.equal(old.skills['wisp-recovery'], undefined);
 });
 
 test('all three-card combinations remain bounded and repeated cards cannot stack modifiers', () => {
