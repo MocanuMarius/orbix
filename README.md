@@ -17,7 +17,9 @@ Progress is stored only in this browser. Reloading during flight restarts the cu
 
 ## Run the source
 
-Embers form climbing trails, descending sweeps, edge ribbons, forks, and concentrated side caches. Forks offer a modest central reward or a richer detour; caches suit a timed Boost with Hungry Wisp. Large orbiting heart embers are marked **3** and pay three currency, but count as one pickup for card triggers and collection challenges. All pickups reserve phoenix clearance across the full canopy sway envelope.
+Embers are sparse discoveries attached to scenery: relics below ruin arches, dew near canopy branches and thorn hearts, and rewards beside storm spires. A third of terrain sections have no pickups; occupied features hold one or two. Collection curls into the wisp over 0.32 seconds, then flashes with a ring and rising reward number. Its faint halo shows the actual attraction radius: collecting contracts it to 55%, recovering over 0.85 seconds. Hungry Wisp's Boost expansion also eases in and out. Large heart embers pay three currency but count as one pickup for card triggers and challenges. Kindled Spirit triggers every three pickups; Warm Heart heals after eight. Collection challenges require six to nine pickups. All placements reserve phoenix clearance across the full canopy sway envelope.
+
+The game remains fully 2D. One WebGL material pass lights the existing scenery textures with warm phoenix light and cool wisp light; Boost increases the fire illumination. The Canvas fallback uses clipped light gradients. This is simulated 2D illumination, not 3D geometry or normal-mapped physical lighting.
 
 Requires Node.js 20+. No installation step is needed for the packaged playable build: PixiJS and all generated assets are included.
 

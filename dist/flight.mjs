@@ -111,55 +111,37 @@ export function buildFlightLayout({ seed = 1, terrain = 'ruins', elite = false,
     }
   }
   const loot = seededRandom(`${seed}:ember-routes`);
-  const patterns = ['rise', 'fall', 'fork', 'cache', 'ribbon'];
-  let bag = [], lastPattern;
+  const quietSection = Math.floor(loot() * 3);
   for (const [i, obstacle] of obstacles.entries()) {
-    if (!bag.length) {
-      bag = [...patterns];
-      for (let j = bag.length - 1; j > 0; j--) {
-        const k = Math.floor(loot() * (j + 1));
-        [bag[j], bag[k]] = [bag[k], bag[j]];
-      }
-      if (bag[bag.length - 1] === lastPattern) [bag[0], bag[bag.length - 1]] = [bag[bag.length - 1], bag[0]];
-    }
-    const pattern = bag.pop(); lastPattern = pattern;
-    const side = !obstacle.topShape ? 1 : !obstacle.bottomShape ? -1 : loot() < .5 ? -1 : 1;
-    // Includes the entire canopy sway envelope and room for the phoenix.
-    const edge = obstacle.gap / 2 - obstacle.motion - 29;
-    const span = obstacle.width + 85;
-    const add = (t, offset, value = 1, route = 'trail') => {
-      const ex = obstacle.x - 55 + t * span;
-      let ey = clamp(obstacle.center + offset, 42, height - 42);
+    // Long empty stretches make each discovery count. Rewards belong to a
+    // particular piece of scenery, rather than a repeating mid-air coin trail.
+    if (i % 3 === quietSection) continue;
+    let side = terrain === 'ruins' ? -1 : terrain === 'canopy' ? 1 : loot() < .5 ? -1 : 1;
+    if (!obstacle.topShape) side = 1;
+    if (!obstacle.bottomShape) side = -1;
+    const shape = side < 0 ? obstacle.topShape : obstacle.bottomShape;
+    const inward = [...shape].sort((a, b) => side * (a[1] - b[1]))[0];
+    const feature = terrain === 'ruins' ? 'arch-relic' : terrain === 'canopy'
+      ? obstacle.soft ? 'thorn-heart' : 'branch-dew' : 'spire-shelter';
+    const rich = obstacle.soft || i % 4 === 1;
+    const add = (dx, value = 1) => {
+      const ex = obstacle.x + inward[0] + dx;
+      let ey = clamp(obstacle.center + side * obstacle.gap / 2 + inward[1]
+        - side * (obstacle.motion + 34), 42, height - 42);
       // Adjacent scenery also participates, including every possible sway.
       const clear = () => obstacles.every(other =>
         Math.abs(other.x - ex) > 300 || obstaclePolygons({ ...other, motion: 0 }).every(p =>
           !circleHitsPolygon(ex, ey, 23 + other.motion, p)));
       for (let attempt = 0; !clear() && attempt < 12; attempt++) ey = lerp(ey, obstacle.center, .2);
       if (!clear()) return;
-      embers.push({ id: `${i}:${embers.length}`, x: ex, y: ey, value, pattern,
-        route: `${i}:${route}`, collected: false, attracted: false, phase: loot() * TAU });
+      embers.push({ id: `${i}:${embers.length}`, x: ex, y: ey, value, feature,
+        anchor: i, collected: false, attracted: false, phase: loot() * TAU });
     };
-    if (pattern === 'fork' || pattern === 'cache') {
-      // A modest central reward remains available if the player declines the detour.
-      add(.12, -side * 12, 1, 'safe'); add(.88, -side * 12, 1, 'safe');
-      if (pattern === 'fork') {
-        [.05, .28, .5, .72, .95].forEach((t, j) =>
-          add(t, side * edge * (.50 + .50 * Math.sin(t * Math.PI)), j === 2 ? 3 : 1, 'risk'));
-      } else {
-        // Dense side cache rewards committing a Boost / Hungry Wisp charge.
-        add(.35, side * edge * .84, 1, 'risk');
-        add(.51, side * edge, 3, 'risk');
-        add(.67, side * edge * .84, 1, 'risk');
-      }
-    } else {
-      for (let j = 0; j < 5; j++) {
-        const t = j / 4;
-        const offset = pattern === 'rise' ? edge * (.8 - 1.6 * t)
-          : pattern === 'fall' ? edge * (-.8 + 1.6 * t)
-          : side * edge * (.2 + .7 * Math.sin(t * Math.PI));
-        add(t, offset);
-      }
-    }
+    // Ruins: relic below an arch. Canopy: dew along a branch, richer at thorns.
+    // Storm: a reward tucked behind the trailing face of a spire.
+    const dx = terrain === 'storm' ? obstacle.width * .30 : 0;
+    add(dx, rich ? 3 : 1);
+    if (i % 2 === 0) add(dx + (terrain === 'ruins' ? 46 : -46));
   }
   // Both renderers and the collection broad phase rely on world-X ordering.
   embers.sort((a, b) => a.x - b.x);
@@ -207,7 +189,8 @@ export class PhoenixFlight {
     this.event = ''; this.eventUntil = 0; this.updateClock = 0;
     this.nearMisses = 0; this.destroyedThorns = 0; this.gustSeconds = 0;
     this.stormFeedClock = 0; this.healedFromWarmHeart = false;
-    this.particles = []; this.trail = []; this.emitClock = 0;
+    this.particles = []; this.trail = []; this.pickupEffects = []; this.emitClock = 0;
+    this.wispRecovery = 1; this.wispBoost = 0;
     this.cosmeticRng = seededRandom(`${this.seed}:cosmetics`);
     this.atlas = null; this.background = null;
     this.audio = null; this.muted = false; this.lastFlapSound = 0;
@@ -225,7 +208,7 @@ export class PhoenixFlight {
       elite: this.elite, duration: this.duration, speed: this.baseSpeed, height: this.height });
     this.challengeIndex = Math.floor(seededRandom(`${this.seed}:challenge`)() * 3);
     this.challengeId = options.challengeId || options.node?.challengeId || ['wisps', 'clean', 'boosts'][this.challengeIndex];
-    this.challengeTarget = Number(options.challengeTarget ?? options.node?.challengeTarget) || (this.challengeId === 'wisps' ? 16 : this.challengeId === 'boosts' ? 3 : 0);
+    this.challengeTarget = Number(options.challengeTarget ?? options.node?.challengeTarget) || (this.challengeId === 'wisps' ? 7 : this.challengeId === 'boosts' ? 3 : 0);
     this.challengeText = this.challengeId === 'wisps' ? `Gather ${this.challengeTarget} embers`
       : this.challengeId === 'boosts' ? `Use Boost ${this.challengeTarget} times` : 'Finish without a hit';
     this.stars = Array.from({ length: 45 }, () => ({ x: this.cosmeticRng() * 390,
@@ -293,9 +276,10 @@ export class PhoenixFlight {
         o.center *= factor; o.gap *= factor; o.motion *= factor;
         for (const shape of [o.topShape, o.bottomShape]) if (shape) shape.forEach(point => { point[1] *= factor; });
       });
-      this.layout.embers.forEach(e => { e.y *= factor; });
+      this.layout.embers.forEach(e => { e.y *= factor; if (e.pullY !== undefined) e.pullY *= factor; });
       this.stars.forEach(s => { s.y *= factor; });
       this.particles.length = 0;
+      this.pickupEffects.length = 0;
       this.trail.length = 0;
     }
     if (this.player && (!this.running || this.paused)) this.render();
@@ -388,12 +372,23 @@ export class PhoenixFlight {
     return obstacle.center + Math.sin(this.time * .9 + obstacle.phase) * obstacle.motion;
   }
 
+  getWispState(y = this.player.y, time = this.time) {
+    const reach = 35 * clamp(Number(this.mod.attract) || 1, .5, 4);
+    return { x: this.player.x - 29 + Math.sin(time * 3) * 3,
+      y: y + 19 + Math.cos(time * 2.4) * 5,
+      radius: reach * (1 + this.wispBoost * .6) * (.55 + this.wispRecovery * .45),
+      recovery: this.wispRecovery };
+  }
+
   step(dt) {
     this.previousPlayerY = this.player.y; this.previousDistance = this.distance;
     this.time += dt;
     this.wingPhase += dt * this.wingRate;
     const oldBoost = this.boostTime;
     this.boostTime = Math.max(0, this.boostTime - dt);
+    this.wispRecovery = Math.min(1, this.wispRecovery + dt / .85);
+    const wispTarget = this.boostTime > 0 && this.cards.has('hungry-wisp') ? 1 : 0;
+    this.wispBoost += clamp(wispTarget - this.wispBoost, -dt * 5, dt * 5);
     this.cooldown = Math.max(0, this.cooldown - dt);
     this.invincible = Math.max(0, this.invincible - dt);
     this.exitProtection = Math.max(0, this.exitProtection - dt);
@@ -471,31 +466,36 @@ export class PhoenixFlight {
       }
     }
 
-    let attract = 35 * clamp(Number(this.mod.attract) || 1, .5, 4);
-    if (this.boostTime > 0 && this.cards.has('hungry-wisp')) attract *= 1.6;
+    const wisp = this.getWispState();
+    const attract = wisp.radius;
     for (const ember of this.layout.embers) {
       if (ember.collected) continue;
       let x = ember.x - this.distance;
       if (x > this.width + 80) break;
-      if (x < -40) continue;
-      const dx = this.player.x - x, dy = this.player.y - ember.y;
+      if (x < -40 && !ember.attracted) continue;
+      const dx = wisp.x - x, dy = wisp.y - ember.y;
       const distance = Math.hypot(dx, dy);
-      if (distance < attract || ember.attracted) {
-        ember.attracted = true;
-        const amount = Math.min(distance, (230 + attract * 1.8) * dt);
-        if (distance > .001) {
-          ember.x += dx / distance * amount;
-          ember.y += dy / distance * amount;
+      const touchingPhoenix = Math.hypot(this.player.x - x, this.player.y - ember.y) < 17;
+      if (distance < attract || touchingPhoenix || ember.attracted) {
+        if (!ember.attracted) {
+          ember.attracted = true; ember.pullTime = 0;
+          ember.pullX = x; ember.pullY = ember.y;
         }
-        x = ember.x - this.distance;
+        ember.pullTime += dt;
+        const t = clamp(ember.pullTime / .32, 0, 1), ease = t * t * (3 - 2 * t);
+        const curl = this.reducedMotion ? 0 : Math.sin(t * Math.PI) * 24;
+        ember.x = this.distance + lerp(ember.pullX, wisp.x, ease) + curl * .45;
+        ember.y = lerp(ember.pullY, wisp.y, ease) - curl;
+        if (t >= 1) this.collect(ember);
       }
-      if (Math.hypot(this.player.x - x, this.player.y - ember.y) < 17) this.collect(ember);
     }
 
     this.trail.push({ worldX: this.distance + this.player.x - 23,
       y: this.player.y + 6, time: this.time, width: this.boostTime > 0 ? 9 : 4.6,
       boost: this.boostTime > 0 });
     while (this.trail.length && (this.trail.length > 72 || this.time - this.trail[0].time > 1.15)) this.trail.shift();
+    for (const effect of this.pickupEffects) effect.life -= dt;
+    this.pickupEffects = this.pickupEffects.filter(effect => effect.life > 0);
     this.emitClock += dt * (this.boostTime > 0 ? 84 : 45);
     while (this.emitClock >= 1) { this.emitClock--; this.emitFlame(); }
     for (let i = this.particles.length - 1; i >= 0; i--) {
@@ -540,6 +540,11 @@ export class PhoenixFlight {
   collect(ember) {
     if (ember.collected || this.finished) return;
     ember.collected = true;
+    const origin = ember.attracted ? this.getWispState() : this.player;
+    this.wispRecovery = 0;
+    this.pickupEffects.push({ x: origin.x, y: origin.y,
+      value: ember.value === 3 ? 3 : 1, life: .72 });
+    if (this.pickupEffects.length > 12) this.pickupEffects.shift();
     // Converted thorns earn currency, but cannot feed pickup-triggered cards
     // and create an unbounded collection / boost / conversion loop.
     if (ember.generated) {
@@ -554,11 +559,11 @@ export class PhoenixFlight {
     this.score += value * (this.boostTime > 0 && this.cards.has('golden-wake') ? 20 : 10);
     this.burst(this.player.x - 9, this.player.y + 7, value === 3 ? 14 : 5, value === 3 ? '#fff2c4' : '#ffe4a2');
     if (value === 3) this.setEvent('Heart ember · +3');
-    if (this.cards.has('kindled-spirit') && this.baseEmbers % 5 === 0) {
+    if (this.cards.has('kindled-spirit') && this.baseEmbers % 3 === 0) {
       this.cooldown = Math.max(0, this.cooldown - 1);
       this.setEvent('Kindled Spirit · Boost charged');
     }
-    if (this.cards.has('warm-heart') && this.baseEmbers >= 15 && !this.healedFromWarmHeart) {
+    if (this.cards.has('warm-heart') && this.baseEmbers >= 8 && !this.healedFromWarmHeart) {
       this.healedFromWarmHeart = true;
       this.hp = Math.min(this.maxHp, this.hp + 1);
       this.setEvent('Warm Heart · restored');
@@ -680,6 +685,7 @@ export class PhoenixFlight {
     this.drawParticles(c);
     this.drawWisp(c);
     this.drawPhoenix(c);
+    this.drawPickups(c);
     this.drawPortal(c, W, H);
     this.drawForeground(c, W, H);
     c.restore();
@@ -796,6 +802,17 @@ export class PhoenixFlight {
     const rim = c.createLinearGradient(0, top, 0, bottom);
     rim.addColorStop(0, 'rgba(218,219,158,.48)'); rim.addColorStop(.27, 'rgba(120,160,121,.28)'); rim.addColorStop(1, 'rgba(20,36,45,0)');
     c.fillStyle = rim; c.fillRect(left, top, width, 19);
+    const wisp = this.getWispState(this.renderPlayerY ?? this.player.y);
+    c.globalCompositeOperation = 'screen';
+    for (const source of [
+      { x: this.player.x, y: this.renderPlayerY ?? this.player.y, radius: 235,
+        color: this.boostTime > 0 ? 'rgba(255,141,56,.38)' : 'rgba(255,141,56,.24)' },
+      { x: wisp.x, y: wisp.y, radius: 95 + wisp.radius, color: 'rgba(104,240,204,.20)' },
+    ]) {
+      const light = c.createRadialGradient(source.x, source.y, 0, source.x, source.y, source.radius);
+      light.addColorStop(0, source.color); light.addColorStop(1, 'rgba(0,0,0,0)');
+      c.fillStyle = light; c.fillRect(left, top, width, height);
+    }
     c.restore();
     path(); c.strokeStyle = this.terrain === 'storm' ? 'rgba(173,225,230,.43)' : 'rgba(234,204,154,.31)'; c.lineWidth = 1.15; c.stroke();
     // Hairline roots and moss are decorative; the large shaded silhouette is
@@ -841,6 +858,20 @@ export class PhoenixFlight {
     }
   }
 
+  drawPickups(c) {
+    c.save();
+    for (const effect of this.pickupEffects) {
+      const t = 1 - effect.life / .72;
+      c.globalAlpha = (1 - t) * .8; c.strokeStyle = '#ffdc86'; c.lineWidth = 2;
+      c.beginPath(); c.arc(effect.x, effect.y, this.reducedMotion ? 18 : 8 + t * 44, 0, TAU); c.stroke();
+      c.globalAlpha = Math.max(0, 1 - t * 3) * .35; c.fillStyle = '#ffe6a5';
+      c.beginPath(); c.arc(effect.x, effect.y, 23, 0, TAU); c.fill();
+      c.globalAlpha = Math.min(1, (1 - t) * 3); c.font = 'bold 18px system-ui'; c.textAlign = 'center';
+      c.fillText(`+${effect.value}`, effect.x + 15, effect.y - 22 - (this.reducedMotion ? 0 : t * 32));
+    }
+    c.restore();
+  }
+
   drawParticles(c) {
     c.save(); c.globalCompositeOperation = 'screen';
     for (const p of this.particles) {
@@ -875,8 +906,12 @@ export class PhoenixFlight {
   }
 
   drawWisp(c) {
-    const x = this.player.x - 29 + Math.sin(this.time * 3) * 3;
-    const y = (this.renderPlayerY ?? this.player.y) + 19 + Math.cos(this.time * 2.4) * 5;
+    const { x, y, radius: reach } = this.getWispState(this.renderPlayerY ?? this.player.y, this.visualTime ?? this.time);
+    const field = c.createRadialGradient(x, y, 0, x, y, reach);
+    field.addColorStop(0, 'rgba(119,245,214,.12)'); field.addColorStop(.7, 'rgba(119,245,214,.025)'); field.addColorStop(1, 'rgba(119,245,214,0)');
+    c.fillStyle = field; c.fillRect(x - reach, y - reach, reach * 2, reach * 2);
+    c.strokeStyle = 'rgba(151,246,220,.22)'; c.lineWidth = .8;
+    c.beginPath(); c.arc(x, y, reach, 0, TAU); c.stroke();
     const radius = this.boostTime > 0 && this.cards.has('hungry-wisp') ? 11 : 7;
     const glow = c.createRadialGradient(x, y, 0, x, y, radius * 2.5);
     glow.addColorStop(0, 'rgba(190,255,228,.7)'); glow.addColorStop(.35, 'rgba(115,225,208,.25)'); glow.addColorStop(1, 'rgba(115,225,208,0)');

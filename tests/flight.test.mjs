@@ -38,13 +38,13 @@ test('pickup card triggers are finite and reward multiplier applies exactly once
   flight.cooldown = 8; flight.boostTime = 1;
   for (let i = 0; i < 15; i++) flight.collect({ collected: false });
   assert.equal(flight.baseEmbers, 15);
-  assert.equal(flight.cooldown, 5);
+  assert.equal(flight.cooldown, 3);
   assert.equal(flight.hp, 2);
   assert.equal(flight.score, 300);
   assert.equal(flight.embers, 18);
   for (let i = 0; i < 15; i++) flight.collect({ collected: false, generated: true });
   assert.equal(flight.baseEmbers, 15);
-  assert.equal(flight.cooldown, 5);
+  assert.equal(flight.cooldown, 3);
   assert.equal(flight.hp, 2);
   assert.equal(flight.embers, 37);
   const alreadyCollected = { collected: true };
@@ -53,16 +53,21 @@ test('pickup card triggers are finite and reward multiplier applies exactly once
   flight.destroy();
 });
 
-test('ember detours stay clear of moving scenery and cannot all be vacuumed from the middle', () => {
+test('sparse terrain rewards stay near their scenery and clear of its full motion envelope', () => {
   for (const height of [480, 620, 844]) for (const terrain of ['ruins', 'canopy', 'storm']) {
     for (let seed = 0; seed < 12; seed++) {
       const layout = buildFlightLayout({ terrain, seed, height, elite: seed % 2 === 0 });
-      assert.equal(new Set(layout.embers.map(e => e.pattern)).size, 5);
-      assert.ok(layout.embers.length >= 40, 'enough pickups for collection builds');
+      assert.ok(layout.embers.length >= 12, 'enough pickups for the reduced card and challenge targets');
+      assert.ok(layout.embers.length <= layout.obstacles.length * 1.2, 'at least two-thirds fewer pickups than old four-per-section trails');
+      assert.ok(new Set(layout.embers.map(e => e.anchor)).size < layout.obstacles.length * .75,
+        'scenery sections with no pickups create quiet stretches');
       let previousX = 0;
       for (const ember of layout.embers) {
         assert.ok(ember.x >= previousX, 'collection broad phase requires sorted pickups');
         previousX = ember.x;
+        const anchor = layout.obstacles[ember.anchor];
+        assert.ok(Math.abs(ember.x - anchor.x) < anchor.width * 1.6);
+        assert.ok(ember.feature.startsWith(terrain === 'ruins' ? 'arch-' : terrain === 'storm' ? 'spire-' : anchor.soft ? 'thorn-' : 'branch-'));
         for (const obstacle of layout.obstacles) {
           if (Math.abs(obstacle.x - ember.x) > 300) continue;
           for (const sign of [-1, 0, 1]) {
@@ -75,14 +80,48 @@ test('ember detours stay clear of moving scenery and cannot all be vacuumed from
         }
       }
       const hearts = layout.embers.filter(e => e.value === 3);
-      assert.ok(hearts.length >= 4);
+      assert.ok(hearts.length >= 2);
       for (const heart of hearts) {
-        const obstacle = layout.obstacles[Number(heart.route.split(':')[0])];
-        assert.ok(Math.abs(heart.y - obstacle.center) > 35,
-          'the valuable reward requires leaving the central collection radius');
+        const obstacle = layout.obstacles[heart.anchor];
+        assert.ok(Math.abs(heart.y - obstacle.center) > (height < 620 ? 25 : 35),
+          'valuable rewards sit off centre; compact passages preserve clearance');
       }
     }
   }
+});
+
+test('pickup pull-in is visible before scoring, pays once, and its effect expires', () => {
+  const flight = makeFlight();
+  const ember = { id: 'nearby', x: flight.player.x + 10, y: flight.player.y, value: 3, phase: 0 };
+  flight.layout = { obstacles: [], embers: [ember] };
+  flight.step(1 / 60);
+  assert.equal(ember.attracted, true);
+  assert.equal(flight.embers, 0, 'the pull-in has time to animate');
+  for (let i = 0; i < 20; i++) flight.step(1 / 60);
+  assert.equal(flight.embers, 3);
+  assert.equal(flight.pickupEffects.length, 1);
+  assert.equal(flight.pickupEffects[0].value, 3);
+  for (let i = 0; i < 50; i++) flight.step(1 / 60);
+  assert.equal(flight.embers, 3);
+  assert.equal(flight.pickupEffects.length, 0);
+  flight.destroy();
+});
+
+test('the wisp reach shrinks after collection, recovers smoothly, and matches Boost and upgrades', () => {
+  const flight = makeFlight({ cards: ['hungry-wisp'], modifiers: { attract: 1.25 } });
+  const full = flight.getWispState().radius;
+  assert.equal(full, 43.75);
+  flight.collect({ value: 1 });
+  const spent = flight.getWispState().radius;
+  assert.ok(spent < full * .6);
+  flight.step(.2);
+  assert.ok(flight.getWispState().radius > spent && flight.getWispState().radius < full);
+  for (let i = 0; i < 40; i++) flight.step(1 / 60);
+  assert.equal(flight.getWispState().radius, full);
+  flight.boostTime = 1;
+  for (let i = 0; i < 15; i++) flight.step(1 / 60);
+  assert.equal(flight.getWispState().radius, full * 1.6);
+  flight.destroy();
 });
 
 test('heart embers pay three but count once toward pickup cards and cannot be claimed twice', () => {

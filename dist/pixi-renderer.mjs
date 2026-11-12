@@ -12,6 +12,53 @@ const viewTime = engine => engine.visualTime ?? engine.time;
 const viewDistance = engine => engine.renderDistance ?? engine.distance;
 const viewY = engine => engine.renderPlayerY ?? engine.player.y;
 
+// One screen-sized material pass keeps painted detail while local fire and
+// wisp light move across it. All geometry and collisions remain strictly 2D.
+function makeTerrainLight() {
+  return new PIXI.Filter({
+    glProgram: PIXI.GlProgram.from({
+      vertex: `precision highp float;
+        in vec2 aPosition;
+        out vec2 vTextureCoord;
+        uniform vec4 uInputSize;
+        uniform vec4 uOutputFrame;
+        uniform vec4 uOutputTexture;
+        void main() {
+          vec2 position = aPosition * uOutputFrame.zw + uOutputFrame.xy;
+          position.x = position.x * (2.0 / uOutputTexture.x) - 1.0;
+          position.y = position.y * (2.0 * uOutputTexture.z / uOutputTexture.y) - uOutputTexture.z;
+          gl_Position = vec4(position, 0.0, 1.0);
+          vTextureCoord = aPosition * (uOutputFrame.zw * uInputSize.zw);
+        }`,
+      fragment: `precision highp float;
+        in vec2 vTextureCoord;
+        uniform sampler2D uTexture;
+        uniform vec4 uInputSize;
+        uniform vec2 uFire;
+        uniform vec2 uWisp;
+        uniform float uHeat;
+        uniform float uReach;
+        out vec4 finalColor;
+        void main() {
+          vec4 surface = texture(uTexture, vTextureCoord);
+          vec2 pixel = vTextureCoord * uInputSize.xy;
+          float fire = pow(max(0.0, 1.0 - distance(pixel, uFire) / 235.0), 2.0);
+          float spirit = pow(max(0.0, 1.0 - distance(pixel, uWisp) / (95.0 + uReach)), 2.0);
+          float luminance = dot(surface.rgb, vec3(.2126, .7152, .0722));
+          vec3 material = mix(vec3(luminance), surface.rgb, .91);
+          vec3 light = vec3(.84, .88, .94) + vec3(1.65, .80, .30) * fire * uHeat
+            + vec3(.20, 1.15, .92) * spirit;
+          finalColor = vec4(material * light, surface.a);
+        }`,
+    }),
+    resources: { lighting: {
+      uFire: { value: new Float32Array([98, 310]), type: 'vec2<f32>' },
+      uWisp: { value: new Float32Array([68, 330]), type: 'vec2<f32>' },
+      uHeat: { value: 1, type: 'f32' }, uReach: { value: 35, type: 'f32' },
+    } },
+  });
+}
+
 export class PixiFlightView {
   constructor(engine) {
     this.engine = engine;
@@ -22,6 +69,7 @@ export class PixiFlightView {
     this.obstacles = new Map();
     this.embers = new Map();
     this.particleSprites = [];
+    this.pickupSprites = [];
     this.frames = [];
     this.terrainFrames = [];
     this.lastHeight = 0;
@@ -64,6 +112,7 @@ export class PixiFlightView {
 
   buildScene() {
     const app = this.application;
+    const engine = this.engine;
     this.scene = new PIXI.Container();
     this.scene.eventMode = 'none';
     app.stage.addChild(this.scene);
@@ -106,9 +155,9 @@ export class PixiFlightView {
     this.world = new PIXI.Container();
     this.scene.addChild(this.world);
     this.terrainLayer = new PIXI.Container();
-    this.terrainGrade = new PIXI.ColorMatrixFilter();
-    this.terrainGrade.saturate(-.15);
-    this.terrainLayer.filters = [this.terrainGrade];
+    this.terrainLight = makeTerrainLight();
+    this.terrainLayer.filters = [this.terrainLight];
+    this.terrainLayer.filterArea = new PIXI.Rectangle(0, 0, engine.width, engine.height);
     this.coinLayer = new PIXI.Container();
     this.particleLayer = new PIXI.Container();
     this.trailRibbon = new PIXI.Graphics();
@@ -127,7 +176,12 @@ export class PixiFlightView {
     this.wispGlow.blendMode = 'add';
     this.wispCore = new PIXI.Graphics().circle(0, 0, 2.3).fill(0xe6fff0);
     this.wispTrail = new PIXI.Graphics();
-    this.wisp.addChild(this.wispGlow, this.wispTrail, this.wispCore);
+    this.wispField = new PIXI.Graphics().circle(0, 0, 1)
+      .fill({ color: 0x8cebd0, alpha: .025 }).stroke({ color: 0xa7f4dd, width: .025, alpha: .23 });
+    this.wispFieldGlow = new PIXI.Sprite(this.glowTexture);
+    this.wispFieldGlow.anchor.set(.5); this.wispFieldGlow.tint = 0x7dedd0;
+    this.wispFieldGlow.alpha = .13; this.wispFieldGlow.blendMode = 'add';
+    this.wisp.addChild(this.wispFieldGlow, this.wispField, this.wispGlow, this.wispTrail, this.wispCore);
     this.world.addChild(this.wisp);
     this.phoenix = new PIXI.Container();
     this.aura = new PIXI.Sprite(this.glowTexture);
@@ -138,6 +192,8 @@ export class PixiFlightView {
     this.coreLight = new PIXI.Sprite(this.glowTexture);
     this.coreLight.anchor.set(.5); this.coreLight.tint = 0xffebbd; this.coreLight.blendMode = 'add';
     this.phoenix.addChild(this.coreLight);
+    this.pickupLayer = new PIXI.Container();
+    this.scene.addChild(this.pickupLayer);
     this.tail = new PIXI.Graphics();
     this.phoenix.addChild(this.tail);
     this.bodyFallback = new PIXI.Graphics();
@@ -394,6 +450,13 @@ export class PixiFlightView {
   render(engine = this.engine) {
     if (!this.ready || this.destroyed || !this.application?.renderer) return;
     const W = engine.width, H = engine.height, time = viewTime(engine), distance = viewDistance(engine);
+    const spirit = engine.getWispState(viewY(engine), time);
+    const lighting = this.terrainLight.resources.lighting.uniforms;
+    lighting.uFire[0] = engine.player.x; lighting.uFire[1] = viewY(engine);
+    lighting.uWisp[0] = spirit.x; lighting.uWisp[1] = spirit.y;
+    lighting.uReach = spirit.radius;
+    lighting.uHeat = (engine.boostTime > 0 ? 1.65 : 1) + (engine.reducedMotion ? 0 : Math.sin(time * 8) * .055);
+    this.terrainLayer.filterArea.width = W; this.terrainLayer.filterArea.height = H;
     this.backdrop.x = (W - this.backdrop.width) / 2 + Math.sin(distance * .0006) * 12;
     this.sun.alpha = engine.terrain === 'storm' ? .18 : .31;
     this.sunRays.clear();
@@ -478,7 +541,9 @@ export class PixiFlightView {
       }
       const animation = engine.reducedMotion ? 0 : time;
       item.position.set(x, ember.y + (ember.attracted ? 0 : Math.sin(animation * 2.8 + ember.phase) * 2));
-      item.scale.set(1 + Math.sin(animation * 3 + ember.phase) * .07);
+      const pull = ember.attracted ? Math.sin(Math.min(1, ember.pullTime / .32) * Math.PI) : 0;
+      item.scale.set(1 + Math.sin(animation * 3 + ember.phase) * .07 + pull * .55);
+      item.children[0].alpha = .45 + pull * .5;
       item.orbit.children.forEach((spark, j) => {
         const angle = animation * 2 + ember.phase + j * Math.PI * 2 / item.orbit.children.length;
         const radius = ember.value === 3 ? 17 : 10;
@@ -515,10 +580,39 @@ export class PixiFlightView {
       sprite.glow.alpha = life * .15 * (Number(particle.glow) || 1);
     });
     this.drawPhoenix(engine);
+    this.drawPickups(engine);
     this.drawWind(engine);
     this.drawPortal(engine);
     this.flash.alpha = engine.flash * .28;
     this.application.render();
+  }
+
+  drawPickups(engine) {
+    while (this.pickupSprites.length < engine.pickupEffects.length) {
+      const item = new PIXI.Container();
+      item.ring = new PIXI.Graphics();
+      item.flash = new PIXI.Sprite(this.glowTexture);
+      item.flash.anchor.set(.5); item.flash.tint = 0xffdf8a; item.flash.blendMode = 'add';
+      item.label = new PIXI.Text({ text: '', style: { fontFamily: 'system-ui, sans-serif',
+        fontSize: 18, fontWeight: '700', fill: 0xffe8a6, stroke: { color: 0x25323a, width: 3 } } });
+      item.label.anchor.set(.5);
+      item.addChild(item.flash, item.ring, item.label);
+      this.pickupLayer.addChild(item); this.pickupSprites.push(item);
+    }
+    this.pickupSprites.forEach((item, i) => {
+      const effect = engine.pickupEffects[i]; item.visible = Boolean(effect);
+      if (!effect) return;
+      const t = 1 - effect.life / .72;
+      item.position.set(effect.x, effect.y);
+      item.flash.width = item.flash.height = 80 + t * 40;
+      item.flash.alpha = Math.max(0, 1 - t * 3) * .8;
+      item.ring.clear().circle(0, 0, engine.reducedMotion ? 18 : 8 + t * 44)
+        .stroke({ width: 2 * (1 - t), color: 0xffdc86, alpha: (1 - t) * .8 });
+      item.label.text = `+${effect.value}`;
+      item.label.position.set(15, -22 - (engine.reducedMotion ? 0 : t * 32));
+      item.label.alpha = Math.min(1, (1 - t) * 3);
+      item.label.scale.set(1 + Math.sin(t * Math.PI) * .18);
+    });
   }
 
   drawPhoenix(engine) {
@@ -561,9 +655,11 @@ export class PixiFlightView {
         .stroke({ color: boosted ? 0xffd994 : 0xa6e5da, width: boosted ? 1.5 : 1,
           alpha: engine.invincible > 0 ? .35 + Math.sin(time * 18) * .18 : .45 });
     }
-    const wx = engine.player.x - 30 + Math.sin(time * 3) * 3;
-    const wy = viewY(engine) + 19 + Math.cos(time * 2.4) * 5;
+    const { x: wx, y: wy, radius: reach, recovery } = engine.getWispState(viewY(engine), time);
     this.wisp.position.set(wx, wy);
+    this.wispField.scale.set(reach);
+    this.wispFieldGlow.width = this.wispFieldGlow.height = reach * 2;
+    this.wispField.alpha = .65 + recovery * .35;
     this.wispCore.scale.set(.92 + Math.sin(time * 3.1) * .12);
     this.wispGlow.width = this.wispGlow.height = boosted && engine.cards.has('hungry-wisp') ? 48 : 31;
     this.wispTrail.clear().moveTo(0, 1).quadraticCurveTo(-10, 14, -16, 4)
@@ -640,6 +736,7 @@ export class PixiFlightView {
     }
     this.application = null;
     this.canvas?.remove();
+    this.terrainLight?.destroy(); this.terrainLight = null;
     for (const frame of this.frames) frame.destroy(false);
     this.frames = [];
     for (const frame of this.terrainFrames) frame.destroy(false);
@@ -647,6 +744,6 @@ export class PixiFlightView {
     this.glowTexture?.destroy(true); this.glowTexture = null;
     this.moteTexture?.destroy(true); this.moteTexture = null;
     this.sparkTexture?.destroy(true); this.sparkTexture = null;
-    this.obstacles.clear(); this.embers.clear(); this.particleSprites = [];
+    this.obstacles.clear(); this.embers.clear(); this.particleSprites = []; this.pickupSprites = [];
   }
 }

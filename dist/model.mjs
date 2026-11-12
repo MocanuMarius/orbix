@@ -9,7 +9,7 @@ export const TERRAINS = Object.freeze({
 const card = (id, name, tag, description, detail, color, icon) => ({ id, name, tag, description, detail, color, icon });
 export const CARDS = Object.freeze({
   'hungry-wisp': card('hungry-wisp', 'Hungry Wisp', 'Wisp', 'Boosting draws nearby wisps toward you.', 'Wisp attraction is 60% stronger during a boost. Pair with Kindled Spirit to keep the flame moving.', '#8ce5c4', '✧'),
-  'kindled-spirit': card('kindled-spirit', 'Kindled Spirit', 'Wisp', 'Every five collected wisps quicken your next boost.', 'Every five base embers collected reduce the boost cooldown by one second. Bonus rewards never trigger this again.', '#f8c778', '✦'),
+  'kindled-spirit': card('kindled-spirit', 'Kindled Spirit', 'Wisp', 'Every three collected wisps quicken your next boost.', 'Every three base embers collected reduce the boost cooldown by one second. Bonus rewards never trigger this again.', '#f8c778', '✦'),
   'golden-wake': card('golden-wake', 'Golden Wake', 'Wisp', 'Collecting during boost doubles the pickup score.', 'Boosted wisp pickups grant +100% score. This changes score, not permanent ember currency.', '#ffdc81', '◈'),
   'storm-feeder': card('storm-feeder', 'Storm Feeder', 'Flame', 'Turn the mountain wind into boost energy.', 'Boost cooldown is 4% shorter everywhere. In gusts, recover another second of cooldown once each second.', '#b3c6ff', 'ϟ'),
   'soft-descent': card('soft-descent', 'Soft Descent', 'Wing', 'Fall gently and guide smaller wingbeats.', 'Gravity is 10% lighter and flaps are 6% gentler. A steady choice for precise passages.', '#a5dce9', '⌄'),
@@ -19,7 +19,7 @@ export const CARDS = Object.freeze({
   'glass-phoenix': card('glass-phoenix', 'Glass Phoenix', 'Ash', 'A fragile body, a brilliant reward.', 'Maximum health becomes two hearts; earned ember rewards increase by 25%. Replacing this card restores capacity, not health.', '#a9e7fa', '♢'),
   'steady-flame': card('steady-flame', 'Steady Flame', 'Wing', 'Keep your course through difficult currents.', 'Wind has less influence, and gravity is 3% lighter. A calm choice for the Stormglass Peaks.', '#d3d6f3', '≈'),
   'fire-wake': card('fire-wake', 'Fire Wake', 'Flame', 'Burn soft thorns into a trail of bonus wisps.', 'Boost lasts 8% longer. Each soft thorn burned during a boost releases three collectible bonus motes.', '#ff9d77', '♨'),
-  'warm-heart': card('warm-heart', 'Warm Heart', 'Ash', 'A rich wisp trail can mend a wounded heart.', 'Collect fifteen base embers in a flight to heal one heart, once per flight. Bonus embers cannot retrigger it.', '#f2a6ba', '♡'),
+  'warm-heart': card('warm-heart', 'Warm Heart', 'Ash', 'A rich wisp trail can mend a wounded heart.', 'Collect eight base embers in a flight to heal one heart, once per flight. Bonus embers cannot retrigger it.', '#f2a6ba', '♡'),
 });
 
 const skill = (id, name, branch, cost, requires, description) => ({ id, name, branch, cost, requires, maxRank: 1, description });
@@ -151,7 +151,7 @@ function makeMap(seed) {
     const draftTags = elite ? themes[Math.floor(rng() * themes.length)] : [];
     const draftTheme = draftTags.join(' + ');
     const challengeId = ['wisps', 'clean', 'boosts'][Math.floor(rng() * 3)];
-    const challengeTarget = challengeId === 'wisps' ? 12 + row : challengeId === 'boosts' ? 2 : 0;
+    const challengeTarget = challengeId === 'wisps' ? 6 + Math.floor(row / 2) : challengeId === 'boosts' ? 2 : 0;
     const challenge = challengeId === 'wisps' ? `Collect ${challengeTarget} wisps` : challengeId === 'boosts' ? 'Boost twice' : 'Finish without a hit';
     return {
       id: `n-${row}-${lane ? 'b' : 'a'}`, row, lane,
