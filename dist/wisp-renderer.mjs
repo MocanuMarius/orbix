@@ -570,17 +570,60 @@ export class WispFlightView {
     }
   }
 
-  drawWind(e, t) {
+  drawWind(e, t, lightState) {
     const gust = e.gustState?.();
     if (!gust?.active && !gust?.warning) return;
-    const c = this.bufferContext, H = this.buffer.height;
-    c.globalAlpha = gust.warning ? .14 : .25;
-    for (let i = 0; i < 12; i++) {
-      const x = Math.round((i * 23 + t * (gust.active ? 23 : 8)) % (WIDTH + 20) - 10);
-      const y = Math.round(H * .15 + i * H * .065);
-      pixelLine(c, x, y, x + 7, y + gust.direction * 2, '#a1b4b0');
+    const c = this.bufferContext, H = this.buffer.height, s = this.scale;
+    const px = e.player.x * s, py = yOf(e) * s;
+    const radius = Math.max(27, (this.lightRadius || Number(e.mod?.lightRadius) || 175) * s);
+    const carrier = lightState || e.getWispState?.(yOf(e), t);
+    const carrierX = (carrier?.x ?? e.player.x) * s, carrierY = (carrier?.y ?? yOf(e)) * s;
+    const carrierRadius = carrier?.phase === 'cooldown' ? 17 : 25;
+    const direction = gust.direction < 0 ? -1 : 1;
+    const intensity = clamp(Number(gust.intensity) || .6, .35, 1.3);
+    const warningProgress = clamp(Number(gust.warningProgress) || 0, 0, 1);
+    const power = gust.active ? clamp(Number(gust.strength) || 0, 0, 1) : .08 + warningProgress * .18;
+    const warning = gust.warning && !gust.active;
+    const ink = warning ? '#bcb59c' : '#aac5c2';
+    c.save();
+    // This pass sits above fog, but its mask is restricted to light that is
+    // already present. A gust must not expose remote terrain or hidden caches.
+    c.beginPath(); c.arc(px, py, radius * .92, 0, TAU);
+    if (carrier) { c.moveTo(carrierX + carrierRadius, carrierY); c.arc(carrierX, carrierY, carrierRadius, 0, TAU); }
+    c.clip();
+    if (!e.reducedMotion) {
+      const count = warning ? 12 : Math.round(14 + intensity * 11);
+      const span = H + 34, speed = warning ? 12 + warningProgress * 11 : 42 + intensity * 34;
+      const distance = distanceOf(e);
+      for (let i = 0; i < count; i++) {
+        const x = Math.round(px - radius + (((i * 31 - distance * .025) % (radius * 2)) + radius * 2) % (radius * 2));
+        const y = Math.round((((i * 53 + t * speed * direction) % span) + span) % span - 17);
+        const playerDistance = ((x - px) ** 2 + (y - py) ** 2) / (radius * radius);
+        const carrierDistance = ((x - carrierX) ** 2 + (y - carrierY) ** 2) / (carrierRadius * carrierRadius);
+        const visibility = Math.max(clamp((1 - playerDistance) * 1.7, 0, 1), carrier ? clamp((1 - carrierDistance) * .75, 0, .75) : 0);
+        if (visibility <= .025) continue;
+        const length = Math.round(warning ? 3 + warningProgress * 3 : 5 + intensity * 4 + power * 4 + i % 3);
+        const curl = Math.round(Math.sin(t * 1.5 + i * 1.7) * (warning ? 1 : 2));
+        c.globalAlpha = visibility * (warning ? .12 + warningProgress * .20 : .19 + power * .31);
+        pixelLine(c, x + curl, y - direction * length, x, y, ink);
+        if (!warning && power > .3) {
+          c.globalAlpha = visibility * (.20 + power * .32);
+          c.fillStyle = '#dde3d7'; c.fillRect(x, y, 1, 2);
+        }
+      }
     }
-    c.globalAlpha = 1;
+    // Compact arrowheads communicate upward versus downward force before the
+    // pulse arrives, including a static readable mode for reduced motion.
+    const arrowX = Math.round(px + radius * .73);
+    const arrowY = Math.round(clamp(py + direction * radius * .25, 16, H - 16));
+    const arrows = warning ? (warningProgress > .58 ? 2 : 1) : intensity > .95 ? 3 : 2;
+    c.globalAlpha = warning ? .32 + warningProgress * .37 : .50 + power * .35;
+    for (let i = 0; i < arrows; i++) {
+      const y = arrowY + direction * i * 6;
+      pixelLine(c, arrowX - 3, y - direction * 2, arrowX, y + direction, warning ? '#d0c5a7' : '#dce5d9');
+      pixelLine(c, arrowX, y + direction, arrowX + 3, y - direction * 2, warning ? '#d0c5a7' : '#dce5d9');
+    }
+    c.restore();
   }
 
   drawPortal(e, t) {
@@ -606,7 +649,6 @@ export class WispFlightView {
     c.setTransform(1, 0, 0, 1, 0, 0); c.globalAlpha = 1; c.globalCompositeOperation = 'source-over';
     this.drawSky(e, t, distance, palette);
     c.globalAlpha = .34; c.fillStyle = '#03080b'; c.fillRect(0, 0, this.buffer.width, this.buffer.height); c.globalAlpha = 1;
-    this.drawWind(e, t);
     this.drawTerrain(e, t, distance, palette);
     this.drawCollectibles(e, t, distance, element);
     this.drawBurstEffects(e, element);
@@ -614,6 +656,7 @@ export class WispFlightView {
     const state = e.getWispState?.(yOf(e), t) || { x: e.player.x - 29, y: yOf(e) + 19, homeX: e.player.x - 29, homeY: yOf(e) + 19, radius: 100, phase: 'ready', recovery: 1, carrying: false };
     const playerX = Math.round(e.player.x * s), playerY = Math.round(yOf(e) * s);
     this.lightFog(e, state, playerX, playerY);
+    this.drawWind(e, t, state);
     this.drawCarrier(e, t, distance, state, companion);
     const tapAge = t - (e.lastFlapTime ?? -1000), tap = tapAge >= 0 && tapAge < .16 ? 1 - tapAge / .16 : 0;
     const speed = (Number(e.baseSpeed) || 154) / 154;

@@ -19,7 +19,7 @@ export const CARDS = Object.freeze({
   tailwind: card('tailwind', 'Tailwind', 'Drift', 'Fly faster for a richer ember trail.', 'Travel is 8% faster and earned ember rewards are 12% greater. The wisp needs quicker decisions.', '#facb9b', '»'),
   'ash-ward': card('ash-ward', 'Ash Ward', 'Ash', 'Begin each flight protected by a circle of ash.', 'A ward absorbs one hit each flight, while boost recharges 12% more slowly. Checkpoint wards remain separate.', '#d4c5ec', '◇'),
   'glass-phoenix': card('glass-phoenix', 'Glass Wisp', 'Ash', 'A fragile body, a brilliant reward.', 'Maximum health becomes two hearts; earned ember rewards increase by 25%. Replacing this card restores capacity, not health.', '#a9e7fa', '♢'),
-  'steady-flame': card('steady-flame', 'Steady Flame', 'Drift', 'Keep your course through difficult currents.', 'Wind has less influence, and gravity is 3% lighter. A calm choice for the Stormglass Peaks.', '#d3d6f3', '≈'),
+  'steady-flame': card('steady-flame', 'Steady Flame', 'Drift', 'Keep your course through difficult currents.', 'Gust force is 55% weaker and gravity is 3% lighter. A controlled choice for exposed routes.', '#d3d6f3', '≈'),
   'fire-wake': card('fire-wake', 'Shatter Wake', 'Flame', 'Shatter soft thorns into a trail of bonus sparks.', 'Boost lasts 8% longer. Each soft thorn shattered during a boost releases three collectible bonus motes.', '#ff9d77', '♨'),
   'warm-heart': card('warm-heart', 'Warm Heart', 'Ash', 'A well-timed cache route can mend a wounded heart.', 'Collect four base sparks in a flight to heal one heart, once per flight. Bonus sparks cannot retrigger it.', '#f2a6ba', '♡'),
 });

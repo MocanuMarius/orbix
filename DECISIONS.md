@@ -59,6 +59,14 @@ Three terrains, ordinary and optional elite routes, support events, shared exped
 - Centre the carrier's real search range on the player and draw that range as a persistent dotted circle. Range upgrades and temporary expansions use the same value as collection logic. Dim the circle and companion through cooldown.
 - Darken the landscape outside the light substantially and subdue the distant parallax layers. Keep the existing player light-radius upgrades.
 
+## Stronger wind challenge
+
+- Make wind a major steering challenge: base peak acceleration is 160 in ruins, 240 in canopy and 420 in storm, replacing the previous storm-only 54.
+- Alternate seeded updrafts and downdrafts. Give 1.4 seconds of visible directional warning, smooth half-second ramps and sustained pulses. The first cache has a calm approach before the first gust.
+- Reduce cave exposure by 35%; increase it on elite/finale routes and by 2% per later map row. Cap peak force at 520. Preserve the existing base lift, gravity, fuel budget and two-button controls.
+- Let Boost suppress 72% of gust force, fading through its 0.45-second protected exit. Steady Flame retains 55% wind resistance, giving exposed-route builds a clear purpose.
+- Draw vertical wind streaks and directional chevrons above fog, restricted to the existing light. Keep the far landscape dark. Add only a compact wind icon and pips to the encounter preview.
+
 ## Deferred elemental gameplay
 
 Explore distinct roles for the player wisp and mini carrier wisps in a later iteration, including interactions with terrain. No specific elemental abilities, terrain effects or balance values are chosen yet. Keep Fire and Ice visual-only in the current scope.

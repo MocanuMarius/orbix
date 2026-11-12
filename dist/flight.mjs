@@ -8,6 +8,10 @@ const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
 const lerp = (a, b, t) => a + (b - a) * t;
 export const FLIGHT_TUNING = Object.freeze({ gravity: 300, flapImpulse: 205,
   forwardSpeed: 154, terminalFall: 245, pickupRadius: 16 });
+export const WIND_TUNING = Object.freeze({ warning: 1.4, ramp: .5, boostResistance: .72,
+  ruins: Object.freeze({ force: 160, period: 10.8, duration: 2.4, first: 6.2 }),
+  canopy: Object.freeze({ force: 240, period: 9, duration: 2.8, first: 5.6 }),
+  storm: Object.freeze({ force: 420, period: 7.6, duration: 3.2, first: 4.8 }) });
 
 export function seededRandom(seed = 1) {
   let state = 2166136261;
@@ -362,6 +366,12 @@ export class WispFlight {
     this.duration = clamp(Number(options.duration) || 38, 15, 120);
     const route = options.node || options;
     this.passage = ['open', 'cavern', 'gauntlet'].includes(route.passage) ? route.passage : 'open';
+    this.windExposure = (this.passage === 'cavern' ? .65 : 1)
+      * (this.passage === 'gauntlet' || this.elite || route.type === 'finale' ? 1.15 : 1)
+      * (1 + clamp(Number(route.row) || 0, 0, 6) * .02);
+    const windSeed = seededRandom(`${this.seed}:wind`);
+    this.windDelay = windSeed() * .7;
+    this.windDirection = windSeed() < .5 ? -1 : 1;
     this.fuelCadence = clamp(Number(route.fuelCadence) || 3, 2, 4);
     this.fuelBonus = clamp(Number(route.fuelBonus) || 0, 0, 10);
     this.flameDrain = clamp(Number(route.flameDrain) || 1, .8, 1.2);
@@ -575,11 +585,20 @@ export class WispFlight {
   }
 
   gustState() {
-    if (this.terrain !== 'storm') return { active: false, warning: false, direction: 0, strength: 0 };
-    const phase = (this.time + 2) % 8.5;
-    const direction = Math.floor((this.time + 2) / 8.5) % 2 ? -1 : 1;
-    return { active: phase >= 5.2 && phase < 7.8, warning: phase >= 4.1 && phase < 5.2,
-      direction, strength: Math.sin(clamp((phase - 5.2) / 2.6, 0, 1) * Math.PI) };
+    const tuning = WIND_TUNING[this.terrain];
+    const elapsed = this.time - tuning.first - this.windDelay + WIND_TUNING.warning;
+    if (elapsed < 0) return { active: false, warning: false, direction: this.windDirection, strength: 0, force: 0, intensity: 0, warningProgress: 0 };
+    const cycle = Math.floor(elapsed / tuning.period), phase = elapsed % tuning.period;
+    const direction = this.windDirection * (cycle % 2 ? -1 : 1);
+    const warning = phase < WIND_TUNING.warning;
+    const age = phase - WIND_TUNING.warning;
+    const active = age >= 0 && age < tuning.duration;
+    const edge = clamp(Math.min(age, tuning.duration - age) / WIND_TUNING.ramp, 0, 1);
+    const strength = active ? edge * edge * (3 - 2 * edge) : 0;
+    const peak = Math.min(520, tuning.force * this.windExposure);
+    return { active, warning, direction, strength, force: peak * strength,
+      intensity: peak / WIND_TUNING.storm.force,
+      warningProgress: warning ? phase / WIND_TUNING.warning : 0 };
   }
 
   obstacleCenter(obstacle) {
@@ -624,7 +643,11 @@ export class WispFlight {
     let gravity = FLIGHT_TUNING.gravity * this.scaleY * clamp(Number(this.mod.gravity) || 1, .80, 1.20);
     if (gust.active) {
       this.gustSeconds += dt;
-      gravity += gust.direction * 54 * this.scaleY * gust.strength * (this.mod.steady ? .45 : 1);
+      // Boost can break through a downdraft or arrest an unwanted updraft.
+      // Its wind resistance fades out with the existing safe-exit window.
+      const windGuard = this.boostTime > 0 ? 1 - WIND_TUNING.boostResistance
+        : 1 - WIND_TUNING.boostResistance * clamp(this.exitProtection / .45, 0, 1);
+      gravity += gust.direction * gust.force * this.scaleY * (this.mod.steady ? .45 : 1) * windGuard;
       if (this.cards.has('storm-feeder')) {
         this.stormFeedClock += dt;
         if (this.stormFeedClock >= 1) {
