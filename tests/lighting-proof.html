@@ -1,0 +1,58 @@
+<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Emberwing material lighting proof</title>
+<style>body{margin:0;background:#091221;color:#e6ebf5;font:14px system-ui}main{max-width:480px;margin:auto}h1{font:23px Georgia;margin:16px}p{margin:12px 16px;color:#bec8dc;line-height:1.5}canvas{display:block;width:100%;height:auto}nav{display:flex;gap:6px;flex-wrap:wrap;margin:12px}button{border:1px solid #8293ab88;border-radius:6px;padding:10px;background:#1c2b40;color:#e7edf6}output{display:block;margin:12px;white-space:pre-wrap;font:12px/1.6 ui-monospace,monospace}.pass{color:#aff0cc}.fail{color:#ffadad}</style>
+<main><h1>Moving light, fixed material</h1><p id="mode">The terrain texture stays still. Only the production shader’s light positions change.</p><div id="view"></div>
+<nav><button id="moon">Moon fill only</button><button id="fire-left">Fire left</button><button id="fire-right">Fire right</button><button id="wisp-left">White wisp left</button><button id="wisp-right">White wisp right</button><button id="both">Both lights</button><button id="width">Width 430</button><button id="check">Run GPU checks</button></nav><output id="result">Loading production terrain shader…</output></main>
+<script type="module">
+import * as PIXI from '/vendor/pixi.mjs';
+import { makeTerrainLight } from '/pixi-renderer.mjs';
+const app = new PIXI.Application();
+let width=390, height=420;
+await app.init({width,height,resolution:1,antialias:true,autoStart:false,preference:'webgl',background:'#091221'});
+document.querySelector('#view').append(app.canvas);
+const atlas = await PIXI.Assets.load('/assets/moon-materials.png');
+const wall = new PIXI.Container();
+const texture = new PIXI.Texture({source:atlas.source,frame:new PIXI.Rectangle(0,0,atlas.width/3,atlas.height)});
+const stone = new PIXI.Sprite(texture);stone.width=width;stone.height=height;
+wall.addChild(stone);app.stage.addChild(wall);
+const filter = makeTerrainLight();wall.filters=[filter];wall.filterArea=new PIXI.Rectangle(0,0,width,height);
+const uniforms=filter.resources.lighting.uniforms;
+let preset='both';
+function light(mode){
+  preset=mode;const scale=width/390;
+  const fire=mode==='fire-right'?[320,210]:['fire-left','both'].includes(mode)?[75,210]:[1000,1000];
+  const spirit=mode==='wisp-right'||mode==='both'?[315,210]:mode==='wisp-left'?[75,210]:[1000,1000];
+  uniforms.uScale=scale;uniforms.uHeat=1.15;uniforms.uSpirit=1.15;
+  uniforms.uFire.set(fire.map(n=>n*scale));uniforms.uWake.set([(fire[0]-35)*scale,fire[1]*scale]);
+  uniforms.uWisp.set(spirit.map(n=>n*scale));app.render();
+  document.querySelector('#mode').textContent=`${mode.toUpperCase()} · same stone texture · ${width}px viewport`;
+}
+async function patch(){
+  const canvas=await app.renderer.extract.canvas({target:app.stage});
+  const scale=canvas.width/width;
+  const pixels=canvas.getContext('2d').getImageData(Math.round(width*100/390*scale),Math.round(height*.5*scale),Math.round(10*scale),Math.round(10*scale)).data;
+  const rgb=[0,0,0];for(let i=0;i<pixels.length;i+=4)for(let c=0;c<3;c++)rgb[c]+=pixels[i+c];
+  return rgb.map(n=>n/(pixels.length/4));
+}
+for(const name of ['moon','fire-left','fire-right','wisp-left','wisp-right','both'])document.getElementById(name).onclick=()=>light(name);
+document.querySelector('#width').onclick=()=>{
+  width=width===390?430:390;height=420*width/390;app.renderer.resize(width,height);stone.width=width;stone.height=height;wall.filterArea.height=height;
+  wall.filterArea.width=width;document.querySelector('#width').textContent=`Width ${width===390?430:390}`;light(preset);
+};
+document.querySelector('#check').onclick=async()=>{
+  const entries={};for(const mode of ['moon','fire-left','fire-right','wisp-left','wisp-right']){light(mode);entries[mode]=await patch();}
+  const lum=rgb=>rgb[0]*.2126+rgb[1]*.7152+rgb[2]*.0722;
+  const warm=rgb=>rgb[0]/Math.max(1,rgb[2]);
+  const tests=[
+    ['fire lights the existing pixels',lum(entries['fire-left'])>lum(entries.moon)*1.8],
+    ['fire moves off those pixels',lum(entries['fire-left'])>lum(entries['fire-right'])*1.5],
+    ['white wisp lights the existing pixels',lum(entries['wisp-left'])>lum(entries.moon)*1.8],
+    ['white wisp moves off those pixels',lum(entries['wisp-left'])>lum(entries['wisp-right'])*1.5],
+    ['wisp reflection differs from orange fire',warm(entries['fire-left'])>warm(entries['wisp-left'])*1.25],
+  ];
+  const output=document.querySelector('#result');output.className=tests.every(t=>t[1])?'pass':'fail';
+  output.textContent=tests.map(([name,pass])=>`${pass?'PASS':'FAIL'} ${name}`).join('\n')+'\n'+Object.entries(entries).map(([mode,rgb])=>`${mode}: RGB ${rgb.map(n=>n.toFixed(1)).join(', ')}`).join('\n');
+  light('both');
+};
+light('both');document.querySelector('#result').textContent='Ready. Compare the same rock pixels as each light moves, or run the GPU checks.';
+</script></html>

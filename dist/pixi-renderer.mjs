@@ -28,7 +28,7 @@ const LIGHT_VERTEX = `precision highp float;
 
 // One screen-sized material pass keeps painted detail while local fire and
 // wisp light move across it. All geometry and collisions remain strictly 2D.
-function makeTerrainLight() {
+export function makeTerrainLight() {
   return new PIXI.Filter({
     glProgram: PIXI.GlProgram.from({
       vertex: LIGHT_VERTEX,
@@ -38,34 +38,62 @@ function makeTerrainLight() {
         uniform vec4 uInputSize;
         uniform vec2 uFire;
         uniform vec2 uWisp;
+        uniform vec2 uWake;
         uniform float uHeat;
-        uniform float uReach;
+        uniform float uSpirit;
         uniform float uScale;
         out vec4 finalColor;
+        const vec3 LUMA = vec3(.2126, .7152, .0722);
+        vec3 pigment(vec4 sampleValue) {
+          return sampleValue.rgb / max(sampleValue.a, .001);
+        }
+        float heightAt(vec2 uv, float fallback) {
+          vec4 sampleValue = texture(uTexture, uv);
+          return sampleValue.a < .1 ? fallback : dot(pigment(sampleValue), LUMA);
+        }
+        vec3 illuminate(vec3 albedo, vec3 normal, vec2 pixel, vec2 origin,
+                        vec3 tint, float radius, float power, float roughness) {
+          vec2 offset = (origin - pixel) / uScale;
+          float t = clamp(1.0 - length(offset) / radius, 0.0, 1.0);
+          float falloff = t * t * (3.0 - 2.0 * t);
+          vec3 direction = normalize(vec3(offset, 75.0));
+          float diffuse = max(dot(normal, direction), 0.0);
+          vec3 halfway = normalize(direction + vec3(0.0, 0.0, 1.0));
+          float specular = pow(max(dot(normal, halfway), 0.0), mix(48.0, 14.0, roughness));
+          // Diffuse is multiplied by the original pigment. The moving highlight
+          // is a separate material reflection, not an air-glow painted over it.
+          return tint * power * falloff * (albedo * (.20 + diffuse * 1.65)
+            + vec3(specular * .16 * (1.0 - roughness * .6)));
+        }
         void main() {
           vec4 surface = texture(uTexture, vTextureCoord);
+          if (surface.a < .001) { finalColor = vec4(0.0); return; }
           vec2 pixel = vTextureCoord * uInputSize.xy;
-          float fire = pow(max(0.0, 1.0 - distance(pixel, uFire) / (235.0 * uScale)), 2.0);
-          float spirit = pow(max(0.0, 1.0 - distance(pixel, uWisp) / (95.0 * uScale + uReach)), 2.0);
-          float luminance = dot(surface.rgb, vec3(.2126, .7152, .0722));
-          vec3 material = mix(vec3(luminance), surface.rgb, .91);
-          vec2 texel = uInputSize.zw;
-          vec3 left = texture(uTexture, vTextureCoord - vec2(texel.x * 2.0, 0.0)).rgb;
-          vec3 up = texture(uTexture, vTextureCoord - vec2(0.0, texel.y * 2.0)).rgb;
-          vec3 relief = normalize(vec3((luminance - dot(left, vec3(.333))) * 2.4,
-            (luminance - dot(up, vec3(.333))) * 2.4, 1.0));
-          vec3 direction = normalize(vec3(uFire - pixel, 100.0));
-          float bevel = max(.25, dot(relief, direction));
-          vec3 light = vec3(.48, .58, .86) + vec3(2.8, 1.35, .48) * fire * uHeat * bevel
-            + vec3(.30, 2.0, 1.65) * spirit;
-          vec3 emissive = max(vec3(0.0), material - vec3(.40, .43, .36)) * vec3(.15, .20, .32);
-          finalColor = vec4(material * light + emissive, surface.a);
+          vec3 raw = pigment(surface);
+          float height = dot(raw, LUMA);
+          vec2 stepSize = uInputSize.zw * 2.0;
+          float dx = heightAt(vTextureCoord + vec2(stepSize.x, 0.0), height)
+            - heightAt(vTextureCoord - vec2(stepSize.x, 0.0), height);
+          float dy = heightAt(vTextureCoord + vec2(0.0, stepSize.y), height)
+            - heightAt(vTextureCoord - vec2(0.0, stepSize.y), height);
+          vec3 normal = normalize(vec3(-dx * 7.0, -dy * 7.0, 1.0));
+          // The art supplies colour and relief; illumination is evaluated anew
+          // for every pixel and frame in linear light, with restrained moon fill.
+          vec3 albedo = pow(max(mix(vec3(height), raw, .52), vec3(0.0)), vec3(2.2));
+          float roughness = clamp(.70 - abs(dx + dy) * 1.7, .28, .78);
+          vec3 lit = albedo * vec3(.13, .16, .24);
+          lit += illuminate(albedo, normal, pixel, uFire, vec3(1.0, .29, .045), 270.0, uHeat * 4.2, roughness);
+          lit += illuminate(albedo, normal, pixel, uWake, vec3(1.0, .18, .025), 155.0, uHeat * 1.1, roughness);
+          lit += illuminate(albedo, normal, pixel, uWisp, vec3(.97, .99, 1.0), 175.0, uSpirit * 3.4, roughness);
+          vec3 mapped = vec3(1.0) - exp(-lit * 1.25);
+          finalColor = vec4(pow(mapped, vec3(1.0 / 2.2)) * surface.a, surface.a);
         }`,
     }),
     resources: { lighting: {
       uFire: { value: new Float32Array([98, 310]), type: 'vec2<f32>' },
       uWisp: { value: new Float32Array([68, 330]), type: 'vec2<f32>' },
-      uHeat: { value: 1, type: 'f32' }, uReach: { value: 35, type: 'f32' }, uScale: { value: 1, type: 'f32' },
+      uWake: { value: new Float32Array([40, 320]), type: 'vec2<f32>' },
+      uHeat: { value: 1, type: 'f32' }, uSpirit: { value: 1, type: 'f32' }, uScale: { value: 1, type: 'f32' },
     } },
   });
 }
@@ -205,14 +233,14 @@ export class PixiFlightView {
     this.wisp = new PIXI.Container();
     this.wispGlow = new PIXI.Sprite(this.glowTexture);
     this.wispGlow.anchor.set(.5);
-    this.wispGlow.tint = 0x87e7c8;
+    this.wispGlow.tint = 0xf4f7ff;
     this.wispGlow.blendMode = 'add';
-    this.wispCore = new PIXI.Graphics().circle(0, 0, 2.3).fill(0xe6fff0);
+    this.wispCore = new PIXI.Graphics().circle(0, 0, 2.3).fill(0xffffff);
     this.wispTrail = new PIXI.Graphics();
     this.wispField = new PIXI.Graphics().circle(0, 0, 100)
       .fill({ color: 0x8cebd0, alpha: .025 }).stroke({ color: 0xa7f4dd, width: .8, alpha: .23 });
     this.wispFieldGlow = new PIXI.Sprite(this.glowTexture);
-    this.wispFieldGlow.anchor.set(.5); this.wispFieldGlow.tint = 0x7dedd0;
+    this.wispFieldGlow.anchor.set(.5); this.wispFieldGlow.tint = 0xd9e5ff;
     this.wispFieldGlow.alpha = .13; this.wispFieldGlow.blendMode = 'add';
     this.wispRange = new PIXI.Container();
     this.wispRange.addChild(this.wispFieldGlow, this.wispField);
@@ -493,8 +521,11 @@ export class PixiFlightView {
     lighting.uScale = scale;
     lighting.uFire[0] = engine.player.x * scale; lighting.uFire[1] = viewY(engine) * scale;
     lighting.uWisp[0] = spirit.x * scale; lighting.uWisp[1] = spirit.y * scale;
-    lighting.uReach = spirit.radius * scale;
-    lighting.uHeat = (engine.boostTime > 0 ? 1.65 : .50 + engine.flame / 200) + (engine.reducedMotion ? 0 : Math.sin(time * 8) * .055);
+    const wake = engine.trail[Math.max(0, engine.trail.length - 13)];
+    lighting.uWake[0] = (wake ? wake.worldX - distance : engine.player.x - 35) * scale;
+    lighting.uWake[1] = (wake?.y ?? viewY(engine)) * scale;
+    lighting.uSpirit = spirit.phase === 'cooldown' ? .65 + spirit.recovery * .35 : 1.15;
+    lighting.uHeat = (engine.boostTime > 0 ? 2.0 : .75 + engine.flame / 200) + (engine.reducedMotion ? 0 : Math.sin(time * 9) * .04 + Math.sin(time * 17) * .025);
     this.terrainLayer.filterArea.width = W * scale; this.terrainLayer.filterArea.height = H * scale;
     this.scene.filterArea.width = W * scale; this.scene.filterArea.height = H * scale;
     this.backdrop.x = W * .73 - this.backdrop.width * .84 + Math.sin(distance * .0003) * 8;
@@ -709,7 +740,7 @@ export class PixiFlightView {
       .stroke({ color: 0xa6eed6, alpha: .7, width: 1.4 });
     this.wispCore.scale.set(.92 + Math.sin(time * 3.1) * .12);
     this.wispGlow.width = this.wispGlow.height = carrying ? 48 : phase === 'cooldown' ? 24 : 38;
-    this.wispGlow.tint = carrying ? 0xffd79b : 0x87e7c8;
+    this.wispGlow.tint = 0xf4f7ff;
     this.wispCargo.visible = carrying;
     this.wispTrail.clear();
     const history = engine.wisp.history;
@@ -717,7 +748,7 @@ export class PixiFlightView {
       const a = history[i - 1], b = history[i];
       this.wispTrail.moveTo(a.x - viewDistance(engine) - wx, a.y - wy)
         .lineTo(b.x - viewDistance(engine) - wx, b.y - wy)
-        .stroke({ color: carrying ? 0xffd997 : 0x9cf4dc, width: 1.5,
+        .stroke({ color: carrying ? 0xffd997 : 0xe9efff, width: 1.5,
           alpha: i / history.length * .65 });
     }
   }

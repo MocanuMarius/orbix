@@ -846,7 +846,7 @@ export class PhoenixFlight {
     for (const source of [
       { x: this.player.x, y: this.renderPlayerY ?? this.player.y, radius: 235,
         color: this.boostTime > 0 ? 'rgba(255,141,56,.38)' : 'rgba(255,141,56,.24)' },
-      { x: wisp.x, y: wisp.y, radius: 95 + wisp.radius, color: 'rgba(104,240,204,.20)' },
+      { x: wisp.x, y: wisp.y, radius: 95 + wisp.radius, color: 'rgba(245,248,255,.34)' },
     ]) {
       const light = c.createRadialGradient(source.x, source.y, 0, source.x, source.y, source.radius);
       light.addColorStop(0, source.color); light.addColorStop(1, 'rgba(0,0,0,0)');
@@ -961,7 +961,7 @@ export class PhoenixFlight {
       c.beginPath(); c.arc(homeX, homeY, 13, -Math.PI / 2, -Math.PI / 2 + TAU * recovery); c.stroke();
     }
     const history = this.wisp.history;
-    c.strokeStyle = carrying ? '#ffdc99' : '#a5f4db'; c.lineWidth = 1.4;
+    c.strokeStyle = carrying ? '#ffdc99' : '#e9efff'; c.lineWidth = 1.4;
     for (let i = 1; i < history.length; i++) {
       c.globalAlpha = i / history.length * .6; c.beginPath();
       c.moveTo(history[i - 1].x - (this.renderDistance ?? this.distance), history[i - 1].y);
@@ -969,10 +969,10 @@ export class PhoenixFlight {
     }
     c.globalAlpha = 1;
     const glow = c.createRadialGradient(x, y, 0, x, y, 28);
-    glow.addColorStop(0, carrying ? 'rgba(255,223,158,.8)' : 'rgba(190,255,228,.8)');
-    glow.addColorStop(.35, 'rgba(115,225,208,.25)'); glow.addColorStop(1, 'rgba(115,225,208,0)');
+    glow.addColorStop(0, 'rgba(250,252,255,.8)');
+    glow.addColorStop(.35, 'rgba(230,240,255,.25)'); glow.addColorStop(1, 'rgba(230,240,255,0)');
     c.fillStyle = glow; c.fillRect(x - 28, y - 28, 56, 56);
-    c.fillStyle = '#d9ffe8'; c.beginPath(); c.arc(x, y, 3, 0, TAU); c.fill();
+    c.fillStyle = '#ffffff'; c.beginPath(); c.arc(x, y, 3, 0, TAU); c.fill();
     if (carrying) { c.fillStyle = '#ffd38a'; c.beginPath(); c.ellipse(x + 8, y + 3, 3, 5, 0, 0, TAU); c.fill(); }
     c.restore();
   }
