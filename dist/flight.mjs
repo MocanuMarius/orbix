@@ -1,4 +1,6 @@
 /* Emberwing's self-contained canvas flight simulation and renderer. */
+import { FLAME_TUNING } from './vitality.mjs';
+export { FLAME_TUNING } from './vitality.mjs';
 const TAU = Math.PI * 2;
 const STEP = 1 / 60;
 const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
@@ -124,10 +126,13 @@ export function buildFlightLayout({ seed = 1, terrain = 'ruins', elite = false,
     const feature = terrain === 'ruins' ? 'arch-relic' : terrain === 'canopy'
       ? obstacle.soft ? 'thorn-heart' : 'branch-dew' : 'spire-shelter';
     const rich = obstacle.soft || i % 4 === 1;
-    const add = (dx, value = 1) => {
-      const ex = obstacle.x + inward[0] + dx;
+    const add = (dx, value = 1, fuel = false) => {
+      const ex = obstacle.x + (fuel ? clamp(inward[0] + dx, 0, 28) : inward[0] + dx);
       let ey = clamp(obstacle.center + side * obstacle.gap / 2 + inward[1]
         - side * (obstacle.motion + 34), 42, height - 42);
+      // Fuel sits inward from its landform so a deliberate, gentle approach
+      // can sustain flight. Larger relics stay beside the actual terrain edge.
+      if (fuel) ey = lerp(ey, obstacle.center, .60);
       // Adjacent scenery also participates, including every possible sway.
       const clear = () => obstacles.every(other =>
         Math.abs(other.x - ex) > 300 || obstaclePolygons({ ...other, motion: 0 }).every(p =>
@@ -135,13 +140,19 @@ export function buildFlightLayout({ seed = 1, terrain = 'ruins', elite = false,
       for (let attempt = 0; !clear() && attempt < 12; attempt++) ey = lerp(ey, obstacle.center, .2);
       if (!clear()) return;
       embers.push({ id: `${i}:${embers.length}`, x: ex, y: ey, value, feature,
-        anchor: i, collected: false, attracted: false, phase: loot() * TAU });
+        fuel, anchor: i, collected: false, attracted: false, phase: loot() * TAU });
     };
     // Ruins: relic below an arch. Canopy: dew along a branch, richer at thorns.
     // Storm: a reward tucked behind the trailing face of a spire.
     const dx = terrain === 'storm' ? obstacle.width * .30 : 0;
-    add(dx, rich ? 3 : 1);
-    if (i % 2 === 0) add(dx + (terrain === 'ruins' ? 46 : -46));
+    add(dx - 48, 1, true);
+    if (rich) add(dx + 25, 3);
+  }
+  if (obstacles.length) {
+    const first = obstacles[0];
+    embers.push({ id: 'approach-flame', x: first.x - 270, y: height * .5 + 12,
+      value: 1, feature: 'approach', fuel: true, anchor: 0,
+      collected: false, attracted: false, phase: loot() * TAU });
   }
   // Both renderers and the collection broad phase rely on world-X ordering.
   embers.sort((a, b) => a.x - b.x);
@@ -174,6 +185,8 @@ export class PhoenixFlight {
       rebirth: false, rebirthHp: 2, ward: 0, steady: false, ...options.modifiers };
     this.maxHp = Math.max(1, Number(options.maxHp ?? this.mod.maxHp) || 3);
     this.hp = clamp(Number(options.hp ?? this.maxHp), 1, this.maxHp);
+    this.flame = clamp(Number.isFinite(options.flame) ? options.flame : FLAME_TUNING.maximum, 0, FLAME_TUNING.maximum);
+    this.flaps = 0; this.effortSpent = 0; this.flameRestored = 0;
     this.shield = Math.max(0, Number(options.shield || 0)) + Math.max(0, Number(this.mod.ward || 0));
     this.rebirthAvailable = Boolean(options.rebirthAvailable ?? this.mod.rebirth);
     this.rebirthUsed = false;
@@ -248,7 +261,7 @@ export class PhoenixFlight {
   get baseSpeed() { return FLIGHT_TUNING.forwardSpeed * clamp(Number(this.mod.speed) || 1, .80, 1.25) * (this.elite ? 1.045 : 1); }
   get boostDuration() { return .9 * clamp(Number(this.mod.boostDuration) || 1, .5, 2.5); }
   get boostCooldown() { return 9 * clamp(Number(this.mod.boostCooldown) || 1, .35, 2); }
-  get wingRate() { return this.boostTime > 0 ? 9 : 5.8; }
+  get wingRate() { return this.boostTime > 0 ? 9 : this.flame < FLAME_TUNING.flapCost ? .45 : 5.8; }
   get embers() { return Math.floor((this.baseEmbers + this.bonusEmbers) * Math.max(0, Number(this.mod.reward) || 1)); }
 
   loadImage(url, property) {
@@ -294,9 +307,16 @@ export class PhoenixFlight {
 
   flap() {
     if (!this.running || this.paused || this.finished) return false;
+    if (this.flame < FLAME_TUNING.flapCost) {
+      this.setEvent('Flame exhausted · glide toward an ember'); this.notify();
+      return false;
+    }
+    this.flame -= FLAME_TUNING.flapCost;
+    this.flaps++; this.effortSpent += FLAME_TUNING.flapCost;
     this.player.vy = -FLIGHT_TUNING.flapImpulse * this.scaleY * clamp(Number(this.mod.flap) || 1, .80, 1.20);
     this.burst(this.player.x - 10, this.player.y + 7, 5, '#ffbd53');
     this.sound('flap');
+    this.notify();
     return true;
   }
 
@@ -496,7 +516,7 @@ export class PhoenixFlight {
     while (this.trail.length && (this.trail.length > 72 || this.time - this.trail[0].time > 1.15)) this.trail.shift();
     for (const effect of this.pickupEffects) effect.life -= dt;
     this.pickupEffects = this.pickupEffects.filter(effect => effect.life > 0);
-    this.emitClock += dt * (this.boostTime > 0 ? 84 : 45);
+    this.emitClock += dt * (this.boostTime > 0 ? 84 : 20 + 25 * this.flame / FLAME_TUNING.maximum);
     while (this.emitClock >= 1) { this.emitClock--; this.emitFlame(); }
     for (let i = this.particles.length - 1; i >= 0; i--) {
       const p = this.particles[i];
@@ -524,6 +544,7 @@ export class PhoenixFlight {
         if (this.rebirthAvailable && !this.rebirthUsed) {
           this.rebirthUsed = true; this.rebirthAvailable = false;
           this.hp = Math.min(this.maxHp, Math.max(1, Number(this.mod.rebirthHp) || 1));
+          this.flame = Math.max(this.flame, FLAME_TUNING.checkpointMinimum);
           this.invincible = 2.3;
           this.player.vy = -90 * this.scaleY;
           this.trail.length = 0;
@@ -540,10 +561,13 @@ export class PhoenixFlight {
   collect(ember) {
     if (ember.collected || this.finished) return;
     ember.collected = true;
+    const fuel = ember.generated ? FLAME_TUNING.generatedFuel : ember.value === 3 ? FLAME_TUNING.heartFuel : FLAME_TUNING.emberFuel;
+    const restored = Math.min(fuel, FLAME_TUNING.maximum - this.flame);
+    this.flame += restored; this.flameRestored += restored;
     const origin = ember.attracted ? this.getWispState() : this.player;
     this.wispRecovery = 0;
     this.pickupEffects.push({ x: origin.x, y: origin.y,
-      value: ember.value === 3 ? 3 : 1, life: .72 });
+      value: ember.value === 3 ? 3 : 1, restored, life: .72 });
     if (this.pickupEffects.length > 12) this.pickupEffects.shift();
     // Converted thorns earn currency, but cannot feed pickup-triggered cards
     // and create an unbounded collection / boost / conversion loop.
@@ -558,7 +582,8 @@ export class PhoenixFlight {
     this.bonusEmbers += value - 1;
     this.score += value * (this.boostTime > 0 && this.cards.has('golden-wake') ? 20 : 10);
     this.burst(this.player.x - 9, this.player.y + 7, value === 3 ? 14 : 5, value === 3 ? '#fff2c4' : '#ffe4a2');
-    if (value === 3) this.setEvent('Heart ember · +3');
+    if (value === 3) this.setEvent(`Heart ember · +${restored} Flame`);
+    else if (restored > 0 && this.flame <= 45) this.setEvent(`Flame rekindled · +${restored}`);
     if (this.cards.has('kindled-spirit') && this.baseEmbers % 3 === 0) {
       this.cooldown = Math.max(0, this.cooldown - 1);
       this.setEvent('Kindled Spirit · Boost charged');
@@ -579,6 +604,8 @@ export class PhoenixFlight {
 
   getState() {
     return { hp: this.hp, maxHp: this.maxHp, score: Math.floor(this.score), embers: this.embers,
+      flame: this.flame, maxFlame: FLAME_TUNING.maximum, flapCost: FLAME_TUNING.flapCost,
+      canFlap: this.flame >= FLAME_TUNING.flapCost, flaps: this.flaps,
       collected: this.baseEmbers, boostCooldown: this.cooldown,
       boostReady: this.cooldown <= .001 && this.boostTime <= 0,
       boostTime: this.boostTime, progress: clamp(this.time / this.duration, 0, 1),
@@ -599,10 +626,12 @@ export class PhoenixFlight {
     if (this.raf != null) cancelAnimationFrame(this.raf);
     this.raf = null;
     const result = { success, hp: Math.max(0, this.hp), embers: this.embers,
+      flame: this.flame,
       score: Math.floor(this.score), collected: this.baseEmbers, collisions: this.collisions,
       boosts: this.boosts, rebirthUsed: this.rebirthUsed,
       challengeComplete: success && this.challengeComplete(),
       stats: { baseEmbers: this.baseEmbers, bonusEmbers: this.bonusEmbers, nearMisses: this.nearMisses,
+        flaps: this.flaps, effortSpent: this.effortSpent, flameRestored: this.flameRestored,
         destroyedThorns: this.destroyedThorns, gustSeconds: Math.round(this.gustSeconds),
         flightSeconds: Math.round(this.time), challenge: this.challengeText } };
     this.notify(); this.onFinish(result);
@@ -867,7 +896,8 @@ export class PhoenixFlight {
       c.globalAlpha = Math.max(0, 1 - t * 3) * .35; c.fillStyle = '#ffe6a5';
       c.beginPath(); c.arc(effect.x, effect.y, 23, 0, TAU); c.fill();
       c.globalAlpha = Math.min(1, (1 - t) * 3); c.font = 'bold 18px system-ui'; c.textAlign = 'center';
-      c.fillText(`+${effect.value}`, effect.x + 15, effect.y - 22 - (this.reducedMotion ? 0 : t * 32));
+      c.font = effect.restored > 0 ? 'bold 13px system-ui' : 'bold 18px system-ui';
+      c.fillText(effect.restored > 0 ? `+${effect.restored} FLAME` : `+${effect.value}`, effect.x + 15, effect.y - 22 - (this.reducedMotion ? 0 : t * 32));
     }
     c.restore();
   }

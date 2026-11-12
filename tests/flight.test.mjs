@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { PhoenixFlight, buildFlightLayout, FLIGHT_PATTERNS, obstaclePolygons, circleHitsPolygon, FLIGHT_TUNING } from '../dist/flight.mjs';
+import { PhoenixFlight, buildFlightLayout, FLIGHT_PATTERNS, obstaclePolygons, circleHitsPolygon, FLIGHT_TUNING, FLAME_TUNING } from '../dist/flight.mjs';
 
 function makeFlight(options = {}) {
   const gradient = { addColorStop() {} };
@@ -12,6 +12,55 @@ function makeFlight(options = {}) {
     getContext: () => context, getBoundingClientRect: () => ({ width: 390, height: 620 }) };
   return new PhoenixFlight({ canvas, seed: 'test', ...options });
 }
+
+test('wingbeats consume Flame; exhaustion preserves glide and a pickup enables flight again', () => {
+  const flight = makeFlight({ flame: FLAME_TUNING.flapCost });
+  flight.running = true;
+  assert.equal(flight.flap(), true);
+  assert.equal(flight.flame, 0);
+  const velocity = flight.player.vy;
+  assert.equal(flight.flap(), false);
+  assert.equal(flight.player.vy, velocity, 'an exhausted tap cannot give free lift');
+  flight.step(.1);
+  assert.ok(flight.player.vy > velocity, 'gravity and forward movement continue while gliding');
+  assert.equal(flight.hp, 3, 'exhaustion is separate from collision damage');
+  const ember = { collected: false };
+  flight.collect(ember);
+  assert.equal(flight.flame, FLAME_TUNING.emberFuel);
+  flight.collect(ember);
+  assert.equal(flight.flame, FLAME_TUNING.emberFuel, 'one pickup cannot refuel twice');
+  assert.equal(flight.flap(), true);
+  assert.equal(flight.effortSpent, FLAME_TUNING.flapCost * 2);
+  flight.paused = true;
+  assert.equal(flight.flap(), false);
+  assert.equal(flight.flame, FLAME_TUNING.emberFuel - FLAME_TUNING.flapCost);
+  flight.destroy();
+});
+
+test('fuel values are capped, generated embers remain finite, and refuelling never heals collision hearts', () => {
+  const flight = makeFlight({ hp: 1, flame: 0 });
+  flight.collect({ value: 3 });
+  assert.equal(flight.flame, FLAME_TUNING.heartFuel);
+  flight.collect({ generated: true });
+  assert.equal(flight.flame, FLAME_TUNING.heartFuel + FLAME_TUNING.generatedFuel);
+  for (let i = 0; i < 10; i++) flight.collect({ value: 3 });
+  assert.equal(flight.flame, FLAME_TUNING.maximum);
+  assert.equal(flight.flameRestored, FLAME_TUNING.maximum);
+  assert.equal(flight.hp, 1);
+  flight.destroy();
+});
+
+test('each seeded terrain supplies sparse fuel before a depleted checkpoint reserve could run out', () => {
+  for (const terrain of ['ruins', 'canopy', 'storm']) for (let seed = 0; seed < 24; seed++) {
+    const layout = buildFlightLayout({ terrain, seed });
+    const fuel = layout.embers.filter(e => e.fuel);
+    assert.ok((fuel[0].x - 98) / 154 < 2.5, 'the first fuel has a forgiving approach');
+    for (let i = 1; i < fuel.length; i++) {
+      assert.ok((fuel[i].x - fuel[i - 1].x) / 154 < 5, 'no unannounced long fuel drought');
+    }
+    assert.ok(layout.embers.length < layout.obstacles.length * 1.7, 'sustenance still leaves air and scenery uncluttered');
+  }
+});
 
 test('all twelve authored motifs generate deterministic, bounded playable openings', () => {
   assert.equal(Object.values(FLIGHT_PATTERNS).flat().length, 12);
@@ -66,8 +115,10 @@ test('sparse terrain rewards stay near their scenery and clear of its full motio
         assert.ok(ember.x >= previousX, 'collection broad phase requires sorted pickups');
         previousX = ember.x;
         const anchor = layout.obstacles[ember.anchor];
-        assert.ok(Math.abs(ember.x - anchor.x) < anchor.width * 1.6);
-        assert.ok(ember.feature.startsWith(terrain === 'ruins' ? 'arch-' : terrain === 'storm' ? 'spire-' : anchor.soft ? 'thorn-' : 'branch-'));
+        if (ember.feature !== 'approach') {
+          assert.ok(Math.abs(ember.x - anchor.x) < anchor.width * 1.6);
+          assert.ok(ember.feature.startsWith(terrain === 'ruins' ? 'arch-' : terrain === 'storm' ? 'spire-' : anchor.soft ? 'thorn-' : 'branch-'));
+        }
         for (const obstacle of layout.obstacles) {
           if (Math.abs(obstacle.x - ember.x) > 300) continue;
           for (const sign of [-1, 0, 1]) {

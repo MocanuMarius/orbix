@@ -20,6 +20,7 @@ function canvas() {
 function fly(options) {
   let result;
   const flight = new PhoenixFlight({ ...options, canvas: canvas(), onFinish: value => { result = value; } });
+  if (options.ignoreFuel) flight.layout.embers = [];
   flight.start();
   for (let frame = 0; frame < 9000 && !flight.finished; frame++) {
     const next = flight.layout.obstacles.find(obstacle => !obstacle.destroyed &&
@@ -49,6 +50,17 @@ test('baseline and three contrasting builds can clear the same authored terrain 
   }
 });
 
+test('fuel collection sustains a route that cannot be cleared by spending the initial reserve alone', () => {
+  const options = { terrain: 'canopy', seed: 'qa-shared-flight', duration: 38, hp: 3 };
+  const supplied = fly(options);
+  const starved = fly({ ...options, ignoreFuel: true });
+  assert.equal(supplied.success, true);
+  assert.ok(supplied.stats.flameRestored > 0);
+  assert.ok(supplied.stats.effortSpent > 100, 'the route actually needs gathered fuel');
+  assert.equal(starved.success, false);
+  assert.ok(starved.flame < 7);
+});
+
 test('an entire seven-stop expedition integrates flight challenges, rewards, reloads and single banking', () => {
   let state = newState();
   state.run = createRun(state.profile, 'qa-complete-expedition');
@@ -72,7 +84,7 @@ test('an entire seven-stop expedition integrates flight challenges, rewards, rel
       const modifiers = getModifiers(run.cards, run.skills);
       const result = fly({ seed: `${run.seed}:${node.id}`, terrain: node.terrain,
         elite: node.elite, duration: node.duration, cards: run.cards, modifiers,
-        hp: run.hp, maxHp: run.maxHp, shield: run.shield,
+        hp: run.hp, maxHp: run.maxHp, shield: run.shield, flame: run.flame,
         rebirthAvailable: modifiers.rebirth && !run.usedRebirth,
         challengeId: node.challengeId, challengeTarget: node.challengeTarget });
       const before = run.embers;

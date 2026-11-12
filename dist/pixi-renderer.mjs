@@ -455,7 +455,7 @@ export class PixiFlightView {
     lighting.uFire[0] = engine.player.x; lighting.uFire[1] = viewY(engine);
     lighting.uWisp[0] = spirit.x; lighting.uWisp[1] = spirit.y;
     lighting.uReach = spirit.radius;
-    lighting.uHeat = (engine.boostTime > 0 ? 1.65 : 1) + (engine.reducedMotion ? 0 : Math.sin(time * 8) * .055);
+    lighting.uHeat = (engine.boostTime > 0 ? 1.65 : .50 + engine.flame / 200) + (engine.reducedMotion ? 0 : Math.sin(time * 8) * .055);
     this.terrainLayer.filterArea.width = W; this.terrainLayer.filterArea.height = H;
     this.backdrop.x = (W - this.backdrop.width) / 2 + Math.sin(distance * .0006) * 12;
     this.sun.alpha = engine.terrain === 'storm' ? .18 : .31;
@@ -608,7 +608,8 @@ export class PixiFlightView {
       item.flash.alpha = Math.max(0, 1 - t * 3) * .8;
       item.ring.clear().circle(0, 0, engine.reducedMotion ? 18 : 8 + t * 44)
         .stroke({ width: 2 * (1 - t), color: 0xffdc86, alpha: (1 - t) * .8 });
-      item.label.text = `+${effect.value}`;
+      item.label.text = effect.restored > 0 ? `+${effect.restored} FLAME` : `+${effect.value}`;
+      item.label.style.fontSize = effect.restored > 0 ? 13 : 18;
       item.label.position.set(15, -22 - (engine.reducedMotion ? 0 : t * 32));
       item.label.alpha = Math.min(1, (1 - t) * 3);
       item.label.scale.set(1 + Math.sin(t * Math.PI) * .18);

@@ -1,4 +1,5 @@
 /** Seeded, DOM-free campaign model. Public commands mutate their run/profile and return booleans. */
+import { FLAME_TUNING } from './vitality.mjs';
 export const SAVE_KEY = 'emberwing.save.v1';
 export const TERRAINS = Object.freeze({
   ruins: { id: 'ruins', name: 'Sunken Ruins', color: '#e8b36b', description: 'Ancient arches, sweeping gates, and golden wisp trails.' },
@@ -120,6 +121,7 @@ export function loadState(storage) {
       state.run = parsed.run;
       state.run.skills = cleanProfile({ skills: parsed.run.skills }).skills;
       state.run.hp = clamp(state.run.hp, 0, getModifiers(state.run.cards, state.run.skills).maxHp);
+      state.run.flame = clamp(Number.isFinite(state.run.flame) ? state.run.flame : FLAME_TUNING.maximum, 0, FLAME_TUNING.maximum);
       state.run.maxHp = getModifiers(state.run.cards, state.run.skills).maxHp;
       state.run.embers = count(state.run.embers);
       state.run.score = count(state.run.score);
@@ -184,7 +186,7 @@ export function createRun(profile = newState().profile, seed = freshSeed()) {
   const skills = cleanProfile({ skills: profile?.skills }).skills;
   const run = {
     id: `${normalizedSeed}-${freshSeed()}`, seed: normalizedSeed, step: 0, map: makeMap(normalizedSeed), path: [], current: null,
-    cards: [], skills, hp: 3, maxHp: 3, shield: 0, embers: 0, score: 0, usedRebirth: false,
+    cards: [], skills, hp: 3, maxHp: 3, flame: FLAME_TUNING.maximum, shield: 0, embers: 0, score: 0, usedRebirth: false,
     offers: [], phase: 'starter', success: false, banked: false, supportChoices: [],
     stats: { collected: 0, collisions: 0, boosts: 0, flights: 0, elites: 0, challenges: 0, events: 0 },
   };
@@ -256,6 +258,8 @@ export function finishFlight(run, result) {
   const node = run.current;
   const success = result.success && finite(result.hp) > 0;
   run.hp = clamp(finite(result.hp), 0, run.maxHp);
+  const remainingFlame = clamp(Number.isFinite(result.flame) ? result.flame : run.flame ?? FLAME_TUNING.maximum, 0, FLAME_TUNING.maximum);
+  run.flame = success && node.type !== 'finale' ? Math.max(FLAME_TUNING.checkpointMinimum, remainingFlame) : remainingFlame;
   run.embers += count(result.embers);
   run.score += count(result.score);
   run.shield = 0;
@@ -272,7 +276,7 @@ export function finishFlight(run, result) {
     run.stats.challenges += 1;
   }
   if (success) run.embers += node.bonusEmbers;
-  run.lastFlight = { success, terrain: node.terrain, elite: node.elite, embers: count(result.embers), completionBonus: success ? node.bonusEmbers : 0, challengeBonus: challengeComplete ? node.challengeBonus : 0, score: count(result.score), collected: count(result.collected) };
+  run.lastFlight = { success, terrain: node.terrain, elite: node.elite, embers: count(result.embers), completionBonus: success ? node.bonusEmbers : 0, challengeBonus: challengeComplete ? node.challengeBonus : 0, score: count(result.score), collected: count(result.collected), flame: remainingFlame, recoveredFlame: run.flame - remainingFlame };
   if (!success || node.type === 'finale') {
     run.phase = 'ended';
     run.success = success && node.type === 'finale';
@@ -288,12 +292,12 @@ export function finishFlight(run, result) {
 const choice = (id, title, description, effect, detail = description) => ({ id, title, description, detail, effect });
 function makeSupportChoices(run) {
   const canHeal = run.hp < run.maxHp;
-  const healOrWard = canHeal ? { hp: 1 } : { shield: 1 };
+  const healOrWard = canHeal ? { hp: 1, flame: 100 } : { shield: 1, flame: 100 };
   const healingTitle = canHeal ? 'Restore a heart' : 'Carry an ash ward';
-  const healingText = canHeal ? 'Recover 1 heart before the next flight.' : 'Absorb one extra hit during the next flight.';
+  const healingText = (canHeal ? 'Recover 1 heart before the next flight.' : 'Absorb one extra hit during the next flight.') + ' Refill Flame to 100.';
   if (run.current.kind === 'camp') return [
     choice('rest', healingTitle, healingText, healOrWard),
-    choice('gather', 'Gather the glow', 'Gain 18 embers for your permanent skill tree.', { embers: 18 }),
+    choice('gather', 'Gather the glow', 'Gain 18 embers and recover 22 Flame.', { embers: 18, flame: 22 }),
   ];
   switch (run.current.eventIndex) {
     case 0: return [
@@ -313,7 +317,7 @@ function makeSupportChoices(run) {
       choice('shrine-keep', 'Keep your present form', 'Keep your loadout and gain 20 embers.', { embers: 20 }),
     ];
     case 4: return [
-      choice('well', canHeal ? 'Drink the luminous water' : 'Seal the light in a ward', canHeal ? 'Recover up to 2 hearts.' : healingText, canHeal ? { hp: 2 } : { shield: 1 }),
+      choice('well', canHeal ? 'Drink the luminous water' : 'Seal the light in a ward', canHeal ? 'Recover up to 2 hearts and refill Flame.' : healingText, canHeal ? { hp: 2, flame: 100 } : { shield: 1, flame: 100 }),
       choice('well-gold', 'Catch the reflected light', 'Gain 15 embers and 150 score.', { embers: 15, score: 150 }),
     ];
     default: return [
@@ -334,6 +338,7 @@ export function resolveSupport(run, index) {
   run.embers = count(run.embers + finite(effect.embers));
   run.score = count(run.score + finite(effect.score));
   run.hp = clamp(run.hp + finite(effect.hp), 0, run.maxHp);
+  run.flame = clamp((run.flame ?? FLAME_TUNING.maximum) + finite(effect.flame), 0, FLAME_TUNING.maximum);
   run.shield = count(run.shield + finite(effect.shield), 2);
   run.stats.events += 1;
   if (effect.draft) {

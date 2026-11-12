@@ -6,7 +6,8 @@ A portrait mobile-browser phoenix roguelite. Five flight encounters and two supp
 
 Open the published game on a phone. Tap **Take Flight**, pick a starter card, then tap a glowing destination on the illustrated map. Scroll upward to scout future locations. Terrain, difficulty, challenge, and reward are shown before launching.
 
-- **Flap:** the large lower-right button. Tap to rise; release to fall.
+- **Flap:** the large lower-right button. A wingbeat costs **7 Flame**. Glide between taps to conserve effort. Below seven Flame, the phoenix cannot flap until an ember refuels it.
+- **Flame vitality:** start with 100. A normal ember restores **22**, a heart ember **38**, and a converted thorn mote **6**, capped at 100. Gliding spends no Flame. The HUD shows the reserve, and the phoenix's fire dims as it runs low. Collision hearts track injuries separately.
 - **Boost:** the smaller button next to Flap. A protected burst; a visible timer shows recharge.
 - **Pause:** hold Boost for half a second. Backgrounding or rotating the phone also pauses. Resume deliberately.
 - **Desktop testing:** Space / Up to flap, B / Shift to boost, Escape to pause.
@@ -15,9 +16,11 @@ Open the published game on a phone. Tap **Take Flight**, pick a starter card, th
 
 Progress is stored only in this browser. Reloading during flight restarts the current passage from its saved checkpoint, without retaining duplicate rewards from the abandoned attempt. Clearing browser data removes progress. Skill purchases are available between expeditions.
 
+Remaining Flame carries between flights. Clearing a passage lets the phoenix catch its breath up to a minimum reserve of 35. Resting at a camp or recovery event refills Flame; gathering glow at a camp instead restores 22 and awards currency. Existing saves receive a full reserve when first loaded with this system.
+
 ## Run the source
 
-Embers are sparse discoveries attached to scenery: relics below ruin arches, dew near canopy branches and thorn hearts, and rewards beside storm spires. A third of terrain sections have no pickups; occupied features hold one or two. Collection curls into the wisp over 0.32 seconds, then flashes with a ring and rising reward number. Its faint halo shows the actual attraction radius: collecting contracts it to 55%, recovering over 0.85 seconds. Hungry Wisp's Boost expansion also eases in and out. Large heart embers pay three currency but count as one pickup for card triggers and challenges. Kindled Spirit triggers every three pickups; Warm Heart heals after eight. Collection challenges require six to nine pickups. All placements reserve phoenix clearance across the full canopy sway envelope.
+Embers are sparse discoveries attached to scenery: relics below ruin arches, dew near canopy branches and thorn hearts, and rewards beside storm spires. A third of terrain sections have no pickups; occupied features hold one accessible fuel ember and sometimes a larger, riskier reward. An early approach ember and bounded distances between fuel sources support deliberate flight from a low checkpoint reserve. Collection curls into the wisp over 0.32 seconds, then flashes with a ring and rising reward number. Its faint halo shows the actual attraction radius: collecting contracts it to 55%, recovering over 0.85 seconds. Hungry Wisp's Boost expansion also eases in and out. Large heart embers pay three currency but count as one pickup for card triggers and challenges. Kindled Spirit triggers every three pickups; Warm Heart heals after eight. Collection challenges require six to nine pickups. All placements reserve phoenix clearance across the full canopy sway envelope.
 
 The game remains fully 2D. One WebGL material pass lights the existing scenery textures with warm phoenix light and cool wisp light; Boost increases the fire illumination. The Canvas fallback uses clipped light gradients. This is simulated 2D illumination, not 3D geometry or normal-mapped physical lighting.
 

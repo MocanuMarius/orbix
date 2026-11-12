@@ -195,6 +195,34 @@ test('camp choices remain useful at full health and resolve only once', () => {
   assert.equal(resolveSupport(run, 0), false);
 });
 
+test('Flame carries between flights, checkpoints provide a small reserve, and rest refills it', () => {
+  const run = freshRun('camp');
+  selectNode(run, getChoices(run)[0].id);
+  assert.equal(win(run, { flame: 10 }), true);
+  assert.equal(run.flame, 35);
+  assert.equal(run.lastFlight.flame, 10);
+  assert.equal(run.lastFlight.recoveredFlame, 25);
+  takeCard(run, run.offers[0]);
+  const state = newState(); state.run = run;
+  const memory = storage(); saveState(state, memory);
+  const restored = loadState(memory).run;
+  assert.equal(restored.flame, 35, 'reload retains the departure resource');
+  selectNode(restored, getChoices(restored)[0].id);
+  assert.ok(getSupportChoices(restored)[0].description.includes('Flame'));
+  resolveSupport(restored, 0);
+  assert.equal(restored.flame, 100);
+  assert.equal(resolveSupport(restored, 0), false);
+});
+
+test('existing saves gain a full Flame reserve without discarding the expedition', () => {
+  const state = newState(); state.run = freshRun('legacy-flame');
+  delete state.run.flame;
+  const memory = storage(); saveState(state, memory);
+  const restored = loadState(memory);
+  assert.equal(restored.run.seed, 'legacy-flame');
+  assert.equal(restored.run.flame, 100);
+});
+
 test('every event has two affordable nonlethal choices; draft events use normal flexible-slot rewards', () => {
   for (let index = 0; index < 6; index++) {
     for (const hp of [1, 2, 3]) {
