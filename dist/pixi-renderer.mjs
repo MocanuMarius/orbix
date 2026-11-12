@@ -451,15 +451,39 @@ export class PixiFlightView {
       let item = this.embers.get(ember.id);
       if (!item) {
         item = new PIXI.Container();
+        const rich = ember.value === 3;
         const glow = new PIXI.Sprite(this.glowTexture);
-        glow.anchor.set(.5); glow.width = glow.height = 33; glow.tint = 0xffbd62;
-        glow.alpha = .45; glow.blendMode = 'add';
+        glow.anchor.set(.5); glow.width = glow.height = rich ? 64 : 37;
+        glow.tint = rich ? 0xff8d42 : 0xffc86b;
+        glow.alpha = rich ? .58 : .35; glow.blendMode = 'add';
+        const tail = new PIXI.Sprite(this.glowTexture);
+        tail.anchor.set(1, .5); tail.width = rich ? 40 : 25; tail.height = rich ? 12 : 6;
+        tail.tint = 0xff913d; tail.alpha = .35; tail.blendMode = 'add';
         const core = new PIXI.Sprite(this.moteTexture);
-        core.anchor.set(.5); core.width = 9; core.height = 12;
-        item.addChild(glow, core); this.coinLayer.addChild(item); this.embers.set(ember.id, item);
+        core.anchor.set(.5); core.width = rich ? 16 : 9; core.height = rich ? 23 : 14;
+        item.addChild(glow, tail, core);
+        item.orbit = new PIXI.Container();
+        for (let j = 0; j < (rich ? 3 : 1); j++) {
+          const spark = new PIXI.Sprite(this.moteTexture);
+          spark.anchor.set(.5); spark.width = rich ? 3 : 2; spark.height = rich ? 5 : 3;
+          spark.alpha = .8; item.orbit.addChild(spark);
+        }
+        item.addChild(item.orbit);
+        if (rich) {
+          const label = new PIXI.Text({ text: '3', style: { fontFamily: 'system-ui, sans-serif',
+            fontSize: 12, fontWeight: '700', fill: 0xffefc6, stroke: { color: 0x241222, width: 3 } } });
+          label.anchor.set(.5); label.position.set(0, 20); item.addChild(label);
+        }
+        this.coinLayer.addChild(item); this.embers.set(ember.id, item);
       }
-      item.position.set(x, ember.y + (ember.attracted ? 0 : Math.sin(time * 2.8 + ember.phase) * 2));
-      item.scale.set(1 + Math.sin(time * 3 + ember.phase) * .07);
+      const animation = engine.reducedMotion ? 0 : time;
+      item.position.set(x, ember.y + (ember.attracted ? 0 : Math.sin(animation * 2.8 + ember.phase) * 2));
+      item.scale.set(1 + Math.sin(animation * 3 + ember.phase) * .07);
+      item.orbit.children.forEach((spark, j) => {
+        const angle = animation * 2 + ember.phase + j * Math.PI * 2 / item.orbit.children.length;
+        const radius = ember.value === 3 ? 17 : 10;
+        spark.position.set(Math.cos(angle) * radius, Math.sin(angle) * radius * .65);
+      });
     }
     for (const [id, item] of this.embers) if (!visibleEmbers.has(id)) {
       item.destroy({ children: true }); this.embers.delete(id);

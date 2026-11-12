@@ -84,14 +84,14 @@ export function buildFlightLayout({ seed = 1, terrain = 'ruins', elite = false,
   const obstacles = [], embers = [];
   let x = 690, previous = height * .5, index = 0;
   const extent = (Math.max(15, duration) - 2.8) * speed + 98;
-  while (x < extent) {
+  sections: while (x < extent) {
     const pattern = motifs[Math.floor(rng() * motifs.length)];
     for (const normalized of pattern.centers) {
       const center = clamp(height * normalized + (rng() - .5) * height * .025,
         previous - height * .115, previous + height * .115);
       const gap = height * (elite ? .305 : .34) * pattern.gap;
       const width = 132 + rng() * 35;
-      if (x + width * 1.3 + 35 > extent) return { obstacles, embers };
+      if (x + width * 1.3 + 35 > extent) break sections;
       const obstacle = {
         id: index, x, width, center,
         gap, phase: rng() * TAU, pattern: pattern.id,
@@ -103,18 +103,66 @@ export function buildFlightLayout({ seed = 1, terrain = 'ruins', elite = false,
       obstacle.topShape = index % 7 === 4 ? null : makeTerrainShape(width, height / 620, true, index, rng);
       obstacle.bottomShape = index % 7 === 1 ? null : makeTerrainShape(width * 1.08, height / 620, false, index + 1, rng);
       obstacles.push(obstacle);
-      // The main trail crosses the safe opening; the last mote offers a small
-      // optional deviation rather than an obligatory dangerous pickup.
-      for (let j = 0; j < 4; j++) {
-        embers.push({ id: `${index}:${j}`, x: x - 50 + j * (width + 60) / 3,
-          y: center + Math.sin(j * .85 + index) * gap * .17,
-          collected: false, attracted: false, phase: rng() * TAU });
-      }
+      // Preserve terrain seeds independently of the collectible design.
+      for (let j = 0; j < 4; j++) rng();
       previous = center;
       x += (286 + rng() * 27) * pattern.spacing;
       index++;
     }
   }
+  const loot = seededRandom(`${seed}:ember-routes`);
+  const patterns = ['rise', 'fall', 'fork', 'cache', 'ribbon'];
+  let bag = [], lastPattern;
+  for (const [i, obstacle] of obstacles.entries()) {
+    if (!bag.length) {
+      bag = [...patterns];
+      for (let j = bag.length - 1; j > 0; j--) {
+        const k = Math.floor(loot() * (j + 1));
+        [bag[j], bag[k]] = [bag[k], bag[j]];
+      }
+      if (bag[bag.length - 1] === lastPattern) [bag[0], bag[bag.length - 1]] = [bag[bag.length - 1], bag[0]];
+    }
+    const pattern = bag.pop(); lastPattern = pattern;
+    const side = !obstacle.topShape ? 1 : !obstacle.bottomShape ? -1 : loot() < .5 ? -1 : 1;
+    // Includes the entire canopy sway envelope and room for the phoenix.
+    const edge = obstacle.gap / 2 - obstacle.motion - 29;
+    const span = obstacle.width + 85;
+    const add = (t, offset, value = 1, route = 'trail') => {
+      const ex = obstacle.x - 55 + t * span;
+      let ey = clamp(obstacle.center + offset, 42, height - 42);
+      // Adjacent scenery also participates, including every possible sway.
+      const clear = () => obstacles.every(other =>
+        Math.abs(other.x - ex) > 300 || obstaclePolygons({ ...other, motion: 0 }).every(p =>
+          !circleHitsPolygon(ex, ey, 23 + other.motion, p)));
+      for (let attempt = 0; !clear() && attempt < 12; attempt++) ey = lerp(ey, obstacle.center, .2);
+      if (!clear()) return;
+      embers.push({ id: `${i}:${embers.length}`, x: ex, y: ey, value, pattern,
+        route: `${i}:${route}`, collected: false, attracted: false, phase: loot() * TAU });
+    };
+    if (pattern === 'fork' || pattern === 'cache') {
+      // A modest central reward remains available if the player declines the detour.
+      add(.12, -side * 12, 1, 'safe'); add(.88, -side * 12, 1, 'safe');
+      if (pattern === 'fork') {
+        [.05, .28, .5, .72, .95].forEach((t, j) =>
+          add(t, side * edge * (.50 + .50 * Math.sin(t * Math.PI)), j === 2 ? 3 : 1, 'risk'));
+      } else {
+        // Dense side cache rewards committing a Boost / Hungry Wisp charge.
+        add(.35, side * edge * .84, 1, 'risk');
+        add(.51, side * edge, 3, 'risk');
+        add(.67, side * edge * .84, 1, 'risk');
+      }
+    } else {
+      for (let j = 0; j < 5; j++) {
+        const t = j / 4;
+        const offset = pattern === 'rise' ? edge * (.8 - 1.6 * t)
+          : pattern === 'fall' ? edge * (-.8 + 1.6 * t)
+          : side * edge * (.2 + .7 * Math.sin(t * Math.PI));
+        add(t, offset);
+      }
+    }
+  }
+  // Both renderers and the collection broad phase rely on world-X ordering.
+  embers.sort((a, b) => a.x - b.x);
   return { obstacles, embers };
 }
 
@@ -501,8 +549,11 @@ export class PhoenixFlight {
       return;
     }
     this.baseEmbers++;
-    this.score += this.boostTime > 0 && this.cards.has('golden-wake') ? 20 : 10;
-    this.burst(this.player.x - 9, this.player.y + 7, 4, '#ffe4a2');
+    const value = ember.value === 3 ? 3 : 1;
+    this.bonusEmbers += value - 1;
+    this.score += value * (this.boostTime > 0 && this.cards.has('golden-wake') ? 20 : 10);
+    this.burst(this.player.x - 9, this.player.y + 7, value === 3 ? 14 : 5, value === 3 ? '#fff2c4' : '#ffe4a2');
+    if (value === 3) this.setEvent('Heart ember · +3');
     if (this.cards.has('kindled-spirit') && this.baseEmbers % 5 === 0) {
       this.cooldown = Math.max(0, this.cooldown - 1);
       this.setEvent('Kindled Spirit · Boost charged');
@@ -763,12 +814,30 @@ export class PhoenixFlight {
       const x = ember.x - (this.renderDistance ?? this.distance);
       if (x > this.width + 30) break;
       if (ember.collected || x < -20) continue;
-      const y = ember.y + (ember.attracted ? 0 : Math.sin(this.time * 2.8 + ember.phase) * 2);
+      const animation = this.reducedMotion ? 0 : this.time;
+      const y = ember.y + (ember.attracted ? 0 : Math.sin(animation * 2.8 + ember.phase) * 2);
+      const rich = ember.value === 3;
+      c.save(); c.translate(x, y);
+      c.fillStyle = 'rgba(255,161,62,.20)'; c.beginPath();
+      c.ellipse(-10, 0, rich ? 26 : 17, rich ? 6 : 3, 0, 0, TAU); c.fill();
+      if (rich) {
+        c.fillStyle = 'rgba(255,156,68,.17)'; c.beginPath(); c.arc(0, 0, 23, 0, TAU); c.fill();
+        c.font = 'bold 12px system-ui'; c.textAlign = 'center'; c.fillStyle = '#fff0c9';
+        c.fillText('3', 0, 26);
+      }
+      for (let j = 0; j < (rich ? 3 : 1); j++) {
+        const angle = animation * 2 + ember.phase + j * TAU / 3;
+        c.fillStyle = '#ffdf8f'; c.beginPath();
+        c.arc(Math.cos(angle) * (rich ? 17 : 10), Math.sin(angle) * (rich ? 11 : 6), 1.3, 0, TAU); c.fill();
+      }
+      if (rich) c.scale(1.65, 1.65);
+      c.translate(-x, -y);
       c.fillStyle = 'rgba(255,201,111,.10)'; c.beginPath(); c.arc(x, y, 13, 0, TAU); c.fill();
       c.fillStyle = 'rgba(255,215,139,.21)'; c.beginPath(); c.arc(x, y, 8, 0, TAU); c.fill();
       c.fillStyle = '#ffdca0'; c.beginPath(); c.moveTo(x, y - 5); c.quadraticCurveTo(x + 6, y - 1, x + 2, y + 5);
       c.quadraticCurveTo(x - 5, y + 6, x - 4, y); c.quadraticCurveTo(x - 2, y - 2, x, y - 5); c.fill();
       c.fillStyle = '#fff4d1'; c.beginPath(); c.ellipse(x, y + 1, 1.5, 2.5, .4, 0, TAU); c.fill();
+      c.restore();
     }
   }
 

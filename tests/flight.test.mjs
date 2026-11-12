@@ -53,6 +53,53 @@ test('pickup card triggers are finite and reward multiplier applies exactly once
   flight.destroy();
 });
 
+test('ember detours stay clear of moving scenery and cannot all be vacuumed from the middle', () => {
+  for (const height of [480, 620, 844]) for (const terrain of ['ruins', 'canopy', 'storm']) {
+    for (let seed = 0; seed < 12; seed++) {
+      const layout = buildFlightLayout({ terrain, seed, height, elite: seed % 2 === 0 });
+      assert.equal(new Set(layout.embers.map(e => e.pattern)).size, 5);
+      assert.ok(layout.embers.length >= 40, 'enough pickups for collection builds');
+      let previousX = 0;
+      for (const ember of layout.embers) {
+        assert.ok(ember.x >= previousX, 'collection broad phase requires sorted pickups');
+        previousX = ember.x;
+        for (const obstacle of layout.obstacles) {
+          if (Math.abs(obstacle.x - ember.x) > 300) continue;
+          for (const sign of [-1, 0, 1]) {
+            const extreme = { ...obstacle, motion: 0, center: obstacle.center + sign * obstacle.motion };
+            for (const polygon of obstaclePolygons(extreme)) {
+              assert.equal(circleHitsPolygon(ember.x, ember.y, 21, polygon), false,
+                `${terrain} ${seed}: pickups leave room for the phoenix at either sway extreme`);
+            }
+          }
+        }
+      }
+      const hearts = layout.embers.filter(e => e.value === 3);
+      assert.ok(hearts.length >= 4);
+      for (const heart of hearts) {
+        const obstacle = layout.obstacles[Number(heart.route.split(':')[0])];
+        assert.ok(Math.abs(heart.y - obstacle.center) > 35,
+          'the valuable reward requires leaving the central collection radius');
+      }
+    }
+  }
+});
+
+test('heart embers pay three but count once toward pickup cards and cannot be claimed twice', () => {
+  const flight = makeFlight({ cards: ['kindled-spirit', 'warm-heart', 'golden-wake'], hp: 1 });
+  flight.cooldown = 8; flight.boostTime = 1;
+  for (let i = 0; i < 5; i++) {
+    const heart = { value: 3, collected: false };
+    flight.collect(heart); flight.collect(heart);
+  }
+  assert.equal(flight.embers, 15);
+  assert.equal(flight.baseEmbers, 5);
+  assert.equal(flight.cooldown, 7);
+  assert.equal(flight.hp, 1, 'currency value does not multiply healing triggers');
+  assert.equal(flight.score, 300, 'Golden Wake doubles the heart score once');
+  flight.destroy();
+});
+
 test('rebirth is consumed once and final result cannot pay twice', () => {
   const payouts = [];
   const flight = makeFlight({ hp: 1, rebirthAvailable: true,

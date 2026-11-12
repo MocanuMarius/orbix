@@ -17,6 +17,8 @@ Progress is stored only in this browser. Reloading during flight restarts the cu
 
 ## Run the source
 
+Embers form climbing trails, descending sweeps, edge ribbons, forks, and concentrated side caches. Forks offer a modest central reward or a richer detour; caches suit a timed Boost with Hungry Wisp. Large orbiting heart embers are marked **3** and pay three currency, but count as one pickup for card triggers and collection challenges. All pickups reserve phoenix clearance across the full canopy sway envelope.
+
 Requires Node.js 20+. No installation step is needed for the packaged playable build: PixiJS and all generated assets are included.
 
 ```sh
