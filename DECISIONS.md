@@ -1,6 +1,6 @@
 # Wispbound design decisions
 
-Updated 12 November 2026. Wispbound is the working title. This log records the confirmed direction for the next major iteration. All ten recommended alignment choices were accepted in chat.
+Updated 13 November 2026. Wispbound is the working title. This log records the confirmed direction and subsequent implementation choices. All ten recommended alignment choices were accepted in chat.
 
 ## Confirmed direction
 
@@ -74,6 +74,23 @@ Three terrains, ordinary and optional elite routes, support events, shared exped
 - Make equipped powers tappable for optional checkpoint inspection, with one Close action. Inspection never selects or replaces a power and adds no flight controls.
 - Give fuel a consistent warm-gold identity for both elements. Label pickup feedback with the actual Glow restored, or FULL; distinguish healing and Boost reductions explicitly.
 - Finish feature chunks and publish them promptly. Defer additional simulation and balance passes until the backlog is addressed.
+
+## Afterglow carryover
+
+- Add an Afterglow reserve shared across flights and preserved between expeditions. A live expedition owns its reserve until it ends; settling it updates the saved bank once.
+- After successful flights, unused Glow above 60 can be stored at 80% efficiency, up to a base bank capacity of 40. The transferred Glow is removed from flight fuel; energy is not counted twice. At a full bank, the untransferred Glow remains available normally.
+- At a flight briefing, choose whether to draw up to 20 Afterglow into Glow. Allow one draw per flight, including when backing out to choose another route. Other checkpoints display the bank without spending it.
+- Failed or abandoned normal expeditions lose 25% of the reserve. Successful expeditions preserve it. The bank cannot go negative.
+- Add permanent upgrades for capacity (+15 per rank, three ranks), retention (+10 percentage points per rank, two ranks) and failure-loss protection (−10 percentage points per rank, two ranks).
+- Make stored amounts, capacity, efficiency and loss visible through compact checkpoint feedback and optional details. Keep Lift and Boost as the only flight controls.
+
+## Progressive learning
+
+- Add a short three-stop teaching expedition: a 22-second flight, a support checkpoint, and a 26-second wind flight. Introduce Lift, gliding, Glow, the companion and Boost in context.
+- Use practice Glow and a 20-point practice Afterglow bank; teaching runs cannot farm real embers, scores, reserve or flight-clear progress. A power learned in a completed tutorial remains available. Offer replay and skip without replacing an active normal expedition.
+- Start new players with four straightforward powers. Introduce companion powers after two normal flight clears, wind powers after four, reward powers after six, and higher-risk powers after eight. Preserve powers and offers in existing experienced saves.
+- Show one short contextual lesson at a time. Start the first lesson when Lift is pressed, avoiding damage while reading the first hint. Keep practice terrain forgiving and normal flight tuning unchanged.
+- Build these systems now; defer simulation sweeps and balance fine-tuning until the feature backlog is addressed.
 
 ## Deferred elemental gameplay
 

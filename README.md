@@ -25,6 +25,14 @@ The player light reveals nearby terrain and pickups through a dithered darkness 
 
 Seven stops retain branching routes, support events, ordinary/elite tradeoffs, card drafts and a finale. Remaining Glow carries between passages; clearing a flight provides a minimum reserve of 60, while rest can refill it. This floor prevents one close finish from making the next passage underfunded. Warm Heart now needs four base pickups to suit the sparse placement.
 
+## Afterglow and learning
+
+Successful flights can bank spare Glow above 60 as **Afterglow**. The starting bank holds 40, storage retains 80% of transferred Glow, and one briefing draw restores up to 20 Glow before a flight. Transferred fuel is deducted once; a full bank leaves excess fuel in Glow. Holding the bank saves it for another route or expedition. Failed or abandoned expeditions lose 25% of their bank. Permanent Vessel, Retention and Anchor upgrades improve capacity, storage efficiency and failure protection. Checkpoints show the balance and optional rule details; flight controls stay unchanged.
+
+New players receive a short three-stop tutorial with two teaching flights and a support checkpoint. Contextual hints introduce Lift, gliding, Glow collection, the companion and Boost. Practice reserve and earnings do not affect the real profile. Learn can be replayed, and the tutorial can be skipped.
+
+Power discovery is gradual: four simple powers initially, then companion, wind, reward and risk powers after 2, 4, 6 and 8 normal flight clears. Existing experienced profiles retain their powers. Discovery progress carries across expeditions, while equipped powers still last only for the current expedition.
+
 ## Run locally
 
 Requires Node.js 20+. No install or build step is needed.

@@ -1,6 +1,8 @@
 /* Emberwing's self-contained canvas flight simulation and renderer. */
 import { FLAME_TUNING } from './vitality.mjs';
 import { WispCompanion, wispHome } from './wisp.mjs';
+import { createTutorialState, buildTutorialLayout, recordTutorialPickup,
+  updateTutorial, updateTutorialCompanion, getTutorialHint } from './tutorial.mjs';
 export { FLAME_TUNING } from './vitality.mjs';
 const TAU = Math.PI * 2;
 const STEP = 1 / 60;
@@ -365,10 +367,13 @@ export class WispFlight {
     this.seed = options.seed ?? 1;
     this.duration = clamp(Number(options.duration) || 38, 15, 120);
     const route = options.node || options;
+    this.tutorial = createTutorialState(route);
+    this.tutorialAwaitingLift = Boolean(this.tutorial);
     this.passage = ['open', 'cavern', 'gauntlet'].includes(route.passage) ? route.passage : 'open';
     this.windExposure = (this.passage === 'cavern' ? .65 : 1)
       * (this.passage === 'gauntlet' || this.elite || route.type === 'finale' ? 1.15 : 1)
       * (1 + clamp(Number(route.row) || 0, 0, 6) * .02);
+    if (this.tutorial) this.windExposure = this.tutorial.lesson === 'wind' ? .55 : 0;
     const windSeed = seededRandom(`${this.seed}:wind`);
     this.windDelay = windSeed() * .7;
     this.windDirection = windSeed() < .5 ? -1 : 1;
@@ -417,9 +422,12 @@ export class WispFlight {
     this.wisp = new WispCompanion(wispHome(this.player, this.time));
     this.previousPlayerY = this.player.y; this.previousDistance = this.distance;
     this.visualBank = 0; this.wingPhase = 0;
-    this.layout = buildFlightLayout({ seed: this.seed, terrain: this.terrain,
-      elite: this.elite, duration: this.duration, speed: FLIGHT_TUNING.forwardSpeed, height: this.height,
-      passage: this.passage, fuelCadence: this.fuelCadence });
+    this.layout = this.tutorial
+      ? buildTutorialLayout({ lesson: this.tutorial.lesson, duration: this.duration,
+        height: this.height, speed: FLIGHT_TUNING.forwardSpeed })
+      : buildFlightLayout({ seed: this.seed, terrain: this.terrain,
+        elite: this.elite, duration: this.duration, speed: FLIGHT_TUNING.forwardSpeed, height: this.height,
+        passage: this.passage, fuelCadence: this.fuelCadence });
     this.challengeIndex = Math.floor(seededRandom(`${this.seed}:challenge`)() * 3);
     this.challengeId = options.challengeId || options.node?.challengeId || ['wisps', 'clean', 'boosts'][this.challengeIndex];
     this.challengeTarget = Number(options.challengeTarget ?? options.node?.challengeTarget) || (this.challengeId === 'wisps' ? 7 : this.challengeId === 'boosts' ? 3 : 0);
@@ -505,6 +513,7 @@ export class WispFlight {
   start() {
     if (this.destroyed || this.finished || this.running) return;
     this.running = true; this.paused = false; this.lastFrame = 0;
+    if (this.tutorial) this.notify();
     this.raf = requestAnimationFrame(t => this.tick(t));
   }
 
@@ -518,6 +527,10 @@ export class WispFlight {
     this.flaps++; this.effortSpent += this.flapCost;
     this.lastFlapTime = this.time;
     this.player.vy = -FLIGHT_TUNING.flapImpulse * this.scaleY * clamp(Number(this.mod.flap) || 1, .80, 1.20);
+    if (this.tutorialAwaitingLift) {
+      this.tutorialAwaitingLift = false;
+      this.accumulator = 0; this.lastFrame = 0;
+    }
     this.burst(this.player.x - 10, this.player.y + 7, 5, '#ffbd53');
     this.sound('flap');
     this.notify();
@@ -526,6 +539,7 @@ export class WispFlight {
 
   boost() {
     if (!this.running || this.paused || this.finished || this.cooldown > .001 || this.boostTime > 0) return false;
+    if (this.tutorialAwaitingLift) return false;
     this.boostTime = this.boostDuration;
     this.cooldown = this.boostCooldown;
     this.boosts++;
@@ -573,6 +587,12 @@ export class WispFlight {
 
   tick(timestamp) {
     if (!this.running || this.paused || this.destroyed || this.finished) return;
+    if (this.tutorialAwaitingLift) {
+      this.lastFrame = timestamp; this.accumulator = 0;
+      this.render();
+      this.raf = requestAnimationFrame(t => this.tick(t));
+      return;
+    }
     if (!this.lastFrame) this.lastFrame = timestamp;
     const elapsed = Math.min(.10, Math.max(0, (timestamp - this.lastFrame) / 1000));
     this.lastFrame = timestamp;
@@ -585,6 +605,8 @@ export class WispFlight {
   }
 
   gustState() {
+    if (this.tutorial?.lesson === 'glide') return { active: false, warning: false,
+      direction: 0, strength: 0, force: 0, intensity: 0, warningProgress: 0 };
     const tuning = WIND_TUNING[this.terrain];
     const elapsed = this.time - tuning.first - this.windDelay + WIND_TUNING.warning;
     if (elapsed < 0) return { active: false, warning: false, direction: this.windDirection, strength: 0, force: 0, intensity: 0, warningProgress: 0 };
@@ -624,6 +646,7 @@ export class WispFlight {
   }
 
   step(dt) {
+    if (this.tutorialAwaitingLift) return;
     this.previousPlayerY = this.player.y; this.previousDistance = this.distance;
     this.time += dt;
     this.wingPhase += dt * this.wingRate;
@@ -718,7 +741,10 @@ export class WispFlight {
       if (x < -40 || x > this.width + 20) continue;
       if (Math.hypot(this.player.x - x, this.player.y - ember.y) < FLIGHT_TUNING.pickupRadius) this.collect(ember);
     }
-    this.wisp.update(this, dt);
+    if (this.tutorial) {
+      updateTutorialCompanion(this, dt);
+      updateTutorial(this, dt, gust);
+    } else this.wisp.update(this, dt);
 
     // Wisps pulse in place; only discrete pickup/hit bursts leave particles.
     for (const effect of this.pickupEffects) effect.life -= dt;
@@ -765,6 +791,7 @@ export class WispFlight {
 
   collect(ember) {
     if (ember.collected || this.finished) return;
+    if (this.tutorial) recordTutorialPickup(this, ember);
     ember.collected = true;
     const fuel = ember.generated ? FLAME_TUNING.generatedFuel : (ember.value === 3 ? FLAME_TUNING.heartFuel : FLAME_TUNING.emberFuel) + this.fuelBonus;
     const restored = Math.min(fuel, FLAME_TUNING.maximum - this.flame);
@@ -818,6 +845,7 @@ export class WispFlight {
       shield: this.shield, event: this.time < this.eventUntil ? this.event : '',
       renderer: this.pixiReady ? 'pixel-canvas' : 'canvas',
       paused: this.paused, finished: this.finished, rebirthUsed: this.rebirthUsed,
+      tutorialHintState: getTutorialHint(this), tutorialAwaitingLift: this.tutorialAwaitingLift,
       time: this.time, remaining: Math.max(0, (this.totalDistance - this.distance) / this.baseSpeed),
       challenge: this.challengeText, challengeComplete: this.challengeComplete() };
   }

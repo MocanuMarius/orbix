@@ -1,5 +1,5 @@
 /** Seeded, DOM-free campaign model. Public commands mutate their run/profile and return booleans. */
-import { FLAME_TUNING } from './vitality.mjs';
+import { FLAME_TUNING, AFTERGLOW_TUNING } from './vitality.mjs';
 import { WISP_TUNING } from './wisp.mjs';
 export const SAVE_KEY = 'emberwing.save.v1';
 export const TERRAINS = Object.freeze({
@@ -24,6 +24,14 @@ export const CARDS = Object.freeze({
   'warm-heart': card('warm-heart', 'Warm Heart', 'Ash', 'A well-timed cache route can mend a wounded heart.', 'Collect four base sparks in a flight to heal one heart, once per flight. Bonus sparks cannot retrigger it.', '#f2a6ba', '♡'),
 });
 
+const BASE_POWERS = Object.freeze(['soft-descent', 'high-wing', 'ash-ward', 'warm-heart']);
+const POWER_DISCOVERY = Object.freeze([
+  { at: 2, ids: ['hungry-wisp', 'kindled-spirit'] },
+  { at: 4, ids: ['steady-flame', 'storm-feeder'] },
+  { at: 6, ids: ['tailwind', 'golden-wake'] },
+  { at: 8, ids: ['fire-wake', 'glass-phoenix'] },
+]);
+
 const skill = (id, name, branch, cost, requires, description, maxRank = 1) => ({ id, name, branch, cost, requires, maxRank, description });
 export const SKILLS = Object.freeze({
   'wisp-light': skill('wisp-light', 'Inner Glow', 'Wisp', 60, null, 'Illuminate 35 more units of terrain per rank. See paths and pickups farther ahead.', 3),
@@ -34,6 +42,9 @@ export const SKILLS = Object.freeze({
   'boost-flare': skill('boost-flare', 'Lasting Flame', 'Boost', 160, 'boost-focus', 'Boost lasts 15% longer.'),
   'rebirth-spark': skill('rebirth-spark', 'Rebirth Spark', 'Rebirth', 120, null, 'Unlock one rebirth per run, returning with one heart.'),
   'rebirth-grace': skill('rebirth-grace', 'Rebirth Grace', 'Rebirth', 200, 'rebirth-spark', 'Your single rebirth returns two hearts.'),
+  'afterglow-vessel': skill('afterglow-vessel', 'Ember Vessel', 'Afterglow', 70, null, 'Carry 15 more Afterglow per rank between flights and expeditions.', 3),
+  'afterglow-retention': skill('afterglow-retention', 'Lasting Light', 'Afterglow', 80, 'afterglow-vessel', 'Retain 10 percentage points more surplus Glow per rank.', 2),
+  'afterglow-anchor': skill('afterglow-anchor', 'Ash Anchor', 'Afterglow', 90, 'afterglow-vessel', 'Lose 10 percentage points less Afterglow when an expedition ends in failure.', 2),
 });
 
 const PHASES = new Set(['starter', 'map', 'briefing', 'support', 'reward', 'ended']);
@@ -42,6 +53,73 @@ const finite = (n, fallback = 0) => Number.isFinite(n) ? n : fallback;
 const count = (n, limit = 1e9) => Math.floor(clamp(finite(n), 0, limit));
 const copy = value => JSON.parse(JSON.stringify(value));
 const skillRank = (skills, id) => count(skills?.[id], Object.hasOwn(SKILLS, id) ? SKILLS[id].maxRank : 0);
+const energy = n => Math.round(Math.max(0, finite(n)) * 1000) / 1000;
+const powerIds = ids => [...new Set((Array.isArray(ids) ? ids : []).filter(id => Object.hasOwn(CARDS, id)))];
+
+function liveSource(source) {
+  if (source?.run && !source.run.banked) return source.run;
+  return source?.profile || source || {};
+}
+
+export function getAfterglowRules(skills = {}) {
+  return {
+    cap: AFTERGLOW_TUNING.cap + skillRank(skills, 'afterglow-vessel') * 15,
+    retention: Math.min(1, energy(AFTERGLOW_TUNING.retention + skillRank(skills, 'afterglow-retention') * .10)),
+    drawLimit: AFTERGLOW_TUNING.drawLimit,
+    failureLoss: energy(AFTERGLOW_TUNING.failureLoss - skillRank(skills, 'afterglow-anchor') * .10),
+  };
+}
+
+export function getAfterglowState(source) {
+  const value = liveSource(source), rules = getAfterglowRules(value.skills);
+  const amount = energy(clamp(finite(value.afterglow), 0, rules.cap));
+  const practice = value.isTutorial === true;
+  const drawUsed = Number.isInteger(value.afterglowDrawStep) && value.afterglowDrawStep === value.step;
+  const drawable = value.phase === 'briefing' && !value.banked && !drawUsed
+    ? energy(Math.min(amount, rules.drawLimit, Math.max(0, FLAME_TUNING.maximum - finite(value.flame)))) : 0;
+  return { ...rules, failureLoss: practice ? 0 : rules.failureLoss, amount, drawable, drawUsed, practice };
+}
+
+function afterglowReport(amount, report = {}) {
+  return { stored: energy(report.stored), spent: energy(report.spent), loss: energy(report.loss),
+    amount: energy(amount), rawStored: energy(report.rawStored) };
+}
+
+export function drawAfterglow(run) {
+  const reserve = getAfterglowState(run);
+  if (reserve.drawable <= 0) return 0;
+  run.afterglow = energy(reserve.amount - reserve.drawable);
+  run.flame = Math.min(FLAME_TUNING.maximum, energy(finite(run.flame) + reserve.drawable));
+  run.afterglowDrawStep = run.step;
+  run.afterglowPendingSpent = energy(finite(run.afterglowPendingSpent) + reserve.drawable);
+  run.afterglowTotals = afterglowReport(run.afterglow, run.afterglowTotals);
+  run.afterglowTotals.spent = energy(run.afterglowTotals.spent + reserve.drawable);
+  return reserve.drawable;
+}
+
+export function getPowerDiscovery(source) {
+  const value = liveSource(source);
+  const cleared = count(value.discoveryClears ?? value.clearedFlights);
+  const legacy = !Array.isArray(value.knownPowers) && value.clearedFlights === undefined
+    && value.discoveryClears === undefined && count(value.stats?.completedRuns) > 0;
+  const unlocked = new Set([...BASE_POWERS, ...powerIds(value.knownPowers)]);
+  if (legacy) for (const id of Object.keys(CARDS)) unlocked.add(id);
+  for (const milestone of POWER_DISCOVERY) if (cleared >= milestone.at) for (const id of milestone.ids) unlocked.add(id);
+  const next = POWER_DISCOVERY.find(milestone => milestone.ids.some(id => !unlocked.has(id)));
+  return { cleared, unlocked: [...unlocked], nextAt: next?.at ?? null,
+    nextIds: next ? next.ids.filter(id => !unlocked.has(id)) : [] };
+}
+
+function recordPowerDiscovery(run, ids) {
+  const known = new Set([...BASE_POWERS, ...powerIds(run.knownPowers)]);
+  const fresh = powerIds(ids).filter(id => !known.has(id));
+  run.knownPowers = powerIds([...known, ...fresh]);
+  if (fresh.length && !run.isTutorial) {
+    run.newlyDiscoveredPowers = powerIds([...(run.newlyDiscoveredPowers || []), ...fresh]);
+    if (run.lastFlight) run.lastFlight.unlockedPowers = powerIds([...(run.lastFlight.unlockedPowers || []), ...fresh]);
+  }
+  return fresh;
+}
 const freshSeed = () => globalThis.crypto?.getRandomValues
   ? Array.from(globalThis.crypto.getRandomValues(new Uint32Array(2)), n => n.toString(36)).join('-')
   : `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 9)}`;
@@ -68,7 +146,8 @@ function shuffled(items, rng) {
 export function newState() {
   return {
     version: 1,
-    profile: { embers: 0, skills: {}, stats: { completedRuns: 0, wins: 0, totalScore: 0, bestScore: 0 }, bankedRuns: [] },
+    profile: { embers: 0, skills: {}, afterglow: 0, clearedFlights: 0, knownPowers: [...BASE_POWERS], tutorialComplete: false,
+      stats: { completedRuns: 0, wins: 0, totalScore: 0, bestScore: 0 }, bankedRuns: [] },
     run: null,
     settings: { sound: true, reducedMotion: false, element: 'fire' },
   };
@@ -86,24 +165,31 @@ function cleanProfile(value) {
   for (const key of Object.keys(profile.stats)) profile.stats[key] = count(value?.stats?.[key]);
   profile.stats.wins = Math.min(profile.stats.wins, profile.stats.completedRuns);
   profile.bankedRuns = Array.isArray(value?.bankedRuns) ? [...new Set(value.bankedRuns.filter(v => typeof v === 'string'))].slice(-128) : [];
+  profile.afterglow = energy(clamp(finite(value?.afterglow), 0, getAfterglowRules(profile.skills).cap));
+  profile.clearedFlights = count(value?.clearedFlights);
+  profile.knownPowers = getPowerDiscovery(value).unlocked;
+  profile.tutorialComplete = value?.tutorialComplete === true
+    || (value?.tutorialComplete === undefined && profile.stats.completedRuns > 0);
   return profile;
 }
 
 function validRun(run) {
   if (!run || typeof run !== 'object' || typeof run.id !== 'string' || typeof run.seed !== 'string') return false;
-  if (!PHASES.has(run.phase) || !Number.isInteger(run.step) || run.step < 0 || run.step > 7) return false;
-  if (run.step === 7 && run.phase !== 'ended') return false;
-  if (!Array.isArray(run.map) || run.map.length !== 7 || run.map.some((row, i) => !Array.isArray(row) || row.length < 1 || row.length > 3 || row.some(node => !node || node.row !== i || typeof node.id !== 'string' || !Object.hasOwn(TERRAINS, node.terrain) || !['flight', 'support', 'finale'].includes(node.type) || !Number.isFinite(node.bonusEmbers) || !Number.isFinite(node.challengeBonus)))) return false;
+  const stops = run.isTutorial === true ? 3 : 7;
+  if (!PHASES.has(run.phase) || !Number.isInteger(run.step) || run.step < 0 || run.step > stops) return false;
+  if (run.step === stops && run.phase !== 'ended') return false;
+  if (!Array.isArray(run.map) || run.map.length !== stops || run.map.some((row, i) => !Array.isArray(row) || row.length < 1 || row.length > 3 || row.some(node => !node || node.row !== i || typeof node.id !== 'string' || !Object.hasOwn(TERRAINS, node.terrain) || !['flight', 'support', 'finale'].includes(node.type) || !Number.isFinite(node.bonusEmbers) || !Number.isFinite(node.challengeBonus)))) return false;
   const nodes = run.map.flat();
   if (new Set(nodes.map(node => node.id)).size !== nodes.length) return false;
-  if (run.startNodeIds !== undefined && (!Array.isArray(run.startNodeIds) || run.startNodeIds.length !== 2 || new Set(run.startNodeIds).size !== 2 || run.startNodeIds.some(id => !run.map[0].some(node => node.id === id)))) return false;
+  const starts = run.isTutorial === true ? 1 : 2;
+  if (run.startNodeIds !== undefined && (!Array.isArray(run.startNodeIds) || run.startNodeIds.length !== starts || new Set(run.startNodeIds).size !== starts || run.startNodeIds.some(id => !run.map[0].some(node => node.id === id)))) return false;
   // Legacy saves have no adjacency. Keep those routes intact instead of rerolling an active expedition.
   for (const node of nodes) if (node.nextIds !== undefined) {
     if (!Array.isArray(node.nextIds) || node.nextIds.length > 2 || new Set(node.nextIds).size !== node.nextIds.length) return false;
-    if (node.row < 6 && !node.nextIds.length) return false;
+    if (node.row < stops - 1 && !node.nextIds.length) return false;
     if (node.nextIds.some(id => !run.map[node.row + 1]?.some(next => next.id === id))) return false;
   }
-  if (!Array.isArray(run.path) || run.path.length > 7 || !Array.isArray(run.cards) || run.cards.length > 3 || new Set(run.cards).size !== run.cards.length || run.cards.some(id => !Object.hasOwn(CARDS, id))) return false;
+  if (!Array.isArray(run.path) || run.path.length > stops || !Array.isArray(run.cards) || run.cards.length > 3 || new Set(run.cards).size !== run.cards.length || run.cards.some(id => !Object.hasOwn(CARDS, id))) return false;
   if (!Array.isArray(run.offers) || run.offers.some(id => !Object.hasOwn(CARDS, id)) || new Set(run.offers).size !== run.offers.length) return false;
   if (!Number.isFinite(run.hp) || !Number.isFinite(run.embers) || !Number.isFinite(run.score)) return false;
   if (['briefing', 'support', 'reward'].includes(run.phase) && (!run.current || !run.map[run.step]?.some(node => node.id === run.current.id))) return false;
@@ -162,6 +248,25 @@ export function loadState(storage) {
       state.run.shield = count(state.run.shield, 2);
       state.run.usedRebirth = state.run.usedRebirth === true;
       state.run.stats = { collected: 0, collisions: 0, boosts: 0, flights: 0, elites: 0, challenges: 0, events: 0, ...(state.run.stats || {}) };
+      state.run.isTutorial = state.run.isTutorial === true;
+      state.run.afterglowPractice = state.run.isTutorial;
+      const reserveRules = getAfterglowRules(state.run.skills);
+      state.run.afterglow = energy(clamp(Number.isFinite(state.run.afterglow) ? state.run.afterglow
+        : state.run.isTutorial ? AFTERGLOW_TUNING.practiceReserve : state.profile.afterglow, 0, reserveRules.cap));
+      state.run.afterglowDrawStep = Number.isInteger(state.run.afterglowDrawStep) && state.run.afterglowDrawStep >= 0
+        && state.run.afterglowDrawStep < state.run.map.length ? state.run.afterglowDrawStep : -1;
+      state.run.afterglowPendingSpent = energy(state.run.afterglowPendingSpent);
+      state.run.afterglowTotals = afterglowReport(state.run.afterglow, state.run.afterglowTotals);
+      state.run.afterglowLossApplied = state.run.afterglowLossApplied === true;
+      const legacyDiscovery = !Array.isArray(state.run.knownPowers);
+      const priorSuccesses = Math.max(0, count(state.run.stats.flights) - (state.run.phase === 'ended' && !state.run.success ? 1 : 0));
+      state.run.discoveryClears = count(state.run.discoveryClears ?? (state.profile.clearedFlights + (state.run.isTutorial ? 0 : priorSuccesses)));
+      state.run.knownPowers = powerIds([...(legacyDiscovery ? Object.keys(CARDS) : getPowerDiscovery(state.run).unlocked), ...state.run.cards, ...state.run.offers]);
+      state.run.newlyDiscoveredPowers = powerIds(state.run.newlyDiscoveredPowers);
+      if (state.run.lastFlight) {
+        state.run.lastFlight.afterglow = afterglowReport(state.run.afterglow, state.run.lastFlight.afterglow);
+        state.run.lastFlight.unlockedPowers = powerIds(state.run.lastFlight.unlockedPowers);
+      }
     }
     return state;
   } catch { return newState(); }
@@ -224,7 +329,16 @@ function makeMap(seed) {
 }
 
 function draft(run, label) {
-  let available = Object.keys(CARDS).filter(id => !run.cards.includes(id));
+  if (run.isTutorial && label === 'flight-reward' && run.step === 0) return ['soft-descent', 'hungry-wisp'];
+  recordPowerDiscovery(run, getPowerDiscovery(run).unlocked);
+  let available = run.knownPowers.filter(id => !run.cards.includes(id));
+  // A saved three-slot build or an extra support draft must still receive two
+  // valid choices. Early emergency discoveries remain earned and persistent.
+  for (const milestone of POWER_DISCOVERY) {
+    if (available.length >= 2) break;
+    recordPowerDiscovery(run, milestone.ids);
+    available = run.knownPowers.filter(id => !run.cards.includes(id));
+  }
   if (label === 'flight-reward' && run.current?.draftTags?.length) {
     const themed = available.filter(id => run.current.draftTags.includes(CARDS[id].tag));
     if (themed.length >= 2) available = themed;
@@ -234,11 +348,14 @@ function draft(run, label) {
 
 export function createRun(profile = newState().profile, seed = freshSeed()) {
   const normalizedSeed = String(seed).trim().slice(0, 80) || 'emberwing';
-  const skills = cleanProfile({ skills: profile?.skills }).skills;
+  const departure = cleanProfile(profile), skills = departure.skills;
   const run = {
     id: `${normalizedSeed}-${freshSeed()}`, seed: normalizedSeed, step: 0, map: makeMap(normalizedSeed), path: [], current: null,
     cards: [], skills, element: 'fire', hp: 3, maxHp: 3, flame: FLAME_TUNING.starting, shield: 0, embers: 0, score: 0, usedRebirth: false,
     offers: [], phase: 'starter', success: false, banked: false, supportChoices: [], fuelRevision: 2,
+    afterglow: departure.afterglow, afterglowDrawStep: -1, afterglowPendingSpent: 0,
+    afterglowTotals: afterglowReport(departure.afterglow), afterglowLossApplied: false, afterglowPractice: false,
+    discoveryClears: departure.clearedFlights, knownPowers: [...departure.knownPowers], newlyDiscoveredPowers: [],
     stats: { collected: 0, collisions: 0, boosts: 0, flights: 0, elites: 0, challenges: 0, events: 0 },
   };
   run.mapVersion = 2;
@@ -247,8 +364,46 @@ export function createRun(profile = newState().profile, seed = freshSeed()) {
   return run;
 }
 
+export function createTutorial(profile = newState().profile, seed = freshSeed()) {
+  const run = createRun(profile, seed);
+  const original = run.map;
+  const first = { ...copy(original[0][0]), id: 'tutorial-glide', row: 0, lane: 1,
+    type: 'flight', kind: 'normal', terrain: 'ruins', name: 'First Light', duration: 22,
+    tutorialLesson: 'glide', elite: false, routeStyle: 'refuge', passage: 'open',
+    fuelCadence: 2, fuelBonus: 0, flameDrain: 1, routeReward: 1,
+    description: 'Lift, glide, and collect a visible spark. This is a practice flight.',
+    reward: 'Choose a practice power', bonusEmbers: 0, challengeBonus: 0,
+    challenge: '', challengeId: '', challengeTarget: 0,
+    nextIds: ['tutorial-checkpoint'] };
+  const checkpoint = { ...copy(original[1][0]), id: 'tutorial-checkpoint', row: 1, lane: 1,
+    type: 'support', kind: 'camp', terrain: 'ruins', name: 'A Quiet Ember', duration: 0,
+    tutorialLesson: 'reserve', description: 'Your Afterglow here is practice light. Draw it before the next flight, or keep it.',
+    reward: 'Prepare for the wind', bonusEmbers: 0, challengeBonus: 0,
+    nextIds: ['tutorial-wind'] };
+  const finale = { ...copy(original[6][0]), id: 'tutorial-wind', row: 2, lane: 1,
+    type: 'finale', kind: 'finale', terrain: 'storm', name: 'Ride the Wind', duration: 26,
+    tutorialLesson: 'wind', elite: false, routeStyle: 'refuge', passage: 'open',
+    fuelCadence: 2, fuelBonus: 0, flameDrain: 1, routeReward: 1,
+    description: 'Watch the wind warning and use Boost when the current rises.',
+    reward: 'Finish the practice journey', bonusEmbers: 0, challengeBonus: 0,
+    challenge: '', challengeId: '', challengeTarget: 0, nextIds: [] };
+  run.isTutorial = true;
+  run.afterglowPractice = true;
+  run.afterglow = AFTERGLOW_TUNING.practiceReserve;
+  run.afterglowTotals = afterglowReport(run.afterglow);
+  run.map = [[first], [checkpoint], [finale]];
+  run.startNodeIds = [first.id];
+  run.phase = 'map';
+  run.offers = [];
+  run.cards = [];
+  run.hp = run.maxHp = 3;
+  run.flame = 80;
+  run.knownPowers = powerIds([...run.knownPowers, 'hungry-wisp']);
+  return run;
+}
+
 export function getChoices(run) {
-  if (!run || run.phase !== 'map' || run.step > 6) return [];
+  if (!run || run.phase !== 'map' || run.step >= run.map.length) return [];
   const completed = run.path.map(id => run.map.flat().find(node => node.id === id)).filter(node => node && node.type !== 'support');
   const previousElite = completed.at(-1)?.elite === true;
   const previous = run.map.flat().find(node => node.id === run.path.at(-1));
@@ -286,14 +441,14 @@ function advance(run) {
   run.current = null;
   run.offers = [];
   run.supportChoices = [];
-  run.phase = run.step >= 7 ? 'ended' : 'map';
+  run.phase = run.step >= run.map.length ? 'ended' : 'map';
 }
 
 /** Pass null (or 'skip') to keep a full loadout and receive eight embers. */
 export function takeCard(run, cardId, replaceIndex = null) {
   if (!run || run.phase !== 'reward') return false;
   if (cardId == null || cardId === 'skip') {
-    run.embers += 8;
+    if (!run.isTutorial) run.embers += 8;
     advance(run);
     return true;
   }
@@ -314,8 +469,21 @@ export function finishFlight(run, result) {
   const success = result.success && finite(result.hp) > 0;
   run.hp = clamp(finite(result.hp), 0, run.maxHp);
   const remainingFlame = clamp(Number.isFinite(result.flame) ? result.flame : run.flame ?? FLAME_TUNING.maximum, 0, FLAME_TUNING.maximum);
-  run.flame = success && node.type !== 'finale' ? Math.max(FLAME_TUNING.checkpointMinimum, remainingFlame) : remainingFlame;
-  run.embers += count(result.embers);
+  const rules = getAfterglowRules(run.skills);
+  run.afterglow = energy(clamp(finite(run.afterglow), 0, rules.cap));
+  let stored = 0, rawStored = 0;
+  if (success && remainingFlame > AFTERGLOW_TUNING.surplusThreshold && run.afterglow < rules.cap) {
+    const surplus = remainingFlame - AFTERGLOW_TUNING.surplusThreshold;
+    stored = Math.min(rules.cap - run.afterglow, Math.floor(surplus * rules.retention * 1000) / 1000);
+    rawStored = Math.min(surplus, Math.ceil(stored / rules.retention * 1000) / 1000);
+    run.afterglow = energy(run.afterglow + stored);
+  }
+  const postStorage = energy(remainingFlame - rawStored);
+  run.flame = success && node.type !== 'finale' ? Math.max(FLAME_TUNING.checkpointMinimum, postStorage) : postStorage;
+  run.afterglowTotals = afterglowReport(run.afterglow, run.afterglowTotals);
+  run.afterglowTotals.stored = energy(run.afterglowTotals.stored + stored);
+  run.afterglowTotals.rawStored = energy(run.afterglowTotals.rawStored + rawStored);
+  if (!run.isTutorial) run.embers += count(result.embers);
   run.score += count(result.score);
   run.shield = 0;
   run.usedRebirth ||= result.rebirthUsed === true;
@@ -326,16 +494,27 @@ export function finishFlight(run, result) {
   run.stats.boosts += count(result.boosts);
   for (const key of ['nearMisses', 'gustSeconds', 'baseEmbers']) run.stats[key] = finite(run.stats[key]) + count(result.stats?.[key]);
   const challengeComplete = success && result.challengeComplete === true;
-  if (challengeComplete) {
+  if (challengeComplete && !run.isTutorial) {
     run.embers += node.challengeBonus;
     run.stats.challenges += 1;
   }
-  if (success) run.embers += node.bonusEmbers;
-  run.lastFlight = { success, terrain: node.terrain, elite: node.elite, embers: count(result.embers), completionBonus: success ? node.bonusEmbers : 0, challengeBonus: challengeComplete ? node.challengeBonus : 0, score: count(result.score), collected: count(result.collected), flame: remainingFlame, recoveredFlame: run.flame - remainingFlame };
+  if (success && !run.isTutorial) run.embers += node.bonusEmbers;
+  let unlockedPowers = [];
+  if (success && !run.isTutorial) {
+    run.discoveryClears = count(run.discoveryClears) + 1;
+    unlockedPowers = recordPowerDiscovery(run, getPowerDiscovery(run).unlocked);
+  }
+  run.lastFlight = { success, terrain: node.terrain, elite: node.elite,
+    embers: run.isTutorial ? 0 : count(result.embers), completionBonus: success && !run.isTutorial ? node.bonusEmbers : 0,
+    challengeBonus: challengeComplete && !run.isTutorial ? node.challengeBonus : 0,
+    score: count(result.score), collected: count(result.collected), flame: remainingFlame,
+    recoveredFlame: Math.max(0, run.flame - postStorage), unlockedPowers,
+    afterglow: afterglowReport(run.afterglow, { stored, rawStored, spent: run.afterglowPendingSpent }) };
+  run.afterglowPendingSpent = 0;
   if (!success || node.type === 'finale') {
     run.phase = 'ended';
     run.success = success && node.type === 'finale';
-    if (run.success) run.step = 7;
+    if (run.success) run.step = run.map.length;
     run.offers = [];
   } else {
     run.phase = 'reward';
@@ -350,6 +529,10 @@ function makeSupportChoices(run) {
   const healOrWard = canHeal ? { hp: 1, flame: 100 } : { shield: 1, flame: 100 };
   const healingTitle = canHeal ? 'Restore a heart' : 'Carry an ash ward';
   const healingText = (canHeal ? 'Recover 1 heart before the next flight.' : 'Absorb one extra hit during the next flight.') + ' Refill Flame to 100.';
+  if (run.isTutorial) return [
+    choice('practice-rest', canHeal ? 'Mend a heart' : 'Carry a practice ward', canHeal ? 'Recover 1 heart. Your practice Afterglow stays ready for the next briefing.' : 'Protect one hit. Your practice Afterglow stays ready for the next briefing.', canHeal ? { hp: 1 } : { shield: 1 }),
+    choice('practice-glow', 'Gather a little light', 'Recover 8 practice Glow. You can draw Afterglow before the wind flight.', { flame: 8 }),
+  ];
   if (run.current.kind === 'camp') return [
     choice('rest', healingTitle, healingText, healOrWard),
     choice('gather', 'Gather the glow', 'Gain 18 embers and recover 22 Flame.', { embers: 18, flame: 22 }),
@@ -411,6 +594,32 @@ export function resolveSupport(run, index) {
 export function bankRun(state) {
   const run = state?.run;
   if (!state?.profile || !run || run.phase !== 'ended' || run.banked || state.profile.bankedRuns.includes(run.id)) return false;
+  if (run.isTutorial) {
+    if (run.success) {
+      state.profile.tutorialComplete = true;
+      // A taught power stays available; practice never adds flight-clear XP.
+      state.profile.knownPowers = powerIds([...getPowerDiscovery(state.profile).unlocked, ...run.cards]);
+    }
+    run.banked = true;
+    state.profile.bankedRuns.push(run.id);
+    state.profile.bankedRuns = state.profile.bankedRuns.slice(-128);
+    return true;
+  }
+  let loss = 0;
+  if (!run.success && !run.afterglowLossApplied) {
+    loss = energy(finite(run.afterglow) * getAfterglowRules(run.skills).failureLoss);
+    run.afterglow = energy(finite(run.afterglow) - loss);
+    run.afterglowLossApplied = true;
+  }
+  run.afterglowTotals = afterglowReport(run.afterglow, run.afterglowTotals);
+  run.afterglowTotals.loss = energy(run.afterglowTotals.loss + loss);
+  if (run.lastFlight) {
+    run.lastFlight.afterglow = afterglowReport(run.afterglow, run.lastFlight.afterglow);
+    run.lastFlight.afterglow.loss = energy(run.lastFlight.afterglow.loss + loss);
+  }
+  state.profile.afterglow = energy(clamp(finite(run.afterglow), 0, getAfterglowRules(state.profile.skills).cap));
+  state.profile.clearedFlights = Math.max(count(state.profile.clearedFlights), count(run.discoveryClears));
+  state.profile.knownPowers = powerIds([...getPowerDiscovery(state.profile).unlocked, ...getPowerDiscovery(run).unlocked]);
   state.profile.embers = count(state.profile.embers + count(run.embers));
   state.profile.stats.completedRuns += 1;
   state.profile.stats.wins += run.success ? 1 : 0;
