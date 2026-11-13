@@ -73,7 +73,7 @@ export function tutorialSteps(screen, context = {}) {
         step('flight-body', 'Guide the large white light', 'Your body must avoid solid scenery and screen edges. Touch good light packets to refill Glow.', '#flight-canvas'),
         step('flight-glow', 'Glow pays for Lift', 'Each Lift spends fuel from this bar. Gliding costs no Glow.', '#flame-meter'),
         step('flight-lift', 'Lift, then glide', 'Tap Lift to rise, then let the light fall gently. Choose your taps instead of tapping constantly.', '#flap-btn'),
-        collects ? step('flight-collector', 'Your automatic Collector', 'Only Collector fetches missed good packets inside its circle. FETCH, RETURN and seconds show its trip and recovery.', '#wisp-hud') : step(`flight-manual-${role}`, 'Manual pickups with this guide', 'This companion does not fetch packets. Fly through good packets yourself to refill Glow.', '#flight-canvas'),
+        collects ? step('flight-collector', 'Your automatic Collector', 'Collector rescues misses inside its boundary. This fill shows its current range. A sparkle means full reach.', '#boost-btn') : step(`flight-manual-${role}`, 'Manual pickups with this guide', 'This companion does not fetch packets. Fly through good packets yourself to refill Glow.', '#flight-canvas'),
         step(`flight-tool-${role}`, passive ? 'Always on, no tap needed' : `Your right-side ${ability.label}`, abilityText, '#boost-btn'),
         step('flight-menu', 'Pause with MENU', 'MENU pauses the flight and lets you inspect your build. RESUME continues it; ending an attempt deliberately spends a life.', '.flight-menu-slot .game-menu-button', { actionLabel: 'Play' }),
       ];

@@ -1,11 +1,14 @@
-import { normalizeCompanionRole, getCompanionAbility } from './companion-abilities.mjs';
+import { normalizeCompanionRole } from './companion-abilities.mjs';
 
 const PALETTES = Object.freeze({
   collector: Object.freeze({ outer: '#658557', mid: '#8db778', core: '#b9dfa0', bright: '#efffe0' }),
+  protector: Object.freeze({ outer: '#42648e', mid: '#6e99c5', core: '#adcff3', bright: '#ebf5ff' }),
+  leveler: Object.freeze({ outer: '#327e82', mid: '#64b8b7', core: '#a7e8df', bright: '#e3fff0' }),
   swift: Object.freeze({ outer: '#9c713b', mid: '#d2a45d', core: '#f2d48e', bright: '#fff0c8' }),
-  anchor: Object.freeze({ outer: '#327e82', mid: '#64b8b7', core: '#a7e8df', bright: '#e3fff0' }),
-  gravity: Object.freeze({ outer: '#75509f', mid: '#a57bd1', core: '#d3b1f2', bright: '#f3eaff' }),
+  seer: Object.freeze({ outer: '#75509f', mid: '#a57bd1', core: '#d3b1f2', bright: '#f3eaff' }),
+  kindler: Object.freeze({ outer: '#985d72', mid: '#cd8fa1', core: '#f0beca', bright: '#fff0f2' }),
 });
+const NAMES = Object.freeze({ collector: 'Collector', protector: 'Protector', leveler: 'Leveler', swift: 'Swift', seer: 'Seer', kindler: 'Kindler' });
 
 // Every companion is the same simple circular light, distinguished only by
 // palette. Four concentric pixel shades and a small off-center light core.
@@ -22,7 +25,7 @@ export function companionSprite(role = 'collector') {
 }
 
 export function companionPalette(role = 'collector') {
-  return PALETTES[normalizeCompanionRole(role)];
+  return PALETTES[normalizeCompanionRole(role)] || PALETTES.collector;
 }
 
 export function companionArtSvg(role = 'collector', { className = '' } = {}) {
@@ -37,5 +40,5 @@ export function companionArtSvg(role = 'collector', { className = '' } = {}) {
       if (inks[shade]) pixels.push(`<rect x="${start}" y="${y}" width="${x - start}" height="1" fill="${inks[shade]}"/>`);
     }
   });
-  return `<svg xmlns="http://www.w3.org/2000/svg" class="${classes}" viewBox="0 0 ${art.width} ${art.height}" width="${art.width}" height="${art.height}" preserveAspectRatio="xMidYMid meet" shape-rendering="crispEdges" role="img" aria-label="${getCompanionAbility(id).name} companion">${pixels.join('')}</svg>`;
+  return `<svg xmlns="http://www.w3.org/2000/svg" class="${classes}" viewBox="0 0 ${art.width} ${art.height}" width="${art.width}" height="${art.height}" preserveAspectRatio="xMidYMid meet" shape-rendering="crispEdges" role="img" aria-label="${NAMES[id] || 'Collector'} companion">${pixels.join('')}</svg>`;
 }

@@ -3,14 +3,14 @@ import { getCompanionAbility } from './companion-abilities.mjs';
 import { pickupKind, pickupContactRadius, canCompanionCollect } from './pickups.mjs';
 
 const clamp = (value, lo, hi) => Math.min(hi, Math.max(lo, value));
-export const WISP_TUNING = Object.freeze({ range: 100, cooldown: 5.5, lightRadius: 175, outboundSpeed: 500, returnSpeed: 620 });
+export const WISP_TUNING = Object.freeze({ range: 140, cooldown: 5, lightRadius: 175, outboundSpeed: 700, returnSpeed: 820 });
 
 export function wispHome(player) {
   return { x: player.x, y: player.y };
 }
 
-export function wispOrbit(player, time = 0) {
-  const angle = (Number.isFinite(time) ? time : 0) * Math.PI * 2 / 2.5 + Math.PI;
+export function wispOrbit(player, time = 0, index = 0, total = 1) {
+  const angle = (Number.isFinite(time) ? time : 0) * Math.PI * 2 / 2.5 + Math.PI + index * Math.PI * 2 / Math.max(1,total);
   return { x: player.x + Math.cos(angle) * 44,
     y: player.y + Math.sin(angle) * 34 };
 }
@@ -32,17 +32,30 @@ export class WispCompanion {
     return WISP_TUNING.range * clamp(Number(engine.mod.attract) || 1, .5, 4) * (1 + engine.wispBoost * .6);
   }
 
-  enabled(engine) { return getCompanionAbility(engine.companionRole || engine.options?.companionRole).collects === true; }
+  recoveryFraction() {
+    return this.cooldownMax > 0 ? clamp(1 - this.cooldown / this.cooldownMax, 0, 1) : 1;
+  }
+
+  currentRange(engine) {
+    const maximum = this.range(engine), minimum = Math.min(28, maximum);
+    return minimum + (maximum - minimum) * this.recoveryFraction();
+  }
+
+  enabled(engine) { return engine.hasCompanion ? engine.hasCompanion('collector')
+    : getCompanionAbility(engine.companionRole || engine.options?.companionRole).collects === true; }
 
   state(engine, y = engine.player.y, time = engine.time) {
     const enabled = this.enabled(engine);
     const home = wispHome({ ...engine.player, y });
     const blend = time === engine.time ? 1 : clamp(engine.accumulator * 60, 0, 1);
-    const recovery = this.phase === 'ready' ? 1 : this.phase === 'cooldown' ? 1 - this.cooldown / this.cooldownMax : 0;
+    const recovery = this.recoveryFraction();
     return { x: this.previousX + (this.x - this.previousX) * blend,
       y: this.previousY + (this.y - this.previousY) * blend,
       homeX: home.x, homeY: home.y, enabled, collects: enabled,
       radius: enabled ? this.range(engine) : 0, recovery: enabled ? recovery : 0,
+      currentRange: enabled ? this.currentRange(engine) : 0,
+      recovering: enabled && this.cooldown > 0,
+      canFetch: enabled && (this.phase === 'ready' || this.phase === 'cooldown'),
       phase: enabled ? this.phase : 'orbiting', cooldown: enabled ? this.cooldown : 0,
       cooldownMax: enabled ? this.cooldownMax : 0,
       carrying: enabled && Boolean(this.cargo), cargoValue: enabled ? this.cargo?.value || 1 : 0,
@@ -70,7 +83,9 @@ export class WispCompanion {
   update(engine, dt) {
     this.previousX = this.x; this.previousY = this.y; this.clock += dt;
     const home = wispHome(engine.player);
-    const orbit = wispOrbit(engine.player, engine.reducedMotion ? 0 : engine.time);
+    const fleet = engine.companions || [engine.companionRole];
+    const orbit = wispOrbit(engine.player, engine.reducedMotion ? 0 : engine.time,
+      Math.max(0,fleet.indexOf('collector')),fleet.length);
     if (!this.enabled(engine)) {
       this.releaseTarget();
       if (this.cargo) { this.cargo.carried = false; this.cargo.attracted = false; this.cargo = null; }
@@ -82,18 +97,18 @@ export class WispCompanion {
       return;
     }
     if (this.phase === 'orbiting') { this.phase = 'ready'; this.cooldownMax = WISP_TUNING.cooldown; }
+    // Recovery grows the search boundary; it is not a lock on another fetch.
+    // It keeps progressing during a trip and restarts only after delivery.
+    this.cooldown = Math.max(0, this.cooldown - dt);
+    if (this.cooldown === 0 && this.phase === 'cooldown') this.phase = 'ready';
     if (this.phase === 'ready' || this.phase === 'cooldown') {
       const follow = 1 - Math.exp(-dt * 16);
       this.x += (orbit.x - this.x) * follow; this.y += (orbit.y - this.y) * follow;
       this.vx = (this.x - this.previousX) / dt; this.vy = (this.y - this.previousY) / dt;
-      if (this.phase === 'cooldown') {
-        this.cooldown = Math.max(0, this.cooldown - dt);
-        if (this.cooldown === 0) this.phase = 'ready';
-      }
-      if (this.phase === 'ready') {
-        const reach = this.range(engine);
+      {
+        const reach = this.currentRange(engine);
         let nearest = null, nearestDistance = reach;
-        for (const ember of engine.layout.embers) {
+        for (const ember of engine.getNearbyPickups?.() || engine.layout.embers) {
           if (!canCompanionCollect(ember) || ember.collected || ember.carried || ember.attracted) continue;
           const x = ember.x - engine.distance;
           if (x < home.x - reach) continue;
@@ -101,6 +116,7 @@ export class WispCompanion {
           // Once a packet passes behind this edge, forward flight cannot touch
           // it directly; only then may the carrier rescue it within its range.
           if (x >= home.x - pickupContactRadius(ember)) continue;
+          if (engine.collectorContains && !engine.collectorContains(ember)) continue;
           const distance = Math.hypot(x - home.x, ember.y - home.y);
           if (distance < nearestDistance) { nearest = ember; nearestDistance = distance; }
         }
@@ -110,7 +126,7 @@ export class WispCompanion {
       }
     } else if (this.phase === 'outbound') {
       const target = this.target;
-      if (!target || !canCompanionCollect(target) || target.collected || target.x - engine.distance < -100) {
+      if (!target || !canCompanionCollect(target) || target.collected || target.x - engine.distance < -this.range(engine)) {
         this.releaseTarget(); this.phase = 'returning';
       } else if (this.moveTo(target.x - engine.distance, target.y, WISP_TUNING.outboundSpeed, dt)) {
         target.carried = true;
@@ -126,7 +142,10 @@ export class WispCompanion {
       if (this.moveTo(orbit.x, orbit.y, WISP_TUNING.returnSpeed, dt)) {
         // Delivery-triggered cards can shorten this trip's recovery immediately.
         this.cooldownMax = WISP_TUNING.cooldown * clamp(Number(engine.mod.wispCooldown) || 1, .4, 1.5);
-        this.cooldown = this.cooldownMax; this.phase = 'cooldown';
+        // An empty rescue trip must not spend a full successful-pickup recovery.
+        if (this.cargo) this.cooldown = this.cooldownMax;
+        this.phase = this.cooldown > 0 ? 'cooldown' : 'ready';
+        engine._auraUntil = -1;
         if (this.cargo) {
           const delivered = this.cargo; this.cargo = null; delivered.carried = false;
           delivered.deliveredByWisp = true;
@@ -137,7 +156,6 @@ export class WispCompanion {
     if (this.cargo) {
       this.cargo.x = engine.distance + this.x; this.cargo.y = this.y;
     }
-    this.history.push({ x: engine.distance + this.x, y: this.y, time: engine.time });
-    while (this.history.length > 32 || (this.history[0] && engine.time - this.history[0].time > .45)) this.history.shift();
+    this.history.length = 0;
   }
 }

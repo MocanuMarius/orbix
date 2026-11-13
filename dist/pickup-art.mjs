@@ -36,9 +36,18 @@ function packetPixels(kind, { time = 0, reducedMotion = false, tiny = false } = 
   };
   const t = reducedMotion ? 0 : time;
   if (kind === 'dark') {
-    disc(0, 0, 10, '#010205', .32); disc(0, 0, 5, '#333c43', .7);
-    disc(0, 0, 4, '#020306'); disc(0, 0, 2, '#000000');
-    rect(-4, -1, 1, 2, '#78817f', .42); rect(2, 4, 2, 1, '#78817f', .3);
+    // Dark body, readable accretion rim, a few inward-spiralling pixel sparks.
+    // Fixed tiny particle count; no live geometry or additional lighting pass.
+    halo(12, '#735580', .11);
+    disc(0, 0, 7, '#786187', .85);
+    disc(0, 0, 6, '#302538');
+    disc(0, 0, 5, '#020306'); disc(0, 0, 3, '#000000');
+    for(let i=0;i<4;i++){
+      const phase=(t*.45+i/4)%1, radius=12-phase*5;
+      const angle=t*1.8+i*TAU/4+phase*1.2;
+      rect(Math.round(Math.cos(angle)*radius),Math.round(Math.sin(angle)*radius),1,1,'#b296bc',.45+phase*.4);
+    }
+    rect(-5,-4,3,1,'#c1a5cc',.9);rect(4,3,2,1,'#a18aaf',.7);
   } else if (kind === 'dusk') {
     halo(9, '#a56c87', .12);
     disc(0, 0, 5, '#795968', .72); disc(0, 0, 4, '#d798ad', .85);

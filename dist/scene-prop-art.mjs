@@ -172,7 +172,8 @@ export function createScenePropArt(document, prop, { scale = 1, terrain = 'ruins
     else masonry(c, b, ink, partSeed, material === 'plaster');
     if ((material === 'stone' || material === 'plaster') && /cottage|shelter|house|hut/.test(kind)) boardedFacade(c, b, partSeed);
     // The rim is clipped inward to the same solid polygon, including concavity.
-    outline(c, points); c.strokeStyle = ink[0]; c.lineWidth = 2; c.stroke();
+    outline(c, points); c.strokeStyle = '#131e1c'; c.lineWidth = 4; c.stroke();
+    outline(c, points); c.strokeStyle = terrain==='storm'?'#b0c2bd':'#a4b29a'; c.lineWidth = 1.5; c.stroke();
     for (let i = 1; i < points.length; i++) {
       const a = points[i - 1], p = points[i];
       if (p[1] <= a[1] && Math.abs(p[0] - a[0]) > 2) line(c, a[0], a[1] + 1, p[0], p[1] + 1, ink[2]);

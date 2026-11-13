@@ -1,15 +1,15 @@
 import { PICKUP_TYPES, getPickupSpec } from './pickups.mjs';
 import { pickupArtSvg } from './pickup-art.mjs';
-import { getCompanionAbility, normalizeCompanionRole } from './companion-abilities.mjs';
+import { getCompanionAbility, normalizeCompanionRole, normalizeCompanionFleet } from './companion-abilities.mjs';
 
 const esc = value => String(value ?? '').replace(/[&<>"']/g, char =>
   ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
 const percent = value => Math.round((Number(value) || 0) * 100);
 
 function chargeText(role, amount) {
-  if (role === 'collector') return `Collector recovery −${amount}s.`;
-  if (role === 'gravity') return 'Gravity pull +15% for 3s.';
-  return `${getCompanionAbility(role).label} cooldown −${amount}s.`;
+  const roles=normalizeCompanionFleet(Array.isArray(role)?role:null,Array.isArray(role)?'collector':role);
+  return roles.every(id=>id==='kindler')?'Kindler has no recovery timer to restore.'
+    :`Equipped active cooldowns, Collector rest and Protector recovery −${amount}s each when recovering.`;
 }
 function effectText(spec, role) {
   switch (spec.id) {
@@ -25,20 +25,22 @@ function effectText(spec, role) {
 }
 
 /** Content for the app's native .power-sheet.pickup-guide-sheet dialog. */
-export function pickupGuideMarkup({ role = 'collector' } = {}) {
+export function pickupGuideMarkup({ role = 'collector', companions, discovered = [] } = {}) {
   role = normalizeCompanionRole(role);
-  const collects = getCompanionAbility(role).collects === true;
-  return `<section class="pickup-guide"><header class="pickup-guide-heading"><h2>PICKUP KEY</h2><span>7 KINDS</span></header><div class="pickup-guide-list">${Object.values(PICKUP_TYPES).map(spec => {
+  const roles=normalizeCompanionFleet(companions,role),collects=roles.includes('collector');
+  const known = new Set(['light', ...(Array.isArray(discovered) ? discovered : [])]);
+  const visible = Object.values(PICKUP_TYPES).filter(spec => known.has(spec.id));
+  return `<section class="pickup-guide"><header class="pickup-guide-heading"><h2>PICKUP KEY</h2><span>${visible.length} FOUND</span></header><div class="pickup-guide-list">${visible.map(spec => {
     const size = spec.radius >= 6 ? 'LARGE' : spec.radius <= 3 ? 'SMALL' : 'MEDIUM';
-    return `<article class="pickup-guide-row" data-pickup-kind="${spec.id}"><span class="pickup-guide-art" style="--pickup-art-size:40px" aria-hidden="true">${pickupArtSvg(spec.id,{className:'pickup-guide-icon'})}</span><div class="pickup-guide-copy"><div class="pickup-guide-row-title"><h3>${esc(spec.name)}</h3><small aria-label="${size.toLowerCase()}">${size}</small></div><p>${esc(effectText(spec,role))}</p>${spec.manualOnly?'<b class="pickup-guide-manual">MANUAL CONTACT ONLY</b>':''}</div></article>`;
-  }).join('')}</div><p class="pickup-guide-role">${collects?'Only Collector fetches eligible pickups. It ignores Dusk Pearls and Dark Seeds.':'This companion never fetches. Touch good pickups yourself.'}</p><p class="pickup-guide-legend">Size changes how close you need to fly. Color and motion identify the effect.</p><button class="primary pickup-guide-close" data-action="close-power">Close</button></section>`;
+    return `<article class="pickup-guide-row" data-pickup-kind="${spec.id}"><span class="pickup-guide-art" style="--pickup-art-size:40px" aria-hidden="true">${pickupArtSvg(spec.id,{className:'pickup-guide-icon'})}</span><div class="pickup-guide-copy"><div class="pickup-guide-row-title"><h3>${esc(spec.name)}</h3><small aria-label="${size.toLowerCase()}">${size}</small></div><p>${esc(effectText(spec,roles))}</p>${spec.manualOnly?'<b class="pickup-guide-manual">MANUAL CONTACT ONLY</b>':''}</div></article>`;
+  }).join('')}</div><p class="pickup-guide-role">${collects?'Collector fetches eligible missed pickups inside its glow.': 'No Collector is equipped. Touch good pickups yourself.'}${collects&&(known.has('dusk')||known.has('dark'))?' Manual-contact pickups are not fetched.':''}${roles.includes('kindler')?' Kindler adds Glow to direct natural fuel pickups.':''}</p><p class="pickup-guide-legend">New pickups join this guide when you encounter them.</p><button class="primary pickup-guide-close" data-action="close-power">Close</button></section>`;
 }
 
 /** A short first-contact lesson; the app supplies the world highlight target. */
-export function pickupLesson(kind, { role = 'collector' } = {}) {
+export function pickupLesson(kind, { role = 'collector', companions } = {}) {
   const spec = getPickupSpec(kind);
   role = normalizeCompanionRole(role);
-  const collects = getCompanionAbility(role).collects === true;
+  const roles=normalizeCompanionFleet(companions,role),collects=roles.includes('collector');
   let text;
   switch (spec.id) {
     case 'light':
@@ -51,7 +53,7 @@ export function pickupLesson(kind, { role = 'collector' } = {}) {
       text = `Adds ${spec.currency} embers to this flight’s clear reward. It does not refill Glow; failed attempts do not save the pickup reward.`;
       break;
     case 'charge':
-      text = `${chargeText(role,spec.recharge)} This cyan pickup restores no Glow.`;
+      text = `${chargeText(roles,spec.recharge)} This cyan pickup restores no Glow.`;
       break;
     case 'sight':
       text = `Lets you see farther for ${spec.sightDuration} seconds. It restores no Glow.`;

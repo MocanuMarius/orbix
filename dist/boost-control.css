@@ -1,4 +1,4 @@
-/* One obvious right-thumb ability control. The ring always shows recharge. */
+/* One right-thumb Power control activates all ready equipped active companions. */
 .flight-dock #boost-btn.boost-control-v2 {
   --boost-charge-offset: 0;
   --ability-ink: #ffe4a7;
@@ -26,10 +26,10 @@
   -webkit-tap-highlight-color: transparent;
   transition: none;
 }
-.flight-dock #boost-btn.boost-control-v2[data-companion-role=anchor] {
+.flight-dock #boost-btn.boost-control-v2[data-companion-role=leveler] {
   --ability-ink: #c9fff0; --ability-edge: #64b8b7; --ability-glow: 76, 188, 189; --ability-base: #264f51;
 }
-.flight-dock #boost-btn.boost-control-v2[data-companion-role=gravity] {
+.flight-dock #boost-btn.boost-control-v2[data-companion-role=seer] {
   --ability-ink: #f0dfff; --ability-edge: #a57bd1; --ability-glow: 164, 113, 215; --ability-base: #50345e;
 }
 #boost-btn.boost-control-v2[data-boost-state=ready]::before {
@@ -168,3 +168,13 @@
 
 /* Collector is an automatic status badge; all companion art shares one round body. */
 .flight-dock #boost-btn.boost-control-v2[data-companion-role=collector]{--ability-ink:#dff4cf;--ability-edge:#8db778;--ability-glow:141,183,120;--ability-base:#314a2f}.flight-dock #boost-btn.flight-passive-indicator[data-companion-role=collector]{border-color:#779663;background:linear-gradient(#293c2c,#1f2f24);color:#b9dfa0}.flight-passive-indicator[data-companion-role=collector] .boost-name{color:#c9e8b7}.flight-passive-indicator[data-companion-role=collector] .boost-status{color:#a9c69a;letter-spacing:.3px}#boost-btn.boost-control-v2 .boost-symbol.ability-companion-art{stroke:none;fill:none;image-rendering:pixelated;shape-rendering:crispEdges}#boost-btn.boost-control-v2 .ability-companion-art rect{stroke:none}.flight-dock #boost-btn.flight-passive-indicator .boost-symbol.ability-companion-art{stroke:none;filter:none;opacity:1}.tuning-row[aria-disabled=true]{opacity:.45}
+/* Fleet art stays a row of the same small colored light orbs. */
+#boost-btn .boost-symbol.ability-fleet-art{display:flex;align-items:center;justify-content:center;gap:3px;width:65px;height:28px;stroke:none;filter:none;overflow:visible}
+#boost-btn .ability-fleet-light{display:block;flex:none;width:19px;height:19px;image-rendering:pixelated;stroke:none;fill:none}
+.flight-dock #boost-btn[data-companion-role=protector]{--ability-ink:#c8e2ff;--ability-edge:#81afd5;--ability-glow:126,180,225;--ability-base:#2a4156}
+.flight-dock #boost-btn[data-companion-role=leveler]{--ability-ink:#c9fff0;--ability-edge:#64b8b7;--ability-glow:76,188,189;--ability-base:#264f51}
+.flight-dock #boost-btn[data-companion-role=seer]{--ability-ink:#f0dfff;--ability-edge:#a57bd1;--ability-glow:164,113,215;--ability-base:#50345e}
+.flight-dock #boost-btn[data-companion-role=kindler]{--ability-ink:#f3c2d0;--ability-edge:#c68ca2;--ability-glow:215,146,174;--ability-base:#543641}
+.flight-dock #boost-btn[data-fleet=true]:not(.flight-passive-indicator){--ability-ink:#ebe7cd;--ability-edge:#b9bb9c;--ability-glow:190,196,159;--ability-base:#444c37}
+.flight-dock #boost-btn[data-boost-state=release]{border-color:#a7e8df;background:linear-gradient(#365a54,#283c36);box-shadow:inset 0 0 0 3px #243b32,0 0 20px #64b8b74d}
+#boost-btn[data-boost-state=release] .boost-status{color:#b8ecdf}

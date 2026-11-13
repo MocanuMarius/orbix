@@ -1,0 +1,31 @@
+import assert from 'node:assert/strict';
+import { WispFlight } from '../dist/flight.mjs';
+globalThis.requestAnimationFrame=()=>1;
+globalThis.cancelAnimationFrame=()=>{};
+const gradient={addColorStop(){}};
+const context=new Proxy({globalAlpha:1},{get:(o,k)=>o[k]??(String(k).includes('Gradient')?()=>gradient:()=>{}),set:(o,k,v)=>(o[k]=v,true)});
+const canvas={style:{},getContext:()=>context,getBoundingClientRect:()=>({width:390,height:620})};
+function flight(companions=['collector']){
+  const results=[];
+  const e=new WispFlight({canvas,terrain:'ruins',seed:'presentation-probe',duration:20,companions,flame:100,onFinish:r=>results.push(r)});
+  return {e,results};
+}
+const {e,results}=flight();
+e.distance=e.totalDistance;
+e.hit(null);
+assert.equal(e.dying,true);assert.equal(e.deathCause,'collision');
+assert.equal(results.length,0);
+const distance=e.distance,flaps=e.flaps;e.flap();e.activateAbility();
+assert.equal(e.flaps,flaps);
+for(let i=0;i<119;i++)e.step(1/60);
+assert.equal(results.length,0);assert.equal(e.distance,distance);
+e.step(1/60);e.step(1/60);
+assert.equal(results.length,1);assert.equal(results[0].success,false);
+e.step(1);assert.equal(results.length,1);
+const shield=flight(['protector']);shield.e.hit(null);
+assert.equal(shield.e.dying,false);assert.equal(shield.e.shield.charges,0);
+assert.equal(shield.results.length,0);assert.equal(shield.e.flame,88);
+const glow=flight();glow.e.flame=0;glow.e.beginDying();
+for(let i=0;i<37;i++)glow.e.step(1/60);
+assert.equal(glow.results.length,1);assert.equal(glow.results[0].success,false);
+console.log(JSON.stringify({collisionDelaySeconds:2,controlsBlocked:true,exitCollisionCannotWin:true,finishOnce:true,protectorDeflectionPreserved:true,glowExhaustionPreserved:true}));

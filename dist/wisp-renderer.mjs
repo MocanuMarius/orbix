@@ -7,7 +7,9 @@ import { drawPickup } from './pickup-art.mjs';
 import { pickupKind, getPickupSpec } from './pickups.mjs';
 
 const TAU = Math.PI * 2;
-const WIDTH = 260;
+const SCENERY_HELPERS = { line: pixelLine, disc: pixelDisc, polygon: path };
+const SIDES = [true, false];
+const WIDTH = 240;
 const ART_SCALE = WIDTH / 195;
 const clamp = (n, lo, hi) => Math.max(lo, Math.min(hi, n));
 const hash = (x, y = 0, seed = 0) => {
@@ -117,6 +119,16 @@ export class WispFlightView {
     this.buffer = null;
     this.terrainCache = new Map();
     this.scenePropCache = new Map();
+    this.spriteCache = new Map();
+    this.glowCache = new Map();
+    this.visibleObstacles = [];
+    this.obstacleCursor = 0;
+    this.lastVisibleDistance = -1;
+    this.identity = sceneryIdentity(engine);
+    this.palette = { ...(PALETTES[engine.terrain] || PALETTES.ruins), ...(MATERIALS[this.identity.scene] || {}) };
+    this.lifeOptions = { identity: this.identity, width: WIDTH, height: 0, distance: 0, time: 0, palette: this.palette, reducedMotion: false };
+    this.bossOptions = { engine, width: WIDTH, height: 0, distance: 0, time: 0, scale: 1, pass: 'silhouette' };
+    this.fallbackFleet = [{ role: 'collector', x: 0, y: 0, homeX: 0, homeY: 0, radius: 100, phase: 'ready', recovery: 1, carrying: false }];
     this.originalOpacity = engine.canvas.style?.opacity || '';
   }
 
@@ -164,9 +176,13 @@ export class WispFlightView {
     this.buffer.height = Math.max(1, Math.round((e.height || 620) / (e.width || 390) * WIDTH));
     this.scale = WIDTH / (e.width || 390);
     this.fog.width = this.buffer.width; this.fog.height = this.buffer.height;
-    this.fogPixels = this.fogContext.createImageData(this.fog.width, this.fog.height);
+    this.fogPixels = null;
+    if (this.skyCanvas) this.skyCanvas.width = this.skyCanvas.height = 1;
+    this.skyCanvas = null;
+    this.obstacleCursor = 0; this.lastVisibleDistance = -1;
     this.context.imageSmoothingEnabled = false;
     this.bufferContext.imageSmoothingEnabled = false;
+    for (const item of this.terrainCache.values()) { item.canvas.width = 1; item.canvas.height = 1; }
     this.terrainCache.clear();
     for (const item of this.scenePropCache.values()) { item.canvas.width = 1; item.canvas.height = 1; }
     this.scenePropCache.clear();
@@ -175,11 +191,17 @@ export class WispFlightView {
 
   drawSky(e, t, distance, palette) {
     const c = this.bufferContext, W = this.buffer.width, H = this.buffer.height;
-    for (let row = 0; row < H; row += 4) {
-      const fraction = row / H * 2;
-      c.fillStyle = hexMix(palette.sky[Math.min(1, Math.floor(fraction))], palette.sky[Math.min(2, Math.floor(fraction) + 1)], fraction % 1);
-      c.fillRect(0, row, W, 4);
+    if (!this.skyCanvas) {
+      this.skyCanvas = this.document.createElement('canvas');
+      this.skyCanvas.width = W; this.skyCanvas.height = H;
+      const sky = this.skyCanvas.getContext('2d');
+      for (let row = 0; row < H; row += 4) {
+        const fraction = row / H * 2;
+        sky.fillStyle = hexMix(palette.sky[Math.min(1, Math.floor(fraction))], palette.sky[Math.min(2, Math.floor(fraction) + 1)], fraction % 1);
+        sky.fillRect(0, row, W, 4);
+      }
     }
+    c.drawImage(this.skyCanvas, 0, 0);
     for (let i = 0; i < 54; i++) {
       const x = Math.floor(hash(i, 4, 12) * W), y = Math.floor(hash(i, 7, 15) * H * .65);
       c.globalAlpha = .20 + (e.reducedMotion ? .10 : Math.floor((Math.sin(t * .7 + i) + 1) * 2) * .08);
@@ -187,8 +209,8 @@ export class WispFlightView {
       if (i % 17 === 0) c.fillRect(x - 1, y + 1, 3, 1);
     }
     c.globalAlpha = 1;
-    drawIdentityBackground(c, { identity: sceneryIdentity(e), width: W, height: H, distance, palette },
-      { line: pixelLine, disc: pixelDisc, polygon: path });
+    const scene = this.lifeOptions; scene.height = H; scene.distance = distance;
+    drawIdentityBackground(c, scene, SCENERY_HELPERS);
     // Low, broken cloud and mist strips keep the world atmospheric without blurred assets.
     c.globalAlpha = .12;
     for (let i = 0; i < 13; i++) {
@@ -338,7 +360,7 @@ export class WispFlightView {
   }
 
   terrainImage(e, obstacle, shape, top, palette) {
-    const identity = sceneryIdentity(e);
+    const identity = this.identity;
     const key = `${identity.id}:${obstacle.sectionId || ''}:${obstacle.id}:${top ? 'top' : 'floor'}:${this.buffer.height}`;
     const cached = this.terrainCache.get(key);
     if (cached) return cached;
@@ -358,8 +380,8 @@ export class WispFlightView {
     const inward = top ? -1 : 1;
     for (let i = 1; i < surface.length; i++) {
       const a = surface[i - 1], b = surface[i];
-      pixelLine(c, a[0], a[1] + inward * 2, b[0], b[1] + inward * 2, palette.face, 2);
-      pixelLine(c, a[0], a[1], b[0], b[1], palette.rim);
+      pixelLine(c, a[0], a[1] + inward * 2, b[0], b[1] + inward * 2, palette.shade, 2);
+      pixelLine(c, a[0], a[1], b[0], b[1], hexMix(palette.rim, '#e2e5ce', .32));
     }
     if (obstacle.soft) {
       // Shatter Wake's convertible brambles stay inside the real silhouette but
@@ -375,30 +397,33 @@ export class WispFlightView {
     c.restore();
     const item = { canvas, x: minX, y: minY, pad: 2 };
     this.terrainCache.set(key, item);
-    while (this.terrainCache.size > 14) this.terrainCache.delete(this.terrainCache.keys().next().value);
+    while (this.terrainCache.size > 18) {
+      const oldest = this.terrainCache.keys().next().value;
+      this.terrainCache.get(oldest).canvas.width = 1; this.terrainCache.delete(oldest);
+    }
     return item;
   }
 
   drawTerrain(e, t, distance, palette) {
     const c = this.bufferContext, s = this.scale;
-    for (const obstacle of e.layout.obstacles) {
+    for (const obstacle of this.visibleObstacles) {
       if (obstacle.destroyed || obstacle.x + obstacle.width * 2.5 < distance - 10 || obstacle.x - obstacle.width > distance + e.width + 10) continue;
       // These are the simulation's exact local collider polygons and animated
       // center; cached art avoids allocating transformed vertex arrays per frame.
       const center = obstacle.center + Math.sin(t * .9 + obstacle.phase) * obstacle.motion;
-      for (const top of [true, false]) {
+      for (const top of SIDES) {
         const shape = top ? obstacle.topShape : obstacle.bottomShape;
         if (!shape?.length) continue;
         const item = this.terrainImage(e, obstacle, shape, top, palette);
-        c.drawImage(item.canvas, Math.round((obstacle.x - distance + item.x) * s) - item.pad,
-          Math.round((center + (top ? -1 : 1) * obstacle.gap / 2 + item.y) * s) - item.pad);
+        c.drawImage(item.canvas, (obstacle.x - distance + item.x) * s - item.pad,
+          (center + (top ? -1 : 1) * obstacle.gap / 2 + item.y) * s - item.pad);
       }
     }
   }
 
   drawSceneProps(e, t, distance) {
     const c = this.bufferContext, s = this.scale, identity = sceneryIdentity(e);
-    for (const obstacle of e.layout.obstacles) {
+    for (const obstacle of this.visibleObstacles) {
       if (obstacle.destroyed || !obstacle.sceneProps?.length
         || obstacle.x + obstacle.width * 2.5 < distance - 10
         || obstacle.x - obstacle.width > distance + e.width + 10) continue;
@@ -421,8 +446,8 @@ export class WispFlightView {
           }
         }
         const side = prop.side === -1 ? -1 : 1;
-        const x = Math.round((obstacle.x - distance + item.x) * s) - item.pad;
-        const y = Math.round((center + side * obstacle.gap / 2 + item.y) * s) - item.pad;
+        const x = (obstacle.x - distance + item.x) * s - item.pad;
+        const y = (center + side * obstacle.gap / 2 + item.y) * s - item.pad;
         if (x + item.canvas.width < 0 || x > WIDTH || y + item.canvas.height < 0 || y > this.buffer.height) continue;
         c.drawImage(item.canvas, x, y);
       }
@@ -448,7 +473,9 @@ export class WispFlightView {
 
   drawBurstEffects(e, tint) {
     const c = this.bufferContext, s = this.scale;
-    for (const p of (e.particles || []).slice(-90)) {
+    const particles = e.particles || [];
+    for (let i = Math.max(0, particles.length - 72); i < particles.length; i++) {
+      const p = particles[i];
       c.globalAlpha = clamp(p.life / p.maxLife, 0, 1) * .7;
       c.fillStyle = p.type === 'spark' ? tint.core : tint.outer;
       c.fillRect(Math.round(p.x * s), Math.round(p.y * s), p.type === 'spark' ? 2 : 1, 1);
@@ -456,189 +483,252 @@ export class WispFlightView {
     c.globalAlpha = 1;
   }
 
-  lightFog(e, state, playerX, playerY) {
-    const c = this.bufferContext, W = this.buffer.width, H = this.buffer.height, s = this.scale;
+  updateVisible(e, distance) {
+    const obstacles = e.layout.obstacles, list = this.visibleObstacles;
+    if (distance < this.lastVisibleDistance) this.obstacleCursor = 0;
+    this.lastVisibleDistance = distance;
+    while (this.obstacleCursor < obstacles.length) {
+      const o = obstacles[this.obstacleCursor];
+      if (o.x + o.width * 2.5 >= distance - 24) break;
+      this.obstacleCursor++;
+    }
+    list.length = 0;
+    for (let i = this.obstacleCursor; i < obstacles.length; i++) {
+      const o = obstacles[i];
+      if (o.x > distance + e.width + 800) break;
+      if (!o.destroyed && o.x + o.width * 2.5 >= distance - 24 && o.x - o.width <= distance + e.width + 24) list.push(o);
+    }
+  }
+
+  lightMask() {
+    if (this.maskCanvas) return this.maskCanvas;
+    const canvas = this.document.createElement('canvas'); canvas.width = canvas.height = 128;
+    const c=canvas.getContext('2d'),image=c.createImageData(128,128);
+    // Finite emitter core + inverse-square distance attenuation. Bake once;
+    // every frame only scales/blends this reusable pixel-light texture.
+    const softening=.18,cutoff=1/(1+softening*softening);
+    for(let py=0;py<128;py++)for(let px=0;px<128;px++){
+      const dx=(px-63.5)/63,dy=(py-63.5)/63,r2=dx*dx+dy*dy;
+      const irradiance=r2>=1?0:Math.max(0,1/(r2+softening*softening)-cutoff);
+      // 50% higher emitter exposure; retain inverse-square attenuation and
+      // the zero-light cutoff so distant scenery never gets a global lift.
+      const alpha=1-Math.exp(-.75*irradiance),offset=(py*128+px)*4;
+      image.data[offset]=image.data[offset+1]=image.data[offset+2]=255;
+      image.data[offset+3]=Math.round(alpha*255);
+    }
+    c.putImageData(image,0,0);
+    this.maskCanvas = canvas;
+    return canvas;
+  }
+
+  lightFog(e, fleet, playerX, playerY) {
+    const c = this.bufferContext, f = this.fogContext, W = this.buffer.width, H = this.buffer.height, s = this.scale;
     const light = e.getLightState?.() || e.light || {};
     this.currentLightState = light;
     const baseRadius = Number(light.baseRadius) || Number(e.mod?.lightRadius) || 175;
     this.lightRadius = Math.max(24, Number(light.radius) || baseRadius);
-    this.lightIntensity = clamp(Number.isFinite(light.intensity) ? light.intensity : 1, .25, 1);
-    const dimScale = clamp(this.lightRadius / baseRadius, .6, 1);
-    this.lightDimScale = dimScale;
-    const radius = this.lightRadius * s, radius2 = radius * radius;
-    const carrierX = state.x * s, carrierY = state.y * s;
-    const carrierRadius2 = ((state.phase === 'cooldown' ? 13 + state.recovery * 7 : 26) * ART_SCALE * dimScale) ** 2;
-    const pixels = this.fogPixels.data, dither = [0, 8, 2, 10, 12, 4, 14, 6, 3, 11, 1, 9, 15, 7, 13, 5];
-    for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
-      const distance2 = (x - playerX) ** 2 + (y - playerY) ** 2;
-      const carrier2 = (x - carrierX) ** 2 + (y - carrierY) ** 2;
-      const playerShade = clamp((distance2 / radius2 - .10) / .90, 0, 1);
-      const carrierShade = clamp((carrier2 / carrierRadius2 - .08) / .92, 0, 1);
-      const shade = 1 - Math.max(1 - playerShade, 1 - carrierShade) * this.lightIntensity;
-      const grain = (dither[(y & 3) * 4 + (x & 3)] / 15 - .5) * .035;
-      const alpha = clamp(Math.round((.025 + shade * .93 + grain) * 24) / 24, 0, .96);
-      const index = (y * W + x) * 4;
-      pixels[index] = 2; pixels[index + 1] = 5; pixels[index + 2] = 8; pixels[index + 3] = Math.round(alpha * 255);
+    this.lightIntensity = clamp(Number.isFinite(light.intensity) ? light.intensity : 1, 0, 1);
+    this.lightDimScale = clamp(this.lightRadius / baseRadius, .6, 1);
+    f.setTransform(1, 0, 0, 1, 0, 0); f.globalCompositeOperation = 'source-over'; f.globalAlpha = 1;
+    f.clearRect(0, 0, W, H); f.fillStyle = 'rgba(2,5,8,.965)'; f.fillRect(0, 0, W, H);
+    f.globalCompositeOperation = 'destination-out';
+    const mask = this.lightMask(), radius = this.lightRadius * s;
+    f.globalAlpha = this.lightIntensity;
+    f.drawImage(mask, playerX - radius, playerY - radius, radius * 2, radius * 2);
+    const forward = light.forwardLight || e.forwardLight;
+    if (forward?.active && forward.radius > 0) {
+      const fr = forward.radius * s;
+      const fx = (Number.isFinite(forward.screenX) ? forward.screenX : forward.x) * s;
+      const fy = forward.y * s;
+      f.globalAlpha = clamp((forward.intensity ?? 1) * this.lightIntensity, 0, 1);
+      f.drawImage(mask, fx - fr, fy - fr, fr * 2, fr * 2);
     }
-    this.fogContext.putImageData(this.fogPixels, 0, 0);
+    for (let i = 0; i < fleet.length && i < 3; i++) {
+      const orb = fleet[i], collecting = orb.role === 'collector';
+      const recovery = clamp(orb.recovery ?? 1, 0, 1);
+      const r = (collecting ? orb.phase === 'cooldown' ? 17 + recovery * 10 : 31 : 19) * s * this.lightDimScale;
+      f.globalAlpha = this.lightIntensity * (collecting ? .82 : .45);
+      f.drawImage(mask, orb.x * s - r, orb.y * s - r, r * 2, r * 2);
+    }
+    f.globalAlpha = 1; f.globalCompositeOperation = 'source-over';
     c.drawImage(this.fog, 0, 0);
   }
 
   glow(x, y, radius, ink, strength = .12) {
     const c = this.bufferContext;
-    c.save(); c.globalCompositeOperation = 'screen';
-    for (let ring = 4; ring > 0; ring--) {
-      c.globalAlpha = strength / 4;
-      pixelDisc(c, x, y, Math.round(radius * ring / 4), ink);
-    }
-    c.restore();
-  }
-
-  drawSpirit(x, y, tint, t, { small = false, boost = false, tap = 0, fuel = 1, reduced = false, intensity = 1 } = {}) {
-    const c = this.bufferContext;
-    c.save();
-    const breath = reduced ? 0 : Math.sin(t * 2.3) * .28;
-    const radius = small ? 4 : 13 + breath + tap * .4;
-    const power = clamp(intensity, .18, 1) * (small ? 1 : .72 + fuel * .28);
-    this.glow(x, y, Math.round((small ? 10 : boost ? 28 : 23) * ART_SCALE), tint.outer, (small ? .12 : .22) * power);
-    const disc = (cx, cy, r, ink) => {
-      if (small) { pixelDisc(c, cx, cy, r, ink); return; }
-      // Rasterize a true circle into the pixel scene rather than a stepped
-      // polygon whose bright corners can read as a diamond.
-      c.fillStyle = ink; c.beginPath(); c.arc(cx, cy, r, 0, TAU); c.fill();
-    };
-    // Nested translucent round cores form a soft light, with no pointed flame,
-    // crystal body, elemental glyph, or persistent particle tail.
-    c.globalAlpha = power * .22; disc(x, y, radius + 1, tint.outer);
-    c.globalAlpha = power * .44; disc(x, y, radius, tint.mid);
-    c.globalAlpha = power * .72; disc(x, y, Math.max(2, radius - 2), tint.core);
-    c.globalAlpha = power * .9; disc(x, y, Math.max(1, radius - (small ? 3 : 5)), tint.core);
-    c.globalAlpha = Math.max(.35, power) * .94;
-    disc(x - (small ? 0 : 2), y - (small ? 1 : 2), small ? 1 : 4, tint.bright);
-    if (!small && tap > .05) {
-      c.globalAlpha = tap * power * .24;
-      disc(x, y, radius + 2, tint.core);
-    }
-    c.restore();
-  }
-
-  drawCarrierSpirit(x, y, role, tint, intensity = 1) {
-    const c = this.bufferContext, art = companionSprite(role);
-    const power = clamp(intensity, .18, 1);
-    const inks = [null, tint.outer, tint.mid, tint.core, tint.bright];
-    c.save();
-    this.glow(x, y, Math.round(10 * ART_SCALE), tint.outer, .12 * power);
-    c.globalAlpha = power;
-    const left = Math.floor(art.width / 2), top = Math.floor(art.height / 2);
-    art.rows.forEach((row, yy) => {
-      for (let xx = 0; xx < row.length;) {
-        const shade = Number(row[xx]), start = xx;
-        while (xx < row.length && Number(row[xx]) === shade) xx++;
-        if (inks[shade]) {
-          c.fillStyle = inks[shade];
-          c.fillRect(x + start - left, y + yy - top, xx - start, 1);
-        }
+    let sprite = this.glowCache.get(ink);
+    if (!sprite) {
+      sprite = this.document.createElement('canvas'); sprite.width = sprite.height = 128;
+      const g = sprite.getContext('2d'), gradient = g.createRadialGradient(64, 64, 0, 64, 64, 63);
+      gradient.addColorStop(0, ink); gradient.addColorStop(.26, ink + 'b0');
+      gradient.addColorStop(.60, ink + '45'); gradient.addColorStop(1, ink + '00');
+      g.fillStyle = gradient; g.fillRect(0, 0, 128, 128);
+      this.glowCache.set(ink, sprite);
+      while (this.glowCache.size > 24) {
+        const first = this.glowCache.keys().next().value;
+        this.glowCache.get(first).width = 1; this.glowCache.delete(first);
       }
-    });
+    }
+    c.save(); c.globalCompositeOperation = 'screen'; c.globalAlpha = strength;
+    c.drawImage(sprite, x - radius, y - radius, radius * 2, radius * 2); c.restore();
+  }
+
+  orbSprite(role) {
+    const key = 'orb:' + role;
+    let canvas = this.spriteCache.get(key);
+    if (canvas) return canvas;
+    const art = companionSprite(role), tint = companionPalette(role);
+    canvas = this.document.createElement('canvas'); canvas.width = art.width; canvas.height = art.height;
+    const c = canvas.getContext('2d'), inks = [null, tint.outer, tint.mid, tint.core, tint.bright];
+    for (let y = 0; y < art.height; y++) for (let x = 0; x < art.width; x++) {
+      const ink = inks[Number(art.rows[y][x])];
+      if (ink) { c.fillStyle = ink; c.fillRect(x, y, 1, 1); }
+    }
+    this.spriteCache.set(key, canvas);
+    return canvas;
+  }
+
+  mainSprite(fuel) {
+    const band = Math.round(clamp(fuel, 0, 1) * 32), key = 'main:' + band;
+    let canvas = this.spriteCache.get(key);
+    if (canvas) return canvas;
+    canvas = this.document.createElement('canvas'); canvas.width = canvas.height = 36;
+    const c = canvas.getContext('2d'), x = 18, y = 18, r = 13;
+    // Fuel burns inward: charcoal gathers at the edge, never as a central dot.
+    // Cache a coarse, dithered gradient per fuel band; no per-frame pixel work.
+    const coreRadius=12.5*Math.sqrt(band/32),dither=[0,.5,.75,.25];
+    for(let py=-13;py<13;py+=2)for(let px=-13;px<13;px+=2){
+      const dx=px+1,dy=py+1,distance=Math.hypot(dx,dy);
+      const cellX=(px+13)/2,cellY=(py+13)/2;
+      const edge=12.7+(((cellX*7+cellY*11)%5)-2)*.17;
+      if(distance>edge)continue;
+      const shell=distance>edge-1.6;
+      const raw=clamp((coreRadius+1.8-distance)/3.8,0,1);
+      const grain=dither[(cellX%2)+(cellY%2)*2];
+      const light=Math.min(1,Math.floor(raw*5+grain)/5);
+      const shade=shell?[188,204,193]:[Math.round(44+light*199),Math.round(52+light*191),Math.round(54+light*166)];
+      if(shell&&(cellX+cellY)%3===0){shade[0]=226;shade[1]=232;shade[2]=211;}
+      c.fillStyle=`rgb(${shade.join(',')})`;c.fillRect(x+px,y+py,2,2);
+    }
+    this.spriteCache.set(key, canvas);
+    return canvas;
+  }
+
+  drawMain(e, t, x, y) {
+    const c = this.bufferContext, fuel = clamp((e.flame ?? 100) / 100, 0, 1);
+    const dying = e.dying === true || (e.dyingProgress > 0 && fuel <= 0);
+    const progress = dying ? clamp(e.dyingProgress || 0, 0, 1) : 0;
+    if(dying && e.deathCause==='collision') {
+      const sprite=this.mainSprite(fuel),scatter=e.reducedMotion?3:42;
+      this.glow(x,y,31*(1-progress*.7),MAIN_LIGHT.outer,.3*(1-progress));
+      c.save();
+      // Break the cached pixel body into tiles: no sprite creation or particle
+      // allocation in the two-second animation loop.
+      for(let row=0;row<6;row++)for(let col=0;col<6;col++){
+        const seed=hash(col,row,17),age=clamp((progress-seed*.16)/.84,0,1);
+        const angle=Math.atan2(row-2.5,col-2.5)+seed*.45;
+        const travel=age*(.3+seed*.7)*scatter;
+        c.globalAlpha=Math.max(0,1-age**1.3);
+        const size=Math.max(1,Math.ceil(6*(1-age*.8)));
+        c.drawImage(sprite,col*6,row*6,6,6,
+          Math.round(x-18+col*6+Math.cos(angle)*travel),
+          Math.round(y-18+row*6+Math.sin(angle)*travel+age*age*(e.reducedMotion?0:14)),size,size);
+      }
+      c.restore();return;
+    }
+    const tapAge = t - (e.lastFlapTime ?? -1000), tap = clamp(1 - tapAge / .16, 0, 1);
+    const breath = e.reducedMotion ? 0 : Math.sin(t * 2.3) * .005;
+    const size = (1 + breath + tap * .025) * (1 - progress ** 1.35);
+    const power = (this.lightIntensity || 1) * (dying ? 1 - progress * .85 : .76 + fuel * .24);
+    this.glow(x, y, (24 + fuel * 7) * Math.max(.1, size), MAIN_LIGHT.outer, .29 * power);
+    c.save(); c.globalAlpha = power;
+    if (size > .02) c.drawImage(this.mainSprite(fuel), x - 18 * size, y - 18 * size, 36 * size, 36 * size);
+    if (dying && progress > .25 && !e.reducedMotion) {
+      c.fillStyle = '#f7f5d8'; c.globalAlpha = (1 - progress) ** 1.5;
+      for (let i = 0; i < 5; i++) {
+        const angle = i * TAU / 5 + .4, r = 5 + progress * 10;
+        const dot = Math.max(.3, 1.8 * (1 - progress));
+        c.fillRect(x + Math.cos(angle) * r, y + Math.sin(angle) * r, dot, dot);
+      }
+    }
     c.restore();
   }
 
-  drawCarrier(e, t, distance, state, tint) {
+  drawProtector(e, t, x, y) {
+    const shield = e.getShieldState?.() || e.shield;
+    if (!shield || !Number.isFinite(shield.layers) || shield.layers < 1) return;
+    const c = this.bufferContext, layers = Math.min(3, shield.layers), charges = Math.max(0, shield.charges || 0);
+    const hit = clamp(shield.hitFlash || 0, 0, 1), total = Math.max(.1, shield.recoveryTotal || 1);
+    const recovery = clamp(1 - (shield.recovery || 0) / total, 0, 1);
+    c.save();
+    for (let i = 0; i < layers; i++) {
+      const radius = 16.5 + i * 2, charged = i < charges;
+      c.lineWidth = charged ? 1.7 : 1;
+      c.strokeStyle = hit > .05 ? '#e3f5ff' : charged ? '#8ab9e4' : '#3b5b7a';
+      c.globalAlpha = (charged ? .72 : .18 + recovery * .16) * (this.lightIntensity || 1);
+      c.beginPath();
+      if (charged && hit < .05) c.arc(x, y, radius, 0, TAU);
+      else for (let shard = 0; shard < 5; shard++) {
+        const a = shard * TAU / 5 + .12; c.moveTo(x + Math.cos(a) * radius, y + Math.sin(a) * radius);
+        c.arc(x, y, radius, a, a + .72 + recovery * .15);
+      }
+      c.stroke();
+    }
+    if (hit > .02) {
+      c.globalAlpha = hit * .8; c.strokeStyle = '#d9f1ff'; c.lineWidth = 1;
+      for (let i = 0; i < 3; i++) {
+        const a = i * TAU / 3 + .2;
+        c.beginPath(); c.moveTo(x + Math.cos(a) * 16, y + Math.sin(a) * 16);
+        c.lineTo(x + Math.cos(a + .09) * 20, y + Math.sin(a + .09) * 20);
+        c.lineTo(x + Math.cos(a - .07) * 23, y + Math.sin(a - .07) * 23); c.stroke();
+      }
+    }
+    c.restore();
+  }
+
+  drawCollectorAura(e,t) {
+    const aura=e.getCollectorAuraState?.();if(!aura||aura.radius<1||!aura.active)return;
+    const c=this.bufferContext,s=this.scale,x=e.player.x*s,y=yOf(e)*s,r=aura.radius*s;
+    c.save();c.globalCompositeOperation='screen';
+    // A single living boundary, never a filled illumination disc. Fixed work
+    // per frame keeps recovery animation independent of terrain complexity.
+    c.beginPath();
+    for(let i=0;i<=72;i++){
+      const a=i/72*TAU;
+      const ripple=e.reducedMotion?0:Math.sin(a*7+t*3.8)*.65+Math.sin(a*13-t*5.1)*.35;
+      const radius=r+ripple*Math.min(1.5,r*.035);
+      const px=x+Math.cos(a)*radius,py=y+Math.sin(a)*radius;
+      if(i===0)c.moveTo(px,py);else c.lineTo(px,py);
+    }
+    c.closePath();c.strokeStyle='#a9cd95';c.globalAlpha=.12;c.lineWidth=3;c.stroke();
+    c.globalAlpha=.52;c.lineWidth=1;c.stroke();
+    c.restore();
+  }
+
+  drawFleet(e, t, fleet) {
     const c = this.bufferContext, s = this.scale;
-    const role = normalizeCompanionRole(e.companionRole || e.options?.companionRole);
-    const collects = role === 'collector' || state.enabled === true || state.collects === true;
-    const x = Math.round(state.x * s), y = Math.round(state.y * s);
-    const homeX = state.homeX * s, homeY = state.homeY * s;
-    const cooling = collects && state.phase === 'cooldown';
-    const radius = state.radius * s, dots = Math.round(TAU * radius / 4);
-    c.globalAlpha = (cooling ? .07 + state.recovery * .12 : state.phase === 'ready' ? .46 : .25) * (this.lightIntensity || 1);
-    for (let dot = 0; collects && dot < dots; dot++) {
-      const angle = dot / dots * TAU;
-      c.fillStyle = tint.core;
-      c.fillRect(Math.round(homeX + Math.cos(angle) * radius), Math.round(homeY + Math.sin(angle) * radius), 1, 1);
-    }
-    c.globalAlpha = 1;
-    this.drawCarrierSpirit(x, y, role, tint,
-      (cooling ? .25 + state.recovery * .45 : 1) * (this.lightIntensity || 1));
-    if (cooling) {
-      for (let i = 0; i < 10; i++) {
-        const angle = i / 10 * TAU;
-        c.fillStyle = i / 10 < state.recovery ? tint.mid : '#3a4747';
-        c.fillRect(Math.round(x + Math.cos(angle) * 9), Math.round(y + Math.sin(angle) * 9), 1, 1);
+    for (let i = 0; i < fleet.length && i < 3; i++) {
+      const state = fleet[i], role = normalizeCompanionRole(state.role || state.id), tint = companionPalette(role);
+      const collector = role === 'collector', cooling = collector && state.phase === 'cooldown';
+      const x = state.x * s, y = state.y * s;
+      const recovery = clamp(state.recovery ?? 1, 0, 1);
+      const intensity = (cooling ? .32 + recovery * .50 : 1) * (this.lightIntensity || 1);
+      this.glow(x, y, collector ? 14 : 12, tint.outer, intensity * .21);
+      const sprite = this.orbSprite(role);
+      c.globalAlpha = intensity; c.drawImage(sprite, x - 6, y - 6); c.globalAlpha = 1;
+      if (collector && state.carrying) this.drawPacket(x + 7, y + 5, { kind: state.cargoKind || 'light', tiny: true, time: t, reducedMotion: e.reducedMotion, scale: s });
+      if (state.active && role === 'swift' && !e.reducedMotion) {
+        c.globalAlpha = .45 * intensity; c.strokeStyle = tint.core; c.lineWidth = 1;
+        c.beginPath(); c.moveTo(x - 11, y - 2); c.lineTo(x - 16, y - 3); c.moveTo(x - 12, y + 2); c.lineTo(x - 17, y + 3); c.stroke(); c.globalAlpha = 1;
       }
-    }
-    if (collects && state.carrying) {
-      this.drawPacket(x + 8, y + 6, { kind: state.cargoKind || 'light', tiny: true,
-        time: t, reducedMotion: e.reducedMotion, scale: s });
-    }
-  }
-
-  drawCompanionAbility(e, t, playerX, playerY, carrier, ability) {
-    const c = this.bufferContext, role = normalizeCompanionRole(ability.role || ability.id);
-    if (role !== 'gravity' && !ability.active) return;
-    const progress = role === 'swift'
-      ? clamp(1 - (Number(ability.remaining) || 0) / Math.max(.1, Number(ability.duration) || 1), 0, 1) : 0;
-    const light = this.lightIntensity || 1;
-    c.save();
-    if (role === 'swift') {
-      if (!e.reducedMotion) for (let i = 0; i < 4; i++) {
-        const shift = (progress * 4 + i * .21) % 1;
-        const x = playerX - 19 - i * 5 - shift * 3;
-        const y = playerY + (i % 2 ? -1 : 1) * (4 + i);
-        c.globalAlpha = light * (.22 + (1 - shift) * .32);
-        pixelLine(c, x, y, x + 4 + i % 2 * 2, y - 1, '#f2d48e');
+      if (state.active && role === 'leveler') {
+        c.globalAlpha = .65 * intensity; c.strokeStyle = tint.core; c.lineWidth = 1;
+        c.beginPath(); c.moveTo(e.player.x * s - 19, yOf(e) * s); c.lineTo(e.player.x * s - 14, yOf(e) * s);
+        c.moveTo(e.player.x * s + 14, yOf(e) * s); c.lineTo(e.player.x * s + 19, yOf(e) * s); c.stroke(); c.globalAlpha = 1;
       }
-    } else if (role === 'anchor') {
-      // Horizontal level marks, never a circular guard or immunity cue.
-      c.globalAlpha = light * .68;
-      for (const side of [-1, 1]) {
-        pixelLine(c, playerX + side * 16, playerY, playerX + side * 22, playerY, '#a7e8df');
-        pixelLine(c, playerX + side * 22, playerY - 2, playerX + side * 22, playerY + 2, '#64b8b7');
-      }
-      const x = carrier.x * this.scale, y = carrier.y * this.scale;
-      pixelLine(c, x - 5, y + 10, x + 5, y + 10, '#a7e8df');
-      c.fillStyle = '#64b8b7'; c.fillRect(Math.round(x - 5), Math.round(y + 9), 1, 2);
-      c.fillRect(Math.round(x + 5), Math.round(y + 9), 1, 2);
-    } else if (role === 'gravity') {
-      const field = e.getGravityState?.() || e.gravityField;
-      if (field?.active && field.radius > 0) {
-        const s = this.scale, distance = distanceOf(e);
-        const lightRadius = Math.max(1, this.lightRadius * s);
-        const carrierX = carrier.x * s, carrierY = carrier.y * s;
-        const carrierLightRadius = (carrier.phase === 'cooldown' ? 13 + carrier.recovery * 7 : 26)
-          * ART_SCALE * (this.lightDimScale || 1);
-        let visible = 0;
-        // Only mark packets that really moved. Short curved strokes sit beside
-        // their measured velocity; no field ring or additional illumination.
-        for (const packet of e.layout.embers) {
-          if (visible >= 4) break;
-          if (packet.collected || packet.carried || packet.harmful || packet.kind === 'dark'
-            || !Number.isFinite(packet.gravityPulledAt) || e.time - packet.gravityPulledAt > .18
-            || Math.hypot(packet.x - field.worldX, packet.y - field.y) > field.radius) continue;
-          const x = (packet.x - distance) * s, y = packet.y * s;
-          if (x < 0 || x > WIDTH || y < 0 || y > this.buffer.height) continue;
-          const nearPlayer = clamp(1 - ((x - playerX) ** 2 + (y - playerY) ** 2) / lightRadius ** 2, 0, 1);
-          const nearCarrier = clamp(1 - ((x - carrierX) ** 2 + (y - carrierY) ** 2) / carrierLightRadius ** 2, 0, 1) * .75;
-          const visibility = Math.max(nearPlayer, nearCarrier) * light;
-          if (visibility < .06) continue;
-          const vx = Number(packet.gravityVx) || 0, vy = Number(packet.gravityVy) || 0;
-          const speed = Math.hypot(vx, vy);
-          if (speed < .1) continue;
-          c.globalAlpha = visibility * (.18 + .2 * clamp(packet.gravityPullStrength || 0, 0, 1));
-          if (e.reducedMotion) {
-            c.fillStyle = '#a57bd1'; c.fillRect(Math.round(x - 4), Math.round(y), 1, 2);
-          } else {
-            const dx = vx / speed, dy = vy / speed, length = clamp(speed * .14 * s, 1, 4);
-            const endX = x - dx * 3, endY = y - dy * 3;
-            const midX = endX - dx * length * .5 - dy, midY = endY - dy * length * .5 + dx;
-            pixelLine(c, endX - dx * length, endY - dy * length, midX, midY, '#a57bd1');
-            pixelLine(c, midX, midY, endX, endY, '#d3b1f2');
-          }
-          visible++;
-        }
-      }
+      if (state.active && role === 'seer') this.glow(x, y, 18, tint.mid, .12);
+      if (role === 'kindler' && (state.procFlash > 0 || state.hitFlash > 0)) this.glow(x, y, 19, tint.core, .25);
     }
-    c.restore();
   }
 
   drawAbsorptions(e, t, playerX, playerY) {
@@ -697,7 +787,7 @@ export class WispFlightView {
     const c = this.bufferContext, H = this.buffer.height, s = this.scale;
     const px = e.player.x * s, py = yOf(e) * s;
     const radius = Math.max(27, (this.lightRadius || Number(e.mod?.lightRadius) || 175) * s);
-    const carrier = lightState || e.getWispState?.(yOf(e), t);
+    const carrier = lightState;
     const carrierX = (carrier?.x ?? e.player.x) * s, carrierY = (carrier?.y ?? yOf(e)) * s;
     const carrierRadius = (carrier?.phase === 'cooldown' ? 13 + carrier.recovery * 7 : 26) * ART_SCALE * (this.lightDimScale || 1);
     const visibility = (x, y) => {
@@ -822,47 +912,46 @@ export class WispFlightView {
   render(e = this.engine) {
     if (!this.ready || this.destroyed || !this.context) return;
     const c = this.bufferContext, t = timeOf(e), distance = distanceOf(e), s = this.scale;
-    const identity = sceneryIdentity(e);
-    const palette = { ...(PALETTES[e.terrain] || PALETTES.ruins), ...(MATERIALS[identity.scene] || {}) };
-    this.canvas.dataset.levelIdentity = identity.id;
-    const role = normalizeCompanionRole(e.companionRole || e.options?.companionRole);
-    const companion = companionPalette(role);
-    const config = getCompanionAbility(role);
-    const ability = e.getAbilityState?.() || { role, active: role === 'swift' ? e.boostTime > 0 : e.abilityTime > 0,
-      remaining: role === 'swift' ? e.boostTime : e.abilityTime, duration: config.duration };
-    this.canvas.dataset.player = 'light';
-    this.canvas.dataset.companionRole = role;
+    const identity = this.identity, palette = this.palette;
+    if (this.canvas.dataset.levelIdentity !== identity.id) this.canvas.dataset.levelIdentity = identity.id;
     c.setTransform(1, 0, 0, 1, 0, 0); c.globalAlpha = 1; c.globalCompositeOperation = 'source-over';
+    this.updateVisible(e, distance);
     this.drawSky(e, t, distance, palette);
     c.globalAlpha = .34; c.fillStyle = '#03080b'; c.fillRect(0, 0, this.buffer.width, this.buffer.height); c.globalAlpha = 1;
-    drawBoss(c, { engine: e, width: WIDTH, height: this.buffer.height, distance, time: t, scale: s, pass: 'silhouette' });
+    const boss = this.bossOptions; boss.height = this.buffer.height; boss.distance = distance; boss.time = t; boss.scale = s; boss.pass = 'silhouette';
+    drawBoss(c, boss);
     this.drawTerrain(e, t, distance, palette);
-    drawBoss(c, { engine: e, width: WIDTH, height: this.buffer.height, distance, time: t, scale: s, pass: 'hands' });
+    boss.pass = 'hands'; drawBoss(c, boss);
     this.drawSceneProps(e, t, distance);
     this.drawCollectibles(e, t, distance);
     this.drawBurstEffects(e, MAIN_LIGHT);
     this.drawMist(e, t, distance, palette);
-    drawIdentityLife(c, { identity, width: WIDTH, height: this.buffer.height, distance,
-      time: t, palette, reducedMotion: e.reducedMotion }, { line: pixelLine, disc: pixelDisc, polygon: path });
-    const state = e.getWispState?.(yOf(e), t) || { x: e.player.x - 29, y: yOf(e) + 19, homeX: e.player.x - 29, homeY: yOf(e) + 19, radius: 100, phase: 'ready', recovery: 1, carrying: false };
-    const playerX = Math.round(e.player.x * s), playerY = Math.round(yOf(e) * s);
-    this.lightFog(e, state, playerX, playerY);
-    this.drawWind(e, t, state);
-    this.drawCarrier(e, t, distance, state, companion);
-    const tapAge = t - (e.lastFlapTime ?? -1000), tap = tapAge >= 0 && tapAge < .16 ? 1 - tapAge / .16 : 0;
-    const boosted = role === 'swift' && ability.active;
-    this.drawSpirit(playerX, playerY, MAIN_LIGHT, t, { boost: boosted, tap,
-      fuel: clamp((e.flame ?? 100) / 100, 0, 1), reduced: e.reducedMotion, intensity: this.lightIntensity });
-    this.drawCompanionAbility(e, t, playerX, playerY, state, ability);
+    const life = this.lifeOptions; life.height = this.buffer.height; life.distance = distance; life.time = t; life.reducedMotion = e.reducedMotion;
+    drawIdentityLife(c, life, SCENERY_HELPERS);
+    let fleet = e.getCompanionStates?.(yOf(e), t);
+    if (!fleet?.length) {
+      const wisp = e.getWispState?.(yOf(e), t), fallback = this.fallbackFleet[0];
+      if (wisp) Object.assign(fallback, wisp);
+      else { fallback.x = e.player.x - 29; fallback.y = yOf(e) + 19; fallback.homeX = fallback.x; fallback.homeY = fallback.y; }
+      fleet = this.fallbackFleet;
+    }
+    const playerX = e.player.x * s, playerY = yOf(e) * s;
+    this.lightFog(e, fleet, playerX, playerY);
+    this.drawCollectorAura(e, t);
+    let collector = null;
+    for (let i = 0; i < fleet.length; i++) if (fleet[i].role === 'collector') { collector = fleet[i]; break; }
+    this.drawWind(e, t, collector);
+    this.drawFleet(e, t, fleet);
+    this.drawMain(e, t, playerX, playerY);
+    this.drawProtector(e, t, playerX, playerY);
     this.drawAbsorptions(e, t, playerX, playerY);
     for (const effect of e.pickupEffects || []) {
-      if (effect.kind === 'dark' || effect.harmful) continue;
       const progress = 1 - clamp(effect.life / .72, 0, 1);
       c.globalAlpha = 1 - progress;
       const label = String(effect.text || (effect.restored > 0 ? `+${effect.restored} GLOW` : 'FULL')).toUpperCase();
       const labelX = clamp(Math.round(effect.x * s - label.length * 2), 2, WIDTH - label.length * 4 - 2);
       pixelText(c, label, labelX, Math.round(effect.y * s - 28 - progress * 10),
-        effect.pickupKind ? getPickupSpec(effect.pickupKind).color : '#f2d79a');
+        effect.color || (effect.pickupKind ? getPickupSpec(effect.pickupKind).color : '#f2d79a'));
     }
     c.globalAlpha = 1;
     this.drawPortal(e, t);
@@ -882,6 +971,11 @@ export class WispFlightView {
     this.scenePropCache.clear();
     if (this.buffer) { this.buffer.width = 1; this.buffer.height = 1; }
     if (this.fog) { this.fog.width = 1; this.fog.height = 1; }
+    for (const canvas of this.spriteCache.values()) canvas.width = canvas.height = 1;
+    for (const canvas of this.glowCache.values()) canvas.width = canvas.height = 1;
+    this.spriteCache.clear(); this.glowCache.clear(); this.visibleObstacles.length = 0;
+    if (this.maskCanvas) this.maskCanvas.width = this.maskCanvas.height = 1;
+    if (this.skyCanvas) this.skyCanvas.width = this.skyCanvas.height = 1;
     this.fogPixels = null; this.context = null; this.bufferContext = null; this.fogContext = null;
   }
 }

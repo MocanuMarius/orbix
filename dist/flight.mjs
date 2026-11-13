@@ -5,17 +5,18 @@ import { getAscentInfo } from './ascent.mjs';
 import { LEVEL_LENGTH, getLevelLengthScale } from './level-length.mjs';
 import { resolveLevelIdentity } from './level-catalog.mjs';
 import { DraftField, DRAFT_TUNING } from './drafts.mjs';
-import { normalizeCompanionRole, getCompanionAbility } from './companion-abilities.mjs';
-import { GRAVITY_TUNING, gravityRadius, updateGravityPackets } from './gravity.mjs';
+import { normalizeCompanionRole, normalizeCompanionFleet, getCompanionAbility } from './companion-abilities.mjs';
 import { populateSceneProps, scenePropPolygons } from './scene-props.mjs';
 import { pickupKind, getPickupSpec, pickupContactRadius, isFuelPickup, canCompanionCollect } from './pickups.mjs';
 import { drawPickup } from './pickup-art.mjs';
 import { buildBossLayout, getBossState as bossState, drawBoss } from './boss.mjs';
+import { getAuthoredChallenge, finalizeFlightChallenges, installAuthoredDraftCrossings, FlightChallengeDirector } from './flight-challenges.mjs';
 import { createTutorialState, buildTutorialLayout, recordTutorialPickup,
   updateTutorial, updateTutorialCompanion, getTutorialHint } from './tutorial.mjs';
 export { FLAME_TUNING } from './vitality.mjs';
 const TAU = Math.PI * 2;
 const STEP = 1 / 60;
+const RESUME_RAMP_SECONDS = 2;
 const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
 const lerp = (a, b, t) => a + (b - a) * t;
 export const FLIGHT_TUNING = Object.freeze({ gravity: 300, flapImpulse: 205,
@@ -329,7 +330,7 @@ function carveCachePocket(obstacle, side, first, rich, height) {
 
 export function buildFlightLayout({ seed = 1, terrain = 'ruins', elite = false,
   duration = 38, speed = 154, height = 620, passage = 'open', fuelCadence = 3,
-  levelId, stage = 0, difficulty = 1, lengthScale = 1 } = {}) {
+  levelId, stage = 0, difficulty = 1, mapIndex = 0, lengthScale = 1 } = {}) {
   const ascent = getAscentInfo({ row: stage, difficulty });
   const legCount = lengthScale === LEVEL_LENGTH.multiplier ? LEVEL_LENGTH.multiplier : 1;
   const identity = resolveLevelIdentity(levelId, terrain, seed);
@@ -350,7 +351,7 @@ export function buildFlightLayout({ seed = 1, terrain = 'ruins', elite = false,
     }
     return true;
   };
-  const appendSection = (kind, cells, repetition = 0, limit = extent, leg = 0) => {
+  const appendSection = (kind, cells, repetition = 0, limit = extent, leg = 0, authored = null) => {
     const hard = kind === 'challenge', first = obstacles.length;
     const sectionId = `${identity.id}:${kind}:${sections.length}`;
     for (const cell of cells) {
@@ -381,6 +382,13 @@ export function buildFlightLayout({ seed = 1, terrain = 'ruins', elite = false,
       obstacle.topShape = occupancy !== 'floor' ? makeCourseLandform(width, height / 620, true, index, terrain,
         form === 'vault' || form === 'root' || form === 'hanging' ? 'cavern' : passage, form, tight) : null;
       obstacle.bottomShape = occupancy !== 'roof' ? makeCourseLandform(width, height / 620, false, index + 1, terrain, passage, form, tight) : null;
+      if(authored){
+        obstacle.challengeKind=authored.type;obstacle.challengeName=authored.name;
+        obstacle.challengeLandmark=authored.landmark;
+        // Reserve an open crossing room against later decorative solid props.
+        // The section stays non-hard so only a safe local puff can occupy it.
+        if(authored.type==='draft-crossing'){obstacle.hard=true;obstacle.reservedDraft=true;}
+      }
       obstacles.push(obstacle);
       previous = center;
       x += spacing * spacingScale;
@@ -395,6 +403,9 @@ export function buildFlightLayout({ seed = 1, terrain = 'ruins', elite = false,
       setpiece: identity.motif,
       landmark: identity.scene, warningStart: firstMember.x - firstMember.width * .8 - 180,
       windShelter: Math.min(...members.map(obstacle => obstacle.windShelter)) });
+    if(authored)Object.assign(sections.at(-1),{name:authored.name,setpiece:authored.type,landmark:authored.landmark,
+      authoredChallenge:{type:authored.type,name:authored.name,instruction:authored.instruction,
+        landmark:authored.landmark,darkness:authored.darkness}});
     return true;
   };
   const requestedWindows = Math.max(ascent.requestedHardWindows, elite ? 2 : 1);
@@ -412,6 +423,8 @@ export function buildFlightLayout({ seed = 1, terrain = 'ruins', elite = false,
     appendSection('intro', course.entry, 0, legs[0].end, 0);
     let recovery = 0;
     for (const leg of legs) {
+      const plans=Array.from({length:requestedWindows},(_,window)=>getAuthoredChallenge({
+        course,terrain,stage,difficulty,mapIndex,levelId:identity.id,elite,leg:leg.index,window}));
       // Keep the authored cells and center-change limits. Only their placement
       // in three paced legs changes; no new random passage geometry is added.
       for (let window = 0; window < requestedWindows; window++) {
@@ -419,17 +432,18 @@ export function buildFlightLayout({ seed = 1, terrain = 'ruins', elite = false,
         const remaining = [];
         for (let next = window; next < requestedWindows; next++) {
           if (next > window) remaining.push(...course.rest);
-          remaining.push(...course.hard);
+          remaining.push(...plans[next].cells);
         }
         // Spend spare room on recovery before each hard window, reserving
         // space for the remaining authored challenges whenever they fit.
         while (x < target && fits([...course.rest, ...remaining], leg.end)) {
           if (!appendSection('breather', course.rest, recovery++, leg.end, leg.index)) break;
         }
-        if (!fits(course.hard, leg.end)) break;
-        appendSection('challenge', course.hard, leg.index * requestedWindows + window, leg.end, leg.index);
+        const plan=plans[window];
+        if (!fits(plan.cells, leg.end)) break;
+        appendSection(plan.sectionKind, plan.cells, leg.index * requestedWindows + window, leg.end, leg.index, plan);
         if (window < requestedWindows - 1) {
-          if (!fits([...course.rest, ...course.hard], leg.end)) break;
+          if (!fits([...course.rest, ...plans[window+1].cells], leg.end)) break;
           appendSection('breather', course.rest, recovery++, leg.end, leg.index);
         }
       }
@@ -525,49 +539,73 @@ export function buildFlightLayout({ seed = 1, terrain = 'ruins', elite = false,
         intro: order === 0, collected: false, attracted: false, phase: loot() * TAU });
     }
   }
-  // Optional dark niches are added after the complete food budget. They use
-  // the same real surfaces and never occupy a compulsory challenge passage.
-  const darkPerLeg = stage > 0 || elite ? (elite || stage >= 6 ? 2 : 1) : 0;
-  const darkCount = darkPerLeg * legCount;
+  // Harmful seeds are extra, optional side-lane encounters. The first
+  // ordinary flight introduces exactly one near its middle; practice has its
+  // own authored layout. Existing fuel opportunities are never replaced.
+  const introductoryDark = stage === 0 && !elite;
+  const darkPerLeg = elite || stage >= 6 ? 2 : 1;
+  const darkCount = introductoryDark ? 1 : darkPerLeg * legCount;
   if (darkCount) {
     const darkRng = seededRandom(`${seed}:${identity.id}:dark-packets`);
     const candidates = [], scale = height / 620;
+    const hardNear = ex => sections.some(section => section.hard
+      && ex > section.start - 70 && ex < section.end + 70);
+    const bandAt = worldX => {
+      let top = 34, bottom = height - 35;
+      for (const other of obstacles) {
+        const localX = worldX - other.x;
+        if (localX < -other.width * .8 || localX > other.width * 2.45) continue;
+        // Remain inside the original broad opening, including its complete
+        // sway. Later scenery props cannot enter this protected air band.
+        const sway = Math.abs(other.motion || 0);
+        if (other.topShape) top = Math.max(top, other.center - other.gap / 2 + sway);
+        if (other.bottomShape) bottom = Math.min(bottom, other.center + other.gap / 2 - sway);
+      }
+      return { top, bottom };
+    };
     for (const obstacle of obstacles) {
-      if (obstacle.hard || obstacle.gap < height * .38) continue;
-      for (const side of [1, -1]) {
-        const shape = side > 0 ? obstacle.bottomShape : obstacle.topShape;
-        if (!shape) continue;
-        const localX = obstacle.width * (.28 + darkRng() * .8), ex = obstacle.x + localX;
-        if (ex < 1450 || ex > duration * speed - 650
-          || sections.some(section => section.hard && ex > section.start - 110 && ex < section.end + 110)) continue;
-        const edge = terrainEdgeY(shape, localX);
-        if (!Number.isFinite(edge)) continue;
-        const ey = obstacle.center + side * obstacle.gap / 2 + edge
-          - side * (31 * scale + Math.abs(obstacle.motion));
-        if (ey < 45 || ey > height - 45 || Math.abs(ey - obstacle.center) < 82 * scale) continue;
-        if (embers.some(ember => Math.hypot(ember.x - ex, ember.y - ey) < 190)) continue;
-        const clear = obstacles.every(other => [-1, 1].every(sign =>
-          obstaclePolygons({ ...other, motion: 0, center: other.center + sign * Math.abs(other.motion) })
-            .every(polygon => !circleHitsPolygon(ex, ey, 22, polygon))));
-        if (clear) candidates.push({ x: ex, y: ey, anchor: obstacle.id,
-          pocketSide: side > 0 ? 'ground' : 'ceiling' });
+      if (obstacle.hard || obstacle.gap < Math.max(180, height * .35)) continue;
+      for (const fraction of [.25, .70, 1.15]) {
+        const ex = obstacle.x + obstacle.width * fraction;
+        if (ex < Math.min(1000, duration * speed * .25) || ex > duration * speed - 650 || hardNear(ex)) continue;
+        const bands = [bandAt(ex - 40), bandAt(ex), bandAt(ex + 40)];
+        const top = Math.max(...bands.map(band => band.top)), bottom = Math.min(...bands.map(band => band.bottom));
+        if (bottom - top < Math.max(180, 228 * scale)) continue;
+        const center = clamp(obstacle.center, top + 74 * scale, bottom - 74 * scale);
+        const neighbors = obstacles.filter(other => ex + 24 >= other.x - other.width * .8
+          && ex - 24 <= other.x + other.width * 2.45);
+        const clear = y => neighbors.every(other => [-1, 1].every(sign =>
+          obstaclePolygons({ ...other, motion: 0, center: other.center + sign * Math.abs(other.motion || 0) })
+            .every(polygon => !circleHitsPolygon(ex, y, 22, polygon))));
+        if (!clear(center)) continue;
+        for (const side of [-1, 1]) {
+          const ey = center + side * 58 * scale;
+          if (ey < top + 31 * scale || ey > bottom - 31 * scale || !clear(ey)) continue;
+          // A separate, readable lane: no Dark Seed on a compulsory fuel
+          // pickup or its immediate horizontal approach, even in a wide room.
+          if (embers.some(ember => Math.hypot(ember.x - ex, ember.y - ey) < 76 * scale
+            || Math.abs(ember.x - ex) < 140 && Math.abs(ember.y - ey) < 46 * scale)) continue;
+          candidates.push({ x: ex, y: ey, anchor: obstacle.id, pocket: false,
+            pocketSide: side > 0 ? 'ground' : 'ceiling', sideLane: true });
+        }
       }
     }
     const selected = [];
     for (let i = 0; i < darkCount; i++) {
-      const fraction = legCount === 1 ? darkCount === 1 ? .56 : .40 + i * .32
+      const fraction = introductoryDark ? .50 : legCount === 1
+        ? darkCount === 1 ? .56 : .40 + i * .32
         : (Math.floor(i / darkPerLeg) + (darkPerLeg === 1 ? .56 : .40 + (i % darkPerLeg) * .32)) / legCount;
       const target = duration * speed * fraction;
-      const available = candidates.filter(site => selected.every(other => Math.abs(other.x - site.x) > 850));
+      const available = candidates.filter(site => selected.every(other => Math.abs(other.x - site.x) > 480));
       available.sort((a, b) => Math.abs(a.x - target) - Math.abs(b.x - target));
       if (!available.length) continue;
       const site = available[0]; selected.push(site);
-      embers.push({ ...site, id: `dark-${i}`, kind: 'dark', harmful: true,
-        value: 0, fuel: false, feature: 'dark-niche', pocket: true,
+      embers.push({ ...site, id: `dark-${i}`, kind: 'dark', harmful: true, manualOnly: true,
+        value: 0, fuel: false, feature: 'dark-side-lane',
         collected: false, attracted: false, phase: darkRng() * TAU });
     }
   }
-  // Reuse optional niche slots, never the route's existing fuel opportunities.
+  // Reuse optional side-lane slots, never the route's existing fuel opportunities.
   const niches = embers.filter(packet => pickupKind(packet) === 'dark');
   if (niches.length > 1 && ascent.level > 1) {
     const utilityRng = seededRandom(`${seed}:${terrain}:${stage}:niche-kinds`);
@@ -587,10 +625,11 @@ export function buildFlightLayout({ seed = 1, terrain = 'ruins', elite = false,
     totalDistance: duration * speed, scene: identity.scene, circleHitsPolygon });
   // Both renderers and the collection broad phase rely on world-X ordering.
   embers.sort((a, b) => a.x - b.x);
-  return { obstacles, embers, sections, sceneProps, levelIdentity: identity, ascent, lengthScale: legCount,
+  const layout = { obstacles, embers, sections, sceneProps, levelIdentity: identity, ascent, lengthScale: legCount,
     legs: legs.map(leg => ({ ...leg, hardWindows: sections.filter(section => section.hard && section.leg === leg.index).length })),
     requestedHardWindowsPerLeg: requestedWindows, requestedHardWindows: requestedWindows * legCount,
     hardWindows: sections.filter(section => section.hard).length };
+  return finalizeFlightChallenges(layout,{terrain,basic:stage===0&&!elite&&mapIndex===0&&difficulty<=1});
 }
 
 function roundedRect(ctx, x, y, w, h, r = 8) {
@@ -609,7 +648,8 @@ export class WispFlight {
     this.ctx = this.canvas.getContext('2d', { alpha: false });
     if (!this.ctx) throw new Error('A Canvas 2D context is unavailable.');
     this.options = options;
-    this.companionRole = normalizeCompanionRole(options.companionRole);
+    this.companions = Object.freeze(normalizeCompanionFleet(options.companions, options.companionRole));
+    this.companionRole = this.companions[0];
     this.companionAbility = getCompanionAbility(this.companionRole);
     this.terrain = ['ruins', 'canopy', 'storm'].includes(options.terrain) ? options.terrain : 'ruins';
     this.elite = Boolean(options.elite);
@@ -632,7 +672,16 @@ export class WispFlight {
     this.cards = new Set(options.cards || []);
     this.mod = { gravity: 1, flap: 1, speed: 1, attract: 1,
       boostCooldown: 1, boostDuration: 1, reward: 1, cacheFuelBonus: 0,
-      warmCore: false, windSensitivity: 1, gravityPull: 1, steady: false, ...options.modifiers };
+      warmCore: false, windSensitivity: 1, flapCost: 1, steady: false, ...options.modifiers };
+    this.fleet = this.companions.map(role => ({ role, remaining: 0, cooldown: 0, startedAt: -1000 }));
+    this.hasActiveCompanions = this.companions.some(role => !getCompanionAbility(role).passive);
+    this.shield = { charges: this.hasCompanion('protector') ? clamp(Math.round(Number(this.mod.protectorLayers) || 1), 1, 2) : 0,
+      layers: this.hasCompanion('protector') ? clamp(Math.round(Number(this.mod.protectorLayers) || 1), 1, 2) : 0,
+      recovery: 0, recoveryTotal: clamp(Number(this.mod.protectorRecovery) || 14, 4, 30), hitFlash: 0, protection: 0 };
+    this.levelTargetY = null; this.levelDive = 0; this.purifyCooldown = 0;
+    this.dying = false; this.dyingAge = 0; this.dyingDuration = .6; this.deathCause = null;
+    this._obstacleCursor = 0; this._pickupCursor = 0; this._pickupCount = 0;
+    this._nearbyPackets = []; this._nearbyPacketsUntil = -1; this._auraUntil = -1; this._collectorAura = null;
     this.alive = true;
     this.flame = clamp(Number.isFinite(options.flame) ? options.flame : FLAME_TUNING.starting, 0, FLAME_TUNING.maximum);
     this.flaps = 0; this.effortSpent = 0; this.flameRestored = 0;
@@ -642,6 +691,7 @@ export class WispFlight {
     this.onPause = options.onPause || (() => {});
     this.width = 390; this.height = 620; this.pixelRatio = 1;
     this.time = 0; this.distance = 0; this.accumulator = 0; this.lastFrame = 0;
+    this.resumeElapsed = RESUME_RAMP_SECONDS; this.resumeHudClock = 0;
     this.running = false; this.paused = false; this.finished = false; this.destroyed = false;
     this.raf = null; this.score = 0; this.baseEmbers = 0; this.bonusEmbers = 0; this.utilityEmbers = 0; this.collisions = 0;
     this.boosts = 0; this.boostTime = 0; this.cooldown = 0;
@@ -653,7 +703,7 @@ export class WispFlight {
     this.particles = []; this.trail = []; this.pickupEffects = []; this.emitClock = 0;
     this.absorptionEffects = []; this.absorptionSequence = 0;
     this.lightPenalties = []; this.lightDimming = 0; this.sightUntil = 0;
-    this.wispBoost = 0; this.gravitySurge = 0;
+    this.wispBoost = 0;
     this.cosmeticRng = seededRandom(`${this.seed}:cosmetics`);
     this.rigImage = null; this.background = null;
     this.audio = null; this.muted = false; this.lastFlapSound = 0;
@@ -679,14 +729,18 @@ export class WispFlight {
         elite: this.elite, duration: this.duration, speed: FLIGHT_TUNING.forwardSpeed, height: this.height,
         passage: this.passage, fuelCadence: this.fuelCadence,
         levelId: this.levelIdentity.id, stage: this.ascentInfo.row,
-        difficulty: this.ascentInfo.difficulty, lengthScale: this.lengthScale });
+        difficulty: this.ascentInfo.difficulty, mapIndex:Number(route.mapIndex)||0, lengthScale: this.lengthScale });
     this.drafts = new DraftField({ seed: this.seed, terrain: this.terrain, elite: this.elite,
       duration: this.duration, height: this.height, totalDistance: this.totalDistance,
       layout: this.layout, lesson: this.tutorial?.lesson || null, lengthScale: this.lengthScale });
+    if(!this.tutorial&&!this.bossEncounter)installAuthoredDraftCrossings(this.layout,this.drafts,{
+      seed:this.seed,terrain:this.terrain,elite:this.elite,duration:this.duration,height:this.height,totalDistance:this.totalDistance});
+    this.challengeDirector=new FlightChallengeDirector(this.layout);
+    this.flightChallenge=null;this.caveDimming=0;
     this.challengeIndex = Math.floor(seededRandom(`${this.seed}:challenge`)() * 3);
     this.challengeId = options.challengeId || options.node?.challengeId || ['wisps', 'clean', 'boosts'][this.challengeIndex];
     this.challengeTarget = Number(options.challengeTarget ?? options.node?.challengeTarget) || (this.challengeId === 'wisps' ? 7 : this.challengeId === 'boosts' ? 2 : 0);
-    this.challengeText = this.challengeId === 'wisps' || this.challengeId === 'boosts' && this.companionAbility.passive
+    this.challengeText = this.challengeId === 'wisps' || this.challengeId === 'boosts' && !this.hasActiveCompanions
       ? `Collect ${this.challengeTarget} light packets`
       : this.challengeId === 'boosts' ? `Use your ability ${this.challengeTarget} times` : 'Finish without a hit';
     this.stars = Array.from({ length: 45 }, () => ({ x: this.cosmeticRng() * 390,
@@ -724,11 +778,21 @@ export class WispFlight {
 
   get scaleY() { return this.height / 620; }
   get baseSpeed() { return FLIGHT_TUNING.forwardSpeed * clamp(Number(this.mod.speed) || 1, .80, 1.25) * (this.elite ? 1.045 : 1); }
-  get abilityDuration() { return this.companionAbility.duration * clamp(Number(this.mod.boostDuration) || 1, .5, 2.5); }
-  get abilityCooldown() { return this.companionAbility.cooldown * clamp(Number(this.mod.boostCooldown) || 1, .35, 2); }
+  hasCompanion(role) { return this.companions.includes(role); }
+  roleDuration(role) {
+    const key = `${role}Duration`, value = Number(this.mod[key]);
+    return Number.isFinite(value) ? clamp(value, 0, 15) : getCompanionAbility(role).duration * clamp(Number(this.mod.boostDuration) || 1, .5, 2.5);
+  }
+  roleCooldown(role) {
+    const key = `${role}Recovery`, value = Number(this.mod[key]);
+    return Number.isFinite(value) ? clamp(value, 1, 40) : getCompanionAbility(role).cooldown * clamp(Number(this.mod.boostCooldown) || 1, .35, 2);
+  }
+  get abilityDuration() { return Math.max(0, ...this.fleet.map(item => this.roleDuration(item.role))); }
+  get abilityCooldown() { return Math.max(0, ...this.fleet.filter(item => !getCompanionAbility(item.role).passive).map(item => this.roleCooldown(item.role))); }
   get boostDuration() { return this.abilityDuration; }
   get boostCooldown() { return this.abilityCooldown; }
-  get flapCost() { return Math.round(FLAME_TUNING.flapCost * this.flameDrain); }
+  get flapCost() { return Math.max(1, Math.round(FLAME_TUNING.flapCost * this.flameDrain * clamp(Number(this.mod.flapCost) || 1, .3, 1.5) * 100) / 100); }
+  get dyingProgress() { return clamp(this.dyingAge / this.dyingDuration,0,1); }
   get wingRate() { return this.boostTime > 0 ? 9 : this.flame < this.flapCost ? .45 : 5.8; }
   get embers() { return Math.floor((this.baseEmbers + this.bonusEmbers) * Math.max(0, Number(this.mod.reward) || 1) * this.routeReward) + this.utilityEmbers; }
 
@@ -752,6 +816,8 @@ export class WispFlight {
     if (this.player && oldHeight !== this.height) {
       const factor = this.height / oldHeight;
       this.player.y *= factor; this.player.vy *= factor;
+      if (this.levelTargetY !== null) this.levelTargetY *= factor;
+      this._auraUntil = -1; this._collectorAura = null;
       this.previousPlayerY = this.player.y;
       this.layout.obstacles.forEach(o => {
         o.center *= factor; o.gap *= factor; o.motion *= factor;
@@ -779,18 +845,16 @@ export class WispFlight {
   start() {
     if (this.destroyed || this.finished || this.running) return;
     this.running = true; this.paused = false; this.lastFrame = 0;
-    if (this.tutorial) this.notify();
+    if (this.flame <= 0 && !this.tutorialAwaitingLift) this.beginDying();
+    this.notify();
     this.raf = requestAnimationFrame(t => this.tick(t));
   }
 
   flap() {
-    if (!this.running || this.paused || this.finished || !this.alive) return false;
-    if (this.companionRole === 'anchor' && this.abilityTime > 0) {
-      this.abilityTime = 0;
-      this.levelRecovery = .25;
-    }
+    if (!this.running || this.paused || this.finished || !this.alive || this.dying) return false;
+    this.cancelLeveler(true); this.levelDive = 0;
     if (this.flame < this.flapCost) {
-      this.setEvent('Flame exhausted · glide toward an ember'); this.notify();
+      this.effortSpent += this.flame; this.flame = 0; this.beginDying(); this.notify();
       return false;
     }
     this.flame -= this.flapCost;
@@ -803,23 +867,26 @@ export class WispFlight {
     }
     this.burst(this.player.x - 10, this.player.y + 7, 5, '#ffbd53');
     this.sound('flap');
+    if (this.flame <= 0) this.beginDying();
     this.notify();
     return true;
   }
 
   activateAbility() {
-    if (this.companionAbility.passive) return false;
-    if (!this.running || this.paused || this.finished || !this.alive || this.cooldown > .001 || this.abilityTime > 0) return false;
-    if (this.tutorialAwaitingLift) return false;
-    this.abilityTime = this.abilityDuration;
-    this.abilityStartedAt = this.time;
-    this.boostTime = this.companionRole === 'swift' ? this.abilityTime : 0;
-    this.cooldown = this.abilityCooldown;
-    this.boosts++;
-    if (this.companionRole === 'swift') this.player.vy *= .65;
-    if (this.companionRole === 'anchor') this.levelRecovery = 0;
-    this.setEvent(`${this.companionAbility.name} · ${this.companionAbility.label}`);
-    this.burst(this.player.x - 10, this.player.y, this.companionRole === 'swift' ? 23 : 10, '#e6e4d3');
+    if (!this.running || this.paused || this.finished || !this.alive || this.dying || this.tutorialAwaitingLift) return false;
+    if (this.fleet.find(item => item.role === 'leveler')?.remaining > 0) {
+      this.cancelLeveler(false); this.syncFleetTimers(); this.setEvent('Leveler released'); this.notify(); return true;
+    }
+    const ready = this.fleet.filter(item => !getCompanionAbility(item.role).passive && item.cooldown <= .001 && item.remaining <= 0);
+    if (!ready.length) return false;
+    for (const item of ready) {
+      item.remaining = this.roleDuration(item.role); item.cooldown = this.roleCooldown(item.role); item.startedAt = this.time;
+      if (item.role === 'swift') this.player.vy *= .65;
+      if (item.role === 'leveler') { this.levelTargetY = this.player.y; this.levelRecovery = 0; this.levelDive = 0; }
+    }
+    this.abilityStartedAt = this.time; this.boosts++; this.syncFleetTimers();
+    this.setEvent(ready.map(item => getCompanionAbility(item.role).name).join(' + '));
+    this.burst(this.player.x - 10, this.player.y, 8, '#e6e4d3');
     this.sound('boost');
     this.notify();
     return true;
@@ -828,7 +895,7 @@ export class WispFlight {
   boost() { return this.activateAbility(); }
 
   pause(fromSystem = false) {
-    if (!this.running || this.paused || this.finished || this.destroyed) return;
+    if (!this.running || this.paused || this.finished || this.destroyed || this.dying) return;
     this.paused = true; this.lastFrame = 0;
     if (this.raf != null) cancelAnimationFrame(this.raf);
     this.raf = null; this.notify(); this.onPause({ fromSystem });
@@ -837,8 +904,16 @@ export class WispFlight {
   resume() {
     if (!this.running || !this.paused || this.finished || this.destroyed) return;
     this.paused = false; this.lastFrame = 0; this.accumulator = 0;
+    this.resumeElapsed = 0; this.resumeHudClock = 0;
     this.raf = requestAnimationFrame(t => this.tick(t));
     this.notify();
+  }
+
+  get resumeRemaining() { return Math.max(0, RESUME_RAMP_SECONDS - this.resumeElapsed); }
+
+  get resumeScale() {
+    const progress = clamp(this.resumeElapsed / RESUME_RAMP_SECONDS, 0, 1);
+    return .1 + .9 * progress * progress * (3 - 2 * progress);
   }
 
   setMuted(value) {
@@ -865,21 +940,31 @@ export class WispFlight {
 
   tick(timestamp) {
     if (!this.running || this.paused || this.destroyed || this.finished) return;
+    if (!this.lastFrame) this.lastFrame = timestamp;
+    const realElapsed = Math.max(0, (timestamp - this.lastFrame) / 1000);
+    const elapsed = Math.min(.10, realElapsed);
+    this.lastFrame = timestamp;
+    const resuming = this.resumeRemaining > 0, previousScale = this.resumeScale;
+    if (resuming) this.resumeElapsed = Math.min(RESUME_RAMP_SECONDS, this.resumeElapsed + realElapsed);
+    // The ramp follows wall time; a late frame can never queue more than the
+    // existing six fixed physics steps. Average scale avoids an abrupt first step.
+    const scaledElapsed = elapsed * (resuming ? (previousScale + this.resumeScale) * .5 : 1);
+    if (resuming) this.resumeHudClock += realElapsed;
+    const updateResumeHud = resuming && (this.resumeHudClock >= .1 || this.resumeRemaining === 0);
     if (this.tutorialAwaitingLift) {
-      this.lastFrame = timestamp; this.accumulator = 0;
+      this.accumulator = 0;
       this.render();
+      if (updateResumeHud) { this.resumeHudClock %= .1; this.notify(); }
       this.raf = requestAnimationFrame(t => this.tick(t));
       return;
     }
-    if (!this.lastFrame) this.lastFrame = timestamp;
-    const elapsed = Math.min(.10, Math.max(0, (timestamp - this.lastFrame) / 1000));
-    this.lastFrame = timestamp;
-    this.accumulator = Math.min(this.accumulator + elapsed, STEP * 6);
+    this.accumulator = Math.min(this.accumulator + scaledElapsed, STEP * 6);
     while (this.accumulator >= STEP && !this.finished) {
       this.step(STEP); this.accumulator -= STEP;
     }
     if (this.finished || this.destroyed) return;
     this.render();
+    if (updateResumeHud) { this.resumeHudClock %= .1; this.notify(); }
     if (!this.finished && !this.destroyed) this.raf = requestAnimationFrame(t => this.tick(t));
   }
 
@@ -898,72 +983,156 @@ export class WispFlight {
     return this.wisp.state(this, y, time);
   }
 
+  syncFleetTimers() {
+    this.abilityTime = Math.max(0, ...this.fleet.map(item => item.remaining));
+    this.boostTime = this.fleet.find(item => item.role === 'swift')?.remaining || 0;
+    const active = this.fleet.filter(item => !getCompanionAbility(item.role).passive);
+    this.cooldown = active.length ? Math.min(...active.map(item => item.cooldown)) : 0;
+  }
+
+  cancelLeveler(fromLift = false) {
+    const leveler = this.fleet.find(item => item.role === 'leveler');
+    if (!leveler || leveler.remaining <= 0) return;
+    leveler.remaining = 0; this.levelRecovery = .25;
+    this.levelDive = !fromLift && Number(this.mod.levelerDive) > 0 ? .5 : 0;
+    this.syncFleetTimers();
+  }
+
   getAbilityState() {
-    if (this.companionAbility.passive) return {
-      id: this.companionRole, role: this.companionRole, action: this.companionAbility.action,
-      label: this.companionAbility.label, passive: true, active: this.isCompanionWorking(),
-      collects: this.companionAbility.collects,
-      remaining: 0, duration: 0, cooldown: 0, cooldownTotal: 0, ready: false, progress: 1 };
-    const active = this.abilityTime > 0;
-    return { id: this.companionRole, role: this.companionRole,
-      action: this.companionAbility.action, label: this.companionAbility.label,
-      passive: false,
-      collects: false,
-      active, remaining: this.abilityTime, duration: this.abilityDuration,
-      cooldown: this.cooldown, cooldownTotal: this.abilityCooldown,
-      ready: this.alive && !this.finished && !this.destroyed && !this.tutorialAwaitingLift
-        && this.cooldown <= .001 && !active,
-      progress: clamp(active ? 1 - this.abilityTime / this.abilityDuration : 1 - this.cooldown / this.abilityCooldown, 0, 1) };
+    const records = this.fleet.filter(item => !getCompanionAbility(item.role).passive);
+    const release = this.fleet.find(item => item.role === 'leveler')?.remaining > 0;
+    const usable = this.running && this.alive && !this.paused && !this.finished && !this.destroyed && !this.dying && !this.tutorialAwaitingLift;
+    const ready = usable && (release || records.some(item => item.cooldown <= .001 && item.remaining <= 0));
+    const next = records.reduce((best,item) => !best || item.cooldown < best.cooldown ? item : best, null);
+    const remaining = Math.max(0,...records.map(item => item.remaining));
+    const duration = Math.max(0,...records.map(item => this.roleDuration(item.role)));
+    const cooldown = next?.cooldown || 0, cooldownTotal = next ? this.roleCooldown(next.role) : 0;
+    const label = release ? 'RELEASE' : this.companions.length > 1 ? 'POWER'
+      : records.length ? getCompanionAbility(records[0].role).label : this.companionAbility.label;
+    return { id: this.companionRole, role: this.companionRole, roles: this.companions,
+      label, action: 'power', passive: !records.length, collects: this.hasCompanion('collector'),
+      active: remaining > 0, ready, release, remaining, duration, cooldown, cooldownTotal,
+      progress: !records.length || ready ? 1 : clamp(1 - cooldown / Math.max(.001,cooldownTotal),0,1) };
+  }
+
+  getCompanionStates(y = this.player.y, time = this.time) {
+    if (!this._companionViews) this._companionViews = this.fleet.map(() => ({}));
+    const live = this.running && this.alive && !this.paused && !this.finished && !this.dying && !this.tutorialAwaitingLift;
+    for (let i=0;i<this.fleet.length;i++) {
+      const item=this.fleet[i], config=getCompanionAbility(item.role), view=this._companionViews[i];
+      const angle=(this.reducedMotion?0:time)*TAU/2.5 + Math.PI + i*TAU/this.fleet.length;
+      Object.assign(view,{ id:item.role,role:item.role,name:config.name,label:config.label,
+        x:this.player.x+Math.cos(angle)*44,y:y+Math.sin(angle)*34,homeX:this.player.x,homeY:y,
+        enabled:false,collects:false,passive:config.passive,active:config.passive?live:item.remaining>0,
+        ready:live&&!config.passive&&item.cooldown<=.001&&item.remaining<=0,
+        remaining:item.remaining,duration:this.roleDuration(item.role),cooldown:item.cooldown,
+        cooldownTotal:config.passive?0:this.roleCooldown(item.role),radius:0,recovery:0,
+        phase:item.remaining>0?'active':item.cooldown>0?'cooldown':'orbiting',carrying:false,cargoKind:null });
+      if(item.role==='collector') Object.assign(view,this.getWispState(y,time));
+      if(item.role==='protector') Object.assign(view,{charges:this.shield.charges,layers:this.shield.layers,
+        recovery:this.shield.recovery,recoveryTotal:this.shield.recoveryTotal});
+      if(item.role==='kindler') view.purifyCooldown=this.purifyCooldown;
+    }
+    return this._companionViews;
+  }
+
+  getShieldState() { return { ...this.shield, enabled:this.hasCompanion('protector'),
+    cost:clamp(Number(this.mod.protectorCost)||12,1,40) }; }
+  getLevelerState() {
+    const item=this.fleet.find(state=>state.role==='leveler');
+    return {active:(item?.remaining||0)>0,remaining:item?.remaining||0,targetY:this.levelTargetY,
+      bob:12*this.scaleY*(1-clamp(Number(this.mod.levelerSteadiness)||0,0,1)),dive:this.levelDive>0,diveRemaining:this.levelDive};
   }
 
   getLightState() {
-    const configured = Number(this.mod.lightRadius);
-    const baseRadius = Number.isFinite(configured) && configured > 0 ? configured : LIGHT_PACKET_TUNING.baseRadius;
-    const reduction = clamp(this.lightDimming, 0, 1 - LIGHT_PACKET_TUNING.minimumLight);
-    const sightRemaining = Math.max(0, this.sightUntil - this.time), sightBonus = sightRemaining > 0 ? 50 : 0;
-    const revealBonus = 0, revealedRadius = baseRadius + sightBonus;
-    return { baseRadius, revealedRadius, revealBonus, radius: revealedRadius * (1 - reduction),
-      intensity: 1 - reduction * .65, dimmed: reduction > .005,
-      sightBonus, sightRemaining,
-      stacks: this.lightPenalties.length,
-      remaining: Math.max(0, ...this.lightPenalties.map(until => until - this.time)),
-      maximumStacks: LIGHT_PACKET_TUNING.darkMaximumStacks,
-      penaltyPerStack: LIGHT_PACKET_TUNING.darkPenalty };
+    const baseRadius = Number(this.mod.lightRadius)>0 ? Number(this.mod.lightRadius) : LIGHT_PACKET_TUNING.baseRadius;
+    const reduction=clamp(this.lightDimming,0,1-LIGHT_PACKET_TUNING.minimumLight);
+    const sightRemaining=Math.max(0,this.sightUntil-this.time),sightBonus=sightRemaining>0?50:0;
+    const revealedRadius=baseRadius+sightBonus,dyingFade=this.dying?Math.max(0,1-this.dyingProgress**1.7):1;
+    const caveReduction=clamp(this.caveDimming||0,0,.18),caveScale=1-caveReduction;
+    const seer=this.fleet.find(item=>item.role==='seer'),remaining=seer?.remaining||0;
+    const onset=seer?clamp((this.time-seer.startedAt)/.25,0,1):0;
+    const strength=remaining>0?Math.min(onset,clamp(remaining/.4,0,1)):0;
+    const forwardLight={active:strength>0,x:this.player.x+160,y:this.player.y,
+      radius:clamp(Number(this.mod.seerRadius)||230,120,420)*caveScale,intensity:strength*(1-reduction*.65)*dyingFade};
+    return {baseRadius,revealedRadius,revealBonus:0,caveReduction,caveActive:caveReduction>.005,
+      radius:Math.max(baseRadius*.5,revealedRadius*(1-reduction)*caveScale),
+      intensity:(1-reduction*.65)*dyingFade,dimmed:reduction>.005,sightBonus,sightRemaining,
+      forwardLight,forward:forwardLight,stacks:this.lightPenalties.length,
+      remaining:Math.max(0,...this.lightPenalties.map(until=>until-this.time)),
+      maximumStacks:LIGHT_PACKET_TUNING.darkMaximumStacks,penaltyPerStack:LIGHT_PACKET_TUNING.darkPenalty};
   }
 
-  getGravityState() {
-    const active = this.companionRole === 'gravity' && this.isCompanionWorking();
-    return { active, radius: gravityRadius(this.mod.attract), maxRadius: GRAVITY_TUNING.maxRange,
-      passive: true, strength: active ? 1 : 0,
-      pullMultiplier: Math.min(2, clamp(Number(this.mod.gravityPull) || 1, 1, 2) * (this.gravitySurge > 0 ? 1.15 : 1)),
-      surging: this.gravitySurge > 0, surgeRemaining: this.gravitySurge,
-      x: this.player.x, y: this.player.y, worldX: this.distance + this.player.x,
-      remaining: 0, duration: 0 };
-  }
+  getGravityState() { return {active:false,radius:0,strength:0}; }
 
   isCompanionWorking() {
-    return this.companionAbility.passive
-      ? this.running && this.alive && !this.paused && !this.finished && !this.destroyed && !this.tutorialAwaitingLift
-      : this.abilityTime > 0;
+    return this.running&&this.alive&&!this.paused&&!this.finished&&!this.destroyed&&!this.dying&&!this.tutorialAwaitingLift
+      && (this.fleet.some(item=>item.remaining>0)||this.companions.some(role=>getCompanionAbility(role).passive));
   }
 
-  quickenCompanionRecovery(source) {
-    if (this.companionAbility.collects) {
-      const before = this.wisp.cooldown;
-      this.wisp.cooldown = Math.max(0, before - 1);
-      this.setEvent(`${source} · Collector recovery${before > 0 ? ' −1s' : ' ready'}`);
-    } else if (this.companionRole === 'gravity') {
-      this.gravitySurge = Math.max(this.gravitySurge, 1);
-      this.setEvent(`${source} · Gravity pull +15%`);
-    } else {
-      this.cooldown = Math.max(0, this.cooldown - 1);
-      this.setEvent(`${source} · ${this.companionAbility.label} −1s`);
+  quickenCompanionRecovery(source, amount = 1) {
+    for(const item of this.fleet) item.cooldown=Math.max(0,item.cooldown-amount);
+    if(this.hasCompanion('collector')) this.wisp.cooldown=Math.max(0,this.wisp.cooldown-amount);
+    if(this.hasCompanion('protector')&&this.shield.charges<this.shield.layers)
+      this.shield.recovery=Math.max(0,this.shield.recovery-amount);
+    this.syncFleetTimers();
+    if(source) this.setEvent(`${source} · fleet recovery −${amount}s`);
+  }
+
+  getNearbyObstacles(padding = 420) {
+    const list=this.layout?.obstacles||[],left=this.distance-padding,right=this.distance+this.width+padding;
+    while(this._obstacleCursor<list.length&&list[this._obstacleCursor].x+list[this._obstacleCursor].width*2.5<this.distance-Math.max(1200,padding)) this._obstacleCursor++;
+    const nearby=[];
+    for(let i=this._obstacleCursor;i<list.length;i++) {
+      const obstacle=list[i];if(obstacle.x-obstacle.width>right)break;
+      if(!obstacle.destroyed&&obstacle.x+obstacle.width*2.5>=left)nearby.push(obstacle);
     }
+    return nearby;
+  }
+
+  getNearbyPickups() {
+    const list=this.layout?.embers||[];
+    if(this._pickupCount!==list.length){this._pickupCount=list.length;this._pickupCursor=0;this._nearbyPacketsUntil=-1;}
+    if(this.time<this._nearbyPacketsUntil)return this._nearbyPackets;
+    const reach=Math.max(480,this.wisp?.range(this)*1.7||0),left=this.distance-reach,right=this.distance+this.width+reach;
+    while(this._pickupCursor<list.length&&list[this._pickupCursor].x<left&&!list[this._pickupCursor].carried)this._pickupCursor++;
+    this._nearbyPackets.length=0;
+    for(let i=this._pickupCursor;i<list.length;i++){
+      const packet=list[i];if(packet.x>right)break;
+      if(!packet.collected)this._nearbyPackets.push(packet);
+    }
+    this._nearbyPacketsUntil=this.time+.06;return this._nearbyPackets;
+  }
+
+  getCollectorAuraState() {
+    if(!this.hasCompanion('collector')||!this.layout||!this.wisp)return null;
+    const range=this.wisp.range(this);
+    const growth=clamp(1-this.wisp.cooldown/Math.max(.01,this.wisp.cooldownMax),0,1);
+    if(!this._collectorAura)this._collectorAura={shape:'circle',vertices:[],contains(x,y){return Math.hypot(x-this.x,y-this.y)<=this.radius;}};
+    const aura=this._collectorAura;
+    aura.x=aura.worldX=this.distance+this.player.x;aura.y=this.player.y;
+    aura.radius=aura.maxRadius=Math.min(28,range)+(range-Math.min(28,range))*growth;aura.baseRadius=range;aura.maximumReach=range;
+    aura.growth=growth;aura.active=!this.dying;aura.areaRatio=1;aura.coordinateSpace='world';
+    return aura;
+  }
+
+  collectorContains(packet) {
+    const aura=this.getCollectorAuraState();return Boolean(aura&&aura.radius>0&&aura.contains(packet.x,packet.y));
+  }
+
+  beginDying(cause = 'glow') {
+    if(this.dying||this.finished||this.destroyed)return;
+    if(cause==='glow')this.flame=0;
+    this.deathCause=cause;this.dyingDuration=cause==='collision'?2:.6;
+    this.dying=true;this.dyingAge=0;this.tutorialAwaitingLift=false;
+    for(const item of this.fleet)item.remaining=0;this.syncFleetTimers();
+    this.levelDive=0;this.setEvent(cause==='collision'?'The light scatters…':'Glow exhausted · the last spark fades');
+    this.burst(this.player.x,this.player.y,8,'#e1d7ba');this.notify();
   }
 
   packetPositionClear(worldX, y) {
     if (y < 31 || y > this.height - 32) return false;
-    for (const obstacle of this.layout.obstacles) {
+    for (const obstacle of this.getNearbyObstacles()) {
       if (obstacle.destroyed || worldX + 4 < obstacle.x - obstacle.width * .8
         || worldX - 4 > obstacle.x + obstacle.width * 2.5) continue;
       if (obstaclePolygons(obstacle, this.time).some(polygon => circleHitsPolygon(worldX, y, 4, polygon))) return false;
@@ -984,9 +1153,10 @@ export class WispFlight {
   }
 
   getNearbyPickup(seenKinds = new Set()) {
+    if(this.dying||this.finished||this.destroyed)return null;
     const light = this.getLightState(), sight = light.radius * .80;
     const seen = kind => seenKinds?.has?.(kind) === true || Array.isArray(seenKinds) && seenKinds.includes(kind);
-    for (const packet of this.layout.embers) {
+    for (const packet of this.getNearbyPickups()) {
       if (packet.collected || packet.carried) continue;
       const kind = pickupKind(packet), spec = getPickupSpec(packet), x = packet.x - this.distance, y = packet.y;
       if (seen(kind) || x <= this.player.x + pickupContactRadius(packet)
@@ -1005,6 +1175,16 @@ export class WispFlight {
   step(dt) {
     if (this.destroyed || this.finished || !this.alive || this.tutorialAwaitingLift) return;
     this.previousPlayerY = this.player.y; this.previousDistance = this.distance;
+    if(this.dying){
+      this.time+=dt;this.dyingAge=Math.min(this.dyingDuration,this.dyingAge+dt);
+      this.player.vy*=Math.exp(-dt*7);this.player.y=clamp(this.player.y+this.player.vy*dt*.15,28,this.height-29);
+      this.flash=Math.max(0,this.flash-dt);this.shake*=Math.exp(-dt*12);
+      for(const particle of this.particles){particle.life-=dt;particle.x+=particle.vx*dt;particle.y+=particle.vy*dt;}
+      this.particles=this.particles.filter(particle=>particle.life>0);
+      this.updateClock+=dt;if(this.updateClock>=.1){this.updateClock=0;if(this.resumeRemaining===0)this.notify();}
+      if(this.dyingAge>=this.dyingDuration)this.finish(false);return;
+    }
+    if(this.flame<=0){this.beginDying();return;}
     this.time += dt;
     this.lightPenalties = this.lightPenalties.filter(until => until > this.time);
     const dimTarget = this.lightPenalties.reduce((sum, until) => {
@@ -1013,39 +1193,55 @@ export class WispFlight {
     }, 0);
     this.lightDimming = lerp(this.lightDimming, dimTarget, 1 - Math.exp(-dt * LIGHT_PACKET_TUNING.dimResponse));
     this.wingPhase += dt * this.wingRate;
-    const oldBoost = this.boostTime, oldAbility = this.abilityTime;
-    this.abilityTime = Math.max(0, this.abilityTime - dt);
-    this.boostTime = this.companionRole === 'swift' ? this.abilityTime : 0;
-    this.levelRecovery = Math.max(0, this.levelRecovery - dt);
-    if (this.companionRole === 'anchor' && oldAbility > 0 && this.abilityTime === 0) this.levelRecovery = .25;
-    this.gravitySurge = Math.max(0, this.gravitySurge - dt);
-    const wispTarget = this.companionAbility.collects && this.isCompanionWorking() && this.cards.has('hungry-wisp') ? 1 : 0;
-    this.wispBoost += clamp(wispTarget - this.wispBoost, -dt * 5, dt * 5);
-    this.cooldown = Math.max(0, this.cooldown - dt);
+    const oldBoost=this.boostTime;
+    for(const item of this.fleet){
+      const was=item.remaining;item.remaining=Math.max(0,item.remaining-dt);item.cooldown=Math.max(0,item.cooldown-dt);
+      if(item.role==='leveler'&&was>0&&item.remaining===0){this.levelRecovery=.25;this.levelDive=Number(this.mod.levelerDive)>0 ? .5 : 0;}
+    }
+    this.syncFleetTimers();
+    this.levelRecovery=Math.max(0,this.levelRecovery-dt);this.levelDive=Math.max(0,this.levelDive-dt);
+    this.purifyCooldown=Math.max(0,this.purifyCooldown-dt);
+    this.shield.protection=Math.max(0,this.shield.protection-dt);this.shield.hitFlash=Math.max(0,this.shield.hitFlash-dt);
+    if(this.shield.charges<this.shield.layers){
+      this.shield.recovery=Math.max(0,this.shield.recovery-dt);
+      if(this.shield.recovery<=0){this.shield.charges++;this.shield.recovery=this.shield.charges<this.shield.layers?this.shield.recoveryTotal:0;}
+    }
+    const wispTarget=this.hasCompanion('collector')&&this.isCompanionWorking()&&this.cards.has('hungry-wisp')?1:0;
+    this.wispBoost+=clamp(wispTarget-this.wispBoost,-dt*5,dt*5);
     this.exitProtection = Math.max(0, this.exitProtection - dt);
     this.flash = Math.max(0, this.flash - dt * 2.5);
     this.shake = Math.max(0, this.shake - dt * 18);
     if (oldBoost > 0 && this.boostTime === 0) this.exitProtection = .45;
     this.distance += this.baseSpeed * (this.boostTime > 0 ? 1.48 : 1) * dt;
+    const encounter=this.challengeDirector.update({time:this.time,worldX:this.distance+this.player.x,
+      speed:this.baseSpeed*(this.boostTime>0?1.48:1),maximumSpeed:this.baseSpeed*1.48});
+    this.flightChallenge=encounter.state;
+    this.caveDimming+=(encounter.darkness-this.caveDimming)*(1-Math.exp(-dt*3));
+    if(encounter.event)this.setEvent(encounter.event);
 
     this.drafts.update(this.time, this.distance + this.player.x,
       this.baseSpeed * (this.boostTime > 0 ? 1.48 : 1));
     const gust = this.gustState();
-    const leveling = this.companionRole === 'anchor' && this.abilityTime > 0;
+    const leveling = (this.fleet.find(item=>item.role==='leveler')?.remaining||0)>0;
     let gravityBlend = leveling ? 0 : 1;
     if (!leveling && this.levelRecovery > 0) {
       const t = 1 - this.levelRecovery / .25;
       gravityBlend = t * t * (3 - 2 * t);
     }
-    if (leveling) this.player.vy *= Math.exp(-dt * 12);
     let gravity = FLIGHT_TUNING.gravity * this.scaleY * clamp(Number(this.mod.gravity) || 1, .80, 1.20) * gravityBlend;
+    if(leveling){
+      const leveler=this.fleet.find(item=>item.role==='leveler');
+      const bob=Math.sin((this.time-leveler.startedAt)*2.8)*12*this.scaleY*(1-clamp(Number(this.mod.levelerSteadiness)||0,0,1));
+      const target=clamp((this.levelTargetY??this.player.y)+bob,40,this.height-40);
+      gravity=clamp((target-this.player.y)*26-this.player.vy*9,-350*this.scaleY,350*this.scaleY);
+    } else if(this.levelDive>0) gravity+=180*this.scaleY*clamp(Number(this.mod.levelerDive)||1,1,2);
     if (gust.active) {
       this.gustSeconds += dt;
       // Boost can break through a downdraft or arrest an unwanted updraft.
       // Wind resistance fades out briefly after the burst. It gives no
       // immunity to terrain or the playfield boundary.
-      const windGuard = this.boostTime > 0 ? 1 - WIND_TUNING.boostResistance
-        : 1 - WIND_TUNING.boostResistance * clamp(this.exitProtection / .45, 0, 1);
+      const resistance=clamp(Number(this.mod.swiftResistance)||WIND_TUNING.boostResistance,0,.95);
+      const windGuard=this.boostTime>0?1-resistance:1-resistance*clamp(this.exitProtection/.45,0,1);
       gravity += gust.direction * gust.force * this.scaleY * (this.mod.steady ? .45 : 1) * windGuard;
       if (this.cards.has('storm-feeder')) {
         this.stormFeedClock += dt;
@@ -1066,7 +1262,7 @@ export class WispFlight {
       return;
     }
 
-    for (const obstacle of this.layout.obstacles) {
+    for (const obstacle of this.getNearbyObstacles()) {
       const x = obstacle.x - this.distance;
       if (x > this.width + 250) break;
       if (x + obstacle.width * 2.5 < -30 || obstacle.destroyed) continue;
@@ -1101,12 +1297,7 @@ export class WispFlight {
       }
     }
 
-    const gravityField = this.getGravityState();
-    if (updateGravityPackets(this.layout.embers, { ...gravityField, dt, time: this.time,
-      positionClear: (worldX, y) => this.packetPositionClear(worldX, y) }))
-      this.layout.embers.sort((a, b) => a.x - b.x);
-
-    for (const ember of this.layout.embers) {
+    for (const ember of this.getNearbyPickups()) {
       if (ember.collected || ember.carried) continue;
       const x = ember.x - this.distance;
       if (x < -40 || x > this.width + 20) continue;
@@ -1129,32 +1320,64 @@ export class WispFlight {
       if (p.life <= 0) this.particles.splice(i, 1);
     }
     this.updateClock += dt;
-    if (this.updateClock >= .10) { this.updateClock = 0; this.notify(); }
-    if (!this.finished && this.distance >= this.totalDistance) this.finish(true);
+    if (this.updateClock >= .10) { this.updateClock = 0; if(this.resumeRemaining===0)this.notify(); }
+    if (!this.finished && !this.dying && this.distance >= this.totalDistance) this.finish(true);
   }
 
   hit(obstacle) {
-    if (!this.alive || this.finished || this.destroyed) return;
-    if (obstacle) obstacle.hit = true;
+    if(!this.alive||this.finished||this.destroyed||this.dying)return;
+    if(this.shield.protection>0)return;
+    if(obstacle)obstacle.hit=true;
     this.collisions++;
-    this.alive = false;
-    this.flash = .22; this.shake = this.reducedMotion ? 0 : 4;
-    this.setEvent('Collision · attempt ended');
-    this.burst(this.player.x, this.player.y, 18, '#ff9b77'); this.sound('hit');
-    this.finish(false);
+    const cost=clamp(Number(this.mod.protectorCost)||12,1,40);
+    if(this.hasCompanion('protector')&&this.shield.charges>0&&this.flame>=cost){
+      const polygons=this.getNearbyObstacles().flatMap(item=>obstaclePolygons(item,this.time));
+      const worldX=this.distance+this.player.x,radius=this.player.radius+4;
+      const clear=y=>y>=34&&y<=this.height-35&&!polygons.some(poly=>circleHitsPolygon(worldX,y,radius,poly));
+      let safe=null;
+      for(let offset=0;offset<this.height;offset+=6){
+        for(const side of [-1,1]){const candidate=clamp(this.player.y+offset*side,35,this.height-36);
+          if(clear(candidate)){safe=candidate;break;}}
+        if(safe!==null)break;
+      }
+      if(safe!==null){
+        const previous=this.player.y;this.flame=Math.max(0,this.flame-cost);this.shield.charges--;
+        if(this.shield.recovery<=0)this.shield.recovery=this.shield.recoveryTotal;
+        this.shield.protection=.4;this.shield.hitFlash=.45;this.flash=.14;
+        this.player.y=this.previousPlayerY=safe;this.player.vy=(safe>=previous?1:-1)*65*this.scaleY;
+        this.cancelLeveler(true);this.levelDive=0;this._auraUntil=-1;
+        this.setEvent(`Protector · shell spent, −${cost} Glow`);this.sound('hit');
+        if(this.flame<=0)this.beginDying();else this.notify();return;
+      }
+    }
+    this.flash=.22;this.shake=this.reducedMotion?0:4;
+    this.burst(this.player.x,this.player.y,18,'#e6edda');this.sound('hit');
+    this.beginDying('collision');
   }
 
   collect(ember) {
-    if (ember.collected || !this.alive || this.finished || this.destroyed) return;
+    if (ember.collected || !this.alive || this.finished || this.destroyed || this.dying) return;
     const kind = pickupKind(ember), spec = getPickupSpec(ember), harmful = kind === 'dark';
     if (ember.deliveredByWisp && !canCompanionCollect(ember)) return;
     if (harmful) {
       // Body-only hazard: never turn a stale carrier reservation into a hit.
       if (ember.deliveredByWisp) return;
       ember.collected = true;
+      if(this.hasCompanion('kindler')&&this.mod.kindlerPurify&&this.purifyCooldown<=0){
+        const restored=Math.min(12,FLAME_TUNING.maximum-this.flame);
+        this.flame+=restored;this.flameRestored+=restored;this.purifyCooldown=10;
+        this.absorbPacket({...ember,kind:'light',harmful:false},'light');
+        const text=restored>0?`Purified · +${restored} Glow`:'Purified · Glow full';
+        this.pickupEffects.push({x:this.player.x,y:this.player.y,pickupKind:'light',text,restored,life:.72});
+        if(this.pickupEffects.length>12)this.pickupEffects.shift();
+        this.setEvent(`Kindler · ${text}`);this.sound('collect');return;
+      }
       this.absorbPacket(ember, 'dark');
       this.dimLight(spec.dimDuration);
-      this.setEvent(`${spec.name} · light dimmed`);
+      this.pickupEffects.push({ x:this.player.x,y:this.player.y,pickupKind:'dark',
+        text:`SIGHT -${Math.round(spec.dim*100)}%`,color:'#c5b1cf',restored:0,value:0,life:.72 });
+      if(this.pickupEffects.length>12)this.pickupEffects.shift();
+      this.setEvent(`${spec.name} · sight -${Math.round(spec.dim*100)}%`);
       return;
     }
     if (!ember.generated && !isFuelPickup(ember)) {
@@ -1165,18 +1388,10 @@ export class WispFlight {
         this.utilityEmbers += spec.currency;
         text = `+${spec.currency} embers`;
       } else if (spec.recharge) {
-        if (this.companionAbility.collects) {
-          const restored = Math.min(spec.recharge, this.wisp.cooldown);
-          this.wisp.cooldown = Math.max(0, this.wisp.cooldown - spec.recharge);
-          text = restored > 0 ? `Collector recovery −${Math.round(restored * 10) / 10}s` : 'Collector ready';
-        } else if (this.companionRole === 'gravity') {
-          this.gravitySurge = Math.max(this.gravitySurge, spec.recharge);
-          text = `Gravity pull +15% · ${spec.recharge}s`;
-        } else {
-          const restored = Math.min(spec.recharge, this.cooldown);
-          this.cooldown = Math.max(0, this.cooldown - spec.recharge);
-          text = restored > 0 ? `${this.companionAbility.label} recovery −${Math.round(restored * 10) / 10}s` : `${this.companionAbility.label} ready`;
-        }
+        const recovering=this.fleet.some(item=>item.cooldown>0)||this.hasCompanion('collector')&&this.wisp.cooldown>0
+          ||this.shield.charges<this.shield.layers&&this.shield.recovery>0;
+        this.quickenCompanionRecovery(null,spec.recharge);
+        text=recovering?`Fleet recovery −${spec.recharge}s`:'Companions ready';
       } else if (spec.sightBonus) {
         this.sightUntil = Math.max(this.sightUntil, this.time + spec.sightDuration);
         text = `+${spec.sightBonus} sight · ${spec.sightDuration}s`;
@@ -1195,7 +1410,8 @@ export class WispFlight {
     if (cleansed) this.lightPenalties.pop();
     const fuel = ember.generated ? FLAME_TUNING.generatedFuel
       : spec.fuel
-        + this.fuelBonus + clamp(Number(this.mod.cacheFuelBonus) || 0, 0, 32);
+        + this.fuelBonus + clamp(Number(this.mod.cacheFuelBonus) || 0, 0, 32)
+        + (!ember.deliveredByWisp&&this.hasCompanion('kindler')?clamp(Number(this.mod.kindlerBonus)||10,0,30):0);
     const restored = Math.min(fuel, FLAME_TUNING.maximum - this.flame);
     this.flame += restored; this.flameRestored += restored;
     if (spec.dim) this.dimLight(spec.dimDuration);
@@ -1242,31 +1458,37 @@ export class WispFlight {
 
   challengeComplete() {
     return this.challengeId === 'wisps' ? this.baseEmbers >= this.challengeTarget
-      : this.challengeId === 'boosts' ? (this.companionAbility.passive ? this.baseEmbers : this.boosts) >= this.challengeTarget : this.collisions === 0;
+      : this.challengeId === 'boosts' ? (!this.hasActiveCompanions ? this.baseEmbers : this.boosts) >= this.challengeTarget : this.collisions === 0;
   }
 
   getBossState() { return bossState(this); }
+  getFlightChallengeState() { return this.flightChallenge; }
 
   getState() {
-    const boss = this.getBossState();
+    const boss = this.getBossState(), ability=this.getAbilityState();
     return { alive: this.alive, score: Math.floor(this.score), embers: this.embers,
       ascent: this.ascentInfo,
       boss, bossPhase: boss ? `${boss.phase}/3 · ${boss.phaseName}` : '',
       bossWarning: boss?.warning || '',
+      flightChallenge:this.flightChallenge,challengeCue:this.flightChallenge
+        ?this.flightChallenge.phase==='warning'?`${this.flightChallenge.name} ahead · ${this.flightChallenge.instruction}`
+          :this.flightChallenge.phase==='active'?`${this.flightChallenge.name} · ${this.flightChallenge.instruction}`:'' :'',
       flame: this.flame, maxFlame: FLAME_TUNING.maximum, flapCost: this.flapCost,
-      canFlap: this.alive && !this.finished && this.flame >= this.flapCost, flaps: this.flaps,
+      canFlap: this.alive && !this.finished && !this.dying && this.flame > 0,
+      canAffordFlap:this.flame>=this.flapCost, flaps: this.flaps,
       wisp: this.getWispState(),
-      ability: this.getAbilityState(),
+      ability, companions:this.getCompanionStates().map(item=>({...item})),shield:this.getShieldState(),leveler:this.getLevelerState(),
+      collectorAura:this.getCollectorAuraState(),dying:this.dying,dyingProgress:this.dyingProgress,deathCause:this.deathCause,
       light: this.getLightState(),
-      gravityField: this.getGravityState(),
       collected: this.baseEmbers, boostCooldown: this.cooldown,
       boostCooldownTotal: this.boostCooldown, boostDurationTotal: this.boostDuration,
-      boostReady: this.getAbilityState().ready,
+      boostReady: ability.ready,
       boostActive: this.boostTime > 0,
       boostTime: this.boostTime, progress: clamp(this.distance / this.totalDistance, 0, 1),
       event: this.time < this.eventUntil ? this.event : '',
       renderer: this.pixiReady ? 'pixel-canvas' : 'canvas',
       paused: this.paused, finished: this.finished, reducedMotion: this.reducedMotion,
+      resumeScale: this.resumeScale, resumeRemaining: this.resumeRemaining,
       tutorialHintState: getTutorialHint(this), tutorialAwaitingLift: this.tutorialAwaitingLift,
       time: this.time, remaining: Math.max(0, (this.totalDistance - this.distance) / this.baseSpeed),
       challenge: this.challengeText, challengeComplete: this.challengeComplete() };
@@ -1592,37 +1814,24 @@ export class WispFlight {
   }
 
   drawWisp(c) {
-    const state = this.getWispState(this.renderPlayerY ?? this.player.y, this.visualTime ?? this.time);
-    const { x, y, homeX, homeY, radius: reach, recovery, phase, carrying } = state;
+    const distance=this.renderDistance??this.distance,aura=this.getCollectorAuraState();
     c.save();
-    if (state.enabled && reach > 0) {
-    const field = c.createRadialGradient(homeX, homeY, 0, homeX, homeY, reach);
-    field.addColorStop(0, phase === 'ready' ? 'rgba(119,245,214,.08)' : 'rgba(119,245,214,.025)');
-    field.addColorStop(1, 'rgba(119,245,214,0)');
-    c.fillStyle = field; c.fillRect(homeX - reach, homeY - reach, reach * 2, reach * 2);
-    c.strokeStyle = phase === 'ready' ? 'rgba(151,246,220,.18)' : 'rgba(151,246,220,.05)'; c.lineWidth = .8;
-    c.beginPath(); c.arc(homeX, homeY, reach, 0, TAU); c.stroke();
-    if (phase === 'cooldown') {
-      c.strokeStyle = 'rgba(151,246,220,.7)'; c.lineWidth = 1.4;
-      c.beginPath(); c.arc(homeX, homeY, 13, -Math.PI / 2, -Math.PI / 2 + TAU * recovery); c.stroke();
+    if(aura?.active&&aura.radius>0){
+      c.beginPath();
+      for(let i=0;i<=72;i++){const a=i/72*TAU,r=aura.radius+(this.reducedMotion?0:Math.sin(a*7+this.time*3.8)*1.1);
+        const x=this.player.x+Math.cos(a)*r,y=(this.renderPlayerY??this.player.y)+Math.sin(a)*r;
+        if(i)c.lineTo(x,y);else c.moveTo(x,y);}
+      c.closePath();c.strokeStyle='rgba(169,205,149,.15)';c.lineWidth=4;c.stroke();
+      c.strokeStyle='rgba(169,205,149,.55)';c.lineWidth=1.5;c.stroke();
     }
+    const palettes={collector:'#b9dfa0',protector:'#8fbfe8',leveler:'#a7e8df',swift:'#f2d48e',seer:'#d3b1f2',kindler:'#e4a3b5'};
+    for(const state of this.getCompanionStates(this.renderPlayerY??this.player.y,this.visualTime??this.time)){
+      const color=palettes[state.role],power=state.role==='collector'&&state.phase==='cooldown' ? .35+.65*state.recovery : 1;
+      c.globalAlpha=power*.2;c.fillStyle=color;c.beginPath();c.arc(state.x,state.y,17,0,TAU);c.fill();
+      c.globalAlpha=power;c.beginPath();c.arc(state.x,state.y,7,0,TAU);c.fill();
+      c.fillStyle='#ffffe9';c.globalAlpha=power*.9;c.beginPath();c.arc(state.x-2,state.y-2,2,0,TAU);c.fill();
+      if(state.carrying)drawPickup(c,state.x+9,state.y+6,{kind:state.cargoKind,time:this.time,tiny:true,reducedMotion:this.reducedMotion});
     }
-    const history = this.wisp.history;
-    c.strokeStyle = carrying ? '#ffdc99' : '#e9efff'; c.lineWidth = 1.4;
-    for (let i = 1; i < history.length; i++) {
-      c.globalAlpha = i / history.length * .6; c.beginPath();
-      c.moveTo(history[i - 1].x - (this.renderDistance ?? this.distance), history[i - 1].y);
-      c.lineTo(history[i].x - (this.renderDistance ?? this.distance), history[i].y); c.stroke();
-    }
-    c.globalAlpha = 1;
-    const glow = c.createRadialGradient(x, y, 0, x, y, 28);
-    const palette = { collector: ['#96d8a4','rgba(150,216,164,.25)'], swift: ['#ebc36b','rgba(235,195,107,.25)'],
-      anchor: ['#7dccd0','rgba(125,204,208,.25)'], gravity: ['#bd95e3','rgba(189,149,227,.25)'] }[this.companionRole];
-    glow.addColorStop(0, palette[0]);
-    glow.addColorStop(.35, palette[1]); glow.addColorStop(1, 'rgba(230,240,255,0)');
-    c.fillStyle = glow; c.fillRect(x - 28, y - 28, 56, 56);
-    c.fillStyle = palette[0]; c.beginPath(); c.arc(x, y, 3, 0, TAU); c.fill();
-    if (carrying) { c.fillStyle = '#ffd38a'; c.beginPath(); c.ellipse(x + 8, y + 3, 3, 5, 0, 0, TAU); c.fill(); }
     c.restore();
   }
 
@@ -1630,12 +1839,24 @@ export class WispFlight {
     const t = this.visualTime ?? this.time;
     const p = this.player, y = this.renderPlayerY ?? p.y;
     c.save(); c.translate(Math.round(p.x), Math.round(y));
-    const pulse = this.reducedMotion ? 1 : 1 + Math.sin(t * 4) * .035;
-    c.scale(pulse, pulse);
-    for (const [radius, ink] of [[19, '#688d80'], [17, '#c6d8c6'], [13, '#f3f6e6']]) {
-      c.fillStyle = ink; c.beginPath(); c.arc(0, 0, radius, 0, TAU); c.fill();
+    if(this.dying&&this.deathCause==='collision'){
+      const progress=this.dyingProgress;c.fillStyle='#dce8d1';c.globalAlpha=1-progress;
+      for(let i=0;i<24;i++){const a=i*2.39996,r=(i%5+1)*2+progress*(this.reducedMotion?3:20+i%7*4);
+        c.fillRect(Math.round(Math.cos(a)*r),Math.round(Math.sin(a)*r+progress*progress*14),Math.max(1,4-Math.floor(progress*3)),Math.max(1,4-Math.floor(progress*3)));}
+      c.restore();return;
     }
-    c.fillStyle = '#fffff1'; c.beginPath(); c.arc(-4, -4, 5, 0, TAU); c.fill(); c.restore();
+    const pulse = this.reducedMotion ? 1 : 1 + Math.sin(t * 4) * .035;
+    const fade=this.dying?Math.max(.02,1-this.dyingProgress):1;
+    c.scale(pulse*fade, pulse*fade);
+    const core=13*Math.sqrt(clamp(this.flame/FLAME_TUNING.maximum,0,1));
+    for(let yy=-17;yy<17;yy+=2)for(let xx=-17;xx<17;xx+=2){
+      const radius=Math.hypot(xx+1,yy+1);if(radius>17)continue;
+      const light=Math.round(clamp((core+3-radius)/5,0,1)*5)/5;
+      c.fillStyle=radius>15?'#ccd9c5':`rgb(${44+Math.round(light*199)},${52+Math.round(light*191)},${54+Math.round(light*166)})`;
+      c.fillRect(xx,yy,2,2);
+    }
+    if(this.hasCompanion('protector')){c.strokeStyle=this.shield.charges>0?'#8fbfe8':'#4a6171';c.lineWidth=1.5;c.globalAlpha=this.shield.charges>0?.6:.22;c.beginPath();c.arc(0,0,22,0,TAU*(this.shield.charges>0?1:.65));c.stroke();c.globalAlpha=1;}
+    c.restore();
   }
 
   drawFireRibbons(c, boosted) {

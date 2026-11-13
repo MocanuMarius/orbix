@@ -308,3 +308,115 @@ The current build already caches terrain artwork. Its current dynamic lighting u
 - Introduce a new type once when actually visible, pausing the flight with a short spotlight and explicit Continue. Skip disables further pickup tips. The normal MENU also provides an optional Pickup Key with actual icons, sizes and effects. Existing basic tutorial types do not need repeated normal-flight introductions.
 - The Protector, Seer and Purifier roster discussions remain proposals; this batch adds pickup variety rather than claiming those companions exist.
 - Publish without checks, tests, reviews, simulations or balance work. These are provisional effect values for later player feedback.
+
+
+## Closed-queue progression overhaul
+
+The complete intake was reconciled and implemented together. This section supersedes earlier tuning, card-build and single-companion decisions.
+
+- Persistent Ember-funded trees replace the independent stat-tuning budget and temporary card drafts. Trees cover the main wisp, six companions and the boss-unlocked reserve. Score is removed from the player-facing economy: Glow is fuel; Embers are currency, secured after successful clears.
+- Six plain coloured orb companions are Collector, Protector, Leveler, Swift, Seer and Kindler. Gravity is removed. Only Collector fetches missed pickups. Ascension locks remain visible while TEST permits selecting all six.
+- Main-wisp Bond ranks unlock a second and third companion slot, costing 80 and 180 Embers. This competes with other tree upgrades. One Power button activates ready active companions together; another tap releases an active Leveler. Passive effects work automatically.
+- Protector consumes a shield charge and Glow to bounce away from terrain or bounds into actual open space. A brief separation window prevents immediate repeated contact. Layers recover; unprotected collisions remain fatal. Leveler uses a gently bobbing hold, baseline manual release, upgradeable steadiness and an optional release/expiry dive cancelled by Lift. Seer temporarily reveals farther ahead. Kindler grants direct-pickup fuel bonuses and an optional dark-seed purification upgrade.
+- The player's white orb has a dark core that grows as Glow falls, leaving a thin bright shell near empty. Zero fuel triggers a brief final-spark death. Protector's blue outer shell remains visually separate from that fuel display.
+- Collector's search area follows terrain geometry, redistributes into free sectors to conserve area where space permits, collapses on delivery and regrows during recovery. The same cached contour controls fetch eligibility.
+- Three artifact slots hold persistent boss relics. Nine artifacts have concrete effects, can be mounted during safe preparation and can be traded for Embers at events or shelters. Duplicate boss relics convert to currency. The first boss also unlocks Afterglow and grants 20 Stored Glow.
+- Seven-stop maps have mixed Rest/event/shrine/flight opportunities, branches that remain separate and occasional three-way forks. Route forecasts show access to future Rest sites. Only a committed Rest opens skill purchases and fleet changes; normal clears no longer refill fuel automatically. Three maps share the same ascension lives and resources.
+- The seven physical pickup types remain; removing card-style powerups does not undo requested flight-pickup variety.
+- Rendering now uses cached fog/light masks, cached orb art, fractional scrolling and nearby spatial windows. HUD references are cached and labels update only when changed. Frame pacing stays bounded with interpolated visuals. No measured FPS claim is made.
+- The prototype save key is skilltrees.v5. No migration work was added. Checks, tests, browser QA, simulations and balance validation remain skipped at the user's request.
+
+
+## Calmer tutorial and local review
+
+- Use localhost while hosted publishing is blocked.
+- Practice flights last 36 and 44 seconds, with fuel in their added open passages.
+- Each flight introduces only one short control prompt. At most one world-object spotlight per flight teaches fuel first, then a draft.
+- Remove forced map-symbol tours, automatic skill-tree opening and early artifact lessons. Keep those references available through MENU for voluntary exploration.
+- Rest is a breather with a single short choice prompt; practice upgrades remain optional. No tests or balance simulations were run.
+
+
+## Collector circle performance fallback and pixel texture
+
+- Revert terrain deformation after user reports visibly low reshape frame rate. Collector returns to an inexpensive circular field, retaining delivery collapse/recovery growth and reach/recovery upgrades. No polygon redistribution is computed.
+- Draw its radius and center on every rendered frame, without the former 12 Hz geometry refresh. Do not claim benchmarked 60 fps.
+- Use stepped pixel discs for the main orb and growing dark fuel core. Slightly coarsen the common pixel buffer from 260 to 240 wide; keep nearest-neighbour output.
+- Local preview remains the review destination. No game tests or benchmarks were run.
+
+
+## Upgradeable illumination and inverse-square falloff
+
+- Inner Glow already upgrades the main wisp light radius; Seer has separate range/duration ranks and an Ember Lens artifact adds sight.
+- Replace the artistic terrain reveal gradient with softened inverse-square attenuation, exposure mapping and a finite gameplay cutoff. Bake the 128×128 pixel mask once and reuse it for main, companion and Seer illumination. Decorative glow halos remain aesthetic.
+- No per-frame CPU pixel loop or benchmark was added.
+
+
+## Collector accessibility and progressive discovery — 2026-11-13
+
+- Strengthen the base Collector: reach 100 → 140, fetch speed 500 → 700, return speed 620 → 820, recovery 5.5 → 5 seconds. Keep the full manual-contact window. Empty rescue trips do not spend a recovery cycle. Terrain and base Lift cost are not globally softened.
+- Replace the main wisp’s black depletion core with muted red stepped pixels. Full Glow has no core; lower Glow grows the red warning within the pale shell. Harmful Dark Seeds retain black bodies with a visible violet accretion rim and a few inward-moving pixels.
+- Reveal skill nodes after their prerequisites. Companion Bond opens after the first boss; existing owned ranks remain available. Support upgrades come from the main wisp and equipped companions, plus Afterglow after its unlock.
+- Prioritize three improvements: meaningful pickup flight paths, gradual discovery of tactical options, and clear between-flight reward/route consequences. The third remains broader follow-up work; do not claim all route/reward issues resolved.
+- Local source changes only; no tests, browser QA, simulations, balance validation or FPS benchmarks requested or run.
+
+- First ordinary flight targets one optional mid-flight Dark Seed in a visible wide-passage side lane. Keep sparse later hazards and avoid fuel approach paths and compulsory tight passages; skip unsafe candidates. Contact shows SIGHT -20%. Tutorial remains separate.
+- Lift costs keep two decimals so every efficiency rank saves actual Glow; the HUD shows those savings. Discovered-only pickup guide and full-fleet coaching reveal mechanics progressively.
+
+
+## Run structure, menu, and inward depletion — 2026-11-13
+
+- New Game means a fresh run of three maps, preserving permanent companion/Ascension unlocks, recovered artifacts and the existing Afterglow system. Continue resumes the saved run. Exit to Menu preserves the run at its checkpoint; an interrupted flight resumes from its entrance. Abandon Run asks for confirmation and ends the run. Tutorial is a separate front-page activity, suspending and restoring an active run.
+- Skill ranks and spendable Embers now belong to the run, not the profile. They persist across three maps and retries; purchases are only available at committed Rests or explicit encounter trades. Starter selection is available inside the initial map before its first route is chosen. No skill purchase/equipment management on the front page.
+- Ascension selection and the next companion unlock are visible on the front page. Locked companion previews are read-only; the existing TEST override remains in the in-run companion picker.
+- Prototype save schema moves to v6 with no compatibility migration, consistent with the user’s preference to prioritize building.
+- Latest art direction supersedes the earlier red-core pass: grey-black shading closes inward from the orb edge as Glow falls. The central light shrinks, the pale shell remains, and cached 2-pixel dithered gradients soften the geometry. Remove the old menu CSS black-dot override.
+
+### Research applied
+
+- Predictable menus and clear action consequences: Microsoft XAG 112 (https://learn.microsoft.com/en-us/gaming/accessibility/xbox-accessibility-guidelines/112) and XAG 114 (https://learn.microsoft.com/en-us/gaming/accessibility/xbox-accessibility-guidelines/114).
+- Confirm actions that discard a run, with a visible cancel action: XAG 115 (https://learn.microsoft.com/en-us/gaming/accessibility/xbox-accessibility-guidelines/115).
+- Show unlock goals beside the choices they explain: XAG 109 (https://learn.microsoft.com/en-us/gaming/accessibility/xbox-accessibility-guidelines/109).
+- Keep tutorials repeatable and contextual: https://gameaccessibilityguidelines.com/include-contextual-in-game-helpguidancetips/.
+- These sources inform accessibility and clarity; the run/reset structure and companion trade-offs are game-design decisions, not rules proved by those guidelines. Checkpoint-only continuation remains a limitation compared with exact mid-flight suspension.
+
+### Run build paths
+
+Each companion now has a pair of mutually exclusive paths, kept visible after the choice so the player understands what was traded away. Branches use the existing flight mechanics and reset with the run:
+
+- Collector: Wide Search (35% farther, 20% longer recovery) or Quick Return (30% faster recovery, 20% less reach).
+- Protector: Quick Ward (28% faster recovery, 25% higher cost) or Deep Ward (two layers, 35% higher cost).
+- Leveler: Still Point (65% steadiness, 15% shorter hold) or Falling Release (release dive, 25% shorter hold).
+- Swift: Quick Sparks (28% faster recovery, 25% shorter burst) or Wind Lance (90% draft resistance, 25% longer recovery).
+- Seer: Long Vigil (50% longer reveal, 20% less range) or Passing Glance (35% faster recovery, 35% shorter reveal).
+- Kindler: Rich Fuel (12 bonus Glow, 10% more Lift cost) or Purify (12 Glow from a Dark Seed per 10 seconds, ordinary bonus reduced to 3).
+
+These are implementation values, not a tested balance claim. Rest and encounter menus show consequences before purchase.
+
+### Authored flight challenges
+
+- Fuel-pocket approaches deliberately order a descent/climb from existing terrain cells and bind their cue to an actual existing fuel packet. No extra fuel-density increase.
+- Draft crossings use broad, floor-sided rooms and real local puffs, with existing terrain/prop clearance and bypass guards. They replace an existing puff where possible rather than adding screen-wide wind.
+- Cave passages use roof-and-floor sequences and reduce sight gradually by 15% (18% elite), only after a minimum 1.5-second warning. Visibility returns after leaving; permanent sight upgrades remain unchanged.
+- Terrain, location, map and Ascension vary the planned sequence. First-flight basics, tutorial layouts and bosses remain separate. Preview labels describe planned patterns; unsafe/unavailable placements are omitted.
+- During flight the existing event area gives concise cues without pausing play.
+- All three requested improvement tracks are implemented in source; no playtests, simulations or benchmarks were run.
+
+
+## Integrated playtest pass — 2026-11-13
+
+- Later decisions here supersede earlier hard-cooldown, black-core, skip-simulation and individual-site-icon entries.
+- Collector has one visible fuzzy vibrating boundary, without a filled aura. Successful delivery resets reach to 28 world units; it expands to upgraded maximum over recovery. It can fetch missed packets inside that smaller radius during recovery; direct player contact retains priority. Fixed 72-segment outline, no terrain reshaping.
+- Baseline light exposure increases by 50% within the cached softened inverse-square mask. Distant cutoff remains dark. Solid terrain and scene-prop edges gain brighter inward rims; backdrop silhouettes stay subdued.
+- Unprotected collision has a two-second pixel disintegration before retry. Protector deflections remain immediate. Glow exhaustion keeps its shorter last-spark fade.
+- Every pause/dialog resume ramps simulation speed from 0.1x to 1x over two real seconds. Controls stay usable and RESUMING shows the current percentage. Stalls retain bounded catch-up.
+- Power is icon-only, with a rising fill: Collector current/max radius, active powers cooldown, Protector shell recovery. Full charge produces a short pixel sparkle; reduced-motion disables it. The redundant Collector status text is removed.
+- Map node symbols are limited to Flight, Elite, Rest, Encounter and Boss. Events and shrines share Encounter. Ordinary exits use Flight. Location-specific art remains in previews rather than acting as a separate node alphabet.
+- Explicit TEST OVERRIDE unlocks Ascensions 1–6, three companion slots, skill prerequisites, Afterglow and artifact mounting, and grants 10,000 temporary Embers. Test training and equipment changes are available at safe inactive checkpoints. Test path swaps replace the other path. TEST runs are sticky and never bank permanent rewards; turning the preference off affects the next new game.
+- Imperfect-play comparisons use 35/55/75% prescribed body contacts, 150/250/350ms reaction delays, and 20/40% missed Power opportunities. These are sensitivity assumptions, not measured human play. Actual-engine route probes are separate and retain their controller limitations.
+- Applied provisional role tuning: Leveler 2.4s / 9s recovery; Swift 1.25s / 7.5s; Kindler +10 direct Glow, Rich Fuel +16 with 5% Lift penalty, Purify +8 ordinary Glow and existing 12 Glow Dark conversion per10s. Seer light offset is160 units forward. Strong main sight still diminishes Seer's value.
+- Rich Fuel's penalty applies only while Kindler is equipped. Storm Knot also speeds Swift recovery by10%, preserving value when draft resistance is capped.
+- Economy candidate D: clear40 +2 per depth capped at48; elite +12; intermap exit60; no extra final-boss completion currency. Main efficiency/sight prices40/80/140; Collector paths50/60; Bond slots80/300. Matched economy simulations condition on successful flights and synthetic pickup assumptions, not win rates.
+- The new shrine illustration, original pixel frames and local Pixelify Sans font replace the flat website-like menu treatment. Font license and art prompt are included with assets.
+- GitHub repository authorized by the user: https://github.com/MocanuMarius/orbix . Repository privacy must not be changed without explicit approval. No billing or paid-plan activation is authorized.
+
+- Follow-up difficulty relief: new runs start with75 Glow (was60); Refuge natural packets add6 route Glow (was2), Cavern adds4 (was0), and gauntlet stays1. Light Mote body-contact radius rises16→20. Packet density and obstacle geometry are unchanged; missed pickups have more budget, without refilling every checkpoint.

@@ -96,3 +96,45 @@ body[data-companion-role=collector] { --companion-glow: #b9dfa0; --companion-sha
   .companion-sheet .companion-role,
   .rest-companion-picker .companion-role { padding-inline: 8px; gap: 7px; }
 }
+
+/* The fleet shares one round body; six restrained palettes carry identity. */
+[data-role="collector"],[data-id="collector"]{--role-ink:#b9dfa0;--role-shade:#8db778}
+[data-role="protector"],[data-id="protector"]{--role-ink:#adcff3;--role-shade:#6e99c5}
+[data-role="leveler"],[data-id="leveler"]{--role-ink:#a7e8df;--role-shade:#64b8b7}
+[data-role="swift"],[data-id="swift"]{--role-ink:#f2d48e;--role-shade:#d2a45d}
+[data-role="seer"],[data-id="seer"]{--role-ink:#d3b1f2;--role-shade:#a57bd1}
+[data-role="kindler"],[data-id="kindler"]{--role-ink:#f0beca;--role-shade:#cd8fa1}
+body[data-companion-role="protector"]{--companion-glow:#adcff3;--companion-shade:#42648e}
+body[data-companion-role="leveler"]{--companion-glow:#a7e8df;--companion-shade:#327e82}
+body[data-companion-role="seer"]{--companion-glow:#d3b1f2;--companion-shade:#75509f}
+body[data-companion-role="kindler"]{--companion-glow:#f0beca;--companion-shade:#985d72}
+.companion-roles,.fleet-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.companion-role,.fleet-choice{position:relative;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:6px;min-height:83px;min-width:0;padding:10px 6px;border:1px solid #54634d;background:#17251e;color:var(--role-ink,#c5d5bb);text-align:center;touch-action:manipulation}
+.companion-role>.companion-portrait,.fleet-choice>.companion-portrait{display:grid;place-items:center;width:29px;height:29px;flex:none}
+.companion-role>span:not(.companion-portrait):not(.companion-lock),.fleet-choice>span:not(.companion-portrait){display:flex;flex-direction:column;align-items:center;gap:3px;text-align:center;min-width:0}
+.companion-role strong,.fleet-choice strong{font-size:10px;line-height:1.3;letter-spacing:0;color:var(--role-ink,#c5d5bb)}
+.companion-role small,.fleet-choice small{font-size:8px;line-height:1.4;color:#8b9f85;letter-spacing:0}
+.companion-role.selected,.fleet-choice.selected,.companion-role.fleet-owned,.fleet-choice.fleet-owned{background:#26382a;border-color:var(--role-ink,#bacba5);box-shadow:inset 0 0 0 1px #142219,2px 2px #07100b}
+.companion-role.selected .companion-portrait>svg,.fleet-choice.selected .companion-portrait>svg{filter:drop-shadow(0 0 3px var(--role-shade,#7e9c6a))}
+.fleet-dock{display:flex;justify-content:center;align-items:center;gap:10px;margin:10px 0;min-height:51px}
+.fleet-slot{display:grid;place-items:center;width:48px;height:48px;flex:none;border:1px solid #4a5c46;background:#13221a;color:var(--role-ink,#93a787);position:relative;touch-action:manipulation}
+.fleet-slot>.companion-portrait,.fleet-slot>svg{width:29px;height:29px;display:block}
+.fleet-slot.empty{border-style:dashed;color:#53684e;background:#101c16}
+.fleet-slot.selected{border-color:var(--role-ink,#b8c9a0);background:#23352a}
+.fleet-slot>small{position:absolute;bottom:2px;right:3px;font-size:7px;line-height:1.2;color:#879b7f}
+.fleet-orb{display:inline-block;width:26px;height:26px;flex:none;image-rendering:pixelated}
+.fleet-orb>svg{display:block;width:100%;height:100%;image-rendering:pixelated}
+.fleet-label{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:11px 0 7px;font-size:9px;line-height:1.4;letter-spacing:.6px;color:#9eb18e}
+.fleet-label>small{font-size:8px;color:#6e8767;letter-spacing:0}
+.light-main-orb:after{left:29%;top:25%;width:15%;height:8%;border-radius:0;background:#ffffe8;box-shadow:4px -3px #ffffe87a,-4px 5px #ffffe838;opacity:.8}
+.light-companion-orbit{animation-duration:13s}
+.light-companion-orbit:nth-child(3){animation-duration:15s;animation-delay:-5s;transform:rotate(120deg)}
+.light-companion-orbit:nth-child(4){animation-duration:17s;animation-delay:-11s;transform:rotate(240deg)}
+.light-companion-orb{width:35px;height:35px}
+.light-companion-orb>.companion-hero-art{filter:drop-shadow(0 0 6px var(--role-ink,var(--companion-glow)))}
+.companion-sheet .companion-role,.rest-companion-picker .companion-role{flex-direction:column;min-height:91px;gap:6px;padding:10px 5px}
+.companion-sheet .companion-role>span{align-items:center;text-align:center}
+.companion-sheet .companion-role .companion-portrait{width:30px;height:30px}
+@media(max-width:350px){.companion-roles,.fleet-grid{gap:6px}.companion-role,.fleet-choice{padding-inline:3px;min-height:78px}.companion-role strong,.fleet-choice strong{font-size:9px}.companion-role small,.fleet-choice small{font-size:8px}.fleet-dock{gap:8px}.fleet-slot{width:46px;height:46px}}
+@media(max-height:650px){.companion-role,.fleet-choice{min-height:72px;padding-top:7px;padding-bottom:7px}.companion-role>.companion-portrait,.fleet-choice>.companion-portrait{width:25px;height:25px}.light-companion-orb{width:27px;height:27px}}
+@media(prefers-reduced-motion:reduce){.light-companion-orbit:nth-child(2){transform:rotate(0deg)}.light-companion-orbit:nth-child(3){transform:rotate(120deg)}.light-companion-orbit:nth-child(4){transform:rotate(240deg)}}
