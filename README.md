@@ -2,12 +2,12 @@
 
 A one-handed, portrait-browser flight roguelite, formerly Emberwing. The branching seven-stop expedition and three-card builds remain intact. The active game uses original pixel scenery and neutral light wisps, with a grim, muted atmosphere inspired by Salt and Sanctuary. No reference-game art is copied.
 
-The player is a neutral light wisp. **Swift** provides Boost, **Anchor** provides a level glide, and **Gravity** gently attracts nearby beneficial light packets. Switch companions at a rest checkpoint, with that choice remaining editable through preparation for the next flight. Each flight and its retries keep their entry companion. Companions have distinct role colours: amber Swift, cyan Anchor and violet Gravity. Old Scout/Reveal selections migrate to Gravity without losing progress.
+The player is a neutral light wisp. **Swift** provides Boost, **Anchor** provides a level glide, and **Gravity** passively attracts nearby beneficial light packets throughout flight. Switch companions at a rest checkpoint, with that choice remaining editable through preparation for the next flight. Each flight and its retries keep their entry companion. Companions have distinct role colours: amber Swift, cyan Anchor and violet Gravity. Old Scout/Reveal selections migrate to Gravity without losing progress.
 
 ## Controls and collection
 
 - **Lift:** large lower-right button, or Space / Up. A pulse costs 6 Glow in a refuge, 8 in a cavern, or 7 in a gauntlet. Glide between pulses. A successful press immediately flares and stretches the wisp; there are no slow wing animations.
-- **Companion ability:** the prominent second right-side button, or B / Shift. Its label, icon and charge display match BOOST, LEVEL or GRAVITY. Hold it for half a second, or press Escape, to pause, including during recharge. Backgrounding/rotation also pauses. No ability protects against terrain or screen edges.
+- **Companion tool:** Swift's BOOST and Anchor's LEVEL use the second right-side button, or B / Shift. Hold an active button for half a second to pause, including during recharge. Gravity needs no activation: its place in the dock is a noninteractive GRAVITY / PASSIVE indicator. Use MENU or Escape to pause. Backgrounding/rotation also pauses. No companion protects against ordinary terrain or screen edges.
 - **MENU:** a gear button at the top opens the game wheel. It pauses a live flight and contains tuning, companions, permanent upgrades, Tutorial and sound. In flight, tuning is view-only; editing and companion changes follow the existing rest preparation rules. The wheel's Resume action returns to flying.
 - **Draft puffs:** occasional, world-anchored patches of moving air replace the global gust cycle. A puff gathers locally, pushes briefly, then fades; it never affects the whole screen or repeats on a short timer. Force applies only inside its visible elliptical footprint and softens at the edges, so flying above or below avoids it. Puffs occupy wider recovery areas rather than tight chokes, with clear opening and exit approaches. Base peak force is 65/85/105 by terrain, capped at 140 after modifiers; the tutorial has one gentler puff. Boost suppresses 72% of local draft force and Steady Light suppresses 55%. Draft Feeder earns its recharge only while inside an active puff. Briefings identify occasional PUFFS rather than global storm severity.
 - **Direct pickup:** touch a cache with the player wisp to restore fuel immediately and earn pickup embers, secured when the level is cleared. The precise 16-unit pickup radius is independent of the carrier. Reservations never block player contact.
@@ -23,21 +23,23 @@ Later passages also contain sparse dark packets in optional edge niches, separat
 
 ## Light and progression
 
-Companion abilities have separate tactical uses, with duration and recharge modified by the existing ability upgrades and tuning:
+Companion tools have separate tactical uses. Upgrades affect active duration/recharge or the passive Gravity field and collector recovery:
 
 | Companion | Action | Base duration / recharge | Use |
 | --- | --- | --- | --- |
 | Swift | BOOST | 0.9s / 9s | Travel 48% faster and resist local drafts. |
 | Anchor | LEVEL | 1.8s / 11s | Arrest vertical drift and cancel gravity briefly; local drafts still nudge. Pressing Lift cancels the hold immediately. |
-| Gravity | GRAVITY | 3s / 12s | Gently attract nearby beneficial light packets, with inverse-square pull. Direct contact or carrier delivery still collects them. |
+| Gravity | GRAVITY | Passive / no recharge | Always attract nearby beneficial light packets during flight. Direct contact or carrier delivery still collects them. |
 
 The base sight radius remains 175, with Inner Glow retaining its permanent sight upgrades. The active Reveal ability has been replaced by Gravity. Hungry Wisp, Golden Wake, recharge powers and Shatter Wake respond to any selected active ability, preserving build choices across companions.
 
 Companions have distinct original pixel bodies and role colours across flight, Home, rest and briefings. Swift is an amber winged crescent, Anchor a cyan squat bell, and Gravity a violet spiral. The optional shared tint selector has been removed so the three remain visually distinct. The main wisp stays circular and white.
 
-Gravity starts with a 120-unit field, expanded by existing collection-reach modifiers up to a 220-unit cap. Within that field, acceleration follows `G × pull strength / distance²`, softened below 24 units and capped near the centre. Doubling distance quarters acceleration outside that softened/capped region. Drag and a low speed limit keep movement gentle. Packets remain physical objects: Gravity grants no rewards, makes no reservations, ignores dark or already-owned packets, and cannot pull them through terrain. Contact and delivery keep their existing one-time reward rules.
+Gravity starts with a 120-unit field, expanded by existing collection-reach modifiers up to a 220-unit cap. Its requested stronger baseline raises the force constant from 18,000 to 27,000 and near-field acceleration cap from 24 to 36; the movement-speed limit rises from 18 to 24. The field works continuously while flying. Acceleration follows `G × pull strength / distance²`, softened below 24 units and capped near the centre. Doubling distance quarters acceleration outside that softened/capped region. Drag and the low speed limit keep movement restrained. Gravity grants no rewards, makes no reservations, ignores dark or already-owned packets, and cannot pull them through terrain. Contact and delivery keep their existing one-time reward rules.
 
-Collector tuning adds 12% reach and 8% Gravity pull per point; the existing Ability tuning changes duration and recharge. **Gravitic Bond** is a three-rank permanent upgrade, strengthening Gravity pull by 15% per rank. Pull strength remains bounded. These are initial feature values awaiting the deferred balance pass.
+Collector tuning adds 12% reach and 8% Gravity pull per point. For Gravity, the Ability axis becomes **Recovery**, adding 5% field strength and shortening collector rest by 4% per point. Quickening improves its collector recovery and Lasting Bond strengthens its field; active companions retain their duration/recharge effects. **Gravitic Bond** remains a three-rank permanent upgrade, strengthening Gravity pull by 15% per rank. Combined pull remains bounded. These are feature values, with checks, tests and balance evaluation deferred.
+
+Gravity also preserves companion-power synergies automatically: Hungry Wisp expands fetching, Golden Wake doubles pickup score, and Shatter Wake affects only designated soft thorns. Kindled Spirit and Draft Feeder shorten collector recovery instead of an absent active-tool cooldown. Gravity routes replace activation-count objectives with the same count of collected light packets. No tap or fabricated activation is required.
 
 At a support/rest stop, choose among the three companions without spending currency or consuming the stop's recovery/event choice. The rest preparation window stays open through a following power draft, map and briefing, until flight begins. Switching changes only the active companion and its ability; it does not refill fuel, lives or reserve, grant points, or alter cards. Home selection during an active run still sets the next expedition's preference. Retry and interrupted-attempt snapshots preserve the entry companion.
 
@@ -94,11 +96,11 @@ Each normal ascension starts with a three-point tuning budget and a balanced all
 | Speed | 3% faster forward travel |
 | Lift | 6% more calm-air rise distance |
 | Collector | 12% larger fetch/Gravity radius; Gravity also gains 8% pull strength |
-| Boost | 5% longer burst and 4% shorter recharge |
+| Ability / Recovery | Active tools: 5% longer effect and 4% shorter recharge. Gravity: 5% stronger pull and 4% shorter collector rest. |
 
 Flight tuning is accessed through the top MENU wheel rather than controls embedded in the map, rest or briefing page. A badge on the gear highlights unspent points when editing is available. The tuning panel shows combined effects with equipped powers and permanent upgrades. Modifiers retain explicit bounds; the Lift bonus changes impulse by a square-root factor to match the stated rise-distance bonus. Tuning points are an ascension build budget, not a new collectible currency. Repeated rest visits cannot grant duplicate points. Numeric balance remains provisional until the feature backlog is ready for tuning.
 
-The selected ability keeps its name visible through recharge, with separate ready/active/countdown feedback and a charge ring. Its larger, brighter lower-right control stays usable for hold-to-pause while recharging. Flight still has exactly two controls.
+Active tools keep their name visible through recharge, with separate ready/active/countdown feedback and a charge ring. Their lower-right control stays usable for hold-to-pause while recharging. Gravity instead shows an always-on passive indicator. There are at most two flight actions, with MENU available for pausing.
 
 ## Afterglow and learning
 
@@ -142,7 +144,7 @@ npm test
 
 The renderer draws at 260px, raised modestly from 195px, and uses nearest-neighbor scaling. Finer original sprites preserve the large player's silhouette, companion light footprint and world-space range circles. Its cache is bounded; it never changes game state. The active game loads no PixiJS, Three.js, photographic terrain maps or painted phoenix sprites. Earlier rendering prototypes and diagnostic pages remain in the source for reference, but the production entry point does not import them.
 
-Power drafts distinguish automatic expedition-long powers from light packets. Cards show a trigger, benefit and exact tradeoff; equipped powers can be tapped at checkpoints for optional details. Inspection never equips or replaces a card. In flight, light packets explicitly show restored Glow or FULL; energy and Boost effects name the resource they change. Flight still has only Lift and the selected companion ability.
+Power drafts distinguish automatic expedition-long powers from light packets. Cards show a trigger, benefit and exact tradeoff; equipped powers can be tapped at checkpoints for optional details. Inspection never equips or replaces a card. In flight, light packets explicitly show restored Glow or FULL; energy and Boost effects name the resource they change. Flight has at most two actions; Gravity works automatically.
 
 Earlier tests cover engine and campaign rules; their easy-flight success targets predate the difficulty changes. Historical focused simulations compare the previous build and sparse placement with matched reserves and bounded local controllers; they do not represent current wind tuning or human success rates. Per the latest user instruction, further simulations, broad testing and balance fine-tuning are deferred until the feature backlog is addressed.
 

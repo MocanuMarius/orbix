@@ -15,17 +15,17 @@ export const TERRAINS = Object.freeze({
 
 const card = (id, name, tag, description, detail, color, icon) => ({ id, name, tag, description, detail, color, icon });
 export const CARDS = Object.freeze({
-  'hungry-wisp': card('hungry-wisp', 'Hungry Wisp', 'Wisp', 'Using your companion ability sends it searching farther.', 'Your companion searches 60% farther for the closest light packet while any companion ability is active, then fetches it and returns. Pair with Kindled Spirit to keep your ability ready.', '#8ce5c4', '✧'),
-  'kindled-spirit': card('kindled-spirit', 'Kindled Spirit', 'Wisp', 'Every three collected light packets quicken your next ability.', 'Every three natural light packets collected reduce the ability cooldown by one second. Bonus rewards never trigger this again.', '#f8c778', '✦'),
-  'golden-wake': card('golden-wake', 'Golden Wake', 'Wisp', 'Collecting while your ability is active doubles pickup score.', 'Light packets collected during any active ability grant +100% score. Higher flight score contributes to the capped clear bonus; pickup ember currency is not directly multiplied.', '#ffdc81', '◈'),
-  'storm-feeder': card('storm-feeder', 'Draft Feeder', 'Flame', 'Cross a local draft puff to quicken your ability.', 'Ability cooldown is 4% shorter everywhere. While inside a visible draft puff, recover another second of cooldown once each second.', '#b3c6ff', 'ϟ'),
+  'hungry-wisp': card('hungry-wisp', 'Hungry Wisp', 'Wisp', 'Using your companion ability sends it searching farther.', 'Your companion searches 60% farther for the closest light packet while an active ability works, or always with passive Gravity, then fetches it and returns. Pair with Kindled Spirit to keep your ability ready.', '#8ce5c4', '✧'),
+  'kindled-spirit': card('kindled-spirit', 'Kindled Spirit', 'Wisp', 'Every three collected light packets quicken your next ability.', 'Every three natural light packets collected reduce ability cooldown by one second, or collector recovery with Gravity. Bonus rewards never trigger this again.', '#f8c778', '✦'),
+  'golden-wake': card('golden-wake', 'Golden Wake', 'Wisp', 'Collecting while your ability is active doubles pickup score.', 'Light packets collected during an active ability, or always with Gravity, grant +100% score. Higher flight score contributes to the capped clear bonus; pickup ember currency is not directly multiplied.', '#ffdc81', '◈'),
+  'storm-feeder': card('storm-feeder', 'Draft Feeder', 'Flame', 'Cross a local draft puff to quicken your ability.', 'Ability cooldown is 4% shorter everywhere; with Gravity this shortens collector recovery. Inside a visible draft puff, recover another second of cooldown or Gravity collector rest once each second.', '#b3c6ff', 'ϟ'),
   'soft-descent': card('soft-descent', 'Soft Descent', 'Drift', 'Fall gently and guide smaller lift pulses.', 'Gravity is 10% lighter and lift pulses are 6% gentler. A steady choice for precise passages.', '#a5dce9', '⌄'),
   'high-wing': card('high-wing', 'Rising Spirit', 'Drift', 'Climb higher and travel faster.', 'Lift pulses are 10% stronger and travel is 5% faster. Favor deliberate taps and high light packet trails.', '#e9b7ff', '⌃'),
   tailwind: card('tailwind', 'Tailwind', 'Drift', 'Fly faster for a richer ember trail.', 'Travel is 8% faster and earned ember rewards are 12% greater. The wisp needs quicker decisions.', '#facb9b', '»'),
-  'ash-ward': card('ash-ward', 'Ash Reserve', 'Ash', 'Natural light packets carry more Glow.', 'Natural light packets restore 4 more Glow, while your ability recharges 12% more slowly. Bonus motes receive no extra fuel.', '#d4c5ec', '◇'),
+  'ash-ward': card('ash-ward', 'Ash Reserve', 'Ash', 'Natural light packets carry more Glow.', 'Natural light packets restore 4 more Glow, while your ability recharges 12% more slowly, or your Gravity collector recovers 12% more slowly. Bonus motes receive no extra fuel.', '#d4c5ec', '◇'),
   'glass-phoenix': card('glass-phoenix', 'Restless Light', 'Ash', 'Richer rewards. Stronger local drift.', 'Earn 25% more pickup embers, while local draft force is 20% stronger. Puffs only push while you are inside them; you can fly around them.', '#a9e7fa', '♢'),
   'steady-flame': card('steady-flame', 'Steady Light', 'Drift', 'Cross a local draft with less drift.', 'Local draft force is 55% weaker and gravity is 3% lighter. Puffs only affect you inside their visible area.', '#d3d6f3', '≈'),
-  'fire-wake': card('fire-wake', 'Shatter Wake', 'Flame', 'Shatter soft thorns into a trail of bonus light motes.', 'Your ability lasts 8% longer. Each designated soft thorn shattered while any ability is active releases three collectible bonus motes.', '#ff9d77', '♨'),
+  'fire-wake': card('fire-wake', 'Shatter Wake', 'Flame', 'Shatter soft thorns into a trail of bonus light motes.', 'Active abilities last 8% longer; Gravity pull is 8% stronger. During an active ability, or always with Gravity, designated soft thorns shatter into three collectible bonus motes.', '#ff9d77', '♨'),
   'warm-heart': card('warm-heart', 'Warm Core', 'Ash', 'A steady cache route rekindles your core.', 'Collect four natural light packets to restore 12 Glow, once per flight. Bonus motes cannot retrigger it.', '#f2a6ba', '✦'),
 });
 
@@ -44,8 +44,8 @@ export const SKILLS = Object.freeze({
   'wisp-gravity': skill('wisp-gravity', 'Gravitic Bond', 'Wisp', 80, null, 'Gravity companion only: pull nearby good light packets 15% more strongly per rank. Packets still need to be collected.', 3),
   'wisp-recovery': skill('wisp-recovery', 'Wisp Recovery', 'Wisp', 90, null, 'Each rank shortens the wait after your wisp returns by 15% of the base cooldown.', 3),
   'wisp-bounty': skill('wisp-bounty', 'Wisp Bounty', 'Wisp', 160, 'wisp-reach', 'Earn 10% more embers from flight pickups.'),
-  'boost-focus': skill('boost-focus', 'Quickening', 'Boost', 80, null, 'Your selected companion ability recharges 10% sooner.'),
-  'boost-flare': skill('boost-flare', 'Lasting Bond', 'Boost', 160, 'boost-focus', 'Your selected companion ability lasts 15% longer.'),
+  'boost-focus': skill('boost-focus', 'Quickening', 'Boost', 80, null, 'Active abilities recharge 10% sooner. With Gravity, collector recovery is 10% shorter.'),
+  'boost-flare': skill('boost-flare', 'Lasting Bond', 'Boost', 160, 'boost-focus', 'Active abilities last 15% longer. With Gravity, pull strength is 15% greater.'),
   'afterglow-vessel': skill('afterglow-vessel', 'Ember Vessel', 'Afterglow', 70, null, 'Carry 15 more Afterglow per rank between flights and expeditions.', 3),
   'afterglow-retention': skill('afterglow-retention', 'Lasting Light', 'Afterglow', 80, 'afterglow-vessel', 'Retain 10 percentage points more surplus Glow per rank.', 2),
   'afterglow-anchor': skill('afterglow-anchor', 'Ash Anchor', 'Afterglow', 90, 'afterglow-vessel', 'Lose 10 percentage points less Afterglow when an expedition ends in failure.', 2),
@@ -220,9 +220,9 @@ export function getFlightTuningState(run) {
   const canEdit = !!run && budget > 0 && run.tuningRestReady === true && !run.attemptActive && !run.banked
     && ['starter', 'map', 'support', 'reward', 'briefing'].includes(run.phase);
   return { budget, spent, remaining: budget - spent, allocation, maxPerStat: FLIGHT_POINTS_TUNING.maxPerStat,
-    canEdit, axisLabels: { speed: 'Speed', lift: 'Lift height', collector: normalizeCompanionRole(run?.companionRole) === 'gravity' ? 'Gravity reach' : 'Collector', boost: 'Ability' },
-    axisBonuses: { collector: normalizeCompanionRole(run?.companionRole) === 'gravity' ? '+12% reach · +8% pull / point' : '+12% reach / point' },
-    modifiers: getModifiers(run?.cards || [], run?.skills || {}, allocation), lastGrant: run?.tuningLastGrant || null };
+    canEdit, axisLabels: { speed: 'Speed', lift: 'Lift height', collector: normalizeCompanionRole(run?.companionRole) === 'gravity' ? 'Gravity reach' : 'Collector', boost: normalizeCompanionRole(run?.companionRole) === 'gravity' ? 'Recovery' : 'Ability' },
+    axisBonuses: { collector: normalizeCompanionRole(run?.companionRole) === 'gravity' ? '+12% reach · +8% pull / point' : '+12% reach / point', boost: normalizeCompanionRole(run?.companionRole) === 'gravity' ? '+5% pull · −4% collector rest / point' : '+5% duration · −4% rest / point' },
+    modifiers: getModifiers(run?.cards || [], run?.skills || {}, allocation, run?.companionRole), lastGrant: run?.tuningLastGrant || null };
 }
 
 export function adjustFlightTuning(run, axis, delta) {
@@ -1147,7 +1147,7 @@ export function buyCheckpointSkill(state, skillId) {
   return true;
 }
 
-export function getModifiers(cardIds = [], skills = {}, flightTuning = {}) {
+export function getModifiers(cardIds = [], skills = {}, flightTuning = {}, role = 'swift') {
   const ids = new Set(Array.isArray(cardIds) ? cardIds.filter(id => Object.hasOwn(CARDS, id)) : []);
   const result = {
     gravity: 1, flap: 1, speed: 1, attract: 1 + 0.25 * skillRank(skills, 'wisp-reach'),
@@ -1184,5 +1184,9 @@ export function getModifiers(cardIds = [], skills = {}, flightTuning = {}) {
   result.attract = Math.min(2.5, result.attract * (1 + .12 * points.collector));
   result.boostDuration = Math.min(1.45, result.boostDuration * (1 + .05 * points.boost));
   result.boostCooldown = Math.max(.65, result.boostCooldown * (1 - .04 * points.boost));
+  if (normalizeCompanionRole(role) === 'gravity') {
+    result.wispCooldown = clamp(result.wispCooldown * result.boostCooldown, .4, 1.5);
+    result.gravityPull = clamp(result.gravityPull * result.boostDuration, 1, 2);
+  }
   return result;
 }

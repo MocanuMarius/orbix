@@ -6,3 +6,5 @@
 
 /* Gravity's collector tuning shows the capped packet field and pull strength. */
 body[data-companion-role=gravity] .tuning-row[data-tuning-axis=collector] [data-tuning-total]{color:#c4a5e0}body[data-companion-role=gravity] .tuning-row[data-tuning-axis=collector] .tuning-axis-copy p{color:#a28abb}
+
+body[data-companion-role=gravity] .tuning-row[data-tuning-axis=boost] .tuning-axis-copy p{color:#a28abb}body[data-companion-role=gravity] .tuning-row[data-tuning-axis=boost] [data-tuning-total]{color:#ccb3e3}

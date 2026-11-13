@@ -1,7 +1,7 @@
 import { getCompanionAbility, normalizeCompanionRole } from './companion-abilities.mjs';
 
-// One control, two gestures: tap for the companion ability and hold to pause.
-// Event handlers stay with the flight screen so this view never fires twice.
+// Active companions use tap/hold. Gravity occupies the same space as a passive
+// status indicator; it is never a control. The flight screen owns all gestures.
 const finite = (value, fallback = 0) => Number.isFinite(Number(value)) ? Number(value) : fallback;
 const clamp = (value, lo, hi) => Math.min(hi, Math.max(lo, value));
 const ICONS = {
@@ -12,6 +12,13 @@ const ICONS = {
 
 export function boostControlMarkup(role = 'swift') {
   const id = normalizeCompanionRole(role), ability = getCompanionAbility(id);
+  if (ability.passive || id === 'gravity') {
+    return `<div class="flight-control boost-control boost-control-v2 flight-passive-indicator" id="boost-btn" data-companion-role="${id}" data-boost-state="passive" data-passive="true" role="status" aria-live="polite" aria-atomic="true" aria-label="Gravity is passive. Nearby light packets are gently drawn closer.">
+      <svg class="boost-symbol" viewBox="0 0 24 24" aria-hidden="true" focusable="false">${ICONS.gravity}</svg>
+      <span id="boost-label" class="boost-name" aria-hidden="true">GRAVITY</span>
+      <span class="boost-status" aria-hidden="true">PASSIVE</span>
+    </div>`;
+  }
   return `<button type="button" class="flight-control boost-control boost-control-v2" id="boost-btn" data-companion-role="${id}" data-boost-state="ready" aria-label="${ability.label} ready. ${ability.description} Hold to pause.">
     <svg class="boost-charge-ring" viewBox="0 0 84 84" aria-hidden="true" focusable="false">
       <path class="boost-charge-track" d="M16 4H68L80 16V68L68 80H16L4 68V16Z"/>
@@ -28,6 +35,24 @@ export function updateBoostControl(button, state = {}) {
   const supplied = state.ability;
   const role = normalizeCompanionRole(supplied?.role || supplied?.id || button.dataset.companionRole);
   const ability = getCompanionAbility(role);
+  if (supplied?.passive || ability.passive || role === 'gravity') {
+    const mode = state.finished === true || state.alive === false ? 'ended'
+      : state.paused ? 'paused' : state.tutorialAwaitingLift ? 'waiting' : 'passive';
+    const status = mode === 'ended' ? 'ENDED' : mode === 'paused' ? 'PAUSED' : mode === 'waiting' ? 'LIFT FIRST' : 'PASSIVE';
+    const name = button.querySelector('#boost-label'), detail = button.querySelector('.boost-status');
+    if (name && name.textContent !== 'GRAVITY') name.textContent = 'GRAVITY';
+    if (detail && detail.textContent !== status) detail.textContent = status;
+    button.dataset.companionRole = role;
+    button.dataset.boostState = mode;
+    button.classList.toggle('boost-motion-reduced', state.reducedMotion === true);
+    const label = mode === 'ended' ? 'Gravity passive. This attempt has ended.'
+      : mode === 'paused' ? 'Gravity passive. Flight paused.'
+        : mode === 'waiting' ? 'Gravity is passive. Tap Lift to begin.'
+          : 'Gravity is passive. Nearby light packets are gently drawn closer. Use Menu to pause.';
+    if (button.getAttribute('aria-label') !== label) button.setAttribute('aria-label', label);
+    button.title = label;
+    return;
+  }
   const remaining = Math.max(0, finite(supplied?.cooldown, finite(state.boostCooldown)));
   const total = Math.max(.001, finite(supplied?.cooldownTotal, finite(state.boostCooldownTotal, ability.cooldown)));
   const activeTime = Math.max(0, finite(supplied?.remaining, finite(state.boostTime)));

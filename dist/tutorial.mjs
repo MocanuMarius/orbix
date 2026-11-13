@@ -125,9 +125,10 @@ export function getTutorialHint(engine) {
   const lesson = {
     swift: 'BOOST adds speed and resists local drafts. Rock and screen edges still end the attempt.',
     anchor: 'LEVEL holds your height briefly. Drafts still nudge you, and Lift ends Level immediately.',
-    gravity: 'GRAVITY gently pulls nearby good light packets. Fly close; you still need to touch a packet or let your companion bring it home.'
+    gravity: 'GRAVITY is always on. Fly close to light packets and let the field nudge them nearer; touch them or let your collector bring them home.'
   }[ability.id];
-  if (!engine.boosts) return hint('ability', `Try ${ability.label}`, lesson, 2);
+  if (ability.passive && engine.time < 4.5) return hint('passive-gravity', 'Gravity is always on', lesson, 2);
+  if (!ability.passive && !engine.boosts) return hint('ability', `Try ${ability.label}`, lesson, 2);
   if (gust.warning || gust.active) return hint('wind', gust.warning ? 'Choose a way past' : 'Inside the draft puff',
     ability.id === 'swift'
       ? 'This puff nudges only inside it. Fly above or below, or BOOST across with room to spare.'
@@ -136,6 +137,7 @@ export function getTutorialHint(engine) {
         : 'GRAVITY pulls light packets, not your body. Dark packets are ignored; fly above or below the draft puff.', 3);
   if (!state.finishedWind) return hint('watch-wind', 'Find the little draft puff',
     'One gentle puff waits along this route. Its curls show where it pushes; you can fly around it.', 3);
+  if (ability.passive) return hint('ready', 'Let the field help', 'Gravity keeps working without a button. Glide, collect and reach the waylight; use MENU to pause.', 4);
   const recharge = clamp(engine.cooldown, 0, 99);
   return hint('ready', 'You choose the rhythm', recharge > .1
     ? `Glide, collect and give ${ability.label} time to recover. Reach the waylight to complete practice.`

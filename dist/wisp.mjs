@@ -93,7 +93,8 @@ export class WispCompanion {
       if (!target || target.harmful || target.kind === 'dark' || target.collected || target.x - engine.distance < -100) {
         this.releaseTarget(); this.phase = 'returning';
       } else if (this.moveTo(target.x - engine.distance, target.y, WISP_TUNING.outboundSpeed, dt)) {
-        target.carried = true; target.boostedPickup = (engine.abilityTime ?? engine.boostTime) > 0;
+        target.carried = true;
+        target.boostedPickup = engine.isCompanionWorking?.() ?? ((engine.abilityTime ?? engine.boostTime) > 0);
         this.cargo = target; this.target = null; this.phase = 'returning';
       }
     } else if (this.phase === 'returning') {
@@ -103,13 +104,14 @@ export class WispCompanion {
         this.cargo.carried = false; this.cargo.attracted = false; this.cargo = null;
       }
       if (this.moveTo(orbit.x, orbit.y, WISP_TUNING.returnSpeed, dt)) {
+        // Delivery-triggered cards can shorten this trip's recovery immediately.
+        this.cooldownMax = WISP_TUNING.cooldown * clamp(Number(engine.mod.wispCooldown) || 1, .4, 1.5);
+        this.cooldown = this.cooldownMax; this.phase = 'cooldown';
         if (this.cargo) {
           const delivered = this.cargo; this.cargo = null; delivered.carried = false;
           delivered.deliveredByWisp = true;
           engine.collect(delivered);
         }
-        this.cooldownMax = WISP_TUNING.cooldown * clamp(Number(engine.mod.wispCooldown) || 1, .4, 1.5);
-        this.cooldown = this.cooldownMax; this.phase = 'cooldown';
       }
     }
     if (this.cargo) {

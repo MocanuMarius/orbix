@@ -661,7 +661,8 @@ export class WispFlight {
     this.challengeIndex = Math.floor(seededRandom(`${this.seed}:challenge`)() * 3);
     this.challengeId = options.challengeId || options.node?.challengeId || ['wisps', 'clean', 'boosts'][this.challengeIndex];
     this.challengeTarget = Number(options.challengeTarget ?? options.node?.challengeTarget) || (this.challengeId === 'wisps' ? 7 : this.challengeId === 'boosts' ? 2 : 0);
-    this.challengeText = this.challengeId === 'wisps' ? `Gather ${this.challengeTarget} sparks`
+    this.challengeText = this.challengeId === 'wisps' || this.challengeId === 'boosts' && this.companionAbility.passive
+      ? `Collect ${this.challengeTarget} light packets`
       : this.challengeId === 'boosts' ? `Use your ability ${this.challengeTarget} times` : 'Finish without a hit';
     this.stars = Array.from({ length: 45 }, () => ({ x: this.cosmeticRng() * 390,
       y: this.cosmeticRng() * this.height * .57, size: .4 + this.cosmeticRng() * 1.1,
@@ -782,6 +783,7 @@ export class WispFlight {
   }
 
   activateAbility() {
+    if (this.companionAbility.passive) return false;
     if (!this.running || this.paused || this.finished || !this.alive || this.cooldown > .001 || this.abilityTime > 0) return false;
     if (this.tutorialAwaitingLift) return false;
     this.abilityTime = this.abilityDuration;
@@ -872,9 +874,14 @@ export class WispFlight {
   }
 
   getAbilityState() {
+    if (this.companionAbility.passive) return {
+      id: this.companionRole, role: this.companionRole, action: this.companionAbility.action,
+      label: this.companionAbility.label, passive: true, active: this.isCompanionWorking(),
+      remaining: 0, duration: 0, cooldown: 0, cooldownTotal: 0, ready: false, progress: 1 };
     const active = this.abilityTime > 0;
     return { id: this.companionRole, role: this.companionRole,
       action: this.companionAbility.action, label: this.companionAbility.label,
+      passive: false,
       active, remaining: this.abilityTime, duration: this.abilityDuration,
       cooldown: this.cooldown, cooldownTotal: this.abilityCooldown,
       ready: this.alive && !this.finished && !this.destroyed && !this.tutorialAwaitingLift
@@ -896,14 +903,29 @@ export class WispFlight {
   }
 
   getGravityState() {
-    const active = this.companionRole === 'gravity' && this.abilityTime > 0;
-    const edge = active ? clamp(Math.min((this.time - this.abilityStartedAt) / .18,
-      this.abilityTime / .3), 0, 1) : 0;
+    const active = this.companionRole === 'gravity' && this.isCompanionWorking();
     return { active, radius: gravityRadius(this.mod.attract), maxRadius: GRAVITY_TUNING.maxRange,
-      strength: edge * edge * (3 - 2 * edge),
+      passive: true, strength: active ? 1 : 0,
       pullMultiplier: clamp(Number(this.mod.gravityPull) || 1, 1, 2),
       x: this.player.x, y: this.player.y, worldX: this.distance + this.player.x,
-      remaining: active ? this.abilityTime : 0, duration: this.abilityDuration };
+      remaining: 0, duration: 0 };
+  }
+
+  isCompanionWorking() {
+    return this.companionAbility.passive
+      ? this.running && this.alive && !this.paused && !this.finished && !this.destroyed && !this.tutorialAwaitingLift
+      : this.abilityTime > 0;
+  }
+
+  quickenCompanionRecovery(source) {
+    if (this.companionAbility.passive) {
+      const before = this.wisp.cooldown;
+      this.wisp.cooldown = Math.max(0, before - 1);
+      this.setEvent(`${source} · Collector recovery${before > 0 ? ' −1s' : ' ready'}`);
+    } else {
+      this.cooldown = Math.max(0, this.cooldown - 1);
+      this.setEvent(`${source} · ${this.companionAbility.label} −1s`);
+    }
   }
 
   packetPositionClear(worldX, y) {
@@ -943,7 +965,7 @@ export class WispFlight {
     this.boostTime = this.companionRole === 'swift' ? this.abilityTime : 0;
     this.levelRecovery = Math.max(0, this.levelRecovery - dt);
     if (this.companionRole === 'anchor' && oldAbility > 0 && this.abilityTime === 0) this.levelRecovery = .25;
-    const wispTarget = this.abilityTime > 0 && this.cards.has('hungry-wisp') ? 1 : 0;
+    const wispTarget = this.isCompanionWorking() && this.cards.has('hungry-wisp') ? 1 : 0;
     this.wispBoost += clamp(wispTarget - this.wispBoost, -dt * 5, dt * 5);
     this.cooldown = Math.max(0, this.cooldown - dt);
     this.exitProtection = Math.max(0, this.exitProtection - dt);
@@ -975,8 +997,7 @@ export class WispFlight {
         this.stormFeedClock += dt;
         if (this.stormFeedClock >= 1) {
           this.stormFeedClock -= 1;
-          this.cooldown = Math.max(0, this.cooldown - 1);
-          this.setEvent(`Draft Feeder · ${this.companionAbility.label} −1s`);
+          this.quickenCompanionRecovery('Draft Feeder');
           this.burst(this.player.x, this.player.y, 4, '#88e5ef');
         }
       }
@@ -1000,7 +1021,7 @@ export class WispFlight {
       const polygons = obstaclePolygons(obstacle, this.time);
       const colliding = polygons.some(polygon => circleHitsPolygon(this.distance + this.player.x, this.player.y, this.player.radius, polygon));
       if (colliding) {
-        if (this.abilityTime > 0 && obstacle.soft && this.cards.has('fire-wake')) {
+        if (this.isCompanionWorking() && obstacle.soft && this.cards.has('fire-wake')) {
           obstacle.destroyed = true; this.destroyedThorns++;
           for (let i = 0; i < 3; i++) {
             this.layout.embers.push({ id: `thorn:${obstacle.id}:${i}`, kind: 'light', generated: true,
@@ -1107,13 +1128,12 @@ export class WispFlight {
     this.baseEmbers++;
     const value = ember.value === 3 ? 3 : 1;
     this.bonusEmbers += value - 1;
-    this.score += value * ((ember.boostedPickup ?? this.abilityTime > 0) && this.cards.has('golden-wake') ? 20 : 10);
+    this.score += value * ((ember.boostedPickup ?? this.isCompanionWorking()) && this.cards.has('golden-wake') ? 20 : 10);
     this.burst(this.player.x - 9, this.player.y + 7, value === 3 ? 14 : 5, value === 3 ? '#fff2c4' : '#ffe4a2');
     if (value === 3) this.setEvent(restored > 0 ? `Glow cache · +${restored} Glow` : 'Glow full');
     else if (restored > 0 && this.flame <= 45) this.setEvent(`Glow rekindled · +${restored}`);
     if (this.cards.has('kindled-spirit') && this.baseEmbers % 3 === 0) {
-      this.cooldown = Math.max(0, this.cooldown - 1);
-      this.setEvent(`Kindled Spirit · ${this.companionAbility.label} −1s`);
+      this.quickenCompanionRecovery('Kindled Spirit');
     }
     if ((this.mod.warmCore || this.cards.has('warm-heart')) && this.baseEmbers >= (FLAME_TUNING.warmCorePickups || 4) && !this.warmCoreUsed) {
       this.warmCoreUsed = true;
@@ -1129,7 +1149,7 @@ export class WispFlight {
 
   challengeComplete() {
     return this.challengeId === 'wisps' ? this.baseEmbers >= this.challengeTarget
-      : this.challengeId === 'boosts' ? this.boosts >= this.challengeTarget : this.collisions === 0;
+      : this.challengeId === 'boosts' ? (this.companionAbility.passive ? this.baseEmbers : this.boosts) >= this.challengeTarget : this.collisions === 0;
   }
 
   getState() {

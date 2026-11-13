@@ -573,10 +573,10 @@ export class WispFlightView {
   }
 
   drawCompanionAbility(e, t, playerX, playerY, carrier, ability) {
-    if (!ability.active) return;
     const c = this.bufferContext, role = normalizeCompanionRole(ability.role || ability.id);
-    const duration = Math.max(.1, Number(ability.duration) || 1);
-    const progress = clamp(1 - (Number(ability.remaining) || 0) / duration, 0, 1);
+    if (role !== 'gravity' && !ability.active) return;
+    const progress = role === 'swift'
+      ? clamp(1 - (Number(ability.remaining) || 0) / Math.max(.1, Number(ability.duration) || 1), 0, 1) : 0;
     const light = this.lightIntensity || 1;
     c.save();
     if (role === 'swift') {

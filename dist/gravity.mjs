@@ -1,7 +1,7 @@
 // Gentle packet motion only. This field never collects or reserves an item.
 const clamp = (n, lo, hi) => Math.min(hi, Math.max(lo, n));
 export const GRAVITY_TUNING = Object.freeze({ range: 120, maxRange: 220,
-  G: 18000, softening: 24, maxAcceleration: 24, maxSpeed: 18, drag: 3.5 });
+  G: 27000, softening: 24, maxAcceleration: 36, maxSpeed: 24, drag: 3.5 });
 
 export function gravityRadius(attract = 1) {
   return Math.min(GRAVITY_TUNING.maxRange, GRAVITY_TUNING.range * clamp(Number(attract) || 1, .5, 4));

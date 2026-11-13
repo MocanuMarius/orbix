@@ -237,6 +237,16 @@ The user proposed replacing the dotted collector circle with a glowing field tha
 - Update location signature copy and map landmark hints while keeping location IDs, terrain, map routes and rewards intact. Keep the main wisp, companions, abilities, UI, progression and resource rules unchanged.
 - Publish this feature batch for feedback. Per the latest user instruction, skip checks, tests, simulations and balance work until the backlog is clear.
 
+## Passive Gravity and stronger base attraction
+
+- Gravity is always-on while equipped and flying. Remove the activation requirement, active duration and cooldown. Swift and Anchor keep their active tools. Gravity's dock slot becomes a noninteractive PASSIVE indicator; MENU remains available to pause.
+- Increase the requested baseline attraction by 50%: force constant 18,000 → 27,000 and near-field acceleration cap 24 → 36; raise packet speed cap 18 → 24. Keep radius, inverse-square falloff, softening, drag, terrain obstruction and dark-packet exclusions intact. This is a requested feature adjustment, with no balance evaluation.
+- Keep upgrades useful: Gravity's Ability tuning becomes Recovery, with 5% pull strength and 4% shorter collector rest per point. Map duration modifiers into field strength and recharge modifiers into collector recovery. Collector and Gravitic Bond bonuses remain, with combined strength bounded.
+- Treat passive Gravity as working automatically for Hungry Wisp, Golden Wake and designated-soft-thorn Shatter Wake effects. Kindled Spirit and Draft Feeder reduce collector recovery. Preserve ordinary terrain lethality and one-time pickup rewards.
+- Passive Gravity cannot earn activation counts. For its activation-based route objective, display and require the same number of collected natural light packets instead. Keep other companions' objectives unchanged.
+- Update Home, rest choices, previews, tuning, power explanations and tutorial to say passive/always on. Remove timers or prompts to press Gravity; do not add an extra active tool. Preserve colours, rest swaps, scene props, map clarity, reserve rules and saved progress.
+- Publish the feedback batch without checks, tests, simulations or balance work while the backlog remains open.
+
 ## Rendering direction proposed after the first review
 
 Use pre-rendered or cached 2D art for scenery, props and character animation, with dynamic light from the player and carrier wisps. Keep the pixel grid and the gameplay light-radius upgrades.
