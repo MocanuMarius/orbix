@@ -1,25 +1,25 @@
-import {FlightProjection,drawFlightProjection} from './flight-projection.mjs?v=earned-start-1';
-import {drawGlowSense} from './glow-sense.mjs?v=earned-start-1';
-import {formatGlow} from './vitality.mjs?v=earned-start-1';
-import {installRiskChains} from './risk-chains.mjs?v=earned-start-1';
-import {EXTRA_COURSES} from './world-expansion.mjs?v=earned-start-1';
+import {FlightProjection,drawFlightProjection} from './flight-projection.mjs?v=pixel-landscape-1';
+import {drawGlowSense} from './glow-sense.mjs?v=pixel-landscape-1';
+import {formatGlow} from './vitality.mjs?v=pixel-landscape-1';
+import {installRiskChains} from './risk-chains.mjs?v=pixel-landscape-1';
+import {EXTRA_COURSES} from './world-expansion.mjs?v=pixel-landscape-1';
 /* Emberwing's self-contained canvas flight simulation and renderer. */
-import { FLAME_TUNING, LIGHT_PACKET_TUNING } from './vitality.mjs?v=earned-start-1';
-import { flightEndDistance } from './flight-end.mjs?v=earned-start-1';
-import { WispCompanion, wispHome } from './wisp.mjs?v=earned-start-1';
-import { getAscentInfo } from './ascent.mjs?v=earned-start-1';
-import { LEVEL_LENGTH, getLevelLengthScale } from './level-length.mjs?v=earned-start-1';
-import { resolveLevelIdentity } from './level-catalog.mjs?v=earned-start-1';
-import { DraftField, DRAFT_TUNING } from './drafts.mjs?v=earned-start-1';
-import { normalizeCompanionRole, normalizeCompanionFleet, getCompanionAbility } from './companion-abilities.mjs?v=earned-start-1';
-import { populateSceneProps, scenePropPolygons } from './scene-props.mjs?v=earned-start-1';
-import { pickupKind, getPickupSpec, pickupContactRadius, isFuelPickup, canCompanionCollect } from './pickups.mjs?v=earned-start-1';
-import { drawPickup } from './pickup-art.mjs?v=earned-start-1';
-import { buildBossLayout, getBossState as bossState, drawBoss } from './boss.mjs?v=earned-start-1';
-import { getAuthoredChallenge, finalizeFlightChallenges, installAuthoredDraftCrossings, FlightChallengeDirector } from './flight-challenges.mjs?v=earned-start-1';
+import { FLAME_TUNING, LIGHT_PACKET_TUNING } from './vitality.mjs?v=pixel-landscape-1';
+import { flightEndDistance } from './flight-end.mjs?v=pixel-landscape-1';
+import { WispCompanion, wispHome } from './wisp.mjs?v=pixel-landscape-1';
+import { getAscentInfo } from './ascent.mjs?v=pixel-landscape-1';
+import { LEVEL_LENGTH, getLevelLengthScale } from './level-length.mjs?v=pixel-landscape-1';
+import { resolveLevelIdentity } from './level-catalog.mjs?v=pixel-landscape-1';
+import { DraftField, DRAFT_TUNING } from './drafts.mjs?v=pixel-landscape-1';
+import { normalizeCompanionRole, normalizeCompanionFleet, getCompanionAbility } from './companion-abilities.mjs?v=pixel-landscape-1';
+import { populateSceneProps, scenePropPolygons } from './scene-props.mjs?v=pixel-landscape-1';
+import { pickupKind, getPickupSpec, pickupContactRadius, isFuelPickup, canCompanionCollect } from './pickups.mjs?v=pixel-landscape-1';
+import { drawPickup } from './pickup-art.mjs?v=pixel-landscape-1';
+import { buildBossLayout, getBossState as bossState, drawBoss } from './boss.mjs?v=pixel-landscape-1';
+import { getAuthoredChallenge, finalizeFlightChallenges, installAuthoredDraftCrossings, FlightChallengeDirector } from './flight-challenges.mjs?v=pixel-landscape-1';
 import { createTutorialState, buildTutorialLayout, recordTutorialPickup,
-  updateTutorial, updateTutorialCompanion, getTutorialHint } from './tutorial.mjs?v=earned-start-1';
-export { FLAME_TUNING } from './vitality.mjs?v=earned-start-1';
+  updateTutorial, updateTutorialCompanion, getTutorialHint } from './tutorial.mjs?v=pixel-landscape-1';
+export { FLAME_TUNING } from './vitality.mjs?v=pixel-landscape-1';
 const TAU = Math.PI * 2;
 const STEP = 1 / 60;
 const COMPANION_ORBIT_SPEED = {protector:1.3,leveler:1.7,swift:3.4,seer:.8,kindler:2.2};
@@ -29,7 +29,7 @@ const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
 const lerp = (a, b, t) => a + (b - a) * t;
 export const FLIGHT_TUNING = Object.freeze({ gravity: 300, flapImpulse: 205,
   forwardSpeed: 154, terminalFall: 245, pickupRadius: LIGHT_PACKET_TUNING.pickupRadius });
-export { DRAFT_TUNING } from './drafts.mjs?v=earned-start-1';
+export { DRAFT_TUNING } from './drafts.mjs?v=pixel-landscape-1';
 // Retain the public tuning name for consumers; wind now has no global cycle.
 export const WIND_TUNING = DRAFT_TUNING;
 
@@ -778,6 +778,7 @@ export class WispFlight {
     this.particles = []; this.trail = []; this.pickupEffects = []; this.emitClock = 0;
     this.absorptionEffects = []; this.absorptionSequence = 0;
     this.lightPenalties = []; this.lightDimming = 0; this.sightUntil = 0;
+    this.mainSeerStartedAt=-Infinity;this.mainSeerUntil=0;this.mainSeerReadyAt=0;
     this.pickupRevealStartedAt = -Infinity; this.pickupRevealHoldUntil = -Infinity; this.pickupRevealFrom = 0;
     this.wispBoost = 0;
     this.cosmeticRng = seededRandom(`${this.seed}:cosmetics`);
@@ -832,7 +833,7 @@ export class WispFlight {
     this.challengeText = this.challengeId === 'wisps' || this.challengeId === 'boosts' && !this.hasActiveCompanions
       ? `Collect ${this.challengeTarget} light packets`
       : this.challengeId === 'boosts' ? `Use your ability ${this.challengeTarget} times` : 'Finish without a hit';
-    this.stars = Array.from({ length: 45 }, () => ({ x: this.cosmeticRng() * 390,
+    this.stars = Array.from({ length: 45 }, () => ({ x: this.cosmeticRng() * this.width,
       y: this.cosmeticRng() * this.height * .57, size: .4 + this.cosmeticRng() * 1.1,
       phase: this.cosmeticRng() * TAU }));
     if (typeof window !== 'undefined') {
@@ -849,7 +850,7 @@ export class WispFlight {
 
   async initPixelView() {
     try {
-      const { WispFlightView } = await import('./wisp-renderer.mjs?v=earned-start-1');
+      const { WispFlightView } = await import('./wisp-renderer.mjs?v=pixel-landscape-1');
       if (this.destroyed) return;
       this.pixiView = new WispFlightView(this);
       const initialized = await this.pixiView.init();
@@ -903,10 +904,15 @@ export class WispFlight {
     const rect = this.canvas.getBoundingClientRect();
     const cssWidth = Math.max(1, rect.width || 390), cssHeight = Math.max(1, rect.height || 620);
     const pixelRatio = Math.min(2, typeof devicePixelRatio === 'number' ? devicePixelRatio : 1);
-    const height = clamp(390 * cssHeight / cssWidth, 430, 850);
+    // Keep the same short-screen vertical physics while revealing more world
+    // horizontally. The old fixed 390-unit width stretched every object on a
+    // landscape canvas and made collision rings disagree with visible shapes.
+    const landscape = cssWidth > cssHeight;
+    const height = landscape ? 430 : clamp(390 * cssHeight / cssWidth, 430, 850);
+    const width = landscape ? height * cssWidth / cssHeight : 390;
     const pixelWidth = Math.round(cssWidth * pixelRatio), pixelHeight = Math.round(cssHeight * pixelRatio);
     if (this._canvasSized && this.canvas.width === pixelWidth && this.canvas.height === pixelHeight
-      && this.height === height && this.pixelRatio === pixelRatio) return;
+      && this.width === width && this.height === height && this.pixelRatio === pixelRatio) return;
     // Mobile address bars can move by a few pixels while flying. Keep one
     // committed world/backing size through those height-only changes; the
     // canvas and pixel overlay both scale to their container in CSS. Compare
@@ -920,7 +926,9 @@ export class WispFlight {
     this._canvasSized = true;
     this._committedCssWidth = cssWidth; this._committedCssHeight = cssHeight;
     const oldHeight = this.height;
-    this.height = height;
+    this.width = width; this.height = height; this.landscape = landscape;
+    this._nearbyPacketsUntil = -1;
+    if(this.projection)this.projection.nextAt=-Infinity;
     this.pixelRatio = pixelRatio;
     this.canvas.width = pixelWidth;
     this.canvas.height = pixelHeight;
@@ -1191,7 +1199,7 @@ export class WispFlight {
         view.x=this.player.x+Math.cos(a)*40;view.y=y+Math.sin(a*1.13)*27;
         if(item.role==='protector'&&this.shield.charges<this.shield.layers){
           const progress=clamp(1-this.shield.recovery/this.shield.recoveryTotal,0,1);view.weldAngle=-Math.PI/2+progress*TAU;
-          const radius=(22.5+this.shield.charges*2)*this.width/240;view.x=this.player.x+Math.cos(view.weldAngle)*radius;view.y=y+Math.sin(view.weldAngle)*radius;
+          const radius=(22.5+this.shield.charges*2)*390/240;view.x=this.player.x+Math.cos(view.weldAngle)*radius;view.y=y+Math.sin(view.weldAngle)*radius;
         }
         if(item.role==='leveler'&&item.remaining>0){view.x=this.player.x+Math.sin(time*3)*12;view.y=y+32+Math.sin(time*5)*3;}
         if(item.role==='swift'&&item.remaining>0){view.x=this.player.x+36+Math.sin(time*13)*5;view.y=y+Math.sin(time*9)*15;}
@@ -1226,8 +1234,11 @@ export class WispFlight {
     const sightRemaining=Math.max(0,this.sightUntil-this.time),sightBonus=sightRemaining>0?50:0;
     const revealedRadius=baseRadius+sightBonus+(this.dream?.phase==='recording'&&this.mod.dreamSight?70:0),dyingFade=this.dying?Math.max(0,1-this.dyingProgress**1.7):1;
     const caveReduction=clamp(this.caveDimming||0,0,.18),caveScale=1-caveReduction;
-    const seer=this.fleet.find(item=>item.role==='seer'),remaining=seer?.remaining||0;
-    const onset=seer?clamp((this.time-seer.startedAt)/.25,0,1):0;
+    const seer=this.fleet.find(item=>item.role==='seer');
+    const traitRemaining=this.mod.mainSeer?Math.max(0,this.mainSeerUntil-this.time):0;
+    const remaining=Math.max(seer?.remaining||0,traitRemaining);
+    const startedAt=traitRemaining>0?this.mainSeerStartedAt:seer?.startedAt;
+    const onset=Number.isFinite(startedAt)?clamp((this.time-startedAt)/.25,0,1):0;
     const strength=remaining>0?Math.min(onset,clamp(remaining/.4,0,1)):0;
     const forwardLight={active:strength>0,x:this.player.x+160,y:this.player.y,
       radius:clamp(Number(this.mod.seerRadius)||230,120,420)*caveScale,intensity:strength*(1-reduction*.65)*dyingFade};
@@ -1242,6 +1253,14 @@ export class WispFlight {
       forwardLight,forward:forwardLight,stacks:this.lightPenalties.length,
       remaining:Math.max(0,...this.lightPenalties.map(until=>until-this.time)),
       maximumStacks:LIGHT_PACKET_TUNING.darkMaximumStacks,penaltyPerStack:LIGHT_PACKET_TUNING.darkPenalty};
+  }
+
+  triggerMainSight() {
+    if(!this.mod.mainSeer||this.time<this.mainSeerReadyAt)return false;
+    this.mainSeerStartedAt=this.time;
+    this.mainSeerUntil=this.time+clamp(Number(this.mod.seerDuration)||2,.5,8);
+    this.mainSeerReadyAt=this.time+clamp(Number(this.mod.seerRecovery)||8,2,30);
+    return true;
   }
 
   getGravityState() { return {active:false,radius:0,strength:0}; }
@@ -1590,7 +1609,7 @@ export class WispFlight {
       // Body-only hazard: never turn a stale carrier reservation into a hit.
       if (ember.deliveredByWisp) return;
       ember.collected = true;
-      if(this.hasCompanion('kindler')&&this.mod.kindlerPurify&&this.purifyCooldown<=0){
+      if((this.mod.mainKindler||this.hasCompanion('kindler'))&&this.mod.kindlerPurify&&this.purifyCooldown<=0){
         const restored=Math.min(Number(this.mod.purifyFuel)||12,this.maxFlame-this.flame);
         this.kindlerPulse=.9;this.flame+=restored;this.flameRestored+=restored;this.purifyCooldown=Number(this.mod.purifyCooldown)||10;
         this.revealFromPickup();
@@ -1598,7 +1617,7 @@ export class WispFlight {
         const text=restored>0?`Purified · +${formatGlow(restored,this.maxFlame)} Glow`:'Purified · Glow full';
         this.pickupEffects.push({x:this.player.x,y:this.player.y,pickupKind:'light',text,restored,life:.72});
         if(this.pickupEffects.length>12)this.pickupEffects.shift();
-        this.setEvent(`Kindler · ${text}`);this.sound('collect');return;
+        this.setEvent(`Purifying Touch · ${text}`);this.sound('collect');return;
       }
       this.absorbPacket(ember, 'dark');
       this.dimLight(spec.dimDuration);
@@ -1636,6 +1655,7 @@ export class WispFlight {
     this.absorbPacket(ember, 'light');
     if(!ember.generated){
       this.revealFromPickup();
+      if(!spec.dim)this.triggerMainSight();
       if(!spec.dim&&this.mod.dreamRecharge&&this.dream?.active)this.quickenCompanionRecovery(null,1.5);
       if(!spec.dim&&this.mod.secondDawn&&this.dreamCompleted&&!this.secondDawnUsed){this.secondDawnUsed=true;this.revealFromPickup(true);}
     }
@@ -1645,8 +1665,8 @@ export class WispFlight {
       : spec.fuel
         + (kind==='cache'?(Number(this.mod.richFuelBonus)||0):0) + this.fuelBonus + clamp(Number(this.mod.cacheFuelBonus) || 0, 0, 32)
         + (ember.deliveredByWisp?(Number(this.mod.collectorFuelBonus)||0):0)
-        + (!ember.deliveredByWisp&&this.hasCompanion('kindler')?clamp(Number(this.mod.kindlerBonus)||10,0,30):0);
-    if(!ember.generated&&!ember.deliveredByWisp&&this.hasCompanion('kindler'))this.kindlerPulse=.9;
+        + (!ember.deliveredByWisp&&(this.mod.mainKindler||this.hasCompanion('kindler'))?clamp(Number(this.mod.kindlerBonus)||(this.mod.mainKindler?6:10),0,30):0);
+    if(!ember.generated&&!ember.deliveredByWisp&&(this.mod.mainKindler||this.hasCompanion('kindler')))this.kindlerPulse=.9;
     const restored = Math.min(fuel, this.maxFlame - this.flame);
     this.flame += restored; this.flameRestored += restored;
     if (spec.dim) this.dimLight(spec.dimDuration);
@@ -1715,6 +1735,7 @@ export class WispFlight {
       ability, companions:this.getCompanionStates().map(item=>({...item})),shield:this.getShieldState(),leveler:this.getLevelerState(),
       completing:this.completing,completionProgress:this.completionProgress,collectorAura:this.getCollectorAuraState(),dying:this.dying,dyingProgress:this.dyingProgress,deathCause:this.deathCause,
       light: this.getLightState(),
+      mainTraits:{seer:!!this.mod.mainSeer,seerRemaining:Math.max(0,this.mainSeerUntil-this.time),seerCooldown:Math.max(0,this.mainSeerReadyAt-this.time),kindler:!!this.mod.mainKindler,kindlerPulse:this.kindlerPulse,purifyCooldown:this.purifyCooldown},
       collected: this.baseEmbers, boostCooldown: this.cooldown,
       boostCooldownTotal: this.boostCooldown, boostDurationTotal: this.boostDuration,
       boostReady: ability.ready,

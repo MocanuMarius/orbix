@@ -1,4 +1,4 @@
-import {skillProgress} from './skill-increments.mjs?v=earned-start-1';
+import {skillProgress} from './skill-increments.mjs?v=pixel-landscape-1';
 // Named, one-time specialisations. Each pair is exclusive for this run.
 const paths=[];
 function fork(branch,parent,a,b){
@@ -33,18 +33,6 @@ fork('swift','swift-recovery',
 fork('swift','swift-resistance',
  ['storm-runner','Storm Runner','Wind resistance rises 4 percentage points; recharge takes 10% longer.',{swiftResistance:.04},{swiftRecovery:1.1}],
  ['sheltered-pace','Sheltered Pace','Recharge 15% faster; wind resistance falls 8 percentage points.',{swiftResistance:-.08},{swiftRecovery:.85}]);
-fork('seer','seer-duration',
- ['wide-vigil','Wide Vigil','Reveal reaches 15% farther; lasts 10% less time.',{},{seerRadius:1.15,seerDuration:.9}],
- ['deep-vigil','Deep Vigil','Reveal lasts 20% longer; recharge takes 10% longer.',{},{seerDuration:1.2,seerRecovery:1.1}]);
-fork('seer','seer-recovery',
- ['long-glance','Long Glance','Reveal lasts 20% longer; range is 10% shorter.',{},{seerDuration:1.2,seerRadius:.9}],
- ['frequent-glance','Quick Glance','Recharge 15% faster; reveal lasts 10% less time.',{},{seerRecovery:.85,seerDuration:.9}]);
-fork('kindler','kindler-bonus',
- ['bright-harvest','Bright Harvest','Direct fuel pickups add 4 more Glow; Lift costs 5% more.',{kindlerBonus:4},{flapCost:1.05}],
- ['frugal-spark','Frugal Spark','Lift costs 8% less; direct fuel bonus falls by 2 Glow.',{kindlerBonus:-2},{flapCost:.92}]);
-fork('kindler','kindler-purify',
- ['quick-purify','Quick Purify','Purify recharges in 7 seconds but restores 10 Glow.',{purifyCooldown:-3,purifyFuel:-2}],
- ['deep-purify','Deep Purify','Purify restores 18 Glow but recharges in 13 seconds.',{purifyCooldown:3,purifyFuel:6}]);
 fork('main','main-horizon',
  ['wide-beam','Wide Beam','Expand light another 50 ahead and 25 vertically.',{lightRadius:25}],
  ['clear-beam','Clear Beam','Dark Seeds dim your light 15 percentage points less.',{darkResistance:.15}]);

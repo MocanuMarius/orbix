@@ -1,12 +1,13 @@
-import {MAIN_TUNING_SKILLS} from './main-tuning.mjs?v=earned-start-1';
-import {STARTING_EMBERS,getGlowCapacity,glowText} from './vitality.mjs?v=earned-start-1';
-import {expandSkillSteps,skillProgress} from './skill-increments.mjs?v=earned-start-1';
-import {MAX_ASCENSION} from './ascent.mjs?v=earned-start-1';
-import {EXPANDED_SKILLS,applyExpandedSkills} from './skill-paths.mjs?v=earned-start-1';
+import {COMPANION_ABILITIES,getCompanionUnlock} from './companion-abilities.mjs?v=pixel-landscape-1';
+import {MAIN_TUNING_SKILLS} from './main-tuning.mjs?v=pixel-landscape-1';
+import {STARTING_EMBERS,getGlowCapacity,glowText} from './vitality.mjs?v=pixel-landscape-1';
+import {expandSkillSteps,skillProgress} from './skill-increments.mjs?v=pixel-landscape-1';
+import {MAX_ASCENSION} from './ascent.mjs?v=pixel-landscape-1';
+import {EXPANDED_SKILLS,applyExpandedSkills} from './skill-paths.mjs?v=pixel-landscape-1';
 /** Run-owned skills and currency; persistent ascension unlocks and boss artifacts. */
-import { FLAME_TUNING, LIFE_TUNING, getLifeCapacity } from './vitality.mjs?v=earned-start-1';
-import { getLevelIdentity } from './level-catalog.mjs?v=earned-start-1';
-import { EVENT_SCENARIOS } from './map-guide.mjs?v=earned-start-1';
+import { FLAME_TUNING, LIFE_TUNING, getLifeCapacity } from './vitality.mjs?v=pixel-landscape-1';
+import { getLevelIdentity } from './level-catalog.mjs?v=pixel-landscape-1';
+import { EVENT_SCENARIOS } from './map-guide.mjs?v=pixel-landscape-1';
 export const SAVE_KEY='emberwing.save.runskills.v6';
 export const CAMPAIGN_MAP_NAMES=Object.freeze(['The Forgotten Verge','The Rootbound March','The Warden’s Reach']);
 export const TERRAINS=Object.freeze({ruins:{id:'ruins',name:'Sunken Ruins',color:'#cdb183',description:'Broken homes, worn arches and overgrown stone.'},canopy:{id:'canopy',name:'Luminous Canopy',color:'#94b48a',description:'Hollow trees, hanging roots and sheltered forest passages.'},storm:{id:'storm',name:'Stormglass Peaks',color:'#a8bbca',description:'Pine ridges, old mine timbers and local draft puffs.'}});
@@ -22,10 +23,6 @@ const RUN_BRANCH_CHOICES={
  'leveler-dive':{name:'Falling Release',maxRank:1,choiceGroup:'leveler-style',excludes:['leveler-steadiness'],description:'End a shorter Level hold with a controlled dive. Lift cancels the dive.',consequence:'Release dive · 25% shorter hold'},
  'swift-recovery':{name:'Quick Sparks',maxRank:1,choiceGroup:'swift-style',excludes:['swift-resistance'],description:'Use shorter speed bursts more often.',consequence:'28% faster recovery · 25% shorter burst'},
  'swift-resistance':{name:'Wind Lance',maxRank:1,choiceGroup:'swift-style',excludes:['swift-recovery'],description:'Resist almost all draft force, but recharge more slowly.',consequence:'90% draft resistance · 25% longer recovery'},
- 'seer-duration':{name:'Long Vigil',maxRank:1,choiceGroup:'seer-style',excludes:['seer-recovery'],description:'Keep vision longer, over a shorter range.',consequence:'50% longer reveal · 20% less range'},
- 'seer-recovery':{name:'Passing Glance',maxRank:1,choiceGroup:'seer-style',excludes:['seer-duration'],description:'Reveal more frequently, in shorter glimpses.',consequence:'35% faster recovery · 35% shorter reveal'},
- 'kindler-bonus':{name:'Rich Fuel',requires:null,maxRank:1,choiceGroup:'kindler-style',excludes:['kindler-purify'],description:'Gain more Glow from direct fuel pickups, but spend more on Lift.',consequence:'16 bonus Glow · Lift costs 5% more'},
- 'kindler-purify':{name:'Purify',requires:null,maxRank:1,choiceGroup:'kindler-style',excludes:['kindler-bonus'],description:'Purify touched Dark Seeds, but add less Glow to ordinary fuel.',consequence:'12 Glow from Dark Seeds every 10s · 8 ordinary bonus Glow'},
 };
 for(const [a,b,group] of [['main-horizon','main-dawn','main-radiance'],['main-tailwind','main-drift','main-momentum'],['main-lift','main-kindling','main-vitality']])for(const [id,other] of [[a,b],[b,a]])RUN_BRANCH_CHOICES[id]={...RUN_BRANCH_CHOICES[id],choiceGroup:group,excludes:[other]};
 export const MAIN_WISP_BRANCHES=Object.freeze([{root:'main-sight',name:'Radiance',leaves:['main-horizon','main-dawn']},{root:'main-speed',name:'Momentum',leaves:['main-tailwind','main-drift']},{root:'main-efficiency',name:'Vitality',leaves:['main-lift','main-kindling']}]);
@@ -53,14 +50,9 @@ export const SKILLS=Object.freeze(expandSkillSteps({
  'leveler-duration':skill('leveler-duration','Longer Level','leveler',80,3,null,'Level lasts 0.15 seconds longer per rank.'),
  'leveler-steadiness':skill('leveler-steadiness','Steady Level','leveler',100,2,'leveler-duration','Reduce bob and vertical oscillation during Level with each rank.'),
  'leveler-dive':skill('leveler-dive','Guided Descent','leveler',100,2,'leveler-duration','Enable a controlled dive on Level expiry or release. Lift cancels the dive; the second rank strengthens it.'),
- 'swift-duration':skill('swift-duration','Longer Surge','swift',80,3,null,'Swift lasts 0.08 seconds longer per rank.'),
- 'swift-recovery':skill('swift-recovery','Quick Surge','swift',90,3,'swift-duration','Swift recharges 10% sooner per rank.'),
- 'swift-resistance':skill('swift-resistance','Windbreak','swift',100,2,'swift-duration','Swift resists 5 percentage points more draft force per rank.'),
- 'seer-range':skill('seer-range','Far Sight','seer',80,3,null,'Seer reveals farther ahead with each rank.'),
- 'seer-duration':skill('seer-duration','Lasting Vision','seer',90,3,'seer-range','Seer vision lasts half a second longer per rank.'),
- 'seer-recovery':skill('seer-recovery','Returning Vision','seer',90,3,'seer-range','Seer recharges 10% sooner per rank.'),
- 'kindler-bonus':skill('kindler-bonus','Kindled Fuel','kindler',80,3,null,'Kindler adds 2 more Glow to direct fuel pickups per rank.'),
- 'kindler-purify':skill('kindler-purify','Purify','kindler',140,1,'kindler-bonus','Once every 10 seconds, purify a touched Dark Seed for 12 Glow instead of dimming.'),
+ 'swift-duration':skill('swift-duration','Longer Surge','swift',80,3,null,'Runner lasts 0.08 seconds longer per rank.'),
+ 'swift-recovery':skill('swift-recovery','Quick Surge','swift',90,3,'swift-duration','Runner recharges 10% sooner per rank.'),
+ 'swift-resistance':skill('swift-resistance','Windbreak','swift',100,2,'swift-duration','Runner resists 5 percentage points more draft force per rank.'),
  'collector-attunement':skill('collector-attunement','Search Spark','collector',35,1,null,'Collector range +5%.'),
  'collector-mastery':skill('collector-mastery','Deep Spark','collector',75,1,'collector-attunement','Collector range +5%. Adds to your first Spark.'),
  'protector-attunement':skill('protector-attunement','Ward Spark','protector',35,1,null,'Shell costs 0.5 less Glow.'),
@@ -69,10 +61,6 @@ export const SKILLS=Object.freeze(expandSkillSteps({
  'leveler-mastery':skill('leveler-mastery','Deep Spark','leveler',75,1,'leveler-attunement','Level lasts 0.1 seconds longer. Adds to your first Spark.'),
  'swift-attunement':skill('swift-attunement','Surge Spark','swift',35,1,null,'Surge recharges 0.25 seconds sooner.'),
  'swift-mastery':skill('swift-mastery','Deep Spark','swift',75,1,'swift-attunement','Surge recharges 0.25 seconds sooner. Adds to your first Spark.'),
- 'seer-attunement':skill('seer-attunement','Vision Spark','seer',35,1,null,'Seer reaches 12 units farther.'),
- 'seer-mastery':skill('seer-mastery','Deep Spark','seer',75,1,'seer-attunement','Seer reaches 12 units farther. Adds to your first Spark.'),
- 'kindler-attunement':skill('kindler-attunement','Fuel Spark','kindler',35,1,null,'Direct pickups grant 1 extra Glow.'),
- 'kindler-mastery':skill('kindler-mastery','Deep Spark','kindler',75,1,'kindler-attunement','Direct pickups grant 1 extra Glow. Adds to your first Spark.'),
  'afterglow-vessel':skill('afterglow-vessel','Ember Vessel','afterglow',30,3,null,'Carry 10 more Afterglow per rank.'),
  'afterglow-retention':skill('afterglow-retention','Bright Overflow','afterglow',35,2,'afterglow-vessel','Convert 10% more excess victory recovery into Afterglow per rank.'),
  'afterglow-anchor':skill('afterglow-anchor','Lasting Light','afterglow',35,2,'afterglow-vessel','Keep 10% more unused reserve between flights per rank; starts at 80% retention.'),
@@ -87,19 +75,19 @@ export const ARTIFACTS=Object.freeze({
  'ember-lens':artifact('ember-lens','Ember Lens','See farther ahead.','◉',{lightRadius:28}),
  'quiet-cinder':artifact('quiet-cinder','Quiet Cinder','Lift spends 6% less Glow.','●',{flapCost:.94}),
  'silver-feather':artifact('silver-feather','Silver Feather','Lift impulse is 6% stronger.','⌃',{flap:1.06}),
- 'moss-heart':artifact('moss-heart','Moss Heart','Kindler adds 3 more Glow to direct fuel pickups.','✦',{kindlerBonus:3}),
+ 'moss-heart':artifact('moss-heart','Moss Heart','Kindled Touch adds 3 more Glow to direct fuel pickups. Requires that learned perk.','✦',{kindlerBonus:3}),
  'wayfinder-seed':artifact('wayfinder-seed','Wayfinder Seed','Collector searches 15% farther.','✧',{attract:1.15}),
  'iron-petal':artifact('iron-petal','Iron Petal','Protector recharges 12% sooner.','◇',{protectorRecovery:.88}),
- 'storm-knot':artifact('storm-knot','Storm Knot','Swift resists 6 percentage points more draft force and recharges 10% sooner.','ϟ',{swiftResistance:.06,swiftRecovery:.90}),
- 'hollow-bell':artifact('hollow-bell','Hollow Bell','Level lasts 0.25 seconds longer.','═',{levelerDuration:.25}),
- 'dawn-thread':artifact('dawn-thread','Dawn Thread','Seer vision lasts one second longer.','✺',{seerDuration:1}),
+ 'storm-knot':artifact('storm-knot','Storm Knot','Runner resists 6 percentage points more draft force and recharges 10% sooner.','ϟ',{swiftResistance:.06,swiftRecovery:.90}),
+ 'hollow-bell':artifact('hollow-bell','Hollow Bell','Space Timer levitation lasts 0.25 seconds longer.','═',{levelerDuration:.25}),
+ 'dawn-thread':artifact('dawn-thread','Dawn Thread','Echo Sight lasts one second longer. Requires that learned perk.','✺',{seerDuration:1}),
 });
 export const ROUTE_PROFILES=Object.freeze({
  refuge:{routeStyle:'refuge',passage:'open',fuelCadence:2,fuelBonus:6,flameDrain:.92,routeReward:1,durationScale:1,fuelPreview:'More fuel · gentler Lift cost',riskPreview:'Open passages · deliberate edge packets'},
  cavern:{routeStyle:'cavern',passage:'cavern',fuelCadence:3,fuelBonus:4,flameDrain:1.08,routeReward:1.25,durationScale:.8,fuelPreview:'Spaced fuel · higher Lift cost',riskPreview:'Shorter cave · tighter passage'},
  gauntlet:{routeStyle:'gauntlet',passage:'gauntlet',fuelCadence:4,fuelBonus:1,flameDrain:1,routeReward:1.45,durationScale:.9,fuelPreview:'Lean fuel · richer pickup rewards',riskPreview:'Reward detour · demanding landforms'},
 });
-const ROLES=['collector','protector','leveler','swift','seer','kindler'];
+const ROLES=Object.keys(COMPANION_ABILITIES);
 const PHASES=new Set(['map','briefing','support','retry','map-clear','ended']);
 const clamp=(n,a,b)=>Math.min(b,Math.max(a,n));
 const finite=(n,d=0)=>Number.isFinite(n)?n:d;
@@ -113,10 +101,13 @@ function rng(seed){let s=2166136261;for(const c of String(seed))s=Math.imul(s^c.
 const shuffle=(items,random)=>{const a=[...items];for(let i=a.length-1;i>0;i--){const j=Math.floor(random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;};
 const report=(amount,v={})=>({amount:energy(amount),stored:energy(v.stored),rawStored:energy(v.rawStored),spent:energy(v.spent),loss:energy(v.loss),granted:energy(v.granted)});
 
-export function newState(){return{version:6,profile:{difficulty:1,ownedArtifacts:[],equippedArtifacts:[],afterglowUnlocked:false,afterglow:0,seenPickups:[],pickupCoachSkipped:false,tutorialComplete:false,bankedRuns:[],clearedFlights:0,stats:{completedRuns:0,wins:0,flights:0,attempts:0,deaths:0}},run:null,suspendedRun:null,settings:{sound:true,reducedMotion:false,testOverride:false,testStarterCompanion:'collector',companions:['collector'],companionRole:'collector'}};}
-/** TEST starter selection is a preference for the next New Game only. */
+export function newState(){return{version:6,profile:{difficulty:1,ownedArtifacts:[],equippedArtifacts:[],afterglowUnlocked:false,afterglow:0,seenPickups:[],pickupCoachSkipped:false,tutorialComplete:false,bankedRuns:[],clearedFlights:0,stats:{completedRuns:0,wins:0,flights:0,attempts:0,deaths:0}},run:null,suspendedRun:null,settings:{sound:true,reducedMotion:false,testOverride:false,testStarterCompanion:'collector',startingCompanion:'collector',companions:['collector'],companionRole:'collector'}};}
+/** Starter preference is validated against earned unlocks, or explicit TEST. */
+export function getStartingCompanion(state){const id=state?.settings?.startingCompanion||state?.settings?.testStarterCompanion;return ROLES.includes(id)&&getCompanionUnlock(id,state?.profile?.difficulty,state?.settings?.testOverride===true).selectable?id:'collector';}
+export function setStartingCompanion(state,id){if(!state?.settings||!ROLES.includes(id)||!getCompanionUnlock(id,state.profile?.difficulty,state.settings.testOverride===true).selectable)return false;state.settings.startingCompanion=id;state.settings.testStarterCompanion=id;return true;}
+/** Legacy TEST preference entry point. */
 export function getTestStarterCompanion(state){const id=state?.settings?.testStarterCompanion;return ROLES.includes(id)?id:'collector';}
-export function setTestStarterCompanion(state,id){if(state?.settings?.testOverride!==true||!ROLES.includes(id))return false;state.settings.testStarterCompanion=id;return true;}
+export function setTestStarterCompanion(state,id){if(state?.settings?.testOverride!==true||!ROLES.includes(id))return false;return setStartingCompanion(state,id);}
 /** The preference affects future runs; a run that used TEST remains marked forever. */
 export function setTestOverride(state,enabled){
   if(!state?.settings)return false;enabled=enabled===true;const changed=state.settings.testOverride!==enabled;state.settings.testOverride=enabled;
@@ -132,7 +123,7 @@ function runWallet(run){return{skills:run?.skills||{},mapIndex:run?.mapIndex||0,
 export function getSkillWallet(state){return state?.run?runWallet(state.run):{skills:{},embers:0,afterglowUnlocked:state?.profile?.afterglowUnlocked===true,testMode:false};}
 function validRun(r){if(!r||typeof r.id!=='string'||typeof r.seed!=='string'||!PHASES.has(r.phase))return false;const rows=r.isTutorial?3:7;if(!Array.isArray(r.map)||r.map.length!==rows||!Number.isInteger(r.step)||r.step<0||r.step>rows)return false;if(r.step===rows&&!['map-clear','ended'].includes(r.phase))return false;const all=r.map.flat();if(r.map.some((row,i)=>!Array.isArray(row)||!row.length||row.length>3||row.some(n=>!n||n.row!==i||typeof n.id!=='string'||!TERRAINS[n.terrain]||!['flight','support','finale'].includes(n.type))))return false;if(new Set(all.map(n=>n.id)).size!==all.length)return false;for(const n of all)if(!Array.isArray(n.nextIds)||n.nextIds.length>3||n.row<rows-1&&!n.nextIds.length||n.nextIds.some(id=>!r.map[n.row+1]?.some(next=>next.id===id)))return false;return Array.isArray(r.path)&&Array.isArray(r.companions)&&Number.isFinite(r.lives)&&Number.isFinite(r.flame);}
 export function saveState(state,storage){try{storage??=globalThis.localStorage;if(!storage?.setItem||state?.version!==6)return false;storage.setItem(SAVE_KEY,JSON.stringify(state));return true;}catch{return false;}}
-export function loadState(storage){try{storage??=globalThis.localStorage;const parsed=JSON.parse(storage?.getItem?.(SAVE_KEY)||'null');if(parsed?.version!==6)return newState();const s=newState();s.profile=cleanProfile(parsed.profile);s.settings={sound:parsed.settings?.sound!==false,reducedMotion:parsed.settings?.reducedMotion===true,testOverride:parsed.settings?.testOverride===true,testStarterCompanion:ROLES.includes(parsed.settings?.testStarterCompanion)?parsed.settings.testStarterCompanion:'collector',companions:unique(parsed.settings?.companions,id=>ROLES.includes(id)).slice(0,getCompanionCapacity(s.profile))};if(!s.settings.companions.length)s.settings.companions=['collector'];s.settings.companionRole=s.settings.companions[0];if(validRun(parsed.run)){s.run=parsed.run;if(s.run.attemptActive)interrupt(s.run);if(s.run.phase==='ended')bankRun(s);else settleCheckpoint(s);}if(s.run?.isTutorial&&validRun(parsed.suspendedRun)&&!parsed.suspendedRun.isTutorial&&parsed.suspendedRun.phase!=='ended'&&parsed.suspendedRun.id!==s.run.id){s.suspendedRun=parsed.suspendedRun;if(s.suspendedRun.attemptActive)interrupt(s.suspendedRun);}saveState(s,storage);return s;}catch{return newState();}}
+export function loadState(storage){try{storage??=globalThis.localStorage;const parsed=JSON.parse(storage?.getItem?.(SAVE_KEY)||'null');if(parsed?.version!==6)return newState();const s=newState();s.profile=cleanProfile(parsed.profile);s.settings={sound:parsed.settings?.sound!==false,reducedMotion:parsed.settings?.reducedMotion===true,testOverride:parsed.settings?.testOverride===true,testStarterCompanion:ROLES.includes(parsed.settings?.testStarterCompanion)?parsed.settings.testStarterCompanion:'collector',startingCompanion:'collector',companions:unique(parsed.settings?.companions,id=>ROLES.includes(id)).slice(0,getCompanionCapacity(s.profile))};if(!s.settings.companions.length)s.settings.companions=['collector'];s.settings.companionRole=s.settings.companions[0];if(validRun(parsed.run)){s.run=parsed.run;s.run.companions=s.run.companions.filter(id=>ROLES.includes(id));if(!s.run.companions.length)s.run.companions=['collector'];s.run.companionRole=s.run.companions[0];s.run.unlockedCompanionDifficulty=s.profile.difficulty;if(s.run.attemptActive)interrupt(s.run);if(s.run.phase==='ended')bankRun(s);else settleCheckpoint(s);}if(s.run?.isTutorial&&validRun(parsed.suspendedRun)&&!parsed.suspendedRun.isTutorial&&parsed.suspendedRun.phase!=='ended'&&parsed.suspendedRun.id!==s.run.id){s.suspendedRun=parsed.suspendedRun;if(s.suspendedRun.attemptActive)interrupt(s.suspendedRun);}saveState(s,storage);return s;}catch{return newState();}}
 
 function makeMap(seed,mapIndex,difficulty,afterglowUnlocked){
  const random=rng(`${seed}:routes`),mirror=random()<.5,locationCounts={},events=shuffle(EVENT_SCENARIOS.map(e=>e.index),random),terrains=shuffle(Object.keys(TERRAINS),random);
@@ -163,7 +154,7 @@ function makeMap(seed,mapIndex,difficulty,afterglowUnlocked){
 }
 export function createRun(profile=newState().profile,seed=freshSeed(),difficulty){
   const p=cleanProfile(profile),selected=Number(difficulty),tier=clamp(Number.isFinite(selected)?Math.floor(selected):p.difficulty,1,p.difficulty),campaignSeed=String(seed),mapSeed=`${campaignSeed}|tier:${tier}|map:0`;
-  return{id:`${campaignSeed}-${freshSeed()}`,campaignSeed,seed:mapSeed,mapIndex:0,mapName:CAMPAIGN_MAP_NAMES[0],difficulty:tier,map:makeMap(mapSeed,0,tier,false),step:0,path:[],current:null,phase:'map',companions:['collector'],companionRole:'collector',artifacts:[],skills:{},startingSkill:null,lives:LIFE_TUNING.lives,maxLives:LIFE_TUNING.lives,flame:FLAME_TUNING.starting,embers:STARTING_EMBERS,pendingEmbers:0,securedEmbers:0,pendingRewards:[],afterglow:0,afterglowUnlocked:false,afterglowJustUnlocked:false,afterglowDrawStep:null,afterglowTotals:report(0),restReady:false,restVisits:[],lastRest:null,attemptActive:false,attemptEntry:null,success:false,banked:false,bossDefeated:false,bossProgressSecured:false,mapHistory:[],mapFlights:0,stats:{flights:0,attempts:0,deaths:0,collected:0,elites:0,events:0,challenges:0}};
+  return{id:`${campaignSeed}-${freshSeed()}`,campaignSeed,seed:mapSeed,mapIndex:0,mapName:CAMPAIGN_MAP_NAMES[0],difficulty:tier,unlockedCompanionDifficulty:p.difficulty,map:makeMap(mapSeed,0,tier,false),step:0,path:[],current:null,phase:'map',companions:['collector'],companionRole:'collector',artifacts:[],skills:{},startingSkill:null,lives:LIFE_TUNING.lives,maxLives:LIFE_TUNING.lives,flame:FLAME_TUNING.starting,embers:STARTING_EMBERS,pendingEmbers:0,securedEmbers:0,pendingRewards:[],afterglow:0,afterglowUnlocked:false,afterglowJustUnlocked:false,afterglowDrawStep:null,afterglowTotals:report(0),restReady:false,restVisits:[],lastRest:null,attemptActive:false,attemptEntry:null,success:false,banked:false,bossDefeated:false,bossProgressSecured:false,mapHistory:[],mapFlights:0,stats:{flights:0,attempts:0,deaths:0,collected:0,elites:0,events:0,challenges:0}};
 }
 export function canChooseStartingSkill(run){return !!run&&!run.isTutorial&&!run.startingSkill&&!run.attemptActive&&!run.banked&&run.mapIndex===0&&run.step===0&&run.phase==='map'&&!run.path.length;}
 export function chooseStartingSkill(state,id){const r=state?.run;if(!canChooseStartingSkill(r)||!MAIN_WISP_BRANCHES.some(branch=>branch.root===id))return false;r.skills[id]=1;r.startingSkill=id;return true;}
@@ -175,7 +166,7 @@ function nextStop(run){run.step++;run.current=null;run.phase=run.step>=run.map.l
 function reattempt(run){return run.phase==='briefing'&&run.current&&run.lastAttempt?.nodeId===run.current.id&&run.lastAttempt.success!==true;}
 export function canChangeCompanion(run){const starter=run?.mapIndex===0&&run?.step===0&&run?.phase==='map'&&!run.path?.length;return!!run&&(run.testMode===true||run.restReady===true||starter)&&!run.attemptActive&&!run.banked&&run.lives>0&&['support','map','briefing'].includes(run.phase)&&!reattempt(run);}
 export function getCompanionCapacity(source){const v=source?.run||source,s=v?.skills||v?.profile?.skills||{};return v?.testMode===true?3:Math.min(3,1+rank(s,'main-bond'));}
-export function setCompanions(run,ids){if(!canChangeCompanion(run)||!Array.isArray(ids)||!ids.length||ids.length>getCompanionCapacity(run)||new Set(ids).size!==ids.length||ids.some(id=>!ROLES.includes(id)))return false;if(ids.join('|')===run.companions.join('|'))return false;run.companions=[...ids];run.companionRole=ids[0];return true;}
+export function setCompanions(run,ids){if(!canChangeCompanion(run)||!Array.isArray(ids)||!ids.length||ids.length>getCompanionCapacity(run)||new Set(ids).size!==ids.length||ids.some(id=>!ROLES.includes(id)||!getCompanionUnlock(id,run.unlockedCompanionDifficulty||run.difficulty,run.testMode===true).selectable))return false;if(ids.join('|')===run.companions.join('|'))return false;run.companions=[...ids];run.companionRole=ids[0];return true;}
 export function beginFlightAttempt(run){if(!run||run.phase!=='briefing'||run.attemptActive||run.banked||run.lives<=0||!run.current||run.current.type==='support')return false;run.restReady=false;run.attemptEntry={step:run.step,nodeId:run.current.id,flame:run.flame,afterglow:run.afterglow,afterglowDrawStep:run.afterglowDrawStep,afterglowTotals:copy(run.afterglowTotals),companions:[...run.companions],skills:{...run.skills},artifacts:[...run.artifacts]};run.attemptActive=true;run.stats.attempts++;return true;}
 function restoreEntry(run){const e=run.attemptEntry;if(e&&e.step===run.step&&e.nodeId===run.current?.id){run.flame=e.flame;run.afterglow=e.afterglow;run.afterglowDrawStep=e.afterglowDrawStep;run.afterglowTotals=copy(e.afterglowTotals);run.companions=[...e.companions];run.companionRole=run.companions[0];run.skills={...e.skills};run.artifacts=[...e.artifacts];}run.attemptActive=false;run.attemptEntry=null;run.restReady=false;}
 function interrupt(run){restoreEntry(run);run.lastAttempt={success:false,interrupted:true,nodeId:run.current?.id,livesLost:0,livesRemaining:run.lives};run.phase='briefing';}
@@ -195,10 +186,10 @@ export function artifactSynergy(run,id){
  if(id==='echo-vessel'&&run?.afterglowUnlocked)return 'Works with Afterglow';
  if(id==='wayfinder-seed'&&roles.includes('collector'))return 'Works with Collector';
  if(id==='iron-petal'&&roles.includes('protector'))return 'Works with Protector';
- if(id==='hollow-bell'&&roles.includes('leveler'))return 'Works with Leveler';
- if(id==='storm-knot'&&roles.includes('swift'))return 'Works with Swift';
- if(id==='dawn-thread'&&roles.includes('seer'))return 'Works with Seer';
- if(id==='moss-heart'&&roles.includes('kindler'))return 'Works with Kindler';
+ if(id==='hollow-bell'&&roles.includes('leveler'))return 'Works with Space Timer';
+ if(id==='storm-knot'&&roles.includes('swift'))return 'Works with Runner';
+ if(id==='dawn-thread'&&rank(s,'main-echo-sight'))return 'Works with Echo Sight';
+ if(id==='moss-heart'&&rank(s,'main-kindled-touch'))return 'Works with Kindled Touch';
  if(id==='glass-lantern'&&(rank(s,'main-efficiency')||roles.includes('collector')))return 'Fuel pickups repay higher Lift effort';
  if(id==='night-gardener'&&rank(s,'main-drift-sense'))return 'Drift Sense helps skim Dark Seeds';
  return '';
@@ -218,7 +209,18 @@ export function acknowledgeVictory(state){const r=state?.run;if(!r||r.flightRewa
 export function finishFlight(run,result){
  if(!run||run.phase!=='briefing'||!run.attemptActive||!run.current||typeof result?.success!=='boolean')return false;
  const n=run.current;
- if(!result.success){restoreEntry(run);run.lives=Math.max(0,run.lives-1);run.stats.deaths++;run.success=false;run.lastAttempt={success:false,nodeId:n.id,livesLost:1,livesRemaining:run.lives};run.phase=run.lives?'retry':'ended';return true;}
+ if(!result.success){
+  restoreEntry(run);run.lives=Math.max(0,run.lives-1);run.stats.deaths++;run.success=false;run.victoryPending=false;
+  run.lastAttempt={success:false,nodeId:n.id,nodeName:n.name,livesLost:1,livesRemaining:run.lives};
+  run.path=run.path.filter(id=>id!==n.id);run.current=null;run.phase=run.lives?'map':'ended';
+  const prior=run.path.map(id=>nodes(run).find(p=>p.id===id)).filter(p=>p&&p.row<run.step).at(-1);
+  if(run.lives&&prior?.kind==='camp'&&prior.nextIds.length===1){
+   const lastElite=previousElite(run),alternatives=run.map[run.step].filter(p=>p.type!=='support'&&!(lastElite&&p.elite));
+   prior.nextIds=[...new Set([...prior.nextIds,...alternatives.map(p=>p.id)])];
+   run.deathDetour={fromId:prior.id,failedNodeId:n.id,nodeIds:[...prior.nextIds]};
+  }
+  return true;
+ }
  run.attemptActive=false;run.attemptEntry=null;run.lastAttempt={success:true,nodeId:n.id,livesLost:0,livesRemaining:run.lives};
  const max=getGlowCapacity(run),remaining=clamp(finite(result.flame,run.flame),0,max),recovery=getRecoveryRules(run);
  const rate=recovery.rate+(remaining<max*.2?recovery.rescue:0)+(result.challengeComplete?recovery.challenge:0),amount=max*rate;
@@ -331,7 +333,7 @@ export function buyCheckpointSkill(state,id){
 function artifactService(state,selling=false){const r=state?.run;if(!state?.profile||!r||r.isTutorial||r.attemptActive||r.banked||['retry','map-clear','ended'].includes(r.phase)||reattempt(r))return false;return selling?r.phase==='support'||r.restReady===true:r.phase==='support'||canChangeCompanion(r);}
 export function equipArtifact(state,id,slot=0){if(!artifactService(state)||!Number.isInteger(slot)||slot<0||slot>2||id!=null&&(!Object.hasOwn(ARTIFACTS,id)||!state.run.testMode&&!state.profile.ownedArtifacts.includes(id)&&!state.run.artifacts.includes(id)))return false;const r=state.run,next=Array.from({length:3},(_,i)=>r.artifacts?.[i]||null);if(id!=null)for(let i=0;i<3;i++)if(next[i]===id)next[i]=null;next[slot]=id??null;r.artifacts=next;if(!r.testMode)state.profile.equippedArtifacts=[...next];return true;}
 export function sellArtifact(state,id){if(state?.run?.testMode||!artifactService(state,true)||!state.profile.ownedArtifacts.includes(id)&&!state.run.artifacts.includes(id)||!ARTIFACTS[id])return false;const p=state.profile,r=state.run,value=ARTIFACTS[id].sellValue;p.ownedArtifacts=p.ownedArtifacts.filter(x=>x!==id);p.equippedArtifacts=p.equippedArtifacts.map(x=>x===id?null:x);r.artifacts=r.artifacts.map(x=>x===id?null:x);r.embers=count(r.embers)+value;r.securedEmbers+=value;r.lastCheckpointReward={amount:value,kind:'artifact-sale',artifactId:id};return true;}
-export function getRunModifiers(run={}){const rank=skillProgress,s=run.skills||{},m={dreamRecharge:0,secondDawn:0,echoVessel:0,nightGarden:0,dreamDuration:rank(s,'main-dream')?(rank(s,'main-dream-deep')?8:rank(s,'main-dream-long')?6:4):0,dreamWake:rank(s,'main-dream-wake')?3:2,dreamSight:rank(s,'main-dream-sight')>0,glowSense:rank(s,'main-glow-sense')>0,driftSense:rank(s,'main-drift-sense-3')?3:rank(s,'main-drift-sense-2')?2:rank(s,'main-drift-sense')?1:0,pickupReveal:rank(s,'main-dawnburst')>0,maxGlow:getGlowCapacity(run),richFuelBonus:8*rank(s,'main-cache-feast'),terminalFall:1+.08*rank(s,'main-deep-plummet'),speed:1+.05*rank(s,'main-speed')+.04*rank(s,'main-tailwind'),flap:1-.08*rank(s,'main-low-lift'),gravity:(1-.1*rank(s,'main-drift'))*(1+.12*rank(s,'main-plummet'))*(1+.06*rank(s,'main-deep-plummet')),flapCost:Math.max(.65,(1-.07*rank(s,'main-efficiency'))*(1-.06*rank(s,'main-lift'))*(1-.08*rank(s,'main-low-lift'))),lightRadius:175+35*rank(s,'main-sight')+45*rank(s,'main-horizon'),darkResistance:.4*rank(s,'main-dawn'),attract:1,wispCooldown:1,boostCooldown:1,boostDuration:1,reward:1,windSensitivity:1,cacheFuelBonus:4*rank(s,'main-kindling'),warmCore:false,steady:false,protectorCost:12*(1-.08*rank(s,'protector-cost')),protectorRecovery:14,protectorLayers:1+rank(s,'protector-layers'),levelerDuration:2.4+.15*rank(s,'leveler-duration'),levelerSteadiness:.2*rank(s,'leveler-steadiness'),levelerDive:rank(s,'leveler-dive')?1+.25*rank(s,'leveler-dive'):0,levelerRecovery:9,swiftDuration:1.25+.08*rank(s,'swift-duration'),swiftRecovery:7.5,swiftResistance:.72+.05*rank(s,'swift-resistance'),seerRadius:230+25*rank(s,'seer-range'),seerDuration:4.5,seerRecovery:12,kindlerBonus:10+2*rank(s,'kindler-bonus'),kindlerPurify:rank(s,'kindler-purify')>0};
+export function getRunModifiers(run={}){const rank=skillProgress,s=run.skills||{},m={dreamRecharge:0,secondDawn:0,echoVessel:0,nightGarden:0,dreamDuration:rank(s,'main-dream')?(rank(s,'main-dream-deep')?8:rank(s,'main-dream-long')?6:4):0,dreamWake:rank(s,'main-dream-wake')?3:2,dreamSight:rank(s,'main-dream-sight')>0,glowSense:rank(s,'main-glow-sense')>0,driftSense:rank(s,'main-drift-sense-3')?3:rank(s,'main-drift-sense-2')?2:rank(s,'main-drift-sense')?1:0,pickupReveal:rank(s,'main-dawnburst')>0,maxGlow:getGlowCapacity(run),richFuelBonus:8*rank(s,'main-cache-feast'),terminalFall:1+.08*rank(s,'main-deep-plummet'),speed:1+.05*rank(s,'main-speed')+.04*rank(s,'main-tailwind'),flap:1-.08*rank(s,'main-low-lift'),gravity:(1-.1*rank(s,'main-drift'))*(1+.12*rank(s,'main-plummet'))*(1+.06*rank(s,'main-deep-plummet')),flapCost:Math.max(.65,(1-.07*rank(s,'main-efficiency'))*(1-.06*rank(s,'main-lift'))*(1-.08*rank(s,'main-low-lift'))),lightRadius:175+35*rank(s,'main-sight')+45*rank(s,'main-horizon'),darkResistance:.4*rank(s,'main-dawn'),attract:1,wispCooldown:1,boostCooldown:1,boostDuration:1,reward:1,windSensitivity:1,cacheFuelBonus:4*rank(s,'main-kindling'),warmCore:false,steady:false,protectorCost:12*(1-.08*rank(s,'protector-cost')),protectorRecovery:14,protectorLayers:1+rank(s,'protector-layers'),levelerDuration:2.4+.15*rank(s,'leveler-duration'),levelerSteadiness:.2*rank(s,'leveler-steadiness'),levelerDive:rank(s,'leveler-dive')?1+.25*rank(s,'leveler-dive'):0,levelerRecovery:9,swiftDuration:1.25+.08*rank(s,'swift-duration'),swiftRecovery:7.5,swiftResistance:.72+.05*rank(s,'swift-resistance'),mainSeer:['main-echo-sight','main-echo-long','main-echo-range'].some(id=>rank(s,id)>0),seerRadius:230+50*rank(s,'main-echo-range'),seerDuration:2+rank(s,'main-echo-long'),seerRecovery:8,mainKindler:['main-kindled-touch','main-kindled-rich','main-purifying-touch'].some(id=>rank(s,id)>0),kindlerBonus:6+4*rank(s,'main-kindled-rich'),kindlerPurify:rank(s,'main-purifying-touch')>0};
   if(rank(s,'collector-reach')){m.attract*=1+.35*rank(s,'collector-reach');m.wispCooldown*=1+.20*rank(s,'collector-reach');}
   else if(rank(s,'collector-recovery')){m.attract*=1-.20*rank(s,'collector-recovery');m.wispCooldown*=1-.50*rank(s,'collector-recovery');}
   if(rank(s,'protector-recovery')){m.protectorRecovery*=1-.28*rank(s,'protector-recovery');m.protectorCost*=1+.25*rank(s,'protector-recovery');}
@@ -340,13 +342,9 @@ export function getRunModifiers(run={}){const rank=skillProgress,s=run.skills||{
   else if(rank(s,'leveler-dive')){m.levelerDive=1.35;m.levelerDuration*=.75;}
   if(rank(s,'swift-recovery')){m.swiftRecovery*=1-.28*rank(s,'swift-recovery');m.swiftDuration*=1-.25*rank(s,'swift-recovery');}
   else if(rank(s,'swift-resistance')){m.swiftResistance=.72+.18*rank(s,'swift-resistance');m.swiftRecovery*=1+.25*rank(s,'swift-resistance');}
-  if(rank(s,'seer-duration')){m.seerDuration*=1+.5*rank(s,'seer-duration');m.seerRadius*=1-.2*rank(s,'seer-duration');}
-  else if(rank(s,'seer-recovery')){m.seerRecovery*=1-.35*rank(s,'seer-recovery');m.seerDuration*=1-.35*rank(s,'seer-recovery');}
-  if(rank(s,'kindler-bonus')){m.kindlerBonus=10+6*rank(s,'kindler-bonus');if((run.companions||[run.companionRole]).includes('kindler'))m.flapCost*=1+.05*rank(s,'kindler-bonus');}
-  else if(rank(s,'kindler-purify'))m.kindlerBonus=8;
   const spark=role=>rank(s,`${role}-attunement`)+rank(s,`${role}-mastery`);
   m.attract*=1+.05*spark('collector');m.protectorCost=Math.max(1,m.protectorCost-.5*spark('protector'));
-  m.levelerDuration+=.1*spark('leveler');m.swiftRecovery-=.25*spark('swift');m.seerRadius+=12*spark('seer');m.kindlerBonus+=spark('kindler');
+  m.levelerDuration+=.1*spark('leveler');m.swiftRecovery-=.25*spark('swift');
   m.collectorMinimum=0;m.collectorFuelBonus=0;m.protectorProtection=.4;m.purifyCooldown=10;m.purifyFuel=12;
   applyExpandedSkills(m,s,run.companions||[run.companionRole||'collector']);
   if(run.nextFlightBurden)m.flapCost*=1.12;if(run.nextFlightBlessing){m.wispCooldown*=.8;for(const key of ['protectorRecovery','levelerRecovery','swiftRecovery','seerRecovery'])m[key]*=.8;}

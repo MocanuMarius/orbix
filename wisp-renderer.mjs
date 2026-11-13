@@ -1,14 +1,14 @@
-import {drawFlightProjection} from './flight-projection.mjs?v=earned-start-1';
-import {drawGlowSense} from './glow-sense.mjs?v=earned-start-1';
-import {formatGlow} from './vitality.mjs?v=earned-start-1';
-import {LOCATION_PALETTES} from './world-expansion.mjs?v=earned-start-1';
-import { sceneryIdentity, drawIdentityBackground, drawIdentityMaterial, drawIdentityLife } from './level-scenery.mjs?v=earned-start-1';
-import { getCompanionAbility, normalizeCompanionRole } from './companion-abilities.mjs?v=earned-start-1';
-import { companionSprite, companionPalette } from './companion-art.mjs?v=earned-start-1';
-import { createScenePropArt } from './scene-prop-art.mjs?v=earned-start-1';
-import { drawBoss } from './boss.mjs?v=earned-start-1';
-import { drawPickup } from './pickup-art.mjs?v=earned-start-1';
-import { pickupKind, getPickupSpec, pickupContactRadius } from './pickups.mjs?v=earned-start-1';
+import {drawFlightProjection} from './flight-projection.mjs?v=pixel-landscape-1';
+import {drawGlowSense} from './glow-sense.mjs?v=pixel-landscape-1';
+import {formatGlow} from './vitality.mjs?v=pixel-landscape-1';
+import {LOCATION_PALETTES} from './world-expansion.mjs?v=pixel-landscape-1';
+import { sceneryIdentity, drawIdentityBackground, drawIdentityMaterial, drawIdentityLife } from './level-scenery.mjs?v=pixel-landscape-1';
+import { getCompanionAbility, normalizeCompanionRole } from './companion-abilities.mjs?v=pixel-landscape-1';
+import { companionSprite, companionPalette } from './companion-art.mjs?v=pixel-landscape-1';
+import { createScenePropArt } from './scene-prop-art.mjs?v=pixel-landscape-1';
+import { drawBoss } from './boss.mjs?v=pixel-landscape-1';
+import { drawPickup } from './pickup-art.mjs?v=pixel-landscape-1';
+import { pickupKind, getPickupSpec, pickupContactRadius } from './pickups.mjs?v=pixel-landscape-1';
 
 const TAU = Math.PI * 2;
 const SCENERY_HELPERS = { line: pixelLine, disc: pixelDisc, polygon: path };
@@ -184,9 +184,15 @@ export class WispFlightView {
     this.canvas.width = Math.round(cssWidth * ratio);
     this.canvas.height = Math.round(cssHeight * ratio);
     this.canvas.style.width = '100%'; this.canvas.style.height = '100%';
-    this.buffer.width = WIDTH;
-    this.buffer.height = Math.max(1, Math.round((e.height || 620) / (e.width || 390) * WIDTH));
-    this.scale = WIDTH / (e.width || 390);
+    // Retain the established world-to-pixel density on wider scenes, rather
+    // than squeezing landscape into a 240px strip. Bound raster cost on very
+    // wide desktop views; all terrain, light and sprite culling uses this width.
+    const pixelWidth = Math.min(720,Math.max(WIDTH,Math.round((e.width||390)*WIDTH/390)));
+    this.buffer.width = pixelWidth;
+    this.buffer.height = Math.max(1, Math.round((e.height || 620) / (e.width || 390) * pixelWidth));
+    this.scale = pixelWidth / (e.width || 390);
+    this.canvas.dataset.pixelWidth=String(pixelWidth);
+    this.lifeOptions.width=pixelWidth;this.bossOptions.width=pixelWidth;
     this.fog.width = this.buffer.width; this.fog.height = this.buffer.height;
     this.fogPixels = null;
     if (this.skyCanvas) this.skyCanvas.width = this.skyCanvas.height = 1;
@@ -276,7 +282,7 @@ export class WispFlightView {
     const c = this.bufferContext, H = this.buffer.height;
     for (let layer = 0; layer < 2; layer++) {
       const spacing = layer ? 49 : 37, scroll = distance * (layer ? .085 : .043), first = Math.floor(scroll / spacing);
-      for (let i = -1; i < WIDTH / spacing + 2; i++) {
+      for (let i = -1; i < this.buffer.width / spacing + 2; i++) {
         const id = first + i, lean = hash(id, 9) * 12 - 6;
         const x = Math.round(i * spacing - scroll % spacing), base = Math.round(H * (layer ? .98 : .88));
         const height = 29 + hash(id, 2) * (layer ? 61 : 44), ink = layer ? palette.shade : palette.far;
@@ -483,7 +489,7 @@ export class WispFlightView {
       for (const prop of obstacle.sceneProps) {
         const bounds = this.getPropBounds(prop), side = prop.side === -1 ? -1 : 1;
         const anchorY = center + side * obstacle.gap / 2;
-        if ((obstacle.x - distance + bounds.maxX) * s < -2 || (obstacle.x - distance + bounds.minX) * s > WIDTH + 2
+        if ((obstacle.x - distance + bounds.maxX) * s < -2 || (obstacle.x - distance + bounds.minX) * s > this.buffer.width + 2
           || (anchorY + bounds.maxY) * s < -2 || (anchorY + bounds.minY) * s > this.buffer.height + 2) continue;
         const key = `${identity.id}:${obstacle.id}:${prop.id}`;
         let item = this.scenePropCache.get(key);
@@ -501,7 +507,7 @@ export class WispFlightView {
         }
         const x = (obstacle.x - distance + item.x) * s - item.pad;
         const y = (center + side * obstacle.gap / 2 + item.y) * s - item.pad;
-        if (x + item.canvas.width < 0 || x > WIDTH || y + item.canvas.height < 0 || y > this.buffer.height) continue;
+        if (x + item.canvas.width < 0 || x > this.buffer.width || y + item.canvas.height < 0 || y > this.buffer.height) continue;
         c.drawImage(item.canvas, x, y);
       }
     }
@@ -554,7 +560,7 @@ export class WispFlightView {
     for (const ember of e.layout.embers) {
       if (ember.collected || ember.carried) continue;
       const x = Math.round((ember.x - distance) * s), y = Math.round(ember.y * s);
-      if (x < -13 || x > WIDTH + 13) continue;
+      if (x < -13 || x > this.buffer.width + 13) continue;
       this.drawPacket(x, y, { kind: pickupKind(ember), time: t, reducedMotion: e.reducedMotion,
         tiny: ember.generated === true, scale: s });
     }
@@ -755,6 +761,16 @@ export class WispFlightView {
         const dot = Math.max(.3, 1.8 * (1 - progress));
         c.fillRect(x + Math.cos(angle) * r, y + Math.sin(angle) * r, dot, dot);
       }
+    }
+    if(!dying&&e.mod.mainKindler&&e.kindlerPulse>0){
+      const pulse=clamp(e.kindlerPulse/.9,0,1),r=14+(1-pulse)*9;
+      c.fillStyle='#efbcc3';c.globalAlpha=pulse*.55;
+      for(let i=0;i<6;i++){const a=i*TAU/6+(e.reducedMotion?0:t*.4);c.fillRect(Math.round(x+Math.cos(a)*r),Math.round(y+Math.sin(a)*r),1,1);}
+    }
+    if(!dying&&e.mod.mainSeer&&e.mainSeerUntil>e.time){
+      const strength=clamp((e.time-e.mainSeerStartedAt)/.25,0,1)*clamp((e.mainSeerUntil-e.time)/.4,0,1);
+      c.fillStyle='#d2bce8';c.globalAlpha=strength*.45;
+      for(let i=0;i<3;i++){const step=e.reducedMotion?i/3:(t*.8+i/3)%1;c.fillRect(Math.round(x+17+step*20),Math.round(y+Math.sin(step*Math.PI)*3-2),2,1);}
     }
     c.restore();c.restore();
   }
@@ -957,7 +973,7 @@ export class WispFlightView {
       if (![puff.x, puff.y, puff.rx, puff.ry].every(Number.isFinite)) continue;
       const x = (puff.x - distanceOf(e)) * s, y = puff.y * s;
       const rx = puff.rx * s, ry = puff.ry * s;
-      if (rx <= 0 || ry <= 0 || x + rx < -2 || x - rx > WIDTH + 2 || y + ry < 0 || y - ry > H) continue;
+      if (rx <= 0 || ry <= 0 || x + rx < -2 || x - rx > this.buffer.width + 2 || y + ry < 0 || y - ry > H) continue;
       const progress = clamp(Number(puff.progress) || 0, 0, 1);
       const power = clamp(Number(puff.strength) || 0, 0, 1);
       const opacity = clamp(Number.isFinite(puff.opacity) ? puff.opacity : 1, 0, 1);
@@ -1105,14 +1121,14 @@ export class WispFlightView {
       const progress = 1 - clamp(effect.life / .72, 0, 1);
       c.globalAlpha = 1 - progress;
       const label = String(effect.text || (effect.restored > 0 ? `+${formatGlow(effect.restored,e.maxFlame||100)} GLOW` : 'FULL')).toUpperCase();
-      const labelX = clamp(Math.round(effect.x * s - label.length * 2), 2, WIDTH - label.length * 4 - 2);
+      const labelX = clamp(Math.round(effect.x * s - label.length * 2), 2, this.buffer.width - label.length * 4 - 2);
       pixelText(c, label, labelX, Math.round(effect.y * s - 28 - progress * 10),
         effect.color || (effect.pickupKind ? getPickupSpec(effect.pickupKind).color : '#f2d79a'));
     }
     c.globalAlpha = 1;
     this.drawPortal(e, t);
-    if (e.flash > 0) { c.globalAlpha = Math.min(.2, e.flash * 1.3); c.fillStyle = '#dbc2a1'; c.fillRect(0, 0, WIDTH, this.buffer.height); c.globalAlpha = 1; }
-    if(e.completing){c.save();c.globalCompositeOperation='screen';const p=e.completionProgress||0;c.globalAlpha=.11*p*p*(3-2*p)+Math.sin(Math.PI*p)*.02;c.fillStyle='#efd4a0';c.fillRect(0,0,WIDTH,this.buffer.height);c.restore();}
+    if (e.flash > 0) { c.globalAlpha = Math.min(.2, e.flash * 1.3); c.fillStyle = '#dbc2a1'; c.fillRect(0, 0, this.buffer.width, this.buffer.height); c.globalAlpha = 1; }
+    if(e.completing){c.save();c.globalCompositeOperation='screen';const p=e.completionProgress||0;c.globalAlpha=.11*p*p*(3-2*p)+Math.sin(Math.PI*p)*.02;c.fillStyle='#efd4a0';c.fillRect(0,0,this.buffer.width,this.buffer.height);c.restore();}
     this.context.imageSmoothingEnabled = false;
     this.context.drawImage(this.buffer, 0, 0, this.canvas.width, this.canvas.height);
     if (!this.backgroundRepainted) this.prewarmSurfaces(e, distance);

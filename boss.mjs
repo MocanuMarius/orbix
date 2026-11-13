@@ -44,17 +44,23 @@ function edgeAt(shape, x) {
   return 0;
 }
 
+export function getBossTuning(difficulty=1){
+  // First encounters teach the hand patterns; the original trial returns by Ascension 4.
+  const easing=clamp(1-(Math.max(1,Number(difficulty)||1)-1)/3,0,1);
+  return {gapMultiplier:1+.15*easing,spacingMultiplier:1+.08*easing,motionMultiplier:1-.15*easing,warningDistance:360*(1+.2*easing)};
+}
+
 export function buildBossLayout({ seed = 1, height = 620, speed = 154, duration = 165,
   gapScale = .88, difficulty = 1, elite = false, levelIdentity = null,
   circleHitsPolygon = null } = {}) {
-  const rng = randomFor(`${seed}:hollow-warden`), scale = height / 620;
+  const rng = randomFor(`${seed}:hollow-warden`), scale = height / 620, tuning=getBossTuning(difficulty);
   const totalDistance = duration * speed, end = totalDistance + 98 - speed * 3.2;
   const start = Math.min(650, end * .24), phaseSpan = Math.max(1, end - start) / 3;
   const obstacles = [], embers = [], sections = [], phases = [];
   let previous = height * .5, index = 0, nextFuel = 0;
   for (let phase = 0; phase < 3; phase++) {
     const definition = PHASES[phase], first = start + phase * phaseSpan, limit = start + (phase + 1) * phaseSpan;
-    const spacing = phase === 2 ? 344 : 352;
+    const spacing = (phase === 2 ? 344 : 352)*tuning.spacingMultiplier;
     const count = Math.max(1, Math.floor((limit - first - 355) / spacing) + 1);
     const phaseCells = [];
     for (let cell = 0; cell < count; cell++) {
@@ -62,12 +68,12 @@ export function buildBossLayout({ seed = 1, height = 620, speed = 154, duration 
       const [flow, opening, occupancy, motion] = definition.cells[patternIndex];
       const gentle = opening >= 260 || phase === 0 && cell === 0;
       const center = clamp(height * flow, previous - height * .06, previous + height * .06);
-      const gap = gentle ? opening * scale : Math.max(elite ? 104 : 120, opening * scale * gapScale);
+      const gap = gentle ? opening * scale : Math.max(elite ? 104 : 120, opening * scale * gapScale)*tuning.gapMultiplier;
       const width = phase === 2 ? 135 : 142;
       const x = first + cell * spacing;
       if (x + width * 2.45 > end) break;
       const sectionId = `warden:${phase}:${cell}`;
-      const obstacle = { id: index, x, width, center, gap, motion: motion * scale,
+      const obstacle = { id: index, x, width, center, gap, motion: motion * scale * tuning.motionMultiplier,
         phase: phase === 1 ? .6 : phase === 2 ? 2.2 : 0,
         pattern: `warden-${definition.id}`, bossPart: gentle ? 'resting-palm' : occupancy === 'both' ? 'paired-hands' : 'stone-fingers',
         bossPhase: phase + 1, soft: false, destroyed: false, hit: false, passed: false,
@@ -82,7 +88,7 @@ export function buildBossLayout({ seed = 1, height = 620, speed = 154, duration 
       sections.push({ id: sectionId, name: definition.name, start: x - width * .8,
         end: x + width * 2.45, kind: gentle ? cell === 0 ? 'intro' : 'breather' : 'challenge',
         difficulty: gentle ? 0 : phase + 1, hard: !gentle, setpiece: obstacle.setpiece,
-        landmark: 'hollow-warden', warningStart: x - 360, windShelter: obstacle.windShelter, leg: phase });
+        landmark: 'hollow-warden', warningStart: x - tuning.warningDistance, windShelter: obstacle.windShelter, leg: phase });
       previous = center; index++;
     }
     phases.push({ id: definition.id, name: definition.name, instruction: definition.instruction,
@@ -124,7 +130,7 @@ export function buildBossLayout({ seed = 1, height = 620, speed = 154, duration 
     }
   }
   return { obstacles, embers, sections, sceneProps: [], levelIdentity,
-    boss: { id: 'hollow-warden', name: 'Hollow Warden', difficulty, phases,
+    boss: { id: 'hollow-warden', name: 'Hollow Warden', difficulty, phases, tuning,
       introEnd: start, end, exitStart: totalDistance - speed * 3.2 },
     legs: phases.map(phase => ({ index: phase.index - 1, start: phase.start, end: phase.end })),
     hardWindows: sections.filter(section => section.hard).length, lengthScale: 3 };
@@ -136,7 +142,7 @@ export function getBossState(engine) {
   const worldX = engine.distance + engine.player.x;
   const phase = boss.phases.find(item => worldX < item.end) || boss.phases.at(-1);
   const upcoming = engine.layout.obstacles.find(obstacle => obstacle.motion > 0
-    && obstacle.x + obstacle.width * .8 > worldX && obstacle.x - worldX < 360);
+    && obstacle.x + obstacle.width * .8 > worldX && obstacle.x - worldX < (boss.tuning?.warningDistance||360));
   const direction = upcoming && Math.cos(engine.time * .9 + upcoming.phase) < 0 ? 'rising' : 'falling';
   return { id: boss.id, name: boss.name, phase: phase.index, phaseName: phase.name,
     progress: clamp((worldX - phase.start) / Math.max(1, phase.end - phase.start), 0, 1),

@@ -13,7 +13,7 @@ export function dreamConfig(run={}){
 }
 export function validateDreamPreset(preset,engine){
   return !!preset&&preset.version===1&&preset.fingerprint===dreamFingerprint(engine.options)
-    &&Math.abs(preset.height-engine.height)<.01&&preset.duration<=Number(engine.mod.dreamDuration||0)
+    &&Math.abs(preset.width-engine.width)<.01&&Math.abs(preset.height-engine.height)<.01&&preset.duration<=Number(engine.mod.dreamDuration||0)
     &&preset.duration>=4&&Array.isArray(preset.events)&&preset.events.length<=1000
     &&preset.events.every(event=>INPUTS.includes(event.action)&&Number.isInteger(event.frame)&&event.frame>=0&&event.frame<=preset.duration*60);
 }
@@ -61,8 +61,17 @@ export function attachDream(engine,{mode='record',preset,duration=engine.mod.dre
   };
   const ready=(valid,reason='')=>{
     dream.phase=valid?'ready':'failed';stop();
-    onReady({valid,reason,preset:valid?{version:1,fingerprint:dreamFingerprint(engine.options),height:engine.height,duration:dream.duration,
+    onReady({valid,reason,preset:valid?{version:1,fingerprint:dreamFingerprint(engine.options),width:engine.width,height:engine.height,duration:dream.duration,
       events:dream.events.map(event=>({...event,args:[...event.args]}))}:null});
+  };
+  const initialWidth=engine.width,initialHeight=engine.height,resize=engine.resize;
+  engine.resize=function(...args){
+    const result=resize.apply(this,args);
+    if(dream.active&&(Math.abs(this.width-initialWidth)>.01||Math.abs(this.height-initialHeight)>.01)){
+      if(mode==='record')ready(false,'The view changed. Rehearse again in the new orientation.');
+      else{dream.phase='awakening';stop();onAwake();}
+    }
+    return result;
   };
   const step=engine.step;
   engine.step=function(dt){

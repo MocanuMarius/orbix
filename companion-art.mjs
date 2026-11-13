@@ -1,4 +1,4 @@
-import { normalizeCompanionRole } from './companion-abilities.mjs?v=earned-start-1';
+import { normalizeCompanionRole } from './companion-abilities.mjs?v=pixel-landscape-1';
 
 const PALETTES = Object.freeze({
   collector: Object.freeze({ outer: '#658557', mid: '#8db778', core: '#b9dfa0', bright: '#efffe0' }),
@@ -8,7 +8,7 @@ const PALETTES = Object.freeze({
   seer: Object.freeze({ outer: '#75509f', mid: '#a57bd1', core: '#d3b1f2', bright: '#f3eaff' }),
   kindler: Object.freeze({ outer: '#985d72', mid: '#cd8fa1', core: '#f0beca', bright: '#fff0f2' }),
 });
-const NAMES = Object.freeze({ collector: 'Collector', protector: 'Protector', leveler: 'Leveler', swift: 'Swift', seer: 'Seer', kindler: 'Kindler' });
+const NAMES = Object.freeze({ collector: 'Collector', protector: 'Protector', leveler: 'Space Timer', swift: 'Runner', seer: 'Seer', kindler: 'Kindler' });
 
 // Every companion is the same simple circular light, distinguished only by
 // palette. Four concentric pixel shades and a small off-center light core.
