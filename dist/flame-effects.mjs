@@ -1,4 +1,4 @@
-import * as PIXI from './vendor/pixi.mjs?v=living-choices-2';
+import * as PIXI from './vendor/pixi.mjs?v=clear-sparks-1';
 
 const TAU = Math.PI * 2;
 const clamp = (n, low, high) => Math.max(low, Math.min(high, n));

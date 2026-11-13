@@ -24,8 +24,8 @@ assert.equal(snapshot(real),snapshot(record),'Replay must exactly reproduce phys
 assert.equal(awake,1);const stopped=snapshot(real);real.step(1/60);assert.equal(snapshot(real),stopped);
 const flaps=real.flaps;assert.ok(real.dream.resume());assert.equal(real.flaps,flaps,'Awakening alone must not Lift');
 assert.equal(real.resumeRemaining,3);assert.equal(real.resumeScale,.1);
-real.flap();assert.equal(real.flaps,flaps+1);assert.equal(real.condensedTotal,12);assert.equal(real.flame,33);
-real.flap();assert.equal(real.condensedTotal,12);assert.equal(real.flame,26,'Only flight Glow pays for Lift');
+real.flap();assert.equal(real.flaps,flaps+1);assert.equal(real.condensedTotal,12);assert.equal(real.flame,30);
+real.flap();assert.equal(real.condensedTotal,12);assert.equal(real.flame,20,'Only flight Glow pays for Lift');
 real.collect({id:'dawn',kind:'light',x:real.distance+real.player.x,y:real.player.y});real.time+=.12;
 assert.equal(real.pickupRevealStrength,1);assert.equal(real.secondDawnUsed,true);
 const changed=make();changed.height=621;assert.equal(validateDreamPreset(ready.preset,changed),false);

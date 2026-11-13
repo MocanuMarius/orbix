@@ -11,10 +11,10 @@ const ARTIFACT_INFO=Object.freeze({
  'lantern-bloom':info('triggered','This run · sight evolution','Three consecutive body Spark pickups.','Reveal the whole scene for 1.5 seconds.','Collector deliveries break the chain. Five activations per flight. Replaces Wayward Seed in the same slot. Can prime Sunspool, within its four-Lift cap.'),
   'glow-wick':info('consumable','3 uses per copy · up to 9','Collect a natural Sparks pickup.','Restore up to 10 extra Sparks.','Each earned copy adds 3 uses to the same slot, up to 9. Fourth copies melt for 25 Packed Light. Rest can recharge mounted copies. Consumed when empty. Extra fuel never makes Packed Light.',3),
   'flash-stone':info('consumable','2 uses per copy · up to 6','Collect a natural Sparks pickup.','Reveal the whole scene for 1.5 seconds.','Each earned copy adds 2 uses to the same slot, up to 6. Fourth copies melt for 25 Packed Light. Rest can recharge mounted copies. Consumed when empty. Extra light does not stack.',2),
-  'quiet-cinder':info('passive','Lasts this run','Always while mounted.','Lift costs 10% less Sparks.'),
+  'quiet-cinder':info('passive','Lasts this run','Always while mounted.','Lift costs one less Spark (minimum one).'),
   'ember-lens':info('passive','Lasts this run','Always while mounted.','Your light reaches farther.'),
   'silver-feather':info('passive','Lasts this run','Whenever you Lift.','Rise 6% more strongly.'),
-  'glass-lantern':info('passive','Lasts this run','Collect a natural Sparks pickup.','Restore 6 extra Sparks, but Lift costs 12% more.'),
+  'glass-lantern':info('passive','Lasts this run','Collect a natural Sparks pickup.','Restore 6 extra Sparks, but Lift costs one extra Spark.'),
   'moss-heart':info('passive','Lasts this run','Make a body pickup with Kindled Touch learned.','Kindled Touch restores 3 extra Sparks.','Needs Kindled Touch in the Sparks tree.'),
   'wayfinder-seed':info('passive','Lasts this run','While Collector is equipped.','Collector reaches 15% farther.'),
   'iron-petal':info('passive','Lasts this run','While Protector is equipped.','Protector recharges 12% sooner.'),
@@ -31,7 +31,7 @@ const ARTIFACT_INFO=Object.freeze({
   'night-gardener':info('triggered','Resets each flight','Skim a Dark Spark without touching it.','Restore 4 Sparks.','Once per seed, up to 5 seeds per flight.'),
   'sunheart-engine':info('triggered','Kept between runs','Collect natural fuel, especially above maximum Sparks.','Gain 8 extra Sparks; surplus recharges companions and reveals ahead.','Recovery: up to 2 seconds per pickup, 12 per flight. Reveal: 2 seconds.'),
   'dream-sovereign':info('triggered','Kept between runs','Dream fuel recharges companions; waking fuel reveals the scene.','Fuel collected in temporary light can store a free Lift.','4 free Lift grants per flight. Also increases your light radius.'),
-  'hollow-covenant':info('triggered','Kept between runs','Companion action primes your next body Spark pickup.','Restore 12 extra Sparks; Lift always costs 10% less.','5 primed pickups per flight. Also skim up to 5 Dark Sparks for 6 Sparks each.'),
+  'hollow-covenant':info('triggered','Kept between runs','Companion action primes your next body Spark pickup.','Restore 12 extra Sparks; Lift costs one less Spark (minimum one).','5 primed pickups per flight. Also skim up to 5 Dark Sparks for 6 Sparks each.'),
 });
 export function getArtifactInfo(id){return ARTIFACT_INFO[id]||info('passive','Lasts this run','While mounted.','Inspect this artifact for its effect.');}
 // Only a newly earned reward adds uses. Mounting and moving read the same ledger.

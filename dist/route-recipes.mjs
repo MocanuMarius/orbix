@@ -27,6 +27,6 @@ export function nodeEconomy(node={}){
  const map=Math.min(2,Math.max(0,node.mapIndex||0));
  // Only collected light can condense. Clear/recovery/challenge rewards never
  // mint currency; relinquishing a relic releases a finite Sparks pickup.
- const salvageGlow=node.boss?null:node.kind==='treasure'?50+map*5:node.type==='finale'?50+map*5:node.elite?45+map*5:30+map*5;
+ const salvageGlow=node.boss?null:node.kind==='treasure'||node.type==='finale'?60+map*20:node.elite?40+map*20:20+map*20;
  return{clear:0,cash:0,challenge:0,salvageGlow};
 }

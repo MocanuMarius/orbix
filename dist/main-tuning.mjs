@@ -34,13 +34,13 @@ export const MAIN_TUNING_SKILLS={
  'main-cache-feast':node('main-cache-feast','Cache Feast',45,'main-reservoir','Large Sparks caches restore 8 extra Sparks.','fuel','Rich fuel',{choiceGroup:'vessel-style',excludes:['main-vast-vessel']}),
  'main-plummet':node('main-plummet','Falling Star',25,'main-speed','Fall acceleration +12%. Reach low packets sooner; react earlier near the floor.','dive','+12% fall',{choiceGroup:'fall-style',excludes:['main-drift']}),
  'main-deep-plummet':node('main-deep-plummet','Heavy Core',45,'main-plummet','Fall acceleration +6% more. Maximum fall speed +8%.','dive','Faster dive',{choiceGroup:'dive-style',excludes:['main-low-lift']}),
- 'main-low-lift':node('main-low-lift','Low Arc',40,'main-plummet','Lift rises 8% less and costs 8% less Sparks. Shorter hops for low passages.','lift','Low hops',{choiceGroup:'dive-style',excludes:['main-deep-plummet']}),
+ 'main-low-lift':node('main-low-lift','Low Arc',40,'main-plummet','Lift rises 8% less. Gain 10 maximum Sparks.','lift','Low hops',{choiceGroup:'dive-style',excludes:['main-deep-plummet']}),
 };
 export function tuneMainDefinition(skill){
  if(skill.branch!=='main')return skill;
  const extra=skill.id==='main-drift'?{choiceGroup:'fall-style',excludes:['main-plummet']}:['main-tailwind','main-lift','main-kindling'].includes(skill.id)?{choiceGroup:undefined,excludes:[]}:{};
  const costs={'main-lift':25,'main-kindling':30,'main-tailwind':25,'main-drift':25,'main-horizon':30,'main-dawn':30};
- const labels={'main-lift':'−10% effort','main-kindling':'+4 Sparks','main-tailwind':'+6% pace','main-drift':'−10% fall','main-horizon':'+45 sight','main-dawn':'−40% dim','main-wide-beam':'+25 sight','main-clear-beam':'−15% dim','main-dawn-guard':'−10% dim','main-dawn-fuel':'+3 Sparks','main-rising-current':'+4% Lift','main-soft-current':'−6% fall','main-light-step':'−5% effort','main-rising-drift':'+4% Lift','main-gentle-rise':'−5% fall','main-thrifty-rise':'−5% effort','main-inner-fire':'+3 Sparks','main-shared-fire':'+5 Sparks'};
+ const labels={'main-lift':'−1 Lift cost','main-kindling':'+4 Sparks','main-tailwind':'+6% pace','main-drift':'−10% fall','main-horizon':'+45 sight','main-dawn':'−40% dim','main-wide-beam':'+25 sight','main-clear-beam':'−15% dim','main-dawn-guard':'−10% dim','main-dawn-fuel':'+3 Sparks','main-rising-current':'+4% Lift','main-soft-current':'−6% fall','main-light-step':'+3 capacity','main-rising-drift':'+4% Lift','main-gentle-rise':'−5% fall','main-thrifty-rise':'+3 capacity','main-inner-fire':'+3 Sparks','main-shared-fire':'+5 Sparks'};
  return {...skill,...extra,shortEffect:labels[skill.id]||skill.shortEffect,cost:costs[skill.id]??(skill.expansion?45:skill.cost)};
 }
 

@@ -1,0 +1,59 @@
+/* Numeric glyphs use a separate pixel face with distinct 3/5/6/8 shapes.
+   Unicode-range preserves the game's letterforms and all existing UI strings. */
+@font-face{font-family:WispNumbers;src:url('assets/fonts/silkscreen-numbers.ttf') format('truetype');font-style:normal;font-weight:400 700;font-display:swap;unicode-range:U+0030-0039}
+:root{--pixel:WispNumbers,WispPixel,monospace;--ui-title:24px;--ui-choice:22px;--ui-value:24px;--ui-support:14px;--ui-caption:12px}
+body{font-variant-numeric:tabular-nums;font-synthesis:none}
+/* The same hierarchy covers Rest choices, preparation and exchange screens. */
+.rest-rail h1{font-size:var(--ui-title)!important}
+.rest-benefit h2,.rest-benefit-cards:has(>button:nth-child(4)) h2{font-size:var(--ui-choice)!important;line-height:1.12!important;min-height:50px;width:100%}
+.rest-benefit{gap:12px;padding-top:12px!important}
+.rest-benefit>.choice-scene{height:clamp(64px,21dvh,92px)}
+.rest-outcome-track,.rest-benefit-cards:has(>button:nth-child(4)) .rest-outcome-track{font-size:var(--ui-value);gap:5px;line-height:1.25}
+.rest-outcome-track .boon-resource-value b{font-size:var(--ui-value)}
+.rest-outcome-track b small{font-size:var(--ui-support);color:#c3cebb}
+.rest-outcome-track:has(>b:nth-of-type(2)){display:grid;grid-template-columns:22px auto;gap:3px 5px;text-align:left}
+.rest-outcome-track:has(>b:nth-of-type(2))>svg{grid-column:1;grid-row:1}
+.rest-outcome-track:has(>b:nth-of-type(2))>b:first-of-type{grid-column:2;grid-row:1;font-size:var(--ui-support);color:#b8c6b0}
+.rest-outcome-track:has(>b:nth-of-type(2))>i{grid-column:1;grid-row:2;font-size:20px;color:#dfebc4}
+.rest-outcome-track:has(>b:nth-of-type(2))>b:last-of-type{grid-column:2;grid-row:2}
+.rest-glow b{font-size:var(--ui-value)}.rest-glow b small{font-size:var(--ui-support)}
+.rest-capacity-gain,.rest-receipt,.rest-service-cards small,.rest-route-link,.rest-rules summary{font-size:var(--ui-support)}
+.rest-recharge-outcome{font-size:20px}.rest-recharge-outcome small{font-size:var(--ui-support)}
+.rest-pick-cue{font-size:var(--ui-support);letter-spacing:.5px;padding:8px 0 3px}
+.rest-eyebrow,.rest-choice-caption b,.rest-dream>small,.rest-dream-passage .rest-next small{font-size:var(--ui-caption)!important}
+.rest-service-cards strong,.rest-dream-passage .rest-next h2{font-size:var(--ui-choice)}
+.rest-depart{font-size:18px!important}.rest-dream>span{font-size:var(--ui-support)}
+.forge-loss strong{font-size:18px}.forge-gain strong{font-size:28px}.forge-gain>span,.forge-loss small,.forge-exchange>p{font-size:var(--ui-support)}
+.forge-ritual-actions button{font-size:16px!important}
+/* Keep outcomes together at compact landscape sizes; use size steps, not whole-UI scaling. */
+@media(orientation:landscape) and (max-width:750px){:root{--ui-title:22px;--ui-choice:18px;--ui-value:20px;--ui-support:12px;--ui-caption:11px}.rest-benefit{gap:8px;padding-inline:4px!important}.rest-recharge-outcome{font-size:16px}.rest-outcome-track:has(>b:nth-of-type(2)){grid-template-columns:18px auto;gap:3px}.rest-benefit h2{min-height:42px}.rest-capacity-gain{gap:2px}.rest-service-cards strong{font-size:18px}}
+@media(orientation:landscape) and (max-height:350px){:root{--ui-title:22px;--ui-choice:18px;--ui-value:20px;--ui-support:12px;--ui-caption:11px}.rest-benefit{gap:7px;padding-top:6px!important}.rest-benefit h2,.rest-benefit-cards:has(>button:nth-child(4)) h2{min-height:40px}.rest-benefit>.choice-scene{height:48px;min-height:38px}.rest-pick-cue{padding-top:3px}.rest-service-cards strong{font-size:18px}.rest-service-cards>button>.choice-scene{height:38px;min-height:30px}.rest-depart{font-size:16px!important}.forge-loss strong{font-size:16px}.forge-gain strong{font-size:24px}}
+
+/* Debug entry is visible in Settings, separated from gameplay actions. */
+.mock-toggle{display:flex;align-items:center;justify-content:center;gap:7px;min-height:44px;padding:5px 8px;border:1px dashed #9d90b3;background:#30283e;color:#e3d6f2;font:12px var(--pixel)}.mock-toggle>svg{width:24px;height:24px;flex:none}
+.flight-run-status .boss-phase-hud{display:none}.flight-artifact-bar{max-width:none;gap:4px;pointer-events:auto}
+.flight-artifact-bar>button{position:relative;display:grid;place-items:center;width:44px;height:44px;min-width:44px;min-height:44px;padding:5px;border:0;background:#101a18a6;opacity:1;touch-action:manipulation}
+.flight-artifact-bar>button>svg{width:32px;height:32px}.flight-artifact-bar>button.triggered{background:#8f95604d;outline:1px solid #e2e7a5}.flight-artifact-bar>button.depleted{opacity:.5;filter:grayscale(1)}.flight-artifact-bar>button:focus-visible{outline:2px solid #fff1bf}
+.flight-artifact-bar .artifact-flight-charge{font-size:11px;height:14px;min-width:14px;right:0;bottom:0}.flight-artifact-bar .artifact-seed-pips{bottom:0;left:4px}
+
+.glow-unit.partial{background:linear-gradient(to top,#e3efbe var(--unit-fill),#263a30 var(--unit-fill))!important}
+
+.artifact-details-sheet .relic-detail-crest>svg{width:64px;height:64px}
+.artifact-details-sheet .relic-detail-crest h2{font-size:24px}.artifact-details-sheet .relic-detail-crest small,.artifact-details-sheet .relic-lifetime{font-size:13px}
+.artifact-details-sheet>.relic-effect{font-size:20px}.artifact-details-sheet .relic-stat small{font-size:14px}
+.artifact-details-sheet .relic-flight-rule,.artifact-details-sheet>.relic-trigger,.artifact-details-sheet .relic-more,.artifact-details-sheet .relic-more p{font-size:14px;line-height:1.4}
+.artifact-details-sheet .relic-flight-rule{color:#d0dcc3;margin:8px 0}.artifact-details-sheet>.primary{font-size:18px}
+@media(orientation:landscape) and (max-height:350px){.artifact-details-sheet .relic-detail-crest>svg{width:48px;height:48px}.artifact-details-sheet .relic-detail-crest h2{font-size:20px}.artifact-details-sheet>.relic-effect{font-size:18px}.artifact-details-sheet .relic-flight-rule,.artifact-details-sheet>.relic-trigger,.artifact-details-sheet .relic-more,.artifact-details-sheet .relic-more p{font-size:12px}.artifact-details-sheet .relic-flight-rule{margin:5px 0}}
+
+:is(.game-menu-sheet,.menu-pause)>.menu-debug-controls{grid-column:2;grid-row:1;display:grid;grid-template-columns:1fr 1fr;gap:5px;align-items:center;min-width:0}
+.menu-debug-controls>.test-controls{display:contents}.menu-debug-controls .test-toggle,.menu-debug-controls .mock-toggle{font-size:11px!important;line-height:1.3;min-height:44px;margin:0!important;padding:4px 6px!important;min-width:0;width:100%;box-sizing:border-box}
+.menu-debug-controls .test-toggle{grid-column:1;grid-row:1}.menu-debug-controls .mock-toggle{grid-column:2;grid-row:1}.menu-debug-controls .mock-toggle>svg{width:20px;height:20px}
+.menu-debug-controls .test-controls>small{display:none}.menu-debug-controls .test-currency-grant{grid-column:1/-1;grid-row:2;min-height:40px;margin:0!important;font-size:11px}
+.game-menu-sheet:not(:has(.run-pause-heading))>.menu-debug-controls{grid-row:1/4;align-self:center;grid-template-columns:1fr}.game-menu-sheet:not(:has(.run-pause-heading)) .menu-debug-controls .mock-toggle{grid-column:1;grid-row:3}
+
+/* Resource feedback remains on pickups and gauges, leaving the flight header quiet. */
+.flight-event{display:none!important}
+
+/* Large vessels keep real 4px Lift cells; a second slim column avoids HUD overlap. */
+.canvas-wrap>.glow-side-gauge.glow-gauge-v3{height:min(calc(var(--glow-units,10)*5px - 1px),calc(100dvh - 100px))}
+.glow-gauge-v3 #flame-meter{overflow:visible}.glow-side-gauge.glow-gauge-v3 #flame-fill{flex-wrap:wrap;align-content:flex-start;column-gap:3px}

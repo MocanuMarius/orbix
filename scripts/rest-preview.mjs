@@ -5,7 +5,7 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import {fileURLToPath} from 'node:url';
 const root=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'../dist');
-const mime={'.html':'text/html; charset=utf-8','.mjs':'text/javascript; charset=utf-8','.js':'text/javascript; charset=utf-8','.css':'text/css; charset=utf-8','.png':'image/png','.webp':'image/webp','.svg':'image/svg+xml','.jpg':'image/jpeg','.mp3':'audio/mpeg','.woff2':'font/woff2'};
+const mime={'.html':'text/html; charset=utf-8','.mjs':'text/javascript; charset=utf-8','.js':'text/javascript; charset=utf-8','.css':'text/css; charset=utf-8','.png':'image/png','.webp':'image/webp','.svg':'image/svg+xml','.jpg':'image/jpeg','.mp3':'audio/mpeg','.woff2':'font/woff2','.ttf':'font/ttf'};
 const fixture=`
 // MOCK RUN: changes are memory-only and reset on refresh.
 destroyFlight();state=newState();state.profile.difficulty=4;
@@ -40,7 +40,7 @@ else if(['briefing','victory','pause','lighting'].includes(scenario)){
  const next=getChoices(mockRun)[0];selectNode(mockRun,next.id);
  if(scenario==='victory'){beginFlightAttempt(mockRun);finishFlight(mockRun,{success:true,flame:60,collected:6});settleCheckpoint(state);goToRun();}
  else if(scenario==='pause'){launch();showMenu();}
- else if(scenario==='lighting'){delete mockRun.skills['main-sight'];launch();engine.paused=true;engine.render();}
+ else if(scenario==='lighting'){delete mockRun.skills['main-sight'];if(new URLSearchParams(location.search).get('capacity')==='full'){Object.assign(mockRun.skills,{'main-light-step':1,'main-thrifty-rise':1,'main-low-lift':1,'main-reservoir':1,'main-vast-vessel':1});mockRun.restGlowCapacity=30;mockRun.flame=200;}launch();engine.paused=true;engine.render();}
  else goToRun();
 }
 `;
@@ -53,19 +53,17 @@ document.querySelector('nav').addEventListener('click',e=>{const b=e.target.clos
 const server=http.createServer(async(req,res)=>{
  try{
   const url=new URL(req.url,'http://localhost'),pathname=decodeURIComponent(url.pathname);let body,type;
-  if(pathname==='/'){body=wrapper;type=mime['.html'];}
+  if(pathname==='/'){body=await fs.readFile(path.join(root,'index.html'),'utf8');type=mime['.html'];}
+  else if(pathname==='/rest-inspector.html'){body=wrapper;type=mime['.html'];}
   else if(pathname==='/rest-scene.html'){body=(await fs.readFile(path.join(root,'index.html'),'utf8')).replace(/src="app\.mjs(?:\?[^"]*)?"/,'src="/rest-preview-app.mjs"');type=mime['.html'];}
   else if(pathname==='/rest-preview-app.mjs'){
    const source=await fs.readFile(path.join(root,'app.mjs'),'utf8');
-   if(!source.includes("let state;try{state=loadState(localStorage)}catch{state=newState()}")||!source.includes("function persist(){try{saveState(state,localStorage)}catch{}}"))throw Error('Rest preview save-isolation hook needs updating');
-   body=source
-    .replace("let state;try{state=loadState(localStorage)}catch{state=newState()}","let state=newState();")
-    .replace("function persist(){try{saveState(state,localStorage)}catch{}}","function persist(){}")
+   body=source.replace("const mockMode=new URLSearchParams(location.search).get('mock')==='rest';","const mockMode=true;")
     +fixture;type=mime['.mjs'];
   }else{const filename=path.resolve(root,'.'+pathname);if(!filename.startsWith(root+path.sep))throw Error('Outside preview');body=await fs.readFile(filename);type=mime[path.extname(filename)]||'application/octet-stream';}
   res.writeHead(200,{'Content-Type':type,'Cache-Control':'no-store','X-Content-Type-Options':'nosniff'});res.end(body);
  }catch(error){res.writeHead(404,{'Content-Type':'text/plain'});res.end('Preview resource unavailable');console.error(error.message);}
 });
 const port=Number(process.env.REST_PREVIEW_PORT)||4180;
-server.listen(port,'127.0.0.1',()=>console.log('Rest inspector: http://localhost:'+port));
+server.listen(port,'127.0.0.1',()=>console.log('Game: http://localhost:'+port+' | Rest preview: http://localhost:'+port+'/?mock=rest'));
 

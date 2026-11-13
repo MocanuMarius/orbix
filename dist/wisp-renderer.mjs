@@ -1,19 +1,19 @@
-import {drawFlightProjection} from './flight-projection.mjs?v=living-choices-2';
-import {drawGlowSense} from './glow-sense.mjs?v=living-choices-2';
-import {formatGlow} from './vitality.mjs?v=living-choices-2';
-import {LOCATION_PALETTES} from './world-expansion.mjs?v=living-choices-2';
-import {biomePalette} from './biome-art.mjs?v=living-choices-2';
-import { sceneryIdentity, drawIdentityBackground, drawIdentityMaterial, drawIdentityLife } from './level-scenery.mjs?v=living-choices-2';
-import { getCompanionAbility, normalizeCompanionRole } from './companion-abilities.mjs?v=living-choices-2';
-import { companionSprite, companionPalette } from './companion-art.mjs?v=living-choices-2';
-import { createScenePropArt } from './scene-prop-art.mjs?v=living-choices-2';
-import { drawBoss } from './boss.mjs?v=living-choices-2';
-import { drawPickup } from './pickup-art.mjs?v=living-choices-2';
-import { pickupKind, getPickupSpec, pickupContactRadius } from './pickups.mjs?v=living-choices-2';
-import { lightAttenuation,lightVisibility,createLightMaskCanvas,sceneRevealStrength } from './light-field.mjs?v=living-choices-2';
-import {drawExitLandmark} from './exit-landmark.mjs?v=living-choices-2';
-import {drawBlackHoles} from './black-hole-art.mjs?v=living-choices-2';
-import {drawFlightForks,drawFlightForkBackdrops} from './flight-forks.mjs?v=living-choices-2';
+import {drawFlightProjection} from './flight-projection.mjs?v=clear-sparks-1';
+import {drawGlowSense} from './glow-sense.mjs?v=clear-sparks-1';
+import {formatGlow} from './vitality.mjs?v=clear-sparks-1';
+import {LOCATION_PALETTES} from './world-expansion.mjs?v=clear-sparks-1';
+import {biomePalette} from './biome-art.mjs?v=clear-sparks-1';
+import { sceneryIdentity, drawIdentityBackground, drawIdentityMaterial, drawIdentityLife } from './level-scenery.mjs?v=clear-sparks-1';
+import { getCompanionAbility, normalizeCompanionRole } from './companion-abilities.mjs?v=clear-sparks-1';
+import { companionSprite, companionPalette } from './companion-art.mjs?v=clear-sparks-1';
+import { createScenePropArt } from './scene-prop-art.mjs?v=clear-sparks-1';
+import { drawBoss } from './boss.mjs?v=clear-sparks-1';
+import { drawPickup } from './pickup-art.mjs?v=clear-sparks-1';
+import { pickupKind, getPickupSpec, pickupContactRadius } from './pickups.mjs?v=clear-sparks-1';
+import { LIGHT_EXTENT,lightAttenuation,lightVisibility,createLightMaskCanvas,sceneRevealStrength } from './light-field.mjs?v=clear-sparks-1';
+import {drawExitLandmark} from './exit-landmark.mjs?v=clear-sparks-1';
+import {drawBlackHoles} from './black-hole-art.mjs?v=clear-sparks-1';
+import {drawFlightForks,drawFlightForkBackdrops} from './flight-forks.mjs?v=clear-sparks-1';
 
 const TAU = Math.PI * 2;
 const SCENERY_HELPERS = { line: pixelLine, disc: pixelDisc, polygon: path };
@@ -630,25 +630,25 @@ export class WispFlightView {
     f.setTransform(1, 0, 0, 1, 0, 0); f.globalCompositeOperation = 'source-over'; f.globalAlpha = 1;
     f.clearRect(0, 0, W, H); f.fillStyle = '#000000'; f.fillRect(0, 0, W, H);
     f.globalCompositeOperation = 'destination-out';
-    const mask = this.lightMask(), radius = this.lightRadius * s;
+    const mask = this.lightMask(), radius = this.lightRadius * s * LIGHT_EXTENT;
     f.globalAlpha = this.lightIntensity;
     // Baseline light is circular. Forward scouting is earned through skills,
     // Flash Spark and artifacts rather than a permanent horizon fill.
     f.drawImage(mask,playerX-radius,playerY-radius,radius*2,radius*2);
     const forward = light.forwardLight || e.forwardLight;
     if (forward?.active && forward.radius > 0) {
-      const fr = forward.radius * s;
+      const fr = forward.radius * s * LIGHT_EXTENT;
       const fx = (Number.isFinite(forward.screenX) ? forward.screenX : forward.x) * s;
       const fy = (forward.y+yOf(e)-e.player.y) * s;
       f.globalAlpha = clamp((forward.intensity ?? 1) * this.lightIntensity, 0, 1);
       f.drawImage(mask, fx - fr, fy - fr, fr * 2, fr * 2);
     }
-    if(light.landmarkLight){const lamp=light.landmarkLight,r=lamp.radius*s;
+    if(light.landmarkLight){const lamp=light.landmarkLight,r=lamp.radius*s*LIGHT_EXTENT;
       f.globalAlpha=lamp.intensity;f.drawImage(mask,lamp.x*s-r,lamp.y*s-r,r*2,r*2);}
     for (let i = 0; i < fleet.length && i < 3; i++) {
       const orb = fleet[i], collecting = orb.role === 'collector';
       const recovery = clamp(orb.recovery ?? 1, 0, 1);
-      const r = (collecting ? orb.phase === 'cooldown' ? 17 + recovery * 10 : 31 : 19) * s * this.lightDimScale;
+      const r = (collecting ? orb.phase === 'cooldown' ? 17 + recovery * 10 : 31 : 19) * s * this.lightDimScale * LIGHT_EXTENT;
       f.globalAlpha = this.lightIntensity * (collecting ? .82 : .45);
       f.drawImage(mask, orb.x * s - r, orb.y * s - r, r * 2, r * 2);
     }

@@ -1,8 +1,8 @@
-import {glowText,getGlowCapacity,formatGlow} from './vitality.mjs?v=living-choices-2';
-import {getArtifactInfo,CONSUMABLE_ARTIFACTS,EVOLVING_ARTIFACTS,getArtifactStackPreview} from './artifact-info.mjs?v=living-choices-2';
-import {resourceSymbol} from './game-symbols.mjs?v=living-choices-2';
-import {artifactIcon} from './upgrade-icons.mjs?v=living-choices-2';
-import {encounterFamilyPreview} from './encounter-families.mjs?v=living-choices-2';
+import {glowText,getGlowCapacity,formatGlow} from './vitality.mjs?v=clear-sparks-1';
+import {getArtifactInfo,CONSUMABLE_ARTIFACTS,EVOLVING_ARTIFACTS,getArtifactStackPreview} from './artifact-info.mjs?v=clear-sparks-1';
+import {resourceSymbol} from './game-symbols.mjs?v=clear-sparks-1';
+import {artifactIcon} from './upgrade-icons.mjs?v=clear-sparks-1';
+import {encounterFamilyPreview} from './encounter-families.mjs?v=clear-sparks-1';
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 export const THEME_INKS=Object.freeze({sustain:'#b9d995',precision:'#a8d5e2',tempo:'#e4c286',dream:'#cbb2e6',risk:'#e4a894'});
 export function rewardThemeMarkup(source={},label='RELIC PATH'){
@@ -37,10 +37,10 @@ function artifactEffectMarkup(a,run){
   'lantern-bloom':()=>stat('1.5s','clock','reveal · every 3 body pickups'),
   'glow-wick':()=>stat('+'+formatGlow(10),'glow','per pickup'),
   'flash-stone':()=>stat('1.5s','clock','reveal on pickup'),
-  'quiet-cinder':()=>stat('−10%','glow','Lift cost'),
+  'quiet-cinder':()=>stat('−1','glow','Lift cost'),
   'ember-lens':()=>`${resourceSymbol('up')} Light reach`,
   'silver-feather':()=>stat('+6%','up','Lift strength'),
-  'glass-lantern':()=>stat('+'+formatGlow(6),'glow','per pickup')+stat('+12%','glow','Lift cost'),
+  'glass-lantern':()=>stat('+'+formatGlow(6),'glow','per pickup')+stat('+1','glow','Lift cost'),
   'moss-heart':()=>stat('+'+formatGlow(3),'glow','Kindled Touch'),
   'wayfinder-seed':()=>stat('+15%','up','Collector reach'),
   'iron-petal':()=>stat('−12%','clock','Protector recovery'),
@@ -61,5 +61,6 @@ export function artifactOfferMarkup(a,run){
 }
 export function artifactDetailMarkup(a,{rules,synergy='',description=a.description,closeAction='close-sheet',run}={}){
  const uses=CONSUMABLE_ARTIFACTS[a.id]?(run?.artifactCharges?.[a.id]??CONSUMABLE_ARTIFACTS[a.id].charges):null;
- return `<div class="relic-detail-crest ${esc(a.rarity||'common')}">${artifactIcon(a.id)}<div><small>${artifactRarityLabel(a)}</small><h2>${esc(a.name)}</h2></div></div>${artifactSummaryMarkup(a,run,{details:true})}${synergy?`<p class="relic-trigger">${esc(synergy)}</p>`:''}<p class="relic-forge-summary">FORGE ${resourceSymbol('packed')} +${Number(a.sellValue)||0}<small>${uses===null?'Consumes artifact':`Consumes all ${uses} uses`} · Rest / event</small></p><button class="primary" data-action="${closeAction}">Back</button>`;
+ const flight=closeAction==='resume',info=getArtifactInfo(a.id),convert=text=>esc(glowText(text||'',getGlowCapacity(run||{})));
+ return `<div class="relic-detail-crest ${esc(a.rarity||'common')}">${artifactIcon(a.id)}<div><small>${artifactRarityLabel(a)}</small><h2>${esc(a.name)}</h2></div></div>${artifactSummaryMarkup(a,run,{details:!flight})}${flight?`<p class="relic-flight-rule">${convert(info.trigger)}</p>${info.limit?`<details class="relic-more"><summary>Limits & stacking</summary><p>${convert(info.limit)}</p></details>`:''}`:''}${synergy?`<p class="relic-trigger">${esc(synergy)}</p>`:''}${flight?'':`<p class="relic-forge-summary">FORGE ${resourceSymbol('packed')} +${Number(a.sellValue)||0}<small>${uses===null?'Consumes artifact':`Consumes all ${uses} uses`} · Rest / event</small></p>`}<button class="primary" data-action="${closeAction}">${flight?'Resume flight':'Back'}</button>`;
 }

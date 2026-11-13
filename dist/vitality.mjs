@@ -1,7 +1,7 @@
-import {CONDENSED_TUNING} from './condensed-glow.mjs?v=living-choices-2';
+import {CONDENSED_TUNING} from './condensed-glow.mjs?v=clear-sparks-1';
 // Shared flight Sparks and expedition rules. Overflow is Packed Light.
-export const FLAME_TUNING = Object.freeze({ maximum: 100, starting: 100, flapCost: 7,
-  emberFuel: 24, heartFuel: 50, generatedFuel: 6, checkpointMinimum: 0, warmCorePickups: 4 });
+export const FLAME_TUNING = Object.freeze({ maximum: 100, starting: 100, flapCost: 10,
+  emberFuel: 20, heartFuel: 60, generatedFuel: 6, checkpointMinimum: 0, warmCorePickups: 4 });
 
 
 export const LIFE_TUNING = Object.freeze({ lives: 3, maximum: 5 });
@@ -25,7 +25,7 @@ export function getRestGlowBonus(run={}) {
  return Number.isFinite(value)?Math.min(REST_GLOW_TUNING.capacityLimit,Math.max(0,Math.floor(value/REST_GLOW_TUNING.capacityStep)*REST_GLOW_TUNING.capacityStep)):0;
 }
 export function getGlowCapacity(run={}) {
- return 100+getRestGlowBonus(run)+(run.skills?.['main-reservoir']>0?20:0)+(run.skills?.['main-vast-vessel']>0?20:0);
+ return 100+10*['main-light-step','main-thrifty-rise','main-low-lift'].filter(id=>run.skills?.[id]>0).length+getRestGlowBonus(run)+(run.skills?.['main-reservoir']>0?20:0)+(run.skills?.['main-vast-vessel']>0?20:0);
 }
 export function glowPercent(amount,capacity=100){return (Number(amount)||0)/Math.max(1,Number(capacity)||100)*100;}
 // Keep fine simulation precision for incremental skills, but one player-facing

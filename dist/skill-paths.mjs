@@ -1,4 +1,4 @@
-import {skillProgress} from './skill-increments.mjs?v=living-choices-2';
+import {skillProgress} from './skill-increments.mjs?v=clear-sparks-1';
 // Named, one-time specialisations. Each pair is exclusive for this run.
 const paths=[];
 function fork(branch,parent,a,b){
@@ -43,11 +43,11 @@ fork('main','main-tailwind',
  ['rising-current','Updraft','Lift is 4% stronger.',{},{flap:1.04}],
  ['soft-current','Soft Current','Fall 6% more gently.',{},{gravity:.94}]);
 fork('main','main-drift',
- ['light-step','Light Step','Lift costs 5% less Sparks.',{},{flapCost:.95}],
+ ['light-step','Light Step','Gain 10 maximum Sparks.',{maxGlow:10},{}],
  ['rising-drift','Rising Drift','Lift is 4% stronger.',{},{flap:1.04}]);
 fork('main','main-lift',
  ['gentle-rise','Gentle Rise','Fall 5% more gently.',{},{gravity:.95}],
- ['thrifty-rise','Thrifty Rise','Lift costs 5% less Sparks.',{},{flapCost:.95}]);
+ ['thrifty-rise','Thrifty Rise','Gain 10 maximum Sparks.',{maxGlow:10},{}]);
 fork('main','main-kindling',
  ['inner-fire','Inner Fire','Natural Spark pickups restore another 3 Sparks.',{cacheFuelBonus:3}],
  ['shared-fire','Shared Fire','Collector-delivered fuel restores 5 extra Sparks. Requires an equipped Collector to benefit.',{collectorFuelBonus:5}]);

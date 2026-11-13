@@ -1,5 +1,5 @@
-import {getArtifactInfo} from './artifact-info.mjs?v=living-choices-2';
-import {glowText} from './vitality.mjs?v=living-choices-2';
+import {getArtifactInfo} from './artifact-info.mjs?v=clear-sparks-1';
+import {glowText} from './vitality.mjs?v=clear-sparks-1';
 
 // One small first-use explanation per flight. Remaining discoveries stay
 // eligible next flight rather than chaining several modal interruptions.
