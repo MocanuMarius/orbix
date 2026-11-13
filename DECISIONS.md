@@ -254,3 +254,13 @@ Use pre-rendered or cached 2D art for scenery, props and character animation, wi
 Bake material colour, surface detail and restrained ambient shading into the art. Supply normal and specular or roughness maps for terrain that needs moving, surface-responsive highlights. Use simple silhouette occluders where dynamic shadows materially improve depth. Keep strong directional highlights and shadows out of the base artwork so they do not contradict moving wisp lights.
 
 The current build already caches terrain artwork. Its current dynamic lighting uses a low-resolution reveal mask and glow. Normal-map relighting is a proposed next rendering upgrade, not a feature already deployed. No gameplay mechanics change with this proposal.
+
+
+## Guided tutorial and prototype pace
+
+- Prioritize building the changing prototype. Do not add save migrations, compatibility layers or data-preservation work for this batch. Existing mechanisms are left as they are.
+- Replace text-only onboarding with short coach prompts that spotlight the actual interface. Introduce map routes and all six encounter symbols, fuel and currency, lives, powers, companions, tuning, and Stored Glow where available.
+- Teach rest preparation through the actual MENU wheel, tuning sheet and companion sheet. Let players use the normal controls after each explanation.
+- Pause practice flight while pointing out controls or a newly encountered world object, then resume explicitly. Keep the two short authored practice flights and contextual action hints.
+- Show a real optional dark packet in draft practice. Explain that it dims sight, rather than consuming Glow or a life.
+- Publish this feature batch. Skip checks, tests, reviews, simulations and balance work until the backlog is clear.

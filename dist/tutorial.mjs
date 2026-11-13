@@ -7,7 +7,9 @@ export function createTutorialState(node = {}) {
   if (!['glide', 'wind'].includes(node.tutorialLesson)) return null;
   return { lesson: node.tutorialLesson, directPickups: 0, carrierDeliveries: 0,
     firstDirectAt: null, firstDeliveryAt: null, glideSeconds: 0,
-    sawWind: false, finishedWind: false };
+    sawWind: false, sawWindWarning: false, windRevealed: false, finishedWind: false,
+    avoidedWind: false, sawCooldown: false, toolObserved: false,
+    darkSeen: false, darkAvoided: false, darkCollected: false, darkCleared: false };
 }
 
 function landform(width, scale, ceiling, variant) {
@@ -42,7 +44,7 @@ export function buildTutorialLayout({ lesson, duration, height, speed = 154 }) {
   }
   const add = (x, y, feature) => {
     if (x > duration * speed - speed * 3.2) return;
-    embers.push({ id: `practice-spark-${embers.length}`, x, y: y * height,
+    embers.push({ id: `practice-spark-${embers.length}`, kind: 'light', x, y: y * height,
       value: 1, fuel: true, feature, collected: false, attracted: false,
       phase: embers.length * 1.6, tutorialSpark: true });
   };
@@ -63,13 +65,20 @@ export function buildTutorialLayout({ lesson, duration, height, speed = 154 }) {
     add(2210, .51, 'practice-wind');
     add(2670, .59, 'practice-wind');
     add(3110, .50, 'practice-wind');
+    // A single optional black packet sits high in the broad open room after
+    // the puff. The central route stays clear; the following light can cleanse.
+    if (2380 < duration * speed - speed * 3.2) embers.push({
+      id: 'practice-dark', kind: 'dark', harmful: true, value: 0, fuel: false,
+      x: 2380, y: height * .30, feature: 'practice-dark', tutorialDark: true,
+      collected: false, attracted: false, phase: 3.1 });
   }
+  embers.sort((a, b) => a.x - b.x);
   return { obstacles, embers };
 }
 
 export function recordTutorialPickup(engine, ember) {
   const state = engine.tutorial;
-  if (!state || ember.generated) return;
+  if (!state || ember.generated || ember.harmful || ember.kind === 'dark') return;
   if (ember.deliveredByWisp) {
     state.carrierDeliveries++;
     if (state.firstDeliveryAt === null) state.firstDeliveryAt = engine.time;
@@ -83,8 +92,25 @@ export function updateTutorial(engine, dt, gust) {
   const state = engine.tutorial;
   if (!state) return;
   if (engine.time - engine.lastFlapTime > .2) state.glideSeconds += dt;
+  if (engine.wisp.phase === 'cooldown') state.sawCooldown = true;
+  const ability = getCompanionAbility(engine.companionRole || engine.options?.companionRole);
+  state.toolObserved ||= ability.passive ? engine.isCompanionWorking?.() === true : engine.boosts > 0;
+  const puffs = engine.getDraftPuffs?.() || [];
+  if (puffs.length) state.windRevealed = true;
+  if (gust.warning || puffs.some(puff => puff.phase === 'gather')) state.sawWindWarning = true;
   if (gust.active) state.sawWind = true;
-  if (state.sawWind && !gust.active && !gust.warning) state.finishedWind = true;
+  if (state.windRevealed && !puffs.length && !gust.active && !gust.warning) {
+    state.finishedWind = true;
+    state.avoidedWind = !state.sawWind;
+  }
+  const dark = engine.layout.embers.find(packet => packet.tutorialDark);
+  if (dark) {
+    const x = dark.x - engine.distance;
+    if (x > 18 && x < engine.width - 18) state.darkSeen = true;
+    if (dark.collected) state.darkCollected = true;
+    else if (x < engine.player.x - 18) state.darkAvoided = true;
+    if (state.darkCollected && !engine.lightPenalties?.length) state.darkCleared = true;
+  }
 }
 
 export function updateTutorialCompanion(engine, dt) {
@@ -101,45 +127,94 @@ export function getTutorialHint(engine) {
   const state = engine?.tutorial;
   if (!state) return null;
   const hint = (id, title, text, step) => ({ id, title, text, step, total: 4,
-    waitingForLift: Boolean(engine.tutorialAwaitingLift) });
+    waitingForLift: Boolean(engine.tutorialAwaitingLift), worldFocus: getTutorialWorldFocus(engine),
+    observed: { directPickups: state.directPickups, carrierDeliveries: state.carrierDeliveries,
+      carrierRest: state.sawCooldown, tool: state.toolObserved,
+      draft: state.finishedWind, darkAvoided: state.darkAvoided, darkCleared: state.darkCleared } });
   if (engine.tutorialAwaitingLift) return hint('launch', 'Tap Lift to begin',
-    'LIFT sends your wisp upward. Rock or screen edges end this attempt. Three tries per ascension.', 1);
+    'Tap LIFT. Touching rock or a screen edge ends this attempt.', 1);
   if (engine.flame < engine.flapCost * 2) return hint('low-glow', 'Find a light packet',
-    'Gliding costs no Glow. Touch a light packet yourself, or let your carrier bring one back.', 2);
+    'Light packets refill Glow. Glide toward one; gliding spends no fuel.', 2);
+  const exit = engine.getExitLandmark?.();
+  if (exit && exit.x < engine.width - 18) return hint('exit', 'Reach the refuge light',
+    'Keep clear of the edges. Fly to this waylight to finish the passage.', 4);
   if (state.lesson === 'glide') {
     if (!state.directPickups) {
-      if (state.glideSeconds < 1) return hint('glide', 'Lift, then let go',
-        'Each Lift spends Glow. Release it to glide toward the light packet on the low shelf.', 2);
+      if (state.glideSeconds < .7) return hint('glide', 'Lift, then let go',
+        'LIFT spends Glow. Release it to glide toward the bright packet.', 2);
       return hint('direct', 'Touch the light packet',
-        'Move through a light packet to refill Glow. Your carrier is waiting so you can try it yourself.', 2);
+        'Touch this packet yourself: it refills Glow. Your carrier waits for your first pickup.', 2);
     }
+    if (engine.wisp.phase === 'cooldown') return hint('rest', 'Carrier resting',
+      'Its dots show recovery. Touch packets yourself while it rests.', 3);
     if (!state.carrierDeliveries) return hint('carrier', 'A companion lends a hand',
-      engine.wisp.phase === 'returning' ? 'It is bringing a light packet home. Glow arrives when the carrier returns.'
-        : 'Your companion waits for your attempt, then fetches a missed light packet still inside its circle.', 3);
-    if (engine.wisp.phase === 'cooldown') return hint('rest', 'Collect while it rests',
-      'The carrier needs a short rest after each fetch. You can still touch light packets yourself.', 3);
-    return hint('glide-ready', 'A little Glow goes a long way',
-      'Lift only when you need height. Glide between light packets and reach the waylight.', 4);
+      engine.wisp.phase === 'returning' ? 'A missed packet is coming home. Glow arrives on delivery.'
+        : 'You get first chance. The carrier rescues missed packets behind you, within its reach.', 3);
+    return hint('glide-ready', 'Small lifts, long glides',
+      'Touch light packets, let the carrier recover, and fly toward the refuge light.', 4);
   }
   const gust = engine.gustState(), ability = getCompanionAbility(engine.companionRole || engine.options?.companionRole);
   const lesson = {
-    swift: 'BOOST adds speed and resists local drafts. Rock and screen edges still end the attempt.',
-    anchor: 'LEVEL holds your height briefly. Drafts still nudge you, and Lift ends Level immediately.',
-    gravity: 'GRAVITY is always on. Fly close to light packets and let the field nudge them nearer; touch them or let your collector bring them home.'
+    swift: 'Tap BOOST for speed and draft resistance. Rock still ends the attempt.',
+    anchor: 'Tap LEVEL to steady your height. LIFT ends it immediately; drafts still nudge you.',
+    gravity: 'GRAVITY works automatically. Fly near light packets, then touch them or let the carrier deliver.'
   }[ability.id];
-  if (ability.passive && engine.time < 4.5) return hint('passive-gravity', 'Gravity is always on', lesson, 2);
-  if (!ability.passive && !engine.boosts) return hint('ability', `Try ${ability.label}`, lesson, 2);
+  const dark = engine.layout.embers.find(packet => packet.tutorialDark);
+  const darkX = dark ? dark.x - engine.distance : Infinity;
+  if (dark && !dark.collected && darkX > engine.player.x - 18 && darkX < engine.width - 18)
+    return hint('dark-packet', 'Avoid the dark packet', 'Black packets dim your light. Pass below this one; the carrier ignores it.', 4);
+  if (state.darkCollected && !state.darkCleared) return hint('dark-recovery', 'Restore your light',
+    'Touch a light packet to clear one dark effect. It also refills Glow.', 4);
   if (gust.warning || gust.active) return hint('wind', gust.warning ? 'Choose a way past' : 'Inside the draft puff',
     ability.id === 'swift'
-      ? 'This puff nudges only inside it. Fly above or below, or BOOST across with room to spare.'
+      ? 'The curls mark its boundary. Fly around them, or BOOST through with room.'
       : ability.id === 'anchor'
-        ? 'Drafts still nudge you during LEVEL. Fly around the puff, or leave room for its push.'
-        : 'GRAVITY pulls light packets, not your body. Dark packets are ignored; fly above or below the draft puff.', 3);
-  if (!state.finishedWind) return hint('watch-wind', 'Find the little draft puff',
-    'One gentle puff waits along this route. Its curls show where it pushes; you can fly around it.', 3);
-  if (ability.passive) return hint('ready', 'Let the field help', 'Gravity keeps working without a button. Glide, collect and reach the waylight; use MENU to pause.', 4);
+        ? 'Fly around the curls. LEVEL steadies height, but the puff can still nudge you.'
+        : 'Fly above or below the curls. GRAVITY pulls packets, not your body.', 3);
+  if (ability.passive && engine.time < 4.5) return hint('passive-gravity', 'Gravity is always on', lesson, 2);
+  if (!ability.passive && !state.toolObserved && engine.time < 6) return hint('ability', `Try ${ability.label}`, lesson, 2);
+  if (!state.finishedWind) return hint('watch-wind', 'Watch for a local draft',
+    'One small puff lies ahead. Only its visible curls can push you.', 3);
+  if (ability.passive) return hint('ready', 'Let Gravity help',
+    'Glide, collect light packets, and stay clear of rock on the way to the refuge.', 4);
   const recharge = clamp(engine.cooldown, 0, 99);
-  return hint('ready', 'You choose the rhythm', recharge > .1
-    ? `Glide, collect and give ${ability.label} time to recover. Reach the waylight to complete practice.`
-    : `${ability.label} is ready again. Choose a useful moment for your companion.`, 4);
+  return hint('ready', recharge > .1 ? `${ability.label} recovering` : `${ability.label} ready`, recharge > .1
+    ? 'Keep collecting while the button recovers. Aim for the refuge light.'
+    : 'Use it when helpful. Keep clear of terrain and reach the refuge light.', 4);
+}
+
+/** A semantic focus over a real visible world object; reading it never pauses or advances play. */
+export function getTutorialWorldFocus(engine, seenIds = null) {
+  const state = engine?.tutorial;
+  if (!state || engine.tutorialAwaitingLift || engine.finished) return null;
+  const width = engine.width || 390, height = engine.height || 620;
+  const sight = Math.max(60, (engine.getLightState?.().radius || 175) * .82);
+  const visible = (x, y) => Number.isFinite(x) && Number.isFinite(y)
+    && x >= 18 && x <= width - 18 && y >= 18 && y <= height - 18
+    && Math.hypot(x-engine.player.x,y-engine.player.y) <= sight;
+  const focus = (id, title, text, x, y, radius) => visible(x, y)
+    ? { id, title, text, x, y, radius: Math.min(radius, x - 4, width - x - 4, y - 4, height - y - 4) } : null;
+  const candidates = [];
+  const packets = (engine.layout?.embers || []).filter(packet => !packet.collected && !packet.carried)
+    .map(packet => ({ packet, x: packet.x - engine.distance }))
+    .filter(({ packet, x }) => visible(x, packet.y) && x >= engine.player.x - 18);
+  const dark = packets.find(({ packet }) => packet.harmful || packet.kind === 'dark');
+  if (dark) candidates.push(focus('dark-packet', 'Dark packet',
+    'Avoid this black packet: it dims your light. A light packet clears one effect.', dark.x, dark.packet.y, 20));
+  const light = packets.filter(({ packet }) => !packet.harmful && packet.kind !== 'dark')
+    .sort((a, b) => Math.abs(a.x - engine.player.x) - Math.abs(b.x - engine.player.x))[0];
+  if (light) candidates.push(focus('light-packet', 'Light packet = Glow fuel',
+    'Touch this bright packet to refill Glow. Your carrier only fetches packets you have already passed.', light.x, light.packet.y, 20));
+  for (const puff of engine.getDraftPuffs?.() || []) candidates.push(focus('draft', 'Local draft puff',
+    'Only these curls push you. Fly above or below their boundary.',
+    puff.x - engine.distance, puff.y, Math.min(puff.rx, puff.ry, 48)));
+  const carrier = engine.getWispState?.();
+  if (carrier?.phase === 'returning' && carrier.carrying) candidates.push(focus('carrier-return', 'Carrier delivery',
+    'The packet refills Glow when your carrier gets home.', carrier.x, carrier.y, 21));
+  if (carrier?.phase === 'cooldown' && state.carrierDeliveries > 0) candidates.push(focus('carrier-rest', 'Carrier recovery',
+    'Its dots show when it can fetch again. You can still collect packets yourself.', carrier.x, carrier.y, 21));
+  const exit = engine.getExitLandmark?.();
+  if (exit) candidates.push(focus('exit', 'Refuge light', 'Fly to this waylight to finish the passage.', exit.x, exit.y, 25));
+  const seen = id => seenIds?.has?.(id) === true || Array.isArray(seenIds) && seenIds.includes(id);
+  return candidates.find(candidate => candidate && !seen(candidate.id)) || null;
 }

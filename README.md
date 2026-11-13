@@ -151,3 +151,8 @@ Earlier tests cover engine and campaign rules; their easy-flight success targets
 Development policy: the user has started live feedback. Publish completed feedback batches, preserving the existing Site and audience; avoid deploying each minor source edit. The latest user instruction defers all checks, tests, simulations and balance work until the backlog is clear.
 
 The game requires no account, analytics, payment or cloud-save service. The existing private hosted Site may require the owner's ChatGPT sign-in. Progress is local to the browser; clearing browser data removes it.
+
+
+### Guided practice
+
+TUTORIAL starts short authored practice with spotlights on the real map, encounter key, controls, reward slots, rest choices, MENU wheel, tuning and companion selectors. Flight freezes while an item or control is explained, then continues after the player dismisses the prompt. The field lessons point at actual packets, carrier, draft and refuge objects; dark packets dim sight. This batch intentionally has no checks, tests, simulations or balance pass. Save migrations and compatibility work are outside the current prototype scope.
