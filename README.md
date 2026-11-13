@@ -53,3 +53,5 @@ Unprotected collision freezes travel and disintegrates the wisp over two seconds
 Main-light exposure is 50% stronger, with softened inverse-square distance attenuation and a finite dark cutoff. Collidable terrain and props use clearer rims inside their real silhouettes. Seer illumination is centered farther forward to reduce overlap with upgraded main sight.
 
 Human-imperfect exposure sensitivity informed provisional buffs: Leveler 2.4-second hold / 9-second cooldown; Swift 1.25-second burst / 7.5-second cooldown; Kindler +10 direct fuel, Rich Fuel +16 with 5% Lift penalty, Purify +8 ordinary fuel plus the existing Dark Seed conversion. These preserve each role's collection restrictions.
+
+New runs start at75 Glow. Refuge and Cavern refills add6 and4 route Glow respectively, while the demanding gauntlet remains+1. Light Motes have a20-unit direct-contact radius. `npm run check:playtest` checks collision timing and resume behavior; balance scripts are available as `balance:builds`, `balance:economy` and `balance:flight`. The legacy `npm test` suite contains earlier prototype expectations and was not used to certify this release.
