@@ -1,10 +1,10 @@
-import {resourceSymbol} from './game-symbols.mjs?v=balanced-sparks-1';
-import {getCompanionAbility} from './companion-abilities.mjs?v=balanced-sparks-1';
-import {glowText,getGlowCapacity} from './vitality.mjs?v=balanced-sparks-1';
-import {SKILLS} from './model.mjs?v=balanced-sparks-1';
-import {skillIcon} from './upgrade-icons.mjs?v=balanced-sparks-1';
-import {companionArtSvg} from './companion-art.mjs?v=balanced-sparks-1';
-import {skillTreeState,safeTreeSelection,skillTreeStatus} from './skill-tree-state.mjs?v=balanced-sparks-1';
+import {resourceSymbol} from './game-symbols.mjs?v=responsive-menus-1';
+import {getCompanionAbility} from './companion-abilities.mjs?v=responsive-menus-1';
+import {glowText,getGlowCapacity} from './vitality.mjs?v=responsive-menus-1';
+import {SKILLS} from './model.mjs?v=responsive-menus-1';
+import {skillIcon} from './upgrade-icons.mjs?v=responsive-menus-1';
+import {companionArtSvg} from './companion-art.mjs?v=responsive-menus-1';
+import {skillTreeState,safeTreeSelection,skillTreeStatus} from './skill-tree-state.mjs?v=responsive-menus-1';
 export const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const lockIcon='<svg class="bud-lock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><rect x="6" y="10" width="12" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3M12 14v3"/></svg>';
 const stateKey=`<div class="tree-state-key" aria-label="Skill states"><span class="learned"><i aria-hidden="true">✓</i> Owned</span><span class="available"><i aria-hidden="true">+</i> Can learn</span><span class="saving"><i aria-hidden="true"></i> Need light</span><span class="locked"><i aria-hidden="true">${lockIcon}</i> Locked</span></div>`;
@@ -13,7 +13,7 @@ export function treeHeader(run,wallet,branch){
  return `<header class="tree-crown"><h2>${branch==='main'?'Main wisp':name(branch)}</h2><span aria-label="${Math.floor(wallet.condensedGlow||0)} Packed Light">${resourceSymbol('packed')} ${Math.floor(wallet.condensedGlow||0)}</span><button data-action="close-sheet" aria-label="Close skill tree">×</button></header><nav class="tree-tabs" aria-label="Skill trees">${['main',...run.companions,...(wallet.testMode||wallet.skills?.['main-afterglow']?['afterglow']:[])].map(id=>`<button data-action="tree-branch" data-id="${id}" class="${id===branch?'selected':''}">${id!=='main'&&id!=='afterglow'?companionArtSvg(id):''}<span>${name(id)}</span></button>`).join('')}</nav>${stateKey}`;
 }
 // Three purchases remain separate skills; only their map marker is shared.
-export function radialTreeLayout(skills,{width=560,height=320}={}){
+export function radialTreeLayout(skills,{width=560,height=320,sizes=new Map()}={}){
  const groups=new Map(),skillGroup=new Map();
  for(const skill of skills){const id=skill.incrementBase||skill.id;if(!groups.has(id))groups.set(id,{id,skills:[],children:[]});groups.get(id).skills.push(skill);skillGroup.set(skill.id,id);}
  for(const group of groups.values()){group.skills.sort((a,b)=>(a.incrementStage||1)-(b.incrementStage||1));group.parent=skillGroup.get(group.skills[0].requires)||null;if(group.parent===group.id)group.parent=null;}
@@ -27,31 +27,53 @@ export function radialTreeLayout(skills,{width=560,height=320}={}){
  if(roots.length===1)place(roots[0],-Math.PI,Math.PI,0);else roots.forEach((root,i)=>place(root,-Math.PI+2*Math.PI*i/roots.length,-Math.PI+2*Math.PI*(i+1)/roots.length,1));
  // Layout work happens only when opening/changing a tree, never during flight.
  // Relax crowded sectors while keeping the root fixed and touch targets apart.
- const ids=[...points.keys()],gap=53;
- for(let pass=0;pass<110;pass++){
-  for(const id of ids){const p=points.get(id);if(p.depth){p.x+=(p.anchorX-p.x)*.012;p.y+=(p.anchorY-p.y)*.012;}}
+ const ids=[...points.keys()];
+ for(let pass=0;pass<180;pass++){
+  for(const id of ids){const p=points.get(id);if(p.depth&&pass<120){p.x+=(p.anchorX-p.x)*.008;p.y+=(p.anchorY-p.y)*.008;}}
   for(let i=0;i<ids.length;i++)for(let j=i+1;j<ids.length;j++){
-   const a=points.get(ids[i]),b=points.get(ids[j]);let dx=b.x-a.x,dy=b.y-a.y,d=Math.hypot(dx,dy);if(d>=gap)continue;if(d<.01){dx=1;dy=0;d=1;}const shift=(gap-d)*.52,ux=dx/d,uy=dy/d;
+   const a=points.get(ids[i]),b=points.get(ids[j]),gap=((sizes.get(ids[i])??44)+(sizes.get(ids[j])??44))/2+9;
+   const dx=b.x-a.x,dy=b.y-a.y,overX=gap-Math.abs(dx),overY=gap-Math.abs(dy);if(overX<=0||overY<=0)continue;
+   // Browser hit areas are squares even when the visible bud is circular.
+   const horizontal=overX<overY,shift=(horizontal?overX:overY)*.52,ux=horizontal?(Math.sign(dx)||1):0,uy=horizontal?0:(Math.sign(dy)||1);
    if(a.depth){a.x-=ux*shift*(b.depth?1:2);a.y-=uy*shift*(b.depth?1:2);}if(b.depth){b.x+=ux*shift*(a.depth?1:2);b.y+=uy*shift*(a.depth?1:2);}
   }
   for(const p of points.values()){p.x=Math.max(28,Math.min(width-28,p.x));p.y=Math.max(28,Math.min(height-28,p.y));}
  }
+ // Dense sectors can become pinned between the fixed root and the edge.
+ // A nearest-anchor packing fallback guarantees separate touch rectangles.
+ // Grow only the diagram when necessary; the inspector and purchase stay put.
+ const collides=(a,b,gap)=>Math.abs(a.x-b.x)<gap-.25&&Math.abs(a.y-b.y)<gap-.25;
+ const crowded=ids.some((id,i)=>ids.slice(i+1).some(other=>collides(points.get(id),points.get(other),((sizes.get(id)??44)+(sizes.get(other)??44))/2+6)));
+ if(crowded){
+  const pitch=56,cols=Math.max(1,Math.floor((width-56)/pitch)+1),rows=Math.ceil(ids.length/cols),oldHeight=height;
+  height=Math.max(height,56+(rows-1)*pitch);
+  const candidates=[],used=new Set(),countRows=Math.max(rows,Math.floor((height-56)/pitch)+1);
+  for(let row=0;row<countRows;row++)for(let col=0;col<cols;col++)candidates.push({x:(width-(cols-1)*pitch)/2+col*pitch,y:(height-(countRows-1)*pitch)/2+row*pitch});
+  for(const id of [...ids].sort((a,b)=>points.get(a).depth-points.get(b).depth)){
+   const point=points.get(id);let best=-1,distance=Infinity;
+   candidates.forEach((candidate,index)=>{const d=(candidate.x-point.anchorX)**2+(candidate.y-point.anchorY*height/oldHeight)**2;if(!used.has(index)&&d<distance){best=index;distance=d;}});
+   used.add(best);Object.assign(point,candidates[best]);
+  }
+ }
  return {groups:[...groups.values()],points,skillGroup,width,height};
 }
 function treeViewport(){
+ const pane=globalThis.document?.querySelector?.('dialog.tree-sheet[open] .radial-tree-scroll');
+ if(pane?.clientWidth>0&&pane?.clientHeight>0)return{width:pane.clientWidth,height:pane.clientHeight};
  const w=globalThis.innerWidth||globalThis.window?.innerWidth||900,h=globalThis.innerHeight||globalThis.window?.innerHeight||480;
  if(w>h)return{width:Math.max(280,Math.min(w*.96,1100)-28-Math.min(250,w*.29)-14),height:Math.max(180,Math.min(h*.96,650)-140)};
  return {width:Math.max(280,Math.min(w*.96,480)-24),height:Math.max(260,Math.min(h*.43,390))};
 }
 export function treeCanvas({skills,wallet,selected,action,key,canBuy=true,run=wallet}){
  const context={wallet,run,canBuy};selected=safeTreeSelection(skills,selected,context)?.id;
- const {groups,points,skillGroup,width,height}=radialTreeLayout(skills,treeViewport());
  const views=new Map(skills.map(skill=>[skill.id,skillTreeState(context,skill)]));
+ const sizes=new Map();for(const skill of skills){const key=skill.incrementBase||skill.id;sizes.set(key,Math.max(sizes.get(key)||0,views.get(skill.id).inspectable?44:8));}
+ const {groups,points,skillGroup,width,height}=radialTreeLayout(skills,{...treeViewport(),sizes});
  const chosen=g=>g.skills.find(skill=>!views.get(skill.id).complete)||g.skills.at(-1);
  const ownedRanks=g=>g.skills.reduce((n,rank)=>n+Number(wallet.skills?.[rank.id]||0),0);
  const groupById=new Map(groups.map(g=>[g.id,g])),radius=g=>{const view=views.get(chosen(g).id);return view.closedBy===chosen(g).id?11:view.disclosure==='hidden'?3:view.disclosure==='preview'?14:23;};
  const paths=groups.filter(g=>g.parent).map(g=>{const a=points.get(g.parent),b=points.get(g.id),view=views.get(chosen(g).id),dx=b.x-a.x,dy=b.y-a.y,d=Math.max(1,Math.hypot(dx,dy)),ux=dx/d,uy=dy/d,start=radius(groupById.get(g.parent)),end=radius(g);return `<path class="tree-path ${view.state} ${ownedRanks(g)>0?'has-owned':''}" d="M${a.x+ux*start} ${a.y+uy*start} Q${(a.x+b.x)/2-uy*7} ${(a.y+b.y)/2+ux*7} ${b.x-ux*end} ${b.y-uy*end}"/>`;}).join('');
- return `<div class="living-tree-scroll radial-tree-scroll" data-tree-key="${esc(key)}" tabindex="0" aria-label="Skill tree. Blue checks are owned. Gold plus signs can be learned. Bronze prices need more Packed Light. Locks preview nearby paths; faint dots reveal as you grow."><div class="living-tree radial-tree" style="--tree-ratio:${width}/${height}"><svg viewBox="0 0 ${width} ${height}" preserveAspectRatio="none" aria-hidden="true"><ellipse class="tree-orbit" cx="${width/2}" cy="${height/2}" rx="${width*.34}" ry="${height*.34}"/><g class="branch-shadow">${paths}</g><g class="branch-light">${paths}</g></svg>${groups.map(g=>{
+ return `<div class="living-tree-scroll radial-tree-scroll" data-tree-key="${esc(key)}" tabindex="0" aria-label="Skill tree. Blue checks are owned. Gold plus signs can be learned. Bronze prices need more Packed Light. Locks preview nearby paths; faint dots reveal as you grow."><div class="living-tree radial-tree" style="--tree-ratio:${width}/${height};min-height:${height}px"><svg viewBox="0 0 ${width} ${height}" preserveAspectRatio="none" aria-hidden="true"><ellipse class="tree-orbit" cx="${width/2}" cy="${height/2}" rx="${width*.34}" ry="${height*.34}"/><g class="branch-shadow">${paths}</g><g class="branch-light">${paths}</g></svg>${groups.map(g=>{
   const s=chosen(g),p=points.get(g.id),view=views.get(s.id),active=skillGroup.get(selected)===g.id,name=s.baseName||s.name,position=`left:${p.x/width*100}%;top:${p.y/height*100}%`;
   if(!view.inspectable)return `<span class="tree-silhouette ${view.state} ${view.closedBy===s.id?'closed-root':''}" style="${position}" aria-hidden="true">${view.closedBy===s.id?lockIcon:''}</span>`;
   const preview=view.disclosure==='preview',owned=ownedRanks(g),total=g.skills.reduce((n,rank)=>n+rank.maxRank,0);
