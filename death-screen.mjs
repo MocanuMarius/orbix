@@ -1,4 +1,4 @@
-import {lifeHeartSvg,livesMarkup} from './lives.mjs?v=a1-balance-1';
+import {lifeHeartSvg,livesMarkup} from './lives.mjs?v=pixel-map-1';
 export function deathScreenMarkup(run){
  const left=Math.max(0,Math.floor(run.lives||0)),before=left+1;
  const shards=Array.from({length:22},(_,i)=>`<i style="--x:${18+(i*29)%70}%;--y:${8+(i*17)%72}%;--dx:${(i%2?1:-1)*(18+i%6*9)}px;--dy:${35+i%7*9}px;--delay:${.35+i*.035}s"></i>`).join('');

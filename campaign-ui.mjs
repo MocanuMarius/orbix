@@ -1,7 +1,8 @@
+import {mapStopIconMarkup} from './map-guide.mjs?v=pixel-map-1';
 const number = (n,min=0) => Math.max(min,Math.floor(Number(n)||0));
 export function campaignStrip(run,profile={}) {
   if(run?.isTutorial)return '';
   const tier=number(run?.difficulty??profile.difficulty,1),map=number(run?.mapIndex);
   return `<div class="campaign-strip" aria-label="Ascension ${tier}, map ${Math.min(3,map+1)} of 3"><span>ASCENSION <b>${tier}</b></span><span>MAP <b>${Math.min(3,map+1)}/3</b></span></div>`;
 }
-export function bossSigil(id){if(id==='moonweaver')return `<svg class="boss-sigil moonweaver-sigil" viewBox="0 0 64 64" fill="none" aria-hidden="true"><path d="M32 4 52 18 58 39 44 59H20L6 39l6-21Z" fill="#222d38" stroke="#b8aed6" stroke-width="2"/><path d="M32 4v56M12 18l40 0M6 39h52M12 18l32 41M52 18 20 59M32 4 6 39m26-35 26 35" stroke="#7f809e"/><path d="M38 15c-16 0-23 23-6 32-10 1-20-6-20-17s10-19 20-19Z" fill="#d5d8bc"/><path d="M39 27h4v4h-4zM28 35h5v5h-5z" fill="#e7e5cf"/></svg>`;return `<svg class="boss-sigil" viewBox="0 0 64 64" fill="none" aria-hidden="true"><path d="M8 61 15 40 9 24 19 28 16 9 27 22 32 3 37 22 48 9 45 28 55 24 49 40 56 61 41 55 32 62 23 55Z" fill="#24352e" stroke="#a6b19b" stroke-width="2"/><path d="m22 27 10-7 10 7-3 18-7 10-7-10Z" fill="#111b18" stroke="#7b8e80"/><path d="m23 33 6 3m12-3-6 3" stroke="#d9e3b9" stroke-width="3"/><path d="M32 25v9l-3 8 3 6 3-6-2-3" stroke="#667667"/><path d="m16 46-8 9m40-9 8 9M20 15l-8-9m32 9 8-9" stroke="#596d60" stroke-width="2"/></svg>`;}
+export function bossSigil(id){return mapStopIconMarkup({boss:true,bossId:id}).replace('class="map-stop-icon','class="boss-sigil map-stop-icon');}

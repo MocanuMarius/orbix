@@ -1,4 +1,4 @@
-import {artifactIcon} from './upgrade-icons.mjs?v=a1-balance-1';
+import {artifactIcon} from './upgrade-icons.mjs?v=pixel-map-1';
 
 // Original, small world illustrations. Pixel light is layered geometry rather
 // than SVG blur; motion is bounded CSS, never another animation-frame loop.
