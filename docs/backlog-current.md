@@ -1,3 +1,22 @@
+# Current implementation audit — Moonlit Menus
+
+Release: `moonlit-menus-1`. This entry supersedes the older UI status below; the One Companion gameplay rules remain in force.
+
+Implemented: automatic desktop landscape presentation at 900 × 405 logical units; preferred 150% zoom with bounded Fit and saved scale; native responsive phone routing; legacy preview redirect; same-origin display pause/fullscreen bridge; original home woodland/ruin pixel art; stronger primary actions and unlock cue; consistent worn frames, typography, resource glyphs and disabled/owned/available/locked cues.
+
+Research: primary Xbox guidelines, Game Accessibility Guidelines, Apple's free handheld-game interface lesson and Valve handheld display guidance. Links, reasoning and limits are in [the research report](ui-design-research.md). No paid courses or financial pages were needed.
+
+Verification:
+- 26 focused Node tests pass across display layout, flight entry, onboarding, single-companion behavior, reward flow and tutorial progression.
+- Eight actual screens × three CSS landscape sizes (900×405, 740×333, 720×280) were checked for control overlap, offscreen actions and document overflow. Home with Continue, Rest arrival/preparation, skills, artifacts and settings were additionally identified by their rendered contents. No overlap or offscreen controls were found. Existing intentional map panning and optional explanation scroll surfaces remain.
+- Desktop render sizes at 1920×1080, 1440×900, 1280×720, 900×900 and 420×820 all fit the browser. The inner game remained 900×405. Large windows display exactly 1350×607.5 at 150%; smaller windows clamp without cropping.
+- A 100% choice survived navigation to the query-free root. Fit and fullscreen work. Scaled Rest selection, Leave Rest and Enter clicks reached the actual flight. Changing scale during the countdown or active flight opened the pause menu; no automatic resume was introduced.
+- Static menu art adds no render loop or network asset service. These checks are browser layout/behavior evidence, not accessibility certification or a physical Pixel 10 FPS measurement. The existing campaign balance/performance follow-ups remain open.
+
+Publication status is recorded after verifying the Pages manifest and deployed assets. Local mock scene instrumentation stays outside `dist`.
+
+---
+
 # Current implementation audit — One Companion
 
 Release: `one-companion-1`. This header supersedes the older designs below.

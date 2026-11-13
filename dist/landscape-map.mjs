@@ -1,8 +1,8 @@
-import {landmarks} from './map-landmarks.mjs?v=one-companion-1';
-import {encounterIntent,THEME_INKS} from './replay-ui.mjs?v=one-companion-1';
-import {getRouteMapState} from './model.mjs?v=one-companion-1';
-import {getMapStopInfo} from './map-guide.mjs?v=one-companion-1';
-import {getGlowCapacity} from './vitality.mjs?v=one-companion-1';
+import {landmarks} from './map-landmarks.mjs?v=moonlit-menus-1';
+import {encounterIntent,THEME_INKS} from './replay-ui.mjs?v=moonlit-menus-1';
+import {getRouteMapState} from './model.mjs?v=moonlit-menus-1';
+import {getMapStopInfo} from './map-guide.mjs?v=moonlit-menus-1';
+import {getGlowCapacity} from './vitality.mjs?v=moonlit-menus-1';
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const edgeKey=([a,b])=>`${a}|${b}`;
 const wisp=(x,y)=>`<g class="route-player-wisp" transform="translate(${x} ${y})"><path d="m-23 1 9-15 13-7L16-9 22 3 11 13-17 8Z" fill="url(#routeWispGlow)"/><path d="M-4-7h8v2h3v3h2v4H7v3H4v2H-4V5H-7V2H-9V-2H-7V-5H-4Z" fill="#fff8d3"/><path d="M-3-5h6v2h2v6H3v2H-3V3H-5V-3H-3Z" fill="#fffef0"/></g>`;

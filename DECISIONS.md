@@ -874,3 +874,11 @@ Outstanding design questions are explicit, not silently treated as implemented: 
 - Rewards explain the selected companion's actual trigger, benefit and limit. Equip uses an empty slot immediately and animates into it; replacement alone requires another choice.
 - Teach through normal play, one contextual card at a time. Skills open after one flight; advanced branches/tools follow progress. First-time flight content is staged too, not just its explanations.
 - Resume uses one explicit action, a frozen three-second countdown and the existing gradual recovery. Initial flight loading still ends paused.
+
+## Moonlit Menus — 13 November 2026
+
+- Desktop opens the normal URL in a 900 × 405 logical landscape stage. Request 150% presentation scale initially, fit within the available window, and remember the player's zoom choice. This is presentation scaling; flight geometry and camera dimensions remain stable. Fit, 75–200% presets and fullscreen are available in the outer toolbar.
+- Touch phones retain the native responsive game and safe areas. A tall desktop sidebar still shows landscape play. `?display=native` and `?display=desktop` explicitly select the presentation; `?zoom=150` sets desktop scale. Existing `preview.html` links redirect to the desktop presentation without recursively embedding it.
+- Display controls pause active flight and cancel a pending resume countdown before changing scale. The normal countdown and slow recovery still govern returning to play. The mock query flag propagates into the game, and the in-game preview toggle updates the outer URL.
+- Original moonlit pixel scenery anchors the home menu. Continue/New Game are the strongest actions; the companion roster shows the next unlock. Dialogue frames share a moss-and-stone treatment. Quiet text grounds, a consistent hierarchy and distinct owned/available/saving/locked marks make effects easier to read.
+- Research uses primary Xbox and handheld-platform guidance, the original Game Accessibility Guidelines and a free Apple design lesson. See `docs/ui-design-research.md`. These choices are not a claim of full accessibility compliance or physical Pixel 10 performance.

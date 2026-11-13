@@ -1,8 +1,8 @@
-import {ARTIFACTS,getArtifactCapacity,getFlightRewardMeltValue} from './model.mjs?v=one-companion-1';
-import {getArtifactStackPreview} from './artifact-info.mjs?v=one-companion-1';
-import {artifactRarityLabel} from './replay-ui.mjs?v=one-companion-1';
-import {artifactDescription} from './artifact-copy.mjs?v=one-companion-1';
-import {resourceSymbol} from './game-symbols.mjs?v=one-companion-1';
+import {ARTIFACTS,getArtifactCapacity,getFlightRewardMeltValue} from './model.mjs?v=moonlit-menus-1';
+import {getArtifactStackPreview} from './artifact-info.mjs?v=moonlit-menus-1';
+import {artifactRarityLabel} from './replay-ui.mjs?v=moonlit-menus-1';
+import {artifactDescription} from './artifact-copy.mjs?v=moonlit-menus-1';
+import {resourceSymbol} from './game-symbols.mjs?v=moonlit-menus-1';
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 export const rewardDescription=(a,run)=>{const c=artifactDescription(a,run,{fresh:true});return [c.effect,[c.trigger,c.limit].filter(Boolean).join(' ')];};
 function loadoutMarkup(run,artifactArt,chosen){

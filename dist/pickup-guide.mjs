@@ -1,7 +1,7 @@
-import {formatGlow} from './vitality.mjs?v=one-companion-1';
-import { PICKUP_TYPES, getPickupSpec } from './pickups.mjs?v=one-companion-1';
-import { pickupArtSvg } from './pickup-art.mjs?v=one-companion-1';
-import { normalizeCompanionRole, normalizeCompanionFleet } from './companion-abilities.mjs?v=one-companion-1';
+import {formatGlow} from './vitality.mjs?v=moonlit-menus-1';
+import { PICKUP_TYPES, getPickupSpec } from './pickups.mjs?v=moonlit-menus-1';
+import { pickupArtSvg } from './pickup-art.mjs?v=moonlit-menus-1';
+import { normalizeCompanionRole, normalizeCompanionFleet } from './companion-abilities.mjs?v=moonlit-menus-1';
 
 const esc = value => String(value ?? '').replace(/[&<>"']/g, char =>
   ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
