@@ -1,38 +1,38 @@
-import {FlightProjection,drawFlightProjection} from './flight-projection.mjs?v=clear-sparks-1';
-import {drawGlowSense} from './glow-sense.mjs?v=clear-sparks-1';
-import {formatGlow} from './vitality.mjs?v=clear-sparks-1';
-import {installRiskChains} from './risk-chains.mjs?v=clear-sparks-1';
-import {EXTRA_COURSES} from './world-expansion.mjs?v=clear-sparks-1';
-import {BIOME_COURSES} from './biome-courses.mjs?v=clear-sparks-1';
-import {BiomeDynamics} from './biome-dynamics.mjs?v=clear-sparks-1';
-import {condenseGlow} from './condensed-glow.mjs?v=clear-sparks-1';
-import {ensureGlowBudget} from './glow-budget.mjs?v=clear-sparks-1';
-import {EdgingPulse} from './edging-pulse.mjs?v=clear-sparks-1';
-import {isVowBodyPickup} from './contextual-events.mjs?v=clear-sparks-1';
-import {BlackHoles} from './black-holes.mjs?v=clear-sparks-1';
-import {drawBlackHoles} from './black-hole-art.mjs?v=clear-sparks-1';
+import {FlightProjection,drawFlightProjection} from './flight-projection.mjs?v=balanced-sparks-1';
+import {drawGlowSense} from './glow-sense.mjs?v=balanced-sparks-1';
+import {formatGlow} from './vitality.mjs?v=balanced-sparks-1';
+import {installRiskChains} from './risk-chains.mjs?v=balanced-sparks-1';
+import {EXTRA_COURSES} from './world-expansion.mjs?v=balanced-sparks-1';
+import {BIOME_COURSES} from './biome-courses.mjs?v=balanced-sparks-1';
+import {BiomeDynamics} from './biome-dynamics.mjs?v=balanced-sparks-1';
+import {condenseGlow} from './condensed-glow.mjs?v=balanced-sparks-1';
+import {ensureGlowBudget} from './glow-budget.mjs?v=balanced-sparks-1';
+import {EdgingPulse} from './edging-pulse.mjs?v=balanced-sparks-1';
+import {isVowBodyPickup} from './contextual-events.mjs?v=balanced-sparks-1';
+import {BlackHoles} from './black-holes.mjs?v=balanced-sparks-1';
+import {drawBlackHoles} from './black-hole-art.mjs?v=balanced-sparks-1';
 /* Emberwing's self-contained canvas flight simulation and renderer. */
-import { FLAME_TUNING, LIGHT_PACKET_TUNING } from './vitality.mjs?v=clear-sparks-1';
-import { flightEndDistance } from './flight-end.mjs?v=clear-sparks-1';
-import {getExitLandmarkState,drawExitLandmark} from './exit-landmark.mjs?v=clear-sparks-1';
-import { WispCompanion, wispHome } from './wisp.mjs?v=clear-sparks-1';
-import { getAscentInfo } from './ascent.mjs?v=clear-sparks-1';
-import { LEVEL_LENGTH, getLevelLengthScale } from './level-length.mjs?v=clear-sparks-1';
-import { resolveLevelIdentity } from './level-catalog.mjs?v=clear-sparks-1';
-import { DraftField, DRAFT_TUNING } from './drafts.mjs?v=clear-sparks-1';
-import { normalizeCompanionRole, normalizeCompanionFleet, getCompanionAbility } from './companion-abilities.mjs?v=clear-sparks-1';
-import { populateSceneProps, scenePropPolygons } from './scene-props.mjs?v=clear-sparks-1';
-import { pickupKind, getPickupSpec, pickupContactRadius, isFuelPickup, canCompanionCollect } from './pickups.mjs?v=clear-sparks-1';
-import { drawPickup } from './pickup-art.mjs?v=clear-sparks-1';
-import { buildBossLayout, getBossState as bossState, drawBoss } from './boss.mjs?v=clear-sparks-1';
-import { getAuthoredChallenge, finalizeFlightChallenges, installAuthoredDraftCrossings, FlightChallengeDirector } from './flight-challenges.mjs?v=clear-sparks-1';
-import { installEncounterFamily } from './encounter-families.mjs?v=clear-sparks-1';
-import { installFlightForks, resizeFlightForks } from './flight-forks.mjs?v=clear-sparks-1';
-import { ArtifactEffects } from './artifact-effects.mjs?v=clear-sparks-1';
-import { LIGHT_EXTENT,lightAttenuation,lightVisibility,createLightMaskCanvas,sceneRevealStrength } from './light-field.mjs?v=clear-sparks-1';
+import { FLAME_TUNING, LIGHT_PACKET_TUNING } from './vitality.mjs?v=balanced-sparks-1';
+import { flightEndDistance } from './flight-end.mjs?v=balanced-sparks-1';
+import {getExitLandmarkState,drawExitLandmark} from './exit-landmark.mjs?v=balanced-sparks-1';
+import { WispCompanion, wispHome } from './wisp.mjs?v=balanced-sparks-1';
+import { getAscentInfo } from './ascent.mjs?v=balanced-sparks-1';
+import { LEVEL_LENGTH, getLevelLengthScale } from './level-length.mjs?v=balanced-sparks-1';
+import { resolveLevelIdentity } from './level-catalog.mjs?v=balanced-sparks-1';
+import { DraftField, DRAFT_TUNING } from './drafts.mjs?v=balanced-sparks-1';
+import { normalizeCompanionRole, normalizeCompanionFleet, getCompanionAbility } from './companion-abilities.mjs?v=balanced-sparks-1';
+import { populateSceneProps, scenePropPolygons } from './scene-props.mjs?v=balanced-sparks-1';
+import { pickupKind, getPickupSpec, pickupContactRadius, isFuelPickup, canCompanionCollect } from './pickups.mjs?v=balanced-sparks-1';
+import { drawPickup } from './pickup-art.mjs?v=balanced-sparks-1';
+import { buildBossLayout, getBossState as bossState, drawBoss } from './boss.mjs?v=balanced-sparks-1';
+import { getAuthoredChallenge, finalizeFlightChallenges, installAuthoredDraftCrossings, FlightChallengeDirector } from './flight-challenges.mjs?v=balanced-sparks-1';
+import { installEncounterFamily } from './encounter-families.mjs?v=balanced-sparks-1';
+import { installFlightForks, resizeFlightForks } from './flight-forks.mjs?v=balanced-sparks-1';
+import { ArtifactEffects } from './artifact-effects.mjs?v=balanced-sparks-1';
+import { LIGHT_EXTENT,lightAttenuation,lightVisibility,createLightMaskCanvas,sceneRevealStrength } from './light-field.mjs?v=balanced-sparks-1';
 import { createTutorialState, buildTutorialLayout, recordTutorialPickup,
-  updateTutorial, updateTutorialCompanion, getTutorialHint } from './tutorial.mjs?v=clear-sparks-1';
-export { FLAME_TUNING } from './vitality.mjs?v=clear-sparks-1';
+  updateTutorial, updateTutorialCompanion, getTutorialHint } from './tutorial.mjs?v=balanced-sparks-1';
+export { FLAME_TUNING } from './vitality.mjs?v=balanced-sparks-1';
 const TAU = Math.PI * 2;
 const STEP = 1 / 60;
 const COMPANION_ORBIT_SPEED = {protector:1.3,leveler:1.7,swift:3.4,seer:.8,kindler:2.2};
@@ -42,7 +42,7 @@ const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
 const lerp = (a, b, t) => a + (b - a) * t;
 export const FLIGHT_TUNING = Object.freeze({ gravity: 300, flapImpulse: 205,
   forwardSpeed: 154, terminalFall: 245, pickupRadius: LIGHT_PACKET_TUNING.pickupRadius });
-export { DRAFT_TUNING } from './drafts.mjs?v=clear-sparks-1';
+export { DRAFT_TUNING } from './drafts.mjs?v=balanced-sparks-1';
 // Retain the public tuning name for consumers; wind now has no global cycle.
 export const WIND_TUNING = DRAFT_TUNING;
 
@@ -776,6 +776,7 @@ export class WispFlight {
     this.pickupOverflow=0;this.condensationFlow={amount:0,rawAmount:0,time:-Infinity,count:0,total:0};
     this.nightGardenCount=0; this.dreamCompleted=false; this.secondDawnUsed=false;
     this.flaps = 0; this.effortSpent = 0; this.flameRestored = 0; this.bodyFuelCollected = 0;
+    this.burdenLiftsRemaining=Math.max(0,Math.floor(this.mod.burdenLifts||0));
     this.lastFlapTime = -1000;
     this.onUpdate = options.onUpdate || (() => {});
     this.onFinish = options.onFinish || (() => {});
@@ -885,7 +886,7 @@ export class WispFlight {
 
   async initPixelView() {
     try {
-      const { WispFlightView } = await import('./wisp-renderer.mjs?v=clear-sparks-1');
+      const { WispFlightView } = await import('./wisp-renderer.mjs?v=balanced-sparks-1');
       if (this.destroyed) return;
       this.pixiView = new WispFlightView(this);
       const initialized = await this.pixiView.init();
@@ -921,7 +922,7 @@ export class WispFlight {
   get condensedTotal() { return this.condensedStart+this.condensedGlow; }
   spendGlow(amount) { this.flame=Math.max(0,this.flame-Math.max(0,amount)); }
 
-  get flapCost() { return (Number.isFinite(this.mod.liftCostPoints)?Math.max(1,Math.round(this.mod.liftCostPoints)):Math.max(1,Math.round(3*(Number(this.mod.flapCost)||1))))/.3; }
+  get flapCost() { return ((Number.isFinite(this.mod.liftCostPoints)?Math.max(1,Math.round(this.mod.liftCostPoints)):Math.max(1,Math.round(3*(Number(this.mod.flapCost)||1))))+Number(this.burdenLiftsRemaining>0))/.3; }
   get completionProgress() { return clamp(this.completionAge / 1.5,0,1); }
 
   get dyingProgress() { return clamp(this.dyingAge / this.dyingDuration,0,1); }
@@ -1034,6 +1035,7 @@ export class WispFlight {
     // Dream inputs already cost nothing; preserve the stored Lift for waking.
     const freeLift=!this.dream?.freeGlow&&this.artifactEffects.consumeLift();
     const effort=this.dream?.freeGlow||freeLift?0:this.flapCost;this.spendGlow(effort);
+    if(effort>0&&this.burdenLiftsRemaining>0)this.burdenLiftsRemaining--;
     this.artifactEffects.onFlap(effort>0);
     this.flaps++; this.effortSpent += effort;
     this.lastFlapTime = this.time;

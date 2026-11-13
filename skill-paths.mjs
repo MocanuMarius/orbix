@@ -1,4 +1,4 @@
-import {skillProgress} from './skill-increments.mjs?v=clear-sparks-1';
+import {skillProgress} from './skill-increments.mjs?v=balanced-sparks-1';
 // Named, one-time specialisations. Each pair is exclusive for this run.
 const paths=[];
 function fork(branch,parent,a,b){

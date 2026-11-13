@@ -4,7 +4,7 @@ const clamp=(n,a,b)=>Math.max(a,Math.min(b,n));
 const finite=(n,d=0)=>Number.isFinite(n)?n:d;
 const rank=(s,id,max)=>clamp(Math.floor(finite(s?.[id])),0,max);
 export const CONDENSED_TUNING=Object.freeze({starting:8,displayScale:.3,maxMultiplier:1.6,
-  bankStep:100,maxBankTiers:3,practiceStarting:80,trainingGrowth:.4,trainingExponent:1.5,priceStep:5});
+  bankStep:100,maxBankTiers:3,practiceStarting:80,trainingGrowth:.25,trainingExponent:1.5,priceStep:5});
 export function getCondensationRules(skills={}){
  const advanced=rank(skills,'main-afterglow',1)>0;
  return {multiplier:1+(advanced?1/3:0)+(advanced ? .05*(rank(skills,'afterglow-vessel',2)+rank(skills,'afterglow-retention',2)) : 0),
