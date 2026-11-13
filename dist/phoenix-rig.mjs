@@ -1,5 +1,5 @@
 import * as PIXI from './vendor/pixi.mjs';
-import { PhoenixMotion, deformWing, deformTail } from './phoenix-motion.mjs';
+import { PhoenixMotion, deformWing, deformTail } from './phoenix-motion.mjs?v=balance-health-1';
 
 export class PhoenixRig {
   constructor(texture) {

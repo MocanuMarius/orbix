@@ -1,7 +1,7 @@
-import {companionArtSvg} from './companion-art.mjs';
-import {getCompanionAbility} from './companion-abilities.mjs';
-import {SKILLS,MAIN_WISP_BRANCHES,getSkillCost,getSkillLockReason,isSkillRevealed,canChooseStartingSkill} from './model.mjs?v=deep-skill-paths-1';
-import {skillIcon} from './upgrade-icons.mjs';
+import {companionArtSvg} from './companion-art.mjs?v=balance-health-1';
+import {getCompanionAbility} from './companion-abilities.mjs?v=balance-health-1';
+import {SKILLS,MAIN_WISP_BRANCHES,getSkillCost,getSkillLockReason,isSkillRevealed,canChooseStartingSkill} from './model.mjs?v=balance-health-1';
+import {skillIcon} from './upgrade-icons.mjs?v=balance-health-1';
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 export function mainWispTreeMarkup({run,wallet,canBuy,selected='main-sight'}){
  const initial=canChooseStartingSkill(run),roots=MAIN_WISP_BRANCHES.map(x=>x.root),skill=SKILLS[selected]||SKILLS['main-sight'];

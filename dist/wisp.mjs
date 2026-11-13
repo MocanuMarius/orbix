@@ -1,6 +1,6 @@
-import { LIGHT_PACKET_TUNING } from './vitality.mjs';
-import { getCompanionAbility } from './companion-abilities.mjs';
-import { pickupKind, pickupContactRadius, canCompanionCollect } from './pickups.mjs?v=deep-skill-paths-1';
+import { LIGHT_PACKET_TUNING } from './vitality.mjs?v=balance-health-1';
+import { getCompanionAbility } from './companion-abilities.mjs?v=balance-health-1';
+import { pickupKind, pickupContactRadius, canCompanionCollect } from './pickups.mjs?v=balance-health-1';
 
 const clamp = (value, lo, hi) => Math.min(hi, Math.max(lo, value));
 export const WISP_TUNING = Object.freeze({ range: 105, cooldown: 5, lightRadius: 175, outboundSpeed: 700, returnSpeed: 820 });

@@ -1,6 +1,6 @@
-import {SKILLS,getSkillCost,getSkillLockReason,isSkillRevealed} from './model.mjs?v=deep-skill-paths-1';
-import {skillIcon} from './upgrade-icons.mjs';
-import {companionArtSvg} from './companion-art.mjs';
+import {SKILLS,getSkillCost,getSkillLockReason,isSkillRevealed} from './model.mjs?v=balance-health-1';
+import {skillIcon} from './upgrade-icons.mjs?v=balance-health-1';
+import {companionArtSvg} from './companion-art.mjs?v=balance-health-1';
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 export function branchTreeMarkup({run,wallet,branch,canBuy,selected}){
  const skills=Object.values(SKILLS).filter(s=>s.branch===branch),byId=new Map(skills.map(s=>[s.id,s]));

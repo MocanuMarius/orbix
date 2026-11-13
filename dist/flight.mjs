@@ -1,20 +1,20 @@
 /* Emberwing's self-contained canvas flight simulation and renderer. */
-import { FLAME_TUNING, LIGHT_PACKET_TUNING } from './vitality.mjs';
-import { flightEndDistance } from './flight-end.mjs?v=deep-skill-paths-1';
-import { WispCompanion, wispHome } from './wisp.mjs';
-import { getAscentInfo } from './ascent.mjs';
-import { LEVEL_LENGTH, getLevelLengthScale } from './level-length.mjs';
-import { resolveLevelIdentity } from './level-catalog.mjs';
-import { DraftField, DRAFT_TUNING } from './drafts.mjs';
-import { normalizeCompanionRole, normalizeCompanionFleet, getCompanionAbility } from './companion-abilities.mjs';
-import { populateSceneProps, scenePropPolygons } from './scene-props.mjs';
-import { pickupKind, getPickupSpec, pickupContactRadius, isFuelPickup, canCompanionCollect } from './pickups.mjs?v=deep-skill-paths-1';
-import { drawPickup } from './pickup-art.mjs?v=deep-skill-paths-1';
-import { buildBossLayout, getBossState as bossState, drawBoss } from './boss.mjs';
-import { getAuthoredChallenge, finalizeFlightChallenges, installAuthoredDraftCrossings, FlightChallengeDirector } from './flight-challenges.mjs';
+import { FLAME_TUNING, LIGHT_PACKET_TUNING } from './vitality.mjs?v=balance-health-1';
+import { flightEndDistance } from './flight-end.mjs?v=balance-health-1';
+import { WispCompanion, wispHome } from './wisp.mjs?v=balance-health-1';
+import { getAscentInfo } from './ascent.mjs?v=balance-health-1';
+import { LEVEL_LENGTH, getLevelLengthScale } from './level-length.mjs?v=balance-health-1';
+import { resolveLevelIdentity } from './level-catalog.mjs?v=balance-health-1';
+import { DraftField, DRAFT_TUNING } from './drafts.mjs?v=balance-health-1';
+import { normalizeCompanionRole, normalizeCompanionFleet, getCompanionAbility } from './companion-abilities.mjs?v=balance-health-1';
+import { populateSceneProps, scenePropPolygons } from './scene-props.mjs?v=balance-health-1';
+import { pickupKind, getPickupSpec, pickupContactRadius, isFuelPickup, canCompanionCollect } from './pickups.mjs?v=balance-health-1';
+import { drawPickup } from './pickup-art.mjs?v=balance-health-1';
+import { buildBossLayout, getBossState as bossState, drawBoss } from './boss.mjs?v=balance-health-1';
+import { getAuthoredChallenge, finalizeFlightChallenges, installAuthoredDraftCrossings, FlightChallengeDirector } from './flight-challenges.mjs?v=balance-health-1';
 import { createTutorialState, buildTutorialLayout, recordTutorialPickup,
-  updateTutorial, updateTutorialCompanion, getTutorialHint } from './tutorial.mjs';
-export { FLAME_TUNING } from './vitality.mjs';
+  updateTutorial, updateTutorialCompanion, getTutorialHint } from './tutorial.mjs?v=balance-health-1';
+export { FLAME_TUNING } from './vitality.mjs?v=balance-health-1';
 const TAU = Math.PI * 2;
 const STEP = 1 / 60;
 const RENDER_INTERVAL_MS = 1000 / 60;
@@ -23,7 +23,7 @@ const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
 const lerp = (a, b, t) => a + (b - a) * t;
 export const FLIGHT_TUNING = Object.freeze({ gravity: 300, flapImpulse: 205,
   forwardSpeed: 154, terminalFall: 245, pickupRadius: LIGHT_PACKET_TUNING.pickupRadius });
-export { DRAFT_TUNING } from './drafts.mjs';
+export { DRAFT_TUNING } from './drafts.mjs?v=balance-health-1';
 // Retain the public tuning name for consumers; wind now has no global cycle.
 export const WIND_TUNING = DRAFT_TUNING;
 
@@ -548,7 +548,8 @@ export function buildFlightLayout({ seed = 1, terrain = 'ruins', elite = false,
       const shape = pocket.side < 0 ? obstacle.topShape : obstacle.bottomShape;
       const ex = obstacle.x + pocket.localX;
       const edgeY = obstacle.center + pocket.side * obstacle.gap / 2 + terrainEdgeY(shape, pocket.localX);
-      let clearance = pocket.first ? 28 : pocket.rich ? 22 : 21;
+      // Ordinary fuel teaches a safer approach; rich caches keep the precise niche.
+      let clearance = pocket.rich ? 22 : !elite && difficulty === 1 ? 32 : 28;
       let ey;
       const clear = y => obstacles.every(other => ex + 18 < other.x - other.width * .8
         || ex - 18 > other.x + other.width * 2.45 || [-1, 1].every(sign =>
@@ -829,7 +830,7 @@ export class WispFlight {
 
   async initPixelView() {
     try {
-      const { WispFlightView } = await import('./wisp-renderer.mjs?v=deep-skill-paths-1');
+      const { WispFlightView } = await import('./wisp-renderer.mjs?v=balance-health-1');
       if (this.destroyed) return;
       this.pixiView = new WispFlightView(this);
       const initialized = await this.pixiView.init();

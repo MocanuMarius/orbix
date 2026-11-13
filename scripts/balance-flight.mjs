@@ -11,11 +11,11 @@ if(!fs.existsSync(snapshot)){
  for(const name of fs.readdirSync(path.join(root,'dist')).filter(name=>name.endsWith('.mjs')))
   fs.copyFileSync(path.join(root,'dist',name),path.join(snapshot,name));
 }
-const source=args.source==='current'?path.join(root,'dist'):args.source&&args.source!=='baseline'?path.resolve(root,String(args.source)):snapshot;
+const source=!args.source||args.source==='current'?path.join(root,'dist'):args.source&&args.source!=='baseline'?path.resolve(root,String(args.source)):snapshot;
 const hashNames=['flight.mjs','flight-challenges.mjs','boss.mjs','drafts.mjs','wisp.mjs','vitality.mjs','model.mjs','pickups.mjs','companion-abilities.mjs','scene-props.mjs'];
 const hashes=()=>Object.fromEntries(hashNames.map(name=>[name,createHash('sha256').update(fs.readFileSync(path.join(source,name))).digest('hex')]));
 const initialHashes=hashes();
-const {WispFlight,FLIGHT_TUNING,obstaclePolygons,circleHitsPolygon}=await import(pathToFileURL(path.join(source,'flight.mjs')));
+const {WispFlight,FLIGHT_TUNING,FLAME_TUNING,obstaclePolygons,circleHitsPolygon}=await import(pathToFileURL(path.join(source,'flight.mjs')));
 const {getRunModifiers,ROUTE_PROFILES}=await import(pathToFileURL(path.join(source,'model.mjs')));
 const {getLevelIdentity}=await import(pathToFileURL(path.join(source,'level-catalog.mjs')));
 const {getPickupSpec,pickupKind,pickupContactRadius}=await import(pathToFileURL(path.join(source,'pickups.mjs')));
@@ -212,7 +212,7 @@ function simulate(config){
  const modifiers=getRunModifiers({skills:config.skills,artifacts:[],companions:config.fleet,companionRole:config.fleet[0]});
  const e=new WispFlight({canvas:canvas(),node:config.node,seed:config.seed,terrain:config.terrain,duration:config.duration,
   elite:config.profile==='gauntlet',companions:config.fleet,companionRole:config.fleet[0],modifiers,
-  flame:config.practice?80:60,onFinish:value=>{result=value;}});
+  flame:config.practice?80:FLAME_TUNING.starting,onFinish:value=>{result=value;}});
  const record={terrain:config.terrain,difficulty:config.difficulty,stage:config.stage,role:config.role,fleet:config.fleet,
   style:config.style,profile:config.profile,seed:config.seed,practice:config.practice,duration:config.duration,
   flapCost:e.flapCost,startFuel:e.flame,available:[],direct:0,collector:0,pickupCounts:{},fuelRestored:0,
@@ -239,7 +239,7 @@ function simulate(config){
  if(args.trace)record.trace=[];
  const maxFrames=Math.ceil(config.duration*60*1.15)+180;
  for(let frame=0;frame<maxFrames&&!e.finished;frame++){
-  if(!e.dying&&e.time>=memory.nextDecision){const input=choose(e,config.style,memory);memory.nextDecision+=(config.style==='imperfect'?.20:human?.10:.05);
+  if(!e.dying&&!e.completing&&e.time>=memory.nextDecision){const input=choose(e,config.style,memory);memory.nextDecision+=(config.style==='imperfect'?.20:human?.10:.05);
    if(args.trace)record.trace.push({time:round(e.time),y:round(e.player.y),vy:round(e.player.vy),fuel:round(e.flame),flap:input.flap,target:input.target});
    if(human){
     if(memory.pending==null&&input.delay<=human.reaction+.03&&e.time-memory.lastLift>=.30)
@@ -272,7 +272,12 @@ function summarize(records){
   clearFuel:round(mean(items.filter(x=>x.success).map(x=>x.endFuel))),meanFlaps:round(mean(items.map(x=>x.flaps)))}]));
 }
 const mode=String(args.mode||'calibrate'),cases=[];
-if(mode==='calibrate'){
+if(mode==='health'){
+ for(let seedIndex=0;seedIndex<Number(args.seeds||3);seedIndex++)for(const terrain of ['ruins','canopy','storm'])for(const difficulty of [1,3,6])for(const stage of [0,3])for(const role of roleOptions)for(const style of ['human150','human250']){
+  const config=buildCase({terrain,difficulty,stage,role,style,seedIndex,profile:stage===0?'refuge':'cavern',skills:{'main-efficiency':1}});
+  cases.push(config);
+ }
+}else if(mode==='calibrate'){
  for(const style of['safety','fuel','imperfect'])for(const lesson of[0,3])cases.push(buildCase({terrain:lesson===0?'ruins':'storm',difficulty:1,stage:lesson,role:'collector',style,practice:true}));
  for(const style of['safety','fuel','imperfect'])for(const terrain of['ruins','canopy','storm'])cases.push(buildCase({terrain,difficulty:1,stage:0,role:'collector',style}));
 }else if(mode==='human'){

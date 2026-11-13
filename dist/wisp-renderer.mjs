@@ -1,10 +1,10 @@
-import { sceneryIdentity, drawIdentityBackground, drawIdentityMaterial, drawIdentityLife } from './level-scenery.mjs';
-import { getCompanionAbility, normalizeCompanionRole } from './companion-abilities.mjs';
-import { companionSprite, companionPalette } from './companion-art.mjs';
-import { createScenePropArt } from './scene-prop-art.mjs?v=deep-skill-paths-1';
-import { drawBoss } from './boss.mjs';
-import { drawPickup } from './pickup-art.mjs?v=deep-skill-paths-1';
-import { pickupKind, getPickupSpec } from './pickups.mjs?v=deep-skill-paths-1';
+import { sceneryIdentity, drawIdentityBackground, drawIdentityMaterial, drawIdentityLife } from './level-scenery.mjs?v=balance-health-1';
+import { getCompanionAbility, normalizeCompanionRole } from './companion-abilities.mjs?v=balance-health-1';
+import { companionSprite, companionPalette } from './companion-art.mjs?v=balance-health-1';
+import { createScenePropArt } from './scene-prop-art.mjs?v=balance-health-1';
+import { drawBoss } from './boss.mjs?v=balance-health-1';
+import { drawPickup } from './pickup-art.mjs?v=balance-health-1';
+import { pickupKind, getPickupSpec } from './pickups.mjs?v=balance-health-1';
 
 const TAU = Math.PI * 2;
 const SCENERY_HELPERS = { line: pixelLine, disc: pixelDisc, polygon: path };
