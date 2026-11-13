@@ -40,15 +40,15 @@ function inventory(run,node){
 }
 function chain(id,result=[]){const s=M.SKILLS[id];if(s.requires)chain(s.requires,result);if(!result.includes(id))result.push(id);return result;}
 function buildPlan(role,seed,policy,unlocked){
- const random=randomFor('build:'+seed+role),leaves=Object.values(M.SKILLS).filter(s=>s.expansion&&s.branch===role);
+ const random=randomFor('build:'+seed+role),leaves=Object.values(M.SKILLS).filter(s=>s.expansion&&(!s.incrementStage||s.incrementStage===3)&&s.branch===role);
  const own=chain(leaves[Math.floor(random()*leaves.length)].id);
  const main=M.MAIN_WISP_BRANCHES.flatMap(b=>{
-  const parent=b.leaves[Math.floor(random()*b.leaves.length)],children=Object.values(M.SKILLS).filter(s=>s.expansion&&s.requires===parent);
+  const parent=b.leaves[Math.floor(random()*b.leaves.length)],children=Object.values(M.SKILLS).filter(s=>s.expansion&&(!s.incrementStage||s.incrementStage===3)&&(s.trackParent||s.requires)===parent);
   return chain(children[Math.floor(random()*children.length)].id);
  });
  const lives=['main-spare-spark','main-deep-reserve'];
  const reserve=unlocked?['afterglow-vessel','afterglow-retention','afterglow-anchor']:[];
- if(policy==='fleet'){const other=roles[(roles.indexOf(role)+1)%roles.length],otherLeaf=Object.values(M.SKILLS).find(s=>s.expansion&&s.branch===other);return ['main-bond',...own,...chain(otherLeaf.id),...main,...lives,'main-bond',...reserve];}
+ if(policy==='fleet'){const other=roles[(roles.indexOf(role)+1)%roles.length],otherLeaf=Object.values(M.SKILLS).find(s=>s.expansion&&(!s.incrementStage||s.incrementStage===3)&&s.branch===other);return ['main-bond',...own,...chain(otherLeaf.id),...main,...lives,'main-bond',...reserve];}
  return policy==='focused'?[...own,role+'-mastery',...main,...lives,...reserve]:['main-sight',own[0],'main-efficiency',...main,...own,...lives,role+'-mastery',...reserve];
 }
 function buy(state,plan,m){

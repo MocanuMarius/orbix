@@ -1,16 +1,17 @@
-import {MAX_ASCENSION} from './ascent.mjs?v=balance-health-1';
-import {EXPANDED_SKILLS,applyExpandedSkills} from './skill-paths.mjs?v=balance-health-1';
+import {expandSkillSteps,skillProgress} from './skill-increments.mjs?v=skill-growth-1';
+import {MAX_ASCENSION} from './ascent.mjs?v=skill-growth-1';
+import {EXPANDED_SKILLS,applyExpandedSkills} from './skill-paths.mjs?v=skill-growth-1';
 /** Run-owned skills and currency; persistent ascension unlocks and boss artifacts. */
-import { FLAME_TUNING, LIFE_TUNING, getLifeCapacity } from './vitality.mjs?v=balance-health-1';
-import { getLevelIdentity } from './level-catalog.mjs?v=balance-health-1';
-import { EVENT_SCENARIOS } from './map-guide.mjs?v=balance-health-1';
+import { FLAME_TUNING, LIFE_TUNING, getLifeCapacity } from './vitality.mjs?v=skill-growth-1';
+import { getLevelIdentity } from './level-catalog.mjs?v=skill-growth-1';
+import { EVENT_SCENARIOS } from './map-guide.mjs?v=skill-growth-1';
 export const SAVE_KEY='emberwing.save.runskills.v6';
 export const CAMPAIGN_MAP_NAMES=Object.freeze(['The Forgotten Verge','The Rootbound March','The Warden’s Reach']);
 export const TERRAINS=Object.freeze({ruins:{id:'ruins',name:'Sunken Ruins',color:'#cdb183',description:'Broken homes, worn arches and overgrown stone.'},canopy:{id:'canopy',name:'Luminous Canopy',color:'#94b48a',description:'Hollow trees, hanging roots and sheltered forest passages.'},storm:{id:'storm',name:'Stormglass Peaks',color:'#a8bbca',description:'Pine ridges, old mine timbers and local draft puffs.'}});
 const RUN_BRANCH_CHOICES={
  'main-efficiency':{name:'Vitality',maxRank:1,description:'Lift spends 7% less Glow.',consequence:'Less effort for every Lift'},
  'main-sight':{name:'Radiance',maxRank:1,description:'Expand your light: +70 ahead, +35 vertically.',consequence:'Reveal more of the passage'},
- 'main-lift':{name:'Rising Light',maxRank:1,choiceGroup:'main-vitality',excludes:['main-kindling'],description:'Lift rises 8% higher.',consequence:'Stronger Lift'},
+ 'main-lift':{name:'Glowkeeping',maxRank:1,choiceGroup:'main-vitality',excludes:['main-kindling'],description:'Lift spends 6% less Glow.',consequence:'Less Glow spent on Lift'},
  'collector-reach':{name:'Wide Search',requires:null,maxRank:1,choiceGroup:'collector-style',excludes:['collector-recovery'],description:'Search farther, but rest longer after each delivery.',consequence:'35% more reach · 20% longer recovery'},
  'collector-recovery':{name:'Quick Return',requires:null,maxRank:1,choiceGroup:'collector-style',excludes:['collector-reach'],description:'Recover quickly, but search a smaller area.',consequence:'50% shorter recovery · 20% less reach'},
  'protector-recovery':{name:'Quick Ward',maxRank:1,choiceGroup:'protector-style',excludes:['protector-layers'],description:'Recharge the single-layer ward faster, but spend more Glow each time.',consequence:'28% faster recovery · 25% higher activation cost'},
@@ -27,7 +28,7 @@ const RUN_BRANCH_CHOICES={
 for(const [a,b,group] of [['main-horizon','main-dawn','main-radiance'],['main-tailwind','main-drift','main-momentum'],['main-lift','main-kindling','main-vitality']])for(const [id,other] of [[a,b],[b,a]])RUN_BRANCH_CHOICES[id]={...RUN_BRANCH_CHOICES[id],choiceGroup:group,excludes:[other]};
 export const MAIN_WISP_BRANCHES=Object.freeze([{root:'main-sight',name:'Radiance',leaves:['main-horizon','main-dawn']},{root:'main-speed',name:'Momentum',leaves:['main-tailwind','main-drift']},{root:'main-efficiency',name:'Vitality',leaves:['main-lift','main-kindling']}]);
 const skill=(id,name,branch,cost,maxRank,requires,description,prices)=>Object.freeze({id,name,branch,cost:id.endsWith('-attunement')?20:id.endsWith('-mastery')?35:RUN_BRANCH_CHOICES[id]?.choiceGroup?75:branch!=='main'&&branch!=='afterglow'?40:cost,maxRank:branch!=='main'&&branch!=='afterglow'?1:maxRank,requires:branch!=='main'&&branch!=='afterglow'&&requires===null&&!id.endsWith('-attunement')?`${branch}-attunement`:requires,description,...(prices?{prices}:{}),...RUN_BRANCH_CHOICES[id],...(branch!=='main'&&branch!=='afterglow'&&!id.endsWith('-attunement')&&(Object.hasOwn(RUN_BRANCH_CHOICES[id]||{},'requires')?RUN_BRANCH_CHOICES[id].requires:requires)===null?{requires:`${branch}-attunement`}:{})});
-export const SKILLS=Object.freeze({
+export const SKILLS=Object.freeze(expandSkillSteps({
  ...EXPANDED_SKILLS,
  'main-bond':skill('main-bond','Companion Bond','main',80,2,null,'Add a second companion after Map 1, then a third after Map 2. Spend Embers at a Rest.',[80,300]),
  'main-efficiency':skill('main-efficiency','Gentle Lift','main',40,3,null,'Lift spends 7% less Glow per rank.'),
@@ -72,7 +73,7 @@ export const SKILLS=Object.freeze({
  'afterglow-vessel':skill('afterglow-vessel','Ember Vessel','afterglow',70,3,null,'Carry 15 more Afterglow per rank.'),
  'afterglow-retention':skill('afterglow-retention','Lasting Light','afterglow',80,2,'afterglow-vessel','Retain 10 percentage points more surplus Glow per rank.'),
  'afterglow-anchor':skill('afterglow-anchor','Ash Anchor','afterglow',90,2,'afterglow-vessel','Lose 10 percentage points less reserve after a failed ascension.'),
-});
+}));
 const artifact=(id,name,description,icon,modifiers)=>Object.freeze({id,name,description,icon,color:'#cdb993',sellValue:40,modifiers});
 export const ARTIFACTS=Object.freeze({
  'ember-lens':artifact('ember-lens','Ember Lens','See farther ahead.','◉',{lightRadius:28}),
@@ -224,18 +225,18 @@ export function buyCheckpointSkill(state,id){
 function artifactService(state,selling=false){const r=state?.run;if(!state?.profile||!r||r.isTutorial||r.attemptActive||r.banked||['retry','map-clear','ended'].includes(r.phase)||reattempt(r))return false;return selling?r.phase==='support'||r.restReady===true:r.phase==='support'||canChangeCompanion(r);}
 export function equipArtifact(state,id,slot=0){if(!artifactService(state)||!Number.isInteger(slot)||slot<0||slot>2||id!=null&&(!Object.hasOwn(ARTIFACTS,id)||!state.run.testMode&&!state.profile.ownedArtifacts.includes(id)))return false;const r=state.run,next=Array.from({length:3},(_,i)=>r.artifacts?.[i]||null);if(id!=null)for(let i=0;i<3;i++)if(next[i]===id)next[i]=null;next[slot]=id??null;r.artifacts=next;if(!r.testMode)state.profile.equippedArtifacts=[...next];return true;}
 export function sellArtifact(state,id){if(state?.run?.testMode||!artifactService(state,true)||!state.profile.ownedArtifacts.includes(id)||!ARTIFACTS[id])return false;const p=state.profile,r=state.run,value=ARTIFACTS[id].sellValue;p.ownedArtifacts=p.ownedArtifacts.filter(x=>x!==id);p.equippedArtifacts=p.equippedArtifacts.map(x=>x===id?null:x);r.artifacts=r.artifacts.map(x=>x===id?null:x);r.embers=count(r.embers)+value;r.securedEmbers+=value;r.lastCheckpointReward={amount:value,kind:'artifact-sale',artifactId:id};return true;}
-export function getRunModifiers(run={}){const s=run.skills||{},m={speed:1+.05*rank(s,'main-speed')+.04*rank(s,'main-tailwind'),flap:1+.08*rank(s,'main-lift'),gravity:rank(s,'main-drift')?.9:1,flapCost:Math.max(.65,1-.07*rank(s,'main-efficiency')),lightRadius:175+35*rank(s,'main-sight')+45*rank(s,'main-horizon'),darkResistance:rank(s,'main-dawn')?.4:0,attract:1,wispCooldown:1,boostCooldown:1,boostDuration:1,reward:1,windSensitivity:1,cacheFuelBonus:4*rank(s,'main-kindling'),warmCore:false,steady:false,protectorCost:12*(1-.08*rank(s,'protector-cost')),protectorRecovery:14,protectorLayers:1+rank(s,'protector-layers'),levelerDuration:2.4+.15*rank(s,'leveler-duration'),levelerSteadiness:.2*rank(s,'leveler-steadiness'),levelerDive:rank(s,'leveler-dive')?1+.25*rank(s,'leveler-dive'):0,levelerRecovery:9,swiftDuration:1.25+.08*rank(s,'swift-duration'),swiftRecovery:7.5,swiftResistance:.72+.05*rank(s,'swift-resistance'),seerRadius:230+25*rank(s,'seer-range'),seerDuration:4.5,seerRecovery:12,kindlerBonus:10+2*rank(s,'kindler-bonus'),kindlerPurify:rank(s,'kindler-purify')>0};
-  if(rank(s,'collector-reach')){m.attract*=1.35;m.wispCooldown*=1.20;}
-  else if(rank(s,'collector-recovery')){m.attract*=.80;m.wispCooldown*=.50;}
-  if(rank(s,'protector-recovery')){m.protectorRecovery*=.72;m.protectorCost*=1.25;}
+export function getRunModifiers(run={}){const rank=skillProgress,s=run.skills||{},m={speed:1+.05*rank(s,'main-speed')+.04*rank(s,'main-tailwind'),flap:1,gravity:1-.1*rank(s,'main-drift'),flapCost:Math.max(.65,(1-.07*rank(s,'main-efficiency'))*(1-.06*rank(s,'main-lift'))),lightRadius:175+35*rank(s,'main-sight')+45*rank(s,'main-horizon'),darkResistance:.4*rank(s,'main-dawn'),attract:1,wispCooldown:1,boostCooldown:1,boostDuration:1,reward:1,windSensitivity:1,cacheFuelBonus:4*rank(s,'main-kindling'),warmCore:false,steady:false,protectorCost:12*(1-.08*rank(s,'protector-cost')),protectorRecovery:14,protectorLayers:1+rank(s,'protector-layers'),levelerDuration:2.4+.15*rank(s,'leveler-duration'),levelerSteadiness:.2*rank(s,'leveler-steadiness'),levelerDive:rank(s,'leveler-dive')?1+.25*rank(s,'leveler-dive'):0,levelerRecovery:9,swiftDuration:1.25+.08*rank(s,'swift-duration'),swiftRecovery:7.5,swiftResistance:.72+.05*rank(s,'swift-resistance'),seerRadius:230+25*rank(s,'seer-range'),seerDuration:4.5,seerRecovery:12,kindlerBonus:10+2*rank(s,'kindler-bonus'),kindlerPurify:rank(s,'kindler-purify')>0};
+  if(rank(s,'collector-reach')){m.attract*=1+.35*rank(s,'collector-reach');m.wispCooldown*=1+.20*rank(s,'collector-reach');}
+  else if(rank(s,'collector-recovery')){m.attract*=1-.20*rank(s,'collector-recovery');m.wispCooldown*=1-.50*rank(s,'collector-recovery');}
+  if(rank(s,'protector-recovery')){m.protectorRecovery*=1-.28*rank(s,'protector-recovery');m.protectorCost*=1+.25*rank(s,'protector-recovery');}
   else if(rank(s,'protector-layers'))m.protectorCost*=1.35;
-  if(rank(s,'leveler-steadiness')){m.levelerSteadiness=.65;m.levelerDuration*=.85;}
+  if(rank(s,'leveler-steadiness')){m.levelerSteadiness=.65*rank(s,'leveler-steadiness');m.levelerDuration*=1-.15*rank(s,'leveler-steadiness');}
   else if(rank(s,'leveler-dive')){m.levelerDive=1.35;m.levelerDuration*=.75;}
-  if(rank(s,'swift-recovery')){m.swiftRecovery*=.72;m.swiftDuration*=.75;}
-  else if(rank(s,'swift-resistance')){m.swiftResistance=.90;m.swiftRecovery*=1.25;}
-  if(rank(s,'seer-duration')){m.seerDuration*=1.5;m.seerRadius*=.80;}
-  else if(rank(s,'seer-recovery')){m.seerRecovery*=.65;m.seerDuration*=.65;}
-  if(rank(s,'kindler-bonus')){m.kindlerBonus=16;if((run.companions||[run.companionRole]).includes('kindler'))m.flapCost*=1.05;}
+  if(rank(s,'swift-recovery')){m.swiftRecovery*=1-.28*rank(s,'swift-recovery');m.swiftDuration*=1-.25*rank(s,'swift-recovery');}
+  else if(rank(s,'swift-resistance')){m.swiftResistance=.72+.18*rank(s,'swift-resistance');m.swiftRecovery*=1+.25*rank(s,'swift-resistance');}
+  if(rank(s,'seer-duration')){m.seerDuration*=1+.5*rank(s,'seer-duration');m.seerRadius*=1-.2*rank(s,'seer-duration');}
+  else if(rank(s,'seer-recovery')){m.seerRecovery*=1-.35*rank(s,'seer-recovery');m.seerDuration*=1-.35*rank(s,'seer-recovery');}
+  if(rank(s,'kindler-bonus')){m.kindlerBonus=10+6*rank(s,'kindler-bonus');if((run.companions||[run.companionRole]).includes('kindler'))m.flapCost*=1+.05*rank(s,'kindler-bonus');}
   else if(rank(s,'kindler-purify'))m.kindlerBonus=8;
   const spark=role=>rank(s,`${role}-attunement`)+rank(s,`${role}-mastery`);
   m.attract*=1+.05*spark('collector');m.protectorCost=Math.max(1,m.protectorCost-.5*spark('protector'));

@@ -1,3 +1,4 @@
+import {skillProgress} from './skill-increments.mjs?v=skill-growth-1';
 // Named, one-time specialisations. Each pair is exclusive for this run.
 const paths=[];
 function fork(branch,parent,a,b){
@@ -64,8 +65,8 @@ fork('main','main-kindling',
  ['shared-fire','Shared Fire','Collector-delivered fuel restores 5 extra Glow. Requires an equipped Collector to benefit.',{collectorFuelBonus:5}]);
 export const EXPANDED_SKILLS=Object.freeze(Object.fromEntries(paths.map(p=>[p.id,Object.freeze(p)])));
 export function applyExpandedSkills(modifiers,skills,companions=[]){
-  for(const path of paths)if(skills[path.id]>0&&(path.branch==='main'||companions.includes(path.branch))){
-    for(const [key,value] of Object.entries(path.add))modifiers[key]=(modifiers[key]||0)+value;
-    for(const [key,value] of Object.entries(path.multiply))modifiers[key]*=value;
+  for(const path of paths)if(skillProgress(skills,path.id)>0&&(path.branch==='main'||companions.includes(path.branch))){
+    for(const [key,value] of Object.entries(path.add))modifiers[key]=(modifiers[key]||0)+value*skillProgress(skills,path.id);
+    for(const [key,value] of Object.entries(path.multiply))modifiers[key]*=1+(value-1)*skillProgress(skills,path.id);
   }
 }

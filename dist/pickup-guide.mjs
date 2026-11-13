@@ -1,6 +1,6 @@
-import { PICKUP_TYPES, getPickupSpec } from './pickups.mjs?v=balance-health-1';
-import { pickupArtSvg } from './pickup-art.mjs?v=balance-health-1';
-import { getCompanionAbility, normalizeCompanionRole, normalizeCompanionFleet } from './companion-abilities.mjs?v=balance-health-1';
+import { PICKUP_TYPES, getPickupSpec } from './pickups.mjs?v=skill-growth-1';
+import { pickupArtSvg } from './pickup-art.mjs?v=skill-growth-1';
+import { getCompanionAbility, normalizeCompanionRole, normalizeCompanionFleet } from './companion-abilities.mjs?v=skill-growth-1';
 
 const esc = value => String(value ?? '').replace(/[&<>"']/g, char =>
   ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));

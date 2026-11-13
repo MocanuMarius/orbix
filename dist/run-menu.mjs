@@ -1,6 +1,6 @@
-import {livesMarkup} from './lives.mjs?v=balance-health-1';
-import { COMPANION_ABILITIES } from './companion-abilities.mjs?v=balance-health-1';
-import { companionArtSvg } from './companion-art.mjs?v=balance-health-1';
+import {livesMarkup} from './lives.mjs?v=skill-growth-1';
+import { COMPANION_ABILITIES } from './companion-abilities.mjs?v=skill-growth-1';
+import { companionArtSvg } from './companion-art.mjs?v=skill-growth-1';
 
 const esc = value => String(value ?? '').replace(/[&<>"']/g, char =>
   ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[char]));

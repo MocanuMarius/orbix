@@ -11,7 +11,7 @@ const chain=(id,s={})=>{const node=M.SKILLS[id];if(node.requires)chain(node.requ
 const legalCost=skills=>{const wallet={skills:{},afterglowUnlocked:true,mapIndex:2};let cost=0;for(let pass=0;pass<10;pass++){let added=false;for(const [id,r]of Object.entries(skills))if((wallet.skills[id]||0)<r){const price=M.getSkillCost(wallet,id);if(price!==null){cost+=price;wallet.skills[id]=(wallet.skills[id]||0)+1;added=true;}}if(!added)break;}assert.deepEqual(wallet.skills,skills);return cost;};
 const artifactIds=Object.keys(M.ARTIFACTS),arts=[[],...combos(artifactIds,1),...combos(artifactIds,2),...combos(artifactIds,3)];
 const mains=[{}];
-const mainLeaves=M.MAIN_WISP_BRANCHES.map(b=>Object.values(M.SKILLS).filter(s=>s.expansion&&b.leaves.includes(s.requires)));
+const mainLeaves=M.MAIN_WISP_BRANCHES.map(b=>Object.values(M.SKILLS).filter(s=>s.expansion&&(!s.incrementStage||s.incrementStage===3)&&b.leaves.includes(s.trackParent||s.requires)));
 for(const a of mainLeaves[0])for(const b of mainLeaves[1])for(const c of mainLeaves[2])mains.push({...chain(a.id),...chain(b.id),...chain(c.id)});
 const variants=Object.fromEntries(roles.map(role=>[role,[{id:'base',skills:{}},...Object.values(M.SKILLS).filter(s=>s.branch===role&&s.expansion).map(s=>({id:s.id,skills:{...chain(s.id),[role+'-mastery']:1}}))]]));
 const fleets=[...combos(roles,1),...combos(roles,2),...combos(roles,3)],builds=[];

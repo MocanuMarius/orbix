@@ -80,6 +80,14 @@ Latest queue supersedes the earlier life-service proposal: Rest heart recovery f
 - `npm run balance:flight`: 648 real-engine attempts at 60 Hz with 150/250 ms delayed controllers, across all six companions, three terrains, tiers 1/3/6 and early/mid passages. These controllers are deliberately imperfect and do not model human perception.
 - `npm run balance:builds`: 627,250 legal modifier configurations, all 0–3 artifact sets, actual Collector recovery streams, and progression/reward integrity.
 
-Current prices: starting gift free; Sparks 20, Deep Sparks 35, utilities/main roots 40, style forks 75, deepest forks 120. Ordinary clears pay 32–40 Embers, elites add 12, optional challenges pay 16, and Ember Clusters pay 8. Full heart recovery still competes with Glow or Embers at each Rest; maximum-heart skills cost 100/180.
+Current prices: starting gift free; Sparks 20, Deep Sparks 35, utilities/main roots 40. Continuous style upgrades now cost 20/25/30 across three steps (75 total); deep specialisations cost 35/40/45 (120 total). Discrete mechanic unlocks remain single purchases. Ordinary clears pay 32–40 Embers, elites add 12, optional challenges pay 16, and Ember Clusters pay 8. Full heart recovery still competes with Glow or Embers at each Rest; maximum-heart skills cost 100/180.
 
 `balance-health.mjs --source=PATH --out=PATH --seeds=N` supports paired source snapshots. `balance-flight.mjs` defaults to current source; select `--source=PATH` for a historical snapshot. The older standalone `balance-economy.mjs` and `balance-builds.mjs` are historical experiments and are no longer the package entrypoints.
+
+## Incremental branching trees
+
+Main-wisp and companion trees use compact connected buds with 44px touch targets and one fixed detail/purchase panel. Main-wisp branches are Light, Motion, Glow and Bonds. Only equipped companion trees are shown. Selecting a node keeps the scroll position.
+
+51 continuous upgrade tracks now have three separate purchases, adding 102 intermediate nodes without increasing full-path prices. Every step changes the actual modifiers immediately; exclusive forks still apply. Glowkeeping replaces Rising Light with three 2-percentage-point reductions to Lift Glow use. Kindling adds 1.33 Glow per step, reaching +4 at completion. Deeper forks further specialise conservation, flight control or collection.
+
+`npm run check:skill-growth` checks prerequisites, exclusivity, partial effects, full-path costs and real purchase/TEST replacement flows. The 390×844 browser purchase flow was also checked. The preceding large balance report predates these partial purchases; unchanged endpoint prices do not by themselves prove equal campaign balance.

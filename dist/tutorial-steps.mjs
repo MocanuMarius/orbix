@@ -1,5 +1,5 @@
-import { MAP_STOP_TYPES } from './map-guide.mjs?v=balance-health-1';
-import { getCompanionAbility, normalizeCompanionRole } from './companion-abilities.mjs?v=balance-health-1';
+import { MAP_STOP_TYPES } from './map-guide.mjs?v=skill-growth-1';
+import { getCompanionAbility, normalizeCompanionRole } from './companion-abilities.mjs?v=skill-growth-1';
 
 // Content only. The coach owns pausing, highlighting, seen state and navigation.
 // hasStoredGlow means the relevant reserve panel/footer exists on this screen.
