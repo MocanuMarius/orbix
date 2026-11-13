@@ -1,3 +1,4 @@
+import {PICKUP_TYPES} from './pickups.mjs';
 /** Seeded, DOM-free campaign model. Public commands mutate their run/profile and return booleans. */
 import { FLAME_TUNING, AFTERGLOW_TUNING, LIFE_TUNING, FLIGHT_POINTS_TUNING } from './vitality.mjs';
 import { WISP_TUNING } from './wisp.mjs';
@@ -384,7 +385,7 @@ function shuffled(items, rng) {
 export function newState() {
   return {
     version: 1,
-    profile: { embers: 0, skills: {}, afterglow: 0, afterglowUnlocked: false, difficulty: 1,
+    profile: { seenPickups: [], pickupCoachSkipped: false, embers: 0, skills: {}, afterglow: 0, afterglowUnlocked: false, difficulty: 1,
       clearedFlights: 0, knownPowers: [...BASE_POWERS], tutorialComplete: false,
       rebirthRefunded: false, stats: { completedRuns: 0, wins: 0, totalScore: 0, bestScore: 0, attempts: 0, deaths: 0 }, bankedRuns: [] },
     run: null, suspendedRun: null,

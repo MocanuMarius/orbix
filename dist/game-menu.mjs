@@ -50,6 +50,7 @@ export function gameWheelMarkup({ flight = false, muted = false, tuningAvailable
       </button>
     </div>
     <div class="game-menu-footer">
+      <button type="button" class="game-menu-foot" data-action="pickup-key" aria-label="Pickup key: sizes, colors and effects">${icon('tutorial')}<span>PICKUP KEY</span></button>
       <button type="button" class="game-menu-foot" data-action="mute" aria-label="${muted ? 'Enable sound' : 'Mute sound'}">${icon(muted ? 'mute' : 'sound')}<span>${muted ? 'UNMUTE' : 'MUTE'}</span></button>
       ${flight ? `<button type="button" class="game-menu-foot game-menu-end" data-action="leave-flight" aria-label="End the current attempt">${icon('exit')}<span>END ATTEMPT</span></button>` : ''}
       ${Number.isFinite(reserve) && reserve > 0 ? `<button type="button" class="game-menu-foot game-menu-reserve" data-action="inspect-afterglow" aria-label="Inspect ${reservePractice ? 'practice' : 'stored'} Glow reserve. ${formatStoredGlow(reserve).replace('<', '&lt;')} Glow available.">${reserveIconMarkup()}<span>${reserveLabel}</span></button>` : ''}

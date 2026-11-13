@@ -1,4 +1,5 @@
 // Gentle packet motion only. This field never collects or reserves an item.
+import { canCompanionCollect } from './pickups.mjs';
 const clamp = (n, lo, hi) => Math.min(hi, Math.max(lo, n));
 export const GRAVITY_TUNING = Object.freeze({ range: 120, maxRange: 220,
   G: 27000, softening: 24, maxAcceleration: 36, maxSpeed: 24, drag: 3.5 });
@@ -15,7 +16,7 @@ export function updateGravityPackets(packets, { dt, time, active, worldX, y,
   for (const packet of packets) {
     const dx = worldX - packet.x, dy = y - packet.y;
     const r2 = dx * dx + dy * dy;
-    if (!active || strength <= 0 || step <= 0 || packet.harmful || packet.kind === 'dark'
+    if (!active || strength <= 0 || step <= 0 || !canCompanionCollect(packet)
       || packet.collected || packet.carried || packet.attracted || r2 >= radius * radius || r2 < .0001) {
       // Leaving the field stops motion; there is no lingering auto-collection.
       packet.gravityVx = 0; packet.gravityVy = 0;

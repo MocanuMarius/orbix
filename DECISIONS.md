@@ -296,3 +296,15 @@ The current build already caches terrain artwork. Its current dynamic lighting u
 - Collector cooldown cards affect collector recovery; Swift/Anchor cooldown cards affect their active tool. Gravity's existing recharge triggers briefly strengthen its pull instead of granting collecting behavior.
 - The tutorial and role previews teach the equipped role. Do not wait for, promise or show fetch behavior when Collector is not equipped.
 - Publish without checks, tests, reviews, simulations or balance work. Unlock thresholds and role effects remain available for later tuning.
+
+
+## Pickup variety, size and readable effects
+
+- Seven pickup kinds share one catalog: Light Mote (small, 24 base Glow), Glow Cache (large, 40 base Glow), Ember Cluster (12 flight embers), Charge Spark (3 seconds of companion recovery, or a short Gravity surge), Sight Bloom (+50 sight for six seconds), Dusk Pearl (32 Glow with 20% sight dimming for four seconds), Dark Seed (the existing eight-second sight penalty). Card bonuses can modify fuel effects.
+- Use recognizable light-packet art, sizes, colour and animation rather than diamonds or identical dots. Larger visual sizes have modestly larger contact windows. Collection retains the accelerating orbital absorption animation with each pickup's identity.
+- Preserve mandatory fuel placements and the existing sparse optional-niche count. Convert some optional dark niches to utility or risk/reward pickups, retaining dark encounters; keep the opening flight simple. Never replace essential fuel with currency or utility.
+- Only Collector can fetch automatic pickups. Dusk Pearls and Dark Seeds require deliberate body contact; Collector and Gravity ignore risky pickups. Other companions still rely on normal body pickup.
+- Currency, charge and sight pickups do not count as fuel or recursively trigger fuel cards/challenges. Currency enters the normal clear reward and is discarded when the attempt fails. Temporary sight and recovery effects stay within the current attempt.
+- Introduce a new type once when actually visible, pausing the flight with a short spotlight and explicit Continue. Skip disables further pickup tips. The normal MENU also provides an optional Pickup Key with actual icons, sizes and effects. Existing basic tutorial types do not need repeated normal-flight introductions.
+- The Protector, Seer and Purifier roster discussions remain proposals; this batch adds pickup variety rather than claiming those companions exist.
+- Publish without checks, tests, reviews, simulations or balance work. These are provisional effect values for later player feedback.

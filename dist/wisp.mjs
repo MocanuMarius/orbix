@@ -1,5 +1,6 @@
 import { LIGHT_PACKET_TUNING } from './vitality.mjs';
 import { getCompanionAbility } from './companion-abilities.mjs';
+import { pickupKind, pickupContactRadius, canCompanionCollect } from './pickups.mjs';
 
 const clamp = (value, lo, hi) => Math.min(hi, Math.max(lo, value));
 export const WISP_TUNING = Object.freeze({ range: 100, cooldown: 5.5, lightRadius: 175, outboundSpeed: 500, returnSpeed: 620 });
@@ -44,7 +45,8 @@ export class WispCompanion {
       radius: enabled ? this.range(engine) : 0, recovery: enabled ? recovery : 0,
       phase: enabled ? this.phase : 'orbiting', cooldown: enabled ? this.cooldown : 0,
       cooldownMax: enabled ? this.cooldownMax : 0,
-      carrying: enabled && Boolean(this.cargo), cargoValue: enabled ? this.cargo?.value || 1 : 0 };
+      carrying: enabled && Boolean(this.cargo), cargoValue: enabled ? this.cargo?.value || 1 : 0,
+      cargoKind: enabled && this.cargo ? pickupKind(this.cargo) : null };
   }
 
   moveTo(x, y, speed, dt) {
@@ -92,13 +94,13 @@ export class WispCompanion {
         const reach = this.range(engine);
         let nearest = null, nearestDistance = reach;
         for (const ember of engine.layout.embers) {
-          if (ember.harmful || ember.kind === 'dark' || ember.collected || ember.carried || ember.attracted) continue;
+          if (!canCompanionCollect(ember) || ember.collected || ember.carried || ember.attracted) continue;
           const x = ember.x - engine.distance;
           if (x < home.x - reach) continue;
           // Leave the entire approach and body-contact window to the player.
           // Once a packet passes behind this edge, forward flight cannot touch
           // it directly; only then may the carrier rescue it within its range.
-          if (x >= home.x - LIGHT_PACKET_TUNING.pickupRadius) continue;
+          if (x >= home.x - pickupContactRadius(ember)) continue;
           const distance = Math.hypot(x - home.x, ember.y - home.y);
           if (distance < nearestDistance) { nearest = ember; nearestDistance = distance; }
         }
@@ -108,7 +110,7 @@ export class WispCompanion {
       }
     } else if (this.phase === 'outbound') {
       const target = this.target;
-      if (!target || target.harmful || target.kind === 'dark' || target.collected || target.x - engine.distance < -100) {
+      if (!target || !canCompanionCollect(target) || target.collected || target.x - engine.distance < -100) {
         this.releaseTarget(); this.phase = 'returning';
       } else if (this.moveTo(target.x - engine.distance, target.y, WISP_TUNING.outboundSpeed, dt)) {
         target.carried = true;
@@ -118,7 +120,7 @@ export class WispCompanion {
     } else if (this.phase === 'returning') {
       // A harmful item can never become delivery cargo, even if a live item
       // was replaced or reclassified after the companion chose its target.
-      if (this.cargo?.harmful || this.cargo?.kind === 'dark') {
+      if (this.cargo && !canCompanionCollect(this.cargo)) {
         this.cargo.carried = false; this.cargo.attracted = false; this.cargo = null;
       }
       if (this.moveTo(orbit.x, orbit.y, WISP_TUNING.returnSpeed, dt)) {

@@ -8,6 +8,8 @@ import { DraftField, DRAFT_TUNING } from './drafts.mjs';
 import { normalizeCompanionRole, getCompanionAbility } from './companion-abilities.mjs';
 import { GRAVITY_TUNING, gravityRadius, updateGravityPackets } from './gravity.mjs';
 import { populateSceneProps, scenePropPolygons } from './scene-props.mjs';
+import { pickupKind, getPickupSpec, pickupContactRadius, isFuelPickup, canCompanionCollect } from './pickups.mjs';
+import { drawPickup } from './pickup-art.mjs';
 import { buildBossLayout, getBossState as bossState, drawBoss } from './boss.mjs';
 import { createTutorialState, buildTutorialLayout, recordTutorialPickup,
   updateTutorial, updateTutorialCompanion, getTutorialHint } from './tutorial.mjs';
@@ -565,6 +567,22 @@ export function buildFlightLayout({ seed = 1, terrain = 'ruins', elite = false,
         collected: false, attracted: false, phase: darkRng() * TAU });
     }
   }
+  // Reuse optional niche slots, never the route's existing fuel opportunities.
+  const niches = embers.filter(packet => pickupKind(packet) === 'dark');
+  if (niches.length > 1 && ascent.level > 1) {
+    const utilityRng = seededRandom(`${seed}:${terrain}:${stage}:niche-kinds`);
+    const keepDark = Math.floor(utilityRng() * niches.length);
+    const pool = ascent.level >= 4 ? ['embers', 'charge', 'sight', 'dusk']
+      : ascent.level >= 3 ? ['embers', 'charge', 'sight'] : ['embers', 'charge'];
+    const offset = Math.floor(utilityRng() * pool.length) + ['ruins', 'canopy', 'storm'].indexOf(terrain);
+    let utilityIndex = 0;
+    niches.forEach((packet, i) => {
+      if (i === keepDark) return;
+      const kind = pool[(offset + utilityIndex++) % pool.length], spec = getPickupSpec(kind);
+      Object.assign(packet, { kind, harmful: false, manualOnly: spec.manualOnly,
+        value: 0, fuel: spec.fuel > 0, feature: `${kind}-niche` });
+    });
+  }
   const sceneProps = populateSceneProps({ obstacles, embers, terrain, height, seed,
     totalDistance: duration * speed, scene: identity.scene, circleHitsPolygon });
   // Both renderers and the collection broad phase rely on world-X ordering.
@@ -625,7 +643,7 @@ export class WispFlight {
     this.width = 390; this.height = 620; this.pixelRatio = 1;
     this.time = 0; this.distance = 0; this.accumulator = 0; this.lastFrame = 0;
     this.running = false; this.paused = false; this.finished = false; this.destroyed = false;
-    this.raf = null; this.score = 0; this.baseEmbers = 0; this.bonusEmbers = 0; this.collisions = 0;
+    this.raf = null; this.score = 0; this.baseEmbers = 0; this.bonusEmbers = 0; this.utilityEmbers = 0; this.collisions = 0;
     this.boosts = 0; this.boostTime = 0; this.cooldown = 0;
     this.abilityTime = 0; this.abilityStartedAt = -1000; this.levelRecovery = 0;
     this.exitProtection = 0; this.flash = 0; this.shake = 0;
@@ -634,7 +652,7 @@ export class WispFlight {
     this.stormFeedClock = 0; this.warmCoreUsed = false;
     this.particles = []; this.trail = []; this.pickupEffects = []; this.emitClock = 0;
     this.absorptionEffects = []; this.absorptionSequence = 0;
-    this.lightPenalties = []; this.lightDimming = 0;
+    this.lightPenalties = []; this.lightDimming = 0; this.sightUntil = 0;
     this.wispBoost = 0; this.gravitySurge = 0;
     this.cosmeticRng = seededRandom(`${this.seed}:cosmetics`);
     this.rigImage = null; this.background = null;
@@ -712,7 +730,7 @@ export class WispFlight {
   get boostCooldown() { return this.abilityCooldown; }
   get flapCost() { return Math.round(FLAME_TUNING.flapCost * this.flameDrain); }
   get wingRate() { return this.boostTime > 0 ? 9 : this.flame < this.flapCost ? .45 : 5.8; }
-  get embers() { return Math.floor((this.baseEmbers + this.bonusEmbers) * Math.max(0, Number(this.mod.reward) || 1) * this.routeReward); }
+  get embers() { return Math.floor((this.baseEmbers + this.bonusEmbers) * Math.max(0, Number(this.mod.reward) || 1) * this.routeReward) + this.utilityEmbers; }
 
   loadImage(url, property) {
     if (!url || typeof Image === 'undefined') return;
@@ -902,9 +920,11 @@ export class WispFlight {
     const configured = Number(this.mod.lightRadius);
     const baseRadius = Number.isFinite(configured) && configured > 0 ? configured : LIGHT_PACKET_TUNING.baseRadius;
     const reduction = clamp(this.lightDimming, 0, 1 - LIGHT_PACKET_TUNING.minimumLight);
-    const revealBonus = 0, revealedRadius = baseRadius;
+    const sightRemaining = Math.max(0, this.sightUntil - this.time), sightBonus = sightRemaining > 0 ? 50 : 0;
+    const revealBonus = 0, revealedRadius = baseRadius + sightBonus;
     return { baseRadius, revealedRadius, revealBonus, radius: revealedRadius * (1 - reduction),
       intensity: 1 - reduction * .65, dimmed: reduction > .005,
+      sightBonus, sightRemaining,
       stacks: this.lightPenalties.length,
       remaining: Math.max(0, ...this.lightPenalties.map(until => until - this.time)),
       maximumStacks: LIGHT_PACKET_TUNING.darkMaximumStacks,
@@ -933,7 +953,7 @@ export class WispFlight {
       this.wisp.cooldown = Math.max(0, before - 1);
       this.setEvent(`${source} · Collector recovery${before > 0 ? ' −1s' : ' ready'}`);
     } else if (this.companionRole === 'gravity') {
-      this.gravitySurge = 1;
+      this.gravitySurge = Math.max(this.gravitySurge, 1);
       this.setEvent(`${source} · Gravity pull +15%`);
     } else {
       this.cooldown = Math.max(0, this.cooldown - 1);
@@ -957,9 +977,29 @@ export class WispFlight {
     const dx = origin.x - this.player.x, dy = origin.y - this.player.y;
     const duration = LIGHT_PACKET_TUNING.absorptionDuration;
     this.absorptionEffects.push({ id: `absorb:${this.absorptionSequence++}`, kind,
+      pickupKind: pickupKind(ember), pickupId: ember.id,
       startX: origin.x, startY: origin.y, initialAngle: Math.atan2(dy, dx),
       startRadius: Math.hypot(dx, dy), bornAt: this.time, duration, life: duration });
     while (this.absorptionEffects.length > LIGHT_PACKET_TUNING.absorptionLimit) this.absorptionEffects.shift();
+  }
+
+  getNearbyPickup(seenKinds = new Set()) {
+    const light = this.getLightState(), sight = light.radius * .80;
+    const seen = kind => seenKinds?.has?.(kind) === true || Array.isArray(seenKinds) && seenKinds.includes(kind);
+    for (const packet of this.layout.embers) {
+      if (packet.collected || packet.carried) continue;
+      const kind = pickupKind(packet), spec = getPickupSpec(packet), x = packet.x - this.distance, y = packet.y;
+      if (seen(kind) || x <= this.player.x + pickupContactRadius(packet)
+        || x < 18 || x > this.width - 18 || y < 18 || y > this.height - 18
+        || Math.hypot(x - this.player.x, y - this.player.y) + spec.radius > sight) continue;
+      return { id: kind, kind, x, y, radius: Math.max(18, spec.radius * 3) };
+    }
+    return null;
+  }
+
+  dimLight(duration) {
+    if (this.lightPenalties.length >= LIGHT_PACKET_TUNING.darkMaximumStacks) this.lightPenalties.shift();
+    this.lightPenalties.push(this.time + duration);
   }
 
   step(dt) {
@@ -1070,7 +1110,7 @@ export class WispFlight {
       if (ember.collected || ember.carried) continue;
       const x = ember.x - this.distance;
       if (x < -40 || x > this.width + 20) continue;
-      if (Math.hypot(this.player.x - x, this.player.y - ember.y) < FLIGHT_TUNING.pickupRadius) this.collect(ember);
+      if (Math.hypot(this.player.x - x, this.player.y - ember.y) < pickupContactRadius(ember)) this.collect(ember);
     }
     if (this.tutorial) {
       updateTutorialCompanion(this, dt);
@@ -1106,15 +1146,46 @@ export class WispFlight {
 
   collect(ember) {
     if (ember.collected || !this.alive || this.finished || this.destroyed) return;
-    const harmful = ember.harmful || ember.kind === 'dark';
+    const kind = pickupKind(ember), spec = getPickupSpec(ember), harmful = kind === 'dark';
+    if (ember.deliveredByWisp && !canCompanionCollect(ember)) return;
     if (harmful) {
       // Body-only hazard: never turn a stale carrier reservation into a hit.
       if (ember.deliveredByWisp) return;
       ember.collected = true;
       this.absorbPacket(ember, 'dark');
-      if (this.lightPenalties.length >= LIGHT_PACKET_TUNING.darkMaximumStacks) this.lightPenalties.shift();
-      this.lightPenalties.push(this.time + LIGHT_PACKET_TUNING.darkDuration);
-      this.setEvent('Light dimmed');
+      this.dimLight(spec.dimDuration);
+      this.setEvent(`${spec.name} · light dimmed`);
+      return;
+    }
+    if (!ember.generated && !isFuelPickup(ember)) {
+      ember.collected = true;
+      this.absorbPacket(ember, 'light');
+      let text = '';
+      if (spec.currency) {
+        this.utilityEmbers += spec.currency;
+        text = `+${spec.currency} embers`;
+      } else if (spec.recharge) {
+        if (this.companionAbility.collects) {
+          const restored = Math.min(spec.recharge, this.wisp.cooldown);
+          this.wisp.cooldown = Math.max(0, this.wisp.cooldown - spec.recharge);
+          text = restored > 0 ? `Collector recovery −${Math.round(restored * 10) / 10}s` : 'Collector ready';
+        } else if (this.companionRole === 'gravity') {
+          this.gravitySurge = Math.max(this.gravitySurge, spec.recharge);
+          text = `Gravity pull +15% · ${spec.recharge}s`;
+        } else {
+          const restored = Math.min(spec.recharge, this.cooldown);
+          this.cooldown = Math.max(0, this.cooldown - spec.recharge);
+          text = restored > 0 ? `${this.companionAbility.label} recovery −${Math.round(restored * 10) / 10}s` : `${this.companionAbility.label} ready`;
+        }
+      } else if (spec.sightBonus) {
+        this.sightUntil = Math.max(this.sightUntil, this.time + spec.sightDuration);
+        text = `+${spec.sightBonus} sight · ${spec.sightDuration}s`;
+      }
+      const origin = ember.deliveredByWisp ? this.getWispState() : this.player;
+      this.pickupEffects.push({ x: origin.x, y: origin.y, pickupKind: kind, text, value: 0, restored: 0, life: .72 });
+      if (this.pickupEffects.length > 12) this.pickupEffects.shift();
+      this.setEvent(`${spec.name} · ${text}`);
+      this.sound('collect');
       return;
     }
     if (this.tutorial) recordTutorialPickup(this, ember);
@@ -1123,13 +1194,14 @@ export class WispFlight {
     const cleansed = !ember.generated && this.lightPenalties.length > 0;
     if (cleansed) this.lightPenalties.pop();
     const fuel = ember.generated ? FLAME_TUNING.generatedFuel
-      : (ember.value === 3 ? FLAME_TUNING.heartFuel : FLAME_TUNING.emberFuel)
+      : spec.fuel
         + this.fuelBonus + clamp(Number(this.mod.cacheFuelBonus) || 0, 0, 32);
     const restored = Math.min(fuel, FLAME_TUNING.maximum - this.flame);
     this.flame += restored; this.flameRestored += restored;
+    if (spec.dim) this.dimLight(spec.dimDuration);
     const origin = ember.deliveredByWisp ? this.getWispState() : this.player;
     this.pickupEffects.push({ x: origin.x, y: origin.y,
-      value: ember.value === 3 ? 3 : 1, restored, life: .72 });
+      pickupKind: kind, value: ember.value === 3 ? 3 : 1, restored, life: .72 });
     if (this.pickupEffects.length > 12) this.pickupEffects.shift();
     // Converted thorns earn currency, but cannot feed pickup-triggered cards
     // and create an unbounded collection / boost / conversion loop.
@@ -1157,7 +1229,14 @@ export class WispFlight {
       this.setEvent(bonus > 0 ? `Warm Core · +${bonus} Glow` : 'Warm Core · Glow full');
       this.burst(this.player.x, this.player.y, 12, '#ffd79a');
     }
-    if (cleansed) this.setEvent('Light restored · dark packet cleansed');
+    if (kind === 'dusk') {
+      const totalRestored = this.pickupEffects.at(-1).restored;
+      const gain = totalRestored > 0 ? `+${totalRestored} Glow` : 'Glow full';
+      const text = `${gain} · sight −${Math.round(spec.dim * 100)}% (${spec.dimDuration}s)`;
+      this.pickupEffects.at(-1).text = text;
+      this.setEvent(`${spec.name} · ${text}`);
+    }
+    else if (cleansed) this.setEvent('Light restored · dark packet cleansed');
     this.sound('collect');
   }
 
@@ -1460,34 +1539,7 @@ export class WispFlight {
       if (ember.collected || x < -20) continue;
       const animation = this.reducedMotion ? 0 : this.time;
       const y = ember.y + (ember.attracted ? 0 : Math.sin(animation * 2.8 + ember.phase) * 2);
-      if (ember.harmful || ember.kind === 'dark') {
-        c.save(); c.fillStyle = '#0a0911'; c.strokeStyle = '#776881'; c.lineWidth = 1;
-        c.beginPath(); c.arc(x, y, 4, 0, TAU); c.fill(); c.stroke();
-        c.fillStyle = '#afa5bb'; c.fillRect(Math.round(x - 2), Math.round(y - 3), 1, 1);
-        c.restore(); continue;
-      }
-      const rich = ember.value === 3;
-      c.save(); c.translate(x, y);
-      c.fillStyle = 'rgba(255,161,62,.20)'; c.beginPath();
-      c.ellipse(-10, 0, rich ? 26 : 17, rich ? 6 : 3, 0, 0, TAU); c.fill();
-      if (rich) {
-        c.fillStyle = 'rgba(255,156,68,.17)'; c.beginPath(); c.arc(0, 0, 23, 0, TAU); c.fill();
-        c.font = 'bold 12px system-ui'; c.textAlign = 'center'; c.fillStyle = '#fff0c9';
-        c.fillText('3', 0, 26);
-      }
-      for (let j = 0; j < (rich ? 3 : 1); j++) {
-        const angle = animation * 2 + ember.phase + j * TAU / 3;
-        c.fillStyle = '#ffdf8f'; c.beginPath();
-        c.arc(Math.cos(angle) * (rich ? 17 : 10), Math.sin(angle) * (rich ? 11 : 6), 1.3, 0, TAU); c.fill();
-      }
-      if (rich) c.scale(1.65, 1.65);
-      c.translate(-x, -y);
-      c.fillStyle = 'rgba(255,201,111,.10)'; c.beginPath(); c.arc(x, y, 13, 0, TAU); c.fill();
-      c.fillStyle = 'rgba(255,215,139,.21)'; c.beginPath(); c.arc(x, y, 8, 0, TAU); c.fill();
-      c.fillStyle = '#ffdca0'; c.beginPath(); c.moveTo(x, y - 5); c.quadraticCurveTo(x + 6, y - 1, x + 2, y + 5);
-      c.quadraticCurveTo(x - 5, y + 6, x - 4, y); c.quadraticCurveTo(x - 2, y - 2, x, y - 5); c.fill();
-      c.fillStyle = '#fff4d1'; c.beginPath(); c.ellipse(x, y + 1, 1.5, 2.5, .4, 0, TAU); c.fill();
-      c.restore();
+      drawPickup(c, x, y, { kind: pickupKind(ember), time: animation, reducedMotion: this.reducedMotion });
     }
   }
 
@@ -1501,7 +1553,7 @@ export class WispFlight {
       c.beginPath(); c.arc(effect.x, effect.y, 23, 0, TAU); c.fill();
       c.globalAlpha = Math.min(1, (1 - t) * 3); c.font = 'bold 18px system-ui'; c.textAlign = 'center';
       c.font = effect.restored > 0 ? 'bold 13px system-ui' : 'bold 18px system-ui';
-      c.fillText(effect.restored > 0 ? `+${effect.restored} GLOW` : `+${effect.value}`, effect.x + 15, effect.y - 22 - (this.reducedMotion ? 0 : t * 32));
+      c.fillText(effect.text || (effect.restored > 0 ? `+${effect.restored} GLOW` : `+${effect.value}`), effect.x + 15, effect.y - 22 - (this.reducedMotion ? 0 : t * 32));
     }
     c.restore();
   }

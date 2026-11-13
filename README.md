@@ -175,3 +175,10 @@ Draft pockets now apply base force 260/340/430 in ruins/canopy/storm (cap560), w
 Companions are the same plain round pixel light, with role colours: Collector green, Swift amber, Anchor cyan, Gravity violet. Collector is the default and the only companion that fetches missed packets and delivers cargo. Swift boosts, Anchor holds height and Gravity pulls packets; these roles require direct body pickup and never fetch.
 
 Future unlock thresholds are Ascension 2/3/4 for Swift/Anchor/Gravity. The current explicit testing override leaves those buttons selectable while their lock and ascension requirement remain visible. Collector reach/recovery indicators are hidden for other roles; Gravity displays pull information instead. Basic tutorial text follows the equipped role. No checks, tests, simulations or balance work were run for this batch.
+
+
+### Seven pickup kinds
+
+Light Motes and Glow Caches supply fuel; Ember Clusters supply clear-reward currency; Charge Sparks restore companion charge; Sight Blooms temporarily extend sight; Dusk Pearls trade sight for fuel; Dark Seeds dim sight. Art, size and movement distinguish their purposes, and contact windows reflect their size. Optional niche variety preserves the fuel route and overall pickup count.
+
+MENU → PICKUP KEY shows all effects. New types get one short visible-world spotlight, with flight paused until Continue; Skip disables those tips. Risky pickups stay body-only. Utility pickups do not feed fuel counters or fuel-triggered card loops. No tests, checks, simulations or balance pass were included.

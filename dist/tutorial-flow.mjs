@@ -39,7 +39,7 @@ export function createTutorialFlow(api) {
     if(c.run){c.run.guideSeen ||= {};c.run.guideSeen[key]=true;}
     current=null;coach.hide();api.save();
     if(unlockLesson)return;
-    if(view === 'flight' || view === 'world') api.resumeFlight();
+    if(view === 'flight' || view === 'world' || view === 'pickup') api.resumeFlight();
     else if(view === 'map' && !c.run.guideSeen['map-key']) api.openMapKey();
     else if(view === 'map-key') api.closeSheets();
     else if(view === 'support' && !c.run.guideSeen.menu) api.openMenu();
@@ -49,7 +49,8 @@ export function createTutorialFlow(api) {
   }
   function back(){if(current&&index>0){index--;show();}}
   function skip(){
-    const wasFlight=['flight','world'].includes(current?.view),c=context(),unlockLesson=current?.unlockLesson,key=current?.key;
+    const wasFlight=['flight','world','pickup'].includes(current?.view),c=context(),unlockLesson=current?.unlockLesson,key=current?.key;
+    if(current?.view==='pickup'){c.profile.pickupCoachSkipped=true;api.save();hide();api.resumeFlight();return;}
     if(c.run){if(unlockLesson){c.run.guideSeen ||= {};c.run.guideSeen[key]=true;}else c.run.guideSkipped=true;api.save();}
     hide();if(!unlockLesson)api.closeSheets();if(wasFlight)api.resumeFlight();
   }
@@ -61,5 +62,12 @@ export function createTutorialFlow(api) {
     current={view:'world',key,steps:[{...step,actionLabel:'Continue flying'}],unlockLesson:false};index=0;
     api.pauseFlight();show();
   }
-  return {sync,focus,hide,get active(){return Boolean(current);}};
+  function pickup(step){
+    const c=context();if(current||!c.run||c.run.isTutorial||c.profile.pickupCoachSkipped)return;
+    c.profile.seenPickups ||= [];if(c.profile.seenPickups.includes(step.id))return;
+    c.profile.seenPickups.push(step.id);
+    current={view:'pickup',key:`pickup:${step.id}`,steps:[step],unlockLesson:false};index=0;
+    api.pauseFlight();api.save();show();
+  }
+  return {sync,focus,pickup,hide,get active(){return Boolean(current);}};
 }

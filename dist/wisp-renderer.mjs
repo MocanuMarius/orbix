@@ -3,6 +3,8 @@ import { getCompanionAbility, normalizeCompanionRole } from './companion-abiliti
 import { companionSprite, companionPalette } from './companion-art.mjs';
 import { createScenePropArt } from './scene-prop-art.mjs';
 import { drawBoss } from './boss.mjs';
+import { drawPickup } from './pickup-art.mjs';
+import { pickupKind, getPickupSpec } from './pickups.mjs';
 
 const TAU = Math.PI * 2;
 const WIDTH = 260;
@@ -43,6 +45,18 @@ const GLYPHS = {
   G: ['111', '100', '101', '101', '111'], L: ['100', '100', '100', '100', '111'],
   O: ['111', '101', '101', '101', '111'], W: ['101', '101', '101', '111', '101'],
   F: ['111', '100', '110', '100', '100'], U: ['101', '101', '101', '101', '111'],
+  A: ['010', '101', '111', '101', '101'], B: ['110', '101', '110', '101', '110'],
+  C: ['111', '100', '100', '100', '111'], D: ['110', '101', '101', '101', '110'],
+  E: ['111', '100', '110', '100', '111'], H: ['101', '101', '111', '101', '101'],
+  I: ['111', '010', '010', '010', '111'], J: ['001', '001', '001', '101', '111'],
+  K: ['101', '101', '110', '101', '101'], M: ['101', '111', '111', '101', '101'],
+  N: ['101', '111', '111', '111', '101'], P: ['111', '101', '111', '100', '100'],
+  Q: ['111', '101', '101', '111', '001'], R: ['110', '101', '110', '101', '101'],
+  S: ['111', '100', '111', '001', '111'], T: ['111', '010', '010', '010', '010'],
+  V: ['101', '101', '101', '101', '010'], X: ['101', '101', '010', '101', '101'],
+  Y: ['101', '101', '010', '010', '010'], Z: ['111', '001', '010', '100', '111'],
+  '-': ['000', '000', '111', '000', '000'], '−': ['000', '000', '111', '000', '000'],
+  '.': ['000', '000', '000', '000', '010'], '%': ['101', '001', '010', '100', '101'],
 };
 
 function pixelText(c, value, x, y, ink) {
@@ -421,32 +435,15 @@ export class WispFlightView {
       if (ember.collected || ember.carried) continue;
       const x = Math.round((ember.x - distance) * s), y = Math.round(ember.y * s);
       if (x < -13 || x > WIDTH + 13) continue;
-      this.drawPacket(x, y, { dark: ember.kind === 'dark' || ember.harmful === true,
-        rich: ember.value === 3, tiny: ember.generated === true });
+      this.drawPacket(x, y, { kind: pickupKind(ember), time: t, reducedMotion: e.reducedMotion,
+        tiny: ember.generated === true, scale: s });
     }
   }
 
-  drawPacket(x, y, { dark = false, rich = false, tiny = false, alpha = 1 } = {}) {
-    const c = this.bufferContext, r = tiny ? 1 : rich ? 4 : 2;
-    c.save();
-    if (dark) {
-      // An occluding halo and a broken ash edge distinguish this from a light
-      // packet. There is no emissive crystal, bright outline or elemental mark.
-      c.globalAlpha = alpha * .32; pixelDisc(c, x, y, 10, '#010205');
-      c.globalAlpha = alpha * .7; pixelDisc(c, x, y, 5, '#333a3e');
-      c.globalAlpha = alpha; pixelDisc(c, x, y, 4, '#020306');
-      pixelDisc(c, x, y, 2, '#000000');
-      c.globalAlpha = alpha * .35;
-      c.fillStyle = '#6c7172'; c.fillRect(x - 4, y - 1, 1, 2); c.fillRect(x + 2, y + 4, 2, 1);
-    } else {
-      this.glow(x, y, tiny ? 4 : rich ? 12 : 7, '#cabb99', (tiny ? .08 : rich ? .17 : .11) * alpha);
-      c.globalAlpha = alpha * .5; pixelDisc(c, x, y, r + 1, '#bfaf8d');
-      c.globalAlpha = alpha * .9; pixelDisc(c, x, y, r, '#e4d9b8');
-      pixelDisc(c, x - (rich ? 2 : 1), y + 1, tiny ? 1 : 2, '#e4d9b8');
-      c.globalAlpha = alpha; pixelDisc(c, x, y - 1, Math.max(1, r - 1), '#fff1cd');
-      c.fillStyle = '#fffdec'; c.fillRect(x - 1, y - 1, rich ? 3 : 2, 2);
-    }
-    c.restore();
+  drawPacket(x, y, { kind, dark = false, rich = false, tiny = false, alpha = 1,
+    time = 0, reducedMotion = false, scale = this.scale } = {}) {
+    drawPickup(this.bufferContext, x, y, { kind: kind || (dark ? 'dark' : rich ? 'cache' : 'light'),
+      time, reducedMotion, tiny, alpha, scale });
   }
 
   drawBurstEffects(e, tint) {
@@ -571,7 +568,8 @@ export class WispFlightView {
       }
     }
     if (collects && state.carrying) {
-      this.drawPacket(x + 8, y + 6, { tiny: true, dark: state.cargoKind === 'dark' });
+      this.drawPacket(x + 8, y + 6, { kind: state.cargoKind || 'light', tiny: true,
+        time: t, reducedMotion: e.reducedMotion, scale: s });
     }
   }
 
@@ -650,7 +648,8 @@ export class WispFlightView {
       const age = Number.isFinite(effect.bornAt) ? t - effect.bornAt : duration - effect.life;
       const progress = clamp(age / duration, 0, 1);
       if (age < 0 || progress >= 1) continue;
-      const dark = effect.kind === 'dark';
+      const kind = pickupKind(effect.pickupKind || effect.kind || 'light');
+      const dark = kind === 'dark', color = getPickupSpec(kind).color;
       const start = Math.max(0, Number(effect.startRadius) || 0);
       const orbit = clamp(Math.max(38, start), 34, 44);
       const initialAngle = Number(effect.initialAngle) || 0;
@@ -672,7 +671,8 @@ export class WispFlightView {
         const sample = progress - i * .025;
         if (sample < 0) continue;
         const [x, y] = pointAt(sample);
-        this.drawPacket(Math.round(x), Math.round(y), { dark, tiny: !dark,
+        this.drawPacket(Math.round(x), Math.round(y), { kind, tiny: i > 0,
+          time: t, reducedMotion: e.reducedMotion, scale: s,
           alpha: (i ? .16 * (1 - i / 4) : 1) * clamp((1 - progress) * 3, 0, 1) });
       }
       if (progress > .84) {
@@ -683,7 +683,7 @@ export class WispFlightView {
           c.globalAlpha = pulse * .20; pixelDisc(c, playerX, playerY, Math.round(10 + impact * 12), '#010205');
           c.globalAlpha = pulse * .76; pixelDisc(c, playerX, playerY, Math.round(4 + pulse * 3), '#000000');
         } else {
-          this.glow(playerX, playerY, Math.round(10 + pulse * 11), '#e8e3c5', pulse * .17);
+          this.glow(playerX, playerY, Math.round(10 + pulse * 11), color, pulse * .17);
           c.globalAlpha = pulse * .6; pixelDisc(c, playerX, playerY, Math.round(3 + pulse * 5), '#ffffe9');
         }
         c.restore();
@@ -859,9 +859,10 @@ export class WispFlightView {
       if (effect.kind === 'dark' || effect.harmful) continue;
       const progress = 1 - clamp(effect.life / .72, 0, 1);
       c.globalAlpha = 1 - progress;
-      const label = effect.restored > 0 ? `+${effect.restored} GLOW` : 'FULL';
+      const label = String(effect.text || (effect.restored > 0 ? `+${effect.restored} GLOW` : 'FULL')).toUpperCase();
       const labelX = clamp(Math.round(effect.x * s - label.length * 2), 2, WIDTH - label.length * 4 - 2);
-      pixelText(c, label, labelX, Math.round(effect.y * s - 28 - progress * 10), '#f2d79a');
+      pixelText(c, label, labelX, Math.round(effect.y * s - 28 - progress * 10),
+        effect.pickupKind ? getPickupSpec(effect.pickupKind).color : '#f2d79a');
     }
     c.globalAlpha = 1;
     this.drawPortal(e, t);
