@@ -1,36 +1,36 @@
-import {FlightProjection,drawFlightProjection} from './flight-projection.mjs?v=skill-forge-1';
-import {drawGlowSense} from './glow-sense.mjs?v=skill-forge-1';
-import {formatGlow} from './vitality.mjs?v=skill-forge-1';
-import {installRiskChains} from './risk-chains.mjs?v=skill-forge-1';
-import {EXTRA_COURSES} from './world-expansion.mjs?v=skill-forge-1';
-import {BIOME_COURSES} from './biome-courses.mjs?v=skill-forge-1';
-import {BiomeDynamics} from './biome-dynamics.mjs?v=skill-forge-1';
-import {condenseGlow} from './condensed-glow.mjs?v=skill-forge-1';
-import {ensureGlowBudget} from './glow-budget.mjs?v=skill-forge-1';
-import {EdgingPulse} from './edging-pulse.mjs?v=skill-forge-1';
-import {BlackHoles} from './black-holes.mjs?v=skill-forge-1';
-import {drawBlackHoles} from './black-hole-art.mjs?v=skill-forge-1';
+import {FlightProjection,drawFlightProjection} from './flight-projection.mjs?v=glow-flight-1';
+import {drawGlowSense} from './glow-sense.mjs?v=glow-flight-1';
+import {formatGlow} from './vitality.mjs?v=glow-flight-1';
+import {installRiskChains} from './risk-chains.mjs?v=glow-flight-1';
+import {EXTRA_COURSES} from './world-expansion.mjs?v=glow-flight-1';
+import {BIOME_COURSES} from './biome-courses.mjs?v=glow-flight-1';
+import {BiomeDynamics} from './biome-dynamics.mjs?v=glow-flight-1';
+import {condenseGlow} from './condensed-glow.mjs?v=glow-flight-1';
+import {ensureGlowBudget} from './glow-budget.mjs?v=glow-flight-1';
+import {EdgingPulse} from './edging-pulse.mjs?v=glow-flight-1';
+import {BlackHoles} from './black-holes.mjs?v=glow-flight-1';
+import {drawBlackHoles} from './black-hole-art.mjs?v=glow-flight-1';
 /* Emberwing's self-contained canvas flight simulation and renderer. */
-import { FLAME_TUNING, LIGHT_PACKET_TUNING } from './vitality.mjs?v=skill-forge-1';
-import { flightEndDistance } from './flight-end.mjs?v=skill-forge-1';
-import {getExitLandmarkState,drawExitLandmark} from './exit-landmark.mjs?v=skill-forge-1';
-import { WispCompanion, wispHome } from './wisp.mjs?v=skill-forge-1';
-import { getAscentInfo } from './ascent.mjs?v=skill-forge-1';
-import { LEVEL_LENGTH, getLevelLengthScale } from './level-length.mjs?v=skill-forge-1';
-import { resolveLevelIdentity } from './level-catalog.mjs?v=skill-forge-1';
-import { DraftField, DRAFT_TUNING } from './drafts.mjs?v=skill-forge-1';
-import { normalizeCompanionRole, normalizeCompanionFleet, getCompanionAbility } from './companion-abilities.mjs?v=skill-forge-1';
-import { populateSceneProps, scenePropPolygons } from './scene-props.mjs?v=skill-forge-1';
-import { pickupKind, getPickupSpec, pickupContactRadius, isFuelPickup, canCompanionCollect } from './pickups.mjs?v=skill-forge-1';
-import { drawPickup } from './pickup-art.mjs?v=skill-forge-1';
-import { buildBossLayout, getBossState as bossState, drawBoss } from './boss.mjs?v=skill-forge-1';
-import { getAuthoredChallenge, finalizeFlightChallenges, installAuthoredDraftCrossings, FlightChallengeDirector } from './flight-challenges.mjs?v=skill-forge-1';
-import { installEncounterFamily } from './encounter-families.mjs?v=skill-forge-1';
-import { ArtifactEffects } from './artifact-effects.mjs?v=skill-forge-1';
-import { lightVisibility,createLightMaskCanvas,sceneRevealStrength } from './light-field.mjs?v=skill-forge-1';
+import { FLAME_TUNING, LIGHT_PACKET_TUNING } from './vitality.mjs?v=glow-flight-1';
+import { flightEndDistance } from './flight-end.mjs?v=glow-flight-1';
+import {getExitLandmarkState,drawExitLandmark} from './exit-landmark.mjs?v=glow-flight-1';
+import { WispCompanion, wispHome } from './wisp.mjs?v=glow-flight-1';
+import { getAscentInfo } from './ascent.mjs?v=glow-flight-1';
+import { LEVEL_LENGTH, getLevelLengthScale } from './level-length.mjs?v=glow-flight-1';
+import { resolveLevelIdentity } from './level-catalog.mjs?v=glow-flight-1';
+import { DraftField, DRAFT_TUNING } from './drafts.mjs?v=glow-flight-1';
+import { normalizeCompanionRole, normalizeCompanionFleet, getCompanionAbility } from './companion-abilities.mjs?v=glow-flight-1';
+import { populateSceneProps, scenePropPolygons } from './scene-props.mjs?v=glow-flight-1';
+import { pickupKind, getPickupSpec, pickupContactRadius, isFuelPickup, canCompanionCollect } from './pickups.mjs?v=glow-flight-1';
+import { drawPickup } from './pickup-art.mjs?v=glow-flight-1';
+import { buildBossLayout, getBossState as bossState, drawBoss } from './boss.mjs?v=glow-flight-1';
+import { getAuthoredChallenge, finalizeFlightChallenges, installAuthoredDraftCrossings, FlightChallengeDirector } from './flight-challenges.mjs?v=glow-flight-1';
+import { installEncounterFamily } from './encounter-families.mjs?v=glow-flight-1';
+import { ArtifactEffects } from './artifact-effects.mjs?v=glow-flight-1';
+import { lightVisibility,createLightMaskCanvas,sceneRevealStrength } from './light-field.mjs?v=glow-flight-1';
 import { createTutorialState, buildTutorialLayout, recordTutorialPickup,
-  updateTutorial, updateTutorialCompanion, getTutorialHint } from './tutorial.mjs?v=skill-forge-1';
-export { FLAME_TUNING } from './vitality.mjs?v=skill-forge-1';
+  updateTutorial, updateTutorialCompanion, getTutorialHint } from './tutorial.mjs?v=glow-flight-1';
+export { FLAME_TUNING } from './vitality.mjs?v=glow-flight-1';
 const TAU = Math.PI * 2;
 const STEP = 1 / 60;
 const COMPANION_ORBIT_SPEED = {protector:1.3,leveler:1.7,swift:3.4,seer:.8,kindler:2.2};
@@ -40,7 +40,7 @@ const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
 const lerp = (a, b, t) => a + (b - a) * t;
 export const FLIGHT_TUNING = Object.freeze({ gravity: 300, flapImpulse: 205,
   forwardSpeed: 154, terminalFall: 245, pickupRadius: LIGHT_PACKET_TUNING.pickupRadius });
-export { DRAFT_TUNING } from './drafts.mjs?v=skill-forge-1';
+export { DRAFT_TUNING } from './drafts.mjs?v=glow-flight-1';
 // Retain the public tuning name for consumers; wind now has no global cycle.
 export const WIND_TUNING = DRAFT_TUNING;
 
@@ -880,7 +880,7 @@ export class WispFlight {
 
   async initPixelView() {
     try {
-      const { WispFlightView } = await import('./wisp-renderer.mjs?v=skill-forge-1');
+      const { WispFlightView } = await import('./wisp-renderer.mjs?v=glow-flight-1');
       if (this.destroyed) return;
       this.pixiView = new WispFlightView(this);
       const initialized = await this.pixiView.init();
@@ -940,9 +940,11 @@ export class WispFlight {
     const landscape = cssWidth > cssHeight;
     const height = landscape ? 430 : clamp(390 * cssHeight / cssWidth, 430, 850);
     const width = landscape ? height * cssWidth / cssHeight : 390;
-    const gauge=this.canvas.ownerDocument?.querySelector?.('.glow-side-gauge')?.getBoundingClientRect?.();
-    const gaugeClearance=gauge?.width>0?(gauge.right-(rect.left||0)+26)*width/cssWidth:0;
-    const playerScreenX=landscape?Math.min(width*.38,Math.max(155,gaugeClearance)):98;
+    // Reserve the entire light HUD rail, including the adjacent Edging meter.
+    const gauges=this.canvas.ownerDocument?.querySelectorAll?.('.glow-side-gauge,.edging-pulse-gauge')||[];
+    let gaugeRight=0;for(const gauge of gauges){const box=gauge.getBoundingClientRect?.();if(box?.width>0)gaugeRight=Math.max(gaugeRight,box.right-(rect.left||0));}
+    const gaugeClearance=gaugeRight>0?(gaugeRight+32)*width/cssWidth:0;
+    const playerScreenX=landscape?Math.min(width*.38,Math.max(190,gaugeClearance)):98;
     const pixelWidth = Math.round(cssWidth * pixelRatio), pixelHeight = Math.round(cssHeight * pixelRatio);
     if (this._canvasSized && this.canvas.width === pixelWidth && this.canvas.height === pixelHeight
       && this.width === width && this.height === height && this.pixelRatio === pixelRatio&&this.playerScreenX===playerScreenX) return;
@@ -1409,11 +1411,11 @@ export class WispFlight {
   shatterPickupRing(packet) {
     const radius=pickupContactRadius(packet),x=packet.x-this.distance,y=packet.y;
     const color=getPickupSpec(packet).dim>0?'#f58b79':'#e4f2ca';
-    const count=this.reducedMotion?6:18;
+    const count=this.reducedMotion?6:12;
     for(let i=0;i<count&&this.particles.length<150;i++){
-      const angle=i/count*TAU,vx=Math.cos(angle)*32,vy=Math.sin(angle)*32;
-      this.particles.push({type:'ring-shard',x:x+Math.cos(angle)*radius,y:y+Math.sin(angle)*radius,
-        vx,vy,life:.42,maxLife:.42,size:1,length:1,rotation:angle,glow:0,color});
+      const angle=i/count*TAU;
+      this.particles.push({type:'ring-shard',x,y,worldX:packet.x,radius,shardAngle:angle,
+        vx:0,vy:0,life:.34,maxLife:.34,size:1,length:radius*TAU/count*.58,rotation:angle,glow:0,color});
     }
   }
 
@@ -1638,8 +1640,11 @@ export class WispFlight {
     this.absorptionEffects = this.absorptionEffects.filter(effect => effect.life > 0);
     for (let i = this.particles.length - 1; i >= 0; i--) {
       const p = this.particles[i];
-      p.life -= dt; p.x += p.vx * dt; p.y += p.vy * dt; p.vy -= 8 * dt;
-      p.rotation = Math.atan2(p.vy, p.vx);
+      p.life -= dt;
+      if(p.type!=='ring-shard'){
+        p.x += p.vx * dt; p.y += p.vy * dt; p.vy -= 8 * dt;
+        p.rotation = Math.atan2(p.vy, p.vx);
+      }
       if (p.life <= 0) this.particles.splice(i, 1);
     }
     this.updateClock += dt;

@@ -1,8 +1,8 @@
-import {formatGlow,getGlowCapacity,FLAME_TUNING,glowPoints} from './vitality.mjs?v=skill-forge-1';
+import {formatGlow,getGlowCapacity,FLAME_TUNING,glowPoints} from './vitality.mjs?v=glow-flight-1';
 const clamp=v=>Math.max(0,Math.min(1,v));
 export function glowGaugeMarkup(run){
  const max=getGlowCapacity(run);
- return `<div class="flame-hud glow-side-gauge glow-gauge-v3" aria-label="Flight Glow"><span class="glow-overflow-lip" aria-hidden="true"></span><span class="glow-caption">GLOW</span><div id="flame-meter" role="meter" aria-label="Glow remaining" aria-valuemin="0" aria-valuemax="${glowPoints(max)}" aria-valuenow="${glowPoints(run.flame)}" aria-valuetext="${formatGlow(run.flame)} of ${formatGlow(max)} Glow"><i id="flame-fill" style="transform:scaleY(${clamp(run.flame/max)})"></i><i class="glow-effort-preview" aria-hidden="true"></i><i class="glow-effort-ticks" aria-hidden="true"></i></div><b id="flame-value">${formatGlow(run.flame)}<small>/${formatGlow(max)}</small></b></div>`;
+ return `<div class="flame-hud glow-side-gauge glow-gauge-v3" aria-label="Flight Glow"><span class="glow-overflow-lip" aria-hidden="true"></span><span class="glow-caption">GLOW</span><div id="flame-meter" role="meter" aria-label="Glow remaining" aria-valuemin="0" aria-valuemax="${glowPoints(max)}" aria-valuenow="${glowPoints(run.flame)}" aria-valuetext="${formatGlow(run.flame)} of ${formatGlow(max)} Glow"><i id="flame-fill" style="transform:scaleY(${clamp(run.flame/max)})"></i><i class="glow-effort-preview" aria-hidden="true"></i><i class="glow-effort-ticks" aria-hidden="true"></i></div></div>`;
 }
 function spill(gauge,gain,raw){
  const doc=gauge.ownerDocument,target=doc.querySelector('.flight-condensed-counter');if(!target)return;
@@ -27,9 +27,9 @@ function spill(gauge,gain,raw){
 export function updateGlowGauge(gauge,s){
  if(!gauge)return;
  const draining=(s.blackHole?.rate||0)>0;if(gauge._draining!==draining){gauge._draining=draining;gauge.classList.toggle('black-hole-drain',draining);}
- const refs=gauge._glowRefs||(gauge._glowRefs={fill:gauge.querySelector('#flame-fill'),meter:gauge.querySelector('#flame-meter'),value:gauge.querySelector('#flame-value'),effort:gauge.querySelector('.glow-effort-preview')});
+ const refs=gauge._glowRefs||(gauge._glowRefs={fill:gauge.querySelector('#flame-fill'),meter:gauge.querySelector('#flame-meter'),effort:gauge.querySelector('.glow-effort-preview')});
  const max=s.maxFlame||100,glow=Math.max(0,s.flame||0),ratio=clamp(glow/max),cost=Number.isFinite(s.flapCost)?Math.max(0,s.flapCost):FLAME_TUNING.flapCost;
- const key=[glowPoints(glow),glowPoints(max)].join('/');if(gauge._label!==key){gauge._label=key;refs.value.innerHTML=`${formatGlow(glow)}<small>/${formatGlow(max)}</small>`;refs.meter.setAttribute('aria-valuenow',glowPoints(glow));refs.meter.setAttribute('aria-valuemax',glowPoints(max));refs.meter.setAttribute('aria-valuetext',`${formatGlow(glow)} of ${formatGlow(max)} Glow`);}
+ const key=[glowPoints(glow),glowPoints(max)].join('/');if(gauge._label!==key){gauge._label=key;refs.meter.setAttribute('aria-valuenow',glowPoints(glow));refs.meter.setAttribute('aria-valuemax',glowPoints(max));refs.meter.setAttribute('aria-valuetext',`${formatGlow(glow)} of ${formatGlow(max)} Glow`);}
  const fill=ratio.toFixed(4);if(gauge._fill!==fill){gauge._fill=fill;refs.fill.style.transform=`scaleY(${fill})`;gauge.classList.toggle('low-glow',ratio<=.2);gauge.classList.toggle('full-glow',ratio>=.995);}
  if(cost>0)gauge._lastCost=cost;const effort=Math.min(cost||gauge._lastCost||FLAME_TUNING.flapCost,max),step=(100*effort/max).toFixed(3)+'%';if(gauge._step!==step){gauge._step=step;gauge.style.setProperty('--lift-segment',step);}
  refs.effort.style.bottom=(100*clamp((glow-cost)/max))+'%';refs.effort.style.height=(100*Math.min(glow,cost)/max)+'%';

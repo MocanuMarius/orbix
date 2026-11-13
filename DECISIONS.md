@@ -774,3 +774,13 @@ The proposed reroll forge is replaced by artifact salvage. Consume an owned comm
 A dedicated preview.html embeds the actual game at 900×405 and scales it to fit the host panel. This survives tall sidebar resizing without a portrait rotation gate; actual phone play continues at the normal index URL. Larger framed Continue/New Game actions, visible Tutorial, and larger companion labels improve the landscape home screen.
 
 Verification covers skill disclosure and rank ownership, fixed salvage accounting/duplicate-sale rejection, and actual landscape browser rendering. It is not a new campaign balance sweep or Pixel 10 hardware benchmark.
+
+## Easier Edging, larger flight HUD and inward absorption — 13 November 2026
+
+Edging accepts a 48-world-unit clearance from real solid boundaries, twice the previous band. Charge requires two seconds of accumulated skimming. Leaving the band holds progress for 1.25 seconds without adding charge, then loses eight percentage points per second. Hits reset progress; protected separation and Dream cannot charge it. Pulse duration/recovery stay five/two seconds. Edge Attunement reduces charge time to 1.6 seconds; Held Tension halves decay to four points per second. Natural fuel under Edging light deliberately qualifies for the already bounded Sunspool interaction.
+
+Flight's left side is reserved for light: Packed Light above a larger segmented Glow bar, with no visible fuel numbers. Screen-reader meter values remain. The left inset is at least 42 CSS pixels and respects a larger reported safe area. Ascension, map and attempt hearts move to the top right beside MENU. Landscape player placement moves from a minimum 155 to 190 world units, also clearing measured meter bounds. Dream recordings are invalidated by the release fingerprint because placement affects flight timing.
+
+Captured boon bodies shrink while making twelve accelerating revolutions over 1.8 seconds. Their contact shell fractures and collapses inward at the capture position in 0.34 seconds. This applies to direct pickups and Collector retrieval, without delaying fuel credit or changing collision/collection rules. Reduced motion uses direct contraction. Sprite and fragment counts remain bounded.
+
+Verification uses existing focused Edging/skill checks, animation sampling, and actual browser HUD inspection at 900×405 and 740×333. Physical Pixel 10 notch behavior, phone frame rate and full-run balance remain playtest work.

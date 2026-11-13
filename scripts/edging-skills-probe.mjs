@@ -45,5 +45,6 @@ const s=state();chooseStartingSkill(s,'main-sight');
 globalThis.innerWidth=900;globalThis.innerHeight=405;
 const html=mainWispTreeMarkup({run:s.run,wallet:getSkillWallet(s),canBuy:true,selected:charge});
 for(const id of [charge,lasting,tension]){assert.ok(html.includes(`data-id="${id}"`));assert.match(SKILLS[id].description,/Edging Pulse/);assert.notEqual(skillIcon(SKILLS[id]),skillIcon({id:'fallback',branch:'main'}));}
-assert.ok(html.includes('3.2s instead of 4s'));
+assert.ok(html.includes('1.6s instead of 2s'));
+assert.match(SKILLS[tension].description,/4% per second instead of 8%, after the 1\.25s grace period/);
 console.log(JSON.stringify({innatePulse:true,prerequisites:true,exclusiveForks:true,progressivePrices:true,v7Persistence:true,sightOnly:true,lightNodes:skills.length,minimumSeparation:minimum,landscape:'900×405'}));

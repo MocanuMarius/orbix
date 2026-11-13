@@ -56,10 +56,13 @@ assert.equal(obstacleEdgeClearance(98, 310, 10, propOnly), Infinity);
 
 const e = make({ modifiers: { litLift: 1, workFuel: 8, overflowRecharge: .1, rechargeSight: 1.5 } });
 const initialEconomy = [e.flame, e.condensedTotal, e.score, e.baseEmbers, e.flameRestored];
-frames(e, 120); close(pulse(e).charge, .5, 'Two seconds near an edge');
+frames(e, 60); close(pulse(e).charge, .5, 'One second near an edge');
 assert.equal(pulse(e).nearEdge, true);
-frames(e, 60, 200); close(pulse(e).charge, .32, 'Open air drains 18% per second');
-frames(e, 164); assert.equal(pulse(e).active, true); assert.equal(pulse(e).charge, 0);
+frames(e, 60, 200); close(pulse(e).charge, .5, 'A brief gap retains charge without earning more');
+assert.equal(pulse(e).nearEdge, false); assert.equal(pulse(e).holding, true);
+frames(e, 75, 200); close(pulse(e).charge, .42, 'After 1.25s grace, open air drains 8% per second');
+assert.equal(pulse(e).holding, false); assert.equal(e.edgingPulse.graceRemaining, 0);
+frames(e, 70); assert.equal(pulse(e).active, true); assert.equal(pulse(e).charge, 0);
 assert.equal(pulse(e).triggerCount, 1); assert.equal(pulse(e).duration, 5);
 assert.deepEqual([e.flame, e.condensedTotal, e.score, e.baseEmbers, e.flameRestored], initialEconomy,
   'Trigger is sight only: no currency, fuel, score or pickup reward');
@@ -85,21 +88,23 @@ for (let i = 1; i < peaks; i++) assert.ok(peakValues[i] - Math.min(...reveals.sl
   'Valleys gently rebound into the next wave');
 assert.ok(Math.max(...reveals.slice(1).map((value, i) => Math.abs(value - reveals[i]))) < .065, 'No sudden full-scene flash');
 frames(e, 120); assert.equal(pulse(e).recovering, false); assert.equal(pulse(e).charge, 0);
-frames(e, 240); assert.equal(pulse(e).triggerCount, 2, 'Charge restarts only after active and recovery intervals');
+frames(e, 120); assert.equal(pulse(e).triggerCount, 2, 'Charge restarts only after active and recovery intervals');
 
 // Pausing freezes even direct simulation calls, including an active reveal.
 frame(e); e.pause(); const paused = pulse(e), pausedTime = e.time;
 e.step(dt); assert.deepEqual(pulse(e), paused); assert.equal(e.time, pausedTime);
 e.resume(); frame(e); assert.ok(pulse(e).remaining < paused.remaining);
 e.beginDying(); assert.equal(pulse(e).active, false); assert.equal(pulse(e).charge, 0);
-const complete = make(); frames(complete, 240); complete.finish(true);
+const complete = make(); frames(complete, 120); complete.finish(true);
 assert.equal(pulse(complete).active, false); assert.equal(complete.getLightState().edgingReveal, 0);
 
 // A ready shield and Runner remain risky flight. Separation and invulnerability
 // never contribute charge; an actual shield impact discards earned charge.
 const shield = make({ companions: ['protector', 'swift'] });
-frames(shield, 60); close(pulse(shield).charge, .25, 'Ready Protector can charge');
+frames(shield, 60); close(pulse(shield).charge, .5, 'Ready Protector can charge');
+frames(shield, 15, 200); assert.equal(pulse(shield).holding, true);
 shield.hit(shield.layout.obstacles[0]); assert.equal(shield.dying, false); assert.equal(pulse(shield).charge, 0);
+assert.equal(shield.edgingPulse.graceRemaining, 0); assert.equal(pulse(shield).holding, false);
 frame(shield); assert.equal(pulse(shield).charge, 0); assert.equal(pulse(shield).nearEdge, false);
 for (const protect of [engine => { engine.shield.protection = .5; }, engine => { engine.invulnerable = true; }]) {
   const guarded = make({ companions: ['swift'] }); protect(guarded); frames(guarded, 10);
@@ -111,34 +116,52 @@ for(const windGuard of [engine=>{engine.fleet.find(item=>item.role==='swift').re
 }
 
 const boundary = make(); boundary.layout.obstacles = [];
-frames(boundary, 60, 40); close(pulse(boundary).charge, .25, 'Top lethal boundary charges');
+frames(boundary, 60, 40); close(pulse(boundary).charge, .5, 'Top lethal boundary charges');
 boundary.edgingPulse.reset(); frames(boundary, 60, boundary.height - 40);
-close(pulse(boundary).charge, .25, 'Bottom lethal boundary charges');
+close(pulse(boundary).charge, .5, 'Bottom lethal boundary charges');
 boundary.edgingPulse.reset(); boundary.player.x = 1; frames(boundary, 60, 300);
 assert.equal(pulse(boundary).charge, 0, 'Screen side and decorative backdrop never charge');
 const propFlight = make(); propOnly.destroyed = false; propOnly.width = 10000;
 propOnly.sceneProps[0].parts[0].polygon = [[-1000, 0], [10000, 0], [10000, 80], [-1000, 80]];
 propFlight.layout.obstacles = [propOnly]; frames(propFlight, 60);
-close(pulse(propFlight).charge, .25, 'Solid scene props charge without terrain');
+close(pulse(propFlight).charge, .5, 'Solid scene props charge without terrain');
+
+// Normal flap arcs and uneven terrain need not remain in the skim zone on
+// every frame. These short, irregular gaps preserve only earned edge time.
+const interrupted = make();
+for (const [nearFrames, gapFrames] of [[18, 36], [27, 27], [30, 45]]) {
+  frames(interrupted, nearFrames, 250);
+  const earned = pulse(interrupted).charge;
+  assert.equal(pulse(interrupted).nearEdge, true, '41-world clearance is inside the widened band');
+  frames(interrupted, gapFrames, 200);
+  close(pulse(interrupted).charge, earned, 'Sub-second gaps do not erase an imperfect skim');
+  assert.equal(pulse(interrupted).holding, true);
+}
+frames(interrupted, 45, 250);
+assert.equal(pulse(interrupted).triggerCount, 1, 'Interrupted skims trigger from two seconds of real edge time');
+const outside = make(); frames(outside, 180, 240);
+assert.equal(pulse(outside).charge, 0, '51-world clearance earns no charge outside the band');
+assert.equal(pulse(outside).triggerCount, 0); assert.equal(pulse(outside).holding, false);
 
 const upgrades = make({ modifiers: { edgingChargeRate: 1.25, edgingDecayRate: .5, edgingDuration: 7, edgingRecovery: 1 } });
-frames(upgrades, 60); close(pulse(upgrades).charge, .3125, 'Charge upgrade');
-frames(upgrades, 60, 200); close(pulse(upgrades).charge, .2225, 'Decay upgrade');
-upgrades.edgingPulse.reset(); frames(upgrades, 192);
+frames(upgrades, 60); close(pulse(upgrades).charge, .625, 'Charge upgrade');
+frames(upgrades, 135, 200); close(pulse(upgrades).charge, .585, 'Decay upgrade loses 4% per second after grace');
+upgrades.edgingPulse.reset(); frames(upgrades, 96);
 assert.equal(pulse(upgrades).duration, 7); close(pulse(upgrades).remaining, 7, 'Upgraded lifetime');
 frames(upgrades, 420); assert.equal(pulse(upgrades).recovering, true);
 frames(upgrades, 60); assert.equal(pulse(upgrades).recovering, false);
 
-const reduced = make(); reduced.reducedMotion = true; frames(reduced, 240);
+const reduced = make(); reduced.reducedMotion = true; frames(reduced, 120);
 frames(reduced, 27); let previous = pulse(reduced).strength;
 for (let i = 0; i < 273; i++) { frame(reduced); const strength = pulse(reduced).strength;
   assert.ok(strength <= previous + 1e-8, 'Reduced motion fades steadily without waves'); previous = strength; }
 assert.equal(previous, 0);
 
-const isolated = make({ modifiers: { litLift: 1 } }); frames(isolated, 270);
+const isolated = make({ modifiers: { litLift: 1 } }); frames(isolated, 150);
 assert.ok(isolated.getLightState().edgingReveal > 0);
 isolated.collect({ id: 'natural-fuel', kind: 'light', x: isolated.distance + isolated.player.x, y: 270 });
-assert.equal(isolated.artifactEffects.freeLift, false, 'Edging illumination cannot qualify fuel for a free Lift');
+assert.equal(isolated.artifactEffects.freeLift, true, 'Natural fuel in an Edging reveal intentionally grants Sunspool a free Lift');
+assert.equal(isolated.artifactEffects.liftGrants, 1);
 const visibility = isolated.getLightState();
 close(lightVisibility(isolated, visibility, 380, 30), visibility.edgingReveal, 'Entire remote visible scene is lit');
 assert.equal(sceneRevealStrength({ edgingReveal: .7, pickupReveal: .9 }), .9, 'Independent light does not stack');
@@ -147,13 +170,18 @@ assert.equal(sceneRevealStrength({ edgingReveal: .7, pickupReveal: .9 }), .9, 'I
 // through waking even when all opening flight stays within the edge band.
 let ready;
 const dreamOptions = { modifiers: { dreamDuration: 4 } };
+const dreamReset = make(dreamOptions); frames(dreamReset, 30); frames(dreamReset, 15, 200);
+assert.equal(pulse(dreamReset).holding, true);
+attachDream(dreamReset); frame(dreamReset);
+assert.equal(dreamReset.edgingPulse.graceRemaining, 0); assert.equal(pulse(dreamReset).holding, false);
+assert.equal(dreamReset.edgingPulse.charge, 0, 'Entering Dream clears both earned charge and grace');
 const record = make(dreamOptions); attachDream(record, { onReady: value => { ready = value; } });
 frames(record, 240); assert.ok(ready?.valid); assert.equal(pulse(record).triggerCount, 0);
 const replay = make(dreamOptions); attachDream(replay, { mode: 'replay', preset: ready.preset });
 frames(replay, 240); assert.equal(replay.dream.phase, 'awakening');
 assert.deepEqual(pulse(record), pulse(replay)); assert.equal(pulse(replay).charge, 0);
 replay.step(dt); assert.equal(pulse(replay).charge, 0); replay.dream.resume(); frame(replay);
-close(pulse(replay).charge, 1 / 240, 'Waking starts fresh charge');
+close(pulse(replay).charge, 1 / 120, 'Waking starts fresh charge');
 const deterministicA = make(), deterministicB = make();
 for (let i = 0; i < 1100; i++) {
   const y = i % 380 < 300 ? 270 : 200; frame(deterministicA, y); frame(deterministicB, y);
@@ -190,10 +218,12 @@ for (const level of BIOME_LEVELS) {
 geometryTimes.sort((a, b) => a - b);
 assert.ok(realCourseEdges > 0, 'Benchmark includes actual close-flight terrain');
 assert.ok(maxNearby < 30, 'Only bounded nearby geometry enters each controller update');
-for (const engine of [e, complete, shield, boundary, propFlight, upgrades, reduced, isolated, record, replay, deterministicA, deterministicB, perf]) engine.destroy();
+for (const engine of [e, complete, shield, boundary, propFlight, interrupted, outside, upgrades, reduced, isolated, dreamReset, record, replay, deterministicA, deterministicB, perf]) engine.destroy();
 console.log(JSON.stringify({ geometrySamples, chargeSeconds: EDGING_PULSE_TUNING.chargeSeconds,
   duration: EDGING_PULSE_TUNING.duration, recovery: EDGING_PULSE_TUNING.recovery, gentlePeaks: peaks,
-  geometryAndSway: true, lifecycleAndDream: true, economyAndArtifactIsolation: true, upgrades: true,
+  geometryAndSway: true, lifecycleAndDream: true, economyIsolationAndArtifactSynergy: true, upgrades: true,
+  widenedSkimBand: true, interruptedSkim: true, graceSeconds: EDGING_PULSE_TUNING.graceSeconds,
+  decayPerSecond: EDGING_PULSE_TUNING.decayPerSecond,
   reducedMotion: true, fixedStepDeterminism: true, farGeometryUntouched: true,
   wholeStepP95ms: Number(times[Math.floor(times.length * .95)].toFixed(3)),
   authoredCourses: BIOME_LEVELS.length, controllerSamples: geometryTimes.length, maxNearby,

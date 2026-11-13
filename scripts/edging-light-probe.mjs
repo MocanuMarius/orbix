@@ -14,6 +14,26 @@ assert.equal(sceneRevealStrength({edgingReveal:NaN,pickupReveal:-1}),0);
 assert.equal(lightVisibility(e,{...light,edgingReveal:0},800,20),0,'Fade restores circular darkness');
 assert.equal(lightVisibility(e,light,100,200),lightVisibility(e,{...light,edgingReveal:0},100,200));
 const artifacts=new ArtifactEffects(e);e.artifactEffects=artifacts;
-artifacts.onFuel({kind:'light'},{fuel:24,dim:0},0);
-assert.equal(artifacts.freeLift,false,'Edging does not impersonate a pickup-light artifact trigger');
-console.log('Edging light: distant reveal, non-additive exposure, baseline restoration and artifact isolation passed.');
+assert.equal(artifacts.freeLift,false,'Edging light alone never grants a free Lift');
+const natural={kind:'light'},fuel={fuel:24,dim:0};
+for(const [packet,spec] of [[{...natural,generated:true},fuel],[{...natural,harmful:true},fuel],[natural,{fuel:24,dim:1}],[natural,{fuel:0,dim:0}]]){
+ artifacts.onFuel(packet,spec,0);
+ assert.equal(artifacts.freeLift,false,'Generated, harmful and non-fuel pickups cannot trigger Sunspool');
+}
+artifacts.onFuel(natural,fuel,0);
+assert.equal(artifacts.freeLift,true,'Natural fuel in Edging light intentionally grants a free Lift');
+assert.equal(artifacts.liftGrants,1);
+artifacts.onFuel(natural,fuel,0);
+assert.equal(artifacts.liftGrants,1,'Only one free Lift can be stored');
+assert.equal(artifacts.consumeLift(),true);
+artifacts.onFuel(natural,fuel,0);
+assert.equal(artifacts.freeLift,false,'Spending the Lift does not bypass the four-second recovery');
+for(let grant=2;grant<=4;grant++){
+ e.time+=4;artifacts.onFuel(natural,fuel,0);
+ assert.equal(artifacts.freeLift,true);assert.equal(artifacts.liftGrants,grant);
+ assert.equal(artifacts.consumeLift(),true);
+}
+e.time+=4;artifacts.onFuel(natural,fuel,0);
+assert.equal(artifacts.freeLift,false,'Edging synergy cannot exceed four grants per flight');
+assert.equal(artifacts.liftGrants,4);assert.equal(artifacts.procCounts.sunspool,4);
+console.log('Edging light: distant reveal, non-additive exposure, baseline restoration and bounded natural-fuel Sunspool synergy passed.');

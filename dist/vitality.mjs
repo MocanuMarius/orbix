@@ -1,4 +1,4 @@
-import {CONDENSED_TUNING} from './condensed-glow.mjs?v=skill-forge-1';
+import {CONDENSED_TUNING} from './condensed-glow.mjs?v=glow-flight-1';
 // Shared flight Glow and expedition rules. Overflow is Packed Light.
 export const FLAME_TUNING = Object.freeze({ maximum: 100, starting: 100, flapCost: 7,
   emberFuel: 24, heartFuel: 40, generatedFuel: 6, checkpointMinimum: 0, warmCorePickups: 4 });
@@ -13,7 +13,7 @@ export function getLifeCapacity(run) {
 
 // Dark packets affect only the current attempt's light, never lives or fuel.
 export const LIGHT_PACKET_TUNING = Object.freeze({ baseRadius: 175, pickupRadius: 16,
-  absorptionDuration: 1.35, absorptionLimit: 24, darkDuration: 8,
+  absorptionDuration: 1.8, absorptionLimit: 24, darkDuration: 8,
   darkPenalty: .2, darkMaximumStacks: 2, minimumLight: .6,
   recoveryFade: 1.5, dimResponse: 9 });
 

@@ -1,6 +1,6 @@
-import {drawBiomeBackground,drawBiomeMaterial,drawBiomeLife} from './biome-art.mjs?v=skill-forge-1';
-import {drawExpandedBackdrop} from './world-scenery.mjs?v=skill-forge-1';
-import { resolveLevelIdentity } from './level-catalog.mjs?v=skill-forge-1';
+import {drawBiomeBackground,drawBiomeMaterial,drawBiomeLife} from './biome-art.mjs?v=glow-flight-1';
+import {drawExpandedBackdrop} from './world-scenery.mjs?v=glow-flight-1';
+import { resolveLevelIdentity } from './level-catalog.mjs?v=glow-flight-1';
 
 const TAU = Math.PI * 2;
 const clamp = (n, a, b) => Math.max(a, Math.min(b, n));

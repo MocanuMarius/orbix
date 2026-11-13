@@ -31,7 +31,7 @@ assert.equal(view('main-edging-attunement').shortfall,getSkillPrice(context().wa
 html=mainWispTreeMarkup({...context(),selected:'main-edging-attunement'});
 assert.match(node(html,'main-edging-attunement'),/data-tree-state="saving"/);
 assert.match(inspector(html),/Need 80 more Packed Light/);
-assert.ok(inspector(html).includes('3.2s instead of 4s'),'Reachable unaffordable nodes remain fully inspectable');
+assert.ok(inspector(html).includes('1.6s instead of 2s'),'Reachable unaffordable nodes remain fully inspectable');
 assert.match(node(html,'main-sight'),/data-tree-state="learned"/);
 assert.match(html,/bud-price">✓/);
 

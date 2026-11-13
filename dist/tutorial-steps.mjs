@@ -84,6 +84,6 @@ export function flightEffectLesson(id,screen='map'){
   if(id==='flight-effect:black-hole')return step(id,'That dark core steals Glow',
     'A Black Hole drains fuel while you stay close. A wider path loses less light. It is not a pickup, and shields do not stop the drain. MENU → Glow & Pickups keeps this reminder.',target);
   if(id==='flight-effect:edging')return step(id,'Your close flight made a pulse',
-    'Flying near solid edges fills PULSE beside Glow. Full charge reveals the scene for five fading seconds. Open space drains the charge. Edge skills improve it; touching terrain still hurts.',target);
+    'Flying near solid edges fills PULSE in 2 seconds. Brief gaps preserve your progress, then charge fades slowly. Full charge reveals the scene for five fading seconds. Edge skills improve it; touching terrain still hurts.',target);
   return null;
 }

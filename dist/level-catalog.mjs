@@ -1,6 +1,6 @@
-import {EXTRA_LEVELS} from './world-expansion.mjs?v=skill-forge-1';
-import {BIOME_LEVELS,getBiome} from './biomes.mjs?v=skill-forge-1';
-export {BIOME_LEVELS} from './biomes.mjs?v=skill-forge-1';
+import {EXTRA_LEVELS} from './world-expansion.mjs?v=glow-flight-1';
+import {BIOME_LEVELS,getBiome} from './biomes.mjs?v=glow-flight-1';
+export {BIOME_LEVELS} from './biomes.mjs?v=glow-flight-1';
 // Location identities are shared by route previews, terrain and scenery.
 // Shapes and challenge windows are authored by the flight generator.
 export const LEVELS = Object.freeze([

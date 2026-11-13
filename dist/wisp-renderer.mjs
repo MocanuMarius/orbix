@@ -1,18 +1,18 @@
-import {drawFlightProjection} from './flight-projection.mjs?v=skill-forge-1';
-import {drawGlowSense} from './glow-sense.mjs?v=skill-forge-1';
-import {formatGlow} from './vitality.mjs?v=skill-forge-1';
-import {LOCATION_PALETTES} from './world-expansion.mjs?v=skill-forge-1';
-import {biomePalette} from './biome-art.mjs?v=skill-forge-1';
-import { sceneryIdentity, drawIdentityBackground, drawIdentityMaterial, drawIdentityLife } from './level-scenery.mjs?v=skill-forge-1';
-import { getCompanionAbility, normalizeCompanionRole } from './companion-abilities.mjs?v=skill-forge-1';
-import { companionSprite, companionPalette } from './companion-art.mjs?v=skill-forge-1';
-import { createScenePropArt } from './scene-prop-art.mjs?v=skill-forge-1';
-import { drawBoss } from './boss.mjs?v=skill-forge-1';
-import { drawPickup } from './pickup-art.mjs?v=skill-forge-1';
-import { pickupKind, getPickupSpec, pickupContactRadius } from './pickups.mjs?v=skill-forge-1';
-import { lightAttenuation,lightVisibility,createLightMaskCanvas,sceneRevealStrength } from './light-field.mjs?v=skill-forge-1';
-import {drawExitLandmark} from './exit-landmark.mjs?v=skill-forge-1';
-import {drawBlackHoles} from './black-hole-art.mjs?v=skill-forge-1';
+import {drawFlightProjection} from './flight-projection.mjs?v=glow-flight-1';
+import {drawGlowSense} from './glow-sense.mjs?v=glow-flight-1';
+import {formatGlow} from './vitality.mjs?v=glow-flight-1';
+import {LOCATION_PALETTES} from './world-expansion.mjs?v=glow-flight-1';
+import {biomePalette} from './biome-art.mjs?v=glow-flight-1';
+import { sceneryIdentity, drawIdentityBackground, drawIdentityMaterial, drawIdentityLife } from './level-scenery.mjs?v=glow-flight-1';
+import { getCompanionAbility, normalizeCompanionRole } from './companion-abilities.mjs?v=glow-flight-1';
+import { companionSprite, companionPalette } from './companion-art.mjs?v=glow-flight-1';
+import { createScenePropArt } from './scene-prop-art.mjs?v=glow-flight-1';
+import { drawBoss } from './boss.mjs?v=glow-flight-1';
+import { drawPickup } from './pickup-art.mjs?v=glow-flight-1';
+import { pickupKind, getPickupSpec, pickupContactRadius } from './pickups.mjs?v=glow-flight-1';
+import { lightAttenuation,lightVisibility,createLightMaskCanvas,sceneRevealStrength } from './light-field.mjs?v=glow-flight-1';
+import {drawExitLandmark} from './exit-landmark.mjs?v=glow-flight-1';
+import {drawBlackHoles} from './black-hole-art.mjs?v=glow-flight-1';
 
 const TAU = Math.PI * 2;
 const SCENERY_HELPERS = { line: pixelLine, disc: pixelDisc, polygon: path };
@@ -581,8 +581,17 @@ export class WispFlightView {
     const particles = e.particles || [];
     for (let i = Math.max(0, particles.length - 72); i < particles.length; i++) {
       const p = particles[i];
+      if(p.type==='ring-shard'){
+        const age=clamp(1-p.life/p.maxLife,0,1),collapse=1-age*age;
+        const angle=p.shardAngle+(e.reducedMotion?0:age*age*.9),radius=p.radius*collapse*s;
+        const x=(p.worldX-distanceOf(e))*s+Math.cos(angle)*radius,y=p.y*s+Math.sin(angle)*radius;
+        const half=p.length*.5*collapse*s,tx=Math.sin(angle)*half,ty=Math.cos(angle)*half;
+        c.globalAlpha=(1-age)*.9;
+        pixelLine(c,x-tx,y+ty,x+tx,y-ty,p.color);
+        continue;
+      }
       c.globalAlpha = clamp(p.life / p.maxLife, 0, 1) * .7;
-      c.fillStyle = p.type === 'ring-shard' ? p.color : p.type === 'spark' ? tint.core : tint.outer;
+      c.fillStyle = p.type === 'spark' ? tint.core : tint.outer;
       c.fillRect(Math.round(p.x * s), Math.round(p.y * s), p.type === 'spark' ? 2 : 1, 1);
     }
     c.globalAlpha = 1;
@@ -902,26 +911,21 @@ export class WispFlightView {
       const start = Math.max(0, Number(effect.startRadius) || 0);
       const orbit = clamp(Math.max(38, start), 34, 44);
       const initialAngle = Number(effect.initialAngle) || 0;
-      const radiusAt = p => {
-        if (e.reducedMotion) return start * (1 - p) ** 2;
-        if (p < .16) return start + (orbit - start) * (1 - (1 - p / .16) ** 3);
-        if (p < .80) return orbit;
-        return orbit * (1 - clamp((p - .80) / .20, 0, 1) ** 3);
-      };
-      const angleAt = p => initialAngle + (e.reducedMotion ? 0 : TAU * (p < .16 ? .1*p/.16 : p < .80 ? .1+3.15*((p-.16)/.64)**1.25 : 3.25+1.1*((p-.80)/.20)**2));
-      const pointAt = p => {
-        const radius = radiusAt(p) * s, angle = angleAt(p);
-        return [playerX + Math.cos(angle) * radius, playerY + Math.sin(angle) * radius];
-      };
-      // These short ghosts belong only to the retrieved packet's 1.35s orbit.
-      // They follow the current player; they never leave a main-character trail.
+      // Twelve accelerating revolutions, with both packet and orbit collapsing.
+      // The short launch makes even a packet delivered at the core readable.
+      // Only cached sprites are drawn; there are no per-sample point arrays.
       const ghosts = e.reducedMotion ? 0 : 3;
       for (let i = ghosts; i >= 0; i--) {
         const sample = progress - i * .025;
         if (sample < 0) continue;
-        const [x, y] = pointAt(sample);
+        const inward=clamp((sample-.10)/.90,0,1);
+        const radius=(e.reducedMotion?start*(1-sample)**2:sample<.10
+          ?start+(orbit-start)*(1-(1-sample/.10)**3):orbit*(1-inward)**.85)*s;
+        const angle=initialAngle+(e.reducedMotion?0:TAU*12*(.10*sample+.90*sample*sample));
+        const x=playerX+Math.cos(angle)*radius,y=playerY+Math.sin(angle)*radius;
+        const size=(1-sample)**.72;
         this.drawPacket(Math.round(x), Math.round(y), { kind, bodyOnly: true, tiny: i > 0,
-          time: t, reducedMotion: e.reducedMotion, scale: s,
+          time: t, reducedMotion: e.reducedMotion, scale: s*size,
           alpha: (i ? .16 * (1 - i / 4) : 1) * clamp((1 - progress) * 6, 0, 1) });
       }
       if (progress > .84) {

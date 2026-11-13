@@ -2,15 +2,17 @@
 
 A landscape, one-handed pixel flight roguelite. The static game lives in `dist/` and uses a custom Canvas simulation and cached pixel renderer; there is no build step or framework dependency.
 
-## Current release: skill-forge-1
+## Current release: glow-flight-1
 
-Play at [GitHub Pages](https://mocanumarius.github.io/orbix/?v=skill-forge-1), or run `npm start` and open the printed localhost address. The game targets landscape mobile play, including the Pixel 10 ratio.
+Play at [GitHub Pages](https://mocanumarius.github.io/orbix/?v=glow-flight-1), or run `npm start` and open the printed localhost address. The game targets landscape mobile play, including the Pixel 10 ratio.
 
-The [landscape preview](https://mocanumarius.github.io/orbix/preview.html?v=skill-forge-1) holds the game at 900×405 inside any sidebar; the normal game link fills the phone screen. Home actions now have large framed pixel labels. Skill ownership uses blue checks and rank badges, affordable purchases gold plus signs, unaffordable purchases bronze prices, and locked prerequisites grey locks.
+The [landscape preview](https://mocanumarius.github.io/orbix/preview.html?v=glow-flight-1) holds the game at 900×405 inside any sidebar; the normal game link fills the phone screen. Home actions now have large framed pixel labels. Skill ownership uses blue checks and rank badges, affordable purchases gold plus signs, unaffordable purchases bronze prices, and locked prerequisites grey locks.
+
+**Flight HUD:** a larger segmented Glow bar stays inside the left safe area, without visible numbers. Packed Light sits above it; ascension, map and hearts sit at the top right beside MENU. The wisp moves slightly farther right to keep clear of both light meters. Boon shells break inward on capture, while the captured light shrinks through twelve accelerating orbits into the wisp.
 
 **Forge:** consume an unwanted artifact at a shelter/event for fixed 25/35/50 Packed Light (common/rare/boss). The confirmation names the artifact and payout. Forging neither refills Glow nor restores hearts, and does not use a Rest boon. TEST catalog artifacts cannot be sold. Flight reward offerings still grant Glow; this service is specifically for owned artifacts.
 
-**Edging Pulse** rewards flying close to solid terrain and the top/bottom boundaries. Four seconds of close flight fills a passive meter beside Glow; open flight drains it. A full meter automatically releases five seconds of progressively fading light pulses across the visible level, followed by two seconds of recovery. The Light tree offers faster charging, then a choice between a seven-second pulse and slower charge loss. Reduced motion uses a steady fade. It grants sight, not fuel, currency or immunity.
+**Edging Pulse** rewards flying close to solid terrain and the top/bottom boundaries. The skim band is 48 world units; two seconds of accumulated close flight fills a passive meter beside Glow. Gaps preserve progress for 1.25 seconds, then charge fades by eight percentage points per second. A full meter automatically releases five seconds of progressively fading light pulses across the visible level, followed by two seconds of recovery. The Light tree offers 1.6-second charging, then a choice between a seven-second pulse and four-point-per-second charge loss. Reduced motion uses a steady fade. Edging itself grants sight, not fuel, currency or immunity; natural pickups under its light can intentionally prime Sunspool within its existing limits.
 
 **Black Holes** steal flight Glow faster at close range, with a dark core, muted red accretion and visible stolen-light particles. Every tested normal map has a safe bypass. They are environmental hazards, not pickups. Shields do not block their drain.
 

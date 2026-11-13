@@ -3,8 +3,8 @@
 const clamp = (n, lo, hi) => Math.min(hi, Math.max(lo, n));
 const smooth = n => n * n * (3 - 2 * n);
 const EPSILON = 1e-9;
-export const EDGING_PULSE_TUNING = Object.freeze({ clearance: 24, chargeSeconds: 4,
-  decayPerSecond: .18, duration: 5, recovery: 2, waves: 3 });
+export const EDGING_PULSE_TUNING = Object.freeze({ clearance: 48, chargeSeconds: 2,
+  graceSeconds: 1.25, decayPerSecond: .08, duration: 5, recovery: 2, waves: 3 });
 const number = (value, fallback, lo, hi) => Number.isFinite(Number(value))
   ? clamp(Number(value), lo, hi) : fallback;
 
@@ -48,7 +48,7 @@ export function obstacleEdgeClearance(x, y, radius, obstacle, time = 0, reach = 
 export class EdgingPulse {
   constructor(engine) {
     this.engine = engine;
-    this.charge = 0; this.nearEdge = false; this.remaining = 0; this.recoveryRemaining = 0;
+    this.charge = 0; this.nearEdge = false; this.remaining = 0; this.recoveryRemaining = 0; this.graceRemaining = 0;
     this.duration = number(engine.mod?.edgingDuration, EDGING_PULSE_TUNING.duration, 1, 12);
     this.triggerCount = 0;
   }
@@ -77,13 +77,14 @@ export class EdgingPulse {
     const visible = this.live && !this.dreaming;
     return { charge: visible ? this.charge : 0,
       nearEdge: visible && !this.engine.paused && !this.protected && this.nearEdge,
+      holding: visible && !this.nearEdge && !this.protected && this.charge > 0 && this.graceRemaining > EPSILON,
       active: visible && this.remaining > 0, remaining: visible ? this.remaining : 0,
       duration: this.duration, strength: this.strength,
       recovering: visible && this.recoveryRemaining > 0, triggerCount: this.triggerCount };
   }
 
-  reset() { this.charge = 0; this.nearEdge = false; this.remaining = 0; this.recoveryRemaining = 0; }
-  impact() { this.charge = 0; this.nearEdge = false; }
+  reset() { this.charge = 0; this.nearEdge = false; this.remaining = 0; this.recoveryRemaining = 0; this.graceRemaining = 0; }
+  impact() { this.charge = 0; this.nearEdge = false; this.graceRemaining = 0; }
 
   update(dt, obstacles) {
     const e = this.engine;
@@ -120,10 +121,19 @@ export class EdgingPulse {
     }
     const rate = number(e.mod?.edgingChargeRate, 1, .25, 4);
     const decay = number(e.mod?.edgingDecayRate, 1, 0, 4);
-    this.charge = clamp(this.charge + dt * (this.nearEdge ? rate / EDGING_PULSE_TUNING.chargeSeconds
-      : -EDGING_PULSE_TUNING.decayPerSecond * decay), 0, 1);
+    if (this.nearEdge) {
+      this.graceRemaining = EDGING_PULSE_TUNING.graceSeconds;
+      this.charge = clamp(this.charge + dt * rate / EDGING_PULSE_TUNING.chargeSeconds, 0, 1);
+    } else {
+      // Ordinary flap arcs and short gaps preserve earned progress, but never
+      // add charge. Only the portion of this step after grace expires decays.
+      if (this.protected) this.graceRemaining = 0;
+      const decayTime = Math.max(0, dt - this.graceRemaining);
+      this.graceRemaining = Math.max(0, this.graceRemaining - dt);
+      this.charge = clamp(this.charge - decayTime * EDGING_PULSE_TUNING.decayPerSecond * decay, 0, 1);
+    }
     if (this.charge >= 1 - EPSILON) {
-      this.charge = 0; this.nearEdge = false; this.triggerCount++;
+      this.charge = 0; this.nearEdge = false; this.graceRemaining = 0; this.triggerCount++;
       this.duration = number(e.mod?.edgingDuration, EDGING_PULSE_TUNING.duration, 1, 12);
       this.remaining = this.duration;
       e.setEvent?.('Edging Pulse · the way is revealed');
