@@ -1,23 +1,23 @@
-import {formatGlow} from './vitality.mjs?v=boon-glow-1';
-import {installRiskChains} from './risk-chains.mjs?v=boon-glow-1';
-import {EXTRA_COURSES} from './world-expansion.mjs?v=boon-glow-1';
+import {formatGlow} from './vitality.mjs?v=dawnburst-1';
+import {installRiskChains} from './risk-chains.mjs?v=dawnburst-1';
+import {EXTRA_COURSES} from './world-expansion.mjs?v=dawnburst-1';
 /* Emberwing's self-contained canvas flight simulation and renderer. */
-import { FLAME_TUNING, LIGHT_PACKET_TUNING } from './vitality.mjs?v=boon-glow-1';
-import { flightEndDistance } from './flight-end.mjs?v=boon-glow-1';
-import { WispCompanion, wispHome } from './wisp.mjs?v=boon-glow-1';
-import { getAscentInfo } from './ascent.mjs?v=boon-glow-1';
-import { LEVEL_LENGTH, getLevelLengthScale } from './level-length.mjs?v=boon-glow-1';
-import { resolveLevelIdentity } from './level-catalog.mjs?v=boon-glow-1';
-import { DraftField, DRAFT_TUNING } from './drafts.mjs?v=boon-glow-1';
-import { normalizeCompanionRole, normalizeCompanionFleet, getCompanionAbility } from './companion-abilities.mjs?v=boon-glow-1';
-import { populateSceneProps, scenePropPolygons } from './scene-props.mjs?v=boon-glow-1';
-import { pickupKind, getPickupSpec, pickupContactRadius, isFuelPickup, canCompanionCollect } from './pickups.mjs?v=boon-glow-1';
-import { drawPickup } from './pickup-art.mjs?v=boon-glow-1';
-import { buildBossLayout, getBossState as bossState, drawBoss } from './boss.mjs?v=boon-glow-1';
-import { getAuthoredChallenge, finalizeFlightChallenges, installAuthoredDraftCrossings, FlightChallengeDirector } from './flight-challenges.mjs?v=boon-glow-1';
+import { FLAME_TUNING, LIGHT_PACKET_TUNING } from './vitality.mjs?v=dawnburst-1';
+import { flightEndDistance } from './flight-end.mjs?v=dawnburst-1';
+import { WispCompanion, wispHome } from './wisp.mjs?v=dawnburst-1';
+import { getAscentInfo } from './ascent.mjs?v=dawnburst-1';
+import { LEVEL_LENGTH, getLevelLengthScale } from './level-length.mjs?v=dawnburst-1';
+import { resolveLevelIdentity } from './level-catalog.mjs?v=dawnburst-1';
+import { DraftField, DRAFT_TUNING } from './drafts.mjs?v=dawnburst-1';
+import { normalizeCompanionRole, normalizeCompanionFleet, getCompanionAbility } from './companion-abilities.mjs?v=dawnburst-1';
+import { populateSceneProps, scenePropPolygons } from './scene-props.mjs?v=dawnburst-1';
+import { pickupKind, getPickupSpec, pickupContactRadius, isFuelPickup, canCompanionCollect } from './pickups.mjs?v=dawnburst-1';
+import { drawPickup } from './pickup-art.mjs?v=dawnburst-1';
+import { buildBossLayout, getBossState as bossState, drawBoss } from './boss.mjs?v=dawnburst-1';
+import { getAuthoredChallenge, finalizeFlightChallenges, installAuthoredDraftCrossings, FlightChallengeDirector } from './flight-challenges.mjs?v=dawnburst-1';
 import { createTutorialState, buildTutorialLayout, recordTutorialPickup,
-  updateTutorial, updateTutorialCompanion, getTutorialHint } from './tutorial.mjs?v=boon-glow-1';
-export { FLAME_TUNING } from './vitality.mjs?v=boon-glow-1';
+  updateTutorial, updateTutorialCompanion, getTutorialHint } from './tutorial.mjs?v=dawnburst-1';
+export { FLAME_TUNING } from './vitality.mjs?v=dawnburst-1';
 const TAU = Math.PI * 2;
 const STEP = 1 / 60;
 const COMPANION_ORBIT_SPEED = {protector:1.3,leveler:1.7,swift:3.4,seer:.8,kindler:2.2};
@@ -27,7 +27,7 @@ const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
 const lerp = (a, b, t) => a + (b - a) * t;
 export const FLIGHT_TUNING = Object.freeze({ gravity: 300, flapImpulse: 205,
   forwardSpeed: 154, terminalFall: 245, pickupRadius: LIGHT_PACKET_TUNING.pickupRadius });
-export { DRAFT_TUNING } from './drafts.mjs?v=boon-glow-1';
+export { DRAFT_TUNING } from './drafts.mjs?v=dawnburst-1';
 // Retain the public tuning name for consumers; wind now has no global cycle.
 export const WIND_TUNING = DRAFT_TUNING;
 
@@ -775,6 +775,7 @@ export class WispFlight {
     this.particles = []; this.trail = []; this.pickupEffects = []; this.emitClock = 0;
     this.absorptionEffects = []; this.absorptionSequence = 0;
     this.lightPenalties = []; this.lightDimming = 0; this.sightUntil = 0;
+    this.pickupRevealStartedAt = -Infinity; this.pickupRevealHoldUntil = -Infinity; this.pickupRevealFrom = 0;
     this.wispBoost = 0;
     this.cosmeticRng = seededRandom(`${this.seed}:cosmetics`);
     this.rigImage = null; this.background = null;
@@ -845,7 +846,7 @@ export class WispFlight {
 
   async initPixelView() {
     try {
-      const { WispFlightView } = await import('./wisp-renderer.mjs?v=boon-glow-1');
+      const { WispFlightView } = await import('./wisp-renderer.mjs?v=dawnburst-1');
       if (this.destroyed) return;
       this.pixiView = new WispFlightView(this);
       const initialized = await this.pixiView.init();
@@ -1221,7 +1222,7 @@ export class WispFlight {
     const radius=Math.max(baseRadius*.5,revealedRadius*(1-reduction)*caveScale)
       +(this.reducedMotion?0:Math.hypot(this.width,this.height)*reveal);
 
-    return {baseRadius,revealedRadius,revealBonus:0,caveReduction,caveActive:caveReduction>.005,
+    return {baseRadius,revealedRadius,revealBonus:0,pickupReveal:this.pickupRevealStrength*dyingFade,caveReduction,caveActive:caveReduction>.005,
       radius,forwardRadius:radius*2,verticalRadius:radius,rearRadius:radius,
       horizon:{x:this.width*.5,y:this.height*.5,radiusX:this.width*.9,radiusY:radius*.75,strength:.50},
       intensity:(1-reduction*.65)*dyingFade,dimmed:reduction>.005,sightBonus,sightRemaining,
@@ -1348,6 +1349,24 @@ export class WispFlight {
   dimLight(duration) {
     if (this.lightPenalties.length >= LIGHT_PACKET_TUNING.darkMaximumStacks) this.lightPenalties.shift();
     this.lightPenalties.push(this.time + duration);
+  }
+
+  get pickupRevealStrength() {
+    if(!this.mod.pickupReveal||!Number.isFinite(this.pickupRevealStartedAt))return 0;
+    const smooth=t=>t*t*(3-2*t);
+    if(this.time<=this.pickupRevealHoldUntil){
+      const rise=this.reducedMotion?.35:.12;
+      return lerp(this.pickupRevealFrom,1,smooth(clamp((this.time-this.pickupRevealStartedAt)/rise,0,1)));
+    }
+    return 1-smooth(clamp((this.time-this.pickupRevealHoldUntil)/1.2,0,1));
+  }
+
+  revealFromPickup() {
+    if(!this.mod.pickupReveal)return;
+    const from=this.pickupRevealStrength;
+    this.pickupRevealFrom=from;this.pickupRevealStartedAt=this.time;
+    // Refresh from current illumination; never blink dark or stack exposure.
+    this.pickupRevealHoldUntil=this.time+1.5+(from<1?(this.reducedMotion?.35:.12):0);
   }
 
   step(dt) {
@@ -1552,6 +1571,7 @@ export class WispFlight {
       if(this.hasCompanion('kindler')&&this.mod.kindlerPurify&&this.purifyCooldown<=0){
         const restored=Math.min(Number(this.mod.purifyFuel)||12,this.maxFlame-this.flame);
         this.kindlerPulse=.9;this.flame+=restored;this.flameRestored+=restored;this.purifyCooldown=Number(this.mod.purifyCooldown)||10;
+        this.revealFromPickup();
         this.absorbPacket({...ember,kind:'light',harmful:false},'light');
         const text=restored>0?`Purified · +${formatGlow(restored,this.maxFlame)} Glow`:'Purified · Glow full';
         this.pickupEffects.push({x:this.player.x,y:this.player.y,pickupKind:'light',text,restored,life:.72});
@@ -1592,6 +1612,7 @@ export class WispFlight {
     if (this.tutorial) recordTutorialPickup(this, ember);
     ember.collected = true;
     this.absorbPacket(ember, 'light');
+    if(!ember.generated)this.revealFromPickup();
     const cleansed = !ember.generated && this.lightPenalties.length > 0;
     if (cleansed) this.lightPenalties.pop();
     const fuel = ember.generated ? FLAME_TUNING.generatedFuel
