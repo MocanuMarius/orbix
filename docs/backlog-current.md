@@ -11,7 +11,7 @@ Verification: 33 focused tests passed for transactions, practice isolation, Rest
 
 Browser inspection: Rest choices and Grow preparation at 900x405; Recover preparation at 740x333; capped Rest, briefing and reward screens at 720x280. No control overlap, offscreen action or document overflow in those checked states. Clear-only and clear-plus-overflow totals rendered correctly.
 
-Publication verification will be recorded after the release is live.
+Publication verified: `clear-rewards-1`, source `d020841888f16172975d735159be2f9e72f0bcf7`, Pages `4ff127d1c442c1a2022affceed0ebc0c538174d4`. Workflow `43507875190` succeeded. The public manifest and twelve entry/model/UI files match local release bytes. Live Rest displays Recover/Grow correctly; the normal public URL opens the playable landscape home screen. Play: https://mocanumarius.github.io/orbix/?v=clear-rewards-1 .
 
 ---
 
