@@ -181,3 +181,45 @@ body:has(.tutorial-coach:not([hidden])) #tutorial-hint { visibility: hidden; }
 .coach-inline-term>svg{display:inline-block!important;width:1em!important;height:1em!important;vertical-align:-.12em;margin-right:.25em;color:#d6efba}
 .tutorial-coach[data-has-example=true] .tutorial-coach-visual{align-items:center;gap:18px}
 @media(orientation:landscape) and (max-height:350px){.coach-example{flex-basis:165px}.coach-example>img,.coach-example>svg{max-height:76px}.coach-example figcaption{font-size:10px}.coach-vocabulary{gap:6px}.tutorial-coach[data-has-example=true] .tutorial-coach-visual{gap:12px}}
+
+/* Landscape teaching cards: illustration first, explanation beside it. */
+@media(min-width:600px){
+ .tutorial-coach[data-has-visual=true] .tutorial-coach-card{display:grid;grid-template-columns:minmax(180px, .8fr) minmax(0,1.6fr);grid-template-rows:auto auto minmax(0,1fr) auto;column-gap:26px;row-gap:10px;padding:22px;}
+ .tutorial-coach[data-has-visual=true] .tutorial-coach-progress{grid-column:2;grid-row:1;}
+ .tutorial-coach[data-has-visual=true] .tutorial-coach-visual{grid-column:1;grid-row:1 / 4;display:flex;flex-direction:column;justify-content:center;align-self:stretch;gap:12px;min-height:180px;padding:12px 14px 12px 0;border-right:1px solid #9bab7140;}
+ .tutorial-coach[data-has-visual=true] .tutorial-coach-card>h2{grid-column:2;grid-row:2;font-size:24px;line-height:1.2;align-self:end;}
+ .tutorial-coach[data-has-visual=true] .tutorial-coach-card>p{grid-column:2;grid-row:3;font-size:18px;line-height:1.45;align-self:start;max-height:100%;}
+ .tutorial-coach[data-has-visual=true] .tutorial-coach-actions{grid-column:1 / -1;grid-row:4;margin-top:10px;}
+ .tutorial-coach-visual .coach-vocabulary{flex:0 1 auto;flex-wrap:wrap;width:100%;gap:10px;}
+ .tutorial-coach-visual .coach-term{flex:1 1 70px;}
+ .tutorial-coach-visual .coach-term>svg{width:80px!important;height:80px!important;}
+ .tutorial-coach-visual .coach-term b{font-size:12px;}
+ .tutorial-coach-visual .coach-example{flex:none;max-width:100%;width:100%;}
+ .tutorial-coach-visual .coach-example>img,.tutorial-coach-visual .coach-example>svg{max-height:150px;}
+ .tutorial-coach[data-has-example=true] .coach-vocabulary .coach-term>svg{width:48px!important;height:48px!important;}
+ .tutorial-coach-visual .coach-meter{width:24px;height:100px;gap:4px;}
+ .tutorial-coach-visual .coach-meter>i{width:24px;height:6px;}
+}
+@media(min-width:600px) and (max-height:450px){
+ .tutorial-coach[data-has-visual=true] .tutorial-coach-card{padding:14px 18px;column-gap:20px;row-gap:6px;}
+ .tutorial-coach[data-has-visual=true] .tutorial-coach-visual{min-height:150px;padding-block:4px;gap:7px;}
+ .tutorial-coach[data-has-visual=true] .tutorial-coach-card>h2{font-size:22px;}
+ .tutorial-coach[data-has-visual=true] .tutorial-coach-card>p{font-size:17px;line-height:1.35;}
+ .tutorial-coach-visual .coach-example>img,.tutorial-coach-visual .coach-example>svg{max-height:100px;}
+ .tutorial-coach[data-has-visual=true] .tutorial-coach-actions{margin-top:6px;}
+}
+
+.tutorial-coach-copy{min-height:0;overflow:auto;}
+.tutorial-coach-copy h2{margin:0 0 10px;font:24px/1.2 var(--pixel);color:#f0e7c2;}
+.tutorial-coach-copy p{margin:0;font:18px/1.45 var(--pixel);color:#d2dfc3;}
+@media(min-width:600px){
+ .tutorial-coach[data-has-visual=true] .tutorial-coach-card{grid-template-rows:minmax(0,1fr) auto;}
+ .tutorial-coach[data-has-visual=true] .tutorial-coach-visual{grid-row:1;}
+ .tutorial-coach[data-has-visual=true] .tutorial-coach-copy{grid-column:2;grid-row:1;align-self:center;max-height:100%;}
+ .tutorial-coach[data-has-visual=true] .tutorial-coach-actions{grid-row:2;}
+ .tutorial-coach-copy .tutorial-coach-progress{margin-bottom:8px;}
+}
+@media(max-height:450px),(max-width:599px){
+ .tutorial-coach-copy h2{font-size:22px;}
+ .tutorial-coach-copy p{font-size:17px;line-height:1.35;}
+}
