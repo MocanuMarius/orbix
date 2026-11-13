@@ -1,5 +1,5 @@
-import * as THREE from './vendor/three.mjs?v=fuel-depth-1';
-import { PhoenixMotion } from './phoenix-motion.mjs?v=fuel-depth-1';
+import * as THREE from './vendor/three.mjs?v=upgrade-wallet-1';
+import { PhoenixMotion } from './phoenix-motion.mjs?v=upgrade-wallet-1';
 
 const TAU = Math.PI * 2;
 const clamp = (value, lo, hi) => Math.min(hi, Math.max(lo, value));

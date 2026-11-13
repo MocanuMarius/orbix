@@ -102,3 +102,13 @@ body[data-screen=death]{--menu-header:0px}body[data-screen=death]>#header{displa
  .summary-prizes{gap:14px}.summary-prize>svg{width:36px;height:36px}.summary-prize strong{font-size:13px}.summary-prize small{font-size:10px}
  .run-summary:has(.summary-prizes)>.two-actions>button{min-height:44px;height:44px;padding:4px}
 }
+
+/* The wallet doubles as the checkpoint skill entry: currency, then available choices. */
+#header .condensed-wallet{height:46px;min-height:46px;gap:8px;padding:3px 9px;overflow:visible}
+#header .condensed-wallet .wallet-currency-icon{display:flex;align-items:center;flex:none}
+#header .condensed-wallet .wallet-currency-icon .condensed-icon{width:36px!important;height:36px!important}
+#header .condensed-wallet.has-upgrades{border-color:#a8bd7a}
+#header .condensed-wallet .wallet-upgrades{display:flex;align-items:center;gap:3px;margin-left:4px;color:#d2ed97;flex:none}
+#header .wallet-upgrades>svg{width:23px;height:30px;filter:drop-shadow(0 0 4px #9cc86455)}
+#header .wallet-upgrade-count{display:grid;place-items:center;min-width:24px;height:24px;padding:0 4px;box-sizing:border-box;background:#32492f;border:1px solid #94b573;color:#f0f6c5;font:16px/1 var(--pixel);font-variant-numeric:tabular-nums}
+#header .condensed-wallet .wallet-currency-icon{width:36px;height:36px}#header .condensed-wallet .wallet-upgrades{width:auto;height:32px}#header .condensed-wallet .wallet-upgrade-count{position:static;flex:none}

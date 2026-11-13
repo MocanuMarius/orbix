@@ -1,6 +1,6 @@
-import {drawBiomeBackground,drawBiomeMaterial,drawBiomeLife} from './biome-art.mjs?v=fuel-depth-1';
-import {drawExpandedBackdrop} from './world-scenery.mjs?v=fuel-depth-1';
-import { resolveLevelIdentity } from './level-catalog.mjs?v=fuel-depth-1';
+import {drawBiomeBackground,drawBiomeMaterial,drawBiomeLife} from './biome-art.mjs?v=upgrade-wallet-1';
+import {drawExpandedBackdrop} from './world-scenery.mjs?v=upgrade-wallet-1';
+import { resolveLevelIdentity } from './level-catalog.mjs?v=upgrade-wallet-1';
 
 const TAU = Math.PI * 2;
 const clamp = (n, a, b) => Math.max(a, Math.min(b, n));
