@@ -1,4 +1,4 @@
-import { resolveLevelIdentity } from './level-catalog.mjs?v=balance-health-1';
+import { resolveLevelIdentity } from './level-catalog.mjs?v=skill-growth-1';
 
 const TAU = Math.PI * 2;
 const clamp = (n, a, b) => Math.max(a, Math.min(b, n));
