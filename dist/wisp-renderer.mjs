@@ -1,14 +1,14 @@
-import {drawFlightProjection} from './flight-projection.mjs?v=dream-paths-1';
-import {drawGlowSense} from './glow-sense.mjs?v=dream-paths-1';
-import {formatGlow} from './vitality.mjs?v=dream-paths-1';
-import {LOCATION_PALETTES} from './world-expansion.mjs?v=dream-paths-1';
-import { sceneryIdentity, drawIdentityBackground, drawIdentityMaterial, drawIdentityLife } from './level-scenery.mjs?v=dream-paths-1';
-import { getCompanionAbility, normalizeCompanionRole } from './companion-abilities.mjs?v=dream-paths-1';
-import { companionSprite, companionPalette } from './companion-art.mjs?v=dream-paths-1';
-import { createScenePropArt } from './scene-prop-art.mjs?v=dream-paths-1';
-import { drawBoss } from './boss.mjs?v=dream-paths-1';
-import { drawPickup } from './pickup-art.mjs?v=dream-paths-1';
-import { pickupKind, getPickupSpec, pickupContactRadius } from './pickups.mjs?v=dream-paths-1';
+import {drawFlightProjection} from './flight-projection.mjs?v=earned-start-1';
+import {drawGlowSense} from './glow-sense.mjs?v=earned-start-1';
+import {formatGlow} from './vitality.mjs?v=earned-start-1';
+import {LOCATION_PALETTES} from './world-expansion.mjs?v=earned-start-1';
+import { sceneryIdentity, drawIdentityBackground, drawIdentityMaterial, drawIdentityLife } from './level-scenery.mjs?v=earned-start-1';
+import { getCompanionAbility, normalizeCompanionRole } from './companion-abilities.mjs?v=earned-start-1';
+import { companionSprite, companionPalette } from './companion-art.mjs?v=earned-start-1';
+import { createScenePropArt } from './scene-prop-art.mjs?v=earned-start-1';
+import { drawBoss } from './boss.mjs?v=earned-start-1';
+import { drawPickup } from './pickup-art.mjs?v=earned-start-1';
+import { pickupKind, getPickupSpec, pickupContactRadius } from './pickups.mjs?v=earned-start-1';
 
 const TAU = Math.PI * 2;
 const SCENERY_HELPERS = { line: pixelLine, disc: pixelDisc, polygon: path };

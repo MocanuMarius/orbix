@@ -8,7 +8,8 @@ import {runProgressMarkup} from '../dist/run-menu.mjs';
 const fresh=()=>{const s=M.newState();s.run=M.createRun(s.profile,'glow-builds');return s;};
 const buy=(s,...ids)=>ids.forEach(id=>assert.ok(M.buyCheckpointSkill(s,id),id));
 const state=fresh(),r=state.run;
-assert.equal(r.embers,90);assert.ok(M.chooseStartingSkill(state,'main-efficiency'));
+assert.equal(r.embers,30);r.embers=90; // Fund the capacity fixture independently of starter budget.
+assert.ok(M.chooseStartingSkill(state,'main-efficiency'));
 buy(state,'main-reservoir','main-vast-vessel');
 assert.equal(r.embers,10);assert.equal(r.flame,105);assert.equal(getGlowCapacity(r),140);
 assert.equal(formatGlow(r.flame,140),'75%');
@@ -17,10 +18,10 @@ assert.ok(M.selectNode(r,M.getChoices(r)[0].id));
 assert.equal(M.canBuyCheckpointSkills(state),false);
 assert.ok(M.beginFlightAttempt(r));
 assert.ok(M.finishFlight(r,{success:true,flame:134,collected:2,embers:2}));
-assert.equal(r.flame,134,'Clear must preserve fuel above the old 100 cap');
+assert.equal(r.flame,140,'Victory recovery respects the larger capacity');
 const data=new Map(),storage={setItem:(k,v)=>data.set(k,v),getItem:k=>data.get(k)};
 assert.ok(M.saveState(state,storage));const loaded=M.loadState(storage);
-assert.equal(loaded.run.flame,134);assert.equal(getGlowCapacity(loaded.run),140);
+assert.equal(loaded.run.flame,140);assert.equal(getGlowCapacity(loaded.run),140);
 
 function rest(s,boon=0){const r=s.run;r.step=1;r.path=['completed-flight'];r.current={id:'probe-rest',kind:'camp',type:'support',row:1};r.phase='support';r.flame=30;
  assert.ok(M.resolveSupport(r,boon,s.profile));assert.ok(r.restReady);r.embers=200;
@@ -38,10 +39,10 @@ assert.equal(gathered.run.skills['main-vast-vessel'],undefined);
 const reserve=fresh();Object.assign(reserve.run,{skills:{'main-reservoir':1,'main-vast-vessel':1},afterglowUnlocked:true,afterglow:0});
 M.selectNode(reserve.run,M.getChoices(reserve.run)[0].id);M.beginFlightAttempt(reserve.run);
 M.finishFlight(reserve.run,{success:true,flame:100});
-assert.equal(reserve.run.flame,84,'Afterglow threshold is 60% of upgraded capacity');
-assert.equal(reserve.run.afterglow,12.8);
+assert.equal(reserve.run.flame,140,'Recovery fills the upgraded capacity first');
+assert.equal(reserve.run.afterglow,30,'The 30 excess Glow fills the starting reserve');
 Object.assign(reserve.run,{phase:'briefing',flame:135,afterglow:20});
-assert.equal(M.drawAfterglow(reserve.run),5);assert.equal(reserve.run.flame,140);
+assert.equal(M.drawAfterglow(reserve.run),0);assert.equal(reserve.run.flame,135,'Reserve now pays flight costs automatically');
 
 globalThis.requestAnimationFrame=()=>1;globalThis.cancelAnimationFrame=()=>{};
 const gradient={addColorStop(){}};

@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import {newState,createRun,chooseStartingSkill,buyCheckpointSkill,getRunModifiers,SKILLS} from '../dist/model.mjs';
 import {WispFlight} from '../dist/flight.mjs';
-const state=newState();state.run=createRun(state.profile,'dawnburst');
+const state=newState();state.run=createRun(state.profile,'dawnburst');state.run.embers=90; // Fund the effect fixture, not a starter build.
 assert.ok(chooseStartingSkill(state,'main-sight'));assert.ok(buyCheckpointSkill(state,'main-dawnburst'));
 assert.equal(state.run.embers,45);assert.equal(SKILLS['main-dawnburst'].maxRank,1);
 assert.equal(buyCheckpointSkill(state,'main-dawnburst'),false);

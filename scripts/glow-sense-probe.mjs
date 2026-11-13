@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import {glowSenseCues} from '../dist/glow-sense.mjs';
 import {newState,createRun,chooseStartingSkill,buyCheckpointSkill,getRunModifiers} from '../dist/model.mjs';
-const s=newState();s.run=createRun(s.profile,'glow-sense-probe');assert.equal(buyCheckpointSkill(s,'main-glow-sense'),false);chooseStartingSkill(s,'main-sight');assert.ok(buyCheckpointSkill(s,'main-glow-sense'));assert.equal(s.run.embers,50);assert.equal(getRunModifiers(s.run).glowSense,true);assert.equal(buyCheckpointSkill(s,'main-glow-sense'),false);
+const s=newState();s.run=createRun(s.profile,'glow-sense-probe');s.run.embers=90;assert.equal(buyCheckpointSkill(s,'main-glow-sense'),false);chooseStartingSkill(s,'main-sight');assert.ok(buyCheckpointSkill(s,'main-glow-sense'));assert.equal(s.run.embers,50);assert.equal(getRunModifiers(s.run).glowSense,true);assert.equal(buyCheckpointSkill(s,'main-glow-sense'),false);
 const light={radius:175,intensity:1,pickupReveal:0};
 let packets=[];const e={width:390,height:620,distance:100,time:0,player:{x:100,y:310},mod:{glowSense:true},getNearbyPickups:()=>packets,getLightState:()=>light};
 const p=(x=500,y=310,extra={})=>({kind:'light',x:x+e.distance,y,...extra});

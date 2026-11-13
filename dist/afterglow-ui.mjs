@@ -1,4 +1,4 @@
-import {formatGlow} from './vitality.mjs?v=dream-paths-1';
+import {formatGlow} from './vitality.mjs?v=earned-start-1';
 // Stored fuel stays out of the main interface until it can help a flight.
 const amountOf = value => Math.max(0, Number.isFinite(Number(value)) ? Number(value) : 0);
 export const formatStoredGlow = value => {

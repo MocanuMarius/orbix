@@ -634,3 +634,10 @@ Rest resolves its recovery offering into a dedicated preparation hub: Skill Tree
 Glow Sense (40 Embers after Inner Glow) hints at up to three approaching beneficial pickups, at their approximate height on the right light boundary. It excludes warning pickups and fades once items are lit. Cached nearby packet windows and analytical light falloff avoid canvas readback or new lighting passes. Collector reacts when its growing radius touches a boon contact ring, with immediate ring feedback and a curved tether only when fetching. Body pickup priority and warning exclusions remain.
 
 Checks passed: model routes/rewards/overflow/full campaign, exact Dream replay and resource isolation, paused input handoff, Collector outer-ring/motion cases, Glow Sense visibility/filtering, and app markup/control-flow integration for victory/rest/Dream. Actual game renderer and route SVG previews were inspected offscreen. Local browser access was unavailable; phone usability and device FPS remain to be evaluated by playing the release. Reward and recovery values are starting settings, not a claimed finished balance.
+
+
+## Earned opening progression — 2026-11-13
+
+Reduced new-run starting Embers from 90 to 30, retaining the choice of one free root skill. This affords one small 25–30 Ember refinement or a saving toward a 35–40 Ember unlock; it prevents buying a multi-upgrade build before the first flight. Flight rewards, artifact choices, recovery and TEST resources are unchanged. Both starter labels now use the shared budget constant. Existing runs retain their wallet.
+
+Focused economy check follows a real first victory: 30 start, 25 spent on Rising Light, 5 remaining; clear reward 32 plus 5 gathered gives 42; choosing 18 Embers instead of an artifact yields 60, enough for two 30-Ember improvements. Choosing the artifact instead limits immediate spending. This is an opening-pacing adjustment, not a claim that the entire economy is balanced. Artifact combination depth remains a separate design opportunity.

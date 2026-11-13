@@ -18,7 +18,7 @@ export const LIGHT_PACKET_TUNING = Object.freeze({ baseRadius: 175, pickupRadius
   darkPenalty: .2, darkMaximumStacks: 2, minimumLight: .6,
   recoveryFade: 1.5, dimResponse: 9 });
 
-export const STARTING_EMBERS = 90;
+export const STARTING_EMBERS = 30;
 export function getGlowCapacity(run={}) {
  return 100+(run.skills?.['main-reservoir']>0?20:0)+(run.skills?.['main-vast-vessel']>0?20:0);
 }
