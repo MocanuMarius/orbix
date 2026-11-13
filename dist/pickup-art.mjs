@@ -1,4 +1,4 @@
-import { pickupKind, getPickupSpec, pickupDisposition } from './pickups.mjs?v=risk-chains-1';
+import { pickupKind, getPickupSpec, pickupDisposition } from './pickups.mjs?v=boon-glow-1';
 
 const TAU = Math.PI * 2;
 const clamp = (value, low, high) => Math.max(low, Math.min(high, value));
@@ -33,9 +33,18 @@ function packetPixels(kind, { time = 0, reducedMotion = false, tiny = false, bod
     }
   };
   const contact = getPickupSpec(kind).contactRadius, warning = pickupDisposition(kind)==='warning';
-  // One consistent sign cue: pale circular light for boons, red for costs/danger.
-  if(!bodyOnly){halo(contact, warning ? '#d34e43' : '#d9ebbd', warning ? .24 : .19);
-  ring(contact - 1, warning ? '#f58b79' : '#e4f2ca', warning ? .78 : .54);}
+  // Fill the space between the item and its contact ring with stepped pixel
+  // radiance. These static layers are baked into the existing sprite atlas.
+  // The body is painted afterwards, preserving silhouettes and dark cores.
+  if(!bodyOnly){
+    halo(contact, warning ? '#d34e43' : '#d9ebbd', .09);
+    const field=contact-1.7;
+    disc(0,0,field,warning?'#c9554c':'#cbdcb7',warning?.15:.17);
+    for(const fraction of [.86,.72,.58,.44])
+      disc(0,0,field*fraction,warning?'#ed8971':'#f4edc9',warning?.055:.075);
+    oval(-field*.12,-field*.18,field*.58,field*.48,warning?'#f9a58a':'#fff4d9',.065);
+    ring(contact - 1, warning ? '#f58b79' : '#e4f2ca', warning ? .78 : .54);
+  }
   shrink *= 1.2;
   const t = reducedMotion ? 0 : time;
   if (kind === 'dark') {

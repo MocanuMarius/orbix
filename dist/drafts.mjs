@@ -1,6 +1,6 @@
 // One-shot, world-anchored air pockets. Reading a puff never advances it.
-import { LEVEL_LENGTH } from './level-length.mjs?v=risk-chains-1';
-import { scenePropBounds } from './scene-props.mjs?v=risk-chains-1';
+import { LEVEL_LENGTH } from './level-length.mjs?v=boon-glow-1';
+import { scenePropBounds } from './scene-props.mjs?v=boon-glow-1';
 const clamp = (n, lo, hi) => Math.min(hi, Math.max(lo, n));
 const smooth = n => { const t = clamp(n, 0, 1); return t * t * (3 - 2 * t); };
 export const DRAFT_TUNING = Object.freeze({ warning: 1.05, duration: 1.45, fade: .35,

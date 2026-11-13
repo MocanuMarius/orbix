@@ -1,4 +1,4 @@
-import {pickupKind,getPickupSpec} from './pickups.mjs?v=risk-chains-1';
+import {pickupKind,getPickupSpec} from './pickups.mjs?v=boon-glow-1';
 
 // Authored three-packet encounters, installed after solid scenery and recovery
 // lights. Reuse two ordinary fuel packets rather than inflating the economy.

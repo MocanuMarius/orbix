@@ -1,4 +1,4 @@
-import {skillProgress} from './skill-increments.mjs?v=risk-chains-1';
+import {skillProgress} from './skill-increments.mjs?v=boon-glow-1';
 // Named, one-time specialisations. Each pair is exclusive for this run.
 const paths=[];
 function fork(branch,parent,a,b){

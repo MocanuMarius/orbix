@@ -1,5 +1,5 @@
-import {drawExpandedBackdrop} from './world-scenery.mjs?v=risk-chains-1';
-import { resolveLevelIdentity } from './level-catalog.mjs?v=risk-chains-1';
+import {drawExpandedBackdrop} from './world-scenery.mjs?v=boon-glow-1';
+import { resolveLevelIdentity } from './level-catalog.mjs?v=boon-glow-1';
 
 const TAU = Math.PI * 2;
 const clamp = (n, a, b) => Math.max(a, Math.min(b, n));
