@@ -21,16 +21,17 @@ for(const id of ['kindler-purify','protector-layers','leveler-dive']){
  const s=M.SKILLS[id],skills=chain(id);
  for(const other of s.excludes||[])assert.ok(M.getSkillLockReason({skills},other));
 }
-const glow=[];
-for(const n of [0,1,2,3]){
- const loss=n?chain(n===3?'main-lift':'main-lift-step-'+n):{'main-efficiency':1};
- const gain=n?chain(n===3?'main-kindling':'main-kindling-step-'+n):{'main-efficiency':1};
- glow.push({step:n,costMultiplier:M.getRunModifiers({skills:loss}).flapCost,pickupBonus:M.getRunModifiers({skills:gain}).cacheFuelBonus});
-}
-assert.ok(glow.every((v,i)=>i===0||v.costMultiplier<glow[i-1].costMultiplier&&v.pickupBonus>glow[i-1].pickupBonus));
-const state=M.newState();state.run=M.createRun(state.profile,'growth-purchases');M.chooseStartingSkill(state,'main-efficiency');
-state.run.restReady=true;state.run.embers=75;
-for(const id of ['main-kindling-step-1','main-kindling-step-2','main-kindling'])assert.ok(M.buyCheckpointSkill(state,id));
-assert.equal(state.run.embers,0);assert.equal(M.buyCheckpointSkill(state,'main-lift-step-1'),false);
-state.run.testMode=true;state.run.embers=1000;assert.ok(M.buyCheckpointSkill(state,'main-lift-step-1'));assert.equal(state.run.skills['main-kindling'],undefined);assert.equal(state.run.skills['main-kindling-step-2'],undefined);
-console.log(JSON.stringify({tracks,addedNodes:tracks*2,glow,exclusivePaths:true,totalPricesPreserved:true,purchasesAndTestReplacement:true},null,2));
+const main=Object.values(M.SKILLS).filter(s=>s.branch==='main');
+assert.ok(main.every(s=>!s.incrementStage),'Main paths should be distinct choices, not repeated ranks');
+const state=M.newState();state.run=M.createRun(state.profile,'growth-purchases');
+assert.equal(state.run.embers,90);assert.ok(M.chooseStartingSkill(state,'main-efficiency'));
+for(const id of ['main-lift','main-kindling','main-reservoir'])assert.ok(M.buyCheckpointSkill(state,id),id);
+assert.equal(state.run.embers,5);assert.equal(state.run.skills['main-lift'],1);assert.equal(state.run.skills['main-kindling'],1);
+const mods=M.getRunModifiers(state.run);assert.ok(mods.flapCost<.9);assert.equal(mods.cacheFuelBonus,4);assert.equal(mods.maxGlow,120);
+const fast={skills:chain('main-plummet')},slow={skills:chain('main-drift')};
+assert.ok(M.getRunModifiers(fast).gravity>1);assert.ok(M.getRunModifiers(slow).gravity<1);
+assert.ok(M.getSkillLockReason(fast,'main-drift'));assert.ok(M.getSkillLockReason(slow,'main-plummet'));
+state.run.testMode=true;state.run.embers=1000;
+for(const id of ['main-speed','main-drift','main-light-step','main-plummet'])assert.ok(M.buyCheckpointSkill(state,id),id);
+assert.equal(state.run.skills['main-drift'],undefined);assert.equal(state.run.skills['main-light-step'],undefined);
+console.log(JSON.stringify({companionIncrementTracks:tracks,mainChoices:main.length,startingBudget:90,mixedEconomyBuild:true,exclusiveFallPaths:true,testReplacement:true},null,2));

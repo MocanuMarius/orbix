@@ -1,6 +1,7 @@
-import {livesMarkup} from './lives.mjs?v=world-variety-1';
-import { COMPANION_ABILITIES } from './companion-abilities.mjs?v=world-variety-1';
-import { companionArtSvg } from './companion-art.mjs?v=world-variety-1';
+import {formatGlow,getGlowCapacity} from './vitality.mjs?v=glow-builds-1';
+import {livesMarkup} from './lives.mjs?v=glow-builds-1';
+import { COMPANION_ABILITIES } from './companion-abilities.mjs?v=glow-builds-1';
+import { companionArtSvg } from './companion-art.mjs?v=glow-builds-1';
 
 const esc = value => String(value ?? '').replace(/[&<>"']/g, char =>
   ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[char]));
@@ -32,7 +33,7 @@ export function runProgressMarkup(run) {
     return `<div class="front-map-stop ${complete ? 'complete' : current ? 'current' : ''}"><span class="front-map-landmark"><svg viewBox="0 0 32 32" aria-hidden="true">${landmark}</svg></span><b>${index === 2 ? 'WARDEN' : `MAP ${index + 1}`}</b><small>${complete ? 'CLEARED' : current ? 'YOU' : index === 2 ? 'MAP 3' : ''}</small></div>`;
   }).join('')}</div>`;
   if (!active) return `<section class="run-progress empty-run">${path}</section>`;
-  return `<section class="run-progress">${path}<div class="run-checkpoint"><div><b>${practice ? 'PRACTICE' : `${run.testMode?'TEST · ':''}ASCENSION ${tier(run.difficulty)}`}</b><span>${practice ? '' : `MAP ${map + 1}/3 · `}${mapCleared ? 'REFUGE REACHED' : `STOP ${stop}/${totalStops}`}</span></div><div class="run-checkpoint-resources">${livesMarkup(run,{compact:true})}<span class="front-glow">${Math.max(0, Math.round(Number(run.flame) || 0))} GLOW</span></div></div>${run.phase === 'retry' ? `<p class="run-retry-note">RETRY WAITING · ${esc(run.current?.name || 'Same passage')}</p>` : ''}</section>`;
+  return `<section class="run-progress">${path}<div class="run-checkpoint"><div><b>${practice ? 'PRACTICE' : `${run.testMode?'TEST · ':''}ASCENSION ${tier(run.difficulty)}`}</b><span>${practice ? '' : `MAP ${map + 1}/3 · `}${mapCleared ? 'REFUGE REACHED' : `STOP ${stop}/${totalStops}`}</span></div><div class="run-checkpoint-resources">${livesMarkup(run,{compact:true})}<span class="front-glow">${formatGlow(run.flame,getGlowCapacity(run),0)} GLOW</span></div></div>${run.phase === 'retry' ? `<p class="run-retry-note">RETRY WAITING · ${esc(run.current?.name || 'Same passage')}</p>` : ''}</section>`;
 }
 
 /** Permanent companion unlocks only; this front-page view never equips wisps. */

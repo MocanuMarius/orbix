@@ -12,7 +12,8 @@
     "balance:economy": "node scripts/balance-health.mjs",
     "balance:flight": "node scripts/balance-flight.mjs --source=current --mode=health --seeds=3",
     "balance:health": "node scripts/balance-health.mjs",
-    "balance:synergies": "node scripts/balance-synergies.mjs"
+    "balance:synergies": "node scripts/balance-synergies.mjs",
+    "check:glow-builds": "node scripts/glow-builds-probe.mjs"
   },
   "dependencies": {}
 }

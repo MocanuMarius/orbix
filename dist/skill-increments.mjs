@@ -1,3 +1,4 @@
+import {tuneMainDefinition} from './main-tuning.mjs?v=glow-builds-1';
 // Separate purchases along a path, not a repeatable stat allocation screen.
 const styles={
  'main-lift':['−2% cost','Lift spends 2% less Glow.'],
@@ -28,9 +29,10 @@ function describe(s){
  const first=items[0],brief={flapCost:'cost',gravity:'fall',flap:'Lift',cacheFuelBonus:'Glow',collectorFuelBonus:'Glow',kindlerBonus:'Glow',purifyFuel:'Glow',collectorMinimum:'reach',lightRadius:'sight',seerRadius:'sight',darkResistance:'resist',swiftResistance:'resist',wispCooldown:'wait',protectorRecovery:'wait',levelerRecovery:'wait',swiftRecovery:'wait',seerRecovery:'wait',purifyCooldown:'wait',protectorProtection:'safe',protectorCost:'cost',levelerDuration:'time',swiftDuration:'time',seerDuration:'time',levelerDive:'dive',attract:'reach'};const short=first?`${signed(Number((first.value*(first.percent?100:1)).toFixed(1)))}${first.percent?'%':''} ${brief[first.key]||names[first.key]}`:'Grow';return [short,text.join(' · ')+'.'];
 }
 export function expandSkillSteps(definitions){
- const split=s=>!!s.expansion||!!styles[s.id],out={};
+ const split=s=>s.branch!=='main'&&(!!s.expansion||!!styles[s.id]),out={};
  const entry=id=>definitions[id]&&split(definitions[id])?id+'-step-1':id;
- for(const s of Object.values(definitions)){
+ for(const raw of Object.values(definitions)){
+  const s=tuneMainDefinition(raw);
   if(!split(s)){out[s.id]=Object.freeze({...s,...(s.excludes?{excludes:[...new Set(s.excludes.flatMap(other=>[entry(other),other]))]}: {})});continue;}
   const [shortEffect,stepDescription]=styles[s.id]||describe(s);
   for(let stage=1;stage<=3;stage++){

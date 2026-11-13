@@ -1,11 +1,12 @@
-import {LOCATION_PALETTES} from './world-expansion.mjs?v=world-variety-1';
-import { sceneryIdentity, drawIdentityBackground, drawIdentityMaterial, drawIdentityLife } from './level-scenery.mjs?v=world-variety-1';
-import { getCompanionAbility, normalizeCompanionRole } from './companion-abilities.mjs?v=world-variety-1';
-import { companionSprite, companionPalette } from './companion-art.mjs?v=world-variety-1';
-import { createScenePropArt } from './scene-prop-art.mjs?v=world-variety-1';
-import { drawBoss } from './boss.mjs?v=world-variety-1';
-import { drawPickup } from './pickup-art.mjs?v=world-variety-1';
-import { pickupKind, getPickupSpec } from './pickups.mjs?v=world-variety-1';
+import {formatGlow} from './vitality.mjs?v=glow-builds-1';
+import {LOCATION_PALETTES} from './world-expansion.mjs?v=glow-builds-1';
+import { sceneryIdentity, drawIdentityBackground, drawIdentityMaterial, drawIdentityLife } from './level-scenery.mjs?v=glow-builds-1';
+import { getCompanionAbility, normalizeCompanionRole } from './companion-abilities.mjs?v=glow-builds-1';
+import { companionSprite, companionPalette } from './companion-art.mjs?v=glow-builds-1';
+import { createScenePropArt } from './scene-prop-art.mjs?v=glow-builds-1';
+import { drawBoss } from './boss.mjs?v=glow-builds-1';
+import { drawPickup } from './pickup-art.mjs?v=glow-builds-1';
+import { pickupKind, getPickupSpec } from './pickups.mjs?v=glow-builds-1';
 
 const TAU = Math.PI * 2;
 const SCENERY_HELPERS = { line: pixelLine, disc: pixelDisc, polygon: path };
@@ -40,6 +41,7 @@ const MATERIALS = {
 };
 const MAIN_LIGHT = { outer: '#9daaa0', mid: '#ccd6c6', core: '#f0f1d8', bright: '#ffffec' };
 const GLYPHS = {
+  '%':['101','001','010','100','101'],'.':['000','000','000','000','010'],
   '0': ['111', '101', '101', '101', '111'], '1': ['010', '110', '010', '010', '111'],
   '2': ['111', '001', '111', '100', '111'], '3': ['111', '001', '111', '001', '111'],
   '4': ['101', '101', '111', '001', '001'], '5': ['111', '100', '111', '001', '111'],
@@ -715,7 +717,7 @@ export class WispFlightView {
   }
 
   drawMain(e, t, x, y) {
-    const c = this.bufferContext, fuel = clamp((e.flame ?? 100) / 100, 0, 1);
+    const c = this.bufferContext, fuel = clamp((e.flame ?? 100) / (e.maxFlame||100), 0, 1);
     c.save();c.translate(x,y);c.scale(.85,.85);c.translate(-x,-y);
     const dying = e.dying === true || (e.dyingProgress > 0 && fuel <= 0);
     const progress = dying ? clamp(e.dyingProgress || 0, 0, 1) : 0;
@@ -1083,7 +1085,7 @@ export class WispFlightView {
     for (const effect of e.pickupEffects || []) {
       const progress = 1 - clamp(effect.life / .72, 0, 1);
       c.globalAlpha = 1 - progress;
-      const label = String(effect.text || (effect.restored > 0 ? `+${effect.restored} GLOW` : 'FULL')).toUpperCase();
+      const label = String(effect.text || (effect.restored > 0 ? `+${formatGlow(effect.restored,e.maxFlame||100)} GLOW` : 'FULL')).toUpperCase();
       const labelX = clamp(Math.round(effect.x * s - label.length * 2), 2, WIDTH - label.length * 4 - 2);
       pixelText(c, label, labelX, Math.round(effect.y * s - 28 - progress * 10),
         effect.color || (effect.pickupKind ? getPickupSpec(effect.pickupKind).color : '#f2d79a'));

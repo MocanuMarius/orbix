@@ -157,3 +157,12 @@ dialog.game-sheet{border:12px solid transparent!important;border-image:url('asse
 .tree-inspector{flex-shrink:0;padding:12px 0 0;text-align:center}.tree-inspector-title{display:flex;align-items:center;justify-content:center;gap:7px}.tree-inspector-title>svg{width:24px;height:24px}.tree-inspector-title h3{font:20px var(--pixel);margin:0}.tree-inspector p{font:14px/1.25 var(--pixel)!important;margin:6px 0 10px;min-height:34px;color:#c1cfb3}.tree-inspector>button{width:100%;min-height:44px;font:15px var(--pixel)!important;padding:8px;color:#eee3bb!important}.tree-inspector>button:disabled{color:#a2ae91!important}.growth-steps{display:flex;gap:3px;margin-left:5px}.growth-steps>i{width:6px;height:6px;border:1px solid #83975e}.growth-steps>i.filled{background:#d4dba0}
 @media(max-height:650px){.tree-sheet:modal{padding:12px}.tree-crown{margin-bottom:2px}.tree-whisper{display:none}.tree-inspector{padding-top:8px}.tree-inspector p{margin:4px 0 6px}.tree-sheet .tree-tabs{padding-bottom:3px}}
 .tree-sheet .tree-bud{border-radius:50%!important}.tree-sheet .tree-bud.fork-bud{border-radius:12px!important}
+/* Fuel stays beside the flight, within peripheral view of the main wisp. */
+.canvas-wrap>.glow-side-gauge{position:absolute;z-index:3;left:max(6px,env(safe-area-inset-left,0px));top:50%;transform:translateY(-50%);width:38px;height:184px;display:flex;flex-direction:column;align-items:center;gap:6px;padding:6px 2px;background:#0b1718aa;border:1px solid #77856b66;pointer-events:none;color:#dce7c6;box-shadow:2px 2px #02090966}
+.glow-side-gauge>span{font:10px var(--pixel)!important;letter-spacing:.4px}.glow-side-gauge>b{font:13px var(--pixel)!important;min-width:0;text-align:center;white-space:nowrap}
+.glow-side-gauge #flame-meter{position:relative;flex:1;width:12px;height:auto;min-height:0;background:#101d19;border:1px solid #708565;overflow:hidden}
+.glow-side-gauge #flame-meter:after{background:repeating-linear-gradient(0deg,transparent 0 calc(10% - 1px),#101d1977 calc(10% - 1px) 10%)}
+.glow-side-gauge #flame-fill{width:100%;height:100%;transform-origin:center bottom;background:linear-gradient(0deg,#7b9d86,#ecf1d6);transition:transform .12s linear}
+.glow-side-gauge.low-glow{color:#efaa89;border-color:#b97960}.glow-side-gauge.low-glow #flame-fill{background:#d59575}
+@media(max-height:640px){.canvas-wrap>.glow-side-gauge{height:144px}}
+@media(prefers-reduced-motion:reduce){.glow-side-gauge #flame-fill{transition:none}}
