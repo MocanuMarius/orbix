@@ -1,14 +1,14 @@
-import {ROUTE_RECIPES,REWARD_THEMES,nodeEconomy} from './route-recipes.mjs?v=relic-paths-1';
-import {COMPANION_ABILITIES,getCompanionUnlock} from './companion-abilities.mjs?v=relic-paths-1';
-import {MAIN_TUNING_SKILLS} from './main-tuning.mjs?v=relic-paths-1';
-import {STARTING_EMBERS,getGlowCapacity,glowText} from './vitality.mjs?v=relic-paths-1';
-import {expandSkillSteps,skillProgress} from './skill-increments.mjs?v=relic-paths-1';
-import {MAX_ASCENSION} from './ascent.mjs?v=relic-paths-1';
-import {EXPANDED_SKILLS,applyExpandedSkills} from './skill-paths.mjs?v=relic-paths-1';
+import {ROUTE_RECIPES,ROUTE_TOPOLOGY_VERSION,REWARD_THEMES,nodeEconomy} from './route-recipes.mjs?v=committed-paths-1';
+import {COMPANION_ABILITIES,getCompanionUnlock} from './companion-abilities.mjs?v=committed-paths-1';
+import {MAIN_TUNING_SKILLS} from './main-tuning.mjs?v=committed-paths-1';
+import {STARTING_EMBERS,getGlowCapacity,glowText} from './vitality.mjs?v=committed-paths-1';
+import {expandSkillSteps,skillProgress} from './skill-increments.mjs?v=committed-paths-1';
+import {MAX_ASCENSION} from './ascent.mjs?v=committed-paths-1';
+import {EXPANDED_SKILLS,applyExpandedSkills} from './skill-paths.mjs?v=committed-paths-1';
 /** Run-owned skills and currency; persistent ascension unlocks and boss artifacts. */
-import { FLAME_TUNING, LIFE_TUNING, getLifeCapacity } from './vitality.mjs?v=relic-paths-1';
-import { getLevelIdentity } from './level-catalog.mjs?v=relic-paths-1';
-import { EVENT_SCENARIOS } from './map-guide.mjs?v=relic-paths-1';
+import { FLAME_TUNING, LIFE_TUNING, getLifeCapacity } from './vitality.mjs?v=committed-paths-1';
+import { getLevelIdentity } from './level-catalog.mjs?v=committed-paths-1';
+import { EVENT_SCENARIOS } from './map-guide.mjs?v=committed-paths-1';
 export const SAVE_KEY='emberwing.save.runskills.v6';
 export const CAMPAIGN_MAP_NAMES=Object.freeze(['The Forgotten Verge','The Rootbound March','The Warden’s Reach']);
 export const TERRAINS=Object.freeze({ruins:{id:'ruins',name:'Sunken Ruins',color:'#cdb183',description:'Broken homes, worn arches and overgrown stone.'},canopy:{id:'canopy',name:'Luminous Canopy',color:'#94b48a',description:'Hollow trees, hanging roots and sheltered forest passages.'},storm:{id:'storm',name:'Stormglass Peaks',color:'#a8bbca',description:'Pine ridges, old mine timbers and local draft puffs.'}});
@@ -155,7 +155,7 @@ function makeMap(seed,mapIndex,difficulty,afterglowUnlocked){
   const kind=camp?'camp':treasure?'treasure':support?'event':finale?'finale':elite?'elite':'normal';
   const challengeId=routeStyle==='refuge'?'wisps':routeStyle==='cavern'?'clean':'boosts',target=challengeId==='wisps'?(4+Math.floor(row/2))*3:challengeId==='boosts'?6:0;
   const n={id:`m${mapIndex}-${row}-${c}`,row,lane:mirror?2-c:c,routeLane:c,mapIndex,difficulty,afterglowUnlocked,type:support?'support':finale?'finale':'flight',kind,elite,boss,bossId,terrain,nextIds:[],routeStyle,...profile,
-   recipeId:recipe.id,recipeName:recipe.name,rewardTheme,rewardThemeLabel:theme.label,encounterFamily,encounterPreview,
+   routeTopology:ROUTE_TOPOLOGY_VERSION,recipeId:recipe.id,recipeName:recipe.name,rewardTheme,rewardThemeLabel:theme.label,encounterFamily,encounterPreview,
    name:camp?'Emberwell Rest':treasure?`${theme.label} Reliquary`:support?EVENT_SCENARIOS[eventIndex].name:boss?bossName:location.name,locationName:boss?bossName:location.name,levelId:location.id,setpiecePreview:location.signature,
    duration:support?0:(finale?55:Math.round((row===0?34:38+row*2)*profile.durationScale))*3,flightLengthScale:support?1:3,challengeId:support?'':challengeId,challengeTarget:support?0:target,challenge:support?'':challengeId==='wisps'?`Collect ${target} fuel lights`:challengeId==='boosts'?`Use companion tools ${target} times`:'Finish without a hit',eventIndex:code==='V'?eventIndex:null,
    fuelPreview:camp?'Full recovery, hearts, or Embers':treasure?'Themed artifact or Embers':support?EVENT_SCENARIOS[eventIndex].summary:profile.fuelPreview,
@@ -167,17 +167,14 @@ function makeMap(seed,mapIndex,difficulty,afterglowUnlocked){
   n.reward=n.rewardPreview;return[n];
  }));
  for(let row=0;row<6;row++)for(const n of rows[row]){
-  const next=rows[row+1],safe=next.filter(x=>!x.elite),nearest=list=>[...list].sort((a,b)=>Math.abs(a.routeLane-n.routeLane)-Math.abs(b.routeLane-n.routeLane)||a.routeLane-b.routeLane);
-  if(n.kind==='camp'){n.nextIds=[nearest(next.filter(x=>x.type!=='support'&&!x.elite))[0].id];continue;}
-  const first=nearest(safe)[0]||next[0],neighbors=next.filter(x=>x.id!==first.id&&Math.abs(x.routeLane-n.routeLane)<=1);
-  const second=neighbors.length?neighbors[Math.floor(random()*neighbors.length)]:null;
-  n.nextIds=[first.id,...(second?[second.id]:[])];
- }
- // Keep every displayed destination reachable without adding a second Rest exit.
- for(let row=1;row<rows.length;row++)for(const node of rows[row]){
-  if(rows[row-1].some(n=>n.nextIds.includes(node.id)))continue;
-  const parents=rows[row-1].filter(n=>n.kind!=='camp'&&!(n.elite&&node.elite)).sort((a,b)=>Math.abs(a.routeLane-node.routeLane)-Math.abs(b.routeLane-node.routeLane));
-  const parent=parents.find(n=>n.nextIds.length<3)||parents[0];if(parent)parent.nextIds.push(node.id);
+  const next=rows[row+1],targetLanes=[...recipe.edges[row][n.routeLane]].map(Number);
+  n.nextIds=targetLanes.map(lane=>next.find(child=>child.routeLane===lane)?.id).filter(Boolean);
+  if(n.kind==='camp'){
+   // The one ordinary destination remains the known Dream. A failed attempt may
+   // reveal one authored adjacent flight detour, never every flight in the row.
+   n.retryNextIds=next.filter(child=>child.type!=='support'&&!n.nextIds.includes(child.id)&&Math.abs(child.routeLane-n.routeLane)===1)
+    .sort((a,b)=>Number(a.elite)-Number(b.elite)||a.routeLane-b.routeLane).slice(0,1).map(child=>child.id);
+  }
  }
  for(const row of rows)row.sort((a,b)=>a.lane-b.lane);
  return rows;
@@ -191,6 +188,25 @@ export function chooseStartingSkill(state,id){const r=state?.run;if(!canChooseSt
 const nodes=run=>run.map.flat();
 function previousElite(run){return run.path.map(id=>nodes(run).find(n=>n.id===id)).filter(n=>n&&n.row<run.step&&n.type!=='support').at(-1)?.elite===true;}
 export function getChoices(run){if(!run||run.phase!=='map'||run.step>=run.map.length)return[];const prior=run.path.map(id=>nodes(run).find(n=>n.id===id)).filter(n=>n&&n.row<run.step).at(-1),ids=prior?.nextIds;return run.map[run.step].filter(n=>(!ids||ids.includes(n.id))&&!(previousElite(run)&&n.elite));}
+/** One source of truth for map lighting and preview permissions. IDs and edges
+ * are serializable; an elite history survives support stops during traversal. */
+export function getRouteMapState(run){
+ const all=run?.map?.flat?.()||[],byId=new Map(all.map(n=>[n.id,n])),step=Number(run?.step)||0;
+ const completed=(run?.path||[]).map(id=>byId.get(id)).filter(n=>n&&n.row<step),completedIds=completed.map(n=>n.id),currentId=completed.at(-1)?.id||'start';
+ const selected=['briefing','support','retry'].includes(run?.phase)&&run?.current?.row===step?byId.get(run.current.id):null;
+ const choices=run?.phase==='map'?getChoices(run):[],frontier=selected?[selected]:choices;
+ const availableIds=run?.victoryPending||run?.flightReward&&!run.flightReward.claimed?[]:choices.map(n=>n.id);
+ const pathEdges=completed.map((n,i)=>[i?completed[i-1].id:'start',n.id]),reachableIds=new Set(),reachableEdges=[],edgeKeys=new Set(),visited=new Set();
+ const addEdge=(from,to)=>{const key=from+'>'+to;if(!edgeKeys.has(key)){edgeKeys.add(key);reachableEdges.push([from,to]);}};
+ const lastElite=completed.filter(n=>n.type!=='support').at(-1)?.elite===true;
+ function visit(n,wasElite){
+  const key=n.id+':'+Number(wasElite);if(visited.has(key)||wasElite&&n.elite)return;visited.add(key);reachableIds.add(n.id);
+  const elite=n.type==='support'?wasElite:n.elite===true;
+  for(const id of n.nextIds||[]){const next=byId.get(id);if(!next||next.row!==n.row+1||elite&&next.elite)continue;addEdge(n.id,next.id);visit(next,elite);}
+ }
+ for(const n of frontier){if(lastElite&&n.elite)continue;addEdge(currentId,n.id);visit(n,lastElite);}
+ return{currentId,selectedId:selected?.id||null,availableIds,reachableIds:[...reachableIds],completedIds,pathEdges,reachableEdges};
+}
 export function selectNode(run,nodeId){if(run?.victoryPending||run?.flightReward&&!run.flightReward.claimed)return false;const n=getChoices(run).find(n=>n.id===nodeId);if(!n)return false;run.path=run.path.filter(id=>nodes(run).some(p=>p.id===id&&p.row<run.step));run.path.push(n.id);if(n.type!=='support')n.flightNumber=run.path.map(id=>nodes(run).find(p=>p.id===id)).filter(p=>p.type!=='support').length;run.current=n;run.lastEvent=null;run.phase=n.type==='support'?'support':'briefing';return true;}
 function nextStop(run){run.step++;run.current=null;run.phase=run.step>=run.map.length?'ended':'map';}
 function reattempt(run){return run.phase==='briefing'&&run.current&&run.lastAttempt?.nodeId===run.current.id&&run.lastAttempt.success!==true;}
@@ -266,9 +282,8 @@ export function finishFlight(run,result){
   run.path=run.path.filter(id=>id!==n.id);run.current=null;run.phase=run.lives?'map':'ended';
   const prior=run.path.map(id=>nodes(run).find(p=>p.id===id)).filter(p=>p&&p.row<run.step).at(-1);
   if(run.lives&&prior?.kind==='camp'&&prior.nextIds.length===1){
-   const lastElite=previousElite(run),alternatives=run.map[run.step].filter(p=>p.type!=='support'&&!(lastElite&&p.elite));
-   prior.nextIds=[...new Set([...prior.nextIds,...alternatives.map(p=>p.id)])];
-   run.deathDetour={fromId:prior.id,failedNodeId:n.id,nodeIds:[...prior.nextIds]};
+   const lastElite=previousElite(run),alternatives=(prior.retryNextIds||[]).map(id=>run.map[run.step].find(p=>p.id===id)).filter(p=>p&&p.type!=='support'&&!(lastElite&&p.elite));
+   if(alternatives.length){prior.nextIds=[...new Set([...prior.nextIds,alternatives[0].id])].slice(0,2);run.deathDetour={fromId:prior.id,failedNodeId:n.id,nodeIds:[...prior.nextIds]};}
   }
   return true;
  }

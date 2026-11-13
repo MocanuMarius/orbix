@@ -1,13 +1,19 @@
 // Seven stops, but different timings for recovery, treasure and commitment.
 // F=ordinary flight, E=elite, R=rest, T=treasure, V=event, B=map finale.
+// Authored crossings keep a route committed for several stops. Each row's three
+// strings list destination lanes for source lanes 0/1/2. A crossing is a real
+// junction, never an automatic connection to every adjacent node.
+const straight=['0','1','2'],finish=['1','1','1'];
+export const ROUTE_TOPOLOGY_VERSION='committed-paths-1';
 export const ROUTE_RECIPES=Object.freeze([
- {id:'lantern-forks',name:'Lantern Forks',rows:['FFF','RVF','FFE','TFV','FRF','EFF',' B ']},
- {id:'long-crossing',name:'Long Crossing',rows:['FFF','FEF','RFT','FFF','VRV','FFE',' B ']},
- {id:'gilded-dawn',name:'Gilded Dawn',rows:['FFF','TVR','FEF','RFV','FFF','FTE',' B ']},
- {id:'sheltered-weave',name:'Sheltered Weave',rows:['FFF','RFV','FFF','TVR','FFF','FEF',' B ']},
- {id:'crossroads',name:'Crossroads',rows:['FFF','FVR','FFF','RTE','FFF','VFE',' B ']},
- {id:'late-haven',name:'Late Haven',rows:['FFF','FEF','VFT','FRF','EFV','FTF',' B ']},
-].map(r=>Object.freeze({...r,rows:Object.freeze(r.rows)})));
+ {id:'lantern-forks',name:'Lantern Forks',rows:['FFF','RVF','FFE','TFV','FRF','EFF',' B '],edges:[straight,['0','1','12'],['01','1','2'],straight,['01','1','2'],finish]},
+ {id:'long-crossing',name:'Long Crossing',rows:['FFF','FEF','RFT','FFF','VRV','FFE',' B '],edges:[['0','12','2'],straight,['0','12','2'],['01','1','2'],['0','1','12'],finish]},
+ {id:'gilded-dawn',name:'Gilded Dawn',rows:['FFF','TVR','FEF','RFV','FFF','FTE',' B '],edges:[straight,['0','01','2'],straight,['0','12','2'],['01','1','12'],finish]},
+ {id:'sheltered-weave',name:'Sheltered Weave',rows:['FFF','RFV','FFF','TVR','FFF','FEF',' B '],edges:[straight,straight,['0','12','2'],straight,['0','01','2'],finish]},
+ {id:'crossroads',name:'Crossroads',rows:['FFF','FVR','FFF','RTE','FFF','VFE',' B '],edges:[straight,straight,['0','1','12'],straight,['0','01','12'],finish]},
+ {id:'late-haven',name:'Late Haven',rows:['FFF','FEF','VFT','FRF','EFV','FTF',' B '],edges:[['0','12','2'],straight,straight,['01','1','2'],['0','01','2'],finish]},
+].map(r=>Object.freeze({...r,rows:Object.freeze(r.rows),edges:Object.freeze(r.edges.map(row=>Object.freeze([...row])))})));
+
 
 export const REWARD_THEMES=Object.freeze({
  sustain:{label:'Sustain',summary:'Fuel, overflow and recovery'},
