@@ -1,5 +1,5 @@
 const clamp=value=>Math.max(0,Math.min(1,Number(value)||0));
-const explanation='Edging Pulse: stay close to solid terrain or the top and bottom edges to charge. A full meter automatically reveals more of the scene, then resets. Charge fades in open space.';
+const explanation='Edging Pulse: skim near solid terrain or the top and bottom edges for 2 seconds total. Brief gaps keep your progress for 1.25 seconds, then it fades slowly. A full meter automatically reveals the scene.';
 
 /** A passive flight indicator; it never adds a third action or spends Glow. */
 export function edgingPulseMarkup(){
@@ -17,12 +17,12 @@ export function updateEdgingPulse(gauge,snapshot){
   gauge._edgingSeen=true;gauge.hidden=false;
  }
  const recovering=!active&&!!pulse.recovering,ratio=active?clamp(remaining/duration):recovering?0:charge;
- const mode=active?'active':recovering?'recovering':pulse.nearEdge?'charging':charge>0?'fading':'idle';
+ const mode=active?'active':recovering?'recovering':pulse.nearEdge?'charging':pulse.holding?'holding':charge>0?'fading':'idle';
  if(gauge._edgingMode!==mode){gauge._edgingMode=mode;gauge.dataset.pulseState=mode;}
  const fill=ratio.toFixed(3);if(gauge._edgingFill!==fill){gauge._edgingFill=fill;refs.fill.style.transform=`scaleY(${fill})`;}
  const percent=Math.round(ratio*100),seconds=Math.ceil(remaining),label=active?`${seconds}s`:recovering?'RESET':`${percent}%`;
  if(gauge._edgingLabel!==label){gauge._edgingLabel=label;refs.value.textContent=label;}
- const valueText=active?`Revealing, ${seconds} ${seconds===1?'second':'seconds'} remaining`:recovering?'Resetting':`${percent}% charged${pulse.nearEdge?', close to an edge':charge>0?', fading in open space':''}`;
+ const valueText=active?`Revealing, ${seconds} ${seconds===1?'second':'seconds'} remaining`:recovering?'Resetting':`${percent}% charged${pulse.nearEdge?', close to an edge':pulse.holding?', progress held between edges':charge>0?', fading slowly in open space':''}`;
  if(gauge._edgingPercent!==percent){gauge._edgingPercent=percent;refs.meter.setAttribute('aria-valuenow',String(percent));}
  if(gauge._edgingValueText!==valueText){gauge._edgingValueText=valueText;refs.meter.setAttribute('aria-valuetext',valueText);}
 }
