@@ -1,8 +1,11 @@
-// A finite emitter avoids the singularity at its centre. The cutoff removes
-// the distant tail; exposure maps inverse-square irradiance into visible light.
+// Radius describes the bright core. A finite inverse-square field keeps a
+// faint tail at 2x radius, then reaches exact black at 3x without a hard seam.
+export const LIGHT_EXTENT=3;
 export function lightAttenuation(distanceSquared){
-  if(distanceSquared>=1)return 0;
-  return 1-Math.exp(-.42*(1/(Math.max(0,distanceSquared)+.0324)-1/1.0324));
+  const d2=Math.max(0,Number(distanceSquared)||0);
+  if(d2>=LIGHT_EXTENT*LIGHT_EXTENT)return 0;
+  const edge=1/(1+2.2*LIGHT_EXTENT*LIGHT_EXTENT);
+  return Math.max(0,(1/(1+2.2*d2)-edge)/(1-edge));
 }
 export function createLightMaskCanvas(document){
   const canvas=document.createElement('canvas');canvas.width=canvas.height=128;
@@ -10,7 +13,7 @@ export function createLightMaskCanvas(document){
   for(let y=0;y<128;y++)for(let x=0;x<128;x++){
     const dx=(x+.5-64)/64,dy=(y+.5-64)/64,offset=(y*128+x)*4;
     image.data[offset]=image.data[offset+1]=image.data[offset+2]=255;
-    image.data[offset+3]=Math.round(lightAttenuation(dx*dx+dy*dy)*255);
+    image.data[offset+3]=Math.round(lightAttenuation((dx*dx+dy*dy)*LIGHT_EXTENT*LIGHT_EXTENT)*255);
   }
   c.putImageData(image,0,0);return canvas;
 }

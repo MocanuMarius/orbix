@@ -1,38 +1,38 @@
-import {FlightProjection,drawFlightProjection} from './flight-projection.mjs?v=living-choices-2';
-import {drawGlowSense} from './glow-sense.mjs?v=living-choices-2';
-import {formatGlow} from './vitality.mjs?v=living-choices-2';
-import {installRiskChains} from './risk-chains.mjs?v=living-choices-2';
-import {EXTRA_COURSES} from './world-expansion.mjs?v=living-choices-2';
-import {BIOME_COURSES} from './biome-courses.mjs?v=living-choices-2';
-import {BiomeDynamics} from './biome-dynamics.mjs?v=living-choices-2';
-import {condenseGlow} from './condensed-glow.mjs?v=living-choices-2';
-import {ensureGlowBudget} from './glow-budget.mjs?v=living-choices-2';
-import {EdgingPulse} from './edging-pulse.mjs?v=living-choices-2';
-import {isVowBodyPickup} from './contextual-events.mjs?v=living-choices-2';
-import {BlackHoles} from './black-holes.mjs?v=living-choices-2';
-import {drawBlackHoles} from './black-hole-art.mjs?v=living-choices-2';
+import {FlightProjection,drawFlightProjection} from './flight-projection.mjs?v=clear-sparks-1';
+import {drawGlowSense} from './glow-sense.mjs?v=clear-sparks-1';
+import {formatGlow} from './vitality.mjs?v=clear-sparks-1';
+import {installRiskChains} from './risk-chains.mjs?v=clear-sparks-1';
+import {EXTRA_COURSES} from './world-expansion.mjs?v=clear-sparks-1';
+import {BIOME_COURSES} from './biome-courses.mjs?v=clear-sparks-1';
+import {BiomeDynamics} from './biome-dynamics.mjs?v=clear-sparks-1';
+import {condenseGlow} from './condensed-glow.mjs?v=clear-sparks-1';
+import {ensureGlowBudget} from './glow-budget.mjs?v=clear-sparks-1';
+import {EdgingPulse} from './edging-pulse.mjs?v=clear-sparks-1';
+import {isVowBodyPickup} from './contextual-events.mjs?v=clear-sparks-1';
+import {BlackHoles} from './black-holes.mjs?v=clear-sparks-1';
+import {drawBlackHoles} from './black-hole-art.mjs?v=clear-sparks-1';
 /* Emberwing's self-contained canvas flight simulation and renderer. */
-import { FLAME_TUNING, LIGHT_PACKET_TUNING } from './vitality.mjs?v=living-choices-2';
-import { flightEndDistance } from './flight-end.mjs?v=living-choices-2';
-import {getExitLandmarkState,drawExitLandmark} from './exit-landmark.mjs?v=living-choices-2';
-import { WispCompanion, wispHome } from './wisp.mjs?v=living-choices-2';
-import { getAscentInfo } from './ascent.mjs?v=living-choices-2';
-import { LEVEL_LENGTH, getLevelLengthScale } from './level-length.mjs?v=living-choices-2';
-import { resolveLevelIdentity } from './level-catalog.mjs?v=living-choices-2';
-import { DraftField, DRAFT_TUNING } from './drafts.mjs?v=living-choices-2';
-import { normalizeCompanionRole, normalizeCompanionFleet, getCompanionAbility } from './companion-abilities.mjs?v=living-choices-2';
-import { populateSceneProps, scenePropPolygons } from './scene-props.mjs?v=living-choices-2';
-import { pickupKind, getPickupSpec, pickupContactRadius, isFuelPickup, canCompanionCollect } from './pickups.mjs?v=living-choices-2';
-import { drawPickup } from './pickup-art.mjs?v=living-choices-2';
-import { buildBossLayout, getBossState as bossState, drawBoss } from './boss.mjs?v=living-choices-2';
-import { getAuthoredChallenge, finalizeFlightChallenges, installAuthoredDraftCrossings, FlightChallengeDirector } from './flight-challenges.mjs?v=living-choices-2';
-import { installEncounterFamily } from './encounter-families.mjs?v=living-choices-2';
-import { installFlightForks, resizeFlightForks } from './flight-forks.mjs?v=living-choices-2';
-import { ArtifactEffects } from './artifact-effects.mjs?v=living-choices-2';
-import { lightAttenuation,lightVisibility,createLightMaskCanvas,sceneRevealStrength } from './light-field.mjs?v=living-choices-2';
+import { FLAME_TUNING, LIGHT_PACKET_TUNING } from './vitality.mjs?v=clear-sparks-1';
+import { flightEndDistance } from './flight-end.mjs?v=clear-sparks-1';
+import {getExitLandmarkState,drawExitLandmark} from './exit-landmark.mjs?v=clear-sparks-1';
+import { WispCompanion, wispHome } from './wisp.mjs?v=clear-sparks-1';
+import { getAscentInfo } from './ascent.mjs?v=clear-sparks-1';
+import { LEVEL_LENGTH, getLevelLengthScale } from './level-length.mjs?v=clear-sparks-1';
+import { resolveLevelIdentity } from './level-catalog.mjs?v=clear-sparks-1';
+import { DraftField, DRAFT_TUNING } from './drafts.mjs?v=clear-sparks-1';
+import { normalizeCompanionRole, normalizeCompanionFleet, getCompanionAbility } from './companion-abilities.mjs?v=clear-sparks-1';
+import { populateSceneProps, scenePropPolygons } from './scene-props.mjs?v=clear-sparks-1';
+import { pickupKind, getPickupSpec, pickupContactRadius, isFuelPickup, canCompanionCollect } from './pickups.mjs?v=clear-sparks-1';
+import { drawPickup } from './pickup-art.mjs?v=clear-sparks-1';
+import { buildBossLayout, getBossState as bossState, drawBoss } from './boss.mjs?v=clear-sparks-1';
+import { getAuthoredChallenge, finalizeFlightChallenges, installAuthoredDraftCrossings, FlightChallengeDirector } from './flight-challenges.mjs?v=clear-sparks-1';
+import { installEncounterFamily } from './encounter-families.mjs?v=clear-sparks-1';
+import { installFlightForks, resizeFlightForks } from './flight-forks.mjs?v=clear-sparks-1';
+import { ArtifactEffects } from './artifact-effects.mjs?v=clear-sparks-1';
+import { LIGHT_EXTENT,lightAttenuation,lightVisibility,createLightMaskCanvas,sceneRevealStrength } from './light-field.mjs?v=clear-sparks-1';
 import { createTutorialState, buildTutorialLayout, recordTutorialPickup,
-  updateTutorial, updateTutorialCompanion, getTutorialHint } from './tutorial.mjs?v=living-choices-2';
-export { FLAME_TUNING } from './vitality.mjs?v=living-choices-2';
+  updateTutorial, updateTutorialCompanion, getTutorialHint } from './tutorial.mjs?v=clear-sparks-1';
+export { FLAME_TUNING } from './vitality.mjs?v=clear-sparks-1';
 const TAU = Math.PI * 2;
 const STEP = 1 / 60;
 const COMPANION_ORBIT_SPEED = {protector:1.3,leveler:1.7,swift:3.4,seer:.8,kindler:2.2};
@@ -42,7 +42,7 @@ const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
 const lerp = (a, b, t) => a + (b - a) * t;
 export const FLIGHT_TUNING = Object.freeze({ gravity: 300, flapImpulse: 205,
   forwardSpeed: 154, terminalFall: 245, pickupRadius: LIGHT_PACKET_TUNING.pickupRadius });
-export { DRAFT_TUNING } from './drafts.mjs?v=living-choices-2';
+export { DRAFT_TUNING } from './drafts.mjs?v=clear-sparks-1';
 // Retain the public tuning name for consumers; wind now has no global cycle.
 export const WIND_TUNING = DRAFT_TUNING;
 
@@ -885,7 +885,7 @@ export class WispFlight {
 
   async initPixelView() {
     try {
-      const { WispFlightView } = await import('./wisp-renderer.mjs?v=living-choices-2');
+      const { WispFlightView } = await import('./wisp-renderer.mjs?v=clear-sparks-1');
       if (this.destroyed) return;
       this.pixiView = new WispFlightView(this);
       const initialized = await this.pixiView.init();
@@ -916,16 +916,16 @@ export class WispFlight {
   get abilityCooldown() { return Math.max(0, ...this.fleet.filter(item => !getCompanionAbility(item.role).passive).map(item => this.roleCooldown(item.role))); }
   get boostDuration() { return this.abilityDuration; }
   get boostCooldown() { return this.abilityCooldown; }
-  get maxFlame() { return clamp(Number(this.mod.maxGlow)||100,100,140); }
+  get maxFlame() { return clamp(Number(this.mod.maxGlow)||100,100,200); }
   get availableGlow() { return this.flame; }
   get condensedTotal() { return this.condensedStart+this.condensedGlow; }
   spendGlow(amount) { this.flame=Math.max(0,this.flame-Math.max(0,amount)); }
 
-  get flapCost() { return Math.max(1, Math.round(FLAME_TUNING.flapCost * this.flameDrain * clamp(Number(this.mod.flapCost) || 1, .3, 1.5) * 100) / 100); }
+  get flapCost() { return (Number.isFinite(this.mod.liftCostPoints)?Math.max(1,Math.round(this.mod.liftCostPoints)):Math.max(1,Math.round(3*(Number(this.mod.flapCost)||1))))/.3; }
   get completionProgress() { return clamp(this.completionAge / 1.5,0,1); }
 
   get dyingProgress() { return clamp(this.dyingAge / this.dyingDuration,0,1); }
-  get wingRate() { return this.boostTime > 0 ? 9 : this.availableGlow < this.flapCost && !this.dream?.freeGlow && !this.artifactEffects.freeLift ? .45 : 5.8; }
+  get wingRate() { return this.boostTime > 0 ? 9 : this.availableGlow + 1e-7 < this.flapCost && !this.dream?.freeGlow && !this.artifactEffects.freeLift ? .45 : 5.8; }
 
   loadImage(url, property) {
     if (!url || typeof Image === 'undefined') return;
@@ -1026,7 +1026,7 @@ export class WispFlight {
 
   flap() {
     if (!this.running || this.paused || this.finished || !this.alive || this.dying || this.completing) return false;
-    if (!this.dream?.freeGlow && !this.artifactEffects.freeLift && this.availableGlow < this.flapCost) {
+    if (!this.dream?.freeGlow && !this.artifactEffects.freeLift && this.availableGlow + 1e-7 < this.flapCost) {
       this.setEvent('Not enough Sparks · find a Spark'); this.notify();
       return false;
     }
@@ -1760,12 +1760,13 @@ export class WispFlight {
     }
     const cleansed = !ember.generated && this.lightPenalties.length > 0;
     if (cleansed) this.lightPenalties.pop();
-    const fuel = ember.generated ? FLAME_TUNING.generatedFuel
+    const rawFuel = ember.generated ? FLAME_TUNING.generatedFuel
       : spec.fuel
         + (kind==='cache'?(Number(this.mod.richFuelBonus)||0):0) + this.fuelBonus + clamp(Number(this.mod.cacheFuelBonus) || 0, 0, 32)
         + (ember.deliveredByWisp?(Number(this.mod.collectorFuelBonus)||0):0)
         + (!ember.deliveredByWisp&&(this.mod.mainKindler||this.hasCompanion('kindler'))?clamp(Number(this.mod.kindlerBonus)||(this.mod.mainKindler?6:10),0,30):0)
         + this.artifactEffects.fuelBonus(ember,spec);
+    const fuel=Math.round(rawFuel*.3)/.3;
     if(!ember.generated&&!ember.deliveredByWisp&&(this.mod.mainKindler||this.hasCompanion('kindler')))this.kindlerPulse=.9;
     let restored = Math.min(fuel, this.maxFlame - this.flame);
     this.flame += restored; this.flameRestored += restored;
@@ -1842,9 +1843,9 @@ export class WispFlight {
         ?this.flightChallenge.phase==='warning'?`${this.flightChallenge.name} ahead · ${this.flightChallenge.instruction}`
           :this.flightChallenge.phase==='active'?`${this.flightChallenge.name} · ${this.flightChallenge.instruction}`:'' :'',
       flame: this.flame,pickupOverflow:this.pickupOverflow,condensationFlow:{...this.condensationFlow},
-      dream:this.dream?.state||null, maxFlame: this.maxFlame, flapCost: this.dream?.freeGlow||this.artifactEffects.freeLift?0:this.flapCost,
-      canFlap: this.alive && !this.finished && !this.dying && !this.completing && (this.dream?.freeGlow||this.artifactEffects.freeLift||this.availableGlow >= this.flapCost),
-      canAffordFlap:this.dream?.freeGlow||this.artifactEffects.freeLift||this.availableGlow>=this.flapCost, flaps: this.flaps,
+      dream:this.dream?.state||null, maxFlame: this.maxFlame, paidFlapCost:this.flapCost, flapCost: this.dream?.freeGlow||this.artifactEffects.freeLift?0:this.flapCost,
+      canFlap: this.alive && !this.finished && !this.dying && !this.completing && (this.dream?.freeGlow||this.artifactEffects.freeLift||this.availableGlow + 1e-7 >= this.flapCost),
+      canAffordFlap:this.dream?.freeGlow||this.artifactEffects.freeLift||this.availableGlow+1e-7>=this.flapCost, flaps: this.flaps,
       artifactEffects:artifacts,artifactProc:artifacts.proc,artifactCharges:artifacts.charges,artifactNotices:artifacts.notices,
       wisp: this.getWispState(),
       ability, companions:this.getCompanionStates().map(item=>({...item})),shield:this.getShieldState(),leveler:this.getLevelerState(),
@@ -2002,7 +2003,7 @@ export class WispFlight {
     const f=fog.getContext('2d'),light=this.getLightState(),y=this.renderPlayerY??this.player.y;
     f.globalAlpha=1;f.globalCompositeOperation='source-over';f.clearRect(0,0,w,h);f.fillStyle='#000000';f.fillRect(0,0,w,h);
     f.globalCompositeOperation='destination-out';
-    const cast=(x,y,r,alpha)=>{f.globalAlpha=alpha;f.drawImage(this.fallbackMask,x-r,y-r,r*2,r*2);};
+    const cast=(x,y,r,alpha)=>{r*=LIGHT_EXTENT;f.globalAlpha=alpha;f.drawImage(this.fallbackMask,x-r,y-r,r*2,r*2);};
     cast(this.player.x,y,light.radius,light.intensity);
     const forward=light.forwardLight;
     if(forward.active)cast(forward.x,forward.y+y-this.player.y,forward.radius,forward.intensity*light.intensity);

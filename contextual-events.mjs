@@ -23,7 +23,7 @@ export function contextualEventChoices(run,nextFlights){
           `${effect} for your first attempt there. Commit to this exit${nextFlights.length>1?' and leave the other path':''}. If you fall, the fork reopens.`,
           {routePreparation:{nodeId:next.id,sourceNodeId:node.id,name:next.name,kind:wind?'wind':'sight'}});
       }),
-      choice('survey-offering','Keep the fork open','Collect 30 Sparks; excess condenses. Keep every reachable exit without a preparation.',{pickupGlow:30})
+      choice('survey-offering','Keep the fork open','Collect 40 Sparks; excess condenses. Keep every reachable exit without a preparation.',{pickupGlow:40})
     ];
   }
   return null;

@@ -1,14 +1,15 @@
-import {getGlowCapacity,GLOW_DISPLAY_SCALE} from './vitality.mjs?v=living-choices-2';
+import {getGlowCapacity,GLOW_DISPLAY_SCALE} from './vitality.mjs?v=clear-sparks-1';
 const clamp=v=>Math.max(0,Math.min(1,v));
-// Cells and gaps share one grid: a lit cell always represents one whole Sparks.
-export function glowGaugeUnits(flame,maximum=100){
- const max=Math.max(1,Number(maximum)||100),value=clamp((Number(flame)||0)/max)*max*GLOW_DISPLAY_SCALE;
- return {capacity:Math.max(1,Math.round(max*GLOW_DISPLAY_SCALE)),filled:Math.floor(value+1e-7),value:Math.round(value*100)/100};
+// A cell represents one paid Lift, even during a temporary free-Lift effect.
+export function glowGaugeUnits(flame,maximum=100,liftCost=10){
+ const max=Math.max(1,Number(maximum)||100),unit=Math.max(1,Number(liftCost)||10),amount=clamp((Number(flame)||0)/max)*max,lifts=amount/unit;
+ const filled=Math.floor(lifts+1e-7),fraction=Math.max(0,lifts-filled);
+ return {capacity:Math.ceil(max/unit-1e-7),filled,partial:Math.floor((fraction+1e-7)*4)/4,value:Math.round(amount*GLOW_DISPLAY_SCALE*100)/100,maxValue:Math.round(max*GLOW_DISPLAY_SCALE),unitCost:Math.round(unit*GLOW_DISPLAY_SCALE)};
 }
 function unitMarkup(state){return Array.from({length:state.capacity},(_,i)=>`<span class="glow-unit${i<state.filled?' lit':''}"></span>`).join('');}
 export function glowGaugeMarkup(run){
  const state=glowGaugeUnits(run.flame,getGlowCapacity(run));
- return `<div class="flame-hud glow-side-gauge glow-gauge-v3" aria-label="Spark meter" style="--glow-units:${state.capacity}"><div id="flame-meter" role="meter" aria-label="Sparks remaining" aria-valuemin="0" aria-valuemax="${state.capacity}" aria-valuenow="${state.value}" aria-valuetext="${state.value} of ${state.capacity} Sparks; each segment is 1 Sparks"><i id="flame-fill" aria-hidden="true">${unitMarkup(state)}</i></div></div>`;
+ return `<div class="flame-hud glow-side-gauge glow-gauge-v3" aria-label="Spark meter" style="--glow-units:${state.capacity}"><div id="flame-meter" role="meter" aria-label="Sparks remaining" aria-valuemin="0" aria-valuemax="${state.maxValue}" aria-valuenow="${state.value}" aria-valuetext="${state.value} of ${state.maxValue} Sparks; each segment is ${state.unitCost} Sparks, one Lift"><i id="flame-fill" aria-hidden="true">${unitMarkup(state)}</i></div></div>`;
 }
 function spill(gauge,gain,raw){
  const doc=gauge.ownerDocument,target=doc.querySelector('.flight-condensed-counter');if(!target)return;
@@ -44,15 +45,16 @@ export function updateGlowGauge(gauge,s){
  if(!gauge)return;
  const draining=(s.blackHole?.rate||0)>0;if(gauge._draining!==draining){gauge._draining=draining;gauge.classList.toggle('black-hole-drain',draining);}
  const refs=gauge._glowRefs||(gauge._glowRefs={fill:gauge.querySelector('#flame-fill'),meter:gauge.querySelector('#flame-meter')});
- const state=glowGaugeUnits(s.flame,s.maxFlame),ratio=clamp((Number(s.flame)||0)/(s.maxFlame||100));
- const key=state.value+'/'+state.capacity;
- if(gauge._label!==key){gauge._label=key;refs.meter.setAttribute('aria-valuenow',state.value);refs.meter.setAttribute('aria-valuemax',state.capacity);refs.meter.setAttribute('aria-valuetext',`${state.value} of ${state.capacity} Sparks; each segment is 1 Sparks`);}
+ const state=glowGaugeUnits(s.flame,s.maxFlame,s.paidFlapCost||s.flapCost||10),ratio=clamp((Number(s.flame)||0)/(s.maxFlame||100));
+ const key=state.value+'/'+state.capacity+'/'+state.unitCost;
+ if(gauge._label!==key){gauge._label=key;refs.meter.setAttribute('aria-valuenow',state.value);refs.meter.setAttribute('aria-valuemax',state.maxValue);refs.meter.setAttribute('aria-valuetext',`${state.value} of ${state.maxValue} Sparks; each segment is ${state.unitCost} Sparks, one Lift`);}
  if(gauge._capacity!==state.capacity){gauge._capacity=state.capacity;gauge.style.setProperty('--glow-units',state.capacity);refs.fill.innerHTML=unitMarkup(state);refs.units=Array.from(refs.fill.children);gauge._filled=state.filled;}
  if(gauge._filled!==state.filled){
   const from=Math.min(gauge._filled,state.filled),to=Math.max(gauge._filled,state.filled);
   for(let i=from;i<to;i++)refs.units[i]?.classList.toggle('lit',i<state.filled);
   gauge._filled=state.filled;
  }
+ const partial=refs.units?.[state.filled];if(gauge._partial&&gauge._partial!==partial)gauge._partial.classList.remove('partial');if(partial){partial.classList.toggle('partial',state.partial>0);partial.style.setProperty('--unit-fill',(state.partial*100)+'%');}gauge._partial=partial;
  gauge.classList.toggle('low-glow',ratio<=.2);gauge.classList.toggle('full-glow',state.filled===state.capacity);
  const earned=Math.max(0,Math.floor(s.condensedGlow||0)),gain=Math.max(0,earned-(gauge._lastEarned||0));gauge._lastEarned=earned;
  const flow=s.condensationFlow;if(flow&&flow.count!==gauge._flowCount){gauge._flowCount=flow.count;if(flow.count>0)spill(gauge,gain,flow.rawAmount||0);}
