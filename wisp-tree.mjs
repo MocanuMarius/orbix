@@ -1,6 +1,6 @@
-import {STARTING_EMBERS} from './vitality.mjs?v=pixel-landscape-1';
-import {SKILLS,MAIN_WISP_BRANCHES,isSkillRevealed,canChooseStartingSkill} from './model.mjs?v=pixel-landscape-1';
-import {treeHeader,treeCanvas,treeDetail,esc} from './living-tree.mjs?v=pixel-landscape-1';
+import {STARTING_EMBERS} from './vitality.mjs?v=pixel-landscape-2';
+import {SKILLS,MAIN_WISP_BRANCHES,isSkillRevealed,canChooseStartingSkill} from './model.mjs?v=pixel-landscape-2';
+import {treeHeader,treeCanvas,treeDetail,esc} from './living-tree.mjs?v=pixel-landscape-2';
 export function mainWispTreeMarkup({run,wallet,canBuy,selected='main-efficiency'}){
  let skill=SKILLS[selected];if(!skill||skill.branch!=='main')skill=SKILLS['main-efficiency'];
  let root=skill;while(root.requires&&SKILLS[root.requires]?.branch==='main')root=SKILLS[root.requires];

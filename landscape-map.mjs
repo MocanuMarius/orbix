@@ -1,5 +1,5 @@
-import {getChoices} from './model.mjs?v=pixel-landscape-1';
-import {getMapStopInfo,mapStopIconMarkup} from './map-guide.mjs?v=pixel-landscape-1';
+import {getChoices} from './model.mjs?v=pixel-landscape-2';
+import {getMapStopInfo,mapStopIconMarkup} from './map-guide.mjs?v=pixel-landscape-2';
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 export function drawLandscapeMap(svg,viewport,run){
  const width=run.map.length*166+140,height=276,all=run.map.flat(),byId=new Map(all.map(n=>[n.id,n]));
