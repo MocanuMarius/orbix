@@ -65,3 +65,10 @@ Phoenix/realistic 3D art → pixel neutral wisps. Portrait → landscape. Cards 
 ## Verdict
 
 Most surviving feature requests are implemented and deployed. The backlog is not fully closed: onboarding/legend consistency, a displayed cost defect, current-system balance coverage and real-device performance verification remain. No gameplay changes or redeployment were made during this audit.
+
+
+## Follow-up: skill-forge-1
+
+Skill trees now separate partial/full ownership from next-rank affordability with blue owned badges, gold plus signs, bronze prices, grey locks and a compact key. Deep unrevealed nodes remain dots. Artifact forging now yields fixed Packed Light without fuel/heart recovery and confirms consumption first. Home Continue/New Game are larger framed actions. The persistent 20:9 preview page fixes the sidebar returning to portrait after resizing.
+
+The evolving-artifact and in-flight-fork suggestions are still proposals. Current campaign economy and real Pixel 10 hitch traces remain open work; the salvage change has transaction checks, not a full rebalance.

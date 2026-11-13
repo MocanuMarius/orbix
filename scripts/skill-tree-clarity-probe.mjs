@@ -66,6 +66,14 @@ const collector=Object.values(SKILLS).filter(skill=>skill.branch==='collector');
 html=treeCanvas({...context(),skills:collector,selected:'collector-reach-step-1',action:'inspect-branch-skill',key:'collector'});
 assert.match(node(html,'collector-reach-step-2'),/data-tree-state="available"/,'A learned selected rank does not hide the next actionable rank');
 assert.equal(safeTreeSelection(collector,'collector-reach',context()).id,'collector-reach-step-2','A future rank cannot replace its current reachable shared marker');
+assert.match(node(html,'collector-reach-step-2'),/data-owned-ranks="1"/,'Owned ranks remain explicit while the next rank is affordable');
+const richWallet=state.run.condensedGlow;state.run.condensedGlow=0;
+const savingTree=treeCanvas({...context(),skills:collector,selected:'collector-reach-step-2',action:'inspect-branch-skill',key:'collector'});
+assert.match(node(savingTree,'collector-reach-step-2'),/data-tree-state="saving"/);
+assert.match(node(savingTree,'collector-reach-step-2'),/data-owned-ranks="1"/,'Losing affordability must not erase ownership');
+assert.match(savingTree,/bud-owned[^>]*>✓ 1\/3/);
+state.run.condensedGlow=richWallet;
+
 html=branchTreeMarkup({...context(),branch:'collector',selected:'collector-reach'});
 assert.ok(!inspector(html).includes('data-id="collector-reach"'),'Future rank slot is anonymous and noninteractive');
 assert.ok(inspector(html).includes('Future rank'));
@@ -84,7 +92,7 @@ assert.ok(html.includes('data-id="afterglow"'),'TEST can navigate to Condensatio
 assert.equal((html.match(/data-tree-state=/g)||[]).length,20,'TEST exposes all Light nodes');
 
 globalThis.innerWidth=900;globalThis.innerHeight=405;
-const layout=radialTreeLayout(light,{width:572,height:272.8}),points=[...layout.points.values()];
+const layout=radialTreeLayout(light,{width:572,height:248.8}),points=[...layout.points.values()];
 let minimum=Infinity;
 for(let i=0;i<points.length;i++)for(let j=i+1;j<points.length;j++)minimum=Math.min(minimum,Math.hypot(points[i].x-points[j].x,points[i].y-points[j].y));
 assert.ok(minimum>=50,'Full TEST Light tree preserves separation for 44px targets at 900×405');

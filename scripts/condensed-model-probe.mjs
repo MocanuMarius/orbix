@@ -56,11 +56,29 @@ for(let cycle=0;cycle<2;cycle++){
  assert.equal(workshop.run.securedCondensedGlow,0,'Refunded spending is not earned income');
  assert.equal(M.resolveSupport(workshop.run,0,workshop.profile),false,'The workshop cannot resolve twice');
 }
-const archive=state();archive.run.artifacts=['echo-vessel'];support(archive.run,5);
+const archive=state();archive.run.artifacts=['echo-vessel'];archive.run.flame=17;archive.run.lives=1;archive.run.condensedRemainder=.6;
+archive.run.skills['main-afterglow']=1;archive.run.skills['afterglow-vessel']=2;support(archive.run,5);
 const archiveOffer=M.getSupportChoices(archive.run,archive.profile)[0],archiveBefore=archive.run.condensedGlow;
-assert.equal(archiveOffer.glowPreview.condensedGlow,10,'Dissolving Prism Vessel removes its own conversion bonus');
-assert.ok(M.resolveSupport(archive.run,0,archive.profile));assert.equal(archive.run.condensedGlow-archiveBefore,archiveOffer.glowPreview.condensedGlow);
+assert.equal(archiveOffer.effect.salvagePackedLight,35,'Archive previews the fixed rare-artifact Packed Light payout');
+assert.equal(archiveOffer.glowPreview,undefined,'Forge is not a fuel pickup or overflow conversion');
+assert.ok(M.resolveSupport(archive.run,0,archive.profile));
+assert.equal(archive.run.condensedGlow-archiveBefore,35,'Neither the consumed artifact nor conversion skills multiply Forge payout');
+assert.equal(archive.run.flame,17,'Forge does not restore Glow');assert.equal(archive.run.lives,1,'Forge does not refill hearts');
+assert.equal(archive.run.condensedRemainder,.6,'Forge does not consume or add fractional pickup credit');
+assert.ok(!archive.run.artifacts.includes('echo-vessel'),'The offered artifact is consumed');
+assert.equal(M.settleCheckpoint(archive),0,'Archive Forge pays immediately, not a second time at settlement');
+assert.equal(M.resolveSupport(archive.run,0,archive.profile),false,'Archive cannot resolve twice');
+archive.run.restReady=true;assert.equal(M.sellArtifact(archive,'echo-vessel'),false,'A consumed artifact cannot be forged again at Rest');
+assert.equal(archive.run.condensedGlow,archiveBefore+35);
+for(const [id,value] of [['quiet-cinder',25],['echo-bell',35],['sunheart-engine',50]])for(const fuel of [0,100]){
+ const forge=state();forge.run.restReady=true;forge.run.artifacts=[id];forge.run.flame=fuel;forge.run.lives=1;
+ const before=forge.run.condensedGlow,step=forge.run.step;
+ assert.equal(M.getArtifactSalvageValue(id),value);assert.ok(M.sellArtifact(forge,id));
+ assert.equal(forge.run.condensedGlow,before+value,'Common/rare/boss payout is fixed at either empty or full Glow');
+ assert.equal(forge.run.flame,fuel);assert.equal(forge.run.lives,1);assert.equal(forge.run.step,step,'Forge does not consume the Rest choice');
+ assert.equal(M.sellArtifact(forge,id),false);assert.equal(forge.run.condensedGlow,before+value,'Repeated Forge action cannot duplicate currency');
+}
 const copied=state();launch(copied);M.finishFlight(copied.run,{success:true,flame:100,condensedGlow:9});
 M.saveState(copied,storage);const loadedOnce=M.loadState(storage),loadedTwice=M.loadState(storage);
 assert.equal(loadedOnce.run.condensedGlow,17);assert.equal(loadedTwice.run.condensedGlow,17,'Saved pending income settles once across repeated loads');
-console.log(JSON.stringify({baseConversion:'3 to 3',refinedConversion:'3 to 4',fractionalCredit:true,failedAttemptFarming:false,recoveryMints:false,rewardClaimOnce:true,practiceIsolation:true,currencySave:true,refundFarming:false,refundsNotIncome:true,salePreviewMatches:true,reloadSettlementOnce:true}));
+console.log(JSON.stringify({baseConversion:'3 to 3',refinedConversion:'3 to 4',fractionalCredit:true,failedAttemptFarming:false,recoveryMints:false,rewardClaimOnce:true,practiceIsolation:true,currencySave:true,refundFarming:false,refundsNotIncome:true,salePreviewMatches:true,forgeFixedRarityPayouts:[25,35,50],forgeChangesFuelOrHearts:false,forgeDoublePay:false,reloadSettlementOnce:true}));

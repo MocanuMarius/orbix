@@ -33,3 +33,63 @@
 @media(orientation:landscape) and (max-height:380px){
  .run-front-page{padding:10px 7vw 4px!important;row-gap:3px}.run-front-page .front-title h1{font-size:26px!important;margin:0}.run-front-page .front-title p{font-size:9px;margin:3px 0}.run-front-page .front-map-landmark{width:28px;height:28px;padding:2px}.run-front-page .front-map-landmark>svg{width:24px;height:24px}.run-front-page .front-map-path{padding-bottom:0}.run-front-page .run-checkpoint{padding:2px 0;margin-top:3px}.run-front-page .test-starter-picker{padding:3px!important}.run-front-page .test-starter-heading strong{font-size:11px}.run-front-page .test-starter-picker p{font-size:9px;line-height:1.3;margin:2px}.run-front-page .test-starter-options svg{width:24px!important;height:24px!important}.run-front-page .test-starter-options .starter-lock svg{width:9px!important;height:10px!important}
 }
+
+/* Landscape home: the play choices stay legible at a Pixel 10-sized viewport. */
+@media(orientation:landscape){
+ body[data-screen=home] .run-front-page{
+  height:calc(100dvh - 48px);min-height:calc(100dvh - 48px)!important;
+  grid-template-columns:minmax(0,1fr) minmax(280px,1.08fr);grid-template-rows:auto auto auto;
+  column-gap:clamp(24px,4vw,64px);row-gap:8px;
+  padding:24px max(52px,env(safe-area-inset-right)) 10px max(36px,env(safe-area-inset-left))!important;
+  align-content:center;align-items:center;
+ }
+ body[data-screen=home] .run-front-page:after{background:linear-gradient(90deg,#06121766,#06121733 38%,#061217b8 65%,#061217de),linear-gradient(0deg,#061217bb,transparent 65%)}
+ body[data-screen=home] .front-title h1{font:32px/1 var(--pixel)!important;letter-spacing:2px;color:#fff0c7}
+ body[data-screen=home] .front-title p{font:12px/1.2 var(--pixel);letter-spacing:1px;color:#c2d0b8;margin-top:6px}
+ body[data-screen=home] .run-front-page>.front-actions{max-width:430px!important;gap:10px;padding:0;align-self:center}
+ body[data-screen=home] .front-actions>.front-continue,
+ body[data-screen=home] .front-actions .front-new-button{
+  display:flex;justify-content:space-between;align-items:center;gap:12px;min-height:68px!important;margin:0!important;
+  padding:8px 16px;border:7px solid transparent!important;border-image:url('assets/shrine-frame.svg') 12 fill stretch!important;
+  background:#17342f!important;box-shadow:0 3px 0 #030c0e!important;color:#ecf2dc!important;
+  font:28px/1 var(--pixel)!important;letter-spacing:1px;text-align:left;text-shadow:2px 2px #071211;
+ }
+ body[data-screen=home] .front-actions .primary{color:#fff2bb!important;background:#344638!important;box-shadow:0 3px 0 #030c0e,0 0 20px #d6d38b20!important}
+ body[data-screen=home] .front-actions .primary:before,
+ body[data-screen=home] .front-actions .primary:after{display:none}
+ body[data-screen=home] .front-actions .front-arrow{display:block;width:24px;height:24px;flex:none;color:inherit}
+ body[data-screen=home] .front-actions button>span>small{display:block!important;font:12px/1.2 var(--pixel)!important;letter-spacing:.4px;color:#d4dec6;opacity:1;margin-top:5px}
+ body[data-screen=home] .front-actions>button:not(:disabled):hover,
+ body[data-screen=home] .front-actions .front-new-button:hover{filter:brightness(1.16);transform:none;background:#344638!important}
+ body[data-screen=home] .front-actions button:focus-visible{outline:3px solid #fff0b1;outline-offset:3px}
+ body[data-screen=home] .front-actions>.front-new-game{gap:3px;min-width:0}
+ body[data-screen=home] .front-actions .front-ascension-picker{min-height:44px;height:44px;margin:0!important;gap:13px}
+ body[data-screen=home] .front-ascension-picker>span{font:14px/1 var(--pixel)!important;letter-spacing:.5px;color:#dce5cb}
+ body[data-screen=home] .front-ascension-picker>span>b{font:19px/1 var(--pixel)!important;color:#fff0bc}
+ body[data-screen=home] .front-ascension-picker>button{width:44px;height:44px;min-width:44px;min-height:44px;border:1px solid #8a9b79;background:#132923;color:#e6eacb;font:25px/1 var(--pixel)}
+ body[data-screen=home] .front-actions>.front-tutorial{justify-content:space-between;min-height:48px!important;margin:0!important;padding:8px 16px;border:1px solid #789580!important;background:#0b2425df!important;color:#dcebd8!important;font:20px/1 var(--pixel)!important;text-align:left}
+ body[data-screen=home] .front-actions>.front-tutorial>small{display:block!important;color:#c5d8c6;font:12px/1 var(--pixel);opacity:1;margin-left:auto}
+ body[data-screen=home] .run-front-page>.test-starter-picker{max-width:380px;padding:6px 0 0!important;border-top:1px solid #a8b68b88}
+ body[data-screen=home] .test-starter-heading{display:flex;justify-content:space-between;align-items:center;gap:8px;margin:0 0 5px}
+ body[data-screen=home] .test-starter-heading small{font:11px/1.2 var(--pixel);letter-spacing:.5px;color:#cfddc4}
+ body[data-screen=home] .test-starter-heading strong{font:14px/1.2 var(--pixel);color:#fff0bc}
+ body[data-screen=home] .starter-roster .test-starter-options{gap:5px!important}
+ body[data-screen=home] .test-starter-options .test-starter-option{min-height:68px!important;padding:5px 2px!important;gap:3px;background:#0c2225e8;border-color:#779378}
+ body[data-screen=home] .test-starter-options .test-starter-option.selected{background:#38533ce8;border:2px solid #f3dfa2;box-shadow:inset 0 0 0 1px #11281c;color:#fff1c3}
+ body[data-screen=home] .test-starter-options .test-starter-option>svg{width:30px!important;height:30px!important}
+ body[data-screen=home] .test-starter-options .test-starter-option>span{font:13px/1.05 var(--pixel)!important;color:inherit}
+ body[data-screen=home] .test-starter-picker .starter-lock{font:10px/1 var(--pixel);color:#e0e6d2}
+ body[data-screen=home] .test-starter-picker p{font:11px/1.25 var(--pixel)!important;color:#c3d4ba;margin:5px 0 0;min-height:0}
+ body[data-screen=home] #app>.test-controls{height:48px;margin:0!important;padding:0;justify-content:center}
+ body[data-screen=home] #app>.test-controls>button{min-height:44px;padding:7px 14px;font:12px/1 var(--pixel)}
+}
+@media(orientation:landscape) and (max-height:380px){
+ body[data-screen=home] .run-front-page{padding-top:10px!important;padding-bottom:4px!important;row-gap:5px}
+ body[data-screen=home] .front-title h1{font-size:27px!important}
+ body[data-screen=home] .front-title p{font-size:10px;margin-top:4px}
+ body[data-screen=home] .run-front-page>.front-actions{gap:6px}
+ body[data-screen=home] .front-actions>.front-continue,body[data-screen=home] .front-actions .front-new-button{min-height:58px!important;font-size:25px!important;padding:5px 12px}
+ body[data-screen=home] .test-starter-options .test-starter-option{min-height:58px!important;padding:3px 2px!important}
+ body[data-screen=home] .test-starter-options .test-starter-option>svg{width:25px!important;height:25px!important}
+ body[data-screen=home] .test-starter-picker p{font-size:10px!important;margin-top:3px}
+}

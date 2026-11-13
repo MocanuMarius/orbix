@@ -1,4 +1,4 @@
-import { obstacleEdgeClearance } from './edging-pulse.mjs?v=combo-craft-1';
+import { obstacleEdgeClearance } from './edging-pulse.mjs?v=skill-forge-1';
 
 // Rates are internal flight Glow. The HUD displays 0.3 of these units: a
 // 40-unit pass costs about 10 Glow/s, a 100-unit pass about 1.6 Glow/s.

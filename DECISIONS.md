@@ -763,3 +763,14 @@ Focused checks passed for four-role selection and locks, route deaths and reward
 3. Route and economic tradeoffs worth planning: fix the 18/28-Ember cash option versus 40-Ember artifact resale, vary route recipes and advertise reward themes while preserving the known next flight needed for Dream.
 
 Reference: Mega Crit's official Slay the Spire overview (https://www.megacrit.com/press-kits/slay-the-spire/) and its GDC balance presentation (https://media.gdcvault.com/gdc2019/presentations/Giovannetti_Anthony_SlayTheSpire.pdf). These priorities are design recommendations, not proven balance outcomes.
+
+
+## Skill ownership, Forge and durable landscape preview — 13 November 2026
+
+Ownership and next-rank affordability are independent: blue checks/filled ranks show learned perks, gold plus signs show purchases affordable now, bronze prices show reachable but unaffordable perks, and grey locks show unmet prerequisites. A partially learned multi-rank perk keeps a blue owned count and learned connecting path even when its next rank cannot be bought. Selection is a neutral outline. Deep undiscovered branches remain anonymous.
+
+The proposed reroll forge is replaced by artifact salvage. Consume an owned common/rare/boss artifact for a fixed 25/35/50 Packed Light, directly spendable on run skills. Show the exact artifact and payout before confirmation, including permanent collection removal when applicable. No Glow fill, heart restoration, Condensation multiplier, or rest-boon consumption. No TEST catalog farming. Reward-screen Glow offerings remain their existing separate choice. Defining artifact evolutions and authored in-flight forks remain proposals, not implemented in this batch.
+
+A dedicated preview.html embeds the actual game at 900×405 and scales it to fit the host panel. This survives tall sidebar resizing without a portrait rotation gate; actual phone play continues at the normal index URL. Larger framed Continue/New Game actions, visible Tutorial, and larger companion labels improve the landscape home screen.
+
+Verification covers skill disclosure and rank ownership, fixed salvage accounting/duplicate-sale rejection, and actual landscape browser rendering. It is not a new campaign balance sweep or Pixel 10 hardware benchmark.

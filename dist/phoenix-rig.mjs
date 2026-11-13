@@ -1,5 +1,5 @@
-import * as PIXI from './vendor/pixi.mjs?v=combo-craft-1';
-import { PhoenixMotion, deformWing, deformTail } from './phoenix-motion.mjs?v=combo-craft-1';
+import * as PIXI from './vendor/pixi.mjs?v=skill-forge-1';
+import { PhoenixMotion, deformWing, deformTail } from './phoenix-motion.mjs?v=skill-forge-1';
 
 export class PhoenixRig {
   constructor(texture) {
