@@ -1,5 +1,5 @@
 import * as THREE from './vendor/three.mjs';
-import { PhoenixMotion } from './phoenix-motion.mjs';
+import { PhoenixMotion } from './phoenix-motion.mjs?v=balance-health-1';
 
 const TAU = Math.PI * 2;
 const clamp = (value, lo, hi) => Math.min(hi, Math.max(lo, value));

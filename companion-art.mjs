@@ -1,4 +1,4 @@
-import { normalizeCompanionRole } from './companion-abilities.mjs';
+import { normalizeCompanionRole } from './companion-abilities.mjs?v=balance-health-1';
 
 const PALETTES = Object.freeze({
   collector: Object.freeze({ outer: '#658557', mid: '#8db778', core: '#b9dfa0', bright: '#efffe0' }),

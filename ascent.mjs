@@ -1,4 +1,6 @@
 // Five flights per map; the campaign difficulty tier is a separate value.
+// The authored difficulty curve tops out here. Do not unlock identical tiers.
+export const MAX_ASCENSION = 6;
 const ROW_LEVELS = [1, 2, 2, 3, 4, 4, 5];
 const GAP_SCALES = [1, .97, .94, .91, .88];
 const GAP_REDUCTIONS = [0, .03, .06, .09, .12];
