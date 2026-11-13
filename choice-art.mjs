@@ -1,4 +1,4 @@
-import {artifactIcon} from './upgrade-icons.mjs?v=collector-orbit-1';
+import {artifactIcon} from './upgrade-icons.mjs?v=gentler-opening-1';
 
 // Original, small world illustrations. Pixel light is layered geometry rather
 // than SVG blur; motion is bounded CSS, never another animation-frame loop.

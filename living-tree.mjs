@@ -1,10 +1,10 @@
-import {resourceSymbol} from './game-symbols.mjs?v=collector-orbit-1';
-import {getCompanionAbility} from './companion-abilities.mjs?v=collector-orbit-1';
-import {glowText,getGlowCapacity} from './vitality.mjs?v=collector-orbit-1';
-import {SKILLS} from './model.mjs?v=collector-orbit-1';
-import {skillIcon} from './upgrade-icons.mjs?v=collector-orbit-1';
-import {companionArtSvg} from './companion-art.mjs?v=collector-orbit-1';
-import {skillTreeState,safeTreeSelection,skillTreeStatus} from './skill-tree-state.mjs?v=collector-orbit-1';
+import {resourceSymbol} from './game-symbols.mjs?v=gentler-opening-1';
+import {getCompanionAbility} from './companion-abilities.mjs?v=gentler-opening-1';
+import {glowText,getGlowCapacity} from './vitality.mjs?v=gentler-opening-1';
+import {SKILLS} from './model.mjs?v=gentler-opening-1';
+import {skillIcon} from './upgrade-icons.mjs?v=gentler-opening-1';
+import {companionArtSvg} from './companion-art.mjs?v=gentler-opening-1';
+import {skillTreeState,safeTreeSelection,skillTreeStatus} from './skill-tree-state.mjs?v=gentler-opening-1';
 export const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const lockIcon='<svg class="bud-lock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><rect x="6" y="10" width="12" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3M12 14v3"/></svg>';
 const stateKey=`<div class="tree-state-key" aria-label="Skill states"><span class="learned"><i aria-hidden="true">✓</i> Owned</span><span class="available"><i aria-hidden="true">+</i> Can learn</span><span class="saving"><i aria-hidden="true"></i> Need light</span><span class="locked"><i aria-hidden="true">${lockIcon}</i> Locked</span></div>`;

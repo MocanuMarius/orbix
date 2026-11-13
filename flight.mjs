@@ -1,40 +1,40 @@
-import { updateGuardian, drawGuardianWarnings } from './guardian-effects.mjs?v=collector-orbit-1';
-import {drawProximityMeter} from './proximity-meter.mjs?v=collector-orbit-1';
-import {FlightProjection,drawFlightProjection} from './flight-projection.mjs?v=collector-orbit-1';
-import {drawGlowSense} from './glow-sense.mjs?v=collector-orbit-1';
-import {formatGlow} from './vitality.mjs?v=collector-orbit-1';
-import {installRiskChains} from './risk-chains.mjs?v=collector-orbit-1';
-import {EXTRA_COURSES} from './world-expansion.mjs?v=collector-orbit-1';
-import {BIOME_COURSES} from './biome-courses.mjs?v=collector-orbit-1';
-import {BiomeDynamics} from './biome-dynamics.mjs?v=collector-orbit-1';
-import {condenseGlow} from './condensed-glow.mjs?v=collector-orbit-1';
-import {ensureGlowBudget} from './glow-budget.mjs?v=collector-orbit-1';
-import {EdgingPulse} from './edging-pulse.mjs?v=collector-orbit-1';
-import {isVowBodyPickup} from './contextual-events.mjs?v=collector-orbit-1';
-import {BlackHoles} from './black-holes.mjs?v=collector-orbit-1';
-import {drawBlackHoles} from './black-hole-art.mjs?v=collector-orbit-1';
+import { updateGuardian, drawGuardianWarnings } from './guardian-effects.mjs?v=gentler-opening-1';
+import {drawProximityMeter} from './proximity-meter.mjs?v=gentler-opening-1';
+import {FlightProjection,drawFlightProjection} from './flight-projection.mjs?v=gentler-opening-1';
+import {drawGlowSense} from './glow-sense.mjs?v=gentler-opening-1';
+import {formatGlow} from './vitality.mjs?v=gentler-opening-1';
+import {installRiskChains} from './risk-chains.mjs?v=gentler-opening-1';
+import {EXTRA_COURSES} from './world-expansion.mjs?v=gentler-opening-1';
+import {BIOME_COURSES} from './biome-courses.mjs?v=gentler-opening-1';
+import {BiomeDynamics} from './biome-dynamics.mjs?v=gentler-opening-1';
+import {condenseGlow} from './condensed-glow.mjs?v=gentler-opening-1';
+import {ensureGlowBudget} from './glow-budget.mjs?v=gentler-opening-1';
+import {EdgingPulse} from './edging-pulse.mjs?v=gentler-opening-1';
+import {isVowBodyPickup} from './contextual-events.mjs?v=gentler-opening-1';
+import {BlackHoles} from './black-holes.mjs?v=gentler-opening-1';
+import {drawBlackHoles} from './black-hole-art.mjs?v=gentler-opening-1';
 /* Emberwing's self-contained canvas flight simulation and renderer. */
-import { FLAME_TUNING, LIGHT_PACKET_TUNING } from './vitality.mjs?v=collector-orbit-1';
-import { flightEndDistance } from './flight-end.mjs?v=collector-orbit-1';
-import {getExitLandmarkState,drawExitLandmark} from './exit-landmark.mjs?v=collector-orbit-1';
-import { WispCompanion, wispHome } from './wisp.mjs?v=collector-orbit-1';
-import { getAscentInfo } from './ascent.mjs?v=collector-orbit-1';
-import { LEVEL_LENGTH, getLevelLengthScale } from './level-length.mjs?v=collector-orbit-1';
-import { resolveLevelIdentity } from './level-catalog.mjs?v=collector-orbit-1';
-import { DraftField, DRAFT_TUNING } from './drafts.mjs?v=collector-orbit-1';
-import { normalizeCompanionRole, normalizeCompanionFleet, getCompanionAbility } from './companion-abilities.mjs?v=collector-orbit-1';
-import { populateSceneProps, scenePropPolygons } from './scene-props.mjs?v=collector-orbit-1';
-import { pickupKind, getPickupSpec, pickupContactRadius, isFuelPickup, canCompanionCollect } from './pickups.mjs?v=collector-orbit-1';
-import { drawPickup } from './pickup-art.mjs?v=collector-orbit-1';
-import { buildBossLayout, getBossState as bossState, drawBoss } from './boss.mjs?v=collector-orbit-1';
-import { getAuthoredChallenge, finalizeFlightChallenges, installAuthoredDraftCrossings, FlightChallengeDirector } from './flight-challenges.mjs?v=collector-orbit-1';
-import { installEncounterFamily } from './encounter-families.mjs?v=collector-orbit-1';
-import { installFlightForks, resizeFlightForks } from './flight-forks.mjs?v=collector-orbit-1';
-import { ArtifactEffects } from './artifact-effects.mjs?v=collector-orbit-1';
-import { LIGHT_EXTENT,lightAttenuation,lightVisibility,createLightMaskCanvas,sceneRevealStrength } from './light-field.mjs?v=collector-orbit-1';
+import { FLAME_TUNING, LIGHT_PACKET_TUNING } from './vitality.mjs?v=gentler-opening-1';
+import { flightEndDistance } from './flight-end.mjs?v=gentler-opening-1';
+import {getExitLandmarkState,drawExitLandmark} from './exit-landmark.mjs?v=gentler-opening-1';
+import { WispCompanion, wispHome } from './wisp.mjs?v=gentler-opening-1';
+import { getAscentInfo } from './ascent.mjs?v=gentler-opening-1';
+import { LEVEL_LENGTH, getLevelLengthScale } from './level-length.mjs?v=gentler-opening-1';
+import { resolveLevelIdentity } from './level-catalog.mjs?v=gentler-opening-1';
+import { DraftField, DRAFT_TUNING } from './drafts.mjs?v=gentler-opening-1';
+import { normalizeCompanionRole, normalizeCompanionFleet, getCompanionAbility } from './companion-abilities.mjs?v=gentler-opening-1';
+import { populateSceneProps, scenePropPolygons } from './scene-props.mjs?v=gentler-opening-1';
+import { pickupKind, getPickupSpec, pickupContactRadius, isFuelPickup, canCompanionCollect } from './pickups.mjs?v=gentler-opening-1';
+import { drawPickup } from './pickup-art.mjs?v=gentler-opening-1';
+import { buildBossLayout, getBossState as bossState, drawBoss } from './boss.mjs?v=gentler-opening-1';
+import { getAuthoredChallenge, finalizeFlightChallenges, installAuthoredDraftCrossings, FlightChallengeDirector } from './flight-challenges.mjs?v=gentler-opening-1';
+import { installEncounterFamily } from './encounter-families.mjs?v=gentler-opening-1';
+import { installFlightForks, resizeFlightForks } from './flight-forks.mjs?v=gentler-opening-1';
+import { ArtifactEffects } from './artifact-effects.mjs?v=gentler-opening-1';
+import { LIGHT_EXTENT,lightAttenuation,lightVisibility,createLightMaskCanvas,sceneRevealStrength } from './light-field.mjs?v=gentler-opening-1';
 import { createTutorialState, buildTutorialLayout, recordTutorialPickup,
-  updateTutorial, updateTutorialCompanion, getTutorialHint } from './tutorial.mjs?v=collector-orbit-1';
-export { FLAME_TUNING } from './vitality.mjs?v=collector-orbit-1';
+  updateTutorial, updateTutorialCompanion, getTutorialHint } from './tutorial.mjs?v=gentler-opening-1';
+export { FLAME_TUNING } from './vitality.mjs?v=gentler-opening-1';
 const TAU = Math.PI * 2;
 const STEP = 1 / 60;
 const COMPANION_ORBIT_SPEED = {protector:1.3,leveler:1.7,swift:3.4,seer:.8,kindler:2.2};
@@ -44,7 +44,7 @@ const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
 const lerp = (a, b, t) => a + (b - a) * t;
 export const FLIGHT_TUNING = Object.freeze({ gravity: 300, flapImpulse: 205,
   forwardSpeed: 154, terminalFall: 245, pickupRadius: LIGHT_PACKET_TUNING.pickupRadius });
-export { DRAFT_TUNING } from './drafts.mjs?v=collector-orbit-1';
+export { DRAFT_TUNING } from './drafts.mjs?v=gentler-opening-1';
 // Retain the public tuning name for consumers; wind now has no global cycle.
 export const WIND_TUNING = DRAFT_TUNING;
 
@@ -420,7 +420,7 @@ export function buildFlightLayout({ seed = 1, terrain = 'ruins', elite = false,
         baseGap * ascent.hardGapScale) : baseGap;
       const obstacle = {
         id: index, x, width, center,
-        gap:Math.min(height*.68,gap*(gentleOpening?1.20:!elite&&difficulty===1?(mapIndex===0?1.20:1.10):1)), phase: rng() * TAU, pattern: `${identity.scene}-${form}`,
+        gap:gentleOpening?Math.min(height*.72,Math.max(height*.40,gap*1.35)):Math.min(height*.68,gap*(!elite&&difficulty===1?(mapIndex===0?1.20:1.10):1)), phase: rng() * TAU, pattern: `${identity.scene}-${form}`,
         motion: terrain === 'canopy' && !gentleOpening ? height * (tight ? .003 : .008) : 0,
         soft: terrain === 'canopy' && form === 'thorn',
         destroyed: false, hit: false, passed: false,
@@ -751,6 +751,8 @@ export class WispFlight {
     this.bossEncounter = !this.tutorial && route.boss === true;
     this.ascentInfo = getAscentInfo(route, Boolean(this.tutorial));
     this.openingSpeedScale=!this.tutorial&&!this.bossEncounter&&!this.elite&&this.ascentInfo.difficulty===1&&Number(route.mapIndex||0)===0?.92:1;
+    this.easyOpening=!this.tutorial&&!this.bossEncounter&&!this.elite&&this.ascentInfo.difficulty===1&&Number(route.mapIndex||0)===0&&Number(route.row||0)<=2;
+    if(this.easyOpening){this.duration=Math.max(30,this.duration*.65);this.openingSpeedScale=.85;}
     this.tutorialAwaitingLift = Boolean(this.tutorial);
     this.passage = ['open', 'cavern', 'gauntlet'].includes(route.passage) ? route.passage : 'open';
     this.fuelCadence = clamp(Number(route.fuelCadence) || 3, 2, 4);
@@ -763,6 +765,8 @@ export class WispFlight {
       boostCooldown: 1, boostDuration: 1, reward: 1, cacheFuelBonus: 0,
       warmCore: false, windSensitivity: 1, flapCost: 1, steady: false, ...options.modifiers };
     this.onboardingPlan=this.mod.onboardingPlan?.enabled?{...this.mod.onboardingPlan}:null;
+    // Intro difficulty belongs to the route, not tutorial memory or TEST state.
+    if(this.easyOpening)this.onboardingPlan={...(this.onboardingPlan||{}),enabled:true,gentleOpening:true,drafts:false,interactiveScenery:false,specialSparks:false,badSparks:false,blackHoles:false};
     this.fleet = [{role:this.companionRole,remaining:0,cooldown:0,startedAt:-1000}];
     this.hasActiveCompanions = !this.companionAbility.passive;
     this.shield = { charges: this.hasCompanion('protector') ? clamp(Math.round(Number(this.mod.protectorLayers) || 1), 1, 2) : 0,
@@ -903,7 +907,7 @@ export class WispFlight {
 
   async initPixelView() {
     try {
-      const { WispFlightView } = await import('./wisp-renderer.mjs?v=collector-orbit-1');
+      const { WispFlightView } = await import('./wisp-renderer.mjs?v=gentler-opening-1');
       if (this.destroyed) return;
       this.pixiView = new WispFlightView(this);
       const initialized = await this.pixiView.init();

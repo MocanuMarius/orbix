@@ -1,8 +1,8 @@
-import {menuWorldMarkup} from './menu-world.mjs?v=collector-orbit-1';
-import {formatGlow,getGlowCapacity} from './vitality.mjs?v=collector-orbit-1';
-import {livesMarkup} from './lives.mjs?v=collector-orbit-1';
-import { COMPANION_ABILITIES } from './companion-abilities.mjs?v=collector-orbit-1';
-import { companionArtSvg } from './companion-art.mjs?v=collector-orbit-1';
+import {menuWorldMarkup} from './menu-world.mjs?v=gentler-opening-1';
+import {formatGlow,getGlowCapacity} from './vitality.mjs?v=gentler-opening-1';
+import {livesMarkup} from './lives.mjs?v=gentler-opening-1';
+import { COMPANION_ABILITIES } from './companion-abilities.mjs?v=gentler-opening-1';
+import { companionArtSvg } from './companion-art.mjs?v=gentler-opening-1';
 
 const esc = value => String(value ?? '').replace(/[&<>"']/g, char =>
   ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[char]));
