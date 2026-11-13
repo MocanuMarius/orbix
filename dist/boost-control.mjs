@@ -31,7 +31,7 @@ export function updateBoostControl(element,state={}){
     mode=charge>=.999?'ready':'cooling';meaning='Protector shield recovery';
   }else{
     const kindler=state.companions?.find(item=>item.role==='kindler');
-    charge=clamp(1-finite(kindler?.purifyCooldown)/10);mode=charge>=.999?'ready':'cooling';meaning='Kindler works automatically';
+    charge=clamp(1-finite(kindler?.purifyCooldown)/Math.max(1,finite(kindler?.purifyCooldownTotal,10)));mode=charge>=.999?'ready':'cooling';meaning='Kindler works automatically';
   }
   if(disabled)mode=ended?'ended':paused?'paused':'waiting';
   if(ended)charge=0;

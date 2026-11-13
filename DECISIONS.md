@@ -511,3 +511,15 @@ Reaching the refuge now enters a protected 1.5-second completion animation inste
 ## Smaller pickups and orbit absorption
 
 All seven pickup contact radii and their visible rings are now 80% of their previous size. On body contact or Collector interception the ring shatters into a bounded 18 fading pixel fragments (6 reduced-motion). The carried/absorbed packet renders only its inner body; it has no collection halo or active hitbox. The 1.35-second absorption holds an orbit for 3.15 full revolutions before the final inward spiral. Rewards still apply immediately; animation does not delay fuel rescue. Reduced-motion mode retains a direct contraction. Renderer probe verified 3.15 visible orbits before collapse; collision/rescue checks passed.
+
+## Deeper skill paths and provisional balance
+
+Added 36 one-time named specialisations: 24 companion nodes and 12 main-wisp nodes. Every existing companion style now forks again into two distinct tradeoffs, giving four deep endpoints per companion. Main-wisp specialisations gain two further choices, revealed after learning their parent. Expanded companion trees can pan horizontally without shrinking touch targets.
+
+Early attunement costs 20 Embers; optional Deep Spark costs 35; intermediate companion improvements cost 40; style forks and deeper forks cost 65. A full companion path costs 150 (Collector/Kindler) or 190 (other roles), excluding optional mastery. A main path costs 130 after its free starting root. Life-cap costs and companion-slot costs remain competing purchases. Companion intermediate improvements are one-time steps, not repeatable stat allocation.
+
+New mechanics include Collector fuel yield/minimum recovering radius, longer Protector separation, Leveler/Swift/Seer duration/recharge tradeoffs and variable Kindler purification yield/recovery. New companion-specific bonuses and penalties only apply while that companion is equipped. TEST fork replacement recursively removes obsolete descendants.
+
+Found and fixed a pre-existing touch bug: the global button active transform displaced absolutely positioned tree nodes on press. Nodes now retain their centred transform while pressed. Verified touch selection and purchasing Rich Cargo through the UI.
+
+Balance evidence: all 24 companion paths have legal prerequisites and exclusive endpoints; 2,880 companion/main/single-artifact modifier combinations stayed within checked bounds. Three actual campaign-transition traces with synthetic pickup incomes of 0/12/24 Embers per cleared flight yielded 792/1008/1224 total Embers and first-Rest budgets of 40/52/64. These are conditional-clear economy checks, not human survival simulations or proof of equal companion win rates. Full flight balance/thermal benchmarking was not repeated. Local report exported as Wispbound-skill-tree-balance.json.
