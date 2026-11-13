@@ -1,6 +1,17 @@
 // Main-wisp paths favour distinct decisions over repeated identical ranks.
 const node=(id,name,cost,requires,description,icon,shortEffect,extra={})=>({id,name,branch:'main',cost,maxRank:1,requires,description,consequence:description,icon,shortEffect,...extra});
 export const MAIN_TUNING_SKILLS={
+ 'main-dream':node('main-dream','Dream',35,'main-sight','At a Rest, rehearse the next flight’s first 4 seconds freely. Preset a successful opening to replay without Lift or sustain cost.','dream','Dream 4s'),
+ 'main-dream-long':node('main-dream-long','Long Dream',40,'main-dream','Extend rehearsals and preset playback to 6 seconds.','dream','Dream 6s'),
+ 'main-dream-deep':node('main-dream-deep','Deep Dream',55,'main-dream-long','Extend rehearsals and preset playback to 8 seconds.','dream','Dream 8s'),
+ 'main-dream-wake':node('main-dream-wake','Gentle Awakening',30,'main-dream','After waking and tapping to resume, ease back to full speed over 3 seconds.','dream','Soft wake'),
+ 'main-dream-sight':node('main-dream-sight','Lucid Sight',35,'main-dream','See farther during Dream rehearsals to plan your opening.','sight','Lucid sight'),
+ 'main-recovery':node('main-recovery','Renewal',30,'main-efficiency','Recover 5% more maximum Glow after each flight: 55% total.','recovery','+5% recovery'),
+ 'main-recovery-deep':node('main-recovery-deep','Deep Renewal',45,'main-recovery','Recover another 5% maximum Glow after each flight: 60% total.','recovery','+5% recovery'),
+ 'main-recovery-rescue':node('main-recovery-rescue','Last Spark',40,'main-recovery','Finish below 20% Glow to recover an extra 10% of maximum Glow.','recovery','Low Glow aid'),
+ 'main-recovery-challenge':node('main-recovery-challenge','Earned Rest',40,'main-recovery','Completing the optional flight challenge restores an extra 10% maximum Glow.','recovery','Challenge +10%'),
+ 'main-afterglow':node('main-afterglow','Afterglow',35,'main-efficiency','Unlock a 30 Glow reserve. Excess victory recovery becomes Afterglow, spent before your Glow during flight.','reserve','Overflow reserve'),
+ 'main-glow-sense':node('main-glow-sense','Glow Sense',40,'main-sight','Faint glimmers at the forward edge of your light hint at the height of approaching Glow and other boons. They fade as pickups become visible.','beacon','Boon sense'),
  'main-drift-sense':node('main-drift-sense','Drift Sense I',40,'main-speed','A faint guide previews the next 0.7s if you release Lift and let gravity carry you. Accounts for drafts and your build.','trajectory','0.7s guide'),
  'main-drift-sense-2':node('main-drift-sense-2','Drift Sense II',55,'main-drift-sense','Extend the no-Lift guide to 1.2s. Plan your descent toward fuel lights.','trajectory','1.2s guide'),
  'main-drift-sense-3':node('main-drift-sense-3','Drift Sense III',75,'main-drift-sense-2','See up to 1.8s ahead, with a faint wisp marking the first predicted contact or the end of the guide.','trajectory','1.8s + echo'),

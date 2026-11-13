@@ -1,4 +1,6 @@
 const shapes={
+ dream:'<path d="M2 8l4 4 4 2h4l4-2 4-4M4 12l-3 3m7 0-1 4m6-3v5m6-7 2 4M15 2h2v2h-2z"/>',
+ beacon:'<path d="M3 4v4m0 8v4M7 6v4m0 4v4M11 9v6M16 10h4v4h-4zM18 4v3m0 10v3M22 12h2"/>',
  trajectory:'<circle cx="4" cy="5" r="2"/><path d="M8 5h3m3 2 2 2m2 3 1 3m1 3v3M15 21h8"/>',
  heart:'<path d="M3 2h5v3h8V2h5v3h2v9h-3v3h-3v3h-3v2h-4v-2H7v-3H4v-3H1V5h2z"/>',
  bond:'<path d="M2 10h6v6H2zM16 10h6v6h-6zM9 2h6v6H9zM8 13h8M12 8v5"/>',
@@ -25,4 +27,4 @@ const shapes={
 const inks={main:'#e5e9cf',collector:'#b9dfa0',protector:'#8fbfe8',leveler:'#a7e8df',swift:'#f2d48e',seer:'#d3b1f2',kindler:'#e4a3b5',afterglow:'#b8d9ae'};
 const svg=(shape,ink)=>`<svg class="upgrade-glyph" viewBox="0 0 24 24" fill="none" stroke="${ink}" stroke-width="1.5" stroke-linecap="square" stroke-linejoin="miter" shape-rendering="crispEdges" aria-hidden="true">${shapes[shape]||shapes.fuel}</svg>`;
 export function skillIcon(skill){const id=skill.incrementBase||skill.id;const shape=skill.icon||(id==='main-spare-spark'||id==='main-deep-reserve'?'heart':id.includes('bond')?'bond':id.includes('speed')||id.includes('tailwind')?'swift':id.includes('horizon')||id.includes('dawn')?'sight':id.includes('drift')?'feather':id.includes('efficiency')||id==='main-lift'?'lift':id.includes('purify')?'purify':id.includes('dive')?'dive':id.includes('layers')?'layers':id.includes('steadiness')?'level':id.includes('duration')?'duration':id.includes('recovery')?'recovery':id.includes('resistance')?'wind':id.includes('reach')?'reach':id.includes('sight')||id.includes('range')?'sight':id.startsWith('protector')?'ward':id.startsWith('afterglow')?'reserve':'fuel');return svg(shape,inks[skill.branch]||inks.main)}
-export function artifactIcon(id){const shape={'ember-lens':'sight','quiet-cinder':'fuel','silver-feather':'feather','moss-heart':'moss','wayfinder-seed':'seed','iron-petal':'ward','storm-knot':'wind','hollow-bell':'bell','dawn-thread':'dawn'}[id];return svg(shape||'reserve','#d9c08e')}
+export function artifactIcon(id){const shape={'dreamcatcher':'dream','second-dawn':'dawn','echo-vessel':'reserve','glass-lantern':'fuel','night-gardener':'moss','ember-lens':'sight','quiet-cinder':'fuel','silver-feather':'feather','moss-heart':'moss','wayfinder-seed':'seed','iron-petal':'ward','storm-knot':'wind','hollow-bell':'bell','dawn-thread':'dawn'}[id];return svg(shape||'reserve','#d9c08e')}

@@ -1,6 +1,6 @@
-import { LIGHT_PACKET_TUNING } from './vitality.mjs?v=drift-sense-1';
-import { getCompanionAbility } from './companion-abilities.mjs?v=drift-sense-1';
-import { pickupKind, pickupContactRadius, canCompanionCollect } from './pickups.mjs?v=drift-sense-1';
+import { LIGHT_PACKET_TUNING } from './vitality.mjs?v=dream-paths-1';
+import { getCompanionAbility } from './companion-abilities.mjs?v=dream-paths-1';
+import { pickupKind, pickupContactRadius, canCompanionCollect } from './pickups.mjs?v=dream-paths-1';
 
 const clamp = (value, lo, hi) => Math.min(hi, Math.max(lo, value));
 export const WISP_TUNING = Object.freeze({ range: 105, cooldown: 5, lightRadius: 175,
@@ -30,6 +30,7 @@ export class WispCompanion {
     this.orbitHome = {x:home.x,y:home.y};
     this.leg = null; this.lastDistance = null; this.scrollSpeed = 0;
     this.history = []; this.clock = 0;
+    this.contacts = []; this.contactTimes = new Map();
   }
 
   range(engine) {
@@ -130,6 +131,7 @@ export class WispCompanion {
       this.previousX = before.x; this.previousY = before.y;
     }
     if (!this.enabled(engine)) {
+      this.contacts.length = 0; this.contactTimes.clear();
       this.releaseTarget();
       if (this.cargo) { this.cargo.carried = false; this.cargo.attracted = false; this.cargo = null; }
       this.phase = 'orbiting'; this.cooldown = 0; this.cooldownMax = 0; this.leg = null;
@@ -143,23 +145,34 @@ export class WispCompanion {
     // It keeps progressing during a trip and restarts only after delivery.
     this.cooldown = Math.max(0, this.cooldown - dt);
     if (this.cooldown === 0 && this.phase === 'cooldown') this.phase = 'ready';
+    // The visible boundary touches the pickup's contact ring, not its centre.
+    // Detection is shown even while body priority or another delivery delays a fetch.
+    const reach = this.currentRange(engine), packets = engine.getNearbyPickups?.() || engine.layout.embers;
+    this.contacts.length = 0;
+    for (const packet of packets) {
+      if (!canCompanionCollect(packet) || packet.collected || packet.carried) continue;
+      if (Math.hypot(packet.x-engine.distance-home.x,packet.y-home.y)>reach+pickupContactRadius(packet)) continue;
+      if (!this.contactTimes.has(packet)) this.contactTimes.set(packet,engine.time);
+      this.contacts.push({packet,since:this.contactTimes.get(packet)});
+      if (this.contacts.length===8) break;
+    }
+    for (const packet of this.contactTimes.keys()) if (!this.contacts.some(c=>c.packet===packet)) this.contactTimes.delete(packet);
     if (this.phase === 'ready' || this.phase === 'cooldown') {
       this.x = orbit.x; this.y = orbit.y;
       this.vx = (this.x - this.previousX) / dt; this.vy = (this.y - this.previousY) / dt;
       {
-        const reach = this.currentRange(engine);
         let nearest = null, nearestDistance = reach;
-        for (const ember of engine.getNearbyPickups?.() || engine.layout.embers) {
+        for (const ember of packets) {
           if (!canCompanionCollect(ember) || ember.collected || ember.carried || ember.attracted) continue;
           const x = ember.x - engine.distance;
-          if (x < home.x - reach) continue;
+          if (x < home.x - reach - pickupContactRadius(ember)) continue;
           // Leave the entire approach and body-contact window to the player.
           // Once a packet passes behind this edge, forward flight cannot touch
           // it directly; only then may the carrier rescue it within its range.
           if (x >= home.x - pickupContactRadius(ember)) continue;
           if (engine.collectorContains && !engine.collectorContains(ember)) continue;
-          const distance = Math.hypot(x - home.x, ember.y - home.y);
-          if (distance < nearestDistance) { nearest = ember; nearestDistance = distance; }
+          const distance = Math.hypot(x - home.x, ember.y - home.y)-pickupContactRadius(ember);
+          if (distance <= nearestDistance) { nearest = ember; nearestDistance = distance; }
         }
         if (nearest) {
           this.target = nearest; nearest.attracted = true; this.phase = 'outbound';

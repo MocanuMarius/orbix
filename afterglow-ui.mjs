@@ -1,4 +1,4 @@
-import {formatGlow} from './vitality.mjs?v=drift-sense-1';
+import {formatGlow} from './vitality.mjs?v=dream-paths-1';
 // Stored fuel stays out of the main interface until it can help a flight.
 const amountOf = value => Math.max(0, Number.isFinite(Number(value)) ? Number(value) : 0);
 export const formatStoredGlow = value => {
@@ -9,9 +9,8 @@ export function reserveIconMarkup() {
   return '<svg class="ico reserve-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3h8v3H8zM8 6 5 10v9c0 2 14 2 14 0v-9l-3-4M5 15h14"/><path d="M12 9c-2 2-3 3-3 4a3 3 0 0 0 6 0c0-1-1-2-3-4Z"/></svg>';
 }
 export function storedGlowPanelMarkup(reserve = {}, { draw = false } = {}) {
-  if (reserve.unlocked !== true || !draw || amountOf(reserve.amount) <= 0 || amountOf(reserve.drawable) <= 0 || reserve.drawUsed) return '';
-  const amount = formatGlow(reserve.amount,reserve.maxGlow), usable = formatGlow(reserve.drawable,reserve.maxGlow);
-  return `<div class="afterglow-panel stored-glow-panel${reserve.practice ? ' practice-reserve' : ''}"><button class="afterglow-readout" data-action="inspect-afterglow" aria-label="${reserve.practice ? 'Practice ' : ''}Stored Glow: ${amount}. Open reserve details.">${reserveIconMarkup()}<span>${reserve.practice ? 'Practice reserve' : 'Stored Glow'}</span><strong>${amount}</strong></button><button class="afterglow-draw" data-action="draw-afterglow">Use +${usable} Glow</button></div>`;
+  if(reserve.unlocked!==true||amountOf(reserve.amount)<=0)return '';
+  return `<button class="afterglow-readout stored-glow-panel" data-action="inspect-afterglow">${reserveIconMarkup()}<span>AFTERGLOW</span><strong>${formatGlow(reserve.amount,reserve.maxGlow)}</strong><small>SPENT BEFORE GLOW</small></button>`;
 }
 export function storedGlowChangeMarkup(values, { summary = false, practice = false, maxGlow = 100 } = {}) {
   if (!values) return '';

@@ -1,13 +1,14 @@
-import {drawFlightProjection} from './flight-projection.mjs?v=drift-sense-1';
-import {formatGlow} from './vitality.mjs?v=drift-sense-1';
-import {LOCATION_PALETTES} from './world-expansion.mjs?v=drift-sense-1';
-import { sceneryIdentity, drawIdentityBackground, drawIdentityMaterial, drawIdentityLife } from './level-scenery.mjs?v=drift-sense-1';
-import { getCompanionAbility, normalizeCompanionRole } from './companion-abilities.mjs?v=drift-sense-1';
-import { companionSprite, companionPalette } from './companion-art.mjs?v=drift-sense-1';
-import { createScenePropArt } from './scene-prop-art.mjs?v=drift-sense-1';
-import { drawBoss } from './boss.mjs?v=drift-sense-1';
-import { drawPickup } from './pickup-art.mjs?v=drift-sense-1';
-import { pickupKind, getPickupSpec } from './pickups.mjs?v=drift-sense-1';
+import {drawFlightProjection} from './flight-projection.mjs?v=dream-paths-1';
+import {drawGlowSense} from './glow-sense.mjs?v=dream-paths-1';
+import {formatGlow} from './vitality.mjs?v=dream-paths-1';
+import {LOCATION_PALETTES} from './world-expansion.mjs?v=dream-paths-1';
+import { sceneryIdentity, drawIdentityBackground, drawIdentityMaterial, drawIdentityLife } from './level-scenery.mjs?v=dream-paths-1';
+import { getCompanionAbility, normalizeCompanionRole } from './companion-abilities.mjs?v=dream-paths-1';
+import { companionSprite, companionPalette } from './companion-art.mjs?v=dream-paths-1';
+import { createScenePropArt } from './scene-prop-art.mjs?v=dream-paths-1';
+import { drawBoss } from './boss.mjs?v=dream-paths-1';
+import { drawPickup } from './pickup-art.mjs?v=dream-paths-1';
+import { pickupKind, getPickupSpec, pickupContactRadius } from './pickups.mjs?v=dream-paths-1';
 
 const TAU = Math.PI * 2;
 const SCENERY_HELPERS = { line: pixelLine, disc: pixelDisc, polygon: path };
@@ -812,8 +813,23 @@ export class WispFlightView {
       const px=x+Math.cos(a)*radius,py=y+Math.sin(a)*radius;
       if(i===0)c.moveTo(px,py);else c.lineTo(px,py);
     }
-    c.closePath();c.strokeStyle='#a9cd95';c.globalAlpha=.035;c.lineWidth=2;c.stroke();
-    c.globalAlpha=.23*(1-(e.completionProgress||0));c.lineWidth=.75;c.stroke();
+    c.closePath();c.strokeStyle='#b5dba1';c.globalAlpha=.06;c.lineWidth=2;c.stroke();
+    c.globalAlpha=.32*(1-(e.completionProgress||0));c.lineWidth=.75;c.stroke();
+    for(const contact of e.wisp?.contacts||[]){
+      const packet=contact.packet;if(packet.collected||packet.carried)continue;
+      const px=(packet.x-distanceOf(e))*s,py=packet.y*s,pr=pickupContactRadius(packet)*s;
+      const age=Math.max(0,t-contact.since),wave=e.reducedMotion?1:Math.min(1,age/.42);
+      const angle=Math.atan2(y-py,x-px);
+      c.globalAlpha=.20+(1-wave)*.4;c.lineWidth=1;c.beginPath();c.arc(px,py,pr,0,TAU);c.stroke();
+      // A short inward-facing ripple distinguishes detection from committed retrieval.
+      if(wave<1){c.globalAlpha=(1-wave)*.5;c.beginPath();c.arc(px,py,pr+wave*5,angle-.75,angle+.75);c.stroke();}
+    }
+    const target=e.wisp?.target;
+    if(target&&!target.collected&&!target.carried){
+      const state=e.wisp.state(e,yOf(e),t),tx=(target.x-distanceOf(e))*s,ty=target.y*s;
+      c.globalAlpha=.32;c.lineWidth=.75;c.beginPath();c.moveTo(state.x*s,state.y*s);
+      c.quadraticCurveTo((state.x*s+tx)/2,(state.y*s+ty)/2-6,tx,ty);c.stroke();
+    }
     c.restore();
   }
 
@@ -1076,6 +1092,7 @@ export class WispFlightView {
     const playerX = e.player.x * s, playerY = yOf(e) * s;
     this.lightFog(e, fleet, playerX, playerY);
     drawFlightProjection(c,e,{scale:s,distance,playerY:yOf(e)});
+    drawGlowSense(c,e,{scale:s,distance,playerY:yOf(e),light:this.currentLightState});
     this.drawCollectorAura(e, t);
     let collector = null;
     for (let i = 0; i < fleet.length; i++) if (fleet[i].role === 'collector') { collector = fleet[i]; break; }

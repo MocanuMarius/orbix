@@ -166,3 +166,9 @@ dialog.game-sheet{border:12px solid transparent!important;border-image:url('asse
 .glow-side-gauge.low-glow{color:#efaa89;border-color:#b97960}.glow-side-gauge.low-glow #flame-fill{background:#d59575}
 @media(max-height:640px){.canvas-wrap>.glow-side-gauge{height:144px}}
 @media(prefers-reduced-motion:reduce){.glow-side-gauge #flame-fill{transition:none}}
+
+/* A selected locked bud lights its route; affordable buds invite a purchase. */
+.branch-light .planned{stroke:#e4c58c;stroke-width:4}.branch-light .available{stroke:#a9c888}
+.tree-bud.planned{border-color:#d1bd85}.tree-bud.available{border-color:#e6f0b0;background:#34492c;animation:bud-ready 2.2s ease-in-out infinite}.tree-bud.saving .bud-price{color:#f0d196}.tree-bud.available .bud-price{color:#e6f0b0}.tree-bud.dormant.planned{opacity:.75}.tree-bud.selected{opacity:1}
+@keyframes bud-ready{50%{box-shadow:0 0 0 3px #122619,0 0 17px #b7d37c88}}
+@media(prefers-reduced-motion:reduce){.tree-bud.available{animation:none;box-shadow:0 0 0 3px #122619,0 0 12px #b7d37c66}}
