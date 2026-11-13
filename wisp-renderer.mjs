@@ -1,22 +1,22 @@
-import {createDepthScenery,drawDepthScenery} from './depth-scenery.mjs?v=companion-guide-1';
-import { drawGuardianWarnings } from './guardian-effects.mjs?v=companion-guide-1';
-import {drawProximityMeter} from './proximity-meter.mjs?v=companion-guide-1';
-import {drawFlightProjection} from './flight-projection.mjs?v=companion-guide-1';
-import {drawGlowSense} from './glow-sense.mjs?v=companion-guide-1';
-import {formatGlow} from './vitality.mjs?v=companion-guide-1';
-import {LOCATION_PALETTES} from './world-expansion.mjs?v=companion-guide-1';
-import {biomePalette} from './biome-art.mjs?v=companion-guide-1';
-import { sceneryIdentity, drawIdentityBackground, drawIdentityMaterial, drawIdentityLife } from './level-scenery.mjs?v=companion-guide-1';
-import { getCompanionAbility, normalizeCompanionRole } from './companion-abilities.mjs?v=companion-guide-1';
-import { companionSprite, companionPalette } from './companion-art.mjs?v=companion-guide-1';
-import { createScenePropArt } from './scene-prop-art.mjs?v=companion-guide-1';
-import { drawBoss } from './boss.mjs?v=companion-guide-1';
-import { drawPickup } from './pickup-art.mjs?v=companion-guide-1';
-import { pickupKind, getPickupSpec, pickupContactRadius } from './pickups.mjs?v=companion-guide-1';
-import { LIGHT_EXTENT,lightAttenuation,lightVisibility,createLightMaskCanvas,sceneRevealStrength } from './light-field.mjs?v=companion-guide-1';
-import {drawExitLandmark} from './exit-landmark.mjs?v=companion-guide-1';
-import {drawBlackHoles} from './black-hole-art.mjs?v=companion-guide-1';
-import {drawFlightForks,drawFlightForkBackdrops} from './flight-forks.mjs?v=companion-guide-1';
+import {createDepthScenery,drawDepthScenery} from './depth-scenery.mjs?v=collector-orbit-1';
+import { drawGuardianWarnings } from './guardian-effects.mjs?v=collector-orbit-1';
+import {drawProximityMeter} from './proximity-meter.mjs?v=collector-orbit-1';
+import {drawFlightProjection} from './flight-projection.mjs?v=collector-orbit-1';
+import {drawGlowSense} from './glow-sense.mjs?v=collector-orbit-1';
+import {formatGlow} from './vitality.mjs?v=collector-orbit-1';
+import {LOCATION_PALETTES} from './world-expansion.mjs?v=collector-orbit-1';
+import {biomePalette} from './biome-art.mjs?v=collector-orbit-1';
+import { sceneryIdentity, drawIdentityBackground, drawIdentityMaterial, drawIdentityLife } from './level-scenery.mjs?v=collector-orbit-1';
+import { getCompanionAbility, normalizeCompanionRole } from './companion-abilities.mjs?v=collector-orbit-1';
+import { companionSprite, companionPalette } from './companion-art.mjs?v=collector-orbit-1';
+import { createScenePropArt } from './scene-prop-art.mjs?v=collector-orbit-1';
+import { drawBoss } from './boss.mjs?v=collector-orbit-1';
+import { drawPickup } from './pickup-art.mjs?v=collector-orbit-1';
+import { pickupKind, getPickupSpec, pickupContactRadius } from './pickups.mjs?v=collector-orbit-1';
+import { LIGHT_EXTENT,lightAttenuation,lightVisibility,createLightMaskCanvas,sceneRevealStrength } from './light-field.mjs?v=collector-orbit-1';
+import {drawExitLandmark} from './exit-landmark.mjs?v=collector-orbit-1';
+import {drawBlackHoles} from './black-hole-art.mjs?v=collector-orbit-1';
+import {drawFlightForks,drawFlightForkBackdrops} from './flight-forks.mjs?v=collector-orbit-1';
 
 const TAU = Math.PI * 2;
 const SCENERY_HELPERS = { line: pixelLine, disc: pixelDisc, polygon: path };
@@ -860,17 +860,14 @@ export class WispFlightView {
       const x = state.x * s, y = state.y * s;
       const recovery = clamp(state.recovery ?? 1, 0, 1);
       const intensity = (cooling ? .55 + recovery * .40 : 1) * (this.lightIntensity || 1);
-      this.glow(x, y, collector ? 14 : 12, tint.outer, intensity * .21);
+      this.glow(x, y, collector ? 11 : 12, tint.outer, intensity * .21);
       const sprite = this.orbSprite(role);
-      c.globalAlpha = intensity; c.drawImage(sprite, x - 6, y - 6); c.globalAlpha = 1;
+      c.globalAlpha = intensity;
+      if(collector)c.drawImage(sprite,x-5,y-5,10,10);else c.drawImage(sprite, x - 6, y - 6);
+      c.globalAlpha = 1;
       if (collector && state.carrying) this.drawPacket(x + 7, y + 5, { kind: state.cargoKind || 'light', tiny: true, bodyOnly: true, time: t, reducedMotion: e.reducedMotion, scale: s });
       const px=e.player.x*s,py=yOf(e)*s,clock=e.reducedMotion?0:t;
       c.save();c.strokeStyle=tint.core;c.fillStyle=tint.bright;c.lineWidth=1;
-      if(collector){
-        // Small breathing fragments accompany the existing fetch/return flight.
-        const a=clock*3.5;
-        c.globalAlpha=.35*intensity;c.beginPath();c.arc(x,y,8,a,a+.65);c.arc(x,y,8,a+Math.PI,a+Math.PI+.65);c.stroke();
-      }
       if(role==='protector'&&state.charges<state.layers){
         const a=state.weldAngle??(-Math.PI/2+(1-state.recovery/state.recoveryTotal)*TAU),r=16.5+state.charges*2;
         c.globalAlpha=e.reducedMotion?.5:.45+.3*Math.sin(clock*21)**2;c.beginPath();
