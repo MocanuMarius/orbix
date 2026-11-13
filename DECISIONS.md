@@ -275,3 +275,12 @@ The current build already caches terrain artwork. Its current dynamic lighting u
 - The first boss permanently unlocks Afterglow and grants 20 Stored Glow once. Introduce the bottle, surplus banking, preflight drawing and reserve upgrades at that moment. Future ascensions retain the unlock.
 - Prototype speed takes priority over retaining previous save data. A new save key may reset the current prototype; do not add migrations or compatibility layers.
 - Publish this batch without checks, tests, reviews, simulations or balance work.
+
+
+## Consequential localized wind
+
+- Strengthen the existing localized draft pockets rather than introducing global wind or more frequent puffs. Base acceleration is 260 in ruins, 340 in canopy and 430 in storm, capped at 560 after modifiers. Practice uses 90.
+- Keep the warning readable at 1.05 seconds. Sustain the active puff for 1.45 seconds, with a 0.14-second onset and 0.35-second fade, so it lasts through a crossing.
+- Broaden the strong core using a smooth radial feather. Force is still exactly zero outside the visible ellipse. Keep placement, spacing, count, bypass room, one-shot activation and 72% Swift resistance.
+- Make local curls and directional chevrons more legible. Positive direction means downward acceleration; all motion cues must match that physical direction. Keep effects inside each puff and respect reduced motion.
+- This is a requested strength change, not a balance pass. Publish without checks, tests or simulations.

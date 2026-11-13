@@ -1655,16 +1655,28 @@ export class WispFlight {
       const x = puff.x - (this.renderDistance ?? this.distance);
       if (x + puff.rx < 0 || x - puff.rx > W) continue;
       c.save(); c.beginPath(); c.ellipse(x, puff.y, puff.rx, puff.ry, 0, 0, TAU); c.clip();
-      c.strokeStyle = `rgba(184,207,205,${puff.opacity * .34})`; c.lineWidth = 1;
+      const direction = puff.direction < 0 ? -1 : 1;
+      const warning = puff.phase === 'gather' || puff.phase === 'warning';
+      const power = clamp(Number(puff.strength) || 0, 0, 1);
+      c.strokeStyle = warning ? '#bcc7af' : '#c1d9d0';
+      c.lineWidth = warning ? 1.5 : 2.2;
       for (let i = 0; i < 7; i++) {
-        const phase = this.reducedMotion ? .5 : (puff.progress + i * .137) % 1;
+        const phase = this.reducedMotion ? .18 + i * .105
+          : (puff.progress * (warning ? .35 : 1.35) + i * .137) % 1;
         const px = x + (i % 3 - 1) * puff.rx * .48;
-        const py = puff.y + (phase - .5) * puff.ry * 1.6 * -puff.direction;
-        c.beginPath(); c.moveTo(px - 11, py + puff.direction * 8);
-        c.quadraticCurveTo(px + 10, py, px + 4, py - puff.direction * 13); c.stroke();
+        const py = puff.y + (phase - .5) * puff.ry * 1.55 * direction;
+        const edge = clamp((1 - ((px - x) / puff.rx) ** 2 - ((py - puff.y) / puff.ry) ** 2) / .5, 0, 1);
+        c.globalAlpha = puff.opacity * edge * (warning ? .38 : .45 + power * .25);
+        c.beginPath(); c.moveTo(px - 10, py - direction * 10);
+        c.quadraticCurveTo(px + 11, py, px + 3, py + direction * 14); c.stroke();
       }
-      c.beginPath(); c.moveTo(x - 4, puff.y + puff.direction * 3);
-      c.lineTo(x, puff.y - puff.direction * 3); c.lineTo(x + 4, puff.y + puff.direction * 3); c.stroke();
+      c.globalAlpha = puff.opacity * (warning ? .62 : .84);
+      for (let i = 0; i < (warning ? 1 : 2); i++) {
+        const yy = puff.y + direction * (i * 12 - 5);
+        c.beginPath(); c.moveTo(x, yy - direction * 8); c.lineTo(x, yy + direction * 4);
+        c.moveTo(x - 6, yy - direction * 2); c.lineTo(x, yy + direction * 4);
+        c.lineTo(x + 6, yy - direction * 2); c.stroke();
+      }
       c.restore();
     }
   }

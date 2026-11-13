@@ -720,19 +720,19 @@ export class WispFlightView {
       if (!opacity || puff.phase === 'idle' || puff.phase === 'spent') continue;
       const direction = puff.direction < 0 ? -1 : 1;
       const expansion = e.reducedMotion ? .94 : warning ? .66 + progress * .28 : .87 + progress * .10;
-      const drift = e.reducedMotion ? 0 : (progress - .5) * ry * .14 * direction;
+      const drift = e.reducedMotion ? 0 : (progress - .5) * ry * (warning ? .22 : .86) * direction;
       const fade = fading ? 1 - progress : 1;
-      const baseAlpha = opacity * fade * (warning ? .12 + progress * .10 : .20 + power * .20);
-      const ink = warning ? '#adb6a3' : '#b1c8c1';
+      const baseAlpha = opacity * fade * (warning ? .22 + progress * .12 : .34 + power * .26);
+      const ink = warning ? '#bcc7af' : '#c1d9d0';
       c.save();
       // Exactly the physical field bounds, used only as a clip. There is no
       // drawn ellipse/range ring, solid AOE panel or whole-screen weather.
       c.beginPath(); c.ellipse(x, y, rx, ry, 0, 0, TAU); c.clip();
-      const segment = (a, b, alpha = 1) => {
+      const segment = (a, b, alpha = 1, bold = false) => {
         const mx = (a[0] + b[0]) / 2, my = (a[1] + b[1]) / 2;
         const edge = clamp((1 - ((mx - x) / rx) ** 2 - ((my - y) / ry) ** 2) / .48, 0, 1);
         c.globalAlpha = baseAlpha * edge * visibility(mx, my) * alpha;
-        if (c.globalAlpha > .008) pixelLine(c, ...a, ...b, ink);
+        if (c.globalAlpha > .008) pixelLine(c, ...a, ...b, ink, bold ? 2 : 1);
       };
       const curls = [[-.50, -.24], [.10, -.54], [.48, -.08], [-.20, .40], [.35, .48], [0, -.77], [-.05, .77]];
       for (let i = 0; i < curls.length; i++) {
@@ -745,17 +745,19 @@ export class WispFlightView {
           const angle = turn + step / 12 * Math.PI * 1.35;
           const taper = 1 - step / 12 * .42;
           const point = [cx + Math.cos(angle) * coilX * taper, cy + Math.sin(angle) * coilY * taper];
-          if (previous) segment(previous, point, i < 5 ? 1 : .6);
+          if (previous) segment(previous, point, i < 5 ? 1 : .6, !warning && i < 3 && power > .3);
           previous = point;
         }
       }
       const arrowX = x + rx * .15, arrowY = y - direction * ry * .12;
-      const arrows = !warning && power > .55 ? 2 : 1;
+      const arrows = warning ? 1 : power > .7 ? 3 : 2;
       for (let i = 0; i < arrows; i++) {
-        const yy = arrowY + direction * i * 6;
-        c.globalAlpha = opacity * fade * visibility(arrowX, yy) * (warning ? .27 : .46);
-        pixelLine(c, arrowX - 3, yy - direction * 2, arrowX, yy + direction, ink);
-        pixelLine(c, arrowX, yy + direction, arrowX + 3, yy - direction * 2, ink);
+        const yy = arrowY + direction * i * 9;
+        c.globalAlpha = opacity * fade * visibility(arrowX, yy) * (warning ? .48 : .76);
+        const size = warning ? 1 : 2;
+        pixelLine(c, arrowX, yy - direction * 6, arrowX, yy + direction * 2, ink, size);
+        pixelLine(c, arrowX - 4, yy - direction * 2, arrowX, yy + direction * 2, ink, size);
+        pixelLine(c, arrowX, yy + direction * 2, arrowX + 4, yy - direction * 2, ink, size);
       }
       c.restore();
     }

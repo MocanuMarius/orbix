@@ -163,3 +163,8 @@ TUTORIAL starts short authored practice with spotlights on the real map, encount
 One difficulty tier contains three sequential seven-stop maps, sharing the ascension's lives, build, fuel and tuning. The first two map clears open the next map. The third ends in the Hollow Warden flight trial and unlocks the next difficulty. Higher tiers apply bounded passage/draft pressure independently of the five-flight depth within a map.
 
 Afterglow is unavailable before the first boss defeat: no reserve balance, surplus deductions, reserve events, reserve upgrade branch or opening tutorial lesson. That boss grants the permanent unlock and a one-time 20 Stored Glow reward; a contextual unlock lesson introduces its use. The prototype save key changes for this campaign revision instead of migrating old campaigns. No checks, tests, simulations or balance pass are included.
+
+
+### Stronger localized drafts
+
+Draft pockets now apply base force 260/340/430 in ruins/canopy/storm (cap560), with a broader full-strength core and smooth edge feather. They warn for1.05s, act for1.45s, ramp over0.14s and fade over0.35s. Practice force is90. Existing placement, count, bypass space, one-shot behavior and Swift resistance remain. Directional rendering follows actual vertical force. This requested adjustment was implemented without checks, tests, simulations or a balance pass.

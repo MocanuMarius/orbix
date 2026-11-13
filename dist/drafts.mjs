@@ -3,10 +3,10 @@ import { LEVEL_LENGTH } from './level-length.mjs';
 import { scenePropBounds } from './scene-props.mjs';
 const clamp = (n, lo, hi) => Math.min(hi, Math.max(lo, n));
 const smooth = n => { const t = clamp(n, 0, 1); return t * t * (3 - 2 * t); };
-export const DRAFT_TUNING = Object.freeze({ warning: .9, duration: .9, fade: .3,
-  ramp: .24, boostResistance: .72, spacing: 1100, maximumForce: 140,
-  ruins: Object.freeze({ force: 65 }), canopy: Object.freeze({ force: 85 }),
-  storm: Object.freeze({ force: 105 }) });
+export const DRAFT_TUNING = Object.freeze({ warning: 1.05, duration: 1.45, fade: .35,
+  ramp: .14, boostResistance: .72, spacing: 1100, maximumForce: 560,
+  ruins: Object.freeze({ force: 260 }), canopy: Object.freeze({ force: 340 }),
+  storm: Object.freeze({ force: 430 }) });
 
 function randomFor(seed) {
   let state = 2166136261;
@@ -90,7 +90,7 @@ export function createDraftZones({ seed = 1, terrain = 'ruins', elite = false,
   }
   return selected.sort((a, b) => a.x - b.x).map((zone, i) => ({ ...zone,
     id: `draft:${i}`, direction: (rng() < .5 ? -1 : 1) * (i % 2 ? -1 : 1),
-    force: lesson ? 50 : (DRAFT_TUNING[terrain] || DRAFT_TUNING.ruins).force,
+    force: lesson ? 90 : (DRAFT_TUNING[terrain] || DRAFT_TUNING.ruins).force,
     triggeredAt: null }));
 }
 
@@ -111,7 +111,7 @@ function puffAt(zone, time) {
     strength = 1 - smooth(progress); opacity = strength;
   } else return null;
   return { id: zone.id, x: zone.x, y: zone.y, rx: zone.rx, ry: zone.ry,
-    direction: zone.direction, phase, progress, strength, opacity };
+    direction: zone.direction, force: zone.force, phase, progress, strength, opacity };
 }
 
 export class DraftField {
@@ -137,7 +137,7 @@ export class DraftField {
       if (puff.phase === 'gather') continue;
       const radiusSquared = ((worldX - zone.x) / zone.rx) ** 2 + ((y - zone.y) / zone.ry) ** 2;
       if (radiusSquared >= 1) continue;
-      const strength = puff.strength * smooth(1 - radiusSquared);
+      const strength = puff.strength * smooth((1 - radiusSquared) / .55);
       if (strength <= 0) continue;
       const force = Math.min(DRAFT_TUNING.maximumForce, zone.force * clamp(Number(sensitivity) || 1, .5, 2)) * strength;
       return { ...quiet, active: true, direction: zone.direction, strength, force,
