@@ -29,7 +29,7 @@
 .flight-hud>.flight-condensed-counter>.condensed-icon{grid-row:1/3;width:24px;height:24px;justify-self:center}
 .flight-hud>.flight-condensed-counter>b{font-size:18px!important;line-height:21px;align-self:end}
 .flight-hud>.flight-condensed-counter>small{grid-column:2;font-size:7px!important;line-height:11px;white-space:nowrap}
-.condensation-motes>.condensation-beam-pixel{border-radius:0;transform:none;transition:none;filter:none}
+.condensation-motes>.condensation-particle{border-radius:0;transform:none;transition:none;filter:none}
 
 
 .edging-pulse-gauge[data-pulse-state=holding]{border-color:#b5a576;color:#d5c89b}.edging-pulse-gauge[data-pulse-state=holding] .edging-pulse-fill{background:#b7ac82}.edging-pulse-gauge[data-pulse-state=holding] .edging-pulse-value{color:#dfd3ac}

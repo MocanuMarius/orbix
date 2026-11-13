@@ -1,19 +1,19 @@
-import {drawFlightProjection} from './flight-projection.mjs?v=lantern-paths-1';
-import {drawGlowSense} from './glow-sense.mjs?v=lantern-paths-1';
-import {formatGlow} from './vitality.mjs?v=lantern-paths-1';
-import {LOCATION_PALETTES} from './world-expansion.mjs?v=lantern-paths-1';
-import {biomePalette} from './biome-art.mjs?v=lantern-paths-1';
-import { sceneryIdentity, drawIdentityBackground, drawIdentityMaterial, drawIdentityLife } from './level-scenery.mjs?v=lantern-paths-1';
-import { getCompanionAbility, normalizeCompanionRole } from './companion-abilities.mjs?v=lantern-paths-1';
-import { companionSprite, companionPalette } from './companion-art.mjs?v=lantern-paths-1';
-import { createScenePropArt } from './scene-prop-art.mjs?v=lantern-paths-1';
-import { drawBoss } from './boss.mjs?v=lantern-paths-1';
-import { drawPickup } from './pickup-art.mjs?v=lantern-paths-1';
-import { pickupKind, getPickupSpec, pickupContactRadius } from './pickups.mjs?v=lantern-paths-1';
-import { lightAttenuation,lightVisibility,createLightMaskCanvas,sceneRevealStrength } from './light-field.mjs?v=lantern-paths-1';
-import {drawExitLandmark} from './exit-landmark.mjs?v=lantern-paths-1';
-import {drawBlackHoles} from './black-hole-art.mjs?v=lantern-paths-1';
-import {drawFlightForks,drawFlightForkBackdrops} from './flight-forks.mjs?v=lantern-paths-1';
+import {drawFlightProjection} from './flight-projection.mjs?v=living-choices-1';
+import {drawGlowSense} from './glow-sense.mjs?v=living-choices-1';
+import {formatGlow} from './vitality.mjs?v=living-choices-1';
+import {LOCATION_PALETTES} from './world-expansion.mjs?v=living-choices-1';
+import {biomePalette} from './biome-art.mjs?v=living-choices-1';
+import { sceneryIdentity, drawIdentityBackground, drawIdentityMaterial, drawIdentityLife } from './level-scenery.mjs?v=living-choices-1';
+import { getCompanionAbility, normalizeCompanionRole } from './companion-abilities.mjs?v=living-choices-1';
+import { companionSprite, companionPalette } from './companion-art.mjs?v=living-choices-1';
+import { createScenePropArt } from './scene-prop-art.mjs?v=living-choices-1';
+import { drawBoss } from './boss.mjs?v=living-choices-1';
+import { drawPickup } from './pickup-art.mjs?v=living-choices-1';
+import { pickupKind, getPickupSpec, pickupContactRadius } from './pickups.mjs?v=living-choices-1';
+import { lightAttenuation,lightVisibility,createLightMaskCanvas,sceneRevealStrength } from './light-field.mjs?v=living-choices-1';
+import {drawExitLandmark} from './exit-landmark.mjs?v=living-choices-1';
+import {drawBlackHoles} from './black-hole-art.mjs?v=living-choices-1';
+import {drawFlightForks,drawFlightForkBackdrops} from './flight-forks.mjs?v=living-choices-1';
 
 const TAU = Math.PI * 2;
 const SCENERY_HELPERS = { line: pixelLine, disc: pixelDisc, polygon: path };
@@ -623,17 +623,17 @@ export class WispFlightView {
     const c = this.bufferContext, f = this.fogContext, W = this.buffer.width, H = this.buffer.height, s = this.scale;
     const light = e.getLightState?.() || e.light || {};
     this.currentLightState = light;
-    const baseRadius = Number(light.baseRadius) || Number(e.mod?.lightRadius) || 175;
+    const baseRadius = Number(light.baseRadius) || Number(e.mod?.lightRadius) || 145;
     this.lightRadius = Math.max(24, Number(light.radius) || baseRadius);
     this.lightIntensity = clamp(Number.isFinite(light.intensity) ? light.intensity : 1, 0, 1);
     this.lightDimScale = clamp(this.lightRadius / baseRadius, .6, 1);
     f.setTransform(1, 0, 0, 1, 0, 0); f.globalCompositeOperation = 'source-over'; f.globalAlpha = 1;
-    f.clearRect(0, 0, W, H); f.fillStyle = 'rgba(2,5,8,.965)'; f.fillRect(0, 0, W, H);
+    f.clearRect(0, 0, W, H); f.fillStyle = '#000000'; f.fillRect(0, 0, W, H);
     f.globalCompositeOperation = 'destination-out';
     const mask = this.lightMask(), radius = this.lightRadius * s;
     f.globalAlpha = this.lightIntensity;
     // Baseline light is circular. Forward scouting is earned through skills,
-    // Sight Bloom and artifacts rather than a permanent horizon fill.
+    // Flash Spark and artifacts rather than a permanent horizon fill.
     f.drawImage(mask,playerX-radius,playerY-radius,radius*2,radius*2);
     const forward = light.forwardLight || e.forwardLight;
     if (forward?.active && forward.radius > 0) {
@@ -828,8 +828,8 @@ export class WispFlightView {
       const px=x+Math.cos(a)*radius,py=y+Math.sin(a)*radius;
       if(i===0)c.moveTo(px,py);else c.lineTo(px,py);
     }
-    c.closePath();c.strokeStyle='#b5dba1';c.globalAlpha=.06;c.lineWidth=2;c.stroke();
-    c.globalAlpha=.32*(1-(e.completionProgress||0));c.lineWidth=.75;c.stroke();
+    c.closePath();c.strokeStyle='#b9dfa0';c.globalAlpha=.05;c.lineWidth=2;c.stroke();
+    c.globalAlpha=.27*(1-(e.completionProgress||0));c.lineWidth=.75;c.stroke();
     for(const contact of e.wisp?.contacts||[]){
       const packet=contact.packet;if(packet.collected||packet.carried)continue;
       const px=(packet.x-distanceOf(e))*s,py=packet.y*s,pr=pickupContactRadius(packet)*s;
@@ -1076,7 +1076,7 @@ export class WispFlightView {
     for (const effect of e.pickupEffects || []) {
       const progress = 1 - clamp(effect.life / .72, 0, 1);
       c.globalAlpha = 1 - progress;
-      const label = String(effect.text || (effect.restored > 0 ? `+${formatGlow(effect.restored,e.maxFlame||100)} GLOW` : 'FULL')).toUpperCase();
+      const label = String(effect.text || (effect.restored > 0 ? `+${formatGlow(effect.restored,e.maxFlame||100)} SPARKS` : 'FULL')).toUpperCase();
       const labelX = clamp(Math.round(effect.x * s - label.length * 2), 2, this.buffer.width - label.length * 4 - 2);
       pixelText(c, label, labelX, Math.round(effect.y * s - 28 - progress * 10),
         effect.color || (effect.pickupKind ? getPickupSpec(effect.pickupKind).color : '#f2d79a'));

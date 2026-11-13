@@ -1,5 +1,5 @@
-import { createDraftZones } from './drafts.mjs?v=lantern-paths-1';
-import { pickupKind } from './pickups.mjs?v=lantern-paths-1';
+import { createDraftZones } from './drafts.mjs?v=living-choices-1';
+import { pickupKind } from './pickups.mjs?v=living-choices-1';
 
 const FAMILIES = Object.freeze({
   'stillwater-tunnel': Object.freeze({ id:'stillwater-tunnel', name:'Stillwater Tunnel', icon:'ruins', rewardTheme:'precision',
@@ -34,7 +34,7 @@ export function familyChallengeCells(familyId, course, { difficulty=1, elite=fal
 
 /** Install only bounded, swept-clear optional encounters. Mandatory fuel is
  * preserved; orchard fuel is relocated, never duplicated. Optional payoffs
- * are two finite Glow clusters; only their actual overflow earns currency. */
+ * are two finite Sparks clusters; only their actual overflow earns currency. */
 export function installEncounterFamily(layout, field, { node={}, height=620, seed=1, speed=154, circleHitsObstacle }={}) {
   const family=getEncounterFamily(node); if(!family||layout.boss||!circleHitsObstacle)return layout;
   const scale=height/620, obstacles=layout.obstacles||[], allSections=layout.sections||[];

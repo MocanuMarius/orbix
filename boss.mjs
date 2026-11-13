@@ -1,4 +1,4 @@
-// The Hollow Warden is a survival encounter: read its hands, keep your Glow,
+// The Hollow Warden is a survival encounter: read its hands, keep your Sparks,
 // and reach the waylight. Every solid hand uses the ordinary terrain pipeline.
 const TAU = Math.PI * 2;
 const clamp = (n, a, b) => Math.max(a, Math.min(b, n));

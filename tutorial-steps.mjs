@@ -29,12 +29,12 @@ export function checkpointTutorialLesson(screen,{run={}}={}){
       break;
     case 'victory':
       lesson=step('practice-reward','Choose what travels with you',
-        'Take one artifact, or dissolve it into Glow. Any surplus condenses. Upgrade spends your Packed Light before Next.',
+        'Take one artifact, or dissolve it into Sparks. Any surplus condenses. Upgrade spends your Packed Light before Next.',
         '.reward-offers');
       break;
     case 'support':
       lesson=step('practice-rest-choice','Choose a breather',
-        'Glow fuels flight. Extra pickup light becomes Packed Light for skills. Rest recovery fills fuel only.',
+        'Sparks fuels flight. Extra pickup light becomes Packed Light for skills. Rest recovery fills fuel only.',
         '.support-offers');
       break;
     case 'rest-prep':
@@ -82,11 +82,11 @@ export function observedFlightLesson(snapshot={},seen={}){
 }
 export function flightEffectLesson(id,screen='map'){
   const target=screen==='victory'?'.victory-screen':screen==='map'?'.map-status-strip':null;
-  if(id==='flight-effect:black-hole')return step(id,'That dark core steals Glow',
-    'A Black Hole drains fuel while you stay close. A wider path loses less light. It is not a pickup, and shields do not stop the drain. MENU → Glow & Pickups keeps this reminder.',target);
+  if(id==='flight-effect:black-hole')return step(id,'That dark core steals Sparks',
+    'A Black Hole drains fuel while you stay close. A wider path loses less light. It is not a pickup, and shields do not stop the drain. MENU → Sparks & Pickups keeps this reminder.',target);
   if(id==='flight-effect:edging')return step(id,'Your close flight made a pulse',
     'Flying near solid edges fills the slim edge meter in 2 seconds. Brief gaps preserve your progress, then charge fades slowly. Full charge reveals the scene for five fading seconds. Edge skills improve it; touching terrain still hurts.',target);
-  if(id==='flight-effect:regeneration')return step(id,'Your close flight restored Glow',
-    'Regenerative Falling turns a full edge meter into one Glow instead of a reveal. Its green meter resets for 2 seconds. You have eight recoveries each flight; it becomes dim when spent. Only missing fuel is restored, without Packed Light or pickup effects.',target);
+  if(id==='flight-effect:regeneration')return step(id,'Your close flight restored Sparks',
+    'Regenerative Falling turns a full edge meter into one Sparks instead of a reveal. Its green meter resets for 2 seconds. You have eight recoveries each flight; it becomes dim when spent. Only missing fuel is restored, without Packed Light or pickup effects.',target);
   return null;
 }

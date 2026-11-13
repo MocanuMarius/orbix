@@ -1,6 +1,6 @@
-import {LOCATION_CHALLENGE_NAMES} from './world-expansion.mjs?v=lantern-paths-1';
-import { createDraftZones, DRAFT_TUNING } from './drafts.mjs?v=lantern-paths-1';
-import { getEncounterFamily, familyChallengeCells } from './encounter-families.mjs?v=lantern-paths-1';
+import {LOCATION_CHALLENGE_NAMES} from './world-expansion.mjs?v=living-choices-1';
+import { createDraftZones, DRAFT_TUNING } from './drafts.mjs?v=living-choices-1';
+import { getEncounterFamily, familyChallengeCells } from './encounter-families.mjs?v=living-choices-1';
 
 const clamp = (value, low, high) => Math.max(low, Math.min(high, value));
 const NAMES = Object.freeze({
@@ -91,7 +91,7 @@ export function finalizeFlightChallenges(layout, { terrain = 'ruins', basic = fa
           ? 'Lift toward the upper fuel pocket, then glide clear of the roof.'
           : 'Glide toward the lower fuel pocket, then Lift clear of the ledge.';
         packet.challengeLandmark = authored.landmark;
-      } else if(!authored.family)record.instruction = 'Conserve Glow through this climb; take the next fuel pocket when it is safe.';
+      } else if(!authored.family)record.instruction = 'Conserve Sparks through this climb; take the next fuel pocket when it is safe.';
     }
     challenges.push(record);
   }
@@ -141,7 +141,7 @@ export class FlightChallengeDirector {
     while (this.cursor < this.challenges.length && worldX > this.challenges[this.cursor].end) {
       const finished = this.challenges[this.cursor++];
       this.warnedAt = -1; this.lastEvent = '';
-      this.state = { ...finished, phase: 'clear', warning: '', instruction: 'Clear air ahead. Keep Glow for the next passage.', progress: 1 };
+      this.state = { ...finished, phase: 'clear', warning: '', instruction: 'Clear air ahead. Keep Sparks for the next passage.', progress: 1 };
       this.clearUntil = time + 1.5;
       event = `${finished.name} · clear`;
     }

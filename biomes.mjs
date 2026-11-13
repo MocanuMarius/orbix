@@ -11,7 +11,7 @@ const HINTS={
   tide:'Anemones open into rising currents as you approach.',
   resonate:'Touch resonant crystals to flash the way ahead.',
   draft:'Wind bells warn before a strong local lift.',
-  seedpod:'Touch a ripe pod to open it and release a little Glow.',
+  seedpod:'Touch a ripe pod to open it and release a little Sparks.',
   bell:'Ring weathered bells to briefly reveal the path.',
 };
 const biome = (id, name, terrain, materialScene, ink, interaction, description, maps) => Object.freeze({

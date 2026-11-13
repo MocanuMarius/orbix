@@ -1,3 +1,4 @@
+import {lightVisibility} from './light-field.mjs?v=living-choices-1';
 // Pixel accretion and stolen-light trails. Cosmetics consume recorded drain;
 // rendering never spends fuel or changes the simulation.
 const TAU=Math.PI*2,MAX_MOTES=96;
@@ -50,7 +51,8 @@ export function drawBlackHoles(c,e,{scale=1,distance=e.renderDistance??e.distanc
  for(const hole of e.blackHoles.items){
   const worldX=hole.x-distance;if(worldX<-100||worldX>e.width+100)continue;
   const x=worldX*scale,y=hole.y*scale,r=hole.coreRadius*scale;
-  const proximity=clamp(1-(Math.abs(worldX-e.player.x)-90)/380,.15,1);
+  const proximity=clamp(1-(Math.abs(worldX-e.player.x)-90)/380,.15,1)*lightVisibility(e,e.getLightState?.()||{},worldX,hole.y,playerY);
+  if(proximity<=0)continue;
   // Dark halo remains dark during a whole-scene reveal. Sparse red accretion
   // edges identify danger before its effective drain becomes strong.
   c.globalAlpha=.14*proximity;disc(c,x,y,r*3.2,'#020104',q);

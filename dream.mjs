@@ -3,18 +3,18 @@ const INPUTS=['beginLiftInput','endLiftInput','flap','activateAbility'];
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
 const ordered=value=>Array.isArray(value)?value.map(ordered):value&&typeof value==='object'?Object.fromEntries(Object.keys(value).sort().map(k=>[k,ordered(value[k])])):value;
 export function dreamFingerprint(options={}){
-  return JSON.stringify(ordered({simulation:'lantern-paths-1',seed:options.seed,terrain:options.terrain,elite:!!options.elite,duration:options.duration,
+  return JSON.stringify(ordered({simulation:'living-choices-1',seed:options.seed,terrain:options.terrain,elite:!!options.elite,duration:options.duration,
     node:options.node,companions:options.companions,modifiers:options.modifiers,flame:options.flame,condensedGlow:options.condensedGlow||0,condensedRemainder:options.condensedRemainder||0}));
 }
 export function dreamConfig(run={}){
   const s=run.skills||{};
-  return {duration:s['main-dream']?(s['main-dream-deep']?8:s['main-dream-long']?6:4):0,
+  return {duration:s['main-dream']?(s['main-dream-deep']?10:s['main-dream-long']?8:6):0,
     wake:s['main-dream-wake']?4:3,sight:!!s['main-dream-sight']};
 }
 export function validateDreamPreset(preset,engine){
   return !!preset&&preset.version===1&&preset.fingerprint===dreamFingerprint(engine.options)
     &&Math.abs(preset.width-engine.width)<.01&&Math.abs(preset.height-engine.height)<.01&&preset.duration<=Number(engine.mod.dreamDuration||0)
-    &&preset.duration>=4&&Array.isArray(preset.events)&&preset.events.length<=1000
+    &&preset.duration>=6&&Array.isArray(preset.events)&&preset.events.length<=1000
     &&preset.events.every(event=>INPUTS.includes(event.action)&&Number.isInteger(event.frame)&&event.frame>=0&&event.frame<=preset.duration*60);
 }
 export const dreamEye='<svg viewBox="0 0 32 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" shape-rendering="crispEdges"><path d="M4 9l4 4 4 2h8l4-2 4-4M6 13l-3 3m8 0-1 4m7-3v4m7-6 2 4"/></svg>';
@@ -32,7 +32,7 @@ export function dreamRestMarkup(run,node){
 export function attachDream(engine,{mode='record',preset,duration=engine.mod.dreamDuration,onReady=()=>{},onAwake=()=>{}}={}){
   if(mode==='replay'&&!validateDreamPreset(preset,engine))return null;
   if(mode!=='record'&&mode!=='replay'||!duration)return null;
-  const dream={engine,mode,phase:mode==='record'?'recording':'replay',duration:clamp(mode==='replay'?preset.duration:duration,4,8),
+  const dream={engine,mode,phase:mode==='record'?'recording':'replay',duration:clamp(mode==='replay'?preset.duration:duration,6,10),
     events:mode==='replay'?preset.events.map(event=>({...event,args:[...(event.args||[])]})):[],index:0,depth:0,internal:false,
     get active(){return this.phase==='recording'||this.phase==='replay'},
     get freeGlow(){return this.active},

@@ -1,7 +1,7 @@
-import { obstacleEdgeClearance } from './edging-pulse.mjs?v=lantern-paths-1';
+import { obstacleEdgeClearance } from './edging-pulse.mjs?v=living-choices-1';
 
-// Rates are internal flight Glow. The HUD displays 0.3 of these units: a
-// 40-unit pass costs about 10 Glow/s, a 100-unit pass about 1.6 Glow/s.
+// Rates are internal flight Sparks. The HUD displays 0.3 of these units: a
+// 40-unit pass costs about 10 Sparks/s, a 100-unit pass about 1.6 Sparks/s.
 // Softening and the cap make direct core contact finite, never a collision.
 export const BLACK_HOLE_TUNING = Object.freeze({ coreRadius: 16, influence: 220,
   softening: 22, coefficient: 72000, maximumRate: 80, minimumBypass: 135,
