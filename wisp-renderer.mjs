@@ -1,12 +1,12 @@
-import {formatGlow} from './vitality.mjs?v=collector-flow-1';
-import {LOCATION_PALETTES} from './world-expansion.mjs?v=collector-flow-1';
-import { sceneryIdentity, drawIdentityBackground, drawIdentityMaterial, drawIdentityLife } from './level-scenery.mjs?v=collector-flow-1';
-import { getCompanionAbility, normalizeCompanionRole } from './companion-abilities.mjs?v=collector-flow-1';
-import { companionSprite, companionPalette } from './companion-art.mjs?v=collector-flow-1';
-import { createScenePropArt } from './scene-prop-art.mjs?v=collector-flow-1';
-import { drawBoss } from './boss.mjs?v=collector-flow-1';
-import { drawPickup } from './pickup-art.mjs?v=collector-flow-1';
-import { pickupKind, getPickupSpec } from './pickups.mjs?v=collector-flow-1';
+import {formatGlow} from './vitality.mjs?v=risk-chains-1';
+import {LOCATION_PALETTES} from './world-expansion.mjs?v=risk-chains-1';
+import { sceneryIdentity, drawIdentityBackground, drawIdentityMaterial, drawIdentityLife } from './level-scenery.mjs?v=risk-chains-1';
+import { getCompanionAbility, normalizeCompanionRole } from './companion-abilities.mjs?v=risk-chains-1';
+import { companionSprite, companionPalette } from './companion-art.mjs?v=risk-chains-1';
+import { createScenePropArt } from './scene-prop-art.mjs?v=risk-chains-1';
+import { drawBoss } from './boss.mjs?v=risk-chains-1';
+import { drawPickup } from './pickup-art.mjs?v=risk-chains-1';
+import { pickupKind, getPickupSpec } from './pickups.mjs?v=risk-chains-1';
 
 const TAU = Math.PI * 2;
 const SCENERY_HELPERS = { line: pixelLine, disc: pixelDisc, polygon: path };

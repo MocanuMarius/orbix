@@ -1,7 +1,7 @@
-import {formatGlow} from './vitality.mjs?v=collector-flow-1';
-import { PICKUP_TYPES, getPickupSpec } from './pickups.mjs?v=collector-flow-1';
-import { pickupArtSvg } from './pickup-art.mjs?v=collector-flow-1';
-import { getCompanionAbility, normalizeCompanionRole, normalizeCompanionFleet } from './companion-abilities.mjs?v=collector-flow-1';
+import {formatGlow} from './vitality.mjs?v=risk-chains-1';
+import { PICKUP_TYPES, getPickupSpec } from './pickups.mjs?v=risk-chains-1';
+import { pickupArtSvg } from './pickup-art.mjs?v=risk-chains-1';
+import { getCompanionAbility, normalizeCompanionRole, normalizeCompanionFleet } from './companion-abilities.mjs?v=risk-chains-1';
 
 const esc = value => String(value ?? '').replace(/[&<>"']/g, char =>
   ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));

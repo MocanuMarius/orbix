@@ -1,4 +1,4 @@
-import {formatGlow} from './vitality.mjs?v=collector-flow-1';
+import {formatGlow} from './vitality.mjs?v=risk-chains-1';
 // Stored fuel stays out of the main interface until it can help a flight.
 const amountOf = value => Math.max(0, Number.isFinite(Number(value)) ? Number(value) : 0);
 export const formatStoredGlow = value => {

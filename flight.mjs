@@ -1,22 +1,23 @@
-import {formatGlow} from './vitality.mjs?v=collector-flow-1';
-import {EXTRA_COURSES} from './world-expansion.mjs?v=collector-flow-1';
+import {formatGlow} from './vitality.mjs?v=risk-chains-1';
+import {installRiskChains} from './risk-chains.mjs?v=risk-chains-1';
+import {EXTRA_COURSES} from './world-expansion.mjs?v=risk-chains-1';
 /* Emberwing's self-contained canvas flight simulation and renderer. */
-import { FLAME_TUNING, LIGHT_PACKET_TUNING } from './vitality.mjs?v=collector-flow-1';
-import { flightEndDistance } from './flight-end.mjs?v=collector-flow-1';
-import { WispCompanion, wispHome } from './wisp.mjs?v=collector-flow-1';
-import { getAscentInfo } from './ascent.mjs?v=collector-flow-1';
-import { LEVEL_LENGTH, getLevelLengthScale } from './level-length.mjs?v=collector-flow-1';
-import { resolveLevelIdentity } from './level-catalog.mjs?v=collector-flow-1';
-import { DraftField, DRAFT_TUNING } from './drafts.mjs?v=collector-flow-1';
-import { normalizeCompanionRole, normalizeCompanionFleet, getCompanionAbility } from './companion-abilities.mjs?v=collector-flow-1';
-import { populateSceneProps, scenePropPolygons } from './scene-props.mjs?v=collector-flow-1';
-import { pickupKind, getPickupSpec, pickupContactRadius, isFuelPickup, canCompanionCollect } from './pickups.mjs?v=collector-flow-1';
-import { drawPickup } from './pickup-art.mjs?v=collector-flow-1';
-import { buildBossLayout, getBossState as bossState, drawBoss } from './boss.mjs?v=collector-flow-1';
-import { getAuthoredChallenge, finalizeFlightChallenges, installAuthoredDraftCrossings, FlightChallengeDirector } from './flight-challenges.mjs?v=collector-flow-1';
+import { FLAME_TUNING, LIGHT_PACKET_TUNING } from './vitality.mjs?v=risk-chains-1';
+import { flightEndDistance } from './flight-end.mjs?v=risk-chains-1';
+import { WispCompanion, wispHome } from './wisp.mjs?v=risk-chains-1';
+import { getAscentInfo } from './ascent.mjs?v=risk-chains-1';
+import { LEVEL_LENGTH, getLevelLengthScale } from './level-length.mjs?v=risk-chains-1';
+import { resolveLevelIdentity } from './level-catalog.mjs?v=risk-chains-1';
+import { DraftField, DRAFT_TUNING } from './drafts.mjs?v=risk-chains-1';
+import { normalizeCompanionRole, normalizeCompanionFleet, getCompanionAbility } from './companion-abilities.mjs?v=risk-chains-1';
+import { populateSceneProps, scenePropPolygons } from './scene-props.mjs?v=risk-chains-1';
+import { pickupKind, getPickupSpec, pickupContactRadius, isFuelPickup, canCompanionCollect } from './pickups.mjs?v=risk-chains-1';
+import { drawPickup } from './pickup-art.mjs?v=risk-chains-1';
+import { buildBossLayout, getBossState as bossState, drawBoss } from './boss.mjs?v=risk-chains-1';
+import { getAuthoredChallenge, finalizeFlightChallenges, installAuthoredDraftCrossings, FlightChallengeDirector } from './flight-challenges.mjs?v=risk-chains-1';
 import { createTutorialState, buildTutorialLayout, recordTutorialPickup,
-  updateTutorial, updateTutorialCompanion, getTutorialHint } from './tutorial.mjs?v=collector-flow-1';
-export { FLAME_TUNING } from './vitality.mjs?v=collector-flow-1';
+  updateTutorial, updateTutorialCompanion, getTutorialHint } from './tutorial.mjs?v=risk-chains-1';
+export { FLAME_TUNING } from './vitality.mjs?v=risk-chains-1';
 const TAU = Math.PI * 2;
 const STEP = 1 / 60;
 const COMPANION_ORBIT_SPEED = {protector:1.3,leveler:1.7,swift:3.4,seer:.8,kindler:2.2};
@@ -26,7 +27,7 @@ const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
 const lerp = (a, b, t) => a + (b - a) * t;
 export const FLIGHT_TUNING = Object.freeze({ gravity: 300, flapImpulse: 205,
   forwardSpeed: 154, terminalFall: 245, pickupRadius: LIGHT_PACKET_TUNING.pickupRadius });
-export { DRAFT_TUNING } from './drafts.mjs?v=collector-flow-1';
+export { DRAFT_TUNING } from './drafts.mjs?v=risk-chains-1';
 // Retain the public tuning name for consumers; wind now has no global cycle.
 export const WIND_TUNING = DRAFT_TUNING;
 
@@ -644,12 +645,15 @@ export function buildFlightLayout({ seed = 1, terrain = 'ruins', elite = false,
   if (niches.length > 1 && ascent.level > 1) {
     const utilityRng = seededRandom(`${seed}:${terrain}:${stage}:niche-kinds`);
     const keepDark = Math.floor(utilityRng() * niches.length);
+    const darkSlots = new Set([keepDark]);
+    const retained = Math.min(niches.length,elite?3:2);
+    for(let i=1;i<retained;i++)darkSlots.add((keepDark+Math.floor(i*niches.length/retained))%niches.length);
     const pool = ascent.level >= 4 ? ['embers', 'charge', 'sight', 'dusk']
       : ascent.level >= 3 ? ['embers', 'charge', 'sight'] : ['embers', 'charge'];
     const offset = Math.floor(utilityRng() * pool.length) + ['ruins', 'canopy', 'storm'].indexOf(terrain);
     let utilityIndex = 0;
     niches.forEach((packet, i) => {
-      if (i === keepDark) return;
+      if (darkSlots.has(i)) return;
       const kind = pool[(offset + utilityIndex++) % pool.length], spec = getPickupSpec(kind);
       Object.assign(packet, { kind, harmful: false, manualOnly: spec.manualOnly,
         value: 0, fuel: spec.fuel > 0, feature: `${kind}-niche` });
@@ -665,6 +669,9 @@ export function buildFlightLayout({ seed = 1, terrain = 'ruins', elite = false,
     hardWindows: sections.filter(section => section.hard).length };
   finalizeFlightChallenges(layout,{terrain,basic:stage===0&&!elite&&mapIndex===0&&difficulty<=1});
   addAccessibleGlow(layout,{duration,speed,height,elite,difficulty,stage,passage});
+  installRiskChains(layout,{duration,speed,height,elite,difficulty,stage,mapIndex},(x,y,radius)=>
+    y>radius+12&&y<height-radius-12&&obstacles.every(o=>x+radius<o.x-o.width*.8||x-radius>o.x+o.width*2.45
+      ||[-1,1].every(sign=>!circleHitsObstacle(x,y,radius,o,0,o.center+sign*Math.abs(o.motion||0)))));
   return layout;
 }
 
@@ -810,6 +817,9 @@ export class WispFlight {
       layout: this.layout, lesson: this.tutorial?.lesson || null, lengthScale: this.lengthScale });
     if(!this.tutorial&&!this.bossEncounter)installAuthoredDraftCrossings(this.layout,this.drafts,{
       seed:this.seed,terrain:this.terrain,elite:this.elite,duration:this.duration,height:this.height,totalDistance:this.totalDistance});
+    // A snare is a readable steering choice, not a forced gust into its seed.
+    if(this.layout.riskChains?.length)this.drafts.zones=this.drafts.zones.filter(zone=>
+      this.layout.riskChains.every(chain=>zone.x+zone.rx<chain.start-140||zone.x-zone.rx>chain.end+140));
     this.challengeDirector=new FlightChallengeDirector(this.layout);
     this.flightChallenge=null;this.caveDimming=0;
     this.challengeIndex = Math.floor(seededRandom(`${this.seed}:challenge`)() * 3);
@@ -835,7 +845,7 @@ export class WispFlight {
 
   async initPixelView() {
     try {
-      const { WispFlightView } = await import('./wisp-renderer.mjs?v=collector-flow-1');
+      const { WispFlightView } = await import('./wisp-renderer.mjs?v=risk-chains-1');
       if (this.destroyed) return;
       this.pixiView = new WispFlightView(this);
       const initialized = await this.pixiView.init();
