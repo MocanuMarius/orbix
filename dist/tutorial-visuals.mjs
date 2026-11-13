@@ -1,12 +1,12 @@
-import {getCompanionAbility} from './companion-abilities.mjs?v=moonlit-menus-1';
-import {resourceSymbol} from './game-symbols.mjs?v=moonlit-menus-1';
-import {pickupArtSvg} from './pickup-art.mjs?v=moonlit-menus-1';
-import {getPickupSpec} from './pickups.mjs?v=moonlit-menus-1';
-import {mapStopIconMarkup,MAP_STOP_TYPES} from './map-guide.mjs?v=moonlit-menus-1';
-import {artifactIcon,skillIcon} from './upgrade-icons.mjs?v=moonlit-menus-1';
-import {companionArtSvg} from './companion-art.mjs?v=moonlit-menus-1';
-import {dreamEye} from './dream.mjs?v=moonlit-menus-1';
-import {lifeHeartSvg} from './lives.mjs?v=moonlit-menus-1';
+import {getCompanionAbility} from './companion-abilities.mjs?v=clear-rewards-1';
+import {resourceSymbol} from './game-symbols.mjs?v=clear-rewards-1';
+import {pickupArtSvg} from './pickup-art.mjs?v=clear-rewards-1';
+import {getPickupSpec} from './pickups.mjs?v=clear-rewards-1';
+import {mapStopIconMarkup,MAP_STOP_TYPES} from './map-guide.mjs?v=clear-rewards-1';
+import {artifactIcon,skillIcon} from './upgrade-icons.mjs?v=clear-rewards-1';
+import {companionArtSvg} from './companion-art.mjs?v=clear-rewards-1';
+import {dreamEye} from './dream.mjs?v=clear-rewards-1';
+import {lifeHeartSvg} from './lives.mjs?v=clear-rewards-1';
 const item=(art,label)=>`<span class="coach-term">${art}<b>${label}</b></span>`;
 const arrow='<i class="coach-term-arrow" aria-hidden="true">→</i>';
 const meter='<span class="coach-meter" aria-hidden="true">'+Array.from({length:10},(_,i)=>`<i class="${i<7?'filled':''}"></i>`).join('')+'</span>';
@@ -30,7 +30,8 @@ export function tutorialVisualMarkup(step={}){
  if(kind==='sites-support')return item(mapStopIconMarkup('encounter'),'ENCOUNTER')+item(mapStopIconMarkup('treasure'),'TREASURE');
  if(kind?.startsWith('pickup:')){const type=kind.slice(7);return item(pickupArtSvg(type),getPickupSpec(type).name);}
  if(kind==='spark'||id.startsWith('world:light-packet'))return item(pickupArtSvg('light'),'SPARK')+arrow+item(meter,'SPARK METER');
- if(kind==='packed')return item(resourceSymbol('glow'),'FULL METER')+arrow+item(resourceSymbol('packed'),'PACKED SPARKS');
+ if(kind==='clear-reward')return item(mapStopIconMarkup('flight'),'CLEAR FLIGHT')+arrow+item(resourceSymbol('packed'),'+20 PACKED SPARKS');
+ if(kind==='packed')return item(resourceSymbol('glow'),'FULL METER')+arrow+item(resourceSymbol('packed'),'BONUS PACKED SPARKS');
  if(kind==='lift')return item(resourceSymbol('up'),'LIFT')+item(resourceSymbol('glow'),'SPENDS SPARKS');
  if(kind==='route')return item(mapStopIconMarkup('flight'),'FLIGHT');
  if(kind==='rest')return item(mapStopIconMarkup('rest'),'REST · CHOOSE ONE');

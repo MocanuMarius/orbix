@@ -1,3 +1,20 @@
+# Current implementation audit - Clear Rewards
+
+Release: `clear-rewards-1`. Only simplification proposal 3 is selected; prior menu/display work remains in place.
+
+- Successful ordinary, elite and map-exit flights secure 20 Packed Sparks plus overflow. Fixed clear income bypasses conversion multipliers. Failed attempts pay nothing; settlement, reload and retry are idempotent. The final guardian grants its permanent relic.
+- Rest shows Recover or Grow. Recover refills hearts; Grow adds 3 maximum Sparks, up to 9 this run. Both refill Sparks. Grow is disabled at its cap; Recover stays usable even when full. Current/max outcomes are visible.
+- Condense and Recharge are removed from Rest choices and current tutorial text. Consumable stacks/charges, artifact slots and skill-tree rules remain. Optional preparation tools still open on the same Rest screen.
+- Flight previews show the clear reward. Reward screens distinguish clear income and overflow without adding another confirmation screen.
+
+Verification: 33 focused tests passed for transactions, practice isolation, Rest growth/cap, restart/retry, entry, onboarding, artifact flow, one-companion rules and desktop display routing. A 144-campaign synthetic income probe completed through the production model; its assumptions/results are in [checkpoint-economy.md](checkpoint-economy.md). It does not measure human difficulty.
+
+Browser inspection: Rest choices and Grow preparation at 900x405; Recover preparation at 740x333; capped Rest, briefing and reward screens at 720x280. No control overlap, offscreen action or document overflow in those checked states. Clear-only and clear-plus-overflow totals rendered correctly.
+
+Publication verification will be recorded after the release is live.
+
+---
+
 # Current implementation audit — Moonlit Menus
 
 Release: `moonlit-menus-1`. This entry supersedes the older UI status below; the One Companion gameplay rules remain in force.

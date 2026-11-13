@@ -1,6 +1,6 @@
-import {livesMarkup} from './lives.mjs?v=moonlit-menus-1';
-import {formatGlow,getGlowCapacity} from './vitality.mjs?v=moonlit-menus-1';
-import {resourceSymbol} from './game-symbols.mjs?v=moonlit-menus-1';
+import {livesMarkup} from './lives.mjs?v=clear-rewards-1';
+import {formatGlow,getGlowCapacity} from './vitality.mjs?v=clear-rewards-1';
+import {resourceSymbol} from './game-symbols.mjs?v=clear-rewards-1';
 
 export const FLIGHT_LOAD_SECONDS=5;
 const esc=value=>String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -8,7 +8,7 @@ const tips=[
  ['Luminance','Your light reveals the terrain. Luminance skills extend its reach.'],
  ['Sparks','Tap anywhere on the flight scene to Lift. Each Lift spends Sparks.'],
  ['Hearts','One collision costs one heart. You return to the route to try again.'],
- ['Packed Sparks','Collect Sparks with a full meter to earn Packed Sparks for skills.'],
+ ['Packed Sparks','Clear a flight for 20 Packed Sparks. Full-meter pickups add a bonus for skills.'],
  ['Edging Pulse','Skim close to solid terrain to charge a pulse that reveals the scene.'],
  ['Artifacts','Equipped artifacts work automatically. Tap an artifact to pause and inspect it.'],
 ];

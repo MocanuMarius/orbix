@@ -882,3 +882,12 @@ Outstanding design questions are explicit, not silently treated as implemented: 
 - Display controls pause active flight and cancel a pending resume countdown before changing scale. The normal countdown and slow recovery still govern returning to play. The mock query flag propagates into the game, and the in-game preview toggle updates the outer URL.
 - Original moonlit pixel scenery anchors the home menu. Continue/New Game are the strongest actions; the companion roster shows the next unlock. Dialogue frames share a moss-and-stone treatment. Quiet text grounds, a consistent hierarchy and distinct owned/available/saving/locked marks make effects easier to read.
 - Research uses primary Xbox and handheld-platform guidance, the original Game Accessibility Guidelines and a free Apple design lesson. See `docs/ui-design-research.md`. These choices are not a claim of full accessibility compliance or physical Pixel 10 performance.
+
+
+## Clear Rewards - 13 November 2026
+
+User selected simplification proposal 3 only. Each ordinary, elite and map-exit flight now grants 20 Packed Sparks on a successful clear, plus existing pickup overflow. Completion income is fixed and never multiplied by condensation skills. Failed attempts grant neither; retries/reloads cannot duplicate a reward. The final guardian remains a permanent-relic reward because run currency expires at that point.
+
+Rest always offers Recover (restore all missing hearts) or Grow (+3 maximum Sparks for this run, three growths maximum). Both completely refill Sparks, including newly purchased capacity during that Rest's preparation. Grow leaves hearts unchanged. A capped Grow is visibly disabled; Recover remains available so preparation cannot dead-end. Rest refills create no Packed Sparks. The old Condense and Recharge benefits are removed. Consumable stacks/uses, artifact slots and the skill trees are otherwise retained; proposals 1 and 2 were not selected.
+
+Skills, changing the one companion, artifact management/Forge and learned Dream remain optional preparation tools. Before-flight previews, reward totals, contextual guidance and the Field Guide distinguish clear income from overflow. See docs/checkpoint-economy.md for the small synthetic income check and its limits.

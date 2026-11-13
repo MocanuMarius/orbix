@@ -1,0 +1,25 @@
+.rest-simple .rest-refill-note{display:flex;align-items:center;gap:5px;font-size:13px;color:#d3ddc4}
+.rest-refill-note .resource-symbol{width:19px;height:19px}
+.rest-simple .rest-benefit h2{min-height:30px;margin:0;font-size:25px!important}
+.rest-simple .rest-benefit>.choice-scene{max-width:250px;height:clamp(60px,25dvh,115px)}
+.rest-simple .rest-capacity-gain{min-height:28px;font:15px/1.2 var(--pixel);gap:6px}
+.rest-simple .rest-capacity-gain>b{font:23px/1 var(--pixel)}
+.rest-heart-result{display:flex;align-items:center;justify-content:center;gap:8px;min-height:28px}
+.rest-heart-result .life-heart{width:17px;height:17px}.rest-heart-result i{font-style:normal;color:#b9cbb0}
+.rest-full-sparks{display:flex;align-items:center;gap:6px;font:23px/1.2 var(--pixel);color:#f0edcf}
+.rest-full-sparks .resource-symbol{width:22px;height:22px}.rest-full-sparks small{font-size:15px;color:#b9cbb0}
+.rest-simple .rest-pick-cue{font-size:14px}
+.reward-packed-earned .reward-earnings-notes{display:flex;flex-direction:column;gap:3px;font:12px/1.15 var(--pixel);color:#c6d5ba}
+.reward-earnings-notes i{font-style:normal}
+.passage-clear-pay{display:flex;align-items:center;justify-content:center;gap:6px;flex-wrap:wrap;align-content:center;min-width:96px;max-width:108px;color:#e6dfb7}
+.passage-clear-pay .resource-symbol{width:23px;height:23px}.passage-clear-pay b{font:20px/1 var(--pixel)}
+.passage-clear-pay small{width:100%;font:12px/1.2 var(--pixel);text-align:center;color:#bacbad}
+@media(orientation:landscape) and (max-height:350px){
+ .rest-simple .rest-benefit{gap:6px}.rest-simple .rest-benefit h2{font-size:22px!important;min-height:25px}
+ .rest-simple .rest-benefit>.choice-scene{height:52px;min-height:36px;flex-shrink:1}
+ .rest-simple .rest-capacity-gain{min-height:23px;font-size:13px}.rest-simple .rest-capacity-gain>b,.rest-full-sparks{font-size:20px}
+ .rest-heart-result{min-height:23px;gap:5px}.rest-heart-result .life-heart{width:14px;height:14px}
+ .rest-full-sparks .resource-symbol{width:19px;height:19px}.rest-full-sparks small{font-size:12px}
+ .rest-simple .rest-pick-cue{font-size:12px}.rest-simple .rest-refill-note{font-size:11px}
+ .reward-packed-earned .reward-earnings-notes{font-size:10px;gap:2px}.passage-clear-pay{min-width:82px;max-width:90px}.passage-clear-pay b{font-size:17px}
+}
