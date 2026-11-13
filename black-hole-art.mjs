@@ -1,6 +1,6 @@
 // Pixel accretion and stolen-light trails. Cosmetics consume recorded drain;
 // rendering never spends fuel or changes the simulation.
-const TAU=Math.PI*2,MAX_MOTES=48;
+const TAU=Math.PI*2,MAX_MOTES=96;
 const views=new WeakMap();
 const clamp=(n,a,b)=>Math.max(a,Math.min(b,n));
 const mix=(a,b,t)=>a+(b-a)*t;
@@ -17,8 +17,8 @@ function update(v,e){
   let credit=v.credits.get(hole.id);if(!credit){credit={total:0,fraction:0};v.credits.set(hole.id,credit);}
   const delta=Math.max(0,(hole.drained||0)-credit.total);credit.total=hole.drained||0;
   if(!delta||e.dying||e.completing||e.alive===false||now-(hole.lastDrainAt??-Infinity)>.15)continue;
-  credit.fraction+=delta*(e.reducedMotion?.22:.9);
-  const amount=Math.min(e.reducedMotion?2:10,Math.floor(credit.fraction));credit.fraction-=Math.floor(credit.fraction);
+  credit.fraction+=delta*(e.reducedMotion?.22:1.8);
+  const amount=Math.min(e.reducedMotion?2:20,Math.floor(credit.fraction));credit.fraction-=Math.floor(credit.fraction);
   for(let i=0;i<amount;i++){
    const seed=(++v.serial*.61803398875+(hole.seed||0)*.001)%1;
    const sx=hole.sourceX??e.distance+e.player.x,sy=hole.sourceY??e.player.y;
@@ -26,20 +26,20 @@ function update(v,e){
    const approach=clamp(range/(350+Math.min(80,hole.rate||0)*4),.15,.6),orbit=e.reducedMotion?.42:.65;
    if(v.motes.length>=MAX_MOTES)v.motes.shift();
    v.motes.push({born:now,life:approach+orbit,approach,orbit,sx,sy,hx:hole.x,hy:hole.y,
-    radius:hole.coreRadius||16,angle,seed,quiet:!!e.reducedMotion});
+    radius:hole.coreRadius||16,range,angle,seed,quiet:!!e.reducedMotion});
   }
  }
 }
 function position(p,age,out){
- const radius=p.radius*2.15;
+ const radius=Math.min(p.range,p.radius*(2.55+p.seed*.5)),turn=.39+p.seed*.12;
  if(age<p.approach){
-  const u=clamp(age/p.approach,0,1),t=u*u*(3-2*u),ex=p.hx+Math.cos(p.angle)*radius,ey=p.hy+Math.sin(p.angle)*radius;
-  const bend=Math.sin(Math.PI*u)*(12+p.seed*12)*(p.seed>.5?1:-1);
-  out.x=mix(p.sx,ex,t)-Math.sin(p.angle)*bend;out.y=mix(p.sy,ey,t)+Math.cos(p.angle)*bend;
+  const u=clamp(age/p.approach,0,1),t=u*u*(3-2*u);
+  const a=p.angle+(p.quiet?0:TAU*turn*u*u),r=mix(p.range,radius,t);
+  out.x=p.hx+Math.cos(a)*r;out.y=p.hy+Math.sin(a)*r*mix(1,.72,t);
  }else{
-  const u=clamp((age-p.approach)/p.orbit,0,1),r=radius*(1-u)**1.8;
-  const a=p.angle+(p.quiet?.55:TAU)*(2.2*u+u*u);
-  out.x=p.hx+Math.cos(a)*r;out.y=p.hy+Math.sin(a)*r*.8;
+  const u=clamp((age-p.approach)/p.orbit,0,1),r=radius*(1-u)**1.4;
+  const a=p.angle+(p.quiet?.55*u:TAU*(turn+(1+p.seed*.4)*u+3.8*u*u));
+  out.x=p.hx+Math.cos(a)*r;out.y=p.hy+Math.sin(a)*r*.72;
  }
 }
 const point={x:0,y:0};
@@ -70,8 +70,14 @@ export function drawBlackHoles(c,e,{scale=1,distance=e.renderDistance??e.distanc
    position(p,Math.max(0,age-tail*.023),point);
    const x=(point.x-distance)*scale,y=(point.y+(1-clamp(age/p.approach,0,1))*(playerY-e.player.y))*scale;
    if(x<-12||x>e.width*scale+12)continue;
-   c.globalAlpha=(tail?.22:.9)*(1-absorption*.45);c.fillStyle=absorption>.55?'#e1a3a2':tail?'#a6bca7':'#f4edd0';
-   c.fillRect(Math.round(x),Math.round(y),q+(tail===0&&p.seed>.7?q:0),q);
+   // Broad, stepped light fragments narrow into the funnel. No blur/filter or
+   // per-frame sprite allocation; the dark core is painted over them last.
+   const size=Math.max(q,Math.round(q*(p.quiet?3:5)*(1-absorption*.84)*(tail?.55:1)));
+   const px=Math.round(x-size/2),py=Math.round(y-size/2),cut=Math.max(1,Math.round(size*.2));
+   c.globalAlpha=(tail?.18:.86)*(1-absorption*.45);c.fillStyle=absorption>.55?'#e1a3a2':tail?'#a6bca7':'#f4edd0';
+   if(size<=2){c.fillRect(px,py,size,size);continue;}
+   c.fillRect(px+cut,py,size-cut*2,size);c.fillRect(px,py+cut,size,size-cut*2);
+   if(!tail&&size>3){c.globalAlpha=.95*(1-absorption*.5);c.fillStyle='#fff8df';c.fillRect(px+cut,py+cut,Math.max(1,size-cut*2),Math.max(1,size-cut*2));}
   }
  }
  for(const hole of e.blackHoles.items){

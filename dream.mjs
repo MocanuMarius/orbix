@@ -3,13 +3,13 @@ const INPUTS=['beginLiftInput','endLiftInput','flap','activateAbility'];
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
 const ordered=value=>Array.isArray(value)?value.map(ordered):value&&typeof value==='object'?Object.fromEntries(Object.keys(value).sort().map(k=>[k,ordered(value[k])])):value;
 export function dreamFingerprint(options={}){
-  return JSON.stringify(ordered({simulation:'glow-flight-1',seed:options.seed,terrain:options.terrain,elite:!!options.elite,duration:options.duration,
+  return JSON.stringify(ordered({simulation:'artifact-clarity-1',seed:options.seed,terrain:options.terrain,elite:!!options.elite,duration:options.duration,
     node:options.node,companions:options.companions,modifiers:options.modifiers,flame:options.flame,condensedGlow:options.condensedGlow||0,condensedRemainder:options.condensedRemainder||0}));
 }
 export function dreamConfig(run={}){
   const s=run.skills||{};
   return {duration:s['main-dream']?(s['main-dream-deep']?8:s['main-dream-long']?6:4):0,
-    wake:s['main-dream-wake']?3:2,sight:!!s['main-dream-sight']};
+    wake:s['main-dream-wake']?4:3,sight:!!s['main-dream-sight']};
 }
 export function validateDreamPreset(preset,engine){
   return !!preset&&preset.version===1&&preset.fingerprint===dreamFingerprint(engine.options)
@@ -39,7 +39,7 @@ export function attachDream(engine,{mode='record',preset,duration=engine.mod.dre
     get state(){return {mode:this.mode,phase:this.phase,duration:this.duration,remaining:Math.max(0,this.duration-engine.time)}},
     resume(){
       if(this.phase!=='awakening')return false;
-      this.phase='done';engine.dreamCompleted=true;engine.resumeRampSeconds=Number(engine.mod.dreamWake)||2;
+      this.phase='done';engine.dreamCompleted=true;engine.resumeRampSeconds=Number(engine.mod.dreamWake)||3;
       engine.resume();return true;
     }};
   engine.dream=dream;

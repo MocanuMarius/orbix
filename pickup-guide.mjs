@@ -1,7 +1,7 @@
-import {formatGlow} from './vitality.mjs?v=glow-flight-1';
-import { PICKUP_TYPES, getPickupSpec } from './pickups.mjs?v=glow-flight-1';
-import { pickupArtSvg } from './pickup-art.mjs?v=glow-flight-1';
-import { normalizeCompanionRole, normalizeCompanionFleet } from './companion-abilities.mjs?v=glow-flight-1';
+import {formatGlow} from './vitality.mjs?v=artifact-clarity-1';
+import { PICKUP_TYPES, getPickupSpec } from './pickups.mjs?v=artifact-clarity-1';
+import { pickupArtSvg } from './pickup-art.mjs?v=artifact-clarity-1';
+import { normalizeCompanionRole, normalizeCompanionFleet } from './companion-abilities.mjs?v=artifact-clarity-1';
 
 const esc = value => String(value ?? '').replace(/[&<>"']/g, char =>
   ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
