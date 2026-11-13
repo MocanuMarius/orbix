@@ -1,4 +1,4 @@
-import {tuneMainDefinition} from './main-tuning.mjs?v=earned-start-1';
+import {tuneMainDefinition} from './main-tuning.mjs?v=pixel-landscape-1';
 // Separate purchases along a path, not a repeatable stat allocation screen.
 const styles={
  'main-lift':['−2% cost','Lift spends 2% less Glow.'],

@@ -1,4 +1,4 @@
-import {getCompanionAbility} from './companion-abilities.mjs?v=earned-start-1';
+import {getCompanionAbility} from './companion-abilities.mjs?v=pixel-landscape-1';
 // Practice is an authored flight using the same controls, fuel and colliders.
 // This module contains guidance and lesson scenery; it never grants rewards.
 const clamp = (n, lo, hi) => Math.min(hi, Math.max(lo, n));
@@ -147,21 +147,21 @@ export function getTutorialHint(engine) {
       :'Touch this light yourself for immediate Glow. Only an equipped Collector fetches misses.',2);
     if(collector&&!state.carrierDeliveries)return hint('carrier','Collector rescues a miss',engine.wisp.phase==='returning'
       ?'The packet pays when Collector returns. Its boundary then shrinks and grows back.'
-      :'Your body gets first chance. A missed packet must remain inside the shaped aura to be rescued.',3);
+      :'Your body gets first chance. A missed packet touching the boundary reacts. Collector fetches after your body has had its chance.',3);
     if(collector&&engine.wisp.phase==='cooldown')return hint('rest','Collector is recovering','Its boundary grows back. Missed packets inside the smaller range can still be rescued.',3);
     return hint('glide-ready','Small lifts, long glides',active
-      ?'POWER activates every ready active companion. A second tap releases an active Leveler; Lift also releases it.'
-      :'Collector fetches, Protector can spend Glow on a shell, and Kindler rewards direct fuel pickups. Equipped passives work automatically.',4);
+      ?'POWER activates Runner. With Space Timer, hold Lift to levitate; release to glide.'
+      :'Collector fetches misses. Protector spends Glow to shield a collision. Both work automatically.',4);
   }
   const gust=engine.gustState();
   const dark=engine.layout.embers.find(packet=>packet.tutorialDark),darkX=dark?dark.x-engine.distance:Infinity;
   if(dark&&!dark.collected&&darkX>engine.player.x-18&&darkX<engine.width-18)return hint('dark-packet','Avoid the dark seed',
-    'Black seeds dim sight. Collector ignores them; only an upgraded, ready Kindler can purify one.',4);
+    'Black seeds dim sight. Collector ignores them. The learned Purifying Touch perk can cleanse one when ready.',4);
   if(state.darkCollected&&!state.darkCleared)return hint('dark-recovery','Restore your light','A natural fuel light clears one dimming effect and refills Glow.',4);
   if(gust.warning||gust.active)return hint('wind',gust.warning?'Read the direction':'Inside the draft puff',
-    'Curls point in the push direction. Fly outside their edge, or use a ready Swift. Leveler still bobs and can be nudged.',3);
+    'Curls show the push direction. Dodge the puff or use Runner. Space Timer still bobs and feels drafts.',3);
   if(active&&!state.toolObserved&&engine.time<6)return hint('power','One Power control',
-    'POWER starts ready Swift and Seer together. With Leveler, hold the scene or Lift to levitate; release to glide and recharge.',2);
+    'POWER starts Runner. With Space Timer, hold the scene or Lift to levitate; release to glide and recharge.',2);
   if(!state.finishedWind)return hint('watch-wind','Watch for the local draft','Only the visible puff pushes you. Its warning gives you time to choose above or below.',3);
   return hint('ready','Keep fuel for the waylight','Glide, collect deliberately, and reach the refuge. MENU pauses whenever you need it.',4);
 }

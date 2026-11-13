@@ -1,5 +1,5 @@
-import { getCompanionAbility, normalizeCompanionFleet } from './companion-abilities.mjs?v=earned-start-1';
-import { companionArtSvg, companionPalette } from './companion-art.mjs?v=earned-start-1';
+import { getCompanionAbility, normalizeCompanionFleet } from './companion-abilities.mjs?v=pixel-landscape-1';
+import { companionArtSvg, companionPalette } from './companion-art.mjs?v=pixel-landscape-1';
 const clamp=n=>Math.max(0,Math.min(1,Number(n)||0));
 const finite=(n,f=0)=>Number.isFinite(Number(n))?Number(n):f;
 const sparks=[[0,-54],[38,-38],[54,0],[38,38],[0,54],[-38,38],[-54,0],[-38,-38]];
@@ -21,7 +21,7 @@ export function updateBoostControl(element,state={}){
     charge=clamp(1-finite(ability.cooldown,finite(state.boostCooldown))/total);
     if(ability.ready&&!ability.release)charge=1;
     mode=ability.release?'release':ability.ready?'ready':ability.active?'active':'cooling';
-    meaning=ability.release?'Tap to release Leveler':ability.ready?'Ready to activate':'Power recovering';
+    meaning=ability.release?'Tap to release Space Timer':ability.ready?'Ready to activate':'Power recovering';
   }else if(roles.includes('leveler')){
     role='leveler';charge=clamp(finite(state.leveler?.charge)/Math.max(.001,finite(state.leveler?.capacity,2.4)));
     mode=state.leveler?.active?'active':charge>=.999?'ready':'cooling';meaning='Hold flight area or Lift to levitate; release to glide';
@@ -51,6 +51,6 @@ export function updateBoostControl(element,state={}){
   if(!full&&element._wasFull!==false)element.classList.remove('power-ready-burst');
   element._wasFull=full;
   if(element.tagName==='BUTTON'&&element.disabled!==disabled)element.disabled=disabled;
-  const aria=ended?'Attempt ended':paused?'Flight paused':waiting?'Tap Lift to begin':`${meaning}. ${Math.round(charge*100)} percent.${passive?'':' Tap Power for ready Swift or Seer.'}`;
+  const aria=ended?'Attempt ended':paused?'Flight paused':waiting?'Tap Lift to begin':`${meaning}. ${Math.round(charge*100)} percent.${passive?'':' Tap Power for Runner.'}`;
   if(element.getAttribute('aria-label')!==aria)element.setAttribute('aria-label',aria);
 }

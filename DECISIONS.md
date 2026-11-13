@@ -641,3 +641,28 @@ Checks passed: model routes/rewards/overflow/full campaign, exact Dream replay a
 Reduced new-run starting Embers from 90 to 30, retaining the choice of one free root skill. This affords one small 25–30 Ember refinement or a saving toward a 35–40 Ember unlock; it prevents buying a multi-upgrade build before the first flight. Flight rewards, artifact choices, recovery and TEST resources are unchanged. Both starter labels now use the shared budget constant. Existing runs retain their wallet.
 
 Focused economy check follows a real first victory: 30 start, 25 spent on Rising Light, 5 remaining; clear reward 32 plus 5 gathered gives 42; choosing 18 Embers instead of an artifact yields 60, enough for two 30-Ember improvements. Choosing the artifact instead limits immediate spending. This is an opening-pacing adjustment, not a claim that the entire economy is balanced. Artifact combination depth remains a separate design opportunity.
+
+
+## Landscape, radial skills and four companions — 2026-11-13
+
+Landscape is now the default play orientation. Pixel 10's 20:9 display is the reference; the interface also adapts to reduced browser height. The home screen, horizontal route map, briefing, support, victory and pause screens use the available width. Lift and Power remain at the lower right. Portrait displays a rotate prompt and pauses live play; returning sideways requires an explicit resume. Fullscreen requests orientation lock where supported, with a rotate prompt fallback. The in-app browser preview is set to 900 by 405; the 900 by 340 browser-chrome case was also inspected.
+
+Flight keeps a 430-unit landscape world height and reveals more terrain horizontally, preserving speed, pickup geometry and physics. The pixel buffer preserves aspect ratio instead of stretching the portrait view. Dream presets now validate width as well as height, and a viewport change stops rehearsal or pauses replay safely.
+
+Skill trees are radial constellations. Main-wisp branches retain individual upgrade nodes; companion multi-rank upgrades share a circle with rank pips and individually selectable ranks in the inspector. Prerequisites, prices and mutually exclusive choices remain. The selected effect is shown beside the tree, with readable disabled-button contrast and 44-pixel touch targets.
+
+The four base companions are Collector, Protector, Runner and Space Timer (internal IDs swift and leveler are retained). Their permanent unlock tiers are Ascensions 1, 2, 3 and 4. The home roster always shows all four with small locks; normal selection respects unlocks, and TEST permits all four. Seer and Kindler are learned main-wisp effects: Echo Sight gives a two-second forward reveal on natural fuel collection with an eight-second cooldown; Kindled Touch adds six Glow to direct body fuel pickups. Their further nodes extend vision or add purification. These traits work with any base companion and add no action button.
+
+An unprotected death spends one life and returns to the current route-map row. Failed-flight resources are restored and no partial rewards are retained. Players can choose connected alternatives; a Rest's single Dream exit gains same-row detours after a failure. Completed support sites cannot be repeated, and the final boss cannot be skipped. Zero lives still ends the run.
+
+The first Warden is eased at low Ascensions: A1 openings are 15% wider, sway 15% smaller, spacing 8% longer, and moving-hand warning distance 20% greater. Easing tapers through A2–3; A4–6 keep the prior layout. Rewards are unchanged.
+
+Focused checks passed for four-role selection and locks, route deaths and reward isolation, all-role main traits, landscape geometry, 44 radial layouts, Dream replay and the campaign loop. Actual browser inspection covered home/TEST Runner start, skill tree, route, flight, rotation, pause menu and death returning to route. This is responsive browser verification, not a Pixel 10 hardware FPS or human win-rate measurement.
+
+## Next design priorities — proposed, not implemented
+
+1. Interacting artifacts with shared gameplay triggers, so a reward can change the run's plan. Example: surplus fuel accelerates companion recovery, linking precise pickups, Collector and Space Timer without requiring a fixed named pair.
+2. Distinct previewed challenge and boss families that reward different builds: controlled tunnels, draft staircases and Dark Seed orchards, with a survivable main route and optional harder payoff.
+3. Route and economic tradeoffs worth planning: fix the 18/28-Ember cash option versus 40-Ember artifact resale, vary route recipes and advertise reward themes while preserving the known next flight needed for Dream.
+
+Reference: Mega Crit's official Slay the Spire overview (https://www.megacrit.com/press-kits/slay-the-spire/) and its GDC balance presentation (https://media.gdcvault.com/gdc2019/presentations/Giovannetti_Anthony_SlayTheSpire.pdf). These priorities are design recommendations, not proven balance outcomes.

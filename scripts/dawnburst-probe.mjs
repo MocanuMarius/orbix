@@ -23,5 +23,5 @@ for(const kind of ['embers','charge','sight','dark']){const other=make();collect
 const generated=make();collect(generated,'light',{generated:true});generated.time=.5;assert.equal(generated.getLightState().pickupReveal,0);
 const plain=make(false);collect(plain);plain.time=.5;assert.equal(plain.getLightState().pickupReveal,0);
 const reduced=make();reduced.reducedMotion=true;collect(reduced);reduced.time=.12;assert.ok(reduced.getLightState().pickupReveal<.5);reduced.time=.35;assert.equal(reduced.getLightState().pickupReveal,1);
-const purified=make(true,['kindler']);purified.mod.kindlerPurify=true;collect(purified,'dark');purified.time=.2;assert.equal(purified.getLightState().pickupReveal,1);
+const purified=make(true,['protector']);purified.mod.mainKindler=true;purified.mod.kindlerPurify=true;collect(purified,'dark');purified.time=.2;assert.equal(purified.getLightState().pickupReveal,1);
 console.log(JSON.stringify({oneTimePurchase:45,holdSeconds:1.5,fadeSeconds:1.2,bodyAndCollector:true,fullTank:true,refreshNoStack:true,utilityExclusion:true,reducedMotion:true,purify:true}));

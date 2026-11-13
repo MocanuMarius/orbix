@@ -1,6 +1,12 @@
 // Main-wisp paths favour distinct decisions over repeated identical ranks.
 const node=(id,name,cost,requires,description,icon,shortEffect,extra={})=>({id,name,branch:'main',cost,maxRank:1,requires,description,consequence:description,icon,shortEffect,...extra});
 export const MAIN_TUNING_SKILLS={
+ 'main-echo-sight':node('main-echo-sight','Echo Sight',35,'main-sight','Natural Glow pickups cast light farther ahead for 2 seconds. Recharges in 8 seconds. Works with any companion.','sight','Pickup vision'),
+ 'main-echo-long':node('main-echo-long','Lingering Echo',35,'main-echo-sight','Echo Sight lasts 1 second longer.','duration','+1s vision'),
+ 'main-echo-range':node('main-echo-range','Far Echo',40,'main-echo-sight','Echo Sight reaches 50 farther ahead.','sight','+50 reach'),
+ 'main-kindled-touch':node('main-kindled-touch','Kindled Touch',35,'main-efficiency','Direct natural fuel pickups restore 6 extra Glow. Companion deliveries keep their usual value.','fuel','Direct +6 Glow'),
+ 'main-kindled-rich':node('main-kindled-rich','Bright Touch',40,'main-kindled-touch','Direct natural fuel pickups restore another 4 Glow.','fuel','Direct +4 Glow'),
+ 'main-purifying-touch':node('main-purifying-touch','Purifying Touch',45,'main-kindled-touch','Touch a Dark Seed to turn it into 12 Glow instead of dimming. Recharges in 10 seconds.','purify','Cleanse seeds'),
  'main-dream':node('main-dream','Dream',35,'main-sight','At a Rest, rehearse the next flight’s first 4 seconds freely. Preset a successful opening to replay without Lift or sustain cost.','dream','Dream 4s'),
  'main-dream-long':node('main-dream-long','Long Dream',40,'main-dream','Extend rehearsals and preset playback to 6 seconds.','dream','Dream 6s'),
  'main-dream-deep':node('main-dream-deep','Deep Dream',55,'main-dream-long','Extend rehearsals and preset playback to 8 seconds.','dream','Dream 8s'),

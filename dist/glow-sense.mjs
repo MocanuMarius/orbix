@@ -1,4 +1,4 @@
-import {getPickupSpec,pickupDisposition} from './pickups.mjs?v=earned-start-1';
+import {getPickupSpec,pickupDisposition} from './pickups.mjs?v=pixel-landscape-1';
 
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
 const smooth=v=>{v=clamp(v,0,1);return v*v*(3-2*v)};
@@ -19,7 +19,7 @@ function visibility(x,y,e,light,playerY){
 
 export function glowSenseCues(e,{distance=e.renderDistance??e.distance,playerY=e.renderPlayerY??e.player.y,light=e.getLightState?.()||{}}={}){
   if(!e.mod?.glowSense||e.dying||e.completionProgress>0)return [];
-  const cues=[],right=e.width-12,far=e.width+240,radius=light.radius||175;
+  const cues=[],right=e.width-12,radius=light.radius||175,far=Math.min(e.width+240,e.player.x+radius*2+240);
   // getNearbyPickups already maintains a short, sorted window of the map.
   for(const packet of e.getNearbyPickups()){
     const x=packet.x-distance;

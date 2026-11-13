@@ -1,16 +1,14 @@
-import {formatGlow} from './vitality.mjs?v=earned-start-1';
-import { PICKUP_TYPES, getPickupSpec } from './pickups.mjs?v=earned-start-1';
-import { pickupArtSvg } from './pickup-art.mjs?v=earned-start-1';
-import { getCompanionAbility, normalizeCompanionRole, normalizeCompanionFleet } from './companion-abilities.mjs?v=earned-start-1';
+import {formatGlow} from './vitality.mjs?v=pixel-landscape-1';
+import { PICKUP_TYPES, getPickupSpec } from './pickups.mjs?v=pixel-landscape-1';
+import { pickupArtSvg } from './pickup-art.mjs?v=pixel-landscape-1';
+import { normalizeCompanionRole, normalizeCompanionFleet } from './companion-abilities.mjs?v=pixel-landscape-1';
 
 const esc = value => String(value ?? '').replace(/[&<>"']/g, char =>
   ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
 const percent = value => Math.round((Number(value) || 0) * 100);
 
 function chargeText(role, amount) {
-  const roles=normalizeCompanionFleet(Array.isArray(role)?role:null,Array.isArray(role)?'collector':role);
-  return roles.every(id=>id==='kindler')?'Kindler has no recovery timer to restore.'
-    :`Equipped active cooldowns, Collector rest and Protector recovery −${amount}s each when recovering.`;
+  return `Recharging companions recover ${amount}s sooner. Space Timer regains levitation charge.`;
 }
 function effectText(spec, role,maxGlow=100) {
   switch (spec.id) {
@@ -34,7 +32,7 @@ export function pickupGuideMarkup({ role = 'collector', companions, maxGlow=100,
   return `<section class="pickup-guide"><header class="pickup-guide-heading"><h2>PICKUP KEY</h2><span>${visible.length} FOUND</span></header><div class="pickup-guide-list">${visible.map(spec => {
     const size = spec.radius >= 6 ? 'LARGE' : spec.radius <= 3 ? 'SMALL' : 'MEDIUM';
     return `<article class="pickup-guide-row" data-pickup-kind="${spec.id}"><span class="pickup-guide-art" style="--pickup-art-size:40px" aria-hidden="true">${pickupArtSvg(spec.id,{className:'pickup-guide-icon'})}</span><div class="pickup-guide-copy"><div class="pickup-guide-row-title"><h3>${esc(spec.name)}</h3><small aria-label="${size.toLowerCase()}">${size}</small></div><p>${esc(effectText(spec,roles,maxGlow))}</p>${spec.manualOnly?'<b class="pickup-guide-manual">MANUAL CONTACT ONLY</b>':''}</div></article>`;
-  }).join('')}</div><p class="pickup-guide-role">${collects?'Collector fetches eligible missed pickups inside its glow.': 'No Collector is equipped. Touch good pickups yourself.'}${collects&&(known.has('dusk')||known.has('dark'))?' Manual-contact pickups are not fetched.':''}${roles.includes('kindler')?' Kindler adds Glow to direct natural fuel pickups.':''}</p><p class="pickup-guide-legend">Pale ring: boon. Red ring: danger or a cost. The inner shape identifies the pickup.</p><button class="primary pickup-guide-close" data-action="close-power">Close</button></section>`;
+  }).join('')}</div><p class="pickup-guide-role">${collects?'Collector fetches eligible missed pickups when their rings touch its boundary.': 'No Collector is equipped. Touch good pickups yourself.'}${collects&&(known.has('dusk')||known.has('dark'))?' Manual-contact pickups are not fetched.':''}</p><p class="pickup-guide-legend">Pale ring: boon. Red ring: danger or a cost. The inner shape identifies the pickup.</p><button class="primary pickup-guide-close" data-action="close-power">Close</button></section>`;
 }
 
 /** A short first-contact lesson; the app supplies the world highlight target. */
