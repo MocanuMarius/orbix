@@ -1,4 +1,4 @@
-import {topicSteps} from './tutorial-curriculum.mjs?v=depth-energy-1';
+import {topicSteps} from './tutorial-curriculum.mjs?v=plain-begin-1';
 const step=(id,title,text,target)=>({id,title,text,target,allowTarget:false});
 const chapter=(id,steps,target)=>({id,steps:steps.map(s=>({...s,...(target?{target}:{}),allowTarget:false}))});
 export function checkpointTutorialLesson(screen,{run={}}={}){

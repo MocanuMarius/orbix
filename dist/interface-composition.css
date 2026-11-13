@@ -72,10 +72,10 @@ body[data-screen=map] #app>.game-map-screen{display:block!important;position:rel
 .entry-loading>i{display:block;height:100%;background:#d3dbad;transform-origin:left;animation:entry-load var(--entry-seconds,5s) linear both}
 .entry-safe-note{font:11px/1.3 var(--pixel);color:#a9b99d}
 @keyframes entry-load{from{transform:scaleX(0)}to{transform:scaleX(1)}}
-.flight-resume-gate{position:absolute;inset:0;z-index:48;display:grid;place-items:center;width:100%;height:100%;border:0;padding:0;background:#06120e55;box-shadow:none;color:#f1edca;cursor:pointer;touch-action:manipulation;text-transform:none;transition:none}
-.resume-gate-content{display:flex;flex-direction:column;align-items:center;gap:12px;padding:20px 30px;background:#10231ee8;box-shadow:0 0 45px 20px #10231e75;pointer-events:none}
+.flight-resume-gate{position:absolute;inset:0;z-index:48;display:grid;place-items:center;width:100%;height:100%;border:0;padding:0;background:transparent!important;box-shadow:none!important;color:#f1edca;cursor:pointer;touch-action:manipulation;text-transform:none;transition:none}
+.resume-gate-content{display:flex;flex-direction:column;align-items:center;gap:12px;padding:20px 30px;background:none;box-shadow:none;pointer-events:none}
 .resume-gate-content>svg{width:25px;height:25px;color:#e5ddb2}
-.resume-gate-content>strong{font:20px/1.2 var(--pixel)}
+.resume-gate-content>strong{font:20px/1.2 var(--pixel);text-shadow:2px 2px #030b0d,-1px -1px #030b0d}
 .resume-gate-content>span{font:12px/1.4 var(--pixel);color:#bac9a8}
 .flight-resume-gate:active{transform:none;filter:none}
 @media(orientation:landscape) and (max-height:350px){
