@@ -1,10 +1,10 @@
-import {resourceSymbol} from './game-symbols.mjs?v=upgrade-wallet-1';
-import {getCompanionAbility} from './companion-abilities.mjs?v=upgrade-wallet-1';
-import {glowText,getGlowCapacity} from './vitality.mjs?v=upgrade-wallet-1';
-import {SKILLS} from './model.mjs?v=upgrade-wallet-1';
-import {skillIcon} from './upgrade-icons.mjs?v=upgrade-wallet-1';
-import {companionArtSvg} from './companion-art.mjs?v=upgrade-wallet-1';
-import {skillTreeState,safeTreeSelection,skillTreeStatus} from './skill-tree-state.mjs?v=upgrade-wallet-1';
+import {resourceSymbol} from './game-symbols.mjs?v=fixed-companion-1';
+import {getCompanionAbility} from './companion-abilities.mjs?v=fixed-companion-1';
+import {glowText,getGlowCapacity} from './vitality.mjs?v=fixed-companion-1';
+import {SKILLS} from './model.mjs?v=fixed-companion-1';
+import {skillIcon} from './upgrade-icons.mjs?v=fixed-companion-1';
+import {companionArtSvg} from './companion-art.mjs?v=fixed-companion-1';
+import {skillTreeState,safeTreeSelection,skillTreeStatus} from './skill-tree-state.mjs?v=fixed-companion-1';
 export const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const lockIcon='<svg class="bud-lock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><rect x="6" y="10" width="12" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3M12 14v3"/></svg>';
 const stateKey=`<div class="tree-state-key" aria-label="Skill states"><span class="learned"><i aria-hidden="true">✓</i> Owned</span><span class="available"><i aria-hidden="true">+</i> Can learn</span><span class="saving"><i aria-hidden="true"></i> Need light</span><span class="locked"><i aria-hidden="true">${lockIcon}</i> Locked</span></div>`;
@@ -89,5 +89,5 @@ export function treeDetail({run,wallet,skill,canBuy}){
  const status=`<p class="tree-selection-status ${view.state}">${esc(skillTreeStatus(view))}</p>`;
  if(preview)return `<section class="tree-inspector preview-inspector" aria-live="polite"><div class="tree-inspector-title">${lockIcon}<h3>${esc(skill.baseName||skill.name)}</h3></div>${status}</section>`;
  const ranks=track.length?`<nav class="rank-choices" aria-label="Individual skill ranks">${track.map(s=>{const rankView=skillTreeState(context,s);if(rankView.disclosure==='preview')return `<span class="future-rank" aria-label="Future rank">${s.incrementStage}<small aria-hidden="true">${lockIcon}</small></span>`;return `<button data-action="inspect-branch-skill" data-id="${s.id}" class="${s.id===skill.id?'selected':''} ${rankView.state}" aria-pressed="${s.id===skill.id}" aria-label="${esc(s.name)}: ${esc(skillTreeStatus(rankView))}">${s.incrementStage}<small>${rankView.complete?'✓':`${rankView.price}PL`}</small></button>`;}).join('')}</nav>`:'';
- return `<section class="tree-inspector" aria-live="polite"><div class="tree-inspector-title">${skillIcon(skill)}<h3>${esc(skill.baseName||skill.name)}</h3></div><p>${esc(glowText(skill.description||skill.consequence,getGlowCapacity(run)))}</p>${ranks}${status}<button class="skill-purchase ${view.state} ${view.available?'primary':'secondary'}" data-action="${view.free?'choose-start-skill':'buy-skill'}" data-id="${skill.id}" ${view.available?'':'disabled'}>${view.complete?'✓ OWNED':view.free?'CHOOSE FREE GIFT':`${view.available?'+ LEARN':view.state==='saving'?'SAVE FOR':'LOCKED'} · ${view.price} ${resourceSymbol('packed')}`}</button></section>`;
+ return `<section class="tree-inspector" aria-live="polite"><div class="tree-inspector-title">${skillIcon(skill)}<h3>${esc(skill.baseName||skill.name)}</h3></div><p>${esc(glowText(skill.description||skill.consequence,getGlowCapacity(run)))}</p>${ranks}${status}<button class="skill-purchase ${view.state} ${view.available?'primary':'secondary'}" data-action="${view.free?'choose-start-skill':'buy-skill'}" data-id="${skill.id}" ${view.available?'':'disabled'}>${view.state==='locked'?`<i class="item-lock-badge" aria-hidden="true">${lockIcon}</i>`:''}${view.complete?'✓ OWNED':view.free?'CHOOSE FREE GIFT':`${view.available?'+ LEARN':view.state==='saving'?'SAVE FOR':''} · ${view.price} ${resourceSymbol('packed')}`}</button></section>`;
 }

@@ -1,6 +1,6 @@
-import {livesMarkup} from './lives.mjs?v=upgrade-wallet-1';
-import {formatGlow,getGlowCapacity} from './vitality.mjs?v=upgrade-wallet-1';
-import {resourceSymbol} from './game-symbols.mjs?v=upgrade-wallet-1';
+import {livesMarkup} from './lives.mjs?v=fixed-companion-1';
+import {formatGlow,getGlowCapacity} from './vitality.mjs?v=fixed-companion-1';
+import {resourceSymbol} from './game-symbols.mjs?v=fixed-companion-1';
 
 export const FLIGHT_LOAD_SECONDS=5;
 const esc=value=>String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));

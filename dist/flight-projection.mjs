@@ -1,5 +1,5 @@
-import {DraftField,DRAFT_TUNING} from './drafts.mjs?v=upgrade-wallet-1';
-import {lightVisibility} from './light-field.mjs?v=upgrade-wallet-1';
+import {DraftField,DRAFT_TUNING} from './drafts.mjs?v=fixed-companion-1';
+import {lightVisibility} from './light-field.mjs?v=fixed-companion-1';
 const clamp=(n,a,b)=>Math.max(a,Math.min(b,n)),DT=1/60;
 export const PROJECTION_HORIZONS=Object.freeze([0,.7,1.2,1.8]);
 
