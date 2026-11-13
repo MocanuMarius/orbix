@@ -1,4 +1,4 @@
-import { pickupKind, getPickupSpec, pickupDisposition } from './pickups.mjs?v=packed-light-1';
+import { pickupKind, getPickupSpec, pickupDisposition } from './pickups.mjs?v=ring-boons-1';
 
 const TAU = Math.PI * 2;
 const clamp = (value, low, high) => Math.max(low, Math.min(high, value));
@@ -23,8 +23,8 @@ function packetPixels(kind, { time = 0, reducedMotion = false, tiny = false, bod
   const halo = (radius, color, alpha) => {
     for (let layer = 3; layer > 0; layer--) disc(0, 0, radius * layer / 3, color, alpha / 3);
   };
-  const ring = (radius,color,alpha) => {
-    const outer=radius+.6,inner=Math.max(0,radius-.6);
+  const ring = (radius,color,alpha,thickness=1.2) => {
+    const outer=radius+thickness/2,inner=Math.max(0,radius-thickness/2);
     for(let y=-Math.floor(outer);y<=Math.floor(outer);y++){
       const edge=Math.floor(Math.sqrt(Math.max(0,outer*outer-y*y)));
       const inset=Math.abs(y)>=inner?0:Math.ceil(Math.sqrt(Math.max(0,inner*inner-y*y)));
@@ -44,6 +44,16 @@ function packetPixels(kind, { time = 0, reducedMotion = false, tiny = false, bod
       disc(0,0,field*fraction,warning?'#ed8971':'#f4edc9',warning?.055:.075);
     oval(-field*.12,-field*.18,field*.58,field*.48,warning?'#f9a58a':'#fff4d9',.065);
     ring(contact - 1, warning ? '#f58b79' : '#e4f2ca', warning ? .78 : .54);
+  }
+  // Fixed slots: stronger fuel lights add rings inward, never enlarge the body.
+  // Keep the existing thin contact boundary separate from the three thick bands.
+  const layers={light:1,cluster:2,cache:3}[kind];
+  if(layers){
+    for(let i=0;i<layers;i++){
+      ring([15,10,5][i],'#a9c795',.32,3.6);
+      ring([15,10,5][i],'#f8edbd',.95,2);
+    }
+    return pixels;
   }
   shrink *= 1.2;
   const t = reducedMotion ? 0 : time;
@@ -105,7 +115,7 @@ function packetPixels(kind, { time = 0, reducedMotion = false, tiny = false, bod
 }
 
 const atlases = new WeakMap();
-const cycles={cache:[Math.PI*2/1.8,24],charge:[Math.PI*2/22,12],sight:[1/.48,24],dark:[Math.PI*2,32]};
+const cycles={charge:[Math.PI*2/22,12],sight:[1/.48,24],dark:[Math.PI*2,32]};
 export function drawPickup(context,x,y,{kind='light',time=0,reducedMotion=false,tiny=false,bodyOnly=false,alpha=1,scale=1}={}){
   const id=pickupKind(kind),size=Math.max(.1,Number(scale)||1),doc=context.canvas?.ownerDocument;
   const [period,frames]=cycles[id]||[1,1],frame=reducedMotion?0:Math.floor(((time%period+period)%period)/period*frames);

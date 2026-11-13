@@ -1,9 +1,9 @@
-import {getCompanionAbility} from './companion-abilities.mjs?v=packed-light-1';
-import {glowText,getGlowCapacity} from './vitality.mjs?v=packed-light-1';
-import {SKILLS} from './model.mjs?v=packed-light-1';
-import {skillIcon} from './upgrade-icons.mjs?v=packed-light-1';
-import {companionArtSvg} from './companion-art.mjs?v=packed-light-1';
-import {skillTreeState,safeTreeSelection,skillTreeStatus} from './skill-tree-state.mjs?v=packed-light-1';
+import {getCompanionAbility} from './companion-abilities.mjs?v=ring-boons-1';
+import {glowText,getGlowCapacity} from './vitality.mjs?v=ring-boons-1';
+import {SKILLS} from './model.mjs?v=ring-boons-1';
+import {skillIcon} from './upgrade-icons.mjs?v=ring-boons-1';
+import {companionArtSvg} from './companion-art.mjs?v=ring-boons-1';
+import {skillTreeState,safeTreeSelection,skillTreeStatus} from './skill-tree-state.mjs?v=ring-boons-1';
 export const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const lockIcon='<svg class="bud-lock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><rect x="6" y="10" width="12" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3M12 14v3"/></svg>';
 export function treeHeader(run,wallet,branch){
