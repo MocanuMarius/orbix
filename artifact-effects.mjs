@@ -55,7 +55,7 @@ export class ArtifactEffects {
   get temporarilyLit(){
     const e=this.engine;
     return e.pickupRevealHoldUntil>e.time||e.pickupRevealStrength>0||e.sightUntil>e.time
-      ||e.mainSeerUntil>e.time||this.sightUntil>e.time||e.fleet.some(item=>item.role==='seer'&&item.remaining>0);
+      ||e.mainSeerUntil>e.time||this.sightUntil>e.time||Number(e.edgingPulse?.strength)>0||e.fleet.some(item=>item.role==='seer'&&item.remaining>0);
   }
   onFuel(packet,spec,surplus){
     if(!naturalFuel(packet,spec))return;

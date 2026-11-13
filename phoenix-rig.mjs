@@ -1,5 +1,5 @@
-import * as PIXI from './vendor/pixi.mjs?v=ring-boons-1';
-import { PhoenixMotion, deformWing, deformTail } from './phoenix-motion.mjs?v=ring-boons-1';
+import * as PIXI from './vendor/pixi.mjs?v=combo-craft-1';
+import { PhoenixMotion, deformWing, deformTail } from './phoenix-motion.mjs?v=combo-craft-1';
 
 export class PhoenixRig {
   constructor(texture) {

@@ -1,5 +1,5 @@
-import {getCompanionAbility} from './companion-abilities.mjs?v=ring-boons-1';
-import {lightVisibility} from './light-field.mjs?v=ring-boons-1';
+import {getCompanionAbility} from './companion-abilities.mjs?v=combo-craft-1';
+import {lightVisibility} from './light-field.mjs?v=combo-craft-1';
 // Practice is an authored flight using the same controls, fuel and colliders.
 // This module contains guidance and lesson scenery; it never grants rewards.
 const clamp = (n, lo, hi) => Math.min(hi, Math.max(lo, n));
@@ -142,6 +142,7 @@ export function getTutorialHint(engine) {
   if(engine.flame<engine.flapCost*2)return hint('low-glow','Find a fuel light','Without enough Glow you cannot Lift, but you can still collect fuel while falling. Collector keeps searching.',2);
   const exit=engine.getExitLandmark?.();
   if(exit&&exit.x<engine.width-18)return hint('exit','Reach the refuge light','Fly to the waylight while keeping enough Glow for your last Lift.',4);
+  if(state.directPickups>0&&engine.edgingPulse?.state?.active)return hint('edge-pulse','Your close flight lit the way','PULSE beside Glow fills near solid edges. Full charge briefly reveals the scene. Keep clear of the terrain itself.',4);
   if(state.lesson==='glide'){
     if(!state.directPickups)return hint('direct','Lift, then glide into a packet',collector
       ?'Touch this light yourself for immediate Glow. Collector waits for your first pickup.'

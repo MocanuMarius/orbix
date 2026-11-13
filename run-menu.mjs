@@ -1,8 +1,8 @@
-import {getArtifactCapacity} from './model.mjs?v=ring-boons-1';
-import {formatGlow,getGlowCapacity} from './vitality.mjs?v=ring-boons-1';
-import {livesMarkup} from './lives.mjs?v=ring-boons-1';
-import { COMPANION_ABILITIES } from './companion-abilities.mjs?v=ring-boons-1';
-import { companionArtSvg } from './companion-art.mjs?v=ring-boons-1';
+import {getArtifactCapacity} from './model.mjs?v=combo-craft-1';
+import {formatGlow,getGlowCapacity} from './vitality.mjs?v=combo-craft-1';
+import {livesMarkup} from './lives.mjs?v=combo-craft-1';
+import { COMPANION_ABILITIES } from './companion-abilities.mjs?v=combo-craft-1';
+import { companionArtSvg } from './companion-art.mjs?v=combo-craft-1';
 
 const esc = value => String(value ?? '').replace(/[&<>"']/g, char =>
   ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[char]));

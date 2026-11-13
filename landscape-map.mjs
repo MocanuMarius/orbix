@@ -1,19 +1,14 @@
-import {encounterIntent,THEME_INKS} from './replay-ui.mjs?v=ring-boons-1';
-import {getRouteMapState} from './model.mjs?v=ring-boons-1';
-import {getMapStopInfo} from './map-guide.mjs?v=ring-boons-1';
-import {getGlowCapacity} from './vitality.mjs?v=ring-boons-1';
+import {landmarks} from './map-landmarks.mjs?v=combo-craft-1';
+import {encounterIntent,THEME_INKS} from './replay-ui.mjs?v=combo-craft-1';
+import {getRouteMapState} from './model.mjs?v=combo-craft-1';
+import {getMapStopInfo} from './map-guide.mjs?v=combo-craft-1';
+import {getGlowCapacity} from './vitality.mjs?v=combo-craft-1';
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const edgeKey=([a,b])=>`${a}|${b}`;
 const wisp=(x,y)=>`<g class="route-player-wisp" transform="translate(${x} ${y})"><path d="m-23 1 9-15 13-7L16-9 22 3 11 13-17 8Z" fill="url(#routeWispGlow)"/><path d="M-4-7h8v2h3v3h2v4H7v3H4v2H-4V5H-7V2H-9V-2H-7V-5H-4Z" fill="#fff8d3"/><path d="M-3-5h6v2h2v6H3v2H-3V3H-5V-3H-3Z" fill="#fffef0"/></g>`;
 const splitName=name=>{const lines=[''];for(const word of name.split(' ')){const i=lines.length-1;if((lines[i]+' '+word).length>19&&i<1)lines.push(word);else lines[i]+=(lines[i]?' ':'')+word;}return lines;};
 // Five small places, drawn in the map's own pixel language rather than framed icons.
-const landmarks={
- flight:'<path class="landmark-dark" d="m-13 24 8-15 8-2 11 18Z"/><path class="landmark-body" d="M-24 22V-9h4v-9h13v7h-7v8h-2v25ZM12 23V-5h-1v-11h9v8h5v31Z"/><path class="landmark-face" d="M-24-9h6v31h-6ZM12-5h5v28h-5ZM-16-21h13v6h-13ZM5-21h12v5H5Z"/><path class="landmark-edge" d="M-22-11h6M-14-21h10M14-16h5M19 3h5M-23 6h6"/>',
- rest:'<path class="landmark-dark" d="M-23 21V-4L-2-21 24-5v27Z"/><path class="landmark-body" d="M-21 21V-5h6v26ZM15 22V-5h7v27Z"/><path class="landmark-face" d="m-29-3 9-8 7-1 10-12 8 5 6 8 8 2 10 8-3 5L2-15-24 3Z"/><path class="landmark-body" d="M-18 19h35v6h-35Z"/><path class="landmark-fire" d="m-7 16 2-8 4 3 3-12 5 9-1 8-6 3Z"/><path class="landmark-edge" d="m-26-2 8-7M-11-13l8-8M-13 23h27"/>',
- encounter:'<path class="landmark-dark" d="m-16 22 4-41 11-7 15 6 2 43Z"/><path class="landmark-body" d="m-13 20 3-37 9-6 11 5 2 39Z"/><path class="landmark-face" d="m-13 20 3-37 5-4-2 43Z"/><path class="landmark-rune" d="m-2-10 4-2 4 3-1 5-4 3v5M1 10v2"/><path class="landmark-edge" d="m-10-17 8-5M8-17l2 10M-11 19l19 1"/>',
- treasure:'<path class="landmark-dark" d="M-24-4-17-14H15l10 9v25h-48Z"/><path class="landmark-body" d="M-21-3h43v20h-43ZM-17-12h31l7 8h-41Z"/><path class="landmark-face" d="M-21 1h7v16h-7ZM10-12h6v29h-6ZM-16-12h4v12h-4Z"/><path class="landmark-edge" d="M-22 0h44M-20 17h40M-17-12h30"/><path class="landmark-fire" d="M-3-2h7v9h-7Z"/>',
- boss:'<path class="landmark-dark" d="M-30 25V-17l7-13 10 8h26l10-8 7 13v42Z"/><path class="landmark-body" d="M-28 24V-16l5-10 7 7v44ZM16 25v-44l7-7 5 10v40ZM-17-20h34v10h-34Z"/><path class="landmark-face" d="M-28-13h6v37h-6ZM16-13h5v38h-5ZM-17-20h34v4h-34Z"/><path class="landmark-body" d="m-13-8 13-6 13 6-4 18L0 18-9 10Z"/><path class="landmark-fire" d="m-9-3 7 3-2 3-5-2ZM9-3 2 0l2 3 5-2Z"/><path class="landmark-edge" d="M-27 8h8M20 9h7M-12-19h24M-4 10h8"/>'
-};
+
 const landmark=(n,kind,x,y)=>`<g class="route-landmark landmark-${kind}" transform="translate(${x} ${y})" shape-rendering="crispEdges"><path class="landmark-ground" d="m-35 22 9-7 8 3 10-4 16 3 10-2 14 8-7 6-13-1-12 3-17-3-11 1Z"/>${landmarks[kind]||landmarks.flight}${n.elite?'<path class="landmark-thorns" d="m-30 22 6-15-8-3m8 3 1-12 5 5m43 14 5-14 6-4m-6 4-2-9M-29 21l12-3m38 4 12-5"/>':''}<path class="landmark-grass" d="m-32 21-3-5m6 5 2-7m51 10 3-7m4 7 3-3"/></g>`;
 
 /** One model-owned reachability snapshot drives both brightness and permissions. */

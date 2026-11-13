@@ -1,4 +1,4 @@
-import {CONDENSED_TUNING} from './condensed-glow.mjs?v=ring-boons-1';
+import {CONDENSED_TUNING} from './condensed-glow.mjs?v=combo-craft-1';
 // Shared flight Glow and expedition rules. Overflow is Packed Light.
 export const FLAME_TUNING = Object.freeze({ maximum: 100, starting: 100, flapCost: 7,
   emberFuel: 24, heartFuel: 40, generatedFuel: 6, checkpointMinimum: 0, warmCorePickups: 4 });

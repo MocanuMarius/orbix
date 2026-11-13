@@ -1,17 +1,17 @@
-import {CONDENSED_TUNING,getCondensationRules,condenseGlow} from './condensed-glow.mjs?v=ring-boons-1';
-export {getCondensationRules} from './condensed-glow.mjs?v=ring-boons-1';
-import {ROUTE_RECIPES,ROUTE_TOPOLOGY_VERSION,REWARD_THEMES,nodeEconomy} from './route-recipes.mjs?v=ring-boons-1';
-import {COMPANION_ABILITIES,getCompanionUnlock} from './companion-abilities.mjs?v=ring-boons-1';
-import {MAIN_TUNING_SKILLS} from './main-tuning.mjs?v=ring-boons-1';
-import {STARTING_CONDENSED_GLOW,getGlowCapacity,glowText} from './vitality.mjs?v=ring-boons-1';
-import {expandSkillSteps,skillProgress} from './skill-increments.mjs?v=ring-boons-1';
-import {MAX_ASCENSION} from './ascent.mjs?v=ring-boons-1';
-import {EXPANDED_SKILLS,applyExpandedSkills} from './skill-paths.mjs?v=ring-boons-1';
+import {CONDENSED_TUNING,getCondensationRules,condenseGlow} from './condensed-glow.mjs?v=combo-craft-1';
+export {getCondensationRules} from './condensed-glow.mjs?v=combo-craft-1';
+import {ROUTE_RECIPES,ROUTE_TOPOLOGY_VERSION,REWARD_THEMES,nodeEconomy} from './route-recipes.mjs?v=combo-craft-1';
+import {COMPANION_ABILITIES,getCompanionUnlock} from './companion-abilities.mjs?v=combo-craft-1';
+import {MAIN_TUNING_SKILLS} from './main-tuning.mjs?v=combo-craft-1';
+import {STARTING_CONDENSED_GLOW,getGlowCapacity,glowText} from './vitality.mjs?v=combo-craft-1';
+import {expandSkillSteps,skillProgress} from './skill-increments.mjs?v=combo-craft-1';
+import {MAX_ASCENSION} from './ascent.mjs?v=combo-craft-1';
+import {EXPANDED_SKILLS,applyExpandedSkills} from './skill-paths.mjs?v=combo-craft-1';
 /** Run-owned skills and currency; persistent ascension unlocks and boss artifacts. */
-import { FLAME_TUNING, LIFE_TUNING, getLifeCapacity } from './vitality.mjs?v=ring-boons-1';
-import { getBiomeLevelIdentity } from './level-catalog.mjs?v=ring-boons-1';
-import { BIOMES } from './biomes.mjs?v=ring-boons-1';
-import { EVENT_SCENARIOS } from './map-guide.mjs?v=ring-boons-1';
+import { FLAME_TUNING, LIFE_TUNING, getLifeCapacity } from './vitality.mjs?v=combo-craft-1';
+import { getBiomeLevelIdentity } from './level-catalog.mjs?v=combo-craft-1';
+import { BIOMES } from './biomes.mjs?v=combo-craft-1';
+import { EVENT_SCENARIOS } from './map-guide.mjs?v=combo-craft-1';
 export const SAVE_KEY='wispbound.save.condensed.v7';
 export const CAMPAIGN_MAP_NAMES=Object.freeze(['The Forgotten Verge','The Rootbound March','The Warden’s Reach']);
 export const TERRAINS=Object.freeze({ruins:{id:'ruins',name:'Sunken Ruins',color:'#cdb183',description:'Broken homes, worn arches and overgrown stone.'},canopy:{id:'canopy',name:'Luminous Canopy',color:'#94b48a',description:'Hollow trees, hanging roots and sheltered forest passages.'},storm:{id:'storm',name:'Stormglass Peaks',color:'#a8bbca',description:'Pine ridges, old mine timbers and local draft puffs.'}});
@@ -240,15 +240,15 @@ function makeFlightReward(run,source='flight'){
 }
 export function artifactSynergy(run,id){
  const s=run?.skills||{},roles=run?.companions||[],held=new Set(run?.artifacts||[]);
+ // Preview a deliberate trigger sequence before committing the reward slot.
+ if(id==='overflow-coil')return held.has('dawn-loom')?'Combo: overflow → recovery → Dawn Loom light':'Plan: overfill while a companion recovers. Seek Dawn Loom.';
+ if(id==='dawn-loom')return held.has('overflow-coil')||held.has('sunheart-engine')?'Combo: surplus recharges companions and lights the route':'Plan: recovery pickups → light. Seek Overflow Coil.';
+ if(id==='sunspool')return held.has('dawn-loom')||held.has('sunheart-engine')||rank(s,'main-dawnburst')||rank(s,'main-echo-sight')?'Combo: collect in temporary light → free Lift (max 4)':'Plan: collect during Edging Pulse. Seek Dawn Loom.';
+ if(id==='echo-bell')return 'Plan: companion action → BODY fuel pickup within 8s (max 5).';
+
  if(id==='sunheart-engine')return held.has('sunspool')?'Overflow light primes free Lift':'Surplus fuel powers recovery and vision';
  if(id==='dream-sovereign')return rank(s,'main-dream')?'Dream pickups feed waking free Lift':'Learn Dream to awaken its full power';
  if(id==='hollow-covenant')return rank(s,'main-kindled-touch')?'Companion work strengthens your direct fuel':'Work and seed skimming sustain flight';
- if(id==='overflow-coil'&&held.has('dawn-loom'))return 'Overflow Coil feeds Dawn Loom';
- if(id==='overflow-coil'&&(held.has('glass-lantern')||rank(s,'main-kindled-touch')))return 'Extra fuel becomes companion recharge';
- if(id==='dawn-loom'&&(held.has('overflow-coil')||held.has('dreamcatcher')))return 'Fuel-driven recharge weaves more light';
- if(id==='sunspool'&&(held.has('dawn-loom')||held.has('second-dawn')||rank(s,'main-dawnburst')||rank(s,'main-echo-sight')))return 'Temporary light primes a free Lift';
- if(id==='echo-bell'&&rank(s,'main-kindled-touch'))return 'Direct pickups combine both fuel bonuses';
- if(id==='echo-bell'&&roles.length)return 'Companion work rewards your next direct pickup';
  if(id==='glass-lantern'&&held.has('overflow-coil'))return 'Surplus fuel feeds Overflow Coil';
  if(id==='dreamcatcher'&&held.has('dawn-loom'))return 'Dream recharge triggers Dawn Loom';
  if(id==='second-dawn'&&held.has('sunspool'))return 'Waking light primes Sunspool';

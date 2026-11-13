@@ -14,7 +14,7 @@ export function checkpointTutorialLesson(screen,{run={}}={}){
           '.map-status-strip .ascension-lives');
       }else if(run.step===0){
         lesson=step('practice-route','Follow the glowing passage',
-          'The bright ring marks your next stop. Follow its connecting path. KEY explains the five map symbols whenever you want.',
+          'The warmly lit landmark is your next stop. Follow its trail. KEY explains the five places whenever you want.',
           '#journey-map .world-map-node.reachable');
       }else if(run.map?.[run.step]?.some(node=>node.kind==='camp')){
         lesson=step('practice-rest-route','The shelter is a Rest',
@@ -24,7 +24,7 @@ export function checkpointTutorialLesson(screen,{run={}}={}){
       break;
     case 'map-key':
       lesson=step('practice-symbols','Five familiar stops',
-        'Passage: fly. Shelter: rest. Chest: treasure. Question mark: a choice or gamble. Guardian mask: the boss.',
+        'Broken arch: fly. Hearth shelter: rest. Chest: treasure. Marked stone: a choice or gamble. Guardian gate: the boss.',
         '.map-key-list');
       break;
     case 'victory':
@@ -50,7 +50,7 @@ export function checkpointTutorialLesson(screen,{run={}}={}){
       break;
     case 'skills':
       lesson=step('practice-skill-tree','Grow along one branch',
-        'Tap a circle to inspect it. Bright paths show what you can learn next. These skills use practice Packed Light and last this practice.',
+        'Tap a circle to inspect it. Bright circles are affordable now. Faint dots reveal as you grow. These skills use practice Packed Light and last this practice.',
         '.tree-body');
       break;
     case 'result':
@@ -67,4 +67,23 @@ export function checkpointTutorialLesson(screen,{run={}}={}){
 export function tutorialSteps(screen,context={}){
   const lesson=checkpointTutorialLesson(screen,context);
   return lesson?[lesson]:[];
+}
+
+
+// Observe quietly while flying. The app queues this ID and teaches it only at
+// a safe checkpoint; these helpers never pause, mutate state or advance play.
+export function observedFlightLesson(snapshot={},seen={}){
+  const known=id=>seen?.[id]===true||seen?.has?.(id)===true;
+  if(snapshot.dream?.active||snapshot.dying||snapshot.completing)return null;
+  if((snapshot.blackHole?.rate||0)>0&&!known('flight-effect:black-hole'))return 'flight-effect:black-hole';
+  if(snapshot.edgingPulse?.active&&!known('flight-effect:edging'))return 'flight-effect:edging';
+  return null;
+}
+export function flightEffectLesson(id,screen='map'){
+  const target=screen==='victory'?'.victory-screen':screen==='map'?'.map-status-strip':null;
+  if(id==='flight-effect:black-hole')return step(id,'That dark core steals Glow',
+    'A Black Hole drains fuel while you stay close. A wider path loses less light. It is not a pickup, and shields do not stop the drain. MENU → Glow & Pickups keeps this reminder.',target);
+  if(id==='flight-effect:edging')return step(id,'Your close flight made a pulse',
+    'Flying near solid edges fills PULSE beside Glow. Full charge reveals the scene for five fading seconds. Open space drains the charge. Edge skills improve it; touching terrain still hurts.',target);
+  return null;
 }
