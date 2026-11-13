@@ -1,5 +1,5 @@
-import { MAP_STOP_TYPES } from './map-guide.mjs?v=dream-paths-1';
-import { getCompanionAbility, normalizeCompanionRole } from './companion-abilities.mjs?v=dream-paths-1';
+import { MAP_STOP_TYPES } from './map-guide.mjs?v=earned-start-1';
+import { getCompanionAbility, normalizeCompanionRole } from './companion-abilities.mjs?v=earned-start-1';
 
 // Content only. The coach owns pausing, highlighting, seen state and navigation.
 // hasStoredGlow means the relevant reserve panel/footer exists on this screen.

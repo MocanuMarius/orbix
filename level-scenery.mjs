@@ -1,5 +1,5 @@
-import {drawExpandedBackdrop} from './world-scenery.mjs?v=dream-paths-1';
-import { resolveLevelIdentity } from './level-catalog.mjs?v=dream-paths-1';
+import {drawExpandedBackdrop} from './world-scenery.mjs?v=earned-start-1';
+import { resolveLevelIdentity } from './level-catalog.mjs?v=earned-start-1';
 
 const TAU = Math.PI * 2;
 const clamp = (n, a, b) => Math.max(a, Math.min(b, n));

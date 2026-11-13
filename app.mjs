@@ -1,31 +1,31 @@
-import {attachDream,dreamRestMarkup,dreamIndicatorMarkup} from './dream.mjs?v=dream-paths-1';
-import {chooseFlightReward,getAvailableUpgrades,acknowledgeVictory,artifactSynergy} from './model.mjs?v=dream-paths-1';
-import {formatGlow,glowPercent,getGlowCapacity,glowText} from './vitality.mjs?v=dream-paths-1';
-import {glowGaugeMarkup} from './glow-ui.mjs?v=dream-paths-1';
-import {branchTreeMarkup} from './skill-tree.mjs?v=dream-paths-1';
-import {livesMarkup,lifeHeartSvg} from './lives.mjs?v=dream-paths-1';
-import {mainWispTreeMarkup} from './wisp-tree.mjs?v=dream-paths-1';
-import {attachFlightPerformance,downloadPerformanceReport} from './flight-performance.mjs?v=dream-paths-1';
-import {getChallengePreview} from './flight-challenges.mjs?v=dream-paths-1';
-import {homeMenuMarkup,runProgressMarkup,unlockPreviewMarkup} from './run-menu.mjs?v=dream-paths-1';
-import {skillIcon,artifactIcon} from './upgrade-icons.mjs?v=dream-paths-1';
-import {TERRAINS,SKILLS,ARTIFACTS,newState,loadState,saveState,createRun,canChooseStartingSkill,chooseStartingSkill,setTestOverride,getTestStarterCompanion,setTestStarterCompanion,startTutorial,leaveTutorial,getChoices,selectNode,beginFlightAttempt,retryFlight,finishFlight,getSupportChoices,resolveSupport,settleCheckpoint,bankRun,advanceMap,getAfterglowState,drawAfterglow,getSkillCost,getSkillWallet,getSkillLockReason,suspendRun,abandonRun,isSkillRevealed,canBuyCheckpointSkills,buyCheckpointSkill,getRunModifiers,getCompanionCapacity,canChangeCompanion,setCompanions,equipArtifact,sellArtifact} from './model.mjs?v=dream-paths-1';
-import {WispFlight} from './flight.mjs?v=dream-paths-1';
-import {COMPANION_ABILITIES,getCompanionAbility,getCompanionUnlock,normalizeCompanionRole} from './companion-abilities.mjs?v=dream-paths-1';
-import {companionArtSvg} from './companion-art.mjs?v=dream-paths-1';
-import {boostControlMarkup,updateBoostControl} from './boost-control.mjs?v=dream-paths-1';
-import {campaignStrip,bossSigil,afterglowUnlockMarkup} from './campaign-ui.mjs?v=dream-paths-1';
-import {resolveLevelIdentity} from './level-catalog.mjs?v=dream-paths-1';
-import {levelMapGlyph,levelMapPreview} from './level-map-art.mjs?v=dream-paths-1';
-import {getAscentInfo} from './ascent.mjs?v=dream-paths-1';
-import {getRouteForecast} from './route-forecast.mjs?v=dream-paths-1';
-import {MAP_STOP_TYPES,getMapStopInfo,mapStopIconMarkup,getEventScenarios} from './map-guide.mjs?v=dream-paths-1';
-import {formatFlightDuration} from './level-length.mjs?v=dream-paths-1';
-import {storedGlowPanelMarkup,reserveIconMarkup} from './afterglow-ui.mjs?v=dream-paths-1';
-import {pickupGuideMarkup,pickupLesson} from './pickup-guide.mjs?v=dream-paths-1';
-import {pickupArtSvg} from './pickup-art.mjs?v=dream-paths-1';
-import {createTutorialCoach} from './tutorial-coach.mjs?v=dream-paths-1';
-import {getTutorialWorldFocus} from './tutorial.mjs?v=dream-paths-1';
+import {attachDream,dreamRestMarkup,dreamIndicatorMarkup} from './dream.mjs?v=earned-start-1';
+import {chooseFlightReward,getAvailableUpgrades,acknowledgeVictory,artifactSynergy} from './model.mjs?v=earned-start-1';
+import {STARTING_EMBERS,formatGlow,glowPercent,getGlowCapacity,glowText} from './vitality.mjs?v=earned-start-1';
+import {glowGaugeMarkup} from './glow-ui.mjs?v=earned-start-1';
+import {branchTreeMarkup} from './skill-tree.mjs?v=earned-start-1';
+import {livesMarkup,lifeHeartSvg} from './lives.mjs?v=earned-start-1';
+import {mainWispTreeMarkup} from './wisp-tree.mjs?v=earned-start-1';
+import {attachFlightPerformance,downloadPerformanceReport} from './flight-performance.mjs?v=earned-start-1';
+import {getChallengePreview} from './flight-challenges.mjs?v=earned-start-1';
+import {homeMenuMarkup,runProgressMarkup,unlockPreviewMarkup} from './run-menu.mjs?v=earned-start-1';
+import {skillIcon,artifactIcon} from './upgrade-icons.mjs?v=earned-start-1';
+import {TERRAINS,SKILLS,ARTIFACTS,newState,loadState,saveState,createRun,canChooseStartingSkill,chooseStartingSkill,setTestOverride,getTestStarterCompanion,setTestStarterCompanion,startTutorial,leaveTutorial,getChoices,selectNode,beginFlightAttempt,retryFlight,finishFlight,getSupportChoices,resolveSupport,settleCheckpoint,bankRun,advanceMap,getAfterglowState,drawAfterglow,getSkillCost,getSkillWallet,getSkillLockReason,suspendRun,abandonRun,isSkillRevealed,canBuyCheckpointSkills,buyCheckpointSkill,getRunModifiers,getCompanionCapacity,canChangeCompanion,setCompanions,equipArtifact,sellArtifact} from './model.mjs?v=earned-start-1';
+import {WispFlight} from './flight.mjs?v=earned-start-1';
+import {COMPANION_ABILITIES,getCompanionAbility,getCompanionUnlock,normalizeCompanionRole} from './companion-abilities.mjs?v=earned-start-1';
+import {companionArtSvg} from './companion-art.mjs?v=earned-start-1';
+import {boostControlMarkup,updateBoostControl} from './boost-control.mjs?v=earned-start-1';
+import {campaignStrip,bossSigil,afterglowUnlockMarkup} from './campaign-ui.mjs?v=earned-start-1';
+import {resolveLevelIdentity} from './level-catalog.mjs?v=earned-start-1';
+import {levelMapGlyph,levelMapPreview} from './level-map-art.mjs?v=earned-start-1';
+import {getAscentInfo} from './ascent.mjs?v=earned-start-1';
+import {getRouteForecast} from './route-forecast.mjs?v=earned-start-1';
+import {MAP_STOP_TYPES,getMapStopInfo,mapStopIconMarkup,getEventScenarios} from './map-guide.mjs?v=earned-start-1';
+import {formatFlightDuration} from './level-length.mjs?v=earned-start-1';
+import {storedGlowPanelMarkup,reserveIconMarkup} from './afterglow-ui.mjs?v=earned-start-1';
+import {pickupGuideMarkup,pickupLesson} from './pickup-guide.mjs?v=earned-start-1';
+import {pickupArtSvg} from './pickup-art.mjs?v=earned-start-1';
+import {createTutorialCoach} from './tutorial-coach.mjs?v=earned-start-1';
+import {getTutorialWorldFocus} from './tutorial.mjs?v=earned-start-1';
 const app=document.querySelector('#app'),header=document.querySelector('#header');
 let state;try{state=loadState(localStorage)}catch{state=newState()}
 let screen='home',engine=null,paused=false,hud=null,fleetSlot=0,treeBranch='main',artifactSlot=0,lesson=null,lastSnapshot=null;
@@ -112,7 +112,7 @@ function wakeDream(){if(engine?.dream?.phase!=='awakening')return;document.query
 
 function renderHome(){return homeMenuMarkup({profile:state.profile,run:state.run,selectedDifficulty,testOverride:state.settings.testOverride,testStarterCompanion:getTestStarterCompanion(state)})+testControls()}
 function forecastMarkup(n){if(state.run?.isTutorial)return '';const f=getRouteForecast(state.run,n)||{};return `<div class="route-consequences ${!f.restReachable?'rest-scarce':''}"><div><b>${mapStopIconMarkup('rest')}${f.nextRestDistance===0?'REST HERE':f.restReachable?`REST WITHIN ${f.nextRestDistance} STOPS`:'NO REST AHEAD'}</b><span>${n.type==='support'?(n.kind==='camp'?'RECOVERY · TRAINING':'A TRADE, NO TRAINING'):n.elite?'ELITE · GREATER REWARD':esc(n.fuelPreview||'CONSERVE GLOW')}</span></div><div class="forecast-path">${(f.nextStops||[]).slice(0,3).map(stop=>`<span title="${esc(stop.name)}">${mapStopIconMarkup(stop)}<small>${esc(getMapStopInfo(stop).label)}</small></span>`).join('<i>OR</i>')}</div></div>`}
-function renderMap(){const r=state.run;return `<section class="game-map-screen map-v2 minimal-map">${campaignStrip(r,state.profile)}<div class="map-status-strip"><span class="map-stop-counter">STOP ${Math.min(r.step+1,r.map.length)}/${r.map.length}</span>${livesMarkup(r)}<span class="glow-label">${icon('flame')}${formatGlow(r.flame,getGlowCapacity(r),0)} GLOW</span></div>${tutorialCheckpoint()}${!r.isTutorial&&r.mapIndex===0&&r.step===0&&!r.path.length?`<button class="starter-companion" data-action="companions">${fleetArt()}<span>CHOOSE STARTER COMPANION</span>${icon('arrow')}</button>`:''}${canChooseStartingSkill(r)?'<button class="starter-companion" data-action="bond-tree">FREE GIFT + 90 STARTING EMBERS</button>':''}<button class="checkpoint-skill-button" data-action="skills">${icon('route')} SKILL TREE</button><div class="map-top-guide">${objectiveStrip(r.restReady?'REST PREP · train or change companions':'Choose your route · plan your next rest')}<button class="map-key-button" data-action="map-key">${icon('info')}KEY</button></div><div class="map-atlas-frame"><div class="game-map-viewport" id="map-viewport"><svg id="journey-map" class="game-world-map" viewBox="0 0 390 ${mapHeight(r)}"></svg></div></div><div class="map-build-dock">${r.restReady?`<div class="rest-services"><button data-action="skills">${icon('route')}SKILL TREE</button><button data-action="companions">${fleetArt()}COMPANIONS</button>${artifactsRevealed()?`<button data-action="artifacts">${icon('star')}ARTIFACTS</button>`:''}</div>`:''}${r.restReady?dreamRestMarkup(r,getChoices(r)[0]):''}${artifactSlots()}</div></section>`}
+function renderMap(){const r=state.run;return `<section class="game-map-screen map-v2 minimal-map">${campaignStrip(r,state.profile)}<div class="map-status-strip"><span class="map-stop-counter">STOP ${Math.min(r.step+1,r.map.length)}/${r.map.length}</span>${livesMarkup(r)}<span class="glow-label">${icon('flame')}${formatGlow(r.flame,getGlowCapacity(r),0)} GLOW</span></div>${tutorialCheckpoint()}${!r.isTutorial&&r.mapIndex===0&&r.step===0&&!r.path.length?`<button class="starter-companion" data-action="companions">${fleetArt()}<span>CHOOSE STARTER COMPANION</span>${icon('arrow')}</button>`:''}${canChooseStartingSkill(r)?`<button class="starter-companion" data-action="bond-tree">STARTER SKILL + ${STARTING_EMBERS} EMBERS</button>`:''}<button class="checkpoint-skill-button" data-action="skills">${icon('route')} SKILL TREE</button><div class="map-top-guide">${objectiveStrip(r.restReady?'REST PREP · train or change companions':'Choose your route · plan your next rest')}<button class="map-key-button" data-action="map-key">${icon('info')}KEY</button></div><div class="map-atlas-frame"><div class="game-map-viewport" id="map-viewport"><svg id="journey-map" class="game-world-map" viewBox="0 0 390 ${mapHeight(r)}"></svg></div></div><div class="map-build-dock">${r.restReady?`<div class="rest-services"><button data-action="skills">${icon('route')}SKILL TREE</button><button data-action="companions">${fleetArt()}COMPANIONS</button>${artifactsRevealed()?`<button data-action="artifacts">${icon('star')}ARTIFACTS</button>`:''}</div>`:''}${r.restReady?dreamRestMarkup(r,getChoices(r)[0]):''}${artifactSlots()}</div></section>`}
 function plannedChallengesMarkup(n){if(state.run?.isTutorial||n.boss)return '';const preview=getChallengePreview({...n,stage:n.row});return `<div class="flight-challenge-preview" aria-label="Planned terrain challenges">${preview.patterns.map(pattern=>`<span>${icon(pattern.type==='fuel-pocket'?'flame':pattern.type==='draft-crossing'?'wing':'wisp')}${esc(pattern.name)}</span>`).join('')}</div>`}
 function flightCue(snapshot){if(snapshot.completing)return 'PASSAGE CLEARED';if(snapshot.dying)return snapshot.event||'The light scatters…';if(snapshot.resumeRemaining>0)return `RESUMING · ${Math.round((snapshot.resumeScale||.1)*100)}%`;const challenge=snapshot.flightChallenge;if(!challenge)return snapshot.event||'';if(challenge.phase==='warning')return challenge.type==='dark-cave'?'CAVE AHEAD · SIGHT NARROWS':challenge.type==='draft-crossing'?'DRAFT AHEAD · CHOOSE YOUR CROSSING':challenge.pocket?.side==='ceiling'?'FUEL POCKET ABOVE':'FUEL POCKET AHEAD';if(challenge.phase==='active'&&challenge.progress<.2)return challenge.name;return snapshot.event||''}
 function renderBriefing(){const r=state.run,n=r.current,loc=nodeLocation(n);return `<section class="center-view compact-briefing ${n.boss?'boss-brief':''}">${campaignStrip(r,state.profile)}${tutorialCheckpoint()}<div class="encounter-art location-art" data-location="${loc.id}">${levelMapPreview(loc)}${n.boss?bossSigil():''}<span class="encounter-badge">${n.boss?'BOSS':n.elite?'ELITE':'FLIGHT'}</span></div><h1>${esc(n.name)}</h1><div class="brief-stats"><span>${livesMarkup(r)}</span><span class="glow-label">${icon('flame')}${formatGlow(r.flame,getGlowCapacity(r),0)} GLOW</span><span>${formatFlightDuration(n.duration)}</span></div>${forecastMarkup(n)}${plannedChallengesMarkup(n)}${n.setpiecePreview?`<div class="setpiece-preview">${esc(n.setpiecePreview)}</div>`:''}${reservePanel()}${r.restReady?dreamRestMarkup(r,n):''}<div class="flight-ready-fleet">${fleetArt()}<span>${roleFleet().map(id=>getCompanionAbility(id).name).join(' + ')}</span></div>${r.flame<21?'<div class="low-glow-warning">LOW GLOW · FIND FUEL EARLY</div>':''}<button class="primary enter-passage" data-action="launch">Enter ${icon('arrow')}</button>${artifactSlots()}</section>`}
