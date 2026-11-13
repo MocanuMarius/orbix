@@ -17,6 +17,7 @@ const hashes=()=>Object.fromEntries(hashNames.map(name=>[name,createHash('sha256
 const initialHashes=hashes();
 const {WispFlight,FLIGHT_TUNING,FLAME_TUNING,obstaclePolygons,circleHitsPolygon}=await import(pathToFileURL(path.join(source,'flight.mjs')));
 const {getRunModifiers,ROUTE_PROFILES}=await import(pathToFileURL(path.join(source,'model.mjs')));
+const {getFlightLengthProfile}=await import(pathToFileURL(path.join(source,'level-length.mjs')));
 const {getLevelIdentity}=await import(pathToFileURL(path.join(source,'level-catalog.mjs')));
 const {getPickupSpec,pickupKind,pickupContactRadius}=await import(pathToFileURL(path.join(source,'pickups.mjs')));
 globalThis.requestAnimationFrame=()=>1;globalThis.cancelAnimationFrame=()=>{};
@@ -200,11 +201,12 @@ function diagnoseLayout(e,key){
 const roleOptions=['collector','protector','leveler','swift'];
 function buildCase({terrain,difficulty,stage,role,style,seedIndex=0,profile='refuge',practice=false,fleet=null,skills={}}){
  const seed=`balance-flight-${seedIndex}-${terrain}-a${difficulty}-s${stage}`;
- const duration=practice?(stage===0?36:44):stage===6?165:Math.round((34+stage*2)*ROUTE_PROFILES[profile].durationScale)*3;
+ const length=getFlightLengthProfile({seed,mapIndex:0,row:stage,elite:profile==='gauntlet',boss:stage===6});
+ const duration=practice?(stage===0?36:44):length.duration;
  const identity=getLevelIdentity(terrain,seed);
  return{terrain,difficulty,stage,role,style,seedIndex,profile,practice,seed,duration,skills,fleet:fleet||[role],
   node:{...ROUTE_PROFILES[profile],row:stage,flightNumber:stage===0?1:stage===3?3:5,difficulty,mapIndex:0,
-   levelId:identity.id,locationName:identity.name,flightLengthScale:practice?1:3,
+   levelId:identity.id,locationName:identity.name,flightLengthScale:1,
    ...(practice?{tutorialLesson:stage===0?'glide':'wind'}:{}),challengeId:'clean',challengeTarget:0}};
 }
 function simulate(config){

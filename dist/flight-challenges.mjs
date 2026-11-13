@@ -1,6 +1,6 @@
-import {LOCATION_CHALLENGE_NAMES} from './world-expansion.mjs?v=collector-orbit-1';
-import { createDraftZones, DRAFT_TUNING } from './drafts.mjs?v=collector-orbit-1';
-import { getEncounterFamily, familyChallengeCells } from './encounter-families.mjs?v=collector-orbit-1';
+import {LOCATION_CHALLENGE_NAMES} from './world-expansion.mjs?v=gentler-opening-1';
+import { createDraftZones, DRAFT_TUNING } from './drafts.mjs?v=gentler-opening-1';
+import { getEncounterFamily, familyChallengeCells } from './encounter-families.mjs?v=gentler-opening-1';
 
 const clamp = (value, low, high) => Math.max(low, Math.min(high, value));
 const NAMES = Object.freeze({

@@ -1,4 +1,4 @@
-import {condensedIconMarkup} from './afterglow-ui.mjs?v=collector-orbit-1';
+import {condensedIconMarkup} from './afterglow-ui.mjs?v=gentler-opening-1';
 // Small shared pixel silhouettes. Conditions retain words; basic resources do not.
 const shapes={
  energy:'<path d="M8 1h6l-4 5h4L4 15l2-7H2z"/>',

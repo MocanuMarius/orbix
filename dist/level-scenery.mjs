@@ -1,6 +1,6 @@
-import {drawBiomeBackground,drawBiomeMaterial,drawBiomeLife} from './biome-art.mjs?v=collector-orbit-1';
-import {drawExpandedBackdrop} from './world-scenery.mjs?v=collector-orbit-1';
-import { resolveLevelIdentity } from './level-catalog.mjs?v=collector-orbit-1';
+import {drawBiomeBackground,drawBiomeMaterial,drawBiomeLife} from './biome-art.mjs?v=gentler-opening-1';
+import {drawExpandedBackdrop} from './world-scenery.mjs?v=gentler-opening-1';
+import { resolveLevelIdentity } from './level-catalog.mjs?v=gentler-opening-1';
 
 const TAU = Math.PI * 2;
 const clamp = (n, a, b) => Math.max(a, Math.min(b, n));
