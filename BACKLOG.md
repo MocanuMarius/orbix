@@ -1,6 +1,6 @@
 # Current batch — Clear Paths (13 November 2026)
 
-Implemented in `clear-paths-1`; publication is recorded in `docs/backlog-current.md`.
+Implemented in `clear-paths-2`; publication is recorded in `docs/backlog-current.md`.
 
 - [x] Seven-stop isolated tutorial practice; 17 replayable Field Guide topics with short visual lessons.
 - [x] Name seeing distance **Luminance** throughout player-facing skills, pickups and lessons.

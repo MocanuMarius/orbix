@@ -1,4 +1,4 @@
-import {obstacleEdgeClearance} from './edging-pulse.mjs?v=clear-paths-1';
+import {obstacleEdgeClearance} from './edging-pulse.mjs?v=clear-paths-2';
 const clamp=n=>Math.max(0,Math.min(1,Number(n)||0));
 
 export function proximityFill(pulse){

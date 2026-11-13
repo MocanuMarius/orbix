@@ -1,5 +1,5 @@
-import * as THREE from './vendor/three.mjs?v=clear-paths-1';
-import { PhoenixMotion } from './phoenix-motion.mjs?v=clear-paths-1';
+import * as THREE from './vendor/three.mjs?v=clear-paths-2';
+import { PhoenixMotion } from './phoenix-motion.mjs?v=clear-paths-2';
 
 const TAU = Math.PI * 2;
 const clamp = (value, lo, hi) => Math.min(hi, Math.max(lo, value));

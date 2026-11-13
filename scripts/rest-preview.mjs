@@ -42,7 +42,7 @@ else if(['briefing','victory','pause','lighting','splash','wake','proximity','in
  else if(scenario==='pause'){await launch();showMenu();}
  else if(scenario==='splash'){launch();}
  else if(scenario==='wake'){await launch();}
- else if(['lighting','proximity','interactions'].includes(scenario)){delete mockRun.skills['main-sight'];if(new URLSearchParams(location.search).get('capacity')==='full'){Object.assign(mockRun.skills,{'main-light-step':1,'main-thrifty-rise':1,'main-low-lift':1,'main-reservoir':1,'main-vast-vessel':1});mockRun.restGlowCapacity=30;mockRun.flame=200;}await launch();document.querySelector('#pause-layer').innerHTML='';resumeArmed=false;engine.paused=true;engine.render();if(scenario==='proximity'){engine.edgingPulse.charge=.72;engine.edgingPulse.nearEdge=true;engine.render();}if(scenario==='interactions'){const item=engine.biomeDynamics.items.find(item=>item.kind==='spore')||engine.biomeDynamics.items[0];if(item){item.x=engine.distance+engine.player.x+65;item.y=engine.player.y+45;engine.render();}}}
+ else if(['lighting','proximity','interactions'].includes(scenario)){delete mockRun.skills['main-sight'];if(new URLSearchParams(location.search).get('capacity')==='full'){Object.assign(mockRun.skills,{'main-light-step':1,'main-thrifty-rise':1,'main-low-lift':1,'main-reservoir':1,'main-vast-vessel':1});mockRun.restGlowCapacity=30;mockRun.flame=200;}await launch();document.querySelector('#pause-layer').innerHTML='';resumeArmed=false;engine.paused=true;engine.render();if(scenario==='proximity'){engine.edgingPulse.charge=.72;engine.edgingPulse.nearEdge=true;engine.render();}if(scenario==='interactions'){const item=engine.biomeDynamics.items.find(item=>item.kind==='spore')||engine.biomeDynamics.items[0];if(item){item.x=engine.distance+engine.player.x+65;item.y=engine.player.y+45;item.kind='spore';item.family='lift';item.color='#d5b7df';engine.render();}}}
  else goToRun();
 }
 
@@ -51,7 +51,7 @@ if(['death','last-heart'].includes(scenario)){
  beginFlightAttempt(mockRun);finishFlight(mockRun,{success:false,flame:0});goToRun();
 }
 if(scenario==='guide')showFieldGuide();
-if(scenario==='result'){mockRun.phase='ended';mockRun.success=false;mockRun.lives=0;render('result');}
+if(scenario==='result'){mockRun.phase='ended';mockRun.success=new URLSearchParams(location.search).get('outcome')==='win';mockRun.lives=mockRun.success?2:0;if(mockRun.success)mockRun.lastFlight={artifactDrop:{id:'sunheart-engine',duplicate:false}};render('result');}
 if(['tutorial-route','tutorial-flight','tutorial-camp','tutorial-prep','tutorial-hazards'].includes(scenario)){
  closeSheet();hideLesson();destroyFlight();state=newState();startTutorial(state);const practice=state.run;
  if(['tutorial-camp','tutorial-prep'].includes(scenario)){

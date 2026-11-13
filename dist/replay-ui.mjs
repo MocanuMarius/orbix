@@ -1,8 +1,8 @@
-import {glowText,getGlowCapacity,formatGlow} from './vitality.mjs?v=clear-paths-1';
-import {getArtifactInfo,CONSUMABLE_ARTIFACTS,EVOLVING_ARTIFACTS,getArtifactStackPreview} from './artifact-info.mjs?v=clear-paths-1';
-import {resourceSymbol} from './game-symbols.mjs?v=clear-paths-1';
-import {artifactIcon} from './upgrade-icons.mjs?v=clear-paths-1';
-import {encounterFamilyPreview} from './encounter-families.mjs?v=clear-paths-1';
+import {glowText,getGlowCapacity,formatGlow} from './vitality.mjs?v=clear-paths-2';
+import {getArtifactInfo,CONSUMABLE_ARTIFACTS,EVOLVING_ARTIFACTS,getArtifactStackPreview} from './artifact-info.mjs?v=clear-paths-2';
+import {resourceSymbol} from './game-symbols.mjs?v=clear-paths-2';
+import {artifactIcon} from './upgrade-icons.mjs?v=clear-paths-2';
+import {encounterFamilyPreview} from './encounter-families.mjs?v=clear-paths-2';
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 export const THEME_INKS=Object.freeze({sustain:'#b9d995',precision:'#a8d5e2',tempo:'#e4c286',dream:'#cbb2e6',risk:'#e4a894'});
 export function rewardThemeMarkup(source={},label='RELIC PATH'){

@@ -1,48 +1,48 @@
-import {flightEntryMarkup,resumeGateMarkup,waitForFlightEntry} from './flight-entry.mjs?v=clear-paths-1';
-import {TUTORIAL_TOPICS,topicSteps} from './tutorial-curriculum.mjs?v=clear-paths-1';
-import {tutorialVisualMarkup} from './tutorial-visuals.mjs?v=clear-paths-1';
-import {deathScreenMarkup} from './death-screen.mjs?v=clear-paths-1';
-import {createRestInspectorState} from './rest-inspector.mjs?v=clear-paths-1';
-import {choiceScene} from './choice-art.mjs?v=clear-paths-1';
-import {contextualFlightNotice} from './contextual-events.mjs?v=clear-paths-1';
-import {createMusic} from './music.mjs?v=clear-paths-1';
-import {resourceSymbol} from './game-symbols.mjs?v=clear-paths-1';
-import {nextArtifactNotice,artifactUseLesson} from './artifact-lessons.mjs?v=clear-paths-1';
-import {getArtifactInfo,CONSUMABLE_ARTIFACTS,EVOLVING_ARTIFACTS,getArtifactStackPreview,getRestRechargePreview} from './artifact-info.mjs?v=clear-paths-1';
-import {checkpointTutorialLesson,observedFlightLesson,flightEffectLesson} from './tutorial-steps.mjs?v=clear-paths-1';
-import {ARTIFACT_ENGINE_RULES} from './artifact-effects.mjs?v=clear-paths-1';
-import {rewardThemeMarkup,encounterIntent,encounterIntentMarkup,artifactOfferMarkup,artifactDetailMarkup,artifactRarityLabel,artifactSummaryMarkup,artifactLifetimeMarkup} from './replay-ui.mjs?v=clear-paths-1';
-import {installLandscapeMode} from './landscape.mjs?v=clear-paths-1';
-import {drawLandscapeMap} from './landscape-map.mjs?v=clear-paths-1';
-import {attachDream,dreamRestMarkup,dreamIndicatorMarkup} from './dream.mjs?v=clear-paths-1';
-import {chooseFlightReward,getAvailableUpgrades,acknowledgeVictory,artifactSynergy} from './model.mjs?v=clear-paths-1';
-import {STARTING_CONDENSED_GLOW,formatGlow,glowPercent,getGlowCapacity,glowText} from './vitality.mjs?v=clear-paths-1';
-import {glowGaugeMarkup,updateGlowGauge} from './glow-ui.mjs?v=clear-paths-1';
-import {edgingPulseMarkup,updateEdgingPulse} from './edging-ui.mjs?v=clear-paths-1';
-import {branchTreeMarkup} from './skill-tree.mjs?v=clear-paths-1';
-import {livesMarkup,lifeHeartSvg} from './lives.mjs?v=clear-paths-1';
-import {mainWispTreeMarkup} from './wisp-tree.mjs?v=clear-paths-1';
-import {attachFlightPerformance,downloadPerformanceReport} from './flight-performance.mjs?v=clear-paths-1';
-import {getChallengePreview} from './flight-challenges.mjs?v=clear-paths-1';
-import {homeMenuMarkup,runProgressMarkup,unlockPreviewMarkup} from './run-menu.mjs?v=clear-paths-1';
-import {skillIcon,artifactIcon} from './upgrade-icons.mjs?v=clear-paths-1';
-import {TERRAINS,SKILLS,ARTIFACTS,newState,loadState,saveState,createRun,canChooseStartingSkill,chooseStartingSkill,setTestOverride,grantTestCondensedGlow,getStartingCompanion,setStartingCompanion,startTutorial,leaveTutorial,getChoices,getRouteMapState,selectNode,beginFlightAttempt,retryFlight,finishFlight,getSupportChoices,resolveSupport,settleCheckpoint,bankRun,advanceMap,previewGlowReward,getSkillCost,getSkillPrice,getSkillWallet,getSkillLockReason,suspendRun,abandonRun,isSkillRevealed,canBuyCheckpointSkills,buyCheckpointSkill,getRunModifiers,getCompanionCapacity,getArtifactCapacity,getNextArtifactSlotSkill,canChangeCompanion,setCompanions,equipArtifact,sellArtifact,canSellArtifact,getArtifactSalvageValue} from './model.mjs?v=clear-paths-1';
-import {WispFlight} from './flight.mjs?v=clear-paths-1';
-import {COMPANION_ABILITIES,getCompanionAbility,getCompanionUnlock,normalizeCompanionRole} from './companion-abilities.mjs?v=clear-paths-1';
-import {companionArtSvg} from './companion-art.mjs?v=clear-paths-1';
-import {boostControlMarkup,updateBoostControl} from './boost-control.mjs?v=clear-paths-1';
-import {campaignStrip,bossSigil} from './campaign-ui.mjs?v=clear-paths-1';
-import {resolveLevelIdentity} from './level-catalog.mjs?v=clear-paths-1';
-import {levelMapGlyph,levelMapPreview} from './level-map-art.mjs?v=clear-paths-1';
-import {getAscentInfo} from './ascent.mjs?v=clear-paths-1';
-import {getRouteForecast} from './route-forecast.mjs?v=clear-paths-1';
-import {MAP_STOP_TYPES,getMapStopInfo,mapStopIconMarkup,getEventScenarios} from './map-guide.mjs?v=clear-paths-1';
-import {formatFlightDuration} from './level-length.mjs?v=clear-paths-1';
-import {condensedIconMarkup} from './afterglow-ui.mjs?v=clear-paths-1';
-import {pickupGuideMarkup,pickupLesson} from './pickup-guide.mjs?v=clear-paths-1';
-import {pickupArtSvg} from './pickup-art.mjs?v=clear-paths-1';
-import {createTutorialCoach} from './tutorial-coach.mjs?v=clear-paths-1';
-import {getTutorialWorldFocus} from './tutorial.mjs?v=clear-paths-1';
+import {flightEntryMarkup,resumeGateMarkup,waitForFlightEntry} from './flight-entry.mjs?v=clear-paths-2';
+import {TUTORIAL_TOPICS,topicSteps} from './tutorial-curriculum.mjs?v=clear-paths-2';
+import {tutorialVisualMarkup} from './tutorial-visuals.mjs?v=clear-paths-2';
+import {deathScreenMarkup} from './death-screen.mjs?v=clear-paths-2';
+import {createRestInspectorState} from './rest-inspector.mjs?v=clear-paths-2';
+import {choiceScene} from './choice-art.mjs?v=clear-paths-2';
+import {contextualFlightNotice} from './contextual-events.mjs?v=clear-paths-2';
+import {createMusic} from './music.mjs?v=clear-paths-2';
+import {resourceSymbol} from './game-symbols.mjs?v=clear-paths-2';
+import {nextArtifactNotice,artifactUseLesson} from './artifact-lessons.mjs?v=clear-paths-2';
+import {getArtifactInfo,CONSUMABLE_ARTIFACTS,EVOLVING_ARTIFACTS,getArtifactStackPreview,getRestRechargePreview} from './artifact-info.mjs?v=clear-paths-2';
+import {checkpointTutorialLesson,observedFlightLesson,flightEffectLesson} from './tutorial-steps.mjs?v=clear-paths-2';
+import {ARTIFACT_ENGINE_RULES} from './artifact-effects.mjs?v=clear-paths-2';
+import {rewardThemeMarkup,encounterIntent,encounterIntentMarkup,artifactOfferMarkup,artifactDetailMarkup,artifactRarityLabel,artifactSummaryMarkup,artifactLifetimeMarkup} from './replay-ui.mjs?v=clear-paths-2';
+import {installLandscapeMode} from './landscape.mjs?v=clear-paths-2';
+import {drawLandscapeMap} from './landscape-map.mjs?v=clear-paths-2';
+import {attachDream,dreamRestMarkup,dreamIndicatorMarkup} from './dream.mjs?v=clear-paths-2';
+import {chooseFlightReward,getAvailableUpgrades,acknowledgeVictory,artifactSynergy} from './model.mjs?v=clear-paths-2';
+import {STARTING_CONDENSED_GLOW,formatGlow,glowPercent,getGlowCapacity,glowText} from './vitality.mjs?v=clear-paths-2';
+import {glowGaugeMarkup,updateGlowGauge} from './glow-ui.mjs?v=clear-paths-2';
+import {edgingPulseMarkup,updateEdgingPulse} from './edging-ui.mjs?v=clear-paths-2';
+import {branchTreeMarkup} from './skill-tree.mjs?v=clear-paths-2';
+import {livesMarkup,lifeHeartSvg} from './lives.mjs?v=clear-paths-2';
+import {mainWispTreeMarkup} from './wisp-tree.mjs?v=clear-paths-2';
+import {attachFlightPerformance,downloadPerformanceReport} from './flight-performance.mjs?v=clear-paths-2';
+import {getChallengePreview} from './flight-challenges.mjs?v=clear-paths-2';
+import {homeMenuMarkup,runProgressMarkup,unlockPreviewMarkup} from './run-menu.mjs?v=clear-paths-2';
+import {skillIcon,artifactIcon} from './upgrade-icons.mjs?v=clear-paths-2';
+import {TERRAINS,SKILLS,ARTIFACTS,newState,loadState,saveState,createRun,canChooseStartingSkill,chooseStartingSkill,setTestOverride,grantTestCondensedGlow,getStartingCompanion,setStartingCompanion,startTutorial,leaveTutorial,getChoices,getRouteMapState,selectNode,beginFlightAttempt,retryFlight,finishFlight,getSupportChoices,resolveSupport,settleCheckpoint,bankRun,advanceMap,previewGlowReward,getSkillCost,getSkillPrice,getSkillWallet,getSkillLockReason,suspendRun,abandonRun,isSkillRevealed,canBuyCheckpointSkills,buyCheckpointSkill,getRunModifiers,getCompanionCapacity,getArtifactCapacity,getNextArtifactSlotSkill,canChangeCompanion,setCompanions,equipArtifact,sellArtifact,canSellArtifact,getArtifactSalvageValue} from './model.mjs?v=clear-paths-2';
+import {WispFlight} from './flight.mjs?v=clear-paths-2';
+import {COMPANION_ABILITIES,getCompanionAbility,getCompanionUnlock,normalizeCompanionRole} from './companion-abilities.mjs?v=clear-paths-2';
+import {companionArtSvg} from './companion-art.mjs?v=clear-paths-2';
+import {boostControlMarkup,updateBoostControl} from './boost-control.mjs?v=clear-paths-2';
+import {campaignStrip,bossSigil} from './campaign-ui.mjs?v=clear-paths-2';
+import {resolveLevelIdentity} from './level-catalog.mjs?v=clear-paths-2';
+import {levelMapGlyph,levelMapPreview} from './level-map-art.mjs?v=clear-paths-2';
+import {getAscentInfo} from './ascent.mjs?v=clear-paths-2';
+import {getRouteForecast} from './route-forecast.mjs?v=clear-paths-2';
+import {MAP_STOP_TYPES,getMapStopInfo,mapStopIconMarkup,getEventScenarios} from './map-guide.mjs?v=clear-paths-2';
+import {formatFlightDuration} from './level-length.mjs?v=clear-paths-2';
+import {condensedIconMarkup} from './afterglow-ui.mjs?v=clear-paths-2';
+import {pickupGuideMarkup,pickupLesson} from './pickup-guide.mjs?v=clear-paths-2';
+import {pickupArtSvg} from './pickup-art.mjs?v=clear-paths-2';
+import {createTutorialCoach} from './tutorial-coach.mjs?v=clear-paths-2';
+import {getTutorialWorldFocus} from './tutorial.mjs?v=clear-paths-2';
 const app=document.querySelector('#app'),header=document.querySelector('#header');
 const mockMode=new URLSearchParams(location.search).get('mock')==='rest';
 let state;if(mockMode)state=createRestInspectorState();else try{state=loadState(localStorage)}catch{state=newState()}
@@ -172,7 +172,7 @@ function renderRestPrep(){const r=state.run,n=getChoices(r)[0],loc=n?nodeLocatio
 
 function renderRetry(){const r=state.run;return `<section class="center-view compact-retry"><h1>Light lost</h1><div class="retry-level-label">${esc(r.current?.name)}</div><div class="retry-lives">${livesMarkup(r)}</div><button class="primary" data-action="retry">Retry this passage ${icon('arrow')}</button><button class="secondary" data-action="abandon-run">Abandon run</button></section>`}
 function renderMapClear(){const r=state.run;return `<section class="center-view run-summary map-clear-screen"><h1>Map ${r.mapIndex+1} cleared</h1><p>${esc(r.mapName)}</p><div class="map-clear-carry">${livesMarkup(r)}<span class="glow-label">${icon('flame')}${formatGlow(r.flame,getGlowCapacity(r),0)} SPARKS</span></div>${fleetArt()}${artifactSlots()}<p class="map-clear-note">Your fuel, lives and build continue.</p><button class="primary" data-action="next-map">MAP ${r.mapIndex+2} ${icon('arrow')}</button></section>`}
-function renderResult(){const r=state.run,drop=r.lastFlight?.artifactDrop?.collectionComplete?null:r.lastFlight?.artifactDrop,role=r.success&&!r.isTutorial?allRoles().find(c=>c.unlockDifficulty===r.difficulty+1):null;return `<section class="center-view run-summary"><h1>${r.isTutorial?(r.success?'Practice complete':'Practice ended'):r.success?'Run complete':'Run ended'}</h1><div class="result-stats"><div><strong>${Math.floor(r.securedCondensedGlow||0)}</strong><span>PACKED LIGHT EARNED</span></div><div><strong>${r.stats?.flights||0}</strong><span>FLIGHTS</span></div></div>${drop?`<section class="artifact-drop">${drop.duplicate?condensedIconMarkup():artifactArt(typeof drop==='string'?drop:drop.id)}<span>${drop.duplicate?'BOSS REWARD':r.testMode?'TEST RELIC PREVIEW':'PERMANENT BOSS ARTIFACT'}</span><h2>${drop.duplicate?(drop.convertedGlow?`+${formatGlow(drop.convertedGlow,getGlowCapacity(r))} SPARKS`:'Collection complete'):esc(artifactById(typeof drop==='string'?drop:drop.id)?.name||'Relic recovered')}</h2><p>${drop.duplicate?esc(glowText(drop.message||'All artifacts collected.',getGlowCapacity(r))):'Mount during your next run.'}</p></section>`:''}${role?`<section class="result-companion-unlock">${companionArtSvg(role.id)}<div><span>AVAILABLE FOR YOUR NEXT RUN</span><h2>${esc(role.name)}</h2><p>Ascension ${r.difficulty+1} available</p></div></section>`:''}${r.isTutorial?'<div class="two-actions"><button class="secondary" data-action="restart-practice">Practice again</button><button class="primary" data-action="leave-practice">Back to Menu</button></div>':`<p class="run-pause-note">Run skills and Packed Light reset. Permanent unlocks remain.</p><div class="two-actions"><button class="secondary" data-action="exit-menu">Main menu</button><button class="primary" data-action="new-game">New Game ${icon('arrow')}</button></div>`}</section>`}
+function renderResult(){const r=state.run,drop=r.lastFlight?.artifactDrop?.collectionComplete?null:r.lastFlight?.artifactDrop,role=r.success&&!r.isTutorial?allRoles().find(c=>c.unlockDifficulty===r.difficulty+1):null;return `<section class="center-view run-summary"><h1>${r.isTutorial?(r.success?'Practice complete':'Practice ended'):r.success?'Run complete':'Run ended'}</h1><div class="result-stats"><div><strong>${Math.floor(r.securedCondensedGlow||0)}</strong><span>PACKED LIGHT EARNED</span></div><div><strong>${r.stats?.flights||0}</strong><span>FLIGHTS</span></div></div>${drop||role?`<div class="summary-prizes">${drop?`<div class="summary-prize">${drop.duplicate?condensedIconMarkup():artifactArt(typeof drop==='string'?drop:drop.id)}<div><small>${r.testMode?'TEST REWARD':'BOSS REWARD'}</small><strong>${drop.duplicate?(drop.convertedGlow?`+${formatGlow(drop.convertedGlow)} Sparks`:'Collection complete'):esc(artifactById(typeof drop==='string'?drop:drop.id)?.name||'Artifact recovered')}</strong></div></div>`:''}${role?`<div class="summary-prize">${companionArtSvg(role.id)}<div><small>ASCENSION ${r.difficulty+1} UNLOCKED</small><strong>${esc(role.name)}</strong></div></div>`:''}</div>`:''}${r.isTutorial?'<div class="two-actions"><button class="secondary" data-action="restart-practice">Practice again</button><button class="primary" data-action="leave-practice">Back to Menu</button></div>':`<p class="run-pause-note">Run skills and Packed Light reset. Permanent unlocks remain.</p><div class="two-actions"><button class="secondary" data-action="exit-menu">Main menu</button><button class="primary" data-action="new-game">New Game ${icon('arrow')}</button></div>`}</section>`}
 
 function closeSheet(){const el=document.querySelector('dialog.game-sheet');if(el){el.close();el.remove()}}
 function openSheet(content,cls=''){closeSheet();const el=document.createElement('dialog');el.className=`power-sheet game-sheet ${cls}`;el.innerHTML=content;el.addEventListener('close',()=>{el.remove();if(engine&&paused&&!flightLoading&&!document.querySelector('dialog[open]')&&!document.querySelector('#pause-layer')?.children.length&&!lesson)resumeFlight();},{once:true});document.body.appendChild(el);el.showModal();el.querySelector('button')?.focus({preventScroll:true});return el}

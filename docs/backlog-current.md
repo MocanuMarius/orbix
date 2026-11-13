@@ -1,6 +1,6 @@
 # Current implementation audit — Clear Paths
 
-Release: `clear-paths-1`. This entry supersedes older terminology and status reports below.
+Release: `clear-paths-2`. This entry supersedes older terminology and status reports below.
 
 The resumed backlog is implemented: extended, isolated tutorial practice; Luminance terminology; delayed heart-loss presentation; a five-second loading splash; explicit tap-to-wake before Lift; an in-world proximity indicator; readable interactive edges; and simplified landscape route, briefing and result composition.
 
@@ -9,6 +9,7 @@ Validation:
 - Browser input probe: before wake `{flaps:0,time:0,paused:true}`; first tap `{flaps:0,paused:false}`; second tap `{flaps:1}`. The first tap does not spend fuel.
 - Existing current-mechanics and resume probes pass; linear 0.1×→1× over three seconds remains intact.
 - Forty-five screen/viewport cases at 900×405, 844×390, 740×333, 720×280 and 1024×600: no overlapping controls or document overflow. Route-map scrolling is intentional. The settled heart-loss screen and five-second splash also fit 720×280.
+- Successful-run summary with both boss artifact and companion unlock additionally verified at 720×280; old absolute-positioned reward labels replaced by one compact reward row.
 - Pixel renderer legacy test cannot load because it imports removed `getModifiers`. The old model suite also targets removed card APIs. These are not reported as passing; no broad test-suite claim is made.
 - Local-only preview fixtures and input instrumentation remain outside `dist`.
 
