@@ -12,8 +12,8 @@ Updated 13 November 2026. Wispbound is the working title. This log records the c
 - Give the player wisp an upgradeable light radius that reveals more terrain and pickups.
 - Keep the game interface compact. Graphics, icons, numbers and card effects carry the information; remove repeated instructions and narrative paragraphs.
 - Keep Glow as fuel for lift pulses, with sparks restoring it. Gliding remains free. Use three lives for the whole ascension, with fatal collisions and same-level retries; health points are removed.
-- Prioritise the feature backlog. Defer further simulations, broad testing and balance fine-tuning until the larger backlog is addressed, as explicitly requested in the latest feedback. Earlier focused simulations remain historical evidence.
-- The user has started live feedback: publish completed feedback batches after source checks, avoiding deployments for every minor edit. Preserve the existing Site and audience.
+- Prioritise the feature backlog. The latest instruction defers all checks, tests, simulations and balance work until the backlog is clear. Earlier verification remains historical evidence; do not add evaluation passes during feature work.
+- The user has started live feedback: publish completed feedback batches while deferring checks and tests, avoiding deployments for every minor edit. Preserve the existing Site and audience.
 
 ## Ten confirmed decisions
 
@@ -212,6 +212,16 @@ On 13 November 2026, the user requested deployment of the current backlog build 
 - Reuse existing tuning: Collector adds 12% reach and 8% Gravity strength per point; Ability adjusts active duration and recharge. Add Gravitic Bond, three permanent ranks at base cost 80, with 15% stronger Gravity pull per rank. Bound combined strength and radius. These are initial values, not a completed balance pass.
 - Make role colours explicit and consistent: amber Swift, cyan Anchor and violet Gravity. Replace the Scout lantern with a distinct violet spiral body. Keep the main wisp white, remove the optional shared tint selector, and ignore its legacy saved fields without erasing unrelated progress.
 - Update Home, rest selection, previews, active button, tutorial and restrained pull visuals. Preserve the top MENU, practice suspension, rest-site switching, long levels and checkpoint reward ledger. Publish this feedback batch after syntax checks; defer simulations and broad testing.
+
+## Readable map and a quiet reserve
+
+- Distinguish six map stop categories with explicit labels: Flight, Elite, Rest, Shrine, Event and Finale. Keep existing biome/location art for flights, distinct support symbols, and the real event names. Do not rely on unexplained decorative symbols alone.
+- Keep the same six event scenarios and their order: Ash Spring, Cinder Bargain, Abandoned Lantern, Weathered Shrine, Luminous Well and The Ember Archive. Rest camps and power shrines remain separate support types. Use shared metadata for map labels and an optional MAP KEY, without changing seeds, routes, rewards or event choices.
+- Show the next stop out of seven on the normal map, counting the two support stops as well as five flights. Use START/YOU markers, upward route cues, readable labels and bright reachable paths. MAP KEY explains categories and lists the six scenario variants only when opened.
+- Hide empty and non-actionable reserve panels on Home, map, power drafts, support and results. Show a Stored Glow control in the briefing only when a positive reserve can actually be drawn for that flight. A used draw or full fuel meter does not leave a disabled empty panel behind.
+- Show a positive reserve balance in MENU, with details available on demand. Use the plain label Stored Glow and a vessel symbol; retain Afterglow as the underlying mechanic. A new deposit gets one nonzero clear cue; only an actual reserve loss appears in the end recap.
+- Make support rewards name their resource: Glow, Embers, Stored Glow or New Power. Keep capacity, retention and loss explanations in optional reserve details and permanent upgrades.
+- Preserve all carryover calculations, tutorial isolation, lives, rewards, upgrades and flight controls. Publish the clarity update without additional checks, tests, simulations or balance work, as requested.
 
 ## Rendering direction proposed after the first review
 

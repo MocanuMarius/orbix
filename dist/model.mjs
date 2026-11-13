@@ -5,6 +5,7 @@ import { LEVELS, getLevelIdentity } from './level-catalog.mjs';
 import { COMPANION_ABILITIES, normalizeCompanionRole } from './companion-abilities.mjs';
 import { getAscentInfo } from './ascent.mjs';
 import { LEVEL_LENGTH, getLevelLengthScale } from './level-length.mjs';
+import { EVENT_SCENARIOS } from './map-guide.mjs';
 export const SAVE_KEY = 'emberwing.save.v1';
 export const TERRAINS = Object.freeze({
   ruins: { id: 'ruins', name: 'Sunken Ruins', color: '#e8b36b', description: 'Ancient arches, sweeping gates, and trails of light packets.' },
@@ -595,7 +596,7 @@ export function loadState(storage) {
   } catch { return newState(); }
 }
 
-const EVENT_NAMES = ['Ash Spring', 'Cinder Bargain', 'Abandoned Lantern', 'Weathered Shrine', 'Luminous Well', 'The Ember Archive'];
+const EVENT_NAMES = EVENT_SCENARIOS.map(event => event.name);
 export const ROUTE_PROFILES = Object.freeze({
   refuge: { routeStyle: 'refuge', passage: 'open', fuelCadence: 2, fuelBonus: 2, flameDrain: 0.92, routeReward: 1, durationScale: 1, draftTags: ['Wisp', 'Ash'], fuelPreview: 'Measured light packets · +2 Glow each', riskPreview: 'Open passages · deliberate edge packets' },
   cavern: { routeStyle: 'cavern', passage: 'cavern', fuelCadence: 3, fuelBonus: 0, flameDrain: 1.08, routeReward: 1.25, durationScale: 0.80, draftTags: ['Drift', 'Wisp'], fuelPreview: 'Spaced light packets · conserve Lift', riskPreview: 'Short cave route · tighter roof and floor' },
@@ -984,7 +985,7 @@ function makeSupportChoices(run, profile = null) {
   const walletLabel = profile ? 'saved embers' : 'run embers';
   const reserveChoice = (id, title, amount) => {
     const gain = energy(Math.min(amount, Math.max(0, getAfterglowRules(run.skills).cap - finite(run.afterglow))));
-    return gain > 0 ? choice(id, title, `Store ${Math.round(gain * 100) / 100} Afterglow for a later flight.`, { afterglow: gain })
+    return gain > 0 ? choice(id, title, `Store ${Math.round(gain * 100) / 100} Glow for later flights.`, { afterglow: gain })
       : choice(id, 'Gather the remaining embers', 'Your reserve is full. Gain 12 embers instead.', { embers: 12 });
   };
   const refill = choice('rest', 'Refill your Glow', 'Refill Glow to 100 before the next flight.', { flame: 100 });

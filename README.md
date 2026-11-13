@@ -65,6 +65,10 @@ Each biome contains three distinct locations, shared by its map landmark, prefli
 
 Locations change route occupancy and rhythm as well as materials: arches and terraces, root tunnels and hanging branches, open chasm drops and crystal necks. Authored challenge windows use tighter passages, staggered climbs or dipping exits, with broader approaches and recovery stretches between them. Stage, route difficulty and available course length determine the number of windows. The course still uses actual shared render/collision polygons, sparse terrain-attached fuel and deterministic retries; tutorial layouts remain separate.
 
+The route map labels six stop categories explicitly: Flight, Elite, Rest, Shrine, Event and Finale. Location art remains on flight nodes; support nodes use distinct symbols and their real names. START/YOU markers and brighter reachable paths make upward travel clear. The header counts the next stop out of seven, including support stops, rather than presenting the next flight number as if a rest were another flight. MAP KEY opens the optional legend.
+
+Normal expeditions contain six event scenarios: Ash Spring, Cinder Bargain, Abandoned Lantern, Weathered Shrine, Luminous Well and The Ember Archive. They offer fuel, saved embers, powers or stored-fuel tradeoffs. Rest camps and power shrines are separate support categories. MAP KEY lists the six event variants on demand; this presentation pass does not add scenarios or change their rewards.
+
 The climb now tightens hard passage gaps by 0 / 3 / 6 / 9 / 12 percent across its five stages, after the original gap bounds, retaining ordinary/elite minimums of 120/104 units. Requested challenge windows rise from one early to two mid-climb and three late where space permits. Intro and recovery passages, movement and fuel placement budgets remain unchanged. Map, briefing and flight labels expose the current stage; these defaults await the deferred balance pass.
 
 Foreground materials and nearby landmarks carry the location identity without making distant scenery brighter. Map nodes show distinct original landmark art and location names. Briefings preview the signature challenge so route and tuning choices have context. The new geometry is an authored feature pass; reachability and numerical difficulty have not received a new simulation sweep.
@@ -94,7 +98,9 @@ The selected ability keeps its name visible through recharge, with separate read
 
 ## Afterglow and learning
 
-Successful flights can bank spare Glow above 60 as **Afterglow**. The starting bank holds 40, storage retains 80% of transferred Glow, and one briefing draw restores up to 20 Glow before a flight. Transferred fuel is deducted once; a full bank leaves excess fuel in Glow. Holding the bank saves it for another route or expedition. Failed or abandoned expeditions lose 25% of their bank. Permanent Vessel, Retention and Anchor upgrades improve capacity, storage efficiency and failure protection. Checkpoints show the balance and optional rule details; flight controls stay unchanged.
+Successful flights can bank spare Glow above 60 as **Afterglow**, shown as **Stored Glow** in the main interface. The starting bank holds 40, storage retains 80% of transferred Glow, and one briefing draw restores up to 20 Glow before a flight. Transferred fuel is deducted once; a full bank leaves excess fuel in Glow. Holding the bank saves it for another route or expedition. Failed or abandoned expeditions lose 25% of their bank. Permanent Vessel, Retention and Anchor upgrades improve capacity, storage efficiency and failure protection.
+
+Empty reserves no longer create panels around the game. A Stored Glow control appears only before departure when a draw is actually available. Positive balances can be inspected through MENU; newly stored Glow gets one nonzero clear cue, and an actual reserve loss appears in the end recap. Capacity and retention rules remain in optional details. A vessel icon and explicit Glow/Ember/Power labels replace ambiguous moon-only rewards. No reserve calculations or resource rules change.
 
 New players receive a short three-stop tutorial with two teaching flights and a support checkpoint. Contextual hints introduce Lift, gliding, Glow collection, the companion and its selected ability. A clearly labelled Tutorial button is always available at home and through MENU. Starting practice safely suspends the current ascension; returning restores its checkpoint, resources and entry build without a life charge. A saved practice session also retains that suspended ascension across reloads. Practice reserve and earnings do not affect the real profile, and practice can be left or replayed.
 
@@ -123,6 +129,8 @@ npm test
 - `dist/gravity.mjs`: bounded inverse-square packet attraction, damping and terrain-aware movement.
 - `dist/companion-art.mjs`: shared original pixel silhouettes and matching menu SVG artwork for the three neutral companions.
 - `dist/game-menu.mjs`, `game-menu.css`: top gear and paused game wheel; tuning, companions, upgrades and Tutorial stay in game overlays.
+- `dist/map-guide.mjs`, `map-clarity.css`: shared stop/event metadata, recognisable support symbols and the optional map legend.
+- `dist/afterglow-ui.mjs`, `afterglow-ui.css`: contextual Stored Glow controls and nonzero feedback without empty reserve panels.
 - `dist/level-length.mjs`: shared length multiplier, duration bounds, reward scale and compact time formatting.
 - `dist/model.mjs`: branching routes, card builds, saves, companion appearance and permanent progression.
 - `dist/app.mjs`, `style.css`, `game.css`: mobile game UI, pixel map glyphs and card icons.
@@ -133,6 +141,6 @@ Power drafts distinguish automatic expedition-long powers from light packets. Ca
 
 Earlier tests cover engine and campaign rules; their easy-flight success targets predate the difficulty changes. Historical focused simulations compare the previous build and sparse placement with matched reserves and bounded local controllers; they do not represent current wind tuning or human success rates. Per the latest user instruction, further simulations, broad testing and balance fine-tuning are deferred until the feature backlog is addressed.
 
-Development policy: the user has started live feedback. Publish completed feedback batches after source checks, preserving the existing Site and audience; avoid deploying each minor source edit. Simulations and broad playtesting remain deferred.
+Development policy: the user has started live feedback. Publish completed feedback batches, preserving the existing Site and audience; avoid deploying each minor source edit. The latest user instruction defers all checks, tests, simulations and balance work until the backlog is clear.
 
 The game requires no account, analytics, payment or cloud-save service. The existing private hosted Site may require the owner's ChatGPT sign-in. Progress is local to the browser; clearing browser data removes it.

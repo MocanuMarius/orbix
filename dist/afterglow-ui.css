@@ -1,0 +1,10 @@
+/* A reserve is actionable before departure, rather than another empty meter. */
+.stored-glow-panel{margin:10px 0;gap:7px}
+.stored-glow-panel .afterglow-readout{grid-template-columns:18px 1fr auto!important;gap:7px;min-height:44px;padding:7px 9px}
+.stored-glow-panel .afterglow-readout>svg{width:18px;height:20px}
+.stored-glow-panel .afterglow-readout>span{font-size:10px;line-height:1.4}
+.stored-glow-panel .afterglow-readout>strong{font-size:14px;line-height:1.4}
+.stored-glow-panel .afterglow-draw{min-height:44px;padding:7px 10px;font-size:10px;line-height:1.4}
+.stored-glow-change{margin:4px 0 10px;font-size:10px;line-height:1.5}
+.stored-glow-change>span{display:inline-flex;align-items:center;gap:5px}
+.stored-glow-change .reserve-icon{width:15px;height:17px;flex:none}

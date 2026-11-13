@@ -1,3 +1,5 @@
+import { reserveIconMarkup, formatStoredGlow } from './afterglow-ui.mjs';
+
 // Stateless menu art. The app owns pausing, dialogs and every action below.
 const ICONS = Object.freeze({
   gear: '<path d="M9 2h6v3l3 2 3-1 2 5-3 2v3l2 2-4 4-3-2h-3l-2 3-5-2 1-3-2-3H1V9h3l2-3-1-3 4-1Z"/><circle cx="12" cy="12" r="4"/>',
@@ -25,7 +27,9 @@ export function gameMenuButton({ points = 0, canEdit = false, flight = false } =
 
 export function gameWheelMarkup({ flight = false, muted = false, tuningAvailable = false,
   tuningEditable = false, companionAvailable = false, upgradesAvailable = false,
-  isTutorial = false, hasSuspended = false } = {}) {
+  isTutorial = false, hasSuspended = false, reserveAmount = 0, reservePractice = false } = {}) {
+  const reserve = Number(reserveAmount);
+  const reserveLabel = `${reservePractice ? 'PRACTICE' : 'STORED'} GLOW ${formatStoredGlow(reserve).replace('<', '&lt;')}`;
   const node = (position, action, image, label, detail, enabled, aria) =>
     `<button type="button" class="game-wheel-node wheel-${position}" data-action="${action}"${enabled ? '' : ' disabled'} aria-label="${aria}">
       ${icon(image)}<span class="game-wheel-label">${label}</span><small>${detail}</small>
@@ -48,6 +52,7 @@ export function gameWheelMarkup({ flight = false, muted = false, tuningAvailable
     <div class="game-menu-footer">
       <button type="button" class="game-menu-foot" data-action="mute" aria-label="${muted ? 'Enable sound' : 'Mute sound'}">${icon(muted ? 'mute' : 'sound')}<span>${muted ? 'UNMUTE' : 'MUTE'}</span></button>
       ${flight ? `<button type="button" class="game-menu-foot game-menu-end" data-action="leave-flight" aria-label="End the current attempt">${icon('exit')}<span>END ATTEMPT</span></button>` : ''}
+      ${Number.isFinite(reserve) && reserve > 0 ? `<button type="button" class="game-menu-foot game-menu-reserve" data-action="inspect-afterglow" aria-label="Inspect ${reservePractice ? 'practice' : 'stored'} Glow reserve. ${formatStoredGlow(reserve).replace('<', '&lt;')} Glow available.">${reserveIconMarkup()}<span>${reserveLabel}</span></button>` : ''}
     </div>
     ${isTutorial && hasSuspended ? '<p class="game-wheel-note">Your ascent is waiting.</p>' : ''}`;
 }
