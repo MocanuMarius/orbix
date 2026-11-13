@@ -1,12 +1,13 @@
-import {formatGlow} from './vitality.mjs?v=dawnburst-1';
-import {LOCATION_PALETTES} from './world-expansion.mjs?v=dawnburst-1';
-import { sceneryIdentity, drawIdentityBackground, drawIdentityMaterial, drawIdentityLife } from './level-scenery.mjs?v=dawnburst-1';
-import { getCompanionAbility, normalizeCompanionRole } from './companion-abilities.mjs?v=dawnburst-1';
-import { companionSprite, companionPalette } from './companion-art.mjs?v=dawnburst-1';
-import { createScenePropArt } from './scene-prop-art.mjs?v=dawnburst-1';
-import { drawBoss } from './boss.mjs?v=dawnburst-1';
-import { drawPickup } from './pickup-art.mjs?v=dawnburst-1';
-import { pickupKind, getPickupSpec } from './pickups.mjs?v=dawnburst-1';
+import {drawFlightProjection} from './flight-projection.mjs?v=drift-sense-1';
+import {formatGlow} from './vitality.mjs?v=drift-sense-1';
+import {LOCATION_PALETTES} from './world-expansion.mjs?v=drift-sense-1';
+import { sceneryIdentity, drawIdentityBackground, drawIdentityMaterial, drawIdentityLife } from './level-scenery.mjs?v=drift-sense-1';
+import { getCompanionAbility, normalizeCompanionRole } from './companion-abilities.mjs?v=drift-sense-1';
+import { companionSprite, companionPalette } from './companion-art.mjs?v=drift-sense-1';
+import { createScenePropArt } from './scene-prop-art.mjs?v=drift-sense-1';
+import { drawBoss } from './boss.mjs?v=drift-sense-1';
+import { drawPickup } from './pickup-art.mjs?v=drift-sense-1';
+import { pickupKind, getPickupSpec } from './pickups.mjs?v=drift-sense-1';
 
 const TAU = Math.PI * 2;
 const SCENERY_HELPERS = { line: pixelLine, disc: pixelDisc, polygon: path };
@@ -1074,6 +1075,7 @@ export class WispFlightView {
     }
     const playerX = e.player.x * s, playerY = yOf(e) * s;
     this.lightFog(e, fleet, playerX, playerY);
+    drawFlightProjection(c,e,{scale:s,distance,playerY:yOf(e)});
     this.drawCollectorAura(e, t);
     let collector = null;
     for (let i = 0; i < fleet.length; i++) if (fleet[i].role === 'collector') { collector = fleet[i]; break; }
