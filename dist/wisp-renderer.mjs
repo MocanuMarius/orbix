@@ -1,10 +1,10 @@
 import { sceneryIdentity, drawIdentityBackground, drawIdentityMaterial, drawIdentityLife } from './level-scenery.mjs';
 import { getCompanionAbility, normalizeCompanionRole } from './companion-abilities.mjs';
 import { companionSprite, companionPalette } from './companion-art.mjs';
-import { createScenePropArt } from './scene-prop-art.mjs?v=near-lantern-1';
+import { createScenePropArt } from './scene-prop-art.mjs?v=clear-reveal-1';
 import { drawBoss } from './boss.mjs';
-import { drawPickup } from './pickup-art.mjs?v=near-lantern-1';
-import { pickupKind, getPickupSpec } from './pickups.mjs?v=near-lantern-1';
+import { drawPickup } from './pickup-art.mjs?v=clear-reveal-1';
+import { pickupKind, getPickupSpec } from './pickups.mjs?v=clear-reveal-1';
 
 const TAU = Math.PI * 2;
 const SCENERY_HELPERS = { line: pixelLine, disc: pixelDisc, polygon: path };
@@ -648,7 +648,9 @@ export class WispFlightView {
       f.drawImage(mask, orb.x * s - r, orb.y * s - r, r * 2, r * 2);
     }
     f.globalAlpha = 1; f.globalCompositeOperation = 'source-over';
-    c.drawImage(this.fog, 0, 0);
+    const reveal=e.completionProgress||0;
+    c.globalAlpha=1-reveal*reveal*(3-2*reveal);
+    c.drawImage(this.fog, 0, 0);c.globalAlpha=1;
   }
 
   glow(x, y, radius, ink, strength = .12) {
@@ -798,7 +800,7 @@ export class WispFlightView {
       if(i===0)c.moveTo(px,py);else c.lineTo(px,py);
     }
     c.closePath();c.strokeStyle='#a9cd95';c.globalAlpha=.035;c.lineWidth=2;c.stroke();
-    c.globalAlpha=.23;c.lineWidth=.75;c.stroke();
+    c.globalAlpha=.23*(1-(e.completionProgress||0));c.lineWidth=.75;c.stroke();
     c.restore();
   }
 
@@ -1053,6 +1055,7 @@ export class WispFlightView {
     c.globalAlpha = 1;
     this.drawPortal(e, t);
     if (e.flash > 0) { c.globalAlpha = Math.min(.2, e.flash * 1.3); c.fillStyle = '#dbc2a1'; c.fillRect(0, 0, WIDTH, this.buffer.height); c.globalAlpha = 1; }
+    if(e.completing){c.save();c.globalCompositeOperation='screen';const p=e.completionProgress||0;c.globalAlpha=.11*p*p*(3-2*p)+Math.sin(Math.PI*p)*.02;c.fillStyle='#efd4a0';c.fillRect(0,0,WIDTH,this.buffer.height);c.restore();}
     this.context.imageSmoothingEnabled = false;
     this.context.drawImage(this.buffer, 0, 0, this.canvas.width, this.canvas.height);
     if (!this.backgroundRepainted) this.prewarmSurfaces(e, distance);

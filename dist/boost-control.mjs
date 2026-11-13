@@ -13,7 +13,7 @@ export function updateBoostControl(element,state={}){
   if(!element)return;
   const ability=state.ability||{},roles=normalizeCompanionFleet(ability.roles||element.dataset.companions?.split(','),ability.role||element.dataset.companionRole);
   const active=roles.filter(id=>!getCompanionAbility(id).passive),passive=!active.length;
-  const ended=state.finished||state.alive===false||state.dying,waiting=state.tutorialAwaitingLift,paused=state.paused;
+  const ended=state.finished||state.alive===false||state.dying||state.completing,waiting=state.tutorialAwaitingLift,paused=state.paused;
   const disabled=!!(ended||waiting||paused),wisp=state.wisp||{},shield=state.shield||{};
   let charge=1,mode='passive',meaning='automatic',role=active[0]||roles[0];
   if(!passive){

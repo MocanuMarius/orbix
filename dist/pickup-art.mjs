@@ -1,4 +1,4 @@
-import { pickupKind, getPickupSpec, pickupDisposition } from './pickups.mjs?v=near-lantern-1';
+import { pickupKind, getPickupSpec, pickupDisposition } from './pickups.mjs?v=clear-reveal-1';
 
 const TAU = Math.PI * 2;
 const clamp = (value, low, high) => Math.max(low, Math.min(high, value));

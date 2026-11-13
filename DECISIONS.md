@@ -503,3 +503,7 @@ Ascension 1 non-elite routes prioritise screen-centre and near-centre recovery f
 ## Scenery-anchored exits
 
 All flights now position the exit 72 world units beyond the rightmost terrain or collision-backed prop, rather than waiting for nominal duration. This leaves roughly 0.47 seconds of clear flight at base speed. Tutorial and boss layouts share the rule; no final terrain is skipped. Pickups beyond the new exit are removed, and the boss waylight cue follows the new endpoint. Targeted terrain/prop, tutorial/boss and collision/rescue checks passed.
+
+## Level-clear light reveal
+
+Reaching the refuge now enters a protected 1.5-second completion animation instead of immediately opening rewards. Gameplay and fuel freeze; Lift, powers, collision and pickup teaching popups cannot interrupt. The wisp's light expands, fog eases away, a warm wash remains across the scene, and the Collector outline fades out. Reduced-motion mode uses the same gentle fog fade without expanding the light radius. Rewards are delivered exactly once after the full reveal. Targeted timing/resource/control checks and three-stage visual preview passed.

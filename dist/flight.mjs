@@ -1,6 +1,6 @@
 /* Emberwing's self-contained canvas flight simulation and renderer. */
 import { FLAME_TUNING, LIGHT_PACKET_TUNING } from './vitality.mjs';
-import { flightEndDistance } from './flight-end.mjs?v=near-lantern-1';
+import { flightEndDistance } from './flight-end.mjs?v=clear-reveal-1';
 import { WispCompanion, wispHome } from './wisp.mjs';
 import { getAscentInfo } from './ascent.mjs';
 import { LEVEL_LENGTH, getLevelLengthScale } from './level-length.mjs';
@@ -8,8 +8,8 @@ import { resolveLevelIdentity } from './level-catalog.mjs';
 import { DraftField, DRAFT_TUNING } from './drafts.mjs';
 import { normalizeCompanionRole, normalizeCompanionFleet, getCompanionAbility } from './companion-abilities.mjs';
 import { populateSceneProps, scenePropPolygons } from './scene-props.mjs';
-import { pickupKind, getPickupSpec, pickupContactRadius, isFuelPickup, canCompanionCollect } from './pickups.mjs?v=near-lantern-1';
-import { drawPickup } from './pickup-art.mjs?v=near-lantern-1';
+import { pickupKind, getPickupSpec, pickupContactRadius, isFuelPickup, canCompanionCollect } from './pickups.mjs?v=clear-reveal-1';
+import { drawPickup } from './pickup-art.mjs?v=clear-reveal-1';
 import { buildBossLayout, getBossState as bossState, drawBoss } from './boss.mjs';
 import { getAuthoredChallenge, finalizeFlightChallenges, installAuthoredDraftCrossings, FlightChallengeDirector } from './flight-challenges.mjs';
 import { createTutorialState, buildTutorialLayout, recordTutorialPickup,
@@ -751,6 +751,7 @@ export class WispFlight {
     this.time = 0; this.distance = 0; this.accumulator = 0; this.lastFrame = 0; this.nextRenderAt = null;
     this.resumeElapsed = RESUME_RAMP_SECONDS; this.resumeHudClock = 0;
     this.running = false; this.paused = false; this.finished = false; this.destroyed = false;
+    this.completing=false;this.completionAge=0;
     this.raf = null; this.score = 0; this.baseEmbers = 0; this.bonusEmbers = 0; this.utilityEmbers = 0; this.collisions = 0;
     this.boosts = 0; this.boostTime = 0; this.cooldown = 0;
     this.abilityTime = 0; this.abilityStartedAt = -1000; this.levelRecovery = 0;
@@ -828,7 +829,7 @@ export class WispFlight {
 
   async initPixelView() {
     try {
-      const { WispFlightView } = await import('./wisp-renderer.mjs?v=near-lantern-1');
+      const { WispFlightView } = await import('./wisp-renderer.mjs?v=clear-reveal-1');
       if (this.destroyed) return;
       this.pixiView = new WispFlightView(this);
       const initialized = await this.pixiView.init();
@@ -860,6 +861,8 @@ export class WispFlight {
   get boostDuration() { return this.abilityDuration; }
   get boostCooldown() { return this.abilityCooldown; }
   get flapCost() { return Math.max(1, Math.round(FLAME_TUNING.flapCost * this.flameDrain * clamp(Number(this.mod.flapCost) || 1, .3, 1.5) * 100) / 100); }
+  get completionProgress() { return clamp(this.completionAge / 1.5,0,1); }
+
   get dyingProgress() { return clamp(this.dyingAge / this.dyingDuration,0,1); }
   get wingRate() { return this.boostTime > 0 ? 9 : this.flame < this.flapCost ? .45 : 5.8; }
   get embers() { return Math.floor((this.baseEmbers + this.bonusEmbers) * Math.max(0, Number(this.mod.reward) || 1) * this.routeReward) + this.utilityEmbers; }
@@ -935,7 +938,7 @@ export class WispFlight {
   }
 
   flap() {
-    if (!this.running || this.paused || this.finished || !this.alive || this.dying) return false;
+    if (!this.running || this.paused || this.finished || !this.alive || this.dying || this.completing) return false;
     if (this.flame < this.flapCost) {
       this.setEvent('Not enough Glow · find a fuel light'); this.notify();
       return false;
@@ -956,7 +959,7 @@ export class WispFlight {
   }
 
   activateAbility() {
-    if (!this.running || this.paused || this.finished || !this.alive || this.dying || this.tutorialAwaitingLift) return false;
+    if (!this.running || this.paused || this.finished || !this.alive || this.dying || this.completing || this.tutorialAwaitingLift) return false;
     if (this.fleet.find(item => item.role === 'leveler')?.remaining > 0) {
       this.cancelLeveler(false); this.syncFleetTimers(); this.setEvent('Leveler released'); this.notify(); return true;
     }
@@ -1098,7 +1101,7 @@ export class WispFlight {
   getAbilityState() {
     const records = this.fleet.filter(item => !getCompanionAbility(item.role).passive);
     const release = this.fleet.find(item => item.role === 'leveler')?.remaining > 0;
-    const usable = this.running && this.alive && !this.paused && !this.finished && !this.destroyed && !this.dying && !this.tutorialAwaitingLift;
+    const usable = this.running && this.alive && !this.paused && !this.finished && !this.destroyed && !this.dying && !this.completing && !this.tutorialAwaitingLift;
     const ready = usable && (release || records.some(item => item.cooldown <= .001 && item.remaining <= 0));
     const next = records.reduce((best,item) => !best || item.cooldown < best.cooldown ? item : best, null);
     const remaining = Math.max(0,...records.map(item => item.remaining));
@@ -1114,7 +1117,7 @@ export class WispFlight {
 
   getCompanionStates(y = this.player.y, time = this.time) {
     if (!this._companionViews) this._companionViews = this.fleet.map(() => ({}));
-    const live = this.running && this.alive && !this.paused && !this.finished && !this.dying && !this.tutorialAwaitingLift;
+    const live = this.running && this.alive && !this.paused && !this.finished && !this.dying && !this.completing && !this.tutorialAwaitingLift;
     for (let i=0;i<this.fleet.length;i++) {
       const item=this.fleet[i], config=getCompanionAbility(item.role), view=this._companionViews[i];
       const angle=(this.reducedMotion?0:time)*TAU/2.5 + Math.PI + i*TAU/this.fleet.length;
@@ -1152,7 +1155,10 @@ export class WispFlight {
     const strength=remaining>0?Math.min(onset,clamp(remaining/.4,0,1)):0;
     const forwardLight={active:strength>0,x:this.player.x+160,y:this.player.y,
       radius:clamp(Number(this.mod.seerRadius)||230,120,420)*caveScale,intensity:strength*(1-reduction*.65)*dyingFade};
-    const radius=Math.max(baseRadius*.5,revealedRadius*(1-reduction)*caveScale);
+    const reveal=this.completionProgress*this.completionProgress*(3-2*this.completionProgress);
+    const radius=Math.max(baseRadius*.5,revealedRadius*(1-reduction)*caveScale)
+      +(this.reducedMotion?0:Math.hypot(this.width,this.height)*reveal);
+
     return {baseRadius,revealedRadius,revealBonus:0,caveReduction,caveActive:caveReduction>.005,
       radius,forwardRadius:radius*2,verticalRadius:radius,rearRadius:radius,
       horizon:{x:this.width*.5,y:this.height*.5,radiusX:this.width*.9,radiusY:radius*.75,strength:.50},
@@ -1220,7 +1226,7 @@ export class WispFlight {
   }
 
   beginDying(cause = 'collision') {
-    if(this.dying||this.finished||this.destroyed)return;
+    if(this.dying||this.completing||this.finished||this.destroyed)return;
     this.deathCause=cause;this.dyingDuration=2;
     this.dying=true;this.dyingAge=0;this.tutorialAwaitingLift=false;
     for(const item of this.fleet)item.remaining=0;this.syncFleetTimers();
@@ -1251,7 +1257,7 @@ export class WispFlight {
   }
 
   getNearbyPickup(seenKinds = new Set()) {
-    if(this.dying||this.finished||this.destroyed)return null;
+    if(this.dying||this.completing||this.finished||this.destroyed)return null;
     const light = this.getLightState(), sight = light.radius * .80;
     const seen = kind => seenKinds?.has?.(kind) === true || Array.isArray(seenKinds) && seenKinds.includes(kind);
     for (const packet of this.getNearbyPickups()) {
@@ -1273,6 +1279,14 @@ export class WispFlight {
   step(dt) {
     if (this.destroyed || this.finished || !this.alive || this.tutorialAwaitingLift) return;
     this.previousPlayerY = this.player.y; this.previousDistance = this.distance;
+    if(this.completing){
+      this.time+=dt;this.completionAge=Math.min(1.5,this.completionAge+dt);
+      this.wingPhase+=dt*2;
+      for(const p of this.particles){p.life-=dt;p.x+=p.vx*dt;p.y+=p.vy*dt;}
+      this.particles=this.particles.filter(p=>p.life>0);
+      if(this.completionAge>=1.5){this.render();this.finish(true);}
+      return;
+    }
     if(this.dying){
       this.time+=dt;this.dyingAge=Math.min(this.dyingDuration,this.dyingAge+dt);
       this.player.vy*=Math.exp(-dt*7);this.player.y=clamp(this.player.y+this.player.vy*dt*.15,28,this.height-29);
@@ -1417,11 +1431,11 @@ export class WispFlight {
     }
     this.updateClock += dt;
     if (this.updateClock >= .10) { this.updateClock = 0; if(this.resumeRemaining===0)this.notify(); }
-    if (!this.finished && !this.dying && this.distance >= this.totalDistance) this.finish(true);
+    if (!this.finished && !this.dying && !this.completing && this.distance >= this.totalDistance) this.finish(true);
   }
 
   hit(obstacle) {
-    if(!this.alive||this.finished||this.destroyed||this.dying)return;
+    if(!this.alive||this.finished||this.destroyed||this.dying||this.completing)return;
     if(this.shield.protection>0)return;
     if(obstacle)obstacle.hit=true;
     this.collisions++;
@@ -1570,11 +1584,11 @@ export class WispFlight {
         ?this.flightChallenge.phase==='warning'?`${this.flightChallenge.name} ahead · ${this.flightChallenge.instruction}`
           :this.flightChallenge.phase==='active'?`${this.flightChallenge.name} · ${this.flightChallenge.instruction}`:'' :'',
       flame: this.flame, maxFlame: FLAME_TUNING.maximum, flapCost: this.flapCost,
-      canFlap: this.alive && !this.finished && !this.dying && this.flame >= this.flapCost,
+      canFlap: this.alive && !this.finished && !this.dying && !this.completing && this.flame >= this.flapCost,
       canAffordFlap:this.flame>=this.flapCost, flaps: this.flaps,
       wisp: this.getWispState(),
       ability, companions:this.getCompanionStates().map(item=>({...item})),shield:this.getShieldState(),leveler:this.getLevelerState(),
-      collectorAura:this.getCollectorAuraState(),dying:this.dying,dyingProgress:this.dyingProgress,deathCause:this.deathCause,
+      completing:this.completing,completionProgress:this.completionProgress,collectorAura:this.getCollectorAuraState(),dying:this.dying,dyingProgress:this.dyingProgress,deathCause:this.deathCause,
       light: this.getLightState(),
       collected: this.baseEmbers, boostCooldown: this.cooldown,
       boostCooldownTotal: this.boostCooldown, boostDurationTotal: this.boostDuration,
@@ -1596,6 +1610,13 @@ export class WispFlight {
 
   finish(success) {
     if (this.finished || this.destroyed) return;
+    if(success&&!this.completing){
+      this.completing=true;this.completionAge=0;
+      this.distance=this.previousDistance=this.totalDistance;
+      this.previousPlayerY=this.player.y;this.player.vy=0;this.resumeElapsed=RESUME_RAMP_SECONDS;
+      this.setEvent('PASSAGE CLEARED');this.burst(this.player.x,this.player.y,28,'#f3e4af');this.sound('collect');this.notify();return;
+    }
+    if(success&&this.completionProgress<1)return;
     this.finished = true; this.running = false;
     this.alive = Boolean(success) && this.alive;
     if (this.raf != null) cancelAnimationFrame(this.raf);
