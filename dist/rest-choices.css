@@ -29,6 +29,14 @@ dialog.forge-ritual-sheet[open]{width:min(720px,calc(100vw - 28px));max-width:no
 
 .rest-recharge-outcome{display:flex;flex-direction:column;gap:4px;font:12px var(--pixel)}
 .rest-recharge-outcome>span{display:flex;align-items:center;justify-content:center;gap:5px}.rest-recharge-outcome svg{width:22px;height:22px}.rest-recharge-outcome small{font-size:9px;color:#abb5a7}
+/* The generic Dream card has its own height/margins. Inside the Rest footer it
+   must fit its grid track, rather than extending over the departure action. */
+.rest-dream-passage{grid-template-rows:minmax(0,1fr)}
+.rest-dream-passage>.rest-next{height:100%;max-height:100%;box-sizing:border-box}
+.rest-dream-passage>.rest-dream{height:100%;max-height:100%;margin:0;box-sizing:border-box;display:grid;grid-template-columns:28px minmax(0,1fr);grid-template-rows:1fr 1fr;column-gap:4px;row-gap:0}
+.rest-dream-passage>.rest-dream>svg{grid-column:1;grid-row:1/3;align-self:center}
+.rest-dream-passage>.rest-dream>span{grid-column:2;grid-row:1;align-self:end}
+.rest-dream-passage>.rest-dream>small{grid-column:2;grid-row:2;align-self:start;line-height:1.1}
 .rest-benefit-cards:has(>button:nth-child(4)){gap:6px}.rest-benefit-cards:has(>button:nth-child(4)) h2{font-size:14px!important}
 .rest-benefit-cards:has(>button:nth-child(4)) .rest-outcome-track{font-size:13px;gap:3px}
 

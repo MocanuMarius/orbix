@@ -1,5 +1,5 @@
-import {biomeMapGlyph} from './biome-art.mjs?v=balanced-sparks-1';
-import {LEVELS} from './level-catalog.mjs?v=balanced-sparks-1';
+import {biomeMapGlyph} from './biome-art.mjs?v=responsive-menus-1';
+import {LEVELS} from './level-catalog.mjs?v=responsive-menus-1';
 // Original, grid-authored location landmarks. No external art or image requests.
 // Each rectangle uses integer coordinates on a 16 x 16 pixel grid.
 const shapes = {

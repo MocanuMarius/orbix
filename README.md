@@ -2,11 +2,19 @@
 
 A landscape, one-handed pixel flight roguelite. The static game lives in `dist/` and uses a custom Canvas simulation and cached renderer. No build step or runtime framework dependency.
 
-## Current release: balanced-sparks-1
+## Current release: responsive-menus-1
 
-[Play on your phone](https://mocanumarius.github.io/orbix/?v=balanced-sparks-1) · [900 × 405 sidebar preview](https://mocanumarius.github.io/orbix/preview.html?v=balanced-sparks-1)
+[Play on your phone](https://mocanumarius.github.io/orbix/?v=responsive-menus-1) · [900 × 405 sidebar preview](https://mocanumarius.github.io/orbix/preview.html?v=responsive-menus-1)
 
 Run `npm start` to serve the game at localhost:4173. The phone link fills the device; `preview.html` keeps landscape proportions inside a narrow browser panel.
+
+## Responsive menus update
+
+- Dream and the next-passage art stay inside their Rest row, clear of Leave Rest.
+- Skill diagrams measure their actual panel and keep square touch targets apart. The tree header shares one row; the inspector stays fixed on small screens.
+- Keep/Forge and reward confirmation actions stay visible while longer descriptions scroll.
+- Short landscape layouts keep home and victory actions on screen.
+- Audited 14 screens at six landscape sizes (84 cases), plus expanded details, TEST catalogue, branch switching and live resizing. See [layout audit](docs/responsive-menus-2026-11-13.md).
 
 ## Balance pass
 
