@@ -1,8 +1,8 @@
-import {ARTIFACTS,getArtifactCapacity,getFlightRewardMeltValue} from './model.mjs?v=moonlit-menus-1';
-import {getArtifactStackPreview} from './artifact-info.mjs?v=moonlit-menus-1';
-import {artifactRarityLabel} from './replay-ui.mjs?v=moonlit-menus-1';
-import {artifactDescription} from './artifact-copy.mjs?v=moonlit-menus-1';
-import {resourceSymbol} from './game-symbols.mjs?v=moonlit-menus-1';
+import {ARTIFACTS,getArtifactCapacity,getFlightRewardMeltValue} from './model.mjs?v=clear-rewards-1';
+import {getArtifactStackPreview} from './artifact-info.mjs?v=clear-rewards-1';
+import {artifactRarityLabel} from './replay-ui.mjs?v=clear-rewards-1';
+import {artifactDescription} from './artifact-copy.mjs?v=clear-rewards-1';
+import {resourceSymbol} from './game-symbols.mjs?v=clear-rewards-1';
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 export const rewardDescription=(a,run)=>{const c=artifactDescription(a,run,{fresh:true});return [c.effect,[c.trigger,c.limit].filter(Boolean).join(' ')];};
 function loadoutMarkup(run,artifactArt,chosen){
@@ -19,7 +19,8 @@ export function flightRewardMarkup(state,{artifactArt,selectedArtifact,upgradeCo
  const melt=getFlightRewardMeltValue(reward),stack=a&&!reward?.permanent&&getArtifactStackPreview(r,id);
  const full=(r.artifacts||[]).filter(Boolean).length>=getArtifactCapacity(r),capacity=getArtifactCapacity(r);
  const canEquip=!!a&&(reward.permanent||reward.evolution||capacity>0)&&!stack?.autoForge;
- const earned=reward?.source==='flight'&&!reward.evolution?Number(r.lastFlight?.pickupCondensedGlow)||0:0;
+ const flightIncome=reward?.source==='flight'&&!reward.evolution&&!reward.permanent;
+ const clear=flightIncome?Number(r.lastFlight?.completionBonus)||0:0,overflow=flightIncome?Number(r.lastFlight?.pickupCondensedGlow)||0:0,earned=clear+overflow;
  const title=reward?.evolution?'A seed awakens':reward?.permanent?'Guardian defeated':reward?.source==='treasure'?'Treasure found':'Passage cleared';
  const melted=reward?.chosen==='melt'||reward?.autoForged;
  const equipLabel=reward?.evolution?'Evolve':reward?.permanent?'Claim relic':stack?.autoForge?'Stack full':full&&!stack?'Equip & replace':'Equip';
@@ -27,7 +28,7 @@ export function flightRewardMarkup(state,{artifactArt,selectedArtifact,upgradeCo
   :stack?.autoForge?'Three copies held · melt this extra copy.':stack?`Adds ${stack.added} uses to the same artifact.`:''
   :melted?`+${reward.meltedAmount||0} Packed Sparks`:reward?.collectionComplete?'Collection complete':reward?.evolution?'Evolved':reward?.permanent?(r.testMode?'TEST relic claimed':'Added to your collection'):'Equipped';
  return `<section class="artifact-reward-screen ${open?'reward-open':'reward-resolved'} ${melted?'reward-melted':''} ${reward?.evolution?'reward-evolution':''}">
-  <header class="artifact-reward-heading"><h1>${esc(title)}</h1>${earned>0?`<span class="reward-packed-earned" aria-label="${earned} Packed Sparks earned this flight">${resourceSymbol('packed')}<b>+${earned}</b><span>earned</span></span>`:''}</header>
+  <header class="artifact-reward-heading"><h1>${esc(title)}</h1>${earned>0?`<span class="reward-packed-earned" aria-label="${earned} Packed Sparks earned: ${clear} for clearing, ${overflow} from overflow">${resourceSymbol('packed')}<b>+${earned}</b><span class="reward-earnings-notes">${clear?`<i>${overflow?`${clear} clear`:'Clear reward'}</i>`:''}${overflow?`<i>${overflow} overflow</i>`:''}</span></span>`:''}</header>
   <article class="single-artifact ${esc(a?.rarity||'common')}" aria-label="Artifact reward${a?`: ${esc(a.name)}`:''}">
    <div class="reward-art-column"><div class="reward-trophy">${melted?resourceSymbol('packed'):a?artifactArt(id):resourceSymbol('packed')}${a?`<span>${artifactRarityLabel(a)}</span>`:''}</div>${!reward?.permanent?loadoutMarkup(r,artifactArt,!open&&!melted?reward.chosen:null):''}</div>
    <div class="reward-copy"><div class="reward-identity"><h2>${esc(a?.name||'Collection complete')}</h2>${copy?`<span>${esc(reward?.permanent?(r.testMode?'TEST · collection unchanged':'Permanent · for future runs'):copy.lifetime)}</span>`:''}${!open&&status?`<b class="reward-state" role="status">${!melted?'✓ ':''}${esc(status)}</b>`:''}</div>

@@ -1,10 +1,10 @@
-import {landmarks} from './map-landmarks.mjs?v=moonlit-menus-1';
-import {glowText} from './vitality.mjs?v=moonlit-menus-1';
+import {landmarks} from './map-landmarks.mjs?v=clear-rewards-1';
+import {glowText} from './vitality.mjs?v=clear-rewards-1';
 const stop=(kind,label,name,summary)=>Object.freeze({kind,label,name,summary,icon:kind});
 export const MAP_STOP_TYPES=Object.freeze({
-flight:stop('flight','FLIGHT','Flight','Fly a passage, keep a relic or melt it into Packed Sparks, and recover fuel.'),
+flight:stop('flight','FLIGHT','Flight','Clear a passage for 20 Packed Sparks plus overflow. Equip the artifact reward or melt it for more.'),
 treasure:stop('treasure','TREASURE','Treasure','Keep an artifact, replace one, or melt it into Packed Sparks for skills.'),
-rest:stop('rest','REST','Rest','Recover Sparks or refill hearts. Prepare skills, companions, a Dream or forge an artifact into Packed Sparks.'),
+rest:stop('rest','REST','Rest','Recover missing hearts or Grow Spark capacity. Both refill Sparks. Then optionally prepare skills, your companion, artifacts or a Dream.'),
 encounter:stop('encounter','ENCOUNTER','Encounter','A promise, route preparation or bargain. Preview the stakes before choosing.'),
 boss:stop('boss','BOSS','Boss','Face the guardian at the end of the third map.'),
 });

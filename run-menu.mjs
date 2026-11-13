@@ -1,9 +1,9 @@
-import {menuWorldMarkup} from './menu-world.mjs?v=moonlit-menus-1';
-import {getArtifactCapacity} from './model.mjs?v=moonlit-menus-1';
-import {formatGlow,getGlowCapacity} from './vitality.mjs?v=moonlit-menus-1';
-import {livesMarkup} from './lives.mjs?v=moonlit-menus-1';
-import { COMPANION_ABILITIES } from './companion-abilities.mjs?v=moonlit-menus-1';
-import { companionArtSvg } from './companion-art.mjs?v=moonlit-menus-1';
+import {menuWorldMarkup} from './menu-world.mjs?v=clear-rewards-1';
+import {getArtifactCapacity} from './model.mjs?v=clear-rewards-1';
+import {formatGlow,getGlowCapacity} from './vitality.mjs?v=clear-rewards-1';
+import {livesMarkup} from './lives.mjs?v=clear-rewards-1';
+import { COMPANION_ABILITIES } from './companion-abilities.mjs?v=clear-rewards-1';
+import { companionArtSvg } from './companion-art.mjs?v=clear-rewards-1';
 
 const esc = value => String(value ?? '').replace(/[&<>"']/g, char =>
   ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[char]));

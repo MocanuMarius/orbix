@@ -1,4 +1,4 @@
-import {CONDENSED_TUNING} from './condensed-glow.mjs?v=moonlit-menus-1';
+import {CONDENSED_TUNING} from './condensed-glow.mjs?v=clear-rewards-1';
 // Shared flight Sparks and expedition rules. Overflow is Packed Sparks.
 export const FLAME_TUNING = Object.freeze({ maximum: 100, starting: 100, flapCost: 10,
   emberFuel: 20, heartFuel: 60, generatedFuel: 6, checkpointMinimum: 0, warmCorePickups: 4 });
@@ -19,7 +19,7 @@ export const LIGHT_PACKET_TUNING = Object.freeze({ baseRadius: 145, pickupRadius
 
 export const STARTING_CONDENSED_GLOW = CONDENSED_TUNING.starting;
 // Rest growth is a run-owned, three-step bonus; it never spends skill points.
-export const REST_GLOW_TUNING=Object.freeze({capacityStep:10,capacityLimit:30,condenseReward:25});
+export const REST_GLOW_TUNING=Object.freeze({capacityStep:10,capacityLimit:30});
 export function getRestGlowBonus(run={}) {
  const value=Number(run.restGlowCapacity);
  return Number.isFinite(value)?Math.min(REST_GLOW_TUNING.capacityLimit,Math.max(0,Math.floor(value/REST_GLOW_TUNING.capacityStep)*REST_GLOW_TUNING.capacityStep)):0;

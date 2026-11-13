@@ -25,7 +25,7 @@ export const TUTORIAL_TOPICS={
   s('One heart, one attempt','Hearts are chances for the whole run, not collision health. Hitting solid terrain or a screen edge without protection ends the attempt.','life'),
   s('A heart is lost','After your wisp scatters, one heart crumbles away. The remaining hearts tell you how many more attempts you have.','life-loss'),
   s('Choose your route again','With hearts left, return to the map. Retry the passage or choose another reachable path. Entry Sparks and your build return; failed-flight earnings do not.','route'),
-  s('Rekindle or start again','Rest can refill missing hearts. Skills can raise their maximum. At zero hearts the run ends; New Game begins a fresh build.','rest')]},
+  s('Recover or start again','Choose Recover at Rest to refill missing hearts. Skills can raise their maximum. At zero hearts the run ends; New Game begins a fresh build.','rest')]},
  collector:{name:'Collector',visual:'companion:collector',steps:[
   s('Collector','The green companion rescues missed good Sparks inside its boundary. Your body gets the first chance to collect.','companion:collector'),
   s('Delivery, then recovery','Fuel arrives when Collector returns. Its boundary shrinks, then grows back. Very close rescues still work during recovery.','companion:collector'),
@@ -35,26 +35,26 @@ export const TUTORIAL_TOPICS={
   s('Runner','The amber companion activates with Power. Its short burst crosses ground quickly and resists drafts. Wait for the button to fill before using it again.','companion:swift'),
   s('Space Timer','The cyan companion levitates while you hold Lift or the scene. Release to fall and recharge. Drafts still push you.','companion:leveler'),
   s('Choose your companion','Equip one companion at a time. Change it at Rest. Collector fetches; Protector shields; Runner bursts; Space Timer levitates. Its own skill tree improves the role.','tools')]},
- packed:{name:'Packed Sparks',visual:'packed',steps:[
-  s('Full meter → Packed Sparks','When a pickup overfills Sparks, the surplus becomes Packed Sparks. Clear the flight to keep those earnings.','packed'),
-  s('Spend or save','The box of light is your upgrade currency. Spend it on run skills. Rest healing does not create Packed Sparks.','packed'),
+ packed:{name:'Packed Sparks',visual:'clear-reward',steps:[
+  s('A reward for every clear','Clear a flight to earn 20 Packed Sparks for run skills. You also receive an artifact to equip or melt. The final guardian rewards a permanent relic instead.','clear-reward'),
+  s('Overflow is a bonus','When a pickup overfills Sparks, the surplus becomes extra Packed Sparks. Clear the flight to keep them. Rest refills do not create Packed Sparks.','packed'),
   s('Condensation','The Condensation skill makes pickup surplus produce more Packed Sparks. It improves your run economy; it is not a second fuel bar.','skills')]},
  skills:{name:'Skill trees',visual:'skills',steps:[
   s('Choose a branch','Skills belong to this run. Light improves Luminance; Motion changes flight; Sparks improves fuel. Your companion tree improves the one role you equipped.','skills'),
   s('Read the skill states','Blue check: owned. Gold plus: affordable now. Bronze price: save more Packed Sparks. Lock: learn its prerequisite first.','skill-states'),
   s('Commit to your build','Some forks exclude the other path. Read the selected effect before learning. You can upgrade after a flight or at Rest; a new run resets these skills.','skills')]},
  rewards:{name:'Flight rewards',visual:'artifact',steps:[
-  s('Clear the passage','Reaching the waylight completes a flight. Some Sparks recover, and collected Packed Sparks is secured. A bonus challenge is optional.','route'),
+  s('Clear the passage','Reaching the waylight completes a flight. Earn 20 Packed Sparks plus pickup overflow. Some Sparks recover for the next flight. A bonus challenge is optional.','clear-reward'),
   s('Keep or melt','Each flight offers one artifact. Keep it for its effect, or melt it into Packed Sparks to buy skills. Common melts for 25; Rare for 35. The final boss gives a permanent relic.','artifact'),
   s('Upgrade before moving on','The Skills button appears when you can afford an upgrade. Spend now or save for a stronger branch before choosing the next path.','skills')]},
  artifacts:{name:'Artifacts & forge',visual:'artifact',steps:[
   s('Equip an artifact','Artifacts work automatically while equipped. If every slot is full, choose which artifact to replace; the replaced run artifact is lost.','artifact'),
   s('Rarity and uses','Grey is Common, green Rare, purple Legendary. Some effects last the run; consumables disappear when their uses run out. Read the effect and its trigger.','artifact-rarity'),
-  s('Stacks and recharge','Matching consumables share one slot, up to three copies. A fourth melts into Packed Sparks. Rest can recharge mounted consumables.','artifact'),
+  s('Matching copies stack','Earning another copy adds uses to the same slot, up to three copies. A fourth melts into Packed Sparks. Consumables disappear when their uses run out.','artifact'),
   s('Keep OR Forge','At Rest, keep an artifact’s effect or forge it into Packed Sparks for skills. Forging destroys it and all remaining uses for one payout.','forge'),
   s('Build a combination','A defining artifact can evolve later in a real run. Pair effects with your companion and skill choices; check trigger conditions and per-flight limits.','artifact')]},
  rest:{name:'Rest',visual:'rest',steps:[
-  s('Rest: choose one benefit','Grow & refill adds Spark capacity and fills it. Condense grants Packed Sparks. Rekindle restores missing hearts. Recharge restores mounted consumable uses.','rest'),
+  s('Recover or Grow','Recover restores every missing heart. Grow adds 3 maximum Sparks for this run, up to three times. Both completely refill Sparks. Choose once at each Rest.','rest'),
   s('Then prepare','After your one benefit, Skills, Companions, Artifacts and Dream remain available. These tools do not take another Rest benefit.','tools'),
   s('Plan your next passage','Rest commits to one next flight. Read its terrain and prepare for it. After a failed attempt, the map shows whichever retry paths are reachable.','route')]},
  dream:{name:'Dream',visual:'dream',steps:[
