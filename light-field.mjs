@@ -14,6 +14,12 @@ export function createLightMaskCanvas(document){
   }
   c.putImageData(image,0,0);return canvas;
 }
+// Independent reveals compete by brightness, never add into a white flash.
+// Edging remains a sight effect: it does not pretend to be a pickup trigger.
+const revealUnit=value=>Math.max(0,Math.min(1,Number(value)||0));
+export function sceneRevealStrength(light={}){
+  return Math.max(revealUnit(light.pickupReveal),revealUnit(light.edgingReveal));
+}
 export function lightVisibility(engine,light,x,y,playerY=engine.player.y){
   const radius=Math.max(1,light.radius||175),intensity=light.intensity??1;
   const dx=x-engine.player.x,dy=y-playerY;
@@ -28,5 +34,5 @@ export function lightVisibility(engine,light,x,y,playerY=engine.player.y){
     const lx=x-landmark.x,ly=y-landmark.y;
     dark*=1-lightAttenuation((lx*lx+ly*ly)/(landmark.radius*landmark.radius))*(landmark.intensity??1);
   }
-  return 1-dark*(1-(light.pickupReveal||0));
+  return 1-dark*(1-sceneRevealStrength(light));
 }

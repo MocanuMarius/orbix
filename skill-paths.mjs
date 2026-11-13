@@ -1,4 +1,4 @@
-import {skillProgress} from './skill-increments.mjs?v=condensed-glow-1';
+import {skillProgress} from './skill-increments.mjs?v=edge-and-void-1';
 // Named, one-time specialisations. Each pair is exclusive for this run.
 const paths=[];
 function fork(branch,parent,a,b){
@@ -6,7 +6,7 @@ function fork(branch,parent,a,b){
   for(const [own,other] of [[a,b],[b,a]]){
     const [suffix,name,description,add={},multiply={}]=own;
     paths.push({id:branch+'-'+suffix,name,branch,cost:120,maxRank:1,requires:parent,
-      description,icon:({lightRadius:'sight',darkResistance:'ward',collectorFuelBonus:'fuel',collectorMinimum:'reach',attract:'reach',wispCooldown:'recovery',protectorProtection:'ward',protectorCost:'ward',protectorRecovery:'recovery',levelerDuration:'duration',levelerRecovery:'recovery',levelerDive:'dive',swiftDuration:'swift',swiftRecovery:'recovery',swiftResistance:'wind',seerRadius:'sight',seerDuration:'duration',seerRecovery:'recovery',kindlerBonus:'fuel',flapCost:'lift',purifyCooldown:'recovery',purifyFuel:'purify',flap:'lift',gravity:'feather',cacheFuelBonus:'fuel'})[Object.keys(add)[0]||Object.keys(multiply)[0]],choiceGroup:group,excludes:[branch+'-'+other[0]],expansion:true,add,multiply});
+      description,icon:({lightRadius:'radiance',darkResistance:'ward',collectorFuelBonus:'fuel',collectorMinimum:'reach',attract:'reach',wispCooldown:'recovery',protectorProtection:'ward',protectorCost:'ward',protectorRecovery:'recovery',levelerDuration:'duration',levelerRecovery:'recovery',levelerDive:'dive',swiftDuration:'swift',swiftRecovery:'recovery',swiftResistance:'wind',seerRadius:'sight',seerDuration:'duration',seerRecovery:'recovery',kindlerBonus:'fuel',flapCost:'thrift',purifyCooldown:'recovery',purifyFuel:'purify',flap:'lift',gravity:'feather',cacheFuelBonus:'fuel'})[Object.keys(add)[0]||Object.keys(multiply)[0]],choiceGroup:group,excludes:[branch+'-'+other[0]],expansion:true,add,multiply});
   }
 }
 fork('collector','collector-reach',

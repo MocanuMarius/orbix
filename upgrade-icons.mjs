@@ -10,17 +10,21 @@ const shapes={
  spool:'<path d="M5 3h14v3H5zM8 6h8v12H8zM5 18h14v3H5zM1 10h4m14 0h4M2 7l3 1m14 0 3-1M2 14l3-1m14 0 3 1"/>',
  dream:'<path d="M2 8l4 4 4 2h4l4-2 4-4M4 12l-3 3m7 0-1 4m6-3v5m6-7 2 4M15 2h2v2h-2z"/>',
  beacon:'<path d="M3 4v4m0 8v4M7 6v4m0 4v4M11 9v6M16 10h4v4h-4zM18 4v3m0 10v3M22 12h2"/>',
+ 'edge-pulse':'<path d="M2 22h20M10 18v-3h4v3M6 18v-7h3V8h6v3h3v7M2 18V7h3V4h4V1h6v3h4v3h3v11"/>',
  trajectory:'<circle cx="4" cy="5" r="2"/><path d="M8 5h3m3 2 2 2m2 3 1 3m1 3v3M15 21h8"/>',
- heart:'<path d="M3 2h5v3h8V2h5v3h2v9h-3v3h-3v3h-3v2h-4v-2H7v-3H4v-3H1V5h2z"/>',
+ heart:'<path d="M2 5h3V3h4v2h2v2h2V5h2V3h4v2h3v7h-3v3h-3v3h-3v3h-2v-3H8v-3H5v-3H2z"/>',
+ 'heart-plus':'<path d="M2 5h3V3h4v2h2v2h2V5h2V3h4v2h3v7h-3v3h-3v3h-3v3h-2v-3H8v-3H5v-3H2zM12 9v6m-3-3h6"/>',
+ radiance:'<path d="M9 7h6v2h2v6h-2v2H9v-2H7V9h2zM12 1v3m0 16v3M1 12h3m16 0h3M3 3l3 3m12 12 3 3M3 21l3-3M18 6l3-3"/>',
+ thrift:'<path d="M9 3h6v3h3v3h3v6h-3v3h-3v3H9v-3H6v-3H3V9h3V6h3zM8 12h8"/>',
  bond:'<path d="M2 10h6v6H2zM16 10h6v6h-6zM9 2h6v6H9zM8 13h8M12 8v5"/>',
- lift:'<path d="M4 20V10h4V6h4V2h4v4h4M8 20V12h4V8h4M13 20h7"/>',
+ lift:'<path d="M9 22V11H4l8-9 8 9h-5v11M2 16v4m20-4v4"/>',
  sight:'<path d="M2 10h3V7h4V5h6v2h4v3h3v4h-3v3h-4v2H9v-2H5v-3H2zM10 9h4v6h-4z"/>',
  reach:'<path d="M2 8V2h6M16 2h6v6M22 16v6h-6M8 22H2v-6M9 9h6v6H9z"/>',
  recovery:'<path d="M5 7V3m0 4h5M5 7l4-4h8l4 4v10l-4 4H7l-4-4M12 7v6h5"/>',
  ward:'<path d="M4 3h16v12l-3 3-5 4-5-4-3-3zM8 7h8M8 11h8"/>',
  layers:'<path d="M2 2h13v10l-3 3-4 3-4-3-2-3zM17 6h5v10l-3 3-4 3-3-2"/>',
  duration:'<path d="M5 2h14v4l-5 6 5 6v4H5v-4l5-6-5-6zM8 5h8M8 19h8"/>',
- level:'<path d="M2 11h5V8h4v6h4v-3h7M5 20h14M7 3h10"/>',
+ level:'<path d="M2 12h20M6 8l-4 4 4 4m12-8 4 4-4 4M9 3h6m-6 18h6"/>',
  dive:'<path d="M10 2h4v11h5l-7 9-7-9h5M3 4v6m18-6v6"/>',
  swift:'<path d="m3 3 8 9-8 9M12 3l8 9-8 9M2 8h3m-3 8h3"/>',
  wind:'<path d="M2 7h14V3h-4M2 12h20v5h-5M4 18h7v4H7"/>',
@@ -35,5 +39,13 @@ const shapes={
 };
 const inks={main:'#e5e9cf',collector:'#b9dfa0',protector:'#8fbfe8',leveler:'#a7e8df',swift:'#f2d48e',seer:'#d3b1f2',kindler:'#e4a3b5',afterglow:'#b8d9ae'};
 const svg=(shape,ink)=>`<svg class="upgrade-glyph" viewBox="0 0 24 24" fill="none" stroke="${ink}" stroke-width="1.5" stroke-linecap="square" stroke-linejoin="miter" shape-rendering="crispEdges" aria-hidden="true">${shapes[shape]||shapes.fuel}</svg>`;
-export function skillIcon(skill){const id=skill.incrementBase||skill.id;const shape=skill.icon||(id==='main-spare-spark'||id==='main-deep-reserve'?'heart':id.includes('bond')?'bond':id.includes('speed')||id.includes('tailwind')?'swift':id.includes('horizon')||id.includes('dawn')?'sight':id.includes('drift')?'feather':id.includes('efficiency')||id==='main-lift'?'lift':id.includes('purify')?'purify':id.includes('dive')?'dive':id.includes('layers')?'layers':id.includes('steadiness')?'level':id.includes('duration')?'duration':id.includes('recovery')?'recovery':id.includes('resistance')?'wind':id.includes('reach')?'reach':id.includes('sight')||id.includes('range')?'sight':id.startsWith('protector')?'ward':id==='main-afterglow'||id.startsWith('afterglow')?'condense':'fuel');return svg(shape,inks[skill.branch]||inks.main)}
+export function skillIcon(skill){const id=skill.incrementBase||skill.id;const semantic={
+ 'main-efficiency':'heart','main-spare-spark':'heart-plus','main-deep-reserve':'heart-plus',
+ 'main-sight':'radiance','main-horizon':'radiance','main-wide-beam':'radiance',
+ 'main-lift':'thrift','main-light-step':'thrift','main-thrifty-rise':'thrift','main-low-lift':'thrift',
+ 'main-dawn':'ward','main-afterglow':'condense',
+ 'collector-attunement':'reach','collector-mastery':'reach',
+ 'leveler-attunement':'duration','leveler-mastery':'duration',
+ 'swift-attunement':'recovery','swift-mastery':'recovery'
+ };const shape=semantic[id]||skill.icon||(id==='main-spare-spark'||id==='main-deep-reserve'?'heart':id.includes('bond')?'bond':id.includes('speed')||id.includes('tailwind')?'swift':id.includes('horizon')||id.includes('dawn')?'sight':id.includes('drift')?'feather':id.includes('efficiency')||id==='main-lift'?'lift':id.includes('purify')?'purify':id.includes('dive')?'dive':id.includes('layers')?'layers':id.includes('steadiness')?'level':id.includes('duration')?'duration':id.includes('recovery')?'recovery':id.includes('resistance')?'wind':id.includes('reach')?'reach':id.includes('sight')||id.includes('range')?'sight':id.startsWith('protector')?'ward':id==='main-afterglow'||id.startsWith('afterglow')?'condense':'fuel');return svg(shape,inks[skill.branch]||inks.main)}
 export function artifactIcon(id){const shape={'sunheart-engine':'sunheart','dream-sovereign':'dream-crown','hollow-covenant':'hollow-crown','overflow-coil':'coil','echo-bell':'echo','dawn-loom':'loom','sunspool':'spool','dreamcatcher':'dream','second-dawn':'dawn','echo-vessel':'condense','glass-lantern':'fuel','night-gardener':'moss','ember-lens':'sight','quiet-cinder':'fuel','silver-feather':'feather','moss-heart':'moss','wayfinder-seed':'seed','iron-petal':'ward','storm-knot':'wind','hollow-bell':'bell','dawn-thread':'dawn'}[id];return svg(shape||'reserve',['sunheart-engine','dream-sovereign','hollow-covenant'].includes(id)?'#e2b0df':'#d9c08e')}

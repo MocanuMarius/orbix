@@ -11,3 +11,51 @@
 @media(orientation:landscape){
  .tree-sheet:modal{padding:7px 12px!important}.tree-sheet .tree-tabs{height:44px;min-height:44px;max-height:44px}.tree-sheet .tree-tabs>button{flex-direction:row!important;height:44px;padding:2px 5px!important}.tree-sheet .tree-tabs>button>svg{width:24px!important;height:24px!important;min-width:24px}.tree-side{justify-content:flex-start}.tree-side .tree-whisper{display:none}.tree-side .tree-inspector-title h3{font-size:18px}.tree-side .tree-inspector p{font-size:12px!important;line-height:1.35!important;margin:7px 0}.tree-side .tree-inspector>button{min-height:44px;padding:5px!important}.tree-side .tree-inspector{padding-top:4px}.tree-side .tree-limbs>button{font-size:11px}.tree-body{grid-template-columns:minmax(0,1fr) min(250px,29vw)}
 }
+/* The purchase state, rather than selection or ancestry, controls brightness. */
+.tree-sheet .radial-tree .tree-bud{border:2px solid #687467;background:#18241e;box-shadow:0 0 0 3px #101d16;color:#d1d8c9;animation:none}
+.tree-sheet .radial-tree .tree-bud>svg{filter:saturate(.4) brightness(.8)}
+.tree-sheet .radial-tree .tree-bud.available{border:2px solid #f5e8a7;background:#526739;color:#fff6cc;box-shadow:0 0 0 3px #18261a,0 0 17px #dbdf8d66}
+.tree-sheet .radial-tree .tree-bud.available>svg{filter:none}
+.tree-sheet .radial-tree .tree-bud.available .bud-price{background:#e9df9f;border-color:#f7efbf;color:#1d2a1b}
+.tree-sheet .radial-tree .tree-bud.saving{background:#1e2923;border-color:#707e6b;box-shadow:0 0 0 3px #101d16}
+.tree-sheet .radial-tree .tree-bud.saving .bud-price{background:#17221c;border-color:#64715e;color:#cbd1bd}
+.tree-sheet .radial-tree .tree-bud.learned{background:#304932;border-color:#8da87b;box-shadow:0 0 0 3px #101d16}
+.tree-sheet .radial-tree .tree-bud.learned .bud-price{color:#e0edcb;background:#2b462e;border-color:#91aa80;font-size:13px}
+.tree-sheet .radial-tree .tree-bud.locked{background:#18221d;border-color:#56635a;border-style:dashed;color:#acb9aa}
+.tree-sheet .radial-tree .tree-bud.locked .bud-price{color:#bec8b8;background:#152019;border-color:#576657}
+.tree-sheet .radial-tree .tree-bud.selected{outline:2px solid #aebba5;outline-offset:4px}
+.tree-sheet .radial-tree .tree-bud.available.selected{outline-color:#f5e8b1}
+.tree-sheet .radial-tree .tree-bud:is(.locked,.preview).selected{outline:1px dashed #8a988d;outline-offset:3px;box-shadow:none}
+.tree-sheet .radial-tree .tree-bud.preview{border:0;background:transparent;box-shadow:none;color:#788b7d;padding:12px}
+.tree-sheet .radial-tree .tree-bud.preview::before{content:"";position:absolute;inset:8px;border:1px dashed #566b5a;border-radius:50%;background:#17241d;z-index:-1}
+.tree-sheet .radial-tree .tree-bud.preview>svg{width:16px;height:16px;filter:none}
+.tree-sheet .radial-tree .tree-bud:focus-visible{outline:2px solid #e2e9d3;outline-offset:4px}
+.bud-state-mark{position:absolute;right:-5px;top:-5px;display:grid;place-items:center;width:17px;height:17px;border-radius:50%;background:#16221b;border:1px solid #617261;color:#bdc9b9}
+.bud-state-mark .bud-lock{width:12px;height:12px}
+.tree-silhouette{position:absolute;display:block;transform:translate(-50%,-50%);width:5px;height:5px;border-radius:50%;background:#81947a66;pointer-events:none}
+.tree-silhouette.excluded{background:#70817233}
+.tree-silhouette.closed-root{display:grid;place-items:center;width:22px;height:22px;background:#142018;border:1px solid #4a5c4c;color:#647565}
+.tree-silhouette.closed-root>svg{width:13px;height:13px}
+.radial-tree .branch-light .tree-path{stroke:#52674e;stroke-width:1.5;stroke-opacity:.65}
+.radial-tree .branch-light .tree-path.available{stroke:#d3d98f;stroke-width:2.5;stroke-opacity:.85}
+.radial-tree .branch-light .tree-path.learned{stroke:#96b181;stroke-width:2;stroke-opacity:.75}
+.radial-tree .branch-light .tree-path.preview{stroke:#708369;stroke-opacity:.38}
+.radial-tree .branch-light .tree-path.distant{stroke:#6b7c61;stroke-width:1;stroke-opacity:.22}
+.radial-tree .branch-light .tree-path.excluded{stroke:#60715f;stroke-width:1;stroke-opacity:.14;stroke-dasharray:2 5}
+.radial-tree .branch-shadow .tree-path:is(.distant,.excluded){stroke-opacity:.15;stroke-width:2}
+.tree-side .tree-inspector .tree-selection-status{min-height:0;margin:6px 0;font-size:11px!important;line-height:1.3!important;color:#c2cbbb}
+.tree-side .tree-inspector .tree-selection-status.available{color:#f0e6b4}
+.tree-side .tree-inspector .tree-selection-status.learned{color:#c2d7ad}
+.tree-side .tree-inspector>button:disabled{opacity:1;background:#263127!important;border-color:#60705c!important;color:#d0d9c8!important;cursor:default;filter:none}
+.tree-side .preview-inspector{padding-top:13px}
+.tree-side .preview-inspector .tree-inspector-title{color:#bdc9b9}
+.tree-side .preview-inspector .tree-inspector-title>.bud-lock{width:18px;height:18px}
+.rank-choices>button.available{border-color:#cbd598;color:#f3edc8;background:#3a4b2f}
+.rank-choices>button.saving{border-color:#65765f;background:#1a281f;color:#cbd5c3}
+.rank-choices>button:is(.preview,.locked){border-style:dashed;border-color:#526556;background:#15221a;color:#aebfae}
+.rank-choices>button:is(.preview,.locked).selected{border-color:#91a18e;background:#1b2a20}
+.rank-choices>.future-rank{min-width:44px;min-height:44px;padding:4px 9px;border:1px dashed #526556;background:#15221a;color:#aebfae;font:16px var(--pixel);box-sizing:border-box}.rank-choices>.future-rank small{display:block;font-size:10px;line-height:1.25}
+
+.rank-choices>.future-rank .bud-lock{width:12px;height:12px}
+.tree-sheet .tree-inspector>button:disabled{border-image:none!important;border:2px solid #60705c!important;background:#1e2a23!important}
+.tree-sheet .radial-tree .tree-bud.saving.selected{outline:1px dashed #8a988d;outline-offset:4px}

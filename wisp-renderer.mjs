@@ -1,17 +1,18 @@
-import {drawFlightProjection} from './flight-projection.mjs?v=condensed-glow-1';
-import {drawGlowSense} from './glow-sense.mjs?v=condensed-glow-1';
-import {formatGlow} from './vitality.mjs?v=condensed-glow-1';
-import {LOCATION_PALETTES} from './world-expansion.mjs?v=condensed-glow-1';
-import {biomePalette} from './biome-art.mjs?v=condensed-glow-1';
-import { sceneryIdentity, drawIdentityBackground, drawIdentityMaterial, drawIdentityLife } from './level-scenery.mjs?v=condensed-glow-1';
-import { getCompanionAbility, normalizeCompanionRole } from './companion-abilities.mjs?v=condensed-glow-1';
-import { companionSprite, companionPalette } from './companion-art.mjs?v=condensed-glow-1';
-import { createScenePropArt } from './scene-prop-art.mjs?v=condensed-glow-1';
-import { drawBoss } from './boss.mjs?v=condensed-glow-1';
-import { drawPickup } from './pickup-art.mjs?v=condensed-glow-1';
-import { pickupKind, getPickupSpec, pickupContactRadius } from './pickups.mjs?v=condensed-glow-1';
-import { lightAttenuation,lightVisibility,createLightMaskCanvas } from './light-field.mjs?v=condensed-glow-1';
-import {drawExitLandmark} from './exit-landmark.mjs?v=condensed-glow-1';
+import {drawFlightProjection} from './flight-projection.mjs?v=edge-and-void-1';
+import {drawGlowSense} from './glow-sense.mjs?v=edge-and-void-1';
+import {formatGlow} from './vitality.mjs?v=edge-and-void-1';
+import {LOCATION_PALETTES} from './world-expansion.mjs?v=edge-and-void-1';
+import {biomePalette} from './biome-art.mjs?v=edge-and-void-1';
+import { sceneryIdentity, drawIdentityBackground, drawIdentityMaterial, drawIdentityLife } from './level-scenery.mjs?v=edge-and-void-1';
+import { getCompanionAbility, normalizeCompanionRole } from './companion-abilities.mjs?v=edge-and-void-1';
+import { companionSprite, companionPalette } from './companion-art.mjs?v=edge-and-void-1';
+import { createScenePropArt } from './scene-prop-art.mjs?v=edge-and-void-1';
+import { drawBoss } from './boss.mjs?v=edge-and-void-1';
+import { drawPickup } from './pickup-art.mjs?v=edge-and-void-1';
+import { pickupKind, getPickupSpec, pickupContactRadius } from './pickups.mjs?v=edge-and-void-1';
+import { lightAttenuation,lightVisibility,createLightMaskCanvas,sceneRevealStrength } from './light-field.mjs?v=edge-and-void-1';
+import {drawExitLandmark} from './exit-landmark.mjs?v=edge-and-void-1';
+import {drawBlackHoles} from './black-hole-art.mjs?v=edge-and-void-1';
 
 const TAU = Math.PI * 2;
 const SCENERY_HELPERS = { line: pixelLine, disc: pixelDisc, polygon: path };
@@ -643,7 +644,7 @@ export class WispFlightView {
     }
     f.globalAlpha = 1; f.globalCompositeOperation = 'source-over';
     const reveal=e.completionProgress||0;
-    c.globalAlpha=(1-reveal*reveal*(3-2*reveal))*(1-clamp(light.pickupReveal||0,0,1));
+    c.globalAlpha=(1-reveal*reveal*(3-2*reveal))*(1-sceneRevealStrength(light));
     c.drawImage(this.fog, 0, 0);c.globalAlpha=1;
   }
 
@@ -1064,6 +1065,7 @@ export class WispFlightView {
     this.drawMain(e, t, playerX, playerY);
     this.drawProtector(e, t, playerX, playerY);
     this.drawAbsorptions(e, t, playerX, playerY);
+    drawBlackHoles(c,e,{scale:s,distance,playerY:yOf(e)});
     for (const effect of e.pickupEffects || []) {
       const progress = 1 - clamp(effect.life / .72, 0, 1);
       c.globalAlpha = 1 - progress;

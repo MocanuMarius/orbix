@@ -199,26 +199,46 @@ dialog.power-sheet.map-key-sheet {
   .map-key-button { animation: none; transition: none; }
 }
 
-/* Brightness is a permission cue. Keep these selectors stronger than legacy landscape defaults. */
-.game-map-screen .landscape-route .world-map-node{opacity:.68;transition:opacity .2s;cursor:default}
+/* Brightness is a permission cue. Labels retain contrast independently of art. */
+.game-map-screen .world-map-node.route-state-future{opacity:1}
+.game-map-screen .world-map-node.route-state-future .map-support-symbol{opacity:.38;color:#a1b09c}
+.game-map-screen .world-map-node.route-state-closed{pointer-events:none;cursor:default}
+.game-map-screen .world-map-node.route-state-closed .map-node-type,
+.game-map-screen .world-map-node.route-state-closed .map-node-name{display:none}
+.game-map-screen .landscape-route .world-map-node{opacity:1;cursor:default}
 .game-map-screen .landscape-route .world-map-node.route-state-next,
 .game-map-screen .landscape-route .world-map-node.route-state-current{opacity:1}
-.game-map-screen .landscape-route .world-map-node.route-state-complete{opacity:.72}
-.game-map-screen .landscape-route .world-map-node.route-state-closed{opacity:.14;pointer-events:none}
+.game-map-screen .landscape-route .route-node-art{transition:opacity .2s;pointer-events:none}
+.game-map-screen .landscape-route .route-state-future .route-node-art{opacity:.42}
+.game-map-screen .landscape-route .route-state-complete .route-node-art{opacity:.55}
+.game-map-screen .landscape-route .world-map-node.route-state-closed{opacity:1;pointer-events:none}
+.game-map-screen .landscape-route .route-state-closed .route-node-art{opacity:.17}
 .game-map-screen .landscape-route .world-map-node[role=button]{cursor:pointer;touch-action:manipulation;outline:none}
-.game-map-screen .landscape-route .world-map-node[role=button]:hover,
-.game-map-screen .landscape-route .world-map-node[role=button]:focus-visible{opacity:1}
-.game-map-screen .landscape-route .route-node-disc{fill:#132723;stroke:#788775;stroke-width:1.3}
-.game-map-screen .landscape-route .route-state-next .route-node-disc{fill:#344637;stroke:#f6e6b0;stroke-width:2.3}
-.game-map-screen .landscape-route .route-state-current .route-node-disc{fill:#4b4a30;stroke:#efd399;stroke-width:2}
-.game-map-screen .landscape-route .route-state-complete .route-node-disc{fill:#25372a;stroke:#baa778}
-.game-map-screen .landscape-route .route-state-closed .route-node-disc{fill:#101b1c;stroke:#6a776c}
+.game-map-screen .landscape-route .route-state-future[role=button]{cursor:help}
+.game-map-screen .landscape-route .route-state-future[role=button]:hover .route-node-art,
+.game-map-screen .landscape-route .route-state-future[role=button]:focus-visible .route-node-art{opacity:.55}
+.game-map-screen .landscape-route .route-landmark{--landmark-stone:#73866f;--landmark-face:#a1b197;--landmark-edge:#b9c5a5;--landmark-fire:#b6bf97}
+.game-map-screen .landscape-route .route-state-next .route-landmark{--landmark-stone:#8b8762;--landmark-face:#cdc18a;--landmark-edge:#f3e3ac;--landmark-fire:#ffdb87}
+.game-map-screen .landscape-route .route-state-current .route-landmark{--landmark-stone:#7e7958;--landmark-face:#b7a778;--landmark-edge:#d5bf88;--landmark-fire:#dfbf7b}
+.game-map-screen .landscape-route .landmark-ground{fill:#344538}
+.game-map-screen .landscape-route .landmark-dark{fill:#0c1b17}
+.game-map-screen .landscape-route .landmark-body{fill:var(--landmark-stone)}
+.game-map-screen .landscape-route .landmark-face{fill:var(--landmark-face)}
+.game-map-screen .landscape-route .landmark-edge{fill:none;stroke:var(--landmark-edge);stroke-width:1.4}
+.game-map-screen .landscape-route .landmark-fire{fill:var(--landmark-fire)}
+.game-map-screen .landscape-route .landmark-rune{fill:none;stroke:var(--landmark-edge);stroke-width:1.8}
+.game-map-screen .landscape-route .landmark-grass{fill:none;stroke:#81976c;stroke-width:1.5}
+.game-map-screen .landscape-route .landmark-thorns{fill:none;stroke:#a49470;stroke-width:2}
+.game-map-screen .landscape-route .route-closed-ground{fill:#607262}
 .game-map-screen .landscape-route .map-support-symbol{color:#b4c2a9}
+.game-map-screen .landscape-route .route-state-future .map-support-symbol{opacity:1;color:#a1b09c}
 .game-map-screen .landscape-route .route-state-next .map-support-symbol{color:#fff1c6}
 .game-map-screen .landscape-route .route-state-current .map-support-symbol{color:#e8d5a2}
-.game-map-screen .landscape-route .route-state-closed .route-theme-pip{fill:#778578}
+.game-map-screen .landscape-route .route-state-future .route-theme-pip{opacity:.45}
 .game-map-screen .landscape-route .map-node-type{font:11px/1.2 var(--pixel,monospace)!important;fill:#b9c9b0!important;stroke:#10201e;stroke-width:3px;letter-spacing:.2px}
 .game-map-screen .landscape-route .map-node-name{font:11px/1.2 var(--pixel,monospace)!important;fill:#b9c7b1!important;stroke:#10201e;stroke-width:3px;letter-spacing:0}
+.game-map-screen .landscape-route .route-state-future .map-node-type,
+.game-map-screen .landscape-route .route-state-future .map-node-name{fill:#9bac9c!important;opacity:1}
 .game-map-screen .landscape-route .route-state-next .map-node-type,
 .game-map-screen .landscape-route .route-state-next .map-node-name{fill:#fff0c4!important}
 .game-map-screen .landscape-route .route-state-current .map-node-type,
@@ -227,25 +247,29 @@ dialog.power-sheet.map-key-sheet {
 .game-map-screen .landscape-route .route-state-caption{font:11px/1 var(--pixel,monospace);letter-spacing:1px;fill:#b4c0a5;stroke:#10201e;stroke-width:3px;paint-order:stroke fill;pointer-events:none}
 .game-map-screen .landscape-route .route-here-caption{fill:#ffe7a6}
 .game-map-screen .landscape-route .route-next-caption{fill:#fff4cf}
-.game-map-screen .landscape-route .route-next-ring{animation:route-next-breathe 1.8s ease-in-out infinite;transform-box:fill-box;transform-origin:center}
-.game-map-screen .landscape-route .world-map-node[role=button]:focus-visible .route-node-disc{stroke:#fffbd8;stroke-width:3.5}
+.game-map-screen .landscape-route .route-next-light{fill:none;animation:route-next-breathe 1.8s ease-in-out infinite}
+.game-map-screen .landscape-route .route-next-arrow{animation:route-next-breathe 1.8s ease-in-out infinite;pointer-events:none}
+.game-map-screen .landscape-route .route-state-next[role=button]:hover .landmark-edge,
+.game-map-screen .landscape-route .route-state-next[role=button]:focus-visible .landmark-edge{stroke:#fffbd8;stroke-width:2}
+.game-map-screen .landscape-route .route-state-future[role=button]:focus-visible .landmark-edge{stroke:#a4b7a5;stroke-width:1.8}
 .game-map-screen .landscape-route .world-map-node[role=button]:focus-visible .map-node-name{text-decoration:underline}
 .game-map-screen .landscape-route .map-route-line.path-open{opacity:1}
-.game-map-screen .landscape-route .map-route-line.path-open .route-shadow{stroke:#d8cc87;stroke-width:7px;opacity:.12}
-.game-map-screen .landscape-route .map-route-line.path-open .route-thread{stroke:#dec992;stroke-width:3px;stroke-dasharray:none;opacity:1}
-.game-map-screen .landscape-route .map-route-line.path-open .route-current{stroke:#fff4c9;stroke-width:1.5px;stroke-dasharray:5 17;opacity:.9;animation:route-next-flow 2.2s linear infinite}
+.game-map-screen .landscape-route .map-route-line .route-shadow{stroke:#344239;stroke-width:9px;opacity:.45}
+.game-map-screen .landscape-route .map-route-line .route-thread{stroke-linecap:round;stroke-linejoin:round}
+.game-map-screen .landscape-route .map-route-line .route-stone{fill:#a2ac83;stroke:none;opacity:.8}
+.game-map-screen .landscape-route .map-route-line.path-open .route-shadow{stroke:#85784d;stroke-width:10px;opacity:.22}
+.game-map-screen .landscape-route .map-route-line.path-open .route-thread{stroke:#b7a574;stroke-width:2.5px;stroke-dasharray:7 3 2 5;opacity:.75}
+.game-map-screen .landscape-route .map-route-line.path-open .route-stone{fill:#ebd7a0;opacity:1}
+.game-map-screen .landscape-route .map-route-line.path-open .route-current{stroke:#fff4c9;stroke-width:1.3px;stroke-dasharray:2 23;opacity:.65;animation:route-next-flow 3.5s linear infinite}
 .game-map-screen .landscape-route .map-route-line.path-taken{opacity:.85}
-.game-map-screen .landscape-route .map-route-line.path-taken .route-thread{stroke:#d2b77a;stroke-width:3px;stroke-dasharray:none;opacity:1}
-.game-map-screen .landscape-route .map-route-line.path-future{opacity:.48}
-.game-map-screen .landscape-route .map-route-line.path-future .route-thread{stroke:#849b88;stroke-width:1.6px;stroke-dasharray:none;opacity:.85}
+.game-map-screen .landscape-route .map-route-line.path-taken .route-thread{stroke:#a99c6c;stroke-width:2px;stroke-dasharray:8 3 2 4;opacity:.75}
+.game-map-screen .landscape-route .map-route-line.path-future{opacity:.35}
+.game-map-screen .landscape-route .map-route-line.path-future .route-thread{stroke:#849b88;stroke-width:1.4px;stroke-dasharray:7 4 2 6;opacity:.7}
 .game-map-screen .landscape-route .map-route-line.path-locked{opacity:.12}
 .game-map-screen .landscape-route .map-route-line.path-locked .route-thread{stroke:#708278;stroke-width:1px;stroke-dasharray:2 7;opacity:.5}
 .game-map-screen .landscape-route .map-route-line.path-locked .route-shadow{display:none}
 .game-map-screen .landscape-route .route-start:not(.current-position){opacity:.55}
 @keyframes route-next-breathe{0%,100%{opacity:.5}50%{opacity:1}}
 @keyframes route-next-flow{to{stroke-dashoffset:-44}}
-@media(prefers-reduced-motion:reduce){.game-map-screen .landscape-route .route-next-ring,.game-map-screen .landscape-route .map-route-line.path-open .route-current{animation:none;opacity:1}.game-map-screen .landscape-route .world-map-node{transition:none}}
-
-/* The old minimal map hides generic circles; these circles carry route state. */
-.game-map-screen.map-v2 .landscape-route .world-map-node circle{display:inline!important}
+@media(prefers-reduced-motion:reduce){.game-map-screen .landscape-route .route-next-light,.game-map-screen .landscape-route .route-next-arrow,.game-map-screen .landscape-route .map-route-line.path-open .route-current{animation:none;opacity:1}.game-map-screen .landscape-route .route-node-art{transition:none}}
 .game-map-screen .landscape-route .route-node-caption{font-size:11px;letter-spacing:0}
