@@ -36,15 +36,18 @@ export function updateBoostControl(element,state={}){
   if(disabled)mode=ended?'ended':paused?'paused':'waiting';
   if(ended)charge=0;
   const tint=companionPalette(role);
-  element.style.setProperty('--power-fill',String(charge));
-  element.style.setProperty('--power-color',tint.mid);
-  element.dataset.boostState=mode;
-  element.classList.toggle('boost-motion-reduced',state.reducedMotion===true);
+  // Fill changes during recovery; palette, mode and enabled state usually do
+  // not. Avoid rewriting inherited style properties over every SVG pixel.
+  if(element._powerFill!==charge){element.style.setProperty('--power-fill',String(charge));element._powerFill=charge;}
+  if(element._powerColor!==tint.mid){element.style.setProperty('--power-color',tint.mid);element._powerColor=tint.mid;}
+  if(element.dataset.boostState!==mode)element.dataset.boostState=mode;
+  const reducedMotion=state.reducedMotion===true;
+  if(element._powerReducedMotion!==reducedMotion){element.classList.toggle('boost-motion-reduced',reducedMotion);element._powerReducedMotion=reducedMotion;}
   const full=charge>=.999&&!disabled;
   if(full&&!element._wasFull)element.classList.add('power-ready-burst');
-  if(!full)element.classList.remove('power-ready-burst');
+  if(!full&&element._wasFull!==false)element.classList.remove('power-ready-burst');
   element._wasFull=full;
-  if(element.tagName==='BUTTON')element.disabled=disabled;
+  if(element.tagName==='BUTTON'&&element.disabled!==disabled)element.disabled=disabled;
   const aria=ended?'Attempt ended':paused?'Flight paused':waiting?'Tap Lift to begin':`${meaning}. ${Math.round(charge*100)} percent.${passive?'':' Tap Power for ready companions; tap again to release Leveler.'}`;
   if(element.getAttribute('aria-label')!==aria)element.setAttribute('aria-label',aria);
 }

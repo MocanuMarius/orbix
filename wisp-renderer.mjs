@@ -1,13 +1,14 @@
 import { sceneryIdentity, drawIdentityBackground, drawIdentityMaterial, drawIdentityLife } from './level-scenery.mjs';
 import { getCompanionAbility, normalizeCompanionRole } from './companion-abilities.mjs';
 import { companionSprite, companionPalette } from './companion-art.mjs';
-import { createScenePropArt } from './scene-prop-art.mjs';
+import { createScenePropArt } from './scene-prop-art.mjs?v=rest-trees-collector-1';
 import { drawBoss } from './boss.mjs';
-import { drawPickup } from './pickup-art.mjs';
-import { pickupKind, getPickupSpec } from './pickups.mjs';
+import { drawPickup } from './pickup-art.mjs?v=rest-trees-collector-1';
+import { pickupKind, getPickupSpec } from './pickups.mjs?v=rest-trees-collector-1';
 
 const TAU = Math.PI * 2;
 const SCENERY_HELPERS = { line: pixelLine, disc: pixelDisc, polygon: path };
+const BACKGROUND_HELPERS = { line: pixelLine, disc() {}, polygon: path };
 const SIDES = [true, false];
 const WIDTH = 240;
 const ART_SCALE = WIDTH / 195;
@@ -121,6 +122,7 @@ export class WispFlightView {
     this.scenePropCache = new Map();
     this.spriteCache = new Map();
     this.glowCache = new Map();
+    this.propBounds = new WeakMap();
     this.visibleObstacles = [];
     this.obstacleCursor = 0;
     this.lastVisibleDistance = -1;
@@ -169,9 +171,14 @@ export class WispFlightView {
     const e = this.engine, bounds = e.canvas.getBoundingClientRect();
     const cssWidth = Math.max(1, bounds.width || 390), cssHeight = Math.max(1, bounds.height || 620);
     const ratio = clamp(globalThis.devicePixelRatio || 1, 1, 2);
+    const layoutKey = `${cssWidth}:${cssHeight}:${ratio}:${e.width}:${e.height}`;
+    // Assigning even identical canvas dimensions clears the bitmap and forces
+    // expensive terrain regeneration during mobile resize event bursts.
+    if (layoutKey === this.layoutKey) return;
+    this.layoutKey = layoutKey;
     this.canvas.width = Math.round(cssWidth * ratio);
     this.canvas.height = Math.round(cssHeight * ratio);
-    this.canvas.style.width = `${cssWidth}px`; this.canvas.style.height = `${cssHeight}px`;
+    this.canvas.style.width = '100%'; this.canvas.style.height = '100%';
     this.buffer.width = WIDTH;
     this.buffer.height = Math.max(1, Math.round((e.height || 620) / (e.width || 390) * WIDTH));
     this.scale = WIDTH / (e.width || 390);
@@ -179,6 +186,9 @@ export class WispFlightView {
     this.fogPixels = null;
     if (this.skyCanvas) this.skyCanvas.width = this.skyCanvas.height = 1;
     this.skyCanvas = null;
+    if (this.backgroundCanvas) this.backgroundCanvas.width = this.backgroundCanvas.height = 1;
+    this.backgroundCanvas = null; this.backgroundSample = NaN;
+    this.propBounds = new WeakMap();
     this.obstacleCursor = 0; this.lastVisibleDistance = -1;
     this.context.imageSmoothingEnabled = false;
     this.bufferContext.imageSmoothingEnabled = false;
@@ -209,8 +219,7 @@ export class WispFlightView {
       if (i % 17 === 0) c.fillRect(x - 1, y + 1, 3, 1);
     }
     c.globalAlpha = 1;
-    const scene = this.lifeOptions; scene.height = H; scene.distance = distance;
-    drawIdentityBackground(c, scene, SCENERY_HELPERS);
+    this.drawCachedBackground(e, distance, palette);
     // Low, broken cloud and mist strips keep the world atmospheric without blurred assets.
     c.globalAlpha = .12;
     for (let i = 0; i < 13; i++) {
@@ -220,6 +229,42 @@ export class WispFlightView {
       c.fillStyle = palette.mist; c.fillRect(Math.round(x), y, width, i % 3 === 0 ? 2 : 1);
     }
     c.globalAlpha = 1;
+  }
+
+  drawCachedBackground(e, distance, palette) {
+    const c = this.bufferContext, W = this.buffer.width, H = this.buffer.height;
+    const sceneId = this.identity.scene, scroll = distance * .025;
+    const sample = Math.floor(scroll * 2) / 2, pad = 4;
+    if (!this.backgroundCanvas) {
+      this.backgroundCanvas = this.document.createElement('canvas');
+      this.backgroundCanvas.width = W + pad * 2; this.backgroundCanvas.height = H;
+      // Rasterize cached art once on the CPU. Thousands of tiny deferred GPU
+      // paint commands caused long presentation stalls; the main buffers and
+      // final lighting/presentation retain their accelerated contexts.
+      this.backgroundContext = this.backgroundCanvas.getContext('2d', { willReadFrequently: true });
+      this.backgroundContext.imageSmoothingEnabled = false;
+    }
+    this.backgroundRepainted = sample !== this.backgroundSample;
+    if (this.backgroundRepainted) {
+      const b = this.backgroundContext;
+      b.setTransform(1, 0, 0, 1, pad, 0); b.globalAlpha = 1;
+      b.clearRect(-pad, 0, W + pad * 2, H);
+      const scene = this.lifeOptions; scene.height = H; scene.distance = sample / .025;
+      // Keep the moon fixed. Only the slowly scrolling scenery is rasterized
+      // into this strip; stars, mist, lighting and living details still animate.
+      drawIdentityBackground(b, scene, BACKGROUND_HELPERS);
+      b.setTransform(1, 0, 0, 1, 0, 0); b.globalAlpha = 1;
+      this.backgroundSample = sample;
+    }
+    const moonX = W * (sceneId === 'chasm' ? .62 : sceneId === 'belfry' ? .30 : .78);
+    const moonY = H * (sceneId === 'hanging' || sceneId === 'glass' ? .31 : .16);
+    c.save(); c.globalAlpha = .64;
+    pixelDisc(c, Math.round(moonX), Math.round(moonY), sceneId === 'chasm' ? 26 : 15, '#8e9b91');
+    if (sceneId !== 'chasm') pixelDisc(c, Math.round(moonX + 5), Math.round(moonY - 3), 13, palette.sky[0]);
+    else { c.globalAlpha = .32; pixelDisc(c, Math.round(W * .28), Math.round(H * .26), 9, '#9aa5b0'); }
+    c.globalAlpha = 1;
+    c.drawImage(this.backgroundCanvas, -pad - (scroll - sample), 0);
+    c.restore();
   }
 
   drawDeadForest(t, distance, palette) {
@@ -368,7 +413,7 @@ export class WispFlightView {
     const maxX = Math.max(...shape.map(p => p[0])), maxY = Math.max(...shape.map(p => p[1]));
     const canvas = this.document.createElement('canvas');
     canvas.width = Math.ceil((maxX - minX) * s) + 4; canvas.height = Math.ceil((maxY - minY) * s) + 4;
-    const c = canvas.getContext('2d'), ox = 2 - minX * s, oy = 2 - minY * s;
+    const c = canvas.getContext('2d', { willReadFrequently: true }), ox = 2 - minX * s, oy = 2 - minY * s;
     c.imageSmoothingEnabled = false;
     path(c, shape, ox, oy, s); c.fillStyle = palette.stone; c.fill();
     c.save(); c.clip();
@@ -422,7 +467,7 @@ export class WispFlightView {
   }
 
   drawSceneProps(e, t, distance) {
-    const c = this.bufferContext, s = this.scale, identity = sceneryIdentity(e);
+    const c = this.bufferContext, s = this.scale, identity = this.identity;
     for (const obstacle of this.visibleObstacles) {
       if (obstacle.destroyed || !obstacle.sceneProps?.length
         || obstacle.x + obstacle.width * 2.5 < distance - 10
@@ -431,6 +476,10 @@ export class WispFlightView {
       // independently animated silhouette that could drift off its collider.
       const center = obstacle.center + Math.sin(t * .9 + obstacle.phase) * obstacle.motion;
       for (const prop of obstacle.sceneProps) {
+        const bounds = this.getPropBounds(prop), side = prop.side === -1 ? -1 : 1;
+        const anchorY = center + side * obstacle.gap / 2;
+        if ((obstacle.x - distance + bounds.maxX) * s < -2 || (obstacle.x - distance + bounds.minX) * s > WIDTH + 2
+          || (anchorY + bounds.maxY) * s < -2 || (anchorY + bounds.minY) * s > this.buffer.height + 2) continue;
         const key = `${identity.id}:${obstacle.id}:${prop.id}`;
         let item = this.scenePropCache.get(key);
         if (!item || item.prop !== prop || item.scale !== s) {
@@ -445,11 +494,52 @@ export class WispFlightView {
             this.scenePropCache.delete(oldest);
           }
         }
-        const side = prop.side === -1 ? -1 : 1;
         const x = (obstacle.x - distance + item.x) * s - item.pad;
         const y = (center + side * obstacle.gap / 2 + item.y) * s - item.pad;
         if (x + item.canvas.width < 0 || x > WIDTH || y + item.canvas.height < 0 || y > this.buffer.height) continue;
         c.drawImage(item.canvas, x, y);
+      }
+    }
+  }
+
+  getPropBounds(prop) {
+    let bounds = this.propBounds.get(prop);
+    if (bounds) return bounds;
+    bounds = { minX: Infinity, minY: Infinity, maxX: -Infinity, maxY: -Infinity };
+    for (const part of prop.parts || []) for (const point of part.polygon || []) {
+      bounds.minX = Math.min(bounds.minX, point[0]); bounds.maxX = Math.max(bounds.maxX, point[0]);
+      bounds.minY = Math.min(bounds.minY, point[1]); bounds.maxY = Math.max(bounds.maxY, point[1]);
+    }
+    this.propBounds.set(prop, bounds); return bounds;
+  }
+
+  prewarmSurfaces(e, distance) {
+    // At most one future surface per frame. This stays a small, bounded window
+    // ahead of the viewport rather than allocating an entire expedition.
+    const end = distance + e.width + Math.min(500, Math.max(320, (e.baseSpeed || 154) * 3));
+    const obstacles = e.layout.obstacles, palette = this.palette, identity = this.identity;
+    for (let i = this.obstacleCursor; i < obstacles.length; i++) {
+      const obstacle = obstacles[i];
+      if (obstacle.x - obstacle.width > end) break;
+      if (obstacle.destroyed || obstacle.x + obstacle.width * 2.5 < distance - 24) continue;
+      for (const top of SIDES) {
+        const shape = top ? obstacle.topShape : obstacle.bottomShape;
+        if (!shape?.length) continue;
+        const key = `${identity.id}:${obstacle.sectionId || ''}:${obstacle.id}:${top ? 'top' : 'floor'}:${this.buffer.height}`;
+        if (!this.terrainCache.has(key)) { this.terrainImage(e, obstacle, shape, top, palette); return; }
+      }
+      const center = obstacle.center + Math.sin(timeOf(e) * .9 + obstacle.phase) * obstacle.motion;
+      for (const prop of obstacle.sceneProps || []) {
+        const bounds = this.getPropBounds(prop), anchorY = center + (prop.side === -1 ? -1 : 1) * obstacle.gap / 2;
+        if ((anchorY + bounds.maxY) * this.scale < -2 || (anchorY + bounds.minY) * this.scale > this.buffer.height + 2) continue;
+        const key = `${identity.id}:${obstacle.id}:${prop.id}`;
+        if (this.scenePropCache.has(key)) continue;
+        const item = createScenePropArt(this.document, prop, { scale: this.scale, terrain: e.terrain, identity: identity.id });
+        if (item) {
+          this.scenePropCache.set(key, item);
+          while (this.scenePropCache.size > 24) { const oldest = this.scenePropCache.keys().next().value; this.scenePropCache.get(oldest).canvas.width = 1; this.scenePropCache.delete(oldest); }
+        }
+        return;
       }
     }
   }
@@ -500,24 +590,26 @@ export class WispFlightView {
     }
   }
 
-  lightMask() {
-    if (this.maskCanvas) return this.maskCanvas;
-    const canvas = this.document.createElement('canvas'); canvas.width = canvas.height = 128;
-    const c=canvas.getContext('2d'),image=c.createImageData(128,128);
+  lightMask(forward = false) {
+    const key=forward?'forwardMaskCanvas':'maskCanvas';
+    if (this[key]) return this[key];
+    const canvas = this.document.createElement('canvas'); canvas.width=forward?192:128;canvas.height=128;
+    const c=canvas.getContext('2d',{willReadFrequently:true}),image=c.createImageData(canvas.width,128);
     // Finite emitter core + inverse-square distance attenuation. Bake once;
     // every frame only scales/blends this reusable pixel-light texture.
     const softening=.18,cutoff=1/(1+softening*softening);
-    for(let py=0;py<128;py++)for(let px=0;px<128;px++){
-      const dx=(px-63.5)/63,dy=(py-63.5)/63,r2=dx*dx+dy*dy;
+    for(let py=0;py<128;py++)for(let px=0;px<canvas.width;px++){
+      const dx=(px+.5-64)/64,dy=(py+.5-64)/64;
+      const horizontal=forward&&dx>0?dx*.5:dx,r2=horizontal*horizontal+dy*dy;
       const irradiance=r2>=1?0:Math.max(0,1/(r2+softening*softening)-cutoff);
       // 50% higher emitter exposure; retain inverse-square attenuation and
       // the zero-light cutoff so distant scenery never gets a global lift.
-      const alpha=1-Math.exp(-.75*irradiance),offset=(py*128+px)*4;
+      const alpha=1-Math.exp(-.75*irradiance),offset=(py*canvas.width+px)*4;
       image.data[offset]=image.data[offset+1]=image.data[offset+2]=255;
       image.data[offset+3]=Math.round(alpha*255);
     }
     c.putImageData(image,0,0);
-    this.maskCanvas = canvas;
+    this[key] = canvas;
     return canvas;
   }
 
@@ -534,7 +626,12 @@ export class WispFlightView {
     f.globalCompositeOperation = 'destination-out';
     const mask = this.lightMask(), radius = this.lightRadius * s;
     f.globalAlpha = this.lightIntensity;
-    f.drawImage(mask, playerX - radius, playerY - radius, radius * 2, radius * 2);
+    // Soft screen-centred horizon stays horizontal as the orb climbs or dives.
+    const horizon=light.horizon;
+    if(horizon){const rx=horizon.radiusX*s,ry=horizon.radiusY*s;f.globalAlpha=this.lightIntensity*horizon.strength;f.drawImage(mask,horizon.x*s-rx,horizon.y*s-ry,rx*2,ry*2)}
+    // Right half stretches to 2x reach; vertical and rear falloff are unchanged.
+    f.globalAlpha=this.lightIntensity;
+    f.drawImage(this.lightMask(true), playerX-radius, playerY-radius, radius*3, radius*2);
     const forward = light.forwardLight || e.forwardLight;
     if (forward?.active && forward.radius > 0) {
       const fr = forward.radius * s;
@@ -700,8 +797,8 @@ export class WispFlightView {
       const px=x+Math.cos(a)*radius,py=y+Math.sin(a)*radius;
       if(i===0)c.moveTo(px,py);else c.lineTo(px,py);
     }
-    c.closePath();c.strokeStyle='#a9cd95';c.globalAlpha=.12;c.lineWidth=3;c.stroke();
-    c.globalAlpha=.52;c.lineWidth=1;c.stroke();
+    c.closePath();c.strokeStyle='#a9cd95';c.globalAlpha=.035;c.lineWidth=2;c.stroke();
+    c.globalAlpha=.23;c.lineWidth=.75;c.stroke();
     c.restore();
   }
 
@@ -791,7 +888,7 @@ export class WispFlightView {
     const carrierX = (carrier?.x ?? e.player.x) * s, carrierY = (carrier?.y ?? yOf(e)) * s;
     const carrierRadius = (carrier?.phase === 'cooldown' ? 13 + carrier.recovery * 7 : 26) * ART_SCALE * (this.lightDimScale || 1);
     const visibility = (x, y) => {
-      const playerDistance = ((x - px) ** 2 + (y - py) ** 2) / (radius * radius);
+      const dx=x-px,playerDistance=((dx>0?dx*.5:dx)**2+(y-py)**2)/(radius*radius);
       const carrierDistance = ((x - carrierX) ** 2 + (y - carrierY) ** 2) / (carrierRadius * carrierRadius);
       const lit = Math.max(clamp((1 - playerDistance) * 1.5, 0, 1),
         carrier ? clamp((1 - carrierDistance) * .75, 0, .75) : 0) * (this.lightIntensity || 1);
@@ -958,6 +1055,7 @@ export class WispFlightView {
     if (e.flash > 0) { c.globalAlpha = Math.min(.2, e.flash * 1.3); c.fillStyle = '#dbc2a1'; c.fillRect(0, 0, WIDTH, this.buffer.height); c.globalAlpha = 1; }
     this.context.imageSmoothingEnabled = false;
     this.context.drawImage(this.buffer, 0, 0, this.canvas.width, this.canvas.height);
+    if (!this.backgroundRepainted) this.prewarmSurfaces(e, distance);
   }
 
   destroy() {
@@ -975,7 +1073,10 @@ export class WispFlightView {
     for (const canvas of this.glowCache.values()) canvas.width = canvas.height = 1;
     this.spriteCache.clear(); this.glowCache.clear(); this.visibleObstacles.length = 0;
     if (this.maskCanvas) this.maskCanvas.width = this.maskCanvas.height = 1;
+    if (this.forwardMaskCanvas) this.forwardMaskCanvas.width=this.forwardMaskCanvas.height=1;
     if (this.skyCanvas) this.skyCanvas.width = this.skyCanvas.height = 1;
+    if (this.backgroundCanvas) this.backgroundCanvas.width = this.backgroundCanvas.height = 1;
+    this.backgroundCanvas = this.backgroundContext = null;
     this.fogPixels = null; this.context = null; this.bufferContext = null; this.fogContext = null;
   }
 }

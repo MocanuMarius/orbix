@@ -146,7 +146,7 @@ export function createScenePropArt(document, prop, { scale = 1, terrain = 'ruins
   const canvas = document.createElement('canvas'), pad = 2;
   canvas.width = Math.max(1, Math.ceil((maxX - minX) * scale) + pad * 2);
   canvas.height = Math.max(1, Math.ceil((maxY - minY) * scale) + pad * 2);
-  const c = canvas.getContext('2d');
+  const c = canvas.getContext('2d', { willReadFrequently: true });
   if (!c) return null;
   c.imageSmoothingEnabled = false;
   const ox = pad - minX * scale, oy = pad - minY * scale;

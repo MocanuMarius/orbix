@@ -1,4 +1,5 @@
 const shapes={
+ heart:'<path d="M3 2h5v3h8V2h5v3h2v9h-3v3h-3v3h-3v2h-4v-2H7v-3H4v-3H1V5h2z"/>',
  bond:'<path d="M2 10h6v6H2zM16 10h6v6h-6zM9 2h6v6H9zM8 13h8M12 8v5"/>',
  lift:'<path d="M4 20V10h4V6h4V2h4v4h4M8 20V12h4V8h4M13 20h7"/>',
  sight:'<path d="M2 10h3V7h4V5h6v2h4v3h3v4h-3v3h-4v2H9v-2H5v-3H2zM10 9h4v6h-4z"/>',
@@ -22,5 +23,5 @@ const shapes={
 };
 const inks={main:'#e5e9cf',collector:'#b9dfa0',protector:'#8fbfe8',leveler:'#a7e8df',swift:'#f2d48e',seer:'#d3b1f2',kindler:'#e4a3b5',afterglow:'#b8d9ae'};
 const svg=(shape,ink)=>`<svg class="upgrade-glyph" viewBox="0 0 24 24" fill="none" stroke="${ink}" stroke-width="1.5" stroke-linecap="square" stroke-linejoin="miter" shape-rendering="crispEdges" aria-hidden="true">${shapes[shape]||shapes.fuel}</svg>`;
-export function skillIcon(skill){const id=skill.id;const shape=id.includes('bond')?'bond':id.includes('efficiency')||id==='main-lift'?'lift':id.includes('purify')?'purify':id.includes('dive')?'dive':id.includes('layers')?'layers':id.includes('steadiness')?'level':id.includes('duration')?'duration':id.includes('recovery')?'recovery':id.includes('resistance')?'wind':id.includes('reach')?'reach':id.includes('sight')||id.includes('range')?'sight':id.startsWith('protector')?'ward':id.startsWith('afterglow')?'reserve':'fuel';return svg(shape,inks[skill.branch]||inks.main)}
+export function skillIcon(skill){const id=skill.id;const shape=id==='main-spare-spark'||id==='main-deep-reserve'?'heart':id.includes('bond')?'bond':id.includes('speed')||id.includes('tailwind')?'swift':id.includes('horizon')||id.includes('dawn')?'sight':id.includes('drift')?'feather':id.includes('efficiency')||id==='main-lift'?'lift':id.includes('purify')?'purify':id.includes('dive')?'dive':id.includes('layers')?'layers':id.includes('steadiness')?'level':id.includes('duration')?'duration':id.includes('recovery')?'recovery':id.includes('resistance')?'wind':id.includes('reach')?'reach':id.includes('sight')||id.includes('range')?'sight':id.startsWith('protector')?'ward':id.startsWith('afterglow')?'reserve':'fuel';return svg(shape,inks[skill.branch]||inks.main)}
 export function artifactIcon(id){const shape={'ember-lens':'sight','quiet-cinder':'fuel','silver-feather':'feather','moss-heart':'moss','wayfinder-seed':'seed','iron-petal':'ward','storm-knot':'wind','hollow-bell':'bell','dawn-thread':'dawn'}[id];return svg(shape||'reserve','#d9c08e')}
