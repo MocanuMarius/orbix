@@ -1,3 +1,4 @@
+import {glowText} from './vitality.mjs?v=glow-builds-1';
 const stop=(kind,label,name,summary)=>Object.freeze({kind,label,name,summary,icon:kind});
 export const MAP_STOP_TYPES=Object.freeze({
 flight:stop('flight','FLIGHT','Flight','Fly a passage. Remaining Glow carries forward.'),
@@ -14,7 +15,7 @@ export const EVENT_SCENARIOS=Object.freeze([
 {id:'luminous-well',index:4,name:'Luminous Well',summary:'Refill Glow or take 12 embers.',detail:'After the first boss, the second option stores up to 10 Afterglow instead.'},
 {id:'ember-archive',index:5,name:'The Ember Archive',summary:'Trade an owned artifact, or keep your possessions and take 20 embers.',detail:'An offered artifact sells for 50 embers. Without an artifact, the first choice recovers 24 Glow.'},
 ].map(Object.freeze));
-export function getEventScenarios(options={}){const unlocked=typeof options==='boolean'?options:options.afterglowUnlocked===true;return EVENT_SCENARIOS.map(e=>e.index===4&&unlocked?{...e,summary:'Refill Glow or store up to 10 Afterglow.',detail:'Stored light is available only after defeating the first boss.'}:e);}
+export function getEventScenarios(options={}){const unlocked=typeof options==='boolean'?options:options.afterglowUnlocked===true;return EVENT_SCENARIOS.map(e=>{const entry=e.index===4&&unlocked?{...e,summary:'Refill Glow or store up to 10 Glow in Afterglow.',detail:'Stored light is available only after defeating the first boss.'}:e;return {...entry,summary:glowText(entry.summary,options.maxGlow||100),detail:glowText(entry.detail,options.maxGlow||100)};});}
 function kindOf(value){
  if(typeof value==='string'){
   if(value==='camp')return'rest';
@@ -28,9 +29,9 @@ function kindOf(value){
  if(n.kind==='shrine'||n.kind==='event'||n.type==='support')return'encounter';
  return n.elite||n.kind==='elite'||n.type==='elite'?'elite':'flight';
 }
-export function getMapStopInfo(node={}){
+export function getMapStopInfo(node={},maxGlow=100){
  const kind=kindOf(node),base=MAP_STOP_TYPES[kind];
- const event=kind==='encounter'&&node.kind!=='shrine'&&Number.isInteger(node.eventIndex)?getEventScenarios(node)[node.eventIndex]:null;
+ const event=kind==='encounter'&&node.kind!=='shrine'&&Number.isInteger(node.eventIndex)?getEventScenarios({...node,maxGlow})[node.eventIndex]:null;
  const exit=kind==='flight'&&(node.type==='finale'||node.kind==='finale');
  const summary=kind==='boss'?'Defeat the Hollow Warden: earn a persistent artifact, unlock Afterglow and advance the difficulty tier.':event?.summary||(node.kind==='shrine'?'Choose Glow or an offered skill trade. No general fleet or skill service.':exit?'Clear this flight to continue to the next map.':base.summary);
  return{...base,label:exit?'EXIT':base.label,name:event?.name||(node.type==='support'?node.name:node.locationName||node.name)||base.name,summary,detail:event?.detail||summary,eventIndex:event?.index??null,scenarioId:event?.id||null};

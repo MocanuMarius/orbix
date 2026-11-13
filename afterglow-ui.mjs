@@ -1,3 +1,4 @@
+import {formatGlow} from './vitality.mjs?v=glow-builds-1';
 // Stored fuel stays out of the main interface until it can help a flight.
 const amountOf = value => Math.max(0, Number.isFinite(Number(value)) ? Number(value) : 0);
 export const formatStoredGlow = value => {
@@ -9,12 +10,12 @@ export function reserveIconMarkup() {
 }
 export function storedGlowPanelMarkup(reserve = {}, { draw = false } = {}) {
   if (reserve.unlocked !== true || !draw || amountOf(reserve.amount) <= 0 || amountOf(reserve.drawable) <= 0 || reserve.drawUsed) return '';
-  const amount = formatStoredGlow(reserve.amount), usable = formatStoredGlow(reserve.drawable);
+  const amount = formatGlow(reserve.amount,reserve.maxGlow), usable = formatGlow(reserve.drawable,reserve.maxGlow);
   return `<div class="afterglow-panel stored-glow-panel${reserve.practice ? ' practice-reserve' : ''}"><button class="afterglow-readout" data-action="inspect-afterglow" aria-label="${reserve.practice ? 'Practice ' : ''}Stored Glow: ${amount}. Open reserve details.">${reserveIconMarkup()}<span>${reserve.practice ? 'Practice reserve' : 'Stored Glow'}</span><strong>${amount}</strong></button><button class="afterglow-draw" data-action="draw-afterglow">Use +${usable} Glow</button></div>`;
 }
-export function storedGlowChangeMarkup(values, { summary = false, practice = false } = {}) {
+export function storedGlowChangeMarkup(values, { summary = false, practice = false, maxGlow = 100 } = {}) {
   if (!values) return '';
   const stored = amountOf(values.stored), lost = amountOf(values.loss);
-  if (summary) return lost > 0 ? `<div class="afterglow-change stored-glow-change"><span class="reserve-loss">${reserveIconMarkup()}−${formatStoredGlow(lost)} Stored Glow</span></div>` : '';
-  return stored > 0 ? `<div class="afterglow-change stored-glow-change"><span>${reserveIconMarkup()}+${formatStoredGlow(stored)} ${practice ? 'practice reserve' : 'Stored Glow'}</span></div>` : '';
+  if (summary) return lost > 0 ? `<div class="afterglow-change stored-glow-change"><span class="reserve-loss">${reserveIconMarkup()}−${formatGlow(lost,maxGlow)} Stored Glow</span></div>` : '';
+  return stored > 0 ? `<div class="afterglow-change stored-glow-change"><span>${reserveIconMarkup()}+${formatGlow(stored,maxGlow)} ${practice ? 'practice reserve' : 'Stored Glow'}</span></div>` : '';
 }

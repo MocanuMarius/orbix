@@ -1,9 +1,10 @@
-import * as PIXI from './vendor/pixi.mjs';
-import { obstaclePolygons } from './flight.mjs?v=world-variety-1';
-import { PhoenixRig } from './phoenix-rig.mjs?v=world-variety-1';
-import { Phoenix3D } from './phoenix-3d.mjs?v=world-variety-1';
-import { PhoenixFlameEffects } from './flame-effects.mjs?v=world-variety-1';
-import { bakeLandform } from './landform-material.mjs?v=world-variety-1';
+import {formatGlow} from './vitality.mjs?v=glow-builds-1';
+import * as PIXI from './vendor/pixi.mjs?v=glow-builds-1';
+import { obstaclePolygons } from './flight.mjs?v=glow-builds-1';
+import { PhoenixRig } from './phoenix-rig.mjs?v=glow-builds-1';
+import { Phoenix3D } from './phoenix-3d.mjs?v=glow-builds-1';
+import { PhoenixFlameEffects } from './flame-effects.mjs?v=glow-builds-1';
+import { bakeLandform } from './landform-material.mjs?v=glow-builds-1';
 
 // Native Pixi scene objects share the simulation's polygon geometry. The legacy
 // canvas is retained only as a layout/input fallback when WebGL is unavailable.
@@ -654,7 +655,7 @@ export class PixiFlightView {
     lighting.uWake[0] = (wake ? wake.worldX - distance : engine.player.x - 35) * scale;
     lighting.uWake[1] = (wake?.y ?? viewY(engine)) * scale;
     lighting.uSpirit = spirit.phase === 'cooldown' ? .65 + spirit.recovery * .35 : 1.15;
-    lighting.uHeat = (engine.boostTime > 0 ? 2.0 : .75 + engine.flame / 200) + (engine.reducedMotion ? 0 : Math.sin(time * 9) * .04 + Math.sin(time * 17) * .025);
+    lighting.uHeat = (engine.boostTime > 0 ? 2.0 : .75 + engine.flame / ((engine.maxFlame||100)*2)) + (engine.reducedMotion ? 0 : Math.sin(time * 9) * .04 + Math.sin(time * 17) * .025);
     this.terrainLayer.filterArea.width = W * scale; this.terrainLayer.filterArea.height = H * scale;
     this.scene.filterArea.width = W * scale; this.scene.filterArea.height = H * scale;
     this.backdrop.x = W * .73 - this.backdrop.width * .84 + Math.sin(distance * .0003) * 8;
@@ -790,7 +791,7 @@ export class PixiFlightView {
       item.flash.alpha = Math.max(0, 1 - t * 3) * .8;
       item.ring.clear().circle(0, 0, engine.reducedMotion ? 18 : 8 + t * 44)
         .stroke({ width: 2 * (1 - t), color: 0xffdc86, alpha: (1 - t) * .8 });
-      item.label.text = effect.restored > 0 ? `+${Math.round(effect.restored*10)/10} GLOW` : `+${effect.value}`;
+      item.label.text = effect.restored > 0 ? `+${formatGlow(effect.restored,engine.maxFlame||100)} GLOW` : `+${effect.value}`;
       item.label.style.fontSize = effect.restored > 0 ? 13 : 18;
       item.label.position.set(15, -22 - (engine.reducedMotion ? 0 : t * 32));
       item.label.alpha = Math.min(1, (1 - t) * 3);
