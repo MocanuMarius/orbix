@@ -635,7 +635,7 @@ export class WispFlight {
     this.particles = []; this.trail = []; this.pickupEffects = []; this.emitClock = 0;
     this.absorptionEffects = []; this.absorptionSequence = 0;
     this.lightPenalties = []; this.lightDimming = 0;
-    this.wispBoost = 0;
+    this.wispBoost = 0; this.gravitySurge = 0;
     this.cosmeticRng = seededRandom(`${this.seed}:cosmetics`);
     this.rigImage = null; this.background = null;
     this.audio = null; this.muted = false; this.lastFlapSound = 0;
@@ -884,11 +884,13 @@ export class WispFlight {
     if (this.companionAbility.passive) return {
       id: this.companionRole, role: this.companionRole, action: this.companionAbility.action,
       label: this.companionAbility.label, passive: true, active: this.isCompanionWorking(),
+      collects: this.companionAbility.collects,
       remaining: 0, duration: 0, cooldown: 0, cooldownTotal: 0, ready: false, progress: 1 };
     const active = this.abilityTime > 0;
     return { id: this.companionRole, role: this.companionRole,
       action: this.companionAbility.action, label: this.companionAbility.label,
       passive: false,
+      collects: false,
       active, remaining: this.abilityTime, duration: this.abilityDuration,
       cooldown: this.cooldown, cooldownTotal: this.abilityCooldown,
       ready: this.alive && !this.finished && !this.destroyed && !this.tutorialAwaitingLift
@@ -913,7 +915,8 @@ export class WispFlight {
     const active = this.companionRole === 'gravity' && this.isCompanionWorking();
     return { active, radius: gravityRadius(this.mod.attract), maxRadius: GRAVITY_TUNING.maxRange,
       passive: true, strength: active ? 1 : 0,
-      pullMultiplier: clamp(Number(this.mod.gravityPull) || 1, 1, 2),
+      pullMultiplier: Math.min(2, clamp(Number(this.mod.gravityPull) || 1, 1, 2) * (this.gravitySurge > 0 ? 1.15 : 1)),
+      surging: this.gravitySurge > 0, surgeRemaining: this.gravitySurge,
       x: this.player.x, y: this.player.y, worldX: this.distance + this.player.x,
       remaining: 0, duration: 0 };
   }
@@ -925,10 +928,13 @@ export class WispFlight {
   }
 
   quickenCompanionRecovery(source) {
-    if (this.companionAbility.passive) {
+    if (this.companionAbility.collects) {
       const before = this.wisp.cooldown;
       this.wisp.cooldown = Math.max(0, before - 1);
       this.setEvent(`${source} · Collector recovery${before > 0 ? ' −1s' : ' ready'}`);
+    } else if (this.companionRole === 'gravity') {
+      this.gravitySurge = 1;
+      this.setEvent(`${source} · Gravity pull +15%`);
     } else {
       this.cooldown = Math.max(0, this.cooldown - 1);
       this.setEvent(`${source} · ${this.companionAbility.label} −1s`);
@@ -972,7 +978,8 @@ export class WispFlight {
     this.boostTime = this.companionRole === 'swift' ? this.abilityTime : 0;
     this.levelRecovery = Math.max(0, this.levelRecovery - dt);
     if (this.companionRole === 'anchor' && oldAbility > 0 && this.abilityTime === 0) this.levelRecovery = .25;
-    const wispTarget = this.isCompanionWorking() && this.cards.has('hungry-wisp') ? 1 : 0;
+    this.gravitySurge = Math.max(0, this.gravitySurge - dt);
+    const wispTarget = this.companionAbility.collects && this.isCompanionWorking() && this.cards.has('hungry-wisp') ? 1 : 0;
     this.wispBoost += clamp(wispTarget - this.wispBoost, -dt * 5, dt * 5);
     this.cooldown = Math.max(0, this.cooldown - dt);
     this.exitProtection = Math.max(0, this.exitProtection - dt);
@@ -1536,6 +1543,7 @@ export class WispFlight {
     const state = this.getWispState(this.renderPlayerY ?? this.player.y, this.visualTime ?? this.time);
     const { x, y, homeX, homeY, radius: reach, recovery, phase, carrying } = state;
     c.save();
+    if (state.enabled && reach > 0) {
     const field = c.createRadialGradient(homeX, homeY, 0, homeX, homeY, reach);
     field.addColorStop(0, phase === 'ready' ? 'rgba(119,245,214,.08)' : 'rgba(119,245,214,.025)');
     field.addColorStop(1, 'rgba(119,245,214,0)');
@@ -1546,6 +1554,7 @@ export class WispFlight {
       c.strokeStyle = 'rgba(151,246,220,.7)'; c.lineWidth = 1.4;
       c.beginPath(); c.arc(homeX, homeY, 13, -Math.PI / 2, -Math.PI / 2 + TAU * recovery); c.stroke();
     }
+    }
     const history = this.wisp.history;
     c.strokeStyle = carrying ? '#ffdc99' : '#e9efff'; c.lineWidth = 1.4;
     for (let i = 1; i < history.length; i++) {
@@ -1555,10 +1564,12 @@ export class WispFlight {
     }
     c.globalAlpha = 1;
     const glow = c.createRadialGradient(x, y, 0, x, y, 28);
-    glow.addColorStop(0, 'rgba(250,252,255,.8)');
-    glow.addColorStop(.35, 'rgba(230,240,255,.25)'); glow.addColorStop(1, 'rgba(230,240,255,0)');
+    const palette = { collector: ['#96d8a4','rgba(150,216,164,.25)'], swift: ['#ebc36b','rgba(235,195,107,.25)'],
+      anchor: ['#7dccd0','rgba(125,204,208,.25)'], gravity: ['#bd95e3','rgba(189,149,227,.25)'] }[this.companionRole];
+    glow.addColorStop(0, palette[0]);
+    glow.addColorStop(.35, palette[1]); glow.addColorStop(1, 'rgba(230,240,255,0)');
     c.fillStyle = glow; c.fillRect(x - 28, y - 28, 56, 56);
-    c.fillStyle = '#ffffff'; c.beginPath(); c.arc(x, y, 3, 0, TAU); c.fill();
+    c.fillStyle = palette[0]; c.beginPath(); c.arc(x, y, 3, 0, TAU); c.fill();
     if (carrying) { c.fillStyle = '#ffd38a'; c.beginPath(); c.ellipse(x + 8, y + 3, 3, 5, 0, 0, TAU); c.fill(); }
     c.restore();
   }

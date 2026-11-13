@@ -116,7 +116,8 @@ export function updateTutorial(engine, dt, gust) {
 export function updateTutorialCompanion(engine, dt) {
   // Follow the usual orbit without searching until the player has made a
   // direct pickup. The real item list and its collection state stay untouched.
-  if (engine.tutorial?.lesson === 'glide' && !engine.tutorial.directPickups) {
+  if (getCompanionAbility(engine.companionRole || engine.options?.companionRole).collects
+    && engine.tutorial?.lesson === 'glide' && !engine.tutorial.directPickups) {
     const view = Object.create(engine);
     view.layout = { embers: [] };
     engine.wisp.update(view, dt);
@@ -126,6 +127,7 @@ export function updateTutorialCompanion(engine, dt) {
 export function getTutorialHint(engine) {
   const state = engine?.tutorial;
   if (!state) return null;
+  const role = getCompanionAbility(engine.companionRole || engine.options?.companionRole);
   const hint = (id, title, text, step) => ({ id, title, text, step, total: 4,
     waitingForLift: Boolean(engine.tutorialAwaitingLift), worldFocus: getTutorialWorldFocus(engine),
     observed: { directPickups: state.directPickups, carrierDeliveries: state.carrierDeliveries,
@@ -143,8 +145,13 @@ export function getTutorialHint(engine) {
       if (state.glideSeconds < .7) return hint('glide', 'Lift, then let go',
         'LIFT spends Glow. Release it to glide toward the bright packet.', 2);
       return hint('direct', 'Touch the light packet',
-        'Touch this packet yourself: it refills Glow. Your carrier waits for your first pickup.', 2);
+        role.collects ? 'Touch this packet yourself: it refills Glow. Collector waits for your first pickup.'
+          : 'Touch this packet yourself to refill Glow. This companion does not fetch packets.', 2);
     }
+    if (!role.collects) return hint('direct-role', role.passive ? 'Gravity nudges; you collect' : `${role.label} is your tool`,
+      role.id === 'gravity' ? 'Let Gravity nudge packets nearer, then touch them yourself. It never fetches.'
+        : role.id === 'anchor' ? 'LEVEL steadies your height; LIFT cancels it. Touch packets yourself.'
+          : 'BOOST adds speed and draft resistance. Touch packets yourself; Swift never fetches.', 3);
     if (engine.wisp.phase === 'cooldown') return hint('rest', 'Carrier resting',
       'Its dots show recovery. Touch packets yourself while it rests.', 3);
     if (!state.carrierDeliveries) return hint('carrier', 'A companion lends a hand',
@@ -155,14 +162,15 @@ export function getTutorialHint(engine) {
   }
   const gust = engine.gustState(), ability = getCompanionAbility(engine.companionRole || engine.options?.companionRole);
   const lesson = {
+    collector: 'Collector rescues packets only after you pass them. Touch packets yourself first for immediate Glow.',
     swift: 'Tap BOOST for speed and draft resistance. Rock still ends the attempt.',
     anchor: 'Tap LEVEL to steady your height. LIFT ends it immediately; drafts still nudge you.',
-    gravity: 'GRAVITY works automatically. Fly near light packets, then touch them or let the carrier deliver.'
+    gravity: 'GRAVITY works automatically. Fly near light packets, then touch them yourself. Gravity does not fetch.'
   }[ability.id];
   const dark = engine.layout.embers.find(packet => packet.tutorialDark);
   const darkX = dark ? dark.x - engine.distance : Infinity;
   if (dark && !dark.collected && darkX > engine.player.x - 18 && darkX < engine.width - 18)
-    return hint('dark-packet', 'Avoid the dark packet', 'Black packets dim your light. Pass below this one; the carrier ignores it.', 4);
+    return hint('dark-packet', 'Avoid the dark packet', 'Black packets dim your light. Pass below this one; companions never collect them.', 4);
   if (state.darkCollected && !state.darkCleared) return hint('dark-recovery', 'Restore your light',
     'Touch a light packet to clear one dark effect. It also refills Glow.', 4);
   if (gust.warning || gust.active) return hint('wind', gust.warning ? 'Choose a way past' : 'Inside the draft puff',
@@ -170,13 +178,16 @@ export function getTutorialHint(engine) {
       ? 'The curls mark its boundary. Fly around them, or BOOST through with room.'
       : ability.id === 'anchor'
         ? 'Fly around the curls. LEVEL steadies height, but the puff can still nudge you.'
-        : 'Fly above or below the curls. GRAVITY pulls packets, not your body.', 3);
-  if (ability.passive && engine.time < 4.5) return hint('passive-gravity', 'Gravity is always on', lesson, 2);
+        : ability.id === 'gravity' ? 'Fly above or below the curls. GRAVITY pulls packets, not your body.'
+          : 'Fly above or below the curls. Collector fetches packets; it does not resist wind.', 3);
+  if (ability.passive && engine.time < 4.5) return hint(`passive-${ability.id}`,
+    ability.collects ? 'Collector is automatic' : 'Gravity is always on', lesson, 2);
   if (!ability.passive && !state.toolObserved && engine.time < 6) return hint('ability', `Try ${ability.label}`, lesson, 2);
   if (!state.finishedWind) return hint('watch-wind', 'Watch for a local draft',
     'One small puff lies ahead. Only its visible curls can push you.', 3);
-  if (ability.passive) return hint('ready', 'Let Gravity help',
-    'Glide, collect light packets, and stay clear of rock on the way to the refuge.', 4);
+  if (ability.passive) return hint('ready', ability.collects ? 'Collect, then let it help' : 'Let Gravity help',
+    ability.collects ? 'Touch packets first. Collector rescues misses while you glide toward the refuge.'
+      : 'Glide and touch packets yourself. Gravity helps their position, never their delivery.', 4);
   const recharge = clamp(engine.cooldown, 0, 99);
   return hint('ready', recharge > .1 ? `${ability.label} recovering` : `${ability.label} ready`, recharge > .1
     ? 'Keep collecting while the button recovers. Aim for the refuge light.'
@@ -195,6 +206,7 @@ export function getTutorialWorldFocus(engine, seenIds = null) {
   const focus = (id, title, text, x, y, radius) => visible(x, y)
     ? { id, title, text, x, y, radius: Math.min(radius, x - 4, width - x - 4, y - 4, height - y - 4) } : null;
   const candidates = [];
+  const collects = getCompanionAbility(engine.companionRole || engine.options?.companionRole).collects;
   const packets = (engine.layout?.embers || []).filter(packet => !packet.collected && !packet.carried)
     .map(packet => ({ packet, x: packet.x - engine.distance }))
     .filter(({ packet, x }) => visible(x, packet.y) && x >= engine.player.x - 18);
@@ -204,7 +216,8 @@ export function getTutorialWorldFocus(engine, seenIds = null) {
   const light = packets.filter(({ packet }) => !packet.harmful && packet.kind !== 'dark')
     .sort((a, b) => Math.abs(a.x - engine.player.x) - Math.abs(b.x - engine.player.x))[0];
   if (light) candidates.push(focus('light-packet', 'Light packet = Glow fuel',
-    'Touch this bright packet to refill Glow. Your carrier only fetches packets you have already passed.', light.x, light.packet.y, 20));
+    collects ? 'Touch this bright packet to refill Glow. Collector only rescues packets you have already passed.'
+      : 'Touch this bright packet yourself to refill Glow. Your selected companion does not fetch.', light.x, light.packet.y, 20));
   for (const puff of engine.getDraftPuffs?.() || []) candidates.push(focus('draft', 'Local draft puff',
     'Only these curls push you. Fly above or below their boundary.',
     puff.x - engine.distance, puff.y, Math.min(puff.rx, puff.ry, 48)));

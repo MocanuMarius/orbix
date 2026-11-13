@@ -1,4 +1,5 @@
 import { LIGHT_PACKET_TUNING } from './vitality.mjs';
+import { getCompanionAbility } from './companion-abilities.mjs';
 
 const clamp = (value, lo, hi) => Math.min(hi, Math.max(lo, value));
 export const WISP_TUNING = Object.freeze({ range: 100, cooldown: 5.5, lightRadius: 175, outboundSpeed: 500, returnSpeed: 620 });
@@ -26,18 +27,24 @@ export class WispCompanion {
   }
 
   range(engine) {
+    if (!this.enabled(engine)) return 0;
     return WISP_TUNING.range * clamp(Number(engine.mod.attract) || 1, .5, 4) * (1 + engine.wispBoost * .6);
   }
 
+  enabled(engine) { return getCompanionAbility(engine.companionRole || engine.options?.companionRole).collects === true; }
+
   state(engine, y = engine.player.y, time = engine.time) {
+    const enabled = this.enabled(engine);
     const home = wispHome({ ...engine.player, y });
     const blend = time === engine.time ? 1 : clamp(engine.accumulator * 60, 0, 1);
     const recovery = this.phase === 'ready' ? 1 : this.phase === 'cooldown' ? 1 - this.cooldown / this.cooldownMax : 0;
     return { x: this.previousX + (this.x - this.previousX) * blend,
       y: this.previousY + (this.y - this.previousY) * blend,
-      homeX: home.x, homeY: home.y, radius: this.range(engine), recovery,
-      phase: this.phase, cooldown: this.cooldown, cooldownMax: this.cooldownMax,
-      carrying: Boolean(this.cargo), cargoValue: this.cargo?.value || 1 };
+      homeX: home.x, homeY: home.y, enabled, collects: enabled,
+      radius: enabled ? this.range(engine) : 0, recovery: enabled ? recovery : 0,
+      phase: enabled ? this.phase : 'orbiting', cooldown: enabled ? this.cooldown : 0,
+      cooldownMax: enabled ? this.cooldownMax : 0,
+      carrying: enabled && Boolean(this.cargo), cargoValue: enabled ? this.cargo?.value || 1 : 0 };
   }
 
   moveTo(x, y, speed, dt) {
@@ -62,6 +69,17 @@ export class WispCompanion {
     this.previousX = this.x; this.previousY = this.y; this.clock += dt;
     const home = wispHome(engine.player);
     const orbit = wispOrbit(engine.player, engine.reducedMotion ? 0 : engine.time);
+    if (!this.enabled(engine)) {
+      this.releaseTarget();
+      if (this.cargo) { this.cargo.carried = false; this.cargo.attracted = false; this.cargo = null; }
+      this.phase = 'orbiting'; this.cooldown = 0; this.cooldownMax = 0;
+      const follow = 1 - Math.exp(-dt * 16);
+      this.x += (orbit.x - this.x) * follow; this.y += (orbit.y - this.y) * follow;
+      this.vx = (this.x - this.previousX) / dt; this.vy = (this.y - this.previousY) / dt;
+      this.history.length = 0;
+      return;
+    }
+    if (this.phase === 'orbiting') { this.phase = 'ready'; this.cooldownMax = WISP_TUNING.cooldown; }
     if (this.phase === 'ready' || this.phase === 'cooldown') {
       const follow = 1 - Math.exp(-dt * 16);
       this.x += (orbit.x - this.x) * follow; this.y += (orbit.y - this.y) * follow;

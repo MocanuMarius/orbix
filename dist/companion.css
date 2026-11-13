@@ -1,7 +1,7 @@
-/* One neutral main light; only the small companion has a cosmetic tint. */
+/* One neutral main light; the companion's fixed role color identifies it. */
 body{--companion-glow:#f2d48e;--companion-shade:#9c713b}body[data-companion-role=swift]{--companion-glow:#f2d48e;--companion-shade:#9c713b}body[data-companion-role=anchor]{--companion-glow:#a7e8df;--companion-shade:#327e82}body[data-companion-role=gravity]{--companion-glow:#d3b1f2;--companion-shade:#75509f}.light-hero{position:absolute;left:0;right:0;top:26%;height:190px;z-index:0;pointer-events:none}.light-main-orb{position:absolute;left:calc(50% - 47px);top:47px;width:94px;height:94px;border-radius:50%;background:radial-gradient(circle at 38% 32%,#ffffed 0 9%,#edf0dc 19%,#c9d5c5 49%,#8ca69a 76%,#486b60 100%);box-shadow:inset -5px -5px 0 #5d807b55,inset 4px 3px 0 #fbffe32e,0 0 0 2px #d9e9d125,0 0 25px #dcebd249,0 0 66px #a8c8a62b;animation:neutral-light-float 4s ease-in-out infinite alternate}.light-main-orb:before{content:'';position:absolute;inset:-24px;border-radius:50%;background:radial-gradient(circle,#d7ebcd19,transparent 68%);z-index:-1}.light-main-orb:after{content:'';position:absolute;left:24px;top:19px;width:9px;height:5px;background:#fcfff2;box-shadow:5px -4px #fcfff29c,-6px 8px #fcfff247;opacity:.8}.light-companion-orbit{position:absolute;left:calc(50% - 86px);top:7px;width:172px;height:172px;border-radius:50%;animation:neutral-companion-orbit 11s linear infinite}.light-companion-orb{display:block;position:absolute;left:0;top:70px;width:29px;height:29px;border-radius:50%;background:radial-gradient(circle at 35% 29%,#fffdee 0 12%,var(--companion-glow) 37%,var(--companion-shade) 77%,#354e45 100%);box-shadow:0 0 0 1px #e6efd644,0 0 16px var(--companion-glow),0 0 35px #9bad951e;animation:neutral-companion-counter 11s linear infinite}.companion-pick{margin:0 0 14px}.companion-pick-label{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:0 1px 7px;font-size:9px;line-height:1.4;letter-spacing:1px;color:#a2b295}.companion-pick-label>small{font-size:7px;letter-spacing:.5px;color:#758c72}.companion-tints{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.companion-choice{--tint:#dbe3d4;display:flex;align-items:center;justify-content:center;gap:8px;min-width:0;min-height:47px;padding:8px 5px;background:#1c2b22;border:1px solid #50674a;box-shadow:inset 0 0 0 2px #14231a,2px 2px #0a150e;color:#91a48b;font-size:9px;line-height:1.3;touch-action:manipulation}.companion-choice.tint-amber{--tint:#e1c28b}.companion-choice.tint-lilac{--tint:#c7b8e0}.companion-choice>i{display:block;flex:none;width:13px;height:13px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#fffdec,var(--tint) 55%,#6b8a73);box-shadow:0 0 7px #ccdec633}.companion-choice.selected{border-color:var(--tint);color:var(--tint);background:#2a3b2b;box-shadow:inset 0 0 0 2px #15261c,2px 2px #09160e}.companion-choice.selected>i{box-shadow:0 0 10px var(--tint)}.companion-choice:active{transform:translateY(1px)}.wisp-hud>i{background:var(--companion-glow);box-shadow:0 0 5px var(--companion-glow)}@keyframes neutral-light-float{from{transform:translateY(-5px)}to{transform:translateY(7px)}}@keyframes neutral-companion-orbit{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}@keyframes neutral-companion-counter{from{transform:rotate(0deg)}to{transform:rotate(-360deg)}}@media(max-height:740px){.light-hero{top:23%;height:155px}.light-main-orb{top:38px;width:80px;height:80px;left:calc(50% - 40px)}.light-companion-orbit{width:152px;height:152px;left:calc(50% - 76px);top:2px}.light-companion-orb{width:25px;height:25px;top:63px}.companion-pick{margin-bottom:11px}.companion-pick-label{margin-bottom:6px}.companion-choice{min-height:44px}.companion-choice>i{width:11px;height:11px}.companion-tints{gap:7px}}@media(prefers-reduced-motion:reduce){.light-main-orb,.light-companion-orbit,.light-companion-orb{animation:none}.light-companion-orbit{transform:rotate(24deg)}}
 
-/* Role changes the active action; tint remains a small optional cosmetic choice. */
+/* Role choices share one orb silhouette and retain their own gameplay effect. */
 .companion-roles{display:grid;grid-template-columns:repeat(3,1fr);gap:7px}.companion-role{display:flex;align-items:center;justify-content:center;gap:7px;min-width:0;min-height:59px;padding:9px 5px;background:#1d2e23;border:1px solid #536d48;box-shadow:inset 0 0 0 2px #14271b,2px 2px #0a180f;color:#a8bb97;touch-action:manipulation}.companion-role .role-wisp{display:grid;place-items:center;flex:none;width:24px;height:24px;border-radius:50%;background:radial-gradient(circle at 35% 28%,#f5f4dc,#b8c9af 55%,#698d77);color:#344f3e;box-shadow:0 0 8px #bfcfac25}.role-wisp>svg{width:15px;height:15px;stroke-width:1.5}.companion-role>span{display:flex;flex-direction:column;text-align:left;gap:4px}.companion-role strong{font-size:10px;line-height:1.3;font-weight:600;letter-spacing:.2px}.companion-role small{font-size:8px;line-height:1.3;color:#809c73}.companion-role.selected{border-color:#c7cca1;color:#dce0b8;background:#30432b}.companion-role.selected small{color:#b2c397}.companion-role.selected .role-wisp{box-shadow:0 0 10px #d8e2b955}.companion-role:active{transform:translateY(1px)}.companion-tint-options{margin-top:7px;text-align:left}.companion-tint-options>summary{display:flex;align-items:center;justify-content:flex-end;gap:6px;min-height:28px;font-size:8px;line-height:1.4;letter-spacing:.3px;color:#8aa17b;list-style:none;cursor:pointer;touch-action:manipulation}.companion-tint-options>summary::-webkit-details-marker{display:none}.companion-tint-options>summary>i{display:block;width:7px;height:7px;border-radius:50%;background:var(--companion-glow);box-shadow:0 0 5px var(--companion-glow)}.companion-tint-options>summary>small{font-size:6px;color:#5f7c56;margin-left:5px}.companion-tint-options>summary:after{content:'+';font-size:11px;margin-left:4px}.companion-tint-options[open]>summary:after{content:'−'}.companion-tint-options>.companion-tints{margin:3px 0 9px}.companion-tint-options .companion-choice{min-height:40px;font-size:8px}.companion-tint-options .companion-choice>i{width:10px;height:10px}.companion-ability-preview{display:flex;align-items:center;gap:8px;padding:8px 9px;margin:8px 0 10px;background:#1d3023;border:1px solid #526e45;color:#b7c79d;text-align:left;min-height:48px}.companion-action-symbol{display:grid;place-items:center;flex:none;width:26px;height:26px;border:1px solid #7d9566;background:#314831;color:#cbd4aa}.companion-action-symbol>svg{width:18px;height:18px}.companion-ability-preview>div{flex:1;min-width:0}.companion-ability-preview strong{display:block;font-size:9px;font-weight:500;line-height:1.4;letter-spacing:.4px;color:#c6ceaa}.companion-ability-preview small{display:block;font-size:8px;font-weight:400;line-height:1.5;color:#819e72;margin-top:3px}.companion-ability-preview>b{font-size:11px;line-height:1.5;font-weight:500;text-align:right;white-space:nowrap}.companion-ability-preview>b>small{font-size:8px;margin-top:1px}.companion-ability-preview+.brief-tuning{margin-top:0}.companion-pick{margin-bottom:12px}@media(max-height:740px){.companion-role{min-height:53px;padding-top:7px;padding-bottom:7px;gap:6px}.companion-role .role-wisp{width:21px;height:21px}.role-wisp>svg{width:13px;height:13px}.companion-role strong{font-size:9px}.companion-role small{font-size:7px}.companion-tint-options{margin-top:5px}.companion-tint-options>summary{min-height:25px}.companion-ability-preview{padding-top:6px;padding-bottom:6px;margin-top:6px;margin-bottom:8px;min-height:44px}.companion-pick{margin-bottom:9px}}
 
 /* Actual companion silhouettes are shared with the flight sprites. */
@@ -18,3 +18,81 @@ body{--companion-glow:#f2d48e;--companion-shade:#9c713b}body[data-companion-role
 
 /* Gravity is a persistent companion effect rather than a second tap action. */
 .passive-companion-preview>b{font-size:9px;color:#d5b9ec;line-height:1.6}.passive-companion-preview>b>small{font-size:8px;letter-spacing:0}.companion-role[data-id=gravity] small{color:#b89bd4;letter-spacing:.4px}.companion-role[data-id=gravity].selected small{color:#d3b1f2}
+
+/* All four companions are simple circular lights; color is their only body difference. */
+body { --companion-glow: #b9dfa0; --companion-shade: #658557; }
+body[data-companion-role=collector] { --companion-glow: #b9dfa0; --companion-shade: #658557; }
+.companion-roles { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+.companion-role {
+  position: relative;
+  display: grid;
+  grid-template-columns: 32px minmax(0, 1fr);
+  align-items: center;
+  justify-content: stretch;
+  column-gap: 9px;
+  min-height: 69px;
+  padding: 10px 9px;
+  text-align: left;
+}
+.companion-role[data-id=collector] { --role-ink: #b9dfa0; --role-shade: #8db778; }
+.companion-role > .companion-portrait { display: grid; place-items: center; width: 30px; height: 30px; }
+.companion-role > span:not(.companion-portrait):not(.companion-lock) { min-width: 0; text-align: left; gap: 4px; }
+.companion-role strong,
+.companion-role[data-id=gravity] strong { color: var(--role-ink); font-size: 11px; line-height: 1.3; letter-spacing: 0; }
+.companion-role small { color: #92a88a; font-size: 9px; line-height: 1.4; letter-spacing: 0; overflow-wrap: anywhere; }
+.companion-role.selected small { color: var(--role-ink); }
+.companion-role.companion-locked {
+  min-height: 78px;
+  padding-top: 14px;
+  padding-bottom: 20px;
+  border-style: dashed;
+  border-color: #627059;
+  background: #1d2b23;
+}
+.companion-role.companion-locked .companion-portrait { opacity: .76; }
+.companion-role.companion-locked.selected { border-color: var(--role-ink); background: #29382a; }
+.companion-role > .companion-lock {
+  position: absolute;
+  right: 7px;
+  bottom: 4px;
+  display: inline-flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 4px;
+  color: #a6ad8d;
+  font: 700 8px/1.4 var(--sans, monospace);
+  letter-spacing: .3px;
+  white-space: nowrap;
+  pointer-events: none;
+}
+.companion-lock > svg { width: 11px; height: 12px; flex: none; }
+.companion-test-badge {
+  position: absolute;
+  left: 7px;
+  top: 4px;
+  padding: 1px 3px;
+  border: 1px solid #637458;
+  color: #a7b693;
+  background: #263728;
+  font: 700 7px/1.2 var(--sans, monospace);
+  letter-spacing: .3px;
+  pointer-events: none;
+}
+.companion-role.testing-unlock { cursor: pointer; }
+.companion-sheet .companion-role,
+.rest-companion-picker .companion-role { min-height: 76px; flex-direction: row; gap: 9px; padding-inline: 10px; }
+.companion-sheet .companion-role.companion-locked,
+.rest-companion-picker .companion-role.companion-locked { min-height: 83px; }
+.companion-sheet .companion-role .companion-portrait { width: 32px; height: 32px; }
+.companion-sheet .companion-role > span { text-align: left; }
+.passive-companion-preview:has(.companion-portrait) > b { color: var(--companion-glow); }
+@media (max-width: 350px) {
+  .companion-roles { gap: 7px; }
+  .companion-role { grid-template-columns: 27px minmax(0, 1fr); gap: 7px; padding-inline: 7px; }
+  .companion-role > .companion-portrait { width: 27px; height: 27px; }
+  .companion-role strong,
+  .companion-role[data-id=gravity] strong { font-size: 10px; }
+  .companion-role small { font-size: 8px; }
+  .companion-sheet .companion-role,
+  .rest-companion-picker .companion-role { padding-inline: 8px; gap: 7px; }
+}

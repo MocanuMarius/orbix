@@ -168,3 +168,10 @@ Afterglow is unavailable before the first boss defeat: no reserve balance, surpl
 ### Stronger localized drafts
 
 Draft pockets now apply base force 260/340/430 in ruins/canopy/storm (cap560), with a broader full-strength core and smooth edge feather. They warn for1.05s, act for1.45s, ramp over0.14s and fade over0.35s. Practice force is90. Existing placement, count, bypass space, one-shot behavior and Swift resistance remain. Directional rendering follows actual vertical force. This requested adjustment was implemented without checks, tests, simulations or a balance pass.
+
+
+### Collector-first companion roles
+
+Companions are the same plain round pixel light, with role colours: Collector green, Swift amber, Anchor cyan, Gravity violet. Collector is the default and the only companion that fetches missed packets and delivers cargo. Swift boosts, Anchor holds height and Gravity pulls packets; these roles require direct body pickup and never fetch.
+
+Future unlock thresholds are Ascension 2/3/4 for Swift/Anchor/Gravity. The current explicit testing override leaves those buttons selectable while their lock and ascension requirement remain visible. Collector reach/recovery indicators are hidden for other roles; Gravity displays pull information instead. Basic tutorial text follows the equipped role. No checks, tests, simulations or balance work were run for this batch.

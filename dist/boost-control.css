@@ -165,3 +165,6 @@
   #boost-btn.boost-control-v2 .boost-charge-fill { animation: none; opacity: 1; }
   #boost-btn.boost-control-v2::before { animation: none; opacity: .5; }
 }
+
+/* Collector is an automatic status badge; all companion art shares one round body. */
+.flight-dock #boost-btn.boost-control-v2[data-companion-role=collector]{--ability-ink:#dff4cf;--ability-edge:#8db778;--ability-glow:141,183,120;--ability-base:#314a2f}.flight-dock #boost-btn.flight-passive-indicator[data-companion-role=collector]{border-color:#779663;background:linear-gradient(#293c2c,#1f2f24);color:#b9dfa0}.flight-passive-indicator[data-companion-role=collector] .boost-name{color:#c9e8b7}.flight-passive-indicator[data-companion-role=collector] .boost-status{color:#a9c69a;letter-spacing:.3px}#boost-btn.boost-control-v2 .boost-symbol.ability-companion-art{stroke:none;fill:none;image-rendering:pixelated;shape-rendering:crispEdges}#boost-btn.boost-control-v2 .ability-companion-art rect{stroke:none}.flight-dock #boost-btn.flight-passive-indicator .boost-symbol.ability-companion-art{stroke:none;filter:none;opacity:1}.tuning-row[aria-disabled=true]{opacity:.45}

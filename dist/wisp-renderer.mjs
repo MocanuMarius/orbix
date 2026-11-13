@@ -548,18 +548,20 @@ export class WispFlightView {
 
   drawCarrier(e, t, distance, state, tint) {
     const c = this.bufferContext, s = this.scale;
+    const role = normalizeCompanionRole(e.companionRole || e.options?.companionRole);
+    const collects = role === 'collector' || state.enabled === true || state.collects === true;
     const x = Math.round(state.x * s), y = Math.round(state.y * s);
     const homeX = state.homeX * s, homeY = state.homeY * s;
-    const cooling = state.phase === 'cooldown';
+    const cooling = collects && state.phase === 'cooldown';
     const radius = state.radius * s, dots = Math.round(TAU * radius / 4);
     c.globalAlpha = (cooling ? .07 + state.recovery * .12 : state.phase === 'ready' ? .46 : .25) * (this.lightIntensity || 1);
-    for (let dot = 0; dot < dots; dot++) {
+    for (let dot = 0; collects && dot < dots; dot++) {
       const angle = dot / dots * TAU;
       c.fillStyle = tint.core;
       c.fillRect(Math.round(homeX + Math.cos(angle) * radius), Math.round(homeY + Math.sin(angle) * radius), 1, 1);
     }
     c.globalAlpha = 1;
-    this.drawCarrierSpirit(x, y, e.companionRole || e.options?.companionRole, tint,
+    this.drawCarrierSpirit(x, y, role, tint,
       (cooling ? .25 + state.recovery * .45 : 1) * (this.lightIntensity || 1));
     if (cooling) {
       for (let i = 0; i < 10; i++) {
@@ -568,7 +570,7 @@ export class WispFlightView {
         c.fillRect(Math.round(x + Math.cos(angle) * 9), Math.round(y + Math.sin(angle) * 9), 1, 1);
       }
     }
-    if (state.carrying) {
+    if (collects && state.carrying) {
       this.drawPacket(x + 8, y + 6, { tiny: true, dark: state.cargoKind === 'dark' });
     }
   }

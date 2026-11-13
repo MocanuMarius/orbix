@@ -284,3 +284,15 @@ The current build already caches terrain artwork. Its current dynamic lighting u
 - Broaden the strong core using a smooth radial feather. Force is still exactly zero outside the visible ellipse. Keep placement, spacing, count, bypass room, one-shot activation and 72% Swift resistance.
 - Make local curls and directional chevrons more legible. Positive direction means downward acceleration; all motion cues must match that physical direction. Keep effects inside each puff and respect reduced motion.
 - This is a requested strength change, not a balance pass. Publish without checks, tests or simulations.
+
+
+## Collector-first companion roles and temporary unlock override
+
+- All companions share a plain circular light body, distinguished only by colour. Remove bespoke crescent, bell and spiral silhouettes, fins, feet and faces. Main-player light remains neutral white.
+- Collector is the starting companion, coloured soft green. It alone searches for missed good light packets, fetches them, returns with cargo and recovers. Preserve direct player pickup priority and the existing fetch cooldown.
+- Swift (amber) provides Boost, Anchor (cyan) provides Level, and Gravity (violet) passively pulls nearby packets. They orbit but never automatically fetch or deliver; players still collect packets with the main body. Gravity's field does not create a free Collector.
+- Provisional progression: Collector at Ascension 1, Swift at 2, Anchor at 3, Gravity at 4. Display the actual lock and required ascension for future companions. During this prototype, a deliberate TEST override keeps every role selectable on Home and at rests, including locked choices.
+- Collector recovery and reach information appears only for Collector. Gravity shows field information; active roles show their ability status. Disable the unused Collector tuning axis on Swift/Anchor and return those points to the shared budget.
+- Collector cooldown cards affect collector recovery; Swift/Anchor cooldown cards affect their active tool. Gravity's existing recharge triggers briefly strengthen its pull instead of granting collecting behavior.
+- The tutorial and role previews teach the equipped role. Do not wait for, promise or show fetch behavior when Collector is not equipped.
+- Publish without checks, tests, reviews, simulations or balance work. Unlock thresholds and role effects remain available for later tuning.

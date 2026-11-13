@@ -22,14 +22,18 @@ export function tutorialSteps(screen, context = {}) {
   const ability = getCompanionAbility(role);
   const passive = context.passive ?? ability.passive === true;
   const rest = context.rest === true;
+  const collects = ability.collects === true;
   const practice = run.isTutorial === true || Boolean(context.lesson);
   const unlocked = !practice && (context.afterglowUnlocked ?? run.afterglowUnlocked ?? context.profile?.afterglowUnlocked) === true;
   const stored = unlocked && context.hasStoredGlow === true;
-  const abilityText = passive
-    ? 'Gravity is always on. It nudges nearby good light packets closer; you or your collector still need to collect them.'
-    : role === 'anchor'
-      ? 'LEVEL holds your height briefly. Lift cancels it, and local drafts can still nudge you.'
-      : 'BOOST surges forward and resists local drafts. Solid scenery and screen edges still end the attempt.';
+  const abilityText = collects
+    ? 'Collector automatically fetches missed good packets, returns and recovers. It is the only companion that fetches.'
+    : role === 'gravity'
+      ? 'Gravity always pulls nearby good packets closer. You still collect them manually; Gravity never fetches.'
+      : role === 'anchor'
+        ? 'LEVEL holds your height briefly. Lift cancels it; Anchor never fetches packets.'
+        : 'BOOST surges forward and resists drafts. Swift never fetches; touch packets yourself.';
+
 
   switch (screen) {
     case 'map':
@@ -69,7 +73,7 @@ export function tutorialSteps(screen, context = {}) {
         step('flight-body', 'Guide the large white light', 'Your body must avoid solid scenery and screen edges. Touch good light packets to refill Glow.', '#flight-canvas'),
         step('flight-glow', 'Glow pays for Lift', 'Each Lift spends fuel from this bar. Gliding costs no Glow.', '#flame-meter'),
         step('flight-lift', 'Lift, then glide', 'Tap Lift to rise, then let the light fall gently. Choose your taps instead of tapping constantly.', '#flap-btn'),
-        step('flight-collector', 'Your smaller companion', 'It fetches missed good packets inside its reach circle. FETCH, RETURN and the recovery timer show what it is doing.', '#wisp-hud'),
+        collects ? step('flight-collector', 'Your automatic Collector', 'Only Collector fetches missed good packets inside its circle. FETCH, RETURN and seconds show its trip and recovery.', '#wisp-hud') : step(`flight-manual-${role}`, 'Manual pickups with this guide', 'This companion does not fetch packets. Fly through good packets yourself to refill Glow.', '#flight-canvas'),
         step(`flight-tool-${role}`, passive ? 'Always on, no tap needed' : `Your right-side ${ability.label}`, abilityText, '#boost-btn'),
         step('flight-menu', 'Pause with MENU', 'MENU pauses the flight and lets you inspect your build. RESUME continues it; ending an attempt deliberately spends a life.', '.flight-menu-slot .game-menu-button', { actionLabel: 'Play' }),
       ];
@@ -94,7 +98,7 @@ export function tutorialSteps(screen, context = {}) {
         step('support-resources', 'Know what you are taking', unlocked ? 'Glow is Lift fuel; embers are saved upgrade currency. Stored Glow is fuel held for a later level.' : 'Glow is Lift fuel. Embers are saved currency for permanent upgrades.', '.support-vitals'),
         step('support-menu', 'Tune at rest through MENU', 'The gear badge shows unused tuning points. TUNE redistributes flight points; UPGRADES spends saved embers.', '.header-menu-slot .game-menu-button'),
       ];
-      if (rest) steps.push(step('support-companion', 'A rest can change your guide', 'Choose Boost, Level or passive Gravity before departing. Your cards and saved wallet stay with you.', '.rest-companion-picker'));
+      if (rest) steps.push(step('support-companion', 'A rest can change your guide', 'Choose Collector, Swift, Anchor or Gravity before departure. Only Collector fetches; the others require manual pickups.', '.rest-companion-picker'));
       return steps;
     }
 
@@ -115,18 +119,19 @@ export function tutorialSteps(screen, context = {}) {
         step('tuning-budget', 'One shared point budget', 'Divide these points across four stats. Each stat has three slots, so more in one leaves fewer for the others.', '#tuning-inspector .tuning-budget'),
         step('tuning-speed', 'Speed', 'Each point adds 3% travel speed. Faster travel reaches the waylight sooner and leaves less reaction time.', '#tuning-inspector [data-tuning-axis="speed"]', { allowTarget: rest }),
         step('tuning-lift', 'Lift height', 'Each point adds 6% lift height. Taps still cost Glow, so place them carefully.', '#tuning-inspector [data-tuning-axis="lift"]', { allowTarget: rest }),
-        step('tuning-collector', passive ? 'Gravity reach and pull' : 'Collector reach', passive ? 'Each point adds 12% field reach and 8% pull strength. The totals show your capped radius and full build effect.' : 'Each point adds 12% collector reach. The companion still needs time to fetch, return and recover.', '#tuning-inspector [data-tuning-axis="collector"]', { allowTarget: rest }),
-        step('tuning-ability', passive ? 'Recovery and pull' : 'Ability timing', passive ? 'Each point strengthens pull by 5% and shortens collector rest by 4%. Gravity stays always on.' : 'Each point adds 5% ability duration and shortens recharge by 4%. The totals include your powers and permanent ranks.', '#tuning-inspector [data-tuning-axis="boost"]', { allowTarget: rest }),
+        step('tuning-collector', role === 'gravity' ? 'Gravity reach and pull' : collects ? 'Collector reach' : 'This guide has no Collector', role === 'gravity' ? 'Each point adds 12% field reach and 8% pull strength. Collection is still manual.' : collects ? 'Each point adds 12% fetch reach. Collector still needs to return and recover.' : 'Swift and Anchor use manual pickups. This axis is disabled and its old points return to the shared budget.', '#tuning-inspector [data-tuning-axis="collector"]', { allowTarget: rest && (collects || role === 'gravity') }),
+        step('tuning-ability', collects ? 'Collector recovery and reach' : role === 'gravity' ? 'Gravity pull' : 'Ability timing', collects ? 'Each point adds 5% fetch reach and shortens Collector rest by 4%. Fetching stays automatic.' : role === 'gravity' ? 'Duration and recharge bonuses strengthen the passive field. Gravity never gains a fetching companion.' : 'Each point adds 5% ability duration and shortens recharge by 4%. The totals include your powers and permanent ranks.', '#tuning-inspector [data-tuning-axis="boost"]', { allowTarget: rest }),
         step('tuning-done', 'Keep this allocation', 'Plus adds a point and minus gives it back. Done keeps your choices; departure locks them for the level and its retries.', '#tuning-inspector .tuning-sheet-actions', { actionLabel: 'Done' }),
       ];
 
     case 'companion':
       return [
-        step('companion-rest', 'Choose your current guide', 'Rest choices change this ascent. Home choices set the companion for the next ascent.', '#companion-inspector .companion-roles'),
-        step('companion-swift', 'Swift: amber crescent', 'BOOST surges forward and resists local drafts. It does not protect against solid scenery.', '#companion-inspector [data-id="swift"]'),
-        step('companion-anchor', 'Anchor: teal bell', 'LEVEL holds your height briefly. Lift cancels it, and drafts still nudge you.', '#companion-inspector [data-id="anchor"]'),
-        step('companion-gravity', 'Gravity: violet spiral', 'Its packet-pulling field is always on. In flight, the PASSIVE badge has no tap action.', '#companion-inspector [data-id="gravity"]'),
-        step('companion-done', 'Your next flight locks the choice', 'After this guide, the three companions remain available at the rest stop. Choose the one that fits your route and build.', '#companion-inspector [data-action="close-power"]', { actionLabel: 'Done' }),
+        step('companion-rest', 'Choose a companion', 'All companions are colored light orbs. Only the starting Collector fetches missed good packets.', '#companion-inspector .companion-roles'),
+        step('companion-collector', 'Collector: soft green', 'Collector automatically fetches, returns and recovers. READY, FETCH, RETURN and recovery seconds describe its work.', '#companion-inspector [data-id="collector"]'),
+        step('companion-swift', 'Swift: amber', 'BOOST surges forward and resists drafts. Swift requires manual pickups.', '#companion-inspector [data-id="swift"]'),
+        step('companion-anchor', 'Anchor: teal', 'LEVEL holds height until it ends or you Lift. Anchor requires manual pickups.', '#companion-inspector [data-id="anchor"]'),
+        step('companion-gravity', 'Gravity: violet', 'Its stronger pull is always on. Gravity brings good packets closer, but you still collect them manually.', '#companion-inspector [data-id="gravity"]'),
+        step('companion-locks', 'Future unlocks, available to test', 'ASC 2, ASC 3 and ASC 4 show normal unlock tiers. TEST keeps those choices selectable now; choose after this introduction.', '#companion-inspector .companion-roles', { actionLabel: 'Done' }),
       ];
 
     case 'replace':
