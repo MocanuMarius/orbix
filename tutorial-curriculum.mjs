@@ -34,33 +34,33 @@ export const TUTORIAL_TOPICS={
   s('Protector','The blue companion builds a shield. A charged shell spends Sparks to deflect one collision, then rebuilds. An empty shell cannot save you.','companion:protector'),
   s('Runner','The amber companion activates with Power. Its short burst crosses ground quickly and resists drafts. Wait for the button to fill before using it again.','companion:swift'),
   s('Space Timer','The cyan companion levitates while you hold Lift or the scene. Release to fall and recharge. Drafts still push you.','companion:leveler'),
-  s('Build a team','Change companions at Rest. Bond upgrades add slots. Collector alone fetches; the others provide protection, speed or control. Practice lets you try all four.','tools')]},
- packed:{name:'Packed Light',visual:'packed',steps:[
-  s('Full meter → Packed Light','When a pickup overfills Sparks, the surplus becomes Packed Light. Clear the flight to keep those earnings.','packed'),
-  s('Spend or save','The box of light is your upgrade currency. Spend it on run skills. Rest healing does not create Packed Light.','packed'),
-  s('Condensation','The Condensation skill makes pickup surplus produce more Packed Light. It improves your run economy; it is not a second fuel bar.','skills')]},
+  s('Choose your companion','Equip one companion at a time. Change it at Rest. Collector fetches; Protector shields; Runner bursts; Space Timer levitates. Its own skill tree improves the role.','tools')]},
+ packed:{name:'Packed Sparks',visual:'packed',steps:[
+  s('Full meter → Packed Sparks','When a pickup overfills Sparks, the surplus becomes Packed Sparks. Clear the flight to keep those earnings.','packed'),
+  s('Spend or save','The box of light is your upgrade currency. Spend it on run skills. Rest healing does not create Packed Sparks.','packed'),
+  s('Condensation','The Condensation skill makes pickup surplus produce more Packed Sparks. It improves your run economy; it is not a second fuel bar.','skills')]},
  skills:{name:'Skill trees',visual:'skills',steps:[
-  s('Choose a branch','Skills belong to this run. Light improves Luminance; Motion changes flight; Sparks improves fuel. Companion trees improve your equipped team.','skills'),
-  s('Read the skill states','Blue check: owned. Gold plus: affordable now. Bronze price: save more Packed Light. Lock: learn its prerequisite first.','skill-states'),
+  s('Choose a branch','Skills belong to this run. Light improves Luminance; Motion changes flight; Sparks improves fuel. Your companion tree improves the one role you equipped.','skills'),
+  s('Read the skill states','Blue check: owned. Gold plus: affordable now. Bronze price: save more Packed Sparks. Lock: learn its prerequisite first.','skill-states'),
   s('Commit to your build','Some forks exclude the other path. Read the selected effect before learning. You can upgrade after a flight or at Rest; a new run resets these skills.','skills')]},
  rewards:{name:'Flight rewards',visual:'artifact',steps:[
-  s('Clear the passage','Reaching the waylight completes a flight. Some Sparks recover, and collected Packed Light is secured. A bonus challenge is optional.','route'),
-  s('Choose one reward','Take one artifact, or take the Sparks alternative. The other rewards are left behind. This is a build decision after every flight.','artifact'),
+  s('Clear the passage','Reaching the waylight completes a flight. Some Sparks recover, and collected Packed Sparks is secured. A bonus challenge is optional.','route'),
+  s('Keep or melt','Each flight offers one artifact. Keep it for its effect, or melt it into Packed Sparks to buy skills. Common melts for 25; Rare for 35. The final boss gives a permanent relic.','artifact'),
   s('Upgrade before moving on','The Skills button appears when you can afford an upgrade. Spend now or save for a stronger branch before choosing the next path.','skills')]},
  artifacts:{name:'Artifacts & forge',visual:'artifact',steps:[
-  s('Mount an artifact','Artifacts work automatically while mounted. If every slot is full, choose which artifact to replace; the replaced run artifact is lost.','artifact'),
+  s('Equip an artifact','Artifacts work automatically while equipped. If every slot is full, choose which artifact to replace; the replaced run artifact is lost.','artifact'),
   s('Rarity and uses','Grey is Common, green Rare, purple Legendary. Some effects last the run; consumables disappear when their uses run out. Read the effect and its trigger.','artifact-rarity'),
-  s('Stacks and recharge','Matching consumables share one slot, up to three copies. A fourth melts into Packed Light. Rest can recharge mounted consumables.','artifact'),
-  s('Keep OR Forge','At Rest, keep an artifact’s effect or forge it into Packed Light for skills. Forging destroys it and all remaining uses for one payout.','forge'),
+  s('Stacks and recharge','Matching consumables share one slot, up to three copies. A fourth melts into Packed Sparks. Rest can recharge mounted consumables.','artifact'),
+  s('Keep OR Forge','At Rest, keep an artifact’s effect or forge it into Packed Sparks for skills. Forging destroys it and all remaining uses for one payout.','forge'),
   s('Build a combination','A defining artifact can evolve later in a real run. Pair effects with your companion and skill choices; check trigger conditions and per-flight limits.','artifact')]},
  rest:{name:'Rest',visual:'rest',steps:[
-  s('Rest: choose one benefit','Grow & refill adds Spark capacity and fills it. Condense grants Packed Light. Rekindle restores missing hearts. Recharge restores mounted consumable uses.','rest'),
+  s('Rest: choose one benefit','Grow & refill adds Spark capacity and fills it. Condense grants Packed Sparks. Rekindle restores missing hearts. Recharge restores mounted consumable uses.','rest'),
   s('Then prepare','After your one benefit, Skills, Companions, Artifacts and Dream remain available. These tools do not take another Rest benefit.','tools'),
   s('Plan your next passage','Rest commits to one next flight. Read its terrain and prepare for it. After a failed attempt, the map shows whichever retry paths are reachable.','route')]},
  dream:{name:'Dream',visual:'dream',steps:[
   s('Dream: rehearse six seconds','At Rest, Dream lets you practice the next opening as often as you like. The closed eye means rehearsal. Nothing here spends a heart or earns real rewards.','dream'),
   s('Save a preset','When you like an opening, save it. The next flight replays those inputs without Lift or sustain cost. Changes to the build can invalidate a preset.','dream'),
-  s('Wake safely','Playback ends paused. Tap once to wake; tap again to Lift. After panels, the speed display rises from 0.1× to 1× over three seconds.','pause')]},
+  s('Wake safely','Playback ends paused. Tap once to wake; tap again to Lift. After the 3–2–1 countdown, speed rises from 0.1× to 1× over three seconds.','pause')]},
  routes:{name:'Paths & stops',visual:'route',steps:[
   s('Follow connected paths','Bright nodes are reachable. Dim nodes are not. Choosing a fork commits your route; you cannot jump to any stop on the map.','route'),
   s('Flight and elite routes','The arch marks Flight. Elite passages are harder and offer better rewards. Preview terrain, challenge and reward theme before committing.','site:flight'),
@@ -75,6 +75,6 @@ export const TUTORIAL_TOPICS={
  progression:{name:'Runs & Ascension',visual:'route',steps:[
   s('Three maps make a run','Sparks, hearts, skills and artifacts carry between flights and maps. Plan a build that can reach the final guardian.','route'),
   s('Ascension','Clear all three maps to unlock the next difficulty and new companions. Higher Ascensions make the journey harder and reduce starting artifact slots.','site:boss'),
-  s('Continue or New Game','Continue resumes your saved run. Exit to Menu keeps it. Abandon and New Game reset run skills and currency; permanent unlocks remain. Tutorial is separate.','pause')]},
+  s('Continue or New Game','Continue resumes your saved run. Exit to Menu keeps it. Abandon and New Game reset run skills and currency; permanent unlocks remain. Short lessons appear as you progress. Reset tutorial in Settings to replay them.','pause')]},
 };
 export const topicSteps=(id)=>TUTORIAL_TOPICS[id]?.steps.map(step=>({...step}))||[];

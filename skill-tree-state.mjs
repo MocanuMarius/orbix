@@ -1,4 +1,4 @@
-import {SKILLS,MAIN_WISP_BRANCHES,getSkillLockReason,getSkillPrice,canChooseStartingSkill} from './model.mjs?v=clear-paths-2';
+import {SKILLS,MAIN_WISP_BRANCHES,getSkillLockReason,getSkillPrice,canChooseStartingSkill} from './model.mjs?v=one-companion-1';
 
 const parents=skill=>Array.isArray(skill?.requires)?skill.requires:skill?.requires?[skill.requires]:[];
 const learned=(wallet,id)=>Number(wallet?.skills?.[id]||0);
@@ -56,6 +56,6 @@ export function skillTreeStatus(view){
  if(view.disclosure==='preview')return 'Locked · Learn the preceding skill to reveal';
  if(view.reason)return `Locked · ${view.reason}`;
  if(view.state==='locked')return `Locked · Learn after a flight or at rest${view.shortfall>0?` · Need ${view.shortfall} more PL`:''}`;
- if(view.shortfall>0)return `Need ${view.shortfall} more Packed Light`;
+ if(view.shortfall>0)return `Need ${view.shortfall} more Packed Sparks`;
  return 'Ready to learn';
 }

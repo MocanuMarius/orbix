@@ -1,4 +1,4 @@
-import {topicSteps} from './tutorial-curriculum.mjs?v=clear-paths-2';
+import {topicSteps} from './tutorial-curriculum.mjs?v=one-companion-1';
 const step=(id,title,text,target)=>({id,title,text,target,allowTarget:false});
 const chapter=(id,steps,target)=>({id,steps:steps.map(s=>({...s,...(target?{target}:{}),allowTarget:false}))});
 export function checkpointTutorialLesson(screen,{run={}}={}){
@@ -14,7 +14,7 @@ export function checkpointTutorialLesson(screen,{run={}}={}){
  }
  if(screen==='briefing')lesson=chapter('practice-briefing',[topicSteps('luminance')[0],{title:'Find the waylight',text:'Solid edges are hazards. Faint background shapes are scenery. Fly carefully to the waylight near the last terrain to finish.',visual:'route'}]);
  if(screen==='map-key')lesson=chapter('practice-symbols',topicSteps('routes'));
- if(screen==='victory')lesson=chapter('practice-reward',topicSteps('rewards'),'.reward-offers');
+ if(screen==='victory')lesson=chapter('practice-reward',topicSteps('rewards'),'.single-artifact');
  if(screen==='support'){
   if(run.current?.kind==='camp')lesson=chapter('practice-rest-choice',[topicSteps('rest')[0],topicSteps('hearts')[3]],'.rest-benefit-cards');
   else if(run.current?.kind==='treasure')lesson=chapter('practice-treasure',[{title:'Treasure',text:'Open the chest for an artifact choice, or release its Sparks. Choose fuel now or a lasting effect for later flights.',visual:'site:treasure'}],'.support-offers');
@@ -40,12 +40,12 @@ export function observedFlightLesson(snapshot={},seen={}){
   return null;
 }
 export function flightEffectLesson(id,screen='map'){
-  const target=screen==='victory'?'.victory-screen':screen==='map'?'#journey-map':null;
+  const target=screen==='victory'?'.artifact-reward-screen':screen==='map'?'#journey-map':null;
   if(id==='flight-effect:black-hole')return step(id,'That dark core steals Sparks',
     'A Black Hole drains fuel while you stay close. A wider path loses less light. It is not a pickup, and shields do not stop the drain. MENU → Field Guide keeps this reminder.',target);
   if(id==='flight-effect:edging')return step(id,'Your close flight made a pulse',
     'Flying near solid edges fills the slim edge meter in 2 seconds. Brief gaps preserve your progress, then charge fades slowly. Full charge reveals the scene for five fading seconds. Edge skills improve it; touching terrain still hurts.',target);
   if(id==='flight-effect:regeneration')return step(id,'Your close flight restored Sparks',
-    'Regenerative Falling turns a full edge meter into one Spark instead of a reveal. Its green meter resets for 2 seconds. You have eight recoveries each flight; its meter disappears when spent. Only missing fuel is restored, without Packed Light or pickup effects.',target);
+    'Regenerative Falling turns a full edge meter into one Spark instead of a reveal. Its green meter resets for 2 seconds. You have eight recoveries each flight; its meter disappears when spent. Only missing fuel is restored, without Packed Sparks or pickup effects.',target);
   return null;
 }

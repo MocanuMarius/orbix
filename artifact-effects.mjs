@@ -1,10 +1,10 @@
 // Shared triggers make artifacts combine with skills, pickups and every base
 // companion. Effects never manufacture another pickup or dispatch a fuel event.
-import {CONSUMABLE_ARTIFACTS,EVOLVING_ARTIFACTS} from './artifact-info.mjs?v=clear-paths-2';
+import {CONSUMABLE_ARTIFACTS,EVOLVING_ARTIFACTS} from './artifact-info.mjs?v=one-companion-1';
 const clamp=(value,min,max)=>Math.max(min,Math.min(max,value));
 export const ARTIFACT_ENGINE_RULES=Object.freeze({
   'wayward-seed':Object.freeze({name:'Wayward Seed',color:'#c6dc99',trigger:'Three consecutive body Spark pickups.',effect:'Restore up to 3.34 Sparks.',limits:'Five activations per flight. Collector deliveries break the chain. Evolves after Map 1.'}),
-  'hearth-bloom':Object.freeze({name:'Hearth Bloom',color:'#ecc98e',trigger:'Three consecutive body Spark pickups.',effect:'Restore up to 10 Sparks.',limits:'Five activations per flight. Collector deliveries break the chain. Bonus fuel cannot become Packed Light.'}),
+  'hearth-bloom':Object.freeze({name:'Hearth Bloom',color:'#ecc98e',trigger:'Three consecutive body Spark pickups.',effect:'Restore up to 10 Sparks.',limits:'Five activations per flight. Collector deliveries break the chain. Bonus fuel cannot become Packed Sparks.'}),
   'lantern-bloom':Object.freeze({name:'Lantern Bloom',color:'#b8cdeb',trigger:'Three consecutive body Spark pickups.',effect:'Reveal the scene for 1.5s.',limits:'Five activations per flight. Collector deliveries break the chain. Sunspool keeps its own cap.'}),
   'overflow-coil':Object.freeze({name:'Overflow Coil',color:'#87d9c4',
     trigger:'Natural fuel that overfills Sparks.',effect:'Overflow also restores companion recovery.',
@@ -20,7 +20,7 @@ export const ARTIFACT_ENGINE_RULES=Object.freeze({
     limits:'One stored Lift; 4s between grants; up to 4 grants per flight. Does not refill levitation.'}),
   'glow-wick':Object.freeze({name:'Spark Wick',color:'#edce8e',
     trigger:'Collect a natural Spark.',effect:'Restore up to 10 extra Sparks.',
-    limits:'3 uses per copy; up to 9 in one slot. Consumed when empty. Bonus fuel cannot become Packed Light.'}),
+    limits:'3 uses per copy; up to 9 in one slot. Consumed when empty. Bonus fuel cannot become Packed Sparks.'}),
   'flash-stone':Object.freeze({name:'Flash Stone',color:'#c8c5f2',
     trigger:'Collect a natural Spark.',effect:'Reveal the whole scene for 1.5s, then fade.',
     limits:'2 uses per copy; up to 6 in one slot. Consumed when empty. Extra light does not stack.'}),

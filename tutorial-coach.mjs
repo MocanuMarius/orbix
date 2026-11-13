@@ -1,4 +1,4 @@
-import {tutorialVisualMarkup} from './tutorial-visuals.mjs?v=clear-paths-2';
+import {tutorialVisualMarkup} from './tutorial-visuals.mjs?v=one-companion-1';
 let coachId = 0;
 const clamp = (value, low, high) => Math.max(low, Math.min(high, value));
 const focusable = 'button:not(:disabled),a[href],input:not(:disabled),select:not(:disabled),textarea:not(:disabled),[tabindex]:not([tabindex="-1"])';
@@ -67,7 +67,7 @@ export function createTutorialCoach({ onNext, onBack, onSkip } = {}) {
     const width = document.documentElement.clientWidth || window.innerWidth;
     const height = window.visualViewport?.height || window.innerHeight;
     const margin = Math.min(14, width * .04), gap = 13;
-    card.style.width = `${Math.min(330, width - margin * 2)}px`;
+    card.style.width = `${Math.min(600, width - margin * 2)}px`;
     card.style.maxHeight = `${Math.max(100, height - margin * 2)}px`;
     const rect = visibleTarget();
     const left = rect ? clamp(rect.left, 0, width) : 0;
@@ -183,8 +183,9 @@ export function createTutorialCoach({ onNext, onBack, onSkip } = {}) {
       text.textContent = String(step.text || '');
       const art=tutorialVisualMarkup(step);visual.innerHTML=art;visual.hidden=!art;
       progress.textContent = info.label;
+      root.dataset.single=String(!step.progress||/STEP 1 \/ 1$/.test(info.label));
       next.textContent = String(step.actionLabel || 'NEXT');
-      root.querySelector('[data-coach=skip]').textContent=step.skipLabel||'LATER';
+      root.querySelector('[data-coach=skip]').textContent=step.skipLabel||'Remember & skip';
       back.disabled = typeof onBack !== 'function' || info.first;
       root.dataset.step = String(step.id || '');
       root.hidden = false;

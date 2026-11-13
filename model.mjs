@@ -1,19 +1,20 @@
-import {CONDENSED_TUNING,getCondensationRules,condenseGlow} from './condensed-glow.mjs?v=clear-paths-2';
-import {CONSUMABLE_ARTIFACTS,EVOLVING_ARTIFACTS,getArtifactStackPreview,getRestRechargePreview} from './artifact-info.mjs?v=clear-paths-2';
-export {getCondensationRules} from './condensed-glow.mjs?v=clear-paths-2';
-import {ROUTE_RECIPES,ROUTE_TOPOLOGY_VERSION,REWARD_THEMES,nodeEconomy} from './route-recipes.mjs?v=clear-paths-2';
-import {COMPANION_ABILITIES,getCompanionUnlock} from './companion-abilities.mjs?v=clear-paths-2';
-import {MAIN_TUNING_SKILLS} from './main-tuning.mjs?v=clear-paths-2';
-import {STARTING_CONDENSED_GLOW,getGlowCapacity,getRestGlowBonus,REST_GLOW_TUNING,glowText} from './vitality.mjs?v=clear-paths-2';
-import {expandSkillSteps,skillProgress} from './skill-increments.mjs?v=clear-paths-2';
-import {MAX_ASCENSION} from './ascent.mjs?v=clear-paths-2';
-import {EXPANDED_SKILLS,applyExpandedSkills} from './skill-paths.mjs?v=clear-paths-2';
+import {cleanOnboarding} from './onboarding.mjs?v=one-companion-1';
+import {CONDENSED_TUNING,getCondensationRules,condenseGlow} from './condensed-glow.mjs?v=one-companion-1';
+import {CONSUMABLE_ARTIFACTS,EVOLVING_ARTIFACTS,getArtifactStackPreview,getRestRechargePreview} from './artifact-info.mjs?v=one-companion-1';
+export {getCondensationRules} from './condensed-glow.mjs?v=one-companion-1';
+import {ROUTE_RECIPES,ROUTE_TOPOLOGY_VERSION,REWARD_THEMES,nodeEconomy} from './route-recipes.mjs?v=one-companion-1';
+import {COMPANION_ABILITIES,getCompanionUnlock,normalizeCompanionFleet} from './companion-abilities.mjs?v=one-companion-1';
+import {MAIN_TUNING_SKILLS} from './main-tuning.mjs?v=one-companion-1';
+import {STARTING_CONDENSED_GLOW,getGlowCapacity,getRestGlowBonus,REST_GLOW_TUNING,glowText} from './vitality.mjs?v=one-companion-1';
+import {expandSkillSteps,skillProgress} from './skill-increments.mjs?v=one-companion-1';
+import {MAX_ASCENSION} from './ascent.mjs?v=one-companion-1';
+import {EXPANDED_SKILLS,applyExpandedSkills} from './skill-paths.mjs?v=one-companion-1';
 /** Run-owned skills and currency; persistent ascension unlocks and boss artifacts. */
-import { FLAME_TUNING, LIFE_TUNING, getLifeCapacity } from './vitality.mjs?v=clear-paths-2';
-import { getBiomeLevelIdentity } from './level-catalog.mjs?v=clear-paths-2';
-import { BIOMES } from './biomes.mjs?v=clear-paths-2';
-import { EVENT_SCENARIOS } from './map-guide.mjs?v=clear-paths-2';
-import {contextualEventChoices,resolvePilgrimVow,ROUTE_PREPARATION} from './contextual-events.mjs?v=clear-paths-2';
+import { FLAME_TUNING, LIFE_TUNING, getLifeCapacity } from './vitality.mjs?v=one-companion-1';
+import { getBiomeLevelIdentity } from './level-catalog.mjs?v=one-companion-1';
+import { BIOMES } from './biomes.mjs?v=one-companion-1';
+import { EVENT_SCENARIOS } from './map-guide.mjs?v=one-companion-1';
+import {contextualEventChoices,resolvePilgrimVow,ROUTE_PREPARATION} from './contextual-events.mjs?v=one-companion-1';
 export const SAVE_KEY='wispbound.save.condensed.v7';
 export const CAMPAIGN_MAP_NAMES=Object.freeze(['The Forgotten Verge','The Rootbound March','The Warden’s Reach']);
 export const TERRAINS=Object.freeze({ruins:{id:'ruins',name:'Sunken Ruins',color:'#cdb183',description:'Broken homes, worn arches and overgrown stone.'},canopy:{id:'canopy',name:'Luminous Canopy',color:'#94b48a',description:'Hollow trees, hanging roots and sheltered forest passages.'},storm:{id:'storm',name:'Stormglass Peaks',color:'#a8bbca',description:'Pine ridges, old mine timbers and local draft puffs.'}});
@@ -36,7 +37,6 @@ const skill=(id,name,branch,cost,maxRank,requires,description,prices)=>Object.fr
 export const SKILLS=Object.freeze(expandSkillSteps({
  ...EXPANDED_SKILLS,
  ...MAIN_TUNING_SKILLS,
- 'main-bond':skill('main-bond','Companion Bond','main',80,2,null,'Add a second companion after Map 1, then a third after Map 2. Spend Packed Light at a Rest.',[80,300]),
  'main-efficiency':skill('main-efficiency','Gentle Lift','main',40,3,null,'Lift spends 7% less Sparks per rank.'),
  'main-sight':skill('main-sight','Inner Light','main',40,3,null,'See farther ahead with each rank.'),
  'main-lift':skill('main-lift','Rising Light','main',110,2,'main-efficiency','Lift impulse is 4% stronger per rank.'),
@@ -69,7 +69,7 @@ export const SKILLS=Object.freeze(expandSkillSteps({
  'swift-mastery':skill('swift-mastery','Deep Spark','swift',75,1,'swift-attunement','Surge recharges 0.75 seconds sooner. Adds to your first Spark.'),
  'afterglow-vessel':skill('afterglow-vessel','Fine Facets','afterglow',36,2,'main-afterglow','Overflow conversion gains 5 percentage points per rank.'),
  'afterglow-retention':{...skill('afterglow-retention','Prismatic Yield','afterglow',40,2,'afterglow-vessel','Overflow conversion gains another 5 percentage points per rank.'),choiceGroup:'condensation-style',excludes:['afterglow-anchor']},
- 'afterglow-anchor':{...skill('afterglow-anchor','Kept Light','afterglow',30,2,'main-afterglow','Each 100 Packed Light kept adds 2.5 percentage points to overflow yield per rank, up to three tiers. No passive interest.'),choiceGroup:'condensation-style',excludes:['afterglow-retention']},
+ 'afterglow-anchor':{...skill('afterglow-anchor','Kept Light','afterglow',30,2,'main-afterglow','Each 100 Packed Sparks kept adds 2.5 percentage points to overflow yield per rank, up to three tiers. No passive interest.'),choiceGroup:'condensation-style',excludes:['afterglow-retention']},
 }));
 const ARTIFACT_TAGS={'glow-wick':['sustain'],'flash-stone':['dream','precision'],'sunheart-engine':['sustain','tempo'],'dream-sovereign':['dream','precision'],'hollow-covenant':['risk','precision'],dreamcatcher:['dream','tempo'],'second-dawn':['dream','precision'],'echo-vessel':['sustain'],'glass-lantern':['sustain','risk'],'night-gardener':['risk','precision'],'ember-lens':['dream'],'quiet-cinder':['sustain'],'silver-feather':['precision'],'moss-heart':['precision','sustain'],'wayfinder-seed':['sustain','tempo'],'iron-petal':['sustain','tempo'],'storm-knot':['tempo','risk'],'hollow-bell':['precision'],'dawn-thread':['dream'],'overflow-coil':['sustain','tempo'],'echo-bell':['precision','tempo'],'dawn-loom':['tempo','dream'],sunspool:['precision','dream']};
 const BOSS_ARTIFACTS=new Set(['sunheart-engine','dream-sovereign','hollow-covenant']);
@@ -77,18 +77,18 @@ const RARE_ARTIFACTS=new Set(['overflow-coil','echo-bell','dawn-loom','sunspool'
 const artifact=(id,name,description,icon,modifiers)=>Object.freeze({id,name,description,icon,color:'#cdb993',sellValue:BOSS_ARTIFACTS.has(id)?50:RARE_ARTIFACTS.has(id)?35:25,rarity:BOSS_ARTIFACTS.has(id)?'boss':RARE_ARTIFACTS.has(id)?'rare':'common',tags:Object.freeze(ARTIFACT_TAGS[id]||[]),modifiers});
 export const ARTIFACTS=Object.freeze({
  'wayward-seed':{...artifact('wayward-seed','Wayward Seed','Every third consecutive body Spark pickup restores 3.34 Sparks. Choose its lasting evolution after Map 1.','seed',{}),tags:Object.freeze(['precision','sustain'])},
- 'hearth-bloom':{...artifact('hearth-bloom','Hearth Bloom','Every third consecutive body Spark pickup restores 10 Sparks. Five activations per flight. Bonus fuel cannot become Packed Light.','fuel',{}),rarity:'rare',sellValue:35,tags:Object.freeze(['precision','sustain'])},
+ 'hearth-bloom':{...artifact('hearth-bloom','Hearth Bloom','Every third consecutive body Spark pickup restores 10 Sparks. Five activations per flight. Bonus fuel cannot become Packed Sparks.','fuel',{}),rarity:'rare',sellValue:35,tags:Object.freeze(['precision','sustain'])},
  'lantern-bloom':{...artifact('lantern-bloom','Lantern Bloom','Every third consecutive body Spark pickup reveals the scene for 1.5s. Five activations per flight.','radiance',{}),rarity:'rare',sellValue:35,tags:Object.freeze(['precision','dream'])},
- 'glow-wick':artifact('glow-wick','Spark Wick','Natural Spark pickups restore up to 10 extra Sparks. Each earned copy adds 3 uses, up to 9 in one slot. Consumed when empty. Bonus fuel cannot become Packed Light.','flame',{}),
+ 'glow-wick':artifact('glow-wick','Spark Wick','Natural Spark pickups restore up to 10 extra Sparks. Each earned copy adds 3 uses, up to 9 in one slot. Consumed when empty. Bonus fuel cannot become Packed Sparks.','flame',{}),
  'flash-stone':artifact('flash-stone','Flash Stone','Natural Spark pickups reveal the scene for 1.5s. Each earned copy adds 2 uses, up to 6 in one slot. Consumed when empty.','sun',{}),
- 'sunheart-engine':artifact('sunheart-engine','Sunheart Engine','Natural fuel gives 8 extra Sparks. Overflow fuel recharges companions and casts 2s of forward light. Recovery caps: 2s per pickup, 12s per flight.','sunheart',{cacheFuelBonus:8,overflowRecharge:.12,rechargeSight:2}),
+ 'sunheart-engine':artifact('sunheart-engine','Sunheart Engine','Natural fuel gives 8 extra Sparks. Overflow fuel recharges your companion and casts 2s of forward light. Recovery caps: 2s per pickup, 12s per flight.','sunheart',{cacheFuelBonus:8,overflowRecharge:.12,rechargeSight:2}),
  'dream-sovereign':artifact('dream-sovereign','Dream Sovereign','Dream pickups restore 2.5s of companion recovery. Your first waking fuel reveals the scene. Fuel gathered in extra light stores a free Lift, up to four per flight. Light radius +35.','dream-crown',{dreamRecharge:2.5,secondDawn:1,litLift:1,lightRadius:35}),
  'hollow-covenant':artifact('hollow-covenant','Hollow Covenant','Lift costs one less Spark (minimum one). Companion work primes a direct Spark pickup for +12 Sparks, up to five times per flight. Skim a Dark Spark for 6 Sparks, up to five seeds.','hollow-crown',{workFuel:12,nightGarden:6,flapCost:.90}),
- 'overflow-coil':artifact('overflow-coil','Overflow Coil','Fuel that cannot fit in Sparks recharges companions. Up to 2s per pickup and 12s per flight.','◎',{overflowRecharge:.08}),
+ 'overflow-coil':artifact('overflow-coil','Overflow Coil','Fuel that cannot fit in Sparks recharges your companion. Up to 2s per pickup and 12s per flight.','◎',{overflowRecharge:.08}),
  'echo-bell':artifact('echo-bell','Echo Bell','Companion work primes your next direct Spark pickup for +8 Sparks within 8s. One charge; up to five uses per flight.','♧',{workFuel:8}),
  'dawn-loom':artifact('dawn-loom','Dawn Loom','Pickup-granted companion recharge lights the route ahead for 1.5s. Recharges in 4s.','✺',{rechargeSight:1.5}),
  'sunspool':artifact('sunspool','Sunspool','Collect natural fuel in temporary extra light to store one free Lift. Recharges in 4s; up to four free Lifts per flight.','☼',{litLift:1}),
- 'dreamcatcher':artifact('dreamcatcher','Dreamcatcher','During preset playback, each natural Sparks pickup recharges companions by 1.5 seconds.','◌',{dreamRecharge:1.5}),
+ 'dreamcatcher':artifact('dreamcatcher','Dreamcatcher','During preset playback, each natural Sparks pickup recharges your companion by 1.5 seconds.','◌',{dreamRecharge:1.5}),
  'second-dawn':artifact('second-dawn','Second Dawn','Your first natural Sparks pickup after dream playback briefly reveals the whole scene.','☼',{secondDawn:1}),
  'echo-vessel':artifact('echo-vessel','Prism Vessel','Natural pickup overflow conversion gains 10 percentage points. The shared conversion cap still applies.','◉',{condensationBonus:.1}),
  'glass-lantern':artifact('glass-lantern','Glass Lantern',`Natural Sparks pickups restore ${40/3} extra Sparks, but Lift costs one extra Spark.`,'◇',{cacheFuelBonus:40/3,flapCost:1.12}),
@@ -121,7 +121,7 @@ const freshSeed=()=>globalThis.crypto?.getRandomValues?Array.from(globalThis.cry
 function rng(seed){let s=2166136261;for(const c of String(seed))s=Math.imul(s^c.charCodeAt(0),16777619);return()=>{s+=0x6d2b79f5;let n=s;n=Math.imul(n^n>>>15,n|1);n^=n+Math.imul(n^n>>>7,n|61);return((n^n>>>14)>>>0)/4294967296;};}
 const shuffle=(items,random)=>{const a=[...items];for(let i=a.length-1;i>0;i--){const j=Math.floor(random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;};
 
-export function newState(){return{version:7,profile:{difficulty:1,ownedArtifacts:[],equippedArtifacts:[],seenArtifactLessons:[],seenPickups:[],pickupCoachSkipped:false,tutorialComplete:false,bankedRuns:[],clearedFlights:0,stats:{completedRuns:0,wins:0,flights:0,attempts:0,deaths:0}},run:null,suspendedRun:null,settings:{sound:true,reducedMotion:false,testOverride:false,testStarterCompanion:'collector',startingCompanion:'collector',companions:['collector'],companionRole:'collector'}};}
+export function newState(){return{version:7,profile:{difficulty:1,onboarding:cleanOnboarding(),ownedArtifacts:[],equippedArtifacts:[],seenArtifactLessons:[],seenPickups:[],pickupCoachSkipped:false,tutorialComplete:false,bankedRuns:[],clearedFlights:0,stats:{completedRuns:0,wins:0,flights:0,attempts:0,deaths:0}},run:null,suspendedRun:null,settings:{sound:true,reducedMotion:false,testOverride:false,testStarterCompanion:'collector',startingCompanion:'collector',companions:['collector'],companionRole:'collector'}};}
 /** Starter preference is validated against earned unlocks, or explicit TEST. */
 export function getStartingCompanion(state){const id=state?.settings?.startingCompanion||state?.settings?.testStarterCompanion;return ROLES.includes(id)&&getCompanionUnlock(id,state?.profile?.difficulty,state?.settings?.testOverride===true).selectable?id:'collector';}
 export function setStartingCompanion(state,id){if(!state?.settings||!ROLES.includes(id)||!getCompanionUnlock(id,state.profile?.difficulty,state.settings.testOverride===true).selectable)return false;state.settings.startingCompanion=id;state.settings.testStarterCompanion=id;return true;}
@@ -138,7 +138,7 @@ export function setTestOverride(state,enabled){
   r.supportOffers=null;return changed||!wasTest;
 }
 export function grantTestCondensedGlow(state,amount=500){const r=state?.run;if(!r?.testMode||r.banked||r.phase==='ended'||r.attemptActive)return false;const grant=count(amount,5000);if(!grant)return false;if(r.isTutorial)r.practiceCondensedGlow=count(r.practiceCondensedGlow)+grant;else r.condensedGlow=count(r.condensedGlow)+grant;return true;}
-function cleanProfile(v={}){const p=newState().profile;p.difficulty=clamp(count(v.difficulty)||1,1,MAX_ASCENSION);p.ownedArtifacts=unique(v.ownedArtifacts,id=>Object.hasOwn(ARTIFACTS,id));p.equippedArtifacts=unique(v.equippedArtifacts,id=>p.ownedArtifacts.includes(id)).slice(0,6);p.seenArtifactLessons=unique(v.seenArtifactLessons,id=>Object.hasOwn(ARTIFACTS,id));p.seenPickups=unique(v.seenPickups,id=>typeof id==='string');p.pickupCoachSkipped=v.pickupCoachSkipped===true;p.tutorialComplete=v.tutorialComplete===true;p.bankedRuns=unique(v.bankedRuns,id=>typeof id==='string').slice(-128);p.clearedFlights=count(v.clearedFlights);for(const k of Object.keys(p.stats))p.stats[k]=count(v.stats?.[k]);return p;}
+function cleanProfile(v={}){const p=newState().profile;p.difficulty=clamp(count(v.difficulty)||1,1,MAX_ASCENSION);p.onboarding=cleanOnboarding(v.onboarding);p.ownedArtifacts=unique(v.ownedArtifacts,id=>Object.hasOwn(ARTIFACTS,id));p.equippedArtifacts=unique(v.equippedArtifacts,id=>p.ownedArtifacts.includes(id)).slice(0,6);p.seenArtifactLessons=unique(v.seenArtifactLessons,id=>Object.hasOwn(ARTIFACTS,id));p.seenPickups=unique(v.seenPickups,id=>typeof id==='string');p.pickupCoachSkipped=v.pickupCoachSkipped===true;p.tutorialComplete=v.tutorialComplete===true;p.bankedRuns=unique(v.bankedRuns,id=>typeof id==='string').slice(-128);p.clearedFlights=count(v.clearedFlights);for(const k of Object.keys(p.stats))p.stats[k]=count(v.stats?.[k]);return p;}
 function runWallet(run){return{skills:run?.skills||{},startingSkill:run?.startingSkill||null,mapIndex:run?.mapIndex||0,difficulty:run?.difficulty||1,isTutorial:run?.isTutorial===true,condensedGlow:run?.isTutorial?count(run.practiceCondensedGlow):count(run?.condensedGlow),condensationUnlocked:rank(run?.skills,'main-afterglow')>0,testMode:run?.testMode===true};}
 export function getSkillWallet(state){return state?.run?runWallet(state.run):{skills:{},condensedGlow:0,condensationUnlocked:false,testMode:false};}
 function cleanRunArtifacts(run){const seen=new Set();return Array.from({length:Math.min(getArtifactCapacity(run),run.artifacts?.length||0)},(_,i)=>{const id=run.artifacts[i];if(!Object.hasOwn(ARTIFACTS,id)||seen.has(id)||EVOLVING_ARTIFACTS.includes(id)&&seen.has('seed-family'))return null;seen.add(id);if(EVOLVING_ARTIFACTS.includes(id))seen.add('seed-family');return id;});}
@@ -167,9 +167,18 @@ function commitArtifactCharges(run,result){
  if(spent.length)run.artifacts=run.artifacts.map(id=>spent.includes(id)?null:id);
  return spent;
 }
+// Discard the retired multi-companion capacity purchase when loading saves or
+// restoring an attempt. Artifact capacity is an independent system.
+function cleanRunCompanion(run){
+ if(!run)return;
+ run.companions=normalizeCompanionFleet(run.companions,run.companionRole);
+ run.companionRole=run.companions[0];
+ if(run.skills)delete run.skills['main-bond'];
+ if(run.skillPaid)delete run.skillPaid['main-bond'];
+}
 function validRun(r){if(!r||typeof r.id!=='string'||typeof r.seed!=='string'||!PHASES.has(r.phase))return false;const rows=r.isTutorial?r.map?.length:7;if(r.isTutorial&&![3,7].includes(rows))return false;if(!Array.isArray(r.map)||r.map.length!==rows||!Number.isInteger(r.step)||r.step<0||r.step>rows)return false;if(r.step===rows&&!['map-clear','ended'].includes(r.phase))return false;const all=r.map.flat();if(r.map.some((row,i)=>!Array.isArray(row)||!row.length||row.length>3||row.some(n=>!n||n.row!==i||typeof n.id!=='string'||!TERRAINS[n.terrain]||!['flight','support','finale'].includes(n.type))))return false;if(new Set(all.map(n=>n.id)).size!==all.length)return false;for(const n of all)if(!Array.isArray(n.nextIds)||n.nextIds.length>3||n.row<rows-1&&!n.nextIds.length||n.nextIds.some(id=>!r.map[n.row+1]?.some(next=>next.id===id)))return false;return Array.isArray(r.path)&&Array.isArray(r.companions)&&Number.isFinite(r.lives)&&Number.isFinite(r.flame);}
-export function saveState(state,storage){try{storage??=globalThis.localStorage;if(!storage?.setItem||state?.version!==7)return false;storage.setItem(SAVE_KEY,JSON.stringify(state));return true;}catch{return false;}}
-export function loadState(storage){try{storage??=globalThis.localStorage;const parsed=JSON.parse(storage?.getItem?.(SAVE_KEY)||'null');if(parsed?.version!==7)return newState();const s=newState();s.profile=cleanProfile(parsed.profile);s.settings={sound:parsed.settings?.sound!==false,reducedMotion:parsed.settings?.reducedMotion===true,testOverride:parsed.settings?.testOverride===true,testStarterCompanion:ROLES.includes(parsed.settings?.testStarterCompanion)?parsed.settings.testStarterCompanion:'collector',startingCompanion:ROLES.includes(parsed.settings?.startingCompanion)?parsed.settings.startingCompanion:ROLES.includes(parsed.settings?.testStarterCompanion)?parsed.settings.testStarterCompanion:'collector',companions:unique(parsed.settings?.companions,id=>ROLES.includes(id)).slice(0,getCompanionCapacity(s.profile))};if(!s.settings.companions.length)s.settings.companions=['collector'];s.settings.companionRole=s.settings.companions[0];if(validRun(parsed.run)){s.run=parsed.run;s.run.restGlowCapacity=getRestGlowBonus(s.run);s.run.flame=clamp(s.run.flame,0,getGlowCapacity(s.run));s.run.artifacts=cleanRunArtifacts(s.run);cleanArtifactCharges(s.run);s.run.companions=s.run.companions.filter(id=>ROLES.includes(id));if(!s.run.companions.length)s.run.companions=['collector'];s.run.companionRole=s.run.companions[0];s.run.unlockedCompanionDifficulty=s.profile.difficulty;if(s.run.attemptActive)interrupt(s.run);settleCheckpoint(s);if(s.run.phase==='ended')bankRun(s);}if(s.run?.isTutorial&&validRun(parsed.suspendedRun)&&!parsed.suspendedRun.isTutorial&&parsed.suspendedRun.phase!=='ended'&&parsed.suspendedRun.id!==s.run.id){s.suspendedRun=parsed.suspendedRun;s.suspendedRun.restGlowCapacity=getRestGlowBonus(s.suspendedRun);s.suspendedRun.flame=clamp(s.suspendedRun.flame,0,getGlowCapacity(s.suspendedRun));cleanArtifactCharges(s.suspendedRun);if(s.suspendedRun.attemptActive)interrupt(s.suspendedRun);}saveState(s,storage);return s;}catch{return newState();}}
+export function saveState(state,storage){try{storage??=globalThis.localStorage;if(!storage?.setItem||state?.version!==7)return false;cleanRunCompanion(state.run);cleanRunCompanion(state.suspendedRun);state.settings.companions=normalizeCompanionFleet(state.settings.companions,state.settings.companionRole);state.settings.companionRole=state.settings.companions[0];storage.setItem(SAVE_KEY,JSON.stringify(state));return true;}catch{return false;}}
+export function loadState(storage){try{storage??=globalThis.localStorage;const parsed=JSON.parse(storage?.getItem?.(SAVE_KEY)||'null');if(parsed?.version!==7)return newState();const s=newState();s.profile=cleanProfile(parsed.profile);s.settings={sound:parsed.settings?.sound!==false,reducedMotion:parsed.settings?.reducedMotion===true,testOverride:parsed.settings?.testOverride===true,testStarterCompanion:ROLES.includes(parsed.settings?.testStarterCompanion)?parsed.settings.testStarterCompanion:'collector',startingCompanion:ROLES.includes(parsed.settings?.startingCompanion)?parsed.settings.startingCompanion:ROLES.includes(parsed.settings?.testStarterCompanion)?parsed.settings.testStarterCompanion:'collector',companions:unique(parsed.settings?.companions,id=>ROLES.includes(id)).slice(0,getCompanionCapacity(s.profile))};if(!s.settings.companions.length)s.settings.companions=['collector'];s.settings.companionRole=s.settings.companions[0];if(validRun(parsed.run)){s.run=parsed.run;s.run.restGlowCapacity=getRestGlowBonus(s.run);s.run.flame=clamp(s.run.flame,0,getGlowCapacity(s.run));s.run.artifacts=cleanRunArtifacts(s.run);cleanArtifactCharges(s.run);cleanRunCompanion(s.run);s.run.unlockedCompanionDifficulty=s.profile.difficulty;if(s.run.attemptActive)interrupt(s.run);settleCheckpoint(s);if(s.run.phase==='ended')bankRun(s);}if(s.run?.isTutorial&&validRun(parsed.suspendedRun)&&!parsed.suspendedRun.isTutorial&&parsed.suspendedRun.phase!=='ended'&&parsed.suspendedRun.id!==s.run.id){s.suspendedRun=parsed.suspendedRun;cleanRunCompanion(s.suspendedRun);s.suspendedRun.restGlowCapacity=getRestGlowBonus(s.suspendedRun);s.suspendedRun.flame=clamp(s.suspendedRun.flame,0,getGlowCapacity(s.suspendedRun));cleanArtifactCharges(s.suspendedRun);if(s.suspendedRun.attemptActive)interrupt(s.suspendedRun);}saveState(s,storage);return s;}catch{return newState();}}
 
 function makeMap(seed,mapIndex,difficulty){
  const random=rng(`${seed}:routes:v2`),recipe=ROUTE_RECIPES[Math.floor(random()*ROUTE_RECIPES.length)],mirror=random()<.5,locationCounts={};
@@ -205,7 +214,7 @@ function makeMap(seed,mapIndex,difficulty){
    commitment:camp?'One known flight next · Dream its opening':treasure?'Build reward · no full recovery':support?'A choice changes your next flight':elite?'Hard flight · rare relic choice':'Follow the visible route to prepare your build',
    description:camp?'Recover or gather light, then prepare skills, companions and your next opening.':treasure?'Open a themed relic chest or release its light.':support?EVENT_SCENARIOS[eventIndex].detail:biome.description};
   const economy=nodeEconomy(n);n.challengeBonus=0;n.clearReward=0;n.glowReward=economy.salvageGlow;
-  n.rewardPreview=boss?'Permanent boss relic choice':camp?'Recover · Dream':support&&!treasure?'Boon or bargain':`${theme.label}${elite||finale?' · rare relic':''} / ${Math.round(economy.salvageGlow*.3)} Sparks`;
+  n.rewardPreview=boss?'Permanent boss relic':camp?'Recover · Dream':support&&!treasure?'Boon or bargain':`${theme.label}${elite||finale?' · rare relic':''} · keep or melt`;
   n.reward=n.rewardPreview;return[n];
  }));
  for(let row=0;row<6;row++)for(const n of rows[row]){
@@ -255,10 +264,14 @@ function reattempt(run){return run.phase==='briefing'&&run.current&&run.lastAtte
 export function canChangeCompanion(run){const starter=run?.mapIndex===0&&run?.step===0&&run?.phase==='map'&&!run.path?.length;return!!run&&(run.testMode===true||run.restReady===true||starter)&&!run.attemptActive&&!run.banked&&run.lives>0&&['support','map','briefing'].includes(run.phase)&&!reattempt(run);}
 export function getArtifactCapacity(source={}){const r=source?.run||source||{},base=r.isTutorial||finite(r.difficulty,1)<=1?3:finite(r.difficulty,1)<=3?2:1;return Math.min(6,base+['main-artifact-slot-1','main-artifact-slot-2','main-artifact-slot-3'].reduce((total,id)=>total+rank(r.skills,id),0));}
 export function getNextArtifactSlotSkill(source={}){const r=source?.run||source||{};if(getArtifactCapacity(r)>=6)return null;return ['main-artifact-slot-1','main-artifact-slot-2','main-artifact-slot-3'].find(id=>!rank(r.skills,id))||null;}
-export function getCompanionCapacity(source){const v=source?.run||source,s=v?.skills||v?.profile?.skills||{};return v?.testMode===true?3:Math.min(3,1+rank(s,'main-bond'));}
-export function setCompanions(run,ids){if(!canChangeCompanion(run)||!Array.isArray(ids)||!ids.length||ids.length>getCompanionCapacity(run)||new Set(ids).size!==ids.length||ids.some(id=>!ROLES.includes(id)||!getCompanionUnlock(id,run.unlockedCompanionDifficulty||run.difficulty,run.isTutorial===true||run.testMode===true).selectable))return false;if(ids.join('|')===run.companions.join('|'))return false;run.companions=[...ids];run.companionRole=ids[0];return true;}
-export function beginFlightAttempt(run){if(!run||run.phase!=='briefing'||run.attemptActive||run.banked||run.lives<=0||!run.current||run.current.type==='support')return false;run.restReady=false;run.attemptEntry={step:run.step,nodeId:run.current.id,flame:run.flame,restGlowCapacity:getRestGlowBonus(run),condensedGlow:run.condensedGlow,condensedRemainder:run.condensedRemainder,companions:[...run.companions],skills:{...run.skills},artifacts:[...run.artifacts],artifactCharges:{...(run.artifactCharges||{}),...getArtifactCharges(run)}};run.attemptActive=true;run.stats.attempts++;return true;}
-function restoreEntry(run){const e=run.attemptEntry;if(e&&e.step===run.step&&e.nodeId===run.current?.id){run.restGlowCapacity=getRestGlowBonus(e);run.flame=clamp(e.flame,0,getGlowCapacity({...run,skills:e.skills}));run.condensedGlow=e.condensedGlow;run.condensedRemainder=e.condensedRemainder;run.companions=[...e.companions];run.companionRole=run.companions[0];run.skills={...e.skills};run.artifacts=[...e.artifacts];run.artifactCharges={...(e.artifactCharges||getArtifactCharges(run))};}run.attemptActive=false;run.attemptEntry=null;run.restReady=false;}
+export function getCompanionCapacity(){return 1;}
+export function setCompanions(run,ids){
+ if(!canChangeCompanion(run)||!Array.isArray(ids)||ids.length!==1||!ROLES.includes(ids[0])||!getCompanionUnlock(ids[0],run.unlockedCompanionDifficulty||run.difficulty,run.isTutorial===true||run.testMode===true).selectable)return false;
+ if(ids[0]===run.companionRole&&run.companions?.length===1)return false;
+ run.companions=[ids[0]];run.companionRole=ids[0];return true;
+}
+export function beginFlightAttempt(run){if(!run||run.phase!=='briefing'||run.attemptActive||run.banked||run.lives<=0||!run.current||run.current.type==='support')return false;cleanRunCompanion(run);run.restReady=false;run.attemptEntry={step:run.step,nodeId:run.current.id,flame:run.flame,restGlowCapacity:getRestGlowBonus(run),condensedGlow:run.condensedGlow,condensedRemainder:run.condensedRemainder,companions:[...run.companions],skills:{...run.skills},artifacts:[...run.artifacts],artifactCharges:{...(run.artifactCharges||{}),...getArtifactCharges(run)}};run.attemptActive=true;run.stats.attempts++;return true;}
+function restoreEntry(run){const e=run.attemptEntry;if(e&&e.step===run.step&&e.nodeId===run.current?.id){run.restGlowCapacity=getRestGlowBonus(e);run.flame=clamp(e.flame,0,getGlowCapacity({...run,skills:e.skills}));run.condensedGlow=e.condensedGlow;run.condensedRemainder=e.condensedRemainder;run.companions=normalizeCompanionFleet(e.companions,run.companionRole);run.companionRole=run.companions[0];run.skills={...e.skills};delete run.skills['main-bond'];run.artifacts=[...e.artifacts];run.artifactCharges={...(e.artifactCharges||getArtifactCharges(run))};}run.attemptActive=false;run.attemptEntry=null;run.restReady=false;}
 function interrupt(run){restoreEntry(run);run.lastAttempt={success:false,interrupted:true,nodeId:run.current?.id,livesLost:0,livesRemaining:run.lives};run.phase='briefing';}
 export function retryFlight(run){if(!run||run.phase!=='retry'||run.lives<=0||!run.current)return false;run.phase='briefing';run.restReady=false;return true;}
 function queue(run,amount,kind,nodeId=run.current?.id){amount=count(amount);if(!amount||run.isTutorial)return;run.pendingCondensedGlow=count(run.pendingCondensedGlow)+amount;run.pendingRewards.push({amount,kind,nodeId});}
@@ -266,7 +279,7 @@ export function getRecoveryRules(run={}){const s=run.skills||{};return{rate:.5+.
 // Rewards must do useful work in the current build. TEST's mount catalogue
 // remains unrestricted so the user can deliberately inspect other combinations.
 export function artifactFitsRun(run,id){
- const roles=run?.companions||[],skills=run?.skills||{};
+ const roles=normalizeCompanionFleet(run?.companions,run?.companionRole),skills=run?.skills||{};
  const companion={'wayfinder-seed':'collector','iron-petal':'protector','storm-knot':'swift','hollow-bell':'leveler'}[id];
  if(companion)return roles.includes(companion);
  if(id==='moss-heart')return ['main-kindled-touch','main-kindled-rich','main-purifying-touch'].some(key=>rank(skills,key)>0);
@@ -283,26 +296,26 @@ function makeFlightReward(run,source='flight'){
  // Roll tier before considering build or theme. Generic synergy copy must not
  // silently turn almost every ordinary reward into a rare.
  const rareRoll=random()<rareChance,firstTier=node.boss?'boss':node.type==='finale'&&!run.isTutorial||node.elite||rareRoll?'rare':'common';
- const secondTier=node.boss?'boss':node.type==='finale'&&!run.isTutorial?'rare':'common';
+
  const pickTier=(tier,exclude,preferTheme=true)=>{
   const available=pool.filter(id=>id!==exclude&&ARTIFACTS[id].rarity===tier),themed=available.filter(id=>ARTIFACTS[id].tags.includes(theme));
   const relevant=themed.filter(id=>artifactSynergy(run,id)),choices=!preferTheme?available:relevant.length?relevant:themed.length?themed:available;
   return choices.length?choices[Math.floor(random()*choices.length)]:null;
  };
- const first=pickTier(firstTier),second=pickTier(secondTier,first,false),challengeRare=challengeBoost&&rareRoll;
+ const first=pickTier(firstTier)||pickTier('common')||pickTier('rare'),challengeRare=challengeBoost&&rareRoll;
  const defining=source==='flight'&&!run.isTutorial&&run.mapIndex===0&&run.stats.flights===1&&node.type!=='finale'&&!EVOLVING_ARTIFACTS.some(id=>held.has(id));
- const reward={nodeId:node.id,source,sourceName:source==='treasure'?node.name:node.type==='finale'?'Map relics':node.elite?'Elite rewards':'Flight rewards',offers:(defining?['wayward-seed',first]:[first,second]).filter(Boolean),defining,challengeBoost,challengeRare,rareChance:node.boss||node.elite||node.type==='finale'&&!run.isTutorial?1:rareChance,permanent:node.boss===true,collectionComplete:false,rewardTheme:theme,rewardThemeLabel:REWARD_THEMES[theme]?.label||theme,glowAlternative:nodeEconomy(node).salvageGlow,claimed:false};
+ const reward={nodeId:node.id,source,sourceName:source==='treasure'?node.name:node.type==='finale'?'Map relics':node.elite?'Elite rewards':'Flight rewards',offers:(defining?['wayward-seed']:[first]).filter(Boolean),defining,challengeBoost,challengeRare,rareChance:node.boss||node.elite||node.type==='finale'&&!run.isTutorial?1:rareChance,permanent:node.boss===true,collectionComplete:false,rewardTheme:theme,rewardThemeLabel:REWARD_THEMES[theme]?.label||theme,claimed:false};
  return source==='flight'&&!run.isTutorial&&run.mapIndex===0&&node.type==='finale'&&!node.boss&&held.has('wayward-seed')&&!run.seedEvolution
-  ?{...reward,evolution:true,defining:false,offers:['hearth-bloom','lantern-bloom'],sourceName:'Wayward Seed awakens',glowAlternative:null,followup:reward}:reward;
+  ?{...reward,evolution:true,defining:false,offers:['hearth-bloom','lantern-bloom'],sourceName:'Wayward Seed awakens',followup:reward}:reward;
 }
 export function artifactSynergy(run,id){
- const s=run?.skills||{},roles=run?.companions||[],held=new Set(run?.artifacts||[]);
+ const s=run?.skills||{},roles=normalizeCompanionFleet(run?.companions,run?.companionRole),held=new Set(run?.artifacts||[]);
  if(id==='wayward-seed')return 'After Map 1: choose more fuel or a light reveal.';
  if(id==='hearth-bloom')return 'Body pickup chains sustain flight. Collector deliveries break the chain.';
  if(id==='lantern-bloom')return held.has('sunspool')?'Body chain → reveal → free Lift (Sunspool cap 4).':'Body chain → reveal. Seek Sunspool for free Lift.';
  // Preview a deliberate trigger sequence before committing the reward slot.
  if(id==='overflow-coil')return held.has('dawn-loom')?'Combo: overflow → recovery → Dawn Loom light':'Plan: overfill while a companion recovers. Seek Dawn Loom.';
- if(id==='dawn-loom')return held.has('overflow-coil')||held.has('sunheart-engine')?'Combo: surplus recharges companions and lights the route':'Plan: recovery pickups → light. Seek Overflow Coil.';
+ if(id==='dawn-loom')return held.has('overflow-coil')||held.has('sunheart-engine')?'Combo: surplus recharges your companion and lights the route':'Plan: recovery pickups → light. Seek Overflow Coil.';
  if(id==='sunspool')return held.has('dawn-loom')||held.has('sunheart-engine')||rank(s,'main-dawnburst')||rank(s,'main-echo-sight')?'Combo: collect in temporary light → free Lift (max 4)':'Plan: collect during Edging Pulse. Seek Dawn Loom.';
  if(id==='echo-bell')return 'Plan: companion action → BODY Spark pickup within 8s (max 5).';
 
@@ -324,6 +337,16 @@ export function artifactSynergy(run,id){
  if(id==='night-gardener'&&rank(s,'main-drift-sense'))return 'Drift Sense helps skim Dark Sparks';
  return '';
 }
+// Fresh rewards share the same rarity payout as forging; never run through fuel
+// or overflow multipliers. Only one offered artifact can be kept or melted.
+export function getFlightRewardMeltValue(reward){
+ if(!reward||reward.permanent||reward.evolution)return 0;
+ return getArtifactSalvageValue(reward.offers?.[0]);
+}
+function grantArtifactMelt(run,amount){
+ if(run.isTutorial)run.practiceCondensedGlow=count(run.practiceCondensedGlow)+amount;
+ else{run.condensedGlow=count(run.condensedGlow)+amount;run.securedCondensedGlow=count(run.securedCondensedGlow)+amount;run.condensedEarned=count(run.condensedEarned)+amount;}
+}
 export function chooseFlightReward(state,id,slot=null){
  const r=state?.run;if(r?.bossDefeated)secureBoss(state);const reward=r?.flightReward;if(!reward||reward.claimed||r.attemptActive||r.banked)return false;
  if(reward.evolution){
@@ -333,18 +356,18 @@ export function chooseFlightReward(state,id,slot=null){
   r.seedEvolution={id,nodeId:reward.nodeId,mapIndex:r.mapIndex};
  }
  else if(reward.permanent){
-  if(id==='glow'||!reward.offers.includes(id)||!ARTIFACTS[id])return false;
+  if(id!==reward.offers[0]||!ARTIFACTS[id])return false;
   if(!r.testMode){if(state.profile.ownedArtifacts.includes(id))return false;state.profile.ownedArtifacts.push(id);}
   r.artifactDrop={id,test:r.testMode===true,permanent:!r.testMode,duplicate:false,convertedGlow:0,convertedCondensedGlow:0,message:r.testMode?'TEST preview; no permanent reward.':'Chosen relic added to your collection.'};
   r.lastFlight.artifactDrop=copy(r.artifactDrop);
  }
- else if(id==='glow'){if(!Number.isFinite(reward.glowAlternative))return false;grantGlowPickup(r,reward.glowAlternative,'relic-dissolve');}
+ else if(id==='melt'){const amount=getFlightRewardMeltValue(reward);if(!amount)return false;grantArtifactMelt(r,amount);reward.meltedId=reward.offers[0];reward.meltedAmount=amount;}
  else{
-  if(!reward.offers.includes(id))return false;
+  if(id!==reward.offers[0]||!ARTIFACTS[id])return false;
   const stack=getArtifactStackPreview(r,id);
   if(stack){
    if(!stack.added&&!stack.autoForge)return false;
-   if(stack.autoForge){r.condensedGlow=count(r.condensedGlow)+25;r.securedCondensedGlow=count(r.securedCondensedGlow)+25;r.condensedEarned=count(r.condensedEarned)+25;reward.autoForged=true;}
+   if(stack.autoForge){grantArtifactMelt(r,getArtifactSalvageValue(id));reward.autoForged=true;reward.meltedAmount=getArtifactSalvageValue(id);}
    (r.artifactCharges??={})[id]=stack.after;reward.stack=stack;
   }else{
    if(r.artifacts.includes(id))return false;
@@ -400,11 +423,11 @@ function secureBoss(state){
  const r=state.run,p=state.profile;if(!r?.bossDefeated||!r.success||r.bossProgressSecured||r.isTutorial)return;
  r.bossProgressSecured=true;if(!r.testMode)p.difficulty=Math.min(MAX_ASCENSION,Math.max(p.difficulty,r.difficulty+1));
  const reward=r.flightReward;if(!reward)return;
- reward.permanent=true;reward.test=r.testMode===true;reward.glowAlternative=null;reward.sourceName='Boss relic';
+ reward.permanent=true;reward.test=r.testMode===true;reward.sourceName='Boss relic';
  const random=rng(`${r.campaignSeed}:boss-choice:${r.difficulty}`),unowned=[...BOSS_ARTIFACTS].filter(id=>r.testMode||!p.ownedArtifacts.includes(id));
  const themed=unowned.filter(id=>ARTIFACTS[id].tags.includes(reward.rewardTheme)),pick=list=>list.length?list[Math.floor(random()*list.length)]:null;
- const first=pick(themed)||pick(unowned),remaining=unowned.filter(id=>id!==first),rare=remaining.filter(id=>ARTIFACTS[id].rarity==='rare');
- reward.offers=[first,pick(rare.length?rare:remaining)].filter(Boolean);
+ const first=pick(themed)||pick(unowned);
+ reward.offers=[first].filter(Boolean);
  if(!reward.offers.length){reward.collectionComplete=true;reward.claimed=true;reward.chosen=null;r.artifactDrop={id:null,collectionComplete:true,message:'Collection complete'};r.lastFlight.artifactDrop=copy(r.artifactDrop);}
 }
 export function settleCheckpoint(state){
@@ -442,34 +465,34 @@ export function bankRun(state){
 const choice=(id,title,description,effect)=>{if(effect.pickupGlow){const old=effect.pickupGlow,amount=Math.max(20,Math.round(old/20)*20);description=description.replace(`${old} Sparks`,`${amount} Sparks`);effect={...effect,pickupGlow:amount};}return {id,title,description,detail:description,effect};};
 function eventNextFlights(run){const n=run.current,lastElite=previousElite(run);return(n?.nextIds||[]).map(id=>nodes(run).find(node=>node.id===id)).filter(node=>node&&node.row===n.row+1&&node.type!=='support'&&!(lastElite&&node.elite));}
 function upgradeOffer(run,profile){
- const wallet=runWallet(run),branches=new Set(['main',...(run.companions||[run.companionRole]),...(wallet.condensationUnlocked?['afterglow']:[])]);
+ const wallet=runWallet(run),branches=new Set(['main',...normalizeCompanionFleet(run.companions,run.companionRole),...(wallet.condensationUnlocked?['afterglow']:[])]);
  const eligible=Object.keys(SKILLS).filter(id=>branches.has(SKILLS[id].branch)&&getSkillCost(wallet,id)!==null),id=eligible[Math.floor(rng(`${run.seed}:${run.current.id}:upgrade`)()*eligible.length)];
  if(!id)return choice('archive-light','Gather the light','Collect 30 Sparks; excess condenses.',{pickupGlow:30});
- const cost=Math.max(1,Math.round(getSkillCost(wallet,id)*.8));return choice('shrine-upgrade',`Learn ${SKILLS[id].name}`,`Spend ${cost} Packed Light for one rank this run.`,{upgrade:id,condensedCost:cost});
+ const cost=Math.max(1,Math.round(getSkillCost(wallet,id)*.8));return choice('shrine-upgrade',`Learn ${SKILLS[id].name}`,`Spend ${cost} Packed Sparks for one rank this run.`,{upgrade:id,condensedCost:cost});
 }
 function rawSupportChoices(run,profile=null){
  if(run?.phase!=='support')return[];const n=run.current;
- if(n.kind==='treasure')return[choice('chest-open','Open the reliquary','Choose an artifact to equip or replace.',{artifactReward:true}),choice('chest-salvage','Release the light',`Collect ${nodeEconomy(n).salvageGlow} Sparks; excess condenses.`,{pickupGlow:nodeEconomy(n).salvageGlow})];
+ if(n.kind==='treasure')return[choice('chest-open','Open the reliquary','Reveal one artifact to keep or melt for Packed Sparks.',{artifactReward:true}),choice('chest-salvage','Release the light',`Collect ${nodeEconomy(n).salvageGlow} Sparks; excess condenses.`,{pickupGlow:nodeEconomy(n).salvageGlow})];
  if(n.kind==='camp'){
   const capacity=getGlowCapacity(run),growth=Math.min(REST_GLOW_TUNING.capacityStep,REST_GLOW_TUNING.capacityLimit-getRestGlowBonus(run));
   return[...(growth>0||run.flame<capacity?[choice('rest-recover',growth?'Grow & refill':'Refill Sparks',growth?`Gain ${growth} maximum Sparks for this run, then refill. Up to 3 Rest blessings.`:'Refill your Sparks. Rest capacity is fully grown.',{glowCapacity:growth,flame:100,rest:'recover'})]:[]),
-   choice('rest-condense','Condense light',`Take ${REST_GLOW_TUNING.condenseReward*(1+Math.min(2,run.mapIndex||0))} Packed Light for skills. Sparks and hearts stay unchanged.`,{packedLight:REST_GLOW_TUNING.condenseReward*(1+Math.min(2,run.mapIndex||0)),rest:'condense'}),
+   choice('rest-condense','Condense light',`Take ${REST_GLOW_TUNING.condenseReward*(1+Math.min(2,run.mapIndex||0))} Packed Sparks for skills. Sparks and hearts stay unchanged.`,{packedLight:REST_GLOW_TUNING.condenseReward*(1+Math.min(2,run.mapIndex||0)),rest:'condense'}),
    ...(getRestRechargePreview(run).length?[choice('rest-recharge','Recharge artifacts','Restore one copy of uses to each mounted consumable, up to 3 copies. Unmounted and exhausted artifacts stay unchanged.',{rechargeArtifacts:true,rest:'recharge'})]:[]),
    ...(run.lives<getLifeCapacity(run)?[choice('rest-rekindle','Rekindle hearts','Refill every missing heart.',{lives:getLifeCapacity(run)-run.lives,rest:'rekindle'})]:[])];
  }
  if(n.kind==='shrine')return[choice('shrine-fuel','Gather shelter light','Collect 35 Sparks; excess condenses. This is not a full Rest.',{pickupGlow:35}),upgradeOffer(run,profile)];
  const contextual=contextualEventChoices(run,eventNextFlights(run));if(contextual)return contextual;
  switch(n.eventIndex){
- case 6:return[choice('dice-safe','Take the offering','Collect 30 Sparks; excess condenses.',{pickupGlow:30}),choice('dice-roll','Cast the Prism Dice','Spend 4 Packed Light. Equal chances: collect 20 Sparks, 60 Sparks or 100 Sparks; excess condenses.',{condensedCost:4,dice:true})];
+ case 6:return[choice('dice-safe','Take the offering','Collect 30 Sparks; excess condenses.',{pickupGlow:30}),choice('dice-roll','Cast the Prism Dice','Spend 4 Packed Sparks. Equal chances: collect 20 Sparks, 60 Sparks or 100 Sparks; excess condenses.',{condensedCost:4,dice:true})];
  case 7:return[choice('lantern-fuel','Pale lantern','Refill Sparks completely. Recovery does not condense.',{flame:100}),choice('lantern-skill','Golden lantern','Collect 55 Sparks; excess condenses.',{pickupGlow:55}),choice('lantern-relic','Sealed lantern','Spend 15% Sparks to choose an artifact.',{flame:-getGlowCapacity(run)*.15,artifactReward:true})];
  case 8:return[choice('bargain-burden','Carry a heavy light','Collect 80 Sparks; excess condenses. The first 12 paid Lifts next flight cost one extra Spark each.',{pickupGlow:80,burden:true}),choice('bargain-decline','Travel lightly','Collect 40 Sparks; excess condenses.',{pickupGlow:40})];
  case 9:return[choice('sanctuary-glow','Bathe in light','Recover 40% Sparks. Recovery does not condense.',{flame:getGlowCapacity(run)*.4}),...(run.lives<getLifeCapacity(run)?[choice('sanctuary-life','Rekindle an attempt','Restore one missing heart.',{lives:1})]:[]),choice('sanctuary-bless','Carry a blessing','Companion recovery is 20% faster for the next flight.',{blessing:true})];
  case 10:{const roots=MAIN_WISP_BRANCHES.filter(b=>rank(run.skills,b.root)>0);return[...roots.map(b=>choice('workshop-'+b.root,`Reshape ${b.name}`,'Refund this learned main-wisp branch at full paid cost. Your free starting gift stays.',{respec:b.root})),choice('workshop-keep','Keep your build','Collect 35 Sparks; excess condenses.',{pickupGlow:35})];}
  case 11:return[choice('shrine-attune',`Attune ${run.companionRole}`,'Companion recovery is 20% faster for the next flight.',{blessing:true}),upgradeOffer(run,profile),choice('shrine-offering','Accept the offering','Collect 40 Sparks; excess condenses.',{pickupGlow:40})];
- case 0:return[choice('spring','Kindle the spring','Spend 5 Packed Light to refill Sparks completely. Recovery does not condense.',{flame:100,condensedCost:5}),choice('spring-light','Follow the silver stream','Collect 30 Sparks; excess condenses.',{pickupGlow:30})];
+ case 0:return[choice('spring','Kindle the spring','Spend 5 Packed Sparks to refill Sparks completely. Recovery does not condense.',{flame:100,condensedCost:5}),choice('spring-light','Follow the silver stream','Collect 30 Sparks; excess condenses.',{pickupGlow:30})];
  case 1:return[run.flame>=15?choice('bargain','Trade Sparks','Spend 15 Sparks to choose an artifact.',{flame:-15,artifactReward:true}):choice('bargain-light','Keep the last light','Recover 18 Sparks.',{flame:18}),choice('bargain-safe','Gather scattered light','Collect 30 Sparks; excess condenses.',{pickupGlow:30})];
  case 3:return[upgradeOffer(run,profile),choice('shrine-keep','Keep your present build','Collect 40 Sparks; excess condenses.',{pickupGlow:40})];
- default:{const id=!run.testMode&&(run.artifacts?.find(Boolean)||profile?.ownedArtifacts?.[0]);return[id?choice('archive-sale',`Forge ${ARTIFACTS[id].name}`,`Consume this artifact for ${getArtifactSalvageValue(id)} Packed Light to spend on skills.`,{sell:id,salvagePackedLight:getArtifactSalvageValue(id)}):choice('archive-light','Read the old lantern','Collect 35 Sparks; excess condenses.',{pickupGlow:35}),choice('archive-keep','Keep your possessions','Collect 25 Sparks; excess condenses.',{pickupGlow:25})];}
+ default:{const id=!run.testMode&&(run.artifacts?.find(Boolean)||profile?.ownedArtifacts?.[0]);return[id?choice('archive-sale',`Forge ${ARTIFACTS[id].name}`,`Consume this artifact for ${getArtifactSalvageValue(id)} Packed Sparks to spend on skills.`,{sell:id,salvagePackedLight:getArtifactSalvageValue(id)}):choice('archive-light','Read the old lantern','Collect 35 Sparks; excess condenses.',{pickupGlow:35}),choice('archive-keep','Keep your possessions','Collect 25 Sparks; excess condenses.',{pickupGlow:25})];}
  }
 }
 function makeSupportChoices(run,profile=null){return rawSupportChoices(run,profile).map(c=>({...c,description:glowText(c.description,getGlowCapacity(run)),detail:glowText(c.detail,getGlowCapacity(run)),...(c.effect.pickupGlow?{glowPreview:previewGlowReward(run,c.effect.pickupGlow,{removeArtifact:c.effect.sell})}:{})}));}
@@ -487,26 +510,26 @@ export function resolveSupport(run,index,profile=null){
  if(e.sell)sellArtifact({run,profile},e.sell);
  if(e.artifactReward){run.flightReward=makeFlightReward(run,'treasure');run.victoryPending=true;}
  if(e.burden)run.nextFlightBurden=true;if(e.blessing)run.nextFlightBlessing=true;
- if(e.pilgrimVow){run.pilgrimVow=copy(e.pilgrimVow);run.lastEvent={title:'Vow accepted',message:`Clear your next attempt with ${e.pilgrimVow.target} body Spark pickups for ${e.pilgrimVow.reward} Packed Light. Dream pickups and Collector deliveries do not count. No extra penalty for missing it.`};}
+ if(e.pilgrimVow){run.pilgrimVow=copy(e.pilgrimVow);run.lastEvent={title:'Vow accepted',message:`Clear your next attempt with ${e.pilgrimVow.target} body Spark pickups for ${e.pilgrimVow.reward} Packed Sparks. Dream pickups and Collector deliveries do not count. No extra penalty for missing it.`};}
  if(e.routePreparation){
   const source=nodes(run).find(node=>node.id===run.current.id)||run.current;
   run.routePreparation={...e.routePreparation,originalNextIds:[...source.nextIds]};
   source.nextIds=[e.routePreparation.nodeId];run.current.nextIds=[...source.nextIds];
   run.lastEvent={title:'Passage marked',message:`${e.routePreparation.name}: ${e.routePreparation.kind==='wind'?'drafts are 30% gentler':'light reaches 35 farther'} for the first attempt. Falling spends the preparation and reopens the fork.`};
  }
- if(e.respec){const belongs=id=>{if(e.respec==='main-efficiency'&&SKILLS[id]?.branch==='afterglow')return true;let n=SKILLS[id];while(n){if(n.id===e.respec)return true;n=SKILLS[n.requires];}return false;};let refund=0;for(const id of Object.keys(run.skills)){if(!belongs(id)||id===run.startingSkill)continue;refund+=count(run.skillPaid?.[id]);delete run.skills[id];if(run.skillPaid)delete run.skillPaid[id];}if(run.isTutorial)run.practiceCondensedGlow+=refund;else queue(run,refund,'respec');run.maxLives=getLifeCapacity(run);run.lives=Math.min(run.lives,run.maxLives);run.flame=Math.min(run.flame,getGlowCapacity(run));run.lastEvent={title:'Build reshaped',message:`${refund} Packed Light returned`};}
+ if(e.respec){const belongs=id=>{if(e.respec==='main-efficiency'&&SKILLS[id]?.branch==='afterglow')return true;let n=SKILLS[id];while(n){if(n.id===e.respec)return true;n=SKILLS[n.requires];}return false;};let refund=0;for(const id of Object.keys(run.skills)){if(!belongs(id)||id===run.startingSkill)continue;refund+=count(run.skillPaid?.[id]);delete run.skills[id];if(run.skillPaid)delete run.skillPaid[id];}if(run.isTutorial)run.practiceCondensedGlow+=refund;else queue(run,refund,'respec');run.maxLives=getLifeCapacity(run);run.lives=Math.min(run.lives,run.maxLives);run.flame=Math.min(run.flame,getGlowCapacity(run));run.lastEvent={title:'Build reshaped',message:`${refund} Packed Sparks returned`};}
  if(e.rechargeArtifacts){run.artifactCharges??={};for(const item of getRestRechargePreview(run))run.artifactCharges[item.id]=item.after;}
  if(e.glowCapacity)run.restGlowCapacity=getRestGlowBonus({restGlowCapacity:getRestGlowBonus(run)+e.glowCapacity});
  if(e.packedLight){const amount=count(e.packedLight);if(run.isTutorial)run.practiceCondensedGlow=count(run.practiceCondensedGlow)+amount;else{run.condensedGlow=count(run.condensedGlow)+amount;run.securedCondensedGlow=count(run.securedCondensedGlow)+amount;run.condensedEarned=count(run.condensedEarned)+amount;run.lastCheckpointReward={amount,kind:'rest-condense',nodeId:run.current.id};}}
  run.flame=e.flame>=100?getGlowCapacity(run):clamp(run.flame+finite(e.flame),0,getGlowCapacity(run));
  if(e.pickupGlow&&!e.sell)grantGlowPickup(run,e.pickupGlow,'offering');
- if(e.dice){const face=1+Math.floor(rng(`${run.seed}:${run.current.id}:dice`)()*6),prize=face<=2?20:face<=4?60:100,reward=grantGlowPickup(run,prize,'dice');run.lastEvent={title:'Prism Dice',face,message:`Rolled ${face}: +${Math.round(prize*.3)} Sparks${reward.condensedGlow?`, ${reward.condensedGlow} packed light`:''}`};}
+ if(e.dice){const face=1+Math.floor(rng(`${run.seed}:${run.current.id}:dice`)()*6),prize=face<=2?20:face<=4?60:100,reward=grantGlowPickup(run,prize,'dice');run.lastEvent={title:'Prism Dice',face,message:`Rolled ${face}: +${Math.round(prize*.3)} Sparks${reward.condensedGlow?`, ${reward.condensedGlow} packed sparks`:''}`};}
  run.maxLives=getLifeCapacity(run);if(e.lives)run.lives=Math.min(run.maxLives,run.lives+e.lives);
  if(e.rest){run.lifeRestClaimed=e.rest==='rekindle';const key=`${run.mapIndex}:${run.current.id}`;if(!run.restVisits.some(v=>v.key===key))run.restVisits.push({key,mapIndex:run.mapIndex,row:run.step,nodeId:run.current.id,boon:e.rest});run.restReady=true;run.lastRest={nodeId:run.current.id,row:run.step,mapIndex:run.mapIndex,boon:e.rest};}
  run.stats.events++;nextStop(run);return true;
 }
 
-export function isSkillRevealed(profile,id){const s=SKILLS[id];if(!s)return false;if(profile?.testMode===true||rank(profile?.skills,id)>0)return true;if(s.branch==='afterglow'&&!rank(profile?.skills,'main-afterglow'))return false;if(id==='main-bond'&&(profile?.isTutorial||(profile?.mapIndex||0)<1+rank(profile?.skills,id)))return false;const requires=Array.isArray(s.requires)?s.requires:s.requires?[s.requires]:[];return requires.every(parent=>rank(profile?.skills,parent)>0);}
+export function isSkillRevealed(profile,id){const s=SKILLS[id];if(!s)return false;if(profile?.testMode===true||rank(profile?.skills,id)>0)return true;if(s.branch==='afterglow'&&!rank(profile?.skills,'main-afterglow'))return false;const requires=Array.isArray(s.requires)?s.requires:s.requires?[s.requires]:[];return requires.every(parent=>rank(profile?.skills,parent)>0);}
 export function getTrainingRankCount(wallet={}){return Math.max(0,Object.keys(wallet.skills||{}).reduce((n,id)=>n+rank(wallet.skills,id),0)-(rank(wallet.skills,wallet.startingSkill)>0?1:0));}
 export function getSkillPrice(wallet,id){
  const s=SKILLS[id];if(!s)return null;const r=rank(wallet?.skills,id);if(r>=s.maxRank)return null;
@@ -516,7 +539,7 @@ export function getSkillPrice(wallet,id){
 export function getSkillCost(wallet,id){return getSkillLockReason(wallet,id)?null:getSkillPrice(wallet,id);}
 export function isStartingPrep(r){return !!r&&!r.isTutorial&&r.mapIndex===0&&r.step===0&&r.phase==='map'&&!r.path.length&&!r.attemptActive;}
 export function canBuyCheckpointSkills(state){const r=state?.run;return!!r&&!r.attemptActive&&!r.banked&&r.lives>0&&(r.victoryPending===true||(r.testMode===true||r.restReady===true||isStartingPrep(r))&&canChangeCompanion(r));}
-export function getAvailableUpgrades(state){if(!canBuyCheckpointSkills(state))return[];const w=getSkillWallet(state),branches=new Set(['main',...state.run.companions,...(w.condensationUnlocked?['afterglow']:[])]);return Object.values(SKILLS).filter(s=>branches.has(s.branch)&&getSkillCost(w,s.id)!==null&&getSkillCost(w,s.id)<=w.condensedGlow).map(s=>s.id);}
+export function getAvailableUpgrades(state){if(!canBuyCheckpointSkills(state))return[];const w=getSkillWallet(state),branches=new Set(['main',...normalizeCompanionFleet(state.run.companions,state.run.companionRole),...(w.condensationUnlocked?['afterglow']:[])]);return Object.values(SKILLS).filter(s=>branches.has(s.branch)&&getSkillCost(w,s.id)!==null&&getSkillCost(w,s.id)<=w.condensedGlow).map(s=>s.id);}
 function forgetSkillBranch(skills,id,paid={}){
   delete skills[id];delete paid[id];
   for(const child of Object.values(SKILLS)){
@@ -543,7 +566,7 @@ export function sellArtifact(state,id){
  delete r.artifactCharges?.[id];r.lastCheckpointReward={amount:value,kind:'artifact-forge',artifactId:id};return true;
 }
 
-export function getRunModifiers(run={}){const rank=skillProgress,s=run.skills||{},m={condensationRules:getCondensationRules(s),condensationBonus:0,overflowRecharge:0,workFuel:0,rechargeSight:0,litLift:0,dreamRecharge:0,secondDawn:0,nightGarden:0,dreamDuration:rank(s,'main-dream')?(rank(s,'main-dream-deep')?10:rank(s,'main-dream-long')?8:6):0,dreamWake:rank(s,'main-dream-wake')?4:3,dreamSight:rank(s,'main-dream-sight')>0,glowSense:rank(s,'main-glow-sense')>0,driftSense:rank(s,'main-drift-sense-3')?3:rank(s,'main-drift-sense-2')?2:rank(s,'main-drift-sense')?1:0,pickupReveal:rank(s,'main-dawnburst')>0,edgingChargeRate:rank(s,'main-edging-attunement')?1.25:1,edgingDecayRate:rank(s,'main-edging-tension')?.5:1,edgingDuration:rank(s,'main-edging-lasting')?7:5,edgingRecovery:2,edgingRegen:rank(s,'main-edging-regeneration')>0,maxGlow:getGlowCapacity(run),richFuelBonus:8*rank(s,'main-cache-feast'),terminalFall:1+.08*rank(s,'main-deep-plummet'),speed:1+.08*rank(s,'main-speed')+.06*rank(s,'main-tailwind'),flap:1-.08*rank(s,'main-low-lift'),gravity:(1-.1*rank(s,'main-drift'))*(1+.12*rank(s,'main-plummet'))*(1+.06*rank(s,'main-deep-plummet')),flapCost:Math.max(.65,(1-.12*rank(s,'main-efficiency'))*(1-.10*rank(s,'main-lift'))*(1-.08*rank(s,'main-low-lift'))),lightRadius:145+35*rank(s,'main-sight')+45*rank(s,'main-horizon'),darkResistance:.4*rank(s,'main-dawn'),attract:1,wispCooldown:1,boostCooldown:1,boostDuration:1,reward:1,windSensitivity:1,cacheFuelBonus:4*rank(s,'main-kindling'),warmCore:false,steady:false,protectorCost:12*(1-.15*rank(s,'protector-cost')),protectorRecovery:14,protectorLayers:1+rank(s,'protector-layers'),levelerDuration:2.4+.5*rank(s,'leveler-duration'),levelerSteadiness:.2*rank(s,'leveler-steadiness'),levelerDive:rank(s,'leveler-dive')?1+.25*rank(s,'leveler-dive'):0,levelerRecovery:9,swiftDuration:1.25+.20*rank(s,'swift-duration'),swiftRecovery:7.5,swiftResistance:.72+.05*rank(s,'swift-resistance'),mainSeer:['main-echo-sight','main-echo-long','main-echo-range'].some(id=>rank(s,id)>0),seerRadius:230+50*rank(s,'main-echo-range'),seerDuration:2+rank(s,'main-echo-long'),seerRecovery:8,mainKindler:['main-kindled-touch','main-kindled-rich','main-purifying-touch'].some(id=>rank(s,id)>0),kindlerBonus:6+4*rank(s,'main-kindled-rich'),kindlerPurify:rank(s,'main-purifying-touch')>0};
+export function getRunModifiers(run={}){const rank=skillProgress,companion=normalizeCompanionFleet(run.companions,run.companionRole)[0],s=Object.fromEntries(Object.entries(run.skills||{}).filter(([id])=>!ROLES.some(role=>id.startsWith(role+'-'))||id.startsWith(companion+'-'))),m={condensationRules:getCondensationRules(s),condensationBonus:0,overflowRecharge:0,workFuel:0,rechargeSight:0,litLift:0,dreamRecharge:0,secondDawn:0,nightGarden:0,dreamDuration:rank(s,'main-dream')?(rank(s,'main-dream-deep')?10:rank(s,'main-dream-long')?8:6):0,dreamWake:rank(s,'main-dream-wake')?4:3,dreamSight:rank(s,'main-dream-sight')>0,glowSense:rank(s,'main-glow-sense')>0,driftSense:rank(s,'main-drift-sense-3')?3:rank(s,'main-drift-sense-2')?2:rank(s,'main-drift-sense')?1:0,pickupReveal:rank(s,'main-dawnburst')>0,edgingChargeRate:rank(s,'main-edging-attunement')?1.25:1,edgingDecayRate:rank(s,'main-edging-tension')?.5:1,edgingDuration:rank(s,'main-edging-lasting')?7:5,edgingRecovery:2,edgingRegen:rank(s,'main-edging-regeneration')>0,maxGlow:getGlowCapacity(run),richFuelBonus:8*rank(s,'main-cache-feast'),terminalFall:1+.08*rank(s,'main-deep-plummet'),speed:1+.08*rank(s,'main-speed')+.06*rank(s,'main-tailwind'),flap:1-.08*rank(s,'main-low-lift'),gravity:(1-.1*rank(s,'main-drift'))*(1+.12*rank(s,'main-plummet'))*(1+.06*rank(s,'main-deep-plummet')),flapCost:Math.max(.65,(1-.12*rank(s,'main-efficiency'))*(1-.10*rank(s,'main-lift'))*(1-.08*rank(s,'main-low-lift'))),lightRadius:145+35*rank(s,'main-sight')+45*rank(s,'main-horizon'),darkResistance:.4*rank(s,'main-dawn'),attract:1,wispCooldown:1,boostCooldown:1,boostDuration:1,reward:1,windSensitivity:1,cacheFuelBonus:4*rank(s,'main-kindling'),warmCore:false,steady:false,protectorCost:12*(1-.15*rank(s,'protector-cost')),protectorRecovery:14,protectorLayers:1+rank(s,'protector-layers'),levelerDuration:2.4+.5*rank(s,'leveler-duration'),levelerSteadiness:.2*rank(s,'leveler-steadiness'),levelerDive:rank(s,'leveler-dive')?1+.25*rank(s,'leveler-dive'):0,levelerRecovery:9,swiftDuration:1.25+.20*rank(s,'swift-duration'),swiftRecovery:7.5,swiftResistance:.72+.05*rank(s,'swift-resistance'),mainSeer:['main-echo-sight','main-echo-long','main-echo-range'].some(id=>rank(s,id)>0),seerRadius:230+50*rank(s,'main-echo-range'),seerDuration:2+rank(s,'main-echo-long'),seerRecovery:8,mainKindler:['main-kindled-touch','main-kindled-rich','main-purifying-touch'].some(id=>rank(s,id)>0),kindlerBonus:6+4*rank(s,'main-kindled-rich'),kindlerPurify:rank(s,'main-purifying-touch')>0};
   if(rank(s,'collector-reach')){m.attract*=1+.35*rank(s,'collector-reach');m.wispCooldown*=1+.20*rank(s,'collector-reach');}
   else if(rank(s,'collector-recovery')){m.attract*=1-.20*rank(s,'collector-recovery');m.wispCooldown*=1-.50*rank(s,'collector-recovery');}
   if(rank(s,'protector-recovery')){m.protectorRecovery*=1-.28*rank(s,'protector-recovery');m.protectorCost*=1+.25*rank(s,'protector-recovery');}
@@ -556,7 +579,7 @@ export function getRunModifiers(run={}){const rank=skillProgress,s=run.skills||{
   m.attract*=1+.12*spark('collector');m.protectorCost=Math.max(1,m.protectorCost-2*spark('protector'));
   m.levelerDuration+=.35*spark('leveler');m.swiftRecovery-=.75*spark('swift');
   m.collectorMinimum=0;m.collectorFuelBonus=0;m.protectorProtection=.4;m.purifyCooldown=10;m.purifyFuel=12;
-  applyExpandedSkills(m,s,run.companions||[run.companionRole||'collector']);
+  applyExpandedSkills(m,s,[companion]);
   m.burdenLifts=run.nextFlightBurden?12:0;if(run.nextFlightBlessing){m.wispCooldown*=.8;for(const key of ['protectorRecovery','levelerRecovery','swiftRecovery','seerRecovery'])m[key]*=.8;}
   if(run.routePreparation&&run.routePreparation.nodeId===run.current?.id){if(run.routePreparation.kind==='wind')m.windSensitivity*=ROUTE_PREPARATION.windMultiplier;else m.lightRadius+=ROUTE_PREPARATION.lightBonus;}
   const mounted=unique((run.artifacts||[]).slice(0,getArtifactCapacity(run)),x=>Object.hasOwn(ARTIFACTS,x));m.artifactIds=mounted;m.artifactCharges=getArtifactCharges(run);m.artifactEngineSources=Object.fromEntries(Object.entries({'overflow-coil':'overflowRecharge','echo-bell':'workFuel','dawn-loom':'rechargeSight',sunspool:'litLift'}).map(([engine,key])=>[engine,mounted.filter(id=>ARTIFACTS[id].modifiers[key]>0)]));
@@ -586,4 +609,4 @@ export function getSupportChoices(run,profile=null){if(run?.phase!=='support')re
 export function suspendRun(state){const r=state?.run;if(!r||r.phase==='ended'||r.banked)return false;if(r.attemptActive)interrupt(r);return true;}
 export function abandonRun(state){const r=state?.run;if(!r||r.phase==='ended'||r.banked)return false;if(r.attemptActive)interrupt(r);settleCheckpoint(state);r.phase='ended';r.success=false;r.restReady=false;r.victoryPending=false;return bankRun(state);}
 
-export function getSkillLockReason(wallet,id){const s=SKILLS[id];if(!s)return 'Unknown skill';if(rank(wallet?.skills,id)>=s.maxRank)return 'Fully learned';if(wallet?.testMode===true)return null;if(id==='main-bond'&&(wallet?.mapIndex||0)<1+rank(wallet?.skills,id))return `Clear Map ${1+rank(wallet?.skills,id)} to unlock this companion slot`;if(!isSkillRevealed(wallet,id))return s.branch==='afterglow'&&!rank(wallet?.skills,'main-afterglow')?'Learn Condensation in the Sparks tree':`Learn ${SKILLS[s.requires]?.name||'the prerequisite'} first`;const other=(s.excludes||[]).find(excluded=>rank(wallet?.skills,excluded)>0);if(other&&!rank(wallet?.skills,id))return `Other path chosen: ${SKILLS[other].name}`;return null;}
+export function getSkillLockReason(wallet,id){const s=SKILLS[id];if(!s)return 'Unknown skill';if(rank(wallet?.skills,id)>=s.maxRank)return 'Fully learned';if(wallet?.testMode===true)return null;if(!isSkillRevealed(wallet,id))return s.branch==='afterglow'&&!rank(wallet?.skills,'main-afterglow')?'Learn Condensation in the Sparks tree':`Learn ${SKILLS[s.requires]?.name||'the prerequisite'} first`;const other=(s.excludes||[]).find(excluded=>rank(wallet?.skills,excluded)>0);if(other&&!rank(wallet?.skills,id))return `Other path chosen: ${SKILLS[other].name}`;return null;}

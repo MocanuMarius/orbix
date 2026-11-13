@@ -1,4 +1,4 @@
-import { obstacleEdgeClearance } from './edging-pulse.mjs?v=clear-paths-2';
+import { obstacleEdgeClearance } from './edging-pulse.mjs?v=one-companion-1';
 
 // Rates are internal flight Sparks. The HUD displays 0.3 of these units: a
 // 40-unit pass costs about 10 Sparks/s, a 100-unit pass about 1.6 Sparks/s.

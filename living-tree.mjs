@@ -1,16 +1,16 @@
-import {resourceSymbol} from './game-symbols.mjs?v=clear-paths-2';
-import {getCompanionAbility} from './companion-abilities.mjs?v=clear-paths-2';
-import {glowText,getGlowCapacity} from './vitality.mjs?v=clear-paths-2';
-import {SKILLS} from './model.mjs?v=clear-paths-2';
-import {skillIcon} from './upgrade-icons.mjs?v=clear-paths-2';
-import {companionArtSvg} from './companion-art.mjs?v=clear-paths-2';
-import {skillTreeState,safeTreeSelection,skillTreeStatus} from './skill-tree-state.mjs?v=clear-paths-2';
+import {resourceSymbol} from './game-symbols.mjs?v=one-companion-1';
+import {getCompanionAbility} from './companion-abilities.mjs?v=one-companion-1';
+import {glowText,getGlowCapacity} from './vitality.mjs?v=one-companion-1';
+import {SKILLS} from './model.mjs?v=one-companion-1';
+import {skillIcon} from './upgrade-icons.mjs?v=one-companion-1';
+import {companionArtSvg} from './companion-art.mjs?v=one-companion-1';
+import {skillTreeState,safeTreeSelection,skillTreeStatus} from './skill-tree-state.mjs?v=one-companion-1';
 export const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const lockIcon='<svg class="bud-lock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><rect x="6" y="10" width="12" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3M12 14v3"/></svg>';
 const stateKey=`<div class="tree-state-key" aria-label="Skill states"><span class="learned"><i aria-hidden="true">✓</i> Owned</span><span class="available"><i aria-hidden="true">+</i> Can learn</span><span class="saving"><i aria-hidden="true"></i> Need light</span><span class="locked"><i aria-hidden="true">${lockIcon}</i> Locked</span></div>`;
 export function treeHeader(run,wallet,branch){
  const name=id=>id==='main'?'Wisp':id==='afterglow'?'Condensation':getCompanionAbility(id).name;
- return `<header class="tree-crown"><h2>${branch==='main'?'Main wisp':name(branch)}</h2><span aria-label="${Math.floor(wallet.condensedGlow||0)} Packed Light">${resourceSymbol('packed')} ${Math.floor(wallet.condensedGlow||0)}</span><button data-action="close-sheet" aria-label="Close skill tree">×</button></header><nav class="tree-tabs" aria-label="Skill trees">${['main',...run.companions,...(wallet.testMode||wallet.skills?.['main-afterglow']?['afterglow']:[])].map(id=>`<button data-action="tree-branch" data-id="${id}" class="${id===branch?'selected':''}">${id!=='main'&&id!=='afterglow'?companionArtSvg(id):''}<span>${name(id)}</span></button>`).join('')}</nav>${stateKey}`;
+ return `<header class="tree-crown"><h2>${branch==='main'?'Main wisp':name(branch)}</h2><span aria-label="${Math.floor(wallet.condensedGlow||0)} Packed Sparks">${resourceSymbol('packed')} ${Math.floor(wallet.condensedGlow||0)}</span><button data-action="close-sheet" aria-label="Close skill tree">×</button></header><nav class="tree-tabs" aria-label="Skill trees">${['main',...run.companions,...(wallet.testMode||wallet.skills?.['main-afterglow']?['afterglow']:[])].map(id=>`<button data-action="tree-branch" data-id="${id}" class="${id===branch?'selected':''}">${id!=='main'&&id!=='afterglow'?companionArtSvg(id):''}<span>${name(id)}</span></button>`).join('')}</nav>${stateKey}`;
 }
 // Three purchases remain separate skills; only their map marker is shared.
 export function radialTreeLayout(skills,{width=560,height=320,sizes=new Map()}={}){
@@ -73,7 +73,7 @@ export function treeCanvas({skills,wallet,selected,action,key,canBuy=true,run=wa
  const ownedRanks=g=>g.skills.reduce((n,rank)=>n+Number(wallet.skills?.[rank.id]||0),0);
  const groupById=new Map(groups.map(g=>[g.id,g])),radius=g=>{const view=views.get(chosen(g).id);return view.closedBy===chosen(g).id?11:view.disclosure==='hidden'?3:view.disclosure==='preview'?14:23;};
  const paths=groups.filter(g=>g.parent).map(g=>{const a=points.get(g.parent),b=points.get(g.id),view=views.get(chosen(g).id),dx=b.x-a.x,dy=b.y-a.y,d=Math.max(1,Math.hypot(dx,dy)),ux=dx/d,uy=dy/d,start=radius(groupById.get(g.parent)),end=radius(g);return `<path class="tree-path ${view.state} ${ownedRanks(g)>0?'has-owned':''}" d="M${a.x+ux*start} ${a.y+uy*start} Q${(a.x+b.x)/2-uy*7} ${(a.y+b.y)/2+ux*7} ${b.x-ux*end} ${b.y-uy*end}"/>`;}).join('');
- return `<div class="living-tree-scroll radial-tree-scroll" data-tree-key="${esc(key)}" tabindex="0" aria-label="Skill tree. Blue checks are owned. Gold plus signs can be learned. Bronze prices need more Packed Light. Locks preview nearby paths; faint dots reveal as you grow."><div class="living-tree radial-tree" style="--tree-ratio:${width}/${height};min-height:${height}px"><svg viewBox="0 0 ${width} ${height}" preserveAspectRatio="none" aria-hidden="true"><ellipse class="tree-orbit" cx="${width/2}" cy="${height/2}" rx="${width*.34}" ry="${height*.34}"/><g class="branch-shadow">${paths}</g><g class="branch-light">${paths}</g></svg>${groups.map(g=>{
+ return `<div class="living-tree-scroll radial-tree-scroll" data-tree-key="${esc(key)}" tabindex="0" aria-label="Skill tree. Blue checks are owned. Gold plus signs can be learned. Bronze prices need more Packed Sparks. Locks preview nearby paths; faint dots reveal as you grow."><div class="living-tree radial-tree" style="--tree-ratio:${width}/${height};min-height:${height}px"><svg viewBox="0 0 ${width} ${height}" preserveAspectRatio="none" aria-hidden="true"><ellipse class="tree-orbit" cx="${width/2}" cy="${height/2}" rx="${width*.34}" ry="${height*.34}"/><g class="branch-shadow">${paths}</g><g class="branch-light">${paths}</g></svg>${groups.map(g=>{
   const s=chosen(g),p=points.get(g.id),view=views.get(s.id),active=skillGroup.get(selected)===g.id,name=s.baseName||s.name,position=`left:${p.x/width*100}%;top:${p.y/height*100}%`;
   if(!view.inspectable)return `<span class="tree-silhouette ${view.state} ${view.closedBy===s.id?'closed-root':''}" style="${position}" aria-hidden="true">${view.closedBy===s.id?lockIcon:''}</span>`;
   const preview=view.disclosure==='preview',owned=ownedRanks(g),total=g.skills.reduce((n,rank)=>n+rank.maxRank,0);

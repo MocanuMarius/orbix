@@ -19,12 +19,12 @@ export const MAIN_TUNING_SKILLS={
  'main-recovery-deep':node('main-recovery-deep','Deep Renewal',45,'main-recovery','Victory recovery becomes 60% Sparks; it scales with your vessel.','recovery','+5 Sparks recovery'),
  'main-recovery-rescue':node('main-recovery-rescue','Last Spark',40,'main-recovery','Finish below 20% Sparks to recover an extra 10% Sparks.','recovery','Low Sparks aid'),
  'main-recovery-challenge':node('main-recovery-challenge','Earned Rest',40,'main-recovery','Completing the optional flight challenge restores an extra 10% Sparks.','recovery','Bonus +10 Sparks'),
- 'main-afterglow':node('main-afterglow','Condensation',35,'main-efficiency','Convert 3 excess Sparks into 4 Packed Light. Only real pickup surplus converts; recovery never does.','reserve','3 overflow → 4'),
+ 'main-afterglow':node('main-afterglow','Condensation',35,'main-efficiency','Convert 3 excess Sparks into 4 Packed Sparks. Only real pickup surplus converts; recovery never does.','reserve','3 overflow → 4'),
  'main-glow-sense':node('main-glow-sense','Spark Sense',40,'main-sight','Faint glimmers at the forward edge of your light hint at the height of approaching Sparks and other boons. They fade as pickups become visible.','beacon','Boon sense'),
  'main-edging-attunement':node('main-edging-attunement','Edge Attunement',80,'main-sight','Edging Pulse is innate: skim clear of edges to build a 5s light pulse. Charge 25% faster: 1.6s instead of 2s.','edge-pulse','+25% charge'),
  'main-edging-lasting':node('main-edging-lasting','Lasting Pulse',100,'main-edging-attunement','Extend innate Edging Pulse from 5s to 7s. Choose longer light, slower charge loss, or fuel recovery.','edge-pulse','+2s pulse',{choiceGroup:'edging-style',excludes:['main-edging-tension','main-edging-regeneration']}),
  'main-edging-tension':node('main-edging-tension','Held Tension',90,'main-edging-attunement','Innate Edging Pulse loses charge 50% more slowly away from edges: 4% per second instead of 8%, after the 1.25s grace period. Choose this instead of longer light or fuel recovery.','edge-pulse','−50% decay',{choiceGroup:'edging-style',excludes:['main-edging-lasting','main-edging-regeneration']}),
- 'main-edging-regeneration':node('main-edging-regeneration','Regenerative Falling',100,'main-edging-attunement','Replace the Edging Pulse reveal with one Sparks restored per full meter, up to eight recoveries each flight. Only missing fuel is restored; no Packed Light. The meter resets for 2s after filling. Choose fuel instead of either pulse upgrade.','regen','Edge → fuel',{choiceGroup:'edging-style',excludes:['main-edging-lasting','main-edging-tension']}),
+ 'main-edging-regeneration':node('main-edging-regeneration','Regenerative Falling',100,'main-edging-attunement','Replace the Edging Pulse reveal with one Sparks restored per full meter, up to eight recoveries each flight. Only missing fuel is restored; no Packed Sparks. The meter resets for 2s after filling. Choose fuel instead of either pulse upgrade.','regen','Edge → fuel',{choiceGroup:'edging-style',excludes:['main-edging-lasting','main-edging-tension']}),
  'main-drift-sense':node('main-drift-sense','Drift Sense I',40,'main-speed','A faint guide previews the next 0.7s if you release Lift and let gravity carry you. Accounts for drafts and your build.','trajectory','0.7s guide'),
  'main-drift-sense-2':node('main-drift-sense-2','Drift Sense II',55,'main-drift-sense','Extend the no-Lift guide to 1.2s. Plan your descent toward Sparks.','trajectory','1.2s guide'),
  'main-drift-sense-3':node('main-drift-sense-3','Drift Sense III',75,'main-drift-sense-2','See up to 1.8s ahead, with a faint wisp marking the first predicted contact or the end of the guide.','trajectory','1.8s + echo'),
@@ -48,7 +48,6 @@ export function tuneMainDefinition(skill){
 // The free starting root remains free through chooseStartingSkill, not price 0.
 export function priceSkillDefinition(s){
  if(s.id.startsWith('main-artifact-slot-'))return{...s,cost:140*2**(Number(s.id.at(-1))-1)};
- if(s.id==='main-bond')return{...s,cost:160,prices:[160,240]};
  if(s.id==='main-spare-spark')return{...s,cost:140};
  if(s.id==='main-deep-reserve')return{...s,cost:210};
  if(s.branch==='afterglow')return{...s,cost:30,prices:[30,35].slice(0,s.maxRank)};

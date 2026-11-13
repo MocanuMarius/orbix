@@ -1,5 +1,5 @@
-import { getCompanionAbility, normalizeCompanionFleet } from './companion-abilities.mjs?v=clear-paths-2';
-import { companionArtSvg, companionPalette } from './companion-art.mjs?v=clear-paths-2';
+import { getCompanionAbility, normalizeCompanionFleet } from './companion-abilities.mjs?v=one-companion-1';
+import { companionArtSvg, companionPalette } from './companion-art.mjs?v=one-companion-1';
 const clamp=n=>Math.max(0,Math.min(1,Number(n)||0));
 const finite=(n,f=0)=>Number.isFinite(Number(n))?Number(n):f;
 const sparks=[[0,-54],[38,-38],[54,0],[38,38],[0,54],[-38,38],[-54,0],[-38,-38]];
@@ -7,7 +7,7 @@ export function boostControlMarkup(roleOrFleet='collector'){
   const roles=normalizeCompanionFleet(Array.isArray(roleOrFleet)?roleOrFleet:null,Array.isArray(roleOrFleet)?'collector':roleOrFleet);
   const active=roles.filter(id=>id!=='leveler'&&!getCompanionAbility(id).passive),passive=!active.length,role=active[0]||roles[0];
   const tag=passive?'div':'button';
-  return `<${tag} ${passive?'role="status"':'type="button"'} id="boost-btn" class="flight-control boost-control boost-control-v2 power-fill-control ${passive?'flight-passive-indicator':''}" data-companion-role="${role}" data-companions="${roles.join(',')}" data-fleet="${roles.length>1}" data-boost-state="waiting" aria-label="${passive?'Companion range and recovery':'Companion power'}"><span class="power-fill-window" aria-hidden="true"><i class="power-liquid"></i></span><span class="power-orbs" aria-hidden="true">${roles.map(id=>companionArtSvg(id,{className:'power-orb'})).join('')}</span><span class="power-release-glyph" aria-hidden="true">Ⅱ</span><span class="power-ready-sparks" aria-hidden="true">${sparks.map(([x,y],i)=>`<i style="--spark-x:${x}px;--spark-y:${y}px;--spark-delay:${i%3*35}ms"></i>`).join('')}</span></${tag}>`;
+  return `<${tag} ${passive?'role="status"':'type="button"'} id="boost-btn" class="flight-control boost-control boost-control-v2 power-fill-control ${passive?'flight-passive-indicator':''}" data-companion-role="${role}" data-companions="${roles.join(',')}" data-boost-state="waiting" aria-label="${passive?'Companion range and recovery':'Companion power'}"><span class="power-fill-window" aria-hidden="true"><i class="power-liquid"></i></span><span class="power-orbs" aria-hidden="true">${roles.map(id=>companionArtSvg(id,{className:'power-orb'})).join('')}</span><span class="power-release-glyph" aria-hidden="true">Ⅱ</span><span class="power-ready-sparks" aria-hidden="true">${sparks.map(([x,y],i)=>`<i style="--spark-x:${x}px;--spark-y:${y}px;--spark-delay:${i%3*35}ms"></i>`).join('')}</span></${tag}>`;
 }
 export function updateBoostControl(element,state={}){
   if(!element)return;
