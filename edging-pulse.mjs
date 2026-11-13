@@ -1,6 +1,6 @@
 // Risk-earned sight, or bounded fuel recovery when the Regenerative Falling
 // branch is chosen. Neither outcome is a pickup or invokes artifact hooks.
-import { GLOW_DISPLAY_SCALE } from './vitality.mjs?v=dialog-art-layout-1';
+import { GLOW_DISPLAY_SCALE } from './vitality.mjs?v=open-sky-1';
 const clamp = (n, lo, hi) => Math.min(hi, Math.max(lo, n));
 const smooth = n => n * n * (3 - 2 * n);
 const EPSILON = 1e-9;
@@ -117,11 +117,10 @@ export class EdgingPulse {
     }
     if (this.exhausted) { this.charge = 0; this.graceRemaining = 0; return; }
     if (!this.protected) {
-      // Boundary collisions use the orb's center at these exact thresholds;
-      // this is the remaining safe margin, not the decorative screen border.
-      let clearance = Math.min(e.player.y - 27, e.height - 28 - e.player.y);
+      // Only solid terrain and props earn proximity, never open viewport edges.
+      let clearance = Infinity;
       const worldX = e.distance + e.player.x, radius = e.player.radius;
-      this.surface.x=worldX;this.surface.y=e.player.y<e.height/2?27-radius:e.height-28+radius;this.surface.clearance=clearance;
+      this.surface.x=worldX;this.surface.y=e.player.y;this.surface.clearance=Infinity;
       for (const obstacle of obstacles) {
         // Broadphase is identical to the flight collider's terrain footprint.
         if (obstacle.destroyed || worldX + radius + EDGING_PULSE_TUNING.clearance < obstacle.x - obstacle.width

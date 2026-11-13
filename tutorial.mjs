@@ -1,5 +1,5 @@
-import {getCompanionAbility} from './companion-abilities.mjs?v=dialog-art-layout-1';
-import {lightVisibility} from './light-field.mjs?v=dialog-art-layout-1';
+import {getCompanionAbility} from './companion-abilities.mjs?v=open-sky-1';
+import {lightVisibility} from './light-field.mjs?v=open-sky-1';
 // Practice is an authored flight using the same controls, fuel and colliders.
 // This module contains guidance and lesson scenery; it never grants rewards.
 const clamp = (n, lo, hi) => Math.min(hi, Math.max(lo, n));
@@ -137,8 +137,8 @@ export function getTutorialHint(engine) {
   const hint=(id,title,text,step)=>({id,title,text,step,total:4,waitingForLift:Boolean(engine.tutorialAwaitingLift),
     worldFocus:getTutorialWorldFocus(engine),observed:{directPickups:state.directPickups,carrierDeliveries:state.carrierDeliveries,
       carrierRest:state.sawCooldown,tool:state.toolObserved,draft:state.finishedWind,darkAvoided:state.darkAvoided,darkCleared:state.darkCleared}});
-  if(engine.tutorialAwaitingLift)return hint('launch','Tap Lift to begin','LIFT spends Energy. Stay clear of solid scenery and screen edges.',1);
-  if(engine.dying)return hint('last-spark','The light scatters','Solid scenery and screen edges end an unprotected attempt.',2);
+  if(engine.tutorialAwaitingLift)return hint('launch','Tap Lift to begin','LIFT spends Energy. Avoid solid scenery and keep part of your wisp on screen.',1);
+  if(engine.dying)return hint('last-spark','The light scatters','Hitting solid scenery or fully leaving the screen ends an unprotected attempt.',2);
   if(engine.flame<engine.flapCost*2)return hint('low-glow','Find a Spark','Without enough Sparks you cannot Lift, but you can still collect fuel while falling. Collector keeps searching.',2);
   const exit=engine.getExitLandmark?.();
   if(exit&&exit.x<engine.width-18)return hint('exit','Reach the refuge light','Fly to the waylight while keeping enough Sparks for your last Lift.',4);

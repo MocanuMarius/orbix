@@ -1,5 +1,5 @@
-import {DraftField,DRAFT_TUNING} from './drafts.mjs?v=dialog-art-layout-1';
-import {lightVisibility} from './light-field.mjs?v=dialog-art-layout-1';
+import {DraftField,DRAFT_TUNING} from './drafts.mjs?v=open-sky-1';
+import {lightVisibility} from './light-field.mjs?v=open-sky-1';
 const clamp=(n,a,b)=>Math.max(a,Math.min(b,n)),DT=1/60;
 export const PROJECTION_HORIZONS=Object.freeze([0,.7,1.2,1.8]);
 
@@ -26,7 +26,7 @@ export class FlightProjection {
     let recovery=releasing?.25:e.levelRecovery,dive=releasing?(Number(e.mod.levelerDive)>0?.5:0):e.levelDive;
     let time=e.time,x=startX,y=e.player.y,vy=e.player.vy,boost=e.boostTime,guard=e.exitProtection;
     const points=[{x,y,time}],s=e.scaleY;
-    const collides=(px,py,t)=>py<27||py>e.height-28||obstacles.some(o=>this.hit(px,py,e.player.radius,o,t));
+    const collides=(px,py,t)=>py+e.player.radius<0||py-e.player.radius>e.height||obstacles.some(o=>this.hit(px,py,e.player.radius,o,t));
     // Contact-driven scenery changes after a choice; do not promise a path
     // through a pod, falling shard or switch that has not been resolved yet.
     const interactiveEdge=e.biomeDynamics?.forecastBoundary(startX,maxX)??Infinity;

@@ -22,7 +22,7 @@ export const TUTORIAL_TOPICS={
   s('Living scenery','A teal edge marks a helpful interaction. Blue marks a vent; orange warns of falling hazards. Biomes change the hazards: mushrooms, moving ice and falling masonry need different timing.','site:flight'),
   s('Optional challenges','The briefing previews a challenge and reward theme. Reaching the exit clears the flight even if you miss the challenge. Harder forks offer more risk and reward.','route')]},
  hearts:{name:'Hearts & death',visual:'life',steps:[
-  s('One heart, one attempt','Hearts are chances for the whole run, not collision health. Hitting solid terrain or a screen edge without protection ends the attempt.','life'),
+  s('One heart, one attempt','Hearts are chances for the whole run, not collision health. Hitting solid terrain or fully leaving the screen without protection ends the attempt.','life'),
   s('A heart is lost','After your wisp scatters, one heart crumbles away. The remaining hearts tell you how many more attempts you have.','life-loss'),
   s('Choose your route again','With hearts left, return to the map. Retry the passage or choose another reachable path. Entry Sparks and your build return; failed-flight earnings do not.','route'),
   s('Recover or start again','Choose Recover at Rest to refill missing hearts. Skills can raise their maximum. At zero hearts the run ends; New Game begins a fresh build.','rest')]},
