@@ -14,6 +14,6 @@ export function getLifeCapacity(run) {
 
 // Dark packets affect only the current attempt's light, never lives or fuel.
 export const LIGHT_PACKET_TUNING = Object.freeze({ baseRadius: 175, pickupRadius: 16,
-  absorptionDuration: .8, absorptionLimit: 24, darkDuration: 8,
+  absorptionDuration: 1.35, absorptionLimit: 24, darkDuration: 8,
   darkPenalty: .2, darkMaximumStacks: 2, minimumLight: .6,
   recoveryFade: 1.5, dimResponse: 9 });

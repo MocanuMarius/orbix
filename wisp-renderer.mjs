@@ -1,10 +1,10 @@
 import { sceneryIdentity, drawIdentityBackground, drawIdentityMaterial, drawIdentityLife } from './level-scenery.mjs';
 import { getCompanionAbility, normalizeCompanionRole } from './companion-abilities.mjs';
 import { companionSprite, companionPalette } from './companion-art.mjs';
-import { createScenePropArt } from './scene-prop-art.mjs?v=clear-reveal-1';
+import { createScenePropArt } from './scene-prop-art.mjs?v=pickup-orbits-1';
 import { drawBoss } from './boss.mjs';
-import { drawPickup } from './pickup-art.mjs?v=clear-reveal-1';
-import { pickupKind, getPickupSpec } from './pickups.mjs?v=clear-reveal-1';
+import { drawPickup } from './pickup-art.mjs?v=pickup-orbits-1';
+import { pickupKind, getPickupSpec } from './pickups.mjs?v=pickup-orbits-1';
 
 const TAU = Math.PI * 2;
 const SCENERY_HELPERS = { line: pixelLine, disc: pixelDisc, polygon: path };
@@ -555,10 +555,10 @@ export class WispFlightView {
     }
   }
 
-  drawPacket(x, y, { kind, dark = false, rich = false, tiny = false, alpha = 1,
+  drawPacket(x, y, { kind, dark = false, rich = false, tiny = false, bodyOnly = false, alpha = 1,
     time = 0, reducedMotion = false, scale = this.scale } = {}) {
     drawPickup(this.bufferContext, x, y, { kind: kind || (dark ? 'dark' : rich ? 'cache' : 'light'),
-      time, reducedMotion, tiny, alpha, scale });
+      time, reducedMotion, tiny, bodyOnly, alpha, scale });
   }
 
   drawBurstEffects(e, tint) {
@@ -567,7 +567,7 @@ export class WispFlightView {
     for (let i = Math.max(0, particles.length - 72); i < particles.length; i++) {
       const p = particles[i];
       c.globalAlpha = clamp(p.life / p.maxLife, 0, 1) * .7;
-      c.fillStyle = p.type === 'spark' ? tint.core : tint.outer;
+      c.fillStyle = p.type === 'ring-shard' ? p.color : p.type === 'spark' ? tint.core : tint.outer;
       c.fillRect(Math.round(p.x * s), Math.round(p.y * s), p.type === 'spark' ? 2 : 1, 1);
     }
     c.globalAlpha = 1;
@@ -815,7 +815,7 @@ export class WispFlightView {
       this.glow(x, y, collector ? 14 : 12, tint.outer, intensity * .21);
       const sprite = this.orbSprite(role);
       c.globalAlpha = intensity; c.drawImage(sprite, x - 6, y - 6); c.globalAlpha = 1;
-      if (collector && state.carrying) this.drawPacket(x + 7, y + 5, { kind: state.cargoKind || 'light', tiny: true, time: t, reducedMotion: e.reducedMotion, scale: s });
+      if (collector && state.carrying) this.drawPacket(x + 7, y + 5, { kind: state.cargoKind || 'light', tiny: true, bodyOnly: true, time: t, reducedMotion: e.reducedMotion, scale: s });
       if (state.active && role === 'swift' && !e.reducedMotion) {
         c.globalAlpha = .45 * intensity; c.strokeStyle = tint.core; c.lineWidth = 1;
         c.beginPath(); c.moveTo(x - 11, y - 2); c.lineTo(x - 16, y - 3); c.moveTo(x - 12, y + 2); c.lineTo(x - 17, y + 3); c.stroke(); c.globalAlpha = 1;
@@ -844,25 +844,25 @@ export class WispFlightView {
       const initialAngle = Number(effect.initialAngle) || 0;
       const radiusAt = p => {
         if (e.reducedMotion) return start * (1 - p) ** 2;
-        if (p < .20) return start + (orbit - start) * (1 - (1 - p / .20) ** 3);
-        if (p < .48) return orbit;
-        return orbit * (1 - clamp((p - .48) / .42, 0, 1) ** 3);
+        if (p < .16) return start + (orbit - start) * (1 - (1 - p / .16) ** 3);
+        if (p < .80) return orbit;
+        return orbit * (1 - clamp((p - .80) / .20, 0, 1) ** 3);
       };
-      const angleAt = p => initialAngle + (e.reducedMotion ? 0 : TAU * (.35 * p + 3.4 * p ** 3));
+      const angleAt = p => initialAngle + (e.reducedMotion ? 0 : TAU * (p < .16 ? .1*p/.16 : p < .80 ? .1+3.15*((p-.16)/.64)**1.25 : 3.25+1.1*((p-.80)/.20)**2));
       const pointAt = p => {
         const radius = radiusAt(p) * s, angle = angleAt(p);
         return [playerX + Math.cos(angle) * radius, playerY + Math.sin(angle) * radius];
       };
-      // These short ghosts belong only to the retrieved packet's .8s orbit.
+      // These short ghosts belong only to the retrieved packet's 1.35s orbit.
       // They follow the current player; they never leave a main-character trail.
       const ghosts = e.reducedMotion ? 0 : 3;
       for (let i = ghosts; i >= 0; i--) {
         const sample = progress - i * .025;
         if (sample < 0) continue;
         const [x, y] = pointAt(sample);
-        this.drawPacket(Math.round(x), Math.round(y), { kind, tiny: i > 0,
+        this.drawPacket(Math.round(x), Math.round(y), { kind, bodyOnly: true, tiny: i > 0,
           time: t, reducedMotion: e.reducedMotion, scale: s,
-          alpha: (i ? .16 * (1 - i / 4) : 1) * clamp((1 - progress) * 3, 0, 1) });
+          alpha: (i ? .16 * (1 - i / 4) : 1) * clamp((1 - progress) * 6, 0, 1) });
       }
       if (progress > .84) {
         const impact = (progress - .84) / .16;
