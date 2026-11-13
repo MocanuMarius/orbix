@@ -1,0 +1,111 @@
+Tool mode: built-in image_gen.imagegen; no CLI or API fallback.
+All generated assets are copied into this project from the tool's returned default path.
+
+HERO PROMPT
+Use case: stylized-concept
+Asset type: cinematic key art for a polished mobile fantasy flight game; wide landscape composition around 1536x1024.
+Primary request: A magnificent phoenix flying toward the RIGHT through a luminous twilight world of floating ancient stone ruins and airy golden sunlight. The phoenix is the unmistakable focal point: graceful golden head with a slender crest, warm orange sculpted body, layered cream-gold wings with fiery orange feather tips, long flowing flame tail trailing LEFT. Strong elegant avian anatomy, believable feather structure, fully visible wings and tail.
+Style/medium: premium smooth fantasy game illustration with rich painterly and 3D-like shading, finely modeled feather forms, soft atmospheric depth, cinematic rim lighting, high-detail polished artwork. Absolutely not pixel art.
+Scene/backdrop: deep teal and blue twilight clouds, floating mossy pale-stone arches, distant islands and waterfalls, warm golden beams, scattered tiny glowing embers. Broad clear sky areas and layered depth, readable composition at mobile sizes.
+Lighting/mood: magical, hopeful, majestic, luminous; the warm phoenix glows against cool teal surroundings.
+Constraints: no text, no letters, no logos, no UI, no border, no watermark. No people or additional phoenixes. Do not crop the phoenix.
+
+PHOENIX ATLAS PROMPT
+Use case: stylized-concept
+Asset type: TRANSPARENT game animation atlas, exactly THREE COLUMNS by TWO ROWS of equal 512x512 square cells, total 1536x1024 landscape image. Six separate poses of one same phoenix, one complete phoenix inside each cell.
+Input image 1 role: identity and shading reference only. Use its golden head, slender crest, orange body, cream-gold layered wings, fiery orange feather tips, and long flowing flame tail.
+Primary request: A professional six-frame side-view phoenix wingbeat cycle, flying toward the RIGHT. Frame order reading left to right, top row then bottom row: wings fully raised; wings angled upward; wings near horizontal; wings fully down; wings partly down returning upward; wings angled upward returning to raised. Clearly distinct wing poses. Keep the body and head at EXACTLY THE SAME relative center, scale and rotation in all six cells. Body remains horizontal, head points right, flame tail trails left. Full side view, not front view or top view. Wings overlap naturally in side view.
+Composition: Each phoenix fits fully inside its own 512x512 cell, with generous transparent margins on all four sides. Keep body center at local x=300 y=260 in EVERY cell. Head near x=400 y=240. Tail flows left toward x=70. Wings remain inside the cell in all poses. Nothing crosses cell boundaries. No cropping. No extra birds or duplicate heads.
+Style/medium: match the reference's high-end smooth fantasy game illustration and rich 3D-like feather shading, simplified slightly for a readable moving game sprite. Strong elegant anatomy, bright gold orange cream colors, warm rim light. Very crisp fully transparent cutout edges, true alpha channel. Keep the same feather colors, face, body proportions and tail length in every pose.
+Constraints: genuine transparent background, no scenery, no shadow on a surface, no colored background, no checkerboard baked into image, no grid lines, no labels, no numbers, no letters, no text, no watermark. EXACT 3-column 2-row atlas with six equal square cells.
+
+Atlas reference: hero.png, identity/style reference.
+Atlas alpha verified: Format32bppArgb, outer corner alpha 0, center inter-cell gap alpha 0.
+
+FLIGHT BACKGROUND PROMPT
+Use case: stylized-concept
+Asset type: wide scenic background image for a premium mobile fantasy flight game, landscape about 1536x1024.
+Primary request: A luminous teal twilight sky world with floating ancient pale-stone ruins, airy distant islands and waterfalls, soft clouds, and golden shafts of light. NO CHARACTERS, NO BIRDS, NO PHOENIX. This is the empty scenic environment behind a separately animated phoenix.
+Composition: expansive clear teal-blue sky occupies the central and upper two-thirds, beautiful distant atmospheric floating ruins arranged toward the lower quarter and far edges; distant clouds provide subtle texture. Broad calm open area through the middle where gameplay obstacles and a small character will appear separately. Layered atmospheric depth. Keep every ruin distant, with no large sharp foreground columns blocking the center.
+Style/medium: premium smooth fantasy game illustration, rich polished painterly / 3D-like shading, not pixel art. Mossy pale-stone arches on floating islands, warm golden highlights against cool teal shadows, restrained tiny golden sparkles, magical hopeful luminous mood. High visual quality and coherent cinematic lighting, no harsh texture noise.
+Constraints: no text, no letters, no logo, no UI, no border, no watermark, no animals, no people, no dragon, no phoenix, no birds, no fireball. Opaque scenic background.
+
+Verified final assets:
+hero.png: 1536x1024, opaque RGB.
+phoenix-atlas.png: 1536x1024, 32-bit RGBA, exactly 3 columns by 2 rows of 512x512 frames in row-major wingbeat order.
+flight-background.png: 1536x1024, opaque RGB, no characters.
+Quality notes: phoenix atlas has warm semi-transparent glow; keep a generous body-only collision shape. Body is right of cell center with tail extending left. Tiny pose-to-pose feather and tail variation is visible, but scale, identity and facing are consistent.
+
+MAP MEDALLION ATLAS PROMPT (built-in image_gen.imagegen, transparent_background true)
+Use case: stylized-concept
+Asset type: professional fantasy MOBILE GAME UI location-icon atlas. EXACTLY THREE COLUMNS by TWO ROWS of equal SQUARE cells, total landscape1536x1024, eachcell512x512.
+Primary request: Six richly hand-painted circular location medallions, one centered in each cell. All have cohesive ornate warm-gold sculpted circular rims, soft cream-gold highlights, deep teal shadows, painterly material shading, and a richly painted miniature environment scene inside. They should look like premium game-map artwork rather than flat website icons. Bold clear silhouettes readable when downscaled to 48px, but lovely fine detail at full size.
+Placement: Every circular medallion centered exactly at local x256 y256 of its own512x512 cell, identical outer diameter420px, with at least46px genuinely transparent padding around it. Goldframes sameweightandsize. No item overlaps another cell. Perfect consistent3-by2 grid spacing with no visible grid.
+ROW-MAJOR CONTENT, reading left to right then top to bottom:
+1. Floating Ruins: a monumental pale weathered stone ARCH on a small floating mossy rock, turquoise mist, golden rimlight; no lettering.
+2. Luminous Canopy: an ancient sweeping emerald-teal TREE with luminous golden leaves and roots, magical forest canopy.
+3. Storm Spire: a tall glowing violet-blue CRYSTAL SPIRE struck by a bright sweeping fork of lightning against teal stormclouds.
+4. Campfire Sanctuary: a beautiful golden-orange CAMPFIRE on a sheltered stone hearth with a small curved stone ruin behind, cozy golden sanctuaryglow.
+5. Moon Shrine: an enigmatic glowing crescent MOON above a sculpted ancient small teal-stone SHRINE, hanging tiny starlights, mysteriousvioletblue lighting.
+6. Sun Portal Finale: a majestic golden SUN PORTAL containing a bold tiny fiery PHOENIX silhouette, radiant warm rays and pale gold architectural wings, triumphantbossfinale.
+Style: premiumhand-painted luminous fantasy mobilegameUI, full modeled forms, vivid teal-and-gold color harmony, richshading, crafted goldmetal rims, highcontrast readable subjects, smooth not pixelated, no flatlineicon style.
+Constraints: genuine transparent background outside every medallion, truealpha, no solid backdrop, no checkerboard baked in, no castshadows on a surface. NO TEXT, NO LETTERS, NO NUMBERS, NO LABELS, NO WATERMARK, NO EXTRA ICONS, no visiblegridlines. Exactly six distinct circular location medallions.
+
+CARD EMBLEM ATLAS PROMPT (built-in image_gen.imagegen, transparent_background true)
+Use case: stylized-concept
+Asset type: professional fantasy MOBILE GAME card-emblem icon atlas, EXACTLY FOUR COLUMNS by THREE ROWS,12equalSQUARE cells, requested4:3 canvas2048x1536, eachcell512x512.
+Primary request: Twelve distinct premium handpainted gamecard emblem illustrations. One icon percell in perfectly aligned4-column3-rowgrid. Each icon is a bold beautifully shaded centerpiece inside a compact ornate warmgold rounded-square frame with deepteal richlypainted background, soft magicalglow, gently beveled metal edging. Square emblems, consistentstyle and size, transparent outside each emblem. Strong silhouette recognizable at48px. Crafted luminousfantasygameart, not flatlinewebicons.
+Placement: consistent square frames centered in each square cell, each frame occupies roughly84%of cellwidth with transparentpaddingonallsides. No overlaps, no gridlines. Exactly12icons. Every emblem has a different instantly readable mainobject.
+ROW-MAJOR ORDER from left to right, then top to bottom:
+ROW1:
+1 HUNGRY WISP: one adorable but elegant glowing TURQUOISE SPIRIT ORB with flowing wisptail drawing in three small goldenlightmotes.
+2 KINDLED SPIRIT: a vivid ORANGE FIREFLY-LIKE FLAME SPIRIT with a warmbrightcore encircled by five glowing cinder sparks.
+3 GOLDEN WAKE: a graceful CURVED GOLDEN PHOENIX FEATHER TRAIL scattering brilliant little goldenlightpearls, sumptuousgoldglow.
+4 STORM FEEDER: a sharp blue-violet CRYSTAL FEATHER absorbing a bright jagged bolt of LIGHTNING.
+ROW2:
+5 SOFT DESCENT: a single soft CREAM-GOLD FEATHER gently drifting downward on pale swirling airribbons, calm airyteal.
+6 HIGH WING: a pair of mighty RISING GOLDEN WINGS framing a warm small sun, upward sweeping shape, strongcreamfeathers.
+7 TAILWIND: a turquoise SPIRAL WIND VORTEX rushing behind a smallorangegoldfeather, strong sense of forwardmotion.
+8 ASH WARD: a dark OBSIDIAN SHIELD with a sculpted GOLD FLAME on its front, embercracks and a strongprotectiveoutline.
+ROW3:
+9 GLASS PHOENIX: an elegant small PHOENIX made of translucent FACETED RUBY-AND-AMBER CRYSTAL, glintingglasswings, dramaticpinkhighlights.
+10 STEADY FLAME: a clean steady GOLDEN FLAME held within a serene smooth TURQUOISE HALO, visuallycalm and centered.
+11 FIRE WAKE: a blazing ORANGE-RED FIRE COMET with sweeping forked flamewake and small cinders, explosiveforwardmotion, distinctfromgoldfeathericon.
+12 WARM HEART: a luminous deep RUBY HEART surrounded by curling gentle GOLDEN FIRE and a warmradiantglow.
+Style: premium cohesive luminousfantasy mobilegame illustration, warmgold metal trims, smoothmodeledshading, richteal backgrounds, carefullypaintedmaterialtextures, highcontrast atsmallsize, crisp edges, notpixelated.
+Constraints: TRUEALPHA transparent outsideemblems, no bakedcheckerboard, no solidatlasbackground, no surfaceshadow. NO TEXT, NO LETTERS, NO TITLES, NO NUMBERS, NO LABELS, NO WATERMARK. No fullplayingcards or poker symbols, just12painted emblemicons. Exactfourcolumns bythreerows.
+
+MAP/CARD ICON VERIFICATION
+map-icons.png actual size: 1536x1024, RGBA, 3 columns x 2 rows, 512x512 equal cells; outer corner and intercell gap alpha 0.
+card-icons.png actual size: 1448x1086, RGBA, 4 columns x 3 rows, 362x362 equal cells; outer corner and intercell gap alpha 0.
+Map order: floating ruins arch; luminous canopy tree; storm crystal spire; campfire sanctuary; moon shrine; phoenix sun portal.
+Card order: hungrywisp; kindledspirit; goldenwake; stormfeeder; softdescent; highwing; tailwind; ashward; glassphoenix; steadyflame; firewake; warmheart.
+Both atlases visually inspected for distinct subjects, consistent luminous fantasy shading, gold framing, correct grid order, and no text. Built-in image generation only. Original files were copied unchanged, preserving alpha.
+
+TERRAIN TEXTURE ATLAS PROMPT (built-in image_gen.imagegen, transparent_background true)
+Use case: stylized-concept
+Asset type: professional mobile fantasy GAME ENVIRONMENT TERRAIN ATLAS, exactly THREE COLUMNS by TWO ROWS, six equal SQUARE512x512 cells, landscape total1536x1024.
+Primary request: Six richly painted isolated environment chunks that will become collision barriers in a side-scrolling phoenix game. Each chunk must have detailed shaded natural material surfaces and a visible irregular organic outer contour. Actual scene terrain assets: richly textured cliffs, broken masonry, tangled roots, foliage and crystals. Absolutely not low-poly geometry, flatcolored polygons, icons, medallions or simple abstractshapes.
+Composition: one separate roughly2:1 horizontal-wide environment chunk per512squarecell. Chunk approximately440wide by250high, centered within its cell with transparentpadding on every side. Each chunk completelyfitsinside its cell, no overlap, no cropping at celledges. Side view or slight three-quarter platformer view, consistent lighting and scale. Every chunk has a solid substantial barrier mass plus richly detailed irregular decorative edge. Truealpha background outside all terrain, no scenery behindthem.
+ROW1, upper/ceiling OVERHANG chunks, reading left to right:
+1 ANCIENT RUINS OVERHANG: a hanging pale weathered sandstone rocky ceiling slab with broken ancient masonry embedded in it, carved abstract gold rune-like ornament (no readableletters), patches of velvety emeraldmoss, a broken archfragment, irregular rockteeth pointing DOWNWARD. Broad rocky mass on top, naturally hanging fringe below. Warmgoldrimlight, cooltealshadows.
+2 LUMINOUS CANOPY CEILING: a dense ancient darkwood branch-and-root ceiling mass, interwoven twisted bark with convincing fibroustexture, thick knotted roots, lush emerald and tealleaves, clusters of tiny luminous goldleaves, tendrils hanging DOWNWARD. Rich sculpted woodforms and dense foliage, organic irregular barrier contour, no trunk rooted into ground.
+3 STORM CRYSTAL OVERHANG: a broad hanging slab of layered darkbluegray volcanicstone with violet-blue crystalline seams and jagged luminous crystal clusters pointing DOWNWARD from the underside. Rich weathered rocktexture and reflective faceted crystal surfaces, restrained tiny electric glints, strongshading.
+ROW2, lower/floating ISLAND chunks, reading left to right:
+4 ANCIENT RUINS ISLAND: a floating pale sandstone island with uneven mossy stone top and a beautiful broken small ancient stone ARCHRUIN rising above it, scattered masonry and abstractgoldcarvings, detailed jagged rock underneath tapering DOWNWARD, hanging moss and small roots.
+5 FOREST ROOT ISLAND: a wide floating island of dark rich soil and weathered stone wrapped by twisting ancient treeROOTS, a thick gnarled branch curling above its top, dense emerald-teal foliage and small golden glowing leaves, roots dangling under the island, lushorganiccontour.
+6 STORM CRYSTAL ISLAND: a floating darkbluegray jagged rock island with tall violet-blue crystalline SPIRES growing UPWARD on top, smaller glowing crystal clusters along its sides, rugged layered stone texture under the mass, rich facets and a fewelectric glints.
+Style/medium: premiumhand-painted luminousfantasygameenvironmentart with smooth modeled3D-like shading, very rich surface detail, coherent coolteal shadows and warmgoldrimlighting, clear readable material identity, beautifully crafted gameassets, not pixelated. Painterly realism with elegantfantasycolor. Detailed even at mediumscale.
+Constraints: trueRGBA transparentbackground, no scene sky or clouds, no groundplane, no cast shadow on a surface, no visiblegrid, no labels, no numbers, no text, no readablelettering, no watermark, no frames or borders, no characters, no phoenixes. Exactlysixterrainchunks, each within its own equal squarecell.
+
+Terrain verification: actual1536x1024 RGBA,3columns2rows512x512cells; corner andintercellgapalpha0. Row0upperoverhangs androw1lowerfloatingislands; columnsruins/canopy/storm. Approximate alpha>160 opaque artwork bounds sampled every4pixels, percell(localxmin,ymin,xmax,ymax): cell0(16,88,496,408), cell1(16,104,492,416), cell2(8,124,500,384), cell3(16,16,492,456), cell4(12,44,496,440), cell5(16,48,500,440). Image copied unchanged to preservealpha. Soft peripheral glow present; opaque naturalterrain masses visually inspected.
+
+
+MOONLIT REVISION — built-in imagegen; new sibling assets, originals preserved.
+moonlit-valley.png exact prompt:
+Create a polished hand-painted 2D fantasy mobile videogame BACKGROUND plate, wide landscape 3:2 composition. Deep indigo midnight sky fills upper 70 percent with a luminous huge pearl blue crescent moon in upper-right, soft atmospheric halo, sparse twinkling stars, wisps of violet cloud, distant blue mountains descending into layers of mist below. At bottom 25 percent a luminous ancient pine forest and mountain valley, subtle tiny cyan fireflies. Rich painterly lighting, ethereal dark fantasy, elegant detailed textures, luminous moonlight, sophisticated cinematic color grading navy teal violet silver, no warm daylight. Side-view parallax game landscape, center mostly open sky for flying phoenix gameplay. No characters, no text, no UI, no foreground obstacles. Fully opaque complete scene. Request output 1536x1024.
+
+moon-materials.png exact prompt:
+Create a seamless-looking material texture ATLAS for a richly illustrated 2D fantasy side scrolling game, 3 EQUAL VERTICAL COLUMNS across a wide 3:2 rectangular image, full image 1536x1024 with each column 512 wide, all pixels filled, NO TRANSPARENCY, NO GAPS, NO TEXT OR LETTERS. LEFT column: huge detailed ancient indigo slate cavern rock wall, broad layered sandstone ledges, carved forgotten stone reliefs, fine silver-blue moonlit mineral veins, small cracks emitting amber light, natural sophisticated painterly texture. MIDDLE column: densely textured ancient forest cave earth, twisted massive roots woven through dark mossy rock, subtle bioluminescent cyan mushrooms and luminous emerald veins, broad soft foliage surface forms. RIGHT column: midnight mountain basalt with faceted slate ridges, icy crystalline mineral seams emitting faint violet-blue light, rich crags and erosion strata. These are continuous opaque MATERIAL TEXTURES that will be polygon-masked into mountains and caves, not isolated islands, sprites, icons, or mountains silhouetted against sky. Flat orthographic texture view, broad rock features balanced with fine grain. Deep dark saturated cinematic fantasy palette with beautiful reflected light, painterly realism, no pixel art.
+
+Both images visually inspected, 1536x1024. Materials use three opaque columns, cropped into repeatable Pixi textures and masked by the actual grounded collider mesh. Assets copied unchanged. Mobile WebGL preview checked for crescent visibility, glow shader compilation, grounded scenery, dynamic light during Boost, route previews and direct node tapping.
