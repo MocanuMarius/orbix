@@ -1,4 +1,4 @@
-import {EXTRA_LEVELS} from './world-expansion.mjs?v=pixel-landscape-2';
+import {EXTRA_LEVELS} from './world-expansion.mjs?v=relic-paths-1';
 // Location identities are shared by route previews, terrain and scenery.
 // Shapes and challenge windows are authored by the flight generator.
 export const LEVELS = Object.freeze([

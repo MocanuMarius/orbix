@@ -1,4 +1,5 @@
-import {getCompanionAbility} from './companion-abilities.mjs?v=pixel-landscape-2';
+import {getCompanionAbility} from './companion-abilities.mjs?v=relic-paths-1';
+import {lightVisibility} from './light-field.mjs?v=relic-paths-1';
 // Practice is an authored flight using the same controls, fuel and colliders.
 // This module contains guidance and lesson scenery; it never grants rewards.
 const clamp = (n, lo, hi) => Math.min(hi, Math.max(lo, n));
@@ -171,10 +172,10 @@ export function getTutorialWorldFocus(engine, seenIds = null) {
   const state = engine?.tutorial;
   if (!state || engine.tutorialAwaitingLift || engine.finished || engine.dying) return null;
   const width = engine.width || 390, height = engine.height || 620;
-  const sight = Math.max(60, (engine.getLightState?.().radius || 175) * .82);
+  const lightState=engine.getLightState?.()||{};
   const visible = (x, y) => Number.isFinite(x) && Number.isFinite(y)
     && x >= 18 && x <= width - 18 && y >= 18 && y <= height - 18
-    && Math.hypot((x-engine.player.x)*(x>engine.player.x?.5:1),y-engine.player.y) <= sight;
+    && lightVisibility(engine,lightState,x,y)>=.28;
   const focus = (id, title, text, x, y, radius) => visible(x, y)
     ? { id, title, text, x, y, radius: Math.min(radius, x - 4, width - x - 4, y - 4, height - y - 4) } : null;
   const candidates = [];

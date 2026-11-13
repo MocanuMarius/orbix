@@ -1,5 +1,5 @@
-import {SKILLS} from './model.mjs?v=pixel-landscape-2';
-import {treeHeader,treeCanvas,treeDetail} from './living-tree.mjs?v=pixel-landscape-2';
+import {SKILLS} from './model.mjs?v=relic-paths-1';
+import {treeHeader,treeCanvas,treeDetail} from './living-tree.mjs?v=relic-paths-1';
 export function branchTreeMarkup({run,wallet,branch,canBuy,selected}){
  const skills=Object.values(SKILLS).filter(s=>s.branch===branch);
  const skill=skills.find(s=>s.id===selected)||skills.find(s=>!s.requires)||skills[0];
