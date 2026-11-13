@@ -2,6 +2,24 @@
 
 Updated 13 November 2026. Wispbound is the working title. This log records the confirmed direction and subsequent implementation choices. All ten recommended alignment choices were accepted in chat.
 
+## One light economy — 13 November 2026
+
+This section supersedes every older Ember currency and Afterglow reserve rule. Flight Glow is still displayed in small whole numbers (30 base capacity). Natural pickups refill it, then actual surplus converts 1:1 into **Condensed Glow**, the run's upgrade currency. Fractional conversion credit is retained internally so splitting a pickup cannot create money. The flight meter has no second reserve. A bounded pool of pixel motes animates surplus from the meter ceiling into the top currency counter, with a batched whole-number gain and reduced-motion support.
+
+Flight currency is provisional until the exit is reached. Failure restores entry currency and fractional credit; replaying the same opening or a Dream cannot farm earnings. Automatic checkpoint recovery, generated fuel and passive artifact healing do not condense. One-use natural Glow pods and finite checkpoint offerings can condense real surplus. Every flight still offers relic choices; dissolving the reward restores Glow and condenses only the remainder. Selling an owned relic removes it before calculating conversion. No flat clear or challenge money remains; optional challenge success improves relic rarity odds instead.
+
+New runs start with one free Light/Motion/Glow root and 8 Condensed Glow. The Glow tree's Condensation node changes 3 surplus Glow into 4 Condensed Glow. Fine Facets adds small conversion improvements; a later choice specializes in reliable Prismatic Yield or Kept Light. Kept Light rewards holding 100/200/300 Condensed Glow at pickup time, capped at three tiers. It pays no interest while waiting. All conversion bonuses, including relics, share a 1.6× ceiling.
+
+Upgrade prices use their quoted base multiplied by `1 + 0.4 × paid learned ranks^1.5`, rounded upward to a multiple of five. The free starter root is excluded. This slows economy compounding without capping pickup earnings. Small conversion ranks have lower bases than large movement/utility unlocks so their investment can pay back within a run. Locked buds and future ranks display current progressive quotes; purchasing another node changes later quotes. Workshop refunds return what was actually paid, not today's more expensive quote.
+
+Fuel placement now checks a duration budget after actual terrain/encounter construction: Ascension 1 targets 10 internal fuel units/second on Map 1 and 9 on later maps; higher Ascensions use 8.2. Existing safe motes become richer caches first, then sparse body-clear pickups fill broad gaps. Boss hard-section labels no longer suppress every safe pocket. Warning zones and bad-packet chains retain their exclusions. These budgets describe available fuel, not guaranteed collection.
+
+Tutorial teaches surplus contextually and uses an isolated practice wallet. Saves use a fresh v7 namespace rather than migrating the disposable prototype. Older Dream presets are invalidated. TEST unlocks remain separate from the explicit currency grant.
+
+Focused engine/model checks cover natural surplus, 3→4 refinement, fractional credit, the 1.6× cap, Collector/body single payment, generated/dark exclusions, failure rollback, recovery exclusion, one-claim rewards and Dream isolation. Actual construction of all 48 maps across three encounter families still finds no fuel or positive actor targets blocked by scenery. The campaign stress report records imperfect-capture/correction assumptions and distinguishes conditional-clear economy from attrition; it is not a human play or Pixel 10 FPS measurement.
+
+Final evidence: [the balance report](docs/condensed-glow-balance.md) documents 4,608 campaign cases, 864 sensitivities and 768 starting-root cases at the final price curve, with unchanged source during each run. Steady conditional-clear scenarios bought a median 8/7/6 ranks on Ascensions 1/3/6. All 48 maps and 12 biomes were sampled; 2,125 main-pass inventories had no supply shortfalls. Protector and Runner remain less forgiving under the imposed missed-pickup assumptions. These results support economy pacing, not exhaustive build parity or measured human success.
+
 ## Living biomes — 13 November 2026
 
 New generated routes draw from twelve biomes: Moonlit Ruins, Frostbound Reach, Oldgrowth Pines, Lantern Marsh, Spore Hollows, Basalt Furnace, Glasswind Dunes, Coral Grave, Prism Caverns, Cloudbreak Isles, Briar Cathedral and Mourning Fields. Each has four authored course variants (48 active maps), distinct materials, landmarks, solid props and preview art. The three existing geometry families remain collision foundations, not the biome catalog. Legacy locations remain resolvable for tutorial and existing saves.

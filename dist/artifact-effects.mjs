@@ -3,7 +3,7 @@
 const clamp=(value,min,max)=>Math.max(min,Math.min(max,value));
 export const ARTIFACT_ENGINE_RULES=Object.freeze({
   'overflow-coil':Object.freeze({name:'Overflow Coil',color:'#87d9c4',
-    trigger:'Natural fuel that cannot fit in Glow or Afterglow.',effect:'Wasted fuel restores companion recovery.',
+    trigger:'Natural fuel that overfills Glow.',effect:'Overflow also restores companion recovery.',
     limits:'Up to 2s per pickup and 12s per flight. Ready companions spend none of the limit.'}),
   'echo-bell':Object.freeze({name:'Echo Bell',color:'#e7c386',
     trigger:'A delivery, shield deflection, dash or start of levitation.',effect:'Your next direct fuel pickup within 8s gives +8 Glow.',

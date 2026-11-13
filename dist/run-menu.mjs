@@ -1,8 +1,8 @@
-import {getArtifactCapacity} from './model.mjs?v=living-biomes-1';
-import {formatGlow,getGlowCapacity} from './vitality.mjs?v=living-biomes-1';
-import {livesMarkup} from './lives.mjs?v=living-biomes-1';
-import { COMPANION_ABILITIES } from './companion-abilities.mjs?v=living-biomes-1';
-import { companionArtSvg } from './companion-art.mjs?v=living-biomes-1';
+import {getArtifactCapacity} from './model.mjs?v=condensed-glow-1';
+import {formatGlow,getGlowCapacity} from './vitality.mjs?v=condensed-glow-1';
+import {livesMarkup} from './lives.mjs?v=condensed-glow-1';
+import { COMPANION_ABILITIES } from './companion-abilities.mjs?v=condensed-glow-1';
+import { companionArtSvg } from './companion-art.mjs?v=condensed-glow-1';
 
 const esc = value => String(value ?? '').replace(/[&<>"']/g, char =>
   ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[char]));

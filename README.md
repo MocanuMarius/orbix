@@ -2,15 +2,23 @@
 
 A landscape, one-handed pixel flight roguelite. The static game lives in `dist/` and uses a custom Canvas simulation and cached pixel renderer; there is no build step or framework dependency.
 
-## Current release: living-biomes-1
+## Current release: condensed-glow-1
 
-Play at [GitHub Pages](https://mocanumarius.github.io/orbix/?v=living-biomes-1), or run `npm start` and open the printed localhost address. The game targets landscape mobile play, including the Pixel 10 ratio.
+Play at [GitHub Pages](https://mocanumarius.github.io/orbix/?v=condensed-glow-1), or run `npm start` and open the printed localhost address. The game targets landscape mobile play, including the Pixel 10 ratio.
+
+Glow is the only resource family. Natural pickups fill the 30-point flight meter; surplus becomes whole **Condensed Glow** for run skills. There is no Ember currency or Afterglow fuel reserve. Overflow sparks travel from the meter ceiling to the currency counter. Flight earnings are kept on a clear, so failed attempts cannot farm upgrades. Automatic recovery and generated fuel never mint currency.
+
+The Condensation skill converts 3 surplus Glow into 4 Condensed Glow. Its branches improve conversion or reward keeping a bounded currency balance, with a maximum 1.6× conversion and no passive interest. New runs receive one free root and 8 Condensed Glow. Skill prices rise as the build grows; artifacts remain a choice against a finite Glow offering. Early Ascension 1 receives a higher accessible fuel floor.
 
 Twelve biomes each have four authored maps, with distinctive cached scenery, materials and solid props. New runs shuffle biome destinations independently of rewards; their starting worlds are not fixed. Interactive terrain includes light-melted ice, falling debris, lift bubbles/puffcaps, local vents, reveal crystals/bells and one-use Glow pods. Three branching expedition maps retain committed routes, Rest preparation, run skill trees, four base companions and clear-by-clear artifact rewards.
 
-Start **New Game** to see the new destinations. Existing saved maps retain their locations. Changed physics invalidate old Dream recordings; rehearse them again. See [DECISIONS.md](DECISIONS.md) for current rules and validation limits, and [the request audit](docs/request-audit.md) for implementation history.
+Start **New Game** for this economy. The prototype uses a fresh v7 save namespace; previous Ember/Afterglow saves are not imported. Changed physics invalidate old Dream recordings; rehearse them again. See [DECISIONS.md](DECISIONS.md) for current rules and validation limits, and [the request audit](docs/request-audit.md) for implementation history.
 
 Focused biome checks: `node scripts/biome-catalog-probe.mjs`, `node scripts/biome-dynamics-probe.mjs`, and `node scripts/biome-integration-probe.mjs`.
+
+Economy checks: `node scripts/condensed-model-probe.mjs`, `node scripts/condensed-flight-probe.mjs`, and `node scripts/dream-probe.mjs`. Run `node scripts/balance-condensed-glow.mjs --seeds=24 --out=work/balance-condensed-glow.json` for the campaign stress sweep. This is stochastic resource/economy evidence, not a measured human win rate or phone frame-rate benchmark.
+
+The [balance report](docs/condensed-glow-balance.md) records 6,240 final campaign/sensitivity cases. Steady conditional-clear scenarios purchased a median 8 ranks on Ascension 1, 7 on Ascension 3 and 6 on Ascension 6. Collector and Space Timer remain more forgiving under the imposed missed-fuel assumptions; role parity and multi-companion human play still need evaluation.
 
 ## Earlier development notes
 

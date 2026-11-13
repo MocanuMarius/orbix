@@ -1,7 +1,7 @@
-import { DRAFT_TUNING } from './drafts.mjs?v=living-biomes-1';
-import { scenePropBounds } from './scene-props.mjs?v=living-biomes-1';
-import { formatGlow } from './vitality.mjs?v=living-biomes-1';
-import { lightVisibility } from './light-field.mjs?v=living-biomes-1';
+import { DRAFT_TUNING } from './drafts.mjs?v=condensed-glow-1';
+import { scenePropBounds } from './scene-props.mjs?v=condensed-glow-1';
+import { formatGlow } from './vitality.mjs?v=condensed-glow-1';
+import { lightVisibility } from './light-field.mjs?v=condensed-glow-1';
 
 // Small, deterministic actors attached to existing terrain. Static mountain
 // meshes never change, and each actor is used once: no repeatable currency farm.
@@ -180,6 +180,7 @@ export class BiomeDynamics {
       } else if (item.family === 'bloom') {
         const gain = Math.min(BIOME_DYNAMIC_TUNING.glowGift, Math.max(0, e.maxFlame - e.flame));
         e.flame += gain; e.flameRestored += gain;
+        e.storeNaturalOverflow?.({id:item.id,kind:'light'},{fuel:BIOME_DYNAMIC_TUNING.glowGift},BIOME_DYNAMIC_TUNING.glowGift-gain);
         e.setEvent?.(gain > 0 ? `Seedpod · +${formatGlow(gain)} Glow` : 'Seedpod · Glow full');
       }
       e.burst?.(item.x - e.distance, item.y, 9, item.color);

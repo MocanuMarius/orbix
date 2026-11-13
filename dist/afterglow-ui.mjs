@@ -1,20 +1,3 @@
-import {formatGlow} from './vitality.mjs?v=living-biomes-1';
-// Reserve remains visible when empty or locked so overflow has a clear destination.
-const amountOf = value => Math.max(0, Number.isFinite(Number(value)) ? Number(value) : 0);
-export const formatStoredGlow = value => {
-  const amount = amountOf(value);
-  return formatGlow(amount);
-};
-export function reserveIconMarkup() {
-  return '<svg class="ico reserve-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3h8v3H8zM8 6 5 10v9c0 2 14 2 14 0v-9l-3-4M5 15h14"/><path d="M12 9c-2 2-3 3-3 4a3 3 0 0 0 6 0c0-1-1-2-3-4Z"/></svg>';
-}
-export function storedGlowPanelMarkup(reserve = {}, { draw = false } = {}) {
-  if(reserve.unlocked!==true)return `<button class="afterglow-readout stored-glow-panel reserve-locked" data-action="inspect-afterglow">${reserveIconMarkup()}<span>AFTERGLOW</span><strong>LOCKED</strong></button>`;
-  return `<button class="afterglow-readout stored-glow-panel" data-action="inspect-afterglow">${reserveIconMarkup()}<span>AFTERGLOW</span><strong>${formatGlow(reserve.amount,reserve.maxGlow)} / ${formatGlow(reserve.cap)}</strong><small>SPENT BEFORE GLOW</small></button>`;
-}
-export function storedGlowChangeMarkup(values, { summary = false, practice = false, maxGlow = 100 } = {}) {
-  if (!values) return '';
-  const stored = amountOf(values.stored), lost = amountOf(values.loss);
-  if (summary) return lost > 0 ? `<div class="afterglow-change stored-glow-change"><span class="reserve-loss">${reserveIconMarkup()}−${formatGlow(lost,maxGlow)} Stored Glow</span></div>` : '';
-  return stored > 0 ? `<div class="afterglow-change stored-glow-change"><span>${reserveIconMarkup()}+${formatGlow(stored,maxGlow)} ${practice ? 'practice reserve' : 'Stored Glow'}</span></div>` : '';
-}
+// Condensed Glow is run currency, never a second flight-fuel reserve.
+export const formatCondensedGlow=value=>String(Math.max(0,Math.floor(Number(value)||0)));
+export function condensedIconMarkup(){return '<svg class="ico condensed-icon" viewBox="0 0 24 24" aria-hidden="true" shape-rendering="crispEdges"><path d="M8 2h8v2h4v4h2v8h-2v4h-4v2H8v-2H4v-4H2V8h2V4h4Z" fill="#526f65"/><path d="M8 5h8v3h3v8h-3v3H8v-3H5V8h3Z" fill="#b4d7c3"/><path d="M9 8h6v8H9zM8 10h8v4H8z" fill="#fff5d3"/><path d="M4 3h2v2H4zM19 19h2v2h-2Z" fill="#c4e7cf"/></svg>';}

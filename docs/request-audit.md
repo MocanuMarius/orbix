@@ -200,3 +200,15 @@ Implemented twelve biome identities with four authored flight courses each, a se
 Wind now has materially stronger local force with a longer warning, and biome vent currents share production wind prediction and Runner resistance. Ice responds to scene illumination; dangerous fragments use the existing shield/death rules. Positive objects provide single-use lift, reveal or a capped Glow gift, not extra upgrade currency. Boss/tutorial dynamics remain authored. A simulation revision invalidates stale Dream recordings.
 
 Focused catalog, 144 actual flight/encounter combinations, behavior, Dream, projection and route checks pass. No claim of human win-rate balance or physical-phone 60 FPS is made.
+
+## Single-resource economy — condensed-glow-1
+
+The later request replaces Ember currency and the Afterglow fuel reserve throughout model, flight, rewards, trees, guide, tutorial and HUD. Actual natural pickup surplus now creates Condensed Glow after filling usable Glow. Whole currency and fractional credit share one conversion helper. The meter ceiling sends a bounded pool of pixel sparks to the currency counter; reduced motion retains the numeric feedback.
+
+Condensation is an early Glow-tree investment (3 surplus becomes 4), followed by smaller conversion ranks and a mutually exclusive yield/held-balance specialization. Holding tiers are bounded at 100/200/300, all bonuses cap at 1.6x, and waiting pays nothing. New runs start with one free root and 8 currency. Progressive training prices replace the runaway flat-price economy; all displayed quotes, including locked buds, use the same current pricing helper.
+
+Only cleared attempts bank their provisional pickup earnings. Automatic recovery, generated fuel, retries and Dream rehearsals cannot mint currency. Reward dissolution and one-use offerings restore Glow before condensing the surplus. Optional challenges improve relic rarity odds, not direct currency. A natural one-use seedpod may now condense actual surplus; this intentionally supersedes the previous biome note's currency exclusion. Artifact sales remove the artifact before calculating the preview and payment. Refunds use historical paid amounts and are excluded from earned-income statistics.
+
+The resource simulation exposed substantial fuel supply differences between roof and floor layouts. Duration-based fuel floors enrich safe existing lights before filling sparse body-clear pockets. Ascension 1 has extra supply, while boss hard-section labels no longer exclude every usable pocket. Existing dark chains, wind warnings and solid scenery keep their clearances.
+
+Focused model/engine/Dream checks pass, including failed-attempt rollback, fractional rounding, single payment through Collector or body, repeated settlement/save loading, exact refunds, sale previews and isolated practice. Landscape UI inspection covers the new-game gift, Condensation description, single fuel gauge, currency counter, in-game explanation and overflow motes without runtime errors. The current campaign report documents scenario assumptions and limitations separately from these functional checks.

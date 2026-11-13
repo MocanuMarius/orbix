@@ -1,27 +1,27 @@
-import {glowText} from './vitality.mjs?v=living-biomes-1';
+import {glowText} from './vitality.mjs?v=condensed-glow-1';
 const stop=(kind,label,name,summary)=>Object.freeze({kind,label,name,summary,icon:kind});
 export const MAP_STOP_TYPES=Object.freeze({
-flight:stop('flight','FLIGHT','Flight','Fly a passage, choose a relic or Embers, and recover Glow.'),
-treasure:stop('treasure','TREASURE','Treasure','Mount an artifact in an open slot, replace one, or take Embers.'),
-rest:stop('rest','REST','Rest','Recover Glow, gather Embers or refill all hearts. Prepare skills, companions and a Dream before leaving.'),
+flight:stop('flight','FLIGHT','Flight','Fly a passage, choose a relic or dissolve it into Glow, and recover fuel.'),
+treasure:stop('treasure','TREASURE','Treasure','Mount an artifact, replace one, or dissolve it into Glow. Surplus condenses.'),
+rest:stop('rest','REST','Rest','Recover Glow or refill hearts. Prepare skills, companions and a Dream before leaving.'),
 encounter:stop('encounter','ENCOUNTER','Encounter','A bargain, sanctuary, workshop or dice encounter. Preview the stakes.'),
 boss:stop('boss','BOSS','Boss','Face the guardian at the end of the third map.'),
 });
 export const EVENT_SCENARIOS=Object.freeze([
-{id:'ash-spring',index:0,name:'Ash Spring',summary:'Spend 12 embers for full Glow, or take 16 embers.',detail:'A rare full refill competes directly with upgrade money for this run.'},
-{id:'cinder-bargain',index:1,name:'Cinder Bargain',summary:'Trade 15 Glow for 35 embers, or take 12 embers safely.',detail:'If you lack 15 Glow, the first option instead recovers 18 Glow.'},
-{id:'abandoned-lantern',index:2,name:'Abandoned Lantern',summary:'Recover 24 Glow or take 22 embers.',detail:'Choose fuel for the next passage or Embers for this run’s upgrades.'},
-{id:'weathered-shrine',index:3,name:'Weathered Shrine',summary:'Buy an offered skill rank for this run at a discount, or take 20 embers.',detail:'This specific trade does not open general skills or fleet service.'},
-{id:'luminous-well',index:4,name:'Luminous Well',summary:'Refill Glow or take 12 embers.',detail:'With Afterglow learned, the second option stores up to 10 Afterglow instead.'},
-{id:'ember-archive',index:5,name:'The Ember Archive',summary:'Trade an owned artifact, or keep your possessions and take 20 embers.',detail:'Trade an artifact for its Ember value and recover 40% Glow, or keep it and take 20 Embers. Without an artifact, the first choice recovers 24 Glow.'},
-{id:'ember-dice',index:6,name:'Ember Dice',summary:'Take 14 Embers, or spend 12% Glow to roll for 4, 24, or 48.',detail:'Each pair of faces is equally likely. One cast; the outcome stays fixed if you return.'},
-{id:'lost-lanterns',index:7,name:'Lost Lanterns',summary:'Choose Glow, Embers, or sacrifice Glow for an artifact.',detail:'Three offerings: 35% Glow, 24 Embers, or an artifact choice costing 15% Glow.'},
-{id:'wisp-bargain',index:8,name:'Wisp Bargain',summary:'Take 32 Embers with a one-flight Lift burden, or 10 safely.',detail:'The burden raises Lift effort by 12% for only your next flight.'},
-{id:'sanctuary',index:9,name:'Quiet Sanctuary',summary:'Choose 40% Glow, a missing heart, or faster companion recovery.',detail:'The blessing makes companion recovery 20% faster for your next flight.'},
-{id:'workshop',index:10,name:'Lantern Workshop',summary:'Refund a main skill branch, or keep your build and take 16 Embers.',detail:'Refund paid Ember costs for that branch. Your free starting gift remains learned.'},
-{id:'companion-shrine',index:11,name:'Companion Shrine',summary:'Bless your companions, buy a discounted skill, or take 18 Embers.',detail:'A temporary blessing improves recovery by 20% for your next flight.'},
+{id:'ash-spring',index:0,name:'Ash Spring',summary:'Trade Condensed Glow for a refill, or collect a smaller light offering.',detail:'A full refill spends upgrade currency. A finite offering fills Glow first and condenses its surplus.'},
+{id:'cinder-bargain',index:1,name:'Cinder Bargain',summary:'Trade some fuel for an artifact, or take a safe light offering.',detail:'Preview the Glow cost and the actual fuel/condensed split before accepting.'},
+{id:'abandoned-lantern',index:2,name:'Abandoned Lantern',summary:'Recover fuel or collect the lantern’s remaining light.',detail:'Recovery fills fuel only. A finite light offering can condense above your maximum.'},
+{id:'weathered-shrine',index:3,name:'Weathered Shrine',summary:'Buy a discounted skill or collect a light offering.',detail:'The offered skill spends Condensed Glow. This shrine does not provide full Rest services.'},
+{id:'luminous-well',index:4,name:'Luminous Well',summary:'Choose full recovery or a finite light offering.',detail:'Rest-style recovery never produces currency; a light offering condenses only its actual surplus.'},
+{id:'ember-archive',index:5,name:'The Glow Archive',summary:'Dissolve an artifact or keep your build and accept a light offering.',detail:'Dissolved artifacts release Glow. Any surplus becomes Condensed Glow for run skills.'},
+{id:'ember-dice',index:6,name:'Prism Dice',summary:'Take a certain light offering, or spend Condensed Glow on one roll.',detail:'Three equally likely offerings. One cast; the result stays fixed if you return.'},
+{id:'lost-lanterns',index:7,name:'Lost Lanterns',summary:'Choose recovery, a light offering, or sacrifice fuel for an artifact.',detail:'Each lantern trades immediate fuel, future upgrades or a changed build.'},
+{id:'wisp-bargain',index:8,name:'Wisp Bargain',summary:'Take a larger offering with a Lift burden, or travel lightly.',detail:'The burden raises Lift effort for only the next flight. Preview each offering’s fuel and condensed value.'},
+{id:'sanctuary',index:9,name:'Quiet Sanctuary',summary:'Choose fuel, a missing heart, or faster companion recovery.',detail:'The blessing improves companion recovery for your next flight.'},
+{id:'workshop',index:10,name:'Lantern Workshop',summary:'Refund a main skill branch, or keep your build and collect light.',detail:'Refund paid Condensed Glow from that branch. Your free starting gift stays learned.'},
+{id:'companion-shrine',index:11,name:'Companion Shrine',summary:'Bless companions, buy a discounted skill, or accept a light offering.',detail:'The blessing improves recovery for your next flight. Skills spend Condensed Glow.'},
 ].map(Object.freeze));
-export function getEventScenarios(options={}){const unlocked=typeof options==='boolean'?options:options.afterglowUnlocked===true;return EVENT_SCENARIOS.map(e=>{const entry=e.index===4&&unlocked?{...e,summary:'Refill Glow or store up to 10 Glow in Afterglow.',detail:'Stored light pays your next flight’s Glow costs first.'}:e;return {...entry,summary:glowText(entry.summary,options.maxGlow||100),detail:glowText(entry.detail,options.maxGlow||100)};});}
+export function getEventScenarios(options={}){return EVENT_SCENARIOS.map(entry=>({...entry,summary:glowText(entry.summary,options.maxGlow||100),detail:glowText(entry.detail,options.maxGlow||100)}));}
 function kindOf(value){
  if(typeof value==='string'){
   if(value==='camp')return'rest';if(value==='treasure')return'treasure';if(value==='elite')return'flight';
