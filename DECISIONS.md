@@ -2,6 +2,10 @@
 
 Updated 13 November 2026. Wispbound is the working title. This log records the confirmed direction and subsequent implementation choices. All ten recommended alignment choices were accepted in chat.
 
+## Glow boon rings — 13 November 2026
+
+Positive fuel pickups share three fixed concentric slots, filled from outside inward: Light Mote one ring, Glow Cluster two, Glow Cache three. Thick pale bands retain gaps and the separate thin contact boundary. Ring count represents existing strength tiers, not literal Glow units; rewards and collision sizes are unchanged. Utility and harmful pickups keep their distinct symbols. The field guide uses the same art.
+
 ## Packed Light naming — 13 November 2026
 
 The upgrade currency is now named Packed Light throughout the interface, with a pixel box containing a luminous center. This supersedes the earlier Condensed Glow name; conversion, prices and saved balances are unchanged. Overflow continues to rise into the left-side counter as a continuous beam.
