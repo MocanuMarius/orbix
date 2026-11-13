@@ -1,5 +1,5 @@
-import {LOCATION_CHALLENGE_NAMES} from './world-expansion.mjs?v=pixel-landscape-1';
-import { createDraftZones, DRAFT_TUNING } from './drafts.mjs?v=pixel-landscape-1';
+import {LOCATION_CHALLENGE_NAMES} from './world-expansion.mjs?v=pixel-landscape-2';
+import { createDraftZones, DRAFT_TUNING } from './drafts.mjs?v=pixel-landscape-2';
 
 const clamp = (value, low, high) => Math.max(low, Math.min(high, value));
 const NAMES = Object.freeze({

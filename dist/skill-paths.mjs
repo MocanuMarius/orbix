@@ -1,4 +1,4 @@
-import {skillProgress} from './skill-increments.mjs?v=pixel-landscape-1';
+import {skillProgress} from './skill-increments.mjs?v=pixel-landscape-2';
 // Named, one-time specialisations. Each pair is exclusive for this run.
 const paths=[];
 function fork(branch,parent,a,b){

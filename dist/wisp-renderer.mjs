@@ -1,14 +1,14 @@
-import {drawFlightProjection} from './flight-projection.mjs?v=pixel-landscape-1';
-import {drawGlowSense} from './glow-sense.mjs?v=pixel-landscape-1';
-import {formatGlow} from './vitality.mjs?v=pixel-landscape-1';
-import {LOCATION_PALETTES} from './world-expansion.mjs?v=pixel-landscape-1';
-import { sceneryIdentity, drawIdentityBackground, drawIdentityMaterial, drawIdentityLife } from './level-scenery.mjs?v=pixel-landscape-1';
-import { getCompanionAbility, normalizeCompanionRole } from './companion-abilities.mjs?v=pixel-landscape-1';
-import { companionSprite, companionPalette } from './companion-art.mjs?v=pixel-landscape-1';
-import { createScenePropArt } from './scene-prop-art.mjs?v=pixel-landscape-1';
-import { drawBoss } from './boss.mjs?v=pixel-landscape-1';
-import { drawPickup } from './pickup-art.mjs?v=pixel-landscape-1';
-import { pickupKind, getPickupSpec, pickupContactRadius } from './pickups.mjs?v=pixel-landscape-1';
+import {drawFlightProjection} from './flight-projection.mjs?v=pixel-landscape-2';
+import {drawGlowSense} from './glow-sense.mjs?v=pixel-landscape-2';
+import {formatGlow} from './vitality.mjs?v=pixel-landscape-2';
+import {LOCATION_PALETTES} from './world-expansion.mjs?v=pixel-landscape-2';
+import { sceneryIdentity, drawIdentityBackground, drawIdentityMaterial, drawIdentityLife } from './level-scenery.mjs?v=pixel-landscape-2';
+import { getCompanionAbility, normalizeCompanionRole } from './companion-abilities.mjs?v=pixel-landscape-2';
+import { companionSprite, companionPalette } from './companion-art.mjs?v=pixel-landscape-2';
+import { createScenePropArt } from './scene-prop-art.mjs?v=pixel-landscape-2';
+import { drawBoss } from './boss.mjs?v=pixel-landscape-2';
+import { drawPickup } from './pickup-art.mjs?v=pixel-landscape-2';
+import { pickupKind, getPickupSpec, pickupContactRadius } from './pickups.mjs?v=pixel-landscape-2';
 
 const TAU = Math.PI * 2;
 const SCENERY_HELPERS = { line: pixelLine, disc: pixelDisc, polygon: path };
