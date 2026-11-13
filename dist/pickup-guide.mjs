@@ -1,7 +1,7 @@
-import {formatGlow} from './vitality.mjs?v=living-choices-1';
-import { PICKUP_TYPES, getPickupSpec } from './pickups.mjs?v=living-choices-1';
-import { pickupArtSvg } from './pickup-art.mjs?v=living-choices-1';
-import { normalizeCompanionRole, normalizeCompanionFleet } from './companion-abilities.mjs?v=living-choices-1';
+import {formatGlow} from './vitality.mjs?v=living-choices-2';
+import { PICKUP_TYPES, getPickupSpec } from './pickups.mjs?v=living-choices-2';
+import { pickupArtSvg } from './pickup-art.mjs?v=living-choices-2';
+import { normalizeCompanionRole, normalizeCompanionFleet } from './companion-abilities.mjs?v=living-choices-2';
 
 const esc = value => String(value ?? '').replace(/[&<>"']/g, char =>
   ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
@@ -66,5 +66,5 @@ export function pickupLesson(kind, { role = 'collector', companions, maxGlow=100
     default:
       text = spec.description;
   }
-  return { id: spec.id, title: spec.name, text, actionLabel: 'Continue' };
+  return { id: spec.id, title: spec.name, visual:'pickup:'+spec.id, text, actionLabel: 'Continue' };
 }

@@ -2,9 +2,9 @@
 
 A landscape, one-handed pixel flight roguelite. The static game lives in `dist/` and uses a custom Canvas simulation and cached renderer. No build step or runtime framework dependency.
 
-## Current release: living-choices-1
+## Current release: living-choices-2
 
-[Play on your phone](https://mocanumarius.github.io/orbix/?v=living-choices-1) · [900 × 405 sidebar preview](https://mocanumarius.github.io/orbix/preview.html?v=living-choices-1)
+[Play on your phone](https://mocanumarius.github.io/orbix/?v=living-choices-2) · [900 × 405 sidebar preview](https://mocanumarius.github.io/orbix/preview.html?v=living-choices-2)
 
 Run `npm start` to serve the game at localhost:4173. The phone link fills the device; `preview.html` keeps landscape proportions inside a narrow browser panel.
 
@@ -55,3 +55,5 @@ The earlier [economy report](docs/condensed-glow-balance.md) is historical scena
 ## Local Rest inspector
 
 Run `npm run preview:rest`, then open http://localhost:4180. It shows the production Rest UI inside a 900×405 landscape frame with an isolated mock run: 18/30 Glow, 2/4 hearts, 180 Packed Light, three artifacts and Dream unlocked. Buttons reset arrival, jump directly to preparation, or start with full Glow. Purchases, forging, companion changes and rehearsals work in memory; refresh resets the fixture. The inspector does not read or write a real run save and is not included in the published game.
+
+Visual tutorial vocabulary now reuses actual Spark, meter, Packed Light, companion, artifact, Dream and map-site art. One contextual concept is introduced at a time, with short text and existing safe 0.1x-to-1x resume. Rest coach targets were corrected to the new benefit cards/preparation tools. Single-step hints omit the disabled Back action. Previewed at 900x405 and 844x320 without overflow.

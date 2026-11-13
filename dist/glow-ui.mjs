@@ -1,4 +1,4 @@
-import {getGlowCapacity,GLOW_DISPLAY_SCALE} from './vitality.mjs?v=living-choices-1';
+import {getGlowCapacity,GLOW_DISPLAY_SCALE} from './vitality.mjs?v=living-choices-2';
 const clamp=v=>Math.max(0,Math.min(1,v));
 // Cells and gaps share one grid: a lit cell always represents one whole Sparks.
 export function glowGaugeUnits(flame,maximum=100){

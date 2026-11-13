@@ -1,4 +1,4 @@
-import {CONDENSED_TUNING} from './condensed-glow.mjs?v=living-choices-1';
+import {CONDENSED_TUNING} from './condensed-glow.mjs?v=living-choices-2';
 // Shared flight Sparks and expedition rules. Overflow is Packed Light.
 export const FLAME_TUNING = Object.freeze({ maximum: 100, starting: 100, flapCost: 7,
   emberFuel: 24, heartFuel: 50, generatedFuel: 6, checkpointMinimum: 0, warmCorePickups: 4 });
