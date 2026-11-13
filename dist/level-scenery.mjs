@@ -1,6 +1,6 @@
-import {drawBiomeBackground,drawBiomeMaterial,drawBiomeLife} from './biome-art.mjs?v=condensed-glow-1';
-import {drawExpandedBackdrop} from './world-scenery.mjs?v=condensed-glow-1';
-import { resolveLevelIdentity } from './level-catalog.mjs?v=condensed-glow-1';
+import {drawBiomeBackground,drawBiomeMaterial,drawBiomeLife} from './biome-art.mjs?v=edge-and-void-1';
+import {drawExpandedBackdrop} from './world-scenery.mjs?v=edge-and-void-1';
+import { resolveLevelIdentity } from './level-catalog.mjs?v=edge-and-void-1';
 
 const TAU = Math.PI * 2;
 const clamp = (n, a, b) => Math.max(a, Math.min(b, n));

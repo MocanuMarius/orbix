@@ -2,6 +2,30 @@
 
 Updated 13 November 2026. Wispbound is the working title. This log records the confirmed direction and subsequent implementation choices. All ten recommended alignment choices were accepted in chat.
 
+## Edge, void and readable choices — 13 November 2026
+
+Black Holes are persistent environmental drains, separate from collectible Dark Seeds. Each non-tutorial course places one in a quiet room with a tested body-clear bypass, or a guarded approach fallback; impossible synthetic layouts omit the hole instead of sealing the route. The 16-unit core is approximately the wisp's visible size. Drain uses a softened inverse-square curve, tapers to zero at 220 world units, and caps at 24 displayed Glow per second. There is no physical pull, collision death, currency debit or shield immunity. Zero Glow still disables Lift and allows rescue pickups while falling.
+
+Recorded actual fuel loss drives at most 48 pixel motes, which leave the wisp, curve into the hole and spiral inward. Empty fuel emits no new stolen light. The hole retains an opaque black core through light reveals; a muted red rim signals danger. The Glow meter tints during actual drain. Pauses freeze the effect and simulation; Dream recording and replay incur the same environmental drain.
+
+Skill maps emphasize the immediate purchase frontier: affordable nodes glow, unaffordable reachable nodes stay subdued and state their shortfall, learned nodes carry checks, next prerequisites appear as small anonymous locks, and deeper nodes are only faint dots. Unchosen exclusive paths close. TEST reveals all content while retaining prices. Vitality uses a pixel heart, life capacity a heart-plus, radius a sun, reduced effort a Glow-minus, Lift an upward arrow, steadiness a horizontal hold and cooldown a returning clock. Existing branch colors remain secondary cues.
+
+Route maps preserve the committed graph and only expose actual next destinations as selectable. Current position and reachable landmarks are brightest, future previews muted, and closed branches have no controls. The new map art replaces uniform circles and straight links with uneven trails and illustrated landmarks, without adding encounter categories.
+
+Focused validation: 192 normal course/size/seed variants and four boss variants retain body-clear bypasses, including moving geometry; black-hole fuel bounds, pause/Dream/resize behavior and bounded read-only art pass. Existing Condensed Glow and Edging probes pass. Skill disclosure and affordability probes pass. These checks do not establish human win rates, phone FPS or a newly rebalanced campaign economy. The previous 6,240-case economy report predates environmental drain. Current v7 saves continue; older Dream presets must be rehearsed again.
+
+## Edging Pulse — 13 November 2026
+
+Every wisp can build a passive Edging Pulse by flying within 24 world units of a real solid boundary, while remaining outside collision. This includes terrain, solid scenery and the lethal top/bottom screen limits. Decorative backgrounds and the camera's left/right edges do not count. Four seconds of accumulated close flight fills the meter; open space drains 18 percentage points per second. The player retains the same two flight controls.
+
+Full charge automatically resets the meter and releases three gentle waves of diminishing light over five seconds, revealing the whole visible scene. Two seconds of recovery follow. No charge accumulates during the pulse or recovery. The effect reveals information; it awards no fuel, Condensed Glow, pickup event, shield or artifact trigger. Ready Protector layers do not prevent charge, but active collision protection does. Runner speed bursts resist wind rather than terrain, so they still allow risky-edge charging. Contact clears stored charge. Death, completion and Dream rehearsal/playback suppress it; pausing preserves simulation time.
+
+The passive PULSE meter appears beside Glow on the first close approach. Warm color identifies charging; active fill counts down the remaining release. Existing pickup help explains the mechanic without interrupting normal flight. Reduced motion uses a smooth steady fade instead of repeated waves. Edging and pickup reveals combine by maximum brightness, never additive exposure; both rendering paths and scene visibility agree, including light-reactive ice.
+
+Radiance leads to Edge Attunement (+25% charge, 3.2 seconds), then a mutually exclusive fork: Lasting Pulse (seven seconds) or Held Tension (half the open-space decay). Base prices are 80/100/90 Condensed Glow under the existing progressive price curve. These three Light nodes fit the current radial layout. Existing v7 run saves continue; the simulation fingerprint invalidates older Dream presets.
+
+Focused checks cover 2,016 geometry/collider comparisons, moving and resized scenery, fixed-step determinism, charge/decay/recovery, protection and lifecycle guards, three descending light peaks, reduced motion, economic/artifact isolation, skill prerequisites/forks and save persistence. A 48-course, 3,840-update controller benchmark used at most seven nearby obstacles and measured about 0.011ms p95 on the development machine; this is not renderer or physical-phone frame-time evidence. Landscape browser inspection confirms the meter and full-scene reveal. The older broad flight/terrain suites contain obsolete health/companion/snapshot assumptions; only the focused current probes are claimed as passing. No new broad campaign-economy simulation was run for this sight feature.
+
 ## One light economy — 13 November 2026
 
 This section supersedes every older Ember currency and Afterglow reserve rule. Flight Glow is still displayed in small whole numbers (30 base capacity). Natural pickups refill it, then actual surplus converts 1:1 into **Condensed Glow**, the run's upgrade currency. Fractional conversion credit is retained internally so splitting a pickup cannot create money. The flight meter has no second reserve. A bounded pool of pixel motes animates surplus from the meter ceiling into the top currency counter, with a batched whole-number gain and reduced-motion support.

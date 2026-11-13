@@ -212,3 +212,20 @@ Only cleared attempts bank their provisional pickup earnings. Automatic recovery
 The resource simulation exposed substantial fuel supply differences between roof and floor layouts. Duration-based fuel floors enrich safe existing lights before filling sparse body-clear pockets. Ascension 1 has extra supply, while boss hard-section labels no longer exclude every usable pocket. Existing dark chains, wind warnings and solid scenery keep their clearances.
 
 Focused model/engine/Dream checks pass, including failed-attempt rollback, fractional rounding, single payment through Collector or body, repeated settlement/save loading, exact refunds, sale previews and isolated practice. Landscape UI inspection covers the new-game gift, Condensation description, single fuel gauge, currency counter, in-game explanation and overflow motes without runtime errors. The current campaign report documents scenario assumptions and limitations separately from these functional checks.
+
+## Edging Pulse — edge-and-void-1
+
+Implemented the requested risk-for-sight mechanic as a baseline passive ability. Signed body clearance uses actual terrain and solid prop polygons plus the top/bottom collision limits; neither backdrop decoration nor the side of the viewport can charge it. Nearby geometry and cached local bounds keep work bounded. Four seconds of close flight releases three decreasing light waves over five seconds; open flight drains charge, with two seconds of recovery after release.
+
+The separate PULSE meter appears beside Glow without a third action button. Static pickup help explains the rule. Radiance now branches through Edge Attunement into a choice of longer pulses or retained charge. No direct fuel/currency reward or artifact event is created; active protection cannot charge it. Rendering, visibility, pause/Dream/death guards and reduced motion use the same state. Existing v7 saves remain valid; old Dream presets are intentionally invalidated.
+
+Current focused geometry/timing/skill/light/Dream/Condensed Glow probes pass. The new Light nodes fit the landscape radial tree. The CPU microbenchmark is limited to controller work, not a claim about Pixel 10 FPS. Older broad suites fail on obsolete health, companion and pricing fixtures; they were not relabelled as passing or rewritten as part of this feature.
+
+
+## Black holes and quieter, intuitive choices — edge-and-void-1
+
+Implemented persistent inverse-square Glow-draining holes with actual-loss-driven spiral particles, safe seeded placements, zero-fuel fall behavior and shield-independent drain. Dark Seed pickups remain distinct. The flight-effects guide is optional and collapsed.
+
+Implemented affordable/saving/learned/locked skill states, anonymous distant dots, hidden excluded branches, sanitized stale selection and full TEST visibility. Replaced the Vitality stair-like symbol with a heart and clarified radius, life capacity, effort, Lift, hold and cooldown symbols. Route art uses grounded landmarks and irregular trails while preserving authoritative clickability and committed paths.
+
+Validation covers 192 normal layouts plus boss variants, controller/art bounds and replay parity, skill disclosure and the current economy invariants. Browser review uses 900×405 landscape. No new physical-device FPS or human balance claim.

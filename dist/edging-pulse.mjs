@@ -1,0 +1,132 @@
+// Risk-earned sight, available to every Wisp. This controller never spends or
+// grants Glow, collects a packet, or invokes an artifact's work/reveal hooks.
+const clamp = (n, lo, hi) => Math.min(hi, Math.max(lo, n));
+const smooth = n => n * n * (3 - 2 * n);
+const EPSILON = 1e-9;
+export const EDGING_PULSE_TUNING = Object.freeze({ clearance: 24, chargeSeconds: 4,
+  decayPerSecond: .18, duration: 5, recovery: 2, waves: 3 });
+const number = (value, fallback, lo, hi) => Number.isFinite(Number(value))
+  ? clamp(Number(value), lo, hi) : fallback;
+
+// Local X never changes when the viewport rescales Y. Keep the actual polygon
+// references: sway and resized Y are read live, with no transformed vertices.
+const xBounds = new WeakMap();
+function polygonClearance(x, y, radius, polygon, reach) {
+  if (!polygon?.length) return Infinity;
+  let bounds = xBounds.get(polygon);
+  if (!bounds || bounds.length !== polygon.length) {
+    let min = Infinity, max = -Infinity;
+    for (const point of polygon) { min = Math.min(min, point[0]); max = Math.max(max, point[0]); }
+    bounds = { min, max, length: polygon.length }; xBounds.set(polygon, bounds);
+  }
+  if (x + radius + reach < bounds.min || x - radius - reach > bounds.max) return Infinity;
+  let inside = false, squaredDistance = Infinity;
+  for (let i = 0, j = polygon.length - 1; i < polygon.length; j = i++) {
+    const a = polygon[j], b = polygon[i];
+    if ((a[1] > y) !== (b[1] > y) && x < (b[0] - a[0]) * (y - a[1]) / (b[1] - a[1]) + a[0]) inside = !inside;
+    const dx = b[0] - a[0], dy = b[1] - a[1];
+    const t = clamp(((x - a[0]) * dx + (y - a[1]) * dy) / (dx * dx + dy * dy || 1), 0, 1);
+    squaredDistance = Math.min(squaredDistance, (x - a[0] - dx * t) ** 2 + (y - a[1] - dy * t) ** 2);
+  }
+  return (inside ? -1 : 1) * Math.sqrt(squaredDistance) - radius;
+}
+
+/** Signed body clearance from the same solid terrain/prop parts as collision. */
+export function obstacleEdgeClearance(x, y, radius, obstacle, time = 0, reach = Infinity, center) {
+  if (obstacle.destroyed) return Infinity;
+  const originY = center ?? obstacle.center + Math.sin(time * .9 + (obstacle.phase || 0)) * (obstacle.motion || 0);
+  const localX = x - obstacle.x, localY = y - originY;
+  let clearance = Math.min(
+    polygonClearance(localX, localY + obstacle.gap / 2, radius, obstacle.topShape, reach),
+    polygonClearance(localX, localY - obstacle.gap / 2, radius, obstacle.bottomShape, reach));
+  for (const prop of obstacle.sceneProps || []) for (const part of prop.parts) {
+    clearance = Math.min(clearance, polygonClearance(localX, localY - prop.side * obstacle.gap / 2, radius, part.polygon, reach));
+  }
+  return clearance;
+}
+
+export class EdgingPulse {
+  constructor(engine) {
+    this.engine = engine;
+    this.charge = 0; this.nearEdge = false; this.remaining = 0; this.recoveryRemaining = 0;
+    this.duration = number(engine.mod?.edgingDuration, EDGING_PULSE_TUNING.duration, 1, 12);
+    this.triggerCount = 0;
+  }
+
+  get dreaming() { return !!this.engine.dream && this.engine.dream.phase !== 'done'; }
+  get live() {
+    const e = this.engine;
+    return e.running && e.alive && !e.finished && !e.destroyed && !e.dying && !e.completing && !e.tutorialAwaitingLift;
+  }
+  get protected() {
+    const e = this.engine;
+    // Runner's burst/exit guard resist wind, not terrain contact.
+    return e.shield?.protection > 0
+      || e.invulnerable === true || e.invulnerability > 0 || e.invulnerabilityTime > 0;
+  }
+  get strength() {
+    if (!this.live || this.dreaming || this.remaining <= 0) return 0;
+    const elapsed = this.duration - this.remaining;
+    const onset = smooth(clamp(elapsed / (this.engine.reducedMotion ? .45 : .4), 0, 1));
+    const fade = smooth(clamp(this.remaining / this.duration, 0, 1));
+    const wave = this.engine.reducedMotion ? 1
+      : .65 + .35 * Math.cos(Math.max(0, elapsed - .4) / this.duration * Math.PI * 2 * EDGING_PULSE_TUNING.waves);
+    return clamp(onset * fade * wave, 0, 1);
+  }
+  get state() {
+    const visible = this.live && !this.dreaming;
+    return { charge: visible ? this.charge : 0,
+      nearEdge: visible && !this.engine.paused && !this.protected && this.nearEdge,
+      active: visible && this.remaining > 0, remaining: visible ? this.remaining : 0,
+      duration: this.duration, strength: this.strength,
+      recovering: visible && this.recoveryRemaining > 0, triggerCount: this.triggerCount };
+  }
+
+  reset() { this.charge = 0; this.nearEdge = false; this.remaining = 0; this.recoveryRemaining = 0; }
+  impact() { this.charge = 0; this.nearEdge = false; }
+
+  update(dt, obstacles) {
+    const e = this.engine;
+    if (e.paused || !(dt > 0) || !Number.isFinite(dt)) return;
+    if (!this.live || this.dreaming) { this.reset(); return; }
+    this.nearEdge = false;
+    if (this.remaining > 0) {
+      this.remaining = Math.max(0, this.remaining - dt);
+      if (this.remaining < EPSILON) {
+        this.remaining = 0;
+        this.recoveryRemaining = number(e.mod?.edgingRecovery, EDGING_PULSE_TUNING.recovery, 0, 10);
+      }
+      return;
+    }
+    if (this.recoveryRemaining > 0) {
+      this.recoveryRemaining = Math.max(0, this.recoveryRemaining - dt);
+      if (this.recoveryRemaining < EPSILON) this.recoveryRemaining = 0;
+      return;
+    }
+    if (!this.protected) {
+      // Boundary collisions use the orb's center at these exact thresholds;
+      // this is the remaining safe margin, not the decorative screen border.
+      let clearance = Math.min(e.player.y - 27, e.height - 28 - e.player.y);
+      const worldX = e.distance + e.player.x, radius = e.player.radius;
+      for (const obstacle of obstacles) {
+        // Broadphase is identical to the flight collider's terrain footprint.
+        if (obstacle.destroyed || worldX + radius + EDGING_PULSE_TUNING.clearance < obstacle.x - obstacle.width
+          || worldX - radius - EDGING_PULSE_TUNING.clearance > obstacle.x + obstacle.width * 2.5) continue;
+        clearance = Math.min(clearance, obstacleEdgeClearance(worldX, e.player.y, radius, obstacle,
+          e.time, EDGING_PULSE_TUNING.clearance, e.obstacleCenter(obstacle)));
+      }
+      if (clearance <= EPSILON) { this.impact(); return; }
+      this.nearEdge = clearance <= EDGING_PULSE_TUNING.clearance;
+    }
+    const rate = number(e.mod?.edgingChargeRate, 1, .25, 4);
+    const decay = number(e.mod?.edgingDecayRate, 1, 0, 4);
+    this.charge = clamp(this.charge + dt * (this.nearEdge ? rate / EDGING_PULSE_TUNING.chargeSeconds
+      : -EDGING_PULSE_TUNING.decayPerSecond * decay), 0, 1);
+    if (this.charge >= 1 - EPSILON) {
+      this.charge = 0; this.nearEdge = false; this.triggerCount++;
+      this.duration = number(e.mod?.edgingDuration, EDGING_PULSE_TUNING.duration, 1, 12);
+      this.remaining = this.duration;
+      e.setEvent?.('Edging Pulse · the way is revealed');
+    }
+  }
+}

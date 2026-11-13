@@ -1,4 +1,4 @@
-import {formatGlow,getGlowCapacity,FLAME_TUNING,glowPoints} from './vitality.mjs?v=condensed-glow-1';
+import {formatGlow,getGlowCapacity,FLAME_TUNING,glowPoints} from './vitality.mjs?v=edge-and-void-1';
 const clamp=v=>Math.max(0,Math.min(1,v));
 export function glowGaugeMarkup(run){
  const max=getGlowCapacity(run);
@@ -22,6 +22,7 @@ function spill(gauge,gain,raw){
 }
 export function updateGlowGauge(gauge,s){
  if(!gauge)return;
+ const draining=(s.blackHole?.rate||0)>0;if(gauge._draining!==draining){gauge._draining=draining;gauge.classList.toggle('black-hole-drain',draining);}
  const refs=gauge._glowRefs||(gauge._glowRefs={fill:gauge.querySelector('#flame-fill'),meter:gauge.querySelector('#flame-meter'),value:gauge.querySelector('#flame-value'),effort:gauge.querySelector('.glow-effort-preview')});
  const max=s.maxFlame||100,glow=Math.max(0,s.flame||0),ratio=clamp(glow/max),cost=Number.isFinite(s.flapCost)?Math.max(0,s.flapCost):FLAME_TUNING.flapCost;
  const key=[glowPoints(glow),glowPoints(max)].join('/');if(gauge._label!==key){gauge._label=key;refs.value.innerHTML=`${formatGlow(glow)}<small>/${formatGlow(max)}</small>`;refs.meter.setAttribute('aria-valuenow',glowPoints(glow));refs.meter.setAttribute('aria-valuemax',glowPoints(max));refs.meter.setAttribute('aria-valuetext',`${formatGlow(glow)} of ${formatGlow(max)} Glow`);}

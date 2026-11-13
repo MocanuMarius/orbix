@@ -21,6 +21,9 @@ export const MAIN_TUNING_SKILLS={
  'main-recovery-challenge':node('main-recovery-challenge','Earned Rest',40,'main-recovery','Completing the optional flight challenge restores an extra 10% Glow.','recovery','Bonus +10 Glow'),
  'main-afterglow':node('main-afterglow','Condensation',35,'main-efficiency','Convert 3 excess Glow into 4 Condensed Glow. Only real pickup surplus converts; recovery never does.','reserve','3 overflow → 4'),
  'main-glow-sense':node('main-glow-sense','Glow Sense',40,'main-sight','Faint glimmers at the forward edge of your light hint at the height of approaching Glow and other boons. They fade as pickups become visible.','beacon','Boon sense'),
+ 'main-edging-attunement':node('main-edging-attunement','Edge Attunement',80,'main-sight','Edging Pulse is innate: skim clear of edges to build a 5s light pulse. Charge 25% faster: 3.2s instead of 4s.','edge-pulse','+25% charge'),
+ 'main-edging-lasting':node('main-edging-lasting','Lasting Pulse',100,'main-edging-attunement','Extend innate Edging Pulse from 5s to 7s. Choose longer light or slower charge loss.','edge-pulse','+2s pulse',{choiceGroup:'edging-style',excludes:['main-edging-tension']}),
+ 'main-edging-tension':node('main-edging-tension','Held Tension',90,'main-edging-attunement','Innate Edging Pulse loses charge 50% more slowly away from edges: 9% per second instead of 18%.','edge-pulse','−50% decay',{choiceGroup:'edging-style',excludes:['main-edging-lasting']}),
  'main-drift-sense':node('main-drift-sense','Drift Sense I',40,'main-speed','A faint guide previews the next 0.7s if you release Lift and let gravity carry you. Accounts for drafts and your build.','trajectory','0.7s guide'),
  'main-drift-sense-2':node('main-drift-sense-2','Drift Sense II',55,'main-drift-sense','Extend the no-Lift guide to 1.2s. Plan your descent toward fuel lights.','trajectory','1.2s guide'),
  'main-drift-sense-3':node('main-drift-sense-3','Drift Sense III',75,'main-drift-sense-2','See up to 1.8s ahead, with a faint wisp marking the first predicted contact or the end of the guide.','trajectory','1.8s + echo'),
@@ -49,8 +52,9 @@ export function priceSkillDefinition(s){
  if(s.id==='main-deep-reserve')return{...s,cost:210};
  if(s.branch==='afterglow')return{...s,cost:30,prices:[30,35].slice(0,s.maxRank)};
  if(s.incrementStage)return{...s,cost:[80,95,110][s.incrementStage-1]};
+ if(s.id==='main-edging-attunement')return{...s,cost:80};
  if(s.id.endsWith('-attunement'))return{...s,cost:85};
  if(s.id.endsWith('-mastery'))return{...s,cost:95};
- const prices={'main-sight':80,'main-speed':80,'main-efficiency':80,'main-drift-sense':85,'main-drift-sense-2':100,'main-drift-sense-3':110,'main-dream':85,'main-dream-long':100,'main-dream-deep':110,'main-dream-wake':80,'main-dream-sight':85,'main-afterglow':85,'main-reservoir':90,'main-vast-vessel':110,'main-purifying-touch':105,'main-kindled-rich':95,'main-dawnburst':100,'protector-layers':110,'leveler-dive':95};
+ const prices={'main-sight':80,'main-speed':80,'main-efficiency':80,'main-drift-sense':85,'main-drift-sense-2':100,'main-drift-sense-3':110,'main-dream':85,'main-dream-long':100,'main-dream-deep':110,'main-dream-wake':80,'main-dream-sight':85,'main-afterglow':85,'main-reservoir':90,'main-vast-vessel':110,'main-purifying-touch':105,'main-kindled-rich':95,'main-dawnburst':100,'main-edging-lasting':100,'main-edging-tension':90,'protector-layers':110,'leveler-dive':95};
  return{...s,cost:prices[s.id]??(s.expansion?105:100)};
 }

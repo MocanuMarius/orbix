@@ -1,4 +1,4 @@
-import {installExitLandmark} from './exit-landmark.mjs?v=condensed-glow-1';
+import {installExitLandmark} from './exit-landmark.mjs?v=edge-and-void-1';
 
 // Finish at the grounded refuge's entry plane, just beyond visible scenery.
 // Underground polygon closure vertices no longer add a blank course tail.
