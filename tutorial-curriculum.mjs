@@ -3,18 +3,18 @@ const s=(title,text,visual)=>({title,text,visual});
 export const TUTORIAL_TOPICS={
  flight:{name:'Lift & glide',visual:'lift',steps:[
   s('You are the wisp','Guide the bright orb through the passage. Reach the waylight at the end to clear a flight.','wisp'),
-  s('Lift','Tap the scene or Lift button to rise. A normal Lift costs 3 Sparks; skills can reduce that cost.','lift'),
-  s('Glide','Release to fall naturally. Small, deliberate Lifts leave more Sparks for the rest of the passage.','lift')]},
- sparks:{name:'Sparks',visual:'spark',steps:[
-  s('Spark meter','The slim meter on the left is your fuel. Each filled cell pays for one Lift at your current cost.','meter'),
-  s('Spark, Cluster, Cache','One, two or three bright layers give 6, 12 or 18 Sparks before build bonuses. Touch them with your wisp for immediate fuel.','spark-layers'),
-  s('Empty is not dead','Without enough Sparks, you cannot Lift. You keep falling; a body pickup or Collector delivery can still rescue you.','meter')]},
+  s('Lift','Tap the scene or Lift button to rise. A normal Lift costs 3 Energy; skills can reduce that cost.','lift'),
+  s('Glide','Release to fall naturally. Small, deliberate Lifts leave more Energy for the rest of the passage.','lift')]},
+ sparks:{name:'Sparks & Energy',visual:'spark',steps:[
+  s('Energy meter','Sparks are pickups. Energy is the fuel inside them, shown by the lightning icon. Each meter cell pays for one Lift at your current cost.','meter'),
+  s('Spark, Cluster, Cache','One, two or three bright layers give 6, 12 or 18 Energy before build bonuses. Touch them with your wisp for immediate fuel.','spark-layers'),
+  s('Empty is not dead','Without enough Energy, you cannot Lift. You keep falling; a body pickup or Collector delivery can still rescue you.','meter')]},
  luminance:{name:'Luminance',visual:'luminance',steps:[
   s('Luminance','Luminance is how far your wisp lights the world. It fades with distance; faraway scenery and Sparks disappear into darkness.','luminance'),
-  s('Fuel and seeing distance','Sparks power flight. Luminance reveals the route. Increasing one does not automatically increase the other.','luminance'),
+  s('Fuel and seeing distance','Energy powers flight. Luminance reveals the route. Increasing one does not automatically increase the other.','luminance'),
   s('Grow your Luminance','The Light skill tree increases Luminance. Flash Sparks and some artifacts temporarily reveal more; Dark Sparks reduce it.','pickup:sight')]},
  utilities:{name:'Special Sparks',visual:'pickup:charge',steps:[
-  s('Charge Spark','The cyan Charge Spark shortens companion recovery. Space Timer regains levitation charge. It does not refill Sparks.','pickup:charge'),
+  s('Charge Spark','The cyan Charge Spark shortens companion recovery. Space Timer regains levitation charge. It does not refill Energy.','pickup:charge'),
   s('Flash Spark','The violet Flash Spark extends Luminance for six seconds. It reveals more of the passage but gives no fuel.','pickup:sight'),
   s('Dusk Spark','The rose Dusk Spark trades reduced Luminance for fuel. Its red ring warns of the cost. Only body contact collects it.','pickup:dusk')]},
  terrain:{name:'Terrain & goals',visual:'route',steps:[
@@ -31,7 +31,7 @@ export const TUTORIAL_TOPICS={
   s('Delivery, then recovery','Fuel arrives when Collector returns. Its boundary shrinks, then grows back. Very close rescues still work during recovery.','companion:collector'),
   s('Range is not Luminance','Collector range controls fetching. Luminance controls seeing. They are separate upgrades, even when their circles overlap.','luminance')]},
  companions:{name:'Companions',visual:'companion:protector',steps:[
-  s('Protector','The blue companion builds a shield. A charged shell spends Sparks to deflect one collision, then rebuilds. An empty shell cannot save you.','companion:protector'),
+  s('Protector','The blue companion builds a shield. A charged shell spends Energy to deflect one collision, then rebuilds. An empty shell cannot save you.','companion:protector'),
   s('Runner','The amber companion activates with Power. Its short burst crosses ground quickly and resists drafts. Wait for the button to fill before using it again.','companion:swift'),
   s('Space Timer','The cyan companion levitates while you hold Lift or the scene. Release to fall and recharge. Drafts still push you.','companion:leveler'),
   s('Choose your companion','Equip one companion at a time. Change it at Rest. Collector fetches; Protector shields; Runner bursts; Space Timer levitates. Its own skill tree improves the role.','tools')]},
@@ -53,7 +53,7 @@ export const TUTORIAL_TOPICS={
   s('Melt at Rest','After choosing your Rest benefit, you may melt an owned artifact for Packed Sparks: Common 25, Rare 35, Legendary 50. It destroys the effect and every remaining use. Keep it or fund skills.','forge'),
   s('Build a combination','Pair automatic effects with your companion, skills and the next biome. Read each trigger and limit. Artifacts last only for this run; exhausted consumables disappear.','artifact')]},
  rest:{name:'Rest',visual:'rest',steps:[
-  s('Recover or Grow','Recover restores every missing heart. Grow adds 3 maximum Sparks for this run, up to three times. Both completely refill Sparks. Choose once at each Rest.','rest'),
+  s('Recover or Grow','Recover restores every missing heart. Grow adds 3 maximum Energy for this run, up to three times. Both completely refill Energy. Choose once at each Rest.','rest'),
   s('Then prepare','After your one benefit, Skills, Companions, Artifacts and Dream remain available. These tools do not take another Rest benefit.','tools'),
   s('Plan your next passage','Rest commits to one next flight. Read its terrain and prepare for it. After a failed attempt, the map shows whichever retry paths are reachable.','route')]},
  dream:{name:'Dream',visual:'dream',steps:[
@@ -69,10 +69,10 @@ export const TUTORIAL_TOPICS={
  hazards:{name:'Hazards & pulses',visual:'black-hole',steps:[
   s('Drafts','Local curls show where wind pushes. Fly around them or plan your Lift timing. Runner resists them; Space Timer still feels them.','draft'),
   s('Bad Sparks','Red rings mean danger or a cost. Dark Sparks reduce Luminance; Dusk Sparks trade Luminance for fuel. Collector ignores harmful pickups.','pickup:dark'),
-  s('Black Hole','A black core is a hazard, not a pickup. It continuously steals Sparks nearby; closer means much faster drain. Give it space, even with a shield.','black-hole'),
+  s('Black Hole','A black core is a hazard, not a pickup. It continuously steals Energy nearby; closer means much faster drain. Give it space, even with a shield.','black-hole'),
   s('Edging Pulse','Skim near terrain without touching it to charge the slim edge meter. Full charge reveals the map in fading pulses. Skills can improve it or exchange the pulse for recovery.','edge')]},
  progression:{name:'Runs & Ascension',visual:'route',steps:[
-  s('Three maps make a run','Sparks, hearts, skills and artifacts carry between flights and maps. Plan a build that can reach the final guardian.','route'),
+  s('Three maps make a run','Energy, hearts, skills and artifacts carry between flights and maps. Plan a build that can reach the final guardian.','route'),
   s('Ascension','Clear all three maps to unlock the next difficulty and new companions. Higher Ascensions make the journey harder. The final guardian unlocks an artifact for future reward pools; it does not become starting equipment.','site:boss'),
   s('Continue or New Game','Continue resumes your saved run. Exit to Menu keeps it. Abandon and New Game reset run skills and currency; permanent unlocks remain. Short lessons appear as you progress. Reset tutorial in Settings to replay them.','pause')]},
 };

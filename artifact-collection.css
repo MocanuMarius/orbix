@@ -38,3 +38,18 @@ dialog.collection-sheet[open],dialog.collection-detail-sheet[open]{box-sizing:bo
 
 dialog.route-inspection-sheet[open]{width:min(900px,calc(100vw - 32px))!important;max-width:900px!important;height:min(410px,calc(100dvh - 24px));overflow:hidden!important;inset:0!important;margin:auto!important}
 .route-inspection{height:100%;display:grid;grid-template-columns:30% minmax(0,1fr);grid-template-rows:minmax(0,1fr) 48px;gap:12px}.route-inspection-art{align-self:center;min-width:0}.route-inspection-art>svg{width:100%;max-height:210px}.route-inspection-copy{min-width:0;overflow:auto;scrollbar-width:thin}.route-inspection-copy h2{font-size:24px;margin:5px 0 12px}.route-inspection-copy p{font:14px/1.45 var(--pixel);margin:10px 0}.route-inspection-copy small{font:11px/1.2 var(--pixel);color:#c3d7ad}.route-inspection-reward .resource-symbol{width:23px;height:23px;vertical-align:middle}.route-build-bonuses summary{font:13px/1.4 var(--pixel);cursor:pointer}.route-build-bonuses p>svg{width:24px;height:24px;vertical-align:middle}.route-build-bonuses p{font-size:12px}.route-inspection footer{grid-column:1/3;display:flex;align-items:center;gap:12px}.route-inspection footer>button{flex:1;min-height:44px;margin:0}.route-inspection footer>span{flex:1;font:12px/1.3 var(--pixel);color:#aabb9c}
+
+/* Signs and words convey trade-offs alongside color. */
+.effect-clause{display:block;margin-top:3px}.effect-benefit{color:#b4edac!important}.effect-cost{color:#ffbaaa!important}
+.effect-clause .resource-symbol{display:inline-block;width:1em;height:1em;vertical-align:-.12em;margin:0 .12em}
+.artifact-choice-copy .artifact-choice-effect{font-size:18px;line-height:1.45}
+.artifact-choice-copy .artifact-choice-trigger{font-size:15px;color:#e0e6d0}
+.artifact-choice-copy .artifact-choice-limit{font-size:13px;line-height:1.4;color:#d2d8c5}
+.collection-inspection-copy p{color:#e0e5d2;font-size:16px}
+.route-inspection-copy p,.pickup-guide-copy p{color:#dde4ce}
+@media(orientation:landscape) and (max-height:350px){
+ .artifact-choice-copy .artifact-choice-effect{font-size:14px;line-height:1.35}
+ .artifact-choice-copy .artifact-choice-trigger{font-size:12px}
+ .artifact-choice-copy .artifact-choice-limit{font-size:11px}
+ .collection-inspection-copy p{font-size:13px}
+}

@@ -1,4 +1,4 @@
-import {artifactIcon} from './upgrade-icons.mjs?v=guardian-paths-1';
+import {artifactIcon} from './upgrade-icons.mjs?v=energy-language-1';
 
 // Original, small world illustrations. Pixel light is layered geometry rather
 // than SVG blur; motion is bounded CSS, never another animation-frame loop.

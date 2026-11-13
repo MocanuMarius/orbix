@@ -1,32 +1,32 @@
-import {tuneMainDefinition,priceSkillDefinition} from './main-tuning.mjs?v=guardian-paths-1';
+import {tuneMainDefinition,priceSkillDefinition} from './main-tuning.mjs?v=energy-language-1';
 // Separate purchases along a path, not a repeatable stat allocation screen.
 const styles={
- 'main-lift':['−2% cost','Lift spends 2% less Sparks.'],
+ 'main-lift':['−2% cost','Lift spends 2% less Energy.'],
  'main-horizon':['+15 Luminance','Luminance radius +15.'],
  'main-dawn':['−13% dim','Dark Spark dimming reduced by 13.33 percentage points.'],
  'main-tailwind':['+1.3% pace','Forward speed +1.33%.'],
  'main-drift':['−3.3% fall','Gravity reduced by 3.33 percentage points.'],
- 'main-kindling':['+1.3 Sparks','Natural Spark pickups restore 1.33 extra Sparks.'],
+ 'main-kindling':['+1.3 Energy','Natural Spark pickups restore 1.33 extra Energy.'],
  'collector-reach':['+12% reach','Search reach +11.67%; recovery takes 6.67% longer.'],
  'collector-recovery':['−17% wait','Recovery is 16.67% shorter; reach is 6.67% smaller.'],
- 'protector-recovery':['−9% wait','Shell recovery is 9.33% shorter; activation costs 8.33% more Sparks.'],
+ 'protector-recovery':['−9% wait','Shell recovery is 9.33% shorter; activation costs 8.33% more Energy.'],
  'leveler-steadiness':['+22% steady','Bobbing steadiness +21.67 percentage points; hold is 5% shorter.'],
  'swift-recovery':['−9% wait','Surge recovery is 9.33% shorter; burst is 8.33% shorter.'],
  'swift-resistance':['+6% resist','Draft resistance +6 percentage points; recovery takes 8.33% longer.'],
  'seer-duration':['+17% time','Reveal lasts 16.67% longer; reach is 6.67% smaller.'],
  'seer-recovery':['−12% wait','Reveal recovery and duration are each 11.67% shorter.'],
- 'kindler-bonus':['+2 Sparks','Direct fuel bonus +2 Sparks; Lift costs 1.67% more.'],
+ 'kindler-bonus':['+2 Energy','Direct fuel bonus +2 Energy; Lift costs 1.67% more.'],
 };
 export function skillProgress(skills,id){
  if(skills?.[id]>0)return skills[id];
  return skills?.[id+'-step-2']>0?2/3:skills?.[id+'-step-1']>0?1/3:0;
 }
-const names={lightRadius:'sight',darkResistance:'dim resistance',collectorFuelBonus:'fetched Sparks',collectorMinimum:'minimum reach',attract:'reach',wispCooldown:'recovery time',protectorProtection:'protection seconds',protectorCost:'shell Sparks cost',protectorRecovery:'shell recovery',levelerDuration:'hold time',levelerRecovery:'hold recovery',levelerDive:'dive strength',swiftDuration:'burst time',swiftRecovery:'burst recovery',swiftResistance:'wind resistance',seerRadius:'reveal range',seerDuration:'reveal time',seerRecovery:'reveal recovery',kindlerBonus:'direct Sparks',flapCost:'Lift Sparks cost',purifyCooldown:'purify seconds',purifyFuel:'purified Sparks',flap:'Lift strength',gravity:'gravity',cacheFuelBonus:'pickup Sparks'};
+const names={lightRadius:'sight',darkResistance:'dim resistance',collectorFuelBonus:'fetched Energy',collectorMinimum:'minimum reach',attract:'reach',wispCooldown:'recovery time',protectorProtection:'protection seconds',protectorCost:'shell Energy cost',protectorRecovery:'shell recovery',levelerDuration:'hold time',levelerRecovery:'hold recovery',levelerDive:'dive strength',swiftDuration:'burst time',swiftRecovery:'burst recovery',swiftResistance:'wind resistance',seerRadius:'reveal range',seerDuration:'reveal time',seerRecovery:'reveal recovery',kindlerBonus:'direct Energy',flapCost:'Lift Energy cost',purifyCooldown:'purify seconds',purifyFuel:'purified Energy',flap:'Lift strength',gravity:'gravity',cacheFuelBonus:'pickup Energy'};
 const fmt=n=>Number(Math.abs(n).toFixed(2)).toString(),signed=n=>(n>=0?'+':'−')+fmt(n);
 function describe(s){
  const items=[...Object.entries(s.add||{}).map(([k,v])=>({key:k,value:v/3,percent:k==='darkResistance'||k==='swiftResistance'})),...Object.entries(s.multiply||{}).map(([k,v])=>({key:k,value:(v-1)/3,percent:true}))];
  const text=items.map(i=>`${signed(i.value*(i.percent?100:1))}${i.percent?'%':''} ${names[i.key]||i.key}`);
- const first=items[0],brief={flapCost:'cost',gravity:'fall',flap:'Lift',cacheFuelBonus:'Sparks',collectorFuelBonus:'Sparks',kindlerBonus:'Sparks',purifyFuel:'Sparks',collectorMinimum:'reach',lightRadius:'sight',seerRadius:'sight',darkResistance:'resist',swiftResistance:'resist',wispCooldown:'wait',protectorRecovery:'wait',levelerRecovery:'wait',swiftRecovery:'wait',seerRecovery:'wait',purifyCooldown:'wait',protectorProtection:'safe',protectorCost:'cost',levelerDuration:'time',swiftDuration:'time',seerDuration:'time',levelerDive:'dive',attract:'reach'};const short=first?`${signed(Number((first.value*(first.percent?100:1)).toFixed(1)))}${first.percent?'%':''} ${brief[first.key]||names[first.key]}`:'Grow';return [short,text.join(' · ')+'.'];
+ const first=items[0],brief={flapCost:'cost',gravity:'fall',flap:'Lift',cacheFuelBonus:'Energy',collectorFuelBonus:'Energy',kindlerBonus:'Energy',purifyFuel:'Energy',collectorMinimum:'reach',lightRadius:'sight',seerRadius:'sight',darkResistance:'resist',swiftResistance:'resist',wispCooldown:'wait',protectorRecovery:'wait',levelerRecovery:'wait',swiftRecovery:'wait',seerRecovery:'wait',purifyCooldown:'wait',protectorProtection:'safe',protectorCost:'cost',levelerDuration:'time',swiftDuration:'time',seerDuration:'time',levelerDive:'dive',attract:'reach'};const short=first?`${signed(Number((first.value*(first.percent?100:1)).toFixed(1)))}${first.percent?'%':''} ${brief[first.key]||names[first.key]}`:'Grow';return [short,text.join(' · ')+'.'];
 }
 export function expandSkillSteps(definitions){
  const split=s=>s.branch!=='main'&&!!styles[s.id],out={};

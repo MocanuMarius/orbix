@@ -1,4 +1,4 @@
-import {CONDENSED_TUNING} from './condensed-glow.mjs?v=guardian-paths-1';
+import {CONDENSED_TUNING} from './condensed-glow.mjs?v=energy-language-1';
 // Shared flight Sparks and expedition rules. Overflow is Packed Sparks.
 export const FLAME_TUNING = Object.freeze({ maximum: 100, starting: 100, flapCost: 10,
   emberFuel: 20, heartFuel: 60, generatedFuel: 6, checkpointMinimum: 0, warmCorePickups: 4 });
@@ -34,9 +34,9 @@ export const GLOW_DISPLAY_SCALE=.3;
 export const glowPoints=amount=>Math.round((Number(amount)||0)*GLOW_DISPLAY_SCALE);
 export function formatGlow(amount){return String(glowPoints(amount));}
 export function glowText(text,capacity=100){
- return String(text??'').replace(/([+−-]?\d+(?:\.\d+)?)(%)? (?:of )?(extra |more |less |bonus |fetched |direct |purified |pickup |maximum |max )?Sparks/g,(_,n,percent,modifier='')=>{
+ return String(text??'').replace(/([+−-]?\d+(?:\.\d+)?)(%)? (?:of )?(extra |more |less |bonus |fetched |direct |purified |pickup |maximum |max )?(?:Sparks|Energy)/g,(_,n,percent,modifier='')=>{
   if(percent&&['less','more'].includes(modifier.trim()))return _;
   const amount=Number(n.replace('−','-'))*(percent?capacity/100:1);
-  return `${n.startsWith('+')?'+':''}${formatGlow(amount)} ${modifier}Sparks`;
+  return `${n.startsWith('+')?'+':''}${formatGlow(amount)} ${modifier}Energy`;
  });
 }

@@ -1,4 +1,4 @@
-import {topicSteps} from './tutorial-curriculum.mjs?v=guardian-paths-1';
+import {topicSteps} from './tutorial-curriculum.mjs?v=energy-language-1';
 const step=(id,title,text,target)=>({id,title,text,target,allowTarget:false});
 const chapter=(id,steps,target)=>({id,steps:steps.map(s=>({...s,...(target?{target}:{}),allowTarget:false}))});
 export function checkpointTutorialLesson(screen,{run={}}={}){
@@ -41,7 +41,7 @@ export function observedFlightLesson(snapshot={},seen={}){
 }
 export function flightEffectLesson(id,screen='map'){
   const target=screen==='victory'?'.artifact-reward-screen':screen==='map'?'#journey-map':null;
-  if(id==='flight-effect:black-hole')return step(id,'That dark core steals Sparks',
+  if(id==='flight-effect:black-hole')return step(id,'That dark core steals Energy',
     'A Black Hole drains fuel while you stay close. A wider path loses less light. It is not a pickup, and shields do not stop the drain. MENU → Field Guide keeps this reminder.',target);
   if(id==='flight-effect:edging')return step(id,'Your close flight made a pulse',
     'Flying near solid edges fills the slim edge meter in 2 seconds. Brief gaps preserve your progress, then charge fades slowly. Full charge reveals the scene for five fading seconds. Edge skills improve it; touching terrain still hurts.',target);

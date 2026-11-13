@@ -1,34 +1,34 @@
-import {getGuardianForMap,getBossPreview} from './boss.mjs?v=guardian-paths-1';
-import {getFlightLengthProfile} from './level-length.mjs?v=guardian-paths-1';
-import {cleanOnboarding} from './onboarding.mjs?v=guardian-paths-1';
-import {CONDENSED_TUNING,getCondensationRules,condenseGlow} from './condensed-glow.mjs?v=guardian-paths-1';
-import {CONSUMABLE_ARTIFACTS,EVOLVING_ARTIFACTS,getArtifactStackPreview} from './artifact-info.mjs?v=guardian-paths-1';
-import {getFlightClearReward} from './checkpoint-rewards.mjs?v=guardian-paths-1';
-export {getCondensationRules} from './condensed-glow.mjs?v=guardian-paths-1';
-import {ROUTE_RECIPES,ROUTE_TOPOLOGY_VERSION,REWARD_THEMES,nodeEconomy} from './route-recipes.mjs?v=guardian-paths-1';
-import {COMPANION_ABILITIES,getCompanionUnlock,normalizeCompanionFleet} from './companion-abilities.mjs?v=guardian-paths-1';
-import {MAIN_TUNING_SKILLS} from './main-tuning.mjs?v=guardian-paths-1';
-import {STARTING_CONDENSED_GLOW,getGlowCapacity,getRestGlowBonus,REST_GLOW_TUNING,glowText} from './vitality.mjs?v=guardian-paths-1';
-import {expandSkillSteps,skillProgress} from './skill-increments.mjs?v=guardian-paths-1';
-import {MAX_ASCENSION} from './ascent.mjs?v=guardian-paths-1';
-import {EXPANDED_SKILLS,applyExpandedSkills} from './skill-paths.mjs?v=guardian-paths-1';
+import {getGuardianForMap,getBossPreview} from './boss.mjs?v=energy-language-1';
+import {getFlightLengthProfile} from './level-length.mjs?v=energy-language-1';
+import {cleanOnboarding} from './onboarding.mjs?v=energy-language-1';
+import {CONDENSED_TUNING,getCondensationRules,condenseGlow} from './condensed-glow.mjs?v=energy-language-1';
+import {CONSUMABLE_ARTIFACTS,EVOLVING_ARTIFACTS,getArtifactStackPreview} from './artifact-info.mjs?v=energy-language-1';
+import {getFlightClearReward} from './checkpoint-rewards.mjs?v=energy-language-1';
+export {getCondensationRules} from './condensed-glow.mjs?v=energy-language-1';
+import {ROUTE_RECIPES,ROUTE_TOPOLOGY_VERSION,REWARD_THEMES,nodeEconomy} from './route-recipes.mjs?v=energy-language-1';
+import {COMPANION_ABILITIES,getCompanionUnlock,normalizeCompanionFleet} from './companion-abilities.mjs?v=energy-language-1';
+import {MAIN_TUNING_SKILLS} from './main-tuning.mjs?v=energy-language-1';
+import {STARTING_CONDENSED_GLOW,getGlowCapacity,getRestGlowBonus,REST_GLOW_TUNING,glowText} from './vitality.mjs?v=energy-language-1';
+import {expandSkillSteps,skillProgress} from './skill-increments.mjs?v=energy-language-1';
+import {MAX_ASCENSION} from './ascent.mjs?v=energy-language-1';
+import {EXPANDED_SKILLS,applyExpandedSkills} from './skill-paths.mjs?v=energy-language-1';
 /** Run-owned skills and currency; persistent ascension unlocks and boss artifacts. */
-import { FLAME_TUNING, LIFE_TUNING, getLifeCapacity } from './vitality.mjs?v=guardian-paths-1';
-import { getBiomeLevelIdentity } from './level-catalog.mjs?v=guardian-paths-1';
-import { BIOMES } from './biomes.mjs?v=guardian-paths-1';
-import { EVENT_SCENARIOS } from './map-guide.mjs?v=guardian-paths-1';
-import {contextualEventChoices,resolvePilgrimVow,ROUTE_PREPARATION} from './contextual-events.mjs?v=guardian-paths-1';
+import { FLAME_TUNING, LIFE_TUNING, getLifeCapacity } from './vitality.mjs?v=energy-language-1';
+import { getBiomeLevelIdentity } from './level-catalog.mjs?v=energy-language-1';
+import { BIOMES } from './biomes.mjs?v=energy-language-1';
+import { EVENT_SCENARIOS } from './map-guide.mjs?v=energy-language-1';
+import {contextualEventChoices,resolvePilgrimVow,ROUTE_PREPARATION} from './contextual-events.mjs?v=energy-language-1';
 export const SAVE_KEY='wispbound.save.condensed.v7';
 export const CAMPAIGN_MAP_NAMES=Object.freeze(['The Forgotten Verge','The Rootbound March','The Warden’s Reach']);
 export const TERRAINS=Object.freeze({ruins:{id:'ruins',name:'Sunken Ruins',color:'#cdb183',description:'Broken homes, worn arches and overgrown stone.'},canopy:{id:'canopy',name:'Luminous Canopy',color:'#94b48a',description:'Hollow trees, hanging roots and sheltered forest passages.'},storm:{id:'storm',name:'Stormglass Peaks',color:'#a8bbca',description:'Pine ridges, old mine timbers and local draft puffs.'}});
 const RUN_BRANCH_CHOICES={
- 'main-efficiency':{name:'Vitality',maxRank:1,description:'Lift costs one less Spark (minimum one).',consequence:'Less effort for every Lift'},
+ 'main-efficiency':{name:'Vitality',maxRank:1,description:'Lift costs one less Energy (minimum one).',consequence:'Less effort for every Lift'},
  'main-sight':{name:'Luminance',maxRank:1,description:'Expand your circular Luminance radius by 35.',consequence:'Reveal more of the passage'},
- 'main-lift':{name:'Glowkeeping',maxRank:1,choiceGroup:'main-vitality',excludes:['main-kindling'],description:'Lift costs one less Spark (minimum one).',consequence:'Less Sparks spent on Lift'},
+ 'main-lift':{name:'Glowkeeping',maxRank:1,choiceGroup:'main-vitality',excludes:['main-kindling'],description:'Lift costs one less Energy (minimum one).',consequence:'Less Sparks spent on Lift'},
  'collector-reach':{name:'Wide Search',requires:null,maxRank:1,choiceGroup:'collector-style',excludes:['collector-recovery'],description:'Search farther, but rest longer after each delivery.',consequence:'35% more reach · 20% longer recovery'},
  'collector-recovery':{name:'Quick Return',requires:null,maxRank:1,choiceGroup:'collector-style',excludes:['collector-reach'],description:'Recover quickly, but search a smaller area.',consequence:'50% shorter recovery · 20% less reach'},
- 'protector-recovery':{name:'Quick Ward',maxRank:1,choiceGroup:'protector-style',excludes:['protector-layers'],description:'Recharge the single-layer ward faster, but spend more Sparks each time.',consequence:'28% faster recovery · 25% higher activation cost'},
- 'protector-layers':{name:'Deep Ward',requires:'protector-cost',maxRank:1,choiceGroup:'protector-style',excludes:['protector-recovery'],description:'Hold two protective layers, but pay more Sparks to activate.',consequence:'Two layers · 35% higher activation cost'},
+ 'protector-recovery':{name:'Quick Ward',maxRank:1,choiceGroup:'protector-style',excludes:['protector-layers'],description:'Recharge the single-layer ward faster, but spend more Energy each time.',consequence:'28% faster recovery · 25% higher activation cost'},
+ 'protector-layers':{name:'Deep Ward',requires:'protector-cost',maxRank:1,choiceGroup:'protector-style',excludes:['protector-recovery'],description:'Hold two protective layers, but pay more Energy to activate.',consequence:'Two layers · 35% higher activation cost'},
  'leveler-steadiness':{name:'Still Point',maxRank:1,choiceGroup:'leveler-style',excludes:['leveler-dive'],description:'Suppress most bobbing, with a shorter Level hold.',consequence:'65% steadiness · 15% shorter hold'},
  'leveler-dive':{name:'Falling Release',maxRank:1,choiceGroup:'leveler-style',excludes:['leveler-steadiness'],description:'End a shorter Level hold with a controlled dive. Lift cancels the dive.',consequence:'Release dive · 25% shorter hold'},
  'swift-recovery':{name:'Quick Sparks',maxRank:1,choiceGroup:'swift-style',excludes:['swift-resistance'],description:'Use shorter speed bursts more often.',consequence:'28% faster recovery · 25% shorter burst'},
@@ -40,7 +40,7 @@ const skill=(id,name,branch,cost,maxRank,requires,description,prices)=>Object.fr
 export const SKILLS=Object.freeze(Object.fromEntries(Object.entries(expandSkillSteps({
  ...EXPANDED_SKILLS,
  ...MAIN_TUNING_SKILLS,
- 'main-efficiency':skill('main-efficiency','Gentle Lift','main',40,3,null,'Lift spends 7% less Sparks per rank.'),
+ 'main-efficiency':skill('main-efficiency','Gentle Lift','main',40,3,null,'Lift spends 7% less Energy per rank.'),
  'main-sight':skill('main-sight','Inner Light','main',40,3,null,'See farther ahead with each rank.'),
  'main-lift':skill('main-lift','Rising Light','main',110,2,'main-efficiency','Lift impulse is 4% stronger per rank.'),
  'main-speed':skill('main-speed','Momentum','main',40,1,null,'Travel 8% faster. Less time to react, shorter crossings.'),
@@ -48,12 +48,12 @@ export const SKILLS=Object.freeze(Object.fromEntries(Object.entries(expandSkillS
  'main-dawn':skill('main-dawn','Dawn Veil','main',80,1,'main-sight','Dark Sparks reduce your Luminance 40% less.'),
  'main-tailwind':skill('main-tailwind','Slipstream','main',80,1,'main-speed','Travel another 6% faster.'),
  'main-drift':skill('main-drift','Feather Drift','main',80,1,'main-speed','Fall 10% more gently.'),
- 'main-kindling':skill('main-kindling','Kindling','main',80,1,'main-efficiency','Natural Spark pickups restore 4 extra Sparks.'),
+ 'main-kindling':skill('main-kindling','Kindling','main',80,1,'main-efficiency','Natural Spark pickups restore 4 extra Energy.'),
  'main-spare-spark':skill('main-spare-spark','Spare Spark','main',100,1,'main-efficiency','Raise your life cap to 4 for this run. Refill the extra heart at a Rest.'),
  'main-deep-reserve':skill('main-deep-reserve','Deep Reserve','main',180,1,'main-spare-spark','Raise your life cap to 5 for this run. Refill the extra heart at a Rest.'),
  'collector-reach':skill('collector-reach','Collector Reach','collector',50,3,null,'Collector searches 25% farther per rank, after your manual pickup window.'),
  'collector-recovery':skill('collector-recovery','Collector Recovery','collector',60,3,'collector-reach','Collector recovers 15% faster per rank after delivery.'),
- 'protector-cost':skill('protector-cost','Frugal Ward','protector',80,3,null,'Protector activation spends 15% less Sparks.'),
+ 'protector-cost':skill('protector-cost','Frugal Ward','protector',80,3,null,'Protector activation spends 15% less Energy.'),
  'protector-recovery':skill('protector-recovery','Returning Ward','protector',90,3,'protector-cost','Protector recharges 10% sooner per rank.'),
  'protector-layers':skill('protector-layers','Second Layer','protector',180,1,'protector-recovery','Protector can hold a second protective layer.'),
  'leveler-duration':skill('leveler-duration','Longer Level','leveler',80,3,null,'Space Timer holds 0.5 seconds longer.'),
@@ -64,8 +64,8 @@ export const SKILLS=Object.freeze(Object.fromEntries(Object.entries(expandSkillS
  'swift-resistance':skill('swift-resistance','Windbreak','swift',100,2,'swift-duration','Runner resists 5 percentage points more draft force per rank.'),
  'collector-attunement':skill('collector-attunement','Search Spark','collector',35,1,null,'Collector range +12%.'),
  'collector-mastery':skill('collector-mastery','Deep Spark','collector',75,1,'collector-attunement','Collector range +12%. Adds to your first Spark.'),
- 'protector-attunement':skill('protector-attunement','Ward Spark','protector',35,1,null,'Shell costs 2 less Sparks.'),
- 'protector-mastery':skill('protector-mastery','Deep Spark','protector',75,1,'protector-attunement','Shell costs 2 less Sparks. Adds to your first Spark.'),
+ 'protector-attunement':skill('protector-attunement','Ward Spark','protector',35,1,null,'Shell costs 2 less Energy.'),
+ 'protector-mastery':skill('protector-mastery','Deep Spark','protector',75,1,'protector-attunement','Shell costs 2 less Energy. Adds to your first Spark.'),
  'leveler-attunement':skill('leveler-attunement','Balance Spark','leveler',35,1,null,'Space Timer holds 0.35 seconds longer.'),
  'leveler-mastery':skill('leveler-mastery','Deep Spark','leveler',75,1,'leveler-attunement','Space Timer holds 0.35 seconds longer. Adds to your first Spark.'),
  'swift-attunement':skill('swift-attunement','Surge Spark','swift',35,1,null,'Surge recharges 0.75 seconds sooner.'),
@@ -82,24 +82,24 @@ export const ARTIFACTS=Object.freeze({
  'wayward-seed':{...artifact('wayward-seed','Wayward Seed','Every third consecutive body Spark pickup restores 3.34 Sparks. Choose its lasting evolution after Map 1.','seed',{}),tags:Object.freeze(['precision','sustain'])},
  'hearth-bloom':{...artifact('hearth-bloom','Hearth Bloom','Every third consecutive body Spark pickup restores 10 Sparks. Five activations per flight. Bonus fuel cannot become Packed Sparks.','fuel',{}),rarity:'rare',sellValue:35,tags:Object.freeze(['precision','sustain'])},
  'lantern-bloom':{...artifact('lantern-bloom','Lantern Bloom','Every third consecutive body Spark pickup reveals the scene for 1.5s. Five activations per flight.','radiance',{}),rarity:'rare',sellValue:35,tags:Object.freeze(['precision','dream'])},
- 'glow-wick':artifact('glow-wick','Spark Wick','Natural Spark pickups restore up to 10 extra Sparks. Three automatic uses. Consumed when empty. Bonus fuel cannot become Packed Sparks.','flame',{}),
+ 'glow-wick':artifact('glow-wick','Spark Wick','Natural Spark pickups restore up to 10 extra Energy. Three automatic uses. Consumed when empty. Bonus fuel cannot become Packed Sparks.','flame',{}),
  'flash-stone':artifact('flash-stone','Flash Stone','Natural Spark pickups reveal the scene for 1.5s. Two automatic uses. Consumed when empty.','sun',{}),
- 'sunheart-engine':artifact('sunheart-engine','Sunheart Engine','Natural fuel gives 8 extra Sparks. Overflow fuel recharges your companion and casts 2s of forward light. Recovery caps: 2s per pickup, 12s per flight.','sunheart',{cacheFuelBonus:8,overflowRecharge:.12,rechargeSight:2}),
+ 'sunheart-engine':artifact('sunheart-engine','Sunheart Engine','Natural fuel gives 8 extra Energy. Overflow fuel recharges your companion and casts 2s of forward light. Recovery caps: 2s per pickup, 12s per flight.','sunheart',{cacheFuelBonus:8,overflowRecharge:.12,rechargeSight:2}),
  'dream-sovereign':artifact('dream-sovereign','Dream Sovereign','Dream pickups restore 2.5s of companion recovery. Your first waking fuel reveals the scene. Fuel gathered in extra light stores a free Lift, up to four per flight. Light radius +35.','dream-crown',{dreamRecharge:2.5,secondDawn:1,litLift:1,lightRadius:35}),
- 'hollow-covenant':artifact('hollow-covenant','Hollow Covenant','Lift costs one less Spark (minimum one). Companion work primes a direct Spark pickup for +12 Sparks, up to five times per flight. Skim a Dark Spark for 6 Sparks, up to five seeds.','hollow-crown',{workFuel:12,nightGarden:6,flapCost:.90}),
+ 'hollow-covenant':artifact('hollow-covenant','Hollow Covenant','Lift costs one less Energy (minimum one). Companion work primes a direct Spark pickup for +12 Energy, up to five times per flight. Skim a Dark Spark for 6 Energy, up to five seeds.','hollow-crown',{workFuel:12,nightGarden:6,flapCost:.90}),
  'overflow-coil':artifact('overflow-coil','Overflow Coil','Fuel that cannot fit in Sparks recharges your companion. Up to 2s per pickup and 12s per flight.','◎',{overflowRecharge:.08}),
- 'echo-bell':artifact('echo-bell','Echo Bell','Companion work primes your next direct Spark pickup for +8 Sparks within 8s. One charge; up to five uses per flight.','♧',{workFuel:8}),
+ 'echo-bell':artifact('echo-bell','Echo Bell','Companion work primes your next direct Spark pickup for +8 Energy within 8s. One charge; up to five uses per flight.','♧',{workFuel:8}),
  'dawn-loom':artifact('dawn-loom','Dawn Loom','Pickup-granted companion recharge lights the route ahead for 1.5s. Recharges in 4s.','✺',{rechargeSight:1.5}),
  'sunspool':artifact('sunspool','Sunspool','Collect natural fuel in temporary extra light to store one free Lift. Recharges in 4s; up to four free Lifts per flight.','☼',{litLift:1}),
  'dreamcatcher':artifact('dreamcatcher','Dreamcatcher','During preset playback, each natural Sparks pickup recharges your companion by 1.5 seconds.','◌',{dreamRecharge:1.5}),
  'second-dawn':artifact('second-dawn','Second Dawn','Your first natural Sparks pickup after dream playback briefly reveals the whole scene.','☼',{secondDawn:1}),
  'echo-vessel':artifact('echo-vessel','Prism Vessel','Natural pickup overflow conversion gains 10 percentage points. The shared conversion cap still applies.','◉',{condensationBonus:.1}),
- 'glass-lantern':artifact('glass-lantern','Glass Lantern',`Natural Sparks pickups restore ${40/3} extra Sparks, but Lift costs one extra Spark.`,'◇',{cacheFuelBonus:40/3,flapCost:1.12}),
- 'night-gardener':artifact('night-gardener','Night Gardener','Pass close to a Dark Spark without touching it for 4 Sparks. Once per seed, up to five seeds per flight.','✦',{nightGarden:4}),
+ 'glass-lantern':artifact('glass-lantern','Glass Lantern',`Natural Sparks pickups restore ${40/3} extra Energy, but Lift costs one extra Energy.`,'◇',{cacheFuelBonus:40/3,flapCost:1.12}),
+ 'night-gardener':artifact('night-gardener','Night Gardener','Pass close to a Dark Spark without touching it for 4 Energy. Once per seed, up to five seeds per flight.','✦',{nightGarden:4}),
  'ember-lens':artifact('ember-lens','Spark Lens','See farther ahead.','◉',{lightRadius:28}),
- 'quiet-cinder':artifact('quiet-cinder','Quiet Cinder','Lift costs one less Spark (minimum one).','●',{flapCost:.90}),
+ 'quiet-cinder':artifact('quiet-cinder','Quiet Cinder','Lift costs one less Energy (minimum one).','●',{flapCost:.90}),
  'silver-feather':artifact('silver-feather','Silver Feather','Lift impulse is 6% stronger.','⌃',{flap:1.06}),
- 'moss-heart':artifact('moss-heart','Moss Heart','Kindled Touch adds 3 more Sparks to direct Spark pickups. Requires that learned perk.','✦',{kindlerBonus:3}),
+ 'moss-heart':artifact('moss-heart','Moss Heart','Kindled Touch adds 3 more Energy to direct Spark pickups. Requires that learned perk.','✦',{kindlerBonus:3}),
  'wayfinder-seed':artifact('wayfinder-seed','Wayfinder Seed','Collector searches 15% farther.','✧',{attract:1.15}),
  'iron-petal':artifact('iron-petal','Iron Petal','Protector recharges 12% sooner.','◇',{protectorRecovery:.88}),
  'storm-knot':artifact('storm-knot','Storm Knot','Runner resists 6 percentage points more draft force and recharges 10% sooner.','ϟ',{swiftResistance:.06,swiftRecovery:.90}),
@@ -110,7 +110,7 @@ export const ARTIFACTS=Object.freeze({
  'silk-sail':artifact('silk-sail','Silk Sail','Fall 5% more slowly.','sail',{gravity:-.05}),
  'edge-needle':artifact('edge-needle','Edge Needle','Charge Edging Pulse 12% faster.','needle',{edgingChargeRate:.12}),
  'pulse-hourglass':artifact('pulse-hourglass','Pulse Hourglass','Edging Pulse reveals the scene one second longer.','hourglass',{edgingDuration:1}),
- 'cache-cup':artifact('cache-cup','Cache Cup','Spark Caches restore 2 extra Sparks.','cup',{richFuelBonus:20/3}),
+ 'cache-cup':artifact('cache-cup','Cache Cup','Spark Caches restore 2 extra Energy.','cup',{richFuelBonus:20/3}),
  'path-prism':artifact('path-prism','Path Prism','Luminance radius grows by 12; twice that bonus in crystal caves.','prism',{lightRadius:12}),
  'dawn-thread':artifact('dawn-thread','Dawn Thread','Echo Luminance lasts one second longer. Requires that learned perk.','✺',{seerDuration:1}),
 });
@@ -451,21 +451,21 @@ function rawSupportChoices(run,profile=null){
  if(n.kind==='camp'){
   const growth=Math.min(REST_GLOW_TUNING.capacityStep,REST_GLOW_TUNING.capacityLimit-getRestGlowBonus(run));
   return[
-   choice('rest-recover','Recover','Restore every missing heart and refill Sparks.',{lives:Math.max(0,getLifeCapacity(run)-run.lives),flame:100,rest:'recover'}),
-   {...choice('rest-grow','Grow',growth?`Gain ${growth} maximum Sparks for this run and refill. Hearts stay as they are. Up to 3 growths per run.`:'Rest growth is complete. Choose Recover to refill and prepare.',{glowCapacity:growth,flame:100,rest:'grow'}),disabled:growth<=0}
+   choice('rest-recover','Recover','Restore every missing heart and refill Energy.',{lives:Math.max(0,getLifeCapacity(run)-run.lives),flame:100,rest:'recover'}),
+   {...choice('rest-grow','Grow',growth?`Gain ${growth} maximum Energy for this run and refill. Hearts stay as they are. Up to 3 growths per run.`:'Rest growth is complete. Choose Recover to refill and prepare.',{glowCapacity:growth,flame:100,rest:'grow'}),disabled:growth<=0}
   ];
  }
  if(n.kind==='shrine')return[choice('shrine-fuel','Gather shelter light','Collect 35 Sparks; excess condenses. This is not a full Rest.',{pickupGlow:35}),upgradeOffer(run,profile)];
  const contextual=contextualEventChoices(run,eventNextFlights(run));if(contextual)return contextual;
  switch(n.eventIndex){
  case 6:return[choice('dice-safe','Take the offering','Collect 30 Sparks; excess condenses.',{pickupGlow:30}),choice('dice-roll','Cast the Prism Dice','Spend 4 Packed Sparks. Equal chances: collect 20 Sparks, 60 Sparks or 100 Sparks; excess condenses.',{condensedCost:4,dice:true})];
- case 7:return[choice('lantern-fuel','Pale lantern','Refill Sparks completely. Recovery does not condense.',{flame:100}),choice('lantern-skill','Golden lantern','Collect 55 Sparks; excess condenses.',{pickupGlow:55}),choice('lantern-relic','Sealed lantern','Spend 15% Sparks for 25 Packed Sparks.',{flame:-getGlowCapacity(run)*.15,artifactReward:true})];
- case 8:return[choice('bargain-burden','Carry a heavy light','Collect 80 Sparks; excess condenses. The first 12 paid Lifts next flight cost one extra Spark each.',{pickupGlow:80,burden:true}),choice('bargain-decline','Travel lightly','Collect 40 Sparks; excess condenses.',{pickupGlow:40})];
- case 9:return[choice('sanctuary-glow','Bathe in light','Recover 40% Sparks. Recovery does not condense.',{flame:getGlowCapacity(run)*.4}),...(run.lives<getLifeCapacity(run)?[choice('sanctuary-life','Rekindle an attempt','Restore one missing heart.',{lives:1})]:[]),choice('sanctuary-bless','Carry a blessing','Companion recovery is 20% faster for the next flight.',{blessing:true})];
+ case 7:return[choice('lantern-fuel','Pale lantern','Refill Energy completely. Recovery does not condense.',{flame:100}),choice('lantern-skill','Golden lantern','Collect 55 Sparks; excess condenses.',{pickupGlow:55}),choice('lantern-relic','Sealed lantern','Spend 15% Energy for 25 Packed Sparks.',{flame:-getGlowCapacity(run)*.15,artifactReward:true})];
+ case 8:return[choice('bargain-burden','Carry a heavy light','Collect 80 Sparks; excess condenses. The first 12 paid Lifts next flight cost one extra Energy each.',{pickupGlow:80,burden:true}),choice('bargain-decline','Travel lightly','Collect 40 Sparks; excess condenses.',{pickupGlow:40})];
+ case 9:return[choice('sanctuary-glow','Bathe in light','Recover 40% Energy. Recovery does not condense.',{flame:getGlowCapacity(run)*.4}),...(run.lives<getLifeCapacity(run)?[choice('sanctuary-life','Rekindle an attempt','Restore one missing heart.',{lives:1})]:[]),choice('sanctuary-bless','Carry a blessing','Companion recovery is 20% faster for the next flight.',{blessing:true})];
  case 10:{const roots=MAIN_WISP_BRANCHES.filter(b=>rank(run.skills,b.root)>0);return[...roots.map(b=>choice('workshop-'+b.root,`Reshape ${b.name}`,'Refund this learned main-wisp branch at full paid cost. Your free starting gift stays.',{respec:b.root})),choice('workshop-keep','Keep your build','Collect 35 Sparks; excess condenses.',{pickupGlow:35})];}
  case 11:return[choice('shrine-attune',`Attune ${run.companionRole}`,'Companion recovery is 20% faster for the next flight.',{blessing:true}),upgradeOffer(run,profile),choice('shrine-offering','Accept the offering','Collect 40 Sparks; excess condenses.',{pickupGlow:40})];
- case 0:return[choice('spring','Kindle the spring','Spend 5 Packed Sparks to refill Sparks completely. Recovery does not condense.',{flame:100,condensedCost:5}),choice('spring-light','Follow the silver stream','Collect 30 Sparks; excess condenses.',{pickupGlow:30})];
- case 1:return[run.flame>=15?choice('bargain','Trade Sparks','Spend 15 Sparks for 25 Packed Sparks.',{flame:-15,artifactReward:true}):choice('bargain-light','Keep the last light','Recover 18 Sparks.',{flame:18}),choice('bargain-safe','Gather scattered light','Collect 30 Sparks; excess condenses.',{pickupGlow:30})];
+ case 0:return[choice('spring','Kindle the spring','Spend 5 Packed Sparks to refill Energy completely. Recovery does not condense.',{flame:100,condensedCost:5}),choice('spring-light','Follow the silver stream','Collect 30 Sparks; excess condenses.',{pickupGlow:30})];
+ case 1:return[run.flame>=15?choice('bargain','Trade Sparks','Spend 15 Energy for 25 Packed Sparks.',{flame:-15,artifactReward:true}):choice('bargain-light','Keep the last light','Recover 18 Energy.',{flame:18}),choice('bargain-safe','Gather scattered light','Collect 30 Sparks; excess condenses.',{pickupGlow:30})];
  case 3:return[upgradeOffer(run,profile),choice('shrine-keep','Keep your present build','Collect 40 Sparks; excess condenses.',{pickupGlow:40})];
  default:return[choice('archive-packed','Gather old light','Gain 25 Packed Sparks for skills.',{packedReward:25}),choice('archive-keep','Release the light','Collect 40 Sparks; excess condenses.',{pickupGlow:40})];
  }
@@ -532,7 +532,7 @@ export function canSellArtifact(state,id){return !!(ARTIFACTS[id]&&state?.run?.r
 export function sellArtifact(state,id){
  if(!canSellArtifact(state,id))return false;
  const p=state.profile,r=state.run,value=getArtifactSalvageValue(id);
- // Forge payout is fixed currency, not a pickup: no Sparks fill or conversion multiplier.
+ // Forge payout is fixed currency, not a pickup: no Energy fill or conversion multiplier.
  // Remove every ownership reference before granting so a repeated action cannot pay twice.
  r.artifacts=r.artifacts.filter(x=>x!==id);r.supportOffers=null;
  if(r.isTutorial)r.practiceCondensedGlow=count(r.practiceCondensedGlow)+value;else{r.condensedGlow=count(r.condensedGlow)+value;r.securedCondensedGlow=count(r.securedCondensedGlow)+value;r.condensedEarned=count(r.condensedEarned)+value;}
@@ -582,4 +582,4 @@ export function getSupportChoices(run,profile=null){if(run?.phase!=='support')re
 export function suspendRun(state){const r=state?.run;if(!r||r.phase==='ended'||r.banked)return false;if(r.attemptActive)interrupt(r);return true;}
 export function abandonRun(state){const r=state?.run;if(!r||r.phase==='ended'||r.banked)return false;if(r.attemptActive)interrupt(r);settleCheckpoint(state);r.phase='ended';r.success=false;r.restReady=false;r.victoryPending=false;return bankRun(state);}
 
-export function getSkillLockReason(wallet,id){const s=SKILLS[id];if(!s)return 'Unknown skill';if(rank(wallet?.skills,id)>=s.maxRank)return 'Fully learned';if(wallet?.testMode===true)return null;if(!isSkillRevealed(wallet,id))return s.branch==='afterglow'&&!rank(wallet?.skills,'main-afterglow')?'Learn Condensation in the Sparks tree':`Learn ${SKILLS[s.requires]?.name||'the prerequisite'} first`;const other=(s.excludes||[]).find(excluded=>rank(wallet?.skills,excluded)>0);if(other&&!rank(wallet?.skills,id))return `Other path chosen: ${SKILLS[other].name}`;return null;}
+export function getSkillLockReason(wallet,id){const s=SKILLS[id];if(!s)return 'Unknown skill';if(rank(wallet?.skills,id)>=s.maxRank)return 'Fully learned';if(wallet?.testMode===true)return null;if(!isSkillRevealed(wallet,id))return s.branch==='afterglow'&&!rank(wallet?.skills,'main-afterglow')?'Learn Condensation in the Energy tree':`Learn ${SKILLS[s.requires]?.name||'the prerequisite'} first`;const other=(s.excludes||[]).find(excluded=>rank(wallet?.skills,excluded)>0);if(other&&!rank(wallet?.skills,id))return `Other path chosen: ${SKILLS[other].name}`;return null;}
