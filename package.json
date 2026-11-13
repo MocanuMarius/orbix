@@ -16,7 +16,8 @@
     "balance:health": "node scripts/balance-health.mjs",
     "balance:synergies": "node scripts/balance-synergies.mjs",
     "check:glow-builds": "node scripts/glow-builds-probe.mjs",
-    "check:void": "node scripts/black-holes-probe.mjs && node scripts/black-hole-art-probe.mjs"
+    "check:void": "node scripts/black-holes-probe.mjs && node scripts/black-hole-art-probe.mjs",
+    "preview:rest": "node scripts/rest-preview.mjs"
   },
   "dependencies": {}
 }

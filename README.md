@@ -40,3 +40,7 @@ Focused checks cover artifact charges/evolutions, event transactions, Edging, fo
 The earlier [economy report](docs/condensed-glow-balance.md) is historical scenario analysis, not certification of this expanded batch. Actual Pixel 10 hitch traces and a current full-campaign human-style balance pass remain open. Desktop checks cannot establish phone 60 FPS. Older generic tests contain superseded prototype rules; do not treat them as current balance specifications.
 
 `DECISIONS.md` and `docs/request-audit.md` retain chronological development history. Later entries supersede older phoenix, Ember, Afterglow and six-companion designs. Original audio can be regenerated with `scripts/compose-music.py` (NumPy plus ffmpeg); the game itself needs neither.
+
+## Local Rest inspector
+
+Run `npm run preview:rest`, then open http://localhost:4180. It shows the production Rest UI inside a 900×405 landscape frame with an isolated mock run: 18/30 Glow, 2/4 hearts, 180 Packed Light, three artifacts and Dream unlocked. Buttons reset arrival, jump directly to preparation, or start with full Glow. Purchases, forging, companion changes and rehearsals work in memory; refresh resets the fixture. The inspector does not read or write a real run save and is not included in the published game.
