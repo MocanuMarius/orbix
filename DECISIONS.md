@@ -420,3 +420,5 @@ These are implementation values, not a tested balance claim. Rest and encounter 
 - GitHub repository authorized by the user: https://github.com/MocanuMarius/orbix . Repository privacy must not be changed without explicit approval. No billing or paid-plan activation is authorized.
 
 - Follow-up difficulty relief: new runs start with75 Glow (was60); Refuge natural packets add6 route Glow (was2), Cavern adds4 (was0), and gauntlet stays1. Light Mote body-contact radius rises16→20. Packet density and obstacle geometry are unchanged; missed pickups have more budget, without refilling every checkpoint.
+
+- User explicitly approved making `MocanuMarius/orbix` public and enabling free GitHub Pages. Source remains on `main`; static runtime is published from the root of `gh-pages`. No paid plan or billing setting was changed.
