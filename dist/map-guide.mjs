@@ -1,4 +1,5 @@
-import {glowText} from './vitality.mjs?v=ring-boons-1';
+import {landmarks} from './map-landmarks.mjs?v=combo-craft-1';
+import {glowText} from './vitality.mjs?v=combo-craft-1';
 const stop=(kind,label,name,summary)=>Object.freeze({kind,label,name,summary,icon:kind});
 export const MAP_STOP_TYPES=Object.freeze({
 flight:stop('flight','FLIGHT','Flight','Fly a passage, choose a relic or dissolve it into Glow, and recover fuel.'),
@@ -43,11 +44,9 @@ export function getMapStopInfo(node={},maxGlow=100){
  const summary=kind==='boss'?`Defeat ${node.bossId==='moonweaver'?'the Moonweaver':'the Hollow Warden'}: choose a permanent Boss Relic and advance the difficulty tier.`:event?.summary||(node.kind==='shrine'?'Choose Glow or an offered skill trade. No general fleet or skill service.':exit?'Clear this flight to continue to the next map.':base.summary);
  return{...base,label:exit?'EXIT':node.elite?'ELITE':base.label,name:event?.name||(node.type==='support'?node.name:node.locationName||node.name)||base.name,summary:event?summary:glowText(summary,maxGlow),detail:event?.detail||glowText(summary,maxGlow),eventIndex:event?.index??null,scenarioId:event?.id||null};
 }
-const ICONS={
-flight:'<path d="M2 21V8l5-5h4v18M22 21V8l-5-5h-4v18M2 8h9m2 0h9M1 21h22"/><circle cx="12" cy="13" r="3" fill="currentColor"/>',
-treasure:'<path d="M3 10V6l3-3h12l3 3v4M3 10h18v11H3zM2 10h20M10 8h4v6h-4zM7 3v7m10-7v7"/>',
-rest:'<path d="M2 11 12 3l10 8M5 10v11h14V10M16 6V3h3v5"/><path d="M10 21v-7h4v7"/><path d="M11 16h2v4h-2z" fill="currentColor" stroke="none"/><path d="M7 11h2m6 0h2"/>',
-encounter:'<circle cx="12" cy="12" r="9"/><path d="M9 9a3 3 0 0 1 6 0c0 2-3 2-3 5M12 17h.01"/>',
-boss:'<path d="m3 3 6 4h6l6-4-2 9v4l-7 6-7-6v-4zM8 11l3 2m5-2-3 2M12 7v3m-3 7h6"/><path d="m7 7 5-4 5 4"/>',
-};
-export function mapStopIconMarkup(kindOrNode){const category=kindOf(kindOrNode);return`<svg class="map-stop-icon" data-map-category="${category}" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">${ICONS[category]}</svg>`;}
+const colors={dark:'#15251e',body:'#6e8164',face:'#a4b18b',fire:'#efcc82',edge:'#c8c89c',rune:'#e4d6a9'};
+export function mapStopIconMarkup(kindOrNode){
+ const category=kindOf(kindOrNode);
+ const art=landmarks[category].replace(/class="landmark-(\w+)"/g,(_,part)=>part==='edge'||part==='rune'?`fill="none" stroke="${colors[part]}" stroke-width="1.5"`:`fill="${colors[part]||colors.body}" stroke="none"`);
+ return `<svg class="map-stop-icon" data-map-category="${category}" viewBox="-36 -32 72 64" xmlns="http://www.w3.org/2000/svg" shape-rendering="crispEdges" aria-hidden="true" focusable="false">${art}</svg>`;
+}

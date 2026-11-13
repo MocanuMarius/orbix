@@ -2,6 +2,14 @@
 
 Updated 13 November 2026. Wispbound is the working title. This log records the confirmed direction and subsequent implementation choices. All ten recommended alignment choices were accepted in chat.
 
+## Planned combinations and clearer teaching — 13 November 2026
+
+Artifact offers and details now describe a trigger sequence and a piece to seek: overflow → companion recovery → Dawn Loom light → Sunspool free Lift. Edging Pulse intentionally qualifies as temporary light for Sunspool. Shared trigger budgets remain: five direct-fuel empowerments, four free Lifts, twelve recovery seconds per fleet member, and cooldown-limited light; generated effects cannot create a recursive pickup/currency loop. See the dedicated combination report for tested scope and assumptions.
+
+Map legend and actual routes share the same illustrated landmark paths. Unlock descriptions use the displayed Glow unit conversion. Newly observed Black Hole drain and Edging activation queue one contextual lesson at a later safe map/victory screen, respecting skip/seen settings; they never open a new lesson during hazardous flight. Tutorial references match landmarks rather than removed circular markers.
+
+Glow boon bands are thicker and brighter, with radii 14/9/4 and visible gaps. Original contact boundaries remain unchanged; this revises their art, not reach or fuel values. Changed Sunspool behavior invalidates older Dream recordings; saved runs continue.
+
 ## Glow boon rings — 13 November 2026
 
 Positive fuel pickups share three fixed concentric slots, filled from outside inward: Light Mote one ring, Glow Cluster two, Glow Cache three. Thick pale bands retain gaps and the separate thin contact boundary. Ring count represents existing strength tiers, not literal Glow units; rewards and collision sizes are unchanged. Utility and harmful pickups keep their distinct symbols. The field guide uses the same art.

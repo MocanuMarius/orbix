@@ -1,5 +1,7 @@
 # Wispbound request-to-code audit
 
+> Historical audit snapshots follow. For the current source/deployment verdict and unresolved items, see [Current backlog audit](backlog-current.md). Older “in progress” and “unpublished” labels below describe earlier builds.
+
 Audit date: 13 November 2026. Scope: the chronological requests in this conversation, the current source, decision log and existing targeted probes. Repeated requests are consolidated into the same row. This is a source audit, not a claim of phone usability, 60 FPS, human win rate or a new deployment.
 
 ## Status and release boundary

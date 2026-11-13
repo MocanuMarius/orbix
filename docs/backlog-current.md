@@ -1,0 +1,67 @@
+# Current backlog audit — 13 November 2026
+
+Audited source: `223761f`; public release: `ring-boons-1`. The public release manifest matches. Ten deployed modules were compared with local source (normalizing Git line endings): app, pickup art, Glow UI, currency icon, landscape map, skill disclosure, black holes, Edging Pulse, model and Dream; all matched. Working tree was clean at audit start.
+
+This is a source and publication audit, with independent flight and progression reviews. No new human play session, phone FPS capture or campaign balance simulation was performed. Implemented means an active implementation exists, not that its art or balance has been approved.
+
+## Follow-up implementation
+
+The next batch fixes the map-key/tutorial mismatch by sharing illustrated landmark art, formats Protector unlock costs with the displayed Glow scale, and teaches observed Edging/Black Hole effects one at a time at safe checkpoints. Artifact offers now name a setup/sequence; Sunspool intentionally accepts Edging light within existing grant caps. Fuel rings are thicker/brighter within the original contact boundaries. See `combo-balance.md` for current combination coverage; physical Pixel 10 profiling and full campaign economy coverage remain open. The table below records the findings at audit time.
+
+## Findings at audit time
+
+| Priority | Finding | Evidence / completion condition |
+| --- | --- | --- |
+| High | Current balance coverage is incomplete | `scripts/balance-condensed-glow.mjs` omits Black Hole drain and Edging visibility. `docs/condensed-glow-balance.md` excludes purchased secondary companions/lives, approximates artifact triggers, and assumes optimistic Dream preparation. Re-run representative current builds and route policies with imperfect collection; the old 6,240 cases do not certify this version or exhaustive tree viability. |
+| High | Pixel 10 hitching is not proven resolved | Caching, interpolation, bounded effects and `dist/flight-performance.mjs` instrumentation exist. Need an actual device trace and follow-up fixes for observed stalls; desktop/controller timings cannot establish phone 60 FPS. |
+| Medium | New mechanics lack contextual onboarding | `dist/black-holes.mjs` excludes practice; `dist/tutorial-steps.mjs` has no Black Hole/Edging lesson. Optional `pickup-guide.mjs` explains both. Add brief, progressive teaching without interrupting dangerous flight. |
+| Medium | Map key/tutorial lag behind map art | `tutorial-steps.mjs` still says “bright ring”; `map-guide.mjs` uses older outlined icons while `landscape-map.mjs` uses illustrated landmarks. Match teaching/legend to the actual map. |
+| Medium | Protector unlock cost has wrong display units | `app.mjs:showUnlocks()` displays raw `role.description`: “12 Glow” from `companion-abilities.mjs`. Actual debit is 12 internal units, approximately 4 displayed Glow. Use the shared Glow formatter. |
+| Low | Historical documentation is easy to mistake for current rules | Older audit/README sections retain unpublished status, Ember/Afterglow and obsolete counts. This file is the current audit; prior chronological entries are historical. |
+
+## Implemented in the current release
+
+| Area | Surviving requests checked | Active implementation |
+| --- | --- | --- |
+| Runs | New Game, Continue, abandon/exit, separate Tutorial; three maps; Ascension unlocks | `run-menu.mjs`, `app.mjs`, `model.mjs` |
+| Controls | Landscape/Pixel-style wide layout, one hand, two action controls, safe-area placement | `landscape.css`, `orientation.css`, `app.mjs` |
+| Survival | Glow-funded Lift, zero fuel falls and can recover, three attempts, upgradeable life cap, Rest refill | `flight.mjs`, `vitality.mjs`, `model.mjs` |
+| Timing | Slow resume, two-second death, grounded exit, 1.5-second lighting transition | `flight.mjs`, `level-length.mjs`, renderer and app lifecycle |
+| Flight terrain | Real scenery colliders, longer paced flights, localized drafts, central accessible fuel and risky pockets | `flight.mjs`, `drafts.mjs`, encounter families |
+| Variety | Twelve shuffled biomes, four courses each; vegetation/buildings and themed local interactions | `biomes.mjs`, `level-catalog.mjs`, `biome-dynamics.mjs` |
+| Wisp/light | Smaller circular neutral orb, no constant tail, outside-in dimming, pale shell, upgradeable circular inverse-square-style light | `wisp-renderer.mjs`, `light-field.mjs`, model |
+| Companions | Collector, Protector, Runner, Space Timer; visible locks, TEST selection; rest changes and purchasable extra slots | companion abilities/art, model, app |
+| Collector | Body gets first chance, boundary contact, curved distance-based trips, five-second recovery, shrinking/regrowing fuzzy boundary, close recovery pickups | `wisp.mjs`, renderer |
+| Other powers | Shield deflection/recovery/welding; burst and wind resistance; held levitation, bob, steadiness and release dive | flight, renderer, model |
+| Power HUD | Fill-based readiness and ready sparkle, without overflowing ready text | `boost-control.mjs` |
+| Pickups | Positive/warning distinction, utility and harmful items, temptation chains, smaller hitboxes, ring disintegration and inward spirals | pickups, flight, renderer |
+| Latest pickup art | Fixed ring slots at radii 15/10/5, filled outside-in for light/cluster/cache; shared field-guide art | `pickup-art.mjs` |
+| Packed Light | Surplus currency, conversion branches, failure rollback, no recovery minting, luminous box icon and rising left-side beam | `condensed-glow.mjs`, `afterglow-ui.mjs`, `glow-ui.mjs`, model |
+| Skill structure | Run-owned radial branches; starter choice plus eight Packed Light; buy after clear/rest; affordable/saving/locked distinction and distant anonymous dots | living/wisp/skill trees, `skill-tree-state.mjs`, model |
+| Skills | Capacity, effort, speed/fall choices; pickup reveal, trajectory I–III, incoming-boon hints, recovery, Dream and conversion paths | main tuning, skill paths, projection, Glow Sense |
+| Routes | Committed branch graph, consequential Rest access, six recipes, future previews, failure alternatives, five categories | model, route recipes, landscape map |
+| Map art | Illustrated landmarks, winding stone trails, brighter NEXT, traveling-light HERE and subdued closed paths | `landscape-map.mjs`, `map-clarity.css` |
+| Encounters | Rest preparation, treasure, shrine/bargain/dice events and encounter/boss families | map guide, model, encounter families, boss |
+| Rewards | Artifact choices each flight, rarity, replacement/dissolution, stronger persistent boss rewards, scalable slots | model, app, artifact effects |
+| Combinations | Bounded artifact trigger interactions; generated effects cannot recursively mint income | `artifact-effects.mjs`, condensed/model economy guards |
+| Dream | Unlockable 4/6/8-second rehearsal, repeat/preset, automatic free-Lift opening, paused handoff and separate resume tap | `dream.mjs`, app, model |
+| Black Holes | Persistent proximity drain, softened inverse-square falloff, safe bypass placement, actual-loss spiral effects | black holes/art, flight |
+| Edging Pulse | Real-boundary risk charge, five-second fading reveal, recovery, upgrade fork and passive HUD | edging controller/UI, light field, model |
+| Practice | Isolated tutorial, one short contextual lesson per checkpoint, rewards/rest/skills teaching | tutorial steps/coach, app, model |
+
+## Qualifications, not hidden missing features
+
+- Boon ring count represents existing strength tiers, not literal 1/2/3 Glow. The body slots match in size; existing contact boundaries still differ (20.8 versus 24 world units).
+- A Black Hole is normally placed once per non-tutorial flight. Impossible synthetic geometry can omit it instead of blocking passage.
+- Dream makes Lift/sustain free; environmental Black Hole drain still applies identically to rehearsal/replay.
+- Current biome dynamics are small interactive actors, not fully deformable terrain or a general destruction engine.
+- The original four-to-six-minute run target conflicts with the later request for three-times-longer levels. Long flights are implemented; original total duration is not claimed.
+- “About one upgrade per two flights” has older conditional-clear simulation support. Neither exact human pacing nor a 60% tree-completion ceiling is guaranteed.
+
+## Superseded deliberately
+
+Phoenix/realistic 3D art → pixel neutral wisps. Portrait → landscape. Cards and standalone stat tuning → run skills and artifacts. Fire/Ice, Gravity and six standalone roles → four base companions with learned traits. Afterglow fuel reserve and Ember currency → Packed Light overflow currency. Terrain-deforming Collector aura → inexpensive circular boundary after the explicit performance fallback. These are not unfinished tasks to restore.
+
+## Verdict
+
+Most surviving feature requests are implemented and deployed. The backlog is not fully closed: onboarding/legend consistency, a displayed cost defect, current-system balance coverage and real-device performance verification remain. No gameplay changes or redeployment were made during this audit.

@@ -1,37 +1,37 @@
-import {checkpointTutorialLesson} from './tutorial-steps.mjs?v=ring-boons-1';
-import {ARTIFACT_ENGINE_RULES} from './artifact-effects.mjs?v=ring-boons-1';
-import {rewardThemeMarkup,encounterIntent,encounterIntentMarkup,artifactOfferMarkup,artifactDetailMarkup,artifactRarityLabel} from './replay-ui.mjs?v=ring-boons-1';
-import {installLandscapeMode} from './landscape.mjs?v=ring-boons-1';
-import {drawLandscapeMap} from './landscape-map.mjs?v=ring-boons-1';
-import {attachDream,dreamRestMarkup,dreamIndicatorMarkup} from './dream.mjs?v=ring-boons-1';
-import {chooseFlightReward,getAvailableUpgrades,acknowledgeVictory,artifactSynergy} from './model.mjs?v=ring-boons-1';
-import {STARTING_CONDENSED_GLOW,formatGlow,glowPercent,getGlowCapacity,glowText} from './vitality.mjs?v=ring-boons-1';
-import {glowGaugeMarkup,updateGlowGauge} from './glow-ui.mjs?v=ring-boons-1';
-import {edgingPulseMarkup,updateEdgingPulse} from './edging-ui.mjs?v=ring-boons-1';
-import {branchTreeMarkup} from './skill-tree.mjs?v=ring-boons-1';
-import {livesMarkup,lifeHeartSvg} from './lives.mjs?v=ring-boons-1';
-import {mainWispTreeMarkup} from './wisp-tree.mjs?v=ring-boons-1';
-import {attachFlightPerformance,downloadPerformanceReport} from './flight-performance.mjs?v=ring-boons-1';
-import {getChallengePreview} from './flight-challenges.mjs?v=ring-boons-1';
-import {homeMenuMarkup,runProgressMarkup,unlockPreviewMarkup} from './run-menu.mjs?v=ring-boons-1';
-import {skillIcon,artifactIcon} from './upgrade-icons.mjs?v=ring-boons-1';
-import {TERRAINS,SKILLS,ARTIFACTS,newState,loadState,saveState,createRun,canChooseStartingSkill,chooseStartingSkill,setTestOverride,grantTestCondensedGlow,getStartingCompanion,setStartingCompanion,startTutorial,leaveTutorial,getChoices,getRouteMapState,selectNode,beginFlightAttempt,retryFlight,finishFlight,getSupportChoices,resolveSupport,settleCheckpoint,bankRun,advanceMap,previewGlowReward,getSkillCost,getSkillPrice,getSkillWallet,getSkillLockReason,suspendRun,abandonRun,isSkillRevealed,canBuyCheckpointSkills,buyCheckpointSkill,getRunModifiers,getCompanionCapacity,getArtifactCapacity,getNextArtifactSlotSkill,canChangeCompanion,setCompanions,equipArtifact,sellArtifact} from './model.mjs?v=ring-boons-1';
-import {WispFlight} from './flight.mjs?v=ring-boons-1';
-import {COMPANION_ABILITIES,getCompanionAbility,getCompanionUnlock,normalizeCompanionRole} from './companion-abilities.mjs?v=ring-boons-1';
-import {companionArtSvg} from './companion-art.mjs?v=ring-boons-1';
-import {boostControlMarkup,updateBoostControl} from './boost-control.mjs?v=ring-boons-1';
-import {campaignStrip,bossSigil} from './campaign-ui.mjs?v=ring-boons-1';
-import {resolveLevelIdentity} from './level-catalog.mjs?v=ring-boons-1';
-import {levelMapGlyph,levelMapPreview} from './level-map-art.mjs?v=ring-boons-1';
-import {getAscentInfo} from './ascent.mjs?v=ring-boons-1';
-import {getRouteForecast} from './route-forecast.mjs?v=ring-boons-1';
-import {MAP_STOP_TYPES,getMapStopInfo,mapStopIconMarkup,getEventScenarios} from './map-guide.mjs?v=ring-boons-1';
-import {formatFlightDuration} from './level-length.mjs?v=ring-boons-1';
-import {condensedIconMarkup} from './afterglow-ui.mjs?v=ring-boons-1';
-import {pickupGuideMarkup,pickupLesson} from './pickup-guide.mjs?v=ring-boons-1';
-import {pickupArtSvg} from './pickup-art.mjs?v=ring-boons-1';
-import {createTutorialCoach} from './tutorial-coach.mjs?v=ring-boons-1';
-import {getTutorialWorldFocus} from './tutorial.mjs?v=ring-boons-1';
+import {checkpointTutorialLesson,observedFlightLesson,flightEffectLesson} from './tutorial-steps.mjs?v=combo-craft-1';
+import {ARTIFACT_ENGINE_RULES} from './artifact-effects.mjs?v=combo-craft-1';
+import {rewardThemeMarkup,encounterIntent,encounterIntentMarkup,artifactOfferMarkup,artifactDetailMarkup,artifactRarityLabel} from './replay-ui.mjs?v=combo-craft-1';
+import {installLandscapeMode} from './landscape.mjs?v=combo-craft-1';
+import {drawLandscapeMap} from './landscape-map.mjs?v=combo-craft-1';
+import {attachDream,dreamRestMarkup,dreamIndicatorMarkup} from './dream.mjs?v=combo-craft-1';
+import {chooseFlightReward,getAvailableUpgrades,acknowledgeVictory,artifactSynergy} from './model.mjs?v=combo-craft-1';
+import {STARTING_CONDENSED_GLOW,formatGlow,glowPercent,getGlowCapacity,glowText} from './vitality.mjs?v=combo-craft-1';
+import {glowGaugeMarkup,updateGlowGauge} from './glow-ui.mjs?v=combo-craft-1';
+import {edgingPulseMarkup,updateEdgingPulse} from './edging-ui.mjs?v=combo-craft-1';
+import {branchTreeMarkup} from './skill-tree.mjs?v=combo-craft-1';
+import {livesMarkup,lifeHeartSvg} from './lives.mjs?v=combo-craft-1';
+import {mainWispTreeMarkup} from './wisp-tree.mjs?v=combo-craft-1';
+import {attachFlightPerformance,downloadPerformanceReport} from './flight-performance.mjs?v=combo-craft-1';
+import {getChallengePreview} from './flight-challenges.mjs?v=combo-craft-1';
+import {homeMenuMarkup,runProgressMarkup,unlockPreviewMarkup} from './run-menu.mjs?v=combo-craft-1';
+import {skillIcon,artifactIcon} from './upgrade-icons.mjs?v=combo-craft-1';
+import {TERRAINS,SKILLS,ARTIFACTS,newState,loadState,saveState,createRun,canChooseStartingSkill,chooseStartingSkill,setTestOverride,grantTestCondensedGlow,getStartingCompanion,setStartingCompanion,startTutorial,leaveTutorial,getChoices,getRouteMapState,selectNode,beginFlightAttempt,retryFlight,finishFlight,getSupportChoices,resolveSupport,settleCheckpoint,bankRun,advanceMap,previewGlowReward,getSkillCost,getSkillPrice,getSkillWallet,getSkillLockReason,suspendRun,abandonRun,isSkillRevealed,canBuyCheckpointSkills,buyCheckpointSkill,getRunModifiers,getCompanionCapacity,getArtifactCapacity,getNextArtifactSlotSkill,canChangeCompanion,setCompanions,equipArtifact,sellArtifact} from './model.mjs?v=combo-craft-1';
+import {WispFlight} from './flight.mjs?v=combo-craft-1';
+import {COMPANION_ABILITIES,getCompanionAbility,getCompanionUnlock,normalizeCompanionRole} from './companion-abilities.mjs?v=combo-craft-1';
+import {companionArtSvg} from './companion-art.mjs?v=combo-craft-1';
+import {boostControlMarkup,updateBoostControl} from './boost-control.mjs?v=combo-craft-1';
+import {campaignStrip,bossSigil} from './campaign-ui.mjs?v=combo-craft-1';
+import {resolveLevelIdentity} from './level-catalog.mjs?v=combo-craft-1';
+import {levelMapGlyph,levelMapPreview} from './level-map-art.mjs?v=combo-craft-1';
+import {getAscentInfo} from './ascent.mjs?v=combo-craft-1';
+import {getRouteForecast} from './route-forecast.mjs?v=combo-craft-1';
+import {MAP_STOP_TYPES,getMapStopInfo,mapStopIconMarkup,getEventScenarios} from './map-guide.mjs?v=combo-craft-1';
+import {formatFlightDuration} from './level-length.mjs?v=combo-craft-1';
+import {condensedIconMarkup} from './afterglow-ui.mjs?v=combo-craft-1';
+import {pickupGuideMarkup,pickupLesson} from './pickup-guide.mjs?v=combo-craft-1';
+import {pickupArtSvg} from './pickup-art.mjs?v=combo-craft-1';
+import {createTutorialCoach} from './tutorial-coach.mjs?v=combo-craft-1';
+import {getTutorialWorldFocus} from './tutorial.mjs?v=combo-craft-1';
 const app=document.querySelector('#app'),header=document.querySelector('#header');
 let state;try{state=loadState(localStorage)}catch{state=newState()}
 let screen='home',engine=null,paused=false,hud=null,fleetSlot=0,treeBranch='main',artifactSlot=0,lesson=null,lastSnapshot=null;
@@ -85,7 +85,7 @@ function beginRun(replace=false){if((state.run&&(state.run.phase!=='ended'||stat
 function requestNewGame(){if(!state.run||state.run.phase==='ended')return beginRun();pauseFlight();openSheet(`<h2>Start a new game?</h2><p class="run-pause-note">This abandons your current three-map run. Its skills, Packed Light and companion slots reset. Permanent unlocks and recovered artifacts stay.</p><div class="run-pause-actions"><button class="secondary" data-action="close-sheet">Keep current run</button><button class="primary" data-action="confirm-new-game">Abandon & start new</button></div>`,'run-confirm-sheet')}
 function exitToMenu(){if(engine?.dream?.mode==='record'){closeSheet();destroyFlight();goToRun();return;}closeSheet();if(state.run?.isTutorial)return exitTutorial();suspendRun(state);destroyFlight();persist();render('home')}
 function requestAbandon(){if(state.run?.isTutorial)return exitTutorial();pauseFlight();openSheet(`<h2>Abandon this run?</h2><p class="run-pause-note">Your run skills and unspent Packed Light are lost. Permanent unlocks and recovered artifacts stay. To continue later, use Exit to Menu instead.</p><div class="run-pause-actions"><button class="secondary" data-action="close-sheet">Keep playing</button><button class="primary" data-action="confirm-abandon">Abandon run</button></div>`,'run-confirm-sheet')}
-function showUnlocks(){pauseFlight();const unlocked=state.profile.difficulty||1;openSheet(`<h2>Companion unlocks</h2><p class="run-pause-note">Clear all three maps to unlock the next ascension and its companion. Choose your starter at the beginning of a run; change at rests.</p><div class="unlock-roster">${allRoles().map(role=>`<article>${companionArtSvg(role.id)}<div><strong>${esc(role.name)}</strong><p>${role.unlockDifficulty<=unlocked?'UNLOCKED':`CLEAR ASCENSION ${role.unlockDifficulty-1}`}</p><small>${esc(role.description)}</small></div></article>`).join('')}</div><button class="primary" data-action="close-sheet">Back</button>`,'unlock-sheet')}
+function showUnlocks(){pauseFlight();const unlocked=state.profile.difficulty||1;openSheet(`<h2>Companion unlocks</h2><p class="run-pause-note">Clear all three maps to unlock the next ascension and its companion. Choose your starter at the beginning of a run; change at rests.</p><div class="unlock-roster">${allRoles().map(role=>`<article>${companionArtSvg(role.id)}<div><strong>${esc(role.name)}</strong><p>${role.unlockDifficulty<=unlocked?'UNLOCKED':`CLEAR ASCENSION ${role.unlockDifficulty-1}`}</p><small>${esc(glowText(role.description,getGlowCapacity(state.run||{})))}</small></div></article>`).join('')}</div><button class="primary" data-action="close-sheet">Back</button>`,'unlock-sheet')}
 function enterTutorial(){closeSheet();if(engine){pauseFlight();suspendRun(state)}if(!startTutorial(state))return;destroyFlight();persist();goToRun()}
 function exitTutorial(){if(!leaveTutorial(state))return;closeSheet();destroyFlight();persist();render('home')}
 function endRun(){closeSheet();destroyFlight();abandonRun(state);state.run=null;persist();render('home')}
@@ -159,7 +159,13 @@ function launch(retry=false,dream=false){if(engine||landscape.isPortrait())retur
   engine=new WispFlight({canvas:document.querySelector('#flight-canvas'),terrain:n.terrain,elite:n.elite,seed:`${r.seed}-${n.id}`,duration:n.duration,node:n,challengeId:n.challengeId,challengeTarget:n.challengeTarget,flame:r.flame,condensedGlow:getSkillWallet(state).condensedGlow,condensedRemainder:r.condensedRemainder||0,companions:r.companions,companionRole:r.companions[0],skills:r.skills,cards:[],modifiers:getRunModifiers(r),onUpdate:updateFlight,onFinish:dream?()=>{}:completeFlight,onPause:()=>{if(!paused){paused=true;showMenu()}}});engine.setMuted?.(muted);if(dream)attachDream(engine,{mode:'record',onReady:dreamFinished});else if(r.dreamPreset){const replay=attachDream(engine,{mode:'replay',preset:r.dreamPreset,onAwake:dreamAwake});if(!replay){delete r.dreamPreset;persist();notify('Dream expired · scene or build changed');}}if(performanceEnabled)flightPerformance=attachFlightPerformance(engine,{onStatus:s=>{const indicator=document.querySelector('#perf-status');if(indicator)setText(indicator,`${s.fps} FPS · worst ${s.worstGap}ms · ${s.stalls} stalls`)}});bindFlightControls();engine.start();if(r.isTutorial&&!r.guideSeen?.flight)requestAnimationFrame(()=>guideScreen('flight'));
 }
 function setText(el,text){if(el&&el.textContent!==String(text))el.textContent=text}
-function updateFlight(s){lastSnapshot=s;if(!hud)return;const mark=document.querySelector('#dream-mark');if(mark){const phase=(engine?.dream?.phase||'')+':'+Math.ceil(engine?.dream?.duration-(engine?.time||0));if(mark.dataset.phase!==phase){mark.dataset.phase=phase;mark.innerHTML=engine?.dream?dreamIndicatorMarkup(engine.dream):''}}updateGlowGauge(hud.gauge||(hud.gauge=document.querySelector('.glow-side-gauge')),s);updateEdgingPulse(hud.edging,s);setText(hud.condensed,Math.floor(s.condensedTotal??getSkillWallet(state).condensedGlow??0));hud.progress.style.transform=`scaleX(${Math.min(1,s.progress||0)})`;setText(hud.event,flightCue(s));setText(hud.flap,s.completing?'CLEAR':s.dying?'FADING':s.leveler?.active?'HOLD':s.artifactEffects?.freeLift?'LIFT · FREE':`LIFT −${formatGlow(s.flapCost,s.maxFlame)}`);if(hud.flap&&engine?.hasCompanion('leveler'))hud.flap.parentElement.setAttribute('aria-label',`Tap to Lift. Hold to levitate. Space Timer charge ${Math.round((s.leveler?.charge||0)/Math.max(.001,s.leveler?.capacity||1)*100)} percent`);setText(hud.boss,s.bossWarning||s.bossPhase||'');updateBoostControl(hud.power,s);const proc=s.artifactProc?.id||'';if(hud.artifactProc!==proc){hud.artifactProc=proc;for(const item of document.querySelectorAll('.flight-artifact-bar>span'))item.classList.toggle('triggered',item.dataset.relic===proc);}if(engine?.tutorial&&!s.completing&&s.tutorialHintState&&!lesson){const hint=document.querySelector('#tutorial-hint');if(hint){hint.hidden=false;const key=s.tutorialHintState.id;if(hint.dataset.key!==key){hint.dataset.key=key;hint.innerHTML=`<strong>${esc(s.tutorialHintState.title)}</strong><p>${esc(s.tutorialHintState.text)}</p>`}}}if(!paused&&!lesson&&!s.dying)queueMicrotask(worldLesson)}
+function updateFlight(s){lastSnapshot=s;
+ const run=state.run;
+ if(run&&!run.guideSkipped&&!engine?.dream?.active&&(s.blackHole?.rate>0||s.edgingPulse?.active)){
+  const id=observedFlightLesson(s,{...run.guideSeen,...run.effectHints});
+  if(id){(run.effectHints||={})[id]=true;(run.pendingEffectHints||=[]).push(id);}
+ }
+if(!hud)return;const mark=document.querySelector('#dream-mark');if(mark){const phase=(engine?.dream?.phase||'')+':'+Math.ceil(engine?.dream?.duration-(engine?.time||0));if(mark.dataset.phase!==phase){mark.dataset.phase=phase;mark.innerHTML=engine?.dream?dreamIndicatorMarkup(engine.dream):''}}updateGlowGauge(hud.gauge||(hud.gauge=document.querySelector('.glow-side-gauge')),s);updateEdgingPulse(hud.edging,s);setText(hud.condensed,Math.floor(s.condensedTotal??getSkillWallet(state).condensedGlow??0));hud.progress.style.transform=`scaleX(${Math.min(1,s.progress||0)})`;setText(hud.event,flightCue(s));setText(hud.flap,s.completing?'CLEAR':s.dying?'FADING':s.leveler?.active?'HOLD':s.artifactEffects?.freeLift?'LIFT · FREE':`LIFT −${formatGlow(s.flapCost,s.maxFlame)}`);if(hud.flap&&engine?.hasCompanion('leveler'))hud.flap.parentElement.setAttribute('aria-label',`Tap to Lift. Hold to levitate. Space Timer charge ${Math.round((s.leveler?.charge||0)/Math.max(.001,s.leveler?.capacity||1)*100)} percent`);setText(hud.boss,s.bossWarning||s.bossPhase||'');updateBoostControl(hud.power,s);const proc=s.artifactProc?.id||'';if(hud.artifactProc!==proc){hud.artifactProc=proc;for(const item of document.querySelectorAll('.flight-artifact-bar>span'))item.classList.toggle('triggered',item.dataset.relic===proc);}if(engine?.tutorial&&!s.completing&&s.tutorialHintState&&!lesson){const hint=document.querySelector('#tutorial-hint');if(hint){hint.hidden=false;const key=s.tutorialHintState.id;if(hint.dataset.key!==key){hint.dataset.key=key;hint.innerHTML=`<strong>${esc(s.tutorialHintState.title)}</strong><p>${esc(s.tutorialHintState.text)}</p>`}}}if(!paused&&!lesson&&!s.dying)queueMicrotask(worldLesson)}
 function bindFlightControls(){
  const lift=document.querySelector('#flap-btn'),power=document.querySelector('#boost-btn');let heldPointer=null;
  for(const target of [lift,document.querySelector('.canvas-wrap')]){
@@ -179,6 +185,10 @@ function startLesson(key,steps,done){if(lesson||!steps.length)return;const real=
 function showLessonStep(){const s=lesson.steps[lesson.index];coach.show({...s,id:`${lesson.key}:${lesson.index}`,progress:`${lesson.index+1}/${lesson.steps.length}`,actionLabel:lesson.index===lesson.steps.length-1?'Continue':'Next'})}
 function guideScreen(view){
   const r=state.run;if(!r||lesson)return;
+  if(!r.guideSkipped&&['map','victory'].includes(view)){
+    const id=r.pendingEffectHints?.shift();
+    if(id&&!r.guideSeen?.[id])return startLesson(id,[flightEffectLesson(id,view)]);
+  }
   if(!r.isTutorial)return;
   if(r.guideSkipped)return;
   const checkpointHint=checkpointTutorialLesson(view,{run:r});if(checkpointHint&&!r.guideSeen?.[checkpointHint.id])return startLesson(checkpointHint.id,[checkpointHint]);

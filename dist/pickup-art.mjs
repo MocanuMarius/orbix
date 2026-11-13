@@ -1,4 +1,4 @@
-import { pickupKind, getPickupSpec, pickupDisposition } from './pickups.mjs?v=ring-boons-1';
+import { pickupKind, getPickupSpec, pickupDisposition } from './pickups.mjs?v=combo-craft-1';
 
 const TAU = Math.PI * 2;
 const clamp = (value, low, high) => Math.max(low, Math.min(high, value));
@@ -50,8 +50,8 @@ function packetPixels(kind, { time = 0, reducedMotion = false, tiny = false, bod
   const layers={light:1,cluster:2,cache:3}[kind];
   if(layers){
     for(let i=0;i<layers;i++){
-      ring([15,10,5][i],'#a9c795',.32,3.6);
-      ring([15,10,5][i],'#f8edbd',.95,2);
+      ring([14,9,4][i],'#c6e8a5',.55,4.2);
+      ring([14,9,4][i],'#fff3c6',1,3.2);
     }
     return pixels;
   }

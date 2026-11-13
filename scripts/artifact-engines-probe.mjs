@@ -78,7 +78,7 @@ for(const source of ['pickupReveal','mainSeer','sight','secondDawn']){
 }
 const held=make('leveler',{...mods('sunspool'),pickupReveal:true});pick(held);held.beginLiftInput();held.time=.2;
 const charge=held.levelCharge;held.updateLeveler(.25);close(held.levelCharge,charge-.25);assert.equal(held.artifactEffects.freeLift,false,'Free Lift does not sustain held levitation');
-for(const [kind,extra] of [['light',{generated:true}],['dusk',{}],['dark',{}],['embers',{}]]){
+for(const [kind,extra] of [['light',{generated:true}],['dusk',{}],['dark',{}]]){
  const e=make('collector',{...mods('overflow-coil','echo-bell','dawn-loom','sunspool'),pickupReveal:true});
  e.wisp.cooldown=5;e.artifactEffects.onWork();pick(e,kind,extra);
  assert.equal(e.artifactEffects.overflowUsed,0);assert.equal(e.artifactEffects.workUses,0);assert.equal(e.artifactEffects.liftGrants,0);

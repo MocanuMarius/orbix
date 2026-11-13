@@ -1,7 +1,7 @@
-import { DRAFT_TUNING } from './drafts.mjs?v=ring-boons-1';
-import { scenePropBounds } from './scene-props.mjs?v=ring-boons-1';
-import { formatGlow } from './vitality.mjs?v=ring-boons-1';
-import { lightVisibility } from './light-field.mjs?v=ring-boons-1';
+import { DRAFT_TUNING } from './drafts.mjs?v=combo-craft-1';
+import { scenePropBounds } from './scene-props.mjs?v=combo-craft-1';
+import { formatGlow } from './vitality.mjs?v=combo-craft-1';
+import { lightVisibility } from './light-field.mjs?v=combo-craft-1';
 
 // Small, deterministic actors attached to existing terrain. Static mountain
 // meshes never change, and each actor is used once: no repeatable currency farm.
