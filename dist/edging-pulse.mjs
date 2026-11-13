@@ -1,6 +1,6 @@
 // Risk-earned sight, or bounded fuel recovery when the Regenerative Falling
 // branch is chosen. Neither outcome is a pickup or invokes artifact hooks.
-import { GLOW_DISPLAY_SCALE } from './vitality.mjs?v=energy-language-1';
+import { GLOW_DISPLAY_SCALE } from './vitality.mjs?v=proximity-energy-1';
 const clamp = (n, lo, hi) => Math.min(hi, Math.max(lo, n));
 const smooth = n => n * n * (3 - 2 * n);
 const EPSILON = 1e-9;
@@ -13,7 +13,7 @@ const number = (value, fallback, lo, hi) => Number.isFinite(Number(value))
 // Local X never changes when the viewport rescales Y. Keep the actual polygon
 // references: sway and resized Y are read live, with no transformed vertices.
 const xBounds = new WeakMap();
-function polygonClearance(x, y, radius, polygon, reach) {
+function polygonClearance(x, y, radius, polygon, reach, target, ox=0, oy=0) {
   if (!polygon?.length) return Infinity;
   let bounds = xBounds.get(polygon);
   if (!bounds || bounds.length !== polygon.length) {
@@ -22,34 +22,37 @@ function polygonClearance(x, y, radius, polygon, reach) {
     bounds = { min, max, length: polygon.length }; xBounds.set(polygon, bounds);
   }
   if (x + radius + reach < bounds.min || x - radius - reach > bounds.max) return Infinity;
-  let inside = false, squaredDistance = Infinity;
+  let inside = false, squaredDistance = Infinity, closestX=0, closestY=0;
   for (let i = 0, j = polygon.length - 1; i < polygon.length; j = i++) {
     const a = polygon[j], b = polygon[i];
     if ((a[1] > y) !== (b[1] > y) && x < (b[0] - a[0]) * (y - a[1]) / (b[1] - a[1]) + a[0]) inside = !inside;
     const dx = b[0] - a[0], dy = b[1] - a[1];
     const t = clamp(((x - a[0]) * dx + (y - a[1]) * dy) / (dx * dx + dy * dy || 1), 0, 1);
-    squaredDistance = Math.min(squaredDistance, (x - a[0] - dx * t) ** 2 + (y - a[1] - dy * t) ** 2);
+    const px=a[0]+dx*t,py=a[1]+dy*t,d2=(x-px)**2+(y-py)**2;
+    if(d2<squaredDistance){squaredDistance=d2;closestX=px;closestY=py;}
   }
-  return (inside ? -1 : 1) * Math.sqrt(squaredDistance) - radius;
+  const clearance=(inside ? -1 : 1) * Math.sqrt(squaredDistance) - radius;
+  if(target&&clearance<target.clearance){target.clearance=clearance;target.x=closestX+ox;target.y=closestY+oy;}
+  return clearance;
 }
 
 /** Signed body clearance from the same solid terrain/prop parts as collision. */
-export function obstacleEdgeClearance(x, y, radius, obstacle, time = 0, reach = Infinity, center) {
+export function obstacleEdgeClearance(x, y, radius, obstacle, time = 0, reach = Infinity, center, target) {
   if (obstacle.destroyed) return Infinity;
   const originY = center ?? obstacle.center + Math.sin(time * .9 + (obstacle.phase || 0)) * (obstacle.motion || 0);
   const localX = x - obstacle.x, localY = y - originY;
   let clearance = Math.min(
-    polygonClearance(localX, localY + obstacle.gap / 2, radius, obstacle.topShape, reach),
-    polygonClearance(localX, localY - obstacle.gap / 2, radius, obstacle.bottomShape, reach));
+    polygonClearance(localX, localY + obstacle.gap / 2, radius, obstacle.topShape, reach,target,obstacle.x,originY-obstacle.gap/2),
+    polygonClearance(localX, localY - obstacle.gap / 2, radius, obstacle.bottomShape, reach,target,obstacle.x,originY+obstacle.gap/2));
   for (const prop of obstacle.sceneProps || []) for (const part of prop.parts) {
-    clearance = Math.min(clearance, polygonClearance(localX, localY - prop.side * obstacle.gap / 2, radius, part.polygon, reach));
+    clearance = Math.min(clearance, polygonClearance(localX, localY - prop.side * obstacle.gap / 2, radius, part.polygon, reach,target,obstacle.x,originY+prop.side*obstacle.gap/2));
   }
   return clearance;
 }
 
 export class EdgingPulse {
   constructor(engine) {
-    this.engine = engine;
+    this.engine = engine;this.surface={x:0,y:0,clearance:Infinity};this.burstOrigin={x:0,y:0};
     this.charge = 0; this.nearEdge = false; this.remaining = 0; this.recoveryRemaining = 0; this.graceRemaining = 0;
     this.duration = number(engine.mod?.edgingDuration, EDGING_PULSE_TUNING.duration, 1, 12);
     this.triggerCount = 0; this.regenGrants = 0; this.regenFeedbackRemaining = 0; this.regenGain = 0;
@@ -118,12 +121,13 @@ export class EdgingPulse {
       // this is the remaining safe margin, not the decorative screen border.
       let clearance = Math.min(e.player.y - 27, e.height - 28 - e.player.y);
       const worldX = e.distance + e.player.x, radius = e.player.radius;
+      this.surface.x=worldX;this.surface.y=e.player.y<e.height/2?27-radius:e.height-28+radius;this.surface.clearance=clearance;
       for (const obstacle of obstacles) {
         // Broadphase is identical to the flight collider's terrain footprint.
         if (obstacle.destroyed || worldX + radius + EDGING_PULSE_TUNING.clearance < obstacle.x - obstacle.width
           || worldX - radius - EDGING_PULSE_TUNING.clearance > obstacle.x + obstacle.width * 2.5) continue;
         clearance = Math.min(clearance, obstacleEdgeClearance(worldX, e.player.y, radius, obstacle,
-          e.time, EDGING_PULSE_TUNING.clearance, e.obstacleCenter(obstacle)));
+          e.time, EDGING_PULSE_TUNING.clearance, e.obstacleCenter(obstacle),this.surface));
       }
       if (clearance <= EPSILON) { this.impact(); return; }
       this.nearEdge = clearance <= EDGING_PULSE_TUNING.clearance;
@@ -155,13 +159,13 @@ export class EdgingPulse {
         }
         this.regenFeedbackRemaining = EDGING_REGEN_TUNING.feedback;
         this.recoveryRemaining = EDGING_PULSE_TUNING.recovery;
-        const result = this.regenGain >= EDGING_REGEN_TUNING.glow - EPSILON ? '+1 Sparks'
-          : this.regenGain > EPSILON ? 'Sparks topped up' : 'Sparks already full';
+        const result = this.regenGain >= EDGING_REGEN_TUNING.glow - EPSILON ? '+1 Energy'
+          : this.regenGain > EPSILON ? 'Energy topped up' : 'Energy already full';
         e.setEvent?.(`Regenerative Falling · ${result}${this.exhausted ? ' · spent for this flight' : ''}`);
         return;
       }
       this.duration = number(e.mod?.edgingDuration, EDGING_PULSE_TUNING.duration, 1, 12);
-      this.remaining = this.duration;
+      this.remaining = this.duration;this.burstOrigin.x=e.distance+e.player.x;this.burstOrigin.y=e.player.y;
       e.setEvent?.('Edging Pulse · the way is revealed');
     }
   }

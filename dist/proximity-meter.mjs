@@ -1,10 +1,11 @@
-import {obstacleEdgeClearance} from './edging-pulse.mjs?v=energy-language-1';
+import {drawProximityEnergy} from './proximity-energy.mjs?v=proximity-energy-1';
+import {obstacleEdgeClearance} from './edging-pulse.mjs?v=proximity-energy-1';
 const clamp=n=>Math.max(0,Math.min(1,Number(n)||0));
 
 export function proximityFill(pulse){
  if(!pulse||pulse.exhausted)return 0;
- if(pulse.active)return clamp(pulse.remaining/Math.max(.001,pulse.duration));
- if(pulse.regenFeedback&&pulse.regenGain>0)return 1;
+ if(pulse.active||pulse.recovering||pulse.regenFeedback)return 0;
+
  return clamp(pulse.charge);
 }
 
@@ -20,6 +21,7 @@ function freeSpace(e,x,y){
  return true;
 }
 export function drawProximityMeter(c,e,{scale=1}={}){
+ drawProximityEnergy(c,e,{scale});
  const pulse=e.edgingPulse?.state,fill=proximityFill(pulse);
  if(fill<=0||e.dying||e.completing)return;
  const t=e.visualTime??e.time??0,y=e.renderPlayerY??e.player.y;
@@ -33,11 +35,11 @@ export function drawProximityMeter(c,e,{scale=1}={}){
  const unit=Math.max(1,Math.round(3*scale)),gap=Math.max(1,Math.round(scale)),height=Math.max(1,Math.round(3*scale));
  const x=Math.round((e.player.x+dx+Math.sin(t*97)*shake)*scale-(unit*12+gap*11)/2);
  const top=Math.round((y+dy+Math.cos(t*83)*shake*.55)*scale);
- c.save();c.globalAlpha=1;
- const lit=Math.ceil(fill*12),ink=pulse.mode==='regen'?'#a9e7ba':pulse.active?'#fff3bd':charging?'#e5c489':'#a7b497';
+ c.save();c.globalAlpha=(charging?.8:.38*Math.min(1,(e.edgingPulse.graceRemaining||0)/1.25))*Math.min(1,fill*7);
+ const lit=Math.ceil(fill*12),ink=pulse.mode==='regen'?'#a9e7ba':pulse.active?'#fff3bd':charging?'#c2eeff':'#8cb2cb';
  for(let i=0;i<12;i++){
   const left=x+i*(unit+gap);
-  c.fillStyle='#071511';c.fillRect(left-1,top-1,unit+2,height+2);
+  c.fillStyle='#07152188';c.fillRect(left-1,top-1,unit+2,height+2);
   c.fillStyle=i<lit?ink:'#34483d';c.fillRect(left,top,unit,height);
  }
  c.restore();
