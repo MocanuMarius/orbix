@@ -1,9 +1,9 @@
-import { GLOW_DISPLAY_SCALE } from './vitality.mjs?v=guardian-paths-1';
+import { GLOW_DISPLAY_SCALE } from './vitality.mjs?v=energy-language-1';
 const clamp=value=>Math.max(0,Math.min(1,Number(value)||0));
 const explanation='Edging Pulse: skim near solid terrain or the top and bottom edges for 2 seconds total. Brief gaps keep your progress for 1.25 seconds, then it fades slowly. A full meter automatically reveals the scene.';
-const regenExplanation='Regenerative Falling: skim near solid terrain or the top and bottom edges to restore 1 Sparks instead of revealing the scene. Eight recoveries per flight; missing fuel only. Two seconds to reset. No Packed Sparks is created.';
+const regenExplanation='Regenerative Falling: skim near solid terrain or the top and bottom edges to restore 1 Energy instead of revealing the scene. Eight recoveries per flight; missing fuel only. Two seconds to reset. No Packed Sparks is created.';
 
-/** A passive flight indicator; it never adds a third action or spends Sparks. */
+/** A passive flight indicator; it never adds a third action or spends Energy. */
 export function edgingPulseMarkup(){
  return `<div class="edging-pulse-gauge" data-pulse-state="idle" aria-live="off" title="${explanation}" hidden><div class="edging-pulse-meter" role="meter" aria-label="Edging Pulse" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" aria-valuetext="0% charged"><i class="edging-pulse-fill" aria-hidden="true"></i><i class="edging-pulse-ticks" aria-hidden="true"></i></div></div>`;
 }

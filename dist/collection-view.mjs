@@ -1,8 +1,8 @@
-import {ARTIFACTS,getArtifactSalvageValue} from './model.mjs?v=guardian-paths-1';
-import {artifactDescription} from './artifact-copy.mjs?v=guardian-paths-1';
-import {artifactIcon} from './upgrade-icons.mjs?v=guardian-paths-1';
-import {artifactRarityLabel} from './replay-ui.mjs?v=guardian-paths-1';
-import {resourceSymbol} from './game-symbols.mjs?v=guardian-paths-1';
+import {ARTIFACTS,getArtifactSalvageValue} from './model.mjs?v=energy-language-1';
+import {artifactDescription,effectMarkup} from './artifact-copy.mjs?v=energy-language-1';
+import {artifactIcon} from './upgrade-icons.mjs?v=energy-language-1';
+import {artifactRarityLabel} from './replay-ui.mjs?v=energy-language-1';
+import {resourceSymbol} from './game-symbols.mjs?v=energy-language-1';
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 export function collectionMarkup(state,{artifactArt=artifactIcon,canMelt=false,page=0}={}){
  const r=state.run,ids=[...new Set(r?.artifacts||[])].filter(id=>ARTIFACTS[id]),pages=Math.max(1,Math.ceil(ids.length/8)),current=Math.max(0,Math.min(pages-1,Math.floor(page)||0));
@@ -10,5 +10,5 @@ export function collectionMarkup(state,{artifactArt=artifactIcon,canMelt=false,p
 }
 export function collectionItemMarkup(state,id,{artifactArt=artifactIcon,canMelt=false}={}){
  const a=ARTIFACTS[id];if(!a)return '';const r=state.run,copy=artifactDescription(a,r);
- return `<section class="collection-inspection"><header><div class="collection-inspection-art ${a.rarity}">${artifactArt(id)}</div><div><small>${artifactRarityLabel(a)}</small><h2>${esc(a.name)}</h2><span>${esc(copy.lifetime)}</span></div></header><div class="collection-inspection-copy">${copy.trigger?`<p>${esc(copy.trigger)}</p>`:''}<strong>${esc(copy.effect)}</strong>${copy.limit?`<p>${esc(copy.limit)}</p>`:''}</div><footer>${canMelt?`<button class="collection-melt" data-action="sell-artifact" data-id="${id}">Melt <span aria-hidden="true">→</span> ${resourceSymbol('packed')} +${getArtifactSalvageValue(id)}</button>`:''}<button class="secondary" data-action="artifacts">Collection</button><button class="secondary" data-action="close-sheet">Done</button></footer></section>`;
+ return `<section class="collection-inspection"><header><div class="collection-inspection-art ${a.rarity}">${artifactArt(id)}</div><div><small>${artifactRarityLabel(a)}</small><h2>${esc(a.name)}</h2><span>${esc(copy.lifetime)}</span></div></header><div class="collection-inspection-copy">${copy.trigger?`<p>${esc(copy.trigger)}</p>`:''}<strong>${effectMarkup(copy.effect)}</strong>${copy.limit?`<p>${esc(copy.limit)}</p>`:''}</div><footer>${canMelt?`<button class="collection-melt" data-action="sell-artifact" data-id="${id}">Melt <span aria-hidden="true">→</span> ${resourceSymbol('packed')} +${getArtifactSalvageValue(id)}</button>`:''}<button class="secondary" data-action="artifacts">Collection</button><button class="secondary" data-action="close-sheet">Done</button></footer></section>`;
 }

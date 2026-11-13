@@ -1,16 +1,16 @@
-import {landmarkArt,landmarkCategory,guardianNames} from './map-landmarks.mjs?v=guardian-paths-1';
-import {glowText} from './vitality.mjs?v=guardian-paths-1';
+import {landmarkArt,landmarkCategory,guardianNames} from './map-landmarks.mjs?v=energy-language-1';
+import {glowText} from './vitality.mjs?v=energy-language-1';
 const stop=(kind,label,name,summary)=>Object.freeze({kind,label,name,summary,icon:kind});
 export const MAP_STOP_TYPES=Object.freeze({
 flight:stop('flight','FLIGHT','Flight','Clear a passage for 20 Packed Sparks plus overflow. Ordinary flights do not drop artifacts.'),
 treasure:stop('treasure','TREASURE','Treasure','Choose Packed Sparks for skills or Sparks for fuel. Treasure does not drop artifacts.'),
-rest:stop('rest','REST','Rest','Recover missing hearts or Grow Spark capacity. Both refill Sparks. Then optionally prepare skills, your companion, artifacts or a Dream.'),
+rest:stop('rest','REST','Rest','Recover missing hearts or Grow Spark capacity. Both refill Energy. Then optionally prepare skills, your companion, artifacts or a Dream.'),
 encounter:stop('encounter','ENCOUNTER','Encounter','A promise, route preparation or bargain. Preview the stakes before choosing.'),
 boss:stop('boss','ELITE / GUARDIAN','Creature','Small creature: elite. Large head: guardian. Both offer two artifacts; choose one for your build.'),
 });
 export const EVENT_SCENARIOS=Object.freeze([
 {id:'ash-spring',index:0,name:'Ash Spring',summary:'Trade Packed Sparks for a refill, or collect a smaller light offering.',detail:'A full refill spends upgrade currency. A finite offering fills Sparks first and condenses its surplus.'},
-{id:'cinder-bargain',index:1,name:'Cinder Bargain',summary:'Trade some fuel for Packed Sparks, or take a safe light offering.',detail:'Preview the Sparks cost and the actual fuel/condensed split before accepting.'},
+{id:'cinder-bargain',index:1,name:'Cinder Bargain',summary:'Trade some fuel for Packed Sparks, or take a safe light offering.',detail:'Preview the Energy cost and the actual fuel/condensed split before accepting.'},
 {id:'pilgrim-vow',index:2,name:'Pilgrim’s Vow',summary:'Promise four body Spark pickups next attempt, or take light now.',detail:'Clear the next attempt with four natural body Spark pickups to earn 8 Packed Sparks. Collector deliveries and Dreams do not count. Missing the vow has no extra penalty.'},
 {id:'weathered-shrine',index:3,name:'Weathered Shrine',summary:'Buy a discounted skill or collect a light offering.',detail:'The offered skill spends Packed Sparks. This shrine does not provide full Rest services.'},
 {id:'surveyors-cairn',index:4,name:'Surveyor’s Cairn',summary:'Prepare one reachable passage, or take light and keep your fork open.',detail:'Mark a linked exit for gentler drafts or more Luminance on its first attempt. That commits your route. Falling consumes the preparation and reopens the fork.'},

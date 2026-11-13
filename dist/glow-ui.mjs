@@ -1,4 +1,4 @@
-import {getGlowCapacity,GLOW_DISPLAY_SCALE} from './vitality.mjs?v=guardian-paths-1';
+import {getGlowCapacity,GLOW_DISPLAY_SCALE} from './vitality.mjs?v=energy-language-1';
 const clamp=v=>Math.max(0,Math.min(1,v));
 // A cell represents one paid Lift, even during a temporary free-Lift effect.
 export function glowGaugeUnits(flame,maximum=100,liftCost=10){
@@ -9,7 +9,7 @@ export function glowGaugeUnits(flame,maximum=100,liftCost=10){
 function unitMarkup(state){return Array.from({length:state.capacity},(_,i)=>`<span class="glow-unit${i<state.filled?' lit':''}"></span>`).join('');}
 export function glowGaugeMarkup(run){
  const state=glowGaugeUnits(run.flame,getGlowCapacity(run));
- return `<div class="flame-hud glow-side-gauge glow-gauge-v3" aria-label="Spark meter" style="--glow-units:${state.capacity}"><div id="flame-meter" role="meter" aria-label="Sparks remaining" aria-valuemin="0" aria-valuemax="${state.maxValue}" aria-valuenow="${state.value}" aria-valuetext="${state.value} of ${state.maxValue} Sparks; each segment is ${state.unitCost} Sparks, one Lift"><i id="flame-fill" aria-hidden="true">${unitMarkup(state)}</i></div></div>`;
+ return `<div class="flame-hud glow-side-gauge glow-gauge-v3" aria-label="Energy meter" style="--glow-units:${state.capacity}"><div id="flame-meter" role="meter" aria-label="Energy remaining" aria-valuemin="0" aria-valuemax="${state.maxValue}" aria-valuenow="${state.value}" aria-valuetext="${state.value} of ${state.maxValue} Energy; each segment is ${state.unitCost} Energy, one Lift"><i id="flame-fill" aria-hidden="true">${unitMarkup(state)}</i></div></div>`;
 }
 function spill(gauge,gain,raw){
  const doc=gauge.ownerDocument,target=doc.querySelector('.flight-condensed-counter');if(!target)return;
@@ -47,7 +47,7 @@ export function updateGlowGauge(gauge,s){
  const refs=gauge._glowRefs||(gauge._glowRefs={fill:gauge.querySelector('#flame-fill'),meter:gauge.querySelector('#flame-meter')});
  const state=glowGaugeUnits(s.flame,s.maxFlame,s.paidFlapCost||s.flapCost||10),ratio=clamp((Number(s.flame)||0)/(s.maxFlame||100));
  const key=state.value+'/'+state.capacity+'/'+state.unitCost;
- if(gauge._label!==key){gauge._label=key;refs.meter.setAttribute('aria-valuenow',state.value);refs.meter.setAttribute('aria-valuemax',state.maxValue);refs.meter.setAttribute('aria-valuetext',`${state.value} of ${state.maxValue} Sparks; each segment is ${state.unitCost} Sparks, one Lift`);}
+ if(gauge._label!==key){gauge._label=key;refs.meter.setAttribute('aria-valuenow',state.value);refs.meter.setAttribute('aria-valuemax',state.maxValue);refs.meter.setAttribute('aria-valuetext',`${state.value} of ${state.maxValue} Energy; each segment is ${state.unitCost} Energy, one Lift`);}
  if(gauge._capacity!==state.capacity){gauge._capacity=state.capacity;gauge.style.setProperty('--glow-units',state.capacity);refs.fill.innerHTML=unitMarkup(state);refs.units=Array.from(refs.fill.children);gauge._filled=state.filled;}
  if(gauge._filled!==state.filled){
   const from=Math.min(gauge._filled,state.filled),to=Math.max(gauge._filled,state.filled);
