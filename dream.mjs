@@ -3,7 +3,7 @@ const INPUTS=['beginLiftInput','endLiftInput','flap','activateAbility'];
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
 const ordered=value=>Array.isArray(value)?value.map(ordered):value&&typeof value==='object'?Object.fromEntries(Object.keys(value).sort().map(k=>[k,ordered(value[k])])):value;
 export function dreamFingerprint(options={}){
-  return JSON.stringify(ordered({simulation:'proximity-energy-1',seed:options.seed,terrain:options.terrain,elite:!!options.elite,duration:options.duration,
+  return JSON.stringify(ordered({simulation:'tutorial-context-1',seed:options.seed,terrain:options.terrain,elite:!!options.elite,duration:options.duration,
     node:options.node,companions:options.companions,modifiers:options.modifiers,flame:options.flame,condensedGlow:options.condensedGlow||0,condensedRemainder:options.condensedRemainder||0}));
 }
 export function dreamConfig(run={}){

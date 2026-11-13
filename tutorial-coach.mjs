@@ -1,4 +1,5 @@
-import {tutorialVisualMarkup} from './tutorial-visuals.mjs?v=proximity-energy-1';
+import {tutorialTarget,tutorialTextMarkup,tutorialExampleMarkup} from './tutorial-context.mjs?v=tutorial-context-1';
+import {tutorialVisualMarkup} from './tutorial-visuals.mjs?v=tutorial-context-1';
 let coachId = 0;
 const clamp = (value, low, high) => Math.max(low, Math.min(high, value));
 const focusable = 'button:not(:disabled),a[href],input:not(:disabled),select:not(:disabled),textarea:not(:disabled),[tabindex]:not([tabindex="-1"])';
@@ -23,7 +24,7 @@ export function createTutorialCoach({ onNext, onBack, onSkip } = {}) {
   const root = document.createElement('div');
   root.className = 'tutorial-coach'; root.hidden = true;
   root.innerHTML = `<div class="tutorial-coach-shade" aria-hidden="true"></div>
-    <div class="tutorial-coach-spotlight" aria-hidden="true"></div>
+    <div class="tutorial-coach-spotlight" aria-hidden="true"></div><svg class="coach-pointer" aria-hidden="true"><path/></svg>
     <div class="tutorial-coach-blocker coach-block-top" aria-hidden="true"></div>
     <div class="tutorial-coach-blocker coach-block-left" aria-hidden="true"></div>
     <div class="tutorial-coach-blocker coach-block-right" aria-hidden="true"></div>
@@ -33,7 +34,7 @@ export function createTutorialCoach({ onNext, onBack, onSkip } = {}) {
       <span class="tutorial-coach-progress"></span><div class="tutorial-coach-visual" hidden></div><h2 id="${id}-title"></h2><p id="${id}-text"></p>
       <div class="tutorial-coach-actions"><button type="button" data-coach="back">BACK</button><button type="button" class="tutorial-coach-next" data-coach="next">NEXT</button><button type="button" data-coach="skip">SKIP</button></div>
     </section>`;
-  const card = root.querySelector('.tutorial-coach-card');
+  const card = root.querySelector('.tutorial-coach-card'),pointer=root.querySelector('.coach-pointer'),pointerPath=pointer.querySelector('path');
   const spotlight = root.querySelector('.tutorial-coach-spotlight');
   const title = root.querySelector('h2'), text = root.querySelector('p');
   const progress = root.querySelector('.tutorial-coach-progress'), visual=root.querySelector('.tutorial-coach-visual');
@@ -43,6 +44,7 @@ export function createTutorialCoach({ onNext, onBack, onSkip } = {}) {
 
   const resolveTarget = () => {
     if (!step) return null;
+    const inferred=tutorialTarget(step);if(inferred){const node=[...document.querySelectorAll(inferred)].find(n=>n.getBoundingClientRect().width>0&&window.getComputedStyle(n).visibility!=='hidden');if(node)return node;}
     if (typeof step.target === 'string') {
       try { return document.querySelector(step.target); } catch { return null; }
     }
@@ -74,7 +76,7 @@ export function createTutorialCoach({ onNext, onBack, onSkip } = {}) {
     const right = rect ? clamp(rect.right, 0, width) : 0;
     const top = rect ? clamp(rect.top, 0, height) : 0;
     const bottom = rect ? clamp(rect.bottom, 0, height) : 0;
-    const hasTarget = Boolean(rect && right > left && bottom > top);
+    const hasTarget = Boolean(rect && right > left && bottom > top && (right-left)*(bottom-top)<width*height*.35);
     root.dataset.hasTarget = String(hasTarget);
     spotlight.hidden = !hasTarget;
     if (hasTarget) {
@@ -106,6 +108,10 @@ export function createTutorialCoach({ onNext, onBack, onSkip } = {}) {
     }
     card.style.left = `${Math.round(x)}px`;
     card.style.top = `${Math.round(clamp(y, margin, Math.max(margin, height - cardHeight - margin)))}px`;
+    const box=card.getBoundingClientRect(),tx=(left+right)/2,ty=(top+bottom)/2;
+    pointer.hidden=!hasTarget||(tx>=box.left&&tx<=box.right&&ty>=box.top&&ty<=box.bottom);
+    pointer.style.display=pointer.hidden?'none':'block';
+    if(!pointer.hidden){const ax=clamp(tx,box.left+8,box.right-8),ay=clamp(ty,box.top+8,box.bottom-8),angle=Math.atan2(ty-ay,tx-ax),tipX=tx-Math.cos(angle)*10,tipY=ty-Math.sin(angle)*10;pointerPath.setAttribute('d',`M${ax} ${ay} L${tipX} ${tipY} M${tipX-9*Math.cos(angle-.5)} ${tipY-9*Math.sin(angle-.5)} L${tipX} ${tipY} L${tipX-9*Math.cos(angle+.5)} ${tipY-9*Math.sin(angle+.5)}`);}
   };
   const schedule = () => {
     if (step && !destroyed && frame == null) frame = window.requestAnimationFrame(position);
@@ -180,8 +186,8 @@ export function createTutorialCoach({ onNext, onBack, onSkip } = {}) {
       target = resolveTarget();
       const info = progressInfo(step.progress);
       title.textContent = String(step.title || 'Learn the way');
-      text.textContent = String(step.text || '');
-      const art=tutorialVisualMarkup(step);visual.innerHTML=art;visual.hidden=!art;
+      text.innerHTML = tutorialTextMarkup(step.text);
+      const art=tutorialVisualMarkup(step),example=tutorialExampleMarkup(step,document,target);visual.innerHTML=example+`<div class="coach-vocabulary">${art}</div>`;visual.hidden=!art&&!example;root.dataset.hasExample=String(!!example);
       progress.textContent = info.label;
       root.dataset.single=String(!step.progress||/STEP 1 \/ 1$/.test(info.label));
       next.textContent = String(step.actionLabel || 'NEXT');
