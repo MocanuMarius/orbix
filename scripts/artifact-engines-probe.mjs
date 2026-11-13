@@ -112,5 +112,48 @@ assert.equal(getArtifactCapacity(six),6);const combined=make('swift',getRunModif
 combined.activateAbility();combined.flame=0;pick(combined);close(combined.flame,48,'Combined Echo bonus caps at16');
 combined.flame=100;pick(combined);assert.equal(combined.artifactEffects.sightUntil,3,'Combined forward light caps at3s');assert.equal(combined.artifactEffects.freeLift,true);
 assert.deepEqual(combined.mod.artifactEngineSources['overflow-coil'],['sunheart-engine','overflow-coil']);
+
+// Consumables count real fuel pickups, work for body and Collector, and then stop.
+const limitedMods={artifactIds:['glow-wick','flash-stone'],artifactCharges:{'glow-wick':3,'flash-stone':2}};
+const limited=make('collector',limitedMods,0);
+pick(limited);assert.equal(limited.flame,34);assert.deepEqual(limited.getState().artifactCharges,{'glow-wick':2,'flash-stone':1});
+assert.ok(limited.pickupRevealHoldUntil>limited.time+1.5);
+limited.flame=0;pick(limited,'light',{deliveredByWisp:true});assert.equal(limited.flame,34);
+assert.deepEqual(limited.getState().artifactCharges,{'glow-wick':1,'flash-stone':0});
+limited.time=5;limited.flame=0;pick(limited);assert.equal(limited.flame,34);assert.equal(limited.pickupRevealStrength,0,'Exhausted Flash Stone cannot reveal again');
+limited.flame=0;pick(limited);assert.equal(limited.flame,24,'Exhausted Glow Wick grants no bonus');
+assert.deepEqual(limited.getState().artifactCharges,{'glow-wick':0,'flash-stone':0});
+const notices=limited.getState().artifactNotices;
+assert.equal(notices.length,4,'Each consumable teaches one activation and one exhaustion only');
+assert.deepEqual(notices.map(n=>n.serial),[1,2,3,4]);
+assert.equal(notices.filter(n=>n.phase==='exhausted').length,2);
+for(const kind of ['dark','dusk','charge','sight']){
+ const e=make('collector',limitedMods,0);pick(e,kind);
+ assert.deepEqual(e.getState().artifactCharges,limitedMods.artifactCharges,kind+' must not consume a fuel charge');
+ assert.equal(e.getState().artifactNotices.length,0);
+}
+const generated=make('collector',limitedMods,0);pick(generated,'light',{generated:true});
+assert.deepEqual(generated.getState().artifactCharges,limitedMods.artifactCharges,'Generated fuel never consumes or retriggers a charge');
+for(const flame of [0,60,90,100]){
+ const withWick=make('collector',{artifactIds:['glow-wick'],artifactCharges:{'glow-wick':1}},flame),withoutWick=make('collector',{},flame);
+ pick(withWick);pick(withoutWick);
+ assert.equal(withWick.condensedGlow,withoutWick.condensedGlow);close(withWick.condensedRemainder,withoutWick.condensedRemainder);
+ assert.equal(withWick.pickupOverflow,withoutWick.pickupOverflow,'Wick fuel cannot mint Packed Light or prime overflow effects');
+}
+const spent=make('collector',{artifactIds:['glow-wick','flash-stone'],artifactCharges:{'glow-wick':0,'flash-stone':0}},0);
+pick(spent);assert.equal(spent.flame,24);assert.equal(spent.pickupRevealStrength,0,'Reloading zero charges must not refill them');
+let limitedResult;limited.onFinish=result=>limitedResult=result;limited.finish(false);
+assert.deepEqual(limitedResult.artifactCharges,{'glow-wick':0,'flash-stone':0},'Flight results report remaining charges for checkpoint persistence');
+const flashChain=make('collector',{...mods('sunspool'),artifactIds:['flash-stone','sunspool'],artifactCharges:{'flash-stone':1}},0);
+pick(flashChain);assert.equal(flashChain.artifactEffects.freeLift,true,'Flash Stone intentionally supplies temporary light for Sunspool');
+function limitedDreamEngine(){const e=make('swift',{...limitedMods,dreamDuration:4},50);e.layout.embers=[{id:'limited-dream-light',kind:'light',x:e.distance+e.player.x+10,y:e.player.y}];return e;}
+const limitedRecord=limitedDreamEngine();let limitedReady;attachDream(limitedRecord,{onReady:result=>limitedReady=result});
+for(let frame=0;frame<240;frame++){if([3,85,167].includes(frame))limitedRecord.flap();limitedRecord.step(1/60);}
+assert.ok(limitedReady?.valid);const limitedReplay=limitedDreamEngine();assert.ok(attachDream(limitedReplay,{mode:'replay',preset:limitedReady.preset}));
+for(let frame=0;frame<240;frame++)limitedReplay.step(1/60);
+assert.deepEqual(limitedReplay.getState().artifactCharges,limitedRecord.getState().artifactCharges);
+assert.deepEqual(limitedReplay.getState().artifactNotices,limitedRecord.getState().artifactNotices);
+assert.deepEqual(limitedMods.artifactCharges,{'glow-wick':3,'flash-stone':2},'Dream simulation cannot mutate caller/run charges');
+
 for(const e of engines)e.destroy();
-console.log('Artifact engines: four roles, shared-trigger combinations, actual recharge, caps, exclusions, free Lift, temporary-light sources, deterministic Dream/retry and catalog contract passed.');
+console.log('Artifact engines: four roles, bounded combinations, consumable depletion/exclusions/currency isolation, stable first-use notices, deterministic Dream/retry and catalog contract passed.');

@@ -2,13 +2,19 @@
 
 A landscape, one-handed pixel flight roguelite. The static game lives in `dist/` and uses a custom Canvas simulation and cached pixel renderer; there is no build step or framework dependency.
 
-## Current release: glow-flight-1
+## Current release: artifact-clarity-1
 
-Play at [GitHub Pages](https://mocanumarius.github.io/orbix/?v=glow-flight-1), or run `npm start` and open the printed localhost address. The game targets landscape mobile play, including the Pixel 10 ratio.
+Play at [GitHub Pages](https://mocanumarius.github.io/orbix/?v=artifact-clarity-1), or run `npm start` and open the printed localhost address. The game targets landscape mobile play, including the Pixel 10 ratio.
 
-The [landscape preview](https://mocanumarius.github.io/orbix/preview.html?v=glow-flight-1) holds the game at 900×405 inside any sidebar; the normal game link fills the phone screen. Home actions now have large framed pixel labels. Skill ownership uses blue checks and rank badges, affordable purchases gold plus signs, unaffordable purchases bronze prices, and locked prerequisites grey locks.
+The [landscape preview](https://mocanumarius.github.io/orbix/preview.html?v=artifact-clarity-1) holds the game at 900×405 inside any sidebar; the normal game link fills the phone screen. Home actions now have large framed pixel labels. Skill ownership uses blue checks and rank badges, affordable purchases gold plus signs, unaffordable purchases bronze prices, and locked prerequisites grey locks.
 
 **Flight HUD:** a larger segmented Glow bar stays inside the left safe area, without visible numbers. Packed Light sits above it; ascension, map and hearts sit at the top right beside MENU. The wisp moves slightly farther right to keep clear of both light meters. Boon shells break inward on capture, while the captured light shrinks through twelve accelerating orbits into the wisp.
+
+**Artifact choices:** each reward offers one artifact **or** immediate Glow, with the exact consequence previewed before confirmation. Artifact panels show one selected item, its trigger/effect and lifetime. Ordinary rewards roll rarity before theme: 15% chance of a rare in the pair, 25% after an optional challenge. Elites guarantee at least one rare; map finales and bosses retain their special tiers.
+
+Reusable artifacts stay mounted; limited artifacts show remaining uses. Glow Wick adds up to 3 displayed Glow on the next three natural fuel pickups, without making currency from that bonus. Flash Stone reveals the scene for 1.5 seconds on the next two pickups. Exhausted relics stop immediately and free their slot after a clear; failed/interrupted attempts restore their entry charges. All effects activate automatically. The first observed effect gets one short paused explanation, limited to one new artifact lesson per flight.
+
+**Resume:** a centered GAME SPEED indicator rises linearly from 0.1× to 1× over three seconds, then disappears. Gentle Awakening extends Dream resume to four seconds. Black Hole absorption uses larger stolen-light fragments and a denser, tightening funnel; drain strength is unchanged.
 
 **Forge:** consume an unwanted artifact at a shelter/event for fixed 25/35/50 Packed Light (common/rare/boss). The confirmation names the artifact and payout. Forging neither refills Glow nor restores hearts, and does not use a Rest boon. TEST catalog artifacts cannot be sold. Flight reward offerings still grant Glow; this service is specifically for owned artifacts.
 

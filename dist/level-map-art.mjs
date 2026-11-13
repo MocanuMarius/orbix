@@ -1,5 +1,5 @@
-import {biomeMapGlyph} from './biome-art.mjs?v=glow-flight-1';
-import {LEVELS} from './level-catalog.mjs?v=glow-flight-1';
+import {biomeMapGlyph} from './biome-art.mjs?v=artifact-clarity-1';
+import {LEVELS} from './level-catalog.mjs?v=artifact-clarity-1';
 // Original, grid-authored location landmarks. No external art or image requests.
 // Each rectangle uses integer coordinates on a 16 x 16 pixel grid.
 const shapes = {

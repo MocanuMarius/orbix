@@ -116,3 +116,8 @@ body:has(.tutorial-coach:not([hidden])) #tutorial-hint { visibility: hidden; }
   .tutorial-coach,
   .tutorial-coach * { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
 }
+
+/* Resume feedback sits in the flight scene and never intercepts Lift. */
+.game-speed-overlay{position:absolute;z-index:8;left:50%;top:46%;transform:translate(-50%,-50%);display:flex;flex-direction:column;align-items:center;gap:9px;pointer-events:none;color:#fff0c8;text-shadow:2px 2px #07110e,-2px -2px #07110e;filter:drop-shadow(0 3px 0 #07110e);font-family:var(--pixel)}
+.game-speed-overlay[hidden]{display:none}.game-speed-overlay>span{font-size:13px;letter-spacing:2px;white-space:nowrap}.game-speed-overlay>b{font-size:clamp(30px,5vw,46px);line-height:1.1}.game-speed-overlay>i{width:140px;height:6px;background:#132721;border:1px solid #a7b794}.game-speed-overlay em{display:block;height:100%;background:#e2d9ad;transform-origin:left;transform:scaleX(0)}
+.tutorial-coach[data-step^="artifact:"] [data-coach=back],.tutorial-coach[data-step^="artifact:"] [data-coach=skip],.tutorial-coach[data-step^="artifact:"] .tutorial-coach-progress{display:none}

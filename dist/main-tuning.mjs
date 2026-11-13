@@ -13,7 +13,7 @@ export const MAIN_TUNING_SKILLS={
  'main-dream':node('main-dream','Dream',35,'main-sight','At a Rest, rehearse the next flight’s first 4 seconds freely. Preset a successful opening to replay without Lift or sustain cost.','dream','Dream 4s'),
  'main-dream-long':node('main-dream-long','Long Dream',40,'main-dream','Extend rehearsals and preset playback to 6 seconds.','dream','Dream 6s'),
  'main-dream-deep':node('main-dream-deep','Deep Dream',55,'main-dream-long','Extend rehearsals and preset playback to 8 seconds.','dream','Dream 8s'),
- 'main-dream-wake':node('main-dream-wake','Gentle Awakening',30,'main-dream','After waking and tapping to resume, ease back to full speed over 3 seconds.','dream','Soft wake'),
+ 'main-dream-wake':node('main-dream-wake','Gentle Awakening',30,'main-dream','After waking and tapping to resume, ease back to full speed over 4 seconds instead of 3.','dream','Soft wake'),
  'main-dream-sight':node('main-dream-sight','Lucid Sight',35,'main-dream','See farther during Dream rehearsals to plan your opening.','sight','Lucid sight'),
  'main-recovery':node('main-recovery','Renewal',30,'main-efficiency','Victory recovery becomes 55% Glow; it scales with your vessel.','recovery','+5 Glow recovery'),
  'main-recovery-deep':node('main-recovery-deep','Deep Renewal',45,'main-recovery','Victory recovery becomes 60% Glow; it scales with your vessel.','recovery','+5 Glow recovery'),

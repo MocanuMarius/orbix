@@ -1,3 +1,13 @@
+# Pending feedback — 2026-11-13
+
+- [ ] Glow basin: each segment represents exactly one displayed Glow unit; fill aligns to the same grid.
+- [ ] Remove stretching, squash and fluid fill animations from the Glow basin; retain crisp pixel transitions.
+- [ ] Make the upward Packed Light overflow beam visibly pixelated to match the game art.
+- [ ] Allow duplicate common consumable artifacts to stack remaining uses in one slot; define a readable stack counter and a bounded charge cap.
+- [x] Preserve automatic artifact effects: mounting selects the build; flight never needs an artifact activation button.
+- [ ] Give interactive scenery, including mushrooms, a distinct edge highlight so it is distinguishable from ordinary terrain and background art.
+- [ ] Explore **Regenerative Falling** as a skill/artifact choice: (A) an X% chance per Lift tap to negate its Glow cost, or (B) replace the full Edging reveal pulse with +1 Glow. These are alternatives to evaluate, not approved values or simultaneous effects. Show the tradeoff and prevent recovery/overflow farming when balancing.
+
 # Accepted gameplay batch — 2026-11-13
 
 Status: implemented, checked and deployed as dream-paths-1 (source 9a0ecf9). Public release marker, index and Dream/rest/victory modules verified.

@@ -78,3 +78,9 @@ The evolving-artifact and in-flight-fork suggestions are still proposals. Curren
 Edging is easier to accumulate: twice the boundary clearance, two seconds of skimming, 1.25 seconds of retention between edges and slower decay. Upgrade descriptions and contextual teaching match those values. The large left Glow meter drops visible numeric labels, Packed Light moves above it, and ascension/map/hearts sit beside the top-right menu. The wisp sits farther right. The notch-safe inset has a fallback when the browser reports no safe area.
 
 Pickup absorption now shrinks through twelve accelerating orbits. Shell fragments collapse inward at body capture or Collector retrieval. Existing effect budgets and immediate fuel credit remain. Responsive layout and focused mechanic checks cover this batch; no full balance sweep or hardware FPS claim is made. The richer map-event proposals still await implementation.
+
+## Follow-up: artifact-clarity-1
+
+Artifact rewards now use rarity-first rolls and short effect/trigger/lifetime labels. Common limited-use relics have visible, persistent charge counters and free their slots on a successful clear. Effects remain automatic; first-use teaching pauses safely and resumes with a large centered speed readout. Choosing a reward, mounting/replacing, and forging now state their alternatives and consequences. Forge copy consistently uses Packed Light.
+
+Black Hole stolen light is larger, denser and follows a narrowing spiral, with a bounded particle pool. Baseline resume is linear over three seconds. Latest user-requested backlog additions (Glow unit grid and crisp basin, pixel overflow beam, duplicate consumable stacking, interactive scenery highlighting) are recorded as pending in BACKLOG.md. They are not claimed as implemented in this release.

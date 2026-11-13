@@ -1,5 +1,5 @@
-import {landmarks} from './map-landmarks.mjs?v=glow-flight-1';
-import {glowText} from './vitality.mjs?v=glow-flight-1';
+import {landmarks} from './map-landmarks.mjs?v=artifact-clarity-1';
+import {glowText} from './vitality.mjs?v=artifact-clarity-1';
 const stop=(kind,label,name,summary)=>Object.freeze({kind,label,name,summary,icon:kind});
 export const MAP_STOP_TYPES=Object.freeze({
 flight:stop('flight','FLIGHT','Flight','Fly a passage, choose a relic or dissolve it into Glow, and recover fuel.'),

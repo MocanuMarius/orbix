@@ -15,22 +15,23 @@ assert.ok(Math.abs(engine.time-.5)<=1/60+.00001);
 engine.pause();const pausedTime=engine.time,pausedDistance=engine.distance;
 engine.tick(9000);
 assert.equal(engine.time,pausedTime);assert.equal(engine.distance,pausedDistance);
-engine.resume();assert.equal(engine.resumeScale,.1);assert.equal(engine.resumeRemaining,2);
+engine.resume();assert.equal(engine.resumeScale,.1);assert.equal(engine.resumeRemaining,3);
 assert.equal(engine.flap(),true);
 const beforeTime=engine.time,beforeDistance=engine.distance,beforeUpdates=updates.length;
 engine.tick(10000);
 const samples=[];
-for(let frame=1;frame<=120;frame++){
+for(let frame=1;frame<=180;frame++){
  engine.tick(10000+frame*1000/60);
+ assert.ok(Math.abs(engine.resumeScale-(.1+.9*frame/180))<1e-10,'Resume speed increases linearly over three real seconds');
  if(frame%30===0)samples.push({realSeconds:frame/60,scale:engine.resumeScale,remaining:engine.resumeRemaining,simSeconds:engine.time-beforeTime,distance:engine.distance-beforeDistance});
 }
 assert.equal(engine.resumeRemaining,0);assert.equal(engine.resumeScale,1);
-assert.ok(Math.abs(engine.time-beforeTime-1.1)<=1/60+.00001);
+assert.ok(Math.abs(engine.time-beforeTime-1.65)<=1/60+.00001);
 assert.ok(updates.length-beforeUpdates>=18);
 const rampUpdates=updates.length-beforeUpdates;
 engine.pause();engine.resume();assert.equal(engine.resumeScale,.1);
 engine.tick(20000);const beforeStall=engine.time;engine.tick(25000);
 assert.ok(engine.time-beforeStall<=.1+.00001);
 assert.equal(engine.resumeScale,1);
-const result={initialStart:'1x',pausedTimePreserved:true,controlsDuringRamp:true,updatesDuringTwoSecondRamp:rampUpdates,samples,maxSimulationAfterFiveSecondStall:engine.time-beforeStall};
+const result={initialStart:'1x',pausedTimePreserved:true,controlsDuringRamp:true,updatesDuringThreeSecondRamp:rampUpdates,samples,maxSimulationAfterFiveSecondStall:engine.time-beforeStall};
 engine.destroy();console.log(JSON.stringify(result,null,2));

@@ -1,8 +1,8 @@
-import {getArtifactCapacity} from './model.mjs?v=glow-flight-1';
-import {formatGlow,getGlowCapacity} from './vitality.mjs?v=glow-flight-1';
-import {livesMarkup} from './lives.mjs?v=glow-flight-1';
-import { COMPANION_ABILITIES } from './companion-abilities.mjs?v=glow-flight-1';
-import { companionArtSvg } from './companion-art.mjs?v=glow-flight-1';
+import {getArtifactCapacity} from './model.mjs?v=artifact-clarity-1';
+import {formatGlow,getGlowCapacity} from './vitality.mjs?v=artifact-clarity-1';
+import {livesMarkup} from './lives.mjs?v=artifact-clarity-1';
+import { COMPANION_ABILITIES } from './companion-abilities.mjs?v=artifact-clarity-1';
+import { companionArtSvg } from './companion-art.mjs?v=artifact-clarity-1';
 
 const esc = value => String(value ?? '').replace(/[&<>"']/g, char =>
   ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[char]));
