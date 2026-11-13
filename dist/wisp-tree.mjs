@@ -1,5 +1,5 @@
-import {SKILLS,MAIN_WISP_BRANCHES,isSkillRevealed,canChooseStartingSkill} from './model.mjs?v=boon-glow-1';
-import {treeHeader,treeCanvas,treeDetail,esc} from './living-tree.mjs?v=boon-glow-1';
+import {SKILLS,MAIN_WISP_BRANCHES,isSkillRevealed,canChooseStartingSkill} from './model.mjs?v=dawnburst-1';
+import {treeHeader,treeCanvas,treeDetail,esc} from './living-tree.mjs?v=dawnburst-1';
 export function mainWispTreeMarkup({run,wallet,canBuy,selected='main-efficiency'}){
  let skill=SKILLS[selected];if(!skill||skill.branch!=='main')skill=SKILLS['main-efficiency'];
  let root=skill;while(root.requires&&SKILLS[root.requires]?.branch==='main')root=SKILLS[root.requires];

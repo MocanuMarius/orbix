@@ -591,3 +591,11 @@ Focused checks: 30 layouts covering all 15 locations at tiers 1/4 produced 58 va
 ## Filled pickup radiance — 2026-11-13
 
 Pickup contact circles now contain layered pixel radiance between the item and the boundary, replacing the mostly empty-shell appearance. Boons use pale warm light; danger/cost pickups use red light, with dark cores preserved. A small upper highlight softens the interior. Contact-ring dimensions and collection behavior are unchanged. Carried/absorbing body-only sprites omit the field, so the collected circle still disintegrates. Layers are baked into the existing cached pickup frames, with no new runtime lighting pass or animation atlas. Inspected production-renderer frames in two terrains; no balance simulations or phone-performance claim for this art-only change.
+
+## Pickup-triggered Light branch: Dawnburst — 2026-11-13
+
+Added Dawnburst directly beneath Inner Glow in the main-wisp Light tree, a distinct one-time 45-Ember purchase compatible with the existing long-range/resistance paths. Collecting natural Glow reveals the entire currently visible flight scene, not offscreen terrain or the expedition route map. Normal onset is 0.12 seconds, followed by 1.5 seconds of full visibility and 1.2 seconds easing back to existing sight/dimming. Reduced-motion onset is 0.35 seconds. New pickups refresh the reveal from its current intensity, preventing dark blinks, accumulated duration or excessive brightness.
+
+Direct fuel, Collector deliveries, full-tank pickups and Kindler purification trigger the effect; currency, charge, sight-only pickups, unpurified harmful seeds and generated fuel do not. Existing cleansing and all fuel rewards are unchanged. The scene's existing fog composite blends out and back, leaving art and terrain silhouettes intact, without a white flash or new per-frame lighting pass. Simulation-time timing freezes during pauses; dying fades the reveal with the wisp.
+
+Focused checks passed for the one-time purchase, full hold/fade timing, refresh behavior and pickup categories. Production-renderer frames were inspected at normal, fully revealed and fading states. No full economy or device-performance benchmark was repeated for this skill.

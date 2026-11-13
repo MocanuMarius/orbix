@@ -1,6 +1,7 @@
 // Main-wisp paths favour distinct decisions over repeated identical ranks.
 const node=(id,name,cost,requires,description,icon,shortEffect,extra={})=>({id,name,branch:'main',cost,maxRank:1,requires,description,consequence:description,icon,shortEffect,...extra});
 export const MAIN_TUNING_SKILLS={
+ 'main-dawnburst':node('main-dawnburst','Dawnburst',45,'main-sight','Collect Glow to reveal the whole screen for 1.5s, then fade over 1.2s. More pickups refresh the light.','dawn','Pickup dawn'),
  'main-reservoir':node('main-reservoir','Deep Vessel',30,'main-efficiency','Maximum Glow capacity +20% of base. Recovery Rests fill the larger vessel.','reserve','+20% cap'),
  'main-vast-vessel':node('main-vast-vessel','Boundless Vessel',50,'main-reservoir','Maximum Glow capacity +20% of base again; +40% total.','reserve','+20% cap',{choiceGroup:'vessel-style',excludes:['main-cache-feast']}),
  'main-cache-feast':node('main-cache-feast','Cache Feast',45,'main-reservoir','Large Glow caches restore 8 extra Glow.','fuel','Rich fuel',{choiceGroup:'vessel-style',excludes:['main-vast-vessel']}),

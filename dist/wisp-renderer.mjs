@@ -1,12 +1,12 @@
-import {formatGlow} from './vitality.mjs?v=boon-glow-1';
-import {LOCATION_PALETTES} from './world-expansion.mjs?v=boon-glow-1';
-import { sceneryIdentity, drawIdentityBackground, drawIdentityMaterial, drawIdentityLife } from './level-scenery.mjs?v=boon-glow-1';
-import { getCompanionAbility, normalizeCompanionRole } from './companion-abilities.mjs?v=boon-glow-1';
-import { companionSprite, companionPalette } from './companion-art.mjs?v=boon-glow-1';
-import { createScenePropArt } from './scene-prop-art.mjs?v=boon-glow-1';
-import { drawBoss } from './boss.mjs?v=boon-glow-1';
-import { drawPickup } from './pickup-art.mjs?v=boon-glow-1';
-import { pickupKind, getPickupSpec } from './pickups.mjs?v=boon-glow-1';
+import {formatGlow} from './vitality.mjs?v=dawnburst-1';
+import {LOCATION_PALETTES} from './world-expansion.mjs?v=dawnburst-1';
+import { sceneryIdentity, drawIdentityBackground, drawIdentityMaterial, drawIdentityLife } from './level-scenery.mjs?v=dawnburst-1';
+import { getCompanionAbility, normalizeCompanionRole } from './companion-abilities.mjs?v=dawnburst-1';
+import { companionSprite, companionPalette } from './companion-art.mjs?v=dawnburst-1';
+import { createScenePropArt } from './scene-prop-art.mjs?v=dawnburst-1';
+import { drawBoss } from './boss.mjs?v=dawnburst-1';
+import { drawPickup } from './pickup-art.mjs?v=dawnburst-1';
+import { pickupKind, getPickupSpec } from './pickups.mjs?v=dawnburst-1';
 
 const TAU = Math.PI * 2;
 const SCENERY_HELPERS = { line: pixelLine, disc: pixelDisc, polygon: path };
@@ -652,7 +652,7 @@ export class WispFlightView {
     }
     f.globalAlpha = 1; f.globalCompositeOperation = 'source-over';
     const reveal=e.completionProgress||0;
-    c.globalAlpha=1-reveal*reveal*(3-2*reveal);
+    c.globalAlpha=(1-reveal*reveal*(3-2*reveal))*(1-clamp(light.pickupReveal||0,0,1));
     c.drawImage(this.fog, 0, 0);c.globalAlpha=1;
   }
 

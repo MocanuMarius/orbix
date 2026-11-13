@@ -1,4 +1,4 @@
-import {EXTRA_LEVELS} from './world-expansion.mjs?v=boon-glow-1';
+import {EXTRA_LEVELS} from './world-expansion.mjs?v=dawnburst-1';
 // Location identities are shared by route previews, terrain and scenery.
 // Shapes and challenge windows are authored by the flight generator.
 export const LEVELS = Object.freeze([

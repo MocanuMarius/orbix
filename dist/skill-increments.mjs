@@ -1,4 +1,4 @@
-import {tuneMainDefinition} from './main-tuning.mjs?v=boon-glow-1';
+import {tuneMainDefinition} from './main-tuning.mjs?v=dawnburst-1';
 // Separate purchases along a path, not a repeatable stat allocation screen.
 const styles={
  'main-lift':['−2% cost','Lift spends 2% less Glow.'],
