@@ -1,9 +1,9 @@
 import { LIGHT_PACKET_TUNING } from './vitality.mjs';
 import { getCompanionAbility } from './companion-abilities.mjs';
-import { pickupKind, pickupContactRadius, canCompanionCollect } from './pickups.mjs';
+import { pickupKind, pickupContactRadius, canCompanionCollect } from './pickups.mjs?v=rest-trees-collector-1';
 
 const clamp = (value, lo, hi) => Math.min(hi, Math.max(lo, value));
-export const WISP_TUNING = Object.freeze({ range: 140, cooldown: 5, lightRadius: 175, outboundSpeed: 700, returnSpeed: 820 });
+export const WISP_TUNING = Object.freeze({ range: 105, cooldown: 5, lightRadius: 175, outboundSpeed: 700, returnSpeed: 820 });
 
 export function wispHome(player) {
   return { x: player.x, y: player.y };
@@ -37,7 +37,7 @@ export class WispCompanion {
   }
 
   currentRange(engine) {
-    const maximum = this.range(engine), minimum = Math.min(28, maximum);
+    const maximum = this.range(engine), minimum = Math.min(18, maximum);
     return minimum + (maximum - minimum) * this.recoveryFraction();
   }
 

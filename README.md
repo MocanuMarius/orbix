@@ -55,3 +55,21 @@ Main-light exposure is 50% stronger, with softened inverse-square distance atten
 Human-imperfect exposure sensitivity informed provisional buffs: Leveler 2.4-second hold / 9-second cooldown; Swift 1.25-second burst / 7.5-second cooldown; Kindler +10 direct fuel, Rich Fuel +16 with 5% Lift penalty, Purify +8 ordinary fuel plus the existing Dark Seed conversion. These preserve each role's collection restrictions.
 
 New runs start at75 Glow. Refuge and Cavern refills add6 and4 route Glow respectively, while the demanding gauntlet remains+1. Light Motes have a20-unit direct-contact radius. `npm run check:playtest` checks collision timing and resume behavior; balance scripts are available as `balance:builds`, `balance:economy` and `balance:flight`. The legacy `npm test` suite contains earlier prototype expectations and was not used to certify this release.
+
+## Local performance batch (not yet deployed)
+
+Cached scenery/terrain/prop art now rasterizes onCPU before being reused by the accelerated flight buffers. Background caching, bounded prewarming, local-space collisions, stable mobile viewport sizing and60Hz render pacing reduce repeated work. Inputs and physics keep their existing cadence.
+
+Add `?perf=1` to the local game URL for a bounded foreground frame recorder. MENU → SAVE PERFORMANCE REPORT exports JSON locally, also after death or exit to the front page. It collects no remote telemetry. Recorded maxima/counters cover a flight; percentiles cover the most recent3600 samples. Intentional pauses are excluded from frame gaps. The normal game does not instantiate the recorder.
+
+The matched Windows/Chrome benchmark eliminated gaps over50ms across16 diagnostic cases; this is not a physicalPixel10 or thermal test. See the separately delivered performance report and laboratory bundle. Publishing is held until the user's queue is cleared.
+
+Main-wisp training now uses three named root gifts and mutually exclusive forks, with one free starting gift offered after New Game. Radiance reveals farther, Momentum increases travel speed, and Vitality lowers Lift effort. Further one-time nodes are bought with run Embers at Rests. The main-wisp list of repeatable stat ranks and legacy point-allocation modules have been removed. This skill-tree batch remains local until the queue is cleared.
+
+Pickup rings now show disposition (pale boons; red danger/cost), with type-specific inner silhouettes and larger22–30-unit contact radii. Normal maps target30% extra fuel opportunities in broad swept-clear air; unsafe placements are omitted. Nine102-second clearance samples added4–7 accessible lights. Pickup sprites use a bounded CPU-raster atlas to keep the larger halos off the live per-pixel drawing path. These additions remain in the local queue.
+
+Main light now reaches twice as far forward, tapering to the prior vertical/rear range. A soft scene-centred horizon band improves horizontal readability at all wisp heights. The lobe stays horizontal and uses a cached mask; darkness effects and sight skills still apply. This change is staged locally with the queue.
+
+Empty Glow now removes Lift rather than ending the attempt: the wisp keeps falling and Collector can still deliver a rescue. Fuel pickups restore Lift immediately. Flight map stops use the shared wisp-between-cliffs icon instead of the paper plane. Held locally with the queue.
+
+Latest queue supersedes the earlier life-service proposal: Rest heart recovery fills every available heart, with no per-heart Ember purchase. Ember-funded run skills increase the cap to 4 and 5. Rest Glow is shown as percentages. A dedicated Skill Tree map button opens connected main/companion paths; companion Sparks add incremental improvements before ability forks. Verified full-heart recovery and a learned Collector Spark in the local interface. This combined batch remains undeployed.

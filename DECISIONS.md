@@ -428,3 +428,74 @@ These are implementation values, not a tested balance claim. Rest and encounter 
 - The TEST front-page companion roster is now an interactive six-companion picker. The chosen starter persists independently of normal unlocks and is applied to New Game. Existing Continue runs retain their current fleet.
 - Before this fix, front-page icons opened a read-only unlock panel and new runs always chose Collector, despite the in-run TEST picker allowing all roles.
 - Checked every role in the actual start-map picker and verified Seer selection survives reload and becomes the new run starter. Changed UI and model asset URLs are versioned to avoid stale phone caches.
+
+
+## Performance investigation — 2026-11-13, local batch
+
+- User reports recovering hitches on Pixel10. Do not redeploy until the queue is cleared. No source push or deployment was performed in this performance pass.
+- Frozen baseline is source8460f34. Real-browser Canvas2D testing covers16 matched cases:3 normal flights,9 accelerated terrain sweeps, boss, identical resize bursts,2px height jitter, and pickup effects. Test host is Windows Chrome157 with fixedDPR2 and a390×620 game canvas; it is not the user's phone. All timed samples remained visible.
+- Baseline111.06s:283 RAF gaps>50ms,7>1s, maximum1825.3ms. Final109.09s:0>50ms, maximum20.9ms,6556 render calls (~60Hz). Normal flight maximum gaps were below9ms. Callback rate (~240Hz) is reported separately from render rate.
+- The strongest isolated fix requests CPU rasterization for cached background, terrain and prop-art canvases. Live buffer, fog and presentation keep their accelerated contexts. Matched targeted tests remove the long gaps while synchronous render times remain small, supporting a deferred-canvas pipeline cause. This is not a GPU trace or a measuredPixel10 diagnosis.
+- Cache slowly scrolling background art, remove same-canvas feedback copies, cull offscreen props before generation, and prepare at most one future surface per available frame. Initial course generation remains synchronous at flight entry.
+- Identical resize events do nothing. Coalesce real resize events to one frame. Small active portrait height changes preserve the committed logical world and backing buffers (cap64px/10%); both canvases scale consistently viaCSS. Width, DPR, major height and paused/orientation changes still resize fully.
+- Paint at most60Hz while keeping fixed-step physics and input callbacks responsive. Local-space collision tests avoid14k–20k temporary coordinate arrays/sec;68134 matched queries had zero disagreements. Pause/resume, two-second death and resize/pacing probes passed.
+- Optional ?perf=1 adds a bounded in-memory frame recorder and SAVE PERFORMANCE REPORT in the menu, including after an attempt ends. Export is local; nothing is uploaded. Percentiles use the last3600 samples and lifetime counters/maxima. It remains to be measured onPixel10 after the next deployment.
+- Full raw traces, intermediate unsuccessful candidates, comparison CSV/chart and reproducible laboratory bundle are saved in outputs. Asset versions are prepared for the next deployment to avoid stale phone modules.
+
+## Main-wisp branching tree — local queue
+
+Replace repeated main-stat ranks with named one-time skill nodes. New runs immediately offer one free root gift: Radiance(+35 sight), Momentum(+5%travel), or Vitality(7%lessLiftcost). Roots branch into exclusive pairs: Far Horizon/Dawn Veil, Slipstream/Feather Drift, Rising Light/Kindling. Embers buy further skills at Rests; no point allocation or +/- tuning. Companion Bond remains a discrete slot unlock. The main menu stays free of training; all run training is inside the run. Remove unused legacy tuning modules, constants and tutorial copy. TEST still bypasses gates and can replace a chosen fork. Kept local alongside the performance batch; no deployment.
+
+## Pickup readability and easier recovery — local queue
+
+- All beneficial pickups share a pale circular light boundary. Dark Seeds and Dusk Pearls share a red warning boundary; Dusk remains a reward with a cost, never an unmarked boon. Inner silhouettes identify fuel mote, radiant cache, ember cluster, charge spark, sight eye, pearl and black seed. The same art appears in flight and the pickup key.
+- Contact radii increase to26/30/26/25/26/25/22 world units (light/cache/embers/charge/sight/dusk/dark). Rings match the corresponding contact radius.
+- Normal courses target30% additional recovery lights, elite15%, capped at one extra per12 seconds. Candidates use broad central air with48-unit swept terrain/prop clearance, at least160 units from warning pickups, and1.5seconds of separation from other fuel. Unsafe candidates are skipped. Nine102-second samples added4–7 accessible lights each; full moving-terrain clearance checks passed.
+- Pickup animations use a bounded per-document CPU-raster sprite atlas; the larger rings do not add live per-pixel painting each frame. Ring generation is linear in radius. This targeted cache check does not replace the earlier full benchmark or physical-phone testing.
+- Changes are held locally with the skill-tree and performance work, pending queue clearance and a combined deployment.
+
+## Horizontal visibility — local queue
+
+- Main illumination becomes a smooth asymmetric ellipse:2× reach straight ahead,1× behind/above/below. The lobe stays horizontal regardless of flap animation. Softened inverse-square attenuation is evaluated in these stretched coordinates, retaining the dark cutoff.
+- A separate soft horizon band is anchored at scene centre rather than following wisp height. It reveals up to50% through the fog at its centre and fades vertically, keeping the upper/lower scene dark. Dark Seed dimming, cave penalties, death fade and sight upgrades still affect it.
+- Both mask textures are baked once and reused. Companion/Seer radial lights and Collector fetch radius retain their own shapes and mechanics. Tutorial/pickup visibility and wind previews follow the new forward ellipse.
+- Checks cover cached masks,2:1 forward/vertical extent, fixed horizon at high/middle/low positions and continued dimming. Visual check uses all three altitudes. Kept local for the combined queue deployment.
+
+## Empty Glow is recoverable — local queue
+
+- Empty Glow no longer triggers death. Forward motion, gravity, drafts, body pickups and Collector rescue trips continue. Lift requires its full Glow cost; an unaffordable tap neither spends remaining fuel nor cancels an active Leveler.
+- Spending the exact final Lift or Protector cost is allowed without killing the wisp. A fuel pickup restores Lift availability immediately. Colliding without protection still triggers the existing two-second disintegration.
+- Flight map stops now use a wisp between cliffs, replacing the paper-plane symbol everywhere through the shared map icon.
+- Updated tutorial fuel guidance. A focused presentation probe verifies falling, ground collision, Collector/body rescue, final-cost Lift and shield, and unchanged collision delay. No full balance simulation or deployment.
+
+## Queue intake pause — 2026-11-13
+
+The user has asked to collect all incoming feedback before continuing. Implementation, tests, simulations and deployment are paused until the user explicitly says the queue is complete. Only record incoming requests during intake.
+
+Most recent request: make lives recoverable or purchasable with run Embers at Rests, and add a run skill path for a larger life cap. Local edits were already staged before the pause: one-life Rest boon; 60-Ember life service; Vitality → Spare Spark (100 Embers, cap 4) → Deep Reserve (180 Embers, cap 5); new capacity begins empty; dynamic heart displays. Focused model check passed before the pause. Mobile UI inspection was interrupted by the intake instruction and remains unfinished. These changes are local and undeployed; review with the completed queue.
+
+### Queued correction: full heart recovery and Ember-funded capacity
+
+At a Rest, the life recovery option must replenish all hearts up to the current maximum, rather than restoring just one. Spending run Embers increases maximum heart capacity through the skill tree; it is not the per-heart refill currency. This supersedes the locally staged one-life boon and 60-Ember refill service described above. Exact capacity prices remain provisional. Record only during intake: do not implement, test, simulate or deploy until the user says the queue is complete.
+
+### Queued correction: Rest-site Glow percentages
+
+Show Glow amounts and recovery at Rest sites as percentages rather than fixed fuel numbers, including current Glow and recovery offers. Keep Embers as currency amounts and hearts as discrete lives. Record only during queue intake; implementation, tests, simulations and deployment remain paused until the user says the queue is complete.
+
+### Queued correction: visual branching skill trees and dedicated access
+
+Main-wisp and companion skill trees must appear as connected branching trees with incremental improvements along prerequisite paths, rather than lists of upgrade items. Give Skill Tree its own clearly visible, dedicated button. Preserve run-owned upgrades and the existing Rest-site purchase scope; this request changes tree presentation, upgrade path structure and discoverability. Exact layout and incremental effects are to be reviewed with the completed queue. Record only during intake; do not implement, test, simulate or deploy until the user says the queue is complete.
+
+## Completed queue implementation — 2026-11-13
+
+Queue intake ended at the user's explicit instruction to start. Replaced the one-life Rest boon with full heart recovery and removed the 60-Ember refill service. Run Embers buy Spare Spark and Deep Reserve capacity (3→4→5). Choosing heart recovery also fills any newly purchased capacity while still preparing at that Rest. Other boons leave new slots empty.
+
+Rest Glow readouts, resource effects and Rest offer descriptions now use percentages. Added a dedicated map Skill Tree button and renamed Rest/menu training access to Skill Tree. Companion trees now render prerequisite connectors and compact nodes with a single inspected-node panel, rather than upgrade lists. Each companion has small Spark and Deep Attunement increments alongside ability forks. Existing main-wisp visual branches remain and include the life-cap path. Only equipped companions appear as tabs; upgrades remain run-owned and purchased at Rests (TEST bypass retained).
+
+Focused model and syntax checks passed. Full balance simulations and phone performance rebenchmark were not repeated. No deployment yet.
+
+## Collector and easy fuel release
+
+User authorized deployment once the combined work was ready. Collector baseline reach reduced from 140 to 105 world units; recovery minimum reduced from 28 to 18. Boundary opacity reduced from 0.52 to 0.23 with a thinner stroke and much softer outer pass. No filled aura or expensive terrain reshaping.
+
+Ascension 1 non-elite routes prioritise screen-centre and near-centre recovery fuel. Early/open passages target 50% extra recovery fuel, later ordinary Ascension 1 passages 40%, versus 30% on higher tiers and 15% on elites. Placement remains capped by duration and swept terrain/prop clearance; unsafe candidates are skipped. Targeted syntax, rescue/collision and slow-resume checks passed; no full balance matrix repeated.

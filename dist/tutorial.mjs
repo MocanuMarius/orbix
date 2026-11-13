@@ -137,8 +137,8 @@ export function getTutorialHint(engine) {
     worldFocus:getTutorialWorldFocus(engine),observed:{directPickups:state.directPickups,carrierDeliveries:state.carrierDeliveries,
       carrierRest:state.sawCooldown,tool:state.toolObserved,draft:state.finishedWind,darkAvoided:state.darkAvoided,darkCleared:state.darkCleared}});
   if(engine.tutorialAwaitingLift)return hint('launch','Tap Lift to begin','LIFT spends Glow. Stay clear of solid scenery and screen edges.',1);
-  if(engine.dying)return hint('last-spark','The last spark fades','An empty Glow bar ends the attempt. Plan pickups before spending the final fuel.',2);
-  if(engine.flame<engine.flapCost*2)return hint('low-glow','Find a fuel light','Gliding costs no Glow. A Lift you cannot afford spends the remainder, so collect before tapping.',2);
+  if(engine.dying)return hint('last-spark','The light scatters','Solid scenery and screen edges end an unprotected attempt.',2);
+  if(engine.flame<engine.flapCost*2)return hint('low-glow','Find a fuel light','Without enough Glow you cannot Lift, but you can still collect fuel while falling. Collector keeps searching.',2);
   const exit=engine.getExitLandmark?.();
   if(exit&&exit.x<engine.width-18)return hint('exit','Reach the refuge light','Fly to the waylight while keeping enough Glow for your last Lift.',4);
   if(state.lesson==='glide'){
@@ -174,7 +174,7 @@ export function getTutorialWorldFocus(engine, seenIds = null) {
   const sight = Math.max(60, (engine.getLightState?.().radius || 175) * .82);
   const visible = (x, y) => Number.isFinite(x) && Number.isFinite(y)
     && x >= 18 && x <= width - 18 && y >= 18 && y <= height - 18
-    && Math.hypot(x-engine.player.x,y-engine.player.y) <= sight;
+    && Math.hypot((x-engine.player.x)*(x>engine.player.x?.5:1),y-engine.player.y) <= sight;
   const focus = (id, title, text, x, y, radius) => visible(x, y)
     ? { id, title, text, x, y, radius: Math.min(radius, x - 4, width - x - 4, y - 4, height - y - 4) } : null;
   const candidates = [];

@@ -10,7 +10,7 @@ const step = (id, title, text, target, extra = {}) =>
 const keyText = {
   flight: ['Flight symbol', 'The wing marks an ordinary flight. Clear it to save embers and choose a temporary power.'],
   elite: ['Elite symbol', 'The skull marks a harder flight with a larger clear reward. Your three journey lives still apply.'],
-  rest: ['Rest symbol', 'The campfire offers fuel or embers. Rest also opens tuning and companion changes before departure.'],
+  rest: ['Rest symbol', 'The campfire offers fuel or embers. Rest also opens skill branches and companion changes before departure.'],
   shrine: ['Shrine symbol', 'The cards mark a shrine. Choose fuel and embers or a new temporary power.'],
   event: ['Event symbol', 'The question mark is a named encounter with two choices. There are six event variants, each with different tradeoffs.'],
   finale: ['Finale symbol', 'The flag marks this map’s last flight. Maps one and two open the next map; map three ends with the difficulty-tier boss.'],
@@ -64,14 +64,14 @@ export function tutorialSteps(screen, context = {}) {
         step(`brief-companion-${role}`, passive ? 'Your passive companion' : `Your ${ability.label} companion`, abilityText, '.companion-ability-preview'),
       ];
       if (stored) steps.push(step('brief-stored-glow', 'Stored Glow is spare fuel', 'Use some reserve before this new level, or keep it for later. This bottle is carried flight fuel, separate from your ember wallet.', '.stored-glow-panel'));
-      steps.push(step('brief-enter', 'Ready to fly', 'Enter starts this passage. MENU holds your tuning and other preparation tools.', '[data-action="launch"]', { actionLabel: 'Ready' }));
+      steps.push(step('brief-enter', 'Ready to fly', 'Enter starts this passage. MENU opens your run skill trees and companion preparation.', '[data-action="launch"]', { actionLabel: 'Ready' }));
       return steps;
     }
 
     case 'flight':
       return [
         step('flight-body', 'Guide the large white light', 'Your body must avoid solid scenery and screen edges. Touch good light packets to refill Glow.', '#flight-canvas'),
-        step('flight-glow', 'Glow pays for Lift', 'Each Lift spends fuel from this bar. Gliding costs no Glow.', '#flame-meter'),
+        step('flight-glow', 'Glow pays for Lift', 'Each Lift spends fuel. When empty, you fall but can still collect fuel to Lift again.', '#flame-meter'),
         step('flight-lift', 'Lift, then glide', 'Tap Lift to rise, then let the light fall gently. Choose your taps instead of tapping constantly.', '#flap-btn'),
         collects ? step('flight-collector', 'Your automatic Collector', 'Collector rescues misses inside its boundary. This fill shows its current range. A sparkle means full reach.', '#boost-btn') : step(`flight-manual-${role}`, 'Manual pickups with this guide', 'This companion does not fetch packets. Fly through good packets yourself to refill Glow.', '#flight-canvas'),
         step(`flight-tool-${role}`, passive ? 'Always on, no tap needed' : `Your right-side ${ability.label}`, abilityText, '#boost-btn'),
@@ -94,9 +94,9 @@ export function tutorialSteps(screen, context = {}) {
 
     case 'support': {
       const steps = [
-        step('support-choice', 'Choose one boon', 'Pick one of these two choices, then continue upward. Each reward names its resource or power.', '.support-offers'),
-        step('support-resources', 'Know what you are taking', unlocked ? 'Glow is Lift fuel; embers are saved upgrade currency. Stored Glow is fuel held for a later level.' : 'Glow is Lift fuel. Embers are saved currency for permanent upgrades.', '.support-vitals'),
-        step('support-menu', 'Tune at rest through MENU', 'The gear badge shows unused tuning points. TUNE redistributes flight points; UPGRADES spends saved embers.', '.header-menu-slot .game-menu-button'),
+        step('support-choice', 'Choose one boon', 'Choose one boon: Glow, Embers, or a missing life at a Rest. Each reward names what you gain.', '.support-offers'),
+        step('support-resources', 'Know what you are taking', unlocked ? 'Glow is Lift fuel; embers are saved upgrade currency. Stored Glow is fuel held for a later level.' : 'Glow is Lift fuel. Embers are saved currency for this run’s skills.', '.support-vitals'),
+        step('support-menu', 'Follow a skill branch', 'Spend run Embers on named skills. Each fork commits you to one path for this run.', '[data-action=menu]'),
       ];
       if (rest) steps.push(step('support-companion', 'A rest can change your guide', 'Choose Collector, Swift, Anchor or Gravity before departure. Only Collector fetches; the others require manual pickups.', '.rest-companion-picker'));
       return steps;
@@ -104,25 +104,15 @@ export function tutorialSteps(screen, context = {}) {
 
     case 'menu': {
       const steps = [
-        step('menu-tune', 'Flight tuning', 'TUNE uses your shared point budget. You can edit at rest and inspect it while a flight is paused.', '[data-action="menu-tune"]'),
+        step('menu-tree', 'Run skill tree', 'Follow the main wisp or equipped companion branches. Skills last this run.', '[data-action="skills"]'),
         step('menu-companion', 'Companion choice', 'Change your companion during rest preparation. The next departure locks that choice for the level and its retries.', '[data-action="menu-companion"]'),
-        step('menu-upgrades', 'Permanent upgrades', 'UPGRADES spends saved embers on lasting ranks. Safe checkpoint purchases apply to the next new flight.', '[data-action="menu-upgrades"]'),
+        step('menu-upgrades', 'Run skills', 'UPGRADES spends run Embers on skill branches. Safe checkpoint purchases apply to the next new flight.', '[data-action="menu-upgrades"]'),
         step('menu-practice', practice ? 'Leave practice safely' : 'Practice without losing progress', practice ? 'Exit practice returns to a waiting ascent, or camp if none. Practice fuel and rewards stay separate.' : 'Tutorial keeps your ascent safely waiting. Exit practice to return to its saved checkpoint.', '[data-action="menu-tutorial"]'),
       ];
       if (stored) steps.push(step('menu-stored-glow', 'The bottle is stored fuel', 'Stored Glow carries spare Lift fuel between levels. Inspect it here; using it is offered before a new level.', '.game-menu-reserve'));
       steps.push(step('menu-close', 'Back or Resume', 'BACK returns to the current screen. A paused flight continues only when you choose RESUME.', '.game-wheel-core', { actionLabel: 'Continue' }));
       return steps;
     }
-
-    case 'tuning':
-      return [
-        step('tuning-budget', 'One shared point budget', 'Divide these points across four stats. Each stat has three slots, so more in one leaves fewer for the others.', '#tuning-inspector .tuning-budget'),
-        step('tuning-speed', 'Speed', 'Each point adds 3% travel speed. Faster travel reaches the waylight sooner and leaves less reaction time.', '#tuning-inspector [data-tuning-axis="speed"]', { allowTarget: rest }),
-        step('tuning-lift', 'Lift height', 'Each point adds 6% lift height. Taps still cost Glow, so place them carefully.', '#tuning-inspector [data-tuning-axis="lift"]', { allowTarget: rest }),
-        step('tuning-collector', role === 'gravity' ? 'Gravity reach and pull' : collects ? 'Collector reach' : 'This guide has no Collector', role === 'gravity' ? 'Each point adds 12% field reach and 8% pull strength. Collection is still manual.' : collects ? 'Each point adds 12% fetch reach. Collector still needs to return and recover.' : 'Swift and Anchor use manual pickups. This axis is disabled and its old points return to the shared budget.', '#tuning-inspector [data-tuning-axis="collector"]', { allowTarget: rest && (collects || role === 'gravity') }),
-        step('tuning-ability', collects ? 'Collector recovery and reach' : role === 'gravity' ? 'Gravity pull' : 'Ability timing', collects ? 'Each point adds 5% fetch reach and shortens Collector rest by 4%. Fetching stays automatic.' : role === 'gravity' ? 'Duration and recharge bonuses strengthen the passive field. Gravity never gains a fetching companion.' : 'Each point adds 5% ability duration and shortens recharge by 4%. The totals include your powers and permanent ranks.', '#tuning-inspector [data-tuning-axis="boost"]', { allowTarget: rest }),
-        step('tuning-done', 'Keep this allocation', 'Plus adds a point and minus gives it back. Done keeps your choices; departure locks them for the level and its retries.', '#tuning-inspector .tuning-sheet-actions', { actionLabel: 'Done' }),
-      ];
 
     case 'companion':
       return [
@@ -144,7 +134,7 @@ export function tutorialSteps(screen, context = {}) {
 
     case 'retry':
       return [
-        step('retry-lives', 'One life was spent', 'A journey starts with exactly three lives. Lives do not refill between levels.', '.retry-lives'),
+        step('retry-lives', 'One life was spent', 'A run starts with three lives. At Rests, recover lost lives and learn skills that raise your cap.', '.retry-lives'),
         step('retry-same-level', 'Retry the same passage', 'Retry starts this level again with its entry Glow, companion and build. Failed-attempt pickup rewards are discarded.', '[data-action="retry-attempt"]'),
         step('retry-end', 'Or end this ascent', 'Ending here abandons the ascent. Embers saved on earlier clears remain in your permanent wallet.', '[data-action="end-ascension"]', { actionLabel: 'Choose' }),
       ];
@@ -153,7 +143,7 @@ export function tutorialSteps(screen, context = {}) {
       if (practice || !unlocked || !run.afterglowJustUnlocked) return [];
       return [
         step('afterglow-first-boss', 'Stored Glow unlocked', 'Your first boss unlocks this bottle. It carries spare Glow into later levels.', '.afterglow-unlock'),
-        step('afterglow-fuel', 'A new fuel reserve', 'Stored Glow supplies Lift fuel. Saved embers remain your currency for permanent upgrades.', '.afterglow-unlock'),
+        step('afterglow-fuel', 'A new fuel reserve', 'Stored Glow supplies Lift fuel. Saved embers remain your currency for this run’s skills.', '.afterglow-unlock'),
         step('afterglow-use', 'Choose when to use it', 'MENU shows the bottle when it holds fuel. Before a new level, use the offered Glow or keep it for later.', '.afterglow-unlock', { actionLabel: 'Continue' }),
       ];
 
