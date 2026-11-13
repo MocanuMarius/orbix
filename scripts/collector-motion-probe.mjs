@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
 import {WispCompanion,WISP_TUNING} from '../dist/wisp.mjs';
+import {pickupContactRadius} from '../dist/pickups.mjs';
 const dt=1/60;
 function setup(phase=0,speed=154){
  const e={player:{x:110,y:310},time:phase,distance:0,baseSpeed:speed,mod:{},companions:['collector'],wispBoost:0,layout:{embers:[]},deliveries:0,rings:0,
@@ -32,3 +33,13 @@ const manual=setup();manual.e.layout.embers=[{kind:'light',x:manual.e.distance+2
 manual.tick();assert.equal(manual.w.target,null);
 const reduced=setup();reduced.e.reducedMotion=true;for(let i=0;i<60;i++)reduced.tick();const still={x:reduced.w.x,y:reduced.w.y};for(let i=0;i<60;i++)reduced.tick();assert.equal(reduced.w.x,still.x);assert.equal(reduced.w.y,still.y);
 console.log(JSON.stringify({timing,movingFastFlightSeconds:movingTime,oneRewardOnReturn:true,cancelAndManualPickup:true,reducedMotion:true},null,2));
+
+// Nominal contact ring overlaps count, including during recovery; the entire
+// approach remains available to the body even though it gets detection feedback.
+function boundaryFixture(){const {e,w,tick}=setup(0,0);return {e,w,tick};}
+const ring=pickupContactRadius('light');
+const edge=boundaryFixture();edge.e.layout.embers=[{kind:'light',x:edge.e.player.x-edge.w.currentRange(edge.e)-ring+.01,y:edge.e.player.y}];edge.tick();assert.equal(edge.w.target,edge.e.layout.embers[0]);assert.equal(edge.w.contacts.length,1);
+const approach=boundaryFixture();approach.e.layout.embers=[{kind:'light',x:approach.e.player.x+approach.w.currentRange(approach.e)+ring-.01,y:approach.e.player.y}];approach.tick();assert.equal(approach.w.target,null);assert.equal(approach.w.contacts.length,1);
+const small=boundaryFixture();small.w.cooldown=5;small.w.phase='cooldown';small.e.layout.embers=[{kind:'light',x:small.e.player.x-18-ring+.01,y:small.e.player.y}];small.tick();assert.equal(small.w.target,small.e.layout.embers[0]);
+const outside=boundaryFixture();outside.e.layout.embers=[{kind:'dark',x:outside.e.player.x-50,y:outside.e.player.y},{kind:'dusk',x:outside.e.player.x-60,y:outside.e.player.y},{kind:'light',x:outside.e.player.x-outside.w.currentRange(outside.e)-ring-1,y:outside.e.player.y}];outside.tick();assert.equal(outside.w.target,null);assert.equal(outside.w.contacts.length,0);
+console.log('Collector outer-ring detection, approach priority, recovering edge and excluded pickups passed');
