@@ -1,23 +1,23 @@
-import {getGuardianForMap,getBossPreview} from './boss.mjs?v=upgrade-wallet-1';
-import {getFlightLengthProfile} from './level-length.mjs?v=upgrade-wallet-1';
-import {cleanOnboarding} from './onboarding.mjs?v=upgrade-wallet-1';
-import {CONDENSED_TUNING,getCondensationRules,condenseGlow} from './condensed-glow.mjs?v=upgrade-wallet-1';
-import {CONSUMABLE_ARTIFACTS,EVOLVING_ARTIFACTS,getArtifactStackPreview} from './artifact-info.mjs?v=upgrade-wallet-1';
-import {getFlightClearReward} from './checkpoint-rewards.mjs?v=upgrade-wallet-1';
-export {getCondensationRules} from './condensed-glow.mjs?v=upgrade-wallet-1';
-import {ROUTE_RECIPES,ROUTE_TOPOLOGY_VERSION,REWARD_THEMES,nodeEconomy} from './route-recipes.mjs?v=upgrade-wallet-1';
-import {COMPANION_ABILITIES,getCompanionUnlock,normalizeCompanionFleet} from './companion-abilities.mjs?v=upgrade-wallet-1';
-import {MAIN_TUNING_SKILLS} from './main-tuning.mjs?v=upgrade-wallet-1';
-import {STARTING_CONDENSED_GLOW,getGlowCapacity,getRestGlowBonus,REST_GLOW_TUNING,glowText} from './vitality.mjs?v=upgrade-wallet-1';
-import {expandSkillSteps,skillProgress} from './skill-increments.mjs?v=upgrade-wallet-1';
-import {MAX_ASCENSION} from './ascent.mjs?v=upgrade-wallet-1';
-import {EXPANDED_SKILLS,applyExpandedSkills} from './skill-paths.mjs?v=upgrade-wallet-1';
+import {getGuardianForMap,getBossPreview} from './boss.mjs?v=fixed-companion-1';
+import {getFlightLengthProfile} from './level-length.mjs?v=fixed-companion-1';
+import {cleanOnboarding} from './onboarding.mjs?v=fixed-companion-1';
+import {CONDENSED_TUNING,getCondensationRules,condenseGlow} from './condensed-glow.mjs?v=fixed-companion-1';
+import {CONSUMABLE_ARTIFACTS,EVOLVING_ARTIFACTS,getArtifactStackPreview} from './artifact-info.mjs?v=fixed-companion-1';
+import {getFlightClearReward} from './checkpoint-rewards.mjs?v=fixed-companion-1';
+export {getCondensationRules} from './condensed-glow.mjs?v=fixed-companion-1';
+import {ROUTE_RECIPES,ROUTE_TOPOLOGY_VERSION,REWARD_THEMES,nodeEconomy} from './route-recipes.mjs?v=fixed-companion-1';
+import {COMPANION_ABILITIES,getCompanionUnlock,normalizeCompanionFleet} from './companion-abilities.mjs?v=fixed-companion-1';
+import {MAIN_TUNING_SKILLS} from './main-tuning.mjs?v=fixed-companion-1';
+import {STARTING_CONDENSED_GLOW,getGlowCapacity,getRestGlowBonus,REST_GLOW_TUNING,glowText} from './vitality.mjs?v=fixed-companion-1';
+import {expandSkillSteps,skillProgress} from './skill-increments.mjs?v=fixed-companion-1';
+import {MAX_ASCENSION} from './ascent.mjs?v=fixed-companion-1';
+import {EXPANDED_SKILLS,applyExpandedSkills} from './skill-paths.mjs?v=fixed-companion-1';
 /** Run-owned skills and currency; persistent ascension unlocks and boss artifacts. */
-import { FLAME_TUNING, LIFE_TUNING, getLifeCapacity } from './vitality.mjs?v=upgrade-wallet-1';
-import { getBiomeLevelIdentity } from './level-catalog.mjs?v=upgrade-wallet-1';
-import { BIOMES } from './biomes.mjs?v=upgrade-wallet-1';
-import { EVENT_SCENARIOS } from './map-guide.mjs?v=upgrade-wallet-1';
-import {contextualEventChoices,resolvePilgrimVow,ROUTE_PREPARATION} from './contextual-events.mjs?v=upgrade-wallet-1';
+import { FLAME_TUNING, LIFE_TUNING, getLifeCapacity } from './vitality.mjs?v=fixed-companion-1';
+import { getBiomeLevelIdentity } from './level-catalog.mjs?v=fixed-companion-1';
+import { BIOMES } from './biomes.mjs?v=fixed-companion-1';
+import { EVENT_SCENARIOS } from './map-guide.mjs?v=fixed-companion-1';
+import {contextualEventChoices,resolvePilgrimVow,ROUTE_PREPARATION} from './contextual-events.mjs?v=fixed-companion-1';
 export const SAVE_KEY='wispbound.save.condensed.v7';
 export const CAMPAIGN_MAP_NAMES=Object.freeze(['The Forgotten Verge','The Rootbound March','The Warden’s Reach']);
 export const TERRAINS=Object.freeze({ruins:{id:'ruins',name:'Sunken Ruins',color:'#cdb183',description:'Broken homes, worn arches and overgrown stone.'},canopy:{id:'canopy',name:'Luminous Canopy',color:'#94b48a',description:'Hollow trees, hanging roots and sheltered forest passages.'},storm:{id:'storm',name:'Stormglass Peaks',color:'#a8bbca',description:'Pine ridges, old mine timbers and local draft puffs.'}});
@@ -273,13 +273,14 @@ export function getRouteMapState(run){
 export function selectNode(run,nodeId){if(run?.victoryPending||run?.flightReward&&!run.flightReward.claimed)return false;const n=getChoices(run).find(n=>n.id===nodeId);if(!n)return false;run.path=run.path.filter(id=>nodes(run).some(p=>p.id===id&&p.row<run.step));run.path.push(n.id);if(n.type!=='support')n.flightNumber=run.path.map(id=>nodes(run).find(p=>p.id===id)).filter(p=>p.type!=='support').length;run.current=n;run.lastEvent=null;run.phase=n.type==='support'?'support':'briefing';return true;}
 function nextStop(run){run.step++;run.current=null;run.phase=run.step>=run.map.length?'ended':'map';}
 function reattempt(run){return run.phase==='briefing'&&run.current&&run.lastAttempt?.nodeId===run.current.id&&run.lastAttempt.success!==true;}
-export function canChangeCompanion(run){const starter=run?.mapIndex===0&&run?.step===0&&run?.phase==='map'&&!run.path?.length;return!!run&&(run.testMode===true||run.restReady===true||starter)&&!run.attemptActive&&!run.banked&&run.lives>0&&['support','map','briefing'].includes(run.phase)&&!reattempt(run);}
+function canPrepareAtCheckpoint(run){const starter=run?.mapIndex===0&&run?.step===0&&run?.phase==='map'&&!run.path?.length;return!!run&&(run.testMode===true||run.restReady===true||starter)&&!run.attemptActive&&!run.banked&&run.lives>0&&['support','map','briefing'].includes(run.phase)&&!reattempt(run);}
+export function canChangeCompanion(run){return !!run&&!run.companionSettled&&run.mapIndex===0&&run.step===0&&run.phase==='map'&&!run.path?.length&&!run.attemptActive&&!run.banked&&run.lives>0;}
 export function getArtifactCapacity(){return Object.keys(ARTIFACTS).length;}
 export function getNextArtifactSlotSkill(){return null;}
 export function getCompanionCapacity(){return 1;}
 export function setCompanions(run,ids){
  if(!canChangeCompanion(run)||!Array.isArray(ids)||ids.length!==1||!ROLES.includes(ids[0])||!getCompanionUnlock(ids[0],run.unlockedCompanionDifficulty||run.difficulty,run.isTutorial===true||run.testMode===true).selectable)return false;
- if(ids[0]===run.companionRole&&run.companions?.length===1)return false;
+ run.companionSettled=true;
  run.companions=[ids[0]];run.companionRole=ids[0];return true;
 }
 export function beginFlightAttempt(run){if(!run||run.phase!=='briefing'||run.attemptActive||run.banked||run.lives<=0||!run.current||run.current.type==='support')return false;cleanRunCompanion(run);run.restReady=false;run.attemptEntry={step:run.step,nodeId:run.current.id,flame:run.flame,restGlowCapacity:getRestGlowBonus(run),condensedGlow:run.condensedGlow,condensedRemainder:run.condensedRemainder,companions:[...run.companions],skills:{...run.skills},artifacts:[...run.artifacts],artifactCharges:{...(run.artifactCharges||{}),...getArtifactCharges(run)}};run.attemptActive=true;run.stats.attempts++;return true;}
@@ -511,7 +512,7 @@ export function getSkillPrice(wallet,id){
 }
 export function getSkillCost(wallet,id){return getSkillLockReason(wallet,id)?null:getSkillPrice(wallet,id);}
 export function isStartingPrep(r){return !!r&&!r.isTutorial&&r.mapIndex===0&&r.step===0&&r.phase==='map'&&!r.path.length&&!r.attemptActive;}
-export function canBuyCheckpointSkills(state){const r=state?.run;return!!r&&!r.attemptActive&&!r.banked&&r.lives>0&&(r.victoryPending===true||(r.testMode===true||r.restReady===true||isStartingPrep(r))&&canChangeCompanion(r));}
+export function canBuyCheckpointSkills(state){const r=state?.run;return!!r&&!r.attemptActive&&!r.banked&&r.lives>0&&(r.victoryPending===true||(r.testMode===true||r.restReady===true||isStartingPrep(r))&&canPrepareAtCheckpoint(r));}
 export function getAvailableUpgrades(state){if(!canBuyCheckpointSkills(state))return[];const w=getSkillWallet(state),branches=new Set(['main',...normalizeCompanionFleet(state.run.companions,state.run.companionRole),...(w.condensationUnlocked?['afterglow']:[])]);return Object.values(SKILLS).filter(s=>branches.has(s.branch)&&getSkillCost(w,s.id)!==null&&getSkillCost(w,s.id)<=w.condensedGlow).map(s=>s.id);}
 function forgetSkillBranch(skills,id,paid={}){
   delete skills[id];delete paid[id];
@@ -525,7 +526,7 @@ export function buyCheckpointSkill(state,id){
   if(!s||cost===null||wallet.condensedGlow<cost||!r.testMode&&s.requires&&!rank(r.skills,s.requires))return false;
   const oldCapacity=getGlowCapacity(r);if(r.isTutorial)r.practiceCondensedGlow-=cost;else r.condensedGlow-=cost;if(r.testMode)for(const other of s.excludes||[])forgetSkillBranch(r.skills,other,r.skillPaid);r.skills[id]=rank(r.skills,id)+1;(r.skillPaid??={})[id]=(r.skillPaid[id]||0)+cost;if(id==='main-afterglow')r.condensationJustUnlocked=true;const capacity=getGlowCapacity(r);if(isStartingPrep(r))r.flame=capacity;else if(r.restReady&&['recover','grow'].includes(r.lastRest?.boon))r.flame+=Math.max(0,capacity-oldCapacity);r.flame=clamp(r.flame,0,capacity);r.maxLives=getLifeCapacity(r);if(r.restReady&&r.lifeRestClaimed)r.lives=r.maxLives;r.supportOffers=null;return true;
 }
-function artifactService(state,selling=false){const r=state?.run;if(!state?.profile||!r||r.attemptActive||r.banked||['retry','map-clear','ended'].includes(r.phase)||reattempt(r))return false;return selling?r.phase==='support'||r.restReady===true:r.phase==='support'||canChangeCompanion(r);}
+function artifactService(state,selling=false){const r=state?.run;if(!state?.profile||!r||r.attemptActive||r.banked||['retry','map-clear','ended'].includes(r.phase)||reattempt(r))return false;return selling?r.phase==='support'||r.restReady===true:r.phase==='support'||canPrepareAtCheckpoint(r);}
 export function equipArtifact(state,id){const r=state?.run;if(!r?.testMode||r.attemptActive||!ARTIFACTS[id]||r.artifacts.includes(id))return false;r.artifacts.push(id);prepareArtifactCharges(r,id,true);return true;}
 export function getArtifactSalvageValue(id){return count(ARTIFACTS[id]?.sellValue);}
 export function canSellArtifact(state,id){return !!(ARTIFACTS[id]&&state?.run?.restReady&&!state.run.attemptActive&&state.run.artifacts.includes(id));}

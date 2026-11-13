@@ -3,7 +3,7 @@ const INPUTS=['beginLiftInput','endLiftInput','flap','activateAbility'];
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
 const ordered=value=>Array.isArray(value)?value.map(ordered):value&&typeof value==='object'?Object.fromEntries(Object.keys(value).sort().map(k=>[k,ordered(value[k])])):value;
 export function dreamFingerprint(options={}){
-  return JSON.stringify(ordered({simulation:'upgrade-wallet-1',seed:options.seed,terrain:options.terrain,elite:!!options.elite,duration:options.duration,
+  return JSON.stringify(ordered({simulation:'fixed-companion-1',seed:options.seed,terrain:options.terrain,elite:!!options.elite,duration:options.duration,
     node:options.node,companions:options.companions,modifiers:options.modifiers,flame:options.flame,condensedGlow:options.condensedGlow||0,condensedRemainder:options.condensedRemainder||0}));
 }
 export function dreamConfig(run={}){
@@ -26,7 +26,7 @@ export function dreamIndicatorMarkup(dream){
 }
 export function dreamRestMarkup(run,node){
   const unlocked=dreamConfig(run).duration>0;
-  return `<button data-action="${unlocked?'dream':'inspect-main-skill'}" ${unlocked?'':'data-id="main-dream"'} class="rest-dream">${dreamEye}<span>${unlocked?'DREAM':'DREAM · LOCKED'}</span>${unlocked?`<small>${dreamConfig(run).duration}s · ${run.dreamPreset?'PRESET SAVED':'REHEARSE'}</small>`:''}</button>`;
+  return `<button data-action="${unlocked?'dream':'inspect-main-skill'}" ${unlocked?'':'data-id="main-dream"'} class="rest-dream" aria-label="${unlocked?'Dream':'Dream locked · View unlock skill'}">${dreamEye}<span>DREAM</span>${unlocked?'':'<i class="item-lock-badge" aria-hidden="true"><svg viewBox="0 0 16 18" fill="none" stroke="currentColor" stroke-width="2" shape-rendering="crispEdges"><path d="M4 7V4h2V2h4v2h2v3M2 7h12v9H2zM8 10v3"/></svg></i>'}${unlocked?`<small>${dreamConfig(run).duration}s · ${run.dreamPreset?'PRESET SAVED':'REHEARSE'}</small>`:''}</button>`;
 }
 
 export function attachDream(engine,{mode='record',preset,duration=engine.mod.dreamDuration,onReady=()=>{},onAwake=()=>{}}={}){

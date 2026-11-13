@@ -112,3 +112,7 @@ body[data-screen=death]{--menu-header:0px}body[data-screen=death]>#header{displa
 #header .wallet-upgrades>svg{width:23px;height:30px;filter:drop-shadow(0 0 4px #9cc86455)}
 #header .wallet-upgrade-count{display:grid;place-items:center;min-width:24px;height:24px;padding:0 4px;box-sizing:border-box;background:#32492f;border:1px solid #94b573;color:#f0f6c5;font:16px/1 var(--pixel);font-variant-numeric:tabular-nums}
 #header .condensed-wallet .wallet-currency-icon{width:36px;height:36px}#header .condensed-wallet .wallet-upgrades{width:auto;height:32px}#header .condensed-wallet .wallet-upgrade-count{position:static;flex:none}
+
+.rest-dream{position:relative}.item-lock-badge{position:absolute;top:3px;right:3px;display:grid;place-items:center;width:22px;height:24px;padding:3px;box-sizing:border-box;background:#172424;border:1px solid #9caa87;color:#e2dfbd;pointer-events:none}.item-lock-badge svg{width:14px;height:16px}.rest-optional-tools{grid-template-columns:repeat(3,minmax(0,1fr))!important}
+
+.skill-purchase.locked{position:relative}

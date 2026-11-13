@@ -34,7 +34,7 @@ export const TUTORIAL_TOPICS={
   s('Read the Power indicator','For Collector, the filling button shows current range, not an ability to press. A full indicator means maximum reach. Red-ring Sparks are left for you to choose.','companion:collector'),
   s('Upgrade the right reach','Collector skills improve fetching range, delivery and recovery. Light skills improve Luminance: how far you see. Fetching range and seeing distance are different.','luminance')]},
  companions:{name:'Companions',visual:'companion:protector',steps:[
-  s('One helper at a time','Choose one companion. Only Collector fetches Sparks; every other role relies on body pickups. Swap at Rest and improve the equipped role through its skill tree.','companion:collector'),
+  s('One helper at a time','Choose one companion. Only Collector fetches Sparks; every other role relies on body pickups. Choose on the main screen for the whole run. Improve that role through its skill tree.','companion:collector'),
   s('Protector · automatic','The blue orb rebuilds a visible shell around you. A charged shell spends Energy to deflect a collision and push you clear. No button press is needed.','companion:protector'),
   s('A shield is not immunity','After a deflection, the broken shell must rebuild. Without a charge or enough Energy, a collision ends the attempt. It cannot stop a Black Hole draining Energy.','companion:protector'),
   s('Runner · press Power','The amber orb gives a short forward burst when you press Power. It resists drafts but does not protect against terrain. Pick a clear stretch before accelerating.','companion:swift'),
@@ -60,7 +60,7 @@ export const TUTORIAL_TOPICS={
   s('Build a combination','Pair automatic effects with your companion, skills and the next biome. Read each trigger and limit. Artifacts last only for this run; exhausted consumables disappear.','artifact')]},
  rest:{name:'Rest',visual:'rest',steps:[
   s('Recover or Grow','Recover restores every missing heart. Grow adds 3 maximum Energy for this run, up to three times. Both completely refill Energy. Choose once at each Rest.','rest'),
-  s('Then prepare','After your one benefit, Skills, Companions, Artifacts and Dream remain available. These tools do not take another Rest benefit.','tools'),
+  s('Then prepare','After your one benefit, Skills, Artifacts and Dream remain available. These tools do not take another Rest benefit.','tools'),
   s('Plan your next passage','Rest commits to one next flight. Read its terrain and prepare for it. After a failed attempt, the map shows whichever retry paths are reachable.','route')]},
  dream:{name:'Dream',visual:'dream',steps:[
   s('Dream: rehearse six seconds','At Rest, Dream lets you practice the next opening as often as you like. The closed eye means rehearsal. Nothing here spends a heart or earns real rewards.','dream'),
@@ -69,7 +69,7 @@ export const TUTORIAL_TOPICS={
  routes:{name:'Paths & stops',visual:'route',steps:[
   s('Follow connected paths','Bright nodes are reachable. Dim nodes are not. Choosing a fork commits your route; you cannot jump to any stop on the map.','route'),
   s('Flight and elite routes','Passage markers mean ordinary Flight. Creature portraits mark harder Elite routes with a two-artifact choice. Inspect the biome and length before committing.','site:flight'),
-  s('Rest','The campfire marks Rest: choose one benefit, then prepare your build. Route toward one when you need hearts or a different companion.','site:rest'),
+  s('Rest','The campfire marks Rest: choose one benefit, then prepare your build. Route toward one when you need hearts or build preparation.','site:rest'),
   s('Encounter and treasure','The encounter symbol offers a trade or event. The chest offers treasure. Check gains, costs and chances before choosing.','sites-support'),
   s('Guardian','A large guardian portrait marks the end of each map. Survive its warned patterns and reach the finish. Three different guardians stand between you and a completed run.','site:boss')]},
  hazards:{name:'Hazards & pulses',visual:'black-hole',steps:[
