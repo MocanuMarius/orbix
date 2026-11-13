@@ -1,0 +1,318 @@
+{
+  "legacyScript": "Blocked: obsolete assertion expects no flat clear money (actual95 expected75). No production prices changed.",
+  "limits": "Transaction-only, all flights declared successful. Overflow values synthetic; no human survival estimate. Cheapest eligible rank policy; first reachable path, free supports.",
+  "summary": [
+    {
+      "assumedOverflowPerClear": 0,
+      "meanFlights": 16.08,
+      "meanPaidRanks": 2.92,
+      "meanSpent": 308.33,
+      "meanRemaining": 48.5
+    },
+    {
+      "assumedOverflowPerClear": 10,
+      "meanFlights": 16.08,
+      "meanPaidRanks": 3.5,
+      "meanSpent": 420,
+      "meanRemaining": 97.67
+    },
+    {
+      "assumedOverflowPerClear": 20,
+      "meanFlights": 16.08,
+      "meanPaidRanks": 4,
+      "meanSpent": 520,
+      "meanRemaining": 158.5
+    }
+  ],
+  "guardianCanvasDraws": 606,
+  "rows": [
+    {
+      "overflow": 0,
+      "seed": 0,
+      "flights": 16,
+      "paid": 3,
+      "spent": 320,
+      "wallet": 30
+    },
+    {
+      "overflow": 0,
+      "seed": 1,
+      "flights": 18,
+      "paid": 3,
+      "spent": 320,
+      "wallet": 28
+    },
+    {
+      "overflow": 0,
+      "seed": 2,
+      "flights": 17,
+      "paid": 3,
+      "spent": 320,
+      "wallet": 20
+    },
+    {
+      "overflow": 0,
+      "seed": 3,
+      "flights": 16,
+      "paid": 3,
+      "spent": 320,
+      "wallet": 48
+    },
+    {
+      "overflow": 0,
+      "seed": 4,
+      "flights": 15,
+      "paid": 3,
+      "spent": 320,
+      "wallet": 48
+    },
+    {
+      "overflow": 0,
+      "seed": 5,
+      "flights": 16,
+      "paid": 3,
+      "spent": 320,
+      "wallet": 30
+    },
+    {
+      "overflow": 0,
+      "seed": 6,
+      "flights": 16,
+      "paid": 2,
+      "spent": 180,
+      "wallet": 128
+    },
+    {
+      "overflow": 0,
+      "seed": 7,
+      "flights": 16,
+      "paid": 3,
+      "spent": 320,
+      "wallet": 18
+    },
+    {
+      "overflow": 0,
+      "seed": 8,
+      "flights": 15,
+      "paid": 3,
+      "spent": 320,
+      "wallet": 70
+    },
+    {
+      "overflow": 0,
+      "seed": 9,
+      "flights": 15,
+      "paid": 3,
+      "spent": 320,
+      "wallet": 70
+    },
+    {
+      "overflow": 0,
+      "seed": 10,
+      "flights": 16,
+      "paid": 3,
+      "spent": 320,
+      "wallet": 54
+    },
+    {
+      "overflow": 0,
+      "seed": 11,
+      "flights": 17,
+      "paid": 3,
+      "spent": 320,
+      "wallet": 38
+    },
+    {
+      "overflow": 10,
+      "seed": 0,
+      "flights": 16,
+      "paid": 3,
+      "spent": 320,
+      "wallet": 190
+    },
+    {
+      "overflow": 10,
+      "seed": 1,
+      "flights": 18,
+      "paid": 4,
+      "spent": 520,
+      "wallet": 8
+    },
+    {
+      "overflow": 10,
+      "seed": 2,
+      "flights": 17,
+      "paid": 3,
+      "spent": 320,
+      "wallet": 190
+    },
+    {
+      "overflow": 10,
+      "seed": 3,
+      "flights": 16,
+      "paid": 4,
+      "spent": 520,
+      "wallet": 8
+    },
+    {
+      "overflow": 10,
+      "seed": 4,
+      "flights": 15,
+      "paid": 3,
+      "spent": 320,
+      "wallet": 198
+    },
+    {
+      "overflow": 10,
+      "seed": 5,
+      "flights": 16,
+      "paid": 3,
+      "spent": 320,
+      "wallet": 190
+    },
+    {
+      "overflow": 10,
+      "seed": 6,
+      "flights": 16,
+      "paid": 3,
+      "spent": 320,
+      "wallet": 148
+    },
+    {
+      "overflow": 10,
+      "seed": 7,
+      "flights": 16,
+      "paid": 3,
+      "spent": 320,
+      "wallet": 178
+    },
+    {
+      "overflow": 10,
+      "seed": 8,
+      "flights": 15,
+      "paid": 4,
+      "spent": 520,
+      "wallet": 20
+    },
+    {
+      "overflow": 10,
+      "seed": 9,
+      "flights": 15,
+      "paid": 4,
+      "spent": 520,
+      "wallet": 20
+    },
+    {
+      "overflow": 10,
+      "seed": 10,
+      "flights": 16,
+      "paid": 4,
+      "spent": 520,
+      "wallet": 14
+    },
+    {
+      "overflow": 10,
+      "seed": 11,
+      "flights": 17,
+      "paid": 4,
+      "spent": 520,
+      "wallet": 8
+    },
+    {
+      "overflow": 20,
+      "seed": 0,
+      "flights": 16,
+      "paid": 4,
+      "spent": 520,
+      "wallet": 150
+    },
+    {
+      "overflow": 20,
+      "seed": 1,
+      "flights": 18,
+      "paid": 4,
+      "spent": 520,
+      "wallet": 188
+    },
+    {
+      "overflow": 20,
+      "seed": 2,
+      "flights": 17,
+      "paid": 4,
+      "spent": 520,
+      "wallet": 160
+    },
+    {
+      "overflow": 20,
+      "seed": 3,
+      "flights": 16,
+      "paid": 4,
+      "spent": 520,
+      "wallet": 168
+    },
+    {
+      "overflow": 20,
+      "seed": 4,
+      "flights": 15,
+      "paid": 4,
+      "spent": 520,
+      "wallet": 148
+    },
+    {
+      "overflow": 20,
+      "seed": 5,
+      "flights": 16,
+      "paid": 4,
+      "spent": 520,
+      "wallet": 150
+    },
+    {
+      "overflow": 20,
+      "seed": 6,
+      "flights": 16,
+      "paid": 4,
+      "spent": 520,
+      "wallet": 108
+    },
+    {
+      "overflow": 20,
+      "seed": 7,
+      "flights": 16,
+      "paid": 4,
+      "spent": 520,
+      "wallet": 138
+    },
+    {
+      "overflow": 20,
+      "seed": 8,
+      "flights": 15,
+      "paid": 4,
+      "spent": 520,
+      "wallet": 170
+    },
+    {
+      "overflow": 20,
+      "seed": 9,
+      "flights": 15,
+      "paid": 4,
+      "spent": 520,
+      "wallet": 170
+    },
+    {
+      "overflow": 20,
+      "seed": 10,
+      "flights": 16,
+      "paid": 4,
+      "spent": 520,
+      "wallet": 174
+    },
+    {
+      "overflow": 20,
+      "seed": 11,
+      "flights": 17,
+      "paid": 4,
+      "spent": 520,
+      "wallet": 178
+    }
+  ]
+}

@@ -18,3 +18,6 @@
 
 ## Balance finding for deferred pricing work
 36 transaction-only campaigns with cheapest eligible purchases, assuming 0/10/20 Packed Sparks overflow per clear, averaged about 16.08 flights and 2.92/3.50/4.00 paid upgrades. This misses the desired one paid upgrade per two flights. Broad skill pricing changes remain deferred as agreed. Next balance plan should separate reliable clear income from expert overflow, compare achievable build paths, and validate longer flights with imperfect human inputs. These simulations do not demonstrate human difficulty or optimal builds.
+
+## Publication
+Source: 1c8a4452e15609ee0b52805e2c26002c069205b5. Pages: 3a3d497997058e6ae4e5958714f25d728d18d3ec. Release: guardian-paths-1. Public manifest and three key module bytes verified; live home migration notice and Rest Grow flow inspected. Phone link: https://mocanumarius.github.io/orbix/?v=guardian-paths-1
