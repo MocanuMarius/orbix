@@ -42,12 +42,25 @@ const shapes = {
   ]
 };
 
+// Tiny rooted settlement/vegetation hints match the collision-backed scene props.
+const habitatHints={
+  'ruins-aqueduct':[[1,2,3,2,1],[0,2,5,1,2],[1,1,3,1,2],[2,0,1,1,2],[13,1,1,3,5],[12,0,3,1,4],[11,1,4,1,4]],
+  'ruins-belfry':[[1,9,1,5,5],[0,7,3,2,4],[0,6,2,1,4],[0,10,1,2,4],[0,13,4,1,1],[1,14,3,1,2]],
+  'ruins-ossuary':[[3,4,3,1,4],[2,5,1,3,4],[0,7,1,3,4],[12,13,3,1,4],[13,12,2,1,4]],
+  'canopy-elder':[[0,14,3,1,2],[12,2,3,2,4],[1,5,1,3,4],[12,14,4,1,2],[3,13,2,1,4]],
+  'canopy-fen':[[3,4,1,9,5],[0,3,6,2,1],[1,2,4,1,2],[0,5,1,3,4],[5,4,1,5,4],[2,12,3,1,2]],
+  'canopy-hanging':[[12,10,2,5,1],[11,8,5,2,4],[12,7,3,1,2],[10,15,6,1,1],[14,10,1,3,4],[10,14,3,1,2]],
+  'storm-ridge':[[1,9,1,4,5],[2,6,1,4,5],[1,6,4,1,4],[0,8,4,1,4],[0,10,4,1,4],[12,13,3,1,1],[11,12,5,1,2],[12,11,3,1,2]],
+  'storm-chasm':[[12,5,3,3,1],[11,4,5,1,2],[12,3,3,1,2],[13,6,1,2,0],[0,2,1,3,5],[4,2,1,3,5],[0,1,5,1,5]],
+  'storm-glass':[[0,6,1,9,5],[4,6,1,9,5],[0,5,5,2,5],[1,7,1,1,2],[2,8,1,1,2],[3,9,1,1,2],[0,14,6,1,5]]
+};
+
 export function levelMapGlyph(level, x=0, y=0, size=46) {
   const id=typeof level==='string'?level:level?.id;
-  const cells=shapes[id]||shapes['ruins-aqueduct'];
+  const cells=[...(shapes[id]||shapes['ruins-aqueduct']),...(habitatHints[id]||[])];
   const terrain=typeof level==='object'?level.terrain:String(id||'ruins').split('-')[0];
   const ink=typeof level==='object'?level.ink:null;
-  const palette=terrain==='canopy'?['#17271e','#596749',ink||'#9aab7d','#d3d3a5','#9c9862']:terrain==='storm'?['#1a252d','#56626c',ink||'#a4bdc2','#d7ded4','#7d91a5']:['#21271f','#6b6854',ink||'#b4a17a','#ddd1aa','#748258'];
+  const palette=terrain==='canopy'?['#17271e','#596749',ink||'#9aab7d','#d3d3a5','#9c9862','#6f6049']:terrain==='storm'?['#1a252d','#56626c',ink||'#a4bdc2','#d7ded4','#7d91a5','#786b55']:['#21271f','#6b6854',ink||'#b4a17a','#ddd1aa','#748258','#78664c'];
   return `<g class="map-location-glyph" data-landmark="${Object.hasOwn(shapes,id)?id:'ruins-aqueduct'}" transform="translate(${x-size/2} ${y-size/2}) scale(${size/16})" shape-rendering="crispEdges">${cells.map(([a,b,w,h,c])=>`<rect x="${a}" y="${b}" width="${w}" height="${h}" fill="${palette[c]}"/>`).join('')}</g>`;
 }
 

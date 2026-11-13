@@ -1,6 +1,7 @@
-import { sceneryIdentity, drawIdentityBackground, drawIdentityMaterial } from './level-scenery.mjs';
+import { sceneryIdentity, drawIdentityBackground, drawIdentityMaterial, drawIdentityLife } from './level-scenery.mjs';
 import { getCompanionAbility, normalizeCompanionRole } from './companion-abilities.mjs';
 import { companionSprite, companionPalette } from './companion-art.mjs';
+import { createScenePropArt } from './scene-prop-art.mjs';
 
 const TAU = Math.PI * 2;
 const WIDTH = 260;
@@ -100,6 +101,7 @@ export class WispFlightView {
     this.canvas = null;
     this.buffer = null;
     this.terrainCache = new Map();
+    this.scenePropCache = new Map();
     this.originalOpacity = engine.canvas.style?.opacity || '';
   }
 
@@ -151,6 +153,8 @@ export class WispFlightView {
     this.context.imageSmoothingEnabled = false;
     this.bufferContext.imageSmoothingEnabled = false;
     this.terrainCache.clear();
+    for (const item of this.scenePropCache.values()) { item.canvas.width = 1; item.canvas.height = 1; }
+    this.scenePropCache.clear();
     if (this.ready) this.render(e);
   }
 
@@ -373,6 +377,39 @@ export class WispFlightView {
         const item = this.terrainImage(e, obstacle, shape, top, palette);
         c.drawImage(item.canvas, Math.round((obstacle.x - distance + item.x) * s) - item.pad,
           Math.round((center + (top ? -1 : 1) * obstacle.gap / 2 + item.y) * s) - item.pad);
+      }
+    }
+  }
+
+  drawSceneProps(e, t, distance) {
+    const c = this.bufferContext, s = this.scale, identity = sceneryIdentity(e);
+    for (const obstacle of e.layout.obstacles) {
+      if (obstacle.destroyed || !obstacle.sceneProps?.length
+        || obstacle.x + obstacle.width * 2.5 < distance - 10
+        || obstacle.x - obstacle.width > distance + e.width + 10) continue;
+      // Props share the parent's exact local anchor and sway, never an
+      // independently animated silhouette that could drift off its collider.
+      const center = obstacle.center + Math.sin(t * .9 + obstacle.phase) * obstacle.motion;
+      for (const prop of obstacle.sceneProps) {
+        const key = `${identity.id}:${obstacle.id}:${prop.id}`;
+        let item = this.scenePropCache.get(key);
+        if (!item || item.prop !== prop || item.scale !== s) {
+          if (item) { item.canvas.width = 1; item.canvas.height = 1; }
+          item = createScenePropArt(this.document, prop, { scale: s, terrain: e.terrain, identity: identity.id });
+          if (!item) continue;
+          this.scenePropCache.set(key, item);
+          while (this.scenePropCache.size > 24) {
+            const oldest = this.scenePropCache.keys().next().value;
+            const unused = this.scenePropCache.get(oldest);
+            unused.canvas.width = 1; unused.canvas.height = 1;
+            this.scenePropCache.delete(oldest);
+          }
+        }
+        const side = prop.side === -1 ? -1 : 1;
+        const x = Math.round((obstacle.x - distance + item.x) * s) - item.pad;
+        const y = Math.round((center + side * obstacle.gap / 2 + item.y) * s) - item.pad;
+        if (x + item.canvas.width < 0 || x > WIDTH || y + item.canvas.height < 0 || y > this.buffer.height) continue;
+        c.drawImage(item.canvas, x, y);
       }
     }
   }
@@ -794,9 +831,12 @@ export class WispFlightView {
     this.drawSky(e, t, distance, palette);
     c.globalAlpha = .34; c.fillStyle = '#03080b'; c.fillRect(0, 0, this.buffer.width, this.buffer.height); c.globalAlpha = 1;
     this.drawTerrain(e, t, distance, palette);
+    this.drawSceneProps(e, t, distance);
     this.drawCollectibles(e, t, distance);
     this.drawBurstEffects(e, MAIN_LIGHT);
     this.drawMist(e, t, distance, palette);
+    drawIdentityLife(c, { identity, width: WIDTH, height: this.buffer.height, distance,
+      time: t, palette, reducedMotion: e.reducedMotion }, { line: pixelLine, disc: pixelDisc, polygon: path });
     const state = e.getWispState?.(yOf(e), t) || { x: e.player.x - 29, y: yOf(e) + 19, homeX: e.player.x - 29, homeY: yOf(e) + 19, radius: 100, phase: 'ready', recovery: 1, carrying: false };
     const playerX = Math.round(e.player.x * s), playerY = Math.round(yOf(e) * s);
     this.lightFog(e, state, playerX, playerY);
@@ -830,6 +870,8 @@ export class WispFlightView {
     this.canvas?.remove();
     for (const item of this.terrainCache.values()) { item.canvas.width = 1; item.canvas.height = 1; }
     this.terrainCache.clear();
+    for (const item of this.scenePropCache.values()) { item.canvas.width = 1; item.canvas.height = 1; }
+    this.scenePropCache.clear();
     if (this.buffer) { this.buffer.width = 1; this.buffer.height = 1; }
     if (this.fog) { this.fog.width = 1; this.fog.height = 1; }
     this.fogPixels = null; this.context = null; this.bufferContext = null; this.fogContext = null;

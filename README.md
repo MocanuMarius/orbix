@@ -73,6 +73,10 @@ The climb now tightens hard passage gaps by 0 / 3 / 6 / 9 / 12 percent across it
 
 Foreground materials and nearby landmarks carry the location identity without making distant scenery brighter. Map nodes show distinct original landmark art and location names. Briefings preview the signature challenge so route and tuning choices have context. The new geometry is an authored feature pass; reachability and numerical difficulty have not received a new simulation sweep.
 
+Foreground obstacles now include scene-specific vegetation and structures as well as terrain. Canopy passages contain trees, roots and branches; ruins include overgrown cottages and broken walls; exposed peaks use wind-shaped pines and shelters, while caves use old mine timbers. Roof-mounted structures are roots, branches or supported beams, rather than upside-down buildings. Opaque trunks, crowns, roofs and walls use actual collision polygons shared by player collisions and Gravity's terrain blocking.
+
+These vignettes replace selected occupied landform areas and remain rooted in their supporting banks. Protected fuel pockets, soft thorns, opening/exit approaches and the authored central passage are retained. Background settlement and vegetation layers remain subdued and non-colliding. A few muted leaf or seed silhouettes add motion without looking like collectible light packets; reduced motion suppresses that drift. New props use the existing wisp-lit darkness pass rather than adding bright distant scenery.
+
 Passages end at a weathered refuge waylight rather than a rotating portal. The lantern uses local timber, root or stone details and stays anchored to the exit, without following the player's height. It is a completion landmark, not an extra obstacle or required pickup.
 
 Normal passages now have three times their former distance: route-dependent flight budgets run from 81 to 144 seconds, with a 165-second finale, before speed and ability effects. Briefings use compact time previews such as 1:42. The five-flight climb now targets roughly 10–14 minutes including checkpoint choices, depending on route, build and pace. Practice remains 22 and 26 seconds.
@@ -131,6 +135,7 @@ npm test
 - `dist/game-menu.mjs`, `game-menu.css`: top gear and paused game wheel; tuning, companions, upgrades and Tutorial stay in game overlays.
 - `dist/map-guide.mjs`, `map-clarity.css`: shared stop/event metadata, recognisable support symbols and the optional map legend.
 - `dist/afterglow-ui.mjs`, `afterglow-ui.css`: contextual Stored Glow controls and nonzero feedback without empty reserve panels.
+- `dist/scene-props.mjs`, `scene-prop-art.mjs`: scene-specific solid vegetation/structures and their matching original pixel materials.
 - `dist/level-length.mjs`: shared length multiplier, duration bounds, reward scale and compact time formatting.
 - `dist/model.mjs`: branching routes, card builds, saves, companion appearance and permanent progression.
 - `dist/app.mjs`, `style.css`, `game.css`: mobile game UI, pixel map glyphs and card icons.

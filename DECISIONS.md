@@ -223,6 +223,20 @@ On 13 November 2026, the user requested deployment of the current backlog build 
 - Make support rewards name their resource: Glow, Embers, Stored Glow or New Power. Keep capacity, retention and loss explanations in optional reserve details and permanent upgrades.
 - Preserve all carryover calculations, tutorial isolation, lives, rewards, upgrades and flight controls. Publish the clarity update without additional checks, tests, simulations or balance work, as requested.
 
+## Collector-field proposal awaiting implementation
+
+The user proposed replacing the dotted collector circle with a glowing field that deforms against terrain, redistributes its charged area into connected open space, collapses into the main wisp on delivery and visibly regrows. Feedback recommended bounded stretching in narrow passages, Reach/Regrowth tuning at rest, and using the same field for Gravity. This remains a proposed follow-up; the living-scenery batch below does not implement it or change the existing collector recovery rules.
+
+## Vegetation, structures and living scenery
+
+- Add scene-specific foreground vegetation and objects as genuine obstacles: canopy trees, roots and branches; overgrown ruin cottages and walls; wind-shaped pines, shelters and old mine timbers in the peaks/caves.
+- Reuse selected authored obstacle sites. Lower the supporting bank within its already-occupied side, then grow a tree or structure from it toward the original passage boundary. Keep the authored central gap, route lengths, opening/exit approaches and protected fuel pockets. Preserve soft-thorn behaviour.
+- Use the same opaque prop polygons for drawing, player collisions and Gravity's packet obstruction. Keep all geometry within its parent obstacle footprint and share parent motion, so visible branches and rooftops match their collision shapes. Local draft footprints avoid prop bounds and their sway.
+- Houses stand on ground. Ceiling structures are hanging roots, branches or supported timber. Use scene-appropriate silhouettes and materials rather than decorating every rock with the same object.
+- Draw props beneath the existing light/fog reveal. Keep distant settlements and vegetation dark and visibly subordinate. Add only a few muted drifting leaves or seeds, without bright dots that resemble fuel pickups; honour reduced motion.
+- Update location signature copy and map landmark hints while keeping location IDs, terrain, map routes and rewards intact. Keep the main wisp, companions, abilities, UI, progression and resource rules unchanged.
+- Publish this feature batch for feedback. Per the latest user instruction, skip checks, tests, simulations and balance work until the backlog is clear.
+
 ## Rendering direction proposed after the first review
 
 Use pre-rendered or cached 2D art for scenery, props and character animation, with dynamic light from the player and carrier wisps. Keep the pixel grid and the gameplay light-radius upgrades.

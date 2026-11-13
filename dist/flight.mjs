@@ -7,6 +7,7 @@ import { resolveLevelIdentity } from './level-catalog.mjs';
 import { DraftField, DRAFT_TUNING } from './drafts.mjs';
 import { normalizeCompanionRole, getCompanionAbility } from './companion-abilities.mjs';
 import { GRAVITY_TUNING, gravityRadius, updateGravityPackets } from './gravity.mjs';
+import { populateSceneProps, scenePropPolygons } from './scene-props.mjs';
 import { createTutorialState, buildTutorialLayout, recordTutorialPickup,
   updateTutorial, updateTutorialCompanion, getTutorialHint } from './tutorial.mjs';
 export { FLAME_TUNING } from './vitality.mjs';
@@ -116,6 +117,7 @@ export function obstaclePolygons(obstacle, time = 0) {
   const polygons = [];
   if (obstacle.topShape) polygons.push(obstacle.topShape.map(([x, y]) => [obstacle.x + x, center - obstacle.gap / 2 + y]));
   if (obstacle.bottomShape) polygons.push(obstacle.bottomShape.map(([x, y]) => [obstacle.x + x, center + obstacle.gap / 2 + y]));
+  polygons.push(...scenePropPolygons(obstacle, time));
   return polygons;
 }
 
@@ -562,9 +564,11 @@ export function buildFlightLayout({ seed = 1, terrain = 'ruins', elite = false,
         collected: false, attracted: false, phase: darkRng() * TAU });
     }
   }
+  const sceneProps = populateSceneProps({ obstacles, embers, terrain, height, seed,
+    totalDistance: duration * speed, scene: identity.scene, circleHitsPolygon });
   // Both renderers and the collection broad phase rely on world-X ordering.
   embers.sort((a, b) => a.x - b.x);
-  return { obstacles, embers, sections, levelIdentity: identity, ascent, lengthScale: legCount,
+  return { obstacles, embers, sections, sceneProps, levelIdentity: identity, ascent, lengthScale: legCount,
     legs: legs.map(leg => ({ ...leg, hardWindows: sections.filter(section => section.hard && section.leg === leg.index).length })),
     requestedHardWindowsPerLeg: requestedWindows, requestedHardWindows: requestedWindows * legCount,
     hardWindows: sections.filter(section => section.hard).length };
@@ -726,6 +730,8 @@ export class WispFlight {
       this.layout.obstacles.forEach(o => {
         o.center *= factor; o.gap *= factor; o.motion *= factor;
         for (const shape of [o.topShape, o.bottomShape]) if (shape) shape.forEach(point => { point[1] *= factor; });
+        for (const prop of o.sceneProps || []) for (const part of prop.parts)
+          for (const point of part.polygon) point[1] *= factor;
       });
       this.layout.embers.forEach(e => {
         e.y *= factor;
@@ -1308,9 +1314,24 @@ export class WispFlight {
 
   drawObstacle(c, o, x, H) {
     const offset = this.renderDistance ?? this.distance;
-    for (const polygon of obstaclePolygons(o, this.visualTime ?? this.time)) {
+    const time = this.visualTime ?? this.time;
+    const terrainCount = (o.topShape ? 1 : 0) + (o.bottomShape ? 1 : 0);
+    for (const polygon of obstaclePolygons(o, time).slice(0, terrainCount)) {
       const points = polygon.map(([px, py]) => [px - offset, py]);
       this.drawLandform(c, points, o);
+    }
+    // The fallback uses these exact collider parts too: no invisible scenery
+    // if the production pixel-art renderer cannot load.
+    const colors = { bark: '#514a3c', foliage: '#535d43', wood: '#71604b', stone: '#77756a', roof: '#4b4642' };
+    const center = o.center + Math.sin(time * .9 + o.phase) * o.motion;
+    for (const prop of o.sceneProps || []) for (const part of prop.parts) {
+      c.beginPath();
+      part.polygon.forEach(([px, py], i) => {
+        const sx = o.x + px - offset, sy = center + prop.side * o.gap / 2 + py;
+        if (i) c.lineTo(sx, sy); else c.moveTo(sx, sy);
+      });
+      c.closePath(); c.fillStyle = colors[part.material] || colors.stone; c.fill();
+      c.strokeStyle = 'rgba(181,179,145,.24)'; c.lineWidth = .8; c.stroke();
     }
   }
 

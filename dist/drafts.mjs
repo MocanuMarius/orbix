@@ -1,5 +1,6 @@
 // One-shot, world-anchored air pockets. Reading a puff never advances it.
 import { LEVEL_LENGTH } from './level-length.mjs';
+import { scenePropBounds } from './scene-props.mjs';
 const clamp = (n, lo, hi) => Math.min(hi, Math.max(lo, n));
 const smooth = n => { const t = clamp(n, 0, 1); return t * t * (3 - 2 * t); };
 export const DRAFT_TUNING = Object.freeze({ warning: .9, duration: .9, fade: .3,
@@ -51,6 +52,7 @@ export function createDraftZones({ seed = 1, terrain = 'ruins', elite = false,
   if (lesson === 'glide') return [];
   const rng = randomFor(`${seed}:local-puffs`), scale = height / 620;
   const sections = layout.sections || [], hard = sections.filter(section => section.hard);
+  const propBounds = (layout.obstacles || []).flatMap(scenePropBounds);
   const first = lesson ? 940 : 850;
   const last = totalDistance - 620;
   if (last <= first) return [];
@@ -68,6 +70,10 @@ export function createDraftZones({ seed = 1, terrain = 'ruins', elite = false,
     if (band.bottom - band.top < ry * 2 + 104 * scale) continue;
     const low = band.top + ry + 44 * scale, high = band.bottom - ry - 44 * scale;
     const y = low + (high - low) * (.25 + rng() * .5);
+    // Lowered rock is not an empty draft room: exclude the entire actual prop
+    // footprint, its sway envelope, and a body-wide bypass margin.
+    if (propBounds.some(bounds => x + rx + 28 > bounds.minX && x - rx - 28 < bounds.maxX
+      && y + ry + 44 * scale > bounds.minY && y - ry - 44 * scale < bounds.maxY)) continue;
     candidates.push({ x, y, rx, ry });
   }
   const selected = [];
