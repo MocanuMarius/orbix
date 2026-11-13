@@ -1,9 +1,6 @@
 // Main-wisp paths favour distinct decisions over repeated identical ranks.
 const node=(id,name,cost,requires,description,icon,shortEffect,extra={})=>({id,name,branch:'main',cost,maxRank:1,requires,description,consequence:description,icon,shortEffect,...extra});
 export const MAIN_TUNING_SKILLS={
- 'main-artifact-slot-1':node('main-artifact-slot-1','First Reliquary',140,null,'Equip one more artifact in this run.','artifact','+1 artifact slot'),
- 'main-artifact-slot-2':node('main-artifact-slot-2','Second Reliquary',280,'main-artifact-slot-1','Equip one more artifact. Choose capacity instead of several skill upgrades.','artifact','+1 artifact slot'),
- 'main-artifact-slot-3':node('main-artifact-slot-3','Grand Reliquary',560,'main-artifact-slot-2','Equip one final additional artifact, up to six at Ascension 1.','artifact','+1 artifact slot'),
  'main-echo-sight':node('main-echo-sight','Echo Luminance',35,'main-sight','Natural Sparks pickups cast light farther ahead for 2 seconds. Recharges in 8 seconds. Works with any companion.','sight','Pickup Luminance'),
  'main-echo-long':node('main-echo-long','Lingering Echo',35,'main-echo-sight','Echo Luminance lasts 1 second longer.','duration','+1s Luminance'),
  'main-echo-range':node('main-echo-range','Far Echo',40,'main-echo-sight','Echo Luminance reaches 50 farther ahead.','sight','+50 reach'),
@@ -47,7 +44,6 @@ export function tuneMainDefinition(skill){
 // Prices reflect one deliberate upgrade roughly every two ordinary clears.
 // The free starting root remains free through chooseStartingSkill, not price 0.
 export function priceSkillDefinition(s){
- if(s.id.startsWith('main-artifact-slot-'))return{...s,cost:140*2**(Number(s.id.at(-1))-1)};
  if(s.id==='main-spare-spark')return{...s,cost:140};
  if(s.id==='main-deep-reserve')return{...s,cost:210};
  if(s.branch==='afterglow')return{...s,cost:30,prices:[30,35].slice(0,s.maxRank)};

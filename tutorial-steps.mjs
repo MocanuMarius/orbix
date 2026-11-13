@@ -1,4 +1,4 @@
-import {topicSteps} from './tutorial-curriculum.mjs?v=clear-rewards-1';
+import {topicSteps} from './tutorial-curriculum.mjs?v=guardian-paths-1';
 const step=(id,title,text,target)=>({id,title,text,target,allowTarget:false});
 const chapter=(id,steps,target)=>({id,steps:steps.map(s=>({...s,...(target?{target}:{}),allowTarget:false}))});
 export function checkpointTutorialLesson(screen,{run={}}={}){
@@ -14,10 +14,10 @@ export function checkpointTutorialLesson(screen,{run={}}={}){
  }
  if(screen==='briefing')lesson=chapter('practice-briefing',[topicSteps('luminance')[0],{title:'Find the waylight',text:'Solid edges are hazards. Faint background shapes are scenery. Fly carefully to the waylight near the last terrain to finish.',visual:'route'}]);
  if(screen==='map-key')lesson=chapter('practice-symbols',topicSteps('routes'));
- if(screen==='victory')lesson=chapter('practice-reward',topicSteps('rewards'),'.single-artifact');
+ if(screen==='victory')lesson=chapter('practice-reward',topicSteps('rewards'),'.artifact-reward-screen');
  if(screen==='support'){
   if(run.current?.kind==='camp')lesson=chapter('practice-rest-choice',[topicSteps('rest')[0],topicSteps('hearts')[3]],'.rest-benefit-cards');
-  else if(run.current?.kind==='treasure')lesson=chapter('practice-treasure',[{title:'Treasure',text:'Open the chest for an artifact choice, or release its Sparks. Choose fuel now or a lasting effect for later flights.',visual:'site:treasure'}],'.support-offers');
+  else if(run.current?.kind==='treasure')lesson=chapter('practice-treasure',[{title:'Treasure',text:'Choose Packed Sparks for skills or Spark fuel for the next passage. Treasure does not grant an artifact; those come from elite and guardian victories.',visual:'site:treasure'}],'.support-offers');
   else lesson=chapter('practice-event',[{title:'Encounter: read both outcomes',text:'This is an event, not a free reward. The offering is certain; dice show a cost and possible rewards. Pick the risk that fits your build.',visual:'site:encounter'},topicSteps('packed')[1]],'.support-offers');
  }
  if(screen==='rest-prep')lesson=run.step>=6?chapter('practice-dream',topicSteps('dream'),'.rest-dream'):chapter('practice-rest-tools',[topicSteps('rest')[1],{title:'Practice tools are open',text:'Try Skills, Companions and Artifacts here. All four companions and a six-second Dream are available in practice. Real runs unlock them through progress.',visual:'tools'}],'.rest-service-cards');

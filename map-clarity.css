@@ -273,3 +273,41 @@ dialog.power-sheet.map-key-sheet {
 @keyframes route-next-flow{to{stroke-dashoffset:-44}}
 @media(prefers-reduced-motion:reduce){.game-map-screen .landscape-route .route-next-light,.game-map-screen .landscape-route .route-next-arrow,.game-map-screen .landscape-route .map-route-line.path-open .route-current{animation:none;opacity:1}.game-map-screen .landscape-route .route-node-art{transition:none}}
 .game-map-screen .landscape-route .route-node-caption{font-size:11px;letter-spacing:0}
+
+/* Five encounter silhouettes; biome scenery is a separate, quieter layer. */
+.game-map-screen .landscape-route .route-biome-layer{pointer-events:none}
+.game-map-screen .landscape-route .route-biome-ground{--biome-ink:#60765c;opacity:.32}
+.game-map-screen .landscape-route .biome-bed{fill:#26392e;opacity:.75}
+.game-map-screen .landscape-route .biome-fill{fill:var(--biome-ink);stroke:none}
+.game-map-screen .landscape-route .biome-stroke{fill:none;stroke:var(--biome-ink);stroke-width:1.6}
+.game-map-screen .landscape-route .biome-frost{--biome-ink:#668e99}
+.game-map-screen .landscape-route .biome-crystal{--biome-ink:#82749a}
+.game-map-screen .landscape-route .biome-fungal{--biome-ink:#8b7492}
+.game-map-screen .landscape-route .biome-basalt{--biome-ink:#94715c}
+.game-map-screen .landscape-route .biome-desert{--biome-ink:#998266}
+.game-map-screen .landscape-route .biome-coral{--biome-ink:#8e7474}
+.game-map-screen .landscape-route .biome-cloud{--biome-ink:#7d8e98}
+.game-map-screen .landscape-route .route-state-future .route-node-art{opacity:.62}
+.game-map-screen .landscape-route .route-state-complete .route-node-art{opacity:.48}
+.game-map-screen .landscape-route .route-state-closed .route-node-art{opacity:.32}
+.game-map-screen .landscape-route .route-state-future[role=button]:hover .route-node-art,
+.game-map-screen .landscape-route .route-state-future[role=button]:focus-visible .route-node-art{opacity:.85}
+.game-map-screen .landscape-route .route-landmark{--landmark-stone:#8a9a83;--landmark-face:#bdc7a4;--landmark-edge:#d2d9b2;--landmark-fire:#d8c991}
+.game-map-screen .landscape-route .landmark-glint{fill:#fff4d0}
+.game-map-screen .landscape-route .landmark-elite{--landmark-stone:#9f857b;--landmark-face:#c8ab98;--landmark-fire:#f1c3a5}
+.game-map-screen .landscape-route .landmark-boss{--landmark-stone:#a28c92;--landmark-face:#d5bcc4;--landmark-fire:#f5d4ae}
+.game-map-screen .landscape-route [data-guardian="frost-matron"]{--landmark-stone:#8ca6ba;--landmark-face:#c4e1e5;--landmark-fire:#f1f7da}
+.game-map-screen .landscape-route [data-guardian="rootbound-heart"]{--landmark-stone:#8c9d6a;--landmark-face:#c3c88b;--landmark-fire:#efd79b}
+.game-map-screen .landscape-route [data-guardian="storm-shepherd"]{--landmark-stone:#8a98ab;--landmark-face:#c2cfda;--landmark-fire:#f3e5a6}
+.game-map-screen .landscape-route [data-guardian="hollow-sun"]{--landmark-stone:#aa8a62;--landmark-face:#dbc18e;--landmark-fire:#f8dc8c}
+.game-map-screen .landscape-route .route-closed-mark{stroke:#8a9c87;stroke-width:3;fill:none;stroke-linecap:square}
+.game-map-screen .landscape-route .map-node-type{font-size:var(--route-type-size,11px)!important}
+.game-map-screen .landscape-route .map-node-name{font-size:var(--route-label-size,11px)!important}
+.game-map-screen .landscape-route .map-route-line.path-open .route-thread{stroke:#d7c18a;stroke-width:3;stroke-dasharray:none;opacity:1}
+.game-map-screen .landscape-route .map-route-line.path-open .route-current{stroke:#fff4c9;stroke-width:2;stroke-dasharray:4 21;opacity:.95}
+.game-map-screen .landscape-route .map-route-line.path-taken .route-thread{stroke:#c6ad73;stroke-width:3;stroke-dasharray:none;opacity:.9}
+.game-map-screen .landscape-route .map-route-line.path-future{opacity:.48}
+.game-map-screen .landscape-route .map-route-line.path-future .route-thread{stroke-width:1.5;stroke-dasharray:2 6;opacity:.9}
+.game-map-screen .landscape-route .map-route-line.path-locked .route-thread{stroke-width:1;stroke-dasharray:2 12;opacity:.55}
+.game-map-screen .landscape-route .route-next-arrow{stroke-width:2.4}
+.game-map-screen .landscape-route .world-map-node[role=button]:focus-visible .route-node-art{opacity:1}

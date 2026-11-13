@@ -1,3 +1,4 @@
+import { prepareGuardian, drawGuardian } from './guardian-effects.mjs?v=guardian-paths-1';
 // The Hollow Warden is a survival encounter: read its hands, keep your Sparks,
 // and reach the waylight. Every solid hand uses the ordinary terrain pipeline.
 const TAU = Math.PI * 2;
@@ -21,9 +22,19 @@ const MOON_PHASES = Object.freeze([
 ]);
 export const BOSS_PREVIEWS=Object.freeze({
   'hollow-warden':Object.freeze({id:'hollow-warden',name:'Hollow Warden',instruction:'Stone hands and swaying passages.',icon:'boss'}),
+  'frost-matron':Object.freeze({id:'frost-matron',name:'Frost Matron',instruction:'Cracking ice falls into the upper lane. Pass beneath.',icon:'boss'}),
+  'rootbound-heart':Object.freeze({id:'rootbound-heart',name:'Rootbound Heart',instruction:'Living gates breathe open and close. Follow their pulse.',icon:'boss'}),
+  'storm-shepherd':Object.freeze({id:'storm-shepherd',name:'Storm Shepherd',instruction:'Separate rising and falling drafts. Watch the ribbons.',icon:'boss'}),
+  'hollow-sun':Object.freeze({id:'hollow-sun',name:'Hollow Sun',instruction:'Moving dark wells drain nearby Sparks. Keep your distance.',icon:'boss'}),
   moonweaver:Object.freeze({id:'moonweaver',name:'Moonweaver',instruction:'Alternating crescents and a drifting silver loom.',icon:'boss'})
 });
 export const getBossPreview=id=>BOSS_PREVIEWS[id]||BOSS_PREVIEWS['hollow-warden'];
+
+export function getGuardianForMap(seed, mapIndex=0) {
+  const ids=Object.keys(BOSS_PREVIEWS), random=randomFor(`guardians:${seed}`);
+  for(let i=ids.length-1;i>0;i--){const j=Math.floor(random()*(i+1));[ids[i],ids[j]]=[ids[j],ids[i]];}
+  return BOSS_PREVIEWS[ids[Math.max(0,Math.floor(mapIndex))%ids.length]];
+}
 
 function randomFor(seed) {
   let n = 2166136261;
@@ -79,7 +90,7 @@ export function getBossTuning(difficulty=1){
 export function buildBossLayout({ seed = 1, height = 620, speed = 154, duration = 165,
   gapScale = .88, difficulty = 1, elite = false, levelIdentity = null,
   circleHitsPolygon = null, bossId='hollow-warden' } = {}) {
-  const moon=bossId==='moonweaver',identity=getBossPreview(bossId),definitions=moon?MOON_PHASES:PHASES;
+  const moon=bossId==='moonweaver',identity=getBossPreview(bossId),special=!['moonweaver','hollow-warden'].includes(identity.id),definitions=special?PHASES.map((p,i)=>({...p,name:identity.name.toUpperCase(),instruction:identity.instruction,cells:[[.5,370,'both',0],[.5,350,'both',0],[.5,370,'both',0],[.5,390,'both',0]]})):moon?MOON_PHASES:PHASES;
   const prefix=moon?'moonweaver':'warden';
   const rng = randomFor(`${seed}:${identity.id}`), scale = height / 620, tuning=getBossTuning(difficulty);
   const totalDistance = duration * speed, end = totalDistance + 98 - speed * 3.2;
@@ -158,11 +169,11 @@ export function buildBossLayout({ seed = 1, height = 620, speed = 154, duration 
       fuelOrder++; nextFuel = x + speed * 3.8;
     }
   }
-  return { obstacles, embers, sections, sceneProps: [], levelIdentity,
+  return prepareGuardian({ obstacles, embers, sections, sceneProps: [], levelIdentity,
     boss: { id: identity.id, name: identity.name, difficulty, phases, tuning,
       introEnd: start, end, exitStart: totalDistance - speed * 3.2 },
     legs: phases.map(phase => ({ index: phase.index - 1, start: phase.start, end: phase.end })),
-    hardWindows: sections.filter(section => section.hard).length, lengthScale: 3 };
+    hardWindows: sections.filter(section => section.hard).length, lengthScale: 1 }, height, speed);
 }
 
 export function getBossState(engine) {
@@ -237,6 +248,7 @@ function drawMoonweaver(c,{engine,width,height,distance,time,scale,pass}){
 export function drawBoss(c, { engine, width = 390, height = 620,
   distance = engine?.distance || 0, time = engine?.time || 0, scale = 1, pass = 'all' } = {}) {
   if (!engine?.layout?.boss) return;
+  if(!['moonweaver','hollow-warden'].includes(engine.layout.boss.id))return drawGuardian(c,{engine,width,height,distance,time,scale,pass});
   if(engine.layout.boss.id==='moonweaver')return drawMoonweaver(c,{engine,width,height,distance,time,scale,pass});
   const state = getBossState(engine), W = width, H = height;
   c.save();

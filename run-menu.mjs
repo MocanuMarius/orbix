@@ -1,9 +1,8 @@
-import {menuWorldMarkup} from './menu-world.mjs?v=clear-rewards-1';
-import {getArtifactCapacity} from './model.mjs?v=clear-rewards-1';
-import {formatGlow,getGlowCapacity} from './vitality.mjs?v=clear-rewards-1';
-import {livesMarkup} from './lives.mjs?v=clear-rewards-1';
-import { COMPANION_ABILITIES } from './companion-abilities.mjs?v=clear-rewards-1';
-import { companionArtSvg } from './companion-art.mjs?v=clear-rewards-1';
+import {menuWorldMarkup} from './menu-world.mjs?v=guardian-paths-1';
+import {formatGlow,getGlowCapacity} from './vitality.mjs?v=guardian-paths-1';
+import {livesMarkup} from './lives.mjs?v=guardian-paths-1';
+import { COMPANION_ABILITIES } from './companion-abilities.mjs?v=guardian-paths-1';
+import { companionArtSvg } from './companion-art.mjs?v=guardian-paths-1';
 
 const esc = value => String(value ?? '').replace(/[&<>"']/g, char =>
   ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[char]));
@@ -28,10 +27,10 @@ export function runProgressMarkup(run) {
   const totalStops = run?.map?.length || (practice ? 3 : 7);
   const stop = Math.max(1, Math.min(totalStops, (Number(run?.step) || 0) + 1));
   const mapCleared = active && run.phase === 'map-clear';
-  const path = `<div class="front-map-path" aria-label="Three maps; a guardian waits at the end of the third">${landmarks.map((landmark, index) => {
+  const path = `<div class="front-map-path" aria-label="Three maps; a different guardian waits at the end of each">${landmarks.map((landmark, index) => {
     const complete = active && !practice && (index < map || index === map && mapCleared);
     const current = active && !practice && index === map && !mapCleared;
-    return `<div class="front-map-stop ${complete ? 'complete' : current ? 'current' : ''}"><span class="front-map-landmark"><svg viewBox="0 0 32 32" aria-hidden="true">${landmark}</svg></span><b>${index === 2 ? 'GUARDIAN' : `MAP ${index + 1}`}</b><small>${complete ? 'CLEARED' : current ? 'YOU' : index === 2 ? 'MAP 3' : ''}</small></div>`;
+    return `<div class="front-map-stop ${complete ? 'complete' : current ? 'current' : ''}"><span class="front-map-landmark"><svg viewBox="0 0 32 32" aria-hidden="true">${landmark}</svg></span><b>${`MAP ${index + 1}`}</b><small>${complete ? 'CLEARED' : current ? 'YOU' : 'GUARDIAN'}</small></div>`;
   }).join('')}</div>`;
   if (!active) return `<section class="run-progress empty-run">${path}</section>`;
   return `<section class="run-progress">${path}<div class="run-checkpoint"><div><b>${practice ? 'PRACTICE' : `${run.testMode?'TEST · ':''}ASCENSION ${tier(run.difficulty)}`}</b><span>${practice ? '' : `MAP ${map + 1}/3 · `}${mapCleared ? 'REFUGE REACHED' : `STOP ${stop}/${totalStops}`}</span></div><div class="run-checkpoint-resources">${livesMarkup(run,{compact:true})}<span class="front-glow">${formatGlow(run.flame,getGlowCapacity(run),0)} SPARKS</span></div></div>${run.phase === 'retry' ? `<p class="run-retry-note">RETRY WAITING · ${esc(run.current?.name || 'Same passage')}</p>` : ''}</section>`;
@@ -59,5 +58,5 @@ export function testStarterMarkup(selected='collector',{profile={},testOverride=
 export function homeMenuMarkup({ profile = {}, run = null, selectedDifficulty, testOverride = false, testStarterCompanion = 'collector' } = {}) {
   const maximum = testOverride ? Math.max(6,tier(profile.difficulty)) : tier(profile.difficulty), chosen = Math.min(maximum, tier(selectedDifficulty ?? maximum));
   const active = Boolean(run && run.phase !== 'ended' && !run.banked);
-  return `<section class="run-front-page menu-art-home">${menuWorldMarkup()}<header class="front-title"><div class="front-main-light" aria-hidden="true"></div><h1>WISPBOUND</h1><p>A LIGHT IN THE LOST WOODS</p></header>${runProgressMarkup(active ? run : null)}<div class="front-actions">${active ? `<button class="front-continue primary" data-action="continue-run"><span>CONTINUE<small>${run.isTutorial ? 'Your practice route' : `MAP ${Math.min(3,(Number(run.mapIndex)||0)+1)}/3 · ${run.phase==='map-clear'?'MAP CLEARED':`STOP ${Math.min(run.map?.length||7,(Number(run.step)||0)+1)}/${run.map?.length||7}`}`}</small></span>${arrow}</button>` : ''}<div class="front-new-game"><button class="front-new-button ${active ? 'secondary' : 'primary'}" data-action="new-game"><span>NEW GAME<small>${getArtifactCapacity({difficulty:chosen})} RELIC ${getArtifactCapacity({difficulty:chosen})===1?'SLOT':'SLOTS'}</small></span>${arrow}</button><div class="front-ascension-picker" role="group" aria-label="Choose ascension for a new game"><button data-action="choose-ascension" data-value="${Math.max(1, chosen - 1)}" aria-label="Previous ascension" ${chosen <= 1 ? 'disabled' : ''}>−</button><span>ASCENSION <b>${chosen}</b><small>${testOverride ? `TEST · 1–${maximum}` : maximum > 1 ? `UNLOCKED 1–${maximum}` : 'FIRST JOURNEY'}</small></span><button data-action="choose-ascension" data-value="${Math.min(maximum, chosen + 1)}" aria-label="Next ascension" ${chosen >= maximum ? 'disabled' : ''}>+</button></div></div><button class="front-tutorial secondary" data-action="tutorial"><span>FIELD GUIDE</span><small>Lessons & practice</small>${arrow}</button></div>${testStarterMarkup(testStarterCompanion,{profile,testOverride})}</section>`;
+  return `<section class="run-front-page menu-art-home">${menuWorldMarkup()}<header class="front-title"><div class="front-main-light" aria-hidden="true"></div><h1>WISPBOUND</h1><p>A LIGHT IN THE LOST WOODS</p></header>${runProgressMarkup(active ? run : null)}<div class="front-actions">${active ? `<button class="front-continue primary" data-action="continue-run"><span>CONTINUE<small>${run.isTutorial ? 'Your practice route' : `MAP ${Math.min(3,(Number(run.mapIndex)||0)+1)}/3 · ${run.phase==='map-clear'?'MAP CLEARED':`STOP ${Math.min(run.map?.length||7,(Number(run.step)||0)+1)}/${run.map?.length||7}`}`}</small></span>${arrow}</button>` : ''}<div class="front-new-game"><button class="front-new-button ${active ? 'secondary' : 'primary'}" data-action="new-game"><span>NEW GAME<small>BUILD A NEW JOURNEY</small></span>${arrow}</button><div class="front-ascension-picker" role="group" aria-label="Choose ascension for a new game"><button data-action="choose-ascension" data-value="${Math.max(1, chosen - 1)}" aria-label="Previous ascension" ${chosen <= 1 ? 'disabled' : ''}>−</button><span>ASCENSION <b>${chosen}</b><small>${testOverride ? `TEST · 1–${maximum}` : maximum > 1 ? `UNLOCKED 1–${maximum}` : 'FIRST JOURNEY'}</small></span><button data-action="choose-ascension" data-value="${Math.min(maximum, chosen + 1)}" aria-label="Next ascension" ${chosen >= maximum ? 'disabled' : ''}>+</button></div></div><button class="front-tutorial secondary" data-action="tutorial"><span>FIELD GUIDE</span><small>Lessons & practice</small>${arrow}</button></div>${testStarterMarkup(testStarterCompanion,{profile,testOverride})}</section>`;
 }
