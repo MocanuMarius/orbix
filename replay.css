@@ -102,3 +102,8 @@
  .victory-screen .reward-currency small{margin-top:1px;font-size:9px;line-height:12px}
  .victory-screen .victory-actions>button{height:40px;min-height:40px!important;font-size:10px}
 }
+.artifact-stack-preview{display:inline-flex;align-items:center;justify-content:center;gap:6px;color:#f4cd9a;font:11px/1.5 var(--pixel)}
+.artifact-stack-preview b{font-size:15px;white-space:nowrap}.artifact-stack-preview small{font-size:9px;color:#c1bd9d}.artifact-stack-preview em{font-style:normal;color:#b9e4b2;padding-left:5px}.artifact-stack-waste{display:block;color:#edb49b;font:9px/1.3 var(--pixel)}
+.relic-stat{display:inline-flex;align-items:center;gap:4px;white-space:nowrap;margin-right:9px}.relic-stat small{font:10px/1.3 var(--pixel);color:#cbd4b8}.relic-lifetime .resource-symbol{width:13px;height:13px;vertical-align:-3px;margin-right:4px}.relic-effect>.resource-symbol{vertical-align:middle}.relic-effect>small{display:block;font-size:10px;color:#cbd4b8}.relic-forge-summary{font:11px/1.6 var(--pixel);color:#daca9c}.relic-forge-summary .resource-symbol{vertical-align:middle}.relic-forge-summary small{display:block;font:10px/1.5 var(--pixel);color:#bdcbb3}
+
+.relic-evolution-preview{display:flex;justify-content:center;align-items:center;gap:4px;color:#d9c8ef;font:9px/1.5 var(--pixel)}.artifact-seed-pips{position:absolute;display:flex;gap:2px;bottom:-5px;left:2px}.artifact-seed-pips i{width:5px;height:4px;background:#394b3b;outline:1px solid #809778}.artifact-seed-pips i.filled{background:#e1efad;outline-color:#e6e1a2}.flight-artifact-bar>span:has(.artifact-seed-pips):not(.depleted):not(.triggered){opacity:.9}

@@ -1,10 +1,12 @@
-// Risk-earned sight, available to every Wisp. This controller never spends or
-// grants Glow, collects a packet, or invokes an artifact's work/reveal hooks.
+// Risk-earned sight, or bounded fuel recovery when the Regenerative Falling
+// branch is chosen. Neither outcome is a pickup or invokes artifact hooks.
+import { GLOW_DISPLAY_SCALE } from './vitality.mjs?v=lantern-paths-1';
 const clamp = (n, lo, hi) => Math.min(hi, Math.max(lo, n));
 const smooth = n => n * n * (3 - 2 * n);
 const EPSILON = 1e-9;
 export const EDGING_PULSE_TUNING = Object.freeze({ clearance: 48, chargeSeconds: 2,
   graceSeconds: 1.25, decayPerSecond: .08, duration: 5, recovery: 2, waves: 3 });
+export const EDGING_REGEN_TUNING = Object.freeze({ glow: 1 / GLOW_DISPLAY_SCALE, grants: 8, feedback: 1 });
 const number = (value, fallback, lo, hi) => Number.isFinite(Number(value))
   ? clamp(Number(value), lo, hi) : fallback;
 
@@ -50,9 +52,11 @@ export class EdgingPulse {
     this.engine = engine;
     this.charge = 0; this.nearEdge = false; this.remaining = 0; this.recoveryRemaining = 0; this.graceRemaining = 0;
     this.duration = number(engine.mod?.edgingDuration, EDGING_PULSE_TUNING.duration, 1, 12);
-    this.triggerCount = 0;
+    this.triggerCount = 0; this.regenGrants = 0; this.regenFeedbackRemaining = 0; this.regenGain = 0;
   }
 
+  get regenerative() { return !!this.engine.mod?.edgingRegen; }
+  get exhausted() { return this.regenerative && this.regenGrants >= EDGING_REGEN_TUNING.grants; }
   get dreaming() { return !!this.engine.dream && this.engine.dream.phase !== 'done'; }
   get live() {
     const e = this.engine;
@@ -65,7 +69,7 @@ export class EdgingPulse {
       || e.invulnerable === true || e.invulnerability > 0 || e.invulnerabilityTime > 0;
   }
   get strength() {
-    if (!this.live || this.dreaming || this.remaining <= 0) return 0;
+    if (this.regenerative || !this.live || this.dreaming || this.remaining <= 0) return 0;
     const elapsed = this.duration - this.remaining;
     const onset = smooth(clamp(elapsed / (this.engine.reducedMotion ? .45 : .4), 0, 1));
     const fade = smooth(clamp(this.remaining / this.duration, 0, 1));
@@ -80,10 +84,13 @@ export class EdgingPulse {
       holding: visible && !this.nearEdge && !this.protected && this.charge > 0 && this.graceRemaining > EPSILON,
       active: visible && this.remaining > 0, remaining: visible ? this.remaining : 0,
       duration: this.duration, strength: this.strength,
-      recovering: visible && this.recoveryRemaining > 0, triggerCount: this.triggerCount };
+      recovering: visible && this.recoveryRemaining > 0, triggerCount: this.triggerCount,
+      mode: this.regenerative ? 'regen' : 'pulse', exhausted: this.exhausted,
+      regenGrants: this.regenGrants, grantsRemaining: Math.max(0, EDGING_REGEN_TUNING.grants - this.regenGrants),
+      regenFeedback: visible && this.regenFeedbackRemaining > 0, regenGain: this.regenGain };
   }
 
-  reset() { this.charge = 0; this.nearEdge = false; this.remaining = 0; this.recoveryRemaining = 0; this.graceRemaining = 0; }
+  reset() { this.charge = 0; this.nearEdge = false; this.remaining = 0; this.recoveryRemaining = 0; this.graceRemaining = 0; this.regenFeedbackRemaining = 0; }
   impact() { this.charge = 0; this.nearEdge = false; this.graceRemaining = 0; }
 
   update(dt, obstacles) {
@@ -91,6 +98,7 @@ export class EdgingPulse {
     if (e.paused || !(dt > 0) || !Number.isFinite(dt)) return;
     if (!this.live || this.dreaming) { this.reset(); return; }
     this.nearEdge = false;
+    this.regenFeedbackRemaining = Math.max(0, this.regenFeedbackRemaining - dt);
     if (this.remaining > 0) {
       this.remaining = Math.max(0, this.remaining - dt);
       if (this.remaining < EPSILON) {
@@ -104,6 +112,7 @@ export class EdgingPulse {
       if (this.recoveryRemaining < EPSILON) this.recoveryRemaining = 0;
       return;
     }
+    if (this.exhausted) { this.charge = 0; this.graceRemaining = 0; return; }
     if (!this.protected) {
       // Boundary collisions use the orb's center at these exact thresholds;
       // this is the remaining safe margin, not the decorative screen border.
@@ -132,8 +141,25 @@ export class EdgingPulse {
       this.graceRemaining = Math.max(0, this.graceRemaining - dt);
       this.charge = clamp(this.charge - decayTime * EDGING_PULSE_TUNING.decayPerSecond * decay, 0, 1);
     }
-    if (this.charge >= 1 - EPSILON) {
+    if (!this.protected && this.charge >= 1 - EPSILON) {
       this.charge = 0; this.nearEdge = false; this.graceRemaining = 0; this.triggerCount++;
+      if (this.regenerative) {
+        // This is recovery, not a collectible. Only the missing fuel is added;
+        // it cannot overflow, create Packed Light, or proc pickup artifacts.
+        const missing = Math.max(0, (Number(e.maxFlame) || 0) - (Number(e.flame) || 0));
+        this.regenGain = Math.min(EDGING_REGEN_TUNING.glow, missing);
+        if (this.regenGain > EPSILON) {
+          e.flame += this.regenGain;
+          e.flameRestored = (Number(e.flameRestored) || 0) + this.regenGain;
+          this.regenGrants++;
+        }
+        this.regenFeedbackRemaining = EDGING_REGEN_TUNING.feedback;
+        this.recoveryRemaining = EDGING_PULSE_TUNING.recovery;
+        const result = this.regenGain >= EDGING_REGEN_TUNING.glow - EPSILON ? '+1 Glow'
+          : this.regenGain > EPSILON ? 'Glow topped up' : 'Glow already full';
+        e.setEvent?.(`Regenerative Falling · ${result}${this.exhausted ? ' · spent for this flight' : ''}`);
+        return;
+      }
       this.duration = number(e.mod?.edgingDuration, EDGING_PULSE_TUNING.duration, 1, 12);
       this.remaining = this.duration;
       e.setEvent?.('Edging Pulse · the way is revealed');

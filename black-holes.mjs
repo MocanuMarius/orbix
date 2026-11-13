@@ -1,4 +1,4 @@
-import { obstacleEdgeClearance } from './edging-pulse.mjs?v=artifact-clarity-1';
+import { obstacleEdgeClearance } from './edging-pulse.mjs?v=lantern-paths-1';
 
 // Rates are internal flight Glow. The HUD displays 0.3 of these units: a
 // 40-unit pass costs about 10 Glow/s, a 100-unit pass about 1.6 Glow/s.
@@ -39,7 +39,8 @@ function clearAt(obstacles, x, y, radius, height) {
 
 function quietAt(engine, x) {
   const reach = BLACK_HOLE_TUNING.influence + 50;
-  return !(engine.layout?.sections || []).some(s => (s.hard || s.authoredChallenge)
+  return !(engine.layout?.flightForks || []).some(f=>x+reach>f.approachStart&&x-reach<f.exitEnd)
+    && !(engine.layout?.sections || []).some(s => (s.hard || s.authoredChallenge)
       && x + reach > s.start && x - reach < s.end)
     && !(engine.layout?.obstacles || []).some(o => (o.hard || o.reservedDraft)
       && x + reach > o.x - o.width && x - reach < o.x + o.width * 2.5)

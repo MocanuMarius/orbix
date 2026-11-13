@@ -76,6 +76,7 @@ export function observedFlightLesson(snapshot={},seen={}){
   const known=id=>seen?.[id]===true||seen?.has?.(id)===true;
   if(snapshot.dream?.active||snapshot.dying||snapshot.completing)return null;
   if((snapshot.blackHole?.rate||0)>0&&!known('flight-effect:black-hole'))return 'flight-effect:black-hole';
+  if(snapshot.edgingPulse?.mode==='regen'&&snapshot.edgingPulse?.regenGrants>0&&!known('flight-effect:regeneration'))return 'flight-effect:regeneration';
   if(snapshot.edgingPulse?.active&&!known('flight-effect:edging'))return 'flight-effect:edging';
   return null;
 }
@@ -84,6 +85,8 @@ export function flightEffectLesson(id,screen='map'){
   if(id==='flight-effect:black-hole')return step(id,'That dark core steals Glow',
     'A Black Hole drains fuel while you stay close. A wider path loses less light. It is not a pickup, and shields do not stop the drain. MENU → Glow & Pickups keeps this reminder.',target);
   if(id==='flight-effect:edging')return step(id,'Your close flight made a pulse',
-    'Flying near solid edges fills PULSE in 2 seconds. Brief gaps preserve your progress, then charge fades slowly. Full charge reveals the scene for five fading seconds. Edge skills improve it; touching terrain still hurts.',target);
+    'Flying near solid edges fills the slim edge meter in 2 seconds. Brief gaps preserve your progress, then charge fades slowly. Full charge reveals the scene for five fading seconds. Edge skills improve it; touching terrain still hurts.',target);
+  if(id==='flight-effect:regeneration')return step(id,'Your close flight restored Glow',
+    'Regenerative Falling turns a full edge meter into one Glow instead of a reveal. Its green meter resets for 2 seconds. You have eight recoveries each flight; it becomes dim when spent. Only missing fuel is restored, without Packed Light or pickup effects.',target);
   return null;
 }
