@@ -1,4 +1,4 @@
-import {skillProgress} from './skill-increments.mjs?v=companion-motion-1';
+import {skillProgress} from './skill-increments.mjs?v=world-variety-1';
 // Named, one-time specialisations. Each pair is exclusive for this run.
 const paths=[];
 function fork(branch,parent,a,b){

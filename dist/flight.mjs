@@ -1,20 +1,21 @@
+import {EXTRA_COURSES} from './world-expansion.mjs?v=world-variety-1';
 /* Emberwing's self-contained canvas flight simulation and renderer. */
-import { FLAME_TUNING, LIGHT_PACKET_TUNING } from './vitality.mjs?v=companion-motion-1';
-import { flightEndDistance } from './flight-end.mjs?v=companion-motion-1';
-import { WispCompanion, wispHome } from './wisp.mjs?v=companion-motion-1';
-import { getAscentInfo } from './ascent.mjs?v=companion-motion-1';
-import { LEVEL_LENGTH, getLevelLengthScale } from './level-length.mjs?v=companion-motion-1';
-import { resolveLevelIdentity } from './level-catalog.mjs?v=companion-motion-1';
-import { DraftField, DRAFT_TUNING } from './drafts.mjs?v=companion-motion-1';
-import { normalizeCompanionRole, normalizeCompanionFleet, getCompanionAbility } from './companion-abilities.mjs?v=companion-motion-1';
-import { populateSceneProps, scenePropPolygons } from './scene-props.mjs?v=companion-motion-1';
-import { pickupKind, getPickupSpec, pickupContactRadius, isFuelPickup, canCompanionCollect } from './pickups.mjs?v=companion-motion-1';
-import { drawPickup } from './pickup-art.mjs?v=companion-motion-1';
-import { buildBossLayout, getBossState as bossState, drawBoss } from './boss.mjs?v=companion-motion-1';
-import { getAuthoredChallenge, finalizeFlightChallenges, installAuthoredDraftCrossings, FlightChallengeDirector } from './flight-challenges.mjs?v=companion-motion-1';
+import { FLAME_TUNING, LIGHT_PACKET_TUNING } from './vitality.mjs?v=world-variety-1';
+import { flightEndDistance } from './flight-end.mjs?v=world-variety-1';
+import { WispCompanion, wispHome } from './wisp.mjs?v=world-variety-1';
+import { getAscentInfo } from './ascent.mjs?v=world-variety-1';
+import { LEVEL_LENGTH, getLevelLengthScale } from './level-length.mjs?v=world-variety-1';
+import { resolveLevelIdentity } from './level-catalog.mjs?v=world-variety-1';
+import { DraftField, DRAFT_TUNING } from './drafts.mjs?v=world-variety-1';
+import { normalizeCompanionRole, normalizeCompanionFleet, getCompanionAbility } from './companion-abilities.mjs?v=world-variety-1';
+import { populateSceneProps, scenePropPolygons } from './scene-props.mjs?v=world-variety-1';
+import { pickupKind, getPickupSpec, pickupContactRadius, isFuelPickup, canCompanionCollect } from './pickups.mjs?v=world-variety-1';
+import { drawPickup } from './pickup-art.mjs?v=world-variety-1';
+import { buildBossLayout, getBossState as bossState, drawBoss } from './boss.mjs?v=world-variety-1';
+import { getAuthoredChallenge, finalizeFlightChallenges, installAuthoredDraftCrossings, FlightChallengeDirector } from './flight-challenges.mjs?v=world-variety-1';
 import { createTutorialState, buildTutorialLayout, recordTutorialPickup,
-  updateTutorial, updateTutorialCompanion, getTutorialHint } from './tutorial.mjs?v=companion-motion-1';
-export { FLAME_TUNING } from './vitality.mjs?v=companion-motion-1';
+  updateTutorial, updateTutorialCompanion, getTutorialHint } from './tutorial.mjs?v=world-variety-1';
+export { FLAME_TUNING } from './vitality.mjs?v=world-variety-1';
 const TAU = Math.PI * 2;
 const STEP = 1 / 60;
 const COMPANION_ORBIT_SPEED = {protector:1.3,leveler:1.7,swift:3.4,seer:.8,kindler:2.2};
@@ -24,7 +25,7 @@ const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
 const lerp = (a, b, t) => a + (b - a) * t;
 export const FLIGHT_TUNING = Object.freeze({ gravity: 300, flapImpulse: 205,
   forwardSpeed: 154, terminalFall: 245, pickupRadius: LIGHT_PACKET_TUNING.pickupRadius });
-export { DRAFT_TUNING } from './drafts.mjs?v=companion-motion-1';
+export { DRAFT_TUNING } from './drafts.mjs?v=world-variety-1';
 // Retain the public tuning name for consumers; wind now has no global cycle.
 export const WIND_TUNING = DRAFT_TUNING;
 
@@ -69,6 +70,7 @@ export const FLIGHT_PATTERNS = Object.freeze({
 // center, opening, width, next spacing, occupancy, landform. These are macro
 // phrases with a deliberate entry, hard maneuver and recovery, not gap rolls.
 const MACRO_COURSES = Object.freeze({
+  ...EXTRA_COURSES,
   'ruins-aqueduct': { name: 'The low aqueduct',
     entry: [[.50,232,142,330,'floor','terrace'],[.56,258,166,320,'both','underpass']],
     hard: [[.58,148,154,290,'both','underpass'],[.51,136,132,285,'both','underpass'],[.44,154,148,320,'both','terrace']],
@@ -832,7 +834,7 @@ export class WispFlight {
 
   async initPixelView() {
     try {
-      const { WispFlightView } = await import('./wisp-renderer.mjs?v=companion-motion-1');
+      const { WispFlightView } = await import('./wisp-renderer.mjs?v=world-variety-1');
       if (this.destroyed) return;
       this.pixiView = new WispFlightView(this);
       const initialized = await this.pixiView.init();

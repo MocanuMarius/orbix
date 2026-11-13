@@ -1,6 +1,8 @@
+import {EXTRA_LEVELS} from './world-expansion.mjs?v=world-variety-1';
 // Location identities are shared by route previews, terrain and scenery.
 // Shapes and challenge windows are authored by the flight generator.
 export const LEVELS = Object.freeze([
+  ...EXTRA_LEVELS,
   { id: 'ruins-aqueduct', terrain: 'ruins', variant: 0, name: 'Broken Aqueduct', scene: 'aqueduct', signature: 'Overgrown cottages · low arches', motif: 'underpass', ink: '#b4a17a' },
   { id: 'ruins-belfry', terrain: 'ruins', variant: 1, name: 'Sunken Belfry', scene: 'belfry', signature: 'Courtyard walls · tower shelves', motif: 'stair', ink: '#a49b89' },
   { id: 'ruins-ossuary', terrain: 'ruins', variant: 2, name: 'Ossuary Vault', scene: 'ossuary', signature: 'Rooted vault walls · narrow exits', motif: 'vault', ink: '#c2bda3' },
@@ -20,7 +22,7 @@ function hash(value) {
 
 export function getLevelIdentity(terrain = 'ruins', seed = 1, offset = 0) {
   const pool = LEVELS.filter(level => level.terrain === terrain);
-  const locations = pool.length ? pool : LEVELS.slice(0, 3);
+  const locations = pool.length ? pool : LEVELS.filter(level => level.terrain === 'ruins');
   return locations[(hash(`${seed}:${terrain}:location`) + Math.max(0, Math.floor(Number(offset) || 0))) % locations.length];
 }
 

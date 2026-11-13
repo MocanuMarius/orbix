@@ -551,3 +551,13 @@ Leveler uses the normal flight touch area or Lift control: tap still lifts immed
 Companions have distinct eased flight paths. Protector circles the recovering shield, welding progressively rebuilt intermittent segments with blue sparks. Collector has breathing fragments while retaining its fetch path; Leveler casts rising suspension rings; Swift sheds moving streaks; Seer scans with arcs; Kindler pulses on direct fuel/purification. Effects use bounded drawing loops, cached orb art and reduced-motion variants.
 
 Focused mechanics and renderer-state probes passed. Local browser access was unavailable for this batch, so no new visual or phone-FPS verification is claimed.
+
+## Shelter icon and six new locations — 2026-11-13
+
+Rest/shelter map stops use a roofed refuge with a lit doorway and chimney, shared with the map key. The map still has five encounter symbols.
+
+Expanded the location pool from 9 to 15 with Drowned Mill, Moonlit Cloister, Sporelight Glade, Drowned Mangrove, Cloudbreak Causeway and Basalt Organ. Each has an authored entry/challenge/recovery course, dedicated distant backdrop, material palette, pixel map thumbnail and location-specific challenge names. New solid scenery includes giant mushrooms, broken bridge supports and standing columns; it is rendered from the same polygons used for collisions. New thematic props can use cache-bearing terrain only after the existing pickup-clearance rejection passes; mushroom caps are narrower/recessed to protect nearby fuel access.
+
+Location selection now draws through each terrain's five-location pool before repeating within a map, using map-specific ordering. Existing saved maps retain their generated destinations; New Game uses the expanded selection immediately. Route connections, Rest commitments, difficulty aperture floors and fuel/reward budgets remain governed by existing systems.
+
+Focused validation: 24 generated new-location layouts at tiers 1/4, 804 fuel centres checked at moving-terrain extrema with no body-blocked centres; all three new prop kinds appeared; 30 route decks avoid repeated locations until their terrain pool cycles. Actual production-renderer snapshots were rendered offscreen with Canvas for visual inspection. This is not a phone FPS or human difficulty benchmark.

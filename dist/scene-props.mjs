@@ -2,6 +2,9 @@
 const clamp = (n, lo, hi) => Math.min(hi, Math.max(lo, n));
 const smooth = n => { const t = clamp(n, 0, 1); return t * t * (3 - 2 * t); };
 const POOLS = Object.freeze({
+  mill:['broken-bridge','ruined-cottage','mine-timber'],cloister:['standing-stones','vault-wall','broken-wall'],
+  spores:['giant-mushroom','giant-mushroom','root-thicket'],mangrove:['willow','mine-timber','hollow-tree'],
+  causeway:['broken-bridge','stone-shelter','standing-stones'],basalt:['standing-stones','standing-stones','mine-timber'],
   aqueduct: ['ruined-cottage', 'old-tree', 'broken-wall'],
   belfry: ['broken-wall', 'old-tree', 'ruined-cottage'],
   ossuary: ['vault-wall', 'old-tree', 'broken-wall'],
@@ -25,7 +28,17 @@ function authoredParts(kind) {
   const parts = [];
   const p = (material, polygon) => parts.push({ material, polygon });
   const box = (material, x1, y1, x2, y2) => p(material, [[x1,y1],[x2,y1],[x2,y2],[x1,y2]]);
-  if (kind === 'ruined-cottage' || kind === 'stone-shelter') {
+  if(kind==='giant-mushroom'){
+    p('bark',[[-.18,1.05],[.24,1.05],[.12,.44],[-.08,.42]]);
+    p('roof',[[-1,.45],[-.85,.25],[-.42,.08],[.08,.02],[.62,.17],[.98,.4],[.78,.52],[-.72,.55]]);
+    p('plaster',[[-.74,.49],[-.35,.43],[.3,.43],[.72,.47],[.37,.56],[-.4,.58]]);
+  }else if(kind==='standing-stones'){
+    for(let i=0;i<4;i++){const x=-.85+i*.46,top=.08+(i%3)*.16;p('stone',[[x,1.05],[x,top+.08],[x+.12,top],[x+.34,top+.03],[x+.37,1.05]]);}
+  }else if(kind==='broken-bridge'){
+    box('stone',-.9,.4,-.62,1.05);box('stone',.54,.4,.82,1.05);
+    p('stone',[[-1,.32],[-.22,.32],[-.12,.48],[-.62,.56],[-1,.5]]);
+    p('stone',[[.2,.4],[1,.25],[1,.45],[.6,.55],[.26,.55]]);
+  }else if (kind === 'ruined-cottage' || kind === 'stone-shelter') {
     box('stone', -.72, .45, .72, .68);
     box('stone', -.72, .65, -.23, 1.05);
     box('stone', .23, .65, .72, 1.05);
@@ -103,25 +116,26 @@ export function scenePropBounds(obstacle) {
 export function populateSceneProps({ obstacles = [], embers = [], terrain = 'ruins',
   height = 620, seed = 1, totalDistance = Infinity, scene = 'aqueduct', circleHitsPolygon } = {}) {
   const rng = randomFor(`${seed}:${scene}:solid-scenery`), scale = height / 620;
+  const thematic=['mill','cloister','spores','mangrove','causeway','basalt'].includes(scene);
   const pool = POOLS[scene] || POOLS.aqueduct, counts = new Map(), lastX = new Map(), placements = [];
   const offset = Math.floor(rng() * pool.length);
   for (const obstacle of obstacles) {
     const leg = obstacle.leg || 0, used = counts.get(leg) || 0;
-    if (used >= 3 || obstacle.hard || obstacle.soft || obstacle.cachePocket || obstacle.sceneProps?.length
+    if (used >= 3 || obstacle.hard || obstacle.soft || (!thematic&&obstacle.cachePocket) || obstacle.sceneProps?.length
       || obstacle.x < 1050 || obstacle.x + obstacle.width * 2.45 > totalDistance - 640
-      || embers.some(packet => packet.anchor === obstacle.id)
+      || (!thematic&&embers.some(packet => packet.anchor === obstacle.id))
       || obstacle.x - (lastX.get(leg) || -Infinity) < 680 || rng() > .72) continue;
-    const side = obstacle.topShape && (!obstacle.bottomShape || rng() < .26) ? -1 : 1;
+    const side = obstacle.topShape && (!obstacle.bottomShape || scene!=='spores'&&rng() < .26) ? -1 : 1;
     const shape = side < 0 ? obstacle.topShape : obstacle.bottomShape;
     if (!shape) continue;
     const kind = side < 0 ? terrain === 'canopy' ? used % 2 ? 'hanging-branch' : 'hanging-roots'
       : terrain === 'ruins' && used % 2 ? 'hanging-roots' : 'old-beams' : pool[(offset + used + leg) % pool.length];
-    const centerX = obstacle.width * .72, halfWidth = obstacle.width * .63;
+    const centerX = obstacle.width * .72, halfWidth = obstacle.width * (kind==='giant-mushroom'?.44:.63);
     const left = centerX - halfWidth * 1.34, right = centerX + halfWidth * 1.34;
     const oldDepth = shape.slice(2).filter(point => point[0] >= left && point[0] <= right)
       .map(point => side * point[1]);
     const base = Math.max(134 * scale, Math.max(0, ...oldDepth) + 18 * scale);
-    const tip = 7 * scale;
+    const tip = (kind==='giant-mushroom'?48:7) * scale;
     const prop = { id: `scene:${obstacle.id}`, kind, side,
       parts: authoredParts(kind).map(part => ({ material: part.material,
         polygon: part.polygon.map(([u,v]) => [centerX + u * halfWidth,

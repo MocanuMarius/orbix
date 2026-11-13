@@ -97,3 +97,9 @@ Main-wisp and companion trees use compact connected buds with 44px touch targets
 With Leveler equipped, tap the flight area or Lift normally; keep holding for 180 ms to levitate, then release to glide. Charge is spent only while levitating and recharges while released. The Power control remains for Swift/Seer. Existing Leveler duration, recharge, steadiness and dive skills apply. A cyan meter beneath the main wisp shows remaining charge.
 
 The main wisp and collision radius are 15% smaller. Companion paths and activity effects are distinct, including progressive Protector shield welding. Flight map icons use an orb and forward arrow. `node scripts/companion-hold-probe.mjs` checks held-input semantics and `node scripts/companion-render-probe.mjs` exercises all companion draw paths. Browser visual review was unavailable for this batch.
+
+## More location variety
+
+The route pool contains 15 locations, including six new authored courses: Drowned Mill, Moonlit Cloister, Sporelight Glade, Drowned Mangrove, Cloudbreak Causeway and Basalt Organ. Each has distinct scenery, palette, map art, pacing and challenge names. Foreground mushrooms, bridge supports and columns have matching collision polygons. Location decks cycle all five choices per terrain before repeating within a map. Start a New Game to regenerate current destinations.
+
+Shelter/Rest stops now use a roofed refuge icon with a lit doorway. The five map-event categories are unchanged. `node scripts/world-variety-probe.mjs` checks new geometry, fuel centres at terrain motion extrema, new prop coverage and map-deck variety. Offscreen snapshots use the production renderer; no new phone-performance benchmark is claimed.

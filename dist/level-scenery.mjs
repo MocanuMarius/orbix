@@ -1,4 +1,5 @@
-import { resolveLevelIdentity } from './level-catalog.mjs?v=companion-motion-1';
+import {drawExpandedBackdrop} from './world-scenery.mjs?v=world-variety-1';
+import { resolveLevelIdentity } from './level-catalog.mjs?v=world-variety-1';
 
 const TAU = Math.PI * 2;
 const clamp = (n, a, b) => Math.max(a, Math.min(b, n));
@@ -46,6 +47,7 @@ export function drawIdentityBackground(c, { identity, width: W, height: H, dista
   c.globalAlpha = .78;
   const scroll = distance * .025;
   const polygonFill = (points, ink) => { c.fillStyle = ink; polygon(c, points); c.fill(); };
+  if(drawExpandedBackdrop(c,{identity,width:W,height:H,distance,palette:p},h)){c.restore();return;}
   if (scene === 'aqueduct') {
     for (let layer = 0; layer < 2; layer++) {
       const span = layer ? 185 : 240, offset = scroll * (layer ? 1.5 : .6);
@@ -277,7 +279,7 @@ export function drawIdentityLife(c,{identity,width:W,height:H,distance=0,time=0,
 // polygon. Relief marks never protrude into a passage or suggest a fake ledge.
 export function drawIdentityMaterial(c, { identity, surface, top, palette: p, width: W, height: H,
   obstacle, hardEntry }, h) {
-  const { line, polygon } = h, scene = identity.scene, sign = top ? -1 : 1;
+  const { line, polygon } = h, scene = identity.materialScene||identity.scene, sign = top ? -1 : 1;
   const seed = scenerySeed(`${identity.id}:${obstacle.id}:${top}`);
   const at = x => {
     for (let i = 1; i < surface.length; i++) {
