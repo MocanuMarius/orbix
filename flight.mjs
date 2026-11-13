@@ -1,23 +1,24 @@
-import {formatGlow} from './vitality.mjs?v=dawnburst-1';
-import {installRiskChains} from './risk-chains.mjs?v=dawnburst-1';
-import {EXTRA_COURSES} from './world-expansion.mjs?v=dawnburst-1';
+import {FlightProjection,drawFlightProjection} from './flight-projection.mjs?v=drift-sense-1';
+import {formatGlow} from './vitality.mjs?v=drift-sense-1';
+import {installRiskChains} from './risk-chains.mjs?v=drift-sense-1';
+import {EXTRA_COURSES} from './world-expansion.mjs?v=drift-sense-1';
 /* Emberwing's self-contained canvas flight simulation and renderer. */
-import { FLAME_TUNING, LIGHT_PACKET_TUNING } from './vitality.mjs?v=dawnburst-1';
-import { flightEndDistance } from './flight-end.mjs?v=dawnburst-1';
-import { WispCompanion, wispHome } from './wisp.mjs?v=dawnburst-1';
-import { getAscentInfo } from './ascent.mjs?v=dawnburst-1';
-import { LEVEL_LENGTH, getLevelLengthScale } from './level-length.mjs?v=dawnburst-1';
-import { resolveLevelIdentity } from './level-catalog.mjs?v=dawnburst-1';
-import { DraftField, DRAFT_TUNING } from './drafts.mjs?v=dawnburst-1';
-import { normalizeCompanionRole, normalizeCompanionFleet, getCompanionAbility } from './companion-abilities.mjs?v=dawnburst-1';
-import { populateSceneProps, scenePropPolygons } from './scene-props.mjs?v=dawnburst-1';
-import { pickupKind, getPickupSpec, pickupContactRadius, isFuelPickup, canCompanionCollect } from './pickups.mjs?v=dawnburst-1';
-import { drawPickup } from './pickup-art.mjs?v=dawnburst-1';
-import { buildBossLayout, getBossState as bossState, drawBoss } from './boss.mjs?v=dawnburst-1';
-import { getAuthoredChallenge, finalizeFlightChallenges, installAuthoredDraftCrossings, FlightChallengeDirector } from './flight-challenges.mjs?v=dawnburst-1';
+import { FLAME_TUNING, LIGHT_PACKET_TUNING } from './vitality.mjs?v=drift-sense-1';
+import { flightEndDistance } from './flight-end.mjs?v=drift-sense-1';
+import { WispCompanion, wispHome } from './wisp.mjs?v=drift-sense-1';
+import { getAscentInfo } from './ascent.mjs?v=drift-sense-1';
+import { LEVEL_LENGTH, getLevelLengthScale } from './level-length.mjs?v=drift-sense-1';
+import { resolveLevelIdentity } from './level-catalog.mjs?v=drift-sense-1';
+import { DraftField, DRAFT_TUNING } from './drafts.mjs?v=drift-sense-1';
+import { normalizeCompanionRole, normalizeCompanionFleet, getCompanionAbility } from './companion-abilities.mjs?v=drift-sense-1';
+import { populateSceneProps, scenePropPolygons } from './scene-props.mjs?v=drift-sense-1';
+import { pickupKind, getPickupSpec, pickupContactRadius, isFuelPickup, canCompanionCollect } from './pickups.mjs?v=drift-sense-1';
+import { drawPickup } from './pickup-art.mjs?v=drift-sense-1';
+import { buildBossLayout, getBossState as bossState, drawBoss } from './boss.mjs?v=drift-sense-1';
+import { getAuthoredChallenge, finalizeFlightChallenges, installAuthoredDraftCrossings, FlightChallengeDirector } from './flight-challenges.mjs?v=drift-sense-1';
 import { createTutorialState, buildTutorialLayout, recordTutorialPickup,
-  updateTutorial, updateTutorialCompanion, getTutorialHint } from './tutorial.mjs?v=dawnburst-1';
-export { FLAME_TUNING } from './vitality.mjs?v=dawnburst-1';
+  updateTutorial, updateTutorialCompanion, getTutorialHint } from './tutorial.mjs?v=drift-sense-1';
+export { FLAME_TUNING } from './vitality.mjs?v=drift-sense-1';
 const TAU = Math.PI * 2;
 const STEP = 1 / 60;
 const COMPANION_ORBIT_SPEED = {protector:1.3,leveler:1.7,swift:3.4,seer:.8,kindler:2.2};
@@ -27,7 +28,7 @@ const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
 const lerp = (a, b, t) => a + (b - a) * t;
 export const FLIGHT_TUNING = Object.freeze({ gravity: 300, flapImpulse: 205,
   forwardSpeed: 154, terminalFall: 245, pickupRadius: LIGHT_PACKET_TUNING.pickupRadius });
-export { DRAFT_TUNING } from './drafts.mjs?v=dawnburst-1';
+export { DRAFT_TUNING } from './drafts.mjs?v=drift-sense-1';
 // Retain the public tuning name for consumers; wind now has no global cycle.
 export const WIND_TUNING = DRAFT_TUNING;
 
@@ -846,7 +847,7 @@ export class WispFlight {
 
   async initPixelView() {
     try {
-      const { WispFlightView } = await import('./wisp-renderer.mjs?v=dawnburst-1');
+      const { WispFlightView } = await import('./wisp-renderer.mjs?v=drift-sense-1');
       if (this.destroyed) return;
       this.pixiView = new WispFlightView(this);
       const initialized = await this.pixiView.init();
@@ -1057,6 +1058,7 @@ export class WispFlight {
 
   destroy() {
     this.destroyed = true; this.running = false;
+    this.projection = null;
     this.absorptionEffects.length = 0;
     this.lightPenalties.length = 0;
     if (this.raf != null) cancelAnimationFrame(this.raf);
@@ -1205,6 +1207,12 @@ export class WispFlight {
     const item=this.fleet.find(state=>state.role==='leveler');
     return {active:(item?.remaining||0)>0,remaining:item?.remaining||0,charge:this.levelCharge,capacity:this.roleDuration('leveler'),held:this.liftHeld,targetY:this.levelTargetY,
       bob:12*this.scaleY*(1-clamp(Number(this.mod.levelerSteadiness)||0,0,1)),dive:this.levelDive>0,diveRemaining:this.levelDive};
+  }
+
+  getFlightProjection() {
+    if(!this.mod.driftSense)return null;
+    this.projection??=new FlightProjection(FLIGHT_TUNING,circleHitsObstacle);
+    return this.projection.read(this);
   }
 
   getLightState() {
@@ -1549,6 +1557,7 @@ export class WispFlight {
         if(this.shield.recovery<=0)this.shield.recovery=this.shield.recoveryTotal;
         this.shield.protection=Number(this.mod.protectorProtection)||.4;this.shield.hitFlash=.45;this.flash=.14;
         this.player.y=this.previousPlayerY=safe;this.player.vy=(safe>=previous?1:-1)*65*this.scaleY;
+        if(this.projection)this.projection.nextAt=-Infinity;
         this.cancelLeveler(true);this.levelDive=0;this._auraUntil=-1;
         this.setEvent(`Protector · shell spent, −${formatGlow(cost,this.maxFlame)} Glow`);this.sound('hit');
         this.notify();return;
@@ -1809,6 +1818,7 @@ export class WispFlight {
     drawBoss(c, { engine: this, width: W, height: H, distance: this.renderDistance,
       time: this.visualTime, pass: 'hands' });
     this.drawEmbers(c);
+    drawFlightProjection(c,this);
     this.drawFlightTrail(c);
     this.drawParticles(c);
     this.drawWisp(c);

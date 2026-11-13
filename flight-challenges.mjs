@@ -1,5 +1,5 @@
-import {LOCATION_CHALLENGE_NAMES} from './world-expansion.mjs?v=dawnburst-1';
-import { createDraftZones, DRAFT_TUNING } from './drafts.mjs?v=dawnburst-1';
+import {LOCATION_CHALLENGE_NAMES} from './world-expansion.mjs?v=drift-sense-1';
+import { createDraftZones, DRAFT_TUNING } from './drafts.mjs?v=drift-sense-1';
 
 const clamp = (value, low, high) => Math.max(low, Math.min(high, value));
 const NAMES = Object.freeze({

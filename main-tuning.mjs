@@ -1,6 +1,9 @@
 // Main-wisp paths favour distinct decisions over repeated identical ranks.
 const node=(id,name,cost,requires,description,icon,shortEffect,extra={})=>({id,name,branch:'main',cost,maxRank:1,requires,description,consequence:description,icon,shortEffect,...extra});
 export const MAIN_TUNING_SKILLS={
+ 'main-drift-sense':node('main-drift-sense','Drift Sense I',40,'main-speed','A faint guide previews the next 0.7s if you release Lift and let gravity carry you. Accounts for drafts and your build.','trajectory','0.7s guide'),
+ 'main-drift-sense-2':node('main-drift-sense-2','Drift Sense II',55,'main-drift-sense','Extend the no-Lift guide to 1.2s. Plan your descent toward fuel lights.','trajectory','1.2s guide'),
+ 'main-drift-sense-3':node('main-drift-sense-3','Drift Sense III',75,'main-drift-sense-2','See up to 1.8s ahead, with a faint wisp marking the first predicted contact or the end of the guide.','trajectory','1.8s + echo'),
  'main-dawnburst':node('main-dawnburst','Dawnburst',45,'main-sight','Collect Glow to reveal the whole screen for 1.5s, then fade over 1.2s. More pickups refresh the light.','dawn','Pickup dawn'),
  'main-reservoir':node('main-reservoir','Deep Vessel',30,'main-efficiency','Maximum Glow capacity +20% of base. Recovery Rests fill the larger vessel.','reserve','+20% cap'),
  'main-vast-vessel':node('main-vast-vessel','Boundless Vessel',50,'main-reservoir','Maximum Glow capacity +20% of base again; +40% total.','reserve','+20% cap',{choiceGroup:'vessel-style',excludes:['main-cache-feast']}),

@@ -1,4 +1,5 @@
 const shapes={
+ trajectory:'<circle cx="4" cy="5" r="2"/><path d="M8 5h3m3 2 2 2m2 3 1 3m1 3v3M15 21h8"/>',
  heart:'<path d="M3 2h5v3h8V2h5v3h2v9h-3v3h-3v3h-3v2h-4v-2H7v-3H4v-3H1V5h2z"/>',
  bond:'<path d="M2 10h6v6H2zM16 10h6v6h-6zM9 2h6v6H9zM8 13h8M12 8v5"/>',
  lift:'<path d="M4 20V10h4V6h4V2h4v4h4M8 20V12h4V8h4M13 20h7"/>',
