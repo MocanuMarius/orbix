@@ -1,4 +1,4 @@
-import {SKILLS,getSkillCost,getSkillLockReason} from './model.mjs?v=rest-trees-collector-1';
+import {SKILLS,getSkillCost,getSkillLockReason} from './model.mjs?v=near-lantern-1';
 import {skillIcon} from './upgrade-icons.mjs';
 import {companionArtSvg} from './companion-art.mjs';
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));

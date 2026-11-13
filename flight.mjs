@@ -1,5 +1,6 @@
 /* Emberwing's self-contained canvas flight simulation and renderer. */
 import { FLAME_TUNING, LIGHT_PACKET_TUNING } from './vitality.mjs';
+import { flightEndDistance } from './flight-end.mjs?v=near-lantern-1';
 import { WispCompanion, wispHome } from './wisp.mjs';
 import { getAscentInfo } from './ascent.mjs';
 import { LEVEL_LENGTH, getLevelLengthScale } from './level-length.mjs';
@@ -7,8 +8,8 @@ import { resolveLevelIdentity } from './level-catalog.mjs';
 import { DraftField, DRAFT_TUNING } from './drafts.mjs';
 import { normalizeCompanionRole, normalizeCompanionFleet, getCompanionAbility } from './companion-abilities.mjs';
 import { populateSceneProps, scenePropPolygons } from './scene-props.mjs';
-import { pickupKind, getPickupSpec, pickupContactRadius, isFuelPickup, canCompanionCollect } from './pickups.mjs?v=rest-trees-collector-1';
-import { drawPickup } from './pickup-art.mjs?v=rest-trees-collector-1';
+import { pickupKind, getPickupSpec, pickupContactRadius, isFuelPickup, canCompanionCollect } from './pickups.mjs?v=near-lantern-1';
+import { drawPickup } from './pickup-art.mjs?v=near-lantern-1';
 import { buildBossLayout, getBossState as bossState, drawBoss } from './boss.mjs';
 import { getAuthoredChallenge, finalizeFlightChallenges, installAuthoredDraftCrossings, FlightChallengeDirector } from './flight-challenges.mjs';
 import { createTutorialState, buildTutorialLayout, recordTutorialPickup,
@@ -794,6 +795,9 @@ export class WispFlight {
         passage: this.passage, fuelCadence: this.fuelCadence,
         levelId: this.levelIdentity.id, stage: this.ascentInfo.row,
         difficulty: this.ascentInfo.difficulty, mapIndex:Number(route.mapIndex)||0, lengthScale: this.lengthScale });
+    this.totalDistance = flightEndDistance(this.layout, this.player.x, this.totalDistance);
+    this.layout.embers = this.layout.embers.filter(packet => packet.x <= this.totalDistance + this.player.x - 24);
+    if(this.layout.boss)this.layout.boss.exitStart=this.totalDistance-FLIGHT_TUNING.forwardSpeed;
     this.drafts = new DraftField({ seed: this.seed, terrain: this.terrain, elite: this.elite,
       duration: this.duration, height: this.height, totalDistance: this.totalDistance,
       layout: this.layout, lesson: this.tutorial?.lesson || null, lengthScale: this.lengthScale });
@@ -824,7 +828,7 @@ export class WispFlight {
 
   async initPixelView() {
     try {
-      const { WispFlightView } = await import('./wisp-renderer.mjs?v=rest-trees-collector-1');
+      const { WispFlightView } = await import('./wisp-renderer.mjs?v=near-lantern-1');
       if (this.destroyed) return;
       this.pixiView = new WispFlightView(this);
       const initialized = await this.pixiView.init();
