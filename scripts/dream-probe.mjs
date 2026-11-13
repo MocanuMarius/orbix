@@ -5,20 +5,21 @@ globalThis.requestAnimationFrame=()=>1;globalThis.cancelAnimationFrame=()=>{};
 const ctx=new Proxy({},{get:(o,k)=>o[k]??(String(k).includes('Gradient')?()=>({addColorStop(){}}):()=>{}),set:(o,k,v)=>(o[k]=v,true)});
 const canvas={style:{},getContext:()=>ctx,getBoundingClientRect:()=>({width:390,height:620})};
 const options={canvas,seed:'dream-probe',terrain:'ruins',duration:102,node:{flightLengthScale:3,flightNumber:1},flame:40,condensedGlow:12,
-  companions:['leveler','swift'],modifiers:{dreamDuration:4,dreamWake:3,secondDawn:1,dreamRecharge:1.5}};
+  companions:['leveler','swift'],modifiers:{dreamDuration:6,dreamWake:3,secondDawn:1,dreamRecharge:1.5}};
 const make=()=>{const e=new WispFlight(options);e.render=()=>{};e.layout.obstacles=[];e.layout.embers=[];e.drafts.zones=[];e.start();return e};
 const snapshot=e=>JSON.stringify({time:e.time,y:e.player.y,vy:e.player.vy,distance:e.distance,flame:e.flame,condensedGlow:e.condensedTotal,flaps:e.flaps,boosts:e.boosts,charge:e.levelCharge});
 let ready,awake=0;const record=make();attachDream(record,{onReady:r=>ready=r});
-for(let frame=0;frame<240;frame++){
-  if([3,85,167].includes(frame))record.beginLiftInput();
-  if([18,100,182].includes(frame))record.endLiftInput(false);
+for(let frame=0;frame<360;frame++){
+  if([3,85,167,249,331].includes(frame))record.beginLiftInput();
+  if([18,100,182,264,346].includes(frame))record.endLiftInput(false);
   if(frame===50)record.activateAbility();
+  if([220,270,320].includes(frame))record.flap();
   record.step(1/60);
 }
 assert.ok(ready?.valid);assert.equal(record.paused,true);assert.equal(record.flame,40);assert.equal(record.condensedTotal,12);
 const real=make();assert.ok(attachDream(real,{mode:'replay',preset:ready.preset,onAwake:()=>awake++}));
 assert.equal(real.flap(),false,'Player cannot disrupt preset replay');
-for(let i=0;i<240;i++)real.step(1/60);
+for(let i=0;i<360;i++)real.step(1/60);
 assert.equal(snapshot(real),snapshot(record),'Replay must exactly reproduce physics and fuel');
 assert.equal(awake,1);const stopped=snapshot(real);real.step(1/60);assert.equal(snapshot(real),stopped);
 const flaps=real.flaps;assert.ok(real.dream.resume());assert.equal(real.flaps,flaps,'Awakening alone must not Lift');

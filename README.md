@@ -2,17 +2,28 @@
 
 A landscape, one-handed pixel flight roguelite. The static game lives in `dist/` and uses a custom Canvas simulation and cached renderer. No build step or runtime framework dependency.
 
-## Current release: lantern-paths-1
+## Current release: living-choices-1
 
-[Play on your phone](https://mocanumarius.github.io/orbix/?v=lantern-paths-1) · [900 × 405 sidebar preview](https://mocanumarius.github.io/orbix/preview.html?v=lantern-paths-1)
+[Play on your phone](https://mocanumarius.github.io/orbix/?v=living-choices-1) · [900 × 405 sidebar preview](https://mocanumarius.github.io/orbix/preview.html?v=living-choices-1)
 
 Run `npm start` to serve the game at localhost:4173. The phone link fills the device; `preview.html` keeps landscape proportions inside a narrow browser panel.
 
-## This batch
+## Living Choices update
 
-- **Minimal HUD:** each whole Glow point is one 4 × 4 pixel cell with a 1 px gap. No visible fuel labels or numbers. The Edging meter is equally slim. Overflow rises as a bounded pixel beam to Packed Light. Lift and menu controls have clearer contrast and compact symbols.
+Pickup terminology is unified: Spark, Spark Cluster, Spark Cache, Charge Spark, Flash Spark, Dusk Spark and Dark Spark. Flight energy is Sparks, shown in the Spark meter. Packed Light remains run upgrade currency. Internal save/model identifiers retain their previous names. Menu icons now share 24px action / 22px resource / 32px item sizes, with landscape exceptions for the smallest screens and accessible labels.
+
+- Rest shows current/max Glow and four illustrated alternatives when applicable: grow capacity by 3 and refill (up to three blessings), take 25/50/75 Packed Light by map, recharge one copy of uses on each mounted consumable, or refill hearts. Choose once, then use Skills, Companions, Artifacts/Forge or Dream.
+- Dream starts at 6 seconds; its duration upgrades reach 8 and 10 seconds.
+- All 26 artifacts have unique pixel icons. Common is grey, Rare green, Legendary purple. Consumables show three copy squares; a fourth earned copy melts for 25 Packed Light. Reward pools exclude incompatible companion artifacts and unlearned skill/Dream prerequisites; TEST mounting remains unrestricted.
+- Baseline light radius is 145 with a steeper finite falloff and fully opaque black beyond it. Reveal effects and sight upgrades retain their purpose. Collector boundary matches its green orb, at lower opacity.
+- Spark Caches restore 15 displayed Sparks before bonuses (previously 12), with unchanged contact radius and placement frequency.
+- Compact settings, colored confirmation/cancel/Forge buttons, fixed landscape footers, and a six-size landscape UI audit. The local Rest inspector stays at `http://localhost:4180/` (`npm run preview:rest`); it never reads or writes the real run save.
+
+## Previous gameplay batch
+
+- **Minimal HUD:** each whole Glow point is one 4 × 4 pixel cell with a 1 px gap. No visible fuel labels or numbers. The Edging meter is equally slim. Overflow uses exactly two small, short-lived pixel particles near Packed Light. Lift and menu controls have clearer contrast and compact symbols.
 - **Pickup art:** six accelerating, shrinking absorption orbits; the contact shell collapses on capture. Interactive scenery has pixel rims that distinguish ready, spent and dangerous states before the normal darkness pass.
-- **Artifact stacks:** earned duplicate Glow Wicks or Flash Stones add uses in the existing slot, up to 9 or 6 uses. Moving slots, TEST, reloads and failed attempts cannot refill them. Forge consumes the entire stack for one payout.
+- **Artifact stacks:** earned duplicate Glow Wicks or Flash Stones add uses in the existing slot, up to 9 or 6 uses. Fourth copies automatically melt for 25 Packed Light. Moving slots, TEST, reloads and failed attempts cannot refill them; Rest can explicitly recharge mounted consumables. Forge consumes the entire stack for one payout.
 - **Defining artifact:** the first flight offers Wayward Seed. Every third consecutive body fuel pickup restores 1 Glow; Collector deliveries reset the chain. After Map 1, a mounted Seed evolves in the same slot into Hearth Bloom (+3 Glow) or Lantern Bloom (1.5-second reveal). Five triggers per flight; restoration cannot create currency. The ordinary map reward still follows.
 - **Regenerative Falling:** an exclusive Light-tree branch trades Edging reveals for +1 missing Glow, at most eight times per flight. Two-second recovery; no pickup triggers or Packed Light farming.
 - **Contextual events:** Pilgrim’s Vow rewards clearing the next attempted flight with four body fuel pickups. Surveyor’s Cairn grants sight or draft preparation if you commit to a real exit. Both preview their consequences; failure consumes the promise/preparation and reopens a marked fork.

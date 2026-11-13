@@ -1,0 +1,231 @@
+/* Action color is a verb, not an availability signal: green accepts, muted red
+   returns/cancels, and amber consumes an artifact in the forge. Navigation and
+   unaffordable skill nodes keep their own existing state vocabulary. */
+:is(.game-sheet,.menu-pause,.victory-actions,.compact-briefing,.rest-preparation-screen) button:is([data-action="confirm-reward"],[data-action="confirm-mount-artifact"],[data-action="resume"],[data-action="victory-next"],[data-action="launch"],[data-action="node"],[data-action="dream-preset"]):not(:disabled){
+ color:#e9f6cf!important;-webkit-text-fill-color:#e9f6cf;background:#2b4b39!important;border-image-source:url('assets/shrine-frame.svg')!important;text-shadow:1px 1px #10271d;box-shadow:inset 0 0 0 1px #a9c89455!important;
+}
+:is(.game-sheet,.menu-pause) button:is([data-action="close-sheet"],[data-action="close-power"],[data-action="artifact-details-back"],[data-action="exit-menu"],[data-action="dream-back"]){
+ color:#f1cbc0!important;-webkit-text-fill-color:#f1cbc0;background:#432d2d!important;border-image-source:url('assets/shrine-frame.svg')!important;text-shadow:1px 1px #281a1c;box-shadow:inset 0 0 0 1px #ba8c8055!important;
+}
+:is(.game-sheet,.menu-pause) button:is([data-action="confirm-abandon"],[data-action="confirm-new-game"]),:is(.game-sheet,.menu-pause)>.run-menu-danger{
+ color:#f2bdb2!important;-webkit-text-fill-color:#f2bdb2;background:#462729!important;border-color:#bd8579;text-shadow:1px 1px #291519;
+}
+.game-sheet button:is([data-action="sell-artifact"],[data-action="confirm-artifact-forge"],[data-action="confirm-support-forge"]){
+ color:#ffe5b5!important;-webkit-text-fill-color:#ffe5b5;background:linear-gradient(0deg,#70412a 0 18%,#51352b 18% 78%,#604431 78%)!important;border-image-source:url('assets/shrine-frame.svg')!important;text-shadow:1px 1px #3b211d;box-shadow:inset 0 -2px #e59b4766,inset 0 2px #f8c97b55!important;
+}
+.game-menu-sheet .audio-controls>button,.menu-pause .audio-controls>button{border-image-source:url('assets/shrine-frame.svg')!important;color:#cbd8c8!important;-webkit-text-fill-color:currentColor;background:#1c3030!important;box-shadow:none!important}
+.game-menu-sheet .audio-controls>button[aria-pressed="true"],.menu-pause .audio-controls>button[aria-pressed="true"]{color:#e0f1c4!important;background:#2a4337!important;box-shadow:inset 0 0 0 1px #9eb88a44!important}
+.game-menu-sheet .audio-controls>button[aria-pressed="false"],.menu-pause .audio-controls>button[aria-pressed="false"]{color:#c8c5bf!important;background:#293030!important}
+
+@media (prefers-reduced-motion:no-preference){
+ body[data-screen="home"] .run-front-page .front-actions>button,
+ body[data-screen="home"] .run-front-page .front-new-button,
+ body[data-screen="home"] .run-front-page .test-starter-option{transition:transform 110ms steps(2,end),filter 110ms steps(2,end)!important}
+ body[data-screen="home"] .run-front-page .front-actions>button:not(:disabled):hover,
+ body[data-screen="home"] .run-front-page .front-new-button:not(:disabled):hover,
+ body[data-screen="home"] .run-front-page .test-starter-option:not(:disabled):hover{transform:translateY(-2px)!important;filter:brightness(1.13)}
+ body[data-screen="home"] .run-front-page .front-actions>button:not(:disabled):active,
+ body[data-screen="home"] .run-front-page .front-new-button:not(:disabled):active,
+ body[data-screen="home"] .run-front-page .test-starter-option:not(:disabled):active{transform:translateY(1px)!important;filter:brightness(1.2)}
+ .game-sheet button:not(:disabled),.menu-pause button:not(:disabled){transition:filter 100ms steps(2,end),transform 100ms steps(2,end)}
+ .game-sheet button:not(:disabled):active,.menu-pause button:not(:disabled):active{transform:translateY(1px);filter:brightness(1.15)}
+}
+
+/* Phone landscape budgets are based on the available viewport, including browser
+   chrome. Never scale the whole interface to make it fit. Long optional rules and
+   the route/skill maps retain a single deliberate scroll surface. */
+@media (orientation:landscape) and (max-height:700px){
+ body{--menu-header:48px;--menu-space:calc(100dvh - var(--menu-header));--menu-gap:8px}
+ body:not(.playing){display:grid;grid-template-rows:var(--menu-header) minmax(0,1fr);height:100dvh;min-height:0;box-sizing:border-box}
+ body:not(.playing)>#header{grid-row:1;width:100%;height:var(--menu-header);min-height:0;box-sizing:border-box;margin:0}
+ body:not(.playing)>#app{grid-row:2;min-height:0;height:100%;width:100%;box-sizing:border-box;padding:8px max(12px,env(safe-area-inset-right)) 8px max(12px,env(safe-area-inset-left));margin:0 auto}
+ body:not(.playing) #app>.center-view{min-height:0;box-sizing:border-box}
+ body[data-screen=home]{display:block}
+ body[data-screen=home]>#app{height:100dvh;padding:0!important}
+ body[data-screen=home] .run-front-page{box-sizing:border-box}
+ body[data-screen=map]>#app{padding:0}
+ body[data-screen=map] .game-map-screen{height:100%;min-height:0;box-sizing:border-box}
+ body[data-screen=map] .map-atlas-frame{min-height:0}
+ .game-map-viewport{scrollbar-width:thin}
+
+ /* Shared sheets have one outer fallback scroll, never an offscreen footer. */
+ dialog.game-sheet:not(.forge-ritual-sheet){box-sizing:border-box;inset:max(8px,env(safe-area-inset-top)) max(8px,env(safe-area-inset-right)) max(8px,env(safe-area-inset-bottom)) max(8px,env(safe-area-inset-left));margin:auto;max-height:calc(100dvh - 16px)!important;border-width:8px!important;padding:8px 12px!important;overscroll-behavior:contain;scrollbar-width:thin}
+ .game-sheet button.primary,.game-sheet button.secondary,.game-sheet .artifact-alternatives>button{min-height:44px!important;box-sizing:border-box;line-height:1.25}
+ .game-sheet button:focus-visible,.rest-choice-screen button:focus-visible,.rest-preparation-screen button:focus-visible{outline:2px solid #f5e5b6;outline-offset:2px}
+
+ /* Briefing: the optional Dream action shares the departure row. */
+ #app>.compact-briefing{height:100%;min-height:0;padding:0;grid-template-columns:minmax(180px,.83fr) minmax(0,1.25fr);grid-template-rows:24px auto 30px minmax(0,1fr) auto 44px;column-gap:18px;row-gap:5px;align-content:stretch;align-items:center}
+ .compact-briefing>.campaign-strip{grid-column:1/-1;grid-row:1}
+ .compact-briefing>.encounter-art{grid-column:1;grid-row:2/5;min-height:0;height:100%;max-height:150px;margin:0;align-self:center}
+ .compact-briefing>.encounter-art>svg{height:100%!important;max-height:130px;width:100%!important;max-width:180px}
+ .compact-briefing>h1{grid-column:2;grid-row:2;font-size:22px!important;line-height:1.1;margin:0}
+ .compact-briefing>.brief-stats{grid-column:2;grid-row:3;min-height:0;padding:2px;margin:0}
+ .compact-briefing>.route-consequences{grid-column:2;grid-row:4;align-self:center;margin:0;padding:4px;font-size:11px;line-height:1.25}
+ .compact-briefing>.briefing-notices,.compact-briefing>.optional-challenge{grid-column:2;grid-row:5;min-height:0;margin:0;font-size:10px;line-height:1.25}
+ .compact-briefing>.briefing-notices:empty{display:none}
+ .compact-briefing>.briefing-notices>p,.compact-briefing>.briefing-notices>.low-glow-warning{margin:0;font-size:10px;line-height:1.25}
+ .compact-briefing>.flight-ready-fleet{grid-column:1;grid-row:5;height:30px;min-height:0;margin:0}
+ .compact-briefing>.artifact-slots{grid-column:1;grid-row:6;margin:0;justify-content:center;flex-wrap:nowrap}
+ .compact-briefing>.artifact-slots .artifact-slot{width:44px;height:44px;min-height:44px;padding:5px;box-sizing:border-box}
+ .compact-briefing>.enter-passage{grid-column:2;grid-row:6;width:100%;height:44px;min-height:44px;padding:4px 8px;box-sizing:border-box;margin:0}
+ .compact-briefing:has(>.rest-dream)>.enter-passage{width:calc(60% - 4px);justify-self:end}
+ .compact-briefing>.rest-dream{grid-column:2;grid-row:6;justify-self:start;width:calc(40% - 4px);height:44px;min-height:44px;margin:0;padding:3px 6px;gap:3px;box-sizing:border-box}
+ .compact-briefing>.rest-dream>svg{width:22px;height:22px;flex:none}
+ .compact-briefing>.rest-dream>span{font-size:11px;line-height:1.1}
+ .compact-briefing>.rest-dream>small{font-size:9px;line-height:1.1}
+
+ /* Four companion choices belong beside their slot rack, not below it. */
+ dialog.companion-sheet[open]{display:grid;grid-template-columns:minmax(155px,.56fr) minmax(0,1.44fr);grid-template-rows:auto auto auto minmax(0,1fr) 44px;column-gap:20px;row-gap:6px;width:min(940px,calc(100vw - 20px));max-width:calc(100vw - 20px);height:min(365px,calc(100dvh - 16px));align-items:start;overflow:auto}
+ .companion-sheet>h2{grid-column:1;grid-row:1;font-size:20px!important;line-height:1.2;margin:0!important}
+ .companion-sheet>.fleet-rule{grid-column:1;grid-row:2;font-size:11px!important;line-height:1.3;margin:0;text-align:center}
+ .companion-sheet>.fleet-slots{grid-column:1;grid-row:3/5;grid-template-columns:repeat(3,minmax(0,1fr));gap:5px;margin:2px 0;align-self:start}
+ .companion-sheet>.fleet-slots:has(>button:only-child){grid-template-columns:minmax(66px,92px)}
+ .companion-sheet>.fleet-slots>button{min-height:66px;padding:4px 3px 19px;box-sizing:border-box}
+ .companion-sheet>.fleet-slots>button>small{font-size:8px;line-height:1.1;bottom:4px}
+ .companion-sheet>.companion-roles{grid-column:2;grid-row:1/3;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}
+ .companion-sheet .companion-role{min-height:92px!important;padding:7px 3px!important;gap:4px;box-sizing:border-box}
+ .companion-sheet .companion-role strong{font-size:12px;line-height:1.15}
+ .companion-sheet .companion-role small{font-size:10px;line-height:1.2}
+ .companion-sheet .companion-portrait{height:30px!important}
+ .companion-sheet .companion-portrait>svg{width:30px!important;height:30px!important}
+ .companion-sheet>.fleet-test-options{grid-column:2;grid-row:3;margin:0;min-height:0}
+ .companion-sheet>.fleet-test-options>summary{min-height:32px;align-content:center;font-size:11px!important}
+ .companion-sheet>.fleet-power-rule{grid-column:2;grid-row:4;min-height:0;margin:0;padding:4px 0;font-size:11px!important;line-height:1.3;align-self:start}
+ .companion-sheet>.fleet-power-rule>summary{min-height:32px;align-content:center;cursor:pointer;font-size:11px}
+ .companion-sheet>.fleet-power-rule p{font-size:11px!important;line-height:1.3;margin:5px 0}
+ .companion-sheet>.secondary{grid-column:1;grid-row:5;min-width:0;min-height:44px;margin:0!important;padding:3px 6px!important;font-size:10px!important;line-height:1.2;align-self:stretch}
+ .companion-sheet>.primary{grid-column:2;grid-row:5;min-height:44px;height:44px;margin:0!important;padding:4px 10px!important;font-size:13px!important;align-self:stretch}
+
+ /* Menus use the same two-column budget in a flight or at a checkpoint. */
+ .pause-overlay.menu-pause:has(.run-pause-heading),dialog.game-menu-sheet:has(.run-pause-heading)[open]{display:grid;grid-template-columns:minmax(0,.85fr) minmax(0,1.15fr);grid-template-rows:auto minmax(0,1fr) 44px;column-gap:24px;row-gap:8px;align-items:center;align-content:center;justify-content:normal;box-sizing:border-box;overflow:auto}
+ dialog.game-menu-sheet:has(.run-pause-heading)[open]{width:min(880px,calc(100vw - 20px));max-width:calc(100vw - 20px)!important;height:min(365px,calc(100dvh - 16px))}
+ .pause-overlay.menu-pause:has(.run-pause-heading){padding:12px max(20px,env(safe-area-inset-right)) 12px max(20px,env(safe-area-inset-left));width:100%;height:100%}
+ :is(.menu-pause,.game-menu-sheet)>.run-pause-heading{grid-column:1;grid-row:1;margin:0!important}
+ :is(.menu-pause,.game-menu-sheet)>.run-pause-heading h2{font-size:25px!important;line-height:1.1;margin:4px 0!important}
+ :is(.menu-pause,.game-menu-sheet)>.run-pause-heading>span{font-size:10px;line-height:1.2}
+ :is(.menu-pause,.game-menu-sheet)>.run-progress{display:none}
+ :is(.menu-pause,.game-menu-sheet)>.run-pause-actions{grid-column:1;grid-row:2;display:grid;grid-template-columns:1fr;gap:8px;margin:0!important;align-self:start}
+ :is(.menu-pause,.game-menu-sheet)>.run-pause-actions>button{min-height:48px!important;max-height:none;height:auto;margin:0!important;padding:5px 8px!important;font-size:14px!important}
+ :is(.menu-pause,.game-menu-sheet)>.run-pause-note{grid-column:1;grid-row:3;margin:0!important;padding:0!important;font-size:10px!important;line-height:1.25}
+ :is(.menu-pause,.game-menu-sheet)>.test-controls{grid-column:2;grid-row:1;margin:0!important;justify-self:stretch}
+ :is(.menu-pause,.game-menu-sheet)>.test-controls>small{font-size:9px;line-height:1.2;margin:3px 0}
+ :is(.menu-pause,.game-menu-sheet)>.run-tools{grid-column:2;grid-row:2;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px;margin:0;max-width:none;align-self:start}
+ :is(.menu-pause,.game-menu-sheet)>.run-tools>button{height:44px;min-height:44px;padding:4px 6px;gap:5px;font-size:11px!important;line-height:1.15;min-width:0;box-sizing:border-box}
+ :is(.menu-pause,.game-menu-sheet)>.run-tools>button>svg{width:18px;height:18px;flex:none}
+ :is(.menu-pause,.game-menu-sheet)>.audio-controls{grid-column:2;grid-row:3;display:flex;gap:7px;margin:0!important;align-self:stretch}
+ :is(.menu-pause,.game-menu-sheet)>.audio-controls>button{height:44px;min-height:44px!important;padding:4px 6px!important;font-size:11px!important;gap:5px;white-space:nowrap;box-sizing:border-box}
+ :is(.menu-pause,.game-menu-sheet)>.run-menu-danger{grid-column:1;grid-row:3;align-self:end;justify-self:end;margin:0;min-height:44px;min-width:0;padding:4px 6px;font-size:10px}
+ :is(.menu-pause,.game-menu-sheet):has(>.run-menu-danger)>.run-pause-note{padding-right:100px!important}
+ dialog.game-menu-sheet:not(:has(.run-pause-heading))[open]{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);grid-template-rows:auto 44px 44px;gap:12px 20px;width:min(680px,calc(100vw - 20px));max-width:calc(100vw - 20px)!important;align-items:center}
+ .game-menu-sheet:not(:has(.run-pause-heading))>h2{grid-column:1;grid-row:1;font-size:24px!important;line-height:1.2;margin:3px 0!important}
+ .game-menu-sheet:not(:has(.run-pause-heading))>.test-controls{grid-column:2;grid-row:1/4;margin:0!important;min-width:0;align-self:center}
+ .game-menu-sheet:not(:has(.run-pause-heading))>.audio-controls{grid-column:1;grid-row:2;margin:0!important;min-width:0}
+ .game-menu-sheet:not(:has(.run-pause-heading))>.run-pause-actions{grid-column:1;grid-row:3;margin:0!important}
+ .game-menu-sheet:not(:has(.run-pause-heading))>.run-pause-actions>button{height:44px;min-height:44px!important}
+
+ /* Lists only scroll when deliberately expanded; default artifact controls fit. */
+ dialog.artifact-sheet[open]{height:min(365px,calc(100dvh - 16px));max-height:calc(100dvh - 16px)!important}
+ .artifact-sheet .artifact-workshop{grid-template-columns:170px minmax(0,1fr);gap:14px}
+ .artifact-sheet .artifact-workshop-slots{padding-right:10px}
+ .artifact-sheet .artifact-library>div{max-height:none;overflow:visible}
+ .artifact-sheet .artifact-workshop-footer{gap:8px;margin-top:4px;padding-top:4px}
+ .artifact-sheet .artifact-workshop-footer>button{min-height:44px!important;height:44px!important;min-width:130px;font-size:11px!important}
+ .artifact-sheet .artifact-alternatives>button{min-height:44px!important;height:44px!important;max-height:none;font-size:11px!important}
+
+ /* The selected skill can explain itself in one intentional detail surface. */
+ dialog.tree-sheet[open]{height:calc(100dvh - 16px);max-height:calc(100dvh - 16px)!important;width:min(1100px,calc(100vw - 16px));max-width:calc(100vw - 16px)}
+ .tree-sheet .tree-crown{height:44px;min-height:44px;margin:0}
+ .tree-sheet .tree-tabs{height:44px;min-height:44px;max-height:44px;margin:0;padding:0;overflow-y:hidden}
+ .tree-sheet .tree-tabs>button{height:44px;min-height:44px;padding:2px 5px!important}
+ .tree-body{min-height:0;grid-template-columns:minmax(0,1fr) min(240px,32vw);gap:10px}
+ .tree-side{padding-left:9px;justify-content:flex-start;overflow-y:auto;scrollbar-width:thin}
+ .tree-side .tree-inspector{padding:4px 0 0}
+ .tree-side .tree-inspector-title h3{font-size:17px!important;line-height:1.1;margin:0}
+ .tree-side .tree-inspector p{font-size:12px!important;line-height:1.3!important;margin:4px 0}
+ .tree-side .tree-inspector .tree-selection-status.available,.tree-side .tree-inspector .tree-selection-status.learned{display:none}
+ .tree-side .tree-inspector>.skill-purchase{min-height:44px!important;padding:4px!important;position:sticky;bottom:0;z-index:2}
+}
+
+@media (orientation:landscape) and (max-height:365px){
+ body{--menu-gap:5px}
+ body:not(.playing)>#app{padding-top:5px;padding-bottom:5px}
+ body[data-screen=home] .run-front-page{padding-top:38px!important;padding-bottom:4px!important;row-gap:4px;column-gap:22px;grid-template-columns:minmax(0,1fr) minmax(255px,1.08fr)}
+ body[data-screen=home] .front-title h1{font-size:26px!important}
+ body[data-screen=home] .front-title p{font-size:10px!important;margin:4px 0 0}
+ body[data-screen=home] .front-actions>.front-continue,body[data-screen=home] .front-actions .front-new-button{min-height:52px!important;height:52px;font-size:23px!important;border-width:6px!important;padding:3px 10px!important}
+ body[data-screen=home] .front-actions button>span>small{font-size:10px!important;margin-top:3px}
+ body[data-screen=home] .front-actions>.front-tutorial{height:44px;min-height:44px!important;font-size:18px!important}
+ body[data-screen=home] .test-starter-options .test-starter-option{min-height:52px!important;padding:3px 1px!important}
+ body[data-screen=home] .test-starter-options .test-starter-option>svg{width:24px!important;height:24px!important}
+ body[data-screen=home] .test-starter-options .test-starter-option>span{font-size:11px!important}
+ .compact-briefing>.encounter-art{max-height:115px}
+ .compact-briefing>h1{font-size:20px!important}
+ .compact-briefing>.brief-stats{font-size:11px}
+ .companion-sheet .companion-role{min-height:82px!important}
+ .companion-sheet .companion-role strong{font-size:11px}
+ .companion-sheet .companion-role small{font-size:9px}
+ :is(.menu-pause,.game-menu-sheet)>.run-pause-heading h2{font-size:22px!important}
+ :is(.menu-pause,.game-menu-sheet)>.run-pause-actions>button{min-height:44px!important;font-size:12px!important}
+ .artifact-sheet .artifact-workshop{grid-template-columns:150px minmax(0,1fr);gap:12px}
+ .artifact-sheet .artifact-workshop-heading{margin-bottom:3px}
+ .artifact-sheet .artifact-selected .artifact-preview-heading{height:28px;min-height:28px;margin-bottom:3px}
+ .artifact-sheet .relic-effect{margin:4px 0;font-size:11px;line-height:1.3}
+ .artifact-sheet .relic-trigger{margin:3px 0;font-size:10px;line-height:1.25}
+ .artifact-sheet .relic-more>summary{min-height:24px}
+ .artifact-sheet .artifact-workshop-footer>button{font-size:10px!important}
+ .tree-side .tree-limbs>button{font-size:10px;min-height:44px}
+ .tree-side .tree-inspector-title h3{font-size:15px!important}
+ .tree-side .tree-inspector p{font-size:11px!important;line-height:1.25!important}
+}
+
+@media (orientation:landscape) and (max-width:700px){
+ body:not(.playing)>#app{padding-left:max(10px,env(safe-area-inset-left));padding-right:max(10px,env(safe-area-inset-right))}
+ body[data-screen=home] .run-front-page{padding-left:max(20px,env(safe-area-inset-left))!important;padding-right:max(44px,env(safe-area-inset-right))!important;column-gap:20px;grid-template-columns:minmax(0,1fr) minmax(250px,1.08fr)}
+ body[data-screen=home] .front-title h1{font-size:25px!important}
+ body[data-screen=home] .test-starter-options .test-starter-option>span{font-size:10px!important}
+ .compact-briefing{column-gap:12px!important}
+ dialog.companion-sheet[open]{grid-template-columns:145px minmax(0,1fr);column-gap:12px}
+ .companion-sheet .companion-roles{gap:4px}
+ .companion-sheet .companion-role strong{font-size:10px}
+ .companion-sheet .companion-role small{font-size:9px}
+ .pause-overlay.menu-pause:has(.run-pause-heading),dialog.game-menu-sheet:has(.run-pause-heading)[open]{column-gap:14px}
+ .tree-sheet .tree-crown h2{font-size:18px!important}
+ .tree-sheet .tree-tabs>button>span{font-size:12px!important}
+}
+
+/* Resource and action identity survives tiny landscape layouts. */
+.condensed-wallet small,.flight-condensed-counter>small{display:none!important}.condensed-wallet .condensed-icon,.flight-condensed-counter>.condensed-icon{width:26px!important;height:26px!important}.condensed-wallet b{font-size:18px!important}
+button.primary,.primary[data-action]{color:#e6f4ca!important;background-color:#314d3c!important}button[data-action="close-sheet"],button[data-action="artifacts-back"],button[data-action="exit-menu"]{background-color:#473438!important;color:#f0d1ca!important}
+button[data-action*="forge"],.forge-ritual .primary{background-color:#664826!important;color:#ffe0a0!important}button[data-action="abandon-run"]{color:#efb3a6!important}
+.artifact-portrait{image-rendering:pixelated}.artifact-copy-squares{display:inline-flex;gap:3px;vertical-align:middle;margin:0 4px}.artifact-copy-squares i{width:6px;height:6px;border:1px solid #bca778;background:#22342c}.artifact-copy-squares i.filled{background:#ead2a0}
+@media(prefers-reduced-motion:no-preference){.run-front-page button,.run-tools button,.reward-relic{transition:transform .12s steps(3),filter .12s!important}.run-front-page button:active,.run-tools button:active,.reward-relic:active{transform:translateY(2px);filter:brightness(1.18)}}
+
+@media(orientation:landscape) and (max-height:365px){body:not(.playing) #app{height:calc(100dvh - 51px)!important;min-height:0!important}.playing .flight-device{height:100dvh!important}.glow-gauge-v3{max-height:calc(100dvh - 65px)}}
+
+@media(orientation:landscape){body{overflow-x:clip}}
+@media(orientation:landscape) and (max-width:700px){.reward-choice-heading>span{display:none}}
+
+.relic-offer.common,.artifact-item.common{--rarity:#c1c5cb}.relic-offer.rare,.artifact-item.rare{--rarity:#a6dc9a}.relic-offer.boss,.artifact-item.boss{--rarity:#d7b0f5}
+.relic-offer.rare{border-color:#78af77;background:radial-gradient(ellipse at 50% 20%,#39794355,transparent 80%)}
+.relic-offer.boss{border-color:#af80da;background:radial-gradient(ellipse at 50% 20%,#7647a455,transparent 80%)}
+.relic-rarity,.artifact-item .relic-rarity{color:var(--rarity,#c1c5cb)!important}.relic-detail-crest.rare small{color:#a6dc9a}.relic-detail-crest.boss small{color:#d7b0f5}
+
+/* Shared landscape visual scale: 24px action glyphs, 22px inline resources,
+   32px item portraits, and 44px minimum primary touch surfaces. */
+:root{--menu-icon:24px;--resource-icon:22px;--item-icon:32px}
+.game-menu-trigger>svg,.game-round>svg{width:var(--menu-icon)!important;height:var(--menu-icon)!important;flex:none}.game-menu-trigger>span{display:none}
+.run-tools>button>svg,.audio-controls>button>svg,.tree-limbs>button>svg{width:var(--menu-icon)!important;height:var(--menu-icon)!important;flex:none}
+.rest-vitals svg,.rest-outcome-track>svg,.rest-outcome-track .resource-symbol{width:var(--resource-icon)!important;height:var(--resource-icon)!important;flex-basis:var(--resource-icon)!important}
+.rest-recharge-outcome svg{width:28px!important;height:28px!important}.rest-recharge-outcome{font-size:14px}.rest-recharge-outcome small{font-size:11px}
+.rest-outcome-track b small{font-size:12px}.rest-glow b{font-size:18px}.rest-glow b small{font-size:13px}
+.rest-route-link>.ico,.rest-rules summary>.ico{width:22px;height:22px}.rest-route-link,.rest-rules summary{font-size:12px;min-height:44px!important}
+.rest-choice-caption>span{display:none}.rest-pick-cue{font-size:11px}.rest-pick-cue svg{width:18px;height:18px}
+.rest-service-cards small{font-size:11px}.rest-service-cards small .resource-symbol{width:20px;height:20px;flex-basis:20px}
+.rest-service-cards strong{font-size:16px}.rest-dream>small{font-size:10px!important}.rest-dream>svg{width:30px!important;height:24px!important}
+.rest-capacity-gain{font-size:11px}.rest-capacity-gain .resource-symbol{width:16px;height:16px;flex-basis:16px}
+.rest-next small{font-size:10px!important}.rest-eyebrow{font-size:11px!important}.rest-receipt{font-size:12px}
+.artifact-slot>.upgrade-glyph,.artifact-socket>.upgrade-glyph{width:var(--item-icon)!important;height:var(--item-icon)!important}.artifact-copy-squares i{width:7px;height:7px}
+@media(orientation:landscape) and (max-width:750px){.rest-benefit-cards:has(>button:nth-child(4)) .rest-outcome-track{gap:2px;font-size:12px}.rest-outcome-track b small{font-size:10px}.rest-outcome-track>svg,.rest-outcome-track .resource-symbol{width:18px!important;height:18px!important;flex-basis:18px!important}.rest-capacity-gain{font-size:10px}.rest-benefit-cards{gap:5px}.rest-service-cards strong{font-size:14px}}
+@media(orientation:landscape) and (max-height:340px){.rest-route-link,.rest-rules summary{min-height:38px!important}.rest-eyebrow{font-size:10px!important}.rest-pick-cue{padding-top:2px}.rest-benefit>.choice-scene{height:52px;min-height:42px}.rest-service-cards small{font-size:10px}}
+
+.tree-crown>span{display:inline-flex;align-items:center;gap:6px;font-size:18px}.tree-crown>span .resource-symbol{width:26px;height:26px;flex-basis:26px}.skill-purchase .resource-symbol{width:22px;height:22px;vertical-align:middle}.tree-tabs>button>svg{width:28px!important;height:28px!important}

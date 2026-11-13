@@ -1,4 +1,4 @@
-import { pickupKind, getPickupSpec, pickupDisposition } from './pickups.mjs?v=lantern-paths-1';
+import { pickupKind, getPickupSpec, pickupDisposition } from './pickups.mjs?v=living-choices-1';
 
 const TAU = Math.PI * 2;
 const clamp = (value, low, high) => Math.max(low, Math.min(high, value));
@@ -45,7 +45,7 @@ function packetPixels(kind, { time = 0, reducedMotion = false, tiny = false, bod
     oval(-field*.12,-field*.18,field*.58,field*.48,warning?'#f9a58a':'#fff4d9',.065);
     ring(contact - 1, warning ? '#f58b79' : '#e4f2ca', warning ? .78 : .54);
   }
-  // Fixed slots: stronger fuel lights add rings inward, never enlarge the body.
+  // Fixed slots: stronger Sparks add rings inward, never enlarge the body.
   // Keep the existing thin contact boundary separate from the three thick bands.
   const layers={light:1,cluster:2,cache:3}[kind];
   if(layers){

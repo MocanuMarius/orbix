@@ -21,6 +21,6 @@ assert.equal(enhanced.condensedGlow,4,'3 surplus displayed Glow converts to 4 wi
 const bounded=condenseGlow(100,{rules:{multiplier:99,bankBonusPerTier:99},wallet:999999});assert.equal(bounded.amount,48);
 let amount=0,remainder=0;for(let i=0;i<100;i++){const out=condenseGlow(.1,{remainder});amount+=out.amount;remainder=out.remainder;}
 assert.equal(amount,3);assert.equal(remainder,0,'fractional pickups cannot manufacture rounding income');
-const carrier=engine();const carried=packet('cache',{deliveredByWisp:true});carrier.collect(carried);assert.equal(carrier.condensedGlow,12);carrier.collect(carried);assert.equal(carrier.condensedGlow,12);
+const carrier=engine();const carried=packet('cache',{deliveredByWisp:true});carrier.collect(carried);assert.equal(carrier.condensedGlow,15);carrier.collect(carried);assert.equal(carrier.condensedGlow,15);
 for(const e of made)e.destroy();
 console.log(JSON.stringify({naturalOverflow:true,wholeCurrencyAndFractionalCredit:true,enhancedThreeBecomesFour:true,maximumMultiplier:1.6,generatedAndDarkExcluded:true,bodyAndCollectorSinglePayment:true,currencyCannotFuelFlight:true}));

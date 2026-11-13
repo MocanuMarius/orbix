@@ -1,4 +1,4 @@
-import {skillProgress} from './skill-increments.mjs?v=lantern-paths-1';
+import {skillProgress} from './skill-increments.mjs?v=living-choices-1';
 // Named, one-time specialisations. Each pair is exclusive for this run.
 const paths=[];
 function fork(branch,parent,a,b){
@@ -11,15 +11,15 @@ function fork(branch,parent,a,b){
 }
 fork('collector','collector-reach',
  ['far-search','Far Search','Search 15% farther; recovery takes 10% longer.',{}, {attract:1.15,wispCooldown:1.10}],
- ['rich-cargo','Rich Cargo','Fetched fuel adds 4 Glow; search radius is 5% smaller.',{collectorFuelBonus:4},{attract:.95}]);
+ ['rich-cargo','Rich Cargo','Fetched fuel adds 4 Sparks; search radius is 5% smaller.',{collectorFuelBonus:4},{attract:.95}]);
 fork('collector','collector-recovery',
  ['fleet-return','Fleet Return','Recover 15% faster; search radius is 5% smaller.',{},{wispCooldown:.85,attract:.95}],
  ['close-orbit','Close Orbit','Minimum recovering radius grows from 18 to 30; full recovery takes 10% longer.',{collectorMinimum:12},{wispCooldown:1.10}]);
 fork('protector','protector-recovery',
- ['clean-break','Clean Break','Deflection grants 0.2 seconds more protection; costs 2 more Glow.',{protectorProtection:.2,protectorCost:2}],
- ['thrifty-shell','Thrifty Shell','Shell costs 20% less Glow; recovery takes 10% longer.',{},{protectorCost:.8,protectorRecovery:1.1}]);
+ ['clean-break','Clean Break','Deflection grants 0.2 seconds more protection; costs 2 more Sparks.',{protectorProtection:.2,protectorCost:2}],
+ ['thrifty-shell','Thrifty Shell','Shell costs 20% less Sparks; recovery takes 10% longer.',{},{protectorCost:.8,protectorRecovery:1.1}]);
 fork('protector','protector-layers',
- ['returning-shell','Returning Shell','Shell recovery is 15% faster; each deflection costs 2 extra Glow.',{protectorCost:2},{protectorRecovery:.85}],
+ ['returning-shell','Returning Shell','Shell recovery is 15% faster; each deflection costs 2 extra Sparks.',{protectorCost:2},{protectorRecovery:.85}],
  ['lasting-shell','Lasting Shell','Deflection grants 0.2 seconds more protection; recovery takes 10% longer.',{protectorProtection:.2},{protectorRecovery:1.1}]);
 fork('leveler','leveler-steadiness',
  ['long-balance','Long Balance','Hold altitude 20% longer; recharge takes 10% longer.',{},{levelerDuration:1.2,levelerRecovery:1.1}],
@@ -35,22 +35,22 @@ fork('swift','swift-resistance',
  ['sheltered-pace','Sheltered Pace','Recharge 15% faster; wind resistance falls 8 percentage points.',{swiftResistance:-.08},{swiftRecovery:.85}]);
 fork('main','main-horizon',
  ['wide-beam','Wide Beam','Expand your circular light radius by another 25.',{lightRadius:25}],
- ['clear-beam','Clear Beam','Dark Seeds dim your light 15 percentage points less.',{darkResistance:.15}]);
+ ['clear-beam','Clear Beam','Dark Sparks dim your light 15 percentage points less.',{darkResistance:.15}]);
 fork('main','main-dawn',
- ['dawn-guard','Dawn Guard','Dark Seeds dim your light another 10 percentage points less.',{darkResistance:.1}],
- ['dawn-fuel','Dawn Fuel','Natural fuel pickups restore 3 extra Glow.',{cacheFuelBonus:3}]);
+ ['dawn-guard','Dawn Guard','Dark Sparks dim your light another 10 percentage points less.',{darkResistance:.1}],
+ ['dawn-fuel','Dawn Fuel','Natural Spark pickups restore 3 extra Sparks.',{cacheFuelBonus:3}]);
 fork('main','main-tailwind',
  ['rising-current','Updraft','Lift is 4% stronger.',{},{flap:1.04}],
  ['soft-current','Soft Current','Fall 6% more gently.',{},{gravity:.94}]);
 fork('main','main-drift',
- ['light-step','Light Step','Lift costs 5% less Glow.',{},{flapCost:.95}],
+ ['light-step','Light Step','Lift costs 5% less Sparks.',{},{flapCost:.95}],
  ['rising-drift','Rising Drift','Lift is 4% stronger.',{},{flap:1.04}]);
 fork('main','main-lift',
  ['gentle-rise','Gentle Rise','Fall 5% more gently.',{},{gravity:.95}],
- ['thrifty-rise','Thrifty Rise','Lift costs 5% less Glow.',{},{flapCost:.95}]);
+ ['thrifty-rise','Thrifty Rise','Lift costs 5% less Sparks.',{},{flapCost:.95}]);
 fork('main','main-kindling',
- ['inner-fire','Inner Fire','Natural fuel pickups restore another 3 Glow.',{cacheFuelBonus:3}],
- ['shared-fire','Shared Fire','Collector-delivered fuel restores 5 extra Glow. Requires an equipped Collector to benefit.',{collectorFuelBonus:5}]);
+ ['inner-fire','Inner Fire','Natural Spark pickups restore another 3 Sparks.',{cacheFuelBonus:3}],
+ ['shared-fire','Shared Fire','Collector-delivered fuel restores 5 extra Sparks. Requires an equipped Collector to benefit.',{collectorFuelBonus:5}]);
 export const EXPANDED_SKILLS=Object.freeze(Object.fromEntries(paths.map(p=>[p.id,Object.freeze(p)])));
 export function applyExpandedSkills(modifiers,skills,companions=[]){
   for(const path of paths)if(skillProgress(skills,path.id)>0&&(path.branch==='main'||companions.includes(path.branch))){

@@ -1,5 +1,5 @@
-import {getCompanionAbility} from './companion-abilities.mjs?v=lantern-paths-1';
-import {lightVisibility} from './light-field.mjs?v=lantern-paths-1';
+import {getCompanionAbility} from './companion-abilities.mjs?v=living-choices-1';
+import {lightVisibility} from './light-field.mjs?v=living-choices-1';
 // Practice is an authored flight using the same controls, fuel and colliders.
 // This module contains guidance and lesson scenery; it never grants rewards.
 const clamp = (n, lo, hi) => Math.min(hi, Math.max(lo, n));
@@ -137,29 +137,29 @@ export function getTutorialHint(engine) {
   const hint=(id,title,text,step)=>({id,title,text,step,total:4,waitingForLift:Boolean(engine.tutorialAwaitingLift),
     worldFocus:getTutorialWorldFocus(engine),observed:{directPickups:state.directPickups,carrierDeliveries:state.carrierDeliveries,
       carrierRest:state.sawCooldown,tool:state.toolObserved,draft:state.finishedWind,darkAvoided:state.darkAvoided,darkCleared:state.darkCleared}});
-  if(engine.tutorialAwaitingLift)return hint('launch','Tap Lift to begin','LIFT spends Glow. Stay clear of solid scenery and screen edges.',1);
+  if(engine.tutorialAwaitingLift)return hint('launch','Tap Lift to begin','LIFT spends Sparks. Stay clear of solid scenery and screen edges.',1);
   if(engine.dying)return hint('last-spark','The light scatters','Solid scenery and screen edges end an unprotected attempt.',2);
-  if(engine.flame<engine.flapCost*2)return hint('low-glow','Find a fuel light','Without enough Glow you cannot Lift, but you can still collect fuel while falling. Collector keeps searching.',2);
+  if(engine.flame<engine.flapCost*2)return hint('low-glow','Find a Spark','Without enough Sparks you cannot Lift, but you can still collect fuel while falling. Collector keeps searching.',2);
   const exit=engine.getExitLandmark?.();
-  if(exit&&exit.x<engine.width-18)return hint('exit','Reach the refuge light','Fly to the waylight while keeping enough Glow for your last Lift.',4);
-  if(state.directPickups>0&&engine.edgingPulse?.state?.active)return hint('edge-pulse','Your close flight lit the way','PULSE beside Glow fills near solid edges. Full charge briefly reveals the scene. Keep clear of the terrain itself.',4);
+  if(exit&&exit.x<engine.width-18)return hint('exit','Reach the refuge light','Fly to the waylight while keeping enough Sparks for your last Lift.',4);
+  if(state.directPickups>0&&engine.edgingPulse?.state?.active)return hint('edge-pulse','Your close flight lit the way','PULSE beside Sparks fills near solid edges. Full charge briefly reveals the scene. Keep clear of the terrain itself.',4);
   if(state.lesson==='glide'){
     if(!state.directPickups)return hint('direct','Lift, then glide into a packet',collector
-      ?'Touch this light yourself for immediate Glow. Collector waits for your first pickup.'
-      :'Touch this light yourself for immediate Glow. Only an equipped Collector fetches misses.',2);
+      ?'Touch this light yourself for immediate Sparks. Collector waits for your first pickup.'
+      :'Touch this light yourself for immediate Sparks. Only an equipped Collector fetches misses.',2);
     if(collector&&!state.carrierDeliveries)return hint('carrier','Collector rescues a miss',engine.wisp.phase==='returning'
       ?'The packet pays when Collector returns. Its boundary then shrinks and grows back.'
       :'Your body gets first chance. A missed packet touching the boundary reacts. Collector fetches after your body has had its chance.',3);
     if(collector&&engine.wisp.phase==='cooldown')return hint('rest','Collector is recovering','Its boundary grows back. Missed packets inside the smaller range can still be rescued.',3);
     return hint('glide-ready','Small lifts, long glides',active
       ?'POWER activates Runner. With Space Timer, hold Lift to levitate; release to glide.'
-      :'Collector fetches misses. Protector spends Glow to shield a collision. Both work automatically.',4);
+      :'Collector fetches misses. Protector spends Sparks to shield a collision. Both work automatically.',4);
   }
   const gust=engine.gustState();
   const dark=engine.layout.embers.find(packet=>packet.tutorialDark),darkX=dark?dark.x-engine.distance:Infinity;
   if(dark&&!dark.collected&&darkX>engine.player.x-18&&darkX<engine.width-18)return hint('dark-packet','Avoid the dark seed',
     'Black seeds dim sight. Collector ignores them. The learned Purifying Touch perk can cleanse one when ready.',4);
-  if(state.darkCollected&&!state.darkCleared)return hint('dark-recovery','Restore your light','A natural fuel light clears one dimming effect and refills Glow.',4);
+  if(state.darkCollected&&!state.darkCleared)return hint('dark-recovery','Restore your light','A natural Spark clears one dimming effect and refills Sparks.',4);
   if(gust.warning||gust.active)return hint('wind',gust.warning?'Read the direction':'Inside the draft puff',
     'Curls show the push direction. Dodge the puff or use Runner. Space Timer still bobs and feels drafts.',3);
   if(active&&!state.toolObserved&&engine.time<6)return hint('power','One Power control',
@@ -189,15 +189,15 @@ export function getTutorialWorldFocus(engine, seenIds = null) {
     'Avoid this black packet: it dims your light. A light packet clears one effect.', dark.x, dark.packet.y, 20));
   const light = packets.filter(({ packet }) => !packet.harmful && packet.kind !== 'dark')
     .sort((a, b) => Math.abs(a.x - engine.player.x) - Math.abs(b.x - engine.player.x))[0];
-  if (light) candidates.push(focus('light-packet', 'Light packet = Glow fuel',
-    hasCollector ? 'Touch this bright packet to refill Glow. Collector only rescues packets you have already passed.'
-      : 'Touch this bright packet yourself to refill Glow. Your selected companion does not fetch.', light.x, light.packet.y, 20));
+  if (light) candidates.push(focus('light-packet', 'Light packet = Sparks fuel',
+    hasCollector ? 'Touch this bright packet to refill Sparks. Collector only rescues packets you have already passed.'
+      : 'Touch this bright packet yourself to refill Sparks. Your selected companion does not fetch.', light.x, light.packet.y, 20));
   for (const puff of engine.getDraftPuffs?.() || []) candidates.push(focus('draft', 'Local draft puff',
     'Only these curls push you. Fly above or below their boundary.',
     puff.x - engine.distance, puff.y, Math.min(puff.rx, puff.ry, 48)));
   const carrier = engine.getWispState?.();
   if (carrier?.phase === 'returning' && carrier.carrying) candidates.push(focus('carrier-return', 'Carrier delivery',
-    'The packet refills Glow when your carrier gets home.', carrier.x, carrier.y, 21));
+    'The packet refills Sparks when your carrier gets home.', carrier.x, carrier.y, 21));
   if (carrier?.phase === 'cooldown' && state.carrierDeliveries > 0) candidates.push(focus('carrier-rest', 'Carrier recovery',
     'Its boundary shrinks after delivery, then grows. Nearby rescues still work; touching packets yourself is immediate.', carrier.x, carrier.y, 21));
   const exit = engine.getExitLandmark?.();

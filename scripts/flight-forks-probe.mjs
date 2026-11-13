@@ -20,7 +20,7 @@ for(const identity of BIOME_LEVELS){
   assert.ok(fork.opening>=90,'baseline Lift arc fits with body and clearance');
   const cache=e.layout.embers.find(p=>p.id===fork.cacheId),fuel=e.layout.embers.find(p=>p.id===fork.fuelId);
   assert.ok(cache.manualOnly&&!canCompanionCollect(cache),'Collector cannot take cache through divider');
-  assert.equal(getPickupSpec(cache).fuel,40);assert.equal(getPickupSpec(fuel).fuel,24);
+  assert.equal(getPickupSpec(cache).fuel,50);assert.equal(getPickupSpec(fuel).fuel,24);
   assert.ok(Math.abs(cache.y-fuel.y)>100,'rewards require different flight positions');
   assert.equal(e.layout.embers.filter(p=>p.forkCache).length,1);
   const before=e.layout.embers.length;installFlightForks(e.layout,{height:e.height,circleHitsObstacle});

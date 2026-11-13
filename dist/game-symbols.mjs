@@ -1,3 +1,4 @@
+import {condensedIconMarkup} from './afterglow-ui.mjs?v=living-choices-1';
 // Small shared pixel silhouettes. Conditions retain words; basic resources do not.
 const shapes={
  glow:'<path d="M6 1h4v1h2v2h2v2h1v4h-1v2h-2v2h-2v1H6v-1H4v-2H2v-2H1V6h1V4h2V2h2z" opacity=".35"/><path d="M6 4h4v2h2v4h-2v2H6v-2H4V6h2z"/>',
@@ -9,5 +10,5 @@ const shapes={
  auto:'<path d="M3 3h9V1l4 4-4 4V6H4v3H1V5h2zm10 10H4v2l-4-4 4-4v3h8V7h3v4h-2z"/>',
  music:'<path d="M6 2h8v9h-2V5H8v8H6v1H2v-1H1v-3h1V9h4zm4 8h4v1h1v3h-1v1h-4v-1H9v-3h1z"/>'
 };
-const labels={glow:'Glow',packed:'Packed Light',up:'Increase',down:'Decrease',uses:'Uses',clock:'Duration',auto:'Automatic',music:'Music'};
-export function resourceSymbol(kind){return `<svg class="resource-symbol resource-symbol-${kind}" viewBox="0 0 16 16" role="img" aria-label="${labels[kind]||'Effect'}" shape-rendering="crispEdges" fill="currentColor">${shapes[kind]||shapes.glow}</svg>`;}
+const labels={glow:'Sparks',packed:'Packed Light',up:'Increase',down:'Decrease',uses:'Uses',clock:'Duration',auto:'Automatic',music:'Music'};
+export function resourceSymbol(kind){if(kind==='packed')return condensedIconMarkup().replace('class="ico condensed-icon"','class="resource-symbol resource-symbol-packed"').replace('aria-hidden="true"','role="img" aria-label="Packed Light"');return `<svg class="resource-symbol resource-symbol-${kind}" viewBox="0 0 16 16" role="img" aria-label="${labels[kind]||'Effect'}" shape-rendering="crispEdges" fill="currentColor">${shapes[kind]||shapes.glow}</svg>`;}

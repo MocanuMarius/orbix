@@ -2,7 +2,7 @@
 // the distant tail; exposure maps inverse-square irradiance into visible light.
 export function lightAttenuation(distanceSquared){
   if(distanceSquared>=1)return 0;
-  return 1-Math.exp(-.75*(1/(Math.max(0,distanceSquared)+.0324)-1/1.0324));
+  return 1-Math.exp(-.42*(1/(Math.max(0,distanceSquared)+.0324)-1/1.0324));
 }
 export function createLightMaskCanvas(document){
   const canvas=document.createElement('canvas');canvas.width=canvas.height=128;
@@ -21,7 +21,7 @@ export function sceneRevealStrength(light={}){
   return Math.max(revealUnit(light.pickupReveal),revealUnit(light.edgingReveal));
 }
 export function lightVisibility(engine,light,x,y,playerY=engine.player.y){
-  const radius=Math.max(1,light.radius||175),intensity=light.intensity??1;
+  const radius=Math.max(1,light.radius||145),intensity=light.intensity??1;
   const dx=x-engine.player.x,dy=y-playerY;
   let dark=1-lightAttenuation((dx*dx+dy*dy)/(radius*radius))*intensity;
   const forward=light.forwardLight;

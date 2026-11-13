@@ -819,3 +819,18 @@ Authored forks retain an open fuel lane and offer a narrower optional three-ring
 Lantern Drift is an original 435.7-second 72 BPM ambient composition, rendered offline to a 5.23 MB MP3. The browser streams one Audio element after interaction, with independent Music and FX toggles and hidden-page pause. No third-party audio samples or runtime synthesis. The reproducible generator is scripts/compose-music.py.
 
 Focused transaction/trigger/geometry checks and compact landscape browser review cover this batch. The audit found and fixed a regeneration tutorial guard and low-contrast Lift/Back controls. Physical Pixel 10 hitch traces and current full-campaign balance remain validation work; neither is claimed complete.
+
+
+## Living Choices — 13 November 2026
+
+Implemented the current Rest/phone UI batch: illustrated one-of-four Rest benefits; explicit current/max Glow; +3 capacity plus refill, up to +9 capacity per run; 25/50/75 Packed Light on maps 1/2/3; refill hearts; or one copy of uses restored to each mounted surviving consumable, capped at three copies. Recharge is mutually exclusive with the other benefits, cannot revive exhausted or refill unmounted TEST artifacts, and cannot be claimed twice. Full-stack earned duplicates melt for 25 Packed Light. No passive multiplier stacking.
+
+Dream baseline is 6s, with 8s and 10s duration upgrades. All 26 artifacts have distinct icons and grey Common / green Rare / purple Legendary backgrounds. Three copy squares show stack state. Reward generation filters companion-specific and unlearned skill/Dream artifacts against the current build; the TEST catalogue stays open. Boss relics retain useful generic effects and permanent collection behavior.
+
+Rest preparation uses three illustrated service choices plus Dream and Leave. Forge explicitly shows lost artifact/all uses and gained currency, then animates the actual exchange. Settings and buttons share game framing, green accepts, rose cancels, amber Forge. Packed Light uses a larger contrasting box icon. No mandatory tiny currency label. Fixed overflowing landscape victory footer and Rest decorations. Six CSS viewport sizes checked: 667x375, 740x333, 844x390, 900x405, 932x430 and 844x320. This is responsive browser evidence, not a physical phone frame-time benchmark.
+
+Latest lighting supersedes all distant-silhouette requirements: 145 base radius, steeper attenuated falloff, pitch-black fog outside emitted light; upgrades/reveals can still expand visibility. Collector boundary has its companion's green and is slightly fainter. Packed Light beam superseded by exactly two 4px motes rising 26px over 340ms, 65ms apart. Glow Cache fuel increases 12 to 15 displayed units (+25%); placement, collision size and absorption timing unchanged.
+
+Focused verification: Rest growth/recharge/currency transaction persistence and anti-repeat; artifact stacks, auto-melt and companion-aware rewards; deterministic six-second Dream replay; pickup overflow accounting; syntax checks and landscape browser inspection. Long-run economy, physical Pixel 10 FPS and whole legacy-test modernization remain separate work.
+
+Latest naming/scaling steering: all collectible types now use Spark names (Spark, Cluster, Cache, Charge, Flash, Dusk, Dark); displayed energy is Sparks / Spark meter. Packed Light remains separate currency. Proper artifact names Spark Wick and Spark Lens are updated. Internal save/action IDs remain stable. Unified resource/action/item icon sizing; replaced tiny skill-tree currency text with the same colored Packed Light box. The final 78-state landscape browser audit had no overflow, offscreen controls or required scroll panes.

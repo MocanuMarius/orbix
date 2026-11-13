@@ -1,6 +1,6 @@
 // Risk-earned sight, or bounded fuel recovery when the Regenerative Falling
 // branch is chosen. Neither outcome is a pickup or invokes artifact hooks.
-import { GLOW_DISPLAY_SCALE } from './vitality.mjs?v=lantern-paths-1';
+import { GLOW_DISPLAY_SCALE } from './vitality.mjs?v=living-choices-1';
 const clamp = (n, lo, hi) => Math.min(hi, Math.max(lo, n));
 const smooth = n => n * n * (3 - 2 * n);
 const EPSILON = 1e-9;
@@ -155,8 +155,8 @@ export class EdgingPulse {
         }
         this.regenFeedbackRemaining = EDGING_REGEN_TUNING.feedback;
         this.recoveryRemaining = EDGING_PULSE_TUNING.recovery;
-        const result = this.regenGain >= EDGING_REGEN_TUNING.glow - EPSILON ? '+1 Glow'
-          : this.regenGain > EPSILON ? 'Glow topped up' : 'Glow already full';
+        const result = this.regenGain >= EDGING_REGEN_TUNING.glow - EPSILON ? '+1 Sparks'
+          : this.regenGain > EPSILON ? 'Sparks topped up' : 'Sparks already full';
         e.setEvent?.(`Regenerative Falling · ${result}${this.exhausted ? ' · spent for this flight' : ''}`);
         return;
       }

@@ -47,7 +47,7 @@ const stacked=fresh('stacked-copies');M.setTestOverride(stacked,true);
 for(const [i,id]of ['glow-wick','flash-stone','quiet-cinder'].entries())assert.ok(M.equipArtifact(stacked,id,i));
 const earn=(state,id)=>{state.run.flightReward={offers:[id],claimed:false};return M.chooseFlightReward(state,id);};
 stacked.run.artifactCharges['glow-wick']=2;const originalSlots=[...stacked.run.artifacts];
-assert.deepEqual(getArtifactStackPreview(stacked.run,'glow-wick'),{slot:0,before:2,after:5,added:3,wasted:0,perCopy:3,max:9});
+assert.deepEqual(getArtifactStackPreview(stacked.run,'glow-wick'),{autoForge:false,packedLight:0,copies:1,slot:0,before:2,after:5,added:3,wasted:0,perCopy:3,max:9});
 assert.ok(earn(stacked,'glow-wick'));assert.equal(stacked.run.artifactCharges['glow-wick'],5);
 assert.deepEqual(stacked.run.artifacts,originalSlots,'A duplicate adds uses in its own slot even when all slots are full');
 assert.equal(M.getRunModifiers(stacked.run).artifactIds.filter(id=>id==='glow-wick').length,1);
@@ -60,12 +60,14 @@ assert.equal(loadedStack.run.artifactCharges['glow-wick'],5,'Retry restores the 
 enter(loadedStack);M.finishFlight(loadedStack.run,{success:true,flame:60,artifactCharges:{'glow-wick':4,'flash-stone':1}});
 assert.equal(loadedStack.run.artifactCharges['glow-wick'],4,'A completed flight keeps actual remaining stack uses');
 assert.ok(earn(loadedStack,'glow-wick'));assert.equal(loadedStack.run.artifactCharges['glow-wick'],7);
-assert.ok(earn(loadedStack,'glow-wick'));assert.equal(loadedStack.run.artifactCharges['glow-wick'],9);
-assert.equal(loadedStack.run.flightReward.stack.wasted,1,'Cap preview reports exactly how many newly earned uses do not fit');
-assert.equal(earn(loadedStack,'glow-wick'),false,'A full stack rejects duplicate claims');
+const beforeMelt=loadedStack.run.condensedGlow;
+assert.ok(earn(loadedStack,'glow-wick'));assert.equal(loadedStack.run.artifactCharges['glow-wick'],7);
+assert.equal(loadedStack.run.condensedGlow,beforeMelt+25,'A fourth copy melts completely');
+assert.equal(loadedStack.run.flightReward.stack.wasted,0);
+assert.equal(M.chooseFlightReward(loadedStack,'glow-wick'),false,'Cannot claim the same reward twice');
 loadedStack.run.artifactCharges['flash-stone']=5;assert.ok(earn(loadedStack,'flash-stone'));
-assert.equal(loadedStack.run.artifactCharges['flash-stone'],6);assert.equal(loadedStack.run.flightReward.stack.wasted,1);
-assert.equal(earn(loadedStack,'flash-stone'),false);
+assert.equal(loadedStack.run.artifactCharges['flash-stone'],5);assert.equal(loadedStack.run.condensedGlow,beforeMelt+50);
+assert.equal(M.chooseFlightReward(loadedStack,'flash-stone'),false);
 
 const spentTest=fresh('test-no-refill');M.setTestOverride(spentTest,true);M.equipArtifact(spentTest,'glow-wick');
 spentTest.run.artifactCharges['glow-wick']=0;M.equipArtifact(spentTest,null);
@@ -86,7 +88,7 @@ for(let i=0;i<48;i++)for(const atCap of [false,true]){
  const t=fresh('stack-offers-'+i);t.run.stats.flights=1;t.run.artifacts=['glow-wick','flash-stone'];
  t.run.artifactCharges={'glow-wick':atCap?9:1,'flash-stone':atCap?6:1};
  enter(t);M.finishFlight(t.run,{success:true,flame:60});
- for(const id of t.run.flightReward.offers){if(atCap)assert.ok(!Object.hasOwn(CONSUMABLE_ARTIFACTS,id),'Full stacks never appear in reward offers');else if(Object.hasOwn(CONSUMABLE_ARTIFACTS,id))found.add(id);}
+ for(const id of t.run.flightReward.offers){if(atCap)assert.ok(!Object.hasOwn(CONSUMABLE_ARTIFACTS,id)||getArtifactStackPreview(t.run,id).autoForge,'Full stacks preview automatic melting');else if(Object.hasOwn(CONSUMABLE_ARTIFACTS,id))found.add(id);}
 }
 assert.deepEqual([...found].sort(),['flash-stone','glow-wick'],'Both partly used mounted commons can be offered again');
 
@@ -115,7 +117,7 @@ const testFamily=fresh('test-seed-family');M.setTestOverride(testFamily,true);
 assert.ok(M.equipArtifact(testFamily,'wayward-seed',0));assert.ok(M.equipArtifact(testFamily,'hearth-bloom',1));assert.ok(M.equipArtifact(testFamily,'lantern-bloom',2));
 assert.deepEqual(testFamily.run.artifacts,[null,null,'lantern-bloom'],'Even TEST equips at most one seed form');
 const stackHtml=artifactOfferMarkup(M.ARTIFACTS['glow-wick'],{artifacts:['glow-wick'],artifactCharges:{'glow-wick':8}});
-assert.match(stackHtml,/8 → 9/);assert.match(stackHtml,/2 uses lost/);
+assert.match(stackHtml,/3 \/ 3 copies/);assert.match(stackHtml,/extra copy → \+25/);
 assert.match(artifactSummaryMarkup(M.ARTIFACTS['wayward-seed'],seedRun.run),/MAP 1/);
 assert.match(artifactDetailMarkup(M.ARTIFACTS['glow-wick'],{run:{artifacts:['glow-wick'],artifactCharges:{'glow-wick':9}}}),/Consumes all 9 uses/);
 
@@ -142,3 +144,16 @@ for(const type of focused?[]:['elite','finale','boss'])for(let i=0;i<40;i++){
 }
 console.log('Artifact rewards/lifetimes: bounded stacks, exact cap waste, offer eligibility, fixed forge payout, TEST refill prevention, charge persistence and failure/reload rollback passed.');
 console.log(JSON.stringify(report));
+
+for(const role of ['collector','protector','swift','leveler']){
+ for(let i=0;i<18;i++){
+  const t=fresh('fit-'+role+'-'+i);t.run.companions=[role];enter(t);M.finishFlight(t.run,{success:true,flame:60});
+  for(const id of t.run.flightReward.offers)assert.ok(M.artifactFitsRun(t.run,id),role+': '+id);
+ }
+}
+for(const [id,role]of Object.entries({'wayfinder-seed':'collector','iron-petal':'protector','storm-knot':'swift','hollow-bell':'leveler'})){
+ assert.equal(M.artifactFitsRun({companions:[role]},id),true);assert.equal(M.artifactFitsRun({companions:[]},id),false);
+}
+for(const [id,skill]of [['dreamcatcher','main-dream'],['second-dawn','main-dream'],['dawn-thread','main-echo-sight'],['moss-heart','main-kindled-touch']]){
+ assert.equal(M.artifactFitsRun({skills:{}},id),false);assert.equal(M.artifactFitsRun({skills:{[skill]:1}},id),true);
+}

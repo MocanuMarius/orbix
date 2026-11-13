@@ -5,7 +5,7 @@ export const COMPANION_ABILITIES = Object.freeze({
   collector: ability('collector', 'Collector', 'collect', 'COLLECTOR', 0, 0,
     'Rescues missed good packets inside its boundary. Each delivery shrinks the range; it grows back over 5 seconds. Nearby rescues still work during recovery.', true, true, 1),
   protector: ability('protector', 'Protector', 'protect', 'PROTECTOR', 0, 0,
-    'Spends 12 Glow and one recovered shell charge to save a collision. An empty shell or insufficient Glow cannot protect you.', true, false, 2),
+    'Spends 12 Sparks and one recovered shell charge to save a collision. An empty shell or insufficient Sparks cannot protect you.', true, false, 2),
   swift: ability('swift', 'Runner', 'boost', 'BOOST', 1.25, 7.5,
     'Surges forward and resists local drafts. Terrain still collides; Runner never fetches packets.', false, false, 3),
   leveler: ability('leveler', 'Space Timer', 'level', 'LEVEL', 2.4, 9,

@@ -1,5 +1,5 @@
-// One light economy: usable Glow first, its actual surplus crystallizes.
-// Values entering this module use the simulation's internal Glow scale.
+// One light economy: usable Sparks first, its actual surplus crystallizes.
+// Values entering this module use the simulation's internal Sparks scale.
 const clamp=(n,a,b)=>Math.max(a,Math.min(b,n));
 const finite=(n,d=0)=>Number.isFinite(n)?n:d;
 const rank=(s,id,max)=>clamp(Math.floor(finite(s?.[id])),0,max);

@@ -1,7 +1,7 @@
-import { DRAFT_TUNING } from './drafts.mjs?v=lantern-paths-1';
-import { scenePropBounds } from './scene-props.mjs?v=lantern-paths-1';
-import { formatGlow } from './vitality.mjs?v=lantern-paths-1';
-import { lightVisibility } from './light-field.mjs?v=lantern-paths-1';
+import { DRAFT_TUNING } from './drafts.mjs?v=living-choices-1';
+import { scenePropBounds } from './scene-props.mjs?v=living-choices-1';
+import { formatGlow } from './vitality.mjs?v=living-choices-1';
+import { lightVisibility } from './light-field.mjs?v=living-choices-1';
 
 // Small, deterministic actors attached to existing terrain. Static mountain
 // meshes never change, and each actor is used once: no repeatable currency farm.
@@ -18,7 +18,7 @@ export const BIOME_INTERACTIONS = Object.freeze({
   coral: { kind: 'tide', family: 'vent', color: '#97d6cb', instruction: 'Anemones open into rising currents' },
   crystal: { kind: 'resonate', family: 'reveal', color: '#c8b9ee', instruction: 'Touch a crystal to reveal the way' },
   cloud: { kind: 'draft', family: 'vent', color: '#d7dfdd', instruction: 'Wind bells gather a rising current' },
-  thorn: { kind: 'seedpod', family: 'bloom', color: '#bed18d', instruction: 'Touch a seedpod · its bristles fold into Glow' },
+  thorn: { kind: 'seedpod', family: 'bloom', color: '#bed18d', instruction: 'Touch a seedpod · its bristles fold into Sparks' },
   cemetery: { kind: 'bell', family: 'reveal', color: '#d2ccb2', instruction: 'Touch a grave bell to reveal the way' },
 });
 export const BIOME_DYNAMIC_TUNING = Object.freeze({ maximumActors: 10, spacing: 1120,
@@ -182,7 +182,7 @@ export class BiomeDynamics {
         const gain = Math.min(BIOME_DYNAMIC_TUNING.glowGift, Math.max(0, e.maxFlame - e.flame));
         e.flame += gain; e.flameRestored += gain;
         e.storeNaturalOverflow?.({id:item.id,kind:'light'},{fuel:BIOME_DYNAMIC_TUNING.glowGift},BIOME_DYNAMIC_TUNING.glowGift-gain);
-        e.setEvent?.(gain > 0 ? `Seedpod · +${formatGlow(gain)} Glow` : 'Seedpod · Glow full');
+        e.setEvent?.(gain > 0 ? `Seedpod · +${formatGlow(gain)} Sparks` : 'Seedpod · Sparks full');
       }
       e.burst?.(item.x - e.distance, item.y, 9, item.color);
     }
