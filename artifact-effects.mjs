@@ -1,6 +1,6 @@
 // Shared triggers make artifacts combine with skills, pickups and every base
 // companion. Effects never manufacture another pickup or dispatch a fuel event.
-import {CONSUMABLE_ARTIFACTS,EVOLVING_ARTIFACTS} from './artifact-info.mjs?v=tutorial-context-1';
+import {CONSUMABLE_ARTIFACTS,EVOLVING_ARTIFACTS} from './artifact-info.mjs?v=artifact-portraits-1';
 const clamp=(value,min,max)=>Math.max(min,Math.min(max,value));
 export const ARTIFACT_ENGINE_RULES=Object.freeze({
   'wayward-seed':Object.freeze({name:'Wayward Seed',color:'#c6dc99',trigger:'Three consecutive body Spark pickups.',effect:'Restore up to 3.34 Energy.',limits:'Five activations per flight. Collector deliveries break the chain.'}),
