@@ -1,6 +1,6 @@
 import {companionArtSvg} from './companion-art.mjs';
 import {getCompanionAbility} from './companion-abilities.mjs';
-import {SKILLS,MAIN_WISP_BRANCHES,getSkillCost,getSkillLockReason,isSkillRevealed,canChooseStartingSkill} from './model.mjs?v=clear-reveal-1';
+import {SKILLS,MAIN_WISP_BRANCHES,getSkillCost,getSkillLockReason,isSkillRevealed,canChooseStartingSkill} from './model.mjs?v=pickup-orbits-1';
 import {skillIcon} from './upgrade-icons.mjs';
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 export function mainWispTreeMarkup({run,wallet,canBuy,selected='main-sight'}){

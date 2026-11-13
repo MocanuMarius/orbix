@@ -1,11 +1,11 @@
-import { pickupKind, getPickupSpec, pickupDisposition } from './pickups.mjs?v=clear-reveal-1';
+import { pickupKind, getPickupSpec, pickupDisposition } from './pickups.mjs?v=pickup-orbits-1';
 
 const TAU = Math.PI * 2;
 const clamp = (value, low, high) => Math.max(low, Math.min(high, value));
 
 // Shared low-resolution paint operations: the game and the field guide use
 // the same bodies, shading, silhouettes and halo colors, with no gem frames.
-function packetPixels(kind, { time = 0, reducedMotion = false, tiny = false } = {}) {
+function packetPixels(kind, { time = 0, reducedMotion = false, tiny = false, bodyOnly = false } = {}) {
   const pixels = []; let shrink = tiny ? .62 : 1;
   const rect = (x, y, width, height, color, alpha = 1) => pixels.push({
     x: x * shrink, y: y * shrink, width: width * shrink, height: height * shrink, color, alpha,
@@ -34,8 +34,8 @@ function packetPixels(kind, { time = 0, reducedMotion = false, tiny = false } = 
   };
   const contact = getPickupSpec(kind).contactRadius, warning = pickupDisposition(kind)==='warning';
   // One consistent sign cue: pale circular light for boons, red for costs/danger.
-  halo(contact, warning ? '#d34e43' : '#d9ebbd', warning ? .24 : .19);
-  ring(contact - 1, warning ? '#f58b79' : '#e4f2ca', warning ? .78 : .54);
+  if(!bodyOnly){halo(contact, warning ? '#d34e43' : '#d9ebbd', warning ? .24 : .19);
+  ring(contact - 1, warning ? '#f58b79' : '#e4f2ca', warning ? .78 : .54);}
   shrink *= 1.2;
   const t = reducedMotion ? 0 : time;
   if (kind === 'dark') {
@@ -97,18 +97,18 @@ function packetPixels(kind, { time = 0, reducedMotion = false, tiny = false } = 
 
 const atlases = new WeakMap();
 const cycles={cache:[Math.PI*2/1.8,24],charge:[Math.PI*2/22,12],sight:[1/.48,24],dark:[Math.PI*2,32]};
-export function drawPickup(context,x,y,{kind='light',time=0,reducedMotion=false,tiny=false,alpha=1,scale=1}={}){
+export function drawPickup(context,x,y,{kind='light',time=0,reducedMotion=false,tiny=false,bodyOnly=false,alpha=1,scale=1}={}){
   const id=pickupKind(kind),size=Math.max(.1,Number(scale)||1),doc=context.canvas?.ownerDocument;
   const [period,frames]=cycles[id]||[1,1],frame=reducedMotion?0:Math.floor(((time%period+period)%period)/period*frames);
   let sprite;
-  if(doc){let cache=atlases.get(doc);if(!cache){cache=new Map();atlases.set(doc,cache)}const key=id+':'+frame+':'+tiny+':'+reducedMotion;sprite=cache.get(key);
+  if(doc){let cache=atlases.get(doc);if(!cache){cache=new Map();atlases.set(doc,cache)}const key=id+':'+frame+':'+tiny+':'+reducedMotion+':'+bodyOnly;sprite=cache.get(key);
     if(!sprite){sprite=doc.createElement('canvas');sprite.width=sprite.height=72;const c=sprite.getContext('2d',{willReadFrequently:true});
-      for(const p of packetPixels(id,{time:frame/frames*period,reducedMotion,tiny})){c.globalAlpha=p.alpha;c.fillStyle=p.color;c.fillRect(36+p.x,36+p.y,p.width,p.height)}cache.set(key,sprite);
+      for(const p of packetPixels(id,{time:frame/frames*period,reducedMotion,tiny,bodyOnly})){c.globalAlpha=p.alpha;c.fillStyle=p.color;c.fillRect(36+p.x,36+p.y,p.width,p.height)}cache.set(key,sprite);
     }
   }
   context.save();const inherited=context.globalAlpha*clamp(Number(alpha)||0,0,1);
   if(sprite){context.globalAlpha=inherited;context.imageSmoothingEnabled=false;context.drawImage(sprite,Math.round(x-36*size),Math.round(y-36*size),Math.round(72*size),Math.round(72*size))}
-  else for(const p of packetPixels(id,{time,reducedMotion,tiny})){context.globalAlpha=inherited*p.alpha;context.fillStyle=p.color;context.fillRect(Math.round(x+p.x*size),Math.round(y+p.y*size),Math.max(1,Math.round(p.width*size)),Math.max(1,Math.round(p.height*size)))}
+  else for(const p of packetPixels(id,{time,reducedMotion,tiny,bodyOnly})){context.globalAlpha=inherited*p.alpha;context.fillStyle=p.color;context.fillRect(Math.round(x+p.x*size),Math.round(y+p.y*size),Math.max(1,Math.round(p.width*size)),Math.max(1,Math.round(p.height*size)))}
   context.restore();
 }
 

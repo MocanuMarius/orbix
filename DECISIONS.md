@@ -507,3 +507,7 @@ All flights now position the exit 72 world units beyond the rightmost terrain or
 ## Level-clear light reveal
 
 Reaching the refuge now enters a protected 1.5-second completion animation instead of immediately opening rewards. Gameplay and fuel freeze; Lift, powers, collision and pickup teaching popups cannot interrupt. The wisp's light expands, fog eases away, a warm wash remains across the scene, and the Collector outline fades out. Reduced-motion mode uses the same gentle fog fade without expanding the light radius. Rewards are delivered exactly once after the full reveal. Targeted timing/resource/control checks and three-stage visual preview passed.
+
+## Smaller pickups and orbit absorption
+
+All seven pickup contact radii and their visible rings are now 80% of their previous size. On body contact or Collector interception the ring shatters into a bounded 18 fading pixel fragments (6 reduced-motion). The carried/absorbed packet renders only its inner body; it has no collection halo or active hitbox. The 1.35-second absorption holds an orbit for 3.15 full revolutions before the final inward spiral. Rewards still apply immediately; animation does not delay fuel rescue. Reduced-motion mode retains a direct contraction. Renderer probe verified 3.15 visible orbits before collapse; collision/rescue checks passed.

@@ -1,6 +1,6 @@
 import {FLAME_TUNING,LIGHT_PACKET_TUNING} from './vitality.mjs';
 
-const type=(id,name,color,radius,contactRadius,description,extra={})=>Object.freeze({id,name,color,radius,contactRadius,description,fuel:0,currency:0,recharge:0,sightBonus:0,sightDuration:0,dim:0,dimDuration:0,manualOnly:false,...extra});
+const type=(id,name,color,radius,contactRadius,description,extra={})=>Object.freeze({id,name,color,radius,contactRadius:contactRadius*.8,description,fuel:0,currency:0,recharge:0,sightBonus:0,sightDuration:0,dim:0,dimDuration:0,manualOnly:false,...extra});
 export const PICKUP_TYPES=Object.freeze({
   light:type('light','Light Mote','#f5e6bc',3,26,'Small fuel light. 24 Glow before route and companion bonuses.',{fuel:FLAME_TUNING.emberFuel}),
   cache:type('cache','Glow Cache','#f6d58d',6,30,'Large, slow-pulsing light. 40 Glow before route and companion bonuses.',{fuel:FLAME_TUNING.heartFuel}),

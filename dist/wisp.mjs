@@ -1,6 +1,6 @@
 import { LIGHT_PACKET_TUNING } from './vitality.mjs';
 import { getCompanionAbility } from './companion-abilities.mjs';
-import { pickupKind, pickupContactRadius, canCompanionCollect } from './pickups.mjs?v=clear-reveal-1';
+import { pickupKind, pickupContactRadius, canCompanionCollect } from './pickups.mjs?v=pickup-orbits-1';
 
 const clamp = (value, lo, hi) => Math.min(hi, Math.max(lo, value));
 export const WISP_TUNING = Object.freeze({ range: 105, cooldown: 5, lightRadius: 175, outboundSpeed: 700, returnSpeed: 820 });
@@ -129,6 +129,7 @@ export class WispCompanion {
       if (!target || !canCompanionCollect(target) || target.collected || target.x - engine.distance < -this.range(engine)) {
         this.releaseTarget(); this.phase = 'returning';
       } else if (this.moveTo(target.x - engine.distance, target.y, WISP_TUNING.outboundSpeed, dt)) {
+        engine.shatterPickupRing?.(target);
         target.carried = true;
         target.boostedPickup = engine.isCompanionWorking?.() ?? ((engine.abilityTime ?? engine.boostTime) > 0);
         this.cargo = target; this.target = null; this.phase = 'returning';

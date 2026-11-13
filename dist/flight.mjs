@@ -1,6 +1,6 @@
 /* Emberwing's self-contained canvas flight simulation and renderer. */
 import { FLAME_TUNING, LIGHT_PACKET_TUNING } from './vitality.mjs';
-import { flightEndDistance } from './flight-end.mjs?v=clear-reveal-1';
+import { flightEndDistance } from './flight-end.mjs?v=pickup-orbits-1';
 import { WispCompanion, wispHome } from './wisp.mjs';
 import { getAscentInfo } from './ascent.mjs';
 import { LEVEL_LENGTH, getLevelLengthScale } from './level-length.mjs';
@@ -8,8 +8,8 @@ import { resolveLevelIdentity } from './level-catalog.mjs';
 import { DraftField, DRAFT_TUNING } from './drafts.mjs';
 import { normalizeCompanionRole, normalizeCompanionFleet, getCompanionAbility } from './companion-abilities.mjs';
 import { populateSceneProps, scenePropPolygons } from './scene-props.mjs';
-import { pickupKind, getPickupSpec, pickupContactRadius, isFuelPickup, canCompanionCollect } from './pickups.mjs?v=clear-reveal-1';
-import { drawPickup } from './pickup-art.mjs?v=clear-reveal-1';
+import { pickupKind, getPickupSpec, pickupContactRadius, isFuelPickup, canCompanionCollect } from './pickups.mjs?v=pickup-orbits-1';
+import { drawPickup } from './pickup-art.mjs?v=pickup-orbits-1';
 import { buildBossLayout, getBossState as bossState, drawBoss } from './boss.mjs';
 import { getAuthoredChallenge, finalizeFlightChallenges, installAuthoredDraftCrossings, FlightChallengeDirector } from './flight-challenges.mjs';
 import { createTutorialState, buildTutorialLayout, recordTutorialPickup,
@@ -829,7 +829,7 @@ export class WispFlight {
 
   async initPixelView() {
     try {
-      const { WispFlightView } = await import('./wisp-renderer.mjs?v=clear-reveal-1');
+      const { WispFlightView } = await import('./wisp-renderer.mjs?v=pickup-orbits-1');
       if (this.destroyed) return;
       this.pixiView = new WispFlightView(this);
       const initialized = await this.pixiView.init();
@@ -1244,6 +1244,17 @@ export class WispFlight {
     return true;
   }
 
+  shatterPickupRing(packet) {
+    const radius=pickupContactRadius(packet),x=packet.x-this.distance,y=packet.y;
+    const color=getPickupSpec(packet).dim>0?'#f58b79':'#e4f2ca';
+    const count=this.reducedMotion?6:18;
+    for(let i=0;i<count&&this.particles.length<150;i++){
+      const angle=i/count*TAU,vx=Math.cos(angle)*32,vy=Math.sin(angle)*32;
+      this.particles.push({type:'ring-shard',x:x+Math.cos(angle)*radius,y:y+Math.sin(angle)*radius,
+        vx,vy,life:.42,maxLife:.42,size:1,length:1,rotation:angle,glow:0,color});
+    }
+  }
+
   absorbPacket(ember, kind) {
     const origin = ember.deliveredByWisp ? this.getWispState()
       : { x: ember.x - this.distance, y: ember.y };
@@ -1469,6 +1480,7 @@ export class WispFlight {
     if (ember.collected || !this.alive || this.finished || this.destroyed || this.dying) return;
     const kind = pickupKind(ember), spec = getPickupSpec(ember), harmful = kind === 'dark';
     if (ember.deliveredByWisp && !canCompanionCollect(ember)) return;
+    if(!ember.deliveredByWisp)this.shatterPickupRing(ember);
     if (harmful) {
       // Body-only hazard: never turn a stale carrier reservation into a hit.
       if (ember.deliveredByWisp) return;
