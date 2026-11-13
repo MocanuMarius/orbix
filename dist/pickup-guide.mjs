@@ -1,7 +1,7 @@
-import {formatGlow} from './vitality.mjs?v=gentler-opening-1';
-import { PICKUP_TYPES, getPickupSpec } from './pickups.mjs?v=gentler-opening-1';
-import { pickupArtSvg } from './pickup-art.mjs?v=gentler-opening-1';
-import { normalizeCompanionRole, normalizeCompanionFleet } from './companion-abilities.mjs?v=gentler-opening-1';
+import {formatGlow} from './vitality.mjs?v=fuel-depth-1';
+import { PICKUP_TYPES, getPickupSpec } from './pickups.mjs?v=fuel-depth-1';
+import { pickupArtSvg } from './pickup-art.mjs?v=fuel-depth-1';
+import { normalizeCompanionRole, normalizeCompanionFleet } from './companion-abilities.mjs?v=fuel-depth-1';
 
 const esc = value => String(value ?? '').replace(/[&<>"']/g, char =>
   ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));

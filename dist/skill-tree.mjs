@@ -1,6 +1,6 @@
-import {SKILLS} from './model.mjs?v=gentler-opening-1';
-import {treeHeader,treeCanvas,treeDetail} from './living-tree.mjs?v=gentler-opening-1';
-import {safeTreeSelection} from './skill-tree-state.mjs?v=gentler-opening-1';
+import {SKILLS} from './model.mjs?v=fuel-depth-1';
+import {treeHeader,treeCanvas,treeDetail} from './living-tree.mjs?v=fuel-depth-1';
+import {safeTreeSelection} from './skill-tree-state.mjs?v=fuel-depth-1';
 export function branchTreeMarkup({run,wallet,branch,canBuy,selected}){
  const skills=Object.values(SKILLS).filter(s=>s.branch===branch);
  const skill=safeTreeSelection(skills,selected,{run,wallet,canBuy});

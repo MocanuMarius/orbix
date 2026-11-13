@@ -1,6 +1,6 @@
-import {livesMarkup} from './lives.mjs?v=gentler-opening-1';
-import {formatGlow,getGlowCapacity} from './vitality.mjs?v=gentler-opening-1';
-import {resourceSymbol} from './game-symbols.mjs?v=gentler-opening-1';
+import {livesMarkup} from './lives.mjs?v=fuel-depth-1';
+import {formatGlow,getGlowCapacity} from './vitality.mjs?v=fuel-depth-1';
+import {resourceSymbol} from './game-symbols.mjs?v=fuel-depth-1';
 
 export const FLIGHT_LOAD_SECONDS=5;
 const esc=value=>String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));

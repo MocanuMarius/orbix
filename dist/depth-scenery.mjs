@@ -1,11 +1,19 @@
 // Small repeating pixel plates: rasterized once, translated at separate depths.
 // No outlines or collision geometry: these shapes always sit behind playable terrain.
 export function createDepthScenery(document,height,terrain,palette){
- return [.07,.18,.36].map((speed,layer)=>{
+ return [.07,.18,.36,.52].map((speed,layer)=>{
   const tile=document.createElement('canvas');tile.width=384;tile.height=height;
   const c=tile.getContext('2d');c.imageSmoothingEnabled=false;
   const poly=points=>{c.beginPath();points.forEach(([x,y],i)=>i?c.lineTo(x,y):c.moveTo(x,y));c.closePath();c.fill();};
-  c.fillStyle=[palette.far,palette.middle,palette.near][layer];
+  const ink=[palette.far,palette.middle,palette.near,palette.face][layer];
+  c.fillStyle=ink;
+  // Continuous ridges give each depth a substantial landmass, not loose shadows.
+  const ridge=[[0,height]];
+  for(let x=0;x<=384;x+=24)ridge.push([x,Math.round(height*(.66+layer*.075)-Math.sin(x/384*Math.PI*4+layer)*15-Math.sin(x/384*Math.PI*8)*7)]);
+  ridge.push([384,height]);poly(ridge);
+  c.fillStyle=palette.sky[1];
+  for(let i=0;i<18;i++){const x=i*23%380,y=Math.round(height*(.81+layer*.045))+(i%3)*7;c.fillRect(x,y,12+i%4*3,2);}
+  c.fillStyle=ink;
   for(let i=0;i<6;i++){
    const x=18+i*64+(i%2)*9,base=Math.round(height*(.78+layer*.09)),h=18+((i*19+layer*13)%37),w=10+layer*3;
    if(terrain==='canopy'){
@@ -20,9 +28,9 @@ export function createDepthScenery(document,height,terrain,palette){
     poly([[x+12,base+20],[x+17,base-h*.65],[x+24,base-h*.4],[x+32,base+20]]);
    }
    // A sparse upper hanging silhouette helps convey speed in open passages.
-   if(layer===2&&i%2===0)poly([[x,0],[x+16,0],[x+11,9+h*.2],[x+6,5]]);
+   if(layer>=2&&i%2===0)poly([[x,0],[x+16,0],[x+11,9+h*.2],[x+6,5]]);
   }
-  return {tile,speed,alpha:[.23,.30,.36][layer]};
+  return {tile,speed,alpha:[.52,.62,.72,.48][layer]};
  });
 }
 export function drawDepthScenery(c,layers,distance,width){

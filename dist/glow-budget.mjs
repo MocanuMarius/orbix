@@ -1,4 +1,4 @@
-import {getPickupSpec,pickupKind,pickupContactRadius} from './pickups.mjs?v=gentler-opening-1';
+import {getPickupSpec,pickupKind,pickupContactRadius} from './pickups.mjs?v=fuel-depth-1';
 
 // Roof-heavy courses used to lose half their fuel to floor-cache placement.
 // A duration floor repairs that disparity with richer lights before adding
@@ -7,6 +7,29 @@ export const GLOW_BUDGET_TUNING=Object.freeze({minimumFuelPerSecond:8.2,firstMap
 export function ensureGlowBudget(layout,{duration,height,endX,clear,drafts=[],tutorial=false,difficulty=2,mapIndex=0}={}){
  if(tutorial||!Number.isFinite(duration)||!Number.isFinite(endX)||!clear)return;
  const packets=layout.embers,eligible=p=>!p.generated&&!p.harmful&&!getPickupSpec(p).dim&&getPickupSpec(p).fuel>0;
+ // A total fuel budget alone cannot fix long gaps or wall-only pickups.
+ // A1 receives a separate body-reachable supply rhythm, with terrain clearance.
+ let supplyAdded=0;
+ if(difficulty<=1){
+  const spacing=mapIndex===0?460:580;
+  for(let anchor=420;anchor<endX-150;anchor+=spacing){
+   let placed=false;
+   for(const offset of [0,70,-70,140,-140]){
+    const x=anchor+offset;if(x<300||x>endX-100)continue;
+    if((layout.riskChains||[]).some(chain=>x>chain.start-100&&x<chain.end+100))continue;
+    if(drafts.some(zone=>Math.abs(x-zone.x)<zone.rx+35))continue;
+    for(const fraction of [.50,.46,.54,.42,.58,.38,.62]){
+     const y=height*fraction;
+     if(!clear(x,y,38)||packets.some(p=>getPickupSpec(p).dim>0&&Math.hypot(p.x-x,p.y-y)<150))continue;
+     const nearby=packets.find(p=>eligible(p)&&Math.abs(p.x-x)<160&&Math.abs(p.y-y)<55&&clear(p.x,p.y,38));
+     if(nearby){if(getPickupSpec(nearby).fuel<40)Object.assign(nearby,{kind:'cluster',value:2,accessible:true});placed=true;break;}
+     packets.push({id:`a1-supply:${supplyAdded++}`,kind:'cluster',value:2,x,y,fuel:true,accessible:true,
+      feature:'sheltered-glow',clearance:38,collected:false,attracted:false,phase:anchor*.01});placed=true;break;
+    }
+    if(placed)break;
+   }
+  }
+ }
  let available=packets.filter(eligible).reduce((sum,p)=>sum+getPickupSpec(p).fuel,0);
  const rate=difficulty<=1?(mapIndex===0?GLOW_BUDGET_TUNING.firstMapFuelPerSecond:GLOW_BUDGET_TUNING.easyFuelPerSecond):GLOW_BUDGET_TUNING.minimumFuelPerSecond;
  const target=Math.ceil(duration*rate);
@@ -49,5 +72,5 @@ export function ensureGlowBudget(layout,{duration,height,endX,clear,drafts=[],tu
   }
  }
  packets.sort((a,b)=>a.x-b.x);
- layout.glowBudget={target,before,available,enriched,added,shortfall:Math.max(0,target-available)};
+ layout.glowBudget={target,before,available,enriched,added,supplyAdded,shortfall:Math.max(0,target-available)};
 }
