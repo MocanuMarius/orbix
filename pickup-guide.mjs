@@ -1,5 +1,5 @@
-import { PICKUP_TYPES, getPickupSpec } from './pickups.mjs?v=pickup-orbits-1';
-import { pickupArtSvg } from './pickup-art.mjs?v=pickup-orbits-1';
+import { PICKUP_TYPES, getPickupSpec } from './pickups.mjs?v=deep-skill-paths-1';
+import { pickupArtSvg } from './pickup-art.mjs?v=deep-skill-paths-1';
 import { getCompanionAbility, normalizeCompanionRole, normalizeCompanionFleet } from './companion-abilities.mjs';
 
 const esc = value => String(value ?? '').replace(/[&<>"']/g, char =>

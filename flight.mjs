@@ -1,6 +1,6 @@
 /* Emberwing's self-contained canvas flight simulation and renderer. */
 import { FLAME_TUNING, LIGHT_PACKET_TUNING } from './vitality.mjs';
-import { flightEndDistance } from './flight-end.mjs?v=pickup-orbits-1';
+import { flightEndDistance } from './flight-end.mjs?v=deep-skill-paths-1';
 import { WispCompanion, wispHome } from './wisp.mjs';
 import { getAscentInfo } from './ascent.mjs';
 import { LEVEL_LENGTH, getLevelLengthScale } from './level-length.mjs';
@@ -8,8 +8,8 @@ import { resolveLevelIdentity } from './level-catalog.mjs';
 import { DraftField, DRAFT_TUNING } from './drafts.mjs';
 import { normalizeCompanionRole, normalizeCompanionFleet, getCompanionAbility } from './companion-abilities.mjs';
 import { populateSceneProps, scenePropPolygons } from './scene-props.mjs';
-import { pickupKind, getPickupSpec, pickupContactRadius, isFuelPickup, canCompanionCollect } from './pickups.mjs?v=pickup-orbits-1';
-import { drawPickup } from './pickup-art.mjs?v=pickup-orbits-1';
+import { pickupKind, getPickupSpec, pickupContactRadius, isFuelPickup, canCompanionCollect } from './pickups.mjs?v=deep-skill-paths-1';
+import { drawPickup } from './pickup-art.mjs?v=deep-skill-paths-1';
 import { buildBossLayout, getBossState as bossState, drawBoss } from './boss.mjs';
 import { getAuthoredChallenge, finalizeFlightChallenges, installAuthoredDraftCrossings, FlightChallengeDirector } from './flight-challenges.mjs';
 import { createTutorialState, buildTutorialLayout, recordTutorialPickup,
@@ -829,7 +829,7 @@ export class WispFlight {
 
   async initPixelView() {
     try {
-      const { WispFlightView } = await import('./wisp-renderer.mjs?v=pickup-orbits-1');
+      const { WispFlightView } = await import('./wisp-renderer.mjs?v=deep-skill-paths-1');
       if (this.destroyed) return;
       this.pixiView = new WispFlightView(this);
       const initialized = await this.pixiView.init();
@@ -1131,7 +1131,7 @@ export class WispFlight {
       if(item.role==='collector') Object.assign(view,this.getWispState(y,time));
       if(item.role==='protector') Object.assign(view,{charges:this.shield.charges,layers:this.shield.layers,
         recovery:this.shield.recovery,recoveryTotal:this.shield.recoveryTotal});
-      if(item.role==='kindler') view.purifyCooldown=this.purifyCooldown;
+      if(item.role==='kindler'){view.purifyCooldown=this.purifyCooldown;view.purifyCooldownTotal=Number(this.mod.purifyCooldown)||10;}
     }
     return this._companionViews;
   }
@@ -1146,7 +1146,7 @@ export class WispFlight {
 
   getLightState() {
     const baseRadius = Number(this.mod.lightRadius)>0 ? Number(this.mod.lightRadius) : LIGHT_PACKET_TUNING.baseRadius;
-    const reduction=clamp(this.lightDimming*(1-clamp(this.mod.darkResistance||0,0,.4)),0,1-LIGHT_PACKET_TUNING.minimumLight);
+    const reduction=clamp(this.lightDimming*(1-clamp(this.mod.darkResistance||0,0,.6)),0,1-LIGHT_PACKET_TUNING.minimumLight);
     const sightRemaining=Math.max(0,this.sightUntil-this.time),sightBonus=sightRemaining>0?50:0;
     const revealedRadius=baseRadius+sightBonus,dyingFade=this.dying?Math.max(0,1-this.dyingProgress**1.7):1;
     const caveReduction=clamp(this.caveDimming||0,0,.18),caveScale=1-caveReduction;
@@ -1216,7 +1216,7 @@ export class WispFlight {
     if(!this._collectorAura)this._collectorAura={shape:'circle',vertices:[],contains(x,y){return Math.hypot(x-this.x,y-this.y)<=this.radius;}};
     const aura=this._collectorAura;
     aura.x=aura.worldX=this.distance+this.player.x;aura.y=this.player.y;
-    aura.radius=aura.maxRadius=Math.min(18,range)+(range-Math.min(18,range))*growth;aura.baseRadius=range;aura.maximumReach=range;
+    aura.radius=aura.maxRadius=Math.min(18+(Number(this.mod.collectorMinimum)||0),range)+(range-Math.min(18+(Number(this.mod.collectorMinimum)||0),range))*growth;aura.baseRadius=range;aura.maximumReach=range;
     aura.growth=growth;aura.active=!this.dying;aura.areaRatio=1;aura.coordinateSpace='world';
     return aura;
   }
@@ -1464,7 +1464,7 @@ export class WispFlight {
       if(safe!==null){
         const previous=this.player.y;this.flame=Math.max(0,this.flame-cost);this.shield.charges--;
         if(this.shield.recovery<=0)this.shield.recovery=this.shield.recoveryTotal;
-        this.shield.protection=.4;this.shield.hitFlash=.45;this.flash=.14;
+        this.shield.protection=Number(this.mod.protectorProtection)||.4;this.shield.hitFlash=.45;this.flash=.14;
         this.player.y=this.previousPlayerY=safe;this.player.vy=(safe>=previous?1:-1)*65*this.scaleY;
         this.cancelLeveler(true);this.levelDive=0;this._auraUntil=-1;
         this.setEvent(`Protector · shell spent, −${cost} Glow`);this.sound('hit');
@@ -1486,8 +1486,8 @@ export class WispFlight {
       if (ember.deliveredByWisp) return;
       ember.collected = true;
       if(this.hasCompanion('kindler')&&this.mod.kindlerPurify&&this.purifyCooldown<=0){
-        const restored=Math.min(12,FLAME_TUNING.maximum-this.flame);
-        this.flame+=restored;this.flameRestored+=restored;this.purifyCooldown=10;
+        const restored=Math.min(Number(this.mod.purifyFuel)||12,FLAME_TUNING.maximum-this.flame);
+        this.flame+=restored;this.flameRestored+=restored;this.purifyCooldown=Number(this.mod.purifyCooldown)||10;
         this.absorbPacket({...ember,kind:'light',harmful:false},'light');
         const text=restored>0?`Purified · +${restored} Glow`:'Purified · Glow full';
         this.pickupEffects.push({x:this.player.x,y:this.player.y,pickupKind:'light',text,restored,life:.72});
@@ -1533,6 +1533,7 @@ export class WispFlight {
     const fuel = ember.generated ? FLAME_TUNING.generatedFuel
       : spec.fuel
         + this.fuelBonus + clamp(Number(this.mod.cacheFuelBonus) || 0, 0, 32)
+        + (ember.deliveredByWisp?(Number(this.mod.collectorFuelBonus)||0):0)
         + (!ember.deliveredByWisp&&this.hasCompanion('kindler')?clamp(Number(this.mod.kindlerBonus)||10,0,30):0);
     const restored = Math.min(fuel, FLAME_TUNING.maximum - this.flame);
     this.flame += restored; this.flameRestored += restored;

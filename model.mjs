@@ -1,3 +1,4 @@
+import {EXPANDED_SKILLS,applyExpandedSkills} from './skill-paths.mjs';
 /** Run-owned skills and currency; persistent ascension unlocks and boss artifacts. */
 import { FLAME_TUNING, LIFE_TUNING, getLifeCapacity } from './vitality.mjs';
 import { getLevelIdentity } from './level-catalog.mjs';
@@ -24,8 +25,9 @@ const RUN_BRANCH_CHOICES={
 };
 for(const [a,b,group] of [['main-horizon','main-dawn','main-radiance'],['main-tailwind','main-drift','main-momentum'],['main-lift','main-kindling','main-vitality']])for(const [id,other] of [[a,b],[b,a]])RUN_BRANCH_CHOICES[id]={...RUN_BRANCH_CHOICES[id],choiceGroup:group,excludes:[other]};
 export const MAIN_WISP_BRANCHES=Object.freeze([{root:'main-sight',name:'Radiance',leaves:['main-horizon','main-dawn']},{root:'main-speed',name:'Momentum',leaves:['main-tailwind','main-drift']},{root:'main-efficiency',name:'Vitality',leaves:['main-lift','main-kindling']}]);
-const skill=(id,name,branch,cost,maxRank,requires,description,prices)=>Object.freeze({id,name,branch,cost,maxRank,requires:branch!=='main'&&branch!=='afterglow'&&requires===null&&!id.endsWith('-attunement')?`${branch}-attunement`:requires,description,...(prices?{prices}:{}),...RUN_BRANCH_CHOICES[id],...(branch!=='main'&&branch!=='afterglow'&&!id.endsWith('-attunement')&&(Object.hasOwn(RUN_BRANCH_CHOICES[id]||{},'requires')?RUN_BRANCH_CHOICES[id].requires:requires)===null?{requires:`${branch}-attunement`}:{})});
+const skill=(id,name,branch,cost,maxRank,requires,description,prices)=>Object.freeze({id,name,branch,cost:id.endsWith('-attunement')?20:id.endsWith('-mastery')?35:RUN_BRANCH_CHOICES[id]?.choiceGroup?65:branch!=='main'&&branch!=='afterglow'?40:cost,maxRank:branch!=='main'&&branch!=='afterglow'?1:maxRank,requires:branch!=='main'&&branch!=='afterglow'&&requires===null&&!id.endsWith('-attunement')?`${branch}-attunement`:requires,description,...(prices?{prices}:{}),...RUN_BRANCH_CHOICES[id],...(branch!=='main'&&branch!=='afterglow'&&!id.endsWith('-attunement')&&(Object.hasOwn(RUN_BRANCH_CHOICES[id]||{},'requires')?RUN_BRANCH_CHOICES[id].requires:requires)===null?{requires:`${branch}-attunement`}:{})});
 export const SKILLS=Object.freeze({
+ ...EXPANDED_SKILLS,
  'main-bond':skill('main-bond','Companion Bond','main',80,2,null,'Add a second, then third equipped companion slot.',[80,300]),
  'main-efficiency':skill('main-efficiency','Gentle Lift','main',40,3,null,'Lift spends 7% less Glow per rank.'),
  'main-sight':skill('main-sight','Inner Glow','main',40,3,null,'See farther ahead with each rank.'),
@@ -192,7 +194,7 @@ export function resolveSupport(run,index,profile=null){
   if(e.sell&&(run.testMode||!profile?.ownedArtifacts.includes(e.sell)))return false;
   if(e.upgrade&&(getSkillCost(wallet,e.upgrade)===null||!run.testMode&&SKILLS[e.upgrade].requires&&!rank(run.skills,SKILLS[e.upgrade].requires)))return false;
   if(run.isTutorial)run.practiceEmbers-=cost;else run.embers-=cost;
-  if(e.upgrade){if(run.testMode)for(const id of SKILLS[e.upgrade].excludes||[])delete run.skills[id];run.skills[e.upgrade]=rank(run.skills,e.upgrade)+1;}
+  if(e.upgrade){if(run.testMode)for(const id of SKILLS[e.upgrade].excludes||[])forgetSkillBranch(run.skills,id);run.skills[e.upgrade]=rank(run.skills,e.upgrade)+1;}
   if(e.sell){profile.ownedArtifacts=profile.ownedArtifacts.filter(id=>id!==e.sell);profile.equippedArtifacts=profile.equippedArtifacts.filter(id=>id!==e.sell);run.artifacts=run.artifacts.filter(id=>id!==e.sell);queue(run,e.saleValue,'artifact-sale');}
   if(e.embers){if(run.isTutorial)run.practiceEmbers+=e.embers;else queue(run,e.embers,'support');}
   run.flame=clamp(run.flame+finite(e.flame),0,100);
@@ -206,10 +208,17 @@ export function resolveSupport(run,index,profile=null){
 export function isSkillRevealed(profile,id){const s=SKILLS[id];if(!s)return false;if(profile?.testMode===true||rank(profile?.skills,id)>0)return true;if((s.branch==='afterglow'||id==='main-bond')&&profile?.afterglowUnlocked!==true)return false;const requires=Array.isArray(s.requires)?s.requires:s.requires?[s.requires]:[];return requires.every(parent=>rank(profile?.skills,parent)>0);}
 export function getSkillCost(profile,id){const s=SKILLS[id];if(!s||getSkillLockReason(profile,id))return null;const r=rank(profile?.skills,id);return r>=s.maxRank?null:s.prices?.[r]??Math.round(s.cost*1.5**r);}
 export function canBuyCheckpointSkills(state){const r=state?.run;return!!r&&(r.testMode===true||r.restReady===true)&&canChangeCompanion(r);}
+function forgetSkillBranch(skills,id){
+  delete skills[id];
+  for(const child of Object.values(SKILLS)){
+    const requires=Array.isArray(child.requires)?child.requires:[child.requires];
+    if(requires.includes(id)&&skills[child.id])forgetSkillBranch(skills,child.id);
+  }
+}
 export function buyCheckpointSkill(state,id){
   if(!canBuyCheckpointSkills(state))return false;const r=state.run,wallet=runWallet(r),s=SKILLS[id],cost=getSkillCost(wallet,id);
   if(!s||cost===null||wallet.embers<cost||!r.testMode&&s.requires&&!rank(r.skills,s.requires))return false;
-  if(r.isTutorial)r.practiceEmbers-=cost;else r.embers-=cost;if(r.testMode)for(const other of s.excludes||[])delete r.skills[other];r.skills[id]=rank(r.skills,id)+1;r.maxLives=getLifeCapacity(r);if(r.restReady&&r.lifeRestClaimed)r.lives=r.maxLives;r.supportOffers=null;return true;
+  if(r.isTutorial)r.practiceEmbers-=cost;else r.embers-=cost;if(r.testMode)for(const other of s.excludes||[])forgetSkillBranch(r.skills,other);r.skills[id]=rank(r.skills,id)+1;r.maxLives=getLifeCapacity(r);if(r.restReady&&r.lifeRestClaimed)r.lives=r.maxLives;r.supportOffers=null;return true;
 }
 function artifactService(state,selling=false){const r=state?.run;if(!state?.profile||!r||r.isTutorial||r.attemptActive||r.banked||['retry','map-clear','ended'].includes(r.phase)||reattempt(r))return false;return selling?r.phase==='support'||r.restReady===true:r.phase==='support'||canChangeCompanion(r);}
 export function equipArtifact(state,id,slot=0){if(!artifactService(state)||!Number.isInteger(slot)||slot<0||slot>2||id!=null&&(!Object.hasOwn(ARTIFACTS,id)||!state.run.testMode&&!state.profile.ownedArtifacts.includes(id)))return false;const r=state.run,next=Array.from({length:3},(_,i)=>r.artifacts?.[i]||null);if(id!=null)for(let i=0;i<3;i++)if(next[i]===id)next[i]=null;next[slot]=id??null;r.artifacts=next;if(!r.testMode)state.profile.equippedArtifacts=[...next];return true;}
@@ -230,7 +239,9 @@ export function getRunModifiers(run={}){const s=run.skills||{},m={speed:1+.05*ra
   const spark=role=>rank(s,`${role}-attunement`)+rank(s,`${role}-mastery`);
   m.attract*=1+.05*spark('collector');m.protectorCost=Math.max(1,m.protectorCost-.5*spark('protector'));
   m.levelerDuration+=.1*spark('leveler');m.swiftRecovery-=.25*spark('swift');m.seerRadius+=12*spark('seer');m.kindlerBonus+=spark('kindler');
-  for(const id of unique(run.artifacts,x=>Object.hasOwn(ARTIFACTS,x)).slice(0,3)){for(const[k,v]of Object.entries(ARTIFACTS[id].modifiers))if(['flapCost','flap','attract','protectorRecovery','swiftRecovery'].includes(k))m[k]*=v;else m[k]+=v;}m.flap=clamp(m.flap,.8,1.2);m.flapCost=clamp(m.flapCost,.5,1.25);m.attract=clamp(m.attract,.65,2.5);m.swiftResistance=clamp(m.swiftResistance,0,.9);m.protectorLayers=clamp(m.protectorLayers,1,2);return m;}
+  m.collectorMinimum=0;m.collectorFuelBonus=0;m.protectorProtection=.4;m.purifyCooldown=10;m.purifyFuel=12;
+  applyExpandedSkills(m,s,run.companions||[run.companionRole||'collector']);
+  for(const id of unique(run.artifacts,x=>Object.hasOwn(ARTIFACTS,x)).slice(0,3)){for(const[k,v]of Object.entries(ARTIFACTS[id].modifiers))if(['flapCost','flap','attract','protectorRecovery','swiftRecovery'].includes(k))m[k]*=v;else m[k]+=v;}m.flap=clamp(m.flap,.8,1.2);m.flapCost=clamp(m.flapCost,.5,1.25);m.attract=clamp(m.attract,.65,2.5);m.swiftResistance=clamp(m.swiftResistance,0,.94);m.protectorLayers=clamp(m.protectorLayers,1,2);return m;}
 
 function createTutorial(profile){const r=createRun(profile,`practice-${freshSeed()}`);r.isTutorial=true;r.mapIndex=0;r.mapName='Practice';r.difficulty=1;r.skills={};r.artifacts=[];r.companions=['collector'];r.companionRole='collector';r.practiceEmbers=200;r.afterglow=0;r.afterglowUnlocked=false;r.afterglowTotals=report(0);r.flame=80;const base={mapIndex:0,difficulty:1,afterglowUnlocked:false,elite:false,boss:false,bossId:null,...ROUTE_PROFILES.refuge,flightLengthScale:1,challengeId:'',challengeTarget:0,challengeBonus:0};r.map=[[{...base,id:'practice-glide',row:0,lane:1,type:'flight',kind:'normal',terrain:'ruins',name:'First Light',locationName:'First Light',levelId:'ruins-aqueduct',tutorialLesson:'glide',duration:36,nextIds:['practice-rest']}],[{...base,id:'practice-rest',row:1,lane:1,type:'support',kind:'camp',terrain:'ruins',name:'Practice Rest',tutorialLesson:'preparation',duration:0,nextIds:['practice-wind']}],[{...base,id:'practice-wind',row:2,lane:1,type:'finale',kind:'finale',terrain:'storm',name:'Cross a Draft',locationName:'Cross a Draft',levelId:'storm-ridge',tutorialLesson:'wind',duration:44,nextIds:[]}]];return r;}
 export function startTutorial(state){if(!state?.profile)return false;const old=state.run;if(old?.isTutorial&&old.phase!=='ended')return false;if(old?.isTutorial)bankRun(state);else{state.suspendedRun=old&&old.phase!=='ended'&&!old.banked?copy(old):null;if(state.suspendedRun?.attemptActive)interrupt(state.suspendedRun);}state.run=createTutorial(state.profile);const selected=unique(state.settings?.companions,id=>ROLES.includes(id)).slice(0,1);state.run.companions=selected.length?selected:['collector'];state.run.companionRole=state.run.companions[0];return true;}
