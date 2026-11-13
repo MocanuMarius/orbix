@@ -1,7 +1,7 @@
-import {glowText,getGlowCapacity} from './vitality.mjs?v=glow-builds-1';
-import {SKILLS,getSkillCost,getSkillLockReason,canChooseStartingSkill,MAIN_WISP_BRANCHES} from './model.mjs?v=glow-builds-1';
-import {skillIcon} from './upgrade-icons.mjs?v=glow-builds-1';
-import {companionArtSvg} from './companion-art.mjs?v=glow-builds-1';
+import {glowText,getGlowCapacity} from './vitality.mjs?v=collector-flow-1';
+import {SKILLS,getSkillCost,getSkillLockReason,canChooseStartingSkill,MAIN_WISP_BRANCHES} from './model.mjs?v=collector-flow-1';
+import {skillIcon} from './upgrade-icons.mjs?v=collector-flow-1';
+import {companionArtSvg} from './companion-art.mjs?v=collector-flow-1';
 export const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const label=s=>s.shortEffect||({'main-sight':'+35 sight','main-efficiency':'−7% cost','main-speed':'+5% pace','main-spare-spark':'+1 heart','main-deep-reserve':'+1 heart','main-bond':'+1 wisp'})[s.id]||s.name;
 export function treeHeader(run,wallet,branch){

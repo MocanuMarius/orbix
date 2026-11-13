@@ -1,7 +1,7 @@
-import {formatGlow,getGlowCapacity} from './vitality.mjs?v=glow-builds-1';
-import {livesMarkup} from './lives.mjs?v=glow-builds-1';
-import { COMPANION_ABILITIES } from './companion-abilities.mjs?v=glow-builds-1';
-import { companionArtSvg } from './companion-art.mjs?v=glow-builds-1';
+import {formatGlow,getGlowCapacity} from './vitality.mjs?v=collector-flow-1';
+import {livesMarkup} from './lives.mjs?v=collector-flow-1';
+import { COMPANION_ABILITIES } from './companion-abilities.mjs?v=collector-flow-1';
+import { companionArtSvg } from './companion-art.mjs?v=collector-flow-1';
 
 const esc = value => String(value ?? '').replace(/[&<>"']/g, char =>
   ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[char]));

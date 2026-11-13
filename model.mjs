@@ -1,12 +1,12 @@
-import {MAIN_TUNING_SKILLS} from './main-tuning.mjs?v=glow-builds-1';
-import {STARTING_EMBERS,getGlowCapacity,glowText} from './vitality.mjs?v=glow-builds-1';
-import {expandSkillSteps,skillProgress} from './skill-increments.mjs?v=glow-builds-1';
-import {MAX_ASCENSION} from './ascent.mjs?v=glow-builds-1';
-import {EXPANDED_SKILLS,applyExpandedSkills} from './skill-paths.mjs?v=glow-builds-1';
+import {MAIN_TUNING_SKILLS} from './main-tuning.mjs?v=collector-flow-1';
+import {STARTING_EMBERS,getGlowCapacity,glowText} from './vitality.mjs?v=collector-flow-1';
+import {expandSkillSteps,skillProgress} from './skill-increments.mjs?v=collector-flow-1';
+import {MAX_ASCENSION} from './ascent.mjs?v=collector-flow-1';
+import {EXPANDED_SKILLS,applyExpandedSkills} from './skill-paths.mjs?v=collector-flow-1';
 /** Run-owned skills and currency; persistent ascension unlocks and boss artifacts. */
-import { FLAME_TUNING, LIFE_TUNING, getLifeCapacity } from './vitality.mjs?v=glow-builds-1';
-import { getLevelIdentity } from './level-catalog.mjs?v=glow-builds-1';
-import { EVENT_SCENARIOS } from './map-guide.mjs?v=glow-builds-1';
+import { FLAME_TUNING, LIFE_TUNING, getLifeCapacity } from './vitality.mjs?v=collector-flow-1';
+import { getLevelIdentity } from './level-catalog.mjs?v=collector-flow-1';
+import { EVENT_SCENARIOS } from './map-guide.mjs?v=collector-flow-1';
 export const SAVE_KEY='emberwing.save.runskills.v6';
 export const CAMPAIGN_MAP_NAMES=Object.freeze(['The Forgotten Verge','The Rootbound March','The Warden’s Reach']);
 export const TERRAINS=Object.freeze({ruins:{id:'ruins',name:'Sunken Ruins',color:'#cdb183',description:'Broken homes, worn arches and overgrown stone.'},canopy:{id:'canopy',name:'Luminous Canopy',color:'#94b48a',description:'Hollow trees, hanging roots and sheltered forest passages.'},storm:{id:'storm',name:'Stormglass Peaks',color:'#a8bbca',description:'Pine ridges, old mine timbers and local draft puffs.'}});

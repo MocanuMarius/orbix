@@ -1,12 +1,12 @@
-import {formatGlow} from './vitality.mjs?v=glow-builds-1';
-import {LOCATION_PALETTES} from './world-expansion.mjs?v=glow-builds-1';
-import { sceneryIdentity, drawIdentityBackground, drawIdentityMaterial, drawIdentityLife } from './level-scenery.mjs?v=glow-builds-1';
-import { getCompanionAbility, normalizeCompanionRole } from './companion-abilities.mjs?v=glow-builds-1';
-import { companionSprite, companionPalette } from './companion-art.mjs?v=glow-builds-1';
-import { createScenePropArt } from './scene-prop-art.mjs?v=glow-builds-1';
-import { drawBoss } from './boss.mjs?v=glow-builds-1';
-import { drawPickup } from './pickup-art.mjs?v=glow-builds-1';
-import { pickupKind, getPickupSpec } from './pickups.mjs?v=glow-builds-1';
+import {formatGlow} from './vitality.mjs?v=collector-flow-1';
+import {LOCATION_PALETTES} from './world-expansion.mjs?v=collector-flow-1';
+import { sceneryIdentity, drawIdentityBackground, drawIdentityMaterial, drawIdentityLife } from './level-scenery.mjs?v=collector-flow-1';
+import { getCompanionAbility, normalizeCompanionRole } from './companion-abilities.mjs?v=collector-flow-1';
+import { companionSprite, companionPalette } from './companion-art.mjs?v=collector-flow-1';
+import { createScenePropArt } from './scene-prop-art.mjs?v=collector-flow-1';
+import { drawBoss } from './boss.mjs?v=collector-flow-1';
+import { drawPickup } from './pickup-art.mjs?v=collector-flow-1';
+import { pickupKind, getPickupSpec } from './pickups.mjs?v=collector-flow-1';
 
 const TAU = Math.PI * 2;
 const SCENERY_HELPERS = { line: pixelLine, disc: pixelDisc, polygon: path };
@@ -823,7 +823,7 @@ export class WispFlightView {
       const collector = role === 'collector', cooling = collector && state.phase === 'cooldown';
       const x = state.x * s, y = state.y * s;
       const recovery = clamp(state.recovery ?? 1, 0, 1);
-      const intensity = (cooling ? .32 + recovery * .50 : 1) * (this.lightIntensity || 1);
+      const intensity = (cooling ? .55 + recovery * .40 : 1) * (this.lightIntensity || 1);
       this.glow(x, y, collector ? 14 : 12, tint.outer, intensity * .21);
       const sprite = this.orbSprite(role);
       c.globalAlpha = intensity; c.drawImage(sprite, x - 6, y - 6); c.globalAlpha = 1;

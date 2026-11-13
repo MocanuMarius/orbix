@@ -1,5 +1,5 @@
-import {SKILLS} from './model.mjs?v=glow-builds-1';
-import {treeHeader,treeCanvas,treeDetail} from './living-tree.mjs?v=glow-builds-1';
+import {SKILLS} from './model.mjs?v=collector-flow-1';
+import {treeHeader,treeCanvas,treeDetail} from './living-tree.mjs?v=collector-flow-1';
 export function branchTreeMarkup({run,wallet,branch,canBuy,selected}){
  const skills=Object.values(SKILLS).filter(s=>s.branch===branch);
  const skill=skills.find(s=>s.id===selected)||skills.find(s=>!s.requires)||skills[0];
