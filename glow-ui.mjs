@@ -1,4 +1,4 @@
-import {formatGlow,getGlowCapacity,FLAME_TUNING,glowPoints} from './vitality.mjs?v=combo-craft-1';
+import {formatGlow,getGlowCapacity,FLAME_TUNING,glowPoints} from './vitality.mjs?v=skill-forge-1';
 const clamp=v=>Math.max(0,Math.min(1,v));
 export function glowGaugeMarkup(run){
  const max=getGlowCapacity(run);

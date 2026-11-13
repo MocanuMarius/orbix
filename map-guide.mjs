@@ -1,10 +1,10 @@
-import {landmarks} from './map-landmarks.mjs?v=combo-craft-1';
-import {glowText} from './vitality.mjs?v=combo-craft-1';
+import {landmarks} from './map-landmarks.mjs?v=skill-forge-1';
+import {glowText} from './vitality.mjs?v=skill-forge-1';
 const stop=(kind,label,name,summary)=>Object.freeze({kind,label,name,summary,icon:kind});
 export const MAP_STOP_TYPES=Object.freeze({
 flight:stop('flight','FLIGHT','Flight','Fly a passage, choose a relic or dissolve it into Glow, and recover fuel.'),
 treasure:stop('treasure','TREASURE','Treasure','Mount an artifact, replace one, or dissolve it into Glow. Surplus condenses.'),
-rest:stop('rest','REST','Rest','Recover Glow or refill hearts. Prepare skills, companions and a Dream before leaving.'),
+rest:stop('rest','REST','Rest','Recover Glow or refill hearts. Prepare skills, companions, a Dream or forge an artifact into Packed Light.'),
 encounter:stop('encounter','ENCOUNTER','Encounter','A bargain, sanctuary, workshop or dice encounter. Preview the stakes.'),
 boss:stop('boss','BOSS','Boss','Face the guardian at the end of the third map.'),
 });
@@ -14,7 +14,7 @@ export const EVENT_SCENARIOS=Object.freeze([
 {id:'abandoned-lantern',index:2,name:'Abandoned Lantern',summary:'Recover fuel or collect the lantern’s remaining light.',detail:'Recovery fills fuel only. A finite light offering can condense above your maximum.'},
 {id:'weathered-shrine',index:3,name:'Weathered Shrine',summary:'Buy a discounted skill or collect a light offering.',detail:'The offered skill spends Packed Light. This shrine does not provide full Rest services.'},
 {id:'luminous-well',index:4,name:'Luminous Well',summary:'Choose full recovery or a finite light offering.',detail:'Rest-style recovery never produces currency; a light offering condenses only its actual surplus.'},
-{id:'ember-archive',index:5,name:'The Glow Archive',summary:'Dissolve an artifact or keep your build and accept a light offering.',detail:'Dissolved artifacts release Glow. Any surplus becomes Packed Light for run skills.'},
+{id:'ember-archive',index:5,name:'The Glow Archive',summary:'Forge an artifact into Packed Light, or keep your build and accept a light offering.',detail:'Forging consumes the chosen artifact for a fixed Packed Light payout. Spend it on run skills; Glow and hearts stay unchanged.'},
 {id:'ember-dice',index:6,name:'Prism Dice',summary:'Take a certain light offering, or spend Packed Light on one roll.',detail:'Three equally likely offerings. One cast; the result stays fixed if you return.'},
 {id:'lost-lanterns',index:7,name:'Lost Lanterns',summary:'Choose recovery, a light offering, or sacrifice fuel for an artifact.',detail:'Each lantern trades immediate fuel, future upgrades or a changed build.'},
 {id:'wisp-bargain',index:8,name:'Wisp Bargain',summary:'Take a larger offering with a Lift burden, or travel lightly.',detail:'The burden raises Lift effort for only the next flight. Preview each offering’s fuel and condensed value.'},
