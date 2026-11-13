@@ -11,14 +11,18 @@ function spill(gauge,gain,raw){
  target._condensedPulse?.cancel();target._condensedPulse=target.animate?.(flash,{duration:reduce?180:480});
  const meter=gauge._glowRefs.meter;meter._spillPulse?.cancel();meter._spillPulse=meter.animate?.(flash,{duration:reduce?160:420});
  let pool=gauge._spillPool;
- if(!pool){const host=doc.createElement('div');host.className='condensation-motes';host.setAttribute('aria-hidden','true');const dots=[];for(let i=0;i<4;i++){const dot=doc.createElement('i');host.appendChild(dot);dots.push(dot);}const label=doc.createElement('b');host.appendChild(label);doc.querySelector('.flight-device')?.appendChild(host);pool=gauge._spillPool={host,dots,label,total:0,lastAt:0};}
+ if(!pool){const host=doc.createElement('div');host.className='condensation-motes';host.setAttribute('aria-hidden','true');const beam=doc.createElement('i');beam.className='condensation-beam';host.appendChild(beam);const label=doc.createElement('b');host.appendChild(label);doc.querySelector('.flight-device')?.appendChild(host);pool=gauge._spillPool={host,beam,label,total:0,lastAt:0};}
  const now=Number(doc.defaultView?.performance?.now?.())||Date.now();
  pool.total=now-pool.lastAt<850?pool.total+gain:gain;pool.lastAt=now;pool.label.textContent=pool.total>0?`+${pool.total}`:'';
- const end=target.getBoundingClientRect();pool.label.style.left=Math.round(end.left+end.width*.5)+'px';pool.label.style.top=Math.round(end.bottom+3)+'px';
+ const end=target.getBoundingClientRect();pool.label.style.left=Math.round(end.right+12)+'px';pool.label.style.top=Math.round(end.top+8)+'px';
  pool.label._rise?.cancel();pool.label._rise=pool.label.animate?.([{opacity:1,transform:'translate(-50%,4px)'},{opacity:1,offset:.6},{opacity:0,transform:'translate(-50%,-8px)'}],{duration:reduce?650:1000});
  if(reduce||raw<=0)return;
- const start=meter.getBoundingClientRect(),sx=start.left+start.width*.5,sy=start.top,ex=end.left+end.width*.5,ey=end.top+end.height*.4;
- for(let i=0;i<pool.dots.length;i++){const dot=pool.dots[i];dot._flight?.cancel();dot.style.left=Math.round(sx)+'px';dot.style.top=Math.round(sy)+'px';const dx=ex-sx,dy=ey-sy;dot._flight=dot.animate?.([{opacity:0,transform:'translate3d(0,0,0) scale(.7)'},{opacity:1,transform:`translate3d(${(i-1.5)*7}px,-14px,0) scale(1.1)`,offset:.12},{opacity:.9,transform:`translate3d(${dx*.4+(i-1.5)*8}px,${dy*.65-26}px,0)`,offset:.58},{opacity:0,transform:`translate3d(${dx}px,${dy}px,0) scale(.4)`}],{duration:650+i*45,easing:'cubic-bezier(.2,.6,.55,1)'});}
+ const start=meter.getBoundingClientRect(),tip=(target.querySelector('.condensed-icon')||target).getBoundingClientRect();
+ const sx=start.left+start.width*.5,sy=start.top,ex=tip.left+tip.width*.5,ey=tip.bottom;
+ const length=Math.hypot(ex-sx,ey-sy),angle=Math.atan2(ex-sx,sy-ey)*180/Math.PI;
+ const beam=pool.beam;beam._rise?.cancel();beam.style.left=Math.round(sx-6)+'px';beam.style.top=Math.round(sy-length)+'px';beam.style.height=Math.round(length)+'px';
+ // One continuous column grows from the full meter into the nearby reservoir.
+ beam._rise=beam.animate?.([{opacity:0,transform:`rotate(${angle}deg) scaleY(.08) scaleX(.5)`},{opacity:.95,transform:`rotate(${angle}deg) scaleY(1) scaleX(1)`,offset:.24},{opacity:.72,transform:`rotate(${angle}deg) scaleY(1) scaleX(.8)`,offset:.65},{opacity:0,transform:`rotate(${angle}deg) scaleY(1) scaleX(.25)`}],{duration:800,easing:'ease-out'});
 }
 export function updateGlowGauge(gauge,s){
  if(!gauge)return;
