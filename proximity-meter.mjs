@@ -1,5 +1,5 @@
-import {drawProximityEnergy} from './proximity-energy.mjs?v=depth-energy-1';
-import {obstacleEdgeClearance} from './edging-pulse.mjs?v=depth-energy-1';
+import {drawProximityEnergy} from './proximity-energy.mjs?v=plain-begin-1';
+import {obstacleEdgeClearance} from './edging-pulse.mjs?v=plain-begin-1';
 const clamp=n=>Math.max(0,Math.min(1,Number(n)||0));
 
 export function proximityFill(pulse){

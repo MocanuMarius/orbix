@@ -1,6 +1,6 @@
-import {livesMarkup} from './lives.mjs?v=depth-energy-1';
-import {formatGlow,getGlowCapacity} from './vitality.mjs?v=depth-energy-1';
-import {resourceSymbol} from './game-symbols.mjs?v=depth-energy-1';
+import {livesMarkup} from './lives.mjs?v=plain-begin-1';
+import {formatGlow,getGlowCapacity} from './vitality.mjs?v=plain-begin-1';
+import {resourceSymbol} from './game-symbols.mjs?v=plain-begin-1';
 
 export const FLIGHT_LOAD_SECONDS=5;
 const esc=value=>String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -17,7 +17,7 @@ export function flightEntryMarkup(run,node,{artifactArt=()=>'',dream=false}={}){
  const [term,tip]=flightTip(run),artifacts=(run.artifacts||[]).filter(Boolean);
  return `<section class="flight-entry" role="status" aria-label="Preparing flight" style="--entry-seconds:${FLIGHT_LOAD_SECONDS}s"><div class="entry-content"><span class="entry-eyebrow">${dream?'DREAM REHEARSAL':run.isTutorial?'PRACTICE':`MAP ${run.mapIndex+1} / 3`}</span><h1>${esc(node.name)}</h1><div class="entry-resources">${livesMarkup(run)}<span class="entry-sparks" aria-label="${formatGlow(run.flame)} of ${formatGlow(getGlowCapacity(run))} Energy">${resourceSymbol('glow')}<b>${formatGlow(run.flame)} / ${formatGlow(getGlowCapacity(run))}</b></span></div>${artifacts.length?`<div class="entry-artifacts" aria-label="Equipped artifacts">${artifacts.map(id=>artifactArt(id)).join('')}</div>`:''}<p class="entry-tip"><b>${esc(term)}</b>${esc(tip)}</p><div class="entry-loading" aria-label="Loading scene"><i></i></div><span class="entry-safe-note">Starts paused · tap to begin</span></div></section>`;
 }
-export function resumeGateMarkup(){return `<button class="flight-resume-gate" data-action="wake-flight" aria-label="Resume flight without lifting"><span class="resume-gate-content"><svg viewBox="0 0 24 24" aria-hidden="true" fill="currentColor"><path d="M5 3h5v18H5zM14 3h5v18h-5z"/></svg><strong>Tap to begin</strong><span>3 · 2 · 1, then tap anywhere to Lift</span></span></button>`;}
+export function resumeGateMarkup(){return `<button class="flight-resume-gate" data-action="wake-flight" aria-label="Begin flight without lifting"><span class="resume-gate-content"><strong>Tap to begin</strong></span></button>`;}
 
 /** Wait for both preparation and the splash. Cancellation never starts a stale scene. */
 export async function waitForFlightEntry(ready,startedAt,{now=()=>performance.now(),wait=ms=>new Promise(resolve=>setTimeout(resolve,ms))}={}){

@@ -1,4 +1,4 @@
-import { GLOW_DISPLAY_SCALE } from './vitality.mjs?v=depth-energy-1';
+import { GLOW_DISPLAY_SCALE } from './vitality.mjs?v=plain-begin-1';
 const clamp=value=>Math.max(0,Math.min(1,Number(value)||0));
 const explanation='Edging Pulse: skim near solid terrain or the top and bottom edges for 2 seconds total. Brief gaps keep your progress for 1.25 seconds, then it fades slowly. A full meter automatically reveals the scene.';
 const regenExplanation='Regenerative Falling: skim near solid terrain or the top and bottom edges to restore 1 Energy instead of revealing the scene. Eight recoveries per flight; missing fuel only. Two seconds to reset. No Packed Sparks is created.';
