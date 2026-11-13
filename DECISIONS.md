@@ -193,6 +193,16 @@ On 13 November 2026, the user requested deployment of the current backlog build 
 - Keep roles locked during flight, retry and interrupted-attempt recovery. Snapshot the entry companion along with the rest of the attempt's build, preserving older saves without a role snapshot.
 - Keep exactly two flight controls and the existing ability mechanics. Publish this feedback update to the existing Site after syntax checks, preserving its audience. Simulations and broad playtesting remain deferred.
 
+## Top menu wheel and accessible Tutorial
+
+- Move tuning access into a top gear marked MENU, including the live flight HUD. Remove repeated tuning controls from the regular map, rest and briefing layouts. Highlight editable unspent points on the gear.
+- Open a compact game wheel with Tune, Companion, Upgrades and Tutorial, plus sound and a central Back/Resume action. Opening it during flight pauses the engine; opening another overlay must not resume flight underneath. The two flight actions remain Lift and the companion tool.
+- Allow viewing tuning from the paused wheel while keeping its normal setup/rest edit restrictions. Keep companion and upgrade changes locked during active attempts and retries. Hold-to-pause uses the same wheel.
+- Replace the tiny, conditionally hidden Learn shortcut with a visible Tutorial button at home, available even with an active ascension, and Tutorial access in MENU.
+- Practice safely suspends the existing normal ascension. Preserve its checkpoint, fuel, cards, companion, tuning, currency, reserve and lives; a live attempt returns to its entry checkpoint without charging a life. Persist the suspended run with the practice save so reloads retain it.
+- Finishing or leaving practice can resume the suspended ascension. Keep practice earnings and reserve isolated from real progress, retaining only the existing taught-power unlock on successful completion. Do not create nested suspended practices or end the normal ascension to open Tutorial.
+- Add one short next-action cue per checkpoint instead of more explanatory paragraphs. Distinguish route selection, starting powers, reaching the waylight, resting and saved level rewards. Keep gameplay/balance unchanged and publish this feedback batch after source checks; no simulations or broad playtesting.
+
 ## Rendering direction proposed after the first review
 
 Use pre-rendered or cached 2D art for scenery, props and character animation, with dynamic light from the player and carrier wisps. Keep the pixel grid and the gameplay light-radius upgrades.

@@ -347,7 +347,7 @@ export function newState() {
     version: 1,
     profile: { embers: 0, skills: {}, afterglow: 0, clearedFlights: 0, knownPowers: [...BASE_POWERS], tutorialComplete: false,
       rebirthRefunded: false, stats: { completedRuns: 0, wins: 0, totalScore: 0, bestScore: 0, attempts: 0, deaths: 0 }, bankedRuns: [] },
-    run: null,
+    run: null, suspendedRun: null,
     settings: { sound: true, reducedMotion: false, companionTint: 'pearl', companionRole: 'swift' },
   };
 }
@@ -402,6 +402,47 @@ function validRun(run) {
   if (run.phase === 'support' && (!Array.isArray(run.supportChoices) || run.supportChoices.length !== 2)) return false;
   if (['starter', 'reward'].includes(run.phase) && run.offers.length !== 2) return false;
   return true;
+}
+
+function interruptForPractice(run) {
+  if (!run.attemptActive) return;
+  const restoredGlow = restoreAttemptEntry(run);
+  run.lastAttempt = { success: false, interrupted: true, step: run.step,
+    nodeId: run.current?.id, livesLost: 0, livesRemaining: run.lives, restoredGlow };
+  run.phase = 'briefing';
+}
+
+// A suspended ascent is normalized without settling rewards or ending it.
+// Practice must never turn a saved backup into a second wallet payment.
+function cleanSuspendedRun(value, profile, practiceId) {
+  if (!validRun(value) || value.isTutorial === true || value.phase === 'ended' || value.banked
+    || value.id === practiceId || profile.bankedRuns.includes(value.id)) return null;
+  const run = copy(value);
+  run.companionRole = normalizeCompanionRole(run.companionRole);
+  run.companionTint = companionTint(run.companionTint, run.element);
+  delete run.element;
+  run.skills = cleanProfile({ skills: run.skills }).skills;
+  run.lives = Number.isFinite(run.lives) ? count(run.lives, LIFE_TUNING.lives) : LIFE_TUNING.lives;
+  run.maxLives = LIFE_TUNING.lives;
+  delete run.hp; delete run.maxHp; delete run.shield; delete run.usedRebirth;
+  run.flame = clamp(finite(run.flame, FLAME_TUNING.starting), 0, FLAME_TUNING.maximum);
+  run.embers = count(run.embers); run.securedEmbers = count(run.securedEmbers); run.score = count(run.score);
+  run.stats = { collected: 0, collisions: 0, boosts: 0, flights: 0, elites: 0, challenges: 0,
+    events: 0, attempts: 0, deaths: 0, ...(run.stats || {}) };
+  run.afterglow = energy(clamp(finite(run.afterglow, profile.afterglow), 0, getAfterglowRules(run.skills).cap));
+  run.afterglowDrawStep = Number.isInteger(run.afterglowDrawStep) ? run.afterglowDrawStep : -1;
+  run.afterglowPendingSpent = energy(run.afterglowPendingSpent);
+  run.afterglowTotals = afterglowReport(run.afterglow, run.afterglowTotals);
+  run.discoveryClears = count(run.discoveryClears ?? profile.clearedFlights);
+  run.knownPowers = powerIds([...getPowerDiscovery(run).unlocked, ...run.cards, ...run.offers]);
+  run.newlyDiscoveredPowers = powerIds(run.newlyDiscoveredPowers);
+  normalizeFlightTuning(run);
+  interruptForPractice(run);
+  if (run.phase !== 'briefing') { run.attemptActive = false; run.attemptEntry = null; }
+  assignLevelIdentities(run.map, run.seed);
+  normalizeFlightLengths(run);
+  if (run.phase === 'support') run.supportChoices = makeSupportChoices(run, profile);
+  return run;
 }
 
 /** localStorage.setItem atomically replaces the single versioned save document. */
@@ -541,6 +582,10 @@ export function loadState(storage) {
       }
       if (state.run.phase === 'support') state.run.supportChoices = makeSupportChoices(state.run, state.profile);
     }
+    if (state.run?.isTutorial === true && parsed.suspendedRun) {
+      state.suspendedRun = cleanSuspendedRun(parsed.suspendedRun, state.profile, state.run.id);
+      repairSave = true;
+    } else if (parsed.suspendedRun) repairSave = true;
     if (repairSave) saveState(state, storage);
     return state;
   } catch { return newState(); }
@@ -709,6 +754,38 @@ export function createTutorial(profile = newState().profile, seed = freshSeed())
   run.flame = 80;
   run.knownPowers = powerIds([...run.knownPowers, 'hungry-wisp']);
   return run;
+}
+
+/** Enter practice without abandoning or cashing out an active normal ascent. */
+export function startTutorial(state) {
+  if (!state?.profile) return false;
+  const current = state.run;
+  if (current?.isTutorial && current.phase !== 'ended') return false;
+  if (current?.isTutorial) bankRun(state);
+  else {
+    state.suspendedRun = current && current.phase !== 'ended' && !current.banked ? copy(current) : null;
+    if (state.suspendedRun) interruptForPractice(state.suspendedRun);
+  }
+  const tutorial = createTutorial(state.profile);
+  tutorial.companionRole = normalizeCompanionRole(state.settings?.companionRole);
+  tutorial.companionTint = companionTint(state.settings?.companionTint, state.settings?.element);
+  state.run = tutorial;
+  return true;
+}
+
+/** Leaving unfinished practice does not mark it complete or consume normal lives. */
+export function leaveTutorial(state) {
+  if (!state?.run?.isTutorial) return false;
+  const practice = state.run;
+  if (practice.phase !== 'ended') {
+    if (practice.attemptActive) restoreAttemptEntry(practice);
+    practice.phase = 'ended';
+    practice.success = false;
+  }
+  bankRun(state);
+  state.run = state.suspendedRun || null;
+  state.suspendedRun = null;
+  return true;
 }
 
 export function getChoices(run) {
