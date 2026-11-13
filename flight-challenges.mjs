@@ -1,4 +1,5 @@
-import { createDraftZones, DRAFT_TUNING } from './drafts.mjs?v=companion-motion-1';
+import {LOCATION_CHALLENGE_NAMES} from './world-expansion.mjs?v=world-variety-1';
+import { createDraftZones, DRAFT_TUNING } from './drafts.mjs?v=world-variety-1';
 
 const clamp = (value, low, high) => Math.max(low, Math.min(high, value));
 const NAMES = Object.freeze({
@@ -18,9 +19,9 @@ const hash = value => { let n = 0; for (const letter of String(value || '')) n =
 const basicRoute = options => !options.elite && (Number(options.stage) || 0) === 0
   && (Number(options.mapIndex) || 0) === 0 && (Number(options.difficulty) || 1) <= 1;
 
-function descriptor(id, terrain) {
+function descriptor(id, terrain, levelId) {
   const [name, instruction, landmark] = (NAMES[terrain] || NAMES.ruins)[id];
-  return { id, type: id, name, instruction, landmark };
+  return { id, type: id, name:LOCATION_CHALLENGE_NAMES[levelId]?.[id]||name, instruction, landmark };
 }
 function orderFor(options) {
   if (basicRoute(options)) return ['fuel-pocket'];
@@ -31,7 +32,7 @@ function orderFor(options) {
 
 /** Planned, deterministic identities; actual placement still uses fit/safety guards. */
 export function getChallengePreview(options = {}) {
-  const order = orderFor(options), patterns = order.map(id => descriptor(id, options.terrain));
+  const order = orderFor(options), patterns = order.map(id => descriptor(id, options.terrain, options.levelId));
   return { primary: patterns[0], patterns, summary: patterns.map(pattern => pattern.name).join(' → '),
     basic: basicRoute(options), planned: true };
 }
@@ -40,7 +41,7 @@ export function getChallengePreview(options = {}) {
  * normal center-change limit, aperture floors, full-shape collisions and joins. */
 export function getAuthoredChallenge({ course, leg = 0, window = 0, ...options }) {
   const order = orderFor(options), id = order[(leg + window) % order.length];
-  const info = descriptor(id, options.terrain), length = course.hard.length;
+  const info = descriptor(id, options.terrain, options.levelId), length = course.hard.length;
   let cells;
   if (id === 'fuel-pocket') {
     // A descent toward the first pocket, then an ascending exit. Same existing

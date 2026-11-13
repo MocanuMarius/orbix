@@ -38,7 +38,7 @@ export function getMapStopInfo(node={}){
 const ICONS={
 flight:'<circle cx="8" cy="12" r="3.5"/><path d="M8 10.5v.01M1 8h3M1 16h3M13 12h9m-4-4 4 4-4 4"/>',
 elite:'<path d="M7 17c-2-1-3-3-3-6a8 8 0 0 1 16 0c0 3-1 5-3 6v4H7zM10 18v3m4-3v3"/><circle cx="8.5" cy="11.5" r="1.2" fill="currentColor"/><circle cx="15.5" cy="11.5" r="1.2" fill="currentColor"/>',
-rest:'<path d="m4 21 16-3M4 18l16 3M12 3c1 5 6 5 5 10-1 5-10 5-11 0-1-3 2-5 3-7 0 3 2 3 3-3z"/>',
+rest:'<path d="M2 11 12 3l10 8M5 10v11h14V10M16 6V3h3v5"/><path d="M10 21v-7h4v7"/><path d="M11 16h2v4h-2z" fill="currentColor" stroke="none"/><path d="M7 11h2m6 0h2"/>',
 encounter:'<circle cx="12" cy="12" r="9"/><path d="M9 9a3 3 0 0 1 6 0c0 2-3 2-3 5M12 17h.01"/>',
 boss:'<path d="m3 3 6 4h6l6-4-2 9v4l-7 6-7-6v-4zM8 11l3 2m5-2-3 2M12 7v3m-3 7h6"/><path d="m7 7 5-4 5 4"/>',
 };

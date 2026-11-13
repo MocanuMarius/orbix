@@ -1,10 +1,11 @@
-import { sceneryIdentity, drawIdentityBackground, drawIdentityMaterial, drawIdentityLife } from './level-scenery.mjs?v=companion-motion-1';
-import { getCompanionAbility, normalizeCompanionRole } from './companion-abilities.mjs?v=companion-motion-1';
-import { companionSprite, companionPalette } from './companion-art.mjs?v=companion-motion-1';
-import { createScenePropArt } from './scene-prop-art.mjs?v=companion-motion-1';
-import { drawBoss } from './boss.mjs?v=companion-motion-1';
-import { drawPickup } from './pickup-art.mjs?v=companion-motion-1';
-import { pickupKind, getPickupSpec } from './pickups.mjs?v=companion-motion-1';
+import {LOCATION_PALETTES} from './world-expansion.mjs?v=world-variety-1';
+import { sceneryIdentity, drawIdentityBackground, drawIdentityMaterial, drawIdentityLife } from './level-scenery.mjs?v=world-variety-1';
+import { getCompanionAbility, normalizeCompanionRole } from './companion-abilities.mjs?v=world-variety-1';
+import { companionSprite, companionPalette } from './companion-art.mjs?v=world-variety-1';
+import { createScenePropArt } from './scene-prop-art.mjs?v=world-variety-1';
+import { drawBoss } from './boss.mjs?v=world-variety-1';
+import { drawPickup } from './pickup-art.mjs?v=world-variety-1';
+import { pickupKind, getPickupSpec } from './pickups.mjs?v=world-variety-1';
 
 const TAU = Math.PI * 2;
 const SCENERY_HELPERS = { line: pixelLine, disc: pixelDisc, polygon: path };
@@ -127,7 +128,7 @@ export class WispFlightView {
     this.obstacleCursor = 0;
     this.lastVisibleDistance = -1;
     this.identity = sceneryIdentity(engine);
-    this.palette = { ...(PALETTES[engine.terrain] || PALETTES.ruins), ...(MATERIALS[this.identity.scene] || {}) };
+    this.palette = { ...(PALETTES[engine.terrain] || PALETTES.ruins), ...(MATERIALS[this.identity.materialScene||this.identity.scene] || {}), ...(LOCATION_PALETTES[this.identity.scene]||{}) };
     this.lifeOptions = { identity: this.identity, width: WIDTH, height: 0, distance: 0, time: 0, palette: this.palette, reducedMotion: false };
     this.bossOptions = { engine, width: WIDTH, height: 0, distance: 0, time: 0, scale: 1, pass: 'silhouette' };
     this.fallbackFleet = [{ role: 'collector', x: 0, y: 0, homeX: 0, homeY: 0, radius: 100, phase: 'ready', recovery: 1, carrying: false }];
