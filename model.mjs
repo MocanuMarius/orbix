@@ -1,14 +1,15 @@
-import {ROUTE_RECIPES,ROUTE_TOPOLOGY_VERSION,REWARD_THEMES,nodeEconomy} from './route-recipes.mjs?v=committed-paths-1';
-import {COMPANION_ABILITIES,getCompanionUnlock} from './companion-abilities.mjs?v=committed-paths-1';
-import {MAIN_TUNING_SKILLS} from './main-tuning.mjs?v=committed-paths-1';
-import {STARTING_EMBERS,getGlowCapacity,glowText} from './vitality.mjs?v=committed-paths-1';
-import {expandSkillSteps,skillProgress} from './skill-increments.mjs?v=committed-paths-1';
-import {MAX_ASCENSION} from './ascent.mjs?v=committed-paths-1';
-import {EXPANDED_SKILLS,applyExpandedSkills} from './skill-paths.mjs?v=committed-paths-1';
+import {ROUTE_RECIPES,ROUTE_TOPOLOGY_VERSION,REWARD_THEMES,nodeEconomy} from './route-recipes.mjs?v=living-biomes-1';
+import {COMPANION_ABILITIES,getCompanionUnlock} from './companion-abilities.mjs?v=living-biomes-1';
+import {MAIN_TUNING_SKILLS} from './main-tuning.mjs?v=living-biomes-1';
+import {STARTING_EMBERS,getGlowCapacity,glowText} from './vitality.mjs?v=living-biomes-1';
+import {expandSkillSteps,skillProgress} from './skill-increments.mjs?v=living-biomes-1';
+import {MAX_ASCENSION} from './ascent.mjs?v=living-biomes-1';
+import {EXPANDED_SKILLS,applyExpandedSkills} from './skill-paths.mjs?v=living-biomes-1';
 /** Run-owned skills and currency; persistent ascension unlocks and boss artifacts. */
-import { FLAME_TUNING, LIFE_TUNING, getLifeCapacity } from './vitality.mjs?v=committed-paths-1';
-import { getLevelIdentity } from './level-catalog.mjs?v=committed-paths-1';
-import { EVENT_SCENARIOS } from './map-guide.mjs?v=committed-paths-1';
+import { FLAME_TUNING, LIFE_TUNING, getLifeCapacity } from './vitality.mjs?v=living-biomes-1';
+import { getBiomeLevelIdentity } from './level-catalog.mjs?v=living-biomes-1';
+import { BIOMES } from './biomes.mjs?v=living-biomes-1';
+import { EVENT_SCENARIOS } from './map-guide.mjs?v=living-biomes-1';
 export const SAVE_KEY='emberwing.save.runskills.v6';
 export const CAMPAIGN_MAP_NAMES=Object.freeze(['The Forgotten Verge','The Rootbound March','The Warden’s Reach']);
 export const TERRAINS=Object.freeze({ruins:{id:'ruins',name:'Sunken Ruins',color:'#cdb183',description:'Broken homes, worn arches and overgrown stone.'},canopy:{id:'canopy',name:'Luminous Canopy',color:'#94b48a',description:'Hollow trees, hanging roots and sheltered forest passages.'},storm:{id:'storm',name:'Stormglass Peaks',color:'#a8bbca',description:'Pine ridges, old mine timbers and local draft puffs.'}});
@@ -140,7 +141,12 @@ export function loadState(storage){try{storage??=globalThis.localStorage;const p
 
 function makeMap(seed,mapIndex,difficulty,afterglowUnlocked){
  const random=rng(`${seed}:routes:v2`),recipe=ROUTE_RECIPES[Math.floor(random()*ROUTE_RECIPES.length)],mirror=random()<.5,locationCounts={};
- const events=shuffle(EVENT_SCENARIOS.map(e=>e.index),random),themes=shuffle(Object.keys(REWARD_THEMES),random),terrainList=Object.keys(TERRAINS);let eventCursor=0;
+ const events=shuffle(EVENT_SCENARIOS.map(e=>e.index),random),themes=shuffle(Object.keys(REWARD_THEMES),random);let eventCursor=0;
+ // A separate seeded deck prevents reward themes from forcing the same world.
+ // Flight nodes consume all twelve biome identities before any is repeated;
+ // support stops borrow an adjacent deck identity without consuming a draw.
+ const biomeRandom=rng(`${seed}:biomes:v1`);let biomeDeck=shuffle(BIOMES,biomeRandom),biomeCursor=0,lastBiome=null;
+ const drawBiome=()=>{if(biomeCursor===biomeDeck.length){biomeDeck=shuffle(BIOMES,biomeRandom);biomeCursor=0;if(biomeDeck[0].id===lastBiome)[biomeDeck[0],biomeDeck[1]]=[biomeDeck[1],biomeDeck[0]];}const b=biomeDeck[biomeCursor++];lastBiome=b.id;return b;};
  const rows=recipe.rows.map((rowCode,row)=>[...rowCode].flatMap((code,c)=>{
   if(code===' ')return[];
   const camp=code==='R',treasure=code==='T',support='RTV'.includes(code),finale=code==='B',boss=finale&&mapIndex===2,elite=code==='E';
@@ -148,20 +154,20 @@ function makeMap(seed,mapIndex,difficulty,afterglowUnlocked){
   const routeStyle=elite?'gauntlet':rewardTheme==='sustain'?'refuge':rewardTheme==='precision'?'cavern':random()<.45?'refuge':random()<.6?'cavern':'gauntlet',profile=ROUTE_PROFILES[routeStyle];
   const encounterFamily=support||finale?null:rewardTheme==='risk'?'seed-orchard':rewardTheme==='tempo'?'draft-staircase':rewardTheme==='precision'?'stillwater-tunnel':['stillwater-tunnel','draft-staircase','seed-orchard'][Math.floor(random()*3)];
   const encounterPreview=encounterFamily==='seed-orchard'?'Dark-seed Orchard':encounterFamily==='draft-staircase'?'Draft Staircase':encounterFamily?'Stillwater Tunnel':'';
-  const terrain=encounterFamily==='draft-staircase'?'storm':encounterFamily==='seed-orchard'?'canopy':terrainList[Math.floor(random()*terrainList.length)];
-  const location=getLevelIdentity(terrain,`${seed}:map:${mapIndex}`,support?0:(locationCounts[terrain]=(locationCounts[terrain]||0)+1)-1);
+  const biome=support?biomeDeck[(biomeCursor+c)%biomeDeck.length]:drawBiome(),terrain=biome.terrain;
+  const location=getBiomeLevelIdentity(biome.id,`${seed}:map:${mapIndex}`,support?0:(locationCounts[biome.id]=(locationCounts[biome.id]||0)+1)-1);
   const bossId=boss?(rng(`${seed}:guardian`)()<.5?'hollow-warden':'moonweaver'):null,bossName=bossId==='moonweaver'?'Moonweaver':'Hollow Warden';
   const eventIndex=events[eventCursor%events.length];if(code==='V')eventCursor++;
   const kind=camp?'camp':treasure?'treasure':support?'event':finale?'finale':elite?'elite':'normal';
   const challengeId=routeStyle==='refuge'?'wisps':routeStyle==='cavern'?'clean':'boosts',target=challengeId==='wisps'?(4+Math.floor(row/2))*3:challengeId==='boosts'?6:0;
-  const n={id:`m${mapIndex}-${row}-${c}`,row,lane:mirror?2-c:c,routeLane:c,mapIndex,difficulty,afterglowUnlocked,type:support?'support':finale?'finale':'flight',kind,elite,boss,bossId,terrain,nextIds:[],routeStyle,...profile,
+  const n={id:`m${mapIndex}-${row}-${c}`,row,lane:mirror?2-c:c,routeLane:c,mapIndex,difficulty,afterglowUnlocked,type:support?'support':finale?'finale':'flight',kind,elite,boss,bossId,terrain,biomeId:biome.id,biomeName:biome.name,biomeInteraction:biome.interaction,interactionHint:biome.interactionHint,nextIds:[],routeStyle,...profile,
    routeTopology:ROUTE_TOPOLOGY_VERSION,recipeId:recipe.id,recipeName:recipe.name,rewardTheme,rewardThemeLabel:theme.label,encounterFamily,encounterPreview,
    name:camp?'Emberwell Rest':treasure?`${theme.label} Reliquary`:support?EVENT_SCENARIOS[eventIndex].name:boss?bossName:location.name,locationName:boss?bossName:location.name,levelId:location.id,setpiecePreview:location.signature,
    duration:support?0:(finale?55:Math.round((row===0?34:38+row*2)*profile.durationScale))*3,flightLengthScale:support?1:3,challengeId:support?'':challengeId,challengeTarget:support?0:target,challenge:support?'':challengeId==='wisps'?`Collect ${target} fuel lights`:challengeId==='boosts'?`Use companion tools ${target} times`:'Finish without a hit',eventIndex:code==='V'?eventIndex:null,
    fuelPreview:camp?'Full recovery, hearts, or Embers':treasure?'Themed artifact or Embers':support?EVENT_SCENARIOS[eventIndex].summary:profile.fuelPreview,
    riskPreview:camp?'Prepare skills, companions and a Dream':treasure?theme.summary:support?'Preview stakes before committing':`${encounterPreview} · ${profile.riskPreview}`,
    commitment:camp?'One known flight next · Dream its opening':treasure?'Build reward · no full recovery':support?'A choice changes your next flight':elite?'Hard flight · rare relic choice':'Follow the visible route to prepare your build',
-   description:camp?'Choose recovery, then prepare skills, companions and your next opening.':treasure?'Open a themed relic chest or salvage its Embers.':support?EVENT_SCENARIOS[eventIndex].detail:TERRAINS[terrain].description};
+   description:camp?'Choose recovery, then prepare skills, companions and your next opening.':treasure?'Open a themed relic chest or salvage its Embers.':support?EVENT_SCENARIOS[eventIndex].detail:biome.description};
   const economy=nodeEconomy(n);n.challengeBonus=economy.challenge;n.clearReward=economy.clear;n.cashReward=economy.cash;
   n.rewardPreview=boss?'Permanent boss relic choice':camp?'Recover · Dream':support&&!treasure?'Boon or bargain':`${theme.label}${elite||finale?' · rare relic':''} / ${economy.cash} Embers`;
   n.reward=n.rewardPreview;return[n];

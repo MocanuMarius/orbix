@@ -1,3 +1,5 @@
+import {biomeMapGlyph} from './biome-art.mjs?v=living-biomes-1';
+import {LEVELS} from './level-catalog.mjs?v=living-biomes-1';
 // Original, grid-authored location landmarks. No external art or image requests.
 // Each rectangle uses integer coordinates on a 16 x 16 pixel grid.
 const shapes = {
@@ -62,6 +64,8 @@ const habitatHints={
 };
 
 export function levelMapGlyph(level, x=0, y=0, size=46) {
+  const identity=typeof level==='string'?LEVELS.find(item=>item.id===level):level;
+  const biomeGlyph=biomeMapGlyph(identity,x,y,size);if(biomeGlyph)return biomeGlyph;
   const id=typeof level==='string'?level:level?.id;
   const cells=[...(shapes[id]||shapes['ruins-aqueduct']),...(habitatHints[id]||[])];
   const terrain=typeof level==='object'?level.terrain:String(id||'ruins').split('-')[0];

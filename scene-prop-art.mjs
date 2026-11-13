@@ -1,3 +1,5 @@
+import {getBiome} from './biomes.mjs?v=living-biomes-1';
+import {biomePalette} from './biome-art.mjs?v=living-biomes-1';
 // Original pixel materials painted inside the simulation's solid prop parts.
 // Animation belongs to the parent transform; these local surfaces stay cached.
 const clamp = (n, a, b) => Math.max(a, Math.min(b, n));
@@ -37,7 +39,31 @@ const MATERIAL = {
   stone: ['#363d37', '#50564a', '#737865', '#292f2b'],
   roof: ['#29343a', '#465158', '#69746e', '#1f2b2e'],
   plaster: ['#41483c', '#646b54', '#85896b', '#343c32'],
+  ice: ['#344d60','#638591','#bedce0','#90b7c4'],
+  crystal: ['#39344f','#7b6b96','#c4b8de','#a799c2'],
+  basalt: ['#302a33','#55505c','#a08b97','#785044'],
+  chalk: ['#3f4d52','#6a7b7b','#b9cac5','#899e9d'],
+  sandstone: ['#594536','#927556','#c8ae81','#ad936d'],
+  coral: ['#554247','#956f76','#c6a3a0','#b58c8c'],
+  succulent: ['#38483a','#637957','#a3b088','#83946e'],
 };
+
+function mineral(c,b,ink,seed,material){
+  if(material==='coral'){
+    for(let row=0,y=b.y+1;y<b.y+b.h;y+=6,row++)for(let x=b.x+row%2*3;x<b.x+b.w;x+=7){
+      c.fillStyle=ink[0];c.fillRect(x,y,2,2);c.fillStyle=ink[2];c.fillRect(x-1,y-1,3,1);
+    }
+  }else if(material==='sandstone'||material==='chalk'){
+    for(let y=b.y+3;y<b.y+b.h;y+=6){line(c,b.x,y,b.x+b.w,y+2,ink[0]);line(c,b.x+2,y+1,b.x+b.w*.7,y+2,ink[2]);}
+  }else{
+    const cx=b.x+b.w*.42;
+    c.fillStyle=ink[3];outline(c,[[b.x,b.y],[cx,b.y+b.h*.08],[cx+3,b.y+b.h],[b.x,b.y+b.h*.88]]);c.fill();
+    line(c,cx,b.y+1,cx+3,b.y+b.h-1,ink[2]);
+    if(material==='ice')for(let i=0;i<3;i++){const y=b.y+b.h*(.23+i*.24);line(c,b.x+3,y,cx,y+5,ink[0]);line(c,cx,y+5,cx-3,y+12,ink[0]);}
+    if(material==='basalt')for(let y=b.y+9;y<b.y+b.h;y+=14){line(c,b.x,y,b.x+b.w,y+2,ink[0]);if(noise(y,1,seed)>.6)line(c,b.x+1,y,b.x+1,y+7,ink[3]);}
+  }
+  for(let i=0;i<b.w*b.h/55;i++){c.fillStyle=i%3?ink[0]:ink[2];c.fillRect(Math.floor(b.x+noise(i,9,seed)*b.w),Math.floor(b.y+noise(i,10,seed)*b.h),1,1);}
+}
 
 function bark(c, b, ink, seed, horizontal) {
   const count = Math.ceil((horizontal ? b.h : b.w) / 4);
@@ -151,6 +177,7 @@ export function createScenePropArt(document, prop, { scale = 1, terrain = 'ruins
   c.imageSmoothingEnabled = false;
   const ox = pad - minX * scale, oy = pad - minY * scale;
   const seed = seedOf(`${identity}:${prop.id}:${prop.kind}`), kind = String(prop.kind || '');
+  const biome=getBiome(identity),palette=biomePalette({biomeId:biome?.id});
   const hanging = /willow|root|hanging|vine/.test(kind), pine = /pine|conifer/.test(kind);
   for (let index = 0; index < parts.length; index++) {
     const part = parts[index], material = part.material || 'stone';
@@ -158,6 +185,10 @@ export function createScenePropArt(document, prop, { scale = 1, terrain = 'ruins
     const left = Math.min(...points.map(p => p[0])), top = Math.min(...points.map(p => p[1]));
     const b = { x: left, y: top, w: Math.max(...points.map(p => p[0])) - left, h: Math.max(...points.map(p => p[1])) - top };
     const ink = [...(MATERIAL[material] || MATERIAL.stone)];
+    if(biome&&['stone','roof','plaster'].includes(material)){
+      ink[0]=palette.shade;ink[1]=palette.face;ink[2]=palette.grain;ink[3]=palette.stone;
+    }
+    if(biome?.id==='fungal'&&material==='roof'){ink[0]='#3a2d49';ink[1]='#75617f';ink[2]='#bda2bd';ink[3]='#5b4d66';}
     if (terrain === 'storm' && material === 'foliage') { ink[1] = '#3d514b'; ink[2] = '#6b7a68'; }
     if (terrain === 'ruins' && material === 'roof') { ink[1] = '#605c49'; ink[2] = '#80785b'; }
     if (hanging && material === 'foliage') { ink[1] = '#405847'; ink[2] = '#667956'; }
@@ -165,15 +196,16 @@ export function createScenePropArt(document, prop, { scale = 1, terrain = 'ruins
     c.save(); outline(c, points); c.fillStyle = ink[1]; c.fill(); c.clip();
     // Broad face shading supports the mass before fine texture is applied.
     c.fillStyle = ink[0]; c.fillRect(b.x + Math.floor(b.w * .65), b.y, Math.ceil(b.w * .35) + 1, b.h + 1);
-    if (material === 'bark' || material === 'wood') bark(c, b, ink, partSeed,
+    if (material === 'bark' || material === 'wood' || material === 'succulent') bark(c, b, ink, partSeed,
       material === 'wood' && (b.w > b.h * 1.8 || /log|beam/.test(kind)));
     else if (material === 'foliage') foliage(c, b, ink, partSeed, hanging, pine);
     else if (material === 'roof') roof(c, b, ink, partSeed, /thatch|cocoon/.test(kind));
+    else if (['ice','crystal','basalt','chalk','sandstone','coral'].includes(material))mineral(c,b,ink,partSeed,material);
     else masonry(c, b, ink, partSeed, material === 'plaster');
     if ((material === 'stone' || material === 'plaster') && /cottage|shelter|house|hut/.test(kind)) boardedFacade(c, b, partSeed);
     // The rim is clipped inward to the same solid polygon, including concavity.
     outline(c, points); c.strokeStyle = '#131e1c'; c.lineWidth = 4; c.stroke();
-    outline(c, points); c.strokeStyle = terrain==='storm'?'#b0c2bd':'#a4b29a'; c.lineWidth = 1.5; c.stroke();
+    outline(c, points); c.strokeStyle = palette.rim||(terrain==='storm'?'#b0c2bd':'#a4b29a'); c.lineWidth = 1.5; c.stroke();
     for (let i = 1; i < points.length; i++) {
       const a = points[i - 1], p = points[i];
       if (p[1] <= a[1] && Math.abs(p[0] - a[0]) > 2) line(c, a[0], a[1] + 1, p[0], p[1] + 1, ink[2]);

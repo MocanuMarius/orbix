@@ -1,7 +1,10 @@
-import {EXTRA_LEVELS} from './world-expansion.mjs?v=committed-paths-1';
+import {EXTRA_LEVELS} from './world-expansion.mjs?v=living-biomes-1';
+import {BIOME_LEVELS,getBiome} from './biomes.mjs?v=living-biomes-1';
+export {BIOME_LEVELS} from './biomes.mjs?v=living-biomes-1';
 // Location identities are shared by route previews, terrain and scenery.
 // Shapes and challenge windows are authored by the flight generator.
 export const LEVELS = Object.freeze([
+  ...BIOME_LEVELS,
   ...EXTRA_LEVELS,
   { id: 'ruins-aqueduct', terrain: 'ruins', variant: 0, name: 'Broken Aqueduct', scene: 'aqueduct', signature: 'Overgrown cottages · low arches', motif: 'underpass', ink: '#b4a17a' },
   { id: 'ruins-belfry', terrain: 'ruins', variant: 1, name: 'Sunken Belfry', scene: 'belfry', signature: 'Courtyard walls · tower shelves', motif: 'stair', ink: '#a49b89' },
@@ -21,9 +24,14 @@ function hash(value) {
 }
 
 export function getLevelIdentity(terrain = 'ruins', seed = 1, offset = 0) {
-  const pool = LEVELS.filter(level => level.terrain === terrain);
-  const locations = pool.length ? pool : LEVELS.filter(level => level.terrain === 'ruins');
+  const pool = BIOME_LEVELS.filter(level => level.terrain === terrain);
+  const locations = pool.length ? pool : BIOME_LEVELS.filter(level => level.terrain === 'ruins');
   return locations[(hash(`${seed}:${terrain}:location`) + Math.max(0, Math.floor(Number(offset) || 0))) % locations.length];
+}
+
+export function getBiomeLevelIdentity(biomeId, seed = 1, offset = 0) {
+  const biome=getBiome(biomeId),locations=BIOME_LEVELS.filter(level=>level.biomeId===(biome?.id||'moonruins'));
+  return locations[(hash(`${seed}:${biomeId}:variant`) + Math.max(0,Math.floor(Number(offset)||0))) % locations.length];
 }
 
 export function resolveLevelIdentity(id, terrain = 'ruins', seed = 1) {

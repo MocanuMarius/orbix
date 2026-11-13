@@ -1,4 +1,4 @@
-import {formatGlow,getGlowCapacity,FLAME_TUNING,glowPoints} from './vitality.mjs?v=committed-paths-1';
+import {formatGlow,getGlowCapacity,FLAME_TUNING,glowPoints} from './vitality.mjs?v=living-biomes-1';
 const clamp=v=>Math.max(0,Math.min(1,v));
 const lock='<svg viewBox="0 0 12 14" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M3 6V4a3 3 0 0 1 6 0v2M1 6h10v7H1zM6 9v2"/></svg>';
 export function glowGaugeMarkup(run,reserve={}){

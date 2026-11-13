@@ -1,5 +1,5 @@
-import { createDraftZones } from './drafts.mjs?v=committed-paths-1';
-import { pickupKind } from './pickups.mjs?v=committed-paths-1';
+import { createDraftZones } from './drafts.mjs?v=living-biomes-1';
+import { pickupKind } from './pickups.mjs?v=living-biomes-1';
 
 const FAMILIES = Object.freeze({
   'stillwater-tunnel': Object.freeze({ id:'stillwater-tunnel', name:'Stillwater Tunnel', icon:'ruins', rewardTheme:'precision',
@@ -21,13 +21,14 @@ export function familyChallengeCells(familyId, course, { difficulty=1, elite=fal
   if(family.id==='stillwater-tunnel') {
     const roofed=source.filter(cell=>cell[4]==='both');
     const cells=(roofed.length?roofed:course.hard).slice(0,Math.max(3,course.hard.length));
-    return cells.map((cell,i)=>{const copy=[...cell];copy[0]=[.49,.53,.50,.47][i%4];
+    return cells.map((cell,i)=>{const copy=[...cell];copy[0]=cell[0]*.65+[.49,.53,.50,.47][i%4]*.35;
       copy[1]=Math.max(elite?174:difficulty<=2?198:184,Math.min(210,copy[1]));copy[4]='both';return copy;});
   }
   const open=source.filter(cell=>cell[4]==='floor'&&cell[1]>=230);
   const base=open.length?open:course.rest;
   return Array.from({length:Math.max(3,course.hard.length)},(_,i)=>{const copy=[...base[i%base.length]];
-    copy[0]=family.id==='draft-staircase'?[.57,.50,.43,.49][i%4]:[.52,.50,.48,.50][i%4];
+    const rhythm=family.id==='draft-staircase'?[.57,.50,.43,.49][i%4]:[.52,.50,.48,.50][i%4];
+    copy[0]=copy[0]*.65+rhythm*.35;
     copy[1]=Math.max(300,copy[1]);copy[4]='floor';return copy;});
 }
 
@@ -78,7 +79,7 @@ export function installEncounterFamily(layout, field, { node={}, height=620, see
         if(!zone)continue;
         // Bypass safety comes from the production full-sway draft-room sampler.
         Object.assign(zone,{id:`staircase:${room.id}`,direction:-1,
-          force:(Number(node.difficulty)||1)<=2?310:Math.min(430,330+20*(Number(node.difficulty)||1)),
+          force:(Number(node.difficulty)||1)<=2?460:Math.min(570,460+20*(Number(node.difficulty)||1)),
           authoredChallenge:room.id,triggeredAt:null});
         field.zones.push(zone);
         const challenge=(layout.challenges||[]).find(c=>c.sectionId===room.id);
