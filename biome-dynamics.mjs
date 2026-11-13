@@ -1,7 +1,7 @@
-import { DRAFT_TUNING } from './drafts.mjs?v=energy-language-1';
-import { scenePropBounds } from './scene-props.mjs?v=energy-language-1';
-import { formatGlow } from './vitality.mjs?v=energy-language-1';
-import { lightVisibility } from './light-field.mjs?v=energy-language-1';
+import { DRAFT_TUNING } from './drafts.mjs?v=proximity-energy-1';
+import { scenePropBounds } from './scene-props.mjs?v=proximity-energy-1';
+import { formatGlow } from './vitality.mjs?v=proximity-energy-1';
+import { lightVisibility } from './light-field.mjs?v=proximity-energy-1';
 
 // Small, deterministic actors attached to existing terrain. Static mountain
 // meshes never change, and each actor is used once: no repeatable currency farm.

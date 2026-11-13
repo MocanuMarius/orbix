@@ -1,7 +1,7 @@
-import {formatGlow} from './vitality.mjs?v=energy-language-1';
-import { PICKUP_TYPES, getPickupSpec } from './pickups.mjs?v=energy-language-1';
-import { pickupArtSvg } from './pickup-art.mjs?v=energy-language-1';
-import { normalizeCompanionRole, normalizeCompanionFleet } from './companion-abilities.mjs?v=energy-language-1';
+import {formatGlow} from './vitality.mjs?v=proximity-energy-1';
+import { PICKUP_TYPES, getPickupSpec } from './pickups.mjs?v=proximity-energy-1';
+import { pickupArtSvg } from './pickup-art.mjs?v=proximity-energy-1';
+import { normalizeCompanionRole, normalizeCompanionFleet } from './companion-abilities.mjs?v=proximity-energy-1';
 
 const esc = value => String(value ?? '').replace(/[&<>"']/g, char =>
   ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));

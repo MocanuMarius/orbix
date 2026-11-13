@@ -1,11 +1,11 @@
-import {getGlowCapacity,getLifeCapacity,formatGlow} from './vitality.mjs?v=energy-language-1';
-import {livesMarkup} from './lives.mjs?v=energy-language-1';
-import {resourceSymbol} from './game-symbols.mjs?v=energy-language-1';
-import {choiceScene} from './choice-art.mjs?v=energy-language-1';
-import {mapStopIconMarkup} from './map-guide.mjs?v=energy-language-1';
-import {dreamRestMarkup} from './dream.mjs?v=energy-language-1';
-import {skillIcon,artifactIcon} from './upgrade-icons.mjs?v=energy-language-1';
-import {companionArtSvg} from './companion-art.mjs?v=energy-language-1';
+import {getGlowCapacity,getLifeCapacity,formatGlow} from './vitality.mjs?v=proximity-energy-1';
+import {livesMarkup} from './lives.mjs?v=proximity-energy-1';
+import {resourceSymbol} from './game-symbols.mjs?v=proximity-energy-1';
+import {choiceScene} from './choice-art.mjs?v=proximity-energy-1';
+import {mapStopIconMarkup} from './map-guide.mjs?v=proximity-energy-1';
+import {dreamRestMarkup} from './dream.mjs?v=proximity-energy-1';
+import {skillIcon,artifactIcon} from './upgrade-icons.mjs?v=proximity-energy-1';
+import {companionArtSvg} from './companion-art.mjs?v=proximity-energy-1';
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 export function restBenefitsMarkup(run,node,choices=[],{nextNode=null}={}){
  const capacity=getGlowCapacity(run),fullHearts={...run,lives:getLifeCapacity(run)},resolved=run.restReady===true;

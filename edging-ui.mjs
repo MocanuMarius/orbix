@@ -1,4 +1,4 @@
-import { GLOW_DISPLAY_SCALE } from './vitality.mjs?v=energy-language-1';
+import { GLOW_DISPLAY_SCALE } from './vitality.mjs?v=proximity-energy-1';
 const clamp=value=>Math.max(0,Math.min(1,Number(value)||0));
 const explanation='Edging Pulse: skim near solid terrain or the top and bottom edges for 2 seconds total. Brief gaps keep your progress for 1.25 seconds, then it fades slowly. A full meter automatically reveals the scene.';
 const regenExplanation='Regenerative Falling: skim near solid terrain or the top and bottom edges to restore 1 Energy instead of revealing the scene. Eight recoveries per flight; missing fuel only. Two seconds to reset. No Packed Sparks is created.';
@@ -20,8 +20,8 @@ export function updateEdgingPulse(gauge,snapshot){
   gauge.title=regenerative?regenExplanation:explanation;
   refs.meter.setAttribute('aria-label',regenerative?'Regenerative Falling':'Edging Pulse');
  }
- gauge.hidden=!(charge>0||active||feedback);
- const recovering=!active&&!!pulse.recovering,ratio=spent?0:feedback&&pulse.regenGain>0?1:active?clamp(remaining/duration):recovering?0:charge;
+ gauge.hidden=!(charge>0&&!active&&!pulse.recovering&&!feedback);
+ const recovering=!active&&!!pulse.recovering,ratio=spent||feedback||active||recovering?0:charge;
  const mode=feedback?'regenerated':spent?'spent':active?'active':recovering?'recovering':pulse.nearEdge?'charging':pulse.holding?'holding':charge>0?'fading':'idle';
  if(gauge._edgingMode!==mode){gauge._edgingMode=mode;gauge.dataset.pulseState=mode;}
  const fill=Math.round(ratio*12);if(gauge._edgingFill!==fill){gauge._edgingFill=fill;refs.fill.style.transform='none';refs.fill.style.height=`${fill?fill*5-1:0}px`;}
