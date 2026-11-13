@@ -25,3 +25,11 @@
 @keyframes edging-pulse-breathe{0%,100%{opacity:.82}50%{opacity:1}}
 @media(max-height:365px){.canvas-wrap>.edging-pulse-gauge{height:110px;gap:3px;bottom:calc(env(safe-area-inset-bottom,0px) + 12px)}.edging-pulse-meter{height:66px;min-height:66px}}
 @media(prefers-reduced-motion:reduce){.edging-pulse-gauge[data-pulse-state=active] .edging-pulse-fill{animation:none}}
+
+/* Overflow rises directly into a left-hand reservoir, clear of flight space. */
+.canvas-wrap>.flight-condensed-counter{position:absolute;z-index:4;left:calc(env(safe-area-inset-left,0px) + 12px);bottom:calc(env(safe-area-inset-bottom,0px) + 192px);height:30px;display:grid;grid-template-columns:38px auto;grid-template-rows:17px 10px;column-gap:4px!important;min-width:0!important;background:#0b1718b3;padding:0 5px 0 0;pointer-events:none}
+.canvas-wrap>.flight-condensed-counter>.condensed-icon{grid-row:1/3;width:18px;height:18px;justify-self:center}
+.canvas-wrap>.flight-condensed-counter>b{font-size:15px!important;line-height:17px;align-self:end}
+.canvas-wrap>.flight-condensed-counter>small{grid-column:2;font-size:6px!important;line-height:10px}
+.condensation-motes>.condensation-beam{width:12px;border-radius:0;transform-origin:50% 100%;background:linear-gradient(90deg,transparent 0,#a6d1b855 15%,#deebbdcc 32%,#fff9d9 43%,#fffbe6 57%,#deebbdcc 68%,#a6d1b855 85%,transparent 100%);box-shadow:0 0 12px #d4eab84d;clip-path:polygon(33% 0,67% 0,67% 8%,83% 8%,83% 85%,100% 85%,100% 100%,0 100%,0 85%,17% 85%,17% 8%,33% 8%)}
+@media(max-height:365px){.canvas-wrap>.flight-condensed-counter{bottom:calc(env(safe-area-inset-bottom,0px) + 170px)}}
