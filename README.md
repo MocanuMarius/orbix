@@ -156,3 +156,10 @@ The game requires no account, analytics, payment or cloud-save service. The exis
 ### Guided practice
 
 TUTORIAL starts short authored practice with spotlights on the real map, encounter key, controls, reward slots, rest choices, MENU wheel, tuning and companion selectors. Flight freezes while an item or control is explained, then continues after the player dismisses the prompt. The field lessons point at actual packets, carrier, draft and refuge objects; dark packets dim sight. This batch intentionally has no checks, tests, simulations or balance pass. Save migrations and compatibility work are outside the current prototype scope.
+
+
+### Campaign structure and delayed reserve unlock
+
+One difficulty tier contains three sequential seven-stop maps, sharing the ascension's lives, build, fuel and tuning. The first two map clears open the next map. The third ends in the Hollow Warden flight trial and unlocks the next difficulty. Higher tiers apply bounded passage/draft pressure independently of the five-flight depth within a map.
+
+Afterglow is unavailable before the first boss defeat: no reserve balance, surplus deductions, reserve events, reserve upgrade branch or opening tutorial lesson. That boss grants the permanent unlock and a one-time 20 Stored Glow reward; a contextual unlock lesson introduces its use. The prototype save key changes for this campaign revision instead of migrating old campaigns. No checks, tests, simulations or balance pass are included.

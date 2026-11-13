@@ -6,10 +6,10 @@ export const MAP_STOP_TYPES = Object.freeze({
   rest: stop('rest', 'REST', 'Rest', 'Refill Glow or gather embers. Redistribute tuning and change companions here.'),
   shrine: stop('shrine', 'SHRINE', 'Shrine', 'Choose Glow and embers, or a temporary power. Rest preparation is available.'),
   event: stop('event', 'EVENT', 'Event', 'One of six encounters, each with two resource or build choices. Rest preparation is available.'),
-  finale: stop('finale', 'FINALE', 'Finale', 'Clear the fifth flight to complete the ascent and secure its reward.'),
+  finale: stop('finale', 'FINALE', 'Map finale', 'Finish this map. Maps one and two lead onward; the third map ends with the difficulty-tier boss.'),
 });
 
-export const EVENT_SCENARIOS = Object.freeze([
+const UNLOCKED_EVENT_SCENARIOS = Object.freeze([
   { id: 'ash-spring', index: 0, name: 'Ash Spring',
     summary: 'Refill Glow or take 16 embers.',
     detail: 'The refill costs 12 embers when affordable; the ember option leaves the spring untouched.' },
@@ -30,6 +30,31 @@ export const EVENT_SCENARIOS = Object.freeze([
     detail: 'The draft costs 10 embers when affordable. A full reserve offers embers instead of stored Glow.' },
 ].map(Object.freeze));
 
+// The default catalogue teaches only the choices available before the first boss.
+// Names, order and indices stay identical so seeded events never change identity.
+const INTRO_EVENT_COPY = Object.freeze({
+  'cinder-bargain': {
+    summary: 'Trade spare Glow for more embers, or take 12 embers safely.',
+    detail: 'With enough Glow, spend 15 to gain 35 embers. At low Glow, the first choice recovers 18 Glow instead.'
+  },
+  'luminous-well': {
+    summary: 'Refill Glow or take 12 embers.',
+    detail: 'Choose a full fuel refill for the next passage or permanent ember currency.'
+  },
+  'ember-archive': {
+    summary: 'Draft a temporary power or take 12 embers.',
+    detail: 'The draft costs 10 embers when affordable; the other choice keeps your build and grants 12 embers.'
+  }
+});
+export const EVENT_SCENARIOS = Object.freeze(UNLOCKED_EVENT_SCENARIOS.map(event =>
+  Object.freeze({ ...event, ...(INTRO_EVENT_COPY[event.id] || {}) })));
+
+/** Accepts {afterglowUnlocked:boolean} or a boolean. Locked is the default. */
+export function getEventScenarios(options = {}) {
+  const unlocked = typeof options === 'boolean' ? options : options?.afterglowUnlocked === true;
+  return unlocked ? UNLOCKED_EVENT_SCENARIOS : EVENT_SCENARIOS;
+}
+
 function kindOf(value) {
   if (typeof value === 'string') {
     if (value === 'camp') return 'rest';
@@ -49,7 +74,7 @@ function kindOf(value) {
 
 export function getMapStopInfo(node = {}) {
   const kind = kindOf(node), base = MAP_STOP_TYPES[kind];
-  const event = kind === 'event' && Number.isInteger(node.eventIndex) ? EVENT_SCENARIOS[node.eventIndex] : null;
+  const event = kind === 'event' && Number.isInteger(node.eventIndex) ? getEventScenarios({ afterglowUnlocked: node.afterglowUnlocked === true })[node.eventIndex] : null;
   return { ...base,
     name: event?.name || (kind === 'flight' || kind === 'elite' || kind === 'finale'
       ? node.locationName || node.name : node.name) || base.name,

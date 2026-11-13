@@ -264,3 +264,14 @@ The current build already caches terrain artwork. Its current dynamic lighting u
 - Pause practice flight while pointing out controls or a newly encountered world object, then resume explicitly. Keep the two short authored practice flights and contextual action hints.
 - Show a real optional dark packet in draft practice. Explain that it dims sight, rather than consuming Glow or a life.
 - Publish this feature batch. Skip checks, tests, reviews, simulations and balance work until the backlog is clear.
+
+
+## Three-map difficulty tiers and boss-gated Afterglow
+
+- An ascension now crosses three separate seven-stop maps. Difficulty stays fixed across those maps; clearing the third map's Hollow Warden unlocks the next difficulty. Higher tiers add bounded passage and draft pressure. Within-map flight depth is labelled Flight, separate from Difficulty.
+- Keep the same three lives, three-slot build, current Glow, tuning allocation, and secured rewards between maps. Map clears are checkpoints inside an ascension. Losing all lives restarts the ascension from its first map.
+- The third map ends with a distinct guardian flight trial: survive authored, telegraphed phases and reach the refuge using existing flight controls. It adds no combat buttons.
+- Afterglow is hidden and mechanically inactive before the first boss clear. Do not siphon spare fuel, offer reserve events, display reserve upgrades, or introduce it in basic practice. Before the unlock, events offer ordinary fuel, embers or powers.
+- The first boss permanently unlocks Afterglow and grants 20 Stored Glow once. Introduce the bottle, surplus banking, preflight drawing and reserve upgrades at that moment. Future ascensions retain the unlock.
+- Prototype speed takes priority over retaining previous save data. A new save key may reset the current prototype; do not add migrations or compatibility layers.
+- Publish this batch without checks, tests, reviews, simulations or balance work.

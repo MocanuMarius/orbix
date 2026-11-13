@@ -8,6 +8,7 @@ import { DraftField, DRAFT_TUNING } from './drafts.mjs';
 import { normalizeCompanionRole, getCompanionAbility } from './companion-abilities.mjs';
 import { GRAVITY_TUNING, gravityRadius, updateGravityPackets } from './gravity.mjs';
 import { populateSceneProps, scenePropPolygons } from './scene-props.mjs';
+import { buildBossLayout, getBossState as bossState, drawBoss } from './boss.mjs';
 import { createTutorialState, buildTutorialLayout, recordTutorialPickup,
   updateTutorial, updateTutorialCompanion, getTutorialHint } from './tutorial.mjs';
 export { FLAME_TUNING } from './vitality.mjs';
@@ -326,8 +327,8 @@ function carveCachePocket(obstacle, side, first, rich, height) {
 
 export function buildFlightLayout({ seed = 1, terrain = 'ruins', elite = false,
   duration = 38, speed = 154, height = 620, passage = 'open', fuelCadence = 3,
-  levelId, stage = 0, lengthScale = 1 } = {}) {
-  const ascent = getAscentInfo(stage);
+  levelId, stage = 0, difficulty = 1, lengthScale = 1 } = {}) {
+  const ascent = getAscentInfo({ row: stage, difficulty });
   const legCount = lengthScale === LEVEL_LENGTH.multiplier ? LEVEL_LENGTH.multiplier : 1;
   const identity = resolveLevelIdentity(levelId, terrain, seed);
   const course = MACRO_COURSES[identity.id] || MACRO_COURSES['ruins-aqueduct'];
@@ -601,6 +602,7 @@ export class WispFlight {
     this.levelIdentity = resolveLevelIdentity(route.levelId, this.terrain, this.seed);
     this.locationName = route.locationName || this.levelIdentity.name;
     this.tutorial = createTutorialState(route);
+    this.bossEncounter = !this.tutorial && route.boss === true;
     this.ascentInfo = getAscentInfo(route, Boolean(this.tutorial));
     this.tutorialAwaitingLift = Boolean(this.tutorial);
     this.passage = ['open', 'cavern', 'gauntlet'].includes(route.passage) ? route.passage : 'open';
@@ -651,10 +653,15 @@ export class WispFlight {
     this.layout = this.tutorial
       ? buildTutorialLayout({ lesson: this.tutorial.lesson, duration: this.duration,
         height: this.height, speed: FLIGHT_TUNING.forwardSpeed })
+      : this.bossEncounter ? buildBossLayout({ seed: this.seed, terrain: this.terrain,
+        elite: this.elite, duration: this.duration, speed: FLIGHT_TUNING.forwardSpeed,
+        height: this.height, gapScale: this.ascentInfo.hardGapScale,
+        difficulty: this.ascentInfo.difficulty, levelIdentity: this.levelIdentity, circleHitsPolygon })
       : buildFlightLayout({ seed: this.seed, terrain: this.terrain,
         elite: this.elite, duration: this.duration, speed: FLIGHT_TUNING.forwardSpeed, height: this.height,
         passage: this.passage, fuelCadence: this.fuelCadence,
-        levelId: this.levelIdentity.id, stage: this.ascentInfo.row, lengthScale: this.lengthScale });
+        levelId: this.levelIdentity.id, stage: this.ascentInfo.row,
+        difficulty: this.ascentInfo.difficulty, lengthScale: this.lengthScale });
     this.drafts = new DraftField({ seed: this.seed, terrain: this.terrain, elite: this.elite,
       duration: this.duration, height: this.height, totalDistance: this.totalDistance,
       layout: this.layout, lesson: this.tutorial?.lesson || null, lengthScale: this.lengthScale });
@@ -862,7 +869,7 @@ export class WispFlight {
 
   gustState() {
     return this.drafts.sample(this.time, this.distance + this.player.x,
-      this.player.y, this.mod.windSensitivity);
+      this.player.y, (Number(this.mod.windSensitivity) || 1) * (this.ascentInfo.draftForceScale || 1));
   }
 
   obstacleCenter(obstacle) {
@@ -1152,9 +1159,14 @@ export class WispFlight {
       : this.challengeId === 'boosts' ? (this.companionAbility.passive ? this.baseEmbers : this.boosts) >= this.challengeTarget : this.collisions === 0;
   }
 
+  getBossState() { return bossState(this); }
+
   getState() {
+    const boss = this.getBossState();
     return { alive: this.alive, score: Math.floor(this.score), embers: this.embers,
       ascent: this.ascentInfo,
+      boss, bossPhase: boss ? `${boss.phase}/3 · ${boss.phaseName}` : '',
+      bossWarning: boss?.warning || '',
       flame: this.flame, maxFlame: FLAME_TUNING.maximum, flapCost: this.flapCost,
       canFlap: this.alive && !this.finished && this.flame >= this.flapCost, flaps: this.flaps,
       wisp: this.getWispState(),
@@ -1185,6 +1197,7 @@ export class WispFlight {
     if (this.raf != null) cancelAnimationFrame(this.raf);
     this.raf = null;
     const result = { success: Boolean(success) && this.alive, alive: this.alive, embers: this.embers,
+      boss: this.bossEncounter ? { id: 'hollow-warden', defeated: Boolean(success) && this.alive } : null,
       flame: this.flame,
       score: Math.floor(this.score), collected: this.baseEmbers, collisions: this.collisions,
       boosts: this.boosts,
@@ -1258,6 +1271,8 @@ export class WispFlight {
     c.setTransform(this.canvas.width / W, 0, 0, this.canvas.height / H, 0, 0);
     c.globalAlpha = 1; c.globalCompositeOperation = 'source-over';
     this.drawBackground(c, W, H);
+    drawBoss(c, { engine: this, width: W, height: H, distance: this.renderDistance,
+      time: this.visualTime, pass: 'silhouette' });
     c.save();
     if (this.shake > 0) c.translate(Math.sin(this.time * 77) * this.shake, Math.cos(this.time * 63) * this.shake * .5);
     this.drawWind(c, W, H);
@@ -1267,6 +1282,8 @@ export class WispFlight {
       if (x + o.width * 2.5 < -70 || o.destroyed) continue;
       this.drawObstacle(c, o, x, H);
     }
+    drawBoss(c, { engine: this, width: W, height: H, distance: this.renderDistance,
+      time: this.visualTime, pass: 'hands' });
     this.drawEmbers(c);
     this.drawFlightTrail(c);
     this.drawParticles(c);

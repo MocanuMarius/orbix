@@ -2,6 +2,7 @@ import { sceneryIdentity, drawIdentityBackground, drawIdentityMaterial, drawIden
 import { getCompanionAbility, normalizeCompanionRole } from './companion-abilities.mjs';
 import { companionSprite, companionPalette } from './companion-art.mjs';
 import { createScenePropArt } from './scene-prop-art.mjs';
+import { drawBoss } from './boss.mjs';
 
 const TAU = Math.PI * 2;
 const WIDTH = 260;
@@ -830,7 +831,9 @@ export class WispFlightView {
     c.setTransform(1, 0, 0, 1, 0, 0); c.globalAlpha = 1; c.globalCompositeOperation = 'source-over';
     this.drawSky(e, t, distance, palette);
     c.globalAlpha = .34; c.fillStyle = '#03080b'; c.fillRect(0, 0, this.buffer.width, this.buffer.height); c.globalAlpha = 1;
+    drawBoss(c, { engine: e, width: WIDTH, height: this.buffer.height, distance, time: t, scale: s, pass: 'silhouette' });
     this.drawTerrain(e, t, distance, palette);
+    drawBoss(c, { engine: e, width: WIDTH, height: this.buffer.height, distance, time: t, scale: s, pass: 'hands' });
     this.drawSceneProps(e, t, distance);
     this.drawCollectibles(e, t, distance);
     this.drawBurstEffects(e, MAIN_LIGHT);

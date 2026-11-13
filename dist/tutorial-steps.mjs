@@ -9,11 +9,11 @@ const step = (id, title, text, target, extra = {}) =>
 
 const keyText = {
   flight: ['Flight symbol', 'The wing marks an ordinary flight. Clear it to save embers and choose a temporary power.'],
-  elite: ['Elite symbol', 'The skull marks a harder flight with a larger clear reward. Your three ascent lives still apply.'],
+  elite: ['Elite symbol', 'The skull marks a harder flight with a larger clear reward. Your three journey lives still apply.'],
   rest: ['Rest symbol', 'The campfire offers fuel or embers. Rest also opens tuning and companion changes before departure.'],
   shrine: ['Shrine symbol', 'The cards mark a shrine. Choose fuel and embers or a new temporary power.'],
   event: ['Event symbol', 'The question mark is a named encounter with two choices. There are six event variants, each with different tradeoffs.'],
-  finale: ['Finale symbol', 'The flag marks the last flight. It ends practice here; a normal ascent finishes with flight five.'],
+  finale: ['Finale symbol', 'The flag marks this map’s last flight. Maps one and two open the next map; map three ends with the difficulty-tier boss.'],
 };
 
 export function tutorialSteps(screen, context = {}) {
@@ -23,7 +23,8 @@ export function tutorialSteps(screen, context = {}) {
   const passive = context.passive ?? ability.passive === true;
   const rest = context.rest === true;
   const practice = run.isTutorial === true || Boolean(context.lesson);
-  const stored = context.hasStoredGlow === true;
+  const unlocked = !practice && (context.afterglowUnlocked ?? run.afterglowUnlocked ?? context.profile?.afterglowUnlocked) === true;
+  const stored = unlocked && context.hasStoredGlow === true;
   const abilityText = passive
     ? 'Gravity is always on. It nudges nearby good light packets closer; you or your collector still need to collect them.'
     : role === 'anchor'
@@ -33,9 +34,9 @@ export function tutorialSteps(screen, context = {}) {
   switch (screen) {
     case 'map':
       return [
-        step('map-stops', 'Follow the route upward', 'Practice has three stops; a normal ascent has seven. The counter includes flights and support stops.', '.map-stop-counter'),
+        step('map-stops', 'Follow the route upward', 'Practice has three stops; a normal difficulty tier has three seven-stop maps. FLIGHT 1/5 counts this map’s flights, while DIFFICULTY names the tier.', '.map-stop-counter'),
         step('map-position', 'Your position', 'The white light marks START or YOU. Follow the bright links toward the next stop.', '.map-orb-marker'),
-        step('map-lives', 'Three lives for the ascent', 'Each collision ends an attempt and spends one life. Lives do not refill after a level.', '.map-status-strip .ascension-lives'),
+        step('map-lives', 'Three lives for the journey', 'Each collision ends an attempt and spends one life. Lives do not refill after a level.', '.map-status-strip .ascension-lives'),
         step('map-branches', 'Choose a glowing stop', 'Only glowing stops are reachable. At a fork, choose a route and inspect it before entering.', '#journey-map .world-map-node.reachable'),
         step('map-wallet', 'Saved embers', 'The ember icon is your permanent wallet. Embers buy upgrades; Glow is separate flight fuel.', '.saved-wallet-bank'),
         step('map-symbols', 'Learn the six symbols', 'MAP KEY explains each stop type and the six named event variants. We will open it next.', '.map-key-button', { actionLabel: 'Show symbols' }),
@@ -44,10 +45,11 @@ export function tutorialSteps(screen, context = {}) {
     case 'map-key':
       return [
         ...Object.values(MAP_STOP_TYPES).map((type, index) => {
-          const [title, text] = keyText[type.kind];
+          const [title, defaultText] = keyText[type.kind];
+          const text = type.kind === 'finale' && practice ? 'The flag ends this practice route. In a normal difficulty tier, maps one and two lead onward and map three ends with a boss.' : defaultText;
           return step(`map-key-${type.kind}`, title, text, `#map-key-inspector .map-key-row:nth-child(${index + 1})`);
         }),
-        step('map-key-events', 'Events offer real trades', 'These names identify different choices: fuel now, saved embers, a power or stored fuel. Read the trade before choosing.', '#map-key-inspector .map-event-guide', { actionLabel: 'Back to route' }),
+        step('map-key-events', 'Events offer real trades', unlocked ? 'These names identify different choices: fuel now, saved embers, a power or stored fuel. Read the trade before choosing.' : 'These names identify different choices: fuel now, saved embers or a new power. Read the trade before choosing.', '#map-key-inspector .map-event-guide', { actionLabel: 'Back to route' }),
       ];
 
     case 'briefing': {
@@ -89,7 +91,7 @@ export function tutorialSteps(screen, context = {}) {
     case 'support': {
       const steps = [
         step('support-choice', 'Choose one boon', 'Pick one of these two choices, then continue upward. Each reward names its resource or power.', '.support-offers'),
-        step('support-resources', 'Know what you are taking', 'Glow is Lift fuel; embers are saved upgrade currency. Stored Glow is fuel held for a later level.', '.support-vitals'),
+        step('support-resources', 'Know what you are taking', unlocked ? 'Glow is Lift fuel; embers are saved upgrade currency. Stored Glow is fuel held for a later level.' : 'Glow is Lift fuel. Embers are saved currency for permanent upgrades.', '.support-vitals'),
         step('support-menu', 'Tune at rest through MENU', 'The gear badge shows unused tuning points. TUNE redistributes flight points; UPGRADES spends saved embers.', '.header-menu-slot .game-menu-button'),
       ];
       if (rest) steps.push(step('support-companion', 'A rest can change your guide', 'Choose Boost, Level or passive Gravity before departing. Your cards and saved wallet stay with you.', '.rest-companion-picker'));
@@ -137,9 +139,17 @@ export function tutorialSteps(screen, context = {}) {
 
     case 'retry':
       return [
-        step('retry-lives', 'One life was spent', 'An ascent starts with exactly three lives. Lives do not refill between levels.', '.retry-lives'),
+        step('retry-lives', 'One life was spent', 'A journey starts with exactly three lives. Lives do not refill between levels.', '.retry-lives'),
         step('retry-same-level', 'Retry the same passage', 'Retry starts this level again with its entry Glow, companion and build. Failed-attempt pickup rewards are discarded.', '[data-action="retry-attempt"]'),
         step('retry-end', 'Or end this ascent', 'Ending here abandons the ascent. Embers saved on earlier clears remain in your permanent wallet.', '[data-action="end-ascension"]', { actionLabel: 'Choose' }),
+      ];
+
+    case 'afterglow-unlock':
+      if (practice || !unlocked || !run.afterglowJustUnlocked) return [];
+      return [
+        step('afterglow-first-boss', 'Stored Glow unlocked', 'Your first boss unlocks this bottle. It carries spare Glow into later levels.', '.afterglow-unlock'),
+        step('afterglow-fuel', 'A new fuel reserve', 'Stored Glow supplies Lift fuel. Saved embers remain your currency for permanent upgrades.', '.afterglow-unlock'),
+        step('afterglow-use', 'Choose when to use it', 'MENU shows the bottle when it holds fuel. Before a new level, use the offered Glow or keep it for later.', '.afterglow-unlock', { actionLabel: 'Continue' }),
       ];
 
     case 'result':
