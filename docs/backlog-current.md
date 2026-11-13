@@ -19,7 +19,7 @@ Validation:
 - Browser input: before/countdown `{flaps:0,time:0,paused:true}`; after countdown `{flaps:0,time:0,paused:false}` at `Game speed 0.1×`; next Lift increments to one. Initial input is never spent by Resume.
 - Existing old suites that import removed card/getModifiers APIs remain obsolete; this is a focused check report, not a full-suite or physical-device FPS certification.
 
-Publication: pending final verification. Local mock fixtures stay outside `dist`.
+Publication verified: `one-companion-1`, source `0a39c997037279d07da3dc76912a273880a25654`, Pages `24e51caaaae5c5231f5e10ba46c62d56cfcd91a2`. Workflow `43501588123` completed successfully. Public manifest and ten entry/model/UI files match local release bytes. Phone: https://mocanumarius.github.io/orbix/?v=one-companion-1 ; landscape preview: https://mocanumarius.github.io/orbix/preview.html?v=one-companion-1 . Local mock fixtures stay outside `dist`.
 
 ---
 
