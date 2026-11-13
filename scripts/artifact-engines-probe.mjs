@@ -142,6 +142,39 @@ for(const flame of [0,60,90,100]){
 }
 const spent=make('collector',{artifactIds:['glow-wick','flash-stone'],artifactCharges:{'glow-wick':0,'flash-stone':0}},0);
 pick(spent);assert.equal(spent.flame,24);assert.equal(spent.pickupRevealStrength,0,'Reloading zero charges must not refill them');
+const fullStack=make('collector',{artifactIds:['glow-wick','flash-stone'],artifactCharges:{'glow-wick':9,'flash-stone':6}},0);
+assert.deepEqual(fullStack.getState().artifactCharges,{'glow-wick':9,'flash-stone':6},'Engine preserves stack uses above one base copy');
+for(let i=0;i<10;i++){
+ fullStack.time=i*3;fullStack.flame=0;pick(fullStack,'light',{deliveredByWisp:i%2===0});
+ assert.equal(fullStack.flame,i<9?34:24,'Copies extend lifetime, never multiply bonus strength');
+ assert.deepEqual(fullStack.getState().artifactCharges,{'glow-wick':Math.max(0,8-i),'flash-stone':Math.max(0,5-i)});
+ if(i>=6)assert.equal(fullStack.pickupRevealStrength,0,'Stacked Flash Stone stops revealing after six uses');
+}
+const seed=make('collector',{artifactIds:['wayward-seed']},0);
+for(let i=0;i<2;i++){seed.flame=0;pick(seed);assert.equal(seed.flame,24);}
+assert.equal(seed.artifactEffects.state.seed.charge,2);
+pick(seed,'light',{generated:true});assert.equal(seed.artifactEffects.state.seed.charge,2,'Generated light cannot charge the seed');
+pick(seed,'light',{deliveredByWisp:true});assert.equal(seed.artifactEffects.state.seed.charge,0,'Collector breaks the body chain');
+for(let i=0;i<3;i++){seed.flame=0;pick(seed);}
+close(seed.flame,24+10/3);assert.equal(seed.artifactEffects.state.seed.procs,1);
+for(const id of ['hearth-bloom','lantern-bloom']){
+ const bloom=make('swift',{artifactIds:[id]},0),plain=make('swift',{},0);
+ for(let i=1;i<=18;i++){
+  bloom.time=i*3;bloom.flame=plain.flame=0;pick(bloom);pick(plain);
+  assert.equal(bloom.artifactEffects.state.seed.procs,Math.min(5,Math.floor(i/3)));
+  assert.equal(bloom.flame,id==='hearth-bloom'&&i<=15&&i%3===0?34:24,'Bloom strength and activation count stay bounded');
+  if(id==='lantern-bloom'&&i<=15&&i%3===0)assert.ok(bloom.pickupRevealHoldUntil>bloom.time+1.5);
+  if(i>15)assert.equal(bloom.pickupRevealStrength,0,'A capped sight bloom cannot reveal again');
+  close(bloom.condensedGlow,plain.condensedGlow);close(bloom.condensedRemainder,plain.condensedRemainder);
+ }
+ const full=make('swift',{artifactIds:[id]},100),normal=make('swift',{},100);
+ for(let i=0;i<3;i++){pick(full);pick(normal);}
+ close(full.condensedGlow,normal.condensedGlow);close(full.condensedRemainder,normal.condensedRemainder);
+ assert.equal(full.pickupOverflow,normal.pickupOverflow,'Bloom restoration never creates overflow');
+}
+const bloomChain=make('swift',{...mods('sunspool'),artifactIds:['lantern-bloom','sunspool']},0);
+for(let i=0;i<3;i++)pick(bloomChain);
+assert.equal(bloomChain.artifactEffects.freeLift,true,'Lantern evolution deliberately enables Sunspool within its existing cap');
 let limitedResult;limited.onFinish=result=>limitedResult=result;limited.finish(false);
 assert.deepEqual(limitedResult.artifactCharges,{'glow-wick':0,'flash-stone':0},'Flight results report remaining charges for checkpoint persistence');
 const flashChain=make('collector',{...mods('sunspool'),artifactIds:['flash-stone','sunspool'],artifactCharges:{'flash-stone':1}},0);

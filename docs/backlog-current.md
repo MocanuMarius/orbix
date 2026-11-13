@@ -1,3 +1,30 @@
+# Current implementation audit — Lantern Paths
+
+Release: `lantern-paths-1`. This header supersedes the historical audits below. Publication is verified separately against the GitHub Pages release manifest.
+
+| Accepted request | Current implementation |
+| --- | --- |
+| Tiny, crisp Glow and proximity meters | 4×4px whole-unit Glow cells; slim Edging cells; no visible fuel text or fluid scaling |
+| Pixel overflow, six-turn absorption | 32 reused beam tiles; six shrinking accelerating orbits and shell collapse |
+| Readable UI with fewer words |Shared pixel symbols, compact artifact stats, expandable conditional rules, brighter Lift/Back |
+| Consumable stacks | One slot, 9 Wick / 6 Flash uses; exact cap preview, fixed forge payout, retry/save/TEST safeguards |
+| Active-looking scenery |Pixel edge states for mushrooms and other interactive props under normal fog |
+| Regenerative Falling |Exclusive Edging-to-fuel branch; 1 Glow, 8/flight, no overflow or recursive triggers |
+| Evolving defining artifact |First-flight Seed; Map 1 Hearth/Lantern choice; normal map reward preserved |
+| In-flight forks |Guarded authored terrain passages, normal fuel versus body-only larger cache; 31/48 sampled variants fit |
+| Contextual map events |Pilgrim vow and committed Surveyor preparation; previewed consequences, seeded non-repeating selection |
+| Relaxing music and controls |Original 7-minute pre-rendered score, independent persistent Music/FX toggles |
+
+Focused checks cover actual artifact triggers and lifecycle, event payment/route commitment, fork geometry, regeneration exclusions and save/retry isolation. Browser inspection covers 900×405 and 740×333 landscape menus and the evolution→normal reward sequence. Temporary visual fixtures are excluded from publication.
+
+Still open: **a physical Pixel 10 hitch trace and a current full-campaign balance study with imperfect human collection**. The historical economy/performance reports do not certify this expanded version. Safe geometry coverage is not a claim that every player can clear every fork.
+
+Earlier speculative forge rerolls were explicitly replaced by artifact-to-Packed-Light salvage. Afterglow reserve, Ember currency, phoenix graphics and six base companions are superseded designs, not missing features. The random free-tap Regenerative Falling variant was replaced by the selected deterministic Edging recovery branch.
+
+---
+
+## Historical audit follows
+
 # Current backlog audit — 13 November 2026
 
 Audited source: `223761f`; public release: `ring-boons-1`. The public release manifest matches. Ten deployed modules were compared with local source (normalizing Git line endings): app, pickup art, Glow UI, currency icon, landscape map, skill disclosure, black holes, Edging Pulse, model and Dream; all matched. Working tree was clean at audit start.

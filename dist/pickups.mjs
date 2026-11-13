@@ -1,4 +1,4 @@
-import {FLAME_TUNING,LIGHT_PACKET_TUNING} from './vitality.mjs?v=artifact-clarity-1';
+import {FLAME_TUNING,LIGHT_PACKET_TUNING} from './vitality.mjs?v=lantern-paths-1';
 
 const type=(id,name,color,radius,contactRadius,description,extra={})=>Object.freeze({id,name,color,radius,contactRadius:contactRadius*.8,description,fuel:0,recharge:0,sightBonus:0,sightDuration:0,dim:0,dimDuration:0,manualOnly:false,...extra});
 export const PICKUP_TYPES=Object.freeze({
@@ -18,7 +18,7 @@ export function pickupKind(packet={}){
 }
 export const getPickupSpec=packet=>PICKUP_TYPES[pickupKind(packet)];
 export const pickupContactRadius=packet=>getPickupSpec(packet).contactRadius;
-export const canCompanionCollect=packet=>!getPickupSpec(packet).manualOnly&&!packet.harmful;
+export const canCompanionCollect=packet=>!getPickupSpec(packet).manualOnly&&!packet.harmful&&!packet.manualOnly;
 export const isFuelPickup=packet=>getPickupSpec(packet).fuel>0;
 
 export const pickupDisposition=packet=>getPickupSpec(packet).dim>0?'warning':'boon';

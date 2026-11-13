@@ -547,7 +547,7 @@ Replace repeated main-stat ranks with named one-time skill nodes. New runs immed
 
 - All beneficial pickups share a pale circular light boundary. Dark Seeds and Dusk Pearls share a red warning boundary; Dusk remains a reward with a cost, never an unmarked boon. Inner silhouettes identify fuel mote, radiant cache, ember cluster, charge spark, sight eye, pearl and black seed. The same art appears in flight and the pickup key.
 - Contact radii increase to26/30/26/25/26/25/22 world units (light/cache/embers/charge/sight/dusk/dark). Rings match the corresponding contact radius.
-- Normal courses target30% additional recovery lights, elite15%, capped at one extra per12 seconds. Candidates use broad central air with48-unit swept terrain/prop clearance, at least160 units from warning pickups, and1.5seconds of separation from other fuel. Unsafe candidates are skipped. Nine102-second samples added4–7 accessible lights each; full moving-terrain clearance checks passed.
+- Normal courses target30% additional recovery lights, elite15%, capped at one extra per12 seconds. Candidates use broad central air with 48-unit swept terrain/prop clearance, at least160 units from warning pickups, and1.5seconds of separation from other fuel. Unsafe candidates are skipped. Nine102-second samples added4–7 accessible lights each; full moving-terrain clearance checks passed.
 - Pickup animations use a bounded per-document CPU-raster sprite atlas; the larger rings do not add live per-pixel painting each frame. Ring generation is linear in radius. This targeted cache check does not replace the earlier full benchmark or physical-phone testing.
 - Changes are held locally with the skill-tree and performance work, pending queue clearance and a combined deployment.
 
@@ -798,3 +798,24 @@ First-use effect notices are sourced from real effect hooks, including passive e
 Black Hole theft uses approximately five-times-larger particle heads and twice the emission, with deterministic varied paths tightening into a funnel. A 96-mote cap, simple pixel rectangles and reduced-motion limits bound rendering work. Drain mechanics are unchanged. Focused checks cover charge accounting/rollback, no bonus-currency minting, Dream determinism, resume timing, rarity distribution and bounded cosmetic rendering. This is not a new Pixel 10 hardware benchmark.
 
 Latest feedback is registered in BACKLOG.md: one-unit Glow segments, grid-aligned crisp fill without stretching, pixel overflow beam, duplicate consumable stacking, and interactive scenery outlines. These are pending a later visual/gameplay pass.
+
+
+## Lantern Paths — slim HUD and completed gameplay proposals (13 November 2026)
+
+Latest steering supersedes the enlarged Glow basin: each whole displayed point is one 4×4px square with a 1px gap, without visible labels, numbers, casing or fill tween. Capacity controls stack height. Fractional fuel remains precise in simulation and accessible meter values; pixels show whole points. Edging uses a similarly narrow 12-step meter. Packed Light stays in the safe top-left zone and overflow uses 32 reused pixel beam tiles. Lift uses an upward pixel symbol and its cost; important conditions retain short words.
+
+Pickup absorption now makes six accelerating turns, explicitly superseding the twelve-turn request. The body and orbit contract while the shell breaks inward. Interactive scenery has sparse silhouette-following pixel highlights; state colors distinguish ready, spent and hazards before fog. No new per-pixel runtime lighting work is introduced.
+
+Earned duplicate Glow Wicks/Flash Stones add remaining uses in one slot up to 9/6. Preview shows the exact increase and cap waste. Limits do not multiply passive strength. All effects stay automatic. Moving slots, saves, retries and TEST cannot refill spent artifacts; a genuine new earned copy can. Forge consumes the entire stack for one ordinary rarity payout.
+
+Wayward Seed replaces one offer after the first flight. Every third consecutive natural body fuel pickup restores 1 displayed Glow; deliveries break the chain. After Map 1, a mounted Seed chooses Hearth Bloom (+3 Glow) or Lantern Bloom (1.5s reveal), retaining its slot and the normal map reward afterward. Five triggers per flight, no generated-fuel recursion or bonus-fuel overflow income. Three small pips show charge. The three forms cannot coexist, even in TEST.
+
+Regenerative Falling chooses the positional-recovery alternative: full Edging charge restores 1 missing Glow rather than revealing terrain, at most8 grants per flight, followed by 2s reset. It shares an exclusive fork with longer/retained reveals. Recovery does not invoke pickup/artifact hooks or produce Packed Light. The earlier random free-tap idea is not a simultaneous bonus. Contextual teaching queues after the first actual recovery.
+
+Pilgrim’s Vow offers 8 Packed Light for clearing the next attempted flight with 4 real body fuel pickups versus immediate fuel. Deliveries, generated fuel and Dream inputs do not satisfy it. Surveyor’s Cairn marks a genuinely linked route for +35 sight or 30% gentler drafts versus immediate fuel while keeping route choice. A failed attempt consumes the preparation and restores the original links. Offers are seeded and do not repeat within a map. These replace two formerly duplicated events; the old speculative Seed/Cracked Lens event concepts are superseded by this concrete implementation and the defining artifact evolution.
+
+Authored forks retain an open fuel lane and offer a narrower optional three-ring cache passage. Natural carved shelves are preferred; guarded broad-shelf sections provide additional valid sites. Both lanes are sampled against the actual collision geometry including sway; later drafts/dynamic actors/black holes respect the fork’s quiet zone. Cache retrieval is body-only and bounded to one per flight. Unsafe placements skip. In the representative fixed-seed catalog sample, 31/48 variants fit; this is geometry coverage, not human completion-rate certification.
+
+Lantern Drift is an original 435.7-second 72 BPM ambient composition, rendered offline to a 5.23 MB MP3. The browser streams one Audio element after interaction, with independent Music and FX toggles and hidden-page pause. No third-party audio samples or runtime synthesis. The reproducible generator is scripts/compose-music.py.
+
+Focused transaction/trigger/geometry checks and compact landscape browser review cover this batch. The audit found and fixed a regeneration tutorial guard and low-contrast Lift/Back controls. Physical Pixel 10 hitch traces and current full-campaign balance remain validation work; neither is claimed complete.

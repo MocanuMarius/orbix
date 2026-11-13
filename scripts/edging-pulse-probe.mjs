@@ -1,6 +1,9 @@
 import assert from 'node:assert/strict';
 import { WispFlight, buildFlightLayout, circleHitsObstacle } from '../dist/flight.mjs';
-import { EdgingPulse, obstacleEdgeClearance, EDGING_PULSE_TUNING } from '../dist/edging-pulse.mjs';
+import { EdgingPulse, obstacleEdgeClearance, EDGING_PULSE_TUNING, EDGING_REGEN_TUNING } from '../dist/edging-pulse.mjs';
+import { GLOW_DISPLAY_SCALE } from '../dist/vitality.mjs';
+import { edgingPulseMarkup, updateEdgingPulse } from '../dist/edging-ui.mjs';
+import { observedFlightLesson, flightEffectLesson } from '../dist/tutorial-steps.mjs';
 import { attachDream } from '../dist/dream.mjs';
 import { lightVisibility, sceneRevealStrength } from '../dist/light-field.mjs';
 import { BIOME_LEVELS } from '../dist/level-catalog.mjs';
@@ -166,6 +169,59 @@ const visibility = isolated.getLightState();
 close(lightVisibility(isolated, visibility, 380, 30), visibility.edgingReveal, 'Entire remote visible scene is lit');
 assert.equal(sceneRevealStrength({ edgingReveal: .7, pickupReveal: .9 }), .9, 'Independent light does not stack');
 
+// Regenerative Falling deliberately trades the reveal for bounded recovery.
+// It never enters the pickup/overflow pipeline, even with synergy artifacts.
+const regen = make({ flame: 20, modifiers: { edgingRegen: true, litLift: 1, workFuel: 8,
+  overflowRecharge: .1, rechargeSight: 1.5 } });
+const regenEconomy = [regen.condensedTotal, regen.score, regen.baseEmbers];
+for (let i = 0; i < EDGING_REGEN_TUNING.grants; i++) {
+  const before = regen.flame; frames(regen, 120);
+  close((regen.flame - before) * GLOW_DISPLAY_SCALE, 1, 'One displayed Glow per earned meter');
+  assert.equal(pulse(regen).regenGrants, i + 1); assert.equal(pulse(regen).mode, 'regen');
+  assert.equal(pulse(regen).active, false); assert.equal(pulse(regen).strength, 0);
+  assert.equal(pulse(regen).recovering, true); assert.equal(pulse(regen).regenFeedback, true);
+  close(regen.edgingPulse.recoveryRemaining, 2, 'Fuel recovery resets for two seconds');
+  if (i < EDGING_REGEN_TUNING.grants - 1) frames(regen, 120);
+}
+assert.equal(pulse(regen).exhausted, true); assert.equal(pulse(regen).grantsRemaining, 0);
+const spentFuel = regen.flame; frames(regen, 300);
+close(regen.flame, spentFuel, 'Spent branch grants nothing and never falls back to reveal');
+assert.equal(pulse(regen).charge, 0); assert.equal(pulse(regen).strength, 0);
+assert.deepEqual([regen.condensedTotal, regen.score, regen.baseEmbers], regenEconomy);
+assert.equal(regen.artifactEffects.freeLift, false); assert.equal(regen.artifactEffects.workUntil, -Infinity);
+assert.deepEqual(Object.values(regen.artifactEffects.procCounts), [0, 0, 0, 0]);
+assert.equal(observedFlightLesson(regen.getState(), {}), 'flight-effect:regeneration');
+assert.ok(flightEffectLesson('flight-effect:regeneration'));
+
+const fullRegen = make({ modifiers: { edgingRegen: true } }); frames(fullRegen, 120);
+assert.equal(pulse(fullRegen).regenGrants, 0, 'A full tank does not consume a recovery');
+assert.equal(pulse(fullRegen).regenGain, 0); assert.equal(fullRegen.condensedTotal, 0);
+frames(fullRegen, 120); fullRegen.flame = fullRegen.maxFlame - .5; frames(fullRegen, 120);
+close(fullRegen.flame, fullRegen.maxFlame, 'Partial recovery clamps to missing fuel');
+assert.equal(pulse(fullRegen).regenGrants, 1); close(pulse(fullRegen).regenGain, .5, 'Partial grant is exact');
+assert.equal(fullRegen.condensedTotal, 0, 'Recovery never generates Packed Light');
+
+const blockedRegen = make({ flame: 20, modifiers: { edgingRegen: true, dreamDuration: 8 } });
+blockedRegen.invulnerable = true; frames(blockedRegen, 180);
+assert.equal(pulse(blockedRegen).regenGrants, 0); assert.equal(pulse(blockedRegen).charge, 0);
+blockedRegen.invulnerable = false; frames(blockedRegen, 60); blockedRegen.pause();
+const blockedState = pulse(blockedRegen); frames(blockedRegen, 180);
+assert.deepEqual(pulse(blockedRegen), blockedState, 'Paused recovery stays frozen');
+blockedRegen.resume(); attachDream(blockedRegen); frames(blockedRegen, 180);
+assert.equal(pulse(blockedRegen).regenGrants, 0); assert.equal(pulse(blockedRegen).charge, 0);
+assert.equal(blockedRegen.flame, 20, 'Dream never grants fuel');
+
+// The compact HUD uses a snapped cell height; labels are accessible, not clutter.
+const meter = { attributes: {}, setAttribute(key, value) { this.attributes[key] = value; } };
+const fill = { style: {} }, gauge = { dataset: {}, hidden: true,
+  querySelector(selector) { return selector.includes('-fill') ? fill : meter; } };
+assert.ok(!edgingPulseMarkup().includes('edging-pulse-caption'));
+updateEdgingPulse(gauge, { edgingPulse: { ...pulse(fullRegen), regenFeedback: false, recovering: false, charge: .5 } });
+assert.equal(fill.style.height, '29px'); assert.equal(fill.style.transform, 'none');
+assert.equal(gauge.dataset.edgingMode, 'regen'); assert.equal(meter.attributes['aria-label'], 'Regenerative Falling');
+updateEdgingPulse(gauge, regen.getState());
+assert.equal(gauge.dataset.pulseState, 'spent'); assert.match(meter.attributes['aria-valuetext'], /eight recoveries spent/);
+
 // The rehearsal and replay both start with no banked charge, and remain equal
 // through waking even when all opening flight stays within the edge band.
 let ready;
@@ -182,10 +238,11 @@ frames(replay, 240); assert.equal(replay.dream.phase, 'awakening');
 assert.deepEqual(pulse(record), pulse(replay)); assert.equal(pulse(replay).charge, 0);
 replay.step(dt); assert.equal(pulse(replay).charge, 0); replay.dream.resume(); frame(replay);
 close(pulse(replay).charge, 1 / 120, 'Waking starts fresh charge');
-const deterministicA = make(), deterministicB = make();
+const deterministicA = make({ flame: 20, modifiers: { edgingRegen: true } }), deterministicB = make({ flame: 20, modifiers: { edgingRegen: true } });
 for (let i = 0; i < 1100; i++) {
   const y = i % 380 < 300 ? 270 : 200; frame(deterministicA, y); frame(deterministicB, y);
   assert.deepEqual(pulse(deterministicA), pulse(deterministicB), `Fixed-step determinism at ${i}`);
+  assert.equal(deterministicA.flame, deterministicB.flame, `Deterministic fuel at ${i}`);
 }
 
 // The engine should not inspect distant polygon vertices in its steady loop.
@@ -218,13 +275,13 @@ for (const level of BIOME_LEVELS) {
 geometryTimes.sort((a, b) => a - b);
 assert.ok(realCourseEdges > 0, 'Benchmark includes actual close-flight terrain');
 assert.ok(maxNearby < 30, 'Only bounded nearby geometry enters each controller update');
-for (const engine of [e, complete, shield, boundary, propFlight, interrupted, outside, upgrades, reduced, isolated, dreamReset, record, replay, deterministicA, deterministicB, perf]) engine.destroy();
+for (const engine of [e, complete, shield, boundary, propFlight, interrupted, outside, upgrades, reduced, isolated, regen, fullRegen, blockedRegen, dreamReset, record, replay, deterministicA, deterministicB, perf]) engine.destroy();
 console.log(JSON.stringify({ geometrySamples, chargeSeconds: EDGING_PULSE_TUNING.chargeSeconds,
   duration: EDGING_PULSE_TUNING.duration, recovery: EDGING_PULSE_TUNING.recovery, gentlePeaks: peaks,
   geometryAndSway: true, lifecycleAndDream: true, economyIsolationAndArtifactSynergy: true, upgrades: true,
   widenedSkimBand: true, interruptedSkim: true, graceSeconds: EDGING_PULSE_TUNING.graceSeconds,
   decayPerSecond: EDGING_PULSE_TUNING.decayPerSecond,
-  reducedMotion: true, fixedStepDeterminism: true, farGeometryUntouched: true,
+  reducedMotion: true, fixedStepDeterminism: true, farGeometryUntouched: true, boundedRegen: true, compactHud: true,
   wholeStepP95ms: Number(times[Math.floor(times.length * .95)].toFixed(3)),
   authoredCourses: BIOME_LEVELS.length, controllerSamples: geometryTimes.length, maxNearby,
   controllerP95ms: Number(geometryTimes[Math.floor(geometryTimes.length * .95)].toFixed(3)) }));

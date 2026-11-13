@@ -1,8 +1,11 @@
 // Shared triggers make artifacts combine with skills, pickups and every base
 // companion. Effects never manufacture another pickup or dispatch a fuel event.
-import {CONSUMABLE_ARTIFACTS} from './artifact-info.mjs?v=artifact-clarity-1';
+import {CONSUMABLE_ARTIFACTS,EVOLVING_ARTIFACTS} from './artifact-info.mjs?v=lantern-paths-1';
 const clamp=(value,min,max)=>Math.max(min,Math.min(max,value));
 export const ARTIFACT_ENGINE_RULES=Object.freeze({
+  'wayward-seed':Object.freeze({name:'Wayward Seed',color:'#c6dc99',trigger:'Three consecutive body fuel pickups.',effect:'Restore up to 3.34 Glow.',limits:'Five activations per flight. Collector deliveries break the chain. Evolves after Map 1.'}),
+  'hearth-bloom':Object.freeze({name:'Hearth Bloom',color:'#ecc98e',trigger:'Three consecutive body fuel pickups.',effect:'Restore up to 10 Glow.',limits:'Five activations per flight. Collector deliveries break the chain. Bonus fuel cannot become Packed Light.'}),
+  'lantern-bloom':Object.freeze({name:'Lantern Bloom',color:'#b8cdeb',trigger:'Three consecutive body fuel pickups.',effect:'Reveal the scene for 1.5s.',limits:'Five activations per flight. Collector deliveries break the chain. Sunspool keeps its own cap.'}),
   'overflow-coil':Object.freeze({name:'Overflow Coil',color:'#87d9c4',
     trigger:'Natural fuel that overfills Glow.',effect:'Overflow also restores companion recovery.',
     limits:'Up to 2s per pickup and 12s per flight. Ready companions spend none of the limit.'}),
@@ -17,10 +20,10 @@ export const ARTIFACT_ENGINE_RULES=Object.freeze({
     limits:'One stored Lift; 4s between grants; up to 4 grants per flight. Does not refill levitation.'}),
   'glow-wick':Object.freeze({name:'Glow Wick',color:'#edce8e',
     trigger:'Collect a natural fuel light.',effect:'Restore up to 10 extra Glow.',
-    limits:'3 pickups, then consumed. Bonus fuel cannot become Packed Light.'}),
+    limits:'3 uses per copy; up to 9 in one slot. Consumed when empty. Bonus fuel cannot become Packed Light.'}),
   'flash-stone':Object.freeze({name:'Flash Stone',color:'#c8c5f2',
     trigger:'Collect a natural fuel light.',effect:'Reveal the whole scene for 1.5s, then fade.',
-    limits:'2 pickups, then consumed. Extra light does not stack.'}),
+    limits:'2 uses per copy; up to 6 in one slot. Consumed when empty. Extra light does not stack.'}),
 });
 const MODIFIERS=Object.freeze({'overflow-coil':'overflowRecharge','echo-bell':'workFuel','dawn-loom':'rechargeSight',sunspool:'litLift'});
 const naturalFuel=(packet,spec)=>!packet.generated&&!packet.harmful&&spec.fuel>0&&!spec.dim;
@@ -32,10 +35,12 @@ export class ArtifactEffects {
     this.freeLift=false;this.liftGrants=0;this.liftReadyAt=0;this.lastProc=null;
     this.procCounts={'overflow-coil':0,'echo-bell':0,'dawn-loom':0,sunspool:0};
     this.mounted=new Set(engine.mod.artifactIds||[]);
+    this.seedId=[...EVOLVING_ARTIFACTS].reverse().find(id=>this.mounted.has(id))||null;
+    this.seedCharge=0;this.seedProcs=0;
     this.charges={};
     for(const [id,spec] of Object.entries(CONSUMABLE_ARTIFACTS))if(this.mounted.has(id)){
       const saved=Number(engine.mod.artifactCharges?.[id]);
-      this.charges[id]=Number.isFinite(saved)?clamp(Math.floor(saved),0,spec.charges):spec.charges;
+      this.charges[id]=Number.isFinite(saved)?clamp(Math.floor(saved),0,spec.maxCharges):spec.charges;
     }
     this.notices=[];this.noticeKeys=new Set();this.noticeSerial=0;
   }
@@ -63,15 +68,27 @@ export class ArtifactEffects {
   applyConsumables(packet,spec){
     if(!naturalFuel(packet,spec))return 0;
     const e=this.engine;
-    let restored=0;
+    let restored=this.applySeed(packet);
     // Apply only after natural overflow is accounted for: this generated bonus
     // never mints currency or recursively triggers fuel/recovery artifacts.
     if(this.useCharge('glow-wick')){
-      restored=Math.min(10,Math.max(0,e.maxFlame-e.flame));
-      e.flame+=restored;e.flameRestored+=restored;
+      const bonus=Math.min(10,Math.max(0,e.maxFlame-e.flame));
+      restored+=bonus;e.flame+=bonus;e.flameRestored+=bonus;
     }
     if(this.useCharge('flash-stone'))e.revealFromPickup(true);
     return restored;
+  }
+  applySeed(packet){
+    if(!this.seedId||this.seedProcs>=5)return 0;
+    if(packet.deliveredByWisp){this.seedCharge=0;return 0;}
+    if(++this.seedCharge<3)return 0;
+    this.seedCharge=0;this.seedProcs++;this.cue(this.seedId);
+    const e=this.engine;
+    if(this.seedId==='lantern-bloom'){e.revealFromPickup(true);return 0;}
+    // This restoration occurs after natural overflow accounting and dispatches
+    // no fuel event: a charge cannot create currency or charge itself again.
+    const bonus=Math.min(this.seedId==='hearth-bloom'?10:10/3,Math.max(0,e.maxFlame-e.flame));
+    e.flame+=bonus;e.flameRestored+=bonus;return bonus;
   }
   enabled(id){return Number(this.engine.mod[MODIFIERS[id]])>0;}
   cue(id,phase='triggered'){
@@ -129,6 +146,7 @@ export class ArtifactEffects {
   get state(){
     const time=this.engine.time;
     return {freeLift:this.freeLift,primed:Math.max(0,this.workUntil-time),
+      seed:this.seedId?{id:this.seedId,charge:this.seedCharge,needed:3,procs:this.seedProcs,limit:5}:null,
       forwardLight:Math.max(0,this.sightUntil-time),overflowUsed:this.overflowUsed,
       workUses:this.workUses,liftGrants:this.liftGrants,procCounts:{...this.procCounts},
       charges:{...this.charges},notices:this.notices.map(notice=>({...notice})),

@@ -1,0 +1,9 @@
+.resource-symbol{display:inline-block;width:16px;height:16px;flex:0 0 16px;vertical-align:-3px;image-rendering:pixelated}
+.resource-symbol-glow{color:#e8ffd4}.resource-symbol-packed{color:#e8c897}
+.audio-controls{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0}.audio-controls button{min-height:44px;display:flex;align-items:center;justify-content:center;gap:8px;flex:1;padding:7px 12px}
+.audio-controls button[aria-pressed=false]{color:#c7c3b5}.audio-controls button[aria-pressed=true]{color:#e7f6c1}
+
+.game-menu-sheet .run-pause-actions .primary,.menu-pause .run-pause-actions .primary{color:#f0efd2!important;text-shadow:1px 1px #17251e}
+.game-menu-sheet .audio-controls{margin:12px 0 8px}.game-menu-sheet .run-pause-actions{margin-top:8px}
+
+.flight-control.flap-control{color:#eff1cc!important;text-shadow:1px 1px #10261e}.flap-control>.resource-symbol{width:26px;height:26px;flex:0 0 26px}.flap-control #flap-label{font-size:13px!important;color:inherit}

@@ -1,12 +1,22 @@
-# Pending feedback — 2026-11-13
+# Current batch — lantern-paths-1
 
-- [ ] Glow basin: each segment represents exactly one displayed Glow unit; fill aligns to the same grid.
-- [ ] Remove stretching, squash and fluid fill animations from the Glow basin; retain crisp pixel transitions.
-- [ ] Make the upward Packed Light overflow beam visibly pixelated to match the game art.
-- [ ] Allow duplicate common consumable artifacts to stack remaining uses in one slot; define a readable stack counter and a bounded charge cap.
-- [x] Preserve automatic artifact effects: mounting selects the build; flight never needs an artifact activation button.
-- [ ] Give interactive scenery, including mushrooms, a distinct edge highlight so it is distinguishable from ordinary terrain and background art.
-- [ ] Explore **Regenerative Falling** as a skill/artifact choice: (A) an X% chance per Lift tap to negate its Glow cost, or (B) replace the full Edging reveal pulse with +1 Glow. These are alternatives to evaluate, not approved values or simultaneous effects. Show the tradeoff and prevent recovery/overflow farming when balancing.
+Implementation is complete for the accepted items below; integration and publication are recorded in docs/backlog-current.md. Earlier entries are historical and may use superseded resource names.
+
+- [x] One displayed Glow unit per segment; exact grid alignment.
+- [x] Latest HUD direction: literal 4 × 4 px cells, no visible Glow labels/numbers/chrome; slim Edging meter.
+- [x] Remove stretching, squash and fluid fuel fill; pixel overflow beam.
+- [x] Duplicate common consumables stack remaining uses in one slot; bounded caps and readable previews.
+- [x] All artifact effects stay automatic.
+- [x] Interactive scenery has distinct pixel edge highlights and spent/hazard states.
+- [x] Regenerative Falling: chosen alternative replaces Edging reveals with bounded +1 Glow recovery. The random per-tap refund alternative is superseded, not an additional stacked effect.
+- [x] Absorption reduced from twelve to six accelerating, shrinking rotations; shell collapse retained.
+- [x] Shared pixel resource/increase/decrease symbols, shorter basic effect summaries; conditional rules remain available.
+- [x] Original evolving lo-fi mystical music, independent persistent Music / FX menu controls.
+- [x] Earlier defining-artifact proposal: Wayward Seed evolves after Map 1 into a fuel or reveal path.
+- [x] Earlier in-flight-fork proposal: geometry-safe open fuel route versus optional tight cache lane.
+- [x] Earlier contextual-events proposal: Pilgrim’s Vow and Surveyor’s Cairn, real route stakes and no repeat within a map.
+
+The proposed combo-reroll forge was explicitly replaced by the already implemented artifact-to-Packed-Light forge. Do not restore the superseded version. Full campaign balance and actual Pixel 10 performance traces are still validation work, not features declared finished by this checklist.
 
 # Accepted gameplay batch — 2026-11-13
 

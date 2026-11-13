@@ -1,7 +1,7 @@
-import { DRAFT_TUNING } from './drafts.mjs?v=artifact-clarity-1';
-import { scenePropBounds } from './scene-props.mjs?v=artifact-clarity-1';
-import { formatGlow } from './vitality.mjs?v=artifact-clarity-1';
-import { lightVisibility } from './light-field.mjs?v=artifact-clarity-1';
+import { DRAFT_TUNING } from './drafts.mjs?v=lantern-paths-1';
+import { scenePropBounds } from './scene-props.mjs?v=lantern-paths-1';
+import { formatGlow } from './vitality.mjs?v=lantern-paths-1';
+import { lightVisibility } from './light-field.mjs?v=lantern-paths-1';
 
 // Small, deterministic actors attached to existing terrain. Static mountain
 // meshes never change, and each actor is used once: no repeatable currency farm.
@@ -60,13 +60,14 @@ export function createBiomeActors(engine) {
   // room for a hanging actor beside a roof arch instead of inside that prop.
   const fractions = [.35, .68, 1.03, 1.38, 1.75, 2.05, -.2];
   for (const o of obstacles) {
-    if (o.hard || o.reservedDraft || o.destroyed || o.soft) continue;
+    if (o.hard || o.reservedDraft || o.reservedFork || o.destroyed || o.soft) continue;
     for (let attempt = 0; attempt < fractions.length; attempt++) {
       const x = o.x + o.width * fractions[(attempt + offset) % fractions.length];
       if (x < BIOME_DYNAMIC_TUNING.minimumStart || x > last) continue;
       // No surprise layered into a choke, a negative-pickup chain or a draft.
       if (sections.some(s => s.hard && x + 110 > s.start && x - 110 < s.end)) continue;
       if ((engine.layout.riskChains || []).some(s => x + 160 > s.start && x - 160 < s.end)) continue;
+      if ((engine.layout.flightForks || []).some(f => x + 160 > f.approachStart && x - 160 < f.exitEnd)) continue;
       if ((engine.drafts?.zones || []).some(z => Math.abs(x - z.x) < z.rx + 160)) continue;
       const band = chamberAt(obstacles, x, height), host = dangerous ? band.ceiling : band.floor;
       if (!host || host.hard || band.bottom - band.top < Math.max(125, 240 * sy)) continue;
@@ -211,6 +212,7 @@ export class BiomeDynamics {
       if (item.phase === 'spent' && item.age > 1.1 && item.family === 'fall') continue;
       c.save(); c.translate(Math.round(x * scale), Math.round(item.y * scale)); c.scale(scale, scale);
       drawActor(c, item, time, e.reducedMotion);
+      drawInteractionRim(c, item, time, e.reducedMotion);
       c.restore();
     }
   }
@@ -219,6 +221,41 @@ export class BiomeDynamics {
 function box(c, x, y, w, h, color) { c.fillStyle = color; c.fillRect(Math.round(x), Math.round(y), Math.round(w), Math.round(h)); }
 function line(c, x1, y1, x2, y2, color, width = 2) { c.strokeStyle = color; c.lineWidth = width; c.beginPath(); c.moveTo(Math.round(x1), Math.round(y1)); c.lineTo(Math.round(x2), Math.round(y2)); c.stroke(); }
 function polygon(c, points, color) { c.fillStyle = color; c.beginPath(); c.moveTo(points[0][0], points[0][1]); for (let i = 1; i < points.length; i++) c.lineTo(points[i][0], points[i][1]); c.closePath(); c.fill(); }
+
+// Hand-placed, two-pixel edge accents follow each object's actual silhouette.
+// They are painted in the scenery pass, before lightFog: an interaction never
+// becomes a beacon through unlit terrain. No halos or pickup rings on hazards.
+const INTERACTION_RIMS = Object.freeze({
+  spore: [[-8,-14,16,2],[-16,-10,8,2],[-20,-6,4,2],[8,-12,6,2],[14,-8,4,2],[18,-4,4,2],[-22,0,2,6],[22,4,2,4],[-16,10,28,2]],
+  bubble: [[-6,-14,12,2],[-10,-12,4,2],[-14,-8,2,14],[6,-12,4,2],[12,-8,2,14],[-10,8,4,2],[6,8,4,2],[-6,12,12,2]],
+  seedpod: [[-8,-12,16,2],[-12,-8,2,16],[10,-8,2,16],[-8,10,16,2]],
+  resonate: [[-8,-24,4,2],[-12,-20,2,6],[-16,-12,2,8],[-14,4,2,8],[-12,14,24,2],[-4,-18,2,8],[6,-16,4,2],[10,-10,2,8],[14,0,2,8]],
+  bell: [[-8,-12,16,2],[-10,-8,2,12],[8,-8,2,12],[-14,4,4,2],[10,4,4,2],[-16,10,32,2]],
+  draft: [[-8,-10,16,2],[-10,-6,2,10],[8,-6,2,10],[-10,6,20,2]],
+  geyser: [[-8,2,12,2],[-14,6,6,2],[6,4,8,2],[-16,10,2,6],[14,8,2,6]],
+  tide: [[-16,2,4,2],[-8,-4,4,2],[-2,-10,4,2],[6,-4,4,2],[12,2,4,2]],
+  thaw: [[-12,-14,24,2],[-14,-10,2,8],[10,-10,2,8],[-8,6,2,6],[4,8,2,6],[-2,18,4,2]],
+  pinecone: [[-4,-12,8,2],[-8,-6,4,2],[6,-6,4,2],[-10,0,2,4],[10,0,2,4],[-6,10,12,2]],
+  crumble: [[-6,-16,10,2],[-14,-12,8,2],[6,-14,8,2],[-16,-8,2,14],[14,-6,2,14],[-10,10,6,2],[0,14,8,2]],
+  sandfall: [[-6,-16,10,2],[-14,-12,8,2],[6,-14,8,2],[-16,-8,2,14],[14,-6,2,14],[-10,10,6,2],[0,14,8,2]],
+});
+function drawInteractionRim(c, item, time, reducedMotion) {
+  const edges = INTERACTION_RIMS[item.kind];
+  if (!edges || (item.phase === 'spent' && (item.family === 'fall' || item.kind === 'bubble'))) return;
+  const spent = item.phase === 'spent', hazard = item.family === 'fall';
+  const active = item.phase === 'active' || item.phase === 'warning' || item.phase === 'falling';
+  c.globalAlpha = spent ? .52 : hazard ? .8 : .92;
+  c.fillStyle = spent ? '#7c8b79' : hazard ? (active ? '#e6a17b' : '#baa18a')
+    : item.family === 'vent' ? (active ? '#f1ce9f' : '#c9c3a1') : '#dae7c4';
+  for (const edge of edges) c.fillRect(edge[0], edge[1], edge[2], edge[3]);
+  // One restrained glint identifies a ready touch interaction. Used scenery
+  // loses that glint; warning hazards instead retain their warm fracture art.
+  if (!spent && !hazard && item.family !== 'vent') {
+    const edge = edges[reducedMotion ? 0 : Math.floor(time * 5 + item.seed) % edges.length];
+    c.globalAlpha = .8; c.fillStyle = '#f1f0d1'; c.fillRect(edge[0], edge[1], 2, 2);
+  }
+  c.globalAlpha = 1;
+}
 
 function drawActor(c, item, time, reducedMotion) {
   const bright = item.color, dark = item.kind === 'thaw' ? '#588e9c' : item.kind === 'sandfall' ? '#9e7651' : '#4b5346';

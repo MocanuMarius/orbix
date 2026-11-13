@@ -1,18 +1,19 @@
-import {drawFlightProjection} from './flight-projection.mjs?v=artifact-clarity-1';
-import {drawGlowSense} from './glow-sense.mjs?v=artifact-clarity-1';
-import {formatGlow} from './vitality.mjs?v=artifact-clarity-1';
-import {LOCATION_PALETTES} from './world-expansion.mjs?v=artifact-clarity-1';
-import {biomePalette} from './biome-art.mjs?v=artifact-clarity-1';
-import { sceneryIdentity, drawIdentityBackground, drawIdentityMaterial, drawIdentityLife } from './level-scenery.mjs?v=artifact-clarity-1';
-import { getCompanionAbility, normalizeCompanionRole } from './companion-abilities.mjs?v=artifact-clarity-1';
-import { companionSprite, companionPalette } from './companion-art.mjs?v=artifact-clarity-1';
-import { createScenePropArt } from './scene-prop-art.mjs?v=artifact-clarity-1';
-import { drawBoss } from './boss.mjs?v=artifact-clarity-1';
-import { drawPickup } from './pickup-art.mjs?v=artifact-clarity-1';
-import { pickupKind, getPickupSpec, pickupContactRadius } from './pickups.mjs?v=artifact-clarity-1';
-import { lightAttenuation,lightVisibility,createLightMaskCanvas,sceneRevealStrength } from './light-field.mjs?v=artifact-clarity-1';
-import {drawExitLandmark} from './exit-landmark.mjs?v=artifact-clarity-1';
-import {drawBlackHoles} from './black-hole-art.mjs?v=artifact-clarity-1';
+import {drawFlightProjection} from './flight-projection.mjs?v=lantern-paths-1';
+import {drawGlowSense} from './glow-sense.mjs?v=lantern-paths-1';
+import {formatGlow} from './vitality.mjs?v=lantern-paths-1';
+import {LOCATION_PALETTES} from './world-expansion.mjs?v=lantern-paths-1';
+import {biomePalette} from './biome-art.mjs?v=lantern-paths-1';
+import { sceneryIdentity, drawIdentityBackground, drawIdentityMaterial, drawIdentityLife } from './level-scenery.mjs?v=lantern-paths-1';
+import { getCompanionAbility, normalizeCompanionRole } from './companion-abilities.mjs?v=lantern-paths-1';
+import { companionSprite, companionPalette } from './companion-art.mjs?v=lantern-paths-1';
+import { createScenePropArt } from './scene-prop-art.mjs?v=lantern-paths-1';
+import { drawBoss } from './boss.mjs?v=lantern-paths-1';
+import { drawPickup } from './pickup-art.mjs?v=lantern-paths-1';
+import { pickupKind, getPickupSpec, pickupContactRadius } from './pickups.mjs?v=lantern-paths-1';
+import { lightAttenuation,lightVisibility,createLightMaskCanvas,sceneRevealStrength } from './light-field.mjs?v=lantern-paths-1';
+import {drawExitLandmark} from './exit-landmark.mjs?v=lantern-paths-1';
+import {drawBlackHoles} from './black-hole-art.mjs?v=lantern-paths-1';
+import {drawFlightForks,drawFlightForkBackdrops} from './flight-forks.mjs?v=lantern-paths-1';
 
 const TAU = Math.PI * 2;
 const SCENERY_HELPERS = { line: pixelLine, disc: pixelDisc, polygon: path };
@@ -911,7 +912,7 @@ export class WispFlightView {
       const start = Math.max(0, Number(effect.startRadius) || 0);
       const orbit = clamp(Math.max(38, start), 34, 44);
       const initialAngle = Number(effect.initialAngle) || 0;
-      // Twelve accelerating revolutions, with both packet and orbit collapsing.
+      // Six accelerating revolutions, with both packet and orbit collapsing.
       // The short launch makes even a packet delivered at the core readable.
       // Only cached sprites are drawn; there are no per-sample point arrays.
       const ghosts = e.reducedMotion ? 0 : 3;
@@ -921,7 +922,7 @@ export class WispFlightView {
         const inward=clamp((sample-.10)/.90,0,1);
         const radius=(e.reducedMotion?start*(1-sample)**2:sample<.10
           ?start+(orbit-start)*(1-(1-sample/.10)**3):orbit*(1-inward)**.85)*s;
-        const angle=initialAngle+(e.reducedMotion?0:TAU*12*(.10*sample+.90*sample*sample));
+        const angle=initialAngle+(e.reducedMotion?0:TAU*6*(.10*sample+.90*sample*sample));
         const x=playerX+Math.cos(angle)*radius,y=playerY+Math.sin(angle)*radius;
         const size=(1-sample)**.72;
         this.drawPacket(Math.round(x), Math.round(y), { kind, bodyOnly: true, tiny: i > 0,
@@ -1040,12 +1041,14 @@ export class WispFlightView {
     c.globalAlpha = .34; c.fillStyle = '#03080b'; c.fillRect(0, 0, this.buffer.width, this.buffer.height); c.globalAlpha = 1;
     const boss = this.bossOptions; boss.height = this.buffer.height; boss.distance = distance; boss.time = t; boss.scale = s; boss.pass = 'silhouette';
     drawBoss(c, boss);
+    drawFlightForkBackdrops(c,e,{distance,scale:s});
     this.drawTerrain(e, t, distance, palette);
     boss.pass = 'hands'; drawBoss(c, boss);
     this.drawSceneProps(e, t, distance);
     e.biomeDynamics?.draw(c,{distance,scale:s,height:this.buffer.height});
     this.drawPortal(e,t);
     this.drawCollectibles(e, t, distance);
+    drawFlightForks(c,e,{distance,scale:s});
     this.drawBurstEffects(e, MAIN_LIGHT);
     this.drawMist(e, t, distance, palette);
     const life = this.lifeOptions; life.height = this.buffer.height; life.distance = distance; life.time = t; life.reducedMotion = e.reducedMotion;

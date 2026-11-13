@@ -1,5 +1,5 @@
-import {getMapStopInfo} from './map-guide.mjs?v=artifact-clarity-1';
-import {getChoices} from './model.mjs?v=artifact-clarity-1';
+import {getMapStopInfo} from './map-guide.mjs?v=lantern-paths-1';
+import {getChoices} from './model.mjs?v=lantern-paths-1';
 
 const emptyForecast=()=>({restReachable:false,restGuaranteed:false,nextRestDistance:null,flightsToRest:null,nextStops:[],minFlights:0,maxFlights:0,minTotalFlights:0,maxTotalFlights:0,minRests:0,maxRests:0});
 

@@ -1,6 +1,6 @@
-import { LIGHT_PACKET_TUNING } from './vitality.mjs?v=artifact-clarity-1';
-import { getCompanionAbility } from './companion-abilities.mjs?v=artifact-clarity-1';
-import { pickupKind, pickupContactRadius, canCompanionCollect } from './pickups.mjs?v=artifact-clarity-1';
+import { LIGHT_PACKET_TUNING } from './vitality.mjs?v=lantern-paths-1';
+import { getCompanionAbility } from './companion-abilities.mjs?v=lantern-paths-1';
+import { pickupKind, pickupContactRadius, canCompanionCollect } from './pickups.mjs?v=lantern-paths-1';
 
 const clamp = (value, lo, hi) => Math.min(hi, Math.max(lo, value));
 export const WISP_TUNING = Object.freeze({ range: 105, cooldown: 5, lightRadius: 175,
