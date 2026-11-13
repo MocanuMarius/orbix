@@ -1,6 +1,6 @@
-import {EXTRA_LEVELS} from './world-expansion.mjs?v=open-sky-1';
-import {BIOME_LEVELS,getBiome} from './biomes.mjs?v=open-sky-1';
-export {BIOME_LEVELS} from './biomes.mjs?v=open-sky-1';
+import {EXTRA_LEVELS} from './world-expansion.mjs?v=depth-energy-1';
+import {BIOME_LEVELS,getBiome} from './biomes.mjs?v=depth-energy-1';
+export {BIOME_LEVELS} from './biomes.mjs?v=depth-energy-1';
 // Location identities are shared by route previews, terrain and scenery.
 // Shapes and challenge windows are authored by the flight generator.
 export const LEVELS = Object.freeze([

@@ -1,21 +1,22 @@
-import { drawGuardianWarnings } from './guardian-effects.mjs?v=open-sky-1';
-import {drawProximityMeter} from './proximity-meter.mjs?v=open-sky-1';
-import {drawFlightProjection} from './flight-projection.mjs?v=open-sky-1';
-import {drawGlowSense} from './glow-sense.mjs?v=open-sky-1';
-import {formatGlow} from './vitality.mjs?v=open-sky-1';
-import {LOCATION_PALETTES} from './world-expansion.mjs?v=open-sky-1';
-import {biomePalette} from './biome-art.mjs?v=open-sky-1';
-import { sceneryIdentity, drawIdentityBackground, drawIdentityMaterial, drawIdentityLife } from './level-scenery.mjs?v=open-sky-1';
-import { getCompanionAbility, normalizeCompanionRole } from './companion-abilities.mjs?v=open-sky-1';
-import { companionSprite, companionPalette } from './companion-art.mjs?v=open-sky-1';
-import { createScenePropArt } from './scene-prop-art.mjs?v=open-sky-1';
-import { drawBoss } from './boss.mjs?v=open-sky-1';
-import { drawPickup } from './pickup-art.mjs?v=open-sky-1';
-import { pickupKind, getPickupSpec, pickupContactRadius } from './pickups.mjs?v=open-sky-1';
-import { LIGHT_EXTENT,lightAttenuation,lightVisibility,createLightMaskCanvas,sceneRevealStrength } from './light-field.mjs?v=open-sky-1';
-import {drawExitLandmark} from './exit-landmark.mjs?v=open-sky-1';
-import {drawBlackHoles} from './black-hole-art.mjs?v=open-sky-1';
-import {drawFlightForks,drawFlightForkBackdrops} from './flight-forks.mjs?v=open-sky-1';
+import {createDepthScenery,drawDepthScenery} from './depth-scenery.mjs?v=depth-energy-1';
+import { drawGuardianWarnings } from './guardian-effects.mjs?v=depth-energy-1';
+import {drawProximityMeter} from './proximity-meter.mjs?v=depth-energy-1';
+import {drawFlightProjection} from './flight-projection.mjs?v=depth-energy-1';
+import {drawGlowSense} from './glow-sense.mjs?v=depth-energy-1';
+import {formatGlow} from './vitality.mjs?v=depth-energy-1';
+import {LOCATION_PALETTES} from './world-expansion.mjs?v=depth-energy-1';
+import {biomePalette} from './biome-art.mjs?v=depth-energy-1';
+import { sceneryIdentity, drawIdentityBackground, drawIdentityMaterial, drawIdentityLife } from './level-scenery.mjs?v=depth-energy-1';
+import { getCompanionAbility, normalizeCompanionRole } from './companion-abilities.mjs?v=depth-energy-1';
+import { companionSprite, companionPalette } from './companion-art.mjs?v=depth-energy-1';
+import { createScenePropArt } from './scene-prop-art.mjs?v=depth-energy-1';
+import { drawBoss } from './boss.mjs?v=depth-energy-1';
+import { drawPickup } from './pickup-art.mjs?v=depth-energy-1';
+import { pickupKind, getPickupSpec, pickupContactRadius } from './pickups.mjs?v=depth-energy-1';
+import { LIGHT_EXTENT,lightAttenuation,lightVisibility,createLightMaskCanvas,sceneRevealStrength } from './light-field.mjs?v=depth-energy-1';
+import {drawExitLandmark} from './exit-landmark.mjs?v=depth-energy-1';
+import {drawBlackHoles} from './black-hole-art.mjs?v=depth-energy-1';
+import {drawFlightForks,drawFlightForkBackdrops} from './flight-forks.mjs?v=depth-energy-1';
 
 const TAU = Math.PI * 2;
 const SCENERY_HELPERS = { line: pixelLine, disc: pixelDisc, polygon: path };
@@ -444,7 +445,8 @@ export class WispFlightView {
     for (let i = 1; i < surface.length; i++) {
       const a = surface[i - 1], b = surface[i];
       pixelLine(c, a[0], a[1] + inward * 2, b[0], b[1] + inward * 2, palette.shade, 2);
-      pixelLine(c, a[0], a[1], b[0], b[1], hexMix(palette.rim, '#e2e5ce', .32));
+      pixelLine(c, a[0], a[1], b[0], b[1], '#0b1618', 3);
+      pixelLine(c, a[0], a[1], b[0], b[1], hexMix(palette.rim, '#e2e5ce', .52), 2);
     }
     if (obstacle.soft) {
       // Shatter Wake's convertible brambles stay inside the real silhouette but
@@ -1040,6 +1042,8 @@ export class WispFlightView {
     c.setTransform(1, 0, 0, 1, 0, 0); c.globalAlpha = 1; c.globalCompositeOperation = 'source-over';
     this.updateVisible(e, distance);
     this.drawSky(e, t, distance, palette);
+    if(!this.depthLayers||this.depthHeight!==this.buffer.height){this.depthLayers=createDepthScenery(this.document,this.buffer.height,e.terrain,palette);this.depthHeight=this.buffer.height;}
+    drawDepthScenery(c,this.depthLayers,distance,this.buffer.width);
     c.globalAlpha = .34; c.fillStyle = '#03080b'; c.fillRect(0, 0, this.buffer.width, this.buffer.height); c.globalAlpha = 1;
     const boss = this.bossOptions; boss.height = this.buffer.height; boss.distance = distance; boss.time = t; boss.scale = s; boss.pass = 'silhouette';
     drawBoss(c, boss);
@@ -1113,6 +1117,7 @@ export class WispFlightView {
     if (this.skyCanvas) this.skyCanvas.width = this.skyCanvas.height = 1;
     if (this.backgroundCanvas) this.backgroundCanvas.width = this.backgroundCanvas.height = 1;
     this.backgroundCanvas = this.backgroundContext = null;
+    this.depthLayers=null;
     this.fogPixels = null; this.context = null; this.bufferContext = null; this.fogContext = null;
   }
 }

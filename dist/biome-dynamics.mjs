@@ -1,7 +1,7 @@
-import { DRAFT_TUNING } from './drafts.mjs?v=open-sky-1';
-import { scenePropBounds } from './scene-props.mjs?v=open-sky-1';
-import { formatGlow } from './vitality.mjs?v=open-sky-1';
-import { lightVisibility } from './light-field.mjs?v=open-sky-1';
+import { DRAFT_TUNING } from './drafts.mjs?v=depth-energy-1';
+import { scenePropBounds } from './scene-props.mjs?v=depth-energy-1';
+import { formatGlow } from './vitality.mjs?v=depth-energy-1';
+import { lightVisibility } from './light-field.mjs?v=depth-energy-1';
 
 // Small, deterministic actors attached to existing terrain. Static mountain
 // meshes never change, and each actor is used once: no repeatable currency farm.
@@ -257,9 +257,9 @@ function drawInteractionRim(c, item, time, reducedMotion, visibility=1) {
   const spent = item.phase === 'spent', hazard = item.family === 'fall';
   const active = item.phase === 'active' || item.phase === 'warning' || item.phase === 'falling';
   c.globalAlpha = visibility*(spent ? .55 : 1);
-  c.fillStyle='#071c19';
-  for(const edge of edges)c.fillRect(edge[0]-1,edge[1]-1,edge[2]+2,edge[3]+2);
-  c.fillStyle=spent?'#697f75':hazard?(active?'#ff9c76':'#d8a473'):item.family==='vent'?'#a3c7ec':'#83ead5';
+  c.fillStyle='#030d11';
+  for(const edge of edges)c.fillRect(edge[0]-2,edge[1]-2,edge[2]+4,edge[3]+4);
+  c.fillStyle=spent?'#697f75':hazard?(active?'#ff9c76':'#d8a473'):item.family==='vent'?'#a3c7ec':'#a2ffdf';
   for(const edge of edges)c.fillRect(edge[0],edge[1],Math.max(3,edge[2]),Math.max(3,edge[3]));
   // One restrained glint identifies a ready touch interaction. Used scenery
   // loses that glint; warning hazards instead retain their warm fracture art.

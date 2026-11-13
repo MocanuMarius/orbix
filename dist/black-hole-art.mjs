@@ -1,4 +1,4 @@
-import {lightVisibility} from './light-field.mjs?v=open-sky-1';
+import {lightVisibility} from './light-field.mjs?v=depth-energy-1';
 // Pixel accretion and stolen-light trails. Cosmetics consume recorded drain;
 // rendering never spends fuel or changes the simulation.
 const TAU=Math.PI*2,MAX_MOTES=96;
