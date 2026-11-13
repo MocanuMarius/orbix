@@ -62,3 +62,14 @@ test('the first map teaches rewards and Rest when encountered, not at the openin
  lesson=nextOnboardingLesson('support',{...state,now:40000});assert.equal(lesson.topic,'rest');
  assert.match(lesson.steps[0].text,/one companion/);assert.match(lesson.steps[0].text,/hearts/);
 });
+
+test('artifact onboarding waits for an actual choice and distinguishes the final unlock',()=>{
+ const normal=fresh();normal.run.lastFlight={completionBonus:20};normal.run.stats.flights=1;
+ assert.equal(nextOnboardingLesson('victory',{...normal,now:1000}).topic,'packed');
+ const elite=fresh();elite.run.flightReward={offers:['echo-bell','glow-wick'],claimed:false};
+ const lesson=nextOnboardingLesson('victory',{...elite,now:1000});
+ assert.equal(lesson.topic,'artifacts');assert.match(lesson.steps[0].text,/two artifacts/);assert.doesNotMatch(lesson.steps[0].text,/slot|replace|melt/i);
+ elite.run.flightReward.permanent=true;
+ const final=nextOnboardingLesson('victory',{...elite,now:1000});
+ assert.match(final.steps[0].text,/future guardian rewards/);assert.match(final.steps[0].text,/begin without artifacts/);
+});

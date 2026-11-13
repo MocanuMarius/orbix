@@ -1,12 +1,12 @@
-import {landmarks} from './map-landmarks.mjs?v=clear-rewards-1';
-import {glowText} from './vitality.mjs?v=clear-rewards-1';
+import {landmarkArt,landmarkCategory,guardianNames} from './map-landmarks.mjs?v=guardian-paths-1';
+import {glowText} from './vitality.mjs?v=guardian-paths-1';
 const stop=(kind,label,name,summary)=>Object.freeze({kind,label,name,summary,icon:kind});
 export const MAP_STOP_TYPES=Object.freeze({
-flight:stop('flight','FLIGHT','Flight','Clear a passage for 20 Packed Sparks plus overflow. Equip the artifact reward or melt it for more.'),
-treasure:stop('treasure','TREASURE','Treasure','Keep an artifact, replace one, or melt it into Packed Sparks for skills.'),
+flight:stop('flight','FLIGHT','Flight','Clear a passage for 20 Packed Sparks plus overflow. Ordinary flights do not drop artifacts.'),
+treasure:stop('treasure','TREASURE','Treasure','Choose Packed Sparks for skills or Sparks for fuel. Treasure does not drop artifacts.'),
 rest:stop('rest','REST','Rest','Recover missing hearts or Grow Spark capacity. Both refill Sparks. Then optionally prepare skills, your companion, artifacts or a Dream.'),
 encounter:stop('encounter','ENCOUNTER','Encounter','A promise, route preparation or bargain. Preview the stakes before choosing.'),
-boss:stop('boss','BOSS','Boss','Face the guardian at the end of the third map.'),
+boss:stop('boss','ELITE / GUARDIAN','Creature','Small creature: elite. Large head: guardian. Both offer two artifacts; choose one for your build.'),
 });
 export const EVENT_SCENARIOS=Object.freeze([
 {id:'ash-spring',index:0,name:'Ash Spring',summary:'Trade Packed Sparks for a refill, or collect a smaller light offering.',detail:'A full refill spends upgrade currency. A finite offering fills Sparks first and condenses its surplus.'},
@@ -38,15 +38,16 @@ function kindOf(value){
  return 'flight';
 }
 export function getMapStopInfo(node={},maxGlow=100){
- const kind=kindOf(node),base=MAP_STOP_TYPES[kind];
+ const kind=kindOf(node),base=MAP_STOP_TYPES[kind],elite=node.elite===true||node.kind==='elite';
  const event=kind==='encounter'&&node.kind!=='shrine'&&Number.isInteger(node.eventIndex)?getEventScenarios({...node,maxGlow})[node.eventIndex]:null;
- const exit=kind==='flight'&&(node.type==='finale'||node.kind==='finale');
- const summary=kind==='boss'?`Defeat ${node.bossId==='moonweaver'?'the Moonweaver':'the Hollow Warden'}: choose a permanent Boss Relic and advance the difficulty tier.`:event?.summary||(node.kind==='shrine'?'Choose Sparks or an offered skill trade. No general fleet or skill service.':exit?'Clear this flight to continue to the next map.':base.summary);
- return{...base,label:exit?'EXIT':node.elite?'ELITE':base.label,name:event?.name||(node.type==='support'?node.name:node.locationName||node.name)||base.name,summary:event?summary:glowText(summary,maxGlow),detail:event?.detail||glowText(summary,maxGlow),eventIndex:event?.index??null,scenarioId:event?.id||null};
+ const exit=kind==='flight'&&(node.type==='finale'||node.kind==='finale'),guardian=guardianNames[node.bossId]||node.name||'Guardian';
+ const summary=kind==='boss'?`Defeat ${guardian} and choose one of two artifacts.`:elite?'Face an elite creature for 20 Packed Sparks and two artifact choices.':event?.summary||(node.kind==='shrine'?'Choose Sparks or an offered skill trade. No general fleet or skill service.':exit?'Clear this passage for 20 Packed Sparks and continue to the next map.':base.summary);
+ const detail=kind==='boss'?(node.mapIndex>=2?'The final guardian unlocks the chosen artifact in future guardian rewards.':'A guardian ends this map: 20 Packed Sparks and one of two run artifacts.'):elite?'Keep one artifact, replace an equipped one, or melt the reward into Packed Sparks.':event?.detail||summary;
+ return{...base,label:kind==='boss'?'GUARDIAN':elite?'ELITE':exit?'EXIT':base.label,name:kind==='boss'?guardian:event?.name||(node.type==='support'?node.name:node.locationName||node.name)||base.name,summary:event?summary:glowText(summary,maxGlow),detail:event?detail:glowText(detail,maxGlow),eventIndex:event?.index??null,scenarioId:event?.id||null};
 }
-const colors={dark:'#15251e',body:'#6e8164',face:'#a4b18b',fire:'#efcc82',edge:'#c8c89c',rune:'#e4d6a9'};
+const colors={dark:'#10231e',body:'#80917c',face:'#c0c7a3',fire:'#efd59a',glint:'#fff4cf',edge:'#d3d6b0',rune:'#e4d6a9'};
 export function mapStopIconMarkup(kindOrNode){
- const category=kindOf(kindOrNode);
- const art=landmarks[category].replace(/class="landmark-(\w+)"/g,(_,part)=>part==='edge'||part==='rune'?`fill="none" stroke="${colors[part]}" stroke-width="1.5"`:`fill="${colors[part]||colors.body}" stroke="none"`);
- return `<svg class="map-stop-icon" data-map-category="${category}" viewBox="-36 -32 72 64" xmlns="http://www.w3.org/2000/svg" shape-rendering="crispEdges" aria-hidden="true" focusable="false">${art}</svg>`;
+ const artCategory=landmarkCategory(kindOrNode),category=artCategory==='elite'?'boss':artCategory;
+ const art=landmarkArt(kindOrNode).replace(/class="landmark-(\w+)"/g,(_,part)=>part==='edge'||part==='rune'?`fill="none" stroke="${colors[part]}" stroke-width="1.8"`:`fill="${colors[part]||colors.body}" stroke="none"`);
+ return `<svg class="map-stop-icon map-symbol-${artCategory}" data-map-category="${category}" viewBox="-42 -39 84 78" xmlns="http://www.w3.org/2000/svg" shape-rendering="crispEdges" aria-hidden="true" focusable="false">${art}</svg>`;
 }

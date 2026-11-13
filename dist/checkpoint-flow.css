@@ -23,3 +23,29 @@
  .rest-simple .rest-pick-cue{font-size:12px}.rest-simple .rest-refill-note{font-size:11px}
  .reward-packed-earned .reward-earnings-notes{font-size:10px;gap:2px}.passage-clear-pay{min-width:82px;max-width:90px}.passage-clear-pay b{font-size:17px}
 }
+
+/* A Rest remains the same place after accepting its benefit. */
+.rest-one-scene.rest-benefit-resolved .rest-benefit-area{grid-template-rows:22px minmax(0,1fr) 52px 46px;gap:8px}
+.rest-one-scene .rest-optional-tools{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;min-height:0}
+.rest-one-scene .rest-optional-tools>button{display:flex;align-items:center;justify-content:center;gap:7px;padding:5px!important;margin:0;min-height:44px;min-width:0;font:14px/1.1 var(--pixel)}
+.rest-one-scene .rest-optional-tools svg{width:27px!important;height:27px!important;flex:none}
+.rest-one-scene .rest-optional-tools .rest-dream{flex-direction:row}.rest-one-scene .rest-optional-tools .rest-dream small{display:none}
+.rest-one-scene .rest-leave-row{display:flex;align-items:center;justify-content:flex-end;gap:14px;min-height:0}
+.rest-one-scene .rest-leave-row>span{font:12px/1.2 var(--pixel);color:#bfceb4;min-width:0}
+.rest-one-scene .rest-leave-row>button{min-height:44px;height:100%;margin:0;min-width:180px;width:auto;flex:0 0 44%;font-size:17px}
+.rest-one-scene.rest-benefit-resolved .rest-benefit{padding:6px;gap:5px;margin:0;display:flex;align-items:center;justify-content:center;flex-direction:column;border:1px solid #7a8865;background:linear-gradient(#263a2b88,#12221c);min-height:0;box-sizing:border-box;overflow:hidden}
+.rest-one-scene.rest-benefit-resolved .rest-benefit>.choice-scene{height:clamp(42px,18dvh,84px);flex-shrink:1;min-height:24px}
+.rest-one-scene .rest-benefit.rest-boon-passed{opacity:.42;border-color:transparent;background:transparent}
+.rest-one-scene .rest-boon-chosen{animation:rest-boon-settle .8s ease-out}.rest-one-scene .rest-chosen-mark{font:13px/1.1 var(--pixel);color:#e4e5b2}
+.rest-one-scene.rest-benefit-resolved .rest-vitals{animation:rest-vitals-fill .8s ease-out}
+@keyframes rest-boon-settle{0%{box-shadow:inset 0 0 55px #d6dfaa66}100%{box-shadow:inset 0 0 0 #d6dfaa00}}
+@keyframes rest-vitals-fill{0%{filter:brightness(1.8)}100%{filter:brightness(1)}}
+@media(orientation:landscape) and (max-height:350px){
+ .rest-one-scene.rest-benefit-resolved .rest-benefit-area{grid-template-rows:18px minmax(0,1fr) 44px 44px;gap:4px}
+ .rest-one-scene .rest-optional-tools{gap:4px}.rest-one-scene .rest-optional-tools>button{font-size:11px;gap:4px}.rest-one-scene .rest-optional-tools svg{width:21px!important;height:21px!important}
+ .rest-one-scene.rest-benefit-resolved .rest-benefit h2{font-size:18px!important;min-height:19px}.rest-one-scene .rest-chosen-mark{font-size:10px}
+ .rest-one-scene.rest-benefit-resolved .rest-benefit>.choice-scene{height:36px}.rest-one-scene .rest-leave-row>span{font-size:10px}.rest-one-scene .rest-leave-row>button{font-size:14px;min-width:130px}
+}
+@media(prefers-reduced-motion:reduce){.rest-one-scene .rest-boon-chosen,.rest-one-scene.rest-benefit-resolved .rest-vitals{animation:none}}
+
+.rest-one-scene .rest-optional-tools>button{appearance:none;background:#172a23;color:#d8dfb4;border:1px solid #6b7958;box-shadow:inset 0 0 0 2px #24382a}.rest-one-scene .rest-optional-tools>button:hover{background:#2b4433;border-color:#d4d5a0}

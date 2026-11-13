@@ -1,4 +1,4 @@
-import {condensedIconMarkup} from './afterglow-ui.mjs?v=clear-rewards-1';
+import {condensedIconMarkup} from './afterglow-ui.mjs?v=guardian-paths-1';
 // Small shared pixel silhouettes. Conditions retain words; basic resources do not.
 const shapes={
  glow:'<path d="M6 1h4v1h2v2h2v2h1v4h-1v2h-2v2h-2v1H6v-1H4v-2H2v-2H1V6h1V4h2V2h2z" opacity=".35"/><path d="M6 4h4v2h2v4h-2v2H6v-2H4V6h2z"/>',

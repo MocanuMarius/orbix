@@ -1,6 +1,6 @@
-import {getArtifactInfo,CONSUMABLE_ARTIFACTS} from './artifact-info.mjs?v=clear-rewards-1';
-import {getCompanionAbility,normalizeCompanionRole} from './companion-abilities.mjs?v=clear-rewards-1';
-import {formatGlow,glowText,getGlowCapacity} from './vitality.mjs?v=clear-rewards-1';
+import {getArtifactInfo,CONSUMABLE_ARTIFACTS} from './artifact-info.mjs?v=guardian-paths-1';
+import {getCompanionAbility,normalizeCompanionRole} from './companion-abilities.mjs?v=guardian-paths-1';
+import {formatGlow,glowText,getGlowCapacity} from './vitality.mjs?v=guardian-paths-1';
 
 const esc=value=>String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const action={collector:'Collector delivers a Spark',protector:'Protector deflects a collision',swift:'Runner starts a burst',leveler:'Space Timer starts levitating'};
@@ -14,14 +14,15 @@ export function artifactDescription(a,run={}, {fresh=false}={}){
  const convert=value=>glowText(value||'',getGlowCapacity(run));
  const companionWork=`After ${action[role]}`;
  const entries={
+  'cache-cup':{trigger:'Collect a Spark Cache.',effect:'Restore 2 extra Sparks.',limit:'Automatic · this run.'},
   'wayward-seed':{trigger:'Collect 3 Sparks in a row with your body.',effect:'Restore up to 1 Spark.',limit:chainLimit(role,'Evolves after Map 1.')},
   'hearth-bloom':{trigger:'Collect 3 Sparks in a row with your body.',effect:'Restore up to 3 Sparks.',limit:chainLimit(role,'Bonus Sparks cannot become Packed Sparks.')},
   'lantern-bloom':{trigger:'Collect 3 Sparks in a row with your body.',effect:'Reveal the whole scene for 1.5 seconds.',limit:chainLimit(role)},
   'glow-wick':{trigger:'Pick up a Spark while your meter is below full.',effect:'Restore up to 3 extra Sparks.',limit:'A full meter preserves the use. Bonus Sparks cannot become Packed Sparks.'},
   'flash-stone':{trigger:'Pick up a Spark.',effect:'Reveal the whole scene for 1.5 seconds.',limit:'Each pickup spends one use. Extra reveals do not stack.'},
   'quiet-cinder':{trigger:'',effect:'Every Lift costs 1 less Spark.',limit:'A Lift always costs at least 1 Spark.'},
-  'ember-lens':{trigger:'',effect:'Increase Luminance to see more terrain around you.',limit:'Always active while equipped.'},
-  'silver-feather':{trigger:'',effect:'Every Lift pushes 6% more strongly.',limit:'Always active while equipped.'},
+  'ember-lens':{trigger:'',effect:'Increase Luminance to see more terrain around you.',limit:'Always active this run.'},
+  'silver-feather':{trigger:'',effect:'Every Lift pushes 6% more strongly.',limit:'Always active this run.'},
   'glass-lantern':{trigger:'Pick up a Spark.',effect:`Gain ${points(mod.cacheFuelBonus??40/3)} extra Sparks. Every Lift costs 1 extra Spark.`,limit:'One pickup repays four Lifts of extra effort.'},
   'moss-heart':{trigger:'Touch a Spark yourself with Kindled Touch learned.',effect:`Kindled Touch restores ${points(mod.kindlerBonus??3)} extra Spark.`,limit:'Requires Kindled Touch in the Sparks tree.'},
   'wayfinder-seed':{trigger:'While Collector is equipped.',effect:'Collector reaches 15% farther.',limit:role==='collector'?'Its recovery still shrinks the boundary.':'Requires Collector.'},
@@ -41,11 +42,11 @@ export function artifactDescription(a,run={}, {fresh=false}={}){
   'dream-sovereign':{trigger:'Collect Sparks during and after a saved Dream.',effect:`Dream pickups recharge ${name} by 2.5 seconds. The first waking pickup reveals the scene.`,limit:'Revealed pickups store a free Lift: up to 4 per flight. Extends Luminance.'},
   'hollow-covenant':{trigger:`${companionWork}, touch a Spark yourself within 8 seconds.`,effect:`Gain +${points(mod.workFuel??12)} bonus Sparks. Every Lift costs 1 less Spark.`,limit:`Up to 5 empowered pickups per flight. Skim up to 5 Dark Sparks for ${points(mod.nightGarden??6)} Sparks each. Lift costs at least 1 Spark.`},
  };
- const selected={...(entries[a.id]||{effect:convert(info.effect||a.description),trigger:convert(info.trigger),limit:convert(info.limit)})};
+ const selected={...(entries[a.id]||{effect:convert(a.description||info.effect),trigger:convert(info.trigger),limit:convert(info.limit)})};
  if(['echo-bell','hollow-covenant'].includes(a.id)&&(run.artifacts||[]).includes('echo-bell')&&(run.artifacts||[]).includes('hollow-covenant'))selected.limit+=' Their shared pickup bonus caps at 5 Sparks.';
  const spec=CONSUMABLE_ARTIFACTS[a.id],remaining=spec?(fresh?spec.charges:run.artifactCharges?.[a.id]??spec.charges):null;
  const lifetime=spec?(remaining>0?`${remaining} automatic uses · disappears when empty`:'Used up')
-  :a.rarity==='boss'?'Permanent relic · automatic':a.id==='wayward-seed'?'Automatic · evolves after Map 1':info.type==='passive'?'Passive · this run':'Automatic · this run';
+  :a.id==='wayward-seed'?'Automatic · evolves after Map 1':info.type==='passive'?'Passive · this run':'Automatic · this run';
  return {...selected,lifetime,type:info.type,role,sequence:[selected.trigger,selected.effect].filter(Boolean)};
 }
 

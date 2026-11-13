@@ -23,7 +23,7 @@ test('normal, TEST and saved rosters contain exactly one companion; swaps preser
   assert.equal(M.setCompanions(run,[id]),true);assert.deepEqual(run.companions,[id]);assert.equal(run.companionRole,id);
  }
  assert.equal(M.SKILLS['main-bond'],undefined);
- assert.equal(M.getArtifactCapacity(run),3,'artifact slots are independent');
+ assert.equal(M.SKILLS['main-artifact-slot-1'],undefined,'artifact slot upgrades are retired');
  let key,saved;const storage={setItem(k,v){key=k;saved=v;},getItem(){return saved;}};
  M.saveState(state,storage);let legacy=JSON.parse(saved);
  legacy.run.companions=['protector','swift','collector'];legacy.run.companionRole='protector';legacy.run.skills['main-bond']=2;

@@ -1,20 +1,21 @@
-import {drawProximityMeter} from './proximity-meter.mjs?v=clear-rewards-1';
-import {drawFlightProjection} from './flight-projection.mjs?v=clear-rewards-1';
-import {drawGlowSense} from './glow-sense.mjs?v=clear-rewards-1';
-import {formatGlow} from './vitality.mjs?v=clear-rewards-1';
-import {LOCATION_PALETTES} from './world-expansion.mjs?v=clear-rewards-1';
-import {biomePalette} from './biome-art.mjs?v=clear-rewards-1';
-import { sceneryIdentity, drawIdentityBackground, drawIdentityMaterial, drawIdentityLife } from './level-scenery.mjs?v=clear-rewards-1';
-import { getCompanionAbility, normalizeCompanionRole } from './companion-abilities.mjs?v=clear-rewards-1';
-import { companionSprite, companionPalette } from './companion-art.mjs?v=clear-rewards-1';
-import { createScenePropArt } from './scene-prop-art.mjs?v=clear-rewards-1';
-import { drawBoss } from './boss.mjs?v=clear-rewards-1';
-import { drawPickup } from './pickup-art.mjs?v=clear-rewards-1';
-import { pickupKind, getPickupSpec, pickupContactRadius } from './pickups.mjs?v=clear-rewards-1';
-import { LIGHT_EXTENT,lightAttenuation,lightVisibility,createLightMaskCanvas,sceneRevealStrength } from './light-field.mjs?v=clear-rewards-1';
-import {drawExitLandmark} from './exit-landmark.mjs?v=clear-rewards-1';
-import {drawBlackHoles} from './black-hole-art.mjs?v=clear-rewards-1';
-import {drawFlightForks,drawFlightForkBackdrops} from './flight-forks.mjs?v=clear-rewards-1';
+import { drawGuardianWarnings } from './guardian-effects.mjs?v=guardian-paths-1';
+import {drawProximityMeter} from './proximity-meter.mjs?v=guardian-paths-1';
+import {drawFlightProjection} from './flight-projection.mjs?v=guardian-paths-1';
+import {drawGlowSense} from './glow-sense.mjs?v=guardian-paths-1';
+import {formatGlow} from './vitality.mjs?v=guardian-paths-1';
+import {LOCATION_PALETTES} from './world-expansion.mjs?v=guardian-paths-1';
+import {biomePalette} from './biome-art.mjs?v=guardian-paths-1';
+import { sceneryIdentity, drawIdentityBackground, drawIdentityMaterial, drawIdentityLife } from './level-scenery.mjs?v=guardian-paths-1';
+import { getCompanionAbility, normalizeCompanionRole } from './companion-abilities.mjs?v=guardian-paths-1';
+import { companionSprite, companionPalette } from './companion-art.mjs?v=guardian-paths-1';
+import { createScenePropArt } from './scene-prop-art.mjs?v=guardian-paths-1';
+import { drawBoss } from './boss.mjs?v=guardian-paths-1';
+import { drawPickup } from './pickup-art.mjs?v=guardian-paths-1';
+import { pickupKind, getPickupSpec, pickupContactRadius } from './pickups.mjs?v=guardian-paths-1';
+import { LIGHT_EXTENT,lightAttenuation,lightVisibility,createLightMaskCanvas,sceneRevealStrength } from './light-field.mjs?v=guardian-paths-1';
+import {drawExitLandmark} from './exit-landmark.mjs?v=guardian-paths-1';
+import {drawBlackHoles} from './black-hole-art.mjs?v=guardian-paths-1';
+import {drawFlightForks,drawFlightForkBackdrops} from './flight-forks.mjs?v=guardian-paths-1';
 
 const TAU = Math.PI * 2;
 const SCENERY_HELPERS = { line: pixelLine, disc: pixelDisc, polygon: path };
@@ -1063,6 +1064,7 @@ export class WispFlightView {
     }
     const playerX = e.player.x * s, playerY = yOf(e) * s;
     this.lightFog(e, fleet, playerX, playerY);
+    drawGuardianWarnings(c,{engine:e,distance,scale:s});
     e.biomeDynamics?.drawHighlights(c,{distance,scale:s,light:this.currentLightState,playerY:yOf(e)});
     drawFlightProjection(c,e,{scale:s,distance,playerY:yOf(e)});
     drawGlowSense(c,e,{scale:s,distance,playerY:yOf(e),light:this.currentLightState});

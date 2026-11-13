@@ -35,7 +35,7 @@ test('each clear secures a fixed reward plus overflow once, including after relo
  }
  assert.equal(FLIGHT_CLEAR_REWARD,20);assert.equal(getFlightClearReward({type:'flight',elite:true}),20);
  assert.equal(getFlightClearReward({type:'finale',boss:false}),20);
- assert.equal(getFlightClearReward({type:'finale',boss:true}),0);
+ assert.equal(getFlightClearReward({type:'finale',boss:true,mapIndex:2}),0);
 });
 
 test('failed attempts earn nothing; a successful retry earns one clear reward',()=>{
@@ -46,12 +46,12 @@ test('failed attempts earn nothing; a successful retry earns one clear reward',(
  assert.equal(M.settleCheckpoint(s),20);assert.equal(s.run.condensedGlow,initial+20);
 });
 
-test('practice rewards stay in practice; final guardian awards the permanent relic instead',()=>{
+test('practice rewards stay in practice; final guardian unlocks the future reward instead',()=>{
  const practice=M.newState();M.startTutorial(practice);const profile=structuredClone(practice.profile),wallet=practice.run.practiceCondensedGlow;start(practice);
  assert.ok(M.finishFlight(practice.run,{success:true,flame:70,condensedGlow:7}));
  assert.equal(practice.run.practiceCondensedGlow,wallet+27);assert.equal(practice.run.condensedGlow,0);
  assert.equal(M.settleCheckpoint(practice),0);assert.deepEqual(practice.profile,profile);
- const boss=fixture('last-guardian');start(boss);Object.assign(boss.run.current,{type:'finale',boss:true});
+ const boss=fixture('last-guardian');start(boss);Object.assign(boss.run.current,{type:'finale',boss:true,mapIndex:2});boss.run.mapIndex=2;
  assert.ok(M.finishFlight(boss.run,{success:true,flame:60}));assert.equal(M.settleCheckpoint(boss),0);
  assert.equal(boss.run.lastFlight.completionBonus,0);assert.equal(boss.run.flightReward.permanent,true);
  assert.equal(M.getFlightRewardMeltValue(boss.run.flightReward),0);
