@@ -13,7 +13,7 @@ Verification:
 - A 100% choice survived navigation to the query-free root. Fit and fullscreen work. Scaled Rest selection, Leave Rest and Enter clicks reached the actual flight. Changing scale during the countdown or active flight opened the pause menu; no automatic resume was introduced.
 - Static menu art adds no render loop or network asset service. These checks are browser layout/behavior evidence, not accessibility certification or a physical Pixel 10 FPS measurement. The existing campaign balance/performance follow-ups remain open.
 
-Publication status is recorded after verifying the Pages manifest and deployed assets. Local mock scene instrumentation stays outside `dist`.
+Publication verified: `moonlit-menus-1`, source `f2320079396b1c608e47c9dd83829b162c73e3b4`, Pages `6a0ce7cf3dba4c0adbae2b93d0db365dc5e8f1ca`. Workflow `43504949708` completed successfully. The public manifest and fourteen entry, routing, UI and art files match local release bytes. Play: https://mocanumarius.github.io/orbix/?v=moonlit-menus-1 . Local mock scene instrumentation stays outside `dist`.
 
 ---
 
