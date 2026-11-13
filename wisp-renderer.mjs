@@ -1,10 +1,10 @@
-import { sceneryIdentity, drawIdentityBackground, drawIdentityMaterial, drawIdentityLife } from './level-scenery.mjs?v=skill-growth-1';
-import { getCompanionAbility, normalizeCompanionRole } from './companion-abilities.mjs?v=skill-growth-1';
-import { companionSprite, companionPalette } from './companion-art.mjs?v=skill-growth-1';
-import { createScenePropArt } from './scene-prop-art.mjs?v=skill-growth-1';
-import { drawBoss } from './boss.mjs?v=skill-growth-1';
-import { drawPickup } from './pickup-art.mjs?v=skill-growth-1';
-import { pickupKind, getPickupSpec } from './pickups.mjs?v=skill-growth-1';
+import { sceneryIdentity, drawIdentityBackground, drawIdentityMaterial, drawIdentityLife } from './level-scenery.mjs?v=companion-motion-1';
+import { getCompanionAbility, normalizeCompanionRole } from './companion-abilities.mjs?v=companion-motion-1';
+import { companionSprite, companionPalette } from './companion-art.mjs?v=companion-motion-1';
+import { createScenePropArt } from './scene-prop-art.mjs?v=companion-motion-1';
+import { drawBoss } from './boss.mjs?v=companion-motion-1';
+import { drawPickup } from './pickup-art.mjs?v=companion-motion-1';
+import { pickupKind, getPickupSpec } from './pickups.mjs?v=companion-motion-1';
 
 const TAU = Math.PI * 2;
 const SCENERY_HELPERS = { line: pixelLine, disc: pixelDisc, polygon: path };
@@ -715,6 +715,7 @@ export class WispFlightView {
 
   drawMain(e, t, x, y) {
     const c = this.bufferContext, fuel = clamp((e.flame ?? 100) / 100, 0, 1);
+    c.save();c.translate(x,y);c.scale(.85,.85);c.translate(-x,-y);
     const dying = e.dying === true || (e.dyingProgress > 0 && fuel <= 0);
     const progress = dying ? clamp(e.dyingProgress || 0, 0, 1) : 0;
     if(dying && e.deathCause==='collision') {
@@ -733,7 +734,7 @@ export class WispFlightView {
           Math.round(x-18+col*6+Math.cos(angle)*travel),
           Math.round(y-18+row*6+Math.sin(angle)*travel+age*age*(e.reducedMotion?0:14)),size,size);
       }
-      c.restore();return;
+      c.restore();c.restore();return;
     }
     const tapAge = t - (e.lastFlapTime ?? -1000), tap = clamp(1 - tapAge / .16, 0, 1);
     const breath = e.reducedMotion ? 0 : Math.sin(t * 2.3) * .005;
@@ -750,7 +751,7 @@ export class WispFlightView {
         c.fillRect(x + Math.cos(angle) * r, y + Math.sin(angle) * r, dot, dot);
       }
     }
-    c.restore();
+    c.restore();c.restore();
   }
 
   drawProtector(e, t, x, y) {
@@ -761,17 +762,25 @@ export class WispFlightView {
     const recovery = clamp(1 - (shield.recovery || 0) / total, 0, 1);
     c.save();
     for (let i = 0; i < layers; i++) {
-      const radius = 16.5 + i * 2, charged = i < charges;
-      c.lineWidth = charged ? 1.7 : 1;
-      c.strokeStyle = hit > .05 ? '#e3f5ff' : charged ? '#8ab9e4' : '#3b5b7a';
-      c.globalAlpha = (charged ? .72 : .18 + recovery * .16) * (this.lightIntensity || 1);
-      c.beginPath();
-      if (charged && hit < .05) c.arc(x, y, radius, 0, TAU);
-      else for (let shard = 0; shard < 5; shard++) {
-        const a = shard * TAU / 5 + .12; c.moveTo(x + Math.cos(a) * radius, y + Math.sin(a) * radius);
-        c.arc(x, y, radius, a, a + .72 + recovery * .15);
+      const radius = 16.5 + i * 2, charged = i < charges, rebuilding = i === charges;
+      c.lineWidth = charged ? 1.5 : 1;
+      c.strokeStyle = hit > .05 ? '#e3f5ff' : charged ? '#8ab9e4' : '#6c9fc4';
+      // Repaired segments are intermittent until the charge is complete.
+      for(let segment=0;segment<20;segment++){
+        const built=charged||rebuilding&&segment/20<recovery;
+        const shimmer=e.reducedMotion?1:.65+.35*Math.sin(t*12+segment*1.7)**2;
+        c.globalAlpha=(charged?.70:built?.38*shimmer:.065)*(this.lightIntensity||1);
+        const a=-Math.PI/2+segment*TAU/20;
+        c.beginPath();c.arc(x,y,radius,a,a+TAU/20*(charged?.94:.64));c.stroke();
       }
-      c.stroke();
+      if(rebuilding){
+        const a=-Math.PI/2+recovery*TAU,wx=x+Math.cos(a)*radius,wy=y+Math.sin(a)*radius;
+        c.globalAlpha=.85;c.fillStyle='#e6f6ff';c.fillRect(Math.round(wx)-1,Math.round(wy)-1,2,2);
+        if(!e.reducedMotion)for(let spark=0;spark<4;spark++){
+          const age=(t*3+spark/4)%1,theta=a+(spark-1.5)*.8;
+          c.globalAlpha=(1-age)*.8;c.fillRect(Math.round(wx+Math.cos(theta)*age*8),Math.round(wy+Math.sin(theta)*age*8),1,1);
+        }
+      }
     }
     if (hit > .02) {
       c.globalAlpha = hit * .8; c.strokeStyle = '#d9f1ff'; c.lineWidth = 1;
@@ -816,17 +825,43 @@ export class WispFlightView {
       const sprite = this.orbSprite(role);
       c.globalAlpha = intensity; c.drawImage(sprite, x - 6, y - 6); c.globalAlpha = 1;
       if (collector && state.carrying) this.drawPacket(x + 7, y + 5, { kind: state.cargoKind || 'light', tiny: true, bodyOnly: true, time: t, reducedMotion: e.reducedMotion, scale: s });
-      if (state.active && role === 'swift' && !e.reducedMotion) {
-        c.globalAlpha = .45 * intensity; c.strokeStyle = tint.core; c.lineWidth = 1;
-        c.beginPath(); c.moveTo(x - 11, y - 2); c.lineTo(x - 16, y - 3); c.moveTo(x - 12, y + 2); c.lineTo(x - 17, y + 3); c.stroke(); c.globalAlpha = 1;
+      const px=e.player.x*s,py=yOf(e)*s,clock=e.reducedMotion?0:t;
+      c.save();c.strokeStyle=tint.core;c.fillStyle=tint.bright;c.lineWidth=1;
+      if(collector){
+        // Small breathing fragments accompany the existing fetch/return flight.
+        const a=clock*3.5;
+        c.globalAlpha=.35*intensity;c.beginPath();c.arc(x,y,8,a,a+.65);c.arc(x,y,8,a+Math.PI,a+Math.PI+.65);c.stroke();
       }
-      if (state.active && role === 'leveler') {
-        c.globalAlpha = .65 * intensity; c.strokeStyle = tint.core; c.lineWidth = 1;
-        c.beginPath(); c.moveTo(e.player.x * s - 19, yOf(e) * s); c.lineTo(e.player.x * s - 14, yOf(e) * s);
-        c.moveTo(e.player.x * s + 14, yOf(e) * s); c.lineTo(e.player.x * s + 19, yOf(e) * s); c.stroke(); c.globalAlpha = 1;
+      if(role==='protector'&&state.charges<state.layers){
+        const a=state.weldAngle??(-Math.PI/2+(1-state.recovery/state.recoveryTotal)*TAU),r=16.5+state.charges*2;
+        c.globalAlpha=e.reducedMotion?.5:.45+.3*Math.sin(clock*21)**2;c.beginPath();
+        c.moveTo(x,y);c.lineTo(px+Math.cos(a)*r,py+Math.sin(a)*r);c.stroke();
       }
-      if (state.active && role === 'seer') this.glow(x, y, 18, tint.mid, .12);
-      if (role === 'kindler' && (state.procFlash > 0 || state.hitFlash > 0)) this.glow(x, y, 19, tint.core, .25);
+      if(state.active&&role==='swift'){
+        for(let j=0;j<3;j++){const phase=(clock*4+j/3)%1;c.globalAlpha=(1-phase)*.6*intensity;
+          const offset=(j-1)*5;c.beginPath();c.moveTo(x-8-phase*10,y+offset);c.lineTo(x-3-phase*10,y+offset);c.stroke();}
+      }
+      if(state.active&&role==='leveler'){
+        for(let j=0;j<3;j++){const phase=(clock*1.7+j/3)%1;c.globalAlpha=(1-phase)*.45;
+          c.beginPath();c.ellipse(px,py+10+phase*11,10+phase*7,2.4,0,0,TAU);c.stroke();}
+      }
+      if(state.active&&role==='seer'){
+        const aim=e.reducedMotion?0:Math.sin(clock*2.8)*.45;c.globalAlpha=.38;
+        c.beginPath();c.arc(x,y,12,aim-.45,aim+.45);c.arc(x,y,19,aim-.32,aim+.32);c.stroke();
+        c.globalAlpha=.25;c.beginPath();c.moveTo(x+5,y);c.lineTo(x+24*Math.cos(aim),y+24*Math.sin(aim));c.stroke();
+      }
+      if(role==='kindler'){
+        const pulse=state.procFlash||0;
+        for(let j=0;j<3;j++){const a=clock*2.6+j*TAU/3,r=8+Math.sin(clock*3+j)*1.5+pulse*4;
+          c.globalAlpha=(.32+pulse*.55)*intensity;c.fillRect(Math.round(x+Math.cos(a)*r),Math.round(y+Math.sin(a)*r),1+pulse,1+pulse);}
+        if(pulse>0){c.globalAlpha=pulse*.5;c.beginPath();c.arc(px,py,12+(1-pulse)*10,0,TAU);c.stroke();}
+      }
+      c.restore();
+    }
+    if(e.hasCompanion?.('leveler')){
+      const level=e.getLevelerState(),px=e.player.x*s,py=yOf(e)*s,charge=clamp(level.charge/Math.max(.001,level.capacity),0,1);
+      c.save();c.globalAlpha=level.active?.85:.45;c.fillStyle='#244847';c.fillRect(Math.round(px)-10,Math.round(py)+19,20,2);
+      c.fillStyle='#a7e8df';c.fillRect(Math.round(px)-10,Math.round(py)+19,Math.round(20*charge),2);c.restore();
     }
   }
 

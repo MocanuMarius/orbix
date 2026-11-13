@@ -1,5 +1,5 @@
-import { MAP_STOP_TYPES } from './map-guide.mjs?v=skill-growth-1';
-import { getCompanionAbility, normalizeCompanionRole } from './companion-abilities.mjs?v=skill-growth-1';
+import { MAP_STOP_TYPES } from './map-guide.mjs?v=companion-motion-1';
+import { getCompanionAbility, normalizeCompanionRole } from './companion-abilities.mjs?v=companion-motion-1';
 
 // Content only. The coach owns pausing, highlighting, seen state and navigation.
 // hasStoredGlow means the relevant reserve panel/footer exists on this screen.
@@ -8,7 +8,7 @@ const step = (id, title, text, target, extra = {}) =>
   ({ id, title, text, target, allowTarget: false, ...extra });
 
 const keyText = {
-  flight: ['Flight symbol', 'The wing marks an ordinary flight. Clear it to save embers and choose a temporary power.'],
+  flight: ['Flight symbol', 'The travelling light and arrow mark an ordinary flight. Clear it to earn run Embers.'],
   elite: ['Elite symbol', 'The skull marks a harder flight with a larger clear reward. Your three journey lives still apply.'],
   rest: ['Rest symbol', 'The campfire offers fuel or embers. Rest also opens skill branches and companion changes before departure.'],
   shrine: ['Shrine symbol', 'The cards mark a shrine. Choose fuel and embers or a new temporary power.'],

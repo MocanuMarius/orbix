@@ -7,7 +7,7 @@ export const COMPANION_ABILITIES = Object.freeze({
   protector: ability('protector', 'Protector', 'protect', 'PROTECTOR', 0, 0,
     'Spends 12 Glow and one recovered shell charge to save a collision. An empty shell or insufficient Glow cannot protect you.', true, false, 2),
   leveler: ability('leveler', 'Leveler', 'level', 'LEVEL', 2.4, 9,
-    'Holds a gently bobbing height. Tap Power again or Lift to release it. Upgrades can add a short finishing dive.', false, false, 3),
+    'Hold the flight area or Lift to levitate; release to glide. Charge drains only while levitating and refills while released. Upgrades extend charge, steady the bob or add a release dive.', false, false, 3),
   swift: ability('swift', 'Swift', 'boost', 'BOOST', 1.25, 7.5,
     'Surges forward and resists local drafts. Terrain still collides; Swift never fetches packets.', false, false, 4),
   seer: ability('seer', 'Seer', 'see', 'SIGHT', 4.5, 12,
