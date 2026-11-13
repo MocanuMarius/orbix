@@ -223,3 +223,5 @@ body:has(.tutorial-coach:not([hidden])) #tutorial-hint { visibility: hidden; }
  .tutorial-coach-copy h2{font-size:22px;}
  .tutorial-coach-copy p{font-size:17px;line-height:1.35;}
 }
+
+.coach-vocabulary>.collector-teaching-diagram{display:block;width:100%;height:auto;max-height:220px;image-rendering:pixelated}
