@@ -1,5 +1,5 @@
-import * as PIXI from './vendor/pixi.mjs?v=gentler-opening-1';
-import { PhoenixMotion, deformWing, deformTail } from './phoenix-motion.mjs?v=gentler-opening-1';
+import * as PIXI from './vendor/pixi.mjs?v=fuel-depth-1';
+import { PhoenixMotion, deformWing, deformTail } from './phoenix-motion.mjs?v=fuel-depth-1';
 
 export class PhoenixRig {
   constructor(texture) {
