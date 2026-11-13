@@ -1,5 +1,5 @@
-import {landmarks} from './map-landmarks.mjs?v=one-companion-1';
-import {glowText} from './vitality.mjs?v=one-companion-1';
+import {landmarks} from './map-landmarks.mjs?v=moonlit-menus-1';
+import {glowText} from './vitality.mjs?v=moonlit-menus-1';
 const stop=(kind,label,name,summary)=>Object.freeze({kind,label,name,summary,icon:kind});
 export const MAP_STOP_TYPES=Object.freeze({
 flight:stop('flight','FLIGHT','Flight','Fly a passage, keep a relic or melt it into Packed Sparks, and recover fuel.'),

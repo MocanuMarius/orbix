@@ -1,4 +1,4 @@
-import {obstacleEdgeClearance} from './edging-pulse.mjs?v=one-companion-1';
+import {obstacleEdgeClearance} from './edging-pulse.mjs?v=moonlit-menus-1';
 const clamp=n=>Math.max(0,Math.min(1,Number(n)||0));
 
 export function proximityFill(pulse){

@@ -1,4 +1,4 @@
-import {newState,createRun,advanceMap,selectNode} from './model.mjs?v=one-companion-1';
+import {newState,createRun,advanceMap,selectNode} from './model.mjs?v=moonlit-menus-1';
 // Deliberately independent of storage. Every refresh creates the same mock run.
 export function createRestInspectorState(){
  const state=newState();state.profile.difficulty=4;
