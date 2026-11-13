@@ -116,3 +116,15 @@ dialog.game-sheet{border:12px solid transparent!important;border-image:url('asse
 #boost-btn.boost-motion-reduced .power-ready-sparks i{animation:none!important}
 #boost-btn.boost-motion-reduced .power-liquid{transition:none}
 @media(prefers-reduced-motion:reduce){#boost-btn .power-ready-sparks i{animation:none!important}#boost-btn .power-liquid{transition:none}}
+
+/* TEST starters are actual choices, separate from the normal unlock preview. */
+.test-starter-picker{width:100%;margin:16px auto 0;padding:12px 0 0;border-top:1px solid #64745c;text-align:center}
+.test-starter-heading{display:grid;gap:3px;margin-bottom:9px}.test-starter-heading small{font-size:11px;letter-spacing:1px;color:#a1b39b}.test-starter-heading strong{font-size:17px;color:#e3d8ad;letter-spacing:.6px}
+.test-starter-options{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px}
+.test-starter-options .test-starter-option{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;min-width:0;min-height:67px;padding:6px 2px;color:#b9c9b2;background:#101f21b8;border:1px solid #52674f;touch-action:manipulation;cursor:pointer}
+.test-starter-option svg{width:32px;height:32px;image-rendering:pixelated;pointer-events:none}.test-starter-option span{font:15px/1.1 var(--pixel)!important;pointer-events:none}
+.test-starter-options .test-starter-option.selected{border-color:#f0df9f;background:#3b4b38;box-shadow:inset 0 0 0 1px #15251d;color:#fff0b7}
+.test-starter-option:focus-visible{outline:2px solid #f0df9f;outline-offset:2px}.test-starter-picker p{font:13px/1.3 var(--pixel)!important;color:#b6c4ad;margin:8px 0 0;min-height:17px}
+.run-front-page:has(.test-starter-picker){min-height:0;padding-top:35px;padding-bottom:16px}
+.run-front-page:has(.test-starter-picker) .front-title{min-height:140px;margin-bottom:16px}
+@media(max-height:740px){.run-front-page:has(.test-starter-picker){padding-top:25px}.run-front-page:has(.test-starter-picker) .front-title{min-height:95px;margin-bottom:10px}}
