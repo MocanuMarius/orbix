@@ -113,3 +113,7 @@ Deep Vessel adds 20% base Glow capacity; Boundless Vessel adds another 20% (140 
 The flight Glow gauge is vertical on the left. Pickup gains, Lift costs, Rest/event effects, map/resume readouts and stored-light displays use percentages of the current maximum. Internally Glow stays in fuel units, so an unchanged 24-unit light restores 20% of a 120-capacity vessel. Afterglow surplus starts above 60% of current capacity. Enlarged capacity persists across flights, retries and saves.
 
 Focused validation: `node scripts/glow-builds-probe.mjs`, `npm run check:skill-growth`, and `npm run check:playtest`. These cover purchases, distinct/exclusive paths, capacity, Rest refills, persistence, actual-engine pickups, percentage displays, death and resume mechanics. Local browser access was unavailable for this batch; no new browser-layout, phone-FPS or full economy-balance claim is made.
+
+## Collector motion — 2026-11-13
+
+Collector keeps a more active 1.8-second breathing orbit, visible during recovery. Fetching follows momentum-preserving curves through the pickup and back into the moving orbit. Trip duration depends on distance, while fuel and cooldown still resolve only after delivery. The body-contact window, five-second recovery/radius growth, harmful-pickup restrictions and companion upgrades remain. `node scripts/collector-motion-probe.mjs` checks distance timing and collection lifecycle.

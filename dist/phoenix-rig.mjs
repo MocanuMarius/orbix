@@ -1,5 +1,5 @@
-import * as PIXI from './vendor/pixi.mjs?v=glow-builds-1';
-import { PhoenixMotion, deformWing, deformTail } from './phoenix-motion.mjs?v=glow-builds-1';
+import * as PIXI from './vendor/pixi.mjs?v=collector-flow-1';
+import { PhoenixMotion, deformWing, deformTail } from './phoenix-motion.mjs?v=collector-flow-1';
 
 export class PhoenixRig {
   constructor(texture) {
