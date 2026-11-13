@@ -169,3 +169,15 @@ body:has(.tutorial-coach:not([hidden])) #tutorial-hint { visibility: hidden; }
  .tutorial-coach-card>h2{font-size:21px}.tutorial-coach-card>p{font-size:16px}
  .tutorial-coach-actions>button{padding:7px 9px;font-size:12px;min-width:0}
 }
+
+/* In-context pictures and a leader to the actual paused interface. */
+.coach-pointer{position:fixed;inset:0;width:100%;height:100%;z-index:1;pointer-events:none;overflow:visible;display:none}
+.coach-pointer path{fill:none;stroke:#d7f1b8;stroke-width:2;stroke-linejoin:round;filter:drop-shadow(1px 2px 0 #04100d)}
+.coach-vocabulary{display:flex;align-items:center;justify-content:center;gap:12px;flex:1;min-width:0}
+.coach-example{margin:0;flex:0 1 210px;min-width:0;max-width:48%}
+.coach-example>img,.coach-example>svg{display:block;width:100%;height:auto;max-height:110px;object-fit:contain;background:#071416;border:1px solid #728970;image-rendering:pixelated}
+.coach-example figcaption{font:11px/1.3 var(--pixel);text-align:center;color:#c4d8bd;margin-top:4px}
+.coach-inline-term{white-space:nowrap;color:#edf2d5}
+.coach-inline-term>svg{display:inline-block!important;width:1em!important;height:1em!important;vertical-align:-.12em;margin-right:.25em;color:#d6efba}
+.tutorial-coach[data-has-example=true] .tutorial-coach-visual{align-items:center;gap:18px}
+@media(orientation:landscape) and (max-height:350px){.coach-example{flex-basis:165px}.coach-example>img,.coach-example>svg{max-height:76px}.coach-example figcaption{font-size:10px}.coach-vocabulary{gap:6px}.tutorial-coach[data-has-example=true] .tutorial-coach-visual{gap:12px}}

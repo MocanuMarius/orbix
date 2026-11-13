@@ -1,4 +1,4 @@
-import {getGlowCapacity,GLOW_DISPLAY_SCALE} from './vitality.mjs?v=proximity-energy-1';
+import {getGlowCapacity,GLOW_DISPLAY_SCALE} from './vitality.mjs?v=tutorial-context-1';
 const clamp=v=>Math.max(0,Math.min(1,v));
 // A cell represents one paid Lift, even during a temporary free-Lift effect.
 export function glowGaugeUnits(flame,maximum=100,liftCost=10){
