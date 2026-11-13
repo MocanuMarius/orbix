@@ -178,13 +178,9 @@ function reward(state,policy,rng,metrics){
  const r=state.run,reward=r.flightReward;if(!reward||reward.claimed)return;
  const before=r.condensedGlow;
  let id=reward.offers[0];
- if(!reward.permanent&&!reward.evolution){
-  const useful=reward.offers.find(a=>M.artifactSynergy(r,a));
-  if((r.artifacts.filter(Boolean).length>=M.getArtifactCapacity(r)&&!useful)||rng()<(policy==='survival'?.15:.28))id='melt';else id=useful||id;
- }
- if(!id){reward.claimed=true;return;}
- const slot=r.artifacts.filter(Boolean).length>=M.getArtifactCapacity(r)?Math.floor(rng()*M.getArtifactCapacity(r)):null;
- assert.ok(M.chooseFlightReward(state,id,slot));metrics.supportIncome+=r.condensedGlow-before;
+ if(!reward.permanent)id=reward.offers.find(a=>M.artifactSynergy(r,a))||id;
+ if(!id)return;
+ assert.ok(M.chooseFlightReward(state,id));metrics.supportIncome+=r.condensedGlow-before;
 }
 function runCase({seed,tier,role,style,policy,attrition=false,captureDelta=0,effortScale=1,artifactScale=1,startingSkill='main-efficiency'}){
  const state=M.newState();state.profile.difficulty=6;state.run=M.createRun(state.profile,`condensed-${seed}-${tier}`,tier);
@@ -203,7 +199,7 @@ function runCase({seed,tier,role,style,policy,attrition=false,captureDelta=0,eff
    r.simDreamPrepared=false;
    M.finishFlight(r,flow);const secured=M.settleCheckpoint(state);assert.equal(M.settleCheckpoint(state),0,'settlement is idempotent');
    if(!flow.success){m.failures++;m.fuelFailures+=Number(flow.fuelFailure);m.collisionFailures+=Number(flow.collisionFailure);m.totalLostCurrency+=flow.condensedGlow;assert.equal(r.condensedGlow,before,'failed pickups cannot farm currency');assert.equal(r.condensedRemainder,remainder,'failed fractions roll back');}
-   else{assert.equal(secured,flow.condensedGlow,'no flat clear/challenge money');m.flightIncome+=secured;}
+   else{assert.equal(secured,flow.condensedGlow+(r.lastFlight?.completionBonus||0),'overflow plus current clear reward');m.flightIncome+=secured;}
    continue;
   }
   if(r.phase==='support'){

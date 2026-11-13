@@ -1,9 +1,9 @@
-import {getPickupSpec,pickupKind,pickupContactRadius} from './pickups.mjs?v=plain-begin-1';
+import {getPickupSpec,pickupKind,pickupContactRadius} from './pickups.mjs?v=a1-balance-1';
 
 // Roof-heavy courses used to lose half their fuel to floor-cache placement.
 // A duration floor repairs that disparity with richer lights before adding
 // more objects. This is a supply budget, never a guaranteed collection reward.
-export const GLOW_BUDGET_TUNING=Object.freeze({minimumFuelPerSecond:8.2,firstMapFuelPerSecond:10,easyFuelPerSecond:9,minimumSpacing:270});
+export const GLOW_BUDGET_TUNING=Object.freeze({minimumFuelPerSecond:8.2,firstMapFuelPerSecond:14,easyFuelPerSecond:11,minimumSpacing:270});
 export function ensureGlowBudget(layout,{duration,height,endX,clear,drafts=[],tutorial=false,difficulty=2,mapIndex=0}={}){
  if(tutorial||!Number.isFinite(duration)||!Number.isFinite(endX)||!clear)return;
  const packets=layout.embers,eligible=p=>!p.generated&&!p.harmful&&!getPickupSpec(p).dim&&getPickupSpec(p).fuel>0;

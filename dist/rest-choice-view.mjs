@@ -1,11 +1,11 @@
-import {getGlowCapacity,getLifeCapacity,formatGlow} from './vitality.mjs?v=plain-begin-1';
-import {livesMarkup} from './lives.mjs?v=plain-begin-1';
-import {resourceSymbol} from './game-symbols.mjs?v=plain-begin-1';
-import {choiceScene} from './choice-art.mjs?v=plain-begin-1';
-import {mapStopIconMarkup} from './map-guide.mjs?v=plain-begin-1';
-import {dreamRestMarkup} from './dream.mjs?v=plain-begin-1';
-import {skillIcon,artifactIcon} from './upgrade-icons.mjs?v=plain-begin-1';
-import {companionArtSvg} from './companion-art.mjs?v=plain-begin-1';
+import {getGlowCapacity,getLifeCapacity,formatGlow} from './vitality.mjs?v=a1-balance-1';
+import {livesMarkup} from './lives.mjs?v=a1-balance-1';
+import {resourceSymbol} from './game-symbols.mjs?v=a1-balance-1';
+import {choiceScene} from './choice-art.mjs?v=a1-balance-1';
+import {mapStopIconMarkup} from './map-guide.mjs?v=a1-balance-1';
+import {dreamRestMarkup} from './dream.mjs?v=a1-balance-1';
+import {skillIcon,artifactIcon} from './upgrade-icons.mjs?v=a1-balance-1';
+import {companionArtSvg} from './companion-art.mjs?v=a1-balance-1';
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 export function restBenefitsMarkup(run,node,choices=[],{nextNode=null}={}){
  const capacity=getGlowCapacity(run),fullHearts={...run,lives:getLifeCapacity(run)},resolved=run.restReady===true;

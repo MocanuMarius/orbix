@@ -1,40 +1,40 @@
-import { updateGuardian, drawGuardianWarnings } from './guardian-effects.mjs?v=plain-begin-1';
-import {drawProximityMeter} from './proximity-meter.mjs?v=plain-begin-1';
-import {FlightProjection,drawFlightProjection} from './flight-projection.mjs?v=plain-begin-1';
-import {drawGlowSense} from './glow-sense.mjs?v=plain-begin-1';
-import {formatGlow} from './vitality.mjs?v=plain-begin-1';
-import {installRiskChains} from './risk-chains.mjs?v=plain-begin-1';
-import {EXTRA_COURSES} from './world-expansion.mjs?v=plain-begin-1';
-import {BIOME_COURSES} from './biome-courses.mjs?v=plain-begin-1';
-import {BiomeDynamics} from './biome-dynamics.mjs?v=plain-begin-1';
-import {condenseGlow} from './condensed-glow.mjs?v=plain-begin-1';
-import {ensureGlowBudget} from './glow-budget.mjs?v=plain-begin-1';
-import {EdgingPulse} from './edging-pulse.mjs?v=plain-begin-1';
-import {isVowBodyPickup} from './contextual-events.mjs?v=plain-begin-1';
-import {BlackHoles} from './black-holes.mjs?v=plain-begin-1';
-import {drawBlackHoles} from './black-hole-art.mjs?v=plain-begin-1';
+import { updateGuardian, drawGuardianWarnings } from './guardian-effects.mjs?v=a1-balance-1';
+import {drawProximityMeter} from './proximity-meter.mjs?v=a1-balance-1';
+import {FlightProjection,drawFlightProjection} from './flight-projection.mjs?v=a1-balance-1';
+import {drawGlowSense} from './glow-sense.mjs?v=a1-balance-1';
+import {formatGlow} from './vitality.mjs?v=a1-balance-1';
+import {installRiskChains} from './risk-chains.mjs?v=a1-balance-1';
+import {EXTRA_COURSES} from './world-expansion.mjs?v=a1-balance-1';
+import {BIOME_COURSES} from './biome-courses.mjs?v=a1-balance-1';
+import {BiomeDynamics} from './biome-dynamics.mjs?v=a1-balance-1';
+import {condenseGlow} from './condensed-glow.mjs?v=a1-balance-1';
+import {ensureGlowBudget} from './glow-budget.mjs?v=a1-balance-1';
+import {EdgingPulse} from './edging-pulse.mjs?v=a1-balance-1';
+import {isVowBodyPickup} from './contextual-events.mjs?v=a1-balance-1';
+import {BlackHoles} from './black-holes.mjs?v=a1-balance-1';
+import {drawBlackHoles} from './black-hole-art.mjs?v=a1-balance-1';
 /* Emberwing's self-contained canvas flight simulation and renderer. */
-import { FLAME_TUNING, LIGHT_PACKET_TUNING } from './vitality.mjs?v=plain-begin-1';
-import { flightEndDistance } from './flight-end.mjs?v=plain-begin-1';
-import {getExitLandmarkState,drawExitLandmark} from './exit-landmark.mjs?v=plain-begin-1';
-import { WispCompanion, wispHome } from './wisp.mjs?v=plain-begin-1';
-import { getAscentInfo } from './ascent.mjs?v=plain-begin-1';
-import { LEVEL_LENGTH, getLevelLengthScale } from './level-length.mjs?v=plain-begin-1';
-import { resolveLevelIdentity } from './level-catalog.mjs?v=plain-begin-1';
-import { DraftField, DRAFT_TUNING } from './drafts.mjs?v=plain-begin-1';
-import { normalizeCompanionRole, normalizeCompanionFleet, getCompanionAbility } from './companion-abilities.mjs?v=plain-begin-1';
-import { populateSceneProps, scenePropPolygons } from './scene-props.mjs?v=plain-begin-1';
-import { pickupKind, getPickupSpec, pickupContactRadius, isFuelPickup, canCompanionCollect } from './pickups.mjs?v=plain-begin-1';
-import { drawPickup } from './pickup-art.mjs?v=plain-begin-1';
-import { buildBossLayout, getBossState as bossState, drawBoss } from './boss.mjs?v=plain-begin-1';
-import { getAuthoredChallenge, finalizeFlightChallenges, installAuthoredDraftCrossings, FlightChallengeDirector } from './flight-challenges.mjs?v=plain-begin-1';
-import { installEncounterFamily } from './encounter-families.mjs?v=plain-begin-1';
-import { installFlightForks, resizeFlightForks } from './flight-forks.mjs?v=plain-begin-1';
-import { ArtifactEffects } from './artifact-effects.mjs?v=plain-begin-1';
-import { LIGHT_EXTENT,lightAttenuation,lightVisibility,createLightMaskCanvas,sceneRevealStrength } from './light-field.mjs?v=plain-begin-1';
+import { FLAME_TUNING, LIGHT_PACKET_TUNING } from './vitality.mjs?v=a1-balance-1';
+import { flightEndDistance } from './flight-end.mjs?v=a1-balance-1';
+import {getExitLandmarkState,drawExitLandmark} from './exit-landmark.mjs?v=a1-balance-1';
+import { WispCompanion, wispHome } from './wisp.mjs?v=a1-balance-1';
+import { getAscentInfo } from './ascent.mjs?v=a1-balance-1';
+import { LEVEL_LENGTH, getLevelLengthScale } from './level-length.mjs?v=a1-balance-1';
+import { resolveLevelIdentity } from './level-catalog.mjs?v=a1-balance-1';
+import { DraftField, DRAFT_TUNING } from './drafts.mjs?v=a1-balance-1';
+import { normalizeCompanionRole, normalizeCompanionFleet, getCompanionAbility } from './companion-abilities.mjs?v=a1-balance-1';
+import { populateSceneProps, scenePropPolygons } from './scene-props.mjs?v=a1-balance-1';
+import { pickupKind, getPickupSpec, pickupContactRadius, isFuelPickup, canCompanionCollect } from './pickups.mjs?v=a1-balance-1';
+import { drawPickup } from './pickup-art.mjs?v=a1-balance-1';
+import { buildBossLayout, getBossState as bossState, drawBoss } from './boss.mjs?v=a1-balance-1';
+import { getAuthoredChallenge, finalizeFlightChallenges, installAuthoredDraftCrossings, FlightChallengeDirector } from './flight-challenges.mjs?v=a1-balance-1';
+import { installEncounterFamily } from './encounter-families.mjs?v=a1-balance-1';
+import { installFlightForks, resizeFlightForks } from './flight-forks.mjs?v=a1-balance-1';
+import { ArtifactEffects } from './artifact-effects.mjs?v=a1-balance-1';
+import { LIGHT_EXTENT,lightAttenuation,lightVisibility,createLightMaskCanvas,sceneRevealStrength } from './light-field.mjs?v=a1-balance-1';
 import { createTutorialState, buildTutorialLayout, recordTutorialPickup,
-  updateTutorial, updateTutorialCompanion, getTutorialHint } from './tutorial.mjs?v=plain-begin-1';
-export { FLAME_TUNING } from './vitality.mjs?v=plain-begin-1';
+  updateTutorial, updateTutorialCompanion, getTutorialHint } from './tutorial.mjs?v=a1-balance-1';
+export { FLAME_TUNING } from './vitality.mjs?v=a1-balance-1';
 const TAU = Math.PI * 2;
 const STEP = 1 / 60;
 const COMPANION_ORBIT_SPEED = {protector:1.3,leveler:1.7,swift:3.4,seer:.8,kindler:2.2};
@@ -44,7 +44,7 @@ const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
 const lerp = (a, b, t) => a + (b - a) * t;
 export const FLIGHT_TUNING = Object.freeze({ gravity: 300, flapImpulse: 205,
   forwardSpeed: 154, terminalFall: 245, pickupRadius: LIGHT_PACKET_TUNING.pickupRadius });
-export { DRAFT_TUNING } from './drafts.mjs?v=plain-begin-1';
+export { DRAFT_TUNING } from './drafts.mjs?v=a1-balance-1';
 // Retain the public tuning name for consumers; wind now has no global cycle.
 export const WIND_TUNING = DRAFT_TUNING;
 
@@ -420,7 +420,7 @@ export function buildFlightLayout({ seed = 1, terrain = 'ruins', elite = false,
         baseGap * ascent.hardGapScale) : baseGap;
       const obstacle = {
         id: index, x, width, center,
-        gap:gentleOpening?Math.min(height*.64,gap*1.15):gap, phase: rng() * TAU, pattern: `${identity.scene}-${form}`,
+        gap:Math.min(height*.68,gap*(gentleOpening?1.20:!elite&&difficulty===1?(mapIndex===0?1.20:1.10):1)), phase: rng() * TAU, pattern: `${identity.scene}-${form}`,
         motion: terrain === 'canopy' && !gentleOpening ? height * (tight ? .003 : .008) : 0,
         soft: terrain === 'canopy' && form === 'thorn',
         destroyed: false, hit: false, passed: false,
@@ -698,7 +698,7 @@ function addAccessibleGlow(layout,{duration,speed,height,elite,difficulty,stage,
   if(duration<30)return;
   const fuel=layout.embers.filter(p=>getPickupSpec(p).fuel>0&&!p.generated&&pickupKind(p)!=='dusk');
   const gentle=!elite&&difficulty===1, easy=gentle&&(stage<=2||passage==='open');
-  const wanted=Math.min(Math.ceil(fuel.length*(elite?.15:easy?.50:gentle?.40:.30)),Math.max(1,Math.floor(duration/(easy?8:gentle?10:12))));
+  const wanted=Math.min(Math.ceil(fuel.length*(elite?.15:easy?.70:gentle?.50:.30)),Math.max(1,Math.floor(duration/(easy?5:gentle?8:12))));
   let placed=0;
   for(let i=0;i<wanted;i++){
     const target=800+(duration*speed-1400)*(i/Math.max(1,wanted-1));
@@ -750,6 +750,7 @@ export class WispFlight {
     this.tutorial = createTutorialState(route);
     this.bossEncounter = !this.tutorial && route.boss === true;
     this.ascentInfo = getAscentInfo(route, Boolean(this.tutorial));
+    this.openingSpeedScale=!this.tutorial&&!this.bossEncounter&&!this.elite&&this.ascentInfo.difficulty===1&&Number(route.mapIndex||0)===0?.92:1;
     this.tutorialAwaitingLift = Boolean(this.tutorial);
     this.passage = ['open', 'cavern', 'gauntlet'].includes(route.passage) ? route.passage : 'open';
     this.fuelCadence = clamp(Number(route.fuelCadence) || 3, 2, 4);
@@ -853,7 +854,7 @@ export class WispFlight {
     // A snare is a readable steering choice, not a forced gust into its seed.
     if(this.layout.riskChains?.length)this.drafts.zones=this.drafts.zones.filter(zone=>
       this.layout.riskChains.every(chain=>zone.x+zone.rx<chain.start-140||zone.x-zone.rx>chain.end+140));
-    ensureGlowBudget(this.layout,{duration:(this.totalDistance-this.distanceOrigin)/FLIGHT_TUNING.forwardSpeed,height:this.height,
+    ensureGlowBudget(this.layout,{duration:(this.totalDistance-this.distanceOrigin)/(FLIGHT_TUNING.forwardSpeed*(this.openingSpeedScale||1)),height:this.height,
       difficulty:this.ascentInfo.difficulty,mapIndex:Number(route.mapIndex)||0,
       endX:this.totalDistance+this.player.x,tutorial:!!this.tutorial,drafts:this.drafts.zones,
       clear:(x,y,r)=>y>r+28&&y<this.height-r-28&&this.layout.obstacles.every(o=>o.destroyed
@@ -902,7 +903,7 @@ export class WispFlight {
 
   async initPixelView() {
     try {
-      const { WispFlightView } = await import('./wisp-renderer.mjs?v=plain-begin-1');
+      const { WispFlightView } = await import('./wisp-renderer.mjs?v=a1-balance-1');
       if (this.destroyed) return;
       this.pixiView = new WispFlightView(this);
       const initialized = await this.pixiView.init();
@@ -919,7 +920,7 @@ export class WispFlight {
   }
 
   get scaleY() { return this.height / 620; }
-  get baseSpeed() { return FLIGHT_TUNING.forwardSpeed * clamp(Number(this.mod.speed) || 1, .80, 1.25) * (this.elite ? 1.045 : 1); }
+  get baseSpeed() { return FLIGHT_TUNING.forwardSpeed * (this.openingSpeedScale||1) * clamp(Number(this.mod.speed) || 1, .80, 1.25) * (this.elite ? 1.045 : 1); }
   hasCompanion(role) { return this.companionRole===role; }
   roleDuration(role) {
     const key = `${role}Duration`, value = Number(this.mod[key]);

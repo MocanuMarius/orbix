@@ -287,8 +287,8 @@ if(mode==='health'){
  for(const style of['safety','fuel','imperfect'])for(const lesson of[0,3])cases.push(buildCase({terrain:lesson===0?'ruins':'storm',difficulty:1,stage:lesson,role:'collector',style,practice:true}));
  for(const style of['safety','fuel','imperfect'])for(const terrain of['ruins','canopy','storm'])cases.push(buildCase({terrain,difficulty:1,stage:0,role:'collector',style}));
 }else if(mode==='human'){
- for(const terrain of['ruins','canopy','storm'])for(const role of roleOptions)for(const style of['fuel','human150','human250','human350'])
-  cases.push(buildCase({terrain,difficulty:1,stage:0,role,style}));
+ for(let seedIndex=0;seedIndex<Number(args.seeds||1);seedIndex++)for(const terrain of['ruins','canopy','storm'])for(const role of roleOptions)for(const style of['fuel','human150','human250','human350'])
+  cases.push(buildCase({terrain,difficulty:1,stage:0,role,style,seedIndex}));
 }else if(mode==='witness'){
  cases.push(buildCase({terrain:'storm',difficulty:3,stage:3,role:'collector',style:'fuel',profile:'refuge'}));
 }else if(mode==='probe'){
