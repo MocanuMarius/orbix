@@ -1,5 +1,6 @@
-import {getChoices} from './model.mjs?v=pixel-landscape-2';
-import {getMapStopInfo,mapStopIconMarkup} from './map-guide.mjs?v=pixel-landscape-2';
+import {encounterIntent,THEME_INKS} from './replay-ui.mjs?v=relic-paths-1';
+import {getChoices} from './model.mjs?v=relic-paths-1';
+import {getMapStopInfo,mapStopIconMarkup} from './map-guide.mjs?v=relic-paths-1';
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 export function drawLandscapeMap(svg,viewport,run){
  const width=run.map.length*166+140,height=276,all=run.map.flat(),byId=new Map(all.map(n=>[n.id,n]));
@@ -12,12 +13,12 @@ export function drawLandscapeMap(svg,viewport,run){
  let paths='',nodes='';for(const a of all)for(const b of next(a))paths+=edge(pos.get(a.id),pos.get(b.id),taken.has(`${a.id}|${b.id}`)?'path-taken':a.id===last&&available.has(b.id)?'path-open':future.has(a.id)&&future.has(b.id)?'path-future':'path-locked');
  for(const id of run.startNodeIds||run.map[0].map(n=>n.id))paths+=edge({x:35,y:115},pos.get(id),run.path[0]===id?'path-taken':!run.path.length?'path-open':'path-locked');
  for(const n of all){
-  const p=pos.get(n.id),reachable=available.has(n.id),possible=future.has(n.id),seen=visited.has(n.id),info=getMapStopInfo(n),label=n.boss?'BOSS':n.elite?'ELITE':n.type==='finale'?'EXIT':info.label;
-  const name=info.name||n.name,words=name.split(' '),lines=[''];for(const word of words){let i=lines.length-1;if((lines[i]+' '+word).length>19&&i<1){lines.push(word)}else lines[i]+=(lines[i]?' ':'')+word;}
-  nodes+=`<g class="world-map-node ${reachable?'reachable':''} ${seen?'taken':''} ${!possible&&!seen?'unreachable':''}" ${possible?`data-action="${reachable?'node':'preview-node'}" data-id="${n.id}" tabindex="0" role="button" aria-label="${reachable?'Choose':'Preview'} ${esc(label)}: ${esc(name)}. ${esc(info.summary)}"`:''}>
+  const p=pos.get(n.id),reachable=available.has(n.id),possible=future.has(n.id),seen=visited.has(n.id),info=getMapStopInfo(n),label=n.boss?'BOSS':n.elite?'ELITE':n.type==='finale'?'EXIT':encounterIntent(n)?.short||info.label;
+  const name=info.name||n.name,themeInk=THEME_INKS[n.rewardTheme],words=name.split(' '),lines=[''];for(const word of words){let i=lines.length-1;if((lines[i]+' '+word).length>19&&i<1){lines.push(word)}else lines[i]+=(lines[i]?' ':'')+word;}
+  nodes+=`<g class="world-map-node ${reachable?'reachable':''} ${seen?'taken':''} ${!possible&&!seen?'unreachable':''}" ${possible?`data-action="${reachable?'node':'preview-node'}" data-id="${n.id}" tabindex="0" role="button" aria-label="${reachable?'Choose':'Preview'} ${esc(label)}: ${esc(name)}. ${esc(info.summary)} ${esc(n.rewardPreview||'')}"`:''}>
    <title>${esc(name)} · ${esc(info.summary)}</title><rect x="${p.x-66}" y="${p.y-26}" width="132" height="78" fill="transparent"/>
    ${reachable?`<circle cx="${p.x}" cy="${p.y}" r="29" fill="none" stroke="#e5dfaa" opacity=".65"/>`:''}<circle cx="${p.x}" cy="${p.y}" r="23" fill="${seen?'#3d5136':'#1c3530'}" stroke="${reachable?'#e9e0b7':'#91a081'}" stroke-width="${reachable?2:1}"/>
-   <g class="map-support-symbol">${mapStopIconMarkup(n).replace('<svg ',`<svg x="${p.x-16}" y="${p.y-16}" width="32" height="32" `)}</g>
+   ${themeInk?`<circle cx="${p.x+20}" cy="${p.y-19}" r="5" fill="${themeInk}" stroke="#14251e" stroke-width="2"><title>${esc(n.rewardThemeLabel||n.rewardTheme)} relics</title></circle>`:''}<g class="map-support-symbol">${mapStopIconMarkup(n).replace('<svg ',`<svg x="${p.x-16}" y="${p.y-16}" width="32" height="32" `)}</g>
    <ellipse cx="${p.x}" cy="${p.y+43}" rx="70" ry="23" fill="url(#routeMist)"/><text class="map-node-type" x="${p.x}" y="${p.y+35}" text-anchor="middle" fill="${n.elite?'#e4b77f':'#bfc9a9'}">${esc(label)}</text><text class="map-node-name" x="${p.x}" y="${p.y+48}" text-anchor="middle">${lines.map((line,i)=>`<tspan x="${p.x}" dy="${i?12:0}">${esc(line)}</tspan>`).join('')}</text>${last===n.id?`<circle cx="${p.x}" cy="${p.y-29}" r="4" fill="#faf0cc"/>`:''}</g>`;
  }
  svg.classList.add('landscape-route');svg.setAttribute('viewBox',`0 0 ${width} ${height}`);

@@ -4,7 +4,7 @@ import {FlightProjection} from '../dist/flight-projection.mjs';
 import * as M from '../dist/model.mjs';
 const state=M.newState();state.run=M.createRun(state.profile,'drift-tree');M.chooseStartingSkill(state,'main-speed');state.run.embers=90; // Fund guide ranks independently of starting budget.
 assert.ok(M.buyCheckpointSkill(state,'main-drift-sense'));assert.equal(M.getRunModifiers(state.run).driftSense,1);
-assert.equal(M.buyCheckpointSkill(state,'main-drift-sense-3'),false);state.run.embers=200;
+assert.equal(M.buyCheckpointSkill(state,'main-drift-sense-3'),false);state.run.embers=500; // Fund the current two advanced ranks for the physics fixture.
 for(const id of ['main-drift-sense-2','main-drift-sense-3'])assert.ok(M.buyCheckpointSkill(state,id));
 assert.equal(M.getRunModifiers(state.run).driftSense,3);
 const ctx=new Proxy({},{get:(o,k)=>o[k]??(String(k).includes('Gradient')?()=>({addColorStop(){}}):()=>{}),set:(o,k,v)=>(o[k]=v,true)});

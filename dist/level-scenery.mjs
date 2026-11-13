@@ -1,5 +1,5 @@
-import {drawExpandedBackdrop} from './world-scenery.mjs?v=pixel-landscape-2';
-import { resolveLevelIdentity } from './level-catalog.mjs?v=pixel-landscape-2';
+import {drawExpandedBackdrop} from './world-scenery.mjs?v=relic-paths-1';
+import { resolveLevelIdentity } from './level-catalog.mjs?v=relic-paths-1';
 
 const TAU = Math.PI * 2;
 const clamp = (n, a, b) => Math.max(a, Math.min(b, n));

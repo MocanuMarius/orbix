@@ -1,10 +1,10 @@
-import {getCompanionAbility} from './companion-abilities.mjs?v=pixel-landscape-2';
-import {glowText,getGlowCapacity} from './vitality.mjs?v=pixel-landscape-2';
-import {SKILLS,getSkillCost,getSkillLockReason,canChooseStartingSkill,MAIN_WISP_BRANCHES} from './model.mjs?v=pixel-landscape-2';
-import {skillIcon} from './upgrade-icons.mjs?v=pixel-landscape-2';
-import {companionArtSvg} from './companion-art.mjs?v=pixel-landscape-2';
+import {getCompanionAbility} from './companion-abilities.mjs?v=relic-paths-1';
+import {glowText,getGlowCapacity} from './vitality.mjs?v=relic-paths-1';
+import {SKILLS,getSkillCost,getSkillLockReason,canChooseStartingSkill,MAIN_WISP_BRANCHES} from './model.mjs?v=relic-paths-1';
+import {skillIcon} from './upgrade-icons.mjs?v=relic-paths-1';
+import {companionArtSvg} from './companion-art.mjs?v=relic-paths-1';
 export const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-const label=s=>s.shortEffect||({'main-sight':'+35 sight','main-efficiency':'−7% cost','main-speed':'+5% pace','main-spare-spark':'+1 heart','main-deep-reserve':'+1 heart','main-bond':'+1 wisp'})[s.id]||s.name;
+const label=s=>s.shortEffect||({'main-sight':'+35 sight','main-efficiency':'−12% cost','main-speed':'+8% pace','main-spare-spark':'+1 heart','main-deep-reserve':'+1 heart','main-bond':'+1 wisp'})[s.id]||s.name;
 export function treeHeader(run,wallet,branch){
  const name=id=>id==='main'?'Wisp':id==='afterglow'?'Afterglow':getCompanionAbility(id).name;
  return `<header class="tree-crown"><h2>${branch==='main'?'Main wisp':name(branch)}</h2><span>${Math.floor(wallet.embers)} <small>EMBERS</small></span><button data-action="close-sheet" aria-label="Close skill tree">×</button></header><nav class="tree-tabs" aria-label="Skill trees">${['main',...run.companions,...(wallet.afterglowUnlocked?['afterglow']:[])].map(id=>`<button data-action="tree-branch" data-id="${id}" class="${id===branch?'selected':''}">${id!=='main'&&id!=='afterglow'?companionArtSvg(id):''}<span>${name(id)}</span></button>`).join('')}</nav>`;

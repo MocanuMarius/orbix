@@ -1,11 +1,11 @@
-import {glowText} from './vitality.mjs?v=pixel-landscape-2';
+import {glowText} from './vitality.mjs?v=relic-paths-1';
 const stop=(kind,label,name,summary)=>Object.freeze({kind,label,name,summary,icon:kind});
 export const MAP_STOP_TYPES=Object.freeze({
-flight:stop('flight','FLIGHT','Flight','Fly a passage, choose a reward, and recover 50% maximum Glow.'),
-treasure:stop('treasure','TREASURE','Treasure','Choose an artifact for your three slots, or take Embers.'),
+flight:stop('flight','FLIGHT','Flight','Fly a passage, choose a relic or Embers, and recover Glow.'),
+treasure:stop('treasure','TREASURE','Treasure','Mount an artifact in an open slot, replace one, or take Embers.'),
 rest:stop('rest','REST','Rest','Recover Glow, gather Embers or refill all hearts. Prepare skills, companions and a Dream before leaving.'),
 encounter:stop('encounter','ENCOUNTER','Encounter','A bargain, sanctuary, workshop or dice encounter. Preview the stakes.'),
-boss:stop('boss','BOSS','Boss','Face the Hollow Warden at the end of the third map.'),
+boss:stop('boss','BOSS','Boss','Face the guardian at the end of the third map.'),
 });
 export const EVENT_SCENARIOS=Object.freeze([
 {id:'ash-spring',index:0,name:'Ash Spring',summary:'Spend 12 embers for full Glow, or take 16 embers.',detail:'A rare full refill competes directly with upgrade money for this run.'},
@@ -13,7 +13,7 @@ export const EVENT_SCENARIOS=Object.freeze([
 {id:'abandoned-lantern',index:2,name:'Abandoned Lantern',summary:'Recover 24 Glow or take 22 embers.',detail:'Choose fuel for the next passage or Embers for this run’s upgrades.'},
 {id:'weathered-shrine',index:3,name:'Weathered Shrine',summary:'Buy an offered skill rank for this run at a discount, or take 20 embers.',detail:'This specific trade does not open general skills or fleet service.'},
 {id:'luminous-well',index:4,name:'Luminous Well',summary:'Refill Glow or take 12 embers.',detail:'With Afterglow learned, the second option stores up to 10 Afterglow instead.'},
-{id:'ember-archive',index:5,name:'The Ember Archive',summary:'Trade an owned artifact, or keep your possessions and take 20 embers.',detail:'An offered artifact sells for 50 embers. Without an artifact, the first choice recovers 24 Glow.'},
+{id:'ember-archive',index:5,name:'The Ember Archive',summary:'Trade an owned artifact, or keep your possessions and take 20 embers.',detail:'Trade an artifact for its Ember value and recover 40% Glow, or keep it and take 20 Embers. Without an artifact, the first choice recovers 24 Glow.'},
 {id:'ember-dice',index:6,name:'Ember Dice',summary:'Take 14 Embers, or spend 12% Glow to roll for 4, 24, or 48.',detail:'Each pair of faces is equally likely. One cast; the outcome stays fixed if you return.'},
 {id:'lost-lanterns',index:7,name:'Lost Lanterns',summary:'Choose Glow, Embers, or sacrifice Glow for an artifact.',detail:'Three offerings: 35% Glow, 24 Embers, or an artifact choice costing 15% Glow.'},
 {id:'wisp-bargain',index:8,name:'Wisp Bargain',summary:'Take 32 Embers with a one-flight Lift burden, or 10 safely.',detail:'The burden raises Lift effort by 12% for only your next flight.'},
@@ -40,8 +40,8 @@ export function getMapStopInfo(node={},maxGlow=100){
  const kind=kindOf(node),base=MAP_STOP_TYPES[kind];
  const event=kind==='encounter'&&node.kind!=='shrine'&&Number.isInteger(node.eventIndex)?getEventScenarios({...node,maxGlow})[node.eventIndex]:null;
  const exit=kind==='flight'&&(node.type==='finale'||node.kind==='finale');
- const summary=kind==='boss'?'Defeat the Hollow Warden: earn a rare artifact and advance the difficulty tier.':event?.summary||(node.kind==='shrine'?'Choose Glow or an offered skill trade. No general fleet or skill service.':exit?'Clear this flight to continue to the next map.':base.summary);
- return{...base,label:exit?'EXIT':node.elite?'ELITE':base.label,name:event?.name||(node.type==='support'?node.name:node.locationName||node.name)||base.name,summary,detail:event?.detail||summary,eventIndex:event?.index??null,scenarioId:event?.id||null};
+ const summary=kind==='boss'?`Defeat ${node.bossId==='moonweaver'?'the Moonweaver':'the Hollow Warden'}: choose a permanent Boss Relic and advance the difficulty tier.`:event?.summary||(node.kind==='shrine'?'Choose Glow or an offered skill trade. No general fleet or skill service.':exit?'Clear this flight to continue to the next map.':base.summary);
+ return{...base,label:exit?'EXIT':node.elite?'ELITE':base.label,name:event?.name||(node.type==='support'?node.name:node.locationName||node.name)||base.name,summary:event?summary:glowText(summary,maxGlow),detail:event?.detail||glowText(summary,maxGlow),eventIndex:event?.index??null,scenarioId:event?.id||null};
 }
 const ICONS={
 flight:'<path d="M2 21V8l5-5h4v18M22 21V8l-5-5h-4v18M2 8h9m2 0h9M1 21h22"/><circle cx="12" cy="13" r="3" fill="currentColor"/>',

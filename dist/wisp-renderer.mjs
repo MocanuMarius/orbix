@@ -1,14 +1,16 @@
-import {drawFlightProjection} from './flight-projection.mjs?v=pixel-landscape-2';
-import {drawGlowSense} from './glow-sense.mjs?v=pixel-landscape-2';
-import {formatGlow} from './vitality.mjs?v=pixel-landscape-2';
-import {LOCATION_PALETTES} from './world-expansion.mjs?v=pixel-landscape-2';
-import { sceneryIdentity, drawIdentityBackground, drawIdentityMaterial, drawIdentityLife } from './level-scenery.mjs?v=pixel-landscape-2';
-import { getCompanionAbility, normalizeCompanionRole } from './companion-abilities.mjs?v=pixel-landscape-2';
-import { companionSprite, companionPalette } from './companion-art.mjs?v=pixel-landscape-2';
-import { createScenePropArt } from './scene-prop-art.mjs?v=pixel-landscape-2';
-import { drawBoss } from './boss.mjs?v=pixel-landscape-2';
-import { drawPickup } from './pickup-art.mjs?v=pixel-landscape-2';
-import { pickupKind, getPickupSpec, pickupContactRadius } from './pickups.mjs?v=pixel-landscape-2';
+import {drawFlightProjection} from './flight-projection.mjs?v=relic-paths-1';
+import {drawGlowSense} from './glow-sense.mjs?v=relic-paths-1';
+import {formatGlow} from './vitality.mjs?v=relic-paths-1';
+import {LOCATION_PALETTES} from './world-expansion.mjs?v=relic-paths-1';
+import { sceneryIdentity, drawIdentityBackground, drawIdentityMaterial, drawIdentityLife } from './level-scenery.mjs?v=relic-paths-1';
+import { getCompanionAbility, normalizeCompanionRole } from './companion-abilities.mjs?v=relic-paths-1';
+import { companionSprite, companionPalette } from './companion-art.mjs?v=relic-paths-1';
+import { createScenePropArt } from './scene-prop-art.mjs?v=relic-paths-1';
+import { drawBoss } from './boss.mjs?v=relic-paths-1';
+import { drawPickup } from './pickup-art.mjs?v=relic-paths-1';
+import { pickupKind, getPickupSpec, pickupContactRadius } from './pickups.mjs?v=relic-paths-1';
+import { lightAttenuation,lightVisibility,createLightMaskCanvas } from './light-field.mjs?v=relic-paths-1';
+import {drawExitLandmark} from './exit-landmark.mjs?v=relic-paths-1';
 
 const TAU = Math.PI * 2;
 const SCENERY_HELPERS = { line: pixelLine, disc: pixelDisc, polygon: path };
@@ -601,27 +603,8 @@ export class WispFlightView {
     }
   }
 
-  lightMask(forward = false) {
-    const key=forward?'forwardMaskCanvas':'maskCanvas';
-    if (this[key]) return this[key];
-    const canvas = this.document.createElement('canvas'); canvas.width=forward?192:128;canvas.height=128;
-    const c=canvas.getContext('2d',{willReadFrequently:true}),image=c.createImageData(canvas.width,128);
-    // Finite emitter core + inverse-square distance attenuation. Bake once;
-    // every frame only scales/blends this reusable pixel-light texture.
-    const softening=.18,cutoff=1/(1+softening*softening);
-    for(let py=0;py<128;py++)for(let px=0;px<canvas.width;px++){
-      const dx=(px+.5-64)/64,dy=(py+.5-64)/64;
-      const horizontal=forward&&dx>0?dx*.5:dx,r2=horizontal*horizontal+dy*dy;
-      const irradiance=r2>=1?0:Math.max(0,1/(r2+softening*softening)-cutoff);
-      // 50% higher emitter exposure; retain inverse-square attenuation and
-      // the zero-light cutoff so distant scenery never gets a global lift.
-      const alpha=1-Math.exp(-.75*irradiance),offset=(py*canvas.width+px)*4;
-      image.data[offset]=image.data[offset+1]=image.data[offset+2]=255;
-      image.data[offset+3]=Math.round(alpha*255);
-    }
-    c.putImageData(image,0,0);
-    this[key] = canvas;
-    return canvas;
+  lightMask() {
+    return this.maskCanvas??=createLightMaskCanvas(this.document);
   }
 
   lightFog(e, fleet, playerX, playerY) {
@@ -637,20 +620,19 @@ export class WispFlightView {
     f.globalCompositeOperation = 'destination-out';
     const mask = this.lightMask(), radius = this.lightRadius * s;
     f.globalAlpha = this.lightIntensity;
-    // Soft screen-centred horizon stays horizontal as the orb climbs or dives.
-    const horizon=light.horizon;
-    if(horizon){const rx=horizon.radiusX*s,ry=horizon.radiusY*s;f.globalAlpha=this.lightIntensity*horizon.strength;f.drawImage(mask,horizon.x*s-rx,horizon.y*s-ry,rx*2,ry*2)}
-    // Right half stretches to 2x reach; vertical and rear falloff are unchanged.
-    f.globalAlpha=this.lightIntensity;
-    f.drawImage(this.lightMask(true), playerX-radius, playerY-radius, radius*3, radius*2);
+    // Baseline light is circular. Forward scouting is earned through skills,
+    // Sight Bloom and artifacts rather than a permanent horizon fill.
+    f.drawImage(mask,playerX-radius,playerY-radius,radius*2,radius*2);
     const forward = light.forwardLight || e.forwardLight;
     if (forward?.active && forward.radius > 0) {
       const fr = forward.radius * s;
       const fx = (Number.isFinite(forward.screenX) ? forward.screenX : forward.x) * s;
-      const fy = forward.y * s;
+      const fy = (forward.y+yOf(e)-e.player.y) * s;
       f.globalAlpha = clamp((forward.intensity ?? 1) * this.lightIntensity, 0, 1);
       f.drawImage(mask, fx - fr, fy - fr, fr * 2, fr * 2);
     }
+    if(light.landmarkLight){const lamp=light.landmarkLight,r=lamp.radius*s;
+      f.globalAlpha=lamp.intensity;f.drawImage(mask,lamp.x*s-r,lamp.y*s-r,r*2,r*2);}
     for (let i = 0; i < fleet.length && i < 3; i++) {
       const orb = fleet[i], collecting = orb.role === 'collector';
       const recovery = clamp(orb.recovery ?? 1, 0, 1);
@@ -771,6 +753,11 @@ export class WispFlightView {
       const strength=clamp((e.time-e.mainSeerStartedAt)/.25,0,1)*clamp((e.mainSeerUntil-e.time)/.4,0,1);
       c.fillStyle='#d2bce8';c.globalAlpha=strength*.45;
       for(let i=0;i<3;i++){const step=e.reducedMotion?i/3:(t*.8+i/3)%1;c.fillRect(Math.round(x+17+step*20),Math.round(y+Math.sin(step*Math.PI)*3-2),2,1);}
+    }
+    if(!dying&&e.artifactEffects?.freeLift){
+      c.fillStyle='#f5db92';c.globalAlpha=.8;
+      // Three gold stitches travel close to the shell while a free Lift waits.
+      for(let i=0;i<3;i++){const a=i*TAU/3+(e.reducedMotion?0:t*.9);c.fillRect(Math.round(x+Math.cos(a)*14),Math.round(y+Math.sin(a)*14),2,1);}
     }
     c.restore();c.restore();
   }
@@ -955,19 +942,15 @@ export class WispFlightView {
     const puffs = e.getDraftPuffs?.(t) || [];
     if (!puffs.length) return;
     const c = this.bufferContext, H = this.buffer.height, s = this.scale;
-    const px = e.player.x * s, py = yOf(e) * s;
-    const radius = Math.max(27, (this.lightRadius || Number(e.mod?.lightRadius) || 175) * s);
+    const light=this.currentLightState||e.getLightState?.()||{};
     const carrier = lightState;
     const carrierX = (carrier?.x ?? e.player.x) * s, carrierY = (carrier?.y ?? yOf(e)) * s;
     const carrierRadius = (carrier?.phase === 'cooldown' ? 13 + carrier.recovery * 7 : 26) * ART_SCALE * (this.lightDimScale || 1);
     const visibility = (x, y) => {
-      const dx=x-px,playerDistance=((dx>0?dx*.5:dx)**2+(y-py)**2)/(radius*radius);
       const carrierDistance = ((x - carrierX) ** 2 + (y - carrierY) ** 2) / (carrierRadius * carrierRadius);
-      const lit = Math.max(clamp((1 - playerDistance) * 1.5, 0, 1),
-        carrier ? clamp((1 - carrierDistance) * .75, 0, .75) : 0) * (this.lightIntensity || 1);
-      // A faint local mist hint can be scouted. This pass never clears fog or
-      // changes the light on the terrain underneath it.
-      return .12 + lit * .88;
+      const lit = Math.max(lightVisibility(e,light,x/s,y/s,yOf(e)),
+        carrier ? lightAttenuation(carrierDistance)*.75*(this.lightIntensity||1) : 0);
+      return lit;
     };
     for (const puff of puffs) {
       if (![puff.x, puff.y, puff.rx, puff.ry].every(Number.isFinite)) continue;
@@ -1025,58 +1008,9 @@ export class WispFlightView {
     }
   }
 
-  drawPortal(e, t) {
-    const refuge = e.getExitLandmark?.() || e.getExitPortal?.();
-    if (!refuge) return;
-    const c = this.bufferContext, x = Math.round(refuge.x * this.scale), y = Math.round(refuge.y * this.scale);
-    c.save();
-    this.glow(x, y, 16, '#b6bea5', .11);
-    if (e.terrain === 'canopy') {
-      // A little woven light under a living root roof, rather than a gateway.
-      pixelLine(c, x - 13, y + 21, x - 10, y + 4, '#384b3a', 3);
-      pixelLine(c, x - 10, y + 4, x - 9, y - 8, '#536345', 2);
-      pixelLine(c, x + 14, y + 22, x + 10, y - 6, '#384b3a', 3);
-      path(c, [[x - 15, y - 5], [x - 8, y - 15], [x + 4, y - 13],
-        [x + 15, y - 5], [x + 6, y - 7], [x - 4, y - 4]]);
-      c.fillStyle = '#4b6045'; c.fill();
-      pixelLine(c, x - 8, y - 12, x + 9, y - 7, '#778466');
-      pixelLine(c, x, y - 10, x, y - 3, '#6d7959');
-      c.fillStyle = '#66775b'; c.fillRect(x - 4, y - 2, 9, 11); c.fillRect(x - 3, y - 4, 7, 14);
-      c.fillStyle = '#b9c2a0'; c.fillRect(x - 2, y - 1, 5, 8);
-      c.fillStyle = '#526347'; c.fillRect(x - 3, y + 2, 7, 1); c.fillRect(x - 3, y + 6, 7, 1);
-      pixelLine(c, x - 13, y + 20, x - 20, y + 24, '#44563b', 2);
-      pixelLine(c, x + 12, y + 20, x + 20, y + 23, '#44563b', 2);
-    } else if (e.terrain === 'storm') {
-      // Uneven cairn stones carry a hooded waylight in the mountain pass.
-      for (const [dx, dy, width, height] of [[-13, 22, 26, 4], [-10, 18, 22, 4], [-7, 13, 16, 5]]) {
-        c.fillStyle = '#444f50'; c.fillRect(x + dx, y + dy, width, height);
-        c.fillStyle = '#79837b'; c.fillRect(x + dx + 2, y + dy, width - 5, 1);
-      }
-      c.fillStyle = '#404c4c'; c.fillRect(x - 7, y - 6, 15, 19);
-      c.fillStyle = '#8d9888'; c.fillRect(x - 7, y - 7, 15, 2); c.fillRect(x - 9, y - 5, 19, 2);
-      c.fillStyle = '#222e2f'; c.fillRect(x - 5, y - 3, 11, 13);
-      c.fillStyle = '#c9d0af'; c.fillRect(x - 3, y - 1, 7, 8);
-      c.fillStyle = '#65736b'; c.fillRect(x - 5, y + 8, 11, 2); c.fillRect(x, y - 2, 1, 11);
-    } else {
-      // Crooked old timber and a tarnished bracket support the refuge lantern.
-      c.fillStyle = '#434c3d'; c.fillRect(x - 10, y + 23, 25, 4); c.fillRect(x - 6, y + 20, 19, 3);
-      c.fillStyle = '#73775d'; c.fillRect(x - 7, y + 23, 12, 1);
-      pixelLine(c, x + 11, y + 22, x + 13, y - 19, '#4b4835', 3);
-      pixelLine(c, x + 12, y - 19, x - 3, y - 25, '#645e45', 3);
-      pixelLine(c, x + 12, y - 8, x + 4, y - 21, '#4b4835', 2);
-      pixelLine(c, x + 14, y + 19, x + 15, y - 18, '#8b8160');
-      pixelLine(c, x - 2, y - 23, x - 1, y - 7, '#8d8b6c');
-      c.fillStyle = '#545b43'; c.fillRect(x - 6, y - 6, 11, 16);
-      c.fillStyle = '#929779'; c.fillRect(x - 7, y - 6, 13, 2); c.fillRect(x - 6, y + 9, 11, 2);
-      c.fillStyle = '#bfc6a0'; c.fillRect(x - 4, y - 2, 7, 9);
-      c.fillStyle = '#535d46'; c.fillRect(x - 1, y - 3, 1, 13);
-    }
-    c.globalAlpha = .9; c.fillStyle = '#eef0cf'; c.fillRect(x - 1, y, 2, 4);
-    // Two quiet flecks suggest warm air; no orbit, rune or encircling effect.
-    c.globalAlpha = .2; c.fillStyle = '#aeb99b';
-    const drift = e.reducedMotion ? 0 : Math.round(Math.sin(t * .9) * 1.5);
-    c.fillRect(x - 8, y + 4 + drift, 1, 1); c.fillRect(x + 7, y - 7 - drift, 1, 1);
-    c.restore();
+  drawPortal(e,t) {
+    drawExitLandmark(this.bufferContext,{refuge:e.getExitLandmark?.(),scale:this.scale,
+      terrain:e.terrain,time:t,reducedMotion:e.reducedMotion});
   }
 
   render(e = this.engine) {
@@ -1093,6 +1027,7 @@ export class WispFlightView {
     this.drawTerrain(e, t, distance, palette);
     boss.pass = 'hands'; drawBoss(c, boss);
     this.drawSceneProps(e, t, distance);
+    this.drawPortal(e,t);
     this.drawCollectibles(e, t, distance);
     this.drawBurstEffects(e, MAIN_LIGHT);
     this.drawMist(e, t, distance, palette);
@@ -1126,7 +1061,6 @@ export class WispFlightView {
         effect.color || (effect.pickupKind ? getPickupSpec(effect.pickupKind).color : '#f2d79a'));
     }
     c.globalAlpha = 1;
-    this.drawPortal(e, t);
     if (e.flash > 0) { c.globalAlpha = Math.min(.2, e.flash * 1.3); c.fillStyle = '#dbc2a1'; c.fillRect(0, 0, this.buffer.width, this.buffer.height); c.globalAlpha = 1; }
     if(e.completing){c.save();c.globalCompositeOperation='screen';const p=e.completionProgress||0;c.globalAlpha=.11*p*p*(3-2*p)+Math.sin(Math.PI*p)*.02;c.fillStyle='#efd4a0';c.fillRect(0,0,this.buffer.width,this.buffer.height);c.restore();}
     this.context.imageSmoothingEnabled = false;

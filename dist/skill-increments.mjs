@@ -1,4 +1,4 @@
-import {tuneMainDefinition} from './main-tuning.mjs?v=pixel-landscape-2';
+import {tuneMainDefinition,priceSkillDefinition} from './main-tuning.mjs?v=relic-paths-1';
 // Separate purchases along a path, not a repeatable stat allocation screen.
 const styles={
  'main-lift':['−2% cost','Lift spends 2% less Glow.'],
@@ -29,7 +29,7 @@ function describe(s){
  const first=items[0],brief={flapCost:'cost',gravity:'fall',flap:'Lift',cacheFuelBonus:'Glow',collectorFuelBonus:'Glow',kindlerBonus:'Glow',purifyFuel:'Glow',collectorMinimum:'reach',lightRadius:'sight',seerRadius:'sight',darkResistance:'resist',swiftResistance:'resist',wispCooldown:'wait',protectorRecovery:'wait',levelerRecovery:'wait',swiftRecovery:'wait',seerRecovery:'wait',purifyCooldown:'wait',protectorProtection:'safe',protectorCost:'cost',levelerDuration:'time',swiftDuration:'time',seerDuration:'time',levelerDive:'dive',attract:'reach'};const short=first?`${signed(Number((first.value*(first.percent?100:1)).toFixed(1)))}${first.percent?'%':''} ${brief[first.key]||names[first.key]}`:'Grow';return [short,text.join(' · ')+'.'];
 }
 export function expandSkillSteps(definitions){
- const split=s=>s.branch!=='main'&&(!!s.expansion||!!styles[s.id]),out={};
+ const split=s=>s.branch!=='main'&&!!styles[s.id],out={};
  const entry=id=>definitions[id]&&split(definitions[id])?id+'-step-1':id;
  for(const raw of Object.values(definitions)){
   const s=tuneMainDefinition(raw);
@@ -47,5 +47,5 @@ export function expandSkillSteps(definitions){
    });
   }
  }
- return out;
+ return Object.fromEntries(Object.entries(out).map(([id,s])=>[id,Object.freeze(priceSkillDefinition(s))]));
 }

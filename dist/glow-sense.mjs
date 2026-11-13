@@ -1,31 +1,18 @@
-import {getPickupSpec,pickupDisposition} from './pickups.mjs?v=pixel-landscape-2';
+import {getPickupSpec,pickupDisposition} from './pickups.mjs?v=relic-paths-1';
+import {lightVisibility} from './light-field.mjs?v=relic-paths-1';
 
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
 const smooth=v=>{v=clamp(v,0,1);return v*v*(3-2*v)};
-// Match the cached finite-emitter masks, without reading canvas pixels.
-function emitter(dx,dy,rx,ry){
-  const r2=(dx/rx)**2+(dy/ry)**2;
-  return r2>=1?0:1-Math.exp(-.75*(1/(r2+.0324)-1/1.0324));
-}
-function visibility(x,y,e,light,playerY){
-  const radius=light.radius||175,intensity=light.intensity??1,dx=x-e.player.x;
-  let dark=1-emitter(dx,y-playerY,radius*(dx>0?2:1),radius)*intensity;
-  const h=light.horizon;
-  if(h)dark*=1-emitter(x-h.x,y-h.y,h.radiusX,h.radiusY)*h.strength*intensity;
-  const f=light.forwardLight;
-  if(f?.active)dark*=1-emitter(x-(f.screenX??f.x),y-f.y,f.radius,f.radius)*(f.intensity??1)*intensity;
-  return 1-dark*(1-(light.pickupReveal||0));
-}
 
 export function glowSenseCues(e,{distance=e.renderDistance??e.distance,playerY=e.renderPlayerY??e.player.y,light=e.getLightState?.()||{}}={}){
   if(!e.mod?.glowSense||e.dying||e.completionProgress>0)return [];
-  const cues=[],right=e.width-12,radius=light.radius||175,far=Math.min(e.width+240,e.player.x+radius*2+240);
+  const cues=[],right=e.width-12,radius=light.radius||175,far=Math.min(e.width+240,e.player.x+radius+240);
   // getNearbyPickups already maintains a short, sorted window of the map.
   for(const packet of e.getNearbyPickups()){
     const x=packet.x-distance;
     if(x>far)break;
     if(x<=e.player.x+60||packet.collected||packet.carried||packet.generated||pickupDisposition(packet)!=='boon')continue;
-    const lit=smooth((visibility(x,packet.y,e,light,playerY)-.12)/.43);
+    const lit=smooth((lightVisibility(e,light,x,packet.y,playerY)-.12)/.43);
     // Fade across the screen edge too: an already-lit offscreen packet should
     // not make its cue disappear in one frame as its centre enters the view.
     const hidden=1-lit*(1-smooth((x-(e.width-20))/50));
@@ -36,10 +23,10 @@ export function glowSenseCues(e,{distance=e.renderDistance??e.distance,playerY=e
     const y=clamp(packet.y,Math.max(24,playerY-radius*.72),Math.min(e.height-24,playerY+radius*.72));
     if(cues.some(c=>Math.abs(c.y-y)<28))continue;
     let edge=right;
-    while(edge>e.player.x+24&&visibility(edge,y,e,light,playerY)<.28)edge-=8;
+    while(edge>e.player.x+24&&lightVisibility(e,light,edge,y,playerY)<.28)edge-=8;
     if(edge<right){
       let lo=edge,hi=Math.min(right,edge+8);
-      for(let i=0;i<4;i++){const mid=(lo+hi)/2;if(visibility(mid,y,e,light,playerY)>=.28)lo=mid;else hi=mid;}
+      for(let i=0;i<4;i++){const mid=(lo+hi)/2;if(lightVisibility(e,light,mid,y,playerY)>=.28)lo=mid;else hi=mid;}
       edge=(lo+hi)/2;
     }
     // Never place an advance cue beyond the pickup it describes.

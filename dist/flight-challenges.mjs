@@ -1,5 +1,6 @@
-import {LOCATION_CHALLENGE_NAMES} from './world-expansion.mjs?v=pixel-landscape-2';
-import { createDraftZones, DRAFT_TUNING } from './drafts.mjs?v=pixel-landscape-2';
+import {LOCATION_CHALLENGE_NAMES} from './world-expansion.mjs?v=relic-paths-1';
+import { createDraftZones, DRAFT_TUNING } from './drafts.mjs?v=relic-paths-1';
+import { getEncounterFamily, familyChallengeCells } from './encounter-families.mjs?v=relic-paths-1';
 
 const clamp = (value, low, high) => Math.max(low, Math.min(high, value));
 const NAMES = Object.freeze({
@@ -24,6 +25,7 @@ function descriptor(id, terrain, levelId) {
   return { id, type: id, name:LOCATION_CHALLENGE_NAMES[levelId]?.[id]||name, instruction, landmark };
 }
 function orderFor(options) {
+  const family=getEncounterFamily(options.encounterFamily);if(family)return [family.type];
   if (basicRoute(options)) return ['fuel-pocket'];
   const base = ORDERS[options.terrain] || ORDERS.ruins;
   const offset = (hash(options.levelId) + (Number(options.mapIndex) || 0) + Math.max(0, (Number(options.difficulty) || 1) - 1)) % base.length;
@@ -32,6 +34,8 @@ function orderFor(options) {
 
 /** Planned, deterministic identities; actual placement still uses fit/safety guards. */
 export function getChallengePreview(options = {}) {
+  const family=getEncounterFamily(options.encounterFamily);
+  if(family){const primary={...family,landmark:family.id};return {primary,patterns:[primary],summary:family.name,basic:basicRoute(options),planned:true};}
   const order = orderFor(options), patterns = order.map(id => descriptor(id, options.terrain, options.levelId));
   return { primary: patterns[0], patterns, summary: patterns.map(pattern => pattern.name).join(' → '),
     basic: basicRoute(options), planned: true };
@@ -40,6 +44,9 @@ export function getChallengePreview(options = {}) {
 /** Select only cells already authored for this biome. The caller retains its
  * normal center-change limit, aperture floors, full-shape collisions and joins. */
 export function getAuthoredChallenge({ course, leg = 0, window = 0, ...options }) {
+  const family=getEncounterFamily(options.encounterFamily);
+  if(family)return {...family,landmark:family.id,cells:familyChallengeCells(family.id,course,options),
+    family:family.id,sectionKind:family.id==='stillwater-tunnel'?'challenge':'breather',darkness:0};
   const order = orderFor(options), id = order[(leg + window) % order.length];
   const info = descriptor(id, options.terrain, options.levelId), length = course.hard.length;
   let cells;
@@ -80,11 +87,11 @@ export function finalizeFlightChallenges(layout, { terrain = 'ruins', basic = fa
       if (fuel[0]) {
         const packet = fuel[0];
         record.pocket = { id: packet.id, x: packet.x, y: packet.y, side: packet.pocketSide || 'ground' };
-        record.instruction = packet.pocketSide === 'ceiling'
+        if(!authored.family)record.instruction = packet.pocketSide === 'ceiling'
           ? 'Lift toward the upper fuel pocket, then glide clear of the roof.'
           : 'Glide toward the lower fuel pocket, then Lift clear of the ledge.';
         packet.challengeLandmark = authored.landmark;
-      } else record.instruction = 'Conserve Glow through this climb; take the next fuel pocket when it is safe.';
+      } else if(!authored.family)record.instruction = 'Conserve Glow through this climb; take the next fuel pocket when it is safe.';
     }
     challenges.push(record);
   }

@@ -1,4 +1,5 @@
-import {DraftField,DRAFT_TUNING} from './drafts.mjs?v=pixel-landscape-2';
+import {DraftField,DRAFT_TUNING} from './drafts.mjs?v=relic-paths-1';
+import {lightVisibility} from './light-field.mjs?v=relic-paths-1';
 const clamp=(n,a,b)=>Math.max(a,Math.min(b,n)),DT=1/60;
 export const PROJECTION_HORIZONS=Object.freeze([0,.7,1.2,1.8]);
 
@@ -57,17 +58,18 @@ export class FlightProjection {
 
 export function drawFlightProjection(c,e,{scale=1,distance=e.renderDistance??e.distance,playerY=e.renderPlayerY??e.player.y}={}){
   const guide=e.getFlightProjection?.();if(!guide)return;
+  const light=e.getLightState?.()||{};
   c.save();c.strokeStyle='#c0d3c5';c.lineWidth=1;
   let previous={x:e.player.x*scale,y:playerY*scale};
   for(const p of guide.points){
     if(p.time<=e.time)continue;
     const x=(p.x-distance)*scale,y=p.y*scale,remaining=(p.time-e.time)/guide.horizon;
-    c.globalAlpha=.26*(1-clamp(remaining,0,1)*.8);
+    c.globalAlpha=.26*(1-clamp(remaining,0,1)*.8)*lightVisibility(e,light,x/scale,y/scale,playerY);
     c.beginPath();c.moveTo(previous.x,previous.y);c.lineTo(x,y);c.stroke();previous={x,y};
   }
   const end=guide.points.at(-1);
   if(guide.rank===3&&end.time>e.time&&!guide.exit){
-    c.globalAlpha=guide.contact?.28:.15;c.strokeStyle=guide.contact?'#dfbd8e':'#c0d3c5';
+    c.globalAlpha=(guide.contact?.28:.15)*lightVisibility(e,light,end.x-distance,end.y,playerY);c.strokeStyle=guide.contact?'#dfbd8e':'#c0d3c5';
     const x=(end.x-distance)*scale,y=end.y*scale,r=5*scale;
     c.beginPath();c.arc(x,y,r,0,Math.PI*2);c.stroke();c.fillStyle=c.strokeStyle;c.fillRect(Math.round(x),Math.round(y),1,1);
   }

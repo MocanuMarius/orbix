@@ -2,7 +2,24 @@
 
 Updated 13 November 2026. Wispbound is the working title. This log records the confirmed direction and subsequent implementation choices. All ten recommended alignment choices were accepted in chat.
 
-## Confirmed direction
+## Current build: relic-paths-1 — 13 November 2026
+
+This section is the current specification. Older entries below preserve the decision history; their obsolete prices, portrait layout, card rules, roles and test restrictions do not override this section.
+
+- Landscape 20:9, four base companions, one-handed Lift/Power. Skills and Embers belong to the run; normal runs start with 30 Embers and one free Light/Motion/Glow root. Tutorial remains separate.
+- Artifact slots: Ascension 1 starts with 3, Ascensions 2–3 with 2, Ascensions 4–6 with 1. The RELICS skill branch adds one slot per purchase for 140, 280 and 560 Embers. Maximum with those three purchases is respectively 6/5/4. Slots reset on New Game. The locked slot opens the next node directly; TEST does not grant slots for free.
+- Every ordinary flight offers two run relics or an Ember alternative. Full slots require replacement; no reserve bag. COMMON and RARE are visibly labelled; later map milestones guarantee RARE offers. The actual final boss offers a chosen, permanent BOSS relic for future runs, with three stronger bounded effect bundles. Common/rare resale is 12/16, below the cash alternatives.
+- Shared artifact triggers connect overflow, companion work, pickup recharge, temporary sight and free Lift. Generated rewards cannot recursively trigger these chains. Existing caps also apply when multiple artifacts share a trigger.
+- Six seven-stop route recipes vary Rest, Event and Treasure placement, with themed reward previews. Rests retain one next flight for Dream. Stillwater tunnels, draft staircases and Dark Seed orchards give routes different flying problems; Moonweaver joins Hollow Warden as a final guardian.
+- Glow uses a fixed 30-point display scale, whole-number labels and Lift-sized gauge segments, while physics keeps fine precision. Main capacity upgrades raise displayed capacity to 36/42. The small Afterglow meter above Glow remains visible when locked/empty; natural surplus spills into unlocked reserve or visibly strikes a blocked meter.
+- Circular softened inverse-square baseline light restores the value of Light skills. Landscape HUD and wisp are separated, with notch-aware positioning and unchanged world timing. Arrival is a terrain-supported refuge beside the final visible solid, followed by the existing 1.5-second illumination.
+- Ordinary skill costs are mostly 80–110, with stronger effects and full-effect specializations. In 360 imperfect-income scenarios, the seven main/companion plans each bought a median eight nodes over 15–16 clears. Socket-focused hard-Ascension plans traded roughly two ability purchases for two extra slots. These are economic diagnostics, not measured human win rates.
+- TEST exposes locked companions and artifacts but keeps normal starting income. Its explicit +500 Ember button is separate. Practice uses its own 200 Ember wallet, one short checkpoint lesson at a time, and the real reward/upgrade flow.
+- Targeted mechanics, capacity, route, save, isolation, geometry and skill-effect checks passed. Local 900×405 UI inspection verified the gauge, paid slot unlock and briefing fit. Actual Pixel 10 frame-rate evidence and human balance judgments remain unverified.
+
+See [the request audit](docs/request-audit.md), [economy evidence](docs/economy-upgrade-decisions.md) and [runtime decisions](docs/artifact-engines-decisions.md).
+
+## Historical direction (superseded where later entries differ)
 
 - Simplify the graphics and theme while keeping the branching expedition map and three active card slots.
 - Use original pixel sprites and scenery with the bleak, weathered mood of Salt and Sanctuary: stone, roots, mist, subdued earth colours and small lights.
@@ -659,7 +676,7 @@ The first Warden is eased at low Ascensions: A1 openings are 15% wider, sway 15%
 
 Focused checks passed for four-role selection and locks, route deaths and reward isolation, all-role main traits, landscape geometry, 44 radial layouts, Dream replay and the campaign loop. Actual browser inspection covered home/TEST Runner start, skill tree, route, flight, rotation, pause menu and death returning to route. This is responsive browser verification, not a Pixel 10 hardware FPS or human win-rate measurement.
 
-## Next design priorities — proposed, not implemented
+## Accepted design priorities — implemented in relic-paths-1
 
 1. Interacting artifacts with shared gameplay triggers, so a reward can change the run's plan. Example: surplus fuel accelerates companion recovery, linking precise pickups, Collector and Space Timer without requiring a fixed named pair.
 2. Distinct previewed challenge and boss families that reward different builds: controlled tunnels, draft staircases and Dark Seed orchards, with a survivable main route and optional harder payoff.

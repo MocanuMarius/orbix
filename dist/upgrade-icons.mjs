@@ -1,4 +1,12 @@
 const shapes={
+ artifact:'<path d="M3 3h18v18H3zM7 7h10v10H7zM12 9v6M9 12h6"/>',
+ sunheart:'<path d="M8 6h8v3h3v6h-3v3H8v-3H5V9h3zM10 10h4v4h-4zM12 1v3m0 16v3M1 12h3m16 0h3M3 3l3 3m12 12 3 3M3 21l3-3M18 6l3-3"/>',
+ 'dream-crown':'<path d="m3 6 4 4 5-8 5 8 4-4-2 13H5zM7 13l3 2h4l3-2M5 22h14"/>',
+ 'hollow-crown':'<path d="M3 3v6l4 3 5-7 5 7 4-3V3M5 12v8h14v-8M9 14h6v4H9zM3 23h18"/>',
+ coil:'<path d="M8 3h10v4H6v4h12v4H6v4h10v3M3 7h3m12 8h3"/><path d="M10 1v4m4 15v3"/>',
+ echo:'<path d="M8 3h8v4h3v10H5V7h3zM3 17h18M9 21h6M1 8v6m22-6v6M9 8h6v6H9z"/>',
+ loom:'<path d="M3 2v20m18-20v20M2 6h20M2 18h20M7 3v18m5-18v18m5-18v18M4 10h16v4H4z"/>',
+ spool:'<path d="M5 3h14v3H5zM8 6h8v12H8zM5 18h14v3H5zM1 10h4m14 0h4M2 7l3 1m14 0 3-1M2 14l3-1m14 0 3 1"/>',
  dream:'<path d="M2 8l4 4 4 2h4l4-2 4-4M4 12l-3 3m7 0-1 4m6-3v5m6-7 2 4M15 2h2v2h-2z"/>',
  beacon:'<path d="M3 4v4m0 8v4M7 6v4m0 4v4M11 9v6M16 10h4v4h-4zM18 4v3m0 10v3M22 12h2"/>',
  trajectory:'<circle cx="4" cy="5" r="2"/><path d="M8 5h3m3 2 2 2m2 3 1 3m1 3v3M15 21h8"/>',
@@ -27,4 +35,4 @@ const shapes={
 const inks={main:'#e5e9cf',collector:'#b9dfa0',protector:'#8fbfe8',leveler:'#a7e8df',swift:'#f2d48e',seer:'#d3b1f2',kindler:'#e4a3b5',afterglow:'#b8d9ae'};
 const svg=(shape,ink)=>`<svg class="upgrade-glyph" viewBox="0 0 24 24" fill="none" stroke="${ink}" stroke-width="1.5" stroke-linecap="square" stroke-linejoin="miter" shape-rendering="crispEdges" aria-hidden="true">${shapes[shape]||shapes.fuel}</svg>`;
 export function skillIcon(skill){const id=skill.incrementBase||skill.id;const shape=skill.icon||(id==='main-spare-spark'||id==='main-deep-reserve'?'heart':id.includes('bond')?'bond':id.includes('speed')||id.includes('tailwind')?'swift':id.includes('horizon')||id.includes('dawn')?'sight':id.includes('drift')?'feather':id.includes('efficiency')||id==='main-lift'?'lift':id.includes('purify')?'purify':id.includes('dive')?'dive':id.includes('layers')?'layers':id.includes('steadiness')?'level':id.includes('duration')?'duration':id.includes('recovery')?'recovery':id.includes('resistance')?'wind':id.includes('reach')?'reach':id.includes('sight')||id.includes('range')?'sight':id.startsWith('protector')?'ward':id.startsWith('afterglow')?'reserve':'fuel');return svg(shape,inks[skill.branch]||inks.main)}
-export function artifactIcon(id){const shape={'dreamcatcher':'dream','second-dawn':'dawn','echo-vessel':'reserve','glass-lantern':'fuel','night-gardener':'moss','ember-lens':'sight','quiet-cinder':'fuel','silver-feather':'feather','moss-heart':'moss','wayfinder-seed':'seed','iron-petal':'ward','storm-knot':'wind','hollow-bell':'bell','dawn-thread':'dawn'}[id];return svg(shape||'reserve','#d9c08e')}
+export function artifactIcon(id){const shape={'sunheart-engine':'sunheart','dream-sovereign':'dream-crown','hollow-covenant':'hollow-crown','overflow-coil':'coil','echo-bell':'echo','dawn-loom':'loom','sunspool':'spool','dreamcatcher':'dream','second-dawn':'dawn','echo-vessel':'reserve','glass-lantern':'fuel','night-gardener':'moss','ember-lens':'sight','quiet-cinder':'fuel','silver-feather':'feather','moss-heart':'moss','wayfinder-seed':'seed','iron-petal':'ward','storm-knot':'wind','hollow-bell':'bell','dawn-thread':'dawn'}[id];return svg(shape||'reserve',['sunheart-engine','dream-sovereign','hollow-covenant'].includes(id)?'#e2b0df':'#d9c08e')}

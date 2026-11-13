@@ -1,4 +1,4 @@
-import {skillProgress} from './skill-increments.mjs?v=pixel-landscape-2';
+import {skillProgress} from './skill-increments.mjs?v=relic-paths-1';
 // Named, one-time specialisations. Each pair is exclusive for this run.
 const paths=[];
 function fork(branch,parent,a,b){
@@ -19,7 +19,7 @@ fork('protector','protector-recovery',
  ['clean-break','Clean Break','Deflection grants 0.2 seconds more protection; costs 2 more Glow.',{protectorProtection:.2,protectorCost:2}],
  ['thrifty-shell','Thrifty Shell','Shell costs 20% less Glow; recovery takes 10% longer.',{},{protectorCost:.8,protectorRecovery:1.1}]);
 fork('protector','protector-layers',
- ['returning-shell','Returning Shell','Shell recovery is 15% faster; each deflection costs 1 extra Glow.',{protectorCost:1},{protectorRecovery:.85}],
+ ['returning-shell','Returning Shell','Shell recovery is 15% faster; each deflection costs 2 extra Glow.',{protectorCost:2},{protectorRecovery:.85}],
  ['lasting-shell','Lasting Shell','Deflection grants 0.2 seconds more protection; recovery takes 10% longer.',{protectorProtection:.2},{protectorRecovery:1.1}]);
 fork('leveler','leveler-steadiness',
  ['long-balance','Long Balance','Hold altitude 20% longer; recharge takes 10% longer.',{},{levelerDuration:1.2,levelerRecovery:1.1}],
@@ -34,7 +34,7 @@ fork('swift','swift-resistance',
  ['storm-runner','Storm Runner','Wind resistance rises 4 percentage points; recharge takes 10% longer.',{swiftResistance:.04},{swiftRecovery:1.1}],
  ['sheltered-pace','Sheltered Pace','Recharge 15% faster; wind resistance falls 8 percentage points.',{swiftResistance:-.08},{swiftRecovery:.85}]);
 fork('main','main-horizon',
- ['wide-beam','Wide Beam','Expand light another 50 ahead and 25 vertically.',{lightRadius:25}],
+ ['wide-beam','Wide Beam','Expand your circular light radius by another 25.',{lightRadius:25}],
  ['clear-beam','Clear Beam','Dark Seeds dim your light 15 percentage points less.',{darkResistance:.15}]);
 fork('main','main-dawn',
  ['dawn-guard','Dawn Guard','Dark Seeds dim your light another 10 percentage points less.',{darkResistance:.1}],
