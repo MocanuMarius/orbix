@@ -17,7 +17,7 @@ The map hides distant labels, not planning information: future landmarks still o
 
 Remaining validation outside this batch: a physical Pixel 10 performance trace and a new full-campaign economy study with imperfect human collection. This UI/tutorial release does not certify either.
 
-Publication: pending final Pages verification.
+Publication verified: `clear-paths-2`, source `531cc7ba980dc546b72c4e2155a3e4d9a9a4cb86`, Pages `1c6ceaf9427cdcfb1cdc9ebaf35e4d80b17fbf1d`. GitHub Pages workflow `43494903905` completed successfully. Public release marker and eight entry/UI/engine files match the local release. Phone: https://mocanumarius.github.io/orbix/?v=clear-paths-2 ; sidebar landscape: https://mocanumarius.github.io/orbix/preview.html?v=clear-paths-2 .
 
 ---
 
