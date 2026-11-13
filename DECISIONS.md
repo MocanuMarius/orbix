@@ -856,3 +856,12 @@ Checks: whole-cost/meter/pickup and overflow accounting; Rest transactions; line
 Completed the requested model/simulation pass after Clear Sparks. See [the full report](docs/balance-2026-11-13.md) for methods, before/after results, research and limitations. Production changes: gentler skill-price escalation (0.40 → 0.25), Glass Lantern +4 displayed Sparks per natural pickup / +1 Lift cost, Spark Wick preserves uses at full fuel, bounded 12-paid-Lift Heavy Light bargain, and no ineffective Quiet Cinder rewards at the one-Spark cost floor.
 
 Outstanding design questions are explicit, not silently treated as implemented: overflow-only income compounds survival advantages; broad trees plus global price escalation dilute meaningful branch depth; Recharge may work better as a secondary Rest service. Models cannot settle human difficulty or enjoyment. No companion was rebalanced solely from the imperfect flight controller.
+
+
+## Clear Paths — 13 November 2026
+
+- Keep run mechanics and routing; reduce repeated information on the decision screens. Current route and immediately selectable stops remain named; later landmarks disclose details on selection.
+- Luminance is the shared name for seeing distance. Sparks are flight fuel; Packed Light buys skills. The tutorial explicitly distinguishes all three.
+- Prepare every flight behind a five-second splash, then wait for a deliberate wake tap. Resuming never spends a Lift; the existing slow ramp still follows wake.
+- Edging feedback belongs near the moving wisp and disappears at zero. Helpful scenery uses teal edges, vents blue, falling hazards orange, with spent objects dimmed.
+- Tutorial resources, equipment, rewards and companion testing are isolated from the suspended real run.

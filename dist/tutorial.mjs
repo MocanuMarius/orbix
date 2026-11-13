@@ -1,12 +1,12 @@
-import {getCompanionAbility} from './companion-abilities.mjs?v=responsive-menus-1';
-import {lightVisibility} from './light-field.mjs?v=responsive-menus-1';
+import {getCompanionAbility} from './companion-abilities.mjs?v=clear-paths-1';
+import {lightVisibility} from './light-field.mjs?v=clear-paths-1';
 // Practice is an authored flight using the same controls, fuel and colliders.
 // This module contains guidance and lesson scenery; it never grants rewards.
 const clamp = (n, lo, hi) => Math.min(hi, Math.max(lo, n));
 const collects = engine => engine.hasCompanion?.('collector') ?? getCompanionAbility(engine.companionRole).collects;
 
 export function createTutorialState(node = {}) {
-  if (!['glide', 'wind'].includes(node.tutorialLesson)) return null;
+  if (!['glide', 'wind', 'hazards'].includes(node.tutorialLesson)) return null;
   return { lesson: node.tutorialLesson, directPickups: 0, carrierDeliveries: 0,
     firstDirectAt: null, firstDeliveryAt: null, glideSeconds: 0,
     sawWind: false, sawWindWarning: false, windRevealed: false, finishedWind: false,
@@ -67,7 +67,7 @@ export function buildTutorialLayout({ lesson, duration, height, speed = 154 }) {
     add(2210, .51, 'practice-wind');
     add(2670, .59, 'practice-wind');
     add(3110, .50, 'practice-wind');
-    // A single optional black packet sits high in the broad open room after
+    // A single optional Dark Spark sits high in the broad open room after
     // the puff. The central route stays clear; the following light can cleanse.
     if (2380 < duration * speed - speed * 3.2) embers.push({
       id: 'practice-dark', kind: 'dark', harmful: true, value: 0, fuel: false,
@@ -158,7 +158,7 @@ export function getTutorialHint(engine) {
   const gust=engine.gustState();
   const dark=engine.layout.embers.find(packet=>packet.tutorialDark),darkX=dark?dark.x-engine.distance:Infinity;
   if(dark&&!dark.collected&&darkX>engine.player.x-18&&darkX<engine.width-18)return hint('dark-packet','Avoid the dark seed',
-    'Black seeds dim sight. Collector ignores them. The learned Purifying Touch perk can cleanse one when ready.',4);
+    'Dark Sparks reduce Luminance. Collector ignores them. The learned Purifying Touch perk can cleanse one when ready.',4);
   if(state.darkCollected&&!state.darkCleared)return hint('dark-recovery','Restore your light','A natural Spark clears one dimming effect and refills Sparks.',4);
   if(gust.warning||gust.active)return hint('wind',gust.warning?'Read the direction':'Inside the draft puff',
     'Curls show the push direction. Dodge the puff or use Runner. Space Timer still bobs and feels drafts.',3);
@@ -180,16 +180,18 @@ export function getTutorialWorldFocus(engine, seenIds = null) {
   const focus = (id, title, text, x, y, radius) => visible(x, y)
     ? { id, title, text, x, y, radius: Math.min(radius, x - 4, width - x - 4, y - 4, height - y - 4) } : null;
   const candidates = [];
+  if(engine.time>10)candidates.push(focus('luminance','Luminance','This circle of light is your Luminance: how far you can see. Light skills expand it. Collector range is a separate fetching boundary.',engine.player.x,engine.player.y,lightState.radius||70));
   const hasCollector = collects(engine);
+  if(state.lesson==='hazards')for(const hole of engine.blackHoles?.items||[])candidates.push(focus('black-hole','Black Hole','This dark core steals Sparks nearby. It is not a pickup. Fly farther away to reduce the drain; shields cannot block it.',hole.x-engine.distance,hole.y,35));
   const packets = (engine.layout?.embers || []).filter(packet => !packet.collected && !packet.carried)
     .map(packet => ({ packet, x: packet.x - engine.distance }))
     .filter(({ packet, x }) => visible(x, packet.y) && x >= engine.player.x - 18);
   const dark = packets.find(({ packet }) => packet.harmful || packet.kind === 'dark');
-  if (dark) candidates.push(focus('dark-packet', 'Dark packet',
-    'Avoid this black packet: it dims your light. A light packet clears one effect.', dark.x, dark.packet.y, 20));
+  if (dark) candidates.push(focus('dark-packet', 'Dark Spark',
+    'Avoid this Dark Spark: it reduces your Luminance. A Spark clears one effect.', dark.x, dark.packet.y, 20));
   const light = packets.filter(({ packet }) => !packet.harmful && packet.kind !== 'dark')
     .sort((a, b) => Math.abs(a.x - engine.player.x) - Math.abs(b.x - engine.player.x))[0];
-  if (light) candidates.push(focus('light-packet', 'Light packet = Sparks fuel',
+  if (light) candidates.push(focus('light-packet', 'Sparks refill fuel',
     hasCollector ? 'Touch this bright packet to refill Sparks. Collector only rescues packets you have already passed.'
       : 'Touch this bright packet yourself to refill Sparks. Your selected companion does not fetch.', light.x, light.packet.y, 20));
   for (const puff of engine.getDraftPuffs?.() || []) candidates.push(focus('draft', 'Local draft puff',

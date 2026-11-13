@@ -18,7 +18,7 @@ export function createLightMaskCanvas(document){
   c.putImageData(image,0,0);return canvas;
 }
 // Independent reveals compete by brightness, never add into a white flash.
-// Edging remains a sight effect: it does not pretend to be a pickup trigger.
+// Edging remains a Luminance effect: it does not pretend to be a pickup trigger.
 const revealUnit=value=>Math.max(0,Math.min(1,Number(value)||0));
 export function sceneRevealStrength(light={}){
   return Math.max(revealUnit(light.pickupReveal),revealUnit(light.edgingReveal));

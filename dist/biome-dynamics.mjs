@@ -1,7 +1,7 @@
-import { DRAFT_TUNING } from './drafts.mjs?v=responsive-menus-1';
-import { scenePropBounds } from './scene-props.mjs?v=responsive-menus-1';
-import { formatGlow } from './vitality.mjs?v=responsive-menus-1';
-import { lightVisibility } from './light-field.mjs?v=responsive-menus-1';
+import { DRAFT_TUNING } from './drafts.mjs?v=clear-paths-1';
+import { scenePropBounds } from './scene-props.mjs?v=clear-paths-1';
+import { formatGlow } from './vitality.mjs?v=clear-paths-1';
+import { lightVisibility } from './light-field.mjs?v=clear-paths-1';
 
 // Small, deterministic actors attached to existing terrain. Static mountain
 // meshes never change, and each actor is used once: no repeatable currency farm.
@@ -138,7 +138,7 @@ export class BiomeDynamics {
         continue;
       }
       if (item.family === 'fall') {
-        // Ice responds to illumination, including forward sight / revelation.
+        // Ice responds to illumination, including forward Luminance / revelation.
         // A warm warning still lasts at least 1.2 s; light never causes an
         // unannounced immediate drop. Other debris reacts to the approach.
         let warmth = 1;
@@ -204,6 +204,18 @@ export class BiomeDynamics {
     }
   }
 
+  drawHighlights(c,{distance=this.engine.distance,scale=1,light=this.engine.getLightState(),playerY=this.engine.player.y}={}){
+    const e=this.engine;
+    for(const item of this.items){
+      const x=item.x-distance;if(x < -60 || x > e.width+60)continue;
+      const visibility=lightVisibility(e,light||e.getLightState(),x,item.y,playerY);
+      if(visibility<.025)continue;
+      c.save();c.translate(Math.round(x*scale),Math.round(item.y*scale));c.scale(scale,scale);
+      drawInteractionRim(c,item,e.visualTime??e.time,e.reducedMotion,Math.min(1,visibility*2.3));
+      c.restore();
+    }
+  }
+
   draw(c, { distance = this.engine.distance, scale = 1, height = this.engine.height } = {}) {
     const e = this.engine, time = e.time || 0, worldWidth = e.width;
     for (const item of this.items) {
@@ -212,7 +224,7 @@ export class BiomeDynamics {
       if (item.phase === 'spent' && item.age > 1.1 && item.family === 'fall') continue;
       c.save(); c.translate(Math.round(x * scale), Math.round(item.y * scale)); c.scale(scale, scale);
       drawActor(c, item, time, e.reducedMotion);
-      drawInteractionRim(c, item, time, e.reducedMotion);
+
       c.restore();
     }
   }
@@ -223,8 +235,8 @@ function line(c, x1, y1, x2, y2, color, width = 2) { c.strokeStyle = color; c.li
 function polygon(c, points, color) { c.fillStyle = color; c.beginPath(); c.moveTo(points[0][0], points[0][1]); for (let i = 1; i < points.length; i++) c.lineTo(points[i][0], points[i][1]); c.closePath(); c.fill(); }
 
 // Hand-placed, two-pixel edge accents follow each object's actual silhouette.
-// They are painted in the scenery pass, before lightFog: an interaction never
-// becomes a beacon through unlit terrain. No halos or pickup rings on hazards.
+// A post-light pass preserves distinct teal edges, attenuated by the same
+// Luminance field. Nothing is outlined beyond the visible terrain.
 const INTERACTION_RIMS = Object.freeze({
   spore: [[-8,-14,16,2],[-16,-10,8,2],[-20,-6,4,2],[8,-12,6,2],[14,-8,4,2],[18,-4,4,2],[-22,0,2,6],[22,4,2,4],[-16,10,28,2]],
   bubble: [[-6,-14,12,2],[-10,-12,4,2],[-14,-8,2,14],[6,-12,4,2],[12,-8,2,14],[-10,8,4,2],[6,8,4,2],[-6,12,12,2]],
@@ -239,20 +251,21 @@ const INTERACTION_RIMS = Object.freeze({
   crumble: [[-6,-16,10,2],[-14,-12,8,2],[6,-14,8,2],[-16,-8,2,14],[14,-6,2,14],[-10,10,6,2],[0,14,8,2]],
   sandfall: [[-6,-16,10,2],[-14,-12,8,2],[6,-14,8,2],[-16,-8,2,14],[14,-6,2,14],[-10,10,6,2],[0,14,8,2]],
 });
-function drawInteractionRim(c, item, time, reducedMotion) {
+function drawInteractionRim(c, item, time, reducedMotion, visibility=1) {
   const edges = INTERACTION_RIMS[item.kind];
   if (!edges || (item.phase === 'spent' && (item.family === 'fall' || item.kind === 'bubble'))) return;
   const spent = item.phase === 'spent', hazard = item.family === 'fall';
   const active = item.phase === 'active' || item.phase === 'warning' || item.phase === 'falling';
-  c.globalAlpha = spent ? .52 : hazard ? .8 : .92;
-  c.fillStyle = spent ? '#7c8b79' : hazard ? (active ? '#e6a17b' : '#baa18a')
-    : item.family === 'vent' ? (active ? '#f1ce9f' : '#c9c3a1') : '#dae7c4';
-  for (const edge of edges) c.fillRect(edge[0], edge[1], edge[2], edge[3]);
+  c.globalAlpha = visibility*(spent ? .55 : 1);
+  c.fillStyle='#071c19';
+  for(const edge of edges)c.fillRect(edge[0]-1,edge[1]-1,edge[2]+2,edge[3]+2);
+  c.fillStyle=spent?'#697f75':hazard?(active?'#ff9c76':'#d8a473'):item.family==='vent'?'#a3c7ec':'#83ead5';
+  for(const edge of edges)c.fillRect(edge[0],edge[1],Math.max(3,edge[2]),Math.max(3,edge[3]));
   // One restrained glint identifies a ready touch interaction. Used scenery
   // loses that glint; warning hazards instead retain their warm fracture art.
   if (!spent && !hazard && item.family !== 'vent') {
     const edge = edges[reducedMotion ? 0 : Math.floor(time * 5 + item.seed) % edges.length];
-    c.globalAlpha = .8; c.fillStyle = '#f1f0d1'; c.fillRect(edge[0], edge[1], 2, 2);
+    c.globalAlpha = visibility; c.fillStyle = '#ddfff0'; c.fillRect(edge[0], edge[1], 2, 2);
   }
   c.globalAlpha = 1;
 }

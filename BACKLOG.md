@@ -1,3 +1,23 @@
+# Current batch — Clear Paths (13 November 2026)
+
+Implemented in `clear-paths-1`; publication is recorded in `docs/backlog-current.md`.
+
+- [x] Seven-stop isolated tutorial practice; 17 replayable Field Guide topics with short visual lessons.
+- [x] Name seeing distance **Luminance** throughout player-facing skills, pickups and lessons.
+- [x] Teach Sparks, Packed Light, hearts, death, routes, Rest, Dream, companions, artifacts, progression and interaction colors.
+- [x] Preserve the in-flight disintegration, then animate one heart crumbling away before route/summary actions appear.
+- [x] Five-second preflight splash: current/max Sparks, hearts, equipped artifacts and one mechanic tip; prepare the renderer behind it.
+- [x] Start paused. Dismissed flight panels return to a wake gate; first tap wakes without lifting, second tap Lifts. Preserve three-second 0.1×→1× resume.
+- [x] Horizontal proximity meter beside the wisp, only while charged/active; shakes during charging and chooses open space around terrain.
+- [x] Teal interactive edges, blue vents and orange falling hazards, rendered distinctly within the existing Luminance falloff.
+- [x] Remove the old flame mascot and overlapping result decoration; use a round pixel-orb companion symbol.
+- [x] Single map header, centered Back, graphical hearts without numeric duplication, no top KEY/HERE shortcut or redundant step/Sparks counters.
+- [x] Keep next choices bright and named; distant stops retain illustrated symbols and tap-to-preview details.
+- [x] Simpler flight choice and run summary; correct map intrinsic-width overflow that pushed header actions offscreen.
+- [x] Focused model/input checks and five-size landscape review. No claim of real-device 60 FPS or full-campaign economy certification.
+
+---
+
 # Current batch — lantern-paths-1
 
 Implementation is complete for the accepted items below; integration and publication are recorded in docs/backlog-current.md. Earlier entries are historical and may use superseded resource names.

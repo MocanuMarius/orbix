@@ -1,0 +1,90 @@
+body:not(.playing){grid-template-columns:minmax(0,1fr)}
+#header,#app{min-width:0}
+/* One header, one decision surface. This layer replaces the old stacked HUD. */
+#header .game-top-left,#header .header-end{display:flex;align-items:center;gap:18px;min-width:0}
+#header .back-icon{display:grid;place-items:center;padding:0;width:44px;height:44px;min-height:44px;box-sizing:border-box;flex:none;line-height:1}
+#header .back-icon>.ico{width:24px;height:24px;margin:0;display:block;transform:rotate(180deg)}
+#header .route-heading{display:flex;align-items:center;gap:22px;font:14px/1.2 var(--pixel);color:#becbad;white-space:nowrap}
+#header .route-heading b{font:inherit;color:#e8e4bb}
+#header .header-end>.ascension-lives .life-heart{width:17px;height:16px}
+#header .header-end>.ascension-lives{padding:0;background:none;border:0}
+#header .condensed-wallet{min-height:40px;padding:4px 10px;gap:7px}
+#header .condensed-wallet .condensed-icon{width:28px;height:28px}
+#header .condensed-wallet b{font-size:18px!important}
+body[data-screen=map] #header{background:#15231e;border-bottom:1px solid #68755a}
+body[data-screen=map] #app>.game-map-screen{display:block!important;position:relative;height:100%;background:#12201d}
+.game-map-screen>.map-atlas-frame{height:100%;box-sizing:border-box;border:0;box-shadow:none;border-radius:0;padding:0}
+.game-map-screen .map-top-guide{display:none}
+.landscape-route .route-state-future .route-node-art{opacity:.58}
+.landscape-route .route-state-next .map-node-name{font-size:12px!important;fill:#e4e9c8!important}
+.landscape-route .route-state-next .map-node-type{font-size:10px!important;fill:#bac9a3!important}
+.landscape-route .route-label-mist{opacity:.65}
+.passage-briefing{width:100%;height:100%;max-width:1000px;margin:auto;display:grid;grid-template-columns:minmax(160px,.85fr) minmax(0,1.2fr);gap:24px;align-items:center;padding:12px;box-sizing:border-box}
+.passage-art{position:relative;display:grid;place-items:center;min-width:0;height:100%;max-height:260px;background:radial-gradient(ellipse,#788b4130,transparent 68%)}
+.passage-art>svg{width:min(100%,250px);height:100%;max-height:230px}
+.passage-art>.boss-sigil{position:absolute;width:90px;height:90px;top:28%;left:calc(50% - 45px)}
+.passage-choice{display:flex;flex-direction:column;align-items:stretch;gap:16px;min-height:0;max-height:100%;text-align:left}
+.passage-kind{font:12px/1.3 var(--pixel);color:#b9c5a4}
+.passage-choice>h1{font:24px/1.15 var(--pixel);color:#e8e6bc;margin:0}
+.passage-choice>.route-consequences{margin:0;padding:0;border:0;background:none;box-shadow:none;font:12px/1.45 var(--pixel)}
+.passage-choice .forecast-path{display:none}
+.passage-notice{font:12px/1.35 var(--pixel);color:#d0c5a3;margin:0}
+.passage-actions{display:flex;gap:10px;align-items:stretch;margin-top:auto}
+.passage-actions>.enter-passage{flex:1;min-height:48px;margin:0;font:15px/1.3 var(--pixel)}
+.passage-actions>.rest-dream{flex:1;min-height:48px;margin:0;padding:4px 8px}
+.passage-actions>.rest-dream>small{display:none}
+.passage-actions>.rest-dream>svg{height:28px;width:28px}
+.run-summary{display:flex!important;flex-direction:column;justify-content:center;align-items:center;gap:18px;padding:12px!important;width:100%;max-width:800px;margin:auto;height:100%;text-align:center;box-sizing:border-box}
+.run-summary>h1{font:28px/1.1 var(--pixel);margin:0}
+.run-summary>.result-stats{display:flex;justify-content:center;width:100%;max-width:490px;margin:0;padding:12px;background:none;border:0;box-shadow:none}
+.run-summary .result-stats>div{flex:1}
+.run-summary .result-stats strong{font-size:25px;line-height:1.3}
+.run-summary .result-stats span{font-size:11px;line-height:1.4}
+.run-summary>.two-actions{display:grid;grid-template-columns:1fr 1fr;gap:12px;width:100%;max-width:650px;margin:0}
+.run-summary>.two-actions>button{min-height:48px;margin:0}
+.run-summary>.run-pause-note{font:12px/1.4 var(--pixel);margin:0;max-width:440px}
+.run-summary .result-companion-unlock{display:flex;align-items:center;gap:12px;min-height:0;padding:8px;margin:0}
+.run-summary .result-companion-unlock>svg{width:40px;height:40px}
+.run-summary .result-companion-unlock h2{font-size:16px;margin:0}
+.run-summary .result-companion-unlock span,.run-summary .result-companion-unlock p{font-size:11px;margin:0}
+.run-summary>.artifact-drop{max-height:100px;margin:0;padding:8px;display:flex;align-items:center;gap:10px}
+.run-summary>.artifact-drop>svg{width:48px;height:48px}
+.run-summary>.artifact-drop h2{font-size:15px;margin:0}
+.run-summary>.artifact-drop p,.run-summary>.artifact-drop>span{font-size:11px;margin:0}
+.run-summary.map-clear-screen>.campaign-strip,.run-summary.map-clear-screen>.loadout,.run-summary.map-clear-screen>.artifact-slots,.run-summary.map-clear-screen>.companion-fleet{display:none}
+.run-summary.map-clear-screen>p,.run-summary .map-clear-carry{margin:0}
+/* The visual proximity gauge is rendered beside the orb at frame cadence.
+   Keep its meter semantics without a second fixed HUD graphic. */
+.canvas-wrap>.edging-pulse-gauge{position:absolute!important;width:1px!important;height:1px!important;left:0!important;bottom:0!important;clip-path:inset(50%);overflow:hidden;pointer-events:none}
+.flight-entry{position:absolute;inset:0;z-index:50;display:grid;place-items:center;box-sizing:border-box;padding:18px max(30px,env(safe-area-inset-left));background:#0d1a16f5;color:#dedfc2;text-align:center}
+.entry-content{width:min(620px,100%);display:flex;flex-direction:column;align-items:center;gap:15px}
+.entry-eyebrow{font:12px/1.2 var(--pixel);color:#a4b493}
+.entry-content h1{font:25px/1.1 var(--pixel);margin:0}
+.entry-resources{display:flex;align-items:center;justify-content:center;gap:30px}
+.entry-resources .life-heart{width:22px;height:20px}
+.entry-sparks{display:flex;align-items:center;gap:8px;font:18px/1.2 var(--pixel)}
+.entry-sparks>svg{width:28px;height:28px}
+.entry-artifacts{display:flex;gap:12px;justify-content:center;max-width:100%}
+.entry-artifacts>svg{width:40px;height:40px}
+.entry-tip{font:13px/1.55 var(--pixel);color:#bec9aa;max-width:490px;margin:0}
+.entry-tip>b{display:block;font:13px/1.5 var(--pixel);color:#efdfaa;margin-bottom:3px}
+.entry-loading{width:120px;height:3px;background:#314438;overflow:hidden}
+.entry-loading>i{display:block;height:100%;background:#d3dbad;transform-origin:left;animation:entry-load var(--entry-seconds,5s) linear both}
+.entry-safe-note{font:11px/1.3 var(--pixel);color:#a9b99d}
+@keyframes entry-load{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+.flight-resume-gate{position:absolute;inset:0;z-index:48;display:grid;place-items:center;width:100%;height:100%;border:0;padding:0;background:#06120e55;box-shadow:none;color:#f1edca;cursor:pointer;touch-action:manipulation;text-transform:none;transition:none}
+.resume-gate-content{display:flex;flex-direction:column;align-items:center;gap:12px;padding:20px 30px;background:#10231ee8;box-shadow:0 0 45px 20px #10231e75;pointer-events:none}
+.resume-gate-content>svg{width:25px;height:25px;color:#e5ddb2}
+.resume-gate-content>strong{font:20px/1.2 var(--pixel)}
+.resume-gate-content>span{font:12px/1.4 var(--pixel);color:#bac9a8}
+.flight-resume-gate:active{transform:none;filter:none}
+@media(orientation:landscape) and (max-height:350px){
+ #header .route-heading{font-size:12px;gap:14px}#header .header-end,#header .game-top-left{gap:12px}
+ .passage-briefing{padding:3px 10px;gap:18px}.passage-choice{gap:9px}.passage-choice>h1{font-size:21px}.passage-kind,.passage-notice,.passage-choice>.route-consequences{font-size:11px;line-height:1.3}
+ .passage-art>svg{max-height:180px}.passage-actions>.enter-passage{min-height:44px}
+ .run-summary{gap:10px;padding:4px!important}.run-summary>h1{font-size:23px}.run-summary>.result-stats{padding:4px}.run-summary .result-stats strong{font-size:21px}
+ .entry-content{gap:10px}.entry-content h1{font-size:22px}.entry-artifacts>svg{width:30px;height:30px}.entry-tip{font-size:12px;line-height:1.35}
+}
+@media(prefers-reduced-motion:reduce){.entry-loading>i{animation:none;transform:none}}
+
+body[data-screen=death]{--menu-header:0px}body[data-screen=death]>#header{display:none}body[data-screen=death] .death-screen .life-marks{display:flex}

@@ -1,4 +1,4 @@
-import {tutorialVisualMarkup} from './tutorial-visuals.mjs?v=responsive-menus-1';
+import {tutorialVisualMarkup} from './tutorial-visuals.mjs?v=clear-paths-1';
 let coachId = 0;
 const clamp = (value, low, high) => Math.max(low, Math.min(high, value));
 const focusable = 'button:not(:disabled),a[href],input:not(:disabled),select:not(:disabled),textarea:not(:disabled),[tabindex]:not([tabindex="-1"])';
@@ -94,7 +94,9 @@ export function createTutorialCoach({ onNext, onBack, onSkip } = {}) {
     if (hasTarget) {
       x = clamp((left + right - cardWidth) / 2, margin, width - cardWidth - margin);
       const below = height - bottom - gap - margin, above = top - gap - margin;
-      if (below >= cardHeight) y = bottom + gap;
+      if (width-right-gap-margin >= cardWidth){x=right+gap;y=clamp((top+bottom-cardHeight)/2,margin,height-cardHeight-margin);}
+      else if(left-gap-margin >= cardWidth){x=left-gap-cardWidth;y=clamp((top+bottom-cardHeight)/2,margin,height-cardHeight-margin);}
+      else if (below >= cardHeight) y = bottom + gap;
       else if (above >= cardHeight) y = top - gap - cardHeight;
       else {
         // On very short screens, keep the complete coach readable. Its own
@@ -182,6 +184,7 @@ export function createTutorialCoach({ onNext, onBack, onSkip } = {}) {
       const art=tutorialVisualMarkup(step);visual.innerHTML=art;visual.hidden=!art;
       progress.textContent = info.label;
       next.textContent = String(step.actionLabel || 'NEXT');
+      root.querySelector('[data-coach=skip]').textContent=step.skipLabel||'LATER';
       back.disabled = typeof onBack !== 'function' || info.first;
       root.dataset.step = String(step.id || '');
       root.hidden = false;

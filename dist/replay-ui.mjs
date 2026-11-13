@@ -1,8 +1,8 @@
-import {glowText,getGlowCapacity,formatGlow} from './vitality.mjs?v=responsive-menus-1';
-import {getArtifactInfo,CONSUMABLE_ARTIFACTS,EVOLVING_ARTIFACTS,getArtifactStackPreview} from './artifact-info.mjs?v=responsive-menus-1';
-import {resourceSymbol} from './game-symbols.mjs?v=responsive-menus-1';
-import {artifactIcon} from './upgrade-icons.mjs?v=responsive-menus-1';
-import {encounterFamilyPreview} from './encounter-families.mjs?v=responsive-menus-1';
+import {glowText,getGlowCapacity,formatGlow} from './vitality.mjs?v=clear-paths-1';
+import {getArtifactInfo,CONSUMABLE_ARTIFACTS,EVOLVING_ARTIFACTS,getArtifactStackPreview} from './artifact-info.mjs?v=clear-paths-1';
+import {resourceSymbol} from './game-symbols.mjs?v=clear-paths-1';
+import {artifactIcon} from './upgrade-icons.mjs?v=clear-paths-1';
+import {encounterFamilyPreview} from './encounter-families.mjs?v=clear-paths-1';
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 export const THEME_INKS=Object.freeze({sustain:'#b9d995',precision:'#a8d5e2',tempo:'#e4c286',dream:'#cbb2e6',risk:'#e4a894'});
 export function rewardThemeMarkup(source={},label='RELIC PATH'){
@@ -46,7 +46,7 @@ function artifactEffectMarkup(a,run){
   'iron-petal':()=>stat('−12%','clock','Protector recovery'),
   'storm-knot':()=>stat('−10%','clock','Runner recovery')+'<small>More wind resistance</small>',
   'hollow-bell':()=>stat('+0.25s','clock','Levitate'),
-  'dawn-thread':()=>stat('+1s','clock','Echo Sight'),
+  'dawn-thread':()=>stat('+1s','clock','Echo Luminance'),
   'echo-vessel':()=>stat('+10%','packed','overflow yield'),
  };
  return compact[a.id]?compact[a.id]():esc(glowText(getArtifactInfo(a.id).effect||a.description,getGlowCapacity(run||{})));

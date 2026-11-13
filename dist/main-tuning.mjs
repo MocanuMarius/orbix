@@ -4,9 +4,9 @@ export const MAIN_TUNING_SKILLS={
  'main-artifact-slot-1':node('main-artifact-slot-1','First Reliquary',140,null,'Equip one more artifact in this run.','artifact','+1 artifact slot'),
  'main-artifact-slot-2':node('main-artifact-slot-2','Second Reliquary',280,'main-artifact-slot-1','Equip one more artifact. Choose capacity instead of several skill upgrades.','artifact','+1 artifact slot'),
  'main-artifact-slot-3':node('main-artifact-slot-3','Grand Reliquary',560,'main-artifact-slot-2','Equip one final additional artifact, up to six at Ascension 1.','artifact','+1 artifact slot'),
- 'main-echo-sight':node('main-echo-sight','Echo Sight',35,'main-sight','Natural Sparks pickups cast light farther ahead for 2 seconds. Recharges in 8 seconds. Works with any companion.','sight','Pickup vision'),
- 'main-echo-long':node('main-echo-long','Lingering Echo',35,'main-echo-sight','Echo Sight lasts 1 second longer.','duration','+1s vision'),
- 'main-echo-range':node('main-echo-range','Far Echo',40,'main-echo-sight','Echo Sight reaches 50 farther ahead.','sight','+50 reach'),
+ 'main-echo-sight':node('main-echo-sight','Echo Luminance',35,'main-sight','Natural Sparks pickups cast light farther ahead for 2 seconds. Recharges in 8 seconds. Works with any companion.','sight','Pickup Luminance'),
+ 'main-echo-long':node('main-echo-long','Lingering Echo',35,'main-echo-sight','Echo Luminance lasts 1 second longer.','duration','+1s Luminance'),
+ 'main-echo-range':node('main-echo-range','Far Echo',40,'main-echo-sight','Echo Luminance reaches 50 farther ahead.','sight','+50 reach'),
  'main-kindled-touch':node('main-kindled-touch','Kindled Touch',35,'main-efficiency','Direct natural Spark pickups restore 6 extra Sparks. Companion deliveries keep their usual value.','fuel','Direct +6 Sparks'),
  'main-kindled-rich':node('main-kindled-rich','Bright Touch',40,'main-kindled-touch','Direct natural Spark pickups restore another 4 Sparks.','fuel','Direct +4 Sparks'),
  'main-purifying-touch':node('main-purifying-touch','Purifying Touch',45,'main-kindled-touch','Touch a Dark Spark to turn it into 12 Sparks instead of dimming. Recharges in 10 seconds.','purify','Cleanse seeds'),
@@ -14,7 +14,7 @@ export const MAIN_TUNING_SKILLS={
  'main-dream-long':node('main-dream-long','Long Dream',40,'main-dream','Extend rehearsals and preset playback to 8 seconds.','dream','Dream 8s'),
  'main-dream-deep':node('main-dream-deep','Deep Dream',55,'main-dream-long','Extend rehearsals and preset playback to 10 seconds.','dream','Dream 10s'),
  'main-dream-wake':node('main-dream-wake','Gentle Awakening',30,'main-dream','After waking and tapping to resume, ease back to full speed over 4 seconds instead of 3.','dream','Soft wake'),
- 'main-dream-sight':node('main-dream-sight','Lucid Sight',35,'main-dream','See farther during Dream rehearsals to plan your opening.','sight','Lucid sight'),
+ 'main-dream-sight':node('main-dream-sight','Lucid Luminance',35,'main-dream','Increase Luminance during Dream rehearsals to plan your opening.','sight','Lucid Luminance'),
  'main-recovery':node('main-recovery','Renewal',30,'main-efficiency','Victory recovery becomes 55% Sparks; it scales with your vessel.','recovery','+5 Sparks recovery'),
  'main-recovery-deep':node('main-recovery-deep','Deep Renewal',45,'main-recovery','Victory recovery becomes 60% Sparks; it scales with your vessel.','recovery','+5 Sparks recovery'),
  'main-recovery-rescue':node('main-recovery-rescue','Last Spark',40,'main-recovery','Finish below 20% Sparks to recover an extra 10% Sparks.','recovery','Low Sparks aid'),
@@ -40,7 +40,7 @@ export function tuneMainDefinition(skill){
  if(skill.branch!=='main')return skill;
  const extra=skill.id==='main-drift'?{choiceGroup:'fall-style',excludes:['main-plummet']}:['main-tailwind','main-lift','main-kindling'].includes(skill.id)?{choiceGroup:undefined,excludes:[]}:{};
  const costs={'main-lift':25,'main-kindling':30,'main-tailwind':25,'main-drift':25,'main-horizon':30,'main-dawn':30};
- const labels={'main-lift':'−1 Lift cost','main-kindling':'+4 Sparks','main-tailwind':'+6% pace','main-drift':'−10% fall','main-horizon':'+45 sight','main-dawn':'−40% dim','main-wide-beam':'+25 sight','main-clear-beam':'−15% dim','main-dawn-guard':'−10% dim','main-dawn-fuel':'+3 Sparks','main-rising-current':'+4% Lift','main-soft-current':'−6% fall','main-light-step':'+3 capacity','main-rising-drift':'+4% Lift','main-gentle-rise':'−5% fall','main-thrifty-rise':'+3 capacity','main-inner-fire':'+3 Sparks','main-shared-fire':'+5 Sparks'};
+ const labels={'main-lift':'−1 Lift cost','main-kindling':'+4 Sparks','main-tailwind':'+6% pace','main-drift':'−10% fall','main-horizon':'+45 Luminance','main-dawn':'−40% dim','main-wide-beam':'+25 Luminance','main-clear-beam':'−15% dim','main-dawn-guard':'−10% dim','main-dawn-fuel':'+3 Sparks','main-rising-current':'+4% Lift','main-soft-current':'−6% fall','main-light-step':'+3 capacity','main-rising-drift':'+4% Lift','main-gentle-rise':'−5% fall','main-thrifty-rise':'+3 capacity','main-inner-fire':'+3 Sparks','main-shared-fire':'+5 Sparks'};
  return {...skill,...extra,shortEffect:labels[skill.id]||skill.shortEffect,cost:costs[skill.id]??(skill.expansion?45:skill.cost)};
 }
 

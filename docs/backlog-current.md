@@ -1,3 +1,25 @@
+# Current implementation audit — Clear Paths
+
+Release: `clear-paths-1`. This entry supersedes older terminology and status reports below.
+
+The resumed backlog is implemented: extended, isolated tutorial practice; Luminance terminology; delayed heart-loss presentation; a five-second loading splash; explicit tap-to-wake before Lift; an in-world proximity indicator; readable interactive edges; and simplified landscape route, briefing and result composition.
+
+Validation:
+- Seven focused tests pass: seven-stop practice progression and actual event fork, practice inventory isolation, exactly one heart lost with entry state restored, curriculum coverage, preparation/splash timing, paused engine/input semantics and proximity visibility/placement.
+- Browser input probe: before wake `{flaps:0,time:0,paused:true}`; first tap `{flaps:0,paused:false}`; second tap `{flaps:1}`. The first tap does not spend fuel.
+- Existing current-mechanics and resume probes pass; linear 0.1×→1× over three seconds remains intact.
+- Forty-five screen/viewport cases at 900×405, 844×390, 740×333, 720×280 and 1024×600: no overlapping controls or document overflow. Route-map scrolling is intentional. The settled heart-loss screen and five-second splash also fit 720×280.
+- Pixel renderer legacy test cannot load because it imports removed `getModifiers`. The old model suite also targets removed card APIs. These are not reported as passing; no broad test-suite claim is made.
+- Local-only preview fixtures and input instrumentation remain outside `dist`.
+
+The map hides distant labels, not planning information: future landmarks still open previews. Hearts retain accessible remaining/maximum labels, without duplicate visible fractions. Scene highlights use the same finite Luminance field, so objects beyond visibility are not revealed.
+
+Remaining validation outside this batch: a physical Pixel 10 performance trace and a new full-campaign economy study with imperfect human collection. This UI/tutorial release does not certify either.
+
+Publication: pending final Pages verification.
+
+---
+
 # Current implementation audit — Lantern Paths
 
 Release: `lantern-paths-1`. This header supersedes the historical audits below. Publication is verified separately against the GitHub Pages release manifest.

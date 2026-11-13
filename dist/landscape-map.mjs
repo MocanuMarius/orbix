@@ -1,8 +1,8 @@
-import {landmarks} from './map-landmarks.mjs?v=responsive-menus-1';
-import {encounterIntent,THEME_INKS} from './replay-ui.mjs?v=responsive-menus-1';
-import {getRouteMapState} from './model.mjs?v=responsive-menus-1';
-import {getMapStopInfo} from './map-guide.mjs?v=responsive-menus-1';
-import {getGlowCapacity} from './vitality.mjs?v=responsive-menus-1';
+import {landmarks} from './map-landmarks.mjs?v=clear-paths-1';
+import {encounterIntent,THEME_INKS} from './replay-ui.mjs?v=clear-paths-1';
+import {getRouteMapState} from './model.mjs?v=clear-paths-1';
+import {getMapStopInfo} from './map-guide.mjs?v=clear-paths-1';
+import {getGlowCapacity} from './vitality.mjs?v=clear-paths-1';
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const edgeKey=([a,b])=>`${a}|${b}`;
 const wisp=(x,y)=>`<g class="route-player-wisp" transform="translate(${x} ${y})"><path d="m-23 1 9-15 13-7L16-9 22 3 11 13-17 8Z" fill="url(#routeWispGlow)"/><path d="M-4-7h8v2h3v3h2v4H7v3H4v2H-4V5H-7V2H-9V-2H-7V-5H-4Z" fill="#fff8d3"/><path d="M-3-5h6v2h2v6H3v2H-3V3H-5V-3H-3Z" fill="#fffef0"/></g>`;
@@ -35,7 +35,7 @@ export function landscapeRouteView(run){
   const routeState=here?'current':reachable?'next':seen?'complete':possible?'future':'closed',info=getMapStopInfo(n,getGlowCapacity(run)),label=n.boss?'BOSS':n.elite?'ELITE':n.type==='finale'?'EXIT':encounterIntent(n)?.short||info.label,name=info.name||n.name,themeInk=THEME_INKS[n.rewardTheme],interactive=run.phase==='map'&&(reachable||possible&&!seen);
   // Keep the next decision and useful route planning visible. Ordinary distant
   // flights retain their preview target, without repeating text along the path.
-  const nearby=n.row<=run.step+1,planning=possible&&(nearby||n.type==='support'||n.elite||n.boss||n.type==='finale'),showType=here||reachable||planning,showName=here||reachable||planning&&(nearby||n.type==='support');
+  const showType=here||reachable,showName=here||reachable;
   const environment=n.type!=='support'&&n.biomeName?`${n.biomeName}. ${n.interactionHint||''} `:'';
   const aria=here?`You are here: ${label}, ${name}. Choose a lit next stop.`:reachable?`Next stop. Choose ${label}: ${name}. ${environment}${info.summary} ${n.rewardPreview||''}`:possible?`Future stop. Preview ${label}: ${name}. ${environment}${info.summary} ${n.rewardPreview||''}`:seen?`Completed: ${label}, ${name}.`:`Closed branch: ${label}, ${name}. Not reachable from your path.`;
   nodes+=`<g class="world-map-node route-state-${routeState} ${reachable?'reachable':''} ${seen?'taken':''} ${!possible&&!seen?'unreachable':''} ${here?'current-position':''}" data-route-state="${routeState}" data-route-label="${showName?'full':showType?'type':'none'}" ${interactive?`data-action="${reachable?'node':'preview-node'}" data-id="${esc(n.id)}" tabindex="0" role="button"`:'role="img"'} ${here?'aria-current="location"':''} aria-label="${esc(aria)}">
@@ -49,7 +49,7 @@ export function landscapeRouteView(run){
    </g>
    ${showType?`<ellipse class="route-label-mist" cx="${p.x}" cy="${p.y+46}" rx="71" ry="22" fill="url(#routeMist)"/><text class="map-node-type" x="${p.x}" y="${p.y+36}" text-anchor="middle">${esc(label)}</text>`:''}
    ${showName?`<text class="map-node-name" x="${p.x}" y="${p.y+49}" text-anchor="middle">${splitName(name).map((line,i)=>`<tspan x="${p.x}" dy="${i?12:0}">${esc(line)}</tspan>`).join('')}</text>`:''}
-   ${here?`${wisp(p.x-34,p.y-12)}<text class="route-state-caption route-node-caption route-here-caption" x="${p.x+35}" y="${p.y-18}" text-anchor="start">HERE</text>`:reachable?`<path class="route-next-arrow" d="M${p.x-43} ${p.y-5}l6 5-6 5" fill="none" stroke="#fff0b6" stroke-width="2"/><text class="route-state-caption route-node-caption route-next-caption" x="${p.x+35}" y="${p.y-18}" text-anchor="start">NEXT</text>`:''}
+   ${here?`${wisp(p.x-34,p.y-12)}<text class="route-state-caption route-node-caption route-here-caption" x="${p.x+35}" y="${p.y-18}" text-anchor="start">HERE</text>`:reachable?`<path class="route-next-arrow" d="M${p.x-43} ${p.y-5}l6 5-6 5" fill="none" stroke="#fff0b6" stroke-width="2"/>`:''}
   </g>`;
  }
  const atStart=currentId==='start',start=`<g class="route-start ${atStart?'current-position':''}" role="img" ${atStart?'aria-current="location"':''} aria-label="${atStart?'You are here at the start. Choose a lit next stop.':'Start of the completed route.'}">${atStart?wisp(42,152):'<path d="m34 153 7-3 8 2-3 3-9 1Z" fill="#8c9074"/>'}<text class="route-state-caption ${atStart?'route-here-caption':''}" x="42" y="${atStart?124:177}" text-anchor="middle">${atStart?'HERE':'START'}</text></g>`;

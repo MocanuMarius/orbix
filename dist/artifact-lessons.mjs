@@ -1,5 +1,5 @@
-import {getArtifactInfo} from './artifact-info.mjs?v=responsive-menus-1';
-import {glowText} from './vitality.mjs?v=responsive-menus-1';
+import {getArtifactInfo} from './artifact-info.mjs?v=clear-paths-1';
+import {glowText} from './vitality.mjs?v=clear-paths-1';
 
 // One small first-use explanation per flight. Remaining discoveries stay
 // eligible next flight rather than chaining several modal interruptions.
@@ -15,5 +15,5 @@ export function artifactUseLesson(notice,artifact,{maxGlow=100,charges={}}={}){
   :'It stays active while mounted; it is not used up.';
  return {title:`${artifact?.name||'Artifact'} · ${notice.phase==='exhausted'?'used up':'active'}`,
   text:glowText(`${info.effect} ${lifetime}`,maxGlow),
-  target:`.flight-artifact-bar [data-relic="${notice.artifactId}"]`,actionLabel:'Resume slowly'};
+  target:`.flight-artifact-bar [data-relic="${notice.artifactId}"]`,actionLabel:'Back to flight'};
 }
