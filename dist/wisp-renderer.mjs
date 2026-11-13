@@ -1,10 +1,10 @@
 import { sceneryIdentity, drawIdentityBackground, drawIdentityMaterial, drawIdentityLife } from './level-scenery.mjs';
 import { getCompanionAbility, normalizeCompanionRole } from './companion-abilities.mjs';
 import { companionSprite, companionPalette } from './companion-art.mjs';
-import { createScenePropArt } from './scene-prop-art.mjs?v=rest-trees-collector-1';
+import { createScenePropArt } from './scene-prop-art.mjs?v=near-lantern-1';
 import { drawBoss } from './boss.mjs';
-import { drawPickup } from './pickup-art.mjs?v=rest-trees-collector-1';
-import { pickupKind, getPickupSpec } from './pickups.mjs?v=rest-trees-collector-1';
+import { drawPickup } from './pickup-art.mjs?v=near-lantern-1';
+import { pickupKind, getPickupSpec } from './pickups.mjs?v=near-lantern-1';
 
 const TAU = Math.PI * 2;
 const SCENERY_HELPERS = { line: pixelLine, disc: pixelDisc, polygon: path };

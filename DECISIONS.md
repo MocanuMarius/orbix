@@ -499,3 +499,7 @@ Focused model and syntax checks passed. Full balance simulations and phone perfo
 User authorized deployment once the combined work was ready. Collector baseline reach reduced from 140 to 105 world units; recovery minimum reduced from 28 to 18. Boundary opacity reduced from 0.52 to 0.23 with a thinner stroke and much softer outer pass. No filled aura or expensive terrain reshaping.
 
 Ascension 1 non-elite routes prioritise screen-centre and near-centre recovery fuel. Early/open passages target 50% extra recovery fuel, later ordinary Ascension 1 passages 40%, versus 30% on higher tiers and 15% on elites. Placement remains capped by duration and swept terrain/prop clearance; unsafe candidates are skipped. Targeted syntax, rescue/collision and slow-resume checks passed; no full balance matrix repeated.
+
+## Scenery-anchored exits
+
+All flights now position the exit 72 world units beyond the rightmost terrain or collision-backed prop, rather than waiting for nominal duration. This leaves roughly 0.47 seconds of clear flight at base speed. Tutorial and boss layouts share the rule; no final terrain is skipped. Pickups beyond the new exit are removed, and the boss waylight cue follows the new endpoint. Targeted terrain/prop, tutorial/boss and collision/rescue checks passed.
