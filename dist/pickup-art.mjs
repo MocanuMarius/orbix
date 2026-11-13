@@ -1,4 +1,4 @@
-import { pickupKind, getPickupSpec, pickupDisposition } from './pickups.mjs?v=collector-flow-1';
+import { pickupKind, getPickupSpec, pickupDisposition } from './pickups.mjs?v=risk-chains-1';
 
 const TAU = Math.PI * 2;
 const clamp = (value, low, high) => Math.max(low, Math.min(high, value));

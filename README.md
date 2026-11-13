@@ -117,3 +117,9 @@ Focused validation: `node scripts/glow-builds-probe.mjs`, `npm run check:skill-g
 ## Collector motion — 2026-11-13
 
 Collector keeps a more active 1.8-second breathing orbit, visible during recovery. Fetching follows momentum-preserving curves through the pickup and back into the moving orbit. Trip duration depends on distance, while fuel and cooldown still resolve only after delivery. The body-contact window, five-second recovery/radius growth, harmful-pickup restrictions and companion upgrades remain. `node scripts/collector-motion-probe.mjs` checks distance timing and collection lifecycle.
+
+## Risk/reward pickup chains — 2026-11-13
+
+Ordinary flights now place deliberate Glow → Dark Seed → Glow encounters in broad passages. First-route chains have generous 108-unit spacing; normal later chains use 100, and harder/elite chains 84 with small slopes. Placement targets one introductory chain, two on longer later flights, and up to three on harder routes, skipping unsafe sites. Each chain moves two existing ordinary fuel lights rather than adding currency or fuel. Existing accessible recovery lights and authored pocket targets are retained. Standalone hazard slots now retain up to two Dark Seeds (three on elites) before other utility conversions.
+
+The middle seed uses the existing red warning ring and sight-dimming penalty. Taking the following Glow cleanses it; steering around it preserves clear sight. Collector cannot fetch the harmful seed. Both the straight path and an arcing bypass are checked against full-sway terrain/prop geometry; nearby drafts are excluded. Tutorial and boss patterns remain separate. `node scripts/risk-chain-probe.mjs` checks generated chains, clearance, unchanged fuel quantity, cleansing, and a one-Lift introductory bypass in all three terrains.
