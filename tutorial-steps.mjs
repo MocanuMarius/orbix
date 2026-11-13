@@ -14,43 +14,43 @@ export function checkpointTutorialLesson(screen,{run={}}={}){
           '.map-status-strip .ascension-lives');
       }else if(run.step===0){
         lesson=step('practice-route','Follow the glowing passage',
-          'The warmly lit landmark is your next stop. Follow its trail. KEY explains the five places whenever you want.',
+          'This arch means Flight. Follow a bright trail to a reachable stop.',
           '#journey-map .world-map-node.reachable');
       }else if(run.map?.[run.step]?.some(node=>node.kind==='camp')){
         lesson=step('practice-rest-route','The shelter is a Rest',
-          'Reach a shelter to recover and prepare. Real runs have forks: choosing a Rest may mean leaving a treasure behind.',
+          'This shelter means Rest. Recover or strengthen your build here.',
           '#journey-map .world-map-node.reachable');
       }
       break;
     case 'map-key':
       lesson=step('practice-symbols','Five familiar stops',
-        'Broken arch: fly. Hearth shelter: rest. Chest: treasure. Marked stone: a choice or gamble. Guardian gate: the boss.',
+        'The same five symbols identify stops throughout your route.',
         '.map-key-list');
       break;
     case 'victory':
       lesson=step('practice-reward','Choose what travels with you',
-        'Take one artifact, or dissolve it into Sparks. Any surplus condenses. Upgrade spends your Packed Light before Next.',
+        'Artifacts work automatically while mounted. Choose one, or take Sparks instead.',
         '.reward-offers');
       break;
     case 'support':
       lesson=step('practice-rest-choice','Choose a breather',
-        'Sparks fuels flight. Extra pickup light becomes Packed Light for skills. Rest recovery fills fuel only.',
-        '.support-offers');
+        'Choose one benefit. The icons and numbers show exactly what changes.',
+        '.rest-benefit-cards');
       break;
     case 'rest-prep':
       if(run.skills?.['main-dream']&&!seen('practice-dream')){
         lesson=step('practice-dream','Rehearse the opening',
-          'Dream the next passage as often as you like. Preset an opening you enjoy; it replays safely, then waits for your tap.',
+          'The closed eye means Dream. Rehearse six seconds; save an opening to replay before you take control.',
           '.rest-dream');
       }else{
         lesson=step('practice-rest-tools','Prepare without rushing',
-          'Try a skill or change your companion. Dream rehearses the next opening; learn it in the Light tree when you are ready.',
-          '.rest-hub-tools');
+          'Skills grow your build. Companions change your power. Dream rehearses the next passage.',
+          '.rest-service-cards');
       }
       break;
     case 'skills':
       lesson=step('practice-skill-tree','Grow along one branch',
-        'Tap a circle to inspect it. Bright circles are affordable now. Faint dots reveal as you grow. These skills use practice Packed Light and last this practice.',
+        'Packed Light buys run skills. Blue checks are owned; gold plus signs can be learned now.',
         '.tree-body');
       break;
     case 'result':
@@ -87,6 +87,6 @@ export function flightEffectLesson(id,screen='map'){
   if(id==='flight-effect:edging')return step(id,'Your close flight made a pulse',
     'Flying near solid edges fills the slim edge meter in 2 seconds. Brief gaps preserve your progress, then charge fades slowly. Full charge reveals the scene for five fading seconds. Edge skills improve it; touching terrain still hurts.',target);
   if(id==='flight-effect:regeneration')return step(id,'Your close flight restored Sparks',
-    'Regenerative Falling turns a full edge meter into one Sparks instead of a reveal. Its green meter resets for 2 seconds. You have eight recoveries each flight; it becomes dim when spent. Only missing fuel is restored, without Packed Light or pickup effects.',target);
+    'Regenerative Falling turns a full edge meter into one Spark instead of a reveal. Its green meter resets for 2 seconds. You have eight recoveries each flight; it becomes dim when spent. Only missing fuel is restored, without Packed Light or pickup effects.',target);
   return null;
 }

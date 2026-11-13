@@ -1,3 +1,4 @@
+import {tutorialVisualMarkup} from './tutorial-visuals.mjs?v=living-choices-2';
 let coachId = 0;
 const clamp = (value, low, high) => Math.max(low, Math.min(high, value));
 const focusable = 'button:not(:disabled),a[href],input:not(:disabled),select:not(:disabled),textarea:not(:disabled),[tabindex]:not([tabindex="-1"])';
@@ -29,13 +30,13 @@ export function createTutorialCoach({ onNext, onBack, onSkip } = {}) {
     <div class="tutorial-coach-blocker coach-block-bottom" aria-hidden="true"></div>
     <div class="tutorial-coach-blocker coach-block-target" aria-hidden="true"></div>
     <section class="tutorial-coach-card" role="region" aria-labelledby="${id}-title" aria-describedby="${id}-text" tabindex="-1">
-      <span class="tutorial-coach-progress"></span><h2 id="${id}-title"></h2><p id="${id}-text"></p>
+      <span class="tutorial-coach-progress"></span><div class="tutorial-coach-visual" hidden></div><h2 id="${id}-title"></h2><p id="${id}-text"></p>
       <div class="tutorial-coach-actions"><button type="button" data-coach="back">BACK</button><button type="button" class="tutorial-coach-next" data-coach="next">NEXT</button><button type="button" data-coach="skip">SKIP</button></div>
     </section>`;
   const card = root.querySelector('.tutorial-coach-card');
   const spotlight = root.querySelector('.tutorial-coach-spotlight');
   const title = root.querySelector('h2'), text = root.querySelector('p');
-  const progress = root.querySelector('.tutorial-coach-progress');
+  const progress = root.querySelector('.tutorial-coach-progress'), visual=root.querySelector('.tutorial-coach-visual');
   const back = root.querySelector('[data-coach="back"]'), next = root.querySelector('[data-coach="next"]');
   const blocks = ['top', 'left', 'right', 'bottom', 'target'].map(name => root.querySelector(`.coach-block-${name}`));
   let step = null, target = null, destroyed = false, frame = null, previousFocus = null;
@@ -178,6 +179,7 @@ export function createTutorialCoach({ onNext, onBack, onSkip } = {}) {
       const info = progressInfo(step.progress);
       title.textContent = String(step.title || 'Learn the way');
       text.textContent = String(step.text || '');
+      const art=tutorialVisualMarkup(step);visual.innerHTML=art;visual.hidden=!art;
       progress.textContent = info.label;
       next.textContent = String(step.actionLabel || 'NEXT');
       back.disabled = typeof onBack !== 'function' || info.first;

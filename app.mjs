@@ -1,43 +1,43 @@
-import {choiceScene} from './choice-art.mjs?v=living-choices-1';
-import {contextualFlightNotice} from './contextual-events.mjs?v=living-choices-1';
-import {createMusic} from './music.mjs?v=living-choices-1';
-import {resourceSymbol} from './game-symbols.mjs?v=living-choices-1';
-import {nextArtifactNotice,artifactUseLesson} from './artifact-lessons.mjs?v=living-choices-1';
-import {getArtifactInfo,CONSUMABLE_ARTIFACTS,EVOLVING_ARTIFACTS,getArtifactStackPreview,getRestRechargePreview} from './artifact-info.mjs?v=living-choices-1';
-import {checkpointTutorialLesson,observedFlightLesson,flightEffectLesson} from './tutorial-steps.mjs?v=living-choices-1';
-import {ARTIFACT_ENGINE_RULES} from './artifact-effects.mjs?v=living-choices-1';
-import {rewardThemeMarkup,encounterIntent,encounterIntentMarkup,artifactOfferMarkup,artifactDetailMarkup,artifactRarityLabel,artifactSummaryMarkup,artifactLifetimeMarkup} from './replay-ui.mjs?v=living-choices-1';
-import {installLandscapeMode} from './landscape.mjs?v=living-choices-1';
-import {drawLandscapeMap} from './landscape-map.mjs?v=living-choices-1';
-import {attachDream,dreamRestMarkup,dreamIndicatorMarkup} from './dream.mjs?v=living-choices-1';
-import {chooseFlightReward,getAvailableUpgrades,acknowledgeVictory,artifactSynergy} from './model.mjs?v=living-choices-1';
-import {STARTING_CONDENSED_GLOW,formatGlow,glowPercent,getGlowCapacity,glowText} from './vitality.mjs?v=living-choices-1';
-import {glowGaugeMarkup,updateGlowGauge} from './glow-ui.mjs?v=living-choices-1';
-import {edgingPulseMarkup,updateEdgingPulse} from './edging-ui.mjs?v=living-choices-1';
-import {branchTreeMarkup} from './skill-tree.mjs?v=living-choices-1';
-import {livesMarkup,lifeHeartSvg} from './lives.mjs?v=living-choices-1';
-import {mainWispTreeMarkup} from './wisp-tree.mjs?v=living-choices-1';
-import {attachFlightPerformance,downloadPerformanceReport} from './flight-performance.mjs?v=living-choices-1';
-import {getChallengePreview} from './flight-challenges.mjs?v=living-choices-1';
-import {homeMenuMarkup,runProgressMarkup,unlockPreviewMarkup} from './run-menu.mjs?v=living-choices-1';
-import {skillIcon,artifactIcon} from './upgrade-icons.mjs?v=living-choices-1';
-import {TERRAINS,SKILLS,ARTIFACTS,newState,loadState,saveState,createRun,canChooseStartingSkill,chooseStartingSkill,setTestOverride,grantTestCondensedGlow,getStartingCompanion,setStartingCompanion,startTutorial,leaveTutorial,getChoices,getRouteMapState,selectNode,beginFlightAttempt,retryFlight,finishFlight,getSupportChoices,resolveSupport,settleCheckpoint,bankRun,advanceMap,previewGlowReward,getSkillCost,getSkillPrice,getSkillWallet,getSkillLockReason,suspendRun,abandonRun,isSkillRevealed,canBuyCheckpointSkills,buyCheckpointSkill,getRunModifiers,getCompanionCapacity,getArtifactCapacity,getNextArtifactSlotSkill,canChangeCompanion,setCompanions,equipArtifact,sellArtifact,canSellArtifact,getArtifactSalvageValue} from './model.mjs?v=living-choices-1';
-import {WispFlight} from './flight.mjs?v=living-choices-1';
-import {COMPANION_ABILITIES,getCompanionAbility,getCompanionUnlock,normalizeCompanionRole} from './companion-abilities.mjs?v=living-choices-1';
-import {companionArtSvg} from './companion-art.mjs?v=living-choices-1';
-import {boostControlMarkup,updateBoostControl} from './boost-control.mjs?v=living-choices-1';
-import {campaignStrip,bossSigil} from './campaign-ui.mjs?v=living-choices-1';
-import {resolveLevelIdentity} from './level-catalog.mjs?v=living-choices-1';
-import {levelMapGlyph,levelMapPreview} from './level-map-art.mjs?v=living-choices-1';
-import {getAscentInfo} from './ascent.mjs?v=living-choices-1';
-import {getRouteForecast} from './route-forecast.mjs?v=living-choices-1';
-import {MAP_STOP_TYPES,getMapStopInfo,mapStopIconMarkup,getEventScenarios} from './map-guide.mjs?v=living-choices-1';
-import {formatFlightDuration} from './level-length.mjs?v=living-choices-1';
-import {condensedIconMarkup} from './afterglow-ui.mjs?v=living-choices-1';
-import {pickupGuideMarkup,pickupLesson} from './pickup-guide.mjs?v=living-choices-1';
-import {pickupArtSvg} from './pickup-art.mjs?v=living-choices-1';
-import {createTutorialCoach} from './tutorial-coach.mjs?v=living-choices-1';
-import {getTutorialWorldFocus} from './tutorial.mjs?v=living-choices-1';
+import {choiceScene} from './choice-art.mjs?v=living-choices-2';
+import {contextualFlightNotice} from './contextual-events.mjs?v=living-choices-2';
+import {createMusic} from './music.mjs?v=living-choices-2';
+import {resourceSymbol} from './game-symbols.mjs?v=living-choices-2';
+import {nextArtifactNotice,artifactUseLesson} from './artifact-lessons.mjs?v=living-choices-2';
+import {getArtifactInfo,CONSUMABLE_ARTIFACTS,EVOLVING_ARTIFACTS,getArtifactStackPreview,getRestRechargePreview} from './artifact-info.mjs?v=living-choices-2';
+import {checkpointTutorialLesson,observedFlightLesson,flightEffectLesson} from './tutorial-steps.mjs?v=living-choices-2';
+import {ARTIFACT_ENGINE_RULES} from './artifact-effects.mjs?v=living-choices-2';
+import {rewardThemeMarkup,encounterIntent,encounterIntentMarkup,artifactOfferMarkup,artifactDetailMarkup,artifactRarityLabel,artifactSummaryMarkup,artifactLifetimeMarkup} from './replay-ui.mjs?v=living-choices-2';
+import {installLandscapeMode} from './landscape.mjs?v=living-choices-2';
+import {drawLandscapeMap} from './landscape-map.mjs?v=living-choices-2';
+import {attachDream,dreamRestMarkup,dreamIndicatorMarkup} from './dream.mjs?v=living-choices-2';
+import {chooseFlightReward,getAvailableUpgrades,acknowledgeVictory,artifactSynergy} from './model.mjs?v=living-choices-2';
+import {STARTING_CONDENSED_GLOW,formatGlow,glowPercent,getGlowCapacity,glowText} from './vitality.mjs?v=living-choices-2';
+import {glowGaugeMarkup,updateGlowGauge} from './glow-ui.mjs?v=living-choices-2';
+import {edgingPulseMarkup,updateEdgingPulse} from './edging-ui.mjs?v=living-choices-2';
+import {branchTreeMarkup} from './skill-tree.mjs?v=living-choices-2';
+import {livesMarkup,lifeHeartSvg} from './lives.mjs?v=living-choices-2';
+import {mainWispTreeMarkup} from './wisp-tree.mjs?v=living-choices-2';
+import {attachFlightPerformance,downloadPerformanceReport} from './flight-performance.mjs?v=living-choices-2';
+import {getChallengePreview} from './flight-challenges.mjs?v=living-choices-2';
+import {homeMenuMarkup,runProgressMarkup,unlockPreviewMarkup} from './run-menu.mjs?v=living-choices-2';
+import {skillIcon,artifactIcon} from './upgrade-icons.mjs?v=living-choices-2';
+import {TERRAINS,SKILLS,ARTIFACTS,newState,loadState,saveState,createRun,canChooseStartingSkill,chooseStartingSkill,setTestOverride,grantTestCondensedGlow,getStartingCompanion,setStartingCompanion,startTutorial,leaveTutorial,getChoices,getRouteMapState,selectNode,beginFlightAttempt,retryFlight,finishFlight,getSupportChoices,resolveSupport,settleCheckpoint,bankRun,advanceMap,previewGlowReward,getSkillCost,getSkillPrice,getSkillWallet,getSkillLockReason,suspendRun,abandonRun,isSkillRevealed,canBuyCheckpointSkills,buyCheckpointSkill,getRunModifiers,getCompanionCapacity,getArtifactCapacity,getNextArtifactSlotSkill,canChangeCompanion,setCompanions,equipArtifact,sellArtifact,canSellArtifact,getArtifactSalvageValue} from './model.mjs?v=living-choices-2';
+import {WispFlight} from './flight.mjs?v=living-choices-2';
+import {COMPANION_ABILITIES,getCompanionAbility,getCompanionUnlock,normalizeCompanionRole} from './companion-abilities.mjs?v=living-choices-2';
+import {companionArtSvg} from './companion-art.mjs?v=living-choices-2';
+import {boostControlMarkup,updateBoostControl} from './boost-control.mjs?v=living-choices-2';
+import {campaignStrip,bossSigil} from './campaign-ui.mjs?v=living-choices-2';
+import {resolveLevelIdentity} from './level-catalog.mjs?v=living-choices-2';
+import {levelMapGlyph,levelMapPreview} from './level-map-art.mjs?v=living-choices-2';
+import {getAscentInfo} from './ascent.mjs?v=living-choices-2';
+import {getRouteForecast} from './route-forecast.mjs?v=living-choices-2';
+import {MAP_STOP_TYPES,getMapStopInfo,mapStopIconMarkup,getEventScenarios} from './map-guide.mjs?v=living-choices-2';
+import {formatFlightDuration} from './level-length.mjs?v=living-choices-2';
+import {condensedIconMarkup} from './afterglow-ui.mjs?v=living-choices-2';
+import {pickupGuideMarkup,pickupLesson} from './pickup-guide.mjs?v=living-choices-2';
+import {pickupArtSvg} from './pickup-art.mjs?v=living-choices-2';
+import {createTutorialCoach} from './tutorial-coach.mjs?v=living-choices-2';
+import {getTutorialWorldFocus} from './tutorial.mjs?v=living-choices-2';
 const app=document.querySelector('#app'),header=document.querySelector('#header');
 let state;try{state=loadState(localStorage)}catch{state=newState()}
 let screen='home',engine=null,paused=false,hud=null,fleetSlot=0,treeBranch='main',artifactSlot=0,lesson=null,lastSnapshot=null;
@@ -258,11 +258,11 @@ function guideScreen(view){
   else if(view==='flight'){
     const key=r.current?.tutorialLesson==='wind'?'flight-wind':'flight';if(r.guideSeen?.[key])return;
     pauseFlight();const active=r.companions.some(id=>!getCompanionAbility(id).passive);
-    const step=key==='flight'?{title:'Find your rhythm',text:'Tap Lift, then let go to glide. Bright packets refill your Sparks.',target:'#flap-btn'}
+    const step=key==='flight'?{title:'Find your rhythm',visual:'lift',text:'Tap Lift to spend Sparks. Let go to glide.',target:'#flap-btn'}
       :r.companions.includes('leveler')?{title:'Hold to levitate',text:'Tap the scene to Lift. Keep holding to hover; release to glide and recharge.',target:'.canvas-wrap'}
       :active?{title:'Try your power when ready',text:'Tap Power when it helps. There is no need to rush.',target:'#boost-btn'}
       :{title:'A little help nearby',text:'Your companion works automatically. Keep practicing gentle lifts and glides.',target:'#boost-btn'};
-    startLesson(key,[step],resumeFlight);
+    startLesson(key,[{...step,visual:step.visual||'companion:'+r.companions[0]}],resumeFlight);
   }
 }
 
@@ -284,7 +284,7 @@ function updateGameSpeed(snapshot){
  if(overlay.dataset.speed!==label){overlay.dataset.speed=label;overlay.querySelector('b').textContent=label;overlay.setAttribute('aria-label',`Game speed ${label}`);}
  overlay.querySelector('em').style.transform=`scaleX(${(speed-.1)/.9})`;
 }
-function worldLesson(){if(!engine||engine.dream?.active||paused||lesson||lastSnapshot?.dying||lastSnapshot?.completing)return;const r=state.run,practice=!!engine.tutorial;if(practice&&!r.guideSkipped&&!r.guideSeen?.['practice-condensation']&&engine.time>3&&(lastSnapshot?.condensedGlow||0)>0){pauseFlight();startLesson('practice-condensation',[{title:'Surplus becomes possibility',text:'Extra pickup light rises into Packed Light. Clear this passage to keep it, then spend it on run skills.',target:'.flight-condensed-counter'}],resumeFlight);return;}let focus,key,content;if(practice){if(r.guideSkipped||engine.time<3)return;const prefix='world:',seen=new Set(Object.keys(r.guideSeen||{}).filter(k=>k.startsWith(prefix)).map(k=>k.slice(prefix.length)));focus=getTutorialWorldFocus(engine,seen);if(!focus)return;const wanted=engine.tutorial.lesson==='glide'?'light-packet':'draft';if(focus.id!==wanted||r.guideSeen?.[`world:${wanted}`])return;focus={...focus,text:focus.id==='light-packet'?'Touch this light to refill Sparks.':'These curls push you. Take your time and fly around them.'};key=`world:${focus.id}`;content=focus}else{const seen=new Set(state.profile.seenPickups||[]);if(seen.size>=7)return;focus=engine.getNearbyPickup(seen);if(!focus)return;key=`pickup:${focus.kind}`;content=pickupLesson(focus.kind,{maxGlow:engine.maxFlame,companions:roleFleet()});state.profile.seenPickups||=[];state.profile.seenPickups.push(focus.kind);if(state.profile.pickupCoachSkipped){persist();return}}pauseFlight();const wrap=document.querySelector('.canvas-wrap'),canvas=document.querySelector('#flight-canvas'),target=document.createElement('i'),c=canvas.getBoundingClientRect(),w=wrap.getBoundingClientRect(),sx=c.width/engine.width,sy=c.height/engine.height,rad=Math.max(18,focus.radius||18);target.dataset.worldFocus='';target.style.cssText=`position:absolute;pointer-events:none;left:${c.left-w.left+(focus.x-rad)*sx}px;top:${c.top-w.top+(focus.y-rad)*sy}px;width:${rad*2*sx}px;height:${rad*2*sy}px`;wrap.appendChild(target);startLesson(key,[{...content,target}],resumeFlight)}
+function worldLesson(){if(!engine||engine.dream?.active||paused||lesson||lastSnapshot?.dying||lastSnapshot?.completing)return;const r=state.run,practice=!!engine.tutorial;if(practice&&!r.guideSkipped&&!r.guideSeen?.['practice-condensation']&&engine.time>3&&(lastSnapshot?.condensedGlow||0)>0){pauseFlight();startLesson('practice-condensation',[{title:'Packed Light buys skills',visual:'packed',text:'With a full Spark meter, extra Sparks become Packed Light. Clear this flight to keep it.',target:'.flight-condensed-counter'}],resumeFlight);return;}let focus,key,content;if(practice){if(r.guideSkipped||engine.time<3)return;const prefix='world:',seen=new Set(Object.keys(r.guideSeen||{}).filter(k=>k.startsWith(prefix)).map(k=>k.slice(prefix.length)));focus=getTutorialWorldFocus(engine,seen);if(!focus)return;const wanted=engine.tutorial.lesson==='glide'?'light-packet':'draft';if(focus.id!==wanted||r.guideSeen?.[`world:${wanted}`])return;focus={...focus,title:focus.id==='light-packet'?'Sparks refill your meter':focus.title,visual:focus.id==='light-packet'?'spark':undefined,text:focus.id==='light-packet'?'Touch a Spark to refill the meter on the left.':'These curls push you. Take your time and fly around them.'};key=`world:${focus.id}`;content=focus}else{const seen=new Set(state.profile.seenPickups||[]);if(seen.size>=7)return;focus=engine.getNearbyPickup(seen);if(!focus)return;key=`pickup:${focus.kind}`;content=pickupLesson(focus.kind,{maxGlow:engine.maxFlame,companions:roleFleet()});state.profile.seenPickups||=[];state.profile.seenPickups.push(focus.kind);if(state.profile.pickupCoachSkipped){persist();return}}pauseFlight();const wrap=document.querySelector('.canvas-wrap'),canvas=document.querySelector('#flight-canvas'),target=document.createElement('i'),c=canvas.getBoundingClientRect(),w=wrap.getBoundingClientRect(),sx=c.width/engine.width,sy=c.height/engine.height,rad=Math.max(18,focus.radius||18);target.dataset.worldFocus='';target.style.cssText=`position:absolute;pointer-events:none;left:${c.left-w.left+(focus.x-rad)*sx}px;top:${c.top-w.top+(focus.y-rad)*sy}px;width:${rad*2*sx}px;height:${rad*2*sy}px`;wrap.appendChild(target);startLesson(key,[{...content,target}],resumeFlight)}
 function mapLabelLines(value,max=14){const words=String(value||'').split(/\s+/),lines=[];let line='';for(const word of words){if((line+' '+word).trim().length>max&&line){lines.push(line);line=word}else line=(line+' '+word).trim()}if(line)lines.push(line);return lines.slice(0,2).map(v=>v.length>max?v.slice(0,max-1)+'…':v)}
 function mapPositionMarker(x,y,label){return `<g class="map-position-marker map-orb-marker" transform="translate(${x},${y})"><circle r="12" fill="#dce8d1" opacity=".25"/><circle r="6" fill="#f2f0d5"/><text y="24" text-anchor="middle">${label}</text></g>`}
 
