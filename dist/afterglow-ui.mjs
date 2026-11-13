@@ -1,4 +1,4 @@
-import {formatGlow} from './vitality.mjs?v=relic-paths-1';
+import {formatGlow} from './vitality.mjs?v=committed-paths-1';
 // Reserve remains visible when empty or locked so overflow has a clear destination.
 const amountOf = value => Math.max(0, Number.isFinite(Number(value)) ? Number(value) : 0);
 export const formatStoredGlow = value => {

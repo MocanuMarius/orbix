@@ -2,9 +2,19 @@
 
 Updated 13 November 2026. Wispbound is the working title. This log records the confirmed direction and subsequent implementation choices. All ten recommended alignment choices were accepted in chat.
 
-## Current build: relic-paths-1 — 13 November 2026
+## Committed routes and readable map states — 13 November 2026
 
-This section is the current specification. Older entries below preserve the decision history; their obsolete prices, portrait layout, card rules, roles and test restrictions do not override this section.
+This update replaces the dense crossover graph from relic-paths-1. Each map still has three starting branches and seven stops. Routes stay on their chosen corridor for several stops; authored junctions offer at most two exits. Taking a Treasure branch can now exclude a later Rest. All displayed nodes remain reachable from some start, an ordinary route reaches the finale, and successive elites stay prohibited even across support stops.
+
+A Rest still has one known next flight for Dream. Failure can reveal only one authored neighboring flight detour, keeping the choice of retry routes without opening the whole row. Completed sites cannot be repeated. Existing saved maps retain their graph; a New Game or newly generated next map uses the new topology.
+
+Model-owned map state drives both permission and drawing. The current position is the last completed stop, with a wisp and HERE marker; failed/uncompleted attempts do not move that marker. Walked paths stay gold. Immediate NEXT stops have bright discs, halos and pulsing rings. Legal future stops are subdued and open explicitly labelled previews. Closed branches are faint and have no pointer/keyboard action. A HERE control recentres the view. The map key explains brightness as well as encounter symbols. Future forecasts follow the legal route history instead of carrying an earlier elite state through intervening ordinary flights.
+
+Focused graph checks cover 144 generated maps, 813 rejected blocked selections, 262 bounded Rest retry cases and 727 excluded desirable sites. Existing route/reward and campaign checks pass. Local browser inspection at 900×405 covered next-stop brightness, a committed Treasure branch with a locked Rest, preview-only future stops and the recenter control. No flight physics, skill prices or reward amounts changed; no new broad economy or phone-performance claim is made.
+
+## Previous build: relic-paths-1 — 13 November 2026
+
+This section remains the baseline except where the newer committed-route update above supersedes it. Older entries below preserve the decision history; their obsolete prices, portrait layout, card rules, roles and test restrictions do not override this section.
 
 - Landscape 20:9, four base companions, one-handed Lift/Power. Skills and Embers belong to the run; normal runs start with 30 Embers and one free Light/Motion/Glow root. Tutorial remains separate.
 - Artifact slots: Ascension 1 starts with 3, Ascensions 2–3 with 2, Ascensions 4–6 with 1. The RELICS skill branch adds one slot per purchase for 140, 280 and 560 Embers. Maximum with those three purchases is respectively 6/5/4. Slots reset on New Game. The locked slot opens the next node directly; TEST does not grant slots for free.

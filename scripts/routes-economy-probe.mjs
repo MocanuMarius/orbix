@@ -22,7 +22,7 @@ for(let seed=0;seed<120;seed++){
   }
   for(const start of r.map[0])walk(start);
   for(const n of all){
-   assert.ok(n.nextIds.length<=3);assert.ok(n.nextIds.every(id=>byId.get(id)?.row===n.row+1));
+   assert.ok(n.nextIds.length<=2);assert.ok(n.nextIds.every(id=>byId.get(id)?.row===n.row+1));
    if(n.row)assert.ok(r.map[n.row-1].some(p=>p.nextIds.includes(n.id)),'No orphan displayed nodes');
    if(n.kind==='camp'){restRows.add(n.row);assert.equal(n.nextIds.length,1);const next=byId.get(n.nextIds[0]);assert.notEqual(next.type,'support');assert.equal(next.elite,false);}
    if(n.boss)bosses.add(n.bossId);

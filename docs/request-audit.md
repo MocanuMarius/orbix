@@ -184,3 +184,10 @@ Actual production-renderer evidence for grounded endings: `work/render-grounded-
 ## Release integration note — relic-paths-1
 
 Root integrated the RELICS branch, variable capacity throughout inventory/rewards, COMMON/RARE/BOSS presentation, whole-unit shrine/event copy, and direct locked-slot navigation. Browser checks confirm a 140-Ember unlock deducts exactly 140 and exposes the fourth slot, with no page overflow in the 900×405 briefing. The 360-scenario economy summary is retained beside this audit. Returning Shell now adds two internal Glow to its deflection cost, displayed as one, avoiding a misleading zero-cost label. This release still requires phone play to judge timing and performance.
+
+
+## Route-consequence follow-up — committed-paths-1
+
+The user's subsequent hands-on review found that the earlier graph did not create enough exclusion despite passing connectivity checks. Dense adjacent-lane edges and orphan repair made early choices converge too quickly; post-Rest death could unlock every flight in the row. The new authored corridors remove those behaviors, and focused tests now require meaningful support exclusions and bounded retry edges. Current/next/future/closed visual states share the model's legal traversal, including elite history. A legacy CSS rule hiding every map circle was also corrected so the new bright node discs and rings are actually visible.
+
+The focused future-forecast probe also catches an elite-history regression: intervening ordinary flights must reset an earlier elite restriction before previewing a later event. Forecasts now follow legal arrival histories, include intervening flights in totals and reject unreachable target forecasts.
