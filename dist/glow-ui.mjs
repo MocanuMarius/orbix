@@ -1,4 +1,4 @@
-import {formatGlow,getGlowCapacity,FLAME_TUNING,glowPoints} from './vitality.mjs?v=edge-and-void-1';
+import {formatGlow,getGlowCapacity,FLAME_TUNING,glowPoints} from './vitality.mjs?v=packed-light-1';
 const clamp=v=>Math.max(0,Math.min(1,v));
 export function glowGaugeMarkup(run){
  const max=getGlowCapacity(run);

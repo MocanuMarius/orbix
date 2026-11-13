@@ -2,6 +2,10 @@
 
 Updated 13 November 2026. Wispbound is the working title. This log records the confirmed direction and subsequent implementation choices. All ten recommended alignment choices were accepted in chat.
 
+## Packed Light naming — 13 November 2026
+
+The upgrade currency is now named Packed Light throughout the interface, with a pixel box containing a luminous center. This supersedes the earlier Condensed Glow name; conversion, prices and saved balances are unchanged. Overflow continues to rise into the left-side counter as a continuous beam.
+
 ## Edge, void and readable choices — 13 November 2026
 
 Black Holes are persistent environmental drains, separate from collectible Dark Seeds. Each non-tutorial course places one in a quiet room with a tested body-clear bypass, or a guarded approach fallback; impossible synthetic layouts omit the hole instead of sealing the route. The 16-unit core is approximately the wisp's visible size. Drain uses a softened inverse-square curve, tapers to zero at 220 world units, and caps at 24 displayed Glow per second. There is no physical pull, collision death, currency debit or shield immunity. Zero Glow still disables Lift and allows rescue pickups while falling.

@@ -1,6 +1,6 @@
-import {formatGlow} from './vitality.mjs?v=edge-and-void-1';
-import {artifactIcon} from './upgrade-icons.mjs?v=edge-and-void-1';
-import {encounterFamilyPreview} from './encounter-families.mjs?v=edge-and-void-1';
+import {formatGlow} from './vitality.mjs?v=packed-light-1';
+import {artifactIcon} from './upgrade-icons.mjs?v=packed-light-1';
+import {encounterFamilyPreview} from './encounter-families.mjs?v=packed-light-1';
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 export const THEME_INKS=Object.freeze({sustain:'#b9d995',precision:'#a8d5e2',tempo:'#e4c286',dream:'#cbb2e6',risk:'#e4a894'});
 export function rewardThemeMarkup(source={},label='RELIC PATH'){
@@ -23,5 +23,5 @@ export function artifactOfferMarkup(a,run,{synergy='',description=a.description}
  return `<article class="relic-offer ${esc(a.rarity||'common')}"><button class="relic-info" data-action="inspect-artifact" data-id="${esc(a.id)}" aria-label="How ${esc(a.name)} works">?</button><button class="reward-relic" data-action="pick-reward" data-id="${esc(a.id)}">${artifactIcon(a.id)}<span class="relic-rarity">${artifactRarityLabel(a)}</span><strong>${esc(a.name)}</strong><small>${esc(offerDescription)}</small>${synergy?`<em>${esc(synergy)}</em>`:''}</button></article>`;
 }
 export function artifactDetailMarkup(a,{rules,synergy='',description=a.description,closeAction='close-sheet'}={}){
- return `<div class="relic-detail-crest ${esc(a.rarity||'common')}">${artifactIcon(a.id)}<div><small>${artifactRarityLabel(a)}</small><h2>${esc(a.name)}</h2></div></div><div class="relic-detail-rules">${rules?.trigger?`<p><b>WHEN</b><span>${esc(rules.trigger)}</span></p>`:''}<p><b>EFFECT</b><span>${esc(rules?.effect||description)}</span></p>${rules?.limits?`<p><b>LIMIT</b><span>${esc(rules.limits)}</span></p>`:''}${synergy?`<p class="relic-link"><b>YOUR BUILD</b><span>${esc(synergy)}</span></p>`:''}<p><b>TRADE</b><span>Dissolve into ${formatGlow(Number(a.sellValue)||0)} Glow at events or rests. Full-meter surplus becomes Condensed Glow.</span></p></div><button class="primary" data-action="${closeAction}">Back</button>`;
+ return `<div class="relic-detail-crest ${esc(a.rarity||'common')}">${artifactIcon(a.id)}<div><small>${artifactRarityLabel(a)}</small><h2>${esc(a.name)}</h2></div></div><div class="relic-detail-rules">${rules?.trigger?`<p><b>WHEN</b><span>${esc(rules.trigger)}</span></p>`:''}<p><b>EFFECT</b><span>${esc(rules?.effect||description)}</span></p>${rules?.limits?`<p><b>LIMIT</b><span>${esc(rules.limits)}</span></p>`:''}${synergy?`<p class="relic-link"><b>YOUR BUILD</b><span>${esc(synergy)}</span></p>`:''}<p><b>TRADE</b><span>Dissolve into ${formatGlow(Number(a.sellValue)||0)} Glow at events or rests. Full-meter surplus becomes Packed Light.</span></p></div><button class="primary" data-action="${closeAction}">Back</button>`;
 }

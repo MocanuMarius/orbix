@@ -1,4 +1,4 @@
-import {glowText} from './vitality.mjs?v=edge-and-void-1';
+import {glowText} from './vitality.mjs?v=packed-light-1';
 const stop=(kind,label,name,summary)=>Object.freeze({kind,label,name,summary,icon:kind});
 export const MAP_STOP_TYPES=Object.freeze({
 flight:stop('flight','FLIGHT','Flight','Fly a passage, choose a relic or dissolve it into Glow, and recover fuel.'),
@@ -8,18 +8,18 @@ encounter:stop('encounter','ENCOUNTER','Encounter','A bargain, sanctuary, worksh
 boss:stop('boss','BOSS','Boss','Face the guardian at the end of the third map.'),
 });
 export const EVENT_SCENARIOS=Object.freeze([
-{id:'ash-spring',index:0,name:'Ash Spring',summary:'Trade Condensed Glow for a refill, or collect a smaller light offering.',detail:'A full refill spends upgrade currency. A finite offering fills Glow first and condenses its surplus.'},
+{id:'ash-spring',index:0,name:'Ash Spring',summary:'Trade Packed Light for a refill, or collect a smaller light offering.',detail:'A full refill spends upgrade currency. A finite offering fills Glow first and condenses its surplus.'},
 {id:'cinder-bargain',index:1,name:'Cinder Bargain',summary:'Trade some fuel for an artifact, or take a safe light offering.',detail:'Preview the Glow cost and the actual fuel/condensed split before accepting.'},
 {id:'abandoned-lantern',index:2,name:'Abandoned Lantern',summary:'Recover fuel or collect the lantern’s remaining light.',detail:'Recovery fills fuel only. A finite light offering can condense above your maximum.'},
-{id:'weathered-shrine',index:3,name:'Weathered Shrine',summary:'Buy a discounted skill or collect a light offering.',detail:'The offered skill spends Condensed Glow. This shrine does not provide full Rest services.'},
+{id:'weathered-shrine',index:3,name:'Weathered Shrine',summary:'Buy a discounted skill or collect a light offering.',detail:'The offered skill spends Packed Light. This shrine does not provide full Rest services.'},
 {id:'luminous-well',index:4,name:'Luminous Well',summary:'Choose full recovery or a finite light offering.',detail:'Rest-style recovery never produces currency; a light offering condenses only its actual surplus.'},
-{id:'ember-archive',index:5,name:'The Glow Archive',summary:'Dissolve an artifact or keep your build and accept a light offering.',detail:'Dissolved artifacts release Glow. Any surplus becomes Condensed Glow for run skills.'},
-{id:'ember-dice',index:6,name:'Prism Dice',summary:'Take a certain light offering, or spend Condensed Glow on one roll.',detail:'Three equally likely offerings. One cast; the result stays fixed if you return.'},
+{id:'ember-archive',index:5,name:'The Glow Archive',summary:'Dissolve an artifact or keep your build and accept a light offering.',detail:'Dissolved artifacts release Glow. Any surplus becomes Packed Light for run skills.'},
+{id:'ember-dice',index:6,name:'Prism Dice',summary:'Take a certain light offering, or spend Packed Light on one roll.',detail:'Three equally likely offerings. One cast; the result stays fixed if you return.'},
 {id:'lost-lanterns',index:7,name:'Lost Lanterns',summary:'Choose recovery, a light offering, or sacrifice fuel for an artifact.',detail:'Each lantern trades immediate fuel, future upgrades or a changed build.'},
 {id:'wisp-bargain',index:8,name:'Wisp Bargain',summary:'Take a larger offering with a Lift burden, or travel lightly.',detail:'The burden raises Lift effort for only the next flight. Preview each offering’s fuel and condensed value.'},
 {id:'sanctuary',index:9,name:'Quiet Sanctuary',summary:'Choose fuel, a missing heart, or faster companion recovery.',detail:'The blessing improves companion recovery for your next flight.'},
-{id:'workshop',index:10,name:'Lantern Workshop',summary:'Refund a main skill branch, or keep your build and collect light.',detail:'Refund paid Condensed Glow from that branch. Your free starting gift stays learned.'},
-{id:'companion-shrine',index:11,name:'Companion Shrine',summary:'Bless companions, buy a discounted skill, or accept a light offering.',detail:'The blessing improves recovery for your next flight. Skills spend Condensed Glow.'},
+{id:'workshop',index:10,name:'Lantern Workshop',summary:'Refund a main skill branch, or keep your build and collect light.',detail:'Refund paid Packed Light from that branch. Your free starting gift stays learned.'},
+{id:'companion-shrine',index:11,name:'Companion Shrine',summary:'Bless companions, buy a discounted skill, or accept a light offering.',detail:'The blessing improves recovery for your next flight. Skills spend Packed Light.'},
 ].map(Object.freeze));
 export function getEventScenarios(options={}){return EVENT_SCENARIOS.map(entry=>({...entry,summary:glowText(entry.summary,options.maxGlow||100),detail:glowText(entry.detail,options.maxGlow||100)}));}
 function kindOf(value){

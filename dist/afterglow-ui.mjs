@@ -1,3 +1,3 @@
-// Condensed Glow is run currency, never a second flight-fuel reserve.
+// Packed Light is run currency, never a second flight-fuel reserve.
 export const formatCondensedGlow=value=>String(Math.max(0,Math.floor(Number(value)||0)));
-export function condensedIconMarkup(){return '<svg class="ico condensed-icon" viewBox="0 0 24 24" aria-hidden="true" shape-rendering="crispEdges"><path d="M8 2h8v2h4v4h2v8h-2v4h-4v2H8v-2H4v-4H2V8h2V4h4Z" fill="#526f65"/><path d="M8 5h8v3h3v8h-3v3H8v-3H5V8h3Z" fill="#b4d7c3"/><path d="M9 8h6v8H9zM8 10h8v4H8z" fill="#fff5d3"/><path d="M4 3h2v2H4zM19 19h2v2h-2Z" fill="#c4e7cf"/></svg>';}
+export function condensedIconMarkup(){return '<svg class="ico condensed-icon" viewBox="0 0 24 24" aria-hidden="true" shape-rendering="crispEdges"><path d="M3 3h18v18H3z" fill="#32483f"/><path d="M3 3h18v3H6v15H3z" fill="#a4b99c"/><path d="M6 6h12v12H6z" fill="#182e28"/><path d="M7 7h10v10H7z" fill="#547d62"/><path d="M9 8h6v1h1v6h-1v1H9v-1H8V9h1z" fill="#c7e3ab"/><path d="M10 9h4v6h-4zM9 11h6v2H9z" fill="#fff9d7"/><path d="M18 6h3v15H6v-3h12z" fill="#718e72"/><path d="M3 3h3v3H3zM18 18h3v3h-3z" fill="#e1e7be"/></svg>';}

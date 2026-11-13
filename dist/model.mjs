@@ -1,17 +1,17 @@
-import {CONDENSED_TUNING,getCondensationRules,condenseGlow} from './condensed-glow.mjs?v=edge-and-void-1';
-export {getCondensationRules} from './condensed-glow.mjs?v=edge-and-void-1';
-import {ROUTE_RECIPES,ROUTE_TOPOLOGY_VERSION,REWARD_THEMES,nodeEconomy} from './route-recipes.mjs?v=edge-and-void-1';
-import {COMPANION_ABILITIES,getCompanionUnlock} from './companion-abilities.mjs?v=edge-and-void-1';
-import {MAIN_TUNING_SKILLS} from './main-tuning.mjs?v=edge-and-void-1';
-import {STARTING_CONDENSED_GLOW,getGlowCapacity,glowText} from './vitality.mjs?v=edge-and-void-1';
-import {expandSkillSteps,skillProgress} from './skill-increments.mjs?v=edge-and-void-1';
-import {MAX_ASCENSION} from './ascent.mjs?v=edge-and-void-1';
-import {EXPANDED_SKILLS,applyExpandedSkills} from './skill-paths.mjs?v=edge-and-void-1';
+import {CONDENSED_TUNING,getCondensationRules,condenseGlow} from './condensed-glow.mjs?v=packed-light-1';
+export {getCondensationRules} from './condensed-glow.mjs?v=packed-light-1';
+import {ROUTE_RECIPES,ROUTE_TOPOLOGY_VERSION,REWARD_THEMES,nodeEconomy} from './route-recipes.mjs?v=packed-light-1';
+import {COMPANION_ABILITIES,getCompanionUnlock} from './companion-abilities.mjs?v=packed-light-1';
+import {MAIN_TUNING_SKILLS} from './main-tuning.mjs?v=packed-light-1';
+import {STARTING_CONDENSED_GLOW,getGlowCapacity,glowText} from './vitality.mjs?v=packed-light-1';
+import {expandSkillSteps,skillProgress} from './skill-increments.mjs?v=packed-light-1';
+import {MAX_ASCENSION} from './ascent.mjs?v=packed-light-1';
+import {EXPANDED_SKILLS,applyExpandedSkills} from './skill-paths.mjs?v=packed-light-1';
 /** Run-owned skills and currency; persistent ascension unlocks and boss artifacts. */
-import { FLAME_TUNING, LIFE_TUNING, getLifeCapacity } from './vitality.mjs?v=edge-and-void-1';
-import { getBiomeLevelIdentity } from './level-catalog.mjs?v=edge-and-void-1';
-import { BIOMES } from './biomes.mjs?v=edge-and-void-1';
-import { EVENT_SCENARIOS } from './map-guide.mjs?v=edge-and-void-1';
+import { FLAME_TUNING, LIFE_TUNING, getLifeCapacity } from './vitality.mjs?v=packed-light-1';
+import { getBiomeLevelIdentity } from './level-catalog.mjs?v=packed-light-1';
+import { BIOMES } from './biomes.mjs?v=packed-light-1';
+import { EVENT_SCENARIOS } from './map-guide.mjs?v=packed-light-1';
 export const SAVE_KEY='wispbound.save.condensed.v7';
 export const CAMPAIGN_MAP_NAMES=Object.freeze(['The Forgotten Verge','The Rootbound March','The Warden’s Reach']);
 export const TERRAINS=Object.freeze({ruins:{id:'ruins',name:'Sunken Ruins',color:'#cdb183',description:'Broken homes, worn arches and overgrown stone.'},canopy:{id:'canopy',name:'Luminous Canopy',color:'#94b48a',description:'Hollow trees, hanging roots and sheltered forest passages.'},storm:{id:'storm',name:'Stormglass Peaks',color:'#a8bbca',description:'Pine ridges, old mine timbers and local draft puffs.'}});
@@ -34,7 +34,7 @@ const skill=(id,name,branch,cost,maxRank,requires,description,prices)=>Object.fr
 export const SKILLS=Object.freeze(expandSkillSteps({
  ...EXPANDED_SKILLS,
  ...MAIN_TUNING_SKILLS,
- 'main-bond':skill('main-bond','Companion Bond','main',80,2,null,'Add a second companion after Map 1, then a third after Map 2. Spend Condensed Glow at a Rest.',[80,300]),
+ 'main-bond':skill('main-bond','Companion Bond','main',80,2,null,'Add a second companion after Map 1, then a third after Map 2. Spend Packed Light at a Rest.',[80,300]),
  'main-efficiency':skill('main-efficiency','Gentle Lift','main',40,3,null,'Lift spends 7% less Glow per rank.'),
  'main-sight':skill('main-sight','Inner Glow','main',40,3,null,'See farther ahead with each rank.'),
  'main-lift':skill('main-lift','Rising Light','main',110,2,'main-efficiency','Lift impulse is 4% stronger per rank.'),
@@ -67,7 +67,7 @@ export const SKILLS=Object.freeze(expandSkillSteps({
  'swift-mastery':skill('swift-mastery','Deep Spark','swift',75,1,'swift-attunement','Surge recharges 0.75 seconds sooner. Adds to your first Spark.'),
  'afterglow-vessel':skill('afterglow-vessel','Fine Facets','afterglow',36,2,'main-afterglow','Overflow conversion gains 5 percentage points per rank.'),
  'afterglow-retention':{...skill('afterglow-retention','Prismatic Yield','afterglow',40,2,'afterglow-vessel','Overflow conversion gains another 5 percentage points per rank.'),choiceGroup:'condensation-style',excludes:['afterglow-anchor']},
- 'afterglow-anchor':{...skill('afterglow-anchor','Kept Light','afterglow',30,2,'main-afterglow','Each 100 Condensed Glow kept adds 2.5 percentage points to overflow yield per rank, up to three tiers. No passive interest.'),choiceGroup:'condensation-style',excludes:['afterglow-retention']},
+ 'afterglow-anchor':{...skill('afterglow-anchor','Kept Light','afterglow',30,2,'main-afterglow','Each 100 Packed Light kept adds 2.5 percentage points to overflow yield per rank, up to three tiers. No passive interest.'),choiceGroup:'condensation-style',excludes:['afterglow-retention']},
 }));
 const ARTIFACT_TAGS={'sunheart-engine':['sustain','tempo'],'dream-sovereign':['dream','precision'],'hollow-covenant':['risk','precision'],dreamcatcher:['dream','tempo'],'second-dawn':['dream','precision'],'echo-vessel':['sustain'],'glass-lantern':['sustain','risk'],'night-gardener':['risk','precision'],'ember-lens':['dream'],'quiet-cinder':['sustain'],'silver-feather':['precision'],'moss-heart':['precision','sustain'],'wayfinder-seed':['sustain','tempo'],'iron-petal':['sustain','tempo'],'storm-knot':['tempo','risk'],'hollow-bell':['precision'],'dawn-thread':['dream'],'overflow-coil':['sustain','tempo'],'echo-bell':['precision','tempo'],'dawn-loom':['tempo','dream'],sunspool:['precision','dream']};
 const BOSS_ARTIFACTS=new Set(['sunheart-engine','dream-sovereign','hollow-covenant']);
@@ -360,7 +360,7 @@ function upgradeOffer(run,profile){
  const wallet=runWallet(run),branches=new Set(['main',...(run.companions||[run.companionRole]),...(wallet.condensationUnlocked?['afterglow']:[])]);
  const eligible=Object.keys(SKILLS).filter(id=>branches.has(SKILLS[id].branch)&&getSkillCost(wallet,id)!==null),id=eligible[Math.floor(rng(`${run.seed}:${run.current.id}:upgrade`)()*eligible.length)];
  if(!id)return choice('archive-light','Gather the light','Collect 30 Glow; excess condenses.',{pickupGlow:30});
- const cost=Math.max(1,Math.round(getSkillCost(wallet,id)*.8));return choice('shrine-upgrade',`Learn ${SKILLS[id].name}`,`Spend ${cost} Condensed Glow for one rank this run.`,{upgrade:id,condensedCost:cost});
+ const cost=Math.max(1,Math.round(getSkillCost(wallet,id)*.8));return choice('shrine-upgrade',`Learn ${SKILLS[id].name}`,`Spend ${cost} Packed Light for one rank this run.`,{upgrade:id,condensedCost:cost});
 }
 function rawSupportChoices(run,profile=null){
  if(run?.phase!=='support')return[];const n=run.current;
@@ -368,13 +368,13 @@ function rawSupportChoices(run,profile=null){
  if(n.kind==='camp')return[choice('rest-recover','Recover','Refill Glow completely, then open skills and fleet service. Recovery does not condense.',{flame:100,rest:'recover'}),choice('rest-gather','Gather a light pod','Collect 45 Glow; excess condenses. Then open skills and fleet service.',{pickupGlow:45,rest:'gather'}),...(run.lives<getLifeCapacity(run)?[choice('rest-rekindle','Rekindle hearts','Refill every heart, then open Rest services.',{lives:getLifeCapacity(run)-run.lives,rest:'rekindle'})]:[])];
  if(n.kind==='shrine')return[choice('shrine-fuel','Gather shelter light','Collect 35 Glow; excess condenses. This is not a full Rest.',{pickupGlow:35}),upgradeOffer(run,profile)];
  switch(n.eventIndex){
- case 6:return[choice('dice-safe','Take the offering','Collect 30 Glow; excess condenses.',{pickupGlow:30}),choice('dice-roll','Cast the Prism Dice','Spend 4 Condensed Glow. Equal chances: collect 25 Glow, 60 Glow or 100 Glow; excess condenses.',{condensedCost:4,dice:true})];
+ case 6:return[choice('dice-safe','Take the offering','Collect 30 Glow; excess condenses.',{pickupGlow:30}),choice('dice-roll','Cast the Prism Dice','Spend 4 Packed Light. Equal chances: collect 25 Glow, 60 Glow or 100 Glow; excess condenses.',{condensedCost:4,dice:true})];
  case 7:return[choice('lantern-fuel','Pale lantern','Refill Glow completely. Recovery does not condense.',{flame:100}),choice('lantern-skill','Golden lantern','Collect 55 Glow; excess condenses.',{pickupGlow:55}),choice('lantern-relic','Sealed lantern','Spend 15% Glow to choose an artifact.',{flame:-getGlowCapacity(run)*.15,artifactReward:true})];
  case 8:return[choice('bargain-burden','Carry a heavy light','Collect 70 Glow; excess condenses. Lift costs 12% more next flight.',{pickupGlow:70,burden:true}),choice('bargain-decline','Travel lightly','Collect 25 Glow; excess condenses.',{pickupGlow:25})];
  case 9:return[choice('sanctuary-glow','Bathe in light','Recover 40% Glow. Recovery does not condense.',{flame:getGlowCapacity(run)*.4}),...(run.lives<getLifeCapacity(run)?[choice('sanctuary-life','Rekindle an attempt','Restore one missing heart.',{lives:1})]:[]),choice('sanctuary-bless','Carry a blessing','Companion recovery is 20% faster for the next flight.',{blessing:true})];
  case 10:{const roots=MAIN_WISP_BRANCHES.filter(b=>rank(run.skills,b.root)>0);return[...roots.map(b=>choice('workshop-'+b.root,`Reshape ${b.name}`,'Refund this learned main-wisp branch at full paid cost. Your free starting gift stays.',{respec:b.root})),choice('workshop-keep','Keep your build','Collect 35 Glow; excess condenses.',{pickupGlow:35})];}
  case 11:return[choice('shrine-attune',`Attune ${run.companionRole}`,'Companion recovery is 20% faster for the next flight.',{blessing:true}),upgradeOffer(run,profile),choice('shrine-offering','Accept the offering','Collect 40 Glow; excess condenses.',{pickupGlow:40})];
- case 0:return[choice('spring','Kindle the spring','Spend 5 Condensed Glow to refill Glow completely. Recovery does not condense.',{flame:100,condensedCost:5}),choice('spring-light','Follow the silver stream','Collect 30 Glow; excess condenses.',{pickupGlow:30})];
+ case 0:return[choice('spring','Kindle the spring','Spend 5 Packed Light to refill Glow completely. Recovery does not condense.',{flame:100,condensedCost:5}),choice('spring-light','Follow the silver stream','Collect 30 Glow; excess condenses.',{pickupGlow:30})];
  case 1:return[run.flame>=15?choice('bargain','Trade Glow','Spend 15 Glow to choose an artifact.',{flame:-15,artifactReward:true}):choice('bargain-light','Keep the last light','Recover 18 Glow.',{flame:18}),choice('bargain-safe','Gather scattered light','Collect 30 Glow; excess condenses.',{pickupGlow:30})];
  case 2:return[choice('lantern-light','Kindle the lantern','Refill Glow completely. Recovery does not condense.',{flame:100}),choice('lantern-pod','Gather nesting light','Collect 50 Glow; excess condenses.',{pickupGlow:50})];
  case 3:return[upgradeOffer(run,profile),choice('shrine-keep','Keep your present build','Collect 40 Glow; excess condenses.',{pickupGlow:40})];
@@ -395,10 +395,10 @@ export function resolveSupport(run,index,profile=null){
  if(e.sell){if(!run.testMode&&profile){profile.ownedArtifacts=profile.ownedArtifacts.filter(id=>id!==e.sell);profile.equippedArtifacts=profile.equippedArtifacts.filter(id=>id!==e.sell);}run.artifacts=run.artifacts.filter(id=>id!==e.sell);}
  if(e.artifactReward)run.flightReward=makeFlightReward(run,'treasure');
  if(e.burden)run.nextFlightBurden=true;if(e.blessing)run.nextFlightBlessing=true;
- if(e.respec){const belongs=id=>{if(e.respec==='main-efficiency'&&SKILLS[id]?.branch==='afterglow')return true;let n=SKILLS[id];while(n){if(n.id===e.respec)return true;n=SKILLS[n.requires];}return false;};let refund=0;for(const id of Object.keys(run.skills)){if(!belongs(id)||id===run.startingSkill)continue;refund+=count(run.skillPaid?.[id]);delete run.skills[id];if(run.skillPaid)delete run.skillPaid[id];}if(run.isTutorial)run.practiceCondensedGlow+=refund;else queue(run,refund,'respec');run.maxLives=getLifeCapacity(run);run.lives=Math.min(run.lives,run.maxLives);run.flame=Math.min(run.flame,getGlowCapacity(run));run.lastEvent={title:'Build reshaped',message:`${refund} Condensed Glow returned`};}
+ if(e.respec){const belongs=id=>{if(e.respec==='main-efficiency'&&SKILLS[id]?.branch==='afterglow')return true;let n=SKILLS[id];while(n){if(n.id===e.respec)return true;n=SKILLS[n.requires];}return false;};let refund=0;for(const id of Object.keys(run.skills)){if(!belongs(id)||id===run.startingSkill)continue;refund+=count(run.skillPaid?.[id]);delete run.skills[id];if(run.skillPaid)delete run.skillPaid[id];}if(run.isTutorial)run.practiceCondensedGlow+=refund;else queue(run,refund,'respec');run.maxLives=getLifeCapacity(run);run.lives=Math.min(run.lives,run.maxLives);run.flame=Math.min(run.flame,getGlowCapacity(run));run.lastEvent={title:'Build reshaped',message:`${refund} Packed Light returned`};}
  run.flame=e.flame>=100?getGlowCapacity(run):clamp(run.flame+finite(e.flame),0,getGlowCapacity(run));
  if(e.pickupGlow)grantGlowPickup(run,e.pickupGlow,'offering');
- if(e.dice){const face=1+Math.floor(rng(`${run.seed}:${run.current.id}:dice`)()*6),prize=face<=2?25:face<=4?60:100,reward=grantGlowPickup(run,prize,'dice');run.lastEvent={title:'Prism Dice',face,message:`Rolled ${face}: +${Math.round(prize*.3)} Glow${reward.condensedGlow?`, ${reward.condensedGlow} condensed`:''}`};}
+ if(e.dice){const face=1+Math.floor(rng(`${run.seed}:${run.current.id}:dice`)()*6),prize=face<=2?25:face<=4?60:100,reward=grantGlowPickup(run,prize,'dice');run.lastEvent={title:'Prism Dice',face,message:`Rolled ${face}: +${Math.round(prize*.3)} Glow${reward.condensedGlow?`, ${reward.condensedGlow} packed light`:''}`};}
  run.maxLives=getLifeCapacity(run);if(e.lives)run.lives=Math.min(run.maxLives,run.lives+e.lives);
  if(e.rest){run.lifeRestClaimed=e.rest==='rekindle';const key=`${run.mapIndex}:${run.current.id}`;if(!run.restVisits.some(v=>v.key===key))run.restVisits.push({key,mapIndex:run.mapIndex,row:run.step,nodeId:run.current.id,boon:e.rest});run.restReady=true;run.lastRest={nodeId:run.current.id,row:run.step,mapIndex:run.mapIndex,boon:e.rest};}
  run.stats.events++;nextStop(run);return true;

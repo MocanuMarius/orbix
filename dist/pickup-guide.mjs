@@ -1,7 +1,7 @@
-import {formatGlow} from './vitality.mjs?v=edge-and-void-1';
-import { PICKUP_TYPES, getPickupSpec } from './pickups.mjs?v=edge-and-void-1';
-import { pickupArtSvg } from './pickup-art.mjs?v=edge-and-void-1';
-import { normalizeCompanionRole, normalizeCompanionFleet } from './companion-abilities.mjs?v=edge-and-void-1';
+import {formatGlow} from './vitality.mjs?v=packed-light-1';
+import { PICKUP_TYPES, getPickupSpec } from './pickups.mjs?v=packed-light-1';
+import { pickupArtSvg } from './pickup-art.mjs?v=packed-light-1';
+import { normalizeCompanionRole, normalizeCompanionFleet } from './companion-abilities.mjs?v=packed-light-1';
 
 const esc = value => String(value ?? '').replace(/[&<>"']/g, char =>
   ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
@@ -14,7 +14,7 @@ function effectText(spec, role,maxGlow=100) {
   switch (spec.id) {
     case 'light': return `+${formatGlow(spec.fuel,maxGlow)} Glow (before build bonuses). Clears one dimming effect.`;
     case 'cache': return `+${formatGlow(spec.fuel,maxGlow)} Glow (before build bonuses). Clears one dimming effect.`;
-    case 'cluster': return `+${formatGlow(spec.fuel,maxGlow)} Glow. Surplus above your full meter becomes Condensed Glow.`;
+    case 'cluster': return `+${formatGlow(spec.fuel,maxGlow)} Glow. Surplus above your full meter becomes Packed Light.`;
     case 'charge': return `${chargeText(role, spec.recharge)} No Glow.`;
     case 'sight': return `Wider sight for ${spec.sightDuration}s. No Glow.`;
     case 'dusk': return `+${formatGlow(spec.fuel,maxGlow)} Glow (before build bonuses), with ${percent(spec.dim)}% less sight for ${spec.dimDuration}s. Manual contact only.`;
@@ -32,7 +32,7 @@ export function pickupGuideMarkup({ role = 'collector', companions, maxGlow=100,
   return `<section class="pickup-guide"><header class="pickup-guide-heading"><h2>PICKUP KEY</h2><span>${visible.length} FOUND</span></header><div class="pickup-guide-list">${visible.map(spec => {
     const size = spec.radius >= 6 ? 'LARGE' : spec.radius <= 3 ? 'SMALL' : 'MEDIUM';
     return `<article class="pickup-guide-row" data-pickup-kind="${spec.id}"><span class="pickup-guide-art" style="--pickup-art-size:40px" aria-hidden="true">${pickupArtSvg(spec.id,{className:'pickup-guide-icon'})}</span><div class="pickup-guide-copy"><div class="pickup-guide-row-title"><h3>${esc(spec.name)}</h3><small aria-label="${size.toLowerCase()}">${size}</small></div><p>${esc(effectText(spec,roles,maxGlow))}</p>${spec.manualOnly?'<b class="pickup-guide-manual">MANUAL CONTACT ONLY</b>':''}</div></article>`;
-  }).join('')}</div><p class="pickup-guide-role">${collects?'Collector fetches eligible missed pickups when their rings touch its boundary.': 'No Collector is equipped. Touch good pickups yourself.'}${collects&&(known.has('dusk')||known.has('dark'))?' Manual-contact pickups are not fetched.':''}</p><details class="pickup-flight-effects"><summary>Flight effects</summary><p class="pickup-guide-legend"><b>Edging Pulse</b><br>Skim solid terrain or the top and bottom edges to charge PULSE. Full charge reveals the scene for five fading seconds. Charge falls in open space.</p><p class="pickup-guide-legend"><b>Black Hole</b><br>A dark core steals Glow continuously when you approach. Give it space: the closer you fly, the faster your light spirals away. It is not a pickup. Shields do not stop its drain.</p></details><p class="pickup-guide-legend"><b>FULL METER → CONDENSED GLOW</b><br>Surplus pickup light buys run skills. Earnings are kept on clear; Rest recovery never creates currency.</p><p class="pickup-guide-legend">Pale ring: boon. Red ring: danger or a cost. The inner shape identifies the pickup.</p><button class="secondary" data-action="condensation-help">How overflow becomes upgrades</button><button class="primary pickup-guide-close" data-action="close-power">Close</button></section>`;
+  }).join('')}</div><p class="pickup-guide-role">${collects?'Collector fetches eligible missed pickups when their rings touch its boundary.': 'No Collector is equipped. Touch good pickups yourself.'}${collects&&(known.has('dusk')||known.has('dark'))?' Manual-contact pickups are not fetched.':''}</p><details class="pickup-flight-effects"><summary>Flight effects</summary><p class="pickup-guide-legend"><b>Edging Pulse</b><br>Skim solid terrain or the top and bottom edges to charge PULSE. Full charge reveals the scene for five fading seconds. Charge falls in open space.</p><p class="pickup-guide-legend"><b>Black Hole</b><br>A dark core steals Glow continuously when you approach. Give it space: the closer you fly, the faster your light spirals away. It is not a pickup. Shields do not stop its drain.</p></details><p class="pickup-guide-legend"><b>FULL METER → PACKED LIGHT</b><br>Surplus pickup light buys run skills. Earnings are kept on clear; Rest recovery never creates currency.</p><p class="pickup-guide-legend">Pale ring: boon. Red ring: danger or a cost. The inner shape identifies the pickup.</p><button class="secondary" data-action="condensation-help">How overflow becomes upgrades</button><button class="primary pickup-guide-close" data-action="close-power">Close</button></section>`;
 }
 
 /** A short first-contact lesson; the app supplies the world highlight target. */
@@ -49,7 +49,7 @@ export function pickupLesson(kind, { role = 'collector', companions, maxGlow=100
       text = `This larger light restores ${formatGlow(spec.fuel,maxGlow)} Glow (before build bonuses) and clears one dimming effect. ${collects?'Collector can fetch a missed cache.':'Move your body through it to collect.'}`;
       break;
     case 'cluster':
-      text = `Restores ${formatGlow(spec.fuel,maxGlow)} Glow. Keep collecting with a full meter to earn Condensed Glow; clear the passage to keep it.`;
+      text = `Restores ${formatGlow(spec.fuel,maxGlow)} Glow. Keep collecting with a full meter to earn Packed Light; clear the passage to keep it.`;
       break;
     case 'charge':
       text = `${chargeText(roles,spec.recharge)} This cyan pickup restores no Glow.`;

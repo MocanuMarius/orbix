@@ -1,36 +1,36 @@
-import {FlightProjection,drawFlightProjection} from './flight-projection.mjs?v=edge-and-void-1';
-import {drawGlowSense} from './glow-sense.mjs?v=edge-and-void-1';
-import {formatGlow} from './vitality.mjs?v=edge-and-void-1';
-import {installRiskChains} from './risk-chains.mjs?v=edge-and-void-1';
-import {EXTRA_COURSES} from './world-expansion.mjs?v=edge-and-void-1';
-import {BIOME_COURSES} from './biome-courses.mjs?v=edge-and-void-1';
-import {BiomeDynamics} from './biome-dynamics.mjs?v=edge-and-void-1';
-import {condenseGlow} from './condensed-glow.mjs?v=edge-and-void-1';
-import {ensureGlowBudget} from './glow-budget.mjs?v=edge-and-void-1';
-import {EdgingPulse} from './edging-pulse.mjs?v=edge-and-void-1';
-import {BlackHoles} from './black-holes.mjs?v=edge-and-void-1';
-import {drawBlackHoles} from './black-hole-art.mjs?v=edge-and-void-1';
+import {FlightProjection,drawFlightProjection} from './flight-projection.mjs?v=packed-light-1';
+import {drawGlowSense} from './glow-sense.mjs?v=packed-light-1';
+import {formatGlow} from './vitality.mjs?v=packed-light-1';
+import {installRiskChains} from './risk-chains.mjs?v=packed-light-1';
+import {EXTRA_COURSES} from './world-expansion.mjs?v=packed-light-1';
+import {BIOME_COURSES} from './biome-courses.mjs?v=packed-light-1';
+import {BiomeDynamics} from './biome-dynamics.mjs?v=packed-light-1';
+import {condenseGlow} from './condensed-glow.mjs?v=packed-light-1';
+import {ensureGlowBudget} from './glow-budget.mjs?v=packed-light-1';
+import {EdgingPulse} from './edging-pulse.mjs?v=packed-light-1';
+import {BlackHoles} from './black-holes.mjs?v=packed-light-1';
+import {drawBlackHoles} from './black-hole-art.mjs?v=packed-light-1';
 /* Emberwing's self-contained canvas flight simulation and renderer. */
-import { FLAME_TUNING, LIGHT_PACKET_TUNING } from './vitality.mjs?v=edge-and-void-1';
-import { flightEndDistance } from './flight-end.mjs?v=edge-and-void-1';
-import {getExitLandmarkState,drawExitLandmark} from './exit-landmark.mjs?v=edge-and-void-1';
-import { WispCompanion, wispHome } from './wisp.mjs?v=edge-and-void-1';
-import { getAscentInfo } from './ascent.mjs?v=edge-and-void-1';
-import { LEVEL_LENGTH, getLevelLengthScale } from './level-length.mjs?v=edge-and-void-1';
-import { resolveLevelIdentity } from './level-catalog.mjs?v=edge-and-void-1';
-import { DraftField, DRAFT_TUNING } from './drafts.mjs?v=edge-and-void-1';
-import { normalizeCompanionRole, normalizeCompanionFleet, getCompanionAbility } from './companion-abilities.mjs?v=edge-and-void-1';
-import { populateSceneProps, scenePropPolygons } from './scene-props.mjs?v=edge-and-void-1';
-import { pickupKind, getPickupSpec, pickupContactRadius, isFuelPickup, canCompanionCollect } from './pickups.mjs?v=edge-and-void-1';
-import { drawPickup } from './pickup-art.mjs?v=edge-and-void-1';
-import { buildBossLayout, getBossState as bossState, drawBoss } from './boss.mjs?v=edge-and-void-1';
-import { getAuthoredChallenge, finalizeFlightChallenges, installAuthoredDraftCrossings, FlightChallengeDirector } from './flight-challenges.mjs?v=edge-and-void-1';
-import { installEncounterFamily } from './encounter-families.mjs?v=edge-and-void-1';
-import { ArtifactEffects } from './artifact-effects.mjs?v=edge-and-void-1';
-import { lightVisibility,createLightMaskCanvas,sceneRevealStrength } from './light-field.mjs?v=edge-and-void-1';
+import { FLAME_TUNING, LIGHT_PACKET_TUNING } from './vitality.mjs?v=packed-light-1';
+import { flightEndDistance } from './flight-end.mjs?v=packed-light-1';
+import {getExitLandmarkState,drawExitLandmark} from './exit-landmark.mjs?v=packed-light-1';
+import { WispCompanion, wispHome } from './wisp.mjs?v=packed-light-1';
+import { getAscentInfo } from './ascent.mjs?v=packed-light-1';
+import { LEVEL_LENGTH, getLevelLengthScale } from './level-length.mjs?v=packed-light-1';
+import { resolveLevelIdentity } from './level-catalog.mjs?v=packed-light-1';
+import { DraftField, DRAFT_TUNING } from './drafts.mjs?v=packed-light-1';
+import { normalizeCompanionRole, normalizeCompanionFleet, getCompanionAbility } from './companion-abilities.mjs?v=packed-light-1';
+import { populateSceneProps, scenePropPolygons } from './scene-props.mjs?v=packed-light-1';
+import { pickupKind, getPickupSpec, pickupContactRadius, isFuelPickup, canCompanionCollect } from './pickups.mjs?v=packed-light-1';
+import { drawPickup } from './pickup-art.mjs?v=packed-light-1';
+import { buildBossLayout, getBossState as bossState, drawBoss } from './boss.mjs?v=packed-light-1';
+import { getAuthoredChallenge, finalizeFlightChallenges, installAuthoredDraftCrossings, FlightChallengeDirector } from './flight-challenges.mjs?v=packed-light-1';
+import { installEncounterFamily } from './encounter-families.mjs?v=packed-light-1';
+import { ArtifactEffects } from './artifact-effects.mjs?v=packed-light-1';
+import { lightVisibility,createLightMaskCanvas,sceneRevealStrength } from './light-field.mjs?v=packed-light-1';
 import { createTutorialState, buildTutorialLayout, recordTutorialPickup,
-  updateTutorial, updateTutorialCompanion, getTutorialHint } from './tutorial.mjs?v=edge-and-void-1';
-export { FLAME_TUNING } from './vitality.mjs?v=edge-and-void-1';
+  updateTutorial, updateTutorialCompanion, getTutorialHint } from './tutorial.mjs?v=packed-light-1';
+export { FLAME_TUNING } from './vitality.mjs?v=packed-light-1';
 const TAU = Math.PI * 2;
 const STEP = 1 / 60;
 const COMPANION_ORBIT_SPEED = {protector:1.3,leveler:1.7,swift:3.4,seer:.8,kindler:2.2};
@@ -40,7 +40,7 @@ const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
 const lerp = (a, b, t) => a + (b - a) * t;
 export const FLIGHT_TUNING = Object.freeze({ gravity: 300, flapImpulse: 205,
   forwardSpeed: 154, terminalFall: 245, pickupRadius: LIGHT_PACKET_TUNING.pickupRadius });
-export { DRAFT_TUNING } from './drafts.mjs?v=edge-and-void-1';
+export { DRAFT_TUNING } from './drafts.mjs?v=packed-light-1';
 // Retain the public tuning name for consumers; wind now has no global cycle.
 export const WIND_TUNING = DRAFT_TUNING;
 
@@ -880,7 +880,7 @@ export class WispFlight {
 
   async initPixelView() {
     try {
-      const { WispFlightView } = await import('./wisp-renderer.mjs?v=edge-and-void-1');
+      const { WispFlightView } = await import('./wisp-renderer.mjs?v=packed-light-1');
       if (this.destroyed) return;
       this.pixiView = new WispFlightView(this);
       const initialized = await this.pixiView.init();
@@ -1757,7 +1757,7 @@ export class WispFlight {
       pickupKind: kind, value: ember.value === 3 ? 3 : 1, restored,
       text:surplus>0&&restored<=0?'OVERFLOW':undefined,life: .72 });
     if (this.pickupEffects.length > 12) this.pickupEffects.shift();
-    // Generated fuel helps flight only. It never mints Condensed Glow or
+    // Generated fuel helps flight only. It never mints Packed Light or
     // recursively pays pickup-triggered effects.
     if (ember.generated) {
       this.score += 5;
@@ -1770,7 +1770,7 @@ export class WispFlight {
     this.bonusEmbers += value - 1;
     this.score += value * ((ember.boostedPickup ?? this.isCompanionWorking()) && this.cards.has('golden-wake') ? 20 : 10);
     this.burst(this.player.x - 9, this.player.y + 7, value === 3 ? 14 : 5, value === 3 ? '#fff2c4' : '#ffe4a2');
-    if (surplus>0&&this.condensationFlow.amount>0) this.setEvent(`Overflow · +${this.condensationFlow.amount} Condensed Glow`);
+    if (surplus>0&&this.condensationFlow.amount>0) this.setEvent(`Overflow · +${this.condensationFlow.amount} Packed Light`);
     else if (value === 3) this.setEvent(restored > 0 ? `Glow cache · +${formatGlow(restored,this.maxFlame)} Glow` : 'Glow full');
     else if (restored > 0 && this.flame <= this.maxFlame*.45) this.setEvent(`Glow rekindled · +${formatGlow(restored,this.maxFlame)}`);
     if (this.cards.has('kindled-spirit') && this.baseEmbers % 3 === 0) {

@@ -19,7 +19,7 @@ export const MAIN_TUNING_SKILLS={
  'main-recovery-deep':node('main-recovery-deep','Deep Renewal',45,'main-recovery','Victory recovery becomes 60% Glow; it scales with your vessel.','recovery','+5 Glow recovery'),
  'main-recovery-rescue':node('main-recovery-rescue','Last Spark',40,'main-recovery','Finish below 20% Glow to recover an extra 10% Glow.','recovery','Low Glow aid'),
  'main-recovery-challenge':node('main-recovery-challenge','Earned Rest',40,'main-recovery','Completing the optional flight challenge restores an extra 10% Glow.','recovery','Bonus +10 Glow'),
- 'main-afterglow':node('main-afterglow','Condensation',35,'main-efficiency','Convert 3 excess Glow into 4 Condensed Glow. Only real pickup surplus converts; recovery never does.','reserve','3 overflow → 4'),
+ 'main-afterglow':node('main-afterglow','Condensation',35,'main-efficiency','Convert 3 excess Glow into 4 Packed Light. Only real pickup surplus converts; recovery never does.','reserve','3 overflow → 4'),
  'main-glow-sense':node('main-glow-sense','Glow Sense',40,'main-sight','Faint glimmers at the forward edge of your light hint at the height of approaching Glow and other boons. They fade as pickups become visible.','beacon','Boon sense'),
  'main-edging-attunement':node('main-edging-attunement','Edge Attunement',80,'main-sight','Edging Pulse is innate: skim clear of edges to build a 5s light pulse. Charge 25% faster: 3.2s instead of 4s.','edge-pulse','+25% charge'),
  'main-edging-lasting':node('main-edging-lasting','Lasting Pulse',100,'main-edging-attunement','Extend innate Edging Pulse from 5s to 7s. Choose longer light or slower charge loss.','edge-pulse','+2s pulse',{choiceGroup:'edging-style',excludes:['main-edging-tension']}),
