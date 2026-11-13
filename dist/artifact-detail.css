@@ -1,0 +1,27 @@
+/* Artifact rules read as one small explanation, with the condition before the benefit. */
+.artifact-explanation{display:flex;flex-direction:column;align-items:flex-start;gap:9px;min-width:0;text-align:left;font-family:var(--pixel)}
+.artifact-explanation>p{margin:0;max-width:720px;overflow-wrap:break-word}
+.artifact-explanation>.artifact-trigger-line{font:15px/1.4 var(--pixel);color:#bacdac}
+.artifact-explanation>.artifact-effect-main{font:20px/1.4 var(--pixel);color:#eee8c6}
+.artifact-explanation>.artifact-limit-line{font:14px/1.45 var(--pixel);color:#b7c6a8}
+.artifact-duration{font:12px/1.35 var(--pixel);color:#9eaf91}
+.artifact-sheet .artifact-explanation{gap:7px}.artifact-sheet .artifact-explanation>.artifact-effect-main{font-size:17px;line-height:1.35}.artifact-sheet .artifact-explanation>.artifact-trigger-line{font-size:14px}.artifact-sheet .artifact-explanation>.artifact-limit-line{font-size:12px;line-height:1.4}
+dialog.game-sheet.artifact-details-sheet:modal{display:flex;flex-direction:column;width:min(860px,calc(100vw - 24px));max-width:none;height:auto;max-height:calc(100dvh - 24px);padding:16px 22px!important;overflow:hidden;gap:14px;text-align:left;box-sizing:border-box}
+.artifact-inspection{display:flex;flex-direction:column;gap:15px;min-height:0;overflow:auto;scrollbar-width:thin;padding:0 4px 0 0}
+.artifact-inspection>.relic-detail-crest{display:flex;justify-content:flex-start;align-items:center;gap:15px;margin:0}
+.artifact-inspection>.relic-detail-crest>svg{width:72px;height:72px;flex:none;filter:none}
+.artifact-inspection>.relic-detail-crest h2{margin:5px 0 0;font:26px/1.2 var(--pixel);color:#efe8c5}
+.artifact-inspection>.relic-detail-crest small{font:12px/1.25 var(--pixel);color:#a7ba9a}
+.artifact-inspection>.relic-detail-crest.rare small{color:#b2d6a6}.artifact-inspection>.relic-detail-crest.boss small{color:#ceb1eb}
+.artifact-inspection>.artifact-combo-note{margin:0;color:#c7bc99;font:13px/1.4 var(--pixel)}
+.artifact-inspection>.artifact-salvage-note{display:flex;align-items:center;gap:7px;flex-wrap:wrap;margin:0;padding-top:10px;border-top:1px solid #73815e55;color:#c9b88e;font:13px/1.35 var(--pixel)}
+.artifact-salvage-note>.resource-symbol{width:24px;height:24px;flex:none}.artifact-salvage-note>small{font:12px/1.3 var(--pixel);color:#a6b494}
+dialog.artifact-details-sheet>.primary{align-self:flex-end;flex:none;min-height:44px;min-width:180px;margin:0;font:17px/1.2 var(--pixel)}
+@media(orientation:landscape) and (max-height:350px){
+ dialog.game-sheet.artifact-details-sheet:modal{padding:8px 14px!important;gap:8px;max-height:calc(100dvh - 16px)}
+ .artifact-inspection{gap:9px}.artifact-inspection>.relic-detail-crest{gap:12px}.artifact-inspection>.relic-detail-crest>svg{width:42px;height:42px}.artifact-inspection>.relic-detail-crest h2{font-size:21px;margin:3px 0 0}.artifact-inspection>.relic-detail-crest small{font-size:11px}
+ .artifact-explanation{gap:6px}.artifact-explanation>.artifact-trigger-line{font-size:13px;line-height:1.3}.artifact-explanation>.artifact-effect-main{font-size:17px;line-height:1.3}.artifact-explanation>.artifact-limit-line{font-size:12px;line-height:1.35}.artifact-duration{font-size:11px}
+ .artifact-sheet .artifact-explanation>.artifact-trigger-line{font-size:13px}.artifact-sheet .artifact-explanation>.artifact-effect-main{font-size:16px}.artifact-sheet .artifact-explanation>.artifact-limit-line{font-size:12px}
+ .artifact-inspection>.artifact-combo-note{font-size:12px}.artifact-inspection>.artifact-salvage-note{padding-top:5px;font-size:12px}.artifact-salvage-note>small{font-size:11px}.artifact-salvage-note>.resource-symbol{width:21px;height:21px}
+ dialog.artifact-details-sheet>.primary{font-size:15px;min-height:44px}
+}

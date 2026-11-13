@@ -9,7 +9,7 @@ export function contextualEventChoices(run,nextFlights){
     const bodyNote=run.companions?.includes('collector')?' Collector deliveries do not count.':'';
     return [
       ...(nextFlights.length&&!run.pilgrimVow?[choice('pilgrim-vow','Keep the Pilgrim’s Vow',
-        `Clear your next attempt with ${PILGRIM_VOW.target} body Spark pickups to earn ${PILGRIM_VOW.reward} Packed Light.${bodyNote} Dream pickups do not count. Fail or fall short: no extra penalty.`,
+        `Clear your next attempt with ${PILGRIM_VOW.target} body Spark pickups to earn ${PILGRIM_VOW.reward} Packed Sparks.${bodyNote} Dream pickups do not count. Fail or fall short: no extra penalty.`,
         {pilgrimVow:{...PILGRIM_VOW,sourceNodeId:node.id,mapIndex:run.mapIndex}})]:[]),
       choice('pilgrim-offering','Take the light now','Collect 20 Sparks now; excess condenses. No promise to keep.',{pickupGlow:20})
     ];
@@ -38,7 +38,7 @@ export function isVowBodyPickup(engine,packet,spec){
 export function contextualFlightNotice(run,node=run.current){
   if(!node||node.type==='support')return '';
   const lines=[];
-  if(run.pilgrimVow)lines.push(`PILGRIM VOW · Clear with ${run.pilgrimVow.target} body Spark pickups → ${run.pilgrimVow.reward} Packed Light · First attempt`);
+  if(run.pilgrimVow)lines.push(`PILGRIM VOW · Clear with ${run.pilgrimVow.target} body Spark pickups → ${run.pilgrimVow.reward} Packed Sparks · First attempt`);
   if(run.routePreparation?.nodeId===node.id)lines.push(run.routePreparation.kind==='wind'
     ?'MARKED PASSAGE · Drafts −30% · First attempt'
     :'MARKED PASSAGE · Luminance +35 · First attempt');
@@ -50,6 +50,6 @@ export function resolvePilgrimVow(vow,result){
   const collected=Math.max(0,Math.floor(Number(result.bodyFuelCollected)||0));
   const completed=result.success===true&&collected>=PILGRIM_VOW.target;
   return {completed,collected,target:PILGRIM_VOW.target,reward:completed?PILGRIM_VOW.reward:0,
-    message:completed?`Vow kept · +${PILGRIM_VOW.reward} Packed Light`
+    message:completed?`Vow kept · +${PILGRIM_VOW.reward} Packed Sparks`
       :result.success?`Vow ended · ${Math.min(collected,PILGRIM_VOW.target)}/${PILGRIM_VOW.target} body pickups. No penalty.`:'Vow ended with this attempt. No extra penalty.'};
 }

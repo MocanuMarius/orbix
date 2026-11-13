@@ -1,0 +1,52 @@
+/* A single readable offering, with the whole keep-or-melt decision in view. */
+.artifact-reward-screen{height:100%;width:100%;max-width:1000px;box-sizing:border-box;margin:auto;display:grid;grid-template-rows:auto minmax(0,1fr) 54px;gap:14px;padding:8px 16px;color:#e4dfbd;font-family:var(--pixel)}
+.artifact-reward-heading{display:flex;align-items:center;justify-content:space-between;gap:16px;min-width:0}
+.artifact-reward-heading>h1{margin:0;font:17px/1.3 var(--pixel);color:#b6c6a5}
+.reward-packed-earned{display:flex;gap:7px;align-items:center;white-space:nowrap}
+.reward-packed-earned>.resource-symbol{width:24px;height:24px}.reward-packed-earned>b{font:18px/1 var(--pixel)}.reward-packed-earned>span{font:12px/1 var(--pixel);color:#9fb293}
+.single-artifact{--relic-aura:#89958d;display:grid;grid-template-columns:minmax(100px,.36fr) minmax(0,1fr);align-items:center;gap:24px;min-height:0;min-width:0;margin:0}
+.single-artifact.rare{--relic-aura:#86c391}.single-artifact.boss{--relic-aura:#b095df}
+.reward-trophy{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;align-self:stretch;min-height:0;background:radial-gradient(ellipse at center,color-mix(in srgb,var(--relic-aura) 22%,transparent),transparent 68%)}
+.reward-trophy>svg{width:96px;height:96px;max-height:65%;flex:none;filter:drop-shadow(0 5px 0 #07120e);image-rendering:pixelated;animation:reward-present .65s steps(10,end) both}
+.reward-trophy>span{font:12px/1.1 var(--pixel);color:var(--relic-aura);letter-spacing:1px}
+.reward-copy{display:flex;flex-direction:column;align-items:flex-start;gap:13px;min-width:0;min-height:0}
+.reward-copy h2{margin:0;font:27px/1.15 var(--pixel);color:#f0e9c4;overflow-wrap:break-word}
+.reward-identity{display:flex;flex-direction:column;gap:7px}
+.reward-identity>span{font:12px/1.3 var(--pixel);color:#a8be9d}
+.reward-effect-sentence{font:18px/1.45 var(--pixel);color:#ece6c6;margin:0;max-width:670px}
+.reward-condition{font:14px/1.45 var(--pixel);color:#bfceb0;margin:0;max-width:660px}
+.reward-slot-note{font:12px/1.35 var(--pixel);color:#a5b697;margin:0}
+.artifact-reward-actions{display:flex;align-items:stretch;justify-content:center;gap:18px;min-height:0}
+.artifact-reward-actions>button{flex:1;max-width:500px;min-width:0;min-height:48px;height:100%;margin:0;padding:7px 14px;display:flex;align-items:center;justify-content:center;gap:12px;font:18px/1.2 var(--pixel);box-sizing:border-box;white-space:normal}
+.artifact-reward-actions>button>.resource-symbol{height:26px;width:26px;flex:none}
+.artifact-reward-actions .reward-melt{color:#f0d6b3;background:#493b2d;border:1px solid #b89a6f;box-shadow:inset 0 0 0 3px #19251e,inset 0 0 0 4px #947b55}
+.artifact-reward-actions .reward-melt:hover,.artifact-reward-actions .reward-melt:focus-visible{background:#5b4934;outline:2px solid #e6c58e;outline-offset:2px}
+.reward-melt .melt-art{width:39px;height:30px;flex:none}.reward-melt>b{font:19px/1 var(--pixel)}
+.reward-action-or{align-self:center;color:#9aaa8c;font:13px/1 var(--pixel)}
+.artifact-reward-actions>button:disabled{color:#a6b09a;background:#243027;opacity:1;border-color:#52604c;box-shadow:inset 0 0 0 3px #17221d;cursor:default}
+.evolution-forms{display:flex;gap:10px;align-items:stretch;max-width:100%}.evolution-forms>button{font:12px/1.2 var(--pixel);padding:8px 12px;min-height:44px;background:#25342b;color:#bac8a6;border:1px solid #6d795c;margin:0}.evolution-forms>button[aria-pressed=true]{color:#f1e6c0;background:#3d4a32;border-color:#d2c18c}
+.reward-melted .reward-trophy>.resource-symbol{width:76px;height:76px;animation:packed-reward-appear .8s steps(10,end) both}
+.melted-artifact{position:absolute;inset:0;display:grid;place-items:center;pointer-events:none}.melted-artifact>svg{width:96px;height:96px;animation:artifact-to-sparks .6s steps(10,end) forwards}
+@keyframes reward-present{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+@keyframes artifact-to-sparks{0%{opacity:1;transform:scale(1)}50%{opacity:.6;transform:scale(.65)}100%{opacity:0;transform:scale(.1)}}
+@keyframes packed-reward-appear{0%,55%{opacity:0;transform:scale(.7)}100%{opacity:1;transform:scale(1)}}
+dialog.reward-swap-sheet{display:grid;grid-template-rows:auto auto minmax(0,1fr) auto auto;gap:12px;width:min(840px,calc(100vw - 24px));max-height:calc(100dvh - 24px);overflow:hidden}
+.swap-heading{display:flex;align-items:center;justify-content:center;gap:15px}.swap-heading>svg{width:50px;height:50px;flex:none}.swap-heading h2{font:22px/1.2 var(--pixel);margin:3px 0}.swap-heading small{font:11px/1.2 var(--pixel);color:#aabc9e}
+.swap-instruction,.swap-loss{font:14px/1.35 var(--pixel);text-align:center;margin:0;color:#d3dabb}.swap-loss{font-size:12px;color:#c4b497;min-height:17px}
+.reward-swap-sheet .reward-slot-picker{display:flex;align-items:stretch;justify-content:safe center;gap:12px;min-height:0;overflow-x:auto;overflow-y:hidden;padding:4px;margin:0;overscroll-behavior:contain}
+.reward-swap-sheet .reward-slot-picker>button{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;flex:0 0 130px;min-width:0;min-height:85px;padding:8px;margin:0;border:1px solid #6a795c;background:#1d3026;color:#d7debe;box-sizing:border-box;font:13px/1.25 var(--pixel)}
+.reward-swap-sheet .reward-slot-picker>button.selected{border-color:#e6cb94;background:#3f4931;outline:2px solid #a89060;outline-offset:1px}
+.reward-swap-sheet .reward-slot-picker svg{width:38px;height:38px;flex:none}.reward-swap-sheet .reward-slot-picker span{font:13px/1.25 var(--pixel);white-space:normal;overflow-wrap:break-word}
+.swap-actions{display:flex;gap:14px}.swap-actions>button{flex:1;min-width:0;min-height:44px;font:14px/1.2 var(--pixel);margin:0}
+@media(orientation:landscape) and (max-height:350px){
+ .artifact-reward-screen{padding:2px 10px;gap:8px;grid-template-rows:22px minmax(0,1fr) 44px}
+ .artifact-reward-heading>h1{font-size:14px}.reward-packed-earned>b{font-size:15px}.reward-packed-earned>span{font-size:11px}.reward-packed-earned>.resource-symbol{width:22px;height:22px}
+ .single-artifact{grid-template-columns:105px minmax(0,1fr);gap:17px}.reward-trophy{gap:9px}.reward-trophy>svg{width:72px;height:72px}.reward-trophy>span{font-size:11px}
+ .reward-copy{gap:6px}.reward-copy h2{font-size:21px}.reward-identity{gap:4px}.reward-identity>span{font-size:11px}.reward-effect-sentence{font-size:16px;line-height:1.3}.reward-condition{font-size:12px;line-height:1.35}.reward-slot-note{font-size:11px;line-height:1.2}
+ .artifact-reward-actions{gap:10px}.artifact-reward-actions>button{font-size:16px;padding:4px 10px;min-height:44px}.artifact-reward-actions>button>.resource-symbol{height:23px;width:23px}.reward-melt>b{font-size:17px}.reward-melt .melt-art{width:32px;height:25px}
+ .evolution-forms>button{min-height:32px;font-size:11px;padding:5px 10px}.reward-evolution .reward-slot-note{display:none}.evolution-forms>button{min-height:44px}
+ dialog.reward-swap-sheet{gap:6px!important}.swap-heading>svg{width:32px;height:32px}.swap-heading h2{font-size:18px}.swap-heading small{display:none}.swap-instruction{font-size:12px}.reward-swap-sheet .reward-slot-picker>button{min-height:70px;gap:4px;padding:5px}.reward-swap-sheet .reward-slot-picker svg{width:30px;height:30px}.reward-swap-sheet .reward-slot-picker span{font-size:12px}.swap-loss{font-size:11px}.swap-actions>button{font-size:12px}
+}
+@media(prefers-reduced-motion:reduce){.reward-trophy>svg{animation:none!important}.melted-artifact{display:none}}
+
+.artifact-reward-actions>.evolution-forms{flex:1}.artifact-reward-actions>.evolution-forms>button{flex:1;margin:0;height:100%;min-height:44px}

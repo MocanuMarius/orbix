@@ -25,6 +25,6 @@ assert.equal(artifactFitsRun({skills:{'main-efficiency':1},artifacts:[]},'quiet-
 const glass=make({artifacts:['glass-lantern']});glass.flame=0;
 glass.collect({id:'glass-pickup',kind:'light',value:1,x:glass.player.x,y:glass.player.y});
 assert.equal(formatGlow(glass.flame),'10'); // 6 base + 4 Lantern, using the actual pickup path.
-assert.ok(artifactDetailMarkup(ARTIFACTS['glass-lantern'],{run:{},closeAction:'resume'}).includes('+4'));
+assert.ok(artifactDetailMarkup(ARTIFACTS['glass-lantern'],{run:{},closeAction:'resume'}).includes('Gain 4 extra Sparks'));
 for(const e of engines)e.destroy();
 console.log(JSON.stringify({burdenPaidLifts:12,burdenExtraSparks:12,freeAndFailedLiftPreserveBurden:true,fullMeterPreservesWick:true,emptyCinderRewardsFiltered:true,glassBonus:4}));

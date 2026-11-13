@@ -1,6 +1,6 @@
 // Risk-earned sight, or bounded fuel recovery when the Regenerative Falling
 // branch is chosen. Neither outcome is a pickup or invokes artifact hooks.
-import { GLOW_DISPLAY_SCALE } from './vitality.mjs?v=clear-paths-2';
+import { GLOW_DISPLAY_SCALE } from './vitality.mjs?v=one-companion-1';
 const clamp = (n, lo, hi) => Math.min(hi, Math.max(lo, n));
 const smooth = n => n * n * (3 - 2 * n);
 const EPSILON = 1e-9;
@@ -145,7 +145,7 @@ export class EdgingPulse {
       this.charge = 0; this.nearEdge = false; this.graceRemaining = 0; this.triggerCount++;
       if (this.regenerative) {
         // This is recovery, not a collectible. Only the missing fuel is added;
-        // it cannot overflow, create Packed Light, or proc pickup artifacts.
+        // it cannot overflow, create Packed Sparks, or proc pickup artifacts.
         const missing = Math.max(0, (Number(e.maxFlame) || 0) - (Number(e.flame) || 0));
         this.regenGain = Math.min(EDGING_REGEN_TUNING.glow, missing);
         if (this.regenGain > EPSILON) {

@@ -180,7 +180,7 @@ function reward(state,policy,rng,metrics){
  let id=reward.offers[0];
  if(!reward.permanent&&!reward.evolution){
   const useful=reward.offers.find(a=>M.artifactSynergy(r,a));
-  if((r.artifacts.filter(Boolean).length>=M.getArtifactCapacity(r)&&!useful)||rng()<(policy==='survival'?.15:.28))id='glow';else id=useful||id;
+  if((r.artifacts.filter(Boolean).length>=M.getArtifactCapacity(r)&&!useful)||rng()<(policy==='survival'?.15:.28))id='melt';else id=useful||id;
  }
  if(!id){reward.claimed=true;return;}
  const slot=r.artifacts.filter(Boolean).length>=M.getArtifactCapacity(r)?Math.floor(rng()*M.getArtifactCapacity(r)):null;

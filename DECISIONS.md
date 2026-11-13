@@ -865,3 +865,12 @@ Outstanding design questions are explicit, not silently treated as implemented: 
 - Prepare every flight behind a five-second splash, then wait for a deliberate wake tap. Resuming never spends a Lift; the existing slow ramp still follows wake.
 - Edging feedback belongs near the moving wisp and disappears at zero. Helpful scenery uses teal edges, vents blue, falling hazards orange, with spent objects dimmed.
 - Tutorial resources, equipment, rewards and companion testing are isolated from the suspended real run.
+
+
+## One Companion — 13 November 2026
+
+- Equip exactly one companion. Spend on its upgrades, or swap roles at Rest. Remove capacity purchases and multi-role effects; artifact slot progression remains its own system.
+- One artifact offer creates an Equip-or-Melt choice. Melt pays the same rarity currency as forging (25/35/50), directly into Packed Sparks without touching fuel or applying overflow multipliers. Final-boss claims stay permanent because run currency expires at the end.
+- Rewards explain the selected companion's actual trigger, benefit and limit. Equip uses an empty slot immediately and animates into it; replacement alone requires another choice.
+- Teach through normal play, one contextual card at a time. Skills open after one flight; advanced branches/tools follow progress. First-time flight content is staged too, not just its explanations.
+- Resume uses one explicit action, a frozen three-second countdown and the existing gradual recovery. Initial flight loading still ends paused.

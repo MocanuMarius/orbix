@@ -5,8 +5,8 @@ globalThis.requestAnimationFrame=()=>1;globalThis.cancelAnimationFrame=()=>{};
 const ctx=new Proxy({},{get:(o,k)=>o[k]??(String(k).includes('Gradient')?()=>({addColorStop(){}}):()=>{}),set:(o,k,v)=>(o[k]=v,true)});
 const canvas={style:{},getContext:()=>ctx,getBoundingClientRect:()=>({width:390,height:620})};
 const options={canvas,seed:'dream-probe',terrain:'ruins',duration:102,node:{flightLengthScale:3,flightNumber:1},flame:40,condensedGlow:12,
-  companions:['leveler','swift'],modifiers:{dreamDuration:6,dreamWake:3,secondDawn:1,dreamRecharge:1.5}};
-const make=()=>{const e=new WispFlight(options);e.render=()=>{};e.layout.obstacles=[];e.layout.embers=[];e.drafts.zones=[];e.start();return e};
+  companions:['leveler'],modifiers:{dreamDuration:6,dreamWake:3,secondDawn:1,dreamRecharge:1.5}};
+const make=(role='leveler')=>{const e=new WispFlight({...options,companions:[role]});e.render=()=>{};e.layout.obstacles=[];e.layout.embers=[];e.drafts.zones=[];e.start();return e};
 const snapshot=e=>JSON.stringify({time:e.time,y:e.player.y,vy:e.player.vy,distance:e.distance,flame:e.flame,condensedGlow:e.condensedTotal,flaps:e.flaps,boosts:e.boosts,charge:e.levelCharge});
 let ready,awake=0;const record=make();attachDream(record,{onReady:r=>ready=r});
 for(let frame=0;frame<360;frame++){
@@ -36,7 +36,7 @@ const garden=make();garden.mod.nightGarden=4;garden.layout.embers=[{id:'seed',ki
 garden.step(1/60);assert.equal(garden.flame,44);garden.step(1/60);assert.equal(garden.flame,44,'Each seed only grants one near-pass benefit');
 for(let i=0;i<7;i++){garden.layout.embers=[{id:'seed-'+i,kind:'dark',x:garden.distance+garden.player.x-10,y:garden.player.y+45}];garden._pickupCount=-1;garden.step(1/60);}
 assert.equal(garden.nightGardenCount,5);assert.equal(garden.flame,60,'Night Gardener cannot produce more than 20 Glow per flight');
-const charging=make();attachDream(charging,{mode:'record'});charging.fleet.find(x=>x.role==='swift').cooldown=5;
+const charging=make('swift');attachDream(charging,{mode:'record'});charging.fleet.find(x=>x.role==='swift').cooldown=5;
 charging.collect({kind:'light',x:98,y:310});assert.equal(charging.fleet.find(x=>x.role==='swift').cooldown,3.5);
 charging.collect({kind:'sight',x:98,y:310});assert.equal(charging.fleet.find(x=>x.role==='swift').cooldown,3.5,'Only fuel triggers Dreamcatcher');
 const shield=new WispFlight({...options,companions:['protector'],flame:12,condensedGlow:100});shield.running=true;shield.hit(null);

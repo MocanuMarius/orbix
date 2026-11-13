@@ -9,6 +9,7 @@ const mime={'.html':'text/html; charset=utf-8','.mjs':'text/javascript; charset=
 const fixture=`
 // MOCK RUN: changes are memory-only and reset on refresh.
 destroyFlight();state=newState();state.profile.difficulty=4;
+for(const topic of ['lift','luminance','collector','artifacts','packed','skills','rest','companions','dream','routes','black-hole','bad-sparks','drafts','edging','hearts','events','progression','special-sparks'])markOnboardingSeen(state.profile,topic);
 state.run=createRun(state.profile,'rest-inspector',1);
 const mockRun=state.run;mockRun.phase='map-clear';advanceMap(mockRun);
 mockRun.skills={'main-efficiency':1,'main-sight':1,'main-dream':1,'main-spare-spark':1};
@@ -24,7 +25,7 @@ mockRun.step=mockRest.row;mockRun.path=mockPath;mockRun.phase='map';
 if(!selectNode(mockRun,mockRest.id))throw Error('Cannot enter mock Rest');
 const scenario=new URLSearchParams(location.search).get('scenario')||'arrival';
 if(scenario==='full')mockRun.flame=100;
-if(['prepared','artifacts','forge','skills','companions','briefing','victory','pause','lighting','map','menu','death','last-heart','guide','splash','wake','proximity','interactions','result'].includes(scenario)){const pick=getSupportChoices(mockRun,state.profile).findIndex(c=>c.id==='rest-condense');resolveSupport(mockRun,pick,state.profile);settleCheckpoint(state);}
+if(['prepared','first-death','artifacts','forge','skills','companions','briefing','victory','pause','lighting','map','menu','death','last-heart','guide','splash','wake','proximity','interactions','result'].includes(scenario)){const pick=getSupportChoices(mockRun,state.profile).findIndex(c=>c.id==='rest-condense');resolveSupport(mockRun,pick,state.profile);settleCheckpoint(state);}
 goToRun();
 if(scenario==='tutorial-rest'){mockRun.isTutorial=true;mockRun.guideSkipped=false;mockRun.guideSeen={};render('support');guideScreen('support');}
 else if(scenario==='tutorial-spark'){startLesson('world:light-packet',[{title:'Sparks refill your meter',visual:'spark',text:'Touch a Spark to refill the meter on the left.',target:'.rest-glow'}]);}
@@ -38,7 +39,17 @@ else if(scenario==='companions')showFleet();
 else if(scenario==='menu')showMenu();
 else if(['briefing','victory','pause','lighting','splash','wake','proximity','interactions'].includes(scenario)){
  const next=getChoices(mockRun)[0];selectNode(mockRun,next.id);
- if(scenario==='victory'){beginFlightAttempt(mockRun);finishFlight(mockRun,{success:true,flame:60,collected:6});settleCheckpoint(state);goToRun();}
+ if(scenario==='victory'){
+  beginFlightAttempt(mockRun);finishFlight(mockRun,{success:true,flame:60,collected:6});settleCheckpoint(state);
+  const q=new URLSearchParams(location.search),id=q.get('artifact')||'echo-bell';
+  if(ARTIFACTS[id])mockRun.flightReward.offers=[id];
+  mockRun.companions=[q.get('companion')||'collector'];mockRun.companionRole=mockRun.companions[0];
+  if(q.get('slots')==='empty')mockRun.artifacts=[];
+  if(q.get('artifact')==='glow-wick'){mockRun.artifacts=['glow-wick'];mockRun.artifactCharges={'glow-wick':q.get('stack')==='full'?9:3};}
+  if(q.get('artifact')==='evolution'){mockRun.artifacts=['wayward-seed'];mockRun.flightReward={...mockRun.flightReward,evolution:true,offers:['hearth-bloom','lantern-bloom'],followup:{...mockRun.flightReward,offers:['echo-bell']}};}
+  if(q.get('source')==='boss'){mockRun.flightReward.permanent=true;mockRun.flightReward.offers=['sunheart-engine'];}
+  goToRun();
+ }
  else if(scenario==='pause'){await launch();showMenu();}
  else if(scenario==='splash'){launch();}
  else if(scenario==='wake'){await launch();}
@@ -51,6 +62,8 @@ if(['death','last-heart'].includes(scenario)){
  beginFlightAttempt(mockRun);finishFlight(mockRun,{success:false,flame:0});goToRun();
 }
 if(scenario==='guide')showFieldGuide();
+if(scenario==='onboarding'){destroyFlight();state=newState();state.run=createRun(state.profile,'first-lights');goToRun();}
+if(scenario==='first-death'){state.profile.onboarding={version:1,seen:[],stage:0};mockRun.deathPending=true;mockRun.lives=2;render('death');}
 if(scenario==='result'){mockRun.phase='ended';mockRun.success=new URLSearchParams(location.search).get('outcome')==='win';mockRun.lives=mockRun.success?2:0;if(mockRun.success)mockRun.lastFlight={artifactDrop:{id:'sunheart-engine',duplicate:false}};render('result');}
 if(['tutorial-route','tutorial-flight','tutorial-camp','tutorial-prep','tutorial-hazards'].includes(scenario)){
  closeSheet();hideLesson();destroyFlight();state=newState();startTutorial(state);const practice=state.run;

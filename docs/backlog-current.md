@@ -1,3 +1,28 @@
+# Current implementation audit — One Companion
+
+Release: `one-companion-1`. This header supersedes the older designs below.
+
+The flushed backlog is implemented: one equipped companion throughout saves, TEST, modifiers, rendering and input; no companion-capacity purchases; one clear artifact offer with Equip/Melt; consistent Packed Sparks currency; larger reward descriptions tailored to the equipped role; visible larger slots and direct equip animation; no mounted confirmation page; contextual normal-run onboarding; larger coach panels; remembered topics/reset; and a frozen 3–2–1 resume before the existing slow recovery.
+
+Behavior:
+- Melt pays the same 25/35/50 rarity values as forging, directly into the run's upgrade wallet. Fuel, overflow remainder and multipliers are untouched; a reward can be claimed once. Final-boss relics are permanent collection claims because the run currency is about to reset.
+- Equip uses an empty slot immediately. Full slots require a named replacement and show the effect being lost. The artifact then travels into the visible slot; Upgrade/Continue remain on the same screen.
+- First-time players get a single short Lift/Sparks lesson. Skills open after a cleared flight, initial tree disclosure is limited, and additional tools/content are phased in. New Game does not automatically open Skills. TEST/practice bypass these gates.
+- First-death heart guidance waits until the heart-loss animation completes. Remember & skip persists across games; Reset tutorial is in main-menu settings; New Game then replays the phased introduction even for a returning profile. Manual Field Guide/practice is optional.
+- Dismissing a flight lesson or choosing Resume starts one three-second frozen countdown, then the existing three-second linear 0.1×→1× recovery. The initial five-second loader still ends paused. Countdown taps cannot spend a Lift.
+
+Validation:
+- 22 focused tests: transaction/rarity payouts, one-off claims, replacement, practice isolation, permanent boss claims, reward markup, countdown cancellation/timing, one-companion save/modifier/engine behavior, staged content, tutorial persistence/pacing, practice progression and death/entry semantics.
+- Current-mechanics probe, deterministic Dream replay and slow-resume probe pass. Dream fixture was updated from two companions to one, with a separate Runner-only recharge case.
+- 42 browser screen/viewport cases across 900×405, 740×333 and 720×280. Corrected settings-footer overlap and the longest legendary descriptions, then rechecked affected cases. Actual Equip animation, explicit replacement, first lesson, delayed death lesson and companion swapping inspected.
+- Post-integration review caught and restored the artifact management/mount/forge handlers. Twelve additional management, forge, skills, settings, companion and Field Guide checks at 900×405 and 720×280 opened their expected sheets with no control overlap or new console errors. Actual forge removed Spark Wick and paid 25 (230→255).
+- Browser input: before/countdown `{flaps:0,time:0,paused:true}`; after countdown `{flaps:0,time:0,paused:false}` at `Game speed 0.1×`; next Lift increments to one. Initial input is never spent by Resume.
+- Existing old suites that import removed card/getModifiers APIs remain obsolete; this is a focused check report, not a full-suite or physical-device FPS certification.
+
+Publication: pending final verification. Local mock fixtures stay outside `dist`.
+
+---
+
 # Current implementation audit — Clear Paths
 
 Release: `clear-paths-2`. This entry supersedes older terminology and status reports below.

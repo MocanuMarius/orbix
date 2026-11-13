@@ -1,3 +1,22 @@
+# Current batch — One Companion (13 November 2026)
+
+Implemented as `one-companion-1`; final publication is tracked in `docs/backlog-current.md`.
+
+- [x] Exactly one equipped companion, including TEST, saves, attempt entry restoration, rendered orbs and power activation. Remove additional-companion purchases, capacity UI and mixed-role skill effects.
+- [x] Keep four distinct roles; select one starter and swap one role at Rest. Keep artifact slots separate from this removal.
+- [x] One artifact offer per flight/chest. Equip or Melt into Packed Sparks at common 25 / rare 35 / legendary 50 forge values. Final-boss relic remains a permanent collection claim.
+- [x] Rename the upgrade currency Packed Sparks across the UI and tutorial. Flight Sparks remain fuel. Remove recovered-fuel stats from the reward screen.
+- [x] Larger reward text, visible trigger → effect → limit, and copy tailored to the equipped companion.
+- [x] Larger visible artifact slots on the reward screen; Equip animates directly into a slot. Keep the same screen for Upgrade / Continue. No separate mounted confirmation screen or slot number in the Equip action.
+- [x] Full slots use Equip & replace and an explicit replacement choice with its lost effect shown.
+- [x] Integrate short tutorials into normal progress, postpone Skills until after the first flight, and introduce more tools/hazards gradually. No automatic skill sheet at New Game.
+- [x] Remember & skip persists each topic across runs. Reset tutorial is in main-menu settings; New Game can replay the phased introduction. Field Guide/practice remain optional references.
+- [x] Larger teaching panels/text; first death explains hearts and Rest recovery after the heart-loss animation.
+- [x] One Resume action → frozen 3–2–1 → existing three-second 0.1×→1× recovery. Dismissing an in-flight lesson no longer needs another wake confirmation.
+- [x] Meaningful checks for reward transactions, one-companion enforcement, staged content, tutorial persistence, Dream replay and resume timing; landscape review and corrected overflow.
+
+---
+
 # Current batch — Clear Paths (13 November 2026)
 
 Implemented in `clear-paths-2`; publication is recorded in `docs/backlog-current.md`.
