@@ -1,7 +1,7 @@
-import { DRAFT_TUNING } from './drafts.mjs?v=companion-guide-1';
-import { scenePropBounds } from './scene-props.mjs?v=companion-guide-1';
-import { formatGlow } from './vitality.mjs?v=companion-guide-1';
-import { lightVisibility } from './light-field.mjs?v=companion-guide-1';
+import { DRAFT_TUNING } from './drafts.mjs?v=collector-orbit-1';
+import { scenePropBounds } from './scene-props.mjs?v=collector-orbit-1';
+import { formatGlow } from './vitality.mjs?v=collector-orbit-1';
+import { lightVisibility } from './light-field.mjs?v=collector-orbit-1';
 
 // Small, deterministic actors attached to existing terrain. Static mountain
 // meshes never change, and each actor is used once: no repeatable currency farm.

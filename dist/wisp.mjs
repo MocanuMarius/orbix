@@ -1,10 +1,10 @@
-import { LIGHT_PACKET_TUNING } from './vitality.mjs?v=companion-guide-1';
-import { getCompanionAbility } from './companion-abilities.mjs?v=companion-guide-1';
-import { pickupKind, pickupContactRadius, canCompanionCollect } from './pickups.mjs?v=companion-guide-1';
+import { LIGHT_PACKET_TUNING } from './vitality.mjs?v=collector-orbit-1';
+import { getCompanionAbility } from './companion-abilities.mjs?v=collector-orbit-1';
+import { pickupKind, pickupContactRadius, canCompanionCollect } from './pickups.mjs?v=collector-orbit-1';
 
 const clamp = (value, lo, hi) => Math.min(hi, Math.max(lo, value));
 export const WISP_TUNING = Object.freeze({ range: 105, cooldown: 5, lightRadius: 175,
-  outboundSpeed: 520, returnSpeed: 620, orbitPeriod: 1.8 });
+  outboundSpeed: 520, returnSpeed: 620, orbitPeriod: 1.25 });
 
 export function wispHome(player) {
   return { x: player.x, y: player.y };
@@ -13,9 +13,12 @@ export function wispHome(player) {
 export function wispOrbit(player, time = 0, index = 0, total = 1) {
   const t = Number.isFinite(time) ? time : 0;
   const angle = t * Math.PI * 2 / WISP_TUNING.orbitPeriod + Math.PI + index * Math.PI * 2 / Math.max(1,total);
-  const breath = Math.sin(t * 2.1) * 3;
-  return { x: player.x + Math.cos(angle) * (44 + breath),
-    y: player.y + Math.sin(angle) * (34 + breath * .6) };
+  // A breathing, precessing ellipse crosses above, below and ahead of the wisp.
+  // Continuous motion also supplies a smooth tangent for fetch/return curves.
+  const breath = Math.sin(t * 2.1) * 10, tilt = Math.sin(t * .8) * .55;
+  const ox = Math.cos(angle) * (51 + breath), oy = Math.sin(angle) * (36 + breath * .65);
+  return { x: player.x + ox * Math.cos(tilt) - oy * Math.sin(tilt),
+    y: player.y + ox * Math.sin(tilt) + oy * Math.cos(tilt) };
 }
 
 // A single fetch owns one ember until delivery. No reward or card trigger is
