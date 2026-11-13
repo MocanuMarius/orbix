@@ -541,3 +541,13 @@ Replaced rectangular list-like skill layouts with a rooted, curved branch graph,
 Split 51 continuous upgrade tracks into three sequential purchases, adding 102 intermediate nodes. Style costs are 20/25/30 (75 total), deep costs 35/40/45 (120 total); discrete mechanic unlocks, roots, heart capacity and Bond prices retain their previous costs. Each partial purchase changes real gameplay immediately. Opposing paths remain exclusive, including discrete unlock versus partial continuous path; TEST switching removes the displaced descendants.
 
 Glowkeeping replaces the old stronger-Lift fork with three 2-percentage-point reductions in Lift Glow use. Kindling grows pickup recovery by one third of its +4 Glow total per step. All other completed continuous paths retain their prior endpoints. A focused probe verifies all tracks and real transactions; mobile UI purchase flow verifies 20/25-Ember debits, fork locking and retained scroll position. No new full campaign or phone-performance benchmark is claimed for this layout/increment pass.
+
+## Companion motion and held Leveler — 2026-11-13
+
+Main-wisp art and collision radius are 15% smaller; its scene-light reach is unchanged. Flight-map nodes now show a travelling orb with a clear forward arrow.
+
+Leveler uses the normal flight touch area or Lift control: tap still lifts immediately; holding for 180 ms begins levitation. Its charge drains only while levitating, unused charge remains on release, and charge refills while released. Fully depleted charge requires release before another hold. The 2.4-second base capacity and 9-second full recharge remain upgradeable through duration/recovery skills; bobbing and the optional release dive remain. Power activates only Swift/Seer. Leveler-only fleets show a non-button charge indicator; a small cyan meter under the main wisp also shows charge. Pause, pointer cancellation, lost capture and key release stop held levitation. Power challenge credit is based on spent Leveler capacity, preventing rapid hold/release farming.
+
+Companions have distinct eased flight paths. Protector circles the recovering shield, welding progressively rebuilt intermittent segments with blue sparks. Collector has breathing fragments while retaining its fetch path; Leveler casts rising suspension rings; Swift sheds moving streaks; Seer scans with arcs; Kindler pulses on direct fuel/purification. Effects use bounded drawing loops, cached orb art and reduced-motion variants.
+
+Focused mechanics and renderer-state probes passed. Local browser access was unavailable for this batch, so no new visual or phone-FPS verification is claimed.

@@ -36,7 +36,7 @@ export function getMapStopInfo(node={}){
  return{...base,label:exit?'EXIT':base.label,name:event?.name||(node.type==='support'?node.name:node.locationName||node.name)||base.name,summary,detail:event?.detail||summary,eventIndex:event?.index??null,scenarioId:event?.id||null};
 }
 const ICONS={
-flight:'<path d="M3 20V9l5-5 4 5v3M21 20V9l-5-5-4 5"/><path d="M9 20v-3l3-3 3 3v3"/><circle cx="12" cy="10" r="1.6" fill="currentColor" stroke="none"/>',
+flight:'<circle cx="8" cy="12" r="3.5"/><path d="M8 10.5v.01M1 8h3M1 16h3M13 12h9m-4-4 4 4-4 4"/>',
 elite:'<path d="M7 17c-2-1-3-3-3-6a8 8 0 0 1 16 0c0 3-1 5-3 6v4H7zM10 18v3m4-3v3"/><circle cx="8.5" cy="11.5" r="1.2" fill="currentColor"/><circle cx="15.5" cy="11.5" r="1.2" fill="currentColor"/>',
 rest:'<path d="m4 21 16-3M4 18l16 3M12 3c1 5 6 5 5 10-1 5-10 5-11 0-1-3 2-5 3-7 0 3 2 3 3-3z"/>',
 encounter:'<circle cx="12" cy="12" r="9"/><path d="M9 9a3 3 0 0 1 6 0c0 2-3 2-3 5M12 17h.01"/>',

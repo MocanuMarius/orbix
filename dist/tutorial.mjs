@@ -1,4 +1,4 @@
-import {getCompanionAbility} from './companion-abilities.mjs?v=skill-growth-1';
+import {getCompanionAbility} from './companion-abilities.mjs?v=companion-motion-1';
 // Practice is an authored flight using the same controls, fuel and colliders.
 // This module contains guidance and lesson scenery; it never grants rewards.
 const clamp = (n, lo, hi) => Math.min(hi, Math.max(lo, n));
@@ -161,7 +161,7 @@ export function getTutorialHint(engine) {
   if(gust.warning||gust.active)return hint('wind',gust.warning?'Read the direction':'Inside the draft puff',
     'Curls point in the push direction. Fly outside their edge, or use a ready Swift. Leveler still bobs and can be nudged.',3);
   if(active&&!state.toolObserved&&engine.time<6)return hint('power','One Power control',
-    'POWER starts all ready Swift, Leveler and Seer companions together. Tap again to release Leveler; Lift also releases it.',2);
+    'POWER starts ready Swift and Seer together. With Leveler, hold the scene or Lift to levitate; release to glide and recharge.',2);
   if(!state.finishedWind)return hint('watch-wind','Watch for the local draft','Only the visible puff pushes you. Its warning gives you time to choose above or below.',3);
   return hint('ready','Keep fuel for the waylight','Glide, collect deliberately, and reach the refuge. MENU pauses whenever you need it.',4);
 }

@@ -91,3 +91,9 @@ Main-wisp and companion trees use compact connected buds with 44px touch targets
 51 continuous upgrade tracks now have three separate purchases, adding 102 intermediate nodes without increasing full-path prices. Every step changes the actual modifiers immediately; exclusive forks still apply. Glowkeeping replaces Rising Light with three 2-percentage-point reductions to Lift Glow use. Kindling adds 1.33 Glow per step, reaching +4 at completion. Deeper forks further specialise conservation, flight control or collection.
 
 `npm run check:skill-growth` checks prerequisites, exclusivity, partial effects, full-path costs and real purchase/TEST replacement flows. The 390×844 browser purchase flow was also checked. The preceding large balance report predates these partial purchases; unchanged endpoint prices do not by themselves prove equal campaign balance.
+
+## Hold-to-levitate and companion motion
+
+With Leveler equipped, tap the flight area or Lift normally; keep holding for 180 ms to levitate, then release to glide. Charge is spent only while levitating and recharges while released. The Power control remains for Swift/Seer. Existing Leveler duration, recharge, steadiness and dive skills apply. A cyan meter beneath the main wisp shows remaining charge.
+
+The main wisp and collision radius are 15% smaller. Companion paths and activity effects are distinct, including progressive Protector shield welding. Flight map icons use an orb and forward arrow. `node scripts/companion-hold-probe.mjs` checks held-input semantics and `node scripts/companion-render-probe.mjs` exercises all companion draw paths. Browser visual review was unavailable for this batch.
