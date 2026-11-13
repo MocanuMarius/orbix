@@ -1,11 +1,11 @@
-import { GLOW_DISPLAY_SCALE } from './vitality.mjs?v=responsive-menus-1';
+import { GLOW_DISPLAY_SCALE } from './vitality.mjs?v=clear-paths-1';
 const clamp=value=>Math.max(0,Math.min(1,Number(value)||0));
 const explanation='Edging Pulse: skim near solid terrain or the top and bottom edges for 2 seconds total. Brief gaps keep your progress for 1.25 seconds, then it fades slowly. A full meter automatically reveals the scene.';
 const regenExplanation='Regenerative Falling: skim near solid terrain or the top and bottom edges to restore 1 Sparks instead of revealing the scene. Eight recoveries per flight; missing fuel only. Two seconds to reset. No Packed Light is created.';
 
 /** A passive flight indicator; it never adds a third action or spends Sparks. */
 export function edgingPulseMarkup(){
- return `<div class="edging-pulse-gauge" data-pulse-state="idle" aria-live="off" title="${explanation}" hidden><div class="edging-pulse-meter" role="meter" tabindex="0" aria-label="Edging Pulse" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" aria-valuetext="0% charged"><i class="edging-pulse-fill" aria-hidden="true"></i><i class="edging-pulse-ticks" aria-hidden="true"></i></div></div>`;
+ return `<div class="edging-pulse-gauge" data-pulse-state="idle" aria-live="off" title="${explanation}" hidden><div class="edging-pulse-meter" role="meter" aria-label="Edging Pulse" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" aria-valuetext="0% charged"><i class="edging-pulse-fill" aria-hidden="true"></i><i class="edging-pulse-ticks" aria-hidden="true"></i></div></div>`;
 }
 
 /** Cache nodes and changed values. Active fill shows time left, not stored charge. */
@@ -20,10 +20,7 @@ export function updateEdgingPulse(gauge,snapshot){
   gauge.title=regenerative?regenExplanation:explanation;
   refs.meter.setAttribute('aria-label',regenerative?'Regenerative Falling':'Edging Pulse');
  }
- if(!gauge._edgingSeen){
-  if(!regenerative&&!pulse.nearEdge&&!active&&!pulse.recovering&&charge===0&&!(pulse.triggerCount>0))return;
-  gauge._edgingSeen=true;gauge.hidden=false;
- }
+ gauge.hidden=!(charge>0||active||feedback);
  const recovering=!active&&!!pulse.recovering,ratio=spent?0:feedback&&pulse.regenGain>0?1:active?clamp(remaining/duration):recovering?0:charge;
  const mode=feedback?'regenerated':spent?'spent':active?'active':recovering?'recovering':pulse.nearEdge?'charging':pulse.holding?'holding':charge>0?'fading':'idle';
  if(gauge._edgingMode!==mode){gauge._edgingMode=mode;gauge.dataset.pulseState=mode;}

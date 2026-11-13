@@ -1,38 +1,39 @@
-import {FlightProjection,drawFlightProjection} from './flight-projection.mjs?v=responsive-menus-1';
-import {drawGlowSense} from './glow-sense.mjs?v=responsive-menus-1';
-import {formatGlow} from './vitality.mjs?v=responsive-menus-1';
-import {installRiskChains} from './risk-chains.mjs?v=responsive-menus-1';
-import {EXTRA_COURSES} from './world-expansion.mjs?v=responsive-menus-1';
-import {BIOME_COURSES} from './biome-courses.mjs?v=responsive-menus-1';
-import {BiomeDynamics} from './biome-dynamics.mjs?v=responsive-menus-1';
-import {condenseGlow} from './condensed-glow.mjs?v=responsive-menus-1';
-import {ensureGlowBudget} from './glow-budget.mjs?v=responsive-menus-1';
-import {EdgingPulse} from './edging-pulse.mjs?v=responsive-menus-1';
-import {isVowBodyPickup} from './contextual-events.mjs?v=responsive-menus-1';
-import {BlackHoles} from './black-holes.mjs?v=responsive-menus-1';
-import {drawBlackHoles} from './black-hole-art.mjs?v=responsive-menus-1';
+import {drawProximityMeter} from './proximity-meter.mjs?v=clear-paths-1';
+import {FlightProjection,drawFlightProjection} from './flight-projection.mjs?v=clear-paths-1';
+import {drawGlowSense} from './glow-sense.mjs?v=clear-paths-1';
+import {formatGlow} from './vitality.mjs?v=clear-paths-1';
+import {installRiskChains} from './risk-chains.mjs?v=clear-paths-1';
+import {EXTRA_COURSES} from './world-expansion.mjs?v=clear-paths-1';
+import {BIOME_COURSES} from './biome-courses.mjs?v=clear-paths-1';
+import {BiomeDynamics} from './biome-dynamics.mjs?v=clear-paths-1';
+import {condenseGlow} from './condensed-glow.mjs?v=clear-paths-1';
+import {ensureGlowBudget} from './glow-budget.mjs?v=clear-paths-1';
+import {EdgingPulse} from './edging-pulse.mjs?v=clear-paths-1';
+import {isVowBodyPickup} from './contextual-events.mjs?v=clear-paths-1';
+import {BlackHoles} from './black-holes.mjs?v=clear-paths-1';
+import {drawBlackHoles} from './black-hole-art.mjs?v=clear-paths-1';
 /* Emberwing's self-contained canvas flight simulation and renderer. */
-import { FLAME_TUNING, LIGHT_PACKET_TUNING } from './vitality.mjs?v=responsive-menus-1';
-import { flightEndDistance } from './flight-end.mjs?v=responsive-menus-1';
-import {getExitLandmarkState,drawExitLandmark} from './exit-landmark.mjs?v=responsive-menus-1';
-import { WispCompanion, wispHome } from './wisp.mjs?v=responsive-menus-1';
-import { getAscentInfo } from './ascent.mjs?v=responsive-menus-1';
-import { LEVEL_LENGTH, getLevelLengthScale } from './level-length.mjs?v=responsive-menus-1';
-import { resolveLevelIdentity } from './level-catalog.mjs?v=responsive-menus-1';
-import { DraftField, DRAFT_TUNING } from './drafts.mjs?v=responsive-menus-1';
-import { normalizeCompanionRole, normalizeCompanionFleet, getCompanionAbility } from './companion-abilities.mjs?v=responsive-menus-1';
-import { populateSceneProps, scenePropPolygons } from './scene-props.mjs?v=responsive-menus-1';
-import { pickupKind, getPickupSpec, pickupContactRadius, isFuelPickup, canCompanionCollect } from './pickups.mjs?v=responsive-menus-1';
-import { drawPickup } from './pickup-art.mjs?v=responsive-menus-1';
-import { buildBossLayout, getBossState as bossState, drawBoss } from './boss.mjs?v=responsive-menus-1';
-import { getAuthoredChallenge, finalizeFlightChallenges, installAuthoredDraftCrossings, FlightChallengeDirector } from './flight-challenges.mjs?v=responsive-menus-1';
-import { installEncounterFamily } from './encounter-families.mjs?v=responsive-menus-1';
-import { installFlightForks, resizeFlightForks } from './flight-forks.mjs?v=responsive-menus-1';
-import { ArtifactEffects } from './artifact-effects.mjs?v=responsive-menus-1';
-import { LIGHT_EXTENT,lightAttenuation,lightVisibility,createLightMaskCanvas,sceneRevealStrength } from './light-field.mjs?v=responsive-menus-1';
+import { FLAME_TUNING, LIGHT_PACKET_TUNING } from './vitality.mjs?v=clear-paths-1';
+import { flightEndDistance } from './flight-end.mjs?v=clear-paths-1';
+import {getExitLandmarkState,drawExitLandmark} from './exit-landmark.mjs?v=clear-paths-1';
+import { WispCompanion, wispHome } from './wisp.mjs?v=clear-paths-1';
+import { getAscentInfo } from './ascent.mjs?v=clear-paths-1';
+import { LEVEL_LENGTH, getLevelLengthScale } from './level-length.mjs?v=clear-paths-1';
+import { resolveLevelIdentity } from './level-catalog.mjs?v=clear-paths-1';
+import { DraftField, DRAFT_TUNING } from './drafts.mjs?v=clear-paths-1';
+import { normalizeCompanionRole, normalizeCompanionFleet, getCompanionAbility } from './companion-abilities.mjs?v=clear-paths-1';
+import { populateSceneProps, scenePropPolygons } from './scene-props.mjs?v=clear-paths-1';
+import { pickupKind, getPickupSpec, pickupContactRadius, isFuelPickup, canCompanionCollect } from './pickups.mjs?v=clear-paths-1';
+import { drawPickup } from './pickup-art.mjs?v=clear-paths-1';
+import { buildBossLayout, getBossState as bossState, drawBoss } from './boss.mjs?v=clear-paths-1';
+import { getAuthoredChallenge, finalizeFlightChallenges, installAuthoredDraftCrossings, FlightChallengeDirector } from './flight-challenges.mjs?v=clear-paths-1';
+import { installEncounterFamily } from './encounter-families.mjs?v=clear-paths-1';
+import { installFlightForks, resizeFlightForks } from './flight-forks.mjs?v=clear-paths-1';
+import { ArtifactEffects } from './artifact-effects.mjs?v=clear-paths-1';
+import { LIGHT_EXTENT,lightAttenuation,lightVisibility,createLightMaskCanvas,sceneRevealStrength } from './light-field.mjs?v=clear-paths-1';
 import { createTutorialState, buildTutorialLayout, recordTutorialPickup,
-  updateTutorial, updateTutorialCompanion, getTutorialHint } from './tutorial.mjs?v=responsive-menus-1';
-export { FLAME_TUNING } from './vitality.mjs?v=responsive-menus-1';
+  updateTutorial, updateTutorialCompanion, getTutorialHint } from './tutorial.mjs?v=clear-paths-1';
+export { FLAME_TUNING } from './vitality.mjs?v=clear-paths-1';
 const TAU = Math.PI * 2;
 const STEP = 1 / 60;
 const COMPANION_ORBIT_SPEED = {protector:1.3,leveler:1.7,swift:3.4,seer:.8,kindler:2.2};
@@ -42,7 +43,7 @@ const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
 const lerp = (a, b, t) => a + (b - a) * t;
 export const FLIGHT_TUNING = Object.freeze({ gravity: 300, flapImpulse: 205,
   forwardSpeed: 154, terminalFall: 245, pickupRadius: LIGHT_PACKET_TUNING.pickupRadius });
-export { DRAFT_TUNING } from './drafts.mjs?v=responsive-menus-1';
+export { DRAFT_TUNING } from './drafts.mjs?v=clear-paths-1';
 // Retain the public tuning name for consumers; wind now has no global cycle.
 export const WIND_TUNING = DRAFT_TUNING;
 
@@ -881,12 +882,12 @@ export class WispFlight {
     this.loadImage(options.assets?.background, 'background');
     this.render();
     this.notify();
-    if (typeof window !== 'undefined' && this.canvas.ownerDocument) this.initPixelView();
+    this.ready = typeof window !== 'undefined' && this.canvas.ownerDocument ? this.initPixelView() : Promise.resolve(false);
   }
 
   async initPixelView() {
     try {
-      const { WispFlightView } = await import('./wisp-renderer.mjs?v=responsive-menus-1');
+      const { WispFlightView } = await import('./wisp-renderer.mjs?v=clear-paths-1');
       if (this.destroyed) return;
       this.pixiView = new WispFlightView(this);
       const initialized = await this.pixiView.init();
@@ -1017,12 +1018,13 @@ export class WispFlight {
     this.pixiView?.resize();
   }
 
-  start() {
+  start({paused = false} = {}) {
     if (this.destroyed || this.finished || this.running) return;
-    this.running = true; this.paused = false; this.lastFrame = 0; this.nextRenderAt = null;
+    this.running = true; this.paused = paused; this.lastFrame = 0; this.nextRenderAt = null;
     this.artifactEffects.onStart();
     this.notify();
-    this.raf = requestAnimationFrame(t => this.tick(t));
+    if (!paused) this.raf = requestAnimationFrame(t => this.tick(t));
+    else this.render();
   }
 
   flap() {
@@ -1725,7 +1727,7 @@ export class WispFlight {
       this.pickupEffects.push({ x:this.player.x,y:this.player.y,pickupKind:'dark',
         text:`SIGHT -${Math.round(spec.dim*100)}%`,color:'#c5b1cf',restored:0,value:0,life:.72 });
       if(this.pickupEffects.length>12)this.pickupEffects.shift();
-      this.setEvent(`${spec.name} · sight -${Math.round(spec.dim*100)}%`);
+      this.setEvent(`${spec.name} · Luminance -${Math.round(spec.dim*100)}%`);
       return;
     }
     if (!ember.generated && !isFuelPickup(ember)) {
@@ -1739,7 +1741,7 @@ export class WispFlight {
         text=recovering?`Fleet recovery −${spec.recharge}s`:'Companions ready';
       } else if (spec.sightBonus) {
         this.sightUntil = Math.max(this.sightUntil, this.time + spec.sightDuration);
-        text = `+${spec.sightBonus} sight · ${spec.sightDuration}s`;
+        text = `+${spec.sightBonus} Luminance · ${spec.sightDuration}s`;
       }
       const origin = ember.deliveredByWisp ? this.getWispState() : this.player;
       this.pickupEffects.push({ x: origin.x, y: origin.y, pickupKind: kind, text, value: 0, restored: 0, life: .72 });
@@ -1819,7 +1821,7 @@ export class WispFlight {
     if (kind === 'dusk') {
       const totalRestored = this.pickupEffects.at(-1).restored;
       const gain = totalRestored > 0 ? `+${formatGlow(totalRestored,this.maxFlame)} Sparks` : 'Sparks full';
-      const text = `${gain} · sight −${Math.round(spec.dim * 100)}% (${spec.dimDuration}s)`;
+      const text = `${gain} · Luminance −${Math.round(spec.dim * 100)}% (${spec.dimDuration}s)`;
       this.pickupEffects.at(-1).text = text;
       this.setEvent(`${spec.name} · ${text}`);
     }
@@ -1980,6 +1982,7 @@ export class WispFlight {
     this.drawPortal(c,W,H);
     this.drawEmbers(c);
     this.drawFallbackLight(c);
+    this.biomeDynamics?.drawHighlights(c,{distance:this.renderDistance,light:this.getLightState(),playerY:this.renderPlayerY});
     drawFlightProjection(c,this);
     drawGlowSense(c,this);
     this.drawFlightTrail(c);
@@ -1990,6 +1993,7 @@ export class WispFlight {
     drawBlackHoles(c,this);
     this.drawForeground(c, W, H);
     c.restore();
+    drawProximityMeter(c,this);
     if (this.flash > 0) { c.fillStyle = `rgba(255,196,149,${this.flash * .36})`; c.fillRect(0, 0, W, H); }
     const vignette = c.createRadialGradient(W / 2, H * .43, W * .3, W / 2, H * .45, H * .8);
     vignette.addColorStop(0, 'rgba(5,12,24,0)'); vignette.addColorStop(1, 'rgba(5,12,24,.36)');

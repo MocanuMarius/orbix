@@ -1,19 +1,20 @@
-import {drawFlightProjection} from './flight-projection.mjs?v=responsive-menus-1';
-import {drawGlowSense} from './glow-sense.mjs?v=responsive-menus-1';
-import {formatGlow} from './vitality.mjs?v=responsive-menus-1';
-import {LOCATION_PALETTES} from './world-expansion.mjs?v=responsive-menus-1';
-import {biomePalette} from './biome-art.mjs?v=responsive-menus-1';
-import { sceneryIdentity, drawIdentityBackground, drawIdentityMaterial, drawIdentityLife } from './level-scenery.mjs?v=responsive-menus-1';
-import { getCompanionAbility, normalizeCompanionRole } from './companion-abilities.mjs?v=responsive-menus-1';
-import { companionSprite, companionPalette } from './companion-art.mjs?v=responsive-menus-1';
-import { createScenePropArt } from './scene-prop-art.mjs?v=responsive-menus-1';
-import { drawBoss } from './boss.mjs?v=responsive-menus-1';
-import { drawPickup } from './pickup-art.mjs?v=responsive-menus-1';
-import { pickupKind, getPickupSpec, pickupContactRadius } from './pickups.mjs?v=responsive-menus-1';
-import { LIGHT_EXTENT,lightAttenuation,lightVisibility,createLightMaskCanvas,sceneRevealStrength } from './light-field.mjs?v=responsive-menus-1';
-import {drawExitLandmark} from './exit-landmark.mjs?v=responsive-menus-1';
-import {drawBlackHoles} from './black-hole-art.mjs?v=responsive-menus-1';
-import {drawFlightForks,drawFlightForkBackdrops} from './flight-forks.mjs?v=responsive-menus-1';
+import {drawProximityMeter} from './proximity-meter.mjs?v=clear-paths-1';
+import {drawFlightProjection} from './flight-projection.mjs?v=clear-paths-1';
+import {drawGlowSense} from './glow-sense.mjs?v=clear-paths-1';
+import {formatGlow} from './vitality.mjs?v=clear-paths-1';
+import {LOCATION_PALETTES} from './world-expansion.mjs?v=clear-paths-1';
+import {biomePalette} from './biome-art.mjs?v=clear-paths-1';
+import { sceneryIdentity, drawIdentityBackground, drawIdentityMaterial, drawIdentityLife } from './level-scenery.mjs?v=clear-paths-1';
+import { getCompanionAbility, normalizeCompanionRole } from './companion-abilities.mjs?v=clear-paths-1';
+import { companionSprite, companionPalette } from './companion-art.mjs?v=clear-paths-1';
+import { createScenePropArt } from './scene-prop-art.mjs?v=clear-paths-1';
+import { drawBoss } from './boss.mjs?v=clear-paths-1';
+import { drawPickup } from './pickup-art.mjs?v=clear-paths-1';
+import { pickupKind, getPickupSpec, pickupContactRadius } from './pickups.mjs?v=clear-paths-1';
+import { LIGHT_EXTENT,lightAttenuation,lightVisibility,createLightMaskCanvas,sceneRevealStrength } from './light-field.mjs?v=clear-paths-1';
+import {drawExitLandmark} from './exit-landmark.mjs?v=clear-paths-1';
+import {drawBlackHoles} from './black-hole-art.mjs?v=clear-paths-1';
+import {drawFlightForks,drawFlightForkBackdrops} from './flight-forks.mjs?v=clear-paths-1';
 
 const TAU = Math.PI * 2;
 const SCENERY_HELPERS = { line: pixelLine, disc: pixelDisc, polygon: path };
@@ -1062,6 +1063,7 @@ export class WispFlightView {
     }
     const playerX = e.player.x * s, playerY = yOf(e) * s;
     this.lightFog(e, fleet, playerX, playerY);
+    e.biomeDynamics?.drawHighlights(c,{distance,scale:s,light:this.currentLightState,playerY:yOf(e)});
     drawFlightProjection(c,e,{scale:s,distance,playerY:yOf(e)});
     drawGlowSense(c,e,{scale:s,distance,playerY:yOf(e),light:this.currentLightState});
     this.drawCollectorAura(e, t);
@@ -1084,6 +1086,7 @@ export class WispFlightView {
     c.globalAlpha = 1;
     if (e.flash > 0) { c.globalAlpha = Math.min(.2, e.flash * 1.3); c.fillStyle = '#dbc2a1'; c.fillRect(0, 0, this.buffer.width, this.buffer.height); c.globalAlpha = 1; }
     if(e.completing){c.save();c.globalCompositeOperation='screen';const p=e.completionProgress||0;c.globalAlpha=.11*p*p*(3-2*p)+Math.sin(Math.PI*p)*.02;c.fillStyle='#efd4a0';c.fillRect(0,0,this.buffer.width,this.buffer.height);c.restore();}
+    drawProximityMeter(c,e,{scale:s});
     this.context.imageSmoothingEnabled = false;
     this.context.drawImage(this.buffer, 0, 0, this.canvas.width, this.canvas.height);
     if (!this.backgroundRepainted) this.prewarmSurfaces(e, distance);

@@ -1,7 +1,7 @@
-import {formatGlow} from './vitality.mjs?v=responsive-menus-1';
-import { PICKUP_TYPES, getPickupSpec } from './pickups.mjs?v=responsive-menus-1';
-import { pickupArtSvg } from './pickup-art.mjs?v=responsive-menus-1';
-import { normalizeCompanionRole, normalizeCompanionFleet } from './companion-abilities.mjs?v=responsive-menus-1';
+import {formatGlow} from './vitality.mjs?v=clear-paths-1';
+import { PICKUP_TYPES, getPickupSpec } from './pickups.mjs?v=clear-paths-1';
+import { pickupArtSvg } from './pickup-art.mjs?v=clear-paths-1';
+import { normalizeCompanionRole, normalizeCompanionFleet } from './companion-abilities.mjs?v=clear-paths-1';
 
 const esc = value => String(value ?? '').replace(/[&<>"']/g, char =>
   ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
@@ -16,9 +16,9 @@ function effectText(spec, role,maxGlow=100) {
     case 'cache': return `+${formatGlow(spec.fuel,maxGlow)} Sparks (before build bonuses). Clears one dimming effect.`;
     case 'cluster': return `+${formatGlow(spec.fuel,maxGlow)} Sparks. Surplus above your full meter becomes Packed Light.`;
     case 'charge': return `${chargeText(role, spec.recharge)} No Sparks.`;
-    case 'sight': return `Wider sight for ${spec.sightDuration}s. No Sparks.`;
-    case 'dusk': return `+${formatGlow(spec.fuel,maxGlow)} Sparks (before build bonuses), with ${percent(spec.dim)}% less sight for ${spec.dimDuration}s. Manual contact only.`;
-    case 'dark': return `${percent(spec.dim)}% less sight for ${spec.dimDuration}s. Avoid contact; a Spark clears one effect.`;
+    case 'sight': return `Wider Luminance for ${spec.sightDuration}s. No Sparks.`;
+    case 'dusk': return `+${formatGlow(spec.fuel,maxGlow)} Sparks (before build bonuses), with ${percent(spec.dim)}% less Luminance for ${spec.dimDuration}s. Manual contact only.`;
+    case 'dark': return `${percent(spec.dim)}% less Luminance for ${spec.dimDuration}s. Avoid contact; a Spark clears one effect.`;
     default: return spec.description;
   }
 }
@@ -55,13 +55,13 @@ export function pickupLesson(kind, { role = 'collector', companions, maxGlow=100
       text = `${chargeText(roles,spec.recharge)} This cyan pickup restores no Sparks.`;
       break;
     case 'sight':
-      text = `Lets you see farther for ${spec.sightDuration} seconds. It restores no Sparks.`;
+      text = `Extends Luminance for ${spec.sightDuration} seconds. It restores no Sparks.`;
       break;
     case 'dusk':
-      text = `Touch it for ${formatGlow(spec.fuel,maxGlow)} Sparks (before build bonuses), with ${percent(spec.dim)}% less sight for ${spec.dimDuration} seconds. It requires manual contact.`;
+      text = `Touch it for ${formatGlow(spec.fuel,maxGlow)} Sparks (before build bonuses), with ${percent(spec.dim)}% less Luminance for ${spec.dimDuration} seconds. It requires manual contact.`;
       break;
     case 'dark':
-      text = `Touching it dims sight by ${percent(spec.dim)}% for ${spec.dimDuration} seconds. ${collects?'Collector ignores it; a Spark clears one effect.':'A Spark clears one effect.'}`;
+      text = `Touching it dims Luminance by ${percent(spec.dim)}% for ${spec.dimDuration} seconds. ${collects?'Collector ignores it; a Spark clears one effect.':'A Spark clears one effect.'}`;
       break;
     default:
       text = spec.description;

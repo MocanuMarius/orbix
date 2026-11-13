@@ -1,4 +1,4 @@
-import { obstacleEdgeClearance } from './edging-pulse.mjs?v=responsive-menus-1';
+import { obstacleEdgeClearance } from './edging-pulse.mjs?v=clear-paths-1';
 
 // Rates are internal flight Sparks. The HUD displays 0.3 of these units: a
 // 40-unit pass costs about 10 Sparks/s, a 100-unit pass about 1.6 Sparks/s.
@@ -65,10 +65,10 @@ export function blackHoleLaneClear(engine, item) {
 }
 
 /** One persistent hazard per ordinary map, with a quiet approach fallback.
- * Tutorials have no Black Hole lesson yet, so neither practice flight adds one.
+ * Only the final practice flight introduces this hazard.
  * A synthetic fully blocked map fails safely rather than punching a new trap. */
 export function createBlackHoles(engine) {
-  if (engine.tutorial) return [];
+  if (engine.tutorial && engine.tutorial.lesson !== 'hazards') return [];
   const t = BLACK_HOLE_TUNING, height = t.referenceHeight, geometry = referenceGeometry(engine);
   const seed = hash(`${engine.seed}:${engine.levelIdentity?.id || ''}:black-hole`);
   const last = engine.totalDistance + engine.player.x - t.exitClearance;

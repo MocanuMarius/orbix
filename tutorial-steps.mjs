@@ -1,74 +1,33 @@
-// One small lesson on the actual checkpoint, only in the separate practice run.
-// The app marks IDs seen and owns pause/resume; this module never advances play.
+import {topicSteps} from './tutorial-curriculum.mjs?v=clear-paths-1';
 const step=(id,title,text,target)=>({id,title,text,target,allowTarget:false});
-
+const chapter=(id,steps,target)=>({id,steps:steps.map(s=>({...s,...(target?{target}:{}),allowTarget:false}))});
 export function checkpointTutorialLesson(screen,{run={}}={}){
-  if(run.isTutorial!==true||run.guideSkipped)return null;
-  const seen=id=>run.guideSeen?.[id]===true;
-  let lesson=null;
-  switch(screen){
-    case 'map':
-      if(run.lastAttempt?.success===false&&!seen('practice-lives')){
-        lesson=step('practice-lives','A life is one attempt',
-          'A collision spends one heart. Your entry fuel returns. Choose the glowing passage to try again.',
-          '.map-status-strip .ascension-lives');
-      }else if(run.step===0){
-        lesson=step('practice-route','Follow the glowing passage',
-          'This arch means Flight. Follow a bright trail to a reachable stop.',
-          '#journey-map .world-map-node.reachable');
-      }else if(run.map?.[run.step]?.some(node=>node.kind==='camp')){
-        lesson=step('practice-rest-route','The shelter is a Rest',
-          'This shelter means Rest. Recover or strengthen your build here.',
-          '#journey-map .world-map-node.reachable');
-      }
-      break;
-    case 'map-key':
-      lesson=step('practice-symbols','Five familiar stops',
-        'The same five symbols identify stops throughout your route.',
-        '.map-key-list');
-      break;
-    case 'victory':
-      lesson=step('practice-reward','Choose what travels with you',
-        'Artifacts work automatically while mounted. Choose one, or take Sparks instead.',
-        '.reward-offers');
-      break;
-    case 'support':
-      lesson=step('practice-rest-choice','Choose a breather',
-        'Choose one benefit. The icons and numbers show exactly what changes.',
-        '.rest-benefit-cards');
-      break;
-    case 'rest-prep':
-      if(run.skills?.['main-dream']&&!seen('practice-dream')){
-        lesson=step('practice-dream','Rehearse the opening',
-          'The closed eye means Dream. Rehearse six seconds; save an opening to replay before you take control.',
-          '.rest-dream');
-      }else{
-        lesson=step('practice-rest-tools','Prepare without rushing',
-          'Skills grow your build. Companions change your power. Dream rehearses the next passage.',
-          '.rest-service-cards');
-      }
-      break;
-    case 'skills':
-      lesson=step('practice-skill-tree','Grow along one branch',
-        'Packed Light buys run skills. Blue checks are owned; gold plus signs can be learned now.',
-        '.tree-body');
-      break;
-    case 'result':
-      lesson=step('practice-finished','Your real run is waiting',
-        'Practice rewards stay here. A real run crosses three maps; its boss unlocks the next Ascension and a new build opportunity.',
-        '.compact-result [data-action="leave-practice"]');
-      break;
-  }
-  return lesson&&!seen(lesson.id)?lesson:null;
+ if(!run.isTutorial||run.guideSkipped)return null;
+ let lesson;const seen=id=>run.guideSeen?.[id];
+ if(screen==='map'){
+  if(run.lastAttempt?.success===false&&!seen('practice-lives'))lesson=chapter('practice-lives',topicSteps('hearts').slice(2),'#journey-map');
+  else if(run.step===0)lesson=chapter('practice-route',[
+   {title:'First Light: learn at your pace',text:'This separate practice has seven stops. Short lessons appear where you need them. Your real run stays safe. MENU → Field Guide replays every topic.',visual:'wisp'},
+   topicSteps('hearts')[0],topicSteps('routes')[0]],'#journey-map');
+  else if(run.map?.[run.step]?.some(n=>n.kind==='camp'))lesson=chapter('practice-rest-route',[topicSteps('routes')[2]],'#journey-map');
+  else if(run.step===3)lesson=chapter('practice-event-route',[topicSteps('routes')[3]],'#journey-map');
+ }
+ if(screen==='briefing')lesson=chapter('practice-briefing',[topicSteps('luminance')[0],{title:'Find the waylight',text:'Solid edges are hazards. Faint background shapes are scenery. Fly carefully to the waylight near the last terrain to finish.',visual:'route'}]);
+ if(screen==='map-key')lesson=chapter('practice-symbols',topicSteps('routes'));
+ if(screen==='victory')lesson=chapter('practice-reward',topicSteps('rewards'),'.reward-offers');
+ if(screen==='support'){
+  if(run.current?.kind==='camp')lesson=chapter('practice-rest-choice',[topicSteps('rest')[0],topicSteps('hearts')[3]],'.rest-benefit-cards');
+  else if(run.current?.kind==='treasure')lesson=chapter('practice-treasure',[{title:'Treasure',text:'Open the chest for an artifact choice, or release its Sparks. Choose fuel now or a lasting effect for later flights.',visual:'site:treasure'}],'.support-offers');
+  else lesson=chapter('practice-event',[{title:'Encounter: read both outcomes',text:'This is an event, not a free reward. The offering is certain; dice show a cost and possible rewards. Pick the risk that fits your build.',visual:'site:encounter'},topicSteps('packed')[1]],'.support-offers');
+ }
+ if(screen==='rest-prep')lesson=run.step>=6?chapter('practice-dream',topicSteps('dream'),'.rest-dream'):chapter('practice-rest-tools',[topicSteps('rest')[1],{title:'Practice tools are open',text:'Try Skills, Companions and Artifacts here. All four companions and a six-second Dream are available in practice. Real runs unlock them through progress.',visual:'tools'}],'.rest-service-cards');
+ if(screen==='skills')lesson=chapter('practice-skill-tree',topicSteps('skills'),'.tree-body');
+ if(screen==='companions')lesson=chapter('practice-companions',topicSteps('companions'),'.companion-roles');
+ if(screen==='artifacts')lesson=chapter('practice-artifacts',topicSteps('artifacts'),'.artifact-workshop');
+ if(screen==='result')lesson=chapter('practice-finished',topicSteps('progression'));
+ return lesson&&!seen(lesson.id)?lesson:null;
 }
-
-// Keep the content API small: callers receive zero or one step, never the old
-// multi-screen information dump or selectors for removed card/tuning panels.
-export function tutorialSteps(screen,context={}){
-  const lesson=checkpointTutorialLesson(screen,context);
-  return lesson?[lesson]:[];
-}
-
+export function tutorialSteps(screen,context={}){return checkpointTutorialLesson(screen,context)?.steps||[];}
 
 // Observe quietly while flying. The app queues this ID and teaches it only at
 // a safe checkpoint; these helpers never pause, mutate state or advance play.
@@ -81,12 +40,12 @@ export function observedFlightLesson(snapshot={},seen={}){
   return null;
 }
 export function flightEffectLesson(id,screen='map'){
-  const target=screen==='victory'?'.victory-screen':screen==='map'?'.map-status-strip':null;
+  const target=screen==='victory'?'.victory-screen':screen==='map'?'#journey-map':null;
   if(id==='flight-effect:black-hole')return step(id,'That dark core steals Sparks',
-    'A Black Hole drains fuel while you stay close. A wider path loses less light. It is not a pickup, and shields do not stop the drain. MENU → Sparks & Pickups keeps this reminder.',target);
+    'A Black Hole drains fuel while you stay close. A wider path loses less light. It is not a pickup, and shields do not stop the drain. MENU → Field Guide keeps this reminder.',target);
   if(id==='flight-effect:edging')return step(id,'Your close flight made a pulse',
     'Flying near solid edges fills the slim edge meter in 2 seconds. Brief gaps preserve your progress, then charge fades slowly. Full charge reveals the scene for five fading seconds. Edge skills improve it; touching terrain still hurts.',target);
   if(id==='flight-effect:regeneration')return step(id,'Your close flight restored Sparks',
-    'Regenerative Falling turns a full edge meter into one Spark instead of a reveal. Its green meter resets for 2 seconds. You have eight recoveries each flight; it becomes dim when spent. Only missing fuel is restored, without Packed Light or pickup effects.',target);
+    'Regenerative Falling turns a full edge meter into one Spark instead of a reveal. Its green meter resets for 2 seconds. You have eight recoveries each flight; its meter disappears when spent. Only missing fuel is restored, without Packed Light or pickup effects.',target);
   return null;
 }

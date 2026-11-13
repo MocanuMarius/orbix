@@ -1,5 +1,5 @@
-import {landmarks} from './map-landmarks.mjs?v=responsive-menus-1';
-import {glowText} from './vitality.mjs?v=responsive-menus-1';
+import {landmarks} from './map-landmarks.mjs?v=clear-paths-1';
+import {glowText} from './vitality.mjs?v=clear-paths-1';
 const stop=(kind,label,name,summary)=>Object.freeze({kind,label,name,summary,icon:kind});
 export const MAP_STOP_TYPES=Object.freeze({
 flight:stop('flight','FLIGHT','Flight','Fly a passage, choose a relic or dissolve it into Sparks, and recover fuel.'),
@@ -13,7 +13,7 @@ export const EVENT_SCENARIOS=Object.freeze([
 {id:'cinder-bargain',index:1,name:'Cinder Bargain',summary:'Trade some fuel for an artifact, or take a safe light offering.',detail:'Preview the Sparks cost and the actual fuel/condensed split before accepting.'},
 {id:'pilgrim-vow',index:2,name:'Pilgrim’s Vow',summary:'Promise four body Spark pickups next attempt, or take light now.',detail:'Clear the next attempt with four natural body Spark pickups to earn 8 Packed Light. Collector deliveries and Dreams do not count. Missing the vow has no extra penalty.'},
 {id:'weathered-shrine',index:3,name:'Weathered Shrine',summary:'Buy a discounted skill or collect a light offering.',detail:'The offered skill spends Packed Light. This shrine does not provide full Rest services.'},
-{id:'surveyors-cairn',index:4,name:'Surveyor’s Cairn',summary:'Prepare one reachable passage, or take light and keep your fork open.',detail:'Mark a linked exit for gentler drafts or more sight on its first attempt. That commits your route. Falling consumes the preparation and reopens the fork.'},
+{id:'surveyors-cairn',index:4,name:'Surveyor’s Cairn',summary:'Prepare one reachable passage, or take light and keep your fork open.',detail:'Mark a linked exit for gentler drafts or more Luminance on its first attempt. That commits your route. Falling consumes the preparation and reopens the fork.'},
 {id:'ember-archive',index:5,name:'The Sparks Archive',summary:'Forge an artifact into Packed Light, or keep your build and accept a light offering.',detail:'Forging consumes the chosen artifact for a fixed Packed Light payout. Spend it on run skills; Sparks and hearts stay unchanged.'},
 {id:'ember-dice',index:6,name:'Prism Dice',summary:'Take a certain light offering, or spend Packed Light on one roll.',detail:'Three equally likely offerings. One cast; the result stays fixed if you return.'},
 {id:'lost-lanterns',index:7,name:'Lost Lanterns',summary:'Choose recovery, a light offering, or sacrifice fuel for an artifact.',detail:'Each lantern trades immediate fuel, future upgrades or a changed build.'},

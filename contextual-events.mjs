@@ -41,7 +41,7 @@ export function contextualFlightNotice(run,node=run.current){
   if(run.pilgrimVow)lines.push(`PILGRIM VOW · Clear with ${run.pilgrimVow.target} body Spark pickups → ${run.pilgrimVow.reward} Packed Light · First attempt`);
   if(run.routePreparation?.nodeId===node.id)lines.push(run.routePreparation.kind==='wind'
     ?'MARKED PASSAGE · Drafts −30% · First attempt'
-    :'MARKED PASSAGE · Sight +35 · First attempt');
+    :'MARKED PASSAGE · Luminance +35 · First attempt');
   return lines.join(' ');
 }
 

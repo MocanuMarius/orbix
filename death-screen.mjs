@@ -1,0 +1,6 @@
+import {lifeHeartSvg,livesMarkup} from './lives.mjs?v=clear-paths-1';
+export function deathScreenMarkup(run){
+ const left=Math.max(0,Math.floor(run.lives||0)),before=left+1;
+ const shards=Array.from({length:22},(_,i)=>`<i style="--x:${18+(i*29)%70}%;--y:${8+(i*17)%72}%;--dx:${(i%2?1:-1)*(18+i%6*9)}px;--dy:${35+i%7*9}px;--delay:${.35+i*.035}s"></i>`).join('');
+ return `<section class="death-screen" aria-labelledby="death-title"><h1 id="death-title">${left?'A light has fallen':'The last light fades'}</h1><div class="death-heart-scene" aria-hidden="true"><span class="death-heart-outline">${lifeHeartSvg(true)}</span><span class="death-heart-fill">${lifeHeartSvg()}</span><div class="death-heart-shards">${shards}</div><b class="death-heart-cost">−1</b></div><div class="death-chances" role="status" aria-label="One heart lost. ${left} ${left===1?'attempt':'attempts'} remaining."><span class="death-count-before" aria-hidden="true">${before}</span><strong>${left}</strong><span>${left===1?'ATTEMPT LEFT':'ATTEMPTS LEFT'}</span></div>${livesMarkup(run)}<p>${left?'Entry Sparks and build restored. Choose a reachable path again.':'No hearts remain. This run has ended.'}</p><button class="primary" data-action="death-continue">${left?'Return to map':'View run summary'}</button></section>`;
+}

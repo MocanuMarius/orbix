@@ -1,4 +1,4 @@
-import {skillProgress} from './skill-increments.mjs?v=responsive-menus-1';
+import {skillProgress} from './skill-increments.mjs?v=clear-paths-1';
 // Named, one-time specialisations. Each pair is exclusive for this run.
 const paths=[];
 function fork(branch,parent,a,b){
@@ -34,10 +34,10 @@ fork('swift','swift-resistance',
  ['storm-runner','Storm Runner','Wind resistance rises 4 percentage points; recharge takes 10% longer.',{swiftResistance:.04},{swiftRecovery:1.1}],
  ['sheltered-pace','Sheltered Pace','Recharge 15% faster; wind resistance falls 8 percentage points.',{swiftResistance:-.08},{swiftRecovery:.85}]);
 fork('main','main-horizon',
- ['wide-beam','Wide Beam','Expand your circular light radius by another 25.',{lightRadius:25}],
- ['clear-beam','Clear Beam','Dark Sparks dim your light 15 percentage points less.',{darkResistance:.15}]);
+ ['wide-beam','Wide Beam','Expand your circular Luminance radius by another 25.',{lightRadius:25}],
+ ['clear-beam','Clear Beam','Dark Sparks reduce your Luminance 15 percentage points less.',{darkResistance:.15}]);
 fork('main','main-dawn',
- ['dawn-guard','Dawn Guard','Dark Sparks dim your light another 10 percentage points less.',{darkResistance:.1}],
+ ['dawn-guard','Dawn Guard','Dark Sparks reduce your Luminance another 10 percentage points less.',{darkResistance:.1}],
  ['dawn-fuel','Dawn Fuel','Natural Spark pickups restore 3 extra Sparks.',{cacheFuelBonus:3}]);
 fork('main','main-tailwind',
  ['rising-current','Updraft','Lift is 4% stronger.',{},{flap:1.04}],

@@ -1,8 +1,8 @@
-import {tuneMainDefinition,priceSkillDefinition} from './main-tuning.mjs?v=responsive-menus-1';
+import {tuneMainDefinition,priceSkillDefinition} from './main-tuning.mjs?v=clear-paths-1';
 // Separate purchases along a path, not a repeatable stat allocation screen.
 const styles={
  'main-lift':['−2% cost','Lift spends 2% less Sparks.'],
- 'main-horizon':['+15 sight','Light radius +15; forward sight +30.'],
+ 'main-horizon':['+15 Luminance','Luminance radius +15.'],
  'main-dawn':['−13% dim','Dark Spark dimming reduced by 13.33 percentage points.'],
  'main-tailwind':['+1.3% pace','Forward speed +1.33%.'],
  'main-drift':['−3.3% fall','Gravity reduced by 3.33 percentage points.'],
