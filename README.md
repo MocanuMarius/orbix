@@ -2,11 +2,20 @@
 
 A landscape, one-handed pixel flight roguelite. The static game lives in `dist/` and uses a custom Canvas simulation and cached renderer. No build step or runtime framework dependency.
 
-## Current release: clear-sparks-1
+## Current release: balanced-sparks-1
 
-[Play on your phone](https://mocanumarius.github.io/orbix/?v=clear-sparks-1) · [900 × 405 sidebar preview](https://mocanumarius.github.io/orbix/preview.html?v=clear-sparks-1)
+[Play on your phone](https://mocanumarius.github.io/orbix/?v=balanced-sparks-1) · [900 × 405 sidebar preview](https://mocanumarius.github.io/orbix/preview.html?v=balanced-sparks-1)
 
 Run `npm start` to serve the game at localhost:4173. The phone link fills the device; `preview.html` keeps landscape proportions inside a narrow browser panel.
+
+## Balance pass
+
+See [the balance report](docs/balance-2026-11-13.md) for matched economy scenarios, artifact tradeoffs, route audits, sources and major design concerns. Updated scripts model whole-Spark Lift costs, landscape geometry, six-second Dreams and current artifact charges. These are diagnostic models, not measured human win rates.
+
+- Gentler escalating skill prices; Spark Wick keeps its charges at full Sparks.
+- Glass Lantern: +4 Sparks per natural fuel pickup, +1 per paid Lift.
+- Heavy Light: +24 Sparks now versus +12 safely; the first 12 paid Lifts cost +1.
+- Quiet Cinder is excluded from rewards when Lift already costs one. TEST mounting stays unrestricted.
 
 ## Clear Sparks update
 

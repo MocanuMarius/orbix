@@ -1,8 +1,8 @@
-import {glowText,getGlowCapacity,formatGlow} from './vitality.mjs?v=clear-sparks-1';
-import {getArtifactInfo,CONSUMABLE_ARTIFACTS,EVOLVING_ARTIFACTS,getArtifactStackPreview} from './artifact-info.mjs?v=clear-sparks-1';
-import {resourceSymbol} from './game-symbols.mjs?v=clear-sparks-1';
-import {artifactIcon} from './upgrade-icons.mjs?v=clear-sparks-1';
-import {encounterFamilyPreview} from './encounter-families.mjs?v=clear-sparks-1';
+import {glowText,getGlowCapacity,formatGlow} from './vitality.mjs?v=balanced-sparks-1';
+import {getArtifactInfo,CONSUMABLE_ARTIFACTS,EVOLVING_ARTIFACTS,getArtifactStackPreview} from './artifact-info.mjs?v=balanced-sparks-1';
+import {resourceSymbol} from './game-symbols.mjs?v=balanced-sparks-1';
+import {artifactIcon} from './upgrade-icons.mjs?v=balanced-sparks-1';
+import {encounterFamilyPreview} from './encounter-families.mjs?v=balanced-sparks-1';
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 export const THEME_INKS=Object.freeze({sustain:'#b9d995',precision:'#a8d5e2',tempo:'#e4c286',dream:'#cbb2e6',risk:'#e4a894'});
 export function rewardThemeMarkup(source={},label='RELIC PATH'){
@@ -40,7 +40,7 @@ function artifactEffectMarkup(a,run){
   'quiet-cinder':()=>stat('−1','glow','Lift cost'),
   'ember-lens':()=>`${resourceSymbol('up')} Light reach`,
   'silver-feather':()=>stat('+6%','up','Lift strength'),
-  'glass-lantern':()=>stat('+'+formatGlow(6),'glow','per pickup')+stat('+1','glow','Lift cost'),
+  'glass-lantern':()=>stat('+'+formatGlow(a.modifiers.cacheFuelBonus),'glow','per pickup')+stat('+1','glow','Lift cost'),
   'moss-heart':()=>stat('+'+formatGlow(3),'glow','Kindled Touch'),
   'wayfinder-seed':()=>stat('+15%','up','Collector reach'),
   'iron-petal':()=>stat('−12%','clock','Protector recovery'),

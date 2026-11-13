@@ -1,8 +1,8 @@
-import {getArtifactCapacity} from './model.mjs?v=clear-sparks-1';
-import {formatGlow,getGlowCapacity} from './vitality.mjs?v=clear-sparks-1';
-import {livesMarkup} from './lives.mjs?v=clear-sparks-1';
-import { COMPANION_ABILITIES } from './companion-abilities.mjs?v=clear-sparks-1';
-import { companionArtSvg } from './companion-art.mjs?v=clear-sparks-1';
+import {getArtifactCapacity} from './model.mjs?v=balanced-sparks-1';
+import {formatGlow,getGlowCapacity} from './vitality.mjs?v=balanced-sparks-1';
+import {livesMarkup} from './lives.mjs?v=balanced-sparks-1';
+import { COMPANION_ABILITIES } from './companion-abilities.mjs?v=balanced-sparks-1';
+import { companionArtSvg } from './companion-art.mjs?v=balanced-sparks-1';
 
 const esc = value => String(value ?? '').replace(/[&<>"']/g, char =>
   ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[char]));

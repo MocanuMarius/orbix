@@ -9,15 +9,19 @@
     "check:playtest": "node scripts/presentation-probe.mjs && node scripts/resume-probe.mjs",
     "check:skill-growth": "node scripts/skill-growth-probe.mjs",
     "balance:builds": "node scripts/balance-synergies.mjs",
-    "balance:economy": "node scripts/balance-condensed-glow.mjs --seeds=24 --out=work/balance-condensed-glow.json",
+    "balance:economy": "node scripts/balance-current-economy.mjs --seeds=24 --out=work/balance-current-economy.json",
     "check:condensed": "node scripts/condensed-model-probe.mjs && node scripts/condensed-flight-probe.mjs && node scripts/dream-probe.mjs",
     "check:edging": "node scripts/edging-pulse-probe.mjs && node scripts/edging-skills-probe.mjs && node scripts/edging-light-probe.mjs",
-    "balance:flight": "node scripts/balance-flight.mjs --source=current --mode=health --seeds=3",
+    "balance:flight": "node scripts/balance-current-flight.mjs --source=current --mode=health --seeds=3 --out=work/balance-current-flight.json",
     "balance:health": "node scripts/balance-health.mjs",
     "balance:synergies": "node scripts/balance-synergies.mjs",
     "check:glow-builds": "node scripts/glow-builds-probe.mjs",
     "check:void": "node scripts/black-holes-probe.mjs && node scripts/black-hole-art-probe.mjs",
-    "preview:rest": "node scripts/rest-preview.mjs"
+    "preview:rest": "node scripts/rest-preview.mjs",
+    "balance:choices": "node scripts/balance-current-choices.mjs --importOnly --out=work/balance-current-choices.json",
+    "balance:combos": "node scripts/balance-current-combos.mjs",
+    "balance:routes": "node scripts/balance-current-routes.mjs",
+    "check:balance": "node scripts/balance-current-mechanics.mjs"
   },
   "dependencies": {}
 }

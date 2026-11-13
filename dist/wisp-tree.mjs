@@ -1,7 +1,7 @@
-import {STARTING_CONDENSED_GLOW} from './vitality.mjs?v=clear-sparks-1';
-import {SKILLS,MAIN_WISP_BRANCHES,isSkillRevealed,canChooseStartingSkill} from './model.mjs?v=clear-sparks-1';
-import {treeHeader,treeCanvas,treeDetail,esc} from './living-tree.mjs?v=clear-sparks-1';
-import {safeTreeSelection} from './skill-tree-state.mjs?v=clear-sparks-1';
+import {STARTING_CONDENSED_GLOW} from './vitality.mjs?v=balanced-sparks-1';
+import {SKILLS,MAIN_WISP_BRANCHES,isSkillRevealed,canChooseStartingSkill} from './model.mjs?v=balanced-sparks-1';
+import {treeHeader,treeCanvas,treeDetail,esc} from './living-tree.mjs?v=balanced-sparks-1';
+import {safeTreeSelection} from './skill-tree-state.mjs?v=balanced-sparks-1';
 export function mainWispTreeMarkup({run,wallet,canBuy,selected='main-efficiency'}){
  let skill=SKILLS[selected];if(!skill||skill.branch!=='main')skill=SKILLS['main-efficiency'];
  let root=skill;while(root.requires&&SKILLS[root.requires]?.branch==='main')root=SKILLS[root.requires];

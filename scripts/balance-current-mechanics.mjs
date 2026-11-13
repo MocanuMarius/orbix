@@ -1,0 +1,30 @@
+import assert from 'node:assert/strict';
+import {WispFlight} from '../dist/flight.mjs';
+import {getRunModifiers,artifactFitsRun,ARTIFACTS} from '../dist/model.mjs';
+import {formatGlow} from '../dist/vitality.mjs';
+import {artifactDetailMarkup} from '../dist/replay-ui.mjs';
+globalThis.requestAnimationFrame=()=>1;globalThis.cancelAnimationFrame=()=>{};
+const ctx=new Proxy({},{get:(o,k)=>o[k]??(String(k).includes('Gradient')?()=>({addColorStop(){}}):()=>{}),set:(o,k,v)=>(o[k]=v,true)});
+const canvas=()=>({style:{},getContext:()=>ctx,getBoundingClientRect:()=>({width:900,height:405})});
+const engines=[];
+const make=(run={})=>{const e=new WispFlight({canvas:canvas(),seed:'balance-invariant',terrain:'ruins',duration:30,modifiers:getRunModifiers(run),flame:100});e.running=true;engines.push(e);return e;};
+const burden=make({skills:{'main-efficiency':1},nextFlightBurden:true});
+assert.equal(formatGlow(burden.flapCost),'3');
+burden.artifactEffects.freeLift=true;assert.ok(burden.flap());assert.equal(burden.burdenLiftsRemaining,12);
+let extra=0;
+for(let i=0;i<12;i++){burden.flame=100;const before=burden.flame;assert.ok(burden.flap());extra+=(before-burden.flame)*.3-2;}
+assert.ok(Math.abs(extra-12)<1e-7);assert.equal(burden.burdenLiftsRemaining,0);assert.equal(formatGlow(burden.flapCost),'2');
+const failed=make({nextFlightBurden:true});failed.flame=0;assert.equal(failed.flap(),false);assert.equal(failed.burdenLiftsRemaining,12);
+const wick=make({artifacts:['glow-wick'],artifactCharges:{'glow-wick':3}}),fx=wick.artifactEffects;
+for(let i=0;i<100;i++)fx.applyConsumables({},{fuel:20});assert.equal(fx.charges['glow-wick'],3);
+wick.flame=60;assert.equal(fx.applyConsumables({},{fuel:20}),10);assert.equal(wick.flame,70);assert.equal(fx.charges['glow-wick'],2);
+const efficient={skills:{'main-efficiency':1,'main-lift':1},companions:['collector'],artifacts:[]};
+assert.equal(artifactFitsRun(efficient,'quiet-cinder'),false);
+assert.equal(artifactFitsRun({...efficient,artifacts:['glass-lantern']},'quiet-cinder'),true);
+assert.equal(artifactFitsRun({skills:{'main-efficiency':1},artifacts:[]},'quiet-cinder'),true);
+const glass=make({artifacts:['glass-lantern']});glass.flame=0;
+glass.collect({id:'glass-pickup',kind:'light',value:1,x:glass.player.x,y:glass.player.y});
+assert.equal(formatGlow(glass.flame),'10'); // 6 base + 4 Lantern, using the actual pickup path.
+assert.ok(artifactDetailMarkup(ARTIFACTS['glass-lantern'],{run:{},closeAction:'resume'}).includes('+4'));
+for(const e of engines)e.destroy();
+console.log(JSON.stringify({burdenPaidLifts:12,burdenExtraSparks:12,freeAndFailedLiftPreserveBurden:true,fullMeterPreservesWick:true,emptyCinderRewardsFiltered:true,glassBonus:4}));

@@ -1,10 +1,10 @@
-import {formatGlow} from './vitality.mjs?v=clear-sparks-1';
-import * as PIXI from './vendor/pixi.mjs?v=clear-sparks-1';
-import { obstaclePolygons } from './flight.mjs?v=clear-sparks-1';
-import { PhoenixRig } from './phoenix-rig.mjs?v=clear-sparks-1';
-import { Phoenix3D } from './phoenix-3d.mjs?v=clear-sparks-1';
-import { PhoenixFlameEffects } from './flame-effects.mjs?v=clear-sparks-1';
-import { bakeLandform } from './landform-material.mjs?v=clear-sparks-1';
+import {formatGlow} from './vitality.mjs?v=balanced-sparks-1';
+import * as PIXI from './vendor/pixi.mjs?v=balanced-sparks-1';
+import { obstaclePolygons } from './flight.mjs?v=balanced-sparks-1';
+import { PhoenixRig } from './phoenix-rig.mjs?v=balanced-sparks-1';
+import { Phoenix3D } from './phoenix-3d.mjs?v=balanced-sparks-1';
+import { PhoenixFlameEffects } from './flame-effects.mjs?v=balanced-sparks-1';
+import { bakeLandform } from './landform-material.mjs?v=balanced-sparks-1';
 
 // Native Pixi scene objects share the simulation's polygon geometry. The legacy
 // canvas is retained only as a layout/input fallback when WebGL is unavailable.
