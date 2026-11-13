@@ -91,6 +91,7 @@ const server=http.createServer(async(req,res)=>{
  try{
   const url=new URL(req.url,'http://localhost'),pathname=decodeURIComponent(url.pathname);let body,type;
   if(pathname==='/'){body=await fs.readFile(path.join(root,'index.html'),'utf8');type=mime['.html'];}
+  else if(pathname==='/artifact-gallery.html'){body=`<!doctype html><html><head><meta charset="utf-8"><title>Artifact pixel art</title><style>body{background:#0b1718;color:#dce2c6;margin:20px;font:12px monospace}h1{font-size:19px}main{display:grid;grid-template-columns:repeat(7,1fr);gap:14px}figure{margin:0;text-align:center}svg{width:76px;height:76px;image-rendering:pixelated}figcaption{margin-top:5px}</style></head><body><h1>Wispbound · Artifact portraits</h1><main></main><script type="module">import {ARTIFACTS} from './model.mjs';import {artifactIcon} from './upgrade-icons.mjs';document.querySelector('main').innerHTML=Object.values(ARTIFACTS).map(a=>'<figure>'+artifactIcon(a.id)+'<figcaption>'+a.name+'</figcaption></figure>').join('');</script></body></html>`;type=mime['.html'];}
   else if(pathname==='/rest-inspector.html'){body=wrapper;type=mime['.html'];}
   else if(pathname==='/rest-scene.html'){body=(await fs.readFile(path.join(root,'game.html'),'utf8')).replace(/src="app\.mjs(?:\?[^"]*)?"/,'src="/rest-preview-app.mjs"');type=mime['.html'];}
   else if(pathname==='/rest-preview-app.mjs'){

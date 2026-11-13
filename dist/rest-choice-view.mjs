@@ -1,11 +1,11 @@
-import {getGlowCapacity,getLifeCapacity,formatGlow} from './vitality.mjs?v=tutorial-context-1';
-import {livesMarkup} from './lives.mjs?v=tutorial-context-1';
-import {resourceSymbol} from './game-symbols.mjs?v=tutorial-context-1';
-import {choiceScene} from './choice-art.mjs?v=tutorial-context-1';
-import {mapStopIconMarkup} from './map-guide.mjs?v=tutorial-context-1';
-import {dreamRestMarkup} from './dream.mjs?v=tutorial-context-1';
-import {skillIcon,artifactIcon} from './upgrade-icons.mjs?v=tutorial-context-1';
-import {companionArtSvg} from './companion-art.mjs?v=tutorial-context-1';
+import {getGlowCapacity,getLifeCapacity,formatGlow} from './vitality.mjs?v=artifact-portraits-1';
+import {livesMarkup} from './lives.mjs?v=artifact-portraits-1';
+import {resourceSymbol} from './game-symbols.mjs?v=artifact-portraits-1';
+import {choiceScene} from './choice-art.mjs?v=artifact-portraits-1';
+import {mapStopIconMarkup} from './map-guide.mjs?v=artifact-portraits-1';
+import {dreamRestMarkup} from './dream.mjs?v=artifact-portraits-1';
+import {skillIcon,artifactIcon} from './upgrade-icons.mjs?v=artifact-portraits-1';
+import {companionArtSvg} from './companion-art.mjs?v=artifact-portraits-1';
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 export function restBenefitsMarkup(run,node,choices=[],{nextNode=null}={}){
  const capacity=getGlowCapacity(run),fullHearts={...run,lives:getLifeCapacity(run)},resolved=run.restReady===true;
