@@ -119,9 +119,9 @@ for(const windGuard of [engine=>{engine.fleet.find(item=>item.role==='swift').re
 }
 
 const boundary = make(); boundary.layout.obstacles = [];
-frames(boundary, 60, 40); close(pulse(boundary).charge, .5, 'Top lethal boundary charges');
+frames(boundary, 60, 40); close(pulse(boundary).charge, 0, 'Open top edge never charges');
 boundary.edgingPulse.reset(); frames(boundary, 60, boundary.height - 40);
-close(pulse(boundary).charge, .5, 'Bottom lethal boundary charges');
+close(pulse(boundary).charge, 0, 'Open bottom edge never charges');
 boundary.edgingPulse.reset(); boundary.player.x = 1; frames(boundary, 60, 300);
 assert.equal(pulse(boundary).charge, 0, 'Screen side and decorative backdrop never charge');
 const propFlight = make(); propOnly.destroyed = false; propOnly.width = 10000;
