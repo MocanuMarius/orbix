@@ -1,7 +1,7 @@
-import {resourceSymbol} from './game-symbols.mjs?v=pixel-map-1';
-import {pickupArtSvg} from './pickup-art.mjs?v=pixel-map-1';
-import {lifeHeartSvg} from './lives.mjs?v=pixel-map-1';
-import {skillIcon} from './upgrade-icons.mjs?v=pixel-map-1';
+import {resourceSymbol} from './game-symbols.mjs?v=companion-guide-1';
+import {pickupArtSvg} from './pickup-art.mjs?v=companion-guide-1';
+import {lifeHeartSvg} from './lives.mjs?v=companion-guide-1';
+import {skillIcon} from './upgrade-icons.mjs?v=companion-guide-1';
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 export function tutorialTarget(step={}){
  const kind=step.visual||'';
@@ -9,7 +9,8 @@ export function tutorialTarget(step={}){
  if(kind==='life'||kind==='life-loss')return '.ascension-lives';
  if(kind==='packed')return '.flight-condensed-counter';
  if(kind==='lift')return '#flap-btn';
- if(kind.startsWith('companion:')||kind==='collector')return '#boost-btn';
+ if(kind==='companion:leveler')return '#flap-btn';
+ if(kind.startsWith('companion:')||kind.startsWith('collector'))return '#boost-btn';
  return null;
 }
 export function tutorialTextMarkup(text){

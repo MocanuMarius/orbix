@@ -18,7 +18,7 @@ export const TUTORIAL_TOPICS={
   s('Flash Spark','The violet Flash Spark extends Luminance for six seconds. It reveals more of the passage but gives no fuel.','pickup:sight'),
   s('Dusk Spark','The rose Dusk Spark trades reduced Luminance for fuel. Its red ring warns of the cost. Only body contact collects it.','pickup:dusk')]},
  terrain:{name:'Terrain & goals',visual:'route',steps:[
-  s('Solid edges','Bright edges help separate collidable terrain from background scenery. Rock, trees, objects and screen bounds can end an unprotected attempt.','route'),
+  s('Solid edges','Bright edges help separate collidable terrain from background scenery. Rock, trees and solid objects can end an unprotected attempt. Open sky only ends it once the whole wisp leaves the screen.','route'),
   s('Living scenery','A teal edge marks a helpful interaction. Blue marks a vent; orange warns of falling hazards. Biomes change the hazards: mushrooms, moving ice and falling masonry need different timing.','site:flight'),
   s('Optional challenges','The briefing previews a challenge and reward theme. Reaching the exit clears the flight even if you miss the challenge. Harder forks offer more risk and reward.','route')]},
  hearts:{name:'Hearts & death',visual:'life',steps:[
@@ -27,14 +27,20 @@ export const TUTORIAL_TOPICS={
   s('Choose your route again','With hearts left, return to the map. Retry the passage or choose another reachable path. Entry Sparks and your build return; failed-flight earnings do not.','route'),
   s('Recover or start again','Choose Recover at Rest to refill missing hearts. Skills can raise their maximum. At zero hearts the run ends; New Game begins a fresh build.','rest')]},
  collector:{name:'Collector',visual:'companion:collector',steps:[
-  s('Collector','The green companion rescues missed good Sparks inside its boundary. Your body gets the first chance to collect.','companion:collector'),
-  s('Delivery, then recovery','Fuel arrives when Collector returns. Its boundary shrinks, then grows back. Very close rescues still work during recovery.','companion:collector'),
-  s('Range is not Luminance','Collector range controls fetching. Luminance controls seeing. They are separate upgrades, even when their circles overlap.','luminance')]},
+  s('Automatic helper','Collector is the green orb. It fetches helpful Sparks automatically. You do not press Power to send it.','companion:collector'),
+  s('You collect first','Touch a Spark with your main wisp for immediate Energy. Collector waits for your body to have its chance, then rescues a missed Spark within its boundary.','collector-range'),
+  s('Wait for delivery','The companion flies out, takes one Spark and brings it home. Energy arrives only on return. Farther Sparks take longer: do not rely on an instant rescue when nearly empty.','collector-return'),
+  s('Watch the boundary','After delivery, the green boundary contracts and regrows. A nearby Spark can still be fetched during recovery if it is inside the smaller boundary.','collector-recovery'),
+  s('Read the Power indicator','For Collector, the filling button shows current range, not an ability to press. A full indicator means maximum reach. Red-ring Sparks are left for you to choose.','companion:collector'),
+  s('Upgrade the right reach','Collector skills improve fetching range, delivery and recovery. Light skills improve Luminance: how far you see. Fetching range and seeing distance are different.','luminance')]},
  companions:{name:'Companions',visual:'companion:protector',steps:[
-  s('Protector','The blue companion builds a shield. A charged shell spends Energy to deflect one collision, then rebuilds. An empty shell cannot save you.','companion:protector'),
-  s('Runner','The amber companion activates with Power. Its short burst crosses ground quickly and resists drafts. Wait for the button to fill before using it again.','companion:swift'),
-  s('Space Timer','The cyan companion levitates while you hold Lift or the scene. Release to fall and recharge. Drafts still push you.','companion:leveler'),
-  s('Choose your companion','Equip one companion at a time. Change it at Rest. Collector fetches; Protector shields; Runner bursts; Space Timer levitates. Its own skill tree improves the role.','tools')]},
+  s('One helper at a time','Choose one companion. Only Collector fetches Sparks; every other role relies on body pickups. Swap at Rest and improve the equipped role through its skill tree.','companion:collector'),
+  s('Protector · automatic','The blue orb rebuilds a visible shell around you. A charged shell spends Energy to deflect a collision and push you clear. No button press is needed.','companion:protector'),
+  s('A shield is not immunity','After a deflection, the broken shell must rebuild. Without a charge or enough Energy, a collision ends the attempt. It cannot stop a Black Hole draining Energy.','companion:protector'),
+  s('Runner · press Power','The amber orb gives a short forward burst when you press Power. It resists drafts but does not protect against terrain. Pick a clear stretch before accelerating.','companion:swift'),
+  s('Runner · wait for refill','The Power button empties after a burst and fills during cooldown. When full, its ready sparkle means you can burst again. Runner never fetches Sparks.','companion:swift'),
+  s('Space Timer · hold to hover','With the cyan orb, hold the scene or Lift to levitate. Charge drains only while held. You still bob gently and drafts can push you.','companion:leveler'),
+  s('Space Timer · release to glide','Release to fall and recharge. Empty charge ends levitation. Short holds help line up body pickups; upgrades can extend charge, steady the bob or add a release dive.','companion:leveler')]},
  packed:{name:'Packed Sparks',visual:'clear-reward',steps:[
   s('A reward for every clear','Ordinary flights earn 20 Packed Sparks for run skills. Elite and guardian victories also offer two artifacts: choose one. The final guardian unlocks a future reward instead.','clear-reward'),
   s('Overflow is a bonus','When a pickup overfills Sparks, the surplus becomes extra Packed Sparks. Clear the flight to keep them. Rest refills do not create Packed Sparks.','packed'),
@@ -63,7 +69,7 @@ export const TUTORIAL_TOPICS={
  routes:{name:'Paths & stops',visual:'route',steps:[
   s('Follow connected paths','Bright nodes are reachable. Dim nodes are not. Choosing a fork commits your route; you cannot jump to any stop on the map.','route'),
   s('Flight and elite routes','Passage markers mean ordinary Flight. Creature portraits mark harder Elite routes with a two-artifact choice. Inspect the biome and length before committing.','site:flight'),
-  s('Rest','The shelter marks Rest: choose one benefit, then prepare your build. Route toward one when you need hearts or a different companion.','site:rest'),
+  s('Rest','The campfire marks Rest: choose one benefit, then prepare your build. Route toward one when you need hearts or a different companion.','site:rest'),
   s('Encounter and treasure','The encounter symbol offers a trade or event. The chest offers treasure. Check gains, costs and chances before choosing.','sites-support'),
   s('Guardian','A large guardian portrait marks the end of each map. Survive its warned patterns and reach the finish. Three different guardians stand between you and a completed run.','site:boss')]},
  hazards:{name:'Hazards & pulses',visual:'black-hole',steps:[

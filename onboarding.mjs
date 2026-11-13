@@ -2,7 +2,7 @@
 // card at a time; the run owns only pacing so a new game keeps learned topics.
 export const ONBOARDING_VERSION=1;
 export const ONBOARDING_PROMPT_GAP_MS=30000;
-const topics=new Set(['lift','luminance','collector','artifacts','packed','skills','rest','companions','dream','routes','black-hole','bad-sparks','drafts','edging','hearts','events','progression','special-sparks']);
+const topics=new Set(['lift','luminance','collector','collector-recovery','protector','swift','leveler','artifacts','packed','skills','rest','companions','dream','routes','black-hole','bad-sparks','drafts','edging','hearts','events','progression','special-sparks']);
 const topicId=value=>String(value??'').replace(/^onboarding:/,'').split(':')[0];
 const integer=value=>Math.max(0,Math.floor(Number(value)||0));
 export function cleanOnboarding(value={}){
@@ -94,12 +94,17 @@ export function nextOnboardingLesson(view,{profile,run,flight,snapshot={},now=Da
  if(view==='support'&&run.current?.kind!=='camp'&&newTopic('events'))return card('events',run.current?.kind==='treasure'?'A treasure stop':'An encounter','Read what you gain and what you give up. Choose one outcome. These stops can strengthen a build, but they do not all offer Rest recovery.','sites-support','.support-offers');
  if(view==='companions'&&newTopic('companions'))return card('companions','One companion, one role','Equip one companion at a time. Collector fetches; Protector shields; Runner bursts; Space Timer levitates while you hold. Swap at Rest and build around your choice.','companion:'+role,'.companion-roles');
  if(view==='dream'&&newTopic('dream'))return card('dream','Rehearse the opening','Dream rehearses six seconds of the next flight without spending a heart. Retry freely, then save a preset. It replays free of Lift cost and ends paused.','dream');
- if(view==='map'&&completed>0&&newTopic('routes'))return card('routes','Choose a connected path','Bright stops are reachable next. A fork commits your route. Shelter means Rest; chest means treasure. Tap a later stop to preview it before planning ahead.','sites','#journey-map');
+ if(view==='map'&&completed>0&&newTopic('routes'))return card('routes','Choose a connected path','Bright stops are reachable next. A fork commits your route. Campfire means Rest; chest means treasure. Tap a later stop to preview it before planning ahead.','sites','#journey-map');
  if((view==='map-clear'||view==='result'||view==='briefing'&&run.current?.type==='finale')&&newTopic('progression'))return card('progression','Three maps make a run','Your hearts, Energy, skills and artifacts continue into the next map. Clear all three maps and the final guardian to unlock the next Ascension.','site:boss');
  if(view!=='flight'||flight?.dying||flight?.completing||flight?.dream?.active||snapshot.dying||snapshot.completing)return null;
  const time=Number(flight?.time)||0;
  if(firstMap&&completed===0&&time>=18&&newTopic('luminance'))return card('luminance','This reach is Luminance','Luminance is how far your wisp lights the world. Farther terrain fades into darkness. Light skills can extend it; it is separate from your Spark fuel.','luminance','.canvas-wrap');
- if(role==='collector'&&completed>=1&&newTopic('collector'))return card('collector','Collector rescues missed Sparks','Collector fetches good Sparks inside its green boundary after your body has had a chance. Fuel arrives on return. The boundary shrinks, then grows back during recovery.','companion:collector','#boost-btn');
+ if(role==='collector'&&time>=6&&newTopic('collector'))return card('collector','Collector is automatic','Touch Sparks yourself for immediate Energy. The green companion rescues missed helpful Sparks inside its boundary. Energy arrives only when it returns; distant fetches take longer.','collector-return','#boost-btn');
+ if(role==='collector'&&completed>=1&&time>=8&&newTopic('collector-recovery'))return card('collector-recovery','Smaller range, still working','After delivery, the green boundary shrinks and regrows. It can fetch again inside that smaller range. The Power indicator shows range: you do not need to press it. Red-ring Sparks are ignored.','collector-recovery','#boost-btn');
+ if(role!=='collector'&&time>=6&&newTopic(role)){
+  const lessons={protector:['Protector works automatically','A charged blue shell spends Energy to deflect a collision, then rebuilds. No charge or too little Energy means no rescue. Collect Sparks with your own body.'],swift:['Runner: press Power','Press the filled Power button for a short speed burst with draft resistance. Terrain still kills. The button refills during cooldown; collect Sparks yourself.'],leveler:['Space Timer: hold, then release','Hold the scene or Lift to levitate. Release to fall and recharge. Empty charge ends the hold; drafts still push you. Collect Sparks with your own body.']};
+  const tip=lessons[role];if(tip)return card(role,...tip,'companion:'+role,role==='leveler'?'#flap-btn':'#boost-btn');
+ }
  if(newTopic('black-hole')&&(snapshot.blackHole?.rate>0||flight?.getNearbyBlackHole?.()))return card('black-hole','Give Black Holes space','A black core steals Energy continuously while you are nearby. Closer means faster drain. It cannot be collected; take a wider path.','black-hole','.canvas-wrap');
  if(newTopic('edging')&&(snapshot.edgingPulse?.charge>.05||snapshot.edgingPulse?.active))return card('edging','Close flight charges a pulse','Skim near solid terrain without touching it. The small meter near your wisp charges; when full, a fading pulse reveals the scene.','edge','.canvas-wrap');
  const pickup=flight?.getNearbyPickup?.(new Set(profile?.seenPickups||[]));
