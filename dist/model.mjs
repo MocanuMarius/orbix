@@ -40,6 +40,7 @@ const skill = (id, name, branch, cost, requires, description, maxRank = 1) => ({
 export const SKILLS = Object.freeze({
   'wisp-light': skill('wisp-light', 'Inner Glow', 'Wisp', 60, null, 'Illuminate 35 more units of terrain per rank. See paths and pickups farther ahead.', 3),
   'wisp-reach': skill('wisp-reach', 'Wisp Reach', 'Wisp', 80, null, 'Each rank expands your companion’s light packet search range by 25%, up to 75% farther.', 3),
+  'wisp-gravity': skill('wisp-gravity', 'Gravitic Bond', 'Wisp', 80, null, 'Gravity companion only: pull nearby good light packets 15% more strongly per rank. Packets still need to be collected.', 3),
   'wisp-recovery': skill('wisp-recovery', 'Wisp Recovery', 'Wisp', 90, null, 'Each rank shortens the wait after your wisp returns by 15% of the base cooldown.', 3),
   'wisp-bounty': skill('wisp-bounty', 'Wisp Bounty', 'Wisp', 160, 'wisp-reach', 'Earn 10% more embers from flight pickups.'),
   'boost-focus': skill('boost-focus', 'Quickening', 'Boost', 80, null, 'Your selected companion ability recharges 10% sooner.'),
@@ -218,7 +219,8 @@ export function getFlightTuningState(run) {
   const canEdit = !!run && budget > 0 && run.tuningRestReady === true && !run.attemptActive && !run.banked
     && ['starter', 'map', 'support', 'reward', 'briefing'].includes(run.phase);
   return { budget, spent, remaining: budget - spent, allocation, maxPerStat: FLIGHT_POINTS_TUNING.maxPerStat,
-    canEdit, axisLabels: { speed: 'Speed', lift: 'Lift height', collector: 'Collector', boost: 'Ability' },
+    canEdit, axisLabels: { speed: 'Speed', lift: 'Lift height', collector: normalizeCompanionRole(run?.companionRole) === 'gravity' ? 'Gravity reach' : 'Collector', boost: 'Ability' },
+    axisBonuses: { collector: normalizeCompanionRole(run?.companionRole) === 'gravity' ? '+12% reach · +8% pull / point' : '+12% reach / point' },
     modifiers: getModifiers(run?.cards || [], run?.skills || {}, allocation), lastGrant: run?.tuningLastGrant || null };
 }
 
@@ -419,6 +421,7 @@ function cleanSuspendedRun(value, profile, practiceId) {
     || value.id === practiceId || profile.bankedRuns.includes(value.id)) return null;
   const run = copy(value);
   run.companionRole = normalizeCompanionRole(run.companionRole);
+  if (run.attemptEntry) run.attemptEntry.companionRole = normalizeCompanionRole(run.attemptEntry.companionRole ?? run.companionRole);
   run.companionTint = companionTint(run.companionTint, run.element);
   delete run.element;
   run.skills = cleanProfile({ skills: run.skills }).skills;
@@ -477,6 +480,7 @@ export function loadState(storage) {
       delete state.run.element;
       repairSave ||= state.run.companionRole !== normalizeCompanionRole(state.run.companionRole);
       state.run.companionRole = normalizeCompanionRole(state.run.companionRole);
+      if (state.run.attemptEntry) state.run.attemptEntry.companionRole = normalizeCompanionRole(state.run.attemptEntry.companionRole ?? state.run.companionRole);
       for (const node of [...state.run.map.flat(), ...(state.run.current ? [state.run.current] : [])]) {
         if (node.draftTags) node.draftTags = node.draftTags.map(tag => tag === 'Wing' ? 'Drift' : tag);
         if (node.draftTheme) node.draftTheme = node.draftTheme.replace(/Wing/g, 'Drift');
@@ -852,7 +856,7 @@ function restoreAttemptEntry(run) {
   if (entry && entry.step === run.step && entry.nodeId === run.current?.id) {
     const attempts = count(run.stats?.attempts), deaths = count(run.stats?.deaths);
     run.companionRole = normalizeCompanionRole(typeof entry.companionRole === 'string'
-      && Object.hasOwn(COMPANION_ABILITIES, entry.companionRole) ? entry.companionRole : run.companionRole);
+      && (entry.companionRole === 'scout' || Object.hasOwn(COMPANION_ABILITIES, entry.companionRole)) ? entry.companionRole : run.companionRole);
     run.flame = clamp(finite(entry.startGlow, run.flame), 0, FLAME_TUNING.maximum);
     run.afterglow = energy(entry.afterglow);
     run.afterglowDrawStep = entry.afterglowDrawStep;
@@ -1173,6 +1177,7 @@ export function getModifiers(cardIds = [], skills = {}, flightTuning = {}) {
   result.boostDuration = clamp(result.boostDuration, 0.80, 1.45);
   result.reward = clamp(result.reward, 0.75, 1.65);
   const points = tuningAllocation(flightTuning);
+  result.gravityPull = clamp((1 + .15 * skillRank(skills, 'wisp-gravity')) * (1 + .08 * points.collector), 1, 2);
   result.speed = Math.min(1.23, result.speed * (1 + .03 * points.speed));
   result.flap = Math.min(1.20, result.flap * Math.sqrt(1 + .06 * points.lift));
   result.attract = Math.min(2.5, result.attract * (1 + .12 * points.collector));

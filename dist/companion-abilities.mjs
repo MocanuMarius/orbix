@@ -6,11 +6,12 @@ export const COMPANION_ABILITIES = Object.freeze({
     'Surge forward and resist local drafts. A short burst for quick passages.'),
   anchor: ability('anchor', 'Anchor', 'level', 'LEVEL', 1.8, 11, '═',
     'Steady your height briefly. Drafts can still nudge you; Lift ends Level immediately.'),
-  scout: ability('scout', 'Scout', 'reveal', 'REVEAL', 3, 12, '◉',
-    'Reveal 45% farther for a few seconds. Existing light upgrades and dimming still apply.'),
+  gravity: ability('gravity', 'Gravity', 'gravity', 'GRAVITY', 3, 12, '◉',
+    'Gently draw nearby light packets closer. Collector range and Gravity upgrades strengthen the field; dark packets stay untouched.'),
 });
 
 export function normalizeCompanionRole(value) {
+  if (value === 'scout') return 'gravity';
   return typeof value === 'string' && Object.hasOwn(COMPANION_ABILITIES, value) ? value : 'swift';
 }
 

@@ -548,35 +548,55 @@ export class WispFlightView {
         const x = playerX - 19 - i * 5 - shift * 3;
         const y = playerY + (i % 2 ? -1 : 1) * (4 + i);
         c.globalAlpha = light * (.22 + (1 - shift) * .32);
-        pixelLine(c, x, y, x + 4 + i % 2 * 2, y - 1, '#d7dbc4');
+        pixelLine(c, x, y, x + 4 + i % 2 * 2, y - 1, '#f2d48e');
       }
     } else if (role === 'anchor') {
       // Horizontal level marks, never a circular guard or immunity cue.
       c.globalAlpha = light * .68;
       for (const side of [-1, 1]) {
-        pixelLine(c, playerX + side * 16, playerY, playerX + side * 22, playerY, '#cbd8bc');
-        pixelLine(c, playerX + side * 22, playerY - 2, playerX + side * 22, playerY + 2, '#a4b99f');
+        pixelLine(c, playerX + side * 16, playerY, playerX + side * 22, playerY, '#a7e8df');
+        pixelLine(c, playerX + side * 22, playerY - 2, playerX + side * 22, playerY + 2, '#64b8b7');
       }
       const x = carrier.x * this.scale, y = carrier.y * this.scale;
-      pixelLine(c, x - 5, y + 10, x + 5, y + 10, '#cbd8bc');
-      c.fillStyle = '#a4b99f'; c.fillRect(Math.round(x - 5), Math.round(y + 9), 1, 2);
+      pixelLine(c, x - 5, y + 10, x + 5, y + 10, '#a7e8df');
+      c.fillStyle = '#64b8b7'; c.fillRect(Math.round(x - 5), Math.round(y + 9), 1, 2);
       c.fillRect(Math.round(x + 5), Math.round(y + 9), 1, 2);
-    } else if (role === 'scout') {
-      if (e.reducedMotion) {
-        const x = carrier.x * this.scale, y = carrier.y * this.scale;
-        c.globalAlpha = light * .5;
-        pixelLine(c, x + 7, y - 3, x + 10, y - 4, '#d0d3df');
-        pixelLine(c, x + 7, y + 3, x + 10, y + 4, '#d0d3df');
-      } else {
-        // The soft front follows the actual reveal radius, including upgrades
-        // and dark-packet dimming. It adds no independent terrain illumination.
-        const radius = (Number(this.currentLightState?.radius) || this.lightRadius) * this.scale;
-        c.strokeStyle = '#c7ced5'; c.lineWidth = 1;
-        for (const inset of [0, 1.5, 3]) {
-          c.globalAlpha = light * (.045 + Math.sin(progress * Math.PI) * .035) * (1 - inset / 5);
-          for (const [start, end] of [[-.55, .25], [.62, 1.02], [-1.12, -.86]]) {
-            c.beginPath(); c.arc(playerX, playerY, Math.max(20, radius - inset), start, end); c.stroke();
+    } else if (role === 'gravity') {
+      const field = e.getGravityState?.() || e.gravityField;
+      if (field?.active && field.radius > 0) {
+        const s = this.scale, distance = distanceOf(e);
+        const lightRadius = Math.max(1, this.lightRadius * s);
+        const carrierX = carrier.x * s, carrierY = carrier.y * s;
+        const carrierLightRadius = (carrier.phase === 'cooldown' ? 13 + carrier.recovery * 7 : 26)
+          * ART_SCALE * (this.lightDimScale || 1);
+        let visible = 0;
+        // Only mark packets that really moved. Short curved strokes sit beside
+        // their measured velocity; no field ring or additional illumination.
+        for (const packet of e.layout.embers) {
+          if (visible >= 4) break;
+          if (packet.collected || packet.carried || packet.harmful || packet.kind === 'dark'
+            || !Number.isFinite(packet.gravityPulledAt) || e.time - packet.gravityPulledAt > .18
+            || Math.hypot(packet.x - field.worldX, packet.y - field.y) > field.radius) continue;
+          const x = (packet.x - distance) * s, y = packet.y * s;
+          if (x < 0 || x > WIDTH || y < 0 || y > this.buffer.height) continue;
+          const nearPlayer = clamp(1 - ((x - playerX) ** 2 + (y - playerY) ** 2) / lightRadius ** 2, 0, 1);
+          const nearCarrier = clamp(1 - ((x - carrierX) ** 2 + (y - carrierY) ** 2) / carrierLightRadius ** 2, 0, 1) * .75;
+          const visibility = Math.max(nearPlayer, nearCarrier) * light;
+          if (visibility < .06) continue;
+          const vx = Number(packet.gravityVx) || 0, vy = Number(packet.gravityVy) || 0;
+          const speed = Math.hypot(vx, vy);
+          if (speed < .1) continue;
+          c.globalAlpha = visibility * (.18 + .2 * clamp(packet.gravityPullStrength || 0, 0, 1));
+          if (e.reducedMotion) {
+            c.fillStyle = '#a57bd1'; c.fillRect(Math.round(x - 4), Math.round(y), 1, 2);
+          } else {
+            const dx = vx / speed, dy = vy / speed, length = clamp(speed * .14 * s, 1, 4);
+            const endX = x - dx * 3, endY = y - dy * 3;
+            const midX = endX - dx * length * .5 - dy, midY = endY - dy * length * .5 + dx;
+            pixelLine(c, endX - dx * length, endY - dy * length, midX, midY, '#a57bd1');
+            pixelLine(c, midX, midY, endX, endY, '#d3b1f2');
           }
+          visible++;
         }
       }
     }
@@ -763,14 +783,12 @@ export class WispFlightView {
     const identity = sceneryIdentity(e);
     const palette = { ...(PALETTES[e.terrain] || PALETTES.ruins), ...(MATERIALS[identity.scene] || {}) };
     this.canvas.dataset.levelIdentity = identity.id;
-    const companionName = ['pearl', 'amber', 'lilac'].includes(e.options?.companionTint) ? e.options.companionTint : 'pearl';
-    const companion = companionPalette(companionName);
     const role = normalizeCompanionRole(e.companionRole || e.options?.companionRole);
+    const companion = companionPalette(role);
     const config = getCompanionAbility(role);
     const ability = e.getAbilityState?.() || { role, active: role === 'swift' ? e.boostTime > 0 : e.abilityTime > 0,
       remaining: role === 'swift' ? e.boostTime : e.abilityTime, duration: config.duration };
     this.canvas.dataset.player = 'light';
-    this.canvas.dataset.companionTint = companionName;
     this.canvas.dataset.companionRole = role;
     c.setTransform(1, 0, 0, 1, 0, 0); c.globalAlpha = 1; c.globalCompositeOperation = 'source-over';
     this.drawSky(e, t, distance, palette);

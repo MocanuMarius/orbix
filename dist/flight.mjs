@@ -6,6 +6,7 @@ import { LEVEL_LENGTH, getLevelLengthScale } from './level-length.mjs';
 import { resolveLevelIdentity } from './level-catalog.mjs';
 import { DraftField, DRAFT_TUNING } from './drafts.mjs';
 import { normalizeCompanionRole, getCompanionAbility } from './companion-abilities.mjs';
+import { GRAVITY_TUNING, gravityRadius, updateGravityPackets } from './gravity.mjs';
 import { createTutorialState, buildTutorialLayout, recordTutorialPickup,
   updateTutorial, updateTutorialCompanion, getTutorialHint } from './tutorial.mjs';
 export { FLAME_TUNING } from './vitality.mjs';
@@ -607,7 +608,7 @@ export class WispFlight {
     this.cards = new Set(options.cards || []);
     this.mod = { gravity: 1, flap: 1, speed: 1, attract: 1,
       boostCooldown: 1, boostDuration: 1, reward: 1, cacheFuelBonus: 0,
-      warmCore: false, windSensitivity: 1, steady: false, ...options.modifiers };
+      warmCore: false, windSensitivity: 1, gravityPull: 1, steady: false, ...options.modifiers };
     this.alive = true;
     this.flame = clamp(Number.isFinite(options.flame) ? options.flame : FLAME_TUNING.starting, 0, FLAME_TUNING.maximum);
     this.flaps = 0; this.effortSpent = 0; this.flameRestored = 0;
@@ -726,7 +727,11 @@ export class WispFlight {
         o.center *= factor; o.gap *= factor; o.motion *= factor;
         for (const shape of [o.topShape, o.bottomShape]) if (shape) shape.forEach(point => { point[1] *= factor; });
       });
-      this.layout.embers.forEach(e => { e.y *= factor; if (e.pullY !== undefined) e.pullY *= factor; });
+      this.layout.embers.forEach(e => {
+        e.y *= factor;
+        if (e.pullY !== undefined) e.pullY *= factor;
+        if (Number.isFinite(e.gravityVy)) e.gravityVy *= factor;
+      });
       this.drafts?.resize(factor);
       this.stars.forEach(s => { s.y *= factor; });
       this.particles.length = 0;
@@ -875,16 +880,34 @@ export class WispFlight {
     const configured = Number(this.mod.lightRadius);
     const baseRadius = Number.isFinite(configured) && configured > 0 ? configured : LIGHT_PACKET_TUNING.baseRadius;
     const reduction = clamp(this.lightDimming, 0, 1 - LIGHT_PACKET_TUNING.minimumLight);
-    const edge = this.companionRole === 'scout' && this.abilityTime > 0
-      ? clamp(Math.min((this.time - this.abilityStartedAt) / .25, this.abilityTime / .45), 0, 1) : 0;
-    const revealBonus = .45 * edge * edge * (3 - 2 * edge);
-    const revealedRadius = baseRadius * (1 + revealBonus);
+    const revealBonus = 0, revealedRadius = baseRadius;
     return { baseRadius, revealedRadius, revealBonus, radius: revealedRadius * (1 - reduction),
       intensity: 1 - reduction * .65, dimmed: reduction > .005,
       stacks: this.lightPenalties.length,
       remaining: Math.max(0, ...this.lightPenalties.map(until => until - this.time)),
       maximumStacks: LIGHT_PACKET_TUNING.darkMaximumStacks,
       penaltyPerStack: LIGHT_PACKET_TUNING.darkPenalty };
+  }
+
+  getGravityState() {
+    const active = this.companionRole === 'gravity' && this.abilityTime > 0;
+    const edge = active ? clamp(Math.min((this.time - this.abilityStartedAt) / .18,
+      this.abilityTime / .3), 0, 1) : 0;
+    return { active, radius: gravityRadius(this.mod.attract), maxRadius: GRAVITY_TUNING.maxRange,
+      strength: edge * edge * (3 - 2 * edge),
+      pullMultiplier: clamp(Number(this.mod.gravityPull) || 1, 1, 2),
+      x: this.player.x, y: this.player.y, worldX: this.distance + this.player.x,
+      remaining: active ? this.abilityTime : 0, duration: this.abilityDuration };
+  }
+
+  packetPositionClear(worldX, y) {
+    if (y < 31 || y > this.height - 32) return false;
+    for (const obstacle of this.layout.obstacles) {
+      if (obstacle.destroyed || worldX + 4 < obstacle.x - obstacle.width * .8
+        || worldX - 4 > obstacle.x + obstacle.width * 2.5) continue;
+      if (obstaclePolygons(obstacle, this.time).some(polygon => circleHitsPolygon(worldX, y, 4, polygon))) return false;
+    }
+    return true;
   }
 
   absorbPacket(ember, kind) {
@@ -997,6 +1020,11 @@ export class WispFlight {
       }
     }
 
+    const gravityField = this.getGravityState();
+    if (updateGravityPackets(this.layout.embers, { ...gravityField, dt, time: this.time,
+      positionClear: (worldX, y) => this.packetPositionClear(worldX, y) }))
+      this.layout.embers.sort((a, b) => a.x - b.x);
+
     for (const ember of this.layout.embers) {
       if (ember.collected || ember.carried) continue;
       const x = ember.x - this.distance;
@@ -1106,6 +1134,7 @@ export class WispFlight {
       wisp: this.getWispState(),
       ability: this.getAbilityState(),
       light: this.getLightState(),
+      gravityField: this.getGravityState(),
       collected: this.baseEmbers, boostCooldown: this.cooldown,
       boostCooldownTotal: this.boostCooldown, boostDurationTotal: this.boostDuration,
       boostReady: this.getAbilityState().ready,

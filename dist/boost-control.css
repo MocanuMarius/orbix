@@ -27,10 +27,10 @@
   transition: none;
 }
 .flight-dock #boost-btn.boost-control-v2[data-companion-role=anchor] {
-  --ability-ink: #dce9c7; --ability-edge: #a7bd92; --ability-glow: 143, 181, 129; --ability-base: #3c5541;
+  --ability-ink: #c9fff0; --ability-edge: #64b8b7; --ability-glow: 76, 188, 189; --ability-base: #264f51;
 }
-.flight-dock #boost-btn.boost-control-v2[data-companion-role=scout] {
-  --ability-ink: #e9def3; --ability-edge: #bcb0d3; --ability-glow: 162, 143, 193; --ability-base: #4d475e;
+.flight-dock #boost-btn.boost-control-v2[data-companion-role=gravity] {
+  --ability-ink: #f0dfff; --ability-edge: #a57bd1; --ability-glow: 164, 113, 215; --ability-base: #50345e;
 }
 #boost-btn.boost-control-v2[data-boost-state=ready]::before {
   content: ''; position: absolute; inset: 0; pointer-events: none; z-index: -1;
@@ -43,7 +43,7 @@
 }
 .flight-dock #boost-btn.boost-control-v2:active {
   transform: translate(1px, 1px);
-  box-shadow: inset 0 0 0 3px #29271d, 2px 2px 0 #0b1511, 0 0 20px #d5a04466;
+  box-shadow: inset 0 0 0 3px #29271d, 2px 2px 0 #0b1511, 0 0 20px rgba(var(--ability-glow), .4);
 }
 #boost-btn.boost-control-v2 .boost-charge-ring {
   position: absolute;

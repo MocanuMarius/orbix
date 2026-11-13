@@ -3,3 +3,6 @@
 
 /* Flight tuning opens from the top MENU wheel; the sheet can also be read while paused. */
 .tuning-sheet [data-tuning-window]{font-size:10px;line-height:1.4}.tuning-sheet .tuning-build-label{font-size:9px}.tuning-sheet .tuning-step{min-width:44px;min-height:44px}.tuning-sheet .tuning-step:disabled{cursor:default}.tuning-sheet:has(.tuning-step:not(:disabled)) .tuning-build-label{color:#a1b98b}
+
+/* Gravity's collector tuning shows the capped packet field and pull strength. */
+body[data-companion-role=gravity] .tuning-row[data-tuning-axis=collector] [data-tuning-total]{color:#c4a5e0}body[data-companion-role=gravity] .tuning-row[data-tuning-axis=collector] .tuning-axis-copy p{color:#a28abb}

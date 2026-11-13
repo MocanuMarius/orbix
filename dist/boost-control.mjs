@@ -7,7 +7,7 @@ const clamp = (value, lo, hi) => Math.min(hi, Math.max(lo, value));
 const ICONS = {
   swift: '<path d="M4 5L13 12L4 19M13 5L22 12L13 19"/>',
   anchor: '<path d="M3 12H21M6 6V18M18 6V18M3 18H9M15 18H21"/>',
-  scout: '<path d="M2 12Q12 1 22 12Q12 23 2 12Z"/><circle cx="12" cy="12" r="3"/><path d="M12 1V3M12 21V23"/>',
+  gravity: '<path d="M20 7C17 1 7 2 4 8C1 14 6 22 13 20C19 19 21 13 17 9C14 6 9 7 8 11C7 15 12 18 14 14L14 11M14 14L11 13"/>',
 };
 
 export function boostControlMarkup(role = 'swift') {

@@ -125,7 +125,7 @@ export function getTutorialHint(engine) {
   const lesson = {
     swift: 'BOOST adds speed and resists local drafts. Rock and screen edges still end the attempt.',
     anchor: 'LEVEL holds your height briefly. Drafts still nudge you, and Lift ends Level immediately.',
-    scout: 'REVEAL reaches 45% farther briefly. Use it before a bend, and keep steering clear of rock.'
+    gravity: 'GRAVITY gently pulls nearby good light packets. Fly close; you still need to touch a packet or let your companion bring it home.'
   }[ability.id];
   if (!engine.boosts) return hint('ability', `Try ${ability.label}`, lesson, 2);
   if (gust.warning || gust.active) return hint('wind', gust.warning ? 'Choose a way past' : 'Inside the draft puff',
@@ -133,7 +133,7 @@ export function getTutorialHint(engine) {
       ? 'This puff nudges only inside it. Fly above or below, or BOOST across with room to spare.'
       : ability.id === 'anchor'
         ? 'Drafts still nudge you during LEVEL. Fly around the puff, or leave room for its push.'
-        : 'REVEAL shows more of the path; it does not resist drafts. Fly above or below the puff.', 3);
+        : 'GRAVITY pulls light packets, not your body. Dark packets are ignored; fly above or below the draft puff.', 3);
   if (!state.finishedWind) return hint('watch-wind', 'Find the little draft puff',
     'One gentle puff waits along this route. Its curls show where it pushes; you can fly around it.', 3);
   const recharge = clamp(engine.cooldown, 0, 99);

@@ -6,7 +6,7 @@ Updated 13 November 2026. Wispbound is the working title. This log records the c
 
 - Simplify the graphics and theme while keeping the branching expedition map and three active card slots.
 - Use original pixel sprites and scenery with the bleak, weathered mood of Salt and Sanctuary: stone, roots, mist, subdued earth colours and small lights.
-- Play as a neutral light wisp. Neutral carrier wisps assist it. Remove Fire/Ice entirely; companion glow colours remain cosmetic, with range and recovery upgrades independent.
+- Play as a neutral white wisp. Carrier roles have distinct colours: Swift amber, Anchor cyan and Gravity violet. Fire/Ice themes remain removed; range, recovery and collection upgrades are independent.
 - Keep one-handed portrait play with two right-side controls: Lift and the selected companion ability. Carrier collection and card effects act automatically.
 - Direct contact always collects map sparks; the carrier is assistance. Its base cooldown is 5.5 seconds after delivery, before recovery upgrades.
 - Give the player wisp an upgradeable light radius that reveals more terrain and pickups.
@@ -22,7 +22,7 @@ The ten recommended options were accepted, with later feedback superseding the e
 | # | Decision | Current build | Rationale | Status |
 | --- | --- | --- | --- | --- |
 | 1 | Wisp identity | The player and companion are neutral lights. Fire/Ice is removed. | Keep the simplified theme consistent. | Updated by explicit user choice |
-| 2 | Companion appearance | Choose Pearl, Amber or Lilac before an expedition, fixed for that expedition. | Customization without another balance system or inventory. | Supersedes elemental selection |
+| 2 | Companion appearance | Fixed role colours distinguish amber Swift, cyan Anchor and violet Gravity, with matching distinct bodies. | Identify each tool at a glance. | Supersedes the optional shared tint selector |
 | 3 | Visibility beyond the light | Distant landscape is nearly black with very faint silhouettes. Nearby detail becomes clearer inside the light. | Make the upgradeable light radius more meaningful. | Confirmed; darkened further by latest feedback |
 | 4 | Light versus fuel | Spending Glow dims the sprite, not the upgrade-based reveal radius. Dark packets can temporarily reduce that radius. | Keep fuel and a deliberate visibility hazard separate. | Updated by dark-packet mechanic |
 | 5 | Light progression | Inner Glow is a permanent utility skill with three ranks: radius 175, 210, 245 and 280. | Give light an explicit progression path independent of collection range. | Confirmed |
@@ -202,6 +202,16 @@ On 13 November 2026, the user requested deployment of the current backlog build 
 - Practice safely suspends the existing normal ascension. Preserve its checkpoint, fuel, cards, companion, tuning, currency, reserve and lives; a live attempt returns to its entry checkpoint without charging a life. Persist the suspended run with the practice save so reloads retain it.
 - Finishing or leaving practice can resume the suspended ascension. Keep practice earnings and reserve isolated from real progress, retaining only the existing taught-power unlock on successful completion. Do not create nested suspended practices or end the normal ascension to open Tutorial.
 - Add one short next-action cue per checkpoint instead of more explanatory paragraphs. Distinguish route selection, starting powers, reaching the waylight, resting and saved level rewards. Keep gameplay/balance unchanged and publish this feedback batch after source checks; no simulations or broad playtesting.
+
+## Gravity replaces Reveal; distinct role colours
+
+- Replace Scout's active Reveal with the Gravity companion and GRAVITY button. Reuse the three-second active period and twelve-second recharge. Migrate old Scout role IDs, including suspended ascensions and attempt snapshots, to Gravity; preserve cards, upgrades, fuel, lives and progression.
+- Apply a gentle inverse-square attraction to nearby beneficial light packets. Use a 120-unit starting field, scaled by collection reach up to 220 units. The pull weakens to one quarter at twice the distance outside the softened/capped centre.
+- Soften the force below 24 units, cap acceleration, damp packet velocity and keep a low speed limit. Preserve direct pickup timing; the field moves packets rather than collecting or paying for them. Do not pull dark, collected, carried or reserved packets, and block movement through real terrain colliders.
+- Keep the normal fallback carrier and its recovery separate. Gravity does not change player falling, local drafts or terrain collisions. Base sight stays 175 with Inner Glow upgrades; active Reveal expansion is removed.
+- Reuse existing tuning: Collector adds 12% reach and 8% Gravity strength per point; Ability adjusts active duration and recharge. Add Gravitic Bond, three permanent ranks at base cost 80, with 15% stronger Gravity pull per rank. Bound combined strength and radius. These are initial values, not a completed balance pass.
+- Make role colours explicit and consistent: amber Swift, cyan Anchor and violet Gravity. Replace the Scout lantern with a distinct violet spiral body. Keep the main wisp white, remove the optional shared tint selector, and ignore its legacy saved fields without erasing unrelated progress.
+- Update Home, rest selection, previews, active button, tutorial and restrained pull visuals. Preserve the top MENU, practice suspension, rest-site switching, long levels and checkpoint reward ledger. Publish this feedback batch after syntax checks; defer simulations and broad testing.
 
 ## Rendering direction proposed after the first review
 
