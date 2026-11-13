@@ -29,12 +29,12 @@ export function checkpointTutorialLesson(screen,{run={}}={}){
       break;
     case 'victory':
       lesson=step('practice-reward','Choose what travels with you',
-        'Take one artifact, or dissolve it into Glow. Any surplus condenses. Upgrade spends your Condensed Glow before Next.',
+        'Take one artifact, or dissolve it into Glow. Any surplus condenses. Upgrade spends your Packed Light before Next.',
         '.reward-offers');
       break;
     case 'support':
       lesson=step('practice-rest-choice','Choose a breather',
-        'Glow fuels flight. Extra pickup light becomes Condensed Glow for skills. Rest recovery fills fuel only.',
+        'Glow fuels flight. Extra pickup light becomes Packed Light for skills. Rest recovery fills fuel only.',
         '.support-offers');
       break;
     case 'rest-prep':
@@ -50,7 +50,7 @@ export function checkpointTutorialLesson(screen,{run={}}={}){
       break;
     case 'skills':
       lesson=step('practice-skill-tree','Grow along one branch',
-        'Tap a circle to inspect it. Bright paths show what you can learn next. These skills use practice Condensed Glow and last this practice.',
+        'Tap a circle to inspect it. Bright paths show what you can learn next. These skills use practice Packed Light and last this practice.',
         '.tree-body');
       break;
     case 'result':
