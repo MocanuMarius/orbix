@@ -422,3 +422,9 @@ These are implementation values, not a tested balance claim. Rest and encounter 
 - Follow-up difficulty relief: new runs start with75 Glow (was60); Refuge natural packets add6 route Glow (was2), Cavern adds4 (was0), and gauntlet stays1. Light Mote body-contact radius rises16→20. Packet density and obstacle geometry are unchanged; missed pickups have more budget, without refilling every checkpoint.
 
 - User explicitly approved making `MocanuMarius/orbix` public and enabling free GitHub Pages. Source remains on `main`; static runtime is published from the root of `gh-pages`. No paid plan or billing setting was changed.
+
+## TEST starter selection fix — 2026-11-13
+
+- The TEST front-page companion roster is now an interactive six-companion picker. The chosen starter persists independently of normal unlocks and is applied to New Game. Existing Continue runs retain their current fleet.
+- Before this fix, front-page icons opened a read-only unlock panel and new runs always chose Collector, despite the in-run TEST picker allowing all roles.
+- Checked every role in the actual start-map picker and verified Seer selection survives reload and becomes the new run starter. Changed UI and model asset URLs are versioned to avoid stale phone caches.
