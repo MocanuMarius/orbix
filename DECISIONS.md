@@ -2,6 +2,18 @@
 
 Updated 13 November 2026. Wispbound is the working title. This log records the confirmed direction and subsequent implementation choices. All ten recommended alignment choices were accepted in chat.
 
+## Living biomes — 13 November 2026
+
+New generated routes draw from twelve biomes: Moonlit Ruins, Frostbound Reach, Oldgrowth Pines, Lantern Marsh, Spore Hollows, Basalt Furnace, Glasswind Dunes, Coral Grave, Prism Caverns, Cloudbreak Isles, Briar Cathedral and Mourning Fields. Each has four authored course variants (48 active maps), distinct materials, landmarks, solid props and preview art. The three existing geometry families remain collision foundations, not the biome catalog. Legacy locations remain resolvable for tutorial and existing saves.
+
+A separate seeded biome deck consumes all twelve identities across flight nodes before repeating. Biomes no longer depend on reward themes or difficulty position. A repeated biome rotates its course variant. Existing saved maps keep their destinations; New Game and newly generated subsequent maps use the shuffled catalog. Route commitments and the five event-symbol vocabulary remain intact; briefing previews identify the biome and one short interaction cue.
+
+Local actors add twelve thematic interactions: masonry, ice and sand fragments or pinecones fall after a warning; ice thawing responds to actual illumination. Reed bubbles and puffcaps give one free lift, fumaroles/anemones/wind bells produce real rising currents, crystals/grave bells briefly reveal the scene, and seedpods grant up to 3 displayed Glow once. Currents share the normal draft, resistance and trajectory physics. Unprotected debris uses normal fatal contact; Protector can spend its shield. Actors are bounded at ten per flight, avoid hard passages/negative chains, and never produce Embers or recursively trigger pickup engines. Drafts now have a 1.15-second warning and stronger local displacement; debris warns for at least 1.2 seconds. Tutorial and boss encounters keep their authored mechanics.
+
+Art uses cached pixel terrain/backdrops and bounded animated actors, with no dynamic terrain texture rebuilds. Forecast lines stop before unresolved touch/debris interactions. Dreams record deterministic simulation inputs; their fingerprint now includes the simulation revision, so old recordings must be rehearsed again after these physics changes.
+
+Focused evidence: 48 distinct courses, 96 generated layout cases, 144 seeded maps, all twelve possible opening biomes and all 48 variants observed. Actual flight construction across 48 maps × three encounter families produced 3–10 actors in every case, with no blocked fuel or positive interaction targets at body size across canopy sway. Twelve behavior checks cover light-gated thawing, warnings, contact handling and single-use rewards. Route commitments, drift prediction and Dream checks pass. Landscape browser inspection confirms new materials, previews and launch without console errors. These checks do not establish human difficulty or Pixel 10 frame rate; no broad economy retuning was performed.
+
 ## Committed routes and readable map states — 13 November 2026
 
 This update replaces the dense crossover graph from relic-paths-1. Each map still has three starting branches and seven stops. Routes stay on their chosen corridor for several stops; authored junctions offer at most two exits. Taking a Treasure branch can now exclude a later Rest. All displayed nodes remain reachable from some start, an ordinary route reaches the finale, and successive elites stay prohibited even across support stops.

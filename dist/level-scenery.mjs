@@ -1,5 +1,6 @@
-import {drawExpandedBackdrop} from './world-scenery.mjs?v=committed-paths-1';
-import { resolveLevelIdentity } from './level-catalog.mjs?v=committed-paths-1';
+import {drawBiomeBackground,drawBiomeMaterial,drawBiomeLife} from './biome-art.mjs?v=living-biomes-1';
+import {drawExpandedBackdrop} from './world-scenery.mjs?v=living-biomes-1';
+import { resolveLevelIdentity } from './level-catalog.mjs?v=living-biomes-1';
 
 const TAU = Math.PI * 2;
 const clamp = (n, a, b) => Math.max(a, Math.min(b, n));
@@ -32,6 +33,7 @@ function arc(c, line, x, y, rx, ry, from, to, ink, width = 1) {
 // All silhouettes here are distant scenery. They are drawn beneath the same
 // darkness/light passes as the old landscape, with no extra light sources.
 export function drawIdentityBackground(c, { identity, width: W, height: H, distance, palette: p }, h) {
+  if(drawBiomeBackground(c,{identity,width:W,height:H,distance,palette:p},h))return;
   const { line, disc, polygon } = h, scene = identity.scene;
   c.save();
   const moonX = W * (scene === 'chasm' ? .62 : scene === 'belfry' ? .30 : .78);
@@ -259,6 +261,7 @@ function drawIdentityVignettes(c,{identity,width:W,height:H,distance,palette:p},
 // No circles, glow, emissions or collectible-like colors are used. The caller
 // draws this before its normal fog so it never reveals distant ground.
 export function drawIdentityLife(c,{identity,width:W,height:H,distance=0,time=0,palette:p,reducedMotion=false},helpers){
+  if(drawBiomeLife(c,{identity,width:W,height:H,distance,time,palette:p,reducedMotion},helpers))return;
   const {line,polygon}=helpers,scene=identity.scene;
   const count=identity.terrain==='canopy'?3:identity.terrain==='ruins'?2:scene==='ridge'?1:0;
   if(!count)return;
@@ -279,6 +282,7 @@ export function drawIdentityLife(c,{identity,width:W,height:H,distance=0,time=0,
 // polygon. Relief marks never protrude into a passage or suggest a fake ledge.
 export function drawIdentityMaterial(c, { identity, surface, top, palette: p, width: W, height: H,
   obstacle, hardEntry }, h) {
+  if(drawBiomeMaterial(c,{identity,surface,top,palette:p,width:W,height:H,obstacle,hardEntry},h))return;
   const { line, polygon } = h, scene = identity.materialScene||identity.scene, sign = top ? -1 : 1;
   const seed = scenerySeed(`${identity.id}:${obstacle.id}:${top}`);
   const at = x => {

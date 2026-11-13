@@ -1,16 +1,17 @@
-import {drawFlightProjection} from './flight-projection.mjs?v=committed-paths-1';
-import {drawGlowSense} from './glow-sense.mjs?v=committed-paths-1';
-import {formatGlow} from './vitality.mjs?v=committed-paths-1';
-import {LOCATION_PALETTES} from './world-expansion.mjs?v=committed-paths-1';
-import { sceneryIdentity, drawIdentityBackground, drawIdentityMaterial, drawIdentityLife } from './level-scenery.mjs?v=committed-paths-1';
-import { getCompanionAbility, normalizeCompanionRole } from './companion-abilities.mjs?v=committed-paths-1';
-import { companionSprite, companionPalette } from './companion-art.mjs?v=committed-paths-1';
-import { createScenePropArt } from './scene-prop-art.mjs?v=committed-paths-1';
-import { drawBoss } from './boss.mjs?v=committed-paths-1';
-import { drawPickup } from './pickup-art.mjs?v=committed-paths-1';
-import { pickupKind, getPickupSpec, pickupContactRadius } from './pickups.mjs?v=committed-paths-1';
-import { lightAttenuation,lightVisibility,createLightMaskCanvas } from './light-field.mjs?v=committed-paths-1';
-import {drawExitLandmark} from './exit-landmark.mjs?v=committed-paths-1';
+import {drawFlightProjection} from './flight-projection.mjs?v=living-biomes-1';
+import {drawGlowSense} from './glow-sense.mjs?v=living-biomes-1';
+import {formatGlow} from './vitality.mjs?v=living-biomes-1';
+import {LOCATION_PALETTES} from './world-expansion.mjs?v=living-biomes-1';
+import {biomePalette} from './biome-art.mjs?v=living-biomes-1';
+import { sceneryIdentity, drawIdentityBackground, drawIdentityMaterial, drawIdentityLife } from './level-scenery.mjs?v=living-biomes-1';
+import { getCompanionAbility, normalizeCompanionRole } from './companion-abilities.mjs?v=living-biomes-1';
+import { companionSprite, companionPalette } from './companion-art.mjs?v=living-biomes-1';
+import { createScenePropArt } from './scene-prop-art.mjs?v=living-biomes-1';
+import { drawBoss } from './boss.mjs?v=living-biomes-1';
+import { drawPickup } from './pickup-art.mjs?v=living-biomes-1';
+import { pickupKind, getPickupSpec, pickupContactRadius } from './pickups.mjs?v=living-biomes-1';
+import { lightAttenuation,lightVisibility,createLightMaskCanvas } from './light-field.mjs?v=living-biomes-1';
+import {drawExitLandmark} from './exit-landmark.mjs?v=living-biomes-1';
 
 const TAU = Math.PI * 2;
 const SCENERY_HELPERS = { line: pixelLine, disc: pixelDisc, polygon: path };
@@ -134,7 +135,7 @@ export class WispFlightView {
     this.obstacleCursor = 0;
     this.lastVisibleDistance = -1;
     this.identity = sceneryIdentity(engine);
-    this.palette = { ...(PALETTES[engine.terrain] || PALETTES.ruins), ...(MATERIALS[this.identity.materialScene||this.identity.scene] || {}), ...(LOCATION_PALETTES[this.identity.scene]||{}) };
+    this.palette = { ...(PALETTES[engine.terrain] || PALETTES.ruins), ...(MATERIALS[this.identity.materialScene||this.identity.scene] || {}), ...(LOCATION_PALETTES[this.identity.scene]||{}), ...biomePalette(this.identity) };
     this.lifeOptions = { identity: this.identity, width: WIDTH, height: 0, distance: 0, time: 0, palette: this.palette, reducedMotion: false };
     this.bossOptions = { engine, width: WIDTH, height: 0, distance: 0, time: 0, scale: 1, pass: 'silhouette' };
     this.fallbackFleet = [{ role: 'collector', x: 0, y: 0, homeX: 0, homeY: 0, radius: 100, phase: 'ready', recovery: 1, carrying: false }];
@@ -968,7 +969,7 @@ export class WispFlightView {
       const drift = e.reducedMotion ? 0 : (progress - .5) * ry * (warning ? .22 : .86) * direction;
       const fade = fading ? 1 - progress : 1;
       const baseAlpha = opacity * fade * (warning ? .22 + progress * .12 : .34 + power * .26);
-      const ink = warning ? '#bcc7af' : '#c1d9d0';
+      const ink = warning ? (this.palette.grain || '#bcc7af') : (this.palette.rim || '#c1d9d0');
       c.save();
       // Exactly the physical field bounds, used only as a clip. There is no
       // drawn ellipse/range ring, solid AOE panel or whole-screen weather.
@@ -979,20 +980,30 @@ export class WispFlightView {
         c.globalAlpha = baseAlpha * edge * visibility(mx, my) * alpha;
         if (c.globalAlpha > .008) pixelLine(c, ...a, ...b, ink, bold ? 2 : 1);
       };
-      const curls = [[-.50, -.24], [.10, -.54], [.48, -.08], [-.20, .40], [.35, .48], [0, -.77], [-.05, .77]];
+      // A few curls gather first; travelling chips make the live push legible.
+      // Fewer curved segments than the old seven-coil field keep this bounded.
+      const curls = [[-.50, -.24], [.10, -.54], [.48, -.08], [-.20, .40]];
       for (let i = 0; i < curls.length; i++) {
         const [u, v] = curls[i], cx = x + u * rx * expansion, cy = y + v * ry * expansion + drift;
         const turn = e.reducedMotion ? i * .7 : i * .7 + progress * direction * .65;
         const coilX = rx * (i < 5 ? .27 : .20) * expansion;
         const coilY = ry * (i < 5 ? .16 : .10) * expansion;
         let previous;
-        for (let step = 0; step <= 12; step++) {
-          const angle = turn + step / 12 * Math.PI * 1.35;
-          const taper = 1 - step / 12 * .42;
+        for (let step = 0; step <= 8; step++) {
+          const angle = turn + step / 8 * Math.PI * 1.35;
+          const taper = 1 - step / 8 * .42;
           const point = [cx + Math.cos(angle) * coilX * taper, cy + Math.sin(angle) * coilY * taper];
           if (previous) segment(previous, point, i < 5 ? 1 : .6, !warning && i < 3 && power > .3);
           previous = point;
         }
+      }
+      for(let i=0;i<12;i++){
+        const u=Math.sin(i*2.399)*.78;
+        const travel=e.reducedMotion ? (i*.137)%1 : (i*.137+t*(warning?.16:1.1))%1;
+        const xx=x+u*rx,yy=y+direction*(travel*2-1)*ry*.88;
+        const edge=Math.max(0,1-u*u-((yy-y)/ry)**2);
+        c.globalAlpha=opacity*fade*edge*visibility(xx,yy)*(warning?.32:.8);
+        c.fillStyle=ink;c.fillRect(Math.round(xx),Math.round(yy),warning?1:2,warning?2:4+Math.round(power*4));
       }
       const arrowX = x + rx * .15, arrowY = y - direction * ry * .12;
       const arrows = warning ? 1 : power > .7 ? 3 : 2;
@@ -1027,6 +1038,7 @@ export class WispFlightView {
     this.drawTerrain(e, t, distance, palette);
     boss.pass = 'hands'; drawBoss(c, boss);
     this.drawSceneProps(e, t, distance);
+    e.biomeDynamics?.draw(c,{distance,scale:s,height:this.buffer.height});
     this.drawPortal(e,t);
     this.drawCollectibles(e, t, distance);
     this.drawBurstEffects(e, MAIN_LIGHT);

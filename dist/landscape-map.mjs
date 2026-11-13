@@ -1,7 +1,7 @@
-import {encounterIntent,THEME_INKS} from './replay-ui.mjs?v=committed-paths-1';
-import {getRouteMapState} from './model.mjs?v=committed-paths-1';
-import {getMapStopInfo,mapStopIconMarkup} from './map-guide.mjs?v=committed-paths-1';
-import {getGlowCapacity} from './vitality.mjs?v=committed-paths-1';
+import {encounterIntent,THEME_INKS} from './replay-ui.mjs?v=living-biomes-1';
+import {getRouteMapState} from './model.mjs?v=living-biomes-1';
+import {getMapStopInfo,mapStopIconMarkup} from './map-guide.mjs?v=living-biomes-1';
+import {getGlowCapacity} from './vitality.mjs?v=living-biomes-1';
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const edgeKey=([a,b])=>`${a}|${b}`;
 const wisp=(x,y)=>`<g class="route-player-wisp" transform="translate(${x} ${y})"><circle r="16" fill="url(#routeWispGlow)"/><path d="M-4-7h8v2h3v3h2v4H7v3H4v2H-4V5H-7V2H-9V-2H-7V-5H-4Z" fill="#fff8d3"/><path d="M-3-5h6v2h2v6H3v2H-3V3H-5V-3H-3Z" fill="#fffef0"/></g>`;
@@ -26,7 +26,8 @@ export function landscapeRouteView(run){
  for(const n of all){
   const p=pos.get(n.id),reachable=available.has(n.id),possible=future.has(n.id),seen=completed.has(n.id),here=currentId===n.id;
   const routeState=here?'current':reachable?'next':seen?'complete':possible?'future':'closed',info=getMapStopInfo(n,getGlowCapacity(run)),label=n.boss?'BOSS':n.elite?'ELITE':n.type==='finale'?'EXIT':encounterIntent(n)?.short||info.label,name=info.name||n.name,themeInk=THEME_INKS[n.rewardTheme],interactive=reachable||possible&&!seen;
-  const aria=here?`You are here: ${label}, ${name}. Choose a lit next stop.`:reachable?`Next stop. Choose ${label}: ${name}. ${info.summary} ${n.rewardPreview||''}`:possible?`Future stop. Preview ${label}: ${name}. ${info.summary} ${n.rewardPreview||''}`:seen?`Completed: ${label}, ${name}.`:`Closed branch: ${label}, ${name}. Not reachable from your path.`;
+  const environment=n.type!=='support'&&n.biomeName?`${n.biomeName}. ${n.interactionHint||''} `:'';
+  const aria=here?`You are here: ${label}, ${name}. Choose a lit next stop.`:reachable?`Next stop. Choose ${label}: ${name}. ${environment}${info.summary} ${n.rewardPreview||''}`:possible?`Future stop. Preview ${label}: ${name}. ${environment}${info.summary} ${n.rewardPreview||''}`:seen?`Completed: ${label}, ${name}.`:`Closed branch: ${label}, ${name}. Not reachable from your path.`;
   nodes+=`<g class="world-map-node route-state-${routeState} ${reachable?'reachable':''} ${seen?'taken':''} ${!possible&&!seen?'unreachable':''} ${here?'current-position':''}" data-route-state="${routeState}" ${interactive?`data-action="${reachable?'node':'preview-node'}" data-id="${esc(n.id)}" tabindex="0" role="button"`:'role="img"'} ${here?'aria-current="location"':''} aria-label="${esc(aria)}">
    <title>${esc(aria)}</title><rect class="route-node-hit" x="${p.x-66}" y="${p.y-32}" width="132" height="94" fill="transparent"/>
    ${reachable||here?`<circle class="route-node-halo" cx="${p.x}" cy="${p.y}" r="40" fill="url(#${here?'routeHereGlow':'routeNextGlow'})"/>`:''}

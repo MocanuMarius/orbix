@@ -2,9 +2,21 @@
 const clamp = (n, lo, hi) => Math.min(hi, Math.max(lo, n));
 const smooth = n => { const t = clamp(n, 0, 1); return t * t * (3 - 2 * t); };
 const POOLS = Object.freeze({
+  moonruins:['ruined-cottage','vault-wall','broken-bridge'],
+  frost:['ice-serac','ice-shelf','ice-serac'],
+  pinewood:['windswept-pine','hollow-tree','windswept-pine'],
+  marsh:['willow','reed-clump','hollow-tree'],
+  fungal:['giant-mushroom','giant-mushroom','root-thicket'],
+  basalt:['basalt-column','basalt-column','standing-stones'],
+  desert:['sandstone-arch','desert-cactus','sandstone-arch'],
+  coral:['coral-fan','ship-rib','coral-fan'],
+  crystal:['crystal-cluster','crystal-cluster','mine-timber'],
+  cloud:['chalk-spire','broken-bridge','chalk-spire'],
+  thorn:['briar-arch','root-thicket','briar-arch'],
+  cemetery:['grave-marker','crypt-wall','grave-marker'],
   mill:['broken-bridge','ruined-cottage','mine-timber'],cloister:['standing-stones','vault-wall','broken-wall'],
   spores:['giant-mushroom','giant-mushroom','root-thicket'],mangrove:['willow','mine-timber','hollow-tree'],
-  causeway:['broken-bridge','stone-shelter','standing-stones'],basalt:['standing-stones','standing-stones','mine-timber'],
+  causeway:['broken-bridge','stone-shelter','standing-stones'],
   aqueduct: ['ruined-cottage', 'old-tree', 'broken-wall'],
   belfry: ['broken-wall', 'old-tree', 'ruined-cottage'],
   ossuary: ['vault-wall', 'old-tree', 'broken-wall'],
@@ -28,7 +40,37 @@ function authoredParts(kind) {
   const parts = [];
   const p = (material, polygon) => parts.push({ material, polygon });
   const box = (material, x1, y1, x2, y2) => p(material, [[x1,y1],[x2,y1],[x2,y2],[x1,y2]]);
-  if(kind==='giant-mushroom'){
+  if(kind==='ice-serac'||kind==='ice-shelf'||kind==='crystal-cluster'||kind==='basalt-column'||kind==='chalk-spire'){
+    const material=kind==='crystal-cluster'?'crystal':kind==='basalt-column'?'basalt':kind==='chalk-spire'?'chalk':'ice';
+    const columns=kind==='ice-shelf'?2:3;
+    for(let i=0;i<columns;i++){
+      const x=-.9+i*(columns===2?.9:.62),w=columns===2?.85:.55,tip=(i===1?.02:.22+i*.07);
+      p(material,[[x,1.05],[x,tip+.22],[x+w*.36,tip],[x+w*.86,tip+.08],[x+w,tip+.3],[x+w,1.05]]);
+    }
+  }else if(kind==='coral-fan'){
+    p('coral',[[-.17,1.05],[.17,1.05],[.11,.35],[-.03,.18],[-.17,.25],[-.09,.55]]);
+    p('coral',[[-.09,.75],[-.62,.54],[-.89,.19],[-.75,.13],[-.46,.42],[.03,.54]]);
+    p('coral',[[.05,.67],[.64,.44],[.9,.11],[.77,.06],[.53,.32],[.02,.43]]);
+    p('coral',[[-.49,.47],[-.53,.07],[-.39,.02],[-.31,.48]]);
+    p('coral',[[.48,.43],[.42,.12],[.55,.08],[.63,.44]]);
+  }else if(kind==='ship-rib'){
+    p('wood',[[-.95,.87],[-.72,.99],[.69,1.05],[.95,.86],[.65,.81],[-.68,.78]]);
+    for(let i=0;i<4;i++){const x=-.65+i*.43;p('wood',[[x,.89],[x-.16,.35],[x-.1,.11],[x+.04,.14],[x+.02,.37],[x+.17,.9]]);}
+  }else if(kind==='desert-cactus'){
+    p('succulent',[[-.19,1.05],[.17,1.05],[.2,.15],[.1,.04],[-.09,.04],[-.22,.18]]);
+    p('succulent',[[-.15,.76],[-.67,.7],[-.83,.56],[-.84,.28],[-.72,.21],[-.6,.29],[-.58,.51],[-.13,.53]]);
+    p('succulent',[[.13,.6],[.57,.56],[.79,.41],[.8,.15],[.69,.07],[.57,.15],[.55,.34],[.12,.38]]);
+  }else if(kind==='sandstone-arch'||kind==='crypt-wall'){
+    const m=kind==='sandstone-arch'?'sandstone':'stone';
+    p(m,[[-.92,1.05],[-.88,.38],[-.62,.1],[-.12,.02],[.48,.08],[.83,.35],[.92,1.05],[.55,1.05],[.48,.41],[.18,.24],[-.24,.26],[-.49,.45],[-.53,1.05]]);
+    if(kind==='crypt-wall')box('stone',-.13,.05,.11,.28);
+  }else if(kind==='grave-marker'){
+    for(let i=0;i<3;i++){const x=-.85+i*.61,t=i===1?.03:.29;p('chalk',[[x,1.05],[x,t+.13],[x+.13,t],[x+.35,t],[x+.47,t+.13],[x+.47,1.05]]);}
+  }else if(kind==='briar-arch'){
+    p('bark',[[-.91,1.05],[-.8,.45],[-.51,.14],[-.16,.06],[.12,.2],[-.38,.36],[-.54,.57],[-.52,1.05]]);
+    p('bark',[[.48,1.05],[.5,.58],[.25,.35],[-.02,.3],[.12,.11],[.48,.26],[.76,.54],[.92,1.05]]);
+    p('bark',[[-.69,.72],[-1,.43],[-.58,.52]]);p('bark',[[.61,.65],[.99,.28],[.76,.79]]);
+  }else if(kind==='giant-mushroom'){
     p('bark',[[-.18,1.05],[.24,1.05],[.12,.44],[-.08,.42]]);
     p('roof',[[-1,.45],[-.85,.25],[-.42,.08],[.08,.02],[.62,.17],[.98,.4],[.78,.52],[-.72,.55]]);
     p('plaster',[[-.74,.49],[-.35,.43],[.3,.43],[.72,.47],[.37,.56],[-.4,.58]]);
@@ -116,7 +158,7 @@ export function scenePropBounds(obstacle) {
 export function populateSceneProps({ obstacles = [], embers = [], terrain = 'ruins',
   height = 620, seed = 1, totalDistance = Infinity, scene = 'aqueduct', circleHitsPolygon } = {}) {
   const rng = randomFor(`${seed}:${scene}:solid-scenery`), scale = height / 620;
-  const thematic=['mill','cloister','spores','mangrove','causeway','basalt'].includes(scene);
+  const thematic=['mill','cloister','spores','mangrove','causeway','basalt','moonruins','frost','pinewood','marsh','fungal','desert','coral','crystal','cloud','thorn','cemetery'].includes(scene);
   const pool = POOLS[scene] || POOLS.aqueduct, counts = new Map(), lastX = new Map(), placements = [];
   const offset = Math.floor(rng() * pool.length);
   for (const obstacle of obstacles) {
@@ -128,8 +170,9 @@ export function populateSceneProps({ obstacles = [], embers = [], terrain = 'rui
     const side = obstacle.topShape && (!obstacle.bottomShape || scene!=='spores'&&rng() < .26) ? -1 : 1;
     const shape = side < 0 ? obstacle.topShape : obstacle.bottomShape;
     if (!shape) continue;
-    const kind = side < 0 ? terrain === 'canopy' ? used % 2 ? 'hanging-branch' : 'hanging-roots'
-      : terrain === 'ruins' && used % 2 ? 'hanging-roots' : 'old-beams' : pool[(offset + used + leg) % pool.length];
+    const overhead={frost:'ice-serac',crystal:'crystal-cluster',basalt:'basalt-column',desert:'sandstone-arch',coral:'coral-fan',cloud:'chalk-spire',cemetery:'crypt-wall',fungal:'giant-mushroom',thorn:'briar-arch'};
+    const kind = side < 0 ? overhead[scene] || (terrain === 'canopy' ? used % 2 ? 'hanging-branch' : 'hanging-roots'
+      : terrain === 'ruins' && used % 2 ? 'hanging-roots' : 'old-beams') : pool[(offset + used + leg) % pool.length];
     const centerX = obstacle.width * .72, halfWidth = obstacle.width * (kind==='giant-mushroom'?.44:.63);
     const left = centerX - halfWidth * 1.34, right = centerX + halfWidth * 1.34;
     const oldDepth = shape.slice(2).filter(point => point[0] >= left && point[0] <= right)

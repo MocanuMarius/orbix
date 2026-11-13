@@ -1,5 +1,5 @@
-import {artifactIcon} from './upgrade-icons.mjs?v=committed-paths-1';
-import {encounterFamilyPreview} from './encounter-families.mjs?v=committed-paths-1';
+import {artifactIcon} from './upgrade-icons.mjs?v=living-biomes-1';
+import {encounterFamilyPreview} from './encounter-families.mjs?v=living-biomes-1';
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 export const THEME_INKS=Object.freeze({sustain:'#b9d995',precision:'#a8d5e2',tempo:'#e4c286',dream:'#cbb2e6',risk:'#e4a894'});
 export function rewardThemeMarkup(source={},label='RELIC PATH'){
@@ -13,7 +13,7 @@ export function encounterIntent(node={}){
 }
 export function encounterIntentMarkup(node={}){
  const intent=encounterIntent(node);if(!intent)return '';
- return `<div class="encounter-intent"><b>${esc(intent.name)}</b><span>${esc(intent.instruction)}</span></div>`;
+ return `<div class="encounter-intent"><b>${esc(node.biomeName&&!node.boss?`${node.biomeName} · ${intent.short}`:intent.name)}</b><span>${esc(!node.boss&&node.interactionHint||intent.instruction)}</span></div>`;
 }
 export const artifactRarityLabel=a=>({boss:'BOSS RELIC',rare:'RARE RELIC',common:'COMMON RELIC'})[a?.rarity]||'COMMON RELIC';
 export function artifactOfferMarkup(a,run,{synergy='',description=a.description}={}){

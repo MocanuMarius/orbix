@@ -1,8 +1,22 @@
 # Wispbound
 
-A portrait, one-handed pixel flight roguelite. The static game lives in `dist/` and uses a custom Canvas simulation and cached pixel renderer; there is no build step or framework dependency.
+A landscape, one-handed pixel flight roguelite. The static game lives in `dist/` and uses a custom Canvas simulation and cached pixel renderer; there is no build step or framework dependency.
 
-## Current game
+## Current release: living-biomes-1
+
+Play at [GitHub Pages](https://mocanumarius.github.io/orbix/?v=living-biomes-1), or run `npm start` and open the printed localhost address. The game targets landscape mobile play, including the Pixel 10 ratio.
+
+Twelve biomes each have four authored maps, with distinctive cached scenery, materials and solid props. New runs shuffle biome destinations independently of rewards; their starting worlds are not fixed. Interactive terrain includes light-melted ice, falling debris, lift bubbles/puffcaps, local vents, reveal crystals/bells and one-use Glow pods. Three branching expedition maps retain committed routes, Rest preparation, run skill trees, four base companions and clear-by-clear artifact rewards.
+
+Start **New Game** to see the new destinations. Existing saved maps retain their locations. Changed physics invalidate old Dream recordings; rehearse them again. See [DECISIONS.md](DECISIONS.md) for current rules and validation limits, and [the request audit](docs/request-audit.md) for implementation history.
+
+Focused biome checks: `node scripts/biome-catalog-probe.mjs`, `node scripts/biome-dynamics-probe.mjs`, and `node scripts/biome-integration-probe.mjs`.
+
+## Earlier development notes
+
+The sections below preserve earlier implementation stages. Their old prices, companion counts and progression rules are superseded by the current entries in DECISIONS.md.
+
+### Earlier game baseline
 
 An ascension spans three branching seven-stop maps and shares three lives, fuel, companions and artifacts. The third map converges at The Last Hearth for final preparation before the Hollow Warden survival trial. A boss clear unlocks the next of six supported ascension difficulties, drops a persistent artifact and unlocks Afterglow after the first boss.
 

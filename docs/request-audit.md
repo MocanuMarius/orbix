@@ -191,3 +191,12 @@ Root integrated the RELICS branch, variable capacity throughout inventory/reward
 The user's subsequent hands-on review found that the earlier graph did not create enough exclusion despite passing connectivity checks. Dense adjacent-lane edges and orphan repair made early choices converge too quickly; post-Rest death could unlock every flight in the row. The new authored corridors remove those behaviors, and focused tests now require meaningful support exclusions and bounded retry edges. Current/next/future/closed visual states share the model's legal traversal, including elite history. A legacy CSS rule hiding every map circle was also corrected so the new bright node discs and rings are actually visible.
 
 The focused future-forecast probe also catches an elite-history regression: intervening ordinary flights must reset an earlier elite restriction before previewing a later event. Forecasts now follow legal arrival histories, include intervening flights in totals and reject unreachable target forecasts.
+
+
+## Biome variety follow-up — living-biomes-1
+
+Implemented twelve biome identities with four authored flight courses each, a seeded deck independent of encounter/reward family, themed material/scenery/preview art, and twelve themed interactive objects using five behavior families. Each actual map/family combination includes interactions rather than silently filtering them all out. Safe shoulder anchors fixed dune roofs occupied by decorative arches. Existing committed routes remain authoritative.
+
+Wind now has materially stronger local force with a longer warning, and biome vent currents share production wind prediction and Runner resistance. Ice responds to scene illumination; dangerous fragments use the existing shield/death rules. Positive objects provide single-use lift, reveal or a capped Glow gift, not extra upgrade currency. Boss/tutorial dynamics remain authored. A simulation revision invalidates stale Dream recordings.
+
+Focused catalog, 144 actual flight/encounter combinations, behavior, Dream, projection and route checks pass. No claim of human win-rate balance or physical-phone 60 FPS is made.

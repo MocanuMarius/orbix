@@ -1,4 +1,4 @@
-import { pickupKind, getPickupSpec, pickupDisposition } from './pickups.mjs?v=committed-paths-1';
+import { pickupKind, getPickupSpec, pickupDisposition } from './pickups.mjs?v=living-biomes-1';
 
 const TAU = Math.PI * 2;
 const clamp = (value, low, high) => Math.max(low, Math.min(high, value));

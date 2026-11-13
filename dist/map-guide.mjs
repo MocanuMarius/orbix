@@ -1,4 +1,4 @@
-import {glowText} from './vitality.mjs?v=committed-paths-1';
+import {glowText} from './vitality.mjs?v=living-biomes-1';
 const stop=(kind,label,name,summary)=>Object.freeze({kind,label,name,summary,icon:kind});
 export const MAP_STOP_TYPES=Object.freeze({
 flight:stop('flight','FLIGHT','Flight','Fly a passage, choose a relic or Embers, and recover Glow.'),

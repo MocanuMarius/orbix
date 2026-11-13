@@ -1,7 +1,7 @@
-import {formatGlow} from './vitality.mjs?v=committed-paths-1';
-import { PICKUP_TYPES, getPickupSpec } from './pickups.mjs?v=committed-paths-1';
-import { pickupArtSvg } from './pickup-art.mjs?v=committed-paths-1';
-import { normalizeCompanionRole, normalizeCompanionFleet } from './companion-abilities.mjs?v=committed-paths-1';
+import {formatGlow} from './vitality.mjs?v=living-biomes-1';
+import { PICKUP_TYPES, getPickupSpec } from './pickups.mjs?v=living-biomes-1';
+import { pickupArtSvg } from './pickup-art.mjs?v=living-biomes-1';
+import { normalizeCompanionRole, normalizeCompanionFleet } from './companion-abilities.mjs?v=living-biomes-1';
 
 const esc = value => String(value ?? '').replace(/[&<>"']/g, char =>
   ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
