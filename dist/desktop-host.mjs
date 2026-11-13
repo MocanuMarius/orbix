@@ -1,4 +1,4 @@
-import {GAME_VIEWPORT,DISPLAY_ZOOMS,DEFAULT_DISPLAY_ZOOM,normalizeDisplayZoom,displayMode,fitGameViewport,gameDocumentUrl} from './display-layout.mjs?v=a1-balance-1';
+import {GAME_VIEWPORT,DISPLAY_ZOOMS,DEFAULT_DISPLAY_ZOOM,normalizeDisplayZoom,displayMode,fitGameViewport,gameDocumentUrl} from './display-layout.mjs?v=pixel-map-1';
 const query=new URLSearchParams(location.search),storageKey='wispbound-display-zoom';
 const mode=displayMode({requested:query.get('display'),embedded:window.parent!==window,
  coarse:matchMedia('(pointer: coarse)').matches,hover:matchMedia('(hover: hover)').matches,

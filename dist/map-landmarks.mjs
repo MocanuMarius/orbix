@@ -1,3 +1,4 @@
+import {pixelLandmark} from './map-pixel-art.mjs?v=pixel-map-1';
 // Route categories share silhouettes; terrain appears only in the muted ground layer.
 // All art is original SVG in a small pixel coordinate space (no external assets).
 const flight='<path class="landmark-dark" d="m-35 23 5-13 8-11 8 8 4 17Zm42 0 6-15 7-10 6 9 9 17Z"/><path class="landmark-body" d="m-35 23 7-14 7-7 3 10 6 12Zm45 0 6-13 7-7 2 12 10 10Z"/><path class="landmark-face" d="m-20 26 13-11 9-4 6-7-4-8 3-12 5-5-2 12 4 9-3 9-9 8-6 8Z"/><path class="landmark-edge" d="m-15 25 11-9 8-5 5-7-3-9 3-10M-28 10l7-8 2 9M17 10l6-7 2 10"/><path class="landmark-fire" d="M-4 21h4v2h-4ZM5 11h3v2H5ZM8-3h2v3H8Z"/>';
@@ -22,7 +23,7 @@ const eliteLandmarks={
 };
 export const landmarks=Object.freeze({flight,rest,encounter,treasure,boss:guardianLandmarks['hollow-warden'],elite:eliteLandmarks.hound});
 export function landmarkCategory(value){const n=typeof value==='string'?{kind:value}:value||{};if(n.boss||['boss','guardian','combat'].includes(n.kind)||n.type==='boss')return'boss';if(n.elite||n.kind==='elite')return'elite';if(['rest','camp'].includes(n.kind)||n.type==='camp')return'rest';if(n.kind==='treasure')return'treasure';if(['encounter','event','shrine','support'].includes(n.kind)||n.type==='support')return'encounter';return'flight';}
-export function landmarkArt(value){const n=typeof value==='string'?{kind:value}:value||{},category=landmarkCategory(n);if(category==='boss')return guardianLandmarks[n.bossId]||landmarks.boss;if(category==='elite'){const biome=n.biomeId||n.terrain,role=['pinewood','thorn','canopy'].includes(biome)?'stag':['marsh','fungal','coral'].includes(biome)?'toad':['basalt','desert'].includes(biome)?'beetle':['cloud','crystal','storm'].includes(biome)?'moth':'hound';return `<g transform="scale(.72)">${eliteLandmarks[role]}</g>`;}return landmarks[category]||flight;}
+export function landmarkArt(value){const n=typeof value==='string'?{kind:value}:value||{};return pixelLandmark(landmarkCategory(n),n);}
 
 const groundArt={
  moonruins:'<path class="biome-fill" d="M-59 20V9h8v5h12v12ZM38 25V13h9V7h7v18Z"/><path class="biome-stroke" d="M-56 13h5m-1 8h11M41 18h11"/>',
