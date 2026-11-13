@@ -1,4 +1,4 @@
-import { pickupKind, getPickupSpec, pickupDisposition } from './pickups.mjs?v=living-biomes-1';
+import { pickupKind, getPickupSpec, pickupDisposition } from './pickups.mjs?v=condensed-glow-1';
 
 const TAU = Math.PI * 2;
 const clamp = (value, low, high) => Math.max(low, Math.min(high, value));
@@ -73,11 +73,11 @@ function packetPixels(kind, { time = 0, reducedMotion = false, tiny = false, bod
     oval(-1, -1, 3.5 * breath, 4 * breath, '#ffe6a8');
     disc(-2, -2, 2, '#fff4cf'); rect(0, -3, 2, 2, '#fff8e5', .9);
     rect(2, 2, 2, 1, '#d6a557', .75); for(const [x,y,w,h] of [[-1,-9,2,2],[-1,8,2,2],[-9,-1,2,2],[8,-1,2,2]])rect(x,y,w,h,'#ffe6a8',.9);
-  } else if (kind === 'embers') {
-    halo(8, '#c89956', .08);
+  } else if (kind === 'cluster') {
+    halo(8, '#b8d6cb', .12);
     for (const [x, y] of [[-3, 1], [2, 2], [0, -3]]) {
-      oval(x, y, 2, 2.5, '#9d713f', .85); oval(x, y - 1, 1, 2, '#e4ad62');
-      rect(x - 1, y - 2, 1, 1, '#ffe3a4', .95);
+      oval(x, y, 2, 2.5, '#819f95', .85); oval(x, y - 1, 1, 2, '#d5ead9');
+      rect(x - 1, y - 2, 1, 1, '#f4ffeb', .95);
     }
   } else if (kind === 'charge') {
     // A little hooked discharge rather than a pointed crystal or diamond.

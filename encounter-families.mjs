@@ -1,5 +1,5 @@
-import { createDraftZones } from './drafts.mjs?v=living-biomes-1';
-import { pickupKind } from './pickups.mjs?v=living-biomes-1';
+import { createDraftZones } from './drafts.mjs?v=condensed-glow-1';
+import { pickupKind } from './pickups.mjs?v=condensed-glow-1';
 
 const FAMILIES = Object.freeze({
   'stillwater-tunnel': Object.freeze({ id:'stillwater-tunnel', name:'Stillwater Tunnel', icon:'ruins', rewardTheme:'precision',
@@ -33,8 +33,8 @@ export function familyChallengeCells(familyId, course, { difficulty=1, elite=fal
 }
 
 /** Install only bounded, swept-clear optional encounters. Mandatory fuel is
- * preserved; orchard fuel is relocated, never duplicated. Currency is capped
- * at two existing 8-Ember pickup primitives for the entire flight. */
+ * preserved; orchard fuel is relocated, never duplicated. Optional payoffs
+ * are two finite Glow clusters; only their actual overflow earns currency. */
 export function installEncounterFamily(layout, field, { node={}, height=620, seed=1, speed=154, circleHitsObstacle }={}) {
   const family=getEncounterFamily(node); if(!family||layout.boss||!circleHitsObstacle)return layout;
   const scale=height/620, obstacles=layout.obstacles||[], allSections=layout.sections||[];
@@ -48,7 +48,7 @@ export function installEncounterFamily(layout, field, { node={}, height=620, see
   let bonusCount=0;
   const addBonus=(x,y,room)=>{
     if(bonusCount>=2||!clear(x,y,28)||layout.embers.some(p=>Math.hypot(p.x-x,p.y-y)<(pickupKind(p)==='dark'?54:70)))return false;
-    layout.embers.push({id:`family-bonus:${family.id}:${bonusCount++}`,kind:'embers',value:0,fuel:false,
+    layout.embers.push({id:`family-bonus:${family.id}:${bonusCount++}`,kind:'cluster',value:1,fuel:true,
       x,y,collected:false,attracted:false,phase:0,feature:'encounter-payoff',encounterFamily:family.id,optional:true});
     layout.encounterPayoffs.push({x,y,sectionId:room.id});return true;
   };

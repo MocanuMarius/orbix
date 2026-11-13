@@ -19,7 +19,7 @@ export const MAIN_TUNING_SKILLS={
  'main-recovery-deep':node('main-recovery-deep','Deep Renewal',45,'main-recovery','Victory recovery becomes 60% Glow; it scales with your vessel.','recovery','+5 Glow recovery'),
  'main-recovery-rescue':node('main-recovery-rescue','Last Spark',40,'main-recovery','Finish below 20% Glow to recover an extra 10% Glow.','recovery','Low Glow aid'),
  'main-recovery-challenge':node('main-recovery-challenge','Earned Rest',40,'main-recovery','Completing the optional flight challenge restores an extra 10% Glow.','recovery','Bonus +10 Glow'),
- 'main-afterglow':node('main-afterglow','Afterglow',35,'main-efficiency','Unlock a 30 Glow reserve. Excess victory recovery becomes Afterglow, spent before your Glow during flight.','reserve','Overflow reserve'),
+ 'main-afterglow':node('main-afterglow','Condensation',35,'main-efficiency','Convert 3 excess Glow into 4 Condensed Glow. Only real pickup surplus converts; recovery never does.','reserve','3 overflow → 4'),
  'main-glow-sense':node('main-glow-sense','Glow Sense',40,'main-sight','Faint glimmers at the forward edge of your light hint at the height of approaching Glow and other boons. They fade as pickups become visible.','beacon','Boon sense'),
  'main-drift-sense':node('main-drift-sense','Drift Sense I',40,'main-speed','A faint guide previews the next 0.7s if you release Lift and let gravity carry you. Accounts for drafts and your build.','trajectory','0.7s guide'),
  'main-drift-sense-2':node('main-drift-sense-2','Drift Sense II',55,'main-drift-sense','Extend the no-Lift guide to 1.2s. Plan your descent toward fuel lights.','trajectory','1.2s guide'),
@@ -47,7 +47,7 @@ export function priceSkillDefinition(s){
  if(s.id==='main-bond')return{...s,cost:160,prices:[160,240]};
  if(s.id==='main-spare-spark')return{...s,cost:140};
  if(s.id==='main-deep-reserve')return{...s,cost:210};
- if(s.branch==='afterglow')return{...s,cost:85,prices:[85,105,125].slice(0,s.maxRank)};
+ if(s.branch==='afterglow')return{...s,cost:30,prices:[30,35].slice(0,s.maxRank)};
  if(s.incrementStage)return{...s,cost:[80,95,110][s.incrementStage-1]};
  if(s.id.endsWith('-attunement'))return{...s,cost:85};
  if(s.id.endsWith('-mastery'))return{...s,cost:95};

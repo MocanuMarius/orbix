@@ -1,9 +1,8 @@
-// Shared flight / expedition rules. Currency and fuel are separate rewards.
+import {CONDENSED_TUNING} from './condensed-glow.mjs?v=condensed-glow-1';
+// Shared flight Glow and expedition rules. Overflow is Condensed Glow.
 export const FLAME_TUNING = Object.freeze({ maximum: 100, starting: 100, flapCost: 7,
   emberFuel: 24, heartFuel: 40, generatedFuel: 6, checkpointMinimum: 0, warmCorePickups: 4 });
 
-export const AFTERGLOW_TUNING = Object.freeze({ cap: 40, retention: .80,
-  drawLimit: 20, failureLoss: .25, surplusThreshold: 60, practiceReserve: 20 });
 
 export const LIFE_TUNING = Object.freeze({ lives: 3, maximum: 5 });
 export function getLifeCapacity(run) {
@@ -18,7 +17,7 @@ export const LIGHT_PACKET_TUNING = Object.freeze({ baseRadius: 175, pickupRadius
   darkPenalty: .2, darkMaximumStacks: 2, minimumLight: .6,
   recoveryFade: 1.5, dimResponse: 9 });
 
-export const STARTING_EMBERS = 30;
+export const STARTING_CONDENSED_GLOW = CONDENSED_TUNING.starting;
 export function getGlowCapacity(run={}) {
  return 100+(run.skills?.['main-reservoir']>0?20:0)+(run.skills?.['main-vast-vessel']>0?20:0);
 }

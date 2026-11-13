@@ -1,5 +1,5 @@
-import {getMapStopInfo} from './map-guide.mjs?v=living-biomes-1';
-import {getChoices} from './model.mjs?v=living-biomes-1';
+import {getMapStopInfo} from './map-guide.mjs?v=condensed-glow-1';
+import {getChoices} from './model.mjs?v=condensed-glow-1';
 
 const emptyForecast=()=>({restReachable:false,restGuaranteed:false,nextRestDistance:null,flightsToRest:null,nextStops:[],minFlights:0,maxFlights:0,minTotalFlights:0,maxTotalFlights:0,minRests:0,maxRests:0});
 
@@ -48,6 +48,6 @@ export function getRouteForecast(run,node){
  }
  rests.sort((a,b)=>a.distance-b.distance||a.flights-b.flights);
  const nearest=rests[0],minFlights=Math.min(...paths.map(p=>p.flights)),maxFlights=Math.max(...paths.map(p=>p.flights));
- const nextStops=[...nextById.values()].map(n=>({id:n.id,type:n.type,kind:n.kind,name:getMapStopInfo(n).name,label:getMapStopInfo(n).label,elite:n.elite===true,isRest:n.kind==='camp',rewardTheme:n.rewardTheme,rewardThemeLabel:n.rewardThemeLabel,rewardPreview:n.rewardPreview,encounterFamily:n.encounterFamily,encounterPreview:n.encounterPreview,cashReward:n.cashReward}));
+ const nextStops=[...nextById.values()].map(n=>({id:n.id,type:n.type,kind:n.kind,name:getMapStopInfo(n).name,label:getMapStopInfo(n).label,elite:n.elite===true,isRest:n.kind==='camp',rewardTheme:n.rewardTheme,rewardThemeLabel:n.rewardThemeLabel,rewardPreview:n.rewardPreview,encounterFamily:n.encounterFamily,encounterPreview:n.encounterPreview,glowReward:n.glowReward}));
  return{restReachable:!!nearest,restGuaranteed:paths.length>0&&paths.every(p=>p.rests>0),nextRestDistance:nearest?.distance??null,flightsToRest:nearest?.flights??null,nextRestName:nearest?.name||null,nextRestId:nearest?.id||null,nextStops,minFlights,maxFlights,minTotalFlights:Math.min(...paths.map(p=>p.total)),maxTotalFlights:Math.max(...paths.map(p=>p.total)),minRests:Math.min(...paths.map(p=>p.rests)),maxRests:Math.max(...paths.map(p=>p.rests)),commitment:node.commitment||'',recipeId:node.recipeId,recipeName:node.recipeName,rewardTheme:node.rewardTheme,rewardThemeLabel:node.rewardThemeLabel,rewardPreview:node.rewardPreview,encounterFamily:node.encounterFamily,encounterPreview:node.encounterPreview,summary:nearest?nearest.distance===0?'Recover, prepare your companions and Dream the known next flight.':`Rest reachable in ${nearest.flights} flight${nearest.flights===1?'':'s'}.`:'No Rest is reachable on this branch.'};
 }

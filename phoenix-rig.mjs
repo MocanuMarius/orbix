@@ -1,5 +1,5 @@
-import * as PIXI from './vendor/pixi.mjs?v=living-biomes-1';
-import { PhoenixMotion, deformWing, deformTail } from './phoenix-motion.mjs?v=living-biomes-1';
+import * as PIXI from './vendor/pixi.mjs?v=condensed-glow-1';
+import { PhoenixMotion, deformWing, deformTail } from './phoenix-motion.mjs?v=condensed-glow-1';
 
 export class PhoenixRig {
   constructor(texture) {
