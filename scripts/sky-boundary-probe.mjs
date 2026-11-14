@@ -11,7 +11,7 @@ const floor = () => ({ id: 'floor', x: 0, width: 10000, center: 300, gap: 0, pha
   bottomShape: [[-1000, 0], [10000, 0], [10000, 1000], [-1000, 1000]] });
 function make(extra = {}) {
   const engine = new WispFlight({ canvas, seed: 'edging-pulse', duration: 102, flame: 100,
-    companions: [], ...extra });
+    companions: [], modifiers:{proximityUnlocked:true}, ...extra });
   engine.render = () => {}; engine.layout.obstacles = [floor()]; engine.layout.embers = [];
   engine.drafts.zones = []; engine.biomeDynamics.items = [];
   engine.challengeDirector.update = () => ({ state: null, darkness: 0 });

@@ -1,5 +1,7 @@
 # A visual vocabulary for flight
 
+Updated for the Collector build. The tables below describe the current game. The pictured sheet is an earlier three-size reference; the linked animated gallery contains the five current sizes.
+
 ![Orbix field guide showing in-game pickups, resources, hazards and landmarks, followed by a proposed Reserve Wick glyph.](./icon-language-sheet.svg)
 
 The sheet uses still frames of the game’s pickup sprites, map landmarks and resource glyphs. Its Black Hole is a frame from the flight renderer. The last row shows a proposed one-use mark for the Reserve Wick. [Open the full-size PNG](./icon-language-sheet.png).
@@ -12,7 +14,7 @@ The sheet uses still frames of the game’s pickup sprites, map landmarks and re
 | --- | --- | --- |
 | Spark | Plasma ball with bright electrical arcs | An object the wisp or Collector can pick up. Say “collect a Spark” when counting objects. |
 | Spark Meter | The animated flight Spark marks a fuel quantity at menu size. The flight gauge uses stacked cells. | Measures the Sparks available for flight. An ordinary Lift spends 3 Sparks before modifiers. Meter divisions follow the equipped Lift cost. |
-| Stored Sparks | A lidded copper box containing a luminous Spark | Currency for the current run. Store surplus from pickups, earn a clear reward where offered, and spend Stored Sparks on skills during the run. Baseline conversion stores 1 per 6 surplus Sparks. |
+| Stored Sparks | A lidded copper box containing a luminous Spark | Currency for the current run. Store surplus from pickups, earn a clear reward where offered, and spend Stored Sparks on skills during the run, including from a paused flight. Baseline conversion stores 1 per 6 surplus Sparks. Kept Light is a separate skill that pays a capped dividend on currency carried into a cleared flight. |
 | Luminance | Open eye with a jade iris and copper lids | Distance the wisp can see. Increasing Luminance reveals more of the passage. |
 | Heart | Split-top heart, dimmed when spent | One attempt. A Rest can relight missing hearts. A heart and plus sign denotes increased capacity. |
 
@@ -25,10 +27,12 @@ Use **“a Spark adds 12 to the Spark Meter”** for the first explanation. Once
 | Spark | Warm-white arcs that flare and fade | +6 Sparks |
 | Spark Cluster | Pale mint-white branches around a brighter core | +12 Sparks |
 | Spark Cache | Dense white plasma with a broad halo | +18 Sparks |
+| Surge Spark | A larger, finely detailed near-white plasma field | +36 Sparks |
+| Giant Spark | The largest white plasma field, with secondary arc branches | +60 Sparks, appearing rarely |
 | Flash Powerup | White glowing triangle on a trailing thread | Reveals the visible passage for 1.5 seconds. It pulses while attached for eight seconds, then dissolves into a puff. |
 | Dusk Spark | Rose field surrounding a dark core | +12 Sparks and reduced Luminance for four seconds. |
 | Dark Spark | Red warning field around a black seed | Reduces Luminance for eight seconds on contact. A fuel Spark clears one dimming effect. |
-| Black Hole | Opaque core, broken accretion ring and inward streams of light | Persistent hazard. Approaching its core drains the Spark Meter faster. |
+| Black Hole | Opaque core, bright tilted amber-white disk and inward streams of light | Persistent hazard. Approaching its core drains the Spark Meter faster. |
 
 Keep the visible contact boundary separate from the plasma. Tutorial, map guide and pickup art should use the same frame and show the baseline amount plus any active build modifier. Use the density of live arcs, the brightness of the core and the width of the glow to suggest value at a glance. A pause or reduced-motion setting should keep every tier recognizable in a still image.
 
@@ -40,9 +44,9 @@ Use a raised frame and a verb for actions. A highlighted path connects reachable
 
 ## Companions and artifacts
 
-A companion’s body remains a colored orb. Give each selectable action its own mark. Collector catches missed eligible Sparks, Protector deflects a hit by spending Sparks, Runner surges forward, and Space Timer holds altitude while Lift is pressed. A two-second tutorial vignette can show what pressing or releasing does.
+Collector is the playable green orb. It catches missed helpful Sparks inside its recovering field. Direct contact with the main wisp takes priority. The Power indicator shows the current fetching range. The other companion portraits display locks, including in Test mode.
 
-Use a distinct object portrait for each artifact. Glass Lantern has a glass chamber, Echo Bell a bell and clapper, and Prism Vessel a faceted container. The rarity frame is gray, green or purple, with the name in inspection. Use charge pips only for limited-use items. The proposed Reserve Wick mark combines a tied wick and one-use pip to distinguish an event preparation from the Spark Wick artifact.
+Use a distinct object portrait for each artifact. Glass Lantern has a glass chamber, Echo Bell a bell and clapper, and Prism Vessel a faceted container. The rarity frame is gray, green or purple, with the name in inspection. Use charge pips only for limited-use items. Artifacts accumulate and trigger automatically. Reserve Wick is a preparation from an event and uses a one-use pip.
 
 ## The first example
 

@@ -9,7 +9,7 @@ import * as M from '../dist/model.mjs';
 import {WispFlight,FLIGHT_TUNING,FLAME_TUNING} from '../dist/flight.mjs';
 import {getPickupSpec,pickupKind} from '../dist/pickups.mjs';
 import {BIOME_LEVELS} from '../dist/biomes.mjs';
-import {CONDENSED_TUNING,getCondensationRules,condenseGlow} from '../dist/condensed-glow.mjs';
+import {CONDENSED_TUNING,KEPT_LIGHT_MAX_PRINCIPAL,getCondensationRules,condenseGlow} from '../dist/condensed-glow.mjs';
 import {getGlowCapacity} from '../dist/vitality.mjs';
 const args=Object.fromEntries(process.argv.slice(2).map(v=>{const[k,...rest]=v.replace(/^--/,'').split('=');return[k,rest.join('=')||true]}));
 const seeds=Number(args.seeds||24),out=String(args.out||'work/balance-condensed-glow.json');
@@ -139,7 +139,7 @@ function buy(state,policy,metrics){
   const eligible=Object.keys(M.SKILLS).filter(id=>branches.has(M.SKILLS[id].branch)&&M.getSkillCost(w,id)!==null&&!['main-bond','main-spare-spark','main-deep-reserve'].includes(id)&&quote(id)<=run.condensedGlow);
   if(!eligible.length)break;
   const ordered=eligible.sort((a,b)=>{const ai=preferred.indexOf(a),bi=preferred.indexOf(b);return(ai<0?80:ai)-(bi<0?80:bi)||M.getSkillCost(w,a)-M.getSkillCost(w,b)||a.localeCompare(b)});
-  const id=ordered[0],baseCost=M.getSkillCost(w,id),cost=quote(id),keep=policy==='hoard'&&rank(run.skills,'afterglow-anchor')?CONDENSED_TUNING.bankStep:0;
+  const id=ordered[0],baseCost=M.getSkillCost(w,id),cost=quote(id),keep=policy==='hoard'&&rank(run.skills,'afterglow-anchor')?KEPT_LIGHT_MAX_PRINCIPAL:0;
   if(run.condensedGlow-cost<keep)break;
   const before=run.condensedGlow;run.condensedGlow+=baseCost-cost;
   if(!M.buyCheckpointSkill(state,id)){run.condensedGlow=before;break;}

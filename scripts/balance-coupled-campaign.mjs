@@ -1,10 +1,11 @@
 import fs from 'node:fs';
+import {COMPANION_ABILITIES,getCompanionUnlock} from '../dist/companion-abilities.mjs';
 import {createHash} from 'node:crypto';
 const options=Object.fromEntries(process.argv.slice(2).map(a=>a.replace(/^--/,'').split('=')));
 process.argv.push('--importOnly');
 const {simulate,summarize}=await import('./balance-current-flight.mjs');
 const {runCase,aggregate}=await import('./balance-current-economy.mjs');
-const tiers=(options.tiers||'1,3,6').split(',').map(Number),roles=(options.roles||'collector,protector,leveler,swift').split(','),styles=(options.styles||'steady,practiced').split(','),policies=(options.policies||'survival,companion').split(',');
+const tiers=(options.tiers||'1,3,6').split(',').map(Number),roles=options.roles?options.roles.split(','):Object.keys(COMPANION_ABILITIES).filter(id=>getCompanionUnlock(id).selectable),styles=(options.styles||'steady,practiced').split(','),policies=(options.policies||'survival,companion').split(',');
 const out=options.out||'work/coupled-balance.json',rows=[],flights=[];
 const hashes=()=>Object.fromEntries(fs.readdirSync('dist').filter(f=>f.endsWith('.mjs')).map(f=>[f,createHash('sha256').update(fs.readFileSync('dist/'+f)).digest('hex')]));
 const before=hashes(),started=Date.now();

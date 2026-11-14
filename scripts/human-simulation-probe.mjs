@@ -90,6 +90,17 @@ try {
   assert.ok(observeFlight(empty).sparks.some(s => s.id === 'test-spark'),
     'Purchased Luminance must expose the same Spark earlier');
 
+  const debris={family:'fall',phase:'warning',x:empty.distance+empty.player.x+35,y:empty.player.y-25,radius:12};
+  empty.biomeDynamics.items=[debris];
+  assert.ok(observeFlight(empty).hazards.some(h=>h.fallWarning));
+  empty.time+=.2;debris.phase='falling';debris.y+=24;
+  const observed=observeFlight(empty).hazards.find(h=>h.falling);
+  assert.equal(observed.fallSpeed,120,'Infer falling velocity from the visible change in position');
+  debris.vy=10000;
+  assert.equal(observeFlight(empty).hazards.find(h=>h.falling).fallSpeed,120);
+  debris.x+=empty.width;
+  assert.ok(!observeFlight(empty).hazards.some(h=>h.falling),'A hidden rock supplies no warning or velocity');
+
 } finally {
   empty.destroy();
   occupied.destroy();

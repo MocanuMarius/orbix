@@ -1,10 +1,10 @@
-import {resourceSymbol} from './game-symbols.mjs?v=lantern-chapter-1';
-import {prepareFuelSprites} from './pickup-art.mjs?v=lantern-chapter-1';
+import {resourceSymbol} from './game-symbols.mjs?v=collector-audit-1';
+import {prepareFuelSprites} from './pickup-art.mjs?v=collector-audit-1';
 
 export function preloadFlightEntry(reducedMotion=false){
  if(typeof window==='undefined')return Promise.resolve();
  const quiet=reducedMotion||window.matchMedia('(prefers-reduced-motion: reduce)').matches;
- return Promise.all([import('./wisp-renderer.mjs?v=lantern-chapter-1'),prepareFuelSprites(document,quiet)]);
+ return Promise.all([import('./wisp-renderer.mjs?v=collector-audit-1'),prepareFuelSprites(document,quiet)]);
 }
 
 export function flightEntryMarkup(run,node,{dream=false}={}){
@@ -14,5 +14,5 @@ export function resumeGateMarkup(){return `<button class="flight-resume-gate" da
 
 /** Renderer readiness is the only loading gate. No extra timed screen. */
 export async function waitForFlightEntry(ready){
- await ready;
+ return await ready;
 }

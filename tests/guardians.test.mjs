@@ -4,7 +4,7 @@ import {BOSS_PREVIEWS, buildBossLayout, getGuardianForMap} from '../dist/boss.mj
 import {circleHitsObstacle, WispFlight} from '../dist/flight.mjs';
 import {getFlightLengthProfile} from '../dist/level-length.mjs';
 import {insideShutter,shutterPhase,shutterDensityAt,shutterLightFactor,shutterWakeAt} from '../dist/shutter-cone.mjs';
-import {lanternPassageY,lanternRoute} from '../dist/lantern-layout.mjs';
+import {inLanternRoom,lanternPassageY,lanternRoute} from '../dist/lantern-layout.mjs';
 import {lightVisibility} from '../dist/light-field.mjs';
 
 const dt = 1/120;
@@ -46,6 +46,9 @@ test('Hollow Sun route flights use paired lanterns and an accessible Flash witho
     assert.equal(e.bossEncounter,false);
     assert.equal(e.layout.boss,undefined);
     assert.equal(field.rooms.length,count);
+    assert.ok(e.layout.embers.filter(p=>p.harmful).every(p=>!inLanternRoom(e.layout,p.x,25)));
+    assert.ok(e.layout.riskChains.every(chain=>
+      !inLanternRoom(e.layout,(chain.start+chain.end)/2,(chain.end-chain.start)/2)));
     const flash=e.flashProps.find(p=>p.feature==='lantern-flash');
     assert.ok(flash.x<field.rooms.at(-1).x && e.objectiveBodyClear(flash.x,flash.y,21));
     for(const room of field.rooms){

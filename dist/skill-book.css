@@ -33,9 +33,9 @@ html body .skill-book .book-chapters button[aria-pressed=true]{color:#ffedb5;bor
 .skill-book .book-page-scroll,.skill-book .book-inspector-scroll{min-height:0;overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain;scrollbar-width:thin;scrollbar-color:#698273 transparent}
 .skill-book .book-page-scroll{flex:1;padding:2px 4px 5px 0}
 .skill-book .book-trails,.skill-book .book-trails ul{list-style:none}
-.skill-book .book-trails{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(136px,100%),1fr));align-items:start;gap:10px 8px}
+.skill-book .book-trails{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(170px,100%),1fr));align-items:start;gap:10px 8px}
 .skill-book .book-trails>li{min-width:0}
-.skill-book .book-trails ul{margin:1px 0 0 10px;padding-left:8px;border-left:1px solid #617a66}
+.skill-book .book-trails ul{margin:1px 0 0 4px;padding-left:8px;border-left:1px solid #617a66}
 .skill-book .book-trails ul>li{position:relative;padding-top:5px}
 .skill-book .book-trails ul>li:before{content:"";position:absolute;left:-8px;top:22px;width:8px;border-top:1px solid #617a66}
 .skill-book .book-secret{min-height:17px;font-size:12px;color:#8e9e90}
@@ -43,14 +43,14 @@ html body .skill-book .book-chapters button[aria-pressed=true]{color:#ffedb5;bor
 .skill-book .book-group h4{color:#acbead;font:13px/1.2 var(--sans,system-ui);margin:0 0 4px}
 .skill-book .book-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(150px,100%),1fr));gap:4px}
 html body .skill-book button.book-perk{position:relative;display:flex;gap:5px;width:100%;min-height:38px;padding:4px 6px;background:#26332e;border-left:3px solid #728277!important;color:#bac9b9;align-items:center}
-html body .skill-book button.book-perk.available{border-left-color:#dabb76!important;background:#344033;color:#fff0b9}
-html body .skill-book button.book-perk.learned{border-left-color:#77baca!important;background:#223b3d;color:#b8dfe4}
-html body .skill-book button.book-perk.saving{border-left-color:#b49778!important;color:#dfc7ab}
-html body .skill-book button.book-perk[aria-pressed=true]{box-shadow:inset 0 0 0 1px #bea673!important}
+html body .skill-book button.book-perk.available{border-left-color:#ffed9f!important;background:#d8bb73;color:#251f13}
+html body .skill-book button.book-perk.learned{border-left-color:#90d9ef!important;background:#285771;color:#e1f6ff}
+html body .skill-book button.book-perk.saving{border-left-color:#bbc1bd!important;background:#444c4e;color:#f1eee7}
+html body .skill-book button.book-perk.preview,html body .skill-book button.book-perk.locked{border-left-color:#6a7574!important;background:#202929;color:#c0ceca}
+html body .skill-book button.book-perk[aria-pressed=true]{outline:2px solid #ffedcf!important;outline-offset:-2px}
 .skill-book .book-perk-copy,.skill-book .book-perk-copy strong{display:block;min-width:0}
 .skill-book .book-perk-copy strong{font-size:clamp(12px,1.55vw,16px);font-weight:600}
-.skill-book .book-perk-copy>span{display:inline-flex;align-items:center;gap:5px;font-size:11px}
-.skill-book .book-ranks{font-size:10px;color:#91a897}
+.skill-book .book-perk-copy>span{display:flex;align-items:center;flex-wrap:wrap;gap:3px;font-size:clamp(11px,1.32vw,13px);font-weight:550}
 .skill-book .book-inspector{display:flex;flex-direction:column;gap:9px;min-height:0;min-width:0;padding:14px clamp(9px,2vw,24px);color:#273b35;background:linear-gradient(93deg,#b0b79a 0,#d3d9b8 3%,#e0e3c3 65%,#d2d8b7);border-left:3px solid #8b947b}
 .skill-book .book-inspector-scroll{flex:1}
 .skill-book .book-kicker{color:#546054;font:11px/1.3 var(--pixel,monospace)}
@@ -60,9 +60,6 @@ html body .skill-book button.book-perk[aria-pressed=true]{box-shadow:inset 0 0 0
 .skill-book .book-effect,.skill-book .book-empty{font:clamp(14px,1.9vw,19px)/1.43 var(--sans,system-ui);color:inherit;margin:8px 0}
 .skill-book .book-condition,.skill-book .book-status{font:clamp(12px,1.55vw,16px)/1.35 var(--sans,system-ui);margin:6px 0;color:#4c5643}
 .skill-book .book-group .book-condition,.skill-book .book-page .book-condition{color:#bec9ba}
-.skill-book .book-stages{display:flex;align-items:center;gap:4px}
-html body .skill-book .book-stages button{justify-content:center;min-height:28px;min-width:28px;background:#bcc5a5;color:#3e5143}
-html body .skill-book .book-stages button[aria-pressed=true]{background:#526d53;color:#fffada}
 html body .skill-book .book-buy{justify-content:space-between;width:100%;flex:none;padding:7px 10px;min-height:38px;background:#415c42;color:#fff3c5;border-bottom:3px solid #2c4432!important;font-weight:650}
 .skill-book .book-status{color:#394c41;font-weight:650}
 .skill-book .book-status.learned{color:#254955}
@@ -94,3 +91,7 @@ html body .skill-book .book-chapters button[data-id] { border-left-color:var(--c
 .skill-book .book-trails ul,.skill-book .book-trails ul>li:before { border-color:var(--chapter-ink,#788b78) }
 .book-inline-requirement summary { cursor:pointer; text-decoration:underline; padding:4px 0 }
 .book-inline-requirement p { margin:3px 0 6px }
+.book-inline-requirement summary small { font:inherit; color:#4c6252 }
+html body .skill-book button.book-buy-inline { min-height:34px; padding:5px 9px; gap:8px; margin-bottom:6px!important; background:#2e4a3a; color:#f5eac0; font-weight:600 }
+.book-buy-inline span { display:inline-flex; align-items:center; gap:4px; white-space:nowrap }
+.book-buy-inline svg { width:18px; height:18px }

@@ -1,6 +1,8 @@
 import assert from 'node:assert/strict';
 import {WispFlight} from '../dist/flight.mjs';
-import {attachDream,validateDreamPreset} from '../dist/dream.mjs';
+import {attachDream,prepareDreamHandoff,validateDreamPreset} from '../dist/dream.mjs';
+import {beginFlightAttempt,createRun,getRunModifiers,newState} from '../dist/model.mjs';
+import {onboardingFlightPlan} from '../dist/onboarding.mjs';
 globalThis.requestAnimationFrame=()=>1;globalThis.cancelAnimationFrame=()=>{};
 const ctx=new Proxy({},{get:(o,k)=>o[k]??(String(k).includes('Gradient')?()=>({addColorStop(){}}):()=>{}),set:(o,k,v)=>(o[k]=v,true)});
 const canvas={style:{},getContext:()=>ctx,getBoundingClientRect:()=>({width:390,height:620})};
@@ -48,4 +50,60 @@ charging.collect({kind:'sight',x:98,y:310});assert.equal(charging.fleet.find(x=>
 const shield=new WispFlight({...options,companions:['protector'],flame:12,condensedGlow:100});shield.running=true;shield.hit(null);
 assert.equal(shield.dying,false);assert.equal(shield.condensedTotal,100);assert.equal(shield.flame,0);assert.equal(shield.shield.charges,0);
 for(const e of [record,real,changed,failed,garden,charging,shield])e.destroy();
+// Exercise the production handoff on a real themed chapter. Waking consumes
+// event favors and the route boon; neither may alter the rehearsed opening.
+for(const kind of ['normal','elite','finale']){
+  const profile=newState().profile,run=createRun(profile,1);
+  const node=run.map.flat().find(n=>n.kind===kind);
+  run.current=node;run.phase='briefing';run.skills={'main-dream':1,'main-dream-deep':1};
+  run.eventFavors=['lens'];run.nextFlightBoon='flash-relay';
+  const scene=()=>{
+    const engine=new WispFlight({
+      canvas:{...canvas,getBoundingClientRect:()=>({width:900,height:405})},
+      seed:run.seed+'-'+node.id,node,terrain:node.terrain,duration:node.duration,elite:node.elite,
+      companions:run.companions,flame:run.flame,condensedGlow:run.condensedGlow,
+      modifiers:{...getRunModifiers(run),onboardingPlan:onboardingFlightPlan(profile,run)}
+    });
+    engine.render=()=>{};return engine;
+  };
+  const a=scene();let recording;
+  assert.ok(a.layout.lanternEncounter||a.layout.boss.shutters.length);
+  attachDream(a,{onReady:result=>recording=result});a.start();
+  for(let i=0;i<600;i++){
+    if(a.player.y>a.height*.52&&a.player.vy>0)a.flap();
+    a.step(1/60);
+  }
+  assert.ok(recording.valid);assert.ok(beginFlightAttempt(run));
+  const b=scene();const replay=attachDream(b,{mode:'replay',preset:recording.preset});
+  assert.ok(replay);b.start();
+  for(let i=0;i<600;i++)b.step(1/60);
+  assert.equal(replay.phase,'awakening');
+  assert.equal(snapshot(b),snapshot(a));
+  assert.deepEqual(b.layout.embers.map(p=>[p.x,p.y,p.collected]),a.layout.embers.map(p=>[p.x,p.y,p.collected]));
+  assert.equal(b.wisp.phase,a.wisp.phase);
+  const c=scene();
+  attachDream(c,{mode:'replay',preset:recording.preset});c.start({paused:true});
+  let draws=0,sounds=0,notifications=0,steps=0,taskSteps=0,maxTaskSteps=0;
+  const step=c.step;
+  c.step=function(dt){
+    if(taskSteps===0)queueMicrotask(()=>{maxTaskSteps=Math.max(maxTaskSteps,taskSteps);taskSteps=0;});
+    steps++;taskSteps++;return step.call(this,dt);
+  };
+  c.render=()=>{draws++;};c.sound=()=>{sounds++;};c.notify=()=>{notifications++;};
+  const preparing=prepareDreamHandoff(c);
+  assert.equal(await prepareDreamHandoff(c),false,'A second wake cannot duplicate the opening');
+  assert.equal(await preparing,true);
+  assert.equal(c.dream.phase,'awakening');assert.ok(c.paused);
+  assert.equal(steps,600);assert.ok(maxTaskSteps<=32);
+  assert.equal(draws+sounds+notifications,0,'Loading never presents an intermediate frame, sound or HUD update');
+  assert.equal(snapshot(c),snapshot(b));
+  assert.deepEqual(c.layout.embers.map(p=>p.collected),b.layout.embers.map(p=>p.collected));
+  assert.equal(c.wisp.phase,b.wisp.phase);
+  const end=snapshot(c);
+  c.step(1/60);assert.equal(snapshot(c),end);
+  assert.equal(await prepareDreamHandoff(c),false);
+  assert.ok(c.dream.resume());assert.equal(c.flaps,b.flaps);
+  assert.equal(run.stats.attempts,1);
+  a.destroy();b.destroy();c.destroy();
+}
 console.log('Dream: deterministic input replay, free opening, no rehearsal reward writes, paused handoff, separate resume/Lift, build/viewport invalidation, failed rehearsal, Condensed Glow isolation, Second Dawn and bounded Night Gardener passed.');

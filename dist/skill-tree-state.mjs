@@ -1,4 +1,4 @@
-import {SKILLS,getSkillLockReason,getSkillPrice,canChooseStartingSkill} from './model.mjs?v=lantern-chapter-1';
+import {SKILLS,getSkillLockReason,getSkillPrice,canChooseStartingSkill} from './model.mjs?v=collector-audit-1';
 
 const parents=skill=>Array.isArray(skill?.requires)?skill.requires:skill?.requires?[skill.requires]:[];
 const learned=(wallet,id)=>Number(wallet?.skills?.[id]||0);

@@ -1,5 +1,5 @@
-import {drawProximityEnergy} from './proximity-energy.mjs?v=lantern-chapter-1';
-import {obstacleEdgeClearance} from './edging-pulse.mjs?v=lantern-chapter-1';
+import {drawProximityEnergy} from './proximity-energy.mjs?v=collector-audit-1';
+import {obstacleEdgeClearance} from './edging-pulse.mjs?v=collector-audit-1';
 const clamp=n=>Math.max(0,Math.min(1,Number(n)||0));
 
 export function proximityFill(pulse){
@@ -11,9 +11,9 @@ export function proximityFill(pulse){
 
 // Sample three small points, at most ten times per second. The bar never
 // participates in collision physics and follows interpolated render positions.
-function freeSpace(e,x,y){
+function freeSpace(e,x,y,obstacles){
  if(y<20||y>e.height-20)return false;
- for(const o of e.layout?.obstacles||[]){
+ for(const o of obstacles){
   const wx=e.distance+x;
   if(o.destroyed||wx+25<o.x-o.width||wx-25>o.x+o.width*2.5)continue;
   for(const dx of [-19,0,19])if(obstacleEdgeClearance(wx+dx,y,5,o,e.time,8,e.obstacleCenter(o))<7)return false;
@@ -27,15 +27,19 @@ export function drawProximityMeter(c,e,{scale=1}={}){
  const t=e.visualTime??e.time??0,y=e.renderPlayerY??e.player.y;
  if(!e._proximityPlace||t-e._proximityPlace.at>.1){
   const candidates=[[0,30],[0,-31],[-39,0]];
-  const offset=candidates.find(([dx,dy])=>freeSpace(e,e.player.x+dx,y+dy))||[-39,0];
+  const nearby=e.getNearbyObstacles?.(60)??e.layout?.obstacles??[];
+  const offset=candidates.find(([dx,dy])=>freeSpace(e,e.player.x+dx,y+dy,nearby));
   e._proximityPlace={at:t,offset};
  }
+ if(!e._proximityPlace.offset)return;
  const [dx,dy]=e._proximityPlace.offset,charging=pulse.nearEdge&&!pulse.active;
  const shake=charging&&!e.reducedMotion?(1+fill*3):0;
  const unit=Math.max(1,Math.round(3*scale)),gap=Math.max(1,Math.round(scale)),height=Math.max(1,Math.round(3*scale));
  const x=Math.round((e.player.x+dx+Math.sin(t*97)*shake)*scale-(unit*12+gap*11)/2);
  const top=Math.round((y+dy+Math.cos(t*83)*shake*.55)*scale);
- c.save();c.globalAlpha=(charging?.8:.38*Math.min(1,(e.edgingPulse.graceRemaining||0)/1.25))*Math.min(1,fill*7);
+ const alpha=charging?.8:.38*Math.min(1,(e.edgingPulse.graceRemaining||0)/1.25);
+ if(alpha<=0)return;
+ c.save();c.globalAlpha=alpha*Math.min(1,fill*7);
  const lit=Math.ceil(fill*12),ink=pulse.mode==='regen'?'#a9e7ba':pulse.active?'#fff3bd':charging?'#c2eeff':'#8cb2cb';
  for(let i=0;i<12;i++){
   const left=x+i*(unit+gap);

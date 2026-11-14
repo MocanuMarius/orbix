@@ -1,3 +1,4 @@
+import {COMPANION_ABILITIES,getCompanionUnlock} from '../dist/companion-abilities.mjs';
 import {WISP_TUNING} from '../dist/wisp.mjs';
 // Economic stress scenarios, NOT a human win-rate model. Flight resource
 // schedules use actual authored levels; geometry is not controlled by a bot.
@@ -10,7 +11,7 @@ import * as M from '../dist/model.mjs';
 import {WispFlight,FLIGHT_TUNING,FLAME_TUNING} from '../dist/flight.mjs';
 import {getPickupSpec,pickupKind} from '../dist/pickups.mjs';
 import {BIOME_LEVELS} from '../dist/biomes.mjs';
-import {CONDENSED_TUNING,getCondensationRules,condenseGlow} from '../dist/condensed-glow.mjs';
+import {CONDENSED_TUNING,KEPT_LIGHT_MAX_PRINCIPAL,getCondensationRules,condenseGlow} from '../dist/condensed-glow.mjs';
 import {ArtifactEffects} from '../dist/artifact-effects.mjs';
 import {blackHoleDrainRate} from '../dist/black-holes.mjs';
 import {getGlowCapacity} from '../dist/vitality.mjs';
@@ -21,7 +22,7 @@ const proposedPowerK=Number(args.proposedPowerK||0);
 const proposedConversionBase=Number(args.proposedConversionBase||0);
 const proposedTrainingGrowth=args.trainingGrowth==null?null:Number(args.trainingGrowth);
 const tiers=args.tiers?String(args.tiers).split(',').map(Number):[1,2,3,4,5,6];
-const roles=['collector','protector','leveler','swift'],policies=['survival','conversion','hoard','companion'];
+const roles=Object.keys(COMPANION_ABILITIES).filter(id=>getCompanionUnlock(id).selectable),policies=['survival','conversion','hoard','companion'];
 const profiles={
  learning:{pocket:.45,accessible:.68,centreBonus:.035,corrections:.16,reactionMs:280,missPower:.45,collision:.09},
  steady:{pocket:.60,accessible:.82,centreBonus:.04,corrections:.08,reactionMs:180,missPower:.25,collision:.045},
@@ -38,10 +39,10 @@ const canvas=()=>({style:{},getContext:()=>ctx,getBoundingClientRect:()=>({width
 const inventories=new Map();
 function inventory(node,tier){
  const phase=node.mapIndex||0,row=node.row||0,duration=node.duration||114;
- const key=[node.levelId,tier,phase,node.encounterFamily||'mixed',node.boss?node.bossId:'ordinary',node.elite?'elite':'normal',node.routeStyle||node.passage||'open',node.fuelCadence||3,row,duration].join(':');
+ const key=[node.levelId,tier,phase,node.encounterFamily||'mixed',node.boss?node.bossId:'ordinary',node.elite?'elite':'normal',node.routeStyle||node.passage||'open',node.fuelCadence||3,node.mapTheme||'clear',node.flightLengthScale||1,row,duration].join(':');
  if(inventories.has(key))return inventories.get(key);
  const e=new WispFlight({canvas:canvas(),terrain:node.terrain,elite:node.elite,seed:'condensed-inventory:'+key,duration,
-  node:{...node,row,difficulty:tier,flightLengthScale:1},companions:['collector'],flame:100});
+  node:{...node,row,difficulty:tier},companions:['collector'],flame:100});
  const result={key,levelId:node.levelId,biome:node.biomeId||e.levelIdentity.biomeId,tier,phase,boss:!!node.boss,elite:!!node.elite,
   seconds:(e.totalDistance-e.distanceOrigin)/e.baseSpeed,draftCount:e.drafts.zones.length,interactionCount:e.biomeDynamics.items.length,
   glowBudget:e.layout.glowBudget,holeCount:e.blackHoles?.items?.length??1,negativeCount:e.layout.embers.filter(p=>getPickupSpec(p).dim>0).length,
@@ -111,7 +112,7 @@ function simulateFlow(run,inv,style,rng,{captureDelta=0,effortScale=1,artifactSc
  const effects=new ArtifactEffects(actor);actor.artifactEffects=effects;effects.onStart();
  let workAt=0,bodyFuelCollected=0;
 
- let fuelFailure=false,lastTime=0,burdenRemaining=mod.burdenLifts||0;
+ let fuelFailure=false,lastTime=0,burdenRemaining=mod.burdenLifts||0,storageBonus=0,storageAwards=0;
  for(const event of events){
   lastTime=event.t;actor.time=event.t;actor.flame=fuel;
   if(event.cost){
@@ -129,7 +130,12 @@ function simulateFlow(run,inv,style,rng,{captureDelta=0,effortScale=1,artifactSc
    if(!event.delivery)bodyFuelCollected++;
    if((event.delivery||has('swift')||has('leveler'))&&event.t>=workAt){effects.onWork();fuel=actor.flame;workAt=event.t+8;}
    const amount=event.fuel+Math.round(effects.fuelBonus(packet,spec)*.3)/.3;
+   const naturalSurplus=Math.max(0,fuel+event.item.fuel-max);
    const surplus=Math.max(0,fuel+amount-max);fuel=Math.min(max,fuel+amount);consecutiveEmpty=0;
+   if(storageAwards<2&&surplus>0&&naturalSurplus>1e-7&&spec.plasma&&event.t>=freeDream){
+    const award=mod.handSeal&&!event.delivery?1:mod.deepCache&&event.item.fuel>=FLAME_TUNING.heartFuel?2:0;
+    if(award){storageAwards++;storageBonus+=award;}
+   }
    actor.flame=fuel;effects.applyConsumables(packet,spec);fuel=actor.flame;
    if(mod.pickupReveal||mod.mainSeer)actor.pickupRevealHoldUntil=event.t+1.5;
    effects.onFuel(packet,spec,surplus);fuel=actor.flame;
@@ -141,7 +147,7 @@ function simulateFlow(run,inv,style,rng,{captureDelta=0,effortScale=1,artifactSc
   if(attrition&&fuelFailure)break;
  }
  return {success:!attrition||!fuelFailure&&!collisionFailure,flame:fuel,condensedGlow:condensed,condensedRemainder:remainder,pickupOverflow:rawOverflow,
-  collected:captured,challengeComplete:rng()<Math.max(.15,p.pocket-.1),seconds,available,captured,fetched,emptyLifts,starved:emptyLifts>0,
+  storageBonus,collected:captured,challengeComplete:rng()<Math.max(.15,p.pocket-.1),seconds,available,captured,fetched,emptyLifts,starved:emptyLifts>0,
   artifactCharges:{...effects.charges},bodyFuelCollected,fuelFailure,collisionFailure,shieldUses,spent,minFuel,coverage:captured/Math.max(1,available),lastTime};
 }
 const priorities={
@@ -167,7 +173,7 @@ function buy(state,policy,metrics){
   const eligible=Object.keys(M.SKILLS).filter(id=>branches.has(M.SKILLS[id].branch)&&M.getSkillCost(w,id)!==null&&!['main-bond','main-spare-spark','main-deep-reserve'].includes(id)&&quote(id)<=run.condensedGlow);
   if(!eligible.length)break;
   const ordered=eligible.sort((a,b)=>{const ai=preferred.indexOf(a),bi=preferred.indexOf(b);return(ai<0?80:ai)-(bi<0?80:bi)||M.getSkillCost(w,a)-M.getSkillCost(w,b)||a.localeCompare(b)});
-  const id=ordered[0],baseCost=M.getSkillCost(w,id),cost=quote(id),keep=policy==='hoard'&&rank(run.skills,'afterglow-anchor')?CONDENSED_TUNING.bankStep:0;
+  const id=ordered[0],baseCost=M.getSkillCost(w,id),cost=quote(id),keep=policy==='hoard'&&rank(run.skills,'afterglow-anchor')?KEPT_LIGHT_MAX_PRINCIPAL:0;
   if(run.condensedGlow-cost<keep)break;
   const before=run.condensedGlow;run.condensedGlow+=baseCost-cost;
   if(!M.buyCheckpointSkill(state,id)){run.condensedGlow=before;break;}
@@ -208,7 +214,7 @@ function runCase({seed,tier,role,style,policy,attrition=false,captureDelta=0,eff
    else{
     const receipt=r.lastFlight,secured=r.condensedGlow-before;
     const expected=receipt.pickupCondensedGlow+receipt.completionBonus+(receipt.routeBonus?.amount||0)+(receipt.vow?.reward||0)
-      +(receipt.treasureWager?.reward||0)+(receipt.chestIncome?.amount||0);
+      +(receipt.treasureWager?.reward||0)+(receipt.chestIncome?.amount||0)+(receipt.keptLightDividend||0)+(receipt.storageBonus||0);
     assert.equal(secured,expected,'ordinary autobanking and checkpoint settlements reconcile');
     m.flightIncome+=secured;
    }
@@ -259,7 +265,7 @@ for(let seed=0;seed<seeds;seed++){
  if(seed%4===3||seed===seeds-1)console.log(JSON.stringify({seed:seed+1,campaigns:rows.length,inventories:inventories.size,seconds:round((Date.now()-started)/1000)}));
 }
 const sensitivity=[];
-if(!args.quick&&!args.startingOnly)for(const seed of [101,102,103,104,105,106])for(const tier of [1,3,6])for(const role of roles)for(const adjustment of [{name:'capture-minus-8pp',captureDelta:-.08},{name:'capture-plus-8pp',captureDelta:.08},{name:'correction-effort-plus-12pct',effortScale:1.12},{name:'fuel-bonus-upper-bound-plus-15pct',artifactScale:1.15}])for(const policy of ['survival','conversion','hoard'])sensitivity.push({...runCase({seed,tier,role,style:'steady',policy,...adjustment}),adjustment:adjustment.name});
+if(!args.quick&&!args.startingOnly&&!args.noSensitivity)for(const seed of [101,102,103,104,105,106])for(const tier of [1,3,6])for(const role of roles)for(const adjustment of [{name:'capture-minus-8pp',captureDelta:-.08},{name:'capture-plus-8pp',captureDelta:.08},{name:'correction-effort-plus-12pct',effortScale:1.12},{name:'fuel-bonus-upper-bound-plus-15pct',artifactScale:1.15}])for(const policy of ['survival','conversion','hoard'])sensitivity.push({...runCase({seed,tier,role,style:'steady',policy,...adjustment}),adjustment:adjustment.name});
 const groups={all:aggregate(rows)};
 for(const key of ['style','role','policy','tier','attrition'])for(const value of new Set(rows.map(r=>r[key])))groups[key+':'+value]=aggregate(rows.filter(r=>r[key]===value));
 if(args.startingOnly)for(const root of M.STARTING_GIFT_IDS)for(const style of ['learning','steady'])for(const attrition of [false,true])groups[`${root}:${style}:${attrition?'attrition':'clear'}`]=aggregate(rows.filter(r=>r.startingSkill===root&&r.style===style&&r.attrition===attrition));
@@ -274,7 +280,7 @@ const inv=[...inventories.values()],coverage={layouts:inv.length,biomes:[...new 
 const endHashes=hashes(),sourceChangedFiles=Object.keys(initialHashes).filter(name=>initialHashes[name]!==endHashes[name]);
 const report={schema:2,model:'clear-sparks-current',createdAt:new Date().toISOString(),seconds:round((Date.now()-started)/1000),sourceHashes:initialHashes,endSourceHashes:endHashes,sourceChangedFiles,sourceUnchanged:sourceChangedFiles.length===0,
  assumptions:{profiles,roles,policies,proposedPriceGrowth:proposedGrowth,proposedPricePowerK:proposedPowerK,proposedConversionBase,proposedTrainingGrowth,campaigns:rows.length,sensitivityCampaigns:sensitivity.length,
-  limits:['Economic inventory stress, not a geometric flight controller or measured human win rate.','Reaction figures label correction/miss scenarios; no reaction-delayed physics controller is claimed.','Pickup contacts, bad-packet avoidance, correction taps and imposed collisions are stochastic assumptions. Dark Seeds reduce visibility in play; their secondary targeting effect is represented by the miss sensitivity, not simulated as a separate fuel penalty.','Conditional-clear scenarios isolate economy even if fuel stress flags occur; attrition scenarios end failed attempts and lose their income.','Real production map graph, pickups, prices, modifiers, rewards, banking, conversion fractions and spending are used.','Uses actual node row and duration with a deterministic cached inventory per level/route/phase; does not enumerate every layout seed.','No TEST purchasing. Default campaigns start Vitality; startingOnly compares all three roots with shared streams.','Spending policies buy main, single-companion, proximity and conversion skills; paid extra lives and additional companion slots are excluded to isolate role balance.','Actual ArtifactEffects handles charges, seed chains and free-Lift caps; work/reveal/recharge opportunities remain scenario approximations. Black Hole exposure is an assumed straight pass at 85/140/195 clearance.','Tree fraction uses all nominal main/selected-companion/conversion ranks, including mutually exclusive paths; it is not a claim about fully purchasable completion.']},
+  limits:['Economic inventory stress, not a geometric flight controller or measured human win rate.','Reaction figures label correction/miss scenarios; no reaction-delayed physics controller is claimed.','Pickup contacts, bad-packet avoidance, correction taps and imposed collisions are stochastic assumptions. Dark Seeds reduce visibility in play; their secondary targeting effect is represented by the miss sensitivity, not simulated as a separate fuel penalty.','Conditional-clear scenarios isolate economy even if fuel stress flags occur; attrition scenarios end failed attempts and lose their income.','Real production map graph, pickups, prices, modifiers, rewards, banking, conversion fractions and spending are used.','Uses actual node row and duration with a deterministic cached inventory per level/route/phase; does not enumerate every layout seed.','No TEST purchasing. Default campaigns use the Proximity starting gift; startingOnly compares all starting gifts with shared streams.','Spending policies buy main, the currently playable companion, Proximity and conversion skills; extra-life purchases are excluded.','Actual ArtifactEffects handles charges, seed chains and free-Lift caps; work/reveal/recharge opportunities remain scenario approximations. Black Hole exposure is an assumed straight pass at 85/140/195 clearance.','Tree fraction uses all nominal main/selected-companion/conversion ranks, including mutually exclusive paths; it is not a claim about fully purchasable completion.']},
  coverage,groups,rows,sensitivity};
 fs.mkdirSync(path.dirname(out),{recursive:true});fs.writeFileSync(out,JSON.stringify(report,null,2));
 console.log(JSON.stringify({out,sourceUnchanged:report.sourceUnchanged,campaigns:rows.length,sensitivity:sensitivity.length,coverage,steady:groups['style:steady'],learning:groups['style:learning'],practiced:groups['style:practiced']},null,2));

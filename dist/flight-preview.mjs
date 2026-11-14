@@ -1,16 +1,16 @@
-import {getBiome} from './biomes.mjs?v=lantern-chapter-1';
-import {getBossPreview} from './boss.mjs?v=lantern-chapter-1';
-import {levelMapPreview} from './level-map-art.mjs?v=lantern-chapter-1';
-import {mapStopIconMarkup} from './map-guide.mjs?v=lantern-chapter-1';
-import {resourceSymbol} from './game-symbols.mjs?v=lantern-chapter-1';
-import {getFlightClearReward} from './checkpoint-rewards.mjs?v=lantern-chapter-1';
-import {availableFlightArtifacts} from './model.mjs?v=lantern-chapter-1';
-import {bonusIcon,boonMarkup} from './route-bonus-ui.mjs?v=lantern-chapter-1';
-import {contextualFlightNotice} from './contextual-events.mjs?v=lantern-chapter-1';
-import {ATLAS_FORECASTS,atlasGlyph} from './night-atlas.mjs?v=lantern-chapter-1';
-import {canDreamAt,dreamConfig} from './dream.mjs?v=lantern-chapter-1';
-import {sparkHabitat} from './spark-fields.mjs?v=lantern-chapter-1';
-import {lanternFlightCue} from './map-theme.mjs?v=lantern-chapter-1';
+import {getBiome} from './biomes.mjs?v=collector-audit-1';
+import {getBossPreview} from './boss.mjs?v=collector-audit-1';
+import {levelMapPreview} from './level-map-art.mjs?v=collector-audit-1';
+import {mapStopIconMarkup} from './map-guide.mjs?v=collector-audit-1';
+import {resourceSymbol} from './game-symbols.mjs?v=collector-audit-1';
+import {getFlightClearReward} from './checkpoint-rewards.mjs?v=collector-audit-1';
+import {availableFlightArtifacts} from './model.mjs?v=collector-audit-1';
+import {bonusIcon,boonMarkup} from './route-bonus-ui.mjs?v=collector-audit-1';
+import {contextualFlightNotice} from './contextual-events.mjs?v=collector-audit-1';
+import {ATLAS_FORECASTS,atlasGlyph} from './night-atlas.mjs?v=collector-audit-1';
+import {canDreamAt,dreamConfig} from './dream.mjs?v=collector-audit-1';
+import {sparkHabitat} from './spark-fields.mjs?v=collector-audit-1';
+import {lanternFlightCue} from './map-theme.mjs?v=collector-audit-1';
 
 const escapeText = value => String(value ?? '').replace(/[&<>"']/g, char =>
  ({'&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;'}[char]));

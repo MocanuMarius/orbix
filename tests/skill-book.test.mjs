@@ -30,3 +30,42 @@ test('chapter view offers reachable, owned and future perks and keeps closed pat
  assert.match(html(s,{chapter:'companion'}),/Other path chosen/);
  assert.ok(!listIds(html(s,{chapter:'available'})).includes('collector-rich-cargo'));
 });
+test('a cross-chapter prerequisite can be bought inline without opening the other chapter',()=>{
+ const s=sample('collector'),page=()=>html(s,{chapter:'dream',selected:'main-dream'});
+ assert.match(page(),/book-inline-requirement[\s\S]+?Luminance[\s\S]+?class="book-buy-inline" data-action="buy-skill" data-id="main-sight"/);
+ s.run.condensedGlow=0;
+ assert.doesNotMatch(page(),/class="book-buy-inline"/);
+ assert.match(page(),/Need \d+ more Stored Sparks/);
+ s.run.condensedGlow=250;
+ assert.equal(buyCheckpointSkill(s,'main-sight'),true);
+ assert.match(page(),/data-chapter="dream"[\s\S]+?aria-label="Learned"[\s\S]+?class="book-buy"[^>]+?data-id="main-dream"/);
+});
+test('Regenerative Pulse shows its actual one-Spark recovery in the book',()=>{
+ const s=sample('collector');
+ const map=html(s,{chapter:'proximity',selected:'main-edging-regeneration'});
+ assert.match(map,/restores one missing Spark/);
+ assert.doesNotMatch(map,/\+0 Sparks/);
+});
+test('each rank is a linked perk with its own price, state and purchase guard',()=>{
+ const s=sample('collector');s.run.skills['main-afterglow']=1;
+ const page=id=>html(s,{chapter:'packing',selected:id});
+ const row=(markup,id)=>markup.match(new RegExp('<button type="button" class="book-perk [^"]+" data-action="book-skill" data-id="'+id+'"[^>]*>[\\s\\S]*?</button>'))?.[0];
+ const initial=page('afterglow-anchor@2');
+ assert.match(row(initial,'afterglow-anchor'),/Can learn/);
+ assert.match(row(initial,'afterglow-anchor@2'),/Needs prerequisite/);
+ assert.match(initial,/data-chapter="packing" data-id="afterglow-anchor"/);
+ assert.doesNotMatch(initial,/book-stages|book-ranks/);
+ assert.equal(buyCheckpointSkill(s,'afterglow-anchor',2),false);
+ assert.equal(buyCheckpointSkill(s,'afterglow-anchor',1),true);
+ assert.equal(buyCheckpointSkill(s,'afterglow-anchor',1),false);
+ assert.match(row(page('afterglow-anchor@2'),'afterglow-anchor'),/Owned/);
+ assert.match(page('afterglow-anchor@2'),/data-id="afterglow-anchor" data-rank="2"/);
+ s.run.condensedGlow=0;
+ assert.match(row(page('afterglow-anchor@2'),'afterglow-anchor@2'),/Save \d+ more/);
+ assert.doesNotMatch(page('afterglow-anchor@2'),/class="book-buy"/);
+ s.run.condensedGlow=250;
+ assert.equal(buyCheckpointSkill(s,'afterglow-anchor',2),true);
+ assert.match(row(page('afterglow-anchor@2'),'afterglow-anchor@2'),/Owned/);
+ const dream=html(s,{chapter:'dream'});
+ assert.ok(listIds(dream).includes('main-dream')&&listIds(dream).includes('main-dream-long'));
+});

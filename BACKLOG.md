@@ -1,5 +1,24 @@
 # Guardian paths, Spark mass and run treasures — 14 November 2026
 
+## Completion audit and current rules
+
+- [x] Audit current UI, tutorials, Collector, routes, Dream, rendering and the current economy scripts against surviving accepted requests.
+- [x] Fix early Collector ring contact, match both renderers' contact signal, and hide the Proximity meter when it would obscure solid terrain.
+- [x] Reserve darkness-lantern chambers and their approaches against independent Dark Spark challenges.
+- [x] Correct obsolete tutorial targets, use the current chapter names and remove ordinary-clear currency popups.
+- [x] Let players learn a prerequisite inside the chapter where they are planning an upgrade.
+- [x] Bound terrain texture generation to the playfield and sway envelope to reduce frame stalls.
+- [x] Apply an accepted Dream during preparation and hand control over paused at its endpoint.
+- [x] Restore the requested clear-interest mechanic through Kept Light, with per-clear caps and one-time settlement.
+- [x] Update the current benchmark scope to Collector and infer visible falling-hazard motion.
+- [x] Expand Storage with exclusive body-pickup and large-Spark packing choices, bounded by per-flight caps.
+- [x] Show each skill rank as a connected prerequisite item and use explicit owned/affordable/saving/locked labels and fills.
+- [x] Provide a large-Spark absorption comparison with three fluid treatments, size and approach-angle controls, slow playback and a timeline.
+- [ ] Select the fluid treatment for the live Spark capture animation.
+- [ ] Verify frame timing on a physical Pixel 10 and evaluate the hardest Collector routes with recorded human play.
+
+Current behavior and evidence are recorded in [the audit](docs/backlog-current.md). Historical checked batches below describe earlier releases and include superseded rules.
+
 ## Darkness Lanterns chapter and Collector build
 
 - [x] Collector is the playable companion at every difficulty, including Test. Keep the other three portraits locked.

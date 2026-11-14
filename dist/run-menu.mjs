@@ -1,9 +1,9 @@
-import {menuWorldMarkup} from './menu-world.mjs?v=lantern-chapter-1';
-import {resourceSymbol} from './game-symbols.mjs?v=lantern-chapter-1';
-import {formatGlow,getGlowCapacity} from './vitality.mjs?v=lantern-chapter-1';
-import {livesMarkup} from './lives.mjs?v=lantern-chapter-1';
-import { COMPANION_ABILITIES, getCompanionUnlock } from './companion-abilities.mjs?v=lantern-chapter-1';
-import { companionArtSvg } from './companion-art.mjs?v=lantern-chapter-1';
+import {menuWorldMarkup} from './menu-world.mjs?v=collector-audit-1';
+import {resourceSymbol} from './game-symbols.mjs?v=collector-audit-1';
+import {formatGlow,getGlowCapacity} from './vitality.mjs?v=collector-audit-1';
+import {livesMarkup} from './lives.mjs?v=collector-audit-1';
+import { COMPANION_ABILITIES, getCompanionUnlock } from './companion-abilities.mjs?v=collector-audit-1';
+import { companionArtSvg } from './companion-art.mjs?v=collector-audit-1';
 
 const esc = value => String(value ?? '').replace(/[&<>"']/g, char =>
   ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[char]));

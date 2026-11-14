@@ -63,7 +63,20 @@ export function planHumanLift(view, target, memory) {
       for (const pixel of slices[i-1].terrain) margin = Math.min(margin, Math.abs(y - pixel.y) - radius);
       let warningCost=0;
       for (const hazard of slices[i-1].hazards) {
-        const clearance=Math.abs(y-hazard.y)-hazard.radius-player.radius;
+        // A visibly falling rock keeps moving during the response delay.
+        // Warning cracks predict a region below it with an uncertain release
+        // time. A player can risk crossing that region before the rock falls.
+        let projectedY=hazard.y;
+        if(hazard.falling){
+          const acceleration=360*view.scaleY,terminal=300*view.scaleY;
+          const speed=Math.min(terminal,hazard.fallSpeed);
+          const accelerating=Math.min(t,(terminal-speed)/acceleration);
+          projectedY+=speed*accelerating+.5*acceleration*accelerating**2+terminal*(t-accelerating);
+        }else if(hazard.fallWarning){
+          const reach=hazard.y+Math.min(260*view.scaleY*t,190*view.scaleY*t*t);
+          if(y>=hazard.y&&y<=reach+hazard.radius+player.radius)warningCost+=45;
+        }
+        const clearance=Math.abs(y-projectedY)-hazard.radius-player.radius;
         // The inward flecks indicate possible fuel loss. A player can pass
         // through the flecks; terrain avoidance still takes precedence.
         if(hazard.blackHoleCue)warningCost=Math.max(warningCost,Math.max(0,26-clearance)*.9);

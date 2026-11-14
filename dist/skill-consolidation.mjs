@@ -12,6 +12,8 @@ const groups=[
  ['mystic','Storage',['main-afterglow','afterglow-vessel']],
  ['mystic','Prismatic Yield',['afterglow-retention']],
  ['mystic','Kept Light',['afterglow-anchor']],
+ ['mystic','Hand Seal',['packing-hand-seal']],
+ ['mystic','Deep Cache',['packing-deep-cache']],
  ['mystic','Dream',['main-dream','main-dream-long','main-dream-deep']],
  ['mystic','Proximity',['proximity-awakening','main-edging-attunement']],
  ['mystic','Lasting Pulse',['main-edging-lasting']],

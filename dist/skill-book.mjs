@@ -1,9 +1,9 @@
-import {SKILLS} from './model.mjs?v=lantern-chapter-1';
-import {skillTreeState,skillTreeStatus} from './skill-tree-state.mjs?v=lantern-chapter-1';
-import {getCompanionAbility} from './companion-abilities.mjs?v=lantern-chapter-1';
-import {skillIcon} from './upgrade-icons.mjs?v=lantern-chapter-1';
-import {resourceSymbol} from './game-symbols.mjs?v=lantern-chapter-1';
-import {glowText,getGlowCapacity} from './vitality.mjs?v=lantern-chapter-1';
+import {SKILLS} from './model.mjs?v=collector-audit-1';
+import {skillTreeState,skillTreeStatus} from './skill-tree-state.mjs?v=collector-audit-1';
+import {getCompanionAbility} from './companion-abilities.mjs?v=collector-audit-1';
+import {skillIcon} from './upgrade-icons.mjs?v=collector-audit-1';
+import {resourceSymbol} from './game-symbols.mjs?v=collector-audit-1';
+import {glowText,getGlowCapacity} from './vitality.mjs?v=collector-audit-1';
 
 const chapters=[
  ['wisp','Flight','main-efficiency'],['luminance','Luminance','main-sight'],
@@ -11,6 +11,7 @@ const chapters=[
  ['dream','Dream','main-dream'],['packing','Storage','main-afterglow']
 ];
 const chapterIds=chapters.map(([id])=>id);
+const chapterNames=new Map(chapters.map(([id,name])=>[id,name]));
 const escape=value=>String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const parents=skill=>[skill.requires].flat().filter(Boolean);
 const groupId=skill=>skill.treeGroup||skill.id;
@@ -28,73 +29,94 @@ export function skillBookChapter(skill){
 function perkOrder(a,b){
  return (a.treeStage||1)-(b.treeStage||1)||(a.name||a.id).localeCompare(b.name||b.id);
 }
+const rankId=(id,rank)=>rank===1?id:id+'@'+rank;
+const lockMark=resourceSymbol('lock');
+const rankEffects={
+ 'afterglow-anchor':[
+  'On a clear, earn 5% of the Stored Sparks you carried into the flight, rounded down. Earn up to 5. The final guardian pays no interest.',
+  'Double your clear dividend to 10% of the Stored Sparks you carried into the flight, rounded down. Earn up to 10. The final guardian pays no interest.'
+ ],
+ 'afterglow-vessel':['Store 5 more Sparks per 100 surplus Sparks collected.','Store another 5 Sparks per 100 surplus Sparks collected.'],
+ 'afterglow-retention':['Store 5 more Sparks per 100 surplus Sparks collected.','Store another 5 Sparks per 100 surplus Sparks collected.']
+};
+function rankNodes(base){
+ return Array.from({length:base.maxRank},(_,i)=>{
+  const rank=i+1,stage=(base.treeStage||1)+i;
+  const name=base.maxRank===1?base.name:(base.treeName||base.name)+' '+stage;
+  return {...base,id:rankId(base.id,rank),baseId:base.id,rank,treeStage:stage,name,
+   description:rankEffects[base.id]?.[i]||base.description,
+   requires:i?rankId(base.id,i):base.requires};
+ });
+}
+function rankView(skill,context){
+ const view=skillTreeState(context,skill.baseId);
+ if(skill.rank<=view.rank)return {...view,complete:true,available:false,free:false,state:'learned',inspectable:true,disclosure:'full'};
+ if(skill.rank===view.rank+1)return view;
+ const distance=view.distance+skill.rank-view.rank-1;
+ const inspectable=!view.closedBy&&distance<=2;
+ return {...view,distance,free:false,complete:false,available:false,price:null,inspectable,
+  disclosure:inspectable?'preview':'hidden',state:inspectable?'preview':view.closedBy?'excluded':'distant'};
+}
 function notice(view){
  if(view.complete)return '✓ Owned';
- if(view.free&&view.available)return '✦ Free';
- if(view.available)return money()+' '+view.price;
+ if(view.available)return 'Can learn · '+(view.free?'Free':money()+' '+view.price);
  if(view.closedBy)return '× Other path';
- if(view.disclosure==='preview')return '◇ Later';
- if(view.state==='saving')return money()+' '+view.price+' · Save';
- return '◇ Locked';
+ if(view.state==='saving')return 'Save '+view.shortfall+' more';
+ if(view.state==='locked'&&!view.reason)return 'Unavailable here';
+ return lockMark+' Needs prerequisite';
 }
-function perkButton(skill,view,selected,{track=false,numRanks=0,owned=0}={}){
- const title=track?(skill.treeName||skill.name):skill.name;
- const rank=numRanks>1?' <small class="book-ranks">'+owned+'/'+numRanks+'</small>':'';
- return '<button type="button" class="book-perk '+view.state+'" data-action="book-skill" data-id="'+skill.id+'" aria-pressed="'+(skill.id===selected)+'" aria-label="'+escape(title+', '+skillTreeStatus(view))+'">'+art(skill)+'<span class="book-perk-copy"><strong>'+escape(title)+'</strong><span>'+notice(view)+rank+'</span></span></button>';
+function perkButton(skill,view,selected){
+ return '<button type="button" class="book-perk '+view.state+'" data-action="book-skill" data-id="'+skill.id+'" aria-pressed="'+(skill.id===selected)+'" aria-label="'+escape(skill.name+', '+skillTreeStatus(view))+'">'+art(skill)+'<span class="book-perk-copy"><strong>'+escape(skill.name)+'</strong><span>'+notice(view)+'</span></span></button>';
 }
 function chapterMap(skills,views,selected){
- const groups=new Map();
- for(const skill of skills){
-  const id=groupId(skill);
-  if(!groups.has(id))groups.set(id,{id,ranks:[],children:[]});
-  groups.get(id).ranks.push(skill);
+ const local=new Set(skills.map(s=>s.id)),branches=new Map();
+ for(const s of skills){
+  const parent=parents(s).find(id=>local.has(id))||null;
+  if(!branches.has(parent))branches.set(parent,[]);
+  branches.get(parent).push(s);
  }
- const roots=[];
- for(const group of groups.values()){
-  group.ranks.sort(perkOrder);
-  const prerequisite=parents(group.ranks[0]).map(id=>SKILLS[id]).find(skill=>skill&&groups.has(groupId(skill))&&groupId(skill)!==group.id);
-  if(prerequisite)groups.get(groupId(prerequisite)).children.push(group);
-  else roots.push(group);
+ function branch(skill){
+  const view=views.get(skill.id);
+  if(!view.inspectable)return '<li class="book-secret" aria-label="'+(view.closedBy?'Other path chosen':'Further upgrades')+'"><span>'+(view.closedBy?'×':'···')+'</span></li>';
+  const children=branches.get(skill.id);
+  return '<li>'+perkButton(skill,view,selected)+(children?'<ul>'+children.sort(perkOrder).map(branch).join('')+'</ul>':'')+'</li>';
  }
- function branch(group){
-  const inspectable=group.ranks.filter(skill=>views.get(skill.id).inspectable);
-  if(!inspectable.length){
-   const closed=group.ranks.some(skill=>views.get(skill.id).closedBy===skill.id);
-   return '<li class="book-secret" aria-label="'+(closed?'Other path chosen':'Further upgrades')+'"><span>'+ (closed?'×':'···')+'</span></li>';
-  }
-  const choice=inspectable.find(skill=>skill.id===selected)||inspectable.find(skill=>!views.get(skill.id).complete)||inspectable.at(-1);
-  const owned=group.ranks.reduce((sum,skill)=>sum+views.get(skill.id).rank,0),total=group.ranks.reduce((sum,skill)=>sum+skill.maxRank,0);
-  return '<li>'+perkButton(choice,views.get(choice.id),selected,{track:true,owned,numRanks:total})+(group.children.length?'<ul>'+group.children.map(branch).join('')+'</ul>':'')+'</li>';
- }
- return '<ul class="book-trails">'+roots.sort((a,b)=>perkOrder(a.ranks[0],b.ranks[0])).map(branch).join('')+'</ul>';
+ return '<ul class="book-trails">'+(branches.get(null)||[]).sort(perkOrder).map(branch).join('')+'</ul>';
 }
-function skillInspector(skill,views,chapterTitle,run,chapter){
+function skillInspector(skill,views,entries,chapterTitle,run){
  if(!skill)return '<aside class="book-inspector empty"><p>Explore a chapter to see its upgrades.</p></aside>';
  const view=views.get(skill.id),req=parents(skill),unlocks=(skill.excludes||[]).map(id=>SKILLS[id]?.name).filter(Boolean);
- const track=[...views.keys()].map(id=>SKILLS[id]).filter(s=>groupId(s)===groupId(skill)&&views.get(s.id).inspectable).sort(perkOrder);
- const ranks=chapter!=='available'&&track.length>1?'<nav class="book-stages" aria-label="Perk ranks">'+track.map((s,i)=>'<button type="button" data-action="book-skill" data-id="'+s.id+'" aria-pressed="'+(s.id===skill.id)+'" aria-label="'+escape(s.name)+'">'+(views.get(s.id).complete?'✓ ':'' )+(i+1)+'</button>').join('')+'</nav>':'';
  const path=!view.free&&req.length?'<div class="book-condition book-requires">Requires '+req.map(id=>{
-  const parent=SKILLS[id], owned=!!run.skills?.[id];
+  const parent=entries.get(id),owned=views.get(id)?.complete;
   if(!parent)return '';
   const otherChapter=skillBookChapter(parent)!==skillBookChapter(skill);
-  const mark=owned?'✓':'<svg viewBox="0 0 12 14" width="10" height="12" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" d="M3 6V4a3 3 0 0 1 6 0v2 M1 6h10v7H1z"/></svg>';
+  const mark=owned?'✓':lockMark;
   const state=owned?'Learned':'Locked';
-  const label='<span aria-label="'+state+'">'+mark+'</span> '+escape(parent.name)+(parent.maxRank>1?' · Rank 1':'');
-  if(otherChapter)return '<details class="book-inline-requirement"><summary>'+label+'</summary><p>'+escape(glowText(parent.description||parent.consequence,getGlowCapacity(run)))+'</p></details>';
+  const label='<span aria-label="'+state+'">'+mark+'</span> '+escape(parent.name);
+  if(otherChapter){
+   const parentView=views.get(id),from=chapterNames.get(skillBookChapter(parent));
+   let action='';
+   if(!owned&&parentView?.available){
+    const purchase=parentView.free?'choose-start-skill':'buy-skill';
+    const cost=parentView.free?'Free':money()+' '+parentView.price;
+    action='<button type="button" class="book-buy-inline" data-action="'+purchase+'" data-id="'+parent.baseId+'" data-rank="'+parent.rank+'">Learn '+escape(parent.name)+' <span>'+cost+'</span></button>';
+   }else if(!owned&&parentView)action='<p class="book-requirement-status">'+escape(skillTreeStatus(parentView))+'</p>';
+   return '<details class="book-inline-requirement"><summary>'+label+' <small>· '+escape(from)+'</small></summary><p>'+escape(glowText(parent.description||parent.consequence,getGlowCapacity(run)))+'</p>'+action+'</details>';
+  }
   return views.get(id)?.inspectable?'<button type="button" class="book-link" data-action="book-skill" data-chapter="'+skillBookChapter(parent)+'" data-id="'+id+'">'+label+'</button>':label;
  }).join(' + ')+'</div>':'';
  const fork=unlocks.length&&!view.complete&&!view.closedBy?'<p class="book-condition">Closes '+unlocks.map(escape).join(' / ')+'</p>':'';
  const price=view.free?'Free':view.price===null?'':money()+' '+view.price;
- const purchase=view.available?'<button class="book-buy" type="button" data-action="'+(view.free?'choose-start-skill':'buy-skill')+'" data-id="'+skill.id+'">Learn <span>'+price+'</span></button>':'<p class="book-status '+view.state+'">'+escape(skillTreeStatus(view))+'</p>';
- return '<aside class="book-inspector" aria-live="polite"><div class="book-inspector-scroll"><span class="book-kicker">'+escape(chapterTitle)+'</span><div class="book-title">'+art(skill)+'<h3>'+escape(skill.name)+'</h3></div>'+ranks+'<p class="book-effect">'+escape(glowText(skill.description||skill.consequence,getGlowCapacity(run)))+'</p>'+path+fork+'</div>'+purchase+'</aside>';
+ const purchase=view.available?'<button class="book-buy" type="button" data-action="'+(view.free?'choose-start-skill':'buy-skill')+'" data-id="'+skill.baseId+'" data-rank="'+skill.rank+'">Learn <span>'+price+'</span></button>':'<p class="book-status '+view.state+'">'+escape(skillTreeStatus(view))+'</p>';
+ return '<aside class="book-inspector" aria-live="polite"><div class="book-inspector-scroll"><span class="book-kicker">'+escape(chapterTitle)+'</span><div class="book-title">'+art(skill)+'<h3>'+escape(skill.name)+'</h3></div>' +'<p class="book-effect">'+escape(glowText(skill.description||skill.consequence,getGlowCapacity(run)))+'</p>'+path+fork+'</div>'+purchase+'</aside>';
 }
 export function skillBookMarkup({run,wallet,canBuy=true,variant='map',chapter,selected=null}){
  variant=variant==='index'?'index':'map';
  chapter=chapter|| (variant==='index'?'available':'wisp');
  if(chapter!=='available'&&!chapterIds.includes(chapter))chapter='wisp';
  const role=getCompanionAbility(run.companions?.[0]||run.companionRole);
- const skills=Object.values(SKILLS).filter(s=>!s.retired&&(s.treeTab!=='companion'||s.branch===role.id));
- const views=new Map(skills.map(s=>[s.id,skillTreeState({wallet,run,canBuy},s)]));
+ const skills=Object.values(SKILLS).filter(s=>!s.retired&&(s.treeTab!=='companion'||s.branch===role.id)).flatMap(rankNodes);
+ const entries=new Map(skills.map(s=>[s.id,s])),views=new Map(skills.map(s=>[s.id,rankView(s,{wallet,run,canBuy})]));
  const available=skills.filter(s=>views.get(s.id).available);
  const title=id=>id==='companion'?role.name:id==='available'?'Can learn':chapters.find(c=>c[0]===id)[1];
  const scope=chapter==='available'?available:skills.filter(s=>skillBookChapter(s)===chapter);
@@ -120,5 +142,5 @@ export function skillBookMarkup({run,wallet,canBuy=true,variant='map',chapter,se
   }
   if(scope.some(s=>views.get(s.id).closedBy))content+='<p class="book-condition">× Alternate path closed</p>';
  }
- return '<section class="skill-book" aria-label="Skills" data-variant="'+variant+'" data-chapter="'+chapter+'">'+titleBar+'<div class="book-spread">'+side+'<section class="book-page" aria-label="'+escape(title(chapter))+'"><h3>'+escape(title(chapter))+'</h3><div class="book-page-scroll" data-tree-key="'+variant+'-'+chapter+'">'+content+'</div></section>'+skillInspector(focus,views,focus?title(skillBookChapter(focus)):'',run,chapter)+'</div></section>';
+ return '<section class="skill-book" aria-label="Skills" data-variant="'+variant+'" data-chapter="'+chapter+'">'+titleBar+'<div class="book-spread">'+side+'<section class="book-page" aria-label="'+escape(title(chapter))+'"><h3>'+escape(title(chapter))+'</h3><div class="book-page-scroll" data-tree-key="'+variant+'-'+chapter+'">'+content+'</div></section>'+skillInspector(focus,views,entries,focus?title(skillBookChapter(focus)):'',run)+'</div></section>';
 }

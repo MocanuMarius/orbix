@@ -12,6 +12,7 @@ const snap = (value,step) => Math.round(value/step)*step;
 // Perception assumptions, not measured contrast thresholds. Both use the
 // renderer's light intensity, with a lower threshold for a luminous Spark.
 export const VISION = Object.freeze({terrain:.17,spark:.11,hazard:.15,terrainStep:12});
+const debrisObservations = new WeakMap();
 
 function sightAt(e, light) {
  const dimScale=clip(light.radius/light.baseRadius,.6,1);
@@ -98,8 +99,22 @@ export function observeFlight(e){
   }
  }
  for(const item of e.biomeDynamics?.items||[]){
-  if(item.family==='fall'&&(item.phase==='warning'||item.phase==='falling'))
-   recordHazard(item.x-e.distance,item.y,item.radius);
+  if(item.family!=='fall'||(item.phase!=='warning'&&item.phase!=='falling'))continue;
+  const x=item.x-e.distance,y=snap(item.y,4);
+  if(sight(x,item.y)<VISION.hazard)continue;
+  // The warm cracks and descending flecks signal a fall. Infer its speed
+  // from consecutive visible positions, without reading the actor's timer,
+  // exact velocity, resting height, or destination in the dark.
+  const previous=debrisObservations.get(item);
+  let fallSpeed=0;
+  if(item.phase==='falling'&&previous){
+   const elapsed=e.time-previous.time;
+   if(elapsed>0&&elapsed<.4)fallSpeed=clip(snap((y-previous.y)/elapsed,24),0,350*e.scaleY);
+   else if(elapsed===0)fallSpeed=previous.fallSpeed;
+  }
+  const xSeen=snap(x,4);
+  hazards.push({x:xSeen,y,radius:item.radius,falling:item.phase==='falling',fallWarning:item.phase==='warning',fallSpeed});
+  debrisObservations.set(item,{y,time:e.time,fallSpeed});
  }
  const boss=e.layout.boss;
  if(boss?.attacks)for(const a of boss.attacks){

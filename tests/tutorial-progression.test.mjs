@@ -10,16 +10,18 @@ test('seven-stop practice teaches real checkpoints without changing the suspende
  const state=newState();state.profile.ownedArtifacts=['sunheart-engine'];state.profile.equippedArtifacts=['sunheart-engine'];
  state.run=createRun(state.profile,'real-run');const original=structuredClone(state.run),profile=structuredClone(state.profile);
  assert.ok(startTutorial(state));const r=state.run;assert.equal(r.map.length,7);assert.equal(r.companionRole,'collector');
- assert.ok(r.skills['main-dream']);assert.ok(selectNode(r,getChoices(r)[0].id));clear(state);
+ assert.ok(!r.skills['main-dream']);assert.ok(selectNode(r,getChoices(r)[0].id));clear(state);
  assert.ok(selectNode(r,getChoices(r)[0].id));assert.equal(r.current.kind,'camp');
- assert.ok(resolveSupport(r,0,state.profile));for(const role of ['protector','swift','leveler','collector'])assert.ok(setCompanions(r,[role]));
+ assert.ok(resolveSupport(r,0,state.profile));for(const role of ['protector','swift','leveler'])assert.equal(setCompanions(r,[role]),false);
+ assert.deepEqual(r.companions,['collector']);
  assert.equal(equipArtifact(state,'sunheart-engine',1),false,'real collection cannot enter practice');
  assert.ok(selectNode(r,getChoices(r)[0].id));clear(state);assert.equal(getChoices(r).length,2,'practice includes a real route fork');
  assert.ok(selectNode(r,getChoices(r)[0].id));assert.ok(resolveSupport(r,0,state.profile));
  assert.ok(selectNode(r,getChoices(r)[0].id));assert.equal(r.current.kind,'treasure');
- const chest=getSupportChoices(r,state.profile).findIndex(c=>c.effect.artifactReward);assert.ok(resolveSupport(r,chest,state.profile));
- assert.equal(r.victoryPending,true,'treasure actually opens reward selection');assert.ok(chooseFlightReward(state,r.flightReward.offers[0]));assert.ok(acknowledgeVictory(state));
+ const chest=getSupportChoices(r,state.profile).findIndex(c=>c.effect.treasureGift==='vessel');assert.ok(resolveSupport(r,chest,state.profile));
+ assert.equal(r.victoryPending,false,'a chest pays its selected reward without an artifact offer');
  assert.ok(selectNode(r,getChoices(r)[0].id));assert.ok(resolveSupport(r,0,state.profile));
+ assert.equal(r.skills['main-dream'],1,'the last practice Rest teaches Dream before the finale');
  assert.ok(selectNode(r,getChoices(r)[0].id));assert.equal(r.current.tutorialLesson,'hazards');clear(state);
  assert.equal(r.success,true);assert.ok(leaveTutorial(state));assert.deepEqual(state.run,original);
  assert.deepEqual(state.profile.ownedArtifacts,profile.ownedArtifacts);assert.deepEqual(state.profile.equippedArtifacts,profile.equippedArtifacts);
@@ -28,6 +30,7 @@ test('seven-stop practice teaches real checkpoints without changing the suspende
 test('practice forging spends only practice artifacts and pays only the practice wallet',()=>{
  const s=newState();s.profile.ownedArtifacts=['glow-wick'];s.profile.equippedArtifacts=['glow-wick'];startTutorial(s);
  const r=s.run;r.step=1;r.phase='support';r.current=r.map[1][0];r.artifacts=['glow-wick'];r.artifactCharges={'glow-wick':3};
+ assert.equal(canSellArtifact(s,'glow-wick'),false);assert.ok(resolveSupport(r,0,s.profile));
  const before=r.practiceCondensedGlow;assert.ok(canSellArtifact(s,'glow-wick'));assert.ok(sellArtifact(s,'glow-wick'));
  assert.ok(r.practiceCondensedGlow>before);assert.equal(r.condensedGlow,0);assert.deepEqual(s.profile.ownedArtifacts,['glow-wick']);
  assert.deepEqual(s.profile.equippedArtifacts,['glow-wick']);assert.equal(sellArtifact(s,'glow-wick'),false);
@@ -46,5 +49,6 @@ test('curriculum names and distinguishes fuel, seeing, collection, death and pro
   assert.ok(TUTORIAL_TOPICS[key]?.steps.length>=3,key);
   for(const s of TUTORIAL_TOPICS[key].steps){assert.ok(s.visual);assert.ok(s.text.split(/\s+/).length<=48,`${key}: one short idea per card`);}
  }
- assert.match(TUTORIAL_TOPICS.collector.steps[2].text,/separate/);
+ assert.ok(TUTORIAL_TOPICS.collector.steps.some(step=>/Luminance has a separate chapter/.test(step.text)));
+ assert.ok(TUTORIAL_TOPICS.collector.steps.some(step=>step.title==='Last Orbit'&&step.text.includes('four normal recovery cycles')));
 });

@@ -1,3 +1,38 @@
+# Current backlog audit — Collector
+
+Release `collector-audit-1`. This entry describes the current rules and supersedes the historical release snapshots below.
+
+The accepted implementation backlog is implemented, with the following audit corrections.
+
+| Area | Current behavior |
+| --- | --- |
+| Companion | Collector is playable throughout the run. The other three portraits are locked in normal play and Test. The recovering field tests the visible pickup shell, prioritizes direct body pickup and signals successful contact. Both renderers use the same field and orbital depth. |
+| Lantern chapter | The entire map ending at Hollow Sun uses paired darkness lanterns, progressive crossings, a reachable Flash and a first-encounter lesson. Its chambers and approaches are reserved against unrelated Dark Spark challenges. |
+| Dream | Accepted rehearsal advances to its endpoint during preparation, then changes to normal lighting and waits for the player. Its inputs and eligible opening pickups are applied once. A changed viewport returns the player to the briefing to rehearse again. |
+| Upgrades | The six book chapters have distinct accents and prerequisite inspection. Each rank has its own connected item with its previous rank as a prerequisite. Owned, Can learn, Save more and Needs prerequisite use distinct fills and readable text. An affordable prerequisite can be learned in place. Skills are available during the run, with a safe pause when accessed in flight. |
+| Rewards and storage | Ordinary clears update the wallet quietly. Elite and guardian rewards offer accumulating automatic artifacts. Kept Light pays 5% per rank on the first 100 Stored Sparks carried into a successful flight, for at most 5 or 10 per clear. Practice, failures, repeated settlement and the final guardian provide no dividend. Overflow conversion and optional bonuses do not multiply it. Hand Seal and Deep Cache are exclusive pickup specializations, paying at most 2 or 4 extra Stored Sparks per cleared flight. Hand Seal requires direct body overfills; Deep Cache requires natural Cache-sized or larger overfills and accepts Collector delivery. |
+| Teaching | Current terms, Collector, Luminance, interaction states and resource lifecycle are taught in small lessons. Practice spotlights target the current panels and controls. Skip tutorial and remembered topics apply. |
+| Flight art | Five Spark sizes share plasma art with finer detail on large sizes. Absorption is shorter and pop arcs are finer. Spark Sense reveals pickups in place. Black Holes have a bright tilted accretion disk. |
+| Terrain and forks | Twenty-four shaped crossroads configurations have validated routes. Texture baking is cropped to the visible playfield and full sway envelope, while colliders retain their original shape. Terrain and attached props share camera pixel registration. |
+
+The large-Spark absorption comparison is a preview for choosing the next visual treatment. Mist, Liquid ribbon and Undertow share the current shell break, with alternative fluid contents. Choosing the version to integrate into live flight remains with the user.
+
+The [vocabulary list](icon-language-plan.md) is ready for wording and visual review. Earlier names, artifacts with slots, companion swapping, Afterglow reserves and Rest-only upgrading in the historical snapshots are superseded.
+
+## Verification and remaining evidence
+
+A 116-flight lantern sweep retained paired beams and reachable Flashes with zero independent Dark Spark overlap. Production Dream probes cover normal, elite and guardian routes, including viewport changes. The coupled flight benchmark samples illuminated terrain and visible hazards with delayed touches. It now infers falling movement from successive visible observations.
+
+Final focused verification passed 64 tests covering Storage and clear interest, separate skill ranks, lantern maps, Dream-related entry behavior, tutorial progression, Collector protection, proximity, terrain registration and route bonuses. Landscape browser checks at 915×412 and 667×320 verified distinct skill fills, rank purchases and readable controls. The large-Spark comparison fits 915×412 and 360×740 without document overflow.
+
+The browser performance audit used actual Canvas2D at 915×412 CSS pixels, DPR 2, with a 4× CPU slowdown. Before cropping, the accelerated Thorn course sweep had a 195 ms maximum render and 35 render gaps above 100 ms. With cropped textures, the same stress case had a 74 ms maximum render and zero gaps above 100 ms. The Crystal pickup-effects case improved from a 99 ms to a 30 ms maximum render. A regression test checks coverage over the whole sway envelope and leaves collision vertices intact. These measurements describe the desktop browser stress test. A physical Pixel 10 trace remains open.
+
+Economy reports separate completed-flight inventory scenarios from coupled flight control. The final 72 completed-flight inventory scenarios cover Collector at Ascensions 1, 2 and 6, three pickup/correction styles and four buying policies over two campaign seeds. The steady scenario has a median 10 paid purchases in 16 flights (0.588 per flight), median 21.2% of nominal ranks and maximum 32.7%. This includes the new interest reward. These scenarios assume successful flight clears, so their completion count is not a human success estimate. A delayed-input pilot still fails entire expeditions, including some early flights, despite demonstrated physical bypasses for the investigated falling-masonry and pinecone deaths. Human difficulty and actual cue recognition remain open playtesting questions. A bot failure alone does not establish an impossible map.
+
+The larger Night Atlas replacement for numbered Ascension remains a design proposal. Its existing Map 2 forecast experiment is playable. Other companions are deferred while the Collector game is developed.
+
+---
+
 # Current implementation audit - Clear Rewards
 
 Release: `clear-rewards-1`. Only simplification proposal 3 is selected; prior menu/display work remains in place.
