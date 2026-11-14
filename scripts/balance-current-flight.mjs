@@ -1,5 +1,6 @@
 import {observeFlight} from './human-flight-perception.mjs';
 import {planHumanLift} from './human-flight-planner.mjs';
+import {iceShardContact,sampleIceShard} from '../dist/guardian-geometry.mjs';
 import {humanProfile,queueHumanLift} from './human-flight-planner.mjs';
 import fs from 'node:fs';
 import path from 'node:path';
@@ -94,6 +95,20 @@ function preciseFuelInput(e,target,memory,visible){
  const geometry=samples.map(t=>visible.flatMap(obstacle=>obstaclePolygons(obstacle,e.time+t)));
  const next=visible.find(obstacle=>obstacle.x+obstacle.width*2.5>world);
  const center=next?e.obstacleCenter(next):e.height*.5;
+ // The precision baseline can evaluate actual shard geometry across its near
+ // horizon. Its predictor is independent of the observation-limited human styles.
+ const futureShards=[];
+ if(e.layout.boss?.id==='frost-matron'){
+  for(const attack of e.layout.boss.attacks){
+   if(attack.spent||!attack.icePoints||attack.x<world-e.player.radius||attack.x>xAt(horizon)+e.player.radius)continue;
+   for(let frame=0;frame<=Math.floor(horizon*60);frame++){
+    const t=frame/60,dx=attack.x-xAt(t);
+    if(Math.abs(dx)>e.player.radius+15*e.layout.boss.scale)continue;
+    const pose=sampleIceShard(attack,dx,e.time+t,{});
+    if(pose.iceActive)futureShards.push({t,dx,y:pose.iceY,points:attack.icePoints});
+   }
+  }
+ }
  let best=Infinity,action=Infinity;
  for(const delay of[0,.05,.10,.15,.25,.40,.60,.85,1.10,1.35,Infinity]){
   if(delay<.30-(e.time-memory.lastLift)-.001||delay===0&&e.flame<e.flapCost)continue;
@@ -123,14 +138,7 @@ function preciseFuelInput(e,target,memory,visible){
    const separation=Math.abs(at(eta)-predictedY);
    if(separation<actor.radius+e.player.radius+18)score+=60000;
   }
-  for(const attack of e.layout.boss?.attacks||[]){
-   if(e.layout.boss.id!=='frost-matron'||attack.spent||attack.trigger==null)continue;
-   const eta=(attack.x-world)/e.baseSpeed;if(eta<0||eta>1.8)continue;
-   const age=e.time-attack.trigger+eta;if(age<2.2)continue;
-   const side=attack.side||-1,scale=e.height/620;
-   const iceY=attack.center+side*attack.baseGap/2-side*(age-2.2)*110*scale;
-   if(side*(iceY-attack.center)>-8*scale&&Math.abs(at(eta)-iceY)<e.player.radius+17*scale+12)score+=65000;
-  }
+  if(futureShards.some(shard=>iceShardContact(-shard.dx,at(shard.t)-shard.y,e.player.radius+2,shard.points)))score+=65000;
   if(target){
    const eta=Math.min(1.8,target.eta),y=at(eta),desired=center+(target.y-center)*Math.min(1,1.8/Math.max(.1,target.eta));
    score+=Math.max(0,Math.abs(y-desired)-8)**2*(target.eta<1.8?.26:.012);

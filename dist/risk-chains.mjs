@@ -1,4 +1,4 @@
-import {pickupKind,getPickupSpec} from './pickups.mjs?v=moonwell-menu-1';
+import {pickupKind,getPickupSpec} from './pickups.mjs?v=guardian-currents-1';
 
 // Authored three-packet encounters, installed after solid scenery and recovery
 // lights. Reuse two ordinary fuel packets rather than inflating the economy.

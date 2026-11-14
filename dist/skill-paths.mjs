@@ -1,5 +1,5 @@
-import {normalizeCompanionFleet} from './companion-abilities.mjs?v=moonwell-menu-1';
-import {skillProgress} from './skill-increments.mjs?v=moonwell-menu-1';
+import {normalizeCompanionFleet} from './companion-abilities.mjs?v=guardian-currents-1';
+import {skillProgress} from './skill-increments.mjs?v=guardian-currents-1';
 // Named, one-time specialisations. Each pair is exclusive for this run.
 const paths=[];
 function fork(branch,parent,a,b){

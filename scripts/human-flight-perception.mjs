@@ -1,6 +1,7 @@
 import {FLIGHT_TUNING, obstaclePolygons} from '../dist/flight.mjs';
 import {lightAttenuation, lightVisibility} from '../dist/light-field.mjs';
 import {getPickupSpec, pickupKind, pickupContactRadius} from '../dist/pickups.mjs';
+import {ICE_GUIDE_FACETS} from '../dist/guardian-geometry.mjs';
 
 const clip = (value,min,max) => Math.max(min,Math.min(max,value));
 const snap = (value,step) => Math.round(value/step)*step;
@@ -75,10 +76,23 @@ export function observeFlight(e){
  const boss=e.layout.boss;
  if(boss?.attacks)for(const a of boss.attacks){
   const x=a.x-e.distance;
-  // These two guardian signals are drawn *above* the fog, but only on screen.
-  if(x<0||x>e.width)continue;
-  if(boss.id==='frost-matron'&&!a.spent&&a.age>=2.2&&a.side*(a.iceY-a.center)>-8*boss.scale&&a.iceY>=0&&a.iceY<=e.height)
-   hazards.push({x:snap(x,4),y:snap(a.iceY,4),radius:17*boss.scale});
+  // Guardian art is painted over the fog, fading into view within ~2.85s.
+  // Read the current shimmer/ice path; never sample the shard's future motion.
+  const halfWidth=(boss.id==='hollow-sun'?65:17)*boss.scale;
+  const lead=boss.speed*2.85+halfWidth-(x-e.player.x);
+  if(x<0||x>e.width||lead<boss.speed*.55*VISION.hazard)continue;
+  if(boss.id==='frost-matron'&&!a.spent&&a.iceProgress<1){
+   if(a.iceActive){
+    // Approximate the visible shoulder and tip, in their current orientation.
+    hazards.push({x:snap(x,4),y:snap(a.iceY,4),radius:14*boss.scale});
+    hazards.push({x:snap(x,4),y:snap(a.iceY-a.side*17*boss.scale,4),radius:5*boss.scale});
+   }
+   for(const part of ICE_GUIDE_FACETS){
+    if(part<a.iceProgress)continue;
+    const y=a.iceOrigin+part*(a.iceEnd-a.iceOrigin);
+    if(y>=0&&y<=e.height)hazards.push({x:snap(x,4),y:snap(y,4),radius:8*boss.scale});
+   }
+  }
   if(boss.id==='hollow-sun'){
    const y=a.wellY??a.y;
    if(y>=0&&y<=e.height)hazards.push({x:snap(x,4),y:snap(y,4),radius:17*boss.scale});

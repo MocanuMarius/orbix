@@ -30,6 +30,27 @@ if(['prepared','first-death','artifacts','forge','skills','companions','briefing
 goToRun();
 if(scenario==='tutorial-rest'){mockRun.isTutorial=true;mockRun.guideSkipped=false;mockRun.guideSeen={};render('support');guideScreen('support');}
 else if(scenario==='tutorial-spark'){startLesson('world:light-packet',[{title:'Sparks refill your meter',visual:'spark',text:'Touch a Spark to refill the meter on the left.',target:'.rest-glow'}]);}
+else if(scenario==='treasure'||scenario==='treasure-route'){
+ const params=new URLSearchParams(location.search),kind=params.get('kind')||'vessel';
+ let run,chest;
+ for(let seed=0;seed<100&&!chest;seed++){
+  run=createRun(state.profile,'treasure-inspector-'+seed,1);
+  chest=run.map.flat().find(node=>node.kind==='treasure'&&node.treasureKind===kind);
+ }
+ if(!chest)throw Error('Unknown mock treasure family: '+kind);
+ // Approach through an actual connected route. The preview and the choice
+ // therefore exercise the same model and navigation as the real expedition.
+ const approach=[];
+ let cursor=chest;
+ while(cursor.row>0){
+  cursor=run.map[cursor.row-1].find(parent=>parent.nextIds.includes(cursor.id));
+  approach.unshift(cursor.id);
+ }
+ state.run=run;run.step=chest.row;run.path=approach;run.flame=params.has('low')?10:65;
+ run.stats.flights=approach.filter(id=>run.map.flat().find(node=>node.id===id)?.type!=='support').length;
+ if(scenario==='treasure'&&!selectNode(run,chest.id))throw Error('Cannot enter mock chest');
+ goToRun();
+}
 else if(scenario==='home')render('home');
 else if(scenario==='settings'){render('home');showMenu();}
 else if(scenario==='map')render('map');

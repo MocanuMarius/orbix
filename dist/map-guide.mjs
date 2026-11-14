@@ -1,9 +1,9 @@
-import {landmarkArt,landmarkCategory,guardianNames} from './map-landmarks.mjs?v=moonwell-menu-1';
-import {glowText} from './vitality.mjs?v=moonwell-menu-1';
+import {landmarkArt,landmarkCategory,guardianNames} from './map-landmarks.mjs?v=guardian-currents-1';
+import {glowText} from './vitality.mjs?v=guardian-currents-1';
 const stop=(kind,label,name,summary)=>Object.freeze({kind,label,name,summary,icon:kind});
 export const MAP_STOP_TYPES=Object.freeze({
 flight:stop('flight','FLIGHT','Flight','Clear a passage for 20 Packed Sparks plus overflow. Ordinary flights do not drop artifacts.'),
-treasure:stop('treasure','TREASURE','Treasure','Choose Packed Sparks for skills or Sparks for fuel. Treasure does not drop artifacts.'),
+treasure:stop('treasure','TREASURE','Treasure','Inspect a chest to see its two offers. Taking one leaves the other behind.'),
 rest:stop('rest','REST','Rest','Recover missing hearts or Grow Spark capacity. Both refill Energy. Then optionally prepare skills, your companion, artifacts or a Dream.'),
 encounter:stop('encounter','ENCOUNTER','Encounter','A promise, route preparation or bargain. Preview the stakes before choosing.'),
 boss:stop('boss','ELITE / GUARDIAN','Creature','Small creature: elite. Large head: guardian. Both offer two artifacts; choose one for your build.'),
@@ -41,8 +41,9 @@ export function getMapStopInfo(node={},maxGlow=100){
  const kind=kindOf(node),base=MAP_STOP_TYPES[kind],elite=node.elite===true||node.kind==='elite';
  const event=kind==='encounter'&&node.kind!=='shrine'&&Number.isInteger(node.eventIndex)?getEventScenarios({...node,maxGlow})[node.eventIndex]:null;
  const exit=kind==='flight'&&(node.type==='finale'||node.kind==='finale'),guardian=guardianNames[node.bossId]||node.name||'Guardian';
- const summary=kind==='boss'?`Defeat ${guardian} and choose one of two artifacts.`:elite?'Face an elite creature for 20 Packed Sparks and two artifact choices.':event?.summary||(node.kind==='shrine'?'Choose Sparks or an offered skill trade. No general fleet or skill service.':exit?'Clear this passage for 20 Packed Sparks and continue to the next map.':base.summary);
- const detail=kind==='boss'?(node.mapIndex>=2?'The final guardian unlocks the chosen artifact in future guardian rewards.':'A guardian ends this map: 20 Packed Sparks and one of two run artifacts.'):elite?'Choose one automatic artifact. Both offers retire from this run; melting is available later at Rest.':event?.detail||summary;
+ if(kind==='treasure')return {...base,name:node.name||base.name,summary:node.rewardPreview||base.summary,detail:node.description||base.summary,eventIndex:null,scenarioId:null};
+ const summary=kind==='boss'?(node.mapIndex>=2?`Pass ${guardian} and complete the Ascension.`:`Pass ${guardian} and choose one of two artifacts.`):elite?'Face an elite creature for 20 Packed Sparks and two artifact choices.':event?.summary||(node.kind==='shrine'?'Choose Sparks or an offered skill trade. No general fleet or skill service.':exit?'Clear this passage for 20 Packed Sparks and continue to the next map.':base.summary);
+ const detail=kind==='boss'?(node.mapIndex>=2?'Reach the waylight to complete the Ascension.':'A guardian ends this map: 20 Packed Sparks and one of two run artifacts.'):elite?'Choose one automatic artifact. Both offers retire from this run; melting is available later at Rest.':event?.detail||summary;
  return{...base,label:kind==='boss'?'GUARDIAN':elite?'ELITE':exit?'EXIT':base.label,name:kind==='boss'?guardian:event?.name||(node.type==='support'?node.name:node.locationName||node.name)||base.name,summary:event?summary:glowText(summary,maxGlow),detail:event?detail:glowText(detail,maxGlow),eventIndex:event?.index??null,scenarioId:event?.id||null};
 }
 const colors={dark:'#10231e',body:'#80917c',face:'#c0c7a3',fire:'#efd59a',glint:'#fff4cf',edge:'#d3d6b0',rune:'#e4d6a9'};

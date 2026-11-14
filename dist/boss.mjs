@@ -1,4 +1,4 @@
-import { prepareGuardian, drawGuardian } from './guardian-effects.mjs?v=moonwell-menu-1';
+import { prepareGuardian } from './guardian-effects.mjs?v=guardian-currents-1';
 // The Hollow Warden is a survival encounter: read its hands, keep your Sparks,
 // and reach the waylight. Every solid hand uses the ordinary terrain pipeline.
 const TAU = Math.PI * 2;
@@ -24,7 +24,7 @@ const MOON_PHASES = Object.freeze([
 // Teach a signature, vary it, then combine it. Each fourth cell is a respite.
 const SIGNATURE_PHASES={
  'frost-matron':[
-  {id:'fracture',name:'CRACKING CROWN',instruction:'Read the cracks, pass beneath the falling ice.',cells:[[.48,290,'both',0],[.60,255,'both',0],[.44,250,'both',0],[.50,335,'both',0]]},
+  {id:'fracture',name:'CRACKING CROWN',instruction:'Roof ice cracks before it falls. Cross underneath.',cells:[[.48,290,'both',0],[.60,255,'both',0],[.44,250,'both',0],[.50,335,'both',0]]},
   {id:'mirror',name:'MIRROR ICE',instruction:'Ice alternates above and below. Cross to the safe side.',cells:[[.40,265,'both',0],[.60,250,'both',0],[.42,250,'both',0],[.50,335,'both',0]]},
   {id:'shatter',name:'THE LAST THAW',instruction:'Follow the alternating ice, then breathe in the wide chamber.',cells:[[.60,245,'both',8],[.40,245,'both',8],[.55,255,'both',0],[.50,340,'both',0]]}],
  'rootbound-heart':[
@@ -43,10 +43,10 @@ const SIGNATURE_PHASES={
 
 export const BOSS_PREVIEWS=Object.freeze({
   'hollow-warden':Object.freeze({id:'hollow-warden',name:'Hollow Warden',instruction:'Stone hands and swaying passages.',icon:'boss'}),
-  'frost-matron':Object.freeze({id:'frost-matron',name:'Frost Matron',instruction:'Cracking ice changes sides. Follow the warning and cross away.',icon:'boss'}),
+  'frost-matron':Object.freeze({id:'frost-matron',name:'Frost Matron',instruction:'Cross away from cracking ice. A shard breaks on contact and drains up to 6 Energy.',icon:'boss'}),
   'rootbound-heart':Object.freeze({id:'rootbound-heart',name:'Rootbound Heart',instruction:'Living gates breathe open and close. Follow their pulse.',icon:'boss'}),
-  'storm-shepherd':Object.freeze({id:'storm-shepherd',name:'Storm Shepherd',instruction:'Separate rising and falling drafts. Watch the ribbons.',icon:'boss'}),
-  'hollow-sun':Object.freeze({id:'hollow-sun',name:'Hollow Sun',instruction:'Moving dark wells drain nearby Sparks. Keep your distance.',icon:'boss'}),
+  'storm-shepherd':Object.freeze({id:'storm-shepherd',name:'Storm Shepherd',instruction:'Low streams lift you. High streams push you down. Fly around the current or ride it.',icon:'boss'}),
+  'hollow-sun':Object.freeze({id:'hollow-sun',name:'Hollow Sun',instruction:'Moving dark wells drain nearby Energy. Cross on the far side.',icon:'boss'}),
   moonweaver:Object.freeze({id:'moonweaver',name:'Moonweaver',instruction:'Alternating crescents and a drifting silver loom.',icon:'boss'})
 });
 export const getBossPreview=id=>BOSS_PREVIEWS[id]||BOSS_PREVIEWS['hollow-warden'];
@@ -112,7 +112,9 @@ export function buildBossLayout({ seed = 1, height = 620, speed = 154, duration 
   gapScale = .88, difficulty = 1, elite = false, levelIdentity = null,
   circleHitsPolygon = null, bossId='hollow-warden' } = {}) {
   const moon=bossId==='moonweaver',identity=getBossPreview(bossId),special=!['moonweaver','hollow-warden'].includes(identity.id),definitions=special?SIGNATURE_PHASES[identity.id]:moon?MOON_PHASES:PHASES;
-  const prefix=moon?'moonweaver':'warden';
+  const prefix=identity.id==='hollow-warden'?'warden':identity.id;
+  const teachMoon = moon && difficulty <= 2;
+  const moonLaneLimit = difficulty === 1 ? .37 : .34;
   const rng = randomFor(`${seed}:${identity.id}`), scale = height / 620, tuning=getBossTuning(difficulty);
   const totalDistance = duration * speed, end = totalDistance + 98 - speed * 3.2;
   const start = Math.min(650, end * .24), phaseSpan = Math.max(1, end - start) / 3;
@@ -127,7 +129,7 @@ export function buildBossLayout({ seed = 1, height = 620, speed = 154, duration 
       const patternIndex = cell % definition.cells.length;
       const [flow, opening, occupancy, motion] = definition.cells[patternIndex];
       const gentle = opening >= (special?320:260) || phase === 0 && cell === 0;
-      const targetFlow=moon&&difficulty===1?clamp(flow,.37,.63):flow;
+      const targetFlow = teachMoon ? clamp(flow, moonLaneLimit, 1-moonLaneLimit) : flow;
       const center = clamp(height * targetFlow, previous - height * (moon?.44:special?.16:.06), previous + height * (moon?.44:special?.16:.06));
       const gap = gentle ? opening * scale : Math.max(elite ? 104 : 120, opening * scale * gapScale)*tuning.gapMultiplier;
       const width = phase === 2 ? 135 : 142;
@@ -159,14 +161,18 @@ export function buildBossLayout({ seed = 1, height = 620, speed = 154, duration 
   // uses the real solid contour and its complete sway envelope, not free fuel.
   for (const phase of phases) {
     const cells = obstacles.filter(obstacle => obstacle.bossPhase === phase.index && (moon||obstacle.bottomShape));
-    const candidates = cells.filter((obstacle, i) => i % 2 === 0 || obstacle.cacheEligible);
+    // Early lunar threads lead into each alternating ridge and each moving loom.
+    // The passage-wide supply budget counts these Sparks before filling empty rooms.
+    const candidates = teachMoon ? cells : cells.filter((obstacle, i) => i % 2 === 0 || obstacle.cacheEligible);
     let fuelOrder = 0;
     for (const obstacle of candidates) {
-      const localX = obstacle.width * .51, x = obstacle.x + localX;
+      const localX = teachMoon ? obstacle.width * .64 - speed * .56 : obstacle.width * .51;
+      const x = obstacle.x + localX;
       if (x < nextFuel) continue;
       const side=obstacle.bottomShape?1:-1,shape=side===1?obstacle.bottomShape:obstacle.topShape;
       const edge = edgeAt(shape, localX);
-      const y = moon?obstacle.center:obstacle.center + obstacle.gap / 2 + edge - (29 * scale + Math.abs(obstacle.motion));
+      const y = teachMoon ? lerp(obstacle.center,height*.5,.30) : moon ? obstacle.center
+        : obstacle.center + obstacle.gap / 2 + edge - (29 * scale + Math.abs(obstacle.motion));
       if (y < 36 || y > height - 36) continue;
       const clear = !circleHitsPolygon || obstacles.every(other => {
         if (x < other.x - other.width * .8 - 19 || x > other.x + other.width * 2.45 + 19) return true;
@@ -188,7 +194,7 @@ export function buildBossLayout({ seed = 1, height = 620, speed = 154, duration 
         pocketSide: moon?null:'ground', clearance: 29 * scale, collected: false, attracted: false,
         phase: rng() * TAU, bossPhase: phase.index, intro: embers.length === 0 });
       if(!moon)obstacle.cachePocket = { localX, side: 1, rich, first: embers.length === 1 };
-      fuelOrder++; nextFuel = x + speed * 3.8;
+      fuelOrder++; nextFuel = x + speed * (teachMoon ? 2.45 : 3.8);
     }
   }
   return prepareGuardian({ obstacles, embers, sections, sceneProps: [], levelIdentity,
@@ -203,7 +209,7 @@ export function getBossState(engine) {
   if (!boss) return null;
   const worldX = engine.distance + engine.player.x;
   const phase = boss.phases.find(item => worldX < item.end) || boss.phases.at(-1);
-  const upcoming = engine.layout.obstacles.find(obstacle => (obstacle.motion > 0||boss.id==='moonweaver'&&obstacle.hard)
+  const upcoming = !boss.attacks && engine.layout.obstacles.find(obstacle => (obstacle.motion > 0||boss.id==='moonweaver'&&obstacle.hard)
     && obstacle.x + obstacle.width * .8 > worldX && obstacle.x - worldX < (boss.tuning?.warningDistance||360));
   const direction = upcoming && Math.cos(engine.time * .9 + upcoming.phase) < 0 ? 'rising' : 'falling';
   return { id: boss.id, name: boss.name, phase: phase.index, phaseName: phase.name,
@@ -270,7 +276,7 @@ function drawMoonweaver(c,{engine,width,height,distance,time,scale,pass}){
 export function drawBoss(c, { engine, width = 390, height = 620,
   distance = engine?.distance || 0, time = engine?.time || 0, scale = 1, pass = 'all' } = {}) {
   if (!engine?.layout?.boss || pass === 'silhouette') return;
-  if(!['moonweaver','hollow-warden'].includes(engine.layout.boss.id))return drawGuardian(c,{engine,width,height,distance,time,scale,pass});
+  if(!['moonweaver','hollow-warden'].includes(engine.layout.boss.id))return;
   if(engine.layout.boss.id==='moonweaver')return drawMoonweaver(c,{engine,width,height,distance,time,scale,pass});
   const state = getBossState(engine), W = width, H = height;
   c.save();

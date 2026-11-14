@@ -1,6 +1,6 @@
-import {DraftField,DRAFT_TUNING} from './drafts.mjs?v=moonwell-menu-1';
-import {lightVisibility} from './light-field.mjs?v=moonwell-menu-1';
-import {isFuelPickup,pickupContactRadius} from './pickups.mjs?v=moonwell-menu-1';
+import {DraftField,DRAFT_TUNING} from './drafts.mjs?v=guardian-currents-1';
+import {lightVisibility} from './light-field.mjs?v=guardian-currents-1';
+import {isFuelPickup,pickupContactRadius} from './pickups.mjs?v=guardian-currents-1';
 const clamp=(n,a,b)=>Math.max(a,Math.min(b,n)),DT=1/60;
 export const PROJECTION_HORIZONS=Object.freeze([0,.7,1.2,1.8]);
 
@@ -73,7 +73,9 @@ export class FlightProjection {
       if(gust.active){const resistance=clamp(Number(e.mod.swiftResistance)||DRAFT_TUNING.boostResistance,0,.95);
         const windGuard=boost>0?1-resistance:1-resistance*clamp(guard/.45,0,1);
         gravity+=gust.direction*gust.force*s*(e.mod.steady?.45:1)*windGuard;}
-      vy=clamp(vy+gravity*DT,-520*s,this.tuning.terminalFall*s*clamp(Number(e.mod.terminalFall)||1,1,1.15));y+=vy*DT;
+      const terminal=this.tuning.terminalFall*clamp(Number(e.mod.terminalFall)||1,1,1.15);
+      const downwardWind=gust.guardian&&gust.direction>0?65*gust.strength*(boost>0?.28:1):0;
+      vy=clamp(vy+gravity*DT,-520*s,(terminal+downwardWind)*s);y+=vy*DT;
       if(x>=interactiveEdge){uncertain=true;break;}
       if(collides(x,y,time)){
         let lo=0,hi=1;

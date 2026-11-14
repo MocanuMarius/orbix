@@ -1,3 +1,4 @@
+import {treasureFlightNotice} from './treasure.mjs?v=guardian-currents-1';
 // Event stakes are fixed when offered. They are not rolled during flight.
 const choice=(id,title,description,effect)=>({id,title,description,detail:description,effect});
 export const PILGRIM_VOW=Object.freeze({target:4,reward:8});
@@ -38,6 +39,8 @@ export function isVowBodyPickup(engine,packet,spec){
 export function contextualFlightNotice(run,node=run.current){
   if(!node||node.type==='support')return '';
   const lines=[];
+  const treasure=treasureFlightNotice(run.treasurePact);
+  if(treasure)lines.push(treasure);
   if(run.pilgrimVow)lines.push(`PILGRIM VOW · Clear with ${run.pilgrimVow.target} body Spark pickups → ${run.pilgrimVow.reward} Packed Sparks · First attempt`);
   if(run.routePreparation?.nodeId===node.id)lines.push(run.routePreparation.kind==='wind'
     ?'MARKED PASSAGE · Drafts −30% · First attempt'

@@ -1,5 +1,5 @@
-import {drawProximityEnergy} from './proximity-energy.mjs?v=moonwell-menu-1';
-import {obstacleEdgeClearance} from './edging-pulse.mjs?v=moonwell-menu-1';
+import {drawProximityEnergy} from './proximity-energy.mjs?v=guardian-currents-1';
+import {obstacleEdgeClearance} from './edging-pulse.mjs?v=guardian-currents-1';
 const clamp=n=>Math.max(0,Math.min(1,Number(n)||0));
 
 export function proximityFill(pulse){

@@ -1,8 +1,8 @@
-import {menuWorldMarkup} from './menu-world.mjs?v=moonwell-menu-1';
-import {formatGlow,getGlowCapacity} from './vitality.mjs?v=moonwell-menu-1';
-import {livesMarkup} from './lives.mjs?v=moonwell-menu-1';
-import { COMPANION_ABILITIES } from './companion-abilities.mjs?v=moonwell-menu-1';
-import { companionArtSvg } from './companion-art.mjs?v=moonwell-menu-1';
+import {menuWorldMarkup} from './menu-world.mjs?v=guardian-currents-1';
+import {formatGlow,getGlowCapacity} from './vitality.mjs?v=guardian-currents-1';
+import {livesMarkup} from './lives.mjs?v=guardian-currents-1';
+import { COMPANION_ABILITIES } from './companion-abilities.mjs?v=guardian-currents-1';
+import { companionArtSvg } from './companion-art.mjs?v=guardian-currents-1';
 
 const esc = value => String(value ?? '').replace(/[&<>"']/g, char =>
   ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[char]));

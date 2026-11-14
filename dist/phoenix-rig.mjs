@@ -1,5 +1,5 @@
-import * as PIXI from './vendor/pixi.mjs?v=moonwell-menu-1';
-import { PhoenixMotion, deformWing, deformTail } from './phoenix-motion.mjs?v=moonwell-menu-1';
+import * as PIXI from './vendor/pixi.mjs?v=guardian-currents-1';
+import { PhoenixMotion, deformWing, deformTail } from './phoenix-motion.mjs?v=guardian-currents-1';
 
 export class PhoenixRig {
   constructor(texture) {

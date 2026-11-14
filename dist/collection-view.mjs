@@ -1,8 +1,8 @@
-import {ARTIFACTS,getArtifactSalvageValue} from './model.mjs?v=moonwell-menu-1';
-import {artifactDescription,effectMarkup} from './artifact-copy.mjs?v=moonwell-menu-1';
-import {artifactIcon} from './upgrade-icons.mjs?v=moonwell-menu-1';
-import {artifactRarityLabel} from './replay-ui.mjs?v=moonwell-menu-1';
-import {resourceSymbol} from './game-symbols.mjs?v=moonwell-menu-1';
+import {ARTIFACTS,getArtifactSalvageValue} from './model.mjs?v=guardian-currents-1';
+import {artifactDescription,effectMarkup} from './artifact-copy.mjs?v=guardian-currents-1';
+import {artifactIcon} from './upgrade-icons.mjs?v=guardian-currents-1';
+import {artifactRarityLabel} from './replay-ui.mjs?v=guardian-currents-1';
+import {resourceSymbol} from './game-symbols.mjs?v=guardian-currents-1';
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 export function collectionMarkup(state,{artifactArt=artifactIcon,canMelt=false,page=0}={}){
  const r=state.run,ids=[...new Set(r?.artifacts||[])].filter(id=>ARTIFACTS[id]),pages=Math.max(1,Math.ceil(ids.length/8)),current=Math.max(0,Math.min(pages-1,Math.floor(page)||0));
