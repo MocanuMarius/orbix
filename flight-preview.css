@@ -65,6 +65,9 @@ dialog.game-sheet.flight-preview-sheet[open] {
 .preview-flight-terms summary{cursor:pointer;padding:5px 0;}
 .flight-preview footer {display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:clamp(8px,1.5vw,16px);align-items:stretch}
 .flight-preview footer button{width:100%;min-height:44px!important;margin:0!important;}
+.flight-preview footer.has-dream{grid-template-columns:minmax(0,.75fr) repeat(2,minmax(0,1fr))}
+.flight-preview .preview-dream{display:flex;align-items:center;justify-content:center;gap:6px;color:#eadcf5}
+.preview-dream svg{width:23px;height:20px;flex:none}
 .preview-future{align-self:center;justify-self:center;text-align:center;font:14px/1.3 var(--pixel);color:#c7d0be}
 @media (max-width:590px) {
  .preview-place {grid-template-columns:51px minmax(0,1fr);gap:3px 10px}

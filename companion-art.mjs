@@ -1,4 +1,4 @@
-import { normalizeCompanionRole } from './companion-abilities.mjs?v=flash-prism-1';
+import { normalizeCompanionRole } from './companion-abilities.mjs?v=stream-and-dream-1';
 
 const PALETTES = Object.freeze({
   collector: Object.freeze({ outer: '#658557', mid: '#8db778', core: '#b9dfa0', bright: '#efffe0' }),
@@ -42,4 +42,26 @@ export function companionArtSvg(role = 'collector', { className = '' } = {}) {
   });
   const pixels=paths.map((d,i)=>d?`<path d="${d}" fill="${inks[i]}"/>`:'').join('');
   return `<svg xmlns="http://www.w3.org/2000/svg" class="companion-portrait ${classes}" data-role-art="${id}" viewBox="-1 -1 15 15" width="${art.width}" height="${art.height}" preserveAspectRatio="xMidYMid meet" shape-rendering="crispEdges" role="img" aria-label="${NAMES[id] || 'Collector'} companion"><g class="companion-orbit">${pixels}<path d="M4 3h2v1H4z" fill="${palette.bright}" opacity=".76"/></g></svg>`;
+}
+
+export function makeWispSprite(doc, band) {
+  const canvas = doc.createElement('canvas'); canvas.width = canvas.height = 36;
+  const c = canvas.getContext('2d'), x = 18, y = 18;
+  // Fuel burns inward: charcoal gathers at the edge, never as a central dot.
+  // Cache a coarse, dithered gradient per fuel band; no per-frame pixel work.
+  const coreRadius=12.5*Math.sqrt(band/32),dither=[0,.5,.75,.25];
+  for(let py=-13;py<13;py+=2)for(let px=-13;px<13;px+=2){
+    const dx=px+1,dy=py+1,distance=Math.hypot(dx,dy);
+    const cellX=(px+13)/2,cellY=(py+13)/2;
+    const edge=12.7+(((cellX*7+cellY*11)%5)-2)*.17;
+    if(distance>edge)continue;
+    const shell=distance>edge-1.6;
+    const raw=Math.min(1,Math.max(0,(coreRadius+1.8-distance)/3.8));
+    const grain=dither[(cellX%2)+(cellY%2)*2];
+    const light=Math.min(1,Math.floor(raw*5+grain)/5);
+    const shade=shell?[188,204,193]:[Math.round(44+light*199),Math.round(52+light*191),Math.round(54+light*166)];
+    if(shell&&(cellX+cellY)%3===0){shade[0]=226;shade[1]=232;shade[2]=211;}
+    c.fillStyle=`rgb(${shade.join(',')})`;c.fillRect(x+px,y+py,2,2);
+  }
+  return canvas;
 }

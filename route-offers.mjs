@@ -1,7 +1,7 @@
-import {WispFlight} from './flight.mjs?v=flash-prism-1';
-import {getRunModifiers,getRouteBonusCandidates,nextBonusFlightNodes} from './model.mjs?v=flash-prism-1';
-import {ROUTE_BONUSES} from './route-bonuses.mjs?v=flash-prism-1';
-import {onboardingFlightPlan} from './onboarding.mjs?v=flash-prism-1';
+import {WispFlight} from './flight.mjs?v=stream-and-dream-1';
+import {getRunModifiers,getRouteBonusCandidates,nextBonusFlightNodes} from './model.mjs?v=stream-and-dream-1';
+import {ROUTE_BONUSES} from './route-bonuses.mjs?v=stream-and-dream-1';
+import {onboardingFlightPlan} from './onboarding.mjs?v=stream-and-dream-1';
 
 // Only the selected ID is saved. Geometry and transient planning instances never enter the save.
 const memo=new WeakMap();

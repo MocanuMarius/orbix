@@ -1,4 +1,4 @@
-import {resourceCycleSteps} from './resource-cycle.mjs?v=flash-prism-1';
+import {resourceCycleSteps} from './resource-cycle.mjs?v=stream-and-dream-1';
 // Normal-run onboarding is profile-owned. Prompts are contextual, one short
 // card at a time; the run owns only pacing so a new game keeps learned topics.
 export const ONBOARDING_VERSION=1;
@@ -45,7 +45,7 @@ export function onboardingFeatureAvailable(profile,run,feature){
  if(isTesting(run))return true;
  const stage=onboardingStage(profile,run);
  if(feature==='artifacts')return stage>=1||!!run?.artifacts?.length;
- if(feature==='skills')return stage>=1;
+ if(feature==='skills')return !!run;
  if(feature==='advanced-skills'||feature==='companion-upgrades'||feature==='companions')return stage>=2;
  return true;
 }
@@ -94,13 +94,13 @@ export function nextOnboardingLesson(view,{profile,run,modifiers,flight,snapshot
  if(view==='death'&&newTopic('hearts'))return card('hearts','One heart, one attempt','A collision spends one heart. With hearts left, choose your path again. Rest can refill hearts. At zero hearts, this run ends.','life-loss','.death-heart-scene');
  if(view==='briefing'&&newTopic('lift'))return {id:'onboarding:lift',topic:'lift',onboarding:true,steps:resourceCycleSteps(run,modifiers)};
  if(view==='victory'&&newTopic('artifacts')&&run.flightReward?.offers?.length&&!run.flightReward.claimed)return card('artifacts','Choose one artifact',run.flightReward.permanent?'Choose one artifact to unlock in future guardian rewards. New runs still begin without artifacts.':'Elite and guardian victories offer two artifacts. Choose one: its effect works automatically alongside the others for this run.','artifact','.artifact-reward-screen');
- if(view==='skills'&&newTopic('skills'))return card('skills','One small upgrade','Buy skill upgrades at Rest after Recover or Grow. Blue means owned; gold means affordable here. Inspect branches along the route, then spend Stored Sparks at a campfire.','skill-states','.tree-body');
- if(view==='support'&&run.current?.kind==='camp'&&newTopic('rest'))return card('rest','Recover or Grow','Recover restores missing hearts. Grow adds 3 Spark capacity for this run. Both refill Sparks. After choosing, spend Stored Sparks on skills here.','rest','.rest-benefit-cards');
+ if(view==='skills'&&newTopic('skills'))return card('skills','One small upgrade','Tap Stored Sparks to open Skills any time. Gold skills are affordable. Blue skills are yours. Opening Skills pauses flight.','skill-states','.tree-body');
+ if(view==='support'&&run.current?.kind==='camp'&&newTopic('rest'))return card('rest','Recover or Grow','Recover restores missing hearts. Grow adds 3 Spark capacity for this run. Both refill Sparks.','rest','.rest-benefit-cards');
  if(view==='support'&&run.current?.kind!=='camp'&&newTopic('events'))return run.current?.kind==='treasure'?card('events','Choose one treasure','Each chest has a specialty. Read both offers, then take one. On the map, tap a chest to inspect its stakes before choosing your path.','site:treasure','.support-offers'):card('events','An encounter','Read what you gain and what you give up. Choose one outcome.','sites-support','.support-offers');
  if(view==='companions'&&newTopic('companions'))return card('companions','One companion, one role','Equip one companion at a time. Collector fetches; Protector shields; Runner bursts; Space Timer levitates while you hold. Choose on the main screen; your companion stays for the entire run.','companion:'+role,'.companion-roles');
- if(view==='dream'&&newTopic('dream'))return card('dream','Rehearse the opening','Dream rehearses six seconds of the next flight without spending a heart. Retry freely, then save a preset. It replays free of Lift cost and ends paused.','dream');
+ if(view==='dream'&&newTopic('dream'))return card('dream','Rehearse the opening','At Rest or before an Elite or Guardian, rehearse the opening without spending a heart. Save it to replay with free Lifts. You wake paused.','dream');
  if(view==='map'&&run.lastFlight?.success&&!run.lastFlight.elite&&!run.lastFlight.boss&&newTopic('packed'))
-  return card('packed','Your flight reward is saved','Clearing a flight automatically saves 20 Stored Sparks plus pickup overflow. Spend them on skill upgrades at Rest. The map is ready for your next path.','clear-reward','.condensed-wallet');
+  return card('packed','Your flight reward is saved','Clearing a flight automatically saves 20 Stored Sparks plus pickup overflow. Tap Stored Sparks to spend them on skills. The map is ready for your next path.','clear-reward','.condensed-wallet');
  if(view==='map'&&completed>0&&newTopic('routes'))return card('routes','Choose a connected path','Bright stops are reachable next. A fork commits your route. Campfire means Rest; chest means treasure. Tap a later stop to preview it before planning ahead.','sites','#journey-map');
  if((view==='map-clear'||view==='result'||view==='briefing'&&run.current?.type==='finale')&&newTopic('progression'))return card('progression','Three maps make a run','Your hearts, Sparks, skills and artifacts continue into the next map. Clear all three maps and the final guardian to unlock the next Ascension.','site:boss');
  if(view!=='flight'||flight?.dying||flight?.completing||flight?.dream?.active||snapshot.dying||snapshot.completing)return null;

@@ -1,5 +1,4 @@
-import {lightVisibility} from './light-field.mjs?v=flash-prism-1';
-import {drawTidalLight} from './tidal-light.mjs?v=flash-prism-1';
+import {lightVisibility} from './light-field.mjs?v=stream-and-dream-1';
 // Pixel accretion and stolen-light trails. Cosmetics consume recorded drain;
 // rendering never spends fuel or changes the simulation.
 const TAU=Math.PI*2,MAX_MOTES=96;
@@ -36,15 +35,56 @@ function position(p,age,out){
  const radius=Math.min(p.range,p.radius*(2.55+p.seed*.5)),turn=.39+p.seed*.12;
  if(age<p.approach){
   const u=clamp(age/p.approach,0,1),t=u*u*(3-2*u);
-  const a=p.angle+(p.quiet?0:TAU*turn*u*u),r=mix(p.range,radius,t);
+  // Match angular velocity across the approach/orbit seam.
+  const orbitSpeed=1+p.seed*.4;
+  const rotation=turn*t+u*u*(u-1)*p.approach*orbitSpeed/p.orbit;
+  const a=p.angle+(p.quiet?0:TAU*rotation),r=mix(p.range,radius,t);
   out.x=p.hx+Math.cos(a)*r;out.y=p.hy+Math.sin(a)*r*mix(1,.72,t);
  }else{
-  const u=clamp((age-p.approach)/p.orbit,0,1),r=radius*(1-u)**1.4;
-  const a=p.angle+(p.quiet?.55*u:TAU*(turn+(1+p.seed*.4)*u+3.8*u*u));
+  const u=clamp((age-p.approach)/p.orbit,0,1),r=radius*(1-u*u*(2-u))**1.4;
+  const a=p.angle+(p.quiet?.55*u*u:TAU*(turn+(1+p.seed*.4)*u+3.8*u*u));
   out.x=p.hx+Math.cos(a)*r;out.y=p.hy+Math.sin(a)*r*.72;
  }
 }
 const point={x:0,y:0},before={x:0,y:0},after={x:0,y:0};
+// Siphoned light starts as a small clot at the wisp. Its leading material
+// winds ahead faster than the trailing lobe until only a fine filament remains.
+function drawSiphonMote(c,p,age,x,y,scale) {
+ const approach=clamp(age/p.approach,0,1),swallowed=clamp((age-p.approach)/p.orbit,0,1);
+ const strain=Math.min(1,approach*1.48),pull=strain*strain*(3-2*strain);
+ const shrink=(1-swallowed)**.78;
+ const material=(p.quiet?4:7.5+p.seed*2)*scale*shrink;
+ const length=material*(1+pull*(p.quiet?.6:2.3));
+ const width=material/(1+pull*(p.quiet?.4:1.35));
+ // Use tangents on both sides. As the funnel tightens its tail actually
+ // curls away from the head, rather than rotating a uniformly straight dash.
+ const spread=p.quiet?.018:.028;
+ position(p,Math.max(0,age-spread),before);
+ position(p,Math.min(p.life,age+spread),after);
+ let fx=after.x-point.x,fy=after.y-point.y,bx=point.x-before.x,by=point.y-before.y;
+ const front=Math.hypot(fx,fy),back=Math.hypot(bx,by);
+ if(front>.001){fx/=front;fy/=front;}else if(back>.001){fx=bx/back;fy=by/back;}else{fx=Math.cos(p.angle);fy=Math.sin(p.angle);}
+ if(back>.001){bx/=back;by/=back;}else{bx=fx;by=fy;}
+ const count=Math.max(4,Math.ceil(length)),ink=swallowed>.55?'#e1a3a2':'#f4edd0';
+ const contraction=age*(p.quiet?4:13)+p.seed*TAU;
+ for(let i=0;i<=count;i++){
+  const u=i/count,along=(u-.5)*length;
+  const dx=mix(bx,fx,u),dy=mix(by,fy,u);
+  const px=x+dx*along,py=y+dy*along;
+  // Cross-sections have a travelling constriction and uneven material
+  // distribution. Rim and hot core narrow together.
+  const section=Math.sqrt(Math.max(0,4*u*(1-u)));
+  const taper=1+pull*(.24*(2*u-1)+.16*Math.sin(contraction-TAU*u));
+  const pixels=Math.max(1,Math.round(width*section*taper));
+  c.fillStyle=ink;
+  c.fillRect(Math.round(px-(pixels-1)*.5),Math.round(py-(pixels-1)*.5),pixels,pixels);
+  if(pixels>1&&u>.22&&u<.92){
+   c.fillStyle='#fff7df';
+   const core=Math.max(1,Math.round(pixels*.32));
+   c.fillRect(Math.round(px-(core-1)*.5),Math.round(py-(core-1)*.5),core,core);
+  }
+ }
+}
 export function drawBlackHoles(c,e,{scale=1,distance=e.renderDistance??e.distance,playerY=e.renderPlayerY??e.player.y}={}){
  if(!e.blackHoles?.items?.length)return;
  const v=view(e);update(v,e);const now=e.time||0,t=e.reducedMotion?0:(e.visualTime??now),q=Math.max(1,Math.round(scale*1.5));
@@ -75,17 +115,14 @@ export function drawBlackHoles(c,e,{scale=1,distance=e.renderDistance??e.distanc
   }
  }
  for(const p of v.motes){
-  const age=now-p.born;if(age<0||age>p.life)continue;
+  const age=(e.captureTime??e.visualTime??now)-p.born;
+  if(age<0||age>p.life)continue;
   const absorption=clamp((age-p.approach)/p.orbit,0,1);
   position(p,age,point);
   const x=(point.x-distance)*scale,offset=(1-clamp(age/p.approach,0,1))*(playerY-e.player.y);
   if(x<-36||x>e.width*scale+36)continue;
-  position(p,Math.max(0,age-.024),before);position(p,Math.min(p.life,age+.024),after);
-  const shrink=(1-absorption)**.70;
   c.globalAlpha=.87*(1-absorption*.45);
-  drawTidalLight(c,x,(point.y+offset)*scale,(before.x-distance)*scale,(before.y+offset)*scale,
-   (after.x-distance)*scale,(after.y+offset)*scale,q*(p.quiet?4:10+4*absorption)*shrink,
-   q*(p.quiet?2:3.5)*shrink,absorption>.55?'#e1a3a2':'#f4edd0','#fff7df');
+  drawSiphonMote(c,p,age,x,(point.y+offset)*scale,scale);
  }
  for(const hole of e.blackHoles.items){
   const x=(hole.x-distance)*scale;if(x<-100*scale||x>(e.width+100)*scale)continue;

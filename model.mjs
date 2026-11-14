@@ -1,30 +1,30 @@
-import {EVENT_EDITION,eventChoices,rollPrism} from './event-choices.mjs?v=flash-prism-1';
-import {ATLAS_FORECASTS,atlasBranches} from './night-atlas.mjs?v=flash-prism-1';
-import {getRouteBonus,awardRouteBonus} from './route-bonuses.mjs?v=flash-prism-1';
-export {getRouteBonus,getRouteBonusCandidates,nextBonusFlightNodes} from './route-bonuses.mjs?v=flash-prism-1';
-import {consolidateSkills,refundRetiredSkills} from './skill-consolidation.mjs?v=flash-prism-1';
-import {PROXIMITY_SKILLS} from './proximity-skills.mjs?v=flash-prism-1';
-import {getGuardianForMap,getBossPreview} from './boss.mjs?v=flash-prism-1';
-import {getFlightLengthProfile} from './level-length.mjs?v=flash-prism-1';
-import {cleanOnboarding} from './onboarding.mjs?v=flash-prism-1';
-import {CONDENSED_TUNING,getCondensationRules,condenseGlow} from './condensed-glow.mjs?v=flash-prism-1';
-import {CONSUMABLE_ARTIFACTS,EVOLVING_ARTIFACTS,getArtifactStackPreview} from './artifact-info.mjs?v=flash-prism-1';
-import {getFlightClearReward} from './checkpoint-rewards.mjs?v=flash-prism-1';
-export {getCondensationRules} from './condensed-glow.mjs?v=flash-prism-1';
-import {ROUTE_RECIPES,ROUTE_TOPOLOGY_VERSION,REWARD_THEMES,nodeEconomy} from './route-recipes.mjs?v=flash-prism-1';
-import {COMPANION_ABILITIES,getCompanionUnlock,normalizeCompanionFleet} from './companion-abilities.mjs?v=flash-prism-1';
-import {MAIN_TUNING_SKILLS} from './main-tuning.mjs?v=flash-prism-1';
-import {STARTING_CONDENSED_GLOW,getGlowCapacity,getRestGlowBonus,REST_GLOW_TUNING,glowText} from './vitality.mjs?v=flash-prism-1';
-import {expandSkillSteps,skillProgress} from './skill-increments.mjs?v=flash-prism-1';
-import {MAX_ASCENSION} from './ascent.mjs?v=flash-prism-1';
-import {EXPANDED_SKILLS,applyExpandedSkills} from './skill-paths.mjs?v=flash-prism-1';
+import {EVENT_EDITION,eventChoices,rollPrism} from './event-choices.mjs?v=stream-and-dream-1';
+import {ATLAS_FORECASTS,atlasBranches} from './night-atlas.mjs?v=stream-and-dream-1';
+import {getRouteBonus,awardRouteBonus} from './route-bonuses.mjs?v=stream-and-dream-1';
+export {getRouteBonus,getRouteBonusCandidates,nextBonusFlightNodes} from './route-bonuses.mjs?v=stream-and-dream-1';
+import {consolidateSkills,refundRetiredSkills} from './skill-consolidation.mjs?v=stream-and-dream-1';
+import {PROXIMITY_SKILLS} from './proximity-skills.mjs?v=stream-and-dream-1';
+import {getGuardianForMap,getBossPreview} from './boss.mjs?v=stream-and-dream-1';
+import {getFlightLengthProfile} from './level-length.mjs?v=stream-and-dream-1';
+import {cleanOnboarding} from './onboarding.mjs?v=stream-and-dream-1';
+import {CONDENSED_TUNING,getCondensationRules,condenseGlow} from './condensed-glow.mjs?v=stream-and-dream-1';
+import {CONSUMABLE_ARTIFACTS,EVOLVING_ARTIFACTS,getArtifactStackPreview} from './artifact-info.mjs?v=stream-and-dream-1';
+import {getFlightClearReward} from './checkpoint-rewards.mjs?v=stream-and-dream-1';
+export {getCondensationRules} from './condensed-glow.mjs?v=stream-and-dream-1';
+import {ROUTE_RECIPES,ROUTE_TOPOLOGY_VERSION,REWARD_THEMES,nodeEconomy} from './route-recipes.mjs?v=stream-and-dream-1';
+import {COMPANION_ABILITIES,getCompanionUnlock,normalizeCompanionFleet} from './companion-abilities.mjs?v=stream-and-dream-1';
+import {MAIN_TUNING_SKILLS} from './main-tuning.mjs?v=stream-and-dream-1';
+import {STARTING_CONDENSED_GLOW,getGlowCapacity,getRestGlowBonus,REST_GLOW_TUNING,glowText} from './vitality.mjs?v=stream-and-dream-1';
+import {expandSkillSteps,skillProgress} from './skill-increments.mjs?v=stream-and-dream-1';
+import {MAX_ASCENSION} from './ascent.mjs?v=stream-and-dream-1';
+import {EXPANDED_SKILLS,applyExpandedSkills} from './skill-paths.mjs?v=stream-and-dream-1';
 /** Run-owned skills and currency; persistent ascension unlocks and boss artifacts. */
-import { FLAME_TUNING, LIFE_TUNING, getLifeCapacity } from './vitality.mjs?v=flash-prism-1';
-import { getBiomeLevelIdentity } from './level-catalog.mjs?v=flash-prism-1';
-import { BIOMES } from './biomes.mjs?v=flash-prism-1';
-import { EVENT_SCENARIOS } from './map-guide.mjs?v=flash-prism-1';
-import {contextualEventChoices,resolvePilgrimVow,ROUTE_PREPARATION} from './contextual-events.mjs?v=flash-prism-1';
-import {TREASURE_KINDS, describeTreasure, treasureChoices, LENS_SIGHT, LENS_RECOVERY, settleTreasureWager} from './treasure.mjs?v=flash-prism-1';
+import { FLAME_TUNING, LIFE_TUNING, getLifeCapacity } from './vitality.mjs?v=stream-and-dream-1';
+import { getBiomeLevelIdentity } from './level-catalog.mjs?v=stream-and-dream-1';
+import { BIOMES } from './biomes.mjs?v=stream-and-dream-1';
+import { EVENT_SCENARIOS } from './map-guide.mjs?v=stream-and-dream-1';
+import {contextualEventChoices,resolvePilgrimVow,ROUTE_PREPARATION} from './contextual-events.mjs?v=stream-and-dream-1';
+import {TREASURE_KINDS, describeTreasure, treasureChoices, LENS_SIGHT, LENS_RECOVERY, settleTreasureWager} from './treasure.mjs?v=stream-and-dream-1';
 export const SAVE_KEY='wispbound.save.condensed.v7';
 export const CAMPAIGN_MAP_NAMES=Object.freeze(['The Forgotten Verge','The Rootbound March','The Warden’s Reach']);
 export const TERRAINS=Object.freeze({ruins:{id:'ruins',name:'Sunken Ruins',color:'#cdb183',description:'Broken homes, worn arches and overgrown stone.'},canopy:{id:'canopy',name:'Luminous Canopy',color:'#94b48a',description:'Hollow trees, hanging roots and sheltered forest passages.'},storm:{id:'storm',name:'Stormglass Peaks',color:'#a8bbca',description:'Pine ridges, old mine timbers and local draft puffs.'}});
@@ -735,9 +735,7 @@ export function getSkillCost(wallet,id){return getSkillLockReason(wallet,id)?nul
 export function isStartingPrep(r){return !!r&&!r.isTutorial&&r.mapIndex===0&&r.step===0&&r.phase==='map'&&!r.path.length&&!r.attemptActive;}
 export function canBuyCheckpointSkills(state){
  const r=state?.run;
- if(!r||r.attemptActive||r.banked||r.lives<=0)return false;
- if(r.testMode===true||r.isTutorial===true)return r.victoryPending===true||canPrepareAtCheckpoint(r);
- return r.restReady===true&&r.lastRest?.mapIndex===r.mapIndex&&canPrepareAtCheckpoint(r);
+ return !!r && !r.banked && r.lives>0 && r.phase!=='ended';
 }
 export function getAvailableUpgrades(state){if(!canBuyCheckpointSkills(state))return[];const w=getSkillWallet(state),branches=new Set(['main','proximity',...normalizeCompanionFleet(state.run.companions,state.run.companionRole),...(w.condensationUnlocked?['afterglow']:[])]);return Object.values(SKILLS).filter(s=>branches.has(s.branch)&&getSkillCost(w,s.id)!==null&&getSkillCost(w,s.id)<=w.condensedGlow).map(s=>s.id);}
 function forgetSkillBranch(skills,id,paid={}){
@@ -749,8 +747,29 @@ function forgetSkillBranch(skills,id,paid={}){
 }
 export function buyCheckpointSkill(state,id){
   if(!canBuyCheckpointSkills(state))return false;const r=state.run,wallet=runWallet(r),s=SKILLS[id],cost=getSkillCost(wallet,id);
-  if(!s||cost===null||wallet.condensedGlow<cost||!r.testMode&&s.requires&&!rank(r.skills,s.requires))return false;
-  const oldCapacity=getGlowCapacity(r);if(r.isTutorial)r.practiceCondensedGlow-=cost;else r.condensedGlow-=cost;if(r.testMode)for(const other of s.excludes||[])forgetSkillBranch(r.skills,other,r.skillPaid);r.skills[id]=rank(r.skills,id)+1;(r.skillPaid??={})[id]=(r.skillPaid[id]||0)+cost;if(id==='main-afterglow')r.condensationJustUnlocked=true;const capacity=getGlowCapacity(r);if(isStartingPrep(r))r.flame=capacity;else if(r.restReady&&['recover','grow'].includes(r.lastRest?.boon))r.flame+=Math.max(0,capacity-oldCapacity);r.flame=clamp(r.flame,0,capacity);r.maxLives=getLifeCapacity(r);if(r.restReady&&r.lifeRestClaimed)r.lives=r.maxLives;r.supportOffers=null;return true;
+  if(!s||cost===null||wallet.condensedGlow<cost)return false;
+  if(ROLES.includes(s.branch)&&!r.companions.includes(s.branch))return false;
+  const oldCapacity=getGlowCapacity(r);
+  if(r.isTutorial)r.practiceCondensedGlow-=cost;
+  else r.condensedGlow-=cost;
+  if(r.testMode)for(const other of s.excludes||[])forgetSkillBranch(r.skills,other,r.skillPaid);
+  r.skills[id]=rank(r.skills,id)+1;
+  (r.skillPaid??={})[id]=(r.skillPaid[id]||0)+cost;
+  if(id==='main-afterglow')r.condensationJustUnlocked=true;
+  const capacity=getGlowCapacity(r);
+  if(isStartingPrep(r))r.flame=capacity;
+  else if(r.restReady&&['recover','grow'].includes(r.lastRest?.boon))r.flame+=Math.max(0,capacity-oldCapacity);
+  r.flame=clamp(r.flame,0,capacity);
+  r.maxLives=getLifeCapacity(r);
+  if(r.restReady&&r.lifeRestClaimed)r.lives=r.maxLives;
+  // Purchases made with banked Sparks persist when a flight is interrupted or lost.
+  if(r.attemptActive&&r.attemptEntry){
+    r.attemptEntry.skills={...r.skills};
+    r.attemptEntry.condensedGlow=r.condensedGlow;
+  }
+  r.supportOffers=null;
+  delete r.dreamPreset;
+  return true;
 }
 function artifactService(state,selling=false){const r=state?.run;if(!state?.profile||!r||r.attemptActive||r.banked||['retry','map-clear','ended'].includes(r.phase)||reattempt(r))return false;return selling?r.phase==='support'||r.restReady===true:r.phase==='support'||canPrepareAtCheckpoint(r);}
 export function equipArtifact(state,id){const r=state?.run;if(!r?.testMode||r.attemptActive||!ARTIFACTS[id]||r.artifacts.includes(id))return false;r.artifacts.push(id);prepareArtifactCharges(r,id,true);return true;}

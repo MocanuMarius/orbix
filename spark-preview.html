@@ -5,11 +5,11 @@
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <meta name="theme-color" content="#081314">
   <title>Icon preview · Wispbound</title>
-  <link rel="stylesheet" href="game-symbols.css?v=flash-prism-1">
-  <link rel="stylesheet" href="map-clarity.css?v=flash-prism-1">
-  <link rel="stylesheet" href="radial-tree.css?v=flash-prism-1">
-  <link rel="stylesheet" href="living-icons.css?v=flash-prism-1">
-  <link rel="stylesheet" href="spark-preview.css?v=flash-prism-1">
+  <link rel="stylesheet" href="game-symbols.css?v=stream-and-dream-1">
+  <link rel="stylesheet" href="map-clarity.css?v=stream-and-dream-1">
+  <link rel="stylesheet" href="radial-tree.css?v=stream-and-dream-1">
+  <link rel="stylesheet" href="living-icons.css?v=stream-and-dream-1">
+  <link rel="stylesheet" href="spark-preview.css?v=stream-and-dream-1">
 </head>
 <body>
   <main>
@@ -27,8 +27,10 @@
     </section>
     <label class="group-picker">Show
       <select id="group">
+        <option value="absorption">Compare absorption</option>
         <option value="fuel">Fuel Sparks</option>
         <option value="other">Flash &amp; hazards</option>
+        <option value="siphon">Black hole</option>
         <option value="skills">Skills</option>
         <option value="companions">Companions</option>
         <option value="relics">Artifacts</option>
@@ -37,9 +39,16 @@
         <option value="controls">Menu symbols</option>
       </select>
     </label>
+    <div id="comparison-controls" hidden>
+      <label>Spark <select id="sample-kind">
+        <option value="light">Spark</option><option value="cluster" selected>Cluster</option><option value="cache">Cache</option>
+      </select></label>
+      <label class="timeline">Scrub <input type="range" id="capture-time" min="0" max="1000" value="0" aria-label="Absorption timeline"></label>
+    </div>
     <section id="gallery" aria-label="Icon artwork"></section>
+    <p id="style-note" role="status" hidden></p>
     <a class="play" href="./">Play Wispbound →</a>
     <noscript>Enable JavaScript to view the animated Sparks.</noscript>
   </main>
-  <script type="module" src="spark-preview.mjs?v=flash-prism-1"></script>
+  <script type="module" src="spark-preview.mjs?v=stream-and-dream-1"></script>
 </body></html>

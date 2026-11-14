@@ -1,5 +1,5 @@
-import { pickupKind, getPickupSpec, pickupDisposition, pickupShellRadius } from './pickups.mjs?v=flash-prism-1';
-import {sparkImageArt,sparkSymbolArt} from './spark-symbol.mjs?v=flash-prism-1';
+import { pickupKind, getPickupSpec, pickupDisposition, PLASMA_SHELL_RADIUS, SPARK_ART_SCALE } from './pickups.mjs?v=stream-and-dream-1';
+import {sparkImageArt,sparkSymbolArt} from './spark-symbol.mjs?v=stream-and-dream-1';
 
 const TAU = Math.PI * 2;
 const clamp = (value, low, high) => Math.max(low, Math.min(high, value));
@@ -8,8 +8,8 @@ export const FLASH_BURST_DURATION = .85;
 export const FUEL_ANIMATION = Object.freeze({size:44, frames:120, period:4.8});
 const fields = [
   null,
-  {base:'#584424', glass:'#ffe3a4', rim:'#ffbd57', glow:'#ffa928', arc:'#ffbf49', core:'#ffe6a0'},
-  {base:'#204f35', glass:'#d0f8c8', rim:'#79e692', glow:'#4cda78', arc:'#8cf5a0', core:'#ddffe1'},
+  {base:'#494943', glass:'#fffaf0', rim:'#ece6d4', glow:'#d8ccb2', arc:'#fbefd9', core:'#fffdf6'},
+  {base:'#414c48', glass:'#f1fff7', rim:'#e0eee4', glow:'#c1d7c8', arc:'#eaf9ee', core:'#fafffc'},
   {base:'#525a65', glass:'#edf2fb', rim:'#f6f9ff', glow:'#d8e3f1', arc:'#f2f6ff', core:'#ffffff'},
 ];
 
@@ -43,9 +43,13 @@ function dischargeTracks(tier) {
 }
 const discharges=[null,dischargeTracks(1),dischargeTracks(2),dischargeTracks(3)];
 
-function paintPlasma(tier, phase, radius, rect, disc, ring) {
+function paintPlasma(tier, phase, radius, rect, disc, ring, bodyOnly) {
   const ink=fields[tier];
-  if (tier===3) {
+  if (bodyOnly) {
+    // The shell stays at the pickup site. Only the illuminated plasma is carried.
+    disc(0,0,radius*.92,ink.glow,.19);
+    disc(0,0,radius*.72,ink.arc,.17);
+  } else if (tier===3) {
     disc(0,0,radius+5,ink.glow,.19);
     disc(0,0,radius+4,ink.glow,.29);
     disc(0,0,radius+3,ink.arc,.35);
@@ -54,9 +58,11 @@ function paintPlasma(tier, phase, radius, rect, disc, ring) {
   } else {
     disc(0,0,radius+tier,ink.glow,tier===1?.10:.28);
   }
-  disc(0,0,radius,ink.base,.96);
-  disc(0,0,radius*.75,ink.glow,.11+tier*.025);
-  ring(radius-.45,ink.rim,tier===1?.90:.83,tier===1?1.4:1.2);
+  if (!bodyOnly) {
+    disc(0,0,radius,ink.base,.96);
+    disc(0,0,radius*.75,ink.glow,.11+tier*.025);
+    ring(radius-.45,ink.rim,tier===1?.90:.83,tier===1?1.4:1.2);
+  }
   function line(ax,ay,bx,by,energy,hot,branch=false) {
     const length=Math.max(1,Math.ceil(Math.max(Math.abs(bx-ax),Math.abs(by-ay))));
     for(let n=0;n<=length;n++){
@@ -103,7 +109,7 @@ function paintPlasma(tier, phase, radius, rect, disc, ring) {
   disc(0,0,core+2,ink.glow,Math.min(.60,.25+charge*.035));
   disc(0,0,core,ink.arc,.96);
   rect(-2,-1,5,3,ink.core);rect(-1,-2,3,5,ink.core);rect(-2,-2,4,4,ink.core);
-  rect(-Math.round(radius*.54),-Math.round(radius*.74),3,1,ink.glass,.81);
+  if (!bodyOnly) rect(-Math.round(radius*.54),-Math.round(radius*.74),3,1,ink.glass,.81);
 }
 
 // Fill a facet one pixel row at a time, both on the flight atlas and in the icon bake.
@@ -220,10 +226,18 @@ export function drawFlashBurst(ctx,x,y,elapsed,scale=1,reducedMotion=false) {
 // Shared low-resolution paint operations: the game and the field guide use
 // the same bodies, shading, silhouettes and halo colors, with no gem frames.
 function packetPixels(kind, { time = 0, reducedMotion = false, tiny = false, bodyOnly = false } = {}) {
-  const pixels = []; let shrink = tiny ? .62 : 1;
-  const rect = (x, y, width, height, color, alpha = 1) => pixels.push({
-    x: x * shrink, y: y * shrink, width: width * shrink, height: height * shrink, color, alpha,
-  });
+  const pixels = [];
+  let shrink = (tiny ? .62 : 1) * (kind === 'sight' ? 1 : SPARK_ART_SCALE);
+  const rect = (x, y, width, height, color, alpha = 1) => {
+    if (kind === 'sight') {
+      pixels.push({x:x*shrink, y:y*shrink, width:width*shrink, height:height*shrink, color, alpha});
+      return;
+    }
+    const left = Math.round(x * shrink), top = Math.round(y * shrink);
+    const w = Math.round((x + width) * shrink) - left;
+    const h = Math.round((y + height) * shrink) - top;
+    if (w > 0 && h > 0) pixels.push({x:left, y:top, width:w, height:h, color, alpha});
+  };
   const oval = (x, y, rx, ry, color, alpha = 1) => {
     const rows = Math.max(1, Math.ceil(ry));
     for (let row = -rows; row <= rows; row++) {
@@ -249,7 +263,7 @@ function packetPixels(kind, { time = 0, reducedMotion = false, tiny = false, bod
   const spec=getPickupSpec(kind),contact=spec.contactRadius,warning=pickupDisposition(kind)==='warning';
   if(spec.plasma){
     const phase=reducedMotion?0:((time/FUEL_ANIMATION.period)%1+1)%1;
-    paintPlasma(spec.plasma,phase,pickupShellRadius(kind),rect,disc,ring);
+    paintPlasma(spec.plasma,phase,PLASMA_SHELL_RADIUS,rect,disc,ring,bodyOnly);
     return pixels;
   }
   if(kind==='sight'){
@@ -302,15 +316,19 @@ function packetPixels(kind, { time = 0, reducedMotion = false, tiny = false, bod
 const atlases = new WeakMap();
 const plasmaCycle=[FUEL_ANIMATION.period,FUEL_ANIMATION.frames];
 const cycles={light:plasmaCycle,cluster:plasmaCycle,cache:plasmaCycle,sight:[FLASH_ANIMATION.period,FLASH_ANIMATION.frames],dark:[Math.PI*2,32],dusk:[3.2,16]};
+function frameAt(clock, period, frames, reducedMotion) {
+  return reducedMotion ? 0 : Math.floor(((clock % period + period) % period) / period * frames);
+}
 // The offline menu assets are generated from this exact paint pass.
-export function drawFuelFrame(context,x,y,kind,frame,reducedMotion=false){
+export function drawFuelFrame(context,x,y,kind,frame,reducedMotion=false,bodyOnly=false){
   const time=frame/FUEL_ANIMATION.frames*FUEL_ANIMATION.period;
-  for(const p of packetPixels(kind,{time,reducedMotion})){
+  for(const p of packetPixels(kind,{time,reducedMotion,bodyOnly})){
     context.globalAlpha=p.alpha;context.fillStyle=p.color;
     context.fillRect(x+p.x,y+p.y,p.width,p.height);
   }
 }
 function cachedSprite(doc,id,frame,tiny,reducedMotion,bodyOnly) {
+  if(bodyOnly && getPickupSpec(id).plasma) frame -= frame % 6;
   let cache=atlases.get(doc);
   if(!cache){cache=new Map();atlases.set(doc,cache);}
   const key=id+':'+frame+':'+tiny+':'+reducedMotion+':'+bodyOnly;
@@ -320,12 +338,19 @@ function cachedSprite(doc,id,frame,tiny,reducedMotion,bodyOnly) {
   const side=fuel?FUEL_ANIMATION.size:72;
   sprite.width=sprite.height=side;
   const c=sprite.getContext('2d');
-  if(fuel)drawFuelFrame(c,side/2,side/2,id,frame,reducedMotion);
+  if(fuel)drawFuelFrame(c,side/2,side/2,id,frame,reducedMotion,bodyOnly);
   else for(const p of packetPixels(id,{time:frame/frames*period,reducedMotion,tiny,bodyOnly})){
     c.globalAlpha=p.alpha;c.fillStyle=p.color;c.fillRect(side/2+p.x,side/2+p.y,p.width,p.height);
   }
   cache.set(key,sprite);
   return sprite;
+}
+// Absorption samples the same full sprite and phase as the pickup it replaces.
+export function pickupSpriteFrame(doc, kind, {time=0, phase=0, reducedMotion=false, bodyOnly=false}={}) {
+  if (!doc?.createElement) return null;
+  const id=pickupKind(kind), [period, frames]=cycles[id];
+  const frame=frameAt(time + phase*period/TAU, period, frames, reducedMotion);
+  return cachedSprite(doc,id,frame,false,reducedMotion,bodyOnly);
 }
 const warmups=new WeakMap();
 export function prepareFuelSprites(doc,reducedMotion=false) {
@@ -334,7 +359,11 @@ export function prepareFuelSprites(doc,reducedMotion=false) {
   let pending=warmups.get(doc);if(!pending){pending={};warmups.set(doc,pending);}
   if(!pending[key])pending[key]=(async()=>{
     for(let frame=0;frame<frames;frame++){
-      for(const kind of ['light','cluster','cache'])cachedSprite(doc,kind,frame,false,reducedMotion,false);
+      for(const kind of ['light','cluster','cache']){
+        cachedSprite(doc,kind,frame,false,reducedMotion,false);
+        // A compact set of shell-free frames also serves moving Collector cargo.
+        if(frame%6===0)cachedSprite(doc,kind,frame,false,reducedMotion,true);
+      }
       if(frame%3===2&&frame<frames-1)await new Promise(resolve=>setTimeout(resolve,0));
     }
   })();
@@ -344,9 +373,9 @@ export function drawPickup(context,x,y,{kind='light',time=0,phase=0,reducedMotio
   const id=pickupKind(kind),size=Math.max(.1,Number(scale)||1),doc=context.canvas?.ownerDocument;
   const [period,frames]=cycles[id]||[1,1];
   const clock=time+phase*period/TAU;
-  const frame=reducedMotion?0:Math.floor(((clock%period+period)%period)/period*frames);
+  const frame=frameAt(clock,period,frames,reducedMotion);
   const plasma=Boolean(getPickupSpec(id).plasma);
-  const sprite=doc&&cachedSprite(doc,id,frame,plasma?false:tiny,reducedMotion,plasma?false:bodyOnly);
+  const sprite=doc&&cachedSprite(doc,id,frame,plasma?false:tiny,reducedMotion,bodyOnly);
   context.save();const inherited=context.globalAlpha*clamp(Number(alpha)||0,0,1);
   if(sprite){
     const drawSize=size*(plasma&&tiny?.62:1);

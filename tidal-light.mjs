@@ -1,61 +1,97 @@
-import {getPickupSpec,pickupKind} from './pickups.mjs?v=flash-prism-1';
+import {getPickupSpec, pickupKind} from './pickups.mjs?v=stream-and-dream-1';
+import {pickupSpriteFrame} from './pickup-art.mjs?v=stream-and-dream-1';
 
-const TAU=Math.PI*2;
-const clamp=(n,min,max)=>Math.min(max,Math.max(n,min));
-const previous={x:0,y:0},current={x:0,y:0},next={x:0,y:0};
-function absorptionPosition(out, time, start, orbit, angle, quiet) {
-  const inward=clamp((time-.10)/.90,0,1);
-  const radius=quiet ? start*(1-time)**2 : time<.10
-    ? start+(orbit-start)*(1-(1-time/.10)**3) : orbit*(1-inward)**.85;
-  const turn=angle+(quiet ? 0 : TAU*6*(.10*time+.90*time*time));
-  out.x=Math.cos(turn)*radius;out.y=Math.sin(turn)*radius;
+const TAU = Math.PI * 2;
+const clamp = value => Math.max(0, Math.min(1, value));
+const smooth = value => value * value * (3 - 2 * value);
+const right = {}, left = {};
+const plain = {};
+
+// Every slice of plasma has a different release time. A near slice can
+// already be spiralling into the receiver while its neighbour is still round.
+function edge(out, fraction, artRadius, sourceRadius, age, delay, turns, wave) {
+  const release = delay * (1 - fraction);
+  const elapsed = clamp((age - release) / .60);
+  const flow = elapsed * smooth(clamp(elapsed/.18));
+  const radius = sourceRadius + artRadius * (1 - fraction * 2);
+  const shrink = (1 - flow) ** .8;
+  const angle = TAU * (turns * flow * (.53 + .47 * flow) + wave * Math.sin(Math.PI * 2 * flow));
+  const radial = radius * shrink;
+  out.x = Math.cos(angle) * radial;
+  out.y = Math.sin(angle) * radial;
+  out.flow = flow;
 }
 
-export function drawAbsorbingSpark(c,effect,progress,x,y,s,quiet) {
-  const kind=pickupKind(effect.pickupKind||effect.kind||'light');
-  const start=Math.max(0,Number(effect.startRadius)||0),orbit=clamp(Math.max(38,start),34,44);
-  const angle=Number(effect.initialAngle)||0;
-  absorptionPosition(current,progress,start,orbit,angle,quiet);
-  absorptionPosition(previous,Math.max(0,progress-.018),start,orbit,angle,quiet);
-  absorptionPosition(next,Math.min(1,progress+.018),start,orbit,angle,quiet);
-  const size=(1-progress)**.60*s,bands=kind==='cache'?3:kind==='cluster'?2:1;
-  c.save();
-  c.globalAlpha=clamp((1-progress)*8,0,1);
-  drawTidalLight(c,x+current.x*s,y+current.y*s,x+previous.x*s,y+previous.y*s,
-    x+next.x*s,y+next.y*s,(quiet?24:48+16*progress)*size,(quiet?9:12)*size,
-    kind==='dark'?'#803f50':getPickupSpec(kind).color,kind==='dark'?'#ffb5aa':'#ffffff',bands);
-  c.restore();
-}
-
-// A single pixel body with a tapered tail and a thin, luminous leading tip.
-// Its forward and rear tangents come from the actual absorption trajectory.
-export function drawTidalLight(ctx, x, y, beforeX, beforeY, afterX, afterY,
-    length, width, color, highlight, bands = 1) {
-  let fx = afterX - x, fy = afterY - y;
-  let bx = x - beforeX, by = y - beforeY;
-  const front = Math.hypot(fx, fy), back = Math.hypot(bx, by);
-  if (front > .001) { fx /= front; fy /= front; }
-  else if (back > .001) { fx = bx / back; fy = by / back; }
-  else { fx = 1; fy = 0; }
-  if (back > .001) { bx /= back; by /= back; }
-  else { bx = fx; by = fy; }
-  // Quadratic spine with its ends along the two tangents. Length is capped
-  // in buffer pixels, independent of frame time and angular speed.
-  length = Math.max(1, Math.min(36, length));
-  width = Math.max(1, Math.min(9, width));
-  const slices = Math.ceil(length);
-  for (let i = 0; i <= slices; i++) {
-    const u = i / slices, v = 1 - u;
-    const px = x + length * (.62 * fx * u * u - .38 * bx * v * v);
-    const py = y + length * (.62 * fy * u * u - .38 * by * v * v);
-    const envelope = u < .32 ? u / .32 : v / .68;
-    const size = Math.max(1, Math.round(width * envelope));
-    const left = Math.round(px - (size-1) / 2), top = Math.round(py - (size-1) / 2);
-    ctx.fillStyle = u > .78 ? highlight : color;
-    ctx.fillRect(left, top, size, size);
-    if (size >= 3 && u > .22 && (bands === 1 || (u * bands * 2) % 1.3 > .35)) {
-      ctx.fillStyle = highlight;
-      ctx.fillRect(Math.round(px), Math.round(py), 1, 1);
+// Each cross section carries part of the original arcs. Deformation changes
+// independently across its width, with a tapered throat as the stream arrives.
+function drawStream(ctx, sprite, artRadius, sourceRadius, age, sourceScale, delay, turns, wave, half, color) {
+  const strips = 24, side = sprite?.width || 44;
+  const imageRadius = artRadius / sourceScale;
+  const sourceTop = half === 1 ? side / 2 : side / 2 - imageRadius;
+  const sourceHeight = half ? imageRadius : imageRadius * 2;
+  const top = half === 1 ? 0 : -imageRadius;
+  edge(left, 0, artRadius, sourceRadius, age, delay, turns, wave);
+  for (let i = 0; i < strips; i++) {
+    const u = (i + .5) / strips;
+    edge(right, (i + 1) / strips, artRadius, sourceRadius, age, delay, turns, wave);
+    if (left.flow < 1) {
+      const dx = right.x - left.x, dy = right.y - left.y;
+      const length = Math.max(.001, Math.hypot(dx,dy));
+      const flow = (left.flow + right.flow) * .5;
+      const neck = sourceScale * (1 - flow) ** .6 / (1 + 4 * smooth(clamp(flow * 4)));
+      const normalX = -dy / length * neck, normalY = dx / length * neck;
+      const width = 2 * imageRadius / strips;
+      const cx = (left.x + right.x) * .5, cy = (left.y + right.y) * .5;
+      ctx.save();
+      ctx.transform(dx / width, dy / width, normalX, normalY, cx, cy);
+      // Subpixel overlap closes cracks between sharply turning strips.
+      const overlap = Math.min(.35, flow * 2);
+      if (sprite) {
+        ctx.drawImage(sprite, side / 2 + (u * 2 - 1) * imageRadius - width / 2,
+          sourceTop, width, sourceHeight, -width / 2 - overlap, top, width + 2 * overlap, sourceHeight);
+      } else {
+        const h = Math.sqrt(Math.max(0, 1 - (2*u-1)**2)) * imageRadius;
+        ctx.fillStyle = color;
+        ctx.fillRect(-width/2, half === 1 ? 0 : -h, width + overlap, h * (half ? 1 : 2));
+      }
+      ctx.restore();
     }
+    left.x = right.x; left.y = right.y; left.flow = right.flow;
   }
+}
+
+export function drawAbsorbingSpark(ctx, effect, age, targetX, targetY, scale, quiet, sourceX, sourceY) {
+  if (age < 0 || age >= 1) return;
+  const kind = pickupKind(effect.pickupKind || effect.kind || 'light');
+  const spec = getPickupSpec(kind);
+  const size = effect.initialScale ?? (effect.tiny ? .62 : 1);
+  const angle = effect.initialAngle || 0, start = effect.startRadius || 0;
+  sourceX ??= targetX + Math.cos(angle) * start * scale;
+  sourceY ??= targetY + Math.sin(angle) * start * scale;
+  const dx = (sourceX-targetX)/scale, dy = (sourceY-targetY)/scale;
+  const sourceRadius = Math.hypot(dx, dy);
+  const heading = sourceRadius > .15 ? Math.atan2(dy,dx) : angle;
+  // A body contact directly on the core still leaves two visible sides while
+  // the liquid folds over itself. This radius is the size of the plasma only.
+  const artRadius = (spec.plasma ? 14 : kind === 'dark' ? 12 : 9) * size;
+  const doc = ctx.canvas?.ownerDocument ?? globalThis.document;
+  const time = (effect.bornAt || 0) + age * (effect.duration || 1.8);
+  plain.time=time; plain.phase=effect.phase||0; plain.reducedMotion=quiet; plain.bodyOnly=true;
+  const sprite = pickupSpriteFrame(doc, kind, plain);
+  ctx.save();
+  ctx.translate(targetX,targetY);
+  ctx.scale(scale,scale);
+  ctx.rotate(heading);
+  ctx.imageSmoothingEnabled=false;
+  const style = effect.style || 'undertow';
+  if (style === 'split' && !quiet) {
+    drawStream(ctx,sprite,artRadius,sourceRadius,age,size,.36,1.05,0,-1,spec.color);
+    drawStream(ctx,sprite,artRadius,sourceRadius,age,size,.4,-.82,0,1,spec.color);
+  } else {
+    const ribbon = style === 'ribbon';
+    const turns = quiet ? .045 : ribbon ? -.48 : 1.32;
+    const wave = ribbon && !quiet ? .16 : 0;
+    drawStream(ctx,sprite,artRadius,sourceRadius,age,size,.4,turns,wave,0,spec.color);
+  }
+  ctx.restore();
 }

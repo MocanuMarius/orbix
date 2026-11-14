@@ -1,7 +1,7 @@
-import {ROUTE_BONUSES} from './route-bonuses.mjs?v=flash-prism-1';
-import {blackHoleDrainRate} from './black-holes.mjs?v=flash-prism-1';
-import {getPickupSpec, pickupKind} from './pickups.mjs?v=flash-prism-1';
-import {GLOW_DISPLAY_SCALE} from './vitality.mjs?v=flash-prism-1';
+import {ROUTE_BONUSES} from './route-bonuses.mjs?v=stream-and-dream-1';
+import {blackHoleDrainRate} from './black-holes.mjs?v=stream-and-dream-1';
+import {getPickupSpec, pickupKind} from './pickups.mjs?v=stream-and-dream-1';
+import {GLOW_DISPLAY_SCALE} from './vitality.mjs?v=stream-and-dream-1';
 
 const fuelKinds = new Set(['light', 'cluster', 'cache']);
 const helpfulFamilies = new Set(['lift', 'reveal', 'bloom']);

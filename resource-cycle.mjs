@@ -1,9 +1,9 @@
-import {getPickupSpec} from './pickups.mjs?v=flash-prism-1';
-import {glowPoints,getGlowCapacity,GLOW_DISPLAY_SCALE} from './vitality.mjs?v=flash-prism-1';
-import {condenseGlow,getCondensationRules} from './condensed-glow.mjs?v=flash-prism-1';
-import {pickupArtSvg} from './pickup-art.mjs?v=flash-prism-1';
-import {resourceSymbol} from './game-symbols.mjs?v=flash-prism-1';
-import {mapStopIconMarkup} from './map-guide.mjs?v=flash-prism-1';
+import {getPickupSpec} from './pickups.mjs?v=stream-and-dream-1';
+import {glowPoints,getGlowCapacity,GLOW_DISPLAY_SCALE} from './vitality.mjs?v=stream-and-dream-1';
+import {condenseGlow,getCondensationRules} from './condensed-glow.mjs?v=stream-and-dream-1';
+import {pickupArtSvg} from './pickup-art.mjs?v=stream-and-dream-1';
+import {resourceSymbol} from './game-symbols.mjs?v=stream-and-dream-1';
+import {skillIcon} from './upgrade-icons.mjs?v=stream-and-dream-1';
 
 // An independent teaching meter. Previewing, skipping and replaying never touch a save.
 export function resourceCycleSteps(run={},mod={}){
@@ -14,9 +14,9 @@ export function resourceCycleSteps(run={},mod={}){
  const values=['light','cluster','cache'].map(id=>glowPoints(getPickupSpec(id).fuel));
  const data={before,max,packed,lift,values};
  return [
-  ['Touch a Spark',`Amber, green, white: each tier carries more. This green Cluster adds ${fuel} to your Spark Meter before bonuses.`],
+  ['Touch a Spark',`Look inside the shell. More arcs mean more fuel. This Cluster adds ${fuel} to your Spark Meter before bonuses.`],
   ['Fill your Spark Meter',`At ${before}/${max}, only ${refill} fit. Tap anywhere to Lift. Each Lift uses ${lift} Spark${lift===1?'':'s'} from the meter.`],
-  ['Store the surplus',`The upper-left box converts the spare ${extra} into ${packed} Stored Spark${packed===1?'':'s'}. Spend Stored Sparks on skills at a Rest.`]
+  ['Store the surplus',`The upper-left box converts the spare ${extra} into ${packed} Stored Spark${packed===1?'':'s'}. Open Skills to spend banked Stored Sparks.`]
  ].map(([title,text],i)=>({title,text,visual:'resource-cycle',cycle:{...data,stage:i},allowTarget:false,actionLabel:i===2?'Got it':'Next',skipLabel:'Remember & skip'}));
 }
 const art=(x,y,size,svg)=>svg.replace(/<svg\b([^>]*)>/,(_,attrs)=>`<svg x="${x}" y="${y}" width="${size}" height="${size}"${attrs.replace(/\s(?:width|height)="[^"]*"/g,'')}>`);
@@ -40,7 +40,7 @@ export function resourceCycleArt({stage=0,before=24,max=30,lift=3,packed=1,value
  const box=`<g opacity="${stage===2?1:.55}">${art(9,0,40,resourceSymbol('packed'))}${number(64,26,stage===2?'+'+packed:0,'#ffe0a2')}</g>`;
  const contents=`${box}${bars}${number(74,102,max+'/'+max)}${signal}`;
  if(stage===1)return wrap(`The Spark Meter goes from ${before} to ${max} of ${max}.`,contents+art(135,23,88,pickupArtSvg('cluster')));
- const rest=art(139,28,74,mapStopIconMarkup('rest'));
+ const skill=art(139,28,74,skillIcon({id:'main-sight'}));
  const arrow='<path fill="#9da883" d="M98 53h27v-4l9 7-9 7v-5H98z"/>';
- return wrap(`Surplus from the full Spark Meter adds ${packed} to the upper-left box. Spend Stored Sparks at a Rest.`,contents+arrow+rest);
+ return wrap(`Surplus from the full Spark Meter adds ${packed} to the upper-left box. Spend banked Stored Sparks on skills.`,contents+arrow+skill);
 }
