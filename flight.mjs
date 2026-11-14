@@ -1,58 +1,58 @@
-import {prepareAtlasFlight,resizeAtlasFlight,ringBellwind,bellwindAcceleration,moonLightScale,drawAtlasFlight} from './atlas-flight.mjs?v=giant-detail-1';
-import {canShowFlightHint} from './flight-hint-safety.mjs?v=giant-detail-1';
-import {updateGlideRegeneration} from './glide-regeneration.mjs?v=giant-detail-1';
-import {drawGuardianPresence} from './guardian-presence.mjs?v=giant-detail-1';
-import { updateGuardian, resizeGuardian, placeGuardianFuel } from './guardian-effects.mjs?v=giant-detail-1';
-import { drawGuardianWarnings } from './guardian-art.mjs?v=giant-detail-1';
-import { drawShutters } from './shutter-cone.mjs?v=giant-detail-1';
-import {drawProximityMeter} from './proximity-meter.mjs?v=giant-detail-1';
-import {drawFourthBeat} from './fourth-beat-art.mjs?v=giant-detail-1';
-import {drawCollectorGuard} from './collector-guard-art.mjs?v=giant-detail-1';
-import {buildObjectivePlan,createFlightObjective,drawObjectiveMarks} from './flight-objectives.mjs?v=giant-detail-1';
-import {FlightProjection,drawFlightProjection} from './flight-projection.mjs?v=giant-detail-1';
-import {drawGlowSense} from './glow-sense.mjs?v=giant-detail-1';
-import {formatGlow} from './vitality.mjs?v=giant-detail-1';
-import {installRiskChains} from './risk-chains.mjs?v=giant-detail-1';
-import {installSparkField} from './spark-fields.mjs?v=giant-detail-1';
-import {drawFallWarning} from './fall-chain-art.mjs?v=giant-detail-1';
-import {EXTRA_COURSES} from './world-expansion.mjs?v=giant-detail-1';
-import {BIOME_COURSES} from './biome-courses.mjs?v=giant-detail-1';
-import {BiomeDynamics} from './biome-dynamics.mjs?v=giant-detail-1';
-import {condenseGlow} from './condensed-glow.mjs?v=giant-detail-1';
-import {ensureGlowBudget} from './glow-budget.mjs?v=giant-detail-1';
-import {EdgingPulse} from './edging-pulse.mjs?v=giant-detail-1';
-import {isVowBodyPickup} from './contextual-events.mjs?v=giant-detail-1';
-import {FlightBoon} from './flight-boons.mjs?v=giant-detail-1';
-import {BlackHoles} from './black-holes.mjs?v=giant-detail-1';
-import {drawBlackHoles} from './black-hole-art.mjs?v=giant-detail-1';
-import {drawCapture, drawShellPuff} from './capture-art.mjs?v=giant-detail-1';
-import {drawShellArcs} from './shell-arcs.mjs?v=giant-detail-1';
-import {sparkBodyRadius,sparkArtScale,sparkMass} from './spark-size.mjs?v=giant-detail-1';
-import {captureMassDuration} from './tidal-light.mjs?v=giant-detail-1';
-import {readCaptureStyle} from './capture-styles.mjs?v=giant-detail-1';
+import {prepareAtlasFlight,resizeAtlasFlight,ringBellwind,bellwindAcceleration,moonLightScale,drawAtlasFlight} from './atlas-flight.mjs?v=chapter-pressure-1';
+import {canShowFlightHint} from './flight-hint-safety.mjs?v=chapter-pressure-1';
+import {updateGlideRegeneration} from './glide-regeneration.mjs?v=chapter-pressure-1';
+import {drawGuardianPresence} from './guardian-presence.mjs?v=chapter-pressure-1';
+import { updateGuardian, resizeGuardian, placeGuardianFuel } from './guardian-effects.mjs?v=chapter-pressure-1';
+import { drawGuardianWarnings } from './guardian-art.mjs?v=chapter-pressure-1';
+import { drawShutters } from './shutter-cone.mjs?v=chapter-pressure-1';
+import {drawProximityMeter} from './proximity-meter.mjs?v=chapter-pressure-1';
+import {drawFourthBeat} from './fourth-beat-art.mjs?v=chapter-pressure-1';
+import {drawCollectorGuard} from './collector-guard-art.mjs?v=chapter-pressure-1';
+import {buildObjectivePlan,createFlightObjective,drawObjectiveMarks} from './flight-objectives.mjs?v=chapter-pressure-1';
+import {FlightProjection,drawFlightProjection} from './flight-projection.mjs?v=chapter-pressure-1';
+import {drawGlowSense} from './glow-sense.mjs?v=chapter-pressure-1';
+import {formatGlow} from './vitality.mjs?v=chapter-pressure-1';
+import {installRiskChains} from './risk-chains.mjs?v=chapter-pressure-1';
+import {installSparkField} from './spark-fields.mjs?v=chapter-pressure-1';
+import {drawFallWarning} from './fall-chain-art.mjs?v=chapter-pressure-1';
+import {EXTRA_COURSES} from './world-expansion.mjs?v=chapter-pressure-1';
+import {BIOME_COURSES} from './biome-courses.mjs?v=chapter-pressure-1';
+import {BiomeDynamics} from './biome-dynamics.mjs?v=chapter-pressure-1';
+import {condenseGlow} from './condensed-glow.mjs?v=chapter-pressure-1';
+import {ensureGlowBudget,shapeExpeditionSupply} from './glow-budget.mjs?v=chapter-pressure-1';
+import {EdgingPulse} from './edging-pulse.mjs?v=chapter-pressure-1';
+import {isVowBodyPickup} from './contextual-events.mjs?v=chapter-pressure-1';
+import {FlightBoon} from './flight-boons.mjs?v=chapter-pressure-1';
+import {BlackHoles} from './black-holes.mjs?v=chapter-pressure-1';
+import {drawBlackHoles} from './black-hole-art.mjs?v=chapter-pressure-1';
+import {drawCapture, drawShellPuff} from './capture-art.mjs?v=chapter-pressure-1';
+import {drawShellArcs} from './shell-arcs.mjs?v=chapter-pressure-1';
+import {sparkBodyRadius,sparkArtScale,sparkMass} from './spark-size.mjs?v=chapter-pressure-1';
+import {captureMassDuration} from './tidal-light.mjs?v=chapter-pressure-1';
+import {readCaptureStyle} from './capture-styles.mjs?v=chapter-pressure-1';
 /* Emberwing's self-contained canvas flight simulation and renderer. */
-import { FLAME_TUNING, LIGHT_PACKET_TUNING } from './vitality.mjs?v=giant-detail-1';
-import { flightEndDistance } from './flight-end.mjs?v=giant-detail-1';
-import {getExitLandmarkState,drawExitLandmark} from './exit-landmark.mjs?v=giant-detail-1';
-import { WispCompanion, wispHome } from './wisp.mjs?v=giant-detail-1';
-import { getAscentInfo } from './ascent.mjs?v=giant-detail-1';
-import { LEVEL_LENGTH, getLevelLengthScale } from './level-length.mjs?v=giant-detail-1';
-import { resolveLevelIdentity } from './level-catalog.mjs?v=giant-detail-1';
-import { DraftField, DRAFT_TUNING } from './drafts.mjs?v=giant-detail-1';
-import { normalizeCompanionRole, normalizeCompanionFleet, getCompanionAbility } from './companion-abilities.mjs?v=giant-detail-1';
-import { populateSceneProps, scenePropPolygons } from './scene-props.mjs?v=giant-detail-1';
-import { pickupKind, getPickupSpec, pickupContactRadius, canCompanionCollect, flashPowerupDuration } from './pickups.mjs?v=giant-detail-1';
-import { createFlashTether, stepFlashTether, drawFlashTether, flashLightPulse } from './flash-tether.mjs?v=giant-detail-1';
-import { drawPickup, drawSparkSymbol } from './pickup-art.mjs?v=giant-detail-1';
-import { buildBossLayout, getBossState as bossState, drawBoss } from './boss.mjs?v=giant-detail-1';
-import { getAuthoredChallenge, finalizeFlightChallenges, installAuthoredDraftCrossings, FlightChallengeDirector } from './flight-challenges.mjs?v=giant-detail-1';
-import { installEncounterFamily } from './encounter-families.mjs?v=giant-detail-1';
-import { installFlightForks, resizeFlightForks } from './flight-forks.mjs?v=giant-detail-1';
-import { ArtifactEffects } from './artifact-effects.mjs?v=giant-detail-1';
-import { LIGHT_EXTENT,lightAttenuation,lightVisibility,createLightMaskCanvas,castFlightFlashLights,sceneRevealStrength,flashRangeStrength,pickupRevealHold,pickupRevealAt,renderLightState,lightDreamScenery } from './light-field.mjs?v=giant-detail-1';
+import { FLAME_TUNING, LIGHT_PACKET_TUNING } from './vitality.mjs?v=chapter-pressure-1';
+import { flightEndDistance } from './flight-end.mjs?v=chapter-pressure-1';
+import {getExitLandmarkState,drawExitLandmark} from './exit-landmark.mjs?v=chapter-pressure-1';
+import { WispCompanion, wispHome } from './wisp.mjs?v=chapter-pressure-1';
+import { getAscentInfo } from './ascent.mjs?v=chapter-pressure-1';
+import { LEVEL_LENGTH, getLevelLengthScale } from './level-length.mjs?v=chapter-pressure-1';
+import { resolveLevelIdentity } from './level-catalog.mjs?v=chapter-pressure-1';
+import { DraftField, DRAFT_TUNING } from './drafts.mjs?v=chapter-pressure-1';
+import { normalizeCompanionRole, normalizeCompanionFleet, getCompanionAbility } from './companion-abilities.mjs?v=chapter-pressure-1';
+import { populateSceneProps, scenePropPolygons } from './scene-props.mjs?v=chapter-pressure-1';
+import { pickupKind, getPickupSpec, pickupContactRadius, canCompanionCollect, flashPowerupDuration } from './pickups.mjs?v=chapter-pressure-1';
+import { createFlashTether, stepFlashTether, drawFlashTether, flashLightPulse } from './flash-tether.mjs?v=chapter-pressure-1';
+import { drawPickup, drawSparkSymbol } from './pickup-art.mjs?v=chapter-pressure-1';
+import { buildBossLayout, getBossState as bossState, drawBoss } from './boss.mjs?v=chapter-pressure-1';
+import { getAuthoredChallenge, finalizeFlightChallenges, installAuthoredDraftCrossings, FlightChallengeDirector } from './flight-challenges.mjs?v=chapter-pressure-1';
+import { installEncounterFamily } from './encounter-families.mjs?v=chapter-pressure-1';
+import { installFlightForks, resizeFlightForks } from './flight-forks.mjs?v=chapter-pressure-1';
+import { ArtifactEffects } from './artifact-effects.mjs?v=chapter-pressure-1';
+import { LIGHT_EXTENT,lightAttenuation,lightVisibility,createLightMaskCanvas,castFlightFlashLights,sceneRevealStrength,flashRangeStrength,pickupRevealHold,pickupRevealAt,renderLightState,lightDreamScenery } from './light-field.mjs?v=chapter-pressure-1';
 import { createTutorialState, buildTutorialLayout, recordTutorialPickup,
-  updateTutorial, updateTutorialCompanion, getTutorialHint } from './tutorial.mjs?v=giant-detail-1';
-export { FLAME_TUNING } from './vitality.mjs?v=giant-detail-1';
+  updateTutorial, updateTutorialCompanion, getTutorialHint } from './tutorial.mjs?v=chapter-pressure-1';
+export { FLAME_TUNING } from './vitality.mjs?v=chapter-pressure-1';
 const TAU = Math.PI * 2;
 const STEP = 1 / 60;
 const FALLBACK_WISP_RADIUS = 17;
@@ -64,7 +64,7 @@ const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
 const lerp = (a, b, t) => a + (b - a) * t;
 export const FLIGHT_TUNING = Object.freeze({ gravity: 300, flapImpulse: 205,
   forwardSpeed: 154, terminalFall: 245, pickupRadius: LIGHT_PACKET_TUNING.pickupRadius });
-export { DRAFT_TUNING } from './drafts.mjs?v=giant-detail-1';
+export { DRAFT_TUNING } from './drafts.mjs?v=chapter-pressure-1';
 // Retain the public tuning name for consumers; wind now has no global cycle.
 export const WIND_TUNING = DRAFT_TUNING;
 
@@ -874,7 +874,7 @@ export class WispFlight {
       : this.bossEncounter ? buildBossLayout({ seed: this.seed, terrain: this.terrain,
         elite: this.elite, duration: this.duration, speed: FLIGHT_TUNING.forwardSpeed,
         height: this.height, gapScale: this.ascentInfo.hardGapScale,
-        difficulty: this.ascentInfo.difficulty, levelIdentity: this.levelIdentity, circleHitsPolygon,bossId:route.bossId })
+        difficulty: this.ascentInfo.difficulty, mapIndex:route.mapIndex, levelIdentity: this.levelIdentity, circleHitsPolygon,bossId:route.bossId })
       : buildFlightLayout({ seed: this.seed, terrain: this.terrain,
         elite: this.elite, duration: this.duration, speed: FLIGHT_TUNING.forwardSpeed, height: this.height,
         passage: this.passage, fuelCadence: this.fuelCadence,allowFall:this.onboardingPlan?.badSparks!==false && this.onboardingPlan?.specialSparks!==false,
@@ -927,6 +927,9 @@ export class WispFlight {
     this.routeObjective=createFlightObjective(this,route.bonusId);
     if(!this.tutorial)installSparkField(this.layout,{height:this.height,opening:this.ascentInfo.difficulty<=2&&Number(route.mapIndex||0)===0,random:seededRandom(`${this.seed}:spark-masses`),
       clear:bodyClear,targets:this.routeObjective?.targets,protectedSites:[...(this.blackHoles.items||[]),...(this.layout.boss?.shutters||[])]});
+    if(!this.tutorial)shapeExpeditionSupply(this.layout,{mapIndex:Number(route.mapIndex)||0,height:this.height,speed:FLIGHT_TUNING.forwardSpeed,
+      endX:this.totalDistance+this.player.x,clear:bodyClear,targets:this.routeObjective?.targets,
+      hazards:[...this.blackHoles.items,...this.biomeDynamics.items],drafts:this.drafts.zones});
     this.challengeDirector=new FlightChallengeDirector(this.layout);
     this.flashProps=this.layout.embers.filter(packet=>pickupKind(packet)==='sight');
     this.flightChallenge=null;this.caveDimming=0;
@@ -956,7 +959,7 @@ export class WispFlight {
 
   async initPixelView() {
     try {
-      const { WispFlightView } = await import('./wisp-renderer.mjs?v=giant-detail-1');
+      const { WispFlightView } = await import('./wisp-renderer.mjs?v=chapter-pressure-1');
       if (this.destroyed) return;
       this.pixiView = new WispFlightView(this);
       const initialized = await this.pixiView.init();

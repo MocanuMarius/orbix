@@ -1,7 +1,7 @@
-import { WispFlight } from './flight.mjs?v=giant-detail-1';
-import { createRun, getRunModifiers } from './model.mjs?v=giant-detail-1';
-import { insideShutter, shutterPhase } from './shutter-cone.mjs?v=giant-detail-1';
-import { wispOrbit } from './wisp.mjs?v=giant-detail-1';
+import { WispFlight } from './flight.mjs?v=chapter-pressure-1';
+import { createRun, getRunModifiers } from './model.mjs?v=chapter-pressure-1';
+import { insideShutter, shutterPhase } from './shutter-cone.mjs?v=chapter-pressure-1';
+import { wispOrbit } from './wisp.mjs?v=chapter-pressure-1';
 
 // Seed 1 puts Hollow Sun at the first expedition's guardian. This in-memory
 // run never loads or saves campaign state.

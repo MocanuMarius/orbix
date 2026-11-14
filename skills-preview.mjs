@@ -1,5 +1,5 @@
-import {newState,createRun,getSkillWallet,buyCheckpointSkill,chooseStartingSkill} from './model.mjs?v=giant-detail-1';
-import {skillBookMarkup} from './skill-book.mjs?v=giant-detail-1';
+import {newState,createRun,getSkillWallet,buyCheckpointSkill,chooseStartingSkill} from './model.mjs?v=chapter-pressure-1';
+import {skillBookMarkup} from './skill-book.mjs?v=chapter-pressure-1';
 
 const book=document.querySelector('#preview-book'),status=document.querySelector('#preview-status');
 const initialVariant=()=>location.hash==='#index'?'index':'map';

@@ -1,4 +1,5 @@
-import {getPickupSpec,pickupKind,pickupContactRadius} from './pickups.mjs?v=giant-detail-1';
+import {getPickupSpec,pickupKind,pickupContactRadius} from './pickups.mjs?v=chapter-pressure-1';
+import {sparkBodyRadius} from './spark-size.mjs?v=chapter-pressure-1';
 
 // Roof-heavy courses used to lose half their fuel to floor-cache placement.
 // A duration floor repairs that disparity with richer lights before adding
@@ -127,4 +128,87 @@ export function enrichSparkLayers(layout,{clear,duration=100,endX=15000}={}){
   Object.assign(p,{kind:fuel===40?'cluster':'cache',value:fuel/20,extraEnergyLayer:true});added++;
  }
  return {pickups:ordinary.length,added,extraFuel:added*20};
+}
+
+// Keep the measured supply, but put more of the surplus on readable altitude
+// changes as the expedition progresses. Do this after shell sizes and authored
+// objectives are known: a Giant's rim or a fixed objective changes the choice.
+export function shapeExpeditionSupply(layout,{mapIndex,height,speed,endX,clear,targets=[],hazards=[],drafts=[]}){
+ if(!(mapIndex>0)||layout.boss)return;
+ const final=mapIndex>=2;
+ const mid=height*.5, mass=p=>getPickupSpec(p).fuel/getPickupSpec('light').fuel;
+ const all=layout.embers,good=all.filter(p=>!p.generated&&getPickupSpec(p).fuel>0&&!getPickupSpec(p).dim);
+ const inLane=p=>Math.abs(p.y-mid)-pickupContactRadius(p,height)<=height*.085;
+ const lane=new Set(good.filter(inLane)),marked=new Set(targets.map(t=>t.object));
+ const blocked=[...(layout.riskChains||[]).map(c=>[c.start-120,c.end+120]),
+  ...(layout.flightForks||[]).map(f=>[f.approachStart-80,f.exitEnd+80]),
+  ...drafts.map(d=>[d.x-d.rx-65,d.x+d.rx+65])];
+ const maxInterval=speed*(final?6:5.5);
+ const destinationShare=final?.36:.085, candidates=good.filter(p=>lane.has(p)&&p.accessible&&!p.pocket&&
+  !p.intro&&!p.riskChain&&!p.forkCache&&!p.blackHoleBypass&&!p.atlasBypass&&!p.challengeLandmark&&!marked.has(p)&&
+  p.x>speed*5 && p.x<endX-speed*2 && mass(p)<=3 && !blocked.some(([a,b])=>p.x+96>a&&p.x-96<b));
+ const wanted=Math.ceil(good.filter(p=>p.accessible).length*destinationShare);
+ // A low-discrepancy order distributes opportunities through the course.
+ // Trying every successive site from the start would spend the whole budget in leg one.
+ const order=p=>((p.x/speed)*.61803398875)%1;
+ candidates.sort((a,b)=>(final?mass(b)-mass(a):0)||order(a)-order(b));
+ let moved=0;
+ for(const p of candidates){
+  if(moved>=wanted)break;
+  let left=98,right=endX,nearMass=0;
+  for(const q of lane){
+   if(q===p)continue;
+   if(q.x<p.x)left=Math.max(left,q.x);else right=Math.min(right,q.x);
+   if(Math.abs(q.x-p.x)<speed*3)nearMass+=Math.min(3,mass(q));
+  }
+  if(right-left>maxInterval||nearMass<3)continue;
+  const r=sparkBodyRadius(p,height),sign=Math.floor(p.x/(speed*6))%2?1:-1;
+  for(const side of [sign,-sign]){
+   const offset=(final?.19:.16)+.016*Math.sin(p.phase||0);
+   const y=mid+side*(height*offset+Math.min(r,height*.07));
+   // Check both the body and the entry/exit sweep. Radius inflation spans
+   // continuous space between samples, including scenery colliders.
+   if(!clear(p.x,y,r+3)||hazards.some(h=>Math.abs(h.x-p.x)<(h.influence||h.radius||15)+110)||
+     all.some(q=>q!==p&&Math.abs(q.x-p.x)<r+height*.25+40&&Math.hypot(q.x-p.x,q.y-y)<r+sparkBodyRadius(q,height)+(getPickupSpec(q).dim?95:8)))continue;
+   let open=true;
+   for(let i=-4;i<=4;i++){
+    const t=Math.abs(i)/4,x=p.x+i*24,cy=y+(mid-y)*t;
+    if(!clear(x,cy,29)){open=false;break;}
+   }
+   if(!open)continue;
+   p.y=y;p.accessible=false;p.bankedSupply=true;
+   lane.delete(p);moved++;break;
+  }
+ }
+ // Some native layouts already have a long central drought before any
+ // redistribution. Offer one Small Spark halfway through those rare gaps
+ // when a hazard-free, body-wide landing and approach actually fit.
+ const anchors=[98,...Array.from(lane,p=>p.x).sort((a,b)=>a-b),endX];
+ const drought=speed*(final?7:6.5);
+ let repairs=0;
+ for(let i=1;i<anchors.length;i++){
+  if(anchors[i]-anchors[i-1]<=drought)continue;
+  const middle=(anchors[i]+anchors[i-1])*.5;
+  let restored=false;
+  for(const dx of [0,-60,60,-120,120]){
+   const x=middle+dx;
+   if(blocked.some(([a,b])=>x>=a&&x<=b)||hazards.some(h=>Math.abs(x-h.x)<(h.influence||h.radius||15)+40))continue;
+   for(const y of [mid,mid-height*.05,mid+height*.05]){
+    if(![-70,-35,0,35,70].every(d=>clear(x+d,y,32))||
+     all.some(q=>Math.hypot(q.x-x,q.y-y)<sparkBodyRadius(q,height)+(getPickupSpec(q).dim?100:22)))continue;
+    all.push({id:'course-respite:'+i,kind:'light',value:1,sparkMass:1,sparkWorldHeight:height,x,y,fuel:true,accessible:true,
+      recoverySupply:true,feature:'sheltered-glow',clearance:32,collected:false,attracted:false,phase:i});
+    restored=true;repairs++;break;
+   }
+   if(restored)break;
+  }
+ }
+ if(repairs){
+  all.sort((a,b)=>a.x-b.x);
+  if(layout.glowBudget){
+   layout.glowBudget.available+=getPickupSpec('light').fuel*repairs;
+   layout.glowBudget.shortfall=Math.max(0,layout.glowBudget.target-layout.glowBudget.available);
+  }
+ }
+ return moved;
 }

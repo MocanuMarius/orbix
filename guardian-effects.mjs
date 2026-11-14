@@ -1,6 +1,6 @@
-import {iceShardPoints,iceShardContact,sampleIceShard} from './guardian-geometry.mjs?v=giant-detail-1';
-import {getPickupSpec} from './pickups.mjs?v=giant-detail-1';
-import {installShutters,resizeShutters} from './shutter-cone.mjs?v=giant-detail-1';
+import {iceShardPoints,iceShardContact,sampleIceShard} from './guardian-geometry.mjs?v=chapter-pressure-1';
+import {getPickupSpec} from './pickups.mjs?v=chapter-pressure-1';
+import {installShutters,resizeShutters} from './shutter-cone.mjs?v=chapter-pressure-1';
 const clamp=(value,min,max)=>Math.max(min,Math.min(max,value));
 export function prepareGuardian(layout,height,speed){
  const boss=layout.boss,s=height/620;
@@ -22,20 +22,24 @@ export function prepareGuardian(layout,height,speed){
     :early&&boss.id==='rootbound-heart'?[0,3,2,1][o.bossPhase]
     :boss.difficulty===1&&o.bossPhase!==3?2:1;
   if(order%interval&&!o.guardianGate)continue;
-  const index=boss.attacks.length,side=o.bossPhase===1?-1:(index%2?1:-1);
+  const index=boss.attacks.length,side=o.guardianLane?-o.guardianLane:o.bossPhase===1?-1:(index%2?1:-1);
   const a={x:o.x+o.width*.65,center:o.center,y:o.center,baseGap:o.gap,side,obstacle:o,index,spent:false};
   if(boss.id==='storm-shepherd'){
-   const direction=index%2?1:-1;
+   // At a reversal the current blows off the outer bank, toward the next
+   // lane. It leaves the middle of the gate placid for a timed manual Lift.
+   const linked=!!o.guardianLane;
+   const direction=linked?-o.guardianLane:(index%2?1:-1);
    // Alternate between a low updraft and a high downdraft. The opposite half
    // always has a body-wide bypass. DraftField also powers Runner resistance.
-   a.stormZone={id:'shepherd-'+index,guardian:true,x:a.x,y:a.center-direction*o.gap*.17,
-    rx:96+(o.bossPhase-1)*7+(o.guardianGate?14:0),ry:o.gap*.28,direction,
-    force:(520+(o.bossPhase-1)*35)*(o.guardianGate?1.20:1),triggeredAt:null};
+   a.stormZone={id:'shepherd-'+index,guardian:true,x:a.x,y:a.center-direction*o.gap*(linked?.28:.17),
+    rx:linked?88:96+(o.bossPhase-1)*7+(o.guardianGate?14:0),ry:o.gap*(linked?.20:.28),direction,
+    force:(520+(o.bossPhase-1)*35)*(linked?.90:o.guardianGate?1.20:1),triggeredAt:null};
   }
   if(boss.id==='frost-matron'){
    // Early shards claim the marked wall side; later swipes reach toward mid-lane.
    a.iceReach=early?([0,.29,.16,.03][o.bossPhase]-(boss.difficulty-1)*.035):-.10;
    if(o.guardianGate)a.iceReach-=.045;
+   if(o.guardianLane)a.iceReach-=.035*boss.mapIndex;
    a.iceOrigin=a.center+side*o.gap*.5;a.iceEnd=a.center+side*o.gap*a.iceReach;
    a.iceY=a.iceOrigin;a.iceProgress=0;a.iceActive=false;
    a.icePoints=iceShardPoints(a,s);
