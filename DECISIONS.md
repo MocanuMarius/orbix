@@ -899,3 +899,7 @@ Fuel Sparks have a smaller shell and a mostly white palette. The 6-Spark pickup 
 Banked Stored Sparks can be spent from the start of the run, including during a flight. The purchase updates the live build and survives a lost attempt. Overflow from the current flight becomes spendable on a clear. Closing Skills during flight requires a tap to resume.
 
 Once Dream is learned, the player can rehearse a reachable elite or guardian from its route preview, in addition to the next flight after a Rest. A rehearsal costs no attempt and commits no route. The recorded opening belongs to its encounter and build. Buying a skill during replay ends the assistance and leaves the player paused.
+
+Ribbon is the default Spark absorption. On shell break, a small burst of electric arcs spreads around the wisp. A Collector catch triggers the same burst at the moment of contact. Over 2.2 seconds, the leading edge winds around the wisp while the back of the Spark stretches into the curve. All three motions keep the direction of contact, including a Collector handoff. The motion gallery lets players replay an encounter from four directions and keep a preferred style.
+
+The Flash Powerup is a solid white triangle. On pickup it trails the wisp on a luminous cord for eight seconds. The cord responds to lifts and dives, the terrain pulses with light, and the triangle dissolves into a small drifting puff. Reduced motion uses steady illumination. The Flash gallery shows the pickup through expiration on a scrubbable flight scene.

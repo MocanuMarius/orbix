@@ -1,14 +1,14 @@
-import {getBiome} from './biomes.mjs?v=stream-and-dream-1';
-import {getBossPreview} from './boss.mjs?v=stream-and-dream-1';
-import {levelMapPreview} from './level-map-art.mjs?v=stream-and-dream-1';
-import {mapStopIconMarkup} from './map-guide.mjs?v=stream-and-dream-1';
-import {resourceSymbol} from './game-symbols.mjs?v=stream-and-dream-1';
-import {getFlightClearReward} from './checkpoint-rewards.mjs?v=stream-and-dream-1';
-import {availableFlightArtifacts} from './model.mjs?v=stream-and-dream-1';
-import {bonusIcon,boonMarkup} from './route-bonus-ui.mjs?v=stream-and-dream-1';
-import {contextualFlightNotice} from './contextual-events.mjs?v=stream-and-dream-1';
-import {ATLAS_FORECASTS,atlasGlyph} from './night-atlas.mjs?v=stream-and-dream-1';
-import {canDreamAt,dreamConfig,dreamEye} from './dream.mjs?v=stream-and-dream-1';
+import {getBiome} from './biomes.mjs?v=ribbon-luminance-1';
+import {getBossPreview} from './boss.mjs?v=ribbon-luminance-1';
+import {levelMapPreview} from './level-map-art.mjs?v=ribbon-luminance-1';
+import {mapStopIconMarkup} from './map-guide.mjs?v=ribbon-luminance-1';
+import {resourceSymbol} from './game-symbols.mjs?v=ribbon-luminance-1';
+import {getFlightClearReward} from './checkpoint-rewards.mjs?v=ribbon-luminance-1';
+import {availableFlightArtifacts} from './model.mjs?v=ribbon-luminance-1';
+import {bonusIcon,boonMarkup} from './route-bonus-ui.mjs?v=ribbon-luminance-1';
+import {contextualFlightNotice} from './contextual-events.mjs?v=ribbon-luminance-1';
+import {ATLAS_FORECASTS,atlasGlyph} from './night-atlas.mjs?v=ribbon-luminance-1';
+import {canDreamAt,dreamConfig,dreamEye} from './dream.mjs?v=ribbon-luminance-1';
 
 const escapeText = value => String(value ?? '').replace(/[&<>"']/g, char =>
  ({'&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;'}[char]));

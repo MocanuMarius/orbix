@@ -1,19 +1,19 @@
-import {resourceSymbol} from './game-symbols.mjs?v=stream-and-dream-1';
-import {drawPickup, pickupArtSvg, drawFlashBurst, FLASH_BURST_DURATION} from './pickup-art.mjs?v=stream-and-dream-1';
-import {getPickupSpec} from './pickups.mjs?v=stream-and-dream-1';
-import {drawBlackHoles} from './black-hole-art.mjs?v=stream-and-dream-1';
-import {blackHoleDrainRate, BLACK_HOLE_TUNING} from './black-holes.mjs?v=stream-and-dream-1';
-import {CAPTURE_STYLES, readCaptureStyle, saveCaptureStyle} from './capture-styles.mjs?v=stream-and-dream-1';
-import {drawCapture} from './capture-art.mjs?v=stream-and-dream-1';
-import {glowPoints, LIGHT_PACKET_TUNING} from './vitality.mjs?v=stream-and-dream-1';
-import {SKILLS, ARTIFACTS} from './model.mjs?v=stream-and-dream-1';
-import {ROUTE_BONUSES} from './route-bonuses.mjs?v=stream-and-dream-1';
-import {skillIcon, artifactIcon} from './upgrade-icons.mjs?v=stream-and-dream-1';
-import {mapStopIconMarkup} from './map-guide.mjs?v=stream-and-dream-1';
-import {companionArtSvg, makeWispSprite} from './companion-art.mjs?v=stream-and-dream-1';
-import {lifeHeartSvg} from './lives.mjs?v=stream-and-dream-1';
-import {bonusIcon} from './route-bonus-ui.mjs?v=stream-and-dream-1';
-import {menuIcon} from './menu-icons.mjs?v=stream-and-dream-1';
+import {resourceSymbol} from './game-symbols.mjs?v=ribbon-luminance-1';
+import {drawPickup, pickupArtSvg} from './pickup-art.mjs?v=ribbon-luminance-1';
+import {getPickupSpec} from './pickups.mjs?v=ribbon-luminance-1';
+import {drawBlackHoles} from './black-hole-art.mjs?v=ribbon-luminance-1';
+import {blackHoleDrainRate, BLACK_HOLE_TUNING} from './black-holes.mjs?v=ribbon-luminance-1';
+import {CAPTURE_STYLES, readCaptureStyle, saveCaptureStyle} from './capture-styles.mjs?v=ribbon-luminance-1';
+import {drawCapture} from './capture-art.mjs?v=ribbon-luminance-1';
+import {glowPoints, LIGHT_PACKET_TUNING} from './vitality.mjs?v=ribbon-luminance-1';
+import {SKILLS, ARTIFACTS} from './model.mjs?v=ribbon-luminance-1';
+import {ROUTE_BONUSES} from './route-bonuses.mjs?v=ribbon-luminance-1';
+import {skillIcon, artifactIcon} from './upgrade-icons.mjs?v=ribbon-luminance-1';
+import {mapStopIconMarkup} from './map-guide.mjs?v=ribbon-luminance-1';
+import {companionArtSvg, makeWispSprite} from './companion-art.mjs?v=ribbon-luminance-1';
+import {lifeHeartSvg} from './lives.mjs?v=ribbon-luminance-1';
+import {bonusIcon} from './route-bonus-ui.mjs?v=ribbon-luminance-1';
+import {menuIcon} from './menu-icons.mjs?v=ribbon-luminance-1';
 
 const preferences = matchMedia('(prefers-reduced-motion: reduce)');
 const root = document.documentElement;
@@ -35,6 +35,7 @@ const pickup = kind => {
 };
 const groups = {
   absorption: () => [],
+  flash: () => [],
   fuel: () => ['light','cluster','cache'].map(pickup),
   other: () => ['sight','dusk','dark'].map(pickup),
   siphon: () => [],
@@ -53,7 +54,8 @@ const groups = {
 document.querySelector('#fuel-mark').innerHTML = resourceSymbol('energy');
 document.querySelector('#wallet-mark').innerHTML = resourceSymbol('packed');
 document.querySelector('#sight-mark').innerHTML = skillIcon(SKILLS['main-sight']);
-let paused = preferences.matches;
+let reducedMotion = preferences.matches;
+let paused = reducedMotion;
 // Preview playback is an explicit per-page choice. Keep the initial system
 // preference, and allow both the normal and reduced motion artwork to be inspected.
 const motionRules = [];
@@ -68,7 +70,7 @@ function collectMotionRules(rules) {
 for (const sheet of document.styleSheets) collectMotionRules(sheet.cssRules);
 function syncMotion() {
   for (const [media, original] of motionRules) {
-    media.mediaText = preferences.matches && !paused
+    media.mediaText = reducedMotion && !paused
       ? original.replace(/\(prefers-reduced-motion:\s*(reduce|no-preference)\)/g, (_,value)=>value==='reduce'?'(width < 0px)':'(width >= 0px)')
       : original;
   }
@@ -77,11 +79,10 @@ function syncMotion() {
 }
 let previewWisp;
 function wirePickupDemo(button, kind) {
-  const flash = kind === 'sight';
-  const duration = flash ? FLASH_BURST_DURATION : LIGHT_PACKET_TUNING.absorptionDuration;
+  const duration = LIGHT_PACKET_TUNING.absorptionDuration;
   const wispX = 65, wispY = 89;
   const effect = {pickupKind:kind, initialAngle:Math.atan2(80-wispY,80-wispX),
-    initialScale:1, style:readCaptureStyle(), startRadius:Math.hypot(80-wispX,80-wispY), captureDistance:0, capturePlayerY:wispY, phase:0, duration};
+    approachX:-40, approachY:-8, initialScale:1, style:readCaptureStyle(), startRadius:Math.hypot(80-wispX,80-wispY), captureDistance:0, capturePlayerY:wispY, phase:0, duration};
   const canvas = document.createElement('canvas');
   canvas.width = canvas.height = 160;
   canvas.setAttribute('aria-hidden','true');
@@ -102,14 +103,10 @@ function wirePickupDemo(button, kind) {
         return;
       }
       const quiet = root.dataset.previewPaused === 'true';
-      if (flash) {
-        drawFlashBurst(ctx,80,80,elapsed,1,quiet);
-      } else {
-        previewWisp ??= makeWispSprite(document,28);
-        ctx.imageSmoothingEnabled = false;
-        ctx.drawImage(previewWisp,wispX-15,wispY-15,30,30);
-        drawCapture(ctx,effect,effect.bornAt+elapsed,wispX,wispY,0,1,quiet);
-      }
+      previewWisp ??= makeWispSprite(document,28);
+      ctx.imageSmoothingEnabled = false;
+      ctx.drawImage(previewWisp,wispX-15,wispY-15,30,30);
+      drawCapture(ctx,effect,effect.bornAt+elapsed,wispX,wispY,0,1,quiet);
       frame = requestAnimationFrame(render);
     }
     render(start);
@@ -158,12 +155,22 @@ function createSiphonPreview() {
 
 const scrub = document.querySelector('#capture-time');
 const sample = document.querySelector('#sample-kind');
+const angleControl = document.querySelector('#capture-angle');
+// Contact offsets and incoming velocity relative to the wisp. Opposite
+// encounters mirror each other so each pair can be compared at the same time.
+const encounters = {
+  ahead:  { dx: 28, dy: -7, approachX: -38, approachY: -12 },
+  behind: { dx:-28, dy: -7, approachX:  38, approachY: -12 },
+  above:  { dx:  7, dy:-28, approachX: -22, approachY:  24 },
+  below:  { dx:  7, dy: 28, approachX: -22, approachY: -24 }
+};
 const styleNote = document.querySelector('#style-note');
 const duration = LIGHT_PACKET_TUNING.absorptionDuration;
 const leadIn = .4;
 const loopLength = leadIn + duration + .4;
 let previewTime = 0;
 let compareFrame;
+let flashPreview;
 
 scrub.addEventListener('input', () => {
   paused = true;
@@ -171,16 +178,20 @@ scrub.addEventListener('input', () => {
   previewTime = Number(scrub.value) / 1000 * loopLength;
 });
 
+angleControl.addEventListener('change', () => {
+  if (!paused) previewTime = 0;
+});
+
 function createComparison(fragment) {
   const selected = readCaptureStyle();
-  const wispX = 56, wispY = 50, dx = 30, dy = -12;
+  const wispX = 75, wispY = 60;
   const contexts = [];
   previewWisp ??= makeWispSprite(document,28);
   for (const style of CAPTURE_STYLES) {
     const figure = document.createElement('figure');
     const canvas = document.createElement('canvas');
     canvas.width = 150;
-    canvas.height = 100;
+    canvas.height = 120;
     canvas.setAttribute('role','img');
     canvas.setAttribute('aria-label',style.name + ' absorption');
     const label = document.createElement('label');
@@ -200,7 +211,7 @@ function createComparison(fragment) {
     fragment.append(figure);
     const ctx = canvas.getContext('2d');
     ctx.imageSmoothingEnabled = false;
-    const effect = {style:style.id, initialAngle:Math.atan2(dy,dx), startRadius:Math.hypot(dx,dy),
+    const effect = {style:style.id,
       captureDistance:0, capturePlayerY:wispY, phase:.7, initialScale:1, bornAt:1, duration};
     contexts.push({ctx,effect});
   }
@@ -208,7 +219,7 @@ function createComparison(fragment) {
   styleNote.textContent = initialStyle.name + ' selected for your next flight.';
   // All three renders use one clock and the same flight coordinates. Pausing or
   // scrubbing therefore compares the same instant regardless of refresh rate.
-  let lastWallTime, lastTime, lastKind;
+  let lastWallTime, lastTime, lastKind, lastEncounter;
   previewTime = paused ? leadIn + duration * .22 : 0;
   function paint(now) {
     const playing = root.dataset.previewPaused !== 'true';
@@ -217,22 +228,32 @@ function createComparison(fragment) {
     }
     lastWallTime = now;
     const kind = sample.value;
-    if (previewTime !== lastTime || kind !== lastKind) {
+    const encounter = encounters[angleControl.value];
+    if (previewTime !== lastTime || kind !== lastKind || encounter !== lastEncounter) {
+      const {dx,dy,approachX,approachY} = encounter;
       scrub.value = Math.round(1000*previewTime/loopLength);
       const age = previewTime - leadIn;
       for (const {ctx,effect} of contexts) {
-        ctx.clearRect(0,0,150,100);
+        ctx.clearRect(0,0,ctx.canvas.width,ctx.canvas.height);
+        if (encounter !== lastEncounter) {
+          effect.approachX = approachX;
+          effect.approachY = approachY;
+          effect.initialAngle = Math.atan2(dy,dx);
+          effect.startRadius = Math.hypot(dx,dy);
+          ctx.canvas.setAttribute('aria-label',effect.style + ' absorption from ' + angleControl.value);
+        }
         ctx.drawImage(previewWisp,wispX-15,wispY-15,30,30);
         effect.pickupKind = kind;
         const time = effect.bornAt + age;
         if (age < 0) {
-          drawPickup(ctx,wispX+dx,wispY+dy,{kind,time,phase:effect.phase});
+          drawPickup(ctx,wispX+dx+age*approachX,wispY+dy+age*approachY,{kind,time,phase:effect.phase});
         } else if (age < duration) {
           drawCapture(ctx,effect,time,wispX,wispY,0,1,false);
         }
       }
       lastTime = previewTime;
       lastKind = kind;
+      lastEncounter = encounter;
     }
     compareFrame = requestAnimationFrame(paint);
   }
@@ -241,10 +262,15 @@ function createComparison(fragment) {
 
 function renderGroup() {
   cancelAnimationFrame(compareFrame);
+  flashPreview?.stop();
+  flashPreview = null;
+  const flash = picker.value === 'flash';
   const comparison = picker.value === 'absorption';
   root.dataset.comparison = String(comparison);
+  root.dataset.flash = String(flash);
+  scale.hidden = flash;
   gallery.setAttribute('aria-label',comparison ? 'Compare absorption styles for your next flight' : 'Icon artwork');
-  document.querySelector('h1').textContent = comparison ? 'Spark absorption' : 'Icon preview';
+  document.querySelector('h1').textContent = comparison ? 'Spark absorption' : flash ? 'Flash Powerup' : 'Icon preview';
   document.querySelector('#comparison-controls').hidden = !comparison;
   styleNote.hidden = !comparison;
   const fragment = document.createDocumentFragment();
@@ -256,12 +282,20 @@ function renderGroup() {
     art.setAttribute('aria-hidden','true');
     art.innerHTML = markup;
     caption.textContent = name;
-    if (kind) {
+    if (kind === 'sight') {
+      const link = document.createElement('a');
+      link.href = '#flash';
+      link.className = 'pickup-demo';
+      link.setAttribute('aria-label','Watch the Flash Powerup in flight');
+      link.append(...art.childNodes);
+      art.append(link);
+      art.removeAttribute('aria-hidden');
+    } else if (kind) {
       const button = document.createElement('button');
       button.type = 'button';
-      button.className = kind === 'sight' ? 'pickup-demo flash-demo' : 'pickup-demo absorb-demo';
+      button.className = 'pickup-demo absorb-demo';
       if (getPickupSpec(kind).plasma) button.dataset.plasma = '';
-      button.setAttribute('aria-label',kind === 'sight' ? 'Try the Flash Powerup burst' : 'Replay ' + name + ' absorption');
+      button.setAttribute('aria-label','Replay ' + name + ' absorption');
       button.append(...art.childNodes);
       art.append(button);
       art.removeAttribute('aria-hidden');
@@ -269,7 +303,7 @@ function renderGroup() {
     }
     if (detail) {
       const text = document.createElement('small');
-      text.textContent = kind === 'sight' ? 'Tap to burst' : detail;
+      text.textContent = kind === 'sight' ? 'Watch in flight' : detail;
       caption.append(text);
       if (kind && kind !== 'sight') {
         const hint = document.createElement('small');
@@ -283,7 +317,23 @@ function renderGroup() {
   if (picker.value === 'siphon') fragment.append(createSiphonPreview());
   gallery.replaceChildren(fragment);
   gallery.dataset.group = picker.value;
+  if (flash) openFlashPreview();
   if (location.hash.slice(1) !== picker.value) history.replaceState(null, '', '#' + picker.value);
+}
+async function openFlashPreview() {
+  try {
+    const {createFlashPreview} = await import('./flash-preview.mjs?v=ribbon-luminance-1');
+    if (picker.value !== 'flash' || flashPreview) return;
+    flashPreview = createFlashPreview({
+      isPaused: () => root.dataset.previewPaused === 'true',
+      reducedMotion: () => reducedMotion,
+      setPaused: value => { paused = value; syncMotion(); }
+    });
+    gallery.replaceChildren(flashPreview.element);
+  } catch (error) {
+    if (picker.value === 'flash') gallery.textContent = 'The preview could not load. Reload to try again.';
+    console.error(error);
+  }
 }
 function followGroupLink() {
   const group = location.hash.slice(1);
@@ -298,7 +348,7 @@ scale.addEventListener('click', () => {
   root.dataset.large = String(large);
 });
 motion.addEventListener('click', () => { paused = !paused; syncMotion(); });
-preferences.addEventListener('change', () => { paused = preferences.matches; syncMotion(); });
+preferences.addEventListener('change', event => { reducedMotion = event.matches; paused = reducedMotion; syncMotion(); });
 document.addEventListener('visibilitychange', syncMotion);
 syncMotion();
 followGroupLink();

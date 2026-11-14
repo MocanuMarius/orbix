@@ -20,8 +20,23 @@ export function createLightMaskCanvas(document){
 // Independent reveals compete by brightness, never add into a white flash.
 // Edging remains a Luminance effect: it does not pretend to be a pickup trigger.
 const revealUnit=value=>Math.max(0,Math.min(1,Number(value)||0));
+function smoothUnit(value){
+  const t=revealUnit(value);
+  return t*t*(3-2*t);
+}
+export function flashRangeStrength(remaining){
+  return smoothUnit(remaining/2);
+}
+export function pickupRevealHold(start,from,reducedMotion){
+  return start+1.5+(from<1?(reducedMotion?.35:.12):0);
+}
+export function pickupRevealAt(time,start,hold,from,reducedMotion){
+  if(!Number.isFinite(start)||time<start)return 0;
+  if(time<=hold)return from+(1-from)*smoothUnit((time-start)/(reducedMotion?.35:.12));
+  return 1-smoothUnit((time-hold)/1.2);
+}
 export function sceneRevealStrength(light={}){
-  return Math.max(revealUnit(light.pickupReveal),revealUnit(light.edgingReveal));
+  return Math.max(revealUnit(light.pickupReveal),revealUnit(light.edgingReveal),revealUnit(light.tetherReveal));
 }
 export function lightVisibility(engine,light,x,y,playerY=engine.player.y){
   const radius=Math.max(1,light.radius||145),intensity=light.intensity??1;

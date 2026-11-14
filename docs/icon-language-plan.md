@@ -25,7 +25,7 @@ Use **“a Spark adds 12 to the Spark Meter”** for the first explanation. Once
 | Spark | Warm-white arcs that flare and fade | +6 Sparks |
 | Spark Cluster | Pale mint-white branches around a brighter core | +12 Sparks |
 | Spark Cache | Dense white plasma with a broad halo | +18 Sparks |
-| Flash Powerup | Glowing violet triangle that breaks into shards | Reveals the visible passage for 1.5 seconds. Extra Luminance fades over an eight-second window. |
+| Flash Powerup | White glowing triangle on a trailing thread | Reveals the visible passage for 1.5 seconds. It pulses while attached for eight seconds, then dissolves into a puff. |
 | Dusk Spark | Rose field surrounding a dark core | +12 Sparks and reduced Luminance for four seconds. |
 | Dark Spark | Red warning field around a black seed | Reduces Luminance for eight seconds on contact. A fuel Spark clears one dimming effect. |
 | Black Hole | Opaque core, broken accretion ring and inward streams of light | Persistent hazard. Approaching its core drains the Spark Meter faster. |

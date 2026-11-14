@@ -1,5 +1,5 @@
-import {moonDrainScale} from './atlas-flight.mjs?v=stream-and-dream-1';
-import { obstacleEdgeClearance } from './edging-pulse.mjs?v=stream-and-dream-1';
+import {moonDrainScale} from './atlas-flight.mjs?v=ribbon-luminance-1';
+import { obstacleEdgeClearance } from './edging-pulse.mjs?v=ribbon-luminance-1';
 
 // Rates are internal flight Sparks. The HUD displays 0.3 of these units: a
 // Drain is twice the prior curve; the checked bypass limits unavoidable loss.

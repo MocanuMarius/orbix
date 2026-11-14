@@ -97,6 +97,31 @@ test('absorption starts from the live Spark texture, including both warning vari
   }
 });
 
+test('the Flash Powerup uses the same white triangle and halo in the field and menus', async () => {
+  const {ctx}=atlasFixture();
+  const [still,motion]=await Promise.all(images(pickupArtSvg('sight')).map(decodeAsset));
+  drawPickup(ctx,0,0,{kind:'sight',time:0,reducedMotion:true});
+  assertSameFrame(ctx.last,still,0,'quiet Flash');
+  let time=0;
+  for(const [i,frame] of motion.frames.entries()) {
+    drawPickup(ctx,0,0,{kind:'sight',time:time+frame.delay/2});
+    assertSameFrame(ctx.last,motion,i,'moving Flash '+i);
+    let brightest=0, haloPixels=0;
+    for(let p=0;p<frame.rgba.length;p+=4) {
+      const [r,g,b,a]=frame.rgba.subarray(p,p+4);
+      if(!a)continue;
+      assert.equal(r,g);
+      assert.equal(g,b);
+      brightest=Math.max(brightest,Math.min(r,a));
+      if(a<150)haloPixels++;
+    }
+    assert.equal(brightest,255);
+    assert.ok(haloPixels>20);
+    time+=frame.delay;
+  }
+  assert.ok(motion.frames.some(f=>!f.rgba.equals(motion.frames[0].rgba)));
+});
+
 test('the menu, its wallet window and canvas labels use the scaled flight Spark', () => {
   const fuelImages = images(pickupArtSvg('light'));
   assert.equal(fuelImages.length, 2);
