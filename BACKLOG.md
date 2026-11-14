@@ -1,5 +1,13 @@
 # Guardian paths, Spark mass and run treasures — 14 November 2026
 
+## Flight art and terrain feedback awaiting the next batch
+
+- [ ] Revisit large and Giant Sparks at actual flight size on a landscape phone. Keep the pixel grain close to the smaller Sparks and add enough detail to the rim and plasma arcs that the large versions look naturally larger.
+- [ ] Create 20–30 different encounters for the crossroads signpost. Keep the recognizable sign and vary the routes it points to, including branching caves. Count distinct flying choices and terrain layouts toward the total.
+- [x] Provide a direct phone link to the [Hollow Sun Darkness Lantern rehearsal](https://mocanumarius.github.io/orbix/spark-preview.html#lantern). The sample opens at the lantern and supports both routes.
+- [ ] Reproduce the intermittent twitch in static terrain during scrolling. Track a stationary landmark against its collision surface and distinguish the jitter from intentional moving hazards and background parallax.
+- [ ] Give Black Holes a bright accretion disk that reads against the dark surroundings while preserving a completely black core.
+
 ## Skills book feedback awaiting the next batch
 
 - [x] Chapter map is the chosen starting view for Skills. Keep the affordable Upgrade index available.
