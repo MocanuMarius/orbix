@@ -42,7 +42,8 @@ test('terrain motes have the Small shell in flight, at the Collector and during 
  WispFlightView.prototype.drawCollectibles.call({scale:240/390,buffer:{width:600},
    drawPacket:(x,y,options)=>draw.push(options)}, {layout:{embers:[small,mote]},height:e.height}, 0, e.distance);
  assert.equal(draw.length,2);
- assert.deepEqual(draw[1],draw[0]);
+ assert.equal(draw[0].massTier,1);
+ assert.deepEqual(draw[1],{...draw[0],massTier:0});
  assert.equal(e.wisp.cargoPose(mote,0,e.height).scale,scale);
  e.shatterPickupRing(mote);
  assert.equal(e.particles.at(-1).radius,radius);
@@ -52,6 +53,27 @@ test('terrain motes have the Small shell in flight, at the Collector and during 
  assert.equal(absorption.initialScale,scale);
  assert.equal(glowPoints(e.flame),2);
  assert.equal(e.baseEmbers,0);
+ e.destroy();
+});
+test('large Sparks keep their art tier from the field through shrinking cargo and the delivery ribbon',()=>{
+ const e=new WispFlight({canvas,preflight:true,seed:'giant-art-tier'});
+ const raster=240/390;
+ for(const mass of [6,10]){
+  const packet={kind:'cache',sparkMass:mass,x:e.distance+e.player.x,y:e.player.y,carriedAt:0};
+  let field;
+  WispFlightView.prototype.drawCollectibles.call({scale:raster,buffer:{width:600},
+   drawPacket:(x,y,options)=>{field=options;}}, {layout:{embers:[packet]},height:e.height},0,e.distance);
+  const contact=e.wisp.cargoPose(packet,0,e.height);
+  const cargo=e.wisp.cargoPose(packet,1,e.height);
+  assert.equal(field.massTier,mass);
+  assert.equal(field.scale,contact.scale*raster);
+  assert.ok(cargo.scale<contact.scale);
+  assert.equal(cargo.massTier,mass);
+  const delivery={...cargo,worldX:packet.x,previousWorldX:packet.x,y:packet.y,previousY:packet.y,interval:1/60};
+  e.absorbPacket(packet,'light',delivery);
+  assert.equal(e.absorptionEffects.at(-1).initialScale,cargo.scale);
+  assert.equal(e.absorptionEffects.at(-1).massTier,mass);
+ }
  e.destroy();
 });
 test('biome profiles affect real pickups while authored fuel chains keep their position and value',()=>{

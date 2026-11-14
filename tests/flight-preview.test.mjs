@@ -42,16 +42,18 @@ test('the committed forecast gets one cue; future previews cannot start a flight
  assert.doesNotMatch(html,/Only the unmodified terrain cue|data-action="node"/);
 });
 
-test('Dream opens reachable Elite and Guardian rehearsals, while a Rest also opens ordinary rehearsals',()=>{
- const {run,render}=sample();
- const dream=/data-action="dream"/;
- assert.doesNotMatch(render({elite:true}),dream);
+test('learned Dream replaces Fly on each reachable flight and stays hidden from future nodes',()=>{
+ const {run,node,render}=sample();
+ assert.match(render(),/>Fly →/);
  run.skills['main-dream']=1;
- assert.doesNotMatch(render({elite:false,boss:false}),dream);
- for(const type of [{elite:true},{boss:true}]){
-  assert.match(render(type),dream);
-  assert.doesNotMatch(render(type,{available:false}),dream);
+ for(const type of [{elite:false,boss:false},{elite:true},{boss:true}]){
+  const html=render(type);
+  assert.match(html,/data-action="node"[^>]*>Dream · 6s →/);
+  assert.doesNotMatch(html,/data-action="dream"|>Fly →/);
+  assert.doesNotMatch(render(type,{available:false}),/data-action="node"|Dream ·/);
  }
- run.restReady=true;
- assert.match(render({elite:false,boss:false}),dream);
+ run.phase='briefing';run.current=node;
+ assert.match(render(),/Dream · 6s/);
+ run.attemptActive=true;
+ assert.doesNotMatch(render(),/Dream ·/);
 });

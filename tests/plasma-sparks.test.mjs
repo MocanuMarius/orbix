@@ -97,6 +97,29 @@ test('absorption starts from the live Spark texture, including both warning vari
   }
 });
 
+test('large Spark frames sample the screen grid and reuse bounded canvases across sizes and phases', () => {
+  const surfaces=new Set();
+  const doc={createElement(){
+    const canvas={};
+    const context={
+      canvas,clearRect(){},save(){},restore(){},translate(){},scale(){},beginPath(){},arc(){},fill(){},
+      stroke(){},moveTo(){},lineTo(){},createRadialGradient(){return {addColorStop(){}};}
+    };
+    canvas.getContext=()=>context;
+    surfaces.add(canvas);
+    return canvas;
+  }};
+  for(let frame=0;frame<60;frame++){
+    for(const [kind,massTier,scale] of [['cache',10,5.2],['dark',6,2.3],['dark',10,11.9]]){
+      const options={time:frame/25,scale,massTier,bodyOnly:frame%3===0};
+      const sprite=pickupSpriteFrame(doc,kind,options);
+      assert.ok(sprite.sparkTexelScale>=scale);
+      assert.equal(sprite,pickupSpriteFrame(doc,kind,options));
+    }
+  }
+  assert.ok(surfaces.size<=8);
+});
+
 test('the Flash Powerup uses the same white triangle and halo in the field and menus', async () => {
   const {ctx}=atlasFixture();
   const [still,motion]=await Promise.all(images(pickupArtSvg('sight')).map(decodeAsset));

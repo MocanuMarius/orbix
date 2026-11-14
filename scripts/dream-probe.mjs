@@ -18,6 +18,7 @@ for(let frame=0;frame<360;frame++){
 }
 assert.ok(ready?.valid);assert.equal(record.paused,true);assert.equal(record.flame,40);assert.equal(record.condensedTotal,12);
 assert.equal(ready.preset.nodeId,options.node.id);
+assert.equal(record.getState().flame,record.maxFlame,'The rehearsal presents a fully charged wisp');
 const alternate=make();
 alternate.options={...alternate.options,node:{...options.node,id:'other-elite'}};
 assert.equal(attachDream(alternate,{mode:'replay',preset:ready.preset}),null,'A saved opening belongs only to its rehearsed encounter');

@@ -1,19 +1,19 @@
-import {resourceSymbol} from './game-symbols.mjs?v=spark-floor-1';
-import {drawPickup, pickupArtSvg} from './pickup-art.mjs?v=spark-floor-1';
-import {getPickupSpec} from './pickups.mjs?v=spark-floor-1';
-import {drawBlackHoles} from './black-hole-art.mjs?v=spark-floor-1';
-import {blackHoleDrainRate, BLACK_HOLE_TUNING} from './black-holes.mjs?v=spark-floor-1';
-import {CAPTURE_STYLES, readCaptureStyle, saveCaptureStyle} from './capture-styles.mjs?v=spark-floor-1';
-import {drawCapture} from './capture-art.mjs?v=spark-floor-1';
-import {glowPoints, LIGHT_PACKET_TUNING} from './vitality.mjs?v=spark-floor-1';
-import {SKILLS, ARTIFACTS} from './model.mjs?v=spark-floor-1';
-import {ROUTE_BONUSES} from './route-bonuses.mjs?v=spark-floor-1';
-import {skillIcon, artifactIcon} from './upgrade-icons.mjs?v=spark-floor-1';
-import {mapStopIconMarkup} from './map-guide.mjs?v=spark-floor-1';
-import {companionArtSvg, makeWispSprite} from './companion-art.mjs?v=spark-floor-1';
-import {lifeHeartSvg} from './lives.mjs?v=spark-floor-1';
-import {bonusIcon} from './route-bonus-ui.mjs?v=spark-floor-1';
-import {menuIcon} from './menu-icons.mjs?v=spark-floor-1';
+import {resourceSymbol} from './game-symbols.mjs?v=giant-detail-1';
+import {drawPickup, pickupArtSvg} from './pickup-art.mjs?v=giant-detail-1';
+import {getPickupSpec} from './pickups.mjs?v=giant-detail-1';
+import {drawBlackHoles} from './black-hole-art.mjs?v=giant-detail-1';
+import {blackHoleDrainRate, BLACK_HOLE_TUNING} from './black-holes.mjs?v=giant-detail-1';
+import {CAPTURE_STYLES, readCaptureStyle, saveCaptureStyle} from './capture-styles.mjs?v=giant-detail-1';
+import {drawCapture} from './capture-art.mjs?v=giant-detail-1';
+import {glowPoints, LIGHT_PACKET_TUNING} from './vitality.mjs?v=giant-detail-1';
+import {SKILLS, ARTIFACTS} from './model.mjs?v=giant-detail-1';
+import {ROUTE_BONUSES} from './route-bonuses.mjs?v=giant-detail-1';
+import {skillIcon, artifactIcon} from './upgrade-icons.mjs?v=giant-detail-1';
+import {mapStopIconMarkup} from './map-guide.mjs?v=giant-detail-1';
+import {companionArtSvg, makeWispSprite} from './companion-art.mjs?v=giant-detail-1';
+import {lifeHeartSvg} from './lives.mjs?v=giant-detail-1';
+import {bonusIcon} from './route-bonus-ui.mjs?v=giant-detail-1';
+import {menuIcon} from './menu-icons.mjs?v=giant-detail-1';
 
 const preferences = matchMedia('(prefers-reduced-motion: reduce)');
 const root = document.documentElement;
@@ -40,6 +40,7 @@ const groups = {
   fuel: () => ['light','cluster','cache'].map(pickup),
   other: () => ['sight','dusk','dark'].map(pickup),
   siphon: () => [],
+  lantern: () => [],
   skills: () => Array.from(skillGroups.values(), skill => card(skill.treeName || skill.name, skillIcon(skill))),
   companions: () => [['collector','Collector'],['protector','Protector'],['swift','Runner'],['leveler','Space Timer']].map(([id,name]) => card(name,companionArtSvg(id))),
   relics: () => Object.values(ARTIFACTS).map(artifact => card(artifact.name,artifactIcon(artifact.id))),
@@ -173,6 +174,7 @@ let previewTime = 0;
 let compareFrame;
 let flashPreview;
 let sizesPreview;
+let lanternPreview;
 
 scrub.addEventListener('input', () => {
   paused = true;
@@ -268,15 +270,19 @@ function renderGroup() {
   flashPreview = null;
   sizesPreview?.stop();
   sizesPreview = null;
+  lanternPreview?.stop();
+  lanternPreview = null;
+  const lantern = picker.value === 'lantern';
   const sizes=picker.value==='sizes';
   const flash = picker.value === 'flash';
   const comparison = picker.value === 'absorption';
   root.dataset.comparison = String(comparison);
   root.dataset.flash = String(flash);
   root.dataset.sizes = String(sizes);
-  scale.hidden = flash||sizes;
+  root.dataset.lantern = String(lantern);
+  scale.hidden = flash||sizes||lantern;
   gallery.setAttribute('aria-label',comparison ? 'Compare absorption styles for your next flight' : 'Icon artwork');
-  document.querySelector('h1').textContent = comparison ? 'Spark absorption' : sizes?'Spark sizes':flash ? 'Flash Powerup' : 'Icon preview';
+  document.querySelector('h1').textContent = comparison ? 'Spark absorption' : sizes?'Spark sizes':flash ? 'Flash Powerup' : lantern ? 'Darkness Lantern' : 'Icon preview';
   document.querySelector('#comparison-controls').hidden = !comparison;
   styleNote.hidden = !comparison;
   const fragment = document.createDocumentFragment();
@@ -325,11 +331,27 @@ function renderGroup() {
   gallery.dataset.group = picker.value;
   if (flash) openFlashPreview();
   if (sizes) openSizesPreview();
+  if (lantern) openLanternPreview();
   if (location.hash.slice(1) !== picker.value) history.replaceState(null, '', '#' + picker.value);
+}
+async function openLanternPreview() {
+  try {
+    const {createLanternPreview} = await import('./lantern-preview.mjs?v=giant-detail-1');
+    if (picker.value !== 'lantern' || lanternPreview) return;
+    lanternPreview = createLanternPreview({
+      host: gallery,
+      isPaused: () => root.dataset.previewPaused === 'true',
+      play: () => { paused = false; syncMotion(); },
+      reducedMotion
+    });
+  } catch (error) {
+    if (picker.value === 'lantern') gallery.textContent = 'The encounter could not load. Reload to try again.';
+    console.error(error);
+  }
 }
 async function openSizesPreview(){
   try{
-    const {createSparkSizesPreview}=await import('./spark-sizes-preview.mjs?v=spark-floor-1');
+    const {createSparkSizesPreview}=await import('./spark-sizes-preview.mjs?v=giant-detail-1');
     if(picker.value!=='sizes'||sizesPreview)return;
     sizesPreview=createSparkSizesPreview({isPaused:()=>root.dataset.previewPaused==='true',
       setPaused:value=>{paused=value;syncMotion();},reducedMotion:()=>reducedMotion});
@@ -341,7 +363,7 @@ async function openSizesPreview(){
 }
 async function openFlashPreview() {
   try {
-    const {createFlashPreview} = await import('./flash-preview.mjs?v=spark-floor-1');
+    const {createFlashPreview} = await import('./flash-preview.mjs?v=giant-detail-1');
     if (picker.value !== 'flash' || flashPreview) return;
     flashPreview = createFlashPreview({
       isPaused: () => root.dataset.previewPaused === 'true',

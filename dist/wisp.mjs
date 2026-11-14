@@ -1,7 +1,7 @@
-import { LIGHT_PACKET_TUNING } from './vitality.mjs?v=spark-floor-1';
-import { getCompanionAbility } from './companion-abilities.mjs?v=spark-floor-1';
-import { pickupKind, pickupContactRadius, canCompanionCollect } from './pickups.mjs?v=spark-floor-1';
-import {sparkArtScale,sparkMass} from './spark-size.mjs?v=spark-floor-1';
+import { LIGHT_PACKET_TUNING } from './vitality.mjs?v=giant-detail-1';
+import { getCompanionAbility } from './companion-abilities.mjs?v=giant-detail-1';
+import { pickupKind, pickupContactRadius, canCompanionCollect } from './pickups.mjs?v=giant-detail-1';
+import {sparkArtScale,sparkMass} from './spark-size.mjs?v=giant-detail-1';
 
 const clamp = (value, lo, hi) => Math.min(hi, Math.max(lo, value));
 export const WISP_TUNING = Object.freeze({ range: 52.5, cooldown: 10, lightRadius: 175,
@@ -83,7 +83,7 @@ export class WispCompanion {
     const elapsed = clamp((time - packet.carriedAt) / Math.min(.42,.18*Math.max(1,Math.sqrt(fieldScale))), 0, 1);
     const tucked = elapsed * elapsed * (3 - 2 * elapsed);
     return { offsetX: 8 * tucked, offsetY: 5 * tucked,
-      scale: fieldScale + (stowedScale-fieldScale)*tucked, detailed:sparkMass(packet)>=5 };
+      scale: fieldScale + (stowedScale-fieldScale)*tucked, massTier:sparkMass(packet) };
   }
 
   state(engine, y = engine.player.y, time = engine.time, renderBlend) {

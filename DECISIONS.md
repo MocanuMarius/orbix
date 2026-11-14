@@ -76,7 +76,7 @@ Focused evidence: 48 distinct courses, 96 generated layout cases, 144 seeded map
 
 This update replaces the dense crossover graph from relic-paths-1. Each map still has three starting branches and seven stops. Routes stay on their chosen corridor for several stops; authored junctions offer at most two exits. Taking a Treasure branch can now exclude a later Rest. All displayed nodes remain reachable from some start, an ordinary route reaches the finale, and successive elites stay prohibited even across support stops.
 
-A Rest still has one known next flight for Dream. Failure can reveal only one authored neighboring flight detour, keeping the choice of retry routes without opening the whole row. Completed sites cannot be repeated. Existing saved maps retain their graph; a New Game or newly generated next map uses the new topology.
+Every Rest commits to one flight, including retries and Dream rehearsals. Loading an older run preserves an already chosen detour as its sole exit. Unplayed detours close. Other encounters keep their authored forks.
 
 Model-owned map state drives both permission and drawing. The current position is the last completed stop, with a wisp and HERE marker; failed/uncompleted attempts do not move that marker. Walked paths stay gold. Immediate NEXT stops have bright discs, halos and pulsing rings. Legal future stops are subdued and open explicitly labelled previews. Closed branches are faint and have no pointer/keyboard action. A HERE control recentres the view. The map key explains brightness as well as encounter symbols. Future forecasts follow the legal route history instead of carrying an earlier elite state through intervening ordinary flights.
 

@@ -1,4 +1,5 @@
 // A dream records simulation inputs, never run rewards or snapshots of the world.
+import {getChoices} from './model.mjs?v=giant-detail-1';
 const INPUTS=['beginLiftInput','endLiftInput','flap','activateAbility'];
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
 const ordered=value=>Array.isArray(value)?value.map(ordered):value&&typeof value==='object'?Object.fromEntries(Object.keys(value).sort().map(k=>[k,ordered(value[k])])):value;
@@ -6,13 +7,13 @@ export function dreamFingerprint(options={}){
   const modifiers = {...options.modifiers};
   delete modifiers.eventFavors;
   delete modifiers.flightBoon; // Waking benefits cannot change rehearsed physics.
-  return JSON.stringify(ordered({simulation:'spark-floor-1',seed:options.seed,terrain:options.terrain,elite:!!options.elite,duration:options.duration,
+  return JSON.stringify(ordered({simulation:'giant-detail-1',seed:options.seed,terrain:options.terrain,elite:!!options.elite,duration:options.duration,
     node:options.node,companions:options.companions,modifiers,flame:options.flame,condensedGlow:options.condensedGlow||0,condensedRemainder:options.condensedRemainder||0}));
 }
 export function dreamConfig(run={}){
   const s=run.skills||{};
   return {duration:s['main-dream']?(s['main-dream-deep']?10:s['main-dream-long']?8:6):0,
-    wake:s['main-dream-wake']?4:3,sight:!!s['main-dream-sight']};
+    wake:s['main-dream-wake']?4:3,sight:!!s['main-dream-deep']};
 }
 export function validateDreamPreset(preset,engine){
   return !!preset&&preset.version===1&&preset.fingerprint===dreamFingerprint(engine.options)
@@ -21,22 +22,34 @@ export function validateDreamPreset(preset,engine){
     &&preset.events.every(event=>INPUTS.includes(event.action)&&Number.isInteger(event.frame)&&event.frame>=0&&event.frame<=preset.duration*60);
 }
 export const dreamEye='<svg viewBox="0 0 32 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" shape-rendering="crispEdges"><path d="M4 9l4 4 4 2h8l4-2 4-4M6 13l-3 3m8 0-1 4m7-3v4m7-6 2 4"/></svg>';
-const pauseIcon='<svg viewBox="0 0 32 24" aria-hidden="true" fill="currentColor"><path d="M9 4h4v16H9zM19 4h4v16h-4z"/></svg>';
 export function dreamIndicatorMarkup(dream){
-  if(!dream||dream.phase==='done')return '';
-  const paused=['awakening','ready','failed'].includes(dream.phase);
-  return `<div class="dream-indicator ${paused?'is-paused':''}" aria-label="${paused?'Dream paused':dream.mode==='record'?'Rehearsing dream':'Dream playback'}">${paused?pauseIcon:dreamEye}<span>${paused?'':Math.max(0,Math.ceil(dream.duration-(dream.engine?.time||0)))+'s'}</span></div>`;
+  if(!dream||!['recording','replay'].includes(dream.phase))return '';
+  const duration=dream.duration;
+  const remaining=clamp(dream.remaining??duration-(dream.engine?.time||0),0,duration);
+  const seconds=Math.ceil(remaining),label=dream.mode==='record'?'Dream':'Saved opening';
+  return `<div class="dream-countdown" role="meter" aria-label="${label} time remaining" aria-valuemin="0" aria-valuemax="${duration}" aria-valuenow="${seconds}" aria-valuetext="${seconds} seconds remaining"><span class="dream-clock-label" aria-hidden="true">${dreamEye}${label}<b>${seconds}s</b></span><span class="dream-clock-track" aria-hidden="true"><i style="transform:scaleX(${remaining/duration})"></i></span></div>`;
+}
+export function updateDreamIndicator(host,dream){
+  if(!host)return;
+  const phase=dream?.phase||'';
+  if(host.dataset.phase!==phase){
+    host.dataset.phase=phase;
+    host.innerHTML=dreamIndicatorMarkup(dream);
+  }
+  const meter=host.firstElementChild;
+  if(!meter||!dream)return;
+  const remaining=clamp(dream.remaining,0,dream.duration),seconds=Math.ceil(remaining);
+  meter.querySelector('i').style.transform=`scaleX(${remaining/dream.duration})`;
+  if(meter.getAttribute('aria-valuenow')!==String(seconds)){
+    meter.setAttribute('aria-valuenow',seconds);
+    meter.setAttribute('aria-valuetext',`${seconds} seconds remaining`);
+    meter.querySelector('b').textContent=seconds+'s';
+  }
 }
 export function canDreamAt(run,node){
-  return Boolean(node && node.type!=='support' && run?.phase==='map' && !run.attemptActive
-    && !run.victoryPending && !run.banked && run.lives>0 && dreamConfig(run).duration
-    && (run.restReady || node.elite || node.boss));
-}
-export function dreamRestMarkup(run,node){
-  const duration=dreamConfig(run).duration;
-  if(!run.restReady||!canDreamAt(run,node))return '';
-  const saved=run.dreamPreset?.nodeId===node.id;
-  return `<button data-action="dream" class="rest-dream" aria-label="Dream: rehearse ${duration} seconds${saved?' (preset saved)':''}">${dreamEye}<span>Dream</span><small>${duration}s${saved?' · SAVED':''}</small></button>`;
+ if(!node||node.type==='support'||!run||run.attemptActive||run.victoryPending||run.banked||run.lives<=0||!dreamConfig(run).duration)return false;
+ if(run.phase==='briefing')return run.current?.id===node.id;
+ return getChoices(run).some(choice=>choice.id===node.id);
 }
 
 export function attachDream(engine,{mode='record',preset,duration=engine.mod.dreamDuration,onReady=()=>{},onAwake=()=>{}}={}){
@@ -49,7 +62,7 @@ export function attachDream(engine,{mode='record',preset,duration=engine.mod.dre
     get state(){return {mode:this.mode,phase:this.phase,duration:this.duration,remaining:Math.max(0,this.duration-engine.time)}},
     resume(){
       if(this.phase!=='awakening')return false;
-      this.phase='done';engine.dreamCompleted=true;engine.resumeRampSeconds=Number(engine.mod.dreamWake)||3;
+      this.phase='done';this.wokeAt=engine.time;engine.dreamCompleted=true;engine.resumeRampSeconds=Number(engine.mod.dreamWake)||3;
       engine.resume();return true;
     }};
   engine.dream=dream;

@@ -1,7 +1,21 @@
-import {shutterLightFactor} from './shutter-cone.mjs?v=spark-floor-1';
+import {shutterLightFactor} from './shutter-cone.mjs?v=giant-detail-1';
 // Radius describes the bright core. A finite inverse-square field keeps a
 // faint tail at 2x radius, then reaches exact black at 3x without a hard seam.
 export const LIGHT_EXTENT=3;
+// This light is for drawing only. Rehearsal still simulates the same draft,
+// pickup and companion interactions as the live flight.
+const dreamLight=Object.freeze({rehearsing:true,intensity:1,radius:145,baseRadius:145});
+export function renderLightState(engine){
+  return engine.dream?.mode==='record'?dreamLight:engine.getLightState?.()||engine.light||{};
+}
+export function lightDreamScenery(ctx,width,height){
+  ctx.save();
+  ctx.globalCompositeOperation='color';ctx.globalAlpha=.84;ctx.fillStyle='#e4b85b';
+  ctx.fillRect(0,0,width,height);
+  ctx.globalCompositeOperation='screen';ctx.globalAlpha=.22;ctx.fillStyle='#c49647';
+  ctx.fillRect(0,0,width,height);
+  ctx.restore();
+}
 export function lightAttenuation(distanceSquared){
   const d2=Math.max(0,Number(distanceSquared)||0);
   if(d2>=LIGHT_EXTENT*LIGHT_EXTENT)return 0;
@@ -63,6 +77,7 @@ export function sceneRevealStrength(light={}){
   return Math.max(revealUnit(light.pickupReveal),revealUnit(light.edgingReveal),revealUnit(light.tetherReveal));
 }
 export function lightVisibility(engine,light,x,y,playerY=engine.player.y,includeShutters=true){
+  if(light.rehearsing)return 1;
   const radius=Math.max(1,light.radius||145),intensity=light.intensity??1;
   const dx=x-engine.player.x,dy=y-playerY;
   let dark=1-lightAttenuation((dx*dx+dy*dy)/(radius*radius))*intensity;

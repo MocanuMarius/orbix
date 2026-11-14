@@ -1,5 +1,5 @@
-import {lightVisibility} from './light-field.mjs?v=spark-floor-1';
-import {drawBlackHoleWarning} from './black-hole-warning.mjs?v=spark-floor-1';
+import {lightVisibility,renderLightState} from './light-field.mjs?v=giant-detail-1';
+import {drawBlackHoleWarning} from './black-hole-warning.mjs?v=giant-detail-1';
 // Pixel accretion and stolen-light trails. Cosmetics consume recorded drain;
 // rendering never spends fuel or changes the simulation.
 const TAU=Math.PI*2,MAX_MOTES=96;
@@ -89,10 +89,10 @@ function drawSiphonMote(c,p,age,x,y,scale) {
 export function drawBlackHoles(c,e,{scale=1,distance=e.renderDistance??e.distance,playerY=e.renderPlayerY??e.player.y}={}){
  if(!e.blackHoles?.items?.length)return;
  const v=view(e);update(v,e);const now=e.time||0,t=e.reducedMotion?0:(e.visualTime??now),q=Math.max(1,Math.round(scale*1.5));
+ const light=renderLightState(e);
  c.save();c.globalCompositeOperation='source-over';
  for(const hole of e.blackHoles.items){
   const worldX=hole.x-distance;if(worldX<-100||worldX>e.width+100)continue;
-  const light=e.getLightState?.()||{};
   drawBlackHoleWarning(c,e,hole,light,distance,playerY,t,scale);
   const x=worldX*scale,y=hole.y*scale,r=hole.coreRadius*scale;
   const proximity=clamp(1-(Math.abs(worldX-e.player.x)-90)/380,.15,1)*lightVisibility(e,light,worldX,hole.y,playerY);
