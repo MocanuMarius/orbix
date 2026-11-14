@@ -1,26 +1,26 @@
-import {consolidateSkills,refundRetiredSkills} from './skill-consolidation.mjs?v=clear-ink-1';
-import {PROXIMITY_SKILLS} from './proximity-skills.mjs?v=clear-ink-1';
-import {getGuardianForMap,getBossPreview} from './boss.mjs?v=clear-ink-1';
-import {getFlightLengthProfile} from './level-length.mjs?v=clear-ink-1';
-import {cleanOnboarding} from './onboarding.mjs?v=clear-ink-1';
-import {CONDENSED_TUNING,getCondensationRules,condenseGlow} from './condensed-glow.mjs?v=clear-ink-1';
-import {CONSUMABLE_ARTIFACTS,EVOLVING_ARTIFACTS,getArtifactStackPreview} from './artifact-info.mjs?v=clear-ink-1';
-import {getFlightClearReward} from './checkpoint-rewards.mjs?v=clear-ink-1';
-export {getCondensationRules} from './condensed-glow.mjs?v=clear-ink-1';
-import {ROUTE_RECIPES,ROUTE_TOPOLOGY_VERSION,REWARD_THEMES,nodeEconomy} from './route-recipes.mjs?v=clear-ink-1';
-import {COMPANION_ABILITIES,getCompanionUnlock,normalizeCompanionFleet} from './companion-abilities.mjs?v=clear-ink-1';
-import {MAIN_TUNING_SKILLS} from './main-tuning.mjs?v=clear-ink-1';
-import {STARTING_CONDENSED_GLOW,getGlowCapacity,getRestGlowBonus,REST_GLOW_TUNING,glowText} from './vitality.mjs?v=clear-ink-1';
-import {expandSkillSteps,skillProgress} from './skill-increments.mjs?v=clear-ink-1';
-import {MAX_ASCENSION} from './ascent.mjs?v=clear-ink-1';
-import {EXPANDED_SKILLS,applyExpandedSkills} from './skill-paths.mjs?v=clear-ink-1';
+import {consolidateSkills,refundRetiredSkills} from './skill-consolidation.mjs?v=carved-shrines-1';
+import {PROXIMITY_SKILLS} from './proximity-skills.mjs?v=carved-shrines-1';
+import {getGuardianForMap,getBossPreview} from './boss.mjs?v=carved-shrines-1';
+import {getFlightLengthProfile} from './level-length.mjs?v=carved-shrines-1';
+import {cleanOnboarding} from './onboarding.mjs?v=carved-shrines-1';
+import {CONDENSED_TUNING,getCondensationRules,condenseGlow} from './condensed-glow.mjs?v=carved-shrines-1';
+import {CONSUMABLE_ARTIFACTS,EVOLVING_ARTIFACTS,getArtifactStackPreview} from './artifact-info.mjs?v=carved-shrines-1';
+import {getFlightClearReward} from './checkpoint-rewards.mjs?v=carved-shrines-1';
+export {getCondensationRules} from './condensed-glow.mjs?v=carved-shrines-1';
+import {ROUTE_RECIPES,ROUTE_TOPOLOGY_VERSION,REWARD_THEMES,nodeEconomy} from './route-recipes.mjs?v=carved-shrines-1';
+import {COMPANION_ABILITIES,getCompanionUnlock,normalizeCompanionFleet} from './companion-abilities.mjs?v=carved-shrines-1';
+import {MAIN_TUNING_SKILLS} from './main-tuning.mjs?v=carved-shrines-1';
+import {STARTING_CONDENSED_GLOW,getGlowCapacity,getRestGlowBonus,REST_GLOW_TUNING,glowText} from './vitality.mjs?v=carved-shrines-1';
+import {expandSkillSteps,skillProgress} from './skill-increments.mjs?v=carved-shrines-1';
+import {MAX_ASCENSION} from './ascent.mjs?v=carved-shrines-1';
+import {EXPANDED_SKILLS,applyExpandedSkills} from './skill-paths.mjs?v=carved-shrines-1';
 /** Run-owned skills and currency; persistent ascension unlocks and boss artifacts. */
-import { FLAME_TUNING, LIFE_TUNING, getLifeCapacity } from './vitality.mjs?v=clear-ink-1';
-import { getBiomeLevelIdentity } from './level-catalog.mjs?v=clear-ink-1';
-import { BIOMES } from './biomes.mjs?v=clear-ink-1';
-import { EVENT_SCENARIOS } from './map-guide.mjs?v=clear-ink-1';
-import {contextualEventChoices,resolvePilgrimVow,ROUTE_PREPARATION} from './contextual-events.mjs?v=clear-ink-1';
-import {TREASURE_KINDS, describeTreasure, treasureChoices, LENS_SIGHT, LENS_RECOVERY, settleTreasureWager} from './treasure.mjs?v=clear-ink-1';
+import { FLAME_TUNING, LIFE_TUNING, getLifeCapacity } from './vitality.mjs?v=carved-shrines-1';
+import { getBiomeLevelIdentity } from './level-catalog.mjs?v=carved-shrines-1';
+import { BIOMES } from './biomes.mjs?v=carved-shrines-1';
+import { EVENT_SCENARIOS } from './map-guide.mjs?v=carved-shrines-1';
+import {contextualEventChoices,resolvePilgrimVow,ROUTE_PREPARATION} from './contextual-events.mjs?v=carved-shrines-1';
+import {TREASURE_KINDS, describeTreasure, treasureChoices, LENS_SIGHT, LENS_RECOVERY, settleTreasureWager} from './treasure.mjs?v=carved-shrines-1';
 export const SAVE_KEY='wispbound.save.condensed.v7';
 export const CAMPAIGN_MAP_NAMES=Object.freeze(['The Forgotten Verge','The Rootbound March','The Warden’s Reach']);
 export const TERRAINS=Object.freeze({ruins:{id:'ruins',name:'Sunken Ruins',color:'#cdb183',description:'Broken homes, worn arches and overgrown stone.'},canopy:{id:'canopy',name:'Luminous Canopy',color:'#94b48a',description:'Hollow trees, hanging roots and sheltered forest passages.'},storm:{id:'storm',name:'Stormglass Peaks',color:'#a8bbca',description:'Pine ridges, old mine timbers and local draft puffs.'}});
@@ -136,7 +136,7 @@ const freshSeed=()=>globalThis.crypto?.getRandomValues?Array.from(globalThis.cry
 function rng(seed){let s=2166136261;for(const c of String(seed))s=Math.imul(s^c.charCodeAt(0),16777619);return()=>{s+=0x6d2b79f5;let n=s;n=Math.imul(n^n>>>15,n|1);n^=n+Math.imul(n^n>>>7,n|61);return((n^n>>>14)>>>0)/4294967296;};}
 const shuffle=(items,random)=>{const a=[...items];for(let i=a.length-1;i>0;i--){const j=Math.floor(random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;};
 
-export function newState(){return{version:7,profile:{difficulty:1,onboarding:cleanOnboarding(),ownedArtifacts:[],equippedArtifacts:[],seenArtifactLessons:[],seenPickups:[],pickupCoachSkipped:false,tutorialComplete:false,bankedRuns:[],clearedFlights:0,stats:{completedRuns:0,wins:0,flights:0,attempts:0,deaths:0}},run:null,suspendedRun:null,settings:{sound:true,reducedMotion:false,testOverride:false,testStarterCompanion:'collector',startingCompanion:'collector',companions:['collector'],companionRole:'collector'}};}
+export function newState(){return{version:7,profile:{difficulty:1,onboarding:cleanOnboarding(),ownedArtifacts:[],equippedArtifacts:[],seenArtifactLessons:[],seenPickups:[],pickupCoachSkipped:false,tutorialComplete:false,bankedRuns:[],clearedFlights:0,stats:{completedRuns:0,wins:0,flights:0,attempts:0,deaths:0}},run:null,suspendedRun:null,settings:{sound:true,reducedMotion:false,skipTutorial:false,testOverride:false,testStarterCompanion:'collector',startingCompanion:'collector',companions:['collector'],companionRole:'collector'}};}
 /** Starter preference is validated against earned unlocks, or explicit TEST. */
 export function getStartingCompanion(state){const id=state?.settings?.startingCompanion||state?.settings?.testStarterCompanion;return ROLES.includes(id)&&getCompanionUnlock(id,state?.profile?.difficulty,state?.settings?.testOverride===true).selectable?id:'collector';}
 export function setStartingCompanion(state,id){if(!state?.settings||!ROLES.includes(id)||!getCompanionUnlock(id,state.profile?.difficulty,state.settings.testOverride===true).selectable)return false;state.settings.startingCompanion=id;state.settings.testStarterCompanion=id;return true;}
@@ -196,7 +196,7 @@ function cleanRunCompanion(run){
 }
 function validRun(r){if(!r||typeof r.id!=='string'||typeof r.seed!=='string'||!PHASES.has(r.phase))return false;const rows=r.isTutorial?r.map?.length:7;if(r.isTutorial&&![3,7].includes(rows))return false;if(!Array.isArray(r.map)||r.map.length!==rows||!Number.isInteger(r.step)||r.step<0||r.step>rows)return false;if(r.step===rows&&!['map-clear','ended'].includes(r.phase))return false;const all=r.map.flat();if(r.map.some((row,i)=>!Array.isArray(row)||!row.length||row.length>3||row.some(n=>!n||n.row!==i||typeof n.id!=='string'||!TERRAINS[n.terrain]||!['flight','support','finale'].includes(n.type))))return false;if(new Set(all.map(n=>n.id)).size!==all.length)return false;for(const n of all)if(!Array.isArray(n.nextIds)||n.nextIds.length>3||n.row<rows-1&&!n.nextIds.length||n.nextIds.some(id=>!r.map[n.row+1]?.some(next=>next.id===id)))return false;return Array.isArray(r.path)&&Array.isArray(r.companions)&&Number.isFinite(r.lives)&&Number.isFinite(r.flame);}
 export function saveState(state,storage){try{storage??=globalThis.localStorage;if(!storage?.setItem||state?.version!==7)return false;cleanRunCompanion(state.run);cleanRunCompanion(state.suspendedRun);state.settings.companions=normalizeCompanionFleet(state.settings.companions,state.settings.companionRole);state.settings.companionRole=state.settings.companions[0];storage.setItem(SAVE_KEY,JSON.stringify(state));return true;}catch{return false;}}
-export function loadState(storage){try{storage??=globalThis.localStorage;const parsed=JSON.parse(storage?.getItem?.(SAVE_KEY)||'null');if(parsed?.version!==7)return newState();const s=newState();s.profile=cleanProfile(parsed.profile);s.settings={sound:parsed.settings?.sound!==false,reducedMotion:parsed.settings?.reducedMotion===true,testOverride:parsed.settings?.testOverride===true,testStarterCompanion:ROLES.includes(parsed.settings?.testStarterCompanion)?parsed.settings.testStarterCompanion:'collector',startingCompanion:ROLES.includes(parsed.settings?.startingCompanion)?parsed.settings.startingCompanion:ROLES.includes(parsed.settings?.testStarterCompanion)?parsed.settings.testStarterCompanion:'collector',companions:unique(parsed.settings?.companions,id=>ROLES.includes(id)).slice(0,getCompanionCapacity(s.profile))};if(!s.settings.companions.length)s.settings.companions=['collector'];s.settings.companionRole=s.settings.companions[0];if(parsed.run&&parsed.run.artifactSystem!==2)s.updateNotice='Artifacts now accumulate without slots. Your old expedition has ended; ascension and tutorial progress are preserved.';if(parsed.run?.artifactSystem===2&&validRun(parsed.run)){s.run=parsed.run;restoreTreasureSites(s.run);s.run.restGlowCapacity=getRestGlowBonus(s.run);s.run.flame=clamp(s.run.flame,0,getGlowCapacity(s.run));s.run.artifacts=cleanRunArtifacts(s.run);cleanArtifactCharges(s.run);cleanRunCompanion(s.run);s.run.unlockedCompanionDifficulty=s.profile.difficulty;if(s.run.attemptActive)interrupt(s.run);settleCheckpoint(s);if(s.run.phase==='ended')bankRun(s);}if(s.run?.isTutorial&&parsed.suspendedRun?.artifactSystem===2&&validRun(parsed.suspendedRun)&&!parsed.suspendedRun.isTutorial&&parsed.suspendedRun.phase!=='ended'&&parsed.suspendedRun.id!==s.run.id){s.suspendedRun=parsed.suspendedRun;restoreTreasureSites(s.suspendedRun);cleanRunCompanion(s.suspendedRun);s.suspendedRun.restGlowCapacity=getRestGlowBonus(s.suspendedRun);s.suspendedRun.flame=clamp(s.suspendedRun.flame,0,getGlowCapacity(s.suspendedRun));cleanArtifactCharges(s.suspendedRun);if(s.suspendedRun.attemptActive)interrupt(s.suspendedRun);}saveState(s,storage);return s;}catch{return newState();}}
+export function loadState(storage){try{storage??=globalThis.localStorage;const parsed=JSON.parse(storage?.getItem?.(SAVE_KEY)||'null');if(parsed?.version!==7)return newState();const s=newState();s.profile=cleanProfile(parsed.profile);s.settings={sound:parsed.settings?.sound!==false,reducedMotion:parsed.settings?.reducedMotion===true,skipTutorial:parsed.settings?.skipTutorial===true,testOverride:parsed.settings?.testOverride===true,testStarterCompanion:ROLES.includes(parsed.settings?.testStarterCompanion)?parsed.settings.testStarterCompanion:'collector',startingCompanion:ROLES.includes(parsed.settings?.startingCompanion)?parsed.settings.startingCompanion:ROLES.includes(parsed.settings?.testStarterCompanion)?parsed.settings.testStarterCompanion:'collector',companions:unique(parsed.settings?.companions,id=>ROLES.includes(id)).slice(0,getCompanionCapacity(s.profile))};if(!s.settings.companions.length)s.settings.companions=['collector'];s.settings.companionRole=s.settings.companions[0];if(parsed.run&&parsed.run.artifactSystem!==2)s.updateNotice='Artifacts now accumulate without slots. Your old expedition has ended; ascension and tutorial progress are preserved.';if(parsed.run?.artifactSystem===2&&validRun(parsed.run)){s.run=parsed.run;restoreTreasureSites(s.run);s.run.restGlowCapacity=getRestGlowBonus(s.run);s.run.flame=clamp(s.run.flame,0,getGlowCapacity(s.run));s.run.artifacts=cleanRunArtifacts(s.run);cleanArtifactCharges(s.run);cleanRunCompanion(s.run);s.run.unlockedCompanionDifficulty=s.profile.difficulty;if(s.run.attemptActive)interrupt(s.run);settleCheckpoint(s);if(s.run.phase==='ended')bankRun(s);}if(s.run?.isTutorial&&parsed.suspendedRun?.artifactSystem===2&&validRun(parsed.suspendedRun)&&!parsed.suspendedRun.isTutorial&&parsed.suspendedRun.phase!=='ended'&&parsed.suspendedRun.id!==s.run.id){s.suspendedRun=parsed.suspendedRun;restoreTreasureSites(s.suspendedRun);cleanRunCompanion(s.suspendedRun);s.suspendedRun.restGlowCapacity=getRestGlowBonus(s.suspendedRun);s.suspendedRun.flame=clamp(s.suspendedRun.flame,0,getGlowCapacity(s.suspendedRun));cleanArtifactCharges(s.suspendedRun);if(s.suspendedRun.attemptActive)interrupt(s.suspendedRun);}saveState(s,storage);return s;}catch{return newState();}}
 
 // A campaign deck prevents repeat chests across map boundaries. Reserve a lens
 // for any chest immediately before the final guardian, when currency would expire.

@@ -54,7 +54,7 @@ body[data-screen=home] #app .menu-art-home.run-front-page {
   padding-bottom: 50px !important;
 }
 html body[data-screen=home] #app>.test-controls {
-  position: absolute !important;
+  position: fixed !important;
   inset: auto 0 0;
   z-index: 2;
   background: transparent !important;
@@ -80,4 +80,26 @@ html body[data-screen=home] #app .test-controls > .test-toggle.active {
 }
 html body[data-screen=home] #header .game-menu-trigger::before {
   filter: drop-shadow(1px 1px #020807);
+}
+
+/* The tip preference is a true checkbox, kept alongside the testing lever. */
+html body[data-screen=home] #app>.test-controls{gap:18px}
+html body[data-screen=home] #app .test-controls>.tutorial-skip-toggle{
+ display:inline-flex;align-items:center;justify-content:flex-start;gap:8px;
+ min-height:44px;height:44px;margin:0;padding:0 4px!important;border:0!important;border-image:none!important;
+ background:transparent!important;box-shadow:none!important;clip-path:none!important;
+ color:#e4e8d6;font:13px/1.2 var(--pixel)!important;text-shadow:1px 1px #03090d;
+}
+.tutorial-skip-box{
+ flex:none;display:grid;place-items:center;width:24px;height:24px;
+ border:3px solid #566b70;border-image:url('assets/rough-frame.svg?v=carved-shrines-1') 8 / 3px / 0 stretch;
+ background:#0b1920;box-shadow:1px 2px #03090d;
+}
+.tutorial-skip-box>svg{width:20px;height:20px;color:#e4dfa7}
+.tutorial-skip-toggle[aria-checked=true]{color:#f7e7b8!important}
+.tutorial-skip-toggle[aria-checked=true] .tutorial-skip-box{border-color:#b8bd8a;background:#24372b}
+.tutorial-skip-toggle:focus-visible{outline:2px solid #ffe9a6;outline-offset:2px}
+@media(orientation:landscape) and (max-height:350px){
+ html body[data-screen=home] #app>.test-controls{gap:14px}
+ html body[data-screen=home] #app .test-controls>.tutorial-skip-toggle{font-size:12px!important}
 }

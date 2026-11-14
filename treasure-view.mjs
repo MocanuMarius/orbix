@@ -1,9 +1,9 @@
-import {companionArtSvg} from './companion-art.mjs?v=clear-ink-1';
-import {resourceSymbol} from './game-symbols.mjs?v=clear-ink-1';
-import {getTreasureChoices,getTreasureKind} from './model.mjs?v=clear-ink-1';
-import {treasureArt} from './treasure-art.mjs?v=clear-ink-1';
-import {skillIcon} from './upgrade-icons.mjs?v=clear-ink-1';
-import {formatGlow,getGlowCapacity} from './vitality.mjs?v=clear-ink-1';
+import {companionArtSvg} from './companion-art.mjs?v=carved-shrines-1';
+import {resourceSymbol} from './game-symbols.mjs?v=carved-shrines-1';
+import {getTreasureChoices,getTreasureKind} from './model.mjs?v=carved-shrines-1';
+import {treasureArt} from './treasure-art.mjs?v=carved-shrines-1';
+import {skillIcon} from './upgrade-icons.mjs?v=carved-shrines-1';
+import {formatGlow,getGlowCapacity} from './vitality.mjs?v=carved-shrines-1';
 
 const esc=value=>String(value??'').replace(/[&<>"']/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
 

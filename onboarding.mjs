@@ -1,6 +1,10 @@
 // Normal-run onboarding is profile-owned. Prompts are contextual, one short
 // card at a time; the run owns only pacing so a new game keeps learned topics.
 export const ONBOARDING_VERSION=1;
+// Explicit practice and Field Guide lessons remain opt-in learning paths.
+export function automaticTipsEnabled(settings={},run){
+ return run?.isTutorial===true||settings.skipTutorial!==true;
+}
 export const ONBOARDING_PROMPT_GAP_MS=30000;
 const topics=new Set(['lift','luminance','collector','collector-recovery','protector','swift','leveler','artifacts','packed','skills','rest','companions','dream','routes','black-hole','bad-sparks','drafts','edging','hearts','events','progression','special-sparks']);
 const topicId=value=>String(value??'').replace(/^onboarding:/,'').split(':')[0];
