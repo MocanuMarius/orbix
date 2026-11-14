@@ -1,6 +1,6 @@
-import { LIGHT_PACKET_TUNING } from './vitality.mjs?v=moonwell-menu-1';
-import { getCompanionAbility } from './companion-abilities.mjs?v=moonwell-menu-1';
-import { pickupKind, pickupContactRadius, canCompanionCollect } from './pickups.mjs?v=moonwell-menu-1';
+import { LIGHT_PACKET_TUNING } from './vitality.mjs?v=guardian-currents-1';
+import { getCompanionAbility } from './companion-abilities.mjs?v=guardian-currents-1';
+import { pickupKind, pickupContactRadius, canCompanionCollect } from './pickups.mjs?v=guardian-currents-1';
 
 const clamp = (value, lo, hi) => Math.min(hi, Math.max(lo, value));
 export const WISP_TUNING = Object.freeze({ range: 52.5, cooldown: 10, lightRadius: 175,
@@ -210,7 +210,7 @@ export class WispCompanion {
       if (!this.leg) this.beginLeg(engine, orbit.x, orbit.y, true);
       if (this.advanceLeg(engine, orbit.x, orbit.y, dt)) {
         // Delivery-triggered cards can shorten this trip's recovery immediately.
-        this.cooldownMax = WISP_TUNING.cooldown * clamp(Number(engine.mod.wispCooldown) || 1, .4, 1.5);
+        this.cooldownMax = WISP_TUNING.cooldown * clamp(Number(engine.mod.wispCooldown) || 1, .4, 1.5) * (engine.mod.treasureRecoveryScale || 1);
         // An empty rescue trip must not spend a full successful-pickup recovery.
         if (this.cargo) this.cooldown = this.cooldownMax;
         this.phase = this.cooldown > 0 ? 'cooldown' : 'ready';

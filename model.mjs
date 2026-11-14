@@ -1,25 +1,26 @@
-import {consolidateSkills,refundRetiredSkills} from './skill-consolidation.mjs?v=moonwell-menu-1';
-import {PROXIMITY_SKILLS} from './proximity-skills.mjs?v=moonwell-menu-1';
-import {getGuardianForMap,getBossPreview} from './boss.mjs?v=moonwell-menu-1';
-import {getFlightLengthProfile} from './level-length.mjs?v=moonwell-menu-1';
-import {cleanOnboarding} from './onboarding.mjs?v=moonwell-menu-1';
-import {CONDENSED_TUNING,getCondensationRules,condenseGlow} from './condensed-glow.mjs?v=moonwell-menu-1';
-import {CONSUMABLE_ARTIFACTS,EVOLVING_ARTIFACTS,getArtifactStackPreview} from './artifact-info.mjs?v=moonwell-menu-1';
-import {getFlightClearReward} from './checkpoint-rewards.mjs?v=moonwell-menu-1';
-export {getCondensationRules} from './condensed-glow.mjs?v=moonwell-menu-1';
-import {ROUTE_RECIPES,ROUTE_TOPOLOGY_VERSION,REWARD_THEMES,nodeEconomy} from './route-recipes.mjs?v=moonwell-menu-1';
-import {COMPANION_ABILITIES,getCompanionUnlock,normalizeCompanionFleet} from './companion-abilities.mjs?v=moonwell-menu-1';
-import {MAIN_TUNING_SKILLS} from './main-tuning.mjs?v=moonwell-menu-1';
-import {STARTING_CONDENSED_GLOW,getGlowCapacity,getRestGlowBonus,REST_GLOW_TUNING,glowText} from './vitality.mjs?v=moonwell-menu-1';
-import {expandSkillSteps,skillProgress} from './skill-increments.mjs?v=moonwell-menu-1';
-import {MAX_ASCENSION} from './ascent.mjs?v=moonwell-menu-1';
-import {EXPANDED_SKILLS,applyExpandedSkills} from './skill-paths.mjs?v=moonwell-menu-1';
+import {consolidateSkills,refundRetiredSkills} from './skill-consolidation.mjs?v=guardian-currents-1';
+import {PROXIMITY_SKILLS} from './proximity-skills.mjs?v=guardian-currents-1';
+import {getGuardianForMap,getBossPreview} from './boss.mjs?v=guardian-currents-1';
+import {getFlightLengthProfile} from './level-length.mjs?v=guardian-currents-1';
+import {cleanOnboarding} from './onboarding.mjs?v=guardian-currents-1';
+import {CONDENSED_TUNING,getCondensationRules,condenseGlow} from './condensed-glow.mjs?v=guardian-currents-1';
+import {CONSUMABLE_ARTIFACTS,EVOLVING_ARTIFACTS,getArtifactStackPreview} from './artifact-info.mjs?v=guardian-currents-1';
+import {getFlightClearReward} from './checkpoint-rewards.mjs?v=guardian-currents-1';
+export {getCondensationRules} from './condensed-glow.mjs?v=guardian-currents-1';
+import {ROUTE_RECIPES,ROUTE_TOPOLOGY_VERSION,REWARD_THEMES,nodeEconomy} from './route-recipes.mjs?v=guardian-currents-1';
+import {COMPANION_ABILITIES,getCompanionUnlock,normalizeCompanionFleet} from './companion-abilities.mjs?v=guardian-currents-1';
+import {MAIN_TUNING_SKILLS} from './main-tuning.mjs?v=guardian-currents-1';
+import {STARTING_CONDENSED_GLOW,getGlowCapacity,getRestGlowBonus,REST_GLOW_TUNING,glowText} from './vitality.mjs?v=guardian-currents-1';
+import {expandSkillSteps,skillProgress} from './skill-increments.mjs?v=guardian-currents-1';
+import {MAX_ASCENSION} from './ascent.mjs?v=guardian-currents-1';
+import {EXPANDED_SKILLS,applyExpandedSkills} from './skill-paths.mjs?v=guardian-currents-1';
 /** Run-owned skills and currency; persistent ascension unlocks and boss artifacts. */
-import { FLAME_TUNING, LIFE_TUNING, getLifeCapacity } from './vitality.mjs?v=moonwell-menu-1';
-import { getBiomeLevelIdentity } from './level-catalog.mjs?v=moonwell-menu-1';
-import { BIOMES } from './biomes.mjs?v=moonwell-menu-1';
-import { EVENT_SCENARIOS } from './map-guide.mjs?v=moonwell-menu-1';
-import {contextualEventChoices,resolvePilgrimVow,ROUTE_PREPARATION} from './contextual-events.mjs?v=moonwell-menu-1';
+import { FLAME_TUNING, LIFE_TUNING, getLifeCapacity } from './vitality.mjs?v=guardian-currents-1';
+import { getBiomeLevelIdentity } from './level-catalog.mjs?v=guardian-currents-1';
+import { BIOMES } from './biomes.mjs?v=guardian-currents-1';
+import { EVENT_SCENARIOS } from './map-guide.mjs?v=guardian-currents-1';
+import {contextualEventChoices,resolvePilgrimVow,ROUTE_PREPARATION} from './contextual-events.mjs?v=guardian-currents-1';
+import {TREASURE_KINDS, describeTreasure, treasureChoices, LENS_SIGHT, LENS_RECOVERY, settleTreasureWager} from './treasure.mjs?v=guardian-currents-1';
 export const SAVE_KEY='wispbound.save.condensed.v7';
 export const CAMPAIGN_MAP_NAMES=Object.freeze(['The Forgotten Verge','The Rootbound March','The Warden’s Reach']);
 export const TERRAINS=Object.freeze({ruins:{id:'ruins',name:'Sunken Ruins',color:'#cdb183',description:'Broken homes, worn arches and overgrown stone.'},canopy:{id:'canopy',name:'Luminous Canopy',color:'#94b48a',description:'Hollow trees, hanging roots and sheltered forest passages.'},storm:{id:'storm',name:'Stormglass Peaks',color:'#a8bbca',description:'Pine ridges, old mine timbers and local draft puffs.'}});
@@ -195,11 +196,49 @@ function cleanRunCompanion(run){
 }
 function validRun(r){if(!r||typeof r.id!=='string'||typeof r.seed!=='string'||!PHASES.has(r.phase))return false;const rows=r.isTutorial?r.map?.length:7;if(r.isTutorial&&![3,7].includes(rows))return false;if(!Array.isArray(r.map)||r.map.length!==rows||!Number.isInteger(r.step)||r.step<0||r.step>rows)return false;if(r.step===rows&&!['map-clear','ended'].includes(r.phase))return false;const all=r.map.flat();if(r.map.some((row,i)=>!Array.isArray(row)||!row.length||row.length>3||row.some(n=>!n||n.row!==i||typeof n.id!=='string'||!TERRAINS[n.terrain]||!['flight','support','finale'].includes(n.type))))return false;if(new Set(all.map(n=>n.id)).size!==all.length)return false;for(const n of all)if(!Array.isArray(n.nextIds)||n.nextIds.length>3||n.row<rows-1&&!n.nextIds.length||n.nextIds.some(id=>!r.map[n.row+1]?.some(next=>next.id===id)))return false;return Array.isArray(r.path)&&Array.isArray(r.companions)&&Number.isFinite(r.lives)&&Number.isFinite(r.flame);}
 export function saveState(state,storage){try{storage??=globalThis.localStorage;if(!storage?.setItem||state?.version!==7)return false;cleanRunCompanion(state.run);cleanRunCompanion(state.suspendedRun);state.settings.companions=normalizeCompanionFleet(state.settings.companions,state.settings.companionRole);state.settings.companionRole=state.settings.companions[0];storage.setItem(SAVE_KEY,JSON.stringify(state));return true;}catch{return false;}}
-export function loadState(storage){try{storage??=globalThis.localStorage;const parsed=JSON.parse(storage?.getItem?.(SAVE_KEY)||'null');if(parsed?.version!==7)return newState();const s=newState();s.profile=cleanProfile(parsed.profile);s.settings={sound:parsed.settings?.sound!==false,reducedMotion:parsed.settings?.reducedMotion===true,testOverride:parsed.settings?.testOverride===true,testStarterCompanion:ROLES.includes(parsed.settings?.testStarterCompanion)?parsed.settings.testStarterCompanion:'collector',startingCompanion:ROLES.includes(parsed.settings?.startingCompanion)?parsed.settings.startingCompanion:ROLES.includes(parsed.settings?.testStarterCompanion)?parsed.settings.testStarterCompanion:'collector',companions:unique(parsed.settings?.companions,id=>ROLES.includes(id)).slice(0,getCompanionCapacity(s.profile))};if(!s.settings.companions.length)s.settings.companions=['collector'];s.settings.companionRole=s.settings.companions[0];if(parsed.run&&parsed.run.artifactSystem!==2)s.updateNotice='Artifacts now accumulate without slots. Your old expedition has ended; ascension and tutorial progress are preserved.';if(parsed.run?.artifactSystem===2&&validRun(parsed.run)){s.run=parsed.run;s.run.restGlowCapacity=getRestGlowBonus(s.run);s.run.flame=clamp(s.run.flame,0,getGlowCapacity(s.run));s.run.artifacts=cleanRunArtifacts(s.run);cleanArtifactCharges(s.run);cleanRunCompanion(s.run);s.run.unlockedCompanionDifficulty=s.profile.difficulty;if(s.run.attemptActive)interrupt(s.run);settleCheckpoint(s);if(s.run.phase==='ended')bankRun(s);}if(s.run?.isTutorial&&parsed.suspendedRun?.artifactSystem===2&&validRun(parsed.suspendedRun)&&!parsed.suspendedRun.isTutorial&&parsed.suspendedRun.phase!=='ended'&&parsed.suspendedRun.id!==s.run.id){s.suspendedRun=parsed.suspendedRun;cleanRunCompanion(s.suspendedRun);s.suspendedRun.restGlowCapacity=getRestGlowBonus(s.suspendedRun);s.suspendedRun.flame=clamp(s.suspendedRun.flame,0,getGlowCapacity(s.suspendedRun));cleanArtifactCharges(s.suspendedRun);if(s.suspendedRun.attemptActive)interrupt(s.suspendedRun);}saveState(s,storage);return s;}catch{return newState();}}
+export function loadState(storage){try{storage??=globalThis.localStorage;const parsed=JSON.parse(storage?.getItem?.(SAVE_KEY)||'null');if(parsed?.version!==7)return newState();const s=newState();s.profile=cleanProfile(parsed.profile);s.settings={sound:parsed.settings?.sound!==false,reducedMotion:parsed.settings?.reducedMotion===true,testOverride:parsed.settings?.testOverride===true,testStarterCompanion:ROLES.includes(parsed.settings?.testStarterCompanion)?parsed.settings.testStarterCompanion:'collector',startingCompanion:ROLES.includes(parsed.settings?.startingCompanion)?parsed.settings.startingCompanion:ROLES.includes(parsed.settings?.testStarterCompanion)?parsed.settings.testStarterCompanion:'collector',companions:unique(parsed.settings?.companions,id=>ROLES.includes(id)).slice(0,getCompanionCapacity(s.profile))};if(!s.settings.companions.length)s.settings.companions=['collector'];s.settings.companionRole=s.settings.companions[0];if(parsed.run&&parsed.run.artifactSystem!==2)s.updateNotice='Artifacts now accumulate without slots. Your old expedition has ended; ascension and tutorial progress are preserved.';if(parsed.run?.artifactSystem===2&&validRun(parsed.run)){s.run=parsed.run;restoreTreasureSites(s.run);s.run.restGlowCapacity=getRestGlowBonus(s.run);s.run.flame=clamp(s.run.flame,0,getGlowCapacity(s.run));s.run.artifacts=cleanRunArtifacts(s.run);cleanArtifactCharges(s.run);cleanRunCompanion(s.run);s.run.unlockedCompanionDifficulty=s.profile.difficulty;if(s.run.attemptActive)interrupt(s.run);settleCheckpoint(s);if(s.run.phase==='ended')bankRun(s);}if(s.run?.isTutorial&&parsed.suspendedRun?.artifactSystem===2&&validRun(parsed.suspendedRun)&&!parsed.suspendedRun.isTutorial&&parsed.suspendedRun.phase!=='ended'&&parsed.suspendedRun.id!==s.run.id){s.suspendedRun=parsed.suspendedRun;restoreTreasureSites(s.suspendedRun);cleanRunCompanion(s.suspendedRun);s.suspendedRun.restGlowCapacity=getRestGlowBonus(s.suspendedRun);s.suspendedRun.flame=clamp(s.suspendedRun.flame,0,getGlowCapacity(s.suspendedRun));cleanArtifactCharges(s.suspendedRun);if(s.suspendedRun.attemptActive)interrupt(s.suspendedRun);}saveState(s,storage);return s;}catch{return newState();}}
 
+// A campaign deck prevents repeat chests across map boundaries. Reserve a lens
+// for any chest immediately before the final guardian, when currency would expire.
+function treasureDeck(seed,mapIndex){
+ const campaign=seed.replace(/\|map:\d+$/,'');
+ const deck=shuffle(TREASURE_KINDS,rng(campaign+':chests'));
+ let previous=0,total=0,finalLens=false;
+ for(let i=0;i<3;i++){
+  const random=rng(campaign+'|map:'+i+':routes:v2');
+  const recipe=ROUTE_RECIPES[Math.floor(random()*ROUTE_RECIPES.length)];
+  const count=recipe.rows.join('').split('T').length-1;
+  if(i<mapIndex)previous+=count;
+  total+=count;
+  if(i===2)finalLens=recipe.rows.at(-2).includes('T');
+ }
+ const offset=finalLens?deck.indexOf('lens')-(total-1):0;
+ return Array.from({length:deck.length},(_,i)=>deck[((previous+i+offset)%deck.length+deck.length)%deck.length]);
+}
+export function getTreasureKind(run,node=run?.current){
+ if(node?.kind!=='treasure')return null;
+ if(TREASURE_KINDS.includes(node.treasureKind))return node.treasureKind;
+ if(run.isTutorial)return 'vessel';
+ const index=run.map.flat().filter(n=>n.kind==='treasure').findIndex(n=>n.id===node.id);
+ return treasureDeck(run.seed,run.mapIndex)[Math.max(0,index)%TREASURE_KINDS.length];
+}
+export function getTreasureChoices(run,node=run?.current){
+ return treasureChoices(getTreasureKind(run,node),run);
+}
+function restoreTreasureSites(run){
+ if(!run?.map)return;
+ for(const n of run.map.flat())if(n.kind==='treasure'&&!n.treasureKind)
+  Object.assign(n,describeTreasure(getTreasureKind(run,n)));
+ if(run.current?.kind==='treasure'&&!run.current.treasureKind){
+  const site=run.map.flat().find(n=>n.id===run.current.id);
+  if(site)run.current=site;
+  run.supportOffers=null;
+ }
+}
 function makeMap(seed,mapIndex,difficulty){
  const random=rng(`${seed}:routes:v2`),recipe=ROUTE_RECIPES[Math.floor(random()*ROUTE_RECIPES.length)],mirror=random()<.5,locationCounts={};
  const events=shuffle(EVENT_SCENARIOS.map(e=>e.index),random),themes=shuffle(Object.keys(REWARD_THEMES),random);let eventCursor=0;
+ const chests=treasureDeck(seed,mapIndex);let chestCursor=0;
  // One purposeful encounter per map; the remaining seeded deck stays varied
  // and never repeats an event within the map.
  const contextual=events.findIndex(index=>index===2||index===4);
@@ -224,16 +263,18 @@ function makeMap(seed,mapIndex,difficulty){
   const challengeId=routeStyle==='refuge'?'wisps':routeStyle==='cavern'?'clean':'boosts',target=challengeId==='wisps'?(4+Math.floor(row/2))*3:challengeId==='boosts'?6:0;
   const n={id:`m${mapIndex}-${row}-${c}`,row,lane:mirror?2-c:c,routeLane:c,mapIndex,difficulty,type:support?'support':finale?'finale':'flight',kind,elite,boss,bossId,terrain,biomeId:biome.id,biomeName:biome.name,biomeInteraction:biome.interaction,interactionHint:biome.interactionHint,nextIds:[],routeStyle,...profile,
    routeTopology:ROUTE_TOPOLOGY_VERSION,recipeId:recipe.id,recipeName:recipe.name,rewardTheme,rewardThemeLabel:theme.label,encounterFamily,encounterPreview,
-   name:camp?'Glowwell Rest':treasure?`${theme.label} Reliquary`:support?EVENT_SCENARIOS[eventIndex].name:boss?bossName:location.name,locationName:boss?bossName:location.name,levelId:location.id,setpiecePreview:location.signature,
+   name:camp?'Glowwell Rest':support?EVENT_SCENARIOS[eventIndex].name:boss?bossName:location.name,locationName:boss?bossName:location.name,levelId:location.id,setpiecePreview:location.signature,
    duration:support?0:(finale?55:Math.round((row===0?34:38+row*2)*profile.durationScale))*3,flightLengthScale:support?1:3,challengeId:support?'':challengeId,challengeTarget:support?0:target,challenge:support?'':challengeId==='wisps'?`Collect ${target} Sparks`:challengeId==='boosts'?`Use companion tools ${target} times`:'Finish without a hit',eventIndex:code==='V'?eventIndex:null,
-   fuelPreview:camp?'Recover, rekindle hearts, or gather light':treasure?'Packed Sparks or fuel':support?EVENT_SCENARIOS[eventIndex].summary:profile.fuelPreview,
-   riskPreview:camp?'Prepare skills, companions and a Dream':treasure?theme.summary:support?'Preview stakes before committing':`${encounterPreview} · ${profile.riskPreview}`,
-   commitment:camp?'One known flight next · Dream its opening':treasure?'Build reward · no full recovery':support?'A choice changes your next flight':elite?'Hard flight · rare relic choice':'Follow the visible route to prepare your build',
-   description:camp?'Recover hearts or grow Spark capacity, then prepare for the next flight.':treasure?'Gather Packed Sparks for skills or release fuel.':support?EVENT_SCENARIOS[eventIndex].detail:biome.description};
+   fuelPreview:camp?'Recover, rekindle hearts, or gather light':support?EVENT_SCENARIOS[eventIndex].summary:profile.fuelPreview,
+   riskPreview:camp?'Prepare skills, companions and a Dream':support?'Preview stakes before committing':`${encounterPreview} · ${profile.riskPreview}`,
+   commitment:camp?'One known flight next · Dream its opening':support?'A choice changes your next flight':elite?'Hard flight · rare relic choice':'Follow the visible route to prepare your build',
+   description:camp?'Recover hearts or grow Spark capacity, then prepare for the next flight.':support?EVENT_SCENARIOS[eventIndex].detail:biome.description};
   if(!support)Object.assign(n,getFlightLengthProfile({seed:seed+':'+n.id,mapIndex,row,elite,boss}));
   const economy=nodeEconomy(n);n.challengeBonus=0;n.clearReward=support||boss&&mapIndex===2?0:20;n.glowReward=economy.salvageGlow;
   n.rewardPreview=boss?(mapIndex===2?'Choose a future artifact unlock':'Choose 1 of 2 artifacts'):elite?'Choose 1 of 2 artifacts':camp?'Recover or Grow':support?'Sparks or Packed Sparks':'20 Packed Sparks + overflow';
-  n.reward=n.rewardPreview;return[n];
+  n.reward=n.rewardPreview;
+  if(treasure)Object.assign(n,describeTreasure(chests[chestCursor++]));
+  return[n];
  }));
  for(let row=0;row<6;row++)for(const n of rows[row]){
   const next=rows[row+1],targetLanes=[...recipe.edges[row][n.routeLane]].map(Number);
@@ -372,6 +413,8 @@ export function finishFlight(run,result){
  if(!run||run.phase!=='briefing'||!run.attemptActive||!run.current||typeof result?.success!=='boolean')return false;
  const n=run.current;
  const vow=resolvePilgrimVow(run.pilgrimVow,result),preparation=run.routePreparation;
+ const wager=run.treasurePact==='wager'?settleTreasureWager(result):null;
+ delete run.treasurePact;
  delete run.pilgrimVow;delete run.routePreparation;
  if(vow)run.lastVow=vow;
  if(!result.success&&preparation){
@@ -381,6 +424,7 @@ export function finishFlight(run,result){
  if(!result.success){
   restoreEntry(run);run.lives=Math.max(0,run.lives-1);run.stats.deaths++;run.success=false;run.victoryPending=false;
   run.lastAttempt={success:false,nodeId:n.id,nodeName:n.name,livesLost:1,livesRemaining:run.lives};run.deathPending=true;
+  if(wager)run.lastAttempt.treasureWager=wager;
   if(vow)run.lastAttempt.vow=vow;
   run.path=run.path.filter(id=>id!==n.id);run.current=null;run.phase=run.lives?'map':'ended';
   const prior=run.path.map(id=>nodes(run).find(p=>p.id===id)).filter(p=>p&&p.row<run.step).at(-1);
@@ -405,6 +449,14 @@ export function finishFlight(run,result){
  run.condensedEarned=count(run.condensedEarned)+pickupCondensedGlow+completionBonus;
  run.lastFlight={success:true,nodeId:n.id,mapIndex:run.mapIndex,difficulty:run.difficulty,flightNumber:n.flightNumber,terrain:n.terrain,elite:n.elite,boss:n.boss===true,completionBonus,pickupCondensedGlow,challengeBonus:0,challengeComplete:result.challengeComplete===true,securedCondensedGlow:0,collected:count(result.collected),flame:remaining,pickupOverflow:Math.max(0,finite(result.pickupOverflow)),consumedArtifacts,recovery:{amount,rate,before:remaining,after:run.flame,overflow:0,stored:0}};
  if(vow){run.lastFlight.vow=vow;if(vow.reward){queue(run,vow.reward,'pilgrim-vow');run.condensedEarned+=vow.reward;}}
+ if(wager){
+  run.lastFlight.treasureWager=wager;
+  if(wager.reward){
+   if(run.isTutorial)run.practiceCondensedGlow+=wager.reward;
+   else queue(run,wager.reward,'treasure-wager');
+   run.condensedEarned+=wager.reward;
+  }
+ }
  if(!run.isTutorial||n.type!=='finale'){run.victoryPending=true;run.flightReward=makeFlightReward(run);}
  if(n.type==='finale'){run.step=run.map.length;run.bossDefeated=!run.isTutorial&&n.boss===true&&run.mapIndex===2;run.success=run.isTutorial||run.bossDefeated;run.phase=run.success?'ended':'map-clear';if(run.bossDefeated){run.flightReward=null;run.victoryPending=false;}}else nextStop(run);
  return true;
@@ -455,7 +507,6 @@ function upgradeOffer(run,profile){
 }
 function rawSupportChoices(run,profile=null){
  if(run?.phase!=='support')return[];const n=run.current;
- if(n.kind==='treasure')return[choice('chest-open','Gather Packed Sparks','Gain 30 Packed Sparks for skills.',{packedReward:30}),choice('chest-salvage','Release the light',`Collect ${nodeEconomy(n).salvageGlow} Sparks; excess condenses.`,{pickupGlow:nodeEconomy(n).salvageGlow})];
  if(n.kind==='camp'){
   const growth=Math.min(REST_GLOW_TUNING.capacityStep,REST_GLOW_TUNING.capacityLimit-getRestGlowBonus(run));
   return[
@@ -490,6 +541,8 @@ export function resolveSupport(run,index,profile=null){
  if(e.upgrade&&(getSkillCost(wallet,e.upgrade)===null||!run.testMode&&SKILLS[e.upgrade].requires&&!rank(run.skills,SKILLS[e.upgrade].requires)))return false;
  if(run.isTutorial)run.practiceCondensedGlow-=cost;else run.condensedGlow-=cost;
  if(e.upgrade){if(run.testMode)for(const id of SKILLS[e.upgrade].excludes||[])forgetSkillBranch(run.skills,id,run.skillPaid);run.skills[e.upgrade]=rank(run.skills,e.upgrade)+1;(run.skillPaid??={})[e.upgrade]=(run.skillPaid[e.upgrade]||0)+cost;if(e.upgrade==='main-afterglow')run.condensationJustUnlocked=true;}
+ if(e.treasureCapacity)run.treasureCapacity=(run.treasureCapacity||0)+e.treasureCapacity;
+ if(e.treasurePact)run.treasurePact=e.treasurePact;
  if(e.sell)sellArtifact({run,profile},e.sell);
  if(e.artifactReward||e.packedReward){const amount=e.packedReward||25;grantArtifactMelt(run,amount);}
  if(e.burden)run.nextFlightBurden=true;if(e.blessing)run.nextFlightBlessing=true;
@@ -565,7 +618,11 @@ export function getRunModifiers(run={}){const rank=skillProgress,companion=norma
   m.burdenLifts=run.nextFlightBurden?12:0;if(run.nextFlightBlessing){m.wispCooldown*=.8;for(const key of ['protectorRecovery','levelerRecovery','swiftRecovery','seerRecovery'])m[key]*=.8;}
   if(run.routePreparation&&run.routePreparation.nodeId===run.current?.id){if(run.routePreparation.kind==='wind')m.windSensitivity*=ROUTE_PREPARATION.windMultiplier;else m.lightRadius+=ROUTE_PREPARATION.lightBonus;}
   const mounted=unique((run.artifacts||[]).slice(0,getArtifactCapacity(run)),x=>Object.hasOwn(ARTIFACTS,x));m.artifactIds=mounted;m.artifactCharges=getArtifactCharges(run);m.artifactEngineSources=Object.fromEntries(Object.entries({'overflow-coil':'overflowRecharge','echo-bell':'workFuel','dawn-loom':'rechargeSight',sunspool:'litLift'}).map(([engine,key])=>[engine,mounted.filter(id=>ARTIFACTS[id].modifiers[key]>0)]));
-  for(const id of mounted){for(const[k,v]of Object.entries(ARTIFACTS[id].modifiers))if(['flapCost','flap','attract','protectorRecovery','swiftRecovery'].includes(k))m[k]*=v;else m[k]+=v;}if(mounted.includes('path-prism')&&run.current?.biomeId==='crystal')m.lightRadius+=12;m.windSensitivity=clamp(m.windSensitivity,.55,1.5);m.gravity=clamp(m.gravity,.65,1.5);m.darkResistance=clamp(m.darkResistance,0,.6);m.edgingChargeRate=clamp(m.edgingChargeRate,1,2);m.flap=clamp(m.flap,.8,1.2);m.flapCost=clamp(m.flapCost,.5,1.25);m.attract=clamp(m.attract,.65,2.5);m.swiftResistance=clamp(m.swiftResistance,0,.94);m.protectorLayers=clamp(m.protectorLayers,1,2);m.condensationRules.multiplier+=m.condensationBonus;m.maxGlow=getGlowCapacity(run);m.liftCostPoints=Math.max(1,3-Number(rank(s,'main-efficiency')>0)-Number(rank(s,'main-lift')>0)-Number(mounted.includes('quiet-cinder'))-Number(mounted.includes('hollow-covenant'))+Number(mounted.includes('glass-lantern')));return m;}
+  for(const id of mounted){for(const[k,v]of Object.entries(ARTIFACTS[id].modifiers))if(['flapCost','flap','attract','protectorRecovery','swiftRecovery'].includes(k))m[k]*=v;else m[k]+=v;}if(mounted.includes('path-prism')&&run.current?.biomeId==='crystal')m.lightRadius+=12;m.windSensitivity=clamp(m.windSensitivity,.55,1.5);m.gravity=clamp(m.gravity,.65,1.5);m.darkResistance=clamp(m.darkResistance,0,.6);m.edgingChargeRate=clamp(m.edgingChargeRate,1,2);m.flap=clamp(m.flap,.8,1.2);m.flapCost=clamp(m.flapCost,.5,1.25);m.attract=clamp(m.attract,.65,2.5);m.swiftResistance=clamp(m.swiftResistance,0,.94);m.protectorLayers=clamp(m.protectorLayers,1,2);m.condensationRules.multiplier+=m.condensationBonus;m.maxGlow=getGlowCapacity(run);m.liftCostPoints=Math.max(1,3-Number(rank(s,'main-efficiency')>0)-Number(rank(s,'main-lift')>0)-Number(mounted.includes('quiet-cinder'))-Number(mounted.includes('hollow-covenant'))+Number(mounted.includes('glass-lantern')));
+  if(run.treasurePact==='sight')m.lightRadius*=LENS_SIGHT;
+  if(run.treasurePact==='recharge')m.treasureRecoveryScale=LENS_RECOVERY;
+  return m;
+}
 
 function createTutorial(profile){
  const r=createRun(profile,`practice-${freshSeed()}`);
@@ -579,7 +636,7 @@ function createTutorial(profile){
   [node(1,'practice-rest','support','camp','ruins','Build a Little',['practice-wind'])],
   [node(2,'practice-wind','flight','normal','storm','Read the Draft',['practice-dice','practice-bargain'],{levelId:'storm-ridge',tutorialLesson:'wind',duration:44})],
   [node(3,'practice-dice','support','event','canopy','Prism Dice',['practice-chest'],{eventIndex:6,lane:0}),node(3,'practice-bargain','support','event','canopy','Heavy Light',['practice-chest'],{eventIndex:8,lane:2})],
-  [node(4,'practice-chest','support','treasure','canopy','A Small Reliquary',['practice-dream-rest'])],
+  [node(4,'practice-chest','support','treasure','canopy','Hollow Vessel',['practice-dream-rest'],describeTreasure('vessel'))],
   [node(5,'practice-dream-rest','support','camp','canopy','Dreaming Rest',['practice-finale'])],
   [node(6,'practice-finale','finale','finale','ruins','Bring It Together',[],{levelId:'ruins-aqueduct',tutorialLesson:'hazards',duration:40})]
  ];return r;
@@ -587,7 +644,7 @@ function createTutorial(profile){
 export function startTutorial(state){if(!state?.profile)return false;const old=state.run;if(old?.isTutorial&&old.phase!=='ended')return false;if(old?.isTutorial)bankRun(state);else{state.suspendedRun=old&&old.phase!=='ended'&&!old.banked?copy(old):null;if(state.suspendedRun?.attemptActive)interrupt(state.suspendedRun);}state.run=createTutorial(state.profile);return true;}
 export function leaveTutorial(state){if(!state?.run?.isTutorial)return false;if(state.run.attemptActive)restoreEntry(state.run);if(state.run.phase!=='ended'){state.run.phase='ended';state.run.success=false;}bankRun(state);state.run=state.suspendedRun||null;state.suspendedRun=null;return true;}
 
-export function getSupportChoices(run,profile=null){if(run?.phase!=='support')return[];if(run.current.kind==='camp')return makeSupportChoices(run,profile);if(run.supportOffers?.nodeId!==run.current.id)run.supportOffers={nodeId:run.current.id,choices:makeSupportChoices(run,run.testMode?null:profile)};return copy(run.supportOffers.choices);}
+export function getSupportChoices(run,profile=null){if(run?.phase!=='support')return[];if(run.current.kind==='treasure')return getTreasureChoices(run);if(run.current.kind==='camp')return makeSupportChoices(run,profile);if(run.supportOffers?.nodeId!==run.current.id)run.supportOffers={nodeId:run.current.id,choices:makeSupportChoices(run,run.testMode?null:profile)};return copy(run.supportOffers.choices);}
 export function suspendRun(state){const r=state?.run;if(!r||r.phase==='ended'||r.banked)return false;if(r.attemptActive)interrupt(r);return true;}
 export function abandonRun(state){const r=state?.run;if(!r||r.phase==='ended'||r.banked)return false;if(r.attemptActive)interrupt(r);settleCheckpoint(state);r.phase='ended';r.success=false;r.restReady=false;r.victoryPending=false;return bankRun(state);}
 

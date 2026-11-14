@@ -1,6 +1,6 @@
 // One-shot, world-anchored air pockets. Reading a puff never advances it.
-import { LEVEL_LENGTH } from './level-length.mjs?v=moonwell-menu-1';
-import { scenePropBounds } from './scene-props.mjs?v=moonwell-menu-1';
+import { LEVEL_LENGTH } from './level-length.mjs?v=guardian-currents-1';
+import { scenePropBounds } from './scene-props.mjs?v=guardian-currents-1';
 const clamp = (n, lo, hi) => Math.min(hi, Math.max(lo, n));
 const smooth = n => { const t = clamp(n, 0, 1); return t * t * (3 - 2 * t); };
 export const DRAFT_TUNING = Object.freeze({ warning: 1.15, duration: 1.65, fade: .35,
@@ -115,23 +115,27 @@ function puffAt(zone, time) {
 }
 
 export class DraftField {
-  constructor(options) { this.zones = createDraftZones(options); }
+  constructor(options) {
+    const boss=options.layout?.boss;
+    this.zones=boss?.id==='storm-shepherd'?boss.attacks.map(attack=>attack.stormZone):createDraftZones(options);
+  }
 
   update(time, worldX, speed) {
     const lead = Math.max(1, speed) * DRAFT_TUNING.warning;
     for (const zone of this.zones) {
-      if (zone.triggeredAt === null && worldX >= zone.x - zone.rx - lead) zone.triggeredAt = time;
+      if (!zone.guardian && zone.triggeredAt === null && worldX >= zone.x - zone.rx - lead) zone.triggeredAt = time;
     }
   }
 
-  visible(time) { return this.zones.map(zone => puffAt(zone, time)).filter(Boolean); }
+  visible(time) { return this.zones.map(zone=>zone.guardian?null:puffAt(zone,time)).filter(Boolean); }
 
   sample(time, worldX, y, sensitivity = 1) {
     const quiet = { active: false, warning: false, direction: 0, strength: 0,
       force: 0, intensity: 0, warningProgress: 0, shelter: 1, puffId: null };
     let warning = null;
     for (const zone of this.zones) {
-      const puff = puffAt(zone, time);
+      if (zone.guardian && Math.abs(worldX-zone.x)>zone.rx) continue;
+      const puff = zone.guardian ? {phase:'active',strength:1} : puffAt(zone,time);
       if (!puff) continue;
       if (puff.phase === 'gather' && worldX <= zone.x + zone.rx) warning ||= puff;
       if (puff.phase === 'gather') continue;
@@ -141,7 +145,7 @@ export class DraftField {
       if (strength <= 0) continue;
       const force = Math.min(DRAFT_TUNING.maximumForce, zone.force * clamp(Number(sensitivity) || 1, .5, 2)) * strength;
       return { ...quiet, active: true, direction: zone.direction, strength, force,
-        intensity: force / DRAFT_TUNING.storm.force, puffId: zone.id,
+        intensity: force / DRAFT_TUNING.storm.force, puffId: zone.id, guardian: zone.guardian===true,
         phase: puff.phase, x: zone.x, y: zone.y, rx: zone.rx, ry: zone.ry };
     }
     return warning ? { ...quiet, warning: true, direction: warning.direction,

@@ -1,4 +1,4 @@
-import {artifactPixelPortrait} from './artifact-pixel-art.mjs?v=moonwell-menu-1';
+import {artifactPixelPortrait} from './artifact-pixel-art.mjs?v=guardian-currents-1';
 const shapes={
  reed:'<path d="M4 22V9m6 13V3m7 19V7M2 5h4v4H2zM8 1h4v4H8zM15 3h4v4h-4zM10 16l6-5"/>',
  moon:'<path d="M16 2H8L2 8v8l6 6h8l6-6h-8l-4-4V6zM18 3v5m-2-2h5"/>',
