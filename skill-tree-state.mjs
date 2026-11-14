@@ -1,4 +1,4 @@
-import {SKILLS,MAIN_WISP_BRANCHES,getSkillLockReason,getSkillPrice,canChooseStartingSkill} from './model.mjs?v=flow-light-1';
+import {SKILLS,getSkillLockReason,getSkillPrice,canChooseStartingSkill} from './model.mjs?v=route-gifts-1';
 
 const parents=skill=>Array.isArray(skill?.requires)?skill.requires:skill?.requires?[skill.requires]:[];
 const learned=(wallet,id)=>Number(wallet?.skills?.[id]||0);
@@ -22,7 +22,7 @@ export function skillTreeState({wallet,run=wallet,canBuy=true},skill){
  if(!skill)return{state:'distant',disclosure:'hidden',inspectable:false};
  const rank=learned(wallet,skill.id),complete=rank>=skill.maxRank;
  const reason=getSkillLockReason(wallet,skill.id),price=getSkillPrice(wallet,skill.id);
- const free=!complete&&canChooseStartingSkill(run)&&MAIN_WISP_BRANCHES.some(branch=>branch.root===skill.id);
+ const free=!complete&&canChooseStartingSkill(run,skill.id);
  const shortfall=price===null||free?0:Math.max(0,price-Number(wallet?.condensedGlow||0));
  const distance=prerequisiteDistance(wallet,skill),closedBy=closedAncestor(wallet,skill);
  const disclosure=complete||rank>0||free||wallet?.testMode===true?'full':closedBy||distance>1?'hidden':distance===1?'preview':'full';

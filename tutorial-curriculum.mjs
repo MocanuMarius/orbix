@@ -62,7 +62,7 @@ export const TUTORIAL_TOPICS={
   s('Build a combination','Pair automatic effects with your companion, skills and the next biome. Read each trigger and limit. Artifacts last only for this run; exhausted consumables disappear.','artifact')]},
  rest:{name:'Rest',visual:'rest',steps:[
   s('Recover or Grow','Recover restores every missing heart. Grow adds 3 maximum Energy for this run, up to three times. Both completely refill Energy. Choose once at each Rest.','rest'),
-  s('Then prepare','After Recover or Grow, spend Packed Sparks on skill upgrades here. Artifacts and Dream are also available. These tools do not take another Rest benefit.','tools'),
+  s('Then prepare','After Recover or Grow, spend Packed Sparks on skill upgrades here. Inspect your artifacts, or rehearse if you learned Dream. These tools do not take another Rest benefit.','tools'),
   s('Plan your next passage','Rest commits to one next flight. Read its terrain and prepare for it. After a failed attempt, the map shows whichever retry paths are reachable.','route')]},
  dream:{name:'Dream',visual:'dream',steps:[
   s('Dream: rehearse six seconds','At Rest, Dream lets you practice the next opening as often as you like. The closed eye means rehearsal. Nothing here spends a heart or earns real rewards.','dream'),

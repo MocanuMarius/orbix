@@ -1,6 +1,6 @@
-import { LIGHT_PACKET_TUNING } from './vitality.mjs?v=flow-light-1';
-import { getCompanionAbility } from './companion-abilities.mjs?v=flow-light-1';
-import { pickupKind, pickupContactRadius, canCompanionCollect } from './pickups.mjs?v=flow-light-1';
+import { LIGHT_PACKET_TUNING } from './vitality.mjs?v=route-gifts-1';
+import { getCompanionAbility } from './companion-abilities.mjs?v=route-gifts-1';
+import { pickupKind, pickupContactRadius, canCompanionCollect } from './pickups.mjs?v=route-gifts-1';
 
 const clamp = (value, lo, hi) => Math.min(hi, Math.max(lo, value));
 export const WISP_TUNING = Object.freeze({ range: 52.5, cooldown: 10, lightRadius: 175,
@@ -151,7 +151,7 @@ export class WispCompanion {
     if (this.phase === 'orbiting') { this.phase = 'ready'; this.cooldownMax = WISP_TUNING.cooldown; }
     // Recovery grows the search boundary; it is not a lock on another fetch.
     // It keeps progressing during a trip and restarts only after delivery.
-    this.cooldown = Math.max(0, this.cooldown - dt);
+    this.cooldown = Math.max(0, this.cooldown - dt * (engine.flightBoon?.recoveryRate ?? 1));
     if (this.cooldown === 0 && this.phase === 'cooldown') this.phase = 'ready';
     // The visible boundary touches the pickup's contact ring, not its centre.
     // Detection is shown even while body priority or another delivery delays a fetch.
@@ -195,6 +195,7 @@ export class WispCompanion {
         if (!this.leg) this.beginLeg(engine, target.x - engine.distance, target.y);
         if (this.advanceLeg(engine, target.x - engine.distance, target.y, dt)) {
           engine.shatterPickupRing?.(target);
+          target.fetchedInDream = Boolean(engine.dream?.active || engine.dream?.mode === 'record');
           target.carried = true;
           target.boostedPickup = engine.isCompanionWorking?.() ?? ((engine.abilityTime ?? engine.boostTime) > 0);
           this.vx = this.leg.endVX - this.scrollSpeed; this.vy = this.leg.endVY;

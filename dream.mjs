@@ -3,8 +3,10 @@ const INPUTS=['beginLiftInput','endLiftInput','flap','activateAbility'];
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
 const ordered=value=>Array.isArray(value)?value.map(ordered):value&&typeof value==='object'?Object.fromEntries(Object.keys(value).sort().map(k=>[k,ordered(value[k])])):value;
 export function dreamFingerprint(options={}){
-  return JSON.stringify(ordered({simulation:'flow-light-1',seed:options.seed,terrain:options.terrain,elite:!!options.elite,duration:options.duration,
-    node:options.node,companions:options.companions,modifiers:options.modifiers,flame:options.flame,condensedGlow:options.condensedGlow||0,condensedRemainder:options.condensedRemainder||0}));
+  const modifiers = {...options.modifiers};
+  delete modifiers.flightBoon; // Waking benefits cannot change rehearsed physics.
+  return JSON.stringify(ordered({simulation:'route-gifts-1',seed:options.seed,terrain:options.terrain,elite:!!options.elite,duration:options.duration,
+    node:options.node,companions:options.companions,modifiers,flame:options.flame,condensedGlow:options.condensedGlow||0,condensedRemainder:options.condensedRemainder||0}));
 }
 export function dreamConfig(run={}){
   const s=run.skills||{};
@@ -25,8 +27,9 @@ export function dreamIndicatorMarkup(dream){
   return `<div class="dream-indicator ${paused?'is-paused':''}" aria-label="${paused?'Dream paused':dream.mode==='record'?'Rehearsing dream':'Dream playback'}">${paused?pauseIcon:dreamEye}<span>${paused?'':Math.max(0,Math.ceil(dream.duration-(dream.engine?.time||0)))+'s'}</span></div>`;
 }
 export function dreamRestMarkup(run,node){
-  const unlocked=dreamConfig(run).duration>0;
-  return `<button data-action="${unlocked?'dream':'inspect-main-skill'}" ${unlocked?'':'data-id="main-dream"'} class="rest-dream" aria-label="${unlocked?'Dream':'Dream locked · View unlock skill'}">${dreamEye}<span>DREAM</span>${unlocked?'':'<i class="item-lock-badge" aria-hidden="true"><svg viewBox="0 0 16 18" fill="none" stroke="currentColor" stroke-width="2" shape-rendering="crispEdges"><path d="M4 7V4h2V2h4v2h2v3M2 7h12v9H2zM8 10v3"/></svg></i>'}${unlocked?`<small>${dreamConfig(run).duration}s · ${run.dreamPreset?'PRESET SAVED':'REHEARSE'}</small>`:''}</button>`;
+  const duration=dreamConfig(run).duration;
+  if(!duration||!node||!run.restReady)return '';
+  return `<button data-action="dream" class="rest-dream" aria-label="Dream: rehearse ${duration} seconds${run.dreamPreset?' (preset saved)':''}">${dreamEye}<span>Dream</span><small>${duration}s${run.dreamPreset?' · SAVED':''}</small></button>`;
 }
 
 export function attachDream(engine,{mode='record',preset,duration=engine.mod.dreamDuration,onReady=()=>{},onAwake=()=>{}}={}){

@@ -1,8 +1,10 @@
-import {landmarkArt,landmarkCategory,biomeGroundArt} from './map-landmarks.mjs?v=flow-light-1';
-import {THEME_INKS} from './replay-ui.mjs?v=flow-light-1';
-import {getRouteMapState} from './model.mjs?v=flow-light-1';
-import {getMapStopInfo} from './map-guide.mjs?v=flow-light-1';
-import {getGlowCapacity} from './vitality.mjs?v=flow-light-1';
+import {bonusIcon} from './route-bonus-ui.mjs?v=route-gifts-1';
+import {ROUTE_BONUSES} from './route-bonuses.mjs?v=route-gifts-1';
+import {landmarkArt,landmarkCategory,biomeGroundArt} from './map-landmarks.mjs?v=route-gifts-1';
+import {THEME_INKS} from './replay-ui.mjs?v=route-gifts-1';
+import {getRouteMapState} from './model.mjs?v=route-gifts-1';
+import {getMapStopInfo} from './map-guide.mjs?v=route-gifts-1';
+import {getGlowCapacity} from './vitality.mjs?v=route-gifts-1';
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const edgeKey=([a,b])=>`${a}|${b}`;
 const wisp=(x,y)=>`<g class="route-player-wisp" transform="translate(${x} ${y})"><path d="m-23 1 9-15 13-7L16-9 22 3 11 13-17 8Z" fill="url(#routeWispGlow)"/><path d="M-4-7h8v2h3v3h2v4H7v3H4v2H-4V5H-7V2H-9V-2H-7V-5H-4Z" fill="#fff8d3"/><path d="M-3-5h6v2h2v6H3v2H-3V3H-5V-3H-3Z" fill="#fffef0"/></g>`;
@@ -53,12 +55,13 @@ export function landscapeRouteView(run,{compact=false}={}){
   const showType=here||reachable,showName=here||reachable;
   const labelHalf=compact?88:77,labelHeight=28;
   const environment=n.type!=='support'&&n.biomeName?`${n.biomeName}. ${n.interactionHint||''} `:'';
-  const aria=here?`You are here: ${label}, ${name}. Choose a lit next stop.`:reachable?`Next stop. Preview ${label}: ${name}. ${environment}${info.summary} ${n.rewardPreview||''}`:possible?`Future stop. Preview ${label}: ${name}. ${environment}${info.summary} ${n.rewardPreview||''}`:seen?`Completed: ${label}, ${name}.`:`Closed branch: ${label}, ${name}. Not reachable from your path.`;
+  const aria=here?`You are here: ${label}, ${name}. Choose a lit next stop.`:reachable?`Next stop. Preview ${label}: ${name}. ${environment}${info.summary} ${n.rewardPreview||''} ${ROUTE_BONUSES[n.bonusId]?.name||''}`:possible?`Future stop. Preview ${label}: ${name}. ${environment}${info.summary} ${n.rewardPreview||''} ${ROUTE_BONUSES[n.bonusId]?.name||''}`:seen?`Completed: ${label}, ${name}.`:`Closed branch: ${label}, ${name}. Not reachable from your path.`;
   nodes+=`<g class="world-map-node route-state-${routeState} ${reachable?'reachable':''} ${seen?'taken':''} ${!possible&&!seen?'unreachable':''} ${here?'current-position':''}" data-route-state="${routeState}" data-route-label="${showName?'full':showType?'type':'none'}" ${interactive?`data-action="preview-node" data-id="${esc(n.id)}" tabindex="0" role="button"`:'role="img"'} ${here?'aria-current="location"':''} aria-label="${esc(aria)}">
    <title>${esc(aria)}</title>${interactive?`<rect class="route-node-hit" x="${p.x-(compact?82:66)}" y="${p.y-32}" width="${compact?164:132}" height="${showName?94:showType?75:64}" fill="transparent"/>`:''}
    <g class="route-node-art" aria-hidden="true">
    ${reachable||here?`<path class="route-node-halo" d="m${p.x-49} ${p.y+13} 11-26 21-16 28 3 27 18 10 26-23 20-29-2-32 1Z" fill="url(#${here?'routeHereGlow':'routeNextGlow'})"/>`:''}
    ${routeState!=='closed'?`${artShadow(p.x,p.y,n.row+(n.lane||0))}${landmark(n,p.x,p.y)}`:`<path class="route-closed-ground" d="m${p.x-29} ${p.y+22} 12-4 13 3 13-2 12 5-15 3-17-2-11 1Z"/><path class="route-closed-mark" d="m${p.x-10} ${p.y+8} 20 18m-20 0 20-18"/>`}
+   ${reachable&&n.bonusId?`<g transform="translate(${p.x+26} ${p.y-32})" pointer-events="none">${bonusIcon(n.bonusId).replace('<svg ','<svg width="24" height="24" ')}</g>`:''}
    ${reachable?`<path class="route-next-light" d="m${p.x-30} ${p.y+25} 10 2 6-1m19 1 10-2 7 1" fill="none" stroke="#fff0b6" stroke-width="1.5"/>`:''}
    ${seen&&!here?`<path class="route-completed-mark" d="m${p.x-5} ${p.y+21} 4 4 7-8" fill="none" stroke="#e4c78e" stroke-width="2"/>`:''}
    ${themeInk&&routeState!=='closed'?`<path class="route-theme-pip" d="m${p.x+30} ${p.y+10} 2-6 3 4-1 7-4 1Z" fill="${themeInk}"><title>${esc(n.rewardThemeLabel||n.rewardTheme)} relics</title></path>`:''}

@@ -1,6 +1,6 @@
-import {DraftField,DRAFT_TUNING} from './drafts.mjs?v=flow-light-1';
-import {lightVisibility} from './light-field.mjs?v=flow-light-1';
-import {isFuelPickup,pickupContactRadius} from './pickups.mjs?v=flow-light-1';
+import {DraftField,DRAFT_TUNING} from './drafts.mjs?v=route-gifts-1';
+import {lightVisibility} from './light-field.mjs?v=route-gifts-1';
+import {isFuelPickup,pickupContactRadius} from './pickups.mjs?v=route-gifts-1';
 const clamp=(n,a,b)=>Math.max(a,Math.min(b,n)),DT=1/60;
 export const PROJECTION_HORIZONS=Object.freeze([0,.7,1.2,1.8]);
 
@@ -15,7 +15,7 @@ export class FlightProjection {
     if(!this.result||changed||e.time>=this.nextAt){
       this.lastFlap=e.lastFlapTime;this.lastPower=e.abilityStartedAt;this.lastHeld=e.liftHeld;this.lastHeight=e.height;this.lastRank=rank;
       this.result=this.predict(e,rank);
-      const affordable=e.dream?.freeGlow||e.artifactEffects?.freeLift||e.availableGlow>=e.flapCost;
+      const affordable=e.dream?.freeGlow||e.artifactEffects?.freeLift||e.availableGlow+1e-7>=(e.nextLiftCost??e.flapCost);
       if(affordable)this.result.lift=this.predict(e,rank,[0]);
       if(rank===3&&affordable){
         if(!this.routeAt||changed||e.time>=this.routeAt){this.route=this.findRoute(e);this.routeAt=e.time+.25;}

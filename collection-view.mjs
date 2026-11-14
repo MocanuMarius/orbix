@@ -1,8 +1,8 @@
-import {ARTIFACTS,getArtifactSalvageValue,canSellArtifact} from './model.mjs?v=flow-light-1';
-import {artifactDescription,effectMarkup} from './artifact-copy.mjs?v=flow-light-1';
-import {artifactIcon} from './upgrade-icons.mjs?v=flow-light-1';
-import {artifactRarityLabel} from './replay-ui.mjs?v=flow-light-1';
-import {resourceSymbol} from './game-symbols.mjs?v=flow-light-1';
+import {ARTIFACTS,getArtifactSalvageValue,canSellArtifact} from './model.mjs?v=route-gifts-1';
+import {artifactDescription,effectMarkup} from './artifact-copy.mjs?v=route-gifts-1';
+import {artifactIcon} from './upgrade-icons.mjs?v=route-gifts-1';
+import {artifactRarityLabel} from './replay-ui.mjs?v=route-gifts-1';
+import {resourceSymbol} from './game-symbols.mjs?v=route-gifts-1';
 
 export const COLLECTION_PAGE_SIZE=6;
 const esc=value=>String(value??'').replace(/[&<>"']/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
