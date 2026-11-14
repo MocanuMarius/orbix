@@ -1,10 +1,11 @@
+import {pineCrown} from './pixel-contour.mjs?v=pine-spark-2';
 // Original, fixed pixel scenery. It gives menus a place in the game's world
 // without another canvas, animation loop, image download or lighting shader.
 const discs=(cx,cy,r,fill,step=2)=>Array.from({length:Math.ceil(r*2/step)},(_,i)=>{
  const y=-r+i*step,half=Math.floor(Math.sqrt(Math.max(0,r*r-(y+step/2)**2)));
  return `<rect x="${cx-half}" y="${cy+y}" width="${half*2}" height="${step}" fill="${fill}"/>`;
 }).join('');
-const pine=(x,y,s,fill)=>`<path transform="translate(${x} ${y}) scale(${s})" fill="${fill}" d="M-3 4H3v-33h8l-8-9h12L3-53h11L0-73-14-53h11l-12 15h12l-8 9h8Z"/>`;
+const pine=(x,y,s,fill)=>`<path fill="${fill}" d="M${pineCrown(x,y,18*s,77*s).map(p=>p.join(' ')).join('L')}Z"/>`;
 const stars=[[45,53,2],[118,87,1],[164,29,2],[286,42,1],[332,70,2],[381,34,1],[418,108,1],[68,131,1],[359,129,1],[454,62,2],[516,37,1],[585,94,1],[674,47,1],[748,77,1],[817,29,2]];
 export function menuWorldMarkup({id='menu-world'}={}){
  const key=String(id).replace(/[^a-zA-Z0-9_-]/g,'');

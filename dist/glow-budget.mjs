@@ -1,4 +1,4 @@
-import {getPickupSpec,pickupKind,pickupContactRadius} from './pickups.mjs?v=three-trees-balance-1';
+import {getPickupSpec,pickupKind,pickupContactRadius} from './pickups.mjs?v=pine-spark-2';
 
 // Roof-heavy courses used to lose half their fuel to floor-cache placement.
 // A duration floor repairs that disparity with richer lights before adding
@@ -9,14 +9,15 @@ export function fuelBudgetProfile(difficulty=1,mapIndex=0){
  const opening=mapIndex===0?GLOW_BUDGET_TUNING.firstMapFuelPerSecond:GLOW_BUDGET_TUNING.easyFuelPerSecond;
  return {rate:opening+(GLOW_BUDGET_TUNING.minimumFuelPerSecond-opening)*progress,spacing:(mapIndex===0?460:580)+(tier-1)*140};
 }
-export function ensureGlowBudget(layout,{duration,height,endX,clear,drafts=[],tutorial=false,difficulty=2,mapIndex=0}={}){
+export function ensureGlowBudget(layout,{duration,height,endX,clear,drafts=[],tutorial=false,difficulty=2,mapIndex=0,row=0}={}){
  if(tutorial||!Number.isFinite(duration)||!Number.isFinite(endX)||!clear)return;
  const packets=layout.embers,eligible=p=>!p.generated&&!p.harmful&&!getPickupSpec(p).dim&&getPickupSpec(p).fuel>0;
  // A total fuel budget alone cannot fix long gaps or wall-only pickups.
  // Accessible fuel thins gradually with ascension, never disappears at A2.
+ const openingSupport=difficulty<=2&&mapIndex===0&&row<=2;
  let supplyAdded=0;
  {
-  const {spacing}=fuelBudgetProfile(difficulty,mapIndex);
+  const spacing=openingSupport?360:fuelBudgetProfile(difficulty,mapIndex).spacing;
   for(let anchor=420;anchor<endX-150;anchor+=spacing){
    let placed=false;
    for(const offset of [0,70,-70,140,-140]){
@@ -37,7 +38,7 @@ export function ensureGlowBudget(layout,{duration,height,endX,clear,drafts=[],tu
  }
  let available=packets.filter(eligible).reduce((sum,p)=>sum+getPickupSpec(p).fuel,0);
  const {rate}=fuelBudgetProfile(difficulty,mapIndex);
- const target=Math.ceil(duration*rate);
+ const target=Math.ceil(duration*(openingSupport?Math.max(rate,16):rate));
  const before=available;let enriched=0,added=0;
  const upgrade=packets.filter(p=>eligible(p)&&pickupKind(p)==='light'&&!p.riskChain&&!p.intro)
   .sort((a,b)=>Number(!!b.accessible)-Number(!!a.accessible)||a.x-b.x);
@@ -82,6 +83,12 @@ export function ensureGlowBudget(layout,{duration,height,endX,clear,drafts=[],tu
  }
  const sequence=balanceSparkSequence(layout,{duration,endX,clear});
  const extraLayers=enrichSparkLayers(layout,{clear,duration,endX});
+ // Keep the safe route dependable even after sequence redistribution. The
+ // starter Collector cannot bridge a lean run of one-ring packets on its own.
+ if(openingSupport)for(const packet of packets){
+  if(packet.accessible&&!packet.riskChain&&!packet.intro&&eligible(packet)&&pickupKind(packet)==='light')
+   Object.assign(packet,{kind:'cluster',value:2});
+ }
  available=packets.filter(eligible).reduce((sum,p)=>sum+getPickupSpec(p).fuel,0);
  packets.sort((a,b)=>a.x-b.x);
  layout.glowBudget={target,before,available,enriched,added,supplyAdded,sequence,extraLayers,shortfall:Math.max(0,target-available)};

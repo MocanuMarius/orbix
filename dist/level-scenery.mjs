@@ -1,6 +1,7 @@
-import {drawBiomeBackground,drawBiomeMaterial,drawBiomeLife} from './biome-art.mjs?v=three-trees-balance-1';
-import {drawExpandedBackdrop} from './world-scenery.mjs?v=three-trees-balance-1';
-import { resolveLevelIdentity } from './level-catalog.mjs?v=three-trees-balance-1';
+import {pineCrown} from './pixel-contour.mjs?v=pine-spark-2';
+import {drawBiomeBackground,drawBiomeMaterial,drawBiomeLife} from './biome-art.mjs?v=pine-spark-2';
+import {drawExpandedBackdrop} from './world-scenery.mjs?v=pine-spark-2';
+import { resolveLevelIdentity } from './level-catalog.mjs?v=pine-spark-2';
 
 const TAU = Math.PI * 2;
 const clamp = (n, a, b) => Math.max(a, Math.min(b, n));
@@ -207,9 +208,8 @@ function drawIdentityVignettes(c,{identity,width:W,height:H,distance,palette:p},
     ivy(x-w*.3,y-15,14);box(x+w*.14,y-14,9,2,mid);
   };
   const pine=(x,y,height=52,bend=14)=>{
-    line(c,x,y,x+bend,y-height,far,3);
-    for(let j=0;j<4;j++){const fy=y-height+j*height*.19,spread=(9+j*3);fill([[x+bend*(1-j*.15),fy],[x+bend+spread,fy+15],[x+bend-spread*.75,fy+13]],j%2?shade:far)}
-    line(c,x,y-7,x-9,y+2,mid,1);
+    fill(pineCrown(x,y,Math.max(10,bend),height),far);
+    box(x-1,y-height*.23,2,height*.23,shade);
   };
   const shelter=(x,y)=>{box(x-18,y-19,36,19,far);fill([[x-22,y-18],[x-15,y-30],[x+12,y-28],[x+23,y-17]],shade);box(x-4,y-14,9,14,p.sky[0]);box(x-20,y,42,3,mid);line(c,x-16,y-9,x+16,y-9,shade,1)};
   const timber=(x,y,scale=1)=>{const w=43*scale,height=55*scale;box(x-w*.5,y-height,4*scale,height,shade);box(x+w*.5-4*scale,y-height+3*scale,4*scale,height-3*scale,shade);box(x-w*.58,y-height-4*scale,w*1.16,6*scale,far);line(c,x-w*.45,y-height+5*scale,x-w*.1,y-height+19*scale,mid,2);line(c,x+w*.45,y-height+5*scale,x+w*.15,y-height+20*scale,mid,2);box(x-w*.5-2,y,9*scale,3,far);box(x+w*.5-5,y,9*scale,3,far)};

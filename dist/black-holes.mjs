@@ -1,4 +1,4 @@
-import { obstacleEdgeClearance } from './edging-pulse.mjs?v=three-trees-balance-1';
+import { obstacleEdgeClearance } from './edging-pulse.mjs?v=pine-spark-2';
 
 // Rates are internal flight Sparks. The HUD displays 0.3 of these units: a
 // Drain is twice the prior curve; the checked bypass limits unavoidable loss.
@@ -68,6 +68,7 @@ export function blackHoleLaneClear(engine, item) {
  * Only the final practice flight introduces this hazard.
  * A synthetic fully blocked map fails safely rather than punching a new trap. */
 export function createBlackHoles(engine) {
+  if (engine.onboardingPlan?.blackHoles === false) return [];
   if (engine.tutorial && engine.tutorial.lesson !== 'hazards') return [];
   const t = BLACK_HOLE_TUNING, height = t.referenceHeight, geometry = referenceGeometry(engine);
   const seed = hash(`${engine.seed}:${engine.levelIdentity?.id || ''}:black-hole`);

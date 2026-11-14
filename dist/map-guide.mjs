@@ -1,5 +1,5 @@
-import {landmarkArt,landmarkCategory,guardianNames} from './map-landmarks.mjs?v=three-trees-balance-1';
-import {glowText} from './vitality.mjs?v=three-trees-balance-1';
+import {landmarkArt,landmarkCategory,guardianNames} from './map-landmarks.mjs?v=pine-spark-2';
+import {glowText} from './vitality.mjs?v=pine-spark-2';
 const stop=(kind,label,name,summary)=>Object.freeze({kind,label,name,summary,icon:kind});
 export const MAP_STOP_TYPES=Object.freeze({
 flight:stop('flight','FLIGHT','Flight','Clear a passage for 20 Packed Sparks plus overflow. Ordinary flights do not drop artifacts.'),
