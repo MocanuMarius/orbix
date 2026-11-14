@@ -1,22 +1,22 @@
-import {createDepthScenery,drawDepthScenery} from './depth-scenery.mjs?v=fixed-companion-1';
-import { drawGuardianWarnings } from './guardian-effects.mjs?v=fixed-companion-1';
-import {drawProximityMeter} from './proximity-meter.mjs?v=fixed-companion-1';
-import {drawFlightProjection} from './flight-projection.mjs?v=fixed-companion-1';
-import {drawGlowSense} from './glow-sense.mjs?v=fixed-companion-1';
-import {formatGlow} from './vitality.mjs?v=fixed-companion-1';
-import {LOCATION_PALETTES} from './world-expansion.mjs?v=fixed-companion-1';
-import {biomePalette} from './biome-art.mjs?v=fixed-companion-1';
-import { sceneryIdentity, drawIdentityBackground, drawIdentityMaterial, drawIdentityLife } from './level-scenery.mjs?v=fixed-companion-1';
-import { getCompanionAbility, normalizeCompanionRole } from './companion-abilities.mjs?v=fixed-companion-1';
-import { companionSprite, companionPalette } from './companion-art.mjs?v=fixed-companion-1';
-import { createScenePropArt } from './scene-prop-art.mjs?v=fixed-companion-1';
-import { drawBoss } from './boss.mjs?v=fixed-companion-1';
-import { drawPickup } from './pickup-art.mjs?v=fixed-companion-1';
-import { pickupKind, getPickupSpec, pickupContactRadius } from './pickups.mjs?v=fixed-companion-1';
-import { LIGHT_EXTENT,lightAttenuation,lightVisibility,createLightMaskCanvas,sceneRevealStrength } from './light-field.mjs?v=fixed-companion-1';
-import {drawExitLandmark} from './exit-landmark.mjs?v=fixed-companion-1';
-import {drawBlackHoles} from './black-hole-art.mjs?v=fixed-companion-1';
-import {drawFlightForks,drawFlightForkBackdrops} from './flight-forks.mjs?v=fixed-companion-1';
+import {createDepthScenery,drawDepthScenery} from './depth-scenery.mjs?v=proximity-balance-1';
+import { drawGuardianWarnings } from './guardian-effects.mjs?v=proximity-balance-1';
+import {drawProximityMeter} from './proximity-meter.mjs?v=proximity-balance-1';
+import {drawFlightProjection} from './flight-projection.mjs?v=proximity-balance-1';
+import {drawGlowSense} from './glow-sense.mjs?v=proximity-balance-1';
+import {formatGlow} from './vitality.mjs?v=proximity-balance-1';
+import {LOCATION_PALETTES} from './world-expansion.mjs?v=proximity-balance-1';
+import {biomePalette} from './biome-art.mjs?v=proximity-balance-1';
+import { sceneryIdentity, drawIdentityBackground, drawIdentityMaterial, drawIdentityLife } from './level-scenery.mjs?v=proximity-balance-1';
+import { getCompanionAbility, normalizeCompanionRole } from './companion-abilities.mjs?v=proximity-balance-1';
+import { companionSprite, companionPalette } from './companion-art.mjs?v=proximity-balance-1';
+import { createScenePropArt } from './scene-prop-art.mjs?v=proximity-balance-1';
+import { drawBoss } from './boss.mjs?v=proximity-balance-1';
+import { drawPickup } from './pickup-art.mjs?v=proximity-balance-1';
+import { pickupKind, getPickupSpec, pickupContactRadius } from './pickups.mjs?v=proximity-balance-1';
+import { LIGHT_EXTENT,lightAttenuation,lightVisibility,createLightMaskCanvas,sceneRevealStrength } from './light-field.mjs?v=proximity-balance-1';
+import {drawExitLandmark} from './exit-landmark.mjs?v=proximity-balance-1';
+import {drawBlackHoles} from './black-hole-art.mjs?v=proximity-balance-1';
+import {drawFlightForks,drawFlightForkBackdrops} from './flight-forks.mjs?v=proximity-balance-1';
 
 const TAU = Math.PI * 2;
 const SCENERY_HELPERS = { line: pixelLine, disc: pixelDisc, polygon: path };
@@ -780,6 +780,7 @@ export class WispFlightView {
 
   drawProtector(e, t, x, y) {
     const shield = e.getShieldState?.() || e.shield;
+    if(shield?.lightAegis){const c=this.bufferContext;c.save();c.strokeStyle='#e6f8ff';c.lineWidth=1.5;c.globalAlpha=.75+.2*Math.sin(t*5);c.beginPath();c.arc(x,y,21,0,TAU);c.stroke();c.restore();}
     if (!shield || !Number.isFinite(shield.layers) || shield.layers < 1) return;
     const c = this.bufferContext, layers = Math.min(3, shield.layers), charges = Math.max(0, shield.charges || 0);
     const hit = clamp(shield.hitFlash || 0, 0, 1), total = Math.max(.1, shield.recoveryTotal || 1);

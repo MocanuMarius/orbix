@@ -1,3 +1,4 @@
+import {WISP_TUNING} from '../dist/wisp.mjs';
 // Economic stress scenarios, NOT a human win-rate model. Flight resource
 // schedules use actual authored levels; geometry is not controlled by a bot.
 // Pickup misses, correction taps and collision attrition are stated assumptions.
@@ -40,7 +41,7 @@ function inventory(node,tier){
  const key=[node.levelId,tier,phase,node.encounterFamily||'mixed',node.boss?node.bossId:'ordinary',node.elite?'elite':'normal',node.routeStyle||node.passage||'open',node.fuelCadence||3,row,duration].join(':');
  if(inventories.has(key))return inventories.get(key);
  const e=new WispFlight({canvas:canvas(),terrain:node.terrain,elite:node.elite,seed:'condensed-inventory:'+key,duration,
-  node:{...node,row,difficulty:tier,flightLengthScale:3},companions:['collector'],flame:100});
+  node:{...node,row,difficulty:tier,flightLengthScale:1},companions:['collector'],flame:100});
  const result={key,levelId:node.levelId,biome:node.biomeId||e.levelIdentity.biomeId,tier,phase,boss:!!node.boss,elite:!!node.elite,
   seconds:(e.totalDistance-e.distanceOrigin)/e.baseSpeed,draftCount:e.drafts.zones.length,interactionCount:e.biomeDynamics.items.length,
   glowBudget:e.layout.glowBudget,holeCount:e.blackHoles?.items?.length??1,negativeCount:e.layout.embers.filter(p=>getPickupSpec(p).dim>0).length,
@@ -79,8 +80,8 @@ function simulateFlow(run,inv,style,rng,{captureDelta=0,effortScale=1,artifactSc
   chance=clamp(chance,.05,.985);attempted++;
   let caught=rng()<chance,delivery=false;
   if(!caught&&!item.manual&&has('collector')){
-   const recovery=clamp((t-lastFetched)/Math.max(1,5*(mod.wispCooldown||1)),.1,1);
-   const rescueChance=clamp((.17+.17*recovery)*(mod.attract||1),.05,.58);
+   const recovery=clamp((t-lastFetched)/Math.max(1,WISP_TUNING.cooldown*(mod.wispCooldown||1)),.1,1);
+   const rescueChance=clamp((.17+.17*recovery)*(WISP_TUNING.range/105)*(mod.attract||1),.05,.58);
    if(rng()<rescueChance){caught=true;delivery=true;lastFetched=t;fetched++;}
   }
   if(!caught)continue;captured++;
@@ -156,7 +157,7 @@ function buy(state,policy,metrics){
     :proposedTrainingGrowth!==null?base*(1+proposedTrainingGrowth*paidRanks**CONDENSED_TUNING.trainingExponent):ordinary;
    return Math.ceil(price*(proposedGrowth**paidRanks)*(1+proposedPowerK*paidRanks**1.5)/5)*5;
   };
-  const branches=new Set(['main',own,...(w.condensationUnlocked?['afterglow']:[])]);
+  const branches=new Set(['main','proximity',own,...(w.condensationUnlocked?['afterglow']:[])]);
   const eligible=Object.keys(M.SKILLS).filter(id=>branches.has(M.SKILLS[id].branch)&&M.getSkillCost(w,id)!==null&&!['main-bond','main-spare-spark','main-deep-reserve'].includes(id)&&quote(id)<=run.condensedGlow);
   if(!eligible.length)break;
   const ordered=eligible.sort((a,b)=>{const ai=preferred.indexOf(a),bi=preferred.indexOf(b);return(ai<0?80:ai)-(bi<0?80:bi)||M.getSkillCost(w,a)-M.getSkillCost(w,b)||a.localeCompare(b)});
@@ -223,7 +224,7 @@ function runCase({seed,tier,role,style,policy,attrition=false,captureDelta=0,eff
  m.mapBuys[r.mapIndex]=m.buys;m.mapIncome[r.mapIndex]=m.flightIncome+m.supportIncome;m.mapWallet[r.mapIndex]=r.condensedGlow;
  m.success=r.success;m.flights=r.stats.flights;m.currency=r.condensedGlow;m.income=m.flightIncome+m.supportIncome;m.learnedRanks=Object.values(r.skills).reduce((a,b)=>a+b,0);
  m.coverage=mean(m.coverage);m.paidRanksPerFlight=m.buys/Math.max(1,m.flights);m.finalMap=r.mapIndex;m.finalGlow=r.flame;
- m.eligibleTreeRanks=Object.values(M.SKILLS).filter(s=>['main',role,'afterglow'].includes(s.branch)).reduce((a,s)=>a+s.maxRank,0);
+ m.eligibleTreeRanks=Object.values(M.SKILLS).filter(s=>['main','proximity',role,'afterglow'].includes(s.branch)).reduce((a,s)=>a+s.maxRank,0);
  m.treeFraction=m.learnedRanks/m.eligibleTreeRanks;
  m.nonConversionRanks=Object.keys(r.skills).filter(id=>M.SKILLS[id].branch!=='afterglow'&&id!=='main-afterglow').reduce((n,id)=>n+rank(r.skills,id),0)-1;
  const endMod=M.getRunModifiers(r);m.endingBuild={flapCost:endMod.liftCostPoints,lightRadius:endMod.lightRadius,maxGlow:getGlowCapacity(r),attract:endMod.attract,condensation:endMod.condensationRules};
@@ -262,7 +263,7 @@ const inv=[...inventories.values()],coverage={layouts:inv.length,biomes:[...new 
 const endHashes=hashes(),sourceChangedFiles=Object.keys(initialHashes).filter(name=>initialHashes[name]!==endHashes[name]);
 const report={schema:2,model:'clear-sparks-current',createdAt:new Date().toISOString(),seconds:round((Date.now()-started)/1000),sourceHashes:initialHashes,endSourceHashes:endHashes,sourceChangedFiles,sourceUnchanged:sourceChangedFiles.length===0,
  assumptions:{profiles,roles,policies,proposedPriceGrowth:proposedGrowth,proposedPricePowerK:proposedPowerK,proposedConversionBase,proposedTrainingGrowth,campaigns:rows.length,sensitivityCampaigns:sensitivity.length,
-  limits:['Economic inventory stress, not a geometric flight controller or measured human win rate.','Reaction figures label correction/miss scenarios; no reaction-delayed physics controller is claimed.','Pickup contacts, bad-packet avoidance, correction taps and imposed collisions are stochastic assumptions. Dark Seeds reduce visibility in play; their secondary targeting effect is represented by the miss sensitivity, not simulated as a separate fuel penalty.','Conditional-clear scenarios isolate economy even if fuel stress flags occur; attrition scenarios end failed attempts and lose their income.','Real production map graph, pickups, prices, modifiers, rewards, banking, conversion fractions and spending are used.','Uses actual node row and duration with a deterministic cached inventory per level/route/phase; does not enumerate every layout seed.','No TEST purchasing. Default campaigns start Vitality; startingOnly compares all three roots with shared streams.','Spending policies buy single-companion/main/conversion skills and sockets; paid extra lives and additional companion slots are excluded to isolate role balance.','Actual ArtifactEffects handles charges, seed chains and free-Lift caps; work/reveal/recharge opportunities remain scenario approximations. Black Hole exposure is an assumed straight pass at 85/140/195 clearance.','Tree fraction uses all nominal main/selected-companion/conversion ranks, including mutually exclusive paths; it is not a claim about fully purchasable completion.']},
+  limits:['Economic inventory stress, not a geometric flight controller or measured human win rate.','Reaction figures label correction/miss scenarios; no reaction-delayed physics controller is claimed.','Pickup contacts, bad-packet avoidance, correction taps and imposed collisions are stochastic assumptions. Dark Seeds reduce visibility in play; their secondary targeting effect is represented by the miss sensitivity, not simulated as a separate fuel penalty.','Conditional-clear scenarios isolate economy even if fuel stress flags occur; attrition scenarios end failed attempts and lose their income.','Real production map graph, pickups, prices, modifiers, rewards, banking, conversion fractions and spending are used.','Uses actual node row and duration with a deterministic cached inventory per level/route/phase; does not enumerate every layout seed.','No TEST purchasing. Default campaigns start Vitality; startingOnly compares all three roots with shared streams.','Spending policies buy main, single-companion, proximity and conversion skills; paid extra lives and additional companion slots are excluded to isolate role balance.','Actual ArtifactEffects handles charges, seed chains and free-Lift caps; work/reveal/recharge opportunities remain scenario approximations. Black Hole exposure is an assumed straight pass at 85/140/195 clearance.','Tree fraction uses all nominal main/selected-companion/conversion ranks, including mutually exclusive paths; it is not a claim about fully purchasable completion.']},
  coverage,groups,rows,sensitivity};
 fs.mkdirSync(path.dirname(out),{recursive:true});fs.writeFileSync(out,JSON.stringify(report,null,2));
 console.log(JSON.stringify({out,sourceUnchanged:report.sourceUnchanged,campaigns:rows.length,sensitivity:sensitivity.length,coverage,steady:groups['style:steady'],learning:groups['style:learning'],practiced:groups['style:practiced']},null,2));

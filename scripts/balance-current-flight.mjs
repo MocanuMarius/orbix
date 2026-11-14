@@ -12,13 +12,13 @@ if(!fs.existsSync(snapshot)){
   fs.copyFileSync(path.join(root,'dist',name),path.join(snapshot,name));
 }
 const source=!args.source||args.source==='current'?path.join(root,'dist'):args.source&&args.source!=='baseline'?path.resolve(root,String(args.source)):snapshot;
-const hashNames=['flight.mjs','flight-challenges.mjs','boss.mjs','drafts.mjs','wisp.mjs','vitality.mjs','model.mjs','pickups.mjs','companion-abilities.mjs','scene-props.mjs'];
+const hashNames=['flight.mjs','flight-challenges.mjs','boss.mjs','drafts.mjs','wisp.mjs','vitality.mjs','model.mjs','pickups.mjs','companion-abilities.mjs','scene-props.mjs','biome-dynamics.mjs','glow-budget.mjs'];
 const hashes=()=>Object.fromEntries(hashNames.map(name=>[name,createHash('sha256').update(fs.readFileSync(path.join(source,name))).digest('hex')]));
 const initialHashes=hashes();
 const {WispFlight,FLIGHT_TUNING,FLAME_TUNING,obstaclePolygons,circleHitsPolygon}=await import(pathToFileURL(path.join(source,'flight.mjs')));
 const {getRunModifiers,ROUTE_PROFILES}=await import(pathToFileURL(path.join(source,'model.mjs')));
 const {getFlightLengthProfile}=await import(pathToFileURL(path.join(source,'level-length.mjs')));
-const {getLevelIdentity}=await import(pathToFileURL(path.join(source,'level-catalog.mjs')));
+const {getLevelIdentity,BIOME_LEVELS}=await import(pathToFileURL(path.join(source,'level-catalog.mjs')));
 const {getPickupSpec,pickupKind,pickupContactRadius}=await import(pathToFileURL(path.join(source,'pickups.mjs')));
 globalThis.requestAnimationFrame=()=>1;globalThis.cancelAnimationFrame=()=>{};
 const clamp=(n,a,b)=>Math.max(a,Math.min(b,n));
@@ -107,6 +107,27 @@ function preciseFuelInput(e,target,memory,visible){
    const desired=target?center+(target.y-center)*Math.min(1,t/Math.max(.1,target.eta)):center;
    score+=Math.max(0,Math.abs(y-desired)-(target?6:16))**2*.0015;
   }
+  // React to visible falling scenery, using a coarse trajectory estimate rather
+  // than silently ignoring a lethal class of objects (the old controller did).
+  for(const actor of e.biomeDynamics?.items||[]){
+   if(actor.family!=='fall'||!['warning','falling'].includes(actor.phase))continue;
+   const ahead=actor.x-world;if(ahead<0||ahead>Math.min(e.width-e.player.x,e.getLightState().radius*2.1))continue;
+   const eta=ahead/e.baseSpeed;if(eta>1.8)continue;
+   const fallingFor=actor.phase==='falling'?eta:Math.max(0,eta-(1.2-actor.age));
+   if(actor.phase==='warning'&&fallingFor===0)continue;
+   const predictedY=actor.y+(actor.phase==='falling'?actor.vy:14*e.scaleY)*fallingFor+215*e.scaleY*fallingFor*fallingFor;
+   if(predictedY>actor.floorY+15)continue;
+   const separation=Math.abs(at(eta)-predictedY);
+   if(separation<actor.radius+e.player.radius+18)score+=60000;
+  }
+  for(const attack of e.layout.boss?.attacks||[]){
+   if(e.layout.boss.id!=='frost-matron'||attack.spent||attack.trigger==null)continue;
+   const eta=(attack.x-world)/e.baseSpeed;if(eta<0||eta>1.8)continue;
+   const age=e.time-attack.trigger+eta;if(age<2.2)continue;
+   const side=attack.side||-1,scale=e.height/620;
+   const iceY=attack.center+side*attack.baseGap/2-side*(age-2.2)*110*scale;
+   if(side*(iceY-attack.center)>-8*scale&&Math.abs(at(eta)-iceY)<e.player.radius+17*scale+12)score+=65000;
+  }
   if(target){
    const eta=Math.min(1.8,target.eta),y=at(eta),desired=center+(target.y-center)*Math.min(1,1.8/Math.max(.1,target.eta));
    score+=Math.max(0,Math.abs(y-desired)-8)**2*(target.eta<1.8?.26:.012);
@@ -118,10 +139,12 @@ function preciseFuelInput(e,target,memory,visible){
 function choose(e,style,memory){
  const random=memory.random,world=e.distance+e.player.x,sight=Math.min(e.width-e.player.x,e.getLightState().radius*2.1);
  const nearby=e.getNearbyPickups();
- const targets=style==='safety'||e.flame>=88?[]:nearby.filter(packet=>{
+ const targets=style==='safety'||e.flame>=e.maxFlame*.90?[]:nearby.filter(packet=>{
   const x=packet.x-e.distance,kind=pickupKind(packet),spec=getPickupSpec(packet);
+  if(memory.human&&!memory.noticed.has(packet.id))memory.noticed.set(packet.id,memory.random()>=memory.human.drop*.5);
+  if(memory.human&&!memory.noticed.get(packet.id))return false;
   return!packet.collected&&!packet.carried&&!packet.attracted&&!packet.generated&&spec.fuel>0&&kind!=='dark'
-    &&(kind!=='dusk'||e.flame<38)&&x>e.player.x-12&&x<=e.player.x+sight;
+    &&(kind!=='dusk'||e.flame<e.maxFlame*.40)&&x>e.player.x-12&&x<=e.player.x+sight;
  });
  targets.sort((a,b)=>a.x-b.x);
  const packet=targets[0],target=packet?{packet,x:packet.x,y:packet.y,eta:(packet.x-world)<=e.baseSpeed*1.48*e.boostTime?(packet.x-world)/(e.baseSpeed*1.48):e.boostTime+((packet.x-world)-e.baseSpeed*1.48*e.boostTime)/e.baseSpeed,radius:pickupContactRadius(packet)}:null;
@@ -215,7 +238,7 @@ function simulate(config){
  const e=new WispFlight({canvas:canvas(),node:config.node,seed:config.seed,terrain:config.terrain,duration:config.duration,
   elite:config.profile==='gauntlet',companions:config.fleet,companionRole:config.fleet[0],modifiers,
   flame:config.practice?80:FLAME_TUNING.starting,onFinish:value=>{result=value;}});
- const record={terrain:config.terrain,difficulty:config.difficulty,stage:config.stage,role:config.role,fleet:config.fleet,
+ const record={levelId:config.node.levelId,biomeId:config.node.biomeId,terrain:config.terrain,difficulty:config.difficulty,stage:config.stage,role:config.role,fleet:config.fleet,
   style:config.style,profile:config.profile,seed:config.seed,practice:config.practice,duration:config.duration,
   flapCost:e.flapCost,startFuel:e.flame,available:[],direct:0,collector:0,pickupCounts:{},fuelRestored:0,
   minFuel:e.flame,shieldsSpent:0,powerPresses:0,powerUses:{},levelerReleases:0,hitLog:[],fatalCause:null,
@@ -234,7 +257,7 @@ function simulate(config){
    if(item.role==='leveler'&&before[i]>0&&item.remaining<=0)record.levelerReleases++;});}return ok;};
  const human=config.style.startsWith('human')?{reaction:Number(config.style.slice(5))/1000,drop:Number(config.style.slice(5))===150?.2:Number(config.style.slice(5))===250?.3:.4,
   jitter:Number(config.style.slice(5))===150?.04:Number(config.style.slice(5))===250?.07:.1}:null;
- const memory={lastLift:-2,random:rngFor(config.seed+':'+config.style),nextDecision:0,pending:null,pendingPower:null,powerGate:0,missedPower:0,human};
+ const memory={lastLift:-2,random:rngFor(config.seed+':'+config.style),nextDecision:0,pending:null,pendingPower:null,powerGate:0,missedPower:0,human,noticed:new Map()};
  const missedManualFuel=new Set(),passedFuel=new Set();
  e.start();
  if(e.tutorialAwaitingLift){e.flap();memory.lastLift=e.time;}
@@ -270,7 +293,7 @@ function simulate(config){
 }
 function summarize(records){
  const groups={};
- for(const record of records){for(const key of['all',`style:${record.style}`,`role:${record.role}`,`terrain:${record.terrain}`,`difficulty:${record.difficulty}`,`stage:${record.stage}`,`profile:${record.profile}`]){
+ for(const record of records){for(const key of['all',`style:${record.style}`,`role:${record.role}`,`terrain:${record.terrain}`,`level:${record.levelId}`,`biome:${record.biomeId}`,`difficulty:${record.difficulty}`,`stage:${record.stage}`,`profile:${record.profile}`]){
   const group=groups[key]||(groups[key]=[]);group.push(record);}}
  return Object.fromEntries(Object.entries(groups).map(([key,items])=>[key,{n:items.length,clears:items.filter(x=>x.success).length,
   clearRate:Number((items.filter(x=>x.success).length/items.length).toFixed(6)),clearPercent:round(100*items.filter(x=>x.success).length/items.length),fuelDeaths:items.filter(x=>x.fatalCause==='fuel').length,
@@ -280,7 +303,19 @@ function summarize(records){
   clearFuel:round(mean(items.filter(x=>x.success).map(x=>x.endFuel))),meanFlaps:round(mean(items.map(x=>x.flaps)))}]));
 }
 const mode=String(args.mode||'calibrate'),cases=[];
-if(mode==='health'){
+if(mode==='guardians'){
+ for(const bossId of ['hollow-warden','moonweaver','frost-matron','rootbound-heart','storm-shepherd','hollow-sun'])for(const role of roleOptions)for(const style of ['human150','human250']){
+  const config=buildCase({terrain:'ruins',difficulty:1,stage:6,role,style,skills:{'main-efficiency':1,'main-sight':1}});
+  Object.assign(config.node,{boss:true,bossId});config.seed+=':'+bossId;config.node.levelId=bossId;cases.push(config);
+ }
+}else if(mode==='atlas'){
+ for(const level of BIOME_LEVELS)for(let seedIndex=0;seedIndex<Number(args.seeds||1);seedIndex++)for(const role of roleOptions)for(const style of ['human150','human250']){
+  const config=buildCase({terrain:level.terrain,difficulty:1,stage:0,role,style,seedIndex,skills:{'main-efficiency':1}});
+  config.seed+=`:${level.id}`;
+  Object.assign(config.node,{levelId:level.id,biomeId:level.biomeId,locationName:level.name});
+  cases.push(config);
+ }
+}else if(mode==='health'){
  for(let seedIndex=0;seedIndex<Number(args.seeds||3);seedIndex++)for(const terrain of ['ruins','canopy','storm'])for(const difficulty of [1,3,6])for(const stage of [0,3])for(const role of roleOptions)for(const style of ['human150','human250']){
   const config=buildCase({terrain,difficulty,stage,role,style,seedIndex,profile:stage===0?'refuge':'cavern',skills:{'main-efficiency':1}});
   cases.push(config);
@@ -303,15 +338,15 @@ if(mode==='health'){
  for(const fleet of[['collector','protector'],['collector','swift','kindler'],['leveler','seer','kindler']])for(const terrain of['ruins','canopy','storm'])for(const style of['fuel','imperfect'])
   cases.push(buildCase({terrain,difficulty:3,stage:3,role:fleet.join('+'),fleet,style,skills:{'main-bond':fleet.length-1}}));
 }
-const filtered=cases.filter(c=>!args.roles||String(args.roles).split(',').includes(c.role));const selected=args.limit?filtered.slice(0,Number(args.limit)):filtered;
+const filtered=cases.filter(c=>(!args.roles||String(args.roles).split(',').includes(c.role))&&(!args.biomes||String(args.biomes).split(',').includes(c.node.biomeId)));const levelFiltered=filtered.filter(c=>!args.levels||String(args.levels).split(',').includes(c.node.levelId));const selected=args.limit?levelFiltered.slice(0,Number(args.limit)):levelFiltered;
 const output=path.resolve(root,String(args.out||`work/balance-flight-${mode}.json`));
 const records=[],started=Date.now();
 for(const config of selected){const record=simulate(config);records.push(record);
  if(records.length%5===0||records.length===selected.length){
   const report={schema:1,mode,createdAt:new Date().toISOString(),source,hashes:initialHashes,sourceUnchanged:JSON.stringify(hashes())===JSON.stringify(initialHashes),
-   controller:{version:'landscape-current-cost-hold-v5',actualEngineHz:60,decisionSeconds:{safety:.05,fuel:.05,imperfect:.2,human:.10},horizonSeconds:1.68,beam:7,
+   controller:{version:'landscape-atlas-imperfect-v6',actualEngineHz:60,decisionSeconds:{safety:.05,fuel:.05,imperfect:.2,human:.10},horizonSeconds:1.68,beam:7,
     visibility:'Within 2.1 current light radii and viewport; conservative obstacle slices; not a perceptual human model.',
-    limitations:['Conservative square-expanded terrain slices guide prediction; real circle collisions run in engine.','Bot model approximates Leveler and localized gust trajectories.','No future Power activations planned; controller uses role-aware heuristics.','No human or mobile-performance inference from bot success.'],
+    limitations:['Conservative square-expanded terrain slices guide prediction; real circle collisions run in engine.','Bot model approximates Leveler and localized gust trajectories.','No future Power activations planned; controller uses role-aware heuristics.','No human or mobile-performance inference from bot success.','Pickup noticing has seeded 10–15% misses; timing uses 150–250ms delay and 40–70ms jitter. Geometry prediction is still more informed than a person.'],
     cheats:'None. No warp, refill, collision immunity, pickup removal, or engine runtime edits.'},
    elapsedSeconds:round((Date.now()-started)/1000),totalPlanned:selected.length,completed:records.length,summary:summarize(records),records};
   fs.writeFileSync(output,JSON.stringify(report,null,2));

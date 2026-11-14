@@ -30,7 +30,7 @@ export const TUTORIAL_TOPICS={
   s('Automatic helper','Collector is the green orb. It fetches helpful Sparks automatically. You do not press Power to send it.','companion:collector'),
   s('You collect first','Touch a Spark with your main wisp for immediate Energy. Collector waits for your body to have its chance, then rescues a missed Spark within its boundary.','collector-range'),
   s('Wait for delivery','The companion flies out, takes one Spark and brings it home. Energy arrives only on return. Farther Sparks take longer: do not rely on an instant rescue when nearly empty.','collector-return'),
-  s('Watch the boundary','After delivery, the green boundary contracts and regrows. A nearby Spark can still be fetched during recovery if it is inside the smaller boundary.','collector-recovery'),
+  s('Watch the boundary','After delivery, the green boundary contracts and regrows over 10 seconds. A nearby Spark can still be fetched during recovery if it is inside the smaller boundary.','collector-recovery'),
   s('Read the Power indicator','For Collector, the filling button shows current range, not an ability to press. A full indicator means maximum reach. Red-ring Sparks are left for you to choose.','companion:collector'),
   s('Upgrade the right reach','Collector skills improve fetching range, delivery and recovery. Light skills improve Luminance: how far you see. Fetching range and seeing distance are different.','luminance')]},
  companions:{name:'Companions',visual:'companion:protector',steps:[
@@ -76,7 +76,7 @@ export const TUTORIAL_TOPICS={
   s('Drafts','Local curls show where wind pushes. Fly around them or plan your Lift timing. Runner resists them; Space Timer still feels them.','draft'),
   s('Bad Sparks','Red rings mean danger or a cost. Dark Sparks reduce Luminance; Dusk Sparks trade Luminance for fuel. Collector ignores harmful pickups.','pickup:dark'),
   s('Black Hole','A black core is a hazard, not a pickup. It continuously steals Energy nearby; closer means much faster drain. Give it space, even with a shield.','black-hole'),
-  s('Edging Pulse','Skim near terrain without touching it to charge the slim edge meter. Full charge reveals the map in fading pulses. Skills can improve it or exchange the pulse for recovery.','edge')]},
+  s('Proximity · an earned skill','Buy the first Proximity skill to unlock surface charging. Skim solid terrain without touching it; full charge reveals the scene. Its separate tree offers recovery and a temporary light shield. Open sky never charges it.','edge')]},
  progression:{name:'Runs & Ascension',visual:'route',steps:[
   s('Three maps make a run','Energy, hearts, skills and artifacts carry between flights and maps. Plan a build that can reach the final guardian.','route'),
   s('Ascension','Clear all three maps to unlock the next difficulty and new companions. Higher Ascensions make the journey harder. The final guardian unlocks an artifact for future reward pools; it does not become starting equipment.','site:boss'),

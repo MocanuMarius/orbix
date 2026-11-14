@@ -1,6 +1,6 @@
 // Risk-earned sight, or bounded fuel recovery when the Regenerative Falling
 // branch is chosen. Neither outcome is a pickup or invokes artifact hooks.
-import { GLOW_DISPLAY_SCALE } from './vitality.mjs?v=fixed-companion-1';
+import { GLOW_DISPLAY_SCALE } from './vitality.mjs?v=proximity-balance-1';
 const clamp = (n, lo, hi) => Math.min(hi, Math.max(lo, n));
 const smooth = n => n * n * (3 - 2 * n);
 const EPSILON = 1e-9;
@@ -63,7 +63,7 @@ export class EdgingPulse {
   get dreaming() { return !!this.engine.dream && this.engine.dream.phase !== 'done'; }
   get live() {
     const e = this.engine;
-    return e.running && e.alive && !e.finished && !e.destroyed && !e.dying && !e.completing && !e.tutorialAwaitingLift;
+    return !!e.mod?.proximityUnlocked && e.running && e.alive && !e.finished && !e.destroyed && !e.dying && !e.completing && !e.tutorialAwaitingLift;
   }
   get protected() {
     const e = this.engine;
@@ -134,7 +134,7 @@ export class EdgingPulse {
     const rate = number(e.mod?.edgingChargeRate, 1, .25, 4);
     const decay = number(e.mod?.edgingDecayRate, 1, 0, 4);
     if (this.nearEdge) {
-      this.graceRemaining = EDGING_PULSE_TUNING.graceSeconds;
+      this.graceRemaining = number(e.mod?.edgingGrace,EDGING_PULSE_TUNING.graceSeconds,1.25,3);
       this.charge = clamp(this.charge + dt * rate / EDGING_PULSE_TUNING.chargeSeconds, 0, 1);
     } else {
       // Ordinary flap arcs and short gaps preserve earned progress, but never
@@ -146,6 +146,7 @@ export class EdgingPulse {
     }
     if (!this.protected && this.charge >= 1 - EPSILON) {
       this.charge = 0; this.nearEdge = false; this.graceRemaining = 0; this.triggerCount++;
+      if(e.mod?.proximityShield&&(e.proximityShieldGrants||0)<2&&!(e.proximityShieldRemaining>0)){e.proximityShieldRemaining=8;e.proximityShieldGrants=(e.proximityShieldGrants||0)+1;e.burst?.(e.player.x,e.player.y,12,'#bcecff');}
       if (this.regenerative) {
         // This is recovery, not a collectible. Only the missing fuel is added;
         // it cannot overflow, create Packed Sparks, or proc pickup artifacts.

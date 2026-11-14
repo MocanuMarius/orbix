@@ -4,7 +4,7 @@ export function prepareGuardian(layout,height,speed){
  const id=layout.boss.id;
  if(['moonweaver','hollow-warden'].includes(id))return layout;
  for(const spark of layout.embers){const o=layout.obstacles.find(o=>o.id===spark.anchor);if(o){spark.y=o.center;spark.pocket=false;spark.pocketSide=null;spark.feature='guardian-respite';delete o.cachePocket;}}
- layout.boss.attacks=layout.obstacles.filter((o,i)=>i%3===1).map((o,i)=>({x:o.x+o.width*.65,y:o.center-height*.12,center:o.center,baseGap:o.gap,obstacle:o,index:i,trigger:null,spent:false}));
+ layout.boss.attacks=layout.obstacles.filter(o=>!o.cacheEligible).filter((o,i)=>layout.boss.difficulty>1||i%2===0).map((o,i)=>({x:o.x+o.width*.65,y:o.center-height*.12,center:o.center,baseGap:o.gap,side:o.bossPhase===1?-1:(i%2?1:-1),obstacle:o,index:i,trigger:null,spent:false}));
  layout.boss.scale=height/620;layout.boss.speed=speed;
  return layout;
 }
@@ -19,17 +19,17 @@ export function updateGuardian(engine,dt){
   if(boss.id==='rootbound-heart'){
    // A continuous rhythm, never narrower than a generous 150-reference-pixel passage.
    const wave=(1-Math.cos(now*1.25+a.index*.7))/2;
-   a.obstacle.gap=a.baseGap-(a.baseGap-170*s)*wave;
+   a.obstacle.gap=a.baseGap-(a.baseGap-220*s)*wave;
   }else if(boss.id==='frost-matron'){
-   a.iceY=a.center-a.baseGap/2+Math.max(0,age-1.6)*110*s;
-   const active=age>=1.6&&a.iceY<a.center+8*s;
+   a.iceY=a.center+a.side*a.baseGap/2-a.side*Math.max(0,age-2.2)*110*s;
+   const active=age>=2.2&&a.side*(a.iceY-a.center)>-8*s;
    if(active&&!a.spent&&Math.hypot(dx,engine.player.y-a.iceY)<engine.player.radius+17*s){a.spent=true;engine.hit(null);}
   }else if(boss.id==='storm-shepherd'){
    const strength=Math.max(0,1-Math.abs(dx)/(150*s));
    const vertical=Math.max(0,1-Math.abs(engine.player.y-a.center)/(190*s));
    engine.player.vy+=(a.index%2?1:-1)*150*s*strength*vertical*dt*(engine.boostTime>0?.4:1);
   }else if(boss.id==='hollow-sun'){
-   a.wellY=a.y+Math.sin(now*.8+a.index)*24*s;
+   a.wellY=a.center+a.side*70*s+Math.sin(now*.8+a.index)*24*s;
    const distance=Math.hypot(dx,engine.player.y-a.wellY);
    if(distance<210*s){engine.spendGlow(Math.max(0,guardianWellDrain(distance,s))*dt);a.draining=true;}else a.draining=false;
   }
@@ -59,8 +59,8 @@ export function drawGuardianWarnings(c,{engine,distance=engine.distance,scale=1}
   const x=(a.x-distance)*k;if(x < -60 || x>engine.width*k+60)continue;
   const y=a.center*k,age=a.age??-1;
   if(boss.id==='frost-matron'){
-   if(age<1.6){c.strokeStyle='#ccefff';c.globalAlpha=.5+.3*Math.sin(t*8);c.setLineDash([3*k,7*k]);c.beginPath();c.moveTo(x,(a.center-a.baseGap/2)*k);c.lineTo(x,y);c.stroke();c.setLineDash([]);}
-   else if(!a.spent&&a.iceY<a.center+8*s){c.globalAlpha=1;c.fillStyle='#b4e8f1';c.beginPath();c.moveTo(x-14*s*k,a.iceY*k-18*s*k);c.lineTo(x+14*s*k,a.iceY*k-18*s*k);c.lineTo(x,a.iceY*k+20*s*k);c.fill();}
+   if(age<2.2){c.strokeStyle='#ccefff';c.globalAlpha=.5+.3*Math.sin(t*8);c.setLineDash([3*k,7*k]);c.beginPath();c.moveTo(x,(a.center+a.side*a.baseGap/2)*k);c.lineTo(x,y);c.stroke();c.setLineDash([]);}
+   else if(!a.spent&&a.side*(a.iceY-a.center)>-8*s){c.globalAlpha=1;c.fillStyle='#b4e8f1';c.beginPath();c.moveTo(x-14*s*k,a.iceY*k-18*s*k);c.lineTo(x+14*s*k,a.iceY*k-18*s*k);c.lineTo(x,a.iceY*k+20*s*k);c.fill();}
   }else if(boss.id==='rootbound-heart'){
    c.globalAlpha=.8;c.strokeStyle='#b5db8b';for(const sign of [-1,1]){const yy=(a.center+sign*a.obstacle.gap/2)*k;c.beginPath();c.moveTo(x-30*k,yy);c.lineTo(x,yy-sign*7*k);c.lineTo(x+30*k,yy);c.stroke();}
   }else if(boss.id==='storm-shepherd'){

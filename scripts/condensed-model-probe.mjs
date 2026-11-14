@@ -13,14 +13,11 @@ assert.ok(condenseGlow(1000,{rules:{multiplier:100,bankBonusPerTier:100},wallet:
 const s=state(),start=s.run.condensedGlow;launch(s);
 M.finishFlight(s.run,{success:true,flame:100,condensedGlow:7,condensedRemainder:.4,pickupOverflow:24,challengeComplete:true,collected:10});
 assert.equal(s.run.condensedGlow,start,'Income is secured only at the completed checkpoint');
-assert.equal(M.settleCheckpoint(s),7);assert.equal(M.settleCheckpoint(s),0,'Cannot bank the clear twice');
-assert.equal(s.run.condensedGlow,start+7,'Full recovery and challenge completion mint no additional currency');
+assert.equal(M.settleCheckpoint(s),27);assert.equal(M.settleCheckpoint(s),0,'Cannot bank the clear twice');
+assert.equal(s.run.condensedGlow,start+27,'Clear reward and pickup surplus bank once; recovery mints no currency');
 assert.equal(s.run.condensedRemainder,.4);assert.equal(s.run.flame,100);
 assert.equal('afterglow' in s.run,false,'No stored fuel reserve remains');
-const beforeBurn=s.run.condensedGlow,offer=s.run.flightReward.glowAlternative;
-assert.ok(M.chooseFlightReward(s,'glow'));
-assert.equal(s.run.condensedGlow-beforeBurn,Math.floor(offer*.3+.4));
-assert.equal(M.chooseFlightReward(s,'glow'),false,'Relic remains are collected once');
+assert.equal(s.run.flightReward.offers.length,0,'Ordinary flights no longer offer artifacts to burn');
 const f=state(),beforeFailure=f.run.condensedGlow;f.run.condensedRemainder=.6;launch(f);
 M.finishFlight(f.run,{success:false,flame:0,condensedGlow:999,condensedRemainder:.9});M.settleCheckpoint(f);
 assert.equal(f.run.condensedGlow,beforeFailure);assert.equal(f.run.condensedRemainder,.6,'Death cannot farm whole or fractional overflow');
@@ -33,10 +30,10 @@ M.grantGlowPickup(practice.run,100);M.leaveTutorial(practice);assert.equal(pract
 const priced=state();priced.run.condensedGlow=1000;
 const freeWallet=M.getSkillWallet(priced);
 assert.equal(M.getTrainingRankCount(freeWallet),0,'The granted starter root is not a paid training rank');
-assert.equal(M.getSkillPrice(freeWallet,'main-afterglow'),85);
+assert.equal(M.getSkillPrice(freeWallet,'main-afterglow'),110);
 assert.ok(M.buyCheckpointSkill(priced,'main-afterglow'));assert.ok(M.buyCheckpointSkill(priced,'afterglow-anchor'));
-assert.equal(M.getTrainingRankCount(M.getSkillWallet(priced)),2);
-assert.equal(M.getSkillPrice(M.getSkillWallet(priced),'main-sight'),175,'Further skills use the final progressive price rule');
+assert.equal(M.getTrainingRankCount(M.getSkillWallet(priced)),1.875);
+assert.equal(M.getSkillPrice(M.getSkillWallet(priced),'main-sight'),155,'Further skills use the final progressive price rule');
 assert.match(M.getSkillLockReason(M.getSkillWallet(priced),'afterglow-retention'),/Learn|Other path/);
 const memory=new Map(),storage={getItem:key=>memory.get(key)||null,setItem:(key,value)=>memory.set(key,value)};
 assert.ok(M.saveState(priced,storage));const reloaded=M.loadState(storage);
@@ -56,20 +53,6 @@ for(let cycle=0;cycle<2;cycle++){
  assert.equal(workshop.run.securedCondensedGlow,0,'Refunded spending is not earned income');
  assert.equal(M.resolveSupport(workshop.run,0,workshop.profile),false,'The workshop cannot resolve twice');
 }
-const archive=state();archive.run.artifacts=['echo-vessel'];archive.run.flame=17;archive.run.lives=1;archive.run.condensedRemainder=.6;
-archive.run.skills['main-afterglow']=1;archive.run.skills['afterglow-vessel']=2;support(archive.run,5);
-const archiveOffer=M.getSupportChoices(archive.run,archive.profile)[0],archiveBefore=archive.run.condensedGlow;
-assert.equal(archiveOffer.effect.salvagePackedLight,35,'Archive previews the fixed rare-artifact Packed Light payout');
-assert.equal(archiveOffer.glowPreview,undefined,'Forge is not a fuel pickup or overflow conversion');
-assert.ok(M.resolveSupport(archive.run,0,archive.profile));
-assert.equal(archive.run.condensedGlow-archiveBefore,35,'Neither the consumed artifact nor conversion skills multiply Forge payout');
-assert.equal(archive.run.flame,17,'Forge does not restore Glow');assert.equal(archive.run.lives,1,'Forge does not refill hearts');
-assert.equal(archive.run.condensedRemainder,.6,'Forge does not consume or add fractional pickup credit');
-assert.ok(!archive.run.artifacts.includes('echo-vessel'),'The offered artifact is consumed');
-assert.equal(M.settleCheckpoint(archive),0,'Archive Forge pays immediately, not a second time at settlement');
-assert.equal(M.resolveSupport(archive.run,0,archive.profile),false,'Archive cannot resolve twice');
-archive.run.restReady=true;assert.equal(M.sellArtifact(archive,'echo-vessel'),false,'A consumed artifact cannot be forged again at Rest');
-assert.equal(archive.run.condensedGlow,archiveBefore+35);
 for(const [id,value] of [['quiet-cinder',25],['echo-bell',35],['sunheart-engine',50]])for(const fuel of [0,100]){
  const forge=state();forge.run.restReady=true;forge.run.artifacts=[id];forge.run.flame=fuel;forge.run.lives=1;
  const before=forge.run.condensedGlow,step=forge.run.step;
@@ -80,5 +63,5 @@ for(const [id,value] of [['quiet-cinder',25],['echo-bell',35],['sunheart-engine'
 }
 const copied=state();launch(copied);M.finishFlight(copied.run,{success:true,flame:100,condensedGlow:9});
 M.saveState(copied,storage);const loadedOnce=M.loadState(storage),loadedTwice=M.loadState(storage);
-assert.equal(loadedOnce.run.condensedGlow,17);assert.equal(loadedTwice.run.condensedGlow,17,'Saved pending income settles once across repeated loads');
+assert.equal(loadedOnce.run.condensedGlow,37);assert.equal(loadedTwice.run.condensedGlow,37,'Saved pending income settles once across repeated loads');
 console.log(JSON.stringify({baseConversion:'3 to 3',refinedConversion:'3 to 4',fractionalCredit:true,failedAttemptFarming:false,recoveryMints:false,rewardClaimOnce:true,practiceIsolation:true,currencySave:true,refundFarming:false,refundsNotIncome:true,salePreviewMatches:true,forgeFixedRarityPayouts:[25,35,50],forgeChangesFuelOrHearts:false,forgeDoublePay:false,reloadSettlementOnce:true}));

@@ -1,40 +1,40 @@
-import { updateGuardian, drawGuardianWarnings } from './guardian-effects.mjs?v=fixed-companion-1';
-import {drawProximityMeter} from './proximity-meter.mjs?v=fixed-companion-1';
-import {FlightProjection,drawFlightProjection} from './flight-projection.mjs?v=fixed-companion-1';
-import {drawGlowSense} from './glow-sense.mjs?v=fixed-companion-1';
-import {formatGlow} from './vitality.mjs?v=fixed-companion-1';
-import {installRiskChains} from './risk-chains.mjs?v=fixed-companion-1';
-import {EXTRA_COURSES} from './world-expansion.mjs?v=fixed-companion-1';
-import {BIOME_COURSES} from './biome-courses.mjs?v=fixed-companion-1';
-import {BiomeDynamics} from './biome-dynamics.mjs?v=fixed-companion-1';
-import {condenseGlow} from './condensed-glow.mjs?v=fixed-companion-1';
-import {ensureGlowBudget} from './glow-budget.mjs?v=fixed-companion-1';
-import {EdgingPulse} from './edging-pulse.mjs?v=fixed-companion-1';
-import {isVowBodyPickup} from './contextual-events.mjs?v=fixed-companion-1';
-import {BlackHoles} from './black-holes.mjs?v=fixed-companion-1';
-import {drawBlackHoles} from './black-hole-art.mjs?v=fixed-companion-1';
+import { updateGuardian, drawGuardianWarnings } from './guardian-effects.mjs?v=proximity-balance-1';
+import {drawProximityMeter} from './proximity-meter.mjs?v=proximity-balance-1';
+import {FlightProjection,drawFlightProjection} from './flight-projection.mjs?v=proximity-balance-1';
+import {drawGlowSense} from './glow-sense.mjs?v=proximity-balance-1';
+import {formatGlow} from './vitality.mjs?v=proximity-balance-1';
+import {installRiskChains} from './risk-chains.mjs?v=proximity-balance-1';
+import {EXTRA_COURSES} from './world-expansion.mjs?v=proximity-balance-1';
+import {BIOME_COURSES} from './biome-courses.mjs?v=proximity-balance-1';
+import {BiomeDynamics} from './biome-dynamics.mjs?v=proximity-balance-1';
+import {condenseGlow} from './condensed-glow.mjs?v=proximity-balance-1';
+import {ensureGlowBudget} from './glow-budget.mjs?v=proximity-balance-1';
+import {EdgingPulse} from './edging-pulse.mjs?v=proximity-balance-1';
+import {isVowBodyPickup} from './contextual-events.mjs?v=proximity-balance-1';
+import {BlackHoles} from './black-holes.mjs?v=proximity-balance-1';
+import {drawBlackHoles} from './black-hole-art.mjs?v=proximity-balance-1';
 /* Emberwing's self-contained canvas flight simulation and renderer. */
-import { FLAME_TUNING, LIGHT_PACKET_TUNING } from './vitality.mjs?v=fixed-companion-1';
-import { flightEndDistance } from './flight-end.mjs?v=fixed-companion-1';
-import {getExitLandmarkState,drawExitLandmark} from './exit-landmark.mjs?v=fixed-companion-1';
-import { WispCompanion, wispHome } from './wisp.mjs?v=fixed-companion-1';
-import { getAscentInfo } from './ascent.mjs?v=fixed-companion-1';
-import { LEVEL_LENGTH, getLevelLengthScale } from './level-length.mjs?v=fixed-companion-1';
-import { resolveLevelIdentity } from './level-catalog.mjs?v=fixed-companion-1';
-import { DraftField, DRAFT_TUNING } from './drafts.mjs?v=fixed-companion-1';
-import { normalizeCompanionRole, normalizeCompanionFleet, getCompanionAbility } from './companion-abilities.mjs?v=fixed-companion-1';
-import { populateSceneProps, scenePropPolygons } from './scene-props.mjs?v=fixed-companion-1';
-import { pickupKind, getPickupSpec, pickupContactRadius, isFuelPickup, canCompanionCollect } from './pickups.mjs?v=fixed-companion-1';
-import { drawPickup } from './pickup-art.mjs?v=fixed-companion-1';
-import { buildBossLayout, getBossState as bossState, drawBoss } from './boss.mjs?v=fixed-companion-1';
-import { getAuthoredChallenge, finalizeFlightChallenges, installAuthoredDraftCrossings, FlightChallengeDirector } from './flight-challenges.mjs?v=fixed-companion-1';
-import { installEncounterFamily } from './encounter-families.mjs?v=fixed-companion-1';
-import { installFlightForks, resizeFlightForks } from './flight-forks.mjs?v=fixed-companion-1';
-import { ArtifactEffects } from './artifact-effects.mjs?v=fixed-companion-1';
-import { LIGHT_EXTENT,lightAttenuation,lightVisibility,createLightMaskCanvas,sceneRevealStrength } from './light-field.mjs?v=fixed-companion-1';
+import { FLAME_TUNING, LIGHT_PACKET_TUNING } from './vitality.mjs?v=proximity-balance-1';
+import { flightEndDistance } from './flight-end.mjs?v=proximity-balance-1';
+import {getExitLandmarkState,drawExitLandmark} from './exit-landmark.mjs?v=proximity-balance-1';
+import { WispCompanion, wispHome } from './wisp.mjs?v=proximity-balance-1';
+import { getAscentInfo } from './ascent.mjs?v=proximity-balance-1';
+import { LEVEL_LENGTH, getLevelLengthScale } from './level-length.mjs?v=proximity-balance-1';
+import { resolveLevelIdentity } from './level-catalog.mjs?v=proximity-balance-1';
+import { DraftField, DRAFT_TUNING } from './drafts.mjs?v=proximity-balance-1';
+import { normalizeCompanionRole, normalizeCompanionFleet, getCompanionAbility } from './companion-abilities.mjs?v=proximity-balance-1';
+import { populateSceneProps, scenePropPolygons } from './scene-props.mjs?v=proximity-balance-1';
+import { pickupKind, getPickupSpec, pickupContactRadius, isFuelPickup, canCompanionCollect } from './pickups.mjs?v=proximity-balance-1';
+import { drawPickup } from './pickup-art.mjs?v=proximity-balance-1';
+import { buildBossLayout, getBossState as bossState, drawBoss } from './boss.mjs?v=proximity-balance-1';
+import { getAuthoredChallenge, finalizeFlightChallenges, installAuthoredDraftCrossings, FlightChallengeDirector } from './flight-challenges.mjs?v=proximity-balance-1';
+import { installEncounterFamily } from './encounter-families.mjs?v=proximity-balance-1';
+import { installFlightForks, resizeFlightForks } from './flight-forks.mjs?v=proximity-balance-1';
+import { ArtifactEffects } from './artifact-effects.mjs?v=proximity-balance-1';
+import { LIGHT_EXTENT,lightAttenuation,lightVisibility,createLightMaskCanvas,sceneRevealStrength } from './light-field.mjs?v=proximity-balance-1';
 import { createTutorialState, buildTutorialLayout, recordTutorialPickup,
-  updateTutorial, updateTutorialCompanion, getTutorialHint } from './tutorial.mjs?v=fixed-companion-1';
-export { FLAME_TUNING } from './vitality.mjs?v=fixed-companion-1';
+  updateTutorial, updateTutorialCompanion, getTutorialHint } from './tutorial.mjs?v=proximity-balance-1';
+export { FLAME_TUNING } from './vitality.mjs?v=proximity-balance-1';
 const TAU = Math.PI * 2;
 const STEP = 1 / 60;
 const COMPANION_ORBIT_SPEED = {protector:1.3,leveler:1.7,swift:3.4,seer:.8,kindler:2.2};
@@ -44,7 +44,7 @@ const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
 const lerp = (a, b, t) => a + (b - a) * t;
 export const FLIGHT_TUNING = Object.freeze({ gravity: 300, flapImpulse: 205,
   forwardSpeed: 154, terminalFall: 245, pickupRadius: LIGHT_PACKET_TUNING.pickupRadius });
-export { DRAFT_TUNING } from './drafts.mjs?v=fixed-companion-1';
+export { DRAFT_TUNING } from './drafts.mjs?v=proximity-balance-1';
 // Retain the public tuning name for consumers; wind now has no global cycle.
 export const WIND_TUNING = DRAFT_TUNING;
 
@@ -906,7 +906,7 @@ export class WispFlight {
 
   async initPixelView() {
     try {
-      const { WispFlightView } = await import('./wisp-renderer.mjs?v=fixed-companion-1');
+      const { WispFlightView } = await import('./wisp-renderer.mjs?v=proximity-balance-1');
       if (this.destroyed) return;
       this.pixiView = new WispFlightView(this);
       const initialized = await this.pixiView.init();
@@ -1296,7 +1296,7 @@ export class WispFlight {
     return this._companionViews;
   }
 
-  getShieldState() { return { ...this.shield, enabled:this.hasCompanion('protector'),
+  getShieldState() { return { ...this.shield, lightAegis:(this.proximityShieldRemaining||0)>0, enabled:this.hasCompanion('protector')||(this.proximityShieldRemaining||0)>0,
     cost:clamp(Number(this.mod.protectorCost)||12,1,40) }; }
   getLevelerState() {
     const item=this.fleet.find(state=>state.role==='leveler');
@@ -1543,7 +1543,7 @@ export class WispFlight {
     this.syncFleetTimers();
     this.levelRecovery=Math.max(0,this.levelRecovery-dt);this.levelDive=Math.max(0,this.levelDive-dt);
     this.purifyCooldown=Math.max(0,this.purifyCooldown-dt);
-    this.shield.protection=Math.max(0,this.shield.protection-dt);this.shield.hitFlash=Math.max(0,this.shield.hitFlash-dt);
+    this.proximityShieldRemaining=Math.max(0,(this.proximityShieldRemaining||0)-dt);this.shield.protection=Math.max(0,this.shield.protection-dt);this.shield.hitFlash=Math.max(0,this.shield.hitFlash-dt);
     if(this.shield.charges<this.shield.layers){
       this.shield.recovery=Math.max(0,this.shield.recovery-dt);
       if(this.shield.recovery<=0){this.shield.charges++;this.shield.recovery=this.shield.charges<this.shield.layers?this.shield.recoveryTotal:0;}
@@ -1690,7 +1690,8 @@ export class WispFlight {
     if(obstacle)obstacle.hit=true;
     this.collisions++;
     const cost=clamp(Number(this.mod.protectorCost)||12,1,40);
-    if(this.hasCompanion('protector')&&this.shield.charges>0&&this.availableGlow>=cost){
+    const lightAegis=(this.proximityShieldRemaining||0)>0;
+    if(lightAegis||this.hasCompanion('protector')&&this.shield.charges>0&&this.availableGlow>=cost){
       const obstacles=this.getNearbyObstacles();
       const worldX=this.distance+this.player.x,radius=this.player.radius+4;
       const clear=y=>y>=34&&y<=this.height-35&&!obstacles.some(item=>circleHitsObstacle(worldX,y,radius,item,this.time));
@@ -1701,7 +1702,7 @@ export class WispFlight {
         if(safe!==null)break;
       }
       if(safe!==null){
-        const previous=this.player.y;this.spendGlow(cost);this.shield.charges--;
+        const previous=this.player.y;if(lightAegis)this.proximityShieldRemaining=0;else{this.spendGlow(cost);this.shield.charges--;}
         if(this.shield.recovery<=0)this.shield.recovery=this.shield.recoveryTotal;
         this.shield.protection=Number(this.mod.protectorProtection)||.4;this.shield.hitFlash=.45;this.flash=.14;
         this.player.y=this.previousPlayerY=safe;this.player.vy=(safe>=previous?1:-1)*65*this.scaleY;
@@ -1709,7 +1710,7 @@ export class WispFlight {
         this.cancelLeveler(true);this.levelDive=0;this._auraUntil=-1;
         this.artifactEffects.onWork();
         this.artifactEffects.notice('iron-petal','passive');
-        this.setEvent(`Protector · shell spent, −${formatGlow(cost,this.maxFlame)} Sparks`);this.sound('hit');
+        this.setEvent(lightAegis?'Light Aegis · shield spent':`Protector · shell spent, −${formatGlow(cost,this.maxFlame)} Sparks`);this.sound('hit');
         this.notify();return;
       }
     }
@@ -2286,7 +2287,7 @@ export class WispFlight {
       c.fillStyle=radius>15?'#ccd9c5':`rgb(${44+Math.round(light*199)},${52+Math.round(light*191)},${54+Math.round(light*166)})`;
       c.fillRect(xx,yy,2,2);
     }
-    if(this.hasCompanion('protector')){c.strokeStyle=this.shield.charges>0?'#8fbfe8':'#4a6171';c.lineWidth=1.5;c.globalAlpha=this.shield.charges>0?.6:.22;c.beginPath();c.arc(0,0,22,0,TAU*(this.shield.charges>0?1:.65));c.stroke();c.globalAlpha=1;}
+    if(this.hasCompanion('protector')||this.proximityShieldRemaining>0){c.strokeStyle=this.shield.charges>0?'#8fbfe8':'#4a6171';c.lineWidth=1.5;c.globalAlpha=this.shield.charges>0?.6:.22;c.beginPath();c.arc(0,0,22,0,TAU*(this.shield.charges>0?1:.65));c.stroke();c.globalAlpha=1;}
     c.restore();
   }
 
