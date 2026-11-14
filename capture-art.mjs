@@ -1,7 +1,7 @@
-import {drawAbsorbingSpark} from './tidal-light.mjs?v=guardian-beat-1';
-import {getPickupSpec, pickupShellRadius} from './pickups.mjs?v=guardian-beat-1';
-import {drawPickup} from './pickup-art.mjs?v=guardian-beat-1';
-import {drawShellArcs} from './shell-arcs.mjs?v=guardian-beat-1';
+import {drawAbsorbingSpark} from './tidal-light.mjs?v=guardian-beat-2';
+import {getPickupSpec, pickupShellRadius} from './pickups.mjs?v=guardian-beat-2';
+import {drawPickup} from './pickup-art.mjs?v=guardian-beat-2';
+import {drawShellArcs} from './shell-arcs.mjs?v=guardian-beat-2';
 
 const TAU = Math.PI * 2;
 const clamp = value => Math.max(0, Math.min(1, value));

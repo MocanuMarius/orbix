@@ -1,13 +1,13 @@
-import {drawPickup} from './pickup-art.mjs?v=guardian-beat-1';
-import {drawCapture} from './capture-art.mjs?v=guardian-beat-1';
-import {captureMassDuration} from './tidal-light.mjs?v=guardian-beat-1';
-import {sparkArtScale,sparkBodyRadius,sparkMass} from './spark-size.mjs?v=guardian-beat-1';
-import {getPickupSpec,pickupContactRadius} from './pickups.mjs?v=guardian-beat-1';
-import {makeWispSprite} from './companion-art.mjs?v=guardian-beat-1';
-import {biomePalette} from './biome-art.mjs?v=guardian-beat-1';
-import {createDepthScenery,drawDepthScenery} from './depth-scenery.mjs?v=guardian-beat-1';
-import {LIGHT_PACKET_TUNING,getGlowCapacity,glowPoints,GLOW_DISPLAY_SCALE} from './vitality.mjs?v=guardian-beat-1';
-import {condenseGlow,getCondensationRules} from './condensed-glow.mjs?v=guardian-beat-1';
+import {drawPickup} from './pickup-art.mjs?v=guardian-beat-2';
+import {drawCapture} from './capture-art.mjs?v=guardian-beat-2';
+import {captureMassDuration} from './tidal-light.mjs?v=guardian-beat-2';
+import {sparkArtScale,sparkBodyRadius,sparkMass} from './spark-size.mjs?v=guardian-beat-2';
+import {getPickupSpec,pickupContactRadius} from './pickups.mjs?v=guardian-beat-2';
+import {makeWispSprite} from './companion-art.mjs?v=guardian-beat-2';
+import {biomePalette} from './biome-art.mjs?v=guardian-beat-2';
+import {createDepthScenery,drawDepthScenery} from './depth-scenery.mjs?v=guardian-beat-2';
+import {LIGHT_PACKET_TUNING,getGlowCapacity,glowPoints,GLOW_DISPLAY_SCALE} from './vitality.mjs?v=guardian-beat-2';
+import {condenseGlow,getCondensationRules} from './condensed-glow.mjs?v=guardian-beat-2';
 
 const examples=[
   {label:'Tiny',kind:'light',sparkMass:1},

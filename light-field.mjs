@@ -1,4 +1,4 @@
-import {shutterLightFactor} from './shutter-cone.mjs?v=guardian-beat-1';
+import {shutterLightFactor} from './shutter-cone.mjs?v=guardian-beat-2';
 // Radius describes the bright core. A finite inverse-square field keeps a
 // faint tail at 2x radius, then reaches exact black at 3x without a hard seam.
 export const LIGHT_EXTENT=3;

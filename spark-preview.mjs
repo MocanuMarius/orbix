@@ -1,19 +1,19 @@
-import {resourceSymbol} from './game-symbols.mjs?v=guardian-beat-1';
-import {drawPickup, pickupArtSvg} from './pickup-art.mjs?v=guardian-beat-1';
-import {getPickupSpec} from './pickups.mjs?v=guardian-beat-1';
-import {drawBlackHoles} from './black-hole-art.mjs?v=guardian-beat-1';
-import {blackHoleDrainRate, BLACK_HOLE_TUNING} from './black-holes.mjs?v=guardian-beat-1';
-import {CAPTURE_STYLES, readCaptureStyle, saveCaptureStyle} from './capture-styles.mjs?v=guardian-beat-1';
-import {drawCapture} from './capture-art.mjs?v=guardian-beat-1';
-import {glowPoints, LIGHT_PACKET_TUNING} from './vitality.mjs?v=guardian-beat-1';
-import {SKILLS, ARTIFACTS} from './model.mjs?v=guardian-beat-1';
-import {ROUTE_BONUSES} from './route-bonuses.mjs?v=guardian-beat-1';
-import {skillIcon, artifactIcon} from './upgrade-icons.mjs?v=guardian-beat-1';
-import {mapStopIconMarkup} from './map-guide.mjs?v=guardian-beat-1';
-import {companionArtSvg, makeWispSprite} from './companion-art.mjs?v=guardian-beat-1';
-import {lifeHeartSvg} from './lives.mjs?v=guardian-beat-1';
-import {bonusIcon} from './route-bonus-ui.mjs?v=guardian-beat-1';
-import {menuIcon} from './menu-icons.mjs?v=guardian-beat-1';
+import {resourceSymbol} from './game-symbols.mjs?v=guardian-beat-2';
+import {drawPickup, pickupArtSvg} from './pickup-art.mjs?v=guardian-beat-2';
+import {getPickupSpec} from './pickups.mjs?v=guardian-beat-2';
+import {drawBlackHoles} from './black-hole-art.mjs?v=guardian-beat-2';
+import {blackHoleDrainRate, BLACK_HOLE_TUNING} from './black-holes.mjs?v=guardian-beat-2';
+import {CAPTURE_STYLES, readCaptureStyle, saveCaptureStyle} from './capture-styles.mjs?v=guardian-beat-2';
+import {drawCapture} from './capture-art.mjs?v=guardian-beat-2';
+import {glowPoints, LIGHT_PACKET_TUNING} from './vitality.mjs?v=guardian-beat-2';
+import {SKILLS, ARTIFACTS} from './model.mjs?v=guardian-beat-2';
+import {ROUTE_BONUSES} from './route-bonuses.mjs?v=guardian-beat-2';
+import {skillIcon, artifactIcon} from './upgrade-icons.mjs?v=guardian-beat-2';
+import {mapStopIconMarkup} from './map-guide.mjs?v=guardian-beat-2';
+import {companionArtSvg, makeWispSprite} from './companion-art.mjs?v=guardian-beat-2';
+import {lifeHeartSvg} from './lives.mjs?v=guardian-beat-2';
+import {bonusIcon} from './route-bonus-ui.mjs?v=guardian-beat-2';
+import {menuIcon} from './menu-icons.mjs?v=guardian-beat-2';
 
 const preferences = matchMedia('(prefers-reduced-motion: reduce)');
 const root = document.documentElement;
@@ -329,7 +329,7 @@ function renderGroup() {
 }
 async function openSizesPreview(){
   try{
-    const {createSparkSizesPreview}=await import('./spark-sizes-preview.mjs?v=guardian-beat-1');
+    const {createSparkSizesPreview}=await import('./spark-sizes-preview.mjs?v=guardian-beat-2');
     if(picker.value!=='sizes'||sizesPreview)return;
     sizesPreview=createSparkSizesPreview({isPaused:()=>root.dataset.previewPaused==='true',
       setPaused:value=>{paused=value;syncMotion();},reducedMotion:()=>reducedMotion});
@@ -341,7 +341,7 @@ async function openSizesPreview(){
 }
 async function openFlashPreview() {
   try {
-    const {createFlashPreview} = await import('./flash-preview.mjs?v=guardian-beat-1');
+    const {createFlashPreview} = await import('./flash-preview.mjs?v=guardian-beat-2');
     if (picker.value !== 'flash' || flashPreview) return;
     flashPreview = createFlashPreview({
       isPaused: () => root.dataset.previewPaused === 'true',
