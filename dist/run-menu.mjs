@@ -1,8 +1,8 @@
-import {menuWorldMarkup} from './menu-world.mjs?v=clear-ink-1';
-import {formatGlow,getGlowCapacity} from './vitality.mjs?v=clear-ink-1';
-import {livesMarkup} from './lives.mjs?v=clear-ink-1';
-import { COMPANION_ABILITIES } from './companion-abilities.mjs?v=clear-ink-1';
-import { companionArtSvg } from './companion-art.mjs?v=clear-ink-1';
+import {menuWorldMarkup} from './menu-world.mjs?v=carved-shrines-1';
+import {formatGlow,getGlowCapacity} from './vitality.mjs?v=carved-shrines-1';
+import {livesMarkup} from './lives.mjs?v=carved-shrines-1';
+import { COMPANION_ABILITIES } from './companion-abilities.mjs?v=carved-shrines-1';
+import { companionArtSvg } from './companion-art.mjs?v=carved-shrines-1';
 
 const esc = value => String(value ?? '').replace(/[&<>"']/g, char =>
   ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[char]));

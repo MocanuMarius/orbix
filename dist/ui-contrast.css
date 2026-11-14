@@ -159,3 +159,23 @@ html body .compact-support>.support-offers{height:100%;align-self:stretch}
  html body .compact-support .boon-choice h3{font-size:16px!important}
  html body .compact-support .boon-choice p{font-size:12px!important}
 }
+
+/* Give symbols the room already available inside their controls. */
+html body #header .condensed-wallet .condensed-icon{width:34px;height:34px}
+html body #header .back-icon>.ico{width:27px;height:27px}
+html body :is(.game-menu-trigger,.run-tools>button,.audio-controls>button)>svg{width:27px;height:27px;flex-shrink:0}
+html body .passage-clear-pay>.resource-symbol{width:30px;height:30px;flex-basis:30px}
+html body .passage-choice .route-consequences b{display:flex;align-items:center;gap:8px}
+html body .passage-choice .route-consequences b>.map-stop-icon{width:28px!important;height:30px!important}
+html body .passage-actions .enter-passage>.ico{width:25px;height:25px}
+html body .rest-one-scene .rest-optional-tools>button>.resource-symbol{width:28px;height:28px;flex-basis:28px}
+html body .flight-hud .flight-menu-slot{width:52px;min-width:52px;flex-shrink:0;justify-content:flex-end}
+@media(orientation:landscape) and (max-height:350px){
+ html body #header .condensed-wallet .condensed-icon{width:30px;height:30px}
+ html body .passage-choice .route-consequences b>.map-stop-icon{width:24px!important;height:26px!important}
+}
+
+html body .companion-sheet .companion-role>.companion-portrait{
+ width:48px;height:48px;padding:6px;background:transparent url('assets/wisp-socket.svg') center/contain no-repeat;
+ clip-path:none;box-sizing:border-box;
+}

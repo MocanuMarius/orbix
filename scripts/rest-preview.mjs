@@ -121,7 +121,7 @@ if(['death','last-heart'].includes(scenario)){
  beginFlightAttempt(mockRun);finishFlight(mockRun,{success:false,flame:0});goToRun();
 }
 if(scenario==='guide')showFieldGuide();
-if(scenario==='onboarding'){destroyFlight();state=newState();state.run=createRun(state.profile,'first-lights');goToRun();}
+if(scenario==='onboarding'){destroyFlight();state=newState();state.settings.skipTutorial=new URLSearchParams(location.search).has('skip');state.run=createRun(state.profile,'first-lights');goToRun();}
 if(scenario==='first-death'){state.profile.onboarding={version:1,seen:[],stage:0};mockRun.deathPending=true;mockRun.lives=2;render('death');}
 if(scenario==='result'){mockRun.phase='ended';mockRun.success=new URLSearchParams(location.search).get('outcome')==='win';mockRun.lives=mockRun.success?2:0;if(mockRun.success)mockRun.lastFlight={artifactDrop:{id:'sunheart-engine',duplicate:false}};render('result');}
 if(['tutorial-route','tutorial-flight','tutorial-camp','tutorial-prep','tutorial-hazards'].includes(scenario)){

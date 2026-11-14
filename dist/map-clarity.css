@@ -312,9 +312,9 @@ dialog.power-sheet.map-key-sheet {
 .game-map-screen .landscape-route .route-next-arrow{stroke-width:2.4}
 .game-map-screen .landscape-route .world-map-node[role=button]:focus-visible .route-node-art{opacity:1}
 
-/* Local ink sits behind each silhouette and label so biome art never erases it. */
-.game-map-screen .landscape-route .route-icon-ink{fill:var(--ui-ink,#081114);opacity:.92;pointer-events:none}
-.game-map-screen .landscape-route .route-label-ink{fill:var(--ui-ink,#081114);opacity:.97;pointer-events:none;shape-rendering:crispEdges}
+/* Slate tokens and shallow engraved labels read as pieces of the woodland map. */
+.game-map-screen .landscape-route .route-icon-ink{fill:#0b181e;opacity:1;pointer-events:none}
+.game-map-screen .landscape-route .route-label-ink{fill:#0b171b;opacity:1;pointer-events:none;shape-rendering:crispEdges}
 .game-map-screen .landscape-route .route-landmark{filter:drop-shadow(1px 0 #040b0d) drop-shadow(-1px 0 #040b0d) drop-shadow(0 1px #040b0d) drop-shadow(0 -1px #040b0d)}
 .game-map-screen .landscape-route .route-state-future .route-landmark{--landmark-stone:#6b7d77;--landmark-face:#a1b6ad;--landmark-edge:#bed0c4;--landmark-fire:#c9c7a0}
 .game-map-screen .landscape-route .route-state-complete .route-landmark{--landmark-stone:#697a73;--landmark-face:#a5b8aa;--landmark-edge:#bac7b4;--landmark-fire:#bcb88e}
@@ -335,3 +335,20 @@ dialog.power-sheet.map-key-sheet {
 .game-map-screen .landscape-route .route-state-complete .map-pixel-portrait{opacity:.6;filter:saturate(.25)}
 .game-map-screen .landscape-route .route-state-future[role=button]:hover .map-pixel-portrait,
 .game-map-screen .landscape-route .route-state-future[role=button]:focus-visible .map-pixel-portrait{opacity:.9}
+
+
+/* Broad dark faces protect the glyph and word. Chipped bevels carry texture
+   around the margin, keeping the readable center quiet. */
+.game-map-screen .landscape-route .route-stone-shadow{fill:#030a0d}
+.game-map-screen .landscape-route .route-stone-body{fill:#263a42}
+.game-map-screen .landscape-route .route-stone-lit-edge{fill:#53676a}
+.game-map-screen .landscape-route .route-stone-low-edge{fill:#14252d}
+.game-map-screen .landscape-route .route-stone-cut{fill:#4a5b60;opacity:.65}
+.game-map-screen .landscape-route .route-stone-moss{fill:#526447;opacity:.7}
+.game-map-screen .landscape-route .route-waystone,
+.game-map-screen .landscape-route .route-stone-label{shape-rendering:crispEdges;pointer-events:none}
+.game-map-screen .landscape-route .route-state-future .route-stone-body{fill:#203139}
+.game-map-screen .landscape-route .route-state-future .route-stone-lit-edge{fill:#394c53}
+.game-map-screen .landscape-route .route-state-complete .route-stone-lit-edge{fill:#344951}
+.game-map-screen .landscape-route .route-state-next .route-stone-lit-edge,
+.game-map-screen .landscape-route .route-state-current .route-stone-lit-edge{fill:#968e70}
