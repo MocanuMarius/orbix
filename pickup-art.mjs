@@ -1,14 +1,16 @@
-import { pickupKind, getPickupSpec, pickupDisposition, pickupShellRadius } from './pickups.mjs?v=spark-arcs-3';
-import {sparkImageArt,sparkSymbolArt} from './spark-symbol.mjs?v=spark-arcs-3';
+import { pickupKind, getPickupSpec, pickupDisposition, pickupShellRadius } from './pickups.mjs?v=flash-prism-1';
+import {sparkImageArt,sparkSymbolArt} from './spark-symbol.mjs?v=flash-prism-1';
 
 const TAU = Math.PI * 2;
 const clamp = (value, low, high) => Math.max(low, Math.min(high, value));
+export const FLASH_ANIMATION = Object.freeze({size:48, frames:48, period:2.4});
+export const FLASH_BURST_DURATION = .85;
 export const FUEL_ANIMATION = Object.freeze({size:44, frames:120, period:4.8});
 const fields = [
   null,
-  {base:'#344544', glass:'#cbd9c4', rim:'#e5d4a5', glow:'#debc7b', arc:'#f9df9d', core:'#fff6d5'},
-  {base:'#26514e', glass:'#bde8d5', rim:'#b9f2d4', glow:'#7edfc4', arc:'#b9ffe1', core:'#f3fff0'},
-  {base:'#765135', glass:'#ffe6a9', rim:'#ffe193', glow:'#ffb84e', arc:'#ffdf83', core:'#fff7d8'},
+  {base:'#584424', glass:'#ffe3a4', rim:'#ffbd57', glow:'#ffa928', arc:'#ffbf49', core:'#ffe6a0'},
+  {base:'#204f35', glass:'#d0f8c8', rim:'#79e692', glow:'#4cda78', arc:'#8cf5a0', core:'#ddffe1'},
+  {base:'#525a65', glass:'#edf2fb', rim:'#f6f9ff', glow:'#d8e3f1', arc:'#f2f6ff', core:'#ffffff'},
 ];
 
 // Each channel strikes, hangs in place briefly, goes out and reappears at a
@@ -104,6 +106,117 @@ function paintPlasma(tier, phase, radius, rect, disc, ring) {
   rect(-Math.round(radius*.54),-Math.round(radius*.74),3,1,ink.glass,.81);
 }
 
+// Fill a facet one pixel row at a time, both on the flight atlas and in the icon bake.
+function triangleRows(rect, ax, ay, bx, by, cx, cy, color, alpha=1) {
+  if (ay>by) { [ax,bx]=[bx,ax]; [ay,by]=[by,ay]; }
+  if (by>cy) { [bx,cx]=[cx,bx]; [by,cy]=[cy,by]; }
+  if (ay>by) { [ax,bx]=[bx,ax]; [ay,by]=[by,ay]; }
+  for (let y=Math.ceil(ay-.5); y<cy-.5; y++) {
+    const scan=y+.5;
+    const edge=ax+(cx-ax)*(scan-ay)/(cy-ay);
+    const fold=scan<by ? ax+(bx-ax)*(scan-ay)/(by-ay) : bx+(cx-bx)*(scan-by)/(cy-by);
+    const left=Math.ceil(Math.min(edge,fold)-.5),right=Math.ceil(Math.max(edge,fold)-.5);
+    if (right>left) rect(left,y,right-left,1,color,alpha);
+  }
+}
+
+function paintFlashPrism(rect,time,reducedMotion,bodyOnly) {
+  const phase=reducedMotion?.37:(time/FLASH_ANIMATION.period)%1;
+  const light=(1+Math.cos(TAU*(phase-.08)))/2;
+  const face=(...args)=>triangleRows(rect,...args);
+  // Violet light follows the prism edges and collects at its three corners.
+  if (!bodyOnly) {
+    face(0,-23,-23,17,23,17,'#aa79ff',.13+.06*light);
+    face(0,-21,-21,15,21,15,'#cb9eff',.28+.12*light);
+  }
+  face(0,-19,-19,13,19,13,'#d8c7ff');
+  face(0,-17,-16,11,16,11,'#523672');
+  // The off-center junction gives the three faces different catches of light.
+  face(0,-16,-15,10,-3,3,'#bb96ee');
+  face(0,-16,-3,3,15,10,'#7953ad');
+  face(0,-16,-3,3,15,10,'#cb9ff4',.08+.42*light);
+  face(-3,3,-15,10,15,10,'#45296d');
+  face(0,-15,-7,4,-3,2,'#e4ccff');
+  face(-3,2,13,9,3,6,'#ab79d2');
+  face(-2,-6,-7,4,1,2,'#ffefdd',.65+.30*light);
+  face(-3,5,-11,9,4,7,'#d9b2e9',.75);
+  const sweep=-13+Math.round(phase*24);
+  const leftEdge=-Math.round((sweep+18)*.58);
+  rect(leftEdge,sweep,3,1,'#fff4e9',.96);
+  rect(leftEdge+1,sweep-1,2,1,'#fff4e9',.76);
+  // A narrow reflection crosses the right facet just before it lights the foot.
+  const catchLight=Math.sin(Math.PI*phase)**3;
+  const cut=Math.max(-13,Math.min(7,sweep));
+  const span=(cut+16)/26;
+  const inner=Math.round(-3*Math.min(1,(cut+16)/19)),outer=Math.round(span*15);
+  rect(inner,cut,Math.max(1,outer-inner),1,'#ffe6ff',catchLight*.9);
+  rect(inner+1,cut+1,Math.max(1,outer-inner),1,'#d5a4f4',catchLight*.7);
+  const corners=[[0,-18],[-18,12],[18,12]];
+  for (let i=0;i<corners.length;i++) {
+    const [x,y]=corners[i];
+    const glint=Math.max(0,Math.cos(TAU*(phase-i/3)))**6;
+    const radius=1+Math.round(glint*2);
+    rect(x-radius,y,2*radius+1,1,'#f8eaff',.65+.35*glint);
+    rect(x,y-radius,1,2*radius+1,'#fffbea',.65+.35*glint);
+  }
+}
+
+// A broken rim and its three departing facets share the idle prism's colors.
+export function drawFlashBurst(ctx,x,y,elapsed,scale=1,reducedMotion=false) {
+  if (elapsed<0 || elapsed>=FLASH_BURST_DURATION) return;
+  const age=elapsed/FLASH_BURST_DURATION;
+  const fade=1-age;
+  const travel=1-fade**3;
+  const size=(reducedMotion ? 16 : 11+37*travel)*scale;
+  ctx.save();
+  const inherited=ctx.globalAlpha;
+  const rect=(left,top,width,height,color,alpha=1)=>{
+    ctx.globalAlpha=inherited*alpha;
+    ctx.fillStyle=color;
+    ctx.fillRect(left,top,width,height);
+  };
+  const facet=(ax,ay,bx,by,cx,cy,color,alpha)=>
+    triangleRows(rect,x+ax,y+ay,x+bx,y+by,x+cx,y+cy,color,alpha);
+  const flash=Math.max(0,1-age*2.5);
+  facet(0,-size,-size*.9,size*.64,size*.9,size*.64,'#c3a3ff',reducedMotion?fade*fade*.38:flash*.78);
+  if (!reducedMotion && age<.66) {
+    const corners=[[0,-size],[-size*.9,size*.64],[size*.9,size*.64]];
+    const shear=.10+age*.74;
+    const alpha=Math.max(0,1-age/.66);
+    for (let i=0;i<3;i++) {
+      const from=corners[i],to=corners[(i+1)%3];
+      const dx=to[0]-from[0],dy=to[1]-from[1];
+      const step=1.6*scale/Math.max(1,Math.hypot(dx,dy));
+      for (const side of [0,1]) {
+        const tail=side? .52+shear*.34 : shear;
+        const head=side? 1-shear*.4 : .48-shear*.65;
+        const ax=from[0]+tail*dx,ay=from[1]+tail*dy;
+        const bx=from[0]+head*dx,by=from[1]+head*dy;
+        facet(ax,ay,bx,by,ax+dy*step,ay-dx*step,'#dcbeff',alpha);
+      }
+    }
+  }
+  const rays=reducedMotion?3:15;
+  for (let i=0;i<rays;i++) {
+    const angle=-Math.PI/2+TAU*i/rays;
+    const corner=i%5===0;
+    const radius=(reducedMotion?14:(corner?79:43+(i*13)%23)*travel+5)*scale;
+    const dx=Math.cos(angle),dy=Math.sin(angle);
+    const nx=dx*radius,ny=dy*radius;
+    const width=Math.max(1,(corner?4.5:2.2)*scale*(.5+fade));
+    const length=(corner?16:8)*scale*fade;
+    facet(nx,ny,nx-dx*length-dy*width,ny-dy*length+dx*width,
+      nx-dx*length+dy*width,ny-dy*length-dx*width,
+      corner?'#fff6e8':i%2?'#e4c2ff':'#b397ff',fade*(corner?1:.85));
+  }
+  if (flash>0) {
+    const extent=Math.round((reducedMotion?8:20)*scale*flash),cx=Math.round(x),cy=Math.round(y);
+    rect(cx-extent,cy,extent*2+1,1,'#fff6ea',flash);
+    rect(cx,cy-extent,1,extent*2+1,'#fff6ea',flash);
+  }
+  ctx.restore();
+}
+
 // Shared low-resolution paint operations: the game and the field guide use
 // the same bodies, shading, silhouettes and halo colors, with no gem frames.
 function packetPixels(kind, { time = 0, reducedMotion = false, tiny = false, bodyOnly = false } = {}) {
@@ -137,6 +250,10 @@ function packetPixels(kind, { time = 0, reducedMotion = false, tiny = false, bod
   if(spec.plasma){
     const phase=reducedMotion?0:((time/FUEL_ANIMATION.period)%1+1)%1;
     paintPlasma(spec.plasma,phase,pickupShellRadius(kind),rect,disc,ring);
+    return pixels;
+  }
+  if(kind==='sight'){
+    paintFlashPrism(rect,time,reducedMotion,bodyOnly);
     return pixels;
   }
   // Fill the space between the item and its contact ring with stepped pixel
@@ -174,25 +291,6 @@ function packetPixels(kind, { time = 0, reducedMotion = false, tiny = false, bod
     rect(-3, -3, 3, 1, '#edbdc7', .9); rect(-4, -2, 1, 3, '#c98caa', .7);
     rect(1, 3, 2, 1, '#93667c', .8);
     rect(Math.round(-3+tide*2),-4,2,1,'#ffdad7',.80);
-  } else if (kind === 'charge') {
-    // A little hooked discharge rather than a pointed crystal or diamond.
-    const flicker = reducedMotion ? 1 : .91 + Math.sin(t*TAU/2) * .09;
-    halo(8, '#68b9ca', .12 * flicker);
-    rect(-1, -4, 2, 8, '#80d4dc', flicker); rect(-3, -1, 6, 2, '#80d4dc', .9 * flicker);
-    rect(1, -4, 2, 1, '#a4e8e7', flicker); rect(-3, 3, 2, 1, '#80d4dc', flicker);
-    rect(-1, -1, 2, 3, '#e2ffed', flicker);
-    rect(-4, -3, 1, 2, '#80d4dc', .5); rect(4, 1, 1, 2, '#80d4dc', .5);
-    const discharge=reducedMotion?1:Math.sin(t*TAU/2);
-    rect(discharge>0?3:-4,discharge>0?-4:2,2,1,'#aff6ed',.55+Math.abs(discharge)*.3);
-  } else if (kind === 'sight') {
-    const phase = reducedMotion ? .4 : (t * .48) % 1;
-    halo(9, '#aa85c9', .1);
-    ring(7 + phase * 5, '#c5a5ed', .32 * (1 - phase));
-    const second = (phase + .5) % 1;
-    ring(7 + second * 5, '#aa8cd6', .22 * (1 - second));
-    oval(0, 0, 6, 3, '#795d9c', .8); oval(0, 0, 5, 2, '#c5a5ed', .95);
-    disc(-1, -1, 1.7, '#f0dfff');
-    rect(-4, 0, 2, 2, '#b48bdb', .8); rect(2, -1, 2, 2, '#c5a5ed', .9);
   } else {
     halo(7, '#cabb99', .1);
     disc(0, 0, 3, '#bfaf8d', .65); disc(0, 0, 2, '#f5e6bc', .95);
@@ -203,7 +301,7 @@ function packetPixels(kind, { time = 0, reducedMotion = false, tiny = false, bod
 
 const atlases = new WeakMap();
 const plasmaCycle=[FUEL_ANIMATION.period,FUEL_ANIMATION.frames];
-const cycles={light:plasmaCycle,cluster:plasmaCycle,cache:plasmaCycle,charge:[2,16],sight:[1/.48,24],dark:[Math.PI*2,32],dusk:[3.2,16]};
+const cycles={light:plasmaCycle,cluster:plasmaCycle,cache:plasmaCycle,sight:[FLASH_ANIMATION.period,FLASH_ANIMATION.frames],dark:[Math.PI*2,32],dusk:[3.2,16]};
 // The offline menu assets are generated from this exact paint pass.
 export function drawFuelFrame(context,x,y,kind,frame,reducedMotion=false){
   const time=frame/FUEL_ANIMATION.frames*FUEL_ANIMATION.period;

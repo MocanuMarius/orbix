@@ -1,9 +1,9 @@
-import {getPickupSpec} from './pickups.mjs?v=spark-arcs-3';
-import {glowPoints,getGlowCapacity,GLOW_DISPLAY_SCALE} from './vitality.mjs?v=spark-arcs-3';
-import {condenseGlow,getCondensationRules} from './condensed-glow.mjs?v=spark-arcs-3';
-import {pickupArtSvg} from './pickup-art.mjs?v=spark-arcs-3';
-import {resourceSymbol} from './game-symbols.mjs?v=spark-arcs-3';
-import {mapStopIconMarkup} from './map-guide.mjs?v=spark-arcs-3';
+import {getPickupSpec} from './pickups.mjs?v=flash-prism-1';
+import {glowPoints,getGlowCapacity,GLOW_DISPLAY_SCALE} from './vitality.mjs?v=flash-prism-1';
+import {condenseGlow,getCondensationRules} from './condensed-glow.mjs?v=flash-prism-1';
+import {pickupArtSvg} from './pickup-art.mjs?v=flash-prism-1';
+import {resourceSymbol} from './game-symbols.mjs?v=flash-prism-1';
+import {mapStopIconMarkup} from './map-guide.mjs?v=flash-prism-1';
 
 // An independent teaching meter. Previewing, skipping and replaying never touch a save.
 export function resourceCycleSteps(run={},mod={}){
@@ -14,7 +14,7 @@ export function resourceCycleSteps(run={},mod={}){
  const values=['light','cluster','cache'].map(id=>glowPoints(getPickupSpec(id).fuel));
  const data={before,max,packed,lift,values};
  return [
-  ['Touch a Spark',`Denser lightning carries more. A crackling Spark adds ${fuel} to your Spark Meter before bonuses.`],
+  ['Touch a Spark',`Amber, green, white: each tier carries more. This green Cluster adds ${fuel} to your Spark Meter before bonuses.`],
   ['Fill your Spark Meter',`At ${before}/${max}, only ${refill} fit. Tap anywhere to Lift. Each Lift uses ${lift} Spark${lift===1?'':'s'} from the meter.`],
   ['Store the surplus',`The upper-left box converts the spare ${extra} into ${packed} Stored Spark${packed===1?'':'s'}. Spend Stored Sparks on skills at a Rest.`]
  ].map(([title,text],i)=>({title,text,visual:'resource-cycle',cycle:{...data,stage:i},allowTarget:false,actionLabel:i===2?'Got it':'Next',skipLabel:'Remember & skip'}));

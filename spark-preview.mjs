@@ -1,15 +1,15 @@
-import {resourceSymbol} from './game-symbols.mjs?v=spark-arcs-3';
-import {pickupArtSvg} from './pickup-art.mjs?v=spark-arcs-3';
-import {getPickupSpec} from './pickups.mjs?v=spark-arcs-3';
-import {glowPoints} from './vitality.mjs?v=spark-arcs-3';
-import {SKILLS, ARTIFACTS} from './model.mjs?v=spark-arcs-3';
-import {ROUTE_BONUSES} from './route-bonuses.mjs?v=spark-arcs-3';
-import {skillIcon, artifactIcon} from './upgrade-icons.mjs?v=spark-arcs-3';
-import {mapStopIconMarkup} from './map-guide.mjs?v=spark-arcs-3';
-import {companionArtSvg} from './companion-art.mjs?v=spark-arcs-3';
-import {lifeHeartSvg} from './lives.mjs?v=spark-arcs-3';
-import {bonusIcon} from './route-bonus-ui.mjs?v=spark-arcs-3';
-import {menuIcon} from './menu-icons.mjs?v=spark-arcs-3';
+import {resourceSymbol} from './game-symbols.mjs?v=flash-prism-1';
+import {pickupArtSvg, drawFlashBurst, FLASH_BURST_DURATION} from './pickup-art.mjs?v=flash-prism-1';
+import {getPickupSpec} from './pickups.mjs?v=flash-prism-1';
+import {glowPoints} from './vitality.mjs?v=flash-prism-1';
+import {SKILLS, ARTIFACTS} from './model.mjs?v=flash-prism-1';
+import {ROUTE_BONUSES} from './route-bonuses.mjs?v=flash-prism-1';
+import {skillIcon, artifactIcon} from './upgrade-icons.mjs?v=flash-prism-1';
+import {mapStopIconMarkup} from './map-guide.mjs?v=flash-prism-1';
+import {companionArtSvg} from './companion-art.mjs?v=flash-prism-1';
+import {lifeHeartSvg} from './lives.mjs?v=flash-prism-1';
+import {bonusIcon} from './route-bonus-ui.mjs?v=flash-prism-1';
+import {menuIcon} from './menu-icons.mjs?v=flash-prism-1';
 
 const preferences = matchMedia('(prefers-reduced-motion: reduce)');
 const root = document.documentElement;
@@ -24,14 +24,14 @@ for (const skill of Object.values(SKILLS)) {
   }
 }
 const card = (name, art, detail = '') => ({name, art, detail});
-const summaries = {charge:'Companion recovery', sight:'Extends Luminance', dusk:'Fuel · dims sight', dark:'Dims sight'};
+const summaries = {sight:'Reveals the passage', dusk:'Fuel · dims sight', dark:'Dims sight'};
 const pickup = kind => {
   const spec = getPickupSpec(kind);
-  return card(spec.name, pickupArtSvg(kind), spec.plasma ? '+' + glowPoints(spec.fuel) + ' Sparks' : summaries[kind]);
+  return {...card(spec.name, pickupArtSvg(kind), spec.plasma ? '+' + glowPoints(spec.fuel) + ' Sparks' : summaries[kind]), kind};
 };
 const groups = {
   fuel: () => ['light','cluster','cache'].map(pickup),
-  other: () => ['charge','sight','dusk','dark'].map(pickup),
+  other: () => ['sight','dusk','dark'].map(pickup),
   skills: () => Array.from(skillGroups.values(), skill => card(skill.treeName || skill.name, skillIcon(skill))),
   companions: () => [['collector','Collector'],['protector','Protector'],['swift','Runner'],['leveler','Space Timer']].map(([id,name]) => card(name,companionArtSvg(id))),
   relics: () => Object.values(ARTIFACTS).map(artifact => card(artifact.name,artifactIcon(artifact.id))),
@@ -69,16 +69,52 @@ function syncMotion() {
   root.dataset.previewPaused = String(paused || document.hidden);
   motion.textContent = paused ? 'Play motion' : 'Pause motion';
 }
+// Render the actual pickup burst at the same scale as the idle triangle.
+function wireFlashDemo(button) {
+  const canvas = document.createElement('canvas');
+  canvas.width = canvas.height = 160;
+  canvas.setAttribute('aria-hidden','true');
+  button.append(canvas);
+  const ctx = canvas.getContext('2d');
+  let frame;
+  button.addEventListener('click', () => {
+    cancelAnimationFrame(frame);
+    const start = performance.now();
+    button.classList.add('bursting');
+    function render(now) {
+      if (!button.isConnected) return;
+      const elapsed = (now-start)/1000;
+      ctx.clearRect(0,0,canvas.width,canvas.height);
+      if (elapsed >= FLASH_BURST_DURATION) {
+        button.classList.remove('bursting');
+        return;
+      }
+      drawFlashBurst(ctx,80,80,elapsed,1,root.dataset.previewPaused === 'true');
+      frame = requestAnimationFrame(render);
+    }
+    render(start);
+  });
+}
 function renderGroup() {
   const fragment = document.createDocumentFragment();
-  for (const {name, art: markup, detail} of groups[picker.value]()) {
+  for (const {name, art: markup, detail, kind} of groups[picker.value]()) {
     const figure = document.createElement('figure'), art = document.createElement('div');
     const caption = document.createElement('figcaption');
     art.className = 'art';
     art.setAttribute('aria-hidden','true');
     art.innerHTML = markup;
     caption.textContent = name;
-    if (detail) { const text = document.createElement('small'); text.textContent = detail; caption.append(text); }
+    if (kind === 'sight') {
+      const button = document.createElement('button');
+      button.type = 'button';
+      button.className = 'flash-demo';
+      button.setAttribute('aria-label','Try the Flash Powerup burst');
+      button.append(...art.childNodes);
+      art.append(button);
+      art.removeAttribute('aria-hidden');
+      wireFlashDemo(button);
+    }
+    if (detail) { const text = document.createElement('small'); text.textContent = kind === 'sight' ? 'Tap to burst' : detail; caption.append(text); }
     figure.append(art, caption);
     fragment.append(figure);
   }

@@ -1,12 +1,11 @@
-import {FLAME_TUNING,LIGHT_PACKET_TUNING} from './vitality.mjs?v=spark-arcs-3';
+import {FLAME_TUNING,LIGHT_PACKET_TUNING} from './vitality.mjs?v=flash-prism-1';
 
-const type=(id,name,color,radius,contactRadius,description,extra={})=>Object.freeze({id,name,color,radius,contactRadius:contactRadius*.8,description,fuel:0,recharge:0,sightBonus:0,sightDuration:0,dim:0,dimDuration:0,manualOnly:false,...extra});
+const type=(id,name,color,radius,contactRadius,description,extra={})=>Object.freeze({id,name,color,radius,contactRadius:contactRadius*.8,description,fuel:0,sightBonus:0,sightDuration:0,dim:0,dimDuration:0,manualOnly:false,...extra});
 export const PICKUP_TYPES=Object.freeze({
-  light:type('light','Spark','#f5e6bc',3,26,'Bright, branching arcs. Restores 6 Sparks before bonuses.',{fuel:FLAME_TUNING.emberFuel,plasma:1}),
-  cache:type('cache','Spark Cache','#f6d58d',6,30,'Dense golden plasma. Restores 18 Sparks before bonuses.',{fuel:FLAME_TUNING.heartFuel,plasma:3}),
-  cluster:type('cluster','Spark Cluster','#d5ead9',4,26,'Lively, branching currents. Restores 12 Sparks before bonuses.',{fuel:40,plasma:2}),
-  charge:type('charge','Charge Spark','#80d4dc',4,25,'A cyan flicker. Shortens companion recovery.',{recharge:3}),
-  sight:type('sight','Flash Spark','#c5a5ed',5,26,'A violet light with a spreading halo. Extends Luminance by 50 for six seconds.',{sightBonus:50,sightDuration:6}),
+  light:type('light','Spark','#ffc055',3,26,'Amber arcs. Restores 6 Sparks before bonuses.',{fuel:FLAME_TUNING.emberFuel,plasma:1}),
+  cache:type('cache','Spark Cache','#f4f7ff',6,30,'Dense white plasma. Restores 18 Sparks before bonuses.',{fuel:FLAME_TUNING.heartFuel,plasma:3}),
+  cluster:type('cluster','Spark Cluster','#82f29b',4,26,'Branching green currents. Restores 12 Sparks before bonuses.',{fuel:40,plasma:2}),
+  sight:type('sight','Flash Powerup','#e8c4ff',14,26,'Lights the visible passage for 1.5 seconds. Gain up to 120 extra Luminance for 8 seconds.',{sightBonus:120,sightDuration:8}),
   dusk:type('dusk','Dusk Spark','#d798ad',5,25,'A dark-centered rose light. Gain 12 Sparks, but lose some Luminance for four seconds.',{fuel:40,dim:LIGHT_PACKET_TUNING.darkPenalty,dimDuration:4,manualOnly:true}),
   dark:type('dark','Dark Spark','#e17a70',7,22,'A black seed with a red warning ring. Dims Luminance for eight seconds; a Spark pickup clears one effect.',{dim:LIGHT_PACKET_TUNING.darkPenalty,dimDuration:LIGHT_PACKET_TUNING.darkDuration,manualOnly:true}),
 });

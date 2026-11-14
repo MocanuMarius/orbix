@@ -1,4 +1,4 @@
-import {getLifeCapacity} from './vitality.mjs?v=spark-arcs-3';
+import {getLifeCapacity} from './vitality.mjs?v=flash-prism-1';
 
 function bonus(id, name, condition, reward, target) {
   return Object.freeze({id, name, condition, reward, target});
@@ -9,7 +9,7 @@ export const ROUTE_BONUSES = Object.freeze({
   'three-suns': bonus('three-suns', 'Three Suns', 'Collect all three marked Spark Caches. Look for dense plasma.', 'Restore one missing heart.', 3),
   precision: bonus('precision', 'Pilgrim Precision', 'Touch 4 of 6 marked Sparks with your main wisp.', '+8 Stored Sparks.', 4),
   'wild-circuit': bonus('wild-circuit', 'Wild Circuit', 'Activate two marked terrain objects.', 'Faster companion recovery next attempt (+20%).', 2),
-  'flash-relay': bonus('flash-relay', 'Flash Relay', 'Take the marked Flash Spark, then 2 of 3 marked fuel Sparks in its light.', '+25% Luminance for the first 15 seconds next attempt.', 2),
+  'flash-relay': bonus('flash-relay', 'Flash Relay', 'Collect the marked Flash Powerup, then 2 of 3 marked Sparks while the passage is lit.', '+25% Luminance for the first 15 seconds next attempt.', 2),
   'long-glide': bonus('long-glide', 'Long Glide', 'Lift at the blue chevron, then glide through both marked Sparks for two seconds.', 'First three Lifts free next attempt, up to 9 Sparks saved.', 2),
   edgeweaver: bonus('edgeweaver', 'Edgeweaver', 'Trigger Proximity in both marked sections.', 'One ward next attempt. Protector’s first deflection costs no Sparks.', 2),
   'night-sail': bonus('night-sail', 'Night Sail', 'Collect both bypass Sparks. Lose at most 3 Sparks to the marked Black Hole.', 'Black Holes drain 25% less Sparks next attempt.', 2),

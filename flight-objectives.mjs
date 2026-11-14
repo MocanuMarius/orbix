@@ -1,7 +1,7 @@
-import {ROUTE_BONUSES} from './route-bonuses.mjs?v=spark-arcs-3';
-import {blackHoleDrainRate} from './black-holes.mjs?v=spark-arcs-3';
-import {pickupKind} from './pickups.mjs?v=spark-arcs-3';
-import {GLOW_DISPLAY_SCALE} from './vitality.mjs?v=spark-arcs-3';
+import {ROUTE_BONUSES} from './route-bonuses.mjs?v=flash-prism-1';
+import {blackHoleDrainRate} from './black-holes.mjs?v=flash-prism-1';
+import {getPickupSpec, pickupKind} from './pickups.mjs?v=flash-prism-1';
+import {GLOW_DISPLAY_SCALE} from './vitality.mjs?v=flash-prism-1';
 
 const fuelKinds = new Set(['light', 'cluster', 'cache']);
 const helpfulFamilies = new Set(['lift', 'reveal', 'bloom']);
@@ -67,13 +67,14 @@ function placeFuel(e, points, donors) {
 
 function relay(e, donors) {
   if (e.onboardingPlan?.specialSparks === false) return null;
+  const flash = e.layout.embers.find(packet => packet.kind === 'sight');
   for (const p of donors) {
     const start = p.x - e.baseSpeed * .9, y = p.y;
-    if (!inRoom(e, start, y, 23) || e.layout.embers.some(other => Math.hypot(other.x-start,other.y-y) < 45)) continue;
+    if (!inRoom(e, start, y, 23) || e.layout.embers.some(other => other !== flash && Math.hypot(other.x-start,other.y-y) < 45)) continue;
     const targets = donors.filter(q => q.x >= p.x && q.x-start < e.baseSpeed*5.1);
     const chosen = spread(targets,3,e.baseSpeed*.65);
     if (!chosen || chosen.some(q => Math.abs(q.y - y) > e.height*.23)) continue;
-    return [{x:start,y,type:'flash',flash:true}, ...chosen.map(q => mark(q))];
+    return [{x:start,y,type:'flash',flash:true,object:flash}, ...chosen.map(q => mark(q))];
   }
   return null;
 }
@@ -271,8 +272,11 @@ export class FlightObjective {
         changed=true;
       }
       if (t.flash) {
-        t.object={id:'route-flash',kind:'sight',x:t.x,y:t.y,phase:0,manualOnly:false,collected:false};
-        engine.layout.embers.push(t.object);
+        if (!t.object) {
+          t.object={id:'route-flash',kind:'sight',phase:0,manualOnly:false,collected:false};
+          engine.layout.embers.push(t.object);
+        }
+        Object.assign(t.object,{x:t.x,y:t.y,anchor:null,pocket:false,sideLane:false,accessible:true,feature:'flash-relay'});
         changed=true;
       }
     }
@@ -307,7 +311,7 @@ export class FlightObjective {
     if (!t || this.seen.has(t) || (this.id==='precision' && packet.deliveredByWisp)) return;
     if (t.flash) {
       this.seen.add(t);
-      this.flashUntil=e.time+6;
+      this.flashUntil=e.time+getPickupSpec(packet).sightDuration;
       return;
     }
     if (this.id==='flash-relay' && e.time>this.flashUntil) return;

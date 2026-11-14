@@ -1,7 +1,7 @@
-import {skillIcon} from './upgrade-icons.mjs?v=spark-arcs-3';
-import {pickupArtSvg} from './pickup-art.mjs?v=spark-arcs-3';
-import {mapStopIconMarkup} from './map-guide.mjs?v=spark-arcs-3';
-import {lifeHeartSvg} from './lives.mjs?v=spark-arcs-3';
+import {skillIcon} from './upgrade-icons.mjs?v=flash-prism-1';
+import {pickupArtSvg} from './pickup-art.mjs?v=flash-prism-1';
+import {mapStopIconMarkup} from './map-guide.mjs?v=flash-prism-1';
+import {lifeHeartSvg} from './lives.mjs?v=flash-prism-1';
 
 const aliases = {'✧':'wisp','✦':'sun','◈':'ember','ϟ':'wind','⌄':'wing','⌃':'wing','»':'wind','◇':'flame','♢':'wind','≈':'wind','♨':'flame','♡':'heart',boost:'flame',survival:'wisp',collection:'wisp',mobility:'wing',spirit:'wisp',ash:'flame',speed:'wind',phoenix:'flame',rebirth:'sun',control:'wing'};
 const objects = {

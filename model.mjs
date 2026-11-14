@@ -1,30 +1,30 @@
-import {EVENT_EDITION,eventChoices,rollPrism} from './event-choices.mjs?v=spark-arcs-3';
-import {ATLAS_FORECASTS,atlasBranches} from './night-atlas.mjs?v=spark-arcs-3';
-import {getRouteBonus,awardRouteBonus} from './route-bonuses.mjs?v=spark-arcs-3';
-export {getRouteBonus,getRouteBonusCandidates,nextBonusFlightNodes} from './route-bonuses.mjs?v=spark-arcs-3';
-import {consolidateSkills,refundRetiredSkills} from './skill-consolidation.mjs?v=spark-arcs-3';
-import {PROXIMITY_SKILLS} from './proximity-skills.mjs?v=spark-arcs-3';
-import {getGuardianForMap,getBossPreview} from './boss.mjs?v=spark-arcs-3';
-import {getFlightLengthProfile} from './level-length.mjs?v=spark-arcs-3';
-import {cleanOnboarding} from './onboarding.mjs?v=spark-arcs-3';
-import {CONDENSED_TUNING,getCondensationRules,condenseGlow} from './condensed-glow.mjs?v=spark-arcs-3';
-import {CONSUMABLE_ARTIFACTS,EVOLVING_ARTIFACTS,getArtifactStackPreview} from './artifact-info.mjs?v=spark-arcs-3';
-import {getFlightClearReward} from './checkpoint-rewards.mjs?v=spark-arcs-3';
-export {getCondensationRules} from './condensed-glow.mjs?v=spark-arcs-3';
-import {ROUTE_RECIPES,ROUTE_TOPOLOGY_VERSION,REWARD_THEMES,nodeEconomy} from './route-recipes.mjs?v=spark-arcs-3';
-import {COMPANION_ABILITIES,getCompanionUnlock,normalizeCompanionFleet} from './companion-abilities.mjs?v=spark-arcs-3';
-import {MAIN_TUNING_SKILLS} from './main-tuning.mjs?v=spark-arcs-3';
-import {STARTING_CONDENSED_GLOW,getGlowCapacity,getRestGlowBonus,REST_GLOW_TUNING,glowText} from './vitality.mjs?v=spark-arcs-3';
-import {expandSkillSteps,skillProgress} from './skill-increments.mjs?v=spark-arcs-3';
-import {MAX_ASCENSION} from './ascent.mjs?v=spark-arcs-3';
-import {EXPANDED_SKILLS,applyExpandedSkills} from './skill-paths.mjs?v=spark-arcs-3';
+import {EVENT_EDITION,eventChoices,rollPrism} from './event-choices.mjs?v=flash-prism-1';
+import {ATLAS_FORECASTS,atlasBranches} from './night-atlas.mjs?v=flash-prism-1';
+import {getRouteBonus,awardRouteBonus} from './route-bonuses.mjs?v=flash-prism-1';
+export {getRouteBonus,getRouteBonusCandidates,nextBonusFlightNodes} from './route-bonuses.mjs?v=flash-prism-1';
+import {consolidateSkills,refundRetiredSkills} from './skill-consolidation.mjs?v=flash-prism-1';
+import {PROXIMITY_SKILLS} from './proximity-skills.mjs?v=flash-prism-1';
+import {getGuardianForMap,getBossPreview} from './boss.mjs?v=flash-prism-1';
+import {getFlightLengthProfile} from './level-length.mjs?v=flash-prism-1';
+import {cleanOnboarding} from './onboarding.mjs?v=flash-prism-1';
+import {CONDENSED_TUNING,getCondensationRules,condenseGlow} from './condensed-glow.mjs?v=flash-prism-1';
+import {CONSUMABLE_ARTIFACTS,EVOLVING_ARTIFACTS,getArtifactStackPreview} from './artifact-info.mjs?v=flash-prism-1';
+import {getFlightClearReward} from './checkpoint-rewards.mjs?v=flash-prism-1';
+export {getCondensationRules} from './condensed-glow.mjs?v=flash-prism-1';
+import {ROUTE_RECIPES,ROUTE_TOPOLOGY_VERSION,REWARD_THEMES,nodeEconomy} from './route-recipes.mjs?v=flash-prism-1';
+import {COMPANION_ABILITIES,getCompanionUnlock,normalizeCompanionFleet} from './companion-abilities.mjs?v=flash-prism-1';
+import {MAIN_TUNING_SKILLS} from './main-tuning.mjs?v=flash-prism-1';
+import {STARTING_CONDENSED_GLOW,getGlowCapacity,getRestGlowBonus,REST_GLOW_TUNING,glowText} from './vitality.mjs?v=flash-prism-1';
+import {expandSkillSteps,skillProgress} from './skill-increments.mjs?v=flash-prism-1';
+import {MAX_ASCENSION} from './ascent.mjs?v=flash-prism-1';
+import {EXPANDED_SKILLS,applyExpandedSkills} from './skill-paths.mjs?v=flash-prism-1';
 /** Run-owned skills and currency; persistent ascension unlocks and boss artifacts. */
-import { FLAME_TUNING, LIFE_TUNING, getLifeCapacity } from './vitality.mjs?v=spark-arcs-3';
-import { getBiomeLevelIdentity } from './level-catalog.mjs?v=spark-arcs-3';
-import { BIOMES } from './biomes.mjs?v=spark-arcs-3';
-import { EVENT_SCENARIOS } from './map-guide.mjs?v=spark-arcs-3';
-import {contextualEventChoices,resolvePilgrimVow,ROUTE_PREPARATION} from './contextual-events.mjs?v=spark-arcs-3';
-import {TREASURE_KINDS, describeTreasure, treasureChoices, LENS_SIGHT, LENS_RECOVERY, settleTreasureWager} from './treasure.mjs?v=spark-arcs-3';
+import { FLAME_TUNING, LIFE_TUNING, getLifeCapacity } from './vitality.mjs?v=flash-prism-1';
+import { getBiomeLevelIdentity } from './level-catalog.mjs?v=flash-prism-1';
+import { BIOMES } from './biomes.mjs?v=flash-prism-1';
+import { EVENT_SCENARIOS } from './map-guide.mjs?v=flash-prism-1';
+import {contextualEventChoices,resolvePilgrimVow,ROUTE_PREPARATION} from './contextual-events.mjs?v=flash-prism-1';
+import {TREASURE_KINDS, describeTreasure, treasureChoices, LENS_SIGHT, LENS_RECOVERY, settleTreasureWager} from './treasure.mjs?v=flash-prism-1';
 export const SAVE_KEY='wispbound.save.condensed.v7';
 export const CAMPAIGN_MAP_NAMES=Object.freeze(['The Forgotten Verge','The Rootbound March','The Warden’s Reach']);
 export const TERRAINS=Object.freeze({ruins:{id:'ruins',name:'Sunken Ruins',color:'#cdb183',description:'Broken homes, worn arches and overgrown stone.'},canopy:{id:'canopy',name:'Luminous Canopy',color:'#94b48a',description:'Hollow trees, hanging roots and sheltered forest passages.'},storm:{id:'storm',name:'Stormglass Peaks',color:'#a8bbca',description:'Pine ridges, old mine timbers and local draft puffs.'}});
@@ -439,7 +439,7 @@ export function artifactFitsRun(run,id){
  if(id==='moss-heart')return ['main-kindled-touch','main-kindled-rich','main-purifying-touch'].some(key=>rank(skills,key)>0);
  if(id==='dawn-thread')return ['main-echo-sight','main-echo-long','main-echo-range'].some(key=>rank(skills,key)>0);
  if(['dreamcatcher','second-dawn','dream-sovereign'].includes(id))return rank(skills,'main-dream')>0;
- if(id==='dawn-loom')return (run.artifacts||[]).some(x=>['overflow-coil','dreamcatcher','sunheart-engine'].includes(x));
+ if(id==='dawn-loom')return (run.artifacts||[]).some(x=>['overflow-coil','dreamcatcher','sunheart-engine','dream-sovereign'].includes(x));
  if(id==='quiet-cinder')return getRunModifiers({...run,artifacts:(run?.artifacts||[]).filter(held=>held!==id)}).liftCostPoints>1;
  return true;
 }
@@ -468,7 +468,10 @@ export function artifactSynergy(run,id){
  if(id==='lantern-bloom')return held.has('sunspool')?'Body chain → reveal → free Lift (Sunspool cap 4).':'Body chain → reveal. Seek Sunspool for free Lift.';
  // Preview a deliberate trigger sequence before committing the reward slot.
  if(id==='overflow-coil')return held.has('dawn-loom')?'Combo: overflow → recovery → Dawn Loom light':'Plan: overfill while a companion recovers. Seek Dawn Loom.';
- if(id==='dawn-loom')return held.has('overflow-coil')||held.has('sunheart-engine')?'Combo: surplus recharges your companion and lights the route':'Plan: recovery pickups → light. Seek Overflow Coil.';
+ if(id==='dawn-loom'){
+  if(held.has('dreamcatcher')||held.has('dream-sovereign'))return 'Collect fuel during a Dream to recharge your companion and light the route.';
+  return 'Overflow Coil or Sunheart Engine recharges your companion when fuel overflows, lighting the route.';
+ }
  if(id==='sunspool')return held.has('dawn-loom')||held.has('sunheart-engine')||rank(s,'main-dawnburst')||rank(s,'main-echo-sight')?'Combo: collect in temporary light → free Lift (max 4)':'Plan: collect during Edging Pulse. Seek Dawn Loom.';
  if(id==='echo-bell')return 'Plan: companion action → BODY Spark pickup within 8s (max 5).';
 

@@ -1,5 +1,5 @@
-import * as PIXI from './vendor/pixi.mjs?v=spark-arcs-3';
-import { PhoenixMotion, deformWing, deformTail } from './phoenix-motion.mjs?v=spark-arcs-3';
+import * as PIXI from './vendor/pixi.mjs?v=flash-prism-1';
+import { PhoenixMotion, deformWing, deformTail } from './phoenix-motion.mjs?v=flash-prism-1';
 
 export class PhoenixRig {
   constructor(texture) {

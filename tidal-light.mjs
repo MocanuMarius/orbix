@@ -1,4 +1,4 @@
-import {getPickupSpec,pickupKind} from './pickups.mjs?v=spark-arcs-3';
+import {getPickupSpec,pickupKind} from './pickups.mjs?v=flash-prism-1';
 
 const TAU=Math.PI*2;
 const clamp=(n,min,max)=>Math.min(max,Math.max(n,min));
@@ -23,7 +23,7 @@ export function drawAbsorbingSpark(c,effect,progress,x,y,s,quiet) {
   c.globalAlpha=clamp((1-progress)*8,0,1);
   drawTidalLight(c,x+current.x*s,y+current.y*s,x+previous.x*s,y+previous.y*s,
     x+next.x*s,y+next.y*s,(quiet?24:48+16*progress)*size,(quiet?9:12)*size,
-    kind==='dark'?'#803f50':getPickupSpec(kind).color,kind==='dark'?'#ffb5aa':'#fff6dc',bands);
+    kind==='dark'?'#803f50':getPickupSpec(kind).color,kind==='dark'?'#ffb5aa':'#ffffff',bands);
   c.restore();
 }
 

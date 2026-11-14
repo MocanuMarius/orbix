@@ -1,4 +1,4 @@
-import { getLifeCapacity } from './vitality.mjs?v=spark-arcs-3';
+import { getLifeCapacity } from './vitality.mjs?v=flash-prism-1';
 export function lifeHeartSvg(spent = false) {
   const heart = 'M2 0h4v2h4V0h4v2h2v6h-2v2h-2v2h-2v2H6v-2H4v-2H2V8H0V2h2z';
   const facets = spent
