@@ -3,6 +3,8 @@
 ## Flight art and terrain feedback awaiting the next batch
 
 - [ ] Revisit large and Giant Sparks at actual flight size on a landscape phone. Keep the pixel grain close to the smaller Sparks and add enough detail to the rim and plasma arcs that the large versions look naturally larger.
+- [ ] Shorten Spark absorption by trimming a few turns from the inward spiral. Keep the accelerating ribbon visible as it enters the wisp, and have it finish sooner after contact.
+- [ ] At the instant the Spark shell pops, use smaller, finer arcs that flicker out sharply around the wisp. Check their size at normal phone scale.
 - [ ] Create 20–30 different encounters for the crossroads signpost. Keep the recognizable sign and vary the routes it points to, including branching caves. Count distinct flying choices and terrain layouts toward the total.
 - [x] Provide a direct phone link to the [Hollow Sun Darkness Lantern rehearsal](https://mocanumarius.github.io/orbix/spark-preview.html#lantern). The sample opens at the lantern and supports both routes.
 - [ ] Reproduce the intermittent twitch in static terrain during scrolling. Track a stationary landmark against its collision surface and distinguish the jitter from intentional moving hazards and background parallax.
