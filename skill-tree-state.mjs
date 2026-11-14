@@ -1,4 +1,4 @@
-import {SKILLS,MAIN_WISP_BRANCHES,getSkillLockReason,getSkillPrice,canChooseStartingSkill} from './model.mjs?v=victory-rhythm-1';
+import {SKILLS,MAIN_WISP_BRANCHES,getSkillLockReason,getSkillPrice,canChooseStartingSkill} from './model.mjs?v=three-trees-balance-1';
 
 const parents=skill=>Array.isArray(skill?.requires)?skill.requires:skill?.requires?[skill.requires]:[];
 const learned=(wallet,id)=>Number(wallet?.skills?.[id]||0);
@@ -40,8 +40,8 @@ export function safeTreeSelection(skills,selected,context){
   const view=skillTreeState(context,skill);
   // Shared rank markers keep their current purchase visible. Future rank slots
   // are anonymous until reachable, while learned ranks remain inspectable.
-  if(view.disclosure==='preview'&&skill.incrementBase){
-   const current=skills.find(s=>s.incrementBase===skill.incrementBase&&s.incrementStage<skill.incrementStage&&skillTreeState(context,s).disclosure==='full'&&!skillTreeState(context,s).complete);
+  if(view.disclosure==='preview'&&skill.treeGroup){
+   const current=skills.find(s=>s.treeGroup===skill.treeGroup&&s.treeStage<skill.treeStage&&skillTreeState(context,s).disclosure==='full'&&!skillTreeState(context,s).complete);
    if(current)return current;
   }
   if(view.inspectable)return skill;

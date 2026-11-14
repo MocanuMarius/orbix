@@ -1,7 +1,7 @@
-import { DRAFT_TUNING } from './drafts.mjs?v=victory-rhythm-1';
-import { scenePropBounds } from './scene-props.mjs?v=victory-rhythm-1';
-import { formatGlow } from './vitality.mjs?v=victory-rhythm-1';
-import { lightVisibility } from './light-field.mjs?v=victory-rhythm-1';
+import { DRAFT_TUNING } from './drafts.mjs?v=three-trees-balance-1';
+import { scenePropBounds } from './scene-props.mjs?v=three-trees-balance-1';
+import { formatGlow } from './vitality.mjs?v=three-trees-balance-1';
+import { lightVisibility } from './light-field.mjs?v=three-trees-balance-1';
 
 // Small, deterministic actors attached to existing terrain. Static mountain
 // meshes never change, and each actor is used once: no repeatable currency farm.

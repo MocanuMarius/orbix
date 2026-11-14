@@ -1,4 +1,4 @@
-import {lightVisibility} from './light-field.mjs?v=victory-rhythm-1';
+import {lightVisibility} from './light-field.mjs?v=three-trees-balance-1';
 // Pixel accretion and stolen-light trails. Cosmetics consume recorded drain;
 // rendering never spends fuel or changes the simulation.
 const TAU=Math.PI*2,MAX_MOTES=96;
@@ -57,6 +57,14 @@ export function drawBlackHoles(c,e,{scale=1,distance=e.renderDistance??e.distanc
   // edges identify danger before its effective drain becomes strong.
   c.globalAlpha=.14*proximity;disc(c,x,y,r*3.2,'#020104',q);
   c.globalAlpha=.3*proximity;disc(c,x,y,r*2.2,'#070307',q);
+  // Bounded cosmetic Hawking-like rim emission: outward blue-white pixels,
+  // distinct from the larger stolen-light fragments spiralling inward.
+  for(let i=0;i<(e.reducedMotion?4:12);i++){
+   const age=(t*.55+i*.61803398875)%1,angle=i*2.39996+(hole.seed||0)*.01;
+   const rr=r*(1.05+age*2.6),px=x+Math.cos(angle)*rr,py=y+Math.sin(angle)*rr;
+   c.globalAlpha=proximity*Math.sin(age*Math.PI)*.48;c.fillStyle=i%3?'#adcadd':'#e8f4ed';
+   c.fillRect(Math.round(px),Math.round(py),q,q);
+  }
   for(let ring=0;ring<2;ring++)for(let i=0;i<32;i++){
    const a=i/32*TAU+t*(ring?.8:-.5)+(hole.seed||0)*.003;
    if(Math.sin(a*2+ring)<-.2)continue;

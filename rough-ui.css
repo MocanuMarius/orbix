@@ -1,0 +1,28 @@
+/* Shared low-cost pixel surfaces. No full-screen filter or animated noise. */
+html body :is(button,select,dialog,.tutorial-coach-card,.bud-price,.bud-state-mark,.artifact-rarity,.game-menu-points){border-radius:0!important}
+html body :is(#app,#header,dialog,.tutorial-coach) svg{shape-rendering:crispEdges}
+html body :is(dialog.game-sheet,.tutorial-coach-card){border-image-source:url('assets/rough-frame.svg')!important;border-image-slice:8!important;border-image-repeat:round!important;border-image-width:8px!important;box-shadow:4px 4px 0 #020a07!important;background-image:url('assets/pixel-grain.svg')!important;background-size:48px 48px!important}
+html body :is(#app,#header,dialog,.tutorial-coach) :is(button.primary,button.secondary,button.danger,.front-new-button,.front-continue,.front-tutorial,.rest-depart,.rest-dream,.game-menu-trigger,.back-button,.tree-learn,.tutorial-coach-next,[data-coach],[data-action='back'],[data-action='close-sheet']){border-image-source:url('assets/rough-frame.svg')!important;border-image-slice:8!important;border-image-repeat:round!important;border-image-width:5px!important;box-shadow:2px 3px 0 #040d09!important;clip-path:polygon(5px 0,calc(100% - 7px) 0,calc(100% - 7px) 2px,calc(100% - 2px) 2px,calc(100% - 2px) 5px,100% 5px,100% calc(100% - 6px),calc(100% - 3px) calc(100% - 6px),calc(100% - 3px) calc(100% - 2px),calc(100% - 7px) calc(100% - 2px),calc(100% - 7px) 100%,6px 100%,6px calc(100% - 2px),2px calc(100% - 2px),2px calc(100% - 6px),0 calc(100% - 6px),0 5px,2px 5px,2px 2px,5px 2px)}
+html body :is(.rest-benefit,.rest-service-cards>button,.support-offers .route-choice,.artifact-choice,.artifact-detail-art,.collection-art){background-image:url('assets/pixel-grain.svg')!important;background-size:48px 48px!important;border-radius:0!important;box-shadow:none!important}
+html body .tree-sheet .radial-tree .tree-bud{border-radius:0!important;border-image:url('assets/rough-frame.svg') 8 / 5px / 0 round!important}
+html body .radial-tree .tree-bud::before{border-radius:0!important}
+html body :is(.bud-price,.bud-state-mark,.tree-state-key i,.game-menu-points){box-shadow:2px 2px 0 #07110e!important}
+html body :is(.tree-links,.map-paths,.world-map-art) path{shape-rendering:crispEdges}
+html body :is(button,select):focus-visible{outline:3px dashed #fff0b8!important;outline-offset:-5px!important}
+@media(prefers-reduced-motion:reduce){html body button{transition:none!important}}
+
+html body .tree-sheet .radial-tree .tree-bud.saving{border-image-source:url('assets/rough-saving.svg')!important}
+html body .tree-sheet .radial-tree .tree-bud.has-owned,html body .tree-sheet .radial-tree .tree-bud.grown{border-image-source:url('assets/rough-owned.svg')!important}
+html body .tree-sheet .radial-tree .tree-bud.available{border-image-source:url('assets/rough-available.svg')!important}
+html body .tree-sheet .radial-tree .tree-bud.preview{border-image-source:url('assets/rough-locked.svg')!important}
+html body :is(.rest-benefit,.rest-service-cards>button)::before{clip-path:none!important;border:4px solid transparent!important;border-image:url('assets/rough-frame.svg') 8 / 4px / 0 round!important}
+html body #header :is(.back-icon,.condensed-wallet){border-image:url('assets/rough-frame.svg') 8 / 4px / 0 round!important;border-radius:0!important;box-shadow:2px 2px 0 #020b07!important}
+html body .rest-benefit.is-muted::before{border-image-source:url('assets/rough-locked.svg')!important}
+html body .tree-side{border-left-style:dashed}
+html body .rest-dream-passage{border-top-style:dashed}
+html body :is(.tree-tabs>button.selected,.rest-status-line,.artifact-choice){border-bottom-style:dashed!important}
+html body .rest-optional-tools>button{border-image:url('assets/rough-frame.svg') 8 / 4px / 0 round!important;box-shadow:none!important;background-image:url('assets/pixel-grain.svg')!important;background-size:48px 48px!important}
+html body .rest-optional-tools>button::before,html body .rest-optional-tools>button::after{border:0!important;box-shadow:none!important}
+html body .menu-art-home .test-starter-options .test-starter-option,html body [data-action='test-override']{border-image:url('assets/rough-frame.svg') 8 / 4px / 0 round!important}
+html body .menu-art-home .test-starter-options .test-starter-option[aria-pressed='true']{border-image-source:url('assets/rough-available.svg')!important}
+html body .flight-dock #flap-btn,html body .flight-dock #boost-btn.power-fill-control{border-radius:0!important;border-image:url('assets/rough-frame.svg') 8 / 5px / 0 round!important;box-shadow:none!important}

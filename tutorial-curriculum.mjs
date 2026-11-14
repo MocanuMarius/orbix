@@ -44,6 +44,8 @@ export const TUTORIAL_TOPICS={
  packed:{name:'Packed Sparks',visual:'clear-reward',steps:[
   s('A reward for every clear','Ordinary flights earn 20 Packed Sparks for run skills. Elite and guardian victories also offer two artifacts: choose one. The third guardian ends the run with victory.','clear-reward'),
   s('Overflow is a bonus','When a pickup overfills Sparks, the surplus becomes extra Packed Sparks. Clear the flight to keep them. Rest refills do not create Packed Sparks.','packed'),
+  s('Three skill trees','Wisp shapes your flight. Companion specializes your chosen orb. Mystic holds Packing, Dream and Proximity. Each circle has separately purchased ranks.','skills'),
+  s('Glide Regeneration','Learn it in Wisp. Stop pressing Lift and fall unassisted to recover Energy after a delay. Hovering, boosting, dreams and pauses do not regenerate Energy.','meter'),
   s('Packing','Packing starts at 6 surplus Energy for 1 Packed Spark. Efficient Packing and Prism Vessel each improve the yield. It improves your run economy; it is not a second fuel bar.','skills')]},
  skills:{name:'Skill trees',visual:'skills',steps:[
   s('Choose a branch','Skills belong to this run. Light improves Luminance; Motion changes flight; Sparks improves fuel. Your companion tree improves the one role you equipped.','skills'),
