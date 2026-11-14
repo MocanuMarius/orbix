@@ -104,8 +104,66 @@ function addLanterns(boss, lanterns, scale, previousOpen = -Infinity) {
     lantern.openX = openX;
     boss.shutters.push(lantern);
   }
-  boss.attacks = boss.attacks.filter(a => a.x < start - 170 * scale || a.x > end + 170 * scale);
+  if (boss.attacks) boss.attacks = boss.attacks.filter(a => a.x < start - 170 * scale || a.x > end + 170 * scale);
   return openX;
+}
+
+export function lanternField(layout) {
+  return layout?.lanternEncounter ?? layout?.boss;
+}
+
+export function inLanternRoom(layout, x, radius = 0) {
+  return !!layout?.lanternEncounter?.rooms.some(o =>
+    x + radius > o.x - o.width - 110 && x - radius < o.x + o.width * 2.45 + 80);
+}
+
+// Build into the biome's real rock. A missing wall takes its partner's
+// contour. Check the host plus adjacent rocks before committing the carve.
+export function installPassageLanterns(layout, {height, speed, row, elite, hit}) {
+  const {obstacles,sections,embers} = layout;
+  if (obstacles.length < 3) return null;
+  const scale = height / 620;
+  const field = {rooms: [], shutters: [], scale, speed};
+  const count = elite || row >= 5 ? 3 : row >= 2 ? 2 : 1;
+  const targets = elite ? [.46,.55,.64] : count === 3 ? [.25,.54,.78] : count === 2 ? [.32,.69] : [.49];
+  const first = obstacles[0].x, last = obstacles.at(-1).x;
+  const authoredSections = new Set(sections.filter(s => s.authoredChallenge).map(s => s.id));
+  for (const [index, fraction] of targets.entries()) {
+    const target = first + (last - first) * fraction;
+    const candidates = obstacles.slice(1,-1).filter(o => !o.soft && !o.reservedDraft &&
+      field.rooms.every(other => Math.abs(o.x - other.x) >= (elite ? 610 : 960)));
+    candidates.sort((a,b) => Number(authoredSections.has(a.sectionId)) - Number(authoredSections.has(b.sectionId))
+      || Math.abs(a.x-target) - Math.abs(b.x-target));
+    for (const source of candidates) {
+      const room = {...source, motion: 0, sceneProps: []};
+      for (const [key, other] of [['topShape','bottomShape'],['bottomShape','topShape']]) {
+        room[key] = source[key]?.map(([x,y]) => [x,y]) ?? source[other].map(([x,y]) => [x,-y]);
+      }
+      const hardest = index === count - 1;
+      const bend = hardest && (elite || row >= 3);
+      const aperture = elite ? (hardest ? 160 : 184) : Math.max(176,230 - 5 * row - 8 * index);
+      carvePassage(room, scale, aperture, bend);
+      const nearby = obstacles.filter(o => o !== source && Math.abs(o.x-room.x)<1150);
+      const clear = (x,y,r) => y>r+24 && y<height-r-24 && !hit(x,y,r,room,0) &&
+        nearby.every(o => x+r<o.x-o.width || x-r>o.x+2.5*o.width || !hit(x,y,r+Math.abs(o.motion),o,0,o.center));
+      let traversable = true;
+      for(let x=room.x-room.width*.8;x<=room.x+room.width*2.4;x+=12){
+        if (!clear(x,lanternPassageY(room,x),22)) {traversable=false; break;}
+      }
+      if (!traversable) continue;
+      const flashX = room.x - room.width * .65, flashY = lanternPassageY(room,flashX);
+      if (hardest && !clear(flashX, flashY, 25)) continue;
+      Object.assign(source,room,{reservedLantern:true,hard:true});
+      field.rooms.push(source);
+      const pair = bend ? [mount(source,-1,.39,396,scale,'passage'), mount(source,1,.15,146,scale,'passage')]
+        : [mount(source,-1,.40,148,scale,'passage'), mount(source,1,.96,-45,scale,'passage')];
+      addLanterns(field,pair,scale);
+      if (hardest) embers.push({id:'passage-flash',kind:'sight',value:0,fuel:false,x:flashX,y:flashY,
+        phase:0,feature:'lantern-flash',collected:false,attracted:false});
+      break;
+    }
+  }
+  return field.rooms.length ? field : null;
 }
 
 export function installShutters(layout, height) {

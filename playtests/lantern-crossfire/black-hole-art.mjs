@@ -1,5 +1,5 @@
-import {lightVisibility,renderLightState} from './light-field.mjs?v=lantern-passages-1';
-import {drawBlackHoleWarning} from './black-hole-warning.mjs?v=lantern-passages-1';
+import {lightVisibility,renderLightState} from './light-field.mjs?v=lantern-chapter-1';
+import {drawBlackHoleWarning} from './black-hole-warning.mjs?v=lantern-chapter-1';
 // Pixel accretion and stolen-light trails. Cosmetics consume recorded drain;
 // rendering never spends fuel or changes the simulation.
 const TAU=Math.PI*2,MAX_MOTES=96;
@@ -48,6 +48,32 @@ function position(p,age,out){
  }
 }
 const point={x:0,y:0},before={x:0,y:0},after={x:0,y:0};
+// Keep an inclined, luminous disk around the cold core. Draw a continuous
+// band on the pixel grid, with brighter clumps travelling along its rim.
+function accretionDisk(ctx,x,y,r,visibility,time,seed){
+ const a=r*2.72, b=r*.53, slope=-.24, thickness=Math.max(1,r*.17);
+ const pixel=Math.max(1,Math.round(r/18));
+ const span=Math.ceil(a/pixel);
+ const peak=Math.min(1,Math.sqrt(visibility)*1.18);
+ for(let i=-span;i<=span;i++){
+  const dx=i*pixel, normalized=dx/a;
+  if(Math.abs(normalized)>1)continue;
+  const curve=Math.sqrt(1-normalized*normalized);
+  const screenX=Math.round(x+dx),middle=y+dx*slope;
+  for(const side of [-1,1]){
+   const yy=Math.round(middle+side*b*curve);
+   const angle=Math.atan2(side*curve,normalized);
+   const knot=.5+.5*Math.cos(angle*4-time*1.7+seed*.025);
+   const hot=(.6+.4*knot*knot)*(side>0?1:.79);
+   ctx.globalAlpha=peak*(.22+.13*hot);ctx.fillStyle='#f57b56';
+   ctx.fillRect(screenX,Math.round(yy-thickness*1.7),pixel,Math.ceil(thickness*3.4));
+   ctx.globalAlpha=peak*(.73+.22*hot);ctx.fillStyle='#ff9a70';
+   ctx.fillRect(screenX,Math.round(yy-thickness*.62),pixel,Math.max(1,Math.ceil(thickness*1.25)));
+   ctx.globalAlpha=peak*hot;ctx.fillStyle='#fff0c7';
+   ctx.fillRect(screenX,yy,pixel,pixel);
+  }
+ }
+}
 // Siphoned light starts as a small clot at the wisp. Its leading material
 // winds ahead faster than the trailing lobe until only a fine filament remains.
 function drawSiphonMote(c,p,age,x,y,scale) {
@@ -97,8 +123,7 @@ export function drawBlackHoles(c,e,{scale=1,distance=e.renderDistance??e.distanc
   const x=worldX*scale,y=hole.y*scale,r=hole.coreRadius*scale;
   const proximity=clamp(1-(Math.abs(worldX-e.player.x)-90)/380,.15,1)*lightVisibility(e,light,worldX,hole.y,playerY);
   if(proximity<=0)continue;
-  // Dark halo remains dark during a whole-scene reveal. Sparse red accretion
-  // edges identify danger before its effective drain becomes strong.
+  // A dark halo separates the bright disk from the surrounding scenery.
   c.globalAlpha=.14*proximity;disc(c,x,y,r*3.2,'#020104',q);
   c.globalAlpha=.3*proximity;disc(c,x,y,r*2.2,'#070307',q);
   // Bounded cosmetic Hawking-like rim emission: outward blue-white pixels,
@@ -109,13 +134,7 @@ export function drawBlackHoles(c,e,{scale=1,distance=e.renderDistance??e.distanc
    c.globalAlpha=proximity*Math.sin(age*Math.PI)*.48;c.fillStyle=i%3?'#adcadd':'#e8f4ed';
    c.fillRect(Math.round(px),Math.round(py),q,q);
   }
-  for(let ring=0;ring<2;ring++)for(let i=0;i<32;i++){
-   const a=i/32*TAU+t*(ring?.8:-.5)+(hole.seed||0)*.003;
-   if(Math.sin(a*2+ring)<-.2)continue;
-   const rr=r*(ring?1.75:1.3),xx=x+Math.cos(a)*rr,yy=y+Math.sin(a)*rr*(ring?.58:.9);
-   c.globalAlpha=proximity*(ring?.45:.72);c.fillStyle=ring?'#a45c68':'#d38a91';
-   c.fillRect(Math.round(xx),Math.round(yy),q,q);
-  }
+  accretionDisk(c,x,y,r,proximity,t,hole.seed||0);
  }
  for(const p of v.motes){
   const age=(e.captureTime??e.visualTime??now)-p.born;

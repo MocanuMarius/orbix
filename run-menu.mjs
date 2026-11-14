@@ -1,9 +1,9 @@
-import {menuWorldMarkup} from './menu-world.mjs?v=lantern-passages-1';
-import {resourceSymbol} from './game-symbols.mjs?v=lantern-passages-1';
-import {formatGlow,getGlowCapacity} from './vitality.mjs?v=lantern-passages-1';
-import {livesMarkup} from './lives.mjs?v=lantern-passages-1';
-import { COMPANION_ABILITIES } from './companion-abilities.mjs?v=lantern-passages-1';
-import { companionArtSvg } from './companion-art.mjs?v=lantern-passages-1';
+import {menuWorldMarkup} from './menu-world.mjs?v=lantern-chapter-1';
+import {resourceSymbol} from './game-symbols.mjs?v=lantern-chapter-1';
+import {formatGlow,getGlowCapacity} from './vitality.mjs?v=lantern-chapter-1';
+import {livesMarkup} from './lives.mjs?v=lantern-chapter-1';
+import { COMPANION_ABILITIES, getCompanionUnlock } from './companion-abilities.mjs?v=lantern-chapter-1';
+import { companionArtSvg } from './companion-art.mjs?v=lantern-chapter-1';
 
 const esc = value => String(value ?? '').replace(/[&<>"']/g, char =>
   ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[char]));
@@ -12,7 +12,7 @@ const benefits = Object.freeze({
   collector: 'Fetches missed Sparks.', protector: 'Shields one collision, then recharges.',
   leveler: 'Hold to hover. Release to glide.', swift: 'Surges through drafts.',
 });
-const lockIcon = '<svg class="unlock-lock" viewBox="0 0 12 14" fill="none" aria-hidden="true"><path d="M3 6V4a3 3 0 0 1 6 0v2M1 6h10v7H1z" stroke="currentColor" stroke-width="1.5"/><path d="M6 9v2" stroke="currentColor"/></svg>';
+export const companionLockIcon = '<svg class="unlock-lock" viewBox="0 0 12 14" fill="none" aria-hidden="true"><path d="M3 6V4a3 3 0 0 1 6 0v2M1 6h10v7H1z" stroke="currentColor" stroke-width="1.5"/><path d="M6 9v2" stroke="currentColor"/></svg>';
 const arrow = '<svg class="front-arrow" viewBox="0 0 20 20" fill="currentColor" shape-rendering="crispEdges" aria-hidden="true"><path d="M3 8h8V4h2v2h2v2h2v2h2v1h-2v2h-2v2h-2v2h-2v-5H3z"/></svg>';
 // Three places along one path. The soil, roots and windows deliberately leave
 // negative space through the illustration so that the menu sky shows between them.
@@ -93,43 +93,23 @@ export function runProgressMarkup(run) {
   return `<section class="run-progress">${path}<div class="run-checkpoint"><div><b>${practice ? 'PRACTICE' : `${run.testMode?'TEST · ':''}ASCENSION ${tier(run.difficulty)}`}</b><span>${practice ? '' : `MAP ${map + 1}/3 · `}${mapCleared ? 'REFUGE REACHED' : `STOP ${stop}/${totalStops}`}</span></div><div class="run-checkpoint-resources">${livesMarkup(run,{compact:true})}<span class="front-glow" aria-label="Spark Meter: ${formatGlow(run.flame)} of ${formatGlow(getGlowCapacity(run))}">${resourceSymbol('energy')}${formatGlow(run.flame)} / ${formatGlow(getGlowCapacity(run))}</span></div></div>${run.phase === 'retry' ? `<p class="run-retry-note">RETRY WAITING · ${esc(run.current?.name || 'Same passage')}</p>` : ''}</section>`;
 }
 
-/** Permanent companion unlocks only; this front-page view never equips wisps. */
-export function unlockPreviewMarkup(profile = {}, { compact = false } = {}) {
-  const maximum = tier(profile.difficulty), roles = Object.values(COMPANION_ABILITIES);
-  const next = roles.find(role => role.unlockDifficulty > maximum);
-  const unlocked = roles.filter(role => role.unlockDifficulty <= maximum).length;
-  return `<section class="unlock-preview ${compact ? 'compact' : ''}" aria-label="Companion unlocks"><button class="unlock-preview-trigger" data-action="companion-unlocks">${next ? `<span class="unlock-next-orb">${companionArtSvg(next.id)}</span><span class="unlock-next-copy"><small>NEXT UNLOCK</small><strong>${esc(next.name)}</strong><span>${esc(benefits[next.id] || next.description)}</span><b>Clear Ascension ${Math.max(1, next.unlockDifficulty - 1)} to unlock</b></span>` : `<span class="unlock-next-copy"><small>COMPANIONS</small><strong>All four companions unlocked</strong><span>Choose one companion before starting a run.</span></span>`}${arrow}</button><div class="unlock-orb-lineup" role="list" aria-label="${unlocked} of ${roles.length} companions unlocked">${roles.map(role => {
-    const open = role.unlockDifficulty <= maximum;
-    return `<span class="unlock-orb ${open ? 'unlocked' : 'locked'}" role="listitem" aria-label="${esc(role.name)}. ${open ? 'Unlocked' : `Unlock by clearing Ascension ${role.unlockDifficulty - 1}`}"><i>${companionArtSvg(role.id)}${open ? '' : lockIcon}</i><b>${esc(role.name)}</b><small>${open ? 'READY' : `ASC ${role.unlockDifficulty}`}</small></span>`;
-  }).join('')}</div></section>`;
-}
-
-/** Standalone front page: Continue, New Game and Tutorial remain distinct. */
-export function testStarterMarkup(selected='collector',{profile={},testOverride=true}={}){
- const roles=Object.values(COMPANION_ABILITIES),maximum=tier(profile.difficulty);
- const candidate=COMPANION_ABILITIES[selected],chosen=candidate&&(testOverride||candidate.unlockDifficulty<=maximum)?candidate:COMPANION_ABILITIES.collector;
- const next=roles.find(role=>role.unlockDifficulty>maximum);
- const choices=roles.map(role=>{
-   const selected=chosen.id===role.id, locked=role.unlockDifficulty>maximum;
-   const disabled=locked&&!testOverride;
-   const unlock=`Clear Ascension ${role.unlockDifficulty-1} to unlock ${role.name}`;
-   const label=disabled?unlock:`${selected?'Equipped':'Equip'} ${role.name} for a new run${locked?'. Available through TEST':''}`;
-   const lock=locked?`<small class="roster-lock" title="${esc(unlock)}" aria-hidden="true">${lockIcon}</small>`:'';
-   return `<button type="button" class="test-starter-option roster-choice${selected?' selected':''}" data-action="starting-companion" data-id="${role.id}" aria-label="${esc(label)}" title="${esc(label)}" aria-pressed="${selected}" ${disabled?'disabled':''}>
-     ${companionArtSvg(role.id)}<span>${esc(role.name)}</span>${lock}
-     ${disabled?'':'<i class="roster-state" aria-hidden="true"></i>'}
+export function testStarterMarkup(){
+ const choices=Object.values(COMPANION_ABILITIES).map(role=>{
+   const available=getCompanionUnlock(role.id).selectable;
+   const label=esc(role.name+(available?' equipped':' locked'));
+   return `<button type="button" class="test-starter-option roster-choice${available?' selected':''}" data-action="starting-companion" data-id="${role.id}" aria-label="${label}" title="${label}" aria-pressed="${available}" ${available?'':'disabled'}>
+     ${companionArtSvg(role.id)}<span>${esc(role.name)}</span>${available?'<i class="roster-state" aria-hidden="true"></i>':`<small class="roster-lock" aria-hidden="true">${companionLockIcon}</small>`}
    </button>`;
  }).join('');
- const hint=testOverride?'TEST · ALL SELECTABLE':next?`Clear A${next.unlockDifficulty-1} → ${esc(next.name)}`:'';
- return `<section class="test-starter-picker starter-roster" aria-label="Companion for a new run">
-   <div class="test-starter-heading"><strong>New run companion</strong>${hint?`<small>${hint}</small>`:''}</div>
-   <div class="test-starter-options" role="group" aria-label="Equip one companion">${choices}</div>
-   <p>${esc(benefits[chosen.id])}</p>
+ return `<section class="test-starter-picker starter-roster" aria-label="Companions">
+   <div class="test-starter-heading"><strong>Companion</strong></div>
+   <div class="test-starter-options" role="group" aria-label="Companion roster">${choices}</div>
+   <p>${esc(benefits.collector)}</p>
  </section>`;
 }
 
-export function homeMenuMarkup({ profile = {}, run = null, selectedDifficulty, testOverride = false, testStarterCompanion = 'collector' } = {}) {
+export function homeMenuMarkup({ profile = {}, run = null, selectedDifficulty, testOverride = false } = {}) {
   const maximum = testOverride ? Math.max(6,tier(profile.difficulty)) : tier(profile.difficulty), chosen = Math.min(maximum, tier(selectedDifficulty ?? maximum));
   const active = Boolean(run && (run.phase !== 'ended' || run.victoryPending) && !run.banked);
-  return `<section class="run-front-page menu-art-home">${menuWorldMarkup()}<header class="front-title"><div class="front-main-light" aria-hidden="true"></div><h1>WISPBOUND</h1><p>A LIGHT IN THE LOST WOODS</p></header>${runProgressMarkup(active ? run : null)}<div class="front-actions">${active ? `<button class="front-continue home-command primary" data-action="continue-run"><span>CONTINUE<small>${run.isTutorial ? 'Your practice route' : `MAP ${Math.min(3,(Number(run.mapIndex)||0)+1)}/3 · ${run.phase==='map-clear'?'MAP CLEARED':`STOP ${Math.min(run.map?.length||7,(Number(run.step)||0)+1)}/${run.map?.length||7}`}`}</small></span>${arrow}</button>` : ''}<div class="front-new-game"><button class="front-new-button home-command ${active ? 'secondary' : 'primary'}" data-action="new-game"><span>NEW GAME<small>Choose a starting gift</small></span>${arrow}</button><div class="front-ascension-picker${maximum===1?' is-fixed':''}" role="group" aria-label="Choose ascension for a new game"><button data-action="choose-ascension" data-value="${Math.max(1, chosen - 1)}" aria-label="Previous ascension" ${chosen <= 1 ? 'disabled' : ''}>−</button><span>ASCENSION <b>${chosen}</b><small>${testOverride ? `TEST · 1–${maximum}` : maximum > 1 ? `UNLOCKED 1–${maximum}` : 'FIRST JOURNEY'}</small></span><button data-action="choose-ascension" data-value="${Math.min(maximum, chosen + 1)}" aria-label="Next ascension" ${chosen >= maximum ? 'disabled' : ''}>+</button></div></div><button class="front-tutorial home-command secondary" data-action="tutorial"><span>FIELD GUIDE<small>Lessons & practice</small></span>${arrow}</button></div>${testStarterMarkup(testStarterCompanion,{profile,testOverride})}</section>`;
+  return `<section class="run-front-page menu-art-home">${menuWorldMarkup()}<header class="front-title"><div class="front-main-light" aria-hidden="true"></div><h1>WISPBOUND</h1><p>A LIGHT IN THE LOST WOODS</p></header>${runProgressMarkup(active ? run : null)}<div class="front-actions">${active ? `<button class="front-continue home-command primary" data-action="continue-run"><span>CONTINUE<small>${run.isTutorial ? 'Your practice route' : `MAP ${Math.min(3,(Number(run.mapIndex)||0)+1)}/3 · ${run.phase==='map-clear'?'MAP CLEARED':`STOP ${Math.min(run.map?.length||7,(Number(run.step)||0)+1)}/${run.map?.length||7}`}`}</small></span>${arrow}</button>` : ''}<div class="front-new-game"><button class="front-new-button home-command ${active ? 'secondary' : 'primary'}" data-action="new-game"><span>NEW GAME<small>Choose a starting gift</small></span>${arrow}</button><div class="front-ascension-picker${maximum===1?' is-fixed':''}" role="group" aria-label="Choose ascension for a new game"><button data-action="choose-ascension" data-value="${Math.max(1, chosen - 1)}" aria-label="Previous ascension" ${chosen <= 1 ? 'disabled' : ''}>−</button><span>ASCENSION <b>${chosen}</b><small>${testOverride ? `TEST · 1–${maximum}` : maximum > 1 ? `UNLOCKED 1–${maximum}` : 'FIRST JOURNEY'}</small></span><button data-action="choose-ascension" data-value="${Math.min(maximum, chosen + 1)}" aria-label="Next ascension" ${chosen >= maximum ? 'disabled' : ''}>+</button></div></div><button class="front-tutorial home-command secondary" data-action="tutorial"><span>FIELD GUIDE<small>Lessons & practice</small></span>${arrow}</button></div>${testStarterMarkup()}</section>`;
 }

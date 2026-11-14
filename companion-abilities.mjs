@@ -20,7 +20,6 @@ export function normalizeCompanionRole(value) {
   return typeof value === 'string' && Object.hasOwn(COMPANION_ABILITIES, value) ? value : 'collector';
 }
 // The array shape remains an engine/render transport, always exactly one orb.
-// TEST unlocks roles, never simultaneous companions.
 export function normalizeCompanionFleet(values, fallback = 'collector') {
   const valid=value=>typeof value==='string'&&(Object.hasOwn(COMPANION_ABILITIES,value)||['runner','space-timer','anchor'].includes(value));
   const selected=(Array.isArray(values)?values:[]).find(valid);
@@ -28,9 +27,7 @@ export function normalizeCompanionFleet(values, fallback = 'collector') {
 }
 
 export const getCompanionAbility = role => COMPANION_ABILITIES[normalizeCompanionRole(role)];
-export function getCompanionUnlock(role, difficulty = 1, testOverride = false) {
-  const requiredDifficulty = getCompanionAbility(role).unlockDifficulty;
-  const unlocked = Math.max(1, Math.floor(Number(difficulty) || 1)) >= requiredDifficulty;
-  return { unlocked, requiredDifficulty, testing: !unlocked && testOverride === true,
-    selectable: unlocked || testOverride === true };
+export function getCompanionUnlock(role) {
+  const unlocked = role === 'collector';
+  return { unlocked, selectable: unlocked };
 }

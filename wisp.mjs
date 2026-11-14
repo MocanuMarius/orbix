@@ -1,7 +1,7 @@
-import { LIGHT_PACKET_TUNING } from './vitality.mjs?v=lantern-passages-1';
-import { getCompanionAbility } from './companion-abilities.mjs?v=lantern-passages-1';
-import { pickupKind, pickupContactRadius, canCompanionCollect } from './pickups.mjs?v=lantern-passages-1';
-import {sparkArtScale,sparkMass} from './spark-size.mjs?v=lantern-passages-1';
+import { LIGHT_PACKET_TUNING } from './vitality.mjs?v=lantern-chapter-1';
+import { getCompanionAbility } from './companion-abilities.mjs?v=lantern-chapter-1';
+import { pickupKind, pickupContactRadius, canCompanionCollect } from './pickups.mjs?v=lantern-chapter-1';
+import {sparkArtScale,sparkMass} from './spark-size.mjs?v=lantern-chapter-1';
 
 const clamp = (value, lo, hi) => Math.min(hi, Math.max(lo, value));
 export const WISP_TUNING = Object.freeze({ range: 52.5, cooldown: 10, lightRadius: 175,

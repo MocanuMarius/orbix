@@ -1,5 +1,6 @@
-import {moonDrainScale} from './atlas-flight.mjs?v=lantern-passages-1';
-import { obstacleEdgeClearance } from './edging-pulse.mjs?v=lantern-passages-1';
+import {moonDrainScale} from './atlas-flight.mjs?v=lantern-chapter-1';
+import {inLanternRoom} from './lantern-layout.mjs?v=lantern-chapter-1';
+import { obstacleEdgeClearance } from './edging-pulse.mjs?v=lantern-chapter-1';
 
 // Rates are internal flight Sparks. The HUD displays 0.3 of these units.
 // At 2.5× the old drain the core can empty a fresh meter in a quarter second.
@@ -43,6 +44,7 @@ function clearAt(obstacles, x, y, radius, height) {
 function quietAt(engine, x) {
   const reach = BLACK_HOLE_TUNING.influence + 50;
   return !(engine.layout?.flightForks || []).some(f=>x+reach>f.approachStart&&x-reach<f.exitEnd)
+    && !inLanternRoom(engine.layout,x,reach)
     && !(engine.layout?.boss?.shutters || []).some(s=>x+reach>s.x-100&&x-reach<s.x+s.shift+s.spread)
     && !(engine.layout?.sections || []).some(s => (s.hard || s.authoredChallenge)
       && x + reach > s.start && x - reach < s.end)

@@ -121,6 +121,7 @@ figcaption small{display:block;color:#b7d1c1;font:14px/1.3 system-ui,sans-serif;
 .lantern-playback output{min-width:58px;color:#ffe4a2;white-space:nowrap}
 .lantern-preview p{color:#d4e0d5;font:clamp(14px,1.9vw,17px)/1.4 system-ui,sans-serif;margin:5px 0}
 .lantern-only .lantern-preview{max-width:none}
+.lantern-map-link{color:#eddaa6;font-size:17px;padding:3px 0;text-underline-offset:3px}
 @media(max-width:540px) and (orientation:portrait){
   .lantern-controls{display:grid;grid-template-columns:1fr 1fr;align-items:end}
   .lantern-light button{padding-inline:7px}

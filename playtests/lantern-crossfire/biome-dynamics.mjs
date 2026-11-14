@@ -1,7 +1,8 @@
-import { DRAFT_TUNING } from './drafts.mjs?v=lantern-passages-1';
-import { scenePropBounds } from './scene-props.mjs?v=lantern-passages-1';
-import { formatGlow } from './vitality.mjs?v=lantern-passages-1';
-import { lightVisibility } from './light-field.mjs?v=lantern-passages-1';
+import { DRAFT_TUNING } from './drafts.mjs?v=lantern-chapter-1';
+import { scenePropBounds } from './scene-props.mjs?v=lantern-chapter-1';
+import { formatGlow } from './vitality.mjs?v=lantern-chapter-1';
+import { lightVisibility } from './light-field.mjs?v=lantern-chapter-1';
+import { inLanternRoom } from './lantern-layout.mjs?v=lantern-chapter-1';
 
 // Small, deterministic actors attached to existing terrain. Static mountain
 // meshes never change, and each actor is used once: no repeatable currency farm.
@@ -64,6 +65,7 @@ export function createBiomeActors(engine) {
     for (let attempt = 0; attempt < fractions.length; attempt++) {
       const x = o.x + o.width * fractions[(attempt + offset) % fractions.length];
       if (x < BIOME_DYNAMIC_TUNING.minimumStart || x > last) continue;
+      if (inLanternRoom(engine.layout,x,60)) continue;
       // No surprise layered into a choke, a negative-pickup chain or a draft.
       if (sections.some(s => s.hard && x + 110 > s.start && x - 110 < s.end)) continue;
       if ((engine.layout.riskChains || []).some(s => x + 160 > s.start && x - 160 < s.end)) continue;

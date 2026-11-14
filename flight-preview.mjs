@@ -1,15 +1,16 @@
-import {getBiome} from './biomes.mjs?v=lantern-passages-1';
-import {getBossPreview} from './boss.mjs?v=lantern-passages-1';
-import {levelMapPreview} from './level-map-art.mjs?v=lantern-passages-1';
-import {mapStopIconMarkup} from './map-guide.mjs?v=lantern-passages-1';
-import {resourceSymbol} from './game-symbols.mjs?v=lantern-passages-1';
-import {getFlightClearReward} from './checkpoint-rewards.mjs?v=lantern-passages-1';
-import {availableFlightArtifacts} from './model.mjs?v=lantern-passages-1';
-import {bonusIcon,boonMarkup} from './route-bonus-ui.mjs?v=lantern-passages-1';
-import {contextualFlightNotice} from './contextual-events.mjs?v=lantern-passages-1';
-import {ATLAS_FORECASTS,atlasGlyph} from './night-atlas.mjs?v=lantern-passages-1';
-import {canDreamAt,dreamConfig} from './dream.mjs?v=lantern-passages-1';
-import {sparkHabitat} from './spark-fields.mjs?v=lantern-passages-1';
+import {getBiome} from './biomes.mjs?v=lantern-chapter-1';
+import {getBossPreview} from './boss.mjs?v=lantern-chapter-1';
+import {levelMapPreview} from './level-map-art.mjs?v=lantern-chapter-1';
+import {mapStopIconMarkup} from './map-guide.mjs?v=lantern-chapter-1';
+import {resourceSymbol} from './game-symbols.mjs?v=lantern-chapter-1';
+import {getFlightClearReward} from './checkpoint-rewards.mjs?v=lantern-chapter-1';
+import {availableFlightArtifacts} from './model.mjs?v=lantern-chapter-1';
+import {bonusIcon,boonMarkup} from './route-bonus-ui.mjs?v=lantern-chapter-1';
+import {contextualFlightNotice} from './contextual-events.mjs?v=lantern-chapter-1';
+import {ATLAS_FORECASTS,atlasGlyph} from './night-atlas.mjs?v=lantern-chapter-1';
+import {canDreamAt,dreamConfig} from './dream.mjs?v=lantern-chapter-1';
+import {sparkHabitat} from './spark-fields.mjs?v=lantern-chapter-1';
+import {lanternFlightCue} from './map-theme.mjs?v=lantern-chapter-1';
 
 const escapeText = value => String(value ?? '').replace(/[&<>"']/g, char =>
  ({'&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;'}[char]));
@@ -46,7 +47,8 @@ export function flightPreviewMarkup(run,node,{available=false,level,bonus=null}=
  const duration=available&&canDreamAt(run,node)?dreamConfig(run).duration:0;
  const action=available?`<button class="primary" data-action="node" data-id="${escapeText(node.id)}">${duration?`Dream · ${duration}s`:'Fly'} →</button>`
   :'<span class="preview-future">Follow the connected path</span>';
- const cue=forecast?forecast.cue:hazard;
+ const themeCue=lanternFlightCue(node);
+ const cue=forecast?[themeCue,forecast.cue].filter(Boolean).join(' '):themeCue||hazard;
  return `<section class="flight-preview" aria-labelledby="preview-place">
   <div class="preview-reading">
    <header class="preview-place">

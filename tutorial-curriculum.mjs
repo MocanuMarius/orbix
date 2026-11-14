@@ -17,7 +17,7 @@ export const TUTORIAL_TOPICS={
   s('Flash Powerup','Catch the white triangle. It follows on a thread, lighting the passage with each pulse. The puff means its light has run out.','pickup:sight'),
   s('Dusk Spark','The rose Dusk Spark trades reduced Luminance for fuel. Its red ring warns of the cost. Only body contact collects it.','pickup:dusk')]},
  lanterns:{name:'Darkness Lanterns',visual:'lantern-icon',steps:[
-  s('Read the pair','Watch the roof and floor. A lens glows gold before it opens. The crossing is darkest where the two beams overlap.','lantern-pair'),
+  s('Read the pair','Paired lanterns mark Hollow Sun’s chapter. Watch the roof and floor. A lens glows gold before it opens. The crossing is darkest where the two beams overlap.','lantern-pair'),
   s('Cast a reverse shadow','Fly between a lantern and the rock. Your wisp blocks the darkness, leaving a wedge of light on the far side. Move sideways to sweep it across the rock.','lantern-wedge'),
   s('Break through','Luminance widens the clear space around you. Catch the white Flash triangle before the crossing to see rock edges farther into the dark.','lantern-flash')]},
  terrain:{name:'Terrain & goals',visual:'route',steps:[
@@ -36,7 +36,7 @@ export const TUTORIAL_TOPICS={
   s('Watch the boundary','After delivery, the green boundary contracts and regrows over 10 seconds. A nearby Spark can still be fetched during recovery if it is inside the smaller boundary.','collector-recovery'),
   s('Read the Power indicator','For Collector, the filling button shows current range, not an ability to press. A full indicator means maximum reach. Red-ring Sparks are left for you to choose.','companion:collector'),
   s('Upgrade the right reach','Collector skills improve fetching range, delivery and recovery. Light skills improve Luminance: how far you see. Fetching range and seeing distance are different.','luminance')]},
- companions:{name:'Companions',visual:'companion:protector',steps:[
+ companions:{name:'Companions',visual:'companion:collector',steps:[
   s('One helper at a time','Choose one companion. Only Collector fetches Sparks; every other role relies on body pickups. Choose on the main screen for the whole run. Improve that role through its skill tree.','companion:collector'),
   s('Protector · automatic','The blue orb rebuilds a visible shell around you. A charged shell spends Sparks to deflect a collision and push you clear. No button press is needed.','companion:protector'),
   s('A shield is not immunity','After a deflection, the broken shell must rebuild. Without a charge or enough Sparks, a collision ends the attempt. It cannot stop a Black Hole draining Sparks.','companion:protector'),
@@ -84,7 +84,7 @@ export const TUTORIAL_TOPICS={
   s('Proximity · an earned skill','Buy the first Proximity skill to unlock surface charging. Skim solid terrain without touching it; full charge reveals the scene. Its separate tree offers recovery and a temporary light shield. Open sky never charges it.','edge')]},
  progression:{name:'Runs & Ascension',visual:'route',steps:[
   s('Three maps make a run','Your hearts, Sparks and build carry over. Later guardians chain their attacks, leaving fewer breaks to recover.','route'),
-  s('Ascension','Clear all three maps to unlock the next difficulty and new companions. Higher Ascensions make the journey harder. Winning ends the run. Start a separate New Game to try another Ascension; run fuel, skills, currency and artifacts never carry over.','site:boss'),
+  s('Ascension','Clear all three maps to unlock the next difficulty. Higher Ascensions make the journey harder. Winning ends the run. Start a separate New Game to try another Ascension; run fuel, skills, currency and artifacts never carry over.','site:boss'),
   s('Continue or New Game','Continue resumes your saved run. Exit to Menu keeps it. Abandon and New Game reset run skills and currency; permanent unlocks remain. Short lessons appear as you progress. Reset tutorial in Settings to replay them.','pause')]},
 };
 export const topicSteps=(id)=>TUTORIAL_TOPICS[id]?.steps.map(step=>({...step}))||[];

@@ -1,6 +1,7 @@
-export { installShutters } from './lantern-layout.mjs?v=lantern-passages-1';
-import { LIGHT_PACKET_TUNING } from './vitality.mjs?v=lantern-passages-1';
-import { lightAttenuation } from './light-attenuation.mjs?v=lantern-passages-1';
+export { installShutters } from './lantern-layout.mjs?v=lantern-chapter-1';
+import { lanternField } from './lantern-layout.mjs?v=lantern-chapter-1';
+import { LIGHT_PACKET_TUNING } from './vitality.mjs?v=lantern-chapter-1';
+import { lightAttenuation } from './light-attenuation.mjs?v=lantern-chapter-1';
 
 const clamp01 = value => Math.max(0, Math.min(1, value));
 const smooth = value => value * value * (3 - 2 * value);
@@ -207,7 +208,7 @@ function openPocket(ctx, px, py, reach) {
 }
 
 function shadowMasks(engine, distance, playerY, light) {
-  const boss = engine.layout?.boss;
+  const boss = lanternField(engine.layout);
   if (!boss?.shutters?.length || engine.dream?.mode === 'record') return null;
   const sx = engine.player.x, px = distance + sx, radius = engine.player.radius ?? 9.35;
   if (!boss.shutters.some(shutter => px > shutter.openX)) return null;
@@ -314,7 +315,7 @@ export function drawShutters(c, engine, {
   distance = engine.renderDistance ?? engine.distance, playerY = engine.renderPlayerY ?? engine.player.y,
   scale = 1, light
 } = {}) {
-  const boss = engine.layout?.boss;
+  const boss = lanternField(engine.layout);
   if (!boss?.shutters?.length) return;
   const playerX = distance + engine.player.x;
   const layer = shadowMasks(engine, distance, playerY, light);

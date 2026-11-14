@@ -1,5 +1,5 @@
-import {getCompanionAbility} from './companion-abilities.mjs?v=lantern-passages-1';
-import {lightVisibility} from './light-field.mjs?v=lantern-passages-1';
+import {getCompanionAbility} from './companion-abilities.mjs?v=lantern-chapter-1';
+import {lightVisibility} from './light-field.mjs?v=lantern-chapter-1';
 // Practice is an authored flight using the same controls, fuel and colliders.
 // This module contains guidance and lesson scenery; it never grants rewards.
 const clamp = (n, lo, hi) => Math.min(hi, Math.max(lo, n));

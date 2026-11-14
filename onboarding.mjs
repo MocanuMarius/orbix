@@ -1,5 +1,6 @@
-import {flashPowerupDuration} from './pickups.mjs?v=lantern-passages-1';
-import {resourceCycleSteps} from './resource-cycle.mjs?v=lantern-passages-1';
+import {flashPowerupDuration} from './pickups.mjs?v=lantern-chapter-1';
+import {resourceCycleSteps} from './resource-cycle.mjs?v=lantern-chapter-1';
+import {LANTERN_THEME} from './map-theme.mjs?v=lantern-chapter-1';
 // Normal-run onboarding is profile-owned. Prompts are contextual, one short
 // card at a time; the run owns only pacing so a new game keeps learned topics.
 export const ONBOARDING_VERSION=1;
@@ -88,7 +89,9 @@ export function noteOnboardingPrompt(run,view,{flight,now=Date.now()}={}){
 const card=(id,title,text,visual,target)=>({id:`onboarding:${id}`,topic:id,onboarding:true,steps:[{title,text,visual,...(target?{target}:{}),allowTarget:false,actionLabel:'Got it',skipLabel:'Remember & skip'}]});
 
 export function lanternEntryLesson(settings, profile, run) {
- if(!automaticTipsEnabled(settings,run)||run?.isTutorial||run?.current?.bossId!=='hollow-sun')return null;
+ const node=run?.current;
+ if(!automaticTipsEnabled(settings,run)||run?.isTutorial||!node||node.type==='support')return null;
+ if(node.mapTheme!==LANTERN_THEME&&node.bossId!=='hollow-sun')return null;
  if(cleanOnboarding(profile?.onboarding).seen.includes('lanterns'))return null;
  return card('lanterns','Darkness Lanterns','Two lanterns cross their beams. Block a beam to cast a wedge of light behind you. Luminance widens your view. Catch the white Flash triangle to see through the crossing.','lantern-wedge');
 }
@@ -104,7 +107,7 @@ export function nextOnboardingLesson(view,{profile,run,modifiers,flight,snapshot
  if(view==='skills'&&newTopic('skills'))return card('skills','One small upgrade','Tap Stored Sparks to open Skills any time. Gold skills are affordable. Blue skills are yours. Opening Skills pauses flight.','skill-states','.book-spread');
  if(view==='support'&&run.current?.kind==='camp'&&newTopic('rest'))return card('rest','Recover or Grow','Recover restores missing hearts. Grow adds 3 Spark capacity for this run. Both refill Sparks.','rest','.rest-benefit-cards');
  if(view==='support'&&run.current?.kind!=='camp'&&newTopic('events'))return run.current?.kind==='treasure'?card('events','Choose one treasure','Each chest has a specialty. Read both offers, then take one. On the map, tap a chest to inspect its stakes before choosing your path.','site:treasure','.support-offers'):card('events','An encounter','Read what you gain and what you give up. Choose one outcome.','sites-support','.support-offers');
- if(view==='companions'&&newTopic('companions'))return card('companions','One companion, one role','Equip one companion at a time. Collector fetches; Protector shields; Runner bursts; Space Timer levitates while you hold. Choose on the main screen; your companion stays for the entire run.','companion:'+role,'.companion-roles');
+ if(view==='companions'&&newTopic('companions'))return card('companions','Your Collector','Collector fetches missed Sparks inside its green boundary. Open its skill chapter to improve range and recovery.','companion:'+role,'.companion-roles');
  if(view==='dream'&&newTopic('dream'))return card('dream','Rehearse the opening','Dream opens each flight in golden light. Rehearse freely, then wake to replay your opening. At handoff, tap once to resume.','dream');
  if(view==='map'&&run.lastFlight?.success&&!run.lastFlight.elite&&!run.lastFlight.boss&&newTopic('packed'))
   return card('packed','Your flight reward is saved','Clearing a flight automatically saves 20 Stored Sparks plus pickup overflow. Tap Stored Sparks to spend them on skills. The map is ready for your next path.','clear-reward','.condensed-wallet');

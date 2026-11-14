@@ -1,7 +1,7 @@
-import {DEFAULT_CAPTURE_STYLE} from './capture-styles.mjs?v=lantern-passages-1';
-import {getPickupSpec, pickupKind} from './pickups.mjs?v=lantern-passages-1';
-import {pickupSpriteFrame} from './pickup-art.mjs?v=lantern-passages-1';
-import {LIGHT_PACKET_TUNING} from './vitality.mjs?v=lantern-passages-1';
+import {DEFAULT_CAPTURE_STYLE} from './capture-styles.mjs?v=lantern-chapter-1';
+import {getPickupSpec, pickupKind} from './pickups.mjs?v=lantern-chapter-1';
+import {pickupSpriteFrame} from './pickup-art.mjs?v=lantern-chapter-1';
+import {LIGHT_PACKET_TUNING} from './vitality.mjs?v=lantern-chapter-1';
 
 const TAU = Math.PI * 2;
 const clamp = value => Math.max(0, Math.min(1, value));
@@ -13,7 +13,7 @@ const heavyFraction = massTier => clamp(((massTier || 1)-1)/9);
 // A massive Spark pays out on contact like every other one. Only the trailing
 // material takes longer to fold away, keeping response to the tap immediate.
 export function captureMassDuration(baseDuration=LIGHT_PACKET_TUNING.absorptionDuration,massTier=1) {
-  return baseDuration * (1 + .48*heavyFraction(massTier));
+  return baseDuration * (1 + .31*heavyFraction(massTier));
 }
 
 // Every slice of plasma has a different release time. A near slice can
@@ -24,8 +24,8 @@ function edge(out, fraction, artRadius, sourceRadius, age, delay, turns, wave, w
   const flow = elapsed * smooth(clamp(elapsed/.18));
   const radius = sourceRadius + artRadius * (1 - fraction * 2);
   const shrink = (1 - flow) ** .8;
-  // Let the leading plasma unfurl before winding a second time around the
-  // receiver. Keep the material outside the bright core until the final pull.
+  // Let the leading plasma unfurl, staying outside the bright core until
+  // the final pull. The trailing material still leaves the shell later.
   const winding = clamp((flow - .18) / .82);
   const extraTurn = wrap * winding * winding * (2 - winding);
   const angle = TAU * (turns * flow * (.53 + .47 * flow) + wave * Math.sin(TAU * flow) + extraTurn);
@@ -44,7 +44,7 @@ function drawStream(ctx, sprite, artRadius, sourceRadius, age, sourceScale, dela
   const top = half === 1 ? 0 : -imageRadius;
   const texel = sprite?.sparkTexelScale || 1;
   const sourceTop = side / 2 + top * texel;
-  const orbitWidth = (Math.max(5, 21 - .25 * sourceRadius) * 2.12 + 16*weight) * Math.abs(wrap);
+  const orbitWidth = (Math.max(5, 21 - .25 * sourceRadius) * 2.12 + 16*weight) * Math.min(1, 1.55 * Math.abs(wrap));
   edge(left, 0, artRadius, sourceRadius, age, delay, turns, wave, wrap, orbitWidth);
   for (let i = 0; i < strips; i++) {
     const u = (i + .5) / strips;
@@ -113,9 +113,9 @@ export function drawAbsorbingSpark(ctx, effect, age, targetX, targetY, scale, qu
     drawStream(ctx,sprite,artRadius,sourceRadius,age,size,.4+.12*weight,-.82*direction,0,-.24*direction,direction,spec.color,weight);
   } else {
     const ribbon = style === 'ribbon';
-    const turns = quiet ? .045 : ribbon ? -.768 : 1.32;
-    const wave = ribbon && !quiet ? .256 : 0;
-    const wrap = quiet ? 0 : ribbon ? -1 : .32;
+    const turns = quiet ? .045 : ribbon ? -.64 : .94;
+    const wave = ribbon && !quiet ? .19 : 0;
+    const wrap = quiet ? 0 : ribbon ? -.65 : .24;
     drawStream(ctx,sprite,artRadius,sourceRadius,age,size,.4+.12*weight,turns*direction,wave*direction,wrap*direction,0,spec.color,weight);
   }
   ctx.restore();

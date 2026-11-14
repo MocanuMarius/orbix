@@ -1,5 +1,5 @@
-import {getPickupSpec,pickupKind,pickupContactRadius} from './pickups.mjs?v=lantern-passages-1';
-import {SPARK_TIERS,sparkMass,sparkBodyRadius} from './spark-size.mjs?v=lantern-passages-1';
+import {getPickupSpec,pickupKind,pickupContactRadius} from './pickups.mjs?v=lantern-chapter-1';
+import {SPARK_TIERS,sparkMass,sparkBodyRadius} from './spark-size.mjs?v=lantern-chapter-1';
 
 // These four habitat profiles average to the overall tier probabilities.
 // The percentage shift changes the mix without altering any authored route.
@@ -16,7 +16,7 @@ export const sparkHabitat=biomeId=>habitats[biomeId]||null;
 
 export function installSparkField(layout,{height,random,clear,targets=[],protectedSites=[],opening=false}){
  const all=layout.embers,marked=new Set(targets.map(t=>t.object)),busy=[];
- const authored=p=>p.riskChain||p.intro||p.forkCache||p.atlasBypass||p.blackHoleBypass||p.challengeLandmark||marked.has(p);
+ const authored=p=>p.riskChain||p.intro||p.forkCache||p.feature==='fork-safe-fuel'||p.atlasBypass||p.blackHoleBypass||p.challengeLandmark||marked.has(p);
  const natural=all.filter(p=>!p.generated&&['light','cluster','cache','dark'].includes(pickupKind(p)));
  const identity=layout.levelIdentity||{};
  const profile=profiles[sparkHabitat(identity.biomeId)]||SPARK_TIERS.map(t=>t.probability);
