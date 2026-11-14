@@ -33,7 +33,7 @@ assert.equal(M.getTrainingRankCount(freeWallet),0,'The granted starter root is n
 assert.equal(M.getSkillPrice(freeWallet,'main-afterglow'),110);
 assert.ok(M.buyCheckpointSkill(priced,'main-afterglow'));assert.ok(M.buyCheckpointSkill(priced,'afterglow-anchor'));
 assert.equal(M.getTrainingRankCount(M.getSkillWallet(priced)),1.875);
-assert.equal(M.getSkillPrice(M.getSkillWallet(priced),'main-sight'),155,'Further skills use the final progressive price rule');
+assert.equal(M.getSkillPrice(M.getSkillWallet(priced),'main-sight'),105,'Further skills use the final progressive price rule');
 assert.match(M.getSkillLockReason(M.getSkillWallet(priced),'afterglow-retention'),/Learn|Other path/);
 const memory=new Map(),storage={getItem:key=>memory.get(key)||null,setItem:(key,value)=>memory.set(key,value)};
 assert.ok(M.saveState(priced,storage));const reloaded=M.loadState(storage);

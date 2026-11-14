@@ -1,0 +1,10 @@
+import assert from 'node:assert/strict';
+import {canShowFlightHint} from '../dist/flight-hint-safety.mjs';
+import {enrichSparkLayers} from '../dist/glow-budget.mjs';
+const e={alive:true,time:5,lastFlapTime:3,lastHintInputTime:3,layout:{},hintProjection:{predict:()=>({contact:false,uncertain:false,exit:false})}};
+assert.equal(canShowFlightHint(e),true);
+for(const patch of [{lastHintInputTime:4.1},{lastFlapTime:4.1},{liftHeld:true},{paused:true},{resumeRemaining:1},{dying:true},{layout:{boss:{attacks:[{}]}}}])assert.equal(canShowFlightHint({...e,...patch}),false);
+for(const patch of [{contact:true},{uncertain:true},{exit:true}])assert.equal(canShowFlightHint({...e,hintProjection:{predict:()=>patch}}),false);
+const layout={embers:Array.from({length:12},(_,i)=>({id:i,x:400+i*300,y:200,kind:'light',value:1}))};layout.embers.push({id:99,x:1800,y:200,kind:'light',value:1,riskChain:true});
+const result=enrichSparkLayers(layout,{clear:()=>true});assert.equal(result.added,3);assert.equal(result.extraFuel,60);assert.equal(layout.embers.at(-1).value,1);assert.ok(layout.embers.every(p=>p.value<=3));
+console.log('Hint gates: recent input, unsafe/uncertain trajectory, holds and resume blocked. Extra layers: +25% ordinary packets; risk chains and three-ring cap preserved.');

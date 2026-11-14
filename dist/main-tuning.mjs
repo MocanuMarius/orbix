@@ -1,6 +1,8 @@
 // Main-wisp paths favour distinct decisions over repeated identical ranks.
 const node=(id,name,cost,requires,description,icon,shortEffect,extra={})=>({id,name,branch:'main',cost,maxRank:1,requires,description,consequence:description,icon,shortEffect,...extra});
 export const MAIN_TUNING_SKILLS={
+ 'main-glide-regen':node('main-glide-regen','Glide Regeneration',85,'main-efficiency','After 1.5 seconds without Lift, recover 3.3333333333333335 Energy per second while falling unassisted. Up to 20 Energy each flight. No Packing.','regen','Glide to recover'),
+ 'main-glide-regen-2':node('main-glide-regen-2','Deep Regeneration',110,'main-glide-regen','Start after 1 second without Lift. Recover 6.666666666666667 Energy per second while falling unassisted, up to 30 Energy each flight. No Packing.','regen','Faster recovery'),
  'main-echo-sight':node('main-echo-sight','Echo Luminance',35,'main-sight','Natural Sparks pickups cast light farther ahead for 2 seconds. Recharges in 8 seconds. Works with any companion.','sight','Pickup Luminance'),
  'main-echo-long':node('main-echo-long','Lingering Echo',35,'main-echo-sight','Echo Luminance lasts 1 second longer.','duration','+1s Luminance'),
  'main-echo-range':node('main-echo-range','Far Echo',40,'main-echo-sight','Echo Luminance reaches 50 farther ahead.','sight','+50 reach'),
@@ -52,7 +54,7 @@ export function priceSkillDefinition(s){
  if(s.id==='main-edging-attunement')return{...s,cost:80};
  if(s.id.endsWith('-attunement'))return{...s,cost:85};
  if(s.id.endsWith('-mastery'))return{...s,cost:95};
- const valuePrices={'main-lift':125,'main-dream-wake':30,'main-dream-sight':40,'main-echo-long':45,'main-echo-range':50,'main-recovery':50,'main-recovery-deep':55,'main-recovery-rescue':45,'main-recovery-challenge':45,'main-plummet':40,'main-deep-plummet':50,'main-tailwind':55,'main-drift':65,'main-kindled-touch':120,'main-kindled-rich':85,'main-dawnburst':130,'main-afterglow':110};
+ const valuePrices={'main-glide-regen':85,'main-glide-regen-2':110,'main-lift':125,'main-dream-wake':30,'main-dream-sight':40,'main-echo-long':45,'main-echo-range':50,'main-recovery':50,'main-recovery-deep':55,'main-recovery-rescue':45,'main-recovery-challenge':45,'main-plummet':40,'main-deep-plummet':50,'main-tailwind':55,'main-drift':65,'main-kindled-touch':120,'main-kindled-rich':85,'main-dawnburst':130,'main-afterglow':110};
  if(valuePrices[s.id]!=null)return {...s,cost:valuePrices[s.id]};
  const prices={'main-sight':80,'main-speed':80,'main-efficiency':80,'main-drift-sense':85,'main-drift-sense-2':100,'main-drift-sense-3':110,'main-dream':85,'main-dream-long':100,'main-dream-deep':110,'main-dream-wake':80,'main-dream-sight':85,'main-afterglow':85,'main-reservoir':90,'main-vast-vessel':110,'main-purifying-touch':105,'main-kindled-rich':95,'main-dawnburst':100,'main-edging-lasting':100,'main-edging-tension':90,'main-edging-regeneration':100,'protector-layers':110,'leveler-dive':95};
  return{...s,cost:prices[s.id]??(s.expansion?105:100)};

@@ -1,0 +1,14 @@
+import assert from 'node:assert/strict';
+import * as M from '../dist/model.mjs';
+import {refundRetiredSkills} from '../dist/skill-consolidation.mjs';
+import {updateGlideRegeneration} from '../dist/glide-regeneration.mjs';
+const live=Object.values(M.SKILLS).filter(s=>!s.retired);
+for(const tab of ['main','mystic'])assert.equal(new Set(live.filter(s=>s.treeTab===tab).map(s=>s.treeGroup)).size,8);
+for(const role of ['collector','protector','swift','leveler'])assert.ok(new Set(live.filter(s=>s.branch===role).map(s=>s.treeGroup)).size<=8);
+for(const s of live)if(s.requires)assert.ok(!M.SKILLS[s.requires]?.retired, s.id+' has retired prerequisite');
+const run={skills:{'main-kindling':1},skillPaid:{'main-kindling':125},condensedGlow:10,attemptEntry:{skills:{'main-kindling':1},condensedGlow:10}};
+assert.equal(refundRetiredSkills(run,M.SKILLS),125);assert.equal(refundRetiredSkills(run,M.SKILLS),0);assert.equal(run.condensedGlow,135);assert.equal(run.attemptEntry.condensedGlow,135);
+assert.equal(M.getSkillCost({skills:{},condensedGlow:9999,testMode:true},'main-kindling'),null);
+const e={mod:{glideRegenRank:1},alive:true,time:2,lastFlapTime:0,player:{vy:20},flame:20,maxFlame:100,flameRestored:0};
+updateGlideRegeneration(e,1);assert.ok(Math.abs(e.flame-(20+10/3))<1e-8);e.liftHeld=true;updateGlideRegeneration(e,1);assert.ok(Math.abs(e.flame-(20+10/3))<1e-8);e.liftHeld=false;e.flame=100;updateGlideRegeneration(e,1);assert.equal(e.flame,100);e.flame=0;for(let i=0;i<40;i++)updateGlideRegeneration(e,1);assert.ok(Math.abs(e.glideRegenerated-20)<1e-8);assert.equal(e.condensedGlow,undefined);
+console.log('8 Wisp nodes; 8 Mystic nodes; at most 8 companion nodes; refunds idempotent; regeneration capped and no currency.');

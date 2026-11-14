@@ -1,4 +1,4 @@
-import {artifactPixelPortrait} from './artifact-pixel-art.mjs?v=victory-rhythm-1';
+import {artifactPixelPortrait} from './artifact-pixel-art.mjs?v=three-trees-balance-1';
 const shapes={
  reed:'<path d="M4 22V9m6 13V3m7 19V7M2 5h4v4H2zM8 1h4v4H8zM15 3h4v4h-4zM10 16l6-5"/>',
  moon:'<path d="M16 2H8L2 8v8l6 6h8l6-6h-8l-4-4V6zM18 3v5m-2-2h5"/>',
@@ -68,5 +68,5 @@ export function skillIcon(skill){const id=skill.incrementBase||skill.id;const se
  'collector-attunement':'reach','collector-mastery':'reach',
  'leveler-attunement':'duration','leveler-mastery':'duration',
  'swift-attunement':'recovery','swift-mastery':'recovery'
- };const shape=semantic[id]||skill.icon||(id==='main-spare-spark'||id==='main-deep-reserve'?'heart':id.includes('bond')?'bond':id.includes('speed')||id.includes('tailwind')?'swift':id.includes('horizon')||id.includes('dawn')?'sight':id.includes('drift')?'feather':id.includes('efficiency')||id==='main-lift'?'lift':id.includes('purify')?'purify':id.includes('dive')?'dive':id.includes('layers')?'layers':id.includes('steadiness')?'level':id.includes('duration')?'duration':id.includes('recovery')?'recovery':id.includes('resistance')?'wind':id.includes('reach')?'reach':id.includes('sight')||id.includes('range')?'sight':id.startsWith('protector')?'ward':id==='main-afterglow'||id.startsWith('afterglow')?'condense':'fuel');return svg(shape,inks[skill.branch]||inks.main)}
+ };const shape=skill.treeIcon||semantic[id]||skill.icon||(id==='main-spare-spark'||id==='main-deep-reserve'?'heart':id.includes('bond')?'bond':id.includes('speed')||id.includes('tailwind')?'swift':id.includes('horizon')||id.includes('dawn')?'sight':id.includes('drift')?'feather':id.includes('efficiency')||id==='main-lift'?'lift':id.includes('purify')?'purify':id.includes('dive')?'dive':id.includes('layers')?'layers':id.includes('steadiness')?'level':id.includes('duration')?'duration':id.includes('recovery')?'recovery':id.includes('resistance')?'wind':id.includes('reach')?'reach':id.includes('sight')||id.includes('range')?'sight':id.startsWith('protector')?'ward':id==='main-afterglow'||id.startsWith('afterglow')?'condense':'fuel');return svg(shape,inks[skill.branch]||inks.main)}
 export const artifactIcon=artifactPixelPortrait;

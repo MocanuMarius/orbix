@@ -139,9 +139,9 @@ function simulateFlow(run,inv,style,rng,{captureDelta=0,effortScale=1,artifactSc
   artifactCharges:{...effects.charges},bodyFuelCollected,fuelFailure,collisionFailure,shieldUses,spent,minFuel,coverage:captured/Math.max(1,available),lastTime};
 }
 const priorities={
- survival:['main-efficiency','main-lift','main-low-lift','main-sight','main-glow-sense','main-recovery','main-reservoir','main-drift-sense','main-dream'],
- conversion:['main-efficiency','main-afterglow','afterglow-vessel','afterglow-retention','main-kindling','main-kindled-touch','main-recovery','main-sight','main-dream'],
- hoard:['main-efficiency','main-afterglow','afterglow-anchor','afterglow-vessel','main-kindling','main-kindled-touch','main-sight','main-recovery','main-dream'],
+ survival:['main-efficiency','main-lift','main-glide-regen','main-sight','main-glow-sense','main-glide-regen-2','main-reservoir','main-drift-sense','main-dream'],
+ conversion:['main-efficiency','main-afterglow','afterglow-vessel','afterglow-retention','main-reservoir','main-glow-sense','main-glide-regen-2','main-sight','main-dream'],
+ hoard:['main-efficiency','main-afterglow','afterglow-anchor','afterglow-vessel','main-reservoir','main-glow-sense','main-sight','main-glide-regen-2','main-dream'],
  companion:['main-efficiency'],
 };
 function buy(state,policy,metrics){
@@ -183,7 +183,7 @@ function reward(state,policy,rng,metrics){
  if(!id)return;
  assert.ok(M.chooseFlightReward(state,id));metrics.supportIncome+=r.condensedGlow-before;
 }
-function runCase({seed,tier,role,style,policy,attrition=false,captureDelta=0,effortScale=1,artifactScale=1,startingSkill='main-efficiency'}){
+function runCase({seed,tier,role,style,policy,attrition=false,captureDelta=0,effortScale=1,artifactScale=1,startingSkill='main-efficiency',flightSimulator=null}){
  const state=M.newState();state.profile.difficulty=6;state.run=M.createRun(state.profile,`condensed-${seed}-${tier}`,tier);
  const r=state.run;assert.ok(r.companions[0]===role||M.setCompanions(r,[role]));M.chooseStartingSkill(state,startingSkill);
  const rng=rngFor([seed,tier,style].join(':')); // common seed streams across policies and sensitivities
@@ -195,7 +195,7 @@ function runCase({seed,tier,role,style,policy,attrition=false,captureDelta=0,eff
   if(r.phase==='map-clear'){m.mapBuys[r.mapIndex]=m.buys;m.mapIncome[r.mapIndex]=m.flightIncome+m.supportIncome;m.mapWallet[r.mapIndex]=r.condensedGlow;M.advanceMap(r);continue;}
   if(r.phase==='briefing'){
    const inv=inventory(r.current,tier),before=r.condensedGlow,remainder=r.condensedRemainder;M.beginFlightAttempt(r);
-   const flow=simulateFlow(r,inv,style,rngFor(`${seed}:${tier}:${style}:${r.current.id}:${m.attempts}`),{captureDelta,effortScale,artifactScale,attrition});m.attempts++;m.coverage.push(flow.coverage);m.starvedFlights+=Number(flow.starved);
+   const flow=flightSimulator?flightSimulator(r,style,m.attempts):simulateFlow(r,inv,style,rngFor(`${seed}:${tier}:${style}:${r.current.id}:${m.attempts}`),{captureDelta,effortScale,artifactScale,attrition});m.attempts++;m.coverage.push(flow.coverage);m.starvedFlights+=Number(flow.starved);
    if(args.debug&&seed===0&&tier===1&&role==='collector'&&style==='steady'&&policy==='survival'&&m.attempts<3)console.error(JSON.stringify({debug:true,node:r.current,mod:M.getRunModifiers(r),inv:{seconds:inv.seconds,rawFuel:inv.rawFuel,items:inv.items.length},flow}));
    r.simDreamPrepared=false;
    M.finishFlight(r,flow);const secured=M.settleCheckpoint(state);assert.equal(M.settleCheckpoint(state),0,'settlement is idempotent');
@@ -224,7 +224,7 @@ function runCase({seed,tier,role,style,policy,attrition=false,captureDelta=0,eff
  m.mapBuys[r.mapIndex]=m.buys;m.mapIncome[r.mapIndex]=m.flightIncome+m.supportIncome;m.mapWallet[r.mapIndex]=r.condensedGlow;
  m.success=r.success;m.flights=r.stats.flights;m.currency=r.condensedGlow;m.income=m.flightIncome+m.supportIncome;m.learnedRanks=Object.values(r.skills).reduce((a,b)=>a+b,0);
  m.coverage=mean(m.coverage);m.paidRanksPerFlight=m.buys/Math.max(1,m.flights);m.finalMap=r.mapIndex;m.finalGlow=r.flame;
- m.eligibleTreeRanks=Object.values(M.SKILLS).filter(s=>['main','proximity',role,'afterglow'].includes(s.branch)).reduce((a,s)=>a+s.maxRank,0);
+ m.eligibleTreeRanks=Object.values(M.SKILLS).filter(s=>!s.retired&&['main','proximity',role,'afterglow'].includes(s.branch)).reduce((a,s)=>a+s.maxRank,0);
  m.treeFraction=m.learnedRanks/m.eligibleTreeRanks;
  m.nonConversionRanks=Object.keys(r.skills).filter(id=>M.SKILLS[id].branch!=='afterglow'&&id!=='main-afterglow').reduce((n,id)=>n+rank(r.skills,id),0)-1;
  const endMod=M.getRunModifiers(r);m.endingBuild={flapCost:endMod.liftCostPoints,lightRadius:endMod.lightRadius,maxGlow:getGlowCapacity(r),attract:endMod.attract,condensation:endMod.condensationRules};
@@ -269,4 +269,4 @@ fs.mkdirSync(path.dirname(out),{recursive:true});fs.writeFileSync(out,JSON.strin
 console.log(JSON.stringify({out,sourceUnchanged:report.sourceUnchanged,campaigns:rows.length,sensitivity:sensitivity.length,coverage,steady:groups['style:steady'],learning:groups['style:learning'],practiced:groups['style:practiced']},null,2));
 
 }
-export {simulateFlow,inventory,rngFor,profiles};
+export {simulateFlow,inventory,rngFor,profiles,runCase,aggregate};

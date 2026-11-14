@@ -211,7 +211,7 @@ function diagnoseLayout(e,key){
   }
   points.push(width);
  }
- const fuel=e.layout.embers.filter(p=>!p.generated&&['light','cache'].includes(pickupKind(p))).sort((a,b)=>a.x-b.x);
+ const fuel=e.layout.embers.filter(p=>!p.generated&&!getPickupSpec(p).dim&&getPickupSpec(p).fuel>0).sort((a,b)=>a.x-b.x);
  const gaps=[];let previous=e.player.x;
  for(const p of fuel){gaps.push((p.x-previous)/e.baseSpeed);previous=p.x;}gaps.push((e.totalDistance+e.player.x-previous)/e.baseSpeed);
  const result={sampledCrossSections:points.length,minLargestConservativeFreeBand:round(smallest),emptyBodyCrossSections:empty,
@@ -234,10 +234,10 @@ function buildCase({terrain,difficulty,stage,role,style,seedIndex=0,profile='ref
 }
 function simulate(config){
  let result=null;
- const modifiers=getRunModifiers({skills:config.skills,artifacts:[],companions:config.fleet,companionRole:config.fleet[0]});
+ const modifiers=getRunModifiers(config.run||{skills:config.skills,artifacts:[],companions:config.fleet,companionRole:config.fleet[0]});
  const e=new WispFlight({canvas:canvas(),node:config.node,seed:config.seed,terrain:config.terrain,duration:config.duration,
   elite:config.profile==='gauntlet',companions:config.fleet,companionRole:config.fleet[0],modifiers,
-  flame:config.practice?80:FLAME_TUNING.starting,onFinish:value=>{result=value;}});
+  skills:config.skills,condensedGlow:config.run?.condensedGlow||0,condensedRemainder:config.run?.condensedRemainder||0,flame:config.run?.flame??(config.practice?80:FLAME_TUNING.starting),onFinish:value=>{result=value;}});
  const record={levelId:config.node.levelId,biomeId:config.node.biomeId,terrain:config.terrain,difficulty:config.difficulty,stage:config.stage,role:config.role,fleet:config.fleet,
   style:config.style,profile:config.profile,seed:config.seed,practice:config.practice,duration:config.duration,
   flapCost:e.flapCost,startFuel:e.flame,available:[],direct:0,collector:0,pickupCounts:{},fuelRestored:0,
@@ -257,7 +257,7 @@ function simulate(config){
    if(item.role==='leveler'&&before[i]>0&&item.remaining<=0)record.levelerReleases++;});}return ok;};
  const human=config.style.startsWith('human')?{reaction:Number(config.style.slice(5))/1000,drop:Number(config.style.slice(5))===150?.2:Number(config.style.slice(5))===250?.3:.4,
   jitter:Number(config.style.slice(5))===150?.04:Number(config.style.slice(5))===250?.07:.1}:null;
- const memory={lastLift:-2,random:rngFor(config.seed+':'+config.style),nextDecision:0,pending:null,pendingPower:null,powerGate:0,missedPower:0,human,noticed:new Map()};
+ const memory={lastLift:-2,random:rngFor(config.seed+':'+config.style+':'+(config.controllerSeed||0)),nextDecision:0,pending:null,pendingPower:null,powerGate:0,missedPower:0,human,noticed:new Map()};
  const missedManualFuel=new Set(),passedFuel=new Set();
  e.start();
  if(e.tutorialAwaitingLift){e.flap();memory.lastLift=e.time;}
@@ -288,7 +288,7 @@ function simulate(config){
   endFuel:round(e.flame),minFuel:round(record.minFuel),fuelRestored:round(record.fuelRestored),effortSpent:round(e.effortSpent),flaps:e.flaps,
   collisions:e.collisions,elapsedPhase:e.flightChallenge?.type||null,lowFuelAtDeath:!result?.success&&e.flame<e.flapCost,
   fatalCause:result?.success?null:record.fatalCause||'timeout',maxAvailableFuel:round(record.available.reduce((sum,item)=>sum+item.fuel,0)),
-  result:result?{success:result.success,collected:result.collected,score:result.score,embers:result.embers}:null});
+  regenerated:e.glideRegenerated||0,result:result||null});
  e.destroy();return record;
 }
 function summarize(records){
@@ -302,21 +302,22 @@ function summarize(records){
   meanRestored:round(mean(items.map(x=>x.fuelRestored))),meanEffort:round(mean(items.map(x=>x.effortSpent))),
   clearFuel:round(mean(items.filter(x=>x.success).map(x=>x.endFuel))),meanFlaps:round(mean(items.map(x=>x.flaps)))}]));
 }
+if(!args.importOnly){
 const mode=String(args.mode||'calibrate'),cases=[];
 if(mode==='guardians'){
- for(const bossId of ['hollow-warden','moonweaver','frost-matron','rootbound-heart','storm-shepherd','hollow-sun'])for(const role of roleOptions)for(const style of ['human150','human250']){
-  const config=buildCase({terrain:'ruins',difficulty:1,stage:6,role,style,skills:{'main-efficiency':1,'main-sight':1}});
-  Object.assign(config.node,{boss:true,bossId});config.seed+=':'+bossId;config.node.levelId=bossId;cases.push(config);
+ for(const mapIndex of String(args.maps||'0').split(',').map(Number))for(const difficulty of String(args.tiers||'1').split(',').map(Number))for(const bossId of ['hollow-warden','moonweaver','frost-matron','rootbound-heart','storm-shepherd','hollow-sun'])for(const role of roleOptions)for(const style of String(args.styles||'human150,human250').split(',')){
+  const config=buildCase({terrain:'ruins',difficulty,stage:6,role,style,skills:{'main-efficiency':1,'main-sight':1}});
+  Object.assign(config.node,{boss:true,bossId,mapIndex});config.duration=90+mapIndex*30;config.seed+=':'+bossId+':map'+mapIndex;config.node.levelId=bossId;cases.push(config);
  }
 }else if(mode==='atlas'){
- for(const level of BIOME_LEVELS)for(let seedIndex=0;seedIndex<Number(args.seeds||1);seedIndex++)for(const role of roleOptions)for(const style of ['human150','human250']){
-  const config=buildCase({terrain:level.terrain,difficulty:1,stage:0,role,style,seedIndex,skills:{'main-efficiency':1}});
+ for(const difficulty of String(args.tiers||'1').split(',').map(Number))for(const level of BIOME_LEVELS)for(let seedIndex=0;seedIndex<Number(args.seeds||1);seedIndex++)for(const role of roleOptions)for(const style of String(args.styles||'human150,human250').split(',')){
+  const config=buildCase({terrain:level.terrain,difficulty,stage:0,role,style,seedIndex,skills:{'main-efficiency':1}});
   config.seed+=`:${level.id}`;
   Object.assign(config.node,{levelId:level.id,biomeId:level.biomeId,locationName:level.name});
   cases.push(config);
  }
 }else if(mode==='health'){
- for(let seedIndex=0;seedIndex<Number(args.seeds||3);seedIndex++)for(const terrain of ['ruins','canopy','storm'])for(const difficulty of [1,3,6])for(const stage of [0,3])for(const role of roleOptions)for(const style of ['human150','human250']){
+ for(let seedIndex=0;seedIndex<Number(args.seeds||3);seedIndex++)for(const terrain of ['ruins','canopy','storm'])for(const difficulty of [1,3,6])for(const stage of [0,3])for(const role of roleOptions)for(const style of String(args.styles||'human150,human250').split(',')){
   const config=buildCase({terrain,difficulty,stage,role,style,seedIndex,profile:stage===0?'refuge':'cavern',skills:{'main-efficiency':1}});
   cases.push(config);
  }
@@ -353,3 +354,6 @@ for(const config of selected){const record=simulate(config);records.push(record)
   process.stdout.write(JSON.stringify({completed:records.length,total:selected.length,elapsed:report.elapsedSeconds,summary:report.summary.all})+'\n');
  }
 }
+
+}
+export {simulate,buildCase,summarize,diagnoseLayout,canvas};

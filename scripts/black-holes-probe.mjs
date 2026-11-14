@@ -13,7 +13,7 @@ function make(options = {}, height = 430) {
   const viewport = height === 430 ? { width: 956, height } : { width: 390, height };
   const canvas = { style: {}, getContext: () => context, getBoundingClientRect: () => viewport };
   const engine = new WispFlight({ canvas, seed: 'black-hole-probe', duration: 102,
-    flame: 100, companions: [], ...options });
+    flame: 100, companions: [], ...options,node:{row:3,difficulty:options.difficulty||2,mapIndex:options.mapIndex||0,levelId:options.levelId,boss:options.boss,bossId:options.bossId,tutorialLesson:options.tutorialLesson,...options.node} });
   engine.render = () => {}; engine.viewport = viewport; return engine;
 }
 const close = (actual, expected, message, epsilon = 1e-8) =>
@@ -24,12 +24,12 @@ const economy = e => [e.condensedTotal, e.condensedRemainder, e.score, e.baseEmb
 
 // Independently verify the authored escape lane using the production collider,
 // at denser intervals than placement, and at both sway extremes and its middle.
-let maps = 0, rooms = 0, approaches = 0, zeroDrainLanes = 0, geometryChecks = 0;
+let omitted = 0, maps = 0, rooms = 0, approaches = 0, zeroDrainLanes = 0, geometryChecks = 0;
 for (const level of BIOME_LEVELS) for (const height of [430, 620]) for (const variant of [0, 1]) {
   const e = make({ levelId: level.id, terrain: level.terrain, seed: `black-hole-${variant}`,
     lengthScale: 3, difficulty: variant ? 5 : 1, elite: !!variant, mapIndex: variant ? 8 : 0 }, height);
   const items = e.blackHoles.items;
-  assert.equal(items.length, 1, `${level.id}/${height}/${variant}: one Black Hole`);
+  assert.ok(items.length<=1);if(!items.length){assert.deepEqual(createBlackHoles(e),[],'No validated quiet placement: omit rather than force a hazard');omitted++;e.destroy();continue;}
   const hole = items[0], lane = hole.bypass;
   if (hole.placement === 'room') rooms++; else approaches++;
   assert.ok(Math.abs(lane.y - hole.y) >= T.minimumBypass, 'Body-wide escape outside the stronger drain band');
@@ -88,14 +88,14 @@ fallback.layout.obstacles = [{ x: 0, width: 100000, center: 0, gap: 0, phase: 0,
 assert.equal(createBlackHoles(fallback).length, 0, 'Fully blocked synthetic map never forces an unsafe fallback');
 fallback.destroy();
 
-assert.equal(blackHoleDrainRate(0), 80, 'Near-field cap');
-assert.equal(blackHoleDrainRate(10), 80, 'Core contact is finite');
+assert.equal(blackHoleDrainRate(0), 160, 'Near-field cap');
+assert.equal(blackHoleDrainRate(10), 160, 'Core contact is finite');
 assert.equal(blackHoleDrainRate(220), 0); assert.equal(blackHoleDrainRate(1000), 0);
-assert.ok(blackHoleDrainRate(219.99) < .0002, 'Smoothly reaches zero at influence edge');
+assert.ok(blackHoleDrainRate(219.99) < .0004, 'Smoothly reaches zero at influence edge');
 for (let distance = 1; distance < 220; distance++)
   assert.ok(blackHoleDrainRate(distance) <= blackHoleDrainRate(distance - 1), 'Monotonic falloff');
-assert.ok(blackHoleDrainRate(40) * .3 > 9 && blackHoleDrainRate(40) * .3 < 11);
-assert.ok(blackHoleDrainRate(100) * .3 > 1 && blackHoleDrainRate(100) * .3 < 2);
+assert.ok(blackHoleDrainRate(40) * .3 > 18 && blackHoleDrainRate(40) * .3 < 22);
+assert.ok(blackHoleDrainRate(100) * .3 > 2 && blackHoleDrainRate(100) * .3 < 4);
 
 function controlled(options = {}) {
   const e = make(options, 620); e.layout.obstacles = []; e.layout.embers = [];
@@ -160,20 +160,20 @@ function crossing(step, verticalOffset) {
 }
 const passes = [0, 40, 100, 135, 220].map(offset => {
   const values = [1 / 30, 1 / 60, 1 / 120].map(step => crossing(step, offset));
-  assert.ok(Math.max(...values) - Math.min(...values) < .08, 'Time integration is stable across sample rates');
+  assert.ok(Math.max(...values) - Math.min(...values) < .16, 'Time integration is stable across sample rates');
   return { offset, internalGlow: Number(values[1].toFixed(3)), displayedGlow: Number((values[1] * .3).toFixed(3)) };
 });
 assert.equal(passes.at(-1).internalGlow, 0, 'Outside influence pass has no loss');
 assert.ok(passes[0].internalGlow > passes[1].internalGlow * 1.6, 'Near pass is substantially more dangerous');
 
 let ready;
-const record = controlled({ modifiers: { dreamDuration: 4 } });
+const record = controlled({ modifiers: { dreamDuration: 6 } });
 attachDream(record, { onReady: value => { ready = value; } });
-for (let i = 0; i < 240; i++) atHole(record, 100);
+for (let i = 0; i < 360; i++) atHole(record, 100);
 assert.ok(ready?.valid); assert.ok(record.flame < 100, 'Dream free Lift is not hazard immunity');
-const replay = controlled({ modifiers: { dreamDuration: 4 } });
+const replay = controlled({ modifiers: { dreamDuration: 6 } });
 attachDream(replay, { mode: 'replay', preset: ready.preset });
-for (let i = 0; i < 240; i++) atHole(replay, 100);
+for (let i = 0; i < 360; i++) atHole(replay, 100);
 assert.equal(replay.dream.phase, 'awakening');
 assert.deepEqual(replay.blackHoles.state, record.blackHoles.state, 'Dream replay reproduces actual drain');
 assert.deepEqual(replay.blackHoles.items, record.blackHoles.items); assert.equal(replay.flame, record.flame);
@@ -183,7 +183,7 @@ for (let i = 0; i < 2000; i++) distant.blackHoles.items.push({ x: 50000 + i * 50
   get y() { throw new Error('A distant Black Hole was sampled'); } });
 atHole(distant); assert.ok(distant.blackHoles.rate > 0, 'Nearby culling does not read distant actors');
 for (const engine of [e, complete, shield, record, replay, distant]) engine.destroy();
-console.log(JSON.stringify({ maps: BIOME_LEVELS.length, placementVariants: maps, rooms, approaches, zeroDrainLanes,
+console.log(JSON.stringify({ maps: BIOME_LEVELS.length, placementVariants: maps, omitted, rooms, approaches, zeroDrainLanes,
   bosses, geometryChecks, coreRadius: T.coreRadius, influence: T.influence, maximumRate: T.maximumRate,
   passes, currencyAndArtifactsUntouched: true, noContactDeathOrForce: true,
   pauseAndDreamDeterministic: true, resizeSafe: true, distantActorsCulled: true }));

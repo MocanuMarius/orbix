@@ -1,10 +1,10 @@
-import { obstacleEdgeClearance } from './edging-pulse.mjs?v=victory-rhythm-1';
+import { obstacleEdgeClearance } from './edging-pulse.mjs?v=three-trees-balance-1';
 
 // Rates are internal flight Sparks. The HUD displays 0.3 of these units: a
-// 40-unit pass costs about 10 Sparks/s, a 100-unit pass about 1.6 Sparks/s.
+// Drain is twice the prior curve; the checked bypass limits unavoidable loss.
 // Softening and the cap make direct core contact finite, never a collision.
 export const BLACK_HOLE_TUNING = Object.freeze({ coreRadius: 16, influence: 220,
-  softening: 22, coefficient: 72000, maximumRate: 80, minimumBypass: 135,
+  softening: 22, coefficient: 144000, maximumRate: 160, minimumBypass: 135,
   corridorHalfWidth: 270, laneRadius: 18, sampleSpacing: 24,
   minimumStart: 1150, exitClearance: 650, referenceHeight: 430 });
 const clamp = (n, lo, hi) => Math.max(lo, Math.min(hi, n));
@@ -112,6 +112,12 @@ export function createBlackHoles(engine) {
 export class BlackHoles {
   constructor(engine) {
     this.engine = engine; this.items = createBlackHoles(engine); this.cursor = 0;
+    // Fuel near the lethal core is optional no longer: place existing ordinary
+    // Sparks on the checked bypass instead, without minting extra rewards.
+    for(const hole of this.items)for(const p of engine.layout.embers||[]){
+      if(p.generated||p.harmful||p.riskChain||!['light','cluster','cache'].includes(p.kind))continue;
+      if(Math.hypot(p.x-hole.x,p.y-hole.y)<120&&p.x>=hole.bypass.startX&&p.x<=hole.bypass.endX){p.y=hole.bypass.y;p.accessible=true;p.blackHoleBypass=true;}
+    }
     this.active = false; this.rate = 0; this.potentialRate = 0; this.drained = 0; this.nearest = null;
     this._activeItems = [];
   }
