@@ -1,7 +1,7 @@
-import {resourceSymbol} from './game-symbols.mjs?v=packing-parcel-1';
-import {getArtifactInfo,CONSUMABLE_ARTIFACTS} from './artifact-info.mjs?v=packing-parcel-1';
-import {getCompanionAbility,normalizeCompanionRole} from './companion-abilities.mjs?v=packing-parcel-1';
-import {formatGlow,glowText,getGlowCapacity} from './vitality.mjs?v=packing-parcel-1';
+import {resourceSymbol} from './game-symbols.mjs?v=moonwell-menu-1';
+import {getArtifactInfo,CONSUMABLE_ARTIFACTS} from './artifact-info.mjs?v=moonwell-menu-1';
+import {getCompanionAbility,normalizeCompanionRole} from './companion-abilities.mjs?v=moonwell-menu-1';
+import {formatGlow,glowText,getGlowCapacity} from './vitality.mjs?v=moonwell-menu-1';
 
 const esc=value=>String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const action={collector:'Collector delivers a Spark',protector:'Protector deflects a collision',swift:'Runner starts a burst',leveler:'Space Timer starts levitating'};

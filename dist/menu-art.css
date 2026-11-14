@@ -101,3 +101,78 @@ body[data-screen=home] .menu-art-home .front-actions :is(.front-continue,.front-
     padding-inline: max(24px, env(safe-area-inset-left)) max(76px, env(safe-area-inset-right)) !important;
   }
 }
+
+/* Hit targets keep their rectangular layout; the visible artwork has its own silhouette. */
+body[data-screen=home] #app .menu-art-home .front-actions :is(.front-continue,.front-new-button,.front-tutorial) {
+  --action-art: url('assets/way-seed.svg');
+  --action-art-size: clamp(28px, 8vh, 42px);
+  display: grid;
+  grid-template-columns: var(--action-art-size) minmax(0,1fr) 20px;
+  gap: clamp(6px, 1.1vw, 13px);
+  padding-inline: clamp(15px, 2.8vw, 32px) !important;
+  background: url('assets/woodland-sign.webp') center / 100% 100% no-repeat !important;
+  border: 0 !important;
+  border-image: none !important;
+  box-shadow: none !important;
+  clip-path: none !important;
+  isolation: isolate;
+  text-shadow: 1px 2px #09160f;
+}
+body[data-screen=home] #app .menu-art-home .front-actions .front-continue { --action-art: url('assets/way-lantern.svg'); }
+body[data-screen=home] #app .menu-art-home .front-actions .front-tutorial { --action-art: url('assets/way-book.svg'); }
+body[data-screen=home] #app .menu-art-home .front-actions :is(.front-continue,.front-new-button,.front-tutorial)::before {
+  display: block !important;
+  content: '';
+  position: static;
+  width: var(--action-art-size);
+  height: var(--action-art-size);
+  margin: 0;
+  background: var(--action-art) center / contain no-repeat !important;
+  border: 0;
+  box-shadow: none;
+  clip-path: none;
+  image-rendering: pixelated;
+  transform: none;
+}
+body[data-screen=home] #app .menu-art-home .front-actions .primary {
+  filter: brightness(1.19);
+  color: #fff3c4 !important;
+}
+body[data-screen=home] #app .menu-art-home .front-actions button:is(:hover,:focus-visible):not(:disabled) { filter: brightness(1.32); }
+body[data-screen=home] #app .menu-art-home .front-ascension-picker,
+body[data-screen=home] #app .menu-art-home>.starter-roster {
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+}
+body[data-screen=home] #app .menu-art-home .front-ascension-picker>button {
+  background: url('assets/way-plinth.svg') center 78% / 30px 10px no-repeat !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  color: #eee2bc;
+}
+body[data-screen=home] #app .menu-art-home .front-ascension-picker>button:disabled { opacity: .6; }
+body[data-screen=home] #app .menu-art-home .test-starter-options .test-starter-option {
+  border: 0 !important;
+  border-image: none !important;
+  background: url('assets/way-plinth.svg') center calc(50% + 2px) / 53px 15px no-repeat !important;
+  box-shadow: none !important;
+  gap: 6px;
+  text-shadow: 1px 2px #040c08;
+}
+body[data-screen=home] #app .menu-art-home .test-starter-option.selected::before {
+  content: '';
+  position: absolute;
+  inset: auto auto 0 50%;
+  width: 19px;
+  height: 3px;
+  background: #e9d09a;
+  clip-path: polygon(0 33%,30% 33%,30% 0,70% 0,70% 33%,100% 33%,100% 67%,70% 67%,70% 100%,30% 100%,30% 67%,0 67%);
+  transform: translateX(-50%);
+}
+body[data-screen=home] #app .menu-art-home .test-starter-option.selected>svg { filter: drop-shadow(0 0 4px #bddea077); }
+body[data-screen=home] #app .menu-art-home .test-starter-options .test-starter-option:focus-visible,
+body[data-screen=home] #app .menu-art-home .front-actions button:focus-visible {
+  outline: 2px dashed #f5de9c !important;
+  outline-offset: -1px;
+}

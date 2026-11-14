@@ -1,4 +1,4 @@
-import {SKILLS,MAIN_WISP_BRANCHES,getSkillLockReason,getSkillPrice,canChooseStartingSkill} from './model.mjs?v=packing-parcel-1';
+import {SKILLS,MAIN_WISP_BRANCHES,getSkillLockReason,getSkillPrice,canChooseStartingSkill} from './model.mjs?v=moonwell-menu-1';
 
 const parents=skill=>Array.isArray(skill?.requires)?skill.requires:skill?.requires?[skill.requires]:[];
 const learned=(wallet,id)=>Number(wallet?.skills?.[id]||0);

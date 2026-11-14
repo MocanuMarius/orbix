@@ -1,4 +1,4 @@
-import {getGlowCapacity,GLOW_DISPLAY_SCALE} from './vitality.mjs?v=packing-parcel-1';
+import {getGlowCapacity,GLOW_DISPLAY_SCALE} from './vitality.mjs?v=moonwell-menu-1';
 const clamp=v=>Math.max(0,Math.min(1,v));
 // A cell represents one paid Lift, even during a temporary free-Lift effect.
 export function glowGaugeUnits(flame,maximum=100,liftCost=10){
