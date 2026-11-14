@@ -1,7 +1,7 @@
-import {drawAbsorbingSpark} from './tidal-light.mjs?v=long-flash-1';
-import {getPickupSpec, pickupShellRadius} from './pickups.mjs?v=long-flash-1';
-import {drawPickup} from './pickup-art.mjs?v=long-flash-1';
-import {drawShellArcs} from './shell-arcs.mjs?v=long-flash-1';
+import {drawAbsorbingSpark} from './tidal-light.mjs?v=spark-floor-1';
+import {getPickupSpec, pickupShellRadius} from './pickups.mjs?v=spark-floor-1';
+import {drawPickup} from './pickup-art.mjs?v=spark-floor-1';
+import {drawShellArcs} from './shell-arcs.mjs?v=spark-floor-1';
 
 const TAU = Math.PI * 2;
 const clamp = value => Math.max(0, Math.min(1, value));

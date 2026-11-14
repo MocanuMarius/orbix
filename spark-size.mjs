@@ -22,7 +22,8 @@ function previousRadius(p){
  return k==='dark'?14.08:k==='dusk'?16:k==='sight'?20.8:12.8;
 }
 export function sparkBodyRadius(p,height=p?.sparkWorldHeight||430){
- const mass=sparkMass(p);
+ // Terrain-born motes share the Small shell while keeping their own fuel rules.
+ const mass=p?.generated && p.kind!=='sight'?1:sparkMass(p);
  if(!mass)return previousRadius(p);
  // The smallest case has an absolute readable minimum. Larger shells follow
  // the course height, with a lower bound so neighboring tiers remain distinct.

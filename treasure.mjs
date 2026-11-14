@@ -1,5 +1,5 @@
-import {glowPoints, getGlowCapacity,getLifeCapacity} from './vitality.mjs?v=long-flash-1';
-import {getCompanionAbility} from './companion-abilities.mjs?v=long-flash-1';
+import {glowPoints, getGlowCapacity,getLifeCapacity} from './vitality.mjs?v=spark-floor-1';
+import {getCompanionAbility} from './companion-abilities.mjs?v=spark-floor-1';
 
 export const TREASURE_KINDS = Object.freeze(['vessel', 'lens', 'tithe', 'wager']);
 export const LENS_SIGHT = 1.15;

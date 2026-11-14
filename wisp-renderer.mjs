@@ -1,39 +1,40 @@
-import {drawAtlasFlight} from './atlas-flight.mjs?v=long-flash-1';
-import {drawGuardianPresence} from './guardian-presence.mjs?v=long-flash-1';
-import {createDepthScenery,drawDepthScenery} from './depth-scenery.mjs?v=long-flash-1';
-import { drawGuardianWarnings } from './guardian-art.mjs?v=long-flash-1';
-import { drawShutters } from './shutter-cone.mjs?v=long-flash-1';
-import {drawProximityMeter} from './proximity-meter.mjs?v=long-flash-1';
-import {drawFourthBeat} from './fourth-beat-art.mjs?v=long-flash-1';
-import {drawCollectorGuard} from './collector-guard-art.mjs?v=long-flash-1';
-import {drawObjectiveMarks} from './flight-objectives.mjs?v=long-flash-1';
-import {drawFlightProjection} from './flight-projection.mjs?v=long-flash-1';
-import {drawGlowSense} from './glow-sense.mjs?v=long-flash-1';
-import {formatGlow} from './vitality.mjs?v=long-flash-1';
-import {LOCATION_PALETTES} from './world-expansion.mjs?v=long-flash-1';
-import {biomePalette} from './biome-art.mjs?v=long-flash-1';
-import { sceneryIdentity, drawIdentityBackground, drawIdentityMaterial, drawIdentityLife } from './level-scenery.mjs?v=long-flash-1';
-import { getCompanionAbility, normalizeCompanionRole } from './companion-abilities.mjs?v=long-flash-1';
-import { companionSprite, companionPalette, makeWispSprite } from './companion-art.mjs?v=long-flash-1';
-import { createScenePropArt } from './scene-prop-art.mjs?v=long-flash-1';
-import { drawBoss } from './boss.mjs?v=long-flash-1';
-import {drawFlashTether} from './flash-tether.mjs?v=long-flash-1';
-import { drawPickup, drawSparkSymbol } from './pickup-art.mjs?v=long-flash-1';
-import {sparkBodyRadius,sparkArtScale,sparkMass} from './spark-size.mjs?v=long-flash-1';
-import { pickupKind, getPickupSpec } from './pickups.mjs?v=long-flash-1';
-import { LIGHT_EXTENT,lightAttenuation,lightVisibility,createLightMaskCanvas,castFlightFlashLights,sceneRevealStrength } from './light-field.mjs?v=long-flash-1';
-import {drawExitLandmark} from './exit-landmark.mjs?v=long-flash-1';
-import {drawBlackHoles} from './black-hole-art.mjs?v=long-flash-1';
-import {drawCapture, drawShellPuff} from './capture-art.mjs?v=long-flash-1';
-import {drawShellArcs} from './shell-arcs.mjs?v=long-flash-1';
-import {drawFlightForks,drawFlightForkBackdrops} from './flight-forks.mjs?v=long-flash-1';
-import {drawFallWarning} from './fall-chain-art.mjs?v=long-flash-1';
+import {drawAtlasFlight} from './atlas-flight.mjs?v=spark-floor-1';
+import {drawGuardianPresence} from './guardian-presence.mjs?v=spark-floor-1';
+import {createDepthScenery,drawDepthScenery} from './depth-scenery.mjs?v=spark-floor-1';
+import { drawGuardianWarnings } from './guardian-art.mjs?v=spark-floor-1';
+import { drawShutters } from './shutter-cone.mjs?v=spark-floor-1';
+import {drawProximityMeter} from './proximity-meter.mjs?v=spark-floor-1';
+import {drawFourthBeat} from './fourth-beat-art.mjs?v=spark-floor-1';
+import {drawCollectorGuard} from './collector-guard-art.mjs?v=spark-floor-1';
+import {drawObjectiveMarks} from './flight-objectives.mjs?v=spark-floor-1';
+import {drawFlightProjection} from './flight-projection.mjs?v=spark-floor-1';
+import {drawGlowSense} from './glow-sense.mjs?v=spark-floor-1';
+import {formatGlow} from './vitality.mjs?v=spark-floor-1';
+import {LOCATION_PALETTES} from './world-expansion.mjs?v=spark-floor-1';
+import {biomePalette} from './biome-art.mjs?v=spark-floor-1';
+import { sceneryIdentity, drawIdentityBackground, drawIdentityMaterial, drawIdentityLife } from './level-scenery.mjs?v=spark-floor-1';
+import { getCompanionAbility, normalizeCompanionRole } from './companion-abilities.mjs?v=spark-floor-1';
+import { companionSprite, companionPalette, makeWispSprite } from './companion-art.mjs?v=spark-floor-1';
+import { createScenePropArt } from './scene-prop-art.mjs?v=spark-floor-1';
+import { drawBoss } from './boss.mjs?v=spark-floor-1';
+import {drawFlashTether} from './flash-tether.mjs?v=spark-floor-1';
+import { drawPickup, drawSparkSymbol } from './pickup-art.mjs?v=spark-floor-1';
+import {sparkBodyRadius,sparkArtScale,sparkMass} from './spark-size.mjs?v=spark-floor-1';
+import { pickupKind, getPickupSpec } from './pickups.mjs?v=spark-floor-1';
+import { LIGHT_EXTENT,lightAttenuation,lightVisibility,createLightMaskCanvas,castFlightFlashLights,sceneRevealStrength } from './light-field.mjs?v=spark-floor-1';
+import {drawExitLandmark} from './exit-landmark.mjs?v=spark-floor-1';
+import {drawBlackHoles} from './black-hole-art.mjs?v=spark-floor-1';
+import {drawCapture, drawShellPuff} from './capture-art.mjs?v=spark-floor-1';
+import {drawShellArcs} from './shell-arcs.mjs?v=spark-floor-1';
+import {drawFlightForks,drawFlightForkBackdrops} from './flight-forks.mjs?v=spark-floor-1';
+import {drawFallWarning} from './fall-chain-art.mjs?v=spark-floor-1';
 
 const TAU = Math.PI * 2;
 const SCENERY_HELPERS = { line: pixelLine, disc: pixelDisc, polygon: path };
 const BACKGROUND_HELPERS = { line: pixelLine, disc() {}, polygon: path };
 const SIDES = [true, false];
 const WIDTH = 240;
+const WORLD_RASTER_SCALE = WIDTH / 390;
 const ART_SCALE = WIDTH / 195;
 const clamp = (n, lo, hi) => Math.max(lo, Math.min(hi, n));
 const hash = (x, y = 0, seed = 0) => {
@@ -206,10 +207,13 @@ export class WispFlightView {
     // Retain the established world-to-pixel density on wider scenes, rather
     // than squeezing landscape into a 240px strip. Bound raster cost on very
     // wide desktop views; all terrain, light and sprite culling uses this width.
-    const pixelWidth = Math.min(720,Math.max(WIDTH,Math.round((e.width||390)*WIDTH/390)));
+    const pixelWidth = Math.min(720,Math.max(WIDTH,Math.round((e.width||390)*WORLD_RASTER_SCALE)));
     this.buffer.width = pixelWidth;
     this.buffer.height = Math.max(1, Math.round((e.height || 620) / (e.width || 390) * pixelWidth));
     this.scale = pixelWidth / (e.width || 390);
+    // On very wide displays the backing buffer reaches its 720px cap.
+    // Keep the body, its shield and discharge roots in proportion to the world.
+    this.wispRasterScale = pixelWidth === 720 ? Math.min(1,this.scale/WORLD_RASTER_SCALE) : 1;
     this.canvas.dataset.pixelWidth=String(pixelWidth);
     this.lifeOptions.width=pixelWidth;this.bossOptions.width=pixelWidth;
     this.fog.width = this.buffer.width; this.fog.height = this.buffer.height;
@@ -584,7 +588,7 @@ export class WispFlightView {
       const margin = (sparkBodyRadius(ember,e.height)*1.5 + 8)*s;
       if (x < -margin || x > this.buffer.width + margin) continue;
       this.drawPacket(x, y, { kind: pickupKind(ember), time: e.captureTime ?? t, phase: ember.phase, reducedMotion: e.reducedMotion,
-        tiny: ember.generated === true, scale: s*sparkArtScale(ember,e.height), detailed:sparkMass(ember)>=5 });
+        scale: s*sparkArtScale(ember,e.height), detailed:sparkMass(ember)>=5 });
     }
   }
 
@@ -603,7 +607,7 @@ export class WispFlightView {
         const age=(e.captureTime ?? timeOf(e))-p.bornAt;
         c.globalAlpha=1;
         drawShellPuff(c,(p.worldX-distanceOf(e))*s,p.y*s,p.radius*s,age,p.kind,p.phase,e.reducedMotion);
-        drawShellArcs(c,e.player.x*s,yOf(e)*s,s,age,p.kind,p.phase,e.reducedMotion);
+        drawShellArcs(c,e.player.x*s,yOf(e)*s,s,age,p.kind,p.phase,e.reducedMotion,11*(this.wispRasterScale??1));
         continue;
       }
       c.globalAlpha = clamp(p.life / p.maxLife, 0, 1) * .7;
@@ -719,7 +723,8 @@ export class WispFlightView {
 
   drawMain(e, t, x, y) {
     const c = this.bufferContext, fuel = clamp((e.flame ?? 100) / (e.maxFlame||100), 0, 1);
-    c.save();c.translate(x,y);c.scale(.85,.85);c.translate(-x,-y);
+    const bodyScale=.85*(this.wispRasterScale??1);
+    c.save();c.translate(x,y);c.scale(bodyScale,bodyScale);c.translate(-x,-y);
     const dying = e.dying === true || (e.dyingProgress > 0 && fuel <= 0);
     const progress = dying ? clamp(e.dyingProgress || 0, 0, 1) : 0;
     if(dying && e.deathCause==='collision') {
@@ -775,12 +780,14 @@ export class WispFlightView {
 
   drawProtector(e, t, x, y) {
     const shield = e.getShieldState?.() || e.shield;
-    if(shield?.lightAegis){const c=this.bufferContext;c.save();c.strokeStyle='#e6f8ff';c.lineWidth=1.5;c.globalAlpha=.75+.2*Math.sin(t*5);c.beginPath();c.arc(x,y,21,0,TAU);c.stroke();c.restore();}
-    if (!shield || !Number.isFinite(shield.layers) || shield.layers < 1) return;
-    const c = this.bufferContext, layers = Math.min(3, shield.layers), charges = Math.max(0, shield.charges || 0);
+    if (!shield?.lightAegis && !(shield?.layers>=1)) return;
+    const c = this.bufferContext, layers = Math.min(3, shield.layers||0), charges = Math.max(0, shield.charges || 0);
     const hit = clamp(shield.hitFlash || 0, 0, 1), total = Math.max(.1, shield.recoveryTotal || 1);
     const recovery = clamp(1 - (shield.recovery || 0) / total, 0, 1);
     c.save();
+    const scale=this.wispRasterScale??1;
+    c.translate(x,y);c.scale(scale,scale);c.translate(-x,-y);
+    if(shield.lightAegis){c.strokeStyle='#e6f8ff';c.lineWidth=1.5;c.globalAlpha=.75+.2*Math.sin(t*5);c.beginPath();c.arc(x,y,21,0,TAU);c.stroke();}
     for (let i = 0; i < layers; i++) {
       const radius = 16.5 + i * 2, charged = i < charges, rebuilding = i === charges;
       c.lineWidth = charged ? 1.5 : 1;
@@ -913,7 +920,7 @@ export class WispFlightView {
 
   drawAbsorptions(e, t) {
     for (const effect of e.absorptionEffects || []) {
-      drawCapture(this.bufferContext,effect,e.captureTime ?? t,e.player.x,yOf(e),distanceOf(e),this.scale,e.reducedMotion);
+      drawCapture(this.bufferContext,effect,e.captureTime ?? t,e.player.x,yOf(e),distanceOf(e),this.scale,e.reducedMotion,11*(this.wispRasterScale??1));
     }
   }
 
@@ -1056,7 +1063,7 @@ export class WispFlightView {
     this.drawFleet(e, t, fleet,'front');
     this.drawProtector(e, t, playerX, playerY);
     this.drawAbsorptions(e, t);
-    drawFourthBeat(c,e,playerX,playerY);
+    drawFourthBeat(c,e,playerX,playerY,this.wispRasterScale);
     if(e.flashTether)drawFlashTether(c,e.flashTether,{time:e.captureTime ?? t,distance,scale:s,
       playerX:distance+e.player.x,playerY:yOf(e)});
     drawBlackHoles(c,e,{scale:s,distance,playerY:yOf(e)});

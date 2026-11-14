@@ -1,15 +1,15 @@
-import {getBiome} from './biomes.mjs?v=long-flash-1';
-import {getBossPreview} from './boss.mjs?v=long-flash-1';
-import {levelMapPreview} from './level-map-art.mjs?v=long-flash-1';
-import {mapStopIconMarkup} from './map-guide.mjs?v=long-flash-1';
-import {resourceSymbol} from './game-symbols.mjs?v=long-flash-1';
-import {getFlightClearReward} from './checkpoint-rewards.mjs?v=long-flash-1';
-import {availableFlightArtifacts} from './model.mjs?v=long-flash-1';
-import {bonusIcon,boonMarkup} from './route-bonus-ui.mjs?v=long-flash-1';
-import {contextualFlightNotice} from './contextual-events.mjs?v=long-flash-1';
-import {ATLAS_FORECASTS,atlasGlyph} from './night-atlas.mjs?v=long-flash-1';
-import {canDreamAt,dreamConfig,dreamEye} from './dream.mjs?v=long-flash-1';
-import {sparkHabitat} from './spark-fields.mjs?v=long-flash-1';
+import {getBiome} from './biomes.mjs?v=spark-floor-1';
+import {getBossPreview} from './boss.mjs?v=spark-floor-1';
+import {levelMapPreview} from './level-map-art.mjs?v=spark-floor-1';
+import {mapStopIconMarkup} from './map-guide.mjs?v=spark-floor-1';
+import {resourceSymbol} from './game-symbols.mjs?v=spark-floor-1';
+import {getFlightClearReward} from './checkpoint-rewards.mjs?v=spark-floor-1';
+import {availableFlightArtifacts} from './model.mjs?v=spark-floor-1';
+import {bonusIcon,boonMarkup} from './route-bonus-ui.mjs?v=spark-floor-1';
+import {contextualFlightNotice} from './contextual-events.mjs?v=spark-floor-1';
+import {ATLAS_FORECASTS,atlasGlyph} from './night-atlas.mjs?v=spark-floor-1';
+import {canDreamAt,dreamConfig,dreamEye} from './dream.mjs?v=spark-floor-1';
+import {sparkHabitat} from './spark-fields.mjs?v=spark-floor-1';
 
 const escapeText = value => String(value ?? '').replace(/[&<>"']/g, char =>
  ({'&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;'}[char]));
