@@ -1,17 +1,19 @@
-import {getBiome} from './biomes.mjs?v=guardian-beat-2';
-import {getBossPreview} from './boss.mjs?v=guardian-beat-2';
-import {levelMapPreview} from './level-map-art.mjs?v=guardian-beat-2';
-import {mapStopIconMarkup} from './map-guide.mjs?v=guardian-beat-2';
-import {resourceSymbol} from './game-symbols.mjs?v=guardian-beat-2';
-import {getFlightClearReward} from './checkpoint-rewards.mjs?v=guardian-beat-2';
-import {availableFlightArtifacts} from './model.mjs?v=guardian-beat-2';
-import {bonusIcon,boonMarkup} from './route-bonus-ui.mjs?v=guardian-beat-2';
-import {contextualFlightNotice} from './contextual-events.mjs?v=guardian-beat-2';
-import {ATLAS_FORECASTS,atlasGlyph} from './night-atlas.mjs?v=guardian-beat-2';
-import {canDreamAt,dreamConfig,dreamEye} from './dream.mjs?v=guardian-beat-2';
+import {getBiome} from './biomes.mjs?v=long-flash-1';
+import {getBossPreview} from './boss.mjs?v=long-flash-1';
+import {levelMapPreview} from './level-map-art.mjs?v=long-flash-1';
+import {mapStopIconMarkup} from './map-guide.mjs?v=long-flash-1';
+import {resourceSymbol} from './game-symbols.mjs?v=long-flash-1';
+import {getFlightClearReward} from './checkpoint-rewards.mjs?v=long-flash-1';
+import {availableFlightArtifacts} from './model.mjs?v=long-flash-1';
+import {bonusIcon,boonMarkup} from './route-bonus-ui.mjs?v=long-flash-1';
+import {contextualFlightNotice} from './contextual-events.mjs?v=long-flash-1';
+import {ATLAS_FORECASTS,atlasGlyph} from './night-atlas.mjs?v=long-flash-1';
+import {canDreamAt,dreamConfig,dreamEye} from './dream.mjs?v=long-flash-1';
+import {sparkHabitat} from './spark-fields.mjs?v=long-flash-1';
 
 const escapeText = value => String(value ?? '').replace(/[&<>"']/g, char =>
  ({'&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;'}[char]));
+const sparkForecast={filament:'More small Sparks',cluster:'More Clusters',vault:'More Caches',mineral:'Better odds of large Sparks'};
 
 function regularReward(run,node){
  const final=node.boss && (node.mapIndex??run.mapIndex)===2 && !run.isTutorial;
@@ -40,6 +42,7 @@ export function flightPreviewMarkup(run,node,{available=false,level,bonus=null}=
  const kind=node.boss?'Guardian':node.elite?'Elite flight':'Flight';
  const art=node.boss?mapStopIconMarkup(node):levelMapPreview(level||node);
  const metadata=[place,Number(node.duration)>0?`${Math.round(node.duration)} s`:''].filter(Boolean).map(escapeText).join(' · ');
+ const deposits=sparkForecast[sparkHabitat(biome?.id)];
  const duration=available&&canDreamAt(run,node)?dreamConfig(run).duration:0;
  const saved=run.dreamPreset?.nodeId===node.id;
  const action=available?`<button class="primary" data-action="node" data-id="${escapeText(node.id)}">${saved&&duration?'Fly with Dream':'Fly'} →</button>`
@@ -50,7 +53,7 @@ export function flightPreviewMarkup(run,node,{available=false,level,bonus=null}=
   <div class="preview-reading">
    <header class="preview-place">
     <div class="preview-landmark">${art}</div>
-    <div class="preview-location"><span class="preview-kind">${available?kind:'Future · '+kind}</span><h2 id="preview-place">${escapeText(node.name)}</h2><p class="preview-meta">${metadata}</p></div>
+    <div class="preview-location"><span class="preview-kind">${available?kind:'Future · '+kind}</span><h2 id="preview-place">${escapeText(node.name)}</h2><p class="preview-meta">${metadata}</p>${deposits?`<p class="preview-deposits">${resourceSymbol('energy')} ${deposits}</p>`:''}</div>
     ${cue?`<p class="preview-hazard">${forecast?`<span class="preview-weather">${atlasGlyph(forecast.id)} ${escapeText(forecast.name)}</span>`:''}${escapeText(cue)}</p>`:''}
    </header>
    <div class="preview-rewards${bonus?' has-objective':''}">

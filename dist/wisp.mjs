@@ -1,7 +1,7 @@
-import { LIGHT_PACKET_TUNING } from './vitality.mjs?v=guardian-beat-2';
-import { getCompanionAbility } from './companion-abilities.mjs?v=guardian-beat-2';
-import { pickupKind, pickupContactRadius, canCompanionCollect } from './pickups.mjs?v=guardian-beat-2';
-import {sparkArtScale,sparkMass} from './spark-size.mjs?v=guardian-beat-2';
+import { LIGHT_PACKET_TUNING } from './vitality.mjs?v=long-flash-1';
+import { getCompanionAbility } from './companion-abilities.mjs?v=long-flash-1';
+import { pickupKind, pickupContactRadius, canCompanionCollect } from './pickups.mjs?v=long-flash-1';
+import {sparkArtScale,sparkMass} from './spark-size.mjs?v=long-flash-1';
 
 const clamp = (value, lo, hi) => Math.min(hi, Math.max(lo, value));
 export const WISP_TUNING = Object.freeze({ range: 52.5, cooldown: 10, lightRadius: 175,

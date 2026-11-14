@@ -1,5 +1,6 @@
-import {GUARDIAN_RELICS} from './guardian-artifacts.mjs?v=guardian-beat-2';
-import {GLOW_DISPLAY_SCALE} from './vitality.mjs?v=guardian-beat-2';
+import {GUARDIAN_RELICS} from './guardian-artifacts.mjs?v=long-flash-1';
+import {GLOW_DISPLAY_SCALE} from './vitality.mjs?v=long-flash-1';
+import {sparkMass} from './spark-size.mjs?v=long-flash-1';
 
 // All counters belong to one attempt. No reaction dispatches a second pickup.
 export class GuardianReactions {
@@ -46,15 +47,18 @@ export class GuardianReactions {
     if(this.held.has('relay-moth')&&++this.work%2===0)this.proc('relay-moth',3,()=>this.restore(6));
   }
   pickup(packet,spec,surplus,cleansed){
-    const e=this.engine,tier=spec.plasma,body=!packet.deliveredByWisp;
-    if(!tier)return 0;
+    const e=this.engine,body=!packet.deliveredByWisp;
+    if(!spec.plasma)return 0;
     let restored=0;
     if(body&&this.held.has('galespun-spindle')&&e.gustState().active)this.proc('galespun-spindle',3,()=>this.storeLift('galespun-spindle'));
     if(body&&e.player.vy>0)this.proc('moonwake-lens',3,()=>{e.revealFromPickup(true);return true;},6);
     if(body&&e.player.vy<0)this.proc('ascent-chime',4,()=>e.quickenCompanionRecovery(null,3));
     if(this.held.has('threefold-chalice')&&!this.pendingChalice){
-      this.chaliceMask|=1<<(tier-1);
-      if(this.chaliceMask===7){this.pendingChalice=true;this.chaliceMask=0;}
+      const mass=sparkMass(packet);
+      if(mass>=1 && mass<=3){
+        this.chaliceMask|=1<<(mass-1);
+        if(this.chaliceMask===7){this.pendingChalice=true;this.chaliceMask=0;}
+      }
     }
     if(surplus>0)this.proc('salt-crown',3,()=>this.storeLift('salt-crown'));
     if(this.held.has('twin-lanterns')){

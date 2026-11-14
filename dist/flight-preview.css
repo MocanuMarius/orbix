@@ -35,6 +35,8 @@ dialog.game-sheet.flight-preview-sheet[open] {
   letter-spacing:0!important;
 }
 .flight-preview .preview-meta {color:#ccdbcb!important}
+.preview-deposits{display:flex;align-items:center;gap:.3em}
+.preview-deposits svg{width:1.25em;height:1.25em;flex:none}
 .flight-preview .preview-hazard {padding-inline-start:clamp(10px,1.4vw,19px);border-inline-start:2px solid #516459;}
 .preview-weather {display:flex;align-items:center;gap:5px;color:#c2bfee;}
 .preview-weather svg {width:22px;height:22px;}

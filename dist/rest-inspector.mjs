@@ -1,4 +1,4 @@
-import {newState,createRun,advanceMap,selectNode} from './model.mjs?v=guardian-beat-2';
+import {newState,createRun,advanceMap,selectNode} from './model.mjs?v=long-flash-1';
 // Deliberately independent of storage. Every refresh creates the same mock run.
 export function createRestInspectorState(){
  const state=newState();state.profile.difficulty=4;

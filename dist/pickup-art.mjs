@@ -1,5 +1,5 @@
-import { pickupKind, getPickupSpec, pickupDisposition, PLASMA_SHELL_RADIUS, SPARK_ART_SCALE } from './pickups.mjs?v=guardian-beat-2';
-import {sparkImageArt,sparkSymbolArt} from './spark-symbol.mjs?v=guardian-beat-2';
+import { pickupKind, getPickupSpec, pickupDisposition, PLASMA_SHELL_RADIUS, SPARK_ART_SCALE } from './pickups.mjs?v=long-flash-1';
+import {sparkImageArt,sparkSymbolArt} from './spark-symbol.mjs?v=long-flash-1';
 
 const TAU = Math.PI * 2;
 const clamp = (value, low, high) => Math.max(low, Math.min(high, value));
@@ -382,7 +382,7 @@ export function drawSparkSymbol(context,x,y,{size=16,time=0,reducedMotion=false}
 }
 
 export function pickupArtSvg(kind = 'light', { className = '' } = {}) {
-  const id = pickupKind(kind), name = getPickupSpec(id).name;
+  const id = pickupKind(kind), name = getPickupSpec(kind).name;
   const classes = String(className || '').replace(/[^a-zA-Z0-9 _-]/g, '').trim().slice(0, 120);
   const tier=getPickupSpec(id).plasma;
   if(tier)return `<svg xmlns="http://www.w3.org/2000/svg" class="${classes}" viewBox="0 0 44 44" width="36" height="36" role="img" aria-label="${name}" shape-rendering="crispEdges">${sparkSymbolArt(0,0,44,tier)}</svg>`;

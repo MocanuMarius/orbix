@@ -2,6 +2,11 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 import {WispFlight} from '../dist/flight.mjs';
 import {getPickupSpec} from '../dist/pickups.mjs';
+import {SKILLS, createRun, newState, buyCheckpointSkill, getRunModifiers, getSkillPrice, saveState, loadState} from '../dist/model.mjs';
+import {skillTreeState} from '../dist/skill-tree-state.mjs';
+import {skillIcon} from '../dist/upgrade-icons.mjs';
+import {FlightObjective} from '../dist/flight-objectives.mjs';
+import {pickupLesson, pickupGuideMarkup} from '../dist/pickup-guide.mjs';
 import {createFlashTether, drawFlashTether, flashLightPulse, FLASH_PUFF_DURATION, stepFlashTether} from '../dist/flash-tether.mjs';
 
 const step = 1 / 60;
@@ -60,14 +65,75 @@ test('reduced motion steadies the Flash and expiration leaves a world-anchored f
   assert.equal(render(quiet,end+FLASH_PUFF_DURATION).fills,0);
 });
 
-function flight(){
+function flight(modifiers={}){
   const canvas={getContext:()=>({setTransform(){}}),getBoundingClientRect:()=>({width:900,height:405})};
-  const game=new WispFlight({canvas,preflight:true,seed:'flash-handoff',terrain:'ruins',companions:['collector']});
+  const game=new WispFlight({canvas,preflight:true,seed:'flash-handoff',terrain:'ruins',companions:['collector'],modifiers});
   game.running=true;
   game.render=()=>{};
   return game;
 }
 const economy = g => [g.flame,g.flameRestored,g.bodyFuelCollected,g.condensedTotal,g.condensedRemainder,g.absorptionEffects.length];
+
+test('Long Flash branches from Luminance, costs Stored Sparks once, and lasts 24 seconds after reload',()=>{
+  const state=newState();
+  const run=state.run=createRun(state.profile,'long-flash');
+  run.condensedGlow=250;
+  const id='main-long-flash', skill=SKILLS[id];
+  assert.equal(skill.treeTab,'main');
+  assert.equal(skill.requires,'main-sight');
+  assert.equal(skill.retired,false);
+  assert.match(skillIcon(skill),/data-skill-art="Long Flash"/);
+  assert.equal(skillTreeState({wallet:run},skill).state,'preview');
+  assert.equal(buyCheckpointSkill(state,id),false);
+  assert.ok(buyCheckpointSkill(state,'main-sight'));
+  assert.equal(skillTreeState({wallet:run},skill).available,true);
+  const before=run.condensedGlow, price=getSkillPrice(run,id);
+  assert.ok(price>0);
+  assert.ok(buyCheckpointSkill(state,id));
+  assert.equal(run.condensedGlow,before-price);
+  assert.equal(buyCheckpointSkill(state,id),false);
+  const data=new Map();
+  const storage={setItem:(key,value)=>data.set(key,value),getItem:key=>data.get(key)};
+  assert.ok(saveState(state,storage));
+  const modifiers=getRunModifiers(loadState(storage).run);
+  assert.equal(modifiers.longFlash,true);
+  assert.match(pickupLesson('sight',{modifiers}).text,/24 seconds/);
+  assert.match(pickupGuideMarkup({modifiers,discovered:['sight']}),/24 seconds/);
+  const g=flight(modifiers);
+  const pick=()=>g.collect({kind:'sight',x:g.distance+g.player.x,y:g.player.y});
+  pick();
+  assert.equal(g.flashTether.expires,24);
+  g.time=10;
+  assert.equal(g.getLightState().sightBonus,120);
+  assert.ok(g.getLightState().tetherReveal>0);
+  pick();
+  assert.equal(g.flashTether.expires,34,'a second pickup refreshes the duration');
+  g.time=34;
+  assert.equal(g.getLightState().sightBonus,0);
+  assert.equal(g.getLightState().tetherReveal,0);
+  g.destroy();
+});
+
+test('buying Long Flash while a marked Flash is active extends its light and relay once; an expired Flash stays expired',()=>{
+  for(const pickupAge of [3,8]){
+    const g=flight();
+    const mark={x:250,y:150,type:'spark',flash:true};
+    g.routeObjective=new FlightObjective(g,'flash-relay',{targets:[mark]});
+    g.collect(mark.object);
+    assert.equal(g.routeObjective.flashUntil,8);
+    g.time=pickupAge;
+    g.applySkillUpgrade({longFlash:true},40);
+    g.applySkillUpgrade({lightRadius:140},35);
+    const end=pickupAge===3?24:8;
+    assert.equal(g.flashTether.expires,end);
+    assert.equal(g.sightUntil,end);
+    assert.equal(g.routeObjective.flashUntil,end);
+    g.time=10;
+    g.routeObjective.update();
+    assert.equal(g.routeObjective.failed,pickupAge===8);
+    g.destroy();
+  }
+});
 
 test('body contact and Collector delivery attach the Flash at contact and award only its reveal',()=>{
   for(const delivery of ['body','collector']){

@@ -1,5 +1,5 @@
-import {sparkSymbolArt} from './spark-symbol.mjs?v=guardian-beat-2';
-import {condensedIconMarkup} from './afterglow-ui.mjs?v=guardian-beat-2';
+import {sparkImageArt,sparkSymbolArt} from './spark-symbol.mjs?v=long-flash-1';
+import {condensedIconMarkup} from './afterglow-ui.mjs?v=long-flash-1';
 
 // Three material tones sit above a shared dark contour. Keep light and shadow
 // readable at the tree's smallest size, even with all motion switched off.
@@ -147,10 +147,10 @@ function box(){
  return condensedIconMarkup().replace('<svg ','<svg x="2" y="2" width="28" height="28" ');
 }
 const bodies={eye,feather,wing,heart,vessel,seed,crystal,crescent,tunefork,metronome,shield,orbit,trajectory,edgebank,hourdial,hourglass,banner,scale,box,
- dive:c=>feather(c,true),fuel:()=>sparkSymbolArt(2,2,28)};
+ dive:c=>feather(c,true),fuel:()=>sparkSymbolArt(2,2,28),flash:()=>sparkImageArt('sight',0,0,32)};
 const recipes={
  'Lift':['feather','copper'],'Fourth Beat':['metronome','copper'],'Luminance':['eye','jade'],'Momentum':['wing','amber'],'Spark Vessel':['vessel','jade'],
- 'Vitality':['heart','rose'],'Glide Regeneration':['seed','jade'],'Trajectory Guide':['trajectory','silver'],'Spark Sense':['tunefork','jade'],
+ 'Long Flash':['flash','silver','time'],'Vitality':['heart','rose'],'Glide Regeneration':['seed','jade'],'Trajectory Guide':['trajectory','silver'],'Spark Sense':['tunefork','jade'],
  'Storage':['box','copper'],'Prismatic Yield':['crystal','lilac'],'Kept Light':['box','copper','seal'],'Dream':['crescent','lilac'],
  'Proximity':['edgebank','blue'],'Lasting Pulse':['edgebank','blue','time'],'Regenerative Pulse':['edgebank','jade','seed'],'Light Aegis':['shield','lilac','star'],
  'Far Search':['tunefork','jade','star'],'Rich Cargo':['vessel','jade','spark'],'Fleet Return':['wing','jade'],'Close Orbit':['orbit','jade','spark'],
@@ -185,6 +185,7 @@ const aliases={
  duration:'Longer Level',level:'Still Point',dive:'Falling Release',wind:'Wind Lance',swift:'Momentum',fuel:'Search Spark'
 };
 const byId={
+ 'main-long-flash':'Long Flash',
  'main-sight':'Luminance','main-horizon':'Luminance','main-edging-attunement':'Proximity','main-reservoir':'Spark Vessel',
  'main-dream':'Dream','main-speed':'Momentum','main-lift':'Lift','main-efficiency':'Lift','main-glide-regen':'Glide Regeneration',
  'main-spare-spark':'Vitality','main-glow-sense':'Spark Sense','main-drift-sense':'Trajectory Guide','main-afterglow':'Storage'

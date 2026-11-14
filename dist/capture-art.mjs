@@ -1,7 +1,7 @@
-import {drawAbsorbingSpark} from './tidal-light.mjs?v=guardian-beat-2';
-import {getPickupSpec, pickupShellRadius} from './pickups.mjs?v=guardian-beat-2';
-import {drawPickup} from './pickup-art.mjs?v=guardian-beat-2';
-import {drawShellArcs} from './shell-arcs.mjs?v=guardian-beat-2';
+import {drawAbsorbingSpark} from './tidal-light.mjs?v=long-flash-1';
+import {getPickupSpec, pickupShellRadius} from './pickups.mjs?v=long-flash-1';
+import {drawPickup} from './pickup-art.mjs?v=long-flash-1';
+import {drawShellArcs} from './shell-arcs.mjs?v=long-flash-1';
 
 const TAU = Math.PI * 2;
 const clamp = value => Math.max(0, Math.min(1, value));
@@ -66,7 +66,7 @@ export function drawShellPuff(ctx,x,y,radius,age,kind,phase=0,quiet=false) {
   ctx.restore();
 }
 
-export function drawCapture(context,effect,time,playerX,playerY,distance,scale,quiet) {
+export function drawCapture(context,effect,time,playerX,playerY,distance,scale,quiet,wispRadius) {
   const age=(time-effect.bornAt)/effect.duration;
   if(age>=1)return;
   const angle=effect.initialAngle||0, radius=effect.startRadius||0;
@@ -85,7 +85,7 @@ export function drawCapture(context,effect,time,playerX,playerY,distance,scale,q
   if(!delivery){
     drawShellPuff(context,sourceX*scale,sourceY*scale,
       (effect.shellRadius??(pickupShellRadius(effect.pickupKind)*size))*scale,time-effect.bornAt,effect.pickupKind,effect.phase,quiet);
-    drawShellArcs(context,playerX*scale,playerY*scale,scale,time-effect.bornAt,effect.pickupKind,effect.phase,quiet);
+    drawShellArcs(context,playerX*scale,playerY*scale,scale,time-effect.bornAt,effect.pickupKind,effect.phase,quiet,wispRadius);
   }
   // Let the rear follow the field briefly. Keep it on the contact side: a
   // fast pass can move the empty shell well behind the wisp in half a second.

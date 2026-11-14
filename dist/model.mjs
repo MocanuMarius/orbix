@@ -1,31 +1,31 @@
-import {EVENT_EDITION,eventChoices,rollPrism} from './event-choices.mjs?v=guardian-beat-2';
-import {GUARDIAN_RELICS} from './guardian-artifacts.mjs?v=guardian-beat-2';
-import {ATLAS_FORECASTS,atlasBranches} from './night-atlas.mjs?v=guardian-beat-2';
-import {getRouteBonus,awardRouteBonus} from './route-bonuses.mjs?v=guardian-beat-2';
-export {getRouteBonus,getRouteBonusCandidates,nextBonusFlightNodes} from './route-bonuses.mjs?v=guardian-beat-2';
-import {consolidateSkills,refundRetiredSkills} from './skill-consolidation.mjs?v=guardian-beat-2';
-import {PROXIMITY_SKILLS} from './proximity-skills.mjs?v=guardian-beat-2';
-import {getGuardianForMap,getBossPreview} from './boss.mjs?v=guardian-beat-2';
-import {getFlightLengthProfile} from './level-length.mjs?v=guardian-beat-2';
-import {cleanOnboarding} from './onboarding.mjs?v=guardian-beat-2';
-import {CONDENSED_TUNING,getCondensationRules,condenseGlow} from './condensed-glow.mjs?v=guardian-beat-2';
-import {CONSUMABLE_ARTIFACTS,EVOLVING_ARTIFACTS,getArtifactStackPreview} from './artifact-info.mjs?v=guardian-beat-2';
-import {getFlightClearReward} from './checkpoint-rewards.mjs?v=guardian-beat-2';
-export {getCondensationRules} from './condensed-glow.mjs?v=guardian-beat-2';
-import {ROUTE_RECIPES,ROUTE_TOPOLOGY_VERSION,REWARD_THEMES,nodeEconomy} from './route-recipes.mjs?v=guardian-beat-2';
-import {COMPANION_ABILITIES,getCompanionUnlock,normalizeCompanionFleet} from './companion-abilities.mjs?v=guardian-beat-2';
-import {MAIN_TUNING_SKILLS} from './main-tuning.mjs?v=guardian-beat-2';
-import {STARTING_CONDENSED_GLOW,getGlowCapacity,getRestGlowBonus,REST_GLOW_TUNING,glowText} from './vitality.mjs?v=guardian-beat-2';
-import {expandSkillSteps,skillProgress} from './skill-increments.mjs?v=guardian-beat-2';
-import {MAX_ASCENSION} from './ascent.mjs?v=guardian-beat-2';
-import {EXPANDED_SKILLS,applyExpandedSkills} from './skill-paths.mjs?v=guardian-beat-2';
+import {EVENT_EDITION,eventChoices,rollPrism} from './event-choices.mjs?v=long-flash-1';
+import {GUARDIAN_RELICS} from './guardian-artifacts.mjs?v=long-flash-1';
+import {ATLAS_FORECASTS,atlasBranches} from './night-atlas.mjs?v=long-flash-1';
+import {getRouteBonus,awardRouteBonus} from './route-bonuses.mjs?v=long-flash-1';
+export {getRouteBonus,getRouteBonusCandidates,nextBonusFlightNodes} from './route-bonuses.mjs?v=long-flash-1';
+import {consolidateSkills,refundRetiredSkills} from './skill-consolidation.mjs?v=long-flash-1';
+import {PROXIMITY_SKILLS} from './proximity-skills.mjs?v=long-flash-1';
+import {getGuardianForMap,getBossPreview} from './boss.mjs?v=long-flash-1';
+import {getFlightLengthProfile} from './level-length.mjs?v=long-flash-1';
+import {cleanOnboarding} from './onboarding.mjs?v=long-flash-1';
+import {CONDENSED_TUNING,getCondensationRules,condenseGlow} from './condensed-glow.mjs?v=long-flash-1';
+import {CONSUMABLE_ARTIFACTS,EVOLVING_ARTIFACTS,getArtifactStackPreview} from './artifact-info.mjs?v=long-flash-1';
+import {getFlightClearReward} from './checkpoint-rewards.mjs?v=long-flash-1';
+export {getCondensationRules} from './condensed-glow.mjs?v=long-flash-1';
+import {ROUTE_RECIPES,ROUTE_TOPOLOGY_VERSION,REWARD_THEMES,nodeEconomy} from './route-recipes.mjs?v=long-flash-1';
+import {COMPANION_ABILITIES,getCompanionUnlock,normalizeCompanionFleet} from './companion-abilities.mjs?v=long-flash-1';
+import {MAIN_TUNING_SKILLS} from './main-tuning.mjs?v=long-flash-1';
+import {STARTING_CONDENSED_GLOW,getGlowCapacity,getRestGlowBonus,REST_GLOW_TUNING,glowText} from './vitality.mjs?v=long-flash-1';
+import {expandSkillSteps,skillProgress} from './skill-increments.mjs?v=long-flash-1';
+import {MAX_ASCENSION} from './ascent.mjs?v=long-flash-1';
+import {EXPANDED_SKILLS,applyExpandedSkills} from './skill-paths.mjs?v=long-flash-1';
 /** Run-owned skills and currency; persistent ascension unlocks and boss artifacts. */
-import { FLAME_TUNING, LIFE_TUNING, getLifeCapacity } from './vitality.mjs?v=guardian-beat-2';
-import { getBiomeLevelIdentity } from './level-catalog.mjs?v=guardian-beat-2';
-import { BIOMES } from './biomes.mjs?v=guardian-beat-2';
-import { EVENT_SCENARIOS } from './map-guide.mjs?v=guardian-beat-2';
-import {contextualEventChoices,resolvePilgrimVow,ROUTE_PREPARATION} from './contextual-events.mjs?v=guardian-beat-2';
-import {TREASURE_KINDS, describeTreasure, treasureChoices, treasureRank, grantTreasureGift, treasureClearDividend, LENS_SIGHT, LENS_RECOVERY, settleTreasureWager} from './treasure.mjs?v=guardian-beat-2';
+import { FLAME_TUNING, LIFE_TUNING, getLifeCapacity } from './vitality.mjs?v=long-flash-1';
+import { getBiomeLevelIdentity } from './level-catalog.mjs?v=long-flash-1';
+import { BIOMES } from './biomes.mjs?v=long-flash-1';
+import { EVENT_SCENARIOS } from './map-guide.mjs?v=long-flash-1';
+import {contextualEventChoices,resolvePilgrimVow,ROUTE_PREPARATION} from './contextual-events.mjs?v=long-flash-1';
+import {TREASURE_KINDS, describeTreasure, treasureChoices, treasureRank, grantTreasureGift, treasureClearDividend, LENS_SIGHT, LENS_RECOVERY, settleTreasureWager} from './treasure.mjs?v=long-flash-1';
 export const SAVE_KEY='wispbound.save.condensed.v7';
 export const CAMPAIGN_MAP_NAMES=Object.freeze(['The Forgotten Verge','The Rootbound March','The Warden’s Reach']);
 export const TERRAINS=Object.freeze({ruins:{id:'ruins',name:'Sunken Ruins',color:'#cdb183',description:'Broken homes, worn arches and overgrown stone.'},canopy:{id:'canopy',name:'Luminous Canopy',color:'#94b48a',description:'Hollow trees, hanging roots and sheltered forest passages.'},storm:{id:'storm',name:'Stormglass Peaks',color:'#a8bbca',description:'Pine ridges, old mine timbers and local draft puffs.'}});
@@ -123,7 +123,7 @@ export const ARTIFACTS=Object.freeze({
  'silk-sail':artifact('silk-sail','Silk Sail','Fall 5% more slowly.','sail',{gravity:-.05}),
  'edge-needle':artifact('edge-needle','Edge Needle','Charge Edging Pulse 12% faster.','needle',{edgingChargeRate:.12}),
  'pulse-hourglass':artifact('pulse-hourglass','Pulse Hourglass','Edging Pulse reveals the scene one second longer.','hourglass',{edgingDuration:1}),
- 'cache-cup':artifact('cache-cup','Cache Cup','Spark Caches restore 2 extra Sparks.','cup',{richFuelBonus:20/3}),
+ 'cache-cup':artifact('cache-cup','Cache Cup','Caches, Surges and Giant Sparks restore 2 extra Sparks.','cup',{richFuelBonus:20/3}),
  'path-prism':artifact('path-prism','Path Prism','Luminance radius grows by 12; twice that bonus in crystal caves.','prism',{lightRadius:12}),
  'dawn-thread':artifact('dawn-thread','Dawn Thread','Echo Luminance lasts one second longer. Requires that learned perk.','✺',{seerDuration:1}),
 });
@@ -818,6 +818,7 @@ export function getRunModifiers(run={}){const rank=skillProgress,companion=norma
   if(rank(s,'swift-recovery')){m.swiftRecovery*=1-.28*rank(s,'swift-recovery');m.swiftDuration*=1-.25*rank(s,'swift-recovery');}
   else if(rank(s,'swift-resistance')){m.swiftResistance=.72+.18*rank(s,'swift-resistance');m.swiftRecovery*=1+.25*rank(s,'swift-resistance');}
   m.glideRegenRank=rank(s,'main-glide-regen-2')?2:rank(s,'main-glide-regen');
+  m.longFlash=Boolean(rank(s,'main-long-flash'));
   m.fourthBeatRank=rank(s,'main-fourth-beat-2')?2:rank(s,'main-fourth-beat');
   m.collectorGuard=rank(s,'collector-last-orbit')>0;
   const spark=role=>rank(s,`${role}-attunement`)+rank(s,`${role}-mastery`);

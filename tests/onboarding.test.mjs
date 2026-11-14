@@ -3,6 +3,8 @@ import assert from 'node:assert/strict';
 import {cleanOnboarding,markOnboardingSeen,resetOnboarding,nextOnboardingLesson,
  noteOnboardingPrompt,noteOnboardingProgress,onboardingFeatureAvailable,onboardingFlightPlan} from '../dist/onboarding.mjs';
 import {resourceCycleSteps,resourceCycleArt} from '../dist/resource-cycle.mjs';
+import {pickupLesson,pickupGuideMarkup} from '../dist/pickup-guide.mjs';
+import {tutorialVisualMarkup} from '../dist/tutorial-visuals.mjs';
 
 const fresh=()=>({profile:{difficulty:1,stats:{flights:0},clearedFlights:0},run:{id:'run-a',mapIndex:0,step:0,stats:{flights:0,deaths:0},companions:['collector'],current:{id:'flight-a',type:'flight'}}});
 
@@ -10,7 +12,8 @@ test('the first briefing teaches the resource cycle and keeps the initial skill 
  const state=fresh(),before=structuredClone(state),lesson=nextOnboardingLesson('briefing',{...state,now:1000});
  assert.equal(lesson.id,'onboarding:lift');
  assert.deepEqual(lesson.steps.map(s=>s.cycle.stage),[0,1,2]);
- assert.deepEqual(lesson.steps[0].cycle.values,[6,12,18]);
+ assert.deepEqual(lesson.steps[0].cycle.values,[6,12,18,36,60]);
+ assert.match(resourceCycleArt(lesson.steps[0].cycle),/Surge: 36 Sparks, Giant: 60 Sparks/);
  assert.match(lesson.steps[0].text,/Cluster adds 12 to your Spark Meter/);
  assert.match(lesson.steps[1].text,/24\/30.*Tap anywhere to Lift.*3 Sparks/);
  assert.match(lesson.steps[2].text,/spare 6 into 1 Stored Spark\..*Skills/);
@@ -22,6 +25,17 @@ test('the first briefing teaches the resource cycle and keeps the initial skill 
  assert.equal(onboardingFeatureAvailable(state.profile,state.run,'advanced-skills'),false);
  state.run.restReady=true;noteOnboardingProgress(state.profile,state.run);
  assert.equal(onboardingFeatureAvailable(state.profile,state.run,'advanced-skills'),true);
+});
+
+test('the guide and first-contact lesson name the actual fuel behind a white shell',()=>{
+ const guide=pickupGuideMarkup({discovered:['cache']});
+ assert.match(guide,/Cache \+18 · Surge \+36 · Giant \+60/);
+ for(const [mass,points,name] of [[3,18,'Spark Cache'],[6,36,'Surge Spark'],[10,60,'Giant Spark']]){
+  const lesson=pickupLesson({kind:'cache',sparkMass:mass});
+  assert.equal(lesson.title,name);
+  assert.match(lesson.text,new RegExp(points+' Sparks'));
+  assert.ok(tutorialVisualMarkup(lesson).includes(`aria-label="${name}"`));
+ }
 });
 
 test('the lesson follows the equipped Lift and storage efficiency without spending resources',()=>{

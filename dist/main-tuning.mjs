@@ -3,6 +3,7 @@ const node=(id,name,cost,requires,description,icon,shortEffect,extra={})=>({id,n
 export const MAIN_TUNING_SKILLS={
  'main-fourth-beat':node('main-fourth-beat','Fourth Beat',60,'main-efficiency','Tap Lift four times within one second. The fourth Lift costs zero Sparks.','beat','Free 4th Lift'),
  'main-fourth-beat-2':node('main-fourth-beat-2','Fourth Beat II',85,'main-fourth-beat','Tap Lift three times within one second. The third Lift costs zero Sparks.','beat','Free 3rd Lift'),
+ 'main-long-flash':node('main-long-flash','Long Flash',45,'main-sight','A Flash Powerup follows your wisp and lights the passage for 24 seconds instead of 8.','sight','Flash lasts 3× longer'),
  'main-glide-regen':node('main-glide-regen','Glide Regeneration',85,'main-efficiency','After 1.5 seconds without Lift, recover 3.3333333333333335 Sparks per second while falling unassisted. Up to 20 Sparks each flight. No surplus is stored.','regen','Glide to recover'),
  'main-glide-regen-2':node('main-glide-regen-2','Deep Regeneration',110,'main-glide-regen','Start after 1 second without Lift. Recover 6.666666666666667 Sparks per second while falling unassisted, up to 30 Sparks each flight. No surplus is stored.','regen','Faster recovery'),
  'main-echo-sight':node('main-echo-sight','Echo Luminance',35,'main-sight','Natural Sparks pickups cast light farther ahead for 2 seconds. Recharges in 8 seconds. Works with any companion.','sight','Pickup Luminance'),
@@ -61,7 +62,7 @@ export function priceSkillDefinition(s){
  };
  if(utility[s.id]!=null)return {...s,cost:utility[s.id]};
  if(s.branch==='proximity')return s;
- if(s.id==='main-fourth-beat'||s.id==='main-fourth-beat-2')return s;
+ if(s.id==='main-fourth-beat'||s.id==='main-fourth-beat-2'||s.id==='main-long-flash')return s;
  if(s.id==='main-spare-spark')return{...s,cost:140};
  if(s.id==='main-deep-reserve')return{...s,cost:210};
  if(s.branch==='afterglow')return{...s,cost:30,prices:[30,35].slice(0,s.maxRank)};

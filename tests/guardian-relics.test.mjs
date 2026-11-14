@@ -93,6 +93,25 @@ test('guardian passive modifiers influence real systems and generated Sparks can
  assert.deepEqual(e.artifactEffects.guardian.uses,{});
 });
 
+test('Threefold Chalice requires its three named sizes and Twin Lanterns matches actual strength',()=>{
+ const e=mount('threefold-chalice','twin-lanterns');
+ pick(e,'light');pick(e,'cluster');
+ for(const mass of [6,10,6]){
+  e.flame=0;pick(e,'cache',{sparkMass:mass});
+  assert.equal(e.artifactEffects.guardian.pendingChalice,false);
+  assert.equal(e.artifactEffects.guardian.uses['twin-lanterns'],undefined);
+ }
+ e.flame=0;pick(e,'cache',{sparkMass:6});
+ assert.equal(e.artifactEffects.guardian.uses['twin-lanterns'],undefined,'a full meter leaves the reward unspent');
+ e.flame=0;e.mod.maxGlow=250;
+ pick(e,'cache',{sparkMass:6});pick(e,'cache',{sparkMass:6});
+ assert.equal(e.artifactEffects.guardian.uses['twin-lanterns'],1);
+ assert.equal(e.artifactEffects.guardian.pendingChalice,false);
+ pick(e,'cache',{sparkMass:3});
+ assert.equal(e.artifactEffects.guardian.pendingChalice,true);
+ e.destroy();
+});
+
 test('Night Gardener heals only real near misses, never overflow, and pays for five separate seeds',()=>{
  const e=mount('night-gardener');e.flame=0;e.layout.obstacles=[];
  let serial=0;

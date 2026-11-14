@@ -1,4 +1,4 @@
-import {shutterLightFactor} from './shutter-cone.mjs?v=guardian-beat-2';
+import {shutterLightFactor} from './shutter-cone.mjs?v=long-flash-1';
 // Radius describes the bright core. A finite inverse-square field keeps a
 // faint tail at 2x radius, then reaches exact black at 3x without a hard seam.
 export const LIGHT_EXTENT=3;
@@ -17,6 +17,29 @@ export function createLightMaskCanvas(document){
     image.data[offset+3]=Math.round(lightAttenuation((dx*dx+dy*dy)*LIGHT_EXTENT*LIGHT_EXTENT)*255);
   }
   c.putImageData(image,0,0);return canvas;
+}
+
+// A loose Flash prism lights nearby rock as it comes into view. Use the
+// existing fog mask so its white core and the scenery share a soft falloff.
+export function castFlashPropLight(ctx,mask,x,y,scale,visibility,time=0,reducedMotion=false){
+  if(visibility<=0)return;
+  const reach=78*scale;
+  const breath=reducedMotion?.92:.89+.09*Math.sin(time*2.6);
+  const previousAlpha=ctx.globalAlpha;
+  ctx.globalAlpha=(1-(1-Math.min(1,visibility))**4)*breath;
+  ctx.drawImage(mask,x-reach,y-reach,2*reach,2*reach);
+  ctx.globalAlpha=previousAlpha;
+}
+
+export function castFlightFlashLights(ctx,mask,engine,light,scale,distance,playerY){
+  for(const prop of engine.flashProps||[]){
+    if(prop.collected||prop.carried)continue;
+    const x=prop.x-distance;
+    if(x< -78||x>engine.width+78)continue;
+    const visible=lightVisibility(engine,light,x,prop.y,playerY);
+    castFlashPropLight(ctx,mask,x*scale,prop.y*scale,scale,visible,
+      (engine.visualTime??engine.time??0)+(prop.phase||0),engine.reducedMotion);
+  }
 }
 // Independent reveals compete by brightness, never add into a white flash.
 // Edging remains a Luminance effect: it does not pretend to be a pickup trigger.

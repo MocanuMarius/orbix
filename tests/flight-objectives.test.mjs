@@ -3,7 +3,8 @@ import assert from 'node:assert/strict';
 import {WispFlight} from '../dist/flight.mjs';
 import {ROUTE_BONUSES} from '../dist/route-bonuses.mjs';
 import {GLOW_DISPLAY_SCALE} from '../dist/vitality.mjs';
-import {getPickupSpec, pickupKind} from '../dist/pickups.mjs';
+import {getPickupSpec} from '../dist/pickups.mjs';
+import {sparkMass} from '../dist/spark-size.mjs';
 import {createFlightObjective} from '../dist/flight-objectives.mjs';
 
 function flight(id, modifiers={}) {
@@ -22,6 +23,25 @@ function take(game,index,extra={}) {
   const packet=Object.assign(targets(game)[index].object,extra);
   game.collect(packet);
 }
+
+test('a 36-Spark Surge counts as one pickup, names its real fuel and keeps generated motes out of onboarding',()=>{
+  const game=flight(null,{maxGlow:300});
+  const x=game.distance+game.player.x+90,y=game.player.y;
+  const mote={kind:'light',generated:true,x:x-20,y};
+  const surge={kind:'cache',value:3,sparkMass:6,x,y};
+  game.layout.embers=[mote,surge];
+  assert.equal(game.getNearbyPickup()?.packet,surge);
+  game.flame=0;
+  game.collect(surge);
+  game.collect(surge);
+  assert.equal(game.event,'Surge Spark · +36 Sparks');
+  assert.equal(game.baseEmbers,1);
+  assert.equal(game.bodyFuelCollected,1);
+  game.collect(mote);
+  assert.equal(game.baseEmbers,1);
+  assert.equal(game.bodyFuelCollected,1);
+  game.destroy();
+});
 
 test('all ten plans are deterministic, pure before acceptance, and mark real geometry',()=>{
   const game=flight(null), before=JSON.stringify(game.layout.embers);
@@ -69,7 +89,7 @@ test('collection needs distinct marked natural packets, Precision needs the body
   for(let i=1;i<5;i++)take(gilded,i);
   assert.equal(gilded.routeObjective.complete,true);
   const suns=flight('three-suns');
-  assert.deepEqual(targets(suns).map(t=>pickupKind(t.object)),['cache','cache','cache']);
+  assert.deepEqual(targets(suns).map(t=>sparkMass(t.object)),[3,3,3]);
   [0,1,2].forEach(i=>take(suns,i));
   assert.ok(suns.routeObjective.complete);
 });
@@ -103,7 +123,7 @@ test('Flash Relay marks a single Flash Powerup and accepts Sparks throughout its
 test('Constellation recovers a missed first mark, ignores completed layers, and requires all three in order',()=>{
   const game=flight('constellation');
   const marks=targets(game);
-  assert.deepEqual(marks.map(t=>pickupKind(t.object)),['light','light','cluster','cluster','cache','cache']);
+  assert.deepEqual(marks.map(t=>sparkMass(t.object)),[1,1,2,2,3,3]);
   visit(game,marks[0].x+40,0); // Fly past the first one without collecting it.
   game.routeObjective.update();
   assert.equal(game.routeObjective.progress,0);

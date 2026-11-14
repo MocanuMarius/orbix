@@ -1,146 +1,179 @@
 import assert from 'node:assert/strict';
+import {execFileSync} from 'node:child_process';
 import {registerHooks} from 'node:module';
 import {readFileSync} from 'node:fs';
 import {fileURLToPath} from 'node:url';
 
-// Observe the exact layout immediately before promotions. The paired control
-// also restores the old fixed contact radius. Neither path edits game files.
-let beforeField=null,baseline=false,padFuel=false;
-const instrument=Symbol.for('wispbound.spark-size-probe');
-globalThis[instrument]={before:layout=>beforeField?.(layout),baseline:()=>baseline,padFuel:()=>padFuel};
+// Run from any directory. --seeds=72 --pairs=6 samples actual campaign nodes.
+// --reference=c75bf57 loads the shipped modules directly from Git, without
+// touching the checkout. The same human controller observes each build using
+// that build's own hitboxes, light and hazards.
+const root=fileURLToPath(new URL('../',import.meta.url));
+const opts=Object.fromEntries(process.argv.slice(2).map(arg=>arg.replace(/^--/,'').split('=')));
+const reference=opts.reference||'c75bf57',seeds=Number(opts.seeds||72),pairLimit=Number(opts.pairs??6);
+const baseline=Boolean(opts.released);
+const dist=new URL('../dist/',import.meta.url).href;
+let observeField=null;
+globalThis[Symbol.for('spark-qa-before')]=(layout,options)=>observeField?.(layout,options);
+const cached=new Map();
 registerHooks({load(url,context,next){
-  if(!url.startsWith('file:'))return next(url,context);
-  const name=new URL(url).pathname.split('/').at(-1),hook='globalThis[Symbol.for("wispbound.spark-size-probe")]';
-  if(!['spark-fields.mjs','pickups.mjs'].includes(name))return next(url,context);
-  let source=readFileSync(fileURLToPath(url),'utf8');
-  if(name==='spark-fields.mjs'){
+  if(!url.startsWith(dist))return next(url,context);
+  const name=new URL(url).pathname.split('/').at(-1);
+  if(!name.endsWith('.mjs')||!baseline&&name!=='spark-fields.mjs')return next(url,context);
+  if(!cached.has(name))cached.set(name,baseline?
+    execFileSync('git',['show',reference+':dist/'+name],{cwd:root,encoding:'utf8',maxBuffer:4e6}):
+    readFileSync(fileURLToPath(url),'utf8'));
+  let source=cached.get(name);
+  if(!baseline&&name==='spark-fields.mjs'){
+    assert.ok(source.includes('export function installSparkField'));
     source=source.replace('export function installSparkField','function liveInstallSparkField')+
-      `\nexport function installSparkField(layout,options){${hook}.before(layout);if(!${hook}.baseline())liveInstallSparkField(layout,options);}`;
-  }else{
-    const signature='export function pickupContactRadius(packet,height){';
-    assert.ok(source.includes(signature),'update probe hook when the contact API changes');
-    source=source.replace(signature,'function liveContactRadius(packet,height){')+
-      `\nexport function pickupContactRadius(packet,height){
-        const spec=getPickupSpec(packet);
-        if(${hook}.baseline())return spec.contactRadius;
-        const radius=liveContactRadius(packet,height);
-        return ${hook}.padFuel()&&spec.plasma?Math.max(spec.contactRadius,radius):radius;
-      }`;
+      '\nexport function installSparkField(layout,options){globalThis[Symbol.for("spark-qa-before")](layout,options);return liveInstallSparkField(layout,options);}';
   }
-  return {format:'module',source,shortCircuit:true};
+  return {source,format:'module',shortCircuit:true};
 }});
 
 const {createRun,newState,getRunModifiers,advanceMap}=await import('../dist/model.mjs');
-const {WispFlight,circleHitsObstacle,seededRandom}=await import('../dist/flight.mjs');
+const {WispFlight}=await import('../dist/flight.mjs');
 const {getPickupSpec,pickupKind,pickupContactRadius}=await import('../dist/pickups.mjs');
-const {sparkMass,sparkBodyRadius,GIANT_SPARK_RATE}=await import('../dist/spark-size.mjs');
+const {sparkMass,sparkBodyRadius,SPARK_TIERS}=await import('../dist/spark-size.mjs');
 const {glowPoints}=await import('../dist/vitality.mjs');
-const opts=Object.fromEntries(process.argv.slice(2).map(arg=>arg.replace(/^--/,'').split('=')));
-const seedCount=Number(opts.seeds||180),pairedPerGuardian=Number(opts.pairs??4);
 const canvas={getContext:()=>({setTransform(){}}),getBoundingClientRect:()=>({width:900,height:405})};
-const fuelPool=layout=>glowPoints(layout.embers.reduce((sum,p)=>sum+(!p.generated&&getPickupSpec(p).plasma?getPickupSpec(p).fuel:0),0));
-const percent=(n,d)=>d?Number((100*n/d).toFixed(3)):0,round=v=>Number(v.toFixed(2));
-const bossCases=new Map(),totals=new Map();
-function group(name){
-  if(!totals.has(name))totals.set(name,{layouts:0,good:0,dark:0,dusk:0,giantFuel:0,giantDark:0,rolledGood:0,rolledDark:0,
-    before:0,after:0,atLeastOne:0,protectedChanged:0,bypassFailures:0,masses:{}});
-  return totals.get(name);
-}
-function checkBypass(e,p){
- const rim=pickupContactRadius(p,e.height),safeRadius=Math.max(16,e.player.radius+5);
- const strips=[-1,1].map(side=>{
-   const y=p.y+side*(rim+16);
-   for(let x=p.x-(rim+16)*1.6;x<=p.x+(rim+16)*1.6;x+=8){
-     if(y<safeRadius||y>e.height-safeRadius||e.layout.obstacles.some(o=>
-        !o.destroyed&&x+safeRadius>=o.x-o.width&&x-safeRadius<=o.x+o.width*2.5&&
-        [-1,1].some(sign=>circleHitsObstacle(x,y,safeRadius,o,0,o.center+sign*Math.abs(o.motion||0)))))return false;
-   }
-   return true;
- });
- return strips.some(Boolean);
-}
-function report(){
- return Object.fromEntries([...totals].map(([key,s])=>[key,{layouts:s.layouts,good:s.good,dark:s.dark,dusk:s.dusk,masses:s.masses,
-   giantFuel:s.giantFuel,giantDark:s.giantDark,giantPercent:percent(s.giantFuel+s.giantDark,s.good+s.dark),
-   goodGiantPercent:percent(s.giantFuel,s.good),darkGiantPercent:percent(s.giantDark,s.dark),
-   rolledGood:s.rolledGood,rolledDark:s.rolledDark,layoutsWithGiant:s.atLeastOne,
-   baselineMeanFieldFuel:round(s.before/s.layouts),meanFieldFuel:round(s.after/s.layouts),fieldFuelIncreasePercent:percent(s.after-s.before,s.before),
-   bypassFailures:s.bypassFailures,protectedChanged:s.protectedChanged}]));
-}
-for(let i=0;i<seedCount;i++){
- const difficulty=[1,3,6][Math.floor(i/4)%3],mapIndex=Math.floor(i/12)%3,category=['opening','flight','elite','guardian'][i%4];
- const profile=newState().profile;profile.difficulty=difficulty;
- const run=createRun(profile,'size-audit-'+i,difficulty);
- for(let m=0;m<mapIndex;m++){run.phase='map-clear';assert.ok(advanceMap(run));}
- const nodes=run.map.flat();
- const candidates=category==='guardian'?nodes.filter(n=>n.boss):category==='elite'?nodes.filter(n=>n.elite):
-   category==='opening'?nodes.filter(n=>n.row===0&&n.type==='flight'):nodes.filter(n=>n.row>0&&n.row<6&&n.type==='flight'&&!n.elite);
- const n=candidates[i%Math.max(1,candidates.length)]||nodes.find(n=>n.type==='flight');
- const seed=`${run.seed}-${n.id}`;run.current=n;
- let before,protectedSnaps,ledger;
- beforeField=layout=>{
-   before=fuelPool(layout);ledger=layout.embers.map(p=>({p,kind:pickupKind(p)}));
-   protectedSnaps=layout.embers.filter(p=>p.riskChain||p.intro||p.forkCache||p.atlasBypass||p.challengeLandmark).map(p=>({p,kind:pickupKind(p),x:p.x,y:p.y}));
- };
- const engine=new WispFlight({canvas,preflight:true,seed,node:n,terrain:n.terrain,duration:n.duration,
-    elite:n.elite,companions:['collector'],modifiers:getRunModifiers(run)});
- beforeField=null;assert.ok(Number.isFinite(before));
- const natural=ledger.filter(({p,kind})=>!p.generated&&['light','cluster','cache','dark'].includes(kind));
- const roll=seededRandom(seed+':spark-masses');
- const counts={good:0,dark:0,dusk:ledger.filter(({p,kind})=>!p.generated&&kind==='dusk').length,giantFuel:0,giantDark:0,rolledGood:0,rolledDark:0,masses:{}};
- let bypassFailures=0;
- for(const {p,kind} of natural){
-   const dark=kind==='dark',mass=sparkMass(p);counts[dark?'dark':'good']++;
-   counts.masses[mass]=(counts.masses[mass]||0)+1;
-   if(roll()<GIANT_SPARK_RATE) counts[dark?'rolledDark':'rolledGood']++;
-   if(mass===10){
-     counts[dark?'giantDark':'giantFuel']++;
-     assert.equal(getPickupSpec(p).fuel,dark?0:200);
-     assert.equal(sparkBodyRadius(p,engine.height),engine.height/4);
-     if(dark&&!checkBypass(engine,p))bypassFailures++;
-   }
- }
- const protectedChanged=protectedSnaps.filter(({p,kind,x,y})=>pickupKind(p)!==kind||p.x!==x||p.y!==y||p.sparkMass>3).length;
- const actual=fuelPool(engine.layout);assert.ok(actual>=before,'field may not remove base fuel');
- for(const label of ['all','tier'+difficulty,n.boss?'guardian':n.elite?'elite':category==='opening'?'opening':'flight']){
-   const g=group(label);g.layouts++;g.before+=before;g.after+=actual;g.bypassFailures+=bypassFailures;g.protectedChanged+=protectedChanged;
-   for(const [k,v] of Object.entries(counts))if(k!=='masses')g[k]+=v;
-   for(const [m,v] of Object.entries(counts.masses))g.masses[m]=(g.masses[m]||0)+v;
-   if(counts.giantDark+counts.giantFuel)g.atLeastOne++;
- }
- if(n.boss){
-   const cases=bossCases.get(n.bossId)||[];
-   if(cases.length<pairedPerGuardian)cases.push({node:n,seed,terrain:n.terrain,difficulty,stage:n.row,profile:n.elite?'gauntlet':'refuge',
-     role:'collector',style:'human250',skills:{'main-efficiency':1,'main-sight':1},fleet:['collector'],duration:n.duration});
-   bossCases.set(n.bossId,cases);
- }
- engine.destroy();
- if(i===35)console.log('Interim distribution',JSON.stringify(report().all));
-}
-const distribution=report();console.log('Distribution',JSON.stringify(distribution));
-assert.equal(distribution.all.protectedChanged,0,'a protected packet was relocated or promoted');
-assert.equal(distribution.all.bypassFailures,0,'giant Dark Spark had no continuous body-width alternative');
+const round=n=>Number(n.toFixed(2));
+const natural=p=>!p.generated&&['light','cluster','cache','dark'].includes(pickupKind(p));
+const fuel=p=>!p.generated&&getPickupSpec(p).plasma?getPickupSpec(p).fuel:0;
+const roles=['collector','protector','leveler','swift'];
+const flights=new Map(),biomes={},totals={layouts:0,fieldFuel:0,guarded:0,large:0,giants:0,largeDark:0,lowerField:0,lostSites:0};
 
-// Same actual campaign guardian and human reaction seed for each paired trial:
-// a fresh baseline with original hit radii vs. the full contemporary size rule.
-if(pairedPerGuardian>0){
- process.argv.push('--importOnly');
- const {simulate}=await import('./balance-current-flight.mjs');
- const paired=[],arms=opts.padding?['original','sizes','oldFuelPadding']:['original','sizes'];
- for(const [boss,cases] of bossCases)for(const config of cases){
-   const results={boss,seed:config.seed,tier:config.difficulty,map:config.node.mapIndex};
-   for(const arm of arms){
-     baseline=arm==='original';padFuel=arm==='oldFuelPadding';const r=simulate(config);
-     results[arm]={clear:r.success,reason:r.fatalCause,progress:r.progress,lowFuel:r.lowFuelAtDeath,lifts:r.flaps,restored:glowPoints(r.fuelRestored)};
-   }
-   paired.push(results);
- }
- baseline=false;padFuel=false;
- const summary={};
- for(const arm of arms){
-   summary[arm]={clear:paired.filter(p=>p[arm].clear).length,meanProgress:round(paired.reduce((n,p)=>n+p[arm].progress,0)/paired.length),
-     lowFuelDeaths:paired.filter(p=>!p[arm].clear&&p[arm].lowFuel).length,meanRestored:round(paired.reduce((n,p)=>n+p[arm].restored,0)/paired.length)};
- }
- console.log('Guardian pairs (250ms reaction, 140ms observation cadence, 30% missed cues)',
-   JSON.stringify({pairs:paired.length,summary,changedOutcomes:paired.filter(p=>p.original.clear!==p.sizes.clear),...(opts.details?{cases:paired}:{})}));
+function hasBypass(e,p){
+  const distance=pickupContactRadius(p,e.height)+16;
+  return [-1,1].some(side=>{
+    const y=p.y+side*distance;
+    for(let i=-8;i<=8;i++)if(!e.objectiveBodyClear(p.x+i*distance/5,y,17))return false;
+    return true;
+  });
+}
+
+function openingSupply(sites,initial){
+  const windows=new Map();
+  for(const p of sites){
+    if(pickupKind(p)==='dark')continue;
+    const key=Math.floor(p.x/900);
+    windows.set(key,(windows.get(key)||0)+(initial?sparkMass(p):Math.min(6,sparkMass(p))));
+  }
+  return windows;
+}
+
+function sample(i){
+  const category=['opening','flight','elite','guardian'][i%4];
+  const group=Math.floor(i/4);
+  const difficulty=category==='opening'?[1,2][group%2]:[1,2,4,6][group%4];
+  const mapIndex=category==='opening'?0:Math.floor(group/2)%3;
+  const profile=newState().profile;profile.difficulty=difficulty;
+  const run=createRun(profile,'size-audit-'+i,difficulty);
+  for(let m=0;m<mapIndex;m++){run.phase='map-clear';assert.ok(advanceMap(run));}
+  const nodes=run.map.flat();
+  const candidates=nodes.filter(n=>category==='guardian'?n.boss:category==='elite'?n.elite:
+    category==='opening'?n.row===0&&n.type==='flight':n.row>0&&n.row<6&&n.type==='flight'&&!n.elite);
+  if(!candidates.length)return;
+  const node=candidates[group%candidates.length],seed=run.seed+'-'+node.id;
+  run.current=node;
+  const paired=flights.get(category)||[];
+  if(paired.length<pairLimit||category==='guardian'&&paired.length<pairLimit+3&&!paired.some(c=>c.node.bossId===node.bossId)){
+    const role=roles[paired.length%roles.length];
+    paired.push({node,seed,terrain:node.terrain,difficulty,stage:node.row,profile:node.elite?'gauntlet':'refuge',
+      role,fleet:[role],style:'human250',skills:category==='opening'?{}:{'main-efficiency':1,'main-sight':1},duration:node.duration});
+    flights.set(category,paired);
+  }
+  if(baseline)return;
+  let guarded,before,sites,openingWindows;
+  observeField=(layout,options)=>{
+    const marked=new Set(options.targets?.map(t=>t.object));
+    sites=layout.embers.filter(natural);
+    before=sites.reduce((sum,p)=>sum+fuel(p),0);
+    if(options.opening)openingWindows=openingSupply(sites,true);
+    guarded=layout.embers.filter(p=>p.riskChain||p.intro||p.forkCache||p.atlasBypass||p.blackHoleBypass||p.challengeLandmark||marked.has(p))
+      .map(p=>({p,kind:pickupKind(p),mass:sparkMass(p),x:p.x,y:p.y}));
+  };
+  const e=new WispFlight({canvas,preflight:true,node,seed,terrain:node.terrain,duration:node.duration,
+    elite:node.elite,companions:['collector'],modifiers:getRunModifiers(run)});
+  observeField=null;
+  if(openingWindows){
+    const current=openingSupply(sites,false);
+    for(const [key,sum] of openingWindows)assert.ok(current.get(key)>=Math.min(sum,6),'opening supply gap: '+seed+' pocket '+key);
+  }
+  const biome=biomes[node.biomeId]??={layouts:0,ordinary:{},dark:{},displayedFuel:0};
+  biome.layouts++;totals.layouts++;
+  for(const {p,kind,mass,x,y} of guarded){
+    assert.ok(p.x===x&&p.y===y&&pickupKind(p)===kind&&sparkMass(p)===mass,'authored pickup altered: '+seed+' '+p.id);
+    totals.guarded++;
+  }
+  const actual=e.layout.embers.reduce((sum,p)=>sum+fuel(p),0);
+  if(actual<before)totals.lowerField++;
+  const budget=e.layout.glowBudget;
+  if(budget)assert.ok(actual>=Math.min(before,budget.target),'route fuel floor fell on '+seed);
+  assert.ok(actual>=before*(openingWindows ? 0.90 : 0.84),'field lost too much fuel beyond the route budget: '+seed);
+  totals.lostSites+=sites.filter(p=>!e.layout.embers.includes(p)).length;
+  biome.displayedFuel+=glowPoints(actual);
+  totals.fieldFuel+=glowPoints(actual);
+  for(const p of e.layout.embers.filter(natural)){
+    const mass=sparkMass(p),dark=pickupKind(p)==='dark',histogram=dark?biome.dark:biome.ordinary;
+    assert.ok(SPARK_TIERS.some(t=>t.mass===mass),'invalid natural tier on '+seed+' '+p.id);
+    histogram[mass]=(histogram[mass]||0)+1;
+    if(dark&&mass>1)assert.ok(hasBypass(e,p),'no continuous dark bypass: '+seed+' '+p.id);
+    if(mass<5)continue;
+    const radius=sparkBodyRadius(p,e.height);
+    assert.ok(e.objectiveBodyClear(p.x,p.y,radius+2),'exceptional shell intersects terrain: '+seed+' '+p.id);
+    if(dark)totals.largeDark++;
+    if(e.layout.boss)assert.ok([-135,-75,75,135].every(dx=>e.objectiveBodyClear(p.x+dx,p.y,23)),'boss approach obstructed: '+seed);
+    if(mass===10){
+      assert.equal(getPickupSpec(p).fuel,dark?0:200);
+      assert.equal(radius,e.height/4);totals.giants++;
+    }
+    totals.large++;
+  }
+  e.destroy();
+}
+for(let i=0;i<seeds;i++)sample(i);
+if(!baseline){
+  const aggregate={};
+  for(const {ordinary,dark} of Object.values(biomes))for(const histogram of [ordinary,dark]){
+    for(const [mass,count] of Object.entries(histogram))aggregate[mass]=(aggregate[mass]||0)+count;
+  }
+  const count=Object.values(aggregate).reduce((sum,n)=>sum+n,0);
+  const percentages=Object.fromEntries(SPARK_TIERS.map(t=>[t.name,round(100*(aggregate[t.mass]||0)/count)]));
+  console.log('Current world distribution',JSON.stringify({totals,percentages,biomes}));
+  assert.equal(totals.lostSites,0,'authored fuel opportunities disappeared');
+}
+if(pairLimit>0){
+  process.argv.push('--importOnly');
+  const {simulate}=await import('./balance-current-flight.mjs');
+  const actual=[];
+  for(const [category,configs] of flights)for(const config of configs){
+    const r=simulate(config);
+    actual.push({category,seed:config.seed,role:config.role,clear:r.success,progress:r.progress,restored:glowPoints(r.fuelRestored),
+      stored:r.result?.condensedGlow??0,starved:r.lowFuelAtDeath,available:glowPoints(r.available.reduce((n,p)=>n+p.fuel,0))});
+  }
+  if(baseline)console.log(JSON.stringify({reference,results:actual}));
+  else{
+    const args=[fileURLToPath(import.meta.url),'--released=1','--reference='+reference,'--pairs='+pairLimit,'--seeds='+seeds];
+    const release=JSON.parse(opts.previous?readFileSync(opts.previous,'utf8'):
+      execFileSync(process.execPath,args,{cwd:root,encoding:'utf8',maxBuffer:4e6}));
+    assert.equal(release.reference,reference,'release comparison must use the requested baseline');
+    const previous=release.results;
+    assert.deepEqual(actual.map(p=>p.seed),previous.map(p=>p.seed),'campaign seeds changed between revisions');
+    const average=(rows,key)=>rows.length?round(rows.reduce((s,r)=>s+r[key],0)/rows.length):null;
+    const summarize=rows=>({n:rows.length,clear:rows.filter(r=>r.clear).length,starved:rows.filter(r=>r.starved).length,
+      avgRestored:average(rows,'restored'),avgProgress:average(rows,'progress'),
+      avgStored:average(rows,'stored'),avgAvailable:average(rows,'available')});
+    const paired={};
+    for(const key of ['all',...flights.keys()]){
+      const group=rows=>rows.filter(r=>key==='all'||r.category===key);
+      const mutuallyCleared=new Set(actual.filter((r,i)=>r.clear&&previous[i].clear).map(r=>r.seed));
+      const common=rows=>group(rows).filter(r=>mutuallyCleared.has(r.seed));
+      paired[key]={released:summarize(group(previous)),current:summarize(group(actual)),
+        matchedClearOverflow:{n:common(actual).length,released:average(common(previous),'stored'),current:average(common(actual),'stored')}};
+    }
+    console.log('Paired full flights',JSON.stringify({reference,perception:'250ms reaction ±70ms, 140ms observation, 30% missed cues',paired,
+      ...(opts.details?{changed:actual.map((r,i)=>({current:r,released:previous[i]})).filter(x=>x.current.clear!==x.released.clear)}:{})}));
+  }
 }

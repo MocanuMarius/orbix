@@ -1,66 +1,66 @@
-import {menuIcon as icon} from './menu-icons.mjs?v=guardian-beat-2';
-import {installationState,installationInstructions,onInstallationChange,requestInstall,refreshBuild} from './pwa.mjs?v=guardian-beat-2';
-import {prepareRouteOffer} from './route-offers.mjs?v=guardian-beat-2';
-import {ROUTE_BONUSES} from './route-bonuses.mjs?v=guardian-beat-2';
-import {updateBonusGauge} from './route-bonus-ui.mjs?v=guardian-beat-2';
-import {forecastCheckpointMarkup} from './night-atlas.mjs?v=guardian-beat-2';
-import {markFlightAttemptStarted,previewAtlasMap} from './model.mjs?v=guardian-beat-2';
-import {getBossPreview} from './boss.mjs?v=guardian-beat-2';
-import {flightPreviewMarkup} from './flight-preview.mjs?v=guardian-beat-2';
-import {collectionMarkup,COLLECTION_PAGE_SIZE} from './collection-view.mjs?v=guardian-beat-2';
-import {restBenefitsMarkup} from './rest-choice-view.mjs?v=guardian-beat-2';
-import {treasureView} from './treasure-view.mjs?v=guardian-beat-2';
-import {getFlightClearReward} from './checkpoint-rewards.mjs?v=guardian-beat-2';
-import {artifactDescription} from './artifact-copy.mjs?v=guardian-beat-2';
-import {startResumeCountdown} from './resume-countdown.mjs?v=guardian-beat-2';
-import {automaticTipsEnabled,nextOnboardingLesson,markOnboardingSeen,resetOnboarding,noteOnboardingPrompt,noteOnboardingProgress,onboardingFeatureAvailable,onboardingFlightPlan} from './onboarding.mjs?v=guardian-beat-2';
-import {flightRewardMarkup} from './reward-screen.mjs?v=guardian-beat-2';
-import {flightEntryMarkup,resumeGateMarkup,waitForFlightEntry,preloadFlightEntry} from './flight-entry.mjs?v=guardian-beat-2';
-import {TUTORIAL_TOPICS,topicSteps} from './tutorial-curriculum.mjs?v=guardian-beat-2';
-import {resourceCycleSteps} from './resource-cycle.mjs?v=guardian-beat-2';
-import {tutorialVisualMarkup} from './tutorial-visuals.mjs?v=guardian-beat-2';
-import {deathScreenMarkup} from './death-screen.mjs?v=guardian-beat-2';
-import {createRestInspectorState} from './rest-inspector.mjs?v=guardian-beat-2';
-import {choiceScene} from './choice-art.mjs?v=guardian-beat-2';
-import {contextualFlightNotice} from './contextual-events.mjs?v=guardian-beat-2';
-import {createMusic} from './music.mjs?v=guardian-beat-2';
-import {resourceSymbol} from './game-symbols.mjs?v=guardian-beat-2';
-import {nextArtifactNotice,artifactUseLesson} from './artifact-lessons.mjs?v=guardian-beat-2';
-import {getArtifactInfo,CONSUMABLE_ARTIFACTS,EVOLVING_ARTIFACTS} from './artifact-info.mjs?v=guardian-beat-2';
-import {checkpointTutorialLesson,observedFlightLesson,flightEffectLesson} from './tutorial-steps.mjs?v=guardian-beat-2';
-import {ARTIFACT_ENGINE_RULES} from './artifact-effects.mjs?v=guardian-beat-2';
-import {rewardThemeMarkup,encounterIntent,encounterIntentMarkup,artifactOfferMarkup,artifactDetailMarkup,artifactRarityLabel,artifactSummaryMarkup,artifactLifetimeMarkup} from './replay-ui.mjs?v=guardian-beat-2';
-import {installLandscapeMode} from './landscape.mjs?v=guardian-beat-2';
-import {drawLandscapeMap} from './landscape-map.mjs?v=guardian-beat-2';
-import {attachDream,canDreamAt,dreamEye,dreamIndicatorMarkup} from './dream.mjs?v=guardian-beat-2';
-import {chooseFlightReward,getAvailableUpgrades,acknowledgeVictory,takeClearRewardReceipt} from './model.mjs?v=guardian-beat-2';
-import {formatGlow,glowPercent,getGlowCapacity,glowText} from './vitality.mjs?v=guardian-beat-2';
-import {glowGaugeMarkup,updateGlowGauge} from './glow-ui.mjs?v=guardian-beat-2';
-import {edgingPulseMarkup,updateEdgingPulse} from './edging-ui.mjs?v=guardian-beat-2';
-import {branchTreeMarkup} from './skill-tree.mjs?v=guardian-beat-2';
-import {livesMarkup,lifeHeartSvg} from './lives.mjs?v=guardian-beat-2';
-import {mainWispTreeMarkup} from './wisp-tree.mjs?v=guardian-beat-2';
-import {attachFlightPerformance,downloadPerformanceReport} from './flight-performance.mjs?v=guardian-beat-2';
-import {getChallengePreview} from './flight-challenges.mjs?v=guardian-beat-2';
-import {homeMenuMarkup,runProgressMarkup,unlockPreviewMarkup} from './run-menu.mjs?v=guardian-beat-2';
-import {skillIcon,artifactIcon} from './upgrade-icons.mjs?v=guardian-beat-2';
-import {TERRAINS,SKILLS,ARTIFACTS,newState,loadState,saveState,createRun,getStartingArtifact,canChooseStartingGift,chooseStartingGift,chooseStartingSkill,setTestOverride,grantTestCondensedGlow,getStartingCompanion,setStartingCompanion,startTutorial,leaveTutorial,getChoices,getRouteMapState,selectNode,beginFlightAttempt,retryFlight,finishFlight,getSupportChoices,resolveSupport,settleCheckpoint,bankRun,advanceMap,previewGlowReward,getSkillCost,getSkillPrice,getSkillWallet,getSkillLockReason,suspendRun,abandonRun,isSkillRevealed,canBuyCheckpointSkills,buyCheckpointSkill,getRunModifiers,canChangeCompanion,setCompanions,sellArtifact,canSellArtifact,getArtifactSalvageValue} from './model.mjs?v=guardian-beat-2';
-import {WispFlight} from './flight.mjs?v=guardian-beat-2';
-import {COMPANION_ABILITIES,getCompanionAbility,getCompanionUnlock,normalizeCompanionRole} from './companion-abilities.mjs?v=guardian-beat-2';
-import {companionArtSvg} from './companion-art.mjs?v=guardian-beat-2';
-import {boostControlMarkup,updateBoostControl} from './boost-control.mjs?v=guardian-beat-2';
-import {campaignStrip,bossSigil,guardianRitualMarkup} from './campaign-ui.mjs?v=guardian-beat-2';
-import {resolveLevelIdentity} from './level-catalog.mjs?v=guardian-beat-2';
-import {levelMapGlyph,levelMapPreview} from './level-map-art.mjs?v=guardian-beat-2';
-import {getAscentInfo} from './ascent.mjs?v=guardian-beat-2';
-import {getRouteForecast} from './route-forecast.mjs?v=guardian-beat-2';
-import {MAP_STOP_TYPES,getMapStopInfo,mapStopIconMarkup,getEventScenarios} from './map-guide.mjs?v=guardian-beat-2';
-import {formatFlightDuration} from './level-length.mjs?v=guardian-beat-2';
-import {condensedIconMarkup} from './afterglow-ui.mjs?v=guardian-beat-2';
-import {pickupGuideMarkup,pickupLesson} from './pickup-guide.mjs?v=guardian-beat-2';
-import {pickupArtSvg} from './pickup-art.mjs?v=guardian-beat-2';
-import {createTutorialCoach} from './tutorial-coach.mjs?v=guardian-beat-2';
-import {getTutorialWorldFocus} from './tutorial.mjs?v=guardian-beat-2';
+import {menuIcon as icon} from './menu-icons.mjs?v=long-flash-1';
+import {installationState,installationInstructions,onInstallationChange,requestInstall,refreshBuild} from './pwa.mjs?v=long-flash-1';
+import {prepareRouteOffer} from './route-offers.mjs?v=long-flash-1';
+import {ROUTE_BONUSES} from './route-bonuses.mjs?v=long-flash-1';
+import {updateBonusGauge} from './route-bonus-ui.mjs?v=long-flash-1';
+import {forecastCheckpointMarkup} from './night-atlas.mjs?v=long-flash-1';
+import {markFlightAttemptStarted,previewAtlasMap} from './model.mjs?v=long-flash-1';
+import {getBossPreview} from './boss.mjs?v=long-flash-1';
+import {flightPreviewMarkup} from './flight-preview.mjs?v=long-flash-1';
+import {collectionMarkup,COLLECTION_PAGE_SIZE} from './collection-view.mjs?v=long-flash-1';
+import {restBenefitsMarkup} from './rest-choice-view.mjs?v=long-flash-1';
+import {treasureView} from './treasure-view.mjs?v=long-flash-1';
+import {getFlightClearReward} from './checkpoint-rewards.mjs?v=long-flash-1';
+import {artifactDescription} from './artifact-copy.mjs?v=long-flash-1';
+import {startResumeCountdown} from './resume-countdown.mjs?v=long-flash-1';
+import {automaticTipsEnabled,nextOnboardingLesson,markOnboardingSeen,resetOnboarding,noteOnboardingPrompt,noteOnboardingProgress,onboardingFeatureAvailable,onboardingFlightPlan} from './onboarding.mjs?v=long-flash-1';
+import {flightRewardMarkup} from './reward-screen.mjs?v=long-flash-1';
+import {flightEntryMarkup,resumeGateMarkup,waitForFlightEntry,preloadFlightEntry} from './flight-entry.mjs?v=long-flash-1';
+import {TUTORIAL_TOPICS,topicSteps} from './tutorial-curriculum.mjs?v=long-flash-1';
+import {resourceCycleSteps} from './resource-cycle.mjs?v=long-flash-1';
+import {tutorialVisualMarkup} from './tutorial-visuals.mjs?v=long-flash-1';
+import {deathScreenMarkup} from './death-screen.mjs?v=long-flash-1';
+import {createRestInspectorState} from './rest-inspector.mjs?v=long-flash-1';
+import {choiceScene} from './choice-art.mjs?v=long-flash-1';
+import {contextualFlightNotice} from './contextual-events.mjs?v=long-flash-1';
+import {createMusic} from './music.mjs?v=long-flash-1';
+import {resourceSymbol} from './game-symbols.mjs?v=long-flash-1';
+import {nextArtifactNotice,artifactUseLesson} from './artifact-lessons.mjs?v=long-flash-1';
+import {getArtifactInfo,CONSUMABLE_ARTIFACTS,EVOLVING_ARTIFACTS} from './artifact-info.mjs?v=long-flash-1';
+import {checkpointTutorialLesson,observedFlightLesson,flightEffectLesson} from './tutorial-steps.mjs?v=long-flash-1';
+import {ARTIFACT_ENGINE_RULES} from './artifact-effects.mjs?v=long-flash-1';
+import {rewardThemeMarkup,encounterIntent,encounterIntentMarkup,artifactOfferMarkup,artifactDetailMarkup,artifactRarityLabel,artifactSummaryMarkup,artifactLifetimeMarkup} from './replay-ui.mjs?v=long-flash-1';
+import {installLandscapeMode} from './landscape.mjs?v=long-flash-1';
+import {drawLandscapeMap} from './landscape-map.mjs?v=long-flash-1';
+import {attachDream,canDreamAt,dreamEye,dreamIndicatorMarkup} from './dream.mjs?v=long-flash-1';
+import {chooseFlightReward,getAvailableUpgrades,acknowledgeVictory,takeClearRewardReceipt} from './model.mjs?v=long-flash-1';
+import {formatGlow,glowPercent,getGlowCapacity,glowText} from './vitality.mjs?v=long-flash-1';
+import {glowGaugeMarkup,updateGlowGauge} from './glow-ui.mjs?v=long-flash-1';
+import {edgingPulseMarkup,updateEdgingPulse} from './edging-ui.mjs?v=long-flash-1';
+import {branchTreeMarkup} from './skill-tree.mjs?v=long-flash-1';
+import {livesMarkup,lifeHeartSvg} from './lives.mjs?v=long-flash-1';
+import {mainWispTreeMarkup} from './wisp-tree.mjs?v=long-flash-1';
+import {attachFlightPerformance,downloadPerformanceReport} from './flight-performance.mjs?v=long-flash-1';
+import {getChallengePreview} from './flight-challenges.mjs?v=long-flash-1';
+import {homeMenuMarkup,runProgressMarkup,unlockPreviewMarkup} from './run-menu.mjs?v=long-flash-1';
+import {skillIcon,artifactIcon} from './upgrade-icons.mjs?v=long-flash-1';
+import {TERRAINS,SKILLS,ARTIFACTS,newState,loadState,saveState,createRun,getStartingArtifact,canChooseStartingGift,chooseStartingGift,chooseStartingSkill,setTestOverride,grantTestCondensedGlow,getStartingCompanion,setStartingCompanion,startTutorial,leaveTutorial,getChoices,getRouteMapState,selectNode,beginFlightAttempt,retryFlight,finishFlight,getSupportChoices,resolveSupport,settleCheckpoint,bankRun,advanceMap,previewGlowReward,getSkillCost,getSkillPrice,getSkillWallet,getSkillLockReason,suspendRun,abandonRun,isSkillRevealed,canBuyCheckpointSkills,buyCheckpointSkill,getRunModifiers,canChangeCompanion,setCompanions,sellArtifact,canSellArtifact,getArtifactSalvageValue} from './model.mjs?v=long-flash-1';
+import {WispFlight} from './flight.mjs?v=long-flash-1';
+import {COMPANION_ABILITIES,getCompanionAbility,getCompanionUnlock,normalizeCompanionRole} from './companion-abilities.mjs?v=long-flash-1';
+import {companionArtSvg} from './companion-art.mjs?v=long-flash-1';
+import {boostControlMarkup,updateBoostControl} from './boost-control.mjs?v=long-flash-1';
+import {campaignStrip,bossSigil,guardianRitualMarkup} from './campaign-ui.mjs?v=long-flash-1';
+import {resolveLevelIdentity} from './level-catalog.mjs?v=long-flash-1';
+import {levelMapGlyph,levelMapPreview} from './level-map-art.mjs?v=long-flash-1';
+import {getAscentInfo} from './ascent.mjs?v=long-flash-1';
+import {getRouteForecast} from './route-forecast.mjs?v=long-flash-1';
+import {MAP_STOP_TYPES,getMapStopInfo,mapStopIconMarkup,getEventScenarios} from './map-guide.mjs?v=long-flash-1';
+import {formatFlightDuration} from './level-length.mjs?v=long-flash-1';
+import {condensedIconMarkup} from './afterglow-ui.mjs?v=long-flash-1';
+import {pickupGuideMarkup,pickupLesson} from './pickup-guide.mjs?v=long-flash-1';
+import {pickupArtSvg} from './pickup-art.mjs?v=long-flash-1';
+import {createTutorialCoach} from './tutorial-coach.mjs?v=long-flash-1';
+import {getTutorialWorldFocus} from './tutorial.mjs?v=long-flash-1';
 if(window.parent!==window&&new URLSearchParams(location.search).has('hosted'))document.documentElement.dataset.framed='';
 const app=document.querySelector('#app'),header=document.querySelector('#header');
 const mockMode=new URLSearchParams(location.search).get('mock')==='rest';
@@ -443,7 +443,7 @@ function closeCollection(){
  closeSheet();render(screen);
 }
 function refreshMapDock(){const dock=document.querySelector('.map-build-dock');if(dock)dock.innerHTML=`${state.run?.restReady?'<div class="rest-services"><button data-action="skills">TRAIN</button></div>':''}${artifactCollectionDock()}`}
-function showPickupKey(){pauseFlight();openSheet(pickupGuideMarkup({maxGlow:getGlowCapacity(state.run),companions:roleFleet(),discovered:state.profile.seenPickups||[]}), 'pickup-guide-sheet')}
+function showPickupKey(){pauseFlight();openSheet(pickupGuideMarkup({maxGlow:getGlowCapacity(state.run),modifiers:engine?.mod||getRunModifiers(state.run||{}),companions:roleFleet(),discovered:state.profile.seenPickups||[]}), 'pickup-guide-sheet')}
 function showMapKey(){const r=state.run;openSheet(`<h2>ROUTE KEY</h2><p class="map-key-total">${r?.map.length||7} STOPS PER MAP · 3 MAPS PER RUN</p><div class="route-light-key" aria-label="Route brightness key"><span class="route-key-here"><i></i>HERE · your wisp</span><span class="route-key-next"><i></i>NEXT · tap to travel</span><span class="route-key-future"><i></i>Later · tap to preview</span><span class="route-key-closed"><i></i>Dark · path closed</span></div><div class="map-key-list">${Object.values(MAP_STOP_TYPES).map(type=>`<div class="map-key-row">${mapStopIconMarkup(type.kind)}<div><h3>${type.label}</h3><p>${esc(glowText(type.summary,getGlowCapacity(r||{})))}</p></div></div>`).join('')}</div><details class="map-event-guide"><summary>EVENTS & TRADES</summary>${getEventScenarios({maxGlow:getGlowCapacity(r||{})}).map(e=>`<p><b>${esc(e.name)}</b> · ${esc(e.summary)}</p>`).join('')}</details><button class="primary" data-action="close-sheet">Done</button>`,'map-key-sheet');guideScreen('map-key');}
 function showCondensation(){pauseFlight();openSheet(`<h2>Stored Sparks</h2>${condensedIconMarkup()}<p>Clear a flight for 20 Stored Sparks to spend on run skills. At the starting rate, 6 surplus Sparks make 1 Stored Spark; melting an unwanted artifact is another way to earn more.</p><p>Flight earnings are kept on a clear. The final guardian ends the run. Rest refills do not create currency.</p><p>Improve storage efficiency with Spark skills and Prism Vessel. Unfinished fractions carry into your next pickup. Open Skills to spend banked Stored Sparks at any time. Lifts draw only from the Spark Meter.</p><button class="primary" data-action="inspect-main-skill" data-id="main-afterglow">Storage skills</button><button class="secondary" data-action="close-sheet">Done</button>`,'condensation-sheet')}
 
@@ -598,7 +598,7 @@ function updateGameSpeed(snapshot){
  if(overlay.dataset.speed!==label){overlay.dataset.speed=label;overlay.querySelector('b').textContent=label;overlay.setAttribute('aria-label',`Game speed ${label}`);}
  overlay.querySelector('em').style.transform=`scaleX(${(speed-.1)/.9})`;
 }
-function worldLesson(){if(!automaticTipsEnabled(state.settings,state.run))return;if(!state.run?.isTutorial){guideScreen('flight');return;}if(!engine||engine.dream?.active||paused||lesson||lastSnapshot?.dying||lastSnapshot?.completing)return;const r=state.run,practice=!!engine.tutorial;if(practice&&!r.guideSkipped&&!r.guideSeen?.['practice-condensation']&&engine.time>3&&(lastSnapshot?.condensedGlow||0)>0){if(!engine.canShowContextHint())return;pauseFlight();startLesson('practice-condensation',[{title:'Stored Sparks buys skills',visual:'packed',text:'With a full Spark Meter, extra Sparks become Stored Sparks. Clear this flight to keep it.',target:'.flight-condensed-counter'}],resumeFlight);return;}let focus,key,content;if(practice){if(r.guideSkipped||engine.time<3||engine.time-(engine.tutorialCoachAt??-10)<7)return;const prefix='world:',seen=new Set(Object.keys(r.guideSeen||{}).filter(k=>k.startsWith(prefix)).map(k=>k.slice(prefix.length)));focus=engine._pendingWorldFocus||getTutorialWorldFocus(engine,seen);if(!focus)return;if(!engine.canShowContextHint()){engine._pendingWorldFocus={...focus,queuedDistance:engine.distance};return;}if(focus.queuedDistance!=null)focus={...focus,x:focus.x-(engine.distance-focus.queuedDistance)};delete engine._pendingWorldFocus;engine.tutorialCoachAt=engine.time;key=`world:${focus.id}`;content=focus}else{const seen=new Set(state.profile.seenPickups||[]);if(seen.size>=7)return;focus=engine.getNearbyPickup(seen);if(!focus)return;key=`pickup:${focus.kind}`;content=pickupLesson(focus.packet||focus.kind,{maxGlow:engine.maxFlame,companions:roleFleet()});state.profile.seenPickups||=[];state.profile.seenPickups.push(focus.kind);if(state.profile.pickupCoachSkipped){persist();return}}pauseFlight();if(focus.x<0||focus.x>engine.width){startLesson(key,[{...content,target:'.canvas-wrap'}],resumeFlight);return;}const wrap=document.querySelector('.canvas-wrap'),canvas=document.querySelector('#flight-canvas'),target=document.createElement('i'),c=canvas.getBoundingClientRect(),w=wrap.getBoundingClientRect(),sx=c.width/engine.width,sy=c.height/engine.height,rad=Math.max(18,focus.radius||18);target.dataset.worldFocus='';target.style.cssText=`position:absolute;pointer-events:none;left:${c.left-w.left+(focus.x-rad)*sx}px;top:${c.top-w.top+(focus.y-rad)*sy}px;width:${rad*2*sx}px;height:${rad*2*sy}px`;wrap.appendChild(target);startLesson(key,[{...content,target}],resumeFlight)}
+function worldLesson(){if(!automaticTipsEnabled(state.settings,state.run))return;if(!state.run?.isTutorial){guideScreen('flight');return;}if(!engine||engine.dream?.active||paused||lesson||lastSnapshot?.dying||lastSnapshot?.completing)return;const r=state.run,practice=!!engine.tutorial;if(practice&&!r.guideSkipped&&!r.guideSeen?.['practice-condensation']&&engine.time>3&&(lastSnapshot?.condensedGlow||0)>0){if(!engine.canShowContextHint())return;pauseFlight();startLesson('practice-condensation',[{title:'Stored Sparks buys skills',visual:'packed',text:'With a full Spark Meter, extra Sparks become Stored Sparks. Clear this flight to keep it.',target:'.flight-condensed-counter'}],resumeFlight);return;}let focus,key,content;if(practice){if(r.guideSkipped||engine.time<3||engine.time-(engine.tutorialCoachAt??-10)<7)return;const prefix='world:',seen=new Set(Object.keys(r.guideSeen||{}).filter(k=>k.startsWith(prefix)).map(k=>k.slice(prefix.length)));focus=engine._pendingWorldFocus||getTutorialWorldFocus(engine,seen);if(!focus)return;if(!engine.canShowContextHint()){engine._pendingWorldFocus={...focus,queuedDistance:engine.distance};return;}if(focus.queuedDistance!=null)focus={...focus,x:focus.x-(engine.distance-focus.queuedDistance)};delete engine._pendingWorldFocus;engine.tutorialCoachAt=engine.time;key=`world:${focus.id}`;content=focus}else{const seen=new Set(state.profile.seenPickups||[]);if(seen.size>=7)return;focus=engine.getNearbyPickup(seen);if(!focus)return;key=`pickup:${focus.kind}`;content=pickupLesson(focus.packet||focus.kind,{maxGlow:engine.maxFlame,modifiers:engine.mod,companions:roleFleet()});state.profile.seenPickups||=[];state.profile.seenPickups.push(focus.kind);if(state.profile.pickupCoachSkipped){persist();return}}pauseFlight();if(focus.x<0||focus.x>engine.width){startLesson(key,[{...content,target:'.canvas-wrap'}],resumeFlight);return;}const wrap=document.querySelector('.canvas-wrap'),canvas=document.querySelector('#flight-canvas'),target=document.createElement('i'),c=canvas.getBoundingClientRect(),w=wrap.getBoundingClientRect(),sx=c.width/engine.width,sy=c.height/engine.height,rad=Math.max(18,focus.radius||18);target.dataset.worldFocus='';target.style.cssText=`position:absolute;pointer-events:none;left:${c.left-w.left+(focus.x-rad)*sx}px;top:${c.top-w.top+(focus.y-rad)*sy}px;width:${rad*2*sx}px;height:${rad*2*sy}px`;wrap.appendChild(target);startLesson(key,[{...content,target}],resumeFlight)}
 function mapLabelLines(value,max=14){const words=String(value||'').split(/\s+/),lines=[];let line='';for(const word of words){if((line+' '+word).trim().length>max&&line){lines.push(line);line=word}else line=(line+' '+word).trim()}if(line)lines.push(line);return lines.slice(0,2).map(v=>v.length>max?v.slice(0,max-1)+'…':v)}
 function mapPositionMarker(x,y,label){return `<g class="map-position-marker map-orb-marker" transform="translate(${x},${y})"><circle r="12" fill="#dce8d1" opacity=".25"/><circle r="6" fill="#f2f0d5"/><text y="24" text-anchor="middle">${label}</text></g>`}
 
