@@ -1,26 +1,26 @@
-import {drawAtlasFlight} from './atlas-flight.mjs?v=flash-prism-1';
-import {drawGuardianPresence} from './guardian-presence.mjs?v=flash-prism-1';
-import {createDepthScenery,drawDepthScenery} from './depth-scenery.mjs?v=flash-prism-1';
-import { drawGuardianWarnings } from './guardian-art.mjs?v=flash-prism-1';
-import {drawProximityMeter} from './proximity-meter.mjs?v=flash-prism-1';
-import {drawObjectiveMarks} from './flight-objectives.mjs?v=flash-prism-1';
-import {drawFlightProjection} from './flight-projection.mjs?v=flash-prism-1';
-import {drawGlowSense} from './glow-sense.mjs?v=flash-prism-1';
-import {formatGlow} from './vitality.mjs?v=flash-prism-1';
-import {LOCATION_PALETTES} from './world-expansion.mjs?v=flash-prism-1';
-import {biomePalette} from './biome-art.mjs?v=flash-prism-1';
-import { sceneryIdentity, drawIdentityBackground, drawIdentityMaterial, drawIdentityLife } from './level-scenery.mjs?v=flash-prism-1';
-import { getCompanionAbility, normalizeCompanionRole } from './companion-abilities.mjs?v=flash-prism-1';
-import { companionSprite, companionPalette } from './companion-art.mjs?v=flash-prism-1';
-import { createScenePropArt } from './scene-prop-art.mjs?v=flash-prism-1';
-import { drawBoss } from './boss.mjs?v=flash-prism-1';
-import { drawPickup, drawSparkSymbol, drawFlashBurst, FUEL_ANIMATION } from './pickup-art.mjs?v=flash-prism-1';
-import { pickupKind, getPickupSpec, pickupShellRadius } from './pickups.mjs?v=flash-prism-1';
-import { LIGHT_EXTENT,lightAttenuation,lightVisibility,createLightMaskCanvas,sceneRevealStrength } from './light-field.mjs?v=flash-prism-1';
-import {drawExitLandmark} from './exit-landmark.mjs?v=flash-prism-1';
-import {drawBlackHoles} from './black-hole-art.mjs?v=flash-prism-1';
-import {drawAbsorbingSpark} from './tidal-light.mjs?v=flash-prism-1';
-import {drawFlightForks,drawFlightForkBackdrops} from './flight-forks.mjs?v=flash-prism-1';
+import {drawAtlasFlight} from './atlas-flight.mjs?v=stream-and-dream-1';
+import {drawGuardianPresence} from './guardian-presence.mjs?v=stream-and-dream-1';
+import {createDepthScenery,drawDepthScenery} from './depth-scenery.mjs?v=stream-and-dream-1';
+import { drawGuardianWarnings } from './guardian-art.mjs?v=stream-and-dream-1';
+import {drawProximityMeter} from './proximity-meter.mjs?v=stream-and-dream-1';
+import {drawObjectiveMarks} from './flight-objectives.mjs?v=stream-and-dream-1';
+import {drawFlightProjection} from './flight-projection.mjs?v=stream-and-dream-1';
+import {drawGlowSense} from './glow-sense.mjs?v=stream-and-dream-1';
+import {formatGlow} from './vitality.mjs?v=stream-and-dream-1';
+import {LOCATION_PALETTES} from './world-expansion.mjs?v=stream-and-dream-1';
+import {biomePalette} from './biome-art.mjs?v=stream-and-dream-1';
+import { sceneryIdentity, drawIdentityBackground, drawIdentityMaterial, drawIdentityLife } from './level-scenery.mjs?v=stream-and-dream-1';
+import { getCompanionAbility, normalizeCompanionRole } from './companion-abilities.mjs?v=stream-and-dream-1';
+import { companionSprite, companionPalette, makeWispSprite } from './companion-art.mjs?v=stream-and-dream-1';
+import { createScenePropArt } from './scene-prop-art.mjs?v=stream-and-dream-1';
+import { drawBoss } from './boss.mjs?v=stream-and-dream-1';
+import { drawPickup, drawSparkSymbol, drawFlashBurst, FUEL_ANIMATION } from './pickup-art.mjs?v=stream-and-dream-1';
+import { pickupKind, getPickupSpec, pickupShellRadius } from './pickups.mjs?v=stream-and-dream-1';
+import { LIGHT_EXTENT,lightAttenuation,lightVisibility,createLightMaskCanvas,sceneRevealStrength } from './light-field.mjs?v=stream-and-dream-1';
+import {drawExitLandmark} from './exit-landmark.mjs?v=stream-and-dream-1';
+import {drawBlackHoles} from './black-hole-art.mjs?v=stream-and-dream-1';
+import {drawCapture, drawShellPuff} from './capture-art.mjs?v=stream-and-dream-1';
+import {drawFlightForks,drawFlightForkBackdrops} from './flight-forks.mjs?v=stream-and-dream-1';
 
 const TAU = Math.PI * 2;
 const SCENERY_HELPERS = { line: pixelLine, disc: pixelDisc, polygon: path };
@@ -573,9 +573,9 @@ export class WispFlightView {
     const margin = Math.ceil(Math.max(24, FUEL_ANIMATION.size / 2) * s);
     for (const ember of e.layout.embers) {
       if (ember.collected || ember.carried) continue;
-      const x = Math.round((ember.x - distance) * s), y = Math.round(ember.y * s);
+      const x = (ember.x - distance) * s, y = ember.y * s;
       if (x < -margin || x > this.buffer.width + margin) continue;
-      this.drawPacket(x, y, { kind: pickupKind(ember), time: t, phase: ember.phase, reducedMotion: e.reducedMotion,
+      this.drawPacket(x, y, { kind: pickupKind(ember), time: e.captureTime ?? t, phase: ember.phase, reducedMotion: e.reducedMotion,
         tiny: ember.generated === true, scale: s });
     }
   }
@@ -591,13 +591,8 @@ export class WispFlightView {
     const particles = e.particles || [];
     for (let i = Math.max(0, particles.length - 72); i < particles.length; i++) {
       const p = particles[i];
-      if(p.type==='ring-shard'){
-        const age=clamp(1-p.life/p.maxLife,0,1),collapse=1-age*age;
-        const angle=p.shardAngle+(e.reducedMotion?0:age*age*.9),radius=p.radius*collapse*s;
-        const x=(p.worldX-distanceOf(e))*s+Math.cos(angle)*radius,y=p.y*s+Math.sin(angle)*radius;
-        const half=p.length*.5*collapse*s,tx=Math.sin(angle)*half,ty=Math.cos(angle)*half;
-        c.globalAlpha=(1-age)*.9;
-        pixelLine(c,x-tx,y+ty,x+tx,y-ty,p.color);
+      if(p.type==='shell-puff'){
+        drawShellPuff(c,(p.worldX-distanceOf(e))*s,p.y*s,p.radius*s,(e.captureTime ?? timeOf(e))-p.bornAt,p.kind,p.phase,e.reducedMotion);
         continue;
       }
       c.globalAlpha = clamp(p.life / p.maxLife, 0, 1) * .7;
@@ -705,24 +700,7 @@ export class WispFlightView {
     const band = Math.round(clamp(fuel, 0, 1) * 32), key = 'main:' + band;
     let canvas = this.spriteCache.get(key);
     if (canvas) return canvas;
-    canvas = this.document.createElement('canvas'); canvas.width = canvas.height = 36;
-    const c = canvas.getContext('2d'), x = 18, y = 18, r = 13;
-    // Fuel burns inward: charcoal gathers at the edge, never as a central dot.
-    // Cache a coarse, dithered gradient per fuel band; no per-frame pixel work.
-    const coreRadius=12.5*Math.sqrt(band/32),dither=[0,.5,.75,.25];
-    for(let py=-13;py<13;py+=2)for(let px=-13;px<13;px+=2){
-      const dx=px+1,dy=py+1,distance=Math.hypot(dx,dy);
-      const cellX=(px+13)/2,cellY=(py+13)/2;
-      const edge=12.7+(((cellX*7+cellY*11)%5)-2)*.17;
-      if(distance>edge)continue;
-      const shell=distance>edge-1.6;
-      const raw=clamp((coreRadius+1.8-distance)/3.8,0,1);
-      const grain=dither[(cellX%2)+(cellY%2)*2];
-      const light=Math.min(1,Math.floor(raw*5+grain)/5);
-      const shade=shell?[188,204,193]:[Math.round(44+light*199),Math.round(52+light*191),Math.round(54+light*166)];
-      if(shell&&(cellX+cellY)%3===0){shade[0]=226;shade[1]=232;shade[2]=211;}
-      c.fillStyle=`rgb(${shade.join(',')})`;c.fillRect(x+px,y+py,2,2);
-    }
+    canvas = makeWispSprite(this.document, band);
     this.spriteCache.set(key, canvas);
     return canvas;
   }
@@ -857,7 +835,7 @@ export class WispFlightView {
     }
     const target=e.wisp?.target;
     if(target&&!target.collected&&!target.carried){
-      const state=e.wisp.state(e,yOf(e),t),tx=(target.x-distanceOf(e))*s,ty=target.y*s;
+      const state=e.wisp.state(e,yOf(e),t,e.renderBlend),tx=(target.x-distanceOf(e))*s,ty=target.y*s;
       c.globalAlpha=.32;c.lineWidth=.75;c.beginPath();c.moveTo(state.x*s,state.y*s);
       c.quadraticCurveTo((state.x*s+tx)/2,(state.y*s+ty)/2-6,tx,ty);c.stroke();
     }
@@ -879,7 +857,11 @@ export class WispFlightView {
       c.globalAlpha = intensity;
       if(collector)c.drawImage(sprite,x-5*depthScale,y-5*depthScale,10*depthScale,10*depthScale);else c.drawImage(sprite, x - 6, y - 6);
       c.globalAlpha = 1;
-      if (collector && state.carrying) this.drawPacket(x + 7, y + 5, { kind: state.cargoKind || 'light', tiny: true, bodyOnly: true, time: t, reducedMotion: e.reducedMotion, scale: s });
+      if (collector && state.carrying) {
+        const pose=state.cargoPose;
+        this.drawPacket(x+pose.offsetX*s,y+pose.offsetY*s,{kind:state.cargoKind,bodyOnly:true,
+          time:e.captureTime ?? t,phase:state.cargoPhase,scale:s*pose.scale,reducedMotion:e.reducedMotion});
+      }
       const px=e.player.x*s,py=yOf(e)*s,clock=e.reducedMotion?0:t;
       c.save();c.strokeStyle=tint.core;c.fillStyle=tint.bright;c.lineWidth=1;
       if(role==='protector'&&state.charges<state.layers){
@@ -915,29 +897,9 @@ export class WispFlightView {
     }
   }
 
-  drawAbsorptions(e, t, playerX, playerY) {
-    const c = this.bufferContext, s = this.scale;
+  drawAbsorptions(e, t) {
     for (const effect of e.absorptionEffects || []) {
-      const duration = Math.max(.1, Number(effect.duration) || .8);
-      const age = Number.isFinite(effect.bornAt) ? t - effect.bornAt : duration - effect.life;
-      const progress = clamp(age / duration, 0, 1);
-      if (age < 0 || progress >= 1) continue;
-      const kind = pickupKind(effect.pickupKind || effect.kind || 'light');
-      const dark = kind === 'dark', color = getPickupSpec(kind).color;
-      drawAbsorbingSpark(c,effect,progress,playerX,playerY,s,e.reducedMotion);
-      if (progress > .84) {
-        const impact = (progress - .84) / .16;
-        const pulse = Math.sin(impact * Math.PI) * (e.reducedMotion ? .5 : 1);
-        c.save();
-        if (dark) {
-          c.globalAlpha = pulse * .20; pixelDisc(c, playerX, playerY, Math.round(10 + impact * 12), '#010205');
-          c.globalAlpha = pulse * .76; pixelDisc(c, playerX, playerY, Math.round(4 + pulse * 3), '#000000');
-        } else {
-          this.glow(playerX, playerY, Math.round(10 + pulse * 11), color, pulse * .17);
-          c.globalAlpha = pulse * .6; pixelDisc(c, playerX, playerY, Math.round(3 + pulse * 5), '#ffffe9');
-        }
-        c.restore();
-      }
+      drawCapture(this.bufferContext,effect,e.captureTime ?? t,e.player.x,yOf(e),distanceOf(e),this.scale,e.reducedMotion);
     }
   }
 
@@ -1053,7 +1015,7 @@ export class WispFlightView {
     this.drawMist(e, t, distance, palette);
     const life = this.lifeOptions; life.height = this.buffer.height; life.distance = distance; life.time = t; life.reducedMotion = e.reducedMotion;
     drawIdentityLife(c, life, SCENERY_HELPERS);
-    let fleet = e.getCompanionStates?.(yOf(e), t);
+    let fleet = e.getCompanionStates?.(yOf(e), t,e.renderBlend);
     if (!fleet?.length) {
       const wisp = e.getWispState?.(yOf(e), t), fallback = this.fallbackFleet[0];
       if (wisp) Object.assign(fallback, wisp);
@@ -1077,7 +1039,7 @@ export class WispFlightView {
     this.drawMain(e, t, playerX, playerY);
     this.drawFleet(e, t, fleet,'front');
     this.drawProtector(e, t, playerX, playerY);
-    this.drawAbsorptions(e, t, playerX, playerY);
+    this.drawAbsorptions(e, t);
     if(e.flashBurst)drawFlashBurst(c,(e.flashBurst.worldX-distance)*s,e.flashBurst.y*s,
       t-e.flashBurst.bornAt,s,e.reducedMotion);
     drawBlackHoles(c,e,{scale:s,distance,playerY:yOf(e)});

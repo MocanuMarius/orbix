@@ -9,7 +9,7 @@ export const MAIN_TUNING_SKILLS={
  'main-kindled-touch':node('main-kindled-touch','Kindled Touch',35,'main-efficiency','Direct natural Spark pickups restore 6 extra Sparks. Companion deliveries keep their usual value.','fuel','Direct +6 Sparks'),
  'main-kindled-rich':node('main-kindled-rich','Bright Touch',40,'main-kindled-touch','Direct natural Spark pickups restore another 4 Sparks.','fuel','Direct +4 Sparks'),
  'main-purifying-touch':node('main-purifying-touch','Purifying Touch',45,'main-kindled-touch','Touch a Dark Spark to turn it into 12 Sparks instead of dimming. Recharges in 10 seconds.','purify','Cleanse seeds'),
- 'main-dream':node('main-dream','Dream',35,'main-sight','At a Rest, rehearse the next flight’s first 6 seconds freely. Preset a successful opening to replay without Lift or sustain cost.','dream','Dream 6s'),
+ 'main-dream':node('main-dream','Dream',35,'main-sight','Rehearse the opening 6s at Rest or before an Elite or Guardian. Save it for free playback.','dream','Dream 6s'),
  'main-dream-long':node('main-dream-long','Long Dream',40,'main-dream','Extend rehearsals and preset playback to 8 seconds.','dream','Dream 8s'),
  'main-dream-deep':node('main-dream-deep','Deep Dream',55,'main-dream-long','Extend rehearsals and preset playback to 10 seconds.','dream','Dream 10s'),
  'main-dream-wake':node('main-dream-wake','Gentle Awakening',30,'main-dream','After waking and tapping to resume, ease back to full speed over 4 seconds instead of 3.','dream','Soft wake'),

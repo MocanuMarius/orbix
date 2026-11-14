@@ -1,5 +1,5 @@
-import {sparkSymbolArt} from './spark-symbol.mjs?v=flash-prism-1';
-import {condensedIconMarkup} from './afterglow-ui.mjs?v=flash-prism-1';
+import {sparkSymbolArt} from './spark-symbol.mjs?v=stream-and-dream-1';
+import {condensedIconMarkup} from './afterglow-ui.mjs?v=stream-and-dream-1';
 
 // Three material tones sit above a shared dark contour. Keep light and shadow
 // readable at the tree's smallest size, even with all motion switched off.

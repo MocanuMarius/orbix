@@ -1,5 +1,5 @@
-import {getGlowCapacity,getLifeCapacity} from './vitality.mjs?v=flash-prism-1';
-import {getCompanionAbility} from './companion-abilities.mjs?v=flash-prism-1';
+import {getGlowCapacity,getLifeCapacity} from './vitality.mjs?v=stream-and-dream-1';
+import {getCompanionAbility} from './companion-abilities.mjs?v=stream-and-dream-1';
 
 // Values in descriptions are player-facing. Effects use the existing simulation units.
 export const EVENT_EDITION=2;
@@ -12,7 +12,7 @@ export const EVENT_FAVORS=Object.freeze({
 });
 const pick=(id,title,description,art,effect)=>({id,title,description,detail:description,art,effect,displayUnits:true});
 const favor=(id,title,key,art)=>pick(id,title,EVENT_FAVORS[key].text,art,{eventFavor:key});
-const packed=(id,title,n)=>pick(id,title,'Spend at a Rest to learn skills.','packed',{packedReward:n});
+const packed=(id,title,n)=>pick(id,title,'Spend on skills at any time.','packed',{packedReward:n});
 const reserve=()=>favor('reserve-wick','Carry a reserve wick','wick','wick');
 const feather=()=>favor('hollow-feather','Take the hollow feather','feather','feather');
 const lens=()=>favor('star-chart','Read the star chart','lens','lens');

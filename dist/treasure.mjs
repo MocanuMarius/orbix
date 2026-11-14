@@ -1,5 +1,5 @@
-import {glowPoints, getGlowCapacity} from './vitality.mjs?v=flash-prism-1';
-import {getCompanionAbility} from './companion-abilities.mjs?v=flash-prism-1';
+import {glowPoints, getGlowCapacity} from './vitality.mjs?v=stream-and-dream-1';
+import {getCompanionAbility} from './companion-abilities.mjs?v=stream-and-dream-1';
 
 export const TREASURE_KINDS = Object.freeze(['vessel', 'lens', 'tithe', 'wager']);
 export const LENS_SIGHT = 1.35;

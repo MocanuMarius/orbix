@@ -6,17 +6,17 @@ import {resourceCycleSteps,resourceCycleArt} from '../dist/resource-cycle.mjs';
 
 const fresh=()=>({profile:{difficulty:1,stats:{flights:0},clearedFlights:0},run:{id:'run-a',mapIndex:0,step:0,stats:{flights:0,deaths:0},companions:['collector'],current:{id:'flight-a',type:'flight'}}});
 
-test('the first briefing teaches the resource cycle before flight and postpones skill trees',()=>{
+test('the first briefing teaches the resource cycle and keeps the initial skill menu small',()=>{
  const state=fresh(),before=structuredClone(state),lesson=nextOnboardingLesson('briefing',{...state,now:1000});
  assert.equal(lesson.id,'onboarding:lift');
  assert.deepEqual(lesson.steps.map(s=>s.cycle.stage),[0,1,2]);
  assert.deepEqual(lesson.steps[0].cycle.values,[6,12,18]);
- assert.match(lesson.steps[0].text,/green Cluster adds 12 to your Spark Meter/);
+ assert.match(lesson.steps[0].text,/Cluster adds 12 to your Spark Meter/);
  assert.match(lesson.steps[1].text,/24\/30.*Tap anywhere to Lift.*3 Sparks/);
- assert.match(lesson.steps[2].text,/spare 6 into 1 Stored Spark\..*Rest/);
+ assert.match(lesson.steps[2].text,/spare 6 into 1 Stored Spark\..*Skills/);
  assert.ok(lesson.steps[0].text.split(/\s+/).length<40);assert.equal(lesson.steps[0].skipLabel,'Remember & skip');
  assert.deepEqual(state,before,'merely selecting a possible prompt must not write progress');
- assert.equal(onboardingFeatureAvailable(state.profile,state.run,'skills'),false);
+ assert.equal(onboardingFeatureAvailable(state.profile,state.run,'skills'),true);
  state.run.stats.flights=1;noteOnboardingProgress(state.profile,state.run);
  assert.equal(onboardingFeatureAvailable(state.profile,state.run,'skills'),true);
  assert.equal(onboardingFeatureAvailable(state.profile,state.run,'advanced-skills'),false);
@@ -39,7 +39,7 @@ test('remembering a topic survives a new run and a cleaned profile; reset replay
  assert.equal(nextOnboardingLesson('briefing',{profile:restored,run:{...run,id:'new-run'}}),null);
  restored.ownedArtifacts=['sunheart-engine'];restored.stats.flights=20;resetOnboarding(restored);
  assert.equal(onboardingFlightPlan(restored,run).gentleOpening,true,'Reset can replay the gradual intro for an experienced player');
- assert.equal(onboardingFeatureAvailable(restored,run,'skills'),false);
+ assert.equal(onboardingFeatureAvailable(restored,run,'skills'),true);
  assert.equal(nextOnboardingLesson('briefing',{profile:restored,run}).id,'onboarding:lift');
  assert.deepEqual(restored.ownedArtifacts,['sunheart-engine']);
 });
@@ -77,7 +77,7 @@ test('the first map teaches rewards and Rest when encountered, not at the openin
  lesson=nextOnboardingLesson('support',{...state,now:40000});assert.equal(lesson.topic,'rest');
  assert.match(lesson.steps[0].text,/Recover restores missing hearts/);
  assert.match(lesson.steps[0].text,/Grow adds 3 Spark capacity/);
- assert.match(lesson.steps[0].text,/spend Stored Sparks on skills/);
+ assert.match(lesson.steps[0].text,/Both refill Sparks/);
  assert.doesNotMatch(lesson.steps[0].text,/Dream/,'unowned optional mechanics are not advertised at every Rest');
  assert.doesNotMatch(lesson.steps[0].text,/equip|switch|change.*companion/i,'Rest does not change the run companion');
  const companion=nextOnboardingLesson('companions',{...state,now:40000});

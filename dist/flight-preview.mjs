@@ -1,13 +1,14 @@
-import {getBiome} from './biomes.mjs?v=flash-prism-1';
-import {getBossPreview} from './boss.mjs?v=flash-prism-1';
-import {levelMapPreview} from './level-map-art.mjs?v=flash-prism-1';
-import {mapStopIconMarkup} from './map-guide.mjs?v=flash-prism-1';
-import {resourceSymbol} from './game-symbols.mjs?v=flash-prism-1';
-import {getFlightClearReward} from './checkpoint-rewards.mjs?v=flash-prism-1';
-import {availableFlightArtifacts} from './model.mjs?v=flash-prism-1';
-import {bonusIcon,boonMarkup} from './route-bonus-ui.mjs?v=flash-prism-1';
-import {contextualFlightNotice} from './contextual-events.mjs?v=flash-prism-1';
-import {ATLAS_FORECASTS,atlasGlyph} from './night-atlas.mjs?v=flash-prism-1';
+import {getBiome} from './biomes.mjs?v=stream-and-dream-1';
+import {getBossPreview} from './boss.mjs?v=stream-and-dream-1';
+import {levelMapPreview} from './level-map-art.mjs?v=stream-and-dream-1';
+import {mapStopIconMarkup} from './map-guide.mjs?v=stream-and-dream-1';
+import {resourceSymbol} from './game-symbols.mjs?v=stream-and-dream-1';
+import {getFlightClearReward} from './checkpoint-rewards.mjs?v=stream-and-dream-1';
+import {availableFlightArtifacts} from './model.mjs?v=stream-and-dream-1';
+import {bonusIcon,boonMarkup} from './route-bonus-ui.mjs?v=stream-and-dream-1';
+import {contextualFlightNotice} from './contextual-events.mjs?v=stream-and-dream-1';
+import {ATLAS_FORECASTS,atlasGlyph} from './night-atlas.mjs?v=stream-and-dream-1';
+import {canDreamAt,dreamConfig,dreamEye} from './dream.mjs?v=stream-and-dream-1';
 
 const escapeText = value => String(value ?? '').replace(/[&<>"']/g, char =>
  ({'&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;'}[char]));
@@ -39,8 +40,11 @@ export function flightPreviewMarkup(run,node,{available=false,level,bonus=null}=
  const kind=node.boss?'Guardian':node.elite?'Elite flight':'Flight';
  const art=node.boss?mapStopIconMarkup(node):levelMapPreview(level||node);
  const metadata=[place,Number(node.duration)>0?`${Math.round(node.duration)} s`:''].filter(Boolean).map(escapeText).join(' · ');
- const action=available?`<button class="primary" data-action="node" data-id="${escapeText(node.id)}">Fly →</button>`
+ const duration=available&&canDreamAt(run,node)?dreamConfig(run).duration:0;
+ const saved=run.dreamPreset?.nodeId===node.id;
+ const action=available?`<button class="primary" data-action="node" data-id="${escapeText(node.id)}">${saved&&duration?'Fly with Dream':'Fly'} →</button>`
   :'<span class="preview-future">Follow the connected path</span>';
+ const dream=duration?`<button class="secondary preview-dream" data-action="dream" data-id="${escapeText(node.id)}" aria-label="Rehearse ${escapeText(node.name)} for ${duration} seconds">${dreamEye}<span>Dream · ${duration}s</span></button>`:'';
  const cue=forecast?forecast.cue:hazard;
  return `<section class="flight-preview" aria-labelledby="preview-place">
   <div class="preview-reading">
@@ -58,6 +62,6 @@ export function flightPreviewMarkup(run,node,{available=false,level,bonus=null}=
     </section>`:''}
    </div>${flightTerms(run,node,available)}
   </div>
-  <footer><button class="secondary" data-action="close-sheet">Back</button>${action}</footer>
+  <footer${dream?' class="has-dream"':''}><button class="secondary" data-action="close-sheet">Back</button>${dream}${action}</footer>
  </section>`;
 }

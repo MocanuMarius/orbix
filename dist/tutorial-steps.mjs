@@ -1,4 +1,4 @@
-import {topicSteps} from './tutorial-curriculum.mjs?v=flash-prism-1';
+import {topicSteps} from './tutorial-curriculum.mjs?v=stream-and-dream-1';
 const step=(id,title,text,target)=>({id,title,text,target,allowTarget:false});
 const chapter=(id,steps,target)=>({id,steps:steps.map(s=>({...s,...(target?{target}:{}),allowTarget:false}))});
 export function checkpointTutorialLesson(screen,{run={}}={}){
@@ -10,7 +10,7 @@ export function checkpointTutorialLesson(screen,{run={}}={}){
    {title:'First Light: learn at your pace',text:'This separate practice has seven stops. Short lessons appear where you need them. Your real run stays safe. MENU → Field Guide replays every topic.',visual:'wisp'},
    topicSteps('hearts')[0],topicSteps('routes')[0]],'#journey-map');
   else if(run.lastFlight?.success&&!run.lastFlight.elite&&!run.lastFlight.boss&&!seen('practice-clear-pay'))
-   lesson=chapter('practice-clear-pay',[{title:'Your reward is already saved',text:'Clearing a flight automatically banks 20 Stored Sparks plus overflow. Save them for skill upgrades at Rest. Choose your next connected stop.',visual:'clear-reward'}],'.condensed-wallet');
+   lesson=chapter('practice-clear-pay',[{title:'Your reward is already saved',text:'Clearing a flight automatically banks 20 Stored Sparks plus overflow. Open Skills to spend them on upgrades. Choose your next connected stop.',visual:'clear-reward'}],'.condensed-wallet');
   else if(run.map?.[run.step]?.some(n=>n.kind==='camp'))lesson=chapter('practice-rest-route',[topicSteps('routes')[2]],'#journey-map');
   else if(run.step===3)lesson=chapter('practice-event-route',[topicSteps('routes')[3]],'#journey-map');
  }

@@ -4,7 +4,7 @@ import {attachDream,validateDreamPreset} from '../dist/dream.mjs';
 globalThis.requestAnimationFrame=()=>1;globalThis.cancelAnimationFrame=()=>{};
 const ctx=new Proxy({},{get:(o,k)=>o[k]??(String(k).includes('Gradient')?()=>({addColorStop(){}}):()=>{}),set:(o,k,v)=>(o[k]=v,true)});
 const canvas={style:{},getContext:()=>ctx,getBoundingClientRect:()=>({width:390,height:620})};
-const options={canvas,seed:'dream-probe',terrain:'ruins',duration:102,node:{flightLengthScale:3,flightNumber:1},flame:40,condensedGlow:12,
+const options={canvas,seed:'dream-probe',terrain:'ruins',duration:102,node:{id:'dream-elite',elite:true,flightLengthScale:3,flightNumber:1},flame:40,condensedGlow:12,
   companions:['leveler'],modifiers:{dreamDuration:6,dreamWake:3,secondDawn:1,dreamRecharge:1.5}};
 const make=(role='leveler')=>{const e=new WispFlight({...options,companions:[role]});e.render=()=>{};e.layout.obstacles=[];e.layout.embers=[];e.drafts.zones=[];e.start();return e};
 const snapshot=e=>JSON.stringify({time:e.time,y:e.player.y,vy:e.player.vy,distance:e.distance,flame:e.flame,condensedGlow:e.condensedTotal,flaps:e.flaps,boosts:e.boosts,charge:e.levelCharge});
@@ -17,6 +17,11 @@ for(let frame=0;frame<360;frame++){
   record.step(1/60);
 }
 assert.ok(ready?.valid);assert.equal(record.paused,true);assert.equal(record.flame,40);assert.equal(record.condensedTotal,12);
+assert.equal(ready.preset.nodeId,options.node.id);
+const alternate=make();
+alternate.options={...alternate.options,node:{...options.node,id:'other-elite'}};
+assert.equal(attachDream(alternate,{mode:'replay',preset:ready.preset}),null,'A saved opening belongs only to its rehearsed encounter');
+alternate.destroy();
 const real=make();assert.ok(attachDream(real,{mode:'replay',preset:ready.preset,onAwake:()=>awake++}));
 assert.equal(real.flap(),false,'Player cannot disrupt preset replay');
 for(let i=0;i<360;i++)real.step(1/60);

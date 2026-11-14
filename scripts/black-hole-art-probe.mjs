@@ -65,8 +65,7 @@ const reduced=fixture({reducedMotion:true});drain(reduced);
 assert.equal(draw(reduced),2,'Reduced motion limits new particles to two per frame');
 assert.equal(blackHoleArtStats(fixture()).motes,0,'Effect state is isolated per engine');
 
-// Motes retain the existing emission rate. Each starts elongated, then
-// its longest axis and its orbit shrink together as it reaches the core.
+// The newly detached light stretches on approach before its orbit collapses.
 const density=fixture();drain(density,10);assert.equal(draw(density),18);
 const spiral=fixture();spiral.blackHoles.items[0].sourceX=1140;
 drain(spiral,.6);headRects=[];assert.equal(draw(spiral),1);
@@ -75,14 +74,15 @@ const headBounds=()=>({left:Math.min(...headRects.map(r=>r[0])),right:Math.max(.
  top:Math.min(...headRects.map(r=>r[1])),bottom:Math.max(...headRects.map(r=>r[1]+r[3]))});
 const initial=headBounds();
 const initialWidth=initial.right-initial.left,initialHeight=initial.bottom-initial.top;
-assert.ok(Math.max(initialWidth,initialHeight)>=1.5*Math.min(initialWidth,initialHeight),
- 'Light is already stretched along its curved path on its first visible frame');
+assert.ok(Math.max(initialWidth,initialHeight)<1.55*Math.min(initialWidth,initialHeight),
+ 'The freshly detached light still has a compact body');
 const radii=[],sizes=[];
 for(const age of [.15,.3,.5,.72,.795]){
  spiral.time=born+age;headRects=[];draw(spiral);assert.ok(headRects.length);
  const b=headBounds(),cx=(b.left+b.right)/2,cy=(b.top+b.bottom)/2;
  radii.push(Math.hypot(cx-240,(cy-220)/.72));sizes.push(Math.max(b.right-b.left,b.bottom-b.top));
 }
+assert.ok(sizes[0] > 1.5 * Math.max(initialWidth,initialHeight), 'The light elongates on approach');
 for(let i=1;i<radii.length;i++)assert.ok(radii[i]<=radii[i-1]+1,'Funnel tightens into the core');
 for(let i=1;i<sizes.length;i++)assert.ok(sizes[i]<=sizes[i-1],'Light fragments shrink during absorption');
 assert.ok(radii.at(-1)<3);assert.ok(sizes.at(-1)<=2);
@@ -96,5 +96,5 @@ assert.ok(new Set(headRects.map(r=>r.slice(0,2).join(','))).size>8,'Seeded fragm
 console.log(JSON.stringify({actualDrainOnly:true,repeatedFrameStable:true,
  maximumMotes:maximum,resizeClears:true,expiredTrailsRemoved:true,
  noStaleBurst:true,lifecycleGates:true,reducedMotion:true,
- simulationAndEconomyUntouched:true,elongatedOnCapture:true,emissionScale:2,funnelRadii:radii,
+ simulationAndEconomyUntouched:true,elongatesOnApproach:true,emissionScale:2,funnelRadii:radii,
  shrinkingHeads:sizes,finiteRectangles:rectangles}));

@@ -1,4 +1,4 @@
-import {SKILLS,getSkillLockReason,getSkillPrice,canChooseStartingSkill} from './model.mjs?v=flash-prism-1';
+import {SKILLS,getSkillLockReason,getSkillPrice,canChooseStartingSkill} from './model.mjs?v=stream-and-dream-1';
 
 const parents=skill=>Array.isArray(skill?.requires)?skill.requires:skill?.requires?[skill.requires]:[];
 const learned=(wallet,id)=>Number(wallet?.skills?.[id]||0);
@@ -28,9 +28,7 @@ export function skillTreeState({wallet,run=wallet,canBuy=true},skill){
  const disclosure=complete||rank>0||free||wallet?.testMode===true?'full':closedBy||distance>1?'hidden':distance===1?'preview':'full';
  const available=!complete&&(free||canBuy&&!reason&&price!==null&&shortfall===0)&&!closedBy;
  const state=complete?'learned':closedBy?'excluded':disclosure==='hidden'?'distant':disclosure==='preview'?'preview':available?'available':reason||!canBuy?'locked':'saving';
- const needsRest=!canBuy&&!free&&!complete&&!run?.testMode&&!run?.isTutorial;
- const atRest=run?.restReady===true||run?.current?.kind==='camp'&&run?.phase==='support';
- return {state,disclosure,inspectable:disclosure!=='hidden',rank,complete,reason,price,free,shortfall,distance,closedBy,available,restRequired:needsRest&&!atRest,restBenefitRequired:needsRest&&atRest};
+ return {state,disclosure,inspectable:disclosure!=='hidden',rank,complete,reason,price,free,shortfall,distance,closedBy,available};
 }
 
 // Used by every rendering entry point, including direct inspector calls. A stale
@@ -56,8 +54,6 @@ export function skillTreeStatus(view){
  if(view.complete)return '✓ Learned';
  if(view.free)return 'Free starting gift';
  if(view.disclosure==='preview')return 'Locked · Learn the preceding skill to reveal';
- if(view.restRequired)return 'Upgrade at Rest';
- if(view.restBenefitRequired)return 'Choose Recover or Grow first';
  if(view.reason)return `Locked · ${view.reason}`;
  if(view.state==='locked')return 'Upgrade unavailable';
  if(view.shortfall>0)return `Need ${view.shortfall} more Stored Sparks`;

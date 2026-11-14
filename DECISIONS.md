@@ -891,3 +891,11 @@ User selected simplification proposal 3 only. Each ordinary, elite and map-exit 
 Rest always offers Recover (restore all missing hearts) or Grow (+3 maximum Sparks for this run, three growths maximum). Both completely refill Sparks, including newly purchased capacity during that Rest's preparation. Grow leaves hearts unchanged. A capped Grow is visibly disabled; Recover remains available so preparation cannot dead-end. Rest refills create no Packed Sparks. The old Condense and Recharge benefits are removed. Consumable stacks/uses, artifact slots and the skill trees are otherwise retained; proposals 1 and 2 were not selected.
 
 Skills, changing the one companion, artifact management/Forge and learned Dream remain optional preparation tools. Before-flight previews, reward totals, contextual guidance and the Field Guide distinguish clear income from overflow. See docs/checkpoint-economy.md for the small synthetic income check and its limits.
+
+## Spark absorption, training and Dream — 14 November 2026
+
+Fuel Sparks have a smaller shell and a mostly white palette. The 6-Spark pickup has a warm tint, the 12-Spark Cluster a mint tint, and the 18-Spark Cache the densest white light. Collecting one pops its shell. A puff stays at its position for one second while the wisp draws out the plasma. The gallery compares three motions on a shared timeline and saves the selected motion for the next flight on that browser.
+
+Banked Stored Sparks can be spent from the start of the run, including during a flight. The purchase updates the live build and survives a lost attempt. Overflow from the current flight becomes spendable on a clear. Closing Skills during flight requires a tap to resume.
+
+Once Dream is learned, the player can rehearse a reachable elite or guardian from its route preview, in addition to the next flight after a Rest. A rehearsal costs no attempt and commits no route. The recorded opening belongs to its encounter and build. Buying a skill during replay ends the assistance and leaves the player paused.

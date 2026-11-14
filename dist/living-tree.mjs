@@ -1,17 +1,16 @@
-import {mapStopIconMarkup} from './map-guide.mjs?v=flash-prism-1';
-import {resourceSymbol} from './game-symbols.mjs?v=flash-prism-1';
-import {getCompanionAbility} from './companion-abilities.mjs?v=flash-prism-1';
-import {glowText,getGlowCapacity} from './vitality.mjs?v=flash-prism-1';
-import {SKILLS} from './model.mjs?v=flash-prism-1';
-import {skillIcon} from './upgrade-icons.mjs?v=flash-prism-1';
-import {companionArtSvg} from './companion-art.mjs?v=flash-prism-1';
-import {skillTreeState,safeTreeSelection,skillTreeStatus} from './skill-tree-state.mjs?v=flash-prism-1';
+import {resourceSymbol} from './game-symbols.mjs?v=stream-and-dream-1';
+import {getCompanionAbility} from './companion-abilities.mjs?v=stream-and-dream-1';
+import {glowText,getGlowCapacity} from './vitality.mjs?v=stream-and-dream-1';
+import {SKILLS} from './model.mjs?v=stream-and-dream-1';
+import {skillIcon} from './upgrade-icons.mjs?v=stream-and-dream-1';
+import {companionArtSvg} from './companion-art.mjs?v=stream-and-dream-1';
+import {skillTreeState,safeTreeSelection,skillTreeStatus} from './skill-tree-state.mjs?v=stream-and-dream-1';
 export const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const lockIcon='<svg class="bud-lock" viewBox="0 0 24 24" aria-hidden="true" shape-rendering="crispEdges"><path fill="#1b2631" d="M5 9h2V5h2V3h6v2h2v4h3v12H4V9z"/><path fill="#aebac2" d="M8 9V6h2V4h4v2h2v4h-2V7h-4v3H8z"/><path fill="#697d88" d="M5 10h14v10H5z"/><path fill="#c0cad0" d="M5 10h12v2H7v7H5z"/><path fill="#263640" d="M11 13h3v3h-1v2h-2z"/></svg>';
 const stateKey=`<div class="tree-state-key" aria-label="Skill states"><span class="learned"><i aria-hidden="true">✓</i> Owned</span><span class="available"><i aria-hidden="true">+</i> Can learn</span><span class="saving"><i aria-hidden="true"></i> Saving up</span><span class="locked"><i aria-hidden="true">${lockIcon}</i> Locked</span></div>`;
 export function treeHeader(run,wallet,branch,limbs=''){
  const tabs=[['main','Wisp'],['companion','Companion'],['mystic','Mystic']];
- return `<header class="tree-crown"><h2>${tabs.find(t=>t[0]===branch)?.[1]||'Companion'}</h2><span aria-label="${Math.floor(wallet.condensedGlow||0)} Stored Sparks">${resourceSymbol('packed')} ${Math.floor(wallet.condensedGlow||0)}</span><button data-action="close-sheet" aria-label="Close skill tree">×</button></header><div class="tree-navigation"><div class="tree-selectors"><nav class="tree-tabs" aria-label="Skill trees">${tabs.map(([id,name])=>`<button data-action="tree-branch" data-id="${id}" class="${id===branch?'selected':''}" aria-pressed="${id===branch}">${id==='companion'?companionArtSvg(run.companions[0]):''}<span>${name}</span></button>`).join('')}</nav></div>${stateKey}</div>`;
+ return `<header class="tree-crown"><h2>${tabs.find(t=>t[0]===branch)?.[1]||'Companion'}</h2><span aria-label="${Math.floor(wallet.condensedGlow||0)} Stored Sparks">${resourceSymbol('packed')} ${Math.floor(wallet.condensedGlow||0)}${wallet.unbanked>0?` <small>+${wallet.unbanked} on clear</small>`:''}</span><button data-action="close-sheet" aria-label="Close skill tree">×</button></header><div class="tree-navigation"><div class="tree-selectors"><nav class="tree-tabs" aria-label="Skill trees">${tabs.map(([id,name])=>`<button data-action="tree-branch" data-id="${id}" class="${id===branch?'selected':''}" aria-pressed="${id===branch}">${id==='companion'?companionArtSvg(run.companions[0]):''}<span>${name}</span></button>`).join('')}</nav></div>${stateKey}</div>`;
 }
 // Three purchases remain separate skills; only their map marker is shared.
 export function radialTreeLayout(skills,{width=560,height=320,sizes=new Map()}={}){
@@ -87,8 +86,8 @@ export function treeDetail({run,wallet,skill,canBuy}){
  if(!skill)return '<section class="tree-inspector"><p>Follow a nearby branch to reveal more skills.</p></section>';
  const view=skillTreeState(context,skill),preview=view.disclosure==='preview';
  const track=!preview&&skill.treeGroup?Object.values(SKILLS).filter(s=>!s.retired&&s.treeGroup===skill.treeGroup&&skillTreeState(context,s).inspectable).sort((a,b)=>a.treeStage-b.treeStage):[];
- const status=`<p class="tree-selection-status ${view.state} ${view.restRequired?'rest-required':''}">${view.restRequired?mapStopIconMarkup('rest'):''}${esc(skillTreeStatus(view))}</p>`;
+ const status=`<p class="tree-selection-status ${view.state}">${esc(skillTreeStatus(view))}</p>`;
  if(preview)return `<section class="tree-inspector preview-inspector" aria-live="polite"><div class="tree-inspector-title">${lockIcon}<h3>${esc(skill.treeName||skill.name)}</h3></div>${status}</section>`;
 const ranks=track.length?`<nav class="rank-choices" aria-label="Individual skill ranks">${track.map(s=>{const rankView=skillTreeState(context,s);if(rankView.disclosure==='preview')return `<span class="future-rank" aria-label="Future rank">${s.treeStage}<small aria-hidden="true">${lockIcon}</small></span>`;return `<button data-action="inspect-branch-skill" data-id="${s.id}" class="${s.id===skill.id?'selected':''} ${rankView.state}" aria-pressed="${s.id===skill.id}" aria-label="${esc(s.name)}: ${esc(skillTreeStatus(rankView))}">${s.treeStage}<small class="rank-cost">${rankView.complete?'✓':`${resourceSymbol('packed')} ${rankView.price}`}</small></button>`;}).join('')}</nav>`:'';
- return `<section class="tree-inspector" aria-live="polite"><div class="tree-inspector-title">${skillIcon(skill)}<h3>${esc(skill.treeName||skill.name)}</h3></div><p>${esc(glowText(skill.description||skill.consequence,getGlowCapacity(run)))}</p>${ranks}${status}<button class="skill-purchase ${view.state} ${view.available?'primary':'secondary'}" data-action="${view.free?'choose-start-skill':'buy-skill'}" data-id="${skill.id}" ${view.available?'':'disabled'}>${view.state==='locked'?`<i class="item-lock-badge" aria-hidden="true">${lockIcon}</i>`:''}${view.complete?'✓ OWNED':view.free?'CHOOSE FREE GIFT':`${view.available?'+ LEARN':view.restRequired?'REST REQUIRED':view.restBenefitRequired?'CHOOSE REST BENEFIT':view.state==='saving'?'SAVE FOR':''} · ${view.price} ${resourceSymbol('packed')}`}</button></section>`;
+ return `<section class="tree-inspector" aria-live="polite"><div class="tree-inspector-title">${skillIcon(skill)}<h3>${esc(skill.treeName||skill.name)}</h3></div><p>${esc(glowText(skill.description||skill.consequence,getGlowCapacity(run)))}</p>${ranks}${status}<button class="skill-purchase ${view.state} ${view.available?'primary':'secondary'}" data-action="${view.free?'choose-start-skill':'buy-skill'}" data-id="${skill.id}" ${view.available?'':'disabled'}>${view.state==='locked'?`<i class="item-lock-badge" aria-hidden="true">${lockIcon}</i>`:''}${view.complete?'✓ OWNED':view.free?'CHOOSE FREE GIFT':`${view.available?'+ LEARN':view.state==='saving'?'SAVE FOR':''} · ${view.price} ${resourceSymbol('packed')}`}</button></section>`;
 }

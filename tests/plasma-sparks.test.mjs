@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 import {readFile} from 'node:fs/promises';
 import {inflateSync} from 'node:zlib';
-import {drawPickup, drawSparkSymbol, prepareFuelSprites, pickupArtSvg} from '../dist/pickup-art.mjs';
+import {drawPickup, drawSparkSymbol, prepareFuelSprites, pickupArtSvg, pickupSpriteFrame} from '../dist/pickup-art.mjs';
 import {resourceSymbol} from '../dist/game-symbols.mjs';
 import {getPickupSpec, pickupContactRadius, pickupShellRadius} from '../dist/pickups.mjs';
 import {glowPoints} from '../dist/vitality.mjs';
@@ -80,10 +80,21 @@ function assertSameFrame(sprite,asset,frame,message) {
   }
 }
 
-test('fuel tiers keep the same pickup shell, contact radii and yields', () => {
-  assert.deepEqual(kinds.map(pickupShellRadius), [16,16,16]);
-  assert.deepEqual(kinds.map(pickupContactRadius), [20.8,20.8,24]);
+test('Spark artwork shrinks while contact radii and fuel yields are preserved', () => {
+  const sparkKinds=[...kinds,'dusk','dark'];
+  assert.deepEqual(sparkKinds.map(pickupShellRadius), [16,16,16,20,17.6].map(r=>r*.8));
+  assert.deepEqual(sparkKinds.map(pickupContactRadius), [20.8,20.8,24,20,17.6]);
+  assert.equal(pickupShellRadius('sight'), 20.8);
   assert.deepEqual(kinds.map(k => glowPoints(getPickupSpec(k).fuel)), [6,12,18]);
+});
+
+test('absorption starts from the live Spark texture, including both warning variants', () => {
+  const {ctx,doc}=atlasFixture();
+  for (const kind of [...kinds,'dusk','dark']) {
+    const opts={time:1.71,phase:1.6};
+    drawPickup(ctx,10,10,{kind,...opts});
+    assert.equal(pickupSpriteFrame(doc,kind,opts), ctx.last);
+  }
 });
 
 test('the menu, its wallet window and canvas labels use the scaled flight Spark', () => {
@@ -106,7 +117,7 @@ test('the menu, its wallet window and canvas labels use the scaled flight Spark'
   }
 });
 
-test('in-flight, carried and menu Sparks show the same animated frames and quiet poses', async () => {
+test('flight and menu use the same animated Spark, and cargo carries its shell-free interior', async () => {
   const {ctx,doc,sprites} = atlasFixture();
   await prepareFuelSprites(doc);
   await prepareFuelSprites(doc,true);
@@ -138,7 +149,9 @@ test('in-flight, carried and menu Sparks show the same animated frames and quiet
         const normal = ctx.last;
         assertSameFrame(normal,motion,i,kind+' frame '+i);
         drawPickup(ctx,10,10,{kind,time:time+frame.delay/2,tiny:true,bodyOnly:true});
-        assert.equal(ctx.last,normal);
+        const interior = pickupSpriteFrame(doc,kind,{time:time+frame.delay/2,bodyOnly:true});
+        assert.equal(ctx.last,interior);
+        assert.notDeepEqual(interior.pixels,normal.pixels,'the shell stays behind at collection');
       }
       time += frame.delay;
     }

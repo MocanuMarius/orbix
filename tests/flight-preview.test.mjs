@@ -41,3 +41,17 @@ test('the committed forecast gets one cue; future previews cannot start a flight
  assert.match(html,/upper Sparks/);
  assert.doesNotMatch(html,/Only the unmodified terrain cue|data-action="node"/);
 });
+
+test('Dream opens reachable Elite and Guardian rehearsals, while a Rest also opens ordinary rehearsals',()=>{
+ const {run,render}=sample();
+ const dream=/data-action="dream"/;
+ assert.doesNotMatch(render({elite:true}),dream);
+ run.skills['main-dream']=1;
+ assert.doesNotMatch(render({elite:false,boss:false}),dream);
+ for(const type of [{elite:true},{boss:true}]){
+  assert.match(render(type),dream);
+  assert.doesNotMatch(render(type,{available:false}),dream);
+ }
+ run.restReady=true;
+ assert.match(render({elite:false,boss:false}),dream);
+});

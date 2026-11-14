@@ -6,7 +6,7 @@ export function dreamFingerprint(options={}){
   const modifiers = {...options.modifiers};
   delete modifiers.eventFavors;
   delete modifiers.flightBoon; // Waking benefits cannot change rehearsed physics.
-  return JSON.stringify(ordered({simulation:'flash-prism-1',seed:options.seed,terrain:options.terrain,elite:!!options.elite,duration:options.duration,
+  return JSON.stringify(ordered({simulation:'stream-and-dream-1',seed:options.seed,terrain:options.terrain,elite:!!options.elite,duration:options.duration,
     node:options.node,companions:options.companions,modifiers,flame:options.flame,condensedGlow:options.condensedGlow||0,condensedRemainder:options.condensedRemainder||0}));
 }
 export function dreamConfig(run={}){
@@ -27,10 +27,16 @@ export function dreamIndicatorMarkup(dream){
   const paused=['awakening','ready','failed'].includes(dream.phase);
   return `<div class="dream-indicator ${paused?'is-paused':''}" aria-label="${paused?'Dream paused':dream.mode==='record'?'Rehearsing dream':'Dream playback'}">${paused?pauseIcon:dreamEye}<span>${paused?'':Math.max(0,Math.ceil(dream.duration-(dream.engine?.time||0)))+'s'}</span></div>`;
 }
+export function canDreamAt(run,node){
+  return Boolean(node && node.type!=='support' && run?.phase==='map' && !run.attemptActive
+    && !run.victoryPending && !run.banked && run.lives>0 && dreamConfig(run).duration
+    && (run.restReady || node.elite || node.boss));
+}
 export function dreamRestMarkup(run,node){
   const duration=dreamConfig(run).duration;
-  if(!duration||!node||!run.restReady)return '';
-  return `<button data-action="dream" class="rest-dream" aria-label="Dream: rehearse ${duration} seconds${run.dreamPreset?' (preset saved)':''}">${dreamEye}<span>Dream</span><small>${duration}s${run.dreamPreset?' · SAVED':''}</small></button>`;
+  if(!run.restReady||!canDreamAt(run,node))return '';
+  const saved=run.dreamPreset?.nodeId===node.id;
+  return `<button data-action="dream" class="rest-dream" aria-label="Dream: rehearse ${duration} seconds${saved?' (preset saved)':''}">${dreamEye}<span>Dream</span><small>${duration}s${saved?' · SAVED':''}</small></button>`;
 }
 
 export function attachDream(engine,{mode='record',preset,duration=engine.mod.dreamDuration,onReady=()=>{},onAwake=()=>{}}={}){
@@ -65,8 +71,19 @@ export function attachDream(engine,{mode='record',preset,duration=engine.mod.dre
   };
   const ready=(valid,reason='')=>{
     dream.phase=valid?'ready':'failed';stop();
-    onReady({valid,reason,preset:valid?{version:1,fingerprint:dreamFingerprint(engine.options),width:engine.width,height:engine.height,duration:dream.duration,
-      events:dream.events.map(event=>({...event,args:[...event.args]}))}:null});
+    dream.result={valid,reason,preset:valid?{version:1,nodeId:engine.options.node?.id,fingerprint:dreamFingerprint(engine.options),width:engine.width,height:engine.height,duration:dream.duration,
+      events:dream.events.map(event=>({...event,args:[...event.args]}))}:null};
+    onReady(dream.result);
+  };
+  dream.onBuildChanged=()=>{
+    if(dream.phase==='recording'){
+      dream.phase='failed';
+      dream.result={valid:false,preset:null,reason:'Your skills changed. Rehearse with your new build.'};
+      stop();
+    }else if(dream.phase==='replay'){
+      dream.phase='awakening';
+      stop();onAwake();
+    }
   };
   const initialWidth=engine.width,initialHeight=engine.height,resize=engine.resize;
   engine.resize=function(...args){

@@ -40,7 +40,7 @@
 .flight-hud>.flight-condensed-counter{
  position:relative;display:grid;height:36px;grid-template-columns:7px auto;grid-template-rows:1fr;
  align-items:center;column-gap:18px!important;min-width:0!important;margin-right:auto;padding:0;
- background:transparent;pointer-events:none;
+ background:transparent;pointer-events:auto;cursor:pointer;border:0;
 }
 .flight-hud>.flight-condensed-counter>.condensed-icon{grid-column:1;grid-row:1;justify-self:center}
 .flight-hud>.flight-condensed-counter>b{grid-column:2;grid-row:1;font-size:18px!important;line-height:1}

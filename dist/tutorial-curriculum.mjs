@@ -7,12 +7,12 @@ export const TUTORIAL_TOPICS={
   s('Glide','Release to fall naturally. Small, deliberate Lifts leave more Sparks for the rest of the passage.','lift')]},
  sparks:{name:'From Spark to Stored Sparks',visual:'spark-storage',steps:[
   s('Spark Meter','Touch a Spark to refill the meter on the left. Each lit division pays for one Lift.','meter'),
-  s('Read the glow','Amber gives 6 Sparks, green gives 12 and white gives 18. Look for denser arcs in the stronger pickups.','spark-layers'),
-  s('Store the surplus','A full meter sends surplus to the upper-left box. Spend Stored Sparks on skills at a Rest.','spark-storage')]},
+  s('Read the glow','A Spark adds 6, a Cluster adds 12, and a Cache adds 18. Look for a denser web of light as the value rises.','spark-layers'),
+  s('Store the surplus','A full meter sends surplus to the upper-left box. Open Skills to spend your Stored Sparks.','spark-storage')]},
  luminance:{name:'Luminance',visual:'luminance',steps:[
   s('Luminance','Luminance is how far your wisp lights the world. It fades with distance; faraway scenery and Sparks disappear into darkness.','luminance'),
   s('Sparks and sight','Sparks pay for Lift. Luminance reveals the route around your wisp.','luminance'),
-  s('Grow your Luminance','At a Rest, train Luminance in the Wisp tree. A Flash Powerup reveals the passage when collected.','pickup:sight')]},
+  s('Grow your Luminance','Learn Luminance in the Wisp tree. A Flash Powerup reveals the passage when collected.','pickup:sight')]},
  utilities:{name:'Flash & hazards',visual:'pickup:sight',steps:[
   s('Flash Powerup','Catch the violet triangle. Its burst reveals the whole passage, then keeps the way ahead lit. Use that time to line up your next pickup.','pickup:sight'),
   s('Dusk Spark','The rose Dusk Spark trades reduced Luminance for fuel. Its red ring warns of the cost. Only body contact collects it.','pickup:dusk')]},
@@ -49,11 +49,11 @@ export const TUTORIAL_TOPICS={
  skills:{name:'Skill trees',visual:'skills',steps:[
   s('Choose a branch','Skills belong to this run. Light improves Luminance; Motion changes flight; Sparks improves fuel. Your companion tree improves the one role you equipped.','skills'),
   s('Read the skill states','Blue check: owned. Gold plus: affordable now. Bronze price: save more Stored Sparks. Lock: learn its prerequisite first.','skill-states'),
-  s('Commit to your build','Some forks exclude the other path. Read the selected effect before learning. Spend Stored Sparks on upgrades at Rest. A new run resets these skills.','skills')]},
+  s('Commit to your build','Some forks exclude the other path. Read the selected effect before learning. Spend Stored Sparks on upgrades during your run. A new run resets these skills.','skills')]},
  rewards:{name:'Flight rewards',visual:'artifact',steps:[
   s('Clear the passage','Reaching the waylight completes a flight. Before the final guardian, earn 20 Stored Sparks plus pickup overflow. Some Sparks recover for the next flight. A bonus challenge is optional.','clear-reward'),
   s('Choose one artifact','Elite and guardian victories offer two artifacts. Choose one automatic effect to add to this run. Ordinary flights reward Stored Sparks, without an artifact choice.','artifact'),
-  s('Upgrade at Rest','Save your Stored Sparks for a campfire. Choose Recover or Grow at Rest, then open Skills to buy upgrades. You can inspect the tree along the route.','site:rest')]},
+  s('Upgrade any time','Tap the Stored Sparks box to open Skills. Flight pauses while you choose. New overflow becomes spendable when you clear the flight.','skills')]},
  artifacts:{name:'Artifacts',visual:'artifact',steps:[
   s('Collect an artifact','Choose one of two artifacts after an elite or guardian victory. It works automatically alongside your other artifacts, without slots or replacements.','artifact'),
   s('Rarity and uses','Grey is Common, green Rare, purple Legendary. Some effects last the run; consumables disappear when their uses run out. Read the effect and its trigger.','artifact-rarity'),
@@ -61,16 +61,16 @@ export const TUTORIAL_TOPICS={
   s('Build a combination','Pair automatic effects with your companion, skills and the next biome. Read each trigger and limit. Artifacts last only for this run; exhausted consumables disappear.','artifact')]},
  rest:{name:'Rest',visual:'rest',steps:[
   s('Recover or Grow','Recover restores every missing heart. Grow adds 3 Spark capacity for this run, up to three times. Both completely refill Sparks. Choose once at each Rest.','rest'),
-  s('Then prepare','After Recover or Grow, spend Stored Sparks on skill upgrades here. Inspect your artifacts, or rehearse if you learned Dream. These tools do not take another Rest benefit.','tools'),
+  s('Then prepare','After Recover or Grow, inspect your artifacts or rehearse if you learned Dream. Keep your Rest benefit while preparing.','tools'),
   s('Plan your next passage','Rest commits to one next flight. Read its terrain and prepare for it. After a failed attempt, the map shows whichever retry paths are reachable.','route')]},
  dream:{name:'Dream',visual:'dream',steps:[
-  s('Dream: rehearse six seconds','At Rest, Dream lets you practice the next opening as often as you like. The closed eye means rehearsal. Nothing here spends a heart or earns real rewards.','dream'),
+  s('Dream: rehearse six seconds','Use the closed eye at Rest or on an Elite or Guardian preview. Rehearse the opening as often as you like. Each practice is free.','dream'),
   s('Save a preset','When you like an opening, save it. The next flight replays those inputs without Lift or sustain cost. Changes to the build can invalidate a preset.','dream'),
   s('Wake safely','Playback ends paused. Tap once to wake; tap again to Lift. After the 3–2–1 countdown, speed rises from 0.1× to 1× over three seconds.','pause')]},
  routes:{name:'Paths & stops',visual:'route',steps:[
   s('Follow connected paths','Bright nodes are reachable. Dim nodes are not. Choosing a fork commits your route; you cannot jump to any stop on the map.','route'),
   s('Flight and elite routes','Passage markers mean ordinary Flight. Creature portraits mark harder Elite routes with a two-artifact choice. Inspect the biome and length before committing.','site:flight'),
-  s('Rest','The campfire marks Rest. Choose Recover or Grow, then buy skill upgrades. Plan a route through Rest when you want to spend Stored Sparks or recover hearts.','site:rest'),
+  s('Rest','The campfire marks Rest. Choose Recover for missing hearts or Grow for a larger Spark Meter. Both refill your meter.','site:rest'),
   s('Encounter and treasure','The encounter symbol offers a trade or event. The chest offers treasure. Check gains, costs and chances before choosing.','sites-support'),
   s('Guardian','A large guardian portrait marks the end of each map. Survive its warned patterns and reach the finish. Three different guardians stand between you and a completed run.','site:boss')]},
  hazards:{name:'Hazards & pulses',visual:'black-hole',steps:[

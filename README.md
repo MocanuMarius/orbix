@@ -2,9 +2,9 @@
 
 A landscape, one-handed pixel flight roguelite. The static game lives in `dist/` and uses a custom Canvas simulation and cached renderer. No build step or runtime framework dependency.
 
-## Current release: clear-rewards-1
+## Current release
 
-[Play](https://mocanumarius.github.io/orbix/?v=clear-rewards-1) · [Force landscape desktop presentation](https://mocanumarius.github.io/orbix/preview.html?v=clear-rewards-1)
+[Play](https://mocanumarius.github.io/orbix/) · [Compare Spark absorption styles](https://mocanumarius.github.io/orbix/spark-preview.html#absorption) · [Landscape desktop preview](https://mocanumarius.github.io/orbix/preview.html)
 
 Run `npm start` at localhost:4173, or `npm run preview:rest` at localhost:4180 for local inspection fixtures.
 
@@ -12,7 +12,7 @@ The main URL automatically presents a **900 × 405 logical landscape game** on d
 
 ## Clear Rewards
 
-Only simplification proposal 3 is implemented: predictable clear income, overflow as a bonus, and two Rest benefits. The artifact lifecycle, slot progression and skill trees retain their existing rules. [Income-model assumptions and results](docs/checkpoint-economy.md).
+Cleared flights grant predictable income. Surplus fuel adds a bonus, and Rest offers a choice between Recover and Grow. [Income-model assumptions and results](docs/checkpoint-economy.md).
 
 ## Moonlit Menus
 
@@ -24,11 +24,11 @@ Only simplification proposal 3 is implemented: predictable clear income, overflo
 
 ## Current rules
 
-Three branching maps form a run. Collector, Protector, Runner and Space Timer are the four base roles; equip **one** companion and swap at Rest. TEST permits locked roles. Skills belong to the run. Three artifact slots at Ascension 1 are separate from companion capacity.
+Three branching maps form a run. Choose one companion at the start. Skills belong to that run. Open the skill tree from the Stored Sparks counter to spend banked currency, including during a flight. Opening the tree pauses play.
 
-**Sparks** are flight fuel. A baseline meter holds 30; paid Lift costs 3 before upgrades. Ordinary pickup layers restore 6 / 12 / 18. Cleared flights grant **20 Packed Sparks**, the run's upgrade currency; surplus natural Sparks add a bonus. The final guardian grants a permanent relic instead of currency that expires with the run. Generated recovery cannot mint currency. Unshielded collisions cost one attempt; zero Sparks prevents Lift but permits falling and recovery. Rest can refill hearts.
+**Sparks** fuel flight. A baseline meter holds 30 and a Lift costs 3 before upgrades. A Spark, Cluster and Cache restore 6, 12 and 18 respectively. Their white arcs grow denser as the value rises. Surplus fuel earns Stored Sparks on a clear. An unshielded collision costs one attempt. At zero fuel the wisp can still fall into a Spark and recover.
 
-Each ordinary flight offers **one artifact: Equip or Melt**. Melt/Forge pay 25 / 35 / 50 Packed Sparks by rarity, without altering fuel. Artifacts trigger automatically. Final boss relics remain permanent claims. Full slots require explicit replacement; empty slots equip directly with an animation. Rest offers **Recover** (all missing hearts) or **Grow** (+3 maximum Sparks, up to +9 this run). Both refill Sparks. Skills, Companion, Artifacts and learned Dream remain optional preparation tools. Condense and artifact Recharge are no longer Rest benefits; earned matching consumables still add uses. Dream begins at six seconds.
+Rest offers **Recover** to relight missing hearts or **Grow** to raise capacity by 3, up to three times in a run. Both refill the Spark Meter. With Dream learned, a player can rehearse the opening of the flight after Rest or a reachable elite or guardian. A saved rehearsal plays when that flight starts and pauses for the handoff.
 
 Normal play teaches one contextual concept at a time. Field Guide and separate practice remain available. Remember & skip persists; Reset tutorial replays the introduction on New Game. Entry loads for five seconds and ends paused. Resume uses a frozen three-second countdown followed by the three-second 0.1× → 1× recovery.
 
