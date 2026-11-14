@@ -1,7 +1,7 @@
-import {drawPickup} from './pickup-art.mjs?v=mist-undertow-1';
-import {pickupKind} from './pickups.mjs?v=mist-undertow-1';
-import {sparkArtScale, sparkBodyRadius, sparkMass} from './spark-size.mjs?v=mist-undertow-1';
-import {lightVisibility} from './light-field.mjs?v=mist-undertow-1';
+import {drawPickup} from './pickup-art.mjs?v=steady-giants-1';
+import {pickupKind} from './pickups.mjs?v=steady-giants-1';
+import {sparkArtScale, sparkBodyRadius, sparkMass} from './spark-size.mjs?v=steady-giants-1';
+import {lightVisibility} from './light-field.mjs?v=steady-giants-1';
 
 export function glowSenseCues(e, {
   distance = e.renderDistance ?? e.distance,

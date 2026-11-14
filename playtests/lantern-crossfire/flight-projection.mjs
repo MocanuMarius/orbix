@@ -1,7 +1,8 @@
-import {bellwindAcceleration} from './atlas-flight.mjs?v=mist-undertow-1';
-import {DraftField,DRAFT_TUNING} from './drafts.mjs?v=mist-undertow-1';
-import {lightVisibility} from './light-field.mjs?v=mist-undertow-1';
-import {isFuelPickup,pickupContactRadius} from './pickups.mjs?v=mist-undertow-1';
+import {bellwindAcceleration} from './atlas-flight.mjs?v=steady-giants-1';
+import {DraftField,DRAFT_TUNING} from './drafts.mjs?v=steady-giants-1';
+import {lightVisibility} from './light-field.mjs?v=steady-giants-1';
+import {isFuelPickup,pickupContactRadius} from './pickups.mjs?v=steady-giants-1';
+import {obstacleEdgeClearance} from './edging-pulse.mjs?v=steady-giants-1';
 const clamp=(n,a,b)=>Math.max(a,Math.min(b,n)),DT=1/60;
 export const PROJECTION_HORIZONS=Object.freeze([0,.7,1.2,1.8]);
 
@@ -49,7 +50,7 @@ export class FlightProjection {
       this.lastFlap=e.lastFlapTime;this.lastPower=e.abilityStartedAt;this.lastHeld=e.liftHeld;this.lastHeight=e.height;this.lastRank=rank;this.lastBeatCount=beatCount;
       this.result=this.predict(e,rank);
       const affordable=e.dream?.freeGlow||e.artifactEffects?.freeLift||e.availableGlow+1e-7>=(e.nextLiftCost??e.flapCost);
-      if(affordable)this.result.lift=this.predict(e,rank,[0]);
+      if(affordable)this.result.liftContact=this.predict(e,rank,[0]).ceilingContact;
       if(rank===3&&affordable){
         if(!this.routeAt||changed||e.time>=this.routeAt){this.route=this.findRoute(e);this.routeAt=e.time+.25;}
         this.result.route=this.route;
@@ -91,7 +92,7 @@ export class FlightProjection {
     // Contact-driven scenery changes after a choice; do not promise a path
     // through a pod, falling shard or switch that has not been resolved yet.
     const interactiveEdge=e.biomeDynamics?.forecastBoundary(startX,maxX)??Infinity;
-    let contact=false,exit=false,uncertain=false,tapIndex=0;
+    let contact=false,exit=false,uncertain=false,tapIndex=0,ceilingContact=null;
     for(let step=1;step<=Math.round(horizon/DT);step++){
       const previous={x,y,time};time+=DT;
       if(tapIndex<taps.length&&time-e.time>=taps[tapIndex]){vy=-this.tuning.flapImpulse*s*clamp(Number(e.mod.flap)||1,.8,1.2);tapIndex++;}
@@ -114,6 +115,15 @@ export class FlightProjection {
       if(collides(x,y,time)){
         let lo=0,hi=1;
         for(let i=0;i<5;i++){const m=(lo+hi)/2;if(collides(previous.x+(x-previous.x)*m,previous.y+(y-previous.y)*m,previous.time+DT*m))hi=m;else lo=m;}
+        // Locate the solid surface itself, rather than painting the wisp's
+        // centre or treating open sky at the viewport edge as a ceiling.
+        if(vy<0){
+          const touchX=previous.x+(x-previous.x)*hi,touchY=previous.y+(y-previous.y)*hi,touchTime=previous.time+DT*hi;
+          const surface={x:0,y:0,clearance:Infinity};
+          for(const obstacle of obstacles)obstacleEdgeClearance(touchX,touchY,e.player.radius,obstacle,touchTime,e.player.radius+1,undefined,surface);
+          if(surface.clearance<=.6&&surface.y<touchY-e.player.radius*.25)
+            ceilingContact={x:surface.x,y:surface.y,time:touchTime};
+        }
         x=previous.x+(x-previous.x)*lo;y=previous.y+(y-previous.y)*lo;time=previous.time+DT*lo;
         contact=true;
       }
@@ -121,19 +131,30 @@ export class FlightProjection {
       if(step%3===0||contact||exit||step===Math.round(horizon/DT))points.push({x,y,time});
       if(contact||exit||x-e.distance>e.width+20)break;
     }
-    return {rank,horizon,at:e.time,points,contact,exit,uncertain};
+    return {rank,horizon,at:e.time,points,contact,exit,uncertain,ceilingContact};
   }
 }
 
 export function drawFlightProjection(c,e,{scale=1,distance=e.renderDistance??e.distance,playerY=e.renderPlayerY??e.player.y}={}){
   const guide=e.getFlightProjection?.();if(!guide)return;
   const light=e.getLightState?.()||{};
-  for(const [path,color,alpha] of [[guide.lift,'#98d9f1',.4],[guide.route,'#d8ef99',.7]]){
+  for(const [path,color,alpha] of [[guide.route,'#d8ef99',.7]]){
     if(!path)continue;c.save();c.fillStyle=color;
     for(const p of path.points){if(p.time<=e.time)continue;const x=p.x-distance,y=p.y;
       c.globalAlpha=alpha*lightVisibility(e,light,x,y,playerY);
       c.fillRect(Math.round(x*scale),Math.round(y*scale),Math.max(1,2*scale),Math.max(1,2*scale));
     }c.restore();
+  }
+  const impact=guide.liftContact;
+  if(impact){
+    const x=impact.x-distance,y=impact.y,visibility=lightVisibility(e,light,x,y,playerY);
+    if(x>=0&&x<=e.width&&y>=0&&y<=e.height&&visibility>.08){
+      const px=Math.round(x*scale),py=Math.round(y*scale),core=Math.max(2,Math.round(3*scale)),halo=core+2;
+      c.save();c.fillStyle='#ef6868';c.globalAlpha=.16+.18*visibility;
+      c.fillRect(px-Math.floor(halo/2),py-Math.floor(halo/2),halo,halo);
+      c.fillStyle='#ff756c';c.globalAlpha=.55+.4*visibility;
+      c.fillRect(px-Math.floor(core/2),py-Math.floor(core/2),core,core);c.restore();
+    }
   }
   c.save();c.strokeStyle='#c0d3c5';c.lineWidth=1;
   let previous={x:e.player.x*scale,y:playerY*scale};

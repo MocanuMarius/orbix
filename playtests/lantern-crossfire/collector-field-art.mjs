@@ -1,7 +1,7 @@
-import {pickupKind} from './pickups.mjs?v=mist-undertow-1';
-import {sparkBodyRadius} from './spark-size.mjs?v=mist-undertow-1';
-import {drawCollectorGuard} from './collector-guard-art.mjs?v=mist-undertow-1';
-import {companionPalette} from './companion-art.mjs?v=mist-undertow-1';
+import {pickupKind} from './pickups.mjs?v=steady-giants-1';
+import {sparkBodyRadius} from './spark-size.mjs?v=steady-giants-1';
+import {drawCollectorGuard} from './collector-guard-art.mjs?v=steady-giants-1';
+import {companionPalette} from './companion-art.mjs?v=steady-giants-1';
 
 const TAU = 2 * Math.PI;
 const green = companionPalette('collector');

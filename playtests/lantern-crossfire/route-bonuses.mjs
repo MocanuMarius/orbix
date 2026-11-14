@@ -1,4 +1,4 @@
-import {getLifeCapacity} from './vitality.mjs?v=mist-undertow-1';
+import {getLifeCapacity} from './vitality.mjs?v=steady-giants-1';
 
 function bonus(id, name, condition, reward, target) {
   return Object.freeze({id, name, condition, reward, target});

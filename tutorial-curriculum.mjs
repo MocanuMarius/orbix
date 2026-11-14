@@ -80,6 +80,7 @@ export const TUTORIAL_TOPICS={
   s('Drafts','Local curls show where wind pushes. Leave room to drift or time a Lift against the current. Once you pass the curls, ordinary flight returns.','draft'),
   s('Bad Sparks','Red rings mean danger or a cost. Dark Sparks reduce Luminance; Dusk Sparks trade Luminance for fuel. Collector ignores harmful pickups.','pickup:dark'),
   s('Black Hole','A black core is a hazard, not a pickup. It continuously steals Sparks nearby; closer means much faster drain. Give it space, even with a shield.','black-hole'),
+  s('Giant Black Hole','A giant hangs over the roof or rises through the floor. Its field steadily drains Sparks as you pass. Fly on the far side, then collect the recovery Sparks beyond its rim.','giant-hole'),
   s('Proximity · an earned skill','Buy the first Proximity skill to unlock surface charging. Skim solid terrain without touching it; full charge reveals the scene. Its separate tree offers recovery and a temporary light shield. Open sky never charges it.','edge')]},
  progression:{name:'Runs & Ascension',visual:'route',steps:[
   s('Three maps make a run','Your hearts, Sparks and build carry over. Later guardians chain their attacks, leaving fewer breaks to recover.','route'),

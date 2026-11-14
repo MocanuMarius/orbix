@@ -1,5 +1,5 @@
-import {sparkImageArt,sparkSymbolArt} from './spark-symbol.mjs?v=mist-undertow-1';
-import {condensedIconMarkup} from './afterglow-ui.mjs?v=mist-undertow-1';
+import {sparkImageArt,sparkSymbolArt} from './spark-symbol.mjs?v=steady-giants-1';
+import {condensedIconMarkup} from './afterglow-ui.mjs?v=steady-giants-1';
 
 // Three material tones sit above a shared dark contour. Keep light and shadow
 // readable at the tree's smallest size, even with all motion switched off.

@@ -1,6 +1,6 @@
-import {flashPowerupDuration} from './pickups.mjs?v=mist-undertow-1';
-import {resourceCycleSteps} from './resource-cycle.mjs?v=mist-undertow-1';
-import {LANTERN_THEME} from './map-theme.mjs?v=mist-undertow-1';
+import {flashPowerupDuration} from './pickups.mjs?v=steady-giants-1';
+import {resourceCycleSteps} from './resource-cycle.mjs?v=steady-giants-1';
+import {LANTERN_THEME} from './map-theme.mjs?v=steady-giants-1';
 // Normal-run onboarding is profile-owned. Prompts are contextual, one short
 // card at a time; the run owns only pacing so a new game keeps learned topics.
 export const ONBOARDING_VERSION=1;
@@ -9,7 +9,7 @@ export function automaticTipsEnabled(settings={},run){
  return run?.isTutorial===true||settings.skipTutorial!==true;
 }
 export const ONBOARDING_PROMPT_GAP_MS=30000;
-const topics=new Set(['lift','luminance','collector','collector-recovery','protector','swift','leveler','artifacts','packed','skills','rest','companions','dream','routes','black-hole','bad-sparks','drafts','edging','hearts','events','progression','special-sparks','lanterns']);
+const topics=new Set(['lift','luminance','collector','collector-recovery','protector','swift','leveler','artifacts','packed','skills','rest','companions','dream','routes','black-hole','giant-hole','bad-sparks','drafts','edging','hearts','events','progression','special-sparks','lanterns']);
 const topicId=value=>String(value??'').replace(/^onboarding:/,'').split(':')[0];
 const integer=value=>Math.max(0,Math.floor(Number(value)||0));
 export function cleanOnboarding(value={}){
@@ -96,6 +96,13 @@ export function lanternEntryLesson(settings, profile, run) {
  return card('lanterns','Darkness Lanterns','Two lanterns cross their beams. Block a beam to cast a wedge of light behind you. Luminance widens your view. Catch the white Flash triangle to see through the crossing.','lantern-wedge');
 }
 
+export function giantBlackHoleEntryLesson(settings,profile,run,hole){
+ if(!hole?.giant||!run?.current||run.isTutorial||!automaticTipsEnabled(settings,run)
+  ||cleanOnboarding(profile?.onboarding).seen.includes('giant-hole'))return null;
+ const route=hole.edge<0?'Stay low beneath its rim.':'Stay high above its rim.';
+ return card('giant-hole','Giant Black Hole',route+' It drains Sparks continuously as you pass. The far lane costs fewer Sparks. Collect the fuel beyond the field to recover.','giant-hole');
+}
+
 /** Selection is pure; mark/note only once the parent actually shows the card. */
 export function nextOnboardingLesson(view,{profile,run,modifiers,flight,snapshot={},now=Date.now()}={}){
  if(!run||isTesting(run)||!onboardingCanPrompt(view,{run,flight,now}))return null;
@@ -120,7 +127,7 @@ export function nextOnboardingLesson(view,{profile,run,modifiers,flight,snapshot
   const lessons={protector:['Protector works automatically','A charged blue shell spends Sparks to deflect a collision, then rebuilds. No charge or too little Sparks means no rescue. Collect Sparks with your own body.'],swift:['Runner: press Power','Press the filled Power button for a short speed burst with draft resistance. Terrain still kills. The button refills during cooldown; collect Sparks yourself.'],leveler:['Space Timer: hold, then release','Hold the scene or Lift to levitate. Release to fall and recharge. Empty charge ends the hold; drafts still push you. Collect Sparks with your own body.']};
   const tip=lessons[role];if(tip)return card(role,...tip,'companion:'+role,role==='leveler'?'#flap-btn':'#boost-btn');
  }
- if(newTopic('black-hole')&&(snapshot.blackHole?.rate>0||flight?.getNearbyBlackHole?.()))return card('black-hole','Give Black Holes space','A black core steals Sparks continuously while you are nearby. Closer means faster drain. It cannot be collected; take a wider path.','black-hole','.canvas-wrap');
+ if(newTopic('black-hole')&&!flight?.blackHoles?.items?.some(hole=>hole.giant)&&(snapshot.blackHole?.rate>0||flight?.getNearbyBlackHole?.()))return card('black-hole','Give Black Holes space','A black core steals Sparks continuously while you are nearby. Closer means faster drain. It cannot be collected; take a wider path.','black-hole','.canvas-wrap');
  if(newTopic('edging')&&(snapshot.edgingPulse?.charge>.05||snapshot.edgingPulse?.active))return card('edging','Proximity is now unlocked','Your purchased Proximity skill rewards skimming solid terrain without touching it. The small meter near your wisp charges; when full, a fading pulse reveals the scene.','edge','.canvas-wrap');
  const pickup=flight?.getNearbyPickup?.(new Set(profile?.seenPickups||[]));
  if(pickup&&['dark','dusk'].includes(pickup.kind)&&newTopic('bad-sparks'))return card('bad-sparks','Red rings warn of a cost','Dark Sparks reduce Luminance. Dusk Sparks trade Luminance for fuel. Collector leaves harmful Sparks alone; you choose whether to touch them.','pickup:'+pickup.kind,'.canvas-wrap');

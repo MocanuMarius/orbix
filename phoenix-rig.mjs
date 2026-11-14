@@ -1,5 +1,5 @@
-import * as PIXI from './vendor/pixi.mjs?v=mist-undertow-1';
-import { PhoenixMotion, deformWing, deformTail } from './phoenix-motion.mjs?v=mist-undertow-1';
+import * as PIXI from './vendor/pixi.mjs?v=steady-giants-1';
+import { PhoenixMotion, deformWing, deformTail } from './phoenix-motion.mjs?v=steady-giants-1';
 
 export class PhoenixRig {
   constructor(texture) {

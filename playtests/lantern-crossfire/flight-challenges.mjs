@@ -1,6 +1,6 @@
-import {LOCATION_CHALLENGE_NAMES} from './world-expansion.mjs?v=mist-undertow-1';
-import { createDraftZones, DRAFT_TUNING } from './drafts.mjs?v=mist-undertow-1';
-import { getEncounterFamily, familyChallengeCells } from './encounter-families.mjs?v=mist-undertow-1';
+import {LOCATION_CHALLENGE_NAMES} from './world-expansion.mjs?v=steady-giants-1';
+import { createDraftZones, DRAFT_TUNING } from './drafts.mjs?v=steady-giants-1';
+import { getEncounterFamily, familyChallengeCells } from './encounter-families.mjs?v=steady-giants-1';
 
 const clamp = (value, low, high) => Math.max(low, Math.min(high, value));
 const NAMES = Object.freeze({

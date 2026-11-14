@@ -1,5 +1,5 @@
-import {getArtifactInfo} from './artifact-info.mjs?v=mist-undertow-1';
-import {glowText} from './vitality.mjs?v=mist-undertow-1';
+import {getArtifactInfo} from './artifact-info.mjs?v=steady-giants-1';
+import {glowText} from './vitality.mjs?v=steady-giants-1';
 
 // One small first-use explanation per flight. Remaining discoveries stay
 // eligible next flight rather than chaining several modal interruptions.

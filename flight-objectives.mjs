@@ -1,8 +1,8 @@
-import {ROUTE_BONUSES} from './route-bonuses.mjs?v=mist-undertow-1';
-import {blackHoleDrainRate} from './black-holes.mjs?v=mist-undertow-1';
-import {flashPowerupDuration, pickupKind} from './pickups.mjs?v=mist-undertow-1';
-import {GLOW_DISPLAY_SCALE} from './vitality.mjs?v=mist-undertow-1';
-import {sparkMass} from './spark-size.mjs?v=mist-undertow-1';
+import {ROUTE_BONUSES} from './route-bonuses.mjs?v=steady-giants-1';
+import {blackHoleDrainRate} from './black-holes.mjs?v=steady-giants-1';
+import {flashPowerupDuration, pickupKind} from './pickups.mjs?v=steady-giants-1';
+import {GLOW_DISPLAY_SCALE} from './vitality.mjs?v=steady-giants-1';
+import {sparkMass} from './spark-size.mjs?v=steady-giants-1';
 
 const fuelKinds = new Set(['light', 'cluster', 'cache']);
 const helpfulFamilies = new Set(['lift', 'reveal', 'bloom']);
@@ -115,7 +115,7 @@ function bypass(e, donors) {
     let loss=0;
     const laneDistance=Math.abs(h.bypass.y-h.y)-14;
     for(let dx=-h.influence;dx<h.influence;dx+=8){
-      loss+=blackHoleDrainRate(Math.hypot(dx,laneDistance),h.influence) * 8/e.baseSpeed * GLOW_DISPLAY_SCALE;
+      loss+=blackHoleDrainRate(Math.hypot(dx,laneDistance),h.influence,h.coreRadius) * 8/e.baseSpeed * GLOW_DISPLAY_SCALE;
     }
     if(loss>3)continue;
     const points = [-.54,.54].map(side => ({x:h.x + side*(h.bypass.endX-h.bypass.startX)/2, y:h.bypass.y}));
