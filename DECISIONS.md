@@ -925,8 +925,8 @@ Published visual changes in `mist-undertow-1`.
 
 Accepted design decisions for the next Collector mechanics rework, still at planning stage.
 
-- Collector starts with automatic fetching for Small and Cluster Sparks. Fetching larger Sparks and Flash Powerups requires skills. Main-body collection remains available for all pickup types.
+- Collector starts with automatic fetching for Small and Cluster Sparks. Larger fetching unlocks are three separate, sequential skill purchases: Cache, then Surge, then Giant. Flash fetching has its own skill unlock. Main-body collection remains available for all pickup types.
 - Learned skill branches last for the run. Learned targeting preferences can be adjusted at checkpoints.
 - Last Orbit gets a separate Guard branch. A later skill lets direct body pickups help repair the Collector after a rescue.
 
-The follow-up questions ask whether Cache should unlock before a combined Surge/Giant upgrade, whether targeting preferences need individual purchases, and whether body-pickup repair removes capped time or uses pickup count/size. These details await the player's direction.
+On 15 November the player chose three separate size unlocks. Targeting-preference purchase rules and the body-pickup repair formula remain planning questions.
