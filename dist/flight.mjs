@@ -1,59 +1,59 @@
-import {prepareAtlasFlight,resizeAtlasFlight,ringBellwind,bellwindAcceleration,moonLightScale,drawAtlasFlight} from './atlas-flight.mjs?v=collector-audit-1';
-import {canShowFlightHint} from './flight-hint-safety.mjs?v=collector-audit-1';
-import {updateGlideRegeneration} from './glide-regeneration.mjs?v=collector-audit-1';
-import {drawGuardianPresence} from './guardian-presence.mjs?v=collector-audit-1';
-import { updateGuardian, resizeGuardian, placeGuardianFuel } from './guardian-effects.mjs?v=collector-audit-1';
-import { drawGuardianWarnings } from './guardian-art.mjs?v=collector-audit-1';
-import { drawShutters, resizeShutters } from './shutter-cone.mjs?v=collector-audit-1';
-import { inLanternRoom, installPassageLanterns, lanternField } from './lantern-layout.mjs?v=collector-audit-1';
-import {drawProximityMeter} from './proximity-meter.mjs?v=collector-audit-1';
-import {drawFourthBeat} from './fourth-beat-art.mjs?v=collector-audit-1';
-import {drawCollectorField} from './collector-field-art.mjs?v=collector-audit-1';
-import {buildObjectivePlan,createFlightObjective,drawObjectiveMarks} from './flight-objectives.mjs?v=collector-audit-1';
-import {FlightProjection,drawFlightProjection} from './flight-projection.mjs?v=collector-audit-1';
-import {drawGlowSense} from './glow-sense.mjs?v=collector-audit-1';
-import {formatGlow} from './vitality.mjs?v=collector-audit-1';
-import {installRiskChains} from './risk-chains.mjs?v=collector-audit-1';
-import {installSparkField} from './spark-fields.mjs?v=collector-audit-1';
-import {drawFallWarning} from './fall-chain-art.mjs?v=collector-audit-1';
-import {EXTRA_COURSES} from './world-expansion.mjs?v=collector-audit-1';
-import {BIOME_COURSES} from './biome-courses.mjs?v=collector-audit-1';
-import {BiomeDynamics} from './biome-dynamics.mjs?v=collector-audit-1';
-import {condenseGlow} from './condensed-glow.mjs?v=collector-audit-1';
-import {ensureGlowBudget,shapeExpeditionSupply} from './glow-budget.mjs?v=collector-audit-1';
-import {EdgingPulse} from './edging-pulse.mjs?v=collector-audit-1';
-import {isVowBodyPickup} from './contextual-events.mjs?v=collector-audit-1';
-import {FlightBoon} from './flight-boons.mjs?v=collector-audit-1';
-import {BlackHoles} from './black-holes.mjs?v=collector-audit-1';
-import {drawBlackHoles} from './black-hole-art.mjs?v=collector-audit-1';
-import {drawCapture, drawShellPuff} from './capture-art.mjs?v=collector-audit-1';
-import {drawShellArcs} from './shell-arcs.mjs?v=collector-audit-1';
-import {sparkBodyRadius,sparkArtScale,sparkMass} from './spark-size.mjs?v=collector-audit-1';
-import {captureMassDuration} from './tidal-light.mjs?v=collector-audit-1';
-import {readCaptureStyle} from './capture-styles.mjs?v=collector-audit-1';
+import {prepareAtlasFlight,resizeAtlasFlight,ringBellwind,bellwindAcceleration,moonLightScale,drawAtlasFlight} from './atlas-flight.mjs?v=mist-undertow-1';
+import {canShowFlightHint} from './flight-hint-safety.mjs?v=mist-undertow-1';
+import {updateGlideRegeneration} from './glide-regeneration.mjs?v=mist-undertow-1';
+import {drawGuardianPresence} from './guardian-presence.mjs?v=mist-undertow-1';
+import { updateGuardian, resizeGuardian, placeGuardianFuel } from './guardian-effects.mjs?v=mist-undertow-1';
+import { drawGuardianWarnings } from './guardian-art.mjs?v=mist-undertow-1';
+import { drawShutters, resizeShutters } from './shutter-cone.mjs?v=mist-undertow-1';
+import { inLanternRoom, installPassageLanterns, lanternField } from './lantern-layout.mjs?v=mist-undertow-1';
+import {drawProximityMeter} from './proximity-meter.mjs?v=mist-undertow-1';
+import {drawFourthBeat} from './fourth-beat-art.mjs?v=mist-undertow-1';
+import {drawCollectorField} from './collector-field-art.mjs?v=mist-undertow-1';
+import {buildObjectivePlan,createFlightObjective,drawObjectiveMarks} from './flight-objectives.mjs?v=mist-undertow-1';
+import {FlightProjection,drawFlightProjection} from './flight-projection.mjs?v=mist-undertow-1';
+import {drawGlowSense} from './glow-sense.mjs?v=mist-undertow-1';
+import {formatGlow} from './vitality.mjs?v=mist-undertow-1';
+import {installRiskChains} from './risk-chains.mjs?v=mist-undertow-1';
+import {installSparkField} from './spark-fields.mjs?v=mist-undertow-1';
+import {drawFallWarning} from './fall-chain-art.mjs?v=mist-undertow-1';
+import {EXTRA_COURSES} from './world-expansion.mjs?v=mist-undertow-1';
+import {BIOME_COURSES} from './biome-courses.mjs?v=mist-undertow-1';
+import {BiomeDynamics} from './biome-dynamics.mjs?v=mist-undertow-1';
+import {condenseGlow} from './condensed-glow.mjs?v=mist-undertow-1';
+import {ensureGlowBudget,shapeExpeditionSupply} from './glow-budget.mjs?v=mist-undertow-1';
+import {EdgingPulse} from './edging-pulse.mjs?v=mist-undertow-1';
+import {isVowBodyPickup} from './contextual-events.mjs?v=mist-undertow-1';
+import {FlightBoon} from './flight-boons.mjs?v=mist-undertow-1';
+import {BlackHoles} from './black-holes.mjs?v=mist-undertow-1';
+import {drawBlackHoles} from './black-hole-art.mjs?v=mist-undertow-1';
+import {drawCapture, drawShellPuff, drawCarriedSpark} from './capture-art.mjs?v=mist-undertow-1';
+import {drawShellArcs} from './shell-arcs.mjs?v=mist-undertow-1';
+import {sparkBodyRadius,sparkArtScale,sparkMass} from './spark-size.mjs?v=mist-undertow-1';
+import {captureMassDuration} from './tidal-light.mjs?v=mist-undertow-1';
+import {readCaptureStyle} from './capture-styles.mjs?v=mist-undertow-1';
 /* Emberwing's self-contained canvas flight simulation and renderer. */
-import { FLAME_TUNING, LIGHT_PACKET_TUNING } from './vitality.mjs?v=collector-audit-1';
-import { flightEndDistance } from './flight-end.mjs?v=collector-audit-1';
-import {getExitLandmarkState,drawExitLandmark} from './exit-landmark.mjs?v=collector-audit-1';
-import { WispCompanion, wispHome } from './wisp.mjs?v=collector-audit-1';
-import { getAscentInfo } from './ascent.mjs?v=collector-audit-1';
-import { LEVEL_LENGTH, getLevelLengthScale } from './level-length.mjs?v=collector-audit-1';
-import { resolveLevelIdentity } from './level-catalog.mjs?v=collector-audit-1';
-import { DraftField, DRAFT_TUNING } from './drafts.mjs?v=collector-audit-1';
-import { normalizeCompanionRole, normalizeCompanionFleet, getCompanionAbility } from './companion-abilities.mjs?v=collector-audit-1';
-import { populateSceneProps, scenePropPolygons } from './scene-props.mjs?v=collector-audit-1';
-import { pickupKind, getPickupSpec, pickupContactRadius, canCompanionCollect, flashPowerupDuration } from './pickups.mjs?v=collector-audit-1';
-import { createFlashTether, stepFlashTether, drawFlashTether, flashLightPulse } from './flash-tether.mjs?v=collector-audit-1';
-import { drawPickup, drawSparkSymbol } from './pickup-art.mjs?v=collector-audit-1';
-import { buildBossLayout, getBossState as bossState, drawBoss } from './boss.mjs?v=collector-audit-1';
-import { getAuthoredChallenge, finalizeFlightChallenges, installAuthoredDraftCrossings, FlightChallengeDirector } from './flight-challenges.mjs?v=collector-audit-1';
-import { installEncounterFamily } from './encounter-families.mjs?v=collector-audit-1';
-import { installFlightForks, resizeFlightForks } from './flight-forks.mjs?v=collector-audit-1';
-import { ArtifactEffects } from './artifact-effects.mjs?v=collector-audit-1';
-import { LIGHT_EXTENT,lightAttenuation,lightVisibility,createLightMaskCanvas,castFlightFlashLights,revealLanternWake,sceneRevealStrength,flashRangeStrength,pickupRevealHold,pickupRevealAt,renderLightState,lightDreamScenery } from './light-field.mjs?v=collector-audit-1';
+import { FLAME_TUNING, LIGHT_PACKET_TUNING } from './vitality.mjs?v=mist-undertow-1';
+import { flightEndDistance } from './flight-end.mjs?v=mist-undertow-1';
+import {getExitLandmarkState,drawExitLandmark} from './exit-landmark.mjs?v=mist-undertow-1';
+import { WispCompanion, wispHome } from './wisp.mjs?v=mist-undertow-1';
+import { getAscentInfo } from './ascent.mjs?v=mist-undertow-1';
+import { LEVEL_LENGTH, getLevelLengthScale } from './level-length.mjs?v=mist-undertow-1';
+import { resolveLevelIdentity } from './level-catalog.mjs?v=mist-undertow-1';
+import { DraftField, DRAFT_TUNING } from './drafts.mjs?v=mist-undertow-1';
+import { normalizeCompanionRole, normalizeCompanionFleet, getCompanionAbility } from './companion-abilities.mjs?v=mist-undertow-1';
+import { populateSceneProps, scenePropPolygons } from './scene-props.mjs?v=mist-undertow-1';
+import { pickupKind, getPickupSpec, pickupContactRadius, canCompanionCollect, flashPowerupDuration } from './pickups.mjs?v=mist-undertow-1';
+import { createFlashTether, stepFlashTether, drawFlashTether, flashLightPulse } from './flash-tether.mjs?v=mist-undertow-1';
+import { drawPickup, drawSparkSymbol } from './pickup-art.mjs?v=mist-undertow-1';
+import { buildBossLayout, getBossState as bossState, drawBoss } from './boss.mjs?v=mist-undertow-1';
+import { getAuthoredChallenge, finalizeFlightChallenges, installAuthoredDraftCrossings, FlightChallengeDirector } from './flight-challenges.mjs?v=mist-undertow-1';
+import { installEncounterFamily } from './encounter-families.mjs?v=mist-undertow-1';
+import { installFlightForks, resizeFlightForks } from './flight-forks.mjs?v=mist-undertow-1';
+import { ArtifactEffects } from './artifact-effects.mjs?v=mist-undertow-1';
+import { LIGHT_EXTENT,lightAttenuation,lightVisibility,createLightMaskCanvas,castFlightFlashLights,revealLanternWake,sceneRevealStrength,flashRangeStrength,pickupRevealHold,pickupRevealAt,renderLightState,lightDreamScenery } from './light-field.mjs?v=mist-undertow-1';
 import { createTutorialState, buildTutorialLayout, recordTutorialPickup,
-  updateTutorial, updateTutorialCompanion, getTutorialHint } from './tutorial.mjs?v=collector-audit-1';
-export { FLAME_TUNING } from './vitality.mjs?v=collector-audit-1';
+  updateTutorial, updateTutorialCompanion, getTutorialHint } from './tutorial.mjs?v=mist-undertow-1';
+export { FLAME_TUNING } from './vitality.mjs?v=mist-undertow-1';
 const TAU = Math.PI * 2;
 const STEP = 1 / 60;
 const FALLBACK_WISP_RADIUS = 17;
@@ -65,7 +65,7 @@ const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
 const lerp = (a, b, t) => a + (b - a) * t;
 export const FLIGHT_TUNING = Object.freeze({ gravity: 300, flapImpulse: 205,
   forwardSpeed: 154, terminalFall: 245, pickupRadius: LIGHT_PACKET_TUNING.pickupRadius });
-export { DRAFT_TUNING } from './drafts.mjs?v=collector-audit-1';
+export { DRAFT_TUNING } from './drafts.mjs?v=mist-undertow-1';
 // Retain the public tuning name for consumers; wind now has no global cycle.
 export const WIND_TUNING = DRAFT_TUNING;
 
@@ -970,7 +970,7 @@ export class WispFlight {
 
   async initPixelView() {
     try {
-      const { WispFlightView } = await import('./wisp-renderer.mjs?v=collector-audit-1');
+      const { WispFlightView } = await import('./wisp-renderer.mjs?v=mist-undertow-1');
       if (this.destroyed) return;
       this.pixiView = new WispFlightView(this);
       const initialized = await this.pixiView.init();
@@ -2515,9 +2515,7 @@ export class WispFlight {
       c.globalAlpha=power;c.beginPath();c.arc(state.x,state.y,radius,0,TAU);c.fill();
       c.fillStyle='#efffe0';c.globalAlpha=power*.9;c.beginPath();c.arc(state.x-radius*.25,state.y-radius*.25,radius*.31,0,TAU);c.fill();
       if(state.carrying) {
-        const pose=state.cargoPose;
-        drawPickup(c,state.x+pose.offsetX,state.y+pose.offsetY,{kind:state.cargoKind,
-          time:this.captureTime,phase:state.cargoPhase,scale:pose.scale,bodyOnly:true,massTier:pose.massTier,reducedMotion:this.reducedMotion});
+        drawCarriedSpark(c,state,this.captureTime,1,this.reducedMotion,this.captureStyle);
       }
     }
     c.restore();

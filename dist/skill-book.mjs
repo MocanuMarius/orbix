@@ -1,9 +1,9 @@
-import {SKILLS} from './model.mjs?v=collector-audit-1';
-import {skillTreeState,skillTreeStatus} from './skill-tree-state.mjs?v=collector-audit-1';
-import {getCompanionAbility} from './companion-abilities.mjs?v=collector-audit-1';
-import {skillIcon} from './upgrade-icons.mjs?v=collector-audit-1';
-import {resourceSymbol} from './game-symbols.mjs?v=collector-audit-1';
-import {glowText,getGlowCapacity} from './vitality.mjs?v=collector-audit-1';
+import {SKILLS} from './model.mjs?v=mist-undertow-1';
+import {skillTreeState,skillTreeStatus} from './skill-tree-state.mjs?v=mist-undertow-1';
+import {getCompanionAbility} from './companion-abilities.mjs?v=mist-undertow-1';
+import {skillIcon} from './upgrade-icons.mjs?v=mist-undertow-1';
+import {resourceSymbol} from './game-symbols.mjs?v=mist-undertow-1';
+import {glowText,getGlowCapacity} from './vitality.mjs?v=mist-undertow-1';
 
 const chapters=[
  ['wisp','Flight','main-efficiency'],['luminance','Luminance','main-sight'],

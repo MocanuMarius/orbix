@@ -1,8 +1,10 @@
-import {pickupKind} from './pickups.mjs?v=collector-audit-1';
-import {sparkBodyRadius} from './spark-size.mjs?v=collector-audit-1';
-import {drawCollectorGuard} from './collector-guard-art.mjs?v=collector-audit-1';
+import {pickupKind} from './pickups.mjs?v=mist-undertow-1';
+import {sparkBodyRadius} from './spark-size.mjs?v=mist-undertow-1';
+import {drawCollectorGuard} from './collector-guard-art.mjs?v=mist-undertow-1';
+import {companionPalette} from './companion-art.mjs?v=mist-undertow-1';
 
 const TAU = 2 * Math.PI;
+const green = companionPalette('collector');
 
 export function drawCollectorField(ctx, engine, {
   scale = 1,
@@ -21,9 +23,15 @@ export function drawCollectorField(ctx, engine, {
 
   ctx.save();
   ctx.globalCompositeOperation = 'screen';
-  ctx.strokeStyle = '#b9dfa0';
+  ctx.strokeStyle = green.mid;
   ctx.beginPath();
-  const strength = (.16 + .11 * aura.growth) * (1 - (engine.completionProgress || 0));
+  // Near the body, avoid drawing a second edge around the wisp. Use actual
+  // reach so Close Orbit's larger recovering field still reads immediately.
+  const bodyRim = (engine.player.radius ?? 9.35) * 1.85;
+  const clearance = Math.min(1, Math.max(0, (aura.radius - bodyRim) / 26));
+  const visible = clearance * clearance * (3 - 2 * clearance);
+  const strength = (.08 + .055 * aura.growth) * (.04 + .96 * visible)
+    * (1 - (engine.completionProgress || 0));
   for (let i = 0; i <= 72; i++) {
     const angle = i / 72 * TAU;
     const ripple = engine.reducedMotion ? 0
@@ -36,12 +44,13 @@ export function drawCollectorField(ctx, engine, {
   }
   ctx.closePath();
   ctx.globalAlpha = strength * .18;
-  ctx.lineWidth = 2;
+  ctx.lineWidth = 2.25;
   ctx.stroke();
   ctx.globalAlpha = strength;
-  ctx.lineWidth = .75;
+  ctx.lineWidth = .95;
   ctx.stroke();
 
+  ctx.strokeStyle = green.core;
   for (const contact of engine.wisp?.contacts || []) {
     const packet = contact.packet;
     if (packet.collected || packet.carried) continue;

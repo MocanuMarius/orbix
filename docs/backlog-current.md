@@ -1,6 +1,6 @@
 # Current backlog audit — Collector
 
-Release `collector-audit-1`. This entry describes the current rules and supersedes the historical release snapshots below.
+Release `mist-undertow-1`. This entry describes the current rules and supersedes the historical release snapshots below.
 
 The accepted implementation backlog is implemented, with the following audit corrections.
 
@@ -15,7 +15,7 @@ The accepted implementation backlog is implemented, with the following audit cor
 | Flight art | Five Spark sizes share plasma art with finer detail on large sizes. Absorption is shorter and pop arcs are finer. Spark Sense reveals pickups in place. Black Holes have a bright tilted accretion disk. |
 | Terrain and forks | Twenty-four shaped crossroads configurations have validated routes. Texture baking is cropped to the visible playfield and full sway envelope, while colliders retain their original shape. Terrain and attached props share camera pixel registration. |
 
-The large-Spark absorption comparison is a preview for choosing the next visual treatment. Mist, Liquid ribbon and Undertow share the current shell break, with alternative fluid contents. Choosing the version to integrate into live flight remains with the user.
+The selected capture combines Undertow’s circular flow with Mist’s vapor. The Hybrid preview and live flight use the same renderer, including large Sparks and compacted Collector cargo. The shell pops at contact and the free contents billow and flow into the receiver. The new style is the default. The Collector field is greener and slightly thicker, with about half the previous opacity at full range and a smooth fade toward the main wisp.
 
 The [vocabulary list](icon-language-plan.md) is ready for wording and visual review. Earlier names, artifacts with slots, companion swapping, Afterglow reserves and Rest-only upgrading in the historical snapshots are superseded.
 

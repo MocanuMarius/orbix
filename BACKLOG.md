@@ -14,7 +14,8 @@
 - [x] Expand Storage with exclusive body-pickup and large-Spark packing choices, bounded by per-flight caps.
 - [x] Show each skill rank as a connected prerequisite item and use explicit owned/affordable/saving/locked labels and fills.
 - [x] Provide a large-Spark absorption comparison with three fluid treatments, size and approach-angle controls, slow playback and a timeline.
-- [ ] Select the fluid treatment for the live Spark capture animation.
+- [x] Combine Undertow’s circularity and Mist’s vapor in the live capture animation and shared preview.
+- [x] Make the Collector field greener, slightly thicker and half as opaque at full reach, fading almost away near the main wisp.
 - [ ] Verify frame timing on a physical Pixel 10 and evaluate the hardest Collector routes with recorded human play.
 
 Current behavior and evidence are recorded in [the audit](docs/backlog-current.md). Historical checked batches below describe earlier releases and include superseded rules.

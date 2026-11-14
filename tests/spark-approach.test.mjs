@@ -20,23 +20,40 @@ function outerLip(effect, age, quiet = false) {
   return point ?? {x:0,y:0};
 }
 
-test('Ribbon stays visible for a full wrap outside the wisp before feeding into its core', () => {
-  for (const startRadius of [0,18,32,41]) {
-    const effect = {style:'ribbon',startRadius,initialAngle:0,approachX:-140};
-    let last = outerLip(effect,0), visibleAngle=0, travel=0;
-    const priorTravel = 4.52 * Math.hypot(last.x,last.y);
-    for (let frame=1; frame<=360; frame++) {
-      const point = outerLip(effect,frame/360);
-      travel += Math.hypot(point.x-last.x,point.y-last.y);
-      if (Math.hypot(last.x,last.y)>14 && Math.hypot(point.x,point.y)>14) {
-        visibleAngle += Math.atan2(last.x*point.y-last.y*point.x,last.x*point.x+last.y*point.y);
-      }
-      last=point;
-    }
-    assert.ok(Math.abs(visibleAngle)/(2*Math.PI)>1.3,'Winding hidden inside wisp at radius '+startRadius);
-    assert.ok(travel>1.6*priorTravel,'Journey too short at radius '+startRadius);
-    assert.deepEqual(last,{x:0,y:0});
+test('the default capture curls through a full circular flow and draws mist instead of a pickup sprite', () => {
+ const images=[];
+ const doc={createElement(){
+  const image={width:0,height:0};
+  image.getContext=()=>({createRadialGradient:()=>({addColorStop(){}}),fillRect(){}});
+  return image;
+ }};
+ let point;
+ const ctx={
+  canvas:{ownerDocument:doc},globalAlpha:1,
+  save(){},restore(){},translate(){},scale(){},rotate(){},transform(){},
+  beginPath(){},lineTo(){},closePath(){},fill(){},stroke(){},
+  moveTo(x,y){point??={x,y};},
+  drawImage(image){images.push(image);},
+  createLinearGradient:()=>({addColorStop(){}})
+ };
+ for(const [scale,size] of [[1,1],[.615,8.4]]){
+  const effect={initialScale:size,startRadius:16+12.8*size,initialAngle:.5,approachX:-140};
+  let previous,turn=0;
+  for(let i=0;i<180;i++){
+   point=undefined;
+   drawAbsorbingSpark(ctx,effect,i/180,0,0,scale,false);
+   assert.ok(Number.isFinite(point.x)&&Number.isFinite(point.y));
+   if(previous&&Math.hypot(point.x,point.y)>1)
+    turn+=Math.atan2(previous.x*point.y-previous.y*point.x,previous.x*point.x+previous.y*point.y);
+   previous=point;
   }
+  assert.ok(Math.abs(turn)>Math.PI*1.4,'Circular drain must retain its winding');
+ }
+ assert.ok(images.length>0,'The capture emits mist');
+ assert.ok(images.every(image=>image.width===48&&image.height===48),'Only a reusable vapor stamp follows the flow');
+ point=undefined;
+ drawAbsorbingSpark(ctx,{style:'hybrid'},1,0,0,1,false);
+ assert.equal(point,undefined,'The completed capture stops drawing');
 });
 
 test('reduced-motion captures contract without the extra coil', () => {
