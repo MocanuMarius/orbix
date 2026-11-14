@@ -2,6 +2,7 @@
 
 ## Flight art and terrain feedback awaiting the next batch
 
+- [ ] Rework Spark Sense so Sparks and other pickups are faintly visible at their actual positions through the fog of war. Remove the directional glimmers at the edge of Luminance and any light traveling from the wisp to a pickup. Update the skill hint to read “See pickups faintly through darkness.”
 - [ ] Revisit large and Giant Sparks at actual flight size on a landscape phone. Keep the pixel grain close to the smaller Sparks and add enough detail to the rim and plasma arcs that the large versions look naturally larger.
 - [ ] Shorten Spark absorption by trimming a few turns from the inward spiral. Keep the accelerating ribbon visible as it enters the wisp, and have it finish sooner after contact.
 - [ ] At the instant the Spark shell pops, use smaller, finer arcs that flicker out sharply around the wisp. Check their size at normal phone scale.
