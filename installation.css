@@ -24,3 +24,11 @@ dialog.installation-sheet[open] {
 }
 dialog.installation-sheet p { font: clamp(15px, 3.5vmin, 19px)/1.4 var(--pixel); }
 dialog.installation-sheet .primary { min-height: 44px; }
+.menu-debug-controls>.build-refresh {
+  min-height: 40px;
+  grid-column: 1/-1;
+  width: 100%;
+  margin: 0;
+  padding: 3px 7px;
+  font: 14px/1.2 var(--pixel);
+}

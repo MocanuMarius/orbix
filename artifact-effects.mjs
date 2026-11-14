@@ -1,6 +1,7 @@
 // Shared triggers make artifacts combine with skills, pickups and every base
 // companion. Effects never manufacture another pickup or dispatch a fuel event.
-import {CONSUMABLE_ARTIFACTS,EVOLVING_ARTIFACTS} from './artifact-info.mjs?v=ribbon-luminance-1';
+import {CONSUMABLE_ARTIFACTS,EVOLVING_ARTIFACTS} from './artifact-info.mjs?v=guardian-beat-1';
+import {GuardianReactions} from './guardian-reactions.mjs?v=guardian-beat-1';
 const clamp=(value,min,max)=>Math.max(min,Math.min(max,value));
 export const ARTIFACT_ENGINE_RULES=Object.freeze({
   'wayward-seed':Object.freeze({name:'Wayward Seed',color:'#c6dc99',trigger:'Three consecutive body Spark pickups.',effect:'Restore up to 3.34 Sparks.',limits:'Five activations per flight. Collector deliveries break the chain.'}),
@@ -32,9 +33,10 @@ export class ArtifactEffects {
   constructor(engine){
     this.engine=engine;this.overflowUsed=0;this.workUntil=-Infinity;this.workUses=0;
     this.sightStartedAt=-Infinity;this.sightUntil=0;this.sightReadyAt=0;
-    this.freeLift=false;this.liftGrants=0;this.liftReadyAt=0;this.lastProc=null;
+    this.storedLift=null;this.liftGrants=0;this.liftReadyAt=0;this.lastProc=null;
     this.procCounts={'overflow-coil':0,'echo-bell':0,'dawn-loom':0,sunspool:0};
     this.mounted=new Set(engine.mod.artifactIds||[]);
+    this.guardian=new GuardianReactions(this);
     this.seedId=[...EVOLVING_ARTIFACTS].reverse().find(id=>this.mounted.has(id))||null;
     this.seedCharge=0;this.seedProcs=0;
     this.charges={};
@@ -51,10 +53,12 @@ export class ArtifactEffects {
     this.notices.push({serial:++this.noticeSerial,artifactId,phase,time:this.engine.time,...detail});
   }
   onStart(){
+    this.guardian.start();
     this.notice('ember-lens','passive');
     this.notice('dream-sovereign','passive');
   }
   onFlap(paid){
+    if(paid&&this.guardian.held.size)this.guardian.lift();
     if(paid){this.notice('quiet-cinder','passive');this.notice('glass-lantern','passive');this.notice('hollow-covenant','passive');}
     this.notice('silver-feather','passive');
   }
@@ -105,6 +109,7 @@ export class ArtifactEffects {
     e.burst(e.player.x,e.player.y,phase==='primed'?3:5,rule.color);
   }
   onWork(){
+    this.guardian.companion();
     if(!this.enabled('echo-bell')||this.workUses>=5)return;
     const wasPrimed=this.workUntil>this.engine.time;
     this.workUntil=this.engine.time+8;
@@ -119,7 +124,8 @@ export class ArtifactEffects {
   onRecharge(seconds){
     const e=this.engine;
     if(seconds<=0||!this.enabled('dawn-loom')||e.time<this.sightReadyAt)return;
-    this.sightStartedAt=e.time;this.sightUntil=e.time+clamp(Number(e.mod.rechargeSight)||1.5,.5,3);
+    if(this.sightUntil<=e.time)this.sightStartedAt=e.time;
+    this.sightUntil=Math.max(this.sightUntil,e.time+clamp(Number(e.mod.rechargeSight)||1.5,.5,3));
     this.sightReadyAt=e.time+4;this.cue('dawn-loom');
   }
   get temporarilyLit(){
@@ -127,9 +133,10 @@ export class ArtifactEffects {
     return e.pickupRevealHoldUntil>e.time||e.pickupRevealStrength>0||e.sightUntil>e.time
       ||e.mainSeerUntil>e.time||this.sightUntil>e.time||Number(e.edgingPulse?.strength)>0||e.fleet.some(item=>item.role==='seer'&&item.remaining>0);
   }
-  onFuel(packet,spec,surplus){
-    if(!naturalFuel(packet,spec))return;
+  onFuel(packet,spec,surplus,cleansed=false){
+    if(!naturalFuel(packet,spec))return 0;
     const e=this.engine;
+    const restored=this.guardian.held.size?this.guardian.pickup(packet,spec,surplus,cleansed):0;
     if(this.enabled('overflow-coil')&&surplus>0&&this.overflowUsed<12){
       const requested=Math.min(2,12-this.overflowUsed,surplus*clamp(Number(e.mod.overflowRecharge)||0,0,.2));
       const restored=e.quickenCompanionRecovery(null,requested);
@@ -137,13 +144,20 @@ export class ArtifactEffects {
     }
     // Recovery can create light above, and that light can charge a Lift here.
     // Neither resulting effect re-enters this method or creates more fuel.
-    if(this.enabled('sunspool')&&!this.freeLift&&this.liftGrants<4&&e.time>=this.liftReadyAt&&this.temporarilyLit){
+    if(this.enabled('sunspool')&&!this.storedLift&&this.liftGrants<4&&e.time>=this.liftReadyAt&&this.temporarilyLit){
       this.freeLift=true;this.liftGrants++;this.liftReadyAt=e.time+4;this.cue('sunspool');
     }
+    return restored;
   }
+  get freeLiftCount(){return this.guardian.openingLifts+Number(!!this.storedLift);}
+  get freeLift(){return this.freeLiftCount>0;}
+  set freeLift(value){this.storedLift=value?'sunspool':null;}
   consumeLift(){
+    if(this.guardian.openingLifts>0){this.guardian.openingLifts--;return true;}
     if(!this.freeLift)return false;
-    this.freeLift=false;this.cue('sunspool','spent');return true;
+    const id=this.storedLift;this.storedLift=null;
+    if(id==='sunspool')this.cue(id,'spent');
+    return true;
   }
   get state(){
     const time=this.engine.time;

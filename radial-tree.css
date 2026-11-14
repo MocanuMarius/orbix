@@ -68,8 +68,7 @@
 .rank-choices>button small{color:inherit}
 .rank-choices>button:is(.preview,.locked){border-style:dashed;border-color:#657782;background:#1c272e;color:#b1bfc9;box-shadow:none}
 .rank-choices>button.selected{outline:2px solid #e5e6de;outline-offset:2px}
-.rank-choices>.future-rank{min-width:44px;min-height:44px;padding:4px 9px;border:1px dashed #657782;background:#1c272e;color:#b1bfc9;font:16px var(--pixel);box-sizing:border-box}.rank-choices>.future-rank small{display:block;font-size:10px;line-height:1.25}
-.rank-choices>.future-rank .bud-lock{width:12px;height:12px}
+.rank-choices .rank-cost .bud-lock,.preview-cost .resource-symbol{width:12px;height:12px;vertical-align:middle}
 @media(max-width:500px){.tree-state-key{gap:10px;font-size:10px}}
 
 /* Keep skill ink on a dark, quiet surface; state colors belong to the marks. */
@@ -129,3 +128,8 @@ html body .tree-sheet .radial-tree .branch-light .tree-path.saving{stroke:#a5897
 }
 .tree-bud:is(.saving,.locked,.preview) .skill-portrait *{animation:none!important}
 [data-reduced-motion=true] .skill-portrait *{animation:none!important}
+.tree-sheet .radial-tree .tree-bud.preview{padding:6px}
+.tree-sheet .radial-tree .tree-bud.preview>.skill-portrait{width:28px;height:28px;filter:grayscale(.75);opacity:.68}
+.tree-bud.preview .forecast-lock{position:absolute;right:3px;bottom:3px;width:14px;height:14px;line-height:0}
+.tree-bud.preview .forecast-lock svg,.forecast-path .bud-lock{width:14px;height:14px}
+.tree-sheet .forecast-path{color:#b7c6c9;display:flex;align-items:center;gap:5px;flex-wrap:wrap}

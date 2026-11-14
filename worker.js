@@ -21,17 +21,30 @@ async function installRelease() {
   await Promise.all(Array.from({length: 4}, download));
 }
 self.addEventListener('install', event => event.waitUntil(installRelease()));
-// Leave an update waiting until the last old game window closes. No forced
-// activation, controllerchange reload or interrupted flight.
+// Automatic updates wait until the game closes. Settings can apply a fully
+// downloaded update immediately in response to the player's refresh action.
+self.addEventListener('message', event => {
+  if (event.data?.type === 'activate-build') event.waitUntil(self.skipWaiting());
+});
 self.addEventListener('activate', event => event.waitUntil((async () => {
-  for (const key of await caches.keys()) {
-    if (key.startsWith(prefix) && key !== cacheName) await caches.delete(key);
+  const previous = (await caches.keys()).filter(key => key.startsWith(prefix) && key !== cacheName);
+  const windows = await self.clients.matchAll({type:'window',includeUncontrolled:true});
+  // Another game window can still have a lazy import for the prior release.
+  // Keep one matching cache until the next update, without reloading its flight.
+  if (windows.filter(client => client.frameType === 'top-level' && client.url.startsWith(scope.href)).length > 1) {
+    previous.pop();
   }
+  for (const key of previous) await caches.delete(key);
   await self.clients.claim();
 })()));
 
-async function respond(request, key) {
-  const cache = await caches.open(cacheName);
+async function respond(request, key, release) {
+  let name = cacheName;
+  if (release && release !== WISP_OFFLINE.release && request.mode !== 'navigate') {
+    const retained = (await caches.keys()).filter(candidate => candidate.startsWith(prefix + release + ':'));
+    if (retained.length) name = retained[retained.length - 1];
+  }
+  const cache = await caches.open(name);
   const response = await cache.match(key);
   if (!response) return fetch(request);
   const range = request.headers.get('Range');
@@ -51,15 +64,16 @@ self.addEventListener('fetch', event => {
   if (event.request.method !== 'GET') return;
   const url = new URL(event.request.url);
   if (url.origin !== scope.origin || !url.pathname.startsWith(scope.pathname)) return;
+  const release = url.searchParams.get('v');
   url.search = '';
   url.hash = '';
   if (url.pathname === scope.pathname) url.pathname += 'index.html';
-  if (!files.has(url.href)) return;
+  if (!files.has(url.href) && !(release && release !== WISP_OFFLINE.release && event.request.mode !== 'navigate')) return;
   // The live local editor serves new source files without a release stamp.
   // Keep it live online while supporting an installed offline local build.
   if (['localhost', '127.0.0.1', '[::1]'].includes(scope.hostname)) {
     event.respondWith(fetch(event.request).then(response =>
-      response.ok || response.status < 500 ? response : respond(event.request, url.href)
-    ).catch(() => respond(event.request, url.href)));
-  } else event.respondWith(respond(event.request, url.href));
+      response.ok || response.status < 500 ? response : respond(event.request, url.href, release)
+    ).catch(() => respond(event.request, url.href, release)));
+  } else event.respondWith(respond(event.request, url.href, release));
 });

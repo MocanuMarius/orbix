@@ -1,8 +1,48 @@
-import {pickupKind,getPickupSpec} from './pickups.mjs?v=ribbon-luminance-1';
+import {pickupKind,getPickupSpec} from './pickups.mjs?v=guardian-beat-1';
 
-// Authored three-packet encounters, installed after solid scenery and recovery
-// lights. Reuse two ordinary fuel packets rather than inflating the economy.
-export function installRiskChains(layout,{duration,speed,height,stage,difficulty,elite,mapIndex},clear){
+// Rise from the launch mark to the first Spark, fall through the seed, then
+// fly another half second in dim light before the third fuel pickup.
+const fallTimes=[0,.25,.56,1.20,1.44];
+function placeFall(layout,anchor,donors,options,clear,id) {
+  if(donors.length<4)return false;
+  const {height,speed,gravity,lift,terminal}=options;
+  const crestX=anchor.x+anchor.width*.65;
+  const riseTime=lift/gravity, rise=lift*riseTime/2, stopTime=terminal/gravity;
+  const drop=t=>t<=stopTime ? gravity*t*t/2 : terminal*(t-stopTime/2);
+  const endTime=fallTimes.at(-1), totalDrop=drop(endTime);
+  const launchX=crestX-speed*riseTime, endX=crestX+speed*endTime;
+  if(layout.sections.some(s=>(s.hard||s.authoredChallenge)&&launchX-45<s.end&&endX+70>s.start))return false;
+  const escapeTime=fallTimes[1];
+  const climb=t=>-lift*t+gravity*t*t/2;
+  for(const mid of [anchor.center,height*.50,height*.45,height*.57,height*.40,height*.64]){
+    const crestY=mid-totalDrop/2;
+    const yAt=t=>t<0?crestY+gravity*t*t/2:crestY+drop(t);
+    const afterEscape=t=>crestY+drop(escapeTime)+climb(t-escapeTime);
+    if(crestY<40||crestY+totalDrop>height-46||crestY+drop(escapeTime)-rise<34)continue;
+    const positions=fallTimes.map(t=>({x:crestX+speed*t,y:yAt(t)}));
+    const seed=positions[2];
+    // Keep unrelated pickups out of the dim stretch so it cannot cleanse early.
+    if(layout.embers.some(p=>!donors.includes(p)&&p.x>=launchX-20&&p.x<=endX+24
+      && Math.abs(p.y-yAt((p.x-crestX)/speed))<68))continue;
+    let fits=true;
+    for(let t=-riseTime;t<=endTime+.19;t+=.055){
+      const x=crestX+speed*t;
+      const y=t>endTime?crestY+totalDrop+climb(t-endTime):yAt(t);
+      if(!clear(x,y,23)||(t>=escapeTime&&!clear(x,afterEscape(t),23))){fits=false;break;}
+    }
+    if(!fits)continue;
+    [0,1,3,4].forEach((slot,i)=>Object.assign(donors[i],positions[slot],{riskChain:id,
+      chainIndex:slot,feature:'fall-glow',pocket:false,pocketSide:null,clearance:23}));
+    layout.embers.push({...seed,id:id+'-seed',kind:'dark',harmful:true,manualOnly:true,value:0,fuel:false,
+      feature:'fall-seed',riskChain:id,chainIndex:2,collected:false,attracted:false,phase:anchor.phase||0});
+    layout.riskChains.push({id,kind:'fall',...seed,start:launchX,end:endX,launch:{x:launchX,y:crestY+rise}});
+    return true;
+  }
+  return false;
+}
+
+// Reserve fuel from the existing course for either kind of encounter.
+export function installRiskChains(layout,{duration,speed,height,stage,difficulty,elite,mapIndex,fallPhysics,allowFall=true},clear){
   layout.riskChains=[];
   if(duration<30)return;
   const first=stage===0&&mapIndex===0&&difficulty===1&&!elite;
@@ -10,11 +50,22 @@ export function installRiskChains(layout,{duration,speed,height,stage,difficulty
   const gap=first?108:difficulty<=2&&!elite?100:84;
   const margin=Math.max(1500,speed*12),end=Math.max(...layout.obstacles.map(o=>o.x+o.width*2));
   const anchors=layout.obstacles.filter(o=>!o.hard&&!o.reservedDraft&&o.x>margin&&o.x<end-500);
+  const physics=fallPhysics||{speed:speed*(elite?1.045:1),gravity:300*height/620,lift:205*height/620,terminal:245*height/620};
   for(let index=0;index<wanted;index++){
     const target=margin+(end-margin-500)*(index+.5)/wanted;
     const candidates=anchors.filter(o=>layout.riskChains.every(chain=>Math.abs(chain.x-o.x)>1000))
       .sort((a,b)=>Math.abs(a.x-target)-Math.abs(b.x-target)).slice(0,24);
     let placed=false;
+    if(allowFall && !layout.riskChains.some(chain=>chain.kind==='fall')){
+      for(const anchor of candidates){
+        const center=anchor.x+anchor.width*.65;
+        const donors=layout.embers.filter(p=>pickupKind(p)==='light'&&!p.intro&&!p.accessible&&!p.challengeLandmark
+          &&!p.riskChain&&!p.generated&&Math.abs(p.x-center)<1450)
+          .sort((a,b)=>Math.abs(a.x-center)-Math.abs(b.x-center)).slice(0,4);
+        if(placeFall(layout,anchor,donors,{height,...physics},clear,'risk-chain-'+index)){placed=true;break;}
+      }
+    }
+    if(placed)continue;
     for(const anchor of candidates){
       const x=anchor.x+anchor.width*.65;
       if(layout.sections.some(s=>(s.hard||s.authoredChallenge)&&x+gap+140>s.start&&x-gap-140<s.end))continue;

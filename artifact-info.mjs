@@ -1,3 +1,4 @@
+import {GUARDIAN_RELICS} from './guardian-artifacts.mjs?v=guardian-beat-1';
 // Lifetime is separate from rarity: a rare relic is not a consumable by default.
 export const CONSUMABLE_ARTIFACTS=Object.freeze({
   'glow-wick':Object.freeze({charges:3,maxCharges:3}),
@@ -6,6 +7,7 @@ export const CONSUMABLE_ARTIFACTS=Object.freeze({
 export const EVOLVING_ARTIFACTS=Object.freeze(['wayward-seed','hearth-bloom','lantern-bloom']);
 const info=(type,lifetime,trigger,effect,limit='',charges)=>Object.freeze({type,lifetime,trigger,effect,limit,...(charges?{charges}:{})});
 const ARTIFACT_INFO=Object.freeze({
+ ...Object.fromEntries(Object.entries(GUARDIAN_RELICS).map(([id,r])=>[id,info(Object.keys(r.modifiers).length?'passive':'triggered','Lasts this run',r.trigger,r.effect,r.limit)])),
  'wayward-seed':info('triggered','This run · evolves after Map 1','Three consecutive body Spark pickups.','Restore up to 3.34 extra Sparks.','Collector deliveries break the chain. Five activations per flight. At Map 1 clear, choose Hearth Bloom (+10 Sparks) or Lantern Bloom (1.5s reveal). Bonus fuel never makes Stored Sparks.'),
  'hearth-bloom':info('triggered','This run · fuel evolution','Three consecutive body Spark pickups.','Restore up to 10 extra Sparks.','Collector deliveries break the chain. Five activations per flight. Replaces Wayward Seed in the same slot. Bonus fuel never makes Stored Sparks.'),
  'lantern-bloom':info('triggered','This run · Luminance evolution','Three consecutive body Spark pickups.','Reveal the whole scene for 1.5 seconds.','Collector deliveries break the chain. Five activations per flight. Replaces Wayward Seed in the same slot. Can prime Sunspool, within its four-Lift cap.'),
@@ -28,7 +30,7 @@ const ARTIFACT_INFO=Object.freeze({
   'sunspool':info('triggered','Resets each flight','Collect fuel during a temporary light reveal.','Store one free Lift.','One stored Lift; 4 seconds between grants; 4 grants per flight.'),
   'dreamcatcher':info('triggered','Lasts this run','Collect fuel during your preset Dream opening.','Recharge companions by 1.5 seconds.','Needs a saved Dream. Activates on each eligible Dream pickup.'),
   'second-dawn':info('triggered','Resets each flight','Collect your first fuel after Dream playback.','Briefly reveal the whole scene.','Once each flight after a saved Dream.'),
-  'night-gardener':info('triggered','Resets each flight','Skim a Dark Spark without touching it.','Restore 4 Sparks.','Once per seed, up to 5 seeds per flight.'),
+  'night-gardener':info('triggered','Resets each flight','Fly past a Dark Spark just outside its red rim.','Restore up to 6 missing Sparks per safe skim.','Each Dark Spark blooms once, up to 5 times per flight.'),
   'sunheart-engine':info('triggered','Lasts this run','Collect natural fuel, especially above Spark capacity.','Gain 8 extra Sparks; surplus recharges companions and reveals ahead.','Recovery: up to 2 seconds per pickup, 12 per flight. Reveal: 2 seconds.'),
   'dream-sovereign':info('triggered','Lasts this run','Dream fuel recharges companions; waking fuel reveals the scene.','Fuel collected in temporary light can store a free Lift.','4 free Lift grants per flight. Also increases your Luminance radius.'),
   'hollow-covenant':info('triggered','Lasts this run','Companion action primes your next body Spark pickup.','Restore 12 extra Sparks; Lift costs one fewer Spark (minimum one).','5 primed pickups per flight. Also skim up to 5 Dark Sparks for 6 Sparks each.'),

@@ -1,7 +1,7 @@
-import {formatGlow} from './vitality.mjs?v=ribbon-luminance-1';
-import { PICKUP_TYPES, getPickupSpec } from './pickups.mjs?v=ribbon-luminance-1';
-import { pickupArtSvg } from './pickup-art.mjs?v=ribbon-luminance-1';
-import { normalizeCompanionRole, normalizeCompanionFleet } from './companion-abilities.mjs?v=ribbon-luminance-1';
+import {formatGlow} from './vitality.mjs?v=guardian-beat-1';
+import { PICKUP_TYPES, getPickupSpec } from './pickups.mjs?v=guardian-beat-1';
+import { pickupArtSvg } from './pickup-art.mjs?v=guardian-beat-1';
+import { normalizeCompanionRole, normalizeCompanionFleet } from './companion-abilities.mjs?v=guardian-beat-1';
 
 const esc = value => String(value ?? '').replace(/[&<>"']/g, char =>
   ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
@@ -10,7 +10,7 @@ const percent = value => Math.round((Number(value) || 0) * 100);
 function effectText(spec,maxGlow=100) {
   switch (spec.id) {
     case 'light': return `+${formatGlow(spec.fuel,maxGlow)} Sparks (before build bonuses). Clears one dimming effect.`;
-    case 'cache': return `+${formatGlow(spec.fuel,maxGlow)} Sparks (before build bonuses). Clears one dimming effect.`;
+    case 'cache': return 'From 18 Sparks for an ordinary Cache to 60 for a rare giant. Unused fuel goes to packing.';
     case 'cluster': return `+${formatGlow(spec.fuel,maxGlow)} Sparks. Surplus above your full meter goes into storage.`;
     case 'sight': return spec.description;
     case 'dusk': return `+${formatGlow(spec.fuel,maxGlow)} Sparks (before build bonuses), with ${percent(spec.dim)}% less Luminance for ${spec.dimDuration}s. Manual contact only.`;

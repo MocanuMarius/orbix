@@ -1,9 +1,9 @@
-import {menuWorldMarkup} from './menu-world.mjs?v=ribbon-luminance-1';
-import {resourceSymbol} from './game-symbols.mjs?v=ribbon-luminance-1';
-import {formatGlow,getGlowCapacity} from './vitality.mjs?v=ribbon-luminance-1';
-import {livesMarkup} from './lives.mjs?v=ribbon-luminance-1';
-import { COMPANION_ABILITIES } from './companion-abilities.mjs?v=ribbon-luminance-1';
-import { companionArtSvg } from './companion-art.mjs?v=ribbon-luminance-1';
+import {menuWorldMarkup} from './menu-world.mjs?v=guardian-beat-1';
+import {resourceSymbol} from './game-symbols.mjs?v=guardian-beat-1';
+import {formatGlow,getGlowCapacity} from './vitality.mjs?v=guardian-beat-1';
+import {livesMarkup} from './lives.mjs?v=guardian-beat-1';
+import { COMPANION_ABILITIES } from './companion-abilities.mjs?v=guardian-beat-1';
+import { companionArtSvg } from './companion-art.mjs?v=guardian-beat-1';
 
 const esc = value => String(value ?? '').replace(/[&<>"']/g, char =>
   ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[char]));
@@ -82,7 +82,7 @@ function chapterJourney(map, mapCleared, practice) {
 
 /** Three-map path and, when present, the exact resumable run checkpoint. */
 export function runProgressMarkup(run) {
-  const active = Boolean(run && run.phase !== 'ended' && !run.banked);
+  const active = Boolean(run && (run.phase !== 'ended' || run.victoryPending) && !run.banked);
   const practice = active && run.isTutorial;
   const map = active ? Math.max(0, Math.min(2, Number(run.mapIndex) || 0)) : -1;
   const totalStops = run?.map?.length || (practice ? 3 : 7);
@@ -130,6 +130,6 @@ export function testStarterMarkup(selected='collector',{profile={},testOverride=
 
 export function homeMenuMarkup({ profile = {}, run = null, selectedDifficulty, testOverride = false, testStarterCompanion = 'collector' } = {}) {
   const maximum = testOverride ? Math.max(6,tier(profile.difficulty)) : tier(profile.difficulty), chosen = Math.min(maximum, tier(selectedDifficulty ?? maximum));
-  const active = Boolean(run && run.phase !== 'ended' && !run.banked);
+  const active = Boolean(run && (run.phase !== 'ended' || run.victoryPending) && !run.banked);
   return `<section class="run-front-page menu-art-home">${menuWorldMarkup()}<header class="front-title"><div class="front-main-light" aria-hidden="true"></div><h1>WISPBOUND</h1><p>A LIGHT IN THE LOST WOODS</p></header>${runProgressMarkup(active ? run : null)}<div class="front-actions">${active ? `<button class="front-continue home-command primary" data-action="continue-run"><span>CONTINUE<small>${run.isTutorial ? 'Your practice route' : `MAP ${Math.min(3,(Number(run.mapIndex)||0)+1)}/3 · ${run.phase==='map-clear'?'MAP CLEARED':`STOP ${Math.min(run.map?.length||7,(Number(run.step)||0)+1)}/${run.map?.length||7}`}`}</small></span>${arrow}</button>` : ''}<div class="front-new-game"><button class="front-new-button home-command ${active ? 'secondary' : 'primary'}" data-action="new-game"><span>NEW GAME<small>Choose a starting gift</small></span>${arrow}</button><div class="front-ascension-picker${maximum===1?' is-fixed':''}" role="group" aria-label="Choose ascension for a new game"><button data-action="choose-ascension" data-value="${Math.max(1, chosen - 1)}" aria-label="Previous ascension" ${chosen <= 1 ? 'disabled' : ''}>−</button><span>ASCENSION <b>${chosen}</b><small>${testOverride ? `TEST · 1–${maximum}` : maximum > 1 ? `UNLOCKED 1–${maximum}` : 'FIRST JOURNEY'}</small></span><button data-action="choose-ascension" data-value="${Math.min(maximum, chosen + 1)}" aria-label="Next ascension" ${chosen >= maximum ? 'disabled' : ''}>+</button></div></div><button class="front-tutorial home-command secondary" data-action="tutorial"><span>FIELD GUIDE<small>Lessons & practice</small></span>${arrow}</button></div>${testStarterMarkup(testStarterCompanion,{profile,testOverride})}</section>`;
 }

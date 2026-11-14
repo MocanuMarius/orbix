@@ -1,28 +1,33 @@
-import {drawAtlasFlight} from './atlas-flight.mjs?v=ribbon-luminance-1';
-import {drawGuardianPresence} from './guardian-presence.mjs?v=ribbon-luminance-1';
-import {createDepthScenery,drawDepthScenery} from './depth-scenery.mjs?v=ribbon-luminance-1';
-import { drawGuardianWarnings } from './guardian-art.mjs?v=ribbon-luminance-1';
-import {drawProximityMeter} from './proximity-meter.mjs?v=ribbon-luminance-1';
-import {drawObjectiveMarks} from './flight-objectives.mjs?v=ribbon-luminance-1';
-import {drawFlightProjection} from './flight-projection.mjs?v=ribbon-luminance-1';
-import {drawGlowSense} from './glow-sense.mjs?v=ribbon-luminance-1';
-import {formatGlow} from './vitality.mjs?v=ribbon-luminance-1';
-import {LOCATION_PALETTES} from './world-expansion.mjs?v=ribbon-luminance-1';
-import {biomePalette} from './biome-art.mjs?v=ribbon-luminance-1';
-import { sceneryIdentity, drawIdentityBackground, drawIdentityMaterial, drawIdentityLife } from './level-scenery.mjs?v=ribbon-luminance-1';
-import { getCompanionAbility, normalizeCompanionRole } from './companion-abilities.mjs?v=ribbon-luminance-1';
-import { companionSprite, companionPalette, makeWispSprite } from './companion-art.mjs?v=ribbon-luminance-1';
-import { createScenePropArt } from './scene-prop-art.mjs?v=ribbon-luminance-1';
-import { drawBoss } from './boss.mjs?v=ribbon-luminance-1';
-import {drawFlashTether} from './flash-tether.mjs?v=ribbon-luminance-1';
-import { drawPickup, drawSparkSymbol, FUEL_ANIMATION } from './pickup-art.mjs?v=ribbon-luminance-1';
-import { pickupKind, getPickupSpec, pickupShellRadius } from './pickups.mjs?v=ribbon-luminance-1';
-import { LIGHT_EXTENT,lightAttenuation,lightVisibility,createLightMaskCanvas,sceneRevealStrength } from './light-field.mjs?v=ribbon-luminance-1';
-import {drawExitLandmark} from './exit-landmark.mjs?v=ribbon-luminance-1';
-import {drawBlackHoles} from './black-hole-art.mjs?v=ribbon-luminance-1';
-import {drawCapture, drawShellPuff} from './capture-art.mjs?v=ribbon-luminance-1';
-import {drawShellArcs} from './shell-arcs.mjs?v=ribbon-luminance-1';
-import {drawFlightForks,drawFlightForkBackdrops} from './flight-forks.mjs?v=ribbon-luminance-1';
+import {drawAtlasFlight} from './atlas-flight.mjs?v=guardian-beat-1';
+import {drawGuardianPresence} from './guardian-presence.mjs?v=guardian-beat-1';
+import {createDepthScenery,drawDepthScenery} from './depth-scenery.mjs?v=guardian-beat-1';
+import { drawGuardianWarnings } from './guardian-art.mjs?v=guardian-beat-1';
+import { drawShutters } from './shutter-cone.mjs?v=guardian-beat-1';
+import {drawProximityMeter} from './proximity-meter.mjs?v=guardian-beat-1';
+import {drawFourthBeat} from './fourth-beat-art.mjs?v=guardian-beat-1';
+import {drawCollectorGuard} from './collector-guard-art.mjs?v=guardian-beat-1';
+import {drawObjectiveMarks} from './flight-objectives.mjs?v=guardian-beat-1';
+import {drawFlightProjection} from './flight-projection.mjs?v=guardian-beat-1';
+import {drawGlowSense} from './glow-sense.mjs?v=guardian-beat-1';
+import {formatGlow} from './vitality.mjs?v=guardian-beat-1';
+import {LOCATION_PALETTES} from './world-expansion.mjs?v=guardian-beat-1';
+import {biomePalette} from './biome-art.mjs?v=guardian-beat-1';
+import { sceneryIdentity, drawIdentityBackground, drawIdentityMaterial, drawIdentityLife } from './level-scenery.mjs?v=guardian-beat-1';
+import { getCompanionAbility, normalizeCompanionRole } from './companion-abilities.mjs?v=guardian-beat-1';
+import { companionSprite, companionPalette, makeWispSprite } from './companion-art.mjs?v=guardian-beat-1';
+import { createScenePropArt } from './scene-prop-art.mjs?v=guardian-beat-1';
+import { drawBoss } from './boss.mjs?v=guardian-beat-1';
+import {drawFlashTether} from './flash-tether.mjs?v=guardian-beat-1';
+import { drawPickup, drawSparkSymbol } from './pickup-art.mjs?v=guardian-beat-1';
+import {sparkBodyRadius,sparkArtScale,sparkMass} from './spark-size.mjs?v=guardian-beat-1';
+import { pickupKind, getPickupSpec } from './pickups.mjs?v=guardian-beat-1';
+import { LIGHT_EXTENT,lightAttenuation,lightVisibility,createLightMaskCanvas,sceneRevealStrength } from './light-field.mjs?v=guardian-beat-1';
+import {drawExitLandmark} from './exit-landmark.mjs?v=guardian-beat-1';
+import {drawBlackHoles} from './black-hole-art.mjs?v=guardian-beat-1';
+import {drawCapture, drawShellPuff} from './capture-art.mjs?v=guardian-beat-1';
+import {drawShellArcs} from './shell-arcs.mjs?v=guardian-beat-1';
+import {drawFlightForks,drawFlightForkBackdrops} from './flight-forks.mjs?v=guardian-beat-1';
+import {drawFallWarning} from './fall-chain-art.mjs?v=guardian-beat-1';
 
 const TAU = Math.PI * 2;
 const SCENERY_HELPERS = { line: pixelLine, disc: pixelDisc, polygon: path };
@@ -572,20 +577,21 @@ export class WispFlightView {
 
   drawCollectibles(e, t, distance) {
     const s = this.scale;
-    const margin = Math.ceil(Math.max(24, FUEL_ANIMATION.size / 2) * s);
     for (const ember of e.layout.embers) {
       if (ember.collected || ember.carried) continue;
       const x = (ember.x - distance) * s, y = ember.y * s;
+      if (x > this.buffer.width + (e.height*.4+32)*s || x < -(e.height*.4+32)*s) continue;
+      const margin = (sparkBodyRadius(ember,e.height)*1.5 + 8)*s;
       if (x < -margin || x > this.buffer.width + margin) continue;
       this.drawPacket(x, y, { kind: pickupKind(ember), time: e.captureTime ?? t, phase: ember.phase, reducedMotion: e.reducedMotion,
-        tiny: ember.generated === true, scale: s });
+        tiny: ember.generated === true, scale: s*sparkArtScale(ember,e.height), detailed:sparkMass(ember)>=5 });
     }
   }
 
-  drawPacket(x, y, { kind, dark = false, rich = false, tiny = false, bodyOnly = false, alpha = 1,
+  drawPacket(x, y, { kind, dark = false, rich = false, tiny = false, bodyOnly = false, detailed=false, alpha = 1,
     time = 0, phase = 0, reducedMotion = false, scale = this.scale } = {}) {
     drawPickup(this.bufferContext, x, y, { kind: kind || (dark ? 'dark' : rich ? 'cache' : 'light'),
-      time, phase, reducedMotion, tiny, bodyOnly, alpha, scale });
+      time, phase, reducedMotion, tiny, bodyOnly, detailed, alpha, scale });
   }
 
   drawBurstEffects(e, tint) {
@@ -808,8 +814,10 @@ export class WispFlightView {
   }
 
   drawCollectorAura(e,t) {
-    const aura=e.getCollectorAuraState?.();if(!aura||aura.radius<1||!aura.active)return;
+    const aura=e.getCollectorAuraState?.();if(!aura?.active)return;
     const c=this.bufferContext,s=this.scale,x=e.player.x*s,y=yOf(e)*s,r=aura.radius*s;
+    drawCollectorGuard(c,aura,x,y,s,e.reducedMotion);
+    if(aura.radius<1)return;
     c.save();c.globalCompositeOperation='screen';
     // A single living boundary, never a filled illumination disc. Fixed work
     // per frame keeps recovery animation independent of terrain complexity.
@@ -825,7 +833,7 @@ export class WispFlightView {
     c.globalAlpha=.27*(1-(e.completionProgress||0));c.lineWidth=.75;c.stroke();
     for(const contact of e.wisp?.contacts||[]){
       const packet=contact.packet;if(packet.collected||packet.carried)continue;
-      const px=(packet.x-distanceOf(e))*s,py=packet.y*s,pr=pickupShellRadius(packet)*s;
+      const px=(packet.x-distanceOf(e))*s,py=packet.y*s,pr=sparkBodyRadius(packet,e.height)*s;
       const age=Math.max(0,t-contact.since),wave=e.reducedMotion?1:Math.min(1,age/.42);
       if(pickupKind(packet)==='sight'){
         const edge=(20+(1-wave)*3)*s;
@@ -851,7 +859,7 @@ export class WispFlightView {
     const c = this.bufferContext, s = this.scale;
     for (let i = 0; i < fleet.length && i < 3; i++) {
       const state = fleet[i], role = normalizeCompanionRole(state.role || state.id), tint = companionPalette(role);
-      const collector = role === 'collector', cooling = collector && state.phase === 'cooldown';
+      const collector = role === 'collector', cooling = collector && (state.phase === 'cooldown'||state.phase==='guard-recovery');
       const front=collector&&(state.depth||0)>0;if(pass==='front'&&!front||pass==='back'&&front)continue;
       const depthScale=collector?.95+(state.depth||0)*.25:1;
       const x = state.x * s, y = state.y * s;
@@ -865,7 +873,7 @@ export class WispFlightView {
       if (collector && state.carrying) {
         const pose=state.cargoPose;
         this.drawPacket(x+pose.offsetX*s,y+pose.offsetY*s,{kind:state.cargoKind,bodyOnly:true,
-          time:e.captureTime ?? t,phase:state.cargoPhase,scale:s*pose.scale,reducedMotion:e.reducedMotion});
+          time:e.captureTime ?? t,phase:state.cargoPhase,scale:s*pose.scale,detailed:pose.detailed,reducedMotion:e.reducedMotion});
       }
       const px=e.player.x*s,py=yOf(e)*s,clock=e.reducedMotion?0:t;
       c.save();c.strokeStyle=tint.core;c.fillStyle=tint.bright;c.lineWidth=1;
@@ -1029,6 +1037,7 @@ export class WispFlightView {
     }
     const playerX = e.player.x * s, playerY = yOf(e) * s;
     this.lightFog(e, fleet, playerX, playerY);
+    drawFallWarning(c,e,{distance,scale:s,light:this.currentLightState});
     e.drawWayfinder?.(c,s);
     drawGuardianWarnings(c,{engine:e,distance,scale:s,time:t});
     e.biomeDynamics?.drawHighlights(c,{distance,scale:s,light:this.currentLightState,playerY:yOf(e)});
@@ -1040,11 +1049,13 @@ export class WispFlightView {
     let collector = null;
     for (let i = 0; i < fleet.length; i++) if (fleet[i].role === 'collector') { collector = fleet[i]; break; }
     this.drawWind(e, t, collector);
+    drawShutters(c,e,{distance,scale:s,playerY:yOf(e)});
     this.drawFleet(e, t, fleet,'back');
     this.drawMain(e, t, playerX, playerY);
     this.drawFleet(e, t, fleet,'front');
     this.drawProtector(e, t, playerX, playerY);
     this.drawAbsorptions(e, t);
+    drawFourthBeat(c,e,playerX,playerY);
     if(e.flashTether)drawFlashTether(c,e.flashTether,{time:e.captureTime ?? t,distance,scale:s,
       playerX:distance+e.player.x,playerY:yOf(e)});
     drawBlackHoles(c,e,{scale:s,distance,playerY:yOf(e)});

@@ -1,6 +1,7 @@
-import { LIGHT_PACKET_TUNING } from './vitality.mjs?v=ribbon-luminance-1';
-import { getCompanionAbility } from './companion-abilities.mjs?v=ribbon-luminance-1';
-import { pickupKind, pickupContactRadius, canCompanionCollect } from './pickups.mjs?v=ribbon-luminance-1';
+import { LIGHT_PACKET_TUNING } from './vitality.mjs?v=guardian-beat-1';
+import { getCompanionAbility } from './companion-abilities.mjs?v=guardian-beat-1';
+import { pickupKind, pickupContactRadius, canCompanionCollect } from './pickups.mjs?v=guardian-beat-1';
+import {sparkArtScale,sparkMass} from './spark-size.mjs?v=guardian-beat-1';
 
 const clamp = (value, lo, hi) => Math.min(hi, Math.max(lo, value));
 export const WISP_TUNING = Object.freeze({ range: 52.5, cooldown: 10, lightRadius: 175,
@@ -40,6 +41,23 @@ export class WispCompanion {
     return WISP_TUNING.cooldown * clamp(Number(engine.mod.wispCooldown) || 1, .4, 1.5) * (engine.mod.treasureRecoveryScale || 1);
   }
 
+  canGuard(engine) {
+    return Boolean(engine.mod.collectorGuard && this.enabled(engine) && this.phase==='ready' &&
+      this.cooldown<=0 && !this.cargo && !this.target && !this.leg);
+  }
+
+  spendGuard(engine) {
+    this.phase='guard-recovery';
+    this.cooldownMax=this.cooldown=this.recoveryDuration(engine)*4;
+    this.contacts.length=0;
+    this.contactTimes.clear();
+    this.orbitHome.x=engine.player.x;
+    this.orbitHome.y=engine.player.y;
+    this.x=this.previousX=engine.player.x;
+    this.y=this.previousY=engine.player.y;
+    this.vx=this.vy=0;
+  }
+
   range(engine) {
     if (!this.enabled(engine)) return 0;
     return WISP_TUNING.range * clamp(Number(engine.mod.attract) || 1, .5, 4) * (1 + engine.wispBoost * .6);
@@ -50,6 +68,7 @@ export class WispCompanion {
   }
 
   currentRange(engine) {
+    if (this.phase==='guard-recovery') return 0;
     const maximum = this.range(engine), minimum = Math.min(18+(Number(engine.mod.collectorMinimum)||0), maximum);
     return minimum + (maximum - minimum) * this.recoveryFraction();
   }
@@ -57,11 +76,14 @@ export class WispCompanion {
   enabled(engine) { return engine.hasCompanion ? engine.hasCompanion('collector')
     : getCompanionAbility(engine.companionRole || engine.options?.companionRole).collects === true; }
 
-  cargoPose(packet, time) {
-    const elapsed = clamp((time - packet.carriedAt) / .18, 0, 1);
+  cargoPose(packet, time, height) {
+    const fieldScale = sparkArtScale(packet,height) * (packet.generated ? .62 : 1);
+    // A large body compacts as it is carried, but still delivers a heavier ribbon.
+    const stowedScale = packet.generated ? fieldScale : Math.min(fieldScale, .62*Math.sqrt(fieldScale));
+    const elapsed = clamp((time - packet.carriedAt) / Math.min(.42,.18*Math.max(1,Math.sqrt(fieldScale))), 0, 1);
     const tucked = elapsed * elapsed * (3 - 2 * elapsed);
     return { offsetX: 8 * tucked, offsetY: 5 * tucked,
-      scale: packet.generated ? .62 : 1 - .38 * tucked };
+      scale: fieldScale + (stowedScale-fieldScale)*tucked, detailed:sparkMass(packet)>=5 };
   }
 
   state(engine, y = engine.player.y, time = engine.time, renderBlend) {
@@ -72,7 +94,7 @@ export class WispCompanion {
     const x = this.previousX + (this.x - this.previousX) * blend;
     const cy = this.previousY + (this.y - this.previousY) * blend;
     const cargoTime = renderBlend === undefined ? time : engine.captureTime;
-    const pose = enabled && this.cargo ? this.cargoPose(this.cargo, cargoTime) : null;
+    const pose = enabled && this.cargo ? this.cargoPose(this.cargo, cargoTime,engine.height) : null;
     if (pose && cargoTime < this.cargo.carriedAt) {
       pose.offsetX = this.cargo.x - engine.renderDistance - x;
       pose.offsetY = this.cargo.y - cy;
@@ -83,6 +105,7 @@ export class WispCompanion {
       currentRange: enabled ? this.currentRange(engine) : 0,
       recovering: enabled && this.cooldown > 0,
       canFetch: enabled && (this.phase === 'ready' || this.phase === 'cooldown'),
+      guardReady:this.canGuard(engine),
       phase: enabled ? this.phase : 'orbiting', cooldown: enabled ? this.cooldown : 0,
       cooldownMax: enabled ? this.cooldownMax : 0,
       carrying: enabled && Boolean(this.cargo), cargoValue: enabled ? this.cargo?.value || 1 : 0,
@@ -172,7 +195,14 @@ export class WispCompanion {
     // Recovery grows the search boundary; it is not a lock on another fetch.
     // It keeps progressing during a trip and restarts only after delivery.
     this.cooldown = Math.max(0, this.cooldown - dt * (engine.flightBoon?.recoveryRate ?? 1));
-    if (this.cooldown === 0 && this.phase === 'cooldown') this.phase = 'ready';
+    if (this.cooldown === 0 && (this.phase === 'cooldown' || this.phase==='guard-recovery')) this.phase = 'ready';
+    if (this.phase==='guard-recovery') {
+      const radius=.22+.22*this.recoveryFraction();
+      this.x=home.x+(orbit.x-home.x)*radius;this.y=home.y+(orbit.y-home.y)*radius;
+      this.vx=(this.x-this.previousX)/dt;this.vy=(this.y-this.previousY)/dt;
+      this.depth=orbit.depth;
+      return;
+    }
     // The visible boundary touches the pickup's contact ring, not its centre.
     // Detection is shown even while body priority or another delivery delays a fetch.
     const reach = this.currentRange(engine), packets = engine.getNearbyPickups?.() || engine.layout.embers;
@@ -239,8 +269,8 @@ export class WispCompanion {
         engine._auraUntil = -1;
         if (this.cargo) {
           const delivered = this.cargo; this.cargo = null; delivered.carried = false;
-          const pose = this.cargoPose(delivered, engine.time);
-          const previous = this.cargoPose(delivered, engine.time - dt);
+          const pose = this.cargoPose(delivered, engine.time,engine.height);
+          const previous = this.cargoPose(delivered, engine.time - dt,engine.height);
           delivered.deliveredByWisp = true;
           engine.collect(delivered, { worldX: engine.distance + this.x + pose.offsetX,
             y: this.y + pose.offsetY, scale: pose.scale,

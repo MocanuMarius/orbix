@@ -1,4 +1,5 @@
-import {FLAME_TUNING,LIGHT_PACKET_TUNING} from './vitality.mjs?v=ribbon-luminance-1';
+import {FLAME_TUNING,LIGHT_PACKET_TUNING} from './vitality.mjs?v=guardian-beat-1';
+import {sparkBodyRadius,sparkMass} from './spark-size.mjs?v=guardian-beat-1';
 
 const type=(id,name,color,radius,contactRadius,description,extra={})=>Object.freeze({id,name,color,radius,contactRadius:contactRadius*.8,description,fuel:0,sightBonus:0,sightDuration:0,dim:0,dimDuration:0,manualOnly:false,...extra});
 export const PICKUP_TYPES=Object.freeze({
@@ -15,13 +16,29 @@ export function pickupKind(packet={}){
   if(packet.kind==='light'&&packet.value===3)return 'cache';
   return Object.hasOwn(PICKUP_TYPES,packet.kind)?packet.kind:packet.value===3?'cache':'light';
 }
-export const getPickupSpec=packet=>PICKUP_TYPES[pickupKind(packet)];
-export const pickupContactRadius=packet=>getPickupSpec(packet).contactRadius;
+const masses=new Map();
+export function getPickupSpec(packet){
+  const base=PICKUP_TYPES[pickupKind(packet)];
+  if(!base.plasma||!packet?.sparkMass)return base;
+  const mass=sparkMass(packet);
+  if(base.fuel===mass*FLAME_TUNING.emberFuel||!mass)return base;
+  const key=base.id+mass;
+  if(!masses.has(key))masses.set(key,Object.freeze({...base,fuel:mass*FLAME_TUNING.emberFuel,
+    name:mass===10?'Giant Spark':base.name,description:`Restores ${mass*6} Sparks before bonuses. Surplus goes to packing.`}));
+  return masses.get(key);
+}
+export function pickupContactRadius(packet,height){
+  const spec=getPickupSpec(packet);
+  if(!packet||typeof packet!=='object'||packet.generated||!sparkMass(packet))return spec.contactRadius;
+  const radius=sparkBodyRadius(packet,height)+9.35; // visible shell plus the wisp body
+  return packet.accessible||packet.riskChain||packet.intro||packet.forgivingContact?Math.max(radius,spec.contactRadius):radius;
+}
 export const SPARK_ART_SCALE = .8;
 export const PLASMA_SHELL_RADIUS = 16;
 // Contact padding stays generous even when the visible Spark shell is small.
 export function pickupShellRadius(packet) {
   const spec = getPickupSpec(packet);
+  if(packet&&typeof packet==='object')return sparkBodyRadius(packet);
   if (spec.id === 'sight') return spec.contactRadius;
   return (spec.plasma ? PLASMA_SHELL_RADIUS : spec.contactRadius) * SPARK_ART_SCALE;
 }

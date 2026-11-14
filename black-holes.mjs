@@ -1,11 +1,13 @@
-import {moonDrainScale} from './atlas-flight.mjs?v=ribbon-luminance-1';
-import { obstacleEdgeClearance } from './edging-pulse.mjs?v=ribbon-luminance-1';
+import {moonDrainScale} from './atlas-flight.mjs?v=guardian-beat-1';
+import { obstacleEdgeClearance } from './edging-pulse.mjs?v=guardian-beat-1';
 
-// Rates are internal flight Sparks. The HUD displays 0.3 of these units: a
-// Drain is twice the prior curve; the checked bypass limits unavoidable loss.
+// Rates are internal flight Sparks. The HUD displays 0.3 of these units.
+// At 2.5× the old drain the core can empty a fresh meter in a quarter second.
+// At the slowest normal speed the bypass costs less than one ordinary Lift,
+// even when the player strays 20 units toward the centre.
 // Softening and the cap make direct core contact finite, never a collision.
 export const BLACK_HOLE_TUNING = Object.freeze({ coreRadius: 16, influence: 220,
-  softening: 22, coefficient: 144000, maximumRate: 160, minimumBypass: 135,
+  softening: 22, coefficient: 360000, maximumRate: 400, minimumBypass: 182,
   corridorHalfWidth: 270, laneRadius: 18, sampleSpacing: 24,
   minimumStart: 1150, exitClearance: 650, referenceHeight: 430 });
 const clamp = (n, lo, hi) => Math.max(lo, Math.min(hi, n));
@@ -41,6 +43,7 @@ function clearAt(obstacles, x, y, radius, height) {
 function quietAt(engine, x) {
   const reach = BLACK_HOLE_TUNING.influence + 50;
   return !(engine.layout?.flightForks || []).some(f=>x+reach>f.approachStart&&x-reach<f.exitEnd)
+    && !(engine.layout?.boss?.shutters || []).some(s=>x+reach>s.x-100&&x-reach<s.x+s.shift+s.spread)
     && !(engine.layout?.sections || []).some(s => (s.hard || s.authoredChallenge)
       && x + reach > s.start && x - reach < s.end)
     && !(engine.layout?.obstacles || []).some(o => (o.hard || o.reservedDraft)
@@ -118,7 +121,7 @@ export class BlackHoles {
     // Sparks on the checked bypass instead, without minting extra rewards.
     for(const hole of this.items)for(const p of engine.layout.embers||[]){
       if(p.generated||p.harmful||p.riskChain||!['light','cluster','cache'].includes(p.kind))continue;
-      if(Math.hypot(p.x-hole.x,p.y-hole.y)<120&&p.x>=hole.bypass.startX&&p.x<=hole.bypass.endX){p.y=hole.bypass.y;p.accessible=true;p.blackHoleBypass=true;}
+      if(Math.hypot(p.x-hole.x,p.y-hole.y)<150&&p.x>=hole.bypass.startX&&p.x<=hole.bypass.endX){p.y=hole.bypass.y;p.accessible=true;p.blackHoleBypass=true;}
     }
     this.active = false; this.rate = 0; this.potentialRate = 0; this.drained = 0; this.nearest = null;
     this._activeItems = [];

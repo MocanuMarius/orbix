@@ -1,4 +1,4 @@
-import { prepareGuardian } from './guardian-effects.mjs?v=ribbon-luminance-1';
+import { prepareGuardian } from './guardian-effects.mjs?v=guardian-beat-1';
 // The Hollow Warden is a survival encounter: read its hands, keep your Sparks,
 // and reach the waylight. Every solid hand uses the ordinary terrain pipeline.
 const TAU = Math.PI * 2;
@@ -37,8 +37,8 @@ const SIGNATURE_PHASES={
   {id:'chorus',name:'THUNDER CHORUS',instruction:'Follow the alternating current; recover between gusts.',cells:[[.58,250,'both',8],[.42,250,'both',8],[.54,270,'both',0],[.50,340,'both',0]]}],
  'hollow-sun':[
   {id:'eclipse',name:'THE FIRST ECLIPSE',instruction:'Keep beneath the dark wells; gather light between them.',cells:[[.55,290,'both',0],[.60,275,'both',0],[.48,280,'both',0],[.50,335,'both',0]]},
-  {id:'orbit',name:'DARK ORBITS',instruction:'The wells change sides. Cross away from their pull.',cells:[[.40,270,'both',0],[.60,270,'both',0],[.45,275,'both',0],[.50,340,'both',0]]},
-  {id:'corona',name:'BREAK THE CORONA',instruction:'Keep moving between the wells and their pools of light.',cells:[[.58,260,'both',8],[.42,260,'both',8],[.52,275,'both',0],[.50,340,'both',0]]}]
+  {id:'orbit',name:'DARK ORBITS',instruction:'The roof shutter marks its shadow. Skim its neck or cross the broad dark chamber.',cells:[[.40,270,'both',0],[.60,270,'both',0],[.45,275,'both',0],[.50,340,'both',0]]},
+  {id:'corona',name:'BREAK THE CORONA',instruction:'A floor shutter aims upward. Its thin neck is close to the rocks.',cells:[[.58,260,'both',8],[.42,260,'both',8],[.52,275,'both',0],[.50,340,'both',0]]}]
 };
 
 export const BOSS_PREVIEWS=Object.freeze({
@@ -46,7 +46,7 @@ export const BOSS_PREVIEWS=Object.freeze({
   'frost-matron':Object.freeze({id:'frost-matron',name:'Frost Matron',instruction:'Cross away from cracking ice. A shard breaks on contact and drains up to 6 Sparks.',icon:'boss'}),
   'rootbound-heart':Object.freeze({id:'rootbound-heart',name:'Rootbound Heart',instruction:'Living gates breathe open and close. Follow their pulse.',icon:'boss'}),
   'storm-shepherd':Object.freeze({id:'storm-shepherd',name:'Storm Shepherd',instruction:'Low streams lift you. High streams push you down. Fly around the current or ride it.',icon:'boss'}),
-  'hollow-sun':Object.freeze({id:'hollow-sun',name:'Hollow Sun',instruction:'Moving dark wells drain nearby Sparks. Cross on the far side.',icon:'boss'}),
+  'hollow-sun':Object.freeze({id:'hollow-sun',name:'Hollow Sun',instruction:'Wells drain nearby Sparks. Wall shutters cast a fixed cone of darkness.',icon:'boss'}),
   moonweaver:Object.freeze({id:'moonweaver',name:'Moonweaver',instruction:'Alternating crescents and a drifting silver loom.',icon:'boss'})
 });
 export const getBossPreview=id=>BOSS_PREVIEWS[id]||BOSS_PREVIEWS['hollow-warden'];
@@ -153,6 +153,16 @@ export function buildBossLayout({ seed = 1, height = 620, speed = 154, duration 
         difficulty: gentle ? 0 : phase + 1, hard: !gentle, setpiece: obstacle.setpiece,
         landmark: identity.id, warningStart: x - tuning.warningDistance, windShelter: obstacle.windShelter, leg: phase });
       previous = center; index++;
+    }
+    // Two crests finish the taught patterns. Leave the opening phase and the
+    // following recovery room intact, including on short campaign maps.
+    if (phase > 0) {
+      const crest = phaseCells.filter(o => o.hard && o.topShape && o.bottomShape).at(-1);
+      if (crest) {
+        crest.guardianGate = true;
+        crest.gap = Math.max(125 * scale, crest.gap * (phase === 1 ? .91 : .83));
+        if (!special) crest.motion += (moon ? 10 : 8) * scale;
+      }
     }
     phases.push({ id: definition.id, name: definition.name, instruction: definition.instruction,
       start: first, end: limit, index: phase + 1, cells: phaseCells.length });

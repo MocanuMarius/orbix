@@ -1,7 +1,8 @@
-import {resourceSymbol} from './game-symbols.mjs?v=ribbon-luminance-1';
-import {getArtifactInfo,CONSUMABLE_ARTIFACTS} from './artifact-info.mjs?v=ribbon-luminance-1';
-import {getCompanionAbility,normalizeCompanionRole} from './companion-abilities.mjs?v=ribbon-luminance-1';
-import {formatGlow,glowText,getGlowCapacity} from './vitality.mjs?v=ribbon-luminance-1';
+import {resourceSymbol} from './game-symbols.mjs?v=guardian-beat-1';
+import {GUARDIAN_RELICS} from './guardian-artifacts.mjs?v=guardian-beat-1';
+import {getArtifactInfo,CONSUMABLE_ARTIFACTS} from './artifact-info.mjs?v=guardian-beat-1';
+import {getCompanionAbility,normalizeCompanionRole} from './companion-abilities.mjs?v=guardian-beat-1';
+import {formatGlow,glowText,getGlowCapacity} from './vitality.mjs?v=guardian-beat-1';
 
 const esc=value=>String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const action={collector:'Collector delivers a Spark',protector:'Protector deflects a collision',swift:'Runner starts a burst',leveler:'Space Timer starts levitating'};
@@ -38,12 +39,12 @@ export function artifactDescription(a,run={}, {fresh=false}={}){
   'sunspool':{trigger:'Pick up a Spark during a temporary reveal.',effect:'Store one free Lift.',limit:'One stored Lift. Up to 4 grants per flight, at least 4 seconds apart.'},
   'dreamcatcher':{trigger:'Collect Sparks during your saved Dream.',effect:`Recharge ${name} by 1.5 seconds per pickup.`,limit:'Requires a saved Dream opening.'},
   'second-dawn':{trigger:'Collect your first Spark after Dream playback.',effect:'Reveal the whole scene for 1.5 seconds.',limit:'Once per flight. Requires a saved Dream opening.'},
-  'night-gardener':{trigger:'Skim a Dark Spark without touching it.',effect:`Restore ${points(mod.nightGarden??4)} Sparks.`,limit:'Once per Dark Spark, up to 5 per flight.'},
+  'night-gardener':{trigger:'Pass a Dark Spark close to its red rim without touching it.',effect:'Each safe skim restores up to 6 missing Sparks.',limit:'Each Dark Spark blooms once. Up to 5 blooms per flight. A full meter preserves the allowance.'},
   'sunheart-engine':{trigger:'Pick up a Spark.',effect:`Gain ${points(mod.cacheFuelBonus??8)} extra Sparks. Overflow recharges ${name} and reveals ahead.`,limit:'Recharge: max 2s per pickup, 12s per flight. Reveal: 2s.'},
   'dream-sovereign':{trigger:'Collect Sparks during and after a saved Dream.',effect:`Dream pickups recharge ${name} by 2.5 seconds. The first waking pickup reveals the scene.`,limit:'Revealed pickups store a free Lift: up to 4 per flight. Extends Luminance.'},
   'hollow-covenant':{trigger:`${companionWork}, touch a Spark yourself within 8 seconds.`,effect:`Gain +${points(mod.workFuel??12)} bonus Sparks. Every Lift costs 1 less Sparks.`,limit:`Up to 5 empowered pickups per flight. Skim up to 5 Dark Sparks for ${points(mod.nightGarden??6)} Sparks each. Lift costs at least 1 Spark.`},
  };
- const selected={...(entries[a.id]||{effect:convert(a.description||info.effect),trigger:convert(info.trigger),limit:convert(info.limit)})};
+ const selected={...(GUARDIAN_RELICS[a.id]||entries[a.id]||{effect:convert(a.description||info.effect),trigger:convert(info.trigger),limit:convert(info.limit)})};
  if(['echo-bell','hollow-covenant'].includes(a.id)&&(run.artifacts||[]).includes('echo-bell')&&(run.artifacts||[]).includes('hollow-covenant'))selected.limit+=' Their shared pickup bonus caps at 5 Sparks.';
  const spec=CONSUMABLE_ARTIFACTS[a.id],remaining=spec?(fresh?spec.charges:run.artifactCharges?.[a.id]??spec.charges):null;
  const lifetime=spec?(remaining>0?`${remaining} automatic uses · disappears when empty`:'Used up')

@@ -1,3 +1,4 @@
+import {guardianPortraits} from './guardian-portraits.mjs?v=guardian-beat-1';
 // Hand-authored pixel silhouettes, shared by rewards, Collection, HUD and lessons.
 // 1=ink, 2=shade, 3=material, 4=lit edge, 5=magic, 6=hot highlight, 7=metal.
 const sprites={
@@ -52,7 +53,11 @@ const designs={
  'silk-sail':['sail','rose'],'edge-needle':['needle','ice'],'pulse-hourglass':['hourglass','violet'],
  'cache-cup':['cup','amber'],'path-prism':['prism','jade'],
 };
-const legendary=new Set(['sunheart-engine','dream-sovereign','hollow-covenant']);
+for(const [id,[palette,sprite]] of Object.entries(guardianPortraits)){
+ designs[id]=[id,palette];
+ sprites[id]=sprite.replaceAll(' ','');
+}
+const legendary=new Set(['sunheart-engine','dream-sovereign','hollow-covenant',...Object.keys(guardianPortraits)]);
 const rare=new Set(['hearth-bloom','lantern-bloom','overflow-coil','echo-bell','dawn-loom','sunspool','echo-vessel','night-gardener']);
 const cache=new Map();
 const glowing=new Set(['wick','heart','lantern','vessel','cinder','sunrise','hourglass','spool','loom']);
