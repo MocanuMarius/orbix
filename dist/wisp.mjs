@@ -1,7 +1,7 @@
-import { LIGHT_PACKET_TUNING } from './vitality.mjs?v=long-flash-1';
-import { getCompanionAbility } from './companion-abilities.mjs?v=long-flash-1';
-import { pickupKind, pickupContactRadius, canCompanionCollect } from './pickups.mjs?v=long-flash-1';
-import {sparkArtScale,sparkMass} from './spark-size.mjs?v=long-flash-1';
+import { LIGHT_PACKET_TUNING } from './vitality.mjs?v=spark-floor-1';
+import { getCompanionAbility } from './companion-abilities.mjs?v=spark-floor-1';
+import { pickupKind, pickupContactRadius, canCompanionCollect } from './pickups.mjs?v=spark-floor-1';
+import {sparkArtScale,sparkMass} from './spark-size.mjs?v=spark-floor-1';
 
 const clamp = (value, lo, hi) => Math.min(hi, Math.max(lo, value));
 export const WISP_TUNING = Object.freeze({ range: 52.5, cooldown: 10, lightRadius: 175,
@@ -77,7 +77,7 @@ export class WispCompanion {
     : getCompanionAbility(engine.companionRole || engine.options?.companionRole).collects === true; }
 
   cargoPose(packet, time, height) {
-    const fieldScale = sparkArtScale(packet,height) * (packet.generated ? .62 : 1);
+    const fieldScale = sparkArtScale(packet,height);
     // A large body compacts as it is carried, but still delivers a heavier ribbon.
     const stowedScale = packet.generated ? fieldScale : Math.min(fieldScale, .62*Math.sqrt(fieldScale));
     const elapsed = clamp((time - packet.carriedAt) / Math.min(.42,.18*Math.max(1,Math.sqrt(fieldScale))), 0, 1);

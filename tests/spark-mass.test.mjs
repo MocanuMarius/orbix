@@ -1,10 +1,11 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {WispFlight,seededRandom} from '../dist/flight.mjs';
-import {sparkBodyRadius,SPARK_TIERS} from '../dist/spark-size.mjs';
+import {sparkArtScale,sparkBodyRadius,SPARK_TIERS} from '../dist/spark-size.mjs';
 import {installSparkField,sparkHabitat} from '../dist/spark-fields.mjs';
 import {getPickupSpec,pickupContactRadius} from '../dist/pickups.mjs';
 import {glowPoints} from '../dist/vitality.mjs';
+import {WispFlightView} from '../dist/wisp-renderer.mjs';
 
 const canvas={getContext:()=>({setTransform(){}}),getBoundingClientRect:()=>({width:900,height:405})};
 test('the larger six-Spark shell has a matching body contact and stays distinct from richer fuel',()=>{
@@ -30,6 +31,28 @@ test('the five world sizes and payouts stay distinct across phone heights and bo
   }
   assert.equal(previous,h*.25);
  }
+});
+test('terrain motes have the Small shell in flight, at the Collector and during a body pickup',()=>{
+ const e=new WispFlight({canvas,preflight:true,seed:'terrain-mote-size'});
+ const small={kind:'light',x:e.distance+e.player.x,y:e.player.y};
+ const mote={...small,generated:true,carriedAt:0};
+ const radius=sparkBodyRadius(small,e.height),scale=sparkArtScale(small,e.height);
+ assert.equal(sparkBodyRadius(mote,e.height),radius);
+ const draw=[];
+ WispFlightView.prototype.drawCollectibles.call({scale:240/390,buffer:{width:600},
+   drawPacket:(x,y,options)=>draw.push(options)}, {layout:{embers:[small,mote]},height:e.height}, 0, e.distance);
+ assert.equal(draw.length,2);
+ assert.deepEqual(draw[1],draw[0]);
+ assert.equal(e.wisp.cargoPose(mote,0,e.height).scale,scale);
+ e.shatterPickupRing(mote);
+ assert.equal(e.particles.at(-1).radius,radius);
+ e.flame=0;e.collect(mote);
+ const absorption=e.absorptionEffects.at(-1);
+ assert.equal(absorption.shellRadius,radius);
+ assert.equal(absorption.initialScale,scale);
+ assert.equal(glowPoints(e.flame),2);
+ assert.equal(e.baseEmbers,0);
+ e.destroy();
 });
 test('biome profiles affect real pickups while authored fuel chains keep their position and value',()=>{
  function field(biomeId){
