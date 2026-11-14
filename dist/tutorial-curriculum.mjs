@@ -49,7 +49,7 @@ export const TUTORIAL_TOPICS={
  skills:{name:'Skill book',visual:'skills',steps:[
   s('Choose a chapter','Flight improves Lift and fuel. Luminance helps you see the passage. Your companion has a chapter of its own. All skills last for this run.','skills'),
   s('Read the skill states','Owned perks have a blue check. Gold prices are affordable now. Save means you need more Stored Sparks. Later means there is a prerequisite.','skill-states'),
-  s('Commit to your build','Some forks exclude the other path. Read the selected effect before learning. Spend Stored Sparks on upgrades during your run. A new run resets these skills.','skills')]},
+  s('Commit to your build','Following a prerequisite chain keeps its next upgrades cheaper. Specializing leaves fewer Stored Sparks for other paths. Some forks close their alternative for this run.','skills')]},
  rewards:{name:'Flight rewards',visual:'artifact',steps:[
   s('Clear the passage','Reaching the waylight completes a flight. Before the final guardian, earn 20 Stored Sparks plus pickup overflow. Some Sparks recover for the next flight. A bonus challenge is optional.','clear-reward'),
   s('Choose one artifact','Elite and guardian victories offer two artifacts. Choose one automatic effect to add to this run. Ordinary flights reward Stored Sparks, without an artifact choice.','artifact'),
@@ -79,7 +79,7 @@ export const TUTORIAL_TOPICS={
   s('Black Hole','A black core is a hazard, not a pickup. It continuously steals Sparks nearby; closer means much faster drain. Give it space, even with a shield.','black-hole'),
   s('Proximity · an earned skill','Buy the first Proximity skill to unlock surface charging. Skim solid terrain without touching it; full charge reveals the scene. Its separate tree offers recovery and a temporary light shield. Open sky never charges it.','edge')]},
  progression:{name:'Runs & Ascension',visual:'route',steps:[
-  s('Three maps make a run','Sparks, hearts, skills and artifacts carry between flights and maps. Plan a build that can reach the final guardian.','route'),
+  s('Three maps make a run','Your hearts, Sparks and build carry over. Later guardians chain their attacks, leaving fewer breaks to recover.','route'),
   s('Ascension','Clear all three maps to unlock the next difficulty and new companions. Higher Ascensions make the journey harder. Winning ends the run. Start a separate New Game to try another Ascension; run fuel, skills, currency and artifacts never carry over.','site:boss'),
   s('Continue or New Game','Continue resumes your saved run. Exit to Menu keeps it. Abandon and New Game reset run skills and currency; permanent unlocks remain. Short lessons appear as you progress. Reset tutorial in Settings to replay them.','pause')]},
 };

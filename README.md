@@ -4,7 +4,7 @@ A landscape, one-handed pixel flight roguelite. The static game lives in `dist/`
 
 ## Current release
 
-[Play](https://mocanumarius.github.io/orbix/) · [See the five Spark sizes](https://mocanumarius.github.io/orbix/spark-preview.html#sizes) · [Compare Spark absorption styles](https://mocanumarius.github.io/orbix/spark-preview.html#absorption) · [Landscape desktop preview](https://mocanumarius.github.io/orbix/preview.html)
+[Play](https://mocanumarius.github.io/orbix/) · [Compare Skills layouts on your phone](https://mocanumarius.github.io/orbix/skills-preview.html) · [Fly through a Darkness Lantern](https://mocanumarius.github.io/orbix/spark-preview.html#lantern) · [See the five Spark sizes](https://mocanumarius.github.io/orbix/spark-preview.html#sizes) · [Compare Spark absorption styles](https://mocanumarius.github.io/orbix/spark-preview.html#absorption) · [Landscape desktop preview](https://mocanumarius.github.io/orbix/preview.html)
 
 Use **Settings → Refresh build** to apply a published update. On a phone, open the game link directly or install it as a PWA.
 
@@ -30,7 +30,7 @@ Three branching maps form a run. Choose one companion at the start. Skills belon
 
 **Sparks** fuel flight. A baseline meter holds 30 and a Lift costs 3 before upgrades. A Spark, Cluster and Cache restore 6, 12 and 18 respectively. Their white arcs grow denser as the value rises. Surplus fuel earns Stored Sparks on a clear. An unshielded collision costs one attempt. At zero fuel the wisp can still fall into a Spark and recover.
 
-Rest offers **Recover** to relight missing hearts or **Grow** to raise capacity by 3, up to three times in a run. Both refill the Spark Meter. With Dream learned, a player can rehearse the opening of the flight after Rest or a reachable elite or guardian. A saved rehearsal plays when that flight starts and pauses for the handoff.
+Rest offers **Recover** to relight missing hearts or **Grow** to raise capacity by 3, up to three times in a run. Both refill the Spark Meter. Each Rest leads to one flight. Once you learn Dream, each flight opens with a fully lit rehearsal. Go back to sleep to retry, or wake to replay a successful opening in normal light. Playback pauses for the handoff.
 
 Normal play teaches one contextual concept at a time. Field Guide and separate practice remain available. Remember & skip persists; Reset tutorial replays the introduction on New Game. Entry loads for five seconds and ends paused. Resume uses a frozen three-second countdown followed by the three-second 0.1× → 1× recovery.
 

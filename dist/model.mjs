@@ -1,31 +1,31 @@
-import {EVENT_EDITION,eventChoices,rollPrism} from './event-choices.mjs?v=giant-detail-1';
-import {GUARDIAN_RELICS} from './guardian-artifacts.mjs?v=giant-detail-1';
-import {ATLAS_FORECASTS,atlasBranches} from './night-atlas.mjs?v=giant-detail-1';
-import {getRouteBonus,awardRouteBonus} from './route-bonuses.mjs?v=giant-detail-1';
-export {getRouteBonus,getRouteBonusCandidates,nextBonusFlightNodes} from './route-bonuses.mjs?v=giant-detail-1';
-import {consolidateSkills,refundRetiredSkills} from './skill-consolidation.mjs?v=giant-detail-1';
-import {PROXIMITY_SKILLS} from './proximity-skills.mjs?v=giant-detail-1';
-import {getGuardianForMap,getBossPreview} from './boss.mjs?v=giant-detail-1';
-import {getFlightLengthProfile} from './level-length.mjs?v=giant-detail-1';
-import {cleanOnboarding} from './onboarding.mjs?v=giant-detail-1';
-import {CONDENSED_TUNING,getCondensationRules,condenseGlow} from './condensed-glow.mjs?v=giant-detail-1';
-import {CONSUMABLE_ARTIFACTS,EVOLVING_ARTIFACTS,getArtifactStackPreview} from './artifact-info.mjs?v=giant-detail-1';
-import {getFlightClearReward} from './checkpoint-rewards.mjs?v=giant-detail-1';
-export {getCondensationRules} from './condensed-glow.mjs?v=giant-detail-1';
-import {ROUTE_RECIPES,ROUTE_TOPOLOGY_VERSION,REWARD_THEMES,nodeEconomy} from './route-recipes.mjs?v=giant-detail-1';
-import {COMPANION_ABILITIES,getCompanionUnlock,normalizeCompanionFleet} from './companion-abilities.mjs?v=giant-detail-1';
-import {MAIN_TUNING_SKILLS} from './main-tuning.mjs?v=giant-detail-1';
-import {STARTING_CONDENSED_GLOW,getGlowCapacity,getRestGlowBonus,REST_GLOW_TUNING,glowText} from './vitality.mjs?v=giant-detail-1';
-import {expandSkillSteps,skillProgress} from './skill-increments.mjs?v=giant-detail-1';
-import {MAX_ASCENSION} from './ascent.mjs?v=giant-detail-1';
-import {EXPANDED_SKILLS,applyExpandedSkills} from './skill-paths.mjs?v=giant-detail-1';
+import {EVENT_EDITION,eventChoices,rollPrism} from './event-choices.mjs?v=chapter-pressure-1';
+import {GUARDIAN_RELICS} from './guardian-artifacts.mjs?v=chapter-pressure-1';
+import {ATLAS_FORECASTS,atlasBranches} from './night-atlas.mjs?v=chapter-pressure-1';
+import {getRouteBonus,awardRouteBonus} from './route-bonuses.mjs?v=chapter-pressure-1';
+export {getRouteBonus,getRouteBonusCandidates,nextBonusFlightNodes} from './route-bonuses.mjs?v=chapter-pressure-1';
+import {consolidateSkills,refundRetiredSkills} from './skill-consolidation.mjs?v=chapter-pressure-1';
+import {PROXIMITY_SKILLS} from './proximity-skills.mjs?v=chapter-pressure-1';
+import {getGuardianForMap,getBossPreview} from './boss.mjs?v=chapter-pressure-1';
+import {getFlightLengthProfile} from './level-length.mjs?v=chapter-pressure-1';
+import {cleanOnboarding} from './onboarding.mjs?v=chapter-pressure-1';
+import {CONDENSED_TUNING,getCondensationRules,condenseGlow} from './condensed-glow.mjs?v=chapter-pressure-1';
+import {CONSUMABLE_ARTIFACTS,EVOLVING_ARTIFACTS,getArtifactStackPreview} from './artifact-info.mjs?v=chapter-pressure-1';
+import {getFlightClearReward} from './checkpoint-rewards.mjs?v=chapter-pressure-1';
+export {getCondensationRules} from './condensed-glow.mjs?v=chapter-pressure-1';
+import {ROUTE_RECIPES,ROUTE_TOPOLOGY_VERSION,REWARD_THEMES,nodeEconomy} from './route-recipes.mjs?v=chapter-pressure-1';
+import {COMPANION_ABILITIES,getCompanionUnlock,normalizeCompanionFleet} from './companion-abilities.mjs?v=chapter-pressure-1';
+import {MAIN_TUNING_SKILLS} from './main-tuning.mjs?v=chapter-pressure-1';
+import {STARTING_CONDENSED_GLOW,getGlowCapacity,getRestGlowBonus,REST_GLOW_TUNING,glowText} from './vitality.mjs?v=chapter-pressure-1';
+import {expandSkillSteps,skillProgress} from './skill-increments.mjs?v=chapter-pressure-1';
+import {MAX_ASCENSION} from './ascent.mjs?v=chapter-pressure-1';
+import {EXPANDED_SKILLS,applyExpandedSkills} from './skill-paths.mjs?v=chapter-pressure-1';
 /** Run-owned skills and currency; persistent ascension unlocks and boss artifacts. */
-import { FLAME_TUNING, LIFE_TUNING, getLifeCapacity } from './vitality.mjs?v=giant-detail-1';
-import { getBiomeLevelIdentity } from './level-catalog.mjs?v=giant-detail-1';
-import { BIOMES } from './biomes.mjs?v=giant-detail-1';
-import { EVENT_SCENARIOS } from './map-guide.mjs?v=giant-detail-1';
-import {contextualEventChoices,resolvePilgrimVow,ROUTE_PREPARATION} from './contextual-events.mjs?v=giant-detail-1';
-import {TREASURE_KINDS, describeTreasure, treasureChoices, treasureRank, grantTreasureGift, treasureClearDividend, LENS_SIGHT, LENS_RECOVERY, settleTreasureWager} from './treasure.mjs?v=giant-detail-1';
+import { FLAME_TUNING, LIFE_TUNING, getLifeCapacity } from './vitality.mjs?v=chapter-pressure-1';
+import { getBiomeLevelIdentity } from './level-catalog.mjs?v=chapter-pressure-1';
+import { BIOMES } from './biomes.mjs?v=chapter-pressure-1';
+import { EVENT_SCENARIOS } from './map-guide.mjs?v=chapter-pressure-1';
+import {contextualEventChoices,resolvePilgrimVow,ROUTE_PREPARATION} from './contextual-events.mjs?v=chapter-pressure-1';
+import {TREASURE_KINDS, describeTreasure, treasureChoices, treasureRank, grantTreasureGift, treasureClearDividend, LENS_SIGHT, LENS_RECOVERY, settleTreasureWager} from './treasure.mjs?v=chapter-pressure-1';
 export const SAVE_KEY='wispbound.save.condensed.v7';
 export const CAMPAIGN_MAP_NAMES=Object.freeze(['The Forgotten Verge','The Rootbound March','The Warden’s Reach']);
 export const TERRAINS=Object.freeze({ruins:{id:'ruins',name:'Sunken Ruins',color:'#cdb183',description:'Broken homes, worn arches and overgrown stone.'},canopy:{id:'canopy',name:'Luminous Canopy',color:'#94b48a',description:'Hollow trees, hanging roots and sheltered forest passages.'},storm:{id:'storm',name:'Stormglass Peaks',color:'#a8bbca',description:'Pine ridges, old mine timbers and local draft puffs.'}});
@@ -752,10 +752,26 @@ export function resolveSupport(run,index,profile=null){
 }
 
 export function isSkillRevealed(profile,id){const s=SKILLS[id];if(!s||s.retired)return false;if(profile?.testMode===true||rank(profile?.skills,id)>0)return true;if(s.branch==='afterglow'&&!rank(profile?.skills,'main-afterglow'))return false;const requires=Array.isArray(s.requires)?s.requires:s.requires?[s.requires]:[];return requires.every(parent=>rank(profile?.skills,parent)>0);}
-export function getTrainingRankCount(wallet={}){return Object.keys(wallet.skills||{}).reduce((n,id)=>n+(id===wallet.startingSkill?0:rank(wallet.skills,id)*clamp((SKILLS[id]?.cost||80)/80,.5,1.5)),0);}
+function paidTraining(wallet,id){
+ return id===wallet.startingSkill?0:rank(wallet.skills,id)*clamp((SKILLS[id]?.cost||80)/80,.5,1.5);
+}
+export function getTrainingRankCount(wallet={}){return Object.keys(wallet.skills||{}).reduce((sum,id)=>sum+paidTraining(wallet,id),0);}
+// Learning a prerequisite helps its descendants. Other branches still bear the full training premium.
+function relatedTraining(wallet,skill){
+ const visited=new Set(),pending=[skill.id];
+ let credit=0;
+ while(pending.length){
+  const id=pending.pop();
+  if(visited.has(id))continue;
+  visited.add(id);credit+=paidTraining(wallet,id);
+  const requires=SKILLS[id]?.requires;
+  if(requires)pending.push(...[requires].flat());
+ }
+ return Math.min(2.5,credit*.70);
+}
 export function getSkillPrice(wallet,id){
  const s=SKILLS[id];if(!s)return null;const r=rank(wallet?.skills,id);if(r>=s.maxRank)return null;
- const base=s.prices?.[r]??Math.round(s.cost*1.5**r),growth=1+CONDENSED_TUNING.trainingGrowth*getTrainingRankCount(wallet)**CONDENSED_TUNING.trainingExponent;
+ const base=s.prices?.[r]??Math.round(s.cost*1.5**r),growth=1+CONDENSED_TUNING.trainingGrowth*Math.max(0,getTrainingRankCount(wallet)-relatedTraining(wallet,s))**CONDENSED_TUNING.trainingExponent;
  return Math.ceil(base*growth/CONDENSED_TUNING.priceStep)*CONDENSED_TUNING.priceStep;
 }
 export function getSkillCost(wallet,id){return getSkillLockReason(wallet,id)?null:getSkillPrice(wallet,id);}

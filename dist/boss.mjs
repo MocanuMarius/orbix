@@ -1,4 +1,4 @@
-import { prepareGuardian } from './guardian-effects.mjs?v=giant-detail-1';
+import { prepareGuardian } from './guardian-effects.mjs?v=chapter-pressure-1';
 // The Hollow Warden is a survival encounter: read its hands, keep your Sparks,
 // and reach the waylight. Every solid hand uses the ordinary terrain pipeline.
 const TAU = Math.PI * 2;
@@ -102,6 +102,28 @@ function edgeAt(shape, x) {
   return 0;
 }
 
+// A linked pair marks opposite lanes using the existing walls. Quiet rooms
+// stay intact and the two approach marks use the actual gate mouths.
+function linkCrestRooms(rooms,phase,height,mapDepth,bossId){
+  const scale=height/620;
+  const storm=bossId==='storm-shepherd';
+  for(let i=rooms.findIndex(o=>o.guardianGate);i>0;i--){
+    const entry=rooms[i-1],exit=rooms[i];
+    if(!entry.hard||!exit.hard)continue;
+    const side=!entry.topShape?-1:!entry.bottomShape?1:storm?Math.sign(entry.center-exit.center)||1:phase%2?1:-1;
+    for(const [room,lane] of [[entry,side],[exit,-side]]){
+      const cap=(storm?244:mapDepth===1?208:198)*scale;
+      room.gap=Math.max(135*scale,Math.min(cap,room.gap*.96));
+      const offset=storm?.24:mapDepth===1?.33:.39;
+      room.center=height*.5+lane*room.gap*offset;
+      room.guardianGate=true;
+      room.guardianLane=lane;
+      room.phase=lane>0?0:Math.PI;
+    }
+    return;
+  }
+}
+
 export function getBossTuning(difficulty=1){
   // First encounters teach the hand patterns; the original trial returns by Ascension 4.
   const easing=clamp(1-(Math.max(1,Number(difficulty)||1)-1)/3,0,1);
@@ -109,10 +131,11 @@ export function getBossTuning(difficulty=1){
 }
 
 export function buildBossLayout({ seed = 1, height = 620, speed = 154, duration = 165,
-  gapScale = .88, difficulty = 1, elite = false, levelIdentity = null,
+  gapScale = .88, difficulty = 1, mapIndex = 0, elite = false, levelIdentity = null,
   circleHitsPolygon = null, bossId='hollow-warden' } = {}) {
   const moon=bossId==='moonweaver',identity=getBossPreview(bossId),special=!['moonweaver','hollow-warden'].includes(identity.id),definitions=special?SIGNATURE_PHASES[identity.id]:moon?MOON_PHASES:PHASES;
   const prefix=identity.id==='hollow-warden'?'warden':identity.id;
+  const mapDepth=clamp(Math.trunc(mapIndex)||0,0,2);
   const teachMoon = moon && difficulty <= 2;
   const moonLaneLimit = difficulty === 1 ? .37 : .34;
   const rng = randomFor(`${seed}:${identity.id}`), scale = height / 620, tuning=getBossTuning(difficulty);
@@ -166,6 +189,7 @@ export function buildBossLayout({ seed = 1, height = 620, speed = 154, duration 
     }
     phases.push({ id: definition.id, name: definition.name, instruction: definition.instruction,
       start: first, end: limit, index: phase + 1, cells: phaseCells.length });
+    if(phase+1>=4-mapDepth)linkCrestRooms(phaseCells,phase+1,height,mapDepth,identity.id);
   }
   // Curated fuel sites persist across all three phases. Hand-edge collection
   // uses the real solid contour and its complete sway envelope, not free fuel.
@@ -208,7 +232,7 @@ export function buildBossLayout({ seed = 1, height = 620, speed = 154, duration 
     }
   }
   return prepareGuardian({ obstacles, embers, sections, sceneProps: [], levelIdentity,
-    boss: { id: identity.id, name: identity.name, difficulty, phases, tuning,
+    boss: { id: identity.id, name: identity.name, difficulty, mapIndex:mapDepth, phases, tuning,
       introEnd: start, end, exitStart: totalDistance - speed * 3.2 },
     legs: phases.map(phase => ({ index: phase.index - 1, start: phase.start, end: phase.end })),
     hardWindows: sections.filter(section => section.hard).length, lengthScale: 1 }, height, speed);

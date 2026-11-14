@@ -1,4 +1,4 @@
-import {iceShardPoints,ICE_GUIDE_FACETS} from './guardian-geometry.mjs?v=giant-detail-1';
+import {iceShardPoints,ICE_GUIDE_FACETS} from './guardian-geometry.mjs?v=chapter-pressure-1';
 
 // Draw in world units inside the same camera transform for the pixel buffer and canvas fallback.
 const TAU=Math.PI*2;
@@ -220,6 +220,16 @@ function drawCrest(c,engine,o,playerX,t,s,boss){
  const ahead=boss.speed*2.85,dx=o.x+o.width*.65-playerX;
  if(dx>ahead+o.width||dx< -o.width*2)return;
  const [base,highlight]=crestColors[boss.id],center=engine.obstacleCenter(o);
+ if(o.guardianLane){
+  // The gate lip and its raised/lowered chevrons share the same warning window.
+  const x=o.x-o.width*.18,dy=o.guardianLane*5*s;
+  c.globalAlpha=.88;c.beginPath();
+  for(let j=0;j<2;j++){
+   const y=center+j*7*s*o.guardianLane;
+   c.moveTo(x-7*s,y-dy);c.lineTo(x,y);c.lineTo(x+7*s,y-dy);
+  }
+  stroke(c,base,5*s);stroke(c,highlight,2*s);
+ }
  for(const side of [-1,1]){
   const shape=side===1?o.bottomShape:o.topShape;
   if(!shape)continue;

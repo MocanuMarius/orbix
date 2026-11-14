@@ -8,13 +8,13 @@ import {lightVisibility} from '../dist/light-field.mjs';
 
 const dt = 1/120;
 
-function flight(id, {speed = 1, role = 'collector', difficulty = 1, duration = 90} = {}) {
+function flight(id, {speed = 1, role = 'collector', difficulty = 1, duration = 90, mapIndex = 0} = {}) {
   const ctx = new Proxy({}, {get(object, key) {
     return object[key] ??= String(key).includes('Gradient') ? () => ({addColorStop() {}}) : () => {};
   }});
   const canvas = {style:{}, bounds:{width:900,height:405}, getContext:()=>ctx, getBoundingClientRect() { return this.bounds; }};
   const engine = new WispFlight({canvas, boss: true, bossId: id, duration, seed: 'guardian-contact',
-    difficulty, row: 6, companions: [role], modifiers: {speed}});
+    difficulty, mapIndex, row: 6, companions: [role], modifiers: {speed}});
   engine.render = () => {};
   // Remove unrelated rewards and zone hazards. Each test keeps real guardian geometry,
   // camera, fixed-step movement, protection and collision resolution.
@@ -100,6 +100,39 @@ test('Hollow Sun shutter routes stay body-clear at both wall motion extremes',()
         }
       }
     }
+  }
+});
+
+test('map depth adds linked opposite gates with reachable lanes and time to change altitude',()=>{
+  for(const id of Object.keys(BOSS_PREVIEWS))for(const mapIndex of [0,1,2]){
+    const e=flight(id,{mapIndex,duration:[90,120,150][mapIndex]});
+    const boss=e.layout.boss,linked=boss.crests.filter(o=>o.guardianLane);
+    assert.equal(boss.mapIndex,mapIndex);
+    assert.deepEqual(linked.map(o=>o.bossPhase),[[],[3,3],[2,2,3,3]][mapIndex]);
+    for(let i=0;i<linked.length;i+=2){
+      const [a,b]=linked.slice(i,i+2);
+      assert.equal(a.guardianLane,-b.guardianLane);
+      assert.equal(b.id,a.id+1);
+      assert.ok((b.x-a.x)/e.baseSpeed>1.9);
+      assert.ok(Math.abs(a.center-b.center)>e.height*.12);
+      for(const o of [a,b]){
+        const x=o.x+o.width*.65;
+        assert.equal(o.cacheEligible,false);
+        for(const t of [0,1.6,3.2,4.8])for(const other of e.layout.obstacles){
+          assert.ok(!circleHitsObstacle(x,o.center,e.player.radius+8,other,t),id+' marked lane is blocked');
+        }
+        const attack=boss.attacks?.find(at=>at.obstacle===o);
+        if(boss.attacks)assert.ok(attack);
+        if(attack?.stormZone){
+          const jet=attack.stormZone;
+          assert.equal(jet.direction,-o.guardianLane);
+          assert.ok(Math.abs(jet.y-o.center)>jet.ry,'the marked center lane stays outside the jet');
+        }
+        if(id==='frost-matron'||id==='hollow-sun')assert.equal(attack.side,-o.guardianLane);
+        for(const shutter of boss.shutters||[])assert.ok(Math.abs(x-shutter.x)>shutter.spread+shutter.shift+100);
+      }
+    }
+    e.destroy();
   }
 });
 

@@ -64,7 +64,7 @@ function simulateFlow(run,inv,style,rng,{captureDelta=0,effortScale=1,artifactSc
  const correction=(1+p.corrections+(run.difficulty-1)*.009+(inv.elite?.025:0))*effortScale;
  const flapCost=mod.liftCostPoints/.3;
  const events=[];
- const freeDream=run.simDreamPrepared&&rank(skills,'main-dream')?mod.dreamDuration:0;
+ const freeDream=rank(skills,'main-dream')?mod.dreamDuration:0;
  for(let t=.5;t<seconds;t+=interval/correction*(.88+rng()*.24)){
   if(t<freeDream||rng()<holdDuty)continue;
   events.push({t,cost:flapCost});
@@ -189,9 +189,9 @@ function reward(state,policy,rng,metrics){
  if(!id)return;
  assert.ok(M.chooseFlightReward(state,id));metrics.supportIncome+=r.condensedGlow-before;
 }
-function runCase({seed,tier,role,style,policy,attrition=false,captureDelta=0,effortScale=1,artifactScale=1,startingSkill='main-efficiency',flightSimulator=null}){
+function runCase({seed,tier,role,style,policy,attrition=false,captureDelta=0,effortScale=1,artifactScale=1,startingSkill='proximity-awakening',flightSimulator=null}){
  const state=M.newState();state.profile.difficulty=6;state.run=M.createRun(state.profile,`condensed-${seed}-${tier}`,tier);
- const r=state.run;assert.ok(r.companions[0]===role||M.setCompanions(r,[role]));M.chooseStartingSkill(state,startingSkill);
+ const r=state.run;assert.ok(r.companions[0]===role||M.setCompanions(r,[role]));assert.ok(M.chooseStartingGift(state,startingSkill),'Simulator must take a real starting gift');
  const rng=rngFor([seed,tier,style].join(':')); // common seed streams across policies and sensitivities
  const m={seed,tier,role,style,policy,attrition,captureDelta,effortScale,artifactScale,startingSkill,spent:0,buys:0,firstBuy:null,purchases:[],flightIncome:0,supportIncome:0,failures:0,fuelFailures:0,collisionFailures:0,starvedFlights:0,attempts:0,coverage:[],mapBuys:[0,0,0],mapIncome:[0,0,0],mapWallet:[0,0,0],totalLostCurrency:0};
  for(let guard=0;guard<130;guard++){
@@ -203,7 +203,6 @@ function runCase({seed,tier,role,style,policy,attrition=false,captureDelta=0,eff
    const inv=inventory(r.current,tier),before=r.condensedGlow,remainder=r.condensedRemainder;M.beginFlightAttempt(r);
    const flow=flightSimulator?flightSimulator(r,style,m.attempts):simulateFlow(r,inv,style,rngFor(`${seed}:${tier}:${style}:${r.current.id}:${m.attempts}`),{captureDelta,effortScale,artifactScale,attrition});m.attempts++;m.coverage.push(flow.coverage);m.starvedFlights+=Number(flow.starved);
    if(args.debug&&seed===0&&tier===1&&role==='collector'&&style==='steady'&&policy==='survival'&&m.attempts<3)console.error(JSON.stringify({debug:true,node:r.current,mod:M.getRunModifiers(r),inv:{seconds:inv.seconds,rawFuel:inv.rawFuel,items:inv.items.length},flow}));
-   r.simDreamPrepared=false;
    M.finishFlight(r,flow);M.settleCheckpoint(state);assert.equal(M.settleCheckpoint(state),0,'settlement is idempotent');
    if(!flow.success){m.failures++;m.fuelFailures+=Number(flow.fuelFailure);m.collisionFailures+=Number(flow.collisionFailure);m.totalLostCurrency+=flow.condensedGlow;assert.equal(r.condensedGlow,before,'failed pickups cannot farm currency');assert.equal(r.condensedRemainder,remainder,'failed fractions roll back');}
    else{
@@ -225,7 +224,7 @@ function runCase({seed,tier,role,style,policy,attrition=false,captureDelta=0,eff
    if(choice<0)choice=offers.findIndex(o=>o.effect.flame>0&&!o.effect.condensedCost);
    if(choice<0)choice=0;
    if(!M.resolveSupport(r,choice,state.profile)){choice=offers.findIndex(o=>!o.effect.condensedCost&&!o.effect.upgrade&&!o.effect.sell);assert.ok(choice>=0&&M.resolveSupport(r,choice,state.profile));}
-   const effect=offers[choice]?.effect||{},supportCost=effect.condensedCost||0;r.simDreamPrepared=!!effect.rest;
+   const effect=offers[choice]?.effect||{},supportCost=effect.condensedCost||0;
    M.settleCheckpoint(state);m.supportIncome+=r.condensedGlow-before+supportCost;m.spent+=supportCost;
    if(effect.upgrade){m.buys++;m.firstBuy??=r.stats.flights;m.purchases.push({id:effect.upgrade,cost:supportCost,flight:r.stats.flights,map:r.mapIndex,shrine:true});}
    reward(state,policy,rng,m);buy(state,policy,m);continue;
@@ -255,7 +254,7 @@ if(!args.importOnly){
 const rows=[];
 const phases=args.quick?[false]:[false,true];
 for(let seed=0;seed<seeds;seed++){
- if(args.startingOnly){for(const role of roles)for(const style of ['learning','steady'])for(const policy of policies)for(const attrition of phases)for(const startingSkill of ['main-efficiency','main-sight','main-speed'])rows.push(runCase({seed:seed+201,tier:1,role,style,policy,attrition,startingSkill}));}
+ if(args.startingOnly){for(const role of roles)for(const style of ['learning','steady'])for(const policy of policies)for(const attrition of phases)for(const startingSkill of M.STARTING_GIFT_IDS)rows.push(runCase({seed:seed+201,tier:1,role,style,policy,attrition,startingSkill}));}
  else for(const tier of tiers)for(const role of roles)for(const style of Object.keys(profiles))for(const policy of policies)for(const attrition of phases)rows.push(runCase({seed,tier,role,style,policy,attrition}));
  if(seed%4===3||seed===seeds-1)console.log(JSON.stringify({seed:seed+1,campaigns:rows.length,inventories:inventories.size,seconds:round((Date.now()-started)/1000)}));
 }
@@ -263,7 +262,7 @@ const sensitivity=[];
 if(!args.quick&&!args.startingOnly)for(const seed of [101,102,103,104,105,106])for(const tier of [1,3,6])for(const role of roles)for(const adjustment of [{name:'capture-minus-8pp',captureDelta:-.08},{name:'capture-plus-8pp',captureDelta:.08},{name:'correction-effort-plus-12pct',effortScale:1.12},{name:'fuel-bonus-upper-bound-plus-15pct',artifactScale:1.15}])for(const policy of ['survival','conversion','hoard'])sensitivity.push({...runCase({seed,tier,role,style:'steady',policy,...adjustment}),adjustment:adjustment.name});
 const groups={all:aggregate(rows)};
 for(const key of ['style','role','policy','tier','attrition'])for(const value of new Set(rows.map(r=>r[key])))groups[key+':'+value]=aggregate(rows.filter(r=>r[key]===value));
-if(args.startingOnly)for(const root of ['main-efficiency','main-sight','main-speed'])for(const style of ['learning','steady'])for(const attrition of [false,true])groups[`${root}:${style}:${attrition?'attrition':'clear'}`]=aggregate(rows.filter(r=>r.startingSkill===root&&r.style===style&&r.attrition===attrition));
+if(args.startingOnly)for(const root of M.STARTING_GIFT_IDS)for(const style of ['learning','steady'])for(const attrition of [false,true])groups[`${root}:${style}:${attrition?'attrition':'clear'}`]=aggregate(rows.filter(r=>r.startingSkill===root&&r.style===style&&r.attrition===attrition));
 for(const key of ['style','role','policy','tier'])for(const value of new Set(rows.map(r=>r[key])))for(const attrition of [false,true])groups[`${key}:${value}:${attrition?'attrition':'clear'}`]=aggregate(rows.filter(r=>r[key]===value&&r.attrition===attrition));
 for(const style of Object.keys(profiles))for(const tier of [1,3,6])for(const policy of policies)groups[`${style}:a${tier}:${policy}:clear`]=aggregate(rows.filter(r=>r.style===style&&r.tier===tier&&r.policy===policy&&!r.attrition));
 for(const style of Object.keys(profiles))for(const tier of [1,3,6])for(const attrition of [false,true])groups[`${style}:a${tier}:${attrition?'attrition':'clear'}`]=aggregate(rows.filter(r=>r.style===style&&r.tier===tier&&r.attrition===attrition));
