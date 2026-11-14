@@ -1,23 +1,23 @@
-import {drawGuardianPresence} from './guardian-presence.mjs?v=guardian-scenery-1';
-import {createDepthScenery,drawDepthScenery} from './depth-scenery.mjs?v=guardian-scenery-1';
-import { drawGuardianWarnings } from './guardian-effects.mjs?v=guardian-scenery-1';
-import {drawProximityMeter} from './proximity-meter.mjs?v=guardian-scenery-1';
-import {drawFlightProjection} from './flight-projection.mjs?v=guardian-scenery-1';
-import {drawGlowSense} from './glow-sense.mjs?v=guardian-scenery-1';
-import {formatGlow} from './vitality.mjs?v=guardian-scenery-1';
-import {LOCATION_PALETTES} from './world-expansion.mjs?v=guardian-scenery-1';
-import {biomePalette} from './biome-art.mjs?v=guardian-scenery-1';
-import { sceneryIdentity, drawIdentityBackground, drawIdentityMaterial, drawIdentityLife } from './level-scenery.mjs?v=guardian-scenery-1';
-import { getCompanionAbility, normalizeCompanionRole } from './companion-abilities.mjs?v=guardian-scenery-1';
-import { companionSprite, companionPalette } from './companion-art.mjs?v=guardian-scenery-1';
-import { createScenePropArt } from './scene-prop-art.mjs?v=guardian-scenery-1';
-import { drawBoss } from './boss.mjs?v=guardian-scenery-1';
-import { drawPickup } from './pickup-art.mjs?v=guardian-scenery-1';
-import { pickupKind, getPickupSpec, pickupContactRadius } from './pickups.mjs?v=guardian-scenery-1';
-import { LIGHT_EXTENT,lightAttenuation,lightVisibility,createLightMaskCanvas,sceneRevealStrength } from './light-field.mjs?v=guardian-scenery-1';
-import {drawExitLandmark} from './exit-landmark.mjs?v=guardian-scenery-1';
-import {drawBlackHoles} from './black-hole-art.mjs?v=guardian-scenery-1';
-import {drawFlightForks,drawFlightForkBackdrops} from './flight-forks.mjs?v=guardian-scenery-1';
+import {drawGuardianPresence} from './guardian-presence.mjs?v=victory-rhythm-1';
+import {createDepthScenery,drawDepthScenery} from './depth-scenery.mjs?v=victory-rhythm-1';
+import { drawGuardianWarnings } from './guardian-effects.mjs?v=victory-rhythm-1';
+import {drawProximityMeter} from './proximity-meter.mjs?v=victory-rhythm-1';
+import {drawFlightProjection} from './flight-projection.mjs?v=victory-rhythm-1';
+import {drawGlowSense} from './glow-sense.mjs?v=victory-rhythm-1';
+import {formatGlow} from './vitality.mjs?v=victory-rhythm-1';
+import {LOCATION_PALETTES} from './world-expansion.mjs?v=victory-rhythm-1';
+import {biomePalette} from './biome-art.mjs?v=victory-rhythm-1';
+import { sceneryIdentity, drawIdentityBackground, drawIdentityMaterial, drawIdentityLife } from './level-scenery.mjs?v=victory-rhythm-1';
+import { getCompanionAbility, normalizeCompanionRole } from './companion-abilities.mjs?v=victory-rhythm-1';
+import { companionSprite, companionPalette } from './companion-art.mjs?v=victory-rhythm-1';
+import { createScenePropArt } from './scene-prop-art.mjs?v=victory-rhythm-1';
+import { drawBoss } from './boss.mjs?v=victory-rhythm-1';
+import { drawPickup } from './pickup-art.mjs?v=victory-rhythm-1';
+import { pickupKind, getPickupSpec, pickupContactRadius } from './pickups.mjs?v=victory-rhythm-1';
+import { LIGHT_EXTENT,lightAttenuation,lightVisibility,createLightMaskCanvas,sceneRevealStrength } from './light-field.mjs?v=victory-rhythm-1';
+import {drawExitLandmark} from './exit-landmark.mjs?v=victory-rhythm-1';
+import {drawBlackHoles} from './black-hole-art.mjs?v=victory-rhythm-1';
+import {drawFlightForks,drawFlightForkBackdrops} from './flight-forks.mjs?v=victory-rhythm-1';
 
 const TAU = Math.PI * 2;
 const SCENERY_HELPERS = { line: pixelLine, disc: pixelDisc, polygon: path };
@@ -854,18 +854,20 @@ export class WispFlightView {
     c.restore();
   }
 
-  drawFleet(e, t, fleet) {
+  drawFleet(e, t, fleet, pass='all') {
     const c = this.bufferContext, s = this.scale;
     for (let i = 0; i < fleet.length && i < 3; i++) {
       const state = fleet[i], role = normalizeCompanionRole(state.role || state.id), tint = companionPalette(role);
       const collector = role === 'collector', cooling = collector && state.phase === 'cooldown';
+      const front=collector&&(state.depth||0)>0;if(pass==='front'&&!front||pass==='back'&&front)continue;
+      const depthScale=collector?.95+(state.depth||0)*.25:1;
       const x = state.x * s, y = state.y * s;
       const recovery = clamp(state.recovery ?? 1, 0, 1);
-      const intensity = (cooling ? .55 + recovery * .40 : 1) * (this.lightIntensity || 1);
+      const intensity = (cooling ? .7 + recovery * .25 : 1) * (collector?.82+(state.depth||0)*.18:1) * (this.lightIntensity || 1);
       this.glow(x, y, collector ? 11 : 12, tint.outer, intensity * .21);
       const sprite = this.orbSprite(role);
       c.globalAlpha = intensity;
-      if(collector)c.drawImage(sprite,x-5,y-5,10,10);else c.drawImage(sprite, x - 6, y - 6);
+      if(collector)c.drawImage(sprite,x-5*depthScale,y-5*depthScale,10*depthScale,10*depthScale);else c.drawImage(sprite, x - 6, y - 6);
       c.globalAlpha = 1;
       if (collector && state.carrying) this.drawPacket(x + 7, y + 5, { kind: state.cargoKind || 'light', tiny: true, bodyOnly: true, time: t, reducedMotion: e.reducedMotion, scale: s });
       const px=e.player.x*s,py=yOf(e)*s,clock=e.reducedMotion?0:t;
@@ -1077,8 +1079,9 @@ export class WispFlightView {
     let collector = null;
     for (let i = 0; i < fleet.length; i++) if (fleet[i].role === 'collector') { collector = fleet[i]; break; }
     this.drawWind(e, t, collector);
-    this.drawFleet(e, t, fleet);
+    this.drawFleet(e, t, fleet,'back');
     this.drawMain(e, t, playerX, playerY);
+    this.drawFleet(e, t, fleet,'front');
     this.drawProtector(e, t, playerX, playerY);
     this.drawAbsorptions(e, t, playerX, playerY);
     drawBlackHoles(c,e,{scale:s,distance,playerY:yOf(e)});

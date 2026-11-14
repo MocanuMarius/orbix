@@ -1,24 +1,24 @@
-import {PROXIMITY_SKILLS} from './proximity-skills.mjs?v=guardian-scenery-1';
-import {getGuardianForMap,getBossPreview} from './boss.mjs?v=guardian-scenery-1';
-import {getFlightLengthProfile} from './level-length.mjs?v=guardian-scenery-1';
-import {cleanOnboarding} from './onboarding.mjs?v=guardian-scenery-1';
-import {CONDENSED_TUNING,getCondensationRules,condenseGlow} from './condensed-glow.mjs?v=guardian-scenery-1';
-import {CONSUMABLE_ARTIFACTS,EVOLVING_ARTIFACTS,getArtifactStackPreview} from './artifact-info.mjs?v=guardian-scenery-1';
-import {getFlightClearReward} from './checkpoint-rewards.mjs?v=guardian-scenery-1';
-export {getCondensationRules} from './condensed-glow.mjs?v=guardian-scenery-1';
-import {ROUTE_RECIPES,ROUTE_TOPOLOGY_VERSION,REWARD_THEMES,nodeEconomy} from './route-recipes.mjs?v=guardian-scenery-1';
-import {COMPANION_ABILITIES,getCompanionUnlock,normalizeCompanionFleet} from './companion-abilities.mjs?v=guardian-scenery-1';
-import {MAIN_TUNING_SKILLS} from './main-tuning.mjs?v=guardian-scenery-1';
-import {STARTING_CONDENSED_GLOW,getGlowCapacity,getRestGlowBonus,REST_GLOW_TUNING,glowText} from './vitality.mjs?v=guardian-scenery-1';
-import {expandSkillSteps,skillProgress} from './skill-increments.mjs?v=guardian-scenery-1';
-import {MAX_ASCENSION} from './ascent.mjs?v=guardian-scenery-1';
-import {EXPANDED_SKILLS,applyExpandedSkills} from './skill-paths.mjs?v=guardian-scenery-1';
+import {PROXIMITY_SKILLS} from './proximity-skills.mjs?v=victory-rhythm-1';
+import {getGuardianForMap,getBossPreview} from './boss.mjs?v=victory-rhythm-1';
+import {getFlightLengthProfile} from './level-length.mjs?v=victory-rhythm-1';
+import {cleanOnboarding} from './onboarding.mjs?v=victory-rhythm-1';
+import {CONDENSED_TUNING,getCondensationRules,condenseGlow} from './condensed-glow.mjs?v=victory-rhythm-1';
+import {CONSUMABLE_ARTIFACTS,EVOLVING_ARTIFACTS,getArtifactStackPreview} from './artifact-info.mjs?v=victory-rhythm-1';
+import {getFlightClearReward} from './checkpoint-rewards.mjs?v=victory-rhythm-1';
+export {getCondensationRules} from './condensed-glow.mjs?v=victory-rhythm-1';
+import {ROUTE_RECIPES,ROUTE_TOPOLOGY_VERSION,REWARD_THEMES,nodeEconomy} from './route-recipes.mjs?v=victory-rhythm-1';
+import {COMPANION_ABILITIES,getCompanionUnlock,normalizeCompanionFleet} from './companion-abilities.mjs?v=victory-rhythm-1';
+import {MAIN_TUNING_SKILLS} from './main-tuning.mjs?v=victory-rhythm-1';
+import {STARTING_CONDENSED_GLOW,getGlowCapacity,getRestGlowBonus,REST_GLOW_TUNING,glowText} from './vitality.mjs?v=victory-rhythm-1';
+import {expandSkillSteps,skillProgress} from './skill-increments.mjs?v=victory-rhythm-1';
+import {MAX_ASCENSION} from './ascent.mjs?v=victory-rhythm-1';
+import {EXPANDED_SKILLS,applyExpandedSkills} from './skill-paths.mjs?v=victory-rhythm-1';
 /** Run-owned skills and currency; persistent ascension unlocks and boss artifacts. */
-import { FLAME_TUNING, LIFE_TUNING, getLifeCapacity } from './vitality.mjs?v=guardian-scenery-1';
-import { getBiomeLevelIdentity } from './level-catalog.mjs?v=guardian-scenery-1';
-import { BIOMES } from './biomes.mjs?v=guardian-scenery-1';
-import { EVENT_SCENARIOS } from './map-guide.mjs?v=guardian-scenery-1';
-import {contextualEventChoices,resolvePilgrimVow,ROUTE_PREPARATION} from './contextual-events.mjs?v=guardian-scenery-1';
+import { FLAME_TUNING, LIFE_TUNING, getLifeCapacity } from './vitality.mjs?v=victory-rhythm-1';
+import { getBiomeLevelIdentity } from './level-catalog.mjs?v=victory-rhythm-1';
+import { BIOMES } from './biomes.mjs?v=victory-rhythm-1';
+import { EVENT_SCENARIOS } from './map-guide.mjs?v=victory-rhythm-1';
+import {contextualEventChoices,resolvePilgrimVow,ROUTE_PREPARATION} from './contextual-events.mjs?v=victory-rhythm-1';
 export const SAVE_KEY='wispbound.save.condensed.v7';
 export const CAMPAIGN_MAP_NAMES=Object.freeze(['The Forgotten Verge','The Rootbound March','The Warden’s Reach']);
 export const TERRAINS=Object.freeze({ruins:{id:'ruins',name:'Sunken Ruins',color:'#cdb183',description:'Broken homes, worn arches and overgrown stone.'},canopy:{id:'canopy',name:'Luminous Canopy',color:'#94b48a',description:'Hollow trees, hanging roots and sheltered forest passages.'},storm:{id:'storm',name:'Stormglass Peaks',color:'#a8bbca',description:'Pine ridges, old mine timbers and local draft puffs.'}});
@@ -305,10 +305,11 @@ export function artifactFitsRun(run,id){
  return true;
 }
 function makeFlightReward(run,source='flight'){
- const n=run.current,permanent=n.boss&&run.mapIndex===2&&!run.isTutorial;
+ const n=run.current,permanent=false;
+ if(n.boss&&run.mapIndex===2&&!run.isTutorial)return null;
  if(!n.elite&&!n.boss)return {nodeId:n.id,source,offers:[],claimed:true,permanent:false};
  const seen=new Set(run.seenArtifacts||[]),random=rng(`${run.seed}:${n.id}:accumulating-artifacts`);
- const pool=Object.keys(ARTIFACTS).filter(id=>!seen.has(id)&&!EVOLVING_ARTIFACTS.includes(id)&&(permanent?BOSS_ARTIFACTS.has(id)&&!(run.unlockedArtifacts||[]).includes(id):artifactFitsRun(run,id)&&(!BOSS_ARTIFACTS.has(id)||(run.unlockedArtifacts||[]).includes(id))));
+ const pool=Object.keys(ARTIFACTS).filter(id=>!seen.has(id)&&!EVOLVING_ARTIFACTS.includes(id)&&(permanent?BOSS_ARTIFACTS.has(id)&&!(run.unlockedArtifacts||[]).includes(id):artifactFitsRun(run,id)&&(!BOSS_ARTIFACTS.has(id)||n.boss)));
  const shuffled=shuffle(pool,random),themed=shuffled.filter(id=>ARTIFACTS[id].tags.includes(n.rewardTheme));
  const offers=[...new Set([...themed,...shuffled])].slice(0,2);
  run.seenArtifacts=[...new Set([...(run.seenArtifacts||[]),...offers])];
@@ -401,7 +402,7 @@ export function finishFlight(run,result){
  run.lastFlight={success:true,nodeId:n.id,mapIndex:run.mapIndex,difficulty:run.difficulty,flightNumber:n.flightNumber,terrain:n.terrain,elite:n.elite,boss:n.boss===true,completionBonus,pickupCondensedGlow,challengeBonus:0,challengeComplete:result.challengeComplete===true,securedCondensedGlow:0,collected:count(result.collected),flame:remaining,pickupOverflow:Math.max(0,finite(result.pickupOverflow)),consumedArtifacts,recovery:{amount,rate,before:remaining,after:run.flame,overflow:0,stored:0}};
  if(vow){run.lastFlight.vow=vow;if(vow.reward){queue(run,vow.reward,'pilgrim-vow');run.condensedEarned+=vow.reward;}}
  if(!run.isTutorial||n.type!=='finale'){run.victoryPending=true;run.flightReward=makeFlightReward(run);}
- if(n.type==='finale'){run.step=run.map.length;run.bossDefeated=!run.isTutorial&&n.boss===true&&run.mapIndex===2;run.success=run.isTutorial||run.bossDefeated;run.phase=run.success?'ended':'map-clear';}else nextStop(run);
+ if(n.type==='finale'){run.step=run.map.length;run.bossDefeated=!run.isTutorial&&n.boss===true&&run.mapIndex===2;run.success=run.isTutorial||run.bossDefeated;run.phase=run.success?'ended':'map-clear';if(run.bossDefeated){run.flightReward=null;run.victoryPending=false;}}else nextStop(run);
  return true;
 }
 function secureBoss(state){

@@ -1,4 +1,4 @@
-import {mapStopIconMarkup} from './map-guide.mjs?v=guardian-scenery-1';
+import {mapStopIconMarkup} from './map-guide.mjs?v=victory-rhythm-1';
 const number = (n,min=0) => Math.max(min,Math.floor(Number(n)||0));
 export function campaignStrip(run,profile={}) {
   if(run?.isTutorial)return '';
@@ -12,4 +12,9 @@ export function guardianProgressMarkup(run,{animate=false}={}){
  const currentCleared=run.phase==='map-clear'||run.success&&run.bossDefeated||run.victoryPending&&run.lastFlight?.boss;
  const cleared=Math.min(3,number(run.mapIndex)+(currentCleared?1:0));
  return `<span class="guardian-progress" role="img" aria-label="${cleared} of 3 guardians defeated">${[0,1,2].map(i=>`<i class="guardian-seal ${i<cleared?'is-lit':''} ${animate&&i===cleared-1?'just-lit':''}" aria-hidden="true"><span></span></i>`).join('')}</span>`;
+}
+
+export function guardianRitualMarkup(run){
+ const conquered=Math.min(3,(run.mapIndex||0)+1);
+ return `<section class="guardian-ritual" role="status" aria-label="Guardian ${conquered} conquered. Darkness is becoming light."><div class="ritual-orbs">${[0,1,2].map(i=>`<div class="ritual-orb ${i<conquered-1?'converted':''} ${i===conquered-1?'converting':''}"><div class="ritual-core"></div>${i===conquered-1?Array.from({length:24},(_,j)=>`<i class="ritual-light" style="--angle:${j*137.5}deg;--delay:${.8+(j%8)*.12}s;--reach:${110+j%4*20}px"></i>`).join(''):''}</div>`).join('')}</div></section>`;
 }

@@ -1,6 +1,6 @@
-import { LIGHT_PACKET_TUNING } from './vitality.mjs?v=guardian-scenery-1';
-import { getCompanionAbility } from './companion-abilities.mjs?v=guardian-scenery-1';
-import { pickupKind, pickupContactRadius, canCompanionCollect } from './pickups.mjs?v=guardian-scenery-1';
+import { LIGHT_PACKET_TUNING } from './vitality.mjs?v=victory-rhythm-1';
+import { getCompanionAbility } from './companion-abilities.mjs?v=victory-rhythm-1';
+import { pickupKind, pickupContactRadius, canCompanionCollect } from './pickups.mjs?v=victory-rhythm-1';
 
 const clamp = (value, lo, hi) => Math.min(hi, Math.max(lo, value));
 export const WISP_TUNING = Object.freeze({ range: 52.5, cooldown: 10, lightRadius: 175,
@@ -13,13 +13,12 @@ export function wispHome(player) {
 export function wispOrbit(player, time = 0, index = 0, total = 1) {
   const t = Number.isFinite(time) ? time : 0;
   const phase=index*Math.PI*2/Math.max(1,total);
-  const angle=t*5.3+phase+Math.sin(t*1.73)*.8;
-  // Incommensurate smooth waves produce darting loops, not random jitter.
-  const radius=28+10*Math.sin(t*2.31)+6*Math.sin(t*4.07);
-  const tilt=t*.47+Math.sin(t*.83)*.6;
-  const ox=Math.cos(angle)*radius,oy=Math.sin(angle*1.13)*radius*.85;
+  const angle=t*6.2+phase+Math.sin(t*1.7)*.55;
+  const radius=37+7*Math.sin(t*2.31);
+  const tilt=.5+Math.sin(t*.9)*.65;
+  const ox=Math.cos(angle)*radius,oy=Math.sin(angle)*radius*.62;
   return {x:player.x+ox*Math.cos(tilt)-oy*Math.sin(tilt),
-    y:player.y+ox*Math.sin(tilt)+oy*Math.cos(tilt)};
+    y:player.y+ox*Math.sin(tilt)+oy*Math.cos(tilt),depth:Math.sin(angle)};
 }
 
 // A single fetch owns one ember until delivery. No reward or card trigger is
@@ -61,7 +60,7 @@ export class WispCompanion {
     const recovery = this.recoveryFraction();
     return { x: this.previousX + (this.x - this.previousX) * blend,
       y: this.previousY + (this.y - this.previousY) * blend,
-      homeX: home.x, homeY: home.y, enabled, collects: enabled,
+      homeX: home.x, homeY: home.y, depth:this.depth||0, enabled, collects: enabled,
       radius: enabled ? this.range(engine) : 0, recovery: enabled ? recovery : 0,
       currentRange: enabled ? this.currentRange(engine) : 0,
       recovering: enabled && this.cooldown > 0,
@@ -127,13 +126,15 @@ export class WispCompanion {
     this.orbitHome.x += (home.x - this.orbitHome.x) * follow;
     this.orbitHome.y += (home.y - this.orbitHome.y) * follow;
     const fleet = engine.companions || [engine.companionRole];
-    const orbit = wispOrbit(this.orbitHome, engine.reducedMotion ? 0 : engine.time,
+    const orbit = wispOrbit(this.orbitHome, engine.reducedMotion ? engine.time*.25 : engine.time,
       Math.max(0,fleet.indexOf('collector')),fleet.length);
-    const orbitReach=Math.max(10,(this.phase==='returning'?Math.min(18+(Number(engine.mod.collectorMinimum)||0),this.range(engine)):this.currentRange(engine))*.82);
+    // Visual orbit stays visible outside the body even while collection range recovers.
+    const orbitReach=Math.max(28,this.range(engine)*.9);
+    this.depth=['ready','cooldown','orbiting'].includes(this.phase)?orbit.depth:1;
     const ox=orbit.x-home.x,oy=orbit.y-home.y,length=Math.hypot(ox,oy);
     if(length>orbitReach){orbit.x=home.x+ox/length*orbitReach;orbit.y=home.y+oy/length*orbitReach;}
     if (firstUpdate && ['ready','cooldown','orbiting'].includes(this.phase)) {
-      const before = wispOrbit(this.orbitHome, engine.reducedMotion ? 0 : engine.time - dt,
+      const before = wispOrbit(this.orbitHome, engine.reducedMotion ? (engine.time-dt)*.25 : engine.time - dt,
         Math.max(0,fleet.indexOf('collector')),fleet.length);
       this.previousX = before.x; this.previousY = before.y;
     }
