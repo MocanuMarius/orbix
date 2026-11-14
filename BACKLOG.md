@@ -8,6 +8,8 @@
 - [ ] At the instant the Spark shell pops, use smaller, finer arcs that flicker out sharply around the wisp. Check their size at normal phone scale.
 - [ ] Create 20–30 different encounters for the crossroads signpost. Keep the recognizable sign and vary the routes it points to, including branching caves. Count distinct flying choices and terrain layouts toward the total.
 - [x] Provide a direct phone link to the [Hollow Sun Darkness Lantern rehearsal](https://mocanumarius.github.io/orbix/spark-preview.html#lantern). The sample opens at the lantern and supports both routes.
+- [ ] Extend each active Darkness Lantern beam through terrain to the viewport edge and feather its sides into the surrounding light. Keep the center dark. Inside the beam, scale the wisp’s pocket of sight with its current Luminance. Compare base and upgraded sight on the same route in the phone rehearsal.
+- [ ] Introduce cross-firing lanterns in a later Hollow Sun chamber after the single-beam encounter. A roof lantern and a floor lantern aim across the passage. Show both aim directions before the player commits. Offer a tight line through one beam near its source and a roomier line through the overlap. Preserve a visible pocket around the wisp in the overlap and check both routes with base Luminance and ordinary tap timing.
 - [ ] Reproduce the intermittent twitch in static terrain during scrolling. Track a stationary landmark against its collision surface and distinguish the jitter from intentional moving hazards and background parallax.
 - [ ] Give Black Holes a bright accretion disk that reads against the dark surroundings while preserving a completely black core.
 
