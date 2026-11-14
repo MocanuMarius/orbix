@@ -2,6 +2,11 @@
 
 Implementation batch, 15 November 2026.
 
+Published as `steady-giants-1` from source `15dc15a070b8613442e68b4e5ff4d0faba7e86ff`.
+The public release marker and all 259 packaged files were verified on
+14 November at 22:42 UTC. Public browser checks passed for both flight renderers
+and the roof/floor rehearsals, including tap-to-start and overflow checks.
+
 ## Trajectory Guide
 
 The free-fall guide remains. A hypothetical Lift no longer draws a blue ascent

@@ -161,4 +161,4 @@ Outstanding design questions are explicit, not silently treated as implemented: 
 - [x] Reduce the three guide base prices to 25/40/70 Stored Sparks and explain the new behavior in Skills.
 - [x] Check actual physics, paused/Dream drain, terrain clearance, resource accounting and both phone renderers.
 
-Prepared as `steady-giants-1`. Collector size gates, learned targeting preferences and the Guard reorganization remain the next planning batch; they are not silently included here.
+Published as `steady-giants-1`, source `15dc15a`. All 259 release assets matched the local package. The public game modules and both roof/floor rehearsals passed phone-sized browser checks. Collector size gates, learned targeting preferences and the Guard reorganization remain the next planning batch; they are not silently included here.
