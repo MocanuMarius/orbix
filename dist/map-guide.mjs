@@ -1,5 +1,5 @@
-import {landmarkArt,landmarkCategory,guardianNames} from './map-landmarks.mjs?v=spark-arcs-3';
-import {glowText} from './vitality.mjs?v=spark-arcs-3';
+import {landmarkArt,landmarkCategory,guardianNames} from './map-landmarks.mjs?v=flash-prism-1';
+import {glowText} from './vitality.mjs?v=flash-prism-1';
 const stop=(kind,label,name,summary)=>Object.freeze({kind,label,name,summary,icon:kind});
 export const MAP_STOP_TYPES=Object.freeze({
 flight:stop('flight','FLIGHT','Flight','Clear a passage for 20 Stored Sparks plus overflow. Ordinary flights do not drop artifacts.'),

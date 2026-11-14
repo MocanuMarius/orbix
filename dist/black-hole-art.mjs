@@ -1,5 +1,5 @@
-import {lightVisibility} from './light-field.mjs?v=spark-arcs-3';
-import {drawTidalLight} from './tidal-light.mjs?v=spark-arcs-3';
+import {lightVisibility} from './light-field.mjs?v=flash-prism-1';
+import {drawTidalLight} from './tidal-light.mjs?v=flash-prism-1';
 // Pixel accretion and stolen-light trails. Cosmetics consume recorded drain;
 // rendering never spends fuel or changes the simulation.
 const TAU=Math.PI*2,MAX_MOTES=96;

@@ -16,7 +16,7 @@ for(const role of ['collector','protector','leveler','swift']){
  collect(e,'dark');assert.equal(e.lightPenalties.length,1,'Repeated dark contact is not an infinite purification loop');
  assert.equal(e.companions.length,1);assert.equal(e.getAbilityState().passive,role!=='swift','Main traits never add a power button');e.destroy();
 }
-for(const [kind,extra] of [['light',{generated:true}],['charge',{}],['sight',{}],['embers',{}],['dusk',{}]]){
+for(const [kind,extra] of [['light',{generated:true}],['sight',{}],['embers',{}],['dusk',{}]]){
  const e=make('collector');collect(e,kind,extra);assert.equal(e.mainSeerUntil,0,kind+' must not trigger main sight');if(extra.generated)assert.equal(e.kindlerPulse,0);e.destroy();
 }
 const body=make('protector');body.flame=100;collect(body);body.time=.25;assert.ok(body.getLightState().forwardLight.active,'Full fuel still grants sight');body.destroy();

@@ -6,7 +6,7 @@ const light={radius:175,intensity:1,pickupReveal:0};
 let packets=[];const e={width:390,height:620,distance:100,time:0,player:{x:100,y:310},mod:{glowSense:true},getNearbyPickups:()=>packets,getLightState:()=>light};
 const p=(x=500,y=310,extra={})=>({kind:'light',x:x+e.distance,y,...extra});
 packets=[p()];assert.equal(glowSenseCues(e).length,1);assert.equal(glowSenseCues(e)[0].y,310);assert.ok(glowSenseCues(e)[0].x>e.player.x&&glowSenseCues(e)[0].x<390);
-for(const kind of ['light','cache','embers','charge','sight']){packets=[p(500,310,{kind})];assert.equal(glowSenseCues(e).length,1,kind);}
+for(const kind of ['light','cache','embers','sight']){packets=[p(500,310,{kind})];assert.equal(glowSenseCues(e).length,1,kind);}
 for(const extra of [{kind:'dark'},{kind:'dusk'},{collected:true},{carried:true},{generated:true},{harmful:true}]){packets=[p(500,310,extra)];assert.equal(glowSenseCues(e).length,0,JSON.stringify(extra));}
 packets=[p(100),p(650)];assert.equal(glowSenseCues(e).length,0);
 packets=[p(350,250),p(360,260),p(400,310),p(450,370),p(480,420)];assert.equal(glowSenseCues(e).length,3);const before=JSON.stringify(packets);glowSenseCues(e);assert.equal(JSON.stringify(packets),before);

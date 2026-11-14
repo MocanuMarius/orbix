@@ -1,6 +1,6 @@
-import { LIGHT_PACKET_TUNING } from './vitality.mjs?v=spark-arcs-3';
-import { getCompanionAbility } from './companion-abilities.mjs?v=spark-arcs-3';
-import { pickupKind, pickupContactRadius, canCompanionCollect } from './pickups.mjs?v=spark-arcs-3';
+import { LIGHT_PACKET_TUNING } from './vitality.mjs?v=flash-prism-1';
+import { getCompanionAbility } from './companion-abilities.mjs?v=flash-prism-1';
+import { pickupKind, pickupContactRadius, canCompanionCollect } from './pickups.mjs?v=flash-prism-1';
 
 const clamp = (value, lo, hi) => Math.min(hi, Math.max(lo, value));
 export const WISP_TUNING = Object.freeze({ range: 52.5, cooldown: 10, lightRadius: 175,

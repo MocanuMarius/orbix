@@ -57,11 +57,11 @@ for(const role of ['collector','protector','swift','leveler']){
  for(let i=0;i<8;i++){e.artifactEffects.onWork();pick(e);}assert.equal(e.artifactEffects.workUses,5);
 }
 
-// Utility charge and existing Dreamcatcher feed Dawn Loom. Passive time does not.
-const loom=make('swift',mods('dawn-loom'));pick(loom,'charge');assert.equal(loom.artifactEffects.sightUntil,0);
-loom.activateAbility();pick(loom,'charge');assert.equal(loom.artifactEffects.sightUntil,1.5);
-loom.time=2;loom.fleet[0].cooldown=5;pick(loom,'charge');assert.equal(loom.artifactEffects.sightUntil,1.5);
-loom.time=4;loom.fleet[0].cooldown=5;pick(loom,'charge');assert.equal(loom.artifactEffects.sightUntil,5.5);
+// Overflow Coil and Dreamcatcher both feed Dawn Loom when they restore recovery.
+const loom=make('swift',mods('dawn-loom','overflow-coil'));pick(loom,'cache');assert.equal(loom.artifactEffects.sightUntil,0);
+loom.activateAbility();pick(loom,'cache');assert.equal(loom.artifactEffects.sightUntil,1.5);
+loom.time=2;loom.fleet[0].cooldown=5;pick(loom,'cache');assert.equal(loom.artifactEffects.sightUntil,1.5);
+loom.time=4;loom.fleet[0].cooldown=5;pick(loom,'cache');assert.equal(loom.artifactEffects.sightUntil,5.5);
 loom.time=9;loom.step(1/60);assert.equal(loom.artifactEffects.sightUntil,5.5,'Natural ticking never creates light');
 const dreamLoom=make('swift',mods('dreamcatcher','dawn-loom'));dreamLoom.dream={active:true,freeGlow:true};
 dreamLoom.fleet[0].cooldown=5;pick(dreamLoom);close(dreamLoom.fleet[0].cooldown,3.5);assert.equal(dreamLoom.artifactEffects.sightUntil,1.5);
@@ -127,7 +127,7 @@ const notices=limited.getState().artifactNotices;
 assert.equal(notices.length,4,'Each consumable teaches one activation and one exhaustion only');
 assert.deepEqual(notices.map(n=>n.serial),[1,2,3,4]);
 assert.equal(notices.filter(n=>n.phase==='exhausted').length,2);
-for(const kind of ['dark','dusk','charge','sight']){
+for(const kind of ['dark','dusk','sight']){
  const e=make('collector',limitedMods,0);pick(e,kind);
  assert.deepEqual(e.getState().artifactCharges,limitedMods.artifactCharges,kind+' must not consume a fuel charge');
  assert.equal(e.getState().artifactNotices.length,0);

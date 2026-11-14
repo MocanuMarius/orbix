@@ -11,7 +11,7 @@ test('the first briefing teaches the resource cycle before flight and postpones 
  assert.equal(lesson.id,'onboarding:lift');
  assert.deepEqual(lesson.steps.map(s=>s.cycle.stage),[0,1,2]);
  assert.deepEqual(lesson.steps[0].cycle.values,[6,12,18]);
- assert.match(lesson.steps[0].text,/crackling Spark adds 12 to your Spark Meter/);
+ assert.match(lesson.steps[0].text,/green Cluster adds 12 to your Spark Meter/);
  assert.match(lesson.steps[1].text,/24\/30.*Tap anywhere to Lift.*3 Sparks/);
  assert.match(lesson.steps[2].text,/spare 6 into 1 Stored Spark\..*Rest/);
  assert.ok(lesson.steps[0].text.split(/\s+/).length<40);assert.equal(lesson.steps[0].skipLabel,'Remember & skip');

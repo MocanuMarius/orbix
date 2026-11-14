@@ -22,7 +22,7 @@ pick(unlocked);near(unlocked.afterglow,30);near(unlocked.reserveFlow.amount,1.2)
 near(unlocked.afterglowPickupRaw,48);near(unlocked.afterglowPickupStored,30);near(unlocked.afterglowPickupWasted,23);
 const stored=unlocked.afterglow;unlocked.flap();near(unlocked.afterglow,stored);unlocked.flap();near(unlocked.afterglow,stored-unlocked.flapCost);
 const fetched=make({afterglowUnlocked:true,afterglowCap:40}).e;pick(fetched,'light',{deliveredByWisp:true});near(fetched.afterglow,24);assert.equal(fetched.reserveFlow.count,1);
-for(const [kind,extra] of [['light',{generated:true}],['dark',{}],['dusk',{}],['charge',{}],['embers',{}],['sight',{}]]){
+for(const [kind,extra] of [['light',{generated:true}],['dark',{}],['dusk',{}],['embers',{}],['sight',{}]]){
  const e=make({afterglowUnlocked:true,afterglowCap:40,mainKindler:true,kindlerPurify:true,purifyFuel:12}).e;pick(e,kind,extra);
  assert.equal(e.afterglow,0,kind+' cannot manufacture reserve');assert.equal(e.reserveFlow.count,0);assert.equal(e.blockedOverflow.count,0);
 }

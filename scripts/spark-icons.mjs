@@ -2,7 +2,7 @@
 // Both presentations use the same pixels and the same animation frame timing.
 import {writeFile} from 'node:fs/promises';
 import {deflateSync,crc32} from 'node:zlib';
-import {drawFuelFrame,drawPickup,FUEL_ANIMATION} from '../dist/pickup-art.mjs';
+import {drawFuelFrame,drawPickup,FUEL_ANIMATION,FLASH_ANIMATION} from '../dist/pickup-art.mjs';
 
 function chunk(type,data){
   const body=Buffer.concat([Buffer.from(type),data]);
@@ -86,8 +86,12 @@ for(const [kind,name] of [['light','plasma-spark'],['cluster','plasma-cluster'],
   await bake(name,size,frames,period,(ctx,frame,quiet)=>drawFuelFrame(ctx,size/2,size/2,kind,frame,quiet));
 }
 
+const flash=FLASH_ANIMATION;
+await bake('flash-powerup',flash.size,flash.frames,flash.period,(ctx,frame,quiet)=>{
+  drawPickup(ctx,flash.size/2,flash.size/2,{kind:'sight',time:frame*flash.period/flash.frames,reducedMotion:quiet});
+});
+
 for(const [kind,name,cycle] of [
-  ['charge','spark-charge',2],['sight','spark-flash',1/.48],
   ['dusk','spark-dusk',3.2],['dark','spark-dark',Math.PI*2],
 ]){
   await bake(name,48,16,cycle,(ctx,frame,quiet)=>drawPickup(ctx,24,24,{kind,time:frame*cycle/16,reducedMotion:quiet||frame===0}));

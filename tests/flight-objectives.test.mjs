@@ -3,7 +3,8 @@ import assert from 'node:assert/strict';
 import {WispFlight} from '../dist/flight.mjs';
 import {ROUTE_BONUSES} from '../dist/route-bonuses.mjs';
 import {GLOW_DISPLAY_SCALE} from '../dist/vitality.mjs';
-import {pickupKind} from '../dist/pickups.mjs';
+import {getPickupSpec, pickupKind} from '../dist/pickups.mjs';
+import {createFlightObjective} from '../dist/flight-objectives.mjs';
 
 function flight(id, modifiers={}) {
   const game=new WispFlight({canvas:{getContext:()=>({setTransform(){}}),getBoundingClientRect:()=>({width:900,height:405})},
@@ -73,19 +74,27 @@ test('collection needs distinct marked natural packets, Precision needs the body
   assert.ok(suns.routeObjective.complete);
 });
 
-test('relay has a real six-second Flash window',()=>{
-  const game=flight('flash-relay');
+test('Flash Relay marks a single Flash Powerup and accepts Sparks throughout its light',()=>{
+  const game=flight(null);
+  const natural=game.layout.embers.find(p=>p.kind==='sight') || {id:'side-pocket',kind:'sight',x:50,y:150};
+  if(!game.layout.embers.includes(natural))game.layout.embers.unshift(natural);
+  const fuelBefore=game.layout.embers.filter(p=>getPickupSpec(p).fuel>0).length;
+  game.routeObjective=createFlightObjective(game,'flash-relay');
+  assert.equal(targets(game)[0].object,natural);
+  assert.equal(game.layout.embers.filter(p=>p.kind==='sight').length,1);
+  assert.equal(game.layout.embers.filter(p=>getPickupSpec(p).fuel>0).length,fuelBefore);
+  const duration=getPickupSpec('sight').sightDuration;
   take(game,1);
   assert.equal(game.routeObjective.progress,0);
   take(game,0);
-  assert.equal(game.sightUntil,6);
+  assert.equal(game.sightUntil,duration);
   take(game,2);
-  game.time=5.99;
+  game.time=duration-.01;
   take(game,3);
   assert.ok(game.routeObjective.complete);
   const late=flight('flash-relay');
   take(late,0);
-  late.time=6.05;
+  late.time=duration+.05;
   late.routeObjective.update();
   assert.ok(late.routeObjective.failed);
 

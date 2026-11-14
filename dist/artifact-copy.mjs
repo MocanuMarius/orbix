@@ -1,7 +1,7 @@
-import {resourceSymbol} from './game-symbols.mjs?v=spark-arcs-3';
-import {getArtifactInfo,CONSUMABLE_ARTIFACTS} from './artifact-info.mjs?v=spark-arcs-3';
-import {getCompanionAbility,normalizeCompanionRole} from './companion-abilities.mjs?v=spark-arcs-3';
-import {formatGlow,glowText,getGlowCapacity} from './vitality.mjs?v=spark-arcs-3';
+import {resourceSymbol} from './game-symbols.mjs?v=flash-prism-1';
+import {getArtifactInfo,CONSUMABLE_ARTIFACTS} from './artifact-info.mjs?v=flash-prism-1';
+import {getCompanionAbility,normalizeCompanionRole} from './companion-abilities.mjs?v=flash-prism-1';
+import {formatGlow,glowText,getGlowCapacity} from './vitality.mjs?v=flash-prism-1';
 
 const esc=value=>String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const action={collector:'Collector delivers a Spark',protector:'Protector deflects a collision',swift:'Runner starts a burst',leveler:'Space Timer starts levitating'};

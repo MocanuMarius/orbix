@@ -7,15 +7,14 @@ export const TUTORIAL_TOPICS={
   s('Glide','Release to fall naturally. Small, deliberate Lifts leave more Sparks for the rest of the passage.','lift')]},
  sparks:{name:'From Spark to Stored Sparks',visual:'spark-storage',steps:[
   s('Spark Meter','Touch a Spark to refill the meter on the left. Each lit division pays for one Lift.','meter'),
-  s('Read the lightning','Denser lightning carries more. The three strengths add 6, 12 or 18 to your Spark Meter before bonuses.','spark-layers'),
+  s('Read the glow','Amber gives 6 Sparks, green gives 12 and white gives 18. Look for denser arcs in the stronger pickups.','spark-layers'),
   s('Store the surplus','A full meter sends surplus to the upper-left box. Spend Stored Sparks on skills at a Rest.','spark-storage')]},
  luminance:{name:'Luminance',visual:'luminance',steps:[
   s('Luminance','Luminance is how far your wisp lights the world. It fades with distance; faraway scenery and Sparks disappear into darkness.','luminance'),
   s('Sparks and sight','Sparks pay for Lift. Luminance reveals the route around your wisp.','luminance'),
-  s('Grow your Luminance','At a Rest, train Luminance in the Wisp tree. A Flash Spark briefly reveals more of the passage.','pickup:sight')]},
- utilities:{name:'Special Sparks',visual:'pickup:charge',steps:[
-  s('Charge Spark','The cyan Charge Spark shortens companion recovery. Space Timer regains levitation charge. It does not refill Sparks.','pickup:charge'),
-  s('Flash Spark','The violet Flash Spark extends Luminance for six seconds. It reveals more of the passage but gives no fuel.','pickup:sight'),
+  s('Grow your Luminance','At a Rest, train Luminance in the Wisp tree. A Flash Powerup reveals the passage when collected.','pickup:sight')]},
+ utilities:{name:'Flash & hazards',visual:'pickup:sight',steps:[
+  s('Flash Powerup','Catch the violet triangle. Its burst reveals the whole passage, then keeps the way ahead lit. Use that time to line up your next pickup.','pickup:sight'),
   s('Dusk Spark','The rose Dusk Spark trades reduced Luminance for fuel. Its red ring warns of the cost. Only body contact collects it.','pickup:dusk')]},
  terrain:{name:'Terrain & goals',visual:'route',steps:[
   s('Solid edges','Bright edges help separate collidable terrain from background scenery. Rock, trees and solid objects can end an unprotected attempt. Open sky only ends it once the whole wisp leaves the screen.','route'),

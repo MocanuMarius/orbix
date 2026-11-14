@@ -30,3 +30,10 @@ figcaption small{display:block;color:#b7d1c1;font:14px/1.3 system-ui,sans-serif;
 :root[data-preview-paused=true] main *{animation-play-state:paused!important}
 @media(max-width:540px){main{padding-inline:max(14px,env(safe-area-inset-left)) max(14px,env(safe-area-inset-right))}.controls{gap:5px}.controls button{padding-inline:8px;font-size:15px}.menu-sample{column-gap:16px;row-gap:8px;font-size:15px}#gallery{grid-template-columns:repeat(auto-fit,minmax(95px,1fr))}figcaption small{font-size:12px}}
 @media(orientation:landscape) and (max-height:400px){main{padding-block:max(7px,env(safe-area-inset-top)) max(6px,env(safe-area-inset-bottom))}h1{font-size:27px}.menu-sample{margin:5px 0 7px}#gallery{margin:9px 0}.art{height:52px}:root[data-large=true] .art{height:82px}:root[data-large=true] .art>svg{width:72px;height:72px}}
+
+.flash-demo{--flash-icon:38px;display:grid;place-items:center;position:relative;width:90px;height:100%;padding:0;background:transparent;border:0}
+.flash-demo svg{width:var(--flash-icon);height:var(--flash-icon);image-rendering:pixelated}
+.flash-demo canvas{display:none;position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:calc(var(--flash-icon)*3.3333);height:auto;image-rendering:pixelated;pointer-events:none}
+.flash-demo.bursting canvas{display:block}.flash-demo.bursting svg{visibility:hidden}
+:root[data-large=true] .flash-demo{--flash-icon:84px}
+@media(orientation:landscape) and (max-height:400px){:root[data-large=true] .flash-demo{--flash-icon:72px}}

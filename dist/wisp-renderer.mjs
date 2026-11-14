@@ -1,26 +1,26 @@
-import {drawAtlasFlight} from './atlas-flight.mjs?v=spark-arcs-3';
-import {drawGuardianPresence} from './guardian-presence.mjs?v=spark-arcs-3';
-import {createDepthScenery,drawDepthScenery} from './depth-scenery.mjs?v=spark-arcs-3';
-import { drawGuardianWarnings } from './guardian-art.mjs?v=spark-arcs-3';
-import {drawProximityMeter} from './proximity-meter.mjs?v=spark-arcs-3';
-import {drawObjectiveMarks} from './flight-objectives.mjs?v=spark-arcs-3';
-import {drawFlightProjection} from './flight-projection.mjs?v=spark-arcs-3';
-import {drawGlowSense} from './glow-sense.mjs?v=spark-arcs-3';
-import {formatGlow} from './vitality.mjs?v=spark-arcs-3';
-import {LOCATION_PALETTES} from './world-expansion.mjs?v=spark-arcs-3';
-import {biomePalette} from './biome-art.mjs?v=spark-arcs-3';
-import { sceneryIdentity, drawIdentityBackground, drawIdentityMaterial, drawIdentityLife } from './level-scenery.mjs?v=spark-arcs-3';
-import { getCompanionAbility, normalizeCompanionRole } from './companion-abilities.mjs?v=spark-arcs-3';
-import { companionSprite, companionPalette } from './companion-art.mjs?v=spark-arcs-3';
-import { createScenePropArt } from './scene-prop-art.mjs?v=spark-arcs-3';
-import { drawBoss } from './boss.mjs?v=spark-arcs-3';
-import { drawPickup, drawSparkSymbol, FUEL_ANIMATION } from './pickup-art.mjs?v=spark-arcs-3';
-import { pickupKind, getPickupSpec, pickupShellRadius } from './pickups.mjs?v=spark-arcs-3';
-import { LIGHT_EXTENT,lightAttenuation,lightVisibility,createLightMaskCanvas,sceneRevealStrength } from './light-field.mjs?v=spark-arcs-3';
-import {drawExitLandmark} from './exit-landmark.mjs?v=spark-arcs-3';
-import {drawBlackHoles} from './black-hole-art.mjs?v=spark-arcs-3';
-import {drawAbsorbingSpark} from './tidal-light.mjs?v=spark-arcs-3';
-import {drawFlightForks,drawFlightForkBackdrops} from './flight-forks.mjs?v=spark-arcs-3';
+import {drawAtlasFlight} from './atlas-flight.mjs?v=flash-prism-1';
+import {drawGuardianPresence} from './guardian-presence.mjs?v=flash-prism-1';
+import {createDepthScenery,drawDepthScenery} from './depth-scenery.mjs?v=flash-prism-1';
+import { drawGuardianWarnings } from './guardian-art.mjs?v=flash-prism-1';
+import {drawProximityMeter} from './proximity-meter.mjs?v=flash-prism-1';
+import {drawObjectiveMarks} from './flight-objectives.mjs?v=flash-prism-1';
+import {drawFlightProjection} from './flight-projection.mjs?v=flash-prism-1';
+import {drawGlowSense} from './glow-sense.mjs?v=flash-prism-1';
+import {formatGlow} from './vitality.mjs?v=flash-prism-1';
+import {LOCATION_PALETTES} from './world-expansion.mjs?v=flash-prism-1';
+import {biomePalette} from './biome-art.mjs?v=flash-prism-1';
+import { sceneryIdentity, drawIdentityBackground, drawIdentityMaterial, drawIdentityLife } from './level-scenery.mjs?v=flash-prism-1';
+import { getCompanionAbility, normalizeCompanionRole } from './companion-abilities.mjs?v=flash-prism-1';
+import { companionSprite, companionPalette } from './companion-art.mjs?v=flash-prism-1';
+import { createScenePropArt } from './scene-prop-art.mjs?v=flash-prism-1';
+import { drawBoss } from './boss.mjs?v=flash-prism-1';
+import { drawPickup, drawSparkSymbol, drawFlashBurst, FUEL_ANIMATION } from './pickup-art.mjs?v=flash-prism-1';
+import { pickupKind, getPickupSpec, pickupShellRadius } from './pickups.mjs?v=flash-prism-1';
+import { LIGHT_EXTENT,lightAttenuation,lightVisibility,createLightMaskCanvas,sceneRevealStrength } from './light-field.mjs?v=flash-prism-1';
+import {drawExitLandmark} from './exit-landmark.mjs?v=flash-prism-1';
+import {drawBlackHoles} from './black-hole-art.mjs?v=flash-prism-1';
+import {drawAbsorbingSpark} from './tidal-light.mjs?v=flash-prism-1';
+import {drawFlightForks,drawFlightForkBackdrops} from './flight-forks.mjs?v=flash-prism-1';
 
 const TAU = Math.PI * 2;
 const SCENERY_HELPERS = { line: pixelLine, disc: pixelDisc, polygon: path };
@@ -642,7 +642,7 @@ export class WispFlightView {
     const mask = this.lightMask(), radius = this.lightRadius * s * LIGHT_EXTENT;
     f.globalAlpha = this.lightIntensity;
     // Baseline light is circular. Forward scouting is earned through skills,
-    // Flash Spark and artifacts rather than a permanent horizon fill.
+    // the Flash Powerup and artifacts.
     f.drawImage(mask,playerX-radius,playerY-radius,radius*2,radius*2);
     const forward = light.forwardLight || e.forwardLight;
     if (forward?.active && forward.radius > 0) {
@@ -844,6 +844,12 @@ export class WispFlightView {
       const packet=contact.packet;if(packet.collected||packet.carried)continue;
       const px=(packet.x-distanceOf(e))*s,py=packet.y*s,pr=pickupShellRadius(packet)*s;
       const age=Math.max(0,t-contact.since),wave=e.reducedMotion?1:Math.min(1,age/.42);
+      if(pickupKind(packet)==='sight'){
+        const edge=(20+(1-wave)*3)*s;
+        c.globalAlpha=.25+(1-wave)*.5;c.lineWidth=1;c.beginPath();
+        c.moveTo(px,py-edge);c.lineTo(px+edge,py+edge*.7);c.lineTo(px-edge,py+edge*.7);
+        c.closePath();c.stroke();continue;
+      }
       const angle=Math.atan2(y-py,x-px);
       c.globalAlpha=.20+(1-wave)*.4;c.lineWidth=1;c.beginPath();c.arc(px,py,pr,0,TAU);c.stroke();
       // A short inward-facing ripple distinguishes detection from committed retrieval.
@@ -1072,6 +1078,8 @@ export class WispFlightView {
     this.drawFleet(e, t, fleet,'front');
     this.drawProtector(e, t, playerX, playerY);
     this.drawAbsorptions(e, t, playerX, playerY);
+    if(e.flashBurst)drawFlashBurst(c,(e.flashBurst.worldX-distance)*s,e.flashBurst.y*s,
+      t-e.flashBurst.bornAt,s,e.reducedMotion);
     drawBlackHoles(c,e,{scale:s,distance,playerY:yOf(e)});
     for (const effect of e.pickupEffects || []) {
       const progress = 1 - clamp(effect.life / .72, 0, 1);

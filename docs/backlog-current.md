@@ -227,7 +227,7 @@ Keep 20 Packed Sparks for clearing. Replace the generic optional challenge with 
 | Three Suns | Collect three marked three-layer Sparks on a single verified route | Recover one missing heart, without increasing its cap. At most once per map; offer only while a heart is missing. |
 | Edgeweaver | Trigger Proximity in two separate marked terrain sections | One ward on the next attempt; with Protector its first deflection is free instead of stacking a layer. Only when Proximity is unlocked. |
 | Wild Circuit | Activate two marked helpful biome objects | Companion recovery 20% faster on the next attempt. Offer only when the required helpful objects exist. |
-| Flash Relay | Collect a marked Flash Spark and 2 of 3 fuel Sparks in its reveal stretch | Luminance radius +25% for the first 15 seconds of the next attempt. |
+| Flash Relay | Collect the marked Flash Powerup and 2 of 3 fuel Sparks in its reveal stretch | Luminance radius +25% for the first 15 seconds of the next attempt. |
 | Night Sail | Take two marked Sparks on a Black Hole's outer bypass while losing at most 3 Energy to it | Black Hole drain reduced by 25% for the next attempt. Offer only when the next flight has a Black Hole. |
 | Long Glide | Collect two marked Sparks in a verified two-second Lift-free glide | First three Lifts of the next attempt are free, capped at 9 Energy saved. |
 | Wayfinder | Pass three broad position waymarks with readable approach warning | Preview the first 2.5 seconds of the next route while its start is paused. Normal darkness returns on play. |

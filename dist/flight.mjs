@@ -1,48 +1,48 @@
-import {prepareAtlasFlight,resizeAtlasFlight,ringBellwind,bellwindAcceleration,moonLightScale,drawAtlasFlight} from './atlas-flight.mjs?v=spark-arcs-3';
-import {canShowFlightHint} from './flight-hint-safety.mjs?v=spark-arcs-3';
-import {updateGlideRegeneration} from './glide-regeneration.mjs?v=spark-arcs-3';
-import {drawGuardianPresence} from './guardian-presence.mjs?v=spark-arcs-3';
-import { updateGuardian, resizeGuardian, placeGuardianFuel } from './guardian-effects.mjs?v=spark-arcs-3';
-import { drawGuardianWarnings } from './guardian-art.mjs?v=spark-arcs-3';
-import {drawProximityMeter} from './proximity-meter.mjs?v=spark-arcs-3';
-import {buildObjectivePlan,createFlightObjective,drawObjectiveMarks} from './flight-objectives.mjs?v=spark-arcs-3';
-import {FlightProjection,drawFlightProjection} from './flight-projection.mjs?v=spark-arcs-3';
-import {drawGlowSense} from './glow-sense.mjs?v=spark-arcs-3';
-import {formatGlow} from './vitality.mjs?v=spark-arcs-3';
-import {installRiskChains} from './risk-chains.mjs?v=spark-arcs-3';
-import {EXTRA_COURSES} from './world-expansion.mjs?v=spark-arcs-3';
-import {BIOME_COURSES} from './biome-courses.mjs?v=spark-arcs-3';
-import {BiomeDynamics} from './biome-dynamics.mjs?v=spark-arcs-3';
-import {condenseGlow} from './condensed-glow.mjs?v=spark-arcs-3';
-import {ensureGlowBudget} from './glow-budget.mjs?v=spark-arcs-3';
-import {EdgingPulse} from './edging-pulse.mjs?v=spark-arcs-3';
-import {isVowBodyPickup} from './contextual-events.mjs?v=spark-arcs-3';
-import {FlightBoon} from './flight-boons.mjs?v=spark-arcs-3';
-import {BlackHoles} from './black-holes.mjs?v=spark-arcs-3';
-import {drawBlackHoles} from './black-hole-art.mjs?v=spark-arcs-3';
-import {drawAbsorbingSpark} from './tidal-light.mjs?v=spark-arcs-3';
+import {prepareAtlasFlight,resizeAtlasFlight,ringBellwind,bellwindAcceleration,moonLightScale,drawAtlasFlight} from './atlas-flight.mjs?v=flash-prism-1';
+import {canShowFlightHint} from './flight-hint-safety.mjs?v=flash-prism-1';
+import {updateGlideRegeneration} from './glide-regeneration.mjs?v=flash-prism-1';
+import {drawGuardianPresence} from './guardian-presence.mjs?v=flash-prism-1';
+import { updateGuardian, resizeGuardian, placeGuardianFuel } from './guardian-effects.mjs?v=flash-prism-1';
+import { drawGuardianWarnings } from './guardian-art.mjs?v=flash-prism-1';
+import {drawProximityMeter} from './proximity-meter.mjs?v=flash-prism-1';
+import {buildObjectivePlan,createFlightObjective,drawObjectiveMarks} from './flight-objectives.mjs?v=flash-prism-1';
+import {FlightProjection,drawFlightProjection} from './flight-projection.mjs?v=flash-prism-1';
+import {drawGlowSense} from './glow-sense.mjs?v=flash-prism-1';
+import {formatGlow} from './vitality.mjs?v=flash-prism-1';
+import {installRiskChains} from './risk-chains.mjs?v=flash-prism-1';
+import {EXTRA_COURSES} from './world-expansion.mjs?v=flash-prism-1';
+import {BIOME_COURSES} from './biome-courses.mjs?v=flash-prism-1';
+import {BiomeDynamics} from './biome-dynamics.mjs?v=flash-prism-1';
+import {condenseGlow} from './condensed-glow.mjs?v=flash-prism-1';
+import {ensureGlowBudget} from './glow-budget.mjs?v=flash-prism-1';
+import {EdgingPulse} from './edging-pulse.mjs?v=flash-prism-1';
+import {isVowBodyPickup} from './contextual-events.mjs?v=flash-prism-1';
+import {FlightBoon} from './flight-boons.mjs?v=flash-prism-1';
+import {BlackHoles} from './black-holes.mjs?v=flash-prism-1';
+import {drawBlackHoles} from './black-hole-art.mjs?v=flash-prism-1';
+import {drawAbsorbingSpark} from './tidal-light.mjs?v=flash-prism-1';
 /* Emberwing's self-contained canvas flight simulation and renderer. */
-import { FLAME_TUNING, LIGHT_PACKET_TUNING } from './vitality.mjs?v=spark-arcs-3';
-import { flightEndDistance } from './flight-end.mjs?v=spark-arcs-3';
-import {getExitLandmarkState,drawExitLandmark} from './exit-landmark.mjs?v=spark-arcs-3';
-import { WispCompanion, wispHome } from './wisp.mjs?v=spark-arcs-3';
-import { getAscentInfo } from './ascent.mjs?v=spark-arcs-3';
-import { LEVEL_LENGTH, getLevelLengthScale } from './level-length.mjs?v=spark-arcs-3';
-import { resolveLevelIdentity } from './level-catalog.mjs?v=spark-arcs-3';
-import { DraftField, DRAFT_TUNING } from './drafts.mjs?v=spark-arcs-3';
-import { normalizeCompanionRole, normalizeCompanionFleet, getCompanionAbility } from './companion-abilities.mjs?v=spark-arcs-3';
-import { populateSceneProps, scenePropPolygons } from './scene-props.mjs?v=spark-arcs-3';
-import { pickupKind, getPickupSpec, pickupContactRadius, pickupShellRadius, isFuelPickup, canCompanionCollect } from './pickups.mjs?v=spark-arcs-3';
-import { drawPickup, drawSparkSymbol } from './pickup-art.mjs?v=spark-arcs-3';
-import { buildBossLayout, getBossState as bossState, drawBoss } from './boss.mjs?v=spark-arcs-3';
-import { getAuthoredChallenge, finalizeFlightChallenges, installAuthoredDraftCrossings, FlightChallengeDirector } from './flight-challenges.mjs?v=spark-arcs-3';
-import { installEncounterFamily } from './encounter-families.mjs?v=spark-arcs-3';
-import { installFlightForks, resizeFlightForks } from './flight-forks.mjs?v=spark-arcs-3';
-import { ArtifactEffects } from './artifact-effects.mjs?v=spark-arcs-3';
-import { LIGHT_EXTENT,lightAttenuation,lightVisibility,createLightMaskCanvas,sceneRevealStrength } from './light-field.mjs?v=spark-arcs-3';
+import { FLAME_TUNING, LIGHT_PACKET_TUNING } from './vitality.mjs?v=flash-prism-1';
+import { flightEndDistance } from './flight-end.mjs?v=flash-prism-1';
+import {getExitLandmarkState,drawExitLandmark} from './exit-landmark.mjs?v=flash-prism-1';
+import { WispCompanion, wispHome } from './wisp.mjs?v=flash-prism-1';
+import { getAscentInfo } from './ascent.mjs?v=flash-prism-1';
+import { LEVEL_LENGTH, getLevelLengthScale } from './level-length.mjs?v=flash-prism-1';
+import { resolveLevelIdentity } from './level-catalog.mjs?v=flash-prism-1';
+import { DraftField, DRAFT_TUNING } from './drafts.mjs?v=flash-prism-1';
+import { normalizeCompanionRole, normalizeCompanionFleet, getCompanionAbility } from './companion-abilities.mjs?v=flash-prism-1';
+import { populateSceneProps, scenePropPolygons } from './scene-props.mjs?v=flash-prism-1';
+import { pickupKind, getPickupSpec, pickupContactRadius, pickupShellRadius, canCompanionCollect } from './pickups.mjs?v=flash-prism-1';
+import { drawPickup, drawSparkSymbol, drawFlashBurst } from './pickup-art.mjs?v=flash-prism-1';
+import { buildBossLayout, getBossState as bossState, drawBoss } from './boss.mjs?v=flash-prism-1';
+import { getAuthoredChallenge, finalizeFlightChallenges, installAuthoredDraftCrossings, FlightChallengeDirector } from './flight-challenges.mjs?v=flash-prism-1';
+import { installEncounterFamily } from './encounter-families.mjs?v=flash-prism-1';
+import { installFlightForks, resizeFlightForks } from './flight-forks.mjs?v=flash-prism-1';
+import { ArtifactEffects } from './artifact-effects.mjs?v=flash-prism-1';
+import { LIGHT_EXTENT,lightAttenuation,lightVisibility,createLightMaskCanvas,sceneRevealStrength } from './light-field.mjs?v=flash-prism-1';
 import { createTutorialState, buildTutorialLayout, recordTutorialPickup,
-  updateTutorial, updateTutorialCompanion, getTutorialHint } from './tutorial.mjs?v=spark-arcs-3';
-export { FLAME_TUNING } from './vitality.mjs?v=spark-arcs-3';
+  updateTutorial, updateTutorialCompanion, getTutorialHint } from './tutorial.mjs?v=flash-prism-1';
+export { FLAME_TUNING } from './vitality.mjs?v=flash-prism-1';
 const TAU = Math.PI * 2;
 const STEP = 1 / 60;
 const COMPANION_ORBIT_SPEED = {protector:1.3,leveler:1.7,swift:3.4,seer:.8,kindler:2.2};
@@ -52,7 +52,7 @@ const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
 const lerp = (a, b, t) => a + (b - a) * t;
 export const FLIGHT_TUNING = Object.freeze({ gravity: 300, flapImpulse: 205,
   forwardSpeed: 154, terminalFall: 245, pickupRadius: LIGHT_PACKET_TUNING.pickupRadius });
-export { DRAFT_TUNING } from './drafts.mjs?v=spark-arcs-3';
+export { DRAFT_TUNING } from './drafts.mjs?v=flash-prism-1';
 // Retain the public tuning name for consumers; wind now has no global cycle.
 export const WIND_TUNING = DRAFT_TUNING;
 
@@ -665,6 +665,18 @@ export function buildFlightLayout({ seed = 1, terrain = 'ruins', elite = false,
         value: 0, fuel: false, feature: 'dark-side-lane',
         collected: false, attracted: false, phase: darkRng() * TAU });
     }
+    // A separate, swept-clear lane gives players scouting light before the next approach.
+    const flashRng = seededRandom(`${seed}:${identity.id}:flash-powerup`);
+    if (!introductoryDark && flashRng() < .58) {
+      const targetX = duration * speed * (.32 + .26 * flashRng());
+      let site;
+      for (const candidate of candidates) {
+        if (selected.some(other => Math.abs(other.x - candidate.x) < speed * 1.25)) continue;
+        if (!site || Math.abs(candidate.x-targetX) < Math.abs(site.x-targetX)) site = candidate;
+      }
+      if (site) embers.push({...site,id:'flash-powerup',kind:'sight',value:0,fuel:false,
+        feature:'sight-niche',collected:false,attracted:false,phase:flashRng()*TAU});
+    }
   }
   // Reuse optional side-lane slots, never the route's existing fuel opportunities.
   const niches = embers.filter(packet => pickupKind(packet) === 'dark');
@@ -674,8 +686,7 @@ export function buildFlightLayout({ seed = 1, terrain = 'ruins', elite = false,
     const darkSlots = new Set([keepDark]);
     const retained = Math.min(niches.length,elite?3:2);
     for(let i=1;i<retained;i++)darkSlots.add((keepDark+Math.floor(i*niches.length/retained))%niches.length);
-    const pool = ascent.level >= 4 ? ['cluster', 'charge', 'sight', 'dusk']
-      : ascent.level >= 3 ? ['cluster', 'charge', 'sight'] : ['cluster', 'charge'];
+    const pool = ascent.level >= 4 ? ['cluster', 'dusk'] : ['cluster'];
     const offset = Math.floor(utilityRng() * pool.length) + ['ruins', 'canopy', 'storm'].indexOf(terrain);
     let utilityIndex = 0;
     niches.forEach((packet, i) => {
@@ -812,7 +823,7 @@ export class WispFlight {
     this.stormFeedClock = 0; this.warmCoreUsed = false;
     this.particles = []; this.trail = []; this.pickupEffects = []; this.emitClock = 0;
     this.absorptionEffects = []; this.absorptionSequence = 0;
-    this.lightPenalties = []; this.lightDimming = 0; this.sightUntil = 0;
+    this.lightPenalties = []; this.lightDimming = 0; this.sightUntil = 0; this.flashBurst = null;
     this.mainSeerStartedAt=-Infinity;this.mainSeerUntil=0;this.mainSeerReadyAt=0;
     this.pickupRevealStartedAt = -Infinity; this.pickupRevealHoldUntil = -Infinity; this.pickupRevealFrom = 0;
     this.wispBoost = 0;
@@ -924,7 +935,7 @@ export class WispFlight {
 
   async initPixelView() {
     try {
-      const { WispFlightView } = await import('./wisp-renderer.mjs?v=spark-arcs-3');
+      const { WispFlightView } = await import('./wisp-renderer.mjs?v=flash-prism-1');
       if (this.destroyed) return;
       this.pixiView = new WispFlightView(this);
       const initialized = await this.pixiView.init();
@@ -1353,7 +1364,11 @@ export class WispFlight {
   getLightState() {
     const baseRadius = (Number(this.mod.lightRadius) || LIGHT_PACKET_TUNING.baseRadius) * this.flightBoon.luminanceScale;
     const reduction=clamp(this.lightDimming*(1-clamp(this.mod.darkResistance||0,0,.6)),0,1-LIGHT_PACKET_TUNING.minimumLight);
-    const sightRemaining=Math.max(0,this.sightUntil-this.time),sightBonus=sightRemaining>0?50:0;
+    const flashSpec=getPickupSpec('sight');
+    const sightRemaining=Math.max(0,(this.sightUntil||0)-this.time);
+    const fade=clamp(sightRemaining/2,0,1);
+    const flashStrength=fade*fade*(3-2*fade);
+    const sightBonus=flashSpec.sightBonus*flashStrength;
     const revealedRadius=baseRadius+sightBonus+(this.dream?.phase==='recording'&&this.mod.dreamSight?70:0),dyingFade=this.dying?Math.max(0,1-this.dyingProgress**1.7):1;
     const caveReduction=clamp(this.caveDimming||0,0,.18),caveScale=(1-caveReduction)*moonLightScale(this);
     const seer=this.fleet.find(item=>item.role==='seer');
@@ -1363,7 +1378,7 @@ export class WispFlight {
     const startedAt=Math.min(traitRemaining>0?this.mainSeerStartedAt:Infinity,
       artifactRemaining>0?this.artifactEffects.sightStartedAt:Infinity,seer?.remaining>0?seer.startedAt:Infinity);
     const onset=Number.isFinite(startedAt)?clamp((this.time-startedAt)/.25,0,1):0;
-    const strength=remaining>0?Math.min(onset,clamp(remaining/.4,0,1)):0;
+    const strength=Math.max(flashStrength,remaining>0?Math.min(onset,clamp(remaining/.4,0,1)):0);
     const forwardLight={active:strength>0,x:this.player.x+160,y:this.player.y,
       radius:clamp(Number(this.mod.seerRadius)||230,120,420)*caveScale,intensity:strength*(1-reduction*.65)*dyingFade};
     const reveal=this.completionProgress*this.completionProgress*(3-2*this.completionProgress);
@@ -1478,8 +1493,9 @@ export class WispFlight {
   }
 
   shatterPickupRing(packet) {
+    if(pickupKind(packet)==='sight')return; // The triangle bursts when it activates.
     const radius=pickupShellRadius(packet),x=packet.x-this.distance,y=packet.y;
-    const color=getPickupSpec(packet).dim>0?'#f58b79':'#e4f2ca';
+    const spec=getPickupSpec(packet),color=spec.dim>0?'#f58b79':spec.color;
     const count=this.reducedMotion?6:12;
     for(let i=0;i<count&&this.particles.length<150;i++){
       const angle=i/count*TAU;
@@ -1815,23 +1831,13 @@ export class WispFlight {
       this.setEvent(`${spec.name} · Luminance -${Math.round(spec.dim*100)}%`);
       return;
     }
-    if (!ember.generated && !isFuelPickup(ember)) {
-      ember.collected = true;
-      this.absorbPacket(ember, 'light');
-      let text = '';
-      if (spec.recharge) {
-        const recovering=this.fleet.some(item=>item.cooldown>0)||this.hasCompanion('collector')&&this.wisp.cooldown>0
-          ||this.shield.charges<this.shield.layers&&this.shield.recovery>0;
-        this.quickenCompanionRecovery(null,spec.recharge);
-        text=recovering?`Companion recovery −${spec.recharge}s`:'Companion ready';
-      } else if (spec.sightBonus) {
-        this.sightUntil = Math.max(this.sightUntil, this.time + spec.sightDuration);
-        text = `+${spec.sightBonus} Luminance · ${spec.sightDuration}s`;
-      }
-      const origin = ember.deliveredByWisp ? this.getWispState() : this.player;
-      this.pickupEffects.push({ x: origin.x, y: origin.y, pickupKind: kind, text, value: 0, restored: 0, life: .72 });
-      if (this.pickupEffects.length > 12) this.pickupEffects.shift();
-      this.setEvent(`${spec.name} · ${text}`);
+    if (kind === 'sight') {
+      ember.collected=true;
+      const origin=ember.deliveredByWisp?this.getWispState():{x:ember.x-this.distance,y:ember.y};
+      this.flashBurst={worldX:this.distance+origin.x,y:origin.y,bornAt:this.time};
+      this.sightUntil=this.time+spec.sightDuration;
+      this.revealFromPickup(true);
+      this.setEvent(`${spec.name} · Passage revealed`);
       this.sound('collect');
       return;
     }
@@ -2084,6 +2090,8 @@ export class WispFlight {
     this.drawWisp(c);
     this.drawPhoenix(c);
     this.drawPickups(c);
+    if(this.flashBurst)drawFlashBurst(c,this.flashBurst.worldX-this.renderDistance,this.flashBurst.y,
+      this.visualTime-this.flashBurst.bornAt,1,this.reducedMotion);
     for (const effect of this.absorptionEffects) {
       const progress=(this.visualTime-effect.bornAt)/effect.duration;
       if(progress>=0&&progress<1)drawAbsorbingSpark(c,effect,progress,this.player.x,this.renderPlayerY,1,this.reducedMotion);
@@ -2284,9 +2292,10 @@ export class WispFlight {
     c.save();
     for (const effect of this.pickupEffects) {
       const t = 1 - effect.life / .72;
-      c.globalAlpha = (1 - t) * .8; c.strokeStyle = '#ffdc86'; c.lineWidth = 2;
+      const tint=getPickupSpec(effect.pickupKind).color;
+      c.globalAlpha = (1 - t) * .8; c.strokeStyle = tint; c.lineWidth = 2;
       c.beginPath(); c.arc(effect.x, effect.y, this.reducedMotion ? 18 : 8 + t * 44, 0, TAU); c.stroke();
-      c.globalAlpha = Math.max(0, 1 - t * 3) * .35; c.fillStyle = '#ffe6a5';
+      c.globalAlpha = Math.max(0, 1 - t * 3) * .35; c.fillStyle = tint;
       c.beginPath(); c.arc(effect.x, effect.y, 23, 0, TAU); c.fill();
       c.globalAlpha = Math.min(1, (1 - t) * 3); c.font = 'bold 18px system-ui'; c.textAlign = 'center';
       c.font = effect.restored > 0 ? 'bold 13px system-ui' : 'bold 18px system-ui';

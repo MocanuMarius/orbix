@@ -19,7 +19,7 @@ const half=e.getLightState().pickupReveal;collect(e,'cache',{deliveredByWisp:tru
 e.time+=.12;assert.equal(e.getLightState().pickupReveal,1);const deadline=e.pickupRevealHoldUntil;
 collect(e);assert.equal(e.getLightState().pickupReveal,1);assert.equal(e.pickupRevealHoldUntil,deadline,'Same-time pickups cannot stack duration');
 e.time=deadline+1.2;assert.equal(e.getLightState().pickupReveal,0);
-for(const kind of ['embers','charge','sight','dark']){const other=make();collect(other,kind);other.time=.5;assert.equal(other.getLightState().pickupReveal,0,kind);}
+for(const kind of ['embers','dark']){const other=make();collect(other,kind);other.time=.5;assert.equal(other.getLightState().pickupReveal,0,kind);}
 const generated=make();collect(generated,'light',{generated:true});generated.time=.5;assert.equal(generated.getLightState().pickupReveal,0);
 const plain=make(false);collect(plain);plain.time=.5;assert.equal(plain.getLightState().pickupReveal,0);
 const reduced=make();reduced.reducedMotion=true;collect(reduced);reduced.time=.12;assert.ok(reduced.getLightState().pickupReveal<.5);reduced.time=.35;assert.equal(reduced.getLightState().pickupReveal,1);

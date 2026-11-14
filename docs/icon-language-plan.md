@@ -22,11 +22,10 @@ Use **“a Spark adds 12 to the Spark Meter”** for the first explanation. Once
 
 | Pickup or hazard | Readable cue | Base effect |
 | --- | --- | --- |
-| Spark | Bright individual arcs that flare and fade | +6 Sparks |
-| Spark Cluster | More overlapping branches around a brighter core | +12 Sparks |
-| Spark Cache | Dense, bright plasma with a wider glow | +18 Sparks |
-| Charge Spark | Cyan flicker | Speeds companion recovery. |
-| Flash Spark | Violet glow | Extends Luminance briefly. |
+| Spark | Amber arcs that flare and fade | +6 Sparks |
+| Spark Cluster | Green branches around a brighter core | +12 Sparks |
+| Spark Cache | Dense white plasma with a broad halo | +18 Sparks |
+| Flash Powerup | Glowing violet triangle that breaks into shards | Reveals the visible passage for 1.5 seconds. Extra Luminance fades over an eight-second window. |
 | Dusk Spark | Rose field surrounding a dark core | +12 Sparks and reduced Luminance for four seconds. |
 | Dark Spark | Red warning field around a black seed | Reduces Luminance for eight seconds on contact. A fuel Spark clears one dimming effect. |
 | Black Hole | Opaque core, broken accretion ring and inward streams of light | Persistent hazard. Approaching its core drains the Spark Meter faster. |

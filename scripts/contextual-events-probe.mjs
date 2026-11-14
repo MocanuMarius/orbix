@@ -71,7 +71,7 @@ const context=new Proxy({}, {get:(o,k)=>o[k]??(String(k).includes('Gradient')?()
 const canvas={style:{},getContext:()=>context,getBoundingClientRect:()=>({width:956,height:430})};
 let result;const engine=new WispFlight({canvas,seed:'vow-body',duration:30,flame:50,companions:[],onFinish:r=>{result=r;}});
 engine.render=()=>{};engine.start();
-for(const packet of [{kind:'light'},{kind:'cache'},{kind:'cluster'},{kind:'light',deliveredByWisp:true},{kind:'light',generated:true},{kind:'dusk'},{kind:'charge'}])engine.collect({...packet,x:engine.player.x,y:engine.player.y});
+for(const packet of [{kind:'light'},{kind:'cache'},{kind:'cluster'},{kind:'light',deliveredByWisp:true},{kind:'light',generated:true},{kind:'dusk'},{kind:'sight'}])engine.collect({...packet,x:engine.player.x,y:engine.player.y});
 assert.equal(engine.bodyFuelCollected,3);
 engine.dream={phase:'recording',active:true};engine.collect({kind:'light',x:0,y:0});assert.equal(engine.bodyFuelCollected,3);
 engine.dream={phase:'done',active:false};engine.collect({kind:'light',x:0,y:0});assert.equal(engine.bodyFuelCollected,4);

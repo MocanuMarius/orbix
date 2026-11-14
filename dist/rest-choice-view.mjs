@@ -1,11 +1,11 @@
-import {getGlowCapacity,getLifeCapacity,formatGlow} from './vitality.mjs?v=spark-arcs-3';
-import {livesMarkup} from './lives.mjs?v=spark-arcs-3';
-import {resourceSymbol} from './game-symbols.mjs?v=spark-arcs-3';
-import {choiceScene} from './choice-art.mjs?v=spark-arcs-3';
-import {mapStopIconMarkup} from './map-guide.mjs?v=spark-arcs-3';
-import {dreamRestMarkup} from './dream.mjs?v=spark-arcs-3';
-import {skillIcon,artifactIcon} from './upgrade-icons.mjs?v=spark-arcs-3';
-import {companionArtSvg} from './companion-art.mjs?v=spark-arcs-3';
+import {getGlowCapacity,getLifeCapacity,formatGlow} from './vitality.mjs?v=flash-prism-1';
+import {livesMarkup} from './lives.mjs?v=flash-prism-1';
+import {resourceSymbol} from './game-symbols.mjs?v=flash-prism-1';
+import {choiceScene} from './choice-art.mjs?v=flash-prism-1';
+import {mapStopIconMarkup} from './map-guide.mjs?v=flash-prism-1';
+import {dreamRestMarkup} from './dream.mjs?v=flash-prism-1';
+import {skillIcon,artifactIcon} from './upgrade-icons.mjs?v=flash-prism-1';
+import {companionArtSvg} from './companion-art.mjs?v=flash-prism-1';
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 export function restBenefitsMarkup(run,node,choices=[],{nextNode=null}={}){
  const capacity=getGlowCapacity(run),fullHearts={...run,lives:getLifeCapacity(run)},resolved=run.restReady===true;
