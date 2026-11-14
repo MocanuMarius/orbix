@@ -26,7 +26,7 @@ if(!selectNode(mockRun,mockRest.id))throw Error('Cannot enter mock Rest');
 const scenario=new URLSearchParams(location.search).get('scenario')||'arrival';
 if(scenario==='full')mockRun.flame=getGlowCapacity(mockRun);
 if(scenario==='capped'){mockRun.restGlowCapacity=9;mockRun.flame=getGlowCapacity(mockRun);mockRun.lives=4;}
-if(['prepared','first-death','artifacts','forge','skills','companions','briefing','victory','pause','lighting','map','menu','death','last-heart','guide','splash','wake','proximity','interactions','result'].includes(scenario)){const pick=getSupportChoices(mockRun,state.profile).findIndex(c=>c.id==='rest-grow');resolveSupport(mockRun,pick,state.profile);settleCheckpoint(state);}
+if(['prepared','first-death','artifacts','forge','skills','companions','briefing','victory','pause','lighting','map','menu','death','last-heart','guide','splash','wake','proximity','interactions','result','cancel-entry','failed-entry','ordinary-clear','artifacts-away','artifacts-full','route-inspector'].includes(scenario)){const pick=getSupportChoices(mockRun,state.profile).findIndex(c=>c.id==='rest-grow');resolveSupport(mockRun,pick,state.profile);settleCheckpoint(state);}
 if(scenario==='skills'&&new URLSearchParams(location.search).has('away')){mockRun.restReady=false;mockRun.lastRest=null;}
 goToRun();
 if(scenario==='tutorial-rest'){mockRun.isTutorial=true;mockRun.guideSkipped=false;mockRun.guideSeen={};render('support');guideScreen('support');}
@@ -64,6 +64,23 @@ else if(scenario==='route-inspector'){
  previewNode(next.id);
 }
 
+else if(scenario==='ordinary-clear'){
+ const next=getChoices(mockRun).find(n=>n.type!=='support'&&!n.elite&&!n.boss);
+ if(!next)throw Error('No ordinary flight after mock Rest');
+ selectNode(mockRun,next.id);beginFlightAttempt(mockRun);
+ finishFlight(mockRun,{success:true,flame:60,collected:6,condensedGlow:3});
+ goToRun();
+}
+else if(scenario==='cancel-entry'||scenario==='failed-entry'){
+ const originalInit=WispFlight.prototype.initPixelView;
+ WispFlight.prototype.initPixelView=function(...args){
+  if(scenario==='failed-entry')return Promise.reject(Error('Preview renderer failure'));
+  return new Promise(resolve=>setTimeout(()=>resolve(originalInit.apply(this,args)),6000));
+ };
+ selectNode(mockRun,getChoices(mockRun)[0].id);launch();
+}
+else if(scenario==='artifacts-away'){mockRun.restReady=false;showArtifacts();}
+else if(scenario==='artifacts-full'){mockRun.artifacts=Object.keys(ARTIFACTS);showArtifacts();}
 else if(scenario==='map')render('map');
 else if(scenario==='artifacts')showArtifacts();
 else if(scenario==='forge')requestArtifactSalvage('glow-wick');
@@ -80,7 +97,7 @@ else if(['briefing','victory','pause','lighting','splash','wake','proximity','in
   mockRun.seenArtifacts=[...new Set([...mockRun.artifacts,...offers])];
   mockRun.flightReward=source==='ordinary'?null:{nodeId:next.id,source:source==='boss'?'guardian':'elite',offers,permanent:false,claimed:false};
   mockRun.lastFlight={...mockRun.lastFlight,boss:source==='boss',elite:source==='elite',completionBonus:source==='boss'?0:20};
-  mockRun.victoryPending=true;
+  mockRun.victoryPending=source!=='ordinary';
   if(q.get('final')==='1'){mockRun.mapIndex=2;mockRun.success=true;mockRun.bossDefeated=true;mockRun.phase='ended';mockRun.flightReward=null;mockRun.victoryPending=false;}
   mockRun.companions=[q.get('companion')||'collector'];mockRun.companionRole=mockRun.companions[0];
   goToRun();

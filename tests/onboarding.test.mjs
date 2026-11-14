@@ -60,16 +60,23 @@ test('the first map teaches rewards and Rest when encountered, not at the openin
  assert.equal(nextOnboardingLesson('victory',{...state,now:40000}),null,'equipping does not append another tutorial to the same reward');
  state.run.current={id:'rest-a',kind:'camp',type:'support'};
  lesson=nextOnboardingLesson('support',{...state,now:40000});assert.equal(lesson.topic,'rest');
- assert.match(lesson.steps[0].text,/one companion/);assert.match(lesson.steps[0].text,/hearts/);
+ assert.match(lesson.steps[0].text,/Recover restores missing hearts/);
+ assert.match(lesson.steps[0].text,/Grow adds 3 maximum Energy/);
+ assert.match(lesson.steps[0].text,/spend Packed Sparks on skill upgrades or Dream/);
+ assert.doesNotMatch(lesson.steps[0].text,/equip|switch|change.*companion/i,'Rest does not change the run companion');
+ const companion=nextOnboardingLesson('companions',{...state,now:40000});
+ assert.match(companion.steps[0].text,/Choose on the main screen; your companion stays for the entire run/);
 });
 
-test('artifact onboarding waits for an actual choice and distinguishes the final unlock',()=>{
- const normal=fresh();normal.run.lastFlight={completionBonus:20};normal.run.stats.flights=1;
- assert.equal(nextOnboardingLesson('victory',{...normal,now:1000}).topic,'packed');
+test('artifact onboarding waits for a choice, ordinary income is taught on the map, and final victory teaches progression',()=>{
+ const normal=fresh();normal.run.lastFlight={success:true,completionBonus:20};normal.run.stats.flights=1;
+ assert.equal(nextOnboardingLesson('victory',{...normal,now:1000}),null,'ordinary clears have no reward page lesson');
+ assert.equal(nextOnboardingLesson('map',{...normal,now:1000}).topic,'packed');
  const elite=fresh();elite.run.flightReward={offers:['echo-bell','glow-wick'],claimed:false};
  const lesson=nextOnboardingLesson('victory',{...elite,now:1000});
  assert.equal(lesson.topic,'artifacts');assert.match(lesson.steps[0].text,/two artifacts/);assert.doesNotMatch(lesson.steps[0].text,/slot|replace|melt/i);
- elite.run.flightReward.permanent=true;
- const final=nextOnboardingLesson('victory',{...elite,now:1000});
- assert.match(final.steps[0].text,/future guardian rewards/);assert.match(final.steps[0].text,/begin without artifacts/);
+ const completed=fresh();Object.assign(completed.run,{mapIndex:2,phase:'ended',success:true,bossDefeated:true,flightReward:null,lastFlight:{success:true,boss:true}});
+ assert.equal(nextOnboardingLesson('victory',{...completed,now:1000}),null,'the final guardian has no artifact choice to explain');
+ const final=nextOnboardingLesson('result',{...completed,now:1000});
+ assert.equal(final.topic,'progression');assert.match(final.steps[0].text,/unlock the next Ascension/);
 });

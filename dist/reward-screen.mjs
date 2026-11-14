@@ -1,12 +1,13 @@
-import {ARTIFACTS} from './model.mjs?v=rest-upgrades-1';
-import {artifactRarityLabel} from './replay-ui.mjs?v=rest-upgrades-1';
-import {artifactDescription,effectMarkup} from './artifact-copy.mjs?v=rest-upgrades-1';
-import {resourceSymbol} from './game-symbols.mjs?v=rest-upgrades-1';
-import {artifactIcon} from './upgrade-icons.mjs?v=rest-upgrades-1';
+import {ARTIFACTS} from './model.mjs?v=flow-light-1';
+import {artifactRarityLabel} from './replay-ui.mjs?v=flow-light-1';
+import {artifactDescription,effectMarkup} from './artifact-copy.mjs?v=flow-light-1';
+import {resourceSymbol} from './game-symbols.mjs?v=flow-light-1';
+import {artifactIcon} from './upgrade-icons.mjs?v=flow-light-1';
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 export const rewardDescription=(a,run)=>{const c=artifactDescription(a,run,{fresh:true});return [c.effect,[c.trigger,c.limit].filter(Boolean).join(' ')];};
 export function flightRewardMarkup(state,{artifactArt=artifactIcon,upgradeCount=0,skillsAvailable=true}={}){
  const r=state.run,reward=r.flightReward,offers=(reward?.offers||[]).filter(id=>ARTIFACTS[id]),open=!!reward&&!reward.claimed&&offers.length>0;
+ if(!reward?.permanent&&!r.lastFlight?.elite&&!r.lastFlight?.boss&&!offers.length)return '';
  const wager=r.lastFlight?.treasureWager;
  const clear=Number(r.lastFlight?.completionBonus)||0,overflow=Number(r.lastFlight?.pickupCondensedGlow)||0;
  const earned=clear+overflow+(wager?.reward||0);

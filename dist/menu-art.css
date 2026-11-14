@@ -176,7 +176,7 @@ body[data-screen=home] #app .menu-art-home .front-actions button:focus-visible {
   outline: 2px dashed #f5de9c !important;
   outline-offset: -1px;
 }
-/* Chipped shrine stone grounds the words and wisps in the woodland. */
+/* Irregular pools of cool darkness protect copy without framing the artwork. */
 html body[data-screen=home] #app .menu-art-home {
   --menu-ink: #fff0cd;
   --menu-copy: #dbdec7;
@@ -191,7 +191,7 @@ html body[data-screen=home] #app .menu-art-home > .front-title::before {
   content: "";
   position: absolute;
   z-index: -1;
-  inset: -17px -32px -18px -20px;
+  inset: -22px -38px -23px -26px;
   background: url('assets/shrine-slate.svg') center / 100% 100% no-repeat;
   image-rendering: pixelated;
   pointer-events: none;
@@ -218,20 +218,21 @@ html body[data-screen=home] #app .menu-art-home > .starter-roster {
 html body[data-screen=home] #app .menu-art-home > .starter-roster::before {
   content: "";
   position: absolute;
-  inset: -15px -20px -14px -18px;
+  inset: -19px -26px -18px -24px;
   z-index: -1;
   pointer-events: none;
   background: url('assets/shrine-slate.svg') center / 100% 100% no-repeat;
   image-rendering: pixelated;
+  transform: scaleX(-1);
 }
 html body[data-screen=home] #app .menu-art-home .test-starter-options .test-starter-option {
   position: relative;
   isolation: isolate;
   opacity: 1 !important;
   color: #e4e9d8;
-  background-image: url('assets/way-plinth.svg'), url('assets/wisp-socket.svg') !important;
-  background-position: center calc(50% + 2px), center calc(50% - 9px) !important;
-  background-size: 53px 15px, 40px 40px !important;
+  background-image: url('assets/wisp-socket.svg') !important;
+  background-position: center calc(50% - 9px) !important;
+  background-size: 48px 48px !important;
   background-repeat: no-repeat !important;
   text-shadow: -1px 0 #020807, 1px 0 #020807, 0 -1px #020807, 0 1px #020807;
 }
@@ -326,10 +327,11 @@ html body[data-screen=home] #app .menu-art-home .journey-landscape::before {
   content: "";
   position: absolute;
   z-index: -1;
-  inset: -10px -13px -13px;
+  inset: -16px -22px -18px;
   background: url('assets/shrine-slate.svg') center / 100% 100% no-repeat;
   image-rendering: pixelated;
   pointer-events: none;
+  transform: scaleY(-1);
 }
 html body[data-screen=home] #app .menu-art-home .journey-landscape figcaption {
   color: #d7e0d0;
@@ -342,7 +344,7 @@ html body[data-screen=home] #app .menu-art-home .journey-landscape .journey-capt
   color: #c4e8b6;
 }
 
-/* Slate artwork extends beyond the glyphs to contain each complete label. */
+/* Shadows extend beyond the complete label, with no outline around it. */
 html body[data-screen=home] #app .menu-art-home .test-starter-options .test-starter-option > svg{
  margin-bottom:1px;
 }
@@ -351,26 +353,26 @@ html body[data-screen=home] #app .menu-art-home .test-starter-option.selected::b
 }
 @media(orientation:landscape) and (max-height:350px){
  html body[data-screen=home] #app .menu-art-home>.front-title::before{
-  inset:-12px -20px -12px -16px;
+  inset:-17px -26px -17px -22px;
  }
  html body[data-screen=home] #app .menu-art-home>.starter-roster::before{
-  inset:-12px -15px -9px -14px;
+  inset:-17px -21px -14px -20px;
  }
  html body[data-screen=home] #app .menu-art-home .journey-landscape::before{
-  inset:-8px -10px -10px;
+  inset:-13px -16px -15px;
  }
  html body[data-screen=home] #app .menu-art-home .test-starter-options .test-starter-option{
-  background-size:45px 13px,36px 36px!important;
+  background-size:44px 44px!important;
  }
 }
-/* Larger wisps sit in the stone recesses with space for their complete names. */
+/* Larger wisps retain space for their complete names and clear selection mark. */
 body[data-screen=home] .menu-art-home.run-front-page{
  grid-template-rows:minmax(0,1fr) 104px;
 }
 html body[data-screen=home] #app .menu-art-home .test-starter-options .test-starter-option{
  height:62px;min-height:62px!important;
- background-size:59px 16px,48px 48px!important;
- background-position:center calc(50% + 3px),center calc(50% - 10px)!important;
+ background-size:52px 52px!important;
+ background-position:center calc(50% - 10px)!important;
 }
 html body[data-screen=home] #app .menu-art-home .test-starter-options .test-starter-option>svg{
  width:34px!important;height:34px!important;
@@ -384,8 +386,8 @@ html body[data-screen=home] #app .menu-art-home .front-actions :is(.front-contin
  }
  html body[data-screen=home] #app .menu-art-home .test-starter-options .test-starter-option{
   height:60px;min-height:60px!important;
-  background-size:53px 15px,44px 44px!important;
-  background-position:center calc(50% + 3px),center calc(50% - 9px)!important;
+  background-size:48px 48px!important;
+  background-position:center calc(50% - 9px)!important;
  }
  html body[data-screen=home] #app .menu-art-home .test-starter-options .test-starter-option>svg{
   width:30px!important;height:30px!important;
@@ -395,13 +397,13 @@ html body[data-screen=home] #app .menu-art-home .front-actions :is(.front-contin
  }
 }
 
-/* The compact chapter strip keeps a clear gap above the companion relief. */
+/* The compact chapter strip keeps a clear gap above the companions. */
 @media(orientation:landscape) and (max-height:350px){
  html body[data-screen=home] #app .menu-art-home>.run-progress{
   transform:translateY(-15px);
   width:min(220px,100%);
  }
  html body[data-screen=home] #app .menu-art-home .journey-landscape::before{
-  inset:-6px -10px -7px;
+  inset:-11px -16px -12px;
  }
 }

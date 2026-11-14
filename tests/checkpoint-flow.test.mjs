@@ -19,19 +19,22 @@ function enterRest(state){
 const restFixture=seed=>{const state=fixture(seed);Object.assign(state.run,{flame:60,lives:1,skills:{'main-efficiency':1},startingSkill:'main-efficiency'});enterRest(state);return state;};
 const claim=(s,id)=>{const index=M.getSupportChoices(s.run,s.profile).findIndex(c=>c.id===id);assert.ok(index>=0);return M.resolveSupport(s.run,index,s.profile);};
 
-test('each clear secures a fixed reward plus overflow once, including after reload',()=>{
+test('each ordinary clear immediately secures a fixed reward plus overflow once, including after reload',()=>{
  for(const overflow of [0,17]){
   let s=fixture(`clear-${overflow}`);const initial=s.run.condensedGlow;start(s);
   s.run.skills['main-afterglow']=1;s.run.skills['afterglow-anchor']=2;
   assert.ok(M.finishFlight(s.run,{success:true,flame:60,condensedGlow:overflow,completionBonus:9999}));
-  assert.equal(s.run.lastFlight.completionBonus,20);assert.equal(s.run.pendingCondensedGlow,20+overflow);
+  assert.equal(s.run.lastFlight.completionBonus,20);assert.equal(s.run.pendingCondensedGlow,0);
+  assert.equal(s.run.condensedGlow,initial+20+overflow,'the ordinary clear banks immediately');
+  assert.equal(s.run.flightReward,null);assert.equal(s.run.victoryPending,false);
   assert.equal(M.finishFlight(s.run,{success:true,condensedGlow:9999}),false);
-  s=reload(s);assert.equal(s.run.pendingCondensedGlow,0,'loading settles the completed checkpoint');
+  s=reload(s);assert.equal(s.run.pendingCondensedGlow,0,'loading cannot recreate a banked reward');
   assert.equal(M.settleCheckpoint(s),0);assert.equal(s.run.condensedGlow,initial+20+overflow);
   assert.equal(s.run.lastFlight.securedCondensedGlow,20+overflow);assert.equal(s.run.condensedEarned,20+overflow);
   assert.equal(M.settleCheckpoint(reload(s)),0);
-  const html=flightRewardMarkup(s,{artifactArt:()=>'<svg></svg>'});
-  assert.match(html,new RegExp(`${20+overflow} Packed Sparks earned: 20 for clearing, ${overflow} from overflow`));
+  assert.equal(flightRewardMarkup(s,{artifactArt:()=>'<svg></svg>'}),'','ordinary clears have no reward page');
+  assert.equal(M.takeClearRewardReceipt(s.run).amount,20+overflow);
+  assert.equal(M.takeClearRewardReceipt(s.run),null,'the map receipt is consumed only once');
  }
  assert.equal(FLIGHT_CLEAR_REWARD,20);assert.equal(getFlightClearReward({type:'flight',elite:true}),20);
  assert.equal(getFlightClearReward({type:'finale',boss:false}),20);
@@ -43,18 +46,21 @@ test('failed attempts earn nothing; a successful retry earns one clear reward',(
  assert.ok(M.finishFlight(s.run,{success:false,condensedGlow:400}));assert.equal(M.settleCheckpoint(s),0);
  assert.equal(s.run.condensedGlow,initial);assert.equal(s.run.lives,2);
  s.run.deathPending=false;start(s);assert.ok(M.finishFlight(s.run,{success:true,flame:40}));
- assert.equal(M.settleCheckpoint(s),20);assert.equal(s.run.condensedGlow,initial+20);
+ assert.equal(s.run.condensedGlow,initial+20);assert.equal(M.settleCheckpoint(s),0);
+ assert.equal(s.run.lastFlight.securedCondensedGlow,20);
 });
 
-test('practice rewards stay in practice; final guardian unlocks the future reward instead',()=>{
+test('practice rewards stay in practice; final guardian ends the run without a reward page',()=>{
  const practice=M.newState();M.startTutorial(practice);const profile=structuredClone(practice.profile),wallet=practice.run.practiceCondensedGlow;start(practice);
  assert.ok(M.finishFlight(practice.run,{success:true,flame:70,condensedGlow:7}));
  assert.equal(practice.run.practiceCondensedGlow,wallet+27);assert.equal(practice.run.condensedGlow,0);
  assert.equal(M.settleCheckpoint(practice),0);assert.deepEqual(practice.profile,profile);
  const boss=fixture('last-guardian');start(boss);Object.assign(boss.run.current,{type:'finale',boss:true,mapIndex:2});boss.run.mapIndex=2;
  assert.ok(M.finishFlight(boss.run,{success:true,flame:60}));assert.equal(M.settleCheckpoint(boss),0);
- assert.equal(boss.run.lastFlight.completionBonus,0);assert.equal(boss.run.flightReward.permanent,true);
- assert.equal(M.getFlightRewardMeltValue(boss.run.flightReward),0);
+ assert.equal(boss.run.lastFlight.completionBonus,0);assert.equal(boss.run.flightReward,null);
+ assert.equal(boss.run.victoryPending,false);assert.equal(boss.run.phase,'ended');
+ assert.equal(boss.run.success,true);assert.equal(boss.profile.difficulty,2);
+ assert.equal(M.takeClearRewardReceipt(boss.run),null,'the completed run does not enqueue an ordinary map receipt');
 });
 
 test('Rest always offers Recover or Grow; both fill fuel but only Recover restores hearts',()=>{
@@ -63,7 +69,7 @@ test('Rest always offers Recover or Grow; both fill fuel but only Recover restor
   r.skills['main-spare-spark']=1;r.maxLives=4;r.artifacts=['glow-wick'];r.artifactCharges={'glow-wick':1};
   const choices=M.getSupportChoices(r,s.profile);
   assert.deepEqual(choices.map(c=>c.id),['rest-recover','rest-grow']);
-  assert.match(choices[1].description,/Gain 3 maximum Sparks/);
+  assert.match(choices[1].description,/Gain 3 maximum Energy/);
   assert.ok(claim(s,id));assert.equal(r.flame,getGlowCapacity(r));
   assert.equal(r.lives,id==='rest-recover'?4:1);assert.equal(getGlowCapacity(r),id==='rest-grow'?110:100);
   assert.equal(r.condensedGlow,wallet);assert.equal(r.pendingCondensedGlow,0);assert.equal(r.condensedEarned,0);
@@ -104,8 +110,8 @@ test('capacity skills bought during either Rest preparation fill the new capacit
 test('Rest markup states both refills and shows disabled capacity without a third benefit',()=>{
  const s=restFixture('rest-markup');s.run.skills['main-spare-spark']=1;s.run.maxLives=4;
  let html=restBenefitsMarkup(s.run,s.run.current,M.getSupportChoices(s.run,s.profile));
- assert.equal((html.match(/data-action="support"/g)||[]).length,2);assert.match(html,/Both refill Sparks/);
- assert.match(html,/Refills to 30 of 30 Sparks/);assert.match(html,/Refills to 33 of 33 Sparks/);
+ assert.equal((html.match(/data-action="support"/g)||[]).length,2);assert.match(html,/Both refill Energy/);
+ assert.match(html,/Refills to 30 of 30 Energy/);assert.match(html,/Refills to 33 of 33 Energy/);
  assert.doesNotMatch(html,/Condense|Recharge|Rekindle/);
  s.run.restGlowCapacity=30;html=restBenefitsMarkup(s.run,s.run.current,M.getSupportChoices(s.run,s.profile));
  assert.match(html,/disabled aria-label="Grow/);assert.match(html,/CAPACITY FULL/);

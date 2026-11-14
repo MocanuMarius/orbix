@@ -142,3 +142,99 @@ html body .artifact-choice-copy{align-self:stretch;height:100%;max-height:100%;o
 @media(orientation:landscape) and (max-height:350px){
  html body .accumulating-rewards.reward-open{grid-template-rows:24px minmax(0,1fr) 16px}
 }
+/* One Rest workbench keeps selection, rules and melting on the same surface. */
+html body .artifact-collection.collection-flat{
+ grid-template-rows:30px minmax(0,1fr) 44px;gap:10px;
+}
+.collection-flat>.collection-workbench{
+ min-height:0;display:grid;grid-template-columns:minmax(230px,.9fr) minmax(0,1.3fr);gap:18px;
+}
+html body .collection-flat .artifact-collection-grid{
+ display:grid;grid-template-columns:repeat(3,minmax(0,1fr));grid-template-rows:repeat(2,minmax(0,1fr));
+ align-content:stretch;gap:8px;min-height:0;
+}
+html body .collection-flat .collection-artifact{
+ min-height:0!important;min-width:0;padding:6px!important;
+ justify-content:center;gap:5px;position:relative;
+}
+html body .collection-flat .collection-artifact>svg{width:42px;height:42px;min-height:30px;flex:none}
+html body .collection-flat .collection-artifact>b{font:12px/1.25 var(--pixel);text-wrap:balance}
+html body .collection-flat .collection-artifact>small{font:10px/1.2 var(--pixel)}
+html body .collection-flat .collection-artifact.is-selected{
+ outline:2px solid #f4e4b5;outline-offset:1px;box-shadow:inset 0 -3px #cbb67d!important;
+ background-color:#1b2b30!important;
+}
+.collection-selected{
+ min-width:0;min-height:0;display:grid;grid-template-rows:auto minmax(0,1fr) auto;
+ gap:12px;border-left:1px solid #435a5a;padding-left:18px;
+}
+.collection-selected>header{display:flex;gap:13px;align-items:center;min-width:0}
+.collection-selected>header>div:last-child{display:flex;flex-direction:column;gap:5px;min-width:0}
+.collection-selected h3{font:23px/1.2 var(--pixel);color:#fff0cc;margin:0}
+.collection-selected header small{font:11px/1.2 var(--pixel);color:#d0dce0}
+.collection-selected header span{font:12px/1.25 var(--pixel);color:#c4d0d6}
+.collection-selected .collection-inspection-art{position:relative;padding:7px;flex:none}
+.collection-selected .collection-inspection-art>svg{width:54px;height:54px}
+.collection-selected-rule{min-height:0;overflow:auto;overscroll-behavior:contain;scrollbar-width:thin}
+.collection-selected-rule>strong{display:block;font:17px/1.4 var(--pixel);color:#fff0cc}
+.collection-selected-rule>p{font:14px/1.4 var(--pixel);color:#dce4d5;margin:0 0 9px}
+.collection-selected-rule>.collection-selected-limit{font:12px/1.4 var(--pixel);color:#b8c7ba;margin:9px 0 0}
+.collection-selected-action{min-height:44px;display:flex;align-items:center;justify-content:flex-start}
+.collection-selected-action>.collection-melt,.collection-melt-actions>button{
+ display:flex;gap:8px;align-items:center;justify-content:center;min-height:44px;margin:0!important;
+ padding:7px 14px;font:15px/1.2 var(--pixel);
+}
+.collection-selected-action>.collection-melt{min-width:180px}
+.collection-rest-hint{font:12px/1.4 var(--pixel);color:#b8c7ba}
+.collection-inline-melt{width:100%;display:flex;flex-direction:column;gap:7px}
+.collection-inline-melt>p{font:12px/1.35 var(--pixel);color:#f0baab;margin:0}
+.collection-melt-actions{display:grid;grid-template-columns:minmax(74px,.6fr) minmax(0,1fr);gap:10px}
+.collection-flat .is-confirming .collection-inspection-art::after{
+ content:"−";position:absolute;right:-5px;bottom:-4px;padding:1px 5px;
+ background:#40252c;border:1px solid #e0a68c;color:#ffe1ce;font:20px/1 var(--pixel);
+}
+.collection-inline-receipt{display:inline-flex;align-items:center;justify-content:flex-end;gap:5px;font:13px/1.3 var(--pixel);color:#c1e3ba;max-width:65%}
+.collection-inline-receipt .resource-symbol{width:20px;height:20px;flex:none}
+html body .collection-flat>footer{min-height:44px;gap:10px}
+.collection-flat>footer>span{font:11px/1.3 var(--pixel);color:#b8c7ba}
+html body .collection-flat>footer>button{min-height:44px;font:14px/1.2 var(--pixel)}
+@media(orientation:landscape) and (max-height:350px){
+ html body .artifact-collection.collection-flat{grid-template-rows:26px minmax(0,1fr) 44px;gap:6px}
+ .collection-flat>.collection-workbench{grid-template-columns:minmax(210px,.8fr) minmax(0,1.3fr);gap:12px}
+ .collection-selected{gap:7px;padding-left:12px}
+ .collection-selected>header{gap:9px}
+ .collection-selected h3{font-size:19px}
+ .collection-selected header small{font-size:10px}
+ .collection-selected header span{font-size:11px}
+ .collection-selected .collection-inspection-art{padding:5px}
+ .collection-selected .collection-inspection-art>svg{width:40px;height:40px}
+ .collection-selected-rule>strong{font-size:14px;line-height:1.35}
+ .collection-selected-rule>p{font-size:12px;margin-bottom:6px}
+ .collection-selected-rule>.collection-selected-limit{font-size:11px;margin-top:6px}
+ html body .collection-flat .artifact-collection-grid{gap:5px}
+ html body .collection-flat .collection-artifact{gap:3px;padding:4px!important}
+ html body .collection-flat .collection-artifact>svg{width:35px;height:35px}
+ html body .collection-flat .collection-artifact>b{font-size:11px;line-height:1.2}
+ .collection-selected-action>.collection-melt,.collection-melt-actions>button{font-size:13px;padding:6px 9px}
+ .collection-inline-melt{gap:5px}
+ .collection-inline-melt>p,.collection-rest-hint{font-size:11px}
+ .collection-inline-receipt{font-size:11px}
+}
+@media(orientation:portrait){
+ .collection-flat>.collection-workbench{grid-template-columns:1fr;grid-template-rows:110px minmax(0,1fr);gap:12px}
+ html body .collection-flat .artifact-collection-grid{grid-template-columns:repeat(3,minmax(0,1fr));grid-template-rows:minmax(0,1fr);overflow:auto}
+ .collection-selected{padding-left:0;padding-top:12px;border-left:0;border-top:1px solid #435a5a}
+ .collection-selected h3{font-size:20px}
+ .collection-inline-receipt{max-width:60%;font-size:11px}
+ .collection-flat>footer>span{display:none}
+}
+/* Portraits blend into local darkness. Only the selectable roster controls
+   retain an edge so ownership selection stays clear. */
+html body .collection-flat .collection-selected .collection-inspection-art{
+ border:0;box-shadow:none;
+ background:radial-gradient(ellipse,#03090dcc 0 38%,#03090d66 58%,transparent 76%);
+}
+html body .collection-flat .collection-selected .collection-inspection-art>svg,
+html body .collection-flat .collection-artifact>svg{
+ background:none;box-shadow:none;filter:drop-shadow(0 2px 5px #0008);
+}

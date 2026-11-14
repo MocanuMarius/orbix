@@ -312,9 +312,7 @@ dialog.power-sheet.map-key-sheet {
 .game-map-screen .landscape-route .route-next-arrow{stroke-width:2.4}
 .game-map-screen .landscape-route .world-map-node[role=button]:focus-visible .route-node-art{opacity:1}
 
-/* Slate tokens and shallow engraved labels read as pieces of the woodland map. */
-.game-map-screen .landscape-route .route-icon-ink{fill:#0b181e;opacity:1;pointer-events:none}
-.game-map-screen .landscape-route .route-label-ink{fill:#0b171b;opacity:1;pointer-events:none;shape-rendering:crispEdges}
+/* Artwork emerges from cool darkness; there is no plaque around each stop. */
 .game-map-screen .landscape-route .route-landmark{filter:drop-shadow(1px 0 #040b0d) drop-shadow(-1px 0 #040b0d) drop-shadow(0 1px #040b0d) drop-shadow(0 -1px #040b0d)}
 .game-map-screen .landscape-route .route-state-future .route-landmark{--landmark-stone:#6b7d77;--landmark-face:#a1b6ad;--landmark-edge:#bed0c4;--landmark-fire:#c9c7a0}
 .game-map-screen .landscape-route .route-state-complete .route-landmark{--landmark-stone:#697a73;--landmark-face:#a5b8aa;--landmark-edge:#bac7b4;--landmark-fire:#bcb88e}
@@ -322,13 +320,12 @@ dialog.power-sheet.map-key-sheet {
 .game-map-screen .landscape-route .route-state-next .route-landmark{--landmark-stone:#a79569;--landmark-face:#e8d69c;--landmark-edge:#fff7d9;--landmark-fire:#ffe7a8}
 .game-map-screen .landscape-route .map-node-type,
 .game-map-screen .landscape-route .map-node-name{paint-order:stroke fill;stroke-linejoin:miter;opacity:1}
-.game-map-screen .landscape-route .route-state-next[role=button]:focus-visible .route-label-ink,
-.game-map-screen .landscape-route .route-state-future[role=button]:focus-visible .route-label-ink{stroke:#f1dba0;stroke-width:1}
+.game-map-screen .landscape-route .world-map-node[role=button]:focus-visible .route-landmark{filter:drop-shadow(1px 0 #f1dba0) drop-shadow(-1px 0 #f1dba0) drop-shadow(0 1px #f1dba0)}
 .game-map-screen .map-key-summary,
 .game-map-screen .map-event-variants p{color:var(--ui-muted,#b8c7ba)}
 .map-key-sheet .map-key-summary,
 .map-key-sheet .map-event-variants p{color:var(--ui-muted,#b8c7ba)}
-.map-key-sheet .map-key-row>svg{background:#081114;clip-path:polygon(8% 0,92% 0,92% 8%,100% 8%,100% 92%,92% 92%,92% 100%,8% 100%,8% 92%,0 92%,0 8%,8% 8%)}
+.map-key-sheet .map-key-row>svg{background:none;clip-path:none;filter:drop-shadow(1px 2px #030a0c)}
 
 /* Pixel portraits have authored fills; mute their pigment without dimming text. */
 .game-map-screen .landscape-route .route-state-future .map-pixel-portrait{opacity:.76;filter:saturate(.35)}
@@ -337,18 +334,11 @@ dialog.power-sheet.map-key-sheet {
 .game-map-screen .landscape-route .route-state-future[role=button]:focus-visible .map-pixel-portrait{opacity:.9}
 
 
-/* Broad dark faces protect the glyph and word. Chipped bevels carry texture
-   around the margin, keeping the readable center quiet. */
-.game-map-screen .landscape-route .route-stone-shadow{fill:#030a0d}
-.game-map-screen .landscape-route .route-stone-body{fill:#263a42}
-.game-map-screen .landscape-route .route-stone-lit-edge{fill:#53676a}
-.game-map-screen .landscape-route .route-stone-low-edge{fill:#14252d}
-.game-map-screen .landscape-route .route-stone-cut{fill:#4a5b60;opacity:.65}
-.game-map-screen .landscape-route .route-stone-moss{fill:#526447;opacity:.7}
-.game-map-screen .landscape-route .route-waystone,
-.game-map-screen .landscape-route .route-stone-label{shape-rendering:crispEdges;pointer-events:none}
-.game-map-screen .landscape-route .route-state-future .route-stone-body{fill:#203139}
-.game-map-screen .landscape-route .route-state-future .route-stone-lit-edge{fill:#394c53}
-.game-map-screen .landscape-route .route-state-complete .route-stone-lit-edge{fill:#344951}
-.game-map-screen .landscape-route .route-state-next .route-stone-lit-edge,
-.game-map-screen .landscape-route .route-state-current .route-stone-lit-edge{fill:#968e70}
+/* Uneven opacity bands dissolve into the scene. Sparse edge pixels are
+   deliberately irregular, not a repeated border or a high-contrast bevel. */
+.game-map-screen .landscape-route :is(.route-art-shadow,.route-copy-shadow){fill:#02080b;shape-rendering:crispEdges;pointer-events:none}
+.game-map-screen .landscape-route .route-shadow-fringe{opacity:.16}
+.game-map-screen .landscape-route .route-shadow-soft{opacity:.24}
+.game-map-screen .landscape-route .route-shadow-core{opacity:.28}
+.game-map-screen .landscape-route .route-shadow-dither{opacity:.11}
+.game-map-screen .landscape-route .route-copy-shadow .route-shadow-core{opacity:.38}

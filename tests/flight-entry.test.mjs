@@ -4,14 +4,14 @@ import {waitForFlightEntry} from '../dist/flight-entry.mjs';
 import {WispFlight} from '../dist/flight.mjs';
 import {drawProximityMeter} from '../dist/proximity-meter.mjs';
 
-test('entry waits for both scene preparation and five seconds, including slow loading',async()=>{
- let ready=false,clock=0,waits=[];
- const wait=async ms=>{assert.ok(ready);waits.push(ms);clock+=ms;};
- await waitForFlightEntry(Promise.resolve().then(()=>{clock=1250;ready=true;}),0,{now:()=>clock,wait});
- assert.equal(clock,5000);assert.deepEqual(waits,[3750]);
- ready=false;clock=0;waits=[];
- await waitForFlightEntry(Promise.resolve().then(()=>{clock=6700;ready=true;}),0,{now:()=>clock,wait});
- assert.equal(clock,6700);assert.deepEqual(waits,[0]);
+test('entry waits only for actual renderer readiness and propagates preparation failure',async()=>{
+ let release,finished=false;
+ const ready=new Promise(resolve=>{release=resolve;});
+ const entry=waitForFlightEntry(ready).then(()=>{finished=true;});
+ await Promise.resolve();assert.equal(finished,false);
+ release();await entry;assert.equal(finished,true);
+ const failure=new Error('Renderer preparation failed');
+ await assert.rejects(waitForFlightEntry(Promise.reject(failure)),error=>error===failure);
 });
 
 test('paused entry neither schedules physics nor spends fuel, resume itself never lifts',async()=>{

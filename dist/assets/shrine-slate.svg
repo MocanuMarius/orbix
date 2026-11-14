@@ -1,12 +1,10 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 100" preserveAspectRatio="none" shape-rendering="crispEdges">
- <path fill="#03090d" d="M10 3h68V1h129v2h94v4h11v8h5v23h3v35h-4v12h-8v9h-42v5H79v-3H21v-5H8v-9H3V63H0V29h4V13h6z"/>
- <path fill="#35484e" d="M12 6h68V4h125v2h94v4h10v9h5v20h3v31h-4v12h-8v9h-40v4H80v-3H23v-5H11v-9H6V61H3V31h4V16h5z"/>
- <path fill="#172b33" d="M14 11h67V9h122v2h93v5h9v9h4v17h3v25h-4v12h-8v7h-37v4H81v-3H26v-5H16v-9h-5V60H8V34h4V21h2z"/>
- <path fill="#0c1921" d="M18 17h63v-2h122v2h89v5h9v8h4v13h3v22h-4v11h-8v6h-33v4H83v-3H29v-5H20v-8h-5V59h-3V37h4V25h2z"/>
- <path fill="#4a5c61" d="M16 8h63v3H16zm66-2h59v3H82zm121 2h63v3h-63zm66 0h28v3h-28zM9 17h3v15H9zM6 36h3v19H6z"/>
- <path fill="#243c43" d="M24 87h55v3H24zm59 5h60v2H83zm127-1h53v2h-53zm57-3h35v2h-35z"/>
- <path fill="#50624a" d="M12 7h8v3h-5v4h-4v5H8v-8h4zm292 76h5v4h-8v5h-10v-3h7v-4h6z"/>
- <path fill="#6a7b54" d="M13 8h6v2h-6zm-3 8h3v3h-3zm290 69h5v3h-5zm-8 5h5v2h-5z"/>
- <path fill="#071219" d="M56 8h3v4h4v3h-3v-2h-4zm185 1h4v3h-2v4h-2zM17 65h3v5h4v2h-3v-2h-4zm253 19h3v-5h3v-3h-3v3h-3z"/>
- <path fill="#2e4249" d="M32 13h10v1H32zm129-2h7v1h-7zm117 4h8v1h-8zM31 80h13v1H31zm182 6h12v1h-12z"/>
+ <!-- Layered, borderless shadow. The scattered edge pixels have no repeat. -->
+ <g fill="#02080b">
+  <path opacity=".12" d="M0 39h8V26h14V17h19V11h29V7h31V3h39v4h31V1h32v6h29V4h22v7h23v9h17v10h13v14h10v18h-9v13h-18v8h-22v6h-32v5h-37v-3h-30v7h-33v-4h-29v3h-36v-6H62v-5H38v-9H21v-7H8V59H0Z"/>
+  <path opacity=".19" d="M13 38h10V28h20V20h27v-5h32v-4h34v4h35V9h31v5h28v-2h21v7h23v8h17v12h14v17h-7v13h-18v9h-24v5h-29v4h-34v-3h-29v5h-32v-4h-29v3H66v-6H46v-8H29v-8H18V55h-5Z"/>
+  <path opacity=".28" d="M31 39h13V29h27v-7h31v-3h34v3h35v-4h30v4h29v-1h21v7h22v10h14v17h-8v12h-21v8h-29v3h-29v-3h-31v5h-30v-4h-28v3H74v-4H52v-8H39V56h-8Z"/>
+  <path opacity=".2" d="M56 37h17V29h32v-2h31v3h35v-4h30v4h27v-1h22v10h19v17h-11v10h-31v4h-25v-3h-30v5h-31v-4h-28v3H81v-6H64V55h-8Z"/>
+  <path opacity=".1" d="M5 21h5v4H5Zm25-12h7v3h-7ZM84 1h5v3h-5Zm58-1h8v3h-8Zm88 2h5v4h-5Zm54 11h6v4h-6ZM311 29h5v5h-5ZM314 70h5v3h-5ZM284 87h7v4h-7ZM238 97h5v3h-5Zm-81-3h4v4h-4ZM76 96h6v3h-6ZM26 82h6v4h-6ZM3 67h4v6H3Z"/>
+ </g>
 </svg>

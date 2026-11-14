@@ -11,7 +11,7 @@ const ready=(elite=false,practice=false)=>{
  assert.ok(finishFlight(r,{success:true,flame:40,collected:4}));return s;
 };
 test('ordinary clears offer currency without artifacts; elite choices cannot be melted',()=>{
- const ordinary=ready();assert.deepEqual(ordinary.run.flightReward.offers,[]);assert.equal(ordinary.run.lastFlight.completionBonus,20);
+ const ordinary=ready();assert.equal(ordinary.run.flightReward,null);assert.equal(ordinary.run.victoryPending,false);assert.equal(flightRewardMarkup(ordinary),'');assert.equal(ordinary.run.lastFlight.completionBonus,20);
  for(let seed=0;seed<60;seed++){
   const s=newState();s.run=createRun(s.profile,`pair-${seed}`);const r=s.run;r.stats.flights=1;
   const node=getChoices(r)[0];node.elite=true;selectNode(r,node.id);beginFlightAttempt(r);finishFlight(r,{success:true,flame:60});

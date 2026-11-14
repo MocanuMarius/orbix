@@ -208,3 +208,33 @@ Light now has a cached finite inverse-square-style tail: about 5.7% exposure at 
 Base paid Lift = 3 Sparks; ordinary one/two/three-ring pickups = 6/12/18. Whole Lift discounts use 3→2→1; minimum one. Fractional-cost leaves instead add 3 capacity while retaining their movement tradeoffs. Quiet Cinder/Hollow Covenant reduce cost by one, Glass Lantern and event burdens add one. Route identity uses density/geometry/rewards rather than hidden fuel/cost multipliers. Finite fuel offers use 6-Spark blocks; current/max values and skill descriptions match. Meter cells represent one paid Lift and stay stable during free effects. Fixed floating-point last-Lift affordability and the flight capacity clamp (up to the model's 60-Spark maximum).
 
 Checks: whole-cost/meter/pickup and overflow accounting; Rest transactions; linear safe resume; isolated fixture; actual 667×375, 740×333, 844×390, 900×405, 932×430 and 844×320 viewports. 48 checked screen/size combinations had no document overflow, offscreen actions or mandatory scrolling panes. Native menu toggle and compact artifact inspection/resume verified. Existing campaign economy and physical-device performance caveats remain; these checks do not claim 60 FPS on a Pixel 10.
+
+
+## 14 November — streamlined flow and quieter art
+
+Implemented in the next flow release: one reachable flight preview with Fly and a safe Tap to begin gate; actual renderer loading only with cancellation/rollback; automatic ordinary-flight banking and direct map return; one Collection workbench with inline Melt/cancel/result; borderless, irregular darkness behind map/home art. Elite/guardian choices remain. Paid skill purchases remain Rest-only. The orientation callback no longer launches a saved flight while the player is on the main menu.
+
+Verification includes one-time banking/reload/retry, loading cancellation/failure, first-tap-without-Lift and second-tap Lift, safe workbench resume, Rest permissions, and compact landscape layouts. This is not a new phone performance or campaign balance certification.
+
+### Proposed next — conditional flight bonuses (design, not shipped)
+
+Keep 20 Packed Sparks for clearing. Replace the generic optional challenge with one previewed objective per flight. These ten designs add route identity without adding artifacts, inventory, or a reward selection screen after ordinary flights. All numerical strengths below are initial tuning values, not validated human balance.
+
+| Bonus | Condition in a successful real flight | Reward |
+| --- | --- | --- |
+| Gilded Passage | Collect 4 of 6 marked Sparks | Double that flight's clear pay and actual pickup-generated Packed Sparks, extra capped at 30, at most once per map. Never multiply banked currency, vows, escrow, or this bonus. |
+| Pilgrim Precision | Collect 4 of 6 marked Sparks with the main body | 8 Packed Sparks. Collector delivery explicitly does not count for this objective. |
+| Three Suns | Collect three marked three-layer Sparks on a single verified route | Recover one missing heart, without increasing its cap. At most once per map; offer only while a heart is missing. |
+| Edgeweaver | Trigger Proximity in two separate marked terrain sections | One ward on the next attempt; with Protector its first deflection is free instead of stacking a layer. Only when Proximity is unlocked. |
+| Wild Circuit | Activate two marked helpful biome objects | Companion recovery 20% faster on the next attempt. Offer only when the required helpful objects exist. |
+| Flash Relay | Collect a marked Flash Spark and 2 of 3 fuel Sparks in its reveal stretch | Luminance radius +25% for the first 15 seconds of the next attempt. |
+| Night Sail | Take two marked Sparks on a Black Hole's outer bypass while losing at most 3 Energy to it | Black Hole drain reduced by 25% for the next attempt. Offer only when the next flight has a Black Hole. |
+| Long Glide | Collect two marked Sparks in a verified two-second Lift-free glide | First three Lifts of the next attempt are free, capped at 9 Energy saved. |
+| Wayfinder | Pass three broad position waymarks with readable approach warning | Preview the first 2.5 seconds of the next route while its start is paused. Normal darkness returns on play. |
+| Rising Constellation | Collect a marked one-, two-, then three-layer Spark sequence | First three natural fuel pickups next attempt give 2 extra Energy each. This extra Energy cannot pack. |
+
+Rules for implementation: validate targets against the final layout, companion speed and useful visible warning (at least 1.5 seconds); do not count Dream, generated items or replayed pickups; each node pays once on a successful clear; no simultaneous extra currency contract; temporary benefits apply to the next attempt only and cannot stack with their own copies. Show one icon, a short requirement and progress. Failed objectives do not reduce normal clear pay. Unlock later objectives with their related mechanic rather than presenting all ten on the first map.
+
+Budget check: flat extra currency of 8–12 every flight would add 120–192 over 15–16 clears, roughly 40–60% of the current guaranteed floor. Only two of the ten bonuses pay currency. With an illustrative 50% objective completion rate and an even type mix, the maximum mean extra currency is (30 + 8) × 0.5 / 10 = 1.9 per flight, or less than 10% of the 20-clear floor. Actual generator eligibility changes the mix, so cap the scheduler's expected currency budget as well; verify realized income and purchase timings with limited-visibility, delayed-input play before release. The rare double bonus is capped and limited to once per map. This is an analytic estimate, not a simulation result or a promise of equal value between a ward, heart and currency.
+
+Design references: [Risk & Reward, official creator guide](https://docs.sandbox.game/en/creator/game-maker/creative-guides/experience-design-techniques/game-design/risk-and-reward), [Game Accessibility Guidelines](https://gameaccessibilityguidelines.com/full-list/), and [Xbox difficulty guidance](https://learn.microsoft.com/en-us/gaming/accessibility/xbox-accessibility-guidelines/108). The specific rewards and numbers above are project proposals, not claims made by those sources.
