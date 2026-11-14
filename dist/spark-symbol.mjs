@@ -12,7 +12,7 @@ const art={
 export function sparkImageArt(kind,x,y,size){
   const [still,motion]=art[kind];
   const box=`x="${x}" y="${y}" width="${size}" height="${size}" style="image-rendering:pixelated"`;
-  return `<image class="spark-still" ${box} href="${still}?v=spark-arcs-2"/><image class="spark-motion" ${box} display="none" href="${motion}?v=spark-arcs-2"/>`;
+  return `<image class="spark-still" ${box} href="${still}?v=spark-arcs-3"/><image class="spark-motion" ${box} display="none" href="${motion}?v=spark-arcs-3"/>`;
 }
 export function sparkSymbolArt(x=0,y=0,size=24,tier=1){
   return sparkImageArt([null,'light','cluster','cache'][tier]||'light',x,y,size);

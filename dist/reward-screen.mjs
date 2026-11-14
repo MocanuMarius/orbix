@@ -1,8 +1,8 @@
-import {ARTIFACTS} from './model.mjs?v=spark-arcs-2';
-import {artifactRarityLabel} from './replay-ui.mjs?v=spark-arcs-2';
-import {artifactDescription,effectMarkup} from './artifact-copy.mjs?v=spark-arcs-2';
-import {resourceSymbol} from './game-symbols.mjs?v=spark-arcs-2';
-import {artifactIcon} from './upgrade-icons.mjs?v=spark-arcs-2';
+import {ARTIFACTS} from './model.mjs?v=spark-arcs-3';
+import {artifactRarityLabel} from './replay-ui.mjs?v=spark-arcs-3';
+import {artifactDescription,effectMarkup} from './artifact-copy.mjs?v=spark-arcs-3';
+import {resourceSymbol} from './game-symbols.mjs?v=spark-arcs-3';
+import {artifactIcon} from './upgrade-icons.mjs?v=spark-arcs-3';
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 export const rewardDescription=(a,run)=>{const c=artifactDescription(a,run,{fresh:true});return [c.effect,[c.trigger,c.limit].filter(Boolean).join(' ')];};
 export function flightRewardMarkup(state,{artifactArt=artifactIcon,upgradeCount=0,skillsAvailable=true}={}){

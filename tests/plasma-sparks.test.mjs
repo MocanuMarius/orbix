@@ -128,8 +128,8 @@ test('in-flight, carried and menu Sparks show the same animated frames and quiet
     drawPickup(ctx,10,10,{kind,time:1,phase:Math.PI,reducedMotion:true});
     assert.equal(ctx.last,quietSprite);
 
-    const period = motion.frames.reduce((sum,frame) => sum+frame.delay,0);
-    assert.ok(period > 5, kind+' should not repeat every second');
+    assert.equal(motion.frames.length,120);
+    assert.ok(motion.frames.every(frame => frame.delay === .04),kind+' plays at 25 frames per second');
     const samples = new Set([0,.08,.41,.74,1].map(t => Math.round(t*(motion.frames.length-1))));
     let time = 0;
     for (const [i,frame] of motion.frames.entries()) {

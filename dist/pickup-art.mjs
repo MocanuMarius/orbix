@@ -1,9 +1,9 @@
-import { pickupKind, getPickupSpec, pickupDisposition, pickupShellRadius } from './pickups.mjs?v=spark-arcs-2';
-import {sparkImageArt,sparkSymbolArt} from './spark-symbol.mjs?v=spark-arcs-2';
+import { pickupKind, getPickupSpec, pickupDisposition, pickupShellRadius } from './pickups.mjs?v=spark-arcs-3';
+import {sparkImageArt,sparkSymbolArt} from './spark-symbol.mjs?v=spark-arcs-3';
 
 const TAU = Math.PI * 2;
 const clamp = (value, low, high) => Math.max(low, Math.min(high, value));
-export const FUEL_ANIMATION = Object.freeze({size:44, frames:120, period:9.6});
+export const FUEL_ANIMATION = Object.freeze({size:44, frames:120, period:4.8});
 const fields = [
   null,
   {base:'#344544', glass:'#cbd9c4', rim:'#e5d4a5', glow:'#debc7b', arc:'#f9df9d', core:'#fff6d5'},

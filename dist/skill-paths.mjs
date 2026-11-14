@@ -1,5 +1,5 @@
-import {normalizeCompanionFleet} from './companion-abilities.mjs?v=spark-arcs-2';
-import {skillProgress} from './skill-increments.mjs?v=spark-arcs-2';
+import {normalizeCompanionFleet} from './companion-abilities.mjs?v=spark-arcs-3';
+import {skillProgress} from './skill-increments.mjs?v=spark-arcs-3';
 // Named, one-time specialisations. Each pair is exclusive for this run.
 const paths=[];
 function fork(branch,parent,a,b){
