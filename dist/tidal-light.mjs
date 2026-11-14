@@ -1,4 +1,4 @@
-import {getPickupSpec,pickupKind} from './pickups.mjs?v=night-atlas-1';
+import {getPickupSpec,pickupKind} from './pickups.mjs?v=living-icons-1';
 
 const TAU=Math.PI*2;
 const clamp=(n,min,max)=>Math.min(max,Math.max(n,min));

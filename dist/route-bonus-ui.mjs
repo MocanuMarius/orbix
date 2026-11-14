@@ -1,4 +1,5 @@
-import {ROUTE_BONUSES} from './route-bonuses.mjs?v=night-atlas-1';
+import {pickupArtSvg} from './pickup-art.mjs?v=living-icons-1';
+import {ROUTE_BONUSES} from './route-bonuses.mjs?v=living-icons-1';
 const art={
  gilded:['#f2c76c','M4 6h10v2H4zm-1 4h12v2H3zm1 4h10v2H4z'],
  'three-suns':['#f6979c','M3 5h4v2h2V5h4v2h2v4h-2v2h-2v2H9v2H7v-2H5v-2H3v-2H1V7h2z'],
@@ -12,7 +13,14 @@ const art={
  constellation:['#e8c88c','M1 10h4v4H1zM6 6h4v4H6zm6-4h4v4h-4zM5 9h2v2H5zm5-5h2v3h-2z']
 };
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-export function bonusIcon(id){const pair=art[id];return pair?`<svg class="passage-bonus-icon" viewBox="-4 -4 25 25" shape-rendering="crispEdges" aria-hidden="true"><path fill="#efcb81" d="M-3 4v-6h6v2h-4v4zm23 8v6h-6v-2h4v-4z"/><path fill="${pair[0]}" fill-rule="evenodd" d="${pair[1]}"/></svg>`:'';}
+export function bonusIcon(id) {
+ const pair=art[id];
+ if(!pair)return '';
+ const central=id==='flash-relay'
+   ? pickupArtSvg('sight').replace('<svg ', '<svg x="-3" y="-3" ').replace('width="36" height="36"','width="22" height="22"')
+   : `<path fill="#544d49" transform="translate(0 1)" d="${pair[1]}"/><path fill="${pair[0]}" fill-rule="evenodd" d="${pair[1]}"/>`;
+ return `<svg class="passage-bonus-icon" viewBox="-4 -4 25 25" shape-rendering="crispEdges" aria-hidden="true"><path fill="#c5a36a" d="M-3 4v-6h6v2h-4v4zm23 8v6h-6v-2h4v-4z"/>${central}<path class="bonus-glint" fill="#fff0af" d="M-3-2h3v1h-3zm20 18h3v1h-3z"/></svg>`;
+}
 export function boonMarkup(id){const b=ROUTE_BONUSES[id];return b?`<span class="passage-boon">${bonusIcon(id)}<span><b>Earned · ${esc(b.name)}</b> ${esc(b.reward.replace(/next attempt/ig,'this flight').replace(/next passage/ig,'passage'))}</span></span>`:'';}
 export function updateBonusGauge(el,bonus){
  if(!el)return;

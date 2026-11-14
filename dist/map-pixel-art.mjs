@@ -24,13 +24,38 @@ const palettes={
  sun:['#211c21','#3b2835','#80534d','#c9966b','#e29945','#fff2b1','#c7a875']
 };
 const bosses={'hollow-warden':'warden','frost-matron':'frost','rootbound-heart':'root',moonweaver:'moon','storm-shepherd':'storm','hollow-sun':'sun'};
+// Small local highlights; the fixed silhouettes carry the category without motion.
+const highlights={
+ flight:'<path class="landmark-motion trail-guide" d="M2 2h3v3H2zm-2 3h2v2h-2z" fill="#fffad5"/>',
+ rest:'<path class="landmark-motion hearth-flare" d="M-5-22h4v6h4v5H0v4h-6v-5h-2v-5h3z" fill="#fff3a5"/><path class="landmark-motion hearth-ember" d="M2-24h2v3H2zm4-3h2v2H6z" fill="#ffca77"/>',
+ treasure:'<path class="landmark-motion latch-glint" d="M1 0h2v3h3v2H3v3H1V5h-3V3h3z" fill="#fff0a7"/>',
+ encounter:'<path class="landmark-motion pilgrim-lantern" d="M13 4h5v2h2v2h-2v7h-5V8h-2V6h2z" fill="#d69e63"/><path class="landmark-motion pilgrim-lantern" d="M14 8h3v5h-3z" fill="#ffefbc"/>'
+};
 const cache=new Map();
 export function pixelLandmark(category,node={}){
  const shape=category==='boss'?(bosses[node.bossId]||'warden'):category==='elite'?'warden':category;
  const key=category+':'+shape;if(cache.has(key))return cache.get(key);
  const colors=palettes[shape]||palettes[category]||palettes.boss,rows=(sprites[shape]||sprites.flight).replaceAll(' ','').split('/');
- const size=category==='boss'?4:category==='elite'?2.8:3.5;let art='';
- rows.forEach((row,y)=>[...row].forEach((v,x)=>{if(v!=='.')art+=`<rect x="${(x-8)*size}" y="${(y-8)*size}" width="${size}" height="${size}" fill="${colors[Number(v)-1]}"/>`;}));
+ const size=category==='boss'?4:category==='elite'?2.8:3.5;
+ // Store each ink as a single path. Long scans merge adjacent pixels of one
+ // color, including the guardian's own eyes, without moving the mask.
+ const materials=new Map();
+ for(const [y,row] of rows.entries()){
+  let x=0;
+  while(x<row.length){
+   const ink=row[x],start=x++;
+   while(x<row.length&&row[x]===ink)x++;
+   if(ink==='.')continue;
+   const rect=`M${(start-8)*size} ${(y-8)*size}h${(x-start)*size}v${size}h-${(x-start)*size}z`;
+   materials.set(ink,(materials.get(ink)||'')+rect);
+  }
+ }
+ let art='';
+ for(const [ink,d] of materials){
+  const eyes=ink==='6'&&(category==='boss'||category==='elite');
+  art+=`<path${eyes?' class="landmark-motion guardian-gaze"':''} fill="${colors[Number(ink)-1]}" d="${d}"/>`;
+ }
+ art+=highlights[category]||'';
  // Elites are smaller creatures; guardians carry a broad crown of warning sparks.
  if(category==='boss')art+='<path fill="#e9aa70" d="M-14-35h4v4h-4M-2-38h4v4h-4M10-35h4v4h-4"/>';
  const out=`<g class="map-pixel-portrait" data-pixel-kind="${category}" shape-rendering="crispEdges">${art}</g>`;cache.set(key,out);return out;

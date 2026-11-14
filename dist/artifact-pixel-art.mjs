@@ -55,15 +55,30 @@ const designs={
 const legendary=new Set(['sunheart-engine','dream-sovereign','hollow-covenant']);
 const rare=new Set(['hearth-bloom','lantern-bloom','overflow-coil','echo-bell','dawn-loom','sunspool','echo-vessel','night-gardener']);
 const cache=new Map();
+const glowing=new Set(['wick','heart','lantern','vessel','cinder','sunrise','hourglass','spool','loom']);
+const fluttering=new Set(['feather','reed','sail','flower','seed','thread','dream']);
 export function artifactPixelPortrait(id){
  if(cache.has(id))return cache.get(id);
  const [shape,paletteName]=designs[id]||['prism','violet'],palette=palettes[paletteName];
  const tier=legendary.has(id)?'boss':rare.has(id)?'rare':'common';
  const [bg,edge]={common:['#252b32','#69757d'],rare:['#1a342a','#659570'],boss:['#362541','#a17db5']}[tier];
- const rows=sprites[shape].split('/'),width=Math.max(...rows.map(x=>x.length));let art='';
+ const rows=sprites[shape].split('/'),width=Math.max(...rows.map(x=>x.length)),paths=Array(8).fill('');
  const left=Math.floor((40-width*2)/2),top=Math.floor((40-rows.length*2)/2);
- rows.forEach((row,y)=>[...row].forEach((cell,x)=>{if(cell!=='.')art+=`<rect x="${left+x*2}" y="${top+y*2}" width="2" height="2" fill="${palette[Number(cell)-1]}"/>`;}));
- const out=`<svg class="upgrade-glyph artifact-portrait" data-rarity="${tier}" data-artifact-art="${id}" viewBox="0 0 40 40" aria-hidden="true" shape-rendering="crispEdges"><path d="M2 0h36v2h2v36h-2v2H2v-2H0V2h2z" fill="${bg}"/><path d="M2 2h36v2H4v32H2zM36 4h2v34H4v-2h32z" fill="${edge}"/><path d="M6 6h12v2H8v8H6z" fill="${palette[3]}" opacity=".13"/><path d="M8 30h24v4H8z" fill="#080e17" opacity=".55"/><path d="M10 12h20v16H10z" fill="${palette[4]}" opacity=".09"/>${art}${tier==='boss'?`<path d="M4 4h4v2H6v2H4zM32 32h4v4h-2v-2h-2z" fill="#f1cf91"/>`:''}</svg>`;
+ let witness=null;
+ rows.forEach((row,y)=>{
+   for(let x=0;x<row.length;){
+     const start=x,cell=row[x++];while(x<row.length&&row[x]===cell)x++;
+     if(cell==='.')continue;
+     const xx=left+start*2,yy=top+y*2,run=(x-start)*2;
+     paths[Number(cell)]+=`M${xx} ${yy}h${run}v2h-${run}z`;
+     if(!witness&&(cell==='4'||cell==='6'))witness=[xx,yy];
+   }
+ });
+ const art=paths.slice(1).map((d,i)=>d?`<path class="relic-ink-${i+1}" d="${d}" fill="${palette[i]}"/>`:'').join('');
+ const [gx,gy]=witness||[18,8];
+ const mode=glowing.has(shape)?'glow':fluttering.has(shape)?'flutter':'glint';
+ const gleam=`<g class="relic-glint" opacity=".65" fill="${palette[5]}"><path d="M${gx} ${gy}h2v2h-2z"/><path d="M${gx+3} ${gy-2}h1v1h-1z"/></g>`;
+ const out=`<svg class="upgrade-glyph artifact-portrait" data-rarity="${tier}" data-artifact-art="${id}" data-relic-motion="${mode}" viewBox="0 0 40 40" aria-hidden="true" shape-rendering="crispEdges" style="--relic-delay:-${(id.length+shape.length)%7*.41}s"><path d="M2 0h36v2h2v36h-2v2H2v-2H0V2h2z" fill="${bg}"/><path d="M2 2h36v2H4v32H2zM36 4h2v34H4v-2h32z" fill="${edge}"/><path d="M6 6h12v2H8v8H6z" fill="${palette[3]}" opacity=".13"/><path d="M8 30h24v4H8z" fill="#080e17" opacity=".55"/><path d="M10 12h20v16H10z" fill="${palette[4]}" opacity=".09"/><g class="relic-body">${art}${gleam}</g>${tier==='boss'?`<path d="M4 4h4v2H6v2H4zM32 32h4v4h-2v-2h-2z" fill="#f1cf91"/>`:''}</svg>`;
  cache.set(id,out);return out;
 }
 export const artifactPortraitIds=Object.freeze(Object.keys(designs));

@@ -1,4 +1,4 @@
-import {artifactIcon} from './upgrade-icons.mjs?v=night-atlas-1';
+import {artifactIcon} from './upgrade-icons.mjs?v=living-icons-1';
 
 // Original, small world illustrations. Pixel light is layered geometry rather
 // than SVG blur; motion is bounded CSS, never another animation-frame loop.
@@ -46,7 +46,7 @@ function companionsScene(){return `${scenery('companions')}${glow(80,44,'#c8ddc0
  ${orb(80,43,{size:1.3})}${orb(53,34,{size:.66,ink:'#b8dfa0',cls:'scene-companion-one'})}${orb(104,51,{size:.66,ink:'#92bfdf',cls:'scene-companion-two'})}${orb(94,20,{size:.47,ink:'#efd08f',cls:'scene-companion-three'})}${orb(65,64,{size:.47,ink:'#a5dfd6',cls:'scene-companion-four'})}`;}
 
 function forgeScene(artifactId){
- const relic=artifactIcon(artifactId||'quiet-cinder').replace('class="upgrade-glyph"','class="choice-relic" x="0" y="0" width="24" height="24"');
+ const relic=artifactIcon(artifactId||'quiet-cinder').replace('<svg ','<svg x="0" y="0" width="24" height="24" ').replace('class="upgrade-glyph','class="choice-relic upgrade-glyph');
  return `${scenery('forge')}${glow(73,55,'#dfb47c',2.4)}${glow(128,69,'#e2d9a1',1.1)}
  <g class="scene-forge-back">${path('M40 70V42h7V27h48v14h9v30Z','#263630')}${path('M47 43V29h48v14h7v25H42V43Z','#465547')}${rect(49,31,17,4,'#66705b')}${rect(69,31,22,4,'#68715d')}${rect(44,43,15,8,'#5a6651')}${rect(62,39,15,8,'#65705a')}${rect(80,42,16,7,'#56634f')}${rect(45,54,8,12,'#829072')}${rect(92,54,7,12,'#485a47')}${path('M54 64V49h6v-7h24v7h7v15Z','#151f20')}${path('M58 65V52h7v-7h15v7h7v13Z','#795a3f')}${path('M63 65V55h6v-8h7v8h6v10Z','#bc9053')}${path('M69 64V54h7v10Z','#ebd99c')}</g>
  <g class="forge-artifact" transform="translate(61 5)">${glow(12,12,'#d9c29b',.75)}${rect(-3,-2,30,2,'#4e5547')}${rect(-3,-2,2,23,'#606a53')}${rect(25,-2,2,23,'#606a53')}${relic}</g>

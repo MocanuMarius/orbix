@@ -1,48 +1,48 @@
-import {prepareAtlasFlight,resizeAtlasFlight,ringBellwind,bellwindAcceleration,moonLightScale,drawAtlasFlight} from './atlas-flight.mjs?v=night-atlas-1';
-import {canShowFlightHint} from './flight-hint-safety.mjs?v=night-atlas-1';
-import {updateGlideRegeneration} from './glide-regeneration.mjs?v=night-atlas-1';
-import {drawGuardianPresence} from './guardian-presence.mjs?v=night-atlas-1';
-import { updateGuardian, resizeGuardian, placeGuardianFuel } from './guardian-effects.mjs?v=night-atlas-1';
-import { drawGuardianWarnings } from './guardian-art.mjs?v=night-atlas-1';
-import {drawProximityMeter} from './proximity-meter.mjs?v=night-atlas-1';
-import {buildObjectivePlan,createFlightObjective,drawObjectiveMarks} from './flight-objectives.mjs?v=night-atlas-1';
-import {FlightProjection,drawFlightProjection} from './flight-projection.mjs?v=night-atlas-1';
-import {drawGlowSense} from './glow-sense.mjs?v=night-atlas-1';
-import {formatGlow} from './vitality.mjs?v=night-atlas-1';
-import {installRiskChains} from './risk-chains.mjs?v=night-atlas-1';
-import {EXTRA_COURSES} from './world-expansion.mjs?v=night-atlas-1';
-import {BIOME_COURSES} from './biome-courses.mjs?v=night-atlas-1';
-import {BiomeDynamics} from './biome-dynamics.mjs?v=night-atlas-1';
-import {condenseGlow} from './condensed-glow.mjs?v=night-atlas-1';
-import {ensureGlowBudget} from './glow-budget.mjs?v=night-atlas-1';
-import {EdgingPulse} from './edging-pulse.mjs?v=night-atlas-1';
-import {isVowBodyPickup} from './contextual-events.mjs?v=night-atlas-1';
-import {FlightBoon} from './flight-boons.mjs?v=night-atlas-1';
-import {BlackHoles} from './black-holes.mjs?v=night-atlas-1';
-import {drawBlackHoles} from './black-hole-art.mjs?v=night-atlas-1';
-import {drawAbsorbingSpark} from './tidal-light.mjs?v=night-atlas-1';
+import {prepareAtlasFlight,resizeAtlasFlight,ringBellwind,bellwindAcceleration,moonLightScale,drawAtlasFlight} from './atlas-flight.mjs?v=living-icons-1';
+import {canShowFlightHint} from './flight-hint-safety.mjs?v=living-icons-1';
+import {updateGlideRegeneration} from './glide-regeneration.mjs?v=living-icons-1';
+import {drawGuardianPresence} from './guardian-presence.mjs?v=living-icons-1';
+import { updateGuardian, resizeGuardian, placeGuardianFuel } from './guardian-effects.mjs?v=living-icons-1';
+import { drawGuardianWarnings } from './guardian-art.mjs?v=living-icons-1';
+import {drawProximityMeter} from './proximity-meter.mjs?v=living-icons-1';
+import {buildObjectivePlan,createFlightObjective,drawObjectiveMarks} from './flight-objectives.mjs?v=living-icons-1';
+import {FlightProjection,drawFlightProjection} from './flight-projection.mjs?v=living-icons-1';
+import {drawGlowSense} from './glow-sense.mjs?v=living-icons-1';
+import {formatGlow} from './vitality.mjs?v=living-icons-1';
+import {installRiskChains} from './risk-chains.mjs?v=living-icons-1';
+import {EXTRA_COURSES} from './world-expansion.mjs?v=living-icons-1';
+import {BIOME_COURSES} from './biome-courses.mjs?v=living-icons-1';
+import {BiomeDynamics} from './biome-dynamics.mjs?v=living-icons-1';
+import {condenseGlow} from './condensed-glow.mjs?v=living-icons-1';
+import {ensureGlowBudget} from './glow-budget.mjs?v=living-icons-1';
+import {EdgingPulse} from './edging-pulse.mjs?v=living-icons-1';
+import {isVowBodyPickup} from './contextual-events.mjs?v=living-icons-1';
+import {FlightBoon} from './flight-boons.mjs?v=living-icons-1';
+import {BlackHoles} from './black-holes.mjs?v=living-icons-1';
+import {drawBlackHoles} from './black-hole-art.mjs?v=living-icons-1';
+import {drawAbsorbingSpark} from './tidal-light.mjs?v=living-icons-1';
 /* Emberwing's self-contained canvas flight simulation and renderer. */
-import { FLAME_TUNING, LIGHT_PACKET_TUNING } from './vitality.mjs?v=night-atlas-1';
-import { flightEndDistance } from './flight-end.mjs?v=night-atlas-1';
-import {getExitLandmarkState,drawExitLandmark} from './exit-landmark.mjs?v=night-atlas-1';
-import { WispCompanion, wispHome } from './wisp.mjs?v=night-atlas-1';
-import { getAscentInfo } from './ascent.mjs?v=night-atlas-1';
-import { LEVEL_LENGTH, getLevelLengthScale } from './level-length.mjs?v=night-atlas-1';
-import { resolveLevelIdentity } from './level-catalog.mjs?v=night-atlas-1';
-import { DraftField, DRAFT_TUNING } from './drafts.mjs?v=night-atlas-1';
-import { normalizeCompanionRole, normalizeCompanionFleet, getCompanionAbility } from './companion-abilities.mjs?v=night-atlas-1';
-import { populateSceneProps, scenePropPolygons } from './scene-props.mjs?v=night-atlas-1';
-import { pickupKind, getPickupSpec, pickupContactRadius, pickupShellRadius, isFuelPickup, canCompanionCollect } from './pickups.mjs?v=night-atlas-1';
-import { drawPickup } from './pickup-art.mjs?v=night-atlas-1';
-import { buildBossLayout, getBossState as bossState, drawBoss } from './boss.mjs?v=night-atlas-1';
-import { getAuthoredChallenge, finalizeFlightChallenges, installAuthoredDraftCrossings, FlightChallengeDirector } from './flight-challenges.mjs?v=night-atlas-1';
-import { installEncounterFamily } from './encounter-families.mjs?v=night-atlas-1';
-import { installFlightForks, resizeFlightForks } from './flight-forks.mjs?v=night-atlas-1';
-import { ArtifactEffects } from './artifact-effects.mjs?v=night-atlas-1';
-import { LIGHT_EXTENT,lightAttenuation,lightVisibility,createLightMaskCanvas,sceneRevealStrength } from './light-field.mjs?v=night-atlas-1';
+import { FLAME_TUNING, LIGHT_PACKET_TUNING } from './vitality.mjs?v=living-icons-1';
+import { flightEndDistance } from './flight-end.mjs?v=living-icons-1';
+import {getExitLandmarkState,drawExitLandmark} from './exit-landmark.mjs?v=living-icons-1';
+import { WispCompanion, wispHome } from './wisp.mjs?v=living-icons-1';
+import { getAscentInfo } from './ascent.mjs?v=living-icons-1';
+import { LEVEL_LENGTH, getLevelLengthScale } from './level-length.mjs?v=living-icons-1';
+import { resolveLevelIdentity } from './level-catalog.mjs?v=living-icons-1';
+import { DraftField, DRAFT_TUNING } from './drafts.mjs?v=living-icons-1';
+import { normalizeCompanionRole, normalizeCompanionFleet, getCompanionAbility } from './companion-abilities.mjs?v=living-icons-1';
+import { populateSceneProps, scenePropPolygons } from './scene-props.mjs?v=living-icons-1';
+import { pickupKind, getPickupSpec, pickupContactRadius, pickupShellRadius, isFuelPickup, canCompanionCollect } from './pickups.mjs?v=living-icons-1';
+import { drawPickup, drawSparkSymbol } from './pickup-art.mjs?v=living-icons-1';
+import { buildBossLayout, getBossState as bossState, drawBoss } from './boss.mjs?v=living-icons-1';
+import { getAuthoredChallenge, finalizeFlightChallenges, installAuthoredDraftCrossings, FlightChallengeDirector } from './flight-challenges.mjs?v=living-icons-1';
+import { installEncounterFamily } from './encounter-families.mjs?v=living-icons-1';
+import { installFlightForks, resizeFlightForks } from './flight-forks.mjs?v=living-icons-1';
+import { ArtifactEffects } from './artifact-effects.mjs?v=living-icons-1';
+import { LIGHT_EXTENT,lightAttenuation,lightVisibility,createLightMaskCanvas,sceneRevealStrength } from './light-field.mjs?v=living-icons-1';
 import { createTutorialState, buildTutorialLayout, recordTutorialPickup,
-  updateTutorial, updateTutorialCompanion, getTutorialHint } from './tutorial.mjs?v=night-atlas-1';
-export { FLAME_TUNING } from './vitality.mjs?v=night-atlas-1';
+  updateTutorial, updateTutorialCompanion, getTutorialHint } from './tutorial.mjs?v=living-icons-1';
+export { FLAME_TUNING } from './vitality.mjs?v=living-icons-1';
 const TAU = Math.PI * 2;
 const STEP = 1 / 60;
 const COMPANION_ORBIT_SPEED = {protector:1.3,leveler:1.7,swift:3.4,seer:.8,kindler:2.2};
@@ -52,7 +52,7 @@ const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
 const lerp = (a, b, t) => a + (b - a) * t;
 export const FLIGHT_TUNING = Object.freeze({ gravity: 300, flapImpulse: 205,
   forwardSpeed: 154, terminalFall: 245, pickupRadius: LIGHT_PACKET_TUNING.pickupRadius });
-export { DRAFT_TUNING } from './drafts.mjs?v=night-atlas-1';
+export { DRAFT_TUNING } from './drafts.mjs?v=living-icons-1';
 // Retain the public tuning name for consumers; wind now has no global cycle.
 export const WIND_TUNING = DRAFT_TUNING;
 
@@ -821,7 +821,7 @@ export class WispFlight {
     this.edgingPulse=new EdgingPulse(this);
     this.rigImage = null; this.background = null;
     this.audio = null; this.muted = false; this.lastFlapSound = 0;
-    this.reducedMotion = typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches;
+    this.reducedMotion = options.reducedMotion === true || typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches;
     this._resizeRaf = null;
     this._resize = () => {
       if (this.destroyed || this._resizeRaf !== null) return;
@@ -924,7 +924,7 @@ export class WispFlight {
 
   async initPixelView() {
     try {
-      const { WispFlightView } = await import('./wisp-renderer.mjs?v=night-atlas-1');
+      const { WispFlightView } = await import('./wisp-renderer.mjs?v=living-icons-1');
       if (this.destroyed) return;
       this.pixiView = new WispFlightView(this);
       const initialized = await this.pixiView.init();
@@ -2290,7 +2290,10 @@ export class WispFlight {
       c.beginPath(); c.arc(effect.x, effect.y, 23, 0, TAU); c.fill();
       c.globalAlpha = Math.min(1, (1 - t) * 3); c.font = 'bold 18px system-ui'; c.textAlign = 'center';
       c.font = effect.restored > 0 ? 'bold 13px system-ui' : 'bold 18px system-ui';
-      c.fillText(effect.text || (effect.restored > 0 ? `+${formatGlow(effect.restored,this.maxFlame)} SPARKS` : `+${effect.value}`), effect.x + 15, effect.y - 22 - (this.reducedMotion ? 0 : t * 32));
+      const gain=effect.restored>0&&!effect.text;
+      const y=effect.y-22-(this.reducedMotion?0:t*32);
+      if(gain)drawSparkSymbol(c,effect.x-4,y-5,{size:13,time:this.visualTime,reducedMotion:this.reducedMotion});
+      c.fillText(effect.text || (gain ? `+${formatGlow(effect.restored)}` : `+${effect.value}`),effect.x+15,y);
     }
     c.restore();
   }

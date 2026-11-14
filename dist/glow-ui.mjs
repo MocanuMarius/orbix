@@ -1,4 +1,6 @@
-import {getGlowCapacity,GLOW_DISPLAY_SCALE} from './vitality.mjs?v=night-atlas-1';
+import {getGlowCapacity,GLOW_DISPLAY_SCALE} from './vitality.mjs?v=living-icons-1';
+import {resourceSymbol} from './game-symbols.mjs?v=living-icons-1';
+import {sparkSymbolArt} from './spark-symbol.mjs?v=living-icons-1';
 const clamp=v=>Math.max(0,Math.min(1,v));
 // A cell represents one paid Lift, even during a temporary free-Lift effect.
 export function glowGaugeUnits(flame,maximum=100,liftCost=10){
@@ -9,7 +11,7 @@ export function glowGaugeUnits(flame,maximum=100,liftCost=10){
 function unitMarkup(state){return Array.from({length:state.capacity},(_,i)=>`<span class="glow-unit${i<state.filled?' lit':''}"></span>`).join('');}
 export function glowGaugeMarkup(run){
  const state=glowGaugeUnits(run.flame,getGlowCapacity(run));
- return `<div class="flame-hud glow-side-gauge glow-gauge-v3" aria-label="Spark Meter" style="--glow-units:${state.capacity}"><div id="flame-meter" role="meter" aria-label="Sparks remaining" aria-valuemin="0" aria-valuemax="${state.maxValue}" aria-valuenow="${state.value}" aria-valuetext="${state.value} of ${state.maxValue} Sparks; each segment is ${state.unitCost} Sparks, one Lift"><i id="flame-fill" aria-hidden="true">${unitMarkup(state)}</i></div></div>`;
+ return `<div class="flame-hud glow-side-gauge glow-gauge-v3" aria-label="Spark Meter" style="--glow-units:${state.capacity}"><span class="meter-spark-cap" aria-hidden="true">${resourceSymbol('energy')}</span><div id="flame-meter" role="meter" aria-label="Sparks remaining" aria-valuemin="0" aria-valuemax="${state.maxValue}" aria-valuenow="${state.value}" aria-valuetext="${state.value} of ${state.maxValue} Sparks; each segment is ${state.unitCost} Sparks, one Lift"><i id="flame-fill" aria-hidden="true">${unitMarkup(state)}</i></div></div>`;
 }
 export const PACKING_TIMING = Object.freeze({ travel: 350, packing: 1000, total: 1700 });
 
@@ -26,9 +28,7 @@ const packingSprite = `<svg class="packing-case" viewBox="0 0 32 32" aria-hidden
     <g class="packing-left"><path fill="#825937" d="M2 5h14v5H2z"/><path fill="#e2b77c" d="M2 5h14v3H2z"/><path fill="#fff1b8" d="M3 5h10v1H3z"/></g>
     <g class="packing-right"><path fill="#825937" d="M16 5h14v5H16z"/><path fill="#bb8c54" d="M16 5h14v3H16z"/><path fill="#f4d49a" d="M18 5h11v1H18z"/></g>
   </g>
-  <path fill="#9dc88e" d="M12 10h8v2h2v8h-2v2h-8v-2h-2v-8h2z"/>
-  <path fill="#eaf7bf" d="M13 11h6v2h2v6h-2v2h-6v-2h-2v-6h2z"/>
-  <path fill="#fffee6" d="M14 12h4v7h-4z"/>
+  ${sparkSymbolArt(8,7,16)}
 </svg>`;
 
 function createPackingRail(gauge) {

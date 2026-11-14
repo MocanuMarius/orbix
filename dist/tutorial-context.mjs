@@ -1,7 +1,7 @@
-import {resourceSymbol} from './game-symbols.mjs?v=night-atlas-1';
-import {pickupArtSvg} from './pickup-art.mjs?v=night-atlas-1';
-import {lifeHeartSvg} from './lives.mjs?v=night-atlas-1';
-import {skillIcon} from './upgrade-icons.mjs?v=night-atlas-1';
+import {resourceSymbol} from './game-symbols.mjs?v=living-icons-1';
+import {pickupArtSvg} from './pickup-art.mjs?v=living-icons-1';
+import {lifeHeartSvg} from './lives.mjs?v=living-icons-1';
+import {skillIcon} from './upgrade-icons.mjs?v=living-icons-1';
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 export function tutorialTarget(step={}){
  const kind=step.visual||'';
@@ -18,7 +18,7 @@ export function tutorialTextMarkup(text){
  let result='',start=0;const source=String(text||'');
  for(const token of source.matchAll(re)){
   result+=esc(source.slice(start,token.index));const word=token[0];
-  const art=word.startsWith('Stored ')?resourceSymbol('packed'):word==='Spark Meter'?resourceSymbol('energy'):word==='Luminance'?skillIcon({id:'main-sight',branch:'main'}):word.startsWith('heart')?lifeHeartSvg():pickupArtSvg('light');
+  const art=word.startsWith('Stored ')?resourceSymbol('packed'):word==='Luminance'?skillIcon({id:'main-sight',branch:'main'}):word.startsWith('heart')?lifeHeartSvg():resourceSymbol('energy');
   result+=`<span class="coach-inline-term">${art.replace('<svg ','<svg aria-hidden="true" ')}${esc(word)}</span>`;
   start=token.index+word.length;
  }

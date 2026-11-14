@@ -1,20 +1,22 @@
 # A visual vocabulary for flight
 
-![Orbix field guide showing in-game pickups, resources, hazards and landmarks, followed by two proposed glyphs.](./icon-language-sheet.svg)
+![Orbix field guide showing in-game pickups, resources, hazards and landmarks, followed by a proposed Reserve Wick glyph.](./icon-language-sheet.svg)
 
-The sheet uses the game’s pickup sprites, map landmarks and resource glyphs. Its Black Hole is a frame from the flight renderer. The last row compares two proposed marks against the existing art. [Open the full-size PNG](./icon-language-sheet.png).
+The sheet uses still frames of the game’s pickup sprites, map landmarks and resource glyphs. Its Black Hole is a frame from the flight renderer. The last row shows a proposed one-use mark for the Reserve Wick. [Open the full-size PNG](./icon-language-sheet.png).
+
+[Try the animated icons at menu size or enlarged](https://mocanumarius.github.io/orbix/spark-preview.html).
 
 ## Spark, Spark Meter and Stored Sparks
 
 | Term | Picture | Player-facing meaning |
 | --- | --- | --- |
 | Spark | Plasma ball with bright electrical arcs | An object the wisp or Collector can pick up. Say “collect a Spark” when counting objects. |
-| Spark Meter | Lightning bolt beside the fuel gauge | Measures the Sparks available for flight. An ordinary Lift spends 3 Sparks before modifiers. Meter divisions follow the equipped Lift cost. |
-| Stored Sparks | Copper box with a bright core | Currency for the current run. Store surplus from pickups, earn a clear reward where offered, and spend Stored Sparks on skills at a Rest. Baseline conversion stores 1 per 6 surplus Sparks. |
-| Luminance | Current lesson uses a radiant core. The proposed glyph is an open eye with outward rays. | Distance the wisp can see. Increasing Luminance reveals more of the passage. |
+| Spark Meter | A small sparse plasma globe marks a fuel quantity. The flight gauge uses stacked cells. | Measures the Sparks available for flight. An ordinary Lift spends 3 Sparks before modifiers. Meter divisions follow the equipped Lift cost. |
+| Stored Sparks | A lidded copper box containing a luminous Spark | Currency for the current run. Store surplus from pickups, earn a clear reward where offered, and spend Stored Sparks on skills at a Rest. Baseline conversion stores 1 per 6 surplus Sparks. |
+| Luminance | Open eye with a jade iris and copper lids | Distance the wisp can see. Increasing Luminance reveals more of the passage. |
 | Heart | Split-top heart, dimmed when spent | One attempt. A Rest can relight missing hearts. A heart and plus sign denotes increased capacity. |
 
-Use **“a Spark adds 12 to the Spark Meter”** for the first explanation. Once that connection is familiar, use **“+12 Sparks”** beside the meter bolt. **“Collect four Sparks”** counts objects. Every price and currency payout says **Stored Sparks** beside the box.
+Use **“a Spark adds 12 to the Spark Meter”** for the first explanation. Once that connection is familiar, use **“+12 Sparks”** beside the small plasma globe. **“Collect four Sparks”** counts objects. Every price and currency payout says **Stored Sparks** beside the box.
 
 ## What the pickup tells you
 
@@ -33,7 +35,7 @@ Keep the visible contact boundary separate from the plasma. Tutorial, map guide 
 
 ## Map and actions
 
-Use the same five landmark families on the map, in the preview and in lessons. A mountain pass marks flight, a campfire marks Rest, a chest marks treasure, a standing figure marks an encounter and a crowned creature marks the guardian. The elite uses a smaller creature silhouette. A forecast can sit beside a landmark as a secondary mark.
+Use the same five landmark families on the map, in the preview and in lessons. A glint travels along a mountain pass for flight. A campfire lifts sparks at a Rest. A treasure chest’s latch catches light. A standing figure carries a gently swinging lantern at an encounter. A guardian’s eyes glow in its distinctive mask. The elite uses a smaller creature silhouette. Unreachable and unselected future sites stay still, while a preview can carry the animation. Reduced motion keeps all five static.
 
 Use a raised frame and a verb for actions. A highlighted path connects reachable destinations. Completed sites get a check. An unavailable skill shows its price, prerequisite or “Train at a Rest” when inspected. Signed gain and cost lines help readers distinguish effects independently of color.
 

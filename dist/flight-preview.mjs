@@ -1,13 +1,13 @@
-import {getBiome} from './biomes.mjs?v=night-atlas-1';
-import {getBossPreview} from './boss.mjs?v=night-atlas-1';
-import {levelMapPreview} from './level-map-art.mjs?v=night-atlas-1';
-import {mapStopIconMarkup} from './map-guide.mjs?v=night-atlas-1';
-import {resourceSymbol} from './game-symbols.mjs?v=night-atlas-1';
-import {getFlightClearReward} from './checkpoint-rewards.mjs?v=night-atlas-1';
-import {availableFlightArtifacts} from './model.mjs?v=night-atlas-1';
-import {bonusIcon,boonMarkup} from './route-bonus-ui.mjs?v=night-atlas-1';
-import {contextualFlightNotice} from './contextual-events.mjs?v=night-atlas-1';
-import {ATLAS_FORECASTS,atlasGlyph} from './night-atlas.mjs?v=night-atlas-1';
+import {getBiome} from './biomes.mjs?v=living-icons-1';
+import {getBossPreview} from './boss.mjs?v=living-icons-1';
+import {levelMapPreview} from './level-map-art.mjs?v=living-icons-1';
+import {mapStopIconMarkup} from './map-guide.mjs?v=living-icons-1';
+import {resourceSymbol} from './game-symbols.mjs?v=living-icons-1';
+import {getFlightClearReward} from './checkpoint-rewards.mjs?v=living-icons-1';
+import {availableFlightArtifacts} from './model.mjs?v=living-icons-1';
+import {bonusIcon,boonMarkup} from './route-bonus-ui.mjs?v=living-icons-1';
+import {contextualFlightNotice} from './contextual-events.mjs?v=living-icons-1';
+import {ATLAS_FORECASTS,atlasGlyph} from './night-atlas.mjs?v=living-icons-1';
 
 const escapeText = value => String(value ?? '').replace(/[&<>"']/g, char =>
  ({'&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;'}[char]));

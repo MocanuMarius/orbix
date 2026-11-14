@@ -1,9 +1,9 @@
-import {getPickupSpec} from './pickups.mjs?v=night-atlas-1';
-import {glowPoints,getGlowCapacity,GLOW_DISPLAY_SCALE} from './vitality.mjs?v=night-atlas-1';
-import {condenseGlow,getCondensationRules} from './condensed-glow.mjs?v=night-atlas-1';
-import {pickupArtSvg} from './pickup-art.mjs?v=night-atlas-1';
-import {resourceSymbol} from './game-symbols.mjs?v=night-atlas-1';
-import {mapStopIconMarkup} from './map-guide.mjs?v=night-atlas-1';
+import {getPickupSpec} from './pickups.mjs?v=living-icons-1';
+import {glowPoints,getGlowCapacity,GLOW_DISPLAY_SCALE} from './vitality.mjs?v=living-icons-1';
+import {condenseGlow,getCondensationRules} from './condensed-glow.mjs?v=living-icons-1';
+import {pickupArtSvg} from './pickup-art.mjs?v=living-icons-1';
+import {resourceSymbol} from './game-symbols.mjs?v=living-icons-1';
+import {mapStopIconMarkup} from './map-guide.mjs?v=living-icons-1';
 
 // An independent teaching meter. Previewing, skipping and replaying never touch a save.
 export function resourceCycleSteps(run={},mod={}){

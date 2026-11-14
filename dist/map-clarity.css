@@ -342,3 +342,36 @@ dialog.power-sheet.map-key-sheet {
 .game-map-screen .landscape-route .route-shadow-core{opacity:.28}
 .game-map-screen .landscape-route .route-shadow-dither{opacity:.11}
 .game-map-screen .landscape-route .route-copy-shadow .route-shadow-core{opacity:.38}
+
+/* Keep the animated area within the object's footprint. Reachable routes and
+   inspected landmarks move; distance and a closed route stay readable. */
+.map-pixel-portrait .landmark-motion,.level-landmark-preview .landmark-motion{pointer-events:none}
+.trail-guide{--site-motion:route-trail-glimmer 4.8s steps(2,end) infinite}
+.hearth-flare{--site-motion:route-hearth-light 1.7s steps(3,end) infinite}
+.hearth-ember{--site-motion:route-hearth-ember 2.9s steps(5,end) infinite}
+.latch-glint{--site-motion:route-latch-catch 4.7s steps(3,end) infinite}
+.pilgrim-lantern{--site-motion:route-lantern-pendulum 3.9s steps(3,end) infinite}
+.guardian-gaze{--site-motion:route-guardian-gaze 5.8s ease-in-out infinite}
+.passage-dust{--site-motion:route-passage-dust 5.1s steps(6,end) infinite}
+@keyframes route-trail-glimmer{
+  0%,28%,100%{opacity:.45;transform:translate(-9px,15px)}
+  38%{opacity:1;transform:translate(-5px,10px)}
+  53%{opacity:1;transform:translate(0,3px)}
+  69%{opacity:.7;transform:translate(-4px,-3px)}
+  80%{opacity:0;transform:translate(-1px,-8px)}
+  82%{opacity:0;transform:translate(-9px,15px)}
+}
+@keyframes route-hearth-light{0%,100%{opacity:.66;transform:translateY(1px)}38%{opacity:.92;transform:translateY(-1px)}67%{opacity:.77;transform:translate(1px,1px)}}
+@keyframes route-hearth-ember{0%,12%{opacity:0;transform:translate(0,2px)}28%{opacity:.9}68%{opacity:.52;transform:translate(2px,-5px)}90%,100%{opacity:0;transform:translate(4px,-8px)}}
+@keyframes route-latch-catch{0%,60%,100%{opacity:.32}72%{opacity:.95}85%{opacity:.42}}
+@keyframes route-lantern-pendulum{0%,100%{transform:translateX(-1px);opacity:.85}50%{transform:translateX(1px);opacity:1}}
+@keyframes route-guardian-gaze{0%,56%,100%{opacity:.92}68%{opacity:.5}82%{opacity:1}}
+@keyframes route-passage-dust{0%,100%{opacity:.24;transform:translate(0,0)}48%{opacity:.56;transform:translate(2px,-3px)}}
+@media (prefers-reduced-motion:no-preference){
+  .map-stop-icon .landmark-motion,.level-landmark-preview .landmark-motion,
+  .world-map-node:is(.route-state-next,.route-state-current,.reachable,:focus-visible) .landmark-motion{
+    animation:var(--site-motion,none)
+  }
+  .world-map-node:not(.route-state-next,.route-state-current,.reachable,:focus-visible) .landmark-motion,
+  [data-reduced-motion="true"] .landmark-motion{animation:none!important}
+}

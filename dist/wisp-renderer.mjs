@@ -1,26 +1,26 @@
-import {drawAtlasFlight} from './atlas-flight.mjs?v=night-atlas-1';
-import {drawGuardianPresence} from './guardian-presence.mjs?v=night-atlas-1';
-import {createDepthScenery,drawDepthScenery} from './depth-scenery.mjs?v=night-atlas-1';
-import { drawGuardianWarnings } from './guardian-art.mjs?v=night-atlas-1';
-import {drawProximityMeter} from './proximity-meter.mjs?v=night-atlas-1';
-import {drawObjectiveMarks} from './flight-objectives.mjs?v=night-atlas-1';
-import {drawFlightProjection} from './flight-projection.mjs?v=night-atlas-1';
-import {drawGlowSense} from './glow-sense.mjs?v=night-atlas-1';
-import {formatGlow} from './vitality.mjs?v=night-atlas-1';
-import {LOCATION_PALETTES} from './world-expansion.mjs?v=night-atlas-1';
-import {biomePalette} from './biome-art.mjs?v=night-atlas-1';
-import { sceneryIdentity, drawIdentityBackground, drawIdentityMaterial, drawIdentityLife } from './level-scenery.mjs?v=night-atlas-1';
-import { getCompanionAbility, normalizeCompanionRole } from './companion-abilities.mjs?v=night-atlas-1';
-import { companionSprite, companionPalette } from './companion-art.mjs?v=night-atlas-1';
-import { createScenePropArt } from './scene-prop-art.mjs?v=night-atlas-1';
-import { drawBoss } from './boss.mjs?v=night-atlas-1';
-import { drawPickup } from './pickup-art.mjs?v=night-atlas-1';
-import { pickupKind, getPickupSpec, pickupShellRadius } from './pickups.mjs?v=night-atlas-1';
-import { LIGHT_EXTENT,lightAttenuation,lightVisibility,createLightMaskCanvas,sceneRevealStrength } from './light-field.mjs?v=night-atlas-1';
-import {drawExitLandmark} from './exit-landmark.mjs?v=night-atlas-1';
-import {drawBlackHoles} from './black-hole-art.mjs?v=night-atlas-1';
-import {drawAbsorbingSpark} from './tidal-light.mjs?v=night-atlas-1';
-import {drawFlightForks,drawFlightForkBackdrops} from './flight-forks.mjs?v=night-atlas-1';
+import {drawAtlasFlight} from './atlas-flight.mjs?v=living-icons-1';
+import {drawGuardianPresence} from './guardian-presence.mjs?v=living-icons-1';
+import {createDepthScenery,drawDepthScenery} from './depth-scenery.mjs?v=living-icons-1';
+import { drawGuardianWarnings } from './guardian-art.mjs?v=living-icons-1';
+import {drawProximityMeter} from './proximity-meter.mjs?v=living-icons-1';
+import {drawObjectiveMarks} from './flight-objectives.mjs?v=living-icons-1';
+import {drawFlightProjection} from './flight-projection.mjs?v=living-icons-1';
+import {drawGlowSense} from './glow-sense.mjs?v=living-icons-1';
+import {formatGlow} from './vitality.mjs?v=living-icons-1';
+import {LOCATION_PALETTES} from './world-expansion.mjs?v=living-icons-1';
+import {biomePalette} from './biome-art.mjs?v=living-icons-1';
+import { sceneryIdentity, drawIdentityBackground, drawIdentityMaterial, drawIdentityLife } from './level-scenery.mjs?v=living-icons-1';
+import { getCompanionAbility, normalizeCompanionRole } from './companion-abilities.mjs?v=living-icons-1';
+import { companionSprite, companionPalette } from './companion-art.mjs?v=living-icons-1';
+import { createScenePropArt } from './scene-prop-art.mjs?v=living-icons-1';
+import { drawBoss } from './boss.mjs?v=living-icons-1';
+import { drawPickup, drawSparkSymbol } from './pickup-art.mjs?v=living-icons-1';
+import { pickupKind, getPickupSpec, pickupShellRadius } from './pickups.mjs?v=living-icons-1';
+import { LIGHT_EXTENT,lightAttenuation,lightVisibility,createLightMaskCanvas,sceneRevealStrength } from './light-field.mjs?v=living-icons-1';
+import {drawExitLandmark} from './exit-landmark.mjs?v=living-icons-1';
+import {drawBlackHoles} from './black-hole-art.mjs?v=living-icons-1';
+import {drawAbsorbingSpark} from './tidal-light.mjs?v=living-icons-1';
+import {drawFlightForks,drawFlightForkBackdrops} from './flight-forks.mjs?v=living-icons-1';
 
 const TAU = Math.PI * 2;
 const SCENERY_HELPERS = { line: pixelLine, disc: pixelDisc, polygon: path };
@@ -1075,9 +1075,13 @@ export class WispFlightView {
     for (const effect of e.pickupEffects || []) {
       const progress = 1 - clamp(effect.life / .72, 0, 1);
       c.globalAlpha = 1 - progress;
-      const label = String(effect.text || (effect.restored > 0 ? `+${formatGlow(effect.restored,e.maxFlame||100)} SPARKS` : 'FULL')).toUpperCase();
-      const labelX = clamp(Math.round(effect.x * s - label.length * 2), 2, this.buffer.width - label.length * 4 - 2);
-      pixelText(c, label, labelX, Math.round(effect.y * s - 28 - progress * 10),
+      const gain = effect.restored > 0 && !effect.text;
+      const label = String(effect.text || (gain ? `+${formatGlow(effect.restored)}` : 'FULL')).toUpperCase();
+      const labelWidth = label.length * 4 + (gain ? 13 : 0);
+      const labelX = clamp(Math.round(effect.x*s - labelWidth/2),2,this.buffer.width-labelWidth-2);
+      const labelY = Math.round(effect.y*s - 28 - (e.reducedMotion ? 0 : progress*10));
+      if(gain)drawSparkSymbol(c,labelX+5,labelY+2,{size:11,time:t,reducedMotion:e.reducedMotion});
+      pixelText(c, label, labelX+(gain?13:0), labelY,
         effect.color || (effect.pickupKind ? getPickupSpec(effect.pickupKind).color : '#f2d79a'));
     }
     c.globalAlpha = 1;

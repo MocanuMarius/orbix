@@ -1,4 +1,5 @@
-import { pickupKind, getPickupSpec, pickupDisposition, pickupShellRadius } from './pickups.mjs?v=night-atlas-1';
+import { pickupKind, getPickupSpec, pickupDisposition, pickupShellRadius } from './pickups.mjs?v=living-icons-1';
+import {sparkImageArt,sparkSymbolArt} from './spark-symbol.mjs?v=living-icons-1';
 
 const TAU = Math.PI * 2;
 const clamp = (value, low, high) => Math.max(low, Math.min(high, value));
@@ -48,6 +49,23 @@ function paintPlasma(tier, phase, radius, rect, disc, ring) {
   rect(-Math.round(radius*.53),-Math.round(radius*.74),3,1,ink.glass,.83);
 }
 
+// At wallet-window size, ordinary one-pixel arcs can vanish under nearest
+// neighbour sampling. Thicken the same light paths and keep the core bright.
+export function drawCompactSparkFrame(context,x,y,time=0,reducedMotion=false){
+  context.save();
+  const phase=reducedMotion?0:time;
+  for(const p of packetPixels('light',{time:phase,reducedMotion})){
+    context.globalAlpha=p.alpha;context.fillStyle=p.color;
+    context.fillRect(x+p.x,y+p.y,p.width,p.height);
+    if(p.color===fields[1].rim||p.color===fields[1].arc||p.color===fields[1].core){
+      context.globalAlpha=p.alpha*.86;
+      context.fillRect(x+p.x-1,y+p.y,p.width+1,p.height+1);
+    }
+  }
+  context.globalAlpha=1;context.fillStyle=fields[1].core;
+  context.fillRect(x-3,y-2,6,4);context.fillRect(x-2,y-3,4,6);
+  context.restore();
+}
 // Shared low-resolution paint operations: the game and the field guide use
 // the same bodies, shading, silhouettes and halo colors, with no gem frames.
 function packetPixels(kind, { time = 0, reducedMotion = false, tiny = false, bodyOnly = false } = {}) {
@@ -111,19 +129,23 @@ function packetPixels(kind, { time = 0, reducedMotion = false, tiny = false, bod
     }
     rect(-5,-4,3,1,'#ffc0a0',.9);rect(4,3,2,1,'#c76c60',.7);
   } else if (kind === 'dusk') {
-    halo(9, '#a56c87', .12);
+    const tide = reducedMotion ? 0 : Math.sin(t*TAU/3.2);
+    halo(9, '#a56c87', .12+tide*.045);
     disc(0, 0, 5, '#795968', .72); disc(0, 0, 4, '#d798ad', .85);
     disc(0, 0, 2.7, '#24202d'); disc(0, 0, 1.3, '#080b14');
     rect(-3, -3, 3, 1, '#edbdc7', .9); rect(-4, -2, 1, 3, '#c98caa', .7);
     rect(1, 3, 2, 1, '#93667c', .8);
+    rect(Math.round(-3+tide*2),-4,2,1,'#ffdad7',.80);
   } else if (kind === 'charge') {
     // A little hooked discharge rather than a pointed crystal or diamond.
-    const flicker = reducedMotion ? 1 : .91 + Math.sin(t * 22) * .09;
+    const flicker = reducedMotion ? 1 : .91 + Math.sin(t*TAU/2) * .09;
     halo(8, '#68b9ca', .12 * flicker);
     rect(-1, -4, 2, 8, '#80d4dc', flicker); rect(-3, -1, 6, 2, '#80d4dc', .9 * flicker);
     rect(1, -4, 2, 1, '#a4e8e7', flicker); rect(-3, 3, 2, 1, '#80d4dc', flicker);
     rect(-1, -1, 2, 3, '#e2ffed', flicker);
     rect(-4, -3, 1, 2, '#80d4dc', .5); rect(4, 1, 1, 2, '#80d4dc', .5);
+    const discharge=reducedMotion?1:Math.sin(t*TAU/2);
+    rect(discharge>0?3:-4,discharge>0?-4:2,2,1,'#aff6ed',.55+Math.abs(discharge)*.3);
   } else if (kind === 'sight') {
     const phase = reducedMotion ? .4 : (t * .48) % 1;
     halo(9, '#aa85c9', .1);
@@ -143,7 +165,7 @@ function packetPixels(kind, { time = 0, reducedMotion = false, tiny = false, bod
 
 const atlases = new WeakMap();
 const plasmaCycle=[plasmaPeriod,plasmaFrames];
-const cycles={light:plasmaCycle,cluster:plasmaCycle,cache:plasmaCycle,charge:[Math.PI*2/22,12],sight:[1/.48,24],dark:[Math.PI*2,32]};
+const cycles={light:plasmaCycle,cluster:plasmaCycle,cache:plasmaCycle,charge:[2,16],sight:[1/.48,24],dark:[Math.PI*2,32],dusk:[3.2,16]};
 function cachedSprite(doc,id,frame,tiny,reducedMotion,bodyOnly) {
   let cache=atlases.get(doc);
   if(!cache){cache=new Map();atlases.set(doc,cache);}
@@ -153,7 +175,8 @@ function cachedSprite(doc,id,frame,tiny,reducedMotion,bodyOnly) {
   const sprite=doc.createElement('canvas');
   sprite.width=sprite.height=72;
   const c=sprite.getContext('2d');
-  for(const p of packetPixels(id,{time:frame/frames*period,reducedMotion,tiny,bodyOnly})){
+  if(id==='compact')drawCompactSparkFrame(c,36,36,frame/plasmaFrames*plasmaPeriod,reducedMotion);
+  else for(const p of packetPixels(id,{time:frame/frames*period,reducedMotion,tiny,bodyOnly})){
     c.globalAlpha=p.alpha;c.fillStyle=p.color;c.fillRect(36+p.x,36+p.y,p.width,p.height);
   }
   cache.set(key,sprite);
@@ -187,14 +210,25 @@ export function drawPickup(context,x,y,{kind='light',time=0,reducedMotion=false,
   context.restore();
 }
 
-const guideBodies=new Map();
+export function drawSparkSymbol(context,x,y,{size=16,time=0,reducedMotion=false}={}){
+  const doc=context.canvas?.ownerDocument;
+  context.save();
+  if(doc){
+    const frame=reducedMotion?0:Math.floor(((time%plasmaPeriod+plasmaPeriod)%plasmaPeriod)/plasmaPeriod*plasmaFrames);
+    const sprite=cachedSprite(doc,'compact',frame,false,reducedMotion,false);
+    context.imageSmoothingEnabled=false;
+    context.drawImage(sprite,18,18,36,36,Math.round(x-size/2),Math.round(y-size/2),size,size);
+  }else{
+    context.translate(x,y);context.scale(size/36,size/36);
+    drawCompactSparkFrame(context,0,0,time,reducedMotion);
+  }
+  context.restore();
+}
+
 export function pickupArtSvg(kind = 'light', { className = '' } = {}) {
   const id = pickupKind(kind), name = getPickupSpec(id).name;
   const classes = String(className || '').replace(/[^a-zA-Z0-9 _-]/g, '').trim().slice(0, 120);
-  if(!guideBodies.has(id)){
-    guideBodies.set(id,packetPixels(id,{reducedMotion:true}).map(pixel =>
-      `<rect x="${pixel.x}" y="${pixel.y}" width="${pixel.width}" height="${pixel.height}" fill="${pixel.color}" opacity="${pixel.alpha}"/>`).join(''));
-  }
-  const viewBox=getPickupSpec(id).plasma?'-22 -22 44 44':'-36 -36 72 72';
-  return `<svg xmlns="http://www.w3.org/2000/svg" class="${classes}" viewBox="${viewBox}" width="36" height="36" preserveAspectRatio="xMidYMid meet" shape-rendering="crispEdges" role="img" aria-label="${name}">${guideBodies.get(id)}</svg>`;
+  const tier=getPickupSpec(id).plasma;
+  if(tier)return `<svg xmlns="http://www.w3.org/2000/svg" class="${classes}" viewBox="-22 -22 44 44" width="36" height="36" role="img" aria-label="${name}" shape-rendering="crispEdges">${sparkSymbolArt(-18,-18,36,tier)}</svg>`;
+  return `<svg xmlns="http://www.w3.org/2000/svg" class="${classes}" viewBox="0 0 48 48" width="36" height="36" role="img" aria-label="${name}" shape-rendering="crispEdges">${sparkImageArt(id,0,0,48)}</svg>`;
 }
