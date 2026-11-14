@@ -1,5 +1,5 @@
-import {landmarkArt,landmarkCategory,guardianNames} from './map-landmarks.mjs?v=steady-giants-1';
-import {glowText} from './vitality.mjs?v=steady-giants-1';
+import {landmarkArt,landmarkCategory,guardianNames} from './map-landmarks.mjs?v=spark-field-guide-1';
+import {glowText} from './vitality.mjs?v=spark-field-guide-1';
 const stop=(kind,label,name,summary)=>Object.freeze({kind,label,name,summary,icon:kind});
 export const MAP_STOP_TYPES=Object.freeze({
 flight:stop('flight','FLIGHT','Flight','Clear a passage for 20 Stored Sparks plus overflow. Ordinary flights do not drop artifacts.'),
@@ -11,8 +11,8 @@ boss:stop('boss','ELITE / GUARDIAN','Creature','Small creature: elite. Large hea
 export const EVENT_SCENARIOS=Object.freeze([
 {id:'ash-spring',index:0,name:'Ash Spring',summary:'Bottle a reserve or take immediate flight support.',detail:'An empty meter makes a refill attractive. With a full Spark Meter the spring offers free Lifts instead. A Reserve Wick waits for Sparks to fall below 6.'},
 {id:'cinder-bargain',index:1,name:'Cinder Bargain',summary:'Trade fuel for upgrade currency, or stay ready for the road.',detail:'Selling a coal keeps at least 3 Sparks. When trading is not useful, the bargain changes.'},
-{id:'pilgrim-vow',index:2,name:'Pilgrim’s Vow',summary:'Promise four body Spark pickups next attempt, or take light now.',detail:'Clear the next attempt with four natural body Spark pickups to earn 8 Stored Sparks. Collector deliveries and Dreams do not count. Missing the vow has no extra penalty. Beyond the last Rest, take a flight preparation instead.'},
-{id:'weathered-shrine',index:3,name:'Weathered Shrine',summary:'Prepare faster companion recovery or two free Lifts.',detail:'Both preparations are automatic and last for the next attempt.'},
+{id:'pilgrim-vow',index:2,name:'Pilgrim’s Vow',summary:'Promise four body Spark pickups next attempt, or take light.',detail:'Clear the next attempt with four natural body Spark pickups to earn 8 Stored Sparks. Collector deliveries and Dreams do not count. Missing the vow has no extra penalty. Beyond the last Rest, take a flight preparation instead.'},
+{id:'weathered-shrine',index:3,name:'Weathered Shrine',summary:'Prepare faster companion recovery or two free Lifts.',detail:'Both preparations are automatic and last for 3 cleared flights. Failures do not spend them.'},
 {id:'surveyors-cairn',index:4,name:'Surveyor’s Cairn',summary:'Prepare one reachable passage, or take light and keep your fork open.',detail:'Mark a linked exit for gentler drafts or more Luminance on its first attempt. Where the path forks, marking one exit commits the route. With a full Spark Meter, you can take a Reserve Wick instead. Falling spends the preparation and reopens a fork.'},
 {id:'ember-archive',index:5,name:'The Sparks Archive',summary:'Copy the ledger or spend its light to protect the run.',detail:'A missing heart can be restored. With full hearts, carry a Reserve Wick instead. Near the last guardian, a Star Chart can reveal the route ahead.'},
 {id:'ember-dice',index:6,name:'Prism Dice',summary:'Choose a guaranteed reward or cast the prism once.',detail:'Each pair of faces has an equal chance. Check the three outcomes before rolling.'},
@@ -42,7 +42,7 @@ export function getMapStopInfo(node={},maxGlow=100){
  const event=kind==='encounter'&&node.kind!=='shrine'&&Number.isInteger(node.eventIndex)?getEventScenarios({...node,maxGlow})[node.eventIndex]:null;
  const exit=kind==='flight'&&(node.type==='finale'||node.kind==='finale'),guardian=guardianNames[node.bossId]||node.name||'Guardian';
  if(kind==='treasure')return {...base,name:node.name||base.name,summary:node.rewardPreview||base.summary,detail:node.description||base.summary,eventIndex:null,scenarioId:null};
- const summary=kind==='boss'?(node.mapIndex>=2?`Pass ${guardian} and complete the Ascension.`:`Pass ${guardian} and choose one of two artifacts.`):elite?'Face an elite creature for 20 Stored Sparks and two artifact choices.':event?.summary||(node.kind==='shrine'?'Choose faster companion recovery or two free Lifts for your next attempt.':exit?'Clear this passage for 20 Stored Sparks and continue to the next map.':base.summary);
+ const summary=kind==='boss'?(node.mapIndex>=2?`Pass ${guardian} and complete the Ascension.`:`Pass ${guardian} and choose one of two artifacts.`):elite?'Face an elite creature for 20 Stored Sparks and two artifact choices.':event?.summary||(node.kind==='shrine'?'Choose faster companion recovery or two free Lifts, for 3 cleared flights.':exit?'Clear this passage for 20 Stored Sparks and continue to the next map.':base.summary);
  const detail=kind==='boss'?(node.mapIndex>=2?'Reach the waylight to complete the Ascension.':'A guardian ends this map: 20 Stored Sparks and one of two run artifacts.'):elite?'Choose one automatic artifact. Both offers retire from this run; melting is available later at Rest.':event?.detail||summary;
  return{...base,label:kind==='boss'?'GUARDIAN':elite?'ELITE':exit?'EXIT':base.label,name:kind==='boss'?guardian:event?.name||(node.type==='support'?node.name:node.locationName||node.name)||base.name,summary:event?summary:glowText(summary,maxGlow),detail:event?detail:glowText(detail,maxGlow),eventIndex:event?.index??null,scenarioId:event?.id||null};
 }

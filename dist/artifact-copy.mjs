@@ -1,8 +1,8 @@
-import {resourceSymbol} from './game-symbols.mjs?v=steady-giants-1';
-import {GUARDIAN_RELICS} from './guardian-artifacts.mjs?v=steady-giants-1';
-import {getArtifactInfo,CONSUMABLE_ARTIFACTS} from './artifact-info.mjs?v=steady-giants-1';
-import {getCompanionAbility,normalizeCompanionRole} from './companion-abilities.mjs?v=steady-giants-1';
-import {formatGlow,glowText,getGlowCapacity} from './vitality.mjs?v=steady-giants-1';
+import {resourceSymbol} from './game-symbols.mjs?v=spark-field-guide-1';
+import {GUARDIAN_RELICS} from './guardian-artifacts.mjs?v=spark-field-guide-1';
+import {getArtifactInfo,CONSUMABLE_ARTIFACTS} from './artifact-info.mjs?v=spark-field-guide-1';
+import {getCompanionAbility,normalizeCompanionRole} from './companion-abilities.mjs?v=spark-field-guide-1';
+import {formatGlow,glowText,getGlowCapacity} from './vitality.mjs?v=spark-field-guide-1';
 
 const esc=value=>String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const action={collector:'Collector delivers a Spark',protector:'Protector deflects a collision',swift:'Runner starts a burst',leveler:'Space Timer starts levitating'};
@@ -16,15 +16,15 @@ export function artifactDescription(a,run={}, {fresh=false}={}){
  const convert=value=>glowText(value||'',getGlowCapacity(run));
  const companionWork=`After ${action[role]}`;
  const entries={
-  'cache-cup':{trigger:'Collect a Cache, Surge or Giant Spark.',effect:'Restore 2 extra Sparks.',limit:'Automatic · this run.'},
+  'cache-cup':{trigger:'Collect a Cache, Surge or Giant Spark.',effect:'Restore 2 extra Sparks.',limit:'Automatic · permanent.'},
   'wayward-seed':{trigger:'Collect 3 Sparks in a row with your body.',effect:'Restore up to 1 Spark.',limit:chainLimit(role,'Evolves after Map 1.')},
   'hearth-bloom':{trigger:'Collect 3 Sparks in a row with your body.',effect:'Restore up to 3 Sparks.',limit:chainLimit(role,'Bonus Sparks cannot become Stored Sparks.')},
   'lantern-bloom':{trigger:'Collect 3 Sparks in a row with your body.',effect:'Reveal the whole scene for 1.5 seconds.',limit:chainLimit(role)},
   'glow-wick':{trigger:'Pick up a Spark while your meter is below full.',effect:'Restore up to 3 extra Sparks.',limit:'A full meter preserves the use. Bonus Sparks cannot become Stored Sparks.'},
   'flash-stone':{trigger:'Pick up a Spark.',effect:'Reveal the whole scene for 1.5 seconds.',limit:'Each pickup spends one use. Extra reveals do not stack.'},
   'quiet-cinder':{trigger:'',effect:'Every Lift costs 1 less Sparks.',limit:'A Lift always costs at least 1 Spark.'},
-  'ember-lens':{trigger:'',effect:'Increase Luminance to see more terrain around you.',limit:'Always active this run.'},
-  'silver-feather':{trigger:'',effect:'Every Lift pushes 6% more strongly.',limit:'Always active this run.'},
+  'ember-lens':{trigger:'',effect:'Increase Luminance to see more terrain around you.',limit:'Permanently active.'},
+  'silver-feather':{trigger:'',effect:'Every Lift pushes 6% more strongly.',limit:'Permanently active.'},
   'glass-lantern':{trigger:'Whenever you collect an Spark:',effect:`+${points(mod.cacheFuelBonus??40/3)} bonus Sparks per pickup. +1 Spark cost per Lift.`,limit:'The bonus is added to the Sparks already inside the Spark.'},
   'moss-heart':{trigger:'Touch a Spark yourself with Kindled Touch learned.',effect:`Kindled Touch restores ${points(mod.kindlerBonus??3)} extra Sparks.`,limit:'Requires Kindled Touch in the Sparks tree.'},
   'wayfinder-seed':{trigger:'While Collector is equipped.',effect:'Collector reaches 15% farther.',limit:role==='collector'?'Its recovery still shrinks the boundary.':'Requires Collector.'},
@@ -48,7 +48,7 @@ export function artifactDescription(a,run={}, {fresh=false}={}){
  if(['echo-bell','hollow-covenant'].includes(a.id)&&(run.artifacts||[]).includes('echo-bell')&&(run.artifacts||[]).includes('hollow-covenant'))selected.limit+=' Their shared pickup bonus caps at 5 Sparks.';
  const spec=CONSUMABLE_ARTIFACTS[a.id],remaining=spec?(fresh?spec.charges:run.artifactCharges?.[a.id]??spec.charges):null;
  const lifetime=spec?(remaining>0?`${remaining} automatic uses · disappears when empty`:'Used up')
-  :a.id==='wayward-seed'?'Automatic · evolves after Map 1':info.type==='passive'?'Passive · this run':'Automatic · this run';
+  :a.id==='wayward-seed'?'Automatic · evolves after Map 1':info.type==='passive'?'Permanent passive':'Automatic · permanent';
  return {...selected,lifetime,type:info.type,role,sequence:[selected.trigger,selected.effect].filter(Boolean)};
 }
 

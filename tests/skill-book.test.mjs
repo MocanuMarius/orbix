@@ -40,10 +40,10 @@ test('a cross-chapter prerequisite can be bought inline without opening the othe
  assert.equal(buyCheckpointSkill(s,'main-sight'),true);
  assert.match(page(),/data-chapter="dream"[\s\S]+?aria-label="Learned"[\s\S]+?class="book-buy"[^>]+?data-id="main-dream"/);
 });
-test('Regenerative Pulse shows its actual one-Spark recovery in the book',()=>{
+test('Regenerative Pulse explains recovery alongside the normal reveal',()=>{
  const s=sample('collector');
  const map=html(s,{chapter:'proximity',selected:'main-edging-regeneration'});
- assert.match(map,/restores one missing Spark/);
+ assert.match(map,/restores 3 missing Sparks/);assert.match(map,/normal pulse effects remain/i);
  assert.doesNotMatch(map,/\+0 Sparks/);
 });
 test('each rank is a linked perk with its own price, state and purchase guard',()=>{

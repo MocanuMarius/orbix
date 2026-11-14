@@ -6,6 +6,7 @@ import {installSparkField,sparkHabitat} from '../dist/spark-fields.mjs';
 import {getPickupSpec,pickupContactRadius} from '../dist/pickups.mjs';
 import {glowPoints} from '../dist/vitality.mjs';
 import {WispFlightView} from '../dist/wisp-renderer.mjs';
+import {compressCollectorCargo} from '../dist/collector-load.mjs';
 
 const canvas={getContext:()=>({setTransform(){}}),getBoundingClientRect:()=>({width:900,height:405})};
 test('the larger six-Spark shell has a matching body contact and stays distinct from richer fuel',()=>{
@@ -55,7 +56,7 @@ test('terrain motes have the Small shell in flight, at the Collector and during 
  assert.equal(e.baseEmbers,0);
  e.destroy();
 });
-test('large Sparks keep their art tier from the field through shrinking cargo and the delivery ribbon',()=>{
+test('large Sparks keep their field tier until capture then compact to Cluster for the delivery ribbon',()=>{
  const e=new WispFlight({canvas,preflight:true,seed:'giant-art-tier'});
  const raster=240/390;
  for(const mass of [6,10]){
@@ -68,11 +69,11 @@ test('large Sparks keep their art tier from the field through shrinking cargo an
   assert.equal(field.massTier,mass);
   assert.equal(field.scale,contact.scale*raster);
   assert.ok(cargo.scale<contact.scale);
-  assert.equal(cargo.massTier,mass);
+  assert.equal(cargo.massTier,2);
   const delivery={...cargo,worldX:packet.x,previousWorldX:packet.x,y:packet.y,previousY:packet.y,interval:1/60};
-  e.absorbPacket(packet,'light',delivery);
+  compressCollectorCargo(packet);e.absorbPacket(packet,'light',delivery);
   assert.equal(e.absorptionEffects.at(-1).initialScale,cargo.scale);
-  assert.equal(e.absorptionEffects.at(-1).massTier,mass);
+  assert.equal(e.absorptionEffects.at(-1).massTier,2);
  }
  e.destroy();
 });

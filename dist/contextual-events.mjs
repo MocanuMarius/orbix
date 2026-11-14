@@ -1,6 +1,6 @@
-import {completeOffers,EVENT_FAVORS,hasFutureRest} from './event-choices.mjs?v=steady-giants-1';
-import {getGlowCapacity} from './vitality.mjs?v=steady-giants-1';
-import {treasureFlightNotice} from './treasure.mjs?v=steady-giants-1';
+import {completeOffers,EVENT_FAVORS,hasFutureRest} from './event-choices.mjs?v=spark-field-guide-1';
+import {getGlowCapacity} from './vitality.mjs?v=spark-field-guide-1';
+import {treasureFlightNotice} from './treasure.mjs?v=spark-field-guide-1';
 // Event stakes are fixed when offered. They are not rolled during flight.
 const choice=(id,title,description,effect)=>({id,title,description,detail:description,effect});
 export const PILGRIM_VOW=Object.freeze({target:4,reward:8});
@@ -17,7 +17,7 @@ export function contextualEventChoices(run,nextFlights){
       ...(late?[feather()]:nextFlights.length&&!run.pilgrimVow?[choice('pilgrim-vow','Keep the Pilgrim’s Vow',
         `Clear your next attempt with ${PILGRIM_VOW.target} body Spark pickups to earn ${PILGRIM_VOW.reward} Stored Sparks.${bodyNote} Dream pickups do not count. Fail or fall short: no extra penalty.`,
         {pilgrimVow:{...PILGRIM_VOW,sourceNodeId:node.id,mapIndex:run.mapIndex}})]:[]),
-      room>=20?{...choice('pilgrim-offering','Drink the offering','Restore 6 Sparks now.',{flame:20}),displayUnits:true,art:'energy'}:wick()
+      room>=20?{...choice('pilgrim-offering','Drink the offering','Restore 6 Sparks.',{flame:20}),displayUnits:true,art:'energy'}:wick()
     ],run);
   }
   if(node?.eventIndex===4){
@@ -29,7 +29,7 @@ export function contextualEventChoices(run,nextFlights){
           `${effect} for your first attempt there. ${nextFlights.length>1?'Commit to this exit and leave the other path. If you fall, the fork reopens.':'This is the only exit.'}`,
           {routePreparation:{nodeId:next.id,sourceNodeId:node.id,name:next.name,kind:wind?'wind':'sight'}});
       }),
-      room>=20?{...choice('survey-offering',nextFlights.length>1?'Keep the fork open':'Take travel fuel','Restore up to 12 Sparks now. No route preparation.',{flame:Math.min(room,40)}),displayUnits:true,art:'energy'}:wick()
+      room>=20?{...choice('survey-offering',nextFlights.length>1?'Keep the fork open':'Take travel fuel','Restore up to 12 Sparks. No route preparation.',{flame:Math.min(room,40)}),displayUnits:true,art:'energy'}:wick()
     ],run);
   }
   return null;

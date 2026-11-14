@@ -108,7 +108,7 @@ test('the first map teaches rewards and Rest when encountered, not at the openin
  assert.doesNotMatch(lesson.steps[0].text,/Dream/,'unowned optional mechanics are not advertised at every Rest');
  assert.doesNotMatch(lesson.steps[0].text,/equip|switch|change.*companion/i,'Rest does not change the run companion');
  const companion=nextOnboardingLesson('companions',{...state,now:40000});
- assert.match(companion.steps[0].text,/Collector fetches missed Sparks inside its green boundary/);
+ assert.match(companion.steps[0].text,/Collector fetches missed Small and Cluster Sparks inside its green boundary/);
 });
 
 test('artifact onboarding waits for a choice, ordinary income stays quiet, and final victory teaches progression',()=>{

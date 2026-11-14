@@ -1,62 +1,63 @@
-import {prepareAtlasFlight,resizeAtlasFlight,ringBellwind,bellwindAcceleration,moonLightScale,drawAtlasFlight} from './atlas-flight.mjs?v=steady-giants-1';
-import {canShowFlightHint} from './flight-hint-safety.mjs?v=steady-giants-1';
-import {updateGlideRegeneration} from './glide-regeneration.mjs?v=steady-giants-1';
-import {drawGuardianPresence} from './guardian-presence.mjs?v=steady-giants-1';
-import { updateGuardian, resizeGuardian, placeGuardianFuel } from './guardian-effects.mjs?v=steady-giants-1';
-import { drawGuardianWarnings } from './guardian-art.mjs?v=steady-giants-1';
-import { drawShutters, resizeShutters } from './shutter-cone.mjs?v=steady-giants-1';
-import { inLanternRoom, installPassageLanterns, lanternField } from './lantern-layout.mjs?v=steady-giants-1';
-import {drawProximityMeter} from './proximity-meter.mjs?v=steady-giants-1';
-import {drawFourthBeat} from './fourth-beat-art.mjs?v=steady-giants-1';
-import {drawCollectorField} from './collector-field-art.mjs?v=steady-giants-1';
-import {buildObjectivePlan,createFlightObjective,drawObjectiveMarks} from './flight-objectives.mjs?v=steady-giants-1';
-import {FlightProjection,drawFlightProjection} from './flight-projection.mjs?v=steady-giants-1';
-import {drawGlowSense} from './glow-sense.mjs?v=steady-giants-1';
-import {formatGlow} from './vitality.mjs?v=steady-giants-1';
-import {installRiskChains} from './risk-chains.mjs?v=steady-giants-1';
-import {installSparkField} from './spark-fields.mjs?v=steady-giants-1';
-import {drawFallWarning} from './fall-chain-art.mjs?v=steady-giants-1';
-import {EXTRA_COURSES} from './world-expansion.mjs?v=steady-giants-1';
-import {BIOME_COURSES} from './biome-courses.mjs?v=steady-giants-1';
-import {BiomeDynamics} from './biome-dynamics.mjs?v=steady-giants-1';
-import {condenseGlow} from './condensed-glow.mjs?v=steady-giants-1';
-import {ensureGlowBudget,shapeExpeditionSupply} from './glow-budget.mjs?v=steady-giants-1';
-import {EdgingPulse} from './edging-pulse.mjs?v=steady-giants-1';
-import {isVowBodyPickup} from './contextual-events.mjs?v=steady-giants-1';
-import {FlightBoon} from './flight-boons.mjs?v=steady-giants-1';
-import {BlackHoles} from './black-holes.mjs?v=steady-giants-1';
-import {drawBlackHoles} from './black-hole-art.mjs?v=steady-giants-1';
-import {drawCapture, drawShellPuff, drawCarriedSpark} from './capture-art.mjs?v=steady-giants-1';
-import {drawShellArcs} from './shell-arcs.mjs?v=steady-giants-1';
-import {sparkBodyRadius,sparkArtScale,sparkMass} from './spark-size.mjs?v=steady-giants-1';
-import {captureMassDuration} from './tidal-light.mjs?v=steady-giants-1';
-import {readCaptureStyle} from './capture-styles.mjs?v=steady-giants-1';
+import {prepareAtlasFlight,resizeAtlasFlight,ringBellwind,bellwindAcceleration,moonLightScale,drawAtlasFlight} from './atlas-flight.mjs?v=spark-field-guide-1';
+import {canShowFlightHint} from './flight-hint-safety.mjs?v=spark-field-guide-1';
+import {updateGlideRegeneration} from './glide-regeneration.mjs?v=spark-field-guide-1';
+import {drawGuardianPresence} from './guardian-presence.mjs?v=spark-field-guide-1';
+import { updateGuardian, resizeGuardian, placeGuardianFuel } from './guardian-effects.mjs?v=spark-field-guide-1';
+import { drawGuardianWarnings } from './guardian-art.mjs?v=spark-field-guide-1';
+import { drawShutters, resizeShutters } from './shutter-cone.mjs?v=spark-field-guide-1';
+import { inLanternRoom, installPassageLanterns, lanternField } from './lantern-layout.mjs?v=spark-field-guide-1';
+import {drawProximityMeter} from './proximity-meter.mjs?v=spark-field-guide-1';
+import {drawFourthBeat} from './fourth-beat-art.mjs?v=spark-field-guide-1';
+import {drawCollectorField} from './collector-field-art.mjs?v=spark-field-guide-1';
+import {buildObjectivePlan,createFlightObjective,drawObjectiveMarks} from './flight-objectives.mjs?v=spark-field-guide-1';
+import {FlightProjection,drawFlightProjection} from './flight-projection.mjs?v=spark-field-guide-1';
+import {drawGlowSense} from './glow-sense.mjs?v=spark-field-guide-1';
+import {formatGlow} from './vitality.mjs?v=spark-field-guide-1';
+import {installRiskChains} from './risk-chains.mjs?v=spark-field-guide-1';
+import {installSparkField} from './spark-fields.mjs?v=spark-field-guide-1';
+import {drawFallWarning} from './fall-chain-art.mjs?v=spark-field-guide-1';
+import {EXTRA_COURSES} from './world-expansion.mjs?v=spark-field-guide-1';
+import {BIOME_COURSES} from './biome-courses.mjs?v=spark-field-guide-1';
+import {BiomeDynamics} from './biome-dynamics.mjs?v=spark-field-guide-1';
+import {condenseGlow} from './condensed-glow.mjs?v=spark-field-guide-1';
+import {ensureGlowBudget,shapeExpeditionSupply} from './glow-budget.mjs?v=spark-field-guide-1';
+import {EdgingPulse} from './edging-pulse.mjs?v=spark-field-guide-1';
+import {isVowBodyPickup} from './contextual-events.mjs?v=spark-field-guide-1';
+import {FlightBoon} from './flight-boons.mjs?v=spark-field-guide-1';
+import {BlackHoles} from './black-holes.mjs?v=spark-field-guide-1';
+import {drawWispBody,makeWispSprite,makeCompanionSprite,WISP_ART} from './companion-art.mjs?v=spark-field-guide-1';
+import {drawBlackHoles} from './black-hole-art.mjs?v=spark-field-guide-1';
+import {drawCapture, drawShellPuff, drawCarriedSpark} from './capture-art.mjs?v=spark-field-guide-1';
+import {drawShellArcs} from './shell-arcs.mjs?v=spark-field-guide-1';
+import {sparkBodyRadius,sparkArtScale,sparkMass} from './spark-size.mjs?v=spark-field-guide-1';
+import {captureMassDuration} from './tidal-light.mjs?v=spark-field-guide-1';
+import {readCaptureStyle} from './capture-styles.mjs?v=spark-field-guide-1';
 /* Emberwing's self-contained canvas flight simulation and renderer. */
-import { FLAME_TUNING, LIGHT_PACKET_TUNING } from './vitality.mjs?v=steady-giants-1';
-import { flightEndDistance } from './flight-end.mjs?v=steady-giants-1';
-import {getExitLandmarkState,drawExitLandmark} from './exit-landmark.mjs?v=steady-giants-1';
-import { WispCompanion, wispHome } from './wisp.mjs?v=steady-giants-1';
-import { getAscentInfo } from './ascent.mjs?v=steady-giants-1';
-import { LEVEL_LENGTH, getLevelLengthScale } from './level-length.mjs?v=steady-giants-1';
-import { resolveLevelIdentity } from './level-catalog.mjs?v=steady-giants-1';
-import { DraftField, DRAFT_TUNING } from './drafts.mjs?v=steady-giants-1';
-import { normalizeCompanionRole, normalizeCompanionFleet, getCompanionAbility } from './companion-abilities.mjs?v=steady-giants-1';
-import { populateSceneProps, scenePropPolygons } from './scene-props.mjs?v=steady-giants-1';
-import { pickupKind, getPickupSpec, pickupContactRadius, canCompanionCollect, flashPowerupDuration } from './pickups.mjs?v=steady-giants-1';
-import { createFlashTether, stepFlashTether, drawFlashTether, flashLightPulse } from './flash-tether.mjs?v=steady-giants-1';
-import { drawPickup, drawSparkSymbol } from './pickup-art.mjs?v=steady-giants-1';
-import { buildBossLayout, getBossState as bossState, drawBoss } from './boss.mjs?v=steady-giants-1';
-import { getAuthoredChallenge, finalizeFlightChallenges, installAuthoredDraftCrossings, FlightChallengeDirector } from './flight-challenges.mjs?v=steady-giants-1';
-import { installEncounterFamily } from './encounter-families.mjs?v=steady-giants-1';
-import { installFlightForks, resizeFlightForks } from './flight-forks.mjs?v=steady-giants-1';
-import { ArtifactEffects } from './artifact-effects.mjs?v=steady-giants-1';
-import { LIGHT_EXTENT,lightAttenuation,lightVisibility,createLightMaskCanvas,castFlightFlashLights,revealLanternWake,sceneRevealStrength,flashRangeStrength,pickupRevealHold,pickupRevealAt,renderLightState,lightDreamScenery } from './light-field.mjs?v=steady-giants-1';
+import { FLAME_TUNING, LIGHT_PACKET_TUNING } from './vitality.mjs?v=spark-field-guide-1';
+import { flightEndDistance } from './flight-end.mjs?v=spark-field-guide-1';
+import {getExitLandmarkState,drawExitLandmark} from './exit-landmark.mjs?v=spark-field-guide-1';
+import { WispCompanion, wispHome } from './wisp.mjs?v=spark-field-guide-1';
+import { getAscentInfo } from './ascent.mjs?v=spark-field-guide-1';
+import { LEVEL_LENGTH, getLevelLengthScale } from './level-length.mjs?v=spark-field-guide-1';
+import { resolveLevelIdentity } from './level-catalog.mjs?v=spark-field-guide-1';
+import { DraftField, DRAFT_TUNING } from './drafts.mjs?v=spark-field-guide-1';
+import { normalizeCompanionRole, normalizeCompanionFleet, getCompanionAbility } from './companion-abilities.mjs?v=spark-field-guide-1';
+import { populateSceneProps, scenePropPolygons } from './scene-props.mjs?v=spark-field-guide-1';
+import { pickupKind, getPickupSpec, pickupContactRadius, canCompanionCollect, flashPowerupDuration } from './pickups.mjs?v=spark-field-guide-1';
+import { createFlashTether, stepFlashTether, drawFlashTether, flashLightPulse } from './flash-tether.mjs?v=spark-field-guide-1';
+import { drawPickup, drawSparkSymbol } from './pickup-art.mjs?v=spark-field-guide-1';
+import { buildBossLayout, getBossState as bossState, drawBoss } from './boss.mjs?v=spark-field-guide-1';
+import { getAuthoredChallenge, finalizeFlightChallenges, installAuthoredDraftCrossings, FlightChallengeDirector } from './flight-challenges.mjs?v=spark-field-guide-1';
+import { installEncounterFamily } from './encounter-families.mjs?v=spark-field-guide-1';
+import { installFlightForks, resizeFlightForks } from './flight-forks.mjs?v=spark-field-guide-1';
+import { ArtifactEffects } from './artifact-effects.mjs?v=spark-field-guide-1';
+import { LIGHT_EXTENT,lightAttenuation,lightVisibility,createLightMaskCanvas,castFlightFlashLights,revealLanternWake,sceneRevealStrength,flashRangeStrength,pickupRevealHold,pickupRevealAt,renderLightState,lightDreamScenery } from './light-field.mjs?v=spark-field-guide-1';
 import { createTutorialState, buildTutorialLayout, recordTutorialPickup,
-  updateTutorial, updateTutorialCompanion, getTutorialHint } from './tutorial.mjs?v=steady-giants-1';
-export { FLAME_TUNING } from './vitality.mjs?v=steady-giants-1';
+  updateTutorial, updateTutorialCompanion, getTutorialHint } from './tutorial.mjs?v=spark-field-guide-1';
+export { FLAME_TUNING } from './vitality.mjs?v=spark-field-guide-1';
 const TAU = Math.PI * 2;
 const STEP = 1 / 60;
-const FALLBACK_WISP_RADIUS = 17;
+const FALLBACK_WISP_RADIUS = WISP_ART.worldRadius/.85;
 const WISP_BODY_SCALE = .85;
 const COMPANION_ORBIT_SPEED = {protector:1.3,leveler:1.7,swift:3.4,seer:.8,kindler:2.2};
 const RENDER_INTERVAL_MS = 1000 / 60;
@@ -65,7 +66,7 @@ const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
 const lerp = (a, b, t) => a + (b - a) * t;
 export const FLIGHT_TUNING = Object.freeze({ gravity: 300, flapImpulse: 205,
   forwardSpeed: 154, terminalFall: 245, pickupRadius: LIGHT_PACKET_TUNING.pickupRadius });
-export { DRAFT_TUNING } from './drafts.mjs?v=steady-giants-1';
+export { DRAFT_TUNING } from './drafts.mjs?v=spark-field-guide-1';
 // Retain the public tuning name for consumers; wind now has no global cycle.
 export const WIND_TUNING = DRAFT_TUNING;
 
@@ -970,7 +971,7 @@ export class WispFlight {
 
   async initPixelView() {
     try {
-      const { WispFlightView } = await import('./wisp-renderer.mjs?v=steady-giants-1');
+      const { WispFlightView } = await import('./wisp-renderer.mjs?v=spark-field-guide-1');
       if (this.destroyed) return;
       this.pixiView = new WispFlightView(this);
       const initialized = await this.pixiView.init();
@@ -1328,6 +1329,10 @@ export class WispFlight {
     this.pixiView = null;
     for(const canvas of [this.fallbackFog,this.fallbackMask])if(canvas)canvas.width=canvas.height=1;
     this.fallbackFog=this.fallbackMask=null;
+    for(const sprites of [this.fallbackWispSprites,this.fallbackCompanionSprites]){
+      if(sprites)for(const canvas of sprites.values())canvas.width=canvas.height=1;
+      sprites?.clear();
+    }
     this.particles.length = 0;
     this.trail.length = 0;
   }
@@ -2512,8 +2517,13 @@ export class WispFlight {
       const power=(cooling?.7+.25*state.recovery:1)*(collector?.82+depth*.18:1);
       const radius=collector?6.5*(.95+depth*.25):7;
       c.globalAlpha=power*.19;c.fillStyle=color;c.beginPath();c.arc(state.x,state.y,radius*2.25,0,TAU);c.fill();
-      c.globalAlpha=power;c.beginPath();c.arc(state.x,state.y,radius,0,TAU);c.fill();
-      c.fillStyle='#efffe0';c.globalAlpha=power*.9;c.beginPath();c.arc(state.x-radius*.25,state.y-radius*.25,radius*.31,0,TAU);c.fill();
+      c.globalAlpha=power;
+      const doc=this.canvas.ownerDocument||globalThis.document;
+      if(doc?.createElement){
+        this.fallbackCompanionSprites??=new Map();let sprite=this.fallbackCompanionSprites.get(state.role);
+        if(!sprite){sprite=makeCompanionSprite(doc,state.role);this.fallbackCompanionSprites.set(state.role,sprite);}
+        c.imageSmoothingEnabled=false;c.drawImage(sprite,state.x-radius,state.y-radius,radius*2,radius*2);
+      }else{c.beginPath();c.arc(state.x,state.y,radius,0,TAU);c.fill();}
       if(state.carrying) {
         drawCarriedSpark(c,state,this.captureTime,1,this.reducedMotion,this.captureStyle);
       }
@@ -2534,13 +2544,14 @@ export class WispFlight {
     const pulse = this.reducedMotion ? 1 : 1 + Math.sin(t * 4) * .035;
     const fade=this.dying?Math.max(.02,1-this.dyingProgress):1;
     c.scale(pulse*fade*WISP_BODY_SCALE, pulse*fade*WISP_BODY_SCALE);
-    const core=13*Math.sqrt(clamp(this.visibleGlow/this.maxFlame,0,1));
-    for(let yy=-17;yy<17;yy+=2)for(let xx=-17;xx<17;xx+=2){
-      const radius=Math.hypot(xx+1,yy+1);if(radius>FALLBACK_WISP_RADIUS)continue;
-      const light=Math.round(clamp((core+3-radius)/5,0,1)*5)/5;
-      c.fillStyle=radius>15?'#ccd9c5':`rgb(${44+Math.round(light*199)},${52+Math.round(light*191)},${54+Math.round(light*166)})`;
-      c.fillRect(xx,yy,2,2);
-    }
+    const band=Math.round(clamp(this.visibleGlow/this.maxFlame,0,1)*32),doc=this.canvas.ownerDocument||globalThis.document;
+    if(doc?.createElement){
+      this.fallbackWispSprites??=new Map();
+      let sprite=this.fallbackWispSprites.get(band);
+      if(!sprite){sprite=makeWispSprite(doc,band);this.fallbackWispSprites.set(band,sprite);}
+      const size=WISP_ART.size*FALLBACK_WISP_RADIUS/WISP_ART.radius;
+      c.imageSmoothingEnabled=false;c.drawImage(sprite,-size/2,-size/2,size,size);
+    }else drawWispBody(c,band,0,0,FALLBACK_WISP_RADIUS);
     const aegis = this.proximityShieldRemaining > 0 || this.flightBoon.wardReady && !this.hasCompanion('protector');
     if(aegis || this.hasCompanion('protector')){
       const charged = aegis || this.shield.charges > 0;

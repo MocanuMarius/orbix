@@ -1,5 +1,6 @@
-import {sparkImageArt,sparkSymbolArt} from './spark-symbol.mjs?v=steady-giants-1';
-import {condensedIconMarkup} from './afterglow-ui.mjs?v=steady-giants-1';
+import {sparkImageArt,sparkSymbolArt} from './spark-symbol.mjs?v=spark-field-guide-1';
+import {condensedIconMarkup} from './afterglow-ui.mjs?v=spark-field-guide-1';
+import {fineTreasureObject} from './fine-treasure-art.mjs?v=spark-field-guide-1';
 
 // Three material tones sit above a shared dark contour. Keep light and shadow
 // readable at the tree's smallest size, even with all motion switched off.
@@ -65,11 +66,7 @@ function hourglass(c){
   +g('skill-fall',dot(15,16,2,c[3]))+dot(11,8,2,'#d8ece8');
 }
 function vessel(c){
- return p('M10 2h12v5h-2v3h3v3h4v4h2v8h-3v4H7v-3H4v-9h2v-4h4v-3h2V7h-2z',ink)
-  +p('M12 7h8v4h2v3h4v4h1v6h-3v3H8v-3H6v-7h2v-4h4z',c[0])
-  +p('M8 17h3v-3h4v-2h3v2h5v3h2v6h-3v2H10v-2H8z',c[1])
-  +sparkSymbolArt(9,12,14)+p('M11 3h10v4H11z','#936a47')
-  +p('M11 3h8v1h-8zM8 17h2v5H8zm3-3h2v2h-2z','#d4e9d8');
+ return '<g transform="translate(1 1) scale(.58)">'+fineTreasureObject('vessel',[ink,c[0],c[1],c[2],c[3],'#b68d5c'])+'</g>';
 }
 function seed(c){
  return p('M4 25v-3h6v-3h4v-6h-3v-1H7V9H4V4h7v2h4v3h2v5h2V9h3V5h6v6h-2v4h-3v2h-5v4h3v1h5v3h2v4H4z',ink)
@@ -186,6 +183,7 @@ const aliases={
  duration:'Longer Level',level:'Still Point',dive:'Falling Release',wind:'Wind Lance',swift:'Momentum',fuel:'Search Spark'
 };
 const byId={
+ 'collector-fetch-cache':'Spark Vessel','collector-fetch-surge':'Spark Vessel','collector-fetch-giant':'Spark Vessel','collector-fetch-flash':'Long Flash',
  'main-long-flash':'Long Flash',
  'main-sight':'Luminance','main-horizon':'Luminance','main-edging-attunement':'Proximity','main-reservoir':'Spark Vessel',
  'main-dream':'Dream','main-speed':'Momentum','main-lift':'Lift','main-efficiency':'Lift','main-glide-regen':'Glide Regeneration',

@@ -49,7 +49,7 @@ function inventory(node,tier){
   holes:(e.blackHoles?.items||[]).map(h=>({time:Math.max(0,(h.x-e.player.x-e.distanceOrigin)/e.baseSpeed),influence:h.influence,coreRadius:h.coreRadius,giant:!!h.giant,bypassClearance:Math.abs(h.bypass.y-h.y)})),
   negativeCount:e.layout.embers.filter(p=>getPickupSpec(p).dim>0).length,
   items:e.layout.embers.filter(p=>!p.generated&&!p.harmful&&getPickupSpec(p).fuel>0).map(p=>({id:p.id,kind:pickupKind(p),time:Math.max(0,(p.x-e.player.x-e.distanceOrigin)/e.baseSpeed),
-   y:p.y,fuel:getPickupSpec(p).fuel,accessible:!!(p.accessible||p.intro||p.budgetRecovery),rich:pickupKind(p)==='cache',manual:getPickupSpec(p).manualOnly})).sort((a,b)=>a.time-b.time)};
+   y:p.y,mass:p.sparkMass||({'cache':3,'cluster':2}[pickupKind(p)]||1),fuel:getPickupSpec(p).fuel,accessible:!!(p.accessible||p.intro||p.budgetRecovery),rich:pickupKind(p)==='cache',manual:getPickupSpec(p).manualOnly})).sort((a,b)=>a.time-b.time)};
  result.rawFuel=result.items.reduce((s,p)=>s+p.fuel,0);result.fuelPerSecond=result.rawFuel/result.seconds;
  inventories.set(key,result);e.destroy();return result;
 }
@@ -82,13 +82,13 @@ function simulateFlow(run,inv,style,rng,{captureDelta=0,effortScale=1,artifactSc
   if(item.manual)chance-=.16;if(item.rich)chance+=.02;
   chance=clamp(chance,.05,.985);attempted++;
   let caught=rng()<chance,delivery=false;
-  if(!caught&&!item.manual&&has('collector')){
+  if(!caught&&!item.manual&&has('collector')&&item.mass<=(mod.collectorFetchMass||2)){
    const recovery=clamp((t-lastFetched)/Math.max(1,WISP_TUNING.cooldown*(mod.wispCooldown||1)),.1,1);
    const rescueChance=clamp((.17+.17*recovery)*(WISP_TUNING.range/105)*(mod.attract||1),.05,.58);
    if(rng()<rescueChance){caught=true;delivery=true;lastFetched=t;fetched++;}
   }
   if(!caught)continue;captured++;
-  let fuel=item.fuel+(run.current?.fuelBonus||0)+clamp(mod.cacheFuelBonus||0,0,32)+(item.rich?(mod.richFuelBonus||0):0);
+  let fuel=(delivery&&item.mass>2?40:item.fuel)+(run.current?.fuelBonus||0)+clamp(mod.cacheFuelBonus||0,0,32)+(item.rich&&!delivery?(mod.richFuelBonus||0):0);
   if(delivery)fuel+=mod.collectorFuelBonus||0;else if(mod.mainKindler)fuel+=mod.kindlerBonus||6;
   fuel=Math.round(fuel*artifactScale*.3)/.3;
   events.push({t:t+(delivery?.32:0),fuel,item,delivery});
@@ -132,7 +132,7 @@ function simulateFlow(run,inv,style,rng,{captureDelta=0,effortScale=1,artifactSc
     if(!event.shield){if(burdenRemaining>0)burdenRemaining--;effects.onFlap(true);actor.lastFlapTime=event.t;fuel=actor.flame;}
    }
   }else{
-   const packet={kind:event.item.kind,deliveredByWisp:event.delivery},spec=getPickupSpec(packet);
+   const packet={kind:event.delivery&&event.item.mass>2?'cluster':event.item.kind,sparkMass:event.delivery?Math.min(2,event.item.mass):event.item.mass,deliveredByWisp:event.delivery},spec=getPickupSpec(packet);
    if(!event.delivery)bodyFuelCollected++;
    if((event.delivery||has('swift')||has('leveler'))&&event.t>=workAt){effects.onWork();fuel=actor.flame;workAt=event.t+8;}
    const amount=event.fuel+Math.round(effects.fuelBonus(packet,spec)*.3)/.3;

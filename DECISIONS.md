@@ -938,3 +938,26 @@ Implemented the chosen steady Giant Black Hole encounter. Its core hangs beyond 
 Trajectory Guide no longer draws an upward blue Lift path. A small red pixel dot marks the actual overhead surface an affordable Lift would hit within the guide's horizon. Open sky and safe Lifts have no warning. The falling line and rank-three gold Spark route remain. Guide base prices are now 25/40/70 Stored Sparks, down from 45/65/110; run training growth still applies.
 
 The roof/floor rehearsal is at `black-holes.html`, uses the real game engine, starts paused, and changes no campaign save. Giant warnings and the first-encounter lesson account for an offscreen source. Focused verification covered 192 generated flights across 48 courses, 178,430 collider samples and four delayed-input crossings; the first seven natural giants passed placement checks. Both flight renderers and two phone landscape sizes were inspected. This is browser/model evidence, not a physical-device frame-rate or human difficulty guarantee. See `docs/steady-giants-and-ceiling-guide.md`.
+
+## 15 November 2026 · Local visual direction awaiting approval
+
+Prepared, not deployed: finer shared wisp and companion art, restrained chipped
+menu frames, detailed treasure objects and a finer Stored Sparks case. All five
+fuel Spark sizes now use the same size-aware pixel plasma painter. Menu Spark
+assets are baked from it. Larger Sparks add detail at a comparable displayed
+grain rather than switching to a smooth material. The player must approve the
+review screens before these pixelation changes are published.
+
+Collector size handling is implemented locally: Small/Cluster by default;
+Cache → Surge → Giant are separate sequential skills and Flash is separate.
+Larger fetched cargo shrinks to a Cluster before delivery and yields 12 base
+Sparks; main-body pickups retain full size rewards. Guard branch restructuring
+and purchased targeting preferences remain planning work.
+
+Also prepared locally: additive Regenerative Pulse (+3 Sparks with normal
+reveal, up to eight recoveries per flight); current and upgraded Luminance in
+wisp body widths; positive preparations lasting three cleared flights without
+being spent on death; and the Fallen Giant's one-time permanent +3 capacity
+challenge reward. Reward copy drops redundant “now” and uses “permanently.”
+New Game still resets run upgrades and artifacts. See
+`docs/visual-consistency-review.md` for screenshots and preview links.

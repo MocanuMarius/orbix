@@ -1,6 +1,6 @@
-import {SKILLS} from './model.mjs?v=steady-giants-1';
-import {treeHeader,treeCanvas,treeDetail} from './living-tree.mjs?v=steady-giants-1';
-import {safeTreeSelection} from './skill-tree-state.mjs?v=steady-giants-1';
+import {SKILLS} from './model.mjs?v=spark-field-guide-1';
+import {treeHeader,treeCanvas,treeDetail} from './living-tree.mjs?v=spark-field-guide-1';
+import {safeTreeSelection} from './skill-tree-state.mjs?v=spark-field-guide-1';
 export function branchTreeMarkup({run,wallet,branch,canBuy,selected}){
  const skills=Object.values(SKILLS).filter(s=>!s.retired&&s.treeTab===branch&&(branch!=='companion'||s.branch===run.companions[0]));
  const skill=safeTreeSelection(skills,selected,{run,wallet,canBuy});

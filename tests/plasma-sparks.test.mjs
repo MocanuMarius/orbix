@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 import {readFile} from 'node:fs/promises';
 import {inflateSync} from 'node:zlib';
-import {drawPickup, drawSparkSymbol, prepareFuelSprites, pickupArtSvg, pickupSpriteFrame} from '../dist/pickup-art.mjs';
+import {drawPickup, drawSparkSymbol, prepareFuelSprites, pickupArtSvg, pickupSpriteFrame, sparkRasterMetrics} from '../dist/pickup-art.mjs';
 import {resourceSymbol} from '../dist/game-symbols.mjs';
 import {getPickupSpec, pickupContactRadius, pickupShellRadius} from '../dist/pickups.mjs';
 import {glowPoints} from '../dist/vitality.mjs';
@@ -13,7 +13,7 @@ function atlasFixture() {
   const sprites = [];
   const doc = {createElement() {
     const sprite = {};
-    const ctx = {globalAlpha: 1, save(){}, restore(){}, fillRect(x, y, w, h) {
+    const ctx = {globalAlpha: 1, save(){}, restore(){}, clearRect(){sprite.pixels=undefined;}, fillRect(x, y, w, h) {
       sprite.pixels ??= Buffer.alloc(sprite.width * sprite.height * 4);
       const color = Number.parseInt(this.fillStyle.slice(1), 16);
       const alpha = this.globalAlpha;
@@ -102,7 +102,7 @@ test('large Spark frames sample the screen grid and reuse bounded canvases acros
   const doc={createElement(){
     const canvas={};
     const context={
-      canvas,clearRect(){},save(){},restore(){},translate(){},scale(){},beginPath(){},arc(){},fill(){},
+      canvas,clearRect(){},fillRect(){},save(){},restore(){},translate(){},scale(){},beginPath(){},arc(){},fill(){},
       stroke(){},moveTo(){},lineTo(){},createRadialGradient(){return {addColorStop(){}};}
     };
     canvas.getContext=()=>context;
@@ -113,11 +113,11 @@ test('large Spark frames sample the screen grid and reuse bounded canvases acros
     for(const [kind,massTier,scale] of [['cache',10,5.2],['dark',6,2.3],['dark',10,11.9]]){
       const options={time:frame/25,scale,massTier,bodyOnly:frame%3===0};
       const sprite=pickupSpriteFrame(doc,kind,options);
-      assert.ok(sprite.sparkTexelScale>=scale);
+      assert.ok(Math.abs(scale/sprite.sparkTexelScale-1)<.12,'detail stays close to one projected pixel');
       assert.equal(sprite,pickupSpriteFrame(doc,kind,options));
     }
   }
-  assert.ok(surfaces.size<=8);
+  assert.ok(surfaces.size<=16,'fuel and dark atlases each retain at most eight large surfaces');
 });
 
 test('the Flash Powerup uses the same white triangle and halo in the field and menus', async () => {
@@ -159,7 +159,9 @@ test('the menu, its wallet window and canvas labels use the scaled flight Spark'
       const regular = ctx.last;
       for (const size of [8,16,35]) {
         drawSparkSymbol(ctx,10,10,{size,time,reducedMotion});
-        assert.equal(ctx.last,regular);
+        assert.ok(ctx.last.pixels.some(value=>value),'the symbol remains the shared animated plasma material');
+        assert.equal(ctx.imageSmoothingEnabled,false,'scaling never adds a smooth-only Spark variant');
+        assert.equal(ctx.last.sparkTexelScale,sparkRasterMetrics(size/44).density);
       }
     }
   }

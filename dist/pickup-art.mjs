@@ -1,5 +1,5 @@
-import { pickupKind, getPickupSpec, pickupDisposition, PLASMA_SHELL_RADIUS, SPARK_ART_SCALE } from './pickups.mjs?v=steady-giants-1';
-import {sparkImageArt,sparkSymbolArt} from './spark-symbol.mjs?v=steady-giants-1';
+import { pickupKind, getPickupSpec, pickupDisposition, PLASMA_SHELL_RADIUS, SPARK_ART_SCALE } from './pickups.mjs?v=spark-field-guide-1';
+import {sparkImageArt,sparkSymbolArt} from './spark-symbol.mjs?v=spark-field-guide-1';
 
 const TAU = Math.PI * 2;
 const clamp = (value, low, high) => Math.max(low, Math.min(high, value));
@@ -49,17 +49,16 @@ function paintPlasma(tier, phase, radius, rect, disc, ring, bodyOnly) {
     disc(0,0,radius*.92,ink.glow,.19);
     disc(0,0,radius*.72,ink.arc,.17);
   } else if (tier===3) {
-    disc(0,0,radius+5,ink.glow,.19);
-    disc(0,0,radius+4,ink.glow,.29);
-    disc(0,0,radius+3,ink.arc,.35);
-    disc(0,0,radius+2,ink.arc,.48);
-    disc(0,0,radius+1,ink.core,.40);
+    ring(radius+4,ink.glow,.08,2);
+    ring(radius+3,ink.glow,.13,2);
+    ring(radius+2,ink.arc,.18,2);
+    ring(radius+1,ink.arc,.25,1.5);
   } else {
-    disc(0,0,radius+tier,ink.glow,tier===1?.10:.28);
+    ring(radius+tier,ink.glow,tier===1?.10:.20,2);
   }
   if (!bodyOnly) {
-    disc(0,0,radius,ink.base,.96);
-    disc(0,0,radius*.75,ink.glow,.11+tier*.025);
+    disc(0,0,radius,ink.base,.46);
+    disc(0,0,radius*.75,ink.glow,.045+tier*.01);
     ring(radius-.45,ink.rim,tier===1?.90:.83,tier===1?1.4:1.2);
   }
   function line(ax,ay,bx,by,energy,hot,branch=false) {
@@ -70,8 +69,11 @@ function paintPlasma(tier, phase, radius, rect, disc, ring, bodyOnly) {
       rect(x,y,hot && !branch ? 2 : 1,1,hot ? ink.core : ink.arc,energy);
     }
   }
+  // A larger volume has more discharges, not larger source pixels. Every
+  // shell and channel is painted on the same projected one-pixel grid.
+  const extra=radius>35?richTracks.slice(discharges[3].length):[];
   let charge=0;
-  for(const track of discharges[tier]){
+  for(const track of [...discharges[tier],...extra]){
     const t=(phase+track.offset)%1;
     const e=track.events.find(event=>t>=event.start && t<event.start+event.duration);
     if(!e)continue;
@@ -83,8 +85,15 @@ function paintPlasma(tier, phase, radius, rect, disc, ring, bodyOnly) {
     const near=radius*.33*reach,far=radius*.63*reach,edge=radius*e.rimLength*reach;
     const ax=Math.cos(a)*near,ay=Math.sin(a)*near,bx=Math.cos(b)*far,by=Math.sin(b)*far;
     const tipX=Math.cos(e.angle)*edge,tipY=Math.sin(e.angle)*edge;
-    line(0,0,ax,ay,energy,true);line(ax,ay,bx,by,energy,life<.69);
-    line(bx,by,tipX,tipY,energy,life<.4);
+    const segments=Math.max(3,Math.min(28,Math.ceil(radius/3)));
+    let lastX=0,lastY=0;
+    for(let j=1;j<=segments;j++){
+      const f=j/segments,bend=(1-f)*(e.bendA*(1-f)+e.bendB*f);
+      const kink=(Math.sin(e.jitter+j*1.93+twitch*.9)*.043+Math.sin(j*.73+life*3)*.055)*Math.sin(Math.PI*f);
+      const a=e.angle+bend+kink,rr=radius*e.rimLength*reach*f;
+      const x=Math.cos(a)*rr,y=Math.sin(a)*rr;
+      line(lastX,lastY,x,y,energy,life<.69);lastX=x;lastY=y;
+    }
     if(e.fork && life>e.forkTime && life<.92){
       const fork=e.angle+e.fork,arm=radius*(.75+.16*Math.sin(Math.PI*life));
       line(bx,by,Math.cos(fork)*arm,Math.sin(fork)*arm,energy,false,true);
@@ -104,7 +113,11 @@ function paintPlasma(tier, phase, radius, rect, disc, ring, bodyOnly) {
     }
     charge+=energy;
   }
-  const core=tier===3?4:3.4;
+  if(!bodyOnly&&radius>12)for(let i=0;i<Math.min(58,Math.floor(radius*.65));i++){
+    const [x,y,depth]=inclusions[i];
+    rect(Math.round(x*radius),Math.round(y*radius),1,1,ink.glass,.13+depth*.20);
+  }
+  const core=2.7+Math.sqrt(radius)*.16;
   disc(0,0,core+2,ink.glow,Math.min(.60,.25+charge*.035));
   disc(0,0,core,ink.arc,.96);
   rect(-2,-1,5,3,ink.core);rect(-1,-2,3,5,ink.core);rect(-2,-2,4,4,ink.core);
@@ -154,18 +167,22 @@ function paintFlashPrism(rect,time,reducedMotion,bodyOnly) {
 
 // Shared low-resolution paint operations: the game and the field guide use
 // the same bodies, shading, silhouettes and halo colors, with no gem frames.
-function packetPixels(kind, { time = 0, reducedMotion = false, tiny = false, bodyOnly = false } = {}) {
+function packetPixels(kind, { time = 0, reducedMotion = false, tiny = false, bodyOnly = false, rasterScale = 1 } = {}, paint=null) {
   const pixels = [];
+  const emit=(x,y,width,height,color,alpha)=>{
+    if(paint)paint(x,y,width,height,color,alpha);
+    else pixels.push({x,y,width,height,color,alpha});
+  };
   let shrink = (tiny ? .62 : 1) * (kind === 'sight' ? 1 : SPARK_ART_SCALE);
   const rect = (x, y, width, height, color, alpha = 1) => {
     if (kind === 'sight') {
-      pixels.push({x:x*shrink, y:y*shrink, width:width*shrink, height:height*shrink, color, alpha});
+      emit(x*shrink,y*shrink,width*shrink,height*shrink,color,alpha);
       return;
     }
     const left = Math.round(x * shrink), top = Math.round(y * shrink);
     const w = Math.round((x + width) * shrink) - left;
     const h = Math.round((y + height) * shrink) - top;
-    if (w > 0 && h > 0) pixels.push({x:left, y:top, width:w, height:h, color, alpha});
+    if (w > 0 && h > 0) emit(left,top,w,h,color,alpha);
   };
   const oval = (x, y, rx, ry, color, alpha = 1) => {
     const rows = Math.max(1, Math.ceil(ry));
@@ -191,8 +208,9 @@ function packetPixels(kind, { time = 0, reducedMotion = false, tiny = false, bod
   };
   const spec=getPickupSpec(kind),contact=spec.contactRadius,warning=pickupDisposition(kind)==='warning';
   if(spec.plasma){
+    shrink=1;
     const phase=reducedMotion?0:((time/FUEL_ANIMATION.period)%1+1)%1;
-    paintPlasma(spec.plasma,phase,PLASMA_SHELL_RADIUS,rect,disc,ring,bodyOnly);
+    paintPlasma(spec.plasma,phase,PLASMA_SHELL_RADIUS*SPARK_ART_SCALE*rasterScale,rect,disc,ring,bodyOnly);
     return pixels;
   }
   if(kind==='sight'){
@@ -249,18 +267,50 @@ function frameAt(clock, period, frames, reducedMotion) {
   return reducedMotion ? 0 : Math.floor(((clock % period + period) % period) / period * frames);
 }
 // The offline menu assets are generated from this exact paint pass.
-export function drawFuelFrame(context,x,y,kind,frame,reducedMotion=false,bodyOnly=false){
+export function drawFuelFrame(context,x,y,kind,frame,reducedMotion=false,bodyOnly=false,rasterScale=1){
   const time=frame/FUEL_ANIMATION.frames*FUEL_ANIMATION.period;
-  for(const p of packetPixels(kind,{time,reducedMotion,bodyOnly})){
-    context.globalAlpha=p.alpha;context.fillStyle=p.color;
-    context.fillRect(x+p.x,y+p.y,p.width,p.height);
+  packetPixels(kind,{time,reducedMotion,bodyOnly,rasterScale},(px,py,width,height,color,alpha)=>{
+    context.globalAlpha=alpha;context.fillStyle=color;
+    context.fillRect(x+px,y+py,width,height);
+  });
+}
+// This controls source detail only. Body size, collision size and fuel remain
+// untouched. Nearest-neighbor presentation keeps a comparable grain at every
+// size instead of magnifying the medium sprite or supersampling the giant.
+export function sparkRasterMetrics(scale=1){
+  const density=Math.max(.5,Math.min(16,Math.round((Number(scale)||1)*4)/4));
+  const radius=PLASMA_SHELL_RADIUS*SPARK_ART_SCALE*density;
+  return {density,radius,side:density===1?FUEL_ANIMATION.size:2*Math.ceil(radius+7)};
+}
+const adaptiveFuelAtlases=new WeakMap();
+function adaptiveFuelSprite(doc,id,frame,bodyOnly,scale,reducedMotion){
+  const {density,side}=sparkRasterMetrics(scale);
+  let cache=adaptiveFuelAtlases.get(doc);
+  if(!cache){cache={small:new Map(),large:[],next:0};adaptiveFuelAtlases.set(doc,cache);}
+  const key=[id,frame,bodyOnly,density,reducedMotion].join(':');
+  if(cache.small.has(key))return cache.small.get(key);
+  for(const slot of cache.large)if(slot.key===key)return slot.canvas;
+  let sprite;
+  if(side<=64){
+    sprite=doc.createElement('canvas');
+    cache.small.set(key,sprite);
+    if(cache.small.size>256)cache.small.delete(cache.small.keys().next().value);
+  }else{
+    let slot;
+    if(cache.large.length<8){slot={canvas:doc.createElement('canvas')};cache.large.push(slot);}
+    else{slot=cache.large[cache.next];cache.next=(cache.next+1)%cache.large.length;}
+    slot.key=key;sprite=slot.canvas;
   }
+  if(sprite.width!==side||sprite.height!==side)sprite.width=sprite.height=side;
+  const c=sprite.getContext('2d');c.clearRect(0,0,side,side);
+  drawFuelFrame(c,side/2,side/2,id,frame,reducedMotion,bodyOnly,density);
+  sprite.sparkTexelScale=density;
+  return sprite;
 }
 // The cropped surfaces below are sized for the projected field sprite. Keep
 // their coordinate system in shell radii so the plasma, cargo and absorption
 // sample the same material even as their raster resolution changes.
 const largeAtlases=new WeakMap();
-const largeDensities=[2,4,6,8,12,16];
 const richTracks=[...discharges[3],...discharges[3].map(track=>({
   offset:(track.offset+.373)%1,
   events:track.events.map(event=>({...event,angle:event.angle+2.47,jitter:event.jitter+.91}))
@@ -401,7 +451,7 @@ function largeSparkArt(ctx,id,phase,bodyOnly,mass,radius,pen) {
 function largeSprite(doc,id,frame,bodyOnly,mass,scale){
   // Quantize the sampling rate, never the geometry. Up to eight recent views
   // share reusable canvases instead of retaining a full giant animation atlas.
-  const density=largeDensities.find(d=>d>=scale*1.35)??largeDensities.at(-1);
+  const density=sparkRasterMetrics(scale).density;
   let atlas=largeAtlases.get(doc);
   if(!atlas){atlas={slots:[],next:0};largeAtlases.set(doc,atlas);}
   const key=id+':'+frame+':'+mass+':'+density+':'+bodyOnly;
@@ -433,7 +483,10 @@ function largeSprite(doc,id,frame,bodyOnly,mass,scale){
 }
 
 function cachedSprite(doc,id,frame,tiny,reducedMotion,bodyOnly,detailed=false,massTier=0,scale=1) {
-  if(id!=='sight'&&(massTier>=5||detailed)){
+  if(getPickupSpec(id).plasma&&sparkRasterMetrics(scale).density!==1){
+    return adaptiveFuelSprite(doc,id,frame,bodyOnly,scale,reducedMotion);
+  }
+  if(!getPickupSpec(id).plasma&&id!=='sight'&&(massTier>=5||detailed)){
     return largeSprite(doc,id,frame,bodyOnly,massTier || (scale>=5?10:6),scale);
   }
   if(bodyOnly && getPickupSpec(id).plasma) frame -= frame % 6;
@@ -488,7 +541,7 @@ export function drawPickup(context,x,y,{kind='light',time=0,phase=0,reducedMotio
   context.save();const inherited=context.globalAlpha*clamp(Number(alpha)||0,0,1);
   if(sprite){
     const drawSize=size*(plasma&&tiny?.62:1)/sprite.sparkTexelScale;
-    context.globalAlpha=inherited;context.imageSmoothingEnabled=sprite.sparkTexelScale>1;
+    context.globalAlpha=inherited;context.imageSmoothingEnabled=false;
     const width=sprite.width*drawSize;
     context.drawImage(sprite,Math.round(x-width/2),Math.round(y-width/2),Math.round(width),Math.round(width));
   }

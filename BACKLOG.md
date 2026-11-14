@@ -162,3 +162,14 @@ Outstanding design questions are explicit, not silently treated as implemented: 
 - [x] Check actual physics, paused/Dream drain, terrain clearance, resource accounting and both phone renderers.
 
 Published as `steady-giants-1`, source `15dc15a`. All 259 release assets matched the local package. The public game modules and both roof/floor rehearsals passed phone-sized browser checks. Collector size gates, learned targeting preferences and the Guard reorganization remain the next planning batch; they are not silently included here.
+
+# 15 November · Prepared locally, awaiting visual approval
+
+- [x] Consistent fine pixel grain for wisp, companion, treasure art and menu frames.
+- [x] Shared size-aware Spark material, including medium/giant fidelity parity.
+- [x] Vessel/Stored Sparks box refinement; shorter permanent reward wording.
+- [x] Collector size unlocks, separate Flash skill, shrinking larger deliveries to 12 base Sparks.
+- [x] Additive Regenerative Pulse and readable Luminance radius comparisons.
+- [x] Three-clear positive preparations and a lasting Fallen Giant challenge reward.
+- [ ] Player visual approval, then publish this batch. Public build is unchanged.
+- [ ] Continue Collector Guard/targeting-preference planning after visual review.

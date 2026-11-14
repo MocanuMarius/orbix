@@ -1,15 +1,15 @@
-import {menuWorldMarkup} from './menu-world.mjs?v=steady-giants-1';
-import {resourceSymbol} from './game-symbols.mjs?v=steady-giants-1';
-import {formatGlow,getGlowCapacity} from './vitality.mjs?v=steady-giants-1';
-import {livesMarkup} from './lives.mjs?v=steady-giants-1';
-import { COMPANION_ABILITIES, getCompanionUnlock } from './companion-abilities.mjs?v=steady-giants-1';
-import { companionArtSvg } from './companion-art.mjs?v=steady-giants-1';
+import {menuWorldMarkup} from './menu-world.mjs?v=spark-field-guide-1';
+import {resourceSymbol} from './game-symbols.mjs?v=spark-field-guide-1';
+import {formatGlow,getGlowCapacity} from './vitality.mjs?v=spark-field-guide-1';
+import {livesMarkup} from './lives.mjs?v=spark-field-guide-1';
+import { COMPANION_ABILITIES, getCompanionUnlock } from './companion-abilities.mjs?v=spark-field-guide-1';
+import { companionArtSvg } from './companion-art.mjs?v=spark-field-guide-1';
 
 const esc = value => String(value ?? '').replace(/[&<>"']/g, char =>
   ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[char]));
 const tier = value => Math.max(1, Math.floor(Number(value) || 1));
 const benefits = Object.freeze({
-  collector: 'Fetches missed Sparks.', protector: 'Shields one collision, then recharges.',
+  collector: 'Fetches Small + Cluster Sparks.', protector: 'Shields one collision, then recharges.',
   leveler: 'Hold to hover. Release to glide.', swift: 'Surges through drafts.',
 });
 export const companionLockIcon = '<svg class="unlock-lock" viewBox="0 0 12 14" fill="none" aria-hidden="true"><path d="M3 6V4a3 3 0 0 1 6 0v2M1 6h10v7H1z" stroke="currentColor" stroke-width="1.5"/><path d="M6 9v2" stroke="currentColor"/></svg>';

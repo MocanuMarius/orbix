@@ -299,7 +299,7 @@ function flight(run) {
   g.running=true;
   return g;
 }
-test('next-attempt favors survive an unopened briefing, expire on a started interruption or collision, and cannot repeat on retry',()=>{
+test('positive preparations survive failed flights; the one-attempt lead penalty is spent on a started attempt',()=>{
   for (const [event,choice,favor] of [[0,'reserve-wick','wick'],[0,'hollow-feather','feather'],[7,'star-chart','lens'],[3,'companion-chime','haste'],[8,'bargain-burden','burden']]) {
     const state=visit(event); claim(state,choice); const node=nextFlight(state),r=state.run;
     assert.deepEqual(getRunModifiers(r).eventFavors,[favor]);
@@ -309,11 +309,11 @@ test('next-attempt favors survive an unopened briefing, expire on a started inte
     assert.ok(markFlightAttemptStarted(r));
     const suspended=structuredClone(state);
     assert.ok(suspendRun(suspended));
-    assert.deepEqual(getRunModifiers(suspended.run).eventFavors,[]);
+    assert.deepEqual(getRunModifiers(suspended.run).eventFavors,favor==='burden'?[]:[favor]);
     assert.ok(finishFlight(r,{success:false}));
     assert.ok(selectNode(r,node.id));
     assert.ok(beginFlightAttempt(r));
-    assert.deepEqual(getRunModifiers(r).eventFavors,[]);
+    assert.deepEqual(getRunModifiers(r).eventFavors,favor==='burden'?[]:[favor]);
   }
 });
 test('the real flight engine enforces wick threshold, paid Lift counts, sight radius and recovery speed',()=>{

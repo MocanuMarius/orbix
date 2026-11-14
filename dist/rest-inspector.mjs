@@ -1,4 +1,5 @@
-import {newState,createRun,advanceMap,selectNode} from './model.mjs?v=steady-giants-1';
+import {newState,createRun,advanceMap,selectNode} from './model.mjs?v=spark-field-guide-1';
+import {describeTreasure,TREASURE_KINDS} from './treasure.mjs?v=spark-field-guide-1';
 // Deliberately independent of storage. Every refresh creates the same mock run.
 export function createRestInspectorState(){
  const state=newState();state.profile.difficulty=4;
@@ -9,4 +10,12 @@ export function createRestInspectorState(){
  const rest=r.map.flat().find(n=>n.kind==='camp');if(!rest)throw Error('Mock Rest missing');
  let child=rest;const path=[];for(let row=rest.row-1;row>=0;row--){const parent=r.map[row].find(n=>n.nextIds.includes(child.id));if(!parent)throw Error('Mock path missing');path.unshift(parent.id);child=parent;}
  r.step=rest.row;r.path=path;r.phase='map';if(!selectNode(r,rest.id))throw Error('Cannot open mock Rest');return state;
+}
+
+export function createTreasureInspectorState(kind='vessel'){
+ const state=createRestInspectorState(),r=state.run;
+ if(!TREASURE_KINDS.includes(kind))kind='vessel';
+ Object.assign(r.current,describeTreasure(kind),{kind:'treasure',type:'support'});
+ r.supportOffers=null;r.flame=100;state.settings.skipTutorial=true;
+ return state;
 }

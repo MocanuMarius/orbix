@@ -1,4 +1,4 @@
-import {drawPickup} from './pickup-art.mjs?v=steady-giants-1';
+import {drawPickup} from './pickup-art.mjs?v=spark-field-guide-1';
 
 const TAU = 2 * Math.PI;
 const clamp = (x, lo=0, hi=1) => Math.max(lo,Math.min(hi,x));

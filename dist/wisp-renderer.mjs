@@ -1,33 +1,33 @@
-import {drawAtlasFlight} from './atlas-flight.mjs?v=steady-giants-1';
-import {drawGuardianPresence} from './guardian-presence.mjs?v=steady-giants-1';
-import {createDepthScenery,drawDepthScenery} from './depth-scenery.mjs?v=steady-giants-1';
-import { drawGuardianWarnings } from './guardian-art.mjs?v=steady-giants-1';
-import { drawShutters } from './shutter-cone.mjs?v=steady-giants-1';
-import {drawProximityMeter} from './proximity-meter.mjs?v=steady-giants-1';
-import {drawFourthBeat} from './fourth-beat-art.mjs?v=steady-giants-1';
-import {drawCollectorField} from './collector-field-art.mjs?v=steady-giants-1';
-import {drawObjectiveMarks} from './flight-objectives.mjs?v=steady-giants-1';
-import {drawFlightProjection} from './flight-projection.mjs?v=steady-giants-1';
-import {drawGlowSense} from './glow-sense.mjs?v=steady-giants-1';
-import {formatGlow} from './vitality.mjs?v=steady-giants-1';
-import {LOCATION_PALETTES} from './world-expansion.mjs?v=steady-giants-1';
-import {biomePalette} from './biome-art.mjs?v=steady-giants-1';
-import { sceneryIdentity, drawIdentityBackground, drawIdentityMaterial, drawIdentityLife } from './level-scenery.mjs?v=steady-giants-1';
-import { getCompanionAbility, normalizeCompanionRole } from './companion-abilities.mjs?v=steady-giants-1';
-import { companionSprite, companionPalette, makeWispSprite } from './companion-art.mjs?v=steady-giants-1';
-import { createScenePropArt } from './scene-prop-art.mjs?v=steady-giants-1';
-import { drawBoss } from './boss.mjs?v=steady-giants-1';
-import {drawFlashTether} from './flash-tether.mjs?v=steady-giants-1';
-import { drawPickup, drawSparkSymbol } from './pickup-art.mjs?v=steady-giants-1';
-import {sparkBodyRadius,sparkArtScale,sparkMass} from './spark-size.mjs?v=steady-giants-1';
-import { pickupKind, getPickupSpec } from './pickups.mjs?v=steady-giants-1';
-import { LIGHT_EXTENT,lightAttenuation,lightVisibility,createLightMaskCanvas,castFlightFlashLights,revealLanternWake,sceneRevealStrength,renderLightState,lightDreamScenery } from './light-field.mjs?v=steady-giants-1';
-import {drawExitLandmark} from './exit-landmark.mjs?v=steady-giants-1';
-import {drawBlackHoles} from './black-hole-art.mjs?v=steady-giants-1';
-import {drawCapture, drawShellPuff, drawCarriedSpark} from './capture-art.mjs?v=steady-giants-1';
-import {drawShellArcs} from './shell-arcs.mjs?v=steady-giants-1';
-import {drawFlightForks,drawFlightForkBackdrops} from './flight-forks.mjs?v=steady-giants-1';
-import {drawFallWarning} from './fall-chain-art.mjs?v=steady-giants-1';
+import {drawAtlasFlight} from './atlas-flight.mjs?v=spark-field-guide-1';
+import {drawGuardianPresence} from './guardian-presence.mjs?v=spark-field-guide-1';
+import {createDepthScenery,drawDepthScenery} from './depth-scenery.mjs?v=spark-field-guide-1';
+import { drawGuardianWarnings } from './guardian-art.mjs?v=spark-field-guide-1';
+import { drawShutters } from './shutter-cone.mjs?v=spark-field-guide-1';
+import {drawProximityMeter} from './proximity-meter.mjs?v=spark-field-guide-1';
+import {drawFourthBeat} from './fourth-beat-art.mjs?v=spark-field-guide-1';
+import {drawCollectorField} from './collector-field-art.mjs?v=spark-field-guide-1';
+import {drawObjectiveMarks} from './flight-objectives.mjs?v=spark-field-guide-1';
+import {drawFlightProjection} from './flight-projection.mjs?v=spark-field-guide-1';
+import {drawGlowSense} from './glow-sense.mjs?v=spark-field-guide-1';
+import {formatGlow} from './vitality.mjs?v=spark-field-guide-1';
+import {LOCATION_PALETTES} from './world-expansion.mjs?v=spark-field-guide-1';
+import {biomePalette} from './biome-art.mjs?v=spark-field-guide-1';
+import { sceneryIdentity, drawIdentityBackground, drawIdentityMaterial, drawIdentityLife } from './level-scenery.mjs?v=spark-field-guide-1';
+import { getCompanionAbility, normalizeCompanionRole } from './companion-abilities.mjs?v=spark-field-guide-1';
+import { companionPalette, makeCompanionSprite, makeWispSprite } from './companion-art.mjs?v=spark-field-guide-1';
+import { createScenePropArt } from './scene-prop-art.mjs?v=spark-field-guide-1';
+import { drawBoss } from './boss.mjs?v=spark-field-guide-1';
+import {drawFlashTether} from './flash-tether.mjs?v=spark-field-guide-1';
+import { drawPickup, drawSparkSymbol } from './pickup-art.mjs?v=spark-field-guide-1';
+import {sparkBodyRadius,sparkArtScale,sparkMass} from './spark-size.mjs?v=spark-field-guide-1';
+import { pickupKind, getPickupSpec } from './pickups.mjs?v=spark-field-guide-1';
+import { LIGHT_EXTENT,lightAttenuation,lightVisibility,createLightMaskCanvas,castFlightFlashLights,revealLanternWake,sceneRevealStrength,renderLightState,lightDreamScenery } from './light-field.mjs?v=spark-field-guide-1';
+import {drawExitLandmark} from './exit-landmark.mjs?v=spark-field-guide-1';
+import {drawBlackHoles} from './black-hole-art.mjs?v=spark-field-guide-1';
+import {drawCapture, drawShellPuff, drawCarriedSpark} from './capture-art.mjs?v=spark-field-guide-1';
+import {drawShellArcs} from './shell-arcs.mjs?v=spark-field-guide-1';
+import {drawFlightForks,drawFlightForkBackdrops} from './flight-forks.mjs?v=spark-field-guide-1';
+import {drawFallWarning} from './fall-chain-art.mjs?v=spark-field-guide-1';
 
 const TAU = Math.PI * 2;
 const SCENERY_HELPERS = { line: pixelLine, disc: pixelDisc, polygon: path };
@@ -709,13 +709,7 @@ export class WispFlightView {
     const key = 'orb:' + role;
     let canvas = this.spriteCache.get(key);
     if (canvas) return canvas;
-    const art = companionSprite(role), tint = companionPalette(role);
-    canvas = this.document.createElement('canvas'); canvas.width = art.width; canvas.height = art.height;
-    const c = canvas.getContext('2d'), inks = [null, tint.outer, tint.mid, tint.core, tint.bright];
-    for (let y = 0; y < art.height; y++) for (let x = 0; x < art.width; x++) {
-      const ink = inks[Number(art.rows[y][x])];
-      if (ink) { c.fillStyle = ink; c.fillRect(x, y, 1, 1); }
-    }
+    canvas = makeCompanionSprite(this.document,role);
     this.spriteCache.set(key, canvas);
     return canvas;
   }
@@ -842,7 +836,7 @@ export class WispFlightView {
       this.glow(x, y, collector ? 11 : 12, tint.outer, intensity * .21);
       const sprite = this.orbSprite(role);
       c.globalAlpha = intensity;
-      if(collector)c.drawImage(sprite,x-5*depthScale,y-5*depthScale,10*depthScale,10*depthScale);else c.drawImage(sprite, x - 6, y - 6);
+      if(collector)c.drawImage(sprite,x-5*depthScale,y-5*depthScale,10*depthScale,10*depthScale);else c.drawImage(sprite, x - 6, y - 6,13,13);
       c.globalAlpha = 1;
       if (collector && state.carrying) {
         drawCarriedSpark(c,state,e.captureTime ?? t,s,e.reducedMotion,e.captureStyle);
