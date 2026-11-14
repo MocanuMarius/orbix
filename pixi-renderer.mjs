@@ -1,10 +1,10 @@
-import {formatGlow} from './vitality.mjs?v=guardian-beat-2';
-import * as PIXI from './vendor/pixi.mjs?v=guardian-beat-2';
-import { obstaclePolygons } from './flight.mjs?v=guardian-beat-2';
-import { PhoenixRig } from './phoenix-rig.mjs?v=guardian-beat-2';
-import { Phoenix3D } from './phoenix-3d.mjs?v=guardian-beat-2';
-import { PhoenixFlameEffects } from './flame-effects.mjs?v=guardian-beat-2';
-import { bakeLandform } from './landform-material.mjs?v=guardian-beat-2';
+import {formatGlow} from './vitality.mjs?v=long-flash-1';
+import * as PIXI from './vendor/pixi.mjs?v=long-flash-1';
+import { obstaclePolygons } from './flight.mjs?v=long-flash-1';
+import { PhoenixRig } from './phoenix-rig.mjs?v=long-flash-1';
+import { Phoenix3D } from './phoenix-3d.mjs?v=long-flash-1';
+import { PhoenixFlameEffects } from './flame-effects.mjs?v=long-flash-1';
+import { bakeLandform } from './landform-material.mjs?v=long-flash-1';
 
 // Native Pixi scene objects share the simulation's polygon geometry. The legacy
 // canvas is retained only as a layout/input fallback when WebGL is unavailable.
@@ -791,7 +791,7 @@ export class PixiFlightView {
       item.flash.alpha = Math.max(0, 1 - t * 3) * .8;
       item.ring.clear().circle(0, 0, engine.reducedMotion ? 18 : 8 + t * 44)
         .stroke({ width: 2 * (1 - t), color: 0xffdc86, alpha: (1 - t) * .8 });
-      item.label.text = effect.restored > 0 ? `+${formatGlow(effect.restored,engine.maxFlame||100)} SPARKS` : `+${effect.value}`;
+      item.label.text = effect.text || (effect.restored > 0 ? `+${formatGlow(effect.restored,engine.maxFlame||100)} SPARKS` : 'FULL');
       item.label.style.fontSize = effect.restored > 0 ? 13 : 18;
       item.label.position.set(15, -22 - (engine.reducedMotion ? 0 : t * 32));
       item.label.alpha = Math.min(1, (1 - t) * 3);

@@ -1,13 +1,13 @@
-import {resourceCycleArt} from './resource-cycle.mjs?v=guardian-beat-2';
-import {getCompanionAbility} from './companion-abilities.mjs?v=guardian-beat-2';
-import {resourceSymbol} from './game-symbols.mjs?v=guardian-beat-2';
-import {pickupArtSvg} from './pickup-art.mjs?v=guardian-beat-2';
-import {getPickupSpec} from './pickups.mjs?v=guardian-beat-2';
-import {mapStopIconMarkup,MAP_STOP_TYPES} from './map-guide.mjs?v=guardian-beat-2';
-import {artifactIcon,skillIcon} from './upgrade-icons.mjs?v=guardian-beat-2';
-import {companionArtSvg} from './companion-art.mjs?v=guardian-beat-2';
-import {dreamEye} from './dream.mjs?v=guardian-beat-2';
-import {lifeHeartSvg} from './lives.mjs?v=guardian-beat-2';
+import {resourceCycleArt} from './resource-cycle.mjs?v=long-flash-1';
+import {getCompanionAbility} from './companion-abilities.mjs?v=long-flash-1';
+import {resourceSymbol} from './game-symbols.mjs?v=long-flash-1';
+import {pickupArtSvg} from './pickup-art.mjs?v=long-flash-1';
+import {getPickupSpec} from './pickups.mjs?v=long-flash-1';
+import {mapStopIconMarkup,MAP_STOP_TYPES} from './map-guide.mjs?v=long-flash-1';
+import {artifactIcon,skillIcon} from './upgrade-icons.mjs?v=long-flash-1';
+import {companionArtSvg} from './companion-art.mjs?v=long-flash-1';
+import {dreamEye} from './dream.mjs?v=long-flash-1';
+import {lifeHeartSvg} from './lives.mjs?v=long-flash-1';
 const item=(art,label)=>`<span class="coach-term">${art}<b>${label}</b></span>`;
 const arrow='<i class="coach-term-arrow" aria-hidden="true">→</i>';
 const meter='<span class="coach-meter" aria-hidden="true">'+Array.from({length:10},(_,i)=>`<i class="${i<7?'filled':''}"></i>`).join('')+'</span>';
@@ -24,7 +24,7 @@ export function tutorialVisualMarkup(step={}){
  if(kind==='luminance'||id.startsWith('world:luminance'))return item(skillIcon({id:'main-sight'}),'LUMINANCE');
  if(kind==='wisp')return item(companionArtSvg('collector'),'WISP');
  if(kind==='meter')return item(meter,'SPARK METER');
- if(kind==='spark-layers')return ['light','cluster','cache'].map((type,i)=>item(pickupArtSvg(type),[6,12,18][i]+' SPARKS')).join('');
+ if(kind==='spark-layers')return resourceCycleArt({stage:0});
  if(kind==='life-loss')return item(lifeHeartSvg(),'1 HEART')+arrow+item(lifeHeartSvg(true),'−1 ATTEMPT');
  if(kind==='pause')return item('<svg viewBox="0 0 32 32" fill="currentColor" aria-hidden="true"><path d="M8 5h5v22H8zM19 5h5v22h-5z"/></svg>','PAUSE · RESUME');
  if(kind==='black-hole'||id.startsWith('world:black-hole'))return item('<svg viewBox="0 0 40 40" aria-hidden="true"><circle cx="20" cy="20" r="17" fill="#9c7383" opacity=".3"/><circle cx="20" cy="20" r="13" fill="#030507" stroke="#9a738a" stroke-width="2"/><path d="M4 10q24-14 32 10M35 29Q13 43 4 20" fill="none" stroke="#e1c7b2" stroke-width="2"/></svg>','BLACK HOLE');
@@ -35,7 +35,7 @@ export function tutorialVisualMarkup(step={}){
  if(kind==='skill-states')return '<span class="coach-skill-key"><b>✓ OWNED</b><b>+ CAN LEARN</b><b>◆ NEED LIGHT</b><b>▣ LOCKED</b></span>';
  if(kind?.startsWith('site:'))return item(mapStopIconMarkup(kind.slice(5)),kind.slice(5).toUpperCase());
  if(kind==='sites-support')return item(mapStopIconMarkup('encounter'),'ENCOUNTER')+item(mapStopIconMarkup('treasure'),'TREASURE');
- if(kind?.startsWith('pickup:')){const type=kind.slice(7);return item(pickupArtSvg(type),getPickupSpec(type).name);}
+ if(kind?.startsWith('pickup:')){const type=step.pickup||kind.slice(7);return item(pickupArtSvg(type),getPickupSpec(type).name);}
  if(kind==='spark'||id.startsWith('world:light-packet'))return item(pickupArtSvg('light'),'SPARK')+arrow+item(meter,'SPARK METER');
  if(kind==='clear-reward')return item(mapStopIconMarkup('flight'),'CLEAR FLIGHT')+arrow+item(resourceSymbol('packed'),'+20 STORED SPARKS');
  if(kind==='packed')return item(resourceSymbol('glow'),'FULL METER')+arrow+item(resourceSymbol('packed'),'BONUS STORED SPARKS');

@@ -1,11 +1,11 @@
-import {biomePalette,drawBiomeBackground} from './biome-art.mjs?v=guardian-beat-2';
-import {createDepthScenery,drawDepthScenery} from './depth-scenery.mjs?v=guardian-beat-2';
-import {LIGHT_EXTENT,createLightMaskCanvas,sceneRevealStrength,flashRangeStrength,pickupRevealAt,pickupRevealHold} from './light-field.mjs?v=guardian-beat-2';
-import {LIGHT_PACKET_TUNING} from './vitality.mjs?v=guardian-beat-2';
-import {makeWispSprite} from './companion-art.mjs?v=guardian-beat-2';
-import {drawPickup} from './pickup-art.mjs?v=guardian-beat-2';
-import {getPickupSpec} from './pickups.mjs?v=guardian-beat-2';
-import {createFlashTether,stepFlashTether,drawFlashTether,flashLightPulse,FLASH_PUFF_DURATION} from './flash-tether.mjs?v=guardian-beat-2';
+import {biomePalette,drawBiomeBackground} from './biome-art.mjs?v=long-flash-1';
+import {createDepthScenery,drawDepthScenery} from './depth-scenery.mjs?v=long-flash-1';
+import {LIGHT_EXTENT,lightAttenuation,createLightMaskCanvas,castFlashPropLight,sceneRevealStrength,flashRangeStrength,pickupRevealAt,pickupRevealHold} from './light-field.mjs?v=long-flash-1';
+import {LIGHT_PACKET_TUNING} from './vitality.mjs?v=long-flash-1';
+import {makeWispSprite} from './companion-art.mjs?v=long-flash-1';
+import {drawPickup} from './pickup-art.mjs?v=long-flash-1';
+import {flashPowerupDuration,getPickupSpec} from './pickups.mjs?v=long-flash-1';
+import {createFlashTether,stepFlashTether,drawFlashTether,flashLightPulse,FLASH_PUFF_DURATION} from './flash-tether.mjs?v=long-flash-1';
 
 const WIDTH = 360, HEIGHT = 144;
 const playerX = 121, speed = 110, contact = 1.4, step = 1/120;
@@ -69,11 +69,18 @@ export function createFlashPreview({isPaused,setPaused,reducedMotion}) {
   label.className='timeline';
   const slider=document.createElement('input');
   slider.type='range'; slider.min=0; slider.step=.01; slider.setAttribute('aria-label','Flash Powerup timeline');
-  const flashSpec=getPickupSpec('sight'), duration=flashSpec.sightDuration;
-  const end=contact+duration+FLASH_PUFF_DURATION+.55;
+  const flashSpec=getPickupSpec('sight');
+  const mode=document.createElement('select');
+  mode.setAttribute('aria-label','Flash duration in the preview');
+  const durations=[flashPowerupDuration(),flashPowerupDuration({longFlash:true})];
+  mode.add(new Option('Base · '+durations[0]+'s','base'));
+  mode.add(new Option('Long Flash · '+durations[1]+'s','long'));
+  mode.value=new URLSearchParams(location.search).get('flash')==='long'?'long':'base';
+  let duration=durations[mode.selectedIndex];
+  let end=contact+duration+FLASH_PUFF_DURATION+.55;
   slider.max=end;
   label.append('Scrub',slider);
-  playback.append(replay,label);
+  playback.append(replay,mode,label);
   scene.append(field,playback);
 
   const ctx=field.getContext('2d'), bg=paintBackdrop(), ledge=paintLedge();
@@ -105,6 +112,7 @@ export function createFlashPreview({isPaused,setPaused,reducedMotion}) {
     ctx.drawImage(bg,0,0);
     drawDepthScenery(ctx,layers,distance,WIDTH);
     for(let x=-Math.round(distance)%ledge.width;x<WIDTH;x+=ledge.width)ctx.drawImage(ledge,x,HEIGHT-ledge.height);
+    if(time<contact)drawPickup(ctx,caughtX-distance,caughtY,{kind:'sight',time,scale:.7,reducedMotion:reducedMotion()});
     shade.globalCompositeOperation='source-over';
     shade.clearRect(0,0,WIDTH,HEIGHT);
     shade.fillStyle='#000'; shade.fillRect(0,0,WIDTH,HEIGHT);
@@ -119,14 +127,13 @@ export function createFlashPreview({isPaused,setPaused,reducedMotion}) {
       shade.globalAlpha=1;
     }
     if(time<contact){
-      shade.globalAlpha=.7;
-      shade.drawImage(light,caughtX-distance-35,caughtY-35,70,70);
-      shade.globalAlpha=1;
+      const x=caughtX-distance,dx=x-playerX,dy=caughtY-y;
+      const radius=LIGHT_PACKET_TUNING.baseRadius*mapScale;
+      castFlashPropLight(shade,light,x,caughtY,mapScale,lightAttenuation((dx*dx+dy*dy)/(radius*radius)),time,reducedMotion());
     }
     ctx.globalAlpha=1-reveal;
     ctx.drawImage(veil,0,0);
     ctx.globalAlpha=1;
-    if(time<contact)drawPickup(ctx,caughtX-distance,caughtY,{kind:'sight',time,scale:.7,reducedMotion:reducedMotion()});
     if(tether)drawFlashTether(ctx,tether,{time,distance,scale:1,playerX:worldX,playerY:y});
     ctx.drawImage(wisp,playerX-15,Math.round(y)-15,30,30);
     slider.value=time;
@@ -136,6 +143,14 @@ export function createFlashPreview({isPaused,setPaused,reducedMotion}) {
   slider.addEventListener('input',()=>{
     setPaused(true);
     time=Number(slider.value);
+    draw();
+  });
+  mode.addEventListener('change',()=>{
+    duration=durations[mode.selectedIndex];
+    end=contact+duration+FLASH_PUFF_DURATION+.55;
+    slider.max=end;
+    time=0;
+    previousFrame=undefined;
     draw();
   });
   replay.addEventListener('click',()=>{

@@ -1,9 +1,15 @@
-import {getPickupSpec} from './pickups.mjs?v=guardian-beat-2';
-import {glowPoints,getGlowCapacity,GLOW_DISPLAY_SCALE} from './vitality.mjs?v=guardian-beat-2';
-import {condenseGlow,getCondensationRules} from './condensed-glow.mjs?v=guardian-beat-2';
-import {pickupArtSvg} from './pickup-art.mjs?v=guardian-beat-2';
-import {resourceSymbol} from './game-symbols.mjs?v=guardian-beat-2';
-import {skillIcon} from './upgrade-icons.mjs?v=guardian-beat-2';
+import {getPickupSpec} from './pickups.mjs?v=long-flash-1';
+import {glowPoints,getGlowCapacity,GLOW_DISPLAY_SCALE} from './vitality.mjs?v=long-flash-1';
+import {condenseGlow,getCondensationRules} from './condensed-glow.mjs?v=long-flash-1';
+import {pickupArtSvg} from './pickup-art.mjs?v=long-flash-1';
+import {resourceSymbol} from './game-symbols.mjs?v=long-flash-1';
+import {skillIcon} from './upgrade-icons.mjs?v=long-flash-1';
+import {SPARK_TIERS} from './spark-size.mjs?v=long-flash-1';
+
+const fuelSizes=SPARK_TIERS.map(({mass,name})=>{
+ const kind=mass===1?'light':mass===2?'cluster':'cache';
+ return {kind,name,value:glowPoints(getPickupSpec({kind,sparkMass:mass}).fuel)};
+});
 
 // An independent teaching meter. Previewing, skipping and replaying never touch a save.
 export function resourceCycleSteps(run={},mod={}){
@@ -11,8 +17,7 @@ export function resourceCycleSteps(run={},mod={}){
  const refill=Math.min(fuel/2,max),before=max-refill,extra=fuel-refill;
  const lift=mod.liftCostPoints||3,rules=mod.condensationRules||getCondensationRules(run.skills);
  const packed=condenseGlow(extra/GLOW_DISPLAY_SCALE,{rules,wallet:run.condensedGlow||0}).amount;
- const values=['light','cluster','cache'].map(id=>glowPoints(getPickupSpec(id).fuel));
- const data={before,max,packed,lift,values};
+ const data={before,max,packed,lift,values:fuelSizes.map(t=>t.value)};
  return [
   ['Touch a Spark',`Larger Sparks hold more fuel. The smallest gives 6; a rare giant gives 60. This Cluster adds ${fuel} to your Spark Meter before bonuses.`],
   ['Fill your Spark Meter',`At ${before}/${max}, only ${refill} fit. Tap anywhere to Lift. Each Lift uses ${lift} Spark${lift===1?'':'s'} from the meter.`],
@@ -21,14 +26,17 @@ export function resourceCycleSteps(run={},mod={}){
 }
 const art=(x,y,size,svg)=>svg.replace(/<svg\b([^>]*)>/,(_,attrs)=>`<svg x="${x}" y="${y}" width="${size}" height="${size}"${attrs.replace(/\s(?:width|height)="[^"]*"/g,'')}>`);
 // Use the same pickup and HUD glyphs as the playable flight; position them at their HUD locations.
-export function resourceCycleArt({stage=0,before=24,max=30,lift=3,packed=1,values=[6,12,18]}={}){
+export function resourceCycleArt({stage=0,before=24,max=30,lift=3,packed=1}={}){
  const backdrop='<path fill="#101d24" d="M0 6H5V1H226v3h5v111h-5v4H4v-4H0z"/><path fill="#243835" d="M1 17l20 7 34-11 25 16 22-8 17 13 40-18 28 8 24-15 20 5V6H1zM1 112l19-10 20 6 26-11 34 10 39-15 26 6 26-15 21 8 19-8v34H1z"/>';
  const wrap=(label,content)=>`<svg class="cycle-scene" viewBox="0 0 232 120" role="img" aria-label="${label}" shape-rendering="crispEdges">${backdrop}${content}</svg>`;
  const number=(x,y,value,color='#fff2c6')=>`<text x="${x}" y="${y}" fill="${color}" text-anchor="middle" style="font-size:18px">${value}</text>`;
  if(stage===0){
-  const kinds=['light','cluster','cache'];
-  const lineup=kinds.map((kind,i)=>art(i*76+39-[21,33,42][i],54-[21,33,42][i],[42,66,84][i],pickupArtSvg(kind))+number(39+i*76,99,'+'+values[i])).join('');
-  return wrap(`Three Sparks with increasingly dense lightning add ${values.join(', ')} to the Spark Meter.`,lineup);
+  const centers=[20,53,94,143,200],diameters=[24,33,43,53,65];
+  const lineup=fuelSizes.map(({kind,value},i)=>{
+   const d=diameters[i],x=centers[i];
+   return art(x-d/2,51-d/2,d,pickupArtSvg(kind))+number(x,99,'+'+value);
+  }).join('');
+  return wrap(fuelSizes.map(s=>`${s.name}: ${s.value} Sparks`).join(', '),lineup);
  }
  const cells=Math.max(1,Math.ceil(max/lift)),height=55/cells;
  const bars=Array.from({length:cells},(_,i)=>{

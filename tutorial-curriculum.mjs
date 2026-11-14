@@ -7,7 +7,7 @@ export const TUTORIAL_TOPICS={
   s('Glide','Release to fall naturally. Small, deliberate Lifts leave more Sparks for the rest of the passage.','lift')]},
  sparks:{name:'From Spark to Stored Sparks',visual:'spark-storage',steps:[
   s('Spark Meter','Touch a Spark to refill the meter on the left. Each lit division pays for one Lift.','meter'),
-  s('Read the glow','A Spark adds 6, a Cluster adds 12, and a Cache adds 18. Look for a denser web of light as the value rises.','spark-layers'),
+  s('Read the glow','Most fuel is small. Watch for the brighter, wider shells: a Surge gives 36 Sparks and a rare Giant gives 60.','spark-layers'),
   s('Store the surplus','A full meter sends surplus to the upper-left box. Open Skills to spend your Stored Sparks.','spark-storage')]},
  luminance:{name:'Luminance',visual:'luminance',steps:[
   s('Luminance','Luminance is how far your wisp lights the world. It fades with distance; faraway scenery and Sparks disappear into darkness.','luminance'),

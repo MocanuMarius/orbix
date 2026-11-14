@@ -1,4 +1,4 @@
-import {pickupKind,getPickupSpec} from './pickups.mjs?v=guardian-beat-2';
+import {pickupKind,getPickupSpec} from './pickups.mjs?v=long-flash-1';
 
 // Rise from the launch mark to the first Spark, fall through the seed, then
 // fly another half second in dim light before the third fuel pickup.

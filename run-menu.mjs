@@ -1,9 +1,9 @@
-import {menuWorldMarkup} from './menu-world.mjs?v=guardian-beat-2';
-import {resourceSymbol} from './game-symbols.mjs?v=guardian-beat-2';
-import {formatGlow,getGlowCapacity} from './vitality.mjs?v=guardian-beat-2';
-import {livesMarkup} from './lives.mjs?v=guardian-beat-2';
-import { COMPANION_ABILITIES } from './companion-abilities.mjs?v=guardian-beat-2';
-import { companionArtSvg } from './companion-art.mjs?v=guardian-beat-2';
+import {menuWorldMarkup} from './menu-world.mjs?v=long-flash-1';
+import {resourceSymbol} from './game-symbols.mjs?v=long-flash-1';
+import {formatGlow,getGlowCapacity} from './vitality.mjs?v=long-flash-1';
+import {livesMarkup} from './lives.mjs?v=long-flash-1';
+import { COMPANION_ABILITIES } from './companion-abilities.mjs?v=long-flash-1';
+import { companionArtSvg } from './companion-art.mjs?v=long-flash-1';
 
 const esc = value => String(value ?? '').replace(/[&<>"']/g, char =>
   ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[char]));

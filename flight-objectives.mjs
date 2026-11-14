@@ -1,7 +1,8 @@
-import {ROUTE_BONUSES} from './route-bonuses.mjs?v=guardian-beat-2';
-import {blackHoleDrainRate} from './black-holes.mjs?v=guardian-beat-2';
-import {getPickupSpec, pickupKind} from './pickups.mjs?v=guardian-beat-2';
-import {GLOW_DISPLAY_SCALE} from './vitality.mjs?v=guardian-beat-2';
+import {ROUTE_BONUSES} from './route-bonuses.mjs?v=long-flash-1';
+import {blackHoleDrainRate} from './black-holes.mjs?v=long-flash-1';
+import {flashPowerupDuration, pickupKind} from './pickups.mjs?v=long-flash-1';
+import {GLOW_DISPLAY_SCALE} from './vitality.mjs?v=long-flash-1';
+import {sparkMass} from './spark-size.mjs?v=long-flash-1';
 
 const fuelKinds = new Set(['light', 'cluster', 'cache']);
 const helpfulFamilies = new Set(['lift', 'reveal', 'bloom']);
@@ -175,11 +176,11 @@ function edgeSections(e) {
 // to double back. Prefer open, central approaches over pickups tucked in rock.
 function constellation(e,sparks) {
   const speed=maxSpeed(e), start=firstX(e)+speed*1.4, end=lastX(e);
-  const kinds=['light','cluster','cache'];
   const paths=Array.from({length:6},()=>[]);
   for(const p of sparks) {
     if(p.x<start)continue;
-    const stage=kinds.indexOf(pickupKind(p));
+    const stage=sparkMass(p)-1;
+    if(stage<0 || stage>2)continue;
     const roof=Math.max(28,edgeY(e,p.x,-1)), floor=Math.min(e.height-28,edgeY(e,p.x,1));
     const center=(roof+floor)/2;
     const clearance=Math.min(p.y-roof,floor-p.y);
@@ -236,7 +237,7 @@ export function buildObjectivePlan(e,id) {
       targets=constellation(e,sparks);
     } else {
       const suns=id==='three-suns';
-      const candidates=suns?sparks.filter(p=>pickupKind(p)==='cache'):sparks;
+      const candidates=suns?sparks.filter(p=>sparkMass(p)===3):sparks;
       targets=spread(candidates,suns?3:6,speed*1.65)?.map(p=>mark(p));
     }
   }
@@ -311,7 +312,7 @@ export class FlightObjective {
     if (!t || this.seen.has(t) || (this.id==='precision' && packet.deliveredByWisp)) return;
     if (t.flash) {
       this.seen.add(t);
-      this.flashUntil=e.time+getPickupSpec(packet).sightDuration;
+      this.flashUntil=e.time+flashPowerupDuration(e.mod);
       return;
     }
     if (this.id==='flash-relay' && e.time>this.flashUntil) return;

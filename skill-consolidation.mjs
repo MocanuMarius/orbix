@@ -2,6 +2,7 @@ const groups=[
  ['main','Lift',['main-efficiency','main-lift']],
  ['main','Fourth Beat',['main-fourth-beat','main-fourth-beat-2']],
  ['main','Luminance',['main-sight','main-horizon']],
+ ['main','Long Flash',['main-long-flash']],
  ['main','Momentum',['main-speed','main-tailwind']],
  ['main','Spark Vessel',['main-reservoir','main-vast-vessel']],
  ['main','Glide Regeneration',['main-glide-regen','main-glide-regen-2']],

@@ -1,21 +1,14 @@
-import {drawPickup} from './pickup-art.mjs?v=guardian-beat-2';
-import {drawCapture} from './capture-art.mjs?v=guardian-beat-2';
-import {captureMassDuration} from './tidal-light.mjs?v=guardian-beat-2';
-import {sparkArtScale,sparkBodyRadius,sparkMass} from './spark-size.mjs?v=guardian-beat-2';
-import {getPickupSpec,pickupContactRadius} from './pickups.mjs?v=guardian-beat-2';
-import {makeWispSprite} from './companion-art.mjs?v=guardian-beat-2';
-import {biomePalette} from './biome-art.mjs?v=guardian-beat-2';
-import {createDepthScenery,drawDepthScenery} from './depth-scenery.mjs?v=guardian-beat-2';
-import {LIGHT_PACKET_TUNING,getGlowCapacity,glowPoints,GLOW_DISPLAY_SCALE} from './vitality.mjs?v=guardian-beat-2';
-import {condenseGlow,getCondensationRules} from './condensed-glow.mjs?v=guardian-beat-2';
+import {drawPickup} from './pickup-art.mjs?v=long-flash-1';
+import {drawCapture} from './capture-art.mjs?v=long-flash-1';
+import {captureMassDuration} from './tidal-light.mjs?v=long-flash-1';
+import {SPARK_TIERS,sparkArtScale,sparkBodyRadius} from './spark-size.mjs?v=long-flash-1';
+import {getPickupSpec,pickupContactRadius} from './pickups.mjs?v=long-flash-1';
+import {makeWispSprite} from './companion-art.mjs?v=long-flash-1';
+import {biomePalette} from './biome-art.mjs?v=long-flash-1';
+import {createDepthScenery,drawDepthScenery} from './depth-scenery.mjs?v=long-flash-1';
+import {LIGHT_PACKET_TUNING,getGlowCapacity,glowPoints,GLOW_DISPLAY_SCALE} from './vitality.mjs?v=long-flash-1';
+import {condenseGlow,getCondensationRules} from './condensed-glow.mjs?v=long-flash-1';
 
-const examples=[
-  {label:'Tiny',kind:'light',sparkMass:1},
-  {label:'Cluster',kind:'cluster',sparkMass:2},
-  {label:'Cache',kind:'cache',sparkMass:3},
-  {label:'Giant',kind:'cache',sparkMass:10},
-  {label:'Giant Dark',kind:'dark',harmful:true,sparkMass:10},
-];
 // The phone renderer uses 240 raster pixels per 390 world units. Keep the
 // wisp sprite in the same raster scale while the pickups use world dimensions.
 const raster=240/390,worldHeight=430,width=590,height=Math.round(worldHeight*raster),contact=1.65;
@@ -24,17 +17,20 @@ const wispSize=36*.85;
 
 export function createSparkSizesPreview({isPaused,setPaused,reducedMotion}){
   const element=document.createElement('section');element.className='spark-size-scene';
-  element.innerHTML='<div class="spark-size-picker" role="group" aria-label="Spark size"></div><canvas role="img"></canvas><div class="spark-size-summary"><p aria-live="polite"></p><button type="button">↻ Replay</button></div>';
+  element.innerHTML='<div class="spark-size-picker" role="group" aria-label="Spark size"></div><canvas role="img"></canvas><div class="spark-size-summary"><p aria-live="polite"></p><button type="button" class="spark-polarity" aria-pressed="false">Dark Spark</button><button type="button" class="spark-replay">↻ Replay</button></div>';
   const options=element.querySelector('.spark-size-picker'),field=element.querySelector('canvas');
-  const caption=element.querySelector('p'),replay=element.querySelector('.spark-size-summary button');
+  const caption=element.querySelector('p'),replay=element.querySelector('.spark-replay'),polarity=element.querySelector('.spark-polarity');
   field.width=width;field.height=height;
   const ctx=field.getContext('2d'),wisp=makeWispSprite(document,32);
   const palette=biomePalette({biomeId:'moonruins'}),layers=createDepthScenery(document,height,'ruins',palette);
   const sky=ctx.createLinearGradient(0,0,0,height);sky.addColorStop(0,'#070e17');sky.addColorStop(1,'#172831');
   let sample,effect,range,t=0,raf=0,lastWall,dirty=true;
-  function choose(item){
-    sample=item;t=0;lastWall=undefined;dirty=true;
-    const spec=getPickupSpec(item),mass=sparkMass(item),shell=sparkBodyRadius(item,worldHeight);
+  function choose(tier){
+    sample=tier;t=0;lastWall=undefined;dirty=true;
+    const dark=polarity.getAttribute('aria-pressed')==='true',mass=tier.mass;
+    const kind=dark?'dark':mass===1?'light':mass===2?'cluster':'cache';
+    const item={kind,sparkMass:mass,harmful:dark};
+    const spec=getPickupSpec(item),shell=sparkBodyRadius(item,worldHeight);
     const initialScale=sparkArtScale(item,worldHeight),angle=-.16;
     range=pickupContactRadius(item,worldHeight);
     const duration=captureMassDuration(LIGHT_PACKET_TUNING.absorptionDuration,mass);
@@ -44,21 +40,24 @@ export function createSparkSizesPreview({isPaused,setPaused,reducedMotion}){
       startY:wispY+Math.sin(angle)*range,approachX:-102,approachY:0};
     const raw=spec.fuel,fuel=glowPoints(raw),capacity=glowPoints(getGlowCapacity());
     const stored=condenseGlow(Math.max(0,raw-capacity/GLOW_DISPLAY_SCALE),{rules:getCondensationRules()}).amount;
-    caption.textContent=item.harmful
-      ? `A Dark Spark dims Luminance for ${spec.dimDuration}s. The next natural fuel Spark clears one dimming effect.`
-      : fuel>capacity?`Empty ${capacity}-Spark meter + ${fuel} Sparks → full meter and ${stored} Stored Sparks at base packing.`
-      : `Empty ${capacity}-Spark meter + ${fuel} Sparks → ${fuel}/${capacity}.`;
-    field.setAttribute('aria-label',`${item.label} ${item.harmful?'Spark':'fuel Spark'} approaches the wisp and its shell breaks on contact.`);
-    Array.from(options.children).forEach((button,i)=>button.setAttribute('aria-pressed',String(examples[i]===item)));
+    const outcome=dark?`Dims Luminance for ${spec.dimDuration}s.`
+      : fuel>capacity?`+${fuel} Sparks fills an empty meter and packs ${stored} at base efficiency.`
+      : `+${fuel} Sparks fills ${fuel}/${capacity} of an empty meter.`;
+    caption.textContent=`${outcome} About ${Math.round(tier.probability*100)}% across maps.`;
+    field.setAttribute('aria-label',`${tier.name} ${dark?'Dark':'fuel'} Spark approaches the wisp and its shell breaks on contact.`);
+    Array.from(options.children).forEach((button,i)=>button.setAttribute('aria-pressed',String(SPARK_TIERS[i]===tier)));
   }
-  for(const item of examples){
-    const button=document.createElement('button');button.type='button';button.textContent=item.label;
-    button.dataset.tone=item.harmful?'dark':'fuel';
-    if(!item.harmful){const value=document.createElement('small');value.textContent='+'+glowPoints(getPickupSpec(item).fuel);button.append(value);}
-    button.addEventListener('click',()=>choose(item));options.append(button);
+  for(const tier of SPARK_TIERS){
+    const button=document.createElement('button');button.type='button';button.textContent=tier.name;
+    button.addEventListener('click',()=>choose(tier));options.append(button);
   }
+  polarity.addEventListener('click',()=>{
+    polarity.setAttribute('aria-pressed',String(polarity.getAttribute('aria-pressed')!=='true'));
+    choose(sample);
+  });
   replay.addEventListener('click',()=>{choose(sample);setPaused(false);});
-  choose(examples[3]);
+  const sizeName=new URLSearchParams(location.search).get('size')?.toLowerCase();
+  choose(SPARK_TIERS.find(tier=>tier.name.toLowerCase()===sizeName) ?? SPARK_TIERS.at(-1));
   function draw(){
     const age=t-contact,dist=Math.max(0,age)*102;
     ctx.imageSmoothingEnabled=false;ctx.fillStyle=sky;ctx.fillRect(0,0,width,height);

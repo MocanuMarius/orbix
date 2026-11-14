@@ -1,7 +1,7 @@
-import {DEFAULT_CAPTURE_STYLE} from './capture-styles.mjs?v=guardian-beat-2';
-import {getPickupSpec, pickupKind} from './pickups.mjs?v=guardian-beat-2';
-import {pickupSpriteFrame} from './pickup-art.mjs?v=guardian-beat-2';
-import {LIGHT_PACKET_TUNING} from './vitality.mjs?v=guardian-beat-2';
+import {DEFAULT_CAPTURE_STYLE} from './capture-styles.mjs?v=long-flash-1';
+import {getPickupSpec, pickupKind} from './pickups.mjs?v=long-flash-1';
+import {pickupSpriteFrame} from './pickup-art.mjs?v=long-flash-1';
+import {LIGHT_PACKET_TUNING} from './vitality.mjs?v=long-flash-1';
 
 const TAU = Math.PI * 2;
 const clamp = value => Math.max(0, Math.min(1, value));

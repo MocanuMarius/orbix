@@ -1,5 +1,5 @@
-import {lightVisibility} from './light-field.mjs?v=guardian-beat-2';
-import {drawBlackHoleWarning} from './black-hole-warning.mjs?v=guardian-beat-2';
+import {lightVisibility} from './light-field.mjs?v=long-flash-1';
+import {drawBlackHoleWarning} from './black-hole-warning.mjs?v=long-flash-1';
 // Pixel accretion and stolen-light trails. Cosmetics consume recorded drain;
 // rendering never spends fuel or changes the simulation.
 const TAU=Math.PI*2,MAX_MOTES=96;

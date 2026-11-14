@@ -1,15 +1,22 @@
-import {FLAME_TUNING,LIGHT_PACKET_TUNING} from './vitality.mjs?v=guardian-beat-2';
-import {sparkBodyRadius,sparkMass} from './spark-size.mjs?v=guardian-beat-2';
+import {FLAME_TUNING,LIGHT_PACKET_TUNING,glowPoints} from './vitality.mjs?v=long-flash-1';
+import {SPARK_TIERS,sparkBodyRadius,sparkMass} from './spark-size.mjs?v=long-flash-1';
 
+const FLASH_POWERUP = {sightBonus:120, sightDuration:8};
 const type=(id,name,color,radius,contactRadius,description,extra={})=>Object.freeze({id,name,color,radius,contactRadius:contactRadius*.8,description,fuel:0,sightBonus:0,sightDuration:0,dim:0,dimDuration:0,manualOnly:false,...extra});
 export const PICKUP_TYPES=Object.freeze({
   light:type('light','Spark','#f6edda',3,26,'Fine warm-white arcs. Restores 6 Sparks before bonuses.',{fuel:FLAME_TUNING.emberFuel,plasma:1}),
   cache:type('cache','Spark Cache','#f4f7ff',6,30,'Dense white plasma. Restores 18 Sparks before bonuses.',{fuel:FLAME_TUNING.heartFuel,plasma:3}),
   cluster:type('cluster','Spark Cluster','#e6f4ea',4,26,'Branching white currents with a green tint. Restores 12 Sparks before bonuses.',{fuel:40,plasma:2}),
-  sight:type('sight','Flash Powerup','#ffffff',14,26,'The white triangle trails behind your wisp. It reveals the passage, then pulses with up to 120 extra Luminance for 8 seconds.',{sightBonus:120,sightDuration:8}),
+  sight:type('sight','Flash Powerup','#ffffff',14,26,flashPowerupDescription(),FLASH_POWERUP),
   dusk:type('dusk','Dusk Spark','#d798ad',5,25,'A dark-centered rose light. Gain 12 Sparks, but lose some Luminance for four seconds.',{fuel:40,dim:LIGHT_PACKET_TUNING.darkPenalty,dimDuration:4,manualOnly:true}),
   dark:type('dark','Dark Spark','#e17a70',7,22,'A black seed with a red warning ring. Dims Luminance for eight seconds; a Spark pickup clears one effect.',{dim:LIGHT_PACKET_TUNING.darkPenalty,dimDuration:LIGHT_PACKET_TUNING.darkDuration,manualOnly:true}),
 });
+export function flashPowerupDuration(modifiers = {}) {
+  return FLASH_POWERUP.sightDuration * (modifiers.longFlash ? 3 : 1);
+}
+export function flashPowerupDescription(modifiers = {}) {
+  return `The white triangle trails behind your wisp. It reveals the passage, then pulses with up to ${FLASH_POWERUP.sightBonus} extra Luminance for ${flashPowerupDuration(modifiers)} seconds.`;
+}
 export function pickupKind(packet={}){
   if(typeof packet==='string')return Object.hasOwn(PICKUP_TYPES,packet)?packet:'light';
   if(packet.harmful||packet.kind==='dark')return 'dark';
@@ -23,8 +30,12 @@ export function getPickupSpec(packet){
   const mass=sparkMass(packet);
   if(base.fuel===mass*FLAME_TUNING.emberFuel||!mass)return base;
   const key=base.id+mass;
-  if(!masses.has(key))masses.set(key,Object.freeze({...base,fuel:mass*FLAME_TUNING.emberFuel,
-    name:mass===10?'Giant Spark':base.name,description:`Restores ${mass*6} Sparks before bonuses. Surplus goes to packing.`}));
+  if(!masses.has(key)){
+    const fuel=mass*FLAME_TUNING.emberFuel;
+    const tier=SPARK_TIERS.find(t=>t.mass===mass);
+    masses.set(key,Object.freeze({...base,fuel,name:mass>3?`${tier.name} Spark`:base.name,
+      description:`Restores ${glowPoints(fuel)} Sparks before bonuses. Surplus goes to packing.`}));
+  }
   return masses.get(key);
 }
 export function pickupContactRadius(packet,height){
