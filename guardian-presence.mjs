@@ -1,41 +1,43 @@
-// Atmospheric portrait only: never a collider, never reveals hidden terrain.
-const clamp=(n,a,b)=>Math.max(a,Math.min(b,n));
-const palettes={'hollow-warden':'#b6be91','frost-matron':'#bceaf2','rootbound-heart':'#a8d999','storm-shepherd':'#c9b8ef','hollow-sun':'#d59fcb',moonweaver:'#d7d4f4'};
+// World-anchored background figure. Never a collider or screen-following HUD.
 export function guardianPresenceState(engine,distance=engine.distance){
- const boss=engine.layout?.boss;if(!boss)return null;
- const progress=clamp(distance/Math.max(1,engine.totalDistance),0,1),reveal=clamp((progress-.35)/.4,0,1);
- const phase=boss.phases?.find(p=>distance+engine.player.x<p.end)?.index||3;
- const attack=boss.attacks?.find(a=>a.trigger!==null&&!a.spent&&a.x-distance-engine.player.x>-30&&a.x-distance-engine.player.x<330);
- return{id:boss.id,reveal,phase,casting:!!attack||!!engine.layout.obstacles?.some(o=>o.motion&&o.x-distance-engine.player.x>0&&o.x-distance-engine.player.x<280),progress};
+ const boss=engine.layout?.boss,exit=engine.layout?.exitLandmark;
+ if(!boss||!exit)return null;
+ const scale=engine.height/exit.height,worldX=exit.entryX+engine.height*.18;
+ const x=worldX-distance,h=engine.height*.91;
+ if(x-h*.65>engine.width||x+h*.65<0)return null;
+ return {id:boss.id,x,groundY:exit.groundY*scale,h,worldX};
 }
 export function drawGuardianPresence(c,{engine,width,height,distance=engine.distance,time=engine.time}){
- const state=guardianPresenceState(engine,distance);if(!state||state.reveal<=0)return;
- const t=engine.reducedMotion?0:time,breath=Math.sin(t*1.3)*.025;
- const unit=height*(.18+state.reveal*.10),x=Math.round(width*.77),y=Math.round(height*.40);
- const color=palettes[state.id]||palettes['hollow-warden'];
- c.save();c.translate(x,y);c.scale(unit,unit);c.lineWidth=2/unit;c.lineJoin='miter';
- const poly=points=>{c.beginPath();points.forEach(([px,py],i)=>i?c.lineTo(px,py):c.moveTo(px,py));c.closePath();c.fill();c.stroke();};
- c.globalAlpha=state.reveal*.62;c.fillStyle='#03090d';c.strokeStyle=color;
- // Wide shoulders and reaching hands frame the mask; the palms close when casting.
- const reach=state.casting?.22:.08+Math.sin(t*.8)*.06;
- poly([[-.37,.48],[-.8,.58],[-1.18,.95],[-1.10,1.27],[-.69,1.05],[-.44,.92],[.45,.92],[.72,1.07],[1.12,1.25],[1.22,.94],[.81,.57],[.36,.48]]);
- for(const side of [-1,1]){c.save();c.translate(side*(.93-reach),.57+breath);c.rotate(side*(.18+reach));poly([[-.19,.35],[-.22,-.1],[-.13,-.1],[-.10,.13],[-.08,-.22],[0,-.22],[.02,.08],[.08,-.16],[.16,-.16],[.14,.17],[.23,.04],[.29,.1],[.18,.4]]);c.restore();}
- c.translate(0,breath);
- if(state.id==='hollow-sun'){
-  c.beginPath();c.arc(0,0,.61,0,Math.PI*2);c.fill();c.stroke();
-  for(let i=0;i<12;i++){const a=i*Math.PI/6+t*.10;c.beginPath();c.moveTo(Math.cos(a)*.68,Math.sin(a)*.68);c.lineTo(Math.cos(a)*(.79+breath),Math.sin(a)*(.79+breath));c.stroke();}
- }else if(state.id==='rootbound-heart'){
-  poly([[0,-.54],[-.30,-.72],[-.56,-.43],[-.49,.06],[0,.67],[.49,.06],[.56,-.43],[.30,-.72]]);
-  c.globalAlpha=state.reveal*(.45+.22*Math.sin(t*2.6)**2);c.fillStyle=color;poly([[-.08,-.12],[.08,-.12],[.16,.04],[0,.30],[-.16,.04]]);
+ const state=guardianPresenceState(engine,distance);if(!state)return;
+ const scale=height/engine.height,h=state.h*scale,x=Math.round(state.x*scale),y=Math.round(state.groundY*scale);
+ const t=engine.reducedMotion?0:time,sway=Math.sin(t*.48)*.012;
+ c.save();c.translate(x,y);c.scale(h,h);
+ const polygon=(points,ink='#000')=>{c.fillStyle=ink;c.beginPath();points.forEach(([a,b],i)=>i?c.lineTo(a,b):c.moveTo(a,b));c.closePath();c.fill();};
+ // Dim, local dusk behind the figure gives black armour a readable contour.
+ const dusk=c.createRadialGradient(0,-.55,.06,0,-.55,.68);dusk.addColorStop(0,'#304044');dusk.addColorStop(.6,'#19272b');dusk.addColorStop(1,'#09111500');c.fillStyle=dusk;c.fillRect(-.7,-1.2,1.4,1.4);
+ // Ragged cloak, layered pauldrons and asymmetric worn armour; no bright outlines.
+ polygon([[-.12,-.79],[-.31,-.72],[-.4,-.54],[-.35,-.29],[-.48+sway,-.03],[-.36,-.07],[-.32,.01],[-.24,-.04],[-.21,.02],[-.10,-.05],[.05,-.03],[.19,.015],[.26,-.07],[.35,-.03],[.28+sway,-.39],[.30,-.66],[.15,-.77]]);
+ polygon([[-.14,-.78],[-.28,-.76],[-.34,-.71],[-.30,-.65],[-.23,-.63],[-.20,-.50],[-.14,-.44],[.16,-.45],[.22,-.59],[.30,-.62],[.34,-.68],[.28,-.75],[.14,-.79]]);
+ // Bent gauntlet at the sword's pommel, opposite hand hanging with narrow fingers.
+ polygon([[-.29,-.67],[-.37,-.59],[-.36,-.43],[-.28,-.38],[-.15,-.41],[-.14,-.47],[-.26,-.47],[-.25,-.59]]);
+ polygon([[.24,-.65],[.31,-.58],[.32,-.38],[.29,-.29],[.27,-.29],[.27,-.35],[.25,-.27],[.23,-.28],[.24,-.36],[.21,-.30],[.19,-.32],[.22,-.41],[.19,-.56]]);
+ // Separate legs and boots, planted at the refuge foundation.
+ polygon([[-.14,-.44],[-.02,-.45],[-.025,-.23],[-.08,-.09],[-.07,-.025],[-.17,-.01],[-.20,-.035],[-.13,-.11]]);
+ polygon([[.03,-.45],[.17,-.42],[.13,-.24],[.17,-.08],[.23,-.025],[.22,0],[.10,-.01],[.06,-.23]]);
+ const headTilt=Math.sin(t*.35)*.018;c.save();c.translate(0,-.80);c.rotate(headTilt);
+ polygon([[-.12,0],[-.105,-.13],[-.07,-.19],[.025,-.21],[.10,-.15],[.12,-.035],[.065,.045],[-.055,.055]]);
+ // Each guardian has a distinct crest/weapon profile, all entirely black.
+ if(state.id==='frost-matron')polygon([[-.10,-.08],[-.16,-.28],[-.06,-.18],[-.02,-.34],[.025,-.2],[.13,-.30],[.1,-.08]]);
+ else if(state.id==='rootbound-heart'){for(const sign of [-1,1])polygon([[sign*.07,-.11],[sign*.18,-.24],[sign*.17,-.37],[sign*.21,-.28],[sign*.30,-.30],[sign*.23,-.24],[sign*.11,-.07]]);}
+ else if(state.id==='moonweaver')polygon([[-.09,-.1],[-.20,-.33],[-.17,-.08],[-.06,.02],[.07,.01],[.19,-.08],[.20,-.33],[.09,-.12]]);
+ else polygon([[-.07,-.17],[-.10,-.32],[-.035,-.25],[.01,-.36],[.045,-.23],[.10,-.28],[.08,-.12]]);
+ c.restore();
+ // Grounded greatsword, or a hooked staff for the storm/moon guardians.
+ if(['moonweaver','storm-shepherd'].includes(state.id)){
+  polygon([[-.25,-.02],[-.23,-.9],[-.14,-1.02],[-.04,-1.04],[.04,-.96],[-.06,-.99],[-.13,-.96],[-.19,-.86],[-.21,-.02]]);
  }else{
-  const crown=state.id==='frost-matron'?[[-.60,-.47],[-.48,-1.1],[-.20,-.65],[0,-1.3],[.2,-.65],[.48,-1.1],[.6,-.47]]:state.id==='moonweaver'?[[-.58,-.5],[-.68,-1.0],[-.28,-.63],[.28,-.63],[.68,-1],[.58,-.5]]:[[-.6,-.45],[-.44,-.83],[-.18,-.67],[0,-.98],[.2,-.67],[.44,-.83],[.6,-.45]];
-  poly([...crown,[.5,.24],[.20,.62],[-.20,.62],[-.50,.24]]);
-  c.globalAlpha=state.reveal*(state.casting?.95:.65);c.fillStyle=color;
-  c.fillRect(-.34,-.18,.19,.045);c.fillRect(.15,-.18,.19,.045);
-  c.globalAlpha=state.reveal*.35;c.fillRect(-.045,.18,.09,.19);
+  polygon([[-.215,-.02],[-.25,-.31],[-.24,-.45],[-.28,-.47],[-.28,-.49],[-.23,-.48],[-.23,-.57],[-.20,-.59],[-.18,-.57],[-.19,-.48],[-.13,-.49],[-.13,-.46],[-.19,-.44],[-.18,-.31]]);
  }
- // Sparse hovering fragments keep the portrait alive without a particle system.
- c.fillStyle=color;c.globalAlpha=state.reveal*.45;
- for(let i=0;i<6;i++){const a=i*1.047+t*(state.casting?.3:.12),r=.85+(i%2)*.16;c.fillRect(Math.round(Math.cos(a)*r*unit)/unit,Math.round(Math.sin(a)*r*unit)/unit,2/unit,2/unit);}
+ if(state.id==='hollow-sun'){c.strokeStyle='#000';c.lineWidth=.023;c.beginPath();c.arc(0,-.93,.22,0,Math.PI*2);c.stroke();}
  c.restore();
 }

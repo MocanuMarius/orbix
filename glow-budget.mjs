@@ -1,4 +1,4 @@
-import {getPickupSpec,pickupKind,pickupContactRadius} from './pickups.mjs?v=packing-1';
+import {getPickupSpec,pickupKind,pickupContactRadius} from './pickups.mjs?v=guardian-scenery-1';
 
 // Roof-heavy courses used to lose half their fuel to floor-cache placement.
 // A duration floor repairs that disparity with richer lights before adding

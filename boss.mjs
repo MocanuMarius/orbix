@@ -1,4 +1,4 @@
-import { prepareGuardian, drawGuardian } from './guardian-effects.mjs?v=packing-1';
+import { prepareGuardian, drawGuardian } from './guardian-effects.mjs?v=guardian-scenery-1';
 // The Hollow Warden is a survival encounter: read its hands, keep your Sparks,
 // and reach the waylight. Every solid hand uses the ordinary terrain pipeline.
 const TAU = Math.PI * 2;
@@ -269,7 +269,7 @@ function drawMoonweaver(c,{engine,width,height,distance,time,scale,pass}){
 
 export function drawBoss(c, { engine, width = 390, height = 620,
   distance = engine?.distance || 0, time = engine?.time || 0, scale = 1, pass = 'all' } = {}) {
-  if (!engine?.layout?.boss) return;
+  if (!engine?.layout?.boss || pass === 'silhouette') return;
   if(!['moonweaver','hollow-warden'].includes(engine.layout.boss.id))return drawGuardian(c,{engine,width,height,distance,time,scale,pass});
   if(engine.layout.boss.id==='moonweaver')return drawMoonweaver(c,{engine,width,height,distance,time,scale,pass});
   const state = getBossState(engine), W = width, H = height;
