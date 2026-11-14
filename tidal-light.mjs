@@ -1,5 +1,7 @@
-import {getPickupSpec, pickupKind} from './pickups.mjs?v=stream-and-dream-1';
-import {pickupSpriteFrame} from './pickup-art.mjs?v=stream-and-dream-1';
+import {DEFAULT_CAPTURE_STYLE} from './capture-styles.mjs?v=ribbon-luminance-1';
+import {getPickupSpec, pickupKind} from './pickups.mjs?v=ribbon-luminance-1';
+import {pickupSpriteFrame} from './pickup-art.mjs?v=ribbon-luminance-1';
+import {LIGHT_PACKET_TUNING} from './vitality.mjs?v=ribbon-luminance-1';
 
 const TAU = Math.PI * 2;
 const clamp = value => Math.max(0, Math.min(1, value));
@@ -9,14 +11,18 @@ const plain = {};
 
 // Every slice of plasma has a different release time. A near slice can
 // already be spiralling into the receiver while its neighbour is still round.
-function edge(out, fraction, artRadius, sourceRadius, age, delay, turns, wave) {
+function edge(out, fraction, artRadius, sourceRadius, age, delay, turns, wave, wrap, orbitWidth) {
   const release = delay * (1 - fraction);
   const elapsed = clamp((age - release) / .60);
   const flow = elapsed * smooth(clamp(elapsed/.18));
   const radius = sourceRadius + artRadius * (1 - fraction * 2);
   const shrink = (1 - flow) ** .8;
-  const angle = TAU * (turns * flow * (.53 + .47 * flow) + wave * Math.sin(Math.PI * 2 * flow));
-  const radial = radius * shrink;
+  // Let the leading plasma unfurl before winding a second time around the
+  // receiver. Keep the material outside the bright core until the final pull.
+  const winding = clamp((flow - .18) / .82);
+  const extraTurn = wrap * winding * winding * (2 - winding);
+  const angle = TAU * (turns * flow * (.53 + .47 * flow) + wave * Math.sin(TAU * flow) + extraTurn);
+  const radial = radius * shrink + orbitWidth * flow * (1 - flow ** 3);
   out.x = Math.cos(angle) * radial;
   out.y = Math.sin(angle) * radial;
   out.flow = flow;
@@ -24,16 +30,17 @@ function edge(out, fraction, artRadius, sourceRadius, age, delay, turns, wave) {
 
 // Each cross section carries part of the original arcs. Deformation changes
 // independently across its width, with a tapered throat as the stream arrives.
-function drawStream(ctx, sprite, artRadius, sourceRadius, age, sourceScale, delay, turns, wave, half, color) {
+function drawStream(ctx, sprite, artRadius, sourceRadius, age, sourceScale, delay, turns, wave, wrap, half, color) {
   const strips = 24, side = sprite?.width || 44;
   const imageRadius = artRadius / sourceScale;
   const sourceTop = half === 1 ? side / 2 : side / 2 - imageRadius;
   const sourceHeight = half ? imageRadius : imageRadius * 2;
   const top = half === 1 ? 0 : -imageRadius;
-  edge(left, 0, artRadius, sourceRadius, age, delay, turns, wave);
+  const orbitWidth = Math.max(5, 21 - .25 * sourceRadius) * 2.12 * Math.abs(wrap);
+  edge(left, 0, artRadius, sourceRadius, age, delay, turns, wave, wrap, orbitWidth);
   for (let i = 0; i < strips; i++) {
     const u = (i + .5) / strips;
-    edge(right, (i + 1) / strips, artRadius, sourceRadius, age, delay, turns, wave);
+    edge(right, (i + 1) / strips, artRadius, sourceRadius, age, delay, turns, wave, wrap, orbitWidth);
     if (left.flow < 1) {
       const dx = right.x - left.x, dy = right.y - left.y;
       const length = Math.max(.001, Math.hypot(dx,dy));
@@ -75,7 +82,7 @@ export function drawAbsorbingSpark(ctx, effect, age, targetX, targetY, scale, qu
   // the liquid folds over itself. This radius is the size of the plasma only.
   const artRadius = (spec.plasma ? 14 : kind === 'dark' ? 12 : 9) * size;
   const doc = ctx.canvas?.ownerDocument ?? globalThis.document;
-  const time = (effect.bornAt || 0) + age * (effect.duration || 1.8);
+  const time = (effect.bornAt || 0) + age * (effect.duration || LIGHT_PACKET_TUNING.absorptionDuration);
   plain.time=time; plain.phase=effect.phase||0; plain.reducedMotion=quiet; plain.bodyOnly=true;
   const sprite = pickupSpriteFrame(doc, kind, plain);
   ctx.save();
@@ -83,15 +90,21 @@ export function drawAbsorbingSpark(ctx, effect, age, targetX, targetY, scale, qu
   ctx.scale(scale,scale);
   ctx.rotate(heading);
   ctx.imageSmoothingEnabled=false;
-  const style = effect.style || 'undertow';
+  // Use the incoming tangential component at contact. Its sign stays fixed
+  // through the capture, even as the wisp moves or lifts past the pickup site.
+  const vx = effect.approachX || 0, vy = effect.approachY || 0;
+  const tangent = Math.cos(angle)*vy - Math.sin(angle)*vx;
+  const direction = tangent < -.02*Math.hypot(vx,vy) ? -1 : 1;
+  const style = effect.style || DEFAULT_CAPTURE_STYLE;
   if (style === 'split' && !quiet) {
-    drawStream(ctx,sprite,artRadius,sourceRadius,age,size,.36,1.05,0,-1,spec.color);
-    drawStream(ctx,sprite,artRadius,sourceRadius,age,size,.4,-.82,0,1,spec.color);
+    drawStream(ctx,sprite,artRadius,sourceRadius,age,size,.36,1.05*direction,0,.28*direction,-direction,spec.color);
+    drawStream(ctx,sprite,artRadius,sourceRadius,age,size,.4,-.82*direction,0,-.24*direction,direction,spec.color);
   } else {
     const ribbon = style === 'ribbon';
-    const turns = quiet ? .045 : ribbon ? -.48 : 1.32;
-    const wave = ribbon && !quiet ? .16 : 0;
-    drawStream(ctx,sprite,artRadius,sourceRadius,age,size,.4,turns,wave,0,spec.color);
+    const turns = quiet ? .045 : ribbon ? -.768 : 1.32;
+    const wave = ribbon && !quiet ? .256 : 0;
+    const wrap = quiet ? 0 : ribbon ? -1 : .32;
+    drawStream(ctx,sprite,artRadius,sourceRadius,age,size,.4,turns*direction,wave*direction,wrap*direction,0,spec.color);
   }
   ctx.restore();
 }

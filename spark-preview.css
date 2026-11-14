@@ -66,8 +66,35 @@ figcaption small{display:block;color:#b7d1c1;font:14px/1.3 system-ui,sans-serif;
   :root[data-comparison=true] main{padding-block:max(8px,env(safe-area-inset-top)) max(6px,env(safe-area-inset-bottom))}
   :root[data-comparison=true] header{margin-bottom:2px}
   :root[data-comparison=true] h1{font-size:29px}
-  :root[data-comparison=true] .group-picker,:root[data-comparison=true] #comparison-controls:not([hidden]){display:inline-flex;vertical-align:middle}
-  :root[data-comparison=true] .group-picker{border:0;margin-right:clamp(12px,3vw,32px);padding-block:4px}
-  :root[data-comparison=true] .timeline input{max-width:clamp(100px,18vw,250px)}
-  #gallery[data-group=absorption] canvas{width:min(100%,calc((100svh - 174px)*1.5),265px)}
+  :root[data-comparison=true] .gallery-filters{display:flex;align-items:center;gap:clamp(10px,2vw,24px);flex-wrap:wrap;font-size:clamp(14px,2vw,18px)}
+  :root[data-comparison=true] .group-picker{border:0;padding-block:4px}
+  :root[data-comparison=true] #comparison-controls:not([hidden]){flex:1;min-width:0;gap:clamp(6px,1.5vw,16px);flex-wrap:nowrap}
+  :root[data-comparison=true] .gallery-filters select{padding-inline:clamp(5px,.8vw,10px)}
+  :root[data-comparison=true] .timeline{min-width:0}
+  :root[data-comparison=true] .timeline input{width:0;min-width:52px;max-width:clamp(90px,18vw,250px)}
+  #gallery[data-group=absorption] canvas{width:min(100%,calc((100svh - 219px)*1.25),265px)}
 }
+@media(max-width:520px){
+  :root[data-comparison=true] #comparison-controls:not([hidden]){display:grid;grid-template-columns:auto 1fr;gap:4px 10px;font-size:15px}
+  :root[data-comparison=true] #comparison-controls select{padding-inline:5px}
+  :root[data-comparison=true] #comparison-controls label{gap:4px}
+  :root[data-comparison=true] .timeline{grid-column:1/-1}
+  :root[data-comparison=true] #gallery[data-group=absorption] canvas{max-width:176px}
+}
+
+:root[data-flash=true] .menu-sample{display:none}
+:root[data-flash=true] .group-picker{border-bottom:0}
+.flash-scene{width:min(100%,790px);margin:auto}
+.flash-scene canvas{display:block;width:100%;height:auto;image-rendering:pixelated}
+.flash-playback{display:flex;gap:16px;align-items:center;margin-block:6px}
+.flash-playback label{display:flex;gap:8px;align-items:center}
+.flash-playback input{min-width:60px}
+@media(orientation:landscape) and (max-height:460px){
+  :root[data-flash=true] main{padding-block:max(6px,env(safe-area-inset-top)) max(4px,env(safe-area-inset-bottom))}
+  :root[data-flash=true] .gallery-filters{position:absolute;top:max(6px,env(safe-area-inset-top));left:50%;transform:translateX(-50%)}
+  :root[data-flash=true] .group-picker{border:0;padding-block:0}
+  :root[data-flash=true] h1{font-size:clamp(18px,3vw,28px)}
+  #gallery[data-group=flash]{margin-block:6px}
+  .flash-scene{width:min(100%,calc((100svh - 167px)*2.5))}
+}
+:root[data-comparison=true] .capture-choice:focus-within{outline:2px solid #ffebad;outline-offset:-2px}

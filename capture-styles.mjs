@@ -1,3 +1,5 @@
+export const DEFAULT_CAPTURE_STYLE = 'ribbon';
+
 export const CAPTURE_STYLES = Object.freeze([
   { id: 'undertow', name: 'Undertow' },
   { id: 'ribbon', name: 'Ribbon' },
@@ -12,7 +14,7 @@ export function readCaptureStyle() {
     const id = globalThis.localStorage?.getItem(key);
     if (known(id)) return id;
   } catch { /* Storage may be disabled in a private browser. */ }
-  return CAPTURE_STYLES[0].id;
+  return DEFAULT_CAPTURE_STYLE;
 }
 
 export function saveCaptureStyle(id) {

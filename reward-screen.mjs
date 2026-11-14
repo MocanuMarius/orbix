@@ -1,8 +1,8 @@
-import {ARTIFACTS} from './model.mjs?v=stream-and-dream-1';
-import {artifactRarityLabel} from './replay-ui.mjs?v=stream-and-dream-1';
-import {artifactDescription,effectMarkup} from './artifact-copy.mjs?v=stream-and-dream-1';
-import {resourceSymbol} from './game-symbols.mjs?v=stream-and-dream-1';
-import {artifactIcon} from './upgrade-icons.mjs?v=stream-and-dream-1';
+import {ARTIFACTS} from './model.mjs?v=ribbon-luminance-1';
+import {artifactRarityLabel} from './replay-ui.mjs?v=ribbon-luminance-1';
+import {artifactDescription,effectMarkup} from './artifact-copy.mjs?v=ribbon-luminance-1';
+import {resourceSymbol} from './game-symbols.mjs?v=ribbon-luminance-1';
+import {artifactIcon} from './upgrade-icons.mjs?v=ribbon-luminance-1';
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 export const rewardDescription=(a,run)=>{const c=artifactDescription(a,run,{fresh:true});return [c.effect,[c.trigger,c.limit].filter(Boolean).join(' ')];};
 export function flightRewardMarkup(state,{artifactArt=artifactIcon,upgradeCount=0,skillsAvailable=true}={}){

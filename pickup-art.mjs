@@ -1,10 +1,9 @@
-import { pickupKind, getPickupSpec, pickupDisposition, PLASMA_SHELL_RADIUS, SPARK_ART_SCALE } from './pickups.mjs?v=stream-and-dream-1';
-import {sparkImageArt,sparkSymbolArt} from './spark-symbol.mjs?v=stream-and-dream-1';
+import { pickupKind, getPickupSpec, pickupDisposition, PLASMA_SHELL_RADIUS, SPARK_ART_SCALE } from './pickups.mjs?v=ribbon-luminance-1';
+import {sparkImageArt,sparkSymbolArt} from './spark-symbol.mjs?v=ribbon-luminance-1';
 
 const TAU = Math.PI * 2;
 const clamp = (value, low, high) => Math.max(low, Math.min(high, value));
 export const FLASH_ANIMATION = Object.freeze({size:48, frames:48, period:2.4});
-export const FLASH_BURST_DURATION = .85;
 export const FUEL_ANIMATION = Object.freeze({size:44, frames:120, period:4.8});
 const fields = [
   null,
@@ -127,100 +126,30 @@ function triangleRows(rect, ax, ay, bx, by, cx, cy, color, alpha=1) {
 }
 
 function paintFlashPrism(rect,time,reducedMotion,bodyOnly) {
-  const phase=reducedMotion?.37:(time/FLASH_ANIMATION.period)%1;
-  const light=(1+Math.cos(TAU*(phase-.08)))/2;
-  const face=(...args)=>triangleRows(rect,...args);
-  // Violet light follows the prism edges and collects at its three corners.
+  const phase = reducedMotion ? .25 : time / FLASH_ANIMATION.period;
+  const breath = .5 + .5 * Math.sin(TAU * phase);
+  // Only light and transparency describe this pickup. The solid centre stays
+  // white; the broader, dimmer copies of the triangle feather the silhouette.
+  const face = (radius,alpha) => triangleRows(rect,0,-radius,-radius,radius*.70,
+    radius,radius*.70,'#ffffff',alpha);
   if (!bodyOnly) {
-    face(0,-23,-23,17,23,17,'#aa79ff',.13+.06*light);
-    face(0,-21,-21,15,21,15,'#cb9eff',.28+.12*light);
+    face(23,.06+.06*breath);
+    face(21,.11+.09*breath);
+    face(19,.22+.11*breath);
   }
-  face(0,-19,-19,13,19,13,'#d8c7ff');
-  face(0,-17,-16,11,16,11,'#523672');
-  // The off-center junction gives the three faces different catches of light.
-  face(0,-16,-15,10,-3,3,'#bb96ee');
-  face(0,-16,-3,3,15,10,'#7953ad');
-  face(0,-16,-3,3,15,10,'#cb9ff4',.08+.42*light);
-  face(-3,3,-15,10,15,10,'#45296d');
-  face(0,-15,-7,4,-3,2,'#e4ccff');
-  face(-3,2,13,9,3,6,'#ab79d2');
-  face(-2,-6,-7,4,1,2,'#ffefdd',.65+.30*light);
-  face(-3,5,-11,9,4,7,'#d9b2e9',.75);
-  const sweep=-13+Math.round(phase*24);
-  const leftEdge=-Math.round((sweep+18)*.58);
-  rect(leftEdge,sweep,3,1,'#fff4e9',.96);
-  rect(leftEdge+1,sweep-1,2,1,'#fff4e9',.76);
-  // A narrow reflection crosses the right facet just before it lights the foot.
-  const catchLight=Math.sin(Math.PI*phase)**3;
-  const cut=Math.max(-13,Math.min(7,sweep));
-  const span=(cut+16)/26;
-  const inner=Math.round(-3*Math.min(1,(cut+16)/19)),outer=Math.round(span*15);
-  rect(inner,cut,Math.max(1,outer-inner),1,'#ffe6ff',catchLight*.9);
-  rect(inner+1,cut+1,Math.max(1,outer-inner),1,'#d5a4f4',catchLight*.7);
-  const corners=[[0,-18],[-18,12],[18,12]];
-  for (let i=0;i<corners.length;i++) {
-    const [x,y]=corners[i];
-    const glint=Math.max(0,Math.cos(TAU*(phase-i/3)))**6;
-    const radius=1+Math.round(glint*2);
-    rect(x-radius,y,2*radius+1,1,'#f8eaff',.65+.35*glint);
-    rect(x,y-radius,1,2*radius+1,'#fffbea',.65+.35*glint);
-  }
-}
-
-// A broken rim and its three departing facets share the idle prism's colors.
-export function drawFlashBurst(ctx,x,y,elapsed,scale=1,reducedMotion=false) {
-  if (elapsed<0 || elapsed>=FLASH_BURST_DURATION) return;
-  const age=elapsed/FLASH_BURST_DURATION;
-  const fade=1-age;
-  const travel=1-fade**3;
-  const size=(reducedMotion ? 16 : 11+37*travel)*scale;
-  ctx.save();
-  const inherited=ctx.globalAlpha;
-  const rect=(left,top,width,height,color,alpha=1)=>{
-    ctx.globalAlpha=inherited*alpha;
-    ctx.fillStyle=color;
-    ctx.fillRect(left,top,width,height);
-  };
-  const facet=(ax,ay,bx,by,cx,cy,color,alpha)=>
-    triangleRows(rect,x+ax,y+ay,x+bx,y+by,x+cx,y+cy,color,alpha);
-  const flash=Math.max(0,1-age*2.5);
-  facet(0,-size,-size*.9,size*.64,size*.9,size*.64,'#c3a3ff',reducedMotion?fade*fade*.38:flash*.78);
-  if (!reducedMotion && age<.66) {
-    const corners=[[0,-size],[-size*.9,size*.64],[size*.9,size*.64]];
-    const shear=.10+age*.74;
-    const alpha=Math.max(0,1-age/.66);
-    for (let i=0;i<3;i++) {
-      const from=corners[i],to=corners[(i+1)%3];
-      const dx=to[0]-from[0],dy=to[1]-from[1];
-      const step=1.6*scale/Math.max(1,Math.hypot(dx,dy));
-      for (const side of [0,1]) {
-        const tail=side? .52+shear*.34 : shear;
-        const head=side? 1-shear*.4 : .48-shear*.65;
-        const ax=from[0]+tail*dx,ay=from[1]+tail*dy;
-        const bx=from[0]+head*dx,by=from[1]+head*dy;
-        facet(ax,ay,bx,by,ax+dy*step,ay-dx*step,'#dcbeff',alpha);
-      }
+  face(17,.74+.10*breath);
+  face(15,1);
+  // Light escapes at the tips at different times in the slow pulse.
+  for (let i=0;i<3;i++) {
+    const glint = Math.max(0,Math.cos(TAU*(phase-i/3)))**4;
+    const x = i===0 ? 0 : i===1 ? -15 : 15;
+    const y = i===0 ? -16 : 10;
+    rect(x-1,y-1,3,3,'#ffffff',.55+.44*glint);
+    if (glint>.1) {
+      rect(x-3,y,7,1,'#ffffff',glint*.72);
+      rect(x,y-3,1,7,'#ffffff',glint*.72);
     }
   }
-  const rays=reducedMotion?3:15;
-  for (let i=0;i<rays;i++) {
-    const angle=-Math.PI/2+TAU*i/rays;
-    const corner=i%5===0;
-    const radius=(reducedMotion?14:(corner?79:43+(i*13)%23)*travel+5)*scale;
-    const dx=Math.cos(angle),dy=Math.sin(angle);
-    const nx=dx*radius,ny=dy*radius;
-    const width=Math.max(1,(corner?4.5:2.2)*scale*(.5+fade));
-    const length=(corner?16:8)*scale*fade;
-    facet(nx,ny,nx-dx*length-dy*width,ny-dy*length+dx*width,
-      nx-dx*length+dy*width,ny-dy*length-dx*width,
-      corner?'#fff6e8':i%2?'#e4c2ff':'#b397ff',fade*(corner?1:.85));
-  }
-  if (flash>0) {
-    const extent=Math.round((reducedMotion?8:20)*scale*flash),cx=Math.round(x),cy=Math.round(y);
-    rect(cx-extent,cy,extent*2+1,1,'#fff6ea',flash);
-    rect(cx,cy-extent,1,extent*2+1,'#fff6ea',flash);
-  }
-  ctx.restore();
 }
 
 // Shared low-resolution paint operations: the game and the field guide use

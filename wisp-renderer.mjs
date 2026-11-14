@@ -1,26 +1,28 @@
-import {drawAtlasFlight} from './atlas-flight.mjs?v=stream-and-dream-1';
-import {drawGuardianPresence} from './guardian-presence.mjs?v=stream-and-dream-1';
-import {createDepthScenery,drawDepthScenery} from './depth-scenery.mjs?v=stream-and-dream-1';
-import { drawGuardianWarnings } from './guardian-art.mjs?v=stream-and-dream-1';
-import {drawProximityMeter} from './proximity-meter.mjs?v=stream-and-dream-1';
-import {drawObjectiveMarks} from './flight-objectives.mjs?v=stream-and-dream-1';
-import {drawFlightProjection} from './flight-projection.mjs?v=stream-and-dream-1';
-import {drawGlowSense} from './glow-sense.mjs?v=stream-and-dream-1';
-import {formatGlow} from './vitality.mjs?v=stream-and-dream-1';
-import {LOCATION_PALETTES} from './world-expansion.mjs?v=stream-and-dream-1';
-import {biomePalette} from './biome-art.mjs?v=stream-and-dream-1';
-import { sceneryIdentity, drawIdentityBackground, drawIdentityMaterial, drawIdentityLife } from './level-scenery.mjs?v=stream-and-dream-1';
-import { getCompanionAbility, normalizeCompanionRole } from './companion-abilities.mjs?v=stream-and-dream-1';
-import { companionSprite, companionPalette, makeWispSprite } from './companion-art.mjs?v=stream-and-dream-1';
-import { createScenePropArt } from './scene-prop-art.mjs?v=stream-and-dream-1';
-import { drawBoss } from './boss.mjs?v=stream-and-dream-1';
-import { drawPickup, drawSparkSymbol, drawFlashBurst, FUEL_ANIMATION } from './pickup-art.mjs?v=stream-and-dream-1';
-import { pickupKind, getPickupSpec, pickupShellRadius } from './pickups.mjs?v=stream-and-dream-1';
-import { LIGHT_EXTENT,lightAttenuation,lightVisibility,createLightMaskCanvas,sceneRevealStrength } from './light-field.mjs?v=stream-and-dream-1';
-import {drawExitLandmark} from './exit-landmark.mjs?v=stream-and-dream-1';
-import {drawBlackHoles} from './black-hole-art.mjs?v=stream-and-dream-1';
-import {drawCapture, drawShellPuff} from './capture-art.mjs?v=stream-and-dream-1';
-import {drawFlightForks,drawFlightForkBackdrops} from './flight-forks.mjs?v=stream-and-dream-1';
+import {drawAtlasFlight} from './atlas-flight.mjs?v=ribbon-luminance-1';
+import {drawGuardianPresence} from './guardian-presence.mjs?v=ribbon-luminance-1';
+import {createDepthScenery,drawDepthScenery} from './depth-scenery.mjs?v=ribbon-luminance-1';
+import { drawGuardianWarnings } from './guardian-art.mjs?v=ribbon-luminance-1';
+import {drawProximityMeter} from './proximity-meter.mjs?v=ribbon-luminance-1';
+import {drawObjectiveMarks} from './flight-objectives.mjs?v=ribbon-luminance-1';
+import {drawFlightProjection} from './flight-projection.mjs?v=ribbon-luminance-1';
+import {drawGlowSense} from './glow-sense.mjs?v=ribbon-luminance-1';
+import {formatGlow} from './vitality.mjs?v=ribbon-luminance-1';
+import {LOCATION_PALETTES} from './world-expansion.mjs?v=ribbon-luminance-1';
+import {biomePalette} from './biome-art.mjs?v=ribbon-luminance-1';
+import { sceneryIdentity, drawIdentityBackground, drawIdentityMaterial, drawIdentityLife } from './level-scenery.mjs?v=ribbon-luminance-1';
+import { getCompanionAbility, normalizeCompanionRole } from './companion-abilities.mjs?v=ribbon-luminance-1';
+import { companionSprite, companionPalette, makeWispSprite } from './companion-art.mjs?v=ribbon-luminance-1';
+import { createScenePropArt } from './scene-prop-art.mjs?v=ribbon-luminance-1';
+import { drawBoss } from './boss.mjs?v=ribbon-luminance-1';
+import {drawFlashTether} from './flash-tether.mjs?v=ribbon-luminance-1';
+import { drawPickup, drawSparkSymbol, FUEL_ANIMATION } from './pickup-art.mjs?v=ribbon-luminance-1';
+import { pickupKind, getPickupSpec, pickupShellRadius } from './pickups.mjs?v=ribbon-luminance-1';
+import { LIGHT_EXTENT,lightAttenuation,lightVisibility,createLightMaskCanvas,sceneRevealStrength } from './light-field.mjs?v=ribbon-luminance-1';
+import {drawExitLandmark} from './exit-landmark.mjs?v=ribbon-luminance-1';
+import {drawBlackHoles} from './black-hole-art.mjs?v=ribbon-luminance-1';
+import {drawCapture, drawShellPuff} from './capture-art.mjs?v=ribbon-luminance-1';
+import {drawShellArcs} from './shell-arcs.mjs?v=ribbon-luminance-1';
+import {drawFlightForks,drawFlightForkBackdrops} from './flight-forks.mjs?v=ribbon-luminance-1';
 
 const TAU = Math.PI * 2;
 const SCENERY_HELPERS = { line: pixelLine, disc: pixelDisc, polygon: path };
@@ -592,7 +594,10 @@ export class WispFlightView {
     for (let i = Math.max(0, particles.length - 72); i < particles.length; i++) {
       const p = particles[i];
       if(p.type==='shell-puff'){
-        drawShellPuff(c,(p.worldX-distanceOf(e))*s,p.y*s,p.radius*s,(e.captureTime ?? timeOf(e))-p.bornAt,p.kind,p.phase,e.reducedMotion);
+        const age=(e.captureTime ?? timeOf(e))-p.bornAt;
+        c.globalAlpha=1;
+        drawShellPuff(c,(p.worldX-distanceOf(e))*s,p.y*s,p.radius*s,age,p.kind,p.phase,e.reducedMotion);
+        drawShellArcs(c,e.player.x*s,yOf(e)*s,s,age,p.kind,p.phase,e.reducedMotion);
         continue;
       }
       c.globalAlpha = clamp(p.life / p.maxLife, 0, 1) * .7;
@@ -1040,8 +1045,8 @@ export class WispFlightView {
     this.drawFleet(e, t, fleet,'front');
     this.drawProtector(e, t, playerX, playerY);
     this.drawAbsorptions(e, t);
-    if(e.flashBurst)drawFlashBurst(c,(e.flashBurst.worldX-distance)*s,e.flashBurst.y*s,
-      t-e.flashBurst.bornAt,s,e.reducedMotion);
+    if(e.flashTether)drawFlashTether(c,e.flashTether,{time:e.captureTime ?? t,distance,scale:s,
+      playerX:distance+e.player.x,playerY:yOf(e)});
     drawBlackHoles(c,e,{scale:s,distance,playerY:yOf(e)});
     for (const effect of e.pickupEffects || []) {
       const progress = 1 - clamp(effect.life / .72, 0, 1);

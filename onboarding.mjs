@@ -1,4 +1,4 @@
-import {resourceCycleSteps} from './resource-cycle.mjs?v=stream-and-dream-1';
+import {resourceCycleSteps} from './resource-cycle.mjs?v=ribbon-luminance-1';
 // Normal-run onboarding is profile-owned. Prompts are contextual, one short
 // card at a time; the run owns only pacing so a new game keeps learned topics.
 export const ONBOARDING_VERSION=1;
@@ -116,7 +116,7 @@ export function nextOnboardingLesson(view,{profile,run,modifiers,flight,snapshot
  if(newTopic('edging')&&(snapshot.edgingPulse?.charge>.05||snapshot.edgingPulse?.active))return card('edging','Proximity is now unlocked','Your purchased Proximity skill rewards skimming solid terrain without touching it. The small meter near your wisp charges; when full, a fading pulse reveals the scene.','edge','.canvas-wrap');
  const pickup=flight?.getNearbyPickup?.(new Set(profile?.seenPickups||[]));
  if(pickup&&['dark','dusk'].includes(pickup.kind)&&newTopic('bad-sparks'))return card('bad-sparks','Red rings warn of a cost','Dark Sparks reduce Luminance. Dusk Sparks trade Luminance for fuel. Collector leaves harmful Sparks alone; you choose whether to touch them.','pickup:'+pickup.kind,'.canvas-wrap');
- if(pickup?.kind==='sight'&&newTopic('special-sparks'))return card('special-sparks','Flash Powerup','Catch the violet triangle to light up the passage. Look ahead for hazards and your next fuel Spark.','pickup:sight','.canvas-wrap');
+ if(pickup?.kind==='sight'&&newTopic('special-sparks'))return card('special-sparks','Flash Powerup','Catch the white triangle. It trails behind your wisp and pulses light across the passage for eight seconds.','pickup:sight','.canvas-wrap');
  const draft=flight?.gustState?.();
  if(completed>=1&&newTopic('drafts')&&(Math.abs(snapshot.gust||0)>.1||draft?.strength>.05||draft?.active||draft?.warning))return card('drafts','Local drafts push you','These moving curls show a local gust. Leave room to drift, or time a Lift against it. Runner resists drafts; Space Timer still feels their push.','draft','.canvas-wrap');
  return null;

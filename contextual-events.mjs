@@ -1,6 +1,6 @@
-import {completeOffers,EVENT_FAVORS,hasFutureRest} from './event-choices.mjs?v=stream-and-dream-1';
-import {getGlowCapacity} from './vitality.mjs?v=stream-and-dream-1';
-import {treasureFlightNotice} from './treasure.mjs?v=stream-and-dream-1';
+import {completeOffers,EVENT_FAVORS,hasFutureRest} from './event-choices.mjs?v=ribbon-luminance-1';
+import {getGlowCapacity} from './vitality.mjs?v=ribbon-luminance-1';
+import {treasureFlightNotice} from './treasure.mjs?v=ribbon-luminance-1';
 // Event stakes are fixed when offered. They are not rolled during flight.
 const choice=(id,title,description,effect)=>({id,title,description,detail:description,effect});
 export const PILGRIM_VOW=Object.freeze({target:4,reward:8});

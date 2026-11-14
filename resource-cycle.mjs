@@ -1,9 +1,9 @@
-import {getPickupSpec} from './pickups.mjs?v=stream-and-dream-1';
-import {glowPoints,getGlowCapacity,GLOW_DISPLAY_SCALE} from './vitality.mjs?v=stream-and-dream-1';
-import {condenseGlow,getCondensationRules} from './condensed-glow.mjs?v=stream-and-dream-1';
-import {pickupArtSvg} from './pickup-art.mjs?v=stream-and-dream-1';
-import {resourceSymbol} from './game-symbols.mjs?v=stream-and-dream-1';
-import {skillIcon} from './upgrade-icons.mjs?v=stream-and-dream-1';
+import {getPickupSpec} from './pickups.mjs?v=ribbon-luminance-1';
+import {glowPoints,getGlowCapacity,GLOW_DISPLAY_SCALE} from './vitality.mjs?v=ribbon-luminance-1';
+import {condenseGlow,getCondensationRules} from './condensed-glow.mjs?v=ribbon-luminance-1';
+import {pickupArtSvg} from './pickup-art.mjs?v=ribbon-luminance-1';
+import {resourceSymbol} from './game-symbols.mjs?v=ribbon-luminance-1';
+import {skillIcon} from './upgrade-icons.mjs?v=ribbon-luminance-1';
 
 // An independent teaching meter. Previewing, skipping and replaying never touch a save.
 export function resourceCycleSteps(run={},mod={}){

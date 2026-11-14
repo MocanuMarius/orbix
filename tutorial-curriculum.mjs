@@ -14,7 +14,7 @@ export const TUTORIAL_TOPICS={
   s('Sparks and sight','Sparks pay for Lift. Luminance reveals the route around your wisp.','luminance'),
   s('Grow your Luminance','Learn Luminance in the Wisp tree. A Flash Powerup reveals the passage when collected.','pickup:sight')]},
  utilities:{name:'Flash & hazards',visual:'pickup:sight',steps:[
-  s('Flash Powerup','Catch the violet triangle. Its burst reveals the whole passage, then keeps the way ahead lit. Use that time to line up your next pickup.','pickup:sight'),
+  s('Flash Powerup','Catch the white triangle. It follows on a thread, lighting the passage with each pulse. The puff means its light has run out.','pickup:sight'),
   s('Dusk Spark','The rose Dusk Spark trades reduced Luminance for fuel. Its red ring warns of the cost. Only body contact collects it.','pickup:dusk')]},
  terrain:{name:'Terrain & goals',visual:'route',steps:[
   s('Solid edges','Bright edges help separate collidable terrain from background scenery. Rock, trees and solid objects can end an unprotected attempt. Open sky only ends it once the whole wisp leaves the screen.','route'),

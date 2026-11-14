@@ -1,6 +1,7 @@
-import {drawAbsorbingSpark} from './tidal-light.mjs?v=stream-and-dream-1';
-import {getPickupSpec, pickupShellRadius} from './pickups.mjs?v=stream-and-dream-1';
-import {drawPickup} from './pickup-art.mjs?v=stream-and-dream-1';
+import {drawAbsorbingSpark} from './tidal-light.mjs?v=ribbon-luminance-1';
+import {getPickupSpec, pickupShellRadius} from './pickups.mjs?v=ribbon-luminance-1';
+import {drawPickup} from './pickup-art.mjs?v=ribbon-luminance-1';
+import {drawShellArcs} from './shell-arcs.mjs?v=ribbon-luminance-1';
 
 const TAU = Math.PI * 2;
 const clamp = value => Math.max(0, Math.min(1, value));
@@ -81,14 +82,23 @@ export function drawCapture(context,effect,time,playerX,playerY,distance,scale,q
       scale:size*scale,reducedMotion:quiet,bodyOnly:Boolean(delivery)});
     return;
   }
-  if(!delivery)drawShellPuff(context,sourceX*scale,sourceY*scale,
-    pickupShellRadius(effect.pickupKind)*size*scale,time-effect.bornAt,effect.pickupKind,effect.phase,quiet);
-  // Plasma initially stays attached to the moving scenery. Once freed it follows
-  // the wisp's frame, then its individual streamlines converge on the live wisp.
-  const release=clamp(age/.4), worldWeight=1-release*release*(3-2*release);
+  if(!delivery){
+    drawShellPuff(context,sourceX*scale,sourceY*scale,
+      pickupShellRadius(effect.pickupKind)*size*scale,time-effect.bornAt,effect.pickupKind,effect.phase,quiet);
+    drawShellArcs(context,playerX*scale,playerY*scale,scale,time-effect.bornAt,effect.pickupKind,effect.phase,quiet);
+  }
+  // Let the rear follow the field briefly. Keep it on the contact side: a
+  // fast pass can move the empty shell well behind the wisp in half a second.
   const carriedX=playerX+Math.cos(angle)*radius;
   const carriedY=playerY+Math.sin(angle)*radius;
-  const x=carriedX+(sourceX-carriedX)*worldWeight;
-  const y=carriedY+(sourceY-carriedY)*worldWeight;
+  const elapsed=time-effect.bornAt;
+  const cargoTime=delivery ? elapsed/delivery.interval : 0;
+  const driftX=sourceX-carriedX+(delivery ? (delivery.worldX-delivery.previousWorldX)*cargoTime : 0);
+  const driftY=sourceY-carriedY+(delivery ? (delivery.y-delivery.previousY)*cargoTime : 0);
+  const limit=radius*.24;
+  const release=clamp(age/.4);
+  const driftLimit=limit>0 ? limit/(limit+Math.hypot(driftX,driftY)) : 0;
+  const weight=driftLimit*(1-release*release*(3-2*release));
+  const x=carriedX+driftX*weight, y=carriedY+driftY*weight;
   drawAbsorbingSpark(context,effect,age,playerX*scale,playerY*scale,scale,quiet,x*scale,y*scale);
 }
