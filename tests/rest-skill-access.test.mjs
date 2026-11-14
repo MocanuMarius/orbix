@@ -29,7 +29,7 @@ function arriveAtRest(state){
 test('paid skills wait for Rest, while the starting gift is still free',()=>{
  const state=fresh(),r=state.run,before=r.condensedGlow;
  assert.equal(M.canBuyCheckpointSkills(state),false);
- assert.ok(M.chooseStartingSkill(state,'main-efficiency'));
+ assert.ok(M.chooseStartingSkill(state,'proximity-awakening'));
  assert.equal(r.condensedGlow,before);
  const skill=paidSkill(state);
  assert.ok(skill);
@@ -58,7 +58,7 @@ test('actual Rest benefit opens paid training, and starting flight closes it',()
 
 test('tree explains location separately from currency and shows the Rest icon',()=>{
  const state=fresh(),r=state.run;
- M.chooseStartingSkill(state,'main-efficiency');
+ M.chooseStartingSkill(state,'proximity-awakening');
  const skill=paidSkill(state),wallet=M.getSkillWallet(state);
  const locked=skillTreeState({run:r,wallet,canBuy:false},skill);
  assert.equal(locked.restRequired,true);

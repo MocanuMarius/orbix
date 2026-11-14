@@ -40,11 +40,12 @@ export function noteOnboardingProgress(profile,run){
  const state=onboardingState(profile);state.stage=Math.max(state.stage,onboardingStage(profile,run));if(run.onboardingIntroReplay&&state.stage>=4)state.replayIntro=false;
 }
 export function onboardingFeatureAvailable(profile,run,feature){
+ if(feature==='dream')return !!run?.skills?.['main-dream'];
  if(isTesting(run))return true;
  const stage=onboardingStage(profile,run);
- if(feature==='skills'||feature==='artifacts')return stage>=1;
+ if(feature==='artifacts')return stage>=1||!!run?.artifacts?.length;
+ if(feature==='skills')return stage>=1;
  if(feature==='advanced-skills'||feature==='companion-upgrades'||feature==='companions')return stage>=2;
- if(feature==='dream')return stage>=2;
  return true;
 }
 /** Apply to a first-time player's first map. Returning players keep full maps. */
@@ -93,7 +94,7 @@ export function nextOnboardingLesson(view,{profile,run,flight,snapshot={},now=Da
  if(view==='briefing'&&newTopic('lift'))return card('lift','Tap anywhere to Lift','Tap the flight scene to rise. Each Lift spends Energy from the slim meter. Release to fall naturally; touch bright Sparks to refill.','lift','.enter-passage');
  if(view==='victory'&&newTopic('artifacts')&&run.flightReward?.offers?.length&&!run.flightReward.claimed)return card('artifacts','Choose one artifact',run.flightReward.permanent?'Choose one artifact to unlock in future guardian rewards. New runs still begin without artifacts.':'Elite and guardian victories offer two artifacts. Choose one: its effect works automatically alongside the others for this run.','artifact','.artifact-reward-screen');
  if(view==='skills'&&newTopic('skills'))return card('skills','One small upgrade','Buy skill upgrades at Rest after Recover or Grow. Blue means owned; gold means affordable here. Inspect branches along the route, then spend Packed Sparks at a campfire.','skill-states','.tree-body');
- if(view==='support'&&run.current?.kind==='camp'&&newTopic('rest'))return card('rest','Recover or Grow','Recover restores missing hearts. Grow adds 3 maximum Energy for this run. Both refill Energy. Rest also lets you spend Packed Sparks on skill upgrades or Dream the next passage.','rest','.rest-benefit-cards');
+ if(view==='support'&&run.current?.kind==='camp'&&newTopic('rest'))return card('rest','Recover or Grow','Recover restores missing hearts. Grow adds 3 maximum Energy for this run. Both refill Energy. After choosing, spend Packed Sparks on skills here.','rest','.rest-benefit-cards');
  if(view==='support'&&run.current?.kind!=='camp'&&newTopic('events'))return run.current?.kind==='treasure'?card('events','Choose one treasure','Each chest has a specialty. Read both offers, then take one. On the map, tap a chest to inspect its stakes before choosing your path.','site:treasure','.support-offers'):card('events','An encounter','Read what you gain and what you give up. Choose one outcome.','sites-support','.support-offers');
  if(view==='companions'&&newTopic('companions'))return card('companions','One companion, one role','Equip one companion at a time. Collector fetches; Protector shields; Runner bursts; Space Timer levitates while you hold. Choose on the main screen; your companion stays for the entire run.','companion:'+role,'.companion-roles');
  if(view==='dream'&&newTopic('dream'))return card('dream','Rehearse the opening','Dream rehearses six seconds of the next flight without spending a heart. Retry freely, then save a preset. It replays free of Lift cost and ends paused.','dream');

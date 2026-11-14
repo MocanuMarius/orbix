@@ -1,9 +1,9 @@
-import {companionArtSvg} from './companion-art.mjs?v=flow-light-1';
-import {resourceSymbol} from './game-symbols.mjs?v=flow-light-1';
-import {getTreasureChoices,getTreasureKind} from './model.mjs?v=flow-light-1';
-import {treasureArt} from './treasure-art.mjs?v=flow-light-1';
-import {skillIcon} from './upgrade-icons.mjs?v=flow-light-1';
-import {formatGlow,getGlowCapacity} from './vitality.mjs?v=flow-light-1';
+import {companionArtSvg} from './companion-art.mjs?v=route-gifts-1';
+import {resourceSymbol} from './game-symbols.mjs?v=route-gifts-1';
+import {getTreasureChoices,getTreasureKind} from './model.mjs?v=route-gifts-1';
+import {treasureArt} from './treasure-art.mjs?v=route-gifts-1';
+import {skillIcon} from './upgrade-icons.mjs?v=route-gifts-1';
+import {formatGlow,getGlowCapacity} from './vitality.mjs?v=route-gifts-1';
 
 const esc=value=>String(value??'').replace(/[&<>"']/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
 

@@ -1,9 +1,9 @@
-import {resourceSymbol} from './game-symbols.mjs?v=flow-light-1';
+import {resourceSymbol} from './game-symbols.mjs?v=route-gifts-1';
 
 let rendererWarmup;
 export function preloadFlightEntry(){
  if(typeof window==='undefined')return Promise.resolve();
- rendererWarmup??=import('./wisp-renderer.mjs?v=flow-light-1').catch(()=>null);
+ rendererWarmup??=import('./wisp-renderer.mjs?v=route-gifts-1').catch(()=>null);
  return rendererWarmup;
 }
 

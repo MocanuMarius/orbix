@@ -216,13 +216,13 @@ Implemented in the next flow release: one reachable flight preview with Fly and 
 
 Verification includes one-time banking/reload/retry, loading cancellation/failure, first-tap-without-Lift and second-tap Lift, safe workbench resume, Rest permissions, and compact landscape layouts. This is not a new phone performance or campaign balance certification.
 
-### Proposed next — conditional flight bonuses (design, not shipped)
+### Implemented — conditional flight bonuses
 
 Keep 20 Packed Sparks for clearing. Replace the generic optional challenge with one previewed objective per flight. These ten designs add route identity without adding artifacts, inventory, or a reward selection screen after ordinary flights. All numerical strengths below are initial tuning values, not validated human balance.
 
 | Bonus | Condition in a successful real flight | Reward |
 | --- | --- | --- |
-| Gilded Passage | Collect 4 of 6 marked Sparks | Double that flight's clear pay and actual pickup-generated Packed Sparks, extra capped at 30, at most once per map. Never multiply banked currency, vows, escrow, or this bonus. |
+| Gilded Passage | Collect 4 of 6 marked Sparks | Double that flight's clear pay and actual pickup-generated Packed Sparks, extra capped at 30, one designated site per three-map expedition. Never multiply banked currency, vows, escrow, or this bonus. |
 | Pilgrim Precision | Collect 4 of 6 marked Sparks with the main body | 8 Packed Sparks. Collector delivery explicitly does not count for this objective. |
 | Three Suns | Collect three marked three-layer Sparks on a single verified route | Recover one missing heart, without increasing its cap. At most once per map; offer only while a heart is missing. |
 | Edgeweaver | Trigger Proximity in two separate marked terrain sections | One ward on the next attempt; with Protector its first deflection is free instead of stacking a layer. Only when Proximity is unlocked. |
@@ -231,10 +231,19 @@ Keep 20 Packed Sparks for clearing. Replace the generic optional challenge with 
 | Night Sail | Take two marked Sparks on a Black Hole's outer bypass while losing at most 3 Energy to it | Black Hole drain reduced by 25% for the next attempt. Offer only when the next flight has a Black Hole. |
 | Long Glide | Collect two marked Sparks in a verified two-second Lift-free glide | First three Lifts of the next attempt are free, capped at 9 Energy saved. |
 | Wayfinder | Pass three broad position waymarks with readable approach warning | Preview the first 2.5 seconds of the next route while its start is paused. Normal darkness returns on play. |
-| Rising Constellation | Collect a marked one-, two-, then three-layer Spark sequence | First three natural fuel pickups next attempt give 2 extra Energy each. This extra Energy cannot pack. |
+| Rising Constellation | Collect a marked one-, two-, then three-layer Spark sequence; a second existing target is marked at each stage when the terrain supports it | First three natural fuel pickups next attempt give 2 extra Energy each. This extra Energy cannot pack. |
 
-Rules for implementation: validate targets against the final layout, companion speed and useful visible warning (at least 1.5 seconds); do not count Dream, generated items or replayed pickups; each node pays once on a successful clear; no simultaneous extra currency contract; temporary benefits apply to the next attempt only and cannot stack with their own copies. Show one icon, a short requirement and progress. Failed objectives do not reduce normal clear pay. Unlock later objectives with their related mechanic rather than presenting all ten on the first map.
+Implementation rules: validate targets against the final layout, companion speed and useful visible warning (at least 1.5 seconds); do not count Dream, generated items or replayed pickups; each node pays once on a successful clear; no simultaneous extra currency contract; temporary benefits apply to the next attempt only and cannot stack with their own copies. Show one icon, a short requirement and progress. Failed objectives do not reduce normal clear pay. Unlock later objectives with their related mechanic rather than presenting all ten on the first map.
 
-Budget check: flat extra currency of 8–12 every flight would add 120–192 over 15–16 clears, roughly 40–60% of the current guaranteed floor. Only two of the ten bonuses pay currency. With an illustrative 50% objective completion rate and an even type mix, the maximum mean extra currency is (30 + 8) × 0.5 / 10 = 1.9 per flight, or less than 10% of the 20-clear floor. Actual generator eligibility changes the mix, so cap the scheduler's expected currency budget as well; verify realized income and purchase timings with limited-visibility, delayed-input play before release. The rare double bonus is capped and limited to once per map. This is an analytic estimate, not a simulation result or a promise of equal value between a ward, heart and currency.
+One cash site per map: one Gilded and two Precision opportunities per three-map expedition. Even winning all three adds at most 46 Packed Sparks. [Route and economy audit](route-bonus-audit.md) records the coverage, income assumptions and limits of the delayed-input flight sample.
 
 Design references: [Risk & Reward, official creator guide](https://docs.sandbox.game/en/creator/game-maker/creative-guides/experience-design-techniques/game-design/risk-and-reward), [Game Accessibility Guidelines](https://gameaccessibilityguidelines.com/full-list/), and [Xbox difficulty guidance](https://learn.microsoft.com/en-us/gaming/accessibility/xbox-accessibility-guidelines/108). The specific rewards and numbers above are project proposals, not claims made by those sources.
+
+
+### Implemented — three starting gifts
+
+Choose one before a new expedition: Proximity, the six-second Dream, or one named Rare artifact. The artifact is previewed with its actual benefit for the starting companion; backing out and reopening does not reroll it. Choosing the Rare grants the artifact immediately and consumes the same gift as either skill. It is not a permanent unlock. A saved or ongoing expedition does not receive an additional gift. Unowned Dream is not advertised at Rest or in route previews. Once owned, rehearsal lives in Rest preparation after Recover or Grow.
+
+### Implemented — home menu actions and information
+
+Continue, New Game and Field Guide use raised directional signs. Only the primary action uses the gold frame. Equipped, selectable and progression-locked orbs use distinct marks and surface treatments; TEST preserves selection of locked roles. The read-only journey is a single illustrated road with three landmarks and a current location. It has no separate cards, pointer interactions or keyboard stops.

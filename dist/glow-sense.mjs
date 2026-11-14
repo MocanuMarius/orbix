@@ -1,5 +1,5 @@
-import {getPickupSpec,pickupDisposition} from './pickups.mjs?v=flow-light-1';
-import {lightVisibility} from './light-field.mjs?v=flow-light-1';
+import {getPickupSpec,pickupDisposition} from './pickups.mjs?v=route-gifts-1';
+import {lightVisibility} from './light-field.mjs?v=route-gifts-1';
 
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
 const smooth=v=>{v=clamp(v,0,1);return v*v*(3-2*v)};

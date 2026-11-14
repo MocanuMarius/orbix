@@ -1,10 +1,10 @@
-import {landmarkArt,landmarkCategory,guardianNames} from './map-landmarks.mjs?v=flow-light-1';
-import {glowText} from './vitality.mjs?v=flow-light-1';
+import {landmarkArt,landmarkCategory,guardianNames} from './map-landmarks.mjs?v=route-gifts-1';
+import {glowText} from './vitality.mjs?v=route-gifts-1';
 const stop=(kind,label,name,summary)=>Object.freeze({kind,label,name,summary,icon:kind});
 export const MAP_STOP_TYPES=Object.freeze({
 flight:stop('flight','FLIGHT','Flight','Clear a passage for 20 Packed Sparks plus overflow. Ordinary flights do not drop artifacts.'),
 treasure:stop('treasure','TREASURE','Treasure','Inspect a chest to see its two offers. Taking one leaves the other behind.'),
-rest:stop('rest','REST','Rest','Recover missing hearts or Grow Spark capacity. Both refill Energy. Then spend Packed Sparks on skill upgrades, inspect artifacts or Dream the next flight.'),
+rest:stop('rest','REST','Rest','Recover missing hearts or Grow Spark capacity. Both refill Energy. After choosing, you can spend Packed Sparks on skills.'),
 encounter:stop('encounter','ENCOUNTER','Encounter','A promise, route preparation or bargain. Preview the stakes before choosing.'),
 boss:stop('boss','ELITE / GUARDIAN','Creature','Small creature: elite. Large head: guardian. Both offer two artifacts; choose one for your build.'),
 });

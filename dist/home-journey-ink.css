@@ -1,0 +1,45 @@
+/* The title-screen atlas is one drawing on the landscape. */
+html body[data-screen=home] #app .menu-art-home .journey-landscape.journey-ink {
+  pointer-events: none;
+  overflow: visible;
+  border: 0;
+  background: none;
+  box-shadow: none;
+}
+
+html body[data-screen=home] #app .menu-art-home .journey-ink::before {
+  content: none;
+}
+
+.journey-ink .journey-road-ahead { stroke: #8d9175; }
+.journey-ink .journey-road-cleared { stroke: #c4df9a; }
+.journey-ink .chapter-future { opacity: .88; }
+
+html body[data-screen=home] #app .menu-art-home .journey-ink figcaption {
+  position: relative;
+  display: block;
+  height: 1.2em;
+  margin: 0;
+  color: #cbd1b9;
+  font: 12px/1.2 var(--pixel);
+}
+
+.journey-ink .journey-caption {
+  position: absolute;
+  top: 0;
+  transform: translateX(-50%);
+  white-space: nowrap;
+}
+.journey-ink .journey-caption:nth-child(1) { left: 13.2%; }
+.journey-ink .journey-caption:nth-child(2) { left: 48.8%; }
+.journey-ink .journey-caption:nth-child(3) { left: 85%; }
+
+.journey-ink .journey-sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}

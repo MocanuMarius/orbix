@@ -62,7 +62,8 @@ test('the first map teaches rewards and Rest when encountered, not at the openin
  lesson=nextOnboardingLesson('support',{...state,now:40000});assert.equal(lesson.topic,'rest');
  assert.match(lesson.steps[0].text,/Recover restores missing hearts/);
  assert.match(lesson.steps[0].text,/Grow adds 3 maximum Energy/);
- assert.match(lesson.steps[0].text,/spend Packed Sparks on skill upgrades or Dream/);
+ assert.match(lesson.steps[0].text,/spend Packed Sparks on skills/);
+ assert.doesNotMatch(lesson.steps[0].text,/Dream/,'unowned optional mechanics are not advertised at every Rest');
  assert.doesNotMatch(lesson.steps[0].text,/equip|switch|change.*companion/i,'Rest does not change the run companion');
  const companion=nextOnboardingLesson('companions',{...state,now:40000});
  assert.match(companion.steps[0].text,/Choose on the main screen; your companion stays for the entire run/);
