@@ -39,13 +39,15 @@ const canvas=()=>({style:{},getContext:()=>ctx,getBoundingClientRect:()=>({width
 const inventories=new Map();
 function inventory(node,tier){
  const phase=node.mapIndex||0,row=node.row||0,duration=node.duration||114;
- const key=[node.levelId,tier,phase,node.encounterFamily||'mixed',node.boss?node.bossId:'ordinary',node.elite?'elite':'normal',node.routeStyle||node.passage||'open',node.fuelCadence||3,node.mapTheme||'clear',node.flightLengthScale||1,row,duration].join(':');
+ const key=[node.levelId,tier,phase,node.encounterFamily||'mixed',node.boss?node.bossId:'ordinary',node.elite?'elite':'normal',node.routeStyle||node.passage||'open',node.fuelCadence||3,node.mapTheme||'clear',node.flightLengthScale||1,row,duration].join(':')+(node.blackHoleEncounter?':'+node.blackHoleEncounter+':'+(node.blackHoleEdge||0):'');
  if(inventories.has(key))return inventories.get(key);
  const e=new WispFlight({canvas:canvas(),terrain:node.terrain,elite:node.elite,seed:'condensed-inventory:'+key,duration,
   node:{...node,row,difficulty:tier},companions:['collector'],flame:100});
  const result={key,levelId:node.levelId,biome:node.biomeId||e.levelIdentity.biomeId,tier,phase,boss:!!node.boss,elite:!!node.elite,
   seconds:(e.totalDistance-e.distanceOrigin)/e.baseSpeed,draftCount:e.drafts.zones.length,interactionCount:e.biomeDynamics.items.length,
-  glowBudget:e.layout.glowBudget,holeCount:e.blackHoles?.items?.length??1,negativeCount:e.layout.embers.filter(p=>getPickupSpec(p).dim>0).length,
+  glowBudget:e.layout.glowBudget,holeCount:e.blackHoles?.items?.length??1,
+  holes:(e.blackHoles?.items||[]).map(h=>({time:Math.max(0,(h.x-e.player.x-e.distanceOrigin)/e.baseSpeed),influence:h.influence,coreRadius:h.coreRadius,giant:!!h.giant,bypassClearance:Math.abs(h.bypass.y-h.y)})),
+  negativeCount:e.layout.embers.filter(p=>getPickupSpec(p).dim>0).length,
   items:e.layout.embers.filter(p=>!p.generated&&!p.harmful&&getPickupSpec(p).fuel>0).map(p=>({id:p.id,kind:pickupKind(p),time:Math.max(0,(p.x-e.player.x-e.distanceOrigin)/e.baseSpeed),
    y:p.y,fuel:getPickupSpec(p).fuel,accessible:!!(p.accessible||p.intro||p.budgetRecovery),rich:pickupKind(p)==='cache',manual:getPickupSpec(p).manualOnly})).sort((a,b)=>a.time-b.time)};
  result.rawFuel=result.items.reduce((s,p)=>s+p.fuel,0);result.fuelPerSecond=result.rawFuel/result.seconds;
@@ -92,7 +94,11 @@ function simulateFlow(run,inv,style,rng,{captureDelta=0,effortScale=1,artifactSc
   events.push({t:t+(delivery?.32:0),fuel,item,delivery});
  }
  // A straight Black Hole pass at a stated clearance; distance is a scenario, not inferred human behavior.
- const clearance=({learning:85,steady:140,practiced:195})[style];let holeLoss=0;for(let x=-220;x<=220;x+=12)holeLoss+=blackHoleDrainRate(Math.hypot(x,clearance))*12/(154*speed);if(inv.holeCount)events.push({t:seconds*.55,cost:holeLoss,drain:true});
+ for(const hole of inv.holes){
+  const clearance=hole.giant?Math.max(hole.coreRadius+18,hole.bypassClearance-({learning:50,steady:25,practiced:12})[style]):({learning:85,steady:140,practiced:195})[style];
+  let loss=0;for(let x=-hole.influence;x<=hole.influence;x+=12)loss+=blackHoleDrainRate(Math.hypot(x,clearance),hole.influence,hole.coreRadius)*12/(154*speed);
+  events.push({t:hole.time/speed,cost:loss,drain:true});
+ }
  // Collision stress is imposed, not inferred from these inventory samples.
  // Protector's core benefit is represented as a fuel cost and avoided failure.
  const collisionChance=p.collision*(1+(run.difficulty-1)*.10+run.mapIndex*.08+(inv.elite?.3:0)+(inv.boss?.45:0));

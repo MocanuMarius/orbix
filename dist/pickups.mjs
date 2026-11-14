@@ -1,5 +1,5 @@
-import {FLAME_TUNING,LIGHT_PACKET_TUNING,glowPoints} from './vitality.mjs?v=mist-undertow-1';
-import {SPARK_TIERS,sparkBodyRadius,sparkMass} from './spark-size.mjs?v=mist-undertow-1';
+import {FLAME_TUNING,LIGHT_PACKET_TUNING,glowPoints} from './vitality.mjs?v=steady-giants-1';
+import {SPARK_TIERS,sparkBodyRadius,sparkMass} from './spark-size.mjs?v=steady-giants-1';
 
 const FLASH_POWERUP = {sightBonus:120, sightDuration:8};
 const type=(id,name,color,radius,contactRadius,description,extra={})=>Object.freeze({id,name,color,radius,contactRadius:contactRadius*.8,description,fuel:0,sightBonus:0,sightDuration:0,dim:0,dimDuration:0,manualOnly:false,...extra});

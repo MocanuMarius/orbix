@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import {WispFlight,FLIGHT_TUNING,circleHitsObstacle} from '../dist/flight.mjs';
-import {FlightProjection} from '../dist/flight-projection.mjs';
+import {FlightProjection,drawFlightProjection} from '../dist/flight-projection.mjs';
 import * as M from '../dist/model.mjs';
 const state=M.newState();state.run=M.createRun(state.profile,'drift-tree');state.run.condensedGlow=500;
 assert.ok(M.buyCheckpointSkill(state,'main-speed')); // Buy the guide prerequisite from the current run tree.
@@ -37,7 +37,26 @@ for(const p of contact.points)assert.equal(circleHitsObstacle(p.x,p.y,collision.
 const fresh=make();assert.equal(fresh.getFlightProjection(),fresh.getFlightProjection(),'Read cache reused');
 fresh.running=true;const old=fresh.getFlightProjection();fresh.flap();assert.notEqual(fresh.getFlightProjection(),old,'Lift must invalidate immediately');
 fresh.mod.driftSense=0;assert.equal(fresh.getFlightProjection(),null);
+// A hypothetical Lift marks its actual overhead contact, without exposing an
+// ascent line, a floor hit, or a false ceiling at an open viewport boundary.
+const roof=make();roof.drafts.zones=[];roof.biomeDynamics.items=[];roof.player.y=310;
+roof.layout.obstacles=[{x:0,width:1000,center:400,gap:260,motion:20,phase:.4,
+ topShape:[[-800,-500],[2450,-500],[2450,0],[-800,0]],bottomShape:null}];
+roof.projection=null;const warning=roof.getFlightProjection();
+assert.ok(warning.liftContact,'Lifting under a low roof must mark its surface');
+assert.equal(warning.lift,undefined,'Upward preview line has been removed');
+assert.ok(Math.abs(warning.liftContact.y-(270+Math.sin(warning.liftContact.time*.9+.4)*20))<1e-7,'Dot follows the actual moving ceiling');
+assert.ok(warning.liftContact.x>roof.distance+roof.player.x);
+assert.equal(warning.ceilingContact,null,'The falling path must not invent a ceiling warning');
+const painted=[];const paintContext=new Proxy({},{get:(o,k)=>o[k]??(()=>{}),set:(o,k,v)=>{o[k]=v;if(k==='fillStyle')painted.push(v);return true;}});
+drawFlightProjection(paintContext,roof);
+assert.ok(painted.includes('#ef6868'),'Visible impact is red');
+assert.ok(!painted.includes('#98d9f1'),'No blue ascent dots remain');
+roof.flame=0;roof.projection=null;assert.equal(roof.getFlightProjection().liftContact,undefined,'No warning for a Lift the player cannot afford');
+roof.flame=100;roof.layout.obstacles=[];roof.player.y=15;roof.projection=null;
+assert.equal(roof.getFlightProjection().liftContact,null,'Open sky is not a solid ceiling');
+for(const[id,cost]of Object.entries({'main-drift-sense':25,'main-drift-sense-2':40,'main-drift-sense-3':70}))assert.equal(M.SKILLS[id].cost,cost,'Reduced guide base price');
 const perf=make(),projector=new FlightProjection(FLIGHT_TUNING,circleHitsObstacle),times=[];
 for(let i=0;i<160;i++){perf.distance=1500+(i%8)*180;const start=performance.now();projector.predict(perf,3);const elapsed=performance.now()-start;if(i>=20)times.push(elapsed);}
 times.sort((a,b)=>a-b);
-console.log(JSON.stringify({ranks:3,maxPhysicsError:maxError,scenarios:cases,liveStateUntouched:true,movingTerrainContact:true,cachedAndInputReactive:true,localComputeP95ms:Number(times[Math.floor(times.length*.95)].toFixed(3))}));
+console.log(JSON.stringify({ranks:3,maxPhysicsError:maxError,scenarios:cases,liveStateUntouched:true,movingTerrainContact:true,redCeilingWarning:true,noAscentLine:true,noOpenSkyWarning:true,reducedPrices:[25,40,70],cachedAndInputReactive:true,localComputeP95ms:Number(times[Math.floor(times.length*.95)].toFixed(3))}));

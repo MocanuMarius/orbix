@@ -1,5 +1,5 @@
-import {glowPoints, getGlowCapacity,getLifeCapacity} from './vitality.mjs?v=mist-undertow-1';
-import {getCompanionAbility} from './companion-abilities.mjs?v=mist-undertow-1';
+import {glowPoints, getGlowCapacity,getLifeCapacity} from './vitality.mjs?v=steady-giants-1';
+import {getCompanionAbility} from './companion-abilities.mjs?v=steady-giants-1';
 
 export const TREASURE_KINDS = Object.freeze(['vessel', 'lens', 'tithe', 'wager']);
 export const LENS_SIGHT = 1.15;

@@ -90,7 +90,13 @@ export function observeFlight(e){
  }
  const marks=[];
  for(const hole of e.blackHoles?.items||[]){
-  recordHazard(hole.x-e.distance,hole.y,hole.coreRadius||16);
+  if(!hole.giant)recordHazard(hole.x-e.distance,hole.y,hole.coreRadius||16);
+  else for(let i=0;i<16;i++){
+   // A giant's centre can remain beyond the screen. Only the exposed,
+   // illuminated rim is observable; never give the controller its hidden centre.
+   const angle=i*Math.PI/8;
+   recordHazard(hole.x-e.distance+Math.cos(angle)*hole.coreRadius,hole.y+Math.sin(angle)*hole.coreRadius,6);
+  }
   if(!blackHoleWarning(e,hole,light,e.distance,e.player.y,e.time,e.reducedMotion,marks))continue;
   for(const p of marks)if(p.alpha>=WARNING_NOTICE){
    // The coloured bent pixel is observable. The hidden source and its

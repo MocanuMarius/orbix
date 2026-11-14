@@ -1,6 +1,6 @@
-import {drawShutterWake,shutterLightFactor,shutterWakeAt} from './shutter-cone.mjs?v=mist-undertow-1';
-import {lanternField} from './lantern-layout.mjs?v=mist-undertow-1';
-import { LIGHT_EXTENT, lightAttenuation } from './light-attenuation.mjs?v=mist-undertow-1';
+import {drawShutterWake,shutterLightFactor,shutterWakeAt} from './shutter-cone.mjs?v=steady-giants-1';
+import {lanternField} from './lantern-layout.mjs?v=steady-giants-1';
+import { LIGHT_EXTENT, lightAttenuation } from './light-attenuation.mjs?v=steady-giants-1';
 export { LIGHT_EXTENT, lightAttenuation };
 const reflectedLight = .6;
 

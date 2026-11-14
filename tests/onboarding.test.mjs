@@ -1,12 +1,25 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {cleanOnboarding,markOnboardingSeen,resetOnboarding,nextOnboardingLesson,
- noteOnboardingPrompt,noteOnboardingProgress,onboardingFeatureAvailable,onboardingFlightPlan} from '../dist/onboarding.mjs';
+ noteOnboardingPrompt,noteOnboardingProgress,onboardingFeatureAvailable,onboardingFlightPlan,giantBlackHoleEntryLesson} from '../dist/onboarding.mjs';
 import {resourceCycleSteps,resourceCycleArt} from '../dist/resource-cycle.mjs';
 import {pickupLesson,pickupGuideMarkup} from '../dist/pickup-guide.mjs';
 import {tutorialVisualMarkup} from '../dist/tutorial-visuals.mjs';
 
 const fresh=()=>({profile:{difficulty:1,stats:{flights:0},clearedFlights:0},run:{id:'run-a',mapIndex:0,step:0,stats:{flights:0,deaths:0},companions:['collector'],current:{id:'flight-a',type:'flight'}}});
+
+test('a generated giant teaches its actual edge once in the paused passage',()=>{
+ const {profile,run}=fresh(),teach=(settings,hole)=>giantBlackHoleEntryLesson(settings,profile,run,hole);
+ assert.equal(teach({},null),null);
+ assert.equal(teach({}, {giant:false}),null);
+ const top={giant:true,edge:-1},bottom={giant:true,edge:1};
+ assert.equal(teach({skipTutorial:true},top),null);
+ assert.match(teach({},top).steps[0].text,/Stay low/);
+ assert.match(teach({},bottom).steps[0].text,/Stay high/);
+ assert.match(tutorialVisualMarkup(teach({},top).steps[0]),/giant-hole-guide.png/);
+ markOnboardingSeen(profile,'onboarding:giant-hole');
+ assert.equal(teach({},bottom),null);
+});
 
 test('the first briefing teaches the resource cycle and keeps the initial skill menu small',()=>{
  const state=fresh(),before=structuredClone(state),lesson=nextOnboardingLesson('briefing',{...state,now:1000});

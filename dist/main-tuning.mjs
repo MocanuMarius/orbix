@@ -27,9 +27,9 @@ export const MAIN_TUNING_SKILLS={
  'main-edging-lasting':node('main-edging-lasting','Lasting Pulse',100,'main-edging-attunement','Extend innate Edging Pulse from 5s to 7s. Choose longer light, slower charge loss, or fuel recovery.','edge-pulse','+2s pulse',{choiceGroup:'edging-style',excludes:['main-edging-tension','main-edging-regeneration']}),
  'main-edging-tension':node('main-edging-tension','Held Tension',90,'main-edging-attunement','Innate Edging Pulse loses charge 50% more slowly away from edges: 4% per second instead of 8%, after the 1.25s grace period. Choose this instead of longer light or fuel recovery.','edge-pulse','−50% decay',{choiceGroup:'edging-style',excludes:['main-edging-lasting','main-edging-regeneration']}),
  'main-edging-regeneration':node('main-edging-regeneration','Regenerative Falling',100,'main-edging-attunement','Replace the Edging Pulse reveal that restores 1 Spark per full meter, up to eight recoveries each flight. Only missing fuel is restored; no Stored Sparks. The meter resets for 2s after filling. Choose fuel instead of either pulse upgrade.','regen','Edge → fuel',{choiceGroup:'edging-style',excludes:['main-edging-lasting','main-edging-tension']}),
- 'main-drift-sense':node('main-drift-sense','Drift Sense I',40,'main-speed','Preview 0.7s of falling and a blue path for lifting now. Accounts for drafts, Sparks and your build.','trajectory','0.7s guide'),
- 'main-drift-sense-2':node('main-drift-sense-2','Drift Sense II',55,'main-drift-sense','Extend both falling and lifting previews to 1.2s. Plan approaches from above or below.','trajectory','1.2s guide'),
- 'main-drift-sense-3':node('main-drift-sense-3','Drift Sense III',75,'main-drift-sense-2','Preview 1.8s ahead. Gold dots suggest an affordable route to the closest visible Spark when a clear path is found. Dynamic hazards can interrupt the prediction.','trajectory','1.8s + Spark route'),
+ 'main-drift-sense':node('main-drift-sense','Drift Sense I',25,'main-speed','Preview 0.7s of falling. A red dot marks the visible ceiling you would hit by lifting now. Accounts for drafts and your build.','trajectory','Fall guide + ceiling warning'),
+ 'main-drift-sense-2':node('main-drift-sense-2','Drift Sense II',40,'main-drift-sense','Extend the falling guide and red ceiling-hit warning to 1.2s. Only an affordable Lift can show a warning.','trajectory','1.2s guide'),
+ 'main-drift-sense-3':node('main-drift-sense-3','Drift Sense III',70,'main-drift-sense-2','Preview falls and ceiling hits 1.8s ahead. Gold dots suggest an affordable route to the closest visible Spark when a clear path is found. Dynamic hazards can interrupt the prediction.','trajectory','1.8s + Spark route'),
  'main-dawnburst':node('main-dawnburst','Dawnburst',45,'main-sight','Collect Sparks to reveal the whole screen for 1.5s, then fade over 1.2s. More pickups refresh the light.','dawn','Pickup dawn'),
  'main-reservoir':node('main-reservoir','Deep Vessel',30,'main-efficiency','+20 Spark capacity. Recovery Rests fill the larger vessel.','reserve','+20 Sparks cap'),
  'main-vast-vessel':node('main-vast-vessel','Boundless Vessel',50,'main-reservoir','+20 Spark capacity again; +40 Spark capacity in total.','reserve','+20 Sparks cap',{choiceGroup:'vessel-style',excludes:['main-cache-feast']}),
@@ -53,7 +53,7 @@ export function priceSkillDefinition(s){
  // same as a second life. General price growth still applies to all purchases.
  const utility={
   'main-speed':30,'main-tailwind':35,'main-sight':45,'main-glow-sense':55,'main-efficiency':90,
-  'main-dream-long':45,'main-dream-deep':65,'main-drift-sense':45,'main-drift-sense-2':65,
+  'main-dream-long':45,'main-dream-deep':65,'main-drift-sense':25,'main-drift-sense-2':40,'main-drift-sense-3':70,
   'collector-last-orbit':155,'collector-far-search':50,'collector-rich-cargo':80,'collector-fleet-return':65,'collector-close-orbit':40,
   'protector-cost':45,'protector-layers':90,'protector-clean-break':25,'protector-lasting-shell':25,'protector-thrifty-shell':55,'protector-returning-shell':65,
   'leveler-deep-dive':25,'leveler-ready-release':40,'leveler-quick-balance':45,'leveler-long-balance':55,
@@ -78,6 +78,6 @@ export function priceSkillDefinition(s){
  if(s.id.endsWith('-mastery'))return{...s,cost:s.branch==='swift'?55:45};
  const valuePrices={'main-glide-regen':85,'main-glide-regen-2':110,'main-lift':125,'main-dream-wake':30,'main-dream-sight':40,'main-echo-long':45,'main-echo-range':50,'main-recovery':50,'main-recovery-deep':55,'main-recovery-rescue':45,'main-recovery-challenge':45,'main-plummet':40,'main-deep-plummet':50,'main-tailwind':55,'main-drift':65,'main-kindled-touch':120,'main-kindled-rich':85,'main-dawnburst':130,'main-afterglow':110};
  if(valuePrices[s.id]!=null)return {...s,cost:valuePrices[s.id]};
- const prices={'main-sight':80,'main-speed':80,'main-efficiency':80,'main-drift-sense':85,'main-drift-sense-2':100,'main-drift-sense-3':110,'main-dream':85,'main-dream-long':100,'main-dream-deep':110,'main-dream-wake':80,'main-dream-sight':85,'main-afterglow':85,'main-reservoir':90,'main-vast-vessel':110,'main-purifying-touch':105,'main-kindled-rich':95,'main-dawnburst':100,'main-edging-lasting':100,'main-edging-tension':90,'main-edging-regeneration':100,'protector-layers':110,'leveler-dive':95};
+ const prices={'main-sight':80,'main-speed':80,'main-efficiency':80,'main-drift-sense':25,'main-drift-sense-2':40,'main-drift-sense-3':70,'main-dream':85,'main-dream-long':100,'main-dream-deep':110,'main-dream-wake':80,'main-dream-sight':85,'main-afterglow':85,'main-reservoir':90,'main-vast-vessel':110,'main-purifying-touch':105,'main-kindled-rich':95,'main-dawnburst':100,'main-edging-lasting':100,'main-edging-tension':90,'main-edging-regeneration':100,'protector-layers':110,'leveler-dive':95};
  return{...s,cost:prices[s.id]??(s.expansion?105:100)};
 }

@@ -930,3 +930,11 @@ Accepted design decisions for the next Collector mechanics rework, still at plan
 - Last Orbit gets a separate Guard branch. A later skill lets direct body pickups help repair the Collector after a rescue.
 
 On 15 November the player chose three separate size unlocks. Additional targeting priorities, such as largest-Spark-first, require low-cost skill purchases. The default closest-Spark behavior is available at the start. Learned targeting priorities can be switched at checkpoints. Exact prices and the body-pickup repair formula remain planning questions.
+
+## 15 November 2026 · Steady giants and a ceiling warning
+
+Implemented the chosen steady Giant Black Hole encounter. Its core hangs beyond the roof or floor with about one-third visible. A larger field drains Sparks continuously, with a low-drain far lane and a strong cost near the core. This extends the current fuel-drain hazard; it adds no movement force. Rare later encounters must have a checked corridor and two reachable existing Sparks, on approach and exit. Unsupported layouts retain an ordinary Black Hole. The initial flight remains ordinary.
+
+Trajectory Guide no longer draws an upward blue Lift path. A small red pixel dot marks the actual overhead surface an affordable Lift would hit within the guide's horizon. Open sky and safe Lifts have no warning. The falling line and rank-three gold Spark route remain. Guide base prices are now 25/40/70 Stored Sparks, down from 45/65/110; run training growth still applies.
+
+The roof/floor rehearsal is at `black-holes.html`, uses the real game engine, starts paused, and changes no campaign save. Giant warnings and the first-encounter lesson account for an offscreen source. Focused verification covered 192 generated flights across 48 courses, 178,430 collider samples and four delayed-input crossings; the first seven natural giants passed placement checks. Both flight renderers and two phone landscape sizes were inspected. This is browser/model evidence, not a physical-device frame-rate or human difficulty guarantee. See `docs/steady-giants-and-ceiling-guide.md`.

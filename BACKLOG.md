@@ -151,3 +151,14 @@ Checks: whole-cost/meter/pickup and overflow accounting; Rest transactions; line
 Completed the requested model/simulation pass after Clear Sparks. See [the full report](docs/balance-2026-11-13.md) for methods, before/after results, research and limitations. Production changes: gentler skill-price escalation (0.40 → 0.25), Glass Lantern +4 displayed Sparks per natural pickup / +1 Lift cost, Spark Wick preserves uses at full fuel, bounded 12-paid-Lift Heavy Light bargain, and no ineffective Quiet Cinder rewards at the one-Spark cost floor.
 
 Outstanding design questions are explicit, not silently treated as implemented: overflow-only income compounds survival advantages; broad trees plus global price escalation dilute meaningful branch depth; Recharge may work better as a secondary Rest service. Models cannot settle human difficulty or enjoyment. No companion was rebalanced solely from the imperfect flight controller.
+
+## Steady giants and ceiling warnings — 15 November 2026
+
+- [x] Rare Giant Black Holes at the roof or floor, with a steady stronger drain, visible partial core and accretion disk.
+- [x] Require a checked crossing and existing approach/recovery Sparks; retain ordinary holes when a giant cannot fit.
+- [x] First-encounter guidance and a save-free playable `black-holes.html` rehearsal for both edges.
+- [x] Remove the blue upward guide. Mark a predicted affordable Lift's solid ceiling contact with a red pixel dot; keep the falling guide.
+- [x] Reduce the three guide base prices to 25/40/70 Stored Sparks and explain the new behavior in Skills.
+- [x] Check actual physics, paused/Dream drain, terrain clearance, resource accounting and both phone renderers.
+
+Prepared as `steady-giants-1`. Collector size gates, learned targeting preferences and the Guard reorganization remain the next planning batch; they are not silently included here.

@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { WispFlight, circleHitsObstacle } from '../dist/flight.mjs';
-import { BlackHoles, createBlackHoles, blackHoleDrainRate, BLACK_HOLE_TUNING as T } from '../dist/black-holes.mjs';
+import { BlackHoles, createBlackHoles, blackHoleDrainRate, BLACK_HOLE_TUNING as T, GIANT_BLACK_HOLE_TUNING as G } from '../dist/black-holes.mjs';
 import { BIOME_LEVELS } from '../dist/level-catalog.mjs';
 import { attachDream } from '../dist/dream.mjs';
 
@@ -24,13 +24,19 @@ const economy = e => [e.condensedTotal, e.condensedRemainder, e.score, e.baseEmb
 
 // Independently verify the authored escape lane using the production collider,
 // at denser intervals than placement, and at both sway extremes and its middle.
-let omitted = 0, maps = 0, rooms = 0, approaches = 0, zeroDrainLanes = 0, geometryChecks = 0;
+let omitted = 0, maps = 0, rooms = 0, approaches = 0, zeroDrainLanes = 0, geometryChecks = 0, campaignGiants = 0;
 for (const level of BIOME_LEVELS) for (const height of [430, 620]) for (const variant of [0, 1]) {
   const e = make({ levelId: level.id, terrain: level.terrain, seed: `black-hole-${variant}`,
     lengthScale: 3, difficulty: variant ? 5 : 1, elite: !!variant, mapIndex: variant ? 8 : 0 }, height);
   const items = e.blackHoles.items;
   assert.ok(items.length<=1);if(!items.length){assert.deepEqual(createBlackHoles(e),[],'No validated quiet placement: omit rather than force a hazard');omitted++;e.destroy();continue;}
   const hole = items[0], lane = hole.bypass;
+  if(hole.giant) {
+    campaignGiants++;
+    assert.ok(variant,'The easy, ordinary opening keeps its baseline hole');
+    assert.deepEqual(e.layout.embers.filter(p=>p.feature?.startsWith('giant-bypass-')).map(p=>p.feature),
+      ['giant-bypass-entry','giant-bypass-exit'],'Both sides of a Giant have existing fuel');
+  }
   if (hole.placement === 'room') rooms++; else approaches++;
   assert.ok(Math.abs(lane.y - hole.y) >= T.minimumBypass, 'Body-wide escape outside the stronger drain band');
   if (Math.abs(lane.y - hole.y) >= T.influence) zeroDrainLanes++;
@@ -59,7 +65,8 @@ for (const level of BIOME_LEVELS) for (const height of [430, 620]) for (const va
   const before = { x: hole.x, y: hole.y / e.height, lane: lane.y / e.height, id: hole.id, seed: hole.seed };
   Object.assign(e.viewport, height === 430 ? { width: 390, height: 850 } : { width: 956, height: 430 }); e.resize();
   assert.deepEqual([hole.x, hole.id, hole.seed], [before.x, before.id, before.seed], 'Resize preserves world X, seed and identity');
-  close(hole.y / e.height, before.y, 'Resize preserves normalized Y');
+  if(hole.giant) close(Math.abs(hole.y-(hole.edge<0?0:e.height))/hole.coreRadius,.30,'Resize preserves the exposed fraction of the disk');
+  else close(hole.y / e.height, before.y, 'Resize preserves normalized Y');
   close(lane.y / e.height, before.lane, 'Resize preserves normalized escape lane');
   for (const o of e.layout.obstacles) {
     if (o.destroyed || o.x - o.width > lane.endX + 40 || o.x + o.width * 2.5 < lane.startX - 40) continue;
@@ -68,6 +75,41 @@ for (const level of BIOME_LEVELS) for (const height of [430, 620]) for (const va
         'Resized escape stays body-clear');
   }
   maps++; e.destroy();
+}
+assert.ok(campaignGiants>0 && campaignGiants<BIOME_LEVELS.length,'Giants are seeded and selective in actual campaigns');
+
+function passCost(offset,speed) {
+  let cost=0;
+  for(let dx=-G.influence;dx<=G.influence;dx++)
+    cost+=blackHoleDrainRate(Math.hypot(dx,offset),G.influence,G.coreRadius)*.3/speed;
+  return cost;
+}
+const cautiousCost=passCost(G.minimumBypass-20,154*.8), closeCost=passCost(190,154*.8);
+assert.ok(cautiousCost<3&&closeCost>15,'An imprecise far lane costs less than a Lift, a close slow crossing can consume half a fresh meter');
+assert.ok(blackHoleDrainRate(120,G.influence,G.coreRadius)>3*blackHoleDrainRate(120));
+const giantPasses=[];
+for(const edge of [-1,1])for (const height of [430,620]) {
+  const options={seed:2,terrain:'ruins',node:{levelId:'moonruins-bell-stair',row:3,difficulty:2,mapIndex:1,
+    blackHoleEncounter:'giant',blackHoleEdge:edge}};
+  const e=make(options,height),h=e.blackHoles.items[0];
+  assert.equal(h?.giant,true);assert.equal(h.edge,edge);
+  const offset=(h.y-(edge<0?0:e.height))*edge/h.coreRadius;
+  close((Math.acos(offset)-offset*Math.sqrt(1-offset*offset))/Math.PI,.3119188,'The opening shows about one third of the disk',1e-6);
+  assert.ok(h.bypass.startX>e.player.x,'Warning can start before field entry');
+  e.distance=e.previousDistance=h.bypass.startX-e.player.x;
+  e.player.y=e.previousPlayerY=h.bypass.y+18*e.scaleY;e.player.vy=0;
+  e.start();
+  let taps=0;
+  // One decision every 150 ms. Use only the locally visible lane and vertical
+  // velocity, without autosteering, damping, or shielding the actual wisp.
+  for(let frame=0;frame<600&&e.alive&&!e.dying&&e.distance+e.player.x<h.bypass.endX;frame++){
+    if(frame%9===0&&e.player.vy>0&&e.player.y>h.bypass.y+19*e.scaleY){e.flap();taps++;}
+    e.step(dt);
+  }
+  assert.ok(e.alive&&!e.dying&&e.distance+e.player.x>=h.bypass.endX,'Real Lift and gravity clear the entire checked passage');
+  assert.ok(taps>0&&e.flame>0);
+  assert.ok(h.drained*.3<3,'Actual flight also budgets less than one Lift for the Giant');
+  giantPasses.push({edge,height,taps,displayedLoss:+(h.drained*.3).toFixed(2)});e.destroy();
 }
 
 let bosses = 0;
@@ -189,6 +231,7 @@ for (let i = 0; i < 2000; i++) distant.blackHoles.items.push({ x: 50000 + i * 50
 atHole(distant); assert.ok(distant.blackHoles.rate > 0, 'Nearby culling does not read distant actors');
 for (const engine of [e, complete, shield, record, replay, distant]) engine.destroy();
 console.log(JSON.stringify({ maps: BIOME_LEVELS.length, placementVariants: maps, omitted, rooms, approaches, zeroDrainLanes,
+  campaignGiants,giantPasses,cautiousCost,closeCost,
   bosses, geometryChecks, coreRadius: T.coreRadius, influence: T.influence, maximumRate: T.maximumRate,
   passes, currencyAndArtifactsUntouched: true, noContactDeathOrForce: true,
   pauseAndDreamDeterministic: true, resizeSafe: true, distantActorsCulled: true }));
