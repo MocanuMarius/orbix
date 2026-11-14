@@ -1,7 +1,7 @@
-import {ROUTE_BONUSES} from './route-bonuses.mjs?v=night-atlas-1';
-import {blackHoleDrainRate} from './black-holes.mjs?v=night-atlas-1';
-import {pickupKind} from './pickups.mjs?v=night-atlas-1';
-import {GLOW_DISPLAY_SCALE} from './vitality.mjs?v=night-atlas-1';
+import {ROUTE_BONUSES} from './route-bonuses.mjs?v=living-icons-1';
+import {blackHoleDrainRate} from './black-holes.mjs?v=living-icons-1';
+import {pickupKind} from './pickups.mjs?v=living-icons-1';
+import {GLOW_DISPLAY_SCALE} from './vitality.mjs?v=living-icons-1';
 
 const fuelKinds = new Set(['light', 'cluster', 'cache']);
 const helpfulFamilies = new Set(['lift', 'reveal', 'bloom']);

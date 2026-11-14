@@ -1,10 +1,10 @@
-import {resourceSymbol} from './game-symbols.mjs?v=night-atlas-1';
-import {prepareFuelSprites} from './pickup-art.mjs?v=night-atlas-1';
+import {resourceSymbol} from './game-symbols.mjs?v=living-icons-1';
+import {prepareFuelSprites} from './pickup-art.mjs?v=living-icons-1';
 
 let rendererWarmup;
 export function preloadFlightEntry(){
  if(typeof window==='undefined')return Promise.resolve();
- rendererWarmup??=Promise.all([import('./wisp-renderer.mjs?v=night-atlas-1'),
+ rendererWarmup??=Promise.all([import('./wisp-renderer.mjs?v=living-icons-1'),
    prepareFuelSprites(document,window.matchMedia('(prefers-reduced-motion: reduce)').matches)
  ]).catch(()=>null);
  return rendererWarmup;

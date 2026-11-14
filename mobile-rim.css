@@ -52,6 +52,13 @@ html body .event-offer .boon-values:empty{display:none}
  html body #header .condensed-wallet{gap:4px;padding-inline:5px}
 }
 @media(orientation:landscape) and (max-height:350px){
+ html body .tree-sheet:modal{grid-template-rows:44px 28px minmax(0,1fr)!important;row-gap:2px!important}
+ html body .tree-sheet .tree-body{grid-template-columns:minmax(0,1fr) min(260px,36vw)}
+ html body .tree-sheet .tree-navigation .tree-state-key{gap:3px 8px;padding-block:0}
+ html body .tree-sheet .tree-side .tree-inspector>.skill-purchase{position:static}
+ html body .tree-sheet .tree-side .tree-inspector{padding-top:0}
+ html body .tree-sheet .tree-side .rank-choices{margin:2px 0}
+ html body .tree-sheet .tree-side .tree-inspector .tree-selection-status{margin:3px 0}
  #header .map-energy{gap:2px;font-size:13px}#header .map-energy svg{width:17px}
  html body .compact-support .event-offer{gap:5px!important}
  html body dialog.route-inspection-sheet.flight-preview-sheet[open]{padding:7px 10px!important}

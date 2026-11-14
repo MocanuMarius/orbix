@@ -52,6 +52,7 @@ self.addEventListener('fetch', event => {
   const url = new URL(event.request.url);
   if (url.origin !== scope.origin || !url.pathname.startsWith(scope.pathname)) return;
   url.search = '';
+  url.hash = '';
   if (url.pathname === scope.pathname) url.pathname += 'index.html';
   if (!files.has(url.href)) return;
   // The live local editor serves new source files without a release stamp.

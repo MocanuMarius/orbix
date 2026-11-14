@@ -1,7 +1,7 @@
-import {resourceSymbol} from './game-symbols.mjs?v=night-atlas-1';
-import {getArtifactInfo,CONSUMABLE_ARTIFACTS} from './artifact-info.mjs?v=night-atlas-1';
-import {getCompanionAbility,normalizeCompanionRole} from './companion-abilities.mjs?v=night-atlas-1';
-import {formatGlow,glowText,getGlowCapacity} from './vitality.mjs?v=night-atlas-1';
+import {resourceSymbol} from './game-symbols.mjs?v=living-icons-1';
+import {getArtifactInfo,CONSUMABLE_ARTIFACTS} from './artifact-info.mjs?v=living-icons-1';
+import {getCompanionAbility,normalizeCompanionRole} from './companion-abilities.mjs?v=living-icons-1';
+import {formatGlow,glowText,getGlowCapacity} from './vitality.mjs?v=living-icons-1';
 
 const esc=value=>String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const action={collector:'Collector delivers a Spark',protector:'Protector deflects a collision',swift:'Runner starts a burst',leveler:'Space Timer starts levitating'};

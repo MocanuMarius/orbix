@@ -1,4 +1,4 @@
-import { normalizeCompanionRole } from './companion-abilities.mjs?v=night-atlas-1';
+import { normalizeCompanionRole } from './companion-abilities.mjs?v=living-icons-1';
 
 const PALETTES = Object.freeze({
   collector: Object.freeze({ outer: '#658557', mid: '#8db778', core: '#b9dfa0', bright: '#efffe0' }),
@@ -32,13 +32,14 @@ export function companionArtSvg(role = 'collector', { className = '' } = {}) {
   const id = normalizeCompanionRole(role), art = companionSprite(id), palette = companionPalette(id);
   const inks = [null, palette.outer, palette.mid, palette.core, palette.bright];
   const classes = String(className || '').replace(/[^a-zA-Z0-9 _-]/g, '').trim().slice(0, 120);
-  const pixels = [];
+  const paths=['','','','',''];
   art.rows.forEach((row, y) => {
     for (let x = 0; x < row.length;) {
       const shade = Number(row[x]), start = x;
       while (x < row.length && Number(row[x]) === shade) x++;
-      if (inks[shade]) pixels.push(`<rect x="${start}" y="${y}" width="${x - start}" height="1" fill="${inks[shade]}"/>`);
+      if (inks[shade]) paths[shade]+=`M${start} ${y}h${x-start}v1h-${x-start}z`;
     }
   });
-  return `<svg xmlns="http://www.w3.org/2000/svg" class="${classes}" viewBox="0 0 ${art.width} ${art.height}" width="${art.width}" height="${art.height}" preserveAspectRatio="xMidYMid meet" shape-rendering="crispEdges" role="img" aria-label="${NAMES[id] || 'Collector'} companion">${pixels.join('')}</svg>`;
+  const pixels=paths.map((d,i)=>d?`<path d="${d}" fill="${inks[i]}"/>`:'').join('');
+  return `<svg xmlns="http://www.w3.org/2000/svg" class="companion-portrait ${classes}" data-role-art="${id}" viewBox="-1 -1 15 15" width="${art.width}" height="${art.height}" preserveAspectRatio="xMidYMid meet" shape-rendering="crispEdges" role="img" aria-label="${NAMES[id] || 'Collector'} companion"><g class="companion-orbit">${pixels}<path d="M4 3h2v1H4z" fill="${palette.bright}" opacity=".76"/></g></svg>`;
 }

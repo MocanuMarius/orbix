@@ -1,5 +1,5 @@
-import {biomeMapGlyph} from './biome-art.mjs?v=night-atlas-1';
-import {LEVELS} from './level-catalog.mjs?v=night-atlas-1';
+import {biomeMapGlyph} from './biome-art.mjs?v=living-icons-1';
+import {LEVELS} from './level-catalog.mjs?v=living-icons-1';
 // Original, grid-authored location landmarks. No external art or image requests.
 // Each rectangle uses integer coordinates on a 16 x 16 pixel grid.
 const shapes = {
@@ -75,5 +75,5 @@ export function levelMapGlyph(level, x=0, y=0, size=46) {
 }
 
 export function levelMapPreview(level) {
-  return `<svg class="level-landmark-preview" viewBox="0 0 96 96" aria-hidden="true" focusable="false"><path d="M4 76h88v12H4zM10 70h10v6H10zM77 68h9v8h-9z" fill="#101e18"/><path d="M11 18h3v3h-3zM79 28h2v2h-2zM67 10h3v3h-3z" fill="#b9c69d" opacity=".45"/>${levelMapGlyph(level,48,46,75)}<path d="M8 85h22v2H8zM61 84h27v2H61z" fill="#6f8360" opacity=".5"/></svg>`;
+  return `<svg class="level-landmark-preview" viewBox="0 0 96 96" aria-hidden="true" focusable="false"><path d="M4 76h88v12H4zM10 70h10v6H10zM77 68h9v8h-9z" fill="#101e18"/><path class="landmark-motion passage-dust" d="M11 18h3v3h-3zM79 28h2v2h-2zM67 10h3v3h-3z" fill="#b9c69d" opacity=".45"/>${levelMapGlyph(level,48,46,75)}<path d="M8 85h22v2H8zM61 84h27v2H61z" fill="#6f8360" opacity=".5"/></svg>`;
 }

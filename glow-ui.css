@@ -55,3 +55,11 @@
 .packing-left{transform-origin:3px 9px}.packing-right{transform-origin:29px 9px}
 .packing-trail{margin:-3px 0 0 -3px;width:6px;height:6px;background:#d5f3b3;box-shadow:0 0 3px #a6dc8e}
 .packing-gain{position:absolute;opacity:0;font:12px var(--pixel);color:#fff3be;text-shadow:1px 1px #11211c}
+
+.glow-side-gauge .meter-spark-cap{position:absolute;bottom:calc(100% + 2px);left:50%;transform:translateX(-50%);width:17px;height:17px;pointer-events:none}
+.glow-side-gauge .meter-spark-cap>.resource-symbol{display:block;width:100%;height:100%}
+.flap-control .lift-cost{display:inline-flex;justify-content:center;align-items:center;gap:3px}
+.flap-control .lift-cost>.resource-symbol-energy{width:15px;height:15px}
+.flap-control .lift-cost>.resource-symbol-energy[hidden]{display:none}
+.run-checkpoint .front-glow{display:inline-flex;align-items:center;gap:3px}
+.run-checkpoint .front-glow>.resource-symbol-energy{width:16px;height:16px}

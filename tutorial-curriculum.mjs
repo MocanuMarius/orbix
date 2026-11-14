@@ -11,8 +11,8 @@ export const TUTORIAL_TOPICS={
   s('Store the surplus','A full meter sends surplus to the upper-left box. Spend Stored Sparks on skills at a Rest.','spark-storage')]},
  luminance:{name:'Luminance',visual:'luminance',steps:[
   s('Luminance','Luminance is how far your wisp lights the world. It fades with distance; faraway scenery and Sparks disappear into darkness.','luminance'),
-  s('Fuel and seeing distance','Sparks powers flight. Luminance reveals the route. Increasing one does not automatically increase the other.','luminance'),
-  s('Grow your Luminance','The Light skill tree increases Luminance. Flash Sparks and some artifacts temporarily reveal more; Dark Sparks reduce it.','pickup:sight')]},
+  s('Sparks and sight','Sparks pay for Lift. Luminance reveals the route around your wisp.','luminance'),
+  s('Grow your Luminance','At a Rest, train Luminance in the Wisp tree. A Flash Spark briefly reveals more of the passage.','pickup:sight')]},
  utilities:{name:'Special Sparks',visual:'pickup:charge',steps:[
   s('Charge Spark','The cyan Charge Spark shortens companion recovery. Space Timer regains levitation charge. It does not refill Sparks.','pickup:charge'),
   s('Flash Spark','The violet Flash Spark extends Luminance for six seconds. It reveals more of the passage but gives no fuel.','pickup:sight'),
