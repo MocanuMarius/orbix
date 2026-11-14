@@ -1,5 +1,5 @@
-import {getPickupSpec,pickupKind,pickupContactRadius} from './pickups.mjs?v=guardian-beat-1';
-import {GIANT_SPARK_RATE,sparkMass,sparkBodyRadius} from './spark-size.mjs?v=guardian-beat-1';
+import {getPickupSpec,pickupKind,pickupContactRadius} from './pickups.mjs?v=guardian-beat-2';
+import {GIANT_SPARK_RATE,sparkMass,sparkBodyRadius} from './spark-size.mjs?v=guardian-beat-2';
 
 // Assign exceptional masses AFTER fuel balancing, objectives, forks and boss
 // choreography. Never turn a compulsory pickup or a scripted Dark seed into a giant.

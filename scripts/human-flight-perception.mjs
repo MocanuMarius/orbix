@@ -4,6 +4,7 @@ import {getPickupSpec, pickupKind, pickupContactRadius} from '../dist/pickups.mj
 import {sparkBodyRadius} from '../dist/spark-size.mjs';
 import {ICE_GUIDE_FACETS} from '../dist/guardian-geometry.mjs';
 import {shutterLightFactor} from '../dist/shutter-cone.mjs';
+import {blackHoleWarning,WARNING_NOTICE} from '../dist/black-hole-warning.mjs';
 
 const clip = (value,min,max) => Math.max(min,Math.min(max,value));
 const snap = (value,step) => Math.round(value/step)*step;
@@ -85,7 +86,16 @@ export function observeFlight(e){
    if(aim)sparks.push(aim);
   }
  }
- for(const hole of e.blackHoles?.items||[])recordHazard(hole.x-e.distance,hole.y,hole.radius||16);
+ const marks=[];
+ for(const hole of e.blackHoles?.items||[]){
+  recordHazard(hole.x-e.distance,hole.y,hole.coreRadius||16);
+  if(!blackHoleWarning(e,hole,light,e.distance,e.player.y,e.time,e.reducedMotion,marks))continue;
+  for(const p of marks)if(p.alpha>=WARNING_NOTICE){
+   // The coloured bent pixel is observable. The hidden source and its
+   // distance are not exposed to the controller until the body is visible.
+   hazards.push({x:snap(p.x,4),y:snap(p.y,4),radius:6,blackHoleCue:true});
+  }
+ }
  for(const item of e.biomeDynamics?.items||[]){
   if(item.family==='fall'&&(item.phase==='warning'||item.phase==='falling'))
    recordHazard(item.x-e.distance,item.y,item.radius);

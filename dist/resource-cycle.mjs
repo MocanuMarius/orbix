@@ -1,9 +1,9 @@
-import {getPickupSpec} from './pickups.mjs?v=guardian-beat-1';
-import {glowPoints,getGlowCapacity,GLOW_DISPLAY_SCALE} from './vitality.mjs?v=guardian-beat-1';
-import {condenseGlow,getCondensationRules} from './condensed-glow.mjs?v=guardian-beat-1';
-import {pickupArtSvg} from './pickup-art.mjs?v=guardian-beat-1';
-import {resourceSymbol} from './game-symbols.mjs?v=guardian-beat-1';
-import {skillIcon} from './upgrade-icons.mjs?v=guardian-beat-1';
+import {getPickupSpec} from './pickups.mjs?v=guardian-beat-2';
+import {glowPoints,getGlowCapacity,GLOW_DISPLAY_SCALE} from './vitality.mjs?v=guardian-beat-2';
+import {condenseGlow,getCondensationRules} from './condensed-glow.mjs?v=guardian-beat-2';
+import {pickupArtSvg} from './pickup-art.mjs?v=guardian-beat-2';
+import {resourceSymbol} from './game-symbols.mjs?v=guardian-beat-2';
+import {skillIcon} from './upgrade-icons.mjs?v=guardian-beat-2';
 
 // An independent teaching meter. Previewing, skipping and replaying never touch a save.
 export function resourceCycleSteps(run={},mod={}){

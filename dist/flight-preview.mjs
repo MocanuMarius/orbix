@@ -1,14 +1,14 @@
-import {getBiome} from './biomes.mjs?v=guardian-beat-1';
-import {getBossPreview} from './boss.mjs?v=guardian-beat-1';
-import {levelMapPreview} from './level-map-art.mjs?v=guardian-beat-1';
-import {mapStopIconMarkup} from './map-guide.mjs?v=guardian-beat-1';
-import {resourceSymbol} from './game-symbols.mjs?v=guardian-beat-1';
-import {getFlightClearReward} from './checkpoint-rewards.mjs?v=guardian-beat-1';
-import {availableFlightArtifacts} from './model.mjs?v=guardian-beat-1';
-import {bonusIcon,boonMarkup} from './route-bonus-ui.mjs?v=guardian-beat-1';
-import {contextualFlightNotice} from './contextual-events.mjs?v=guardian-beat-1';
-import {ATLAS_FORECASTS,atlasGlyph} from './night-atlas.mjs?v=guardian-beat-1';
-import {canDreamAt,dreamConfig,dreamEye} from './dream.mjs?v=guardian-beat-1';
+import {getBiome} from './biomes.mjs?v=guardian-beat-2';
+import {getBossPreview} from './boss.mjs?v=guardian-beat-2';
+import {levelMapPreview} from './level-map-art.mjs?v=guardian-beat-2';
+import {mapStopIconMarkup} from './map-guide.mjs?v=guardian-beat-2';
+import {resourceSymbol} from './game-symbols.mjs?v=guardian-beat-2';
+import {getFlightClearReward} from './checkpoint-rewards.mjs?v=guardian-beat-2';
+import {availableFlightArtifacts} from './model.mjs?v=guardian-beat-2';
+import {bonusIcon,boonMarkup} from './route-bonus-ui.mjs?v=guardian-beat-2';
+import {contextualFlightNotice} from './contextual-events.mjs?v=guardian-beat-2';
+import {ATLAS_FORECASTS,atlasGlyph} from './night-atlas.mjs?v=guardian-beat-2';
+import {canDreamAt,dreamConfig,dreamEye} from './dream.mjs?v=guardian-beat-2';
 
 const escapeText = value => String(value ?? '').replace(/[&<>"']/g, char =>
  ({'&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;'}[char]));

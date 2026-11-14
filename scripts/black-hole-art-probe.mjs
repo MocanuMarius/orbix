@@ -1,5 +1,22 @@
 import assert from 'node:assert/strict';
 import {drawBlackHoles,blackHoleArtStats} from '../dist/black-hole-art.mjs';
+import {blackHoleWarning,drawBlackHoleWarning,WARNING_NOTICE} from '../dist/black-hole-warning.mjs';
+
+{
+ const e={time:0,width:900,height:430,distance:0,player:{x:200,y:215},reducedMotion:false};
+ const hole={x:450,y:215,influence:220,seed:2};
+ const lit={radius:145,intensity:.9},marks=[];
+ const read=(light,time=0,quiet=false)=>blackHoleWarning(e,hole,light,0,215,time,quiet,marks);
+ assert.ok(read(lit));assert.ok(marks.some(p=>p.alpha>=WARNING_NOTICE));
+ assert.ok(marks.every(p=>p.x<hole.x&&p.x>e.player.x),'only the approaching side of the field emits');
+ const x=marks[0].x;read(lit,.2);assert.notEqual(marks[0].x,x);
+ read(lit,0,true);const still=structuredClone(marks);read(lit,1,true);assert.deepEqual(still,marks);
+ assert.equal(read({radius:145,intensity:0}),false,'a dark patch emits no signal');
+ const paints=[];
+ const brush={fillRect(...p){paints.push(p);}};
+ drawBlackHoleWarning(brush,e,hole,lit,0,215,.2,1);assert.equal(paints.length,12);
+ hole.x=790;assert.equal(read(lit),false);hole.x=198;assert.equal(read(lit),false);
+}
 
 // Cosmetic bookkeeping must stay bounded and read-only relative to simulation.
 let rectangles=0;

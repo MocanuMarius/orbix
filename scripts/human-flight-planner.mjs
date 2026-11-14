@@ -61,8 +61,16 @@ export function planHumanLift(view, target, memory) {
       vy = Math.min(view.terminalFall, vy + ay * dt);
       let margin = Math.min(y + player.radius, view.height + player.radius - y);
       for (const pixel of slices[i-1].terrain) margin = Math.min(margin, Math.abs(y - pixel.y) - radius);
-      for (const hazard of slices[i-1].hazards) margin = Math.min(margin, Math.abs(y - hazard.y) - hazard.radius - player.radius);
+      let warningCost=0;
+      for (const hazard of slices[i-1].hazards) {
+        const clearance=Math.abs(y-hazard.y)-hazard.radius-player.radius;
+        // The inward flecks indicate possible fuel loss. A player can pass
+        // through the flecks; terrain avoidance still takes precedence.
+        if(hazard.blackHoleCue)warningCost=Math.max(warningCost,Math.max(0,26-clearance)*.9);
+        else margin=Math.min(margin,clearance);
+      }
       const timeWeight = 1 / (1 + .35*t);
+      total+=warningCost*timeWeight;
       if (margin <= 0) total += (800 + Math.min(50, -margin)*3) * timeWeight;
       else if (margin < 22) total += (22 - margin) * 1.2 * timeWeight;
       const targetWeight = Math.max(0, 1 - Math.abs(t - stepsToTarget) / .42);
