@@ -1,7 +1,7 @@
-import {resourceSymbol} from './game-symbols.mjs?v=proximity-balance-1';
-import {getArtifactInfo,CONSUMABLE_ARTIFACTS} from './artifact-info.mjs?v=proximity-balance-1';
-import {getCompanionAbility,normalizeCompanionRole} from './companion-abilities.mjs?v=proximity-balance-1';
-import {formatGlow,glowText,getGlowCapacity} from './vitality.mjs?v=proximity-balance-1';
+import {resourceSymbol} from './game-symbols.mjs?v=guardian-overflow-1';
+import {getArtifactInfo,CONSUMABLE_ARTIFACTS} from './artifact-info.mjs?v=guardian-overflow-1';
+import {getCompanionAbility,normalizeCompanionRole} from './companion-abilities.mjs?v=guardian-overflow-1';
+import {formatGlow,glowText,getGlowCapacity} from './vitality.mjs?v=guardian-overflow-1';
 
 const esc=value=>String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const action={collector:'Collector delivers a Spark',protector:'Protector deflects a collision',swift:'Runner starts a burst',leveler:'Space Timer starts levitating'};
@@ -31,7 +31,7 @@ export function artifactDescription(a,run={}, {fresh=false}={}){
   'storm-knot':{trigger:'While Runner is equipped.',effect:'Runner recharges 10% sooner and resists more wind.',limit:'Draft resistance increases by 6 percentage points.'},
   'hollow-bell':{trigger:'While Space Timer is equipped.',effect:'Levitate for 0.25 seconds longer.',limit:'Release to fall and recharge.'},
   'dawn-thread':{trigger:'When Echo Luminance activates.',effect:'Its reveal lasts 1 second longer.',limit:'Requires Echo Luminance in the Light tree.'},
-  'echo-vessel':{trigger:'Collect Sparks with a full meter.',effect:'Convert more overflow into Packed Sparks.',limit:'Conversion gains 10 percentage points, within the shared cap.'},
+  'echo-vessel':{trigger:'Collect Sparks with a full meter.',effect:'Convert more overflow into Packed Sparks.',limit:'Base conversion: 3 overflow Energy becomes 2 Packed Sparks. Skills can raise it, capped at 3.'},
   'overflow-coil':{trigger:'Collect Sparks with a full meter.',effect:`Recharge ${name} faster.`,limit:'Up to 2 seconds per pickup and 12 seconds per flight. A ready companion spends none of the limit.'},
   'echo-bell':{trigger:`${companionWork}.`,effect:`Touch a Spark yourself within 8 seconds to gain +${points(mod.workFuel??8)} bonus Energy.`,limit:'One charge at a time. Up to 5 empowered pickups per flight.'},
   'dawn-loom':{trigger:`A pickup restores ${name}'s recovery.`,effect:'Reveal the route ahead for 1.5 seconds.',limit:'At least 4 seconds between flashes. Ordinary cooldown ticking does not trigger it.'},

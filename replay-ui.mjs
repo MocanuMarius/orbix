@@ -1,9 +1,9 @@
-import {getBossPreview} from './boss.mjs?v=proximity-balance-1';
-import {artifactDescriptionMarkup} from './artifact-copy.mjs?v=proximity-balance-1';
-import {getArtifactInfo,CONSUMABLE_ARTIFACTS,getArtifactStackPreview} from './artifact-info.mjs?v=proximity-balance-1';
-import {resourceSymbol} from './game-symbols.mjs?v=proximity-balance-1';
-import {artifactIcon} from './upgrade-icons.mjs?v=proximity-balance-1';
-import {encounterFamilyPreview} from './encounter-families.mjs?v=proximity-balance-1';
+import {getBossPreview} from './boss.mjs?v=guardian-overflow-1';
+import {artifactDescriptionMarkup} from './artifact-copy.mjs?v=guardian-overflow-1';
+import {getArtifactInfo,CONSUMABLE_ARTIFACTS,getArtifactStackPreview} from './artifact-info.mjs?v=guardian-overflow-1';
+import {resourceSymbol} from './game-symbols.mjs?v=guardian-overflow-1';
+import {artifactIcon} from './upgrade-icons.mjs?v=guardian-overflow-1';
+import {encounterFamilyPreview} from './encounter-families.mjs?v=guardian-overflow-1';
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 export const THEME_INKS=Object.freeze({sustain:'#b9d995',precision:'#a8d5e2',tempo:'#e4c286',dream:'#cbb2e6',risk:'#e4a894'});
 export function rewardThemeMarkup(source={},label='RELIC PATH'){

@@ -21,7 +21,7 @@ const ARTIFACT_INFO=Object.freeze({
   'storm-knot':info('passive','Lasts this run','While Runner is equipped.','Runner recharges 10% sooner and resists more wind.'),
   'hollow-bell':info('passive','Lasts this run','While Space Timer is equipped.','Levitate for 0.25 seconds longer.'),
   'dawn-thread':info('passive','Lasts this run','When your learned Echo Luminance activates.','Its reveal lasts one second longer.','Needs Echo Luminance in the Light tree.'),
-  'echo-vessel':info('passive','Lasts this run','Collect fuel above your maximum Energy.','Convert more surplus into Packed Sparks.','Adds 10 percentage points to conversion; the shared cap still applies.'),
+  'echo-vessel':info('passive','Lasts this run','Collect fuel above your maximum Energy.','Convert more surplus into Packed Sparks.','3 overflow Energy becomes 2 Packed Sparks before skills. Total conversion cannot exceed the overflow.'),
   'overflow-coil':info('triggered','Resets each flight','Collect fuel above your maximum Energy.','Recharge your companions sooner.','Up to 2 seconds per pickup and 12 seconds per flight.'),
   'echo-bell':info('triggered','Resets each flight','Your companion fetches, shields, dashes or levitates.','Your next body Spark pickup restores 8 extra Energy.','Collect within 8 seconds. Up to 5 uses per flight.'),
   'dawn-loom':info('triggered','Resets each flight','A pickup restores companion recovery time.','Reveal ahead for 1.5 seconds.','4 seconds between flashes.'),

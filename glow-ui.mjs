@@ -1,4 +1,4 @@
-import {getGlowCapacity,GLOW_DISPLAY_SCALE} from './vitality.mjs?v=proximity-balance-1';
+import {getGlowCapacity,GLOW_DISPLAY_SCALE} from './vitality.mjs?v=guardian-overflow-1';
 const clamp=v=>Math.max(0,Math.min(1,v));
 // A cell represents one paid Lift, even during a temporary free-Lift effect.
 export function glowGaugeUnits(flame,maximum=100,liftCost=10){
@@ -12,7 +12,7 @@ export function glowGaugeMarkup(run){
  return `<div class="flame-hud glow-side-gauge glow-gauge-v3" aria-label="Energy meter" style="--glow-units:${state.capacity}"><div id="flame-meter" role="meter" aria-label="Energy remaining" aria-valuemin="0" aria-valuemax="${state.maxValue}" aria-valuenow="${state.value}" aria-valuetext="${state.value} of ${state.maxValue} Energy; each segment is ${state.unitCost} Energy, one Lift"><i id="flame-fill" aria-hidden="true">${unitMarkup(state)}</i></div></div>`;
 }
 function spill(gauge,gain,raw){
- const doc=gauge.ownerDocument,target=doc.querySelector('.flight-condensed-counter');if(!target)return;
+ const doc=gauge.ownerDocument,target=doc.querySelector('.flight-condensed-counter');if(!target||gain<=0)return;
  const reduce=doc.defaultView?.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
  const flash=[{opacity:1},{opacity:.64,offset:.4},{opacity:1}];
  target._condensedPulse?.cancel();target._condensedPulse=target.animate?.(flash,{duration:reduce?180:420,easing:'steps(2,end)'});
@@ -27,7 +27,7 @@ function spill(gauge,gain,raw){
  const now=Number(doc.defaultView?.performance?.now?.())||Date.now();
  pool.total=now-pool.lastAt<850?pool.total+gain:gain;pool.lastAt=now;pool.label.textContent=pool.total>0?`+${pool.total}`:'';
  const end=target.getBoundingClientRect();pool.label.style.left=Math.round(end.right+6)+'px';pool.label.style.top=Math.round(end.top+8)+'px';
- pool.label._rise?.cancel();pool.label._rise=pool.label.animate?.([{opacity:1,transform:'translateY(4px)'},{opacity:1,transform:'translateY(0px)',offset:.6},{opacity:0,transform:'translateY(-8px)'}],{duration:reduce?650:1000,easing:'steps(4,end)'});
+ pool.label._rise?.cancel();pool.label._rise=pool.label.animate?.([{opacity:1,transform:'translateY(4px)'},{opacity:1,transform:'translateY(0px)',offset:.6},{opacity:0,transform:'translateY(-8px)'}],{duration:reduce?650:1000,delay:reduce?0:340,easing:'steps(4,end)'});
  // Reuse exactly two small motes: no beam, afterimage or connecting trace.
  for(const tile of pool.tiles){tile._rise?.cancel();tile.style.opacity='0';}
  if(reduce||raw<=0)return;
