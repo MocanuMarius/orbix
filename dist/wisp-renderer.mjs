@@ -1060,7 +1060,7 @@ export class WispFlightView {
     let collector = null;
     for (let i = 0; i < fleet.length; i++) if (fleet[i].role === 'collector') { collector = fleet[i]; break; }
     this.drawWind(e, t, collector);
-    drawShutters(c,e,{distance,scale:s,playerY:yOf(e)});
+    drawShutters(c,e,{distance,scale:s,playerY:yOf(e),light:this.currentLightState});
     this.drawFleet(e, t, fleet,'back');
     this.drawMain(e, t, playerX, playerY);
     this.drawFleet(e, t, fleet,'front');

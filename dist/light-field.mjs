@@ -93,5 +93,5 @@ export function lightVisibility(engine,light,x,y,playerY=engine.player.y,include
   }
   const visible=1-dark*(1-sceneRevealStrength(light));
   const boss=engine.layout?.boss;
-  return includeShutters&&boss?.shutters?.length ? visible*shutterLightFactor(boss,engine.distance+x,y,engine.distance+engine.player.x,playerY) : visible;
+  return includeShutters&&boss?.shutters?.length ? visible*shutterLightFactor(boss,engine.distance+x,y,engine.distance+engine.player.x,playerY,light) : visible;
 }

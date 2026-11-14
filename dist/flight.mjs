@@ -2204,6 +2204,7 @@ export class WispFlight {
     this.drawPortal(c,W,H);
     if(light.rehearsing)lightDreamScenery(c,W,H);
     this.drawEmbers(c);
+    this.drawForeground(c,W,H);
     if(!light.rehearsing)this.drawFallbackLight(c,light);
     drawFallWarning(c,this,{light});
     this.drawWayfinder(c);
@@ -2215,7 +2216,12 @@ export class WispFlight {
     if(!light.rehearsing)drawGlowSense(c,this);
     this.drawFlightTrail(c);
     this.drawParticles(c);
-    drawShutters(c,this);
+    if(!light.rehearsing){
+      const vignette = c.createRadialGradient(W / 2, H * .43, W * .3, W / 2, H * .45, H * .8);
+      vignette.addColorStop(0, 'rgba(5,12,24,0)'); vignette.addColorStop(1, 'rgba(5,12,24,.36)');
+      c.fillStyle = vignette; c.fillRect(0, 0, W, H);
+    }
+    drawShutters(c,this,{light});
     this.drawWisp(c);
     this.drawPhoenix(c);
     if(!light.rehearsing)this.drawPickups(c);
@@ -2225,14 +2231,10 @@ export class WispFlight {
       drawCapture(c,effect,this.captureTime,this.player.x,this.renderPlayerY,this.renderDistance,1,this.reducedMotion,FALLBACK_WISP_RADIUS*WISP_BODY_SCALE);
     }
     drawBlackHoles(c,this);
-    this.drawForeground(c, W, H);
     c.restore();
     if (this.flash > 0) { c.fillStyle = `rgba(255,196,149,${this.flash * .36})`; c.fillRect(0, 0, W, H); }
     if (light.rehearsing) return;
     drawProximityMeter(c,this);
-    const vignette = c.createRadialGradient(W / 2, H * .43, W * .3, W / 2, H * .45, H * .8);
-    vignette.addColorStop(0, 'rgba(5,12,24,0)'); vignette.addColorStop(1, 'rgba(5,12,24,.36)');
-    c.fillStyle = vignette; c.fillRect(0, 0, W, H);
   }
 
   drawWayfinder(c,scale=1){ this.flightBoon.drawSurvey(c,scale,obstaclePolygons); }

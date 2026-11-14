@@ -4,6 +4,7 @@ import {BOSS_PREVIEWS, buildBossLayout, getGuardianForMap} from '../dist/boss.mj
 import {circleHitsObstacle, WispFlight} from '../dist/flight.mjs';
 import {getFlightLengthProfile} from '../dist/level-length.mjs';
 import {shutterPhase,shutterLightFactor} from '../dist/shutter-cone.mjs';
+import {lanternRoute} from '../dist/lantern-layout.mjs';
 import {lightVisibility} from '../dist/light-field.mjs';
 
 const dt = 1/120;
@@ -80,23 +81,33 @@ test('both late crests use real two-sided terrain and leave a traversable openin
   }
 });
 
-test('Hollow Sun shutter routes stay body-clear at both wall motion extremes',()=>{
+test('Hollow Sun teaches one lantern, then offers a visible floor neck and a crossing near the roof',()=>{
   for(const height of [430,620,850])for(const difficulty of [1,3,6]){
     const layout=buildBossLayout({height,difficulty,bossId:'hollow-sun',duration:90});
     const boss=layout.boss;
-    assert.deepEqual(boss.shutters.map(s=>s.side),[-1,1]);
+    assert.deepEqual(boss.shutters.map(s=>[s.phase,s.side]),[[2,-1],[3,-1],[3,1]]);
+    const flash=layout.embers.find(p=>p.feature==='crossfire-flash');
+    assert.equal(flash.kind,'sight');
+    assert.ok(flash.x<boss.shutters[1].x);
+    assert.ok(layout.obstacles.every(o=>!circleHitsObstacle(flash.x,flash.y,20,o,0)));
     for(const s of boss.shutters){
       assert.ok(!layout.obstacles.find(o=>o.id===s.obstacleId).motion);
       assert.ok((s.openX-s.warningX)/boss.speed>=1.9);
       assert.equal(shutterPhase(s,s.warningX-1),0);
       assert.equal(shutterPhase(s,s.openX-1),1);
       assert.equal(shutterPhase(s,s.openX),2);
-      for(const across of [.19,.60]){
-        const y=s.y-s.side*s.depth*across;
-        for(let x=s.x+(s.shift-s.spread)*across-12;x<=s.x+(s.shift+s.spread)*across+12;x+=4){
-          for(const o of layout.obstacles)for(const sway of [-1,1]){
-            assert.ok(!circleHitsObstacle(x,y,12,o,0,o.center+sway*o.motion));
-          }
+    }
+    for(const phase of [2,3])for(const route of ['near','wide']){
+      const lanterns=boss.shutters.filter(s=>s.phase===phase);
+      const {startX,endX,focusX,y}=lanternRoute(lanterns,route);
+      const hit=lanterns.filter(s=>{
+        const across=(s.y-y)*s.side/s.depth;
+        return Math.abs(focusX-s.x-s.shift*across)<s.spread*across;
+      });
+      assert.equal(hit.length,phase===3&&route==='wide'?2:1);
+      for(let x=startX;x<=endX;x+=4){
+        for(const o of layout.obstacles)for(const sway of [-1,1]){
+          assert.ok(!circleHitsObstacle(x,y,14,o,0,o.center+sway*o.motion));
         }
       }
     }
@@ -129,27 +140,53 @@ test('map depth adds linked opposite gates with reachable lanes and time to chan
           assert.ok(Math.abs(jet.y-o.center)>jet.ry,'the marked center lane stays outside the jet');
         }
         if(id==='frost-matron'||id==='hollow-sun')assert.equal(attack.side,-o.guardianLane);
-        for(const shutter of boss.shutters||[])assert.ok(Math.abs(x-shutter.x)>shutter.spread+shutter.shift+100);
+        for(const shutter of boss.shutters||[]){
+          const across=Math.max(0,(shutter.y-o.center)*shutter.side/shutter.depth);
+          assert.ok(Math.abs(x-shutter.x-shutter.shift*across)>shutter.spread*across+100);
+        }
       }
     }
     e.destroy();
   }
 });
 
-test('shutter occlusion preserves exterior light, prevents remote reveals and leaves a local light pocket',()=>{
+test('lanterns have a black core, graduated twilight and a growing local opening for Luminance and Flash',()=>{
   const e=flight('hollow-sun'),boss=e.layout.boss,s=boss.shutters[0];
   const y=s.y-s.side*s.depth*.55,x=s.x+s.shift*.55;
-  const fullReveal={intensity:1,radius:200,edgingReveal:1};
+  const fullReveal={...e.getLightState(),edgingReveal:1};
   place(e,s.openX-1,y);
   assert.equal(lightVisibility(e,fullReveal,x-e.distance,y),1);
   place(e,s.openX+1,y);
-  assert.equal(lightVisibility(e,fullReveal,x-e.distance,y),.05);
-  assert.equal(shutterLightFactor(boss,s.x+s.spread*3,y,s.openX+1,y),1);
+  assert.equal(lightVisibility(e,fullReveal,x-e.distance,y),0);
+  // Continue past the opposing rock face into the last row of the viewport.
+  const edgeY=s.side===-1?e.height-1:1;
+  const left=Math.atan((s.shift-s.spread)/s.depth),right=Math.atan((s.shift+s.spread)/s.depth);
+  const at=fraction=>{
+    const ray=left+(right-left)*fraction;
+    const worldX=s.x+Math.tan(ray)*Math.abs(edgeY-s.y);
+    return shutterLightFactor(boss,worldX,edgeY,s.openX+1,y);
+  };
+  assert.equal(at(.5),0);
+  assert.equal(at(.35),0);
+  assert.ok(at(.86)>0&&at(.86)<at(.94)&&at(.94)<1);
+  assert.equal(at(1.02),1);
   place(e,x,y);
   assert.equal(lightVisibility(e,fullReveal,x-e.distance,y),1);
-  const vicinity=lightVisibility(e,fullReveal,x-e.distance+s.pocket*.5,y);
-  assert.ok(vicinity>.05&&vicinity<1);
-  assert.ok(Math.abs(lightVisibility(e,fullReveal,x-e.distance+s.pocket+2,y)-.05)<1e-8);
+  // Sample well inside the dark region at five visible body radii, using
+  // actual flight light states before and after the upgrades and pickup.
+  const reach=5*15;
+  const pointX=e.player.x, pointY=y-s.side*reach;
+  const sight=()=>lightVisibility(e,e.getLightState(),pointX,pointY);
+  const base=sight();
+  const ordinaryRadius=e.mod.lightRadius;
+  e.mod.lightRadius=225;
+  const max=sight();
+  e.mod.lightRadius=ordinaryRadius;
+  e.collect({kind:'sight',x,y,phase:0});
+  e.time+=3;
+  const flash=sight();
+  assert.ok(max>base+.10,`max Luminance ${max} vs base ${base}`);
+  assert.ok(flash>base+.10&&flash>.18,`Flash ${flash} vs base ${base}`);
   const fuel=e.flame;
   for(let i=0;i<80;i++)stepAt(e,x,y);
   assert.equal(e.flame,fuel);

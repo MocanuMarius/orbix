@@ -23,7 +23,7 @@ function sightAt(e, light) {
   if(screenX<0||screenX>e.width||y<0||y>e.height)return 0;
   let darkness=1-lightVisibility(e,light,screenX,y,e.player.y,false);
   for(const orb of orbs)darkness*=1-orb.strength*lightAttenuation(((screenX-orb.x)**2+(y-orb.y)**2)/orb.r2);
-  return (1-darkness)*shutterLightFactor(e.layout.boss,e.distance+screenX,y,e.distance+e.player.x,e.player.y);
+  return (1-darkness)*shutterLightFactor(e.layout.boss,e.distance+screenX,y,e.distance+e.player.x,e.player.y,light);
  };
 }
 
