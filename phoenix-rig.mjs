@@ -1,5 +1,5 @@
-import * as PIXI from './vendor/pixi.mjs?v=guardian-overflow-1';
-import { PhoenixMotion, deformWing, deformTail } from './phoenix-motion.mjs?v=guardian-overflow-1';
+import * as PIXI from './vendor/pixi.mjs?v=packing-1';
+import { PhoenixMotion, deformWing, deformTail } from './phoenix-motion.mjs?v=packing-1';
 
 export class PhoenixRig {
   constructor(texture) {

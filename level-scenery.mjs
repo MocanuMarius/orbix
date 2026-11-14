@@ -1,6 +1,6 @@
-import {drawBiomeBackground,drawBiomeMaterial,drawBiomeLife} from './biome-art.mjs?v=guardian-overflow-1';
-import {drawExpandedBackdrop} from './world-scenery.mjs?v=guardian-overflow-1';
-import { resolveLevelIdentity } from './level-catalog.mjs?v=guardian-overflow-1';
+import {drawBiomeBackground,drawBiomeMaterial,drawBiomeLife} from './biome-art.mjs?v=packing-1';
+import {drawExpandedBackdrop} from './world-scenery.mjs?v=packing-1';
+import { resolveLevelIdentity } from './level-catalog.mjs?v=packing-1';
 
 const TAU = Math.PI * 2;
 const clamp = (n, a, b) => Math.max(a, Math.min(b, n));

@@ -44,7 +44,7 @@ export const TUTORIAL_TOPICS={
  packed:{name:'Packed Sparks',visual:'clear-reward',steps:[
   s('A reward for every clear','Ordinary flights earn 20 Packed Sparks for run skills. Elite and guardian victories also offer two artifacts: choose one. The final guardian unlocks a future reward instead.','clear-reward'),
   s('Overflow is a bonus','When a pickup overfills Sparks, the surplus becomes extra Packed Sparks. Clear the flight to keep them. Rest refills do not create Packed Sparks.','packed'),
-  s('Condensation','The Condensation skill makes pickup surplus produce more Packed Sparks. It improves your run economy; it is not a second fuel bar.','skills')]},
+  s('Packing','Packing starts at 6 surplus Energy for 1 Packed Spark. Efficient Packing and Prism Vessel each improve the yield. It improves your run economy; it is not a second fuel bar.','skills')]},
  skills:{name:'Skill trees',visual:'skills',steps:[
   s('Choose a branch','Skills belong to this run. Light improves Luminance; Motion changes flight; Sparks improves fuel. Your companion tree improves the one role you equipped.','skills'),
   s('Read the skill states','Blue check: owned. Gold plus: affordable now. Bronze price: save more Packed Sparks. Lock: learn its prerequisite first.','skill-states'),

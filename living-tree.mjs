@@ -1,15 +1,15 @@
-import {resourceSymbol} from './game-symbols.mjs?v=guardian-overflow-1';
-import {getCompanionAbility} from './companion-abilities.mjs?v=guardian-overflow-1';
-import {glowText,getGlowCapacity} from './vitality.mjs?v=guardian-overflow-1';
-import {SKILLS} from './model.mjs?v=guardian-overflow-1';
-import {skillIcon} from './upgrade-icons.mjs?v=guardian-overflow-1';
-import {companionArtSvg} from './companion-art.mjs?v=guardian-overflow-1';
-import {skillTreeState,safeTreeSelection,skillTreeStatus} from './skill-tree-state.mjs?v=guardian-overflow-1';
+import {resourceSymbol} from './game-symbols.mjs?v=packing-1';
+import {getCompanionAbility} from './companion-abilities.mjs?v=packing-1';
+import {glowText,getGlowCapacity} from './vitality.mjs?v=packing-1';
+import {SKILLS} from './model.mjs?v=packing-1';
+import {skillIcon} from './upgrade-icons.mjs?v=packing-1';
+import {companionArtSvg} from './companion-art.mjs?v=packing-1';
+import {skillTreeState,safeTreeSelection,skillTreeStatus} from './skill-tree-state.mjs?v=packing-1';
 export const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const lockIcon='<svg class="bud-lock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><rect x="6" y="10" width="12" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3M12 14v3"/></svg>';
 const stateKey=`<div class="tree-state-key" aria-label="Skill states"><span class="learned"><i aria-hidden="true">✓</i> Owned</span><span class="available"><i aria-hidden="true">+</i> Can learn</span><span class="saving"><i aria-hidden="true"></i> Need light</span><span class="locked"><i aria-hidden="true">${lockIcon}</i> Locked</span></div>`;
 export function treeHeader(run,wallet,branch,limbs=''){
- const name=id=>id==='main'?'Wisp':id==='proximity'?'Proximity':id==='afterglow'?'Condensation':getCompanionAbility(id).name;
+ const name=id=>id==='main'?'Wisp':id==='proximity'?'Proximity':id==='afterglow'?'Packing':getCompanionAbility(id).name;
  return `<header class="tree-crown"><h2>${branch==='main'?'Main wisp':name(branch)}</h2><span aria-label="${Math.floor(wallet.condensedGlow||0)} Packed Sparks">${resourceSymbol('packed')} ${Math.floor(wallet.condensedGlow||0)}</span><button data-action="close-sheet" aria-label="Close skill tree">×</button></header><div class="tree-navigation"><div class="tree-selectors"><nav class="tree-tabs" aria-label="Skill trees">${['main',...run.companions,'proximity',...(wallet.testMode||wallet.skills?.['main-afterglow']?['afterglow']:[])].map(id=>`<button data-action="tree-branch" data-id="${id}" class="${id===branch?'selected':''}" aria-pressed="${id===branch}">${id!=='main'&&id!=='afterglow'&&id!=='proximity'?companionArtSvg(id):''}<span>${name(id)}</span></button>`).join('')}</nav>${limbs}</div>${stateKey}</div>`;
 }
 // Three purchases remain separate skills; only their map marker is shared.
