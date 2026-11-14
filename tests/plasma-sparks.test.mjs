@@ -2,73 +2,148 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 import {readFile} from 'node:fs/promises';
 import {inflateSync} from 'node:zlib';
-import {drawPickup,drawSparkSymbol,prepareFuelSprites,pickupArtSvg} from '../dist/pickup-art.mjs';
+import {drawPickup, drawSparkSymbol, prepareFuelSprites, pickupArtSvg} from '../dist/pickup-art.mjs';
 import {resourceSymbol} from '../dist/game-symbols.mjs';
-import {getPickupSpec,pickupContactRadius,pickupShellRadius} from '../dist/pickups.mjs';
+import {getPickupSpec, pickupContactRadius, pickupShellRadius} from '../dist/pickups.mjs';
 import {glowPoints} from '../dist/vitality.mjs';
 
-const kinds=['light','cluster','cache'];
-function atlasFixture(){
-  const sprites=[];
-  const doc={createElement(){
-    const pixels=[];
-    const ctx={save(){},restore(){},fillRect(x,y,w,h){pixels.push([x,y,w,h,this.fillStyle,this.globalAlpha]);}};
-    const canvas={pixels,getContext:()=>ctx};
-    sprites.push(canvas);
-    return canvas;
+const kinds = ['light', 'cluster', 'cache'];
+
+function atlasFixture() {
+  const sprites = [];
+  const doc = {createElement() {
+    const sprite = {};
+    const ctx = {globalAlpha: 1, save(){}, restore(){}, fillRect(x, y, w, h) {
+      sprite.pixels ??= Buffer.alloc(sprite.width * sprite.height * 4);
+      const color = Number.parseInt(this.fillStyle.slice(1), 16);
+      const alpha = this.globalAlpha;
+      for (let yy = Math.max(0,y); yy < Math.min(sprite.height,y + h); yy++) {
+        for (let xx = Math.max(0,x); xx < Math.min(sprite.width,x + w); xx++) {
+          const i = (yy * sprite.width + xx) * 4;
+          const behind = sprite.pixels[i+3] / 255 * (1-alpha);
+          const blended = alpha + behind;
+          for (let c = 0; c < 3; c++) {
+            const channel = (color >> (16 - 8*c)) & 255;
+            sprite.pixels[i+c] = Math.round((channel*alpha + sprite.pixels[i+c]*behind) / blended);
+          }
+          sprite.pixels[i+3] = Math.round(blended*255);
+        }
+      }
+    }};
+    sprite.getContext = () => ctx;
+    sprites.push(sprite);
+    return sprite;
   }};
-  const ctx={canvas:{ownerDocument:doc},globalAlpha:1,save(){},restore(){},drawImage(sprite){this.last=sprite;}};
-  return {doc,sprites,ctx};
+  const ctx = {canvas:{ownerDocument:doc}, globalAlpha:1, save(){}, restore(){}, drawImage(sprite){this.last = sprite;}};
+  return {doc, sprites, ctx};
 }
-test('tiers use the same smaller shell and keep the existing contact radii and yields',()=>{
-  assert.deepEqual(kinds.map(pickupShellRadius),[16,16,16]);
-  assert.deepEqual(kinds.map(pickupContactRadius),[20.8,20.8,24]);
-  assert.deepEqual(kinds.map(k=>glowPoints(getPickupSpec(k).fuel)),[6,12,18]);
-});
-test('idle, carried and generated Sparks share warmed frames; the guide uses the reduced-motion illustration',async()=>{
-  const {doc,sprites,ctx}=atlasFixture();
-  await prepareFuelSprites(doc);
-  assert.equal(sprites.length,72);
-  for(const kind of kinds){
-    const different=new Set();
-    for(let i=0;i<24;i++){
-      drawPickup(ctx,10,10,{kind,time:(i+.1)*.05});
-      const sprite=ctx.last;
-      different.add(JSON.stringify(sprite.pixels));
-      drawPickup(ctx,10,10,{kind,time:(i+.1)*.05,tiny:true,bodyOnly:true});
-      assert.equal(ctx.last,sprite);
+
+function images(markup) {
+  return [...markup.matchAll(/href="([^"?]+)(?:\?[^"]*)?"/g)].map(match => match[1]);
+}
+
+// The game's asset baker writes full-size RGBA frames with one unfiltered row
+// per scanline. Read both timing and pixels from the shipped animation.
+async function decodeAsset(file) {
+  const png = await readFile(new URL('../dist/' + file, import.meta.url));
+  const width = png.readUInt32BE(16), height = png.readUInt32BE(20);
+  const frames = [];
+  let delay = 0;
+  for (let i = 8; i < png.length;) {
+    const length = png.readUInt32BE(i);
+    const type = png.toString('ascii',i+4,i+8);
+    const data = png.subarray(i+8,i+8+length);
+    if (type === 'fcTL') delay = data.readUInt16BE(20) / (data.readUInt16BE(22) || 100);
+    if (type === 'IDAT' || type === 'fdAT') {
+      const rows = inflateSync(type === 'fdAT' ? data.subarray(4) : data);
+      const stride = 1 + width * 4;
+      assert.equal(rows.length, stride * height);
+      const rgba = Buffer.alloc(width * height * 4);
+      for (let y = 0; y < height; y++) {
+        assert.equal(rows[y*stride],0);
+        rows.copy(rgba,y*width*4,y*stride+1,(y+1)*stride);
+      }
+      frames.push({delay, rgba});
     }
-    assert.equal(different.size,24);
+    i += 12 + length;
   }
-  assert.equal(sprites.length,72);
-  await prepareFuelSprites(doc,true);
-  for(const kind of kinds){
-    drawPickup(ctx,10,10,{kind,time:0,reducedMotion:true});const first=ctx.last;
-    drawPickup(ctx,10,10,{kind,time:.89,reducedMotion:true});assert.equal(ctx.last,first);
-    const svg=pickupArtSvg(kind),url=svg.match(/href="([^"?]+)\?v=/)[1];
-    assert.ok(svg.length<600);
-    const png=await readFile(new URL('../dist/'+url,import.meta.url));
-    const width=png.readUInt32BE(16),height=png.readUInt32BE(20);
-    assert.deepEqual([width,height],[36,36]);
-    const rows=inflateSync(png.subarray(41,41+png.readUInt32BE(33)));
-    const expected=Buffer.alloc(36*36*4);
-    for(const [x,y,w,h,fill,a] of first.pixels){
-      const color=parseInt(fill.slice(1),16);
-      for(let yy=y-18;yy<y-18+h;yy++)for(let xx=x-18;xx<x-18+w;xx++){
-        const i=(yy*36+xx)*4,back=expected[i+3]/255*(1-a),alpha=a+back;
-        for(let ch=0;ch<3;ch++)expected[i+ch]=Math.round((((color>>(16-ch*8))&255)*a+expected[i+ch]*back)/alpha);
-        expected[i+3]=Math.round(alpha*255);
+  assert.ok(frames.length);
+  return {width,height,frames};
+}
+
+function assertSameFrame(sprite,asset,frame,message) {
+  const offsetX = (sprite.width - asset.width)/2, offsetY = (sprite.height - asset.height)/2;
+  for (let y = 0; y < asset.height; y++) {
+    const start = 4 * ((y+offsetY)*sprite.width + offsetX);
+    const expected = asset.frames[frame].rgba.subarray(4*y*asset.width,4*(y+1)*asset.width);
+    assert.ok(sprite.pixels.subarray(start,start+4*asset.width).equals(expected),message + ' row ' + y);
+  }
+}
+
+test('fuel tiers keep the same pickup shell, contact radii and yields', () => {
+  assert.deepEqual(kinds.map(pickupShellRadius), [16,16,16]);
+  assert.deepEqual(kinds.map(pickupContactRadius), [20.8,20.8,24]);
+  assert.deepEqual(kinds.map(k => glowPoints(getPickupSpec(k).fuel)), [6,12,18]);
+});
+
+test('the menu, its wallet window and canvas labels use the scaled flight Spark', () => {
+  const fuelImages = images(pickupArtSvg('light'));
+  assert.equal(fuelImages.length, 2);
+  assert.deepEqual(images(resourceSymbol('energy')), fuelImages);
+  assert.deepEqual(images(resourceSymbol('glow')), fuelImages);
+  assert.deepEqual(images(resourceSymbol('packed')), fuelImages);
+  assert.doesNotMatch(resourceSymbol('energy'), /\sid=/);
+  const {ctx} = atlasFixture();
+  for (const reducedMotion of [true,false]) {
+    for (const time of [.12,1.73,4.26]) {
+      drawPickup(ctx,10,10,{kind:'light',time,reducedMotion});
+      const regular = ctx.last;
+      for (const size of [8,16,35]) {
+        drawSparkSymbol(ctx,10,10,{size,time,reducedMotion});
+        assert.equal(ctx.last,regular);
       }
     }
-    for(let row=0;row<36;row++)assert.deepEqual(rows.subarray((width*4+1)*row+1,(width*4+1)*row+145),expected.subarray(row*144,(row+1)*144));
   }
-  assert.equal(sprites.length,75);
 });
-test('menu and Canvas symbols use the same sparse Spark with no IDs per instance',()=>{
-  assert.equal(resourceSymbol('glow'),resourceSymbol('energy'));
-  assert.match(resourceSymbol('energy'),/meter-spark\.png/);
-  assert.doesNotMatch(resourceSymbol('energy'),/\sid=/);
-  const {ctx}=atlasFixture();drawSparkSymbol(ctx,50,20,{size:14,time:.2});
-  const compact=ctx.last;drawSparkSymbol(ctx,50,20,{size:24,time:.2});assert.equal(ctx.last,compact);
-  drawPickup(ctx,50,20,{kind:'light',time:.2});assert.ok(compact.pixels.length>ctx.last.pixels.length);
+
+test('in-flight, carried and menu Sparks show the same animated frames and quiet poses', async () => {
+  const {ctx,doc,sprites} = atlasFixture();
+  await prepareFuelSprites(doc);
+  await prepareFuelSprites(doc,true);
+  const warmed = sprites.length;
+  for (const kind of kinds) {
+    const [stillFile, motionFile] = images(pickupArtSvg(kind));
+    const [still, motion] = await Promise.all([decodeAsset(stillFile),decodeAsset(motionFile)]);
+    assert.equal(still.frames.length,1);
+    drawPickup(ctx,10,10,{kind,time:0,reducedMotion:true});
+    const quietSprite = ctx.last;
+    assertSameFrame(quietSprite,still,0,kind+' quiet');
+    drawPickup(ctx,10,10,{kind,time:5.6,reducedMotion:true});
+    assert.equal(ctx.last,quietSprite);
+
+    drawPickup(ctx,10,10,{kind,time:1,phase:0});
+    const neighbors = ctx.last;
+    drawPickup(ctx,10,10,{kind,time:1,phase:Math.PI});
+    assert.notEqual(neighbors,ctx.last,'neighboring Sparks can play different discharge phases');
+    drawPickup(ctx,10,10,{kind,time:1,phase:Math.PI,reducedMotion:true});
+    assert.equal(ctx.last,quietSprite);
+
+    const period = motion.frames.reduce((sum,frame) => sum+frame.delay,0);
+    assert.ok(period > 5, kind+' should not repeat every second');
+    const samples = new Set([0,.08,.41,.74,1].map(t => Math.round(t*(motion.frames.length-1))));
+    let time = 0;
+    for (const [i,frame] of motion.frames.entries()) {
+      if (samples.has(i)) {
+        drawPickup(ctx,10,10,{kind,time:time+frame.delay/2});
+        const normal = ctx.last;
+        assertSameFrame(normal,motion,i,kind+' frame '+i);
+        drawPickup(ctx,10,10,{kind,time:time+frame.delay/2,tiny:true,bodyOnly:true});
+        assert.equal(ctx.last,normal);
+      }
+      time += frame.delay;
+    }
+    const unique = new Set([...samples].map(i=>motion.frames[i].rgba.toString('base64')));
+    assert.ok(unique.size>=4,kind+' should vary throughout the longer animation');
+  }
+  assert.equal(sprites.length,warmed,'drawing ordinary, carried and quiet Sparks reuses the warmed sprite bank');
 });

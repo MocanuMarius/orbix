@@ -1,13 +1,10 @@
-import {resourceSymbol} from './game-symbols.mjs?v=living-icons-1';
-import {prepareFuelSprites} from './pickup-art.mjs?v=living-icons-1';
+import {resourceSymbol} from './game-symbols.mjs?v=spark-arcs-2';
+import {prepareFuelSprites} from './pickup-art.mjs?v=spark-arcs-2';
 
-let rendererWarmup;
-export function preloadFlightEntry(){
+export function preloadFlightEntry(reducedMotion=false){
  if(typeof window==='undefined')return Promise.resolve();
- rendererWarmup??=Promise.all([import('./wisp-renderer.mjs?v=living-icons-1'),
-   prepareFuelSprites(document,window.matchMedia('(prefers-reduced-motion: reduce)').matches)
- ]).catch(()=>null);
- return rendererWarmup;
+ const quiet=reducedMotion||window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+ return Promise.all([import('./wisp-renderer.mjs?v=spark-arcs-2'),prepareFuelSprites(document,quiet)]);
 }
 
 export function flightEntryMarkup(run,node,{dream=false}={}){

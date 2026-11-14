@@ -11,7 +11,7 @@ The sheet uses still frames of the game’s pickup sprites, map landmarks and re
 | Term | Picture | Player-facing meaning |
 | --- | --- | --- |
 | Spark | Plasma ball with bright electrical arcs | An object the wisp or Collector can pick up. Say “collect a Spark” when counting objects. |
-| Spark Meter | A small sparse plasma globe marks a fuel quantity. The flight gauge uses stacked cells. | Measures the Sparks available for flight. An ordinary Lift spends 3 Sparks before modifiers. Meter divisions follow the equipped Lift cost. |
+| Spark Meter | The animated flight Spark marks a fuel quantity at menu size. The flight gauge uses stacked cells. | Measures the Sparks available for flight. An ordinary Lift spends 3 Sparks before modifiers. Meter divisions follow the equipped Lift cost. |
 | Stored Sparks | A lidded copper box containing a luminous Spark | Currency for the current run. Store surplus from pickups, earn a clear reward where offered, and spend Stored Sparks on skills at a Rest. Baseline conversion stores 1 per 6 surplus Sparks. |
 | Luminance | Open eye with a jade iris and copper lids | Distance the wisp can see. Increasing Luminance reveals more of the passage. |
 | Heart | Split-top heart, dimmed when spent | One attempt. A Rest can relight missing hearts. A heart and plus sign denotes increased capacity. |
@@ -22,8 +22,8 @@ Use **“a Spark adds 12 to the Spark Meter”** for the first explanation. Once
 
 | Pickup or hazard | Readable cue | Base effect |
 | --- | --- | --- |
-| Spark | Sparse plasma around a small core | +6 Sparks |
-| Spark Cluster | Livelier plasma around a brighter core | +12 Sparks |
+| Spark | Bright individual arcs that flare and fade | +6 Sparks |
+| Spark Cluster | More overlapping branches around a brighter core | +12 Sparks |
 | Spark Cache | Dense, bright plasma with a wider glow | +18 Sparks |
 | Charge Spark | Cyan flicker | Speeds companion recovery. |
 | Flash Spark | Violet glow | Extends Luminance briefly. |
@@ -31,7 +31,7 @@ Use **“a Spark adds 12 to the Spark Meter”** for the first explanation. Once
 | Dark Spark | Red warning field around a black seed | Reduces Luminance for eight seconds on contact. A fuel Spark clears one dimming effect. |
 | Black Hole | Opaque core, broken accretion ring and inward streams of light | Persistent hazard. Approaching its core drains the Spark Meter faster. |
 
-Keep the visible contact boundary separate from the plasma. Tutorial, map guide and pickup art should use the same frame and show the baseline amount plus any active build modifier. Use sparse, lively and dense plasma to suggest value at a glance. A pause or reduced-motion setting should keep every tier recognizable in a still image.
+Keep the visible contact boundary separate from the plasma. Tutorial, map guide and pickup art should use the same frame and show the baseline amount plus any active build modifier. Use the density of live arcs, the brightness of the core and the width of the glow to suggest value at a glance. A pause or reduced-motion setting should keep every tier recognizable in a still image.
 
 ## Map and actions
 
