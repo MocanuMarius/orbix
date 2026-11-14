@@ -1,12 +1,13 @@
-export const DEFAULT_CAPTURE_STYLE = 'ribbon';
+export const DEFAULT_CAPTURE_STYLE = 'hybrid';
 
 export const CAPTURE_STYLES = Object.freeze([
+  { id: 'hybrid', name: 'Mist undertow' },
   { id: 'undertow', name: 'Undertow' },
   { id: 'ribbon', name: 'Ribbon' },
   { id: 'split', name: 'Twin current' }
 ]);
 
-const key = 'wispbound.captureStyle';
+const key = 'wispbound.captureStyle.v2';
 const known = id => CAPTURE_STYLES.some(style => style.id === id);
 
 export function readCaptureStyle() {

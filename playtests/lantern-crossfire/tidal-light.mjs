@@ -1,7 +1,8 @@
-import {DEFAULT_CAPTURE_STYLE} from './capture-styles.mjs?v=collector-audit-1';
-import {getPickupSpec, pickupKind} from './pickups.mjs?v=collector-audit-1';
-import {pickupSpriteFrame} from './pickup-art.mjs?v=collector-audit-1';
-import {LIGHT_PACKET_TUNING} from './vitality.mjs?v=collector-audit-1';
+import {DEFAULT_CAPTURE_STYLE} from './capture-styles.mjs?v=mist-undertow-1';
+import {getPickupSpec, pickupKind, pickupShellRadius} from './pickups.mjs?v=mist-undertow-1';
+import {pickupSpriteFrame} from './pickup-art.mjs?v=mist-undertow-1';
+import {LIGHT_PACKET_TUNING} from './vitality.mjs?v=mist-undertow-1';
+import {drawFluidCapture} from './fluid-capture.mjs?v=mist-undertow-1';
 
 const TAU = Math.PI * 2;
 const clamp = value => Math.max(0, Math.min(1, value));
@@ -76,7 +77,7 @@ function drawStream(ctx, sprite, artRadius, sourceRadius, age, sourceScale, dela
   }
 }
 
-export function drawAbsorbingSpark(ctx, effect, age, targetX, targetY, scale, quiet, sourceX, sourceY) {
+export function drawAbsorbingSpark(ctx, effect, age, targetX, targetY, scale, quiet, sourceX, sourceY, bodyRadius) {
   if (age < 0 || age >= 1) return;
   const kind = pickupKind(effect.pickupKind || effect.kind || 'light');
   const spec = getPickupSpec(kind);
@@ -87,6 +88,20 @@ export function drawAbsorbingSpark(ctx, effect, age, targetX, targetY, scale, qu
   const dx = (sourceX-targetX)/scale, dy = (sourceY-targetY)/scale;
   const sourceRadius = Math.hypot(dx, dy);
   const heading = sourceRadius > .15 ? Math.atan2(dy,dx) : angle;
+  const vx = effect.approachX || 0, vy = effect.approachY || 0;
+  const tangent = Math.cos(angle)*vy - Math.sin(angle)*vx;
+  const direction = tangent < -.02*Math.hypot(vx,vy) ? -1 : 1;
+  const style = effect.style || DEFAULT_CAPTURE_STYLE;
+  if (style === 'hybrid') {
+    drawFluidCapture(ctx, {
+      x:targetX, y:targetY, age,
+      radius:pickupShellRadius(kind)*size*scale,
+      sourceRadius:sourceRadius*scale, bodyRadius:bodyRadius ?? 11,
+      angle:heading, spin:direction, style, quiet, phase:effect.phase || 0,
+      dark:kind === 'dark' || kind === 'dusk'
+    });
+    return;
+  }
   // A body contact directly on the core still leaves two visible sides while
   // the liquid folds over itself. This radius is the size of the plasma only.
   const artRadius = (spec.plasma ? 14 : kind === 'dark' ? 12 : 9) * size;
@@ -103,10 +118,6 @@ export function drawAbsorbingSpark(ctx, effect, age, targetX, targetY, scale, qu
   ctx.imageSmoothingEnabled=false;
   // Use the incoming tangential component at contact. Its sign stays fixed
   // through the capture, even as the wisp moves or lifts past the pickup site.
-  const vx = effect.approachX || 0, vy = effect.approachY || 0;
-  const tangent = Math.cos(angle)*vy - Math.sin(angle)*vx;
-  const direction = tangent < -.02*Math.hypot(vx,vy) ? -1 : 1;
-  const style = effect.style || DEFAULT_CAPTURE_STYLE;
   const weight = heavyFraction(effect.massTier);
   if (style === 'split' && !quiet) {
     drawStream(ctx,sprite,artRadius,sourceRadius,age,size,.36+.12*weight,1.05*direction,0,.28*direction,-direction,spec.color,weight);
