@@ -17,10 +17,11 @@ assert.ok(route,'Visible reachable Spark has a route');
 assert.equal(JSON.stringify({player:e.player,flame:e.flame,embers:e.layout.embers}),before);
 e.layout.boss={attacks:[{}]};assert.equal(predictor.findRoute(e),null);delete e.layout.boss;
 e.layout.embers=[];e.wisp.cooldown=5;e.wisp.cooldownMax=10;
-let minX=Infinity,maxX=-Infinity,minY=Infinity,maxY=-Infinity;
-for(let i=0;i<600;i++){e.time=i/60;e.wisp.update(e,1/60);const d=Math.hypot(e.wisp.x-e.player.x,e.wisp.y-e.player.y);assert.ok(d<=e.wisp.currentRange(e)+.01);minX=Math.min(minX,e.wisp.x);maxX=Math.max(maxX,e.wisp.x);minY=Math.min(minY,e.wisp.y);maxY=Math.max(maxY,e.wisp.y);}
+let minX=Infinity,maxX=-Infinity,minY=Infinity,maxY=-Infinity,front=false,back=false;
+for(let i=0;i<600;i++){e.time=i/60;e.wisp.update(e,1/60);front||=e.wisp.depth>.5;back||=e.wisp.depth<-.5;const d=Math.hypot(e.wisp.x-e.player.x,e.wisp.y-e.player.y);assert.ok(d<=Math.max(28,e.wisp.range(e)*.9)+.01);minX=Math.min(minX,e.wisp.x);maxX=Math.max(maxX,e.wisp.x);minY=Math.min(minY,e.wisp.y);maxY=Math.max(maxY,e.wisp.y);}
+assert.ok(front&&back,'Collector crosses front and back depth planes');
 assert.ok(maxX-minX>35&&maxY-minY>35,'Collector actively crosses both axes');
 assert.equal(condenseGlow(20).amount,1);
 assert.equal(condenseGlow(20,{rules:{...getCondensationRules(),multiplier:1/3}}).amount,2);
 times.sort((a,b)=>a-b);
-console.log(JSON.stringify({liftAndFall:true,sparkRoute:true,noLiveMutation:true,guardianCaution:true,collectorOrbitWithinRange:true,routeP95ms:times[38]}));
+console.log(JSON.stringify({liftAndFall:true,sparkRoute:true,noLiveMutation:true,guardianCaution:true,collectorOrbitWithinMaximumRange:true,routeP95ms:times[38]}));

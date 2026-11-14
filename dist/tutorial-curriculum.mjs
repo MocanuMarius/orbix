@@ -42,7 +42,7 @@ export const TUTORIAL_TOPICS={
   s('Space Timer · hold to hover','With the cyan orb, hold the scene or Lift to levitate. Charge drains only while held. You still bob gently and drafts can push you.','companion:leveler'),
   s('Space Timer · release to glide','Release to fall and recharge. Empty charge ends levitation. Short holds help line up body pickups; upgrades can extend charge, steady the bob or add a release dive.','companion:leveler')]},
  packed:{name:'Packed Sparks',visual:'clear-reward',steps:[
-  s('A reward for every clear','Ordinary flights earn 20 Packed Sparks for run skills. Elite and guardian victories also offer two artifacts: choose one. The final guardian unlocks a future reward instead.','clear-reward'),
+  s('A reward for every clear','Ordinary flights earn 20 Packed Sparks for run skills. Elite and guardian victories also offer two artifacts: choose one. The third guardian ends the run with victory.','clear-reward'),
   s('Overflow is a bonus','When a pickup overfills Sparks, the surplus becomes extra Packed Sparks. Clear the flight to keep them. Rest refills do not create Packed Sparks.','packed'),
   s('Packing','Packing starts at 6 surplus Energy for 1 Packed Spark. Efficient Packing and Prism Vessel each improve the yield. It improves your run economy; it is not a second fuel bar.','skills')]},
  skills:{name:'Skill trees',visual:'skills',steps:[
@@ -79,7 +79,7 @@ export const TUTORIAL_TOPICS={
   s('Proximity · an earned skill','Buy the first Proximity skill to unlock surface charging. Skim solid terrain without touching it; full charge reveals the scene. Its separate tree offers recovery and a temporary light shield. Open sky never charges it.','edge')]},
  progression:{name:'Runs & Ascension',visual:'route',steps:[
   s('Three maps make a run','Energy, hearts, skills and artifacts carry between flights and maps. Plan a build that can reach the final guardian.','route'),
-  s('Ascension','Clear all three maps to unlock the next difficulty and new companions. Higher Ascensions make the journey harder. The final guardian unlocks an artifact for future reward pools; it does not become starting equipment.','site:boss'),
+  s('Ascension','Clear all three maps to unlock the next difficulty and new companions. Higher Ascensions make the journey harder. Winning ends the run. Start a separate New Game to try another Ascension; run fuel, skills, currency and artifacts never carry over.','site:boss'),
   s('Continue or New Game','Continue resumes your saved run. Exit to Menu keeps it. Abandon and New Game reset run skills and currency; permanent unlocks remain. Short lessons appear as you progress. Reset tutorial in Settings to replay them.','pause')]},
 };
 export const topicSteps=(id)=>TUTORIAL_TOPICS[id]?.steps.map(step=>({...step}))||[];

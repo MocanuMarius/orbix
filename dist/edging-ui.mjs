@@ -1,4 +1,4 @@
-import { GLOW_DISPLAY_SCALE } from './vitality.mjs?v=guardian-scenery-1';
+import { GLOW_DISPLAY_SCALE } from './vitality.mjs?v=victory-rhythm-1';
 const clamp=value=>Math.max(0,Math.min(1,Number(value)||0));
 const explanation='Proximity (unlocked skill): skim near solid terrain for 2 seconds total. Brief gaps keep your progress for 1.25 seconds, then it fades slowly. A full meter automatically reveals the scene.';
 const regenExplanation='Regenerative Falling: skim near solid terrain to restore 1 Energy instead of revealing the scene. Eight recoveries per flight; missing fuel only. Two seconds to reset. No Packed Sparks is created.';

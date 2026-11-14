@@ -1,4 +1,4 @@
-import {getPickupSpec,pickupKind,pickupContactRadius} from './pickups.mjs?v=guardian-scenery-1';
+import {getPickupSpec,pickupKind,pickupContactRadius} from './pickups.mjs?v=victory-rhythm-1';
 
 // Roof-heavy courses used to lose half their fuel to floor-cache placement.
 // A duration floor repairs that disparity with richer lights before adding
@@ -36,11 +36,15 @@ export function ensureGlowBudget(layout,{duration,height,endX,clear,drafts=[],tu
  const before=available;let enriched=0,added=0;
  const upgrade=packets.filter(p=>eligible(p)&&pickupKind(p)==='light'&&!p.riskChain&&!p.intro)
   .sort((a,b)=>Number(!!b.accessible)-Number(!!a.accessible)||a.x-b.x);
- for(const packet of upgrade){
-  if(available>=target)break;
-  if(!clear(packet.x,packet.y,pickupContactRadius('cache')+3))continue;
-  available+=getPickupSpec('cache').fuel-getPickupSpec(packet).fuel;
-  Object.assign(packet,{kind:'cache',value:3,fuel:true,budgetEnriched:true});enriched++;
+ const span=Math.max(600,(endX-300)/duration*6);
+ const localFuel=x=>packets.reduce((sum,p)=>sum+(eligible(p)&&Math.abs(p.x-x)<span/2?getPickupSpec(p).fuel:0),0);
+ const upgradeable=upgrade.filter(p=>clear(p.x,p.y,pickupContactRadius('cache')+3));
+ while(available<target&&upgradeable.length){
+  // Enrich the weakest upcoming six-second pocket, not the start of the map.
+  upgradeable.sort((a,b)=>localFuel(a.x)-localFuel(b.x)||Number(!!b.accessible)-Number(!!a.accessible)||a.x-b.x);
+  const packet=upgradeable[0],fuel=getPickupSpec(packet).fuel;
+  Object.assign(packet,{kind:fuel<40?'cluster':'cache',value:fuel<40?2:3,fuel:true,budgetEnriched:true});
+  available+=20;enriched++;if(fuel>=40)upgradeable.shift();
  }
  // Prefer broad spaces between existing lights. These candidates are spread
  // through the actual course; none can extend the grounded finishing distance.
@@ -71,6 +75,27 @@ export function ensureGlowBudget(layout,{duration,height,endX,clear,drafts=[],tu
    available+=getPickupSpec(kind).fuel;added++;break;
   }
  }
+ const sequence=balanceSparkSequence(layout,{duration,endX,clear});
  packets.sort((a,b)=>a.x-b.x);
- layout.glowBudget={target,before,available,enriched,added,supplyAdded,shortfall:Math.max(0,target-available)};
+ layout.glowBudget={target,before,available,enriched,added,supplyAdded,sequence,shortfall:Math.max(0,target-available)};
+}
+
+// Transfer whole ring units between existing safe pickups: no extra objects,
+// no bonus currency, and authored risk/reward chains keep their composition.
+export function balanceSparkSequence(layout,{duration,endX,clear}={}){
+ const span=Math.max(600,(endX-300)/Math.max(1,duration)*6),all=layout.embers||[];
+ const usable=p=>!p.generated&&!p.harmful&&!p.riskChain&&!p.intro&&['light','cluster','cache'].includes(pickupKind(p));
+ const candidates=all.filter(usable),local=x=>all.reduce((n,p)=>n+(getPickupSpec(p).fuel>0&&!getPickupSpec(p).dim&&Math.abs(p.x-x)<span/2?getPickupSpec(p).fuel:0),0);
+ const total=()=>all.reduce((n,p)=>n+getPickupSpec(p).fuel,0),before=total();let transfers=0;
+ const receivers=candidates.filter(p=>clear(p.x,p.y,pickupContactRadius('cache')+3));
+ for(let step=0;step<Math.min(180,candidates.length*2);step++){
+  const low=receivers.filter(p=>getPickupSpec(p).fuel<60).sort((a,b)=>local(a.x)-local(b.x)||Number(!!b.accessible)-Number(!!a.accessible)||a.x-b.x)[0];
+  if(!low)break;
+  const high=candidates.filter(p=>getPickupSpec(p).fuel>20&&Math.abs(p.x-low.x)>span).sort((a,b)=>local(b.x)-local(a.x)||a.x-b.x)[0];
+  if(!high||local(high.x)-local(low.x)<60)break;
+  const give=getPickupSpec(high).fuel-20,take=getPickupSpec(low).fuel+20;
+  Object.assign(high,{kind:give===20?'light':'cluster',value:give/20,sequenceBalanced:true});
+  Object.assign(low,{kind:take===40?'cluster':'cache',value:take/20,sequenceBalanced:true});transfers++;
+ }
+ return {transfers,windowSeconds:6,before,after:total()};
 }
