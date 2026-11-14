@@ -50,11 +50,11 @@ export const TUTORIAL_TOPICS={
  skills:{name:'Skill trees',visual:'skills',steps:[
   s('Choose a branch','Skills belong to this run. Light improves Luminance; Motion changes flight; Sparks improves fuel. Your companion tree improves the one role you equipped.','skills'),
   s('Read the skill states','Blue check: owned. Gold plus: affordable now. Bronze price: save more Packed Sparks. Lock: learn its prerequisite first.','skill-states'),
-  s('Commit to your build','Some forks exclude the other path. Read the selected effect before learning. You can upgrade after a flight or at Rest; a new run resets these skills.','skills')]},
+  s('Commit to your build','Some forks exclude the other path. Read the selected effect before learning. Spend Packed Sparks on upgrades at Rest. A new run resets these skills.','skills')]},
  rewards:{name:'Flight rewards',visual:'artifact',steps:[
   s('Clear the passage','Reaching the waylight completes a flight. Before the final guardian, earn 20 Packed Sparks plus pickup overflow. Some Sparks recover for the next flight. A bonus challenge is optional.','clear-reward'),
   s('Choose one artifact','Elite and guardian victories offer two artifacts. Choose one automatic effect to add to this run. Ordinary flights reward Packed Sparks, without an artifact choice.','artifact'),
-  s('Upgrade before moving on','The Skills button appears when you can afford an upgrade. Spend now or save for a stronger branch before choosing the next path.','skills')]},
+  s('Upgrade at Rest','Save your Packed Sparks for a campfire. Choose Recover or Grow at Rest, then open Skills to buy upgrades. You can inspect the tree along the route.','site:rest')]},
  artifacts:{name:'Artifacts',visual:'artifact',steps:[
   s('Collect an artifact','Choose one of two artifacts after an elite or guardian victory. It works automatically alongside your other artifacts, without slots or replacements.','artifact'),
   s('Rarity and uses','Grey is Common, green Rare, purple Legendary. Some effects last the run; consumables disappear when their uses run out. Read the effect and its trigger.','artifact-rarity'),
@@ -62,7 +62,7 @@ export const TUTORIAL_TOPICS={
   s('Build a combination','Pair automatic effects with your companion, skills and the next biome. Read each trigger and limit. Artifacts last only for this run; exhausted consumables disappear.','artifact')]},
  rest:{name:'Rest',visual:'rest',steps:[
   s('Recover or Grow','Recover restores every missing heart. Grow adds 3 maximum Energy for this run, up to three times. Both completely refill Energy. Choose once at each Rest.','rest'),
-  s('Then prepare','After your one benefit, Skills, Artifacts and Dream remain available. These tools do not take another Rest benefit.','tools'),
+  s('Then prepare','After Recover or Grow, spend Packed Sparks on skill upgrades here. Artifacts and Dream are also available. These tools do not take another Rest benefit.','tools'),
   s('Plan your next passage','Rest commits to one next flight. Read its terrain and prepare for it. After a failed attempt, the map shows whichever retry paths are reachable.','route')]},
  dream:{name:'Dream',visual:'dream',steps:[
   s('Dream: rehearse six seconds','At Rest, Dream lets you practice the next opening as often as you like. The closed eye means rehearsal. Nothing here spends a heart or earns real rewards.','dream'),
@@ -71,7 +71,7 @@ export const TUTORIAL_TOPICS={
  routes:{name:'Paths & stops',visual:'route',steps:[
   s('Follow connected paths','Bright nodes are reachable. Dim nodes are not. Choosing a fork commits your route; you cannot jump to any stop on the map.','route'),
   s('Flight and elite routes','Passage markers mean ordinary Flight. Creature portraits mark harder Elite routes with a two-artifact choice. Inspect the biome and length before committing.','site:flight'),
-  s('Rest','The campfire marks Rest: choose one benefit, then prepare your build. Route toward one when you need hearts or build preparation.','site:rest'),
+  s('Rest','The campfire marks Rest. Choose Recover or Grow, then buy skill upgrades. Plan a route through Rest when you want to spend Packed Sparks or recover hearts.','site:rest'),
   s('Encounter and treasure','The encounter symbol offers a trade or event. The chest offers treasure. Check gains, costs and chances before choosing.','sites-support'),
   s('Guardian','A large guardian portrait marks the end of each map. Survive its warned patterns and reach the finish. Three different guardians stand between you and a completed run.','site:boss')]},
  hazards:{name:'Hazards & pulses',visual:'black-hole',steps:[

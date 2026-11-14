@@ -179,3 +179,12 @@ html body .companion-sheet .companion-role>.companion-portrait{
  width:48px;height:48px;padding:6px;background:transparent url('assets/wisp-socket.svg') center/contain no-repeat;
  clip-path:none;box-sizing:border-box;
 }
+
+/* The campfire identifies where banked skill currency can be spent. */
+.wallet-rest-marker{display:grid;place-items:center;width:26px;height:30px;flex:none}
+.wallet-rest-marker>.map-stop-icon{display:block;width:26px;height:30px}
+.skill-purchase .map-stop-icon{width:28px;height:28px;flex:none}
+.tree-rest-notice{color:var(--ui-gold);display:flex;align-items:center;gap:7px;font:13px/1.35 var(--pixel)}
+.tree-rest-notice>.map-stop-icon{width:26px;height:28px;flex:none}
+.tree-selection-status.rest-required{display:flex;align-items:center;gap:8px;color:var(--ui-gold)!important}
+.tree-selection-status.rest-required>.map-stop-icon{width:28px;height:30px;flex:none}

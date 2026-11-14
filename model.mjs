@@ -1,26 +1,26 @@
-import {consolidateSkills,refundRetiredSkills} from './skill-consolidation.mjs?v=carved-shrines-1';
-import {PROXIMITY_SKILLS} from './proximity-skills.mjs?v=carved-shrines-1';
-import {getGuardianForMap,getBossPreview} from './boss.mjs?v=carved-shrines-1';
-import {getFlightLengthProfile} from './level-length.mjs?v=carved-shrines-1';
-import {cleanOnboarding} from './onboarding.mjs?v=carved-shrines-1';
-import {CONDENSED_TUNING,getCondensationRules,condenseGlow} from './condensed-glow.mjs?v=carved-shrines-1';
-import {CONSUMABLE_ARTIFACTS,EVOLVING_ARTIFACTS,getArtifactStackPreview} from './artifact-info.mjs?v=carved-shrines-1';
-import {getFlightClearReward} from './checkpoint-rewards.mjs?v=carved-shrines-1';
-export {getCondensationRules} from './condensed-glow.mjs?v=carved-shrines-1';
-import {ROUTE_RECIPES,ROUTE_TOPOLOGY_VERSION,REWARD_THEMES,nodeEconomy} from './route-recipes.mjs?v=carved-shrines-1';
-import {COMPANION_ABILITIES,getCompanionUnlock,normalizeCompanionFleet} from './companion-abilities.mjs?v=carved-shrines-1';
-import {MAIN_TUNING_SKILLS} from './main-tuning.mjs?v=carved-shrines-1';
-import {STARTING_CONDENSED_GLOW,getGlowCapacity,getRestGlowBonus,REST_GLOW_TUNING,glowText} from './vitality.mjs?v=carved-shrines-1';
-import {expandSkillSteps,skillProgress} from './skill-increments.mjs?v=carved-shrines-1';
-import {MAX_ASCENSION} from './ascent.mjs?v=carved-shrines-1';
-import {EXPANDED_SKILLS,applyExpandedSkills} from './skill-paths.mjs?v=carved-shrines-1';
+import {consolidateSkills,refundRetiredSkills} from './skill-consolidation.mjs?v=rest-upgrades-1';
+import {PROXIMITY_SKILLS} from './proximity-skills.mjs?v=rest-upgrades-1';
+import {getGuardianForMap,getBossPreview} from './boss.mjs?v=rest-upgrades-1';
+import {getFlightLengthProfile} from './level-length.mjs?v=rest-upgrades-1';
+import {cleanOnboarding} from './onboarding.mjs?v=rest-upgrades-1';
+import {CONDENSED_TUNING,getCondensationRules,condenseGlow} from './condensed-glow.mjs?v=rest-upgrades-1';
+import {CONSUMABLE_ARTIFACTS,EVOLVING_ARTIFACTS,getArtifactStackPreview} from './artifact-info.mjs?v=rest-upgrades-1';
+import {getFlightClearReward} from './checkpoint-rewards.mjs?v=rest-upgrades-1';
+export {getCondensationRules} from './condensed-glow.mjs?v=rest-upgrades-1';
+import {ROUTE_RECIPES,ROUTE_TOPOLOGY_VERSION,REWARD_THEMES,nodeEconomy} from './route-recipes.mjs?v=rest-upgrades-1';
+import {COMPANION_ABILITIES,getCompanionUnlock,normalizeCompanionFleet} from './companion-abilities.mjs?v=rest-upgrades-1';
+import {MAIN_TUNING_SKILLS} from './main-tuning.mjs?v=rest-upgrades-1';
+import {STARTING_CONDENSED_GLOW,getGlowCapacity,getRestGlowBonus,REST_GLOW_TUNING,glowText} from './vitality.mjs?v=rest-upgrades-1';
+import {expandSkillSteps,skillProgress} from './skill-increments.mjs?v=rest-upgrades-1';
+import {MAX_ASCENSION} from './ascent.mjs?v=rest-upgrades-1';
+import {EXPANDED_SKILLS,applyExpandedSkills} from './skill-paths.mjs?v=rest-upgrades-1';
 /** Run-owned skills and currency; persistent ascension unlocks and boss artifacts. */
-import { FLAME_TUNING, LIFE_TUNING, getLifeCapacity } from './vitality.mjs?v=carved-shrines-1';
-import { getBiomeLevelIdentity } from './level-catalog.mjs?v=carved-shrines-1';
-import { BIOMES } from './biomes.mjs?v=carved-shrines-1';
-import { EVENT_SCENARIOS } from './map-guide.mjs?v=carved-shrines-1';
-import {contextualEventChoices,resolvePilgrimVow,ROUTE_PREPARATION} from './contextual-events.mjs?v=carved-shrines-1';
-import {TREASURE_KINDS, describeTreasure, treasureChoices, LENS_SIGHT, LENS_RECOVERY, settleTreasureWager} from './treasure.mjs?v=carved-shrines-1';
+import { FLAME_TUNING, LIFE_TUNING, getLifeCapacity } from './vitality.mjs?v=rest-upgrades-1';
+import { getBiomeLevelIdentity } from './level-catalog.mjs?v=rest-upgrades-1';
+import { BIOMES } from './biomes.mjs?v=rest-upgrades-1';
+import { EVENT_SCENARIOS } from './map-guide.mjs?v=rest-upgrades-1';
+import {contextualEventChoices,resolvePilgrimVow,ROUTE_PREPARATION} from './contextual-events.mjs?v=rest-upgrades-1';
+import {TREASURE_KINDS, describeTreasure, treasureChoices, LENS_SIGHT, LENS_RECOVERY, settleTreasureWager} from './treasure.mjs?v=rest-upgrades-1';
 export const SAVE_KEY='wispbound.save.condensed.v7';
 export const CAMPAIGN_MAP_NAMES=Object.freeze(['The Forgotten Verge','The Rootbound March','The Warden’s Reach']);
 export const TERRAINS=Object.freeze({ruins:{id:'ruins',name:'Sunken Ruins',color:'#cdb183',description:'Broken homes, worn arches and overgrown stone.'},canopy:{id:'canopy',name:'Luminous Canopy',color:'#94b48a',description:'Hollow trees, hanging roots and sheltered forest passages.'},storm:{id:'storm',name:'Stormglass Peaks',color:'#a8bbca',description:'Pine ridges, old mine timbers and local draft puffs.'}});
@@ -499,12 +499,7 @@ export function bankRun(state){
 
 const choice=(id,title,description,effect)=>{if(effect.pickupGlow){const old=effect.pickupGlow,amount=Math.max(20,Math.round(old/20)*20);description=description.replace(`${old} Sparks`,`${amount} Sparks`);effect={...effect,pickupGlow:amount};}return {id,title,description,detail:description,effect};};
 function eventNextFlights(run){const n=run.current,lastElite=previousElite(run);return(n?.nextIds||[]).map(id=>nodes(run).find(node=>node.id===id)).filter(node=>node&&node.row===n.row+1&&node.type!=='support'&&!(lastElite&&node.elite));}
-function upgradeOffer(run,profile){
- const wallet=runWallet(run),branches=new Set(['main','proximity',...normalizeCompanionFleet(run.companions,run.companionRole),...(wallet.condensationUnlocked?['afterglow']:[])]);
- const eligible=Object.keys(SKILLS).filter(id=>branches.has(SKILLS[id].branch)&&getSkillCost(wallet,id)!==null),id=eligible[Math.floor(rng(`${run.seed}:${run.current.id}:upgrade`)()*eligible.length)];
- if(!id)return choice('archive-light','Gather the light','Collect 30 Sparks; excess condenses.',{pickupGlow:30});
- const cost=Math.max(1,Math.round(getSkillCost(wallet,id)*.8));return choice('shrine-upgrade',`Learn ${SKILLS[id].name}`,`Spend ${cost} Packed Sparks for one rank this run.`,{upgrade:id,condensedCost:cost});
-}
+function shrineBlessing(){return choice('shrine-blessing','Carry a shrine blessing','Companion recovery is 20% faster for the next flight.',{blessing:true});}
 function rawSupportChoices(run,profile=null){
  if(run?.phase!=='support')return[];const n=run.current;
  if(n.kind==='camp'){
@@ -514,7 +509,7 @@ function rawSupportChoices(run,profile=null){
    {...choice('rest-grow','Grow',growth?`Gain ${growth} maximum Energy for this run and refill. Hearts stay as they are. Up to 3 growths per run.`:'Rest growth is complete. Choose Recover to refill and prepare.',{glowCapacity:growth,flame:100,rest:'grow'}),disabled:growth<=0}
   ];
  }
- if(n.kind==='shrine')return[choice('shrine-fuel','Gather shelter light','Collect 35 Sparks; excess condenses. This is not a full Rest.',{pickupGlow:35}),upgradeOffer(run,profile)];
+ if(n.kind==='shrine')return[choice('shrine-fuel','Gather shelter light','Collect 35 Sparks; excess condenses. This is not a full Rest.',{pickupGlow:35}),shrineBlessing()];
  const contextual=contextualEventChoices(run,eventNextFlights(run));if(contextual)return contextual;
  switch(n.eventIndex){
  case 6:return[choice('dice-safe','Take the offering','Collect 30 Sparks; excess condenses.',{pickupGlow:30}),choice('dice-roll','Cast the Prism Dice','Spend 4 Packed Sparks. Equal chances: collect 20 Sparks, 60 Sparks or 100 Sparks; excess condenses.',{condensedCost:4,dice:true})];
@@ -522,10 +517,10 @@ function rawSupportChoices(run,profile=null){
  case 8:return[choice('bargain-burden','Carry a heavy light','Collect 80 Sparks; excess condenses. The first 12 paid Lifts next flight cost one extra Energy each.',{pickupGlow:80,burden:true}),choice('bargain-decline','Travel lightly','Collect 40 Sparks; excess condenses.',{pickupGlow:40})];
  case 9:return[choice('sanctuary-glow','Bathe in light','Recover 40% Energy. Recovery does not condense.',{flame:getGlowCapacity(run)*.4}),...(run.lives<getLifeCapacity(run)?[choice('sanctuary-life','Rekindle an attempt','Restore one missing heart.',{lives:1})]:[]),choice('sanctuary-bless','Carry a blessing','Companion recovery is 20% faster for the next flight.',{blessing:true})];
  case 10:{const roots=MAIN_WISP_BRANCHES.filter(b=>rank(run.skills,b.root)>0);return[...roots.map(b=>choice('workshop-'+b.root,`Reshape ${b.name}`,'Refund this learned main-wisp branch at full paid cost. Your free starting gift stays.',{respec:b.root})),choice('workshop-keep','Keep your build','Collect 35 Sparks; excess condenses.',{pickupGlow:35})];}
- case 11:return[choice('shrine-attune',`Attune ${run.companionRole}`,'Companion recovery is 20% faster for the next flight.',{blessing:true}),upgradeOffer(run,profile),choice('shrine-offering','Accept the offering','Collect 40 Sparks; excess condenses.',{pickupGlow:40})];
+ case 11:return[choice('shrine-attune',`Attune ${run.companionRole}`,'Companion recovery is 20% faster for the next flight.',{blessing:true}),choice('shrine-packed','Gather the stored light','Gain 15 Packed Sparks for skills at Rest.',{packedReward:15}),choice('shrine-offering','Accept the offering','Collect 40 Sparks; excess condenses.',{pickupGlow:40})];
  case 0:return[choice('spring','Kindle the spring','Spend 5 Packed Sparks to refill Energy completely. Recovery does not condense.',{flame:100,condensedCost:5}),choice('spring-light','Follow the silver stream','Collect 30 Sparks; excess condenses.',{pickupGlow:30})];
  case 1:return[run.flame>=15?choice('bargain','Trade Sparks','Spend 15 Energy for 25 Packed Sparks.',{flame:-15,artifactReward:true}):choice('bargain-light','Keep the last light','Recover 18 Energy.',{flame:18}),choice('bargain-safe','Gather scattered light','Collect 30 Sparks; excess condenses.',{pickupGlow:30})];
- case 3:return[upgradeOffer(run,profile),choice('shrine-keep','Keep your present build','Collect 40 Sparks; excess condenses.',{pickupGlow:40})];
+ case 3:return[shrineBlessing(),choice('shrine-keep','Gather the light','Collect 40 Sparks; excess condenses.',{pickupGlow:40})];
  default:return[choice('archive-packed','Gather old light','Gain 25 Packed Sparks for skills.',{packedReward:25}),choice('archive-keep','Release the light','Collect 40 Sparks; excess condenses.',{pickupGlow:40})];
  }
 }
@@ -538,6 +533,7 @@ export function resolveSupport(run,index,profile=null){
  if(wallet.condensedGlow<cost||run.flame+Math.min(0,finite(e.flame))<0)return false;
  if(e.lives&&run.lives>=getLifeCapacity(run))return false;
  if(e.sell&&!canSellArtifact({run,profile},e.sell))return false;
+ if(e.upgrade&&!canBuyCheckpointSkills({run}))return false;
  if(e.upgrade&&(getSkillCost(wallet,e.upgrade)===null||!run.testMode&&SKILLS[e.upgrade].requires&&!rank(run.skills,SKILLS[e.upgrade].requires)))return false;
  if(run.isTutorial)run.practiceCondensedGlow-=cost;else run.condensedGlow-=cost;
  if(e.upgrade){if(run.testMode)for(const id of SKILLS[e.upgrade].excludes||[])forgetSkillBranch(run.skills,id,run.skillPaid);run.skills[e.upgrade]=rank(run.skills,e.upgrade)+1;(run.skillPaid??={})[e.upgrade]=(run.skillPaid[e.upgrade]||0)+cost;if(e.upgrade==='main-afterglow')run.condensationJustUnlocked=true;}
@@ -572,7 +568,12 @@ export function getSkillPrice(wallet,id){
 }
 export function getSkillCost(wallet,id){return getSkillLockReason(wallet,id)?null:getSkillPrice(wallet,id);}
 export function isStartingPrep(r){return !!r&&!r.isTutorial&&r.mapIndex===0&&r.step===0&&r.phase==='map'&&!r.path.length&&!r.attemptActive;}
-export function canBuyCheckpointSkills(state){const r=state?.run;return!!r&&!r.attemptActive&&!r.banked&&r.lives>0&&(r.victoryPending===true||(r.testMode===true||r.restReady===true||isStartingPrep(r))&&canPrepareAtCheckpoint(r));}
+export function canBuyCheckpointSkills(state){
+ const r=state?.run;
+ if(!r||r.attemptActive||r.banked||r.lives<=0)return false;
+ if(r.testMode===true||r.isTutorial===true)return r.victoryPending===true||canPrepareAtCheckpoint(r);
+ return r.restReady===true&&r.lastRest?.mapIndex===r.mapIndex&&canPrepareAtCheckpoint(r);
+}
 export function getAvailableUpgrades(state){if(!canBuyCheckpointSkills(state))return[];const w=getSkillWallet(state),branches=new Set(['main','proximity',...normalizeCompanionFleet(state.run.companions,state.run.companionRole),...(w.condensationUnlocked?['afterglow']:[])]);return Object.values(SKILLS).filter(s=>branches.has(s.branch)&&getSkillCost(w,s.id)!==null&&getSkillCost(w,s.id)<=w.condensedGlow).map(s=>s.id);}
 function forgetSkillBranch(skills,id,paid={}){
   delete skills[id];delete paid[id];
@@ -644,7 +645,7 @@ function createTutorial(profile){
 export function startTutorial(state){if(!state?.profile)return false;const old=state.run;if(old?.isTutorial&&old.phase!=='ended')return false;if(old?.isTutorial)bankRun(state);else{state.suspendedRun=old&&old.phase!=='ended'&&!old.banked?copy(old):null;if(state.suspendedRun?.attemptActive)interrupt(state.suspendedRun);}state.run=createTutorial(state.profile);return true;}
 export function leaveTutorial(state){if(!state?.run?.isTutorial)return false;if(state.run.attemptActive)restoreEntry(state.run);if(state.run.phase!=='ended'){state.run.phase='ended';state.run.success=false;}bankRun(state);state.run=state.suspendedRun||null;state.suspendedRun=null;return true;}
 
-export function getSupportChoices(run,profile=null){if(run?.phase!=='support')return[];if(run.current.kind==='treasure')return getTreasureChoices(run);if(run.current.kind==='camp')return makeSupportChoices(run,profile);if(run.supportOffers?.nodeId!==run.current.id)run.supportOffers={nodeId:run.current.id,choices:makeSupportChoices(run,run.testMode?null:profile)};return copy(run.supportOffers.choices);}
+export function getSupportChoices(run,profile=null){if(run?.phase!=='support')return[];if(run.current.kind==='treasure')return getTreasureChoices(run);if(run.current.kind==='camp')return makeSupportChoices(run,profile);if(run.supportOffers?.choices?.some(c=>c.effect?.upgrade))run.supportOffers=null;if(run.supportOffers?.nodeId!==run.current.id)run.supportOffers={nodeId:run.current.id,choices:makeSupportChoices(run,run.testMode?null:profile)};return copy(run.supportOffers.choices);}
 export function suspendRun(state){const r=state?.run;if(!r||r.phase==='ended'||r.banked)return false;if(r.attemptActive)interrupt(r);return true;}
 export function abandonRun(state){const r=state?.run;if(!r||r.phase==='ended'||r.banked)return false;if(r.attemptActive)interrupt(r);settleCheckpoint(state);r.phase='ended';r.success=false;r.restReady=false;r.victoryPending=false;return bankRun(state);}
 
