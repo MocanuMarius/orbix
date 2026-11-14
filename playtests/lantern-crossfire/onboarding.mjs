@@ -1,5 +1,5 @@
-import {flashPowerupDuration} from './pickups.mjs?v=lantern-chain-1';
-import {resourceCycleSteps} from './resource-cycle.mjs?v=lantern-chain-1';
+import {flashPowerupDuration} from './pickups.mjs?v=lantern-passages-1';
+import {resourceCycleSteps} from './resource-cycle.mjs?v=lantern-passages-1';
 // Normal-run onboarding is profile-owned. Prompts are contextual, one short
 // card at a time; the run owns only pacing so a new game keeps learned topics.
 export const ONBOARDING_VERSION=1;
@@ -8,7 +8,7 @@ export function automaticTipsEnabled(settings={},run){
  return run?.isTutorial===true||settings.skipTutorial!==true;
 }
 export const ONBOARDING_PROMPT_GAP_MS=30000;
-const topics=new Set(['lift','luminance','collector','collector-recovery','protector','swift','leveler','artifacts','packed','skills','rest','companions','dream','routes','black-hole','bad-sparks','drafts','edging','hearts','events','progression','special-sparks']);
+const topics=new Set(['lift','luminance','collector','collector-recovery','protector','swift','leveler','artifacts','packed','skills','rest','companions','dream','routes','black-hole','bad-sparks','drafts','edging','hearts','events','progression','special-sparks','lanterns']);
 const topicId=value=>String(value??'').replace(/^onboarding:/,'').split(':')[0];
 const integer=value=>Math.max(0,Math.floor(Number(value)||0));
 export function cleanOnboarding(value={}){
@@ -86,6 +86,12 @@ export function noteOnboardingPrompt(run,view,{flight,now=Date.now()}={}){
  if(view==='flight'){pacing.flightNode=run.current?.id;pacing.flightTime=Number(flight?.time)||0;}
 }
 const card=(id,title,text,visual,target)=>({id:`onboarding:${id}`,topic:id,onboarding:true,steps:[{title,text,visual,...(target?{target}:{}),allowTarget:false,actionLabel:'Got it',skipLabel:'Remember & skip'}]});
+
+export function lanternEntryLesson(settings, profile, run) {
+ if(!automaticTipsEnabled(settings,run)||run?.isTutorial||run?.current?.bossId!=='hollow-sun')return null;
+ if(cleanOnboarding(profile?.onboarding).seen.includes('lanterns'))return null;
+ return card('lanterns','Darkness Lanterns','Two lanterns cross their beams. Block a beam to cast a wedge of light behind you. Luminance widens your view. Catch the white Flash triangle to see through the crossing.','lantern-wedge');
+}
 
 /** Selection is pure; mark/note only once the parent actually shows the card. */
 export function nextOnboardingLesson(view,{profile,run,modifiers,flight,snapshot={},now=Date.now()}={}){

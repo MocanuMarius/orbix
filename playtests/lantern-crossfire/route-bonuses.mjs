@@ -1,4 +1,4 @@
-import {getLifeCapacity} from './vitality.mjs?v=lantern-chain-1';
+import {getLifeCapacity} from './vitality.mjs?v=lantern-passages-1';
 
 function bonus(id, name, condition, reward, target) {
   return Object.freeze({id, name, condition, reward, target});

@@ -1,4 +1,4 @@
-import {drawPickup} from './pickup-art.mjs?v=lantern-chain-1';
+import {drawPickup} from './pickup-art.mjs?v=lantern-passages-1';
 
 const TAU = 2 * Math.PI;
 const clamp = (x, lo=0, hi=1) => Math.max(lo,Math.min(hi,x));

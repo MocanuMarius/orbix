@@ -1,7 +1,7 @@
-import { DRAFT_TUNING } from './drafts.mjs?v=chapter-pressure-1';
-import { scenePropBounds } from './scene-props.mjs?v=chapter-pressure-1';
-import { formatGlow } from './vitality.mjs?v=chapter-pressure-1';
-import { lightVisibility } from './light-field.mjs?v=chapter-pressure-1';
+import { DRAFT_TUNING } from './drafts.mjs?v=lantern-passages-1';
+import { scenePropBounds } from './scene-props.mjs?v=lantern-passages-1';
+import { formatGlow } from './vitality.mjs?v=lantern-passages-1';
+import { lightVisibility } from './light-field.mjs?v=lantern-passages-1';
 
 // Small, deterministic actors attached to existing terrain. Static mountain
 // meshes never change, and each actor is used once: no repeatable currency farm.

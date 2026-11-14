@@ -1,65 +1,65 @@
-import {menuIcon as icon} from './menu-icons.mjs?v=chapter-pressure-1';
-import {installationState,installationInstructions,onInstallationChange,requestInstall,refreshBuild} from './pwa.mjs?v=chapter-pressure-1';
-import {prepareRouteOffer} from './route-offers.mjs?v=chapter-pressure-1';
-import {ROUTE_BONUSES} from './route-bonuses.mjs?v=chapter-pressure-1';
-import {updateBonusGauge} from './route-bonus-ui.mjs?v=chapter-pressure-1';
-import {forecastCheckpointMarkup} from './night-atlas.mjs?v=chapter-pressure-1';
-import {markFlightAttemptStarted,previewAtlasMap} from './model.mjs?v=chapter-pressure-1';
-import {getBossPreview} from './boss.mjs?v=chapter-pressure-1';
-import {flightPreviewMarkup} from './flight-preview.mjs?v=chapter-pressure-1';
-import {collectionMarkup,COLLECTION_PAGE_SIZE} from './collection-view.mjs?v=chapter-pressure-1';
-import {restBenefitsMarkup} from './rest-choice-view.mjs?v=chapter-pressure-1';
-import {treasureView} from './treasure-view.mjs?v=chapter-pressure-1';
-import {getFlightClearReward} from './checkpoint-rewards.mjs?v=chapter-pressure-1';
-import {artifactDescription} from './artifact-copy.mjs?v=chapter-pressure-1';
-import {startResumeCountdown} from './resume-countdown.mjs?v=chapter-pressure-1';
-import {automaticTipsEnabled,nextOnboardingLesson,markOnboardingSeen,resetOnboarding,noteOnboardingPrompt,noteOnboardingProgress,onboardingFeatureAvailable,onboardingFlightPlan} from './onboarding.mjs?v=chapter-pressure-1';
-import {flightRewardMarkup} from './reward-screen.mjs?v=chapter-pressure-1';
-import {flightEntryMarkup,resumeGateMarkup,waitForFlightEntry,preloadFlightEntry} from './flight-entry.mjs?v=chapter-pressure-1';
-import {TUTORIAL_TOPICS,topicSteps} from './tutorial-curriculum.mjs?v=chapter-pressure-1';
-import {resourceCycleSteps} from './resource-cycle.mjs?v=chapter-pressure-1';
-import {tutorialVisualMarkup} from './tutorial-visuals.mjs?v=chapter-pressure-1';
-import {deathScreenMarkup} from './death-screen.mjs?v=chapter-pressure-1';
-import {createRestInspectorState} from './rest-inspector.mjs?v=chapter-pressure-1';
-import {choiceScene} from './choice-art.mjs?v=chapter-pressure-1';
-import {contextualFlightNotice} from './contextual-events.mjs?v=chapter-pressure-1';
-import {createMusic} from './music.mjs?v=chapter-pressure-1';
-import {resourceSymbol} from './game-symbols.mjs?v=chapter-pressure-1';
-import {nextArtifactNotice,artifactUseLesson} from './artifact-lessons.mjs?v=chapter-pressure-1';
-import {getArtifactInfo,CONSUMABLE_ARTIFACTS,EVOLVING_ARTIFACTS} from './artifact-info.mjs?v=chapter-pressure-1';
-import {checkpointTutorialLesson,observedFlightLesson,flightEffectLesson} from './tutorial-steps.mjs?v=chapter-pressure-1';
-import {ARTIFACT_ENGINE_RULES} from './artifact-effects.mjs?v=chapter-pressure-1';
-import {rewardThemeMarkup,encounterIntent,encounterIntentMarkup,artifactOfferMarkup,artifactDetailMarkup,artifactRarityLabel,artifactSummaryMarkup,artifactLifetimeMarkup} from './replay-ui.mjs?v=chapter-pressure-1';
-import {installLandscapeMode} from './landscape.mjs?v=chapter-pressure-1';
-import {drawLandscapeMap} from './landscape-map.mjs?v=chapter-pressure-1';
-import {attachDream,canDreamAt,dreamEye,updateDreamIndicator} from './dream.mjs?v=chapter-pressure-1';
-import {chooseFlightReward,getAvailableUpgrades,acknowledgeVictory,takeClearRewardReceipt} from './model.mjs?v=chapter-pressure-1';
-import {formatGlow,glowPercent,getGlowCapacity,glowText} from './vitality.mjs?v=chapter-pressure-1';
-import {glowGaugeMarkup,updateGlowGauge} from './glow-ui.mjs?v=chapter-pressure-1';
-import {edgingPulseMarkup,updateEdgingPulse} from './edging-ui.mjs?v=chapter-pressure-1';
-import {skillBookMarkup,skillBookChapter} from './skill-book.mjs?v=chapter-pressure-1';
-import {livesMarkup,lifeHeartSvg} from './lives.mjs?v=chapter-pressure-1';
-import {attachFlightPerformance,downloadPerformanceReport} from './flight-performance.mjs?v=chapter-pressure-1';
-import {getChallengePreview} from './flight-challenges.mjs?v=chapter-pressure-1';
-import {homeMenuMarkup,runProgressMarkup,unlockPreviewMarkup} from './run-menu.mjs?v=chapter-pressure-1';
-import {skillIcon,artifactIcon} from './upgrade-icons.mjs?v=chapter-pressure-1';
-import {TERRAINS,SKILLS,ARTIFACTS,newState,loadState,saveState,createRun,getStartingArtifact,canChooseStartingGift,chooseStartingGift,chooseStartingSkill,setTestOverride,grantTestCondensedGlow,getStartingCompanion,setStartingCompanion,startTutorial,leaveTutorial,getChoices,getRouteMapState,selectNode,beginFlightAttempt,retryFlight,finishFlight,getSupportChoices,resolveSupport,settleCheckpoint,bankRun,advanceMap,previewGlowReward,getSkillCost,getSkillPrice,getSkillWallet,getSkillLockReason,suspendRun,abandonRun,isSkillRevealed,canBuyCheckpointSkills,buyCheckpointSkill,getRunModifiers,canChangeCompanion,setCompanions,sellArtifact,canSellArtifact,getArtifactSalvageValue} from './model.mjs?v=chapter-pressure-1';
-import {WispFlight} from './flight.mjs?v=chapter-pressure-1';
-import {COMPANION_ABILITIES,getCompanionAbility,getCompanionUnlock,normalizeCompanionRole} from './companion-abilities.mjs?v=chapter-pressure-1';
-import {companionArtSvg} from './companion-art.mjs?v=chapter-pressure-1';
-import {boostControlMarkup,updateBoostControl} from './boost-control.mjs?v=chapter-pressure-1';
-import {campaignStrip,bossSigil,guardianRitualMarkup} from './campaign-ui.mjs?v=chapter-pressure-1';
-import {resolveLevelIdentity} from './level-catalog.mjs?v=chapter-pressure-1';
-import {levelMapGlyph,levelMapPreview} from './level-map-art.mjs?v=chapter-pressure-1';
-import {getAscentInfo} from './ascent.mjs?v=chapter-pressure-1';
-import {getRouteForecast} from './route-forecast.mjs?v=chapter-pressure-1';
-import {MAP_STOP_TYPES,getMapStopInfo,mapStopIconMarkup,getEventScenarios} from './map-guide.mjs?v=chapter-pressure-1';
-import {formatFlightDuration} from './level-length.mjs?v=chapter-pressure-1';
-import {condensedIconMarkup} from './afterglow-ui.mjs?v=chapter-pressure-1';
-import {pickupGuideMarkup,pickupLesson} from './pickup-guide.mjs?v=chapter-pressure-1';
-import {pickupArtSvg} from './pickup-art.mjs?v=chapter-pressure-1';
-import {createTutorialCoach} from './tutorial-coach.mjs?v=chapter-pressure-1';
-import {getTutorialWorldFocus} from './tutorial.mjs?v=chapter-pressure-1';
+import {menuIcon as icon} from './menu-icons.mjs?v=lantern-passages-1';
+import {installationState,installationInstructions,onInstallationChange,requestInstall,refreshBuild} from './pwa.mjs?v=lantern-passages-1';
+import {prepareRouteOffer} from './route-offers.mjs?v=lantern-passages-1';
+import {ROUTE_BONUSES} from './route-bonuses.mjs?v=lantern-passages-1';
+import {updateBonusGauge} from './route-bonus-ui.mjs?v=lantern-passages-1';
+import {forecastCheckpointMarkup} from './night-atlas.mjs?v=lantern-passages-1';
+import {markFlightAttemptStarted,previewAtlasMap} from './model.mjs?v=lantern-passages-1';
+import {getBossPreview} from './boss.mjs?v=lantern-passages-1';
+import {flightPreviewMarkup} from './flight-preview.mjs?v=lantern-passages-1';
+import {collectionMarkup,COLLECTION_PAGE_SIZE} from './collection-view.mjs?v=lantern-passages-1';
+import {restBenefitsMarkup} from './rest-choice-view.mjs?v=lantern-passages-1';
+import {treasureView} from './treasure-view.mjs?v=lantern-passages-1';
+import {getFlightClearReward} from './checkpoint-rewards.mjs?v=lantern-passages-1';
+import {artifactDescription} from './artifact-copy.mjs?v=lantern-passages-1';
+import {startResumeCountdown} from './resume-countdown.mjs?v=lantern-passages-1';
+import {automaticTipsEnabled,nextOnboardingLesson,markOnboardingSeen,resetOnboarding,noteOnboardingPrompt,noteOnboardingProgress,onboardingFeatureAvailable,onboardingFlightPlan,lanternEntryLesson} from './onboarding.mjs?v=lantern-passages-1';
+import {flightRewardMarkup} from './reward-screen.mjs?v=lantern-passages-1';
+import {flightEntryMarkup,resumeGateMarkup,waitForFlightEntry,preloadFlightEntry} from './flight-entry.mjs?v=lantern-passages-1';
+import {TUTORIAL_TOPICS,topicSteps} from './tutorial-curriculum.mjs?v=lantern-passages-1';
+import {resourceCycleSteps} from './resource-cycle.mjs?v=lantern-passages-1';
+import {tutorialVisualMarkup} from './tutorial-visuals.mjs?v=lantern-passages-1';
+import {deathScreenMarkup} from './death-screen.mjs?v=lantern-passages-1';
+import {createRestInspectorState} from './rest-inspector.mjs?v=lantern-passages-1';
+import {choiceScene} from './choice-art.mjs?v=lantern-passages-1';
+import {contextualFlightNotice} from './contextual-events.mjs?v=lantern-passages-1';
+import {createMusic} from './music.mjs?v=lantern-passages-1';
+import {resourceSymbol} from './game-symbols.mjs?v=lantern-passages-1';
+import {nextArtifactNotice,artifactUseLesson} from './artifact-lessons.mjs?v=lantern-passages-1';
+import {getArtifactInfo,CONSUMABLE_ARTIFACTS,EVOLVING_ARTIFACTS} from './artifact-info.mjs?v=lantern-passages-1';
+import {checkpointTutorialLesson,observedFlightLesson,flightEffectLesson} from './tutorial-steps.mjs?v=lantern-passages-1';
+import {ARTIFACT_ENGINE_RULES} from './artifact-effects.mjs?v=lantern-passages-1';
+import {rewardThemeMarkup,encounterIntent,encounterIntentMarkup,artifactOfferMarkup,artifactDetailMarkup,artifactRarityLabel,artifactSummaryMarkup,artifactLifetimeMarkup} from './replay-ui.mjs?v=lantern-passages-1';
+import {installLandscapeMode} from './landscape.mjs?v=lantern-passages-1';
+import {drawLandscapeMap} from './landscape-map.mjs?v=lantern-passages-1';
+import {attachDream,canDreamAt,dreamEye,updateDreamIndicator} from './dream.mjs?v=lantern-passages-1';
+import {chooseFlightReward,getAvailableUpgrades,acknowledgeVictory,takeClearRewardReceipt} from './model.mjs?v=lantern-passages-1';
+import {formatGlow,glowPercent,getGlowCapacity,glowText} from './vitality.mjs?v=lantern-passages-1';
+import {glowGaugeMarkup,updateGlowGauge} from './glow-ui.mjs?v=lantern-passages-1';
+import {edgingPulseMarkup,updateEdgingPulse} from './edging-ui.mjs?v=lantern-passages-1';
+import {skillBookMarkup,skillBookChapter} from './skill-book.mjs?v=lantern-passages-1';
+import {livesMarkup,lifeHeartSvg} from './lives.mjs?v=lantern-passages-1';
+import {attachFlightPerformance,downloadPerformanceReport} from './flight-performance.mjs?v=lantern-passages-1';
+import {getChallengePreview} from './flight-challenges.mjs?v=lantern-passages-1';
+import {homeMenuMarkup,runProgressMarkup,unlockPreviewMarkup} from './run-menu.mjs?v=lantern-passages-1';
+import {skillIcon,artifactIcon} from './upgrade-icons.mjs?v=lantern-passages-1';
+import {TERRAINS,SKILLS,ARTIFACTS,newState,loadState,saveState,createRun,getStartingArtifact,canChooseStartingGift,chooseStartingGift,chooseStartingSkill,setTestOverride,grantTestCondensedGlow,getStartingCompanion,setStartingCompanion,startTutorial,leaveTutorial,getChoices,getRouteMapState,selectNode,beginFlightAttempt,retryFlight,finishFlight,getSupportChoices,resolveSupport,settleCheckpoint,bankRun,advanceMap,previewGlowReward,getSkillCost,getSkillPrice,getSkillWallet,getSkillLockReason,suspendRun,abandonRun,isSkillRevealed,canBuyCheckpointSkills,buyCheckpointSkill,getRunModifiers,canChangeCompanion,setCompanions,sellArtifact,canSellArtifact,getArtifactSalvageValue} from './model.mjs?v=lantern-passages-1';
+import {WispFlight} from './flight.mjs?v=lantern-passages-1';
+import {COMPANION_ABILITIES,getCompanionAbility,getCompanionUnlock,normalizeCompanionRole} from './companion-abilities.mjs?v=lantern-passages-1';
+import {companionArtSvg} from './companion-art.mjs?v=lantern-passages-1';
+import {boostControlMarkup,updateBoostControl} from './boost-control.mjs?v=lantern-passages-1';
+import {campaignStrip,bossSigil,guardianRitualMarkup} from './campaign-ui.mjs?v=lantern-passages-1';
+import {resolveLevelIdentity} from './level-catalog.mjs?v=lantern-passages-1';
+import {levelMapGlyph,levelMapPreview} from './level-map-art.mjs?v=lantern-passages-1';
+import {getAscentInfo} from './ascent.mjs?v=lantern-passages-1';
+import {getRouteForecast} from './route-forecast.mjs?v=lantern-passages-1';
+import {MAP_STOP_TYPES,getMapStopInfo,mapStopIconMarkup,getEventScenarios} from './map-guide.mjs?v=lantern-passages-1';
+import {formatFlightDuration} from './level-length.mjs?v=lantern-passages-1';
+import {condensedIconMarkup} from './afterglow-ui.mjs?v=lantern-passages-1';
+import {pickupGuideMarkup,pickupLesson} from './pickup-guide.mjs?v=lantern-passages-1';
+import {pickupArtSvg} from './pickup-art.mjs?v=lantern-passages-1';
+import {createTutorialCoach} from './tutorial-coach.mjs?v=lantern-passages-1';
+import {getTutorialWorldFocus} from './tutorial.mjs?v=lantern-passages-1';
 if(window.parent!==window&&new URLSearchParams(location.search).has('hosted'))document.documentElement.dataset.framed='';
 const app=document.querySelector('#app'),header=document.querySelector('#header');
 const mockMode=new URLSearchParams(location.search).get('mock')==='rest';
@@ -256,7 +256,11 @@ function acceptDream(){
  const preset=dreamReady.preset;
  closeSheet();destroyFlight();launch(false,{preset});
 }
-function dreamAwake(){paused=true;document.querySelector('#pause-layer').innerHTML=`<button class="dream-awakening" data-action="dream-wake"><svg viewBox="0 0 32 32" fill="currentColor" aria-hidden="true"><path d="M8 5h5v22H8zM19 5h5v22h-5z"/></svg><span>Tap to resume</span><small>Then tap again to Lift</small></button>`}
+function dreamAwake(){paused=true;document.querySelector('#pause-layer').innerHTML=`<button class="dream-awakening" data-action="dream-wake"><svg viewBox="0 0 32 32" fill="currentColor" aria-hidden="true"><path d="M8 5h5v22H8zM19 5h5v22h-5z"/></svg><span>Tap to resume</span><small>Then tap again to Lift</small></button>`;teachLanternEntry()}
+function teachLanternEntry(){
+ const tip=lanternEntryLesson(state.settings,state.profile,state.run);
+ if(tip&&paused&&!lesson)startLesson(tip.id,tip.steps);
+}
 function wakeDream(){if(engine?.dream?.phase==='awakening'){resumeArmed=true;wakeFlight()}}
 
 function renderHome(){return homeMenuMarkup({profile:state.profile,run:state.run,selectedDifficulty,testOverride:state.settings.testOverride,testStarterCompanion:getStartingCompanion(state)})+testControls({showTutorialSkip:true})}
@@ -486,7 +490,7 @@ async function launch(retry=false,waking=null){
    document.querySelector('#pause-layer').replaceChildren();paused=false;
    if(markFlightAttemptStarted(r))persist();
    scene.resume();
-  }else resumeFlight({waitForTap:true});
+  }else{resumeFlight({waitForTap:true});if(!dream)teachLanternEntry();}
   if(r.isTutorial&&!dream&&!waking)requestAnimationFrame(()=>guideScreen('flight'));
   else if(!dream&&!waking&&!r.testMode&&automaticTipsEnabled(state.settings,r)&&!state.profile.onboarding?.seen?.includes('lift')&&(r.stats?.flights||0)===0&&r.mapIndex===0){
    noteOnboardingPrompt(r,'briefing');
@@ -584,7 +588,7 @@ function guideScreen(view){
 }
 
 let guidePage=0;
-const guidePages=[['flight','sparks','luminance','hearts','collector','utilities'],['companions','packed','skills','rewards','artifacts','rest'],['dream','routes','terrain','hazards','progression']];
+const guidePages=[['flight','sparks','luminance','hearts','collector','utilities'],['companions','packed','skills','rewards','artifacts','rest'],['dream','routes','terrain','hazards','lanterns','progression']];
 function showFieldGuide(page=guidePage){guidePage=Math.max(0,Math.min(2,Number(page)||0));pauseFlight();hideLesson();openSheet(`<header class="field-guide-heading"><h2>FIELD GUIDE <small>${['BASICS','YOUR BUILD','THE JOURNEY'][guidePage]}</small></h2><button class="secondary guide-practice" data-action="practice">Practice</button><button class="secondary" data-action="close-sheet" aria-label="Close Field Guide">×</button></header><div class="guide-topics">${guidePages[guidePage].map(id=>{const topic=TUTORIAL_TOPICS[id];return `<button class="secondary" data-action="guide-topic" data-id="${id}" aria-label="${esc(topic.name)}">${tutorialVisualMarkup({visual:topic.visual})}<strong>${esc(topic.name)}</strong><small>${topic.steps.length} small steps</small></button>`}).join('')}</div><footer class="guide-pages"><button class="secondary" data-action="guide-page" data-id="${guidePage-1}" ${guidePage===0?'disabled':''}>← Back</button><span>${guidePage+1} / 3</span><button class="primary" data-action="guide-page" data-id="${guidePage+1}" ${guidePage===2?'disabled':''}>Next →</button></footer>`,'field-guide-sheet')}
 
 function showGuideTopic(id){if(!TUTORIAL_TOPICS[id])return;closeSheet();startLesson('guide:'+id,id==='sparks'?resourceCycleSteps(state.run||{},getRunModifiers(state.run||{})):topicSteps(id),showFieldGuide)}

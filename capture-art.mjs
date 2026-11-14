@@ -1,7 +1,7 @@
-import {drawAbsorbingSpark} from './tidal-light.mjs?v=chapter-pressure-1';
-import {getPickupSpec, pickupShellRadius} from './pickups.mjs?v=chapter-pressure-1';
-import {drawPickup} from './pickup-art.mjs?v=chapter-pressure-1';
-import {drawShellArcs} from './shell-arcs.mjs?v=chapter-pressure-1';
+import {drawAbsorbingSpark} from './tidal-light.mjs?v=lantern-passages-1';
+import {getPickupSpec, pickupShellRadius} from './pickups.mjs?v=lantern-passages-1';
+import {drawPickup} from './pickup-art.mjs?v=lantern-passages-1';
+import {drawShellArcs} from './shell-arcs.mjs?v=lantern-passages-1';
 
 const TAU = Math.PI * 2;
 const clamp = value => Math.max(0, Math.min(1, value));

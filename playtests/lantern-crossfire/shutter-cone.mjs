@@ -1,6 +1,6 @@
-export { installShutters } from './lantern-layout.mjs?v=lantern-chain-1';
-import { LIGHT_PACKET_TUNING } from './vitality.mjs?v=lantern-chain-1';
-import { lightAttenuation } from './light-attenuation.mjs?v=lantern-chain-1';
+export { installShutters } from './lantern-layout.mjs?v=lantern-passages-1';
+import { LIGHT_PACKET_TUNING } from './vitality.mjs?v=lantern-passages-1';
+import { lightAttenuation } from './light-attenuation.mjs?v=lantern-passages-1';
 
 const clamp01 = value => Math.max(0, Math.min(1, value));
 const smooth = value => value * value * (3 - 2 * value);
@@ -297,8 +297,15 @@ function drawProjector(c, shutter, phase, aim, scale, quiet) {
   c.lineTo(6, 12); c.lineTo(11, 6); c.lineTo(12, -4); c.closePath(); c.fill();
   c.fillStyle = '#b7a387'; c.fillRect(-10, 4, 3, 5); c.fillRect(6, 5, 3, 4);
   c.fillStyle = '#f0dcb5'; c.fillRect(-aperture, 9, 2 * aperture, 2);
-  if (phase === 1 && !quiet) {
-    c.globalAlpha = .45 + .45 * aim; c.fillRect(-2, 13, 4, 2 + aim * 4);
+  if (phase === 1) {
+    // A widening pool of light on the lens telegraphs the opening in-world.
+    const radius = 14 + 12 * aim;
+    const halo = c.createRadialGradient(0, 9, 1, 0, 9, radius);
+    halo.addColorStop(0, 'rgba(255,230,166,.88)');
+    halo.addColorStop(.35, 'rgba(244,204,145,.36)');
+    halo.addColorStop(1, 'rgba(240,202,145,0)');
+    c.fillStyle = halo;
+    c.fillRect(-radius, 9-radius, radius*2, radius*2);
   }
   c.restore();
 }
@@ -322,21 +329,6 @@ export function drawShutters(c, engine, {
     const phase = shutterPhase(shutter, playerX);
     if (!phase) continue;
     const aim = clamp01((playerX - shutter.warningX) / (shutter.openX - shutter.warningX));
-    if (phase === 1) {
-      c.save();
-      c.strokeStyle = '#dac3a3'; c.globalAlpha = .3 + .48 * aim;
-      c.lineWidth = Math.max(1, boss.scale * 1.5);
-      for (const side of [-1, 1]) {
-        const dx = shutter.shift + side * shutter.spread, dy = -shutter.side * shutter.depth;
-        c.beginPath();
-        for (let k = 0; k < Math.ceil(2 + aim * 6); k++) {
-          const u = .09 + k * .116, v = u + .041;
-          c.moveTo(shutter.x + dx * u, shutter.y + dy * u); c.lineTo(shutter.x + dx * v, shutter.y + dy * v);
-        }
-        c.stroke();
-      }
-      c.restore();
-    }
     if (shutter.x >= distance - 24 && shutter.x <= distance + engine.width + 24) {
       drawProjector(c, shutter, phase, aim, boss.scale, engine.reducedMotion);
     }

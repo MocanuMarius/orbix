@@ -16,6 +16,10 @@ export const TUTORIAL_TOPICS={
  utilities:{name:'Flash & hazards',visual:'pickup:sight',steps:[
   s('Flash Powerup','Catch the white triangle. It follows on a thread, lighting the passage with each pulse. The puff means its light has run out.','pickup:sight'),
   s('Dusk Spark','The rose Dusk Spark trades reduced Luminance for fuel. Its red ring warns of the cost. Only body contact collects it.','pickup:dusk')]},
+ lanterns:{name:'Darkness Lanterns',visual:'lantern-icon',steps:[
+  s('Read the pair','Watch the roof and floor. A lens glows gold before it opens. The crossing is darkest where the two beams overlap.','lantern-pair'),
+  s('Cast a reverse shadow','Fly between a lantern and the rock. Your wisp blocks the darkness, leaving a wedge of light on the far side. Move sideways to sweep it across the rock.','lantern-wedge'),
+  s('Break through','Luminance widens the clear space around you. Catch the white Flash triangle before the crossing to see rock edges farther into the dark.','lantern-flash')]},
  terrain:{name:'Terrain & goals',visual:'route',steps:[
   s('Solid edges','Bright edges help separate collidable terrain from background scenery. Rock, trees and solid objects can end an unprotected attempt. Open sky only ends it once the whole wisp leaves the screen.','route'),
   s('Living scenery','A teal edge marks a helpful interaction. Blue marks a vent; orange warns of falling hazards. Biomes change the hazards: mushrooms, moving ice and falling masonry need different timing.','site:flight'),

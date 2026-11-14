@@ -1,58 +1,58 @@
-import {prepareAtlasFlight,resizeAtlasFlight,ringBellwind,bellwindAcceleration,moonLightScale,drawAtlasFlight} from './atlas-flight.mjs?v=chapter-pressure-1';
-import {canShowFlightHint} from './flight-hint-safety.mjs?v=chapter-pressure-1';
-import {updateGlideRegeneration} from './glide-regeneration.mjs?v=chapter-pressure-1';
-import {drawGuardianPresence} from './guardian-presence.mjs?v=chapter-pressure-1';
-import { updateGuardian, resizeGuardian, placeGuardianFuel } from './guardian-effects.mjs?v=chapter-pressure-1';
-import { drawGuardianWarnings } from './guardian-art.mjs?v=chapter-pressure-1';
-import { drawShutters } from './shutter-cone.mjs?v=chapter-pressure-1';
-import {drawProximityMeter} from './proximity-meter.mjs?v=chapter-pressure-1';
-import {drawFourthBeat} from './fourth-beat-art.mjs?v=chapter-pressure-1';
-import {drawCollectorGuard} from './collector-guard-art.mjs?v=chapter-pressure-1';
-import {buildObjectivePlan,createFlightObjective,drawObjectiveMarks} from './flight-objectives.mjs?v=chapter-pressure-1';
-import {FlightProjection,drawFlightProjection} from './flight-projection.mjs?v=chapter-pressure-1';
-import {drawGlowSense} from './glow-sense.mjs?v=chapter-pressure-1';
-import {formatGlow} from './vitality.mjs?v=chapter-pressure-1';
-import {installRiskChains} from './risk-chains.mjs?v=chapter-pressure-1';
-import {installSparkField} from './spark-fields.mjs?v=chapter-pressure-1';
-import {drawFallWarning} from './fall-chain-art.mjs?v=chapter-pressure-1';
-import {EXTRA_COURSES} from './world-expansion.mjs?v=chapter-pressure-1';
-import {BIOME_COURSES} from './biome-courses.mjs?v=chapter-pressure-1';
-import {BiomeDynamics} from './biome-dynamics.mjs?v=chapter-pressure-1';
-import {condenseGlow} from './condensed-glow.mjs?v=chapter-pressure-1';
-import {ensureGlowBudget,shapeExpeditionSupply} from './glow-budget.mjs?v=chapter-pressure-1';
-import {EdgingPulse} from './edging-pulse.mjs?v=chapter-pressure-1';
-import {isVowBodyPickup} from './contextual-events.mjs?v=chapter-pressure-1';
-import {FlightBoon} from './flight-boons.mjs?v=chapter-pressure-1';
-import {BlackHoles} from './black-holes.mjs?v=chapter-pressure-1';
-import {drawBlackHoles} from './black-hole-art.mjs?v=chapter-pressure-1';
-import {drawCapture, drawShellPuff} from './capture-art.mjs?v=chapter-pressure-1';
-import {drawShellArcs} from './shell-arcs.mjs?v=chapter-pressure-1';
-import {sparkBodyRadius,sparkArtScale,sparkMass} from './spark-size.mjs?v=chapter-pressure-1';
-import {captureMassDuration} from './tidal-light.mjs?v=chapter-pressure-1';
-import {readCaptureStyle} from './capture-styles.mjs?v=chapter-pressure-1';
+import {prepareAtlasFlight,resizeAtlasFlight,ringBellwind,bellwindAcceleration,moonLightScale,drawAtlasFlight} from './atlas-flight.mjs?v=lantern-passages-1';
+import {canShowFlightHint} from './flight-hint-safety.mjs?v=lantern-passages-1';
+import {updateGlideRegeneration} from './glide-regeneration.mjs?v=lantern-passages-1';
+import {drawGuardianPresence} from './guardian-presence.mjs?v=lantern-passages-1';
+import { updateGuardian, resizeGuardian, placeGuardianFuel } from './guardian-effects.mjs?v=lantern-passages-1';
+import { drawGuardianWarnings } from './guardian-art.mjs?v=lantern-passages-1';
+import { drawShutters } from './shutter-cone.mjs?v=lantern-passages-1';
+import {drawProximityMeter} from './proximity-meter.mjs?v=lantern-passages-1';
+import {drawFourthBeat} from './fourth-beat-art.mjs?v=lantern-passages-1';
+import {drawCollectorGuard} from './collector-guard-art.mjs?v=lantern-passages-1';
+import {buildObjectivePlan,createFlightObjective,drawObjectiveMarks} from './flight-objectives.mjs?v=lantern-passages-1';
+import {FlightProjection,drawFlightProjection} from './flight-projection.mjs?v=lantern-passages-1';
+import {drawGlowSense} from './glow-sense.mjs?v=lantern-passages-1';
+import {formatGlow} from './vitality.mjs?v=lantern-passages-1';
+import {installRiskChains} from './risk-chains.mjs?v=lantern-passages-1';
+import {installSparkField} from './spark-fields.mjs?v=lantern-passages-1';
+import {drawFallWarning} from './fall-chain-art.mjs?v=lantern-passages-1';
+import {EXTRA_COURSES} from './world-expansion.mjs?v=lantern-passages-1';
+import {BIOME_COURSES} from './biome-courses.mjs?v=lantern-passages-1';
+import {BiomeDynamics} from './biome-dynamics.mjs?v=lantern-passages-1';
+import {condenseGlow} from './condensed-glow.mjs?v=lantern-passages-1';
+import {ensureGlowBudget,shapeExpeditionSupply} from './glow-budget.mjs?v=lantern-passages-1';
+import {EdgingPulse} from './edging-pulse.mjs?v=lantern-passages-1';
+import {isVowBodyPickup} from './contextual-events.mjs?v=lantern-passages-1';
+import {FlightBoon} from './flight-boons.mjs?v=lantern-passages-1';
+import {BlackHoles} from './black-holes.mjs?v=lantern-passages-1';
+import {drawBlackHoles} from './black-hole-art.mjs?v=lantern-passages-1';
+import {drawCapture, drawShellPuff} from './capture-art.mjs?v=lantern-passages-1';
+import {drawShellArcs} from './shell-arcs.mjs?v=lantern-passages-1';
+import {sparkBodyRadius,sparkArtScale,sparkMass} from './spark-size.mjs?v=lantern-passages-1';
+import {captureMassDuration} from './tidal-light.mjs?v=lantern-passages-1';
+import {readCaptureStyle} from './capture-styles.mjs?v=lantern-passages-1';
 /* Emberwing's self-contained canvas flight simulation and renderer. */
-import { FLAME_TUNING, LIGHT_PACKET_TUNING } from './vitality.mjs?v=chapter-pressure-1';
-import { flightEndDistance } from './flight-end.mjs?v=chapter-pressure-1';
-import {getExitLandmarkState,drawExitLandmark} from './exit-landmark.mjs?v=chapter-pressure-1';
-import { WispCompanion, wispHome } from './wisp.mjs?v=chapter-pressure-1';
-import { getAscentInfo } from './ascent.mjs?v=chapter-pressure-1';
-import { LEVEL_LENGTH, getLevelLengthScale } from './level-length.mjs?v=chapter-pressure-1';
-import { resolveLevelIdentity } from './level-catalog.mjs?v=chapter-pressure-1';
-import { DraftField, DRAFT_TUNING } from './drafts.mjs?v=chapter-pressure-1';
-import { normalizeCompanionRole, normalizeCompanionFleet, getCompanionAbility } from './companion-abilities.mjs?v=chapter-pressure-1';
-import { populateSceneProps, scenePropPolygons } from './scene-props.mjs?v=chapter-pressure-1';
-import { pickupKind, getPickupSpec, pickupContactRadius, canCompanionCollect, flashPowerupDuration } from './pickups.mjs?v=chapter-pressure-1';
-import { createFlashTether, stepFlashTether, drawFlashTether, flashLightPulse } from './flash-tether.mjs?v=chapter-pressure-1';
-import { drawPickup, drawSparkSymbol } from './pickup-art.mjs?v=chapter-pressure-1';
-import { buildBossLayout, getBossState as bossState, drawBoss } from './boss.mjs?v=chapter-pressure-1';
-import { getAuthoredChallenge, finalizeFlightChallenges, installAuthoredDraftCrossings, FlightChallengeDirector } from './flight-challenges.mjs?v=chapter-pressure-1';
-import { installEncounterFamily } from './encounter-families.mjs?v=chapter-pressure-1';
-import { installFlightForks, resizeFlightForks } from './flight-forks.mjs?v=chapter-pressure-1';
-import { ArtifactEffects } from './artifact-effects.mjs?v=chapter-pressure-1';
-import { LIGHT_EXTENT,lightAttenuation,lightVisibility,createLightMaskCanvas,castFlightFlashLights,sceneRevealStrength,flashRangeStrength,pickupRevealHold,pickupRevealAt,renderLightState,lightDreamScenery } from './light-field.mjs?v=chapter-pressure-1';
+import { FLAME_TUNING, LIGHT_PACKET_TUNING } from './vitality.mjs?v=lantern-passages-1';
+import { flightEndDistance } from './flight-end.mjs?v=lantern-passages-1';
+import {getExitLandmarkState,drawExitLandmark} from './exit-landmark.mjs?v=lantern-passages-1';
+import { WispCompanion, wispHome } from './wisp.mjs?v=lantern-passages-1';
+import { getAscentInfo } from './ascent.mjs?v=lantern-passages-1';
+import { LEVEL_LENGTH, getLevelLengthScale } from './level-length.mjs?v=lantern-passages-1';
+import { resolveLevelIdentity } from './level-catalog.mjs?v=lantern-passages-1';
+import { DraftField, DRAFT_TUNING } from './drafts.mjs?v=lantern-passages-1';
+import { normalizeCompanionRole, normalizeCompanionFleet, getCompanionAbility } from './companion-abilities.mjs?v=lantern-passages-1';
+import { populateSceneProps, scenePropPolygons } from './scene-props.mjs?v=lantern-passages-1';
+import { pickupKind, getPickupSpec, pickupContactRadius, canCompanionCollect, flashPowerupDuration } from './pickups.mjs?v=lantern-passages-1';
+import { createFlashTether, stepFlashTether, drawFlashTether, flashLightPulse } from './flash-tether.mjs?v=lantern-passages-1';
+import { drawPickup, drawSparkSymbol } from './pickup-art.mjs?v=lantern-passages-1';
+import { buildBossLayout, getBossState as bossState, drawBoss } from './boss.mjs?v=lantern-passages-1';
+import { getAuthoredChallenge, finalizeFlightChallenges, installAuthoredDraftCrossings, FlightChallengeDirector } from './flight-challenges.mjs?v=lantern-passages-1';
+import { installEncounterFamily } from './encounter-families.mjs?v=lantern-passages-1';
+import { installFlightForks, resizeFlightForks } from './flight-forks.mjs?v=lantern-passages-1';
+import { ArtifactEffects } from './artifact-effects.mjs?v=lantern-passages-1';
+import { LIGHT_EXTENT,lightAttenuation,lightVisibility,createLightMaskCanvas,castFlightFlashLights,revealLanternWake,sceneRevealStrength,flashRangeStrength,pickupRevealHold,pickupRevealAt,renderLightState,lightDreamScenery } from './light-field.mjs?v=lantern-passages-1';
 import { createTutorialState, buildTutorialLayout, recordTutorialPickup,
-  updateTutorial, updateTutorialCompanion, getTutorialHint } from './tutorial.mjs?v=chapter-pressure-1';
-export { FLAME_TUNING } from './vitality.mjs?v=chapter-pressure-1';
+  updateTutorial, updateTutorialCompanion, getTutorialHint } from './tutorial.mjs?v=lantern-passages-1';
+export { FLAME_TUNING } from './vitality.mjs?v=lantern-passages-1';
 const TAU = Math.PI * 2;
 const STEP = 1 / 60;
 const FALLBACK_WISP_RADIUS = 17;
@@ -64,7 +64,7 @@ const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
 const lerp = (a, b, t) => a + (b - a) * t;
 export const FLIGHT_TUNING = Object.freeze({ gravity: 300, flapImpulse: 205,
   forwardSpeed: 154, terminalFall: 245, pickupRadius: LIGHT_PACKET_TUNING.pickupRadius });
-export { DRAFT_TUNING } from './drafts.mjs?v=chapter-pressure-1';
+export { DRAFT_TUNING } from './drafts.mjs?v=lantern-passages-1';
 // Retain the public tuning name for consumers; wind now has no global cycle.
 export const WIND_TUNING = DRAFT_TUNING;
 
@@ -959,7 +959,7 @@ export class WispFlight {
 
   async initPixelView() {
     try {
-      const { WispFlightView } = await import('./wisp-renderer.mjs?v=chapter-pressure-1');
+      const { WispFlightView } = await import('./wisp-renderer.mjs?v=lantern-passages-1');
       if (this.destroyed) return;
       this.pixiView = new WispFlightView(this);
       const initialized = await this.pixiView.init();
@@ -2204,6 +2204,7 @@ export class WispFlight {
     this.drawPortal(c,W,H);
     if(light.rehearsing)lightDreamScenery(c,W,H);
     this.drawEmbers(c);
+    this.drawForeground(c,W,H);
     if(!light.rehearsing)this.drawFallbackLight(c,light);
     drawFallWarning(c,this,{light});
     this.drawWayfinder(c);
@@ -2215,7 +2216,12 @@ export class WispFlight {
     if(!light.rehearsing)drawGlowSense(c,this);
     this.drawFlightTrail(c);
     this.drawParticles(c);
-    drawShutters(c,this);
+    if(!light.rehearsing){
+      const vignette = c.createRadialGradient(W / 2, H * .43, W * .3, W / 2, H * .45, H * .8);
+      vignette.addColorStop(0, 'rgba(5,12,24,0)'); vignette.addColorStop(1, 'rgba(5,12,24,.36)');
+      c.fillStyle = vignette; c.fillRect(0, 0, W, H);
+    }
+    drawShutters(c,this,{light});
     this.drawWisp(c);
     this.drawPhoenix(c);
     if(!light.rehearsing)this.drawPickups(c);
@@ -2225,14 +2231,10 @@ export class WispFlight {
       drawCapture(c,effect,this.captureTime,this.player.x,this.renderPlayerY,this.renderDistance,1,this.reducedMotion,FALLBACK_WISP_RADIUS*WISP_BODY_SCALE);
     }
     drawBlackHoles(c,this);
-    this.drawForeground(c, W, H);
     c.restore();
     if (this.flash > 0) { c.fillStyle = `rgba(255,196,149,${this.flash * .36})`; c.fillRect(0, 0, W, H); }
     if (light.rehearsing) return;
     drawProximityMeter(c,this);
-    const vignette = c.createRadialGradient(W / 2, H * .43, W * .3, W / 2, H * .45, H * .8);
-    vignette.addColorStop(0, 'rgba(5,12,24,0)'); vignette.addColorStop(1, 'rgba(5,12,24,.36)');
-    c.fillStyle = vignette; c.fillRect(0, 0, W, H);
   }
 
   drawWayfinder(c,scale=1){ this.flightBoon.drawSurvey(c,scale,obstaclePolygons); }
@@ -2252,6 +2254,7 @@ export class WispFlight {
     if(forward.active)cast(forward.x,forward.y+y-this.player.y,forward.radius,forward.intensity*light.intensity);
     if(light.landmarkLight){const source=light.landmarkLight;cast(source.x,source.y,source.radius,source.intensity);}
     castFlightFlashLights(f,this.fallbackMask,this,light,1,this.renderDistance??this.distance,y);
+    revealLanternWake(f,this,{distance:this.renderDistance??this.distance,playerY:y,light});
     const dim=clamp(light.radius/light.baseRadius,.6,1);
     for(const orb of this.getCompanionStates(y,this.visualTime??this.time,this.renderBlend)){
       const collector=orb.role==='collector',r=(collector?orb.phase==='cooldown'?17+orb.recovery*10:31:19)*dim;

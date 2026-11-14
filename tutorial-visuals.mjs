@@ -1,13 +1,13 @@
-import {resourceCycleArt} from './resource-cycle.mjs?v=chapter-pressure-1';
-import {getCompanionAbility} from './companion-abilities.mjs?v=chapter-pressure-1';
-import {resourceSymbol} from './game-symbols.mjs?v=chapter-pressure-1';
-import {pickupArtSvg} from './pickup-art.mjs?v=chapter-pressure-1';
-import {getPickupSpec} from './pickups.mjs?v=chapter-pressure-1';
-import {mapStopIconMarkup,MAP_STOP_TYPES} from './map-guide.mjs?v=chapter-pressure-1';
-import {artifactIcon,skillIcon} from './upgrade-icons.mjs?v=chapter-pressure-1';
-import {companionArtSvg} from './companion-art.mjs?v=chapter-pressure-1';
-import {dreamEye} from './dream.mjs?v=chapter-pressure-1';
-import {lifeHeartSvg} from './lives.mjs?v=chapter-pressure-1';
+import {resourceCycleArt} from './resource-cycle.mjs?v=lantern-passages-1';
+import {getCompanionAbility} from './companion-abilities.mjs?v=lantern-passages-1';
+import {resourceSymbol} from './game-symbols.mjs?v=lantern-passages-1';
+import {pickupArtSvg} from './pickup-art.mjs?v=lantern-passages-1';
+import {getPickupSpec} from './pickups.mjs?v=lantern-passages-1';
+import {mapStopIconMarkup,MAP_STOP_TYPES} from './map-guide.mjs?v=lantern-passages-1';
+import {artifactIcon,skillIcon} from './upgrade-icons.mjs?v=lantern-passages-1';
+import {companionArtSvg} from './companion-art.mjs?v=lantern-passages-1';
+import {dreamEye} from './dream.mjs?v=lantern-passages-1';
+import {lifeHeartSvg} from './lives.mjs?v=lantern-passages-1';
 const item=(art,label)=>`<span class="coach-term">${art}<b>${label}</b></span>`;
 const arrow='<i class="coach-term-arrow" aria-hidden="true">→</i>';
 const meter='<span class="coach-meter" aria-hidden="true">'+Array.from({length:10},(_,i)=>`<i class="${i<7?'filled':''}"></i>`).join('')+'</span>';
@@ -15,6 +15,7 @@ const meter='<span class="coach-meter" aria-hidden="true">'+Array.from({length:1
 export function tutorialVisualMarkup(step={}){
  const id=String(step.id||''),kind=step.visual||({'flight':'lift','flight-wind':'collector','practice-condensation':'packed','practice-lives':'life','practice-route':'route','practice-rest-route':'rest','practice-rest-choice':'rest','practice-rest-tools':'tools','practice-dream':'dream','practice-reward':'artifact','practice-skill-tree':'skills','practice-symbols':'sites'})[id.split(':')[0]];
  if(kind==='resource-cycle')return resourceCycleArt(step.cycle);
+ if(kind==='lantern-icon')return '<img class="guide-lantern-icon" src="assets/lantern-wedge.png" width="55" height="33" alt="">';
  if(kind==='spark-storage')return item(pickupArtSvg('cluster'),'Spark')+arrow+item(resourceSymbol('packed'),'Stored Sparks');
  if(kind?.startsWith('collector-')){
   const recovery=kind==='collector-recovery',returning=kind==='collector-return';
