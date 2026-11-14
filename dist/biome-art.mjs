@@ -1,4 +1,4 @@
-import {pineCrown} from './pixel-contour.mjs?v=lantern-passages-1';
+import {pineCrown} from './pixel-contour.mjs?v=lantern-chapter-1';
 // Original pixel scenery. Backdrops and solid materials are rasterized by the
 // existing renderer caches; only a few matte weather pixels animate each frame.
 // Nothing here emits light or draws outside the simulation's solid silhouettes.
@@ -121,6 +121,23 @@ export function drawBiomeMaterial(c,{identity,surface,top,palette:p,width:W,heig
  }
  for(let y=2;y<H;y+=7)for(let x=2;x<W;x+=6){const q=n(x+y*43,seed);if(q<.16)box(x,y,1,q<.04?2:1,q<.06?p.grain:p.shade);}
  if(hardEntry){const x=surface[Math.floor(surface.length*.25)][0],y=at(x);for(let i=0;i<3;i++)line(x+i*5,y+sign*10,x+i*5+3,y+sign*5,p.rim);}
+ // Shelter vegetation on gentle ledges. Bind the roots, strata and tips
+ // to the cached surface so they cannot slide as the camera moves.
+ const moss=['pinewood','marsh','fungal','thorn','moonruins','cemetery'].includes(biome);
+ for(let i=3;i<surface.length-3;i+=3){
+  const [x,y]=surface[i],next=surface[i+1],slope=(next[1]-y)/(next[0]-x||1);
+  const pick=n(i,seed);
+  if(Math.abs(slope)>.7||pick>.7)continue;
+  if(moss){
+   const mossInk=biome==='fungal'?'#887565':'#78815f';
+   line(x-2,y+sign*3,x+4,y+sign*3,mossInk,2);
+   line(x,y+sign*4,x-1,y+sign,mossInk);
+   line(x+3,y+sign*4,x+5,y+sign,p.grain);
+  }else{
+   const depth=5+Math.floor(pick*16),run=4+Math.floor(n(i+14,seed)*10);
+   line(x,y+sign*depth,x+run,at(x+run)+sign*(depth+2),p.grain);
+  }
+ }
  return true;
 }
 

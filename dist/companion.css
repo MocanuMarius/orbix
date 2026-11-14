@@ -149,6 +149,8 @@ html body .companion-sheet .companion-role:disabled {
   opacity: 1 !important;
   filter: none;
 }
+.companion-sheet .roster-lock { position: absolute; top: 4px; right: 5px; }
+.companion-sheet .roster-lock svg { width: 11px; height: 13px; }
 html body .companion-sheet .companion-role > .companion-portrait {
   width: 38px;
   height: 38px;

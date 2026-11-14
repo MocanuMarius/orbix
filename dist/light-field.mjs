@@ -1,12 +1,13 @@
-import {drawShutterWake,shutterLightFactor,shutterWakeAt} from './shutter-cone.mjs?v=lantern-passages-1';
-import { LIGHT_EXTENT, lightAttenuation } from './light-attenuation.mjs?v=lantern-passages-1';
+import {drawShutterWake,shutterLightFactor,shutterWakeAt} from './shutter-cone.mjs?v=lantern-chapter-1';
+import {lanternField} from './lantern-layout.mjs?v=lantern-chapter-1';
+import { LIGHT_EXTENT, lightAttenuation } from './light-attenuation.mjs?v=lantern-chapter-1';
 export { LIGHT_EXTENT, lightAttenuation };
 const reflectedLight = .6;
 
 // Lift a little of the ordinary fog where the body intercepts a dark beam,
 // revealing the rock texture already drawn underneath.
 export function revealLanternWake(fog,engine,options) {
-  if (!engine.layout?.boss?.shutters?.length) return;
+  if (!lanternField(engine.layout)?.shutters?.length) return;
   fog.save();
   fog.globalAlpha = reflectedLight;
   fog.globalCompositeOperation = 'destination-out';
@@ -96,7 +97,7 @@ export function lightVisibility(engine,light,x,y,playerY=engine.player.y,include
     const lx=x-landmark.x,ly=y-landmark.y;
     dark*=1-lightAttenuation((lx*lx+ly*ly)/(landmark.radius*landmark.radius))*(landmark.intensity??1);
   }
-  const boss=engine.layout?.boss;
+  const boss=lanternField(engine.layout);
   const ambient=1-dark*(1-sceneRevealStrength(light));
   if (!boss?.shutters?.length) return ambient;
   const worldX=engine.distance+x, playerX=engine.distance+engine.player.x;

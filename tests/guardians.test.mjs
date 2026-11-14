@@ -37,6 +37,37 @@ function stepAt(engine, worldX, y) {
   engine.step(dt);
 }
 
+test('Hollow Sun route flights use paired lanterns and an accessible Flash without starting a guardian fight',()=>{
+  const canvas={style:{},getContext:()=>({setTransform(){}}),getBoundingClientRect:()=>({width:900,height:405})};
+  for(const [row,elite,count] of [[0,false,1],[3,false,2],[5,false,3],[3,true,3]]){
+    const e=new WispFlight({canvas,preflight:true,node:{row,mapTheme:'darkness-lanterns'},
+      elite,terrain:'canopy',seed:7,duration:64});
+    const field=e.layout.lanternEncounter;
+    assert.equal(e.bossEncounter,false);
+    assert.equal(e.layout.boss,undefined);
+    assert.equal(field.rooms.length,count);
+    const flash=e.flashProps.find(p=>p.feature==='lantern-flash');
+    assert.ok(flash.x<field.rooms.at(-1).x && e.objectiveBodyClear(flash.x,flash.y,21));
+    for(const room of field.rooms){
+      const lanterns=field.shutters.filter(s=>s.room===room);
+      assert.deepEqual(lanterns.map(s=>s.side),[-1,1]);
+      let overlap=0;
+      for(let x=room.x;x<room.x+room.width*1.8;x+=8){
+        const y=lanternPassageY(room,x);
+        assert.ok(e.objectiveBodyClear(x,y,17));
+        overlap=Math.max(overlap,Math.min(...lanterns.map(s=>shutterDensityAt(s,x,y,x,field.speed))));
+      }
+      assert.ok(overlap>.5);
+    }
+    const s=field.shutters[0];
+    place(e,s.openX+field.speed*.9,s.y);
+    const x=s.x+s.shift*.45, y=s.y-s.side*s.depth*.45;
+    assert.ok(lightVisibility(e,{intensity:1,edgingReveal:1},x-e.distance,y)<.9);
+  }
+  const other=new WispFlight({canvas,preflight:true,node:{row:3},elite:true,terrain:'storm',seed:7,duration:64});
+  assert.equal(other.layout.lanternEncounter,undefined);
+});
+
 test('guardian order is seeded and spans three different encounters', () => {
   for (let seed = 1; seed < 100; seed++) {
     const ids = [0, 1, 2].map(i => getGuardianForMap(seed, i).id);

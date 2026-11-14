@@ -1,58 +1,59 @@
-import {prepareAtlasFlight,resizeAtlasFlight,ringBellwind,bellwindAcceleration,moonLightScale,drawAtlasFlight} from './atlas-flight.mjs?v=lantern-passages-1';
-import {canShowFlightHint} from './flight-hint-safety.mjs?v=lantern-passages-1';
-import {updateGlideRegeneration} from './glide-regeneration.mjs?v=lantern-passages-1';
-import {drawGuardianPresence} from './guardian-presence.mjs?v=lantern-passages-1';
-import { updateGuardian, resizeGuardian, placeGuardianFuel } from './guardian-effects.mjs?v=lantern-passages-1';
-import { drawGuardianWarnings } from './guardian-art.mjs?v=lantern-passages-1';
-import { drawShutters } from './shutter-cone.mjs?v=lantern-passages-1';
-import {drawProximityMeter} from './proximity-meter.mjs?v=lantern-passages-1';
-import {drawFourthBeat} from './fourth-beat-art.mjs?v=lantern-passages-1';
-import {drawCollectorGuard} from './collector-guard-art.mjs?v=lantern-passages-1';
-import {buildObjectivePlan,createFlightObjective,drawObjectiveMarks} from './flight-objectives.mjs?v=lantern-passages-1';
-import {FlightProjection,drawFlightProjection} from './flight-projection.mjs?v=lantern-passages-1';
-import {drawGlowSense} from './glow-sense.mjs?v=lantern-passages-1';
-import {formatGlow} from './vitality.mjs?v=lantern-passages-1';
-import {installRiskChains} from './risk-chains.mjs?v=lantern-passages-1';
-import {installSparkField} from './spark-fields.mjs?v=lantern-passages-1';
-import {drawFallWarning} from './fall-chain-art.mjs?v=lantern-passages-1';
-import {EXTRA_COURSES} from './world-expansion.mjs?v=lantern-passages-1';
-import {BIOME_COURSES} from './biome-courses.mjs?v=lantern-passages-1';
-import {BiomeDynamics} from './biome-dynamics.mjs?v=lantern-passages-1';
-import {condenseGlow} from './condensed-glow.mjs?v=lantern-passages-1';
-import {ensureGlowBudget,shapeExpeditionSupply} from './glow-budget.mjs?v=lantern-passages-1';
-import {EdgingPulse} from './edging-pulse.mjs?v=lantern-passages-1';
-import {isVowBodyPickup} from './contextual-events.mjs?v=lantern-passages-1';
-import {FlightBoon} from './flight-boons.mjs?v=lantern-passages-1';
-import {BlackHoles} from './black-holes.mjs?v=lantern-passages-1';
-import {drawBlackHoles} from './black-hole-art.mjs?v=lantern-passages-1';
-import {drawCapture, drawShellPuff} from './capture-art.mjs?v=lantern-passages-1';
-import {drawShellArcs} from './shell-arcs.mjs?v=lantern-passages-1';
-import {sparkBodyRadius,sparkArtScale,sparkMass} from './spark-size.mjs?v=lantern-passages-1';
-import {captureMassDuration} from './tidal-light.mjs?v=lantern-passages-1';
-import {readCaptureStyle} from './capture-styles.mjs?v=lantern-passages-1';
+import {prepareAtlasFlight,resizeAtlasFlight,ringBellwind,bellwindAcceleration,moonLightScale,drawAtlasFlight} from './atlas-flight.mjs?v=lantern-chapter-1';
+import {canShowFlightHint} from './flight-hint-safety.mjs?v=lantern-chapter-1';
+import {updateGlideRegeneration} from './glide-regeneration.mjs?v=lantern-chapter-1';
+import {drawGuardianPresence} from './guardian-presence.mjs?v=lantern-chapter-1';
+import { updateGuardian, resizeGuardian, placeGuardianFuel } from './guardian-effects.mjs?v=lantern-chapter-1';
+import { drawGuardianWarnings } from './guardian-art.mjs?v=lantern-chapter-1';
+import { drawShutters, resizeShutters } from './shutter-cone.mjs?v=lantern-chapter-1';
+import { inLanternRoom, installPassageLanterns, lanternField } from './lantern-layout.mjs?v=lantern-chapter-1';
+import {drawProximityMeter} from './proximity-meter.mjs?v=lantern-chapter-1';
+import {drawFourthBeat} from './fourth-beat-art.mjs?v=lantern-chapter-1';
+import {drawCollectorGuard} from './collector-guard-art.mjs?v=lantern-chapter-1';
+import {buildObjectivePlan,createFlightObjective,drawObjectiveMarks} from './flight-objectives.mjs?v=lantern-chapter-1';
+import {FlightProjection,drawFlightProjection} from './flight-projection.mjs?v=lantern-chapter-1';
+import {drawGlowSense} from './glow-sense.mjs?v=lantern-chapter-1';
+import {formatGlow} from './vitality.mjs?v=lantern-chapter-1';
+import {installRiskChains} from './risk-chains.mjs?v=lantern-chapter-1';
+import {installSparkField} from './spark-fields.mjs?v=lantern-chapter-1';
+import {drawFallWarning} from './fall-chain-art.mjs?v=lantern-chapter-1';
+import {EXTRA_COURSES} from './world-expansion.mjs?v=lantern-chapter-1';
+import {BIOME_COURSES} from './biome-courses.mjs?v=lantern-chapter-1';
+import {BiomeDynamics} from './biome-dynamics.mjs?v=lantern-chapter-1';
+import {condenseGlow} from './condensed-glow.mjs?v=lantern-chapter-1';
+import {ensureGlowBudget,shapeExpeditionSupply} from './glow-budget.mjs?v=lantern-chapter-1';
+import {EdgingPulse} from './edging-pulse.mjs?v=lantern-chapter-1';
+import {isVowBodyPickup} from './contextual-events.mjs?v=lantern-chapter-1';
+import {FlightBoon} from './flight-boons.mjs?v=lantern-chapter-1';
+import {BlackHoles} from './black-holes.mjs?v=lantern-chapter-1';
+import {drawBlackHoles} from './black-hole-art.mjs?v=lantern-chapter-1';
+import {drawCapture, drawShellPuff} from './capture-art.mjs?v=lantern-chapter-1';
+import {drawShellArcs} from './shell-arcs.mjs?v=lantern-chapter-1';
+import {sparkBodyRadius,sparkArtScale,sparkMass} from './spark-size.mjs?v=lantern-chapter-1';
+import {captureMassDuration} from './tidal-light.mjs?v=lantern-chapter-1';
+import {readCaptureStyle} from './capture-styles.mjs?v=lantern-chapter-1';
 /* Emberwing's self-contained canvas flight simulation and renderer. */
-import { FLAME_TUNING, LIGHT_PACKET_TUNING } from './vitality.mjs?v=lantern-passages-1';
-import { flightEndDistance } from './flight-end.mjs?v=lantern-passages-1';
-import {getExitLandmarkState,drawExitLandmark} from './exit-landmark.mjs?v=lantern-passages-1';
-import { WispCompanion, wispHome } from './wisp.mjs?v=lantern-passages-1';
-import { getAscentInfo } from './ascent.mjs?v=lantern-passages-1';
-import { LEVEL_LENGTH, getLevelLengthScale } from './level-length.mjs?v=lantern-passages-1';
-import { resolveLevelIdentity } from './level-catalog.mjs?v=lantern-passages-1';
-import { DraftField, DRAFT_TUNING } from './drafts.mjs?v=lantern-passages-1';
-import { normalizeCompanionRole, normalizeCompanionFleet, getCompanionAbility } from './companion-abilities.mjs?v=lantern-passages-1';
-import { populateSceneProps, scenePropPolygons } from './scene-props.mjs?v=lantern-passages-1';
-import { pickupKind, getPickupSpec, pickupContactRadius, canCompanionCollect, flashPowerupDuration } from './pickups.mjs?v=lantern-passages-1';
-import { createFlashTether, stepFlashTether, drawFlashTether, flashLightPulse } from './flash-tether.mjs?v=lantern-passages-1';
-import { drawPickup, drawSparkSymbol } from './pickup-art.mjs?v=lantern-passages-1';
-import { buildBossLayout, getBossState as bossState, drawBoss } from './boss.mjs?v=lantern-passages-1';
-import { getAuthoredChallenge, finalizeFlightChallenges, installAuthoredDraftCrossings, FlightChallengeDirector } from './flight-challenges.mjs?v=lantern-passages-1';
-import { installEncounterFamily } from './encounter-families.mjs?v=lantern-passages-1';
-import { installFlightForks, resizeFlightForks } from './flight-forks.mjs?v=lantern-passages-1';
-import { ArtifactEffects } from './artifact-effects.mjs?v=lantern-passages-1';
-import { LIGHT_EXTENT,lightAttenuation,lightVisibility,createLightMaskCanvas,castFlightFlashLights,revealLanternWake,sceneRevealStrength,flashRangeStrength,pickupRevealHold,pickupRevealAt,renderLightState,lightDreamScenery } from './light-field.mjs?v=lantern-passages-1';
+import { FLAME_TUNING, LIGHT_PACKET_TUNING } from './vitality.mjs?v=lantern-chapter-1';
+import { flightEndDistance } from './flight-end.mjs?v=lantern-chapter-1';
+import {getExitLandmarkState,drawExitLandmark} from './exit-landmark.mjs?v=lantern-chapter-1';
+import { WispCompanion, wispHome } from './wisp.mjs?v=lantern-chapter-1';
+import { getAscentInfo } from './ascent.mjs?v=lantern-chapter-1';
+import { LEVEL_LENGTH, getLevelLengthScale } from './level-length.mjs?v=lantern-chapter-1';
+import { resolveLevelIdentity } from './level-catalog.mjs?v=lantern-chapter-1';
+import { DraftField, DRAFT_TUNING } from './drafts.mjs?v=lantern-chapter-1';
+import { normalizeCompanionRole, normalizeCompanionFleet, getCompanionAbility } from './companion-abilities.mjs?v=lantern-chapter-1';
+import { populateSceneProps, scenePropPolygons } from './scene-props.mjs?v=lantern-chapter-1';
+import { pickupKind, getPickupSpec, pickupContactRadius, canCompanionCollect, flashPowerupDuration } from './pickups.mjs?v=lantern-chapter-1';
+import { createFlashTether, stepFlashTether, drawFlashTether, flashLightPulse } from './flash-tether.mjs?v=lantern-chapter-1';
+import { drawPickup, drawSparkSymbol } from './pickup-art.mjs?v=lantern-chapter-1';
+import { buildBossLayout, getBossState as bossState, drawBoss } from './boss.mjs?v=lantern-chapter-1';
+import { getAuthoredChallenge, finalizeFlightChallenges, installAuthoredDraftCrossings, FlightChallengeDirector } from './flight-challenges.mjs?v=lantern-chapter-1';
+import { installEncounterFamily } from './encounter-families.mjs?v=lantern-chapter-1';
+import { installFlightForks, resizeFlightForks } from './flight-forks.mjs?v=lantern-chapter-1';
+import { ArtifactEffects } from './artifact-effects.mjs?v=lantern-chapter-1';
+import { LIGHT_EXTENT,lightAttenuation,lightVisibility,createLightMaskCanvas,castFlightFlashLights,revealLanternWake,sceneRevealStrength,flashRangeStrength,pickupRevealHold,pickupRevealAt,renderLightState,lightDreamScenery } from './light-field.mjs?v=lantern-chapter-1';
 import { createTutorialState, buildTutorialLayout, recordTutorialPickup,
-  updateTutorial, updateTutorialCompanion, getTutorialHint } from './tutorial.mjs?v=lantern-passages-1';
-export { FLAME_TUNING } from './vitality.mjs?v=lantern-passages-1';
+  updateTutorial, updateTutorialCompanion, getTutorialHint } from './tutorial.mjs?v=lantern-chapter-1';
+export { FLAME_TUNING } from './vitality.mjs?v=lantern-chapter-1';
 const TAU = Math.PI * 2;
 const STEP = 1 / 60;
 const FALLBACK_WISP_RADIUS = 17;
@@ -64,7 +65,7 @@ const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
 const lerp = (a, b, t) => a + (b - a) * t;
 export const FLIGHT_TUNING = Object.freeze({ gravity: 300, flapImpulse: 205,
   forwardSpeed: 154, terminalFall: 245, pickupRadius: LIGHT_PACKET_TUNING.pickupRadius });
-export { DRAFT_TUNING } from './drafts.mjs?v=lantern-passages-1';
+export { DRAFT_TUNING } from './drafts.mjs?v=lantern-chapter-1';
 // Retain the public tuning name for consumers; wind now has no global cycle.
 export const WIND_TUNING = DRAFT_TUNING;
 
@@ -334,6 +335,10 @@ function makeCourseLandform(width, scale, top, variant, terrain, passage, form, 
       const blend = 1 - clamp((distance - .20) / .62, 0, 1);
       depth *= 1 - blend * blend * (3 - 2 * blend);
     }
+    // Let the rock descend out of frame at each shoulder. A vertical
+    // closing edge at the old endpoint could show as an unfinished cliff.
+    const apron=clamp(Math.max((-.44-nx)/.36,(nx-2.09)/.36),0,1);
+    depth+=(900*scale-depth)*apron*apron*(3-2*apron);
     point[1] = side * Math.max(0, depth);
   }
   return shape;
@@ -403,7 +408,7 @@ function carveCachePocket(obstacle, side, first, rich, height) {
 export function buildFlightLayout({ seed = 1, terrain = 'ruins', elite = false,
   duration = 38, speed = 154, height = 620, passage = 'open', fuelCadence = 3,
   levelId, stage = 0, difficulty = 1, mapIndex = 0, lengthScale = 1, encounterFamily = null, gentleOpening = false,
-  fallPhysics,allowFall=true } = {}) {
+  fallPhysics,allowFall=true,mapTheme=null } = {}) {
   const ascent = getAscentInfo({ row: stage, difficulty });
   const legCount = lengthScale === LEVEL_LENGTH.multiplier ? LEVEL_LENGTH.multiplier : 1;
   const identity = resolveLevelIdentity(levelId, terrain, seed);
@@ -524,6 +529,8 @@ export function buildFlightLayout({ seed = 1, terrain = 'ruins', elite = false,
         course.rest, recovery++, leg.end, leg.index)) { /* recover to the next leg */ }
     }
   }
+  const lanternEncounter = mapTheme === 'darkness-lanterns' ? installPassageLanterns({obstacles,sections,embers},
+    {height,speed,row:stage,elite,hit:circleHitsObstacle}) : null;
   const loot = seededRandom(`${seed}:ember-routes`);
   const cadence = clamp(Math.round(fuelCadence), 2, 4);
   const quietSection = Math.floor(loot() * cadence);
@@ -538,7 +545,7 @@ export function buildFlightLayout({ seed = 1, terrain = 'ruins', elite = false,
       if (!quiet) formerBudget += 1 + ((terrain === 'canopy' && i % 3 === 2) || i % 4 === 1 ? 1 : 0);
     }
     const usable = obstacles.map((obstacle, anchor) => ({ obstacle, anchor }))
-      .filter(({ obstacle }) => obstacle.cacheEligible && (obstacle.bottomShape || obstacle.topShape)).map(({ anchor }) => anchor);
+      .filter(({ obstacle }) => obstacle.cacheEligible && !obstacle.reservedLantern && (obstacle.bottomShape || obstacle.topShape)).map(({ anchor }) => anchor);
     const cacheCount = clamp(Math.round(formerBudget * .62), Math.min(2, usable.length), usable.length);
     const sites = Array.from({ length: cacheCount }, (_, i) => usable[Math.round(i * (usable.length - 1) / Math.max(1, cacheCount - 1))]);
     let heart = Math.max(1, Math.floor(cacheCount * .43));
@@ -717,6 +724,7 @@ export function buildFlightLayout({ seed = 1, terrain = 'ruins', elite = false,
     legs: legs.map(leg => ({ ...leg, hardWindows: sections.filter(section => section.hard && section.leg === leg.index).length })),
     requestedHardWindowsPerLeg: requestedWindows, requestedHardWindows: requestedWindows * legCount,
     hardWindows: sections.filter(section => section.hard).length };
+  if (lanternEncounter) layout.lanternEncounter = lanternEncounter;
   finalizeFlightChallenges(layout,{terrain,basic:stage===0&&!elite&&mapIndex===0&&difficulty<=1});
   addAccessibleGlow(layout,{duration,speed,height,elite,difficulty,stage,passage});
   installRiskChains(layout,{duration,speed,height,elite,difficulty,stage,mapIndex,fallPhysics,allowFall},(x,y,radius)=>
@@ -875,7 +883,7 @@ export class WispFlight {
         elite: this.elite, duration: this.duration, speed: FLIGHT_TUNING.forwardSpeed,
         height: this.height, gapScale: this.ascentInfo.hardGapScale,
         difficulty: this.ascentInfo.difficulty, mapIndex:route.mapIndex, levelIdentity: this.levelIdentity, circleHitsPolygon,bossId:route.bossId })
-      : buildFlightLayout({ seed: this.seed, terrain: this.terrain,
+      : buildFlightLayout({ seed: this.seed, terrain: this.terrain, mapTheme: route.mapTheme,
         elite: this.elite, duration: this.duration, speed: FLIGHT_TUNING.forwardSpeed, height: this.height,
         passage: this.passage, fuelCadence: this.fuelCadence,allowFall:this.onboardingPlan?.badSparks!==false && this.onboardingPlan?.specialSparks!==false,
         fallPhysics:{speed:this.baseSpeed,gravity:FLIGHT_TUNING.gravity*this.scaleY*clamp(Number(this.mod.gravity)||1,.8,1.2),
@@ -896,6 +904,7 @@ export class WispFlight {
     // A snare is a readable steering choice, not a forced gust into its seed.
     if(this.layout.riskChains?.length)this.drafts.zones=this.drafts.zones.filter(zone=>
       this.layout.riskChains.every(chain=>zone.x+zone.rx<chain.start-140||zone.x-zone.rx>chain.end+140));
+    if(this.layout.lanternEncounter)this.drafts.zones=this.drafts.zones.filter(zone=>!inLanternRoom(this.layout,zone.x,zone.rx));
     const bodyClear=(x,y,r)=>y>r+28&&y<this.height-r-28&&this.layout.obstacles.every(o=>o.destroyed
       ||x+r<o.x-o.width||x-r>o.x+o.width*2.5
       ||[-1,1].every(sign=>!circleHitsObstacle(x,y,r,o,0,o.center+sign*Math.abs(o.motion||0))));
@@ -914,7 +923,7 @@ export class WispFlight {
       this.layout.embers=this.layout.embers.filter(packet=>{
         const spec=getPickupSpec(packet);
         if(plan.badSparks===false&&spec.dim>0)return false;
-        if(plan.specialSparks===false&&!(spec.fuel>0&&spec.dim===0))return false;
+        if(plan.specialSparks===false&&packet.feature!=='lantern-flash'&&!(spec.fuel>0&&spec.dim===0))return false;
         return true;
       });
       if(plan.badSparks===false)this.layout.riskChains=[];
@@ -926,7 +935,7 @@ export class WispFlight {
     this.atlas=prepareAtlasFlight(this);
     this.routeObjective=createFlightObjective(this,route.bonusId);
     if(!this.tutorial)installSparkField(this.layout,{height:this.height,opening:this.ascentInfo.difficulty<=2&&Number(route.mapIndex||0)===0,random:seededRandom(`${this.seed}:spark-masses`),
-      clear:bodyClear,targets:this.routeObjective?.targets,protectedSites:[...(this.blackHoles.items||[]),...(this.layout.boss?.shutters||[])]});
+      clear:bodyClear,targets:this.routeObjective?.targets,protectedSites:[...(this.blackHoles.items||[]),...(lanternField(this.layout)?.shutters||[])]});
     if(!this.tutorial)shapeExpeditionSupply(this.layout,{mapIndex:Number(route.mapIndex)||0,height:this.height,speed:FLIGHT_TUNING.forwardSpeed,
       endX:this.totalDistance+this.player.x,clear:bodyClear,targets:this.routeObjective?.targets,
       hazards:[...this.blackHoles.items,...this.biomeDynamics.items],drafts:this.drafts.zones});
@@ -959,7 +968,7 @@ export class WispFlight {
 
   async initPixelView() {
     try {
-      const { WispFlightView } = await import('./wisp-renderer.mjs?v=lantern-passages-1');
+      const { WispFlightView } = await import('./wisp-renderer.mjs?v=lantern-chapter-1');
       if (this.destroyed) return;
       this.pixiView = new WispFlightView(this);
       const initialized = await this.pixiView.init();
@@ -1153,6 +1162,10 @@ export class WispFlight {
       }
       this.drafts?.resize(factor);
       resizeGuardian(this.layout,factor);
+      if(this.layout.lanternEncounter){
+        this.layout.lanternEncounter.scale*=factor;
+        resizeShutters(this.layout.lanternEncounter,factor);
+      }
       resizeFlightForks(this.layout,factor);
       this.biomeDynamics?.rescale(factor);
       this.blackHoles?.resize(factor);
@@ -2630,7 +2643,7 @@ export class WispFlight {
       c.beginPath(); c.moveTo(x - 13, y); c.quadraticCurveTo(x + 4, y - 15 - Math.sin(i * 2.1) * 4, x + 17, y); c.fill();
     }
     const progress = clamp(this.time / this.duration, 0, 1);
-    if (progress > .86 && !this.layout?.boss?.shutters?.length) {
+    if (progress > .86 && !lanternField(this.layout)?.shutters?.length) {
       const x = W + 100 - (progress - .86) / .14 * 100;
       const glow = c.createRadialGradient(x, H / 2, 0, x, H / 2, H * .45);
       glow.addColorStop(0, 'rgba(255,222,160,.30)'); glow.addColorStop(1, 'rgba(255,222,160,0)');

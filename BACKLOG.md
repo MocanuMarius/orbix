@@ -1,25 +1,14 @@
 # Guardian paths, Spark mass and run treasures — 14 November 2026
 
-## Flight art and terrain feedback awaiting the next batch
+## Darkness Lanterns chapter and Collector build
 
-- [ ] Rework Spark Sense so Sparks and other pickups are faintly visible at their actual positions through the fog of war. Remove the directional glimmers at the edge of Luminance and any light traveling from the wisp to a pickup. Update the skill hint to read “See pickups faintly through darkness.”
-- [ ] Revisit large and Giant Sparks at actual flight size on a landscape phone. Keep the pixel grain close to the smaller Sparks and add enough detail to the rim and plasma arcs that the large versions look naturally larger.
-- [ ] Shorten Spark absorption by trimming a few turns from the inward spiral. Keep the accelerating ribbon visible as it enters the wisp, and have it finish sooner after contact.
-- [ ] At the instant the Spark shell pops, use smaller, finer arcs that flicker out sharply around the wisp. Check their size at normal phone scale.
-- [ ] Create 20–30 different encounters for the crossroads signpost. Keep the recognizable sign and vary the routes it points to, including branching caves. Count distinct flying choices and terrain layouts toward the total.
-- [ ] Find foreground rock props whose side ends in an abrupt straight cut, particularly where terrain sections meet. Follow the exposed contour into neighboring rock or give an isolated face a visible end. Check it as it enters and leaves the phone viewport.
-- [ ] Vary foreground terrain by biome. For example, give exposed ridges broken crests and strata, and grow short tufts or moss on sheltered ledges. Keep the collidable silhouette visible through foliage and make the terrain texture follow the shape of the rock.
-- [x] Provide a direct phone link to the [Hollow Sun Darkness Lantern rehearsal](https://mocanumarius.github.io/orbix/spark-preview.html#lantern). The sample opens at the lantern and supports both routes.
-- [x] Publish the [six-lantern chain](https://mocanumarius.github.io/orbix/playtests/lantern-crossfire/) and [single-lantern shadow study](https://mocanumarius.github.io/orbix/playtests/lantern-crossfire/#shadow) for phone review. Each beam fades with distance from its lens. Moving the wisp across a beam reveals a widening patch of the terrain behind it. The chain builds to a pair of crossing beams with a Flash on the approach.
-- [ ] Introduce cross-firing lanterns in a later Hollow Sun chamber after the single-beam encounter. A roof lantern and a floor lantern aim across the passage. Show both aim directions before the player commits. Offer a tight line through one beam near its source and a roomier line through the overlap. Preserve a visible pocket around the wisp in the overlap and check both routes with base Luminance and ordinary tap timing.
-- [ ] Reproduce the intermittent twitch in static terrain during scrolling. Track a stationary landmark against its collision surface and distinguish the jitter from intentional moving hazards and background parallax.
-- [ ] Give Black Holes a bright accretion disk that reads against the dark surroundings while preserving a completely black core.
-
-## Skills book feedback awaiting the next batch
-
-- [x] Chapter map is the chosen starting view for Skills. Keep the affordable Upgrade index available.
-- [ ] Show prerequisites in the chapter where the player is planning a purchase, including prerequisites from other chapters. Name the required perk and rank. Show a lock when missing and a check when owned. Let the player inspect an external prerequisite in place without losing the branch they were following.
-- [ ] Give each chapter a distinct accent on its tab and connected skills. Keep the chapter icon and name, and keep ownership and affordability readable independently of its color.
+- [x] Collector is the playable companion at every difficulty, including Test. Keep the other three portraits locked.
+- [x] Give Hollow Sun's whole map a lantern identity and show it on the route. Ordinary flights introduce paired lanterns, later flights add crossings, elites chain pairs and Hollow Sun ends the chapter with a climbing crossfire. Place a Flash before the hardest crossing and teach lanterns at the first flight gate.
+- [x] Open the [playable lantern map](https://mocanumarius.github.io/orbix/game.html?mock=lantern-map) on a phone without altering the player's campaign. Keep the [lighting rehearsal](https://mocanumarius.github.io/orbix/playtests/lantern-crossfire/) available.
+- [x] Spark Sense reveals pickups at their actual positions through the fog. Make large Sparks more detailed, shorten the absorption spiral, and release finer arcs on contact. Give Black Holes a bright accretion disk around a black core.
+- [x] Vary the crossroads encounter using six shaped passages and four entry, exit and cache configurations. Validate the cache route, the open route and separation from lanterns.
+- [x] Taper foreground rock shoulders into the ground, grow short moss on sheltered ledges, and place mineral seams along exposed rock. Keep terrain and attached props registered to the same camera pixel during scrolling.
+- [x] Give the skills book chapter colors, prerequisite states and an inline description for prerequisites in another chapter.
 
 - [x] Fourth Beat: the fourth quick Lift is free, then the third at rank II. The free Lift works on an empty meter.
 - [x] Falling Spark chain: see the Dark Spark at the last Lift, stay in the dark for the lower fuel, or lift away. Four small Sparks pay 24 total.

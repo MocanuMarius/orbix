@@ -4,6 +4,7 @@ import {getPickupSpec, pickupKind, pickupContactRadius} from '../dist/pickups.mj
 import {sparkBodyRadius} from '../dist/spark-size.mjs';
 import {ICE_GUIDE_FACETS} from '../dist/guardian-geometry.mjs';
 import {shutterLightFactor} from '../dist/shutter-cone.mjs';
+import {lanternField} from '../dist/lantern-layout.mjs';
 import {blackHoleWarning,WARNING_NOTICE} from '../dist/black-hole-warning.mjs';
 
 const clip = (value,min,max) => Math.max(min,Math.min(max,value));
@@ -23,7 +24,7 @@ function sightAt(e, light) {
   if(screenX<0||screenX>e.width||y<0||y>e.height)return 0;
   let darkness=1-lightVisibility(e,light,screenX,y,e.player.y,false);
   for(const orb of orbs)darkness*=1-orb.strength*lightAttenuation(((screenX-orb.x)**2+(y-orb.y)**2)/orb.r2);
-  return (1-darkness)*shutterLightFactor(e.layout.boss,e.distance+screenX,y,e.distance+e.player.x,e.player.y,light);
+  return (1-darkness)*shutterLightFactor(lanternField(e.layout),e.distance+screenX,y,e.distance+e.player.x,e.player.y,light);
  };
 }
 

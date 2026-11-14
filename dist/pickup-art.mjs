@@ -1,5 +1,5 @@
-import { pickupKind, getPickupSpec, pickupDisposition, PLASMA_SHELL_RADIUS, SPARK_ART_SCALE } from './pickups.mjs?v=lantern-passages-1';
-import {sparkImageArt,sparkSymbolArt} from './spark-symbol.mjs?v=lantern-passages-1';
+import { pickupKind, getPickupSpec, pickupDisposition, PLASMA_SHELL_RADIUS, SPARK_ART_SCALE } from './pickups.mjs?v=lantern-chapter-1';
+import {sparkImageArt,sparkSymbolArt} from './spark-symbol.mjs?v=lantern-chapter-1';
 
 const TAU = Math.PI * 2;
 const clamp = (value, low, high) => Math.max(low, Math.min(high, value));
@@ -265,6 +265,13 @@ const richTracks=[...discharges[3],...discharges[3].map(track=>({
   offset:(track.offset+.373)%1,
   events:track.events.map(event=>({...event,angle:event.angle+2.47,jitter:event.jitter+.91}))
 }))];
+// Fixed inclusions in the glass stay attached to it as the plasma changes
+// frames. Keep their diameter near one final raster pixel at either mass.
+const inclusions=Array.from({length:58},(_,i)=>{
+  const angle=i*2.39996323, depth=(i*.61803399+.23)%1;
+  const radial=.31+.65*Math.sqrt(depth);
+  return [Math.cos(angle)*radial,Math.sin(angle)*radial,(i*.427+.37)%1];
+});
 
 function largeSparkArt(ctx,id,phase,bodyOnly,mass,radius,pen) {
   const dark=!getPickupSpec(id).plasma,giant=mass===10;
@@ -296,6 +303,17 @@ function largeSparkArt(ctx,id,phase,bodyOnly,mass,radius,pen) {
     ring(.974,3.66,4.79,bright,.58,pen*.72);
     ring(.956,3.87,4.37,bright,.33,pen*.66);
     ring(.985,.54,1.07,glow,.48,pen*.72);
+    const specks=giant?58:24;
+    for(let i=0;i<specks;i++){
+      const [x,y,depth]=inclusions[i];
+      const shimmer=.5+.5*Math.sin(phase*TAU+i*2.14);
+      disc(x,y,pen*(.43+.41*depth),bright,.12+.24*depth+.13*shimmer);
+    }
+    // Hairline reflections follow the circumference, separated by bare glass.
+    for(let i=0;i<(giant?17:9);i++){
+      const a=i*2.39996+.15,r=.968-(i%4)*.008;
+      ring(r,a,a+.023+.044*((i*.618)%1),glow,.32+.16*(i%3),pen*.60);
+    }
   }
 
   if(dark){
@@ -325,7 +343,7 @@ function largeSparkArt(ctx,id,phase,bodyOnly,mass,radius,pen) {
   }
 
   const tracks=giant?richTracks:discharges[3];
-  const segments=giant?17:10;
+  const segments=giant?23:13;
   for(const track of tracks){
     const t=(phase+track.offset)%1;
     const e=track.events.find(item=>t>=item.start && t<item.start+item.duration);
@@ -334,7 +352,7 @@ function largeSparkArt(ctx,id,phase,bodyOnly,mass,radius,pen) {
     const power=Math.min(1,(life+.025)/.13,(1-life)/.28);
     const reach=e.rimLength*(e.rooted?1:.26+.74*Math.min(1,life/.22));
     const wave=Math.sin(e.jitter+life*8)*Math.sin(life*Math.PI);
-    let forkX=0,forkY=0,tipX=0,tipY=0;
+    let forkX=0,forkY=0,midX=0,midY=0,tipX=0,tipY=0;
     ctx.beginPath();ctx.moveTo(0,0);
     for(let j=1;j<=segments;j++){
       const f=j/segments;
@@ -344,6 +362,7 @@ function largeSparkArt(ctx,id,phase,bodyOnly,mass,radius,pen) {
       tipX=Math.cos(a)*reach*f;tipY=Math.sin(a)*reach*f;
       ctx.lineTo(tipX,tipY);
       if(j===Math.ceil(segments*.62)){forkX=tipX;forkY=tipY;}
+      if(j===Math.ceil(segments*.37)){midX=tipX;midY=tipY;}
     }
     if(e.fork&&life>e.forkTime&&life<.94){
       ctx.moveTo(forkX,forkY);
@@ -355,6 +374,14 @@ function largeSparkArt(ctx,id,phase,bodyOnly,mass,radius,pen) {
     }
     ctx.strokeStyle=glow;ctx.lineWidth=pen*2.65;ctx.globalAlpha=power*.27;ctx.stroke();
     ctx.strokeStyle=bright;ctx.lineWidth=pen;ctx.globalAlpha=power*.94;ctx.stroke();
+    if(giant&&e.fork&&life>e.forkTime&&life<.90){
+      ctx.beginPath();ctx.moveTo(midX,midY);
+      for(let j=1;j<=7;j++){
+        const f=j/7,a=e.angle+e.bendB*(1-f)-e.fork*f*.62+.032*Math.sin(j*1.91+wave);
+        ctx.lineTo(Math.cos(a)*reach*(.37+.22*f),Math.sin(a)*reach*(.37+.22*f));
+      }
+      ctx.strokeStyle=bright;ctx.lineWidth=pen*.57;ctx.globalAlpha=power*.64;ctx.stroke();
+    }
     // An arc finds a contact and crawls along the inside of the membrane.
     if(!bodyOnly&&reach>.84&&life>.13&&life<.87){
       const nx=Math.cos(e.angle),ny=Math.sin(e.angle);
@@ -374,7 +401,7 @@ function largeSparkArt(ctx,id,phase,bodyOnly,mass,radius,pen) {
 function largeSprite(doc,id,frame,bodyOnly,mass,scale){
   // Quantize the sampling rate, never the geometry. Up to eight recent views
   // share reusable canvases instead of retaining a full giant animation atlas.
-  const density=largeDensities.find(d=>d>=scale)??largeDensities.at(-1);
+  const density=largeDensities.find(d=>d>=scale*1.35)??largeDensities.at(-1);
   let atlas=largeAtlases.get(doc);
   if(!atlas){atlas={slots:[],next:0};largeAtlases.set(doc,atlas);}
   const key=id+':'+frame+':'+mass+':'+density+':'+bodyOnly;
@@ -399,7 +426,7 @@ function largeSprite(doc,id,frame,bodyOnly,mass,scale){
   const sprite=slot.canvas;
   if(sprite.width!==side || sprite.height!==side)sprite.width=sprite.height=side;
   const c=sprite.getContext('2d');c.clearRect(0,0,side,side);c.save();
-  const pen=Math.max(.75/radius,mass===10?.014:.027);
+  const pen=Math.max(.9/radius,mass===10?.0115:.021);
   largeSparkArt(c,id,frame/cycles[id][1],bodyOnly,mass,radius,pen);
   c.restore();sprite.sparkTexelScale=density;slot.key=key;
   return sprite;
@@ -461,7 +488,7 @@ export function drawPickup(context,x,y,{kind='light',time=0,phase=0,reducedMotio
   context.save();const inherited=context.globalAlpha*clamp(Number(alpha)||0,0,1);
   if(sprite){
     const drawSize=size*(plasma&&tiny?.62:1)/sprite.sparkTexelScale;
-    context.globalAlpha=inherited;context.imageSmoothingEnabled=false;
+    context.globalAlpha=inherited;context.imageSmoothingEnabled=sprite.sparkTexelScale>1;
     const width=sprite.width*drawSize;
     context.drawImage(sprite,Math.round(x-width/2),Math.round(y-width/2),Math.round(width),Math.round(width));
   }

@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import * as M from '../dist/model.mjs';
-import {normalizeCompanionFleet} from '../dist/companion-abilities.mjs';
+import {homeMenuMarkup} from '../dist/run-menu.mjs';
 import {WispFlight} from '../dist/flight.mjs';
 import {getPickupSpec} from '../dist/pickups.mjs';
 import {mainWispTreeMarkup} from '../dist/wisp-tree.mjs';
@@ -11,25 +11,33 @@ function engine(options={}){
  return new WispFlight({canvas:{style:{},getContext:()=>context,getBoundingClientRect:()=>({width:900,height:405})},seed:'single-companion-onboarding',terrain:'canopy',duration:40,flame:100,...options});
 }
 
-test('normal, TEST and saved rosters contain exactly one companion; swaps preserve one slot',()=>{
- assert.deepEqual(normalizeCompanionFleet(['swift','protector','collector']),['swift']);
- assert.deepEqual(normalizeCompanionFleet(['invalid','runner','collector']),['swift']);
- assert.deepEqual(normalizeCompanionFleet([], 'space-timer'),['leveler']);
- const state=M.newState();state.profile.difficulty=4;state.run=M.createRun(state.profile,'one-companion',1);
- const run=state.run;run.testMode=true;run.skills['main-bond']=2;
- assert.equal(M.getCompanionCapacity(run),1);
- assert.equal(M.setCompanions(run,['protector','collector']),false);
- for(const id of ['protector','swift','leveler','collector']){
-  assert.equal(M.setCompanions(run,[id]),true);assert.deepEqual(run.companions,[id]);assert.equal(run.companionRole,id);
+test('only Collector is selectable at every ascension and in TEST, including saved runs',()=>{
+ const state=M.newState();
+ state.profile.difficulty=6;
+ state.run=M.createRun(state.profile,'one-companion',1);
+ const run=state.run;
+ for(const testing of [false,true]){
+  state.settings.testOverride=run.testMode=testing;
+  for(const id of ['protector','swift','leveler']){
+   assert.equal(M.setStartingCompanion(state,id),false);
+   assert.equal(M.setCompanions(run,[id]),false);
+  }
+  assert.equal(M.setStartingCompanion(state,'collector'),true);
+  assert.deepEqual(run.companions,['collector']);
+  const menu=homeMenuMarkup({profile:state.profile,testOverride:testing});
+  for(const id of ['protector','swift','leveler']){
+   assert.match(menu,new RegExp('data-id="'+id+'"[^>]*locked[^>]*disabled'));
+  }
  }
- assert.equal(M.SKILLS['main-bond'],undefined);
- assert.equal(M.SKILLS['main-artifact-slot-1'],undefined,'artifact slot upgrades are retired');
- let key,saved;const storage={setItem(k,v){key=k;saved=v;},getItem(){return saved;}};
- M.saveState(state,storage);let legacy=JSON.parse(saved);
- legacy.run.companions=['protector','swift','collector'];legacy.run.companionRole='protector';legacy.run.skills['main-bond']=2;
- legacy.settings.companions=['leveler','collector'];saved=JSON.stringify(legacy);
- const restored=M.loadState(storage);assert.ok(key);assert.deepEqual(restored.run.companions,['protector']);
- assert.deepEqual(restored.settings.companions,['leveler']);assert.equal(restored.run.skills['main-bond'],undefined);
+ const legacy=structuredClone(state);
+ Object.assign(legacy.settings,{startingCompanion:'swift',testStarterCompanion:'swift',companions:['swift']});
+ Object.assign(legacy.run,{companions:['swift'],companionRole:'swift'});
+ const storage={getItem:()=>JSON.stringify(legacy),setItem(){}};
+ const restored=M.loadState(storage);
+ assert.equal(restored.run.id,run.id);
+ assert.deepEqual(restored.run.companions,['collector']);
+ assert.deepEqual(restored.settings.companions,['collector']);
+ assert.equal(M.getTestStarterCompanion(restored),'collector');
 });
 
 test('only the equipped companion contributes companion skills or earns companion-specific offers',()=>{

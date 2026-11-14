@@ -81,3 +81,16 @@ html body .skill-book .book-inspector.empty p {color:#26392e!important}
 html body .skill-book .book-inspector .book-condition,
 html body .skill-book .book-inspector .book-status,
 html body .skill-book .book-inspector .book-kicker {color:#425447!important}
+
+/* Each chapter keeps its ink on the tab, the heading and the branch connectors. */
+.skill-book [data-id="wisp"],.skill-book[data-chapter="wisp"] { --chapter-ink:#d5ba80 }
+.skill-book [data-id="luminance"],.skill-book[data-chapter="luminance"] { --chapter-ink:#eee6a6 }
+.skill-book [data-id="companion"],.skill-book[data-chapter="companion"] { --chapter-ink:#92c59e }
+.skill-book [data-id="proximity"],.skill-book[data-chapter="proximity"] { --chapter-ink:#86b9d4 }
+.skill-book [data-id="dream"],.skill-book[data-chapter="dream"] { --chapter-ink:#c5a0cf }
+.skill-book [data-id="packing"],.skill-book[data-chapter="packing"] { --chapter-ink:#dcaa88 }
+html body .skill-book .book-chapters button[data-id] { border-left-color:var(--chapter-ink,#91a191)!important }
+.skill-book .book-page>h3 { color:var(--chapter-ink,#d8d5bc) }
+.skill-book .book-trails ul,.skill-book .book-trails ul>li:before { border-color:var(--chapter-ink,#788b78) }
+.book-inline-requirement summary { cursor:pointer; text-decoration:underline; padding:4px 0 }
+.book-inline-requirement p { margin:3px 0 6px }

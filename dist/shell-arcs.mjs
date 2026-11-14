@@ -1,7 +1,7 @@
 // A short, branching discharge jumps out from the wisp's shell. Clip the
 // moving head and tail along each channel so the ends travel independently.
 const TAU = Math.PI*2;
-const duration = .18;
+const duration = .15;
 const clamp = t => Math.max(0,Math.min(1,t));
 
 function noise(seed){
@@ -18,13 +18,13 @@ function makeChannels(seed){
     const k=seed*31+i*13;
     const angle=TAU*(i+.30*(noise(k)-.5))/count;
     const rimX=Math.cos(angle), rimY=Math.sin(angle);
-    const reach=13+18*noise(k+1);
-    const lean=(noise(k+3)-.5)*14;
+    const reach=11+14*noise(k+1);
+    const lean=(noise(k+3)-.5)*11;
     const points=[];
     for(let j=0;j<=6;j++){
       const f=j/6;
       const r=f*reach;
-      const side=f*lean+(j===0?0:(noise(k+5+j)-.5)*(4+5*Math.sin(f*Math.PI)));
+      const side=f*lean+(j===0?0:(noise(k+5+j)-.5)*(3+3*Math.sin(f*Math.PI)));
       points.push([r*rimX-side*rimY,r*rimY+side*rimX]);
     }
     const travel=.38+.17*noise(k+14);
@@ -32,7 +32,7 @@ function makeChannels(seed){
     if(i%3!==1){
       const j=2+Math.floor(noise(k+15)*2);
       const [x,y]=points[j], divergence=angle+(i%2?1:-1)*(.47+.42*noise(k+16));
-      const length=7+5*noise(k+17), dx=Math.cos(divergence),dy=Math.sin(divergence);
+      const length=4+5*noise(k+17), dx=Math.cos(divergence),dy=Math.sin(divergence);
       channels.push({
         points:[[x,y],[x+dx*length*.38+dy*1.4,y+dy*length*.38-dx*1.4],
           [x+dx*length*.64-dy*1.7,y+dy*length*.64+dx*1.7],[x+dx*length,y+dy*length]],
@@ -73,15 +73,15 @@ export function drawShellArcs(ctx,x,y,scale,age,kind,phase=0,reducedMotion=false
   for(const channel of channels){
     // Reduced motion holds the forked pattern steady and only fades it.
     const head=reducedMotion?.83:clamp((u+.10-channel.delay)/channel.travel);
-    const tail=reducedMotion?0:clamp((u-.30-channel.delay)/channel.travel);
+    const tail=reducedMotion?0:clamp((u-.24-channel.delay)/channel.travel);
     if(head>tail)trace(ctx,channel.points,tail,head,channel.rimX*rim,channel.rimY*rim);
   }
   const alpha=ctx.globalAlpha*fade*(reducedMotion?.62:1);
   const dim=kind==='dark'||kind==='dusk';
   ctx.globalCompositeOperation='lighter';
-  ctx.globalAlpha=alpha*.37;
-  ctx.strokeStyle=dim?'#fa839c':'#75c9f4'; ctx.lineWidth=3.3; ctx.stroke();
+  ctx.globalAlpha=alpha*.27;
+  ctx.strokeStyle=dim?'#fa839c':'#75c9f4'; ctx.lineWidth=1.9; ctx.stroke();
   ctx.globalAlpha=alpha*.94;
-  ctx.strokeStyle=dim?'#ffdbe2':'#e5faff'; ctx.lineWidth=1.15; ctx.stroke();
+  ctx.strokeStyle=dim?'#ffdbe2':'#e5faff'; ctx.lineWidth=.9; ctx.stroke();
   ctx.restore();
 }
