@@ -1,3 +1,4 @@
+import {pixelContour} from './pixel-contour.mjs?v=pine-spark-2';
 // Solid foreground scenery. Every opaque part is also a collision polygon.
 const clamp = (n, lo, hi) => Math.min(hi, Math.max(lo, n));
 const smooth = n => { const t = clamp(n, 0, 1); return t * t * (3 - 2 * t); };
@@ -183,6 +184,7 @@ export function populateSceneProps({ obstacles = [], embers = [], terrain = 'rui
       parts: authoredParts(kind).map(part => ({ material: part.material,
         polygon: part.polygon.map(([u,v]) => [centerX + u * halfWidth,
           side * (tip + (base - tip) * v)]) })) };
+    if(kind==='windswept-pine')for(const part of prop.parts)part.polygon=pixelContour(part.polygon,2);
     const candidate = { ...obstacle, sceneProps: [prop] };
     const bounds = scenePropBounds(candidate)[0];
     if (typeof circleHitsPolygon === 'function' && embers.some(packet => {

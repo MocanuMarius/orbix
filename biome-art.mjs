@@ -1,3 +1,4 @@
+import {pineCrown} from './pixel-contour.mjs?v=pine-spark-2';
 // Original pixel scenery. Backdrops and solid materials are rasterized by the
 // existing renderer caches; only a few matte weather pixels animate each frame.
 // Nothing here emits light or draws outside the simulation's solid silhouettes.
@@ -26,7 +27,7 @@ export function drawBiomeBackground(c,{identity,width:W,height:H,distance=0,pale
  const box=(x,y,w,hh,ink)=>{c.fillStyle=ink;c.fillRect(Math.round(x),Math.round(y),Math.round(w),Math.round(hh));};
  const poly=(points,ink)=>{c.fillStyle=ink;h.polygon(c,points.map(([x,y])=>[Math.round(x),Math.round(y)]));c.fill();};
  const line=(x,y,xx,yy,ink,width=1)=>h.line(c,x,y,xx,yy,ink,width);
- const pine=(x,y,hh,w,ink)=>{box(x-1,y-hh,3,hh,ink);for(let k=0;k<4;k++){const a=y-hh+k*hh*.18;poly([[x,a],[x-w*(.4+k*.2),a+hh*.36],[x+w*(.4+k*.2),a+hh*.36]],ink);}};
+ const pine=(x,y,hh,w,ink)=>poly(pineCrown(x,y,w,hh),ink);
  const root=(x,y,hh,ink,willow=false)=>{line(x,y,x+3,y-hh*.5,ink,3);line(x+3,y-hh*.5,x-2,y-hh,ink,3);for(let k=-1;k<=1;k+=2){line(x+1,y-hh*.6,x+k*17,y-hh*.85,ink,2);line(x+k*17,y-hh*.85,x+k*24,y-hh*.67,ink,2);if(willow)for(let t=0;t<4;t++)line(x+k*(12+t*4),y-hh*.82,x+k*(14+t*4),y-hh*(.28+t*.08),ink);}};
  const stone=(x,y,hh,w,ink)=>poly([[x-w,y],[x-w*.75,y-hh*.7],[x-w*.2,y-hh],[x+w*.62,y-hh*.89],[x+w,y]],ink);
  c.save();c.globalAlpha=.74;

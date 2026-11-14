@@ -1,4 +1,5 @@
-import {pixelLandmark} from './map-pixel-art.mjs?v=three-trees-balance-1';
+import {pixelPath} from './pixel-contour.mjs?v=pine-spark-2';
+import {pixelLandmark} from './map-pixel-art.mjs?v=pine-spark-2';
 // Route categories share silhouettes; terrain appears only in the muted ground layer.
 // All art is original SVG in a small pixel coordinate space (no external assets).
 const flight='<path class="landmark-dark" d="m-35 23 5-13 8-11 8 8 4 17Zm42 0 6-15 7-10 6 9 9 17Z"/><path class="landmark-body" d="m-35 23 7-14 7-7 3 10 6 12Zm45 0 6-13 7-7 2 12 10 10Z"/><path class="landmark-face" d="m-20 26 13-11 9-4 6-7-4-8 3-12 5-5-2 12 4 9-3 9-9 8-6 8Z"/><path class="landmark-edge" d="m-15 25 11-9 8-5 5-7-3-9 3-10M-28 10l7-8 2 9M17 10l6-7 2 10"/><path class="landmark-fire" d="M-4 21h4v2h-4ZM5 11h3v2H5ZM8-3h2v3H8Z"/>';
@@ -28,7 +29,7 @@ export function landmarkArt(value){const n=typeof value==='string'?{kind:value}:
 const groundArt={
  moonruins:'<path class="biome-fill" d="M-59 20V9h8v5h12v12ZM38 25V13h9V7h7v18Z"/><path class="biome-stroke" d="M-56 13h5m-1 8h11M41 18h11"/>',
  frost:'<path class="biome-fill" d="m-64 23 12-27 6 18 10 11Zm102 0L48-9l7 20 11 15Z"/><path class="biome-stroke" d="m-52-4 1 27M48-9l4 33"/>',
- pinewood:'<path class="biome-fill" d="m-62 20 10-10-5 1 7-12 7 12-4-1 10 12Zm95 2 11-13-6 1 8-16 9 16-6-1 12 15Z"/>',
+ pinewood:`<path class="biome-fill" d="${pixelPath([[-62,20],[-52,10],[-57,11],[-50,-1],[-43,11],[-47,10],[-37,22]])}${pixelPath([[33,22],[44,9],[38,10],[46,-6],[55,10],[49,9],[61,24]])}"/>`,
  marsh:'<path class="biome-stroke" d="M-57 24V2m-5 7 5 5 6-9m-4 19 7-8M45 25V4m-5 8 5 4 8-6M-40 30h27m18 2h24m8-3h19"/>',
  fungal:'<path class="biome-fill" d="M-55 9h6v16h-6ZM-65 9V3l6-6h15l7 7v5ZM45 12h6v15h-6ZM35 12V6l9-7h12l7 8v5Z"/>',
  basalt:'<path class="biome-fill" d="M-63 22V5l7-5 7 4v21ZM-49 24V13l8-4 7 6v12ZM41 26V8l7-5 7 5v17ZM55 25V15l8-5 6 6v12Z"/>',

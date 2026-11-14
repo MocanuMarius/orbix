@@ -1,11 +1,11 @@
-import {getGlowCapacity,getLifeCapacity,formatGlow} from './vitality.mjs?v=three-trees-balance-1';
-import {livesMarkup} from './lives.mjs?v=three-trees-balance-1';
-import {resourceSymbol} from './game-symbols.mjs?v=three-trees-balance-1';
-import {choiceScene} from './choice-art.mjs?v=three-trees-balance-1';
-import {mapStopIconMarkup} from './map-guide.mjs?v=three-trees-balance-1';
-import {dreamRestMarkup} from './dream.mjs?v=three-trees-balance-1';
-import {skillIcon,artifactIcon} from './upgrade-icons.mjs?v=three-trees-balance-1';
-import {companionArtSvg} from './companion-art.mjs?v=three-trees-balance-1';
+import {getGlowCapacity,getLifeCapacity,formatGlow} from './vitality.mjs?v=pine-spark-2';
+import {livesMarkup} from './lives.mjs?v=pine-spark-2';
+import {resourceSymbol} from './game-symbols.mjs?v=pine-spark-2';
+import {choiceScene} from './choice-art.mjs?v=pine-spark-2';
+import {mapStopIconMarkup} from './map-guide.mjs?v=pine-spark-2';
+import {dreamRestMarkup} from './dream.mjs?v=pine-spark-2';
+import {skillIcon,artifactIcon} from './upgrade-icons.mjs?v=pine-spark-2';
+import {companionArtSvg} from './companion-art.mjs?v=pine-spark-2';
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 export function restBenefitsMarkup(run,node,choices=[],{nextNode=null}={}){
  const capacity=getGlowCapacity(run),fullHearts={...run,lives:getLifeCapacity(run)},resolved=run.restReady===true;
