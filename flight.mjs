@@ -1,58 +1,58 @@
-import {prepareAtlasFlight,resizeAtlasFlight,ringBellwind,bellwindAcceleration,moonLightScale,drawAtlasFlight} from './atlas-flight.mjs?v=spark-floor-1';
-import {canShowFlightHint} from './flight-hint-safety.mjs?v=spark-floor-1';
-import {updateGlideRegeneration} from './glide-regeneration.mjs?v=spark-floor-1';
-import {drawGuardianPresence} from './guardian-presence.mjs?v=spark-floor-1';
-import { updateGuardian, resizeGuardian, placeGuardianFuel } from './guardian-effects.mjs?v=spark-floor-1';
-import { drawGuardianWarnings } from './guardian-art.mjs?v=spark-floor-1';
-import { drawShutters } from './shutter-cone.mjs?v=spark-floor-1';
-import {drawProximityMeter} from './proximity-meter.mjs?v=spark-floor-1';
-import {drawFourthBeat} from './fourth-beat-art.mjs?v=spark-floor-1';
-import {drawCollectorGuard} from './collector-guard-art.mjs?v=spark-floor-1';
-import {buildObjectivePlan,createFlightObjective,drawObjectiveMarks} from './flight-objectives.mjs?v=spark-floor-1';
-import {FlightProjection,drawFlightProjection} from './flight-projection.mjs?v=spark-floor-1';
-import {drawGlowSense} from './glow-sense.mjs?v=spark-floor-1';
-import {formatGlow} from './vitality.mjs?v=spark-floor-1';
-import {installRiskChains} from './risk-chains.mjs?v=spark-floor-1';
-import {installSparkField} from './spark-fields.mjs?v=spark-floor-1';
-import {drawFallWarning} from './fall-chain-art.mjs?v=spark-floor-1';
-import {EXTRA_COURSES} from './world-expansion.mjs?v=spark-floor-1';
-import {BIOME_COURSES} from './biome-courses.mjs?v=spark-floor-1';
-import {BiomeDynamics} from './biome-dynamics.mjs?v=spark-floor-1';
-import {condenseGlow} from './condensed-glow.mjs?v=spark-floor-1';
-import {ensureGlowBudget} from './glow-budget.mjs?v=spark-floor-1';
-import {EdgingPulse} from './edging-pulse.mjs?v=spark-floor-1';
-import {isVowBodyPickup} from './contextual-events.mjs?v=spark-floor-1';
-import {FlightBoon} from './flight-boons.mjs?v=spark-floor-1';
-import {BlackHoles} from './black-holes.mjs?v=spark-floor-1';
-import {drawBlackHoles} from './black-hole-art.mjs?v=spark-floor-1';
-import {drawCapture, drawShellPuff} from './capture-art.mjs?v=spark-floor-1';
-import {drawShellArcs} from './shell-arcs.mjs?v=spark-floor-1';
-import {sparkBodyRadius,sparkArtScale,sparkMass} from './spark-size.mjs?v=spark-floor-1';
-import {captureMassDuration} from './tidal-light.mjs?v=spark-floor-1';
-import {readCaptureStyle} from './capture-styles.mjs?v=spark-floor-1';
+import {prepareAtlasFlight,resizeAtlasFlight,ringBellwind,bellwindAcceleration,moonLightScale,drawAtlasFlight} from './atlas-flight.mjs?v=giant-detail-1';
+import {canShowFlightHint} from './flight-hint-safety.mjs?v=giant-detail-1';
+import {updateGlideRegeneration} from './glide-regeneration.mjs?v=giant-detail-1';
+import {drawGuardianPresence} from './guardian-presence.mjs?v=giant-detail-1';
+import { updateGuardian, resizeGuardian, placeGuardianFuel } from './guardian-effects.mjs?v=giant-detail-1';
+import { drawGuardianWarnings } from './guardian-art.mjs?v=giant-detail-1';
+import { drawShutters } from './shutter-cone.mjs?v=giant-detail-1';
+import {drawProximityMeter} from './proximity-meter.mjs?v=giant-detail-1';
+import {drawFourthBeat} from './fourth-beat-art.mjs?v=giant-detail-1';
+import {drawCollectorGuard} from './collector-guard-art.mjs?v=giant-detail-1';
+import {buildObjectivePlan,createFlightObjective,drawObjectiveMarks} from './flight-objectives.mjs?v=giant-detail-1';
+import {FlightProjection,drawFlightProjection} from './flight-projection.mjs?v=giant-detail-1';
+import {drawGlowSense} from './glow-sense.mjs?v=giant-detail-1';
+import {formatGlow} from './vitality.mjs?v=giant-detail-1';
+import {installRiskChains} from './risk-chains.mjs?v=giant-detail-1';
+import {installSparkField} from './spark-fields.mjs?v=giant-detail-1';
+import {drawFallWarning} from './fall-chain-art.mjs?v=giant-detail-1';
+import {EXTRA_COURSES} from './world-expansion.mjs?v=giant-detail-1';
+import {BIOME_COURSES} from './biome-courses.mjs?v=giant-detail-1';
+import {BiomeDynamics} from './biome-dynamics.mjs?v=giant-detail-1';
+import {condenseGlow} from './condensed-glow.mjs?v=giant-detail-1';
+import {ensureGlowBudget} from './glow-budget.mjs?v=giant-detail-1';
+import {EdgingPulse} from './edging-pulse.mjs?v=giant-detail-1';
+import {isVowBodyPickup} from './contextual-events.mjs?v=giant-detail-1';
+import {FlightBoon} from './flight-boons.mjs?v=giant-detail-1';
+import {BlackHoles} from './black-holes.mjs?v=giant-detail-1';
+import {drawBlackHoles} from './black-hole-art.mjs?v=giant-detail-1';
+import {drawCapture, drawShellPuff} from './capture-art.mjs?v=giant-detail-1';
+import {drawShellArcs} from './shell-arcs.mjs?v=giant-detail-1';
+import {sparkBodyRadius,sparkArtScale,sparkMass} from './spark-size.mjs?v=giant-detail-1';
+import {captureMassDuration} from './tidal-light.mjs?v=giant-detail-1';
+import {readCaptureStyle} from './capture-styles.mjs?v=giant-detail-1';
 /* Emberwing's self-contained canvas flight simulation and renderer. */
-import { FLAME_TUNING, LIGHT_PACKET_TUNING } from './vitality.mjs?v=spark-floor-1';
-import { flightEndDistance } from './flight-end.mjs?v=spark-floor-1';
-import {getExitLandmarkState,drawExitLandmark} from './exit-landmark.mjs?v=spark-floor-1';
-import { WispCompanion, wispHome } from './wisp.mjs?v=spark-floor-1';
-import { getAscentInfo } from './ascent.mjs?v=spark-floor-1';
-import { LEVEL_LENGTH, getLevelLengthScale } from './level-length.mjs?v=spark-floor-1';
-import { resolveLevelIdentity } from './level-catalog.mjs?v=spark-floor-1';
-import { DraftField, DRAFT_TUNING } from './drafts.mjs?v=spark-floor-1';
-import { normalizeCompanionRole, normalizeCompanionFleet, getCompanionAbility } from './companion-abilities.mjs?v=spark-floor-1';
-import { populateSceneProps, scenePropPolygons } from './scene-props.mjs?v=spark-floor-1';
-import { pickupKind, getPickupSpec, pickupContactRadius, canCompanionCollect, flashPowerupDuration } from './pickups.mjs?v=spark-floor-1';
-import { createFlashTether, stepFlashTether, drawFlashTether, flashLightPulse } from './flash-tether.mjs?v=spark-floor-1';
-import { drawPickup, drawSparkSymbol } from './pickup-art.mjs?v=spark-floor-1';
-import { buildBossLayout, getBossState as bossState, drawBoss } from './boss.mjs?v=spark-floor-1';
-import { getAuthoredChallenge, finalizeFlightChallenges, installAuthoredDraftCrossings, FlightChallengeDirector } from './flight-challenges.mjs?v=spark-floor-1';
-import { installEncounterFamily } from './encounter-families.mjs?v=spark-floor-1';
-import { installFlightForks, resizeFlightForks } from './flight-forks.mjs?v=spark-floor-1';
-import { ArtifactEffects } from './artifact-effects.mjs?v=spark-floor-1';
-import { LIGHT_EXTENT,lightAttenuation,lightVisibility,createLightMaskCanvas,castFlightFlashLights,sceneRevealStrength,flashRangeStrength,pickupRevealHold,pickupRevealAt } from './light-field.mjs?v=spark-floor-1';
+import { FLAME_TUNING, LIGHT_PACKET_TUNING } from './vitality.mjs?v=giant-detail-1';
+import { flightEndDistance } from './flight-end.mjs?v=giant-detail-1';
+import {getExitLandmarkState,drawExitLandmark} from './exit-landmark.mjs?v=giant-detail-1';
+import { WispCompanion, wispHome } from './wisp.mjs?v=giant-detail-1';
+import { getAscentInfo } from './ascent.mjs?v=giant-detail-1';
+import { LEVEL_LENGTH, getLevelLengthScale } from './level-length.mjs?v=giant-detail-1';
+import { resolveLevelIdentity } from './level-catalog.mjs?v=giant-detail-1';
+import { DraftField, DRAFT_TUNING } from './drafts.mjs?v=giant-detail-1';
+import { normalizeCompanionRole, normalizeCompanionFleet, getCompanionAbility } from './companion-abilities.mjs?v=giant-detail-1';
+import { populateSceneProps, scenePropPolygons } from './scene-props.mjs?v=giant-detail-1';
+import { pickupKind, getPickupSpec, pickupContactRadius, canCompanionCollect, flashPowerupDuration } from './pickups.mjs?v=giant-detail-1';
+import { createFlashTether, stepFlashTether, drawFlashTether, flashLightPulse } from './flash-tether.mjs?v=giant-detail-1';
+import { drawPickup, drawSparkSymbol } from './pickup-art.mjs?v=giant-detail-1';
+import { buildBossLayout, getBossState as bossState, drawBoss } from './boss.mjs?v=giant-detail-1';
+import { getAuthoredChallenge, finalizeFlightChallenges, installAuthoredDraftCrossings, FlightChallengeDirector } from './flight-challenges.mjs?v=giant-detail-1';
+import { installEncounterFamily } from './encounter-families.mjs?v=giant-detail-1';
+import { installFlightForks, resizeFlightForks } from './flight-forks.mjs?v=giant-detail-1';
+import { ArtifactEffects } from './artifact-effects.mjs?v=giant-detail-1';
+import { LIGHT_EXTENT,lightAttenuation,lightVisibility,createLightMaskCanvas,castFlightFlashLights,sceneRevealStrength,flashRangeStrength,pickupRevealHold,pickupRevealAt,renderLightState,lightDreamScenery } from './light-field.mjs?v=giant-detail-1';
 import { createTutorialState, buildTutorialLayout, recordTutorialPickup,
-  updateTutorial, updateTutorialCompanion, getTutorialHint } from './tutorial.mjs?v=spark-floor-1';
-export { FLAME_TUNING } from './vitality.mjs?v=spark-floor-1';
+  updateTutorial, updateTutorialCompanion, getTutorialHint } from './tutorial.mjs?v=giant-detail-1';
+export { FLAME_TUNING } from './vitality.mjs?v=giant-detail-1';
 const TAU = Math.PI * 2;
 const STEP = 1 / 60;
 const FALLBACK_WISP_RADIUS = 17;
@@ -64,7 +64,7 @@ const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
 const lerp = (a, b, t) => a + (b - a) * t;
 export const FLIGHT_TUNING = Object.freeze({ gravity: 300, flapImpulse: 205,
   forwardSpeed: 154, terminalFall: 245, pickupRadius: LIGHT_PACKET_TUNING.pickupRadius });
-export { DRAFT_TUNING } from './drafts.mjs?v=spark-floor-1';
+export { DRAFT_TUNING } from './drafts.mjs?v=giant-detail-1';
 // Retain the public tuning name for consumers; wind now has no global cycle.
 export const WIND_TUNING = DRAFT_TUNING;
 
@@ -956,7 +956,7 @@ export class WispFlight {
 
   async initPixelView() {
     try {
-      const { WispFlightView } = await import('./wisp-renderer.mjs?v=spark-floor-1');
+      const { WispFlightView } = await import('./wisp-renderer.mjs?v=giant-detail-1');
       if (this.destroyed) return;
       this.pixiView = new WispFlightView(this);
       const initialized = await this.pixiView.init();
@@ -1035,7 +1035,10 @@ export class WispFlight {
   get boostDuration() { return this.abilityDuration; }
   get boostCooldown() { return this.abilityCooldown; }
   get maxFlame() { return Math.max(100, Number(this.mod.maxGlow) || 100); }
-  get availableGlow() { return this.flame; }
+  // Keep the rehearsal and playback ledgers identical for pickups and hazards.
+  // Dream supplies the flight's usable reserves until control passes back.
+  get availableGlow() { return this.dream?.active ? this.maxFlame : this.flame; }
+  get visibleGlow() { return this.dream?.mode==='record' ? this.maxFlame : this.flame; }
   get condensedTotal() { return this.condensedStart+this.condensedGlow; }
   spendGlow(amount) { this.flame=Math.max(0,this.flame-Math.max(0,amount)); }
 
@@ -1463,7 +1466,11 @@ export class WispFlight {
     const sightRemaining=Math.max(0,(this.sightUntil||0)-this.time);
     const flashStrength=flashRangeStrength(sightRemaining);
     const sightBonus=flashSpec.sightBonus*flashStrength;
-    const revealedRadius=baseRadius+sightBonus+(this.dream?.phase==='recording'&&this.mod.dreamSight?70:0),dyingFade=this.dying?Math.max(0,1-this.dyingProgress**1.7):1;
+    const dream=this.dream;
+    // Thaw hazards react to simulated light, even while the rehearsal view
+    // shows the entire scene. Use the same radius for recording and playback.
+    const lucidSight=this.mod.dreamSight&&dream&&(dream.active||dream.phase==='awakening'||this.time<dream.wokeAt+3);
+    const revealedRadius=baseRadius+sightBonus+(lucidSight?70:0),dyingFade=this.dying?Math.max(0,1-this.dyingProgress**1.7):1;
     const caveReduction=clamp(this.caveDimming||0,0,.18),caveScale=(1-caveReduction)*moonLightScale(this);
     const seer=this.fleet.find(item=>item.role==='seer');
     const traitRemaining=this.mod.mainSeer?Math.max(0,this.mainSeerUntil-this.time):0;
@@ -2053,7 +2060,7 @@ export class WispFlight {
       flightChallenge:this.flightChallenge,challengeCue:this.flightChallenge
         ?this.flightChallenge.phase==='warning'?`${this.flightChallenge.name} ahead · ${this.flightChallenge.instruction}`
           :this.flightChallenge.phase==='active'?`${this.flightChallenge.name} · ${this.flightChallenge.instruction}`:'' :'',
-      flame: this.flame,pickupOverflow:this.pickupOverflow,condensationFlow:{...this.condensationFlow},
+      flame: this.visibleGlow,pickupOverflow:this.pickupOverflow,condensationFlow:{...this.condensationFlow},
       dream:this.dream?.state||null, maxFlame: this.maxFlame, paidFlapCost:this.flapCost, flapCost:nextLiftCost, fourthBeat,
       canFlap: this.alive && !this.finished && !this.dying && !this.completing && canAffordFlap,
       canAffordFlap, flaps: this.flaps,
@@ -2172,6 +2179,7 @@ export class WispFlight {
     this.visualTime = this.time + blend * STEP;
     if (this.pixiReady && this.pixiView) { this.pixiView.render(this); return; }
     const c = this.ctx, W = this.width, H = this.height;
+    const light = renderLightState(this);
     c.setTransform(this.canvas.width / W, 0, 0, this.canvas.height / H, 0, 0);
     c.globalAlpha = 1; c.globalCompositeOperation = 'source-over';
     this.drawBackground(c, W, H);
@@ -2191,22 +2199,23 @@ export class WispFlight {
       time: this.visualTime, pass: 'hands' });
     this.biomeDynamics?.draw(c,{distance:this.renderDistance,scale:1,height:H});
     this.drawPortal(c,W,H);
+    if(light.rehearsing)lightDreamScenery(c,W,H);
     this.drawEmbers(c);
-    this.drawFallbackLight(c);
-    drawFallWarning(c,this);
+    if(!light.rehearsing)this.drawFallbackLight(c,light);
+    drawFallWarning(c,this,{light});
     this.drawWayfinder(c);
     drawGuardianWarnings(c,{engine:this,distance:this.renderDistance,time:this.visualTime});
-    this.biomeDynamics?.drawHighlights(c,{distance:this.renderDistance,light:this.getLightState(),playerY:this.renderPlayerY});
+    this.biomeDynamics?.drawHighlights(c,{distance:this.renderDistance,light,playerY:this.renderPlayerY});
     drawAtlasFlight(c,this);
     drawObjectiveMarks(c,this);
     drawFlightProjection(c,this);
-    drawGlowSense(c,this);
+    if(!light.rehearsing)drawGlowSense(c,this);
     this.drawFlightTrail(c);
     this.drawParticles(c);
     drawShutters(c,this);
     this.drawWisp(c);
     this.drawPhoenix(c);
-    this.drawPickups(c);
+    if(!light.rehearsing)this.drawPickups(c);
     if(this.flashTether)drawFlashTether(c,this.flashTether,{time:this.captureTime,distance:this.renderDistance,
       playerX:this.renderDistance+this.player.x,playerY:this.renderPlayerY});
     for (const effect of this.absorptionEffects) {
@@ -2215,8 +2224,9 @@ export class WispFlight {
     drawBlackHoles(c,this);
     this.drawForeground(c, W, H);
     c.restore();
-    drawProximityMeter(c,this);
     if (this.flash > 0) { c.fillStyle = `rgba(255,196,149,${this.flash * .36})`; c.fillRect(0, 0, W, H); }
+    if (light.rehearsing) return;
+    drawProximityMeter(c,this);
     const vignette = c.createRadialGradient(W / 2, H * .43, W * .3, W / 2, H * .45, H * .8);
     vignette.addColorStop(0, 'rgba(5,12,24,0)'); vignette.addColorStop(1, 'rgba(5,12,24,.36)');
     c.fillStyle = vignette; c.fillRect(0, 0, W, H);
@@ -2224,13 +2234,13 @@ export class WispFlight {
 
   drawWayfinder(c,scale=1){ this.flightBoon.drawSurvey(c,scale,obstaclePolygons); }
 
-  drawFallbackLight(c){
+  drawFallbackLight(c,light=this.getLightState()){
     const doc=this.canvas.ownerDocument||(typeof document!=='undefined'?document:null);
     if(!doc?.createElement)return;
     this.fallbackFog??=doc.createElement('canvas');this.fallbackMask??=createLightMaskCanvas(doc);
     const fog=this.fallbackFog,w=Math.ceil(this.width),h=Math.ceil(this.height);
     if(fog.width!==w||fog.height!==h){fog.width=w;fog.height=h;}
-    const f=fog.getContext('2d'),light=this.getLightState(),y=this.renderPlayerY??this.player.y;
+    const f=fog.getContext('2d'),y=this.renderPlayerY??this.player.y;
     f.globalAlpha=1;f.globalCompositeOperation='source-over';f.clearRect(0,0,w,h);f.fillStyle='#000000';f.fillRect(0,0,w,h);
     f.globalCompositeOperation='destination-out';
     const cast=(x,y,r,alpha)=>{r*=LIGHT_EXTENT;f.globalAlpha=alpha;f.drawImage(this.fallbackMask,x-r,y-r,r*2,r*2);};
@@ -2401,7 +2411,7 @@ export class WispFlight {
       const margin = sparkBodyRadius(ember,this.height)*1.5 + 8;
       if (x < -margin || x > this.width + margin) continue;
       drawPickup(c,x,ember.y,{kind:pickupKind(ember),time:this.captureTime,phase:ember.phase,
-        scale:sparkArtScale(ember,this.height),detailed:sparkMass(ember)>=5,reducedMotion:this.reducedMotion});
+        scale:sparkArtScale(ember,this.height),massTier:sparkMass(ember),reducedMotion:this.reducedMotion});
     }
   }
 
@@ -2481,7 +2491,7 @@ export class WispFlight {
       if(state.carrying) {
         const pose=state.cargoPose;
         drawPickup(c,state.x+pose.offsetX,state.y+pose.offsetY,{kind:state.cargoKind,
-          time:this.captureTime,phase:state.cargoPhase,scale:pose.scale,bodyOnly:true,detailed:pose.detailed,reducedMotion:this.reducedMotion});
+          time:this.captureTime,phase:state.cargoPhase,scale:pose.scale,bodyOnly:true,massTier:pose.massTier,reducedMotion:this.reducedMotion});
       }
     }
     c.restore();
@@ -2500,7 +2510,7 @@ export class WispFlight {
     const pulse = this.reducedMotion ? 1 : 1 + Math.sin(t * 4) * .035;
     const fade=this.dying?Math.max(.02,1-this.dyingProgress):1;
     c.scale(pulse*fade*WISP_BODY_SCALE, pulse*fade*WISP_BODY_SCALE);
-    const core=13*Math.sqrt(clamp(this.flame/this.maxFlame,0,1));
+    const core=13*Math.sqrt(clamp(this.visibleGlow/this.maxFlame,0,1));
     for(let yy=-17;yy<17;yy+=2)for(let xx=-17;xx<17;xx+=2){
       const radius=Math.hypot(xx+1,yy+1);if(radius>FALLBACK_WISP_RADIUS)continue;
       const light=Math.round(clamp((core+3-radius)/5,0,1)*5)/5;

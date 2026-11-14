@@ -41,7 +41,7 @@ export function shutterPhase(s,playerX){
  return 2;
 }
 
-function inside(s,x,y){
+export function insideShutter(s,x,y){
  const across=(s.y-y)*s.side/s.depth;
  return across>=0&&across<=1&&Math.abs(x-s.x-s.shift*across)<=s.spread*across;
 }
@@ -49,8 +49,8 @@ function inside(s,x,y){
 export function shutterLightFactor(boss,x,y,playerX,playerY){
  if(!boss?.shutters)return 1;
  for(const s of boss.shutters){
-  if(shutterPhase(s,playerX)!==2||!inside(s,x,y))continue;
-  if(!inside(s,playerX,playerY))return remainingLight;
+  if(shutterPhase(s,playerX)!==2||!insideShutter(s,x,y))continue;
+  if(!insideShutter(s,playerX,playerY))return remainingLight;
   const radius=Math.hypot(x-playerX,y-playerY)/s.pocket;
   return 1-(1-remainingLight)*clamp01((radius-.18)/.82);
  }
@@ -93,9 +93,9 @@ export function drawShutters(c,engine,{distance=engine.renderDistance??engine.di
   c.save();c.scale(scale,scale);c.translate(-distance,0);
   c.globalAlpha=1;c.globalCompositeOperation='source-over';
   conePath(c,s);
-  if(phase===2){
+  if(phase===2&&engine.dream?.mode!=='record'){
    c.fillStyle='rgba(0,0,0,.95)';
-   if(inside(s,playerX,playerY)){
+   if(insideShutter(s,playerX,playerY)){
     const gradient=c.createRadialGradient(playerX,playerY,0,playerX,playerY,s.pocket);
     gradient.addColorStop(0,'rgba(0,0,0,0)');gradient.addColorStop(.18,'rgba(0,0,0,0)');
     gradient.addColorStop(1,'rgba(0,0,0,.95)');c.fillStyle=gradient;

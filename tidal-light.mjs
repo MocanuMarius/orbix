@@ -1,7 +1,7 @@
-import {DEFAULT_CAPTURE_STYLE} from './capture-styles.mjs?v=spark-floor-1';
-import {getPickupSpec, pickupKind} from './pickups.mjs?v=spark-floor-1';
-import {pickupSpriteFrame} from './pickup-art.mjs?v=spark-floor-1';
-import {LIGHT_PACKET_TUNING} from './vitality.mjs?v=spark-floor-1';
+import {DEFAULT_CAPTURE_STYLE} from './capture-styles.mjs?v=giant-detail-1';
+import {getPickupSpec, pickupKind} from './pickups.mjs?v=giant-detail-1';
+import {pickupSpriteFrame} from './pickup-art.mjs?v=giant-detail-1';
+import {LIGHT_PACKET_TUNING} from './vitality.mjs?v=giant-detail-1';
 
 const TAU = Math.PI * 2;
 const clamp = value => Math.max(0, Math.min(1, value));
@@ -93,7 +93,8 @@ export function drawAbsorbingSpark(ctx, effect, age, targetX, targetY, scale, qu
   const doc = ctx.canvas?.ownerDocument ?? globalThis.document;
   const time = (effect.bornAt || 0) + age * (effect.duration || LIGHT_PACKET_TUNING.absorptionDuration);
   plain.time=time; plain.phase=effect.phase||0; plain.reducedMotion=quiet; plain.bodyOnly=true;
-  plain.detailed=effect.massTier>=5;
+  plain.massTier=effect.massTier;
+  plain.scale=size*scale;
   const sprite = pickupSpriteFrame(doc, kind, plain);
   ctx.save();
   ctx.translate(targetX,targetY);

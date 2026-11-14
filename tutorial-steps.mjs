@@ -1,4 +1,4 @@
-import {topicSteps} from './tutorial-curriculum.mjs?v=spark-floor-1';
+import {topicSteps} from './tutorial-curriculum.mjs?v=giant-detail-1';
 const step=(id,title,text,target)=>({id,title,text,target,allowTarget:false});
 const chapter=(id,steps,target)=>({id,steps:steps.map(s=>({...s,...(target?{target}:{}),allowTarget:false}))});
 export function checkpointTutorialLesson(screen,{run={}}={}){
@@ -22,7 +22,7 @@ export function checkpointTutorialLesson(screen,{run={}}={}){
   else if(run.current?.kind==='treasure')lesson=chapter('practice-treasure',[{title:'Treasure',text:'Each chest offers one of two rewards. Its name and map preview tell you what’s inside. Pick the deal that suits your next passage.',visual:'site:treasure'}],'.support-offers');
   else lesson=chapter('practice-event',[{title:'Encounter: read both outcomes',text:'This is an event, not a free reward. The offering is certain; dice show a cost and possible rewards. Pick the risk that fits your build.',visual:'site:encounter'},topicSteps('packed')[1]],'.support-offers');
  }
- if(screen==='rest-prep')lesson=run.step>=6?chapter('practice-dream',topicSteps('dream'),'.rest-dream'):chapter('practice-rest-tools',[topicSteps('rest')[1],{title:'Practice tools are open',text:'Try Skills or Collection. Practice also gives you Dream for a six-second rehearsal.',visual:'tools'}],'.rest-service-cards');
+ if(screen==='rest-prep')lesson=run.step>=6?chapter('practice-dream',topicSteps('dream'),'.rest-depart'):chapter('practice-rest-tools',[topicSteps('rest')[1],{title:'Practice tools are open',text:'Try Skills or Collection. A later Rest teaches Dream.',visual:'tools'}],'.rest-service-cards');
  if(screen==='skills')lesson=chapter('practice-skill-tree',topicSteps('skills'),'.tree-body');
  if(screen==='companions')lesson=chapter('practice-companions',topicSteps('companions'),'.companion-roles');
  if(screen==='artifacts')lesson=chapter('practice-artifacts',topicSteps('artifacts'),'.artifact-workshop');

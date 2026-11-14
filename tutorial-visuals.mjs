@@ -1,13 +1,13 @@
-import {resourceCycleArt} from './resource-cycle.mjs?v=spark-floor-1';
-import {getCompanionAbility} from './companion-abilities.mjs?v=spark-floor-1';
-import {resourceSymbol} from './game-symbols.mjs?v=spark-floor-1';
-import {pickupArtSvg} from './pickup-art.mjs?v=spark-floor-1';
-import {getPickupSpec} from './pickups.mjs?v=spark-floor-1';
-import {mapStopIconMarkup,MAP_STOP_TYPES} from './map-guide.mjs?v=spark-floor-1';
-import {artifactIcon,skillIcon} from './upgrade-icons.mjs?v=spark-floor-1';
-import {companionArtSvg} from './companion-art.mjs?v=spark-floor-1';
-import {dreamEye} from './dream.mjs?v=spark-floor-1';
-import {lifeHeartSvg} from './lives.mjs?v=spark-floor-1';
+import {resourceCycleArt} from './resource-cycle.mjs?v=giant-detail-1';
+import {getCompanionAbility} from './companion-abilities.mjs?v=giant-detail-1';
+import {resourceSymbol} from './game-symbols.mjs?v=giant-detail-1';
+import {pickupArtSvg} from './pickup-art.mjs?v=giant-detail-1';
+import {getPickupSpec} from './pickups.mjs?v=giant-detail-1';
+import {mapStopIconMarkup,MAP_STOP_TYPES} from './map-guide.mjs?v=giant-detail-1';
+import {artifactIcon,skillIcon} from './upgrade-icons.mjs?v=giant-detail-1';
+import {companionArtSvg} from './companion-art.mjs?v=giant-detail-1';
+import {dreamEye} from './dream.mjs?v=giant-detail-1';
+import {lifeHeartSvg} from './lives.mjs?v=giant-detail-1';
 const item=(art,label)=>`<span class="coach-term">${art}<b>${label}</b></span>`;
 const arrow='<i class="coach-term-arrow" aria-hidden="true">→</i>';
 const meter='<span class="coach-meter" aria-hidden="true">'+Array.from({length:10},(_,i)=>`<i class="${i<7?'filled':''}"></i>`).join('')+'</span>';
@@ -32,7 +32,7 @@ export function tutorialVisualMarkup(step={}){
  if(kind==='edge')return item(skillIcon({id:'main-edging-attunement',icon:'edge-pulse'}),'PROXIMITY');
  if(kind==='forge')return item(artifactIcon('glow-wick'),'DESTROY')+arrow+item(resourceSymbol('packed'),'STORED SPARKS');
  if(kind==='artifact-rarity')return item(artifactIcon('glow-wick'),'COMMON')+item(artifactIcon('sunspool'),'RARE')+item(artifactIcon('sunheart-engine'),'LEGENDARY');
- if(kind==='skill-states')return '<span class="coach-skill-key"><b>✓ OWNED</b><b>+ CAN LEARN</b><b>◆ NEED LIGHT</b><b>▣ LOCKED</b></span>';
+ if(kind==='skill-states')return '<span class="coach-skill-key"><b>✓ OWNED</b><b>CAN LEARN</b><b>SAVE</b><b>◇ LATER</b></span>';
  if(kind?.startsWith('site:'))return item(mapStopIconMarkup(kind.slice(5)),kind.slice(5).toUpperCase());
  if(kind==='sites-support')return item(mapStopIconMarkup('encounter'),'ENCOUNTER')+item(mapStopIconMarkup('treasure'),'TREASURE');
  if(kind?.startsWith('pickup:')){const type=step.pickup||kind.slice(7);return item(pickupArtSvg(type),getPickupSpec(type).name);}

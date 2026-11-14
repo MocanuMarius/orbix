@@ -1,9 +1,9 @@
-import {menuWorldMarkup} from './menu-world.mjs?v=spark-floor-1';
-import {resourceSymbol} from './game-symbols.mjs?v=spark-floor-1';
-import {formatGlow,getGlowCapacity} from './vitality.mjs?v=spark-floor-1';
-import {livesMarkup} from './lives.mjs?v=spark-floor-1';
-import { COMPANION_ABILITIES } from './companion-abilities.mjs?v=spark-floor-1';
-import { companionArtSvg } from './companion-art.mjs?v=spark-floor-1';
+import {menuWorldMarkup} from './menu-world.mjs?v=giant-detail-1';
+import {resourceSymbol} from './game-symbols.mjs?v=giant-detail-1';
+import {formatGlow,getGlowCapacity} from './vitality.mjs?v=giant-detail-1';
+import {livesMarkup} from './lives.mjs?v=giant-detail-1';
+import { COMPANION_ABILITIES } from './companion-abilities.mjs?v=giant-detail-1';
+import { companionArtSvg } from './companion-art.mjs?v=giant-detail-1';
 
 const esc = value => String(value ?? '').replace(/[&<>"']/g, char =>
   ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[char]));

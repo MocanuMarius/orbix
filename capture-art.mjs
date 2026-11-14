@@ -1,23 +1,24 @@
-import {drawAbsorbingSpark} from './tidal-light.mjs?v=spark-floor-1';
-import {getPickupSpec, pickupShellRadius} from './pickups.mjs?v=spark-floor-1';
-import {drawPickup} from './pickup-art.mjs?v=spark-floor-1';
-import {drawShellArcs} from './shell-arcs.mjs?v=spark-floor-1';
+import {drawAbsorbingSpark} from './tidal-light.mjs?v=giant-detail-1';
+import {getPickupSpec, pickupShellRadius} from './pickups.mjs?v=giant-detail-1';
+import {drawPickup} from './pickup-art.mjs?v=giant-detail-1';
+import {drawShellArcs} from './shell-arcs.mjs?v=giant-detail-1';
 
 const TAU = Math.PI * 2;
 const clamp = value => Math.max(0, Math.min(1, value));
 
 // Broken arcs merge into an irregular, translucent cloud at the capture site.
 // Sample its two outlines together so the puff reads as one volume.
-const segments = 36;
-const hazeX = new Float32Array(segments);
-const hazeY = new Float32Array(segments);
-const outer = new Float32Array(segments);
-const inner = new Float32Array(segments);
+const maxPuffSegments = 96;
+const hazeX = new Float32Array(maxPuffSegments);
+const hazeY = new Float32Array(maxPuffSegments);
+const outer = new Float32Array(maxPuffSegments);
+const inner = new Float32Array(maxPuffSegments);
 
 export function drawShellPuff(ctx,x,y,radius,age,kind,phase=0,quiet=false) {
   if (age < 0 || age >= 1) return;
   const fade = (1-age)**1.18, swell = 1-(1-age)**2;
   const shape = phase + age*(quiet ? .12 : .46);
+  const segments=Math.min(maxPuffSegments,Math.max(36,Math.ceil(radius*.8)));
   y -= radius*.28*swell;
   for(let i=0;i<segments;i++) {
     const angle=i*TAU/segments;
@@ -53,7 +54,7 @@ export function drawShellPuff(ctx,x,y,radius,age,kind,phase=0,quiet=false) {
   }
   if(age<.18) {
     ctx.globalAlpha=alpha*(1-age/.18)*.68;
-    ctx.lineWidth=Math.max(.75,radius*.10*(1-age/.18));
+    ctx.lineWidth=Math.max(.75,Math.min(2,radius*.10)*(1-age/.18));
     ctx.strokeStyle=ctx.fillStyle;
     ctx.beginPath();
     for(let i=0;i<6;i++){
@@ -79,7 +80,7 @@ export function drawCapture(context,effect,time,playerX,playerY,distance,scale,q
     const x=sourceX+(delivery ? (delivery.previousWorldX-delivery.worldX)*from : 0);
     const y=sourceY+(delivery ? (delivery.previousY-delivery.y)*from : 0);
     drawPickup(context,x*scale,y*scale,{kind:effect.pickupKind,time,phase:effect.phase,
-      scale:size*scale,detailed:effect.massTier>=5,reducedMotion:quiet,bodyOnly:Boolean(delivery)});
+      scale:size*scale,massTier:effect.massTier,reducedMotion:quiet,bodyOnly:Boolean(delivery)});
     return;
   }
   if(!delivery){

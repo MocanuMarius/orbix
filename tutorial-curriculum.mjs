@@ -43,12 +43,12 @@ export const TUTORIAL_TOPICS={
  packed:{name:'Stored Sparks',visual:'clear-reward',steps:[
   s('A reward for every clear','Ordinary flights earn 20 Stored Sparks for run skills. Elite and guardian victories also offer two artifacts: choose one. The third guardian ends the run with victory.','clear-reward'),
   s('Overflow is a bonus','When a pickup overfills Sparks, the surplus becomes extra Stored Sparks. Clear the flight to keep them. Rest refills do not create Stored Sparks.','packed'),
-  s('Three skill trees','Wisp shapes your flight. Companion specializes your chosen orb. Mystic holds Storage, Dream and Proximity. Each circle has separately purchased ranks.','skills'),
-  s('Glide Regeneration','Learn it in Wisp. Stop pressing Lift and fall unassisted to recover Sparks after a delay. Hovering, boosting, dreams and pauses do not regenerate Sparks.','meter'),
+  s('Your skill book','Browse the chapters to see where a perk leads. Can learn shows every upgrade you can afford, including skills for your chosen companion.','skills'),
+  s('Glide Regeneration','Find it in Flight. Stop pressing Lift and fall unassisted to recover Sparks after a delay. Hovering, boosting, dreams and pauses do not regenerate Sparks.','meter'),
   s('Storing surplus','Storage starts at 6 surplus Sparks for 1 Stored Spark. Efficient Storage and Prism Vessel each improve the yield. It improves your run economy; it is not a second fuel bar.','skills')]},
- skills:{name:'Skill trees',visual:'skills',steps:[
-  s('Choose a branch','Skills belong to this run. Light improves Luminance; Motion changes flight; Sparks improves fuel. Your companion tree improves the one role you equipped.','skills'),
-  s('Read the skill states','Blue check: owned. Gold plus: affordable now. Bronze price: save more Stored Sparks. Lock: learn its prerequisite first.','skill-states'),
+ skills:{name:'Skill book',visual:'skills',steps:[
+  s('Choose a chapter','Flight improves Lift and fuel. Luminance helps you see the passage. Your companion has a chapter of its own. All skills last for this run.','skills'),
+  s('Read the skill states','Owned perks have a blue check. Gold prices are affordable now. Save means you need more Stored Sparks. Later means there is a prerequisite.','skill-states'),
   s('Commit to your build','Some forks exclude the other path. Read the selected effect before learning. Spend Stored Sparks on upgrades during your run. A new run resets these skills.','skills')]},
  rewards:{name:'Flight rewards',visual:'artifact',steps:[
   s('Clear the passage','Reaching the waylight completes a flight. Before the final guardian, earn 20 Stored Sparks plus pickup overflow. Some Sparks recover for the next flight. A bonus challenge is optional.','clear-reward'),
@@ -61,12 +61,12 @@ export const TUTORIAL_TOPICS={
   s('Build a combination','Pair automatic effects with your companion, skills and the next biome. Read each trigger and limit. Artifacts last only for this run; exhausted consumables disappear.','artifact')]},
  rest:{name:'Rest',visual:'rest',steps:[
   s('Recover or Grow','Recover restores every missing heart. Grow adds 3 Spark capacity for this run, up to three times. Both completely refill Sparks. Choose once at each Rest.','rest'),
-  s('Then prepare','After Recover or Grow, inspect your artifacts or rehearse if you learned Dream. Keep your Rest benefit while preparing.','tools'),
-  s('Plan your next passage','Rest commits to one next flight. Read its terrain and prepare for it. After a failed attempt, the map shows whichever retry paths are reachable.','route')]},
+  s('Then prepare','After Recover or Grow, inspect your artifacts before leaving. Keep your Rest benefit while preparing.','tools'),
+  s('Plan your next passage','Each Rest leads to one known flight. Inspect its terrain and prepare. If you lose a heart there, you can retry that same passage.','route')]},
  dream:{name:'Dream',visual:'dream',steps:[
-  s('Dream: rehearse six seconds','Use the closed eye at Rest or on an Elite or Guardian preview. Rehearse the opening as often as you like. Each practice is free.','dream'),
-  s('Save a preset','When you like an opening, save it. The next flight replays those inputs without Lift or sustain cost. Changes to the build can invalidate a preset.','dream'),
-  s('Wake safely','Playback ends paused. Tap once to wake; tap again to Lift. After the 3–2–1 countdown, speed rises from 0.1× to 1× over three seconds.','pause')]},
+  s('Dream: rehearse six seconds','With Dream learned, choosing a flight opens a golden rehearsal. Follow the timer and practise the opening for free.','dream'),
+  s('Sleep or wake','Go back to sleep to practise again. Wake up to fly the same opening in ordinary light. Your recorded Lifts are free.','dream'),
+  s('Wake safely','Playback ends paused. Tap once to resume and tap again to Lift as the flight returns to full speed.','pause')]},
  routes:{name:'Paths & stops',visual:'route',steps:[
   s('Follow connected paths','Bright nodes are reachable. Dim nodes are not. Choosing a fork commits your route; you cannot jump to any stop on the map.','route'),
   s('Flight and elite routes','Passage markers mean ordinary Flight. Creature portraits mark harder Elite routes with a two-artifact choice. Inspect the biome and length before committing.','site:flight'),

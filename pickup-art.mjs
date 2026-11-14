@@ -1,5 +1,5 @@
-import { pickupKind, getPickupSpec, pickupDisposition, PLASMA_SHELL_RADIUS, SPARK_ART_SCALE } from './pickups.mjs?v=spark-floor-1';
-import {sparkImageArt,sparkSymbolArt} from './spark-symbol.mjs?v=spark-floor-1';
+import { pickupKind, getPickupSpec, pickupDisposition, PLASMA_SHELL_RADIUS, SPARK_ART_SCALE } from './pickups.mjs?v=giant-detail-1';
+import {sparkImageArt,sparkSymbolArt} from './spark-symbol.mjs?v=giant-detail-1';
 
 const TAU = Math.PI * 2;
 const clamp = (value, low, high) => Math.max(low, Math.min(high, value));
@@ -256,79 +256,171 @@ export function drawFuelFrame(context,x,y,kind,frame,reducedMotion=false,bodyOnl
     context.fillRect(x+p.x,y+p.y,p.width,p.height);
   }
 }
-// Giants need a finer source grid than a 25-pixel pickup. Paint the same
-// discharges into a bounded atlas; the terrain-sized shell stays translucent.
-function paintLargeSpark(ctx,id,phase,bodyOnly) {
-  const tier=getPickupSpec(id).plasma, ink=fields[tier];
-  const radius=tier?PLASMA_SHELL_RADIUS*SPARK_ART_SCALE:getPickupSpec(id).contactRadius*SPARK_ART_SCALE;
+// The cropped surfaces below are sized for the projected field sprite. Keep
+// their coordinate system in shell radii so the plasma, cargo and absorption
+// sample the same material even as their raster resolution changes.
+const largeAtlases=new WeakMap();
+const largeDensities=[2,4,6,8,12,16];
+const richTracks=[...discharges[3],...discharges[3].map(track=>({
+  offset:(track.offset+.373)%1,
+  events:track.events.map(event=>({...event,angle:event.angle+2.47,jitter:event.jitter+.91}))
+}))];
+
+function largeSparkArt(ctx,id,phase,bodyOnly,mass,radius,pen) {
+  const dark=!getPickupSpec(id).plasma,giant=mass===10;
+  const glow=dark?'#e67b79':'#b5d8e8',bright=dark?'#ffb7a9':'#effaff';
+  const ring=(r,start,end,color,alpha,width)=>{
+    ctx.beginPath();ctx.arc(0,0,r,start,end);ctx.strokeStyle=color;
+    ctx.lineWidth=width;ctx.globalAlpha=alpha;ctx.stroke();
+  };
+  const disc=(x,y,r,color,alpha)=>{
+    ctx.beginPath();ctx.arc(x,y,r,0,TAU);ctx.fillStyle=color;
+    ctx.globalAlpha=alpha;ctx.fill();
+  };
   ctx.translate(ctx.canvas.width/2,ctx.canvas.height/2);
-  ctx.scale(2,2);
-  const disc=(r,color,alpha)=>{
-    ctx.globalAlpha=alpha;ctx.fillStyle=color;ctx.beginPath();ctx.arc(0,0,r,0,TAU);ctx.fill();
-  };
-  const rim=(r,start,end,color,alpha,width)=>{
-    ctx.globalAlpha=alpha;ctx.strokeStyle=color;ctx.lineWidth=width;ctx.beginPath();ctx.arc(0,0,r,start,end);ctx.stroke();
-  };
-  const dark=!tier, glow=dark?(id==='dusk'?'#db8cb4':'#e67972'):ink.glow;
+  ctx.scale(radius,radius);
+  ctx.lineCap='round';ctx.lineJoin='round';
+
+  // The interior has depth but transmits the silhouette of a passage behind it.
+  // A narrow reflected crescent illuminates the glass rather than filling it.
   if(!bodyOnly){
-    disc(radius+1.6,glow,.10);disc(radius+.7,glow,.12);
-    disc(radius,dark?'#321e30':'#333d43',.74);
-    rim(radius,0,TAU,dark?glow:ink.rim,.88,.62);
+    const glass=ctx.createRadialGradient(-.13,-.16,.07,0,0,1.11);
+    glass.addColorStop(0,dark?'rgba(42,23,41,.52)':'rgba(54,67,78,.43)');
+    glass.addColorStop(.71,dark?'rgba(57,29,40,.37)':'rgba(65,79,94,.27)');
+    glass.addColorStop(.94,dark?'rgba(104,45,53,.43)':'rgba(116,141,155,.32)');
+    glass.addColorStop(.99,dark?'rgba(205,88,82,.58)':'rgba(180,210,222,.54)');
+    glass.addColorStop(1,'rgba(0,0,0,0)');
+    disc(0,0,1.11,glass,1);
+    ring(1,0,TAU,glow,.29,pen*3.1);
+    ring(1,0,TAU,bright,.81,pen);
+    ring(.974,3.66,4.79,bright,.58,pen*.72);
+    ring(.956,3.87,4.37,bright,.33,pen*.66);
+    ring(.985,.54,1.07,glow,.48,pen*.72);
   }
+
   if(dark){
-    disc(radius*.46,glow,.8);disc(radius*.41,'#362836',1);disc(radius*.31,'#05050a',1);
-    for(let i=0;i<6;i++){
-      const k=(phase*1.3+i/6)%1, angle=i*2.399+TAU*phase*1.3;
-      rim(radius*(.38+.40*(1-k)),angle,angle+.29+.35*k,glow,.22+.35*k,.38);
-      const r=radius*(.81-.37*k);
-      ctx.fillStyle='#ffb7b5';ctx.globalAlpha=.48;
-      ctx.fillRect(r*Math.cos(angle),r*Math.sin(angle),.8,.6);
-    }
-    rim(radius*.43,3.42,4.83,'#ffb8a9',.92,.66);
-  }else{
-    disc(radius*.9,ink.glow,.07);disc(radius*.63,ink.glow,.06);
-    for(const track of discharges[tier]){
-      const t=(phase+track.offset)%1;
-      const e=track.events.find(item=>t>=item.start && t<item.start+item.duration);
-      if(!e)continue;
-      const life=(t-e.start)/e.duration;
-      const alpha=Math.min(1,(life+.025)/.13,(1-life)/.28);
-      const reach=e.rooted?radius:radius*(.26+.74*Math.min(1,life/.22));
-      const jitter=Math.sin(e.jitter+life*10)*Math.sin(life*Math.PI);
-      ctx.beginPath();ctx.moveTo(0,0);
-      let bx=0,by=0;
-      for(let j=1;j<=6;j++){
-        const f=j/6,angle=e.angle+(1-f)*(e.bendA*(1-f)+e.bendB*f)+jitter*.09*Math.sin(j*2+e.jitter);
-        const r=reach*f*e.rimLength;
-        ctx.lineTo(Math.cos(angle)*r,Math.sin(angle)*r);
-        if(j===4){bx=Math.cos(angle)*r;by=Math.sin(angle)*r;}
+    // Filaments spiral into the dark centre along a flattened, inclined disk.
+    // Further strands disappear behind the aperture; the near lip catches light.
+    const count=giant?18:10;
+    for(let i=0;i<count;i++){
+      const turn=TAU*(phase+i/count),reach=.45+.44*((i*.618)%1);
+      const hot=.25+.65*(.5+.5*Math.cos(turn-i*2.12))**2;
+      ctx.beginPath();
+      for(let j=0;j<=14;j++){
+        const f=j/14,a=turn+f*(1.3+.55*((i*.427)%1)),r=reach*(1-.31*f);
+        const x=r*Math.cos(a),y=r*Math.sin(a)*.67-x*.23;
+        if(j)ctx.lineTo(x,y);else ctx.moveTo(x,y);
       }
-      if(e.fork&&life>e.forkTime&&life<.92){
-        ctx.moveTo(bx,by);ctx.lineTo(Math.cos(e.angle+e.fork*.42)*reach*.76,Math.sin(e.angle+e.fork*.42)*reach*.76);
-        ctx.lineTo(Math.cos(e.angle+e.fork)*reach*.90,Math.sin(e.angle+e.fork)*reach*.90);
-      }
-      ctx.lineJoin='bevel';ctx.globalAlpha=alpha*.28;ctx.lineWidth=1.35;ctx.strokeStyle=ink.glow;ctx.stroke();
-      ctx.globalAlpha=alpha*.97;ctx.lineWidth=.47;ctx.strokeStyle=ink.core;ctx.stroke();
+      ctx.strokeStyle=i%4===0?bright:glow;ctx.lineWidth=pen*(i%4===0?.9:.66);
+      ctx.globalAlpha=hot;ctx.stroke();
     }
-    disc(radius*.22,ink.glow,.34);disc(radius*.13,ink.arc,.85);disc(radius*.075,ink.core,1);
+    const aperture=ctx.createRadialGradient(-.065,-.04,.12,0,0,.47);
+    aperture.addColorStop(0,'#05050a');aperture.addColorStop(.60,'#090810');
+    aperture.addColorStop(.82,'#271b29');aperture.addColorStop(.95,'#713a42');
+    aperture.addColorStop(1,'rgba(216,111,102,0)');
+    disc(0,0,.47,aperture,1);
+    ring(.409,2.87,5.78,glow,.86,pen*1.15);
+    ring(.423,3.55,4.66,bright,.83,pen*.88);
+    return;
   }
+
+  const tracks=giant?richTracks:discharges[3];
+  const segments=giant?17:10;
+  for(const track of tracks){
+    const t=(phase+track.offset)%1;
+    const e=track.events.find(item=>t>=item.start && t<item.start+item.duration);
+    if(!e)continue;
+    const life=(t-e.start)/e.duration;
+    const power=Math.min(1,(life+.025)/.13,(1-life)/.28);
+    const reach=e.rimLength*(e.rooted?1:.26+.74*Math.min(1,life/.22));
+    const wave=Math.sin(e.jitter+life*8)*Math.sin(life*Math.PI);
+    let forkX=0,forkY=0,tipX=0,tipY=0;
+    ctx.beginPath();ctx.moveTo(0,0);
+    for(let j=1;j<=segments;j++){
+      const f=j/segments;
+      const bend=(1-f)*(e.bendA*(1-f)+e.bendB*f);
+      const kink=Math.sin(e.jitter+j*1.93+wave*.9)*.043+Math.sin(j*.73+life*3)*.055;
+      const a=e.angle+bend+kink*Math.sin(Math.PI*f);
+      tipX=Math.cos(a)*reach*f;tipY=Math.sin(a)*reach*f;
+      ctx.lineTo(tipX,tipY);
+      if(j===Math.ceil(segments*.62)){forkX=tipX;forkY=tipY;}
+    }
+    if(e.fork&&life>e.forkTime&&life<.94){
+      ctx.moveTo(forkX,forkY);
+      for(let j=1;j<=5;j++){
+        const f=j/5,a=e.angle+e.fork*f+.07*Math.sin(Math.PI*f+wave);
+        const r=reach*(.62+.31*f);
+        ctx.lineTo(r*Math.cos(a),r*Math.sin(a));
+      }
+    }
+    ctx.strokeStyle=glow;ctx.lineWidth=pen*2.65;ctx.globalAlpha=power*.27;ctx.stroke();
+    ctx.strokeStyle=bright;ctx.lineWidth=pen;ctx.globalAlpha=power*.94;ctx.stroke();
+    // An arc finds a contact and crawls along the inside of the membrane.
+    if(!bodyOnly&&reach>.84&&life>.13&&life<.87){
+      const nx=Math.cos(e.angle),ny=Math.sin(e.angle);
+      ctx.beginPath();ctx.moveTo(tipX,tipY);ctx.lineTo(nx*.974,ny*.974);
+      ctx.strokeStyle=bright;ctx.lineWidth=pen*.77;ctx.globalAlpha=power*.65;ctx.stroke();
+      ring(.982,e.angle-.017,e.angle+.022+.064*life,bright,power*.70,pen*1.05);
+      disc(.978*nx,.978*ny,pen*1.15,'#ffffff',power*.85);
+    }
+  }
+  const heart=ctx.createRadialGradient(0,0,0,0,0,.26);
+  heart.addColorStop(0,'#ffffff');heart.addColorStop(.18,'#f6fcff');
+  heart.addColorStop(.31,'rgba(225,241,255,.95)');heart.addColorStop(.48,'rgba(183,216,241,.39)');
+  heart.addColorStop(1,'rgba(164,202,224,0)');
+  disc(0,0,.26,heart,1);
 }
 
-function cachedSprite(doc,id,frame,tiny,reducedMotion,bodyOnly,detailed=false) {
-  detailed=detailed&&id!=='sight';
+function largeSprite(doc,id,frame,bodyOnly,mass,scale){
+  // Quantize the sampling rate, never the geometry. Up to eight recent views
+  // share reusable canvases instead of retaining a full giant animation atlas.
+  const density=largeDensities.find(d=>d>=scale)??largeDensities.at(-1);
+  let atlas=largeAtlases.get(doc);
+  if(!atlas){atlas={slots:[],next:0};largeAtlases.set(doc,atlas);}
+  const key=id+':'+frame+':'+mass+':'+density+':'+bodyOnly;
+  for(const slot of atlas.slots)if(slot.key===key)return slot.canvas;
+  const spec=getPickupSpec(id);
+  const radius=(spec.plasma?PLASMA_SHELL_RADIUS:spec.contactRadius)*SPARK_ART_SCALE*density;
+  const side=2*Math.ceil(radius*1.12+1);
+  let slot;
+  if(atlas.slots.length<8){
+    slot={canvas:doc.createElement('canvas')};
+    atlas.slots.push(slot);
+  }else{
+    // Retain the backing store when a Surge and Giant share a frame.
+    let index=atlas.next;
+    for(let i=0;i<atlas.slots.length;i++){
+      const candidate=(atlas.next+i)%atlas.slots.length;
+      if(atlas.slots[candidate].canvas.width===side){index=candidate;break;}
+    }
+    slot=atlas.slots[index];
+    atlas.next=(index+1)%atlas.slots.length;
+  }
+  const sprite=slot.canvas;
+  if(sprite.width!==side || sprite.height!==side)sprite.width=sprite.height=side;
+  const c=sprite.getContext('2d');c.clearRect(0,0,side,side);c.save();
+  const pen=Math.max(.75/radius,mass===10?.014:.027);
+  largeSparkArt(c,id,frame/cycles[id][1],bodyOnly,mass,radius,pen);
+  c.restore();sprite.sparkTexelScale=density;slot.key=key;
+  return sprite;
+}
+
+function cachedSprite(doc,id,frame,tiny,reducedMotion,bodyOnly,detailed=false,massTier=0,scale=1) {
+  if(id!=='sight'&&(massTier>=5||detailed)){
+    return largeSprite(doc,id,frame,bodyOnly,massTier || (scale>=5?10:6),scale);
+  }
   if(bodyOnly && getPickupSpec(id).plasma) frame -= frame % 6;
   let cache=atlases.get(doc);
   if(!cache){cache=new Map();atlases.set(doc,cache);}
-  const key=id+':'+frame+':'+tiny+':'+reducedMotion+':'+bodyOnly+':'+detailed;
+  const key=id+':'+frame+':'+tiny+':'+reducedMotion+':'+bodyOnly;
   if(cache.has(key))return cache.get(key);
   const [period,frames]=cycles[id]||[1,1];
   const sprite=doc.createElement('canvas'),fuel=Boolean(getPickupSpec(id).plasma);
   const side=fuel?FUEL_ANIMATION.size:72;
-  sprite.sparkTexelScale=detailed?2:1;
-  sprite.width=sprite.height=side*sprite.sparkTexelScale;
+  sprite.sparkTexelScale=1;
+  sprite.width=sprite.height=side;
   const c=sprite.getContext('2d');
-  if(detailed)paintLargeSpark(c,id,frame/frames,bodyOnly);
-  else if(fuel)drawFuelFrame(c,side/2,side/2,id,frame,reducedMotion,bodyOnly);
+  if(fuel)drawFuelFrame(c,side/2,side/2,id,frame,reducedMotion,bodyOnly);
   else for(const p of packetPixels(id,{time:frame/frames*period,reducedMotion,tiny,bodyOnly})){
     c.globalAlpha=p.alpha;c.fillStyle=p.color;c.fillRect(side/2+p.x,side/2+p.y,p.width,p.height);
   }
@@ -336,11 +428,11 @@ function cachedSprite(doc,id,frame,tiny,reducedMotion,bodyOnly,detailed=false) {
   return sprite;
 }
 // Absorption samples the same full sprite and phase as the pickup it replaces.
-export function pickupSpriteFrame(doc, kind, {time=0, phase=0, reducedMotion=false, bodyOnly=false,detailed=false}={}) {
+export function pickupSpriteFrame(doc, kind, {time=0, phase=0, reducedMotion=false, bodyOnly=false,detailed=false,massTier=0,scale=1}={}) {
   if (!doc?.createElement) return null;
   const id=pickupKind(kind), [period, frames]=cycles[id];
   const frame=frameAt(time + phase*period/TAU, period, frames, reducedMotion);
-  return cachedSprite(doc,id,frame,false,reducedMotion,bodyOnly,detailed);
+  return cachedSprite(doc,id,frame,false,reducedMotion,bodyOnly,detailed,massTier,scale);
 }
 const warmups=new WeakMap();
 export function prepareFuelSprites(doc,reducedMotion=false) {
@@ -359,13 +451,13 @@ export function prepareFuelSprites(doc,reducedMotion=false) {
   })();
   return pending[key];
 }
-export function drawPickup(context,x,y,{kind='light',time=0,phase=0,reducedMotion=false,tiny=false,bodyOnly=false,alpha=1,scale=1,detailed=false}={}){
+export function drawPickup(context,x,y,{kind='light',time=0,phase=0,reducedMotion=false,tiny=false,bodyOnly=false,alpha=1,scale=1,detailed=false,massTier=0}={}){
   const id=pickupKind(kind),size=Math.max(.1,Number(scale)||1),doc=context.canvas?.ownerDocument;
   const [period,frames]=cycles[id]||[1,1];
   const clock=time+phase*period/TAU;
   const frame=frameAt(clock,period,frames,reducedMotion);
   const plasma=Boolean(getPickupSpec(id).plasma);
-  const sprite=doc&&cachedSprite(doc,id,frame,plasma?false:tiny,reducedMotion,bodyOnly,detailed);
+  const sprite=doc&&cachedSprite(doc,id,frame,plasma?false:tiny,reducedMotion,bodyOnly,detailed,massTier,size);
   context.save();const inherited=context.globalAlpha*clamp(Number(alpha)||0,0,1);
   if(sprite){
     const drawSize=size*(plasma&&tiny?.62:1)/sprite.sparkTexelScale;

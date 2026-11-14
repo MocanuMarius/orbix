@@ -1,33 +1,33 @@
-import {drawAtlasFlight} from './atlas-flight.mjs?v=spark-floor-1';
-import {drawGuardianPresence} from './guardian-presence.mjs?v=spark-floor-1';
-import {createDepthScenery,drawDepthScenery} from './depth-scenery.mjs?v=spark-floor-1';
-import { drawGuardianWarnings } from './guardian-art.mjs?v=spark-floor-1';
-import { drawShutters } from './shutter-cone.mjs?v=spark-floor-1';
-import {drawProximityMeter} from './proximity-meter.mjs?v=spark-floor-1';
-import {drawFourthBeat} from './fourth-beat-art.mjs?v=spark-floor-1';
-import {drawCollectorGuard} from './collector-guard-art.mjs?v=spark-floor-1';
-import {drawObjectiveMarks} from './flight-objectives.mjs?v=spark-floor-1';
-import {drawFlightProjection} from './flight-projection.mjs?v=spark-floor-1';
-import {drawGlowSense} from './glow-sense.mjs?v=spark-floor-1';
-import {formatGlow} from './vitality.mjs?v=spark-floor-1';
-import {LOCATION_PALETTES} from './world-expansion.mjs?v=spark-floor-1';
-import {biomePalette} from './biome-art.mjs?v=spark-floor-1';
-import { sceneryIdentity, drawIdentityBackground, drawIdentityMaterial, drawIdentityLife } from './level-scenery.mjs?v=spark-floor-1';
-import { getCompanionAbility, normalizeCompanionRole } from './companion-abilities.mjs?v=spark-floor-1';
-import { companionSprite, companionPalette, makeWispSprite } from './companion-art.mjs?v=spark-floor-1';
-import { createScenePropArt } from './scene-prop-art.mjs?v=spark-floor-1';
-import { drawBoss } from './boss.mjs?v=spark-floor-1';
-import {drawFlashTether} from './flash-tether.mjs?v=spark-floor-1';
-import { drawPickup, drawSparkSymbol } from './pickup-art.mjs?v=spark-floor-1';
-import {sparkBodyRadius,sparkArtScale,sparkMass} from './spark-size.mjs?v=spark-floor-1';
-import { pickupKind, getPickupSpec } from './pickups.mjs?v=spark-floor-1';
-import { LIGHT_EXTENT,lightAttenuation,lightVisibility,createLightMaskCanvas,castFlightFlashLights,sceneRevealStrength } from './light-field.mjs?v=spark-floor-1';
-import {drawExitLandmark} from './exit-landmark.mjs?v=spark-floor-1';
-import {drawBlackHoles} from './black-hole-art.mjs?v=spark-floor-1';
-import {drawCapture, drawShellPuff} from './capture-art.mjs?v=spark-floor-1';
-import {drawShellArcs} from './shell-arcs.mjs?v=spark-floor-1';
-import {drawFlightForks,drawFlightForkBackdrops} from './flight-forks.mjs?v=spark-floor-1';
-import {drawFallWarning} from './fall-chain-art.mjs?v=spark-floor-1';
+import {drawAtlasFlight} from './atlas-flight.mjs?v=giant-detail-1';
+import {drawGuardianPresence} from './guardian-presence.mjs?v=giant-detail-1';
+import {createDepthScenery,drawDepthScenery} from './depth-scenery.mjs?v=giant-detail-1';
+import { drawGuardianWarnings } from './guardian-art.mjs?v=giant-detail-1';
+import { drawShutters } from './shutter-cone.mjs?v=giant-detail-1';
+import {drawProximityMeter} from './proximity-meter.mjs?v=giant-detail-1';
+import {drawFourthBeat} from './fourth-beat-art.mjs?v=giant-detail-1';
+import {drawCollectorGuard} from './collector-guard-art.mjs?v=giant-detail-1';
+import {drawObjectiveMarks} from './flight-objectives.mjs?v=giant-detail-1';
+import {drawFlightProjection} from './flight-projection.mjs?v=giant-detail-1';
+import {drawGlowSense} from './glow-sense.mjs?v=giant-detail-1';
+import {formatGlow} from './vitality.mjs?v=giant-detail-1';
+import {LOCATION_PALETTES} from './world-expansion.mjs?v=giant-detail-1';
+import {biomePalette} from './biome-art.mjs?v=giant-detail-1';
+import { sceneryIdentity, drawIdentityBackground, drawIdentityMaterial, drawIdentityLife } from './level-scenery.mjs?v=giant-detail-1';
+import { getCompanionAbility, normalizeCompanionRole } from './companion-abilities.mjs?v=giant-detail-1';
+import { companionSprite, companionPalette, makeWispSprite } from './companion-art.mjs?v=giant-detail-1';
+import { createScenePropArt } from './scene-prop-art.mjs?v=giant-detail-1';
+import { drawBoss } from './boss.mjs?v=giant-detail-1';
+import {drawFlashTether} from './flash-tether.mjs?v=giant-detail-1';
+import { drawPickup, drawSparkSymbol } from './pickup-art.mjs?v=giant-detail-1';
+import {sparkBodyRadius,sparkArtScale,sparkMass} from './spark-size.mjs?v=giant-detail-1';
+import { pickupKind, getPickupSpec } from './pickups.mjs?v=giant-detail-1';
+import { LIGHT_EXTENT,lightAttenuation,lightVisibility,createLightMaskCanvas,castFlightFlashLights,sceneRevealStrength,renderLightState,lightDreamScenery } from './light-field.mjs?v=giant-detail-1';
+import {drawExitLandmark} from './exit-landmark.mjs?v=giant-detail-1';
+import {drawBlackHoles} from './black-hole-art.mjs?v=giant-detail-1';
+import {drawCapture, drawShellPuff} from './capture-art.mjs?v=giant-detail-1';
+import {drawShellArcs} from './shell-arcs.mjs?v=giant-detail-1';
+import {drawFlightForks,drawFlightForkBackdrops} from './flight-forks.mjs?v=giant-detail-1';
+import {drawFallWarning} from './fall-chain-art.mjs?v=giant-detail-1';
 
 const TAU = Math.PI * 2;
 const SCENERY_HELPERS = { line: pixelLine, disc: pixelDisc, polygon: path };
@@ -588,14 +588,14 @@ export class WispFlightView {
       const margin = (sparkBodyRadius(ember,e.height)*1.5 + 8)*s;
       if (x < -margin || x > this.buffer.width + margin) continue;
       this.drawPacket(x, y, { kind: pickupKind(ember), time: e.captureTime ?? t, phase: ember.phase, reducedMotion: e.reducedMotion,
-        scale: s*sparkArtScale(ember,e.height), detailed:sparkMass(ember)>=5 });
+        scale: s*sparkArtScale(ember,e.height), massTier:sparkMass(ember) });
     }
   }
 
-  drawPacket(x, y, { kind, dark = false, rich = false, tiny = false, bodyOnly = false, detailed=false, alpha = 1,
+  drawPacket(x, y, { kind, dark = false, rich = false, tiny = false, bodyOnly = false, massTier, alpha = 1,
     time = 0, phase = 0, reducedMotion = false, scale = this.scale } = {}) {
     drawPickup(this.bufferContext, x, y, { kind: kind || (dark ? 'dark' : rich ? 'cache' : 'light'),
-      time, phase, reducedMotion, tiny, bodyOnly, detailed, alpha, scale });
+      time, phase, reducedMotion, tiny, bodyOnly, massTier, alpha, scale });
   }
 
   drawBurstEffects(e, tint) {
@@ -640,12 +640,13 @@ export class WispFlightView {
 
   lightFog(e, fleet, playerX, playerY) {
     const c = this.bufferContext, f = this.fogContext, W = this.buffer.width, H = this.buffer.height, s = this.scale;
-    const light = e.getLightState?.() || e.light || {};
+    const light = renderLightState(e);
     this.currentLightState = light;
     const baseRadius = Number(light.baseRadius) || Number(e.mod?.lightRadius) || 145;
     this.lightRadius = Math.max(24, Number(light.radius) || baseRadius);
     this.lightIntensity = clamp(Number.isFinite(light.intensity) ? light.intensity : 1, 0, 1);
     this.lightDimScale = clamp(this.lightRadius / baseRadius, .6, 1);
+    if (light.rehearsing) return;
     f.setTransform(1, 0, 0, 1, 0, 0); f.globalCompositeOperation = 'source-over'; f.globalAlpha = 1;
     f.clearRect(0, 0, W, H); f.fillStyle = '#000000'; f.fillRect(0, 0, W, H);
     f.globalCompositeOperation = 'destination-out';
@@ -722,7 +723,7 @@ export class WispFlightView {
   }
 
   drawMain(e, t, x, y) {
-    const c = this.bufferContext, fuel = clamp((e.flame ?? 100) / (e.maxFlame||100), 0, 1);
+    const c = this.bufferContext, fuel = clamp((e.visibleGlow ?? e.flame ?? 100) / (e.maxFlame||100), 0, 1);
     const bodyScale=.85*(this.wispRasterScale??1);
     c.save();c.translate(x,y);c.scale(bodyScale,bodyScale);c.translate(-x,-y);
     const dying = e.dying === true || (e.dyingProgress > 0 && fuel <= 0);
@@ -881,7 +882,7 @@ export class WispFlightView {
       if (collector && state.carrying) {
         const pose=state.cargoPose;
         this.drawPacket(x+pose.offsetX*s,y+pose.offsetY*s,{kind:state.cargoKind,bodyOnly:true,
-          time:e.captureTime ?? t,phase:state.cargoPhase,scale:s*pose.scale,detailed:pose.detailed,reducedMotion:e.reducedMotion});
+          time:e.captureTime ?? t,phase:state.cargoPhase,scale:s*pose.scale,massTier:pose.massTier,reducedMotion:e.reducedMotion});
       }
       const px=e.player.x*s,py=yOf(e)*s,clock=e.reducedMotion?0:t;
       c.save();c.strokeStyle=tint.core;c.fillStyle=tint.bright;c.lineWidth=1;
@@ -1013,13 +1014,14 @@ export class WispFlightView {
     if (!this.ready || this.destroyed || !this.context) return;
     const c = this.bufferContext, t = timeOf(e), distance = distanceOf(e), s = this.scale;
     const identity = this.identity, palette = this.palette;
+    const rehearsing = e.dream?.mode === 'record';
     if (this.canvas.dataset.levelIdentity !== identity.id) this.canvas.dataset.levelIdentity = identity.id;
     c.setTransform(1, 0, 0, 1, 0, 0); c.globalAlpha = 1; c.globalCompositeOperation = 'source-over';
     this.updateVisible(e, distance);
     this.drawSky(e, t, distance, palette);
     if(!this.depthLayers||this.depthHeight!==this.buffer.height){this.depthLayers=createDepthScenery(this.document,this.buffer.height,e.terrain,palette);this.depthHeight=this.buffer.height;}
     drawDepthScenery(c,this.depthLayers,distance,this.buffer.width);
-    c.globalAlpha = .34; c.fillStyle = '#03080b'; c.fillRect(0, 0, this.buffer.width, this.buffer.height); c.globalAlpha = 1;
+    c.globalAlpha = rehearsing ? .1 : .34; c.fillStyle = '#03080b'; c.fillRect(0, 0, this.buffer.width, this.buffer.height); c.globalAlpha = 1;
     const boss = this.bossOptions; boss.height = this.buffer.height; boss.distance = distance; boss.time = t; boss.scale = s; boss.pass = 'silhouette';
     drawBoss(c, boss);
     drawGuardianPresence(c,{engine:e,width:this.buffer.width,height:this.buffer.height,distance,time:t});
@@ -1030,6 +1032,7 @@ export class WispFlightView {
     this.drawSceneProps(e, t, distance);
     e.biomeDynamics?.draw(c,{distance,scale:s,height:this.buffer.height});
     this.drawPortal(e,t);
+    if (rehearsing) lightDreamScenery(c,this.buffer.width,this.buffer.height);
     this.drawCollectibles(e, t, distance);
     drawFlightForks(c,e,{distance,scale:s});
     this.drawBurstEffects(e, MAIN_LIGHT);
@@ -1052,7 +1055,7 @@ export class WispFlightView {
     drawAtlasFlight(c,e,{scale:s,distance});
     drawObjectiveMarks(c,e,{scale:s,distance});
     drawFlightProjection(c,e,{scale:s,distance,playerY:yOf(e)});
-    drawGlowSense(c,e,{scale:s,distance,playerY:yOf(e),light:this.currentLightState});
+    if (!rehearsing) drawGlowSense(c,e,{scale:s,distance,playerY:yOf(e),light:this.currentLightState});
     this.drawCollectorAura(e, t);
     let collector = null;
     for (let i = 0; i < fleet.length; i++) if (fleet[i].role === 'collector') { collector = fleet[i]; break; }
@@ -1067,7 +1070,7 @@ export class WispFlightView {
     if(e.flashTether)drawFlashTether(c,e.flashTether,{time:e.captureTime ?? t,distance,scale:s,
       playerX:distance+e.player.x,playerY:yOf(e)});
     drawBlackHoles(c,e,{scale:s,distance,playerY:yOf(e)});
-    for (const effect of e.pickupEffects || []) {
+    if (!rehearsing) for (const effect of e.pickupEffects || []) {
       const progress = 1 - clamp(effect.life / .72, 0, 1);
       c.globalAlpha = 1 - progress;
       const gain = effect.restored > 0 && !effect.text;
@@ -1082,7 +1085,7 @@ export class WispFlightView {
     c.globalAlpha = 1;
     if (e.flash > 0) { c.globalAlpha = Math.min(.2, e.flash * 1.3); c.fillStyle = '#dbc2a1'; c.fillRect(0, 0, this.buffer.width, this.buffer.height); c.globalAlpha = 1; }
     if(e.completing){c.save();c.globalCompositeOperation='screen';const p=e.completionProgress||0;c.globalAlpha=.11*p*p*(3-2*p)+Math.sin(Math.PI*p)*.02;c.fillStyle='#efd4a0';c.fillRect(0,0,this.buffer.width,this.buffer.height);c.restore();}
-    drawProximityMeter(c,e,{scale:s});
+    if (!rehearsing) drawProximityMeter(c,e,{scale:s});
     this.context.imageSmoothingEnabled = false;
     this.context.drawImage(this.buffer, 0, 0, this.canvas.width, this.canvas.height);
     if (!this.backgroundRepainted) this.prewarmSurfaces(e, distance);
