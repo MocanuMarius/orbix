@@ -1,4 +1,4 @@
-import {newState,createRun,advanceMap,selectNode} from './model.mjs?v=packing-parcel-1';
+import {newState,createRun,advanceMap,selectNode} from './model.mjs?v=moonwell-menu-1';
 // Deliberately independent of storage. Every refresh creates the same mock run.
 export function createRestInspectorState(){
  const state=newState();state.profile.difficulty=4;

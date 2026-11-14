@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 46 13" shape-rendering="crispEdges">
+ <defs><path id="rim" d="M3 2h16v1h3v7h-3v1H3V9H1V4h2z"/><path id="pin" d="M2 0h5v2h2v5H7v3H2V8H0V2h2z"/></defs>
+ <use href="#rim" fill="#596653"/><path d="M4 5h15v3H4z" fill="#192820"/><use href="#pin" x="2" y="2" fill="#aaa887"/>
+ <use href="#rim" x="23" fill="#738553"/><path d="M27 5h15v3H27z" fill="#acbb7a"/><use href="#pin" x="35" y="2" fill="#eee2a6"/>
+</svg>
