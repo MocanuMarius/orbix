@@ -56,7 +56,32 @@ else if(['briefing','victory','pause','lighting','splash','wake','proximity','in
  else if(scenario==='pause'){await launch();showMenu();}
  else if(scenario==='splash'){launch();}
  else if(scenario==='wake'){await launch();}
- else if(['lighting','proximity','interactions'].includes(scenario)){delete mockRun.skills['main-sight'];if(new URLSearchParams(location.search).get('capacity')==='full'){Object.assign(mockRun.skills,{'main-light-step':1,'main-thrifty-rise':1,'main-low-lift':1,'main-reservoir':1,'main-vast-vessel':1});mockRun.restGlowCapacity=30;mockRun.flame=200;}await launch();document.querySelector('#pause-layer').innerHTML='';resumeArmed=false;engine.paused=true;if(guardian&&engine.layout.boss?.attacks?.length){engine.distance=engine.layout.boss.attacks[0].x-engine.player.x-100;engine.previousDistance=engine.distance;engine.renderDistance=engine.distance;}const previewProgress=Number(new URLSearchParams(location.search).get('progress'));if(previewProgress>0){engine.distance=engine.previousDistance=engine.renderDistance=engine.totalDistance*Math.min(.999,previewProgress);}if(new URLSearchParams(location.search).get('drift')){engine.mod.driftSense=3;engine.projection=null;}if(new URLSearchParams(location.search).get('orbit')){engine.layout.embers=[];setInterval(()=>{engine.time+=1/60;engine.wisp.update(engine,1/60);engine.render()},1000/60);}engine.render();if(new URLSearchParams(location.search).get('packing')){const {updateGlowGauge}=await import('./glow-ui.mjs');let packingDemoCount=0;setInterval(()=>{packingDemoCount++;updateGlowGauge(document.querySelector('.glow-gauge-v3'),{...engine.getState(),condensedGlow:packingDemoCount,condensedRemainder:0,condensationFlow:{count:packingDemoCount,rawAmount:20}})},1800);}if(scenario==='lighting'&&new URLSearchParams(location.search).get('coach')){const kind=new URLSearchParams(location.search).get('coach');startLesson('preview:'+kind,[{visual:kind,title:kind==='meter'?'Energy powers Lift':'Luminance reveals the passage',text:kind==='meter'?'Collect Sparks to refill Energy. Each bright cell pays for one Lift.':'Luminance reveals nearby terrain. The darkness hides distant Sparks; Light skills extend your reach.'}]);}if(scenario==='proximity'){engine.player.y=engine.previousPlayerY=engine.renderPlayerY=engine.height-55;engine.paused=false;engine.edgingPulse.update(1/60,engine.layout.obstacles);engine.paused=true;engine.edgingPulse.charge=.72;engine.edgingPulse.nearEdge=true;if(new URLSearchParams(location.search).get('pulse')==='burst'){engine.edgingPulse.charge=0;engine.edgingPulse.remaining=4.6;engine.edgingPulse.burstOrigin={x:engine.distance+engine.player.x,y:engine.player.y};}engine.render();}if(scenario==='interactions'){const item=engine.biomeDynamics.items.find(item=>item.kind==='spore')||engine.biomeDynamics.items[0];if(item){item.x=engine.distance+engine.player.x+65;item.y=engine.player.y+45;item.kind='spore';item.family='lift';item.color='#d5b7df';engine.render();}}}
+ else if(['lighting','proximity','interactions'].includes(scenario)){delete mockRun.skills['main-sight'];if(new URLSearchParams(location.search).get('capacity')==='full'){Object.assign(mockRun.skills,{'main-light-step':1,'main-thrifty-rise':1,'main-low-lift':1,'main-reservoir':1,'main-vast-vessel':1});mockRun.restGlowCapacity=30;mockRun.flame=200;}await launch();document.querySelector('#pause-layer').innerHTML='';resumeArmed=false;engine.paused=true;if(guardian&&engine.layout.boss?.attacks?.length){engine.distance=engine.layout.boss.attacks[0].x-engine.player.x-100;engine.previousDistance=engine.distance;engine.renderDistance=engine.distance;}const previewProgress=Number(new URLSearchParams(location.search).get('progress'));if(previewProgress>0){engine.distance=engine.previousDistance=engine.renderDistance=engine.totalDistance*Math.min(.999,previewProgress);}if(new URLSearchParams(location.search).get('drift')){engine.mod.driftSense=3;engine.projection=null;}if(new URLSearchParams(location.search).get('orbit')){engine.layout.embers=[];setInterval(()=>{engine.time+=1/60;engine.wisp.update(engine,1/60);engine.render()},1000/60);}engine.render();if(new URLSearchParams(location.search).has('packing')){
+  // Exercise the same natural pickup, overflow accounting and HUD callback as a flight.
+  const demoFlight=engine;
+  const collectFullMeterSpark=()=>{
+    if(engine!==demoFlight)return;
+    const spark=engine.layout.embers.find(packet=>!packet.collected&&!packet.carried&&!packet.generated&&['light','cluster','cache'].includes(packet.kind));
+    if(!spark)return;
+    engine.flame=engine.maxFlame;
+    spark.x=engine.distance+engine.player.x;
+    spark.y=engine.player.y;
+    engine.collect(spark);
+    engine.notify();
+    engine.render();
+  };
+  const sample=new URLSearchParams(location.search).get('packingAt');
+  if(sample===null){collectFullMeterSpark();setInterval(collectFullMeterSpark,2600);}
+  else{
+    const wallet=document.querySelector('.flight-condensed-counter b');
+    const before=wallet?.textContent;
+    collectFullMeterSpark();
+    const animations=document.querySelector('.flight-device').getAnimations({subtree:true}).filter(a=>a.effect?.getTiming().duration!==Infinity);
+    for(const animation of animations){animation.pause();animation.currentTime=Math.max(0,Number(sample)||0);}
+    document.documentElement.dataset.sampleWalletBefore=before;
+  }
+}
+if(scenario==='lighting'&&new URLSearchParams(location.search).get('coach')){const kind=new URLSearchParams(location.search).get('coach');startLesson('preview:'+kind,[{visual:kind,title:kind==='meter'?'Energy powers Lift':'Luminance reveals the passage',text:kind==='meter'?'Collect Sparks to refill Energy. Each bright cell pays for one Lift.':'Luminance reveals nearby terrain. The darkness hides distant Sparks; Light skills extend your reach.'}]);}if(scenario==='proximity'){engine.player.y=engine.previousPlayerY=engine.renderPlayerY=engine.height-55;engine.paused=false;engine.edgingPulse.update(1/60,engine.layout.obstacles);engine.paused=true;engine.edgingPulse.charge=.72;engine.edgingPulse.nearEdge=true;if(new URLSearchParams(location.search).get('pulse')==='burst'){engine.edgingPulse.charge=0;engine.edgingPulse.remaining=4.6;engine.edgingPulse.burstOrigin={x:engine.distance+engine.player.x,y:engine.player.y};}engine.render();}if(scenario==='interactions'){const item=engine.biomeDynamics.items.find(item=>item.kind==='spore')||engine.biomeDynamics.items[0];if(item){item.x=engine.distance+engine.player.x+65;item.y=engine.player.y+45;item.kind='spore';item.family='lift';item.color='#d5b7df';engine.render();}}}
  else goToRun();
 }
 

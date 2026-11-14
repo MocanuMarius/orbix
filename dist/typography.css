@@ -53,7 +53,3 @@ body{font-variant-numeric:tabular-nums;font-synthesis:none}
 
 /* Resource feedback remains on pickups and gauges, leaving the flight header quiet. */
 .flight-event{display:none!important}
-
-/* Large vessels keep clear segmented Lift cells; a second slim column avoids HUD overlap. */
-.canvas-wrap>.glow-side-gauge.glow-gauge-v3{height:min(calc(var(--glow-units,10)*7px - 1px),calc(100dvh - 100px))}
-.glow-gauge-v3 #flame-meter{overflow:visible}.glow-side-gauge.glow-gauge-v3 #flame-fill{flex-wrap:wrap;align-content:flex-start;column-gap:3px}

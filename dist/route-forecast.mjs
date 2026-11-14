@@ -1,5 +1,5 @@
-import {getMapStopInfo} from './map-guide.mjs?v=pine-spark-2';
-import {getChoices} from './model.mjs?v=pine-spark-2';
+import {getMapStopInfo} from './map-guide.mjs?v=packing-parcel-1';
+import {getChoices} from './model.mjs?v=packing-parcel-1';
 
 const emptyForecast=()=>({restReachable:false,restGuaranteed:false,nextRestDistance:null,flightsToRest:null,nextStops:[],minFlights:0,maxFlights:0,minTotalFlights:0,maxTotalFlights:0,minRests:0,maxRests:0});
 
