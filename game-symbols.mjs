@@ -1,4 +1,4 @@
-import {condensedIconMarkup} from './afterglow-ui.mjs?v=route-gifts-1';
+import {condensedIconMarkup} from './afterglow-ui.mjs?v=night-atlas-1';
 // Small shared pixel silhouettes. Conditions retain words; basic resources do not.
 const shapes={
  energy:'<path d="M8 1h6l-4 5h4L4 15l2-7H2z"/>',
@@ -11,5 +11,5 @@ const shapes={
  auto:'<path d="M3 3h9V1l4 4-4 4V6H4v3H1V5h2zm10 10H4v2l-4-4 4-4v3h8V7h3v4h-2z"/>',
  music:'<path d="M6 2h8v9h-2V5H8v8H6v1H2v-1H1v-3h1V9h4zm4 8h4v1h1v3h-1v1h-4v-1H9v-3h1z"/>'
 };
-const labels={energy:'Energy',glow:'Energy',packed:'Packed Sparks',up:'Increase',down:'Decrease',uses:'Uses',clock:'Duration',auto:'Automatic',music:'Music'};
-export function resourceSymbol(kind){if(kind==='glow')kind='energy';if(kind==='packed')return condensedIconMarkup().replace('class="ico condensed-icon"','class="resource-symbol resource-symbol-packed"').replace('aria-hidden="true"','role="img" aria-label="Packed Sparks"');return `<svg class="resource-symbol resource-symbol-${kind}" viewBox="0 0 16 16" role="img" aria-label="${labels[kind]||'Effect'}" shape-rendering="crispEdges" fill="currentColor">${shapes[kind]||shapes.glow}</svg>`;}
+const labels={energy:'Spark Meter',glow:'Spark Meter',packed:'Stored Sparks',up:'Increase',down:'Decrease',uses:'Uses',clock:'Duration',auto:'Automatic',music:'Music'};
+export function resourceSymbol(kind){if(kind==='glow')kind='energy';if(kind==='packed')return condensedIconMarkup().replace('class="ico condensed-icon"','class="resource-symbol resource-symbol-packed"').replace('aria-hidden="true"','role="img" aria-label="Stored Sparks"');return `<svg class="resource-symbol resource-symbol-${kind}" viewBox="0 0 16 16" role="img" aria-label="${labels[kind]||'Effect'}" shape-rendering="crispEdges" fill="currentColor">${shapes[kind]||shapes.glow}</svg>`;}

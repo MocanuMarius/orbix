@@ -225,3 +225,11 @@ body:has(.tutorial-coach:not([hidden])) #tutorial-hint { visibility: hidden; }
 }
 
 .coach-vocabulary>.collector-teaching-diagram{display:block;width:100%;height:auto;max-height:220px;image-rendering:pixelated}
+
+.tutorial-coach-visual .coach-vocabulary:has(.cycle-scene){width:100%;display:grid;align-content:center}
+.tutorial-coach-visual .cycle-scene{display:block;width:100%!important;height:auto!important;max-height:160px;overflow:visible}
+.cycle-scene text{font:bold 12px ui-monospace,monospace}
+.cycle-flight{animation:cycle-light-route 1.45s ease-in-out infinite}
+@keyframes cycle-light-route{from{stroke-dashoffset:9}to{stroke-dashoffset:-91}}
+@media(prefers-reduced-motion:reduce){.cycle-flight{animation:none;stroke-dasharray:3 5}}
+body.reduce-motion .cycle-flight,body.reduced-motion .cycle-flight,.reduced-motion .cycle-flight{animation:none}

@@ -35,7 +35,7 @@
 .edging-pulse-gauge[data-pulse-state=spent] .edging-pulse-meter{background:repeating-linear-gradient(135deg,#47574a 0 2px,#1f3026 2px 4px);opacity:.6}
 .edging-pulse-gauge[data-pulse-state=spent] .edging-pulse-fill{display:none}
 
-/* Keep the Energy meter and packed box on a single rail, including on
+/* Keep the Spark Meter and packed box on a single rail, including on
    notched phones. Leave room for the packing station at maximum capacity. */
 .flight-hud>.flight-condensed-counter{
  position:relative;display:grid;height:36px;grid-template-columns:7px auto;grid-template-rows:1fr;

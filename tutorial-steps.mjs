@@ -1,4 +1,4 @@
-import {topicSteps} from './tutorial-curriculum.mjs?v=route-gifts-1';
+import {topicSteps} from './tutorial-curriculum.mjs?v=night-atlas-1';
 const step=(id,title,text,target)=>({id,title,text,target,allowTarget:false});
 const chapter=(id,steps,target)=>({id,steps:steps.map(s=>({...s,...(target?{target}:{}),allowTarget:false}))});
 export function checkpointTutorialLesson(screen,{run={}}={}){
@@ -10,7 +10,7 @@ export function checkpointTutorialLesson(screen,{run={}}={}){
    {title:'First Light: learn at your pace',text:'This separate practice has seven stops. Short lessons appear where you need them. Your real run stays safe. MENU → Field Guide replays every topic.',visual:'wisp'},
    topicSteps('hearts')[0],topicSteps('routes')[0]],'#journey-map');
   else if(run.lastFlight?.success&&!run.lastFlight.elite&&!run.lastFlight.boss&&!seen('practice-clear-pay'))
-   lesson=chapter('practice-clear-pay',[{title:'Your reward is already saved',text:'Clearing a flight automatically banks 20 Packed Sparks plus overflow. Save them for skill upgrades at Rest. Choose your next connected stop.',visual:'clear-reward'}],'.condensed-wallet');
+   lesson=chapter('practice-clear-pay',[{title:'Your reward is already saved',text:'Clearing a flight automatically banks 20 Stored Sparks plus overflow. Save them for skill upgrades at Rest. Choose your next connected stop.',visual:'clear-reward'}],'.condensed-wallet');
   else if(run.map?.[run.step]?.some(n=>n.kind==='camp'))lesson=chapter('practice-rest-route',[topicSteps('routes')[2]],'#journey-map');
   else if(run.step===3)lesson=chapter('practice-event-route',[topicSteps('routes')[3]],'#journey-map');
  }
@@ -43,11 +43,11 @@ export function observedFlightLesson(snapshot={},seen={}){
 }
 export function flightEffectLesson(id,screen='map'){
   const target=screen==='victory'?'.artifact-reward-screen':screen==='map'?'#journey-map':null;
-  if(id==='flight-effect:black-hole')return step(id,'That dark core steals Energy',
+  if(id==='flight-effect:black-hole')return step(id,'That dark core steals Sparks',
     'A Black Hole drains fuel while you stay close. A wider path loses less light. It is not a pickup, and shields do not stop the drain. MENU → Field Guide keeps this reminder.',target);
   if(id==='flight-effect:edging')return step(id,'Your close flight made a pulse',
     'Flying near solid edges fills the slim edge meter in 2 seconds. Brief gaps preserve your progress, then charge fades slowly. Full charge reveals the scene for five fading seconds. Edge skills improve it; touching terrain still hurts.',target);
   if(id==='flight-effect:regeneration')return step(id,'Your close flight restored Sparks',
-    'Regenerative Falling turns a full edge meter into one Spark instead of a reveal. Its green meter resets for 2 seconds. You have eight recoveries each flight; its meter disappears when spent. Only missing fuel is restored, without Packed Sparks or pickup effects.',target);
+    'Regenerative Falling turns a full edge meter into one Spark instead of a reveal. Its green meter resets for 2 seconds. You have eight recoveries each flight; its meter disappears when spent. Only missing fuel is restored, without Stored Sparks or pickup effects.',target);
   return null;
 }

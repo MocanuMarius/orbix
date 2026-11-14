@@ -1,4 +1,4 @@
-import { prepareGuardian } from './guardian-effects.mjs?v=route-gifts-1';
+import { prepareGuardian } from './guardian-effects.mjs?v=night-atlas-1';
 // The Hollow Warden is a survival encounter: read its hands, keep your Sparks,
 // and reach the waylight. Every solid hand uses the ordinary terrain pipeline.
 const TAU = Math.PI * 2;
@@ -43,10 +43,10 @@ const SIGNATURE_PHASES={
 
 export const BOSS_PREVIEWS=Object.freeze({
   'hollow-warden':Object.freeze({id:'hollow-warden',name:'Hollow Warden',instruction:'Stone hands and swaying passages.',icon:'boss'}),
-  'frost-matron':Object.freeze({id:'frost-matron',name:'Frost Matron',instruction:'Cross away from cracking ice. A shard breaks on contact and drains up to 6 Energy.',icon:'boss'}),
+  'frost-matron':Object.freeze({id:'frost-matron',name:'Frost Matron',instruction:'Cross away from cracking ice. A shard breaks on contact and drains up to 6 Sparks.',icon:'boss'}),
   'rootbound-heart':Object.freeze({id:'rootbound-heart',name:'Rootbound Heart',instruction:'Living gates breathe open and close. Follow their pulse.',icon:'boss'}),
   'storm-shepherd':Object.freeze({id:'storm-shepherd',name:'Storm Shepherd',instruction:'Low streams lift you. High streams push you down. Fly around the current or ride it.',icon:'boss'}),
-  'hollow-sun':Object.freeze({id:'hollow-sun',name:'Hollow Sun',instruction:'Moving dark wells drain nearby Energy. Cross on the far side.',icon:'boss'}),
+  'hollow-sun':Object.freeze({id:'hollow-sun',name:'Hollow Sun',instruction:'Moving dark wells drain nearby Sparks. Cross on the far side.',icon:'boss'}),
   moonweaver:Object.freeze({id:'moonweaver',name:'Moonweaver',instruction:'Alternating crescents and a drifting silver loom.',icon:'boss'})
 });
 export const getBossPreview=id=>BOSS_PREVIEWS[id]||BOSS_PREVIEWS['hollow-warden'];

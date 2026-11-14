@@ -1,0 +1,63 @@
+/* In native mode this page owns the hardware insets. A framed desktop preview
+   has its own corners, but does not inherit the enclosing desktop's notch. */
+:root{
+ --glass-top:env(safe-area-inset-top,0px);--glass-bottom:env(safe-area-inset-bottom,0px);
+ --glass-left:env(safe-area-inset-left,0px);--glass-right:env(safe-area-inset-right,0px);
+ --rim-y:7px;--rim-x:12px;
+ --inside-top:calc(var(--glass-top) + var(--rim-y));--inside-bottom:calc(var(--glass-bottom) + var(--rim-y));
+ --inside-left:calc(var(--glass-left) + var(--rim-x));--inside-right:calc(var(--glass-right) + var(--rim-x));
+}
+:root[data-framed]{--glass-top:0px;--glass-bottom:0px;--glass-left:0px;--glass-right:0px}
+#header .map-energy{display:inline-flex;align-items:center;gap:5px;color:#f3e7b2;font:clamp(13px,3.6vh,17px)/1 var(--pixel);white-space:nowrap;cursor:default}
+#header .map-energy svg{width:20px;height:22px}#header .map-energy i{font-style:normal;opacity:.75;margin:0 2px}
+html body .compact-support .event-offer .boon-emblem{display:grid!important;place-items:center;width:clamp(38px,13vh,64px);height:clamp(38px,13vh,64px);border:0;background:none;box-shadow:none;color:#f0ddb0}
+html body .compact-support .event-offer .boon-emblem>svg{width:100%!important;height:100%!important}
+html body .event-offer .boon-values:empty{display:none}
+@media(orientation:landscape){
+ html body:not(.playing)>#header{box-sizing:border-box;padding:var(--inside-top) max(16px,var(--inside-right)) 2px max(16px,var(--inside-left))!important;min-height:calc(53px + var(--glass-top))!important;height:calc(53px + var(--glass-top))!important}
+ html body:not(.playing):not([data-screen=home]){--menu-header:calc(53px + var(--glass-top));grid-template-rows:var(--menu-header) minmax(0,1fr)}
+ html body[data-screen=home]>#header{padding-inline:max(24px,var(--inside-left)) max(24px,var(--inside-right))!important}
+ html body:is([data-screen=map],[data-screen=support])>#app{
+  min-height:0!important;
+  height:calc(100dvh - var(--menu-header))!important;
+  padding-inline:var(--inside-left) var(--inside-right)!important;
+  padding-bottom:var(--inside-bottom)!important;
+ }
+ html body #header :is(.game-menu-trigger,.back-icon){min-width:44px!important;min-height:44px!important;height:44px!important}
+ html body .flight-device{
+  --flight-light-inset:max(42px,var(--inside-left));
+  --flight-meter-bottom:max(20px,var(--inside-bottom));
+ }
+ html body .flight-device .flight-hud{top:var(--inside-top)!important;padding-right:max(16px,var(--inside-right))!important}
+ html body .flight-device .flight-dock{right:max(14px,var(--inside-right))!important;bottom:max(14px,var(--inside-bottom))!important}
+ html body dialog.game-sheet[open],html body dialog.game-sheet.route-inspection-sheet[open]{
+  box-sizing:border-box;
+  inset:var(--inside-top) var(--inside-right) var(--inside-bottom) var(--inside-left)!important;margin:auto!important;
+  max-width:calc(100vw - var(--inside-right) - var(--inside-left))!important;
+  max-height:calc(100dvh - var(--inside-top) - var(--inside-bottom))!important;
+ }
+ html body .compact-support>.support-context{gap:6px}
+ html body .compact-support>.support-context>button.secondary{min-height:44px}
+ /* The coach computes viewport coordinates for its spotlight. Center its
+    reading panel independently inside the safe area when there is no target. */
+ html body .tutorial-coach[data-has-target=false] .tutorial-coach-card{
+  left:var(--inside-left)!important;right:var(--inside-right)!important;margin-inline:auto!important;
+  max-width:calc(100vw - var(--inside-left) - var(--inside-right))!important;
+  max-height:calc(100dvh - var(--inside-top) - var(--inside-bottom))!important;
+ }
+}
+@media(orientation:landscape) and (max-width:740px){
+ html body #header .route-heading{display:grid;gap:2px;line-height:1.1}
+ html body #header :is(.header-end,.game-top-left){gap:7px}
+ html body #header .condensed-wallet{gap:4px;padding-inline:5px}
+}
+@media(orientation:landscape) and (max-height:350px){
+ #header .map-energy{gap:2px;font-size:13px}#header .map-energy svg{width:17px}
+ html body .compact-support .event-offer{gap:5px!important}
+ html body dialog.route-inspection-sheet.flight-preview-sheet[open]{padding:7px 10px!important}
+ .flight-preview .preview-reading{gap:6px}
+ .flight-preview .preview-place{padding-block:0;grid-template-columns:48px minmax(0,1.05fr) minmax(0,1fr)}
+ .flight-preview .preview-landmark>svg{max-height:55px}
+ .flight-preview :is(.preview-optional,.preview-regular){gap:5px;padding:7px 8px}
+ .flight-preview footer button{height:44px!important;min-height:44px!important;padding-block:4px!important}
+}

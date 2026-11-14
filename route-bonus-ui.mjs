@@ -1,4 +1,4 @@
-import {ROUTE_BONUSES} from './route-bonuses.mjs?v=route-gifts-1';
+import {ROUTE_BONUSES} from './route-bonuses.mjs?v=night-atlas-1';
 const art={
  gilded:['#f2c76c','M4 6h10v2H4zm-1 4h12v2H3zm1 4h10v2H4z'],
  'three-suns':['#f6979c','M3 5h4v2h2V5h4v2h2v4h-2v2h-2v2H9v2H7v-2H5v-2H3v-2H1V7h2z'],
@@ -13,7 +13,6 @@ const art={
 };
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 export function bonusIcon(id){const pair=art[id];return pair?`<svg class="passage-bonus-icon" viewBox="-4 -4 25 25" shape-rendering="crispEdges" aria-hidden="true"><path fill="#efcb81" d="M-3 4v-6h6v2h-4v4zm23 8v6h-6v-2h4v-4z"/><path fill="${pair[0]}" fill-rule="evenodd" d="${pair[1]}"/></svg>`:'';}
-export function bonusOfferMarkup(b){if(!b)return '';return `<section class="passage-bonus-copy"><header>${bonusIcon(b.id)}<div><small>OPTIONAL BONUS</small><h3>${esc(b.name)}</h3></div></header><p>${esc(b.condition)}</p><p class="passage-bonus-prize"><b>On clear</b> ${esc(b.reward)}</p></section>`;}
 export function boonMarkup(id){const b=ROUTE_BONUSES[id];return b?`<span class="passage-boon">${bonusIcon(id)}<span><b>Earned · ${esc(b.name)}</b> ${esc(b.reward.replace(/next attempt/ig,'this flight').replace(/next passage/ig,'passage'))}</span></span>`:'';}
 export function updateBonusGauge(el,bonus){
  if(!el)return;

@@ -1,4 +1,5 @@
-import { obstacleEdgeClearance } from './edging-pulse.mjs?v=route-gifts-1';
+import {moonDrainScale} from './atlas-flight.mjs?v=night-atlas-1';
+import { obstacleEdgeClearance } from './edging-pulse.mjs?v=night-atlas-1';
 
 // Rates are internal flight Sparks. The HUD displays 0.3 of these units: a
 // Drain is twice the prior curve; the checked bypass limits unavoidable loss.
@@ -155,7 +156,7 @@ export class BlackHoles {
       if (dx > item.influence) break;
       const distance = Math.hypot(dx, item.y - e.player.y);
       if (!this.nearest || distance < this.nearest.distance) this.nearest = { id: item.id, distance };
-      item.potentialRate = blackHoleDrainRate(distance, item.influence) * (e.flightBoon?.drainScale ?? 1);
+      item.potentialRate = blackHoleDrainRate(distance, item.influence) * (e.flightBoon?.drainScale ?? 1) * moonDrainScale(e,item);
       if (!(item.potentialRate > 0)) continue;
       this._activeItems.push(item); this.active = true; this.potentialRate += item.potentialRate;
       // Dream makes Lift free, not environmental drain. Both recording and

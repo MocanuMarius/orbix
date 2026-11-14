@@ -1,6 +1,6 @@
 // Risk-earned sight, or bounded fuel recovery when the Regenerative Falling
 // branch is chosen. Neither outcome is a pickup or invokes artifact hooks.
-import { GLOW_DISPLAY_SCALE } from './vitality.mjs?v=route-gifts-1';
+import { GLOW_DISPLAY_SCALE } from './vitality.mjs?v=night-atlas-1';
 const clamp = (n, lo, hi) => Math.min(hi, Math.max(lo, n));
 const smooth = n => n * n * (3 - 2 * n);
 const EPSILON = 1e-9;
@@ -149,7 +149,7 @@ export class EdgingPulse {
       if(e.mod?.proximityShield&&(e.proximityShieldGrants||0)<2&&!(e.proximityShieldRemaining>0)){e.proximityShieldRemaining=8;e.proximityShieldGrants=(e.proximityShieldGrants||0)+1;e.burst?.(e.player.x,e.player.y,12,'#bcecff');}
       if (this.regenerative) {
         // This is recovery, not a collectible. Only the missing fuel is added;
-        // it cannot overflow, create Packed Sparks, or proc pickup artifacts.
+        // it cannot overflow, create Stored Sparks, or proc pickup artifacts.
         const missing = Math.max(0, (Number(e.maxFlame) || 0) - (Number(e.flame) || 0));
         this.regenGain = Math.min(EDGING_REGEN_TUNING.glow, missing);
         if (this.regenGain > EPSILON) {
@@ -159,8 +159,8 @@ export class EdgingPulse {
         }
         this.regenFeedbackRemaining = EDGING_REGEN_TUNING.feedback;
         this.recoveryRemaining = EDGING_PULSE_TUNING.recovery;
-        const result = this.regenGain >= EDGING_REGEN_TUNING.glow - EPSILON ? '+1 Energy'
-          : this.regenGain > EPSILON ? 'Energy topped up' : 'Energy already full';
+        const result = this.regenGain >= EDGING_REGEN_TUNING.glow - EPSILON ? '+1 Spark'
+          : this.regenGain > EPSILON ? 'Sparks topped up' : 'Sparks already full';
         e.setEvent?.(`Regenerative Falling · ${result}${this.exhausted ? ' · spent for this flight' : ''}`);
         return;
       }

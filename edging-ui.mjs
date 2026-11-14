@@ -1,9 +1,9 @@
-import { GLOW_DISPLAY_SCALE } from './vitality.mjs?v=route-gifts-1';
+import { GLOW_DISPLAY_SCALE } from './vitality.mjs?v=night-atlas-1';
 const clamp=value=>Math.max(0,Math.min(1,Number(value)||0));
 const explanation='Proximity (unlocked skill): skim near solid terrain for 2 seconds total. Brief gaps keep your progress for 1.25 seconds, then it fades slowly. A full meter automatically reveals the scene.';
-const regenExplanation='Regenerative Falling: skim near solid terrain to restore 1 Energy instead of revealing the scene. Eight recoveries per flight; missing fuel only. Two seconds to reset. No Packed Sparks is created.';
+const regenExplanation='Regenerative Falling: skim near solid terrain to restore 1 Spark instead of revealing the scene. Eight recoveries per flight; missing fuel only. Two seconds to reset. No surplus is stored.';
 
-/** A passive flight indicator; it never adds a third action or spends Energy. */
+/** A passive flight indicator; it never adds a third action or spends Sparks. */
 export function edgingPulseMarkup(){
  return `<div class="edging-pulse-gauge" data-pulse-state="idle" aria-live="off" title="${explanation}" hidden><div class="edging-pulse-meter" role="meter" aria-label="Edging Pulse" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" aria-valuetext="0% charged"><i class="edging-pulse-fill" aria-hidden="true"></i><i class="edging-pulse-ticks" aria-hidden="true"></i></div></div>`;
 }
@@ -29,7 +29,7 @@ export function updateEdgingPulse(gauge,snapshot){
  const gainLabel=recovered>=1/GLOW_DISPLAY_SCALE-1e-9?'+1':recovered>0?'TOPUP':'FULL';
  const progressText=`${percent}% charged${pulse.nearEdge?', close to an edge':pulse.holding?', progress held between edges':charge>0?', fading slowly in open space':''}`;
  const regenStatus=spent?'All eight recoveries spent for this flight':`${pulse.grantsRemaining} recoveries left this flight`;
- const valueText=feedback?`${gainLabel==='+1'?'Restored 1 Sparks':gainLabel==='TOPUP'?'Sparks topped up':'Sparks already full'}. ${regenStatus}`
+ const valueText=feedback?`${gainLabel==='+1'?'Restored 1 Spark':gainLabel==='TOPUP'?'Sparks topped up':'Sparks already full'}. ${regenStatus}`
   :spent?regenStatus:active?`Revealing, ${seconds} ${seconds===1?'second':'seconds'} remaining`
   :`${recovering?'Resetting':progressText}${regenerative?`. ${regenStatus}`:''}`;
  if(gauge._edgingPercent!==percent){gauge._edgingPercent=percent;refs.meter.setAttribute('aria-valuenow',String(percent));}

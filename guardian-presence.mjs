@@ -1,3 +1,4 @@
+import {drawAtlasGuardian} from './atlas-flight.mjs?v=night-atlas-1';
 // World-anchored background figure. Never a collider or screen-following HUD.
 export function guardianPresenceState(engine,distance=engine.distance){
  const boss=engine.layout?.boss,exit=engine.layout?.exitLandmark;
@@ -40,4 +41,5 @@ export function drawGuardianPresence(c,{engine,width,height,distance=engine.dist
  }
  if(state.id==='hollow-sun'){c.strokeStyle='#000';c.lineWidth=.023;c.beginPath();c.arc(0,-.93,.22,0,Math.PI*2);c.stroke();}
  c.restore();
+ drawAtlasGuardian(c,engine,{x,y,h,time});
 }

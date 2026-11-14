@@ -1,46 +1,48 @@
-import {canShowFlightHint} from './flight-hint-safety.mjs?v=route-gifts-1';
-import {updateGlideRegeneration} from './glide-regeneration.mjs?v=route-gifts-1';
-import {drawGuardianPresence} from './guardian-presence.mjs?v=route-gifts-1';
-import { updateGuardian, resizeGuardian, placeGuardianFuel } from './guardian-effects.mjs?v=route-gifts-1';
-import { drawGuardianWarnings } from './guardian-art.mjs?v=route-gifts-1';
-import {drawProximityMeter} from './proximity-meter.mjs?v=route-gifts-1';
-import {buildObjectivePlan,createFlightObjective,drawObjectiveMarks} from './flight-objectives.mjs?v=route-gifts-1';
-import {FlightProjection,drawFlightProjection} from './flight-projection.mjs?v=route-gifts-1';
-import {drawGlowSense} from './glow-sense.mjs?v=route-gifts-1';
-import {formatGlow} from './vitality.mjs?v=route-gifts-1';
-import {installRiskChains} from './risk-chains.mjs?v=route-gifts-1';
-import {EXTRA_COURSES} from './world-expansion.mjs?v=route-gifts-1';
-import {BIOME_COURSES} from './biome-courses.mjs?v=route-gifts-1';
-import {BiomeDynamics} from './biome-dynamics.mjs?v=route-gifts-1';
-import {condenseGlow} from './condensed-glow.mjs?v=route-gifts-1';
-import {ensureGlowBudget} from './glow-budget.mjs?v=route-gifts-1';
-import {EdgingPulse} from './edging-pulse.mjs?v=route-gifts-1';
-import {isVowBodyPickup} from './contextual-events.mjs?v=route-gifts-1';
-import {FlightBoon} from './flight-boons.mjs?v=route-gifts-1';
-import {BlackHoles} from './black-holes.mjs?v=route-gifts-1';
-import {drawBlackHoles} from './black-hole-art.mjs?v=route-gifts-1';
+import {prepareAtlasFlight,resizeAtlasFlight,ringBellwind,bellwindAcceleration,moonLightScale,drawAtlasFlight} from './atlas-flight.mjs?v=night-atlas-1';
+import {canShowFlightHint} from './flight-hint-safety.mjs?v=night-atlas-1';
+import {updateGlideRegeneration} from './glide-regeneration.mjs?v=night-atlas-1';
+import {drawGuardianPresence} from './guardian-presence.mjs?v=night-atlas-1';
+import { updateGuardian, resizeGuardian, placeGuardianFuel } from './guardian-effects.mjs?v=night-atlas-1';
+import { drawGuardianWarnings } from './guardian-art.mjs?v=night-atlas-1';
+import {drawProximityMeter} from './proximity-meter.mjs?v=night-atlas-1';
+import {buildObjectivePlan,createFlightObjective,drawObjectiveMarks} from './flight-objectives.mjs?v=night-atlas-1';
+import {FlightProjection,drawFlightProjection} from './flight-projection.mjs?v=night-atlas-1';
+import {drawGlowSense} from './glow-sense.mjs?v=night-atlas-1';
+import {formatGlow} from './vitality.mjs?v=night-atlas-1';
+import {installRiskChains} from './risk-chains.mjs?v=night-atlas-1';
+import {EXTRA_COURSES} from './world-expansion.mjs?v=night-atlas-1';
+import {BIOME_COURSES} from './biome-courses.mjs?v=night-atlas-1';
+import {BiomeDynamics} from './biome-dynamics.mjs?v=night-atlas-1';
+import {condenseGlow} from './condensed-glow.mjs?v=night-atlas-1';
+import {ensureGlowBudget} from './glow-budget.mjs?v=night-atlas-1';
+import {EdgingPulse} from './edging-pulse.mjs?v=night-atlas-1';
+import {isVowBodyPickup} from './contextual-events.mjs?v=night-atlas-1';
+import {FlightBoon} from './flight-boons.mjs?v=night-atlas-1';
+import {BlackHoles} from './black-holes.mjs?v=night-atlas-1';
+import {drawBlackHoles} from './black-hole-art.mjs?v=night-atlas-1';
+import {drawAbsorbingSpark} from './tidal-light.mjs?v=night-atlas-1';
 /* Emberwing's self-contained canvas flight simulation and renderer. */
-import { FLAME_TUNING, LIGHT_PACKET_TUNING } from './vitality.mjs?v=route-gifts-1';
-import { flightEndDistance } from './flight-end.mjs?v=route-gifts-1';
-import {getExitLandmarkState,drawExitLandmark} from './exit-landmark.mjs?v=route-gifts-1';
-import { WispCompanion, wispHome } from './wisp.mjs?v=route-gifts-1';
-import { getAscentInfo } from './ascent.mjs?v=route-gifts-1';
-import { LEVEL_LENGTH, getLevelLengthScale } from './level-length.mjs?v=route-gifts-1';
-import { resolveLevelIdentity } from './level-catalog.mjs?v=route-gifts-1';
-import { DraftField, DRAFT_TUNING } from './drafts.mjs?v=route-gifts-1';
-import { normalizeCompanionRole, normalizeCompanionFleet, getCompanionAbility } from './companion-abilities.mjs?v=route-gifts-1';
-import { populateSceneProps, scenePropPolygons } from './scene-props.mjs?v=route-gifts-1';
-import { pickupKind, getPickupSpec, pickupContactRadius, isFuelPickup, canCompanionCollect } from './pickups.mjs?v=route-gifts-1';
-import { drawPickup } from './pickup-art.mjs?v=route-gifts-1';
-import { buildBossLayout, getBossState as bossState, drawBoss } from './boss.mjs?v=route-gifts-1';
-import { getAuthoredChallenge, finalizeFlightChallenges, installAuthoredDraftCrossings, FlightChallengeDirector } from './flight-challenges.mjs?v=route-gifts-1';
-import { installEncounterFamily } from './encounter-families.mjs?v=route-gifts-1';
-import { installFlightForks, resizeFlightForks } from './flight-forks.mjs?v=route-gifts-1';
-import { ArtifactEffects } from './artifact-effects.mjs?v=route-gifts-1';
-import { LIGHT_EXTENT,lightAttenuation,lightVisibility,createLightMaskCanvas,sceneRevealStrength } from './light-field.mjs?v=route-gifts-1';
+import { FLAME_TUNING, LIGHT_PACKET_TUNING } from './vitality.mjs?v=night-atlas-1';
+import { flightEndDistance } from './flight-end.mjs?v=night-atlas-1';
+import {getExitLandmarkState,drawExitLandmark} from './exit-landmark.mjs?v=night-atlas-1';
+import { WispCompanion, wispHome } from './wisp.mjs?v=night-atlas-1';
+import { getAscentInfo } from './ascent.mjs?v=night-atlas-1';
+import { LEVEL_LENGTH, getLevelLengthScale } from './level-length.mjs?v=night-atlas-1';
+import { resolveLevelIdentity } from './level-catalog.mjs?v=night-atlas-1';
+import { DraftField, DRAFT_TUNING } from './drafts.mjs?v=night-atlas-1';
+import { normalizeCompanionRole, normalizeCompanionFleet, getCompanionAbility } from './companion-abilities.mjs?v=night-atlas-1';
+import { populateSceneProps, scenePropPolygons } from './scene-props.mjs?v=night-atlas-1';
+import { pickupKind, getPickupSpec, pickupContactRadius, pickupShellRadius, isFuelPickup, canCompanionCollect } from './pickups.mjs?v=night-atlas-1';
+import { drawPickup } from './pickup-art.mjs?v=night-atlas-1';
+import { buildBossLayout, getBossState as bossState, drawBoss } from './boss.mjs?v=night-atlas-1';
+import { getAuthoredChallenge, finalizeFlightChallenges, installAuthoredDraftCrossings, FlightChallengeDirector } from './flight-challenges.mjs?v=night-atlas-1';
+import { installEncounterFamily } from './encounter-families.mjs?v=night-atlas-1';
+import { installFlightForks, resizeFlightForks } from './flight-forks.mjs?v=night-atlas-1';
+import { ArtifactEffects } from './artifact-effects.mjs?v=night-atlas-1';
+import { LIGHT_EXTENT,lightAttenuation,lightVisibility,createLightMaskCanvas,sceneRevealStrength } from './light-field.mjs?v=night-atlas-1';
 import { createTutorialState, buildTutorialLayout, recordTutorialPickup,
-  updateTutorial, updateTutorialCompanion, getTutorialHint } from './tutorial.mjs?v=route-gifts-1';
-export { FLAME_TUNING } from './vitality.mjs?v=route-gifts-1';
+  updateTutorial, updateTutorialCompanion, getTutorialHint } from './tutorial.mjs?v=night-atlas-1';
+export { FLAME_TUNING } from './vitality.mjs?v=night-atlas-1';
 const TAU = Math.PI * 2;
 const STEP = 1 / 60;
 const COMPANION_ORBIT_SPEED = {protector:1.3,leveler:1.7,swift:3.4,seer:.8,kindler:2.2};
@@ -50,7 +52,7 @@ const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
 const lerp = (a, b, t) => a + (b - a) * t;
 export const FLIGHT_TUNING = Object.freeze({ gravity: 300, flapImpulse: 205,
   forwardSpeed: 154, terminalFall: 245, pickupRadius: LIGHT_PACKET_TUNING.pickupRadius });
-export { DRAFT_TUNING } from './drafts.mjs?v=route-gifts-1';
+export { DRAFT_TUNING } from './drafts.mjs?v=night-atlas-1';
 // Retain the public tuning name for consumers; wind now has no global cycle.
 export const WIND_TUNING = DRAFT_TUNING;
 
@@ -892,6 +894,7 @@ export class WispFlight {
       if(plan.blackHoles===false)this.blackHoles.items=[];
     }
     this.objectiveBodyClear=bodyClear;
+    this.atlas=prepareAtlasFlight(this);
     this.routeObjective=createFlightObjective(this,route.bonusId);
     this.challengeDirector=new FlightChallengeDirector(this.layout);
     this.flightChallenge=null;this.caveDimming=0;
@@ -921,7 +924,7 @@ export class WispFlight {
 
   async initPixelView() {
     try {
-      const { WispFlightView } = await import('./wisp-renderer.mjs?v=route-gifts-1');
+      const { WispFlightView } = await import('./wisp-renderer.mjs?v=night-atlas-1');
       if (this.destroyed) return;
       this.pixiView = new WispFlightView(this);
       const initialized = await this.pixiView.init();
@@ -960,7 +963,7 @@ export class WispFlight {
   get condensedTotal() { return this.condensedStart+this.condensedGlow; }
   spendGlow(amount) { this.flame=Math.max(0,this.flame-Math.max(0,amount)); }
 
-  get flapCost() { return ((Number.isFinite(this.mod.liftCostPoints)?Math.max(1,Math.round(this.mod.liftCostPoints)):Math.max(1,Math.round(3*(Number(this.mod.flapCost)||1))))+Number(this.burdenLiftsRemaining>0))/.3; }
+  get flapCost() { return ((Number.isFinite(this.mod.liftCostPoints)?Math.max(1,Math.round(this.mod.liftCostPoints)):Math.max(1,Math.round(3*(Number(this.mod.flapCost)||1))))+Number(this.burdenLiftsRemaining>0||(this.flightBoon?.awake&&this.flightBoon.extraCostLifts>0)))/.3; }
   get completionProgress() { return clamp(this.completionAge / 1.5,0,1); }
 
   get dyingProgress() { return clamp(this.dyingAge / this.dyingDuration,0,1); }
@@ -1049,6 +1052,7 @@ export class WispFlight {
       resizeFlightForks(this.layout,factor);
       this.biomeDynamics?.rescale(factor);
       this.blackHoles?.resize(factor);
+      resizeAtlasFlight(this.atlas,factor);
       this.routeObjective?.resize(factor);
       this.stars.forEach(s => { s.y *= factor; });
       this.particles.length = 0;
@@ -1084,6 +1088,7 @@ export class WispFlight {
     const effort = this.dream?.freeGlow || freeLift ? 0 : this.flightBoon.spendLift(this.flapCost);
     this.spendGlow(effort);
     if(effort>0&&this.burdenLiftsRemaining>0)this.burdenLiftsRemaining--;
+    if(effort>0&&this.flightBoon.awake&&this.flightBoon.extraCostLifts>0)this.flightBoon.extraCostLifts--;
     this.artifactEffects.onFlap(effort>0);
     this.flaps++; this.effortSpent += effort;
     this.lastFlapTime = this.time;
@@ -1350,7 +1355,7 @@ export class WispFlight {
     const reduction=clamp(this.lightDimming*(1-clamp(this.mod.darkResistance||0,0,.6)),0,1-LIGHT_PACKET_TUNING.minimumLight);
     const sightRemaining=Math.max(0,this.sightUntil-this.time),sightBonus=sightRemaining>0?50:0;
     const revealedRadius=baseRadius+sightBonus+(this.dream?.phase==='recording'&&this.mod.dreamSight?70:0),dyingFade=this.dying?Math.max(0,1-this.dyingProgress**1.7):1;
-    const caveReduction=clamp(this.caveDimming||0,0,.18),caveScale=1-caveReduction;
+    const caveReduction=clamp(this.caveDimming||0,0,.18),caveScale=(1-caveReduction)*moonLightScale(this);
     const seer=this.fleet.find(item=>item.role==='seer');
     const traitRemaining=this.mod.mainSeer?Math.max(0,this.mainSeerUntil-this.time):0;
     const artifactRemaining=Math.max(0,this.artifactEffects.sightUntil-this.time);
@@ -1473,7 +1478,7 @@ export class WispFlight {
   }
 
   shatterPickupRing(packet) {
-    const radius=pickupContactRadius(packet),x=packet.x-this.distance,y=packet.y;
+    const radius=pickupShellRadius(packet),x=packet.x-this.distance,y=packet.y;
     const color=getPickupSpec(packet).dim>0?'#f58b79':'#e4f2ca';
     const count=this.reducedMotion?6:12;
     for(let i=0;i<count&&this.particles.length<150;i++){
@@ -1563,6 +1568,7 @@ export class WispFlight {
       if(this.dyingAge>=this.dyingDuration)this.finish(false);return;
     }
     this.time += dt;
+    this.flightBoon.tryReserve();
     updateGlideRegeneration(this,dt);
     this.lightPenalties = this.lightPenalties.filter(until => until > this.time);
     const dimTarget = this.lightPenalties.reduce((sum, until) => {
@@ -1631,6 +1637,7 @@ export class WispFlight {
         }
       }
     }
+    if(this.atlas?.bells){ringBellwind(this);gravity+=bellwindAcceleration(this);}
     const terminal=FLIGHT_TUNING.terminalFall*clamp(Number(this.mod.terminalFall)||1,1,1.15);
     const downwardWind=gust.guardian&&gust.direction>0?65*gust.strength*(this.boostTime>0?.28:1):0;
     this.player.vy = clamp(this.player.vy + gravity * dt, -520 * this.scaleY,(terminal+downwardWind)*this.scaleY);
@@ -1869,7 +1876,7 @@ export class WispFlight {
       pickupKind: kind, value: ember.value === 3 ? 3 : 1, restored,
       text:surplus>0&&restored<=0?'OVERFLOW':undefined,life: .72 });
     if (this.pickupEffects.length > 12) this.pickupEffects.shift();
-    // Generated fuel helps flight only. It never mints Packed Sparks or
+    // Generated fuel helps flight only. It never mints Stored Sparks or
     // recursively pays pickup-triggered effects.
     if (ember.generated) {
       this.score += 5;
@@ -1883,7 +1890,7 @@ export class WispFlight {
     this.bonusEmbers += value - 1;
     this.score += value * ((ember.boostedPickup ?? this.isCompanionWorking()) && this.cards.has('golden-wake') ? 20 : 10);
     this.burst(this.player.x - 9, this.player.y + 7, value === 3 ? 14 : 5, value === 3 ? '#fff2c4' : '#ffe4a2');
-    if (surplus>0&&this.condensationFlow.amount>0) this.setEvent(`Packing · +${this.condensationFlow.amount} Packed Sparks`);
+    if (surplus>0&&this.condensationFlow.amount>0) this.setEvent(`Stored · +${this.condensationFlow.amount} Stored Sparks`);
     else if (value === 3) this.setEvent(restored > 0 ? `Sparks cache · +${formatGlow(restored,this.maxFlame)} Sparks` : 'Sparks full');
     else if (restored > 0 && this.flame <= this.maxFlame*.45) this.setEvent(`Sparks rekindled · +${formatGlow(restored,this.maxFlame)}`);
     if (this.cards.has('kindled-spirit') && this.baseEmbers % 3 === 0) {
@@ -2023,7 +2030,7 @@ export class WispFlight {
       if (type === 'flap' && now - this.lastFlapSound < .10) return;
       if (type === 'flap') this.lastFlapSound = now;
       const tones = { flap: [220, 150, .06, .018], collect: [780, 1280, .075, .025],
-        boost: [120, 610, .26, .045], hit: [130, 65, .16, .035] };
+        bellwind: [1030, 679, .45, .025], boost: [120, 610, .26, .045], hit: [130, 65, .16, .035] };
       const [from, to, length, volume] = tones[type] || tones.flap;
       const oscillator = this.audio.createOscillator(), gain = this.audio.createGain();
       oscillator.type = type === 'hit' ? 'triangle' : 'sine';
@@ -2068,6 +2075,7 @@ export class WispFlight {
     this.drawWayfinder(c);
     drawGuardianWarnings(c,{engine:this,distance:this.renderDistance,time:this.visualTime});
     this.biomeDynamics?.drawHighlights(c,{distance:this.renderDistance,light:this.getLightState(),playerY:this.renderPlayerY});
+    drawAtlasFlight(c,this);
     drawObjectiveMarks(c,this);
     drawFlightProjection(c,this);
     drawGlowSense(c,this);
@@ -2076,6 +2084,10 @@ export class WispFlight {
     this.drawWisp(c);
     this.drawPhoenix(c);
     this.drawPickups(c);
+    for (const effect of this.absorptionEffects) {
+      const progress=(this.visualTime-effect.bornAt)/effect.duration;
+      if(progress>=0&&progress<1)drawAbsorbingSpark(c,effect,progress,this.player.x,this.renderPlayerY,1,this.reducedMotion);
+    }
     drawBlackHoles(c,this);
     this.drawForeground(c, W, H);
     c.restore();
@@ -2264,7 +2276,7 @@ export class WispFlight {
       if (ember.collected || x < -20) continue;
       const animation = this.reducedMotion ? 0 : this.time;
       const y = ember.y + (ember.attracted ? 0 : Math.sin(animation * 2.8 + ember.phase) * 2);
-      drawPickup(c, x, y, { kind: pickupKind(ember), time: animation, reducedMotion: this.reducedMotion });
+      drawPickup(c, x, y, { kind: pickupKind(ember), time: animation+(ember.phase||0)*.19, reducedMotion: this.reducedMotion });
     }
   }
 

@@ -1,4 +1,5 @@
-import {lightVisibility} from './light-field.mjs?v=route-gifts-1';
+import {lightVisibility} from './light-field.mjs?v=night-atlas-1';
+import {drawTidalLight} from './tidal-light.mjs?v=night-atlas-1';
 // Pixel accretion and stolen-light trails. Cosmetics consume recorded drain;
 // rendering never spends fuel or changes the simulation.
 const TAU=Math.PI*2,MAX_MOTES=96;
@@ -43,7 +44,7 @@ function position(p,age,out){
   out.x=p.hx+Math.cos(a)*r;out.y=p.hy+Math.sin(a)*r*.72;
  }
 }
-const point={x:0,y:0};
+const point={x:0,y:0},before={x:0,y:0},after={x:0,y:0};
 export function drawBlackHoles(c,e,{scale=1,distance=e.renderDistance??e.distance,playerY=e.renderPlayerY??e.player.y}={}){
  if(!e.blackHoles?.items?.length)return;
  const v=view(e);update(v,e);const now=e.time||0,t=e.reducedMotion?0:(e.visualTime??now),q=Math.max(1,Math.round(scale*1.5));
@@ -76,19 +77,15 @@ export function drawBlackHoles(c,e,{scale=1,distance=e.renderDistance??e.distanc
  for(const p of v.motes){
   const age=now-p.born;if(age<0||age>p.life)continue;
   const absorption=clamp((age-p.approach)/p.orbit,0,1);
-  for(let tail=p.quiet?0:2;tail>=0;tail--){
-   position(p,Math.max(0,age-tail*.023),point);
-   const x=(point.x-distance)*scale,y=(point.y+(1-clamp(age/p.approach,0,1))*(playerY-e.player.y))*scale;
-   if(x<-12||x>e.width*scale+12)continue;
-   // Broad, stepped light fragments narrow into the funnel. No blur/filter or
-   // per-frame sprite allocation; the dark core is painted over them last.
-   const size=Math.max(q,Math.round(q*(p.quiet?3:5)*(1-absorption*.84)*(tail?.55:1)));
-   const px=Math.round(x-size/2),py=Math.round(y-size/2),cut=Math.max(1,Math.round(size*.2));
-   c.globalAlpha=(tail?.18:.86)*(1-absorption*.45);c.fillStyle=absorption>.55?'#e1a3a2':tail?'#a6bca7':'#f4edd0';
-   if(size<=2){c.fillRect(px,py,size,size);continue;}
-   c.fillRect(px+cut,py,size-cut*2,size);c.fillRect(px,py+cut,size,size-cut*2);
-   if(!tail&&size>3){c.globalAlpha=.95*(1-absorption*.5);c.fillStyle='#fff8df';c.fillRect(px+cut,py+cut,Math.max(1,size-cut*2),Math.max(1,size-cut*2));}
-  }
+  position(p,age,point);
+  const x=(point.x-distance)*scale,offset=(1-clamp(age/p.approach,0,1))*(playerY-e.player.y);
+  if(x<-36||x>e.width*scale+36)continue;
+  position(p,Math.max(0,age-.024),before);position(p,Math.min(p.life,age+.024),after);
+  const shrink=(1-absorption)**.70;
+  c.globalAlpha=.87*(1-absorption*.45);
+  drawTidalLight(c,x,(point.y+offset)*scale,(before.x-distance)*scale,(before.y+offset)*scale,
+   (after.x-distance)*scale,(after.y+offset)*scale,q*(p.quiet?4:10+4*absorption)*shrink,
+   q*(p.quiet?2:3.5)*shrink,absorption>.55?'#e1a3a2':'#f4edd0','#fff7df');
  }
  for(const hole of e.blackHoles.items){
   const x=(hole.x-distance)*scale;if(x<-100*scale||x>(e.width+100)*scale)continue;

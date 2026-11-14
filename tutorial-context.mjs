@@ -1,7 +1,7 @@
-import {resourceSymbol} from './game-symbols.mjs?v=route-gifts-1';
-import {pickupArtSvg} from './pickup-art.mjs?v=route-gifts-1';
-import {lifeHeartSvg} from './lives.mjs?v=route-gifts-1';
-import {skillIcon} from './upgrade-icons.mjs?v=route-gifts-1';
+import {resourceSymbol} from './game-symbols.mjs?v=night-atlas-1';
+import {pickupArtSvg} from './pickup-art.mjs?v=night-atlas-1';
+import {lifeHeartSvg} from './lives.mjs?v=night-atlas-1';
+import {skillIcon} from './upgrade-icons.mjs?v=night-atlas-1';
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 export function tutorialTarget(step={}){
  const kind=step.visual||'';
@@ -14,8 +14,15 @@ export function tutorialTarget(step={}){
  return null;
 }
 export function tutorialTextMarkup(text){
- const symbols={'Packed Sparks':resourceSymbol('packed'),Energy:resourceSymbol('energy'),Luminance:skillIcon({id:'main-sight',branch:'main'}),Spark:pickupArtSvg('light'),Sparks:pickupArtSvg('light'),hearts:lifeHeartSvg(),heart:lifeHeartSvg()};
- return String(text||'').split(/(Packed Sparks|Energy|Luminance|\bSparks?\b|\bhearts?\b)/g).map(part=>symbols[part]?`<span class="coach-inline-term">${symbols[part].replace('<svg ','<svg aria-hidden="true" ')}${esc(part)}</span>`:esc(part)).join('');
+ const re=/(Stored Sparks?\b|Spark Meter|Luminance|\bSparks?\b|\bhearts?\b)/g;
+ let result='',start=0;const source=String(text||'');
+ for(const token of source.matchAll(re)){
+  result+=esc(source.slice(start,token.index));const word=token[0];
+  const art=word.startsWith('Stored ')?resourceSymbol('packed'):word==='Spark Meter'?resourceSymbol('energy'):word==='Luminance'?skillIcon({id:'main-sight',branch:'main'}):word.startsWith('heart')?lifeHeartSvg():pickupArtSvg('light');
+  result+=`<span class="coach-inline-term">${art.replace('<svg ','<svg aria-hidden="true" ')}${esc(word)}</span>`;
+  start=token.index+word.length;
+ }
+ return result+esc(source.slice(start));
 }
 export function tutorialExampleMarkup(step,document,target){
  const kind=step.visual||'';
@@ -37,5 +44,5 @@ export function tutorialExampleMarkup(step,document,target){
  if(!['meter','spark','spark-layers','lift','luminance','edge','wisp'].includes(kind)&&!world)return '';
  const cells=Array.from({length:10},(_,i)=>`<rect x="16" y="${85-i*6}" width="5" height="4" fill="${i<7?'#e0f2b4':'#33483a'}"/>`).join('');
  const rings=kind==='edge'?'<path d="M81 65l4 6-6 5 7 7-4 8" fill="none" stroke="#a9e4ff" stroke-width="2"/>':'<circle cx="83" cy="58" r="36" fill="#d5e4b5" opacity=".07"/>';
- return `<figure class="coach-example"><svg viewBox="0 0 240 108" role="img" aria-label="Example flight: Energy meter at left, wisp and Spark in the passage" shape-rendering="crispEdges"><rect width="240" height="108" fill="#071416"/><path d="M0 0h240v16l-35-5-22 18-28-13-26 8-39-9-36 12L0 19zM0 108V91l28-9 28 12 30-4 22 7 30-13 30 9 22-13 24 8 26-6v26z" fill="#354640" stroke="#78917d"/>${cells}${rings}<circle cx="83" cy="58" r="10" fill="#dfead0"/><circle cx="83" cy="58" r="15" fill="#e1f1ca" opacity=".12"/><g transform="translate(152 39) scale(.65)">${kind==='black-hole'?'<circle cx="18" cy="18" r="15" fill="#000" stroke="#a875bc" stroke-width="3"/>':pickupArtSvg(kind.startsWith('pickup:')?kind.slice(7):'light')}</g>${kind==='meter'?'<path d="M60 46H30l5-5m-5 5 5 5" fill="none" stroke="#e6eeb7" stroke-width="2"/>':''}</svg><figcaption>Example · ${kind==='meter'?'Energy powers Lift':'Sparks in the passage'}</figcaption></figure>`;
+ return `<figure class="coach-example"><svg viewBox="0 0 240 108" role="img" aria-label="Example flight: Spark Meter at left, wisp and Spark in the passage" shape-rendering="crispEdges"><rect width="240" height="108" fill="#071416"/><path d="M0 0h240v16l-35-5-22 18-28-13-26 8-39-9-36 12L0 19zM0 108V91l28-9 28 12 30-4 22 7 30-13 30 9 22-13 24 8 26-6v26z" fill="#354640" stroke="#78917d"/>${cells}${rings}<circle cx="83" cy="58" r="10" fill="#dfead0"/><circle cx="83" cy="58" r="15" fill="#e1f1ca" opacity=".12"/><g transform="translate(152 39) scale(.65)">${kind==='black-hole'?'<circle cx="18" cy="18" r="15" fill="#000" stroke="#a875bc" stroke-width="3"/>':pickupArtSvg(kind.startsWith('pickup:')?kind.slice(7):'light')}</g>${kind==='meter'?'<path d="M60 46H30l5-5m-5 5 5 5" fill="none" stroke="#e6eeb7" stroke-width="2"/>':''}</svg><figcaption>Example · ${kind==='meter'?'Sparks power Lift':'Sparks in the passage'}</figcaption></figure>`;
 }
