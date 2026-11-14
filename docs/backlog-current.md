@@ -21,6 +21,13 @@ The [vocabulary list](icon-language-plan.md) is ready for wording and visual rev
 
 ## Verification and remaining evidence
 
+Publication rechecked on 15 November 2026. The live release marker is `mist-undertow-1`, source `431767ecbaea7b3f770a231777441eee768f3a18`. All 255 offline/release assets, including the worker and offline manifest, matched the local source after normalizing text line endings. The source changes after that release contain planning notes only.
+
+The published game passed real Chrome checks for all five capture sizes, both renderers, Collector cargo, skill status fills, the lantern route, the paused entry lesson, normal home routing and locked companions in both normal play and Test. No browser exceptions or horizontal overflow appeared in these checked states. The working checkout is clean.
+
+A physical Pixel 10 is not connected through the available Android debug bridge. Device frame timing and recorded human play therefore remain open evidence items. The new Collector eligibility and Guard-tree questions are paused design work.
+
+
 A 116-flight lantern sweep retained paired beams and reachable Flashes with zero independent Dark Spark overlap. Production Dream probes cover normal, elite and guardian routes, including viewport changes. The coupled flight benchmark samples illuminated terrain and visible hazards with delayed touches. It now infers falling movement from successive visible observations.
 
 Final focused verification passed 64 tests covering Storage and clear interest, separate skill ranks, lantern maps, Dream-related entry behavior, tutorial progression, Collector protection, proximity, terrain registration and route bonuses. Landscape browser checks at 915×412 and 667×320 verified distinct skill fills, rank purchases and readable controls. The large-Spark comparison fits 915×412 and 360×740 without document overflow.
