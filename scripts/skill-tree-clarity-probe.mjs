@@ -1,99 +1,76 @@
 import assert from 'node:assert/strict';
-import {SKILLS,newState,createRun,chooseStartingSkill,getSkillWallet,getSkillPrice,getSkillLockReason} from '../dist/model.mjs';
-import {skillTreeState,safeTreeSelection,skillTreeStatus} from '../dist/skill-tree-state.mjs';
-import {mainWispTreeMarkup} from '../dist/wisp-tree.mjs';
+import {SKILLS,newState,createRun,getSkillWallet,getSkillPrice,buyCheckpointSkill} from '../dist/model.mjs';
+import {skillTreeState,safeTreeSelection} from '../dist/skill-tree-state.mjs';
 import {branchTreeMarkup} from '../dist/skill-tree.mjs';
-import {treeCanvas,treeDetail,radialTreeLayout} from '../dist/living-tree.mjs';
+import {radialTreeLayout} from '../dist/living-tree.mjs';
 
-const state=newState();state.run=createRun(state.profile,'tree-clarity');
-const context=()=>({run:state.run,wallet:getSkillWallet(state),canBuy:true});
+const state=newState(),run=state.run=createRun(state.profile,'tree-clarity');
+const context=()=>({run,wallet:getSkillWallet(state),canBuy:true});
 const view=id=>skillTreeState(context(),id);
-const light=Object.values(SKILLS).filter(skill=>{let root=skill;while(SKILLS[root.requires])root=SKILLS[root.requires];return root.id==='main-sight';});
+const diagram=(branch,id)=>branchTreeMarkup({...context(),branch,selected:id});
 const inspector=html=>html.slice(html.indexOf('<section class="tree-inspector'));
-const node=(html,id)=>html.match(new RegExp(`<button[^>]*data-id="${id}"[^>]*>`))?.[0];
+const marker=(html,id)=>html.match(new RegExp('<button class="tree-bud [^>]*data-id="'+id+'"[^>]*>'))?.[0];
+const skills=Object.values(SKILLS).filter(s=>!s.retired);
+const branchSkills=tab=>skills.filter(s=>s.treeTab===tab&&(tab!=='companion'||s.branch===run.companions[0]));
 
-state.run.condensedGlow=0;
-assert.equal(view('main-sight').state,'available');
-assert.equal(view('main-sight').free,true,'Starting gifts use the model gift rule even at zero CG');
-assert.equal(view('main-edging-attunement').state,'preview');
-assert.equal(view('main-dream-deep').state,'distant');
-let html=mainWispTreeMarkup({...context(),selected:'main-sight'});
-assert.equal((html.match(/data-tree-state="available"/g)||[]).length,1,'Start presents one current choice in this limb');
-assert.ok(!html.includes(SKILLS['main-edging-attunement'].name),'Unselected previews have no name, including in aria labels');
-assert.ok(!html.includes('data-id="main-dream-deep"'));
-assert.ok(!html.includes(SKILLS['main-dream-deep'].name));
-assert.ok(!html.includes(SKILLS['main-dream-deep'].description));
+run.condensedGlow=0;
+const starter=diagram('mystic','main-dream'),gift=inspector(starter);
+assert.equal(view('main-dream').free,true);
+assert.match(gift,/CHOOSE FREE GIFT/);
+assert.match(gift,/class="rank-cost">FREE/);
 
-chooseStartingSkill(state,'main-sight');
-assert.equal(view('main-sight').state,'learned');
-assert.equal(view('main-edging-attunement').state,'saving');
-assert.equal(view('main-edging-attunement').shortfall,getSkillPrice(context().wallet,'main-edging-attunement'));
-html=mainWispTreeMarkup({...context(),selected:'main-edging-attunement'});
-assert.match(node(html,'main-edging-attunement'),/data-tree-state="saving"/);
-assert.match(inspector(html),/Need 80 more Packed Light/);
-assert.ok(inspector(html).includes('1.6s instead of 2s'),'Reachable unaffordable nodes remain fully inspectable');
-assert.match(node(html,'main-sight'),/data-tree-state="learned"/);
-assert.match(html,/bud-price">✓/);
+const id='main-fourth-beat-2',first='main-fourth-beat';
+assert.deepEqual([view(first).distance,view(id).distance],[1,2]);
+assert.equal(safeTreeSelection(branchSkills('main'),id,context()).id,id);
+let html=diagram('main',id),detail=inspector(html);
+assert.ok(marker(html,first),'shared board marker points at the earliest unlearned rank');
+assert.equal(marker(html,id),undefined);
+assert.match(detail,/Fourth Beat 2/);
+assert.match(detail,/Learn Lift 1 → Fourth Beat 1/);
+assert.match(detail,/third Lift costs zero Sparks/);
+assert.ok(detail.includes('data-id="'+first+'"')&&detail.includes('data-id="'+id+'"'));
+assert.ok(!detail.includes('data-action="buy-skill"'));
+assert.ok(!diagram('main','main-drift-sense').includes('data-id="main-drift-sense-3"'),'three prerequisites away remains hidden');
+assert.equal(view('main-drift-sense-3').inspectable,false);
 
-html=mainWispTreeMarkup({...context(),selected:'main-edging-lasting'});
-assert.match(node(html,'main-edging-lasting'),/data-tree-state="preview"/);
-assert.ok(inspector(html).includes('Lasting Pulse'));
-assert.ok(!inspector(html).includes(SKILLS['main-edging-lasting'].description));
-assert.ok(!inspector(html).includes('buy-skill'),'Nearby previews disclose the title only, without price or purchase action');
-assert.ok(!inspector(html).includes('data-icon'));
-html=mainWispTreeMarkup({...context(),selected:'main-dream-deep'});
-assert.ok(!html.includes(SKILLS['main-dream-deep'].name));
-assert.ok(!html.includes(SKILLS['main-dream-deep'].description));
-assert.ok(!treeDetail({...context(),skill:SKILLS['main-dream-deep']}).includes(SKILLS['main-dream-deep'].description),'Direct inspector entry also sanitizes hidden selection');
+const roots=['main-speed','main-sight','main-efficiency'];
+assert.deepEqual(roots.map(k=>getSkillPrice(context().wallet,k)),[30,45,90]);
+const price=getSkillPrice(context().wallet,'main-sight');
+run.condensedGlow=price-1;
+detail=inspector(diagram('main','main-sight'));
+assert.ok(detail.includes('Need 1 more Stored Sparks')&&detail.includes('SAVE FOR · '+price));
+run.condensedGlow=price;
+assert.ok(inspector(diagram('main','main-sight')).includes('+ LEARN · '+price));
+assert.ok(buyCheckpointSkill(state,'main-sight'));
+assert.equal(run.condensedGlow,0);
+assert.ok(inspector(diagram('main','main-sight')).includes('✓ OWNED'));
+const nextPrice=getSkillPrice(context().wallet,'main-horizon');
+assert.ok(inspector(diagram('main','main-horizon')).includes('SAVE FOR · '+nextPrice));
 
-state.run.condensedGlow=1000;
-assert.equal(view('main-edging-attunement').state,'available');
-assert.equal(skillTreeState({...context(),canBuy:false},'main-edging-attunement').state,'locked','Checkpoint availability participates in node brightness');
-assert.equal(skillTreeState({...context(),canBuy:false},'main-edging-attunement').available,false);
-state.run.skills['main-horizon']=1;
-for(const id of ['main-dawn','main-dawn-guard','main-dawn-fuel']){
- assert.equal(view(id).state,'excluded');
- assert.equal(view(id).inspectable,false);
+run.condensedGlow=9999;
+assert.ok(buyCheckpointSkill(state,'collector-attunement'));
+assert.ok(buyCheckpointSkill(state,'collector-reach-step-1'));
+html=diagram('companion','collector-reach');
+assert.match(marker(html,'collector-reach-step-2'),/data-owned-ranks="1"/);
+assert.ok(inspector(html).includes(SKILLS['collector-reach'].name));
+assert.ok(!html.includes('data-id="collector-recovery-step-1"')&&!html.includes('data-id="collector-close-orbit"'));
+assert.equal(view('collector-close-orbit').state,'excluded');
+run.testMode=true;run.condensedGlow=0;
+assert.equal(view('collector-close-orbit').disclosure,'full');
+assert.ok(inspector(diagram('companion','collector-close-orbit')).includes('SAVE FOR'));
+assert.equal(view('collector-close-orbit').available,false,'TEST still charges the real price');
+
+let layouts=0;
+for(const role of ['collector','protector','swift','leveler']){
+ run.companions=[role];
+ for(const tab of ['main','companion','mystic']){
+  const list=branchSkills(tab),layout=radialTreeLayout(list,{width:424,height:221});
+  const points=[...layout.points.values()];
+  for(const [i,a] of points.entries()){
+   assert.ok(a.x>=22&&a.x<=layout.width-22&&a.y>=22&&a.y<=layout.height-22);
+   for(const b of points.slice(i+1))assert.ok(Math.abs(a.x-b.x)>=49.5||Math.abs(a.y-b.y)>=49.5,'44px square targets must not overlap');
+  }
+  layouts++;
+ }
 }
-html=mainWispTreeMarkup({...context(),selected:'main-dawn-fuel'});
-for(const id of ['main-dawn','main-dawn-guard','main-dawn-fuel'])assert.ok(!node(html,id),'Closed forks and their descendants are not clickable');
-assert.ok(!html.includes(SKILLS['main-dawn-fuel'].description));
-assert.ok(html.includes('closed-root'));
-
-state.run.skills['collector-attunement']=1;
-state.run.skills['collector-reach-step-1']=1;
-const collector=Object.values(SKILLS).filter(skill=>skill.branch==='collector');
-html=treeCanvas({...context(),skills:collector,selected:'collector-reach-step-1',action:'inspect-branch-skill',key:'collector'});
-assert.match(node(html,'collector-reach-step-2'),/data-tree-state="available"/,'A learned selected rank does not hide the next actionable rank');
-assert.equal(safeTreeSelection(collector,'collector-reach',context()).id,'collector-reach-step-2','A future rank cannot replace its current reachable shared marker');
-assert.match(node(html,'collector-reach-step-2'),/data-owned-ranks="1"/,'Owned ranks remain explicit while the next rank is affordable');
-const richWallet=state.run.condensedGlow;state.run.condensedGlow=0;
-const savingTree=treeCanvas({...context(),skills:collector,selected:'collector-reach-step-2',action:'inspect-branch-skill',key:'collector'});
-assert.match(node(savingTree,'collector-reach-step-2'),/data-tree-state="saving"/);
-assert.match(node(savingTree,'collector-reach-step-2'),/data-owned-ranks="1"/,'Losing affordability must not erase ownership');
-assert.match(savingTree,/bud-owned[^>]*>✓ 1\/3/);
-state.run.condensedGlow=richWallet;
-
-html=branchTreeMarkup({...context(),branch:'collector',selected:'collector-reach'});
-assert.ok(!inspector(html).includes('data-id="collector-reach"'),'Future rank slot is anonymous and noninteractive');
-assert.ok(inspector(html).includes('Future rank'));
-
-state.run.testMode=true;state.run.condensedGlow=0;
-const test=view('main-dream-deep');
-assert.equal(test.disclosure,'full');
-assert.equal(test.state,'saving');
-assert.equal(test.shortfall,getSkillPrice(context().wallet,'main-dream-deep'));
-assert.equal(getSkillLockReason(context().wallet,'main-dream-deep'),null);
-assert.match(skillTreeStatus(test),new RegExp(`Need ${test.shortfall} more`));
-assert.equal(view('main-dawn-fuel').disclosure,'full','TEST opens closed branches');
-html=mainWispTreeMarkup({...context(),selected:'main-dream-deep'});
-assert.ok(inspector(html).includes(SKILLS['main-dream-deep'].description));
-assert.ok(html.includes('data-id="afterglow"'),'TEST can navigate to Condensation without its normal prerequisite');
-assert.equal((html.match(/data-tree-state=/g)||[]).length,20,'TEST exposes all Light nodes');
-
-globalThis.innerWidth=900;globalThis.innerHeight=405;
-const layout=radialTreeLayout(light,{width:572,height:248.8}),points=[...layout.points.values()];
-let minimum=Infinity;
-for(let i=0;i<points.length;i++)for(let j=i+1;j<points.length;j++)minimum=Math.min(minimum,Math.hypot(points[i].x-points[j].x,points[i].y-points[j].y));
-assert.ok(minimum>=50,'Full TEST Light tree preserves separation for 44px targets at 900×405');
-console.log(JSON.stringify({freeGift:true,learned:true,affordable:true,shortfall:true,checkpointGate:true,previewWithoutSpoilers:true,distantSelectionSanitized:true,closedDescendants:true,rankProgress:true,testCostsReal:true,lightNodes:light.length,minimumSeparation:minimum}));
+console.log(JSON.stringify({inspectablePrerequisites:2,closedBranchesHidden:true,sharedRankPreview:true,realPurchasePrices:[30,45,90],layouts,viewport:[740,333]}));

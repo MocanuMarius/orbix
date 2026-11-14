@@ -4,7 +4,9 @@ A landscape, one-handed pixel flight roguelite. The static game lives in `dist/`
 
 ## Current release
 
-[Play](https://mocanumarius.github.io/orbix/) · [Compare Spark absorption styles](https://mocanumarius.github.io/orbix/spark-preview.html#absorption) · [Landscape desktop preview](https://mocanumarius.github.io/orbix/preview.html)
+[Play](https://mocanumarius.github.io/orbix/) · [See the five Spark sizes](https://mocanumarius.github.io/orbix/spark-preview.html#sizes) · [Compare Spark absorption styles](https://mocanumarius.github.io/orbix/spark-preview.html#absorption) · [Landscape desktop preview](https://mocanumarius.github.io/orbix/preview.html)
+
+Use **Settings → Refresh build** to apply a published update. On a phone, open the game link directly or install it as a PWA.
 
 Run `npm start` at localhost:4173, or `npm run preview:rest` at localhost:4180 for local inspection fixtures.
 

@@ -1,5 +1,5 @@
-import { pickupKind, getPickupSpec, pickupDisposition, PLASMA_SHELL_RADIUS, SPARK_ART_SCALE } from './pickups.mjs?v=ribbon-luminance-1';
-import {sparkImageArt,sparkSymbolArt} from './spark-symbol.mjs?v=ribbon-luminance-1';
+import { pickupKind, getPickupSpec, pickupDisposition, PLASMA_SHELL_RADIUS, SPARK_ART_SCALE } from './pickups.mjs?v=guardian-beat-1';
+import {sparkImageArt,sparkSymbolArt} from './spark-symbol.mjs?v=guardian-beat-1';
 
 const TAU = Math.PI * 2;
 const clamp = (value, low, high) => Math.max(low, Math.min(high, value));
@@ -256,18 +256,79 @@ export function drawFuelFrame(context,x,y,kind,frame,reducedMotion=false,bodyOnl
     context.fillRect(x+p.x,y+p.y,p.width,p.height);
   }
 }
-function cachedSprite(doc,id,frame,tiny,reducedMotion,bodyOnly) {
+// Giants need a finer source grid than a 25-pixel pickup. Paint the same
+// discharges into a bounded atlas; the terrain-sized shell stays translucent.
+function paintLargeSpark(ctx,id,phase,bodyOnly) {
+  const tier=getPickupSpec(id).plasma, ink=fields[tier];
+  const radius=tier?PLASMA_SHELL_RADIUS*SPARK_ART_SCALE:getPickupSpec(id).contactRadius*SPARK_ART_SCALE;
+  ctx.translate(ctx.canvas.width/2,ctx.canvas.height/2);
+  ctx.scale(2,2);
+  const disc=(r,color,alpha)=>{
+    ctx.globalAlpha=alpha;ctx.fillStyle=color;ctx.beginPath();ctx.arc(0,0,r,0,TAU);ctx.fill();
+  };
+  const rim=(r,start,end,color,alpha,width)=>{
+    ctx.globalAlpha=alpha;ctx.strokeStyle=color;ctx.lineWidth=width;ctx.beginPath();ctx.arc(0,0,r,start,end);ctx.stroke();
+  };
+  const dark=!tier, glow=dark?(id==='dusk'?'#db8cb4':'#e67972'):ink.glow;
+  if(!bodyOnly){
+    disc(radius+1.6,glow,.10);disc(radius+.7,glow,.12);
+    disc(radius,dark?'#321e30':'#333d43',.74);
+    rim(radius,0,TAU,dark?glow:ink.rim,.88,.62);
+  }
+  if(dark){
+    disc(radius*.46,glow,.8);disc(radius*.41,'#362836',1);disc(radius*.31,'#05050a',1);
+    for(let i=0;i<6;i++){
+      const k=(phase*1.3+i/6)%1, angle=i*2.399+TAU*phase*1.3;
+      rim(radius*(.38+.40*(1-k)),angle,angle+.29+.35*k,glow,.22+.35*k,.38);
+      const r=radius*(.81-.37*k);
+      ctx.fillStyle='#ffb7b5';ctx.globalAlpha=.48;
+      ctx.fillRect(r*Math.cos(angle),r*Math.sin(angle),.8,.6);
+    }
+    rim(radius*.43,3.42,4.83,'#ffb8a9',.92,.66);
+  }else{
+    disc(radius*.9,ink.glow,.07);disc(radius*.63,ink.glow,.06);
+    for(const track of discharges[tier]){
+      const t=(phase+track.offset)%1;
+      const e=track.events.find(item=>t>=item.start && t<item.start+item.duration);
+      if(!e)continue;
+      const life=(t-e.start)/e.duration;
+      const alpha=Math.min(1,(life+.025)/.13,(1-life)/.28);
+      const reach=e.rooted?radius:radius*(.26+.74*Math.min(1,life/.22));
+      const jitter=Math.sin(e.jitter+life*10)*Math.sin(life*Math.PI);
+      ctx.beginPath();ctx.moveTo(0,0);
+      let bx=0,by=0;
+      for(let j=1;j<=6;j++){
+        const f=j/6,angle=e.angle+(1-f)*(e.bendA*(1-f)+e.bendB*f)+jitter*.09*Math.sin(j*2+e.jitter);
+        const r=reach*f*e.rimLength;
+        ctx.lineTo(Math.cos(angle)*r,Math.sin(angle)*r);
+        if(j===4){bx=Math.cos(angle)*r;by=Math.sin(angle)*r;}
+      }
+      if(e.fork&&life>e.forkTime&&life<.92){
+        ctx.moveTo(bx,by);ctx.lineTo(Math.cos(e.angle+e.fork*.42)*reach*.76,Math.sin(e.angle+e.fork*.42)*reach*.76);
+        ctx.lineTo(Math.cos(e.angle+e.fork)*reach*.90,Math.sin(e.angle+e.fork)*reach*.90);
+      }
+      ctx.lineJoin='bevel';ctx.globalAlpha=alpha*.28;ctx.lineWidth=1.35;ctx.strokeStyle=ink.glow;ctx.stroke();
+      ctx.globalAlpha=alpha*.97;ctx.lineWidth=.47;ctx.strokeStyle=ink.core;ctx.stroke();
+    }
+    disc(radius*.22,ink.glow,.34);disc(radius*.13,ink.arc,.85);disc(radius*.075,ink.core,1);
+  }
+}
+
+function cachedSprite(doc,id,frame,tiny,reducedMotion,bodyOnly,detailed=false) {
+  detailed=detailed&&id!=='sight';
   if(bodyOnly && getPickupSpec(id).plasma) frame -= frame % 6;
   let cache=atlases.get(doc);
   if(!cache){cache=new Map();atlases.set(doc,cache);}
-  const key=id+':'+frame+':'+tiny+':'+reducedMotion+':'+bodyOnly;
+  const key=id+':'+frame+':'+tiny+':'+reducedMotion+':'+bodyOnly+':'+detailed;
   if(cache.has(key))return cache.get(key);
   const [period,frames]=cycles[id]||[1,1];
   const sprite=doc.createElement('canvas'),fuel=Boolean(getPickupSpec(id).plasma);
   const side=fuel?FUEL_ANIMATION.size:72;
-  sprite.width=sprite.height=side;
+  sprite.sparkTexelScale=detailed?2:1;
+  sprite.width=sprite.height=side*sprite.sparkTexelScale;
   const c=sprite.getContext('2d');
-  if(fuel)drawFuelFrame(c,side/2,side/2,id,frame,reducedMotion,bodyOnly);
+  if(detailed)paintLargeSpark(c,id,frame/frames,bodyOnly);
+  else if(fuel)drawFuelFrame(c,side/2,side/2,id,frame,reducedMotion,bodyOnly);
   else for(const p of packetPixels(id,{time:frame/frames*period,reducedMotion,tiny,bodyOnly})){
     c.globalAlpha=p.alpha;c.fillStyle=p.color;c.fillRect(side/2+p.x,side/2+p.y,p.width,p.height);
   }
@@ -275,11 +336,11 @@ function cachedSprite(doc,id,frame,tiny,reducedMotion,bodyOnly) {
   return sprite;
 }
 // Absorption samples the same full sprite and phase as the pickup it replaces.
-export function pickupSpriteFrame(doc, kind, {time=0, phase=0, reducedMotion=false, bodyOnly=false}={}) {
+export function pickupSpriteFrame(doc, kind, {time=0, phase=0, reducedMotion=false, bodyOnly=false,detailed=false}={}) {
   if (!doc?.createElement) return null;
   const id=pickupKind(kind), [period, frames]=cycles[id];
   const frame=frameAt(time + phase*period/TAU, period, frames, reducedMotion);
-  return cachedSprite(doc,id,frame,false,reducedMotion,bodyOnly);
+  return cachedSprite(doc,id,frame,false,reducedMotion,bodyOnly,detailed);
 }
 const warmups=new WeakMap();
 export function prepareFuelSprites(doc,reducedMotion=false) {
@@ -298,16 +359,16 @@ export function prepareFuelSprites(doc,reducedMotion=false) {
   })();
   return pending[key];
 }
-export function drawPickup(context,x,y,{kind='light',time=0,phase=0,reducedMotion=false,tiny=false,bodyOnly=false,alpha=1,scale=1}={}){
+export function drawPickup(context,x,y,{kind='light',time=0,phase=0,reducedMotion=false,tiny=false,bodyOnly=false,alpha=1,scale=1,detailed=false}={}){
   const id=pickupKind(kind),size=Math.max(.1,Number(scale)||1),doc=context.canvas?.ownerDocument;
   const [period,frames]=cycles[id]||[1,1];
   const clock=time+phase*period/TAU;
   const frame=frameAt(clock,period,frames,reducedMotion);
   const plasma=Boolean(getPickupSpec(id).plasma);
-  const sprite=doc&&cachedSprite(doc,id,frame,plasma?false:tiny,reducedMotion,bodyOnly);
+  const sprite=doc&&cachedSprite(doc,id,frame,plasma?false:tiny,reducedMotion,bodyOnly,detailed);
   context.save();const inherited=context.globalAlpha*clamp(Number(alpha)||0,0,1);
   if(sprite){
-    const drawSize=size*(plasma&&tiny?.62:1);
+    const drawSize=size*(plasma&&tiny?.62:1)/sprite.sparkTexelScale;
     context.globalAlpha=inherited;context.imageSmoothingEnabled=false;
     const width=sprite.width*drawSize;
     context.drawImage(sprite,Math.round(x-width/2),Math.round(y-width/2),Math.round(width),Math.round(width));

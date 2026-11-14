@@ -1,4 +1,4 @@
-import {iceShardPoints,ICE_GUIDE_FACETS} from './guardian-geometry.mjs?v=ribbon-luminance-1';
+import {iceShardPoints,ICE_GUIDE_FACETS} from './guardian-geometry.mjs?v=guardian-beat-1';
 
 // Draw in world units inside the same camera transform for the pixel buffer and canvas fallback.
 const TAU=Math.PI*2;
@@ -18,7 +18,7 @@ function windX(lane,p,phase){
  return edge*(lane*.85+.072*Math.sin(p*7+phase+lane*3));
 }
 
-function drawStorm(c,a,playerX,playerY,t,s,alpha,reduced){
+function drawStorm(c,a,playerX,playerY,t,s,alpha,reduced,center){
  const z=a.stormZone;
  if(!z)return;
  const {x,y,rx,ry,direction}=z;
@@ -57,6 +57,25 @@ function drawStorm(c,a,playerX,playerY,t,s,alpha,reduced){
   }
  }
  const mouthY=-direction*ry*.86;
+ if(a.obstacle.guardianGate){
+  // Conductors grow from the solid bank and visibly feed the jet.
+  const bank=-direction,o=a.obstacle,shape=bank===1?o.bottomShape:o.topShape;
+  for(const side of [-1,1]){
+   const attachmentX=x+side*rx*.35-o.x;
+   let edge=center+bank*o.gap*.5-y;
+   for(let i=3;i<shape.length;i++){
+    const [ax,ay]=shape[i-1],[bx,by]=shape[i];
+    if(attachmentX<bx||attachmentX>ax)continue;
+    edge+=ay+(by-ay)*(attachmentX-ax)/(bx-ax);break;
+   }
+   c.globalAlpha=.88*alpha;
+   c.beginPath();c.moveTo(side*rx*.35,edge+bank*13*s);
+   c.lineTo(side*rx*.30,edge);c.lineTo(side*rx*.20,mouthY+bank*3*s);
+   stroke(c,'#526f7c',7*s);
+   c.beginPath();c.moveTo(side*rx*.32,edge+bank*3*s);c.lineTo(side*rx*.22,mouthY+bank*2*s);
+   stroke(c,'#b5dce4',2*s);
+  }
+ }
  c.globalAlpha=.9*alpha;
  c.strokeStyle='#bbd5df';c.lineWidth=2*s;
  for(let i=0;i<2;i++){
@@ -189,18 +208,54 @@ function drawWell(c,a,playerX,playerY,t,s,alpha){
  }
 }
 
+const crestColors={
+ 'hollow-warden':['#68633f','#f3d89b'],moonweaver:['#766b8e','#eee3ff'],
+ 'frost-matron':['#47758a','#d6f8ff'],'rootbound-heart':['#646d44','#cbed9c'],
+ 'storm-shepherd':['#466e85','#cdefff'],'hollow-sun':['#765969','#f4c1cf']
+};
+
+// The warning travels along the actual incoming contour, ending at its lip.
+// Both marked faces remain visible during a crossing, even with reduced motion.
+function drawCrest(c,engine,o,playerX,t,s,boss){
+ const ahead=boss.speed*2.85,dx=o.x+o.width*.65-playerX;
+ if(dx>ahead+o.width||dx< -o.width*2)return;
+ const [base,highlight]=crestColors[boss.id],center=engine.obstacleCenter(o);
+ for(const side of [-1,1]){
+  const shape=side===1?o.bottomShape:o.topShape;
+  if(!shape)continue;
+  const mouth=center+side*o.gap*.5;
+  let previousX, previousY;
+  for(let i=shape.length-1;i>=2;i--){
+   const [x,y]=shape[i];
+   if(x< -o.width*.30||x>o.width*.96)continue;
+   const xx=o.x+x,yy=mouth+y+side*3*s;
+   if(previousX!==undefined){
+    const bright=engine.reducedMotion?.72:.46+.45*(.5+.5*Math.cos(x/o.width*7-t*3));
+    c.globalAlpha=.70;
+    c.beginPath();c.moveTo(previousX,previousY+side*3*s);c.lineTo(xx,yy+side*3*s);
+    stroke(c,base,7*s);
+    c.globalAlpha=bright;
+    c.beginPath();c.moveTo(previousX,previousY);c.lineTo(xx,yy);
+    stroke(c,highlight,2.4*s);
+   }
+   previousX=xx;previousY=yy;
+  }
+ }
+}
+
 export function drawGuardianWarnings(c,{engine,distance=engine.distance,scale=1,time=engine.visualTime??engine.time}){
  const boss=engine.layout?.boss;
- if(!boss?.attacks?.length)return;
+ if(!boss)return;
  const ahead=Math.max(1,boss.speed)*2.85,playerX=distance+engine.player.x,playerY=engine.renderPlayerY??engine.player.y,s=boss.scale;
  const t=engine.reducedMotion?0:time;
  c.save();c.scale(scale,scale);c.translate(-distance,0);
- for(const a of boss.attacks){
+ for(const o of boss.crests||[])drawCrest(c,engine,o,playerX,t,s,boss);
+ for(const a of boss.attacks||[]){
   const width=a.stormZone?.rx??(boss.id==='rootbound-heart'?a.obstacle.width*.75:boss.id==='hollow-sun'?65*s:17*s);
   const dx=a.x-playerX;
   if(a.x+width<distance||a.x-width>distance+engine.width||dx-width>ahead)continue;
   const alpha=clamp01((ahead-dx+width)/Math.max(1,boss.speed*.55));
-  if(boss.id==='storm-shepherd')drawStorm(c,a,playerX,playerY,t,s,alpha,engine.reducedMotion);
+  if(boss.id==='storm-shepherd')drawStorm(c,a,playerX,playerY,t,s,alpha,engine.reducedMotion,engine.obstacleCenter(a.obstacle));
   else if(boss.id==='frost-matron')drawIce(c,a,t,s,alpha);
   else if(boss.id==='rootbound-heart')drawRoots(c,engine,a,t,s,alpha);
   else if(boss.id==='hollow-sun')drawWell(c,a,playerX,playerY,t,s,alpha);

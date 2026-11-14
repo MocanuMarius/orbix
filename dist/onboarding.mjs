@@ -1,4 +1,4 @@
-import {resourceCycleSteps} from './resource-cycle.mjs?v=ribbon-luminance-1';
+import {resourceCycleSteps} from './resource-cycle.mjs?v=guardian-beat-1';
 // Normal-run onboarding is profile-owned. Prompts are contextual, one short
 // card at a time; the run owns only pacing so a new game keeps learned topics.
 export const ONBOARDING_VERSION=1;

@@ -126,15 +126,16 @@ test('elite and guardian choices still block travel until a reward is chosen',()
  }
 });
 
-test('the final guardian ends the expedition without a non-choice payout panel',()=>{
+test('a completed legendary collection skips the final discovery panel',()=>{
  const s=state('final'),r=s.run;
  for(let i=0;i<2;i++){r.phase='map-clear';assert.ok(M.advanceMap(r));}
+ r.unlockedArtifacts=Object.keys(M.ARTIFACTS).filter(id=>M.ARTIFACTS[id].rarity==='boss');
  r.step=6;r.phase='map';enter(s,'guardian');
  assert.ok(M.finishFlight(r,{success:true,flame:60}));
  assert.equal(r.success,true);
  assert.equal(r.bossDefeated,true);
  assert.equal(r.phase,'ended');
- assert.equal(r.flightReward,null);
+ assert.deepEqual(r.flightReward.offers,[]);assert.ok(r.flightReward.collectionComplete);
  assert.equal(r.victoryPending,false);
  assert.equal(r.lastFlight.completionBonus,0);
  assert.equal(M.takeClearRewardReceipt(r),null);

@@ -12,6 +12,7 @@ export function sampleIceShard(attack, dx, time, out) {
 }
 
 export function iceShardPoints(attack, scale) {
+  if (attack.obstacle?.guardianGate) scale *= 1.23;
   const along = -attack.side * scale;
   return [[0,-18], [9,-13], [14,-3], [8,6], [2,22], [-5,12], [-13,-1], [-9,-12]]
     .map(([x,y]) => [x*scale,y*along]);

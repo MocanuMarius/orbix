@@ -2,7 +2,8 @@ import assert from 'node:assert/strict';
 import {WispFlight,FLIGHT_TUNING,circleHitsObstacle} from '../dist/flight.mjs';
 import {FlightProjection} from '../dist/flight-projection.mjs';
 import * as M from '../dist/model.mjs';
-const state=M.newState();state.run=M.createRun(state.profile,'drift-tree');M.chooseStartingSkill(state,'main-speed');state.run.condensedGlow=500; // Fund guide ranks independently of starting budget.
+const state=M.newState();state.run=M.createRun(state.profile,'drift-tree');state.run.condensedGlow=500;
+assert.ok(M.buyCheckpointSkill(state,'main-speed')); // Buy the guide prerequisite from the current run tree.
 assert.ok(M.buyCheckpointSkill(state,'main-drift-sense'));assert.equal(M.getRunModifiers(state.run).driftSense,1);
 assert.equal(M.buyCheckpointSkill(state,'main-drift-sense-3'),false);state.run.condensedGlow=3000; // Fund the current two advanced ranks for the physics fixture.
 for(const id of ['main-drift-sense-2','main-drift-sense-3'])assert.ok(M.buyCheckpointSkill(state,id));

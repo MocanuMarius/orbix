@@ -1,19 +1,26 @@
-import {DEFAULT_CAPTURE_STYLE} from './capture-styles.mjs?v=ribbon-luminance-1';
-import {getPickupSpec, pickupKind} from './pickups.mjs?v=ribbon-luminance-1';
-import {pickupSpriteFrame} from './pickup-art.mjs?v=ribbon-luminance-1';
-import {LIGHT_PACKET_TUNING} from './vitality.mjs?v=ribbon-luminance-1';
+import {DEFAULT_CAPTURE_STYLE} from './capture-styles.mjs?v=guardian-beat-1';
+import {getPickupSpec, pickupKind} from './pickups.mjs?v=guardian-beat-1';
+import {pickupSpriteFrame} from './pickup-art.mjs?v=guardian-beat-1';
+import {LIGHT_PACKET_TUNING} from './vitality.mjs?v=guardian-beat-1';
 
 const TAU = Math.PI * 2;
 const clamp = value => Math.max(0, Math.min(1, value));
 const smooth = value => value * value * (3 - 2 * value);
 const right = {}, left = {};
 const plain = {};
+const heavyFraction = massTier => clamp(((massTier || 1)-1)/9);
+
+// A massive Spark pays out on contact like every other one. Only the trailing
+// material takes longer to fold away, keeping response to the tap immediate.
+export function captureMassDuration(baseDuration=LIGHT_PACKET_TUNING.absorptionDuration,massTier=1) {
+  return baseDuration * (1 + .48*heavyFraction(massTier));
+}
 
 // Every slice of plasma has a different release time. A near slice can
 // already be spiralling into the receiver while its neighbour is still round.
 function edge(out, fraction, artRadius, sourceRadius, age, delay, turns, wave, wrap, orbitWidth) {
   const release = delay * (1 - fraction);
-  const elapsed = clamp((age - release) / .60);
+  const elapsed = clamp((age - release) / Math.min(.60,1 - delay));
   const flow = elapsed * smooth(clamp(elapsed/.18));
   const radius = sourceRadius + artRadius * (1 - fraction * 2);
   const shrink = (1 - flow) ** .8;
@@ -30,13 +37,14 @@ function edge(out, fraction, artRadius, sourceRadius, age, delay, turns, wave, w
 
 // Each cross section carries part of the original arcs. Deformation changes
 // independently across its width, with a tapered throat as the stream arrives.
-function drawStream(ctx, sprite, artRadius, sourceRadius, age, sourceScale, delay, turns, wave, wrap, half, color) {
-  const strips = 24, side = sprite?.width || 44;
+function drawStream(ctx, sprite, artRadius, sourceRadius, age, sourceScale, delay, turns, wave, wrap, half, color, weight) {
+  const strips = 24 + Math.round(weight * 8), side = sprite?.width || 44;
   const imageRadius = artRadius / sourceScale;
-  const sourceTop = half === 1 ? side / 2 : side / 2 - imageRadius;
   const sourceHeight = half ? imageRadius : imageRadius * 2;
   const top = half === 1 ? 0 : -imageRadius;
-  const orbitWidth = Math.max(5, 21 - .25 * sourceRadius) * 2.12 * Math.abs(wrap);
+  const texel = sprite?.sparkTexelScale || 1;
+  const sourceTop = side / 2 + top * texel;
+  const orbitWidth = (Math.max(5, 21 - .25 * sourceRadius) * 2.12 + 16*weight) * Math.abs(wrap);
   edge(left, 0, artRadius, sourceRadius, age, delay, turns, wave, wrap, orbitWidth);
   for (let i = 0; i < strips; i++) {
     const u = (i + .5) / strips;
@@ -54,8 +62,9 @@ function drawStream(ctx, sprite, artRadius, sourceRadius, age, sourceScale, dela
       // Subpixel overlap closes cracks between sharply turning strips.
       const overlap = Math.min(.35, flow * 2);
       if (sprite) {
-        ctx.drawImage(sprite, side / 2 + (u * 2 - 1) * imageRadius - width / 2,
-          sourceTop, width, sourceHeight, -width / 2 - overlap, top, width + 2 * overlap, sourceHeight);
+        ctx.drawImage(sprite, side/2 + ((u*2-1)*imageRadius-width/2)*texel,
+          sourceTop, width*texel, sourceHeight*texel,
+          -width/2-overlap, top, width+2*overlap, sourceHeight);
       } else {
         const h = Math.sqrt(Math.max(0, 1 - (2*u-1)**2)) * imageRadius;
         ctx.fillStyle = color;
@@ -84,6 +93,7 @@ export function drawAbsorbingSpark(ctx, effect, age, targetX, targetY, scale, qu
   const doc = ctx.canvas?.ownerDocument ?? globalThis.document;
   const time = (effect.bornAt || 0) + age * (effect.duration || LIGHT_PACKET_TUNING.absorptionDuration);
   plain.time=time; plain.phase=effect.phase||0; plain.reducedMotion=quiet; plain.bodyOnly=true;
+  plain.detailed=effect.massTier>=5;
   const sprite = pickupSpriteFrame(doc, kind, plain);
   ctx.save();
   ctx.translate(targetX,targetY);
@@ -96,15 +106,16 @@ export function drawAbsorbingSpark(ctx, effect, age, targetX, targetY, scale, qu
   const tangent = Math.cos(angle)*vy - Math.sin(angle)*vx;
   const direction = tangent < -.02*Math.hypot(vx,vy) ? -1 : 1;
   const style = effect.style || DEFAULT_CAPTURE_STYLE;
+  const weight = heavyFraction(effect.massTier);
   if (style === 'split' && !quiet) {
-    drawStream(ctx,sprite,artRadius,sourceRadius,age,size,.36,1.05*direction,0,.28*direction,-direction,spec.color);
-    drawStream(ctx,sprite,artRadius,sourceRadius,age,size,.4,-.82*direction,0,-.24*direction,direction,spec.color);
+    drawStream(ctx,sprite,artRadius,sourceRadius,age,size,.36+.12*weight,1.05*direction,0,.28*direction,-direction,spec.color,weight);
+    drawStream(ctx,sprite,artRadius,sourceRadius,age,size,.4+.12*weight,-.82*direction,0,-.24*direction,direction,spec.color,weight);
   } else {
     const ribbon = style === 'ribbon';
     const turns = quiet ? .045 : ribbon ? -.768 : 1.32;
     const wave = ribbon && !quiet ? .256 : 0;
     const wrap = quiet ? 0 : ribbon ? -1 : .32;
-    drawStream(ctx,sprite,artRadius,sourceRadius,age,size,.4,turns*direction,wave*direction,wrap*direction,0,spec.color);
+    drawStream(ctx,sprite,artRadius,sourceRadius,age,size,.4+.12*weight,turns*direction,wave*direction,wrap*direction,0,spec.color,weight);
   }
   ctx.restore();
 }

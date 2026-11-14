@@ -1,19 +1,19 @@
-import {resourceSymbol} from './game-symbols.mjs?v=ribbon-luminance-1';
-import {drawPickup, pickupArtSvg} from './pickup-art.mjs?v=ribbon-luminance-1';
-import {getPickupSpec} from './pickups.mjs?v=ribbon-luminance-1';
-import {drawBlackHoles} from './black-hole-art.mjs?v=ribbon-luminance-1';
-import {blackHoleDrainRate, BLACK_HOLE_TUNING} from './black-holes.mjs?v=ribbon-luminance-1';
-import {CAPTURE_STYLES, readCaptureStyle, saveCaptureStyle} from './capture-styles.mjs?v=ribbon-luminance-1';
-import {drawCapture} from './capture-art.mjs?v=ribbon-luminance-1';
-import {glowPoints, LIGHT_PACKET_TUNING} from './vitality.mjs?v=ribbon-luminance-1';
-import {SKILLS, ARTIFACTS} from './model.mjs?v=ribbon-luminance-1';
-import {ROUTE_BONUSES} from './route-bonuses.mjs?v=ribbon-luminance-1';
-import {skillIcon, artifactIcon} from './upgrade-icons.mjs?v=ribbon-luminance-1';
-import {mapStopIconMarkup} from './map-guide.mjs?v=ribbon-luminance-1';
-import {companionArtSvg, makeWispSprite} from './companion-art.mjs?v=ribbon-luminance-1';
-import {lifeHeartSvg} from './lives.mjs?v=ribbon-luminance-1';
-import {bonusIcon} from './route-bonus-ui.mjs?v=ribbon-luminance-1';
-import {menuIcon} from './menu-icons.mjs?v=ribbon-luminance-1';
+import {resourceSymbol} from './game-symbols.mjs?v=guardian-beat-1';
+import {drawPickup, pickupArtSvg} from './pickup-art.mjs?v=guardian-beat-1';
+import {getPickupSpec} from './pickups.mjs?v=guardian-beat-1';
+import {drawBlackHoles} from './black-hole-art.mjs?v=guardian-beat-1';
+import {blackHoleDrainRate, BLACK_HOLE_TUNING} from './black-holes.mjs?v=guardian-beat-1';
+import {CAPTURE_STYLES, readCaptureStyle, saveCaptureStyle} from './capture-styles.mjs?v=guardian-beat-1';
+import {drawCapture} from './capture-art.mjs?v=guardian-beat-1';
+import {glowPoints, LIGHT_PACKET_TUNING} from './vitality.mjs?v=guardian-beat-1';
+import {SKILLS, ARTIFACTS} from './model.mjs?v=guardian-beat-1';
+import {ROUTE_BONUSES} from './route-bonuses.mjs?v=guardian-beat-1';
+import {skillIcon, artifactIcon} from './upgrade-icons.mjs?v=guardian-beat-1';
+import {mapStopIconMarkup} from './map-guide.mjs?v=guardian-beat-1';
+import {companionArtSvg, makeWispSprite} from './companion-art.mjs?v=guardian-beat-1';
+import {lifeHeartSvg} from './lives.mjs?v=guardian-beat-1';
+import {bonusIcon} from './route-bonus-ui.mjs?v=guardian-beat-1';
+import {menuIcon} from './menu-icons.mjs?v=guardian-beat-1';
 
 const preferences = matchMedia('(prefers-reduced-motion: reduce)');
 const root = document.documentElement;
@@ -35,6 +35,7 @@ const pickup = kind => {
 };
 const groups = {
   absorption: () => [],
+  sizes: () => [],
   flash: () => [],
   fuel: () => ['light','cluster','cache'].map(pickup),
   other: () => ['sight','dusk','dark'].map(pickup),
@@ -171,6 +172,7 @@ const loopLength = leadIn + duration + .4;
 let previewTime = 0;
 let compareFrame;
 let flashPreview;
+let sizesPreview;
 
 scrub.addEventListener('input', () => {
   paused = true;
@@ -264,13 +266,17 @@ function renderGroup() {
   cancelAnimationFrame(compareFrame);
   flashPreview?.stop();
   flashPreview = null;
+  sizesPreview?.stop();
+  sizesPreview = null;
+  const sizes=picker.value==='sizes';
   const flash = picker.value === 'flash';
   const comparison = picker.value === 'absorption';
   root.dataset.comparison = String(comparison);
   root.dataset.flash = String(flash);
-  scale.hidden = flash;
+  root.dataset.sizes = String(sizes);
+  scale.hidden = flash||sizes;
   gallery.setAttribute('aria-label',comparison ? 'Compare absorption styles for your next flight' : 'Icon artwork');
-  document.querySelector('h1').textContent = comparison ? 'Spark absorption' : flash ? 'Flash Powerup' : 'Icon preview';
+  document.querySelector('h1').textContent = comparison ? 'Spark absorption' : sizes?'Spark sizes':flash ? 'Flash Powerup' : 'Icon preview';
   document.querySelector('#comparison-controls').hidden = !comparison;
   styleNote.hidden = !comparison;
   const fragment = document.createDocumentFragment();
@@ -318,11 +324,24 @@ function renderGroup() {
   gallery.replaceChildren(fragment);
   gallery.dataset.group = picker.value;
   if (flash) openFlashPreview();
+  if (sizes) openSizesPreview();
   if (location.hash.slice(1) !== picker.value) history.replaceState(null, '', '#' + picker.value);
+}
+async function openSizesPreview(){
+  try{
+    const {createSparkSizesPreview}=await import('./spark-sizes-preview.mjs?v=guardian-beat-1');
+    if(picker.value!=='sizes'||sizesPreview)return;
+    sizesPreview=createSparkSizesPreview({isPaused:()=>root.dataset.previewPaused==='true',
+      setPaused:value=>{paused=value;syncMotion();},reducedMotion:()=>reducedMotion});
+    gallery.replaceChildren(sizesPreview.element);
+  }catch(error){
+    if(picker.value==='sizes')gallery.textContent='The size preview could not load. Reload to try again.';
+    console.error(error);
+  }
 }
 async function openFlashPreview() {
   try {
-    const {createFlashPreview} = await import('./flash-preview.mjs?v=ribbon-luminance-1');
+    const {createFlashPreview} = await import('./flash-preview.mjs?v=guardian-beat-1');
     if (picker.value !== 'flash' || flashPreview) return;
     flashPreview = createFlashPreview({
       isPaused: () => root.dataset.previewPaused === 'true',

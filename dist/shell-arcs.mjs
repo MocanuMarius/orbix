@@ -1,7 +1,7 @@
 // A short, branching discharge jumps out from the wisp's shell. Clip the
 // moving head and tail along each channel so the ends travel independently.
 const TAU = Math.PI*2;
-const duration = .36;
+const duration = .18;
 const clamp = t => Math.max(0,Math.min(1,t));
 
 function noise(seed){
@@ -59,7 +59,7 @@ export function drawShellArcs(ctx,x,y,scale,age,kind,phase=0,reducedMotion=false
   const u=age/duration, fade=(1-u*u)**1.15;
   const input=Math.abs(Math.sin(phase*9.13))*.99999;
   const channels=templates[Math.floor(input*templates.length)];
-  const size=reducedMotion?scale*.82:scale;
+  const size=scale*.8*(reducedMotion?.82:1);
   ctx.save();
   ctx.translate(x,y);
   ctx.rotate(phase);

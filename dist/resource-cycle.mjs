@@ -1,9 +1,9 @@
-import {getPickupSpec} from './pickups.mjs?v=ribbon-luminance-1';
-import {glowPoints,getGlowCapacity,GLOW_DISPLAY_SCALE} from './vitality.mjs?v=ribbon-luminance-1';
-import {condenseGlow,getCondensationRules} from './condensed-glow.mjs?v=ribbon-luminance-1';
-import {pickupArtSvg} from './pickup-art.mjs?v=ribbon-luminance-1';
-import {resourceSymbol} from './game-symbols.mjs?v=ribbon-luminance-1';
-import {skillIcon} from './upgrade-icons.mjs?v=ribbon-luminance-1';
+import {getPickupSpec} from './pickups.mjs?v=guardian-beat-1';
+import {glowPoints,getGlowCapacity,GLOW_DISPLAY_SCALE} from './vitality.mjs?v=guardian-beat-1';
+import {condenseGlow,getCondensationRules} from './condensed-glow.mjs?v=guardian-beat-1';
+import {pickupArtSvg} from './pickup-art.mjs?v=guardian-beat-1';
+import {resourceSymbol} from './game-symbols.mjs?v=guardian-beat-1';
+import {skillIcon} from './upgrade-icons.mjs?v=guardian-beat-1';
 
 // An independent teaching meter. Previewing, skipping and replaying never touch a save.
 export function resourceCycleSteps(run={},mod={}){
@@ -14,7 +14,7 @@ export function resourceCycleSteps(run={},mod={}){
  const values=['light','cluster','cache'].map(id=>glowPoints(getPickupSpec(id).fuel));
  const data={before,max,packed,lift,values};
  return [
-  ['Touch a Spark',`Look inside the shell. More arcs mean more fuel. This Cluster adds ${fuel} to your Spark Meter before bonuses.`],
+  ['Touch a Spark',`Larger Sparks hold more fuel. The smallest gives 6; a rare giant gives 60. This Cluster adds ${fuel} to your Spark Meter before bonuses.`],
   ['Fill your Spark Meter',`At ${before}/${max}, only ${refill} fit. Tap anywhere to Lift. Each Lift uses ${lift} Spark${lift===1?'':'s'} from the meter.`],
   ['Store the surplus',`The upper-left box converts the spare ${extra} into ${packed} Stored Spark${packed===1?'':'s'}. Open Skills to spend banked Stored Sparks.`]
  ].map(([title,text],i)=>({title,text,visual:'resource-cycle',cycle:{...data,stage:i},allowTarget:false,actionLabel:i===2?'Got it':'Next',skipLabel:'Remember & skip'}));
@@ -27,7 +27,7 @@ export function resourceCycleArt({stage=0,before=24,max=30,lift=3,packed=1,value
  const number=(x,y,value,color='#fff2c6')=>`<text x="${x}" y="${y}" fill="${color}" text-anchor="middle" style="font-size:18px">${value}</text>`;
  if(stage===0){
   const kinds=['light','cluster','cache'];
-  const lineup=kinds.map((kind,i)=>art(i*76-3,12,84,pickupArtSvg(kind))+number(39+i*76,99,'+'+values[i])).join('');
+  const lineup=kinds.map((kind,i)=>art(i*76+39-[21,33,42][i],54-[21,33,42][i],[42,66,84][i],pickupArtSvg(kind))+number(39+i*76,99,'+'+values[i])).join('');
   return wrap(`Three Sparks with increasingly dense lightning add ${values.join(', ')} to the Spark Meter.`,lineup);
  }
  const cells=Math.max(1,Math.ceil(max/lift)),height=55/cells;

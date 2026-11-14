@@ -1,7 +1,7 @@
-import {drawAbsorbingSpark} from './tidal-light.mjs?v=ribbon-luminance-1';
-import {getPickupSpec, pickupShellRadius} from './pickups.mjs?v=ribbon-luminance-1';
-import {drawPickup} from './pickup-art.mjs?v=ribbon-luminance-1';
-import {drawShellArcs} from './shell-arcs.mjs?v=ribbon-luminance-1';
+import {drawAbsorbingSpark} from './tidal-light.mjs?v=guardian-beat-1';
+import {getPickupSpec, pickupShellRadius} from './pickups.mjs?v=guardian-beat-1';
+import {drawPickup} from './pickup-art.mjs?v=guardian-beat-1';
+import {drawShellArcs} from './shell-arcs.mjs?v=guardian-beat-1';
 
 const TAU = Math.PI * 2;
 const clamp = value => Math.max(0, Math.min(1, value));
@@ -79,12 +79,12 @@ export function drawCapture(context,effect,time,playerX,playerY,distance,scale,q
     const x=sourceX+(delivery ? (delivery.previousWorldX-delivery.worldX)*from : 0);
     const y=sourceY+(delivery ? (delivery.previousY-delivery.y)*from : 0);
     drawPickup(context,x*scale,y*scale,{kind:effect.pickupKind,time,phase:effect.phase,
-      scale:size*scale,reducedMotion:quiet,bodyOnly:Boolean(delivery)});
+      scale:size*scale,detailed:effect.massTier>=5,reducedMotion:quiet,bodyOnly:Boolean(delivery)});
     return;
   }
   if(!delivery){
     drawShellPuff(context,sourceX*scale,sourceY*scale,
-      pickupShellRadius(effect.pickupKind)*size*scale,time-effect.bornAt,effect.pickupKind,effect.phase,quiet);
+      (effect.shellRadius??(pickupShellRadius(effect.pickupKind)*size))*scale,time-effect.bornAt,effect.pickupKind,effect.phase,quiet);
     drawShellArcs(context,playerX*scale,playerY*scale,scale,time-effect.bornAt,effect.pickupKind,effect.phase,quiet);
   }
   // Let the rear follow the field briefly. Keep it on the contact side: a

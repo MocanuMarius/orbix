@@ -1,11 +1,11 @@
-import {biomePalette,drawBiomeBackground} from './biome-art.mjs?v=ribbon-luminance-1';
-import {createDepthScenery,drawDepthScenery} from './depth-scenery.mjs?v=ribbon-luminance-1';
-import {LIGHT_EXTENT,createLightMaskCanvas,sceneRevealStrength,flashRangeStrength,pickupRevealAt,pickupRevealHold} from './light-field.mjs?v=ribbon-luminance-1';
-import {LIGHT_PACKET_TUNING} from './vitality.mjs?v=ribbon-luminance-1';
-import {makeWispSprite} from './companion-art.mjs?v=ribbon-luminance-1';
-import {drawPickup} from './pickup-art.mjs?v=ribbon-luminance-1';
-import {getPickupSpec} from './pickups.mjs?v=ribbon-luminance-1';
-import {createFlashTether,stepFlashTether,drawFlashTether,flashLightPulse,FLASH_PUFF_DURATION} from './flash-tether.mjs?v=ribbon-luminance-1';
+import {biomePalette,drawBiomeBackground} from './biome-art.mjs?v=guardian-beat-1';
+import {createDepthScenery,drawDepthScenery} from './depth-scenery.mjs?v=guardian-beat-1';
+import {LIGHT_EXTENT,createLightMaskCanvas,sceneRevealStrength,flashRangeStrength,pickupRevealAt,pickupRevealHold} from './light-field.mjs?v=guardian-beat-1';
+import {LIGHT_PACKET_TUNING} from './vitality.mjs?v=guardian-beat-1';
+import {makeWispSprite} from './companion-art.mjs?v=guardian-beat-1';
+import {drawPickup} from './pickup-art.mjs?v=guardian-beat-1';
+import {getPickupSpec} from './pickups.mjs?v=guardian-beat-1';
+import {createFlashTether,stepFlashTether,drawFlashTether,flashLightPulse,FLASH_PUFF_DURATION} from './flash-tether.mjs?v=guardian-beat-1';
 
 const WIDTH = 360, HEIGHT = 144;
 const playerX = 121, speed = 110, contact = 1.4, step = 1/120;

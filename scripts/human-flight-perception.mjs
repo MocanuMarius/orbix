@@ -1,7 +1,9 @@
 import {FLIGHT_TUNING, obstaclePolygons} from '../dist/flight.mjs';
 import {lightAttenuation, lightVisibility} from '../dist/light-field.mjs';
 import {getPickupSpec, pickupKind, pickupContactRadius} from '../dist/pickups.mjs';
+import {sparkBodyRadius} from '../dist/spark-size.mjs';
 import {ICE_GUIDE_FACETS} from '../dist/guardian-geometry.mjs';
+import {shutterLightFactor} from '../dist/shutter-cone.mjs';
 
 const clip = (value,min,max) => Math.max(min,Math.min(max,value));
 const snap = (value,step) => Math.round(value/step)*step;
@@ -18,9 +20,9 @@ function sightAt(e, light) {
  });
  return (screenX,y)=>{
   if(screenX<0||screenX>e.width||y<0||y>e.height)return 0;
-  let darkness=1-lightVisibility(e,light,screenX,y);
+  let darkness=1-lightVisibility(e,light,screenX,y,e.player.y,false);
   for(const orb of orbs)darkness*=1-orb.strength*lightAttenuation(((screenX-orb.x)**2+(y-orb.y)**2)/orb.r2);
-  return 1-darkness;
+  return (1-darkness)*shutterLightFactor(e.layout.boss,e.distance+screenX,y,e.distance+e.player.x,e.player.y);
  };
 }
 
@@ -64,9 +66,24 @@ export function observeFlight(e){
  for(const packet of e.getNearbyPickups()){
   if(packet.generated||packet.collected||packet.carried||packet.attracted)continue;
   const x=packet.x-e.distance,y=packet.y,spec=getPickupSpec(packet);
-  if(pickupKind(packet)==='dark'){recordHazard(x,y,pickupContactRadius(packet));continue;}
-  if(spec.fuel>0&&x>=e.player.x-12&&sight(x,y)>=VISION.spark)
-   sparks.push({id:packet.id,x:snap(x,4),y:snap(y,4),radius:pickupContactRadius(packet),dim:spec.dim>0});
+  const dark=pickupKind(packet)==='dark',threshold=dark?VISION.hazard:VISION.spark;
+  const shell=sparkBodyRadius(packet,e.height),radius=pickupContactRadius(packet,e.height);
+  if(sight(x,y)>=threshold){
+   if(dark)hazards.push({x:snap(x,4),y:snap(y,4),radius:shell});
+   else if(spec.fuel>0&&x>=e.player.x-12)sparks.push({id:packet.id,x:snap(x,4),y:snap(y,4),radius,dim:spec.dim>0});
+  }else if(shell>=24){
+   // A large silhouette can enter the light before its centre. Expose just
+   // the illuminated pixels; do not give the player the hidden centre/radius.
+   let aim=null,nearest=Infinity;
+   for(let i=0;i<16;i++){
+    const angle=i*Math.PI/8,px=x+Math.cos(angle)*shell,py=y+Math.sin(angle)*shell;
+    if(sight(px,py)<threshold)continue;
+    if(dark){hazards.push({x:snap(px,4),y:snap(py,4),radius:4});continue;}
+    const distance=Math.hypot(px-e.player.x,py-e.player.y);
+    if(spec.fuel>0&&px>=e.player.x-12&&distance<nearest){nearest=distance;aim={id:packet.id,x:snap(px,4),y:snap(py,4),radius:8,dim:spec.dim>0};}
+   }
+   if(aim)sparks.push(aim);
+  }
  }
  for(const hole of e.blackHoles?.items||[])recordHazard(hole.x-e.distance,hole.y,hole.radius||16);
  for(const item of e.biomeDynamics?.items||[]){

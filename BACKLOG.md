@@ -1,3 +1,13 @@
+# Guardian paths, Spark mass and run treasures — 14 November 2026
+
+- [x] Fourth Beat: the fourth quick Lift is free, then the third at rank II. The free Lift works on an empty meter.
+- [x] Falling Spark chain: see the Dark Spark at the last Lift, stay in the dark for the lower fuel, or lift away. Four small Sparks pay 24 total.
+- [x] Guardian crests and hazards, two-route Hollow Sun shutters, 21 legendary relics, permanent final discovery and stronger Night Gardener.
+- [x] Small through giant Sparks, mass-dependent art, hit detection, absorption and outside-game size gallery. Faster, shorter shell arcs. Giant hazards need a verified bypass.
+- [x] Automatic full-ring Collector rescue, four recovery cycles without fetching, and ordinary direct pickups.
+- [x] Run-long treasure choices; two-step skill previews and differentiated prices.
+- [x] Black Holes drain 2.5× faster with protected bypasses. Settings can check for and apply the latest build.
+
 # Current batch — One Companion (13 November 2026)
 
 Implemented as `one-companion-1`; final publication is tracked in `docs/backlog-current.md`.

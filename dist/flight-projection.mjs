@@ -1,9 +1,40 @@
-import {bellwindAcceleration} from './atlas-flight.mjs?v=ribbon-luminance-1';
-import {DraftField,DRAFT_TUNING} from './drafts.mjs?v=ribbon-luminance-1';
-import {lightVisibility} from './light-field.mjs?v=ribbon-luminance-1';
-import {isFuelPickup,pickupContactRadius} from './pickups.mjs?v=ribbon-luminance-1';
+import {bellwindAcceleration} from './atlas-flight.mjs?v=guardian-beat-1';
+import {DraftField,DRAFT_TUNING} from './drafts.mjs?v=guardian-beat-1';
+import {lightVisibility} from './light-field.mjs?v=guardian-beat-1';
+import {isFuelPickup,pickupContactRadius} from './pickups.mjs?v=guardian-beat-1';
 const clamp=(n,a,b)=>Math.max(a,Math.min(b,n)),DT=1/60;
 export const PROJECTION_HORIZONS=Object.freeze([0,.7,1.2,1.8]);
+
+// The resume ramp advances simulation more slowly than the player's tap clock.
+function tapDelay(e,simulationSeconds) {
+  const remaining=e.resumeRemaining;
+  if(!remaining)return simulationSeconds;
+  const rate=.9/e.resumeRampSeconds, scale=e.resumeScale;
+  const simulatedRamp=remaining*(1+scale)/2;
+  if(simulationSeconds>=simulatedRamp)return remaining+simulationSeconds-simulatedRamp;
+  return 2*simulationSeconds/(scale+Math.sqrt(scale*scale+2*rate*simulationSeconds));
+}
+
+function affordTaps(e,taps,now) {
+  if(e.dream?.freeGlow || !taps.length || e.availableGlow>=taps.length*e.flapCost)return true;
+  const beatTaps=e.fourthBeatTaps.slice();
+  const boon=Object.create(e.flightBoon);
+  let fuel=e.availableGlow, storedLifts=e.artifactEffects.freeLiftCount??Number(e.artifactEffects.freeLift);
+  for(const delay of taps){
+    const at=now+tapDelay(e,delay), beat=e.fourthBeatAt(at,beatTaps);
+    if(beat.ready) {beatTaps.length=0; continue;}
+    if(storedLifts>0)storedLifts--;
+    else fuel-=boon.spendLift(e.flapCost);
+    if(fuel < -1e-7)return false;
+    if(beat.rank)beatTaps.push(at);
+  }
+  return true;
+}
+
+const ROUTE_TAPS=[[]];
+for(const t of [0,.2,.4,.6,.8,1]) {
+  ROUTE_TAPS.push([t],[t,t+.4],[t,t+.7]);
+}
 
 // A bounded, read-only preview. Only the nearby draft timers are copied; no
 // simulation, pickups, rewards or companion state on the live engine is run.
@@ -12,9 +43,10 @@ export class FlightProjection {
   read(e){
     const rank=clamp(Math.floor(e.mod.driftSense||0),0,3);
     if(!rank||!e.alive||e.dying||e.completing||e.finished||e.destroyed||e.tutorialAwaitingLift)return null;
-    const changed=this.lastFlap!==e.lastFlapTime||this.lastPower!==e.abilityStartedAt||this.lastHeld!==e.liftHeld||this.lastHeight!==e.height||this.lastRank!==rank;
+    const beatCount=e.mod.fourthBeatRank ? e.fourthBeat.count : 0;
+    const changed=this.lastFlap!==e.lastFlapTime||this.lastPower!==e.abilityStartedAt||this.lastHeld!==e.liftHeld||this.lastHeight!==e.height||this.lastRank!==rank||this.lastBeatCount!==beatCount;
     if(!this.result||changed||e.time>=this.nextAt){
-      this.lastFlap=e.lastFlapTime;this.lastPower=e.abilityStartedAt;this.lastHeld=e.liftHeld;this.lastHeight=e.height;this.lastRank=rank;
+      this.lastFlap=e.lastFlapTime;this.lastPower=e.abilityStartedAt;this.lastHeld=e.liftHeld;this.lastHeight=e.height;this.lastRank=rank;this.lastBeatCount=beatCount;
       this.result=this.predict(e,rank);
       const affordable=e.dream?.freeGlow||e.artifactEffects?.freeLift||e.availableGlow+1e-7>=(e.nextLiftCost??e.flapCost);
       if(affordable)this.result.lift=this.predict(e,rank,[0]);
@@ -33,13 +65,13 @@ export class FlightProjection {
     const target=e.layout.embers.filter(p=>!p.collected&&!p.carried&&isFuelPickup(p)&&p.x>start&&p.x<start+e.baseSpeed*1.7&&lightVisibility(e,light,p.x-e.distance,p.y,e.player.y)>.15)
       .sort((a,b)=>Math.hypot(a.x-start,a.y-e.player.y)-Math.hypot(b.x-start,b.y-e.player.y))[0];
     if(!target)return null;
-    const budget=e.dream?.freeGlow?2:Math.min(2,Math.floor(e.availableGlow/e.flapCost));
-    const plans=[[]];for(const t of [0,.2,.4,.6,.8,1]){plans.push([t]);if(budget>1)for(const delay of [.4,.7])plans.push([t,t+delay]);}
+    const now=e.fourthBeatNow();
     let best=null;
-    for(const taps of plans){
+    for(const taps of ROUTE_TAPS){
+      if(!affordTaps(e,taps,now))continue;
       const path=this.predict(e,3,taps);
       if(path.contact||path.uncertain)continue;
-      const reach=path.points.findIndex(p=>Math.hypot(p.x-target.x,p.y-target.y)<=e.player.radius+pickupContactRadius(target));
+      const reach=path.points.findIndex(p=>Math.hypot(p.x-target.x,p.y-target.y)<=pickupContactRadius(target,e.height));
       if(reach<0)continue;
       const score=taps.length*10+path.points[reach].time-e.time;
       if(!best||score<best.score)best={...path,points:path.points.slice(0,reach+1),score,taps,target};

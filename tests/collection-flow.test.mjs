@@ -8,7 +8,7 @@ import {collectionMarkup,COLLECTION_PAGE_SIZE} from '../dist/collection-view.mjs
 // Exercise the app's actual checkpoint handlers with the real collection/model.
 // A small dialog stand-in detects an accidental return to nested full-screen flows.
 const app=readFileSync(new URL('../dist/app.mjs',import.meta.url),'utf8');
-const handlers=app.slice(app.indexOf('function artifactsMarkup(){'),app.indexOf('function refreshMapDock(){'));
+const handlers=app.slice(app.indexOf('const browsingDiscoveries='),app.indexOf('function refreshMapDock(){'));
 
 function workbench(ids=['glow-wick','path-prism','quiet-cinder']){
  const state=newState();

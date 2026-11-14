@@ -1,10 +1,10 @@
-import {SKILLS,getSkillLockReason,getSkillPrice,canChooseStartingSkill} from './model.mjs?v=ribbon-luminance-1';
+import {SKILLS,getSkillLockReason,getSkillPrice,canChooseStartingSkill} from './model.mjs?v=guardian-beat-1';
 
 const parents=skill=>Array.isArray(skill?.requires)?skill.requires:skill?.requires?[skill.requires]:[];
 const learned=(wallet,id)=>Number(wallet?.skills?.[id]||0);
 
 // Count unlearned prerequisites, including prerequisites outside this diagram.
-// A future node one purchase away may be previewed; deeper nodes stay anonymous.
+// Preview two purchases ahead. More distant paths and closed forks remain silhouettes.
 function prerequisiteDistance(wallet,skill,seen=new Set()){
  if(!skill||seen.has(skill.id))return 0;
  const next=new Set(seen).add(skill.id);
@@ -25,7 +25,7 @@ export function skillTreeState({wallet,run=wallet,canBuy=true},skill){
  const free=!complete&&canChooseStartingSkill(run,skill.id);
  const shortfall=price===null||free?0:Math.max(0,price-Number(wallet?.condensedGlow||0));
  const distance=prerequisiteDistance(wallet,skill),closedBy=closedAncestor(wallet,skill);
- const disclosure=complete||rank>0||free||wallet?.testMode===true?'full':closedBy||distance>1?'hidden':distance===1?'preview':'full';
+ const disclosure=complete||rank>0||free||wallet?.testMode===true?'full':closedBy||distance>2?'hidden':distance>0?'preview':'full';
  const available=!complete&&(free||canBuy&&!reason&&price!==null&&shortfall===0)&&!closedBy;
  const state=complete?'learned':closedBy?'excluded':disclosure==='hidden'?'distant':disclosure==='preview'?'preview':available?'available':reason||!canBuy?'locked':'saving';
  return {state,disclosure,inspectable:disclosure!=='hidden',rank,complete,reason,price,free,shortfall,distance,closedBy,available};
@@ -38,12 +38,6 @@ export function safeTreeSelection(skills,selected,context){
  let skill=allowed.get(typeof selected==='string'?selected:selected?.id),seen=new Set();
  while(skill&&!seen.has(skill.id)){
   const view=skillTreeState(context,skill);
-  // Shared rank markers keep their current purchase visible. Future rank slots
-  // are anonymous until reachable, while learned ranks remain inspectable.
-  if(view.disclosure==='preview'&&skill.treeGroup){
-   const current=skills.find(s=>s.treeGroup===skill.treeGroup&&s.treeStage<skill.treeStage&&skillTreeState(context,s).disclosure==='full'&&!skillTreeState(context,s).complete);
-   if(current)return current;
-  }
   if(view.inspectable)return skill;
   seen.add(skill.id);skill=parents(skill).map(id=>allowed.get(id)).find(Boolean);
  }
@@ -53,7 +47,7 @@ export function safeTreeSelection(skills,selected,context){
 export function skillTreeStatus(view){
  if(view.complete)return '✓ Learned';
  if(view.free)return 'Free starting gift';
- if(view.disclosure==='preview')return 'Locked · Learn the preceding skill to reveal';
+ if(view.disclosure==='preview')return view.distance===1?'One prerequisite ahead':'Two prerequisites ahead';
  if(view.reason)return `Locked · ${view.reason}`;
  if(view.state==='locked')return 'Upgrade unavailable';
  if(view.shortfall>0)return `Need ${view.shortfall} more Stored Sparks`;

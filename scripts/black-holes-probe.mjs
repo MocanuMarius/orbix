@@ -88,14 +88,19 @@ fallback.layout.obstacles = [{ x: 0, width: 100000, center: 0, gap: 0, phase: 0,
 assert.equal(createBlackHoles(fallback).length, 0, 'Fully blocked synthetic map never forces an unsafe fallback');
 fallback.destroy();
 
-assert.equal(blackHoleDrainRate(0), 160, 'Near-field cap');
-assert.equal(blackHoleDrainRate(10), 160, 'Core contact is finite');
+assert.equal(blackHoleDrainRate(0), 400, 'Near-field cap');
+assert.equal(blackHoleDrainRate(10), 400, 'Core contact is finite');
 assert.equal(blackHoleDrainRate(220), 0); assert.equal(blackHoleDrainRate(1000), 0);
-assert.ok(blackHoleDrainRate(219.99) < .0004, 'Smoothly reaches zero at influence edge');
+assert.ok(blackHoleDrainRate(219.99) < .0008, 'Smoothly reaches zero at influence edge');
 for (let distance = 1; distance < 220; distance++)
   assert.ok(blackHoleDrainRate(distance) <= blackHoleDrainRate(distance - 1), 'Monotonic falloff');
-assert.ok(blackHoleDrainRate(40) * .3 > 18 && blackHoleDrainRate(40) * .3 < 22);
-assert.ok(blackHoleDrainRate(100) * .3 > 2 && blackHoleDrainRate(100) * .3 < 4);
+for(const d of [0,10,40,85,100,135,182,210]){
+ const oldRate=Math.min(160,144000*(1/(d*d+22**2)-1/(220**2+22**2)));
+ close(blackHoleDrainRate(d),oldRate*2.5,'2.5× prior drain at '+d);
+}
+let bypassLoss=0;
+for(let dx=-220;dx<=220;dx++)bypassLoss+=blackHoleDrainRate(Math.hypot(dx,T.minimumBypass-20))*.3/(154*.8);
+assert.ok(bypassLoss<3,'Even a slow run 20 units off the bypass loses less than one base Lift');
 
 function controlled(options = {}) {
   const e = make(options, 620); e.layout.obstacles = []; e.layout.embers = [];
@@ -160,7 +165,7 @@ function crossing(step, verticalOffset) {
 }
 const passes = [0, 40, 100, 135, 220].map(offset => {
   const values = [1 / 30, 1 / 60, 1 / 120].map(step => crossing(step, offset));
-  assert.ok(Math.max(...values) - Math.min(...values) < .16, 'Time integration is stable across sample rates');
+  assert.ok(Math.max(...values) - Math.min(...values) < .4, 'Time integration is stable to 0.12 displayed Sparks across sample rates');
   return { offset, internalGlow: Number(values[1].toFixed(3)), displayedGlow: Number((values[1] * .3).toFixed(3)) };
 });
 assert.equal(passes.at(-1).internalGlow, 0, 'Outside influence pass has no loss');

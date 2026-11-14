@@ -68,7 +68,11 @@ export function planHumanLift(view, target, memory) {
       const targetWeight = Math.max(0, 1 - Math.abs(t - stepsToTarget) / .42);
       const mid = view.height * .50;
       const aim = target ? mid + (target.y - mid) * targetWeight : mid;
-      total += ((y - aim) / view.height)**2 * (targetWeight > 0 ? 600 : 65);
+      // Large fuel can be caught on its near side. Allow most of the visible
+      // extra radius as error margin; ordinary Sparks still need a precise arc.
+      const marginToAim=target?Math.max(0,(target.radius||0)-20)*.8*targetWeight:0;
+      const miss=Math.max(0,Math.abs(y-aim)-marginToAim);
+      total += (miss/view.height)**2 * (targetWeight > 0 ? 600 : 65);
     }
     return total;
   }

@@ -50,15 +50,16 @@ test('failed attempts earn nothing; a successful retry earns one clear reward',(
  assert.equal(s.run.lastFlight.securedCondensedGlow,20);
 });
 
-test('practice rewards stay in practice; final guardian ends the run without a reward page',()=>{
+test('practice rewards stay in practice; final guardian offers a permanent collection discovery',()=>{
  const practice=M.newState();M.startTutorial(practice);const profile=structuredClone(practice.profile),wallet=practice.run.practiceCondensedGlow;start(practice);
  assert.ok(M.finishFlight(practice.run,{success:true,flame:70,condensedGlow:7}));
  assert.equal(practice.run.practiceCondensedGlow,wallet+27);assert.equal(practice.run.condensedGlow,0);
  assert.equal(M.settleCheckpoint(practice),0);assert.deepEqual(practice.profile,profile);
  const boss=fixture('last-guardian');start(boss);Object.assign(boss.run.current,{type:'finale',boss:true,mapIndex:2});boss.run.mapIndex=2;
  assert.ok(M.finishFlight(boss.run,{success:true,flame:60}));assert.equal(M.settleCheckpoint(boss),0);
- assert.equal(boss.run.lastFlight.completionBonus,0);assert.equal(boss.run.flightReward,null);
- assert.equal(boss.run.victoryPending,false);assert.equal(boss.run.phase,'ended');
+ assert.equal(boss.run.lastFlight.completionBonus,0);assert.equal(boss.run.flightReward.offers.length,2);
+ assert.equal(boss.run.victoryPending,true);assert.equal(boss.run.phase,'ended');
+ const id=boss.run.flightReward.offers[0];assert.ok(M.chooseFlightReward(boss,id));assert.deepEqual(boss.profile.ownedArtifacts,[id]);assert.ok(M.acknowledgeVictory(boss));
  assert.equal(boss.run.success,true);assert.equal(boss.profile.difficulty,2);
  assert.equal(M.takeClearRewardReceipt(boss.run),null,'the completed run does not enqueue an ordinary map receipt');
 });
@@ -69,7 +70,7 @@ test('Rest always offers Recover or Grow; both fill fuel but only Recover restor
   r.skills['main-spare-spark']=1;r.maxLives=4;r.artifacts=['glow-wick'];r.artifactCharges={'glow-wick':1};
   const choices=M.getSupportChoices(r,s.profile);
   assert.deepEqual(choices.map(c=>c.id),['rest-recover','rest-grow']);
-  assert.match(choices[1].description,/Gain 3 Spark capacity/);
+  assert.match(choices[1].description,/Increase capacity by 3 Sparks/);
   assert.ok(claim(s,id));assert.equal(r.flame,getGlowCapacity(r));
   assert.equal(r.lives,id==='rest-recover'?4:1);assert.equal(getGlowCapacity(r),id==='rest-grow'?110:100);
   assert.equal(r.condensedGlow,wallet);assert.equal(r.pendingCondensedGlow,0);assert.equal(r.condensedEarned,0);
@@ -110,8 +111,8 @@ test('capacity skills bought during either Rest preparation fill the new capacit
 test('Rest markup states both refills and shows disabled capacity without a third benefit',()=>{
  const s=restFixture('rest-markup');s.run.skills['main-spare-spark']=1;s.run.maxLives=4;
  let html=restBenefitsMarkup(s.run,s.run.current,M.getSupportChoices(s.run,s.profile));
- assert.equal((html.match(/data-action="support"/g)||[]).length,2);assert.match(html,/Both refill Energy/);
- assert.match(html,/Refills to 30 of 30 Energy/);assert.match(html,/Refills to 33 of 33 Sparks/);
+ assert.equal((html.match(/data-action="support"/g)||[]).length,2);assert.match(html,/Both refill Sparks/);
+ assert.match(html,/Refills to 30 of 30 Sparks/);assert.match(html,/Refills to 33 of 33 Sparks/);
  assert.doesNotMatch(html,/Condense|Recharge|Rekindle/);
  s.run.restGlowCapacity=30;html=restBenefitsMarkup(s.run,s.run.current,M.getSupportChoices(s.run,s.profile));
  assert.match(html,/disabled aria-label="Grow/);assert.match(html,/CAPACITY FULL/);

@@ -3,6 +3,8 @@ import assert from 'node:assert/strict';
 import {BOSS_PREVIEWS, buildBossLayout, getGuardianForMap} from '../dist/boss.mjs';
 import {circleHitsObstacle, WispFlight} from '../dist/flight.mjs';
 import {getFlightLengthProfile} from '../dist/level-length.mjs';
+import {shutterPhase,shutterLightFactor} from '../dist/shutter-cone.mjs';
+import {lightVisibility} from '../dist/light-field.mjs';
 
 const dt = 1/120;
 
@@ -54,6 +56,72 @@ test('each guardian fits its campaign length', () => {
   }
   assert.equal(bands.size, 3);
   assert.deepEqual([0, 1, 2].map(mapIndex => getFlightLengthProfile({boss:true,mapIndex}).duration), [90,120,150]);
+});
+
+test('both late crests use real two-sided terrain and leave a traversable opening', () => {
+  for(const id of Object.keys(BOSS_PREVIEWS)){
+    for(const difficulty of [1,3,6]){
+      const e=flight(id,{difficulty}),boss=e.layout.boss;
+      assert.deepEqual(boss.crests.map(o=>o.bossPhase),[2,3]);
+      for(const crest of boss.crests){
+        const x=crest.x+crest.width*.65;
+        const attack=boss.attacks?.find(a=>a.obstacle===crest);
+        if(boss.attacks)assert.ok(attack,'late crest must use its guardian device');
+        for(const time of [0,1.5,3,4.5]){
+          const center=crest.center+Math.sin(time*.9+crest.phase)*crest.motion;
+          assert.ok(!circleHitsObstacle(x,center,e.player.radius+12,crest,time),'room for imperfect positioning');
+          for(const side of [-1,1]){
+            assert.ok(circleHitsObstacle(x,center+side*(crest.gap/2+28),e.player.radius,crest,time));
+          }
+        }
+      }
+      e.destroy();
+    }
+  }
+});
+
+test('Hollow Sun shutter routes stay body-clear at both wall motion extremes',()=>{
+  for(const height of [430,620,850])for(const difficulty of [1,3,6]){
+    const layout=buildBossLayout({height,difficulty,bossId:'hollow-sun',duration:90});
+    const boss=layout.boss;
+    assert.deepEqual(boss.shutters.map(s=>s.side),[-1,1]);
+    for(const s of boss.shutters){
+      assert.ok(!layout.obstacles.find(o=>o.id===s.obstacleId).motion);
+      assert.ok((s.openX-s.warningX)/boss.speed>=1.9);
+      assert.equal(shutterPhase(s,s.warningX-1),0);
+      assert.equal(shutterPhase(s,s.openX-1),1);
+      assert.equal(shutterPhase(s,s.openX),2);
+      for(const across of [.19,.60]){
+        const y=s.y-s.side*s.depth*across;
+        for(let x=s.x+(s.shift-s.spread)*across-12;x<=s.x+(s.shift+s.spread)*across+12;x+=4){
+          for(const o of layout.obstacles)for(const sway of [-1,1]){
+            assert.ok(!circleHitsObstacle(x,y,12,o,0,o.center+sway*o.motion));
+          }
+        }
+      }
+    }
+  }
+});
+
+test('shutter occlusion preserves exterior light, prevents remote reveals and leaves a local light pocket',()=>{
+  const e=flight('hollow-sun'),boss=e.layout.boss,s=boss.shutters[0];
+  const y=s.y-s.side*s.depth*.55,x=s.x+s.shift*.55;
+  const fullReveal={intensity:1,radius:200,edgingReveal:1};
+  place(e,s.openX-1,y);
+  assert.equal(lightVisibility(e,fullReveal,x-e.distance,y),1);
+  place(e,s.openX+1,y);
+  assert.equal(lightVisibility(e,fullReveal,x-e.distance,y),.05);
+  assert.equal(shutterLightFactor(boss,s.x+s.spread*3,y,s.openX+1,y),1);
+  place(e,x,y);
+  assert.equal(lightVisibility(e,fullReveal,x-e.distance,y),1);
+  const vicinity=lightVisibility(e,fullReveal,x-e.distance+s.pocket*.5,y);
+  assert.ok(vicinity>.05&&vicinity<1);
+  assert.ok(Math.abs(lightVisibility(e,fullReveal,x-e.distance+s.pocket+2,y)-.05)<1e-8);
+  const fuel=e.flame;
+  for(let i=0;i<80;i++)stepAt(e,x,y);
+  assert.equal(e.flame,fuel);
+  assert.equal(e.collisions,0);
+  e.destroy();
 });
 
 for (const id of ['moonweaver','hollow-warden']) {

@@ -1,3 +1,4 @@
+import {shutterLightFactor} from './shutter-cone.mjs?v=guardian-beat-1';
 // Radius describes the bright core. A finite inverse-square field keeps a
 // faint tail at 2x radius, then reaches exact black at 3x without a hard seam.
 export const LIGHT_EXTENT=3;
@@ -38,7 +39,7 @@ export function pickupRevealAt(time,start,hold,from,reducedMotion){
 export function sceneRevealStrength(light={}){
   return Math.max(revealUnit(light.pickupReveal),revealUnit(light.edgingReveal),revealUnit(light.tetherReveal));
 }
-export function lightVisibility(engine,light,x,y,playerY=engine.player.y){
+export function lightVisibility(engine,light,x,y,playerY=engine.player.y,includeShutters=true){
   const radius=Math.max(1,light.radius||145),intensity=light.intensity??1;
   const dx=x-engine.player.x,dy=y-playerY;
   let dark=1-lightAttenuation((dx*dx+dy*dy)/(radius*radius))*intensity;
@@ -52,5 +53,7 @@ export function lightVisibility(engine,light,x,y,playerY=engine.player.y){
     const lx=x-landmark.x,ly=y-landmark.y;
     dark*=1-lightAttenuation((lx*lx+ly*ly)/(landmark.radius*landmark.radius))*(landmark.intensity??1);
   }
-  return 1-dark*(1-sceneRevealStrength(light));
+  const visible=1-dark*(1-sceneRevealStrength(light));
+  const boss=engine.layout?.boss;
+  return includeShutters&&boss?.shutters?.length ? visible*shutterLightFactor(boss,engine.distance+x,y,engine.distance+engine.player.x,playerY) : visible;
 }

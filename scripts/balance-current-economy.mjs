@@ -105,7 +105,10 @@ function simulateFlow(run,inv,style,rng,{captureDelta=0,effortScale=1,artifactSc
  let fuel=run.flame,condensed=0,remainder=run.condensedRemainder||0,rawOverflow=0,emptyLifts=0,consecutiveEmpty=0,minFuel=fuel,spent=0;
  const rules=mod.condensationRules;
  const actor={mod,player:{x:180,y:200},time:0,flame:fuel,maxFlame:max,flameRestored:0,fleet:[],pickupRevealHoldUntil:0,pickupRevealStrength:0,sightUntil:0,mainSeerUntil:0,edgingPulse:{strength:0},burst(){},revealFromPickup(){this.pickupRevealHoldUntil=this.time+1.5},quickenCompanionRecovery(_,amount){const gain=Math.min(amount,1);this.artifactEffects.onRecharge(gain);return gain}};
- const effects=new ArtifactEffects(actor);actor.artifactEffects=effects;
+ // A sequence of pickups and taps does not resolve local draft or Black Hole
+ // contact. Conditional guardian effects requiring either remain dormant.
+ actor.gustState=()=>({active:false});actor.lastFlapTime=-Infinity;
+ const effects=new ArtifactEffects(actor);actor.artifactEffects=effects;effects.onStart();
  let workAt=0,bodyFuelCollected=0;
 
  let fuelFailure=false,lastTime=0,burdenRemaining=mod.burdenLifts||0;
@@ -113,20 +116,23 @@ function simulateFlow(run,inv,style,rng,{captureDelta=0,effortScale=1,artifactSc
   lastTime=event.t;actor.time=event.t;actor.flame=fuel;
   if(event.cost){
    if(event.drain){const paid=Math.min(fuel,event.cost);fuel-=paid;spent+=paid;minFuel=Math.min(minFuel,fuel);continue;}
-   if(!event.shield&&effects.consumeLift())continue;
+   if(!event.shield&&effects.consumeLift()){actor.lastFlapTime=event.t;continue;}
 
    const cost=event.cost+(!event.shield&&burdenRemaining>0?1/.3:0);
    if(fuel+1e-8<cost){emptyLifts++;consecutiveEmpty++;if(consecutiveEmpty>=2&&event.t<seconds-1.5)fuelFailure=true;}
-   else{fuel-=cost;spent+=cost;consecutiveEmpty=0;if(!event.shield&&burdenRemaining>0)burdenRemaining--;}
+   else{
+    fuel-=cost;spent+=cost;consecutiveEmpty=0;actor.flame=fuel;
+    if(!event.shield){if(burdenRemaining>0)burdenRemaining--;effects.onFlap(true);actor.lastFlapTime=event.t;fuel=actor.flame;}
+   }
   }else{
    const packet={kind:event.item.kind,deliveredByWisp:event.delivery},spec=getPickupSpec(packet);
    if(!event.delivery)bodyFuelCollected++;
-   if((event.delivery||has('swift')||has('leveler'))&&event.t>=workAt){effects.onWork();workAt=event.t+8;}
+   if((event.delivery||has('swift')||has('leveler'))&&event.t>=workAt){effects.onWork();fuel=actor.flame;workAt=event.t+8;}
    const amount=event.fuel+Math.round(effects.fuelBonus(packet,spec)*.3)/.3;
    const surplus=Math.max(0,fuel+amount-max);fuel=Math.min(max,fuel+amount);consecutiveEmpty=0;
    actor.flame=fuel;effects.applyConsumables(packet,spec);fuel=actor.flame;
    if(mod.pickupReveal||mod.mainSeer)actor.pickupRevealHoldUntil=event.t+1.5;
-   effects.onFuel(packet,spec,surplus);
+   effects.onFuel(packet,spec,surplus);fuel=actor.flame;
 
    const conversion=condenseGlow(surplus,{rules,wallet:run.condensedGlow+condensed,remainder});
    condensed+=conversion.amount;remainder=conversion.remainder;rawOverflow+=surplus;
@@ -198,9 +204,15 @@ function runCase({seed,tier,role,style,policy,attrition=false,captureDelta=0,eff
    const flow=flightSimulator?flightSimulator(r,style,m.attempts):simulateFlow(r,inv,style,rngFor(`${seed}:${tier}:${style}:${r.current.id}:${m.attempts}`),{captureDelta,effortScale,artifactScale,attrition});m.attempts++;m.coverage.push(flow.coverage);m.starvedFlights+=Number(flow.starved);
    if(args.debug&&seed===0&&tier===1&&role==='collector'&&style==='steady'&&policy==='survival'&&m.attempts<3)console.error(JSON.stringify({debug:true,node:r.current,mod:M.getRunModifiers(r),inv:{seconds:inv.seconds,rawFuel:inv.rawFuel,items:inv.items.length},flow}));
    r.simDreamPrepared=false;
-   M.finishFlight(r,flow);const secured=M.settleCheckpoint(state);assert.equal(M.settleCheckpoint(state),0,'settlement is idempotent');
+   M.finishFlight(r,flow);M.settleCheckpoint(state);assert.equal(M.settleCheckpoint(state),0,'settlement is idempotent');
    if(!flow.success){m.failures++;m.fuelFailures+=Number(flow.fuelFailure);m.collisionFailures+=Number(flow.collisionFailure);m.totalLostCurrency+=flow.condensedGlow;assert.equal(r.condensedGlow,before,'failed pickups cannot farm currency');assert.equal(r.condensedRemainder,remainder,'failed fractions roll back');}
-   else{assert.equal(secured,flow.condensedGlow+(r.lastFlight?.completionBonus||0),'overflow plus current clear reward');m.flightIncome+=secured;}
+   else{
+    const receipt=r.lastFlight,secured=r.condensedGlow-before;
+    const expected=receipt.pickupCondensedGlow+receipt.completionBonus+(receipt.routeBonus?.amount||0)+(receipt.vow?.reward||0)
+      +(receipt.treasureWager?.reward||0)+(receipt.chestIncome?.amount||0);
+    assert.equal(secured,expected,'ordinary autobanking and checkpoint settlements reconcile');
+    m.flightIncome+=secured;
+   }
    continue;
   }
   if(r.phase==='support'){

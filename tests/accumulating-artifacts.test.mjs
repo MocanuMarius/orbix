@@ -4,13 +4,13 @@ import {newState,createRun,getChoices,selectNode,beginFlightAttempt,finishFlight
 const state=seed=>{const s=newState();s.run=createRun(s.profile,seed);return s;};
 function clear(s,n){assert.ok(selectNode(s.run,n.id));assert.ok(beginFlightAttempt(s.run));assert.ok(finishFlight(s.run,{success:true,flame:70,collected:12}));settleCheckpoint(s);}
 test('ordinary clear pays currency without an artifact or slot purchase',()=>{
- const s=state('plain');clear(s,getChoices(s.run)[0]);assert.deepEqual(s.run.flightReward.offers,[]);assert.equal(s.run.lastFlight.completionBonus,20);assert.ok(acknowledgeVictory(s));assert.equal(Object.keys(SKILLS).some(x=>x.includes('artifact-slot')),false);
+ const s=state('plain');clear(s,getChoices(s.run)[0]);assert.equal(s.run.flightReward,null);assert.equal(s.run.lastFlight.completionBonus,20);assert.ok(acknowledgeVictory(s));assert.equal(Object.keys(SKILLS).some(x=>x.includes('artifact-slot')),false);
 });
 test('elite rewards accumulate beyond three and melting is a Rest-only permanent sacrifice',()=>{
  const s=state('elite');const n=getChoices(s.run)[0];n.elite=true;s.run.artifacts=['reed-charm','moon-glass','stone-anchor','silk-sail'];s.run.seenArtifacts=[...s.run.artifacts];clear(s,n);
  const [a,b]=s.run.flightReward.offers;assert.ok(a&&b);assert.ok(chooseFlightReward(s,a));assert.equal(s.run.artifacts.length,5);assert.ok(s.run.seenArtifacts.includes(b));assert.equal(chooseFlightReward(s,b),false);assert.equal(sellArtifact(s,a),false);s.run.restReady=true;assert.ok(sellArtifact(s,a));assert.ok(s.run.seenArtifacts.includes(a));
 });
-test('120 seeded campaigns have two fresh useful offers, three guardians and a final future-pool unlock',()=>{
+test('120 seeded campaigns have two fresh offers, three guardians and a final collection discovery',()=>{
  for(let seed=0;seed<120;seed++){
   const s=state('campaign-'+seed),r=s.run;r.companions=[['collector','protector','swift','leveler'][seed%4]];r.companionRole=r.companions[0];const seen=new Set(),guardians=[];let safety=0;
   while(r.phase!=='ended'&&safety++<30){
@@ -18,7 +18,7 @@ test('120 seeded campaigns have two fresh useful offers, three guardians and a f
    if(next.type==='support'){assert.ok(selectNode(r,next.id));assert.ok([0,1,2].some(i=>resolveSupport(r,i,s.profile)),`${seed}: ${next.id} support`);continue;}
    if(next.boss)guardians.push(next.bossId);clear(s,next);const reward=r.flightReward;
    if(next.boss||next.elite){assert.equal(reward.offers.length,2,`${seed}: ${next.id}`);for(const id of reward.offers){assert.ok(!seen.has(id));seen.add(id);}assert.ok(chooseFlightReward(s,reward.offers[0]));}
-   else assert.equal(reward.offers.length,0);
+   else assert.equal(reward,null);
    assert.ok(acknowledgeVictory(s));if(r.phase==='map-clear')assert.ok(advanceMap(r));
   }
   assert.equal(r.phase,'ended');assert.equal(new Set(guardians).size,3);assert.equal(s.profile.ownedArtifacts.length,1);assert.ok(!r.artifacts.includes(s.profile.ownedArtifacts[0]));assert.ok(createRun(s.profile,'fresh').artifacts.length===0);
