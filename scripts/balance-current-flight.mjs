@@ -1,3 +1,6 @@
+import {observeFlight} from './human-flight-perception.mjs';
+import {planHumanLift} from './human-flight-planner.mjs';
+import {humanProfile,queueHumanLift} from './human-flight-planner.mjs';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath,pathToFileURL } from 'node:url';
@@ -137,27 +140,35 @@ function preciseFuelInput(e,target,memory,visible){
  return{flap:action<.025,delay:action,target:target?{id:target.packet.id,x:target.x-e.distance,y:target.y}:null};
 }
 function choose(e,style,memory){
+ if(memory.human){
+  const view=observeFlight(e);
+  memory.firstSightLead??=new Map();
+  for(const spark of view.sparks){
+   if(!memory.firstSightLead.has(spark.id))
+    memory.firstSightLead.set(spark.id,round(Math.max(0,(spark.x-view.player.x)/view.speed)));
+   if(!memory.noticed.has(spark.id))memory.noticed.set(spark.id,memory.random()>=memory.human.drop*.5);
+  }
+  const target=view.energy>=view.maxEnergy*.9?null:view.sparks.find(p=>memory.noticed.get(p.id)&&(!p.dim||view.energy<view.maxEnergy*.4));
+  const etaTarget=target?{...target,eta:(target.x-view.player.x)/view.speed}:null;
+  if(e.time>=memory.powerGate&&powerInput(e,style,etaTarget)){
+   memory.powerGate=e.time+Math.max(3,e.roleCooldown(e.companionRole));
+   if(memory.random()<memory.human.drop)memory.missedPower++;
+   else memory.pendingPower=e.time+memory.human.reaction;
+  }
+  return planHumanLift(view,target,memory);
+ }
  const random=memory.random,world=e.distance+e.player.x,sight=Math.min(e.width-e.player.x,e.getLightState().radius*2.1);
  const nearby=e.getNearbyPickups();
  const targets=style==='safety'||e.flame>=e.maxFlame*.90?[]:nearby.filter(packet=>{
   const x=packet.x-e.distance,kind=pickupKind(packet),spec=getPickupSpec(packet);
-  if(memory.human&&!memory.noticed.has(packet.id))memory.noticed.set(packet.id,memory.random()>=memory.human.drop*.5);
-  if(memory.human&&!memory.noticed.get(packet.id))return false;
   return!packet.collected&&!packet.carried&&!packet.attracted&&!packet.generated&&spec.fuel>0&&kind!=='dark'
     &&(kind!=='dusk'||e.flame<e.maxFlame*.40)&&x>e.player.x-12&&x<=e.player.x+sight;
  });
  targets.sort((a,b)=>a.x-b.x);
  const packet=targets[0],target=packet?{packet,x:packet.x,y:packet.y,eta:(packet.x-world)<=e.baseSpeed*1.48*e.boostTime?(packet.x-world)/(e.baseSpeed*1.48):e.boostTime+((packet.x-world)-e.baseSpeed*1.48*e.boostTime)/e.baseSpeed,radius:pickupContactRadius(packet)}:null;
- if(powerInput(e,style,target)){
-  if(memory.human){
-   if(e.time>=memory.powerGate){
-    memory.powerGate=e.time+Math.max(3,Math.min(...e.fleet.filter(item=>!['collector','protector','kindler'].includes(item.role)).map(item=>e.roleCooldown(item.role))));
-    if(memory.random()<memory.human.drop)memory.missedPower++;else memory.pendingPower=e.time+memory.human.reaction;
-   }
-  }else e.activateAbility();
- }
+ if(powerInput(e,style,target))e.activateAbility();
  const visible=e.getNearbyObstacles().filter(obstacle=>obstacle.x-obstacle.width*.8<=world+sight&&obstacle.x+obstacle.width*2.5>=world-20);
- if(style==='fuel'||style.startsWith('human'))return preciseFuelInput(e,target,memory,visible);
+ if(style==='fuel')return preciseFuelInput(e,target,memory,visible);
  const dt=.06,steps=28;
  const slices=[];let wx=world;
  for(let i=1;i<=steps;i++){
@@ -255,36 +266,48 @@ function simulate(config){
  const power=e.activateAbility.bind(e);e.activateAbility=()=>{const before=e.fleet.map(item=>item.remaining);const ok=power();if(ok){record.powerPresses++;
   e.fleet.forEach((item,i)=>{if(before[i]<=0&&item.remaining>0)record.powerUses[item.role]=(record.powerUses[item.role]||0)+1;
    if(item.role==='leveler'&&before[i]>0&&item.remaining<=0)record.levelerReleases++;});}return ok;};
- const human=config.style.startsWith('human')?{reaction:Number(config.style.slice(5))/1000,drop:Number(config.style.slice(5))===150?.2:Number(config.style.slice(5))===250?.3:.4,
-  jitter:Number(config.style.slice(5))===150?.04:Number(config.style.slice(5))===250?.07:.1}:null;
- const memory={lastLift:-2,random:rngFor(config.seed+':'+config.style+':'+(config.controllerSeed||0)),nextDecision:0,pending:null,pendingPower:null,powerGate:0,missedPower:0,human,noticed:new Map()};
+ const human=humanProfile(config.style);
+ const memory={lastLift:-2,random:rngFor(config.seed+':'+config.style+':'+(config.controllerSeed||0)),nextDecision:0,pending:null,pendingPower:null,powerGate:0,missedPower:0,human,noticed:new Map(),inputSamples:0,lastTouch:-Infinity};
+ record.liftInputs={attempted:0,successful:0,deniedEnergy:0};
+ const flap=e.flap.bind(e);
+ e.flap=()=>{
+  const enough=e.availableGlow+1e-7>=e.flapCost||e.dream?.freeGlow||e.artifactEffects.freeLift;
+  const ok=flap();
+  record.liftInputs.attempted++;
+  if(ok)record.liftInputs.successful++;
+  else if(!enough)record.liftInputs.deniedEnergy++;
+  return ok;
+ };
  const missedManualFuel=new Set(),passedFuel=new Set();
  e.start();
  if(e.tutorialAwaitingLift){e.flap();memory.lastLift=e.time;}
  if(args.trace)record.trace=[];
  const maxFrames=Math.ceil(config.duration*60*1.15)+180;
  for(let frame=0;frame<maxFrames&&!e.finished;frame++){
-  if(!e.dying&&!e.completing&&e.time>=memory.nextDecision){const input=choose(e,config.style,memory);memory.nextDecision+=(config.style==='imperfect'?.20:human?.10:.05);
+  if(!e.dying&&!e.completing&&e.time>=memory.nextDecision){const input=choose(e,config.style,memory);memory.nextDecision=human?e.time+human.cadence*(.9+.2*memory.random()):memory.nextDecision+(config.style==='imperfect'?.20:.05);
    if(args.trace)record.trace.push({time:round(e.time),y:round(e.player.y),vy:round(e.player.vy),fuel:round(e.flame),flap:input.flap,target:input.target});
-   if(human){
-    if(memory.pending==null&&input.delay<=human.reaction+.03&&e.time-memory.lastLift>=.30)
-     memory.pending=e.time+Math.max(1/60,human.reaction+(memory.random()-.5)*human.jitter*2);
-   }else if(input.flap){if(config.style==='imperfect')memory.pending=e.time+.12;else if(e.flap())memory.lastLift=e.time;}}
-  if(memory.pendingPower!=null&&e.time>=memory.pendingPower&&!e.dying){e.activateAbility();memory.pendingPower=null;}
+   if(human){queueHumanLift(memory,e.time,input);}else if(input.flap){if(config.style==='imperfect')memory.pending=e.time+.12;else if(e.flap())memory.lastLift=e.time;}}
+  // A thumb cannot land two touches at once. Let an imminent Lift take priority.
+  const powerTouchReady=!human||(!e.liftHeld&&e.time-memory.lastTouch>=.12
+    &&(memory.pending==null||memory.pending-e.time>.12));
+  if(memory.pendingPower!=null&&e.time>=memory.pendingPower&&powerTouchReady&&!e.dying){
+   e.activateAbility();memory.pendingPower=null;memory.lastTouch=e.time;
+  }
   if(memory.holdUntil&&e.time>=memory.holdUntil){e.endLiftInput(false);memory.holdUntil=0;}
-  if(memory.pending!=null&&e.time>=memory.pending&&!e.dying){
+  if(memory.pending!=null&&e.time>=memory.pending&&(!human||e.time-memory.lastTouch>=.12)&&!e.dying){
+   memory.lastTouch=e.time;
    if(e.liftHeld)e.endLiftInput(false);
    const hold=e.hasCompanion('leveler')&&e.levelCharge>.6&&memory.random()>(human?.drop||.15);
    if(hold?e.beginLiftInput():e.flap())memory.lastLift=e.time;
    if(hold)memory.holdUntil=e.time+Math.min(e.levelCharge,.8+memory.random()*.8);memory.pending=null;
   }
   e.step(1/60);record.minFuel=Math.min(record.minFuel,e.flame);
-  for(const packet of e.getNearbyPickups())if(!packet.generated&&['light','cache'].includes(pickupKind(packet))&&packet.x-e.distance<e.player.x-pickupContactRadius(packet)){
+  for(const packet of e.getNearbyPickups())if(!packet.generated&&!packet.harmful&&getPickupSpec(packet).fuel>0&&packet.x-e.distance<e.player.x-pickupContactRadius(packet)){
    passedFuel.add(packet.id);if(!packet.collected||packet.deliveredByWisp)missedManualFuel.add(packet.id);
   }
  }
  Object.assign(record,{success:!!result?.success,terminated:!!result,time:round(e.time),distance:round(e.distance),progress:round(e.distance/e.totalDistance),
-  missedPower:memory.missedPower,manualFuelPassed:passedFuel.size,manualFuelMissed:missedManualFuel.size,humanStress:human,
+  firstSightLeadSeconds:[...(memory.firstSightLead?.values()||[])],humanLiftCommands:memory.inputSamples,missedPower:memory.missedPower,manualFuelPassed:passedFuel.size,manualFuelMissed:missedManualFuel.size,humanStress:human,
   endFuel:round(e.flame),minFuel:round(record.minFuel),fuelRestored:round(record.fuelRestored),effortSpent:round(e.effortSpent),flaps:e.flaps,
   collisions:e.collisions,elapsedPhase:e.flightChallenge?.type||null,lowFuelAtDeath:!result?.success&&e.flame<e.flapCost,
   fatalCause:result?.success?null:record.fatalCause||'timeout',maxAvailableFuel:round(record.available.reduce((sum,item)=>sum+item.fuel,0)),
@@ -345,10 +368,15 @@ const records=[],started=Date.now();
 for(const config of selected){const record=simulate(config);records.push(record);
  if(records.length%5===0||records.length===selected.length){
   const report={schema:1,mode,createdAt:new Date().toISOString(),source,hashes:initialHashes,sourceUnchanged:JSON.stringify(hashes())===JSON.stringify(initialHashes),
-   controller:{version:'landscape-atlas-imperfect-v6',actualEngineHz:60,decisionSeconds:{safety:.05,fuel:.05,imperfect:.2,human:.10},horizonSeconds:1.68,beam:7,
-    visibility:'Within 2.1 current light radii and viewport; conservative obstacle slices; not a perceptual human model.',
-    limitations:['Conservative square-expanded terrain slices guide prediction; real circle collisions run in engine.','Bot model approximates Leveler and localized gust trajectories.','No future Power activations planned; controller uses role-aware heuristics.','No human or mobile-performance inference from bot success.','Pickup noticing has seeded 10–15% misses; timing uses 150–250ms delay and 40–70ms jitter. Geometry prediction is still more informed than a person.'],
-    cheats:'None. No warp, refill, collision immunity, pickup removal, or engine runtime edits.'},
+   controller:{
+    version:'perceived-flight-v1',actualEngineHz:60,
+    humanProfiles:Object.fromEntries(['human150','human250','human350'].map(id=>[id,humanProfile(id)])),
+    humanPlanning:'Glide or one delayed Lift, observed terrain grid and currently visible hazards; no future layout access.',
+    solverPlanning:'Safety and imperfect: 1.68-second beam search. Fuel: 1.8-second predictive solver.',
+    limitations:['Assumed attention, cadence and touch latencies require calibration against phone playtests.',
+      'The human model uses coarse visible geometry, simplified flight motion and a single Spark target.',
+      'Ability use uses role-specific heuristics. Render and touch pipeline stalls are not measured.']
+   },
    elapsedSeconds:round((Date.now()-started)/1000),totalPlanned:selected.length,completed:records.length,summary:summarize(records),records};
   fs.writeFileSync(output,JSON.stringify(report,null,2));
   process.stdout.write(JSON.stringify({completed:records.length,total:selected.length,elapsed:report.elapsedSeconds,summary:report.summary.all})+'\n');
