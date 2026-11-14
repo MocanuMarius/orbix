@@ -21,7 +21,7 @@ import {drawFlashTether} from './flash-tether.mjs?v=chapter-pressure-1';
 import { drawPickup, drawSparkSymbol } from './pickup-art.mjs?v=chapter-pressure-1';
 import {sparkBodyRadius,sparkArtScale,sparkMass} from './spark-size.mjs?v=chapter-pressure-1';
 import { pickupKind, getPickupSpec } from './pickups.mjs?v=chapter-pressure-1';
-import { LIGHT_EXTENT,lightAttenuation,lightVisibility,createLightMaskCanvas,castFlightFlashLights,sceneRevealStrength,renderLightState,lightDreamScenery } from './light-field.mjs?v=chapter-pressure-1';
+import { LIGHT_EXTENT,lightAttenuation,lightVisibility,createLightMaskCanvas,castFlightFlashLights,revealLanternWake,sceneRevealStrength,renderLightState,lightDreamScenery } from './light-field.mjs?v=chapter-pressure-1';
 import {drawExitLandmark} from './exit-landmark.mjs?v=chapter-pressure-1';
 import {drawBlackHoles} from './black-hole-art.mjs?v=chapter-pressure-1';
 import {drawCapture, drawShellPuff} from './capture-art.mjs?v=chapter-pressure-1';
@@ -666,6 +666,7 @@ export class WispFlightView {
     if(light.landmarkLight){const lamp=light.landmarkLight,r=lamp.radius*s*LIGHT_EXTENT;
       f.globalAlpha=lamp.intensity;f.drawImage(mask,lamp.x*s-r,lamp.y*s-r,r*2,r*2);}
     castFlightFlashLights(f,mask,e,light,s,distanceOf(e),yOf(e));
+    revealLanternWake(f,e,{distance:distanceOf(e),playerY:yOf(e),scale:s,light});
     for (let i = 0; i < fleet.length && i < 3; i++) {
       const orb = fleet[i], collecting = orb.role === 'collector';
       const recovery = clamp(orb.recovery ?? 1, 0, 1);

@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import {BOSS_PREVIEWS, buildBossLayout, getGuardianForMap} from '../dist/boss.mjs';
 import {circleHitsObstacle, WispFlight} from '../dist/flight.mjs';
 import {getFlightLengthProfile} from '../dist/level-length.mjs';
-import {shutterPhase,shutterLightFactor} from '../dist/shutter-cone.mjs';
+import {insideShutter,shutterPhase,shutterLightFactor,shutterWakeAt} from '../dist/shutter-cone.mjs';
 import {lanternRoute} from '../dist/lantern-layout.mjs';
 import {lightVisibility} from '../dist/light-field.mjs';
 
@@ -81,14 +81,21 @@ test('both late crests use real two-sided terrain and leave a traversable openin
   }
 });
 
-test('Hollow Sun teaches one lantern, then offers a visible floor neck and a crossing near the roof',()=>{
+test('Hollow Sun teaches one lantern, relays four beams and ends with two crossing beams',()=>{
   for(const height of [430,620,850])for(const difficulty of [1,3,6]){
     const layout=buildBossLayout({height,difficulty,bossId:'hollow-sun',duration:90});
     const boss=layout.boss;
-    assert.deepEqual(boss.shutters.map(s=>[s.phase,s.side]),[[2,-1],[3,-1],[3,1]]);
+    const single=boss.shutters.filter(s=>s.group==='single');
+    const relay=boss.shutters.filter(s=>s.group==='relay');
+    const finale=boss.shutters.filter(s=>s.crossfire);
+    assert.deepEqual(single.map(s=>[s.phase,s.side]),[[2,-1]]);
+    assert.deepEqual(relay.map(s=>s.side),[-1,1,-1,1]);
+    assert.deepEqual(finale.map(s=>s.side),[-1,1]);
+    assert.ok(relay.every((s,i)=>s.phase===3 && (!i || s.openX>relay[i-1].openX)));
     const flash=layout.embers.find(p=>p.feature==='crossfire-flash');
     assert.equal(flash.kind,'sight');
-    assert.ok(flash.x<boss.shutters[1].x);
+    assert.ok(flash.x>relay.at(-1).x && flash.x<finale[0].x);
+    for (const s of boss.shutters) assert.ok(!insideShutter(s,flash.x,flash.y));
     assert.ok(layout.obstacles.every(o=>!circleHitsObstacle(flash.x,flash.y,20,o,0)));
     for(const s of boss.shutters){
       assert.ok(!layout.obstacles.find(o=>o.id===s.obstacleId).motion);
@@ -97,14 +104,13 @@ test('Hollow Sun teaches one lantern, then offers a visible floor neck and a cro
       assert.equal(shutterPhase(s,s.openX-1),1);
       assert.equal(shutterPhase(s,s.openX),2);
     }
-    for(const phase of [2,3])for(const route of ['near','wide']){
-      const lanterns=boss.shutters.filter(s=>s.phase===phase);
+    for(const lanterns of [single,finale])for(const route of ['near','wide']){
       const {startX,endX,focusX,y}=lanternRoute(lanterns,route);
       const hit=lanterns.filter(s=>{
         const across=(s.y-y)*s.side/s.depth;
         return Math.abs(focusX-s.x-s.shift*across)<s.spread*across;
       });
-      assert.equal(hit.length,phase===3&&route==='wide'?2:1);
+      assert.equal(hit.length,lanterns===finale&&route==='wide'?2:1);
       for(let x=startX;x<=endX;x+=4){
         for(const o of layout.obstacles)for(const sway of [-1,1]){
           assert.ok(!circleHitsObstacle(x,y,14,o,0,o.center+sway*o.motion));
@@ -150,26 +156,34 @@ test('map depth adds linked opposite gates with reachable lanes and time to chan
   }
 });
 
-test('lanterns have a black core, graduated twilight and a growing local opening for Luminance and Flash',()=>{
+test('lantern darkness fades with distance, layers in crossfire and opens locally for Luminance and Flash',()=>{
   const e=flight('hollow-sun'),boss=e.layout.boss,s=boss.shutters[0];
   const y=s.y-s.side*s.depth*.55,x=s.x+s.shift*.55;
   const fullReveal={...e.getLightState(),edgingReveal:1};
   place(e,s.openX-1,y);
   assert.equal(lightVisibility(e,fullReveal,x-e.distance,y),1);
-  place(e,s.openX+1,y);
-  assert.equal(lightVisibility(e,fullReveal,x-e.distance,y),0);
+  const openedX=s.openX+boss.speed*.65;
+  place(e,openedX,y);
+  assert.ok(lightVisibility(e,fullReveal,x-e.distance,y)<.85);
   // Continue past the opposing rock face into the last row of the viewport.
   const edgeY=s.side===-1?e.height-1:1;
   const left=Math.atan((s.shift-s.spread)/s.depth),right=Math.atan((s.shift+s.spread)/s.depth);
-  const at=fraction=>{
+  const single={speed:boss.speed,shutters:[s]};
+  const at=(fraction,worldY=edgeY,chamber=single)=>{
     const ray=left+(right-left)*fraction;
-    const worldX=s.x+Math.tan(ray)*Math.abs(edgeY-s.y);
-    return shutterLightFactor(boss,worldX,edgeY,s.openX+1,y);
+    const worldX=s.x+Math.tan(ray)*Math.abs(worldY-s.y);
+    return shutterLightFactor(chamber,worldX,worldY,openedX,y);
   };
-  assert.equal(at(.5),0);
-  assert.equal(at(.35),0);
-  assert.ok(at(.86)>0&&at(.86)<at(.94)&&at(.94)<1);
+  const near=at(.5,s.y-s.side*22);
+  const middle=at(.5,(s.y+edgeY)/2);
+  const far=at(.5);
+  assert.ok(near<.07&&near<middle&&middle<far&&far<.99,
+    `light transmitted near/halfway/at viewport edge: ${near}, ${middle}, ${far}`);
+  assert.ok(far<at(.86)&&at(.86)<at(.94)&&at(.94)<1);
   assert.equal(at(1.02),1);
+  const pair={speed:boss.speed,shutters:[s,{...s,x:s.x+12}]};
+  const overlap=at(.5,edgeY,pair);
+  assert.ok(overlap<far-.01,'two distant beams cast a deeper shadow together');
   place(e,x,y);
   assert.equal(lightVisibility(e,fullReveal,x-e.distance,y),1);
   // Sample well inside the dark region at five visible body radii, using
@@ -192,6 +206,22 @@ test('lanterns have a black core, graduated twilight and a growing local opening
   assert.equal(e.flame,fuel);
   assert.equal(e.collisions,0);
   e.destroy();
+});
+
+test('the wisp casts a widening region of restored light behind it, relative to each individual lantern',()=>{
+  const roof={x:0,y:0,side:-1,depth:280,shift:0,spread:284,openX:-200};
+  const floor={...roof,x:70,y:410,side:1};
+  const single={shutters:[roof],speed:154};
+  const light={baseRadius:145,radius:145,intensity:1};
+  const at=(x,y,px=0,boss=single)=>shutterLightFactor(boss,x,y,px,80,light);
+  const wake=(x,y,px=0)=>shutterWakeAt(single,x,y,px,80,9.35,light);
+  assert.equal(wake(0,30),0,'rock on the lamp side of the wisp gets no wake');
+  assert.ok(wake(0,230)>.20,'the wake restores the rock behind the wisp');
+  assert.equal(wake(0,230,65),0,'moving the wisp sideways releases the former shadow');
+  assert.ok(wake(36,280)>wake(36,140)+.1,'the wedge widens farther from the lamp');
+  assert.ok(at(0,230)>at(0,230,65)+.25);
+  const crossfire={...single,shutters:[roof,floor]};
+  assert.ok(at(0,230,0,crossfire)<at(0,230)-.1,'another lantern still reaches this patch of rock');
 });
 
 for (const id of ['moonweaver','hollow-warden']) {

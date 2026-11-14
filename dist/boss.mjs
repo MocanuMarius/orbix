@@ -38,7 +38,7 @@ const SIGNATURE_PHASES={
  'hollow-sun':[
   {id:'eclipse',name:'THE FIRST ECLIPSE',instruction:'Keep beneath the dark wells; gather light between them.',cells:[[.55,290,'both',0],[.60,275,'both',0],[.48,280,'both',0],[.50,335,'both',0]]},
   {id:'orbit',name:'DARK ORBITS',instruction:'The roof shutter marks its shadow. Skim its neck or cross the broad dark chamber.',cells:[[.40,270,'both',0],[.60,270,'both',0],[.45,275,'both',0],[.50,340,'both',0]]},
-  {id:'corona',name:'BREAK THE CORONA',instruction:'Two lanterns cross. Skim the floor or take the Flash into the overlap.',cells:[[.58,260,'both',8],[.42,260,'both',8],[.52,275,'both',0],[.50,340,'both',0]]}]
+  {id:'corona',name:'BREAK THE CORONA',instruction:'Follow the lanterns along the walls. A Flash waits before the final crossfire.',cells:[[.58,260,'both',8],[.42,260,'both',8],[.52,275,'both',0],[.50,340,'both',0]]}]
 };
 
 export const BOSS_PREVIEWS=Object.freeze({

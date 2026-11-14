@@ -49,7 +49,7 @@ import { getAuthoredChallenge, finalizeFlightChallenges, installAuthoredDraftCro
 import { installEncounterFamily } from './encounter-families.mjs?v=chapter-pressure-1';
 import { installFlightForks, resizeFlightForks } from './flight-forks.mjs?v=chapter-pressure-1';
 import { ArtifactEffects } from './artifact-effects.mjs?v=chapter-pressure-1';
-import { LIGHT_EXTENT,lightAttenuation,lightVisibility,createLightMaskCanvas,castFlightFlashLights,sceneRevealStrength,flashRangeStrength,pickupRevealHold,pickupRevealAt,renderLightState,lightDreamScenery } from './light-field.mjs?v=chapter-pressure-1';
+import { LIGHT_EXTENT,lightAttenuation,lightVisibility,createLightMaskCanvas,castFlightFlashLights,revealLanternWake,sceneRevealStrength,flashRangeStrength,pickupRevealHold,pickupRevealAt,renderLightState,lightDreamScenery } from './light-field.mjs?v=chapter-pressure-1';
 import { createTutorialState, buildTutorialLayout, recordTutorialPickup,
   updateTutorial, updateTutorialCompanion, getTutorialHint } from './tutorial.mjs?v=chapter-pressure-1';
 export { FLAME_TUNING } from './vitality.mjs?v=chapter-pressure-1';
@@ -2254,6 +2254,7 @@ export class WispFlight {
     if(forward.active)cast(forward.x,forward.y+y-this.player.y,forward.radius,forward.intensity*light.intensity);
     if(light.landmarkLight){const source=light.landmarkLight;cast(source.x,source.y,source.radius,source.intensity);}
     castFlightFlashLights(f,this.fallbackMask,this,light,1,this.renderDistance??this.distance,y);
+    revealLanternWake(f,this,{distance:this.renderDistance??this.distance,playerY:y,light});
     const dim=clamp(light.radius/light.baseRadius,.6,1);
     for(const orb of this.getCompanionStates(y,this.visualTime??this.time,this.renderBlend)){
       const collector=orb.role==='collector',r=(collector?orb.phase==='cooldown'?17+orb.recovery*10:31:19)*dim;

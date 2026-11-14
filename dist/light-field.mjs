@@ -1,7 +1,18 @@
-import {shutterLightFactor} from './shutter-cone.mjs?v=chapter-pressure-1';
-// Radius describes the bright core. A finite inverse-square field keeps a
-// faint tail at 2x radius, then reaches exact black at 3x without a hard seam.
-export const LIGHT_EXTENT=3;
+import {drawShutterWake,shutterLightFactor,shutterWakeAt} from './shutter-cone.mjs?v=chapter-pressure-1';
+import { LIGHT_EXTENT, lightAttenuation } from './light-attenuation.mjs?v=chapter-pressure-1';
+export { LIGHT_EXTENT, lightAttenuation };
+const reflectedLight = .6;
+
+// Lift a little of the ordinary fog where the body intercepts a dark beam,
+// revealing the rock texture already drawn underneath.
+export function revealLanternWake(fog,engine,options) {
+  if (!engine.layout?.boss?.shutters?.length) return;
+  fog.save();
+  fog.globalAlpha = reflectedLight;
+  fog.globalCompositeOperation = 'destination-out';
+  drawShutterWake(fog,engine,options);
+  fog.restore();
+}
 // This light is for drawing only. Rehearsal still simulates the same draft,
 // pickup and companion interactions as the live flight.
 const dreamLight=Object.freeze({rehearsing:true,intensity:1,radius:145,baseRadius:145});
@@ -15,12 +26,6 @@ export function lightDreamScenery(ctx,width,height){
   ctx.globalCompositeOperation='screen';ctx.globalAlpha=.22;ctx.fillStyle='#c49647';
   ctx.fillRect(0,0,width,height);
   ctx.restore();
-}
-export function lightAttenuation(distanceSquared){
-  const d2=Math.max(0,Number(distanceSquared)||0);
-  if(d2>=LIGHT_EXTENT*LIGHT_EXTENT)return 0;
-  const edge=1/(1+2.2*LIGHT_EXTENT*LIGHT_EXTENT);
-  return Math.max(0,(1/(1+2.2*d2)-edge)/(1-edge));
 }
 export function createLightMaskCanvas(document){
   const canvas=document.createElement('canvas');canvas.width=canvas.height=128;
@@ -91,7 +96,11 @@ export function lightVisibility(engine,light,x,y,playerY=engine.player.y,include
     const lx=x-landmark.x,ly=y-landmark.y;
     dark*=1-lightAttenuation((lx*lx+ly*ly)/(landmark.radius*landmark.radius))*(landmark.intensity??1);
   }
-  const visible=1-dark*(1-sceneRevealStrength(light));
   const boss=engine.layout?.boss;
-  return includeShutters&&boss?.shutters?.length ? visible*shutterLightFactor(boss,engine.distance+x,y,engine.distance+engine.player.x,playerY,light) : visible;
+  const ambient=1-dark*(1-sceneRevealStrength(light));
+  if (!boss?.shutters?.length) return ambient;
+  const worldX=engine.distance+x, playerX=engine.distance+engine.player.x;
+  const wake=shutterWakeAt(boss,worldX,y,playerX,playerY,engine.player.radius,light);
+  const visible=ambient+(1-ambient)*reflectedLight*wake;
+  return includeShutters ? visible*shutterLightFactor(boss,worldX,y,playerX,playerY,light,engine.player.radius) : visible;
 }
