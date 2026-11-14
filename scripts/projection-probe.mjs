@@ -2,17 +2,17 @@ import assert from 'node:assert/strict';
 import {WispFlight,FLIGHT_TUNING,circleHitsObstacle} from '../dist/flight.mjs';
 import {FlightProjection} from '../dist/flight-projection.mjs';
 import * as M from '../dist/model.mjs';
-const state=M.newState();state.run=M.createRun(state.profile,'drift-tree');M.chooseStartingSkill(state,'main-speed');state.run.embers=90; // Fund guide ranks independently of starting budget.
+const state=M.newState();state.run=M.createRun(state.profile,'drift-tree');M.chooseStartingSkill(state,'main-speed');state.run.condensedGlow=500; // Fund guide ranks independently of starting budget.
 assert.ok(M.buyCheckpointSkill(state,'main-drift-sense'));assert.equal(M.getRunModifiers(state.run).driftSense,1);
-assert.equal(M.buyCheckpointSkill(state,'main-drift-sense-3'),false);state.run.embers=500; // Fund the current two advanced ranks for the physics fixture.
+assert.equal(M.buyCheckpointSkill(state,'main-drift-sense-3'),false);state.run.condensedGlow=3000; // Fund the current two advanced ranks for the physics fixture.
 for(const id of ['main-drift-sense-2','main-drift-sense-3'])assert.ok(M.buyCheckpointSkill(state,id));
 assert.equal(M.getRunModifiers(state.run).driftSense,3);
 const ctx=new Proxy({},{get:(o,k)=>o[k]??(String(k).includes('Gradient')?()=>({addColorStop(){}}):()=>{}),set:(o,k,v)=>(o[k]=v,true)});
 const canvas={style:{},getContext:()=>ctx,getBoundingClientRect:()=>({width:390,height:620})};
-const make=()=>new WispFlight({canvas,seed:'drift-probe',duration:102,node:{flightLengthScale:3},companions:['leveler','swift'],modifiers:{driftSense:3},flame:100});
+const make=(role='collector')=>new WispFlight({canvas,seed:'drift-probe',duration:102,node:{flightLengthScale:3},companions:[role],modifiers:{driftSense:3},flame:100});
 const cases=['ordinary','gentle','heavy','swift','draft','leveler-release'];let maxError=0;
 for(const name of cases){
- const e=make();e.layout.obstacles=[];e.layout.embers=[];e.drafts.zones=[];e.running=true;e.player.y=100;e.player.vy=25;
+ const e=make(name==='swift'?'swift':name==='leveler-release'?'leveler':'collector');e.layout.obstacles=[];e.layout.embers=[];e.drafts.zones=[];e.running=true;e.player.y=100;e.player.vy=25;
  if(name==='gentle')e.mod.gravity=.9;
  if(name==='heavy'){e.mod.gravity=1.18;e.mod.terminalFall=1.08;}
  if(name==='swift'){e.fleet.find(x=>x.role==='swift').remaining=.25;e.mod.speed=1.1;e.syncFleetTimers();}

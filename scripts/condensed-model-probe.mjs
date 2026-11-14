@@ -3,11 +3,11 @@ import * as M from '../dist/model.mjs';
 import {condenseGlow,getCondensationRules,CONDENSED_TUNING} from '../dist/condensed-glow.mjs';
 const state=()=>{const s=M.newState();s.run=M.createRun(s.profile,'condensed-model-probe');M.chooseStartingSkill(s,'main-efficiency');return s;};
 const launch=s=>{assert.ok(M.selectNode(s.run,M.getChoices(s.run)[0].id));assert.ok(M.beginFlightAttempt(s.run));};
-assert.equal(condenseGlow(10).amount,3);
-assert.equal(condenseGlow(10,{rules:getCondensationRules({'main-afterglow':1})}).amount,4);
+assert.equal(condenseGlow(10).amount,1);
+assert.equal(condenseGlow(20,{rules:getCondensationRules({'main-afterglow':1})}).amount,3);
 let remainder=0,earned=0;
 for(let i=0;i<100;i++){const c=condenseGlow(.1,{remainder});remainder=c.remainder;earned+=c.amount;}
-assert.equal(earned,3,'Fragmenting a pickup does not round every fragment up');
+assert.equal(earned,1,'Fragmenting a pickup does not round every fragment up');
 assert.equal(remainder,0);
 assert.ok(condenseGlow(1000,{rules:{multiplier:100,bankBonusPerTier:100},wallet:1e8}).multiplier<=CONDENSED_TUNING.maxMultiplier);
 const s=state(),start=s.run.condensedGlow;launch(s);
@@ -24,7 +24,7 @@ assert.equal(f.run.condensedGlow,beforeFailure);assert.equal(f.run.condensedRema
 const empty=state();empty.run.flame=30;
 const gift=M.grantGlowPickup(empty.run,45);
 assert.equal(gift.condensedGlow,0);assert.equal(empty.run.flame,75);
-const partiallyFull=M.grantGlowPickup(empty.run,40);assert.equal(partiallyFull.restored,25);assert.equal(partiallyFull.overflow,15);assert.equal(partiallyFull.condensedGlow,4);
+const partiallyFull=M.grantGlowPickup(empty.run,40);assert.equal(partiallyFull.restored,25);assert.equal(partiallyFull.overflow,15);assert.equal(partiallyFull.condensedGlow,1);
 const practice=state();M.startTutorial(practice);const normal=practice.suspendedRun.condensedGlow;
 M.grantGlowPickup(practice.run,100);M.leaveTutorial(practice);assert.equal(practice.run.condensedGlow,normal,'Practice income never enters the real run');
 const priced=state();priced.run.condensedGlow=1000;
@@ -64,4 +64,4 @@ for(const [id,value] of [['quiet-cinder',25],['echo-bell',35],['sunheart-engine'
 const copied=state();launch(copied);M.finishFlight(copied.run,{success:true,flame:100,condensedGlow:9});
 M.saveState(copied,storage);const loadedOnce=M.loadState(storage),loadedTwice=M.loadState(storage);
 assert.equal(loadedOnce.run.condensedGlow,37);assert.equal(loadedTwice.run.condensedGlow,37,'Saved pending income settles once across repeated loads');
-console.log(JSON.stringify({baseConversion:'3 to 3',refinedConversion:'3 to 4',fractionalCredit:true,failedAttemptFarming:false,recoveryMints:false,rewardClaimOnce:true,practiceIsolation:true,currencySave:true,refundFarming:false,refundsNotIncome:true,salePreviewMatches:true,forgeFixedRarityPayouts:[25,35,50],forgeChangesFuelOrHearts:false,forgeDoublePay:false,reloadSettlementOnce:true}));
+console.log(JSON.stringify({baseConversion:'3 to 1',refinedConversion:'6 to 3',fractionalCredit:true,failedAttemptFarming:false,recoveryMints:false,rewardClaimOnce:true,practiceIsolation:true,currencySave:true,refundFarming:false,refundsNotIncome:true,salePreviewMatches:true,forgeFixedRarityPayouts:[25,35,50],forgeChangesFuelOrHearts:false,forgeDoublePay:false,reloadSettlementOnce:true}));

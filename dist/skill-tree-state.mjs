@@ -1,4 +1,4 @@
-import {SKILLS,MAIN_WISP_BRANCHES,getSkillLockReason,getSkillPrice,canChooseStartingSkill} from './model.mjs?v=proximity-balance-1';
+import {SKILLS,MAIN_WISP_BRANCHES,getSkillLockReason,getSkillPrice,canChooseStartingSkill} from './model.mjs?v=guardian-overflow-1';
 
 const parents=skill=>Array.isArray(skill?.requires)?skill.requires:skill?.requires?[skill.requires]:[];
 const learned=(wallet,id)=>Number(wallet?.skills?.[id]||0);

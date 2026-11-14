@@ -1,5 +1,6 @@
-import {DraftField,DRAFT_TUNING} from './drafts.mjs?v=proximity-balance-1';
-import {lightVisibility} from './light-field.mjs?v=proximity-balance-1';
+import {DraftField,DRAFT_TUNING} from './drafts.mjs?v=guardian-overflow-1';
+import {lightVisibility} from './light-field.mjs?v=guardian-overflow-1';
+import {isFuelPickup,pickupContactRadius} from './pickups.mjs?v=guardian-overflow-1';
 const clamp=(n,a,b)=>Math.max(a,Math.min(b,n)),DT=1/60;
 export const PROJECTION_HORIZONS=Object.freeze([0,.7,1.2,1.8]);
 
@@ -13,11 +14,38 @@ export class FlightProjection {
     const changed=this.lastFlap!==e.lastFlapTime||this.lastPower!==e.abilityStartedAt||this.lastHeld!==e.liftHeld||this.lastHeight!==e.height||this.lastRank!==rank;
     if(!this.result||changed||e.time>=this.nextAt){
       this.lastFlap=e.lastFlapTime;this.lastPower=e.abilityStartedAt;this.lastHeld=e.liftHeld;this.lastHeight=e.height;this.lastRank=rank;
-      this.result=this.predict(e,rank);this.nextAt=e.time+.05;
+      this.result=this.predict(e,rank);
+      const affordable=e.dream?.freeGlow||e.artifactEffects?.freeLift||e.availableGlow>=e.flapCost;
+      if(affordable)this.result.lift=this.predict(e,rank,[0]);
+      if(rank===3&&affordable){
+        if(!this.routeAt||changed||e.time>=this.routeAt){this.route=this.findRoute(e);this.routeAt=e.time+.25;}
+        this.result.route=this.route;
+      }
+      this.nextAt=e.time+.05;
     }
     return this.result;
   }
-  predict(e,rank=clamp(Math.floor(e.mod.driftSense||0),0,3)){
+  findRoute(e){
+    // Never claim a safe route through independently moving guardian attacks.
+    if(e.layout.boss?.attacks?.length)return null;
+    const light=e.getLightState?.()||{},start=e.distance+e.player.x;
+    const target=e.layout.embers.filter(p=>!p.collected&&!p.carried&&isFuelPickup(p)&&p.x>start&&p.x<start+e.baseSpeed*1.7&&lightVisibility(e,light,p.x-e.distance,p.y,e.player.y)>.15)
+      .sort((a,b)=>Math.hypot(a.x-start,a.y-e.player.y)-Math.hypot(b.x-start,b.y-e.player.y))[0];
+    if(!target)return null;
+    const budget=e.dream?.freeGlow?2:Math.min(2,Math.floor(e.availableGlow/e.flapCost));
+    const plans=[[]];for(const t of [0,.2,.4,.6,.8,1]){plans.push([t]);if(budget>1)for(const delay of [.4,.7])plans.push([t,t+delay]);}
+    let best=null;
+    for(const taps of plans){
+      const path=this.predict(e,3,taps);
+      if(path.contact||path.uncertain)continue;
+      const reach=path.points.findIndex(p=>Math.hypot(p.x-target.x,p.y-target.y)<=e.player.radius+pickupContactRadius(target));
+      if(reach<0)continue;
+      const score=taps.length*10+path.points[reach].time-e.time;
+      if(!best||score<best.score)best={...path,points:path.points.slice(0,reach+1),score,taps,target};
+    }
+    return best;
+  }
+  predict(e,rank=clamp(Math.floor(e.mod.driftSense||0),0,3),taps=[]){
     const horizon=PROJECTION_HORIZONS[rank],startX=e.distance+e.player.x,maxX=startX+e.baseSpeed*1.48*horizon+24;
     const obstacles=e.layout.obstacles.filter(o=>!o.destroyed&&o.x+o.width*2.5>=startX-30&&o.x-o.width<=maxX+30);
     const field=Object.create(DraftField.prototype);
@@ -30,9 +58,10 @@ export class FlightProjection {
     // Contact-driven scenery changes after a choice; do not promise a path
     // through a pod, falling shard or switch that has not been resolved yet.
     const interactiveEdge=e.biomeDynamics?.forecastBoundary(startX,maxX)??Infinity;
-    let contact=false,exit=false,uncertain=false;
+    let contact=false,exit=false,uncertain=false,tapIndex=0;
     for(let step=1;step<=Math.round(horizon/DT);step++){
       const previous={x,y,time};time+=DT;
+      if(tapIndex<taps.length&&time-e.time>=taps[tapIndex]){vy=-this.tuning.flapImpulse*s*clamp(Number(e.mod.flap)||1,.8,1.2);tapIndex++;}
       const oldBoost=boost;boost=Math.max(0,boost-DT);guard=Math.max(0,guard-DT);if(oldBoost>0&&boost===0)guard=.45;
       recovery=Math.max(0,recovery-DT);dive=Math.max(0,dive-DT);
       const speed=e.baseSpeed*(boost>0?1.48:1);x+=speed*DT;
@@ -63,6 +92,13 @@ export class FlightProjection {
 export function drawFlightProjection(c,e,{scale=1,distance=e.renderDistance??e.distance,playerY=e.renderPlayerY??e.player.y}={}){
   const guide=e.getFlightProjection?.();if(!guide)return;
   const light=e.getLightState?.()||{};
+  for(const [path,color,alpha] of [[guide.lift,'#98d9f1',.4],[guide.route,'#d8ef99',.7]]){
+    if(!path)continue;c.save();c.fillStyle=color;
+    for(const p of path.points){if(p.time<=e.time)continue;const x=p.x-distance,y=p.y;
+      c.globalAlpha=alpha*lightVisibility(e,light,x,y,playerY);
+      c.fillRect(Math.round(x*scale),Math.round(y*scale),Math.max(1,2*scale),Math.max(1,2*scale));
+    }c.restore();
+  }
   c.save();c.strokeStyle='#c0d3c5';c.lineWidth=1;
   let previous={x:e.player.x*scale,y:playerY*scale};
   for(const p of guide.points){

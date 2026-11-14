@@ -4,7 +4,7 @@ export function prepareGuardian(layout,height,speed){
  const id=layout.boss.id;
  if(['moonweaver','hollow-warden'].includes(id))return layout;
  for(const spark of layout.embers){const o=layout.obstacles.find(o=>o.id===spark.anchor);if(o){spark.y=o.center;spark.pocket=false;spark.pocketSide=null;spark.feature='guardian-respite';delete o.cachePocket;}}
- layout.boss.attacks=layout.obstacles.filter(o=>!o.cacheEligible).filter((o,i)=>layout.boss.difficulty>1||i%2===0).map((o,i)=>({x:o.x+o.width*.65,y:o.center-height*.12,center:o.center,baseGap:o.gap,side:o.bossPhase===1?-1:(i%2?1:-1),obstacle:o,index:i,trigger:null,spent:false}));
+ layout.boss.attacks=layout.obstacles.filter(o=>!o.cacheEligible).filter((o,i)=>layout.boss.difficulty>1||i%2===0||o.bossPhase===2).map((o,i)=>({x:o.x+o.width*.65,y:o.center-height*.12,center:o.center,baseGap:o.gap,side:o.bossPhase===1?-1:(i%2?1:-1),obstacle:o,index:i,trigger:null,spent:false}));
  layout.boss.scale=height/620;layout.boss.speed=speed;
  return layout;
 }
@@ -16,10 +16,11 @@ export function updateGuardian(engine,dt){
   const dx=a.x-x;if(dx < -320 || dx > 640)continue;
   if(a.trigger===null && dx<boss.speed*2.6)a.trigger=now;
   const age=a.trigger===null?-1:now-a.trigger;a.age=age;
+  const finale=a.obstacle.bossPhase===2;
   if(boss.id==='rootbound-heart'){
    // A continuous rhythm, never narrower than a generous 150-reference-pixel passage.
    const wave=(1-Math.cos(now*1.25+a.index*.7))/2;
-   a.obstacle.gap=a.baseGap-(a.baseGap-220*s)*wave;
+   a.obstacle.gap=a.baseGap-(a.baseGap-(finale?210:220)*s)*wave;
   }else if(boss.id==='frost-matron'){
    a.iceY=a.center+a.side*a.baseGap/2-a.side*Math.max(0,age-2.2)*110*s;
    const active=age>=2.2&&a.side*(a.iceY-a.center)>-8*s;
@@ -27,7 +28,7 @@ export function updateGuardian(engine,dt){
   }else if(boss.id==='storm-shepherd'){
    const strength=Math.max(0,1-Math.abs(dx)/(150*s));
    const vertical=Math.max(0,1-Math.abs(engine.player.y-a.center)/(190*s));
-   engine.player.vy+=(a.index%2?1:-1)*150*s*strength*vertical*dt*(engine.boostTime>0?.4:1);
+   engine.player.vy+=(a.index%2?1:-1)*150*s*(finale?1.2:1)*strength*vertical*dt*(engine.boostTime>0?.4:1);
   }else if(boss.id==='hollow-sun'){
    a.wellY=a.center+a.side*70*s+Math.sin(now*.8+a.index)*24*s;
    const distance=Math.hypot(dx,engine.player.y-a.wellY);

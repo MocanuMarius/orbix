@@ -1,6 +1,6 @@
-import { LIGHT_PACKET_TUNING } from './vitality.mjs?v=proximity-balance-1';
-import { getCompanionAbility } from './companion-abilities.mjs?v=proximity-balance-1';
-import { pickupKind, pickupContactRadius, canCompanionCollect } from './pickups.mjs?v=proximity-balance-1';
+import { LIGHT_PACKET_TUNING } from './vitality.mjs?v=guardian-overflow-1';
+import { getCompanionAbility } from './companion-abilities.mjs?v=guardian-overflow-1';
+import { pickupKind, pickupContactRadius, canCompanionCollect } from './pickups.mjs?v=guardian-overflow-1';
 
 const clamp = (value, lo, hi) => Math.min(hi, Math.max(lo, value));
 export const WISP_TUNING = Object.freeze({ range: 52.5, cooldown: 10, lightRadius: 175,
@@ -12,13 +12,14 @@ export function wispHome(player) {
 
 export function wispOrbit(player, time = 0, index = 0, total = 1) {
   const t = Number.isFinite(time) ? time : 0;
-  const angle = t * Math.PI * 2 / WISP_TUNING.orbitPeriod + Math.PI + index * Math.PI * 2 / Math.max(1,total);
-  // A breathing, precessing ellipse crosses above, below and ahead of the wisp.
-  // Continuous motion also supplies a smooth tangent for fetch/return curves.
-  const breath = Math.sin(t * 2.1) * 10, tilt = Math.sin(t * .8) * .55;
-  const ox = Math.cos(angle) * (51 + breath), oy = Math.sin(angle) * (36 + breath * .65);
-  return { x: player.x + ox * Math.cos(tilt) - oy * Math.sin(tilt),
-    y: player.y + ox * Math.sin(tilt) + oy * Math.cos(tilt) };
+  const phase=index*Math.PI*2/Math.max(1,total);
+  const angle=t*5.3+phase+Math.sin(t*1.73)*.8;
+  // Incommensurate smooth waves produce darting loops, not random jitter.
+  const radius=28+10*Math.sin(t*2.31)+6*Math.sin(t*4.07);
+  const tilt=t*.47+Math.sin(t*.83)*.6;
+  const ox=Math.cos(angle)*radius,oy=Math.sin(angle*1.13)*radius*.85;
+  return {x:player.x+ox*Math.cos(tilt)-oy*Math.sin(tilt),
+    y:player.y+ox*Math.sin(tilt)+oy*Math.cos(tilt)};
 }
 
 // A single fetch owns one ember until delivery. No reward or card trigger is
@@ -128,6 +129,9 @@ export class WispCompanion {
     const fleet = engine.companions || [engine.companionRole];
     const orbit = wispOrbit(this.orbitHome, engine.reducedMotion ? 0 : engine.time,
       Math.max(0,fleet.indexOf('collector')),fleet.length);
+    const orbitReach=Math.max(10,(this.phase==='returning'?Math.min(18+(Number(engine.mod.collectorMinimum)||0),this.range(engine)):this.currentRange(engine))*.82);
+    const ox=orbit.x-home.x,oy=orbit.y-home.y,length=Math.hypot(ox,oy);
+    if(length>orbitReach){orbit.x=home.x+ox/length*orbitReach;orbit.y=home.y+oy/length*orbitReach;}
     if (firstUpdate && ['ready','cooldown','orbiting'].includes(this.phase)) {
       const before = wispOrbit(this.orbitHome, engine.reducedMotion ? 0 : engine.time - dt,
         Math.max(0,fleet.indexOf('collector')),fleet.length);

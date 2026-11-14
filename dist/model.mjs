@@ -1,24 +1,24 @@
-import {PROXIMITY_SKILLS} from './proximity-skills.mjs?v=proximity-balance-1';
-import {getGuardianForMap,getBossPreview} from './boss.mjs?v=proximity-balance-1';
-import {getFlightLengthProfile} from './level-length.mjs?v=proximity-balance-1';
-import {cleanOnboarding} from './onboarding.mjs?v=proximity-balance-1';
-import {CONDENSED_TUNING,getCondensationRules,condenseGlow} from './condensed-glow.mjs?v=proximity-balance-1';
-import {CONSUMABLE_ARTIFACTS,EVOLVING_ARTIFACTS,getArtifactStackPreview} from './artifact-info.mjs?v=proximity-balance-1';
-import {getFlightClearReward} from './checkpoint-rewards.mjs?v=proximity-balance-1';
-export {getCondensationRules} from './condensed-glow.mjs?v=proximity-balance-1';
-import {ROUTE_RECIPES,ROUTE_TOPOLOGY_VERSION,REWARD_THEMES,nodeEconomy} from './route-recipes.mjs?v=proximity-balance-1';
-import {COMPANION_ABILITIES,getCompanionUnlock,normalizeCompanionFleet} from './companion-abilities.mjs?v=proximity-balance-1';
-import {MAIN_TUNING_SKILLS} from './main-tuning.mjs?v=proximity-balance-1';
-import {STARTING_CONDENSED_GLOW,getGlowCapacity,getRestGlowBonus,REST_GLOW_TUNING,glowText} from './vitality.mjs?v=proximity-balance-1';
-import {expandSkillSteps,skillProgress} from './skill-increments.mjs?v=proximity-balance-1';
-import {MAX_ASCENSION} from './ascent.mjs?v=proximity-balance-1';
-import {EXPANDED_SKILLS,applyExpandedSkills} from './skill-paths.mjs?v=proximity-balance-1';
+import {PROXIMITY_SKILLS} from './proximity-skills.mjs?v=guardian-overflow-1';
+import {getGuardianForMap,getBossPreview} from './boss.mjs?v=guardian-overflow-1';
+import {getFlightLengthProfile} from './level-length.mjs?v=guardian-overflow-1';
+import {cleanOnboarding} from './onboarding.mjs?v=guardian-overflow-1';
+import {CONDENSED_TUNING,getCondensationRules,condenseGlow} from './condensed-glow.mjs?v=guardian-overflow-1';
+import {CONSUMABLE_ARTIFACTS,EVOLVING_ARTIFACTS,getArtifactStackPreview} from './artifact-info.mjs?v=guardian-overflow-1';
+import {getFlightClearReward} from './checkpoint-rewards.mjs?v=guardian-overflow-1';
+export {getCondensationRules} from './condensed-glow.mjs?v=guardian-overflow-1';
+import {ROUTE_RECIPES,ROUTE_TOPOLOGY_VERSION,REWARD_THEMES,nodeEconomy} from './route-recipes.mjs?v=guardian-overflow-1';
+import {COMPANION_ABILITIES,getCompanionUnlock,normalizeCompanionFleet} from './companion-abilities.mjs?v=guardian-overflow-1';
+import {MAIN_TUNING_SKILLS} from './main-tuning.mjs?v=guardian-overflow-1';
+import {STARTING_CONDENSED_GLOW,getGlowCapacity,getRestGlowBonus,REST_GLOW_TUNING,glowText} from './vitality.mjs?v=guardian-overflow-1';
+import {expandSkillSteps,skillProgress} from './skill-increments.mjs?v=guardian-overflow-1';
+import {MAX_ASCENSION} from './ascent.mjs?v=guardian-overflow-1';
+import {EXPANDED_SKILLS,applyExpandedSkills} from './skill-paths.mjs?v=guardian-overflow-1';
 /** Run-owned skills and currency; persistent ascension unlocks and boss artifacts. */
-import { FLAME_TUNING, LIFE_TUNING, getLifeCapacity } from './vitality.mjs?v=proximity-balance-1';
-import { getBiomeLevelIdentity } from './level-catalog.mjs?v=proximity-balance-1';
-import { BIOMES } from './biomes.mjs?v=proximity-balance-1';
-import { EVENT_SCENARIOS } from './map-guide.mjs?v=proximity-balance-1';
-import {contextualEventChoices,resolvePilgrimVow,ROUTE_PREPARATION} from './contextual-events.mjs?v=proximity-balance-1';
+import { FLAME_TUNING, LIFE_TUNING, getLifeCapacity } from './vitality.mjs?v=guardian-overflow-1';
+import { getBiomeLevelIdentity } from './level-catalog.mjs?v=guardian-overflow-1';
+import { BIOMES } from './biomes.mjs?v=guardian-overflow-1';
+import { EVENT_SCENARIOS } from './map-guide.mjs?v=guardian-overflow-1';
+import {contextualEventChoices,resolvePilgrimVow,ROUTE_PREPARATION} from './contextual-events.mjs?v=guardian-overflow-1';
 export const SAVE_KEY='wispbound.save.condensed.v7';
 export const CAMPAIGN_MAP_NAMES=Object.freeze(['The Forgotten Verge','The Rootbound March','The Warden’s Reach']);
 export const TERRAINS=Object.freeze({ruins:{id:'ruins',name:'Sunken Ruins',color:'#cdb183',description:'Broken homes, worn arches and overgrown stone.'},canopy:{id:'canopy',name:'Luminous Canopy',color:'#94b48a',description:'Hollow trees, hanging roots and sheltered forest passages.'},storm:{id:'storm',name:'Stormglass Peaks',color:'#a8bbca',description:'Pine ridges, old mine timbers and local draft puffs.'}});
@@ -95,7 +95,7 @@ export const ARTIFACTS=Object.freeze({
  'sunspool':artifact('sunspool','Sunspool','Collect natural fuel in temporary extra light to store one free Lift. Recharges in 4s; up to four free Lifts per flight.','☼',{litLift:1}),
  'dreamcatcher':artifact('dreamcatcher','Dreamcatcher','During preset playback, each natural Sparks pickup recharges your companion by 1.5 seconds.','◌',{dreamRecharge:1.5}),
  'second-dawn':artifact('second-dawn','Second Dawn','Your first natural Sparks pickup after dream playback briefly reveals the whole scene.','☼',{secondDawn:1}),
- 'echo-vessel':artifact('echo-vessel','Prism Vessel','Natural pickup overflow conversion gains 10 percentage points. The shared conversion cap still applies.','◉',{condensationBonus:.1}),
+ 'echo-vessel':artifact('echo-vessel','Prism Vessel','Bank 2 of every 3 overflow Energy instead of 1. Conversion skills add to this, up to all overflow.','◉',{condensationBonus:1/3}),
  'glass-lantern':artifact('glass-lantern','Glass Lantern',`Natural Sparks pickups restore ${40/3} extra Energy, but Lift costs one extra Energy.`,'◇',{cacheFuelBonus:40/3,flapCost:1.12}),
  'night-gardener':artifact('night-gardener','Night Gardener','Pass close to a Dark Spark without touching it for 4 Energy. Once per seed, up to five seeds per flight.','✦',{nightGarden:4}),
  'ember-lens':artifact('ember-lens','Spark Lens','See farther ahead.','◉',{lightRadius:28}),
