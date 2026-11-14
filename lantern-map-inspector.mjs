@@ -1,4 +1,4 @@
-import {newState,createRun,chooseStartingGift} from './model.mjs?v=steady-giants-1';
+import {newState,createRun,chooseStartingGift} from './model.mjs?v=spark-field-guide-1';
 
 export function createLanternMapInspectorState() {
  const state=newState();

@@ -1,0 +1,74 @@
+/* Shared fine-pixel art direction. This owns materials, not screen geometry.
+   Geometry uses 1–2px steps; emitted light may fade softly. Text stays sharp. */
+@font-face{font-family:WispPixel;src:url('assets/fonts/pixelify-sans.ttf') format('truetype');font-weight:400 700;font-display:swap}
+:root{
+ --art-step:2px;
+ --art-ground:#101d1c;--art-raised:#233a32;--art-edge:#84918a;
+ --art-paper:#d7dcc0;--art-ink:#26392e;
+ --art-frame:url('assets/rough-frame.svg');
+ --art-gold-frame:url('assets/rough-available.svg');
+ --art-blue-frame:url('assets/rough-owned.svg');
+ --art-muted-frame:url('assets/rough-locked.svg');
+ --art-grain:url('assets/pixel-grain.svg');
+ --art-cut:polygon(4px 0,calc(100% - 6px) 0,calc(100% - 6px) 2px,calc(100% - 2px) 2px,calc(100% - 2px) 4px,100% 4px,100% calc(100% - 5px),calc(100% - 2px) calc(100% - 5px),calc(100% - 2px) calc(100% - 2px),calc(100% - 5px) calc(100% - 2px),calc(100% - 5px) 100%,5px 100%,5px calc(100% - 2px),2px calc(100% - 2px),2px calc(100% - 5px),0 calc(100% - 5px),0 4px,2px 4px,2px 2px,4px 2px);
+ --pixel:WispNumbers,WispPixel,monospace;--sans:var(--pixel);--serif:var(--pixel);
+}
+/* Illustrated locations and art are not cards. Only controls get a rim. */
+html body :is(dialog.game-sheet,.tutorial-coach-card){
+ border-image:var(--art-frame) 8 / 6px / 0 stretch!important;
+ border-radius:0!important;background-color:var(--art-ground)!important;
+ background-image:var(--art-grain)!important;background-size:48px 48px!important;
+ box-shadow:3px 4px 0 #030b09!important;
+}
+html body :is(#app,#header,dialog,.tutorial-coach) :is(button.primary,button.secondary,button.danger,.game-menu-trigger,.back-icon,.tutorial-coach-next,[data-coach],.rest-depart,.rest-dream,.mock-toggle,.music-toggle):not(.home-command):not(.book-perk){
+ border-image:var(--art-frame) 8 / 4px / 0 stretch!important;
+ border-radius:0!important;clip-path:var(--art-cut)!important;
+ box-shadow:inset 0 2px #ffffff0b,inset 0 -2px #030c0970,1px 2px #030b09!important;
+ background-image:var(--art-grain)!important;background-size:48px 48px!important;
+ font-family:var(--pixel)!important;font-weight:400;
+}
+html body :is(#app,dialog,.tutorial-coach) :is(button.primary,.tutorial-coach-next,.rest-depart):not(.home-command){border-image-source:var(--art-gold-frame)!important}
+html body :is(.rest-benefit,.rest-service-cards>button,.event-offer,.artifact-choice){
+ border-radius:0!important;clip-path:var(--art-cut);background-image:var(--art-grain)!important;background-size:48px 48px!important;
+}
+html body :is(.rest-benefit,.rest-service-cards>button)::before{border-image-source:var(--art-frame)!important}
+html body :is(button,summary):focus-visible{outline:2px solid #ffe6a6;outline-offset:-4px}
+html body :is(.primary,.secondary,.game-menu-trigger,.back-icon)>:is(svg.ico,.resource-symbol,.upgrade-glyph){width:24px;height:24px;flex:none}
+html body :is(.mock-toggle,.music-toggle,.settings-toggle){border-style:solid!important}
+
+/* One pixel face and the same cut-stone material for the skill book.
+   Labels and color both distinguish owned / affordable / saving / locked. */
+.skill-book,.skill-book button,.skill-book .book-effect,.skill-book .book-condition,.skill-book .book-status,.skill-book .book-group h4{font-family:var(--pixel)!important}
+.skill-book{background:var(--art-ground);color:#e8ead1}
+.skill-book .book-header,.skill-book .book-chapters{background-color:#192b27;background-image:var(--art-grain);background-size:48px 48px}
+.skill-book .book-page{background:var(--art-ground)}
+html body .skill-book button.book-perk{
+ clip-path:var(--art-cut)!important;border-radius:0!important;
+ box-shadow:inset 0 1px #e7efcf17,inset 0 -2px #020b0b66!important;
+ background-image:var(--art-grain);background-size:48px 48px;
+}
+html body .skill-book button.book-perk.available{background-color:#cabb82;color:#292619}
+html body .skill-book button.book-perk.learned{background-color:#285364;color:#e6f7f5}
+html body .skill-book button.book-perk.saving{background-color:#414c48;color:#eff1de}
+html body .skill-book button.book-perk:is(.locked,.preview){background-color:#1c2925;color:#b9c7bb}
+html body .skill-book button.book-perk[aria-pressed=true]{outline:2px solid #fff1c7!important;outline-offset:-3px}
+html body .skill-book .book-chapters button[aria-pressed=true]{background:#34473a;clip-path:var(--art-cut)!important}
+.skill-book .book-inspector{background:var(--art-grain) 0 0/48px 48px,var(--art-paper);border-left:3px solid #88947a;box-shadow:inset 3px 0 #a0ac90,inset 5px 0 #c4cbb0;color:var(--art-ink)}
+.skill-book .book-inspector .book-title{align-items:center}
+.skill-book .book-inspector .book-effect{line-height:1.4}
+html body .skill-book :is(button.book-buy,button.book-buy-inline){
+ border-image:var(--art-gold-frame) 8 / 4px / 0 stretch!important;
+ clip-path:var(--art-cut)!important;background-color:#354e39;
+ color:#fff1c7;box-shadow:inset 0 2px #81976c55,inset 0 -2px #12271b!important;
+}
+.skill-book .book-perk .skill-portrait{width:26px;height:26px;image-rendering:pixelated}
+.skill-book .book-chapters .skill-portrait{width:26px;height:26px}
+.skill-book .book-perk-copy strong{font-weight:400}
+.skill-book .book-perk-copy>span{font-weight:400}
+/* Same sparse chipping for settings and preview tools; no dotted outlines. */
+.skills-playtest .playtest-tools button{border-image:var(--art-frame) 8 / 4px / 0 stretch;clip-path:var(--art-cut);border-radius:0;font-family:var(--pixel)}
+body.skills-playtest{font-family:var(--pixel)}
+/* Decorative rims must not create a one-pixel document scroll at phone size. */
+html body[data-screen=support] #app{overflow:clip!important}
+@media(max-width:720px){.skill-book .book-perk .skill-portrait,.skill-book .book-chapters .skill-portrait{width:22px;height:22px}}
+@media(prefers-reduced-motion:reduce){html body :is(button,summary){transition:none!important}}

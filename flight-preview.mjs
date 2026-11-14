@@ -1,16 +1,16 @@
-import {getBiome} from './biomes.mjs?v=steady-giants-1';
-import {getBossPreview} from './boss.mjs?v=steady-giants-1';
-import {levelMapPreview} from './level-map-art.mjs?v=steady-giants-1';
-import {mapStopIconMarkup} from './map-guide.mjs?v=steady-giants-1';
-import {resourceSymbol} from './game-symbols.mjs?v=steady-giants-1';
-import {getFlightClearReward} from './checkpoint-rewards.mjs?v=steady-giants-1';
-import {availableFlightArtifacts} from './model.mjs?v=steady-giants-1';
-import {bonusIcon,boonMarkup} from './route-bonus-ui.mjs?v=steady-giants-1';
-import {contextualFlightNotice} from './contextual-events.mjs?v=steady-giants-1';
-import {ATLAS_FORECASTS,atlasGlyph} from './night-atlas.mjs?v=steady-giants-1';
-import {canDreamAt,dreamConfig} from './dream.mjs?v=steady-giants-1';
-import {sparkHabitat} from './spark-fields.mjs?v=steady-giants-1';
-import {lanternFlightCue} from './map-theme.mjs?v=steady-giants-1';
+import {getBiome} from './biomes.mjs?v=spark-field-guide-1';
+import {getBossPreview} from './boss.mjs?v=spark-field-guide-1';
+import {levelMapPreview} from './level-map-art.mjs?v=spark-field-guide-1';
+import {mapStopIconMarkup} from './map-guide.mjs?v=spark-field-guide-1';
+import {resourceSymbol} from './game-symbols.mjs?v=spark-field-guide-1';
+import {getFlightClearReward} from './checkpoint-rewards.mjs?v=spark-field-guide-1';
+import {availableFlightArtifacts} from './model.mjs?v=spark-field-guide-1';
+import {bonusIcon,boonMarkup} from './route-bonus-ui.mjs?v=spark-field-guide-1';
+import {contextualFlightNotice} from './contextual-events.mjs?v=spark-field-guide-1';
+import {ATLAS_FORECASTS,atlasGlyph} from './night-atlas.mjs?v=spark-field-guide-1';
+import {canDreamAt,dreamConfig} from './dream.mjs?v=spark-field-guide-1';
+import {sparkHabitat} from './spark-fields.mjs?v=spark-field-guide-1';
+import {lanternFlightCue} from './map-theme.mjs?v=spark-field-guide-1';
 
 const escapeText = value => String(value ?? '').replace(/[&<>"']/g, char =>
  ({'&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;'}[char]));
@@ -29,7 +29,7 @@ function regularReward(run,node){
 function flightTerms(run,node,available){
  if(!available)return '';
  const notice=contextualFlightNotice(run,node);
- const earned=boonMarkup(run.nextFlightBoon);
+ const earned=boonMarkup(Object.keys(run.passageBoons||{}).length?run.passageBoons:run.nextFlightBoon);
  if(!notice&&!earned)return '';
  return `<details class="preview-flight-terms"><summary>Active flight effects</summary>
    ${earned}${notice?`<p>${escapeText(notice)}</p>`:''}</details>`;

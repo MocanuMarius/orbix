@@ -1,7 +1,7 @@
-import { GLOW_DISPLAY_SCALE } from './vitality.mjs?v=steady-giants-1';
+import { GLOW_DISPLAY_SCALE } from './vitality.mjs?v=spark-field-guide-1';
 const clamp=value=>Math.max(0,Math.min(1,Number(value)||0));
 const explanation='Proximity (unlocked skill): skim near solid terrain for 2 seconds total. Brief gaps keep your progress for 1.25 seconds, then it fades slowly. A full meter automatically reveals the scene.';
-const regenExplanation='Regenerative Falling: skim near solid terrain to restore 1 Spark instead of revealing the scene. Eight recoveries per flight; missing fuel only. Two seconds to reset. No surplus is stored.';
+const regenExplanation='Regenerative Pulse: a revealing pulse also restores 3 missing Sparks. Eight recoveries per flight; the normal reveal keeps working afterwards. No surplus is stored.';
 
 /** A passive flight indicator; it never adds a third action or spends Sparks. */
 export function edgingPulseMarkup(){
@@ -18,19 +18,19 @@ export function updateEdgingPulse(gauge,snapshot){
  if(gauge._edgingKind!==pulse.mode){
   gauge._edgingKind=pulse.mode;gauge.dataset.edgingMode=regenerative?'regen':'pulse';
   gauge.title=regenerative?regenExplanation:explanation;
-  refs.meter.setAttribute('aria-label',regenerative?'Regenerative Falling':'Edging Pulse');
+  refs.meter.setAttribute('aria-label',regenerative?'Regenerative Pulse':'Edging Pulse');
  }
  gauge.hidden=!(charge>0&&!active&&!pulse.recovering&&!feedback);
- const recovering=!active&&!!pulse.recovering,ratio=spent||feedback||active||recovering?0:charge;
- const mode=feedback?'regenerated':spent?'spent':active?'active':recovering?'recovering':pulse.nearEdge?'charging':pulse.holding?'holding':charge>0?'fading':'idle';
+ const recovering=!active&&!!pulse.recovering,ratio=feedback||active||recovering?0:charge;
+ const mode=feedback?'regenerated':active?'active':recovering?'recovering':pulse.nearEdge?'charging':pulse.holding?'holding':charge>0?'fading':'idle';
  if(gauge._edgingMode!==mode){gauge._edgingMode=mode;gauge.dataset.pulseState=mode;}
  const fill=Math.round(ratio*12);if(gauge._edgingFill!==fill){gauge._edgingFill=fill;refs.fill.style.transform='none';refs.fill.style.height=`${fill?fill*5-1:0}px`;}
  const percent=Math.round(ratio*100),seconds=Math.ceil(remaining),recovered=Number(pulse.regenGain)||0;
- const gainLabel=recovered>=1/GLOW_DISPLAY_SCALE-1e-9?'+1':recovered>0?'TOPUP':'FULL';
+ const gainLabel=recovered>=3/GLOW_DISPLAY_SCALE-1e-9?'+3':recovered>0?'TOPUP':'FULL';
  const progressText=`${percent}% charged${pulse.nearEdge?', close to an edge':pulse.holding?', progress held between edges':charge>0?', fading slowly in open space':''}`;
  const regenStatus=spent?'All eight recoveries spent for this flight':`${pulse.grantsRemaining} recoveries left this flight`;
- const valueText=feedback?`${gainLabel==='+1'?'Restored 1 Spark':gainLabel==='TOPUP'?'Sparks topped up':'Sparks already full'}. ${regenStatus}`
-  :spent?regenStatus:active?`Revealing, ${seconds} ${seconds===1?'second':'seconds'} remaining`
+ const valueText=feedback?`${gainLabel==='+3'?'Restored 3 Sparks':gainLabel==='TOPUP'?'Sparks topped up':'Sparks already full'}. ${regenStatus}`
+  :active?`Revealing, ${seconds} ${seconds===1?'second':'seconds'} remaining`
   :`${recovering?'Resetting':progressText}${regenerative?`. ${regenStatus}`:''}`;
  if(gauge._edgingPercent!==percent){gauge._edgingPercent=percent;refs.meter.setAttribute('aria-valuenow',String(percent));}
  if(gauge._edgingValueText!==valueText){gauge._edgingValueText=valueText;refs.meter.setAttribute('aria-valuetext',valueText);}

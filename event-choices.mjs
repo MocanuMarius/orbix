@@ -1,13 +1,13 @@
-import {getGlowCapacity,getLifeCapacity} from './vitality.mjs?v=steady-giants-1';
-import {getCompanionAbility} from './companion-abilities.mjs?v=steady-giants-1';
+import {getGlowCapacity,getLifeCapacity} from './vitality.mjs?v=spark-field-guide-1';
+import {getCompanionAbility} from './companion-abilities.mjs?v=spark-field-guide-1';
 
 // Values in descriptions are player-facing. Effects use the existing simulation units.
-export const EVENT_EDITION=2;
+export const EVENT_EDITION=3;
 export const EVENT_FAVORS=Object.freeze({
- wick:{title:'Reserve Wick',text:'Below 6 Sparks, restore 9 Sparks once next attempt.'},
- feather:{title:'Hollow Feather',text:'Your first two paid Lifts are free next attempt.'},
- lens:{title:'Star Chart',text:'See 35% farther for the next attempt.'},
- haste:{title:'Companion Chime',text:'Companion cooldown is 20% shorter next attempt.'},
+ wick:{title:'Reserve Wick',text:'Below 6 Sparks, restore 9 Sparks once per flight, for 3 cleared flights.'},
+ feather:{title:'Hollow Feather',text:'Your first two paid Lifts are free in each of 3 cleared flights.'},
+ lens:{title:'Star Chart',text:'See 35% farther for 3 cleared flights.'},
+ haste:{title:'Companion Chime',text:'Companion cooldown is 20% shorter for 3 cleared flights.'},
  burden:{title:'Lead Seal',text:'Your first six paid Lifts cost 1 extra Spark next attempt.'}
 });
 const pick=(id,title,description,art,effect)=>({id,title,description,detail:description,art,effect,displayUnits:true});
@@ -17,7 +17,7 @@ const reserve=()=>favor('reserve-wick','Carry a reserve wick','wick','wick');
 const feather=()=>favor('hollow-feather','Take the hollow feather','feather','feather');
 const lens=()=>favor('star-chart','Read the star chart','lens','lens');
 const tempo=(run)=>favor('companion-chime','Tune '+getCompanionAbility(run.companions?.[0]||run.companionRole).name,'haste','companion');
-const heart=()=>pick('rekindle','Relight a lost heart','Restore one missing attempt now.','heart',{lives:1});
+const heart=()=>pick('rekindle','Relight a lost heart','Restore one missing attempt.','heart',{lives:1});
 export const hasFutureRest=run=>{
  if(run.mapIndex<2||!run.map?.length)return true;
  const byId=new Map(run.map.flat().map(n=>[n.id,n])),seen=new Set();
@@ -39,7 +39,7 @@ export function eventChoices(run,{refunds=[]}={}){
  const n=run.current,room=getGlowCapacity(run)-run.flame,injured=run.lives<getLifeCapacity(run);
  const training=hasFutureRest(run);
  const cache=(id,title,amount)=>training?packed(id,title,amount):lens();
- const refuel=(raw,id='bottle',title='Drink the spring')=>pick(id,title,'Recover Sparks now. This refill cannot be stored.','energy',{flame:Math.min(room,raw)});
+ const refuel=(raw,id='bottle',title='Drink the spring')=>pick(id,title,'Recover Sparks. This refill cannot be stored.','energy',{flame:Math.min(room,raw)});
  let list;
  switch(n.kind==='shrine'?3:n.eventIndex){
  case 0: list=[room>=20?refuel(room):feather(),reserve()];break;
@@ -48,7 +48,7 @@ export function eventChoices(run,{refunds=[]}={}){
  case 5: list=[cache('archive-packed','Copy the star ledger',16),injured?heart():reserve()];break;
  case 6: list=[cache('dice-safe','Pocket the sure thing',10),pick('dice-roll','Cast the prism','Equal odds: a Reserve Wick, a Hollow Feather, or 22 Stored Sparks. One roll.','dice',{dice:true})];break;
  case 7: list=[room>=30?refuel(room,'lantern-fuel','Drink the pale lantern'):reserve(),lens()];break;
- case 8: list=[training?pick('bargain-burden','Carry the lead seal','Gain the purse now. The first six paid Lifts next attempt each cost 1 extra Spark.','trade',{packedReward:20,eventFavor:'burden'}):tempo(run),feather()];break;
+ case 8: list=[training?pick('bargain-burden','Carry the lead seal','Gain the purse. The first six paid Lifts next attempt each cost 1 extra Spark.','trade',{packedReward:20,eventFavor:'burden'}):tempo(run),feather()];break;
  case 9: list=[injured?heart():room>=20?refuel(room):feather(),tempo(run)];break;
  case 10: {
   const best=refunds.filter(x=>x.refund>0).sort((a,b)=>b.refund-a.refund)[0];

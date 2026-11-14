@@ -1,6 +1,6 @@
-import {normalizeCompanionFleet} from './companion-abilities.mjs?v=steady-giants-1';
-import {skillProgress} from './skill-increments.mjs?v=steady-giants-1';
-// Named, one-time specialisations. Each pair is exclusive for this run.
+import {normalizeCompanionFleet} from './companion-abilities.mjs?v=spark-field-guide-1';
+import {skillProgress} from './skill-increments.mjs?v=spark-field-guide-1';
+// Named, one-time specialisations. Each pair is exclusive permanently.
 const paths=[];
 function fork(branch,parent,a,b){
   const group=parent+'-depth';

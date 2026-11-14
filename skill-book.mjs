@@ -1,9 +1,11 @@
-import {SKILLS} from './model.mjs?v=steady-giants-1';
-import {skillTreeState,skillTreeStatus} from './skill-tree-state.mjs?v=steady-giants-1';
-import {getCompanionAbility} from './companion-abilities.mjs?v=steady-giants-1';
-import {skillIcon} from './upgrade-icons.mjs?v=steady-giants-1';
-import {resourceSymbol} from './game-symbols.mjs?v=steady-giants-1';
-import {glowText,getGlowCapacity} from './vitality.mjs?v=steady-giants-1';
+import {SKILLS,getRunModifiers} from './model.mjs?v=spark-field-guide-1';
+import {formatLuminance} from './luminance-units.mjs?v=spark-field-guide-1';
+import {WISP_ART} from './companion-art.mjs?v=spark-field-guide-1';
+import {skillTreeState,skillTreeStatus} from './skill-tree-state.mjs?v=spark-field-guide-1';
+import {getCompanionAbility} from './companion-abilities.mjs?v=spark-field-guide-1';
+import {skillIcon} from './upgrade-icons.mjs?v=spark-field-guide-1';
+import {resourceSymbol} from './game-symbols.mjs?v=spark-field-guide-1';
+import {glowText,getGlowCapacity} from './vitality.mjs?v=spark-field-guide-1';
 
 const chapters=[
  ['wisp','Flight','main-efficiency'],['luminance','Luminance','main-sight'],
@@ -83,6 +85,27 @@ function chapterMap(skills,views,selected){
  }
  return '<ul class="book-trails">'+(branches.get(null)||[]).sort(perkOrder).map(branch).join('')+'</ul>';
 }
+export function luminancePreview(run,skill){
+ const before=getRunModifiers(run).lightRadius;
+ if(!skill||Number(run.skills?.[skill.baseId||skill.id])>=(skill.rank||1))return{before,after:before,prerequisites:false};
+ const skills={...run.skills},seen=new Set();let prerequisites=false;
+ const add=id=>{
+  if(!id||seen.has(id)||skills[id])return;
+  const s=SKILLS[id];if(!s)return;seen.add(id);
+  for(const parent of parents(s))add(parent);
+  if(id!==(skill.baseId||skill.id))prerequisites=true;
+  skills[id]=id===(skill.baseId||skill.id)?skill.rank||1:1;
+ };
+ add(skill.baseId||skill.id);
+ return{before,after:getRunModifiers({...run,skills}).lightRadius,prerequisites};
+}
+function reachComparison(run,skill){
+ const{before,after,prerequisites}=luminancePreview(run,skill);if(after<=before)return '';
+ const oldR=(30*before/after).toFixed(2),bodyR=(30*WISP_ART.worldRadius/after).toFixed(2);
+ return '<div class="book-reach-preview" aria-label="Luminance radius: '+formatLuminance(before)+' now, '+formatLuminance(after)+(prerequisites?' after the prerequisite path':' after this skill')+'">'+
+  '<svg viewBox="0 0 150 76" aria-hidden="true" shape-rendering="crispEdges"><circle cx="75" cy="38" r="30" fill="#c3a46024" stroke="#8b6c36"/><circle cx="75" cy="38" r="'+oldR+'" fill="#5c8c6a44" stroke="#42694f"/><circle cx="75" cy="38" r="'+bodyR+'" fill="#fffceb" stroke="#70816a"/></svg>'+
+  '<b>'+formatLuminance(before).replace(' wisp widths','')+' <i>→</i> '+formatLuminance(after)+'</b>'+(prerequisites?'<small>Including prerequisites</small>':'')+'</div>';
+}
 function skillInspector(skill,views,entries,chapterTitle,run){
  if(!skill)return '<aside class="book-inspector empty"><p>Explore a chapter to see its upgrades.</p></aside>';
  const view=views.get(skill.id),req=parents(skill),unlocks=(skill.excludes||[]).map(id=>SKILLS[id]?.name).filter(Boolean);
@@ -108,7 +131,7 @@ function skillInspector(skill,views,entries,chapterTitle,run){
  const fork=unlocks.length&&!view.complete&&!view.closedBy?'<p class="book-condition">Closes '+unlocks.map(escape).join(' / ')+'</p>':'';
  const price=view.free?'Free':view.price===null?'':money()+' '+view.price;
  const purchase=view.available?'<button class="book-buy" type="button" data-action="'+(view.free?'choose-start-skill':'buy-skill')+'" data-id="'+skill.baseId+'" data-rank="'+skill.rank+'">Learn <span>'+price+'</span></button>':'<p class="book-status '+view.state+'">'+escape(skillTreeStatus(view))+'</p>';
- return '<aside class="book-inspector" aria-live="polite"><div class="book-inspector-scroll"><span class="book-kicker">'+escape(chapterTitle)+'</span><div class="book-title">'+art(skill)+'<h3>'+escape(skill.name)+'</h3></div>' +'<p class="book-effect">'+escape(glowText(skill.description||skill.consequence,getGlowCapacity(run)))+'</p>'+path+fork+'</div>'+purchase+'</aside>';
+ return '<aside class="book-inspector" aria-live="polite"><div class="book-inspector-scroll"><span class="book-kicker">'+escape(chapterTitle)+'</span><div class="book-title">'+art(skill)+'<h3>'+escape(skill.name)+'</h3></div>' +reachComparison(run,skill)+'<p class="book-effect">'+escape(glowText(skill.description||skill.consequence,getGlowCapacity(run)))+'</p>'+path+fork+'</div>'+purchase+'</aside>';
 }
 export function skillBookMarkup({run,wallet,canBuy=true,variant='map',chapter,selected=null}){
  variant=variant==='index'?'index':'map';
@@ -142,5 +165,6 @@ export function skillBookMarkup({run,wallet,canBuy=true,variant='map',chapter,se
   }
   if(scope.some(s=>views.get(s.id).closedBy))content+='<p class="book-condition">× Alternate path closed</p>';
  }
- return '<section class="skill-book" aria-label="Skills" data-variant="'+variant+'" data-chapter="'+chapter+'">'+titleBar+'<div class="book-spread">'+side+'<section class="book-page" aria-label="'+escape(title(chapter))+'"><h3>'+escape(title(chapter))+'</h3><div class="book-page-scroll" data-tree-key="'+variant+'-'+chapter+'">'+content+'</div></section>'+skillInspector(focus,views,entries,focus?title(skillBookChapter(focus)):'',run)+'</div></section>';
+ const reach=chapter==='luminance'?'<div class="book-current-reach"><span>Base Luminance radius</span><b>'+formatLuminance(getRunModifiers(run).lightRadius)+'</b><small>From your centre. Outer light gradually fades.</small></div>':'';
+ return '<section class="skill-book" aria-label="Skills" data-variant="'+variant+'" data-chapter="'+chapter+'">'+titleBar+'<div class="book-spread">'+side+'<section class="book-page" aria-label="'+escape(title(chapter))+'"><h3>'+escape(title(chapter))+'</h3>'+reach+'<div class="book-page-scroll" data-tree-key="'+variant+'-'+chapter+'">'+content+'</div></section>'+skillInspector(focus,views,entries,focus?title(skillBookChapter(focus)):'',run)+'</div></section>';
 }

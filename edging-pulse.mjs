@@ -1,12 +1,12 @@
-// Risk-earned sight, or bounded fuel recovery when the Regenerative Falling
-// branch is chosen. Neither outcome is a pickup or invokes artifact hooks.
-import { GLOW_DISPLAY_SCALE } from './vitality.mjs?v=steady-giants-1';
+// Risk-earned sight, plus bounded fuel recovery with Regenerative Pulse.
+// Neither outcome is a pickup or invokes artifact hooks.
+import { GLOW_DISPLAY_SCALE } from './vitality.mjs?v=spark-field-guide-1';
 const clamp = (n, lo, hi) => Math.min(hi, Math.max(lo, n));
 const smooth = n => n * n * (3 - 2 * n);
 const EPSILON = 1e-9;
 export const EDGING_PULSE_TUNING = Object.freeze({ clearance: 48, chargeSeconds: 2,
   graceSeconds: 1.25, decayPerSecond: .08, duration: 5, recovery: 2, waves: 3 });
-export const EDGING_REGEN_TUNING = Object.freeze({ glow: 1 / GLOW_DISPLAY_SCALE, grants: 8, feedback: 1 });
+export const EDGING_REGEN_TUNING = Object.freeze({ glow: 3 / GLOW_DISPLAY_SCALE, grants: 8, feedback: 1 });
 const number = (value, fallback, lo, hi) => Number.isFinite(Number(value))
   ? clamp(Number(value), lo, hi) : fallback;
 
@@ -72,7 +72,7 @@ export class EdgingPulse {
       || e.invulnerable === true || e.invulnerability > 0 || e.invulnerabilityTime > 0;
   }
   get strength() {
-    if (this.regenerative || !this.live || this.dreaming || this.remaining <= 0) return 0;
+    if (!this.live || this.dreaming || this.remaining <= 0) return 0;
     const elapsed = this.duration - this.remaining;
     const onset = smooth(clamp(elapsed / (this.engine.reducedMotion ? .45 : .4), 0, 1));
     const fade = smooth(clamp(this.remaining / this.duration, 0, 1));
@@ -115,7 +115,6 @@ export class EdgingPulse {
       if (this.recoveryRemaining < EPSILON) this.recoveryRemaining = 0;
       return;
     }
-    if (this.exhausted) { this.charge = 0; this.graceRemaining = 0; return; }
     if (!this.protected) {
       // Only solid terrain and props earn proximity, never open viewport edges.
       let clearance = Infinity;
@@ -147,7 +146,7 @@ export class EdgingPulse {
     if (!this.protected && this.charge >= 1 - EPSILON) {
       this.charge = 0; this.nearEdge = false; this.graceRemaining = 0; this.triggerCount++;
       if(e.mod?.proximityShield&&(e.proximityShieldGrants||0)<2&&!(e.proximityShieldRemaining>0)){e.proximityShieldRemaining=8;e.proximityShieldGrants=(e.proximityShieldGrants||0)+1;e.burst?.(e.player.x,e.player.y,12,'#bcecff');}
-      if (this.regenerative) {
+      if (this.regenerative&&!this.exhausted) {
         // This is recovery, not a collectible. Only the missing fuel is added;
         // it cannot overflow, create Stored Sparks, or proc pickup artifacts.
         const missing = Math.max(0, (Number(e.maxFlame) || 0) - (Number(e.flame) || 0));
@@ -158,15 +157,13 @@ export class EdgingPulse {
           this.regenGrants++;
         }
         this.regenFeedbackRemaining = EDGING_REGEN_TUNING.feedback;
-        this.recoveryRemaining = EDGING_PULSE_TUNING.recovery;
-        const result = this.regenGain >= EDGING_REGEN_TUNING.glow - EPSILON ? '+1 Spark'
+        const result = this.regenGain >= EDGING_REGEN_TUNING.glow - EPSILON ? '+3 Sparks'
           : this.regenGain > EPSILON ? 'Sparks topped up' : 'Sparks already full';
-        e.setEvent?.(`Regenerative Falling · ${result}${this.exhausted ? ' · spent for this flight' : ''}`);
-        return;
+        e.setEvent?.(`Regenerative Pulse · ${result}${this.exhausted ? ' · recovery spent for this flight' : ''}`);
       }
       this.duration = number(e.mod?.edgingDuration, EDGING_PULSE_TUNING.duration, 1, 12);
       this.remaining = this.duration;this.burstOrigin.x=e.distance+e.player.x;this.burstOrigin.y=e.player.y;
-      e.setEvent?.('Edging Pulse · the way is revealed');
+      if(!this.regenerative||this.exhausted)e.setEvent?.('Edging Pulse · the way is revealed');
     }
   }
 }

@@ -1,4 +1,4 @@
-import {topicSteps} from './tutorial-curriculum.mjs?v=steady-giants-1';
+import {topicSteps} from './tutorial-curriculum.mjs?v=spark-field-guide-1';
 const step=(id,title,text,target)=>({id,title,text,target,allowTarget:false});
 const chapter=(id,steps,target)=>({id,steps:steps.map(s=>({...s,...(target?{target}:{}),allowTarget:false}))});
 export function checkpointTutorialLesson(screen,{run={}}={}){
@@ -48,6 +48,6 @@ export function flightEffectLesson(id,screen='map'){
   if(id==='flight-effect:edging')return step(id,'Your close flight made a pulse',
     'Flying near solid edges fills the slim edge meter in 2 seconds. Brief gaps preserve your progress, then charge fades slowly. Full charge reveals the scene for five fading seconds. Edge skills improve it; touching terrain still hurts.',target);
   if(id==='flight-effect:regeneration')return step(id,'Your close flight restored Sparks',
-    'Regenerative Falling turns a full edge meter into one Spark instead of a reveal. Its green meter resets for 2 seconds. You have eight recoveries each flight; its meter disappears when spent. Only missing fuel is restored, without Stored Sparks or pickup effects.',target);
+    'Regenerative Pulse adds 3 Sparks of recovery to each revealing pulse, up to eight recoveries each flight. The normal light pulse and other learned effects remain. Recovery fills missing fuel without Stored Sparks or pickup effects.',target);
   return null;
 }

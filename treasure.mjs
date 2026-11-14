@@ -1,5 +1,6 @@
-import {glowPoints, getGlowCapacity,getLifeCapacity} from './vitality.mjs?v=steady-giants-1';
-import {getCompanionAbility} from './companion-abilities.mjs?v=steady-giants-1';
+import {glowPoints, getGlowCapacity,getLifeCapacity} from './vitality.mjs?v=spark-field-guide-1';
+import {getCompanionAbility} from './companion-abilities.mjs?v=spark-field-guide-1';
+import {activeEventFavors} from './passage-preparations.mjs?v=spark-field-guide-1';
 
 export const TREASURE_KINDS = Object.freeze(['vessel', 'lens', 'tithe', 'wager']);
 export const LENS_SIGHT = 1.15;
@@ -33,7 +34,7 @@ const sites = {
   vessel: ['Hollow Vessel', 'A seed of living glass still holds a charge.', 'Grow your Spark capacity or sell the seed.'],
   lens: ['Split Lens', 'Two lenses share one silver setting. Only one will come free.', 'Fit a run-long lens for Luminance or companion recovery.'],
   tithe: ['Tollkeeper’s Strongbox', 'A hungry lock guards a second compartment.', 'Carry a recovery wick or pay for a stamp that rewards body pickups.'],
-  wager: ['Lamplighter’s Escrow', 'Its seal opens at the far end of a flight.', 'Claim the purse now or earn a seal for keeping 12 Sparks at the exit.']
+  wager: ['Lamplighter’s Escrow', 'Its seal opens at the far end of a flight.', 'Claim the purse or earn a seal for keeping 12 Sparks at the exit.']
 };
 
 export function describeTreasure(kind) {
@@ -47,25 +48,25 @@ function offer(id, title, description, icon, effect, disabledReason = '') {
 }
 
 function duplicateOffer(run){
-  if(run.lives<getLifeCapacity(run))return offer('chest-heart','Relight a heart','Restore one missing attempt now.','heart',{lives:1});
-  const prepared=run.eventFavors||[];
-  if(!prepared.includes('feather'))return offer('chest-feather','Carry a hollow feather','Your first two paid Lifts are free next attempt.','feather',{eventFavor:'feather'});
-  if(!prepared.includes('haste'))return offer('chest-blessing','Polish the chime','Companion recovery takes 20% less time next attempt.','companion',{eventFavor:'haste'});
-  if(!prepared.includes('wick'))return offer('chest-reserve','Carry a reserve wick','Below 6 Sparks, restore 9 once next attempt.','energy',{eventFavor:'wick'});
-  if(!prepared.includes('lens'))return offer('chest-chart','Read a star chart','See 35% farther next attempt.','sight',{eventFavor:'lens'});
+  if(run.lives<getLifeCapacity(run))return offer('chest-heart','Relight a heart','Restore one missing attempt.','heart',{lives:1});
+    const prepared=activeEventFavors(run);
+  if(!prepared.includes('feather'))return offer('chest-feather','Carry a hollow feather','Your first two paid Lifts are free in each of 3 cleared flights.','feather',{eventFavor:'feather'});
+  if(!prepared.includes('haste'))return offer('chest-blessing','Polish the chime','Companion recovery takes 20% less time for 3 cleared flights.','companion',{eventFavor:'haste'});
+  if(!prepared.includes('wick'))return offer('chest-reserve','Carry a reserve wick','Below 6 Sparks, restore 9 once per flight for 3 cleared flights.','energy',{eventFavor:'wick'});
+  if(!prepared.includes('lens'))return offer('chest-chart','Read a star chart','See 35% farther for 3 cleared flights.','sight',{eventFavor:'lens'});
   // Every ordinary preparation is already packed. Offer a distinct run-long
   // exchange: one additional capacity step in return for leaving the purse.
-  return offer('chest-recast','Recast the fittings','Add 3 maximum Sparks for this run and fill the new space.','capacity',{glowCapacity:10,flame:10},
+  return offer('chest-recast','Recast the fittings','Add 3 maximum Sparks permanently and fill the new space.','capacity',{glowCapacity:10,flame:10},
     (run.restGlowCapacity||0)>=30?'Spark capacity fittings are full.':'');
 }
 
 export function treasureChoices(kind, run) {
-  const purse = (id, title, amount) => offer(id, title, `Gain ${amount} Stored Sparks for skills now.`, 'packed', {packedReward:amount});
+  const purse = (id, title, amount) => offer(id, title, `Gain ${amount} Stored Sparks for skills.`, 'packed', {packedReward:amount});
   const repairs=duplicateOffer(run);
   switch (kind) {
     case 'vessel': return [
       treasureRank(run,'vessel')<limits.vessel
-        ?offer('vessel-grow', 'Plant the glass seed', '+3 maximum Sparks for this run. Fill the new space now.', 'capacity', {treasureGift:'vessel', flame:10})
+        ?offer('vessel-grow', 'Plant the glass seed', '+3 maximum Sparks permanently. Fill the new space.', 'capacity', {treasureGift:'vessel', flame:10})
         :repairs,
       purse('vessel-purse', 'Sell the seed', 20)
     ];
@@ -74,10 +75,10 @@ export function treasureChoices(kind, run) {
       const action = {collector:'search radius', protector:'shield', swift:'dash', leveler:'levitation'}[companion.id];
       return [
         !treasureRank(run,'farLens')
-          ?offer('lens-sight', 'Fit the far lens', 'Luminance reaches 15% farther for this run.', 'sight', {treasureGift:'farLens'})
+          ?offer('lens-sight', 'Fit the far lens', 'Luminance reaches 15% farther permanently.', 'sight', {treasureGift:'farLens'})
           :purse('lens-sell','Sell the duplicate lens',20),
         !treasureRank(run,'quickLens')
-          ?offer('lens-companion', 'Fit the quick lens', `${companion.name}’s ${action} recharges in 15% less time for this run.`, 'companion', {treasureGift:'quickLens'})
+          ?offer('lens-companion', 'Fit the quick lens', `${companion.name}’s ${action} recharges in 15% less time permanently.`, 'companion', {treasureGift:'quickLens'})
           :treasureRank(run,'farLens')?repairs:purse('lens-sell','Sell the duplicate lens',20)
       ];
     }
@@ -86,7 +87,7 @@ export function treasureChoices(kind, run) {
       const gain = glowPoints(Math.min(getGlowCapacity(run),run.flame+20))-before;
       return [
         !treasureRank(run,'wick')
-          ?offer('tithe-supplies','Take the mending wick',`Recover 3 extra Sparks after each clear this run.${gain?' Restore '+gain+' now.':''}`,'energy',{treasureGift:'wick',flame:20})
+          ?offer('tithe-supplies','Take the mending wick',`Recover 3 extra Sparks after each clear this run.${gain?' Restore '+gain+'.':''}`,'energy',{treasureGift:'wick',flame:20})
           :repairs,
         !treasureRank(run,'toll')
           ?offer('tithe-pay','Buy the toll stamp',`Pay 6 Sparks. Bank ${DIVIDEND} Stored Sparks on each clear with ${BODY_TARGET} body pickups this run.`,'packed',{flame:-20,treasureGift:'toll'},

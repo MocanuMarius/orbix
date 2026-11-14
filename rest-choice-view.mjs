@@ -1,11 +1,11 @@
-import {getGlowCapacity,getLifeCapacity,formatGlow} from './vitality.mjs?v=steady-giants-1';
-import {livesMarkup} from './lives.mjs?v=steady-giants-1';
-import {resourceSymbol} from './game-symbols.mjs?v=steady-giants-1';
-import {choiceScene} from './choice-art.mjs?v=steady-giants-1';
-import {mapStopIconMarkup} from './map-guide.mjs?v=steady-giants-1';
-import {canDreamAt} from './dream.mjs?v=steady-giants-1';
-import {skillIcon,artifactIcon} from './upgrade-icons.mjs?v=steady-giants-1';
-import {companionArtSvg} from './companion-art.mjs?v=steady-giants-1';
+import {getGlowCapacity,getLifeCapacity,formatGlow} from './vitality.mjs?v=spark-field-guide-1';
+import {livesMarkup} from './lives.mjs?v=spark-field-guide-1';
+import {resourceSymbol} from './game-symbols.mjs?v=spark-field-guide-1';
+import {choiceScene} from './choice-art.mjs?v=spark-field-guide-1';
+import {mapStopIconMarkup} from './map-guide.mjs?v=spark-field-guide-1';
+import {canDreamAt} from './dream.mjs?v=spark-field-guide-1';
+import {skillIcon,artifactIcon} from './upgrade-icons.mjs?v=spark-field-guide-1';
+import {companionArtSvg} from './companion-art.mjs?v=spark-field-guide-1';
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 export function restBenefitsMarkup(run,node,choices=[],{nextNode=null}={}){
  const capacity=getGlowCapacity(run),fullHearts={...run,lives:getLifeCapacity(run)},resolved=run.restReady===true;

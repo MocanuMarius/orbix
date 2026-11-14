@@ -24,10 +24,10 @@ export const MAIN_TUNING_SKILLS={
  'main-afterglow':node('main-afterglow','Efficient Storage',35,'main-efficiency','Pack one-third of excess Sparks, up from one-sixth. Only real pickup surplus converts; recovery never does.','reserve','6 Sparks → 2'),
  'main-glow-sense':node('main-glow-sense','Spark Sense',40,'main-sight','See pickups faintly through darkness.','beacon','Sense pickups'),
  'main-edging-attunement':node('main-edging-attunement','Edge Attunement',80,'main-sight','Edging Pulse is innate: skim clear of edges to build a 5s light pulse. Charge 25% faster: 1.6s instead of 2s.','edge-pulse','+25% charge'),
- 'main-edging-lasting':node('main-edging-lasting','Lasting Pulse',100,'main-edging-attunement','Extend innate Edging Pulse from 5s to 7s. Choose longer light, slower charge loss, or fuel recovery.','edge-pulse','+2s pulse',{choiceGroup:'edging-style',excludes:['main-edging-tension','main-edging-regeneration']}),
- 'main-edging-tension':node('main-edging-tension','Held Tension',90,'main-edging-attunement','Innate Edging Pulse loses charge 50% more slowly away from edges: 4% per second instead of 8%, after the 1.25s grace period. Choose this instead of longer light or fuel recovery.','edge-pulse','−50% decay',{choiceGroup:'edging-style',excludes:['main-edging-lasting','main-edging-regeneration']}),
- 'main-edging-regeneration':node('main-edging-regeneration','Regenerative Falling',100,'main-edging-attunement','Replace the Edging Pulse reveal that restores 1 Spark per full meter, up to eight recoveries each flight. Only missing fuel is restored; no Stored Sparks. The meter resets for 2s after filling. Choose fuel instead of either pulse upgrade.','regen','Edge → fuel',{choiceGroup:'edging-style',excludes:['main-edging-lasting','main-edging-tension']}),
- 'main-drift-sense':node('main-drift-sense','Drift Sense I',25,'main-speed','Preview 0.7s of falling. A red dot marks the visible ceiling you would hit by lifting now. Accounts for drafts and your build.','trajectory','Fall guide + ceiling warning'),
+ 'main-edging-lasting':node('main-edging-lasting','Lasting Pulse',100,'main-edging-attunement','Extend Edging Pulse from 5s to 7s. Regenerative Pulse can be learned alongside it.','edge-pulse','+2s pulse'),
+ 'main-edging-tension':node('main-edging-tension','Held Tension',90,'main-edging-attunement','Edging Pulse loses charge 50% more slowly away from edges. Regenerative Pulse can be learned alongside it.','edge-pulse','−50% decay'),
+ 'main-edging-regeneration':node('main-edging-regeneration','Regenerative Pulse',80,'main-edging-attunement','Each revealing pulse also restores 3 missing Sparks. Up to eight recoveries per flight. Normal pulse effects remain; recovery creates no Stored Sparks.','regen','Pulse +3 Sparks'),
+ 'main-drift-sense':node('main-drift-sense','Drift Sense I',25,'main-speed','Preview 0.7s of falling. A red dot marks the visible ceiling you would hit by lifting. Accounts for drafts and your build.','trajectory','Fall guide + ceiling warning'),
  'main-drift-sense-2':node('main-drift-sense-2','Drift Sense II',40,'main-drift-sense','Extend the falling guide and red ceiling-hit warning to 1.2s. Only an affordable Lift can show a warning.','trajectory','1.2s guide'),
  'main-drift-sense-3':node('main-drift-sense-3','Drift Sense III',70,'main-drift-sense-2','Preview falls and ceiling hits 1.8s ahead. Gold dots suggest an affordable route to the closest visible Spark when a clear path is found. Dynamic hazards can interrupt the prediction.','trajectory','1.8s + Spark route'),
  'main-dawnburst':node('main-dawnburst','Dawnburst',45,'main-sight','Collect Sparks to reveal the whole screen for 1.5s, then fade over 1.2s. More pickups refresh the light.','dawn','Pickup dawn'),
@@ -42,7 +42,7 @@ export function tuneMainDefinition(skill){
  if(skill.branch!=='main')return skill;
  const extra=skill.id==='main-drift'?{choiceGroup:'fall-style',excludes:['main-plummet']}:['main-tailwind','main-lift','main-kindling'].includes(skill.id)?{choiceGroup:undefined,excludes:[]}:{};
  const costs={'main-lift':25,'main-kindling':30,'main-tailwind':25,'main-drift':25,'main-horizon':30,'main-dawn':30};
- const labels={'main-lift':'−1 Lift cost','main-kindling':'+4 Sparks','main-tailwind':'+6% pace','main-drift':'−10% fall','main-horizon':'+45 Luminance','main-dawn':'−40% dim','main-wide-beam':'+25 Luminance','main-clear-beam':'−15% dim','main-dawn-guard':'−10% dim','main-dawn-fuel':'+3 Sparks','main-rising-current':'+4% Lift','main-soft-current':'−6% fall','main-light-step':'+3 capacity','main-rising-drift':'+4% Lift','main-gentle-rise':'−5% fall','main-thrifty-rise':'+3 capacity','main-inner-fire':'+3 Sparks','main-shared-fire':'+5 Sparks'};
+ const labels={'main-lift':'−1 Lift cost','main-kindling':'+4 Sparks','main-tailwind':'+6% pace','main-drift':'−10% fall','main-horizon':'+1.3 wisp widths','main-dawn':'−40% dim','main-wide-beam':'+0.7 wisp widths','main-clear-beam':'−15% dim','main-dawn-guard':'−10% dim','main-dawn-fuel':'+3 Sparks','main-rising-current':'+4% Lift','main-soft-current':'−6% fall','main-light-step':'+3 capacity','main-rising-drift':'+4% Lift','main-gentle-rise':'−5% fall','main-thrifty-rise':'+3 capacity','main-inner-fire':'+3 Sparks','main-shared-fire':'+5 Sparks'};
  return {...skill,...extra,shortEffect:labels[skill.id]||skill.shortEffect,cost:costs[skill.id]??(skill.expansion?45:skill.cost)};
 }
 
@@ -55,6 +55,7 @@ export function priceSkillDefinition(s){
   'main-speed':30,'main-tailwind':35,'main-sight':45,'main-glow-sense':55,'main-efficiency':90,
   'main-dream-long':45,'main-dream-deep':65,'main-drift-sense':25,'main-drift-sense-2':40,'main-drift-sense-3':70,
   'collector-last-orbit':155,'collector-far-search':50,'collector-rich-cargo':80,'collector-fleet-return':65,'collector-close-orbit':40,
+  'collector-fetch-cache':25,'collector-fetch-surge':35,'collector-fetch-giant':45,'collector-fetch-flash':30,
   'protector-cost':45,'protector-layers':90,'protector-clean-break':25,'protector-lasting-shell':25,'protector-thrifty-shell':55,'protector-returning-shell':65,
   'leveler-deep-dive':25,'leveler-ready-release':40,'leveler-quick-balance':45,'leveler-long-balance':55,
   'swift-long-spark':40,'swift-rapid-spark':55,'swift-storm-runner':25,'swift-sheltered-pace':35,

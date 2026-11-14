@@ -5,16 +5,17 @@ export class FlightBoon {
   constructor(engine, id) {
     this.engine = engine;
     this.id = id;
+    this.ids=new Set([...(engine.mod?.flightBoons||[]),...(id?[id]:[])]);
     const favors=engine.mod?.eventFavors||[];
     this.reserveWick=favors.includes('wick');
     this.giftLifts=favors.includes('feather')?2:0;
     this.farLens=favors.includes('lens');this.quickChime=favors.includes('haste');
     this.extraCostLifts=favors.includes('burden')?6:0;
-    this.ward = id === 'edgeweaver';
-    this.lifts = id === 'long-glide' ? 3 : 0;
+    this.ward = this.ids.has('edgeweaver');
+    this.lifts = this.ids.has('long-glide') ? 3 : 0;
     this.liftBudget = 9 / DISPLAY_SCALE;
-    this.pickups = id === 'constellation' ? 3 : 0;
-    this.survey = id === 'wayfinder';
+    this.pickups = this.ids.has('constellation') ? 3 : 0;
+    this.survey = this.ids.has('wayfinder');
   }
 
   get awake() {
@@ -23,17 +24,17 @@ export class FlightBoon {
   }
 
   get recoveryRate() {
-    return this.awake?Math.max(this.quickChime?1.25:1,this.id==='wild-circuit'?1.2:1):1;
+    return this.awake?Math.max(this.quickChime?1.25:1,this.ids.has('wild-circuit')?1.2:1):1;
   }
 
   get drainScale() {
-    return this.id === 'night-sail' && this.awake ? .75 : 1;
+    return this.ids.has('night-sail') && this.awake ? .75 : 1;
   }
 
   get luminanceScale() {
     if(!this.awake)return 1;
     if(this.farLens)return 1.35;
-    if(this.id!=='flash-relay')return 1;
+    if(!this.ids.has('flash-relay'))return 1;
     const wakingTime = this.engine.time - (this.engine.dream?.duration || 0);
     return wakingTime < 15 ? 1.25 : 1;
   }

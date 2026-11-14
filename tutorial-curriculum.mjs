@@ -41,6 +41,7 @@ export const TUTORIAL_TOPICS={
  companions:{name:'Companions',visual:'companion:collector',steps:[
   s('Your companion','The green Collector accompanies you throughout the run. The three other portraits in the roster are locked.','companion:collector'),
   s('Read the range','The green boundary marks the reach of the next fetch. When a delivery arrives, the boundary contracts and slowly grows back.','collector-recovery'),
+  s('Choose its loads','Collector starts with Small and Cluster Sparks. Learn Cache, then Surge, then Giant Handling. Each larger rescue shrinks to a 12-Spark Cluster; body pickups keep their full value. Flash has its own unlock.','collector-return'),
   s('Build your Collector','Open the Collector chapter in Skills to change its reach or recovery. Last Orbit lets a fully ready Collector catch a fatal impact.','collector-range')]},
  packed:{name:'Stored Sparks',visual:'clear-reward',steps:[
   s('A reward for every clear','Ordinary flights earn 20 Stored Sparks for run skills. Elite and guardian victories also offer two artifacts: choose one. The third guardian ends the run with victory.','clear-reward'),
@@ -50,9 +51,9 @@ export const TUTORIAL_TOPICS={
   s('Storing surplus','At first, 6 surplus Sparks make 1 Stored Spark. Learn Storage in the skill book to double that rate. Later ranks improve the yield further.','skills'),
   s('Kept Light','Carry 80 Stored Sparks into a flight and clear it to earn 4 extra at rank one, or 8 at rank two. Kept Light pays up to 5 or 10 per clear before the final guardian.','packed')]},
  skills:{name:'Skill book',visual:'skills',steps:[
-  s('Choose a chapter','Flight improves Lift and fuel. Luminance helps you see the passage. Your companion has a chapter of its own. All skills last for this run.','skills'),
+  s('Choose a chapter','Flight improves Lift and fuel. Luminance helps you see the passage. Your companion has a chapter of its own. Learned skills are permanent.','skills'),
   s('Read the skill states','Blue means Owned. Gold means Can learn. Grey shows how much more to save. A lock points to the prerequisite you need. Each rank is a separate perk.','skill-states'),
-  s('Commit to your build','Following a prerequisite chain keeps its next upgrades cheaper. Specializing leaves fewer Stored Sparks for other paths. Some forks close their alternative for this run.','skills')]},
+  s('Commit to your build','Following a prerequisite chain keeps its next upgrades cheaper. Specializing leaves fewer Stored Sparks for other paths. Some forks close their alternative permanently.','skills')]},
  rewards:{name:'Flight rewards',visual:'artifact',steps:[
   s('Clear the passage','Reaching the waylight completes a flight. Before the final guardian, earn 20 Stored Sparks plus pickup overflow. Some Sparks recover for the next flight. A bonus challenge is optional.','clear-reward'),
   s('Choose one artifact','Elite and guardian victories offer two artifacts. Choose one automatic effect to add to this run. Ordinary flights reward Stored Sparks, without an artifact choice.','artifact'),
@@ -61,9 +62,9 @@ export const TUTORIAL_TOPICS={
   s('Collect an artifact','Choose one of two artifacts after an elite or guardian victory. It works automatically alongside your other artifacts, without slots or replacements.','artifact'),
   s('Rarity and uses','Grey is Common, green Rare, purple Legendary. Some effects last the run; consumables disappear when their uses run out. Read the effect and its trigger.','artifact-rarity'),
   s('Melt at Rest','After choosing your Rest benefit, you may melt an owned artifact for Stored Sparks: Common 25, Rare 35, Legendary 50. It destroys the effect and every remaining use. Keep it or fund skills.','forge'),
-  s('Build a combination','Pair automatic effects with your companion, skills and the next biome. Read each trigger and limit. Artifacts last only for this run; exhausted consumables disappear.','artifact')]},
+  s('Build a combination','Pair automatic effects with your companion, skills and the next biome. Read each trigger and limit. Passive artifacts are permanent; exhausted consumables disappear.','artifact')]},
  rest:{name:'Rest',visual:'rest',steps:[
-  s('Recover or Grow','Recover restores every missing heart. Grow adds 3 Spark capacity for this run, up to three times. Both completely refill Sparks. Choose once at each Rest.','rest'),
+  s('Recover or Grow','Recover restores every missing heart. Grow adds 3 Spark capacity permanently, up to three times. Both completely refill Sparks. Choose once at each Rest.','rest'),
   s('Then prepare','After Recover or Grow, open Skills to learn a perk or Collection to melt an artifact. Both are optional. Leave Rest when you’re ready.','tools'),
   s('Plan your next passage','Each Rest leads to one known flight. Inspect its terrain and prepare. If you lose a heart there, you can retry that same passage.','route')]},
  dream:{name:'Dream',visual:'dream',steps:[
@@ -83,7 +84,7 @@ export const TUTORIAL_TOPICS={
   s('Giant Black Hole','A giant hangs over the roof or rises through the floor. Its field steadily drains Sparks as you pass. Fly on the far side, then collect the recovery Sparks beyond its rim.','giant-hole'),
   s('Proximity · an earned skill','Buy the first Proximity skill to unlock surface charging. Skim solid terrain without touching it; full charge reveals the scene. Its separate tree offers recovery and a temporary light shield. Open sky never charges it.','edge')]},
  progression:{name:'Runs & Ascension',visual:'route',steps:[
-  s('Three maps make a run','Your hearts, Sparks and build carry over. Later guardians chain their attacks, leaving fewer breaks to recover.','route'),
+  s('Three maps make a run','Your hearts, Sparks and build carry over between maps. Starting a new run resets skills and artifacts. Later guardians chain their attacks, leaving fewer breaks to recover.','route'),
   s('Ascension','Clear all three maps to unlock the next difficulty. Higher Ascensions make the journey harder. Winning ends the run. Start a separate New Game to try another Ascension; run fuel, skills, currency and artifacts never carry over.','site:boss'),
   s('Continue or New Game','Continue resumes your saved run. Exit to Menu keeps it. Abandon and New Game reset run skills and currency; permanent unlocks remain. Short lessons appear as you progress. Reset tutorial in Settings to replay them.','pause')]},
 };

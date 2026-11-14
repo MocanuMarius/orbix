@@ -1,9 +1,9 @@
-import {drawAbsorbingSpark} from './tidal-light.mjs?v=steady-giants-1';
-import {getPickupSpec, pickupShellRadius} from './pickups.mjs?v=steady-giants-1';
-import {drawPickup} from './pickup-art.mjs?v=steady-giants-1';
-import {drawShellArcs} from './shell-arcs.mjs?v=steady-giants-1';
-import {drawFluidCapture} from './fluid-capture.mjs?v=steady-giants-1';
-import {DEFAULT_CAPTURE_STYLE} from './capture-styles.mjs?v=steady-giants-1';
+import {drawAbsorbingSpark} from './tidal-light.mjs?v=spark-field-guide-1';
+import {getPickupSpec, pickupShellRadius} from './pickups.mjs?v=spark-field-guide-1';
+import {drawPickup} from './pickup-art.mjs?v=spark-field-guide-1';
+import {drawShellArcs} from './shell-arcs.mjs?v=spark-field-guide-1';
+import {drawFluidCapture} from './fluid-capture.mjs?v=spark-field-guide-1';
+import {DEFAULT_CAPTURE_STYLE} from './capture-styles.mjs?v=spark-field-guide-1';
 
 const TAU = Math.PI * 2;
 const clamp = value => Math.max(0, Math.min(1, value));
@@ -21,7 +21,7 @@ export function drawCarriedSpark(ctx,state,time,scale,quiet,style=DEFAULT_CAPTUR
   if(!pose)return;
   const age=pose.age ?? 0;
   const x=(state.x+pose.offsetX)*scale, y=(state.y+pose.offsetY)*scale;
-  if(style!=='hybrid'||age<0){
+  if(style!=='hybrid'||age<0||pose.compacting){
     drawPickup(ctx,x,y,{kind:state.cargoKind,time,phase:state.cargoPhase,
       scale:pose.scale*scale,massTier:pose.massTier,bodyOnly:age>=0,reducedMotion:quiet});
     return;

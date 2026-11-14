@@ -1,7 +1,8 @@
-import { LIGHT_PACKET_TUNING } from './vitality.mjs?v=steady-giants-1';
-import { getCompanionAbility } from './companion-abilities.mjs?v=steady-giants-1';
-import { pickupKind, pickupContactRadius, canCompanionCollect } from './pickups.mjs?v=steady-giants-1';
-import {sparkArtScale,sparkBodyRadius,sparkMass} from './spark-size.mjs?v=steady-giants-1';
+import { LIGHT_PACKET_TUNING } from './vitality.mjs?v=spark-field-guide-1';
+import { getCompanionAbility } from './companion-abilities.mjs?v=spark-field-guide-1';
+import { pickupKind, pickupContactRadius } from './pickups.mjs?v=spark-field-guide-1';
+import {sparkArtScale,sparkBodyRadius,sparkMass} from './spark-size.mjs?v=spark-field-guide-1';
+import {collectorCanFetch,collectorCompactSeconds,compressCollectorCargo} from './collector-load.mjs?v=spark-field-guide-1';
 
 const clamp = (value, lo, hi) => Math.min(hi, Math.max(lo, value));
 export const WISP_TUNING = Object.freeze({ range: 52.5, cooldown: 10, lightRadius: 175,
@@ -78,12 +79,12 @@ export class WispCompanion {
 
   cargoPose(packet, time, height) {
     const fieldScale = sparkArtScale(packet,height);
-    // A large body compacts as it is carried, but still delivers a heavier ribbon.
-    const stowedScale = packet.generated ? fieldScale : Math.min(fieldScale, .62*Math.sqrt(fieldScale));
-    const elapsed = clamp((time - packet.carriedAt) / Math.min(.42,.18*Math.max(1,Math.sqrt(fieldScale))), 0, 1);
+    const compact=collectorCompactSeconds(packet),age=time-packet.carriedAt;
+    const stowedScale = compact?sparkArtScale({kind:'cluster',sparkMass:2},height):packet.generated?fieldScale:Math.min(fieldScale,.62*Math.sqrt(fieldScale));
+    const elapsed = clamp(age / (compact||Math.min(.42,.18*Math.max(1,Math.sqrt(fieldScale)))), 0, 1);
     const tucked = elapsed * elapsed * (3 - 2 * elapsed);
     return { offsetX: 8 * tucked, offsetY: 5 * tucked, age:time-packet.carriedAt,
-      scale: fieldScale + (stowedScale-fieldScale)*tucked, massTier:sparkMass(packet) };
+      scale: fieldScale + (stowedScale-fieldScale)*tucked, massTier:compact&&elapsed===1?2:sparkMass(packet),compacting:compact>0&&elapsed<1 };
   }
 
   state(engine, y = engine.player.y, time = engine.time, renderBlend) {
@@ -208,7 +209,7 @@ export class WispCompanion {
     const reach = this.currentRange(engine), packets = engine.getNearbyPickups?.() || engine.layout.embers;
     this.contacts.length = 0;
     for (const packet of packets) {
-      if (!canCompanionCollect(packet) || packet.collected || packet.carried) continue;
+      if (!collectorCanFetch(packet,engine.mod) || packet.collected || packet.carried) continue;
       if (Math.hypot(packet.x-engine.distance-home.x,packet.y-home.y)>reach+sparkBodyRadius(packet,engine.height)) continue;
       if (!this.contactTimes.has(packet)) this.contactTimes.set(packet,engine.time);
       this.contacts.push({packet,since:this.contactTimes.get(packet)});
@@ -221,7 +222,7 @@ export class WispCompanion {
       {
         let nearest = null, nearestDistance = reach;
         for (const ember of packets) {
-          if (!canCompanionCollect(ember) || ember.collected || ember.carried || ember.attracted) continue;
+          if (!collectorCanFetch(ember,engine.mod) || ember.collected || ember.carried || ember.attracted) continue;
           const x = ember.x - engine.distance;
           const shell = sparkBodyRadius(ember,engine.height);
           if (x < home.x - reach - shell) continue;
@@ -240,7 +241,7 @@ export class WispCompanion {
       }
     } else if (this.phase === 'outbound') {
       const target = this.target;
-      if (!target || !canCompanionCollect(target) || target.collected) {
+      if (!target || !collectorCanFetch(target,engine.mod) || target.collected) {
         this.releaseTarget(); this.returnToOrbit(engine, orbit);
       } else {
         if (!this.leg) this.beginLeg(engine, target.x - engine.distance, target.y);
@@ -256,11 +257,11 @@ export class WispCompanion {
     } else if (this.phase === 'returning') {
       // A harmful item can never become delivery cargo, even if a live item
       // was replaced or reclassified after the companion chose its target.
-      if (this.cargo && !canCompanionCollect(this.cargo)) {
+      if (this.cargo && !collectorCanFetch(this.cargo,engine.mod)) {
         this.cargo.carried = false; this.cargo.attracted = false; this.cargo = null;
       }
       if (!this.leg) this.beginLeg(engine, orbit.x, orbit.y, true);
-      if (this.advanceLeg(engine, orbit.x, orbit.y, dt)) {
+      if (this.advanceLeg(engine, orbit.x, orbit.y, dt)&&(!this.cargo||engine.time-this.cargo.carriedAt>=collectorCompactSeconds(this.cargo))) {
         // Delivery-triggered cards can shorten this trip's recovery immediately.
         this.cooldownMax = this.recoveryDuration(engine);
         // An empty rescue trip must not spend a full successful-pickup recovery.
@@ -272,6 +273,7 @@ export class WispCompanion {
           const delivered = this.cargo; this.cargo = null; delivered.carried = false;
           const pose = this.cargoPose(delivered, engine.time,engine.height);
           const previous = this.cargoPose(delivered, engine.time - dt,engine.height);
+          compressCollectorCargo(delivered);
           delivered.deliveredByWisp = true;
           engine.collect(delivered, { worldX: engine.distance + this.x + pose.offsetX,
             y: this.y + pose.offsetY, scale: pose.scale,
