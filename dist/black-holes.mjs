@@ -1,5 +1,5 @@
-import {moonDrainScale} from './atlas-flight.mjs?v=chapter-pressure-1';
-import { obstacleEdgeClearance } from './edging-pulse.mjs?v=chapter-pressure-1';
+import {moonDrainScale} from './atlas-flight.mjs?v=lantern-passages-1';
+import { obstacleEdgeClearance } from './edging-pulse.mjs?v=lantern-passages-1';
 
 // Rates are internal flight Sparks. The HUD displays 0.3 of these units.
 // At 2.5× the old drain the core can empty a fresh meter in a quarter second.

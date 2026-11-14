@@ -1,9 +1,9 @@
-import {SKILLS} from './model.mjs?v=chapter-pressure-1';
-import {skillTreeState,skillTreeStatus} from './skill-tree-state.mjs?v=chapter-pressure-1';
-import {getCompanionAbility} from './companion-abilities.mjs?v=chapter-pressure-1';
-import {skillIcon} from './upgrade-icons.mjs?v=chapter-pressure-1';
-import {resourceSymbol} from './game-symbols.mjs?v=chapter-pressure-1';
-import {glowText,getGlowCapacity} from './vitality.mjs?v=chapter-pressure-1';
+import {SKILLS} from './model.mjs?v=lantern-passages-1';
+import {skillTreeState,skillTreeStatus} from './skill-tree-state.mjs?v=lantern-passages-1';
+import {getCompanionAbility} from './companion-abilities.mjs?v=lantern-passages-1';
+import {skillIcon} from './upgrade-icons.mjs?v=lantern-passages-1';
+import {resourceSymbol} from './game-symbols.mjs?v=lantern-passages-1';
+import {glowText,getGlowCapacity} from './vitality.mjs?v=lantern-passages-1';
 
 const chapters=[
  ['wisp','Flight','main-efficiency'],['luminance','Luminance','main-sight'],

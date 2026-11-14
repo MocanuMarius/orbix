@@ -1,7 +1,7 @@
-import {resourceSymbol} from './game-symbols.mjs?v=chapter-pressure-1';
-import {pickupArtSvg} from './pickup-art.mjs?v=chapter-pressure-1';
-import {lifeHeartSvg} from './lives.mjs?v=chapter-pressure-1';
-import {skillIcon} from './upgrade-icons.mjs?v=chapter-pressure-1';
+import {resourceSymbol} from './game-symbols.mjs?v=lantern-passages-1';
+import {pickupArtSvg} from './pickup-art.mjs?v=lantern-passages-1';
+import {lifeHeartSvg} from './lives.mjs?v=lantern-passages-1';
+import {skillIcon} from './upgrade-icons.mjs?v=lantern-passages-1';
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 export function tutorialTarget(step={}){
  const kind=step.visual||'';
@@ -24,8 +24,17 @@ export function tutorialTextMarkup(text){
  }
  return result+esc(source.slice(start));
 }
+const lanternViews={
+  'lantern-pair':['assets/lantern-pair.png','The roof and floor lanterns face each other across a stone passage.'],
+  'lantern-wedge':['assets/lantern-wedge.png','A roof lantern shines darkness onto the wisp. A triangular patch of light reaches the floor behind it.'],
+  'lantern-flash':['assets/lantern-flash.png','The tethered white triangle reveals the lip of the stone beneath the wisp.']
+};
 export function tutorialExampleMarkup(step,document,target){
  const kind=step.visual||'';
+ if(lanternViews[kind]){
+  const [source,description]=lanternViews[kind];
+  return `<figure class="coach-example lantern-guide-example"><img src="${source}" alt="${description}"></figure>`;
+ }
  const world=['luminance','wisp','edge','draft','black-hole','collector'].includes(kind)||kind.startsWith('pickup:')||kind.startsWith('companion:');
  const canvas=document.querySelector('.pixel-flight-canvas')||document.querySelector('#flight-canvas');
  if(world&&canvas?.width&&canvas?.height){

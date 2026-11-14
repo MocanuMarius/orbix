@@ -1,9 +1,9 @@
-import { WispFlight, circleHitsObstacle } from './flight.mjs?v=chapter-pressure-1';
-import { createRun, getRunModifiers } from './model.mjs?v=chapter-pressure-1';
-import { shutterDensityAt } from './shutter-cone.mjs?v=chapter-pressure-1';
-import { lanternRoute } from './lantern-layout.mjs?v=chapter-pressure-1';
-import { wispOrbit } from './wisp.mjs?v=chapter-pressure-1';
-import { stepFlashTether } from './flash-tether.mjs?v=chapter-pressure-1';
+import { WispFlight, circleHitsObstacle } from './flight.mjs?v=lantern-passages-1';
+import { createRun, getRunModifiers } from './model.mjs?v=lantern-passages-1';
+import { shutterDensityAt } from './shutter-cone.mjs?v=lantern-passages-1';
+import { lanternPassageY, lanternRoute } from './lantern-layout.mjs?v=lantern-passages-1';
+import { wispOrbit } from './wisp.mjs?v=lantern-passages-1';
+import { stepFlashTether } from './flash-tether.mjs?v=lantern-passages-1';
 
 const step = 1 / 60;
 
@@ -30,8 +30,8 @@ export function createLanternPreview({host, isPaused, play, reducedMotion}) {
       <div class="lantern-light" role="group" aria-label="Compare Luminance">
         <span>Luminance</span>
         <div>
-          <button type="button" data-light="base" aria-pressed="false">Base</button>
-          <button type="button" data-light="max" aria-pressed="true">Max</button>
+          <button type="button" data-light="base" aria-pressed="true">Base</button>
+          <button type="button" data-light="max" aria-pressed="false">Max</button>
           <button type="button" data-light="flash" aria-label="Flash Powerup with base Luminance" aria-pressed="false">△ Flash</button>
         </div>
       </div>
@@ -53,7 +53,7 @@ export function createLanternPreview({host, isPaused, play, reducedMotion}) {
   const watchButton = playback.querySelector('button');
   const timeline = playback.querySelector('input');
   const litLabel = playback.querySelector('output');
-  let lightMode = 'max', engine, shutters, route, state, raf, last = 0, remainder = 0;
+  let lightMode = 'base', engine, shutters, route, state, raf, last = 0, remainder = 0;
   let watching, tourX, tourStart, tourEnd, waypoints, endHold;
   const directPage = Boolean(host.closest('.lantern-only'));
 
@@ -62,9 +62,9 @@ export function createLanternPreview({host, isPaused, play, reducedMotion}) {
     if (hash === '#shadow') {
       encounterPicker.value = 'single'; routePicker.value = 'near'; lightMode = 'base';
     } else if (hash === '#chain' || hash === '') {
-      encounterPicker.value = 'chain'; routePicker.value = 'wide'; lightMode = 'max';
+      encounterPicker.value = 'chain'; routePicker.value = 'wide'; lightMode = 'base';
     } else if (hash === '#crossfire') {
-      encounterPicker.value = 'crossfire'; routePicker.value = 'wide'; lightMode = 'max';
+      encounterPicker.value = 'crossfire'; routePicker.value = 'wide'; lightMode = 'base';
     } else return;
     reset();
   }
@@ -158,9 +158,10 @@ export function createLanternPreview({host, isPaused, play, reducedMotion}) {
     const group = encounterPicker.value;
     const isChain = group === 'chain';
     shutters = engine.layout.boss.shutters.filter(s => isChain ? s.phase === 3 : s.group === group);
+    if (group === 'single') engine.layout.boss.shutters = shutters;
     route = lanternRoute(shutters, routePicker.value);
     let x = fly ? route.startX : route.focusX;
-    let y = route.y;
+    let y = fly ? route.startY ?? route.y : route.y;
     if (group === 'single' && !fly) {
       const source = shutters[0];
       const ray = Math.atan2(source.shift,source.depth);
@@ -172,7 +173,10 @@ export function createLanternPreview({host, isPaused, play, reducedMotion}) {
       // The camera follows the authored openings and pauses wherever the
       // timeline is released. Shutters read real world position and speed.
       const rooms = engine.layout.obstacles.filter(o => o.bossPhase === 3);
-      waypoints = rooms.map(room => ({x:room.x + room.width * .55, y:room.center}));
+      waypoints = rooms.flatMap(room => [0,.4,.8,1.2,1.7,2].map(fraction => {
+        const x = room.x + room.width * fraction;
+        return {x, y:lanternPassageY(room, x)};
+      }));
       const finish = lanternRoute(shutters.filter(s => s.group === 'crossfire'), routePicker.value);
       waypoints.push({x:finish.focusX, y:finish.y});
       waypoints.sort((a,b) => a.x - b.x);

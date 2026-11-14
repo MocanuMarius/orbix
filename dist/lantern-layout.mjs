@@ -9,13 +9,37 @@ function wallAt(room, side, localX) {
   return room.center + side * room.gap / 2;
 }
 
+const smooth = n => { const u=Math.max(0,Math.min(1,n)); return u*u*(3-2*u); };
+
+// Move the actual exposed roof/floor vertices. Keep the coarse rock relief,
+// plus the existing shoulders where this room meets the adjacent terrain.
+function carvePassage(room, scale, throat, bend = false) {
+  room.motion = 0;
+  const originalGap = room.gap;
+  for (const side of [-1,1]) {
+    const face = side === -1 ? room.topShape : room.bottomShape;
+    for (const point of face.slice(2)) {
+      const fraction = point[0] / room.width;
+      const weight = smooth((fraction + .70) / .72) * smooth((2.36 - fraction) / .56);
+      const center = bend ? scale * (43 - 139 * smooth((fraction - .04) / 1.43)) : 0;
+      const contour = center + side * (throat * scale - originalGap) / 2 + point[1] * .10;
+      point[1] += weight * (contour - point[1]);
+    }
+  }
+}
+
+export function lanternPassageY(room, x) {
+  const local = x - room.x;
+  return (wallAt(room, -1, local) + wallAt(room, 1, local)) / 2;
+}
+
 function mount(room, side, fraction, shift, scale, group) {
   const localX = room.width * fraction;
   const y = wallAt(room, side, localX);
   const depth = Math.abs(wallAt(room, -side, localX) - y) + 62 * scale;
   return {
     x: room.x + localX, y, side, depth, shift, spread: 284, pocket: 55 * scale,
-    obstacleId: room.id, phase: room.bossPhase, group, crossfire: group === 'crossfire'
+    obstacleId: room.id, room, phase: room.bossPhase, group, crossfire: group === 'crossfire'
   };
 }
 
@@ -39,6 +63,14 @@ export function lanternRoute(lanterns, route) {
     const approach = beamAtHeight(first, y);
     return {startX: first.warningX, y,
       focusX: (approach.left + approach.right) / 2, endX: finish.endX};
+  }
+  if (crossfire.length === 2) {
+    const room = crossfire[0].room;
+    const focusX = room.x + room.width * (route === 'near' ? .25 : .68);
+    const y = lanternPassageY(room, focusX) + (route === 'near' ? room.gap * .04 : 0);
+    const startX = room.x - room.width * 1.16;
+    const startY = lanternPassageY(room, startX);
+    return {startX, startY, y, focusX, endX: room.x + room.width * 2.4};
   }
   const roof = lanterns.find(s => s.side < 0);
   const floor = lanterns.find(s => s.side > 0);
@@ -87,7 +119,10 @@ export function installShutters(layout, height) {
     if (!rooms.length) continue;
     const room = rooms[Math.floor((rooms.length - 1) / 2)];
     if (phase === 2) {
-      addLanterns(boss, [mount(room, -1, .64, 76, scale, 'single')], scale);
+      carvePassage(room, scale, 207);
+      addLanterns(boss, [
+        mount(room, -1, .45, 117, scale, 'single'), mount(room, 1, .90, -65, scale, 'intro-pair')
+      ], scale);
       continue;
     }
     const index = phaseRooms.indexOf(room);
@@ -95,21 +130,23 @@ export function installShutters(layout, height) {
     if (lead.length === 2 && lead.every(o => !o.guardianGate && o.topShape && o.bottomShape)) {
       // Bolt the four relay lanterns to fixed rock. Their necks alternate while
       // their wider ends touch. There is time to lift clear between chambers.
-      for (const o of lead) o.motion = 0;
+      carvePassage(lead[0], scale, 182);
+      carvePassage(lead[1], scale, 181);
       let previousOpen = -Infinity;
       for (const [o, side, position, shift] of [
-        [lead[0], -1, .26, 68], [lead[0], 1, .96, 175],
-        [lead[1], -1, .19, -64], [lead[1], 1, .96, 32]
+        [lead[0], -1, .26, 150], [lead[0], 1, .96, -48],
+        [lead[1], -1, .19, 168], [lead[1], 1, .96, -44]
       ]) {
         previousOpen = addLanterns(boss, [mount(o, side, position, shift, scale, 'relay')], scale, previousOpen);
       }
     }
+    carvePassage(room, scale, 147, true);
     addLanterns(boss, [
       mount(room, -1, .39, 396, scale, 'crossfire'), mount(room, 1, .15, 146, scale, 'crossfire')
     ], scale);
     // The triangle sits in the break before the last pair.
     layout.embers.push({id: 'crossfire-flash', kind: 'sight', value: 0, fuel: false,
-      x: room.x - .70 * room.width, y: room.center + 50 * scale, phase: 0,
+      x: room.x - .58 * room.width, y: room.center + 23 * scale, phase: 0,
       feature: 'crossfire-flash', collected: false, attracted: false});
     layout.embers.sort((a,b) => a.x - b.x);
   }

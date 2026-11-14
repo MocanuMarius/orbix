@@ -1,4 +1,4 @@
-import { prepareGuardian } from './guardian-effects.mjs?v=chapter-pressure-1';
+import { prepareGuardian } from './guardian-effects.mjs?v=lantern-passages-1';
 // The Hollow Warden is a survival encounter: read its hands, keep your Sparks,
 // and reach the waylight. Every solid hand uses the ordinary terrain pipeline.
 const TAU = Math.PI * 2;
@@ -37,8 +37,8 @@ const SIGNATURE_PHASES={
   {id:'chorus',name:'THUNDER CHORUS',instruction:'Follow the alternating current; recover between gusts.',cells:[[.58,250,'both',8],[.42,250,'both',8],[.54,270,'both',0],[.50,340,'both',0]]}],
  'hollow-sun':[
   {id:'eclipse',name:'THE FIRST ECLIPSE',instruction:'Keep beneath the dark wells; gather light between them.',cells:[[.55,290,'both',0],[.60,275,'both',0],[.48,280,'both',0],[.50,335,'both',0]]},
-  {id:'orbit',name:'DARK ORBITS',instruction:'The roof shutter marks its shadow. Skim its neck or cross the broad dark chamber.',cells:[[.40,270,'both',0],[.60,270,'both',0],[.45,275,'both',0],[.50,340,'both',0]]},
-  {id:'corona',name:'BREAK THE CORONA',instruction:'Follow the lanterns along the walls. A Flash waits before the final crossfire.',cells:[[.58,260,'both',8],[.42,260,'both',8],[.52,275,'both',0],[.50,340,'both',0]]}]
+  {id:'orbit',name:'DARK ORBITS',instruction:'Two lanterns face each other. Cross their shadows through the rock.',cells:[[.40,270,'both',0],[.60,270,'both',0],[.45,275,'both',0],[.50,340,'both',0]]},
+  {id:'corona',name:'BREAK THE CORONA',instruction:'Pass the paired lanterns. Catch the Flash to see where the final tunnel climbs.',cells:[[.58,260,'both',8],[.42,260,'both',8],[.52,275,'both',0],[.50,340,'both',0]]}]
 };
 
 export const BOSS_PREVIEWS=Object.freeze({

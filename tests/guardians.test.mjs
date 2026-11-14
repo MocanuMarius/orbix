@@ -3,8 +3,8 @@ import assert from 'node:assert/strict';
 import {BOSS_PREVIEWS, buildBossLayout, getGuardianForMap} from '../dist/boss.mjs';
 import {circleHitsObstacle, WispFlight} from '../dist/flight.mjs';
 import {getFlightLengthProfile} from '../dist/level-length.mjs';
-import {insideShutter,shutterPhase,shutterLightFactor,shutterWakeAt} from '../dist/shutter-cone.mjs';
-import {lanternRoute} from '../dist/lantern-layout.mjs';
+import {insideShutter,shutterPhase,shutterDensityAt,shutterLightFactor,shutterWakeAt} from '../dist/shutter-cone.mjs';
+import {lanternPassageY,lanternRoute} from '../dist/lantern-layout.mjs';
 import {lightVisibility} from '../dist/light-field.mjs';
 
 const dt = 1/120;
@@ -81,7 +81,7 @@ test('both late crests use real two-sided terrain and leave a traversable openin
   }
 });
 
-test('Hollow Sun teaches one lantern, relays four beams and ends with two crossing beams',()=>{
+test('every Hollow Sun lantern room has playable crossfire and the final rock bend requires a turn',()=>{
   for(const height of [430,620,850])for(const difficulty of [1,3,6]){
     const layout=buildBossLayout({height,difficulty,bossId:'hollow-sun',duration:90});
     const boss=layout.boss;
@@ -89,6 +89,7 @@ test('Hollow Sun teaches one lantern, relays four beams and ends with two crossi
     const relay=boss.shutters.filter(s=>s.group==='relay');
     const finale=boss.shutters.filter(s=>s.crossfire);
     assert.deepEqual(single.map(s=>[s.phase,s.side]),[[2,-1]]);
+    assert.deepEqual(boss.shutters.filter(s=>s.phase===2).map(s=>s.side),[-1,1]);
     assert.deepEqual(relay.map(s=>s.side),[-1,1,-1,1]);
     assert.deepEqual(finale.map(s=>s.side),[-1,1]);
     assert.ok(relay.every((s,i)=>s.phase===3 && (!i || s.openX>relay[i-1].openX)));
@@ -104,17 +105,39 @@ test('Hollow Sun teaches one lantern, relays four beams and ends with two crossi
       assert.equal(shutterPhase(s,s.openX-1),1);
       assert.equal(shutterPhase(s,s.openX),2);
     }
+    for(const room of new Set(boss.shutters.map(s=>s.room))){
+      const pair=boss.shutters.filter(s=>s.room===room);
+      assert.deepEqual(pair.map(s=>s.side),[-1,1]);
+      let overlap=0,longest=0;
+      for(let x=room.x-20;x<room.x+room.width*1.9;x+=3){
+        const y=lanternPassageY(room,x);
+        const crossed=pair.every(s=>shutterDensityAt(s,x,y,x,boss.speed)>.20);
+        overlap=crossed ? overlap+3 : 0;
+        if(crossed)assert.ok(layout.obstacles.every(o=>!circleHitsObstacle(x,y,14,o,0)));
+        longest=Math.max(longest,overlap);
+      }
+      assert.ok(longest>=21,'two active beams overlap across at least one full wisp diameter on the flyable center line');
+    }
+    const finalRoom=finale[0].room;
+    const lowTurn=lanternPassageY(finalRoom,finalRoom.x+finalRoom.width*.1);
+    const highTurn=lanternPassageY(finalRoom,finalRoom.x+finalRoom.width*1.55);
+    assert.ok(lowTurn-highTurn>height*.21);
+    if(height===430){
+      for(let y=0;y<=height;y+=.5){
+        assert.ok([.1,1.55].some(f=>circleHitsObstacle(finalRoom.x+f*finalRoom.width,y,9.35,finalRoom,0)),
+          'a wisp holding a fixed altitude cannot cross both mouths of the landscape bend');
+      }
+    }
     for(const lanterns of [single,finale])for(const route of ['near','wide']){
-      const {startX,endX,focusX,y}=lanternRoute(lanterns,route);
+      const {startX,startY,focusX,y}=lanternRoute(lanterns,route);
       const hit=lanterns.filter(s=>{
         const across=(s.y-y)*s.side/s.depth;
         return Math.abs(focusX-s.x-s.shift*across)<s.spread*across;
       });
       assert.equal(hit.length,lanterns===finale&&route==='wide'?2:1);
-      for(let x=startX;x<=endX;x+=4){
-        for(const o of layout.obstacles)for(const sway of [-1,1]){
-          assert.ok(!circleHitsObstacle(x,y,14,o,0,o.center+sway*o.motion));
-        }
+      for(const o of layout.obstacles)for(const sway of [-1,1]){
+        assert.ok(!circleHitsObstacle(startX,startY??y,14,o,0,o.center+sway*o.motion));
+        assert.ok(!circleHitsObstacle(focusX,y,14,o,0,o.center+sway*o.motion));
       }
     }
   }

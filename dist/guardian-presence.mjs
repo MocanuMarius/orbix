@@ -1,4 +1,4 @@
-import {drawAtlasGuardian} from './atlas-flight.mjs?v=chapter-pressure-1';
+import {drawAtlasGuardian} from './atlas-flight.mjs?v=lantern-passages-1';
 // World-anchored background figure. Never a collider or screen-following HUD.
 export function guardianPresenceState(engine,distance=engine.distance){
  const boss=engine.layout?.boss,exit=engine.layout?.exitLandmark;
