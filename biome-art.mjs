@@ -1,4 +1,4 @@
-import {pineCrown} from './pixel-contour.mjs?v=pine-spark-2';
+import {pineCrown} from './pixel-contour.mjs?v=packing-parcel-1';
 // Original pixel scenery. Backdrops and solid materials are rasterized by the
 // existing renderer caches; only a few matte weather pixels animate each frame.
 // Nothing here emits light or draws outside the simulation's solid silhouettes.

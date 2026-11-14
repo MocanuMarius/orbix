@@ -1,4 +1,4 @@
-import {pineCrown} from './pixel-contour.mjs?v=pine-spark-2';
+import {pineCrown} from './pixel-contour.mjs?v=packing-parcel-1';
 // Original, fixed pixel scenery. It gives menus a place in the game's world
 // without another canvas, animation loop, image download or lighting shader.
 const discs=(cx,cy,r,fill,step=2)=>Array.from({length:Math.ceil(r*2/step)},(_,i)=>{

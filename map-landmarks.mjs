@@ -1,5 +1,5 @@
-import {pixelPath} from './pixel-contour.mjs?v=pine-spark-2';
-import {pixelLandmark} from './map-pixel-art.mjs?v=pine-spark-2';
+import {pixelPath} from './pixel-contour.mjs?v=packing-parcel-1';
+import {pixelLandmark} from './map-pixel-art.mjs?v=packing-parcel-1';
 // Route categories share silhouettes; terrain appears only in the muted ground layer.
 // All art is original SVG in a small pixel coordinate space (no external assets).
 const flight='<path class="landmark-dark" d="m-35 23 5-13 8-11 8 8 4 17Zm42 0 6-15 7-10 6 9 9 17Z"/><path class="landmark-body" d="m-35 23 7-14 7-7 3 10 6 12Zm45 0 6-13 7-7 2 12 10 10Z"/><path class="landmark-face" d="m-20 26 13-11 9-4 6-7-4-8 3-12 5-5-2 12 4 9-3 9-9 8-6 8Z"/><path class="landmark-edge" d="m-15 25 11-9 8-5 5-7-3-9 3-10M-28 10l7-8 2 9M17 10l6-7 2 10"/><path class="landmark-fire" d="M-4 21h4v2h-4ZM5 11h3v2H5ZM8-3h2v3H8Z"/>';
