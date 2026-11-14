@@ -1,5 +1,5 @@
-import {sparkImageArt,sparkSymbolArt} from './spark-symbol.mjs?v=lantern-chapter-1';
-import {condensedIconMarkup} from './afterglow-ui.mjs?v=lantern-chapter-1';
+import {sparkImageArt,sparkSymbolArt} from './spark-symbol.mjs?v=collector-audit-1';
+import {condensedIconMarkup} from './afterglow-ui.mjs?v=collector-audit-1';
 
 // Three material tones sit above a shared dark contour. Keep light and shadow
 // readable at the tree's smallest size, even with all motion switched off.
@@ -152,6 +152,7 @@ const recipes={
  'Lift':['feather','copper'],'Fourth Beat':['metronome','copper'],'Luminance':['eye','jade'],'Momentum':['wing','amber'],'Spark Vessel':['vessel','jade'],
  'Long Flash':['flash','silver','time'],'Vitality':['heart','rose'],'Glide Regeneration':['seed','jade'],'Trajectory Guide':['trajectory','silver'],'Spark Sense':['tunefork','jade'],
  'Storage':['box','copper'],'Prismatic Yield':['crystal','lilac'],'Kept Light':['box','copper','seal'],'Dream':['crescent','lilac'],
+ 'Hand Seal':['box','jade','leaf'],'Deep Cache':['crystal','amber','spark'],
  'Proximity':['edgebank','blue'],'Lasting Pulse':['edgebank','blue','time'],'Regenerative Pulse':['edgebank','jade','seed'],'Light Aegis':['shield','lilac','star'],
  'Far Search':['tunefork','jade','star'],'Rich Cargo':['vessel','jade','spark'],'Fleet Return':['wing','jade'],'Close Orbit':['orbit','jade','spark'],
  'Wide Search':['orbit','jade','star'],'Quick Return':['hourdial','jade','wing'],'Search Spark':['fuel','jade','leaf'],'Last Orbit':['shield','jade','spark'],

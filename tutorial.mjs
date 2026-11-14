@@ -1,5 +1,5 @@
-import {getCompanionAbility} from './companion-abilities.mjs?v=lantern-chapter-1';
-import {lightVisibility} from './light-field.mjs?v=lantern-chapter-1';
+import {getCompanionAbility} from './companion-abilities.mjs?v=collector-audit-1';
+import {lightVisibility} from './light-field.mjs?v=collector-audit-1';
 // Practice is an authored flight using the same controls, fuel and colliders.
 // This module contains guidance and lesson scenery; it never grants rewards.
 const clamp = (n, lo, hi) => Math.min(hi, Math.max(lo, n));
@@ -142,7 +142,7 @@ export function getTutorialHint(engine) {
   if(engine.flame<engine.flapCost*2)return hint('low-glow','Find a Spark','Without enough Sparks you cannot Lift, but you can still collect fuel while falling. Collector keeps searching.',2);
   const exit=engine.getExitLandmark?.();
   if(exit&&exit.x<engine.width-18)return hint('exit','Reach the refuge light','Fly to the waylight while keeping enough Sparks for your last Lift.',4);
-  if(state.directPickups>0&&engine.edgingPulse?.state?.active)return hint('edge-pulse','Your close flight lit the way','PULSE beside Sparks fills near solid edges. Full charge briefly reveals the scene. Keep clear of the terrain itself.',4);
+  if(state.directPickups>0&&engine.edgingPulse?.state?.active)return hint('edge-pulse','Your close flight lit the way','The meter beside your wisp fills near solid edges. Full charge briefly reveals the passage.',4);
   if(state.lesson==='glide'){
     if(!state.directPickups)return hint('direct','Lift, then glide into a packet',collector
       ?'Touch this light yourself for immediate Sparks. Collector waits for your first pickup.'
@@ -151,17 +151,15 @@ export function getTutorialHint(engine) {
       ?'The packet pays when Collector returns. Its boundary then shrinks and grows back.'
       :'Your body gets first chance. A missed packet touching the boundary reacts. Collector fetches after your body has had its chance.',3);
     if(collector&&engine.wisp.phase==='cooldown')return hint('rest','Collector is recovering','Its boundary grows back. Missed packets inside the smaller range can still be rescued.',3);
-    return hint('glide-ready','Small lifts, long glides',active
-      ?'POWER activates Runner. With Space Timer, hold Lift to levitate; release to glide.'
-      :'Collector fetches misses. Protector spends Sparks to shield a collision. Both work automatically.',4);
+    return hint('glide-ready','Small Lifts, long glides','Time your last Lift so gravity carries you into the next Spark. Direct pickups refill your meter immediately.',4);
   }
   const gust=engine.gustState();
   const dark=engine.layout.embers.find(packet=>packet.tutorialDark),darkX=dark?dark.x-engine.distance:Infinity;
   if(dark&&!dark.collected&&darkX>engine.player.x-18&&darkX<engine.width-18)return hint('dark-packet','Avoid the dark seed',
-    'Dark Sparks reduce Luminance. Collector ignores them. The learned Purifying Touch perk can cleanse one when ready.',4);
+    'Dark Sparks reduce Luminance. Collector passes them by. Touch a fuel Spark to clear one dimming effect.',4);
   if(state.darkCollected&&!state.darkCleared)return hint('dark-recovery','Restore your light','A natural Spark clears one dimming effect and refills Sparks.',4);
   if(gust.warning||gust.active)return hint('wind',gust.warning?'Read the direction':'Inside the draft puff',
-    'Curls show the push direction. Dodge the puff or use Runner. Space Timer still bobs and feels drafts.',3);
+    'The curls show which way the draft pushes. Leave room to drift or pass above or below the puff.',3);
   if(active&&!state.toolObserved&&engine.time<6)return hint('power','One Power control',
     'POWER starts Runner. With Space Timer, hold the scene or Lift to levitate; release to glide and recharge.',2);
   if(!state.finishedWind)return hint('watch-wind','Watch for the local draft','Only the visible puff pushes you. Its warning gives you time to choose above or below.',3);
@@ -180,7 +178,7 @@ export function getTutorialWorldFocus(engine, seenIds = null) {
   const focus = (id, title, text, x, y, radius) => visible(x, y)
     ? { id, title, text, x, y, radius: Math.min(radius, x - 4, width - x - 4, y - 4, height - y - 4) } : null;
   const candidates = [];
-  if(engine.time>10)candidates.push(focus('luminance','Luminance','This circle of light is your Luminance: how far you can see. Light skills expand it. Collector range is a separate fetching boundary.',engine.player.x,engine.player.y,lightState.radius||70));
+  if(engine.time>10)candidates.push(focus('luminance','Luminance','Luminance is how far your wisp lights the passage. Open the Luminance chapter to see farther. Collector’s green boundary shows its fetching range.',engine.player.x,engine.player.y,lightState.radius||70));
   const hasCollector = collects(engine);
   if(state.lesson==='hazards')for(const hole of engine.blackHoles?.items||[])candidates.push(focus('black-hole','Black Hole','This dark core steals Sparks nearby. It is not a pickup. Fly farther away to reduce the drain; shields cannot block it.',hole.x-engine.distance,hole.y,35));
   const packets = (engine.layout?.embers || []).filter(packet => !packet.collected && !packet.carried)
@@ -191,17 +189,17 @@ export function getTutorialWorldFocus(engine, seenIds = null) {
     'Avoid this Dark Spark: it reduces your Luminance. A Spark clears one effect.', dark.x, dark.packet.y, 20));
   const light = packets.filter(({ packet }) => !packet.harmful && packet.kind !== 'dark')
     .sort((a, b) => Math.abs(a.x - engine.player.x) - Math.abs(b.x - engine.player.x))[0];
-  if (light) candidates.push(focus('light-packet', 'Sparks refill fuel',
-    hasCollector ? 'Touch this bright packet to refill Sparks. Collector only rescues packets you have already passed.'
+  if (light) candidates.push(focus('light-packet', 'Refill the Spark Meter',
+    hasCollector ? 'Touch a Spark for an immediate refill. Collector only rescues Sparks you have already passed.'
       : 'Touch this bright packet yourself to refill Sparks. Your selected companion does not fetch.', light.x, light.packet.y, 20));
   for (const puff of engine.getDraftPuffs?.() || []) candidates.push(focus('draft', 'Local draft puff',
     'Only these curls push you. Fly above or below their boundary.',
     puff.x - engine.distance, puff.y, Math.min(puff.rx, puff.ry, 48)));
   const carrier = engine.getWispState?.();
-  if (carrier?.phase === 'returning' && carrier.carrying) candidates.push(focus('carrier-return', 'Carrier delivery',
-    'The packet refills Sparks when your carrier gets home.', carrier.x, carrier.y, 21));
-  if (carrier?.phase === 'cooldown' && state.carrierDeliveries > 0) candidates.push(focus('carrier-rest', 'Carrier recovery',
-    'Its boundary shrinks after delivery, then grows. Nearby rescues still work; touching packets yourself is immediate.', carrier.x, carrier.y, 21));
+  if (carrier?.phase === 'returning' && carrier.carrying) candidates.push(focus('carrier-return', 'Collector delivery',
+    'Your Spark Meter refills when Collector returns.', carrier.x, carrier.y, 21));
+  if (carrier?.phase === 'cooldown' && state.carrierDeliveries > 0) candidates.push(focus('carrier-rest', 'Collector recovery',
+    'Its boundary shrinks after delivery, then grows. Collector can still fetch a missed Spark inside the smaller boundary.', carrier.x, carrier.y, 21));
   const exit = engine.getExitLandmark?.();
   if (exit) candidates.push(focus('exit', 'Refuge light', 'Fly to this waylight to finish the passage.', exit.x, exit.y, 25));
   const seen = id => seenIds?.has?.(id) === true || Array.isArray(seenIds) && seenIds.includes(id);

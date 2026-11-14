@@ -1,32 +1,32 @@
-import {EVENT_EDITION,eventChoices,rollPrism} from './event-choices.mjs?v=lantern-chapter-1';
-import {GUARDIAN_RELICS} from './guardian-artifacts.mjs?v=lantern-chapter-1';
-import {ATLAS_FORECASTS,atlasBranches} from './night-atlas.mjs?v=lantern-chapter-1';
-import {getRouteBonus,awardRouteBonus} from './route-bonuses.mjs?v=lantern-chapter-1';
-export {getRouteBonus,getRouteBonusCandidates,nextBonusFlightNodes} from './route-bonuses.mjs?v=lantern-chapter-1';
-import {consolidateSkills,refundRetiredSkills} from './skill-consolidation.mjs?v=lantern-chapter-1';
-import {PROXIMITY_SKILLS} from './proximity-skills.mjs?v=lantern-chapter-1';
-import {getGuardianForMap,getBossPreview} from './boss.mjs?v=lantern-chapter-1';
-import {guardianMapTheme} from './map-theme.mjs?v=lantern-chapter-1';
-import {getFlightLengthProfile} from './level-length.mjs?v=lantern-chapter-1';
-import {cleanOnboarding} from './onboarding.mjs?v=lantern-chapter-1';
-import {CONDENSED_TUNING,getCondensationRules,condenseGlow} from './condensed-glow.mjs?v=lantern-chapter-1';
-import {CONSUMABLE_ARTIFACTS,EVOLVING_ARTIFACTS,getArtifactStackPreview} from './artifact-info.mjs?v=lantern-chapter-1';
-import {getFlightClearReward} from './checkpoint-rewards.mjs?v=lantern-chapter-1';
-export {getCondensationRules} from './condensed-glow.mjs?v=lantern-chapter-1';
-import {ROUTE_RECIPES,ROUTE_TOPOLOGY_VERSION,REWARD_THEMES,nodeEconomy} from './route-recipes.mjs?v=lantern-chapter-1';
-import {COMPANION_ABILITIES,getCompanionUnlock,normalizeCompanionFleet} from './companion-abilities.mjs?v=lantern-chapter-1';
-import {MAIN_TUNING_SKILLS} from './main-tuning.mjs?v=lantern-chapter-1';
-import {STARTING_CONDENSED_GLOW,getGlowCapacity,getRestGlowBonus,REST_GLOW_TUNING,glowText} from './vitality.mjs?v=lantern-chapter-1';
-import {expandSkillSteps,skillProgress} from './skill-increments.mjs?v=lantern-chapter-1';
-import {MAX_ASCENSION} from './ascent.mjs?v=lantern-chapter-1';
-import {EXPANDED_SKILLS,applyExpandedSkills} from './skill-paths.mjs?v=lantern-chapter-1';
+import {EVENT_EDITION,eventChoices,rollPrism} from './event-choices.mjs?v=collector-audit-1';
+import {GUARDIAN_RELICS} from './guardian-artifacts.mjs?v=collector-audit-1';
+import {ATLAS_FORECASTS,atlasBranches} from './night-atlas.mjs?v=collector-audit-1';
+import {getRouteBonus,awardRouteBonus} from './route-bonuses.mjs?v=collector-audit-1';
+export {getRouteBonus,getRouteBonusCandidates,nextBonusFlightNodes} from './route-bonuses.mjs?v=collector-audit-1';
+import {consolidateSkills,refundRetiredSkills} from './skill-consolidation.mjs?v=collector-audit-1';
+import {PROXIMITY_SKILLS} from './proximity-skills.mjs?v=collector-audit-1';
+import {getGuardianForMap,getBossPreview} from './boss.mjs?v=collector-audit-1';
+import {guardianMapTheme} from './map-theme.mjs?v=collector-audit-1';
+import {getFlightLengthProfile} from './level-length.mjs?v=collector-audit-1';
+import {cleanOnboarding} from './onboarding.mjs?v=collector-audit-1';
+import {CONDENSED_TUNING,getCondensationRules,condenseGlow,getKeptLightDividend} from './condensed-glow.mjs?v=collector-audit-1';
+import {CONSUMABLE_ARTIFACTS,EVOLVING_ARTIFACTS,getArtifactStackPreview} from './artifact-info.mjs?v=collector-audit-1';
+import {getFlightClearReward} from './checkpoint-rewards.mjs?v=collector-audit-1';
+export {getCondensationRules} from './condensed-glow.mjs?v=collector-audit-1';
+import {ROUTE_RECIPES,ROUTE_TOPOLOGY_VERSION,REWARD_THEMES,nodeEconomy} from './route-recipes.mjs?v=collector-audit-1';
+import {COMPANION_ABILITIES,getCompanionUnlock,normalizeCompanionFleet} from './companion-abilities.mjs?v=collector-audit-1';
+import {MAIN_TUNING_SKILLS} from './main-tuning.mjs?v=collector-audit-1';
+import {STARTING_CONDENSED_GLOW,getGlowCapacity,getRestGlowBonus,REST_GLOW_TUNING,glowText} from './vitality.mjs?v=collector-audit-1';
+import {expandSkillSteps,skillProgress} from './skill-increments.mjs?v=collector-audit-1';
+import {MAX_ASCENSION} from './ascent.mjs?v=collector-audit-1';
+import {EXPANDED_SKILLS,applyExpandedSkills} from './skill-paths.mjs?v=collector-audit-1';
 /** Run-owned skills and currency; persistent ascension unlocks and boss artifacts. */
-import { FLAME_TUNING, LIFE_TUNING, getLifeCapacity } from './vitality.mjs?v=lantern-chapter-1';
-import { getBiomeLevelIdentity } from './level-catalog.mjs?v=lantern-chapter-1';
-import { BIOMES } from './biomes.mjs?v=lantern-chapter-1';
-import { EVENT_SCENARIOS } from './map-guide.mjs?v=lantern-chapter-1';
-import {contextualEventChoices,resolvePilgrimVow,ROUTE_PREPARATION} from './contextual-events.mjs?v=lantern-chapter-1';
-import {TREASURE_KINDS, describeTreasure, treasureChoices, treasureRank, grantTreasureGift, treasureClearDividend, LENS_SIGHT, LENS_RECOVERY, settleTreasureWager} from './treasure.mjs?v=lantern-chapter-1';
+import { FLAME_TUNING, LIFE_TUNING, getLifeCapacity } from './vitality.mjs?v=collector-audit-1';
+import { getBiomeLevelIdentity } from './level-catalog.mjs?v=collector-audit-1';
+import { BIOMES } from './biomes.mjs?v=collector-audit-1';
+import { EVENT_SCENARIOS } from './map-guide.mjs?v=collector-audit-1';
+import {contextualEventChoices,resolvePilgrimVow,ROUTE_PREPARATION} from './contextual-events.mjs?v=collector-audit-1';
+import {TREASURE_KINDS, describeTreasure, treasureChoices, treasureRank, grantTreasureGift, treasureClearDividend, LENS_SIGHT, LENS_RECOVERY, settleTreasureWager} from './treasure.mjs?v=collector-audit-1';
 export const SAVE_KEY='wispbound.save.condensed.v7';
 export const CAMPAIGN_MAP_NAMES=Object.freeze(['The Forgotten Verge','The Rootbound March','The Warden’s Reach']);
 export const TERRAINS=Object.freeze({ruins:{id:'ruins',name:'Sunken Ruins',color:'#cdb183',description:'Broken homes, worn arches and overgrown stone.'},canopy:{id:'canopy',name:'Luminous Canopy',color:'#94b48a',description:'Hollow trees, hanging roots and sheltered forest passages.'},storm:{id:'storm',name:'Stormglass Peaks',color:'#a8bbca',description:'Pine ridges, old mine timbers and local draft puffs.'}});
@@ -83,7 +83,9 @@ export const SKILLS=Object.freeze(consolidateSkills(Object.fromEntries(Object.en
  'swift-mastery':skill('swift-mastery','Deep Spark','swift',75,1,'swift-attunement','Surge recharges 0.75 seconds sooner. Adds to your first Spark.'),
  'afterglow-vessel':skill('afterglow-vessel','Fine Facets','afterglow',36,2,'main-afterglow','Overflow conversion gains 5 percentage points per rank.'),
  'afterglow-retention':{...skill('afterglow-retention','Prismatic Yield','afterglow',40,2,'afterglow-vessel','Overflow conversion gains another 5 percentage points per rank.'),choiceGroup:'condensation-style',excludes:['afterglow-anchor']},
- 'afterglow-anchor':{...skill('afterglow-anchor','Kept Light','afterglow',30,2,'main-afterglow','Each 100 Stored Sparks kept adds 2.5 percentage points to overflow yield per rank, up to three tiers. No passive interest.'),choiceGroup:'condensation-style',excludes:['afterglow-retention']},
+ 'afterglow-anchor':{...skill('afterglow-anchor','Kept Light','afterglow',30,2,'main-afterglow','Clear a flight to earn 5% of the Stored Sparks you carried in (up to 5). Rank two earns 10% (up to 10). Round down to whole Stored Sparks. The final guardian pays no interest.'),choiceGroup:'condensation-style',excludes:['afterglow-retention']},
+ 'packing-hand-seal':{...skill('packing-hand-seal','Hand Seal','afterglow',20,1,'main-afterglow','The first two fuel Sparks you touch directly that overfill your meter each earn 1 extra Stored Spark on clear.'),choiceGroup:'storage-pickups',excludes:['packing-deep-cache']},
+ 'packing-deep-cache':{...skill('packing-deep-cache','Deep Cache','afterglow',35,1,'main-afterglow','Overfill with a Cache, Surge, or Giant Spark. The first two each earn 2 extra Stored Sparks on clear. Collector deliveries count.'),choiceGroup:'storage-pickups',excludes:['packing-hand-seal']},
 })).filter(([id])=>!id.startsWith('main-artifact-slot-')))));
 const ARTIFACT_TAGS={'glow-wick':['sustain'],'flash-stone':['dream','precision'],'sunheart-engine':['sustain','tempo'],'dream-sovereign':['dream','precision'],'hollow-covenant':['risk','precision'],dreamcatcher:['dream','tempo'],'second-dawn':['dream','precision'],'echo-vessel':['sustain'],'glass-lantern':['sustain','risk'],'night-gardener':['risk','precision'],'ember-lens':['dream'],'quiet-cinder':['sustain'],'silver-feather':['precision'],'moss-heart':['precision','sustain'],'wayfinder-seed':['sustain','tempo'],'iron-petal':['sustain','tempo'],'storm-knot':['tempo','risk'],'hollow-bell':['precision'],'dawn-thread':['dream'],'overflow-coil':['sustain','tempo'],'echo-bell':['precision','tempo'],'dawn-loom':['tempo','dream'],sunspool:['precision','dream']};
 const BOSS_ARTIFACTS=new Set(['sunheart-engine','dream-sovereign','hollow-covenant',...Object.keys(GUARDIAN_RELICS)]);
@@ -426,6 +428,7 @@ export function beginFlightAttempt(run){
   flightBoon:run.nextFlightBoon??null,eventFavors:[...(run.eventFavors||[])],started:false,
   flame:run.flame,restGlowCapacity:getRestGlowBonus(run),
   condensedGlow:run.condensedGlow,condensedRemainder:run.condensedRemainder,
+  keptLightDividend:!run.isTutorial&&getFlightClearReward(run.current)?getKeptLightDividend(run.condensedGlow,run.skills['afterglow-anchor']):0,
   companions:[...run.companions],skills:{...run.skills},artifacts:[...run.artifacts],
   artifactCharges:{...(run.artifactCharges||{}),...getArtifactCharges(run)}
  };
@@ -569,6 +572,8 @@ export function finishFlight(run,result){
  const consumedArtifacts=commitArtifactCharges(run,result.artifactCharges);
  const max=getGlowCapacity(run),remaining=clamp(finite(result.flame,run.flame),0,max),recovery=getRecoveryRules(run);
  const pickupCondensedGlow=count(result.condensedGlow),completionBonus=getFlightClearReward(n);
+ const keptLightDividend=completionBonus&&!run.isTutorial?count(attempt?.keptLightDividend,10):0;
+ const storageBonus=completionBonus&&!run.isTutorial?count(result.storageBonus,run.skills['packing-deep-cache']?4:run.skills['packing-hand-seal']?2:0):0;
  const routeBonus=awardRouteBonus(run,n,attempt,result,completionBonus,pickupCondensedGlow,!!(vow||wager));
  const challengeComplete=attempt?.bonusId?!!routeBonus:result.challengeComplete===true;
  const rate=recovery.rate+(remaining<max*.2?recovery.rescue:0)+(challengeComplete?recovery.challenge:0),amount=max*rate+10*treasureRank(run,'wick');
@@ -581,6 +586,16 @@ export function finishFlight(run,result){
  run.condensedRemainder=clamp(finite(result.condensedRemainder,run.condensedRemainder),0,.999999999);
  run.condensedEarned=count(run.condensedEarned)+pickupCondensedGlow+completionBonus+(routeBonus?.amount||0);
  run.lastFlight={success:true,nodeId:n.id,mapIndex:run.mapIndex,difficulty:run.difficulty,flightNumber:n.flightNumber,terrain:n.terrain,elite:n.elite,boss:n.boss===true,completionBonus,pickupCondensedGlow,routeBonus,challengeBonus:0,challengeComplete,securedCondensedGlow:0,collected:count(result.collected),flame:remaining,pickupOverflow:Math.max(0,finite(result.pickupOverflow)),consumedArtifacts,recovery:{amount,rate,before:remaining,after:run.flame,overflow:0,stored:0}};
+ if(keptLightDividend){
+  queue(run,keptLightDividend,'kept-light');
+  run.condensedEarned+=keptLightDividend;
+  run.lastFlight.keptLightDividend=keptLightDividend;
+ }
+ if(storageBonus){
+  queue(run,storageBonus,'storage-bonus');
+  run.condensedEarned+=storageBonus;
+  run.lastFlight.storageBonus=storageBonus;
+ }
  if(vow){run.lastFlight.vow=vow;if(vow.reward){if(run.isTutorial)run.practiceCondensedGlow+=vow.reward;else queue(run,vow.reward,'pilgrim-vow');run.condensedEarned+=vow.reward;}}
  if(wager){
   run.lastFlight.treasureWager=wager;
@@ -614,7 +629,7 @@ function secureBoss(state){
 function settleRunRewards(r){
  const amount=count(r.pendingCondensedGlow),earned=r.pendingRewards.reduce((sum,reward)=>sum+(reward.kind==='respec'?0:count(reward.amount)),0);
  r.condensedGlow=count(r.condensedGlow)+amount;r.securedCondensedGlow+=Math.min(amount,earned);
- for(const reward of r.pendingRewards)if(['flight','flight-clear','route-bonus'].includes(reward.kind)&&r.lastFlight?.nodeId===reward.nodeId)r.lastFlight.securedCondensedGlow+=reward.amount;
+ for(const reward of r.pendingRewards)if(['flight','flight-clear','route-bonus','kept-light','storage-bonus'].includes(reward.kind)&&r.lastFlight?.nodeId===reward.nodeId)r.lastFlight.securedCondensedGlow+=reward.amount;
  if(amount)r.lastCheckpointReward={amount,rewards:copy(r.pendingRewards)};
  r.pendingCondensedGlow=0;r.pendingRewards=[];
  return amount;
@@ -627,7 +642,8 @@ export function settleCheckpoint(state){
 function flightClearReceipt(run){
  const flight=run.lastFlight;
  return {nodeId:flight.nodeId,mapIndex:flight.mapIndex,
-  amount:count(flight.completionBonus)+count(flight.pickupCondensedGlow)+count(flight.vow?.reward)+count(flight.treasureWager?.reward)+count(flight.routeBonus?.amount)+count(flight.chestIncome?.amount),
+  amount:count(flight.completionBonus)+count(flight.pickupCondensedGlow)+count(flight.vow?.reward)+count(flight.treasureWager?.reward)+count(flight.routeBonus?.amount)+count(flight.chestIncome?.amount)+count(flight.keptLightDividend)+count(flight.storageBonus),
+  storageBonus:count(flight.storageBonus),
   notes:[flight.vow?.message,flight.treasureWager?.message,flight.routeBonus?.message,flight.chestIncome?.message].filter(Boolean)};
 }
 function normalizeClearFlow(run){
@@ -800,9 +816,9 @@ function forgetSkillBranch(skills,id,paid={}){
     if(requires.includes(id)&&skills[child.id])forgetSkillBranch(skills,child.id,paid);
   }
 }
-export function buyCheckpointSkill(state,id){
+export function buyCheckpointSkill(state,id,expectedRank){
   if(!canBuyCheckpointSkills(state))return false;const r=state.run,wallet=runWallet(r),s=SKILLS[id],cost=getSkillCost(wallet,id);
-  if(!s||cost===null||wallet.condensedGlow<cost)return false;
+  if(!s||cost===null||wallet.condensedGlow<cost||expectedRank!==undefined&&expectedRank!==rank(r.skills,id)+1)return false;
   if(ROLES.includes(s.branch)&&!r.companions.includes(s.branch))return false;
   const oldCapacity=getGlowCapacity(r);
   if(r.isTutorial)r.practiceCondensedGlow-=cost;
@@ -841,6 +857,8 @@ export function sellArtifact(state,id){
 }
 
 export function getRunModifiers(run={}){const rank=skillProgress,companion=normalizeCompanionFleet(run.companions,run.companionRole)[0],s=Object.fromEntries(Object.entries(run.skills||{}).filter(([id])=>!ROLES.some(role=>id.startsWith(role+'-'))||id.startsWith(companion+'-'))),m={condensationRules:getCondensationRules(s),condensationBonus:0,overflowRecharge:0,workFuel:0,rechargeSight:0,litLift:0,dreamRecharge:0,secondDawn:0,nightGarden:0,dreamDuration:rank(s,'main-dream')?(rank(s,'main-dream-deep')?10:rank(s,'main-dream-long')?8:6):0,dreamWake:rank(s,'main-dream-wake')?4:3,dreamSight:rank(s,'main-dream-deep')>0,glowSense:rank(s,'main-glow-sense')>0,driftSense:rank(s,'main-drift-sense-3')?3:rank(s,'main-drift-sense-2')?2:rank(s,'main-drift-sense')?1:0,pickupReveal:rank(s,'main-dawnburst')>0,proximityUnlocked:rank(s,'proximity-awakening')>0,proximityShield:rank(s,'proximity-light-shield')>0,edgingGrace:rank(s,'proximity-grace')?2:1.25,edgingChargeRate:rank(s,'main-edging-attunement')?1.25:1,edgingDecayRate:rank(s,'main-edging-tension')?.5:1,edgingDuration:rank(s,'main-edging-lasting')?7:5,edgingRecovery:2,edgingRegen:rank(s,'main-edging-regeneration')>0,maxGlow:getGlowCapacity(run),richFuelBonus:8*rank(s,'main-cache-feast'),terminalFall:1+.08*rank(s,'main-deep-plummet'),speed:1+.08*rank(s,'main-speed')+.06*rank(s,'main-tailwind'),flap:1-.08*rank(s,'main-low-lift'),gravity:(1-.1*rank(s,'main-drift'))*(1+.12*rank(s,'main-plummet'))*(1+.06*rank(s,'main-deep-plummet')),flapCost:Math.max(.65,(1-.12*rank(s,'main-efficiency'))*(1-.10*rank(s,'main-lift'))*(1-.08*rank(s,'main-low-lift'))),lightRadius:145+35*rank(s,'main-sight')+45*rank(s,'main-horizon'),darkResistance:.4*rank(s,'main-dawn'),attract:1,wispCooldown:1,boostCooldown:1,boostDuration:1,reward:1,windSensitivity:1,cacheFuelBonus:4*rank(s,'main-kindling'),warmCore:false,steady:false,protectorCost:12*(1-.15*rank(s,'protector-cost')),protectorRecovery:7,protectorLayers:1+rank(s,'protector-layers'),levelerDuration:2.4+.5*rank(s,'leveler-duration'),levelerSteadiness:.2*rank(s,'leveler-steadiness'),levelerDive:rank(s,'leveler-dive')?1+.25*rank(s,'leveler-dive'):0,levelerRecovery:9,swiftDuration:1.25+.20*rank(s,'swift-duration'),swiftRecovery:7.5,swiftResistance:.72+.05*rank(s,'swift-resistance'),mainSeer:['main-echo-sight','main-echo-long','main-echo-range'].some(id=>rank(s,id)>0),seerRadius:230+50*rank(s,'main-echo-range'),seerDuration:2+rank(s,'main-echo-long'),seerRecovery:8,mainKindler:['main-kindled-touch','main-kindled-rich','main-purifying-touch'].some(id=>rank(s,id)>0),kindlerBonus:6+4*rank(s,'main-kindled-rich'),kindlerPurify:rank(s,'main-purifying-touch')>0};
+  m.handSeal=rank(s,'packing-hand-seal')>0;
+  m.deepCache=rank(s,'packing-deep-cache')>0;
   if(rank(s,'collector-reach')){m.attract*=1+.35*rank(s,'collector-reach');m.wispCooldown*=1+.20*rank(s,'collector-reach');}
   else if(rank(s,'collector-recovery')){m.attract*=1-.20*rank(s,'collector-recovery');m.wispCooldown*=1-.50*rank(s,'collector-recovery');}
   if(rank(s,'protector-recovery')){m.protectorRecovery*=1-.28*rank(s,'protector-recovery');m.protectorCost*=1+.25*rank(s,'protector-recovery');}

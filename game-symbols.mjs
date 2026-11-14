@@ -1,5 +1,5 @@
-import {condensedIconMarkup} from './afterglow-ui.mjs?v=lantern-chapter-1';
-import {sparkSymbolArt} from './spark-symbol.mjs?v=lantern-chapter-1';
+import {condensedIconMarkup} from './afterglow-ui.mjs?v=collector-audit-1';
+import {sparkSymbolArt} from './spark-symbol.mjs?v=collector-audit-1';
 // Small shared pixel silhouettes. Conditions retain words; basic resources do not.
 const shapes={
  up:'<path d="M7 2h2v2h2v2h2v2h-3v6H6V8H3V6h2V4h2z"/>',
@@ -11,6 +11,7 @@ const shapes={
 };
 const labels={energy:'Spark Meter',glow:'Spark Meter',packed:'Stored Sparks',up:'Increase',down:'Decrease',uses:'Uses',clock:'Duration',auto:'Automatic',music:'Music'};
 export function resourceSymbol(kind){
+  if(kind==='lock')return '<svg class="resource-symbol resource-symbol-lock" width="12" height="14" viewBox="0 0 12 14" aria-hidden="true" shape-rendering="crispEdges"><path fill="currentColor" fill-rule="evenodd" d="M4 0h4v2h2v4h2v8H0V6h2V2h2zm0 3v3h4V3zM5 8v3h2V8z"/></svg>';
   if(kind==='glow'||kind==='energy')return `<svg class="resource-symbol resource-symbol-energy" viewBox="0 0 24 24" role="img" aria-label="Spark Meter" shape-rendering="crispEdges">${sparkSymbolArt()}</svg>`;
   if(kind==='packed')return condensedIconMarkup().replace('class="ico condensed-icon"','class="resource-symbol resource-symbol-packed"').replace('aria-hidden="true"','role="img" aria-label="Stored Sparks"');
   const facets={

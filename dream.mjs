@@ -1,5 +1,5 @@
 // A dream records simulation inputs, never run rewards or snapshots of the world.
-import {getChoices} from './model.mjs?v=lantern-chapter-1';
+import {getChoices} from './model.mjs?v=collector-audit-1';
 const INPUTS=['beginLiftInput','endLiftInput','flap','activateAbility'];
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
 const ordered=value=>Array.isArray(value)?value.map(ordered):value&&typeof value==='object'?Object.fromEntries(Object.keys(value).sort().map(k=>[k,ordered(value[k])])):value;
@@ -7,7 +7,7 @@ export function dreamFingerprint(options={}){
   const modifiers = {...options.modifiers};
   delete modifiers.eventFavors;
   delete modifiers.flightBoon; // Waking benefits cannot change rehearsed physics.
-  return JSON.stringify(ordered({simulation:'lantern-chapter-1',seed:options.seed,terrain:options.terrain,elite:!!options.elite,duration:options.duration,
+  return JSON.stringify(ordered({simulation:'collector-audit-1',seed:options.seed,terrain:options.terrain,elite:!!options.elite,duration:options.duration,
     node:options.node,companions:options.companions,modifiers,flame:options.flame,condensedGlow:options.condensedGlow||0,condensedRemainder:options.condensedRemainder||0}));
 }
 export function dreamConfig(run={}){
@@ -23,10 +23,10 @@ export function validateDreamPreset(preset,engine){
 }
 export const dreamEye='<svg viewBox="0 0 32 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" shape-rendering="crispEdges"><path d="M4 9l4 4 4 2h8l4-2 4-4M6 13l-3 3m8 0-1 4m7-3v4m7-6 2 4"/></svg>';
 export function dreamIndicatorMarkup(dream){
-  if(!dream||!['recording','replay'].includes(dream.phase))return '';
+  if(dream?.phase!=='recording')return '';
   const duration=dream.duration;
   const remaining=clamp(dream.remaining??duration-(dream.engine?.time||0),0,duration);
-  const seconds=Math.ceil(remaining),label=dream.mode==='record'?'Dream':'Saved opening';
+  const seconds=Math.ceil(remaining),label='Dream';
   return `<div class="dream-countdown" role="meter" aria-label="${label} time remaining" aria-valuemin="0" aria-valuemax="${duration}" aria-valuenow="${seconds}" aria-valuetext="${seconds} seconds remaining"><span class="dream-clock-label" aria-hidden="true">${dreamEye}${label}<b>${seconds}s</b></span><span class="dream-clock-track" aria-hidden="true"><i style="transform:scaleX(${remaining/duration})"></i></span></div>`;
 }
 export function updateDreamIndicator(host,dream){
@@ -50,6 +50,37 @@ export function canDreamAt(run,node){
  if(!node||node.type==='support'||!run||run.attemptActive||run.victoryPending||run.banked||run.lives<=0||!dreamConfig(run).duration)return false;
  if(run.phase==='briefing')return run.current?.id===node.id;
  return getChoices(run).some(choice=>choice.id===node.id);
+}
+
+// Rebuild the live flight with the original fixed simulation steps behind
+// the loading screen. Yield between short slices so Back and resize work.
+export async function prepareDreamHandoff(engine){
+  const dream=engine.dream;
+  if(!engine.running||!engine.paused||engine.time!==0||dream?.phase!=='replay'||dream.preparing)return false;
+  const {render,notify,sound}=engine;
+  const silent=()=>{};
+  dream.preparing=true;
+  engine.render=silent;engine.notify=silent;engine.sound=silent;
+  try{
+    const frames=Math.ceil(dream.duration*60);
+    let frame=0;
+    while(frame<frames&&dream.phase==='replay'&&!engine.destroyed){
+      const deadline=performance.now()+6;
+      const end=Math.min(frames,frame+32);
+      engine.paused=false;
+      do{
+        engine.step(1/60);frame++;
+        if(engine.dying||engine.finished||engine.destroyed)return false;
+      }while(frame<end&&dream.phase==='replay'&&performance.now()<deadline);
+      engine.paused=true;
+      if(frame<frames&&dream.phase==='replay')await new Promise(resolve=>setTimeout(resolve,0));
+    }
+    return !engine.destroyed&&dream.phase==='awakening'&&Math.abs(engine.time-dream.duration)<1e-6;
+  }finally{
+    engine.paused=true;
+    engine.render=render;engine.notify=notify;engine.sound=sound;
+    dream.preparing=false;
+  }
 }
 
 export function attachDream(engine,{mode='record',preset,duration=engine.mod.dreamDuration,onReady=()=>{},onAwake=()=>{}}={}){

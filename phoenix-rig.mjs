@@ -1,5 +1,5 @@
-import * as PIXI from './vendor/pixi.mjs?v=lantern-chapter-1';
-import { PhoenixMotion, deformWing, deformTail } from './phoenix-motion.mjs?v=lantern-chapter-1';
+import * as PIXI from './vendor/pixi.mjs?v=collector-audit-1';
+import { PhoenixMotion, deformWing, deformTail } from './phoenix-motion.mjs?v=collector-audit-1';
 
 export class PhoenixRig {
   constructor(texture) {

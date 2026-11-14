@@ -55,7 +55,8 @@
  text-align:center;text-shadow:-1px 0 #030b0e,1px 0 #030b0e,0 1px #030b0e,0 -1px #030b0e;
  animation:clear-earnings 2.4s ease-out both;
 }
-.map-clear-earnings>b{display:flex;align-items:center;gap:6px;font:19px/1.2 var(--pixel);color:var(--ui-gold)}
-.map-clear-earnings .resource-symbol{width:24px;height:24px;flex:none}
+.wallet-banked .wallet-currency-icon{animation:wallet-banked .85s ease-out}
+@keyframes wallet-banked{0%,100%{filter:none}38%{filter:brightness(1.5) drop-shadow(0 0 4px #f5dda2)}}
+@media(prefers-reduced-motion:reduce){.wallet-banked .wallet-currency-icon{animation:none}}
 @keyframes clear-earnings{0%{opacity:0;translate:0 6px}12%,75%{opacity:1;translate:0 0}100%{opacity:0;translate:0 -8px}}
 @media(prefers-reduced-motion:reduce){.map-clear-earnings{animation:clear-earnings 2.4s steps(1,end) both;translate:none}}

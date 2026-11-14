@@ -1,0 +1,23 @@
+@font-face{font-family:Pixelify;src:url(assets/fonts/pixelify-sans.ttf) format('truetype');font-display:swap}
+:root{color-scheme:dark;color:#e3ede4;background:#0b1217;font:17px/1.1 Pixelify,system-ui,sans-serif}
+*{box-sizing:border-box}
+body{margin:0;min-height:100svh;display:grid;align-items:center;background:radial-gradient(ellipse at 40% 5%,#1e292c,#10191d 47%,#080f14)}
+main{width:min(100%,1120px);margin:auto;padding:max(10px,env(safe-area-inset-top)) max(14px,env(safe-area-inset-right)) max(10px,env(safe-area-inset-bottom)) max(14px,env(safe-area-inset-left))}
+header,.transport,.styles,.masses{display:flex;align-items:center}
+header{gap:clamp(10px,2.2vw,24px);margin-bottom:8px}
+h1{font-size:clamp(20px,3vw,32px);color:#ede9ce;font-weight:500;margin:0 auto 0 0}
+.styles,.masses{gap:3px}
+button{font:inherit;font-size:clamp(15px,1.7vw,19px);background:transparent;border:1px solid transparent;color:#b7c5c3;min-height:42px;padding:4px clamp(7px,1.2vw,15px);cursor:pointer;touch-action:manipulation}
+button[aria-pressed=true]{color:#f3e9c9;background:#253332;border-color:#707c66;box-shadow:inset 0 -2px #4d5b4e}
+button:focus-visible,input:focus-visible{outline:2px solid #ffe4a8;outline-offset:2px}
+.stage{height:clamp(160px,calc(100svh - 120px),460px);position:relative;overflow:hidden;border-block:1px solid #435653;background:#111e28}
+canvas{display:block;width:100%;height:100%}
+.stage-caption{position:absolute;left:13px;top:12px;color:#b4c5c9;font:500 12px/1.15 system-ui,sans-serif;letter-spacing:.06em;text-transform:uppercase;pointer-events:none}
+.transport{gap:clamp(4px,1.2vw,14px);padding-top:4px}
+.transport button{color:#dde3d5;min-width:40px}
+#play{font-family:system-ui,sans-serif;font-size:20px}
+#time{width:0;min-width:44px;flex:1;height:36px;margin:0 4px;accent-color:#c8decb;cursor:pointer}
+#speed{font-variant-numeric:tabular-nums}#angle{min-width:94px}
+@media(max-width:670px){h1{font-size:19px}header{gap:5px}button{padding-inline:5px}.styles,.masses{gap:1px}}
+@media(orientation:portrait){main{padding-inline:max(10px,env(safe-area-inset-left)) max(10px,env(safe-area-inset-right))}header{flex-wrap:wrap}h1{width:100%;margin-bottom:3px}.masses{margin-left:auto}.stage{height:clamp(260px,52svh,520px)}.transport{gap:1px}#angle{min-width:70px}}
+@media(orientation:landscape) and (max-height:370px){main{padding-block:max(4px,env(safe-area-inset-top)) max(4px,env(safe-area-inset-bottom))}.stage{height:calc(100svh - 105px)}header{margin-bottom:2px}}

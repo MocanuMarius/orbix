@@ -1,4 +1,4 @@
-import {getLifeCapacity} from './vitality.mjs?v=lantern-chapter-1';
+import {getLifeCapacity} from './vitality.mjs?v=collector-audit-1';
 
 function bonus(id, name, condition, reward, target) {
   return Object.freeze({id, name, condition, reward, target});
@@ -11,7 +11,7 @@ export const ROUTE_BONUSES = Object.freeze({
   'wild-circuit': bonus('wild-circuit', 'Wild Circuit', 'Activate two marked terrain objects.', 'Faster companion recovery next attempt (+20%).', 2),
   'flash-relay': bonus('flash-relay', 'Flash Relay', 'Collect the marked Flash Powerup, then 2 of 3 marked Sparks while the passage is lit.', '+25% Luminance for the first 15 seconds next attempt.', 2),
   'long-glide': bonus('long-glide', 'Long Glide', 'Lift at the blue chevron, then glide through both marked Sparks for two seconds.', 'First three Lifts free next attempt, up to 9 Sparks saved.', 2),
-  edgeweaver: bonus('edgeweaver', 'Edgeweaver', 'Trigger Proximity in both marked sections.', 'One ward next attempt. Protector’s first deflection costs no Sparks.', 2),
+  edgeweaver: bonus('edgeweaver', 'Edgeweaver', 'Trigger Proximity in both marked sections.', 'A ward deflects one collision on your next attempt.', 2),
   'night-sail': bonus('night-sail', 'Night Sail', 'Collect both bypass Sparks. Lose at most 3 Sparks to the marked Black Hole.', 'Black Holes drain 25% less Sparks next attempt.', 2),
   wayfinder: bonus('wayfinder', 'Wayfinder', 'Fly through three marked gates.', 'See the opening 2.5 seconds of the next passage before you start.', 3),
   constellation: bonus('constellation', 'Rising Constellation', 'Follow the gold marks. Collect a Spark, then a Cluster, then a Cache. Miss one? Look for the next matching Spark.', 'First three fuel Sparks next attempt give +2 Sparks each.', 3)

@@ -12,10 +12,11 @@ export const TUTORIAL_TOPICS={
  luminance:{name:'Luminance',visual:'luminance',steps:[
   s('Luminance','Luminance is how far your wisp lights the world. It fades with distance; faraway scenery and Sparks disappear into darkness.','luminance'),
   s('Sparks and sight','Sparks pay for Lift. Luminance reveals the route around your wisp.','luminance'),
-  s('Grow your Luminance','Learn Luminance in the Wisp tree. A Flash Powerup reveals the passage when collected.','pickup:sight')]},
+  s('See farther','Open the Luminance chapter. Luminance widens your light. Spark Sense lets you see pickups through darkness. Long Flash extends the white triangle’s light from 8 to 24 seconds.','pickup:sight')]},
  utilities:{name:'Flash & hazards',visual:'pickup:sight',steps:[
   s('Flash Powerup','Catch the white triangle. It follows on a thread, lighting the passage with each pulse. The puff means its light has run out.','pickup:sight'),
-  s('Dusk Spark','The rose Dusk Spark trades reduced Luminance for fuel. Its red ring warns of the cost. Only body contact collects it.','pickup:dusk')]},
+  s('Dusk Spark','The rose Dusk Spark trades reduced Luminance for fuel. Its red ring warns of the cost. Only body contact collects it.','pickup:dusk'),
+  s('Dark Spark','A Dark Spark dims your view for up to eight seconds. Collecting a fuel Spark clears one dimming effect. Collector leaves the red Spark alone.','pickup:dark')]},
  lanterns:{name:'Darkness Lanterns',visual:'lantern-icon',steps:[
   s('Read the pair','Paired lanterns mark Hollow Sun’s chapter. Watch the roof and floor. A lens glows gold before it opens. The crossing is darkest where the two beams overlap.','lantern-pair'),
   s('Cast a reverse shadow','Fly between a lantern and the rock. Your wisp blocks the darkness, leaving a wedge of light on the far side. Move sideways to sweep it across the rock.','lantern-wedge'),
@@ -35,24 +36,22 @@ export const TUTORIAL_TOPICS={
   s('Wait for delivery','The companion flies out, takes one Spark and brings it home. Sparks arrive only on return. Farther Sparks take longer: do not rely on an instant rescue when nearly empty.','collector-return'),
   s('Watch the boundary','After delivery, the green boundary contracts and regrows over 10 seconds. A nearby Spark can still be fetched during recovery if it is inside the smaller boundary.','collector-recovery'),
   s('Read the Power indicator','For Collector, the filling button shows current range, not an ability to press. A full indicator means maximum reach. Red-ring Sparks are left for you to choose.','companion:collector'),
-  s('Upgrade the right reach','Collector skills improve fetching range, delivery and recovery. Light skills improve Luminance: how far you see. Fetching range and seeing distance are different.','luminance')]},
+  s('Upgrade the right reach','The Collector chapter improves fetching range, delivery and recovery. Luminance has a separate chapter for how far you see.','luminance'),
+  s('Last Orbit','Learn Last Orbit to catch a fatal impact when Collector is home and its green ring is full. After a rescue, collect Sparks yourself for four normal recovery cycles.','collector-recovery')]},
  companions:{name:'Companions',visual:'companion:collector',steps:[
-  s('One helper at a time','Choose one companion. Only Collector fetches Sparks; every other role relies on body pickups. Choose on the main screen for the whole run. Improve that role through its skill tree.','companion:collector'),
-  s('Protector · automatic','The blue orb rebuilds a visible shell around you. A charged shell spends Sparks to deflect a collision and push you clear. No button press is needed.','companion:protector'),
-  s('A shield is not immunity','After a deflection, the broken shell must rebuild. Without a charge or enough Sparks, a collision ends the attempt. It cannot stop a Black Hole draining Sparks.','companion:protector'),
-  s('Runner · press Power','The amber orb gives a short forward burst when you press Power. It resists drafts but does not protect against terrain. Pick a clear stretch before accelerating.','companion:swift'),
-  s('Runner · wait for refill','The Power button empties after a burst and fills during cooldown. When full, its ready sparkle means you can burst again. Runner never fetches Sparks.','companion:swift'),
-  s('Space Timer · hold to hover','With the cyan orb, hold the scene or Lift to levitate. Charge drains only while held. You still bob gently and drafts can push you.','companion:leveler'),
-  s('Space Timer · release to glide','Release to fall and recharge. Empty charge ends levitation. Short holds help line up body pickups; upgrades can extend charge, steady the bob or add a release dive.','companion:leveler')]},
+  s('Your companion','The green Collector accompanies you throughout the run. The three other portraits in the roster are locked.','companion:collector'),
+  s('Read the range','The green boundary marks the reach of the next fetch. When a delivery arrives, the boundary contracts and slowly grows back.','collector-recovery'),
+  s('Build your Collector','Open the Collector chapter in Skills to change its reach or recovery. Last Orbit lets a fully ready Collector catch a fatal impact.','collector-range')]},
  packed:{name:'Stored Sparks',visual:'clear-reward',steps:[
   s('A reward for every clear','Ordinary flights earn 20 Stored Sparks for run skills. Elite and guardian victories also offer two artifacts: choose one. The third guardian ends the run with victory.','clear-reward'),
   s('Overflow is a bonus','When a pickup overfills Sparks, the surplus becomes extra Stored Sparks. Clear the flight to keep them. Rest refills do not create Stored Sparks.','packed'),
   s('Your skill book','Browse the chapters to see where a perk leads. Can learn shows every upgrade you can afford, including skills for your chosen companion.','skills'),
   s('Glide Regeneration','Find it in Flight. Stop pressing Lift and fall unassisted to recover Sparks after a delay. Hovering, boosting, dreams and pauses do not regenerate Sparks.','meter'),
-  s('Storing surplus','Storage starts at 6 surplus Sparks for 1 Stored Spark. Efficient Storage and Prism Vessel each improve the yield. It improves your run economy; it is not a second fuel bar.','skills')]},
+  s('Storing surplus','At first, 6 surplus Sparks make 1 Stored Spark. Learn Storage in the skill book to double that rate. Later ranks improve the yield further.','skills'),
+  s('Kept Light','Carry 80 Stored Sparks into a flight and clear it to earn 4 extra at rank one, or 8 at rank two. Kept Light pays up to 5 or 10 per clear before the final guardian.','packed')]},
  skills:{name:'Skill book',visual:'skills',steps:[
   s('Choose a chapter','Flight improves Lift and fuel. Luminance helps you see the passage. Your companion has a chapter of its own. All skills last for this run.','skills'),
-  s('Read the skill states','Owned perks have a blue check. Gold prices are affordable now. Save means you need more Stored Sparks. Later means there is a prerequisite.','skill-states'),
+  s('Read the skill states','Blue means Owned. Gold means Can learn. Grey shows how much more to save. A lock points to the prerequisite you need. Each rank is a separate perk.','skill-states'),
   s('Commit to your build','Following a prerequisite chain keeps its next upgrades cheaper. Specializing leaves fewer Stored Sparks for other paths. Some forks close their alternative for this run.','skills')]},
  rewards:{name:'Flight rewards',visual:'artifact',steps:[
   s('Clear the passage','Reaching the waylight completes a flight. Before the final guardian, earn 20 Stored Sparks plus pickup overflow. Some Sparks recover for the next flight. A bonus challenge is optional.','clear-reward'),
@@ -65,12 +64,12 @@ export const TUTORIAL_TOPICS={
   s('Build a combination','Pair automatic effects with your companion, skills and the next biome. Read each trigger and limit. Artifacts last only for this run; exhausted consumables disappear.','artifact')]},
  rest:{name:'Rest',visual:'rest',steps:[
   s('Recover or Grow','Recover restores every missing heart. Grow adds 3 Spark capacity for this run, up to three times. Both completely refill Sparks. Choose once at each Rest.','rest'),
-  s('Then prepare','After Recover or Grow, inspect your artifacts before leaving. Keep your Rest benefit while preparing.','tools'),
+  s('Then prepare','After Recover or Grow, open Skills to learn a perk or Collection to melt an artifact. Both are optional. Leave Rest when you’re ready.','tools'),
   s('Plan your next passage','Each Rest leads to one known flight. Inspect its terrain and prepare. If you lose a heart there, you can retry that same passage.','route')]},
  dream:{name:'Dream',visual:'dream',steps:[
   s('Dream: rehearse six seconds','With Dream learned, choosing a flight opens a golden rehearsal. Follow the timer and practise the opening for free.','dream'),
-  s('Sleep or wake','Go back to sleep to practise again. Wake up to fly the same opening in ordinary light. Your recorded Lifts are free.','dream'),
-  s('Wake safely','Playback ends paused. Tap once to resume and tap again to Lift as the flight returns to full speed.','pause')]},
+  s('Sleep or wake','Go back to sleep to practise again. Wake up at the end of your chosen opening with its pickups and free Lifts.','dream'),
+  s('Wake safely','The passage returns to ordinary light and waits. Tap once to resume, then tap again to Lift.','pause')]},
  routes:{name:'Paths & stops',visual:'route',steps:[
   s('Follow connected paths','Bright nodes are reachable. Dim nodes are not. Choosing a fork commits your route; you cannot jump to any stop on the map.','route'),
   s('Flight and elite routes','Passage markers mean ordinary Flight. Creature portraits mark harder Elite routes with a two-artifact choice. Inspect the biome and length before committing.','site:flight'),
@@ -78,7 +77,7 @@ export const TUTORIAL_TOPICS={
   s('Encounter and treasure','The encounter symbol offers a trade or event. The chest offers treasure. Check gains, costs and chances before choosing.','sites-support'),
   s('Guardian','A large guardian portrait marks the end of each map. Survive its warned patterns and reach the finish. Three different guardians stand between you and a completed run.','site:boss')]},
  hazards:{name:'Hazards & pulses',visual:'black-hole',steps:[
-  s('Drafts','Local curls show where wind pushes. Fly around them or plan your Lift timing. Runner resists them; Space Timer still feels them.','draft'),
+  s('Drafts','Local curls show where wind pushes. Leave room to drift or time a Lift against the current. Once you pass the curls, ordinary flight returns.','draft'),
   s('Bad Sparks','Red rings mean danger or a cost. Dark Sparks reduce Luminance; Dusk Sparks trade Luminance for fuel. Collector ignores harmful pickups.','pickup:dark'),
   s('Black Hole','A black core is a hazard, not a pickup. It continuously steals Sparks nearby; closer means much faster drain. Give it space, even with a shield.','black-hole'),
   s('Proximity · an earned skill','Buy the first Proximity skill to unlock surface charging. Skim solid terrain without touching it; full charge reveals the scene. Its separate tree offers recovery and a temporary light shield. Open sky never charges it.','edge')]},

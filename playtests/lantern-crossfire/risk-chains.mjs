@@ -1,4 +1,5 @@
-import {pickupKind,getPickupSpec} from './pickups.mjs?v=lantern-chapter-1';
+import {pickupKind,getPickupSpec} from './pickups.mjs?v=collector-audit-1';
+import {inLanternRoom} from './lantern-layout.mjs?v=collector-audit-1';
 
 // Rise from the launch mark to the first Spark, fall through the seed, then
 // fly another half second in dim light before the third fuel pickup.
@@ -11,6 +12,7 @@ function placeFall(layout,anchor,donors,options,clear,id) {
   const drop=t=>t<=stopTime ? gravity*t*t/2 : terminal*(t-stopTime/2);
   const endTime=fallTimes.at(-1), totalDrop=drop(endTime);
   const launchX=crestX-speed*riseTime, endX=crestX+speed*endTime;
+  if(inLanternRoom(layout,(launchX+endX)/2,(endX-launchX)/2+70))return false;
   if(layout.sections.some(s=>(s.hard||s.authoredChallenge)&&launchX-45<s.end&&endX+70>s.start))return false;
   const escapeTime=fallTimes[1];
   const climb=t=>-lift*t+gravity*t*t/2;
@@ -68,6 +70,7 @@ export function installRiskChains(layout,{duration,speed,height,stage,difficulty
     if(placed)continue;
     for(const anchor of candidates){
       const x=anchor.x+anchor.width*.65;
+      if(inLanternRoom(layout,x,gap+70))continue;
       if(layout.sections.some(s=>(s.hard||s.authoredChallenge)&&x+gap+140>s.start&&x-gap-140<s.end))continue;
       const donors=layout.embers.filter(p=>pickupKind(p)==='light'&&!p.intro&&!p.accessible&&!p.challengeLandmark&&!p.riskChain&&!p.generated)
         .sort((a,b)=>Math.abs(a.x-x)-Math.abs(b.x-x)).slice(0,2);

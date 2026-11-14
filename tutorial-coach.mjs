@@ -1,5 +1,5 @@
-import {tutorialTarget,tutorialTextMarkup,tutorialExampleMarkup} from './tutorial-context.mjs?v=lantern-chapter-1';
-import {tutorialVisualMarkup} from './tutorial-visuals.mjs?v=lantern-chapter-1';
+import {tutorialTarget,tutorialTextMarkup,tutorialExampleMarkup} from './tutorial-context.mjs?v=collector-audit-1';
+import {tutorialVisualMarkup} from './tutorial-visuals.mjs?v=collector-audit-1';
 let coachId = 0;
 const clamp = (value, low, high) => Math.max(low, Math.min(high, value));
 const focusable = 'button:not(:disabled),a[href],input:not(:disabled),select:not(:disabled),textarea:not(:disabled),[tabindex]:not([tabindex="-1"])';
@@ -44,11 +44,15 @@ export function createTutorialCoach({ onNext, onBack, onSkip } = {}) {
 
   const resolveTarget = () => {
     if (!step) return null;
-    const inferred=tutorialTarget(step);if(inferred){const node=[...document.querySelectorAll(inferred)].find(n=>n.getBoundingClientRect().width>0&&window.getComputedStyle(n).visibility!=='hidden');if(node)return node;}
-    if (typeof step.target === 'string') {
-      try { return document.querySelector(step.target); } catch { return null; }
+    const surface=document.querySelector('dialog[open]')||document;
+    const visible=node=>node?.getClientRects().length&&window.getComputedStyle(node).visibility!=='hidden';
+    if(step.target?.nodeType===1&&surface.contains(step.target)&&visible(step.target))return step.target;
+    for(const selector of [typeof step.target==='string'?step.target:null,tutorialTarget(step)]){
+      if(!selector)continue;
+      const node=[...surface.querySelectorAll(selector)].find(visible);
+      if(node)return node;
     }
-    return step.target?.nodeType === 1 && typeof step.target.getBoundingClientRect === 'function' ? step.target : null;
+    return null;
   };
   const place = (element, x, y, width, height) => {
     Object.assign(element.style, { left: `${x}px`, top: `${y}px`, width: `${Math.max(0, width)}px`, height: `${Math.max(0, height)}px` });
@@ -64,7 +68,7 @@ export function createTutorialCoach({ onNext, onBack, onSkip } = {}) {
     frame = null;
     if (!step || destroyed || root.hidden) return;
     target = resolveTarget();
-    const host = target?.closest?.('dialog[open]') || document.body;
+    const host = target?.closest?.('dialog[open]') || document.querySelector('dialog[open]') || document.body;
     if (root.parentElement !== host) host.appendChild(root);
     const width = document.documentElement.clientWidth || window.innerWidth;
     const height = window.visualViewport?.height || window.innerHeight;

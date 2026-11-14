@@ -1,7 +1,7 @@
-import { LIGHT_PACKET_TUNING } from './vitality.mjs?v=lantern-chapter-1';
-import { getCompanionAbility } from './companion-abilities.mjs?v=lantern-chapter-1';
-import { pickupKind, pickupContactRadius, canCompanionCollect } from './pickups.mjs?v=lantern-chapter-1';
-import {sparkArtScale,sparkMass} from './spark-size.mjs?v=lantern-chapter-1';
+import { LIGHT_PACKET_TUNING } from './vitality.mjs?v=collector-audit-1';
+import { getCompanionAbility } from './companion-abilities.mjs?v=collector-audit-1';
+import { pickupKind, pickupContactRadius, canCompanionCollect } from './pickups.mjs?v=collector-audit-1';
+import {sparkArtScale,sparkBodyRadius,sparkMass} from './spark-size.mjs?v=collector-audit-1';
 
 const clamp = (value, lo, hi) => Math.min(hi, Math.max(lo, value));
 export const WISP_TUNING = Object.freeze({ range: 52.5, cooldown: 10, lightRadius: 175,
@@ -209,7 +209,7 @@ export class WispCompanion {
     this.contacts.length = 0;
     for (const packet of packets) {
       if (!canCompanionCollect(packet) || packet.collected || packet.carried) continue;
-      if (Math.hypot(packet.x-engine.distance-home.x,packet.y-home.y)>reach+pickupContactRadius(packet)) continue;
+      if (Math.hypot(packet.x-engine.distance-home.x,packet.y-home.y)>reach+sparkBodyRadius(packet,engine.height)) continue;
       if (!this.contactTimes.has(packet)) this.contactTimes.set(packet,engine.time);
       this.contacts.push({packet,since:this.contactTimes.get(packet)});
       if (this.contacts.length===8) break;
@@ -223,13 +223,14 @@ export class WispCompanion {
         for (const ember of packets) {
           if (!canCompanionCollect(ember) || ember.collected || ember.carried || ember.attracted) continue;
           const x = ember.x - engine.distance;
-          if (x < home.x - reach - pickupContactRadius(ember)) continue;
+          const shell = sparkBodyRadius(ember,engine.height);
+          if (x < home.x - reach - shell) continue;
           // Leave the entire approach and body-contact window to the player.
           // Once a packet passes behind this edge, forward flight cannot touch
           // it directly; only then may the carrier rescue it within its range.
-          if (x >= home.x - pickupContactRadius(ember)) continue;
+          if (x >= home.x - pickupContactRadius(ember,engine.height)) continue;
           if (engine.collectorContains && !engine.collectorContains(ember)) continue;
-          const distance = Math.hypot(x - home.x, ember.y - home.y)-pickupContactRadius(ember);
+          const distance = Math.hypot(x - home.x, ember.y - home.y) - shell;
           if (distance <= nearestDistance) { nearest = ember; nearestDistance = distance; }
         }
         if (nearest) {

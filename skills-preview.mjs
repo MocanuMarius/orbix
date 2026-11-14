@@ -1,13 +1,15 @@
-import {newState,createRun,getSkillWallet,buyCheckpointSkill,chooseStartingSkill} from './model.mjs?v=lantern-chapter-1';
-import {skillBookMarkup} from './skill-book.mjs?v=lantern-chapter-1';
+import {newState,createRun,getSkillWallet,buyCheckpointSkill,chooseStartingSkill} from './model.mjs?v=collector-audit-1';
+import {skillBookMarkup} from './skill-book.mjs?v=collector-audit-1';
 
 const book=document.querySelector('#preview-book'),status=document.querySelector('#preview-status');
+const storageLink=()=>new URLSearchParams(location.search).get('chapter')==='packing'||location.hash==='#packing';
 const initialVariant=()=>location.hash==='#index'?'index':'map';
-let variant=initialVariant(),chapter=variant==='index'?'available':'wisp',selected=null;
+let variant=initialVariant(),chapter=variant==='index'?'available':storageLink()?'packing':'wisp',selected=null;
 function seedBuild(){
  const sample=newState();
  const run=createRun(sample.profile,'skill-book-playtest',1);
  Object.assign(run,{mapIndex:1,condensedGlow:115,skills:{'main-sight':1,'collector-attunement':1,'main-dream':1},startingSkill:'main-dream'});
+ if(storageLink())Object.assign(run,{condensedGlow:45,skills:{'main-efficiency':1,'main-afterglow':1,'afterglow-vessel':1}});
  sample.run=run;
  return sample;
 }
@@ -37,7 +39,9 @@ function switchVariant(id){
 document.querySelector('#reset-build').addEventListener('click',()=>{
  state=seedBuild();selected=null;render();status.textContent='Sample build restored.';
 });
-window.addEventListener('hashchange',()=>switchVariant(initialVariant()));
+window.addEventListener('hashchange',()=>{
+ variant=initialVariant();chapter=variant==='index'?'available':storageLink()?'packing':'wisp';selected=null;render();
+});
 book.addEventListener('click',event=>{
  const button=event.target.closest('[data-action]');
  if(!button||button.disabled)return;
@@ -46,8 +50,8 @@ book.addEventListener('click',event=>{
   case 'book-variant':switchVariant(id);return;
   case 'book-chapter':chapter=id;selected=null;break;
   case 'book-skill':selected=id;if(button.dataset.chapter)chapter=button.dataset.chapter;break;
-  case 'buy-skill':if(buyCheckpointSkill(state,id)){selected=id;status.textContent='Learned in the sample build.';}break;
-  case 'choose-start-skill':if(chooseStartingSkill(state,id))selected=id;break;
+  case 'buy-skill':if(buyCheckpointSkill(state,id,Number(button.dataset.rank))){status.textContent='Learned in the sample build.';}break;
+  case 'choose-start-skill':if(chooseStartingSkill(state,id)&&!button.closest('.book-inline-requirement'))selected=id;break;
   case 'close-sheet':selected=null;break;
   default:return;
  }

@@ -12,7 +12,7 @@ export const MAIN_TUNING_SKILLS={
  'main-kindled-touch':node('main-kindled-touch','Kindled Touch',35,'main-efficiency','Direct natural Spark pickups restore 6 extra Sparks. Companion deliveries keep their usual value.','fuel','Direct +6 Sparks'),
  'main-kindled-rich':node('main-kindled-rich','Bright Touch',40,'main-kindled-touch','Direct natural Spark pickups restore another 4 Sparks.','fuel','Direct +4 Sparks'),
  'main-purifying-touch':node('main-purifying-touch','Purifying Touch',45,'main-kindled-touch','Touch a Dark Spark to turn it into 12 Sparks instead of dimming. Recharges in 10 seconds.','purify','Cleanse seeds'),
- 'main-dream':node('main-dream','Dream',35,'main-sight','Rehearse the first 6s of each flight in golden light. Wake to replay your opening with free Lifts.','dream','Dream 6s'),
+ 'main-dream':node('main-dream','Dream',35,'main-sight','Rehearse the first 6s of each flight in golden light. Lifts are free. Wake at the end of your rehearsal with your pickups.','dream','Dream 6s'),
  'main-dream-long':node('main-dream-long','Long Dream',40,'main-dream','Extend rehearsals and preset playback to 8 seconds.','dream','Dream 8s'),
  'main-dream-deep':node('main-dream-deep','Deep Dream',55,'main-dream-long','Preview 10 seconds. Gain +70 Luminance during your saved opening and for 3 seconds after taking control.','dream','Dream 10s'),
  'main-dream-wake':node('main-dream-wake','Gentle Awakening',30,'main-dream','After waking and tapping to resume, ease back to full speed over 4 seconds instead of 3.','dream','Soft wake'),
@@ -59,6 +59,7 @@ export function priceSkillDefinition(s){
   'leveler-deep-dive':25,'leveler-ready-release':40,'leveler-quick-balance':45,'leveler-long-balance':55,
   'swift-long-spark':40,'swift-rapid-spark':55,'swift-storm-runner':25,'swift-sheltered-pace':35,
   'swift-duration':20,'leveler-duration':35,'main-edging-lasting':40,'main-edging-tension':35,
+  'packing-hand-seal':20,'packing-deep-cache':35,
  };
  if(utility[s.id]!=null)return {...s,cost:utility[s.id]};
  if(s.branch==='proximity')return s;

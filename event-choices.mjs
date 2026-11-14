@@ -1,5 +1,5 @@
-import {getGlowCapacity,getLifeCapacity} from './vitality.mjs?v=lantern-chapter-1';
-import {getCompanionAbility} from './companion-abilities.mjs?v=lantern-chapter-1';
+import {getGlowCapacity,getLifeCapacity} from './vitality.mjs?v=collector-audit-1';
+import {getCompanionAbility} from './companion-abilities.mjs?v=collector-audit-1';
 
 // Values in descriptions are player-facing. Effects use the existing simulation units.
 export const EVENT_EDITION=2;

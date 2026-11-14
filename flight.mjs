@@ -1,59 +1,59 @@
-import {prepareAtlasFlight,resizeAtlasFlight,ringBellwind,bellwindAcceleration,moonLightScale,drawAtlasFlight} from './atlas-flight.mjs?v=lantern-chapter-1';
-import {canShowFlightHint} from './flight-hint-safety.mjs?v=lantern-chapter-1';
-import {updateGlideRegeneration} from './glide-regeneration.mjs?v=lantern-chapter-1';
-import {drawGuardianPresence} from './guardian-presence.mjs?v=lantern-chapter-1';
-import { updateGuardian, resizeGuardian, placeGuardianFuel } from './guardian-effects.mjs?v=lantern-chapter-1';
-import { drawGuardianWarnings } from './guardian-art.mjs?v=lantern-chapter-1';
-import { drawShutters, resizeShutters } from './shutter-cone.mjs?v=lantern-chapter-1';
-import { inLanternRoom, installPassageLanterns, lanternField } from './lantern-layout.mjs?v=lantern-chapter-1';
-import {drawProximityMeter} from './proximity-meter.mjs?v=lantern-chapter-1';
-import {drawFourthBeat} from './fourth-beat-art.mjs?v=lantern-chapter-1';
-import {drawCollectorGuard} from './collector-guard-art.mjs?v=lantern-chapter-1';
-import {buildObjectivePlan,createFlightObjective,drawObjectiveMarks} from './flight-objectives.mjs?v=lantern-chapter-1';
-import {FlightProjection,drawFlightProjection} from './flight-projection.mjs?v=lantern-chapter-1';
-import {drawGlowSense} from './glow-sense.mjs?v=lantern-chapter-1';
-import {formatGlow} from './vitality.mjs?v=lantern-chapter-1';
-import {installRiskChains} from './risk-chains.mjs?v=lantern-chapter-1';
-import {installSparkField} from './spark-fields.mjs?v=lantern-chapter-1';
-import {drawFallWarning} from './fall-chain-art.mjs?v=lantern-chapter-1';
-import {EXTRA_COURSES} from './world-expansion.mjs?v=lantern-chapter-1';
-import {BIOME_COURSES} from './biome-courses.mjs?v=lantern-chapter-1';
-import {BiomeDynamics} from './biome-dynamics.mjs?v=lantern-chapter-1';
-import {condenseGlow} from './condensed-glow.mjs?v=lantern-chapter-1';
-import {ensureGlowBudget,shapeExpeditionSupply} from './glow-budget.mjs?v=lantern-chapter-1';
-import {EdgingPulse} from './edging-pulse.mjs?v=lantern-chapter-1';
-import {isVowBodyPickup} from './contextual-events.mjs?v=lantern-chapter-1';
-import {FlightBoon} from './flight-boons.mjs?v=lantern-chapter-1';
-import {BlackHoles} from './black-holes.mjs?v=lantern-chapter-1';
-import {drawBlackHoles} from './black-hole-art.mjs?v=lantern-chapter-1';
-import {drawCapture, drawShellPuff} from './capture-art.mjs?v=lantern-chapter-1';
-import {drawShellArcs} from './shell-arcs.mjs?v=lantern-chapter-1';
-import {sparkBodyRadius,sparkArtScale,sparkMass} from './spark-size.mjs?v=lantern-chapter-1';
-import {captureMassDuration} from './tidal-light.mjs?v=lantern-chapter-1';
-import {readCaptureStyle} from './capture-styles.mjs?v=lantern-chapter-1';
+import {prepareAtlasFlight,resizeAtlasFlight,ringBellwind,bellwindAcceleration,moonLightScale,drawAtlasFlight} from './atlas-flight.mjs?v=collector-audit-1';
+import {canShowFlightHint} from './flight-hint-safety.mjs?v=collector-audit-1';
+import {updateGlideRegeneration} from './glide-regeneration.mjs?v=collector-audit-1';
+import {drawGuardianPresence} from './guardian-presence.mjs?v=collector-audit-1';
+import { updateGuardian, resizeGuardian, placeGuardianFuel } from './guardian-effects.mjs?v=collector-audit-1';
+import { drawGuardianWarnings } from './guardian-art.mjs?v=collector-audit-1';
+import { drawShutters, resizeShutters } from './shutter-cone.mjs?v=collector-audit-1';
+import { inLanternRoom, installPassageLanterns, lanternField } from './lantern-layout.mjs?v=collector-audit-1';
+import {drawProximityMeter} from './proximity-meter.mjs?v=collector-audit-1';
+import {drawFourthBeat} from './fourth-beat-art.mjs?v=collector-audit-1';
+import {drawCollectorField} from './collector-field-art.mjs?v=collector-audit-1';
+import {buildObjectivePlan,createFlightObjective,drawObjectiveMarks} from './flight-objectives.mjs?v=collector-audit-1';
+import {FlightProjection,drawFlightProjection} from './flight-projection.mjs?v=collector-audit-1';
+import {drawGlowSense} from './glow-sense.mjs?v=collector-audit-1';
+import {formatGlow} from './vitality.mjs?v=collector-audit-1';
+import {installRiskChains} from './risk-chains.mjs?v=collector-audit-1';
+import {installSparkField} from './spark-fields.mjs?v=collector-audit-1';
+import {drawFallWarning} from './fall-chain-art.mjs?v=collector-audit-1';
+import {EXTRA_COURSES} from './world-expansion.mjs?v=collector-audit-1';
+import {BIOME_COURSES} from './biome-courses.mjs?v=collector-audit-1';
+import {BiomeDynamics} from './biome-dynamics.mjs?v=collector-audit-1';
+import {condenseGlow} from './condensed-glow.mjs?v=collector-audit-1';
+import {ensureGlowBudget,shapeExpeditionSupply} from './glow-budget.mjs?v=collector-audit-1';
+import {EdgingPulse} from './edging-pulse.mjs?v=collector-audit-1';
+import {isVowBodyPickup} from './contextual-events.mjs?v=collector-audit-1';
+import {FlightBoon} from './flight-boons.mjs?v=collector-audit-1';
+import {BlackHoles} from './black-holes.mjs?v=collector-audit-1';
+import {drawBlackHoles} from './black-hole-art.mjs?v=collector-audit-1';
+import {drawCapture, drawShellPuff} from './capture-art.mjs?v=collector-audit-1';
+import {drawShellArcs} from './shell-arcs.mjs?v=collector-audit-1';
+import {sparkBodyRadius,sparkArtScale,sparkMass} from './spark-size.mjs?v=collector-audit-1';
+import {captureMassDuration} from './tidal-light.mjs?v=collector-audit-1';
+import {readCaptureStyle} from './capture-styles.mjs?v=collector-audit-1';
 /* Emberwing's self-contained canvas flight simulation and renderer. */
-import { FLAME_TUNING, LIGHT_PACKET_TUNING } from './vitality.mjs?v=lantern-chapter-1';
-import { flightEndDistance } from './flight-end.mjs?v=lantern-chapter-1';
-import {getExitLandmarkState,drawExitLandmark} from './exit-landmark.mjs?v=lantern-chapter-1';
-import { WispCompanion, wispHome } from './wisp.mjs?v=lantern-chapter-1';
-import { getAscentInfo } from './ascent.mjs?v=lantern-chapter-1';
-import { LEVEL_LENGTH, getLevelLengthScale } from './level-length.mjs?v=lantern-chapter-1';
-import { resolveLevelIdentity } from './level-catalog.mjs?v=lantern-chapter-1';
-import { DraftField, DRAFT_TUNING } from './drafts.mjs?v=lantern-chapter-1';
-import { normalizeCompanionRole, normalizeCompanionFleet, getCompanionAbility } from './companion-abilities.mjs?v=lantern-chapter-1';
-import { populateSceneProps, scenePropPolygons } from './scene-props.mjs?v=lantern-chapter-1';
-import { pickupKind, getPickupSpec, pickupContactRadius, canCompanionCollect, flashPowerupDuration } from './pickups.mjs?v=lantern-chapter-1';
-import { createFlashTether, stepFlashTether, drawFlashTether, flashLightPulse } from './flash-tether.mjs?v=lantern-chapter-1';
-import { drawPickup, drawSparkSymbol } from './pickup-art.mjs?v=lantern-chapter-1';
-import { buildBossLayout, getBossState as bossState, drawBoss } from './boss.mjs?v=lantern-chapter-1';
-import { getAuthoredChallenge, finalizeFlightChallenges, installAuthoredDraftCrossings, FlightChallengeDirector } from './flight-challenges.mjs?v=lantern-chapter-1';
-import { installEncounterFamily } from './encounter-families.mjs?v=lantern-chapter-1';
-import { installFlightForks, resizeFlightForks } from './flight-forks.mjs?v=lantern-chapter-1';
-import { ArtifactEffects } from './artifact-effects.mjs?v=lantern-chapter-1';
-import { LIGHT_EXTENT,lightAttenuation,lightVisibility,createLightMaskCanvas,castFlightFlashLights,revealLanternWake,sceneRevealStrength,flashRangeStrength,pickupRevealHold,pickupRevealAt,renderLightState,lightDreamScenery } from './light-field.mjs?v=lantern-chapter-1';
+import { FLAME_TUNING, LIGHT_PACKET_TUNING } from './vitality.mjs?v=collector-audit-1';
+import { flightEndDistance } from './flight-end.mjs?v=collector-audit-1';
+import {getExitLandmarkState,drawExitLandmark} from './exit-landmark.mjs?v=collector-audit-1';
+import { WispCompanion, wispHome } from './wisp.mjs?v=collector-audit-1';
+import { getAscentInfo } from './ascent.mjs?v=collector-audit-1';
+import { LEVEL_LENGTH, getLevelLengthScale } from './level-length.mjs?v=collector-audit-1';
+import { resolveLevelIdentity } from './level-catalog.mjs?v=collector-audit-1';
+import { DraftField, DRAFT_TUNING } from './drafts.mjs?v=collector-audit-1';
+import { normalizeCompanionRole, normalizeCompanionFleet, getCompanionAbility } from './companion-abilities.mjs?v=collector-audit-1';
+import { populateSceneProps, scenePropPolygons } from './scene-props.mjs?v=collector-audit-1';
+import { pickupKind, getPickupSpec, pickupContactRadius, canCompanionCollect, flashPowerupDuration } from './pickups.mjs?v=collector-audit-1';
+import { createFlashTether, stepFlashTether, drawFlashTether, flashLightPulse } from './flash-tether.mjs?v=collector-audit-1';
+import { drawPickup, drawSparkSymbol } from './pickup-art.mjs?v=collector-audit-1';
+import { buildBossLayout, getBossState as bossState, drawBoss } from './boss.mjs?v=collector-audit-1';
+import { getAuthoredChallenge, finalizeFlightChallenges, installAuthoredDraftCrossings, FlightChallengeDirector } from './flight-challenges.mjs?v=collector-audit-1';
+import { installEncounterFamily } from './encounter-families.mjs?v=collector-audit-1';
+import { installFlightForks, resizeFlightForks } from './flight-forks.mjs?v=collector-audit-1';
+import { ArtifactEffects } from './artifact-effects.mjs?v=collector-audit-1';
+import { LIGHT_EXTENT,lightAttenuation,lightVisibility,createLightMaskCanvas,castFlightFlashLights,revealLanternWake,sceneRevealStrength,flashRangeStrength,pickupRevealHold,pickupRevealAt,renderLightState,lightDreamScenery } from './light-field.mjs?v=collector-audit-1';
 import { createTutorialState, buildTutorialLayout, recordTutorialPickup,
-  updateTutorial, updateTutorialCompanion, getTutorialHint } from './tutorial.mjs?v=lantern-chapter-1';
-export { FLAME_TUNING } from './vitality.mjs?v=lantern-chapter-1';
+  updateTutorial, updateTutorialCompanion, getTutorialHint } from './tutorial.mjs?v=collector-audit-1';
+export { FLAME_TUNING } from './vitality.mjs?v=collector-audit-1';
 const TAU = Math.PI * 2;
 const STEP = 1 / 60;
 const FALLBACK_WISP_RADIUS = 17;
@@ -65,7 +65,7 @@ const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
 const lerp = (a, b, t) => a + (b - a) * t;
 export const FLIGHT_TUNING = Object.freeze({ gravity: 300, flapImpulse: 205,
   forwardSpeed: 154, terminalFall: 245, pickupRadius: LIGHT_PACKET_TUNING.pickupRadius });
-export { DRAFT_TUNING } from './drafts.mjs?v=lantern-chapter-1';
+export { DRAFT_TUNING } from './drafts.mjs?v=collector-audit-1';
 // Retain the public tuning name for consumers; wind now has no global cycle.
 export const WIND_TUNING = DRAFT_TUNING;
 
@@ -648,6 +648,7 @@ export function buildFlightLayout({ seed = 1, terrain = 'ruins', elite = false,
       if (obstacle.hard || obstacle.gap < Math.max(180, height * .35)) continue;
       for (const fraction of [.25, .70, 1.15]) {
         const ex = obstacle.x + obstacle.width * fraction;
+        if (lanternEncounter && inLanternRoom({lanternEncounter}, ex, 70)) continue;
         if (ex < Math.min(1000, duration * speed * .25) || ex > duration * speed - 650 || hardNear(ex)) continue;
         const bands = [bandAt(ex - 40), bandAt(ex), bandAt(ex + 40)];
         const top = Math.max(...bands.map(band => band.top)), bottom = Math.min(...bands.map(band => band.bottom));
@@ -822,6 +823,7 @@ export class WispFlight {
     this.flame = clamp(Number.isFinite(options.flame) ? options.flame : FLAME_TUNING.starting, 0, this.maxFlame);
     this.condensedStart=Math.max(0,Math.floor(Number(options.condensedGlow)||0));
     this.condensedGlow=0;this.condensedRemainder=clamp(Number(options.condensedRemainder)||0,0,.999999999);
+    this.storageBonus=0;this.storageAwards=0;
     this.pickupOverflow=0;this.condensationFlow={amount:0,rawAmount:0,time:-Infinity,count:0,total:0};
     this.nightGardenCount=0; this.dreamCompleted=false; this.secondDawnUsed=false;
     this.flaps = 0; this.effortSpent = 0; this.flameRestored = 0; this.bodyFuelCollected = 0;
@@ -968,7 +970,7 @@ export class WispFlight {
 
   async initPixelView() {
     try {
-      const { WispFlightView } = await import('./wisp-renderer.mjs?v=lantern-chapter-1');
+      const { WispFlightView } = await import('./wisp-renderer.mjs?v=collector-audit-1');
       if (this.destroyed) return;
       this.pixiView = new WispFlightView(this);
       const initialized = await this.pixiView.init();
@@ -1051,7 +1053,7 @@ export class WispFlight {
   // Dream supplies the flight's usable reserves until control passes back.
   get availableGlow() { return this.dream?.active ? this.maxFlame : this.flame; }
   get visibleGlow() { return this.dream?.mode==='record' ? this.maxFlame : this.flame; }
-  get condensedTotal() { return this.condensedStart+this.condensedGlow; }
+  get condensedTotal() { return this.condensedStart+this.condensedGlow+this.storageBonus; }
   spendGlow(amount) { this.flame=Math.max(0,this.flame-Math.max(0,amount)); }
 
   get flapCost() { return ((Number.isFinite(this.mod.liftCostPoints)?Math.max(1,Math.round(this.mod.liftCostPoints)):Math.max(1,Math.round(3*(Number(this.mod.flapCost)||1))))+Number(this.burdenLiftsRemaining>0||(this.flightBoon?.awake&&this.flightBoon.extraCostLifts>0)))/.3; }
@@ -1588,7 +1590,7 @@ export class WispFlight {
   }
 
   collectorContains(packet) {
-    const aura=this.getCollectorAuraState();return Boolean(aura&&aura.radius>0&&Math.hypot(packet.x-aura.x,packet.y-aura.y)<=aura.radius+pickupContactRadius(packet));
+    const aura=this.getCollectorAuraState();return Boolean(aura&&aura.radius>0&&Math.hypot(packet.x-aura.x,packet.y-aura.y)<=aura.radius+sparkBodyRadius(packet,this.height));
   }
 
   beginDying(cause = 'collision') {
@@ -1666,12 +1668,19 @@ export class WispFlight {
     this.lightPenalties.push(this.time + duration);
   }
 
-  storeNaturalOverflow(packet,spec,surplus){
+  storeNaturalOverflow(packet,spec,surplus,naturalSurplus){
     if(packet.generated||packet.harmful||!(spec.fuel>0)||!(surplus>0))return 0;
     const gain=condenseGlow(surplus,{rules:this.mod.condensationRules,wallet:this.condensedTotal,remainder:this.condensedRemainder});
     this.routeObjective?.recordPacking(packet,gain);
     this.pickupOverflow+=surplus;this.condensedGlow+=gain.amount;this.condensedRemainder=gain.remainder;
-    this.condensationFlow={amount:gain.amount,rawAmount:surplus,time:this.time,count:this.condensationFlow.count+1,total:this.condensedGlow,multiplier:gain.multiplier};
+    let bonus=0;
+    if (naturalSurplus>1e-7 && spec.plasma && this.storageAwards<2 && !this.tutorial
+      && !packet.fetchedInDream && (!this.dream || this.dream.phase==='done')) {
+      if (this.mod.handSeal && !packet.deliveredByWisp) bonus=1;
+      else if (this.mod.deepCache && sparkMass(packet)>=3) bonus=2;
+    }
+    if(bonus){this.storageAwards++;this.storageBonus+=bonus;}
+    this.condensationFlow={amount:gain.amount+bonus,rawAmount:surplus,time:this.time,count:this.condensationFlow.count+1,total:this.condensedGlow+this.storageBonus,multiplier:gain.multiplier};
     return surplus;
   }
 
@@ -1999,9 +2008,10 @@ export class WispFlight {
         + this.artifactEffects.fuelBonus(ember,spec);
     const fuel=Math.round(rawFuel*.3)/.3;
     if(!ember.generated&&!ember.deliveredByWisp&&(this.mod.mainKindler||this.hasCompanion('kindler')))this.kindlerPulse=.9;
-    let restored = Math.min(fuel, this.maxFlame - this.flame);
+    const capacityLeft=this.maxFlame-this.flame;
+    let restored = Math.min(fuel, capacityLeft);
     this.flame += restored; this.flameRestored += restored;
-    const surplus=this.storeNaturalOverflow(ember,spec,Math.max(0,fuel-restored));
+    const surplus=this.storeNaturalOverflow(ember,spec,Math.max(0,fuel-restored),spec.fuel-capacityLeft);
     restored+=this.artifactEffects.applyConsumables(ember,spec);
     if(!ember.generated&&!spec.dim){
       if(surplus>0)this.artifactEffects.notice('echo-vessel','passive');
@@ -2068,7 +2078,7 @@ export class WispFlight {
     const boss = this.getBossState(), ability=this.getAbilityState(),artifacts=this.artifactEffects.state;
     const fourthBeat=this.fourthBeat, nextLiftCost=this.liftCostForBeat(fourthBeat.ready);
     const canAffordFlap=this.availableGlow+1e-7>=nextLiftCost;
-    return { alive: this.alive, score: Math.floor(this.score), condensedGlow:this.condensedGlow,condensedTotal:this.condensedTotal,condensedRemainder:this.condensedRemainder,
+    return { alive: this.alive, score: Math.floor(this.score), condensedGlow:this.condensedGlow+this.storageBonus,storageBonus:this.storageBonus,condensedTotal:this.condensedTotal,condensedRemainder:this.condensedRemainder,
       ascent: this.ascentInfo,
       boss, bossPhase: boss ? `${boss.phase}/3 · ${boss.phaseName}` : '',
       bossWarning: boss?.warning || '',
@@ -2120,7 +2130,7 @@ export class WispFlight {
     this.alive = Boolean(success) && this.alive;
     if (this.raf != null) cancelAnimationFrame(this.raf);
     this.raf = null;
-    const result = { success: Boolean(success) && this.alive, alive: this.alive, condensedGlow:this.condensedGlow,condensedRemainder:this.condensedRemainder,pickupOverflow:this.pickupOverflow,
+    const result = { success: Boolean(success) && this.alive, alive: this.alive, condensedGlow:this.condensedGlow,storageBonus:success&&this.alive?this.storageBonus:0,condensedRemainder:this.condensedRemainder,pickupOverflow:this.pickupOverflow,
       boss: this.bossEncounter ? { id:this.layout.boss?.id||'hollow-warden', defeated: Boolean(success) && this.alive } : null,
       flame: this.flame,artifactCharges:{...this.artifactEffects.charges},
       score: Math.floor(this.score), collected: this.baseEmbers, bodyFuelCollected: this.bodyFuelCollected, collisions: this.collisions,
@@ -2235,8 +2245,11 @@ export class WispFlight {
       c.fillStyle = vignette; c.fillRect(0, 0, W, H);
     }
     drawShutters(c,this,{light});
-    this.drawWisp(c);
+    drawCollectorField(c,this);
+    const fleet=this.getCompanionStates(this.renderPlayerY??this.player.y,this.visualTime??this.time,this.renderBlend);
+    this.drawWisp(c,fleet,false);
     this.drawPhoenix(c);
+    this.drawWisp(c,fleet,true);
     if(!light.rehearsing)this.drawPickups(c);
     if(this.flashTether)drawFlashTether(c,this.flashTether,{time:this.captureTime,distance:this.renderDistance,
       playerX:this.renderDistance+this.player.x,playerY:this.renderPlayerY});
@@ -2489,24 +2502,18 @@ export class WispFlight {
     c.restore();
   }
 
-  drawWisp(c) {
-    const distance=this.renderDistance??this.distance,aura=this.getCollectorAuraState();
-    c.save();
-    drawCollectorGuard(c,aura,this.player.x,this.renderPlayerY??this.player.y,1,this.reducedMotion);
-    if(aura?.active&&aura.radius>0){
-      c.beginPath();
-      for(let i=0;i<=72;i++){const a=i/72*TAU,r=aura.radius+(this.reducedMotion?0:Math.sin(a*7+this.time*3.8)*1.1);
-        const x=this.player.x+Math.cos(a)*r,y=(this.renderPlayerY??this.player.y)+Math.sin(a)*r;
-        if(i)c.lineTo(x,y);else c.moveTo(x,y);}
-      c.closePath();c.strokeStyle='rgba(169,205,149,.15)';c.lineWidth=4;c.stroke();
-      c.strokeStyle='rgba(169,205,149,.55)';c.lineWidth=1.5;c.stroke();
-    }
+  drawWisp(c,fleet,front) {
     const palettes={collector:'#b9dfa0',protector:'#8fbfe8',leveler:'#a7e8df',swift:'#f2d48e',seer:'#d3b1f2',kindler:'#e4a3b5'};
-    for(const state of this.getCompanionStates(this.renderPlayerY??this.player.y,this.visualTime??this.time,this.renderBlend)){
-      const color=palettes[state.role],power=state.role==='collector'&&(state.phase==='cooldown'||state.phase==='guard-recovery') ? .35+.65*state.recovery : 1;
-      c.globalAlpha=power*.2;c.fillStyle=color;c.beginPath();c.arc(state.x,state.y,17,0,TAU);c.fill();
-      c.globalAlpha=power;c.beginPath();c.arc(state.x,state.y,7,0,TAU);c.fill();
-      c.fillStyle='#ffffe9';c.globalAlpha=power*.9;c.beginPath();c.arc(state.x-2,state.y-2,2,0,TAU);c.fill();
+    c.save();
+    for(const state of fleet){
+      const collector=state.role==='collector',depth=collector?(state.depth||0):0;
+      if ((collector&&depth>0)!==front) continue;
+      const color=palettes[state.role],cooling=collector&&(state.phase==='cooldown'||state.phase==='guard-recovery');
+      const power=(cooling?.7+.25*state.recovery:1)*(collector?.82+depth*.18:1);
+      const radius=collector?6.5*(.95+depth*.25):7;
+      c.globalAlpha=power*.19;c.fillStyle=color;c.beginPath();c.arc(state.x,state.y,radius*2.25,0,TAU);c.fill();
+      c.globalAlpha=power;c.beginPath();c.arc(state.x,state.y,radius,0,TAU);c.fill();
+      c.fillStyle='#efffe0';c.globalAlpha=power*.9;c.beginPath();c.arc(state.x-radius*.25,state.y-radius*.25,radius*.31,0,TAU);c.fill();
       if(state.carrying) {
         const pose=state.cargoPose;
         drawPickup(c,state.x+pose.offsetX,state.y+pose.offsetY,{kind:state.cargoKind,

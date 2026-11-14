@@ -1,5 +1,6 @@
-import { createDraftZones } from './drafts.mjs?v=lantern-chapter-1';
-import { pickupKind } from './pickups.mjs?v=lantern-chapter-1';
+import { createDraftZones } from './drafts.mjs?v=collector-audit-1';
+import { pickupKind } from './pickups.mjs?v=collector-audit-1';
+import { inLanternRoom } from './lantern-layout.mjs?v=collector-audit-1';
 
 const FAMILIES = Object.freeze({
   'stillwater-tunnel': Object.freeze({ id:'stillwater-tunnel', name:'Stillwater Tunnel', icon:'ruins', rewardTheme:'precision',
@@ -96,6 +97,7 @@ export function installEncounterFamily(layout, field, { node={}, height=620, see
       let placed=false;
       for(const o of anchors){
         const x=o.x+o.width*.55,gap=(Number(node.difficulty)||1)<=2&&!node.elite?112:98;
+        if(inLanternRoom(layout,x,gap+70))continue;
         const donors=layout.embers.filter(p=>pickupKind(p)==='light'&&!p.intro&&!p.accessible&&!p.riskChain&&!p.generated
           &&Math.abs(p.x-x)<1450).sort((a,b)=>Math.abs(a.x-x)-Math.abs(b.x-x)).slice(0,2);
         if(donors.length<2)continue;
