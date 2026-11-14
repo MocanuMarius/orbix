@@ -1,5 +1,5 @@
-import {glowPoints, getGlowCapacity} from './vitality.mjs?v=guardian-currents-1';
-import {getCompanionAbility} from './companion-abilities.mjs?v=guardian-currents-1';
+import {glowPoints, getGlowCapacity} from './vitality.mjs?v=clear-ink-1';
+import {getCompanionAbility} from './companion-abilities.mjs?v=clear-ink-1';
 
 export const TREASURE_KINDS = Object.freeze(['vessel', 'lens', 'tithe', 'wager']);
 export const LENS_SIGHT = 1.35;

@@ -51,8 +51,18 @@ else if(scenario==='treasure'||scenario==='treasure-route'){
  if(scenario==='treasure'&&!selectNode(run,chest.id))throw Error('Cannot enter mock chest');
  goToRun();
 }
-else if(scenario==='home')render('home');
+else if(scenario==='home'){if(new URLSearchParams(location.search).has('locked')){state.profile.difficulty=1;state.settings.testOverride=false;mockRun.testMode=false;}render('home');}
 else if(scenario==='settings'){render('home');showMenu();}
+else if(scenario==='event'){
+ const event=mockRun.map.flat().find(n=>n.kind==='event');
+ const index=Number(new URLSearchParams(location.search).get('event')||0);
+ mockRun.current={...event,eventIndex:index,name:getEventScenarios()[index].name};mockRun.phase='support';mockRun.supportOffers=null;render('support');
+}
+else if(scenario==='route-inspector'){
+ const next=getChoices(mockRun)[0]||mockRun.map[mockRun.step+1]?.[0];
+ previewNode(next.id);
+}
+
 else if(scenario==='map')render('map');
 else if(scenario==='artifacts')showArtifacts();
 else if(scenario==='forge')requestArtifactSalvage('glow-wick');

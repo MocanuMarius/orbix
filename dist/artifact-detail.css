@@ -25,3 +25,18 @@ dialog.artifact-details-sheet>.primary{align-self:flex-end;flex:none;min-height:
  .artifact-inspection>.artifact-combo-note{font-size:12px}.artifact-inspection>.artifact-salvage-note{padding-top:5px;font-size:12px}.artifact-salvage-note>small{font-size:11px}.artifact-salvage-note>.resource-symbol{width:21px;height:21px}
  dialog.artifact-details-sheet>.primary{font-size:15px;min-height:44px}
 }
+
+/* An artifact's color lives in its portrait. Rules read on neutral shadow. */
+html body dialog.artifact-details-sheet{background-color:#0b171b}
+html body .artifact-inspection>.relic-detail-crest>svg{background-color:#050e13;box-shadow:3px 3px 0 #02070b;filter:none}
+html body .artifact-inspection>.relic-detail-crest h2{color:#fff0cc;text-shadow:1px 1px #02070b}
+html body .artifact-inspection>.relic-detail-crest small{color:#cad7dd}
+html body .artifact-inspection>.relic-detail-crest.rare small{color:#bce8be}
+html body .artifact-inspection>.relic-detail-crest.boss small{color:#e3cbff}
+html body .artifact-explanation>.artifact-trigger-line{color:#d4e0e4}
+html body .artifact-explanation>.artifact-effect-main{color:#fff0cd}
+html body .artifact-explanation>.artifact-limit-line{color:#c9d4da}
+html body .artifact-duration{color:#b9c9d1}
+html body .artifact-inspection>.artifact-combo-note{color:#ebd5ac}
+html body .artifact-inspection>.artifact-salvage-note{color:#e2cea8;border-color:#6c7e83}
+html body .artifact-salvage-note>small{color:#c2d0d7}

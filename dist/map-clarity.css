@@ -235,16 +235,16 @@ dialog.power-sheet.map-key-sheet {
 .game-map-screen .landscape-route .route-state-next .map-support-symbol{color:#fff1c6}
 .game-map-screen .landscape-route .route-state-current .map-support-symbol{color:#e8d5a2}
 .game-map-screen .landscape-route .route-state-future .route-theme-pip{opacity:.45}
-.game-map-screen .landscape-route .map-node-type{font:11px/1.2 var(--pixel,monospace)!important;fill:#b9c9b0!important;stroke:#10201e;stroke-width:3px;letter-spacing:.2px}
-.game-map-screen .landscape-route .map-node-name{font:11px/1.2 var(--pixel,monospace)!important;fill:#b9c7b1!important;stroke:#10201e;stroke-width:3px;letter-spacing:0}
+.game-map-screen .landscape-route .map-node-type{font:11px/1.2 var(--pixel,monospace)!important;fill:#ced7c7!important;stroke:#081114;stroke-width:3px;letter-spacing:.2px}
+.game-map-screen .landscape-route .map-node-name{font:11px/1.2 var(--pixel,monospace)!important;fill:#d1d9cd!important;stroke:#081114;stroke-width:3px;letter-spacing:0}
 .game-map-screen .landscape-route .route-state-future .map-node-type,
 .game-map-screen .landscape-route .route-state-future .map-node-name{fill:#9bac9c!important;opacity:1}
 .game-map-screen .landscape-route .route-state-next .map-node-type,
-.game-map-screen .landscape-route .route-state-next .map-node-name{fill:#fff0c4!important}
+.game-map-screen .landscape-route .route-state-next .map-node-name{fill:#fff5d9!important}
 .game-map-screen .landscape-route .route-state-current .map-node-type,
 .game-map-screen .landscape-route .route-state-current .map-node-name{fill:#e7cf98!important}
 .game-map-screen .landscape-route .route-state-complete .map-node-name{fill:#bfb890!important}
-.game-map-screen .landscape-route .route-state-caption{font:11px/1 var(--pixel,monospace);letter-spacing:1px;fill:#b4c0a5;stroke:#10201e;stroke-width:3px;paint-order:stroke fill;pointer-events:none}
+.game-map-screen .landscape-route .route-state-caption{font:11px/1 var(--pixel,monospace);letter-spacing:1px;fill:#b4c0a5;stroke:#081114;stroke-width:3px;paint-order:stroke fill;pointer-events:none}
 .game-map-screen .landscape-route .route-here-caption{fill:#ffe7a6}
 .game-map-screen .landscape-route .route-next-caption{fill:#fff4cf}
 .game-map-screen .landscape-route .route-next-light{fill:none;animation:route-next-breathe 1.8s ease-in-out infinite}
@@ -276,7 +276,7 @@ dialog.power-sheet.map-key-sheet {
 
 /* Five encounter silhouettes; biome scenery is a separate, quieter layer. */
 .game-map-screen .landscape-route .route-biome-layer{pointer-events:none}
-.game-map-screen .landscape-route .route-biome-ground{--biome-ink:#60765c;opacity:.32}
+.game-map-screen .landscape-route .route-biome-ground{--biome-ink:#60765c;opacity:.22}
 .game-map-screen .landscape-route .biome-bed{fill:#26392e;opacity:.75}
 .game-map-screen .landscape-route .biome-fill{fill:var(--biome-ink);stroke:none}
 .game-map-screen .landscape-route .biome-stroke{fill:none;stroke:var(--biome-ink);stroke-width:1.6}
@@ -287,12 +287,12 @@ dialog.power-sheet.map-key-sheet {
 .game-map-screen .landscape-route .biome-desert{--biome-ink:#998266}
 .game-map-screen .landscape-route .biome-coral{--biome-ink:#8e7474}
 .game-map-screen .landscape-route .biome-cloud{--biome-ink:#7d8e98}
-.game-map-screen .landscape-route .route-state-future .route-node-art{opacity:.62}
-.game-map-screen .landscape-route .route-state-complete .route-node-art{opacity:.48}
-.game-map-screen .landscape-route .route-state-closed .route-node-art{opacity:.32}
+.game-map-screen .landscape-route .route-state-future .route-node-art{opacity:1}
+.game-map-screen .landscape-route .route-state-complete .route-node-art{opacity:1}
+.game-map-screen .landscape-route .route-state-closed .route-node-art{opacity:.55}
 .game-map-screen .landscape-route .route-state-future[role=button]:hover .route-node-art,
-.game-map-screen .landscape-route .route-state-future[role=button]:focus-visible .route-node-art{opacity:.85}
-.game-map-screen .landscape-route .route-landmark{--landmark-stone:#8a9a83;--landmark-face:#bdc7a4;--landmark-edge:#d2d9b2;--landmark-fire:#d8c991}
+.game-map-screen .landscape-route .route-state-future[role=button]:focus-visible .route-node-art{opacity:1}
+.game-map-screen .landscape-route .route-landmark{--landmark-stone:#7f948a;--landmark-face:#bbcdbf;--landmark-edge:#d6e2ce;--landmark-fire:#e4d4a1}
 .game-map-screen .landscape-route .landmark-glint{fill:#fff4d0}
 .game-map-screen .landscape-route .landmark-elite{--landmark-stone:#9f857b;--landmark-face:#c8ab98;--landmark-fire:#f1c3a5}
 .game-map-screen .landscape-route .landmark-boss{--landmark-stone:#a28c92;--landmark-face:#d5bcc4;--landmark-fire:#f5d4ae}
@@ -303,11 +303,35 @@ dialog.power-sheet.map-key-sheet {
 .game-map-screen .landscape-route .route-closed-mark{stroke:#8a9c87;stroke-width:3;fill:none;stroke-linecap:square}
 .game-map-screen .landscape-route .map-node-type{font-size:var(--route-type-size,11px)!important}
 .game-map-screen .landscape-route .map-node-name{font-size:var(--route-label-size,11px)!important}
-.game-map-screen .landscape-route .map-route-line.path-open .route-thread{stroke:#d7c18a;stroke-width:3;stroke-dasharray:none;opacity:1}
+.game-map-screen .landscape-route .map-route-line.path-open .route-thread{stroke:#f1dba0;stroke-width:3;stroke-dasharray:none;opacity:1}
 .game-map-screen .landscape-route .map-route-line.path-open .route-current{stroke:#fff4c9;stroke-width:2;stroke-dasharray:4 21;opacity:.95}
 .game-map-screen .landscape-route .map-route-line.path-taken .route-thread{stroke:#c6ad73;stroke-width:3;stroke-dasharray:none;opacity:.9}
-.game-map-screen .landscape-route .map-route-line.path-future{opacity:.48}
-.game-map-screen .landscape-route .map-route-line.path-future .route-thread{stroke-width:1.5;stroke-dasharray:2 6;opacity:.9}
+.game-map-screen .landscape-route .map-route-line.path-future{opacity:.82}
+.game-map-screen .landscape-route .map-route-line.path-future .route-thread{stroke:#8a9d95;stroke-width:1.8;stroke-dasharray:2 6;opacity:1}
 .game-map-screen .landscape-route .map-route-line.path-locked .route-thread{stroke-width:1;stroke-dasharray:2 12;opacity:.55}
 .game-map-screen .landscape-route .route-next-arrow{stroke-width:2.4}
 .game-map-screen .landscape-route .world-map-node[role=button]:focus-visible .route-node-art{opacity:1}
+
+/* Local ink sits behind each silhouette and label so biome art never erases it. */
+.game-map-screen .landscape-route .route-icon-ink{fill:var(--ui-ink,#081114);opacity:.92;pointer-events:none}
+.game-map-screen .landscape-route .route-label-ink{fill:var(--ui-ink,#081114);opacity:.97;pointer-events:none;shape-rendering:crispEdges}
+.game-map-screen .landscape-route .route-landmark{filter:drop-shadow(1px 0 #040b0d) drop-shadow(-1px 0 #040b0d) drop-shadow(0 1px #040b0d) drop-shadow(0 -1px #040b0d)}
+.game-map-screen .landscape-route .route-state-future .route-landmark{--landmark-stone:#6b7d77;--landmark-face:#a1b6ad;--landmark-edge:#bed0c4;--landmark-fire:#c9c7a0}
+.game-map-screen .landscape-route .route-state-complete .route-landmark{--landmark-stone:#697a73;--landmark-face:#a5b8aa;--landmark-edge:#bac7b4;--landmark-fire:#bcb88e}
+.game-map-screen .landscape-route .route-state-current .route-landmark{--landmark-stone:#9b8961;--landmark-face:#e2c98d;--landmark-edge:#fff0bd;--landmark-fire:#ffe3a2}
+.game-map-screen .landscape-route .route-state-next .route-landmark{--landmark-stone:#a79569;--landmark-face:#e8d69c;--landmark-edge:#fff7d9;--landmark-fire:#ffe7a8}
+.game-map-screen .landscape-route .map-node-type,
+.game-map-screen .landscape-route .map-node-name{paint-order:stroke fill;stroke-linejoin:miter;opacity:1}
+.game-map-screen .landscape-route .route-state-next[role=button]:focus-visible .route-label-ink,
+.game-map-screen .landscape-route .route-state-future[role=button]:focus-visible .route-label-ink{stroke:#f1dba0;stroke-width:1}
+.game-map-screen .map-key-summary,
+.game-map-screen .map-event-variants p{color:var(--ui-muted,#b8c7ba)}
+.map-key-sheet .map-key-summary,
+.map-key-sheet .map-event-variants p{color:var(--ui-muted,#b8c7ba)}
+.map-key-sheet .map-key-row>svg{background:#081114;clip-path:polygon(8% 0,92% 0,92% 8%,100% 8%,100% 92%,92% 92%,92% 100%,8% 100%,8% 92%,0 92%,0 8%,8% 8%)}
+
+/* Pixel portraits have authored fills; mute their pigment without dimming text. */
+.game-map-screen .landscape-route .route-state-future .map-pixel-portrait{opacity:.76;filter:saturate(.35)}
+.game-map-screen .landscape-route .route-state-complete .map-pixel-portrait{opacity:.6;filter:saturate(.25)}
+.game-map-screen .landscape-route .route-state-future[role=button]:hover .map-pixel-portrait,
+.game-map-screen .landscape-route .route-state-future[role=button]:focus-visible .map-pixel-portrait{opacity:.9}

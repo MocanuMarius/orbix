@@ -43,3 +43,16 @@ The [Game Accessibility Guidelines contrast guidance](https://gameaccessibilityg
 ## Free further learning
 
 Apple's [handheld-interface lesson and transcript](https://developer.apple.com/videos/play/meet-with-apple/243/) is the most directly relevant practical session for this project. The Xbox [guideline index](https://learn.microsoft.com/en-us/xbox/accessibility/guidelines) and the Game Accessibility Guidelines [full list](https://gameaccessibilityguidelines.com/full-list/) provide a continuing review checklist. They are guidance references, not a substitute for observing people read and play the actual game.
+
+
+## Readability pass, 14 November 2026
+
+The contrast review follows Xbox Accessibility Guideline 102 and Game Accessibility Guidelines. Normal gameplay text uses 4.5:1 as the review threshold, and inactive text uses 3:1. Xbox's Forza Horizon 4 map example and Fenyx's outlined indicators informed the local dark grounds and crisp outlines. Riot's published clarity principles informed the separation between neutral readable copy, restrained background decoration and high-priority state markers.
+
+- https://learn.microsoft.com/en-us/xbox/accessibility/xbox-accessibility-guidelines/102
+- https://gameaccessibilityguidelines.com/provide-high-contrast-between-text-ui-and-background/
+- https://www.leagueoflegends.com/en-us/news/dev/clarity-in-league/
+
+Changes give companion portraits dark local wells, separate map symbols from biome art, keep disabled and locked labels readable, reduce colored washes behind rules, and reserve state accents for ownership, availability, gains and costs. Screens retain their pixel artwork. Encounter copy now fits a bounded landscape layout, and long artifact rules stay within their reward card.
+
+Verified rendered screens at 900 by 405 and 740 by 333. The review covered home, map, Rest arrival and preparation, settings, skills, collection, rewards, briefing, Field Guide, treasure, run summary, death and tutorial examples. All twelve encounter types were also checked on the smaller layout. Sampled computed HTML foreground/background colors, including ancestor opacity, cleared the chosen thresholds. Text on textured artwork and map SVGs was additionally inspected visually. This is a scoped UI review, without a claim of full accessibility conformance.

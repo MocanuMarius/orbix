@@ -104,3 +104,41 @@ body[data-screen="guardian-ritual"] .game-topbar{visibility:hidden}.guardian-rit
 .converting{animation:orb-tremor 70ms steps(2,end) 60}@keyframes orb-tremor{0%,100%{transform:translate(0,0)}25%{transform:translate(-3px,2px)}50%{transform:translate(4px,-3px)}75%{transform:translate(-2px,-4px)}}@media(prefers-reduced-motion:reduce){.converting{animation:none}}
 
 .flight-hud .flight-menu-slot{width:auto;min-width:125px;flex-shrink:0}
+
+/* Ground portraits and text so rarity light never washes through the copy. */
+html body .artifact-choice{background-color:#101c21;--relic-aura:#bac4ca}
+html body .artifact-choice.rare,
+html body .collection-artifact.rare,
+html body .collection-inspection-art.rare{--relic-aura:#a9dfa9}
+html body .artifact-choice.boss,
+html body .collection-artifact.boss,
+html body .collection-inspection-art.boss{--relic-aura:#d8b8fa}
+html body .artifact-choice-art>svg{filter:drop-shadow(2px 3px 0 #02070b);background-color:#071115}
+html body .artifact-choice-art>span{color:var(--relic-aura);text-shadow:1px 1px #02070b}
+html body .artifact-choice-copy h2{color:#fff0cc}
+html body .artifact-choice-copy :is(p,.artifact-choice-lifetime){color:#d3dfe2}
+html body .artifact-choice-copy .artifact-choice-effect{color:#fff0d0}
+html body .artifact-choice-copy .artifact-choice-limit{color:#c6d3d8}
+html body .artifact-choice-instruction{color:#d4dfe2}
+html body .artifact-acquired{color:#bde9c9}
+html body dialog:is(.collection-sheet,.collection-detail-sheet){background-color:#0b171b}
+html body .collection-artifact{background:#101c22!important;border-color:var(--relic-aura)!important;--relic-aura:#bac4ca}
+html body .collection-artifact>svg{background:#050e13;filter:drop-shadow(2px 2px 0 #02070b)}
+html body .collection-artifact>b{color:#fff0cc;text-shadow:1px 1px #02070b}
+html body .collection-artifact>small{color:#d0dce0}
+html body .artifact-collection :is(header>span,footer>span,nav span){color:#c6d4db}
+html body .collection-inspection-art{background:#050e13;--relic-aura:#bac4ca}
+html body .collection-inspection header h2{color:#fff0cc}
+html body .collection-inspection header :is(small,span){color:#c6d4db}
+html body .collection-inspection-copy strong{color:#fff0cc}
+html body .collection-inspection-copy p{color:#d8e2e5}
+html body .effect-benefit{color:#c0edb6!important}
+html body .effect-cost{color:#ffc5b8!important}
+
+
+/* A long rule stays inside its offering; it cannot cover the Take action. */
+html body .accumulating-rewards.reward-open{grid-template-rows:30px minmax(0,1fr) 18px}
+html body .artifact-choice-copy{align-self:stretch;height:100%;max-height:100%;overflow:auto;overscroll-behavior:contain}
+@media(orientation:landscape) and (max-height:350px){
+ html body .accumulating-rewards.reward-open{grid-template-rows:24px minmax(0,1fr) 16px}
+}

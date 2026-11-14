@@ -1,58 +1,58 @@
-import {getBossPreview} from './boss.mjs?v=guardian-currents-1';
-import {getBiome} from './biomes.mjs?v=guardian-currents-1';
-import {collectionMarkup,collectionItemMarkup} from './collection-view.mjs?v=guardian-currents-1';
-import {restBenefitsMarkup} from './rest-choice-view.mjs?v=guardian-currents-1';
-import {treasureView} from './treasure-view.mjs?v=guardian-currents-1';
-import {getFlightClearReward} from './checkpoint-rewards.mjs?v=guardian-currents-1';
-import {artifactDescription} from './artifact-copy.mjs?v=guardian-currents-1';
-import {startResumeCountdown} from './resume-countdown.mjs?v=guardian-currents-1';
-import {nextOnboardingLesson,markOnboardingSeen,resetOnboarding,noteOnboardingPrompt,noteOnboardingProgress,onboardingFeatureAvailable,onboardingFlightPlan} from './onboarding.mjs?v=guardian-currents-1';
-import {flightRewardMarkup} from './reward-screen.mjs?v=guardian-currents-1';
-import {flightEntryMarkup,resumeGateMarkup,waitForFlightEntry} from './flight-entry.mjs?v=guardian-currents-1';
-import {TUTORIAL_TOPICS,topicSteps} from './tutorial-curriculum.mjs?v=guardian-currents-1';
-import {tutorialVisualMarkup} from './tutorial-visuals.mjs?v=guardian-currents-1';
-import {deathScreenMarkup} from './death-screen.mjs?v=guardian-currents-1';
-import {createRestInspectorState} from './rest-inspector.mjs?v=guardian-currents-1';
-import {choiceScene} from './choice-art.mjs?v=guardian-currents-1';
-import {contextualFlightNotice} from './contextual-events.mjs?v=guardian-currents-1';
-import {createMusic} from './music.mjs?v=guardian-currents-1';
-import {resourceSymbol} from './game-symbols.mjs?v=guardian-currents-1';
-import {nextArtifactNotice,artifactUseLesson} from './artifact-lessons.mjs?v=guardian-currents-1';
-import {getArtifactInfo,CONSUMABLE_ARTIFACTS,EVOLVING_ARTIFACTS} from './artifact-info.mjs?v=guardian-currents-1';
-import {checkpointTutorialLesson,observedFlightLesson,flightEffectLesson} from './tutorial-steps.mjs?v=guardian-currents-1';
-import {ARTIFACT_ENGINE_RULES} from './artifact-effects.mjs?v=guardian-currents-1';
-import {rewardThemeMarkup,encounterIntent,encounterIntentMarkup,artifactOfferMarkup,artifactDetailMarkup,artifactRarityLabel,artifactSummaryMarkup,artifactLifetimeMarkup} from './replay-ui.mjs?v=guardian-currents-1';
-import {installLandscapeMode} from './landscape.mjs?v=guardian-currents-1';
-import {drawLandscapeMap} from './landscape-map.mjs?v=guardian-currents-1';
-import {attachDream,dreamRestMarkup,dreamIndicatorMarkup} from './dream.mjs?v=guardian-currents-1';
-import {chooseFlightReward,getAvailableUpgrades,acknowledgeVictory,artifactSynergy} from './model.mjs?v=guardian-currents-1';
-import {STARTING_CONDENSED_GLOW,formatGlow,glowPercent,getGlowCapacity,glowText} from './vitality.mjs?v=guardian-currents-1';
-import {glowGaugeMarkup,updateGlowGauge} from './glow-ui.mjs?v=guardian-currents-1';
-import {edgingPulseMarkup,updateEdgingPulse} from './edging-ui.mjs?v=guardian-currents-1';
-import {branchTreeMarkup} from './skill-tree.mjs?v=guardian-currents-1';
-import {livesMarkup,lifeHeartSvg} from './lives.mjs?v=guardian-currents-1';
-import {mainWispTreeMarkup} from './wisp-tree.mjs?v=guardian-currents-1';
-import {attachFlightPerformance,downloadPerformanceReport} from './flight-performance.mjs?v=guardian-currents-1';
-import {getChallengePreview} from './flight-challenges.mjs?v=guardian-currents-1';
-import {homeMenuMarkup,runProgressMarkup,unlockPreviewMarkup} from './run-menu.mjs?v=guardian-currents-1';
-import {skillIcon,artifactIcon} from './upgrade-icons.mjs?v=guardian-currents-1';
-import {TERRAINS,SKILLS,ARTIFACTS,newState,loadState,saveState,createRun,canChooseStartingSkill,chooseStartingSkill,setTestOverride,grantTestCondensedGlow,getStartingCompanion,setStartingCompanion,startTutorial,leaveTutorial,getChoices,getRouteMapState,selectNode,beginFlightAttempt,retryFlight,finishFlight,getSupportChoices,resolveSupport,settleCheckpoint,bankRun,advanceMap,previewGlowReward,getSkillCost,getSkillPrice,getSkillWallet,getSkillLockReason,suspendRun,abandonRun,isSkillRevealed,canBuyCheckpointSkills,buyCheckpointSkill,getRunModifiers,canChangeCompanion,setCompanions,sellArtifact,canSellArtifact,getArtifactSalvageValue} from './model.mjs?v=guardian-currents-1';
-import {WispFlight} from './flight.mjs?v=guardian-currents-1';
-import {COMPANION_ABILITIES,getCompanionAbility,getCompanionUnlock,normalizeCompanionRole} from './companion-abilities.mjs?v=guardian-currents-1';
-import {companionArtSvg} from './companion-art.mjs?v=guardian-currents-1';
-import {boostControlMarkup,updateBoostControl} from './boost-control.mjs?v=guardian-currents-1';
-import {campaignStrip,bossSigil,guardianProgressMarkup,guardianRitualMarkup} from './campaign-ui.mjs?v=guardian-currents-1';
-import {resolveLevelIdentity} from './level-catalog.mjs?v=guardian-currents-1';
-import {levelMapGlyph,levelMapPreview} from './level-map-art.mjs?v=guardian-currents-1';
-import {getAscentInfo} from './ascent.mjs?v=guardian-currents-1';
-import {getRouteForecast} from './route-forecast.mjs?v=guardian-currents-1';
-import {MAP_STOP_TYPES,getMapStopInfo,mapStopIconMarkup,getEventScenarios} from './map-guide.mjs?v=guardian-currents-1';
-import {formatFlightDuration} from './level-length.mjs?v=guardian-currents-1';
-import {condensedIconMarkup} from './afterglow-ui.mjs?v=guardian-currents-1';
-import {pickupGuideMarkup,pickupLesson} from './pickup-guide.mjs?v=guardian-currents-1';
-import {pickupArtSvg} from './pickup-art.mjs?v=guardian-currents-1';
-import {createTutorialCoach} from './tutorial-coach.mjs?v=guardian-currents-1';
-import {getTutorialWorldFocus} from './tutorial.mjs?v=guardian-currents-1';
+import {getBossPreview} from './boss.mjs?v=clear-ink-1';
+import {getBiome} from './biomes.mjs?v=clear-ink-1';
+import {collectionMarkup,collectionItemMarkup} from './collection-view.mjs?v=clear-ink-1';
+import {restBenefitsMarkup} from './rest-choice-view.mjs?v=clear-ink-1';
+import {treasureView} from './treasure-view.mjs?v=clear-ink-1';
+import {getFlightClearReward} from './checkpoint-rewards.mjs?v=clear-ink-1';
+import {artifactDescription} from './artifact-copy.mjs?v=clear-ink-1';
+import {startResumeCountdown} from './resume-countdown.mjs?v=clear-ink-1';
+import {nextOnboardingLesson,markOnboardingSeen,resetOnboarding,noteOnboardingPrompt,noteOnboardingProgress,onboardingFeatureAvailable,onboardingFlightPlan} from './onboarding.mjs?v=clear-ink-1';
+import {flightRewardMarkup} from './reward-screen.mjs?v=clear-ink-1';
+import {flightEntryMarkup,resumeGateMarkup,waitForFlightEntry} from './flight-entry.mjs?v=clear-ink-1';
+import {TUTORIAL_TOPICS,topicSteps} from './tutorial-curriculum.mjs?v=clear-ink-1';
+import {tutorialVisualMarkup} from './tutorial-visuals.mjs?v=clear-ink-1';
+import {deathScreenMarkup} from './death-screen.mjs?v=clear-ink-1';
+import {createRestInspectorState} from './rest-inspector.mjs?v=clear-ink-1';
+import {choiceScene} from './choice-art.mjs?v=clear-ink-1';
+import {contextualFlightNotice} from './contextual-events.mjs?v=clear-ink-1';
+import {createMusic} from './music.mjs?v=clear-ink-1';
+import {resourceSymbol} from './game-symbols.mjs?v=clear-ink-1';
+import {nextArtifactNotice,artifactUseLesson} from './artifact-lessons.mjs?v=clear-ink-1';
+import {getArtifactInfo,CONSUMABLE_ARTIFACTS,EVOLVING_ARTIFACTS} from './artifact-info.mjs?v=clear-ink-1';
+import {checkpointTutorialLesson,observedFlightLesson,flightEffectLesson} from './tutorial-steps.mjs?v=clear-ink-1';
+import {ARTIFACT_ENGINE_RULES} from './artifact-effects.mjs?v=clear-ink-1';
+import {rewardThemeMarkup,encounterIntent,encounterIntentMarkup,artifactOfferMarkup,artifactDetailMarkup,artifactRarityLabel,artifactSummaryMarkup,artifactLifetimeMarkup} from './replay-ui.mjs?v=clear-ink-1';
+import {installLandscapeMode} from './landscape.mjs?v=clear-ink-1';
+import {drawLandscapeMap} from './landscape-map.mjs?v=clear-ink-1';
+import {attachDream,dreamRestMarkup,dreamIndicatorMarkup} from './dream.mjs?v=clear-ink-1';
+import {chooseFlightReward,getAvailableUpgrades,acknowledgeVictory,artifactSynergy} from './model.mjs?v=clear-ink-1';
+import {STARTING_CONDENSED_GLOW,formatGlow,glowPercent,getGlowCapacity,glowText} from './vitality.mjs?v=clear-ink-1';
+import {glowGaugeMarkup,updateGlowGauge} from './glow-ui.mjs?v=clear-ink-1';
+import {edgingPulseMarkup,updateEdgingPulse} from './edging-ui.mjs?v=clear-ink-1';
+import {branchTreeMarkup} from './skill-tree.mjs?v=clear-ink-1';
+import {livesMarkup,lifeHeartSvg} from './lives.mjs?v=clear-ink-1';
+import {mainWispTreeMarkup} from './wisp-tree.mjs?v=clear-ink-1';
+import {attachFlightPerformance,downloadPerformanceReport} from './flight-performance.mjs?v=clear-ink-1';
+import {getChallengePreview} from './flight-challenges.mjs?v=clear-ink-1';
+import {homeMenuMarkup,runProgressMarkup,unlockPreviewMarkup} from './run-menu.mjs?v=clear-ink-1';
+import {skillIcon,artifactIcon} from './upgrade-icons.mjs?v=clear-ink-1';
+import {TERRAINS,SKILLS,ARTIFACTS,newState,loadState,saveState,createRun,canChooseStartingSkill,chooseStartingSkill,setTestOverride,grantTestCondensedGlow,getStartingCompanion,setStartingCompanion,startTutorial,leaveTutorial,getChoices,getRouteMapState,selectNode,beginFlightAttempt,retryFlight,finishFlight,getSupportChoices,resolveSupport,settleCheckpoint,bankRun,advanceMap,previewGlowReward,getSkillCost,getSkillPrice,getSkillWallet,getSkillLockReason,suspendRun,abandonRun,isSkillRevealed,canBuyCheckpointSkills,buyCheckpointSkill,getRunModifiers,canChangeCompanion,setCompanions,sellArtifact,canSellArtifact,getArtifactSalvageValue} from './model.mjs?v=clear-ink-1';
+import {WispFlight} from './flight.mjs?v=clear-ink-1';
+import {COMPANION_ABILITIES,getCompanionAbility,getCompanionUnlock,normalizeCompanionRole} from './companion-abilities.mjs?v=clear-ink-1';
+import {companionArtSvg} from './companion-art.mjs?v=clear-ink-1';
+import {boostControlMarkup,updateBoostControl} from './boost-control.mjs?v=clear-ink-1';
+import {campaignStrip,bossSigil,guardianProgressMarkup,guardianRitualMarkup} from './campaign-ui.mjs?v=clear-ink-1';
+import {resolveLevelIdentity} from './level-catalog.mjs?v=clear-ink-1';
+import {levelMapGlyph,levelMapPreview} from './level-map-art.mjs?v=clear-ink-1';
+import {getAscentInfo} from './ascent.mjs?v=clear-ink-1';
+import {getRouteForecast} from './route-forecast.mjs?v=clear-ink-1';
+import {MAP_STOP_TYPES,getMapStopInfo,mapStopIconMarkup,getEventScenarios} from './map-guide.mjs?v=clear-ink-1';
+import {formatFlightDuration} from './level-length.mjs?v=clear-ink-1';
+import {condensedIconMarkup} from './afterglow-ui.mjs?v=clear-ink-1';
+import {pickupGuideMarkup,pickupLesson} from './pickup-guide.mjs?v=clear-ink-1';
+import {pickupArtSvg} from './pickup-art.mjs?v=clear-ink-1';
+import {createTutorialCoach} from './tutorial-coach.mjs?v=clear-ink-1';
+import {getTutorialWorldFocus} from './tutorial.mjs?v=clear-ink-1';
 const app=document.querySelector('#app'),header=document.querySelector('#header');
 const mockMode=new URLSearchParams(location.search).get('mock')==='rest';
 let state;if(mockMode)state=createRestInspectorState();else try{state=loadState(localStorage)}catch{state=newState()}
@@ -178,11 +178,25 @@ function renderMap(){const r=state.run;return `<section class="game-map-screen m
 function plannedChallengesMarkup(n){if(state.run?.isTutorial)return '';if(n.encounterFamily||n.boss)return encounterIntentMarkup(n,{optionalChallenge:true});const preview=getChallengePreview({...n,stage:n.row});return `<div class="flight-challenge-preview" aria-label="Planned terrain challenges">${preview.patterns.map(pattern=>`<span>${icon(pattern.type==='fuel-pocket'?'flame':pattern.type==='draft-crossing'?'wing':'wisp')}${esc(pattern.name)}</span>`).join('')}${n.challengeId?`<small class="optional-challenge">Optional: ${esc(n.challenge||'Clear the challenge')} · Better relic odds</small>`:''}</div>`}
 function flightCue(snapshot){if(snapshot.completing)return 'PASSAGE CLEARED';if(snapshot.dying)return snapshot.event||'The light scatters…';const challenge=snapshot.flightChallenge;if(!challenge)return snapshot.event||'';if(challenge.phase==='warning')return challenge.type==='dark-cave'?'CAVE AHEAD · LUMINANCE NARROWS':challenge.type==='draft-crossing'?'DRAFT AHEAD · CHOOSE YOUR CROSSING':challenge.pocket?.side==='ceiling'?'FUEL POCKET ABOVE':'FUEL POCKET AHEAD';if(challenge.phase==='active'&&challenge.progress<.2)return challenge.name;return snapshot.event||''}
 function renderBriefing(){const r=state.run,n=r.current,loc=nodeLocation(n);return `<section class="passage-briefing ${n.boss?'boss-brief':''}"><div class="passage-art location-art" data-location="${loc.id}">${mapStopIconMarkup(n)}</div><div class="passage-choice"><span class="passage-kind">${esc(n.biomeName||loc.name||'')}${n.boss?' · BOSS':n.elite?' · ELITE':''}</span><h1>${esc(n.name)}</h1>${n.boss?`<p class="passage-notice">${esc(getBossPreview(n.bossId).instruction)}</p>`:forecastMarkup(n)}${contextualFlightNotice(r,n)?`<p class="passage-notice">${esc(contextualFlightNotice(r,n))}</p>`:''}${r.flame<21?'<p class="passage-notice">Low Sparks · find fuel early</p>':''}<div class="passage-actions">${getFlightClearReward(n)?`<span class="passage-clear-pay" aria-label="Clear reward: ${getFlightClearReward(n)} Packed Sparks">${resourceSymbol('packed')}<b>+${getFlightClearReward(n)}</b><small>on clear</small></span>`:''}${r.restReady?dreamRestMarkup(r,n):''}<button class="primary enter-passage" data-action="launch">Enter ${icon('arrow')}</button></div></div></section>`}
-function supportValues(effect={},{compact=false}={}){const r=state.run,items=[],add=(kind,value,label)=>items.push(`<span class="boon-resource-value" title="${label}" aria-label="${value} ${label}">${kind==='heart'?lifeHeartSvg():resourceSymbol(kind)}<b>${value}</b>${compact?'':`<small>${label}</small>`}</span>`);if(effect.flame){const maximum=getGlowCapacity(r)+Math.max(0,Number(effect.glowCapacity)||0),amount=effect.flame>=100?maximum-r.flame:effect.flame>0?Math.min(effect.flame,maximum-r.flame):effect.flame;add('glow',compact?`${amount>=0?'+':''}${formatGlow(amount)}`:effect.flame>=100?'FULL':`${amount>0?'+':''}${formatGlow(amount)}`,'Sparks')}if(effect.pickupGlow){const p=previewGlowReward(r,effect.pickupGlow,{removeArtifact:effect.sell});if(p.restored>0)add('glow','+'+formatGlow(p.restored),'Sparks');if(p.condensedGlow>0)add('packed','+'+p.condensedGlow,'Packed Sparks');if(!p.restored&&!p.condensedGlow)add('glow','+'+formatGlow(effect.pickupGlow),'Sparks')}if(effect.packedLight)add('packed','+'+effect.packedLight,'Packed Sparks');if(effect.salvagePackedLight)add('packed','+'+effect.salvagePackedLight,'Packed Sparks');if(effect.condensedCost)add('packed','−'+effect.condensedCost,'Packed Sparks');if(effect.lives)add('heart','+'+effect.lives,'hearts');return items.join('')}
+function supportValues(effect={},{compact=false}={}){const r=state.run,items=[],add=(kind,value,label)=>items.push(`<span class="boon-resource-value ${String(value).startsWith('−')||String(value).startsWith('-')?'cost':'gain'}" title="${label}" aria-label="${value} ${label}">${kind==='heart'?lifeHeartSvg():resourceSymbol(kind)}<b>${value}</b>${compact?'':`<small>${label}</small>`}</span>`);if(effect.flame){const maximum=getGlowCapacity(r)+Math.max(0,Number(effect.glowCapacity)||0),amount=effect.flame>=100?maximum-r.flame:effect.flame>0?Math.min(effect.flame,maximum-r.flame):effect.flame;add('glow',compact?`${amount>=0?'+':''}${formatGlow(amount)}`:effect.flame>=100?'FULL':`${amount>0?'+':''}${formatGlow(amount)}`,'Energy')}if(effect.pickupGlow){const p=previewGlowReward(r,effect.pickupGlow,{removeArtifact:effect.sell});if(p.restored>0)add('glow','+'+formatGlow(p.restored),'Energy');if(p.condensedGlow>0)add('packed','+'+p.condensedGlow,'Packed Sparks');if(!p.restored&&!p.condensedGlow)add('glow','+'+formatGlow(effect.pickupGlow),'Energy')}if(effect.packedLight)add('packed','+'+effect.packedLight,'Packed Sparks');if(effect.salvagePackedLight)add('packed','+'+effect.salvagePackedLight,'Packed Sparks');if(effect.condensedCost)add('packed','−'+effect.condensedCost,'Packed Sparks');if(effect.lives)add('heart','+'+effect.lives,'hearts');return items.join('')}
 
 function restGlowReadout(r){const max=getGlowCapacity(r);return `<span class="rest-glow" aria-label="${formatGlow(r.flame)} of ${formatGlow(max)} Energy">${resourceSymbol('glow')}<b>${formatGlow(r.flame)}<small>/${formatGlow(max)}</small></b></span>`}
 function renderRestBenefits(r,n,choices){return restBenefitsMarkup(r,n,choices)}
-function renderSupport(){const r=state.run,n=r.current;if(n.kind==='treasure')return treasureView(r,n,{practiceTools:tutorialCheckpoint()});const choices=getSupportChoices(r,state.profile);if(n.kind==='camp')return renderRestBenefits(r,n,choices);return `<section class="center-view compact-support">${campaignStrip(r,state.profile)}${tutorialCheckpoint()}<div class="support-symbol">${mapStopIconMarkup(n)}</div><h1>${esc(n.name)}</h1><div class="support-vitals">${livesMarkup(r)}<span class="glow-label">${icon('flame')}${formatGlow(r.flame,getGlowCapacity(r),0)} SPARKS</span></div>${forecastMarkup(n)}<div class="support-offers">${choices.map((c,i)=>`<button class="route-choice boon-choice" data-action="support" data-index="${i}"><span class="boon-emblem">${c.effect?.lives?lifeHeartSvg():c.effect?.flame||c.effect?.pickupGlow?icon('flame'):c.effect?.condensedCost||c.effect?.salvagePackedLight?condensedIconMarkup():icon('star')}</span><h3>${esc(c.title)}</h3><div class="boon-values">${supportValues(c.effect)}</div><p>${esc(c.description)}</p>${c.effect?.upgrade?`<p class="support-upgrade-effect">${esc(glowText(SKILLS[c.effect.upgrade]?.consequence||SKILLS[c.effect.upgrade]?.description||'',getGlowCapacity(r)))}${SKILLS[c.effect.upgrade]?.choiceGroup?' · Commits this path for the run.':''}</p>`:''}</button>`).join('')}</div>${n.kind==='camp'?'<p class="rest-service-note">Choose a boon to open training and companion preparation.</p>':artifactsRevealed()?`<button class="secondary" data-action="artifacts">${icon('star')}Artifacts & Forge</button>`:''}</section>`}
+function renderSupport(){
+ const r=state.run,n=r.current;
+ if(n.kind==='treasure')return treasureView(r,n,{practiceTools:tutorialCheckpoint()});
+ const choices=getSupportChoices(r,state.profile);
+ if(n.kind==='camp')return renderRestBenefits(r,n,choices);
+ return `<section class="center-view compact-support">${campaignStrip(r,state.profile)}${tutorialCheckpoint()}
+ <aside class="support-context"><div class="support-symbol">${mapStopIconMarkup(n)}</div><h1>${esc(n.name)}</h1>
+ <div class="support-vitals">${livesMarkup(r)}<span class="glow-label">${resourceSymbol('energy')}${formatGlow(r.flame)} / ${formatGlow(getGlowCapacity(r))}</span></div>
+ ${forecastMarkup(n)}${artifactsRevealed()?`<button class="secondary" data-action="artifacts">${icon('star')}Collection</button>`:''}</aside>
+ <div class="support-offers">${choices.map((c,i)=>`<button class="route-choice boon-choice" data-action="support" data-index="${i}">
+ <span class="boon-emblem">${c.effect?.lives?lifeHeartSvg():c.effect?.flame||c.effect?.pickupGlow?resourceSymbol('energy'):c.effect?.condensedCost||c.effect?.salvagePackedLight?condensedIconMarkup():icon('star')}</span>
+ <h3>${esc(c.title)}</h3><div class="boon-values">${supportValues(c.effect)}</div><p>${esc(c.description)}</p>
+ ${c.effect?.upgrade?`<p class="support-upgrade-effect">${esc(glowText(SKILLS[c.effect.upgrade]?.consequence||SKILLS[c.effect.upgrade]?.description||'',getGlowCapacity(r)))}${SKILLS[c.effect.upgrade]?.choiceGroup?' · Commits this path for the run.':''}</p>`:''}
+ </button>`).join('')}</div></section>`;
+}
 
 function renderRestPrep(){const r=state.run,n=r.map.flat().find(x=>x.id===r.lastRest?.nodeId)||{name:'Rest',kind:'camp'};return restBenefitsMarkup(r,n,[],{nextNode:getChoices(r)[0]});}
 

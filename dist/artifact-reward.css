@@ -50,3 +50,15 @@ dialog.reward-swap-sheet{display:grid;grid-template-rows:auto auto minmax(0,1fr)
 @media(prefers-reduced-motion:reduce){.reward-trophy>svg{animation:none!important}.melted-artifact{display:none}}
 
 .artifact-reward-actions>.evolution-forms{flex:1}.artifact-reward-actions>.evolution-forms>button{flex:1;margin:0;height:100%;min-height:44px}
+
+html body .artifact-reward-heading>h1{color:#d3dfe2}
+html body .reward-packed-earned>span{color:#c4d2d9}
+html body .reward-copy h2{color:#fff0cc;text-shadow:1px 1px #02070b}
+html body .reward-identity>span{color:#c5d4db}
+html body .reward-copy>.reward-effect-sentence{color:#fff0cc}
+html body .reward-copy>.reward-condition{color:#d4dfe3}
+html body .reward-copy>.reward-slot-note{color:#becdd4}
+html body .reward-trophy{background:radial-gradient(ellipse at center,#18242a 0,#0b171b 68%,transparent 69%)}
+html body .reward-trophy>svg{filter:drop-shadow(2px 3px 0 #02070b);background-color:#050e13}
+html body .reward-trophy>span{color:var(--relic-aura);text-shadow:1px 1px #02070b}
+html body .reward-action-or{color:#c1cdd2}
