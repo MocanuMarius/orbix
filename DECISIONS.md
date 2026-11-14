@@ -915,3 +915,18 @@ The Flash Powerup is a glowing white triangle. On pickup it trails the wisp on a
 The five-size release was checked on 192 generated flights across all twelve biomes. Small, Cluster, Cache, Surge and Giant appeared at 47.04%, 28.28%, 16.93%, 6.76% and 0.99%. All 1,453 protected pickups retained their positions and payouts. The placement audit checked the available fuel floor, the opening reserve and clearance around enlarged Dark Sparks.
 
 Balance evidence for this release: 300 seeded campaign flights produced 137 giants among 13,768 natural Sparks. The 192-course/viewport hazard probe found a zero-drain lane in every sampled Black Hole room. In 35 paired, delayed-reaction guardian trials the old-size control cleared 17 and mass-sized Sparks cleared 16; this is a simulation, not a measured human success rate. Across 288 modeled full clears per price curve, increasing training growth from 0.12 to 0.24 moved median purchases from 11 to 9; first purchase still typically came after one flight. Training stays more affordable early while later specializations compete.
+
+## 14 November 2026 · Mist Undertow and Collector planning
+
+Published visual changes in `mist-undertow-1`.
+
+- The selected Spark capture combines Undertow's circular motion with Mist's diffuse vapor. The same fluid renderer runs in the standalone Hybrid preview, both game renderers and the Collector's post-pop cargo. The default capture preference uses the new style.
+- The Collector field is greener and slightly thicker. Its maximum opacity is approximately half of the prior field, and its contracting boundary becomes almost invisible near the wisp. Shell contact feedback and Last Orbit retain their distinct cues.
+
+Accepted design decisions for the next Collector mechanics rework, still at planning stage.
+
+- Collector starts with automatic fetching for Small and Cluster Sparks. Fetching larger Sparks and Flash Powerups requires skills. Main-body collection remains available for all pickup types.
+- Learned skill branches last for the run. Learned targeting preferences can be adjusted at checkpoints.
+- Last Orbit gets a separate Guard branch. A later skill lets direct body pickups help repair the Collector after a rescue.
+
+The follow-up questions ask whether Cache should unlock before a combined Surge/Giant upgrade, whether targeting preferences need individual purchases, and whether body-pickup repair removes capped time or uses pickup count/size. These details await the player's direction.
