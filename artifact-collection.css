@@ -53,3 +53,28 @@ dialog.route-inspection-sheet[open]{width:min(900px,calc(100vw - 32px))!importan
  .artifact-choice-copy .artifact-choice-limit{font-size:11px}
  .collection-inspection-copy p{font-size:13px}
 }
+
+/* Skill navigation: role above branch; state key aligned with the detail panel. */
+.tree-sheet .tree-navigation{display:grid;grid-template-columns:minmax(0,1fr) min(250px,29vw);gap:14px;flex:none;margin:0 0 8px;align-items:center}
+.tree-sheet .tree-selectors{display:flex;flex-direction:column;align-items:center;gap:5px;min-width:0}
+.tree-sheet .tree-selectors .tree-tabs{justify-content:center;width:100%;margin:0;padding:0;height:44px;min-height:44px}
+.tree-sheet .tree-selectors .tree-tabs>button{flex:1;max-width:170px;min-height:44px}
+.tree-sheet .tree-selectors .tree-limbs{display:flex;justify-content:center;gap:8px;width:min(100%,440px);margin:0;padding:0}
+.tree-sheet .tree-selectors .tree-limbs>button{flex:1;min-width:0;min-height:40px;padding:5px 12px;font:14px/1.2 var(--pixel);letter-spacing:1px;color:#b9cbbf;background:#142721!important;border:1px solid #566c5b!important;box-shadow:none!important;position:relative}
+.tree-sheet .tree-selectors .tree-limbs>button.selected{background:#3d492d!important;color:#fff0b3;border-color:#e6ce8f!important;box-shadow:inset 0 -3px #e6ce8f!important}
+.tree-sheet .tree-selectors .tree-limbs>button.selected:after{display:none}
+.tree-sheet .tree-navigation .tree-state-key{display:grid;grid-template-columns:1fr 1fr;justify-content:center;gap:12px 10px;margin:0;padding:8px 0 8px 12px;min-height:0;border-left:1px solid #75876455;align-content:center}
+.tree-sheet .tree-navigation .tree-state-key>span{font-size:11px}
+.tree-sheet .tree-body{grid-template-columns:minmax(0,1fr) min(250px,29vw)}
+.tree-sheet .tree-side .tree-inspector-title{justify-content:center;text-align:center}
+.tree-sheet .tree-side .tree-inspector{width:100%;box-sizing:border-box}
+@media(orientation:portrait){.tree-sheet .tree-navigation{grid-template-columns:1fr}.tree-sheet .tree-navigation .tree-state-key{display:flex;flex-wrap:wrap;border:0;padding:3px;gap:10px}.tree-sheet .tree-body{display:flex}}
+@media(orientation:landscape) and (max-height:360px){.tree-sheet .tree-navigation{margin-bottom:4px}.tree-sheet .tree-selectors{gap:2px}.tree-sheet .tree-selectors .tree-limbs>button{min-height:36px;font-size:12px}}
+@media(orientation:landscape){
+ .tree-sheet:modal{display:grid!important;grid-template-columns:minmax(0,1fr) min(250px,29vw)!important;grid-template-rows:44px 48px minmax(0,1fr)!important;gap:6px 14px!important}
+ .tree-sheet .tree-navigation{display:contents}
+ .tree-sheet .tree-selectors{grid-column:1;grid-row:1/3;align-self:center}
+ .tree-sheet .tree-crown{grid-column:2;grid-row:1;align-self:center}
+ .tree-sheet .tree-navigation .tree-state-key{grid-column:2;grid-row:2;align-self:center;gap:8px 10px;padding:2px 0 2px 12px}
+ .tree-sheet .tree-body{grid-column:1/-1;grid-row:3}
+}

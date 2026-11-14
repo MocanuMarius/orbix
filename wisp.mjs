@@ -1,9 +1,9 @@
-import { LIGHT_PACKET_TUNING } from './vitality.mjs?v=fixed-companion-1';
-import { getCompanionAbility } from './companion-abilities.mjs?v=fixed-companion-1';
-import { pickupKind, pickupContactRadius, canCompanionCollect } from './pickups.mjs?v=fixed-companion-1';
+import { LIGHT_PACKET_TUNING } from './vitality.mjs?v=proximity-balance-1';
+import { getCompanionAbility } from './companion-abilities.mjs?v=proximity-balance-1';
+import { pickupKind, pickupContactRadius, canCompanionCollect } from './pickups.mjs?v=proximity-balance-1';
 
 const clamp = (value, lo, hi) => Math.min(hi, Math.max(lo, value));
-export const WISP_TUNING = Object.freeze({ range: 105, cooldown: 5, lightRadius: 175,
+export const WISP_TUNING = Object.freeze({ range: 52.5, cooldown: 10, lightRadius: 175,
   outboundSpeed: 520, returnSpeed: 620, orbitPeriod: 1.25 });
 
 export function wispHome(player) {

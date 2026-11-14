@@ -1,4 +1,4 @@
-import {artifactPixelPortrait} from './artifact-pixel-art.mjs?v=fixed-companion-1';
+import {artifactPixelPortrait} from './artifact-pixel-art.mjs?v=proximity-balance-1';
 const shapes={
  reed:'<path d="M4 22V9m6 13V3m7 19V7M2 5h4v4H2zM8 1h4v4H8zM15 3h4v4h-4zM10 16l6-5"/>',
  moon:'<path d="M16 2H8L2 8v8l6 6h8l6-6h-8l-4-4V6zM18 3v5m-2-2h5"/>',
@@ -30,7 +30,7 @@ const shapes={
  spool:'<path d="M5 3h14v3H5zM8 6h8v12H8zM5 18h14v3H5zM1 10h4m14 0h4M2 7l3 1m14 0 3-1M2 14l3-1m14 0 3 1"/>',
  dream:'<path d="M2 8l4 4 4 2h4l4-2 4-4M4 12l-3 3m7 0-1 4m6-3v5m6-7 2 4M15 2h2v2h-2z"/>',
  beacon:'<path d="M3 4v4m0 8v4M7 6v4m0 4v4M11 9v6M16 10h4v4h-4zM18 4v3m0 10v3M22 12h2"/>',
- 'edge-pulse':'<path d="M2 22h20M10 18v-3h4v3M6 18v-7h3V8h6v3h3v7M2 18V7h3V4h4V1h6v3h4v3h3v11"/>',
+ 'edge-pulse':'<path d="M2 22h20M8 6h8v8H8zM5 3v4M3 5h4m11-2v4m-2-2h4M9 16l-2 4m5-4v4m3-4 2 4"/>',
  regen:'<path d="M2 22h20M5 11V7h4M5 7l4-4h8l4 4v9l-4 4H8l-3-3M12 7v9m-4-4h8"/>',
  trajectory:'<circle cx="4" cy="5" r="2"/><path d="M8 5h3m3 2 2 2m2 3 1 3m1 3v3M15 21h8"/>',
  heart:'<path d="M2 5h3V3h4v2h2v2h2V5h2V3h4v2h3v7h-3v3h-3v3h-3v3h-2v-3H8v-3H5v-3H2z"/>',

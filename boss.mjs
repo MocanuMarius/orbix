@@ -1,4 +1,4 @@
-import { prepareGuardian, drawGuardian } from './guardian-effects.mjs?v=fixed-companion-1';
+import { prepareGuardian, drawGuardian } from './guardian-effects.mjs?v=proximity-balance-1';
 // The Hollow Warden is a survival encounter: read its hands, keep your Sparks,
 // and reach the waylight. Every solid hand uses the ordinary terrain pipeline.
 const TAU = Math.PI * 2;
@@ -6,9 +6,9 @@ const clamp = (n, a, b) => Math.max(a, Math.min(b, n));
 const lerp = (a, b, t) => a + (b - a) * t;
 const PHASES = Object.freeze([
   Object.freeze({ id: 'awakening', name: 'STONE AWAKENS', instruction: 'Climb the stone fingers; recover between hands.',
-    cells: [[.51, 270, 'floor', 0], [.55, 198, 'floor', 0], [.49, 190, 'both', 0], [.47, 292, 'floor', 0]] }),
+    cells: [[.51, 290, 'floor', 0], [.60, 210, 'roof', 0], [.42, 210, 'floor', 0], [.50, 310, 'both', 0]] }),
   Object.freeze({ id: 'grasp', name: 'THE SWEEPING GRASP', instruction: 'The paired hands sway together. Follow the opening.',
-    cells: [[.47, 282, 'floor', 0], [.46, 178, 'both', 12], [.52, 170, 'both', 12], [.53, 290, 'floor', 0]] }),
+    cells: [[.50, 300, 'both', 0], [.42, 198, 'both', 18], [.58, 198, 'both', 18], [.50, 310, 'both', 0]] }),
   Object.freeze({ id: 'vigil', name: 'THE LAST VIGIL', instruction: 'Read the upper hand, then the lower hand. The waylight lies beyond.',
     cells: [[.51, 286, 'floor', 0], [.55, 168, 'roof', 9], [.49, 156, 'floor', 9], [.46, 148, 'both', 9], [.48, 294, 'floor', 0]] }),
 ]);
@@ -20,9 +20,30 @@ const MOON_PHASES = Object.freeze([
   {id:'unravel',name:'THE UNRAVELLING',instruction:'Alternate above and below the crescents. Rest in the wide silver rooms.',
     cells:[[.31,192,'floor',9],[.69,192,'roof',9],[.50,238,'both',14],[.50,336,'both',0]]},
 ]);
+
+// Teach a signature, vary it, then combine it. Each fourth cell is a respite.
+const SIGNATURE_PHASES={
+ 'frost-matron':[
+  {id:'fracture',name:'CRACKING CROWN',instruction:'Read the cracks, pass beneath the falling ice.',cells:[[.48,290,'both',0],[.60,255,'both',0],[.44,250,'both',0],[.50,335,'both',0]]},
+  {id:'mirror',name:'MIRROR ICE',instruction:'Ice alternates above and below. Cross to the safe side.',cells:[[.40,265,'both',0],[.60,250,'both',0],[.42,250,'both',0],[.50,335,'both',0]]},
+  {id:'shatter',name:'THE LAST THAW',instruction:'Follow the alternating ice, then breathe in the wide chamber.',cells:[[.60,245,'both',8],[.40,245,'both',8],[.55,255,'both',0],[.50,340,'both',0]]}],
+ 'rootbound-heart':[
+  {id:'heartbeat',name:'THE FIRST HEARTBEAT',instruction:'Living roots close, then release. Follow their opening.',cells:[[.50,280,'both',0],[.42,270,'both',8],[.58,270,'both',8],[.50,335,'both',0]]},
+  {id:'roots',name:'REACHING ROOTS',instruction:'Climb the roots, then descend with their pulse.',cells:[[.40,260,'floor',8],[.60,260,'roof',8],[.45,265,'both',12],[.50,335,'both',0]]},
+  {id:'heartstorm',name:'THE FINAL BEAT',instruction:'Two living gates, then a quiet room.',cells:[[.58,255,'both',12],[.42,255,'both',12],[.52,265,'both',8],[.50,340,'both',0]]}],
+ 'storm-shepherd':[
+  {id:'call',name:'THE SHEPHERD CALLS',instruction:'Read the rising ribbons; use short corrections.',cells:[[.50,285,'both',0],[.42,270,'both',0],[.58,270,'both',0],[.50,335,'both',0]]},
+  {id:'answer',name:'THE STORM ANSWERS',instruction:'Updraft, downdraft. Ride each push toward the next room.',cells:[[.40,260,'both',0],[.60,260,'both',0],[.45,270,'both',0],[.50,335,'both',0]]},
+  {id:'chorus',name:'THUNDER CHORUS',instruction:'Follow the alternating current; recover between gusts.',cells:[[.58,250,'both',8],[.42,250,'both',8],[.54,270,'both',0],[.50,340,'both',0]]}],
+ 'hollow-sun':[
+  {id:'eclipse',name:'THE FIRST ECLIPSE',instruction:'Keep beneath the dark wells; gather light between them.',cells:[[.55,290,'both',0],[.60,275,'both',0],[.48,280,'both',0],[.50,335,'both',0]]},
+  {id:'orbit',name:'DARK ORBITS',instruction:'The wells change sides. Cross away from their pull.',cells:[[.40,270,'both',0],[.60,270,'both',0],[.45,275,'both',0],[.50,340,'both',0]]},
+  {id:'corona',name:'BREAK THE CORONA',instruction:'Keep moving between the wells and their pools of light.',cells:[[.58,260,'both',8],[.42,260,'both',8],[.52,275,'both',0],[.50,340,'both',0]]}]
+};
+
 export const BOSS_PREVIEWS=Object.freeze({
   'hollow-warden':Object.freeze({id:'hollow-warden',name:'Hollow Warden',instruction:'Stone hands and swaying passages.',icon:'boss'}),
-  'frost-matron':Object.freeze({id:'frost-matron',name:'Frost Matron',instruction:'Cracking ice falls into the upper lane. Pass beneath.',icon:'boss'}),
+  'frost-matron':Object.freeze({id:'frost-matron',name:'Frost Matron',instruction:'Cracking ice changes sides. Follow the warning and cross away.',icon:'boss'}),
   'rootbound-heart':Object.freeze({id:'rootbound-heart',name:'Rootbound Heart',instruction:'Living gates breathe open and close. Follow their pulse.',icon:'boss'}),
   'storm-shepherd':Object.freeze({id:'storm-shepherd',name:'Storm Shepherd',instruction:'Separate rising and falling drafts. Watch the ribbons.',icon:'boss'}),
   'hollow-sun':Object.freeze({id:'hollow-sun',name:'Hollow Sun',instruction:'Moving dark wells drain nearby Sparks. Keep your distance.',icon:'boss'}),
@@ -90,7 +111,7 @@ export function getBossTuning(difficulty=1){
 export function buildBossLayout({ seed = 1, height = 620, speed = 154, duration = 165,
   gapScale = .88, difficulty = 1, elite = false, levelIdentity = null,
   circleHitsPolygon = null, bossId='hollow-warden' } = {}) {
-  const moon=bossId==='moonweaver',identity=getBossPreview(bossId),special=!['moonweaver','hollow-warden'].includes(identity.id),definitions=special?PHASES.map((p,i)=>({...p,name:identity.name.toUpperCase(),instruction:identity.instruction,cells:[[.5,370,'both',0],[.5,350,'both',0],[.5,370,'both',0],[.5,390,'both',0]]})):moon?MOON_PHASES:PHASES;
+  const moon=bossId==='moonweaver',identity=getBossPreview(bossId),special=!['moonweaver','hollow-warden'].includes(identity.id),definitions=special?SIGNATURE_PHASES[identity.id]:moon?MOON_PHASES:PHASES;
   const prefix=moon?'moonweaver':'warden';
   const rng = randomFor(`${seed}:${identity.id}`), scale = height / 620, tuning=getBossTuning(difficulty);
   const totalDistance = duration * speed, end = totalDistance + 98 - speed * 3.2;
@@ -105,8 +126,9 @@ export function buildBossLayout({ seed = 1, height = 620, speed = 154, duration 
     for (let cell = 0; cell < count; cell++) {
       const patternIndex = cell % definition.cells.length;
       const [flow, opening, occupancy, motion] = definition.cells[patternIndex];
-      const gentle = opening >= 260 || phase === 0 && cell === 0;
-      const center = clamp(height * flow, previous - height * (moon?.44:.06), previous + height * (moon?.44:.06));
+      const gentle = opening >= (special?320:260) || phase === 0 && cell === 0;
+      const targetFlow=moon&&difficulty===1?clamp(flow,.37,.63):flow;
+      const center = clamp(height * targetFlow, previous - height * (moon?.44:special?.16:.06), previous + height * (moon?.44:special?.16:.06));
       const gap = gentle ? opening * scale : Math.max(elite ? 104 : 120, opening * scale * gapScale)*tuning.gapMultiplier;
       const width = phase === 2 ? 135 : 142;
       const x = first + cell * spacing;

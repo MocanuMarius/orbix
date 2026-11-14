@@ -3,7 +3,7 @@ const ability = (id, name, action, label, duration, cooldown, description, passi
 export const COMPANION_TEST_UNLOCKS = false;
 export const COMPANION_ABILITIES = Object.freeze({
   collector: ability('collector', 'Collector', 'collect', 'COLLECTOR', 0, 0,
-    'Rescues missed good Sparks inside its boundary. Each delivery shrinks the range; it grows back over 5 seconds. Nearby rescues still work during recovery.', true, true, 1),
+    'Rescues missed good Sparks inside its boundary. Each delivery shrinks the range; it grows back over 10 seconds. Nearby rescues still work during recovery.', true, true, 1),
   protector: ability('protector', 'Protector', 'protect', 'PROTECTOR', 0, 0,
     'Spends 12 Sparks and one recovered shell charge to save a collision. An empty shell or insufficient Sparks cannot protect you.', true, false, 2),
   swift: ability('swift', 'Runner', 'boost', 'BOOST', 1.25, 7.5,

@@ -44,13 +44,16 @@ export function tuneMainDefinition(skill){
 // Prices reflect one deliberate upgrade roughly every two ordinary clears.
 // The free starting root remains free through chooseStartingSkill, not price 0.
 export function priceSkillDefinition(s){
+ if(s.branch==='proximity')return s;
  if(s.id==='main-spare-spark')return{...s,cost:140};
  if(s.id==='main-deep-reserve')return{...s,cost:210};
  if(s.branch==='afterglow')return{...s,cost:30,prices:[30,35].slice(0,s.maxRank)};
- if(s.incrementStage)return{...s,cost:[80,95,110][s.incrementStage-1]};
+ if(s.incrementStage)return{...s,cost:[50,60,70][s.incrementStage-1]};
  if(s.id==='main-edging-attunement')return{...s,cost:80};
  if(s.id.endsWith('-attunement'))return{...s,cost:85};
  if(s.id.endsWith('-mastery'))return{...s,cost:95};
+ const valuePrices={'main-lift':125,'main-dream-wake':30,'main-dream-sight':40,'main-echo-long':45,'main-echo-range':50,'main-recovery':50,'main-recovery-deep':55,'main-recovery-rescue':45,'main-recovery-challenge':45,'main-plummet':40,'main-deep-plummet':50,'main-tailwind':55,'main-drift':65,'main-kindled-touch':120,'main-kindled-rich':85,'main-dawnburst':130,'main-afterglow':110};
+ if(valuePrices[s.id]!=null)return {...s,cost:valuePrices[s.id]};
  const prices={'main-sight':80,'main-speed':80,'main-efficiency':80,'main-drift-sense':85,'main-drift-sense-2':100,'main-drift-sense-3':110,'main-dream':85,'main-dream-long':100,'main-dream-deep':110,'main-dream-wake':80,'main-dream-sight':85,'main-afterglow':85,'main-reservoir':90,'main-vast-vessel':110,'main-purifying-touch':105,'main-kindled-rich':95,'main-dawnburst':100,'main-edging-lasting':100,'main-edging-tension':90,'main-edging-regeneration':100,'protector-layers':110,'leveler-dive':95};
  return{...s,cost:prices[s.id]??(s.expansion?105:100)};
 }

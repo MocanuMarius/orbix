@@ -1,7 +1,7 @@
-import { DRAFT_TUNING } from './drafts.mjs?v=fixed-companion-1';
-import { scenePropBounds } from './scene-props.mjs?v=fixed-companion-1';
-import { formatGlow } from './vitality.mjs?v=fixed-companion-1';
-import { lightVisibility } from './light-field.mjs?v=fixed-companion-1';
+import { DRAFT_TUNING } from './drafts.mjs?v=proximity-balance-1';
+import { scenePropBounds } from './scene-props.mjs?v=proximity-balance-1';
+import { formatGlow } from './vitality.mjs?v=proximity-balance-1';
+import { lightVisibility } from './light-field.mjs?v=proximity-balance-1';
 
 // Small, deterministic actors attached to existing terrain. Static mountain
 // meshes never change, and each actor is used once: no repeatable currency farm.
@@ -93,10 +93,15 @@ export function createBiomeActors(engine) {
   }
   candidates.sort((a, b) => a.x - b.x);
   const actors = [];
+  // Introductory lethal scenery is a few readable encounters, not ten tests
+  // in biomes whose neighbours mostly offer helpful touch interactions.
+  const introductory=engine.ascentInfo?.difficulty===1&&Number(engine.options?.node?.mapIndex||0)===0&&!engine.elite;
+  const actorLimit=dangerous&&introductory?3:BIOME_DYNAMIC_TUNING.maximumActors;
+  const actorSpacing=dangerous&&introductory?1800:BIOME_DYNAMIC_TUNING.spacing;
   for (const candidate of candidates) {
-    if (actors.length && candidate.x - actors.at(-1).x < BIOME_DYNAMIC_TUNING.spacing) continue;
+    if (actors.length && candidate.x - actors.at(-1).x < actorSpacing) continue;
     candidate.id = `biome:${identity.biomeId}:${actors.length}`; actors.push(candidate);
-    if (actors.length >= BIOME_DYNAMIC_TUNING.maximumActors) break;
+    if (actors.length >= actorLimit) break;
   }
   return actors;
 }
