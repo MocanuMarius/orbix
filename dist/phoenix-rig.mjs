@@ -1,5 +1,5 @@
-import * as PIXI from './vendor/pixi.mjs?v=carved-shrines-1';
-import { PhoenixMotion, deformWing, deformTail } from './phoenix-motion.mjs?v=carved-shrines-1';
+import * as PIXI from './vendor/pixi.mjs?v=rest-upgrades-1';
+import { PhoenixMotion, deformWing, deformTail } from './phoenix-motion.mjs?v=rest-upgrades-1';
 
 export class PhoenixRig {
   constructor(texture) {

@@ -1,5 +1,5 @@
-import { createDraftZones } from './drafts.mjs?v=carved-shrines-1';
-import { pickupKind } from './pickups.mjs?v=carved-shrines-1';
+import { createDraftZones } from './drafts.mjs?v=rest-upgrades-1';
+import { pickupKind } from './pickups.mjs?v=rest-upgrades-1';
 
 const FAMILIES = Object.freeze({
   'stillwater-tunnel': Object.freeze({ id:'stillwater-tunnel', name:'Stillwater Tunnel', icon:'ruins', rewardTheme:'precision',

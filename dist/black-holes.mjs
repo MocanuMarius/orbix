@@ -1,4 +1,4 @@
-import { obstacleEdgeClearance } from './edging-pulse.mjs?v=carved-shrines-1';
+import { obstacleEdgeClearance } from './edging-pulse.mjs?v=rest-upgrades-1';
 
 // Rates are internal flight Sparks. The HUD displays 0.3 of these units: a
 // Drain is twice the prior curve; the checked bypass limits unavoidable loss.

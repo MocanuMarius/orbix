@@ -27,6 +27,7 @@ const scenario=new URLSearchParams(location.search).get('scenario')||'arrival';
 if(scenario==='full')mockRun.flame=getGlowCapacity(mockRun);
 if(scenario==='capped'){mockRun.restGlowCapacity=9;mockRun.flame=getGlowCapacity(mockRun);mockRun.lives=4;}
 if(['prepared','first-death','artifacts','forge','skills','companions','briefing','victory','pause','lighting','map','menu','death','last-heart','guide','splash','wake','proximity','interactions','result'].includes(scenario)){const pick=getSupportChoices(mockRun,state.profile).findIndex(c=>c.id==='rest-grow');resolveSupport(mockRun,pick,state.profile);settleCheckpoint(state);}
+if(scenario==='skills'&&new URLSearchParams(location.search).has('away')){mockRun.restReady=false;mockRun.lastRest=null;}
 goToRun();
 if(scenario==='tutorial-rest'){mockRun.isTutorial=true;mockRun.guideSkipped=false;mockRun.guideSeen={};render('support');guideScreen('support');}
 else if(scenario==='tutorial-spark'){startLesson('world:light-packet',[{title:'Sparks refill your meter',visual:'spark',text:'Touch a Spark to refill the meter on the left.',target:'.rest-glow'}]);}
