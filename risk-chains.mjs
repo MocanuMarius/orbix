@@ -1,4 +1,4 @@
-import {pickupKind,getPickupSpec} from './pickups.mjs?v=living-icons-1';
+import {pickupKind,getPickupSpec} from './pickups.mjs?v=spark-arcs-2';
 
 // Authored three-packet encounters, installed after solid scenery and recovery
 // lights. Reuse two ordinary fuel packets rather than inflating the economy.

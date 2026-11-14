@@ -1,26 +1,26 @@
-import {drawAtlasFlight} from './atlas-flight.mjs?v=living-icons-1';
-import {drawGuardianPresence} from './guardian-presence.mjs?v=living-icons-1';
-import {createDepthScenery,drawDepthScenery} from './depth-scenery.mjs?v=living-icons-1';
-import { drawGuardianWarnings } from './guardian-art.mjs?v=living-icons-1';
-import {drawProximityMeter} from './proximity-meter.mjs?v=living-icons-1';
-import {drawObjectiveMarks} from './flight-objectives.mjs?v=living-icons-1';
-import {drawFlightProjection} from './flight-projection.mjs?v=living-icons-1';
-import {drawGlowSense} from './glow-sense.mjs?v=living-icons-1';
-import {formatGlow} from './vitality.mjs?v=living-icons-1';
-import {LOCATION_PALETTES} from './world-expansion.mjs?v=living-icons-1';
-import {biomePalette} from './biome-art.mjs?v=living-icons-1';
-import { sceneryIdentity, drawIdentityBackground, drawIdentityMaterial, drawIdentityLife } from './level-scenery.mjs?v=living-icons-1';
-import { getCompanionAbility, normalizeCompanionRole } from './companion-abilities.mjs?v=living-icons-1';
-import { companionSprite, companionPalette } from './companion-art.mjs?v=living-icons-1';
-import { createScenePropArt } from './scene-prop-art.mjs?v=living-icons-1';
-import { drawBoss } from './boss.mjs?v=living-icons-1';
-import { drawPickup, drawSparkSymbol } from './pickup-art.mjs?v=living-icons-1';
-import { pickupKind, getPickupSpec, pickupShellRadius } from './pickups.mjs?v=living-icons-1';
-import { LIGHT_EXTENT,lightAttenuation,lightVisibility,createLightMaskCanvas,sceneRevealStrength } from './light-field.mjs?v=living-icons-1';
-import {drawExitLandmark} from './exit-landmark.mjs?v=living-icons-1';
-import {drawBlackHoles} from './black-hole-art.mjs?v=living-icons-1';
-import {drawAbsorbingSpark} from './tidal-light.mjs?v=living-icons-1';
-import {drawFlightForks,drawFlightForkBackdrops} from './flight-forks.mjs?v=living-icons-1';
+import {drawAtlasFlight} from './atlas-flight.mjs?v=spark-arcs-2';
+import {drawGuardianPresence} from './guardian-presence.mjs?v=spark-arcs-2';
+import {createDepthScenery,drawDepthScenery} from './depth-scenery.mjs?v=spark-arcs-2';
+import { drawGuardianWarnings } from './guardian-art.mjs?v=spark-arcs-2';
+import {drawProximityMeter} from './proximity-meter.mjs?v=spark-arcs-2';
+import {drawObjectiveMarks} from './flight-objectives.mjs?v=spark-arcs-2';
+import {drawFlightProjection} from './flight-projection.mjs?v=spark-arcs-2';
+import {drawGlowSense} from './glow-sense.mjs?v=spark-arcs-2';
+import {formatGlow} from './vitality.mjs?v=spark-arcs-2';
+import {LOCATION_PALETTES} from './world-expansion.mjs?v=spark-arcs-2';
+import {biomePalette} from './biome-art.mjs?v=spark-arcs-2';
+import { sceneryIdentity, drawIdentityBackground, drawIdentityMaterial, drawIdentityLife } from './level-scenery.mjs?v=spark-arcs-2';
+import { getCompanionAbility, normalizeCompanionRole } from './companion-abilities.mjs?v=spark-arcs-2';
+import { companionSprite, companionPalette } from './companion-art.mjs?v=spark-arcs-2';
+import { createScenePropArt } from './scene-prop-art.mjs?v=spark-arcs-2';
+import { drawBoss } from './boss.mjs?v=spark-arcs-2';
+import { drawPickup, drawSparkSymbol, FUEL_ANIMATION } from './pickup-art.mjs?v=spark-arcs-2';
+import { pickupKind, getPickupSpec, pickupShellRadius } from './pickups.mjs?v=spark-arcs-2';
+import { LIGHT_EXTENT,lightAttenuation,lightVisibility,createLightMaskCanvas,sceneRevealStrength } from './light-field.mjs?v=spark-arcs-2';
+import {drawExitLandmark} from './exit-landmark.mjs?v=spark-arcs-2';
+import {drawBlackHoles} from './black-hole-art.mjs?v=spark-arcs-2';
+import {drawAbsorbingSpark} from './tidal-light.mjs?v=spark-arcs-2';
+import {drawFlightForks,drawFlightForkBackdrops} from './flight-forks.mjs?v=spark-arcs-2';
 
 const TAU = Math.PI * 2;
 const SCENERY_HELPERS = { line: pixelLine, disc: pixelDisc, polygon: path };
@@ -570,19 +570,20 @@ export class WispFlightView {
 
   drawCollectibles(e, t, distance) {
     const s = this.scale;
+    const margin = Math.ceil(Math.max(24, FUEL_ANIMATION.size / 2) * s);
     for (const ember of e.layout.embers) {
       if (ember.collected || ember.carried) continue;
       const x = Math.round((ember.x - distance) * s), y = Math.round(ember.y * s);
-      if (x < -13 || x > this.buffer.width + 13) continue;
-      this.drawPacket(x, y, { kind: pickupKind(ember), time: t+(ember.phase||0)*.19, reducedMotion: e.reducedMotion,
+      if (x < -margin || x > this.buffer.width + margin) continue;
+      this.drawPacket(x, y, { kind: pickupKind(ember), time: t, phase: ember.phase, reducedMotion: e.reducedMotion,
         tiny: ember.generated === true, scale: s });
     }
   }
 
   drawPacket(x, y, { kind, dark = false, rich = false, tiny = false, bodyOnly = false, alpha = 1,
-    time = 0, reducedMotion = false, scale = this.scale } = {}) {
+    time = 0, phase = 0, reducedMotion = false, scale = this.scale } = {}) {
     drawPickup(this.bufferContext, x, y, { kind: kind || (dark ? 'dark' : rich ? 'cache' : 'light'),
-      time, reducedMotion, tiny, bodyOnly, alpha, scale });
+      time, phase, reducedMotion, tiny, bodyOnly, alpha, scale });
   }
 
   drawBurstEffects(e, tint) {

@@ -1,4 +1,4 @@
-import {pixelContour} from './pixel-contour.mjs?v=living-icons-1';
+import {pixelContour} from './pixel-contour.mjs?v=spark-arcs-2';
 // Solid foreground scenery. Every opaque part is also a collision polygon.
 const clamp = (n, lo, hi) => Math.min(hi, Math.max(lo, n));
 const smooth = n => { const t = clamp(n, 0, 1); return t * t * (3 - 2 * t); };

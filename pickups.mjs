@@ -1,8 +1,8 @@
-import {FLAME_TUNING,LIGHT_PACKET_TUNING} from './vitality.mjs?v=living-icons-1';
+import {FLAME_TUNING,LIGHT_PACKET_TUNING} from './vitality.mjs?v=spark-arcs-2';
 
 const type=(id,name,color,radius,contactRadius,description,extra={})=>Object.freeze({id,name,color,radius,contactRadius:contactRadius*.8,description,fuel:0,recharge:0,sightBonus:0,sightDuration:0,dim:0,dimDuration:0,manualOnly:false,...extra});
 export const PICKUP_TYPES=Object.freeze({
-  light:type('light','Spark','#f5e6bc',3,26,'Sparse currents. Restores 6 Sparks before bonuses.',{fuel:FLAME_TUNING.emberFuel,plasma:1}),
+  light:type('light','Spark','#f5e6bc',3,26,'Bright, branching arcs. Restores 6 Sparks before bonuses.',{fuel:FLAME_TUNING.emberFuel,plasma:1}),
   cache:type('cache','Spark Cache','#f6d58d',6,30,'Dense golden plasma. Restores 18 Sparks before bonuses.',{fuel:FLAME_TUNING.heartFuel,plasma:3}),
   cluster:type('cluster','Spark Cluster','#d5ead9',4,26,'Lively, branching currents. Restores 12 Sparks before bonuses.',{fuel:40,plasma:2}),
   charge:type('charge','Charge Spark','#80d4dc',4,25,'A cyan flicker. Shortens companion recovery.',{recharge:3}),

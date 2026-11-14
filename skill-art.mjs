@@ -1,5 +1,5 @@
-import {sparkSymbolArt} from './spark-symbol.mjs?v=living-icons-1';
-import {condensedIconMarkup} from './afterglow-ui.mjs?v=living-icons-1';
+import {sparkSymbolArt} from './spark-symbol.mjs?v=spark-arcs-2';
+import {condensedIconMarkup} from './afterglow-ui.mjs?v=spark-arcs-2';
 
 // Three material tones sit above a shared dark contour. Keep light and shadow
 // readable at the tree's smallest size, even with all motion switched off.

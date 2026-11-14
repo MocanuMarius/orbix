@@ -1,71 +1,109 @@
-import { pickupKind, getPickupSpec, pickupDisposition, pickupShellRadius } from './pickups.mjs?v=living-icons-1';
-import {sparkImageArt,sparkSymbolArt} from './spark-symbol.mjs?v=living-icons-1';
+import { pickupKind, getPickupSpec, pickupDisposition, pickupShellRadius } from './pickups.mjs?v=spark-arcs-2';
+import {sparkImageArt,sparkSymbolArt} from './spark-symbol.mjs?v=spark-arcs-2';
 
 const TAU = Math.PI * 2;
 const clamp = (value, low, high) => Math.max(low, Math.min(high, value));
-const plasmaPeriod = 1.2, plasmaFrames = 24;
+export const FUEL_ANIMATION = Object.freeze({size:44, frames:120, period:9.6});
 const fields = [
   null,
-  {base:'#293432',glass:'#afbca2',rim:'#e2d9af',glow:'#d2bd83',arc:'#e8d797',core:'#ffedbf'},
-  {base:'#2c4742',glass:'#a7d3b6',rim:'#c5ebc6',glow:'#6ec0aa',arc:'#a2edcf',core:'#edffde'},
-  {base:'#665037',glass:'#e9b357',rim:'#ffdf8a',glow:'#e7a74c',arc:'#ffda77',core:'#fff4ca'},
+  {base:'#344544', glass:'#cbd9c4', rim:'#e5d4a5', glow:'#debc7b', arc:'#f9df9d', core:'#fff6d5'},
+  {base:'#26514e', glass:'#bde8d5', rim:'#b9f2d4', glow:'#7edfc4', arc:'#b9ffe1', core:'#f3fff0'},
+  {base:'#765135', glass:'#ffe6a9', rim:'#ffe193', glow:'#ffb84e', arc:'#ffdf83', core:'#fff7d8'},
 ];
 
-// Wide dark sectors distinguish the sparse globe; the cache occupies the
-// whole shell with branching discharges, including in a still illustration.
+// Each channel strikes, hangs in place briefly, goes out and reappears at a
+// different contact on the shell. Its timing is independent of its neighbors.
+function dischargeTracks(tier) {
+  let seed = 15493 + 4787 * tier;
+  const random = () => {
+    seed = (Math.imul(seed, 1664525) + 1013904223) >>> 0;
+    return seed / 4294967296;
+  };
+  const tracks = [], channels = [0, 8, 14, 15][tier];
+  for (let i=0; i<channels; i++) {
+    const offset = random(), events = [];
+    const count = 7 + Math.floor(random()*5);
+    let total = 0;
+    for (let n=0; n<count; n++) {
+      const weight = .45 + random() * 1.1;
+      events.push({start:total, duration:weight*([0,.65,.65,.55][tier] + random()*.24),
+        angle:TAU*(i+.48+(random()-.5)*1.28)/channels,
+        bendA:(random()-.5)*.96, bendB:(random()-.5)*.7,
+        jitter:random()*TAU, rooted:random()>.23,
+        fork:(random()>.49-.10*tier ? 1 : 0)*(random()>.5 ? 1 : -1)*(.29+random()*.47),
+        forkTime:.08+random()*.36, rimLength:.83+random()*.12});
+      total += weight;
+    }
+    for (const e of events) { e.start /= total; e.duration /= total; }
+    tracks.push({offset,events});
+  }
+  return tracks;
+}
+const discharges=[null,dischargeTracks(1),dischargeTracks(2),dischargeTracks(3)];
+
 function paintPlasma(tier, phase, radius, rect, disc, ring) {
-  const ink=fields[tier],clock=TAU*phase;
-  const count=[0,2,4,6][tier]+(tier>1&&Math.sin(clock+.7)>.42?1:0);
-  disc(0,0,radius,ink.base,.88);
-  ring(radius-.5,ink.rim,.85,1.2);
-  const rotation=clock+Math.sin(clock*2)*.14;
-  // Rasterize each filament as a continuous glowing, irregular filament.
-  // The first band remains mostly glass even at the brightest frame.
-  function arcLine(ax,ay,bx,by,step,hot) {
-    const n=Math.max(1,Math.ceil(Math.max(Math.abs(bx-ax),Math.abs(by-ay))));
-    for(let i=0;i<=n;i++){
-      const u=i/n,x=Math.round(ax+(bx-ax)*u),y=Math.round(ay+(by-ay)*u);
-      if(tier>1||step>1)rect(x-1,y-1,3,3,ink.glow,tier===3?.27:.18);
-      rect(x,y,hot&&tier===3?2:1,1,hot?ink.core:ink.arc,.97);
+  const ink=fields[tier];
+  if (tier===3) {
+    disc(0,0,radius+5,ink.glow,.19);
+    disc(0,0,radius+4,ink.glow,.29);
+    disc(0,0,radius+3,ink.arc,.35);
+    disc(0,0,radius+2,ink.arc,.48);
+    disc(0,0,radius+1,ink.core,.40);
+  } else {
+    disc(0,0,radius+tier,ink.glow,tier===1?.10:.28);
+  }
+  disc(0,0,radius,ink.base,.96);
+  disc(0,0,radius*.75,ink.glow,.11+tier*.025);
+  ring(radius-.45,ink.rim,tier===1?.90:.83,tier===1?1.4:1.2);
+  function line(ax,ay,bx,by,energy,hot,branch=false) {
+    const length=Math.max(1,Math.ceil(Math.max(Math.abs(bx-ax),Math.abs(by-ay))));
+    for(let n=0;n<=length;n++){
+      const x=Math.round(ax+(bx-ax)*n/length),y=Math.round(ay+(by-ay)*n/length);
+      rect(x-1,y-1,3,3,ink.glow,energy*(branch?.17:.28));
+      rect(x,y,hot && !branch ? 2 : 1,1,hot ? ink.core : ink.arc,energy);
     }
   }
-  for(let i=0;i<count;i++){
-    const angle=rotation+i*TAU/count+(tier===1?i*.34:Math.sin(i*4.2+clock*2)*.12);
-    const sweep=Math.sin(clock*3+i*2.41),wave=Math.cos(clock*4+i*2.7);
-    const mid=angle+.23*sweep,outer=angle-.15*wave;
-    const x1=Math.cos(mid)*radius*.35,y1=Math.sin(mid)*radius*.35;
-    const x2=Math.cos(outer)*radius*.65,y2=Math.sin(outer)*radius*.65;
-    const x3=Math.cos(angle)*radius*.92,y3=Math.sin(angle)*radius*.92;
-    arcLine(0,0,x1,y1,0,true);arcLine(x1,y1,x2,y2,1,tier>1);
-    arcLine(x2,y2,x3,y3,2,wave>.0);
-    rect(Math.round(x3)-1,Math.round(y3),tier===3?3:2,1,ink.core,.95);
-    if(tier===3||(tier===2&&(i%2===0||sweep>.65))){
-      const fork=angle+(i%2?-.34:.34),r=radius*(tier===3?.90:.78);
-      arcLine(x1,y1,Math.cos(fork)*r,Math.sin(fork)*r,3,tier===3&&wave>.4);
+  let charge=0;
+  for(const track of discharges[tier]){
+    const t=(phase+track.offset)%1;
+    const e=track.events.find(event=>t>=event.start && t<event.start+event.duration);
+    if(!e)continue;
+    const life=(t-e.start)/e.duration;
+    const attack=Math.min(1,(life+.025)/.13),fade=Math.min(1,(1-life)/.28);
+    const energy=attack*fade,reach=e.rooted?1:.26+.74*Math.min(1,life/.22);
+    const twitch=Math.sin(e.jitter+life*10)*Math.sin(life*Math.PI);
+    const a=e.angle+e.bendA+.17*twitch,b=e.angle+e.bendB-.12*twitch;
+    const near=radius*.33*reach,far=radius*.63*reach,edge=radius*e.rimLength*reach;
+    const ax=Math.cos(a)*near,ay=Math.sin(a)*near,bx=Math.cos(b)*far,by=Math.sin(b)*far;
+    const tipX=Math.cos(e.angle)*edge,tipY=Math.sin(e.angle)*edge;
+    line(0,0,ax,ay,energy,true);line(ax,ay,bx,by,energy,life<.69);
+    line(bx,by,tipX,tipY,energy,life<.4);
+    if(e.fork && life>e.forkTime && life<.92){
+      const fork=e.angle+e.fork,arm=radius*(.75+.16*Math.sin(Math.PI*life));
+      line(bx,by,Math.cos(fork)*arm,Math.sin(fork)*arm,energy,false,true);
     }
+    if(reach>.92){
+      const x=Math.round(tipX),y=Math.round(tipY);
+      rect(x-2,y-1,5,3,ink.glow,energy*.46);
+      rect(x-1,y,3,1,ink.core,energy);
+      if(tier===3 && e.fork && life>.15 && life<.80){
+        const flare=Math.sin(Math.PI*(life-.15)/.65)*energy;
+        const nx=Math.cos(e.angle),ny=Math.sin(e.angle);
+        const rx=Math.round(nx*radius),ry=Math.round(ny*radius);
+        disc(rx,ry,3.2,ink.arc,flare*.43);
+        line(x,y,rx+nx*3,ry+ny*3,flare,true,true);
+        rect(rx-1,ry-1,3,2,ink.core,flare);
+      }
+    }
+    charge+=energy;
   }
-  disc(0,0,tier===3?3:2,ink.arc,.94);
-  rect(-1,-1,tier===3?4:3,2,ink.core,1);
-  rect(-Math.round(radius*.53),-Math.round(radius*.74),3,1,ink.glass,.83);
+  const core=tier===3?4:3.4;
+  disc(0,0,core+2,ink.glow,Math.min(.60,.25+charge*.035));
+  disc(0,0,core,ink.arc,.96);
+  rect(-2,-1,5,3,ink.core);rect(-1,-2,3,5,ink.core);rect(-2,-2,4,4,ink.core);
+  rect(-Math.round(radius*.54),-Math.round(radius*.74),3,1,ink.glass,.81);
 }
 
-// At wallet-window size, ordinary one-pixel arcs can vanish under nearest
-// neighbour sampling. Thicken the same light paths and keep the core bright.
-export function drawCompactSparkFrame(context,x,y,time=0,reducedMotion=false){
-  context.save();
-  const phase=reducedMotion?0:time;
-  for(const p of packetPixels('light',{time:phase,reducedMotion})){
-    context.globalAlpha=p.alpha;context.fillStyle=p.color;
-    context.fillRect(x+p.x,y+p.y,p.width,p.height);
-    if(p.color===fields[1].rim||p.color===fields[1].arc||p.color===fields[1].core){
-      context.globalAlpha=p.alpha*.86;
-      context.fillRect(x+p.x-1,y+p.y,p.width+1,p.height+1);
-    }
-  }
-  context.globalAlpha=1;context.fillStyle=fields[1].core;
-  context.fillRect(x-3,y-2,6,4);context.fillRect(x-2,y-3,4,6);
-  context.restore();
-}
 // Shared low-resolution paint operations: the game and the field guide use
 // the same bodies, shading, silhouettes and halo colors, with no gem frames.
 function packetPixels(kind, { time = 0, reducedMotion = false, tiny = false, bodyOnly = false } = {}) {
@@ -97,7 +135,7 @@ function packetPixels(kind, { time = 0, reducedMotion = false, tiny = false, bod
   };
   const spec=getPickupSpec(kind),contact=spec.contactRadius,warning=pickupDisposition(kind)==='warning';
   if(spec.plasma){
-    const phase=reducedMotion?0:((time/plasmaPeriod)%1+1)%1;
+    const phase=reducedMotion?0:((time/FUEL_ANIMATION.period)%1+1)%1;
     paintPlasma(spec.plasma,phase,pickupShellRadius(kind),rect,disc,ring);
     return pixels;
   }
@@ -164,27 +202,36 @@ function packetPixels(kind, { time = 0, reducedMotion = false, tiny = false, bod
 }
 
 const atlases = new WeakMap();
-const plasmaCycle=[plasmaPeriod,plasmaFrames];
+const plasmaCycle=[FUEL_ANIMATION.period,FUEL_ANIMATION.frames];
 const cycles={light:plasmaCycle,cluster:plasmaCycle,cache:plasmaCycle,charge:[2,16],sight:[1/.48,24],dark:[Math.PI*2,32],dusk:[3.2,16]};
+// The offline menu assets are generated from this exact paint pass.
+export function drawFuelFrame(context,x,y,kind,frame,reducedMotion=false){
+  const time=frame/FUEL_ANIMATION.frames*FUEL_ANIMATION.period;
+  for(const p of packetPixels(kind,{time,reducedMotion})){
+    context.globalAlpha=p.alpha;context.fillStyle=p.color;
+    context.fillRect(x+p.x,y+p.y,p.width,p.height);
+  }
+}
 function cachedSprite(doc,id,frame,tiny,reducedMotion,bodyOnly) {
   let cache=atlases.get(doc);
   if(!cache){cache=new Map();atlases.set(doc,cache);}
   const key=id+':'+frame+':'+tiny+':'+reducedMotion+':'+bodyOnly;
   if(cache.has(key))return cache.get(key);
   const [period,frames]=cycles[id]||[1,1];
-  const sprite=doc.createElement('canvas');
-  sprite.width=sprite.height=72;
+  const sprite=doc.createElement('canvas'),fuel=Boolean(getPickupSpec(id).plasma);
+  const side=fuel?FUEL_ANIMATION.size:72;
+  sprite.width=sprite.height=side;
   const c=sprite.getContext('2d');
-  if(id==='compact')drawCompactSparkFrame(c,36,36,frame/plasmaFrames*plasmaPeriod,reducedMotion);
+  if(fuel)drawFuelFrame(c,side/2,side/2,id,frame,reducedMotion);
   else for(const p of packetPixels(id,{time:frame/frames*period,reducedMotion,tiny,bodyOnly})){
-    c.globalAlpha=p.alpha;c.fillStyle=p.color;c.fillRect(36+p.x,36+p.y,p.width,p.height);
+    c.globalAlpha=p.alpha;c.fillStyle=p.color;c.fillRect(side/2+p.x,side/2+p.y,p.width,p.height);
   }
   cache.set(key,sprite);
   return sprite;
 }
 const warmups=new WeakMap();
 export function prepareFuelSprites(doc,reducedMotion=false) {
-  const frames=reducedMotion?1:plasmaFrames;
+  const frames=reducedMotion?1:FUEL_ANIMATION.frames;
   const key=reducedMotion?'quiet':'moving';
   let pending=warmups.get(doc);if(!pending){pending={};warmups.set(doc,pending);}
   if(!pending[key])pending[key]=(async()=>{
@@ -195,40 +242,32 @@ export function prepareFuelSprites(doc,reducedMotion=false) {
   })();
   return pending[key];
 }
-export function drawPickup(context,x,y,{kind='light',time=0,reducedMotion=false,tiny=false,bodyOnly=false,alpha=1,scale=1}={}){
+export function drawPickup(context,x,y,{kind='light',time=0,phase=0,reducedMotion=false,tiny=false,bodyOnly=false,alpha=1,scale=1}={}){
   const id=pickupKind(kind),size=Math.max(.1,Number(scale)||1),doc=context.canvas?.ownerDocument;
-  const [period,frames]=cycles[id]||[1,1],frame=reducedMotion?0:Math.floor(((time%period+period)%period)/period*frames);
+  const [period,frames]=cycles[id]||[1,1];
+  const clock=time+phase*period/TAU;
+  const frame=reducedMotion?0:Math.floor(((clock%period+period)%period)/period*frames);
   const plasma=Boolean(getPickupSpec(id).plasma);
   const sprite=doc&&cachedSprite(doc,id,frame,plasma?false:tiny,reducedMotion,plasma?false:bodyOnly);
   context.save();const inherited=context.globalAlpha*clamp(Number(alpha)||0,0,1);
   if(sprite){
     const drawSize=size*(plasma&&tiny?.62:1);
     context.globalAlpha=inherited;context.imageSmoothingEnabled=false;
-    context.drawImage(sprite,Math.round(x-36*drawSize),Math.round(y-36*drawSize),Math.round(72*drawSize),Math.round(72*drawSize));
+    const width=sprite.width*drawSize;
+    context.drawImage(sprite,Math.round(x-width/2),Math.round(y-width/2),Math.round(width),Math.round(width));
   }
-  else for(const p of packetPixels(id,{time,reducedMotion,tiny,bodyOnly})){context.globalAlpha=inherited*p.alpha;context.fillStyle=p.color;context.fillRect(Math.round(x+p.x*size),Math.round(y+p.y*size),Math.max(1,Math.round(p.width*size)),Math.max(1,Math.round(p.height*size)))}
+  else for(const p of packetPixels(id,{time:plasma?frame/frames*period:clock,reducedMotion,tiny,bodyOnly})){context.globalAlpha=inherited*p.alpha;context.fillStyle=p.color;context.fillRect(Math.round(x+p.x*size),Math.round(y+p.y*size),Math.max(1,Math.round(p.width*size)),Math.max(1,Math.round(p.height*size)))}
   context.restore();
 }
 
 export function drawSparkSymbol(context,x,y,{size=16,time=0,reducedMotion=false}={}){
-  const doc=context.canvas?.ownerDocument;
-  context.save();
-  if(doc){
-    const frame=reducedMotion?0:Math.floor(((time%plasmaPeriod+plasmaPeriod)%plasmaPeriod)/plasmaPeriod*plasmaFrames);
-    const sprite=cachedSprite(doc,'compact',frame,false,reducedMotion,false);
-    context.imageSmoothingEnabled=false;
-    context.drawImage(sprite,18,18,36,36,Math.round(x-size/2),Math.round(y-size/2),size,size);
-  }else{
-    context.translate(x,y);context.scale(size/36,size/36);
-    drawCompactSparkFrame(context,0,0,time,reducedMotion);
-  }
-  context.restore();
+  drawPickup(context,x,y,{kind:'light',time,reducedMotion,scale:size/FUEL_ANIMATION.size});
 }
 
 export function pickupArtSvg(kind = 'light', { className = '' } = {}) {
   const id = pickupKind(kind), name = getPickupSpec(id).name;
   const classes = String(className || '').replace(/[^a-zA-Z0-9 _-]/g, '').trim().slice(0, 120);
   const tier=getPickupSpec(id).plasma;
-  if(tier)return `<svg xmlns="http://www.w3.org/2000/svg" class="${classes}" viewBox="-22 -22 44 44" width="36" height="36" role="img" aria-label="${name}" shape-rendering="crispEdges">${sparkSymbolArt(-18,-18,36,tier)}</svg>`;
+  if(tier)return `<svg xmlns="http://www.w3.org/2000/svg" class="${classes}" viewBox="0 0 44 44" width="36" height="36" role="img" aria-label="${name}" shape-rendering="crispEdges">${sparkSymbolArt(0,0,44,tier)}</svg>`;
   return `<svg xmlns="http://www.w3.org/2000/svg" class="${classes}" viewBox="0 0 48 48" width="36" height="36" role="img" aria-label="${name}" shape-rendering="crispEdges">${sparkImageArt(id,0,0,48)}</svg>`;
 }
