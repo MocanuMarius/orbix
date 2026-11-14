@@ -20,7 +20,7 @@ e.layout.embers=[];e.wisp.cooldown=5;e.wisp.cooldownMax=10;
 let minX=Infinity,maxX=-Infinity,minY=Infinity,maxY=-Infinity;
 for(let i=0;i<600;i++){e.time=i/60;e.wisp.update(e,1/60);const d=Math.hypot(e.wisp.x-e.player.x,e.wisp.y-e.player.y);assert.ok(d<=e.wisp.currentRange(e)+.01);minX=Math.min(minX,e.wisp.x);maxX=Math.max(maxX,e.wisp.x);minY=Math.min(minY,e.wisp.y);maxY=Math.max(maxY,e.wisp.y);}
 assert.ok(maxX-minX>35&&maxY-minY>35,'Collector actively crosses both axes');
-assert.equal(condenseGlow(10).amount,1);
-assert.equal(condenseGlow(10,{rules:{...getCondensationRules(),multiplier:2/3}}).amount,2);
+assert.equal(condenseGlow(20).amount,1);
+assert.equal(condenseGlow(20,{rules:{...getCondensationRules(),multiplier:1/3}}).amount,2);
 times.sort((a,b)=>a-b);
 console.log(JSON.stringify({liftAndFall:true,sparkRoute:true,noLiveMutation:true,guardianCaution:true,collectorOrbitWithinRange:true,routeP95ms:times[38]}));

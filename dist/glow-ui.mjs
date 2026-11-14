@@ -1,4 +1,4 @@
-import {getGlowCapacity,GLOW_DISPLAY_SCALE} from './vitality.mjs?v=guardian-overflow-1';
+import {getGlowCapacity,GLOW_DISPLAY_SCALE} from './vitality.mjs?v=packing-1';
 const clamp=v=>Math.max(0,Math.min(1,v));
 // A cell represents one paid Lift, even during a temporary free-Lift effect.
 export function glowGaugeUnits(flame,maximum=100,liftCost=10){
@@ -11,35 +11,38 @@ export function glowGaugeMarkup(run){
  const state=glowGaugeUnits(run.flame,getGlowCapacity(run));
  return `<div class="flame-hud glow-side-gauge glow-gauge-v3" aria-label="Energy meter" style="--glow-units:${state.capacity}"><div id="flame-meter" role="meter" aria-label="Energy remaining" aria-valuemin="0" aria-valuemax="${state.maxValue}" aria-valuenow="${state.value}" aria-valuetext="${state.value} of ${state.maxValue} Energy; each segment is ${state.unitCost} Energy, one Lift"><i id="flame-fill" aria-hidden="true">${unitMarkup(state)}</i></div></div>`;
 }
-function spill(gauge,gain,raw){
- const doc=gauge.ownerDocument,target=doc.querySelector('.flight-condensed-counter');if(!target||gain<=0)return;
+function spill(gauge,gain,raw,remainder=0){
+ const doc=gauge.ownerDocument,target=doc.querySelector('.flight-condensed-counter');if(!target||raw<=0)return;
  const reduce=doc.defaultView?.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
- const flash=[{opacity:1},{opacity:.64,offset:.4},{opacity:1}];
- target._condensedPulse?.cancel();target._condensedPulse=target.animate?.(flash,{duration:reduce?180:420,easing:'steps(2,end)'});
- const meter=gauge._glowRefs.meter;meter._spillPulse?.cancel();meter._spillPulse=meter.animate?.(flash,{duration:reduce?160:360,easing:'steps(2,end)'});
  let pool=gauge._spillPool;
  if(!pool){
   const host=doc.createElement('div');host.className='condensation-motes';host.setAttribute('aria-hidden','true');
+  const box=doc.createElement('span');box.className='packing-box';box.innerHTML='<i></i><em></em>';host.appendChild(box);
   const tiles=Array.from({length:2},()=>{const tile=doc.createElement('i');tile.className='condensation-particle';host.appendChild(tile);return tile;});
   const label=doc.createElement('b');host.appendChild(label);doc.querySelector('.flight-device')?.appendChild(host);
-  pool=gauge._spillPool={host,tiles,label,total:0,lastAt:0};
+  pool=gauge._spillPool={host,box,tiles,label,total:0,lastAt:0};
  }
- const now=Number(doc.defaultView?.performance?.now?.())||Date.now();
- pool.total=now-pool.lastAt<850?pool.total+gain:gain;pool.lastAt=now;pool.label.textContent=pool.total>0?`+${pool.total}`:'';
- const end=target.getBoundingClientRect();pool.label.style.left=Math.round(end.right+6)+'px';pool.label.style.top=Math.round(end.top+8)+'px';
- pool.label._rise?.cancel();pool.label._rise=pool.label.animate?.([{opacity:1,transform:'translateY(4px)'},{opacity:1,transform:'translateY(0px)',offset:.6},{opacity:0,transform:'translateY(-8px)'}],{duration:reduce?650:1000,delay:reduce?0:340,easing:'steps(4,end)'});
- // Reuse exactly two small motes: no beam, afterimage or connecting trace.
- for(const tile of pool.tiles){tile._rise?.cancel();tile.style.opacity='0';}
- if(reduce||raw<=0)return;
- const tip=(target.querySelector('.condensed-icon')||target).getBoundingClientRect();
+ const now=doc.defaultView.performance.now();pool.total=now-pool.lastAt<1200?pool.total+gain:gain;pool.lastAt=now;
+ const bounds=pool.host.getBoundingClientRect(),sx=bounds.width/(pool.host.clientWidth||bounds.width),sy=bounds.height/(pool.host.clientHeight||bounds.height);
+ const meter=gauge._glowRefs.meter.getBoundingClientRect(),tip=(target.querySelector('.condensed-icon')||target).getBoundingClientRect();
+ const x=(meter.right-bounds.left)/sx+8,y=Math.max(52,(meter.top-bounds.top)/sy-22);
+ const dx=(tip.left+tip.width/2-bounds.left)/sx-x-10,dy=(tip.top+tip.height/2-bounds.top)/sy-y-10;
+ const box=pool.box;box.style.left=x+'px';box.style.top=y+'px';box.style.setProperty('--packing-fill',Math.max(.12,gain>0?1:remainder));
+ box._pack?.cancel();box._pack=box.animate?.(reduce?[{opacity:1},{opacity:0}]:[
+  {opacity:0,transform:'scale(1.4,.7)'},{opacity:1,transform:'scale(1.25,.8)',offset:.12},
+  {opacity:1,transform:'scale(1,1)',offset:.38},
+  {opacity:1,transform:'scale(.85,1.15)',offset:.46},
+  {opacity:gain>0?1:.3,transform:gain>0?'translate('+dx+'px,'+dy+'px) scale(.75)':'scale(1)',offset:.88},
+  {opacity:0,transform:gain>0?'translate('+dx+'px,'+dy+'px) scale(.3)':'scale(1)'}],{duration:reduce?350:1100,easing:'steps(12,end)'});
  for(let i=0;i<2;i++){
-  const tile=pool.tiles[i],dx=i?4:-4;
-  tile.style.left=(Math.round((tip.left+tip.width*.5+dx)/2)*2)+'px';
-  tile.style.top=(Math.round((tip.bottom+18+i*6)/2)*2)+'px';
-  tile.style.width='4px';tile.style.height='4px';
-  tile._rise=tile.animate?.([{opacity:0,transform:'translateY(0)'},{opacity:1,transform:'translateY(-6px)',offset:.2},{opacity:1,transform:'translateY(-22px)',offset:.8},{opacity:0,transform:'translateY(-26px)'}],{duration:340,delay:i*65,easing:'steps(6,end)'});
+  const tile=pool.tiles[i];tile._rise?.cancel();tile.style.left=(x-5)+'px';tile.style.top=(y+i*14)+'px';
+  if(!reduce)tile._rise=tile.animate?.([{opacity:0,transform:'translate(-7px,0)'},{opacity:1,offset:.25},{opacity:0,transform:'translate(13px,'+(i?-5:5)+'px) scale(.3)'}],{duration:400,easing:'steps(6,end)'});
  }
-
+ pool.label._rise?.cancel();pool.label.textContent=pool.total>0?'+'+pool.total:'';
+ pool.label.style.left=((target.getBoundingClientRect().right-bounds.left)/sx+7)+'px';pool.label.style.top=((tip.top-bounds.top)/sy)+'px';
+ if(pool.total>0)pool.label._rise=pool.label.animate?.([{opacity:1},{opacity:1,offset:.7},{opacity:0}],{delay:reduce?0:960,duration:700});
+ target._condensedPulse?.cancel();
+ if(gain>0)target._condensedPulse=target.animate?.([{opacity:1},{opacity:.55},{opacity:1}],{delay:reduce?0:960,duration:240,easing:'steps(2,end)'});
 }
 export function updateGlowGauge(gauge,s){
  if(!gauge)return;
@@ -57,5 +60,5 @@ export function updateGlowGauge(gauge,s){
  const partial=refs.units?.[state.filled];if(gauge._partial&&gauge._partial!==partial)gauge._partial.classList.remove('partial');if(partial){partial.classList.toggle('partial',state.partial>0);partial.style.setProperty('--unit-fill',(state.partial*100)+'%');}gauge._partial=partial;
  gauge.classList.toggle('low-glow',ratio<=.2);gauge.classList.toggle('full-glow',state.filled===state.capacity);
  const earned=Math.max(0,Math.floor(s.condensedGlow||0)),gain=Math.max(0,earned-(gauge._lastEarned||0));gauge._lastEarned=earned;
- const flow=s.condensationFlow;if(flow&&flow.count!==gauge._flowCount){gauge._flowCount=flow.count;if(flow.count>0)spill(gauge,gain,flow.rawAmount||0);}
+ const flow=s.condensationFlow;if(flow&&flow.count!==gauge._flowCount){gauge._flowCount=flow.count;if(flow.count>0)spill(gauge,gain,flow.rawAmount||0,s.condensedRemainder||0);}
 }
