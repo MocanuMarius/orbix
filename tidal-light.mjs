@@ -1,4 +1,4 @@
-import {getPickupSpec,pickupKind} from './pickups.mjs?v=spark-arcs-2';
+import {getPickupSpec,pickupKind} from './pickups.mjs?v=spark-arcs-3';
 
 const TAU=Math.PI*2;
 const clamp=(n,min,max)=>Math.min(max,Math.max(n,min));

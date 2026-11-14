@@ -1,15 +1,15 @@
-import {resourceSymbol} from './game-symbols.mjs?v=spark-arcs-2';
-import {pickupArtSvg} from './pickup-art.mjs?v=spark-arcs-2';
-import {getPickupSpec} from './pickups.mjs?v=spark-arcs-2';
-import {glowPoints} from './vitality.mjs?v=spark-arcs-2';
-import {SKILLS, ARTIFACTS} from './model.mjs?v=spark-arcs-2';
-import {ROUTE_BONUSES} from './route-bonuses.mjs?v=spark-arcs-2';
-import {skillIcon, artifactIcon} from './upgrade-icons.mjs?v=spark-arcs-2';
-import {mapStopIconMarkup} from './map-guide.mjs?v=spark-arcs-2';
-import {companionArtSvg} from './companion-art.mjs?v=spark-arcs-2';
-import {lifeHeartSvg} from './lives.mjs?v=spark-arcs-2';
-import {bonusIcon} from './route-bonus-ui.mjs?v=spark-arcs-2';
-import {menuIcon} from './menu-icons.mjs?v=spark-arcs-2';
+import {resourceSymbol} from './game-symbols.mjs?v=spark-arcs-3';
+import {pickupArtSvg} from './pickup-art.mjs?v=spark-arcs-3';
+import {getPickupSpec} from './pickups.mjs?v=spark-arcs-3';
+import {glowPoints} from './vitality.mjs?v=spark-arcs-3';
+import {SKILLS, ARTIFACTS} from './model.mjs?v=spark-arcs-3';
+import {ROUTE_BONUSES} from './route-bonuses.mjs?v=spark-arcs-3';
+import {skillIcon, artifactIcon} from './upgrade-icons.mjs?v=spark-arcs-3';
+import {mapStopIconMarkup} from './map-guide.mjs?v=spark-arcs-3';
+import {companionArtSvg} from './companion-art.mjs?v=spark-arcs-3';
+import {lifeHeartSvg} from './lives.mjs?v=spark-arcs-3';
+import {bonusIcon} from './route-bonus-ui.mjs?v=spark-arcs-3';
+import {menuIcon} from './menu-icons.mjs?v=spark-arcs-3';
 
 const preferences = matchMedia('(prefers-reduced-motion: reduce)');
 const root = document.documentElement;

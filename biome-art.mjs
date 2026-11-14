@@ -1,4 +1,4 @@
-import {pineCrown} from './pixel-contour.mjs?v=spark-arcs-2';
+import {pineCrown} from './pixel-contour.mjs?v=spark-arcs-3';
 // Original pixel scenery. Backdrops and solid materials are rasterized by the
 // existing renderer caches; only a few matte weather pixels animate each frame.
 // Nothing here emits light or draws outside the simulation's solid silhouettes.

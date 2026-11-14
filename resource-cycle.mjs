@@ -1,9 +1,9 @@
-import {getPickupSpec} from './pickups.mjs?v=spark-arcs-2';
-import {glowPoints,getGlowCapacity,GLOW_DISPLAY_SCALE} from './vitality.mjs?v=spark-arcs-2';
-import {condenseGlow,getCondensationRules} from './condensed-glow.mjs?v=spark-arcs-2';
-import {pickupArtSvg} from './pickup-art.mjs?v=spark-arcs-2';
-import {resourceSymbol} from './game-symbols.mjs?v=spark-arcs-2';
-import {mapStopIconMarkup} from './map-guide.mjs?v=spark-arcs-2';
+import {getPickupSpec} from './pickups.mjs?v=spark-arcs-3';
+import {glowPoints,getGlowCapacity,GLOW_DISPLAY_SCALE} from './vitality.mjs?v=spark-arcs-3';
+import {condenseGlow,getCondensationRules} from './condensed-glow.mjs?v=spark-arcs-3';
+import {pickupArtSvg} from './pickup-art.mjs?v=spark-arcs-3';
+import {resourceSymbol} from './game-symbols.mjs?v=spark-arcs-3';
+import {mapStopIconMarkup} from './map-guide.mjs?v=spark-arcs-3';
 
 // An independent teaching meter. Previewing, skipping and replaying never touch a save.
 export function resourceCycleSteps(run={},mod={}){

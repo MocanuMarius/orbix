@@ -1,9 +1,9 @@
-import {companionArtSvg} from './companion-art.mjs?v=spark-arcs-2';
-import {resourceSymbol} from './game-symbols.mjs?v=spark-arcs-2';
-import {getTreasureChoices,getTreasureKind} from './model.mjs?v=spark-arcs-2';
-import {treasureArt} from './treasure-art.mjs?v=spark-arcs-2';
-import {skillIcon} from './upgrade-icons.mjs?v=spark-arcs-2';
-import {formatGlow,getGlowCapacity} from './vitality.mjs?v=spark-arcs-2';
+import {companionArtSvg} from './companion-art.mjs?v=spark-arcs-3';
+import {resourceSymbol} from './game-symbols.mjs?v=spark-arcs-3';
+import {getTreasureChoices,getTreasureKind} from './model.mjs?v=spark-arcs-3';
+import {treasureArt} from './treasure-art.mjs?v=spark-arcs-3';
+import {skillIcon} from './upgrade-icons.mjs?v=spark-arcs-3';
+import {formatGlow,getGlowCapacity} from './vitality.mjs?v=spark-arcs-3';
 
 const esc=value=>String(value??'').replace(/[&<>"']/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
 

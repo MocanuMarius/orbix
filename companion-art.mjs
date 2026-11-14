@@ -1,4 +1,4 @@
-import { normalizeCompanionRole } from './companion-abilities.mjs?v=spark-arcs-2';
+import { normalizeCompanionRole } from './companion-abilities.mjs?v=spark-arcs-3';
 
 const PALETTES = Object.freeze({
   collector: Object.freeze({ outer: '#658557', mid: '#8db778', core: '#b9dfa0', bright: '#efffe0' }),

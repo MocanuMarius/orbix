@@ -1,7 +1,7 @@
-import {ROUTE_BONUSES} from './route-bonuses.mjs?v=spark-arcs-2';
-import {blackHoleDrainRate} from './black-holes.mjs?v=spark-arcs-2';
-import {pickupKind} from './pickups.mjs?v=spark-arcs-2';
-import {GLOW_DISPLAY_SCALE} from './vitality.mjs?v=spark-arcs-2';
+import {ROUTE_BONUSES} from './route-bonuses.mjs?v=spark-arcs-3';
+import {blackHoleDrainRate} from './black-holes.mjs?v=spark-arcs-3';
+import {pickupKind} from './pickups.mjs?v=spark-arcs-3';
+import {GLOW_DISPLAY_SCALE} from './vitality.mjs?v=spark-arcs-3';
 
 const fuelKinds = new Set(['light', 'cluster', 'cache']);
 const helpfulFamilies = new Set(['lift', 'reveal', 'bloom']);

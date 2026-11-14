@@ -6,7 +6,7 @@ export function dreamFingerprint(options={}){
   const modifiers = {...options.modifiers};
   delete modifiers.eventFavors;
   delete modifiers.flightBoon; // Waking benefits cannot change rehearsed physics.
-  return JSON.stringify(ordered({simulation:'spark-arcs-2',seed:options.seed,terrain:options.terrain,elite:!!options.elite,duration:options.duration,
+  return JSON.stringify(ordered({simulation:'spark-arcs-3',seed:options.seed,terrain:options.terrain,elite:!!options.elite,duration:options.duration,
     node:options.node,companions:options.companions,modifiers,flame:options.flame,condensedGlow:options.condensedGlow||0,condensedRemainder:options.condensedRemainder||0}));
 }
 export function dreamConfig(run={}){
