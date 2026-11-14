@@ -1,7 +1,7 @@
-import {DEFAULT_CAPTURE_STYLE} from './capture-styles.mjs?v=chapter-pressure-1';
-import {getPickupSpec, pickupKind} from './pickups.mjs?v=chapter-pressure-1';
-import {pickupSpriteFrame} from './pickup-art.mjs?v=chapter-pressure-1';
-import {LIGHT_PACKET_TUNING} from './vitality.mjs?v=chapter-pressure-1';
+import {DEFAULT_CAPTURE_STYLE} from './capture-styles.mjs?v=lantern-chain-1';
+import {getPickupSpec, pickupKind} from './pickups.mjs?v=lantern-chain-1';
+import {pickupSpriteFrame} from './pickup-art.mjs?v=lantern-chain-1';
+import {LIGHT_PACKET_TUNING} from './vitality.mjs?v=lantern-chain-1';
 
 const TAU = Math.PI * 2;
 const clamp = value => Math.max(0, Math.min(1, value));

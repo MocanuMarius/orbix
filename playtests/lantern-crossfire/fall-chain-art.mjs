@@ -1,6 +1,6 @@
-import {lightVisibility} from './light-field.mjs?v=chapter-pressure-1';
-import {drawPickup} from './pickup-art.mjs?v=chapter-pressure-1';
-import {sparkArtScale} from './spark-size.mjs?v=chapter-pressure-1';
+import {lightVisibility} from './light-field.mjs?v=lantern-chain-1';
+import {drawPickup} from './pickup-art.mjs?v=lantern-chain-1';
+import {sparkArtScale} from './spark-size.mjs?v=lantern-chain-1';
 
 const unit = value => Math.max(0, Math.min(1, value));
 

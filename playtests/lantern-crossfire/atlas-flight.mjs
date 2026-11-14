@@ -1,4 +1,4 @@
-import {pickupKind} from './pickups.mjs?v=chapter-pressure-1';
+import {pickupKind} from './pickups.mjs?v=lantern-chain-1';
 
 const clamp01 = n => Math.max(0, Math.min(1, n));
 const isFuel = p => !p.generated && !p.harmful && !p.riskChain && !p.forkCache &&
