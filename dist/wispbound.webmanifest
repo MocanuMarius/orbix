@@ -1,0 +1,17 @@
+{
+  "id": "./",
+  "name": "Wispbound",
+  "short_name": "Wispbound",
+  "description": "Guide a small light through a lost world.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "landscape",
+  "theme_color": "#101b19",
+  "background_color": "#08130e",
+  "icons": [
+    { "src": "./assets/wisp-192.png?v=night-atlas-1", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "./assets/wisp-512.png?v=night-atlas-1", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "./assets/wisp-maskable.png?v=night-atlas-1", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

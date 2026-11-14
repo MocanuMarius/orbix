@@ -5,7 +5,7 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import {fileURLToPath} from 'node:url';
 const root=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'../dist');
-const mime={'.html':'text/html; charset=utf-8','.mjs':'text/javascript; charset=utf-8','.js':'text/javascript; charset=utf-8','.css':'text/css; charset=utf-8','.png':'image/png','.webp':'image/webp','.svg':'image/svg+xml','.jpg':'image/jpeg','.mp3':'audio/mpeg','.woff2':'font/woff2','.ttf':'font/ttf'};
+const mime={'.html':'text/html; charset=utf-8','.webmanifest':'application/manifest+json','.mjs':'text/javascript; charset=utf-8','.js':'text/javascript; charset=utf-8','.css':'text/css; charset=utf-8','.png':'image/png','.webp':'image/webp','.svg':'image/svg+xml','.jpg':'image/jpeg','.mp3':'audio/mpeg','.woff2':'font/woff2','.ttf':'font/ttf'};
 const fixture=`
 // MOCK RUN: changes are memory-only and reset on refresh.
 destroyFlight();state=newState();state.profile.difficulty=4;
@@ -51,6 +51,10 @@ else if(scenario==='treasure'||scenario==='treasure-route'){
  run.stats.flights=approach.filter(id=>run.map.flat().find(node=>node.id===id)?.type!=='support').length;
  if(scenario==='treasure'&&!selectNode(run,chest.id))throw Error('Cannot enter mock chest');
  goToRun();
+}
+else if(scenario==='atlas'){
+ state.profile.stats.wins=1;state.run=createRun(state.profile,'forecast-inspector',1);
+ state.run.phase='map-clear';state.run.step=state.run.map.length;goToRun();
 }
 else if(scenario==='home'){if(new URLSearchParams(location.search).has('locked')){state.profile.difficulty=1;state.settings.testOverride=false;mockRun.testMode=false;}render('home');}
 else if(scenario==='settings'){render('home');showMenu();}

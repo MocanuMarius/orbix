@@ -1,0 +1,63 @@
+import {getBiome} from './biomes.mjs?v=night-atlas-1';
+import {getBossPreview} from './boss.mjs?v=night-atlas-1';
+import {levelMapPreview} from './level-map-art.mjs?v=night-atlas-1';
+import {mapStopIconMarkup} from './map-guide.mjs?v=night-atlas-1';
+import {resourceSymbol} from './game-symbols.mjs?v=night-atlas-1';
+import {getFlightClearReward} from './checkpoint-rewards.mjs?v=night-atlas-1';
+import {availableFlightArtifacts} from './model.mjs?v=night-atlas-1';
+import {bonusIcon,boonMarkup} from './route-bonus-ui.mjs?v=night-atlas-1';
+import {contextualFlightNotice} from './contextual-events.mjs?v=night-atlas-1';
+import {ATLAS_FORECASTS,atlasGlyph} from './night-atlas.mjs?v=night-atlas-1';
+
+const escapeText = value => String(value ?? '').replace(/[&<>"']/g, char =>
+ ({'&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;'}[char]));
+
+function regularReward(run,node){
+ const final=node.boss && (node.mapIndex??run.mapIndex)===2 && !run.isTutorial;
+ if(final)return `<div class="preview-payout">${mapStopIconMarkup(node)}<strong>Expedition victory</strong></div>`;
+ const amount=getFlightClearReward(node);
+ const offers=availableFlightArtifacts(run,node).length;
+ const artifact=offers>1?'Choose 1 of 2 artifacts':offers===1?'Gain 1 artifact':'';
+ return `<div class="preview-payout">${resourceSymbol('packed')}<strong>+${amount} <span>Stored Sparks</span></strong></div>
+  ${artifact?`<p class="preview-clear-extra">${artifact}</p>`:''}`;
+}
+
+function flightTerms(run,node,available){
+ if(!available)return '';
+ const notice=contextualFlightNotice(run,node);
+ const earned=boonMarkup(run.nextFlightBoon);
+ if(!notice&&!earned)return '';
+ return `<details class="preview-flight-terms"><summary>Active flight effects</summary>
+   ${earned}${notice?`<p>${escapeText(notice)}</p>`:''}</details>`;
+}
+
+export function flightPreviewMarkup(run,node,{available=false,level,bonus=null}={}){
+ const biome=getBiome(node)||getBiome(level);
+ const forecast=ATLAS_FORECASTS[node.atlasForecast];
+ const hazard=node.boss?getBossPreview(node.bossId).instruction:node.interactionHint||biome?.interactionHint;
+ const place=biome?.name||node.biomeName||level?.name;
+ const kind=node.boss?'Guardian':node.elite?'Elite flight':'Flight';
+ const art=node.boss?mapStopIconMarkup(node):levelMapPreview(level||node);
+ const metadata=[place,Number(node.duration)>0?`${Math.round(node.duration)} s`:''].filter(Boolean).map(escapeText).join(' · ');
+ const action=available?`<button class="primary" data-action="node" data-id="${escapeText(node.id)}">Fly →</button>`
+  :'<span class="preview-future">Follow the connected path</span>';
+ const cue=forecast?forecast.cue:hazard;
+ return `<section class="flight-preview" aria-labelledby="preview-place">
+  <div class="preview-reading">
+   <header class="preview-place">
+    <div class="preview-landmark">${art}</div>
+    <div class="preview-location"><span class="preview-kind">${available?kind:'Future · '+kind}</span><h2 id="preview-place">${escapeText(node.name)}</h2><p class="preview-meta">${metadata}</p></div>
+    ${cue?`<p class="preview-hazard">${forecast?`<span class="preview-weather">${atlasGlyph(forecast.id)} ${escapeText(forecast.name)}</span>`:''}${escapeText(cue)}</p>`:''}
+   </header>
+   <div class="preview-rewards${bonus?' has-objective':''}">
+    <section class="preview-regular" aria-labelledby="preview-regular"><h3 id="preview-regular">On clear</h3>${regularReward(run,node)}</section>
+    ${bonus?`<section class="preview-optional" aria-labelledby="preview-optional">
+     <div class="preview-goal-title">${bonusIcon(bonus.id)}<div><h3 id="preview-optional">Optional bonus</h3><strong>${escapeText(bonus.name)}</strong></div></div>
+     <p class="preview-condition">${escapeText(bonus.condition)}</p>
+     <p class="preview-prize"><span aria-hidden="true">✦</span>${escapeText(bonus.reward)}</p>
+    </section>`:''}
+   </div>${flightTerms(run,node,available)}
+  </div>
+  <footer><button class="secondary" data-action="close-sheet">Back</button>${action}</footer>
+ </section>`;
+}

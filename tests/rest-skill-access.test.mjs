@@ -70,7 +70,7 @@ test('tree explains location separately from currency and shows the Rest icon',(
  arriveAtRest(state);M.resolveSupport(r,0,state.profile);r.condensedGlow=0;
  const saving=skillTreeState({run:r,wallet:M.getSkillWallet(state),canBuy:true},skill);
  assert.equal(saving.restRequired,false);
- assert.match(skillTreeStatus(saving),/Need .* more Packed Sparks/);
+ assert.match(skillTreeStatus(saving),/Need .* more Stored Sparks/);
 });
 
 test('TEST and explicit practice preserve flexible checkpoint access',()=>{

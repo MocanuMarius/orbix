@@ -1,6 +1,6 @@
 # Proposal: the Night Atlas
 
-Status: queued for design review. The live build still uses Ascension.
+Status: the Map 2 experiment below is implemented. Numbered Ascension and existing companion unlocks remain in place; the larger progression changes are proposals.
 
 Preserve the three-map expedition, the three guardian victories, selectable difficulty and the reason to start another run. Replace the numbered climb with a woodland atlas that remembers the kinds of nights the player has survived. Its main question is: which changes to the forest suit this expedition?
 

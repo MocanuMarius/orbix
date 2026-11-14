@@ -1,7 +1,7 @@
-import {ROUTE_BONUSES} from './route-bonuses.mjs?v=route-gifts-1';
-import {blackHoleDrainRate} from './black-holes.mjs?v=route-gifts-1';
-import {pickupKind} from './pickups.mjs?v=route-gifts-1';
-import {GLOW_DISPLAY_SCALE} from './vitality.mjs?v=route-gifts-1';
+import {ROUTE_BONUSES} from './route-bonuses.mjs?v=night-atlas-1';
+import {blackHoleDrainRate} from './black-holes.mjs?v=night-atlas-1';
+import {pickupKind} from './pickups.mjs?v=night-atlas-1';
+import {GLOW_DISPLAY_SCALE} from './vitality.mjs?v=night-atlas-1';
 
 const fuelKinds = new Set(['light', 'cluster', 'cache']);
 const helpfulFamilies = new Set(['lift', 'reveal', 'bloom']);
@@ -9,12 +9,13 @@ const maxSpeed = e => e.baseSpeed * (e.hasCompanion('swift') ? 1.48 : 1);
 const firstX = e => 98 + maxSpeed(e) * (Math.max(0, Number(e.mod.dreamDuration) || 0) + 2);
 const lastX = e => e.totalDistance + e.player.x - e.baseSpeed * 1.5;
 const excludesFork = (e, x) => !(e.layout.flightForks || []).some(f => x >= f.approachStart && x <= f.exitEnd);
+const outsideBell = (engine, x) => !engine.atlas?.bells?.some(b=>x>b.start-45 && x<b.x+55);
 const sleep = e => Boolean(e.dream?.active || e.dream?.mode === 'record');
 const fuel = p => !p.generated && !p.harmful && !p.riskChain && !p.forkCache && fuelKinds.has(pickupKind(p));
 const mark = (object, type = 'spark') => ({object, x:object.x, y:object.y, type});
 
 function inRoom(e, x, y, radius = 16) {
-  return x >= firstX(e) && x <= lastX(e) && excludesFork(e, x) && e.objectiveBodyClear(x, y, radius);
+  return x >= firstX(e) && x <= lastX(e) && excludesFork(e, x) && outsideBell(e, x) && e.objectiveBodyClear(x, y, radius);
 }
 
 const eligibleFuel = new WeakMap();
@@ -50,7 +51,7 @@ function placeFuel(e, points, donors) {
     if (!inRoom(e, point.x, point.y, 18)) return null;
     let closest = null, distance = Infinity;
     for (const candidate of donors) {
-      if (reserved.has(candidate) || candidate.forkCache) continue;
+      if (reserved.has(candidate) || candidate.forkCache || candidate.atlasBypass) continue;
       const gap = Math.abs(candidate.x - point.x);
       if (gap < distance) { distance = gap; closest = candidate; }
     }

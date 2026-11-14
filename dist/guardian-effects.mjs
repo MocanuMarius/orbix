@@ -1,4 +1,4 @@
-import {iceShardPoints,iceShardContact,sampleIceShard} from './guardian-geometry.mjs?v=route-gifts-1';
+import {iceShardPoints,iceShardContact,sampleIceShard} from './guardian-geometry.mjs?v=night-atlas-1';
 const clamp=(value,min,max)=>Math.max(min,Math.min(max,value));
 export function prepareGuardian(layout,height,speed){
  const boss=layout.boss,s=height/620;
@@ -101,7 +101,7 @@ export function updateGuardian(engine,dt,gust){
     engine.spendGlow(lost);
     engine.collisions++;
     engine.flash=.12;
-    engine.setEvent('Ice shattered'+(lost?' · −'+Math.round(lost*.3)+' Energy':''));
+    engine.setEvent('Ice shattered'+(lost?' · −'+Math.round(lost*.3)+' Sparks':''));
     engine.sound('hit');
     engine.notify();
    }

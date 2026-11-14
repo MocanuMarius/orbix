@@ -5,6 +5,11 @@ export class FlightBoon {
   constructor(engine, id) {
     this.engine = engine;
     this.id = id;
+    const favors=engine.mod?.eventFavors||[];
+    this.reserveWick=favors.includes('wick');
+    this.giftLifts=favors.includes('feather')?2:0;
+    this.farLens=favors.includes('lens');this.quickChime=favors.includes('haste');
+    this.extraCostLifts=favors.includes('burden')?6:0;
     this.ward = id === 'edgeweaver';
     this.lifts = id === 'long-glide' ? 3 : 0;
     this.liftBudget = 9 / DISPLAY_SCALE;
@@ -18,7 +23,7 @@ export class FlightBoon {
   }
 
   get recoveryRate() {
-    return this.id === 'wild-circuit' && this.awake ? 1.2 : 1;
+    return this.awake?Math.max(this.quickChime?1.25:1,this.id==='wild-circuit'?1.2:1):1;
   }
 
   get drainScale() {
@@ -26,20 +31,32 @@ export class FlightBoon {
   }
 
   get luminanceScale() {
-    if (this.id !== 'flash-relay' || !this.awake) return 1;
+    if(!this.awake)return 1;
+    if(this.farLens)return 1.35;
+    if(this.id!=='flash-relay')return 1;
     const wakingTime = this.engine.time - (this.engine.dream?.duration || 0);
     return wakingTime < 15 ? 1.25 : 1;
   }
 
+  tryReserve() {
+    const f=this.engine;
+    if(!this.awake||!this.reserveWick||f.flame*DISPLAY_SCALE>=6)return 0;
+    this.reserveWick=false;
+    const gain=Math.min(f.maxFlame-f.flame,9/DISPLAY_SCALE);
+    f.flame+=gain;f.flameRestored+=gain;
+    f.setEvent?.('Reserve Wick · +9 Sparks');
+    return gain;
+  }
   get wardReady() {
     return this.ward && this.awake;
   }
 
   liftSaving(cost) {
-    return this.lifts && this.awake ? Math.min(cost, this.liftBudget) : 0;
+    return !this.awake?0:this.giftLifts?cost:this.lifts?Math.min(cost,this.liftBudget):0;
   }
 
   spendLift(cost) {
+    if(this.awake&&this.giftLifts){this.giftLifts--;return 0;}
     const saving = this.liftSaving(cost);
     if (saving > 0) {
       this.lifts--;

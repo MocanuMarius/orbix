@@ -69,7 +69,7 @@ test('Rest always offers Recover or Grow; both fill fuel but only Recover restor
   r.skills['main-spare-spark']=1;r.maxLives=4;r.artifacts=['glow-wick'];r.artifactCharges={'glow-wick':1};
   const choices=M.getSupportChoices(r,s.profile);
   assert.deepEqual(choices.map(c=>c.id),['rest-recover','rest-grow']);
-  assert.match(choices[1].description,/Gain 3 maximum Energy/);
+  assert.match(choices[1].description,/Gain 3 Spark capacity/);
   assert.ok(claim(s,id));assert.equal(r.flame,getGlowCapacity(r));
   assert.equal(r.lives,id==='rest-recover'?4:1);assert.equal(getGlowCapacity(r),id==='rest-grow'?110:100);
   assert.equal(r.condensedGlow,wallet);assert.equal(r.pendingCondensedGlow,0);assert.equal(r.condensedEarned,0);
@@ -111,7 +111,7 @@ test('Rest markup states both refills and shows disabled capacity without a thir
  const s=restFixture('rest-markup');s.run.skills['main-spare-spark']=1;s.run.maxLives=4;
  let html=restBenefitsMarkup(s.run,s.run.current,M.getSupportChoices(s.run,s.profile));
  assert.equal((html.match(/data-action="support"/g)||[]).length,2);assert.match(html,/Both refill Energy/);
- assert.match(html,/Refills to 30 of 30 Energy/);assert.match(html,/Refills to 33 of 33 Energy/);
+ assert.match(html,/Refills to 30 of 30 Energy/);assert.match(html,/Refills to 33 of 33 Sparks/);
  assert.doesNotMatch(html,/Condense|Recharge|Rekindle/);
  s.run.restGlowCapacity=30;html=restBenefitsMarkup(s.run,s.run.current,M.getSupportChoices(s.run,s.profile));
  assert.match(html,/disabled aria-label="Grow/);assert.match(html,/CAPACITY FULL/);

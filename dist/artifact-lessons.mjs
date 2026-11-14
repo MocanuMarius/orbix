@@ -1,5 +1,5 @@
-import {getArtifactInfo} from './artifact-info.mjs?v=route-gifts-1';
-import {glowText} from './vitality.mjs?v=route-gifts-1';
+import {getArtifactInfo} from './artifact-info.mjs?v=night-atlas-1';
+import {glowText} from './vitality.mjs?v=night-atlas-1';
 
 // One small first-use explanation per flight. Remaining discoveries stay
 // eligible next flight rather than chaining several modal interruptions.
@@ -15,5 +15,5 @@ export function artifactUseLesson(notice,artifact,{maxGlow=100,charges={}}={}){
   :'It stays active for this run; it is not used up.';
  return {title:`${artifact?.name||'Artifact'} · ${notice.phase==='exhausted'?'used up':'active'}`,
   text:glowText(`${info.effect} ${lifetime}`,maxGlow),
-  target:`.flight-artifact-bar [data-relic="${notice.artifactId}"]`,actionLabel:'Back to flight'};
+  target:`.flight-artifact-bar [data-relic="${notice.artifactId}"]`,actionLabel:'Back'};
 }

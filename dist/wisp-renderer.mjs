@@ -1,24 +1,26 @@
-import {drawGuardianPresence} from './guardian-presence.mjs?v=route-gifts-1';
-import {createDepthScenery,drawDepthScenery} from './depth-scenery.mjs?v=route-gifts-1';
-import { drawGuardianWarnings } from './guardian-art.mjs?v=route-gifts-1';
-import {drawProximityMeter} from './proximity-meter.mjs?v=route-gifts-1';
-import {drawObjectiveMarks} from './flight-objectives.mjs?v=route-gifts-1';
-import {drawFlightProjection} from './flight-projection.mjs?v=route-gifts-1';
-import {drawGlowSense} from './glow-sense.mjs?v=route-gifts-1';
-import {formatGlow} from './vitality.mjs?v=route-gifts-1';
-import {LOCATION_PALETTES} from './world-expansion.mjs?v=route-gifts-1';
-import {biomePalette} from './biome-art.mjs?v=route-gifts-1';
-import { sceneryIdentity, drawIdentityBackground, drawIdentityMaterial, drawIdentityLife } from './level-scenery.mjs?v=route-gifts-1';
-import { getCompanionAbility, normalizeCompanionRole } from './companion-abilities.mjs?v=route-gifts-1';
-import { companionSprite, companionPalette } from './companion-art.mjs?v=route-gifts-1';
-import { createScenePropArt } from './scene-prop-art.mjs?v=route-gifts-1';
-import { drawBoss } from './boss.mjs?v=route-gifts-1';
-import { drawPickup } from './pickup-art.mjs?v=route-gifts-1';
-import { pickupKind, getPickupSpec, pickupContactRadius } from './pickups.mjs?v=route-gifts-1';
-import { LIGHT_EXTENT,lightAttenuation,lightVisibility,createLightMaskCanvas,sceneRevealStrength } from './light-field.mjs?v=route-gifts-1';
-import {drawExitLandmark} from './exit-landmark.mjs?v=route-gifts-1';
-import {drawBlackHoles} from './black-hole-art.mjs?v=route-gifts-1';
-import {drawFlightForks,drawFlightForkBackdrops} from './flight-forks.mjs?v=route-gifts-1';
+import {drawAtlasFlight} from './atlas-flight.mjs?v=night-atlas-1';
+import {drawGuardianPresence} from './guardian-presence.mjs?v=night-atlas-1';
+import {createDepthScenery,drawDepthScenery} from './depth-scenery.mjs?v=night-atlas-1';
+import { drawGuardianWarnings } from './guardian-art.mjs?v=night-atlas-1';
+import {drawProximityMeter} from './proximity-meter.mjs?v=night-atlas-1';
+import {drawObjectiveMarks} from './flight-objectives.mjs?v=night-atlas-1';
+import {drawFlightProjection} from './flight-projection.mjs?v=night-atlas-1';
+import {drawGlowSense} from './glow-sense.mjs?v=night-atlas-1';
+import {formatGlow} from './vitality.mjs?v=night-atlas-1';
+import {LOCATION_PALETTES} from './world-expansion.mjs?v=night-atlas-1';
+import {biomePalette} from './biome-art.mjs?v=night-atlas-1';
+import { sceneryIdentity, drawIdentityBackground, drawIdentityMaterial, drawIdentityLife } from './level-scenery.mjs?v=night-atlas-1';
+import { getCompanionAbility, normalizeCompanionRole } from './companion-abilities.mjs?v=night-atlas-1';
+import { companionSprite, companionPalette } from './companion-art.mjs?v=night-atlas-1';
+import { createScenePropArt } from './scene-prop-art.mjs?v=night-atlas-1';
+import { drawBoss } from './boss.mjs?v=night-atlas-1';
+import { drawPickup } from './pickup-art.mjs?v=night-atlas-1';
+import { pickupKind, getPickupSpec, pickupShellRadius } from './pickups.mjs?v=night-atlas-1';
+import { LIGHT_EXTENT,lightAttenuation,lightVisibility,createLightMaskCanvas,sceneRevealStrength } from './light-field.mjs?v=night-atlas-1';
+import {drawExitLandmark} from './exit-landmark.mjs?v=night-atlas-1';
+import {drawBlackHoles} from './black-hole-art.mjs?v=night-atlas-1';
+import {drawAbsorbingSpark} from './tidal-light.mjs?v=night-atlas-1';
+import {drawFlightForks,drawFlightForkBackdrops} from './flight-forks.mjs?v=night-atlas-1';
 
 const TAU = Math.PI * 2;
 const SCENERY_HELPERS = { line: pixelLine, disc: pixelDisc, polygon: path };
@@ -572,7 +574,7 @@ export class WispFlightView {
       if (ember.collected || ember.carried) continue;
       const x = Math.round((ember.x - distance) * s), y = Math.round(ember.y * s);
       if (x < -13 || x > this.buffer.width + 13) continue;
-      this.drawPacket(x, y, { kind: pickupKind(ember), time: t, reducedMotion: e.reducedMotion,
+      this.drawPacket(x, y, { kind: pickupKind(ember), time: t+(ember.phase||0)*.19, reducedMotion: e.reducedMotion,
         tiny: ember.generated === true, scale: s });
     }
   }
@@ -839,7 +841,7 @@ export class WispFlightView {
     c.globalAlpha=.27*(1-(e.completionProgress||0));c.lineWidth=.75;c.stroke();
     for(const contact of e.wisp?.contacts||[]){
       const packet=contact.packet;if(packet.collected||packet.carried)continue;
-      const px=(packet.x-distanceOf(e))*s,py=packet.y*s,pr=pickupContactRadius(packet)*s;
+      const px=(packet.x-distanceOf(e))*s,py=packet.y*s,pr=pickupShellRadius(packet)*s;
       const age=Math.max(0,t-contact.since),wave=e.reducedMotion?1:Math.min(1,age/.42);
       const angle=Math.atan2(y-py,x-px);
       c.globalAlpha=.20+(1-wave)*.4;c.lineWidth=1;c.beginPath();c.arc(px,py,pr,0,TAU);c.stroke();
@@ -915,26 +917,7 @@ export class WispFlightView {
       if (age < 0 || progress >= 1) continue;
       const kind = pickupKind(effect.pickupKind || effect.kind || 'light');
       const dark = kind === 'dark', color = getPickupSpec(kind).color;
-      const start = Math.max(0, Number(effect.startRadius) || 0);
-      const orbit = clamp(Math.max(38, start), 34, 44);
-      const initialAngle = Number(effect.initialAngle) || 0;
-      // Six accelerating revolutions, with both packet and orbit collapsing.
-      // The short launch makes even a packet delivered at the core readable.
-      // Only cached sprites are drawn; there are no per-sample point arrays.
-      const ghosts = e.reducedMotion ? 0 : 3;
-      for (let i = ghosts; i >= 0; i--) {
-        const sample = progress - i * .025;
-        if (sample < 0) continue;
-        const inward=clamp((sample-.10)/.90,0,1);
-        const radius=(e.reducedMotion?start*(1-sample)**2:sample<.10
-          ?start+(orbit-start)*(1-(1-sample/.10)**3):orbit*(1-inward)**.85)*s;
-        const angle=initialAngle+(e.reducedMotion?0:TAU*6*(.10*sample+.90*sample*sample));
-        const x=playerX+Math.cos(angle)*radius,y=playerY+Math.sin(angle)*radius;
-        const size=(1-sample)**.72;
-        this.drawPacket(Math.round(x), Math.round(y), { kind, bodyOnly: true, tiny: i > 0,
-          time: t, reducedMotion: e.reducedMotion, scale: s*size,
-          alpha: (i ? .16 * (1 - i / 4) : 1) * clamp((1 - progress) * 6, 0, 1) });
-      }
+      drawAbsorbingSpark(c,effect,progress,playerX,playerY,s,e.reducedMotion);
       if (progress > .84) {
         const impact = (progress - .84) / .16;
         const pulse = Math.sin(impact * Math.PI) * (e.reducedMotion ? .5 : 1);
@@ -1075,6 +1058,7 @@ export class WispFlightView {
     e.drawWayfinder?.(c,s);
     drawGuardianWarnings(c,{engine:e,distance,scale:s,time:t});
     e.biomeDynamics?.drawHighlights(c,{distance,scale:s,light:this.currentLightState,playerY:yOf(e)});
+    drawAtlasFlight(c,e,{scale:s,distance});
     drawObjectiveMarks(c,e,{scale:s,distance});
     drawFlightProjection(c,e,{scale:s,distance,playerY:yOf(e)});
     drawGlowSense(c,e,{scale:s,distance,playerY:yOf(e),light:this.currentLightState});

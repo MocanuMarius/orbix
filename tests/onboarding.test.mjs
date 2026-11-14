@@ -2,12 +2,18 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {cleanOnboarding,markOnboardingSeen,resetOnboarding,nextOnboardingLesson,
  noteOnboardingPrompt,noteOnboardingProgress,onboardingFeatureAvailable,onboardingFlightPlan} from '../dist/onboarding.mjs';
+import {resourceCycleSteps,resourceCycleArt} from '../dist/resource-cycle.mjs';
 
 const fresh=()=>({profile:{difficulty:1,stats:{flights:0},clearedFlights:0},run:{id:'run-a',mapIndex:0,step:0,stats:{flights:0,deaths:0},companions:['collector'],current:{id:'flight-a',type:'flight'}}});
 
-test('normal onboarding starts with one short Lift card and postpones skill trees',()=>{
+test('the first briefing teaches the resource cycle before flight and postpones skill trees',()=>{
  const state=fresh(),before=structuredClone(state),lesson=nextOnboardingLesson('briefing',{...state,now:1000});
- assert.equal(lesson.id,'onboarding:lift');assert.equal(lesson.steps.length,1);
+ assert.equal(lesson.id,'onboarding:lift');
+ assert.deepEqual(lesson.steps.map(s=>s.cycle.stage),[0,1,2]);
+ assert.deepEqual(lesson.steps[0].cycle.values,[6,12,18]);
+ assert.match(lesson.steps[0].text,/crackling Spark adds 12 to your Spark Meter/);
+ assert.match(lesson.steps[1].text,/24\/30.*Tap anywhere to Lift.*3 Sparks/);
+ assert.match(lesson.steps[2].text,/spare 6 into 1 Stored Spark\..*Rest/);
  assert.ok(lesson.steps[0].text.split(/\s+/).length<40);assert.equal(lesson.steps[0].skipLabel,'Remember & skip');
  assert.deepEqual(state,before,'merely selecting a possible prompt must not write progress');
  assert.equal(onboardingFeatureAvailable(state.profile,state.run,'skills'),false);
@@ -16,6 +22,15 @@ test('normal onboarding starts with one short Lift card and postpones skill tree
  assert.equal(onboardingFeatureAvailable(state.profile,state.run,'advanced-skills'),false);
  state.run.restReady=true;noteOnboardingProgress(state.profile,state.run);
  assert.equal(onboardingFeatureAvailable(state.profile,state.run,'advanced-skills'),true);
+});
+
+test('the lesson follows the equipped Lift and storage efficiency without spending resources',()=>{
+ const run={condensedGlow:61},before=structuredClone(run);
+ const steps=resourceCycleSteps(run,{liftCostPoints:1,condensationRules:{multiplier:1/3}});
+ assert.match(steps[1].text,/uses 1 Spark from the meter/);
+ assert.match(steps[2].text,/2 Stored Sparks/);
+ assert.match(resourceCycleArt(steps[2].cycle),/\+2<\/text>/);
+ assert.deepEqual(run,before);
 });
 
 test('remembering a topic survives a new run and a cleaned profile; reset replays it',()=>{
@@ -61,8 +76,8 @@ test('the first map teaches rewards and Rest when encountered, not at the openin
  state.run.current={id:'rest-a',kind:'camp',type:'support'};
  lesson=nextOnboardingLesson('support',{...state,now:40000});assert.equal(lesson.topic,'rest');
  assert.match(lesson.steps[0].text,/Recover restores missing hearts/);
- assert.match(lesson.steps[0].text,/Grow adds 3 maximum Energy/);
- assert.match(lesson.steps[0].text,/spend Packed Sparks on skills/);
+ assert.match(lesson.steps[0].text,/Grow adds 3 Spark capacity/);
+ assert.match(lesson.steps[0].text,/spend Stored Sparks on skills/);
  assert.doesNotMatch(lesson.steps[0].text,/Dream/,'unowned optional mechanics are not advertised at every Rest');
  assert.doesNotMatch(lesson.steps[0].text,/equip|switch|change.*companion/i,'Rest does not change the run companion');
  const companion=nextOnboardingLesson('companions',{...state,now:40000});

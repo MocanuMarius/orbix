@@ -1,8 +1,8 @@
-import {menuWorldMarkup} from './menu-world.mjs?v=route-gifts-1';
-import {formatGlow,getGlowCapacity} from './vitality.mjs?v=route-gifts-1';
-import {livesMarkup} from './lives.mjs?v=route-gifts-1';
-import { COMPANION_ABILITIES } from './companion-abilities.mjs?v=route-gifts-1';
-import { companionArtSvg } from './companion-art.mjs?v=route-gifts-1';
+import {menuWorldMarkup} from './menu-world.mjs?v=night-atlas-1';
+import {formatGlow,getGlowCapacity} from './vitality.mjs?v=night-atlas-1';
+import {livesMarkup} from './lives.mjs?v=night-atlas-1';
+import { COMPANION_ABILITIES } from './companion-abilities.mjs?v=night-atlas-1';
+import { companionArtSvg } from './companion-art.mjs?v=night-atlas-1';
 
 const esc = value => String(value ?? '').replace(/[&<>"']/g, char =>
   ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[char]));

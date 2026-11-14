@@ -1,4 +1,4 @@
-import {newState,createRun,advanceMap,selectNode} from './model.mjs?v=route-gifts-1';
+import {newState,createRun,advanceMap,selectNode} from './model.mjs?v=night-atlas-1';
 // Deliberately independent of storage. Every refresh creates the same mock run.
 export function createRestInspectorState(){
  const state=newState();state.profile.difficulty=4;

@@ -144,7 +144,7 @@ test('normal reward onboarding can teach the saved currency on the map',()=>{
  const s=state('teach');enter(s);M.finishFlight(s.run,{success:true,flame:60});
  const lesson=nextOnboardingLesson('map',{...s,now:1000});
  assert.equal(lesson.topic,'packed');
- assert.match(lesson.steps[0].text,/automatically saves 20 Packed Sparks/);
+ assert.match(lesson.steps[0].text,/automatically saves 20 Stored Sparks/);
  assert.equal(lesson.steps[0].target,'.condensed-wallet');
  markOnboardingSeen(s.profile,'packed');
  assert.equal(nextOnboardingLesson('map',{...s,now:1000}).topic,'routes');

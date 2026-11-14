@@ -20,28 +20,34 @@ for(let i=0;i<12;i++){
  const a=M.createRun(M.newState().profile,'event-deck-'+i),b=M.createRun(M.newState().profile,'event-deck-'+i);
  assert.deepEqual(a.map,b.map,'The authored event deck is seeded');
  const events=a.map.flat().filter(n=>n.kind==='event');
- assert.ok(events.some(n=>[2,4].includes(n.eventIndex)),'Every map includes a contextual decision');
+ assert.ok(events.some(n=>[2,3,4,7,9,11].includes(n.eventIndex)),'Every map includes a flight preparation or commitment');
+ for(const cairn of events.filter(n=>n.eventIndex===4))
+  assert.ok(cairn.nextIds.filter(id=>a.map.flat().find(n=>n.id===id)?.type!=='support').length>=2,'Cairns need distinct onward flights');
  assert.equal(new Set(events.map(n=>n.eventIndex)).size,events.length,'Events do not repeat within a map');
 }
 const vow=fixture(2),start=vow.run.condensedGlow,offered=M.getSupportChoices(vow.run,vow.profile);
 assert.equal(offered[0].effect.pilgrimVow.reward,8);assert.match(offered[0].description,/Collector deliveries do not count/);
 assert.deepEqual(M.getSupportChoices(vow.run,vow.profile),offered,'Offers stay fixed on repeated inspection');
 accept(vow,'pilgrim-vow');assert.equal(vow.run.condensedGlow,start);assert.equal(vow.run.flame,60);
-assert.match(contextualFlightNotice(vow.run,M.getChoices(vow.run)[0]),/4 body fuel pickups/);
+assert.match(contextualFlightNotice(vow.run,M.getChoices(vow.run)[0]),/4 body Spark pickups/);
 const memory=new Map(),storage={setItem:(k,v)=>memory.set(k,v),getItem:k=>memory.get(k)||null};
 assert.ok(M.saveState(vow,storage));assert.deepEqual(M.loadState(storage).run.pilgrimVow,vow.run.pilgrimVow,'Accepted vow survives save/load');
 complete(vow,PILGRIM_VOW.target);
 assert.equal(vow.run.pilgrimVow,undefined);assert.equal(vow.run.lastFlight.vow.completed,true);
-assert.equal(M.settleCheckpoint(vow),8);assert.equal(vow.run.condensedGlow,start+8);
+assert.equal(vow.run.lastFlight.completionBonus,20);
+assert.equal(vow.run.lastFlight.vow.reward,8);
+assert.equal(vow.run.condensedGlow,start+20+8);
 assert.equal(M.settleCheckpoint(vow),0,'Vow pays exactly once');
 assert.equal(M.finishFlight(vow.run,{success:true,bodyFuelCollected:99}),false);
 
 const miss=fixture(2);accept(miss,'pilgrim-vow');complete(miss,3);
-assert.equal(miss.run.lastFlight.vow.reward,0);assert.equal(M.settleCheckpoint(miss),0);
+assert.equal(miss.run.lastFlight.vow.reward,0);assert.equal(miss.run.condensedGlow,start+20);assert.equal(M.settleCheckpoint(miss),0);
 assert.equal(miss.run.pilgrimVow,undefined,'Missing target consumes the promise');
 const death=fixture(2);accept(death,'pilgrim-vow');const lives=death.run.lives;complete(death,99,false);
 assert.equal(death.run.lives,lives-1);assert.equal(death.run.pilgrimVow,undefined);assert.equal(death.run.lastAttempt.vow.reward,0);
-assert.equal(M.settleCheckpoint(death),0);complete(death,99);assert.equal(M.settleCheckpoint(death),0,'Retry cannot reuse the vow');
+assert.equal(death.run.condensedGlow,start);assert.equal(M.settleCheckpoint(death),0);
+complete(death,99);assert.equal(death.run.condensedGlow,start+20,'Retry gives only the ordinary clear payout');
+assert.equal(M.settleCheckpoint(death),0,'Retry cannot reuse the vow');
 const immediate=fixture(2);accept(immediate,'pilgrim-offering');assert.equal(immediate.run.flame,80);assert.equal(immediate.run.pilgrimVow,undefined);
 
 for(const [id,field,delta] of [['marked-wind','windSensitivity',.7],['marked-light','lightRadius',35]]){

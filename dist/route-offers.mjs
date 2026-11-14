@@ -1,7 +1,7 @@
-import {WispFlight} from './flight.mjs?v=route-gifts-1';
-import {getRunModifiers,getRouteBonusCandidates,nextBonusFlightNodes} from './model.mjs?v=route-gifts-1';
-import {ROUTE_BONUSES} from './route-bonuses.mjs?v=route-gifts-1';
-import {onboardingFlightPlan} from './onboarding.mjs?v=route-gifts-1';
+import {WispFlight} from './flight.mjs?v=night-atlas-1';
+import {getRunModifiers,getRouteBonusCandidates,nextBonusFlightNodes} from './model.mjs?v=night-atlas-1';
+import {ROUTE_BONUSES} from './route-bonuses.mjs?v=night-atlas-1';
+import {onboardingFlightPlan} from './onboarding.mjs?v=night-atlas-1';
 
 // Only the selected ID is saved. Geometry and transient planning instances never enter the save.
 const memo=new WeakMap();
@@ -10,7 +10,7 @@ export function prepareRouteOffer(run,node,{profile={},width=900,height=405}={})
  if(!candidates.length){if(node)node.bonusId=null;return null;}
  const plan=onboardingFlightPlan(profile,run),mods=getRunModifiers({...run,current:node});
  mods.flightBoon=run.attemptActive?run.attemptEntry?.flightBoon??null:run.nextFlightBoon??null;
- const key=JSON.stringify([run.seed,width,height,plan,mods,candidates]);
+ const key=JSON.stringify([run.seed,node.atlasForecast,width,height,plan,mods,candidates]);
  const cached=memo.get(node);
  if(cached?.key===key){node.bonusId=cached.id;return ROUTE_BONUSES[cached.id]||null;}
  const geometry=(site,benefits,teaching)=>{

@@ -1,28 +1,28 @@
-import {landmarkArt,landmarkCategory,guardianNames} from './map-landmarks.mjs?v=route-gifts-1';
-import {glowText} from './vitality.mjs?v=route-gifts-1';
+import {landmarkArt,landmarkCategory,guardianNames} from './map-landmarks.mjs?v=night-atlas-1';
+import {glowText} from './vitality.mjs?v=night-atlas-1';
 const stop=(kind,label,name,summary)=>Object.freeze({kind,label,name,summary,icon:kind});
 export const MAP_STOP_TYPES=Object.freeze({
-flight:stop('flight','FLIGHT','Flight','Clear a passage for 20 Packed Sparks plus overflow. Ordinary flights do not drop artifacts.'),
+flight:stop('flight','FLIGHT','Flight','Clear a passage for 20 Stored Sparks plus overflow. Ordinary flights do not drop artifacts.'),
 treasure:stop('treasure','TREASURE','Treasure','Inspect a chest to see its two offers. Taking one leaves the other behind.'),
-rest:stop('rest','REST','Rest','Recover missing hearts or Grow Spark capacity. Both refill Energy. After choosing, you can spend Packed Sparks on skills.'),
+rest:stop('rest','REST','Rest','Recover missing hearts or Grow Spark capacity. Both refill Sparks. After choosing, you can spend Stored Sparks on skills.'),
 encounter:stop('encounter','ENCOUNTER','Encounter','A promise, route preparation or bargain. Preview the stakes before choosing.'),
 boss:stop('boss','ELITE / GUARDIAN','Creature','Small creature: elite. Large head: guardian. Both offer two artifacts; choose one for your build.'),
 });
 export const EVENT_SCENARIOS=Object.freeze([
-{id:'ash-spring',index:0,name:'Ash Spring',summary:'Trade Packed Sparks for a refill, or collect a smaller light offering.',detail:'A full refill spends upgrade currency. A finite offering fills Sparks first and condenses its surplus.'},
-{id:'cinder-bargain',index:1,name:'Cinder Bargain',summary:'Trade some fuel for Packed Sparks, or take a safe light offering.',detail:'Preview the Energy cost and the actual fuel/condensed split before accepting.'},
-{id:'pilgrim-vow',index:2,name:'Pilgrim’s Vow',summary:'Promise four body Spark pickups next attempt, or take light now.',detail:'Clear the next attempt with four natural body Spark pickups to earn 8 Packed Sparks. Collector deliveries and Dreams do not count. Missing the vow has no extra penalty.'},
-{id:'weathered-shrine',index:3,name:'Weathered Shrine',summary:'Carry a companion blessing or collect a light offering.',detail:'The blessing makes companion recovery 20% faster next flight. Spend Packed Sparks on skill upgrades at Rest.'},
-{id:'surveyors-cairn',index:4,name:'Surveyor’s Cairn',summary:'Prepare one reachable passage, or take light and keep your fork open.',detail:'Mark a linked exit for gentler drafts or more Luminance on its first attempt. That commits your route. Falling consumes the preparation and reopens the fork.'},
-{id:'ember-archive',index:5,name:'The Sparks Archive',summary:'Gather Packed Sparks for skills or release fuel.',detail:'Choose 25 Packed Sparks or a fuel offering. This is not a full Rest.'},
-{id:'ember-dice',index:6,name:'Prism Dice',summary:'Take a certain light offering, or spend Packed Sparks on one roll.',detail:'Three equally likely offerings. One cast; the result stays fixed if you return.'},
-{id:'lost-lanterns',index:7,name:'Lost Lanterns',summary:'Choose recovery, a light offering, or sacrifice fuel for Packed Sparks.',detail:'Each lantern trades immediate fuel, future upgrades or a changed build.'},
-{id:'wisp-bargain',index:8,name:'Wisp Bargain',summary:'Take a larger offering with a Lift burden, or travel lightly.',detail:'The burden raises Lift effort for only the next flight. Preview each offering’s fuel and condensed value.'},
-{id:'sanctuary',index:9,name:'Quiet Sanctuary',summary:'Choose fuel, a missing heart, or faster companion recovery.',detail:'The blessing improves companion recovery for your next flight.'},
-{id:'workshop',index:10,name:'Lantern Workshop',summary:'Refund a main skill branch, or keep your build and collect light.',detail:'Refund paid Packed Sparks from that branch. Your free starting gift stays learned.'},
-{id:'companion-shrine',index:11,name:'Companion Shrine',summary:'Bless your companion, gather Packed Sparks or accept a light offering.',detail:'The blessing improves recovery for your next flight. Stored Packed Sparks fund upgrades at Rest.'},
+{id:'ash-spring',index:0,name:'Ash Spring',summary:'Bottle a reserve or take immediate flight support.',detail:'An empty meter makes a refill attractive. With a full Spark Meter the spring offers free Lifts instead. A Reserve Wick waits for Sparks to fall below 6.'},
+{id:'cinder-bargain',index:1,name:'Cinder Bargain',summary:'Trade fuel for upgrade currency, or stay ready for the road.',detail:'Selling a coal keeps at least 3 Sparks. When trading is not useful, the bargain changes.'},
+{id:'pilgrim-vow',index:2,name:'Pilgrim’s Vow',summary:'Promise four body Spark pickups next attempt, or take light now.',detail:'Clear the next attempt with four natural body Spark pickups to earn 8 Stored Sparks. Collector deliveries and Dreams do not count. Missing the vow has no extra penalty. Beyond the last Rest, take a flight preparation instead.'},
+{id:'weathered-shrine',index:3,name:'Weathered Shrine',summary:'Prepare faster companion recovery or two free Lifts.',detail:'Both preparations are automatic and last for the next attempt.'},
+{id:'surveyors-cairn',index:4,name:'Surveyor’s Cairn',summary:'Prepare one reachable passage, or take light and keep your fork open.',detail:'Mark a linked exit for gentler drafts or more Luminance on its first attempt. Where the path forks, marking one exit commits the route. With a full Spark Meter, you can take a Reserve Wick instead. Falling spends the preparation and reopens a fork.'},
+{id:'ember-archive',index:5,name:'The Sparks Archive',summary:'Copy the ledger or spend its light to protect the run.',detail:'A missing heart can be restored. With full hearts, carry a Reserve Wick instead. On the last map beyond the final Rest, a Star Chart replaces unspendable currency.'},
+{id:'ember-dice',index:6,name:'Prism Dice',summary:'Choose a guaranteed reward or cast the prism once.',detail:'Each pair of faces has an equal chance. Check the three outcomes before rolling.'},
+{id:'lost-lanterns',index:7,name:'Lost Lanterns',summary:'Choose immediate fuel or longer sight.',detail:'If the meter is nearly full, a Reserve Wick replaces the refill.'},
+{id:'wisp-bargain',index:8,name:'Wisp Bargain',summary:'Carry a heavy purse or take two free Lifts.',detail:'The seal pays up front, but your first six paid Lifts cost extra on the next attempt.'},
+{id:'sanctuary',index:9,name:'Quiet Sanctuary',summary:'Restore a missing heart or prepare the companion.',detail:'At full hearts, the sanctuary offers fuel or free Lifts instead.'},
+{id:'workshop',index:10,name:'Lantern Workshop',summary:'Unweave a paid branch or glide with free Lifts.',detail:'If there is no useful refund, the workshop offers a Star Chart instead.'},
+{id:'companion-shrine',index:11,name:'Companion Shrine',summary:'Tune your companion or salvage its tuning fork.',detail:'Choose faster companion recovery or savings for the next Rest.'},
 ].map(Object.freeze));
-export function getEventScenarios(options={}){return EVENT_SCENARIOS.map(entry=>({...entry,summary:glowText(entry.summary,options.maxGlow||100),detail:glowText(entry.detail,options.maxGlow||100)}));}
+export function getEventScenarios(){return EVENT_SCENARIOS.map(entry=>({...entry}));}
 function kindOf(value){
  if(typeof value==='string'){
   if(value==='camp')return'rest';if(value==='treasure')return'treasure';if(value==='elite')return'flight';
@@ -42,8 +42,8 @@ export function getMapStopInfo(node={},maxGlow=100){
  const event=kind==='encounter'&&node.kind!=='shrine'&&Number.isInteger(node.eventIndex)?getEventScenarios({...node,maxGlow})[node.eventIndex]:null;
  const exit=kind==='flight'&&(node.type==='finale'||node.kind==='finale'),guardian=guardianNames[node.bossId]||node.name||'Guardian';
  if(kind==='treasure')return {...base,name:node.name||base.name,summary:node.rewardPreview||base.summary,detail:node.description||base.summary,eventIndex:null,scenarioId:null};
- const summary=kind==='boss'?(node.mapIndex>=2?`Pass ${guardian} and complete the Ascension.`:`Pass ${guardian} and choose one of two artifacts.`):elite?'Face an elite creature for 20 Packed Sparks and two artifact choices.':event?.summary||(node.kind==='shrine'?'Choose an Energy offering or a next-flight companion blessing. Buy skill upgrades at Rest.':exit?'Clear this passage for 20 Packed Sparks and continue to the next map.':base.summary);
- const detail=kind==='boss'?(node.mapIndex>=2?'Reach the waylight to complete the Ascension.':'A guardian ends this map: 20 Packed Sparks and one of two run artifacts.'):elite?'Choose one automatic artifact. Both offers retire from this run; melting is available later at Rest.':event?.detail||summary;
+ const summary=kind==='boss'?(node.mapIndex>=2?`Pass ${guardian} and complete the Ascension.`:`Pass ${guardian} and choose one of two artifacts.`):elite?'Face an elite creature for 20 Stored Sparks and two artifact choices.':event?.summary||(node.kind==='shrine'?'Choose faster companion recovery or two free Lifts for your next attempt. Train skills at a Rest.':exit?'Clear this passage for 20 Stored Sparks and continue to the next map.':base.summary);
+ const detail=kind==='boss'?(node.mapIndex>=2?'Reach the waylight to complete the Ascension.':'A guardian ends this map: 20 Stored Sparks and one of two run artifacts.'):elite?'Choose one automatic artifact. Both offers retire from this run; melting is available later at Rest.':event?.detail||summary;
  return{...base,label:kind==='boss'?'GUARDIAN':elite?'ELITE':exit?'EXIT':base.label,name:kind==='boss'?guardian:event?.name||(node.type==='support'?node.name:node.locationName||node.name)||base.name,summary:event?summary:glowText(summary,maxGlow),detail:event?detail:glowText(detail,maxGlow),eventIndex:event?.index??null,scenarioId:event?.id||null};
 }
 const colors={dark:'#10231e',body:'#80917c',face:'#c0c7a3',fire:'#efd59a',glint:'#fff4cf',edge:'#d3d6b0',rune:'#e4d6a9'};
