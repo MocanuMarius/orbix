@@ -247,3 +247,7 @@ Choose one before a new expedition: Proximity, the six-second Dream, or one name
 ### Implemented — home menu actions and information
 
 Continue, New Game and Field Guide use raised directional signs. Only the primary action uses the gold frame. Equipped, selectable and progression-locked orbs use distinct marks and surface treatments; TEST preserves selection of locked roles. The read-only journey is a single illustrated road with three landmarks and a current location. It has no separate cards, pointer interactions or keyboard stops.
+
+### Queued — replace numbered Ascension with the Night Atlas
+
+[Design proposal](night-atlas-proposal.md). Preserve the three-map victory. On repeat voyages, guardian outcomes let players forecast how the next map behaves; harder nights combine familiar rules. Prototype Bellwind and Hollow Moon on Map 2 before reworking unlocks. Design only; no live progression or difficulty changes yet.
