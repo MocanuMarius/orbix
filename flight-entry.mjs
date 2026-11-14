@@ -1,7 +1,7 @@
-import {getBossPreview} from './boss.mjs?v=guardian-currents-1';
-import {livesMarkup} from './lives.mjs?v=guardian-currents-1';
-import {formatGlow,getGlowCapacity} from './vitality.mjs?v=guardian-currents-1';
-import {resourceSymbol} from './game-symbols.mjs?v=guardian-currents-1';
+import {getBossPreview} from './boss.mjs?v=clear-ink-1';
+import {livesMarkup} from './lives.mjs?v=clear-ink-1';
+import {formatGlow,getGlowCapacity} from './vitality.mjs?v=clear-ink-1';
+import {resourceSymbol} from './game-symbols.mjs?v=clear-ink-1';
 
 export const FLIGHT_LOAD_SECONDS=5;
 const esc=value=>String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));

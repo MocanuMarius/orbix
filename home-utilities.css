@@ -70,3 +70,14 @@ body[data-screen=home] .menu-art-home::after {
   pointer-events: none;
   background: linear-gradient(to top, #05110ee8, #05110e54 26%, transparent 46%);
 }
+
+html body[data-screen=home] #app .test-controls > .test-toggle {
+  color: #d8e3ca;
+  text-shadow: -1px 0 #020807, 1px 0 #020807, 0 1px #020807;
+}
+html body[data-screen=home] #app .test-controls > .test-toggle.active {
+  color: #f8dfa5;
+}
+html body[data-screen=home] #header .game-menu-trigger::before {
+  filter: drop-shadow(1px 1px #020807);
+}

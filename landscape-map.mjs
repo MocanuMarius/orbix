@@ -1,8 +1,8 @@
-import {landmarkArt,landmarkCategory,biomeGroundArt} from './map-landmarks.mjs?v=guardian-currents-1';
-import {THEME_INKS} from './replay-ui.mjs?v=guardian-currents-1';
-import {getRouteMapState} from './model.mjs?v=guardian-currents-1';
-import {getMapStopInfo} from './map-guide.mjs?v=guardian-currents-1';
-import {getGlowCapacity} from './vitality.mjs?v=guardian-currents-1';
+import {landmarkArt,landmarkCategory,biomeGroundArt} from './map-landmarks.mjs?v=clear-ink-1';
+import {THEME_INKS} from './replay-ui.mjs?v=clear-ink-1';
+import {getRouteMapState} from './model.mjs?v=clear-ink-1';
+import {getMapStopInfo} from './map-guide.mjs?v=clear-ink-1';
+import {getGlowCapacity} from './vitality.mjs?v=clear-ink-1';
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const edgeKey=([a,b])=>`${a}|${b}`;
 const wisp=(x,y)=>`<g class="route-player-wisp" transform="translate(${x} ${y})"><path d="m-23 1 9-15 13-7L16-9 22 3 11 13-17 8Z" fill="url(#routeWispGlow)"/><path d="M-4-7h8v2h3v3h2v4H7v3H4v2H-4V5H-7V2H-9V-2H-7V-5H-4Z" fill="#fff8d3"/><path d="M-3-5h6v2h2v6H3v2H-3V3H-5V-3H-3Z" fill="#fffef0"/></g>`;
@@ -36,24 +36,25 @@ export function landscapeRouteView(run,{compact=false}={}){
   // Keep the next decision and useful route planning visible. Ordinary distant
   // flights retain their preview target, without repeating text along the path.
   const showType=here||reachable,showName=here||reachable;
+  const labelHalf=compact?85:71,labelHeight=compact?33:40;
   const environment=n.type!=='support'&&n.biomeName?`${n.biomeName}. ${n.interactionHint||''} `:'';
   const aria=here?`You are here: ${label}, ${name}. Choose a lit next stop.`:reachable?`Next stop. Preview ${label}: ${name}. ${environment}${info.summary} ${n.rewardPreview||''}`:possible?`Future stop. Preview ${label}: ${name}. ${environment}${info.summary} ${n.rewardPreview||''}`:seen?`Completed: ${label}, ${name}.`:`Closed branch: ${label}, ${name}. Not reachable from your path.`;
   nodes+=`<g class="world-map-node route-state-${routeState} ${reachable?'reachable':''} ${seen?'taken':''} ${!possible&&!seen?'unreachable':''} ${here?'current-position':''}" data-route-state="${routeState}" data-route-label="${showName?'full':showType?'type':'none'}" ${interactive?`data-action="preview-node" data-id="${esc(n.id)}" tabindex="0" role="button"`:'role="img"'} ${here?'aria-current="location"':''} aria-label="${esc(aria)}">
    <title>${esc(aria)}</title>${interactive?`<rect class="route-node-hit" x="${p.x-(compact?82:66)}" y="${p.y-32}" width="${compact?164:132}" height="${showName?94:showType?75:64}" fill="transparent"/>`:''}
    <g class="route-node-art" aria-hidden="true">
    ${reachable||here?`<path class="route-node-halo" d="m${p.x-49} ${p.y+13} 11-26 21-16 28 3 27 18 10 26-23 20-29-2-32 1Z" fill="url(#${here?'routeHereGlow':'routeNextGlow'})"/>`:''}
-   ${routeState!=='closed'?landmark(n,p.x,p.y):`<path class="route-closed-ground" d="m${p.x-29} ${p.y+22} 12-4 13 3 13-2 12 5-15 3-17-2-11 1Z"/><path class="route-closed-mark" d="m${p.x-10} ${p.y+8} 20 18m-20 0 20-18"/>`}
+   ${routeState!=='closed'?`<path class="route-icon-ink" transform="translate(${p.x} ${p.y})" d="M-10-43H10v5h10v6h8v7h7v9h6v12h3v11h-4v10h-7v8h-11v5H8v3h-19v-4h-13v-6h-9v-9h-6V2h-4v-13h4v-11h7v-9h9v-7h13Z"/>${landmark(n,p.x,p.y)}`:`<path class="route-closed-ground" d="m${p.x-29} ${p.y+22} 12-4 13 3 13-2 12 5-15 3-17-2-11 1Z"/><path class="route-closed-mark" d="m${p.x-10} ${p.y+8} 20 18m-20 0 20-18"/>`}
    ${reachable?`<path class="route-next-light" d="m${p.x-30} ${p.y+25} 10 2 6-1m19 1 10-2 7 1" fill="none" stroke="#fff0b6" stroke-width="1.5"/>`:''}
    ${seen&&!here?`<path class="route-completed-mark" d="m${p.x-5} ${p.y+21} 4 4 7-8" fill="none" stroke="#e4c78e" stroke-width="2"/>`:''}
    ${themeInk&&routeState!=='closed'?`<path class="route-theme-pip" d="m${p.x+30} ${p.y+10} 2-6 3 4-1 7-4 1Z" fill="${themeInk}"><title>${esc(n.rewardThemeLabel||n.rewardTheme)} relics</title></path>`:''}
    </g>
-   ${showType?`<ellipse class="route-label-mist" cx="${p.x}" cy="${p.y+46}" rx="${compact?85:71}" ry="22" fill="url(#routeMist)"/><text class="map-node-type" x="${p.x}" y="${p.y+36}" text-anchor="middle">${esc(label)}</text>`:''}
+   ${showType?`<path class="route-label-ink" transform="translate(${p.x} ${p.y+28})" d="M${-labelHalf+11} 0H${labelHalf-20}v2h10v3h7v5h3v${labelHeight-20}h-5v5h-13v3H${-labelHalf+25}v-2h-16v-5h-7V10h4V5h7Z"/><text class="map-node-type" x="${p.x}" y="${p.y+36}" text-anchor="middle">${esc(label)}</text>`:''}
    ${showName?`<text class="map-node-name" x="${p.x}" y="${p.y+(compact?54:49)}" text-anchor="middle">${splitName(name,compact).map((line,i)=>`<tspan x="${p.x}" dy="${i?12:0}">${esc(line)}</tspan>`).join('')}</text>`:''}
    ${here?`${wisp(p.x-34,p.y-12)}<text class="route-state-caption route-node-caption route-here-caption" x="${p.x+35}" y="${p.y-18}" text-anchor="start">HERE</text>`:reachable?`<path class="route-next-arrow" d="M${p.x-48} ${p.y-7}l8 7-8 7m-7-14 8 7-8 7" fill="none" stroke="#fff0b6" stroke-width="2"/>`:''}
   </g>`;
  }
  const atStart=currentId==='start',start=`<g class="route-start ${atStart?'current-position':''}" role="img" ${atStart?'aria-current="location"':''} aria-label="${atStart?'You are here at the start. Choose a lit next stop.':'Start of the completed route.'}">${atStart?wisp(42,152):'<path d="m34 153 7-3 8 2-3 3-9 1Z" fill="#8c9074"/>'}<text class="route-state-caption ${atStart?'route-here-caption':''}" x="42" y="${atStart?124:177}" text-anchor="middle">${atStart?'HERE':'START'}</text></g>`;
- const markup=`<defs><linearGradient id="routeSky" x2="1" y2="1"><stop stop-color="#11262a"/><stop offset="1" stop-color="#101f1e"/></linearGradient><radialGradient id="routeMist"><stop offset=".35" stop-color="#142626" stop-opacity=".98"/><stop offset="1" stop-color="#142626" stop-opacity="0"/></radialGradient><radialGradient id="routeNextGlow"><stop stop-color="#e0d39b" stop-opacity=".4"/><stop offset=".55" stop-color="#d2d39a" stop-opacity=".14"/><stop offset="1" stop-color="#d2d39a" stop-opacity="0"/></radialGradient><radialGradient id="routeHereGlow"><stop stop-color="#f3ce80" stop-opacity=".4"/><stop offset="1" stop-color="#f3ce80" stop-opacity="0"/></radialGradient><radialGradient id="routeWispGlow"><stop stop-color="#fff5c9" stop-opacity=".8"/><stop offset="1" stop-color="#fff5c9" stop-opacity="0"/></radialGradient></defs><rect width="${width}" height="${height}" fill="url(#routeSky)"/>${Array.from({length:8},(_,i)=>`<path d="M0 ${35+i*40} Q${width*.25} ${i*20} ${width*.5} ${35+i*40} T${width} ${35+i*40}" fill="none" stroke="#8da286" opacity=".045"/>`).join('')}<g class="route-biome-layer" aria-hidden="true">${groundLayer}</g>${paths}${nodes}${start}`;
+ const markup=`<defs><linearGradient id="routeSky" x2="1" y2="1"><stop stop-color="#0c191d"/><stop offset="1" stop-color="#0b1718"/></linearGradient><radialGradient id="routeNextGlow"><stop stop-color="#e0d39b" stop-opacity=".4"/><stop offset=".55" stop-color="#d2d39a" stop-opacity=".14"/><stop offset="1" stop-color="#d2d39a" stop-opacity="0"/></radialGradient><radialGradient id="routeHereGlow"><stop stop-color="#f3ce80" stop-opacity=".4"/><stop offset="1" stop-color="#f3ce80" stop-opacity="0"/></radialGradient><radialGradient id="routeWispGlow"><stop stop-color="#fff5c9" stop-opacity=".8"/><stop offset="1" stop-color="#fff5c9" stop-opacity="0"/></radialGradient></defs><rect width="${width}" height="${height}" fill="url(#routeSky)"/>${Array.from({length:8},(_,i)=>`<path d="M0 ${35+i*40} Q${width*.25} ${i*20} ${width*.5} ${35+i*40} T${width} ${35+i*40}" fill="none" stroke="#8da286" opacity=".045"/>`).join('')}<g class="route-biome-layer" aria-hidden="true">${groundLayer}</g>${paths}${nodes}${start}`;
  return{markup,width,height,currentId,currentX:pos.get(currentId)?.x||42,nextX:pos.get(state.availableIds[0])?.x??null};
 }
 export function drawLandscapeMap(svg,viewport,run){

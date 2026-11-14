@@ -71,3 +71,40 @@
 .rank-choices>.future-rank{min-width:44px;min-height:44px;padding:4px 9px;border:1px dashed #657782;background:#1c272e;color:#b1bfc9;font:16px var(--pixel);box-sizing:border-box}.rank-choices>.future-rank small{display:block;font-size:10px;line-height:1.25}
 .rank-choices>.future-rank .bud-lock{width:12px;height:12px}
 @media(max-width:500px){.tree-state-key{gap:10px;font-size:10px}}
+
+/* Keep skill ink on a dark, quiet surface; state colors belong to the marks. */
+html body dialog.tree-sheet{background-color:#0a1418}
+html body .tree-sheet .radial-tree-scroll{background:#0b171a}
+html body .tree-sheet .radial-tree .tree-bud{color:#e5edee;background:#101c22;box-shadow:0 0 0 3px #050c10}
+html body .tree-sheet .radial-tree .tree-bud.available{background:#29251b;color:#fff0bf;box-shadow:0 0 0 3px #050c10}
+html body .tree-sheet .radial-tree .tree-bud.learned{background:#153441;color:#dbf5ff;box-shadow:0 0 0 3px #050c10}
+html body .tree-sheet .radial-tree .tree-bud.saving{background:#211b1b;color:#ead3be;box-shadow:0 0 0 3px #050c10}
+html body .tree-sheet .radial-tree .tree-bud:is(.locked,.preview){background:#121d24;color:#b4c4ce}
+html body .tree-sheet .radial-tree .tree-bud.selected{outline:2px solid #fff7da;outline-offset:4px}
+html body .tree-sheet .radial-tree .tree-bud .bud-price{background:#071115;color:#eee9d5;line-height:1.15;min-width:20px;border-color:#849399;text-shadow:none}
+html body .tree-sheet .radial-tree .tree-bud.available .bud-price{background:#f3dda4;color:#252015;border-color:#ffefc4}
+html body .tree-sheet .radial-tree .tree-bud.learned .bud-price{background:#b7e6f3;color:#102c38;border-color:#dbf5ff}
+html body .tree-sheet .radial-tree .tree-bud.saving .bud-price{background:#1d1717;color:#f0d0b5;border-color:#ad8b73}
+html body .tree-sheet .tree-tabs>button{background-color:#111d23;color:#c8d5d9}
+html body .tree-sheet .tree-tabs>button.selected{background-color:#24363d;color:#fff4cd;border-color:#e4d09a}
+html body .tree-sheet .tree-state-key{color:#c9d4d8}
+html body .tree-sheet .tree-state-key .learned{color:#a9e4fa}
+html body .tree-sheet .tree-state-key .available{color:#ffe3a4}
+html body .tree-sheet .tree-state-key .saving{color:#e1bea6}
+html body .tree-sheet .tree-state-key .locked{color:#bdcbd4}
+html body .tree-sheet .tree-side{border-color:#5b7178;background:#0a1418}
+html body .tree-sheet .tree-inspector .tree-inspector-title h3{color:#fff2ce;text-shadow:1px 1px #02070a}
+html body .tree-sheet .tree-inspector p{color:#dce5e6}
+html body .tree-sheet .tree-inspector .tree-selection-status.available{color:#ffe3a4}
+html body .tree-sheet .tree-inspector .tree-selection-status.learned{color:#a9e4fa}
+html body .tree-sheet .tree-inspector .tree-selection-status.saving{color:#edcdb3}
+html body .tree-sheet .tree-inspector .tree-selection-status:is(.locked,.preview){color:#c2ced5}
+html body .tree-sheet .tree-inspector-title>.upgrade-glyph{background:#071115;padding:5px;box-sizing:content-box;filter:none}
+html body .tree-sheet .rank-choices>button{background:#101d24}
+html body .tree-sheet .rank-choices>button small{font-size:11px;line-height:1.3}
+html body .tree-sheet .rank-choices>button.available{background:#29251b}
+html body .tree-sheet .rank-choices>button.learned{background:#153441}
+html body .tree-sheet .rank-choices>button.saving{background:#211b1b}
+html body .tree-sheet .radial-tree .branch-light .tree-path.available{stroke-opacity:1;stroke:#e5cc8c}
+html body .tree-sheet .radial-tree .branch-light .tree-path:is(.learned,.has-owned){stroke-opacity:1;stroke:#8ecbdf}
+html body .tree-sheet .radial-tree .branch-light .tree-path.saving{stroke:#a58977;stroke-opacity:.8}

@@ -176,3 +176,165 @@ body[data-screen=home] #app .menu-art-home .front-actions button:focus-visible {
   outline: 2px dashed #f5de9c !important;
   outline-offset: -1px;
 }
+/* Text keeps a quiet, dark ground while the woodland illustration stays visible. */
+html body[data-screen=home] #app .menu-art-home {
+  --menu-ink: #fff0cd;
+  --menu-copy: #dbdec7;
+  --menu-muted: #b5c1ae;
+  --menu-shadow: #030a09;
+}
+html body[data-screen=home] #app .menu-art-home > .front-title {
+  position: relative;
+  isolation: isolate;
+}
+html body[data-screen=home] #app .menu-art-home > .front-title::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  inset: -16px -25px -17px -18px;
+  background: radial-gradient(ellipse at 36% 40%, #030c0bdf 0 41%, #030c0ba6 58%, transparent 77%);
+  pointer-events: none;
+}
+html body[data-screen=home] #app .menu-art-home .front-title h1 {
+  color: var(--menu-ink);
+  text-shadow: -1px 0 var(--menu-shadow), 1px 0 var(--menu-shadow),
+    0 -1px var(--menu-shadow), 0 2px var(--menu-shadow);
+}
+html body[data-screen=home] #app .menu-art-home .front-title p,
+html body[data-screen=home] #app .menu-art-home .test-starter-heading small,
+html body[data-screen=home] #app .menu-art-home .test-starter-picker p {
+  color: var(--menu-copy);
+  text-shadow: -1px 0 var(--menu-shadow), 1px 0 var(--menu-shadow), 0 1px var(--menu-shadow);
+}
+html body[data-screen=home] #app .menu-art-home .test-starter-heading strong {
+  color: #f5d99e;
+  text-shadow: -1px 0 var(--menu-shadow), 1px 0 var(--menu-shadow), 0 1px var(--menu-shadow);
+}
+html body[data-screen=home] #app .menu-art-home > .starter-roster {
+  position: relative;
+  isolation: isolate;
+}
+html body[data-screen=home] #app .menu-art-home > .starter-roster::before {
+  content: "";
+  position: absolute;
+  inset: -9px -16px -9px -16px;
+  z-index: -1;
+  pointer-events: none;
+  background: radial-gradient(ellipse at 45% 56%, #040e0de8 0 48%, #040e0da8 68%, transparent 86%);
+}
+html body[data-screen=home] #app .menu-art-home .test-starter-options .test-starter-option {
+  position: relative;
+  isolation: isolate;
+  opacity: 1 !important;
+  color: #e4e9d8;
+  background-image: url('assets/way-plinth.svg'), radial-gradient(ellipse 28px 23px at 50% 32%, #030b0a 52%, #030b0ad9 69%, transparent 100%) !important;
+  background-position: center calc(50% + 2px), center !important;
+  background-size: 53px 15px, 100% 100% !important;
+  background-repeat: no-repeat !important;
+  text-shadow: -1px 0 #020807, 1px 0 #020807, 0 -1px #020807, 0 1px #020807;
+}
+html body[data-screen=home] #app .menu-art-home .test-starter-options .test-starter-option > svg {
+  filter: drop-shadow(1px 0 #020807) drop-shadow(-1px 0 #020807) drop-shadow(0 1px #020807);
+}
+html body[data-screen=home] #app .menu-art-home .test-starter-options .test-starter-option > span {
+  color: inherit;
+  font-size: clamp(11px, 1.45vw, 13px) !important;
+  line-height: 1.15 !important;
+}
+html body[data-screen=home] #app .menu-art-home .test-starter-option.selected {
+  color: #ffedb5;
+}
+html body[data-screen=home] #app .menu-art-home .test-starter-option.selected::before {
+  width: 28px;
+  height: 4px;
+  bottom: -2px;
+  background: #ffdc8d;
+  filter: drop-shadow(0 1px #020807);
+}
+html body[data-screen=home] #app .menu-art-home .test-starter-option.selected > svg {
+  filter: drop-shadow(1px 0 #020807) drop-shadow(-1px 0 #020807) drop-shadow(0 1px #020807);
+}
+html body[data-screen=home] #app .menu-art-home .test-starter-option.progression-locked {
+  color: #b5c1ae;
+}
+html body[data-screen=home] #app .menu-art-home .test-starter-option.progression-locked > svg {
+  opacity: .72;
+}
+html body[data-screen=home] #app .menu-art-home .test-starter-option > .starter-lock {
+  color: #d9dfcd;
+  background: #06110f;
+  opacity: 1;
+  box-shadow: 1px 1px #010706;
+}
+html body[data-screen=home] #app .menu-art-home .test-starter-option.progression-locked.selected {
+  color: #ffedb5;
+}
+html body[data-screen=home] #app .menu-art-home .test-starter-option.progression-locked.selected > svg {
+  opacity: 1;
+}
+/* Keep the wood dark; hover uses the arrow and edge instead of bleaching the sign. */
+html body[data-screen=home] #app .menu-art-home .front-actions :is(.front-continue,.front-new-button,.front-tutorial),
+html body[data-screen=home] #app .menu-art-home .front-actions .primary,
+html body[data-screen=home] #app .menu-art-home .front-actions button:is(:hover,:focus-visible):not(:disabled) {
+  filter: none;
+  color: var(--menu-ink) !important;
+  text-shadow: -1px 0 #020807, 1px 0 #020807, 0 -1px #020807, 0 2px #020807;
+}
+html body[data-screen=home] #app .menu-art-home .front-actions button > span > small {
+  color: var(--menu-copy);
+}
+html body[data-screen=home] #app .menu-art-home .front-actions button:is(:hover,:focus-visible) .front-arrow {
+  color: #ffe3a0;
+  opacity: 1;
+  transform: translateX(2px);
+}
+html body[data-screen=home] #app .menu-art-home .front-ascension-picker > span {
+  color: var(--menu-copy);
+  text-shadow: -1px 0 #020807, 1px 0 #020807, 0 1px #020807;
+}
+html body[data-screen=home] #app .menu-art-home .front-ascension-picker > span > small {
+  color: #bfccb8;
+}
+html body[data-screen=home] #app .menu-art-home .front-ascension-picker > button:disabled {
+  opacity: 1;
+  color: #92a58e;
+}
+@media (orientation: landscape) and (max-height: 350px) {
+  html body[data-screen=home] #app .menu-art-home .test-starter-options .test-starter-option > span {
+    font-size: 11px !important;
+  }
+}
+html body[data-screen=home] #app .menu-art-home .test-starter-options .test-starter-option:disabled {
+  background-color: transparent !important;
+  border: 0 !important;
+  color: #b5c1ae !important;
+  -webkit-text-fill-color: #b5c1ae !important;
+  text-shadow: -1px 0 #020807, 1px 0 #020807, 0 -1px #020807, 0 1px #020807 !important;
+}
+html body[data-screen=home] #app .menu-art-home .front-ascension-picker > button:disabled {
+  background-color: transparent !important;
+  border: 0 !important;
+  color: #b5c1ae !important;
+  -webkit-text-fill-color: #b5c1ae !important;
+}
+html body[data-screen=home] #app .menu-art-home .journey-landscape {
+  position: relative;
+}
+html body[data-screen=home] #app .menu-art-home .journey-landscape::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  inset: -5px -7px -8px;
+  background: radial-gradient(ellipse, #030c0ba8 24%, #030c0b66 58%, transparent 78%);
+  pointer-events: none;
+}
+html body[data-screen=home] #app .menu-art-home .journey-landscape figcaption {
+  color: #d7e0d0;
+  text-shadow: -1px 0 #020807, 1px 0 #020807, 0 1px #020807;
+}
+html body[data-screen=home] #app .menu-art-home .journey-landscape .journey-caption.current {
+  color: #ffedb5;
+}
+html body[data-screen=home] #app .menu-art-home .journey-landscape .journey-caption.complete {
+  color: #c4e8b6;
+}
