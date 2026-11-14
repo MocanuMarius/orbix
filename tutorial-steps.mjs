@@ -1,4 +1,4 @@
-import {topicSteps} from './tutorial-curriculum.mjs?v=rest-upgrades-1';
+import {topicSteps} from './tutorial-curriculum.mjs?v=flow-light-1';
 const step=(id,title,text,target)=>({id,title,text,target,allowTarget:false});
 const chapter=(id,steps,target)=>({id,steps:steps.map(s=>({...s,...(target?{target}:{}),allowTarget:false}))});
 export function checkpointTutorialLesson(screen,{run={}}={}){
@@ -9,10 +9,12 @@ export function checkpointTutorialLesson(screen,{run={}}={}){
   else if(run.step===0)lesson=chapter('practice-route',[
    {title:'First Light: learn at your pace',text:'This separate practice has seven stops. Short lessons appear where you need them. Your real run stays safe. MENU → Field Guide replays every topic.',visual:'wisp'},
    topicSteps('hearts')[0],topicSteps('routes')[0]],'#journey-map');
+  else if(run.lastFlight?.success&&!run.lastFlight.elite&&!run.lastFlight.boss&&!seen('practice-clear-pay'))
+   lesson=chapter('practice-clear-pay',[{title:'Your reward is already saved',text:'Clearing a flight automatically banks 20 Packed Sparks plus overflow. Save them for skill upgrades at Rest. Choose your next connected stop.',visual:'clear-reward'}],'.condensed-wallet');
   else if(run.map?.[run.step]?.some(n=>n.kind==='camp'))lesson=chapter('practice-rest-route',[topicSteps('routes')[2]],'#journey-map');
   else if(run.step===3)lesson=chapter('practice-event-route',[topicSteps('routes')[3]],'#journey-map');
  }
- if(screen==='briefing')lesson=chapter('practice-briefing',[topicSteps('luminance')[0],{title:'Find the waylight',text:'Solid edges are hazards. Faint background shapes are scenery. Fly carefully to the waylight near the last terrain to finish.',visual:'route'}]);
+ if(screen==='flight'&&!run.stats?.flights)lesson=chapter('practice-briefing',[topicSteps('luminance')[0],{title:'Find the waylight',text:'Solid edges are hazards. Faint background shapes are scenery. Fly carefully to the waylight near the last terrain to finish.',visual:'route'}]);
  if(screen==='map-key')lesson=chapter('practice-symbols',topicSteps('routes'));
  if(screen==='victory')lesson=chapter('practice-reward',topicSteps('rewards'),'.artifact-reward-screen');
  if(screen==='support'){

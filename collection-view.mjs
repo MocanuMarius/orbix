@@ -1,14 +1,51 @@
-import {ARTIFACTS,getArtifactSalvageValue} from './model.mjs?v=rest-upgrades-1';
-import {artifactDescription,effectMarkup} from './artifact-copy.mjs?v=rest-upgrades-1';
-import {artifactIcon} from './upgrade-icons.mjs?v=rest-upgrades-1';
-import {artifactRarityLabel} from './replay-ui.mjs?v=rest-upgrades-1';
-import {resourceSymbol} from './game-symbols.mjs?v=rest-upgrades-1';
-const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-export function collectionMarkup(state,{artifactArt=artifactIcon,canMelt=false,page=0}={}){
- const r=state.run,ids=[...new Set(r?.artifacts||[])].filter(id=>ARTIFACTS[id]),pages=Math.max(1,Math.ceil(ids.length/8)),current=Math.max(0,Math.min(pages-1,Math.floor(page)||0));
- return `<section class="artifact-collection"><header><h2>Collection</h2><span>${ids.length} automatic ${ids.length===1?'effect':'effects'}</span></header>${ids.length?`<div class="artifact-collection-grid">${ids.slice(current*8,current*8+8).map(id=>{const a=ARTIFACTS[id],copy=artifactDescription(a,r);return `<button class="collection-artifact ${a.rarity}" data-action="inspect-artifact" data-id="${id}" aria-label="Inspect ${esc(a.name)}. ${esc(copy.lifetime)}">${artifactArt(id)}<b>${esc(a.name)}</b>${copy.type==='consumable'?`<small>${esc(copy.lifetime.split(' · ')[0])}</small>`:''}</button>`;}).join('')}</div>`:'<div class="collection-empty">Defeat an elite or guardian<br>to choose an artifact.</div>'}<footer><span>${canMelt?'Inspect an artifact to melt it at this Rest.':'All acquired effects work automatically.'}</span>${pages>1?`<nav aria-label="Collection pages"><button data-action="collection-page" data-page="${current-1}" ${current===0?'disabled':''} aria-label="Previous artifacts">←</button><span>${current+1}/${pages}</span><button data-action="collection-page" data-page="${current+1}" ${current===pages-1?'disabled':''} aria-label="Next artifacts">→</button></nav>`:''}<button class="secondary" data-action="close-sheet">Done</button></footer></section>`;
+import {ARTIFACTS,getArtifactSalvageValue,canSellArtifact} from './model.mjs?v=flow-light-1';
+import {artifactDescription,effectMarkup} from './artifact-copy.mjs?v=flow-light-1';
+import {artifactIcon} from './upgrade-icons.mjs?v=flow-light-1';
+import {artifactRarityLabel} from './replay-ui.mjs?v=flow-light-1';
+import {resourceSymbol} from './game-symbols.mjs?v=flow-light-1';
+
+export const COLLECTION_PAGE_SIZE=6;
+const esc=value=>String(value??'').replace(/[&<>"']/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
+
+function artifactControls(state,id,{canMelt,confirmMeltId}){
+ const allowed=canMelt&&canSellArtifact(state,id);
+ if(!allowed)return '<span class="collection-rest-hint">Melt artifacts at Rest.</span>';
+ const amount=getArtifactSalvageValue(id);
+ if(confirmMeltId!==id)return `<button class="collection-melt" data-action="sell-artifact" data-id="${id}">Melt ${resourceSymbol('packed')} +${amount}</button>`;
+ return `<div class="collection-inline-melt" role="group" aria-label="Confirm melt">
+ <p>Remove this artifact and its remaining effect.</p>
+ <div class="collection-melt-actions"><button class="secondary" data-action="cancel-artifact-melt">Keep</button><button class="collection-melt" data-action="confirm-artifact-forge" data-id="${id}">Melt ${resourceSymbol('packed')} +${amount}</button></div>
+ </div>`;
 }
-export function collectionItemMarkup(state,id,{artifactArt=artifactIcon,canMelt=false}={}){
- const a=ARTIFACTS[id];if(!a)return '';const r=state.run,copy=artifactDescription(a,r);
- return `<section class="collection-inspection"><header><div class="collection-inspection-art ${a.rarity}">${artifactArt(id)}</div><div><small>${artifactRarityLabel(a)}</small><h2>${esc(a.name)}</h2><span>${esc(copy.lifetime)}</span></div></header><div class="collection-inspection-copy">${copy.trigger?`<p>${esc(copy.trigger)}</p>`:''}<strong>${effectMarkup(copy.effect)}</strong>${copy.limit?`<p>${esc(copy.limit)}</p>`:''}</div><footer>${canMelt?`<button class="collection-melt" data-action="sell-artifact" data-id="${id}">Melt <span aria-hidden="true">→</span> ${resourceSymbol('packed')} +${getArtifactSalvageValue(id)}</button>`:''}<button class="secondary" data-action="artifacts">Collection</button><button class="secondary" data-action="close-sheet">Done</button></footer></section>`;
+
+function selectedArtifactMarkup(state,id,{artifactArt,canMelt,confirmMeltId}){
+ const artifact=ARTIFACTS[id],copy=artifactDescription(artifact,state.run);
+ const confirming=confirmMeltId===id&&canMelt&&canSellArtifact(state,id);
+ return `<section class="collection-selected ${confirming?'is-confirming':''}" aria-label="${esc(artifact.name)} details">
+ <header><div class="collection-inspection-art ${artifact.rarity}">${artifactArt(id)}</div><div><small>${artifactRarityLabel(artifact)}</small><h3>${esc(artifact.name)}</h3><span>${esc(copy.lifetime)}</span></div></header>
+ <div class="collection-selected-rule">${copy.trigger?`<p>${esc(copy.trigger)}</p>`:''}<strong>${effectMarkup(copy.effect)}</strong>${copy.limit?`<p class="collection-selected-limit">${esc(copy.limit)}</p>`:''}</div>
+ <div class="collection-selected-action">${artifactControls(state,id,{canMelt,confirmMeltId})}</div>
+ </section>`;
+}
+
+export function collectionMarkup(state,{artifactArt=artifactIcon,canMelt=false,page=0,selectedId=null,confirmMeltId=null,lastMelt=null}={}){
+ const run=state.run,ids=[...new Set(run?.artifacts||[])].filter(id=>ARTIFACTS[id]);
+ const pages=Math.max(1,Math.ceil(ids.length/COLLECTION_PAGE_SIZE));
+ const current=Math.max(0,Math.min(pages-1,Math.floor(page)||0));
+ const visible=ids.slice(current*COLLECTION_PAGE_SIZE,(current+1)*COLLECTION_PAGE_SIZE);
+ const selected=visible.includes(selectedId)?selectedId:visible[0];
+ const receipt=lastMelt?.amount>0?`<span class="collection-inline-receipt" role="status">${esc(lastMelt.name||ARTIFACTS[lastMelt.id]?.name||'Artifact')} melted · ${resourceSymbol('packed')} +${Math.floor(lastMelt.amount)}</span>`:'';
+ return `<section class="artifact-collection collection-flat"><header><h2>Collection</h2>${receipt||`<span>${ids.length} automatic ${ids.length===1?'effect':'effects'}</span>`}</header>
+ ${ids.length?`<div class="collection-workbench"><nav class="artifact-collection-grid" aria-label="Owned artifacts">${visible.map(id=>{
+  const artifact=ARTIFACTS[id],copy=artifactDescription(artifact,run);
+  return `<button class="collection-artifact ${artifact.rarity} ${id===selected?'is-selected':''}" data-action="inspect-artifact" data-id="${id}" aria-label="${esc(artifact.name)}. ${esc(copy.lifetime)}" aria-pressed="${id===selected}">${artifactArt(id)}<b>${esc(artifact.name)}</b>${copy.type==='consumable'?`<small>${esc(copy.lifetime.split(' · ')[0])}</small>`:''}</button>`;
+ }).join('')}</nav>${selectedArtifactMarkup(state,selected,{artifactArt,canMelt,confirmMeltId})}</div>`:`<div class="collection-empty">${lastMelt?'Your collection is empty.':'Defeat an elite or guardian<br>to choose an artifact.'}</div>`}
+ <footer><span>Effects work automatically.</span>${pages>1?`<nav aria-label="Collection pages"><button data-action="collection-page" data-page="${current-1}" ${current===0?'disabled':''} aria-label="Previous artifacts">←</button><span>${current+1}/${pages}</span><button data-action="collection-page" data-page="${current+1}" ${current===pages-1?'disabled':''} aria-label="Next artifacts">→</button></nav>`:''}<button class="secondary" data-action="close-collection">Done</button></footer></section>`;
+}
+
+// Direct inspection uses the same workbench, including from a paused flight.
+export function collectionItemMarkup(state,id,options={}){
+ if(!ARTIFACTS[id]||!state.run?.artifacts?.includes(id))return '';
+ const ids=[...new Set(state.run.artifacts)].filter(value=>ARTIFACTS[value]);
+ return collectionMarkup(state,{...options,selectedId:id,page:Math.floor(ids.indexOf(id)/COLLECTION_PAGE_SIZE)});
 }

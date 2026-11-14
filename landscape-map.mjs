@@ -1,8 +1,8 @@
-import {landmarkArt,landmarkCategory,biomeGroundArt} from './map-landmarks.mjs?v=rest-upgrades-1';
-import {THEME_INKS} from './replay-ui.mjs?v=rest-upgrades-1';
-import {getRouteMapState} from './model.mjs?v=rest-upgrades-1';
-import {getMapStopInfo} from './map-guide.mjs?v=rest-upgrades-1';
-import {getGlowCapacity} from './vitality.mjs?v=rest-upgrades-1';
+import {landmarkArt,landmarkCategory,biomeGroundArt} from './map-landmarks.mjs?v=flow-light-1';
+import {THEME_INKS} from './replay-ui.mjs?v=flow-light-1';
+import {getRouteMapState} from './model.mjs?v=flow-light-1';
+import {getMapStopInfo} from './map-guide.mjs?v=flow-light-1';
+import {getGlowCapacity} from './vitality.mjs?v=flow-light-1';
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const edgeKey=([a,b])=>`${a}|${b}`;
 const wisp=(x,y)=>`<g class="route-player-wisp" transform="translate(${x} ${y})"><path d="m-23 1 9-15 13-7L16-9 22 3 11 13-17 8Z" fill="url(#routeWispGlow)"/><path d="M-4-7h8v2h3v3h2v4H7v3H4v2H-4V5H-7V2H-9V-2H-7V-5H-4Z" fill="#fff8d3"/><path d="M-3-5h6v2h2v6H3v2H-3V3H-5V-3H-3Z" fill="#fffef0"/></g>`;
@@ -10,23 +10,19 @@ const splitName=(name,compact=false)=>{if(compact)return[name.length>18?name.sli
 const landmark=(n,x,y)=>{const kind=landmarkCategory(n);return `<g class="route-landmark landmark-${kind}" data-landmark-family="${kind==='elite'?'boss':kind}" ${n.boss?`data-guardian="${esc(n.bossId||'hollow-warden')}"`:''} transform="translate(${x} ${y})" shape-rendering="crispEdges">${landmarkArt(n)}</g>`;};
 const ground=(n,x,y)=>{const biome=biomeGroundArt(n);return `<g class="route-biome-ground biome-${esc(biome.id)}" transform="translate(${x} ${y})" aria-hidden="true"><path class="biome-bed" d="m-71 27 17-9 22 4 18-4 26 3 25-2 21 12-18 6-24-2-25 3-28-5-20 1Z"/>${biome.art}</g>`;};
 
-// A carved route token grounds the landmark in the same lost-woodland world.
-const waystone=(x,y)=>`<g class="route-waystone" transform="translate(${x} ${y}) scale(1 .84)" pointer-events="none">
- <path class="route-stone-shadow" d="M-30-43H25v4h12v8h7v14h4v24h-6v16H29v7H-26v-5h-13v-9h-8V-5h-4v-17h8v-13h13Z"/>
- <path class="route-stone-body" d="M-31-47H25v5h10v7h9v17h3V4h-5v15H30v8H-25v-5h-13v-10h-8V-9h-3v-13h7v-15h11Z"/>
- <path class="route-icon-ink" d="M-27-40H22v5h11v11h6v23h-5v14H23v7H-21v-5h-10V5h-8v-23h5v-13h7Z"/>
- <path class="route-stone-lit-edge" d="M-31-47H25v3h-52v10h-11v13h-4v15h-4v-16h7v-15h8Zm66 12h9v17h3v8h-3v-9h-9Z"/>
- <path class="route-stone-low-edge" d="M-38 12h8v7h10v5h43v-5h7v-4h12v4H30v8H-25v-5h-13Z"/>
- <path class="route-stone-cut" d="M-27-42v9h-4v5h3v-4h4v-10Zm54 64v-8h5v-6h-3v5h-5v9Z"/>
- <path class="route-stone-moss" d="M-45 7h5v5h8v3h-10v-3h-3Zm68-52h6v4h5v3h-8v-3h-3Z"/>
+// Quiet irregular darkness separates the artwork from the trail without
+// enclosing each destination in a token or drawing a rim around the text.
+const artShadow=(x,y,variant=0)=>`<g class="route-art-shadow" transform="translate(${x} ${y}) scale(${variant%2?-1:1} 1)" pointer-events="none">
+ <path class="route-shadow-fringe" d="M-57-8h6v-12h9v-9h13v-9h17v-7h16v5h18v6h14v10h11v9h8V0h5v13h-9v8H40v7H25v6H5v-4H-17v4h-14v-7h-13v-7h-10V9h-6V0h3Z"/>
+ <path class="route-shadow-soft" d="M-43-10h6v-12h13v-10h16v-5H8v4h15v7h12v11h10V2h-5v14H27v8H9v-3H-10v5h-15v-6h-12v-9h-9V1h3Z"/>
+ <path class="route-shadow-core" d="M-31-12h7v-12h15v-6H8v6h15v10h8V3h-5v12H11v4H-7v-3h-14v-6h-10Z"/>
+ <path class="route-shadow-dither" d="M-49-27h5v3h-5Zm18-14h3v4h-3ZM17-42h4v3h-4Zm30 18h4v5h-4Zm10 18h3v3h-3ZM44 21h5v3h-5ZM22 34h3v3h-3Zm-51-5h6v3h-6ZM-57 14h3v5h-3Zm-7-14h4v4h-4Z"/>
 </g>`;
-const stoneLabel=(x,y,half,height)=>`<g class="route-stone-label" transform="translate(${x} ${y})" pointer-events="none">
- <path class="route-stone-shadow" d="M${-half+2} 0H${half-5}v3h7v${height-7}h-5v4H${-half+6}v-3h-8V5h4Z"/>
- <path class="route-stone-body" d="M${-half+2}-2H${half-8}v3h8v${height-7}h-5v5H${-half+8}v-3h-10V4h4Z"/>
- <path class="route-label-ink" d="M${-half+5} 2H${half-9}v3h5v${height-13}h-4v5H${-half+9}v-3h-6V7h2Z"/>
- <path class="route-stone-lit-edge" d="M${-half+2}-2H${half-8}v2H${-half+4}v6h-4V4h2Z"/>
- <path class="route-stone-low-edge" d="M${-half+8} ${height-3}H${half-5}v-5h5v4h-5v5H${-half+8}Z"/>
- <path class="route-stone-cut" d="M${-half+13} 1v5h-3v4h2V7h3V1Zm${half-14} ${height-3}v-4h3v-3h-2v2h-3v5Z"/>
+const labelShadow=(x,y,half,height)=>`<g class="route-copy-shadow" transform="translate(${x} ${y}) scale(${half/77} ${height/28})" pointer-events="none">
+ <path class="route-shadow-fringe" d="M-86 11h6V5h12V1h15v-3h20v-3H-8v3H19v-3h20v4h17v3h14v4h12v7h5v6h-9v5H65v4H45v3H21v-2H-4v3H-26v-4H-48v-3H-65v-3H-78v-5h-8Z"/>
+ <path class="route-shadow-soft" d="M-74 10h8V5h15V2h26V0H0v2H29V1h19v4h17v5h10v9h-9v4H47v4H24v-2H0v3H-24v-3H-46v-3H-62v-4h-12Z"/>
+ <path class="route-shadow-core" d="M-62 8h13V5h25V3H0v2H26V4h18v4h16v12H43v3H21v-2H-2v3H-25v-2H-45v-3H-62Z"/>
+ <path class="route-shadow-dither" d="M-81 1h4v3h-4Zm31-8h6v3h-6ZM15-7h3v3h-3Zm63 9h4v4h-4ZM79 25h4v3h-4ZM45 32h6v2h-6Zm-84 0h4v3h-4Zm-39-9h4v3h-4Z"/>
 </g>`;
 
 /** One model-owned reachability snapshot drives both brightness and permissions. */
@@ -62,12 +58,12 @@ export function landscapeRouteView(run,{compact=false}={}){
    <title>${esc(aria)}</title>${interactive?`<rect class="route-node-hit" x="${p.x-(compact?82:66)}" y="${p.y-32}" width="${compact?164:132}" height="${showName?94:showType?75:64}" fill="transparent"/>`:''}
    <g class="route-node-art" aria-hidden="true">
    ${reachable||here?`<path class="route-node-halo" d="m${p.x-49} ${p.y+13} 11-26 21-16 28 3 27 18 10 26-23 20-29-2-32 1Z" fill="url(#${here?'routeHereGlow':'routeNextGlow'})"/>`:''}
-   ${routeState!=='closed'?`${waystone(p.x,p.y)}${landmark(n,p.x,p.y)}`:`<path class="route-closed-ground" d="m${p.x-29} ${p.y+22} 12-4 13 3 13-2 12 5-15 3-17-2-11 1Z"/><path class="route-closed-mark" d="m${p.x-10} ${p.y+8} 20 18m-20 0 20-18"/>`}
+   ${routeState!=='closed'?`${artShadow(p.x,p.y,n.row+(n.lane||0))}${landmark(n,p.x,p.y)}`:`<path class="route-closed-ground" d="m${p.x-29} ${p.y+22} 12-4 13 3 13-2 12 5-15 3-17-2-11 1Z"/><path class="route-closed-mark" d="m${p.x-10} ${p.y+8} 20 18m-20 0 20-18"/>`}
    ${reachable?`<path class="route-next-light" d="m${p.x-30} ${p.y+25} 10 2 6-1m19 1 10-2 7 1" fill="none" stroke="#fff0b6" stroke-width="1.5"/>`:''}
    ${seen&&!here?`<path class="route-completed-mark" d="m${p.x-5} ${p.y+21} 4 4 7-8" fill="none" stroke="#e4c78e" stroke-width="2"/>`:''}
    ${themeInk&&routeState!=='closed'?`<path class="route-theme-pip" d="m${p.x+30} ${p.y+10} 2-6 3 4-1 7-4 1Z" fill="${themeInk}"><title>${esc(n.rewardThemeLabel||n.rewardTheme)} relics</title></path>`:''}
    </g>
-   ${showType?`${stoneLabel(p.x,p.y+27,labelHalf,labelHeight)}<text class="map-node-type" x="${p.x}" y="${p.y+36}" text-anchor="middle">${esc(label)}</text>`:''}
+   ${showType?`${labelShadow(p.x,p.y+27,labelHalf,labelHeight)}<text class="map-node-type" x="${p.x}" y="${p.y+36}" text-anchor="middle">${esc(label)}</text>`:''}
    ${showName?`<text class="map-node-name" x="${p.x}" y="${p.y+49}" text-anchor="middle">${splitName(name,true).map((line,i)=>`<tspan x="${p.x}" dy="${i?12:0}">${esc(line)}</tspan>`).join('')}</text>`:''}
    ${here?`${wisp(p.x-34,p.y-12)}<text class="route-state-caption route-node-caption route-here-caption" x="${p.x+35}" y="${p.y-18}" text-anchor="start">HERE</text>`:reachable?`<path class="route-next-arrow" d="M${p.x-48} ${p.y-7}l8 7-8 7m-7-14 8 7-8 7" fill="none" stroke="#fff0b6" stroke-width="2"/>`:''}
   </g>`;
