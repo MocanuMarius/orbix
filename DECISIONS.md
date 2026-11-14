@@ -929,4 +929,4 @@ Accepted design decisions for the next Collector mechanics rework, still at plan
 - Learned skill branches last for the run. Learned targeting preferences can be adjusted at checkpoints.
 - Last Orbit gets a separate Guard branch. A later skill lets direct body pickups help repair the Collector after a rescue.
 
-On 15 November the player chose three separate size unlocks. Targeting-preference purchase rules and the body-pickup repair formula remain planning questions.
+On 15 November the player chose three separate size unlocks. Additional targeting priorities, such as largest-Spark-first, require low-cost skill purchases. The default closest-Spark behavior is available at the start. Learned targeting priorities can be switched at checkpoints. Exact prices and the body-pickup repair formula remain planning questions.
