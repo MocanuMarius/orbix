@@ -1,5 +1,11 @@
 # Guardian paths, Spark mass and run treasures — 14 November 2026
 
+## Skills book feedback awaiting the next batch
+
+- [x] Chapter map is the chosen starting view for Skills. Keep the affordable Upgrade index available.
+- [ ] Show prerequisites in the chapter where the player is planning a purchase, including prerequisites from other chapters. Name the required perk and rank. Show a lock when missing and a check when owned. Let the player inspect an external prerequisite in place without losing the branch they were following.
+- [ ] Give each chapter a distinct accent on its tab and connected skills. Keep the chapter icon and name, and keep ownership and affordability readable independently of its color.
+
 - [x] Fourth Beat: the fourth quick Lift is free, then the third at rank II. The free Lift works on an empty meter.
 - [x] Falling Spark chain: see the Dark Spark at the last Lift, stay in the dark for the lower fuel, or lift away. Four small Sparks pay 24 total.
 - [x] Guardian crests and hazards, two-route Hollow Sun shutters, 21 legendary relics, permanent final discovery and stronger Night Gardener.
