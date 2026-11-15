@@ -1,14 +1,14 @@
-import {SKILLS,getRunModifiers} from './model.mjs?v=first-light-2';
-import {collectorPreferenceMarkup} from './collector-preferences.mjs?v=first-light-2';
-import {formatLuminance} from './luminance-units.mjs?v=first-light-2';
-import {WISP_ART} from './companion-art.mjs?v=first-light-2';
-import {skillTreeState,skillTreeStatus} from './skill-tree-state.mjs?v=first-light-2';
-import {getCompanionAbility} from './companion-abilities.mjs?v=first-light-2';
-import {skillIcon} from './upgrade-icons.mjs?v=first-light-2';
-import {resourceSymbol} from './game-symbols.mjs?v=first-light-2';
-import {glowText,getGlowCapacity} from './vitality.mjs?v=first-light-2';
-import {skillBookChapter} from './skill-chapters.mjs?v=first-light-2';
-export {skillBookChapter} from './skill-chapters.mjs?v=first-light-2';
+import {SKILLS,getRunModifiers} from './model.mjs?v=skills-cards-1';
+import {collectorPreferenceMarkup} from './collector-preferences.mjs?v=skills-cards-1';
+import {formatLuminance} from './luminance-units.mjs?v=skills-cards-1';
+import {WISP_ART} from './companion-art.mjs?v=skills-cards-1';
+import {skillTreeState,skillTreeStatus} from './skill-tree-state.mjs?v=skills-cards-1';
+import {getCompanionAbility} from './companion-abilities.mjs?v=skills-cards-1';
+import {skillIcon} from './upgrade-icons.mjs?v=skills-cards-1';
+import {resourceSymbol} from './game-symbols.mjs?v=skills-cards-1';
+import {glowText,getGlowCapacity} from './vitality.mjs?v=skills-cards-1';
+import {skillBookChapter} from './skill-chapters.mjs?v=skills-cards-1';
+export {skillBookChapter} from './skill-chapters.mjs?v=skills-cards-1';
 
 const chapters=[
  ['wisp','Flight','main-efficiency'],['luminance','Luminance','main-sight'],

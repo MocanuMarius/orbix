@@ -1,6 +1,8 @@
 # Skills as cards
 
-**Design for the proposed card playtest · 15 November 2026. None of these card mechanics are live.** The pilot decisions below are settled; remaining hypotheses are marked separately. Prices and payout values are first-playtest starting points, not claims of solved balance. This supersedes the two-milestone, two-pick suggestion. The tutorial loan below belongs to the pilot design; the live campaign and First Light remain unchanged.
+**Live isolated pilot · `skills-cards-1` · 15 November 2026.** Open [Skills as cards](https://mocanumarius.github.io/orbix/cards.html), tap **Open card playtest**, then choose **New Game**. The fresh launcher updates older installed games before opening `game.html?cards=1`; it does not force the tutorial route. The pilot uses a separate save and starter seed. Standard play retains its skill book and six-stop First Light; card-mode First Light adds the Lift Guide loan during its Lift lesson. Practice rewards cannot enter the real card run.
+
+The rules below describe the implemented pilot unless explicitly marked as a follow-up. Prices, payout values, odds and caps are first-playtest starting points, not claims of solved balance. This supersedes the two-milestone, two-pick suggestion. The optional [Collector art comparison](https://mocanumarius.github.io/orbix/collector-art.html) is a separate visual review: its flatter candidate remains opt-in pending approval.
 
 ## Four settled decisions
 
@@ -34,9 +36,9 @@ Keep these distinctions visible:
 - **Charges:** remaining uses on that real card.
 - **Temporary modifiers:** their own printed duration, separate from rank and charges.
 
-Common is the default drop. Fight toughness proposes the value/cost budget and weights rarity; tougher fights improve odds rather than guarantee Legendary. Budgets, other prices and odds remain open.
+Common is the default drop. The provisional Rare / Legendary / Common odds are 10% / 0.5% / 89.5% for ordinary flights, 22% / 2% / 76% for elites and 35% / 6% / 59% for guardians. These deterministic draws do not reroll on reload or retry. Tougher flights improve rarity odds rather than guaranteeing Legendary; their total reward budgets remain a balance question.
 
-Keep elite/guardian relics separate and passive for comparison, budgeting card and relic rewards together rather than silently adding free value. **What useful reward belongs after the final guardian, when the run is over?**
+Elite/guardian relics remain separate and passive for comparison. The final guardian's card becomes a trophy in the victory recap rather than an unusable Equip or Melt choice. Compare the combined card/relic budget and whether that trophy is a satisfying final reward.
 
 ## Copy, repeat and lifetime
 
@@ -48,6 +50,8 @@ Run-long means **while mounted**; limited-use cards persist only while charges r
 
 Chameleon may borrow an explicitly copyable passive: **+3 maximum Sparks while mounted** becomes +6 capacity with the original. Echo has no activation to repeat. Reordering changes capacity without refilling fuel; run-long duration alone does not make an ability copyable.
 
+**Tight Packing** is a **Common, fixed-rank mounted passive**: “Pack 25% more Stored Sparks. Every 4 you pack earns 1 extra.” Chameleon can borrow its packing bonus; Echo has no action to repeat.
+
 Limited uses are shared with the real source **per execution**. Repeating +2 twice spends two uses. Permitted numeric doubling gives +4 for one use. A borrowed execution also spends a source use. No remaining use means no repeat. Copies create no pickups, collection events or reward triggers. Swapping, reordering and improving never refill spent charges or reset consumed effects.
 
 ## Melt and forge
@@ -56,25 +60,33 @@ Melt exchanges one unwanted playable card for the shown Stored Sparks. It does n
 
 At Rest, spend from the shared wallet and consume one camp action to forge a **seeded random higher-rarity card**, progressing through Common → Rare → Legendary, with no tier above Legendary. **One Rare costs 30 Stored Sparks in the first playtest.** Before spending either the wallet price or the camp action, show the **exact seeded Rare and its effect**, alongside the price and action cost. Revisiting or reloading shows the same card. Melt payouts and forged results survive reload and retry without duplicate transactions or rerolls.
 
-**One Common Melt returns 10 Stored Sparks in the first playtest.** Other tiers' Melt values and forge prices, rank-improvement prices and rarity/drop odds remain open.
+**One Common Melt returns 10 Stored Sparks in the first playtest.** Provisional implemented values are:
+
+| Transaction | Common | Rare | Legendary |
+| --- | ---: | ---: | ---: |
+| Melt return | 10 | 20 | 40 |
+| Forge price | — | 30 | 60 |
+| Improve price | 15 × current rank | 25 × current rank | 40 × current rank |
+
+Body Spark, Pocket Sparks, Deep Vessel and Resonant Harvest can improve through rank 3; other pilot cards remain rank 1. Mount a Rare card to unlock the Legendary forge option. Both forge tiers preview their exact seeded result before spending, and share the one-Forge-per-Rest limit. Higher-tier prices and odds still need playtest tuning.
 
 ## Rest and archetypes
 
 Rest normally offers **one action per visit**: choose **Recover, Add slot or Forge**. Forge costs Stored Sparks as well as the action passed up; choosing it grants no additional healing, refill, growth or slot.
 
-A specific **Rare skill card unlocks Grow while mounted**; it does not grant growth automatically. Selecting Grow preserves the current benefit: **+3 maximum Sparks for the rest of the run and a full meter refill, with no heart restoration**. Preserve the existing limit of **three Grow actions per run, +9 maximum Sparks total**. Proposed default: the unlock card lasts for the run while mounted.
+**Growth Seed**, a Rare skill card, unlocks Grow while mounted; it does not grant growth automatically. Selecting Grow preserves the current benefit: **+3 maximum Sparks for the rest of the run and a full meter refill, with no heart restoration**. The existing limit is **three Grow actions per run, +9 maximum Sparks total**. The unlock lasts while mounted.
 
-A separate **Common consumable camp card** grants **one second, distinct eligible action at one Rest**. Spend its one charge only when the second action successfully commits. Visiting, declining, swapping or leaving after the first action does not spend it; if no second action is possible, preserve the charge. Do not repeat the same choice or Forge twice. Forge still deducts its quoted price once when committed. Grow remains the separate Rare unlock described above.
+**Second Ember**, a Common consumable camp card, grants **one second, distinct eligible action at one Rest**. Spend its one charge only when the second action successfully commits. Visiting, declining, swapping or leaving after the first action does not spend it; if no second action is possible, preserve the charge. Do not repeat the same choice or Forge twice. Forge still deducts its quoted price once when committed. Grow remains the separate Rare unlock described above.
 
-**Interpretation for review:** with both cards mounted, Grow may be either action in the pair, provided it remains eligible. Working proposal: check mounted camp-card eligibility on arrival at Rest, so same-visit re-equipping or consuming cards cannot create unlimited extra actions.
+With both cards mounted on arrival, Grow may be either action in the pair, provided it remains eligible. Camp-card eligibility is captured on arrival at Rest; the extra-action source must remain available for its charge to be spent. Same-visit changes cannot create unlimited extra actions.
 
-Separate pilot hypotheses: **five slots maximum, at most one addition per map**. Add slot restores neither hearts nor fuel. Show Recover/Grow refills clearly. At cap, retain useful choices or Continue without resetting the run. Test whether slots are worthwhile without becoming the guaranteed best camp choice. Slot caps, other tier prices, rank-improvement prices and drop odds remain open; the Common Melt and Rare forge pilot prices above are established.
+The pilot permits **five slots maximum, at most one addition per map**. Add slot restores neither hearts nor fuel. Recover/Grow refills are printed. At cap, useful choices or Continue remain available without resetting the run. Test whether slots are worthwhile without becoming the guaranteed best camp choice; the cap and prices remain provisional.
 
 Keep **Bankrunner** skimming and **Glider** coasting into a direct fuel Spark as archetype examples, each priming one free Lift. Candidate follow-ups reveal nearby space or accelerate a recovering Collector when that Lift is spent. Retain one stored free Lift, tentatively two priming triggers per flight, and preserve the opportunity while a free Lift is stored. Show each step clearly.
 
 ## Lift Guide
 
-**Lift Guide** is the working name for a **Common coaching card**. Loan it during the tutorial Lift lesson, then include it in the existing two-Common starter gift pool as an optional pick; it never forces the player's choice. **Pilot pool proposal:** keep it starter-only rather than in ordinary flight rewards, so those rewards stay varied.
+**Lift Guide** is a **Common coaching card**. It is loaned during card-mode First Light's Lift lesson, then included in the existing two-Common starter gift pool as an optional pick; it never forces the player's choice. It is starter-only rather than in ordinary flight rewards, so those rewards stay varied.
 
 One small **amber chevron beside the wisp** appears slightly before a brief tap window, giving the player a human reaction margin, then opens for that window. It disappears on Lift. Over a short visible horizon, compare coasting with affordable tap timings by **safe forward distance per Spark spent**, preferring coasting when tied. The cue responds to current speed, gravity, drafts and actual Lift cost, accounting for free Lifts without dividing by zero. Suppress it for a predicted ceiling strike, insufficient visibility or an uncertain hazard.
 
@@ -84,7 +96,7 @@ For example, coast over a bank crest; the marker opens on the descent before the
 
 **Rhythm is a Rare card.** Three successful manual Lifts with roughly equal gaps, at a tempo chosen by the player, release **exactly one terrain-revealing Luminance wave from the wisp**. Consume that trio: six evenly spaced Lifts release two waves, not four overlapping-trio waves. Rhythm is independent of music playback and Fourth Beat. Legitimate free manual Lifts count; failed cadence never penalizes an ordinary Lift. It uses the existing Lift input with no extra button.
 
-Rhythm uses the existing temporary Luminance wave system and supports the **three separate proposed pulse-on-map-Spark payout cards** below. Those cards also work with all existing temporary Luminance sources. Compatible payouts intentionally stack. These numbers are **first-playtest values only**:
+Rhythm uses the existing temporary Luminance wave system and supports the **three separate pulse-on-map-Spark payout cards** below. Those cards also work with all existing temporary Luminance sources. Compatible payouts intentionally stack. These numbers are **first-playtest values only**:
 
 | Card | Rarity | Payout |
 | --- | --- | --- |
@@ -96,8 +108,10 @@ A qualifying crossing is a wave crossing a **natural, uncollected fuel Spark on 
 
 For one payout card, a wave crossing three eligible Sparks with room in the meter gives **Common: +3 meter; Rare: +6 meter; Legendary: +6 meter and +1 Stored Spark**.
 
-## What the prototype should answer
+## What the pilot still needs to answer
 
 Compare with the skill book at **equal economy on the same seed**, across open-middle and riskier-bank routes. Require neither Proximity nor Dream or expensive granted skills. Prevent practice carryover, generated loops and Dream/retry farming.
 
 Use a small card pool. Record actual flights, card drops, equips, Melts, improvement and forge spending, reordering, direct versus Collector pickups, bank time, routes, survival and camp choices. Check that every playable route offers both optional Rest forks and that taking the first preserves access to the second. Ask why players changed flight line and whether they predicted combinations and charge costs. Do the choices add readable archetypes beyond the book, and can they fit comfortably on a phone?
+
+The current pool contains 16 printed cards, including the three Harvest rarities. Cache Handling and Flash Handling unlock the corresponding Collector pickup capability in card runs; ordinary flight pickups and their brief delivery/discard cues also remain visible in standard play. Bankrunner and Glider remain follow-ups. Local card history records transactions and outcomes in the pilot save; no remote telemetry is added. Automated flights and emulated phone layouts do not establish physical-phone performance, a human difficulty curve or an equal-economy comparison with the skill book.

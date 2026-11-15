@@ -49,14 +49,14 @@ test('bold concepts keep their final seam exact and leave the collision union in
  }
 });
 
-test('biome hues preserve the same Spirit Fire shape and flow',()=>{
+test('biome hues preserve the same world-attached Spirit Fire shape and grain',()=>{
  const options={x:0,y:40,xx:200,yy:40,inward:1,worldAx:80,worldAy:40,style:'spectral',line,time:3};
  const a=canvas(),b=canvas();paintContactEdge(a,{...options,palette:getContactEdgePalette('pinewood')});paintContactEdge(b,{...options,palette:getContactEdgePalette('frost')});
  const shape=calls=>calls.map(call=>call[0]==='pixel'?[call[0],...call.slice(2)]:[...call.slice(0,5),call.at(-1)]);
  assert.deepEqual(shape(a.calls),shape(b.calls));assert.notDeepEqual(a.calls,b.calls);
 });
 
-test('reduced motion freezes the flowing fringe and nearby crack pulse',()=>{
+test('reduced motion retains static Spirit Fire and freezes the nearby crack pulse',()=>{
  for(const style of ['spectral','fracture']){
   const options={x:0,y:40,xx:200,yy:40,inward:1,worldAx:80,worldAy:40,style,line,playerX:80,playerY:25,reducedMotion:true};
   const a=canvas(),b=canvas();paintContactEdge(a,{...options,time:0});paintContactEdge(b,{...options,time:10});

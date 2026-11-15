@@ -31,10 +31,10 @@ export const TUTORIAL_TOPICS={
   s('Choose your route again','With hearts left, return to the map. Retry the passage or choose another reachable path. Entry Sparks and your build return; failed-flight earnings do not.','route'),
   s('Recover or start again','Choose Recover at Rest to refill missing hearts. Skills can raise their maximum. At zero hearts the run ends; New Game begins a fresh build.','rest')]},
  collector:{name:'Collector',visual:'companion:collector',steps:[
-  s('Automatic helper','Collector is the green orb. It fetches helpful Sparks automatically. You do not press Power to send it.','companion:collector'),
+  s('Automatic helper','Collector is the green orb. Mint hooks mark a type it can fetch automatically. An ivory wisp mark means touch it yourself. No Power press is needed.','companion:collector'),
   s('You collect first','Touch a Spark with your main wisp for immediate Sparks. Collector waits for your body to have its chance, then rescues a missed Spark within its boundary.','collector-range'),
   s('Wait for delivery','The companion flies out, takes one Spark and brings it home. Sparks arrive only on return. Farther Sparks take longer: do not rely on an instant rescue when nearly empty.','collector-return'),
-  s('Watch the boundary','After delivery, the green boundary contracts and regrows over 10 seconds. A nearby Spark can still be fetched during recovery if it is inside the smaller boundary.','collector-recovery'),
+  s('Watch the boundary','After delivery, the green boundary contracts and regrows over 10 seconds. Recovery changes reach, not pickup handling. Mint hooks still mark fetchable types inside the boundary.','collector-recovery'),
   s('Read the Power indicator','For Collector, the filling button shows current range, not an ability to press. A full indicator means maximum reach. Red-ring Sparks are left for you to choose.','companion:collector'),
   s('Upgrade the right reach','The Collector chapter improves fetching range, delivery and recovery. Luminance has a separate chapter for how far you see.','luminance'),
   s('Last Orbit','Learn Last Orbit to catch a fatal impact when Collector is home and its green ring is full. After a rescue, collect Sparks yourself for four normal recovery cycles.','collector-recovery'),
@@ -42,7 +42,7 @@ export const TUTORIAL_TOPICS={
  companions:{name:'Companions',visual:'companion:collector',steps:[
   s('Your companion','The green Collector accompanies you throughout the run. The three other portraits in the roster are locked.','companion:collector'),
   s('Read the range','The green boundary marks the reach of the next fetch. When a delivery arrives, the boundary contracts and slowly grows back.','collector-recovery'),
-  s('Choose its loads','Collector starts with Sparks and Clusters. Cache Handling unlocks dense Caches. Each larger rescue shrinks to a 12-Spark Cluster; body pickups keep their full value. Flash has its own unlock.','collector-return'),
+  s('Choose its loads','Collector starts with Sparks and Clusters. Cache Handling unlocks Caches; Flash Handling unlocks white triangles. Ivory wisp marks become mint hooks when handling is learned. Caches arrive as 12-Spark Clusters.','collector-return'),
   s('Build your Collector','Open the Collector chapter in Skills to change its reach or recovery. Last Orbit lets a fully ready Collector catch a fatal impact.','collector-range')]},
  packed:{name:'Stored Sparks',visual:'clear-reward',steps:[
   s('A reward for every clear','Ordinary flights earn 15–25 Stored Sparks for run skills. Elite and guardian victories also offer two artifacts: choose one. The third guardian ends the run with victory.','clear-reward'),

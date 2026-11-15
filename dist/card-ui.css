@@ -1,0 +1,1130 @@
+/* A small hand of readable printed cards, fitted to the landscape playfield. */
+.card-camp-choice .card-camp-action-cost {
+  display: none;
+}
+@media (orientation: landscape) and (max-height: 300px) {
+  body .card-reward-screen {
+    gap: 4px;
+    padding-block: 3px;
+  }
+  .card-reward-screen .card-heading h1 {
+    font-size: 15px;
+  }
+  .card-reward-screen .card-heading small {
+    font-size: 8px;
+  }
+  .card-reward-screen .card-reward-choice {
+    gap: 5px !important;
+  }
+  .card-reward-screen .card-reward-choice > h2 {
+    display: none;
+  }
+  .card-reward-screen .card-replace-choice {
+    height: 40px;
+  }
+  .card-reward-screen .card-effect {
+    font-size: 10px;
+    line-height: 1.4;
+  }
+  .card-reward-screen .skill-card h3 {
+    font-size: 14px;
+  }
+  .card-rest-screen .card-camp-choice > .choice-scene {
+    height: 42px;
+    min-height: 35px;
+  }
+  .card-rest-screen .card-camp-choice p {
+    font-size: 9px;
+  }
+  .card-rest-screen .card-rest-rail > svg {
+    height: 32px;
+    width: 37px;
+  }
+}
+@media (orientation: landscape) {
+  body .card-reward-screen {
+    padding: 5px 18px;
+    gap: 7px;
+  }
+  .card-reward-screen .card-wallet {
+    display: none;
+  }
+  .card-reward-screen .card-heading h1 {
+    font-size: 17px;
+    margin: 2px 0;
+  }
+  .card-reward-screen .card-reward-choice {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 7px !important;
+  }
+  .card-reward-choice > h2,
+  .card-reward-choice > .card-replace-slots,
+  .card-reward-choice > .card-loss-preview,
+  .card-reward-choice > .card-footnote {
+    grid-column: 1/-1;
+  }
+  .card-reward-choice > .primary,
+  .card-reward-choice > .secondary {
+    min-height: 38px !important;
+    padding: 6px !important;
+    font-size: 10px !important;
+  }
+  .card-reward-choice .card-replace-choice {
+    flex-direction: row;
+    gap: 4px;
+    height: 47px;
+  }
+  .card-reward-choice .card-replace-choice > .skill-card-art {
+    width: 23px;
+    height: 23px;
+    flex-basis: 23px;
+  }
+  .card-reward-choice .card-replace-choice > span {
+    font-size: 8px;
+  }
+  .card-reward-new > .card-footnote {
+    display: none;
+  }
+  .card-reward-new > .skill-card {
+    padding: 9px;
+    gap: 6px;
+  }
+  .card-reward-new .card-face-top {
+    gap: 8px;
+  }
+  .card-reward-new .card-effect {
+    font-size: 11px;
+    line-height: 1.45;
+  }
+  .card-reward-new .card-lifetime {
+    margin-top: 0;
+  }
+}
+.card-pilot-entry {
+  position: fixed;
+  right: 70px;
+  top: 8px;
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.card-pilot-entry .card-pilot-link {
+  min-height: 28px;
+  font-size: 9px;
+  background: #10251df0;
+}
+.card-camp-finished {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 0;
+  gap: 8px;
+}
+.card-camp-finished .choice-scene {
+  width: 230px;
+  height: 110px;
+}
+.card-camp-finished h3 {
+  font: 18px var(--pixel);
+  color: #dce6c4;
+  margin: 0;
+}
+.card-camp-finished p {
+  font: 10px/1.5 var(--pixel);
+  color: #a9bea0;
+  margin: 0;
+}
+.card-forge-tiers {
+  display: flex;
+  gap: 6px;
+}
+.card-forge-tiers button {
+  font: 10px var(--pixel);
+  padding: 6px 9px !important;
+  min-height: 38px;
+}
+.card-forge-tiers .selected {
+  border-color: #e7cc8f !important;
+  background: #374b32 !important;
+}
+.card-heading {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  justify-content: space-between;
+  min-width: 0;
+}
+.card-heading > div:first-child {
+  min-width: 0;
+}
+.card-heading small {
+  font: 9px/1.4 var(--pixel);
+  letter-spacing: 0.7px;
+  color: #aebda1;
+}
+.card-heading h1,
+.card-heading h2 {
+  font: 22px/1.2 var(--pixel);
+  margin: 4px 0;
+  color: #eddfb4;
+}
+.card-heading h2 > span {
+  font-size: 12px;
+  color: #a8b99e;
+}
+.card-heading .secondary {
+  min-height: 40px;
+}
+.card-footnote {
+  font: 10px/1.45 var(--pixel);
+  color: #b1c0a7;
+  margin: 0;
+}
+.card-wallet,
+.card-bench-wallet {
+  display: flex;
+  gap: 5px;
+  align-items: center;
+  color: #ead09c;
+  font: 16px var(--pixel);
+  white-space: nowrap;
+}
+.card-wallet small,
+.card-bench-wallet small {
+  font: 9px/1.3 var(--pixel);
+  max-width: 64px;
+  white-space: normal;
+}
+.card-wallet svg,
+.card-bench-wallet svg {
+  width: 19px;
+  height: 19px;
+}
+.card-close {
+  font-size: 22px !important;
+  min-width: 42px;
+}
+.card-pilot-tag {
+  color: #d6c594 !important;
+  font-size: 10px !important;
+}
+.card-pilot-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 38px;
+  padding: 4px 10px;
+  color: #bac7ad;
+  font: 10px var(--pixel);
+  text-decoration: none;
+  border: 1px solid #6b7b5b;
+  background: #192d24;
+}
+.card-pilot-notice {
+  font: 10px/1.4 var(--pixel);
+  color: #d6c594;
+  margin: 0;
+  text-align: center;
+}
+.skill-card {
+  --card-ink: #c2c8b3;
+  min-width: 0;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+  border: 2px solid #748273;
+  border-color: var(--card-ink);
+  padding: 14px 12px 10px;
+  background: linear-gradient(155deg, #314436, #15271f 65%);
+  color: #e2e7cd;
+  box-shadow: 3px 3px #07150f;
+  box-sizing: border-box;
+  text-align: left;
+}
+.card-rare {
+  --card-ink: #94cb88;
+  background: linear-gradient(155deg, #344d34, #152b20 65%);
+}
+.card-legendary {
+  --card-ink: #c5a4dc;
+  background: linear-gradient(155deg, #49364c, #272133 65%);
+}
+.card-face-top {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  min-width: 0;
+}
+.skill-card-art {
+  width: 56px;
+  height: 56px;
+  flex: 0 0 56px;
+  color: var(--card-ink, #c8c8a7);
+  filter: drop-shadow(2px 3px 0 #08160e);
+  image-rendering: pixelated;
+}
+.card-rarity {
+  text-transform: uppercase;
+  font: 9px var(--pixel);
+  letter-spacing: 0.6px;
+  color: var(--card-ink);
+}
+.skill-card h3 {
+  font: 18px/1.16 var(--pixel);
+  margin: 5px 0;
+  color: #f2e7bc;
+  text-wrap: balance;
+}
+.card-rank {
+  font: 9px/1.3 var(--pixel);
+  color: #b4c1a7;
+}
+.card-effect {
+  font: 12px/1.5 var(--pixel);
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+.card-lifetime {
+  font: 9px/1.4 var(--pixel);
+  color: #b6c0a6;
+  margin-top: auto;
+  border-top: 1px solid #7a8a6955;
+  padding-top: 6px;
+}
+.card-compatibility {
+  font: 10px/1.45 var(--pixel);
+  color: #e2c693;
+  border-left: 2px solid #b9a267;
+  padding-left: 6px;
+}
+.card-slot-number {
+  position: absolute;
+  top: 5px;
+  right: 7px;
+  font: 10px var(--pixel);
+  color: #a9bba1;
+}
+.empty-card {
+  border: 1px dashed #718469;
+  background: #17291f66;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  color: #8fa486;
+}
+.empty-card h3 {
+  font-size: 13px;
+  color: #a5b797;
+}
+.empty-card p {
+  font: 9px/1.5 var(--pixel);
+  color: #94a78a;
+  margin: 0;
+}
+.card-empty-art {
+  font: 36px var(--pixel);
+  color: #71876a;
+}
+.card-pick {
+  padding: 0 !important;
+  background: none !important;
+  border: 0 !important;
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+  box-shadow: none !important;
+}
+.card-pick > .skill-card {
+  flex: 1;
+  width: 100%;
+}
+.card-pick:hover .skill-card,
+.card-pick:focus-visible .skill-card {
+  outline: 2px solid #f0d8a3;
+  outline-offset: 3px;
+}
+.card-pick-label {
+  display: block;
+  text-align: center;
+  width: 100%;
+  font: 12px/1.4 var(--pixel);
+  padding: 8px 0;
+  color: #f0deaa;
+  background: #344d34;
+  border: 1px solid #9da979;
+}
+dialog.card-sheet[open] {
+  width: min(900px, calc(100vw - 24px));
+  max-width: none;
+  height: calc(100dvh - 24px);
+  max-height: 480px;
+  padding: 16px !important;
+  box-sizing: border-box;
+  background: #13261efc;
+  border: 2px solid #80936d;
+  overflow: auto;
+}
+.card-starter,
+.card-bench,
+.card-exchange,
+.card-forge-preview {
+  height: 100%;
+  min-height: 0;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  gap: 12px;
+}
+.card-starter-pair {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 22px;
+  min-height: 0;
+  max-width: 680px;
+  width: 100%;
+  margin: auto;
+}
+.card-starter-pair .skill-card {
+  padding: 14px;
+}
+.card-starter > .card-footnote {
+  text-align: center;
+}
+.card-dialog-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+}
+.card-dialog-actions > button {
+  min-width: 130px;
+  min-height: 44px;
+  padding: 7px 12px !important;
+  font: 12px var(--pixel) !important;
+}
+.card-dialog-actions > button svg {
+  width: 14px;
+  height: 14px;
+}
+.card-reward-screen {
+  height: 100%;
+  min-height: 0;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  gap: 14px;
+  padding: 10px 20px;
+  box-sizing: border-box;
+}
+.card-reward-body {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.25fr);
+  gap: 28px;
+  min-height: 0;
+  align-items: center;
+  max-width: 850px;
+  width: 100%;
+  margin: auto;
+}
+.card-reward-new {
+  display: grid;
+  gap: 10px;
+  min-width: 0;
+}
+.card-reward-choice {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-width: 0;
+}
+.card-reward-choice > h2 {
+  font: 17px var(--pixel);
+  color: #d9d6ad;
+  margin: 0;
+}
+.card-reward-choice > .primary,
+.card-reward-choice > .secondary {
+  font: 12px/1.3 var(--pixel);
+  min-height: 44px;
+}
+.card-replace-slots {
+  display: flex;
+  gap: 7px;
+}
+.card-replace-choice {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-width: 0;
+  flex: 1;
+  padding: 8px 4px !important;
+  border: 1px solid #647c5d !important;
+  background: #1d3427 !important;
+  color: #dce4c5;
+  font: 9px/1.4 var(--pixel);
+}
+.card-replace-choice > .skill-card-art {
+  width: 32px;
+  height: 32px;
+  flex-basis: 32px;
+}
+.card-replace-choice > b {
+  font-weight: 400;
+  color: #97ac89;
+}
+.card-replace-choice.selected {
+  border: 2px solid #e6ca89 !important;
+  background: #354631 !important;
+}
+.card-loss-preview {
+  font: 10px/1.5 var(--pixel);
+  color: #d4b09a;
+  margin: 0;
+}
+.card-loss-preview > b {
+  color: #ead4a6;
+  font-weight: 400;
+}
+.card-bench-body {
+  min-height: 0;
+  display: grid;
+  grid-template-rows: minmax(0, 1fr) auto;
+  gap: 12px;
+}
+.card-slot-row {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 9px;
+  min-height: 0;
+  overflow-x: auto;
+  align-items: stretch;
+}
+.card-slot-row:has(> :nth-child(3):last-child) {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+.card-slot-row:has(> :nth-child(4):last-child) {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+.card-slot-pick {
+  padding: 0 !important;
+  background: none !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  text-align: left;
+  min-width: 0;
+}
+.card-slot-pick > .skill-card {
+  height: 100%;
+}
+.card-slot-pick.selected {
+  outline: 2px solid #edcf8d;
+  outline-offset: 3px;
+}
+.compact-card {
+  gap: 6px;
+  padding: 14px 8px 7px;
+}
+.compact-card .card-face-top {
+  gap: 7px;
+}
+.compact-card .skill-card-art {
+  width: 36px;
+  height: 36px;
+  flex-basis: 36px;
+}
+.compact-card h3 {
+  font-size: 13px;
+  margin: 4px 0;
+}
+.compact-card .card-effect {
+  font-size: 10px;
+  line-height: 1.4;
+}
+.compact-card .card-rarity,
+.compact-card .card-rank,
+.compact-card .card-lifetime {
+  font-size: 8px;
+}
+.compact-card .card-compatibility {
+  font-size: 9px;
+}
+.card-inspector {
+  min-width: 0;
+  display: grid;
+  grid-template-columns: 1fr 1.2fr;
+  gap: 6px 20px;
+  border-top: 1px solid #607656;
+  padding-top: 9px;
+}
+.card-inspector-copy h3 {
+  font: 14px var(--pixel);
+  color: #e6d6ab;
+  margin: 0 0 5px;
+}
+.card-inspector-copy p {
+  font: 10px/1.4 var(--pixel);
+  margin: 0 0 5px;
+  color: #c7d1b7;
+}
+.card-inspector-copy > span {
+  font: 10px/1.4 var(--pixel);
+  color: #d8c599;
+}
+.card-edit-actions {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 6px;
+}
+.card-edit-actions button {
+  min-height: 38px;
+  padding: 5px !important;
+  font: 10px/1.4 var(--pixel) !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+}
+.card-edit-actions button svg {
+  width: 12px;
+  height: 12px;
+}
+.card-inspector > .card-footnote {
+  grid-column: 2;
+}
+.card-empty-detail {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  grid-column: 1/-1;
+  color: #b5c4a5;
+}
+.card-empty-detail .skill-card-art {
+  width: 32px;
+  height: 32px;
+  flex-basis: 32px;
+}
+.card-empty-detail h3 {
+  font: 14px var(--pixel);
+}
+.card-empty-detail p {
+  font: 10px var(--pixel);
+}
+.card-order-preview {
+  grid-column: 1/-1;
+  background: #233c2b;
+  border: 1px solid #889b70;
+  padding: 9px;
+  display: grid;
+  gap: 6px;
+  font: 10px/1.4 var(--pixel);
+  color: #d3d9b8;
+}
+.card-order-preview > b {
+  font-weight: 400;
+  color: #edce95;
+}
+.card-order-preview p {
+  margin: 0;
+}
+.card-order-preview button {
+  min-height: 38px;
+  font: 11px var(--pixel);
+  justify-self: end;
+}
+.card-exchange-body {
+  min-height: 0;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 25px;
+  align-items: center;
+}
+.card-exchange-result {
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  text-align: center;
+  gap: 9px;
+  min-width: 0;
+  color: #c6d1b4;
+  font: 11px/1.5 var(--pixel);
+}
+.card-exchange-result > .choice-scene {
+  height: 100px;
+  width: 100%;
+  max-width: 230px;
+}
+.card-exchange-result > strong {
+  font: 20px/1.2 var(--pixel);
+  color: #e9d09c;
+}
+.card-exchange-result > b {
+  font: 16px var(--pixel);
+  color: #c9ddad;
+}
+.card-exchange-result p {
+  margin: 0;
+}
+.card-exchange-result small {
+  font: 10px var(--pixel);
+  color: #b5bea1;
+}
+.card-rest-screen {
+  height: 100%;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: minmax(130px, 0.65fr) minmax(0, 2.4fr);
+  gap: 18px;
+  padding: 7px 10px;
+  box-sizing: border-box;
+}
+.card-rest-rail {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  text-align: center;
+  min-width: 0;
+}
+.card-rest-rail > svg {
+  width: 66px;
+  height: 58px;
+}
+.card-rest-rail > small {
+  font: 9px var(--pixel);
+  color: #aabf99;
+}
+.card-rest-rail > h1 {
+  font: 21px/1.2 var(--pixel);
+  color: #e9dfb3;
+  margin: 0;
+}
+.card-rest-rail > p {
+  font: 10px/1.5 var(--pixel);
+  color: #b5c4a6;
+  margin: 0;
+}
+.card-rest-rail > button {
+  min-height: 40px;
+  font: 10px/1.4 var(--pixel);
+}
+.card-rest-vitals {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+}
+.card-rest-vitals > span {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font: 12px var(--pixel);
+  color: #c8d7b4;
+}
+.card-rest-vitals > span svg {
+  width: 14px;
+  height: 14px;
+}
+.card-camp-main {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  gap: 8px;
+  min-height: 0;
+}
+.card-camp-main h2 {
+  font-size: 18px;
+}
+.card-camp-choices {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  min-height: 0;
+  overflow-y: auto;
+}
+.card-camp-choices:has(> :nth-child(4)) {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+.card-camp-choice {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  text-align: center;
+  padding: 8px 6px !important;
+  border: 1px solid #819168 !important;
+  background: linear-gradient(#2f4531, #192d21) !important;
+  min-width: 0;
+  color: #dce3bf !important;
+}
+.card-camp-choice > .choice-scene {
+  height: 75px;
+  width: 100%;
+  min-height: 40px;
+}
+.card-camp-choice h3 {
+  font: 16px/1.2 var(--pixel);
+  color: #ecdbad;
+  margin: 0;
+}
+.card-camp-choice p {
+  font: 10px/1.5 var(--pixel);
+  margin: 0;
+  color: #c0ceb1;
+}
+.card-camp-choice.unavailable {
+  opacity: 0.55;
+}
+.card-camp-action-cost {
+  font: 9px/1.4 var(--pixel);
+  color: #ddc89a;
+  margin-top: auto;
+}
+.card-forge-name {
+  font: 10px/1.4 var(--pixel);
+  color: #b9d8a4;
+}
+.card-camp-receipt {
+  font: 10px var(--pixel);
+  color: #b1d298;
+}
+.card-camp-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+}
+.card-camp-footer p {
+  font: 9px/1.5 var(--pixel);
+  color: #aaba9b;
+  margin: 0;
+  max-width: 310px;
+}
+.card-camp-footer button {
+  font: 12px var(--pixel);
+  min-height: 42px;
+  white-space: nowrap;
+}
+.card-victory-recap {
+  height: 100%;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto auto;
+  gap: 12px;
+  padding: 12px;
+  box-sizing: border-box;
+}
+.card-winning-hand {
+  display: flex;
+  gap: 20px;
+  min-height: 0;
+  overflow: auto;
+}
+.card-winning-hand > div {
+  flex: 1;
+  min-width: 0;
+}
+.card-winning-hand > aside {
+  width: 180px;
+  flex: 0 0 180px;
+}
+.card-winning-hand h2 {
+  font: 13px var(--pixel);
+  color: #bfcaa8;
+  margin: 0 0 9px;
+}
+.card-winning-hand aside p {
+  font: 9px var(--pixel);
+  color: #b3bf9e;
+}
+.card-recap-row {
+  display: flex;
+  gap: 9px;
+  min-height: 0;
+}
+.card-recap-row > .skill-card {
+  flex: 1;
+  min-width: 100px;
+}
+.card-fuel-label {
+  color: #e4d5ac;
+}
+@media (orientation: landscape) and (max-height: 420px) {
+  dialog.card-sheet[open] {
+    padding: 11px !important;
+    height: calc(100dvh - 14px);
+  }
+  .card-heading h1,
+  .card-heading h2 {
+    font-size: 18px;
+  }
+  .card-starter,
+  .card-bench,
+  .card-exchange,
+  .card-forge-preview {
+    gap: 8px;
+  }
+  .card-starter-pair .skill-card {
+    padding: 10px;
+  }
+  .skill-card h3 {
+    font-size: 15px;
+  }
+  .skill-card .card-effect {
+    font-size: 10px;
+    line-height: 1.45;
+  }
+  .skill-card-art {
+    width: 40px;
+    height: 40px;
+    flex-basis: 40px;
+  }
+  .card-starter-pair {
+    gap: 16px;
+  }
+  .card-starter-pair .card-pick-label {
+    padding: 6px 0;
+    font-size: 11px;
+  }
+  .card-reward-screen {
+    padding: 5px 12px;
+    gap: 8px;
+  }
+  .card-reward-body {
+    gap: 20px;
+  }
+  .card-reward-choice {
+    gap: 9px;
+  }
+  .card-reward-choice h2 {
+    font-size: 14px;
+  }
+  .card-replace-choice {
+    font-size: 8px;
+    gap: 4px;
+    padding: 5px 3px !important;
+  }
+  .card-replace-choice .skill-card-art {
+    width: 24px;
+    height: 24px;
+    flex-basis: 24px;
+  }
+  .card-loss-preview {
+    font-size: 9px;
+    line-height: 1.4;
+  }
+  .card-reward-new {
+    gap: 6px;
+  }
+  .card-footnote {
+    font-size: 9px;
+  }
+  .card-bench-body {
+    gap: 8px;
+  }
+  .card-slot-row {
+    gap: 7px;
+  }
+  .compact-card {
+    padding: 12px 7px 6px;
+    gap: 4px;
+  }
+  .compact-card .card-face-top {
+    gap: 5px;
+  }
+  .compact-card .skill-card-art {
+    width: 26px;
+    height: 26px;
+    flex-basis: 26px;
+  }
+  .compact-card h3 {
+    font-size: 11px;
+  }
+  .compact-card .card-effect {
+    font-size: 9px;
+    line-height: 1.4;
+  }
+  .compact-card .card-lifetime {
+    font-size: 7px;
+    padding-top: 4px;
+  }
+  .compact-card .card-compatibility {
+    font-size: 8px;
+  }
+  .card-inspector-copy p {
+    display: none;
+  }
+  .card-inspector-copy h3 {
+    font-size: 12px;
+  }
+  .card-inspector-copy > span {
+    font-size: 9px;
+  }
+  .card-inspector {
+    padding-top: 7px;
+    gap: 5px 12px;
+  }
+  .card-edit-actions button {
+    min-height: 34px;
+    font-size: 9px !important;
+  }
+  .card-order-preview {
+    position: absolute;
+    bottom: 36px;
+    left: 15px;
+    right: 15px;
+    z-index: 3;
+    box-shadow: 0 0 0 4px #071b15;
+  }
+  .card-exchange-result > .choice-scene {
+    height: 75px;
+  }
+  .card-rest-screen {
+    gap: 12px;
+    padding: 4px;
+  }
+  .card-rest-rail {
+    gap: 7px;
+  }
+  .card-rest-rail > h1 {
+    font-size: 18px;
+  }
+  .card-rest-rail > svg {
+    width: 48px;
+    height: 42px;
+  }
+  .card-camp-main h2 {
+    font-size: 15px;
+  }
+  .card-camp-choice {
+    gap: 6px;
+  }
+  .card-camp-choice > .choice-scene {
+    height: 55px;
+  }
+  .card-camp-choice h3 {
+    font-size: 13px;
+  }
+  .card-camp-choice p {
+    font-size: 9px;
+    line-height: 1.4;
+  }
+  .card-camp-action-cost {
+    font-size: 8px;
+  }
+  .card-rest-rail > p {
+    font-size: 9px;
+  }
+  .card-dialog-actions button {
+    font-size: 11px !important;
+    min-height: 40px;
+  }
+  .card-victory-recap {
+    gap: 8px;
+    padding: 6px;
+  }
+  .card-winning-hand {
+    gap: 12px;
+  }
+  .card-winning-hand > aside {
+    width: 160px;
+    flex-basis: 160px;
+  }
+}
+@media (orientation: portrait) {
+  dialog.card-sheet[open] {
+    max-height: calc(100dvh - 20px);
+    height: auto;
+    min-height: 420px;
+  }
+  .card-starter-pair {
+    gap: 10px;
+  }
+  .card-starter-pair .skill-card {
+    padding: 10px;
+  }
+  .card-face-top {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .card-heading h2 {
+    font-size: 18px;
+  }
+  .skill-card .card-effect {
+    font-size: 10px;
+  }
+  .card-reward-screen {
+    height: auto;
+    min-height: 100%;
+    padding: 10px;
+  }
+  .card-reward-body {
+    grid-template-columns: 1fr;
+    gap: 15px;
+  }
+  .card-reward-new .card-face-top {
+    flex-direction: row;
+  }
+  .card-bench-body {
+    grid-template-rows: auto auto;
+  }
+  .card-slot-row {
+    grid-template-columns: repeat(3, minmax(110px, 1fr)) !important;
+  }
+  .card-inspector {
+    grid-template-columns: 1fr;
+  }
+  .card-inspector > .card-footnote {
+    grid-column: 1;
+  }
+  .card-exchange-body {
+    gap: 12px;
+  }
+  .card-exchange-result {
+    font-size: 10px;
+  }
+  .card-exchange-result > strong {
+    font-size: 16px;
+  }
+  .card-dialog-actions {
+    gap: 8px;
+  }
+  .card-dialog-actions > button {
+    min-width: 0;
+    flex: 1;
+    font-size: 10px !important;
+  }
+  .card-rest-screen {
+    height: auto;
+    grid-template-columns: 1fr;
+  }
+  .card-rest-rail > svg {
+    display: none;
+  }
+  .card-camp-choices {
+    min-height: 220px;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+  .card-camp-choice > .choice-scene {
+    height: 55px;
+  }
+  .card-victory-recap {
+    height: auto;
+    min-height: 100%;
+  }
+  .card-winning-hand {
+    flex-direction: column;
+  }
+  .card-winning-hand > aside {
+    width: 100%;
+    flex-basis: auto;
+  }
+  .card-recap-row {
+    overflow-x: auto;
+  }
+}

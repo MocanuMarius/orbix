@@ -1,6 +1,23 @@
+# Skills as cards pilot — 15 November 2026
+
+Current release: `skills-cards-1`.
+
+- [x] Publish an isolated skills-as-cards New Game flow at [`cards.html`](https://mocanumarius.github.io/orbix/cards.html), with a separate save, a cache-proof installed-phone update entry and offline support after download. Preserve the standard campaign and skill book.
+- [x] Start with three ordered slots and one of two Common gifts. Award one card per first real clear; preview Equip/replacement/Melt, checkpoint improvements, shared charges and immediate-right-neighbour copy compatibility. Preserve transactions across reload and retry.
+- [x] Offer two optional reachable Rest forks on every pilot map. Use Recover / Add slot / Forge, with mounted Growth Seed unlocking Grow and charged Second Ember enabling one second distinct eligible action. Preserve all costs and no-benefit cases.
+- [x] Integrate starter/tutorial Lift Guide, Rare Rhythm and the three Resonant Harvest rarities with real flight and Luminance. Keep Field Impulse uncopyable and borrowed/echoed payouts tied to their real source charges.
+- [x] Add Common Tight Packing to the 16-card pool: +25% to actual overflow/exit packing, integer quarter carry through saves, a named clear receipt and no multiplier on flat rewards or unrelated Stored Sparks grants.
+- [x] Show brief Collector delivery/discard handling cues in both modes. Supply a separate phone-sized [`collector-art.html`](https://mocanumarius.github.io/orbix/collector-art.html) comparison; keep its flatter candidate opt-in pending approval.
+- [x] Attach Spirit Fire rim grain and mineral details to world pixels, narrow the inward band and reduce light penetration through rock by one third. Preserve open-air light and dynamic physical shadows; provide a matched actual-renderer still comparison.
+- [ ] Gather human phone feedback and compare the pilot with the skill book at equal economy on matching seeds. Tune prices, drop odds, slot choices and the combined card/relic reward budget; evaluate the final-guardian trophy. Bankrunner and Glider remain future archetypes.
+
+Rules, provisional values and limitations are recorded in [the pilot notes](docs/skill-cards.md). Automated flight and emulated-phone evidence do not establish physical-device performance or human balance. The historical First Light verification below remains evidence for that preceding release.
+
+---
+
 # First Light, living terrain and visible triggers — 15 November 2026
 
-Current release: `first-light-2`.
+Historical release: `first-light-2`.
 
 - [x] Replace the old practice with six separate First Light stops: real flight and Collector pickups, a practice Proximity loan, close-flight charging and packing, Rest, a real Black Hole bypass and a forgiving Warden. Preserve the suspended campaign, unlimited entrance-state retries, saved continuation, skip/reset preferences and Field Guide replay.
 - [x] Show brief source-art cues for actual skill, artifact and companion triggers, including repeated and simultaneous effects. Keep passive bonuses quiet and clear old cues on pause/resume.
@@ -19,11 +36,11 @@ The full suite is not claimed green. Unchanged `d46f95f` has six failing seamles
 
 ## Run archetypes
 
-- [ ] NEXT — work through the remaining card hypotheses in the [skills-as-cards proposal](docs/skill-cards.md) one decision at a time, then design an isolated playtest after First Light. Four accepted decisions cover the shared-wallet Melt economy, equipment and upgrade timing, two optional Rest forks per map, and action-based camp choices. First-playtest prices are +10 Stored Sparks for one Common Melt and 30 Stored Sparks plus one camp action to forge one Rare. Keep the campaign and six-stop prologue unchanged. Cards remain design work.
+- [x] Implement the separate [skills-as-cards pilot](docs/skill-cards.md) with the shared-wallet Melt economy, checkpoint equipment/improvements, two optional Rest forks per map and action-based camp choices. First-playtest prices remain +10 Stored Sparks for one Common Melt and 30 Stored Sparks plus one camp action to forge one Rare. The standard campaign keeps its skill book; card-mode First Light adds a Lift Guide loan.
 
-Rest normally permits one action from Recover / Add slot / Forge. A mounted Rare skill card unlocks Grow as a choice: +3 maximum Sparks and a full meter refill, no heart restoration, up to three Grow actions (+9 maximum Sparks) per run. A separate consumable camp card grants a second distinct eligible action at one Rest. Proposed defaults preserve its one charge until a second action successfully commits and make the Rare unlock last for the run while mounted; using Grow in the pair when both cards are mounted is an interpretation for review. Forge charges its quoted price once and grants no additional healing, refill, growth or slot.
+Card Rest normally permits one action from Recover / Add slot / Forge. Mounted Rare Growth Seed unlocks Grow: +3 maximum Sparks and a full meter refill, no heart restoration, up to three Grow actions (+9 maximum Sparks) per run. Common Second Ember grants a second distinct eligible action at one Rest and preserves its one charge until that second action succeeds. Eligibility is captured on arrival; Grow may be either action when eligible. Forge charges its quoted price once and grants no additional healing, refill, growth or slot.
 
-Bankrunner's bank skimming and Glider's coasting remain archetype candidates, with their free-Lift follow-ups and limits retained as prototype ideas in the proposal. Compare cards with the skill book at equal economy on the same seed. Include open-middle and riskier-bank routes, player feedback, actual card supply and wallet spending. Review charge/copy safety, passive relic rewards and the final-guardian reward. Slot caps, other tier prices, rank-improvement prices, drop odds and the consumable card's rarity remain open.
+Bankrunner's bank skimming and Glider's coasting remain archetype candidates, with their free-Lift follow-ups and limits retained in the pilot notes. Compare cards with the skill book at equal economy on the same seed. Include open-middle and riskier-bank routes, player feedback, actual card supply and wallet spending. Continue evaluating charge/copy readability, passive relic rewards and the final-guardian trophy. The implemented five-slot cap, other-tier prices, rank-improvement prices and drop odds remain provisional balance values.
 
 Mega Crit's original GDC talk, [Slay the Spire: Metrics Driven Design and Balance](https://media.gdcvault.com/gdc2019/presentations/Giovannetti_Anthony_SlayTheSpire.pdf), informs this method. Use picks/skips as evidence and combine measured outcomes with player feedback.
 

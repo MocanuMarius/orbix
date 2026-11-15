@@ -1,16 +1,31 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {lightAttenuation} from '../dist/light-attenuation.mjs';
-import {solidRayIntervals,solidDistanceAt,materialLightDistance,materialLightAt,castTerrainLight,terrainLightStats,TERRAIN_LIGHT_LIMITS,releaseTerrainLight} from '../dist/terrain-light.mjs';
+import {solidRayIntervals,solidDistanceAt,materialLightDistance,materialLightAt,castTerrainLight,terrainLightStats,TERRAIN_LIGHT_LIMITS,SOLID_LIGHT_COST,releaseTerrainLight} from '../dist/terrain-light.mjs';
 
 const rectangle=(left,top,right,bottom)=>[[left,top],[right,top],[right,bottom],[left,bottom]];
-test('rendered Luminance spends one reach unit in air and three through real rock, including the air behind it',()=>{
+test('rendered Luminance spends one reach unit in air and 4.5 through real rock, including the air behind it',()=>{
  const rock=[rectangle(20,-50,40,50)],source={x:0,y:0},radius=145;
  for(const x of [0,19,20])assert.equal(materialLightAt(rock,source,{x,y:0},radius),lightAttenuation((x/radius)**2));
- assert.equal(materialLightAt(rock,source,{x:30,y:0},radius),lightAttenuation((50/radius)**2));
- assert.equal(materialLightAt(rock,source,{x:60,y:0},radius),lightAttenuation((100/radius)**2));
- assert.equal(materialLightDistance(20,20),60);
+ assert.equal(materialLightAt(rock,source,{x:30,y:0},radius),lightAttenuation((65/radius)**2));
+ assert.equal(materialLightAt(rock,source,{x:60,y:0},radius),lightAttenuation((130/radius)**2));
+ assert.equal(materialLightDistance(20,20),90);
  assert.equal(materialLightAt([],source,{x:60,y:0},radius),lightAttenuation((60/radius)**2));
+});
+test('rock penetration is one third shallower while open air keeps exactly the same falloff',()=>{
+ const rock=[rectangle(-200,-200,200,200)],source={x:0,y:0},radius=145;
+ assert.equal(SOLID_LIGHT_COST,4.5);
+ for(const oldDepth of [12,30,60]){
+  const oldLight=lightAttenuation((oldDepth*3/radius)**2),newDepth=oldDepth*2/3;
+  assert.equal(materialLightAt(rock,source,{x:newDepth,y:0},radius),oldLight);
+  assert.ok(materialLightAt(rock,source,{x:oldDepth,y:0},radius)<oldLight);
+ }
+ const bank=[rectangle(20,-50,40,50)];
+ for(const x of [30,60,90]){
+  const solid=Math.min(20,x-20),oldLight=lightAttenuation(((x+2*solid)/radius)**2);
+  assert.ok(materialLightAt(bank,source,{x,y:0},radius)<oldLight);
+ }
+ for(const x of [0,20,60,145,200])assert.equal(materialLightAt([],source,{x,y:0},radius),lightAttenuation((x/radius)**2));
 });
 test('overlapping terrain and authored props consume light once as one solid union',()=>{
  const spans=solidRayIntervals([rectangle(10,-10,30,10),rectangle(20,-10,45,10)],0,0,1,0,100);
@@ -41,6 +56,28 @@ test('moving terrain refreshes at bounded visual cadence while the untouched air
  const {engine,context}=fixture([{x:0,width:400,center:250,gap:0,motion:8,phase:0,bottomShape:rectangle(-100,0,1000,1000)}]);
  for(let i=0;i<60;i++){engine.time=i/60;castTerrainLight(context,{},engine,{x:100,y:200,radius:145});}
  assert.ok(terrainLightStats(engine).builds<=14);releaseTerrainLight(engine);
+});
+
+test('fixed source and rock produce identical masks across time, while source motion changes the bank shadow',()=>{
+ const obstacle={x:0,width:200,center:180,gap:0,motion:0,phase:0,bottomShape:rectangle(160,0,190,1000)};
+ const {engine,context,draws}=fixture([obstacle]);
+ const render=(x,y,time)=>{engine.time=time;castTerrainLight(context,{},engine,{x,y,radius:145});return Uint8ClampedArray.from(draws.at(-1)[0].pixels);};
+ const before=render(100,200,0);assert.deepEqual(render(100,200,20),before);
+ assert.equal(terrainLightStats(engine).builds,1);
+ const moved=render(100,140,20);assert.notDeepEqual(moved,before);
+ // The same world point behind the bank becomes more exposed from above it.
+ const bank=[rectangle(160,180,190,1180)],target={x:210,y:170};
+ assert.ok(materialLightAt(bank,{x:100,y:140},target,145)>materialLightAt(bank,{x:100,y:230},target,145));
+ assert.equal(terrainLightStats(engine).builds,2);releaseTerrainLight(engine);
+});
+
+test('true moving banks change the rendered shadow without changing collider geometry',()=>{
+ const shape=rectangle(-100,0,1000,1000),saved=structuredClone(shape),obstacle={x:0,width:400,center:250,gap:0,motion:40,phase:0,bottomShape:shape};
+ const {engine,context,draws}=fixture([obstacle]);
+ castTerrainLight(context,{},engine,{x:100,y:200,radius:145,time:0});const before=Uint8ClampedArray.from(draws.at(-1)[0].pixels);
+ castTerrainLight(context,{},engine,{x:100,y:200,radius:145,time:1.75});
+ assert.notDeepEqual(draws.at(-1)[0].pixels,before);assert.equal(terrainLightStats(engine).builds,2);
+ assert.deepEqual(shape,saved);releaseTerrainLight(engine);
 });
 
 test('remote moving geometry cannot invalidate a source mask it cannot reach',()=>{
