@@ -1,8 +1,8 @@
-import {bellwindAcceleration} from './atlas-flight.mjs?v=biome-spirit-1';
-import {DraftField,DRAFT_TUNING} from './drafts.mjs?v=biome-spirit-1';
-import {lightVisibility} from './light-field.mjs?v=biome-spirit-1';
-import {isFuelPickup,pickupContactRadius} from './pickups.mjs?v=biome-spirit-1';
-import {obstacleEdgeClearance} from './edging-pulse.mjs?v=biome-spirit-1';
+import {bellwindAcceleration} from './atlas-flight.mjs?v=first-light-1';
+import {DraftField,DRAFT_TUNING} from './drafts.mjs?v=first-light-1';
+import {lightVisibility} from './light-field.mjs?v=first-light-1';
+import {isFuelPickup,pickupContactRadius} from './pickups.mjs?v=first-light-1';
+import {obstacleEdgeClearance} from './edging-pulse.mjs?v=first-light-1';
 const clamp=(n,a,b)=>Math.max(a,Math.min(b,n)),DT=1/60;
 export const PROJECTION_HORIZONS=Object.freeze([0,.7,1.2,1.8]);
 
@@ -42,6 +42,7 @@ for(const t of [0,.2,.4,.6,.8,1]) {
 export class FlightProjection {
   constructor(tuning,hit){this.tuning=tuning;this.hit=hit;this.nextAt=-Infinity;this.result=null;}
   read(e){
+    if(e.fieldImpulse?.until>e.time){this.result=null;this.route=null;this.routeAt=0;return null;}
     const rank=clamp(Math.floor(e.mod.driftSense||0),0,3);
     if(!rank||!e.alive||e.dying||e.completing||e.finished||e.destroyed||e.tutorialAwaitingLift)return null;
     const beatCount=e.mod.fourthBeatRank ? e.fourthBeat.count : 0;
@@ -81,7 +82,11 @@ export class FlightProjection {
   }
   predict(e,rank=clamp(Math.floor(e.mod.driftSense||0),0,3),taps=[]){
     const horizon=PROJECTION_HORIZONS[rank],startX=e.distance+e.player.x,maxX=startX+e.baseSpeed*1.48*horizon+24;
-    const obstacles=e.layout.obstacles.filter(o=>!o.destroyed&&o.x+o.width*2.5>=startX-30&&o.x-o.width<=maxX+30);
+    let obstacles=e.layout.obstacles.filter(o=>!o.destroyed&&o.x+o.width*2.5>=startX-30&&o.x-o.width<=maxX+30);
+    // Every candidate follows its own local dent. Never mutate the live bank
+    // while evaluating a route or promise clearance from a frozen old dent.
+    const spacetime=e.spacetime?.fork(obstacles);
+    if(spacetime)obstacles=spacetime.obstacles;
     const field=Object.create(DraftField.prototype);
     field.zones=(e.drafts?.zones||[]).filter(z=>z.x+z.rx>=startX&&z.x-z.rx<=maxX+e.baseSpeed*1.48*DRAFT_TUNING.warning).map(z=>({...z}));
     const releasing=(e.fleet.find(c=>c.role==='leveler')?.remaining||0)>0;
@@ -111,6 +116,7 @@ export class FlightProjection {
       const terminal=this.tuning.terminalFall*clamp(Number(e.mod.terminalFall)||1,1,1.15);
       const downwardWind=gust.guardian&&gust.direction>0?65*gust.strength*(boost>0?.28:1):0;
       vy=clamp(vy+gravity*DT,-520*s,(terminal+downwardWind)*s);y+=vy*DT;
+      if(spacetime){spacetime.engine.distance=x-e.player.x;spacetime.engine.player.y=y;spacetime.field.update(DT,obstacles);}
       if(x>=interactiveEdge){uncertain=true;break;}
       if(collides(x,y,time)){
         let lo=0,hi=1;

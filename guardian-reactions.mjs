@@ -1,6 +1,6 @@
-import {GUARDIAN_RELICS} from './guardian-artifacts.mjs?v=biome-spirit-1';
-import {GLOW_DISPLAY_SCALE} from './vitality.mjs?v=biome-spirit-1';
-import {sparkMass} from './spark-size.mjs?v=biome-spirit-1';
+import {GUARDIAN_RELICS} from './guardian-artifacts.mjs?v=first-light-1';
+import {GLOW_DISPLAY_SCALE} from './vitality.mjs?v=first-light-1';
+import {sparkMass} from './spark-size.mjs?v=first-light-1';
 
 // All counters belong to one attempt. No reaction dispatches a second pickup.
 export class GuardianReactions {
@@ -14,9 +14,17 @@ export class GuardianReactions {
   proc(id,limit,action,interval=0){
     const e=this.engine;
     if(!this.held.has(id)||(this.uses[id]||0)>=limit||e.time-(this.last[id]??-Infinity)<interval)return 0;
+    const beforeFuel=e.flame,beforeLift=this.effects.storedLift,beforeSight=Math.max(e.pickupRevealHoldUntil||0,this.effects.sightUntil||0);
     const value=action();
     if(!value)return 0;
     this.uses[id]=(this.uses[id]||0)+1;this.last[id]=e.time;
+    const outcome={};
+    if(e.flame>beforeFuel)outcome.fuel=e.flame-beforeFuel;
+    if(!beforeLift&&this.effects.storedLift)outcome.lifts=1;
+    const sight=Math.max(e.pickupRevealHoldUntil||0,this.effects.sightUntil||0);
+    if(sight>beforeSight)outcome.reveal=Math.max(0,sight-e.time);
+    if(['restless-feather','ascent-chime'].includes(id)&&typeof value==='number')outcome.recovery=value;
+    this.effects.activate(id,outcome,{priority:id==='rescue-wick'?8:0});
     this.effects.notice(id);e.burst(e.player.x,e.player.y,4,'#e1bbef');
     return value;
   }
@@ -29,7 +37,7 @@ export class GuardianReactions {
     this.effects.storedLift=id;return true;
   }
   start(){
-    if(this.held.has('first-light-standard')){this.openingLifts=3;this.effects.notice('first-light-standard');}
+    if(this.held.has('first-light-standard')){this.openingLifts=3;this.effects.notice('first-light-standard');this.effects.activate('first-light-standard',{lifts:3});}
     for(const id of ['black-atlas','storm-keel','sunken-vault'])if(this.held.has(id))this.effects.notice(id,'passive');
   }
   lift(){

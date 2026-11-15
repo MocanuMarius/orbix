@@ -1,5 +1,6 @@
-import {drawAuthoredBackdrop,drawAuthoredPlant} from './authored-environment.mjs?v=biome-spirit-1';
-import {terrainBoundary,terrainSurfaceExposed} from './terrain-boundary.mjs?v=biome-spirit-1';
+import {drawAuthoredBackdrop,drawAuthoredPlant} from './authored-environment.mjs?v=first-light-1';
+import {terrainBoundary,terrainSurfaceExposed} from './terrain-boundary.mjs?v=first-light-1';
+import {spacetimeSurfaceOffsetAt} from './spacetime.mjs?v=first-light-1';
 // Decorative life is anchored to the actual landform. It never enters the
 // collider, pickup, reward or dynamic-hazard registries.
 const habitats = {
@@ -77,8 +78,14 @@ const noise = n => {
   return ((h^(h>>>16))>>>0)/4294967296;
 };
 function surfaceSites(shape) {
-  if(anchors.has(shape))return anchors.get(shape);
-  const points=shape.slice(2).reverse(),sites=[];
+  if(shape.spacetime){
+    const source=surfaceSites(shape.spacetime.base);
+    const bend=site=>({...site,y:site.y+spacetimeSurfaceOffsetAt(shape,site.x),slope:site.slope+(spacetimeSurfaceOffsetAt(shape,site.x+2)-spacetimeSurfaceOffsetAt(shape,site.x-2))/4});
+    return {sites:source.sites.map(bend),stones:source.stones.map(bend)};
+  }
+  let revision=0;for(const [x,y]of shape)revision=Math.imul(revision^Math.round(x*1024),31)^Math.round(y*1024);
+  const saved=anchors.get(shape);if(saved?.revision===revision)return saved;
+  const points=shape.slice(2).reverse(),sites=[],stones=[];
   const sample=x=>{
     for(let i=1;i<points.length;i++){
       const a=points[i-1],b=points[i];
@@ -109,7 +116,12 @@ function surfaceSites(shape) {
     }
     walked+=length;
   }
-  anchors.set(shape,{points,sites});return anchors.get(shape);
+  let index=0;
+  for(let x=points[0][0]+23;x<points.at(-1)[0]-8;x+=35+noise(index++*131+97)*38){
+    const root=sample(x),seed=Math.round(x)*61+index*179;
+    if(root&&Math.abs(root.slope)<.8)stones.push({x,y:root.y,slope:root.slope,seed});
+  }
+  anchors.set(shape,{points,sites,stones,revision});return anchors.get(shape);
 }
 function stroke(c,points,ink,width=1){
   c.beginPath();for(let i=0;i<points.length;i++){
@@ -180,7 +192,17 @@ export function drawTerrainEcology(c,e,{scale=1,distance=e.renderDistance??e.dis
     const center=o.center+Math.sin(time*.9+o.phase)*o.motion;
     for(const top of [true,false]){
       const shape=top?o.topShape:o.bottomShape;if(!shape)continue;
-      const {points,sites}=surfaceSites(shape),sign=top?-1:1,base=center+sign*o.gap/2;
+      const {sites,stones}=surfaceSites(shape),sign=top?-1:1,base=center+sign*o.gap/2;
+      if(!top)for(const site of stones){
+        const x=o.x+site.x-distance,y=base+site.y;if(x<-12||x>e.width+12||y<-8||y>e.height+8)continue;
+        if(!terrainSurfaceExposed(e,o,false,o.x+site.x,y,time,boundary))continue;
+        const r=2+noise(site.seed)*3.5,drop=site.slope*r;
+        c.globalAlpha=.82;c.fillStyle=h.shade;c.beginPath();c.moveTo(Math.round(x-r),Math.round(y-drop+1));
+        c.lineTo(Math.round(x-r*.65),Math.round(y-r*.55));c.lineTo(Math.round(x+r*.1),Math.round(y-r));
+        c.lineTo(Math.round(x+r*.85),Math.round(y-r*.35));c.lineTo(Math.round(x+r),Math.round(y+drop+1));c.closePath();c.fill();
+        if(noise(site.seed+5)>.5)stroke(c,[[x-r*.5,y-r*.55],[x+r*.1,y-r]],h.leaf,1);
+        c.globalAlpha=1;
+      }
       for(const site of sites){
         const x=o.x+site.x-distance,y=base+site.y;
         if(x< -40||x>e.width+40||y< -35||y>e.height+35)continue;

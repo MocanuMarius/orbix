@@ -1,12 +1,12 @@
-import {getCompanionAbility} from './companion-abilities.mjs?v=biome-spirit-1';
-import {lightVisibility} from './light-field.mjs?v=biome-spirit-1';
+import {getCompanionAbility} from './companion-abilities.mjs?v=first-light-1';
+import {lightVisibility} from './light-field.mjs?v=first-light-1';
 // Practice is an authored flight using the same controls, fuel and colliders.
 // This module contains guidance and lesson scenery; it never grants rewards.
 const clamp = (n, lo, hi) => Math.min(hi, Math.max(lo, n));
 const collects = engine => engine.hasCompanion?.('collector') ?? getCompanionAbility(engine.companionRole).collects;
 
 export function createTutorialState(node = {}) {
-  if (!['glide', 'wind', 'hazards'].includes(node.tutorialLesson)) return null;
+  if (!['glide', 'wind', 'hazards', 'proximity', 'black-hole', 'guardian'].includes(node.tutorialLesson)) return null;
   return { lesson: node.tutorialLesson, directPickups: 0, carrierDeliveries: 0,
     firstDirectAt: null, firstDeliveryAt: null, glideSeconds: 0,
     sawWind: false, sawWindWarning: false, windRevealed: false, finishedWind: false,
@@ -31,17 +31,18 @@ function landform(width, scale, ceiling, variant) {
 }
 
 export function buildTutorialLayout({ lesson, duration, height, speed = 154 }) {
+  if (lesson === 'proximity') return buildProximityLesson({duration,height,speed});
   const scale = height / 620, obstacles = [], embers = [];
   const lastSolid = duration * speed - speed * 2.8;
   for (let x = 390, index = 0; x + 170 * 2.45 + 35 < lastSolid; x += 300, index++) {
     const width = 170, firstShelf = lesson === 'glide' && index === 0;
-    const gap = height * (firstShelf ? .36 : lesson === 'wind' ? .64 : .58);
+    const gap = height * (firstShelf ? .58 : lesson === 'black-hole' ? .74 : lesson === 'wind' ? .64 : .66);
     obstacles.push({ id: `practice-${index}`, x, width,
       center: height * (.5 + Math.sin(index * 1.2) * .022), gap,
       phase: 0, motion: 0, pattern: 'practice-terraces', variation: index % 4,
       landmark: lesson === 'wind' ? 'wind-saddle' : 'moon-terrace',
       soft: false, destroyed: false, hit: false, passed: false,
-      topShape: !firstShelf && index % 3 === 2 ? landform(width, scale, true, index) : null,
+      topShape: lesson !== 'black-hole' && !firstShelf && index % 3 === 2 ? landform(width, scale, true, index) : null,
       bottomShape: landform(width, scale, false, index) });
   }
   const add = (x, y, feature) => {
@@ -53,12 +54,14 @@ export function buildTutorialLayout({ lesson, duration, height, speed = 154 }) {
   if (lesson === 'glide') {
     // One initial Lift followed by a glide naturally approaches this low shelf.
     // The companion waits, so the first refill is visibly the player's action.
-    add(370, .675, 'practice-direct');
-    add(680, .53, 'practice-carrier');
+    add(345, .57, 'practice-direct');
+    add(640, .64, 'practice-carrier');
     add(1110, .61, 'practice-refill');
     add(1550, .52, 'practice-refill');
     add(2010, .60, 'practice-refill');
     add(2470, .51, 'practice-refill');
+  } else if(lesson==='black-hole'){
+    for(let x=350;x<duration*speed-speed*3.2;x+=330)add(x,.69,'practice-bypass');
   } else {
     add(440, .54, 'practice-wind');
     add(870, .58, 'practice-wind');
@@ -80,6 +83,58 @@ export function buildTutorialLayout({ lesson, duration, height, speed = 154 }) {
     add(x,index%2?.55:.50,'practice-refill');
   embers.sort((a, b) => a.x - b.x);
   return { obstacles, embers };
+}
+
+function buildProximityLesson({duration,height,speed}){
+ const scale=height/620,width=(duration*speed-1050)/3.25,x=440+width*.8;
+ const floor=[[-.8,40],[-.1,25],[.5,5],[1.1,-5],[1.7,15],[2.45,30]].map(([px,py])=>[px*width,py*scale]);
+ const obstacle={id:'practice-bend',x,width,center:height*.5,gap:height*.32,phase:0,motion:0,
+  pattern:'practice-terraces',variation:0,landmark:'moon-terrace',soft:false,destroyed:false,hit:false,passed:false,
+  topShape:null,bottomShape:[[-width*.8,1000*scale],[width*2.45,1000*scale],...floor.toReversed()]};
+ const floorAt=worldX=>{const local=worldX-x;for(let i=1;i<floor.length;i++){const a=floor[i-1],b=floor[i];if(local<=b[0])return height*.66+a[1]+(b[1]-a[1])*(local-a[0])/(b[0]-a[0]);}return height*.66+30*scale;};
+ const embers=[];
+ for(let px=340;px<duration*speed-speed*3.2;px+=260)embers.push({id:`practice-bend-spark-${embers.length}`,kind:'cluster',
+  x:px,y:Math.min(height*.66,floorAt(Math.max(440,px))-height*.065),value:2,fuel:true,feature:'practice-bend',
+  collected:false,attracted:false,phase:embers.length*1.6,tutorialSpark:true});
+ return {obstacles:[obstacle],embers};
+}
+
+// The guardian keeps its actual hands, phases, warning and collision geometry.
+// Broad openings and slow sway make this a first encounter rather than a trial.
+export function tuneTutorialGuardian(layout,height){
+ for(const obstacle of layout.obstacles){obstacle.gap=Math.max(obstacle.gap,height*.64);obstacle.motion*=.35;}
+ for(const spark of layout.embers){const obstacle=layout.obstacles.find(o=>o.id===spark.anchor);if(obstacle){spark.y=obstacle.center;spark.pocket=false;}spark.kind='cluster';spark.value=2;}
+ for(const obstacle of layout.obstacles){
+  const x=obstacle.x+obstacle.width*.51;
+  if(layout.embers.some(p=>Math.abs(p.x-x)<220))continue;
+  layout.embers.push({id:`practice-guardian-spark-${obstacle.id}`,kind:'cluster',x,y:obstacle.center,value:2,fuel:true,
+   feature:'practice-guardian-refill',collected:false,attracted:false,phase:obstacle.id*.7,tutorialSpark:true});
+ }
+ layout.embers.sort((a,b)=>a.x-b.x);
+ return layout;
+}
+export function configureTutorialScene(engine){
+ const lesson=engine.tutorial?.lesson;if(!['glide','proximity','black-hole','guardian'].includes(lesson))return;
+ engine.drafts.zones=[];engine.biomeDynamics.items=[];engine.blackHoles.items=[];
+ if(lesson!=='black-hole')return;
+ const y=engine.height*.24,bypassY=engine.height*.72,x=1380;
+ engine.mod.lightRadius=Math.max(360,engine.mod.lightRadius||0);
+ engine.blackHoles.items=[{id:'practice-black-hole',x,y,coreRadius:16,influence:220,seed:17,placement:'practice',
+  bypass:{startX:x-270,endX:x+270,y:bypassY},rate:0,potentialRate:0,frameDrained:0,drained:0,lastDrainAt:-Infinity,
+  drainSequence:0,sourceX:null,sourceY:null}];
+}
+
+export function demonstratedTutorialTopics(engine){
+ const state=engine?.tutorial;if(!state)return [];
+ const topics=[];
+ if(engine.flaps>0&&state.directPickups>0)topics.push('lift');
+ if(state.shownHints?.includes('luminance'))topics.push('luminance');
+ if(state.carrierDeliveries>0)topics.push('collector');
+ if(state.carrierDeliveries>0&&state.sawCooldown)topics.push('collector-recovery');
+ if((engine.edgingPulse?.triggerCount||0)>0)topics.push('edging');
+ if((engine.condensedGlow||0)>0)topics.push('packed');
+ if((engine.blackHoles?.drained||0)>0)topics.push('black-hole');
+ return topics;
 }
 
 export function recordTutorialPickup(engine, ember) {
@@ -137,8 +192,8 @@ export function getTutorialHint(engine) {
   const hint=(id,title,text,step)=>({id,title,text,step,total:4,waitingForLift:Boolean(engine.tutorialAwaitingLift),
     worldFocus:getTutorialWorldFocus(engine),observed:{directPickups:state.directPickups,carrierDeliveries:state.carrierDeliveries,
       carrierRest:state.sawCooldown,tool:state.toolObserved,draft:state.finishedWind,darkAvoided:state.darkAvoided,darkCleared:state.darkCleared}});
-  if(engine.tutorialAwaitingLift)return hint('launch','Tap Lift to begin','LIFT spends Sparks. Avoid solid scenery and keep part of your wisp on screen.',1);
-  if(engine.dying)return hint('last-spark','The light scatters','Hitting solid scenery or fully leaving the screen ends an unprotected attempt.',2);
+  if(engine.tutorialAwaitingLift)return hint('launch','Tap Lift to begin',state.lesson==='glide'?'Tap Lift or the scene to rise; release to glide. MENU pauses.':state.lesson==='proximity'?'Follow the Sparks near the floor. Keep a little space from solid rock.':state.lesson==='black-hole'?'The dark core ahead drains Sparks. Follow the lower, wider route.':'Watch the Warden’s warning, then fly through the wide opening.',1);
+  if(engine.dying)return hint('last-spark','The light scatters','Try again from this entrance. Practice retries are unlimited; your entrance fuel and build return.',2);
   if(engine.flame<engine.flapCost*2)return hint('low-glow','Find a Spark','Without enough Sparks you cannot Lift, but you can still collect fuel while falling. Collector keeps searching.',2);
   const exit=engine.getExitLandmark?.();
   if(exit&&exit.x<engine.width-18)return hint('exit','Reach the refuge light','Fly to the waylight while keeping enough Sparks for your last Lift.',4);
@@ -151,8 +206,22 @@ export function getTutorialHint(engine) {
       ?'The packet pays when Collector returns. Its boundary then shrinks and grows back.'
       :'Your body gets first chance. A missed packet touching the boundary reacts. Collector fetches after your body has had its chance.',3);
     if(collector&&engine.wisp.phase==='cooldown')return hint('rest','Collector is recovering','Its boundary grows back. Missed packets inside the smaller range can still be rescued.',3);
+    if(engine.time>12&&engine.time<16)return hint('luminance','Your reach is Luminance','Your light reveals nearby terrain. Collector’s green boundary shows its separate fetching range.',4);
     return hint('glide-ready','Small Lifts, long glides','Time your last Lift so gravity carries you into the next Spark. Direct pickups refill your meter immediately.',4);
   }
+  if(state.lesson==='proximity'){
+    if(engine.edgingPulse?.state?.active)return hint('pulse','Surface Pulse · revealed','Your real Proximity charge lit the passage. Keep clear of the solid edge.',3);
+    if(engine.edgingPulse?.state?.charge>.02)return hint('charging','Close flight is charging','Keep a little space from the rock. Two seconds near solid terrain earns a revealing pulse.',2);
+    if((engine.condensedGlow||0)>0)return hint('packed','Surplus packs automatically','The upper-left Stored Sparks counter holds surplus from a full meter. Clear to keep it in practice.',4);
+    return hint('bend','Follow the bend','The Sparks trace a safe line near solid rock. Open sky does not charge Proximity.',2);
+  }
+  if(state.lesson==='black-hole'){
+    const hole=engine.blackHoles?.items?.[0],x=hole?hole.x-engine.distance:Infinity;
+    if((engine.blackHoles?.rate||0)>0)return hint('drain','The core is draining Sparks','Move farther from the dark core. Follow the lower Sparks to reduce the drain.',3);
+    if(x>engine.player.x-60)return hint('bypass','Give the dark core space','Stay on the lower Spark route. Distance keeps the drain small; the core is not a pickup.',2);
+    return hint('clear-core','The wide route is safer','Collect the recovery Sparks beyond the core, then reach the waylight.',4);
+  }
+  if(state.lesson==='guardian')return hint('guardian','Read the Warden’s hands',engine.getBossState?.()?.warning||'Stone hands mark the solid edges. Use small Lifts through each broad opening; the quiet rooms give you time.',2);
   const gust=engine.gustState();
   const dark=engine.layout.embers.find(packet=>packet.tutorialDark),darkX=dark?dark.x-engine.distance:Infinity;
   if(dark&&!dark.collected&&darkX>engine.player.x-18&&darkX<engine.width-18)return hint('dark-packet','Avoid the dark seed',

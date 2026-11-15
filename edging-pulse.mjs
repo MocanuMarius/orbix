@@ -1,6 +1,6 @@
 // Risk-earned sight, plus bounded fuel recovery with Regenerative Pulse.
 // Neither outcome is a pickup or invokes artifact hooks.
-import { GLOW_DISPLAY_SCALE } from './vitality.mjs?v=biome-spirit-1';
+import { GLOW_DISPLAY_SCALE } from './vitality.mjs?v=first-light-1';
 const clamp = (n, lo, hi) => Math.min(hi, Math.max(lo, n));
 const smooth = n => n * n * (3 - 2 * n);
 const EPSILON = 1e-9;
@@ -145,7 +145,8 @@ export class EdgingPulse {
     }
     if (!this.protected && this.charge >= 1 - EPSILON) {
       this.charge = 0; this.nearEdge = false; this.graceRemaining = 0; this.triggerCount++;
-      if(e.mod?.proximityShield&&(e.proximityShieldGrants||0)<2&&!(e.proximityShieldRemaining>0)){e.proximityShieldRemaining=8;e.proximityShieldGrants=(e.proximityShieldGrants||0)+1;e.burst?.(e.player.x,e.player.y,12,'#bcecff');}
+      if(e.mod?.proximityShield&&(e.proximityShieldGrants||0)<2&&!(e.proximityShieldRemaining>0)){e.proximityShieldRemaining=8;e.proximityShieldGrants=(e.proximityShieldGrants||0)+1;e.burst?.(e.player.x,e.player.y,12,'#bcecff');e.activation?.('proximity-light-shield',{outcome:{shield:true}});}
+      this.regenGain=0;
       if (this.regenerative&&!this.exhausted) {
         // This is recovery, not a collectible. Only the missing fuel is added;
         // it cannot overflow, create Stored Sparks, or proc pickup artifacts.
@@ -162,6 +163,8 @@ export class EdgingPulse {
         e.setEvent?.(`Regenerative Pulse · ${result}${this.exhausted ? ' · recovery spent for this flight' : ''}`);
       }
       this.duration = number(e.mod?.edgingDuration, EDGING_PULSE_TUNING.duration, 1, 12);
+      e.activation?.(this.regenerative?'main-edging-regeneration':'proximity-awakening',
+        {outcome:{reveal:this.duration,...(this.regenerative&&(!this.exhausted||this.regenGain>0)?{fuel:this.regenGain}: {})}});
       this.remaining = this.duration;this.burstOrigin.x=e.distance+e.player.x;this.burstOrigin.y=e.player.y;
       e.radiateLight?.({id:'proximity',follow:'wisp',duration:this.duration,
         radius:Math.hypot(e.width,e.height),color:'#bce9ff'});

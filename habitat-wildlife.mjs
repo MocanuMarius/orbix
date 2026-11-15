@@ -25,6 +25,38 @@ export function prepareWildlife(document){
 // animal is attached to an authored ledge; no walking across gaps or spawning
 // new objects during flight. A visible tile carries at most two animals.
 export function drawHabitatAnimal(c,site,{x,y,time=0,reducedMotion=false,alpha=1}){
+ if(['frog','hare','lizard','moth'].includes(site.kind)){
+  const phase=time+(site.phase||0),breathe=reducedMotion?0:Math.sin(phase*1.7)>.7?1:0;
+  c.save();c.globalAlpha*=alpha;const baseAlpha=c.globalAlpha;c.translate(Math.round(x),Math.round(y));c.scale(site.facing||1,1);
+  const box=(xx,yy,w,h,ink)=>{c.fillStyle=ink;c.fillRect(xx,yy,w,h);};
+  if(site.kind==='frog'){
+   // The frog stays on its damp ledge. Ripples are drawn in its shallow pool,
+   // not simulated as actors or added to the course's water/collision model.
+   c.strokeStyle='#788f7c';c.lineWidth=1;
+   const cycle=phase%23,slip=reducedMotion?0:cycle<15?0:cycle<16.2?(cycle-15)/1.2:cycle<18.5?1:cycle<19.7?1-(cycle-18.5)/1.2:0;
+   const ripple=reducedMotion?0:Math.max(0,Math.min(1,(cycle-15.6)/4));
+   c.globalAlpha=baseAlpha*(cycle>15.6&&cycle<19.6&&!reducedMotion?.45*(1-ripple):0);
+   c.beginPath();c.ellipse(9,3,5+ripple*15,1+ripple*2,0,0,Math.PI*2);c.stroke();c.globalAlpha=baseAlpha*(1-slip);
+   c.translate(Math.round(slip*9),Math.round(slip*4));
+   box(-6,-5-breathe,11,5+breathe,'#617955');box(-3,-7-breathe,7,3,'#81916a');box(-7,-2,5,3,'#435c46');box(2,-2,6,3,'#435c46');
+   box(2,-8-breathe,3,3,'#87986c');box(4,-7-breathe,1,1,'#243a35');
+  }else if(site.kind==='hare'){
+   const cycle=phase%29,travel=reducedMotion?0:cycle<18?0:cycle<21?(cycle-18)/3:cycle<24?1:cycle<27?1-(cycle-24)/3:0;
+   const moving=!reducedMotion&&(cycle>18&&cycle<21||cycle>24&&cycle<27);
+   c.translate(Math.round(travel*25),Math.round(travel*(site.travelRise||0))+(moving?-Math.round(Math.abs(Math.sin(phase*7))*2):0));
+   box(-9,-8-breathe,14,7+breathe,'#acbdbe');box(-6,-11-breathe,9,4,'#bfcac6');box(3,-12,7,8,'#c4cfca');
+   box(4,-23,2,12,'#c0cecc');box(8,-21,2,10,'#b2c4c5');box(5,-21,1,8,'#819a9f');box(9,-19,1,7,'#819a9f');
+   box(-8,-2,8,3,'#91a9ae');box(2,-2,8,2,'#9db4b7');box(-11,-7,3,4,'#cad2c9');box(8,-10,1,1,'#364952');
+  }else if(site.kind==='lizard'){
+   const tail=reducedMotion?0:Math.round(Math.sin(phase*.9));
+   box(-7,-4,14,3,'#8b7967');box(4,-6,7,4,'#a08b6e');box(-9,-3,4,2,'#76675e');box(-13,-2+tail,5,1,'#76675e');box(-17,-1+tail,5,1,'#76675e');
+   box(-5,-1,2,3,'#8d7a65');box(-7,1,3,1,'#8d7a65');box(4,-1,2,3,'#8d7a65');box(5,1,3,1,'#8d7a65');box(9,-5,1,1,'#302e36');box(-5,-4,10,1,'#b29a77');
+  }else{
+   const flap=reducedMotion?2:1+Math.round(Math.abs(Math.sin(phase*5))*3);
+   box(-4,-18-flap,3,flap,'#ad9eb7');box(1,-18-flap,3,flap,'#c1b2c9');box(-1,-19,2,4,'#6c627e');
+  }
+  c.restore();return;
+ }
  if(site.kind==='fish'){
   const phase=time+(site.phase||0),dx=reducedMotion?0:Math.sin(phase*.5)*13,dy=reducedMotion?0:Math.sin(phase*.9)*4;
   c.save();c.globalAlpha*=alpha;c.translate(Math.round(x+dx),Math.round(y-24+dy));c.scale(site.facing||1,1);
@@ -36,6 +68,11 @@ export function drawHabitatAnimal(c,site,{x,y,time=0,reducedMotion=false,alpha=1
  if(!image||!spec)return;
  const [,fw,fh,count,fps,height]=spec,phase=time+(site.phase||0),flying=['raven','butterfly'].includes(site.kind);
  let frame=reducedMotion?0:Math.floor(phase*fps)%count,dx=0,dy=0;
+ let cover=0;
+ if(site.kind==='rabbit'&&!reducedMotion){
+  // A brief retreat into the authored root shelter, followed by a quiet peek.
+  const cycle=phase%25;cover=cycle<17?0:cycle<18?cycle-17:cycle<20?1:cycle<21?21-cycle:0;dx=cover*14;dy=cover*3;
+ }
  if(flying){
   const wing=site.kind==='raven';
   // Raven rests on the same perch most of the time, then flutters just above
@@ -46,6 +83,6 @@ export function drawHabitatAnimal(c,site,{x,y,time=0,reducedMotion=false,alpha=1
  }
  const cols=Math.floor(image.width/fw),sx=frame%cols*fw,sy=Math.floor(frame/cols)*fh;
  const w=fw*height/fh;
- c.save();c.globalAlpha*=alpha;c.imageSmoothingEnabled=false;c.translate(Math.round(x+dx),Math.round(y+dy));
+ c.save();c.globalAlpha*=alpha*(1-cover);c.imageSmoothingEnabled=false;c.translate(Math.round(x+dx),Math.round(y+dy));
  c.scale(site.facing||1,1);c.drawImage(image,sx,sy,fw,fh,Math.round(-w/2),-height+2,Math.round(w),height);c.restore();
 }

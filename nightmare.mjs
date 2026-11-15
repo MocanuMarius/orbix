@@ -1,3 +1,23 @@
+export function createNightmareGhost(scene){
+ const ghost=Object.create(scene);ghost.player={...scene.player};ghost.dyingDuration=.38;
+ if(scene.spacetime){
+  const bent=scene.spacetime.fork(scene.layout.obstacles);
+  ghost.layout={...scene.layout,obstacles:bent.obstacles};ghost.spacetime=bent.field;
+  ghost.spacetimePreviewAt=scene.time;
+ }
+ return ghost;
+}
+export function advanceNightmareSpacetime(ghost,points,time){
+ if(!Object.hasOwn(ghost,'spacetime')||!ghost.spacetime)return;
+ const field=ghost.spacetime,engine=field.engine,end=Math.min(time,points.at(-1).time);
+ while(ghost.spacetimePreviewAt<end-1e-7){
+  const dt=Math.min(1/60,end-ghost.spacetimePreviewAt),at=ghost.spacetimePreviewAt+dt;
+  const index=points.findIndex(p=>p.time>=at),b=index<0?points.at(-1):points[index],a=points[Math.max(0,index-1)];
+  const blend=b.time>a.time?(at-a.time)/(b.time-a.time):0;
+  engine.distance=a.x+(b.x-a.x)*blend-engine.player.x;engine.player.y=a.y+(b.y-a.y)*blend;
+  field.update(dt,engine.layout.obstacles);ghost.spacetimePreviewAt=at;
+ }
+}
 export function showNightmare(scene,path,onWake){
  const dialog=document.createElement('dialog');
  dialog.className='nightmare-vision';
@@ -10,7 +30,7 @@ export function showNightmare(scene,path,onWake){
  dialog.addEventListener('cancel',event=>event.preventDefault());
  dialog.showModal();
  const lids=dialog.querySelectorAll('i'),button=dialog.querySelector('button');
- const ghost=Object.create(scene);ghost.player={...scene.player};ghost.dyingDuration=.38;
+ const ghost=createNightmareGhost(scene);
  const points=path.points,first=points[0],last=points.at(-1);
  let age=0,previous=performance.now();
  function draw(now){
@@ -22,6 +42,7 @@ export function showNightmare(scene,path,onWake){
   const blend=b.time>a.time?(t-a.time)/(b.time-a.time):0;
   ghost.distance=ghost.previousDistance=a.x+(b.x-a.x)*blend-scene.player.x;
   ghost.player.y=ghost.previousPlayerY=a.y+(b.y-a.y)*blend;
+  advanceNightmareSpacetime(ghost,points,t);
   ghost.time=t;ghost.dying=t>=last.time;ghost.dyingAge=Math.max(0,t-last.time);ghost.deathCause='collision';
   const blink=age-(last.time-first.time+.38)*4;
   if(blink<.42)ghost.render();else scene.render();

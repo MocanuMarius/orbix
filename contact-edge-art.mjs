@@ -10,6 +10,15 @@ const fallbackLine=(c,x,y,xx,yy,color,size)=>{c.beginPath();c.moveTo(x,y);c.line
 /** A purely visual contact rim. Coordinates describe the actual collider boundary. */
 export function paintContactEdge(c,{x,y,xx,yy,inward=1,worldAx=0,worldAy=0,scale=1,playerX=-10000,playerY=-10000,time=0,style,line,reducedMotion=false,palette}={}) {
   if(!STYLES.has(style))return;
+  // The common terrain rim has a vertical inward normal and is already clipped
+  // by drawTerrainBoundary. Preserve its exact pixel order, alpha and animation
+  // without per-segment closures, normal objects or unused proximity work.
+  if(style==='spectral'&&typeof inward==='number'&&inward!==0){
+    const w=c.canvas?.width??Infinity,h=c.canvas?.height??Infinity;
+    if(Math.min(x,xx)>=-32&&Math.max(x,xx)<=w+32&&Math.min(y,yy)>=-32&&Math.max(y,yy)<=h+32){
+      paintSpectralTerrain(c,{x:Math.round(x),y:Math.round(y),xx:Math.round(xx),yy:Math.round(yy),originalX:x,originalY:y,worldAx,worldAy,scale,ny:inward<0?-1:1,time:reducedMotion?0:time,palette,line});return;
+    }
+  }
   const originalX=x,originalY=y,dx=xx-x,dy=yy-y;
   const width=c.canvas?.width??Math.max(x,xx)+4,height=c.canvas?.height??Math.max(y,yy)+4;
   // Liang–Barsky bounds first: even a kilometre-long shoulder costs a screenful.
@@ -49,6 +58,23 @@ export function paintContactEdge(c,{x,y,xx,yy,inward=1,worldAx=0,worldAy=0,scale
     }
   }
   c.globalAlpha=savedAlpha;
+}
+
+function paintSpectralTerrain(c,{x,y,xx,yy,originalX,originalY,worldAx,worldAy,scale,ny,time,palette,line}){
+ const savedAlpha=c.globalAlpha,steps=Math.max(Math.abs(xx-x),Math.abs(yy-y)),spectral=palette||SPECTRAL_BLUE;
+ for(let i=0;i<=steps;i++){
+  const f=steps?i/steps:0,px=Math.round(x+(xx-x)*f),py=Math.round(y+(yy-y)*f);
+  const wx=worldAx+(px-originalX)/scale,wy=worldAy+(py-originalY)/scale,coord=wx*.87+wy*.49;
+  const cell=Math.floor(coord/23),cluster=hash(cell*23,41),h=hash(Math.floor(wx*scale),Math.floor(wy*scale));
+  const flow=(Math.sin(coord*.089-time*2.4)+Math.sin(coord*.193+time*1.25)*.5)/1.5,depth=(12+flow*8+cluster*10)*scale;
+  let d=Math.max(1,Math.round(depth));c.globalAlpha=savedAlpha*.7;c.fillStyle=spectral.deep;c.fillRect(px,ny<0?py-d+1:py,1,d);
+  d=Math.max(1,Math.round(depth*.68));c.globalAlpha=savedAlpha*.88;c.fillStyle=spectral.body;c.fillRect(px,ny<0?py-d+1:py,1,d);
+  d=Math.max(1,Math.round(depth*.36));c.globalAlpha=savedAlpha*.9;c.fillStyle=spectral.fringe;c.fillRect(px,ny<0?py-d+1:py,1,d);
+  d=Math.max(1,Math.round(3.1*scale));c.globalAlpha=savedAlpha;c.fillStyle=spectral.core;c.fillRect(px,ny<0?py-d+1:py,1,d);
+  if(Math.sin(coord*.12-time*3.7)>.88){d=Math.max(1,Math.round(5*scale));c.globalAlpha=savedAlpha*.9;c.fillStyle=spectral.hot;c.fillRect(px,ny<0?py-d+1:py,1,d);}
+  if(h>.96){const d=depth+Math.sin(time*1.8+cell)*3*scale;c.globalAlpha=savedAlpha*.45;c.fillStyle=spectral.mote;c.fillRect(px,Math.round(py+ny*d),2,2);}
+ }
+ c.globalAlpha=savedAlpha;(line||fallbackLine)(c,x,y,xx,yy,contactEdgeInk('spectral',palette),1);c.globalAlpha=savedAlpha;
 }
 
 // Deliberately different visual languages for review. All mass grows into the

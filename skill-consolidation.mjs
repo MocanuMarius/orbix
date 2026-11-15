@@ -1,4 +1,4 @@
-import {normalizeChapterPrerequisites} from './skill-chapters.mjs?v=biome-spirit-1';
+import {normalizeChapterPrerequisites} from './skill-chapters.mjs?v=first-light-1';
 const groups=[
  ['main','Lift',['main-efficiency','main-lift']],
  ['main','Fourth Beat',['main-fourth-beat','main-fourth-beat-2']],
@@ -8,6 +8,7 @@ const groups=[
  ['main','Resonant Purification',['main-resonant-purification']],
  ['main','Resonant Bounty',['main-resonant-bounty']],
  ['main','Momentum',['main-speed','main-tailwind']],
+ ['main','Last Glimmer',['main-last-glimmer']],
  ['main','Spark Vessel',['main-reservoir','main-vast-vessel']],
  ['main','Glide Regeneration',['main-glide-regen','main-glide-regen-2']],
  ['main','Renewal',['main-recovery','main-recovery-deep']],
@@ -27,6 +28,7 @@ const groups=[
  ['mystic','Lasting Pulse',['main-edging-lasting']],
  ['mystic','Regenerative Pulse',['main-edging-regeneration']],
  ['mystic','Light Aegis',['main-edging-tension','proximity-grace','proximity-light-shield']],
+ ['mystic','Spacetime',['proximity-spacetime']],
 ];
 export function consolidateSkills(definitions){
  const result={};for(const [id,s] of Object.entries(definitions)){

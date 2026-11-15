@@ -1,6 +1,6 @@
-import {sparkImageArt,sparkSymbolArt} from './spark-symbol.mjs?v=biome-spirit-1';
-import {condensedIconMarkup} from './afterglow-ui.mjs?v=biome-spirit-1';
-import {fineTreasureObject} from './fine-treasure-art.mjs?v=biome-spirit-1';
+import {sparkImageArt,sparkSymbolArt} from './spark-symbol.mjs?v=first-light-1';
+import {condensedIconMarkup} from './afterglow-ui.mjs?v=first-light-1';
+import {fineTreasureObject} from './fine-treasure-art.mjs?v=first-light-1';
 
 // Three material tones sit above a shared dark contour. Keep light and shadow
 // readable at the tree's smallest size, even with all motion switched off.
@@ -143,16 +143,24 @@ function scale(c){
 function box(){
  return condensedIconMarkup().replace('<svg ','<svg x="2" y="2" width="28" height="28" ');
 }
-const bodies={eye,feather,wing,heart,vessel,seed,crystal,crescent,tunefork,metronome,shield,orbit,trajectory,edgebank,hourdial,hourglass,banner,scale,box,
+function ghost(c){
+ return p('M10 3h12v2h4v4h2v13h-3v6h-3v-4h-4v6h-3v-5h-4v3H8v-6H5V10h2V6h3z',ink)
+  +p('M11 5h10v2h4v4h1v10h-3v5h-1v-4h-6v5h-1v-5H9v3H8v-5H7V11h2V7h2z',c[1])
+  +p('M12 7h8v2h3v3h1v7h-3v2H11v-2H9v-7h1V9h2z',c[2])
+  +p('M12 8h8v2h-6v2h-3v5H9v-5h1v-2h2z',c[3])
+  +p('M12 13h3v4h-3zm6 0h3v4h-3z',c[0]);
+}
+const bodies={eye,feather,wing,heart,vessel,seed,crystal,crescent,tunefork,metronome,shield,orbit,trajectory,edgebank,hourdial,hourglass,banner,scale,box,ghost,
  dive:c=>feather(c,true),fuel:()=>sparkSymbolArt(2,2,28),flash:()=>sparkImageArt('sight',0,0,32)};
 const recipes={
  'Lift':['feather','copper'],'Fourth Beat':['metronome','copper'],'Luminance':['eye','jade'],'Momentum':['wing','amber'],'Spark Vessel':['vessel','jade'],
+ 'Last Glimmer':['ghost','silver'],
  'Long Flash':['flash','silver','time'],'Vitality':['heart','rose'],'Glide Regeneration':['seed','jade'],'Trajectory Guide':['trajectory','silver'],'Spark Sense':['tunefork','jade'],
  'Storage':['box','copper'],'Prismatic Yield':['crystal','lilac'],'Kept Light':['box','copper','seal'],'Dream':['crescent','lilac'],
  'Hand Seal':['box','jade','leaf'],'Deep Cache':['crystal','amber','spark'],
  'Proximity':['edgebank','blue'],'Lasting Pulse':['edgebank','blue','time'],'Regenerative Pulse':['edgebank','jade','seed'],'Light Aegis':['shield','lilac','star'],
  'Far Search':['tunefork','jade','star'],'Rich Cargo':['vessel','jade','spark'],'Fleet Return':['wing','jade'],'Close Orbit':['orbit','jade','spark'],
- 'Wide Search':['orbit','jade','star'],'Quick Return':['hourdial','jade','wing'],'Search Spark':['fuel','jade','leaf'],'Last Orbit':['shield','jade','spark'],
+ 'Wide Search':['orbit','jade','star'],'Quick Return':['hourdial','jade','wing'],'Search Spark':['fuel','jade','leaf'],'Field Impulse':['orbit','jade','wing'],'Last Orbit':['shield','jade','spark'],
  'Clean Break':['shield','blue','split'],'Thrifty Shell':['shield','blue','spark'],'Returning Shell':['shield','blue','return'],
  'Lasting Shell':['shield','blue','time'],'Frugal Ward':['vessel','blue','ward'],'Quick Ward':['hourdial','blue','ward'],
  'Deep Ward':['shield','blue','ward'],'Ward Spark':['shield','blue','star'],

@@ -1,8 +1,8 @@
-import {DEFAULT_CAPTURE_STYLE} from './capture-styles.mjs?v=biome-spirit-1';
-import {getPickupSpec, pickupKind, pickupShellRadius} from './pickups.mjs?v=biome-spirit-1';
-import {pickupSpriteFrame} from './pickup-art.mjs?v=biome-spirit-1';
-import {LIGHT_PACKET_TUNING} from './vitality.mjs?v=biome-spirit-1';
-import {drawFluidCapture} from './fluid-capture.mjs?v=biome-spirit-1';
+import {DEFAULT_CAPTURE_STYLE} from './capture-styles.mjs?v=first-light-1';
+import {getPickupSpec, pickupKind, pickupShellRadius} from './pickups.mjs?v=first-light-1';
+import {pickupSpriteFrame} from './pickup-art.mjs?v=first-light-1';
+import {LIGHT_PACKET_TUNING} from './vitality.mjs?v=first-light-1';
+import {drawFluidCapture} from './fluid-capture.mjs?v=first-light-1';
 
 const TAU = Math.PI * 2;
 const clamp = value => Math.max(0, Math.min(1, value));

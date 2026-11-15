@@ -1,7 +1,7 @@
 // Shared triggers make artifacts combine with skills, pickups and every base
 // companion. Effects never manufacture another pickup or dispatch a fuel event.
-import {CONSUMABLE_ARTIFACTS,EVOLVING_ARTIFACTS} from './artifact-info.mjs?v=biome-spirit-1';
-import {GuardianReactions} from './guardian-reactions.mjs?v=biome-spirit-1';
+import {CONSUMABLE_ARTIFACTS,EVOLVING_ARTIFACTS} from './artifact-info.mjs?v=first-light-1';
+import {GuardianReactions} from './guardian-reactions.mjs?v=first-light-1';
 const clamp=(value,min,max)=>Math.max(min,Math.min(max,value));
 export const ARTIFACT_ENGINE_RULES=Object.freeze({
   'wayward-seed':Object.freeze({name:'Wayward Seed',color:'#c6dc99',trigger:'Three consecutive body Spark pickups.',effect:'Restore up to 3.34 Sparks.',limits:'Five activations per flight. Collector deliveries break the chain.'}),
@@ -62,10 +62,14 @@ export class ArtifactEffects {
     if(paid){this.notice('quiet-cinder','passive');this.notice('glass-lantern','passive');this.notice('hollow-covenant','passive');}
     this.notice('silver-feather','passive');
   }
-  useCharge(id){
+  activate(id,outcome={},detail={}){
+    if(!this.mounted.has(id))return;
+    this.engine.activation?.(id,{kind:'artifact',outcome,...detail});
+  }
+  useCharge(id,outcome={}){
     if(!(this.charges[id]>0))return false;
     this.charges[id]--;
-    this.cue(id);
+    this.cue(id,'triggered',outcome);
     if(this.charges[id]===0)this.notice(id,'exhausted',{remaining:0});
     return true;
   }
@@ -77,30 +81,32 @@ export class ArtifactEffects {
     // never mints currency or recursively triggers fuel/recovery artifacts.
     // Keep a finite use until it can restore fuel. A full natural pickup must
     // not silently burn the player's consumable or a Rest recharge.
-    if(e.flame<e.maxFlame-1e-7&&this.useCharge('glow-wick')){
-      const bonus=Math.min(10,Math.max(0,e.maxFlame-e.flame));
+    const wickBonus=Math.min(10,Math.max(0,e.maxFlame-e.flame));
+    if(e.flame<e.maxFlame-1e-7&&this.useCharge('glow-wick',{fuel:wickBonus})){
+      const bonus=wickBonus;
       restored+=bonus;e.flame+=bonus;e.flameRestored+=bonus;
     }
-    if(this.useCharge('flash-stone'))e.revealFromPickup(true);
+    if(this.useCharge('flash-stone',{reveal:1.5}))e.revealFromPickup(true);
     return restored;
   }
   applySeed(packet){
     if(!this.seedId||this.seedProcs>=5)return 0;
     if(packet.deliveredByWisp){this.seedCharge=0;return 0;}
     if(++this.seedCharge<3)return 0;
-    this.seedCharge=0;this.seedProcs++;this.cue(this.seedId);
+    this.seedCharge=0;this.seedProcs++;
     const e=this.engine;
-    if(this.seedId==='lantern-bloom'){e.revealFromPickup(true);return 0;}
+    if(this.seedId==='lantern-bloom'){this.cue(this.seedId,'triggered',{reveal:1.5});e.revealFromPickup(true);return 0;}
     // This restoration occurs after natural overflow accounting and dispatches
     // no fuel event: a charge cannot create currency or charge itself again.
     const bonus=Math.min(this.seedId==='hearth-bloom'?10:10/3,Math.max(0,e.maxFlame-e.flame));
-    e.flame+=bonus;e.flameRestored+=bonus;return bonus;
+    e.flame+=bonus;e.flameRestored+=bonus;this.cue(this.seedId,'triggered',{fuel:bonus});return bonus;
   }
   enabled(id){return Number(this.engine.mod[MODIFIERS[id]])>0;}
-  cue(id,phase='triggered'){
+  cue(id,phase='triggered',outcome={}){
     const e=this.engine,rule=ARTIFACT_ENGINE_RULES[id];
     const sourceIds=e.mod.artifactEngineSources?.[id]||[id];
     this.lastProc={id:sourceIds[0]||id,engineId:id,sourceIds:[...sourceIds],phase,color:rule.color,time:e.time};
+    for(const source of sourceIds)this.activate(source,outcome,{phase});
     if(phase==='triggered'){
       if(Object.hasOwn(this.procCounts,id))this.procCounts[id]++;
       for(const source of sourceIds)this.notice(source,'triggered',Object.hasOwn(this.charges,source)?{remaining:this.charges[source]}:{});
@@ -118,15 +124,21 @@ export class ArtifactEffects {
   fuelBonus(packet,spec){
     if(!this.enabled('echo-bell')||!naturalFuel(packet,spec)||packet.deliveredByWisp
       ||this.workUntil<=this.engine.time||this.workUses>=5)return 0;
-    this.workUntil=-Infinity;this.workUses++;this.cue('echo-bell');
-    return clamp(Number(this.engine.mod.workFuel)||0,0,16);
+    this.workUntil=-Infinity;this.workUses++;
+    const e=this.engine,bonus=clamp(Number(e.mod.workFuel)||0,0,16);
+    const base=spec.fuel+(Number(e.fuelBonus)||0)+clamp(Number(e.mod.cacheFuelBonus)||0,0,32)
+      +(spec.id==='cache'?Number(e.mod.richFuelBonus)||0:0)
+      +(!packet.deliveredByWisp&&(e.mod.mainKindler||e.hasCompanion?.('kindler'))?clamp(Number(e.mod.kindlerBonus)||(e.mod.mainKindler?6:10),0,30):0);
+    const actual=Math.max(0,Math.min(bonus,e.maxFlame-e.flame-base));
+    this.cue('echo-bell','triggered',{fuel:actual});
+    return bonus;
   }
   onRecharge(seconds){
     const e=this.engine;
     if(seconds<=0||!this.enabled('dawn-loom')||e.time<this.sightReadyAt)return;
     if(this.sightUntil<=e.time)this.sightStartedAt=e.time;
     this.sightUntil=Math.max(this.sightUntil,e.time+clamp(Number(e.mod.rechargeSight)||1.5,.5,3));
-    this.sightReadyAt=e.time+4;this.cue('dawn-loom');
+    this.sightReadyAt=e.time+4;this.cue('dawn-loom','triggered',{reveal:this.sightUntil-e.time});
   }
   get temporarilyLit(){
     const e=this.engine;
@@ -140,12 +152,12 @@ export class ArtifactEffects {
     if(this.enabled('overflow-coil')&&surplus>0&&this.overflowUsed<12){
       const requested=Math.min(2,12-this.overflowUsed,surplus*clamp(Number(e.mod.overflowRecharge)||0,0,.2));
       const restored=e.quickenCompanionRecovery(null,requested);
-      if(restored>0){this.overflowUsed=Math.min(12,this.overflowUsed+restored);this.cue('overflow-coil');}
+      if(restored>0){this.overflowUsed=Math.min(12,this.overflowUsed+restored);this.cue('overflow-coil','triggered',{recovery:restored});}
     }
     // Recovery can create light above, and that light can charge a Lift here.
     // Neither resulting effect re-enters this method or creates more fuel.
     if(this.enabled('sunspool')&&!this.storedLift&&this.liftGrants<4&&e.time>=this.liftReadyAt&&this.temporarilyLit){
-      this.freeLift=true;this.liftGrants++;this.liftReadyAt=e.time+4;this.cue('sunspool');
+      this.freeLift=true;this.liftGrants++;this.liftReadyAt=e.time+4;this.cue('sunspool','triggered',{lifts:1});
     }
     return restored;
   }
@@ -153,10 +165,11 @@ export class ArtifactEffects {
   get freeLift(){return this.freeLiftCount>0;}
   set freeLift(value){this.storedLift=value?'sunspool':null;}
   consumeLift(){
-    if(this.guardian.openingLifts>0){this.guardian.openingLifts--;return true;}
+    if(this.guardian.openingLifts>0){this.guardian.openingLifts--;this.activate('first-light-standard',{usedLift:true},{phase:'spent'});return true;}
     if(!this.freeLift)return false;
     const id=this.storedLift;this.storedLift=null;
-    if(id==='sunspool')this.cue(id,'spent');
+    if(id==='sunspool')this.cue(id,'spent',{usedLift:true});
+    else this.activate(id,{usedLift:true},{phase:'spent'});
     return true;
   }
   get state(){
