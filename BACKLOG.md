@@ -19,9 +19,9 @@ The full suite is not claimed green. Unchanged `d46f95f` has six failing seamles
 
 ## Run archetypes
 
-- [ ] NEXT — review the [skills-as-cards proposal](docs/skill-cards.md), then design an isolated playtest after First Light. It supersedes the earlier two-milestone, two-pick suggestion: start with three ordered active slots, one card per first real flight clear, deliberate Equip / Set aside choices, and a bounded melting trial. Keep the campaign and six-stop prologue unchanged. This is a proposal for later iteration, not an implemented system or shipping commitment.
+- [ ] NEXT — settle the remaining Rest/Forge choice in the [skills-as-cards proposal](docs/skill-cards.md), then design an isolated playtest after First Light. Three accepted decisions cover the shared-wallet Melt economy, equipment and upgrade timing, and two optional Rest forks per map. Keep the campaign and six-stop prologue unchanged. Cards remain design work.
 
-Bankrunner's bank skimming and Glider's coasting remain archetype candidates, with their free-Lift follow-ups and limits retained as prototype ideas in the proposal. Compare cards with the skill book at equal economy on the same seed; include open-middle and riskier-bank routes, player feedback and actual flight/duplicate supply. Review charge/copy safety, passive relic rewards, the final-guardian reward and Rest's Recover / Grow / Add slot tradeoff before implementation.
+Bankrunner's bank skimming and Glider's coasting remain archetype candidates, with their free-Lift follow-ups and limits retained as prototype ideas in the proposal. Compare cards with the skill book at equal economy on the same seed. Include open-middle and riskier-bank routes, player feedback, actual card supply and wallet spending. Review charge/copy safety, passive relic rewards and the final-guardian reward. Decide whether Forge competes with Recover / Grow / Add slot for the sole camp benefit, or is a once-per-visit paid service alongside a chosen benefit. Slot caps, exact prices and rarity odds remain pilot hypotheses.
 
 Mega Crit's original GDC talk, [Slay the Spire: Metrics Driven Design and Balance](https://media.gdcvault.com/gdc2019/presentations/Giovannetti_Anthony_SlayTheSpire.pdf), informs this method. Use picks/skips as evidence and combine measured outcomes with player feedback.
 
