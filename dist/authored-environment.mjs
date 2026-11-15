@@ -1,4 +1,4 @@
-import {createNearLandscape,drawNearLandscapePlates} from './near-landscape.mjs?v=spark-progression-1';
+import {createNearLandscape,drawNearLandscapePlates} from './near-landscape.mjs?v=near-landscape-1';
 // Artwork by Luis Zuno / Ansimuz. Source packs and licences are listed in
 // nature-credits.html and assets/nature/licenses/. Prepared once per document.
 const artFiles = {

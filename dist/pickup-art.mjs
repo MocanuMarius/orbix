@@ -1,5 +1,5 @@
-import { pickupKind, getPickupSpec, pickupDisposition, PLASMA_SHELL_RADIUS, SPARK_ART_SCALE } from './pickups.mjs?v=spark-progression-1';
-import {sparkImageArt,sparkSymbolArt} from './spark-symbol.mjs?v=spark-progression-1';
+import { pickupKind, getPickupSpec, pickupDisposition, PLASMA_SHELL_RADIUS, SPARK_ART_SCALE } from './pickups.mjs?v=near-landscape-1';
+import {sparkImageArt,sparkSymbolArt} from './spark-symbol.mjs?v=near-landscape-1';
 
 const TAU = Math.PI * 2;
 const clamp = (value, low, high) => Math.max(low, Math.min(high, value));
