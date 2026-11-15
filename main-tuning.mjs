@@ -22,7 +22,7 @@ export const MAIN_TUNING_SKILLS={
  'main-recovery-deep':node('main-recovery-deep','Deep Renewal',45,'main-recovery','Victory recovery becomes 60% Sparks; it scales with your vessel.','recovery','+5 Sparks recovery'),
  'main-recovery-rescue':node('main-recovery-rescue','Last Spark',40,'main-recovery','Finish below 20% Sparks to recover an extra 10% Sparks.','recovery','Low Sparks aid'),
  'main-recovery-challenge':node('main-recovery-challenge','Earned Rest',40,'main-recovery','Completing the optional flight challenge restores an extra 10% Sparks.','recovery','Bonus +10 Sparks'),
- 'main-afterglow':node('main-afterglow','Efficient Storage',35,'main-efficiency','Pack one-third of excess Sparks, up from one-sixth. Packing limit rises from 20 to 30 per flight. Only real pickup surplus converts; recovery never does.','reserve','6 Sparks → 2'),
+ 'main-afterglow':node('main-afterglow','Efficient Storage',35,'main-efficiency','Pack one-third of excess Sparks, up from one-sixth. Packing limit rises from 20 to 30 per flight. Pickup surplus and exit reserves convert; recovery never does.','reserve','6 Sparks → 2'),
  'main-glow-sense':node('main-glow-sense','Spark Sense',40,'main-sight','Sense nearby pickups faintly through fog. The hint fades with distance.','beacon','Sense pickups'),
  'main-edging-attunement':node('main-edging-attunement','Edge Attunement',80,'main-sight','Edging Pulse is innate: skim clear of edges to build a 5s light pulse. Charge 25% faster: 1.6s instead of 2s.','edge-pulse','+25% charge'),
  'main-edging-lasting':node('main-edging-lasting','Lasting Pulse',100,'main-edging-attunement','Extend Edging Pulse from 5s to 7s. Regenerative Pulse can be learned alongside it.','edge-pulse','+2s pulse'),

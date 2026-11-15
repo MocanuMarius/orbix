@@ -1,6 +1,6 @@
-import {getGlowCapacity,GLOW_DISPLAY_SCALE} from './vitality.mjs?v=spark-choices-2';
-import {resourceSymbol} from './game-symbols.mjs?v=spark-choices-2';
-import {sparkSymbolArt} from './spark-symbol.mjs?v=spark-choices-2';
+import {getGlowCapacity,GLOW_DISPLAY_SCALE} from './vitality.mjs?v=exit-packing-1';
+import {resourceSymbol} from './game-symbols.mjs?v=exit-packing-1';
+import {sparkSymbolArt} from './spark-symbol.mjs?v=exit-packing-1';
 const clamp=v=>Math.max(0,Math.min(1,v));
 // A cell represents one paid Lift, even during a temporary free-Lift effect.
 export function glowGaugeUnits(flame,maximum=100,liftCost=10){
@@ -54,6 +54,9 @@ function playPacking(rail, meter, batch) {
   // Multiple pickups in one journey become the next parcel, with one deposit.
   batch.gain += rail.pending?.gain || 0;
   rail.pending = batch;
+  // Deposit the in-flight parcel before exit packing begins, so the last
+  // parcel cannot be cut off when the clear transition leaves this scene.
+  if(batch.source==='exit')rail.moving?.finish();
   return;
  }
  rail.busy = true;
@@ -80,6 +83,7 @@ function playPacking(rail, meter, batch) {
  const reduce = rail.host.ownerDocument.defaultView.matchMedia('(prefers-reduced-motion: reduce)').matches;
  rail.host.hidden = false;
  const moving = rail.cargo.animate(reduce ? [{transform:pose(endX,endY),opacity:0},{transform:pose(endX,endY),opacity:1}] : frames, {duration:reduce?200:total,fill:'both'});
+ rail.moving = moving;
  const pieces = [moving];
  if (!reduce) {
   // A single dim echo, offset by a few milliseconds, is the whole trail.
@@ -129,7 +133,7 @@ function updatePacking(gauge,s) {
  if (flow && flow.count !== gauge._flowCount) {
   gauge._flowCount = flow.count;
   if (flow.count > 0 && flow.rawAmount > 0) {
-   playPacking(rail,gauge._glowRefs.meter,{gain,total});
+   playPacking(rail,gauge._glowRefs.meter,{gain,total,source:flow.source});
    return;
   }
  }

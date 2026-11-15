@@ -1,9 +1,9 @@
-import {menuWorldMarkup} from './menu-world.mjs?v=spark-choices-2';
-import {resourceSymbol} from './game-symbols.mjs?v=spark-choices-2';
-import {formatGlow,getGlowCapacity} from './vitality.mjs?v=spark-choices-2';
-import {livesMarkup} from './lives.mjs?v=spark-choices-2';
-import { COMPANION_ABILITIES, getCompanionUnlock } from './companion-abilities.mjs?v=spark-choices-2';
-import { companionArtSvg } from './companion-art.mjs?v=spark-choices-2';
+import {menuWorldMarkup} from './menu-world.mjs?v=exit-packing-1';
+import {resourceSymbol} from './game-symbols.mjs?v=exit-packing-1';
+import {formatGlow,getGlowCapacity} from './vitality.mjs?v=exit-packing-1';
+import {livesMarkup} from './lives.mjs?v=exit-packing-1';
+import { COMPANION_ABILITIES, getCompanionUnlock } from './companion-abilities.mjs?v=exit-packing-1';
+import { companionArtSvg } from './companion-art.mjs?v=exit-packing-1';
 
 const esc = value => String(value ?? '').replace(/[&<>"']/g, char =>
   ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[char]));

@@ -1,6 +1,6 @@
-import {iceShardPoints,iceShardContact,sampleIceShard} from './guardian-geometry.mjs?v=spark-choices-2';
-import {getPickupSpec} from './pickups.mjs?v=spark-choices-2';
-import {installShutters,resizeShutters} from './shutter-cone.mjs?v=spark-choices-2';
+import {iceShardPoints,iceShardContact,sampleIceShard} from './guardian-geometry.mjs?v=exit-packing-1';
+import {getPickupSpec} from './pickups.mjs?v=exit-packing-1';
+import {installShutters,resizeShutters} from './shutter-cone.mjs?v=exit-packing-1';
 const clamp=(value,min,max)=>Math.max(min,Math.min(max,value));
 export function prepareGuardian(layout,height,speed){
  const boss=layout.boss,s=height/620;

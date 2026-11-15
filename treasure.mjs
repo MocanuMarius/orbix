@@ -1,6 +1,6 @@
-import {glowPoints, getGlowCapacity,getLifeCapacity} from './vitality.mjs?v=spark-choices-2';
-import {getCompanionAbility} from './companion-abilities.mjs?v=spark-choices-2';
-import {activeEventFavors} from './passage-preparations.mjs?v=spark-choices-2';
+import {glowPoints, getGlowCapacity,getLifeCapacity} from './vitality.mjs?v=exit-packing-1';
+import {getCompanionAbility} from './companion-abilities.mjs?v=exit-packing-1';
+import {activeEventFavors} from './passage-preparations.mjs?v=exit-packing-1';
 
 export const TREASURE_KINDS = Object.freeze(['vessel', 'lens', 'tithe', 'wager']);
 export const LENS_SIGHT = 1.15;
