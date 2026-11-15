@@ -1,3 +1,4 @@
+import {normalizeChapterPrerequisites} from './skill-chapters.mjs?v=nature-sounds-1';
 const groups=[
  ['main','Lift',['main-efficiency','main-lift']],
  ['main','Fourth Beat',['main-fourth-beat','main-fourth-beat-2']],
@@ -40,7 +41,7 @@ export function consolidateSkills(definitions){
  for(const [i,id]of ['collector-last-orbit','collector-guard-repair'].entries())Object.assign(result[id],{treeGroup:'collector-guard',treeName:'Guard',treeStage:i+1});
  // Remove exclusions pointing to retired alternatives, never strand a live rank.
  for(const s of Object.values(result))if(!s.retired)s.excludes=(s.excludes||[]).filter(id=>!result[id]?.retired);
- return result;
+ return normalizeChapterPrerequisites(result);
 }
 export function refundRetiredSkills(run,definitions){
  if(!run?.skills)return 0;let refund=0;

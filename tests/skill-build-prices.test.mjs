@@ -13,7 +13,7 @@ test('prerequisite investment reduces only its own descendant premium',()=>{
 });
 test('pricing a path still requires every prerequisite and the currency actually quoted',()=>{
  const s=M.newState();s.run=M.createRun(s.profile,'focused-economy');s.run.condensedGlow=500;
- assert.ok(M.chooseStartingSkill(s,'main-dream'));
+ assert.equal(M.chooseStartingSkill(s,'main-dream'),false);
  assert.equal(M.buyCheckpointSkill(s,'main-glide-regen-2'),false);
  for(const id of ['main-efficiency','main-sight','main-glide-regen','main-glide-regen-2']){
   const quote=M.getSkillPrice(M.getSkillWallet(s),id),before=s.run.condensedGlow;

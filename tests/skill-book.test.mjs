@@ -30,15 +30,17 @@ test('chapter view offers reachable, owned and future perks and keeps closed pat
  assert.match(html(s,{chapter:'companion'}),/Other path chosen/);
  assert.ok(!listIds(html(s,{chapter:'available'})).includes('collector-rich-cargo'));
 });
-test('a cross-chapter prerequisite can be bought inline without opening the other chapter',()=>{
+test('Dream can be learned from its own chapter without buying Luminance',()=>{
  const s=sample('collector'),page=()=>html(s,{chapter:'dream',selected:'main-dream'});
- assert.match(page(),/book-inline-requirement[\s\S]+?Luminance[\s\S]+?class="book-buy-inline" data-action="buy-skill" data-id="main-sight"/);
+ assert.doesNotMatch(page(),/book-inline-requirement|book-buy-inline/);
+ assert.match(page(),/class="book-buy"[^>]+?data-id="main-dream"/);
  s.run.condensedGlow=0;
  assert.doesNotMatch(page(),/class="book-buy-inline"/);
- assert.match(page(),/Need \d+ more Stored Sparks/);
+ assert.match(page(),/Save \d+ more Stored Sparks|Need \d+ more Stored Sparks/);
  s.run.condensedGlow=250;
- assert.equal(buyCheckpointSkill(s,'main-sight'),true);
- assert.match(page(),/data-chapter="dream"[\s\S]+?aria-label="Learned"[\s\S]+?class="book-buy"[^>]+?data-id="main-dream"/);
+ assert.equal(buyCheckpointSkill(s,'main-dream'),true);
+ assert.equal(s.run.skills['main-sight'],undefined);
+ assert.match(page(),/✓ Owned/);
 });
 test('Regenerative Pulse explains recovery alongside the normal reveal',()=>{
  const s=sample('collector');

@@ -1,7 +1,7 @@
 import {collectorPreference,learnedCollectorPreferences} from './collector-preferences.mjs?v=nature-sounds-1';
 import {FLIGHT_PACTS,pactOffers,activeFlightPact,pactBonus} from './flight-pacts.mjs?v=nature-sounds-1';
 import {chestRewardPair} from './chest-rewards.mjs?v=nature-sounds-1';
-import {STARTING_GIFTS} from './starting-gifts.mjs?v=nature-sounds-1';
+import {STARTING_GIFTS,STARTING_SKILL_COST_LIMIT} from './starting-gifts.mjs?v=nature-sounds-1';
 import {EVENT_EDITION,eventChoices,rollPrism} from './event-choices.mjs?v=nature-sounds-1';
 import {GUARDIAN_RELICS} from './guardian-artifacts.mjs?v=nature-sounds-1';
 import {ATLAS_FORECASTS,atlasBranches} from './night-atlas.mjs?v=nature-sounds-1';
@@ -366,10 +366,21 @@ export function createRun(profile=newState().profile,seed=freshSeed(),difficulty
 }
 export const STARTING_SKILL_IDS=Object.freeze(STARTING_GIFTS.filter(gift=>gift.skillId).map(gift=>gift.skillId));
 export const STARTING_GIFT_IDS=Object.freeze(STARTING_GIFTS.map(gift=>gift.id));
+export function isStartingGiftEligible(run,gift){
+ if(!run||!gift)return false;
+ if(gift.skillId){
+  const skill=SKILLS[gift.skillId],owned=run.skills||{};
+  if(!skill||skill.retired||!Number.isFinite(skill.cost)||skill.cost>STARTING_SKILL_COST_LIMIT||rank(owned,skill.id))return false;
+  if(![skill.requires].flat().filter(Boolean).every(id=>rank(owned,id)>0))return false;
+  if((skill.excludes||[]).some(id=>rank(owned,id)>0))return false;
+  if(skill.treeTab==='companion'&&normalizeCompanionFleet(run.companions,run.companionRole)[0]!==skill.branch)return false;
+ }
+ return (gift.artifactIds||[]).every(id=>artifactFitsRun(run,id));
+}
 export function getStartingGiftOffers(run){
  if(!run)return [];
- const random=rng((run.campaignSeed||run.seed)+':opening-gift-pair-v1');
- const pool=STARTING_GIFTS.filter(gift=>gift.artifactIds.every(id=>artifactFitsRun(run,id)));
+ const random=rng((run.campaignSeed||run.seed)+':opening-gift-pair-v2');
+ const pool=STARTING_GIFTS.filter(gift=>isStartingGiftEligible(run,gift));
  for(let index=pool.length-1;index>0;index--){
   const other=Math.floor(random()*(index+1));
   [pool[index],pool[other]]=[pool[other],pool[index]];
@@ -379,7 +390,7 @@ export function getStartingGiftOffers(run){
 
 // All three work with every starting companion and ordinary fuel, before any
 // advanced mechanics are unlocked. The actual relic is visible before choosing.
-const startingArtifacts=['overflow-coil','echo-bell','echo-vessel'];
+const startingArtifacts=['ember-lens','reed-charm','wayward-seed'];
 export function getStartingArtifact(run){
  if(!run)return null;
  if(run.startingArtifact)return ARTIFACTS[run.startingArtifact]||null;
