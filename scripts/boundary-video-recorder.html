@@ -1,0 +1,50 @@
+<!doctype html><html><meta charset="utf-8"><title>Actual game video export</title><style>body{background:#0a151b;color:#ebedda;font:16px system-ui}#scene{position:relative;width:915px;height:412px}#scene canvas{position:absolute;inset:0;width:100%;height:100%}#output{width:480px;height:780px}button{padding:16px;font:inherit}</style><h1>Actual game edge recordings</h1><button id="record" disabled>Loading actual renderer…</button><p id="status" role="status">Preparing assets</p><div id="scene"><canvas id="game"></canvas></div><canvas id="output" width="960" height="1560"></canvas><script type="module">
+import {WispFlight,circleHitsObstacle} from '/flight.mjs?v=in-game-edges-2';
+import {createBoundaryInspectorState,frameBoundaryInspection} from '/boundary-run-inspector.mjs?v=in-game-edges-2';
+import {getRunModifiers} from '/model.mjs?v=in-game-edges-2';
+const state=createBoundaryInspectorState(),run=state.run,node=run.current;
+const engine=new WispFlight({canvas:document.querySelector('#game'),node,terrain:node.terrain,seed:`${run.seed}-${node.id}`,duration:node.duration,flame:30,companions:['collector'],modifiers:getRunModifiers(run),boundaryStyle:'moon'});
+engine.paused=true;await engine.ready;await engine.environmentArtReady;
+if(!engine.pixiReady)throw Error('Production renderer not ready: '+engine.rendererError);
+frameBoundaryInspection(engine);
+const start=engine.distance,initialY=engine.player.y,output=document.querySelector('#output'),c=output.getContext('2d');
+const styles=['moon','living','danger'],titles=['1   MOONLIT RIM','2   LIVING STONE','3   DANGER WAKE'],colors=['#c9d9e5','#b0cba1','#edc176'],details=['Cool ivory / local blue rim','Mineral-green / irregular grain','Quiet edge / amber near contact'];
+const status=document.querySelector('#status'),button=document.querySelector('#record');
+function safeInterval(x,t,previous){
+ const nearby=engine.layout.obstacles.filter(o=>!o.destroyed&&Math.abs(o.x-x)<900),groups=[];let lo=null,last;
+ for(let y=engine.player.radius+6;y<engine.height-engine.player.radius-6;y+=2){
+  const valid=!nearby.some(o=>circleHitsObstacle(x,y,engine.player.radius+4,o,t,engine.obstacleCenter(o)));
+  if(valid){if(lo===null)lo=y;last=y;}else if(lo!==null){groups.push([lo,last]);lo=null;}
+ }if(lo!==null)groups.push([lo,last]);
+ return groups.sort((a,b)=>{const score=g=>Math.abs(Math.max(g[0],Math.min(g[1],previous))-previous)-Math.min(50,g[1]-g[0])*.08;return score(a)-score(b);})[0]||[initialY,initialY];
+}
+const path=[];let previous=initialY;
+for(let frame=0;frame<360;frame++){
+ const t=frame/30,distance=start+t*19,x=distance+engine.player.x;
+ const [lo,hi]=safeInterval(x,t,previous),approach=(1-Math.cos(t*Math.PI/3))*.5;
+ const mid=(lo+hi)/2,y=mid+(Math.max(mid,hi-6)-mid)*approach;
+ path.push({t,distance,y});previous=y;
+}
+function draw(frame){
+ const {t,distance,y}=path[frame];engine.time=t;engine.distance=engine.previousDistance=distance;engine.player.y=engine.previousPlayerY=y;engine.player.vy=frame?(y-path[frame-1].y)*30:0;engine.accumulator=0;engine.lastFlapTime=t-(Math.cos(t*Math.PI/3)>0?.2:1);
+ c.fillStyle='#071217';c.fillRect(0,0,960,1560);c.imageSmoothingEnabled=false;
+ for(let i=0;i<3;i++){
+  engine.boundaryStyle=styles[i];engine.render();const view=engine.pixiView.canvas,offset=i*520;
+  c.fillStyle='#122329';c.fillRect(0,offset,960,48);c.fillStyle=colors[i];c.font='bold 23px monospace';c.fillText(titles[i],22,offset+32);c.textAlign='right';c.font='18px monospace';c.fillText(details[i],938,offset+31);c.textAlign='left';
+  const z=t<2?1:1+1.35*Math.min(1,(t-2)/.8),sw=view.width/z,sh=sw*472/960;
+  const px=engine.player.x/engine.width*view.width,py=y/engine.height*view.height;
+  const sx=Math.max(0,Math.min(view.width-sw,px-sw*.28)),sy=Math.max(0,Math.min(view.height-sh,py-sh*.48));
+  c.drawImage(view,sx,sy,sw,sh,0,offset+48,960,472);
+  c.fillStyle='#10202bdb';c.fillRect(690,offset+476,255,31);c.fillStyle='#e6e8d6';c.font='17px monospace';c.fillText(t<2?'Same real course':'2.35× contact detail',706,offset+498);
+ }
+}
+draw(0);button.disabled=false;button.textContent='Export 12-second comparison';status.textContent='Ready · actual WispFlightView · 360 identical scene frames';
+button.onclick=async()=>{button.disabled=true;try{
+ for(let frame=0;frame<360;frame++){
+  draw(frame);const blob=await new Promise(resolve=>output.toBlob(resolve,'image/png'));
+  const response=await fetch('/frame?index='+frame,{method:'POST',body:blob});if(!response.ok)throw Error('Frame save failed');
+  if(frame%15===0)status.textContent=`Rendering actual game frame ${frame+1}/360`;
+ }
+ status.textContent='Export complete · 360 PNG frames · actual game renderer';button.textContent='Export complete';
+}catch(error){status.textContent='Export failed: '+error.message;button.disabled=false;}};
+</script></html>
