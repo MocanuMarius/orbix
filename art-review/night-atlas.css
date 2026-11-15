@@ -1,0 +1,35 @@
+/* Forecast artwork is the touch target. Each benefit and its passages are visible before entry. */
+body[data-screen=map-clear] #app .atlas-checkpoint{
+ width:min(94%,950px);height:100%;min-height:0;max-height:100%;margin:auto;box-sizing:border-box;
+ display:grid;grid-template-rows:auto minmax(0,1fr) auto;gap:clamp(5px,1.6vh,14px);padding:clamp(5px,1.5vh,14px) 0;
+}
+.atlas-checkpoint header{display:flex;align-items:baseline;justify-content:space-between;gap:12px;text-align:left}
+.atlas-checkpoint h1{margin:0;color:#f1e3b9;font:clamp(18px,5vh,27px)/1.1 var(--pixel)}
+.atlas-checkpoint header p{margin:0;color:#c8d3bf;font:clamp(11px,3vh,16px)/1.3 var(--pixel);text-align:right}
+.atlas-choices{min-height:0;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:clamp(8px,2vw,20px)}
+html body #app .atlas-checkpoint .atlas-choice{
+ display:grid;grid-template-columns:minmax(54px,.7fr) minmax(0,1.3fr);grid-template-rows:1fr auto;align-items:center;gap:4px 10px;
+ padding:clamp(7px,2vh,18px);min-width:0;min-height:0;width:100%;height:100%;border:2px solid #68867a;border-bottom-width:4px;
+ background:radial-gradient(ellipse at 23% 45%,#29423b 4%,#182d2b 68%);color:#e9ead6;text-align:left;
+ text-transform:none;white-space:normal;font:clamp(13px,3.3vh,18px)/1.3 var(--pixel);cursor:pointer;touch-action:manipulation;
+}
+html body #app .atlas-checkpoint .forecast-hollow-moon{border-color:#79758e;background:radial-gradient(ellipse at 23% 45%,#36344b 4%,#222332 68%)}
+.atlas-choice .atlas-scene{width:100%;height:auto;image-rendering:pixelated}
+.atlas-choice h2{margin:0 0 6px;color:#ffedba;font:clamp(17px,4.4vh,26px)/1.1 var(--pixel)}
+.atlas-choice p{margin:0;font:inherit}.atlas-sites{grid-column:1/-1;align-self:end;padding-top:6px;border-top:1px solid #72867588;font:clamp(12px,2.9vh,16px)/1.3 var(--pixel)}
+.atlas-sites b{display:block;color:#bccdb5;font-size:.85em}.atlas-checkpoint footer{text-align:center}
+.atlas-checkpoint .atlas-clear-choice{min-height:42px;width:auto;padding:6px 22px;font:clamp(13px,3vh,16px)/1.2 var(--pixel)}
+.atlas-choice:focus-visible,.atlas-clear-choice:focus-visible{outline:2px solid #ffedaa;outline-offset:1px}
+@media(orientation:landscape) and (max-height:360px){.atlas-checkpoint .atlas-clear-choice{min-height:38px}.atlas-choice h2{margin:0 0 4px}.atlas-choice .atlas-sites{padding-top:3px}}
+@media(max-width:570px){.atlas-checkpoint header{display:block}.atlas-checkpoint header p{text-align:left}.atlas-choice .atlas-scene{max-width:68px}html body #app .atlas-checkpoint .atlas-choice{grid-template-columns:1fr;grid-template-rows:auto 1fr auto}}
+html body #app .atlas-checkpoint .atlas-choice{
+ position:relative;border-width:3px 3px 5px;border-image:url('assets/rough-frame.svg?v=biome-life-1') 8 / 3px / 0 stretch;
+ box-shadow:inset 0 -3px #0a1419;
+ clip-path:polygon(0 6px,3px 6px,3px 3px,8px 3px,8px 0,calc(100% - 5px) 0,calc(100% - 5px) 3px,100% 3px,100% calc(100% - 5px),calc(100% - 4px) calc(100% - 5px),calc(100% - 4px) 100%,5px 100%,5px calc(100% - 3px),0 calc(100% - 3px));
+}
+.atlas-choice::after{
+ content:'';position:absolute;right:9px;top:8px;width:10px;height:10px;background:#e5d5a6;
+ clip-path:polygon(0 35%,55% 35%,55% 0,75% 0,75% 20%,100% 42%,100% 60%,75% 80%,75% 100%,55% 100%,55% 65%,0 65%);
+}
+.atlas-checkpoint button.atlas-clear-choice{min-height:44px}
+html body #app .atlas-checkpoint .atlas-choice:focus-visible{clip-path:none;outline-offset:-4px}

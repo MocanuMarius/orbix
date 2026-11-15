@@ -1,0 +1,6 @@
+/* Disabled actions remain legible; a quiet surface and absent glow indicate state. */
+button:disabled,[role="button"][aria-disabled="true"]{opacity:1!important;filter:none!important;color:#c4cdbb!important;-webkit-text-fill-color:#c4cdbb;background:#26332b!important;border-color:#6b7b65!important;box-shadow:none!important;text-shadow:none!important;cursor:default;animation:none!important}
+button:disabled :is(span,small,strong,b,p),[role="button"][aria-disabled="true"] :is(span,small,strong,b,p){color:inherit!important;opacity:1!important}
+button:disabled .ico{color:inherit;opacity:.85}
+.tree-bud.dormant,.tree-bud.dormant.planned{opacity:1;color:#bac6b0;background:#17251e;border-color:#6b7e64;border-style:dashed}
+.tree-bud.dormant :is(.bud-label,.bud-price){color:#c4cdbb;opacity:1}

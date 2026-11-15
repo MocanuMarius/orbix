@@ -1,0 +1,25 @@
+/* Move the material or the light within the portrait. Its frame and hit
+   target stay fixed, including on HUD buttons and in densely packed rows. */
+.artifact-portrait .relic-glint { animation:relic-glint 4.4s steps(1,end) var(--relic-delay,0s) infinite; }
+.artifact-portrait[data-relic-motion="glow"] .relic-ink-5 { animation:relic-lamp 3.2s steps(3,end) var(--relic-delay,0s) infinite; }
+.artifact-portrait[data-relic-motion="flutter"] .relic-body { animation:relic-flutter 4.8s steps(1,end) var(--relic-delay,0s) infinite; }
+@keyframes relic-glint {
+  0%,52%,75%,100% {opacity:.25;transform:translate(0,0)}
+  55% {opacity:.7;transform:translate(0,0)}
+  61% {opacity:1;transform:translate(1px,-1px)}
+  68% {opacity:.55;transform:translate(2px,-1px)}
+}
+@keyframes relic-lamp {0%,100%{opacity:.76}48%{opacity:1}76%{opacity:.89}}
+@keyframes relic-flutter {0%,65%,100%{transform:translate(0,0)}72%{transform:translate(1px,-1px)}83%{transform:translate(0,-1px)}}
+.companion-portrait .companion-orbit { animation:companion-collect 2.6s steps(2,end) infinite; }
+.companion-portrait[data-role-art="protector"] .companion-orbit { animation:companion-watch 3.6s steps(2,end) infinite; }
+.companion-portrait[data-role-art="leveler"] .companion-orbit { animation:companion-float 2.9s ease-in-out infinite; }
+.companion-portrait[data-role-art="swift"] .companion-orbit { animation:companion-dash 2.4s steps(2,end) infinite; }
+@keyframes companion-collect {0%,100%{transform:translate(-1px,0)}25%{transform:translate(0,-1px)}50%{transform:translate(1px,.5px)}75%{transform:translate(0,1px)}}
+@keyframes companion-watch {0%,100%{transform:translate(0,0);opacity:1}48%{transform:translate(0,-.65px);opacity:.82}75%{opacity:1}}
+@keyframes companion-float {0%,100%{transform:translate(0,.9px)}50%{transform:translate(0,-.9px)}}
+@keyframes companion-dash {0%,62%,100%{transform:translate(-.6px,0)}68%{transform:translate(1px,-.4px)}86%{transform:translate(.6px,0)}}
+@media(prefers-reduced-motion:reduce){
+  :is(.relic-glint,.relic-ink-5,.relic-body,.companion-orbit,.special-spark-film){animation:none!important;transform:none!important}
+}
+:is([data-reduced-motion="true"],.boost-motion-reduced) :is(.relic-glint,.relic-ink-5,.relic-body,.companion-orbit,.special-spark-film){animation:none!important;transform:none!important}

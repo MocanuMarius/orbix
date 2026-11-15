@@ -1,0 +1,45 @@
+/* The chapter journey is drawn directly over the menu scenery. */
+body[data-screen=home] .menu-art-home > .run-progress {
+  width: min(304px, 100%);
+  border: 0 !important;
+  background: none !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+}
+
+.journey-landscape {
+  display: block;
+  width: 100%;
+  max-width: 304px;
+  margin: 0;
+  isolation: isolate;
+}
+
+.journey-landscape svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+  shape-rendering: crispEdges;
+}
+
+.journey-landscape figcaption {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  text-align: center;
+  font: 12px/1.3 var(--pixel);
+  color: #c7d6c4;
+  text-shadow: 1px 2px #06100f, -1px 0 #06100f;
+}
+
+.journey-caption.current { color: #ffefb7; }
+.journey-caption.complete { color: #b6ddb0; }
+
+.journey-landscape .chapter-future { opacity: .79; }
+.journey-landscape .chapter-lit .chapter-beacon { fill: #fff0b0; }
+.journey-landscape .chapter-cleared .chapter-beacon { fill: #bceeb2; }
+
+@media (orientation: landscape) and (max-height: 350px) {
+  body[data-screen=home] .menu-art-home > .run-progress { width: min(235px, 100%); }
+  .journey-landscape figcaption { font-size: 11px; }
+}

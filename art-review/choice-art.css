@@ -1,0 +1,48 @@
+/* Illustrated choices are little places, not enlarged interface symbols. */
+.choice-scene{display:block;position:relative;width:100%;aspect-ratio:16/9;max-height:126px;min-height:0;line-height:0;pointer-events:none;isolation:isolate;overflow:hidden;contain:layout paint}
+.choice-scene>svg{display:block!important;width:100%!important;height:100%!important;max-width:none!important;max-height:none!important;overflow:visible;image-rendering:pixelated}
+.choice-scene .choice-relic{width:24px!important;height:24px!important;max-width:none!important;max-height:none!important;display:initial!important;opacity:1!important;filter:none!important}
+.choice-scene .scene-orb-body{transform-box:fill-box;transform-origin:center;animation:choice-wisp-breathe 4.2s steps(6,end) infinite}
+.choice-scene .scene-aura{animation:choice-light-breathe 3.7s steps(5,end) infinite;animation-delay:-1.1s}
+.choice-scene .scene-spark{animation:choice-spark-rise 3.8s steps(7,end) infinite;animation-delay:calc(-1 * var(--spark-delay,0s));opacity:.5}
+.choice-scene .scene-refill-stream{animation:choice-stream 2.8s steps(4,end) infinite}
+.choice-scene .scene-ripple{transform-origin:81px 65px;animation:choice-ripple 3.2s steps(6,end) infinite}
+.choice-scene .scene-ripple-b{animation-delay:-1.6s}
+.choice-scene .scene-gather-flight{animation:choice-gather 3.6s steps(10,end) infinite;transform-origin:91px 43px}
+.choice-scene .scene-box-glint{animation:choice-box-glint 3.6s steps(4,end) infinite}
+.choice-scene .scene-heart-ignite{animation:choice-rekindle 4.3s steps(5,end) infinite}
+.choice-scene .scene-rekindle-path{animation:choice-stream 4.3s steps(5,end) infinite}
+.choice-scene .forge-artifact{transform-origin:73px 17px}
+.choice-scene .forge-ghost{opacity:.16;animation:choice-forge-ghost 4.8s steps(8,end) infinite;transform-origin:72px 39px}
+.choice-scene .forge-pour{animation:choice-stream 3s steps(5,end) infinite}
+.choice-scene .forge-output-light{animation:choice-box-glint 4.8s steps(5,end) infinite}
+.choice-scene .forge-ash{animation:choice-ash 4.8s steps(7,end) infinite}
+.choice-scene[data-phase=complete] .forge-artifact{animation:choice-forge-melt 1.65s steps(10,end) both}
+.choice-scene[data-phase=complete] .forge-ghost{display:none}
+.choice-scene[data-phase=complete] .forge-pour{animation:choice-forge-pour 2.2s steps(8,end) both}
+.choice-scene[data-phase=complete] .forge-output-cube{animation:choice-forge-pack 2.2s steps(6,end) both;transform-origin:134px 74px}
+.choice-scene[data-phase=complete] .forge-output-light{animation:choice-forge-light 2.6s steps(8,end) both}
+.choice-scene[data-phase=complete] .forge-ash{animation:choice-ash 2s steps(9,end) both}
+@keyframes choice-light-breathe{0%,100%{opacity:.65}50%{opacity:1}}
+@keyframes choice-wisp-breathe{0%,100%{translate:0 0}50%{translate:0 -2px}}
+@keyframes choice-spark-rise{0%{translate:0 4px;opacity:0}25%{opacity:.75}80%{opacity:.4}100%{translate:2px -6px;opacity:0}}
+@keyframes choice-stream{0%,100%{opacity:.25}40%,65%{opacity:.85}}
+@keyframes choice-ripple{0%{scale:.75 .7;opacity:0}30%{opacity:.8}100%{scale:1.15 1;opacity:0}}
+@keyframes choice-gather{0%,12%{translate:-18px 5px;scale:.65;opacity:0}25%{opacity:1}75%{translate:25px 22px;scale:.4;opacity:1}90%,100%{translate:29px 26px;scale:.1;opacity:0}}
+@keyframes choice-box-glint{0%,45%,100%{opacity:.2}65%,78%{opacity:1}}
+@keyframes choice-rekindle{0%,12%,100%{opacity:0}30%,80%{opacity:1}}
+@keyframes choice-forge-ghost{0%,20%{translate:0 -6px;scale:1;opacity:0}35%{opacity:.22}70%{translate:0 17px;scale:.45;opacity:.2}82%,100%{translate:0 21px;scale:.1;opacity:0}}
+@keyframes choice-ash{0%,30%{translate:0 4px;opacity:0}45%{opacity:.8}100%{translate:3px -9px;opacity:0}}
+@keyframes choice-forge-melt{0%,15%{translate:0 0;scale:1;opacity:1}60%{translate:0 34px;scale:.8 .65;opacity:1}85%{translate:0 46px;scale:.6 .15;opacity:.7}100%{translate:0 47px;scale:.1 0;opacity:0}}
+@keyframes choice-forge-pour{0%,44%{opacity:0}56%,85%{opacity:1}100%{opacity:.45}}
+@keyframes choice-forge-pack{0%,55%{opacity:.25;scale:.85}80%,100%{opacity:1;scale:1}}
+@keyframes choice-forge-light{0%,55%{opacity:0}70%,82%{opacity:1}100%{opacity:.4}}
+.choice-scene .scene-companion-one{animation:choice-companion-one 7s steps(14,end) infinite}.choice-scene .scene-companion-two{animation:choice-companion-two 7s steps(14,end) infinite}.choice-scene .scene-companion-three{animation:choice-companion-one 9s steps(16,end) infinite;animation-direction:reverse}.choice-scene .scene-companion-four{animation:choice-companion-two 9s steps(16,end) infinite;animation-direction:reverse}
+@keyframes choice-companion-one{0%,100%{translate:0 0}25%{translate:2px -4px}50%{translate:7px -2px}75%{translate:3px 3px}}
+@keyframes choice-companion-two{0%,100%{translate:0 0}25%{translate:-3px 4px}50%{translate:-7px 1px}75%{translate:-3px -3px}}
+@media(prefers-reduced-motion:reduce){
+ .choice-scene *{animation:none!important;transition:none!important}
+ .choice-scene .scene-heart-ignite{opacity:1}.choice-scene .scene-gather-flight{opacity:.75}
+ .choice-scene .forge-ghost,.choice-scene .forge-ash{display:none}
+ .choice-scene[data-phase=complete] .forge-artifact{opacity:0}.choice-scene[data-phase=complete] .forge-output-cube{opacity:1}
+}

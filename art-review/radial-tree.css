@@ -1,0 +1,135 @@
+/* Landscape constellation: map on the left, selected skill on the right. */
+.tree-sheet:modal{width:min(96vw,1100px);height:min(96dvh,650px);max-width:96vw;max-height:96dvh;padding:12px 14px;overflow:hidden}
+.tree-sheet .tree-crown{min-height:44px;margin:0 0 3px}.tree-sheet .tree-crown h2{font-size:22px}.tree-sheet .tree-tabs{min-height:44px;margin:0 0 4px;padding:0;justify-content:flex-start;gap:4px}.tree-sheet .tree-tabs>button{min-width:60px;max-width:155px;flex:1;min-height:44px;padding:3px 6px}.tree-sheet .tree-tabs>button>span{font-size:14px!important}
+.tree-body{flex:1;min-height:0;display:grid;grid-template-columns:minmax(0,1fr) min(235px,26vw);gap:14px;align-items:stretch}.tree-side{min-width:0;min-height:0;overflow-y:auto;overscroll-behavior:contain;scrollbar-width:thin;border-left:1px solid #75876455;padding-left:12px;display:flex;flex-direction:column;justify-content:center}.tree-side .tree-limbs{display:flex;gap:0;flex:none}.tree-side .tree-limbs>button{font-size:12px;min-width:0;min-height:44px;padding:3px 1px;color:#b9c7aa}.tree-side .tree-limbs>button.selected{color:#f5e2ac}.tree-side .tree-whisper{display:block;font-size:11px;line-height:1.35;min-height:0;margin:6px 0;color:#b4bfa5;text-align:center}.tree-side .tree-inspector{padding:8px 0 2px}.tree-side .tree-inspector-title{flex-wrap:wrap;gap:6px}.tree-side .tree-inspector-title h3{font-size:19px}.tree-side .tree-inspector p{font-size:14px!important;line-height:1.4!important;color:#e1e4ce;min-height:0;margin:10px 0}.tree-side .tree-inspector>button{font-size:13px!important;line-height:1.35;min-height:44px;padding:9px 5px}.tree-side .tree-inspector>button:disabled{color:#c3c9b7!important}
+.tree-sheet .radial-tree-scroll{min-width:0;min-height:0;width:100%;height:100%;overflow:hidden;touch-action:manipulation;background:radial-gradient(ellipse at center,#364a2b55 0,#1a2c2166 38%,transparent 74%);border:0;position:relative}.tree-sheet .radial-tree{width:100%;height:100%;margin:0}.tree-orbit{fill:none;stroke:#81936d;stroke-opacity:.14;stroke-width:1;stroke-dasharray:2 9}.radial-tree .branch-light{stroke-width:2}.radial-tree .branch-shadow{stroke-width:6}.radial-tree .branch-light .planned{stroke-width:3}.radial-tree .branch-light .grown{stroke-width:3}
+.tree-sheet .radial-tree .tree-bud{width:44px;height:44px;min-height:44px;border-radius:50%!important;padding:8px;opacity:1;color:#e1e9cb;box-shadow:0 0 0 3px #101d16,0 0 12px #78946033}.tree-sheet .radial-tree .tree-bud.dormant{background:#17241f;border-color:#778571;color:#bbc6ae;opacity:1}.tree-sheet .radial-tree .tree-bud.dormant svg{opacity:.78}.tree-sheet .radial-tree .tree-bud.grown{background:#3b5030;border-color:#d8e3a8}.tree-sheet .radial-tree .tree-bud.planned{border-color:#ddc18c}.tree-sheet .radial-tree .tree-bud.available{background:#344a2a;border-color:#e6edb7}.tree-sheet .radial-tree .tree-bud.selected{outline:2px solid #f2dfaa;outline-offset:3px}.tree-sheet .radial-tree .tree-bud.root-bud{background:#465436;border-color:#ead6a4}.radial-tree .tree-bud>svg{width:23px;height:23px}.radial-tree .bud-effect{display:none}.radial-tree .bud-price{top:auto;left:auto;right:-7px;bottom:-5px;transform:none;min-width:19px;max-width:36px;padding:2px 3px;border:1px solid #708263;border-radius:6px;background:#122019;color:#dfd4ad;font:11px/1 var(--pixel);z-index:1}.radial-tree .grown .bud-price{color:#e9f0c2}.radial-tree .bud-ranks{position:absolute;left:3px;right:3px;bottom:4px;display:flex;justify-content:center;gap:3px;pointer-events:none}.radial-tree .bud-ranks>i{width:4px;height:4px;border-radius:50%;border:1px solid #bac8a6;background:#17241c}.radial-tree .bud-ranks>i.filled{background:#f0e7b8;border-color:#f0e7b8}.radial-tree .bud-ranks>i.current{box-shadow:0 0 4px #e9dfa1}.radial-tree .tree-bud:focus-visible{outline:3px solid #f2e4ac;outline-offset:4px}
+.rank-choices{display:flex;gap:6px;justify-content:center;margin:10px 0}.rank-choices>button{min-width:44px;min-height:44px;padding:4px 9px;border:1px solid #819470;background:#17271f;color:#e0e5cb;font:16px var(--pixel)}.rank-choices>button small{display:block;font-size:10px;line-height:1.25;color:#c8cdb6}.rank-choices>button.selected{border-color:#efdda7;background:#3b492b}.rank-choices>button.learned{box-shadow:inset 0 -3px #a9bb81}.rank-choices>button:focus-visible{outline:2px solid #ead69f;outline-offset:2px}
+@media(orientation:portrait){.tree-sheet:modal{width:min(96vw,480px);height:96dvh;padding:10px 12px}.tree-body{display:flex;flex-direction:column;gap:8px;overflow:auto}.tree-sheet .radial-tree-scroll{height:clamp(260px,43dvh,390px);min-height:260px;flex:none}.tree-side{flex:none;overflow:visible;border-left:0;border-top:1px solid #75876455;padding:8px 0 0}.tree-side .tree-whisper{display:none}.tree-side .tree-inspector p{margin:7px 0}.tree-side .tree-limbs{max-width:350px;margin:0 auto}.tree-side .tree-limbs>button{min-width:64px}.tree-sheet .tree-tabs>button>span{font-size:12px!important}}
+@media(orientation:landscape) and (max-height:380px){.tree-sheet:modal{padding:5px 12px}.tree-sheet .tree-crown{margin:0}.tree-sheet .tree-crown h2{font-size:19px}.tree-side .tree-whisper{display:none}.tree-side .tree-inspector-title h3{font-size:17px}.tree-side .tree-inspector p{font-size:12px!important;margin:6px 0}.tree-side .tree-inspector{padding-top:4px}.rank-choices{margin:5px 0}.tree-side .tree-limbs>button{font-size:11px}}
+@media(prefers-reduced-motion:reduce){.radial-tree .tree-bud.available{animation:none}}
+@media(orientation:landscape){
+ .tree-sheet:modal{padding:7px 12px!important}.tree-sheet .tree-tabs{height:44px;min-height:44px;max-height:44px}.tree-sheet .tree-tabs>button{flex-direction:row!important;height:44px;padding:2px 5px!important}.tree-sheet .tree-tabs>button>svg{width:24px!important;height:24px!important;min-width:24px}.tree-side{justify-content:flex-start}.tree-side .tree-whisper{display:none}.tree-side .tree-inspector-title h3{font-size:18px}.tree-side .tree-inspector p{font-size:12px!important;line-height:1.35!important;margin:7px 0}.tree-side .tree-inspector>button{min-height:44px;padding:5px!important}.tree-side .tree-inspector{padding-top:4px}.tree-side .tree-limbs>button{font-size:11px}.tree-body{grid-template-columns:minmax(0,1fr) min(250px,29vw)}
+}
+/* Ownership is blue; the next purchase has its own gold/bronze state. */
+.tree-state-key{display:flex;justify-content:center;align-items:center;gap:18px;flex:none;min-height:22px;margin:0 0 3px;font:11px/1.3 var(--pixel);color:#cbd2ce}
+.tree-state-key>span{display:inline-flex;align-items:center;gap:5px;white-space:nowrap}
+.tree-state-key i{display:grid;place-items:center;width:14px;height:14px;box-sizing:border-box;border:1px solid currentColor;border-radius:50%;font:13px/1 var(--pixel)}
+.tree-state-key .learned{color:#9bdef5}.tree-state-key .learned i{background:#244d63}.tree-state-key .available{color:#ffe5a4}.tree-state-key .available i{background:#504126}.tree-state-key .saving{color:#cdb09c}.tree-state-key .saving i{border-width:2px;background:#302724}.tree-state-key .locked{color:#abb6be}.tree-state-key .locked i{border:0}.tree-state-key .bud-lock{width:14px;height:14px}
+.tree-sheet .radial-tree .tree-bud{border:2px solid #68727b;background:#1c2429;box-shadow:0 0 0 3px #101b1b;color:#b4c1c9;animation:none}
+.tree-sheet .radial-tree .tree-bud>.upgrade-glyph{stroke:currentColor;filter:none}
+.tree-sheet .radial-tree .tree-bud.available{border-color:#ffe3a1;background:#514129;color:#fff1c6;box-shadow:0 0 0 3px #211f17,0 0 15px #f3ca6b55}
+.tree-sheet .radial-tree .tree-bud.available .bud-price{background:#f6dfa1;border-color:#ffedbb;color:#352b18}
+.tree-sheet .radial-tree .tree-bud.available .bud-state-mark{background:#f6dfa1;border-color:#ffedbb;color:#352b18;font:18px/1 var(--pixel)}
+.tree-sheet .radial-tree .tree-bud.saving{background:#2d2523;border-color:#9a7e6b;color:#cdb5a2;box-shadow:0 0 0 3px #101b1b}
+.tree-sheet .radial-tree .tree-bud.saving .bud-price{background:#302724;border-color:#a88b74;color:#e7cab1}
+.tree-sheet .radial-tree .tree-bud.learned{background:#244d63;border-color:#78cce8;color:#dcf7ff;box-shadow:0 0 0 3px #101b1b,inset 0 0 0 2px #376b81}
+.tree-sheet .radial-tree .tree-bud.learned .bud-price{color:#113445;background:#a4e5f8;border-color:#c1f2ff;font-size:15px;min-width:20px}
+.tree-sheet .radial-tree .tree-bud.locked{background:#1c2429;border-color:#65717b;border-style:dashed;color:#a6b3bd}
+.tree-sheet .radial-tree .tree-bud.locked .bud-price{color:#bdc7ce;background:#1b2329;border-color:#667680}
+.tree-sheet .radial-tree .tree-bud.selected{outline:2px solid #e5e6de;outline-offset:4px}
+.tree-sheet .radial-tree .tree-bud.preview{border:0;background:transparent;box-shadow:none;color:#81909c;padding:12px}
+.tree-sheet .radial-tree .tree-bud.preview::before{content:"";position:absolute;inset:8px;border:1px dashed #576771;border-radius:50%;background:#19232a;z-index:-1}
+.tree-sheet .radial-tree .tree-bud.preview>svg{width:16px;height:16px;filter:none}
+.tree-sheet .radial-tree .tree-bud.preview.selected{outline:1px dashed #b7c1c7;outline-offset:3px}
+.tree-sheet .radial-tree .tree-bud:focus-visible{outline:3px solid #f4f4df;outline-offset:4px}
+.bud-state-mark{position:absolute;right:-5px;top:-5px;display:grid;place-items:center;width:17px;height:17px;border-radius:50%;background:#1b242b;border:1px solid #71828d;color:#c4d0d9;pointer-events:none}
+.bud-state-mark .bud-lock{width:12px;height:12px}
+.bud-owned{position:absolute;left:-9px;top:-11px;padding:2px 3px;border:1px solid #83cee7;background:#183d50;color:#caf3ff;white-space:nowrap;font:10px/1 var(--pixel);pointer-events:none}
+.radial-tree .bud-ranks>i{border-color:#8b979e;background:#162229;border-radius:0}
+.radial-tree .bud-ranks>i.filled{background:#99e0f4;border-color:#c8f4ff}
+.tree-silhouette{position:absolute;display:block;transform:translate(-50%,-50%);width:5px;height:5px;border-radius:50%;background:#81947a66;pointer-events:none}
+.tree-silhouette.excluded{background:#70817233}
+.tree-silhouette.closed-root{display:grid;place-items:center;width:22px;height:22px;background:#142018;border:1px solid #4a5c4c;color:#647565}
+.tree-silhouette.closed-root>svg{width:13px;height:13px}
+.radial-tree .branch-light .tree-path{stroke:#53636b;stroke-width:1.5;stroke-opacity:.6}
+.radial-tree .branch-light .tree-path.available{stroke:#e3c982;stroke-width:2.5;stroke-opacity:.8}
+.radial-tree .branch-light .tree-path.saving{stroke:#947a65;stroke-opacity:.55}
+.radial-tree .branch-light .tree-path:is(.learned,.has-owned){stroke:#79bdd5;stroke-width:2.5;stroke-opacity:.8}
+.radial-tree .branch-light .tree-path.preview{stroke:#6b7f8b;stroke-opacity:.38;stroke-dasharray:3 5}
+.radial-tree .branch-light .tree-path.distant{stroke:#6b7c71;stroke-width:1;stroke-opacity:.22}
+.radial-tree .branch-light .tree-path.excluded{stroke:#60715f;stroke-width:1;stroke-opacity:.14;stroke-dasharray:2 5}
+.radial-tree .branch-shadow .tree-path:is(.distant,.excluded){stroke-opacity:.15;stroke-width:2}
+.tree-side .tree-inspector .tree-selection-status{min-height:0;margin:6px 0;font-size:11px!important;line-height:1.3!important;color:#bdc8d0}
+.tree-side .tree-inspector .tree-selection-status.available{color:#ffe5a4}
+.tree-side .tree-inspector .tree-selection-status.learned{color:#9bdef5}
+.tree-side .tree-inspector .tree-selection-status.saving{color:#e0bea4}
+.tree-sheet .tree-side .tree-inspector>.skill-purchase{border-image:none!important;border:2px solid #677985!important;-webkit-text-fill-color:currentColor;cursor:default;filter:none}
+.tree-sheet .tree-side .tree-inspector>.skill-purchase.available{color:#fff0c5!important;background:#514129!important;border-color:#e8cb88!important;cursor:pointer}
+.tree-sheet .tree-side .tree-inspector>.skill-purchase.learned{color:#c9f1ff!important;background:#244d63!important;border-color:#78cce8!important}
+.tree-sheet .tree-side .tree-inspector>.skill-purchase.saving{color:#e7cab1!important;background:#302724!important;border-color:#a88b74!important}
+.tree-sheet .tree-side .tree-inspector>.skill-purchase.locked{color:#c1cbd2!important;background:#202a30!important;border-color:#687c88!important;border-style:dashed!important}
+.tree-side .preview-inspector{padding-top:13px}
+.tree-side .preview-inspector .tree-inspector-title{color:#bdc9d1}
+.tree-side .preview-inspector .tree-inspector-title>.bud-lock{width:18px;height:18px}
+.rank-choices>button.available{border-color:#e8cb88;color:#fff0c5;background:#514129;box-shadow:none}
+.rank-choices>button.saving{border-color:#a88b74;background:#302724;color:#e7cab1;box-shadow:none}
+.rank-choices>button.learned{border-color:#78cce8;background:#244d63;color:#c9f1ff;box-shadow:inset 0 -3px #78cce8}
+.rank-choices>button small{color:inherit}
+.rank-choices>button:is(.preview,.locked){border-style:dashed;border-color:#657782;background:#1c272e;color:#b1bfc9;box-shadow:none}
+.rank-choices>button.selected{outline:2px solid #e5e6de;outline-offset:2px}
+.rank-choices .rank-cost .bud-lock,.preview-cost .resource-symbol{width:12px;height:12px;vertical-align:middle}
+@media(max-width:500px){.tree-state-key{gap:10px;font-size:10px}}
+
+/* Keep skill ink on a dark, quiet surface; state colors belong to the marks. */
+html body dialog.tree-sheet{background-color:#0a1418}
+html body .tree-sheet .radial-tree-scroll{background:#0b171a}
+html body .tree-sheet .radial-tree .tree-bud{color:#e5edee;background:#101c22;box-shadow:0 0 0 3px #050c10}
+html body .tree-sheet .radial-tree .tree-bud.available{background:#29251b;color:#fff0bf;box-shadow:0 0 0 3px #050c10}
+html body .tree-sheet .radial-tree .tree-bud.learned{background:#153441;color:#dbf5ff;box-shadow:0 0 0 3px #050c10}
+html body .tree-sheet .radial-tree .tree-bud.saving{background:#211b1b;color:#ead3be;box-shadow:0 0 0 3px #050c10}
+html body .tree-sheet .radial-tree .tree-bud:is(.locked,.preview){background:#121d24;color:#b4c4ce}
+html body .tree-sheet .radial-tree .tree-bud.selected{outline:2px solid #fff7da;outline-offset:4px}
+html body .tree-sheet .radial-tree .tree-bud .bud-price{background:#071115;color:#eee9d5;line-height:1.15;min-width:20px;border-color:#849399;text-shadow:none}
+html body .tree-sheet .radial-tree .tree-bud.available .bud-price{background:#f3dda4;color:#252015;border-color:#ffefc4}
+html body .tree-sheet .radial-tree .tree-bud.learned .bud-price{background:#b7e6f3;color:#102c38;border-color:#dbf5ff}
+html body .tree-sheet .radial-tree .tree-bud.saving .bud-price{background:#1d1717;color:#f0d0b5;border-color:#ad8b73}
+html body .tree-sheet .tree-tabs>button{background-color:#111d23;color:#c8d5d9}
+html body .tree-sheet .tree-tabs>button.selected{background-color:#24363d;color:#fff4cd;border-color:#e4d09a}
+html body .tree-sheet .tree-state-key{color:#c9d4d8}
+html body .tree-sheet .tree-state-key .learned{color:#a9e4fa}
+html body .tree-sheet .tree-state-key .available{color:#ffe3a4}
+html body .tree-sheet .tree-state-key .saving{color:#e1bea6}
+html body .tree-sheet .tree-state-key .locked{color:#bdcbd4}
+html body .tree-sheet .tree-side{border-color:#5b7178;background:#0a1418}
+html body .tree-sheet .tree-inspector .tree-inspector-title h3{color:#fff2ce;text-shadow:1px 1px #02070a}
+html body .tree-sheet .tree-inspector p{color:#dce5e6}
+html body .tree-sheet .tree-inspector .tree-selection-status.available{color:#ffe3a4}
+html body .tree-sheet .tree-inspector .tree-selection-status.learned{color:#a9e4fa}
+html body .tree-sheet .tree-inspector .tree-selection-status.saving{color:#edcdb3}
+html body .tree-sheet .tree-inspector .tree-selection-status:is(.locked,.preview){color:#c2ced5}
+html body .tree-sheet .tree-inspector-title>.upgrade-glyph{background:#071115;padding:5px;box-sizing:content-box;filter:none}
+html body .tree-sheet .rank-choices>button{background:#101d24}
+html body .tree-sheet .rank-choices>button small{font-size:11px;line-height:1.3}
+html body .tree-sheet .rank-choices .rank-cost{display:flex;align-items:center;justify-content:center;gap:3px}
+html body .tree-sheet .rank-cost .resource-symbol{width:14px;height:14px;flex:none}
+html body .tree-sheet .rank-choices>button.available{background:#29251b}
+html body .tree-sheet .rank-choices>button.learned{background:#153441}
+html body .tree-sheet .rank-choices>button.saving{background:#211b1b}
+html body .tree-sheet .radial-tree .branch-light .tree-path.available{stroke-opacity:1;stroke:#e5cc8c}
+html body .tree-sheet .radial-tree .branch-light .tree-path:is(.learned,.has-owned){stroke-opacity:1;stroke:#8ecbdf}
+html body .tree-sheet .radial-tree .branch-light .tree-path.saving{stroke:#a58977;stroke-opacity:.8}
+
+.skill-portrait{display:inline-block;vertical-align:middle;image-rendering:pixelated}
+.radial-tree .tree-bud>.upgrade-glyph.skill-portrait{stroke:none}
+@keyframes skill-glint{0%,52%,100%{opacity:.48}60%,74%{opacity:1}}
+@keyframes skill-ripple{0%,30%,100%{opacity:.48}55%{opacity:.95}}
+@keyframes skill-gaze{0%,36%,76%,100%{transform:translate(0)}48%,62%{transform:translate(1px,-1px)}}
+@keyframes skill-lid{0%,68%,80%,100%{transform:translateY(0)}73%{transform:translateY(2px)}}
+@keyframes skill-sand{0%,38%,100%{transform:translateY(0);opacity:.5}70%{transform:translateY(3px);opacity:1}}
+@keyframes skill-heart{0%,52%,66%,100%{transform:scale(1)}59%{transform:scale(1.06)}}
+@media(prefers-reduced-motion:no-preference){
+ .skill-portrait .skill-shine{animation:skill-glint 3.8s steps(5,end) infinite}
+ .skill-portrait .skill-ripple,.skill-portrait .skill-orbit{animation:skill-ripple 3.5s ease-in-out infinite}
+ .skill-portrait .skill-iris{animation:skill-gaze 6s steps(2,end) infinite}
+ .skill-portrait .skill-eyelid{animation:skill-lid 6s steps(2,end) infinite}
+ .skill-portrait .skill-fall{animation:skill-sand 2.4s steps(3,end) infinite}
+ .skill-portrait .skill-heartbeat{transform-origin:16px 17px;animation:skill-heart 3.2s steps(2,end) infinite}
+}
+.tree-bud:is(.saving,.locked,.preview) .skill-portrait *{animation:none!important}
+[data-reduced-motion=true] .skill-portrait *{animation:none!important}
+.tree-sheet .radial-tree .tree-bud.preview{padding:6px}
+.tree-sheet .radial-tree .tree-bud.preview>.skill-portrait{width:28px;height:28px;filter:grayscale(.75);opacity:.68}
+.tree-bud.preview .forecast-lock{position:absolute;right:3px;bottom:3px;width:14px;height:14px;line-height:0}
+.tree-bud.preview .forecast-lock svg,.forecast-path .bud-lock{width:14px;height:14px}
+.tree-sheet .forecast-path{color:#b7c6c9;display:flex;align-items:center;gap:5px;flex-wrap:wrap}

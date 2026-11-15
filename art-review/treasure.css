@@ -1,0 +1,78 @@
+.treasure-room{
+ --chest-light:#e5c081;
+ display:grid;
+ grid-template-columns:minmax(155px,.85fr) minmax(260px,1.6fr);
+ align-content:center;
+ align-items:center;
+ gap:8px clamp(15px,3vw,35px);
+ max-width:915px;
+ height:100%;
+ margin:auto;
+ padding:6px clamp(8px,2vw,22px);
+ box-sizing:border-box;
+ color:#eae5cd;
+ font-family:var(--pixel);
+}
+.treasure-room[data-treasure=lens]{--chest-light:#afdcdf}
+.treasure-room[data-treasure=vessel]{--chest-light:#abd6a7}
+.treasure-room[data-treasure=wager]{--chest-light:#cfbbef}
+.treasure-room[data-treasure=tithe]{--chest-light:#ebbf8f}
+.treasure-place{display:grid;justify-items:center;align-content:center;min-width:0;text-align:center;gap:5px}
+.treasure-place .treasure-art{width:clamp(120px,23vw,225px);height:auto;max-width:100%;max-height:35dvh;display:block;image-rendering:pixelated}
+.treasure-name>small{font:12px/1.2 var(--pixel);color:var(--chest-light);letter-spacing:.06em}
+.treasure-name h2{margin:3px 0 0;font:clamp(20px,3.1vw,29px)/1.17 var(--pixel);color:#fff3ca;text-wrap:balance}
+.treasure-energy{color:#e2deb3;display:flex;align-items:center;gap:5px;font:18px/1.3 var(--pixel)}
+.treasure-energy .resource-symbol{width:21px;height:21px}
+.treasure-energy b{font-weight:normal}
+.treasure-energy small{font:14px/1.2 var(--pixel);color:#bbc8b6}
+.treasure-room .treasure-offers{
+ width:100%;max-width:none;min-width:0;margin:0;
+ display:grid;grid-template-columns:1fr;gap:10px;
+}
+.treasure-room .treasure-offer{
+ display:grid;align-items:center;grid-template-columns:clamp(30px,5vw,44px) minmax(0,1fr) auto;
+ column-gap:clamp(8px,1.5vw,17px);text-align:left;box-sizing:border-box;
+ position:relative;width:100%;min-height:clamp(70px,22dvh,110px);height:auto;
+ margin:0;padding:9px clamp(8px,1.7vw,18px);font-family:var(--pixel);border:0;
+ background:linear-gradient(100deg,#2d4039 0%,#1a302c 50%,#172b27 100%);
+ color:#ecebd1;
+ clip-path:polygon(5px 0,calc(100% - 10px) 0,calc(100% - 10px) 3px,calc(100% - 4px) 3px,calc(100% - 4px) 6px,100% 6px,100% calc(100% - 5px),calc(100% - 5px) calc(100% - 5px),calc(100% - 5px) 100%,8px 100%,8px calc(100% - 2px),3px calc(100% - 2px),3px calc(100% - 5px),0 calc(100% - 5px),0 4px,5px 4px);
+}
+.treasure-room button.treasure-offer{touch-action:manipulation;cursor:pointer;box-shadow:inset 0 2px #697968,inset 0 -3px #0d1c18,inset 3px 0 var(--chest-light)}
+.treasure-room button.treasure-offer:focus-visible,.treasure-room button.treasure-offer:hover{box-shadow:inset 0 0 0 3px var(--chest-light);background-color:#33493c}
+.treasure-room button.treasure-offer:active{filter:brightness(1.2)}
+.treasure-room button.treasure-offer:disabled{opacity:1;cursor:default;filter:none;background:#212d2c;box-shadow:inset 2px 0 #778680}
+.treasure-offer:disabled .treasure-choice-icon{filter:grayscale(.7)}
+.treasure-choice-icon{display:grid;place-items:center;color:var(--chest-light)}
+.treasure-choice-icon>svg{width:100%;height:auto;max-height:39px;image-rendering:pixelated}
+.treasure-choice-copy{min-width:0;display:grid;gap:4px}
+.treasure-choice-copy>strong{font:clamp(16px,2.4vw,22px)/1.18 var(--pixel);color:#fff2cb}
+.treasure-choice-copy>span{font:clamp(13px,1.8vw,16px)/1.4 var(--pixel);color:#dfE6d6}
+.treasure-choice-copy .treasure-constraint{font:13px/1.3 var(--pixel);color:#ffbc9d}
+.treasure-pick-arrow{font:23px/1 var(--pixel);color:var(--chest-light)}
+.treasure-room>.tutorial-checkpoint,.treasure-room .treasure-route-actions{grid-column:1/-1}
+.treasure-room>.tutorial-checkpoint{position:static;display:flex;justify-content:center;gap:12px}
+dialog.treasure-route-sheet[open]{width:min(895px,calc(100vw - 24px))!important;max-width:895px!important;max-height:calc(100dvh - 16px);margin:auto!important;inset:0!important}
+.treasure-route-preview{height:auto;padding:6px 0;gap:14px 22px}
+.treasure-route-preview .treasure-art{max-height:29dvh}
+.treasure-route-preview .treasure-offer-preview{grid-template-columns:32px minmax(0,1fr);background:none;border-bottom:1px solid #506054;clip-path:none;min-height:0;padding:8px 0}
+.treasure-route-preview .treasure-choice-icon>svg{max-height:32px}
+.treasure-route-preview .treasure-offers{gap:0}
+.treasure-route-actions{display:flex;align-items:center;justify-content:center;gap:12px}
+.treasure-route-actions>button{min-height:44px;flex:1;margin:0}
+.treasure-wager-receipt{color:#d9cee8;font:13px/1.25 var(--pixel)}
+.treasure-wager-receipt[data-met=true]{color:#c6e2a4}
+.artifact-reward-heading .treasure-wager-receipt{max-width:45%;margin:0}
+@media(max-height:350px) and (orientation:landscape){
+ .treasure-room{gap:4px 15px;padding-block:2px}
+ .treasure-room .treasure-offers{gap:6px}
+ .treasure-room .treasure-offer{padding:6px 10px;min-height:55px}
+ .treasure-choice-copy>strong{font-size:16px}.treasure-choice-copy>span,.treasure-choice-copy .treasure-constraint{font-size:12px;line-height:1.32}
+ .treasure-place .treasure-art{max-height:28dvh}
+ .treasure-name h2{font-size:19px}
+ .treasure-route-preview .treasure-offer-preview{padding:4px 0}
+}
+@media (orientation:portrait){
+ .treasure-room{height:auto;grid-template-columns:1fr;gap:14px}
+ .treasure-place .treasure-art{max-height:17dvh}
+}

@@ -1,0 +1,20 @@
+@font-face{font-family:WispUI;src:url('assets/fonts/pixelify-sans.ttf') format('truetype');font-display:swap}
+:root{color-scheme:dark;background:#090e12;color:#e3e9da;font:16px/1.3 WispUI,system-ui,sans-serif}
+*{box-sizing:border-box}
+body{margin:0;min-height:100dvh;display:grid;place-items:center;padding:max(5px,env(safe-area-inset-top)) max(9px,env(safe-area-inset-right)) max(5px,env(safe-area-inset-bottom)) max(9px,env(safe-area-inset-left))}
+main{width:min(100%,1020px)}
+header,footer,.edge-choice,.readout{display:flex;align-items:center}
+header{min-height:42px;gap:8px} h1{margin:0 auto 0 0;font-size:clamp(17px,3.2vw,24px);line-height:1.1}
+button,a{font:inherit;color:inherit;touch-action:manipulation}button{border:0;cursor:pointer}
+header button{min-height:38px;padding:4px 12px;color:#cbd6d0;background:#192527;border-bottom:2px solid #3d5251}
+header button[aria-pressed=true]{background:#554457;border-color:#eabed2;color:#fff0ee}
+.approach{position:relative;background:#030608;isolation:isolate}
+#flight-frame{display:block;position:relative;width:100%;padding:0;margin:0;aspect-ratio:2.12;max-height:calc(100dvh - 82px);background:#030608;touch-action:none}
+#flight-frame canvas{display:block;width:100%;height:100%;image-rendering:pixelated}
+#gate{position:absolute;left:50%;top:57%;transform:translate(-50%,-50%);text-align:center;pointer-events:none;text-shadow:0 2px 3px #000,0 0 12px #000}
+#gate strong,#gate span{display:block}#gate strong{font-size:clamp(18px,3.4vw,32px)}#gate span{font-size:clamp(12px,2vw,17px)}
+[hidden]{display:none!important}
+.readout{position:absolute;left:10px;top:6px;gap:5px;background:#081013d9;color:#e1ecd8;padding:3px 6px;font-size:14px;pointer-events:none}
+.readout meter{width:62px;height:10px;accent-color:#cce8c7}
+footer{gap:9px;min-height:29px;font-size:clamp(12px,1.7vw,15px);color:#cad5ce}footer a{margin-left:auto;white-space:nowrap;color:#e0c0d8}
+@media(max-width:490px){header{gap:5px}header button{padding:4px 7px}.readout{left:4px;top:3px;font-size:11px}.readout meter{width:35px}footer{align-items:flex-start;padding-top:4px}}

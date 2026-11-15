@@ -1,0 +1,5 @@
+Menu background: generated with the built-in image_gen tool, 2026-11-13. Source copied into project as wisp-shrine-menu.png.
+Prompt: Original sombre portrait 2:3 medium-resolution pixel-art dark fantasy game background; muted jade/charcoal/moss/bone-white/brass, hand-dithered texture. Ruined stone shrine framed by gnarled trees, pale moon, distant aqueduct, glowing round wisps above a basin, stone steps and roots, calm dark lower center for menu choices. No lettering, buttons, UI or logos; no smooth rendered gradients or toy aesthetic.
+
+UI frame: original code-native pixel SVG, shrine-frame.svg. Inspired by framed adventure-game UI construction; no third-party frame images copied.
+Font: Pixelify Sans from Google Fonts (https://github.com/google/fonts/tree/main/ofl/pixelifysans), redistributed under the included fonts/OFL.txt.

@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64" shape-rendering="crispEdges">
+<!-- One carved rim. Long edge planes stretch once; wear is concentrated in its corners. -->
+<path fill="#050d11" d="M8 0h14v1h27V0h7v3h5v5h2v18h1v19h-1v11h-3v5h-5v3H28v-1H8v-3H4v-5H1V38H0V23h1V8h3V4h4z"/>
+<path fill="#766b49" d="M9 2h13v1h27V2h6v3h4v4h2v17h1v18h-1v11h-3v4h-4v3H28v-1H9v-3H6v-4H3V38H2V24h1V9h3V6h3z"/>
+<path fill="#e0c58c" d="M10 3h11v1h29V3h4v3h4v4h2v15h1v16h-2V11h-3V8h-4V6H11v3H8v4H6v24H4V25h1V10h3V7h2z"/>
+<path fill="#a49265" d="M60 43h1v11h-3v4h-4v3H29v-1H10v-3H7v-4H4V39h2v13h3v3h3v3h17v1h23v-3h4v-4h3z"/>
+<path fill="#2e2a20" d="M11 7h40v2h4v3h2v39h-3v4h-3v2H12v-3H9v-4H7V13h2V10h2z"/>
+<path fill="#091519" d="M12 9h38v2h3v3h2v36h-3v3h-3v2H13v-3h-3v-3H9V15h2v-3h1z"/>
+<!-- Chipped caps expose a darker stone plane without a repeating stipple. -->
+<path fill="#111e22" d="M4 8h4v2H6v4H4zm52 0h4v7h-2v-4h-2zM7 53h3v4h4v2H9v-3H7zM55 54h3v3h-4v3h-4v-2h4v-2h1z"/>
+<path fill="#e0c58c" d="M9 5h6v1H9zM59 17h1v7h-1zM39 59h9v1h-9z"/>
+</svg>

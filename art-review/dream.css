@@ -1,0 +1,24 @@
+.playing .canvas-wrap #dream-mark{position:absolute;left:50%;top:max(8px,env(safe-area-inset-top));width:min(42%,320px);transform:translateX(-50%);opacity:1;pointer-events:none;z-index:6}
+.playing.dream-rehearsal .flight-device .flight-hud{background:transparent}
+.dream-countdown{color:#ffedb2;text-shadow:0 1px 2px #20170a,1px 0 1px #20170a;display:grid;gap:3px}
+.dream-clock-label{display:flex;align-items:center;justify-content:center;gap:7px;font-size:15px;line-height:1.15}
+.playing #dream-mark .dream-clock-label svg{width:25px;height:20px}.dream-clock-label b{font-variant-numeric:tabular-nums}
+.dream-clock-track{display:block;background:#322819;box-shadow:0 0 0 1px #c4a365;padding:2px;height:9px;box-sizing:border-box;clip-path:polygon(2px 0,calc(100% - 2px) 0,100% 2px,100% calc(100% - 2px),calc(100% - 2px) 100%,2px 100%,0 calc(100% - 2px),0 2px)}
+.dream-clock-track i{height:100%;display:block;background:linear-gradient(#fff2b3 0 40%,#e6b65a 40%);transform-origin:left;transition:transform .1s linear}
+.playing.dream-rehearsal .flight-device :is(.glow-side-gauge,.edging-pulse-gauge,.flight-condensed-counter,.flight-run-status,.flight-bonus-counter,.flight-artifact-bar,.flight-progress,.flight-fleet-status,.lift-cost,.flight-event,.tutorial-flight-hint,#game-speed,#perf-status){visibility:hidden!important;pointer-events:none!important}
+@media (prefers-reduced-motion:reduce){.dream-clock-track i{transition:none}}
+.rest-dream svg{width:28px;height:24px}.rest-dream small{display:block;font-size:10px;color:#c4b7db}
+.dream-handoff{position:absolute;inset:0;display:grid;place-content:center;gap:14px;text-align:center;background:#05091466;z-index:8}
+.dream-handoff svg{width:48px;height:38px;margin:auto;color:#ded0ed}.dream-handoff button{min-height:54px;padding:12px 24px}
+
+.canvas-wrap .dream-memory{position:absolute;inset:0;width:100%;height:100%;z-index:2;pointer-events:none;image-rendering:pixelated}
+.dream-preparing :is(.flight-hud,.flight-artifact-bar,.flight-progress,.glow-side-gauge,.flight-dock){opacity:0}
+.dream-waking :is(.flight-hud,.flight-artifact-bar,.flight-progress,.glow-side-gauge,.flight-dock,.dream-awakening){animation:dream-hud-return 1.4s ease-in-out both}
+@keyframes dream-hud-return{from{opacity:0}to{opacity:1}}
+@media(prefers-reduced-motion:reduce){.dream-waking :is(.flight-hud,.flight-artifact-bar,.flight-progress,.glow-side-gauge,.flight-dock,.dream-awakening){animation-duration:.18s}}
+.nightmare-vision[open]{position:fixed;inset:auto;max-width:none;max-height:none;margin:0;padding:0;border:0;background:transparent;overflow:hidden;display:grid;place-items:center;color:#eee7cb}
+.nightmare-vision::backdrop{background:transparent}
+.nightmare-vision span{font-size:28px}.nightmare-vision i{position:absolute;inset:0 0 48%;background:#020306;transform:scaleY(0);transform-origin:top;border-radius:0 0 40% 40% / 0 0 6% 6%}
+.nightmare-vision i+i{inset:48% 0 0;transform-origin:bottom;border-radius:40% 40% 0 0 / 6% 6% 0 0}
+.nightmare-vision button{position:relative;padding:12px 20px;background:#263938;color:#fff1ce;font:inherit}
+.nightmare-vision [hidden]{display:none}.nightmare-saved{position:absolute;z-index:4;pointer-events:none;width:5%;aspect-ratio:1;transform:translate(-50%,-50%);background:radial-gradient(#96ddff,#56aaff80 46%,transparent 72%)}

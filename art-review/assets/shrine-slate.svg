@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 100" preserveAspectRatio="none" shape-rendering="crispEdges">
+ <!-- Layered, borderless shadow. The scattered edge pixels have no repeat. -->
+ <g fill="#02080b">
+  <path opacity=".12" d="M0 39h8V26h14V17h19V11h29V7h31V3h39v4h31V1h32v6h29V4h22v7h23v9h17v10h13v14h10v18h-9v13h-18v8h-22v6h-32v5h-37v-3h-30v7h-33v-4h-29v3h-36v-6H62v-5H38v-9H21v-7H8V59H0Z"/>
+  <path opacity=".19" d="M13 38h10V28h20V20h27v-5h32v-4h34v4h35V9h31v5h28v-2h21v7h23v8h17v12h14v17h-7v13h-18v9h-24v5h-29v4h-34v-3h-29v5h-32v-4h-29v3H66v-6H46v-8H29v-8H18V55h-5Z"/>
+  <path opacity=".28" d="M31 39h13V29h27v-7h31v-3h34v3h35v-4h30v4h29v-1h21v7h22v10h14v17h-8v12h-21v8h-29v3h-29v-3h-31v5h-30v-4h-28v3H74v-4H52v-8H39V56h-8Z"/>
+  <path opacity=".2" d="M56 37h17V29h32v-2h31v3h35v-4h30v4h27v-1h22v10h19v17h-11v10h-31v4h-25v-3h-30v5h-31v-4h-28v3H81v-6H64V55h-8Z"/>
+  <path opacity=".1" d="M5 21h5v4H5Zm25-12h7v3h-7ZM84 1h5v3h-5Zm58-1h8v3h-8Zm88 2h5v4h-5Zm54 11h6v4h-6ZM311 29h5v5h-5ZM314 70h5v3h-5ZM284 87h7v4h-7ZM238 97h5v3h-5Zm-81-3h4v4h-4ZM76 96h6v3h-6ZM26 82h6v4h-6ZM3 67h4v6H3Z"/>
+ </g>
+</svg>

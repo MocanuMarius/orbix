@@ -1,0 +1,15 @@
+Photographic PBR materials from Poly Haven
+License: CC0 1.0 (public domain dedication)
+Official asset license: https://polyhaven.com/license
+
+Rock Boulder Dry
+https://polyhaven.com/a/rock_boulder_dry
+Photography: Dimitrios Savva. Processing: Rico Cilliers.
+
+Bark Willow
+https://polyhaven.com/a/bark_willow
+Photography: Dimitrios Savva. Processing: Dario Barresi.
+
+Bundled files are downloaded originals, with source URLs and checksums in pbr-materials-sources.json.
+Color maps are sRGB; normal and roughness maps are linear/non-color. Normals use OpenGL (+Y).
+No live asset API is used by the game.

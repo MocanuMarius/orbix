@@ -1,0 +1,25 @@
+/* An embossed action surface and a stepped arrow are reserved for the controls. */
+html body[data-screen=home] #app .menu-art-home .front-actions button.home-command{
+ --surface:url('assets/command-waystone.svg');
+ background:var(--surface) center / 100% 100% no-repeat!important;
+ clip-path:none!important;border:0!important;border-image:none!important;border-radius:0!important;
+ box-shadow:none!important;cursor:pointer;touch-action:manipulation;position:relative;
+ grid-template-columns:var(--action-art-size) minmax(0,1fr) 15%;column-gap:9px;
+ padding-inline:clamp(12px,1.8vw,24px) 0!important;min-height:44px!important;
+ color:#f1eddb!important;text-shadow:1px 2px #092020;image-rendering:pixelated;
+}
+html body[data-screen=home] #app .menu-art-home .front-actions button.home-command.primary{--surface:url('assets/command-waystone-gold.svg');color:#fff1c5!important}
+html body[data-screen=home] #app .menu-art-home .front-actions button.home-command>.front-arrow{width:20px;height:20px;color:#d6ddc8;justify-self:center;opacity:1}
+html body[data-screen=home] #app .menu-art-home .front-actions button.home-command.primary>.front-arrow{color:#ffe39c}
+html body[data-screen=home] #app .menu-art-home .front-actions button.home-command:focus-visible{outline:2px solid #fff1af!important;outline-offset:2px;filter:brightness(1.15)!important}
+@media (hover:hover){html body[data-screen=home] #app .menu-art-home .front-actions button.home-command:hover{filter:brightness(1.14)!important}}
+html body[data-screen=home] #app .menu-art-home .front-actions button.home-command:active{transform:translateY(2px)!important;filter:brightness(.95)!important}
+html body[data-screen=home] #app .menu-art-home .front-actions button.home-command>span>small{color:#dce6d4!important}
+html body[data-screen=home] #app .menu-art-home .front-ascension-picker>button:not(:disabled){
+ position:relative;background:#324842!important;background-clip:content-box!important;padding:5px!important;
+ color:#fff3ca!important;cursor:pointer;font-weight:bold;outline-offset:-4px
+}
+html body[data-screen=home] #app .menu-art-home .front-ascension-picker>button:disabled{background:transparent!important;cursor:default}
+html body[data-screen=home] #app .menu-art-home .front-ascension-picker.is-fixed>button{visibility:hidden}
+/* Remove old pointer feedback on inherited styles from purely decorative elements. */
+@media(prefers-reduced-motion:reduce){html body[data-screen=home] #app .menu-art-home .front-actions button.home-command:active{transform:none!important}}
