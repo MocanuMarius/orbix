@@ -1,5 +1,5 @@
-import {getGlowCapacity,getLifeCapacity} from './vitality.mjs?v=spark-balance-1';
-import {getCompanionAbility} from './companion-abilities.mjs?v=spark-balance-1';
+import {getGlowCapacity,getLifeCapacity} from './vitality.mjs?v=spark-progression-1';
+import {getCompanionAbility} from './companion-abilities.mjs?v=spark-progression-1';
 
 // Values in descriptions are player-facing. Effects use the existing simulation units.
 export const EVENT_EDITION=3;
