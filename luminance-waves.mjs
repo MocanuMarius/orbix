@@ -1,13 +1,14 @@
-import {GLOW_DISPLAY_SCALE} from './vitality.mjs?v=first-light-2';
-import {pickupKind,pickupShellRadius} from './pickups.mjs?v=first-light-2';
+import {GLOW_DISPLAY_SCALE} from './vitality.mjs?v=skills-cards-1';
+import {pickupKind,pickupShellRadius,isFuelPickup} from './pickups.mjs?v=skills-cards-1';
 
 export const LUMINANCE_WAVE_TUNING=Object.freeze({speed:360,interval:1,maximumWaves:48,maximumSources:16});
 const finite=(value,fallback)=>Number.isFinite(Number(value))?Number(value):fallback;
 const clamp=(value,lo=0,hi=1)=>Math.max(lo,Math.min(hi,value));
+const REVEAL_BANDS=Object.freeze([[64,.18],[44,.26],[22,.42]]);
 
 /** Temporary reveal fronts; harvesting never collects ordinary Sparks or invokes pickup hooks. */
 export class LuminanceWaves {
-  constructor(engine){this.engine=engine;this.sources=new Map();this.waves=[];this.clock=0;this.lastCue=-Infinity;this.serial=0;}
+  constructor(engine){this.engine=engine;this.sources=new Map();this.waves=[];this.revealCount=0;this.clock=0;this.lastCue=-Infinity;this.serial=0;}
   addSource(settings={}) {
     const id=settings.id??`wave-source-${++this.serial}`;
     let source=this.sources.get(id);
@@ -24,8 +25,14 @@ export class LuminanceWaves {
     return source;
   }
   activate(settings){return this.addSource(settings);}
+  // One event, one front. Rhythm must not create a periodic reveal source.
+  emit({x=0,y=0,radius=145,color='#d9f0dc',reveal=false}={}){
+    if(this.waves.length>=LUMINANCE_WAVE_TUNING.maximumWaves&&this.waves.shift().reveal)this.revealCount--;
+    const wave={id:++this.serial,x,y,maximum:Math.max(0,finite(radius,145)),radius:0,previous:0,age:0,color,reveal,seen:new Set(),storedPaid:false};
+    this.waves.push(wave);if(reveal)this.revealCount++;return wave;
+  }
   removeSource(id){this.sources.delete(id);}
-  clear(){this.sources.clear();this.waves.length=0;}
+  clear(){this.sources.clear();this.waves.length=0;this.revealCount=0;}
   get live(){const e=this.engine;return e.running!==false&&e.alive!==false&&!e.finished&&!e.destroyed&&!e.dying&&!e.completing;}
   get dreaming(){const d=this.engine.dream;return !!d&&d.phase!=='done';}
   get state(){return {sources:this.sources.size,waves:this.waves.length,harvesting:this.live&&!this.dreaming&&!this.engine.paused,clock:this.clock};}
@@ -51,8 +58,8 @@ export class LuminanceWaves {
       while(source.next<activeFor-1e-9 || (source.next===0&&activeFor>0)){
         if(source.radius>0){
           const age=dt-source.next;
-          if(this.waves.length>=LUMINANCE_WAVE_TUNING.maximumWaves)this.waves.shift();
-          this.waves.push({x:origin.x,y:origin.y,maximum:source.radius,radius:Math.min(source.radius,age*LUMINANCE_WAVE_TUNING.speed),previous:0,age,color:source.color,seen:new Set()});
+          const wave=this.emit({x:origin.x,y:origin.y,radius:source.radius,color:source.color});
+          wave.radius=Math.min(source.radius,age*LUMINANCE_WAVE_TUNING.speed);wave.age=age;
         }
         source.next+=LUMINANCE_WAVE_TUNING.interval;
       }
@@ -60,13 +67,16 @@ export class LuminanceWaves {
       if(source.remaining<=0)this.sources.delete(id);
     }
     const rank=clamp(Math.floor(Number(e.mod?.resonantHarvest)||0),0,3);
-    if(rank&&!this.dreaming){
+    const cardMeter=Math.max(0,Number(e.mod?.cardHarvestMeter)||0),cardStored=Math.max(0,Math.floor(Number(e.mod?.cardHarvestStoredPerWave)||0));
+    if((rank||cardMeter||cardStored)&&!this.dreaming){
       let hit=false;
       for(const wave of this.waves){
         for(const packet of e.getNearbyPickups?.()||e.layout?.embers||[]){
           if(packet.collected||packet.carried||packet.generated||packet.fetchedInDream||wave.seen.has(packet))continue;
           const kind=pickupKind(packet);
-          if(kind!=='light'&&kind!=='cluster'&&kind!=='cache'&&!(kind==='dark'&&rank>=2))continue;
+          const bookFuel=rank>0&&(kind==='light'||kind==='cluster'||kind==='cache');
+          const cardFuel=(cardMeter>0||cardStored>0)&&isFuelPickup(packet);
+          if(!bookFuel&&!cardFuel&&!(kind==='dark'&&rank>=2))continue;
           // A wave touches the visible shell, without the extra player-contact
           // padding used for body pickups.
           const rim=pickupShellRadius(packet);
@@ -81,18 +91,45 @@ export class LuminanceWaves {
             packet.collected=true;packet.purified=true;
             e.burst?.(packet.x-(e.distance||0),packet.y,5,'#c7ead4');
           } else {
-            const gain=Math.min(1/GLOW_DISPLAY_SCALE,Math.max(0,(e.maxFlame||100)-(e.flame||0)));
+            const gain=Math.min((bookFuel?1/GLOW_DISPLAY_SCALE:0)+(cardFuel?cardMeter:0),Math.max(0,(e.maxFlame||100)-(e.flame||0)));
             e.flame=(e.flame||0)+gain;e.flameRestored=(e.flameRestored||0)+gain;
-            if(rank>=3)e.resonanceStored=(e.resonanceStored||0)+1;
+            if(bookFuel&&rank>=3)e.resonanceStored=(e.resonanceStored||0)+1;
+            if(cardFuel&&!wave.storedPaid){wave.storedPaid=true;e.resonanceStored=(e.resonanceStored||0)+cardStored;}
             e.burst?.(screenX,packet.y,3,'#c6ecf2');
           }
         }
       }
       if(hit&&this.clock-this.lastCue>=.3){this.lastCue=this.clock;e.sound?.('resonate',{strength:.45});}
     }
-    for(let i=this.waves.length-1;i>=0;i--)if(this.waves[i].age>=this.waves[i].maximum/LUMINANCE_WAVE_TUNING.speed)this.waves.splice(i,1);
+    for(let i=this.waves.length-1;i>=0;i--)if(this.waves[i].age>=this.waves[i].maximum/LUMINANCE_WAVE_TUNING.speed){if(this.waves[i].reveal)this.revealCount--;this.waves.splice(i,1);}
   }
   draw(c,view={}){drawLuminanceWaves(c,view,this);}
+}
+
+// Only Rhythm adds this traveling terrain reveal. Other temporary sources
+// already light their scenery; their fronts still participate in Harvest.
+export function luminanceWaveVisibility(manager,x,y){
+  let dark=1;
+  for(const wave of manager?.waves||[]){
+    if(!wave.reveal||wave.radius<=0)continue;
+    const offset=Math.abs(Math.hypot(x-wave.x,y-wave.y)-wave.radius);
+    const fade=clamp(wave.age/.12)*clamp((wave.maximum-wave.radius)/64);
+    for(const [width,alpha]of REVEAL_BANDS)if(offset<width)dark*=1-fade*alpha;
+  }
+  return 1-dark;
+}
+export function revealLuminanceWaves(c,engine,{distance=engine.renderDistance??engine.distance??0,scale=1}={}){
+  if(!engine.luminanceWaves?.revealCount)return;
+  c.save();c.globalCompositeOperation='destination-out';
+  for(const wave of engine.luminanceWaves.waves){
+    if(!wave.reveal||wave.radius<=0)continue;
+    const fade=clamp(wave.age/.12)*clamp((wave.maximum-wave.radius)/64);
+    for(const [width,alpha]of REVEAL_BANDS){
+      c.globalAlpha=fade*alpha;c.lineWidth=width*2*scale;
+      c.beginPath();c.arc((wave.x-distance)*scale,wave.y*scale,wave.radius*scale,0,Math.PI*2);c.stroke();
+    }
+  }
+  c.restore();
 }
 
 export function drawLuminanceWaves(c,{distance=0,scale=1}={},manager) {

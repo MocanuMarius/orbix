@@ -1,6 +1,6 @@
-import {drawAuthoredBackdrop,drawAuthoredPlant} from './authored-environment.mjs?v=first-light-2';
-import {terrainBoundary,terrainSurfaceExposed} from './terrain-boundary.mjs?v=first-light-2';
-import {spacetimeSurfaceOffsetAt} from './spacetime.mjs?v=first-light-2';
+import {drawAuthoredBackdrop,drawAuthoredPlant} from './authored-environment.mjs?v=skills-cards-1';
+import {terrainBoundary,terrainSurfaceExposed} from './terrain-boundary.mjs?v=skills-cards-1';
+import {spacetimeSurfaceOffsetAt} from './spacetime.mjs?v=skills-cards-1';
 // Decorative life is anchored to the actual landform. It never enters the
 // collider, pickup, reward or dynamic-hazard registries.
 const habitats = {

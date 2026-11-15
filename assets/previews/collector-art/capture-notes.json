@@ -1,0 +1,86 @@
+{
+  "at": "2026-11-15T21:26:53.030Z",
+  "fps": 30,
+  "seconds": 6,
+  "viewport": [
+    900,
+    405
+  ],
+  "note": "Full application/HUD, production WispFlight and WispFlightView. Disposable boundary inspector course/seed, real Lift inputs and normal physics. All Sparks are from the authored course. Headless mobile layout; not a physical-phone performance measurement.",
+  "stills": {
+    "front": {
+      "frame": 5,
+      "simulationTime": 0.2,
+      "videoTime": 0.16666666666666666
+    },
+    "back": {
+      "frame": 20,
+      "simulationTime": 0.7,
+      "videoTime": 0.6666666666666666
+    },
+    "fetch": {
+      "frame": 40,
+      "simulationTime": 1.3666666666666667,
+      "videoTime": 1.3333333333333333
+    }
+  },
+  "matched": [
+    {
+      "art": "current",
+      "initial": {
+        "distance": 3926.536,
+        "y": 211.56,
+        "width": 955.5555555555555,
+        "height": 430,
+        "seed": "in-game-boundary-study|tier:1|map:0-boundary-flight"
+      },
+      "inputs": [
+        20,
+        101,
+        182,
+        263,
+        344
+      ],
+      "errors": [],
+      "renderer": "WispFlightView"
+    },
+    {
+      "art": "flat2",
+      "initial": {
+        "distance": 3926.536,
+        "y": 211.56,
+        "width": 955.5555555555555,
+        "height": 430,
+        "seed": "in-game-boundary-study|tier:1|map:0-boundary-flight"
+      },
+      "inputs": [
+        20,
+        101,
+        182,
+        263,
+        344
+      ],
+      "errors": [],
+      "renderer": "WispFlightView"
+    },
+    {
+      "art": "flat3",
+      "initial": {
+        "distance": 3926.536,
+        "y": 211.56,
+        "width": 955.5555555555555,
+        "height": 430,
+        "seed": "in-game-boundary-study|tier:1|map:0-boundary-flight"
+      },
+      "inputs": [
+        20,
+        101,
+        182,
+        263,
+        344
+      ],
+      "errors": [],
+      "renderer": "WispFlightView"
+    }
+  ]
+}

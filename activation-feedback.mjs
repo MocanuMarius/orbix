@@ -1,9 +1,9 @@
-import {ActivationFeed} from './activation-events.mjs?v=first-light-2';
-import {artifactIcon,skillIcon} from './upgrade-icons.mjs?v=first-light-2';
-import {companionArtSvg} from './companion-art.mjs?v=first-light-2';
-import {resourceSymbol} from './game-symbols.mjs?v=first-light-2';
-import {ARTIFACTS,SKILLS} from './model.mjs?v=first-light-2';
-import {formatGlow} from './vitality.mjs?v=first-light-2';
+import {ActivationFeed} from './activation-events.mjs?v=skills-cards-1';
+import {artifactIcon,skillIcon} from './upgrade-icons.mjs?v=skills-cards-1';
+import {companionArtSvg} from './companion-art.mjs?v=skills-cards-1';
+import {resourceSymbol} from './game-symbols.mjs?v=skills-cards-1';
+import {ARTIFACTS,SKILLS} from './model.mjs?v=skills-cards-1';
+import {formatGlow} from './vitality.mjs?v=skills-cards-1';
 const esc=value=>String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const names={collector:'Collector',protector:'Protector',swift:'Runner',leveler:'Space Timer',
   'main-echo-sight':'Echo Luminance','main-purifying-touch':'Purifying Touch','main-kindled-touch':'Kindled Touch',

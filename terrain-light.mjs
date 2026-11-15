@@ -1,8 +1,8 @@
-import {LIGHT_EXTENT,lightAttenuation} from './light-attenuation.mjs?v=first-light-2';
+import {LIGHT_EXTENT,lightAttenuation} from './light-attenuation.mjs?v=skills-cards-1';
 
-// Rendering only: rock consumes three units of Luminance reach for each unit
+// Rendering only: rock consumes 4.5 units of Luminance reach for each unit
 // travelled. Gameplay visibility, encounters and collection use their own law.
-export const SOLID_LIGHT_COST=3;
+export const SOLID_LIGHT_COST=4.5;
 export const TERRAIN_LIGHT_LIMITS=Object.freeze({rays:96,pixels:128,masks:8,sourceStep:6,motionHz:12});
 const states=new WeakMap(),TAU=Math.PI*2,EPS=1e-7;
 const cross=(ax,ay,bx,by)=>ax*by-ay*bx;

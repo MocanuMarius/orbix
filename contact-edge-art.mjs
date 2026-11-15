@@ -11,12 +11,12 @@ const fallbackLine=(c,x,y,xx,yy,color,size)=>{c.beginPath();c.moveTo(x,y);c.line
 export function paintContactEdge(c,{x,y,xx,yy,inward=1,worldAx=0,worldAy=0,scale=1,playerX=-10000,playerY=-10000,time=0,style,line,reducedMotion=false,palette}={}) {
   if(!STYLES.has(style))return;
   // The common terrain rim has a vertical inward normal and is already clipped
-  // by drawTerrainBoundary. Preserve its exact pixel order, alpha and animation
+  // by drawTerrainBoundary. Preserve its exact pixel order and alpha
   // without per-segment closures, normal objects or unused proximity work.
   if(style==='spectral'&&typeof inward==='number'&&inward!==0){
     const w=c.canvas?.width??Infinity,h=c.canvas?.height??Infinity;
     if(Math.min(x,xx)>=-32&&Math.max(x,xx)<=w+32&&Math.min(y,yy)>=-32&&Math.max(y,yy)<=h+32){
-      paintSpectralTerrain(c,{x:Math.round(x),y:Math.round(y),xx:Math.round(xx),yy:Math.round(yy),originalX:x,originalY:y,worldAx,worldAy,scale,ny:inward<0?-1:1,time:reducedMotion?0:time,palette,line});return;
+      paintSpectralTerrain(c,{x:Math.round(x),y:Math.round(y),xx:Math.round(xx),yy:Math.round(yy),originalX:x,originalY:y,worldAx,worldAy,scale,ny:inward<0?-1:1,palette,line});return;
     }
   }
   const originalX=x,originalY=y,dx=xx-x,dy=yy-y;
@@ -60,19 +60,22 @@ export function paintContactEdge(c,{x,y,xx,yy,inward=1,worldAx=0,worldAy=0,scale
   c.globalAlpha=savedAlpha;
 }
 
-function paintSpectralTerrain(c,{x,y,xx,yy,originalX,originalY,worldAx,worldAy,scale,ny,time,palette,line}){
+function paintSpectralTerrain(c,{x,y,xx,yy,originalX,originalY,worldAx,worldAy,scale,ny,palette,line}){
  const savedAlpha=c.globalAlpha,steps=Math.max(Math.abs(xx-x),Math.abs(yy-y)),spectral=palette||SPECTRAL_BLUE;
+ // Match the renderer's rounded world-pixel lattice, including clipped origins.
+ // Mineral grain belongs to the bank; only physical lighting animates it.
+ const worldPixelX=Math.round(worldAx*scale)-Math.round(originalX),worldPixelY=Math.round(worldAy*scale)-Math.round(originalY);
  for(let i=0;i<=steps;i++){
   const f=steps?i/steps:0,px=Math.round(x+(xx-x)*f),py=Math.round(y+(yy-y)*f);
-  const wx=worldAx+(px-originalX)/scale,wy=worldAy+(py-originalY)/scale,coord=wx*.87+wy*.49;
-  const cell=Math.floor(coord/23),cluster=hash(cell*23,41),h=hash(Math.floor(wx*scale),Math.floor(wy*scale));
-  const flow=(Math.sin(coord*.089-time*2.4)+Math.sin(coord*.193+time*1.25)*.5)/1.5,depth=(12+flow*8+cluster*10)*scale;
+  const wx=(px+worldPixelX)/scale,wy=(py+worldPixelY)/scale,coord=wx*.87+wy*.49;
+  const cell=Math.floor(coord/23),cluster=hash(cell*23,41),h=hash(wx,wy);
+  const grain=(Math.sin(coord*.089)+Math.sin(coord*.193)*.5)/1.5,depth=(6+grain*3+cluster*4)*scale;
   let d=Math.max(1,Math.round(depth));c.globalAlpha=savedAlpha*.7;c.fillStyle=spectral.deep;c.fillRect(px,ny<0?py-d+1:py,1,d);
   d=Math.max(1,Math.round(depth*.68));c.globalAlpha=savedAlpha*.88;c.fillStyle=spectral.body;c.fillRect(px,ny<0?py-d+1:py,1,d);
   d=Math.max(1,Math.round(depth*.36));c.globalAlpha=savedAlpha*.9;c.fillStyle=spectral.fringe;c.fillRect(px,ny<0?py-d+1:py,1,d);
-  d=Math.max(1,Math.round(3.1*scale));c.globalAlpha=savedAlpha;c.fillStyle=spectral.core;c.fillRect(px,ny<0?py-d+1:py,1,d);
-  if(Math.sin(coord*.12-time*3.7)>.88){d=Math.max(1,Math.round(5*scale));c.globalAlpha=savedAlpha*.9;c.fillStyle=spectral.hot;c.fillRect(px,ny<0?py-d+1:py,1,d);}
-  if(h>.96){const d=depth+Math.sin(time*1.8+cell)*3*scale;c.globalAlpha=savedAlpha*.45;c.fillStyle=spectral.mote;c.fillRect(px,Math.round(py+ny*d),2,2);}
+  d=Math.max(1,Math.round(1.6*scale));c.globalAlpha=savedAlpha;c.fillStyle=spectral.core;c.fillRect(px,ny<0?py-d+1:py,1,d);
+  if(Math.sin(coord*.12)>.88){d=Math.max(1,Math.round(2.5*scale));c.globalAlpha=savedAlpha*.9;c.fillStyle=spectral.hot;c.fillRect(px,ny<0?py-d+1:py,1,d);}
+  if(h>.96){const d=depth*.75;c.globalAlpha=savedAlpha*.45;c.fillStyle=spectral.mote;c.fillRect(px,Math.round(py+ny*d),1,1);}
  }
  c.globalAlpha=savedAlpha;(line||fallbackLine)(c,x,y,xx,yy,contactEdgeInk('spectral',palette),1);c.globalAlpha=savedAlpha;
 }
@@ -82,6 +85,7 @@ function paintSpectralTerrain(c,{x,y,xx,yy,originalX,originalY,worldAx,worldAy,s
 function paintBoldEdge(c,{x,y,xx,yy,nx,ny,originalX,originalY,worldAx,worldAy,scale,playerX,playerY,time,style,stroke,palette}){
  const savedAlpha=c.globalAlpha,steps=Math.max(Math.abs(xx-x),Math.abs(yy-y)),tx=-ny,ty=nx;
  const spectral=palette||SPECTRAL_BLUE;
+ const worldPixelX=Math.round(worldAx*scale)-Math.round(originalX),worldPixelY=Math.round(worldAy*scale)-Math.round(originalY);
  const band=(px,py,depth,ink,alpha=1)=>{
   depth=Math.max(1,Math.round(depth));c.globalAlpha=savedAlpha*alpha;c.fillStyle=ink;
   if(Math.abs(nx)<.12)c.fillRect(px,ny<0?py-depth+1:py,1,depth);
@@ -91,8 +95,8 @@ function paintBoldEdge(c,{x,y,xx,yy,nx,ny,originalX,originalY,worldAx,worldAy,sc
  const segment=(ax,ay,bx,by,ink,size=1,alpha=1)=>{c.globalAlpha=savedAlpha*alpha;stroke(c,Math.round(ax),Math.round(ay),Math.round(bx),Math.round(by),ink,size);};
  for(let i=0;i<=steps;i++){
   const f=steps?i/steps:0,px=Math.round(x+(xx-x)*f),py=Math.round(y+(yy-y)*f);
-  const wx=worldAx+(px-originalX)/scale,wy=worldAy+(py-originalY)/scale,coord=wx*.87+wy*.49;
-  const cell=Math.floor(coord/23),cluster=hash(cell*23,41),h=hash(Math.floor(wx*scale),Math.floor(wy*scale));
+  const wx=style==='spectral'?(px+worldPixelX)/scale:worldAx+(px-originalX)/scale,wy=style==='spectral'?(py+worldPixelY)/scale:worldAy+(py-originalY)/scale,coord=wx*.87+wy*.49;
+  const cell=Math.floor(coord/23),cluster=hash(cell*23,41),h=style==='spectral'?hash(wx,wy):hash(Math.floor(wx*scale),Math.floor(wy*scale));
   const near=Math.max(0,1-Math.hypot(px-playerX,py-playerY)/(150*Math.max(.25,scale)));
   if(style==='carved'){
    const chunk=hash(Math.floor(coord/13)*13,17),depth=(11+chunk*13)*scale;
@@ -100,11 +104,11 @@ function paintBoldEdge(c,{x,y,xx,yy,nx,ny,originalX,originalY,worldAx,worldAy,sc
    if(h>.83&&chunk>.35)band(px,py,depth*(.55+h*.35),'#4b5b4f',.8);
    if(h<.035)segment(px+nx*2,py+ny*2,px+nx*depth+tx*4,py+ny*depth+ty*4,'#23342f',1,.8);
   }else if(style==='spectral'){
-   const flow=(Math.sin(coord*.089-time*2.4)+Math.sin(coord*.193+time*1.25)*.5)/1.5;
-   const depth=(12+flow*8+cluster*10)*scale;
-   band(px,py,depth,spectral.deep,.7);band(px,py,depth*.68,spectral.body,.88);band(px,py,depth*.36,spectral.fringe,.9);band(px,py,3.1*scale,spectral.core);
-   if(Math.sin(coord*.12-time*3.7)>.88)band(px,py,5*scale,spectral.hot,.9);
-   if(h>.96){const d=depth+Math.sin(time*1.8+cell)*3*scale;c.globalAlpha=savedAlpha*.45;c.fillStyle=spectral.mote;c.fillRect(Math.round(px+nx*d),Math.round(py+ny*d),2,2);}
+   const grain=(Math.sin(coord*.089)+Math.sin(coord*.193)*.5)/1.5;
+   const depth=(6+grain*3+cluster*4)*scale;
+   band(px,py,depth,spectral.deep,.7);band(px,py,depth*.68,spectral.body,.88);band(px,py,depth*.36,spectral.fringe,.9);band(px,py,1.6*scale,spectral.core);
+   if(Math.sin(coord*.12)>.88)band(px,py,2.5*scale,spectral.hot,.9);
+   if(h>.96){const d=depth*.75;c.globalAlpha=savedAlpha*.45;c.fillStyle=spectral.mote;c.fillRect(Math.round(px+nx*d),Math.round(py+ny*d),1,1);}
   }else if(style==='roots'){
    band(px,py,2*scale,'#3c4930');
    if(cluster>.36&&h>.90){

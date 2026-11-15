@@ -1,4 +1,4 @@
-import { normalizeCompanionRole } from './companion-abilities.mjs?v=first-light-2';
+import { normalizeCompanionRole } from './companion-abilities.mjs?v=skills-cards-1';
 
 const PALETTES = Object.freeze({
   collector: Object.freeze({ outer: '#658557', mid: '#8db778', core: '#b9dfa0', bright: '#efffe0' }),
@@ -20,24 +20,53 @@ const ORB = Object.freeze({ width: 25, height: 25,
     return radius <= 56 ? '3' : radius <= 104 ? '2' : '1';
   }).join(''))) });
 
-export function companionSprite(role = 'collector') {
-  return ORB;
+// Opt-in art study: the production sprite remains the default until selected.
+// Both candidates keep the 25px source and the renderers' existing orbit size.
+const COLLECTOR_ART_QUERY = typeof location === 'undefined' ? '' : new URLSearchParams(location.search).get('collectorArt');
+export function collectorArtVariant(value = COLLECTOR_ART_QUERY) {
+  return value === 'flat2' || value === 'flat3' ? value : 'current';
+}
+const flatSpans = [9,6,6,4,4,2,2,2,1,1,0,0,0,0,0,1,1,2,2,2,4,4,6,6,9];
+function flatCollectorArt(soft = false) {
+  const occupied = (x,y) => x >= 0 && x < 25 && y >= 0 && y < 25 &&
+    (soft ? (x-12)**2+(y-12)**2 <= 151 : x >= flatSpans[y] && x < 25-flatSpans[y]);
+  const rows = Array.from({length:25},(_,y)=>Array.from({length:25},(_,x)=>{
+    if(!occupied(x,y))return '0';
+    const edge=!occupied(x-1,y)||!occupied(x+1,y)||!occupied(x,y-1)||!occupied(x,y+1);
+    const rim=!occupied(x-2,y)||!occupied(x+2,y)||!occupied(x,y-2)||!occupied(x,y+2);
+    // A two-source-pixel contour survives the small flight raster. The softer
+    // candidate uses one transition ink at that edge; its face stays uniform.
+    if(soft?edge:rim)return '1';
+    if(soft&&(rim||!occupied(x-1,y-1)||!occupied(x+1,y-1)||!occupied(x-1,y+1)||!occupied(x+1,y+1)))return '2';
+    return soft?'3':'2';
+  }).join(''));
+  return Object.freeze({width:25,height:25,rows:Object.freeze(rows)});
+}
+const COLLECTOR_ART = Object.freeze({flat2:flatCollectorArt(),flat3:flatCollectorArt(true)});
+const COLLECTOR_PALETTES = Object.freeze({
+  flat2:Object.freeze({outer:'#426b61',mid:'#b4dcc0',core:'#b4dcc0',bright:'#b4dcc0'}),
+  flat3:Object.freeze({outer:'#4c746a',mid:'#89b69e',core:'#bbdcc0',bright:'#bbdcc0'}),
+});
+
+export function companionSprite(role = 'collector', {collectorArt} = {}) {
+  return normalizeCompanionRole(role)==='collector' && COLLECTOR_ART[collectorArtVariant(collectorArt)] || ORB;
 }
 
-export function companionPalette(role = 'collector') {
+export function companionPalette(role = 'collector', {collectorArt} = {}) {
+  if(normalizeCompanionRole(role)==='collector' && COLLECTOR_PALETTES[collectorArtVariant(collectorArt)])return COLLECTOR_PALETTES[collectorArtVariant(collectorArt)];
   return PALETTES[normalizeCompanionRole(role)] || PALETTES.collector;
 }
 
-export function makeCompanionSprite(doc,role='collector'){
-  const canvas=doc.createElement('canvas'),tint=companionPalette(role);
-  canvas.width=ORB.width;canvas.height=ORB.height;
+export function makeCompanionSprite(doc,role='collector',options={}){
+  const canvas=doc.createElement('canvas'),tint=companionPalette(role,options),art=companionSprite(role,options);
+  canvas.width=art.width;canvas.height=art.height;
   const c=canvas.getContext('2d'),inks=[null,tint.outer,tint.mid,tint.core,tint.bright];
-  ORB.rows.forEach((row,y)=>{for(let x=0;x<row.length;x++)if(inks[Number(row[x])]){c.fillStyle=inks[Number(row[x])];c.fillRect(x,y,1,1);}});
+  art.rows.forEach((row,y)=>{for(let x=0;x<row.length;x++)if(inks[Number(row[x])]){c.fillStyle=inks[Number(row[x])];c.fillRect(x,y,1,1);}});
   return canvas;
 }
 
-export function companionArtSvg(role = 'collector', { className = '' } = {}) {
-  const id = normalizeCompanionRole(role), art = companionSprite(id), palette = companionPalette(id);
+export function companionArtSvg(role = 'collector', { className = '',collectorArt } = {}) {
+  const id = normalizeCompanionRole(role), art = companionSprite(id,{collectorArt}), palette = companionPalette(id,{collectorArt});
   const inks = [null, palette.outer, palette.mid, palette.core, palette.bright];
   const classes = String(className || '').replace(/[^a-zA-Z0-9 _-]/g, '').trim().slice(0, 120);
   const paths=['','','','',''];
@@ -49,7 +78,7 @@ export function companionArtSvg(role = 'collector', { className = '' } = {}) {
     }
   });
   const pixels=paths.map((d,i)=>d?`<path d="${d}" fill="${inks[i]}"/>`:'').join('');
-  return `<svg xmlns="http://www.w3.org/2000/svg" class="companion-portrait ${classes}" data-role-art="${id}" viewBox="-2 -2 29 29" width="${art.width}" height="${art.height}" preserveAspectRatio="xMidYMid meet" shape-rendering="crispEdges" role="img" aria-label="${NAMES[id] || 'Collector'} companion"><g class="companion-orbit">${pixels}</g></svg>`;
+  return `<svg xmlns="http://www.w3.org/2000/svg" class="companion-portrait ${classes}" data-role-art="${id}" data-collector-art="${id==='collector'?collectorArtVariant(collectorArt):'current'}" viewBox="-2 -2 29 29" width="${art.width}" height="${art.height}" preserveAspectRatio="xMidYMid meet" shape-rendering="crispEdges" role="img" aria-label="${NAMES[id] || 'Collector'} companion"><g class="companion-orbit">${pixels}</g></svg>`;
 }
 
 export const WISP_ART=Object.freeze({radius:12.7,size:36,shades:8,
