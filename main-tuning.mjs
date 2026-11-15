@@ -53,7 +53,7 @@ export function priceSkillDefinition(s){
  // same as a second life. General price growth still applies to all purchases.
  const utility={
   'main-speed':30,'main-tailwind':35,'main-sight':45,'main-glow-sense':55,'main-efficiency':90,
-  'main-dream-long':45,'main-dream-deep':65,'main-drift-sense':25,'main-drift-sense-2':40,'main-drift-sense-3':70,
+  'main-dream-long':30,'main-dream-deep':250,'main-drift-sense':25,'main-drift-sense-2':40,'main-drift-sense-3':70,
   'collector-last-orbit':155,'collector-far-search':50,'collector-rich-cargo':80,'collector-fleet-return':65,'collector-close-orbit':40,
   'collector-fetch-large':50,'collector-fetch-flash':30,
   'protector-cost':45,'protector-layers':90,'protector-clean-break':25,'protector-lasting-shell':25,'protector-thrifty-shell':55,'protector-returning-shell':65,
