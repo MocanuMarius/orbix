@@ -173,3 +173,7 @@ Published as `steady-giants-1`, source `15dc15a`. All 259 release assets matched
 - [x] Three-clear positive preparations and a lasting Fallen Giant challenge reward.
 - [ ] Player visual approval, then publish this batch. Public build is unchanged.
 - [ ] Continue Collector Guard/targeting-preference planning after visual review.
+
+## Paused item-by-item balance review
+
+Resume at **Search Spark**, the next unrated item (30 Stored Sparks base, +12% Collector reach). Compare each item's effect with its cost and offer Useless, Weak, Ok, Strong or OP. Prior ratings and accepted changes are in DECISIONS.md. The final Dream skill is named Nightmare.
