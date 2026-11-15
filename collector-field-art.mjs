@@ -1,7 +1,7 @@
-import {pickupKind} from './pickups.mjs?v=starter-flow-1';
-import {sparkBodyRadius} from './spark-size.mjs?v=starter-flow-1';
-import {drawCollectorGuard} from './collector-guard-art.mjs?v=starter-flow-1';
-import {companionPalette} from './companion-art.mjs?v=starter-flow-1';
+import {pickupKind} from './pickups.mjs?v=composed-worlds-1';
+import {sparkBodyRadius} from './spark-size.mjs?v=composed-worlds-1';
+import {drawCollectorGuard} from './collector-guard-art.mjs?v=composed-worlds-1';
+import {companionPalette} from './companion-art.mjs?v=composed-worlds-1';
 
 const TAU = 2 * Math.PI;
 const green = companionPalette('collector');

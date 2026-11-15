@@ -1,5 +1,5 @@
-import {drawAuthoredMaterial} from './authored-environment.mjs?v=starter-flow-1';
-import {pineCrown} from './pixel-contour.mjs?v=starter-flow-1';
+import {drawAuthoredMaterial} from './authored-environment.mjs?v=composed-worlds-1';
+import {pineCrown} from './pixel-contour.mjs?v=composed-worlds-1';
 // Original pixel scenery. Backdrops and solid materials are rasterized by the
 // existing renderer caches; only a few matte weather pixels animate each frame.
 // Nothing here emits light or draws outside the simulation's solid silhouettes.
@@ -126,7 +126,7 @@ export function drawBiomeMaterial(c,{identity,surface,top,palette:p,width:W,heig
  // Larger mineral seams and eroded pockets break up the fine material grain.
  // The caller clips these deposits to the existing collision silhouette.
  c.save();if(authored)c.globalAlpha=.22;
- for(let seam=0;seam<5;seam++){
+ for(let seam=0;seam<(authored?0:5);seam++){
   const depth=12+seam*23+n(seam,seed)*15;
   let prev=[0,at(0)+sign*depth];
   for(let x=9;x<W;x+=9){

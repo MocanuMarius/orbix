@@ -1,5 +1,6 @@
-import {createNearLandscape,drawNearLandscapePlates} from './near-landscape.mjs?v=starter-flow-1';
-import {prepareWildlife} from './habitat-wildlife.mjs?v=starter-flow-1';
+import {createNearLandscape,drawNearLandscapePlates} from './near-landscape.mjs?v=composed-worlds-1';
+import {prepareWildlife} from './habitat-wildlife.mjs?v=composed-worlds-1';
+import {makeCourseTableaux,drawCourseTableaux} from './course-tableaux.mjs?v=composed-worlds-1';
 // Artwork by Luis Zuno / Ansimuz. Source packs and licences are listed in
 // nature-credits.html and assets/nature/licenses/. Prepared once per document.
 const artFiles = {
@@ -9,10 +10,16 @@ const artFiles = {
   caveBack:'assets/nature/cave-back.png', caveWall:'assets/nature/cave-wall.png', caveTiles:'assets/nature/cave-tiles.png',
   rockBack:'assets/nature/rock-back.png', rockMid:'assets/nature/rock-mid.png', rockNear:'assets/nature/rock-near.png',
   rockTiles:'assets/nature/rock-tiles.png', rockPlant1:'assets/nature/rock-plant-1.png', rockPlant2:'assets/nature/rock-plant-2.png',
-  reefFar:'assets/nature/reef-far.png', reefFront:'assets/nature/reef-front.png',
+  reefFar:'assets/nature/reef-far.png', reefFront:'assets/nature/reef-front.png', reefGarden:'assets/nature/reef-garden.png',
   graveBack:'assets/nature/grave-back.png', graveMid:'assets/nature/grave-mid.png', graveObjects:'assets/nature/grave-objects.png',
   graveTiles:'assets/nature/grave-tiles.png', castleBack:'assets/nature/castle-back.png', castleTiles:'assets/nature/castle-tiles.png',
+  townFar:'assets/nature/town-far.png',townRoofs:'assets/nature/town-roofs.png',
 };
+// Background color is independent of the warm, readable solid material. These
+// grades establish distance; the normal fog/light mask still controls sight.
+const atmospheres={pinewood:'#426667',marsh:'#476a63',thorn:'#4f6259',moonruins:'#4d6675',cemetery:'#536475',
+ frost:'#678393',basalt:'#725463',desert:'#856f76',fungal:'#645879',coral:'#4d7488',crystal:'#69658a',cloud:'#718a9b'};
+const backgroundGrades=new Set(Object.values(atmospheres));
 const profiles = {
   moonruins:{layers:[['graveBack',.06,.7],['castleBack',.18,.64],['graveMid',.34,.48]],texture:'castleTiles',patch:[36,32,24,24],tone:'#707b71',plant:'swampProps'},
   frost:{layers:[['rockBack',.06,.7],['rockMid',.18,.66],['rockNear',.31,.46]],texture:'rockTiles',patch:[48,24,24,24],tone:'#859fa7',plant:'rockPlant1'},
@@ -34,7 +41,7 @@ function biomeOf(engine){
 export function prepareEnvironmentArt(document){
   if(!document?.createElement)return Promise.resolve();
   if(documents.has(document))return documents.get(document).ready;
-  const state={images:new Map(),variants:new Map(),nearLandscapes:new Map(),ready:null};documents.set(document,state);
+  const state={images:new Map(),variants:new Map(),nearLandscapes:new Map(),tableaux:new Map(),ready:null};documents.set(document,state);
   state.ready=Promise.all([prepareWildlife(document),...Object.entries(artFiles).map(([key,url])=>new Promise(resolve=>{
     const image=document.createElement('img');
     image.onload=()=>{state.images.set(key,image);resolve();};image.onerror=resolve;
@@ -48,7 +55,7 @@ function tinted(document,state,key,tone){
   const image=state.images.get(key);if(!image)return null;
   const surface=document.createElement('canvas');surface.width=image.width;surface.height=image.height;
   const c=surface.getContext('2d',{willReadFrequently:true});c.drawImage(image,0,0);
-  if(key.endsWith('Tiles')||['#859fa7','#8b9fa1','#8c83a0'].includes(tone)){
+  if(key.endsWith('Tiles')||backgroundGrades.has(tone)||['#859fa7','#8b9fa1','#8c83a0'].includes(tone)){
     const pixels=c.getImageData(0,0,surface.width,surface.height);
     const channels=[1,3,5].map(index=>parseInt(tone.slice(index,index+2),16));
     for(let index=0;index<pixels.data.length;index+=4){
@@ -68,7 +75,7 @@ export function drawAuthoredBackdrop(context,engine,{scale=1,distance=engine.ren
   context.save();context.scale(scale,scale);context.imageSmoothingEnabled=false;
   let painted=false;
   for(const [key,speed,opacity]of profile.layers){
-    const image=tinted(context.canvas.ownerDocument,state,key,profile.tone);if(!image)continue;
+    const image=tinted(context.canvas.ownerDocument,state,key,atmospheres[biomeOf(engine)]||profile.tone);if(!image)continue;
     const crop=key.startsWith('swamp')&&key!=='swampBack'?Math.floor(image.height*.18):0;
     const sourceHeight=image.height-crop;
     const height=engine.height*1.05,width=image.width*height/sourceHeight;
@@ -78,6 +85,22 @@ export function drawAuthoredBackdrop(context,engine,{scale=1,distance=engine.ren
     painted=true;
   }
   context.restore();return painted;
+}
+export function prepareCourseArt(document,engine){
+ const state=documents.get(document),biome=biomeOf(engine),profile=profiles[biome];if(!state||!profile)return;
+ const variant=engine.levelIdentity?.variant||0,key=biome+':'+variant;if(state.tableaux.has(key))return;
+ const tone=atmospheres[biome]||profile.tone;
+ const stone=tinted(document,state,profile.texture,tone),tree=tinted(document,state,'graveObjects',tone);
+ const town=tinted(document,state,'townRoofs',tone),spires=tinted(document,state,'townFar',tone);
+ const reef=biome==='coral'?tinted(document,state,'reefFront',tone):null;
+ const reefGarden=biome==='coral'?tinted(document,state,'reefGarden',tone):null;
+ const items=makeCourseTableaux(document,{biome,variant,stone,bark:tree,tree,town,spires,reef,reefGarden,patch:profile.patch});
+ if(state.tableaux.size>=2){const first=state.tableaux.keys().next().value;for(const item of state.tableaux.get(first))item.canvas.width=1;state.tableaux.delete(first);}
+ state.tableaux.set(key,items);
+}
+export function drawCourseArt(c,e,{scale=1,distance=e.renderDistance??e.distance,pass='far'}={}){
+ const state=stateFor(c),key=biomeOf(e)+':'+(e.levelIdentity?.variant||0),items=state?.tableaux.get(key);if(!items)return;
+ drawCourseTableaux(c,items,e,{scale,distance,pass});
 }
 export function prepareNearLandscape(document,engine){
   const state=documents.get(document),biome=biomeOf(engine),profile=profiles[biome];
