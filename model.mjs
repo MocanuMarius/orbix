@@ -1,37 +1,37 @@
-import {collectorPreference,learnedCollectorPreferences} from './collector-preferences.mjs?v=resonance-1';
-import {FLIGHT_PACTS,pactOffers,activeFlightPact,pactBonus} from './flight-pacts.mjs?v=resonance-1';
-import {chestRewardPair} from './chest-rewards.mjs?v=resonance-1';
-import {STARTING_GIFTS} from './starting-gifts.mjs?v=resonance-1';
-import {EVENT_EDITION,eventChoices,rollPrism} from './event-choices.mjs?v=resonance-1';
-import {GUARDIAN_RELICS} from './guardian-artifacts.mjs?v=resonance-1';
-import {ATLAS_FORECASTS,atlasBranches} from './night-atlas.mjs?v=resonance-1';
-import {getRouteBonus,awardRouteBonus} from './route-bonuses.mjs?v=resonance-1';
-export {getRouteBonus,getRouteBonusCandidates,nextBonusFlightNodes} from './route-bonuses.mjs?v=resonance-1';
-import {consolidateSkills,refundRetiredSkills} from './skill-consolidation.mjs?v=resonance-1';
-import {PROXIMITY_SKILLS} from './proximity-skills.mjs?v=resonance-1';
-import {getGuardianForMap,getBossPreview} from './boss.mjs?v=resonance-1';
-import {guardianMapTheme} from './map-theme.mjs?v=resonance-1';
-import {getFlightLengthProfile} from './level-length.mjs?v=resonance-1';
-import {cleanOnboarding} from './onboarding.mjs?v=resonance-1';
-import {CONDENSED_TUNING,getCondensationRules,condenseGlow,getKeptLightDividend,getFlightPackingLimit,packExitReserve} from './condensed-glow.mjs?v=resonance-1';
-import {CONSUMABLE_ARTIFACTS,EVOLVING_ARTIFACTS,getArtifactStackPreview} from './artifact-info.mjs?v=resonance-1';
-import {getFlightClearReward} from './checkpoint-rewards.mjs?v=resonance-1';
-export {getCondensationRules} from './condensed-glow.mjs?v=resonance-1';
-import {ROUTE_RECIPES,ROUTE_TOPOLOGY_VERSION,MAP_STOP_COUNT,REWARD_THEMES,nodeEconomy} from './route-recipes.mjs?v=resonance-1';
-import {COMPANION_ABILITIES,getCompanionUnlock,normalizeCompanionFleet} from './companion-abilities.mjs?v=resonance-1';
-import {MAIN_TUNING_SKILLS} from './main-tuning.mjs?v=resonance-1';
-import {activePassageBoons,activeEventFavors,grantEventFavor,spendPreparationClear} from './passage-preparations.mjs?v=resonance-1';
-import {STARTING_CONDENSED_GLOW,getGlowCapacity,getRestGlowBonus,REST_GLOW_TUNING,glowText} from './vitality.mjs?v=resonance-1';
-import {expandSkillSteps,skillProgress} from './skill-increments.mjs?v=resonance-1';
-import {MAX_ASCENSION} from './ascent.mjs?v=resonance-1';
-import {EXPANDED_SKILLS,applyExpandedSkills} from './skill-paths.mjs?v=resonance-1';
+import {collectorPreference,learnedCollectorPreferences} from './collector-preferences.mjs?v=resonance-2';
+import {FLIGHT_PACTS,pactOffers,activeFlightPact,pactBonus} from './flight-pacts.mjs?v=resonance-2';
+import {chestRewardPair} from './chest-rewards.mjs?v=resonance-2';
+import {STARTING_GIFTS} from './starting-gifts.mjs?v=resonance-2';
+import {EVENT_EDITION,eventChoices,rollPrism} from './event-choices.mjs?v=resonance-2';
+import {GUARDIAN_RELICS} from './guardian-artifacts.mjs?v=resonance-2';
+import {ATLAS_FORECASTS,atlasBranches} from './night-atlas.mjs?v=resonance-2';
+import {getRouteBonus,awardRouteBonus} from './route-bonuses.mjs?v=resonance-2';
+export {getRouteBonus,getRouteBonusCandidates,nextBonusFlightNodes} from './route-bonuses.mjs?v=resonance-2';
+import {consolidateSkills,refundRetiredSkills} from './skill-consolidation.mjs?v=resonance-2';
+import {PROXIMITY_SKILLS} from './proximity-skills.mjs?v=resonance-2';
+import {getGuardianForMap,getBossPreview} from './boss.mjs?v=resonance-2';
+import {guardianMapTheme} from './map-theme.mjs?v=resonance-2';
+import {getFlightLengthProfile} from './level-length.mjs?v=resonance-2';
+import {cleanOnboarding} from './onboarding.mjs?v=resonance-2';
+import {CONDENSED_TUNING,getCondensationRules,condenseGlow,getKeptLightDividend,getFlightPackingLimit,packExitReserve} from './condensed-glow.mjs?v=resonance-2';
+import {CONSUMABLE_ARTIFACTS,EVOLVING_ARTIFACTS,getArtifactStackPreview} from './artifact-info.mjs?v=resonance-2';
+import {getFlightClearReward} from './checkpoint-rewards.mjs?v=resonance-2';
+export {getCondensationRules} from './condensed-glow.mjs?v=resonance-2';
+import {ROUTE_RECIPES,ROUTE_TOPOLOGY_VERSION,MAP_STOP_COUNT,REWARD_THEMES,nodeEconomy} from './route-recipes.mjs?v=resonance-2';
+import {COMPANION_ABILITIES,getCompanionUnlock,normalizeCompanionFleet} from './companion-abilities.mjs?v=resonance-2';
+import {MAIN_TUNING_SKILLS} from './main-tuning.mjs?v=resonance-2';
+import {activePassageBoons,activeEventFavors,grantEventFavor,spendPreparationClear} from './passage-preparations.mjs?v=resonance-2';
+import {STARTING_CONDENSED_GLOW,getGlowCapacity,getRestGlowBonus,REST_GLOW_TUNING,glowText} from './vitality.mjs?v=resonance-2';
+import {expandSkillSteps,skillProgress} from './skill-increments.mjs?v=resonance-2';
+import {MAX_ASCENSION} from './ascent.mjs?v=resonance-2';
+import {EXPANDED_SKILLS,applyExpandedSkills} from './skill-paths.mjs?v=resonance-2';
 /** Run-owned skills and currency; persistent ascension unlocks and boss artifacts. */
-import { FLAME_TUNING, LIFE_TUNING, getLifeCapacity } from './vitality.mjs?v=resonance-1';
-import { getBiomeLevelIdentity } from './level-catalog.mjs?v=resonance-1';
-import { BIOMES } from './biomes.mjs?v=resonance-1';
-import { EVENT_SCENARIOS } from './map-guide.mjs?v=resonance-1';
-import {contextualEventChoices,resolvePilgrimVow,ROUTE_PREPARATION} from './contextual-events.mjs?v=resonance-1';
-import {TREASURE_KINDS, describeTreasure, treasureChoices, treasureRank, grantTreasureGift, treasureClearDividend, LENS_SIGHT, LENS_RECOVERY, settleTreasureWager} from './treasure.mjs?v=resonance-1';
+import { FLAME_TUNING, LIFE_TUNING, getLifeCapacity } from './vitality.mjs?v=resonance-2';
+import { getBiomeLevelIdentity } from './level-catalog.mjs?v=resonance-2';
+import { BIOMES } from './biomes.mjs?v=resonance-2';
+import { EVENT_SCENARIOS } from './map-guide.mjs?v=resonance-2';
+import {contextualEventChoices,resolvePilgrimVow,ROUTE_PREPARATION} from './contextual-events.mjs?v=resonance-2';
+import {TREASURE_KINDS, describeTreasure, treasureChoices, treasureRank, grantTreasureGift, treasureClearDividend, LENS_SIGHT, LENS_RECOVERY, settleTreasureWager} from './treasure.mjs?v=resonance-2';
 export const SAVE_KEY='wispbound.save.condensed.v7';
 export const CAMPAIGN_MAP_NAMES=Object.freeze(['The Forgotten Verge','The Rootbound March','The Warden’s Reach']);
 export const TERRAINS=Object.freeze({ruins:{id:'ruins',name:'Sunken Ruins',color:'#cdb183',description:'Broken homes, worn arches and overgrown stone.'},canopy:{id:'canopy',name:'Luminous Canopy',color:'#94b48a',description:'Hollow trees, hanging roots and sheltered forest passages.'},storm:{id:'storm',name:'Stormglass Peaks',color:'#a8bbca',description:'Pine ridges, old mine timbers and local draft puffs.'}});
@@ -57,7 +57,7 @@ export const SKILLS=Object.freeze(consolidateSkills(Object.fromEntries(Object.en
  ...PROXIMITY_SKILLS,
  'main-resonant-harvest':{id:'main-resonant-harvest',name:'Resonant Harvest',branch:'main',cost:40,maxRank:1,requires:null,icon:'radiance',shortEffect:'Waves restore Sparks',description:'Each Luminance wave touching an uncollected ordinary Spark restores 1 Spark to your meter. The same Spark can resonate again with the next wave.'},
  'main-resonant-purification':{id:'main-resonant-purification',name:'Resonant Purification',branch:'main',cost:80,maxRank:1,requires:'main-resonant-harvest',icon:'radiance',shortEffect:'Waves purify Dark Sparks',description:'Luminance waves also purify Dark Sparks they touch. Resonant Harvest continues on ordinary Sparks.'},
- 'main-resonant-bounty':{id:'main-resonant-bounty',name:'Resonant Bounty',branch:'main',cost:250,maxRank:1,requires:'main-resonant-purification',icon:'radiance',shortEffect:'Each hit also stores 1',description:'Each Luminance wave touching an uncollected ordinary Spark restores 1 Spark to your meter and grants 1 Stored Spark. The same Spark can pay again on the next wave.'},
+ 'main-resonant-bounty':{id:'main-resonant-bounty',name:'Resonant Bounty',branch:'main',cost:150,maxRank:1,requires:'main-resonant-purification',icon:'radiance',shortEffect:'Each hit also stores 1',description:'Each Luminance wave touching an uncollected ordinary Spark restores 1 Spark to your meter and grants 1 Stored Spark. The same Spark can pay again on the next wave.'},
  'main-efficiency':skill('main-efficiency','Gentle Lift','main',40,3,null,'Lift spends 7% less Sparks per rank.'),
  'main-sight':skill('main-sight','Inner Light','main',40,3,null,'See farther ahead with each rank.'),
  'main-lift':skill('main-lift','Rising Light','main',110,2,'main-efficiency','Lift impulse is 4% stronger per rank.'),

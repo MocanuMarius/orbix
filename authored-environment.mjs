@@ -1,6 +1,6 @@
-import {createNearLandscape,drawNearLandscapePlates} from './near-landscape.mjs?v=resonance-1';
-import {prepareWildlife} from './habitat-wildlife.mjs?v=resonance-1';
-import {makeCourseTableaux,drawCourseTableaux} from './course-tableaux.mjs?v=resonance-1';
+import {createNearLandscape,drawNearLandscapePlates} from './near-landscape.mjs?v=resonance-2';
+import {prepareWildlife} from './habitat-wildlife.mjs?v=resonance-2';
+import {makeCourseTableaux,drawCourseTableaux} from './course-tableaux.mjs?v=resonance-2';
 // Artwork by Luis Zuno / Ansimuz. Source packs and licences are listed in
 // nature-credits.html and assets/nature/licenses/. Prepared once per document.
 const artFiles = {
