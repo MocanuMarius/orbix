@@ -1,8 +1,8 @@
-import { DRAFT_TUNING } from './drafts.mjs?v=in-game-edges-2';
-import { scenePropBounds } from './scene-props.mjs?v=in-game-edges-2';
-import { formatGlow } from './vitality.mjs?v=in-game-edges-2';
-import { lightVisibility } from './light-field.mjs?v=in-game-edges-2';
-import { inLanternRoom } from './lantern-layout.mjs?v=in-game-edges-2';
+import { DRAFT_TUNING } from './drafts.mjs?v=bold-edge-ideas-1';
+import { scenePropBounds } from './scene-props.mjs?v=bold-edge-ideas-1';
+import { formatGlow } from './vitality.mjs?v=bold-edge-ideas-1';
+import { lightVisibility } from './light-field.mjs?v=bold-edge-ideas-1';
+import { inLanternRoom } from './lantern-layout.mjs?v=bold-edge-ideas-1';
 
 // Small, deterministic actors attached to existing terrain. Static mountain
 // meshes never change, and each actor is used once: no repeatable currency farm.

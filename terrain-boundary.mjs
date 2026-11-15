@@ -104,7 +104,7 @@ export function drawTerrainBoundary(c,engine,{scale=1,distance=engine.renderDist
   if(Math.max(y,yy)<-4||Math.min(y,yy)>height+4||x>width+4)continue;
   stroke(c,x,y+inward*2,xx,yy+inward*2,'#14201f',2);
   if(isContactEdgeStyle(engine.boundaryStyle))paintContactEdge(c,{x,y,xx,yy,inward,worldAx:ax,worldAy:ay,scale,
-    playerX:engine.player.x*scale,playerY:(engine.renderPlayerY??engine.player.y)*scale,time,style:engine.boundaryStyle,line:stroke});
+    playerX:engine.player.x*scale,playerY:(engine.renderPlayerY??engine.player.y)*scale,time,style:engine.boundaryStyle,line:stroke,reducedMotion:engine.reducedMotion});
   else stroke(c,x,y,xx,yy,'#b9c6aa',1);
  }
 }

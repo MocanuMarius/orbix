@@ -1,8 +1,8 @@
-import {ARTIFACTS,getArtifactSalvageValue,canSellArtifact} from './model.mjs?v=in-game-edges-2';
-import {artifactDescription,effectMarkup} from './artifact-copy.mjs?v=in-game-edges-2';
-import {artifactIcon} from './upgrade-icons.mjs?v=in-game-edges-2';
-import {artifactRarityLabel} from './replay-ui.mjs?v=in-game-edges-2';
-import {resourceSymbol} from './game-symbols.mjs?v=in-game-edges-2';
+import {ARTIFACTS,getArtifactSalvageValue,canSellArtifact} from './model.mjs?v=bold-edge-ideas-1';
+import {artifactDescription,effectMarkup} from './artifact-copy.mjs?v=bold-edge-ideas-1';
+import {artifactIcon} from './upgrade-icons.mjs?v=bold-edge-ideas-1';
+import {artifactRarityLabel} from './replay-ui.mjs?v=bold-edge-ideas-1';
+import {resourceSymbol} from './game-symbols.mjs?v=bold-edge-ideas-1';
 
 export const COLLECTION_PAGE_SIZE=6;
 const esc=value=>String(value??'').replace(/[&<>"']/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));

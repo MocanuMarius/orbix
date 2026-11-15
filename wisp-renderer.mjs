@@ -1,36 +1,36 @@
-import {prepareEnvironmentArt,prepareNearLandscape,prepareCourseArt,drawCourseArt,drawNearLandscape,drawTerrainForeground} from './authored-environment.mjs?v=in-game-edges-2';
-import {drawTerrainEcology,drawHabitatBackdrop} from './terrain-ecology.mjs?v=in-game-edges-2';
-import {drawTerrainBoundary,terrainBoundary} from './terrain-boundary.mjs?v=in-game-edges-2';
-import {paintContactEdge,isContactEdgeStyle} from './contact-edge-art.mjs?v=in-game-edges-2';
-import {drawAtlasFlight} from './atlas-flight.mjs?v=in-game-edges-2';
-import {drawGuardianPresence} from './guardian-presence.mjs?v=in-game-edges-2';
-import { drawGuardianWarnings } from './guardian-art.mjs?v=in-game-edges-2';
-import { drawShutters } from './shutter-cone.mjs?v=in-game-edges-2';
-import {drawProximityMeter} from './proximity-meter.mjs?v=in-game-edges-2';
-import {drawFourthBeat} from './fourth-beat-art.mjs?v=in-game-edges-2';
-import {drawCollectorField} from './collector-field-art.mjs?v=in-game-edges-2';
-import {drawObjectiveMarks} from './flight-objectives.mjs?v=in-game-edges-2';
-import {drawFlightProjection} from './flight-projection.mjs?v=in-game-edges-2';
-import {drawGlowSense} from './glow-sense.mjs?v=in-game-edges-2';
-import {formatGlow} from './vitality.mjs?v=in-game-edges-2';
-import {LOCATION_PALETTES} from './world-expansion.mjs?v=in-game-edges-2';
-import {biomePalette} from './biome-art.mjs?v=in-game-edges-2';
-import { sceneryIdentity, drawIdentityBackground, drawIdentityMaterial, drawIdentityLife } from './level-scenery.mjs?v=in-game-edges-2';
-import { getCompanionAbility, normalizeCompanionRole } from './companion-abilities.mjs?v=in-game-edges-2';
-import { companionPalette, makeCompanionSprite, makeWispSprite } from './companion-art.mjs?v=in-game-edges-2';
-import { createScenePropArt } from './scene-prop-art.mjs?v=in-game-edges-2';
-import { drawBoss } from './boss.mjs?v=in-game-edges-2';
-import {drawFlashTether} from './flash-tether.mjs?v=in-game-edges-2';
-import { drawPickup, drawSparkSymbol } from './pickup-art.mjs?v=in-game-edges-2';
-import {sparkBodyRadius,sparkArtScale,sparkMass} from './spark-size.mjs?v=in-game-edges-2';
-import { pickupKind, getPickupSpec } from './pickups.mjs?v=in-game-edges-2';
-import { LIGHT_EXTENT,lightAttenuation,lightVisibility,createLightMaskCanvas,castFlightFlashLights,revealLanternWake,sceneRevealStrength,renderLightState,lightDreamScenery } from './light-field.mjs?v=in-game-edges-2';
-import {drawExitLandmark} from './exit-landmark.mjs?v=in-game-edges-2';
-import {drawBlackHoles} from './black-hole-art.mjs?v=in-game-edges-2';
-import {drawCapture, drawShellPuff, drawCarriedSpark} from './capture-art.mjs?v=in-game-edges-2';
-import {drawShellArcs} from './shell-arcs.mjs?v=in-game-edges-2';
-import {drawFlightForks,drawFlightForkBackdrops} from './flight-forks.mjs?v=in-game-edges-2';
-import {drawFallWarning} from './fall-chain-art.mjs?v=in-game-edges-2';
+import {prepareEnvironmentArt,prepareNearLandscape,prepareCourseArt,drawCourseArt,drawNearLandscape,drawTerrainForeground} from './authored-environment.mjs?v=bold-edge-ideas-1';
+import {drawTerrainEcology,drawHabitatBackdrop} from './terrain-ecology.mjs?v=bold-edge-ideas-1';
+import {drawTerrainBoundary,terrainBoundary} from './terrain-boundary.mjs?v=bold-edge-ideas-1';
+import {paintContactEdge,isContactEdgeStyle,contactEdgeInk} from './contact-edge-art.mjs?v=bold-edge-ideas-1';
+import {drawAtlasFlight} from './atlas-flight.mjs?v=bold-edge-ideas-1';
+import {drawGuardianPresence} from './guardian-presence.mjs?v=bold-edge-ideas-1';
+import { drawGuardianWarnings } from './guardian-art.mjs?v=bold-edge-ideas-1';
+import { drawShutters } from './shutter-cone.mjs?v=bold-edge-ideas-1';
+import {drawProximityMeter} from './proximity-meter.mjs?v=bold-edge-ideas-1';
+import {drawFourthBeat} from './fourth-beat-art.mjs?v=bold-edge-ideas-1';
+import {drawCollectorField} from './collector-field-art.mjs?v=bold-edge-ideas-1';
+import {drawObjectiveMarks} from './flight-objectives.mjs?v=bold-edge-ideas-1';
+import {drawFlightProjection} from './flight-projection.mjs?v=bold-edge-ideas-1';
+import {drawGlowSense} from './glow-sense.mjs?v=bold-edge-ideas-1';
+import {formatGlow} from './vitality.mjs?v=bold-edge-ideas-1';
+import {LOCATION_PALETTES} from './world-expansion.mjs?v=bold-edge-ideas-1';
+import {biomePalette} from './biome-art.mjs?v=bold-edge-ideas-1';
+import { sceneryIdentity, drawIdentityBackground, drawIdentityMaterial, drawIdentityLife } from './level-scenery.mjs?v=bold-edge-ideas-1';
+import { getCompanionAbility, normalizeCompanionRole } from './companion-abilities.mjs?v=bold-edge-ideas-1';
+import { companionPalette, makeCompanionSprite, makeWispSprite } from './companion-art.mjs?v=bold-edge-ideas-1';
+import { createScenePropArt } from './scene-prop-art.mjs?v=bold-edge-ideas-1';
+import { drawBoss } from './boss.mjs?v=bold-edge-ideas-1';
+import {drawFlashTether} from './flash-tether.mjs?v=bold-edge-ideas-1';
+import { drawPickup, drawSparkSymbol } from './pickup-art.mjs?v=bold-edge-ideas-1';
+import {sparkBodyRadius,sparkArtScale,sparkMass} from './spark-size.mjs?v=bold-edge-ideas-1';
+import { pickupKind, getPickupSpec } from './pickups.mjs?v=bold-edge-ideas-1';
+import { LIGHT_EXTENT,lightAttenuation,lightVisibility,createLightMaskCanvas,castFlightFlashLights,revealLanternWake,sceneRevealStrength,renderLightState,lightDreamScenery } from './light-field.mjs?v=bold-edge-ideas-1';
+import {drawExitLandmark} from './exit-landmark.mjs?v=bold-edge-ideas-1';
+import {drawBlackHoles} from './black-hole-art.mjs?v=bold-edge-ideas-1';
+import {drawCapture, drawShellPuff, drawCarriedSpark} from './capture-art.mjs?v=bold-edge-ideas-1';
+import {drawShellArcs} from './shell-arcs.mjs?v=bold-edge-ideas-1';
+import {drawFlightForks,drawFlightForkBackdrops} from './flight-forks.mjs?v=bold-edge-ideas-1';
+import {drawFallWarning} from './fall-chain-art.mjs?v=bold-edge-ideas-1';
 
 const TAU = Math.PI * 2;
 const propContactCache=new WeakMap();
@@ -605,13 +605,30 @@ export class WispFlightView {
   drawScenePropContacts(e,t,distance){
     if(!isContactEdgeStyle(e.boundaryStyle))return;
     const c=this.bufferContext,s=this.scale,camera=Math.round(distance*s),profiles=terrainBoundary(e,t).profiles;
-    const options={scale:s,playerX:Math.round(e.player.x*s),playerY:Math.round(yOf(e)*s),time:t,style:e.boundaryStyle,line:pixelLine};
+    const broad=['carved','spectral','roots','fracture'].includes(e.boundaryStyle);
+    const options={scale:s,playerX:Math.round(e.player.x*s),playerY:Math.round(yOf(e)*s),time:t,style:e.boundaryStyle,reducedMotion:e.reducedMotion,line:pixelLine};
     for(const obstacle of this.visibleObstacles){
       if(obstacle.destroyed||!obstacle.sceneProps?.length)continue;
       const center=obstacle.center+Math.sin(t*.9+(obstacle.phase||0))*(obstacle.motion||0);
       for(const prop of obstacle.sceneProps){
         const bounds=this.getPropBounds(prop),anchor=center+prop.side*obstacle.gap/2;
         if(obstacle.x+bounds.maxX<distance-4||obstacle.x+bounds.minX>distance+e.width+4||anchor+bounds.maxY<0||anchor+bounds.minY>e.height)continue;
+        let seams;
+        if(broad){
+          seams=[];c.save();c.beginPath();
+          // Consistent winding makes nonzero clipping the union, including
+          // overlapping authored faces whose source polygons wind oppositely.
+          for(const part of prop.parts){
+            const polygon=part.polygon;let area=0;
+            for(let i=0;i<polygon.length;i++){const a=polygon[i],b=polygon[(i+1)%polygon.length];area+=a[0]*b[1]-b[0]*a[1];}
+            for(let i=0;i<polygon.length;i++){
+              const point=polygon[area<0?polygon.length-1-i:i],x=Math.round((obstacle.x+point[0])*s)-camera,y=Math.round((anchor+point[1])*s);
+              if(i===0)c.moveTo(x,y);else c.lineTo(x,y);
+            }
+            c.closePath();
+          }
+          c.clip('nonzero');
+        }
         for(const edge of propContacts(prop,e.height)){
           const ax=obstacle.x+edge.a[0],ay=anchor+edge.a[1],dx=edge.b[0]-edge.a[0],dy=edge.b[1]-edge.a[1];
           const steps=Math.max(1,Math.ceil(Math.max(Math.abs(dx),Math.abs(dy))*s));
@@ -628,9 +645,18 @@ export class WispFlightView {
               options.worldAx=ax+dx*lo;options.worldAy=ay+dy*lo;
               options.x=Math.round(options.worldAx*s)-camera;options.y=Math.round(options.worldAy*s);
               options.xx=Math.round((ax+dx*hi)*s)-camera;options.yy=Math.round((ay+dy*hi)*s);
-              paintContactEdge(c,options);start=-1;
+              paintContactEdge(c,options);
+              if(broad)seams.push([options.x,options.y,options.xx,options.yy]);
+              start=-1;
             }
           }
+        }
+        if(broad){
+          c.restore();
+          // Keep the exact contact readable outside the decorative clip,
+          // including narrow branches and outermost raster boundary pixels.
+          const ink=contactEdgeInk(e.boundaryStyle);
+          for(const [x,y,xx,yy]of seams)pixelLine(c,x,y,xx,yy,ink,1);
         }
       }
     }
