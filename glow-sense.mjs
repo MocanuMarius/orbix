@@ -1,8 +1,7 @@
-import {drawPickup} from './pickup-art.mjs?v=skills-cards-1';
-import {pickupKind} from './pickups.mjs?v=skills-cards-1';
-import {sparkArtScale, sparkBodyRadius, sparkMass} from './spark-size.mjs?v=skills-cards-1';
-import {lightVisibility} from './light-field.mjs?v=skills-cards-1';
-import {drawPickupHandlingCue} from './pickup-handling-cue.mjs?v=skills-cards-1';
+import {drawPickup} from './pickup-art.mjs?v=skills-cards-2';
+import {pickupKind} from './pickups.mjs?v=skills-cards-2';
+import {sparkArtScale, sparkBodyRadius, sparkMass} from './spark-size.mjs?v=skills-cards-2';
+import {lightVisibility} from './light-field.mjs?v=skills-cards-2';
 
 export function glowSenseCues(e, {
   distance = e.renderDistance ?? e.distance,
@@ -41,8 +40,8 @@ export function drawGlowSense(ctx, engine, {scale = 1, ...options} = {}) {
   for (const {x, y, packet, strength} of glowSenseCues(engine, options)) {
     drawPickup(ctx, x * scale, y * scale, {
       kind: pickupKind(packet), phase: packet.phase || 0, time, reducedMotion: engine.reducedMotion,
-      massTier: sparkMass(packet), scale: scale * sparkArtScale(packet, engine.height), alpha: strength
+      massTier: sparkMass(packet), scale: scale * sparkArtScale(packet, engine.height), alpha: strength,
+      handling:{packet,modifiers:engine.mod,collector:engine.hasCompanion?.('collector')===true}
     });
-    drawPickupHandlingCue(ctx,x*scale,y*scale,packet,engine.mod,{collector:engine.hasCompanion?.('collector')===true,scale,alpha:strength});
   }
 }

@@ -1,43 +1,43 @@
-import {prepareEnvironmentArt,prepareNearLandscape,prepareCourseArt,drawCourseArt,drawNearLandscape,drawTerrainForeground,releaseTerrainForeground} from './authored-environment.mjs?v=skills-cards-1';
-import {drawTerrainEcology,drawHabitatBackdrop} from './terrain-ecology.mjs?v=skills-cards-1';
-import {drawTerrainBoundary,terrainBoundary,beginTerrainBoundaryFrame,endTerrainBoundaryFrame,releaseTerrainBoundaryFrame} from './terrain-boundary.mjs?v=skills-cards-1';
-import {spacetimeBaseShape,drawSpacetimeTerrain} from './spacetime.mjs?v=skills-cards-1';
-import {paintContactEdge,isContactEdgeStyle,contactEdgeInk} from './contact-edge-art.mjs?v=skills-cards-1';
-import {ContactEdgeRaster} from './contact-edge-raster.mjs?v=skills-cards-1';
-import {getContactEdgePalette} from './contact-edge-palettes.mjs?v=skills-cards-1';
-import {drawAtlasFlight} from './atlas-flight.mjs?v=skills-cards-1';
-import {drawGuardianPresence} from './guardian-presence.mjs?v=skills-cards-1';
-import { drawGuardianWarnings } from './guardian-art.mjs?v=skills-cards-1';
-import { drawShutters } from './shutter-cone.mjs?v=skills-cards-1';
-import {drawProximityMeter} from './proximity-meter.mjs?v=skills-cards-1';
-import {drawFourthBeat} from './fourth-beat-art.mjs?v=skills-cards-1';
-import {drawCollectorField} from './collector-field-art.mjs?v=skills-cards-1';
-import {drawObjectiveMarks} from './flight-objectives.mjs?v=skills-cards-1';
-import {drawFlightProjection,drawLiftGuide} from './flight-projection.mjs?v=skills-cards-1';
-import {revealLuminanceWaves} from './luminance-waves.mjs?v=skills-cards-1';
-import {drawGlowSense} from './glow-sense.mjs?v=skills-cards-1';
-import {drawLastGlimmer} from './last-glimmer.mjs?v=skills-cards-1';
-import {formatGlow} from './vitality.mjs?v=skills-cards-1';
-import {LOCATION_PALETTES} from './world-expansion.mjs?v=skills-cards-1';
-import {biomePalette} from './biome-art.mjs?v=skills-cards-1';
-import { sceneryIdentity, drawIdentityBackground, drawIdentityMaterial, drawIdentityLife } from './level-scenery.mjs?v=skills-cards-1';
-import { getCompanionAbility, normalizeCompanionRole } from './companion-abilities.mjs?v=skills-cards-1';
-import { companionPalette, makeCompanionSprite, makeWispSprite } from './companion-art.mjs?v=skills-cards-1';
-import { createScenePropArt } from './scene-prop-art.mjs?v=skills-cards-1';
-import { drawBoss } from './boss.mjs?v=skills-cards-1';
-import {drawFlashTether} from './flash-tether.mjs?v=skills-cards-1';
-import { drawPickup, drawSparkSymbol } from './pickup-art.mjs?v=skills-cards-1';
-import {drawPickupHandlingCue} from './pickup-handling-cue.mjs?v=skills-cards-1';
-import {sparkBodyRadius,sparkArtScale,sparkMass} from './spark-size.mjs?v=skills-cards-1';
-import { pickupKind, getPickupSpec } from './pickups.mjs?v=skills-cards-1';
-import { LIGHT_EXTENT,lightAttenuation,lightVisibility,createLightMaskCanvas,castFlightFlashLights,revealLanternWake,sceneRevealStrength,renderLightState,lightDreamScenery } from './light-field.mjs?v=skills-cards-1';
-import {drawExitLandmark} from './exit-landmark.mjs?v=skills-cards-1';
-import {drawBlackHoles} from './black-hole-art.mjs?v=skills-cards-1';
-import {drawCapture, drawShellPuff, drawCarriedSpark} from './capture-art.mjs?v=skills-cards-1';
-import {drawShellArcs} from './shell-arcs.mjs?v=skills-cards-1';
-import {drawFlightForks,drawFlightForkBackdrops} from './flight-forks.mjs?v=skills-cards-1';
-import {drawFallWarning} from './fall-chain-art.mjs?v=skills-cards-1';
-import {castTerrainLight,releaseTerrainLight,prepareTerrainLight} from './terrain-light.mjs?v=skills-cards-1';
+import {prepareEnvironmentArt,prepareNearLandscape,prepareCourseArt,drawCourseArt,drawNearLandscape,drawTerrainForeground,releaseTerrainForeground} from './authored-environment.mjs?v=skills-cards-2';
+import {drawTerrainEcology,drawHabitatBackdrop} from './terrain-ecology.mjs?v=skills-cards-2';
+import {drawTerrainBoundary,terrainBoundary,beginTerrainBoundaryFrame,endTerrainBoundaryFrame,releaseTerrainBoundaryFrame} from './terrain-boundary.mjs?v=skills-cards-2';
+import {spacetimeBaseShape,drawSpacetimeTerrain} from './spacetime.mjs?v=skills-cards-2';
+import {paintContactEdge,isContactEdgeStyle,contactEdgeInk} from './contact-edge-art.mjs?v=skills-cards-2';
+import {ContactEdgeRaster} from './contact-edge-raster.mjs?v=skills-cards-2';
+import {getContactEdgePalette} from './contact-edge-palettes.mjs?v=skills-cards-2';
+import {drawAtlasFlight} from './atlas-flight.mjs?v=skills-cards-2';
+import {drawGuardianPresence} from './guardian-presence.mjs?v=skills-cards-2';
+import { drawGuardianWarnings } from './guardian-art.mjs?v=skills-cards-2';
+import { drawShutters } from './shutter-cone.mjs?v=skills-cards-2';
+import {drawProximityMeter} from './proximity-meter.mjs?v=skills-cards-2';
+import {drawFourthBeat} from './fourth-beat-art.mjs?v=skills-cards-2';
+import {drawCollectorField} from './collector-field-art.mjs?v=skills-cards-2';
+import {drawObjectiveMarks} from './flight-objectives.mjs?v=skills-cards-2';
+import {drawFlightProjection,drawLiftGuide} from './flight-projection.mjs?v=skills-cards-2';
+import {revealLuminanceWaves} from './luminance-waves.mjs?v=skills-cards-2';
+import {drawGlowSense} from './glow-sense.mjs?v=skills-cards-2';
+import {drawLastGlimmer} from './last-glimmer.mjs?v=skills-cards-2';
+import {formatGlow} from './vitality.mjs?v=skills-cards-2';
+import {LOCATION_PALETTES} from './world-expansion.mjs?v=skills-cards-2';
+import {biomePalette} from './biome-art.mjs?v=skills-cards-2';
+import { sceneryIdentity, drawIdentityBackground, drawIdentityMaterial, drawIdentityLife } from './level-scenery.mjs?v=skills-cards-2';
+import { getCompanionAbility, normalizeCompanionRole } from './companion-abilities.mjs?v=skills-cards-2';
+import { companionPalette, makeCompanionSprite, makeWispSprite } from './companion-art.mjs?v=skills-cards-2';
+import { createScenePropArt } from './scene-prop-art.mjs?v=skills-cards-2';
+import { drawBoss } from './boss.mjs?v=skills-cards-2';
+import {drawFlashTether} from './flash-tether.mjs?v=skills-cards-2';
+import { drawPickup, drawSparkSymbol } from './pickup-art.mjs?v=skills-cards-2';
+import {pickupHookAnchor} from './pickup-handling-cue.mjs?v=skills-cards-2';
+import {sparkBodyRadius,sparkArtScale,sparkMass} from './spark-size.mjs?v=skills-cards-2';
+import { pickupKind, getPickupSpec } from './pickups.mjs?v=skills-cards-2';
+import { LIGHT_EXTENT,lightAttenuation,lightVisibility,createLightMaskCanvas,castFlightFlashLights,revealLanternWake,sceneRevealStrength,renderLightState,lightDreamScenery,companionTerrainLight } from './light-field.mjs?v=skills-cards-2';
+import {drawExitLandmark} from './exit-landmark.mjs?v=skills-cards-2';
+import {drawBlackHoles} from './black-hole-art.mjs?v=skills-cards-2';
+import {drawCapture, drawShellPuff, drawCarriedSpark,drawCollectorGrip} from './capture-art.mjs?v=skills-cards-2';
+import {drawShellArcs} from './shell-arcs.mjs?v=skills-cards-2';
+import {drawFlightForks,drawFlightForkBackdrops} from './flight-forks.mjs?v=skills-cards-2';
+import {drawFallWarning} from './fall-chain-art.mjs?v=skills-cards-2';
+import {castTerrainLight,releaseTerrainLight,prepareTerrainLight} from './terrain-light.mjs?v=skills-cards-2';
 
 const TAU = Math.PI * 2;
 const propContactCache=new WeakMap();
@@ -722,17 +722,19 @@ export class WispFlightView {
       if (x > this.buffer.width + (e.height*.4+32)*s || x < -(e.height*.4+32)*s) continue;
       const margin = (sparkBodyRadius(ember,e.height)*1.5 + 8)*s;
       if (x < -margin || x > this.buffer.width + margin) continue;
+      const hook=pickupHookAnchor(ember,x/s,ember.y);
+      const handling=e.hasCompanion?.('collector')===true&&lightVisibility(e,light,hook.x,hook.y,yOf(e))>0
+        ?{packet:ember,modifiers:e.mod,collector:true}:null;
       this.drawPacket(x, y, { kind: pickupKind(ember), time: e.captureTime ?? t, phase: ember.phase, reducedMotion: e.reducedMotion,
-        scale: s*sparkArtScale(ember,e.height), massTier:sparkMass(ember) });
-      if(lightVisibility(e,light,x/s,ember.y,yOf(e))>0)
-        drawPickupHandlingCue(this.bufferContext,x,y,ember,e.mod,{collector:e.hasCompanion?.('collector')===true,scale:s});
+        scale: s*sparkArtScale(ember,e.height), massTier:sparkMass(ember),
+        handling });
     }
   }
 
   drawPacket(x, y, { kind, dark = false, rich = false, tiny = false, bodyOnly = false, massTier, alpha = 1,
-    time = 0, phase = 0, reducedMotion = false, scale = this.scale } = {}) {
+    time = 0, phase = 0, reducedMotion = false, scale = this.scale,handling=null } = {}) {
     drawPickup(this.bufferContext, x, y, { kind: kind || (dark ? 'dark' : rich ? 'cache' : 'light'),
-      time, phase, reducedMotion, tiny, bodyOnly, massTier, alpha, scale });
+      time, phase, reducedMotion, tiny, bodyOnly, massTier, alpha, scale,handling });
   }
 
   drawBurstEffects(e, tint) {
@@ -802,10 +804,8 @@ export class WispFlightView {
     revealLuminanceWaves(f,e,{distance:distanceOf(e),scale:s});
     revealLanternWake(f,e,{distance:distanceOf(e),playerY:yOf(e),scale:s,light});
     for (let i = 0; i < fleet.length && i < 3; i++) {
-      const orb = fleet[i], collecting = orb.role === 'collector';
-      const recovery = clamp(orb.recovery ?? 1, 0, 1);
-      const r = (collecting ? orb.phase === 'cooldown' ? 17 + recovery * 10 : 31 : 19) * this.lightDimScale;
-      castTerrainLight(f,mask,e,{x:orb.x,y:orb.y,radius:r,alpha:this.lightIntensity*(collecting?.82:.45),scale:s,channel:`fleet${i}`});
+      const orb=fleet[i],glow=companionTerrainLight(orb,this.lightDimScale,this.lightIntensity);
+      castTerrainLight(f,mask,e,{x:orb.x,y:orb.y,...glow,scale:s,channel:`fleet${i}`});
     }
     f.globalAlpha = 1; f.globalCompositeOperation = 'source-over';
     const reveal=e.completionProgress||0;
@@ -964,6 +964,7 @@ export class WispFlightView {
       this.glow(x, y, collector ? 11 : 12, tint.outer, intensity * .21);
       const sprite = this.orbSprite(role);
       c.globalAlpha = intensity;
+      if(collector)drawCollectorGrip(c,state,s,5*depthScale);
       if(collector)c.drawImage(sprite,x-5*depthScale,y-5*depthScale,10*depthScale,10*depthScale);else c.drawImage(sprite, x - 6, y - 6,13,13);
       c.globalAlpha = 1;
       if (collector && state.carrying) {

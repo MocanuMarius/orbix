@@ -1,12 +1,14 @@
-import { LIGHT_PACKET_TUNING } from './vitality.mjs?v=skills-cards-1';
-import { getCompanionAbility } from './companion-abilities.mjs?v=skills-cards-1';
-import { pickupKind, pickupContactRadius } from './pickups.mjs?v=skills-cards-1';
-import {sparkArtScale,sparkBodyRadius,sparkMass} from './spark-size.mjs?v=skills-cards-1';
-import {collectorCanFetch,collectorCompactSeconds,compressCollectorCargo} from './collector-load.mjs?v=skills-cards-1';
+import { LIGHT_PACKET_TUNING } from './vitality.mjs?v=skills-cards-2';
+import { getCompanionAbility } from './companion-abilities.mjs?v=skills-cards-2';
+import { pickupKind, pickupContactRadius } from './pickups.mjs?v=skills-cards-2';
+import {sparkArtScale,sparkBodyRadius,sparkMass} from './spark-size.mjs?v=skills-cards-2';
+import {collectorCanFetch,collectorCompactSeconds,compressCollectorCargo} from './collector-load.mjs?v=skills-cards-2';
+import {pickupHookAnchor} from './pickup-handling-cue.mjs?v=skills-cards-2';
+import {WISP_ART} from './companion-art.mjs?v=skills-cards-2';
 
 const clamp = (value, lo, hi) => Math.min(hi, Math.max(lo, value));
 export const WISP_TUNING = Object.freeze({ range: 52.5, cooldown: 10, lightRadius: 175,
-  outboundSpeed: 520, returnSpeed: 620, orbitPeriod: 1.25 });
+  outboundSpeed: 520, returnSpeed: 620, tripTimeScale:2.2, towLength:7, orbitPeriod: 1.25 });
 
 export function wispHome(player) {
   return { x: player.x, y: player.y };
@@ -36,6 +38,8 @@ export class WispCompanion {
     this.leg = null; this.lastDistance = null; this.scrollSpeed = 0;
     this.history = []; this.clock = 0;
     this.contacts = []; this.contactTimes = new Map();
+    this.cargoX=this.previousCargoX=this.x;this.cargoY=this.previousCargoY=this.y;
+    this.towDirection={x:1,y:0};
   }
 
   recoveryDuration(engine) {
@@ -87,10 +91,10 @@ export class WispCompanion {
   cargoPose(packet, time, height) {
     const fieldScale = sparkArtScale(packet,height);
     const compact=collectorCompactSeconds(packet),age=time-packet.carriedAt;
-    const stowedScale = compact?sparkArtScale({kind:'cluster',sparkMass:2},height):packet.generated?fieldScale:Math.min(fieldScale,.62*Math.sqrt(fieldScale));
+    const stowedScale = compact?sparkArtScale({kind:'cluster',sparkMass:2},height):fieldScale;
     const elapsed = clamp(age / (compact||Math.min(.42,.18*Math.max(1,Math.sqrt(fieldScale)))), 0, 1);
     const tucked = elapsed * elapsed * (3 - 2 * elapsed);
-    return { offsetX: 8 * tucked, offsetY: 5 * tucked, age:time-packet.carriedAt,
+    return { offsetX:this.cargoX-this.x,offsetY:this.cargoY-this.y,age:time-packet.carriedAt,
       scale: fieldScale + (stowedScale-fieldScale)*tucked, massTier:compact&&elapsed===1?2:sparkMass(packet),compacting:compact>0&&elapsed<1 };
   }
 
@@ -103,9 +107,26 @@ export class WispCompanion {
     const cy = this.previousY + (this.y - this.previousY) * blend;
     const cargoTime = renderBlend === undefined ? time : engine.captureTime;
     const pose = enabled && this.cargo ? this.cargoPose(this.cargo, cargoTime,engine.height) : null;
+    if(pose){
+      pose.offsetX=this.previousCargoX+(this.cargoX-this.previousCargoX)*blend-x;
+      pose.offsetY=this.previousCargoY+(this.cargoY-this.previousCargoY)*blend-cy;
+      const hook=pickupHookAnchor(this.cargo,0,0);
+      pose.hookX=hook.x;pose.hookY=hook.y;
+    }
     if (pose && cargoTime < this.cargo.carriedAt) {
       pose.offsetX = this.cargo.x - engine.renderDistance - x;
       pose.offsetY = this.cargo.y - cy;
+    }
+    // Presentation only: the living grip grows toward the existing physical
+    // anchor. It never moves that anchor or changes a flight leg's duration.
+    let gripPose=null;
+    if(enabled&&this.phase==='outbound'&&this.target){
+      const anchor=pickupHookAnchor(this.target,this.target.x-(engine.renderDistance??engine.distance),this.target.y);
+      gripPose={x:anchor.x,y:anchor.y,growth:clamp((this.leg?.age||0)/.18,0,1),attached:false};
+    }else if(pose&&pose.age>=0){
+      gripPose={x:x+pose.offsetX+pose.hookX,y:cy+pose.offsetY+pose.hookY,growth:1,attached:true};
+    }else if(enabled&&this.phase==='rejoining'&&(this.leg?.age||0)<.18){
+      gripPose={x:x-this.vx*.03,y:cy-this.vy*.03,growth:1-(this.leg?.age||0)/.18,attached:false};
     }
     return { x, y:cy,
       homeX: home.x, homeY: home.y, depth:this.depth||0, enabled, collects: enabled,
@@ -119,13 +140,13 @@ export class WispCompanion {
       carrying: enabled && Boolean(this.cargo), cargoValue: enabled ? this.cargo?.value || 1 : 0,
       cargoKind: enabled && this.cargo ? pickupKind(this.cargo) : null,
       cargoPhase: this.cargo?.phase || 0,
-      cargoPose: pose };
+      cargoPose: pose,gripPose };
   }
 
   beginLeg(engine, x, y, returning = false) {
     const distance = Math.hypot(x - this.x, y - this.y);
     const speed = returning ? WISP_TUNING.returnSpeed : WISP_TUNING.outboundSpeed;
-    const duration = clamp((returning ? .14 : .12) + distance / speed, .16, 1.2);
+    const duration = clamp((returning ? .14 : .12) + distance / speed, .16, 1.2)*WISP_TUNING.tripTimeScale;
     // World coordinates keep a fixed pickup fixed while the landscape scrolls.
     // The tangent at interception bends around the pickup, into the return arc.
     const rx = x - engine.player.x, ry = y - engine.player.y, length = Math.max(1, Math.hypot(rx, ry));
@@ -151,12 +172,19 @@ export class WispCompanion {
   }
 
   returnToOrbit(engine, orbit) {
-    this.phase = 'returning'; this.beginLeg(engine, orbit.x, orbit.y, true);
+    this.phase = 'rejoining'; this.beginLeg(engine, orbit.x, orbit.y, true);
+  }
+
+  towPose(engine){
+    const hook=pickupHookAnchor(this.cargo,0,0),age=Math.max(0,engine.time-this.cargo.carriedAt);
+    const length=WISP_TUNING.towLength*clamp(age/.18,0,1);
+    return {x:this.towDirection.x*length+hook.x,y:this.towDirection.y*length+hook.y};
   }
 
   resizeY(factor) {
     this.y *= factor; this.previousY = this.y; this.vy *= factor;
     this.orbitHome.y *= factor;
+    this.cargoY*=factor;this.previousCargoY=this.cargoY;
     if (this.leg) { this.leg.y *= factor; this.leg.vy *= factor; this.leg.endVY *= factor; }
     this.history.length = 0;
   }
@@ -170,6 +198,7 @@ export class WispCompanion {
     if (!(dt > 0)) return;
     const firstUpdate = this.lastDistance === null;
     this.previousX = this.x; this.previousY = this.y; this.clock += dt;
+    this.previousCargoX=this.cargoX;this.previousCargoY=this.cargoY;
     this.scrollSpeed = this.lastDistance === null ? Number(engine.baseSpeed) || 0 : (engine.distance - this.lastDistance) / dt;
     this.lastDistance = engine.distance;
     const home = wispHome(engine.player);
@@ -247,7 +276,8 @@ export class WispCompanion {
         }
         if (nearest) {
           this.target = nearest; nearest.attracted = true; this.phase = 'outbound';
-          this.beginLeg(engine, nearest.x - engine.distance, nearest.y);
+          const hook=pickupHookAnchor(nearest,nearest.x-engine.distance,nearest.y);
+          this.beginLeg(engine, hook.x,hook.y);
         }
       }
     } else if (this.phase === 'outbound') {
@@ -255,24 +285,36 @@ export class WispCompanion {
       if (!target || !collectorCanFetch(target,engine.mod) || target.collected) {
         this.releaseTarget(); this.returnToOrbit(engine, orbit);
       } else {
-        if (!this.leg) this.beginLeg(engine, target.x - engine.distance, target.y);
-        if (this.advanceLeg(engine, target.x - engine.distance, target.y, dt)) {
-          engine.shatterPickupRing?.(target);
+        const hook=pickupHookAnchor(target,target.x-engine.distance,target.y);
+        if (!this.leg) this.beginLeg(engine,hook.x,hook.y);
+        if (this.advanceLeg(engine,hook.x,hook.y,dt)) {
           target.fetchedInDream = Boolean(engine.dream?.active || engine.dream?.mode === 'record');
           target.carried = true; target.carriedAt = engine.time;
           target.boostedPickup = engine.isCompanionWorking?.() ?? ((engine.abilityTime ?? engine.boostTime) > 0);
           this.vx = this.leg.endVX - this.scrollSpeed; this.vy = this.leg.endVY;
-          this.cargo = target; this.target = null; this.returnToOrbit(engine, orbit);
+          this.cargo = target; this.target = null;
+          this.cargoX=this.previousCargoX=target.x-engine.distance;
+          this.cargoY=this.previousCargoY=target.y;
+          const dx=home.x-this.cargoX,dy=home.y-this.cargoY,length=Math.max(1,Math.hypot(dx,dy));
+          this.towDirection={x:dx/length,y:dy/length};
+          const offset=this.towPose(engine);
+          this.phase='returning';this.beginLeg(engine,home.x+offset.x,home.y+offset.y,true);
         }
       }
     } else if (this.phase === 'returning') {
       // A harmful item can never become delivery cargo, even if a live item
       // was replaced or reclassified after the companion chose its target.
-      if (this.cargo && !collectorCanFetch(this.cargo,engine.mod)) {
+      if (this.cargo && (!collectorCanFetch(this.cargo,engine.mod)||this.cargo.collected)) {
+        this.cargo.x=engine.distance+this.cargoX;this.cargo.y=this.cargoY;
         this.cargo.carried = false; this.cargo.attracted = false; this.cargo = null;
       }
-      if (!this.leg) this.beginLeg(engine, orbit.x, orbit.y, true);
-      if (this.advanceLeg(engine, orbit.x, orbit.y, dt)&&(!this.cargo||engine.time-this.cargo.carriedAt>=collectorCompactSeconds(this.cargo))) {
+      if(!this.cargo){this.returnToOrbit(engine,orbit);return;}
+      const offset=this.towPose(engine);
+      if (!this.leg) this.beginLeg(engine,home.x+offset.x,home.y+offset.y,true);
+      this.advanceLeg(engine,home.x+offset.x,home.y+offset.y,dt);
+      this.cargoX=this.x-offset.x;this.cargoY=this.y-offset.y;
+      const contact=sparkBodyRadius(this.cargo)+WISP_ART.worldRadius;
+      if(Math.hypot(this.cargoX-home.x,this.cargoY-home.y)<=contact&&engine.time-this.cargo.carriedAt>=collectorCompactSeconds(this.cargo)) {
         // Delivery-triggered cards can shorten this trip's recovery immediately.
         this.cooldownMax = this.recoveryDuration(engine);
         // An empty rescue trip must not spend a full successful-pickup recovery.
@@ -280,20 +322,25 @@ export class WispCompanion {
           const cacheDelivery = sparkMass(this.cargo) === 3 && engine.mod.collectorFetchMass >= 3;
           this.cooldown = cacheDelivery ? 0 : this.cooldownMax;
         }
-        this.phase = this.cooldown > 0 ? 'cooldown' : 'ready';
-        this.leg = null;
         engine._auraUntil = -1;
         if (this.cargo) {
           const delivered = this.cargo; this.cargo = null; delivered.carried = false;
           const pose = this.cargoPose(delivered, engine.time,engine.height);
-          const previous = this.cargoPose(delivered, engine.time - dt,engine.height);
           compressCollectorCargo(delivered);
           delivered.deliveredByWisp = true;
-          engine.collect(delivered, { worldX: engine.distance + this.x + pose.offsetX,
+          const delivery={ worldX: engine.distance + this.x + pose.offsetX,
             y: this.y + pose.offsetY, scale: pose.scale,
-            previousWorldX: (engine.previousDistance ?? engine.distance) + this.previousX + previous.offsetX,
-            previousY: this.previousY + previous.offsetY, interval: dt });
+            previousWorldX: (engine.previousDistance ?? engine.distance) + this.previousCargoX,
+            previousY:this.previousCargoY,interval:dt };
+          engine.collect(delivered,delivery);
+          if(delivered.collected)engine.shatterPickupRing?.(delivered,delivery);
         }
+        this.returnToOrbit(engine,orbit);
+      }
+    } else if(this.phase==='rejoining'){
+      if(!this.leg)this.beginLeg(engine,orbit.x,orbit.y,true);
+      if(this.advanceLeg(engine,orbit.x,orbit.y,dt)){
+        this.phase=this.cooldown>0?'cooldown':'ready';this.leg=null;
       }
     }
     this.history.length = 0;

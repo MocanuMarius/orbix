@@ -1,6 +1,6 @@
-import {flashPowerupDuration} from './pickups.mjs?v=skills-cards-1';
-import {resourceCycleSteps} from './resource-cycle.mjs?v=skills-cards-1';
-import {LANTERN_THEME} from './map-theme.mjs?v=skills-cards-1';
+import {flashPowerupDuration} from './pickups.mjs?v=skills-cards-2';
+import {resourceCycleSteps} from './resource-cycle.mjs?v=skills-cards-2';
+import {LANTERN_THEME} from './map-theme.mjs?v=skills-cards-2';
 // Normal-run onboarding is profile-owned. Prompts are contextual, one short
 // card at a time; the run owns only pacing so a new game keeps learned topics.
 export const ONBOARDING_VERSION=1;
@@ -121,7 +121,7 @@ export function nextOnboardingLesson(view,{profile,run,modifiers,flight,snapshot
  if(view!=='flight'||flight?.dying||flight?.completing||flight?.dream?.active||snapshot.dying||snapshot.completing)return null;
  const time=Number(flight?.time)||0;
  if(firstMap&&completed===0&&time>=18&&newTopic('luminance'))return card('luminance','This reach is Luminance','Luminance is how far your wisp lights the passage. Farther terrain fades into darkness. Open the Luminance chapter in Skills to see farther.','luminance','.canvas-wrap');
- if(role==='collector'&&time>=6&&newTopic('collector'))return card('collector','Collector is automatic','Touch Sparks yourself for their full value. Collector starts with missed Sparks and Clusters. Learn Cache Handling to retrieve dense Caches as a 12-Spark Cluster.','collector-return','#boost-btn');
+ if(role==='collector'&&time>=6&&newTopic('collector'))return card('collector','Collector is automatic','A shell curl below a Spark lets Collector latch on and tow a miss to your main wisp. Sparks arrive on contact. Learn Cache Handling to tow dense Caches as a 12-Spark Cluster.','collector-return','#boost-btn');
  if(role==='collector'&&completed>=1&&time>=8&&newTopic('collector-recovery'))return card('collector-recovery','Smaller range, still working','After delivery, the green boundary shrinks and regrows. It can fetch again inside that smaller range. The Power indicator shows range: you do not need to press it. Red-ring Sparks are ignored.','collector-recovery','#boost-btn');
  if(role!=='collector'&&time>=6&&newTopic(role)){
   const lessons={protector:['Protector works automatically','A charged blue shell spends Sparks to deflect a collision, then rebuilds. No charge or too little Sparks means no rescue. Collect Sparks with your own body.'],swift:['Runner: press Power','Press the filled Power button for a short speed burst with draft resistance. Terrain still kills. The button refills during cooldown; collect Sparks yourself.'],leveler:['Space Timer: hold, then release','Hold the scene or Lift to levitate. Release to fall and recharge. Empty charge ends the hold; drafts still push you. Collect Sparks with your own body.']};

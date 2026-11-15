@@ -1,4 +1,4 @@
-import { normalizeCompanionRole } from './companion-abilities.mjs?v=skills-cards-1';
+import { normalizeCompanionRole } from './companion-abilities.mjs?v=skills-cards-2';
 
 const PALETTES = Object.freeze({
   collector: Object.freeze({ outer: '#658557', mid: '#8db778', core: '#b9dfa0', bright: '#efffe0' }),
@@ -20,11 +20,12 @@ const ORB = Object.freeze({ width: 25, height: 25,
     return radius <= 56 ? '3' : radius <= 104 ? '2' : '1';
   }).join(''))) });
 
-// Opt-in art study: the production sprite remains the default until selected.
-// Both candidates keep the 25px source and the renderers' existing orbit size.
+// The reviewed two-ink mint sprite is the shared production default. An explicit
+// query can still show the previous shaded sprite or the soft-edge comparison.
+// Selection is independent of saved runs, so existing expeditions update too.
 const COLLECTOR_ART_QUERY = typeof location === 'undefined' ? '' : new URLSearchParams(location.search).get('collectorArt');
 export function collectorArtVariant(value = COLLECTOR_ART_QUERY) {
-  return value === 'flat2' || value === 'flat3' ? value : 'current';
+  return value === 'current' || value === 'flat3' ? value : 'flat2';
 }
 const flatSpans = [9,6,6,4,4,2,2,2,1,1,0,0,0,0,0,1,1,2,2,2,4,4,6,6,9];
 function flatCollectorArt(soft = false) {

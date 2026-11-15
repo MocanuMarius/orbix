@@ -1,13 +1,14 @@
-import {resourceCycleArt} from './resource-cycle.mjs?v=skills-cards-1';
-import {getCompanionAbility} from './companion-abilities.mjs?v=skills-cards-1';
-import {resourceSymbol} from './game-symbols.mjs?v=skills-cards-1';
-import {pickupArtSvg} from './pickup-art.mjs?v=skills-cards-1';
-import {getPickupSpec} from './pickups.mjs?v=skills-cards-1';
-import {mapStopIconMarkup,MAP_STOP_TYPES} from './map-guide.mjs?v=skills-cards-1';
-import {artifactIcon,skillIcon} from './upgrade-icons.mjs?v=skills-cards-1';
-import {companionArtSvg} from './companion-art.mjs?v=skills-cards-1';
-import {dreamEye} from './dream.mjs?v=skills-cards-1';
-import {lifeHeartSvg} from './lives.mjs?v=skills-cards-1';
+import {resourceCycleArt} from './resource-cycle.mjs?v=skills-cards-2';
+import {getCompanionAbility} from './companion-abilities.mjs?v=skills-cards-2';
+import {resourceSymbol} from './game-symbols.mjs?v=skills-cards-2';
+import {pickupArtSvg} from './pickup-art.mjs?v=skills-cards-2';
+import {getPickupSpec} from './pickups.mjs?v=skills-cards-2';
+import {mapStopIconMarkup,MAP_STOP_TYPES} from './map-guide.mjs?v=skills-cards-2';
+import {artifactIcon,skillIcon} from './upgrade-icons.mjs?v=skills-cards-2';
+import {livingStrandPath} from './living-light-art.mjs?v=skills-cards-2';
+import {companionArtSvg} from './companion-art.mjs?v=skills-cards-2';
+import {dreamEye} from './dream.mjs?v=skills-cards-2';
+import {lifeHeartSvg} from './lives.mjs?v=skills-cards-2';
 const item=(art,label)=>`<span class="coach-term">${art}<b>${label}</b></span>`;
 const arrow='<i class="coach-term-arrow" aria-hidden="true">→</i>';
 const meter='<span class="coach-meter" aria-hidden="true">'+Array.from({length:10},(_,i)=>`<i class="${i<7?'filled':''}"></i>`).join('')+'</span>';
@@ -20,7 +21,9 @@ export function tutorialVisualMarkup(step={}){
  if(kind==='spark-storage')return item(pickupArtSvg('cluster'),'Spark')+arrow+item(resourceSymbol('packed'),'Stored Sparks');
  if(kind?.startsWith('collector-')){
   const recovery=kind==='collector-recovery',returning=kind==='collector-return';
-  return `<svg class="collector-teaching-diagram" viewBox="0 0 180 130" role="img" aria-label="${recovery?'Collector range contracts, then regrows':returning?'Spark travels back to the main wisp':'Main wisp and Spark inside Collector range'}"><circle cx="65" cy="64" r="52" fill="none" stroke="#78c7a2" stroke-width="2" opacity=".6"/>${recovery?'<circle cx="65" cy="64" r="22" fill="none" stroke="#b4efb0" stroke-width="3"/><path d="M92 64h19m-5-5 5 5-5 5" fill="none" stroke="#b4efb0" stroke-width="2"/>':''}<circle cx="65" cy="64" r="13" fill="#f1f1cf"/><circle cx="${returning?102:42}" cy="${returning?49:83}" r="7" fill="#8cdb9e"/><g transform="translate(96 40) scale(.65)">${pickupArtSvg('light')}</g><path d="${returning?'M112 42Q94 20 82 45m0-8v8h8':'M87 61h9'}" fill="none" stroke="#b4efb0" stroke-width="2"/><text x="90" y="124" text-anchor="middle" fill="#d9eac6" font-size="10" font-family="monospace">${recovery?'SHRINK → REGROW':returning?'FETCH → RETURN → SPARKS':'BODY FIRST · HELPER SECOND'}</text></svg>`;
+  const cargoX=returning?116:108,cargoY=returning?51:39,hookY=cargoY+16;
+  const grip=returning?livingStrandPath([{x:111,y:67},{x:121,y:76},{x:122,y:74},{x:116,y:67}],2.6):'';
+  return `<svg class="collector-teaching-diagram" viewBox="0 0 180 130" role="img" aria-label="${recovery?'Collector range contracts, then regrows':returning?'Collector grows a mint strand and tows an intact Spark by its shell curl into the main wisp':'A curl grows from each fetchable shell; the main wisp has first chance'}"><circle cx="65" cy="64" r="52" fill="none" stroke="#78c7a2" stroke-width="2" opacity=".6"/>${recovery?'<circle cx="65" cy="64" r="22" fill="none" stroke="#b4efb0" stroke-width="3"/><path d="M92 64h19m-5-5 5 5-5 5" fill="none" stroke="#b4efb0" stroke-width="2"/>':''}<circle cx="65" cy="64" r="16" fill="#f1f1cf"/>${returning?`<path d="${grip}" fill="#b4dcc0"/>`:''}<circle cx="${returning?109:42}" cy="${returning?67:83}" r="7" fill="#426b61"/><circle cx="${returning?109:42}" cy="${returning?67:83}" r="6" fill="#b4dcc0"/><g transform="translate(${cargoX-18} ${cargoY-18})">${pickupArtSvg('light',{handling:true})}</g>${returning?'<path d="M103 90H83m5-4-5 4 5 4" fill="none" stroke="#b4efb0" stroke-width="2"/>':''}<text x="90" y="124" text-anchor="middle" fill="#d9eac6" font-size="10" font-family="monospace">${recovery?'SHRINK → REGROW':returning?'LATCH → TOW → BODY CONTACT':'BODY FIRST · SHELL CURL'}</text></svg>`;
  }
  if(id.startsWith('artifact:'))return item(artifactIcon(id.split(':')[1]),'ARTIFACT · AUTOMATIC');
  if(kind==='luminance'||id.startsWith('world:luminance'))return item(skillIcon({id:'main-sight'}),'LUMINANCE');

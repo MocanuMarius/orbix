@@ -33,7 +33,7 @@
     const target=new URL('game.html',root);
     target.searchParams.set('tutorial','1');
     if(new URLSearchParams(location.search).get('cards')==='1')target.searchParams.set('cards','1');
-    target.searchParams.set('v','skills-cards-1');
+    target.searchParams.set('v','skills-cards-2');
     const open=()=>location.replace(target.href);
     function waitFor(worker,states){
       return new Promise((resolve,reject)=>{

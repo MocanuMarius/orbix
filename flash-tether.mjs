@@ -1,8 +1,9 @@
-import {drawPickup} from './pickup-art.mjs?v=skills-cards-1';
+import {drawPickup} from './pickup-art.mjs?v=skills-cards-2';
 
 const TAU = 2 * Math.PI;
 const clamp = (x, lo=0, hi=1) => Math.max(lo,Math.min(hi,x));
 export const FLASH_PUFF_DURATION = .8;
+export const FLASH_PULSE_INTERVAL = 2;
 
 export function createFlashTether({x,y,playerX,playerY,time,duration,initialScale=1,phase=0,reducedMotion=false}) {
   return {x,y,px:x,py:y,vx:0,vy:0,anchorX:playerX,anchorY:playerY,
@@ -31,12 +32,15 @@ export function stepFlashTether(t,playerX,playerY,time,dt) {
   return true;
 }
 
-export function flashLightPulse(t,time) {
+export function flashLightGlow(t,time) {
   if (!t || time<t.bornAt || time>=t.expires) return 0;
-  const fade=clamp((t.expires-time)/1.65);
+  return clamp((t.expires-time)/1.65);
+}
+export function flashLightPulse(t,time) {
+  const fade=flashLightGlow(t,time);if(!fade)return 0;
   if(t.reducedMotion) return .32*fade;
   const age=time-t.bornAt;
-  return (.5+.5*Math.cos(age*TAU/1.85))**1.65 * fade;
+  return (.5+.5*Math.cos(age*TAU/FLASH_PULSE_INTERVAL))**1.65 * fade;
 }
 
 function whiteMist(ctx,x,y,age,quiet) {
@@ -108,7 +112,7 @@ export function drawFlashTether(ctx,t,{time,distance,scale=1,playerX,playerY}) {
   const bank=t.reducedMotion?0:clamp(-dy/105,-.35,.35)+.10*Math.sin(age*3);
   ctx.rotate(bank);
   ctx.globalAlpha=alpha*ending;
-  // The halo, terrain reveal and brightness of the cord share a pulse.
+  // The small halo and cord follow the same two-second beat as emitted fronts.
   if(pulse>0){
     const light=ctx.createRadialGradient(0,0,1,0,0,14+13*pulse);
     light.addColorStop(0,'rgba(255,255,255,.40)');light.addColorStop(1,'rgba(255,255,255,0)');
