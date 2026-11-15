@@ -44,3 +44,24 @@ summary['stills'] = {key: {'frame': frame, 'simulationTime': (frame+1)/fps, 'vid
 summary['matched'] = [{k:v for k,v in r.items() if k != 'states'} for r in report['results']]
 (out/'capture-notes.json').write_text(json.dumps(summary, indent=2)+'\n')
 print('Encoded 3 full-app movies, 3 synchronized detail movies and 18 native PNG stills.')
+
+# A short, phone-usable gameplay crop includes approach, living-curl latch,
+# intact tow, a real Lift while returning, and physical absorption.
+frames = work/'flat2'
+tow_frames = work/'tow-crops'
+tow_frames.mkdir(parents=True, exist_ok=True)
+result = next(r for r in report['results'] if r['art'] == 'flat2')
+start, count = 18, 90
+for index in range(count):
+    state = result['states'][start+index]
+    image = Image.open(frames/f'{start+index:04}.png')
+    left = round(state['playerX']/result['initial']['width']*report['viewport'][0])-160
+    top = round(state['playerY']/result['initial']['height']*report['viewport'][1])-96
+    crop = image.crop((left, top, left+256, top+192))
+    crop.save(tow_frames/f'{index:04}.png')
+    if start+index == 47:
+        crop.save(out/'tow-latch.png')
+    if start+index == 55:
+        crop.save(out/'tow-pull.png')
+subprocess.run([encoder, '-hide_banner', '-loglevel', 'error', '-y', '-framerate', str(fps), '-i', str(tow_frames/'%04d.png')]+codec+[str(out/'tow.mp4')], check=True)
+print('Encoded the 3-second actual gameplay curl-and-tow clip and contact/pull stills.')

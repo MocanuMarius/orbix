@@ -1,6 +1,6 @@
-import {getGlowCapacity,GLOW_DISPLAY_SCALE} from './vitality.mjs?v=skills-cards-1';
-import {resourceSymbol} from './game-symbols.mjs?v=skills-cards-1';
-import {sparkSymbolArt} from './spark-symbol.mjs?v=skills-cards-1';
+import {getGlowCapacity,GLOW_DISPLAY_SCALE} from './vitality.mjs?v=skills-cards-2';
+import {resourceSymbol} from './game-symbols.mjs?v=skills-cards-2';
+import {sparkSymbolArt} from './spark-symbol.mjs?v=skills-cards-2';
 const clamp=v=>Math.max(0,Math.min(1,v));
 // A cell represents one paid Lift, even during a temporary free-Lift effect.
 export function glowGaugeUnits(flame,maximum=100,liftCost=10){
@@ -11,7 +11,7 @@ export function glowGaugeUnits(flame,maximum=100,liftCost=10){
 function unitMarkup(state){return Array.from({length:state.capacity},(_,i)=>`<span class="glow-unit${i<state.filled?' lit':''}"></span>`).join('');}
 export function glowGaugeMarkup(run){
  const state=glowGaugeUnits(run.flame,getGlowCapacity(run));
- return `<div class="flame-hud glow-side-gauge glow-gauge-v3" aria-label="Spark Meter" style="--glow-units:${state.capacity}"><span class="meter-spark-cap" aria-hidden="true">${resourceSymbol('energy')}</span><div id="flame-meter" role="meter" aria-label="Sparks remaining" aria-valuemin="0" aria-valuemax="${state.maxValue}" aria-valuenow="${state.value}" aria-valuetext="${state.value} of ${state.maxValue} Sparks; each segment is ${state.unitCost} Sparks, one Lift"><i id="flame-fill" aria-hidden="true">${unitMarkup(state)}</i></div></div>`;
+ return `<div class="flame-hud glow-side-gauge glow-gauge-v3" aria-label="Spark Meter" style="--glow-units:${state.capacity}"><span class="meter-spark-cap" aria-hidden="true">${resourceSymbol('energy')}${run.skillSystem==='cards-v1'&&!run.isTutorial?'<span class="spark-overfill-ticks"><i></i><i></i></span>':''}</span><div id="flame-meter" role="meter" aria-label="Sparks remaining" aria-valuemin="0" aria-valuemax="${state.maxValue}" aria-valuenow="${state.value}" aria-valuetext="${state.value} of ${state.maxValue} Sparks; each segment is ${state.unitCost} Sparks, one Lift"><i id="flame-fill" aria-hidden="true">${unitMarkup(state)}</i></div></div>`;
 }
 export const PACKING_TIMING = Object.freeze({ travel: 350, packing: 1000, total: 1700 });
 
@@ -143,6 +143,8 @@ function updatePacking(gauge,s) {
 
 export function updateGlowGauge(gauge,s){
  if(!gauge)return;
+ const overfill=Math.max(0,Math.min(2,Number(s.overfillWave?.charge)||0));
+ if(gauge._overfill!==overfill){gauge._overfill=overfill;const ticks=gauge.querySelector('.spark-overfill-ticks');if(ticks){ticks.dataset.charge=String(overfill);ticks.title=`${overfill} of 3 overfills toward a Luminance wave`;}}
  const draining=(s.blackHole?.rate||0)>0;if(gauge._draining!==draining){gauge._draining=draining;gauge.classList.toggle('black-hole-drain',draining);}
  const refs=gauge._glowRefs||(gauge._glowRefs={fill:gauge.querySelector('#flame-fill'),meter:gauge.querySelector('#flame-meter')});
  const state=glowGaugeUnits(s.flame,s.maxFlame,s.paidFlapCost||s.flapCost||10),ratio=clamp((Number(s.flame)||0)/(s.maxFlame||100));

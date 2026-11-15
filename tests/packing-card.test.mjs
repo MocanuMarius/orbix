@@ -2,8 +2,8 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import * as M from '../dist/model.mjs';
 import {WispFlight} from '../dist/flight.mjs';
-import {CARD_SYSTEM,SKILL_CARDS,makeSkillCard,getCardModifiers,getCardPackingBonus,getMountedCards,drawSkillCard} from '../dist/skill-cards.mjs';
-import {cardArt,cardRewardMarkup} from '../dist/card-ui.mjs';
+import {CARD_SYSTEM,SKILL_CARDS,makeSkillCard,getCardModifiers,getCardPackingBonus,getMountedCards,drawSkillCard,describeSkillCard} from '../dist/skill-cards.mjs';
+import {cardArt,cardRewardMarkup,cardMechanicMarkup} from '../dist/card-ui.mjs';
 import {flightRewardMarkup} from '../dist/reward-screen.mjs';
 
 const fresh=()=>{
@@ -114,7 +114,9 @@ test('Common starter/drop pools include Tight Packing and its clear UI receipt n
  }
  assert.ok(starter);assert.ok(drop);
  const state=fresh();clear(state,{condensedGlow:4});
- assert.match(cardArt(makeSkillCard('tight-packing','art')),/25%/);
+ const packing=describeSkillCard(makeSkillCard('tight-packing','art'));
+ assert.match(cardArt(packing),/viewBox="0 0 120 180"/);
+ assert.match(cardMechanicMarkup(packing),/25%/);
  assert.match(cardRewardMarkup(state.run),/Tight Packing \+1 Stored Sparks/);
  state.run.cardReward.source='forge';assert.doesNotMatch(cardRewardMarkup(state.run),/Tight Packing \+1 Stored Sparks/);
  state.run.lastFlight.elite=true;

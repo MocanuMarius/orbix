@@ -1,5 +1,5 @@
-import {GLOW_DISPLAY_SCALE} from './vitality.mjs?v=skills-cards-1';
-import {pickupKind,pickupShellRadius,isFuelPickup} from './pickups.mjs?v=skills-cards-1';
+import {GLOW_DISPLAY_SCALE} from './vitality.mjs?v=skills-cards-2';
+import {pickupKind,pickupShellRadius,isFuelPickup} from './pickups.mjs?v=skills-cards-2';
 
 export const LUMINANCE_WAVE_TUNING=Object.freeze({speed:360,interval:1,maximumWaves:48,maximumSources:16});
 const finite=(value,fallback)=>Number.isFinite(Number(value))?Number(value):fallback;
@@ -14,7 +14,7 @@ export class LuminanceWaves {
     let source=this.sources.get(id);
     if(!source){
       if(this.sources.size>=LUMINANCE_WAVE_TUNING.maximumSources)this.sources.delete(this.sources.keys().next().value);
-      source={id,x:0,y:0,radius:145,remaining:Infinity,next:0,color:'#d9f0dc',follow:null};
+      source={id,x:0,y:0,radius:145,remaining:Infinity,next:0,interval:LUMINANCE_WAVE_TUNING.interval,color:'#d9f0dc',follow:null,reveal:false};
       this.sources.set(id,source);
     }
     source.x=finite(settings.x,source.x);source.y=finite(settings.y,source.y);
@@ -22,13 +22,15 @@ export class LuminanceWaves {
     if(Object.hasOwn(settings,'duration'))source.remaining=Math.max(0,finite(settings.duration,0));
     if(settings.color)source.color=settings.color;
     if(Object.hasOwn(settings,'follow'))source.follow=settings.follow;
+    if(Object.hasOwn(settings,'interval'))source.interval=Math.max(1/60,finite(settings.interval,LUMINANCE_WAVE_TUNING.interval));
+    if(Object.hasOwn(settings,'reveal'))source.reveal=!!settings.reveal;
     return source;
   }
   activate(settings){return this.addSource(settings);}
   // One event, one front. Rhythm must not create a periodic reveal source.
   emit({x=0,y=0,radius=145,color='#d9f0dc',reveal=false}={}){
     if(this.waves.length>=LUMINANCE_WAVE_TUNING.maximumWaves&&this.waves.shift().reveal)this.revealCount--;
-    const wave={id:++this.serial,x,y,maximum:Math.max(0,finite(radius,145)),radius:0,previous:0,age:0,color,reveal,seen:new Set(),storedPaid:false};
+    const wave={id:++this.serial,x,y,maximum:Math.max(0,finite(radius,145)),radius:0,previous:0,age:0,emittedAt:finite(this.engine.time,this.clock),color,reveal,seen:new Set(),storedPaid:false};
     this.waves.push(wave);if(reveal)this.revealCount++;return wave;
   }
   removeSource(id){this.sources.delete(id);}
@@ -45,23 +47,24 @@ export class LuminanceWaves {
     // Existing fronts stay anchored at emission, even when their light source moves.
     for(const wave of this.waves){wave.previous=wave.radius;wave.radius=Math.min(wave.maximum,wave.radius+dt*LUMINANCE_WAVE_TUNING.speed);wave.age+=dt;}
     for(const [id,source] of this.sources){
-      let origin=source;
+      let origin=source,activeFor=Math.min(dt,source.remaining);
       if(source.follow==='wisp')origin={x:(e.distance||0)+(e.player?.x||0),y:e.player?.y||0};
       else if(source.follow==='flash'){
-        if(!e.flashTether||e.time>=e.flashTether.expires){this.sources.delete(id);continue;}
+        if(!e.flashTether){this.sources.delete(id);continue;}
+        activeFor=Math.min(activeFor,Math.max(0,e.flashTether.expires-(e.time-dt)));
+        if(!(activeFor>0)){this.sources.delete(id);continue;}
         origin=e.flashTether;
       }
-      const activeFor=Math.min(dt,source.remaining);
       // At most the bounded visible history is needed after an unusually long tick.
       const earliest=Math.max(0,dt-source.radius/LUMINANCE_WAVE_TUNING.speed);
-      if(source.next<earliest)source.next+=Math.ceil((earliest-source.next)/LUMINANCE_WAVE_TUNING.interval)*LUMINANCE_WAVE_TUNING.interval;
+      if(source.next<earliest-1e-9)source.next+=Math.ceil((earliest-source.next)/source.interval)*source.interval;
       while(source.next<activeFor-1e-9 || (source.next===0&&activeFor>0)){
         if(source.radius>0){
           const age=dt-source.next;
-          const wave=this.emit({x:origin.x,y:origin.y,radius:source.radius,color:source.color});
-          wave.radius=Math.min(source.radius,age*LUMINANCE_WAVE_TUNING.speed);wave.age=age;
+          const wave=this.emit({x:origin.x,y:origin.y,radius:source.radius,color:source.color,reveal:source.reveal});
+          wave.radius=Math.min(source.radius,age*LUMINANCE_WAVE_TUNING.speed);wave.age=age;wave.emittedAt=finite(e.time,this.clock)-age;
         }
-        source.next+=LUMINANCE_WAVE_TUNING.interval;
+        source.next+=source.interval;
       }
       source.next-=dt;source.remaining-=dt;
       if(source.remaining<=0)this.sources.delete(id);
@@ -106,8 +109,8 @@ export class LuminanceWaves {
   draw(c,view={}){drawLuminanceWaves(c,view,this);}
 }
 
-// Only Rhythm adds this traveling terrain reveal. Other temporary sources
-// already light their scenery; their fronts still participate in Harvest.
+// Event fronts and Flash's periodic fronts reveal the terrain as they pass.
+// Their steady source light remains independent of this moving band.
 export function luminanceWaveVisibility(manager,x,y){
   let dark=1;
   for(const wave of manager?.waves||[]){

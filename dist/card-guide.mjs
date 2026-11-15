@@ -8,7 +8,7 @@ export const CARD_GUIDE_TOPICS = {
     steps: [
       step(
         "Read the pickup mark",
-        "Mint twin hooks mean Collector can fetch that type. An ivory wisp mark means touch with your main wisp. Collector starts with Sparks and Clusters.",
+        "A small curl growing from a pickup’s shell means Collector can fetch it. Collector starts with Sparks and Clusters. It latches onto the curl and tows the intact pickup to your main wisp; Sparks arrive on contact.",
         "collector-range",
       ),
       step(
@@ -34,7 +34,7 @@ export const CARD_GUIDE_TOPICS = {
       ),
       step(
         "Check what it can fetch",
-        "Mint twin hooks show currently fetchable types. Ivory marks need your main wisp. Handling cards unlock Caches and Flash; recovery changes range, not the unlocked types.",
+        "A small curl growing from the shell shows a fetchable type. Handling cards grow curls on Caches and Flash. Collector tows each pickup to your moving main wisp before it absorbs; recovery changes range, not handling.",
         "collector-range",
       ),
     ],
@@ -66,7 +66,7 @@ export const CARD_GUIDE_TOPICS = {
     steps: [
       step(
         "One wallet",
-        "Stored Sparks come from clearing, packing surplus and melting cards. Spend them to improve a mounted card at any checkpoint, or Forge at Rest.",
+        "Stored Sparks come from clearing, packing surplus and melting cards. Spend them to improve a mounted card at any checkpoint, or Forge at Rest. Every third natural Spark overfill releases a Luminance wave.",
         "packed",
       ),
       step(

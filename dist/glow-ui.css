@@ -58,6 +58,9 @@
 
 .glow-side-gauge .meter-spark-cap{position:absolute;bottom:calc(100% + 2px);left:50%;transform:translateX(-50%);width:17px;height:17px;pointer-events:none}
 .glow-side-gauge .meter-spark-cap>.resource-symbol{display:block;width:100%;height:100%}
+.spark-overfill-ticks{position:absolute;left:calc(100% + 2px);top:4px;display:flex;gap:2px;align-items:center;height:8px}
+.spark-overfill-ticks>i{display:block;width:3px;height:3px;background:#eaf3c1;opacity:0;box-shadow:0 0 3px #d4e9ab55}
+.spark-overfill-ticks[data-charge="1"]>i:first-child,.spark-overfill-ticks[data-charge="2"]>i{opacity:.9}
 .flap-control .lift-cost{display:inline-flex;justify-content:center;align-items:center;gap:3px}
 .flap-control .lift-cost>.resource-symbol-energy{width:15px;height:15px}
 .flap-control .lift-cost>.resource-symbol-energy[hidden]{display:none}

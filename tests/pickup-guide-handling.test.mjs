@@ -32,23 +32,23 @@ test("first-contact lessons use actual packet mass and mounted handling without 
       { kind: "light", sparkMass: 3 },
       { modifiers: { collectorFetchMass: 2 } },
     ).text,
-    /Ivory wisp mark.*Cache Handling/,
+    /Touch with your main wisp.*Cache Handling/,
   );
   assert.match(
     pickupLesson("cache", { modifiers: { collectorFetchMass: 3 } }).text,
-    /Mint hooks: Collector can fetch/,
+    /shell curl below this pickup means Collector can latch/,
   );
   assert.match(
     pickupLesson("sight", { modifiers: { collectorFlashFetch: false } }).text,
-    /Ivory wisp mark.*Flash Handling/,
+    /Touch with your main wisp.*Flash Handling/,
   );
   assert.match(
     pickupLesson("sight", { modifiers: { collectorFlashFetch: true } }).text,
-    /Mint hooks: Collector can fetch/,
+    /shell curl below this pickup means Collector can latch/,
   );
   assert.match(
     pickupLesson("light", { companions: ["protector"] }).text,
-    /Ivory wisp mark/,
+    /Touch with your main wisp/,
   );
 });
 

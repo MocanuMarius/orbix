@@ -28,12 +28,10 @@ self.addEventListener('message', event => {
 });
 self.addEventListener('activate', event => event.waitUntil((async () => {
   const previous = (await caches.keys()).filter(key => key.startsWith(prefix) && key !== cacheName);
-  const windows = await self.clients.matchAll({type:'window',includeUncontrolled:true});
-  // Another game window can still have a lazy import for the prior release.
-  // Keep one matching cache until the next update, without reloading its flight.
-  if (windows.filter(client => client.frameType === 'top-level' && client.url.startsWith(scope.href)).length > 1) {
-    previous.pop();
-  }
+  // An already-open launcher checks its own release after activating an update.
+  // Other windows can also still request a prior lazy import. Keep exactly the
+  // immediately previous cache until the next upgrade, then discard older ones.
+  previous.pop();
   for (const key of previous) await caches.delete(key);
   await self.clients.claim();
 })()));
@@ -69,6 +67,13 @@ self.addEventListener('fetch', event => {
   url.hash = '';
   if (url.pathname === scope.pathname) url.pathname += 'index.html';
   if (!files.has(url.href) && !(release && release !== WISP_OFFLINE.release && event.request.mode !== 'navigate')) return;
+  // Launchers must learn about a newer release even when their old pathname
+  // is cached. The rest of an installed game stays on its complete release.
+  if (event.request.mode === 'navigate' && ['cards.html', 'card-workbench.html'].some(file => url.href === new URL(file, scope).href)) {
+    event.respondWith(fetch(event.request).then(response => response.ok ? response : respond(event.request, url.href, release))
+      .catch(() => respond(event.request, url.href, release)));
+    return;
+  }
   // The live local editor serves new source files without a release stamp.
   // Keep it live online while supporting an installed offline local build.
   if (['localhost', '127.0.0.1', '[::1]'].includes(scope.hostname)) {

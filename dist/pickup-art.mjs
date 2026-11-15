@@ -1,5 +1,6 @@
-import { pickupKind, getPickupSpec, pickupDisposition, PLASMA_SHELL_RADIUS, SPARK_ART_SCALE } from './pickups.mjs?v=skills-cards-1';
-import {sparkImageArt,sparkSymbolArt} from './spark-symbol.mjs?v=skills-cards-1';
+import { pickupKind, getPickupSpec, pickupDisposition, PLASMA_SHELL_RADIUS, SPARK_ART_SCALE } from './pickups.mjs?v=skills-cards-2';
+import {sparkImageArt,sparkSymbolArt} from './spark-symbol.mjs?v=skills-cards-2';
+import {drawPickupHandlingCue,pickupCurlSvg} from './pickup-handling-cue.mjs?v=skills-cards-2';
 
 const TAU = Math.PI * 2;
 const clamp = (value, low, high) => Math.max(low, Math.min(high, value));
@@ -531,7 +532,7 @@ export function prepareFuelSprites(doc,reducedMotion=false) {
   })();
   return pending[key];
 }
-export function drawPickup(context,x,y,{kind='light',time=0,phase=0,reducedMotion=false,tiny=false,bodyOnly=false,alpha=1,scale=1,detailed=false,massTier=0}={}){
+export function drawPickup(context,x,y,{kind='light',time=0,phase=0,reducedMotion=false,tiny=false,bodyOnly=false,alpha=1,scale=1,detailed=false,massTier=0,handling=null}={}){
   const id=pickupKind(kind),size=Math.max(.1,Number(scale)||1),doc=context.canvas?.ownerDocument;
   const [period,frames]=cycles[id]||[1,1];
   const clock=time+phase*period/TAU;
@@ -546,6 +547,12 @@ export function drawPickup(context,x,y,{kind='light',time=0,phase=0,reducedMotio
     context.drawImage(sprite,Math.round(x-width/2),Math.round(y-width/2),Math.round(width),Math.round(width));
   }
   else for(const p of packetPixels(id,{time:plasma?frame/frames*period:clock,reducedMotion,tiny,bodyOnly})){context.globalAlpha=inherited*p.alpha;context.fillStyle=p.color;context.fillRect(Math.round(x+p.x*size),Math.round(y+p.y*size),Math.max(1,Math.round(p.width*size)),Math.max(1,Math.round(p.height*size)))}
+  if(handling&&!bodyOnly){
+    context.globalAlpha=inherited;
+    const ink=fields[getPickupSpec(id).plasma]?.rim||getPickupSpec(id).color;
+    drawPickupHandlingCue(context,x,y,handling.packet||{kind:id,sparkMass:massTier},handling.modifiers,
+      {collector:handling.collector,scale:size,time,phase,reducedMotion,color:ink});
+  }
   context.restore();
 }
 
@@ -553,10 +560,11 @@ export function drawSparkSymbol(context,x,y,{size=16,time=0,reducedMotion=false}
   drawPickup(context,x,y,{kind:'light',time,reducedMotion,scale:size/FUEL_ANIMATION.size});
 }
 
-export function pickupArtSvg(kind = 'light', { className = '' } = {}) {
+export function pickupArtSvg(kind = 'light', { className = '',handling=false } = {}) {
   const id = pickupKind(kind), name = getPickupSpec(kind).name;
   const classes = String(className || '').replace(/[^a-zA-Z0-9 _-]/g, '').trim().slice(0, 120);
   const tier=getPickupSpec(id).plasma;
-  if(tier)return `<svg xmlns="http://www.w3.org/2000/svg" class="${classes}" viewBox="0 0 44 44" width="36" height="36" role="img" aria-label="${name}" shape-rendering="crispEdges">${sparkSymbolArt(0,0,44,tier)}</svg>`;
-  return `<svg xmlns="http://www.w3.org/2000/svg" class="${classes}" viewBox="0 0 48 48" width="36" height="36" role="img" aria-label="${name}" shape-rendering="crispEdges">${sparkImageArt(id,0,0,48)}</svg>`;
+  const side=tier?44:48,curl=handling?pickupCurlSvg({kind:id},side/2,side/2,fields[tier]?.rim||getPickupSpec(id).color):'';
+  if(tier)return `<svg xmlns="http://www.w3.org/2000/svg" class="${classes}" viewBox="0 0 44 44" width="36" height="36" role="img" aria-label="${name}" shape-rendering="crispEdges">${sparkSymbolArt(0,0,44,tier)}${curl}</svg>`;
+  return `<svg xmlns="http://www.w3.org/2000/svg" class="${classes}" viewBox="0 0 48 48" width="36" height="36" role="img" aria-label="${name}" shape-rendering="crispEdges">${sparkImageArt(id,0,0,48)}${curl}</svg>`;
 }

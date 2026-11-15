@@ -25,59 +25,6 @@
     <a href="./">Back to Wispbound</a>
     <noscript><p>The card playtest needs JavaScript. Enable it, then reopen this page.</p></noscript>
   </main>
-  <script type="module">
-    // A new pathname bypasses workers that cached the older game document
-    // regardless of its query. Later releases also cache this entry for offline use.
-    const release='skills-cards-1';
-    const button=document.querySelector('#launch'),status=document.querySelector('#status');
-    const root=new URL('./',location.href),target=new URL('index.html',root);
-    const query=new URLSearchParams(location.search);
-    for(const key of ['collectorArt','display','zoom'])if(query.has(key))target.searchParams.set(key,query.get(key));
-    target.searchParams.set('cards','1');
-    target.searchParams.set('v',release);
-    const open=()=>location.replace(target.href);
-    async function offlineReady(){
-      try{
-        const names=await caches.keys();
-        for(const name of names.filter(name=>name.startsWith('wispbound:'+root.href+':'+release+':'))){
-          const cache=await caches.open(name);
-          if(await cache.match(new URL('index.html',root).href)&&await cache.match(new URL('game.html',root).href))return true;
-        }
-      }catch{}
-      return false;
-    }
-    function waitFor(worker,states){
-      return new Promise((resolve,reject)=>{
-        const finish=error=>{clearTimeout(timer);worker.removeEventListener('statechange',changed);error?reject(error):resolve();};
-        const changed=()=>{if(states.includes(worker.state))finish();else if(worker.state==='redundant')finish(Error('The update was interrupted.'));};
-        const timer=setTimeout(()=>finish(Error('The download is taking longer than expected.')),120000);
-        worker.addEventListener('statechange',changed);changed();
-      });
-    }
-    button.addEventListener('click',async()=>{
-      if(!navigator.onLine){
-        if(await offlineReady()){open();return;}
-        status.textContent='Connect to the internet to prepare the card playtest, then try again. Your saved journeys are kept.';return;
-      }
-      button.disabled=true;status.textContent='Preparing the latest game… This can take a moment on the first visit.';
-      try{
-        if(!('serviceWorker'in navigator)||!isSecureContext){open();return;}
-        const registration=await navigator.serviceWorker.register(new URL('worker.js',root),{scope:root.href,updateViaCache:'none'});
-        await registration.update();
-        const next=registration.waiting??registration.installing;
-        if(next){
-          await waitFor(next,['installed','activating','activated']);
-          if(next.state==='installed'){status.textContent='The card playtest is ready. Opening the menu…';next.postMessage({type:'activate-build'});}
-          await waitFor(next,['activated']);
-        }else if(!registration.active)throw Error('The game is still preparing.');
-        if(!await offlineReady())throw Error('The card playtest update is not ready.');
-        open();
-      }catch(error){
-        button.disabled=false;button.textContent='Try again';
-        status.textContent=navigator.onLine?'The card playtest could not finish preparing. Keep this page open and try again. Your saved journeys are kept.':'The connection was lost. Reconnect, then try again. Your saved journeys are kept.';
-      }
-    });
-    if(!navigator.onLine)offlineReady().then(ready=>{status.textContent=ready?'Your offline copy is ready. Open the playtest menu, then choose New Game or Continue.':'Connect to the internet to prepare the card playtest. Your saved journeys are kept.';});
-  </script>
+  <script type="module" src="./cards-launcher.mjs?v=skills-cards-2"></script>
 </body>
 </html>

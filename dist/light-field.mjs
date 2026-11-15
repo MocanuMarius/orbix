@@ -1,7 +1,7 @@
-import {drawShutterWake,shutterLightFactor,shutterWakeAt} from './shutter-cone.mjs?v=skills-cards-1';
-import {lanternField} from './lantern-layout.mjs?v=skills-cards-1';
-import { LIGHT_EXTENT, lightAttenuation } from './light-attenuation.mjs?v=skills-cards-1';
-import {luminanceWaveVisibility} from './luminance-waves.mjs?v=skills-cards-1';
+import {drawShutterWake,shutterLightFactor,shutterWakeAt} from './shutter-cone.mjs?v=skills-cards-2';
+import {lanternField} from './lantern-layout.mjs?v=skills-cards-2';
+import { LIGHT_EXTENT, lightAttenuation } from './light-attenuation.mjs?v=skills-cards-2';
+import {luminanceWaveVisibility} from './luminance-waves.mjs?v=skills-cards-2';
 export { LIGHT_EXTENT, lightAttenuation };
 const reflectedLight = .6;
 
@@ -20,6 +20,13 @@ export function revealLanternWake(fog,engine,options) {
 const dreamLight=Object.freeze({rehearsing:true,intensity:1,radius:145,baseRadius:145});
 export function renderLightState(engine){
   return engine.dream?.mode==='record'?dreamLight:engine.getLightState?.()||engine.light||{};
+}
+// Companions retain a close glow. Their fast orbit must not act as a second
+// broad searchlight sweeping the terrain beneath the main steady source.
+export function companionTerrainLight(orb,dim=1,intensity=1){
+  const collector=orb.role==='collector',recovery=Math.max(0,Math.min(1,orb.recovery??1));
+  return {radius:(collector?orb.phase==='cooldown'?8+recovery*3:12:9)*dim,
+    alpha:intensity*(collector?.3:.22)};
 }
 export function lightDreamScenery(ctx,width,height){
   ctx.save();

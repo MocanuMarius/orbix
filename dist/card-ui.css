@@ -1,1130 +1,326 @@
-/* A small hand of readable printed cards, fitted to the landscape playfield. */
-.card-camp-choice .card-camp-action-cost {
-  display: none;
-}
-@media (orientation: landscape) and (max-height: 300px) {
-  body .card-reward-screen {
-    gap: 4px;
-    padding-block: 3px;
-  }
-  .card-reward-screen .card-heading h1 {
-    font-size: 15px;
-  }
-  .card-reward-screen .card-heading small {
-    font-size: 8px;
-  }
-  .card-reward-screen .card-reward-choice {
-    gap: 5px !important;
-  }
-  .card-reward-screen .card-reward-choice > h2 {
-    display: none;
-  }
-  .card-reward-screen .card-replace-choice {
-    height: 40px;
-  }
-  .card-reward-screen .card-effect {
-    font-size: 10px;
-    line-height: 1.4;
-  }
-  .card-reward-screen .skill-card h3 {
-    font-size: 14px;
-  }
-  .card-rest-screen .card-camp-choice > .choice-scene {
-    height: 42px;
-    min-height: 35px;
-  }
-  .card-rest-screen .card-camp-choice p {
-    font-size: 9px;
-  }
-  .card-rest-screen .card-rest-rail > svg {
-    height: 32px;
-    width: 37px;
-  }
-}
-@media (orientation: landscape) {
-  body .card-reward-screen {
-    padding: 5px 18px;
-    gap: 7px;
-  }
-  .card-reward-screen .card-wallet {
-    display: none;
-  }
-  .card-reward-screen .card-heading h1 {
-    font-size: 17px;
-    margin: 2px 0;
-  }
-  .card-reward-screen .card-reward-choice {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 7px !important;
-  }
-  .card-reward-choice > h2,
-  .card-reward-choice > .card-replace-slots,
-  .card-reward-choice > .card-loss-preview,
-  .card-reward-choice > .card-footnote {
-    grid-column: 1/-1;
-  }
-  .card-reward-choice > .primary,
-  .card-reward-choice > .secondary {
-    min-height: 38px !important;
-    padding: 6px !important;
-    font-size: 10px !important;
-  }
-  .card-reward-choice .card-replace-choice {
-    flex-direction: row;
-    gap: 4px;
-    height: 47px;
-  }
-  .card-reward-choice .card-replace-choice > .skill-card-art {
-    width: 23px;
-    height: 23px;
-    flex-basis: 23px;
-  }
-  .card-reward-choice .card-replace-choice > span {
-    font-size: 8px;
-  }
-  .card-reward-new > .card-footnote {
-    display: none;
-  }
-  .card-reward-new > .skill-card {
-    padding: 9px;
-    gap: 6px;
-  }
-  .card-reward-new .card-face-top {
-    gap: 8px;
-  }
-  .card-reward-new .card-effect {
-    font-size: 11px;
-    line-height: 1.45;
-  }
-  .card-reward-new .card-lifetime {
-    margin-top: 0;
-  }
-}
-.card-pilot-entry {
-  position: fixed;
-  right: 70px;
-  top: 8px;
-  z-index: 3;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-.card-pilot-entry .card-pilot-link {
-  min-height: 28px;
-  font-size: 9px;
-  background: #10251df0;
-}
-.card-camp-finished {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  min-height: 0;
-  gap: 8px;
-}
-.card-camp-finished .choice-scene {
-  width: 230px;
-  height: 110px;
-}
-.card-camp-finished h3 {
-  font: 18px var(--pixel);
-  color: #dce6c4;
-  margin: 0;
-}
-.card-camp-finished p {
-  font: 10px/1.5 var(--pixel);
-  color: #a9bea0;
-  margin: 0;
-}
-.card-forge-tiers {
-  display: flex;
-  gap: 6px;
-}
-.card-forge-tiers button {
-  font: 10px var(--pixel);
-  padding: 6px 9px !important;
-  min-height: 38px;
-}
-.card-forge-tiers .selected {
-  border-color: #e7cc8f !important;
-  background: #374b32 !important;
-}
-.card-heading {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  justify-content: space-between;
-  min-width: 0;
-}
-.card-heading > div:first-child {
-  min-width: 0;
-}
-.card-heading small {
-  font: 9px/1.4 var(--pixel);
-  letter-spacing: 0.7px;
-  color: #aebda1;
-}
-.card-heading h1,
-.card-heading h2 {
-  font: 22px/1.2 var(--pixel);
-  margin: 4px 0;
-  color: #eddfb4;
-}
-.card-heading h2 > span {
-  font-size: 12px;
-  color: #a8b99e;
-}
-.card-heading .secondary {
-  min-height: 40px;
-}
-.card-footnote {
-  font: 10px/1.45 var(--pixel);
-  color: #b1c0a7;
-  margin: 0;
-}
-.card-wallet,
-.card-bench-wallet {
-  display: flex;
-  gap: 5px;
-  align-items: center;
-  color: #ead09c;
-  font: 16px var(--pixel);
-  white-space: nowrap;
-}
-.card-wallet small,
-.card-bench-wallet small {
-  font: 9px/1.3 var(--pixel);
-  max-width: 64px;
-  white-space: normal;
-}
-.card-wallet svg,
-.card-bench-wallet svg {
-  width: 19px;
-  height: 19px;
-}
-.card-close {
-  font-size: 22px !important;
-  min-width: 42px;
-}
-.card-pilot-tag {
-  color: #d6c594 !important;
-  font-size: 10px !important;
-}
-.card-pilot-link {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 38px;
-  padding: 4px 10px;
-  color: #bac7ad;
-  font: 10px var(--pixel);
-  text-decoration: none;
-  border: 1px solid #6b7b5b;
-  background: #192d24;
-}
-.card-pilot-notice {
-  font: 10px/1.4 var(--pixel);
-  color: #d6c594;
-  margin: 0;
-  text-align: center;
-}
-.skill-card {
-  --card-ink: #c2c8b3;
-  min-width: 0;
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  gap: 9px;
-  border: 2px solid #748273;
-  border-color: var(--card-ink);
-  padding: 14px 12px 10px;
-  background: linear-gradient(155deg, #314436, #15271f 65%);
-  color: #e2e7cd;
-  box-shadow: 3px 3px #07150f;
-  box-sizing: border-box;
-  text-align: left;
-}
-.card-rare {
-  --card-ink: #94cb88;
-  background: linear-gradient(155deg, #344d34, #152b20 65%);
-}
-.card-legendary {
-  --card-ink: #c5a4dc;
-  background: linear-gradient(155deg, #49364c, #272133 65%);
-}
-.card-face-top {
-  display: flex;
-  gap: 10px;
-  align-items: center;
-  min-width: 0;
-}
-.skill-card-art {
-  width: 56px;
-  height: 56px;
-  flex: 0 0 56px;
-  color: var(--card-ink, #c8c8a7);
-  filter: drop-shadow(2px 3px 0 #08160e);
-  image-rendering: pixelated;
-}
-.card-rarity {
-  text-transform: uppercase;
-  font: 9px var(--pixel);
-  letter-spacing: 0.6px;
-  color: var(--card-ink);
-}
-.skill-card h3 {
-  font: 18px/1.16 var(--pixel);
-  margin: 5px 0;
-  color: #f2e7bc;
-  text-wrap: balance;
-}
-.card-rank {
-  font: 9px/1.3 var(--pixel);
-  color: #b4c1a7;
-}
-.card-effect {
-  font: 12px/1.5 var(--pixel);
-  margin: 0;
-  overflow-wrap: anywhere;
-}
-.card-lifetime {
-  font: 9px/1.4 var(--pixel);
-  color: #b6c0a6;
-  margin-top: auto;
-  border-top: 1px solid #7a8a6955;
-  padding-top: 6px;
-}
-.card-compatibility {
-  font: 10px/1.45 var(--pixel);
-  color: #e2c693;
-  border-left: 2px solid #b9a267;
-  padding-left: 6px;
-}
-.card-slot-number {
-  position: absolute;
-  top: 5px;
-  right: 7px;
-  font: 10px var(--pixel);
-  color: #a9bba1;
-}
-.empty-card {
-  border: 1px dashed #718469;
-  background: #17291f66;
-  justify-content: center;
-  align-items: center;
-  text-align: center;
-  color: #8fa486;
-}
-.empty-card h3 {
-  font-size: 13px;
-  color: #a5b797;
-}
-.empty-card p {
-  font: 9px/1.5 var(--pixel);
-  color: #94a78a;
-  margin: 0;
-}
-.card-empty-art {
-  font: 36px var(--pixel);
-  color: #71876a;
-}
-.card-pick {
-  padding: 0 !important;
-  background: none !important;
-  border: 0 !important;
-  text-align: left;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  min-width: 0;
-  box-shadow: none !important;
-}
-.card-pick > .skill-card {
-  flex: 1;
-  width: 100%;
-}
-.card-pick:hover .skill-card,
-.card-pick:focus-visible .skill-card {
-  outline: 2px solid #f0d8a3;
-  outline-offset: 3px;
-}
-.card-pick-label {
-  display: block;
-  text-align: center;
-  width: 100%;
-  font: 12px/1.4 var(--pixel);
-  padding: 8px 0;
-  color: #f0deaa;
-  background: #344d34;
-  border: 1px solid #9da979;
-}
-dialog.card-sheet[open] {
-  width: min(900px, calc(100vw - 24px));
-  max-width: none;
-  height: calc(100dvh - 24px);
-  max-height: 480px;
-  padding: 16px !important;
-  box-sizing: border-box;
-  background: #13261efc;
-  border: 2px solid #80936d;
-  overflow: auto;
-}
-.card-starter,
-.card-bench,
-.card-exchange,
-.card-forge-preview {
-  height: 100%;
-  min-height: 0;
-  display: grid;
-  grid-template-rows: auto minmax(0, 1fr) auto;
-  gap: 12px;
-}
-.card-starter-pair {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 22px;
-  min-height: 0;
-  max-width: 680px;
-  width: 100%;
-  margin: auto;
-}
-.card-starter-pair .skill-card {
-  padding: 14px;
-}
-.card-starter > .card-footnote {
-  text-align: center;
-}
-.card-dialog-actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 12px;
-}
-.card-dialog-actions > button {
-  min-width: 130px;
-  min-height: 44px;
-  padding: 7px 12px !important;
-  font: 12px var(--pixel) !important;
-}
-.card-dialog-actions > button svg {
-  width: 14px;
-  height: 14px;
-}
-.card-reward-screen {
-  height: 100%;
-  min-height: 0;
-  display: grid;
-  grid-template-rows: auto minmax(0, 1fr) auto;
-  gap: 14px;
-  padding: 10px 20px;
-  box-sizing: border-box;
-}
-.card-reward-body {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1.25fr);
-  gap: 28px;
-  min-height: 0;
-  align-items: center;
-  max-width: 850px;
-  width: 100%;
-  margin: auto;
-}
-.card-reward-new {
-  display: grid;
-  gap: 10px;
-  min-width: 0;
-}
-.card-reward-choice {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  min-width: 0;
-}
-.card-reward-choice > h2 {
-  font: 17px var(--pixel);
-  color: #d9d6ad;
-  margin: 0;
-}
-.card-reward-choice > .primary,
-.card-reward-choice > .secondary {
-  font: 12px/1.3 var(--pixel);
-  min-height: 44px;
-}
-.card-replace-slots {
-  display: flex;
-  gap: 7px;
-}
-.card-replace-choice {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  min-width: 0;
-  flex: 1;
-  padding: 8px 4px !important;
-  border: 1px solid #647c5d !important;
-  background: #1d3427 !important;
-  color: #dce4c5;
-  font: 9px/1.4 var(--pixel);
-}
-.card-replace-choice > .skill-card-art {
-  width: 32px;
-  height: 32px;
-  flex-basis: 32px;
-}
-.card-replace-choice > b {
-  font-weight: 400;
-  color: #97ac89;
-}
-.card-replace-choice.selected {
-  border: 2px solid #e6ca89 !important;
-  background: #354631 !important;
-}
-.card-loss-preview {
-  font: 10px/1.5 var(--pixel);
-  color: #d4b09a;
-  margin: 0;
-}
-.card-loss-preview > b {
-  color: #ead4a6;
-  font-weight: 400;
-}
-.card-bench-body {
-  min-height: 0;
-  display: grid;
-  grid-template-rows: minmax(0, 1fr) auto;
-  gap: 12px;
-}
-.card-slot-row {
-  display: grid;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
-  gap: 9px;
-  min-height: 0;
-  overflow-x: auto;
-  align-items: stretch;
-}
-.card-slot-row:has(> :nth-child(3):last-child) {
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-}
-.card-slot-row:has(> :nth-child(4):last-child) {
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-}
-.card-slot-pick {
-  padding: 0 !important;
-  background: none !important;
-  border: 0 !important;
-  box-shadow: none !important;
-  text-align: left;
-  min-width: 0;
-}
-.card-slot-pick > .skill-card {
-  height: 100%;
-}
-.card-slot-pick.selected {
-  outline: 2px solid #edcf8d;
-  outline-offset: 3px;
-}
-.compact-card {
-  gap: 6px;
-  padding: 14px 8px 7px;
-}
-.compact-card .card-face-top {
-  gap: 7px;
-}
-.compact-card .skill-card-art {
-  width: 36px;
-  height: 36px;
-  flex-basis: 36px;
-}
-.compact-card h3 {
-  font-size: 13px;
-  margin: 4px 0;
-}
-.compact-card .card-effect {
-  font-size: 10px;
-  line-height: 1.4;
-}
-.compact-card .card-rarity,
-.compact-card .card-rank,
-.compact-card .card-lifetime {
-  font-size: 8px;
-}
-.compact-card .card-compatibility {
-  font-size: 9px;
-}
-.card-inspector {
-  min-width: 0;
-  display: grid;
-  grid-template-columns: 1fr 1.2fr;
-  gap: 6px 20px;
-  border-top: 1px solid #607656;
-  padding-top: 9px;
-}
-.card-inspector-copy h3 {
-  font: 14px var(--pixel);
-  color: #e6d6ab;
-  margin: 0 0 5px;
-}
-.card-inspector-copy p {
-  font: 10px/1.4 var(--pixel);
-  margin: 0 0 5px;
-  color: #c7d1b7;
-}
-.card-inspector-copy > span {
-  font: 10px/1.4 var(--pixel);
-  color: #d8c599;
-}
-.card-edit-actions {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 6px;
-}
-.card-edit-actions button {
-  min-height: 38px;
-  padding: 5px !important;
-  font: 10px/1.4 var(--pixel) !important;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 4px;
-}
-.card-edit-actions button svg {
-  width: 12px;
-  height: 12px;
-}
-.card-inspector > .card-footnote {
-  grid-column: 2;
-}
-.card-empty-detail {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  grid-column: 1/-1;
-  color: #b5c4a5;
-}
-.card-empty-detail .skill-card-art {
-  width: 32px;
-  height: 32px;
-  flex-basis: 32px;
-}
-.card-empty-detail h3 {
-  font: 14px var(--pixel);
-}
-.card-empty-detail p {
-  font: 10px var(--pixel);
-}
-.card-order-preview {
-  grid-column: 1/-1;
-  background: #233c2b;
-  border: 1px solid #889b70;
-  padding: 9px;
-  display: grid;
-  gap: 6px;
-  font: 10px/1.4 var(--pixel);
-  color: #d3d9b8;
-}
-.card-order-preview > b {
-  font-weight: 400;
-  color: #edce95;
-}
-.card-order-preview p {
-  margin: 0;
-}
-.card-order-preview button {
-  min-height: 38px;
-  font: 11px var(--pixel);
-  justify-self: end;
-}
-.card-exchange-body {
-  min-height: 0;
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 25px;
-  align-items: center;
-}
-.card-exchange-result {
-  display: flex;
-  align-items: center;
-  flex-direction: column;
-  text-align: center;
-  gap: 9px;
-  min-width: 0;
-  color: #c6d1b4;
-  font: 11px/1.5 var(--pixel);
-}
-.card-exchange-result > .choice-scene {
-  height: 100px;
-  width: 100%;
-  max-width: 230px;
-}
-.card-exchange-result > strong {
-  font: 20px/1.2 var(--pixel);
-  color: #e9d09c;
-}
-.card-exchange-result > b {
-  font: 16px var(--pixel);
-  color: #c9ddad;
-}
-.card-exchange-result p {
-  margin: 0;
-}
-.card-exchange-result small {
-  font: 10px var(--pixel);
-  color: #b5bea1;
-}
-.card-rest-screen {
-  height: 100%;
-  min-height: 0;
-  display: grid;
-  grid-template-columns: minmax(130px, 0.65fr) minmax(0, 2.4fr);
-  gap: 18px;
-  padding: 7px 10px;
-  box-sizing: border-box;
-}
-.card-rest-rail {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 9px;
-  text-align: center;
-  min-width: 0;
-}
-.card-rest-rail > svg {
-  width: 66px;
-  height: 58px;
-}
-.card-rest-rail > small {
-  font: 9px var(--pixel);
-  color: #aabf99;
-}
-.card-rest-rail > h1 {
-  font: 21px/1.2 var(--pixel);
-  color: #e9dfb3;
-  margin: 0;
-}
-.card-rest-rail > p {
-  font: 10px/1.5 var(--pixel);
-  color: #b5c4a6;
-  margin: 0;
-}
-.card-rest-rail > button {
-  min-height: 40px;
-  font: 10px/1.4 var(--pixel);
-}
-.card-rest-vitals {
-  display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
-  justify-content: center;
-  align-items: center;
-}
-.card-rest-vitals > span {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  font: 12px var(--pixel);
-  color: #c8d7b4;
-}
-.card-rest-vitals > span svg {
-  width: 14px;
-  height: 14px;
-}
-.card-camp-main {
-  display: grid;
-  grid-template-rows: auto minmax(0, 1fr) auto;
-  gap: 8px;
-  min-height: 0;
-}
-.card-camp-main h2 {
-  font-size: 18px;
-}
-.card-camp-choices {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 8px;
-  min-height: 0;
-  overflow-y: auto;
-}
-.card-camp-choices:has(> :nth-child(4)) {
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-}
-.card-camp-choice {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  text-align: center;
-  padding: 8px 6px !important;
-  border: 1px solid #819168 !important;
-  background: linear-gradient(#2f4531, #192d21) !important;
-  min-width: 0;
-  color: #dce3bf !important;
-}
-.card-camp-choice > .choice-scene {
-  height: 75px;
-  width: 100%;
-  min-height: 40px;
-}
-.card-camp-choice h3 {
-  font: 16px/1.2 var(--pixel);
-  color: #ecdbad;
-  margin: 0;
-}
-.card-camp-choice p {
-  font: 10px/1.5 var(--pixel);
-  margin: 0;
-  color: #c0ceb1;
-}
-.card-camp-choice.unavailable {
-  opacity: 0.55;
-}
-.card-camp-action-cost {
-  font: 9px/1.4 var(--pixel);
-  color: #ddc89a;
-  margin-top: auto;
-}
-.card-forge-name {
-  font: 10px/1.4 var(--pixel);
-  color: #b9d8a4;
-}
-.card-camp-receipt {
-  font: 10px var(--pixel);
-  color: #b1d298;
-}
-.card-camp-footer {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 14px;
-}
-.card-camp-footer p {
-  font: 9px/1.5 var(--pixel);
-  color: #aaba9b;
-  margin: 0;
-  max-width: 310px;
-}
-.card-camp-footer button {
-  font: 12px var(--pixel);
-  min-height: 42px;
-  white-space: nowrap;
-}
-.card-victory-recap {
-  height: 100%;
-  display: grid;
-  grid-template-rows: auto minmax(0, 1fr) auto auto;
-  gap: 12px;
-  padding: 12px;
-  box-sizing: border-box;
-}
-.card-winning-hand {
-  display: flex;
-  gap: 20px;
-  min-height: 0;
-  overflow: auto;
-}
-.card-winning-hand > div {
-  flex: 1;
-  min-width: 0;
-}
-.card-winning-hand > aside {
-  width: 180px;
-  flex: 0 0 180px;
-}
-.card-winning-hand h2 {
-  font: 13px var(--pixel);
-  color: #bfcaa8;
-  margin: 0 0 9px;
-}
-.card-winning-hand aside p {
-  font: 9px var(--pixel);
-  color: #b3bf9e;
-}
-.card-recap-row {
-  display: flex;
-  gap: 9px;
-  min-height: 0;
-}
-.card-recap-row > .skill-card {
-  flex: 1;
-  min-width: 100px;
-}
-.card-fuel-label {
-  color: #e4d5ac;
-}
-@media (orientation: landscape) and (max-height: 420px) {
-  dialog.card-sheet[open] {
-    padding: 11px !important;
-    height: calc(100dvh - 14px);
-  }
-  .card-heading h1,
-  .card-heading h2 {
-    font-size: 18px;
-  }
-  .card-starter,
-  .card-bench,
-  .card-exchange,
-  .card-forge-preview {
-    gap: 8px;
-  }
-  .card-starter-pair .skill-card {
-    padding: 10px;
-  }
-  .skill-card h3 {
-    font-size: 15px;
-  }
-  .skill-card .card-effect {
-    font-size: 10px;
-    line-height: 1.45;
-  }
-  .skill-card-art {
-    width: 40px;
-    height: 40px;
-    flex-basis: 40px;
-  }
-  .card-starter-pair {
-    gap: 16px;
-  }
-  .card-starter-pair .card-pick-label {
-    padding: 6px 0;
-    font-size: 11px;
-  }
-  .card-reward-screen {
-    padding: 5px 12px;
-    gap: 8px;
-  }
-  .card-reward-body {
-    gap: 20px;
-  }
-  .card-reward-choice {
-    gap: 9px;
-  }
-  .card-reward-choice h2 {
-    font-size: 14px;
-  }
-  .card-replace-choice {
-    font-size: 8px;
-    gap: 4px;
-    padding: 5px 3px !important;
-  }
-  .card-replace-choice .skill-card-art {
-    width: 24px;
-    height: 24px;
-    flex-basis: 24px;
-  }
-  .card-loss-preview {
-    font-size: 9px;
-    line-height: 1.4;
-  }
-  .card-reward-new {
-    gap: 6px;
-  }
-  .card-footnote {
-    font-size: 9px;
-  }
-  .card-bench-body {
-    gap: 8px;
-  }
-  .card-slot-row {
-    gap: 7px;
-  }
-  .compact-card {
-    padding: 12px 7px 6px;
-    gap: 4px;
-  }
-  .compact-card .card-face-top {
-    gap: 5px;
-  }
-  .compact-card .skill-card-art {
-    width: 26px;
-    height: 26px;
-    flex-basis: 26px;
-  }
-  .compact-card h3 {
-    font-size: 11px;
-  }
-  .compact-card .card-effect {
-    font-size: 9px;
-    line-height: 1.4;
-  }
-  .compact-card .card-lifetime {
-    font-size: 7px;
-    padding-top: 4px;
-  }
-  .compact-card .card-compatibility {
-    font-size: 8px;
-  }
-  .card-inspector-copy p {
-    display: none;
-  }
-  .card-inspector-copy h3 {
-    font-size: 12px;
-  }
-  .card-inspector-copy > span {
-    font-size: 9px;
-  }
-  .card-inspector {
-    padding-top: 7px;
-    gap: 5px 12px;
-  }
-  .card-edit-actions button {
-    min-height: 34px;
-    font-size: 9px !important;
-  }
-  .card-order-preview {
-    position: absolute;
-    bottom: 36px;
-    left: 15px;
-    right: 15px;
-    z-index: 3;
-    box-shadow: 0 0 0 4px #071b15;
-  }
-  .card-exchange-result > .choice-scene {
-    height: 75px;
-  }
-  .card-rest-screen {
-    gap: 12px;
-    padding: 4px;
-  }
-  .card-rest-rail {
-    gap: 7px;
-  }
-  .card-rest-rail > h1 {
-    font-size: 18px;
-  }
-  .card-rest-rail > svg {
-    width: 48px;
-    height: 42px;
-  }
-  .card-camp-main h2 {
-    font-size: 15px;
-  }
-  .card-camp-choice {
-    gap: 6px;
-  }
-  .card-camp-choice > .choice-scene {
-    height: 55px;
-  }
-  .card-camp-choice h3 {
-    font-size: 13px;
-  }
-  .card-camp-choice p {
-    font-size: 9px;
-    line-height: 1.4;
-  }
-  .card-camp-action-cost {
-    font-size: 8px;
-  }
-  .card-rest-rail > p {
-    font-size: 9px;
-  }
-  .card-dialog-actions button {
-    font-size: 11px !important;
-    min-height: 40px;
-  }
-  .card-victory-recap {
-    gap: 8px;
-    padding: 6px;
-  }
-  .card-winning-hand {
-    gap: 12px;
-  }
-  .card-winning-hand > aside {
-    width: 160px;
-    flex-basis: 160px;
-  }
-}
-@media (orientation: portrait) {
-  dialog.card-sheet[open] {
-    max-height: calc(100dvh - 20px);
-    height: auto;
-    min-height: 420px;
-  }
-  .card-starter-pair {
-    gap: 10px;
-  }
-  .card-starter-pair .skill-card {
-    padding: 10px;
-  }
-  .card-face-top {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-  .card-heading h2 {
-    font-size: 18px;
-  }
-  .skill-card .card-effect {
-    font-size: 10px;
-  }
-  .card-reward-screen {
-    height: auto;
-    min-height: 100%;
-    padding: 10px;
-  }
-  .card-reward-body {
-    grid-template-columns: 1fr;
-    gap: 15px;
-  }
-  .card-reward-new .card-face-top {
-    flex-direction: row;
-  }
-  .card-bench-body {
-    grid-template-rows: auto auto;
-  }
-  .card-slot-row {
-    grid-template-columns: repeat(3, minmax(110px, 1fr)) !important;
-  }
-  .card-inspector {
-    grid-template-columns: 1fr;
-  }
-  .card-inspector > .card-footnote {
-    grid-column: 1;
-  }
-  .card-exchange-body {
-    gap: 12px;
-  }
-  .card-exchange-result {
-    font-size: 10px;
-  }
-  .card-exchange-result > strong {
-    font-size: 16px;
-  }
-  .card-dialog-actions {
-    gap: 8px;
-  }
-  .card-dialog-actions > button {
-    min-width: 0;
-    flex: 1;
-    font-size: 10px !important;
-  }
-  .card-rest-screen {
-    height: auto;
-    grid-template-columns: 1fr;
-  }
-  .card-rest-rail > svg {
-    display: none;
-  }
-  .card-camp-choices {
-    min-height: 220px;
-    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
-  }
-  .card-camp-choice > .choice-scene {
-    height: 55px;
-  }
-  .card-victory-recap {
-    height: auto;
-    min-height: 100%;
-  }
-  .card-winning-hand {
-    flex-direction: column;
-  }
-  .card-winning-hand > aside {
-    width: 100%;
-    flex-basis: auto;
-  }
-  .card-recap-row {
-    overflow-x: auto;
-  }
-}
+/* Mounted runes on a quiet, pixel-framed workbench. */
+html body dialog.game-sheet.card-sheet[open]{display:block!important;box-sizing:border-box;width:min(930px,calc(100vw - 16px))!important;height:min(490px,calc(100dvh - 16px))!important;min-height:0!important;max-width:none!important;max-height:calc(100dvh - 12px)!important;margin:auto!important;padding:12px 16px!important;overflow:hidden!important;background:#162521!important;border:3px solid #829080!important;box-shadow:0 0 0 2px #0b1715,5px 7px 0 #07100dbb!important}
+.card-starter,.card-bench,.card-exchange,.card-forge-preview,.card-reward-screen,.card-rest-screen,.card-victory-recap{box-sizing:border-box;min-width:0;min-height:0;color:#e3e5cc;text-align:left;font:15px/1.3 var(--pixel,monospace);text-shadow:none}
+.card-starter *,.card-bench *,.card-exchange *,.card-forge-preview *,.card-reward-screen *,.card-rest-screen *,.card-victory-recap *{box-sizing:border-box}
+.card-starter,.card-exchange,.card-forge-preview,.card-reward-screen{height:100%;display:grid;grid-template-rows:auto minmax(0,1fr) auto;gap:10px}
+.card-bench{height:100%;display:grid;grid-template-rows:auto auto minmax(0,1fr) auto;gap:10px}
+html body :is(.card-starter,.card-bench,.card-exchange,.card-forge-preview,.card-reward-screen,.card-rest-screen,.card-victory-recap) button{appearance:none;border-radius:0!important;clip-path:none!important;border-image:none!important;box-shadow:none!important;letter-spacing:0;text-shadow:none;font:14px/1.2 var(--pixel,monospace);height:auto!important;max-height:none!important;min-width:0;min-height:38px;padding:6px 10px!important;cursor:pointer;margin:0}
+html body :is(.card-starter,.card-bench,.card-exchange,.card-forge-preview,.card-reward-screen,.card-rest-screen,.card-victory-recap) button:before,html body :is(.card-starter,.card-bench,.card-exchange,.card-forge-preview,.card-reward-screen,.card-rest-screen,.card-victory-recap) button:after{display:none!important}
+html body :is(.card-starter,.card-bench,.card-exchange,.card-forge-preview,.card-reward-screen,.card-rest-screen,.card-victory-recap) button.primary{border:2px solid #a5b38c!important;background:#536b46!important;color:#fff2c8!important}
+html body :is(.card-starter,.card-bench,.card-exchange,.card-forge-preview,.card-reward-screen,.card-rest-screen,.card-victory-recap) button.secondary{border:1px solid #687d6c!important;background:#21382f!important;color:#d6decb!important}
+html body :is(.card-starter,.card-bench,.card-exchange,.card-forge-preview,.card-reward-screen,.card-rest-screen,.card-victory-recap) button.card-danger{background:#392f29!important;color:#eec3a3!important;border-color:#9f7963!important}
+html body :is(.card-starter,.card-bench,.card-exchange,.card-forge-preview,.card-reward-screen,.card-rest-screen,.card-victory-recap) button:disabled{opacity:.43;cursor:default;transform:none}
+html body :is(.card-starter,.card-bench,.card-exchange,.card-forge-preview,.card-reward-screen,.card-rest-screen,.card-victory-recap) button:focus-visible{outline:2px solid #ffe0a0!important;outline-offset:2px;z-index:1}
+.card-heading{display:flex;align-items:center;gap:12px;justify-content:space-between;min-width:0;flex:none}
+.card-heading>div:first-child{min-width:0;margin-right:auto}
+.card-heading small{font:11px/1.2 var(--pixel);color:#a9bdab;letter-spacing:.35px;display:block}
+.card-heading h1,.card-heading h2{font:25px/1.12 var(--pixel);color:#f0e3ba;margin:3px 0 0;text-align:left}
+.card-heading h2>span{font-size:14px;color:#acbea9;margin-left:5px}
+.card-heading .card-close{font-size:14px;min-width:56px}
+.card-bench-wallet{display:flex;align-items:center;gap:6px;color:#f0d59f;font:19px/1.1 var(--pixel);white-space:nowrap}
+.card-bench-wallet svg{width:20px;height:20px}
+.card-bench-wallet small{max-width:62px;white-space:normal;font:11px/1.1 var(--pixel);color:#b6c2aa}
+.card-footnote{font:12px/1.3 var(--pixel);color:#9fb3a0;margin:0;text-align:left}
+.card-number{color:#ffe4a0;font-weight:600}
+.skill-card{--card-ink:#a8b49b;position:relative;min-width:0;min-height:0;background:#26382c;border:2px solid var(--card-ink);color:#e9e7ce;padding:6px;box-shadow:3px 3px 0 #07120f;display:flex;flex-direction:column;gap:6px;text-align:left}
+.skill-card.card-rare{--card-ink:#88be9c;background:#253e32}
+.skill-card.card-legendary{--card-ink:#c4a3cd;background:#362e3d}
+.card-illustration{width:100%;min-height:0;overflow:hidden;display:flex;align-items:center;justify-content:center;background:#101e1b;border:1px solid #71856e}
+.card-illustration>.skill-card-art{display:block;width:100%;height:auto;max-height:145px;aspect-ratio:2/1;image-rendering:pixelated;object-fit:contain;flex:none;filter:none;color:var(--card-ink)}
+.card-face-copy{display:flex;flex-direction:column;gap:5px;min-width:0;min-height:0;padding:1px 5px 4px}
+.card-face-title{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 10px}
+.skill-card h3{font:21px/1.13 var(--pixel);color:#f4e7bb;margin:0;overflow-wrap:break-word}
+.card-rarity{font:11px/1.2 var(--pixel);text-transform:capitalize;color:var(--card-ink)}
+.card-effect{font:16px/1.32 var(--pixel);color:#e1e6cf;margin:0!important;overflow-wrap:break-word;text-align:left}
+.card-lifetime{font:12px/1.2 var(--pixel);color:#b2c3ad}
+.card-compatibility{color:#eed198!important;font:14px/1.25 var(--pixel);margin:2px 0 0;padding-left:7px;border-left:2px solid #ad975f}
+.card-slot-row{display:flex;gap:8px;min-height:0;min-width:0;align-items:stretch}
+html body .card-slot-row .card-slot-pick{flex:1;display:flex;align-items:center;gap:7px;min-height:58px;padding:5px 7px!important;background:#1c3028!important;border:1px solid #647c66!important;color:#c4d0bb;text-align:left;overflow:hidden;position:relative}
+html body .card-slot-row .card-slot-pick.selected{border:2px solid #e4c58b!important;background:#344738!important;padding:4px 6px!important}
+.card-slot-number{font:18px var(--pixel);color:#b1c39e;flex:none;align-self:center}
+.card-slot-pick.selected .card-slot-number{color:#ffe2a3}
+.card-slot-pick>.skill-card-art{width:52px;height:28px;object-fit:cover;flex:none;border:1px solid #5c7665;image-rendering:pixelated}
+.card-slot-copy{display:block;min-width:0}
+.card-slot-copy strong{display:block;font:14px/1.16 var(--pixel);color:#e3e3c4;overflow-wrap:break-word}
+.card-slot-copy small{display:block;font:11px/1.2 var(--pixel);color:#a5b6a3;margin-top:3px}
+.card-slot-open{font:27px/1 var(--pixel);width:38px;text-align:center;color:#708b74}
+html body .card-slot-row .empty-slot{background:#15271f!important;border-style:dashed!important}
+.card-bench-body{display:grid;grid-template-columns:minmax(220px,.92fr) minmax(0,1.25fr);gap:20px;min-height:0;min-width:0;align-items:stretch}
+.card-selected-face{display:flex;align-items:center;justify-content:center;min-height:0;min-width:0}
+.card-selected-face>.skill-card{width:100%;max-width:370px;max-height:100%}
+.card-selected-face .card-lifetime{display:block}
+.card-selected-face .card-illustration>.skill-card-art{max-height:clamp(68px,calc(100dvh - 220px),165px)}
+.card-inspector{display:flex;flex-direction:column;gap:12px;min-width:0;min-height:0;justify-content:flex-start;overflow:auto;scrollbar-width:thin;scrollbar-color:#607d67 transparent;padding:2px}
+.card-inspector-copy>small{display:block;font:12px/1.2 var(--pixel);color:#a4b7a2;margin-bottom:7px}
+.card-inspector-copy .card-effect{font-size:17px;line-height:1.35}
+.card-inspector-copy .card-compatibility{margin-top:9px}
+.card-edit-actions{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-top:auto}
+.card-edit-actions>button{width:100%;justify-content:center}
+.card-empty-detail{grid-column:1/-1;align-self:center;text-align:center;color:#b8c8af}
+.card-empty-detail h3{font:22px var(--pixel);color:#e1dfbc;margin:5px 0}
+.card-empty-detail p{font:15px var(--pixel);margin:8px 0}
+.card-empty-art{font:46px/1 var(--pixel);color:#69836c}
+.card-order-preview{display:flex;flex-direction:column;gap:8px;min-height:0;font:14px/1.28 var(--pixel);color:#c9d8bd}
+.card-order-preview h3{font:19px/1.15 var(--pixel);color:#f1daaa;margin:0}
+.card-order-preview p{margin:0}
+.card-order-line{font-size:12px;color:#a9bcaa}
+.card-order-line span.moving{color:#ffe2a2}
+.card-order-line i{font-style:normal;color:#6f8971}
+.card-order-actions{display:flex;gap:8px;margin-top:1px}
+.card-order-actions>button{flex:1;min-height:36px!important}
+.card-starter-pair{display:grid;grid-template-columns:1fr 1fr;gap:22px;min-height:0;max-width:740px;width:100%;margin:auto;align-self:center}
+html body .card-starter-pair>.card-pick{padding:0!important;background:none!important;border:0!important;display:flex;flex-direction:column;gap:7px;text-align:left;min-height:0}
+.card-pick>.skill-card{width:100%;flex:1}
+.card-pick-label{display:block;width:100%;text-align:center;font:15px/1.2 var(--pixel);color:#f9e5ae;background:#456040;border:2px solid #a5b486;padding:8px}
+.card-pick:hover .skill-card{border-color:#ffdfa2}
+.card-starter>.card-footnote{text-align:center}
+.card-reward-screen{padding:10px 24px;background:#14231f}
+.card-reward-body{display:grid;grid-template-columns:minmax(240px,.9fr) minmax(0,1.25fr);gap:24px;min-height:0;align-items:center}
+.card-reward-new{min-width:0;min-height:0}
+.card-reward-new .card-illustration>.skill-card-art{max-height:clamp(60px,calc(100dvh - 220px),145px)}
+.card-reward-choice{display:flex;flex-direction:column;gap:9px;min-width:0;min-height:0;justify-content:center}
+.card-reward-choice h2{font:20px/1.15 var(--pixel);color:#e3ddbc;margin:0}
+.card-replace-slots{gap:5px}
+html body .card-replace-slots .card-slot-pick{flex-direction:column;gap:2px;text-align:center;padding:4px!important;min-height:62px}
+.card-replace-slots .card-slot-number{position:absolute;top:3px;left:5px;font-size:13px}
+.card-replace-slots .card-slot-pick>.skill-card-art{width:48px;height:24px}
+.card-replace-slots .card-slot-copy strong{font-size:12px}
+.card-replace-slots .card-slot-copy small{display:none}
+.card-reward-actions{display:grid;grid-template-columns:1.2fr 1fr;gap:7px;margin-top:3px}
+.card-reward-prompt{font:15px/1.3 var(--pixel);color:#aebfaa;margin:2px 0}
+.card-loss-preview{border-left:2px solid #a47d65;padding-left:9px}
+.card-loss-preview>span{font:11px/1.1 var(--pixel);color:#c19b7c}
+.card-loss-preview h3{font:17px/1.1 var(--pixel);color:#ecd4af;margin:3px 0}
+.card-loss-preview p{font:14px/1.28 var(--pixel);color:#d2c7ad;margin:3px 0}
+.card-loss-preview small{font:12px/1.2 var(--pixel);color:#b4b89d}
+.card-exchange-body{display:grid;grid-template-columns:1fr 1fr;gap:28px;min-height:0;align-items:center;overflow:auto;scrollbar-width:thin}
+.card-exchange-body>.skill-card{max-width:390px;width:100%;justify-self:center}
+.card-exchange-body .card-illustration>.skill-card-art{max-height:clamp(58px,calc(100dvh - 235px),135px)}
+.card-exchange-result{display:flex;flex-direction:column;gap:10px;min-width:0;color:#c8d4bd;font:15px/1.3 var(--pixel)}
+.card-exchange-result h3{font:22px/1.15 var(--pixel);color:#ecdfb5;margin:0}
+.card-exchange-result p{margin:0}
+.card-exchange-result>strong{font:23px/1.1 var(--pixel);color:#f3d59f}
+.card-exchange-result>small,.card-kept-uses{font:12px/1.2 var(--pixel);color:#a8bba5}
+.card-melt-art{height:95px;max-width:250px;display:flex;align-items:center;justify-content:center}
+.card-melt-art>.choice-scene{width:100%;height:100%}
+.card-dialog-actions{display:flex;align-items:center;justify-content:flex-end;gap:10px;min-height:0}
+.card-dialog-actions>button{min-width:140px;flex:none}
+.card-dialog-actions>p{font:12px/1.25 var(--pixel);color:#b8bea5;margin:0 auto 0 0}
+.card-replacement-confirm .card-exchange-body{gap:24px}
+.card-outgoing,.card-incoming{min-width:0;min-height:0}
+.card-outgoing>.skill-card{opacity:.82;border-color:#a57f68}
+.card-exchange-tag{display:block;font:12px/1.2 var(--pixel);text-align:center;color:#b4c7a7;margin-top:7px}
+.card-outgoing>.card-exchange-tag{color:#ddb18e}
+.card-forge-tiers{display:flex;gap:6px}
+html body .card-forge-tiers button.selected{border:2px solid #f1ce8c!important;background:#3a5039!important;color:#f4dfb2!important}
+.card-forge-preview .card-exchange-result>.choice-scene{width:100%;height:90px;max-width:240px}
+.card-rest-screen{height:100%;display:grid;grid-template-columns:minmax(150px,.65fr) minmax(0,2.4fr);gap:20px;padding:10px 14px;background:#15251f}
+.card-rest-rail{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;min-width:0;text-align:center}
+.card-rest-rail>svg{width:64px;height:56px}
+.card-rest-rail>small{font:11px var(--pixel);color:#a3b79c}
+.card-rest-rail>h1{font:25px/1.15 var(--pixel);color:#ecdfb1;margin:0}
+.card-rest-rail>p{font:14px/1.3 var(--pixel);margin:0;color:#afc0a4}
+.card-rest-vitals{display:flex;align-items:center;justify-content:center;gap:9px;flex-wrap:wrap}
+.card-rest-vitals>span{display:flex;gap:4px;align-items:center;font:15px var(--pixel);color:#d0d8b9}
+.card-rest-vitals>span svg{width:16px;height:16px}
+.card-camp-main{display:grid;grid-template-rows:auto minmax(0,1fr) auto;gap:10px;min-height:0}
+.card-camp-choices{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;min-height:0;overflow:auto;scrollbar-width:thin}
+.card-camp-choices:has(>:nth-child(4)){grid-template-columns:repeat(4,minmax(0,1fr))}
+html body .card-camp-choices .card-camp-choice{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;text-align:center;background:#243b2d!important;border:1px solid #7a8f6b!important;color:#d4dfc3;min-width:0;padding:8px!important}
+.card-camp-choice>.choice-scene{width:100%;height:90px;min-height:40px}
+.card-camp-choice h3{font:21px/1.1 var(--pixel);color:#efe0b4;margin:0}
+.card-camp-choice p{font:14px/1.25 var(--pixel);margin:0;color:#c1d0b4}
+.card-forge-name{font:12px/1.2 var(--pixel);color:#a8c895}
+.card-camp-action-cost{font:12px/1.2 var(--pixel);color:#d1c497}
+.card-camp-receipt{font:12px var(--pixel);color:#b2d292}
+.card-camp-footer{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.card-camp-footer p{font:12px/1.25 var(--pixel);color:#a5b89a;margin:0;max-width:340px}
+.card-camp-footer>button{white-space:nowrap}
+.card-camp-finished{display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;min-height:0}
+.card-camp-finished>.choice-scene{width:200px;height:90px}
+.card-camp-finished h3{font:23px var(--pixel);color:#dbe4bd;margin:8px 0}
+.card-camp-finished p{font:15px var(--pixel);color:#b0c0a5;margin:0}
+.card-victory-recap{height:100%;display:grid;grid-template-rows:auto minmax(0,1fr) auto auto;gap:10px;padding:12px}
+.card-winning-hand{display:flex;gap:20px;min-height:0;overflow:auto}
+.card-winning-hand>div{min-width:0;flex:1}
+.card-winning-hand>aside{width:200px;flex:none}
+.card-winning-hand h2{font:17px var(--pixel);margin:0 0 8px;color:#c6d0af}
+.card-winning-hand aside p{font:12px var(--pixel);color:#a5b69a}
+.card-recap-row{display:flex;gap:8px;min-height:0;overflow:auto}
+.card-recap-row>.skill-card{min-width:170px;flex:1}
+.compact-card h3{font-size:17px}.compact-card .card-effect{font-size:13px}.compact-card .card-illustration>.skill-card-art{max-height:80px}
+.card-pilot-entry{display:flex;flex-direction:column;align-items:center;gap:7px;margin-top:9px}
+.card-pilot-link{display:inline-flex;align-items:center;justify-content:center;min-height:36px;padding:5px 10px;color:#bdcbb0;font:12px var(--pixel);text-decoration:none;border:1px solid #6b7b5b;background:#192d24}
+.card-pilot-notice{font:11px/1.3 var(--pixel);color:#cbbf96;margin:0;text-align:center}
+body.card-pilot .saved-wallet-bank:after{content:'CARDS';font:10px var(--pixel);color:#e5d9aa;display:block;margin-left:4px}
+@media(max-height:360px){
+ html body dialog.game-sheet.card-sheet[open]{height:calc(100dvh - 12px)!important;padding:8px 11px!important}
+ .card-bench{gap:7px}.card-starter,.card-exchange,.card-forge-preview,.card-reward-screen{gap:7px}
+ .card-heading{gap:8px}.card-heading small{font-size:10px}.card-heading h1,.card-heading h2{font-size:21px}.card-bench-wallet{font-size:17px}.card-bench-wallet small{font-size:10px}
+ html body .card-slot-row .card-slot-pick{min-height:48px;padding:4px 6px!important;gap:5px}
+ .card-slot-pick>.skill-card-art{width:44px;height:23px}.card-slot-copy strong{font-size:13px}.card-slot-copy small{font-size:10px;margin-top:2px}.card-slot-number{font-size:16px}
+ .card-bench-body{gap:14px}.card-inspector{gap:8px}.card-inspector-copy>.card-effect{font-size:16px;line-height:1.25}.card-inspector-copy>small{font-size:11px;margin-bottom:5px}.card-inspector-copy .card-compatibility{font-size:13px;margin-top:5px}
+ html body .card-edit-actions>button{min-height:34px;font-size:13px;padding:5px!important}.card-edit-actions{gap:5px}
+ .skill-card{padding:4px;gap:4px}.card-face-copy{gap:4px;padding:0 3px 2px}.skill-card h3{font-size:18px}.card-rarity{font-size:10px}.card-lifetime{font-size:11px}.card-effect{font-size:14px;line-height:1.25}
+ .card-footnote{font-size:11px}.card-starter-pair{gap:16px}.card-starter-pair .card-illustration>.skill-card-art{max-height:clamp(55px,calc(100dvh - 207px),125px)}.card-pick-label{padding:6px;font-size:14px}
+ .card-reward-screen{padding:7px 14px}.card-reward-body{gap:16px;grid-template-columns:minmax(225px,.9fr) minmax(0,1.2fr)}.card-reward-choice{gap:6px}.card-reward-choice h2{font-size:17px}.card-reward-actions{gap:5px}.card-reward-actions>button{font-size:13px!important;padding:5px!important;min-height:34px!important}.card-reward-prompt{font-size:14px}
+ .card-loss-preview h3{font-size:15px}.card-loss-preview p{font-size:13px}.card-loss-preview small{font-size:11px}
+ .card-exchange-result{gap:7px;font-size:14px}.card-exchange-result h3{font-size:19px}.card-exchange-result>strong{font-size:20px}.card-melt-art{height:65px}.card-exchange-body{gap:20px}.card-dialog-actions>button{min-height:34px!important;font-size:13px!important}
+ .card-order-preview{gap:5px;font-size:13px}.card-order-preview h3{font-size:17px}.card-order-line{font-size:11px}.card-order-actions>button{min-height:32px!important;font-size:12px!important}
+ .card-rest-screen{gap:14px;padding:6px 10px}.card-rest-rail{gap:7px}.card-rest-rail>svg{width:48px;height:42px}.card-rest-rail>h1{font-size:21px}.card-rest-rail>p{font-size:12px}.card-camp-main{gap:7px}.card-camp-choices{gap:7px}.card-camp-choice>.choice-scene{height:64px}.card-camp-choice h3{font-size:18px}.card-camp-choice p{font-size:12px}.card-camp-action-cost{font-size:11px}.card-forge-name{display:none}.card-camp-footer p{font-size:11px}.card-forge-preview .card-exchange-result>.choice-scene{height:65px}
+}
+@media(max-height:295px){
+ .card-bench{gap:5px}.card-heading small{font-size:9px}.card-heading h1,.card-heading h2{font-size:19px;margin-top:2px}.card-heading .secondary{min-height:31px!important;padding:4px 8px!important;font-size:12px!important}
+ html body .card-slot-row .card-slot-pick{min-height:41px}.card-slot-copy small{display:none}.card-slot-pick>.skill-card-art{width:36px;height:20px}.card-slot-copy strong{font-size:12px}.card-bench-wallet small{display:none}
+ .card-inspector-copy>.card-effect{font-size:14px}.card-inspector-copy>small{font-size:10px;margin-bottom:3px}.card-inspector{gap:5px}.card-inspector-copy .card-compatibility{font-size:12px;margin-top:4px}.card-selected-face .card-illustration>.skill-card-art{max-height:72px}.card-edit-actions>button{min-height:30px!important;font-size:12px!important}.card-footnote{font-size:10px;line-height:1.2}
+ .card-face-title{gap:2px 7px}.skill-card h3{font-size:17px}.card-rarity{font-size:10px}.card-effect{font-size:13px}.card-lifetime{font-size:10px}
+ .card-reward-screen{padding:4px 12px;gap:5px}.card-reward-choice{gap:4px}.card-reward-choice h2{font-size:15px}.card-reward-screen>.card-heading .card-bench-wallet{display:none}.card-replace-slots .card-slot-pick>.skill-card-art{display:none}.card-replace-slots .card-slot-number{position:static}.card-replace-slots .card-slot-copy strong{font-size:11px}.card-replace-slots .card-slot-pick{min-height:40px!important}.card-loss-preview p{font-size:12px;line-height:1.2}.card-loss-preview h3{font-size:14px;margin:2px 0}.card-reward-actions>button{font-size:12px!important;min-height:32px!important}.card-reward-prompt{font-size:13px}
+ .card-exchange-body{gap:16px}.card-exchange-result{gap:5px;font-size:13px}.card-exchange-result h3{font-size:17px}.card-exchange-result>strong{font-size:18px}.card-melt-art{height:43px}.card-dialog-actions{gap:7px}.card-dialog-actions>button{font-size:12px!important;min-height:31px!important}.card-dialog-actions>p{font-size:10px}.card-exchange-tag{font-size:10px;margin-top:4px}
+ .card-forge-preview .card-exchange-result>.choice-scene{height:44px}.card-forge-tiers>button{font-size:12px!important;min-height:32px!important}.card-rest-rail>svg{width:36px;height:32px}.card-rest-rail>h1{font-size:18px}.card-rest-rail>small{font-size:10px}.card-rest-rail>p{display:none}.card-camp-choice>.choice-scene{height:44px;min-height:30px}.card-camp-choice h3{font-size:16px}.card-camp-choice p{font-size:11px}.card-camp-action-cost{font-size:10px}.card-camp-footer p{font-size:10px}.card-camp-main>.card-heading h2{font-size:17px}
+}
+@media(max-width:760px){.card-bench-body{grid-template-columns:minmax(210px,.9fr) minmax(0,1.3fr);gap:13px}.card-slot-row{gap:5px}.card-slot-pick>.skill-card-art{width:38px;height:21px}.card-slot-copy strong{font-size:12px}.card-heading h2{font-size:21px}.card-heading .card-demo-reward{font-size:12px;min-height:32px;padding:5px!important}.card-rest-screen{grid-template-columns:145px minmax(0,1fr);gap:12px}}
+@media(orientation:portrait){
+ html body dialog.game-sheet.card-sheet[open]{height:calc(100dvh - 18px)!important;max-height:none!important;overflow:auto!important}
+ .card-bench-body{grid-template-columns:1fr;overflow:auto;align-content:start}.card-inspector{overflow:visible}.card-selected-face>.skill-card{max-width:420px}.card-selected-face .card-illustration>.skill-card-art{max-height:160px}.card-bench .card-slot-row{flex:none}.card-slot-pick>.skill-card-art{display:none}.card-slot-copy strong{font-size:12px}.card-slot-copy small{display:none}.card-bench-wallet small{display:none}.card-heading h2{font-size:19px}.card-heading .card-demo-reward{max-width:105px}.card-inspector-copy>.card-effect{font-size:17px}
+ .card-starter-pair{gap:10px;align-self:start}.card-starter-pair .card-face-title{min-height:44px}.card-starter-pair .card-effect{font-size:14px}.card-pick-label{font-size:13px}.card-starter-pair .card-illustration>.skill-card-art{max-height:100px}.card-reward-screen{height:auto;min-height:100%;padding:10px}.card-reward-body{grid-template-columns:1fr;gap:15px}.card-reward-new .card-illustration>.skill-card-art{max-height:150px}.card-reward-choice{gap:10px}.card-reward-actions{margin-top:5px}.card-exchange-body{grid-template-columns:1fr;overflow:auto;align-content:start;gap:16px}.card-exchange-body>.skill-card{max-width:420px}.card-exchange-body .card-illustration>.skill-card-art{max-height:130px}.card-exchange-result{gap:8px}.card-melt-art{display:none}.card-dialog-actions>button{min-width:0;flex:1}.card-dialog-actions>p{display:none}.card-replacement-confirm .card-exchange-body{grid-template-columns:1fr 1fr;gap:10px}.card-replacement-confirm .card-effect{font-size:13px}.card-replacement-confirm .skill-card h3{font-size:17px}.card-replacement-confirm .card-face-title{display:block}.card-forge-preview>.card-heading{flex-wrap:wrap}.card-rest-screen{height:auto;grid-template-columns:1fr}.card-rest-rail>svg{display:none}.card-camp-choices{grid-template-columns:repeat(2,minmax(0,1fr))!important;min-height:250px}.card-winning-hand{flex-direction:column}.card-winning-hand>aside{width:auto}.card-victory-recap{height:auto;min-height:100%}
+}
+/* Keep the three essential actions together when a card has no higher ranks. */
+.card-edit-actions:has(>:nth-child(3):last-child){grid-template-columns:repeat(3,minmax(0,1fr))}
+@media(max-height:360px){html body dialog.game-sheet.card-sheet[open] .card-heading button{min-height:34px!important}}
+@media(max-height:295px){html body dialog.game-sheet.card-sheet[open] .card-heading button{min-height:31px!important}}
+@media(max-height:295px){
+ .card-inspector{padding:1px}
+ .card-exchange-body .card-illustration>.skill-card-art{max-height:44px}
+ .card-replacement-confirm .card-exchange-body{align-items:start}
+ .card-starter-pair .card-illustration>.skill-card-art{max-height:45px}
+}
+/* A reward has its own complete header, leaving the card and comparison room. */
+html body.card-pilot[data-screen="card-reward"]{--menu-header:0px;grid-template-rows:0 minmax(0,1fr);height:100dvh;min-height:0}
+html body.card-pilot[data-screen="card-reward"]>#header{display:none!important}
+html body.card-pilot[data-screen="card-reward"]>#app{height:100dvh!important;min-height:0!important;padding:0!important;overflow:hidden}
+@media(max-height:295px){html body dialog.game-sheet.card-sheet[open] .card-order-actions button,html body dialog.game-sheet.card-sheet[open] .card-dialog-actions button{min-height:36px!important}}
+.card-reward-new .card-illustration>.skill-card-art{max-height:clamp(92px,calc(100dvh - 200px),165px)}
+.card-starter-pair{height:100%;max-height:100%;margin:0 auto;align-self:stretch}
+.card-starter-pair .skill-card{flex:1 1 0;min-height:0}
+.card-starter-pair .card-face-copy{flex:none}
+.card-starter-pair .card-illustration{flex:1 1 0;min-height:0}
+.card-starter-pair .card-illustration>.skill-card-art{height:100%;max-height:100%;object-fit:contain}
+.card-starter{grid-template-rows:auto minmax(0,1fr)}
+.card-starter-pair .card-pick-label{min-height:44px;display:grid;place-items:center}
+.card-exchange-body>.skill-card{max-height:100%}
+.card-exchange-body>.skill-card .card-face-copy{flex:none}
+.card-exchange-body>.skill-card .card-illustration{flex:1 1 auto;min-height:0}
+.card-exchange-body>.skill-card .card-illustration>.skill-card-art{height:100%;max-height:100%;object-fit:contain}
+/* Portrait cards stay upright while the game remains a landscape workbench. */
+.skill-card{aspect-ratio:2/3;width:auto;height:100%;min-height:0;max-width:100%;padding:5px;gap:4px;flex:none}
+.skill-card .card-illustration{flex:1 1 0;min-height:0;align-self:stretch;width:100%;border:0;background:transparent;overflow:hidden}
+.skill-card .card-illustration>.skill-card-art{display:block;aspect-ratio:2/3!important;width:auto!important;height:100%!important;max-width:100%!important;max-height:100%!important;object-fit:contain!important;flex:none}
+.skill-card .card-face-copy{flex:none;display:flex;flex-direction:column;gap:3px;padding:0 2px 2px;text-align:center;align-items:center}
+.skill-card h3{font:17px/1.12 var(--pixel);text-align:center;color:#f3e6b7;margin:0}
+.skill-card .card-rarity{font:10px/1.15 var(--pixel);text-align:center}
+.card-bench-body{grid-template-columns:clamp(125px,25%,205px) minmax(0,1fr);gap:18px}
+.card-selected-face{min-height:0;align-items:center}
+.card-selected-face>.skill-card{height:100%;max-height:100%;width:auto;max-width:100%;aspect-ratio:2/3}
+.card-inspector{position:relative;gap:9px;justify-content:space-between}
+.card-inspector-copy{position:relative;padding-right:58px}
+.card-mechanics{display:flex;flex-direction:column;gap:6px;min-width:0;text-align:left}
+.card-mechanic-main{display:flex;flex-wrap:wrap;gap:4px 6px;align-items:center;color:#e8e6c9;font:19px/1.25 var(--pixel)}
+.card-mechanic-main b{font-size:1.14em;color:#ffe4a1;font-weight:600}
+.card-mechanic-icon{display:inline-flex;vertical-align:middle;align-items:center;justify-content:center;flex:none;width:24px;height:24px}
+.card-mechanic-icon>svg{width:100%!important;height:100%!important;flex:none;image-rendering:pixelated}
+.card-mechanic-detail{display:flex;align-items:center;flex-wrap:wrap;gap:5px 15px;min-width:0;color:#aec0a8;font:14px/1.2 var(--pixel)}
+.card-mechanic-note{display:inline;vertical-align:middle}
+.card-mechanic-note .card-mechanic-icon{width:18px;height:18px}
+.card-mechanic-uses{display:inline-flex;align-items:center;gap:4px;color:#e3d3a5;white-space:nowrap}
+.card-mechanic-uses .card-mechanic-icon{width:18px;height:18px}
+.card-rules{position:absolute;top:0;right:0;max-width:100%;font:12px/1.3 var(--pixel);color:#a9bea8;z-index:3}
+.card-rules summary{cursor:pointer;padding:4px 1px;text-decoration:underline}
+.card-rules[open]{width:min(400px,100%);background:#21362c;border:1px solid #91a47c;padding:6px}
+.card-rules[open] p{font:14px/1.3 var(--pixel);color:#d9dfc5;margin:7px 0 2px}
+.card-rules[open] summary{color:#e9d29d}
+.card-starter-pair{grid-template-columns:1fr 1fr;height:100%;gap:24px;max-width:none;align-items:stretch;padding:5px 0 2px}
+html body .card-starter-pair>.card-pick{display:grid;grid-template-columns:auto minmax(0,1fr);align-items:center;gap:16px!important;min-height:0;height:100%}
+.card-starter-pair .skill-card{flex:none;width:auto;height:100%;max-height:100%;aspect-ratio:2/3;max-width:100%}
+.card-pick-copy{display:flex;flex-direction:column;justify-content:center;gap:20px;min-width:0;text-align:left}
+.card-pick-label{min-height:44px;padding:8px;display:grid;place-items:center;font-size:16px}
+.card-starter-pair .card-mechanic-main{font-size:18px;line-height:1.2}
+.card-reward-body{grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);gap:25px;align-items:stretch}
+.card-reward-new{display:grid;grid-template-columns:auto minmax(0,1fr);gap:16px;align-items:center;min-height:0}
+.card-reward-new>.skill-card{height:100%;max-height:100%;width:auto;aspect-ratio:2/3}
+.card-reward-description .card-mechanic-main{font-size:18px;line-height:1.22}
+.card-reward-description .card-mechanic-detail{font-size:13px}
+.card-reward-choice{justify-content:center}
+.card-loss-preview .card-mechanic-main{font-size:15px;line-height:1.2}
+.card-loss-preview .card-mechanic-detail{font-size:12px}
+.card-loss-preview .card-mechanics{gap:4px;margin:5px 0}
+.card-loss-preview .card-mechanic-icon{width:19px;height:19px}
+.card-loss-preview>small{display:flex;align-items:center;gap:5px}
+.card-loss-preview>small>svg{width:15px;height:15px}
+.card-slot-pick>.skill-card-art{aspect-ratio:2/3!important;object-fit:contain!important;width:26px!important;height:39px!important;border:1px solid #9da98b!important;background:#15251e;padding:1px}
+html body .card-slot-row .card-slot-pick{min-height:58px}
+html body .card-replace-slots .card-slot-pick{display:flex;flex-direction:row;min-height:58px!important;padding:4px!important;text-align:left;gap:4px}
+.card-replace-slots .card-slot-number{position:static;align-self:center;font-size:12px}
+.card-replace-slots .card-slot-pick>.skill-card-art{display:block!important;width:22px!important;height:33px!important}
+.card-replace-slots .card-slot-copy strong{font-size:11px;line-height:1.15}
+.card-replace-slots .card-slot-copy small{display:none}
+.card-exchange-body{grid-template-columns:minmax(120px,.7fr) minmax(0,1.2fr);align-items:center;gap:25px;overflow:hidden}
+.card-exchange-body>.skill-card{width:auto;max-width:100%;height:100%;max-height:100%;aspect-ratio:2/3;justify-self:center}
+.card-exchange-result{min-height:0}
+.card-exchange-result .card-mechanic-main{font-size:19px}
+.card-exchange-result .card-mechanics{margin:4px 0}
+.card-exchange-result>h3{font-size:21px}
+.card-melt-art{height:75px}
+.card-replacement-confirm .card-exchange-body{grid-template-columns:1fr 1fr;gap:35px;overflow:hidden}
+.card-outgoing,.card-incoming{height:100%;display:flex;flex-direction:column;align-items:center;gap:7px}
+.card-outgoing>.skill-card,.card-incoming>.skill-card{height:calc(100% - 25px);max-height:100%;width:auto;aspect-ratio:2/3}
+.card-exchange-tag{flex:none;margin:0;font-size:12px;line-height:1.2}
+.card-recap-row>.skill-card{flex:none;height:100%;width:auto;min-width:0;aspect-ratio:2/3}
+.card-winning-hand aside>.skill-card{height:calc(100% - 70px);width:auto;aspect-ratio:2/3}
+@media(max-width:760px){
+ .card-bench-body{grid-template-columns:115px minmax(0,1fr);gap:15px}
+ .card-slot-pick>.skill-card-art{width:22px!important;height:33px!important}
+ .card-starter-pair{gap:19px}.card-starter-pair>.card-pick{gap:10px!important}
+ .card-reward-body{grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:18px}.card-reward-new{gap:12px}
+ .card-reward-description .card-mechanic-main{font-size:15px}.card-reward-description .card-mechanic-detail{font-size:12px}
+}
+@media(max-height:360px){
+ .skill-card{padding:4px}.skill-card h3{font-size:15px}.skill-card .card-rarity{font-size:9px}
+ .card-mechanic-main,.card-starter-pair .card-mechanic-main{font-size:16px;gap:3px 5px}.card-mechanic-icon{width:21px;height:21px}.card-mechanic-detail{font-size:12px;gap:4px 10px}.card-mechanics{gap:5px}
+ .card-inspector-copy{padding-right:45px}.card-rules{font-size:11px}.card-inspector{gap:6px}
+ .card-starter-pair{gap:20px;padding:2px 0}.card-pick-copy{gap:15px}.card-pick-label{font-size:14px}
+ .card-reward-choice h2{font-size:17px}.card-reward-actions{grid-template-columns:1fr;gap:5px}.card-reward-actions>button{min-height:34px!important;font-size:13px!important}
+ .card-reward-description .card-mechanic-main{font-size:15px}.card-loss-preview .card-mechanic-main{font-size:13px}.card-loss-preview .card-mechanic-detail{font-size:11px}
+ .card-exchange-result .card-mechanic-main{font-size:17px}.card-exchange-result>h3{font-size:19px}.card-exchange-result>strong{font-size:21px}
+}
+@media(max-height:295px){
+ html body .card-slot-row .card-slot-pick{min-height:42px!important;gap:5px}
+ .card-slot-pick>.skill-card-art{width:18px!important;height:27px!important}
+ .card-slot-copy strong{font-size:12px}.card-slot-number{font-size:14px}.card-slot-copy small{display:none}
+ .card-bench-body{grid-template-columns:104px minmax(0,1fr);gap:14px}.card-mechanic-main,.card-starter-pair .card-mechanic-main{font-size:14px;line-height:1.18}.card-mechanic-icon{width:19px;height:19px}.card-mechanic-detail{font-size:11px;line-height:1.15}.card-mechanic-detail .card-mechanic-icon{width:15px;height:15px}.card-mechanics{gap:4px}
+ .skill-card h3{font-size:13px}.skill-card .card-rarity{font-size:9px}.skill-card .card-face-copy{gap:2px;padding:0 1px 1px}
+ .card-inspector{gap:4px;padding:1px}.card-inspector-copy{padding-right:43px}.card-rules{font-size:10px}.card-rules summary{padding:2px 0}
+ .card-starter-pair{gap:17px}.card-starter-pair>.card-pick{gap:9px!important}.card-pick-copy{gap:12px}.card-pick-label{font-size:13px}
+ .card-reward-body{gap:16px;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr)}.card-reward-new{gap:10px}.card-reward-description .card-mechanic-main{font-size:14px}.card-reward-description .card-mechanic-detail{font-size:11px}
+ html body .card-replace-slots .card-slot-pick{min-height:42px!important}.card-replace-slots .card-slot-pick>.skill-card-art{width:17px!important;height:26px!important}.card-replace-slots .card-slot-copy strong{font-size:10px}
+ .card-reward-choice h2{font-size:15px}.card-loss-preview h3{font-size:14px}.card-loss-preview .card-mechanic-main{font-size:12px}.card-loss-preview .card-mechanic-detail{font-size:10px}.card-loss-preview .card-mechanic-icon{width:15px;height:15px}.card-loss-preview>span{font-size:10px}.card-loss-preview .card-mechanics{margin:3px 0;gap:2px}.card-loss-preview>small{font-size:10px}.card-reward-actions>button{min-height:31px!important;font-size:12px!important}
+ .card-exchange-body{grid-template-columns:minmax(105px,.65fr) minmax(0,1.35fr);gap:20px}.card-exchange-result .card-mechanic-main{font-size:15px}.card-exchange-result>h3{font-size:17px}.card-exchange-result>strong{font-size:19px}.card-melt-art{display:none}
+ .card-exchange-tag{font-size:10px}.card-outgoing>.skill-card,.card-incoming>.skill-card{height:calc(100% - 20px)}
+}
+@media(orientation:portrait){
+ .card-bench-body{grid-template-columns:110px minmax(0,1fr);overflow:auto}.card-selected-face>.skill-card{height:180px;max-height:100%}.card-inspector{overflow:visible}.card-starter-pair{grid-template-columns:1fr;grid-template-rows:1fr 1fr}.card-starter-pair>.card-pick{grid-template-columns:100px 1fr;height:100%}.card-starter-pair .skill-card{height:150px;width:100px;max-height:100%}.card-reward-body{grid-template-columns:1fr}.card-reward-new{height:220px;grid-template-columns:146px 1fr}.card-reward-new>.skill-card{height:220px}.card-exchange-body{grid-template-columns:110px 1fr}.card-exchange-body>.skill-card{height:180px}.card-replacement-confirm .card-exchange-body{grid-template-columns:1fr 1fr}.card-rules{position:static}.card-inspector-copy{padding-right:0}
+}
+.card-order-preview>p>.resource-symbol{display:inline-block;width:19px;height:19px;vertical-align:middle}
+.card-replace-slots:has(>:nth-child(5)) .card-slot-pick{position:relative;flex-direction:column!important;min-height:67px!important;gap:3px!important;text-align:center!important}
+.card-replace-slots:has(>:nth-child(5)) .card-slot-number{position:absolute;top:3px;left:3px;font-size:10px}
+.card-replace-slots:has(>:nth-child(5)) .card-slot-copy strong{font-size:10px;text-align:center}
+@media(max-height:295px){html body .card-replace-slots:has(>:nth-child(5)) .card-slot-pick{min-height:62px!important}}
+@media(max-height:295px){.card-inspector{padding:0}.card-mechanics{gap:2px}}
+.card-reward-choice>*{flex:none}
+.card-reward-choice .card-slot-row{flex:none}
+.card-loss-preview>.card-mechanics{margin-block:4px}
+.card-loss-preview{display:flex;flex-direction:column;gap:4px}
+.card-loss-preview>span{display:block;line-height:1.1}
+.card-loss-preview>.card-mechanics{margin:0!important}
+@media(max-height:295px){.card-loss-preview{gap:3px}.card-loss-preview .card-mechanic-main{line-height:1.15}.card-loss-preview .card-mechanic-detail{line-height:1.15}}
+.card-mechanic-main{display:block}
+.card-mechanic-main .card-mechanic-icon{margin-inline:2px;vertical-align:middle}

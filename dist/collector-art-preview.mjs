@@ -1,9 +1,9 @@
-import {companionArtSvg} from './companion-art.mjs?v=skills-cards-1';
-const variants=['current','flat2','flat3'],videos=[...document.querySelectorAll('video')];
+import {companionArtSvg} from './companion-art.mjs?v=skills-cards-2';
+const variants=['current','flat2','flat3'],videos=[...document.querySelectorAll('#movies video,.detail-stage video')];
 const pauseButton=document.querySelector('#play-pause');
-const names={current:'Current',flat2:'A · Flat',flat3:'B · Soft edge'};
-const descriptions={current:'Four-tone shaded orb, kept as the game default.',flat2:'A single mint face with a dark, stepped contour.',flat3:'A flat mint face with a softer, three-ink contour.'};
-const moments={front:{time:5/30,note:'Larger in front · 0.20 s. The mint face stays flat.'},back:{time:20/30,note:'Smaller behind · 0.70 s. The orbit supplies the depth.'},fetch:{time:40/30,note:'Fetching an authored Spark · 1.37 s. The real return path and cargo are unchanged.'}};
+const names={current:'Previous · Shaded',flat2:'Current · Flat A',flat3:'B · Soft edge'};
+const descriptions={current:'The previous four-tone shaded orb, retained for comparison.',flat2:'The game default: a single mint face with a dark, stepped contour.',flat3:'A flat mint face with a softer, three-ink contour.'};
+const moments={front:{time:5/30,note:'Larger in front · 0.20 s. The mint face stays flat.'},back:{time:20/30,note:'Smaller behind · 0.70 s. The orbit supplies the depth.'},fetch:{time:40/30,note:'Approaching an authored Spark’s shell curl · 1.37 s. Its intact shell is towed back.'}};
 let selected='flat2',paused=false,moment='front',desiredTime=0;
 const current=()=>document.querySelector('#movie-'+selected),detail=()=>document.querySelector('#detail-'+selected);
 for(const holder of document.querySelectorAll('[data-portrait]'))holder.innerHTML=companionArtSvg('collector',{collectorArt:holder.dataset.portrait});
@@ -18,10 +18,6 @@ function select(art){const at=current().currentTime||desiredTime;selected=art;de
  seek(current(),at);seek(detail(),at);stillLink();playing();
 }
 for(const button of document.querySelectorAll('[data-art]'))button.addEventListener('click',()=>select(button.dataset.art));
-for(const button of document.querySelectorAll('[data-handling]'))button.addEventListener('click',()=>{
- for(const item of document.querySelectorAll('[data-handling]'))item.setAttribute('aria-pressed',String(item===button));
- const image=document.querySelector('#handling-screen');image.src='./assets/previews/collector-art/handling-'+button.dataset.handling+'.png';image.alt='Matched actual-renderer scene showing '+(button.dataset.handling==='base'?'the base Collector':'Handling learned')+' eligible Sparks';
-});
 for(const button of document.querySelectorAll('[data-moment]'))button.addEventListener('click',()=>{
  moment=button.dataset.moment;desiredTime=moments[moment].time;paused=true;markPause();
  for(const key of variants){const image=document.querySelector('#still-'+key);image.src='./assets/previews/collector-art/'+key+'-'+moment+'-native.png';image.alt=names[key]+' Collector, '+moment+', at native game screenshot size';}
@@ -35,3 +31,7 @@ for(const video of videos){video.addEventListener('loadedmetadata',()=>{seek(vid
 for(const key of variants)document.querySelector('#movie-'+key).addEventListener('timeupdate',()=>{if(selected!==key)return;desiredTime=current().currentTime;if(Math.abs(detail().currentTime-desiredTime)>.12)seek(detail(),desiredTime);});
 document.addEventListener('visibilitychange',playing);window.addEventListener('pagehide',()=>videos.forEach(video=>video.pause()),{once:true});
 playing();
+
+const tow=document.querySelector('#tow-movie');
+if(location.hash==='#tow')tow?.play()?.catch(()=>{});
+window.addEventListener('hashchange',()=>{if(location.hash==='#tow')tow?.play()?.catch(()=>{});});

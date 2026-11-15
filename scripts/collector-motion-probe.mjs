@@ -17,7 +17,7 @@ function trip(offset,phase=0,speed=154,moving=false){
   const before={x:w.x,y:w.y};tick();maxStep=Math.max(maxStep,Math.hypot(w.x-before.x,w.y-before.y));
   if(packet.carried){caught=true;assert.equal(e.deliveries,0);assert.equal(w.cooldown,0,'Recovery begins on delivery, not interception');}
  }
- assert.equal(e.deliveries,1);assert.equal(e.rings,1);assert.ok(caught);assert.equal(w.phase,'cooldown');
+ assert.equal(e.deliveries,1);assert.equal(e.rings,1);assert.ok(caught);assert.equal(w.phase,'rejoining');
  assert.equal(w.cooldown,WISP_TUNING.cooldown);assert.ok(maxStep<20,'No position snaps at 60 Hz');
  for(let i=0;i<120;i++)tick();assert.equal(e.deliveries,1,'Only one payment');
  return Number((frames*dt).toFixed(3));

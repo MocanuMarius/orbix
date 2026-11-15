@@ -19,27 +19,43 @@ window.__collectorStudy={
   music.setEnabled(false);e.setMuted(true);if(e.raf!==null)cancelAnimationFrame(e.raf);e.raf=null;
   paused=false;resumeArmed=false;e.paused=false;e.running=true;e.resumeElapsed=e.resumeRampSeconds;
   document.querySelector('#pause-layer').replaceChildren();
-  const {WispCompanion}=await import('./wisp.mjs?v=skills-cards-1');
+  const {WispCompanion}=await import('./wisp.mjs?v=skills-cards-2');
+  this.canFetch=(await import('./collector-load.mjs?v=skills-cards-2')).collectorCanFetch;
   e.wisp=new WispCompanion(e.player);e.accumulator=1/60;
   await document.fonts.ready;await e.environmentArtReady;
   this.initial={distance:e.distance,y:e.player.y,width:e.width,height:e.height,seed:e.seed};
-  this.steps=0;this.inputs=[];this.states=[];
+  this.steps=0;this.inputs=[];this.states=[];this.events=[];this.renderSamples=[];this.maxFieldCandidates=0;
+  const collect=e.collect.bind(e),shatter=e.shatterPickupRing.bind(e);
+  e.collect=(p,source)=>{if(!p.collected)this.events.push({event:'collect',time:e.time,id:p.id,via:source?'collector':'body',cargo:source?[source.worldX-e.distance,source.y]:null,player:[e.player.x,e.player.y]});return collect(p,source);};
+  e.shatterPickupRing=(p,source)=>{this.events.push({event:'shatter',time:e.time,id:p.id,source});return shatter(p,source);};
+  const step=e.step.bind(e);
+  e.step=dt=>{
+   if(e.player.y>this.initial.y+12&&e.player.vy>20){e.beginLiftInput();e.endLiftInput();this.inputs.push({step:this.steps,time:e.time,y:e.player.y,vy:e.player.vy});}
+   const phase=e.wisp.phase;step(dt);this.steps++;
+   if(e.wisp.phase!==phase)this.events.push({event:e.wisp.phase,time:e.time,x:e.wisp.x,y:e.wisp.y,hook:e.wisp.target?[e.wisp.target.x-e.distance,e.wisp.target.y+15.8]:null});
+  };
   e.render();e.notify();return this.initial;
  },
  frame(){
   const e=engine;
   for(let j=0;j<60/${fps};j++){
-   // Real Lift input and normal physics, kept within the authored opening.
-   const target=this.initial.y;
-   if(e.player.y>target+12&&e.player.vy>20){e.beginLiftInput();e.endLiftInput();this.inputs.push(this.steps);}
-   e.step(1/60);this.steps++;
+   e.step(1/60);
   }
-  e.accumulator=1/60;e.render();e.notify();
+  const candidates=e.layout.embers.filter(p=>!p.collected&&!p.carried&&this.canFetch(p,e.mod)&&p.x-e.distance>=0&&p.x-e.distance<=e.width&&p.y>=0&&p.y<=e.height).length;
+  this.maxFieldCandidates=Math.max(this.maxFieldCandidates,candidates);
+  e.accumulator=1/60;const started=performance.now();e.render();e.notify();this.renderSamples.push(performance.now()-started);
   const w=e.getWispState();
   const state={time:e.time,distance:e.distance,playerX:e.player.x,playerY:e.player.y,
-    x:w.x,y:w.y,depth:w.depth,phase:w.phase,carrying:w.carrying,dying:e.dying,
+    x:w.x,y:w.y,depth:w.depth,phase:w.phase,carrying:w.carrying,cargoPose:w.cargoPose,dying:e.dying,
     scale:e.pixiView.scale,canvas:JSON.parse(JSON.stringify(document.querySelector('#flight-canvas').getBoundingClientRect()))};
   this.states.push(state);return state;
+ },
+ cadence(hz){
+  const e=engine,render=e.renderScheduledFrame,raf=window.requestAnimationFrame;
+  e.renderScheduledFrame=()=>{};window.requestAnimationFrame=()=>null;e.lastFrame=0;
+  try{for(let i=0;i<=hz*6;i++)e.tick(10+i*1000/hz+(i===hz*6?.001:0));}
+  finally{e.renderScheduledFrame=render;window.requestAnimationFrame=raf;}
+  return {hz,time:e.time,distance:e.distance,player:[e.player.y,e.player.vy],steps:this.steps,inputs:this.inputs,events:this.events,phase:e.wisp.phase,cargo:[e.wisp.cargoX,e.wisp.cargoY],position:[e.wisp.x,e.wisp.y],collected:e.layout.embers.filter(p=>p.collected).map(p=>p.id)};
  }
 };
 `;
@@ -84,7 +100,7 @@ try{
    const shot=await call('Page.captureScreenshot',{format:'png',captureBeyondViewport:false});
    await fs.writeFile(path.join(frames,String(i).padStart(4,'0')+'.png'),Buffer.from(shot.data,'base64'));
   }
-  const extra=await evaluate('({inputs:__collectorStudy.inputs,errors:__studyErrors,renderer:__collectorStudy.engine.pixiView.constructor.name,art:document.querySelector("[data-role-art=collector]")?.dataset.collectorArt})');
+  const extra=await evaluate('(()=>{const s=__collectorStudy,t=[...s.renderSamples].sort((a,b)=>a-b);return{inputs:s.inputs,events:s.events,errors:__studyErrors,renderer:s.engine.pixiView.constructor.name,art:document.querySelector("[data-role-art=collector]")?.dataset.collectorArt,renderTiming:{samples:t.length,p50:t[Math.floor(t.length*.5)],p95:t[Math.floor(t.length*.95)],max:t.at(-1),maxFieldCandidates:s.maxFieldCandidates}}})()');
   assert.equal(extra.errors.length,0,JSON.stringify(extra.errors));
   assert.ok(states.every(s=>!s.dying),'The matched flight must remain alive');
   assert.ok(states.some(s=>s.depth>.8)&&states.some(s=>s.depth<-.8),'Front and back depth both shown');
@@ -92,7 +108,16 @@ try{
   if(results.length){assert.deepEqual(states,results[0].states,'Art must not change orbit, player, phase or depth');assert.deepEqual(extra.inputs,results[0].inputs);}
   results.push({art,initial,states,...extra});console.log(art+': '+states.length+' matched real-game frames, '+extra.inputs.length+' Lifts');
  }
- const report={at:new Date().toISOString(),fps,seconds,viewport:[900,405],note:'Full application/HUD, production WispFlight and WispFlightView. Disposable boundary inspector course/seed, real Lift inputs and normal physics. All Sparks are from the authored course. Headless mobile layout; not a physical-phone performance measurement.',results};
+ const cadences=[];
+ for(const hz of [30,60,120]){
+  await call('Page.navigate',{url:base+'/game.html?mock=boundary&cards=1&biome=pinewood&course=1&collectorArt=flat2'});
+  await until(()=>evaluate('window.__collectorStudy?.engine?.pixiReady&&document.querySelector("[data-action=wake-flight]")'),'cadence flight');
+  await evaluate('__collectorStudy.prepare()');
+  const result=await evaluate('__collectorStudy.cadence('+hz+')');
+  const {hz:ignore,...matched}=result;if(cadences.length){const {hz:other,...baseline}=cadences[0];assert.deepEqual(matched,baseline,'Actual fixed-step Lift and tow events match across render frame rates');}
+  cadences.push(result);console.log(hz+'Hz: '+result.steps+' physical steps, '+result.events.filter(e=>e.event==='collect'&&e.via==='collector').length+' deliveries');
+ }
+ const report={cadences,at:new Date().toISOString(),fps,seconds,viewport:[900,405],note:'Full application/HUD, production WispFlight and WispFlightView. Disposable boundary inspector course/seed, real Lift inputs and normal physics. All Sparks are from the authored course. Headless mobile layout; not a physical-phone performance measurement.',results};
  await fs.writeFile(path.join(output,'report.json'),JSON.stringify(report,null,2));
  console.log('Capture saved to '+output+'; encode with python scripts/encode-collector-art.py');
 }finally{socket?.close();browser.kill();server.close();}

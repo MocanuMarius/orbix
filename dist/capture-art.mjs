@@ -1,9 +1,10 @@
-import {drawAbsorbingSpark} from './tidal-light.mjs?v=skills-cards-1';
-import {getPickupSpec, pickupShellRadius} from './pickups.mjs?v=skills-cards-1';
-import {drawPickup} from './pickup-art.mjs?v=skills-cards-1';
-import {drawShellArcs} from './shell-arcs.mjs?v=skills-cards-1';
-import {drawFluidCapture} from './fluid-capture.mjs?v=skills-cards-1';
-import {DEFAULT_CAPTURE_STYLE} from './capture-styles.mjs?v=skills-cards-1';
+import {drawAbsorbingSpark} from './tidal-light.mjs?v=skills-cards-2';
+import {getPickupSpec, pickupShellRadius} from './pickups.mjs?v=skills-cards-2';
+import {drawPickup} from './pickup-art.mjs?v=skills-cards-2';
+import {drawShellArcs} from './shell-arcs.mjs?v=skills-cards-2';
+import {DEFAULT_CAPTURE_STYLE} from './capture-styles.mjs?v=skills-cards-2';
+import {companionPalette} from './companion-art.mjs?v=skills-cards-2';
+import {drawLivingStrand} from './living-light-art.mjs?v=skills-cards-2';
 
 const TAU = Math.PI * 2;
 const clamp = value => Math.max(0, Math.min(1, value));
@@ -16,20 +17,31 @@ const hazeY = new Float32Array(maxPuffSegments);
 const outer = new Float32Array(maxPuffSegments);
 const inner = new Float32Array(maxPuffSegments);
 
+export function drawCollectorGrip(ctx,state,scale=1,radius=6.5){
+  const grip=state.gripPose;if(!grip||!(grip.growth>0))return;
+  const x=state.x*scale,y=state.y*scale,tx=grip.x*scale,ty=grip.y*scale;
+  const dx=tx-x,dy=ty-y,distance=Math.hypot(dx,dy);
+  const ux=distance>.05?dx/distance:0,uy=distance>.05?dy/distance:-1;
+  // Bend below the body as a calm curl, rather than a rigid towing cable.
+  const sign=ux<0?-1:1,nx=-uy*sign,ny=ux*sign;
+  const growth=clamp(grip.growth),r=radius*growth;
+  const reach=r+Math.min(4*scale,distance*.35)*growth;
+  const tip=grip.attached?{x:tx,y:ty}:{x:x+ux*(reach-.7*scale)+nx*r*.1,y:y+uy*(reach-.7*scale)+ny*r*.1};
+  const colors=companionPalette('collector');
+  drawLivingStrand(ctx,[{x:x+ux*r*.36,y:y+uy*r*.36},
+    {x:x+ux*r*(grip.attached?.3:1.12)+nx*r*(grip.attached?1.9:.48),y:y+uy*r*(grip.attached?.3:1.12)+ny*r*(grip.attached?1.9:.48)},
+    {x:tip.x+nx*r*(grip.attached?1.75:.95)+ux*(grip.attached?-.6*r:1.6*scale),y:tip.y+ny*r*(grip.attached?1.75:.95)+uy*(grip.attached?-.6*r:1.6*scale)},tip],
+    {width:Math.max(.2,r*.38),color:colors.core,glow:colors.mid,alpha:growth});
+}
+
 export function drawCarriedSpark(ctx,state,time,scale,quiet,style=DEFAULT_CAPTURE_STYLE) {
   const pose=state.cargoPose;
   if(!pose)return;
-  const age=pose.age ?? 0;
   const x=(state.x+pose.offsetX)*scale, y=(state.y+pose.offsetY)*scale;
-  if(style!=='hybrid'||age<0||pose.compacting){
-    drawPickup(ctx,x,y,{kind:state.cargoKind,time,phase:state.cargoPhase,
-      scale:pose.scale*scale,massTier:pose.massTier,bodyOnly:age>=0,reducedMotion:quiet});
-    return;
-  }
-  const radius=pickupShellRadius(state.cargoKind)*pose.scale*scale;
-  drawFluidCapture(ctx,{x,y,radius,sourceRadius:radius*.5,bodyRadius:6*scale,
-    age:.12+.16*clamp(age/.4),angle:Math.atan2(state.y-state.homeY,state.x-state.homeX),
-    spin:(state.depth||0)<0?-1:1,phase:state.cargoPhase||0,style:'hybrid',quiet});
+  const packet={kind:state.cargoKind,sparkMass:pose.massTier};
+  drawPickup(ctx,x,y,{kind:state.cargoKind,time,phase:state.cargoPhase,
+    scale:pose.scale*scale,massTier:pose.massTier,reducedMotion:quiet,
+    handling:{packet,modifiers:{collectorFetchMass:3,collectorFlashFetch:true},collector:true}});
 }
 
 export function drawShellPuff(ctx,x,y,radius,age,kind,phase=0,quiet=false) {
@@ -98,7 +110,7 @@ export function drawCapture(context,effect,time,playerX,playerY,distance,scale,q
     const x=sourceX+(delivery ? (delivery.previousWorldX-delivery.worldX)*from : 0);
     const y=sourceY+(delivery ? (delivery.previousY-delivery.y)*from : 0);
     drawPickup(context,x*scale,y*scale,{kind:effect.pickupKind,time,phase:effect.phase,
-      scale:size*scale,massTier:effect.massTier,reducedMotion:quiet,bodyOnly:Boolean(delivery)});
+      scale:size*scale,massTier:effect.massTier,reducedMotion:quiet});
     return;
   }
   if(!delivery){

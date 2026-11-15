@@ -1,6 +1,6 @@
 // Risk-earned sight, plus bounded fuel recovery with Regenerative Pulse.
 // Neither outcome is a pickup or invokes artifact hooks.
-import { GLOW_DISPLAY_SCALE } from './vitality.mjs?v=skills-cards-1';
+import { GLOW_DISPLAY_SCALE } from './vitality.mjs?v=skills-cards-2';
 const clamp = (n, lo, hi) => Math.min(hi, Math.max(lo, n));
 const smooth = n => n * n * (3 - 2 * n);
 const EPSILON = 1e-9;
@@ -76,9 +76,7 @@ export class EdgingPulse {
     const elapsed = this.duration - this.remaining;
     const onset = smooth(clamp(elapsed / (this.engine.reducedMotion ? .45 : .4), 0, 1));
     const fade = smooth(clamp(this.remaining / this.duration, 0, 1));
-    const wave = this.engine.reducedMotion ? 1
-      : .65 + .35 * Math.cos(Math.max(0, elapsed - .4) / this.duration * Math.PI * 2 * EDGING_PULSE_TUNING.waves);
-    return clamp(onset * fade * wave, 0, 1);
+    return clamp(onset * fade, 0, 1);
   }
   get state() {
     const visible = this.live && !this.dreaming;
@@ -166,8 +164,8 @@ export class EdgingPulse {
       e.activation?.(this.regenerative?'main-edging-regeneration':'proximity-awakening',
         {outcome:{reveal:this.duration,...(this.regenerative&&(!this.exhausted||this.regenGain>0)?{fuel:this.regenGain}: {})}});
       this.remaining = this.duration;this.burstOrigin.x=e.distance+e.player.x;this.burstOrigin.y=e.player.y;
-      e.radiateLight?.({id:'proximity',follow:'wisp',duration:this.duration,
-        radius:Math.hypot(e.width,e.height),color:'#bce9ff'});
+      e.radiateLight?.({id:'proximity',once:true,
+        radius:Math.hypot(e.width,e.height),color:'#bce9ff',reveal:true});
       e.sound?.('pulse');
       if(!this.regenerative||this.exhausted)e.setEvent?.('Edging Pulse · the way is revealed');
     }

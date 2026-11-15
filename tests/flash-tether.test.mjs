@@ -137,7 +137,7 @@ test('buying Long Flash while a marked Flash is active extends its light and rel
 
 test('body contact and Collector delivery attach the Flash at contact and award only its reveal',()=>{
   for(const delivery of ['body','collector']){
-    const g=flight();
+    const g=flight(delivery==='collector'?{collectorFlashFetch:true}:{});
     const item={kind:'sight',id:'flash-test',x:g.distance+g.player.x+2,y:g.player.y};
     g.layout.embers=[item];
     let atContact;

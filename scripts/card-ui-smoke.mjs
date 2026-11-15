@@ -170,7 +170,7 @@ try {
       () => ev("location.pathname==='/loading.html'"),
       "fixture reset",
     );
-    await ev(`(async()=>{const M=await import('./model.mjs?v=skills-cards-1'),C=await import('./skill-cards.mjs?v=skills-cards-1');const s=M.newState();s.settings.skipTutorial=true;s.run=M.createRun(s.profile,'card-ui-smoke',1,{cards:true});M.chooseStartingGift(s,M.getStartingGiftOffers(s.run)[0].id);const r=s.run;r.mountedCards=[C.makeSkillCard('echo','echo'),C.makeSkillCard('spark-cache','cache'),C.makeSkillCard('field-impulse','field')];r.condensedGlow=120;
+    await ev(`(async()=>{const M=await import('./model.mjs?v=skills-cards-2'),C=await import('./skill-cards.mjs?v=skills-cards-2');const s=M.newState();s.settings.skipTutorial=true;s.run=M.createRun(s.profile,'card-ui-smoke',1,{cards:true});M.chooseStartingGift(s,M.getStartingGiftOffers(s.run)[0].id);const r=s.run;r.mountedCards=[C.makeSkillCard('echo','echo'),C.makeSkillCard('spark-cache','cache'),C.makeSkillCard('field-impulse','field')];r.condensedGlow=120;
    if(${JSON.stringify(kind)}==='reward'){const n=M.getChoices(r).find(n=>n.type!=='support');M.selectNode(r,n.id);M.beginFlightAttempt(r);M.finishFlight(r,{success:true,flame:60,collected:3});M.settleCheckpoint(s);}
    if(${JSON.stringify(kind)}==='empty-wallet')r.condensedGlow=0;
    if(${JSON.stringify(kind)}==='camp'){const n=r.map.flat().find(n=>n.kind==='camp');r.step=n.row;r.current=n;r.path=[...r.map.slice(0,n.row).map(row=>row[0].id),n.id];r.phase='support';r.flame=30;r.lives=2;r.mountedCards=[C.makeSkillCard('camp-kit','kit'),C.makeSkillCard('growth-seed','grow'),C.makeSkillCard('body-spark','body')];M.getSupportChoices(r,s.profile);}
@@ -179,7 +179,7 @@ try {
     await page("/game.html?cards=1");
     if (kind === "final")
       await ev(
-        "(async()=>{const {WispFlight}=await import('./flight.mjs?v=skills-cards-1');const start=WispFlight.prototype.start;WispFlight.prototype.start=function(...args){globalThis.qaCardFlight=this;return start.apply(this,args);};})()",
+        "(async()=>{const {WispFlight}=await import('./flight.mjs?v=skills-cards-2');const start=WispFlight.prototype.start;WispFlight.prototype.start=function(...args){globalThis.qaCardFlight=this;return start.apply(this,args);};})()",
       );
     await click('[data-action="continue-run"]');
     if (kind === "final") {
@@ -211,7 +211,7 @@ try {
     "standard fixture",
   );
   await ev(
-    "(async()=>{const M=await import('./model.mjs?v=skills-cards-1');const s=M.newState();s.settings.skipTutorial=true;s.run=M.createRun(s.profile,'standard-save');M.chooseStartingGift(s,M.getStartingGiftOffers(s.run)[0].id);M.saveState(s,localStorage);})()",
+    "(async()=>{const M=await import('./model.mjs?v=skills-cards-2');const s=M.newState();s.settings.skipTutorial=true;s.run=M.createRun(s.profile,'standard-save');M.chooseStartingGift(s,M.getStartingGiftOffers(s.run)[0].id);M.saveState(s,localStorage);})()",
   );
   const standard = await ev(
     "localStorage.getItem('wispbound.save.condensed.v7')",
@@ -255,7 +255,7 @@ try {
   );
   assert.ok(launchNode, "real card run reachable start");
   await ev(
-    "(async()=>{const {WispFlight}=await import('./flight.mjs?v=skills-cards-1');const start=WispFlight.prototype.start;WispFlight.prototype.start=function(...args){globalThis.qaCardFlight=this;return start.apply(this,args);};})()",
+    "(async()=>{const {WispFlight}=await import('./flight.mjs?v=skills-cards-2');const start=WispFlight.prototype.start;WispFlight.prototype.start=function(...args){globalThis.qaCardFlight=this;return start.apply(this,args);};})()",
   );
   await click(`[data-action="preview-node"][data-id="${launchNode}"]`);
   await click(`[data-action="node"][data-id="${launchNode}"]`);
