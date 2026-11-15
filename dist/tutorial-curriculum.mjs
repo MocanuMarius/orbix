@@ -37,7 +37,8 @@ export const TUTORIAL_TOPICS={
   s('Watch the boundary','After delivery, the green boundary contracts and regrows over 10 seconds. A nearby Spark can still be fetched during recovery if it is inside the smaller boundary.','collector-recovery'),
   s('Read the Power indicator','For Collector, the filling button shows current range, not an ability to press. A full indicator means maximum reach. Red-ring Sparks are left for you to choose.','companion:collector'),
   s('Upgrade the right reach','The Collector chapter improves fetching range, delivery and recovery. Luminance has a separate chapter for how far you see.','luminance'),
-  s('Last Orbit','Learn Last Orbit to catch a fatal impact when Collector is home and its green ring is full. After a rescue, collect Sparks yourself for four normal recovery cycles.','collector-recovery')]},
+  s('Last Orbit','Learn Last Orbit to catch a fatal impact when Collector is home and its green ring is full. After a rescue, collect Sparks yourself for four normal recovery cycles.','collector-recovery'),
+  s('Field Impulse','Learn Field Impulse after Search Spark. Swipe the playfield: up to levitate, down to dive, right to surge. A larger recovered ring gives more power; each swipe resets it like a fetch. Tap to Lift on release. The Lift button stays instant.','collector-range')]},
  companions:{name:'Companions',visual:'companion:collector',steps:[
   s('Your companion','The green Collector accompanies you throughout the run. The three other portraits in the roster are locked.','companion:collector'),
   s('Read the range','The green boundary marks the reach of the next fetch. When a delivery arrives, the boundary contracts and slowly grows back.','collector-recovery'),

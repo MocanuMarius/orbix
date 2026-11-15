@@ -78,3 +78,7 @@ dialog.treasure-route-sheet[open]{width:min(895px,calc(100vw - 24px))!important;
 }
 
 .treasure-choice-icon{display:flex;align-items:center;justify-content:center;gap:3px}.treasure-choice-icon>svg{min-width:0;flex:1}
+
+.treasure-room.prologue-loan .treasure-offers{grid-template-columns:minmax(0,1fr)}
+.treasure-room.prologue-loan .treasure-offer{width:100%;min-height:150px}
+.treasure-room.prologue-loan .treasure-choice-icon{color:#b5e5d1}

@@ -29,6 +29,7 @@ export const MAIN_TUNING_SKILLS={
  'main-edging-tension':node('main-edging-tension','Held Tension',90,'main-edging-attunement','Edging Pulse loses charge 50% more slowly away from edges. Regenerative Pulse can be learned alongside it.','edge-pulse','−50% decay'),
  'main-edging-regeneration':node('main-edging-regeneration','Regenerative Pulse',80,'main-edging-attunement','Each revealing pulse also restores 3 missing Sparks. Up to eight recoveries per flight. Normal pulse effects remain; recovery creates no Stored Sparks.','regen','Pulse +3 Sparks'),
  'main-drift-sense':node('main-drift-sense','Drift Sense I',25,'main-speed','Preview 0.7s of falling. A red dot marks the visible ceiling you would hit by lifting. Accounts for drafts and your build.','trajectory','Fall guide + ceiling warning'),
+ 'main-last-glimmer':node('main-last-glimmer','Last Glimmer',20,'main-speed','On a retry, a little ghost wisp marks where you last died on this route. It appears within your Luminance and fades as you pass.','ghost','Remember the last fall'),
  'main-drift-sense-2':node('main-drift-sense-2','Drift Sense II',40,'main-drift-sense','Extend the falling guide and red ceiling-hit warning to 1.2s. Only an affordable Lift can show a warning.','trajectory','1.2s guide'),
  'main-drift-sense-3':node('main-drift-sense-3','Drift Sense III',70,'main-drift-sense-2','Preview falls and ceiling hits 1.8s ahead. Gold dots suggest an affordable route to the closest visible Spark when a clear path is found. Dynamic hazards can interrupt the prediction.','trajectory','1.8s + Spark route'),
  'main-dawnburst':node('main-dawnburst','Dawnburst',45,'main-sight','Collect Sparks to reveal the whole screen for 1.5s, then fade over 1.2s. More pickups refresh the light.','dawn','Pickup dawn'),
@@ -54,10 +55,10 @@ export function priceSkillDefinition(s){
  // same as a second life. General price growth still applies to all purchases.
  const utility={
   'main-resonant-harvest':40,'main-resonant-purification':80,'main-resonant-bounty':150,
-  'main-speed':30,'main-tailwind':35,'main-sight':45,'main-glow-sense':55,'main-efficiency':90,
+  'main-speed':30,'main-last-glimmer':20,'main-tailwind':35,'main-sight':45,'main-glow-sense':55,'main-efficiency':90,
   'main-dream-long':30,'main-dream-deep':250,'main-drift-sense':25,'main-drift-sense-2':40,'main-drift-sense-3':70,
   'collector-last-orbit':155,'collector-far-search':50,'collector-rich-cargo':80,'collector-fleet-return':65,'collector-close-orbit':40,
-  'collector-target-dense':20,'collector-target-flash':20,'collector-guard-repair':55,'main-clear-dividend':60,'collector-fetch-large':50,'collector-fetch-flash':30,
+  'collector-target-dense':20,'collector-target-flash':20,'collector-guard-repair':55,'collector-field-impulse':80,'main-clear-dividend':60,'collector-fetch-large':50,'collector-fetch-flash':30,
   'protector-cost':45,'protector-layers':90,'protector-clean-break':25,'protector-lasting-shell':25,'protector-thrifty-shell':55,'protector-returning-shell':65,
   'leveler-deep-dive':25,'leveler-ready-release':40,'leveler-quick-balance':45,'leveler-long-balance':55,
   'swift-long-spark':40,'swift-rapid-spark':55,'swift-storm-runner':25,'swift-sheltered-pace':35,

@@ -90,8 +90,8 @@ test('Rest growth persists across retry/reload, caps at three, and cannot be far
   assert.ok(claim(capped,'rest-grow'));assert.equal(getRestGlowBonus(capped.run),(i+1)*10);
  }
  const r=capped.run;Object.assign(r,{phase:'support',current:{...r.map.flat().find(n=>n.kind==='camp'),id:'extra-rest'},lives:getLifeCapacity(r)});
- const choices=M.getSupportChoices(r,capped.profile);assert.equal(choices.length,2);assert.equal(choices[1].disabled,true);
- assert.equal(claim(capped,'rest-grow'),false);assert.equal(r.flame,130);assert.ok(claim(capped,'rest-recover'));
+ const choices=M.getSupportChoices(r,capped.profile);assert.equal(choices.length,3);assert.equal(choices[0].disabled,true);assert.equal(choices[1].disabled,true);
+ assert.equal(claim(capped,'rest-grow'),false);assert.equal(claim(capped,'rest-recover'),false);assert.equal(r.flame,130);assert.ok(claim(capped,'rest-continue'));
  assert.equal(r.restReady,true,'a full, capped run can still prepare and leave Rest');
 });
 

@@ -1,9 +1,11 @@
 // Terrain collides as a union of filled polygons. Its visible contact outline
 // must be that same union, rather than outlining every buried source piece.
-import {isContactEdgeStyle,paintContactEdge} from './contact-edge-art.mjs?v=biome-spirit-1';
-import {getContactEdgePalette} from './contact-edge-palettes.mjs?v=biome-spirit-1';
+import {isContactEdgeStyle,paintContactEdge} from './contact-edge-art.mjs?v=first-light-1';
+import {getContactEdgePalette} from './contact-edge-palettes.mjs?v=first-light-1';
 const cache=new WeakMap();
+const renderFrames=new WeakMap();
 const EPS=1e-6;
+const revision=shape=>{let h=2166136261;for(const point of shape||[])for(const value of point)h=Math.imul(h^Math.round(value*1024),16777619);return h>>>0;};
 function edgeAt(profile,x){
  const points=profile.points;if(x<points[0][0]-EPS||x>points.at(-1)[0]+EPS)return -1;
  let lo=0,hi=points.length-1;
@@ -66,17 +68,38 @@ function buildSegments(profiles){
  }
  return result;
 }
+// Ecology, rims, props and foreground share one render's exact local union.
+// True polygon extents include long shoulders; unscoped inspection retains the
+// full-course union and its in-place shape invalidation.
+export function beginTerrainBoundaryFrame(engine,time,distance,width=engine.width){
+ let frame=renderFrames.get(engine);if(!frame){frame={obstacles:[]};renderFrames.set(engine,frame);}
+ const nearby=[],left=distance-64,right=distance+width+64;
+ for(const o of engine.layout.obstacles){
+  if(o.destroyed)continue;let min=Infinity,max=-Infinity;
+  for(const shape of [o.topShape,o.bottomShape])for(const point of shape||[]){min=Math.min(min,point[0]);max=Math.max(max,point[0]);}
+  if(o.x+max>=left&&o.x+min<=right)nearby.push(o);
+ }
+ if(nearby.length!==frame.obstacles.length||nearby.some((o,i)=>o!==frame.obstacles[i]))frame.obstacles=nearby;
+ frame.time=time;frame.active=true;frame.boundary=null;
+}
+export function endTerrainBoundaryFrame(engine){const frame=renderFrames.get(engine);if(frame)frame.active=false;}
+export function releaseTerrainBoundaryFrame(engine){renderFrames.delete(engine);}
 export function terrainBoundary(engine,time=engine.visualTime??engine.time??0){
- const obstacles=engine.layout.obstacles;let state=cache.get(obstacles),changed=!state||state.entries.length!==obstacles.length;
+ const frame=renderFrames.get(engine);
+ if(frame?.active&&frame.time===time)return frame.boundary??=buildBoundary(frame.obstacles,time);
+ return buildBoundary(engine.layout.obstacles,time);
+}
+function buildBoundary(obstacles,time){
+ let state=cache.get(obstacles),changed=!state||state.entries.length!==obstacles.length;
  if(!changed)for(let i=0;i<obstacles.length;i++){
   const o=obstacles[i],saved=state.entries[i],center=o.center+Math.sin(time*.9+(o.phase||0))*(o.motion||0);
-  if(saved.owner!==o||saved.x!==o.x||saved.center!==center||saved.gap!==o.gap||saved.destroyed!==o.destroyed||saved.top!==o.topShape||saved.bottom!==o.bottomShape){changed=true;break;}
+  if(saved.owner!==o||saved.x!==o.x||saved.center!==center||saved.gap!==o.gap||saved.destroyed!==o.destroyed||saved.top!==o.topShape||saved.bottom!==o.bottomShape||saved.topRevision!==revision(o.topShape)||saved.bottomRevision!==revision(o.bottomShape)){changed=true;break;}
  }
  if(!changed)return state;
  const profiles=[],entries=[];
  for(const owner of obstacles){
   const center=owner.center+Math.sin(time*.9+(owner.phase||0))*(owner.motion||0);
-  entries.push({owner,x:owner.x,center,gap:owner.gap,destroyed:owner.destroyed,top:owner.topShape,bottom:owner.bottomShape});
+  entries.push({owner,x:owner.x,center,gap:owner.gap,destroyed:owner.destroyed,top:owner.topShape,bottom:owner.bottomShape,topRevision:revision(owner.topShape),bottomRevision:revision(owner.bottomShape)});
   if(owner.destroyed)continue;
   for(const top of [true,false]){
    const shape=top?owner.topShape:owner.bottomShape;if(!shape||shape.length<4)continue;

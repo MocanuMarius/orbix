@@ -1,3 +1,25 @@
+# First Light, living terrain and visible triggers — 15 November 2026
+
+Current release: `first-light-1`.
+
+- [x] Replace the old practice with six separate First Light stops: real flight and Collector pickups, a practice Proximity loan, close-flight charging and packing, Rest, a real Black Hole bypass and a forgiving Warden. Preserve the suspended campaign, unlimited entrance-state retries, saved continuation, skip/reset preferences and Field Guide replay.
+- [x] Show brief source-art cues for actual skill, artifact and companion triggers, including repeated and simultaneous effects. Keep passive bonuses quiet and clear old cues on pause/resume.
+- [x] Add Last Glimmer, a one-rank Flight skill after Momentum. A fatal position remains visible only on a matching passage retry, survives reload and does not change collisions or rewards.
+- [x] Add opaque nearest-camera silhouettes, authored habitat animals and Luminance attenuation through the union of real terrain and solid props. Preserve real collision boundaries, camera registration and reduced-motion behavior.
+- [x] Provide a cache-proof phone entry at `first-light.html`. A user tap updates an installed game before opening practice; first installs, already-current builds and offline retry are covered. Keep the ordinary `?tutorial=1` route available.
+- [x] Disable campfire Recover when hearts and Sparks are full; retain Grow until its cap. Offer a no-benefit Continue when both are exhausted, while preserving preparation, the seller and its single Dream route. Revalidate stale offers and repeated taps.
+- [x] Add Spacetime after Steady Current at base cost 160: nearby ordinary banks yield shallowly, with one shared polygon for collisions, contact edges, light and Proximity. Leave Sparks, props and guardian geometry fixed; keep forecasts private.
+- [x] Add Collector Field Impulse after Search Spark at base cost 80. Up/down/right swipes spend the available recovering ring on levitation/dive/surge without a Lift, with real touch, rotated-landscape input and fixed-tick Dream replay.
+- [x] Remove the measured contact-edge rendering stall with an exact shared nearby union, bounded spectral pixel buffer and source-local light-mask invalidation. Preserve the existing art and generic-path pixel commands.
+
+Verification: 81 integrated targeted tests passed, including all twelve real flights in three delayed-input six-stop practice chains. All 199 top-level JavaScript modules pass syntax checks. Chrome verified twelve real mobile-input behaviors plus a simulated stale installed worker, first install, already-current launch and offline/reconnect retry. Matched production-app replay against public `d46f95f` improved 900 × 405 from 40.16 to 59.93 FPS (12 to 0 render gaps over 50 ms; p99 51.6 to 22.1 ms), 1280 × 720 from 44.53 to 59.83 FPS, and reached 60.00 FPS at DPR 2.75. A separate 40-second dense renderer traversal stayed at 60 FPS. Four-times CPU throttle remains below target (dense 43.94, guardian 51.83 FPS). Physical-phone frame traces and human play are not available.
+
+The full suite is not claimed green. Unchanged `d46f95f` has six failing seamless-clear tests; current has five, each reproducing the same baseline assertion. All six terrain-geometry failures also reproduce identically. Full scope, methods and limitations are recorded in [the release notes](docs/first-light-release.md).
+
+- [ ] NEXT — design proposal after this release: build archetypes through meaningful combinations of Flight, Collector, Proximity, Luminance and Storage. Evaluate cards or limited slots against the skill book; retain boss relics without equipment juggling. Compare directions before implementation; no replacement system is shipped by this release.
+
+---
+
 # Spark choices, longer journeys and living terrain — 15 November 2026
 
 Current release: `spark-choices-2`. This supersedes the older size and reward rules below.

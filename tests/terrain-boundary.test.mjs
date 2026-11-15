@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {terrainBoundary,terrainSurfaceExposed,drawTerrainBoundary} from '../dist/terrain-boundary.mjs';
+import {terrainBoundary,terrainSurfaceExposed,drawTerrainBoundary,beginTerrainBoundaryFrame,endTerrainBoundaryFrame,releaseTerrainBoundaryFrame} from '../dist/terrain-boundary.mjs';
 const obstacle=(points,top=false)=>({x:0,center:0,gap:0,phase:0,motion:0,
  [top?'topShape':'bottomShape']:[[points[0][0],top?-900:900],[points.at(-1)[0],top?-900:900],...points.toReversed()]});
 const engine=obstacles=>({layout:{obstacles},width:400,height:390,distance:0,time:0});
@@ -42,4 +42,20 @@ test('long shoulder contours clip before pixel drawing',()=>{
  drawTerrainBoundary({},e,{line:(_c,...args)=>calls.push(args)});
  assert.equal(calls.length,2);
  for(const [x,,xx]of calls){assert.ok(x>=-4);assert.ok(xx<=e.width+4);}
+});
+test('resizing collider coordinates in place invalidates the cached contact union',()=>{
+ const o=obstacle([[0,100],[100,100]]),e=engine([o]),before=terrainBoundary(e);
+ for(const point of o.bottomShape)point[1]*=.75;
+ const after=terrainBoundary(e);assert.notEqual(after,before);assert.deepEqual(hitsAt(after.segments,50),[75]);
+});
+
+test('one render shares the nearby exact union and retains long offscreen shoulders',()=>{
+ const a=obstacle([[-10000,100],[10000,100]]),b=obstacle([[50,60],[150,60]]),far=obstacle([[5000,20],[5100,20]]),e=engine([a,b,far]);far.motion=10;
+ const full=terrainBoundary(e,0);beginTerrainBoundaryFrame(e,0,0);
+ const local=terrainBoundary(e,0);assert.equal(terrainBoundary(e,0),local);assert.equal(local.profiles.length,2);
+ for(const x of [0,25,75,125,200,400])assert.deepEqual(hitsAt(local.segments,x),hitsAt(full.segments,x));
+ endTerrainBoundaryFrame(e);assert.equal(terrainBoundary(e,0),full);
+ beginTerrainBoundaryFrame(e,1,0);assert.equal(terrainBoundary(e,1),local);endTerrainBoundaryFrame(e);
+ for(const point of b.bottomShape)point[1]*=.5;
+ beginTerrainBoundaryFrame(e,2,0);assert.deepEqual(hitsAt(terrainBoundary(e,2).segments,75),[30]);endTerrainBoundaryFrame(e);releaseTerrainBoundaryFrame(e);
 });

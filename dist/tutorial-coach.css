@@ -236,3 +236,25 @@ body.reduce-motion .cycle-flight,body.reduced-motion .cycle-flight,.reduced-moti
 .guide-lantern-icon{display:block;object-fit:cover;object-position:48% 50%;image-rendering:pixelated}
 .tutorial-coach-visual:has(.lantern-guide-example) .coach-vocabulary{display:none}
 .tutorial-coach-visual .lantern-guide-example img{max-height:clamp(96px,37dvh,190px)}
+
+/* First Light: quiet, contextual guidance, with the regular pause controls. */
+.prologue-tools{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:0!important;padding:8px 12px;color:#d9e6c5;position:relative!important;inset:auto!important;width:auto!important}
+.prologue-tools>span{display:grid;gap:4px;margin-right:auto;text-align:left}
+.prologue-tools b{font:12px/1.3 var(--pixel);letter-spacing:.5px}
+.prologue-tools small{font:11px/1.4 var(--pixel);color:#b0c5ae}
+.prologue-tools button{min-height:36px;padding:5px 9px;font:11px/1.3 var(--pixel);white-space:nowrap}
+.prologue-map>.prologue-tools{grid-column:1/-1;grid-row:1;background:#102c2b;border-bottom:1px solid #748d7455}
+.prologue-map.game-map-screen{grid-template-rows:62px minmax(0,1fr)!important}
+.prologue-rest-note{font:12px/1.5 var(--pixel);color:#c5d4bd;margin:8px 0;max-width:29em}
+.rest-rail>.prologue-tools{padding:0 0 8px;gap:5px;flex-wrap:wrap}
+.rest-rail>.prologue-tools>span{width:100%;margin-bottom:3px}
+.rest-rail>.prologue-tools button{min-height:30px}
+.prologue-retry>p{font:15px/1.5 var(--pixel);color:#d1dfc5;max-width:36em;margin:9px auto}
+.prologue-flight .tutorial-flight-hint{pointer-events:none;position:absolute;z-index:4;top:65px!important;left:50%!important;right:auto!important;bottom:auto!important;transform:translateX(-50%);width:min(52%,480px);padding:8px 12px!important;background:#0c211eea;border:1px solid #6a8c6c66;text-align:center}
+.prologue-flight .tutorial-flight-hint strong{font:13px/1.3 var(--pixel)}
+.prologue-flight .tutorial-flight-hint p{font:12px/1.45 var(--pixel)!important;margin:3px 0 0;color:#c1d0b6}
+.prologue-flight .tutorial-flight-hint[hidden]{display:none}
+.field-guide-heading .guide-phone-link{font:11px/1.3 var(--pixel);text-align:center;max-width:130px;padding:7px 9px}
+@media(max-height:360px){.prologue-flight .tutorial-flight-hint{top:50px!important;padding:5px 8px!important;width:48%}.prologue-flight .tutorial-flight-hint strong{font-size:11px}.prologue-flight .tutorial-flight-hint p{font-size:10px!important}.prologue-map.game-map-screen{grid-template-rows:52px minmax(0,1fr)!important}.prologue-tools{padding:4px 10px}.prologue-tools small{font-size:10px}.prologue-rest-note{font-size:10px}}
+
+.prologue-flight .tutorial-flight-hint:not([hidden]){display:block!important}

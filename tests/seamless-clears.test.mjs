@@ -89,21 +89,16 @@ test('failed flights pay nothing and abandon a stale visual receipt before the a
  assert.equal(M.settleCheckpoint(s),0);
 });
 
-test('practice ordinary income stays in the practice wallet and directly opens its route',()=>{
+test('practice ordinary income stays in the practice wallet and opens its route without a lecture',()=>{
  const s=state('practice'),profile=structuredClone(s.profile);
  M.startTutorial(s);const r=s.run,before=r.practiceCondensedGlow;
  enter(s);
  assert.ok(M.finishFlight(r,{success:true,flame:65,condensedGlow:4}));
- assert.equal(r.practiceCondensedGlow,before+24);
- assert.equal(r.condensedGlow,0);
- assert.equal(r.phase,'map');
- assert.equal(r.flightReward,null);
- assert.equal(r.victoryPending,false);
- assert.equal(M.takeClearRewardReceipt(r).amount,24);
- assert.deepEqual(s.profile,profile);
- const lesson=checkpointTutorialLesson('map',{run:r});
- assert.equal(lesson.id,'practice-clear-pay');
- assert.match(lesson.steps[0].text,/automatically banks/);
+ const earned=r.lastFlight.completionBonus+4+r.lastFlight.exitPacking.amount;
+ assert.equal(r.practiceCondensedGlow,before+earned);
+ assert.equal(r.condensedGlow,0);assert.equal(r.phase,'map');assert.equal(r.flightReward,null);assert.equal(r.victoryPending,false);
+ assert.equal(M.takeClearRewardReceipt(r).amount,earned);assert.deepEqual(s.profile,profile);
+ assert.equal(checkpointTutorialLesson('map',{run:r}),null);
 });
 
 test('elite and guardian choices still block travel until a reward is chosen',()=>{

@@ -1,4 +1,4 @@
-import {drawHabitatAnimal} from './habitat-wildlife.mjs?v=biome-spirit-1';
+import {drawHabitatAnimal} from './habitat-wildlife.mjs?v=first-light-1';
 // Whole, authored vignettes replace interchangeable mounds and evenly spaced
 // plants. Coordinates describe geology, exposed rock and sheltered soil pockets.
 const noise=n=>{let h=Math.imul(n|0,1597334677);h=Math.imul(h^(h>>>13),1274126177);return((h^(h>>>16))>>>0)/4294967296;};
@@ -23,12 +23,12 @@ const crests={
 const scenes={
  pinewood:[
   [['rootbank',-25,113,292,48,[.18,.24,.71],'log','deer'],['talus',351,143,194,30,[.69],'stump']],
-  [['terrace',28,132,206,38,[.28,.35],'stump','rabbit'],['rootbank',278,111,268,42,[.17,.7,.76],'log']],
+  [['terrace',28,132,206,38,[.28,.35],'roots','rabbit'],['rootbank',278,111,268,42,[.17,.7,.76],'log','deer']],
   [['talus',-34,132,199,38,[],null],['rootbank',190,126,321,30,[.23,.31,.72],'roots','fox']]],
  marsh:[
-  [['bank',-20,146,234,26,[.2,.28,.72],'reeds','butterfly'],['rootbank',335,131,215,43,[.25,.61],'roots']],
-  [['shelf',22,150,165,23,[.28,.36],'reeds'],['bank',260,143,289,29,[.22,.69,.76],'log','raven']],
-  [['rootbank',-38,139,232,35,[.18,.7],'stump'],['bank',291,156,247,20,[.23,.3,.78],'reeds','butterfly']]],
+  [['bank',-20,146,234,26,[.2,.28,.72],'reeds','frog'],['rootbank',335,131,215,43,[.25,.61],'roots','butterfly']],
+  [['shelf',22,150,165,23,[.28,.36],'pool','frog'],['bank',260,143,289,29,[.22,.69,.76],'log','raven']],
+  [['rootbank',-38,139,232,35,[.18,.7],'stump'],['bank',291,156,247,20,[.23,.3,.78],'reeds','frog']]],
  moonruins:[
   [['terrace',-30,136,277,42,[.2,.74],'arch','raven'],['talus',329,151,207,34,[.67],'rubble']],
   [['shelf',28,141,207,34,[.25],'rubble','rabbit'],['terrace',291,120,260,44,[.3,.78],'pillar']],
@@ -42,20 +42,20 @@ const scenes={
   [['terrace',21,141,207,33,[.25,.32],'log'],['rootbank',285,115,271,43,[.2,.72],'roots','rabbit']],
   [['rootbank',-36,133,243,37,[.22,.7],'stump'],['talus',278,142,274,41,[.68,.74],'roots','fox']]],
  frost:[
-  [['fractured',-37,126,275,50,[],'ice'],['talus',331,137,217,48,[],'scree','raven']],
-  [['stack',12,108,213,63,[],'ice'],['shelf',302,149,250,29,[.7],'ice']],
-  [['talus',-27,139,258,43,[],'scree'],['fractured',288,120,267,52,[],'ice','rabbit']]],
+  [['fractured',-37,126,275,50,[],'ice','hare'],['talus',331,137,217,48,[],'scree','raven']],
+  [['stack',12,108,213,63,[],'ice'],['shelf',302,149,250,29,[.7],'scree','hare']],
+  [['talus',-27,139,258,43,[],'scree','hare'],['fractured',288,120,267,52,[],'ice']]],
  desert:[
   [['terrace',-38,128,299,42,[.75],'rubble'],['stack',359,108,186,65,[],'scree']],
   [['talus',-12,145,227,32,[.65],null,'rabbit'],['terrace',288,117,266,52,[.25],'pillar']],
   [['stack',-40,109,235,68,[],null],['bank',269,159,280,28,[.22,.76],'rubble','rabbit']]],
  basalt:[
-  [['stack',-35,111,266,66,[],'columns'],['talus',324,139,227,43,[],'scree']],
-  [['fractured',11,127,217,51,[],'columns'],['terrace',291,141,263,36,[],'scree']],
-  [['talus',-39,143,245,38,[],null],['stack',271,112,283,62,[],'columns']]],
+  [['stack',-35,111,266,66,[],'columns'],['talus',324,139,227,43,[],'scree','lizard']],
+  [['fractured',11,127,217,51,[],'columns','lizard'],['terrace',291,141,263,36,[],'scree']],
+  [['talus',-39,143,245,38,[],'scree','lizard'],['stack',271,112,283,62,[],'columns']]],
  crystal:[
-  [['fractured',-31,139,264,41,[.24],'crystals'],['stack',328,122,221,57,[],'crystals']],
-  [['terrace',17,147,207,32,[.72],'crystals'],['talus',288,131,265,47,[.7],'scree']],
+  [['fractured',-31,139,264,41,[.24],'crystals','moth'],['stack',328,122,221,57,[],'crystals']],
+  [['terrace',17,147,207,32,[.72],'crystals'],['talus',288,131,265,47,[.7],'scree','lizard']],
   [['stack',-41,115,239,62,[],'crystals'],['shelf',269,151,284,28,[.3,.74],'crystals']]],
  fungal:[
   [['rootbank',-32,135,275,42,[.22,.28,.72],'mushrooms','butterfly'],['stack',335,113,215,63,[.3],'mushrooms']],
@@ -111,6 +111,8 @@ function featureArt(kind,x,y,inks,{poly,line,box},seed){
     line([[px+1,y-h*.45],[px-8,y-h*.67],[px-10,y-h*.89]],inks[2],2);line([[px+1,y-h*.6],[px+9,y-h*.77],[px+11,y-h]],inks[3],2);
    }else box(px-2,y-h-5,2,7,inks[3]);
   }
+ }else if(kind==='pool'){
+  line([[x-23,y+3],[x-13,y+1],[x+19,y+2],[x+26,y+4]],inks[1],3);line([[x-17,y+3],[x+16,y+3]],inks[3]);
  }else if(kind==='scree'||kind==='rubble')for(let j=0;j<7;j++){
   const xx=x+(j-3)*8,yy=y+Math.abs(j-3)*2,r=3+noise(seed+j)*5;
   poly([[xx-r,yy],[xx-r*.4,yy-r],[xx+r*.5,yy-r*.7],[xx+r,yy+2]],inks[j%2+1]);line([[xx-r*.4,yy-r],[xx+r*.5,yy-r*.7]],inks[2]);
@@ -147,6 +149,13 @@ export function createNearLandscape(document,{biome,texture,patch,plants=[],vari
      const yy=y+22+band*21,lean=biome==='desert'?-8:4;line([[x+8,yy],[x+w*.28,yy+lean],[x+w*.59,yy+lean-3],[x+w*.92,yy+lean+2]],inks[0],3);line([[x+w*.13,yy-2],[x+w*.3,yy+lean-2]],inks[2]);
     }
     c.restore();
+    // Thumb-sized grounded stones sit on the authored skyline; quieter chips
+    // remain embedded in its texture. Neither becomes another hazard edge.
+    for(let pebble=0;pebble<9;pebble++){
+     const u=.08+noise(s+pebble*83)*.83,xx=x+u*w,yy=y+at(profile,u)*h,r=2+noise(s+pebble*79+5)*4;
+     poly([[xx-r,yy+1],[xx-r*.7,yy-r*.55],[xx+r*.2,yy-r],[xx+r,yy-r*.35],[xx+r*.85,yy+1]],inks[pebble%2+1]);
+     if(pebble%3===0)line([[xx-r*.5,yy-r*.6],[xx+r*.2,yy-r]],inks[3]);
+    }
     for(const u of clusters){
      const cy=y+at(profile,u)*h,xx=x+u*w;
      for(let j=0;j<3;j++){
@@ -158,8 +167,9 @@ export function createNearLandscape(document,{biome,texture,patch,plants=[],vari
     const fu=feature==='arch'?.4:feature==='log'?.39:.5,fx=x+w*fu,fy=y+at(profile,fu)*h;
     featureArt(feature,fx,fy,inks,{poly,line,box},s);
     if(life&&depth===1){
-     const u=life==='raven'?fu:.34,ax=x+w*u,ay=y+at(profile,u)*h;
-     canvas.habitatSites.push({kind:life,x:life==='raven'?fx:ax,y:life==='raven'?fy-(feature==='arch'?66:feature==='graves'?24:0):ay,phase:s*.019,facing:index?-1:1});
+     const u=life==='raven'?fu:life==='rabbit'?fu-.09:life==='frog'?.73:life==='lizard'?.62:.34,ax=x+w*u,ay=y+at(profile,u)*h;
+     canvas.habitatSites.push({kind:life,x:life==='raven'?fx:ax,y:life==='raven'?fy-(feature==='arch'?66:feature==='graves'?24:0):ay,
+      travelRise:life==='hare'?(at(profile,Math.min(1,u+25/w))-at(profile,u))*h:0,phase:s*.019,facing:index?-1:1});
     }
    }
    tiles.push(canvas);

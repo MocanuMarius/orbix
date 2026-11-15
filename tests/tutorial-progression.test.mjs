@@ -6,30 +6,33 @@ import {newState,createRun,startTutorial,leaveTutorial,getChoices,selectNode,beg
 import {TUTORIAL_TOPICS} from '../dist/tutorial-curriculum.mjs';
 import {deathScreenMarkup} from '../dist/death-screen.mjs';
 const clear=state=>{const r=state.run;assert.ok(beginFlightAttempt(r));assert.ok(finishFlight(r,{success:true,flame:70,collected:5}));if(r.victoryPending){assert.ok(chooseFlightReward(state,r.flightReward.offers[0]));assert.ok(acknowledgeVictory(state));}};
-test('seven-stop practice teaches real checkpoints without changing the suspended run',()=>{
+test('six-stop prologue loans a real skill, restores Rest resources and preserves the suspended run',()=>{
  const state=newState();state.profile.ownedArtifacts=['sunheart-engine'];state.profile.equippedArtifacts=['sunheart-engine'];
  state.run=createRun(state.profile,'real-run');const original=structuredClone(state.run),profile=structuredClone(state.profile);
- assert.ok(startTutorial(state));const r=state.run;assert.equal(r.map.length,7);assert.equal(r.companionRole,'collector');
- assert.ok(!r.skills['main-dream']);assert.ok(selectNode(r,getChoices(r)[0].id));clear(state);
- assert.ok(selectNode(r,getChoices(r)[0].id));assert.equal(r.current.kind,'camp');
- assert.ok(resolveSupport(r,0,state.profile));for(const role of ['protector','swift','leveler'])assert.equal(setCompanions(r,[role]),false);
- assert.deepEqual(r.companions,['collector']);
- assert.equal(equipArtifact(state,'sunheart-engine',1),false,'real collection cannot enter practice');
- assert.ok(selectNode(r,getChoices(r)[0].id));clear(state);assert.equal(getChoices(r).length,2,'practice includes a real route fork');
- assert.ok(selectNode(r,getChoices(r)[0].id));assert.ok(resolveSupport(r,0,state.profile));
+ assert.ok(startTutorial(state));const r=state.run;assert.equal(r.map.length,6);assert.equal(r.companionRole,'collector');
+ assert.deepEqual(r.map.map(row=>row[0].tutorialLesson||row[0].kind),['glide','treasure','proximity','camp','black-hole','guardian']);
+ assert.equal(r.practiceCondensedGlow,0);assert.ok(!r.skills['proximity-awakening']);
+ assert.ok(selectNode(r,getChoices(r)[0].id));clear(state);
  assert.ok(selectNode(r,getChoices(r)[0].id));assert.equal(r.current.kind,'treasure');
- const chest=getSupportChoices(r,state.profile).findIndex(c=>c.effect.treasureGift==='vessel');assert.ok(resolveSupport(r,chest,state.profile));
- assert.equal(r.victoryPending,false,'a chest pays its selected reward without an artifact offer');
- assert.ok(selectNode(r,getChoices(r)[0].id));assert.ok(resolveSupport(r,0,state.profile));
- assert.equal(r.skills['main-dream'],1,'the last practice Rest teaches Dream before the finale');
- assert.ok(selectNode(r,getChoices(r)[0].id));assert.equal(r.current.tutorialLesson,'hazards');clear(state);
+ const offers=getSupportChoices(r,state.profile);assert.equal(offers.length,1);assert.equal(offers[0].skillId,'proximity-awakening');
+ assert.ok(resolveSupport(r,0,state.profile));assert.equal(r.skills['proximity-awakening'],1);
+ assert.equal(resolveSupport(r,0,state.profile),false,'the lesson loan is claimed once');
+ assert.equal(equipArtifact(state,'sunheart-engine',1),false,'real collection cannot enter practice');
+ assert.ok(selectNode(r,getChoices(r)[0].id));clear(state);
+ assert.ok(selectNode(r,getChoices(r)[0].id));assert.equal(r.current.kind,'camp');
+ assert.ok(r.lives<r.maxLives,'a labelled practice heart is missing without forcing a failed flight');r.flame=20;
+ assert.ok(resolveSupport(r,0,state.profile));assert.equal(r.lives,r.maxLives);assert.equal(r.flame,100);
+ for(const role of ['protector','swift','leveler'])assert.equal(setCompanions(r,[role]),false);
+ assert.ok(selectNode(r,getChoices(r)[0].id));assert.equal(r.current.tutorialLesson,'black-hole');clear(state);
+ assert.ok(selectNode(r,getChoices(r)[0].id));assert.equal(r.current.bossId,'hollow-warden');assert.equal(r.current.boss,true);clear(state);
  assert.equal(r.success,true);assert.ok(leaveTutorial(state));assert.deepEqual(state.run,original);
  assert.deepEqual(state.profile.ownedArtifacts,profile.ownedArtifacts);assert.deepEqual(state.profile.equippedArtifacts,profile.equippedArtifacts);
  assert.equal(state.profile.difficulty,profile.difficulty);assert.equal(state.profile.tutorialComplete,true);
+ assert.deepEqual(state.profile.onboarding.seen,['rest'],'unobserved flight mechanics still receive later contextual lessons');
 });
 test('practice forging spends only practice artifacts and pays only the practice wallet',()=>{
  const s=newState();s.profile.ownedArtifacts=['glow-wick'];s.profile.equippedArtifacts=['glow-wick'];startTutorial(s);
- const r=s.run;r.step=1;r.phase='support';r.current=r.map[1][0];r.artifacts=['glow-wick'];r.artifactCharges={'glow-wick':3};
+ const r=s.run;r.step=3;r.phase='support';r.current=r.map[3][0];r.artifacts=['glow-wick'];r.artifactCharges={'glow-wick':3};
  assert.equal(canSellArtifact(s,'glow-wick'),false);assert.ok(resolveSupport(r,0,s.profile));
  const before=r.practiceCondensedGlow;assert.ok(canSellArtifact(s,'glow-wick'));assert.ok(sellArtifact(s,'glow-wick'));
  assert.ok(r.practiceCondensedGlow>before);assert.equal(r.condensedGlow,0);assert.deepEqual(s.profile.ownedArtifacts,['glow-wick']);

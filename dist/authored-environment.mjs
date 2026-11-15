@@ -1,6 +1,6 @@
-import {createNearLandscape,drawNearLandscapePlates} from './near-landscape.mjs?v=biome-spirit-1';
-import {prepareWildlife} from './habitat-wildlife.mjs?v=biome-spirit-1';
-import {makeCourseTableaux,drawCourseTableaux} from './course-tableaux.mjs?v=biome-spirit-1';
+import {createNearLandscape,drawNearLandscapePlates} from './near-landscape.mjs?v=first-light-1';
+import {prepareWildlife} from './habitat-wildlife.mjs?v=first-light-1';
+import {makeCourseTableaux,drawCourseTableaux} from './course-tableaux.mjs?v=first-light-1';
 // Artwork by Luis Zuno / Ansimuz. Source packs and licences are listed in
 // nature-credits.html and assets/nature/licenses/. Prepared once per document.
 const artFiles = {
@@ -46,7 +46,7 @@ export function prepareEnvironmentArt(document){
     const image=document.createElement('img');
     image.onload=()=>{state.images.set(key,image);resolve();};image.onerror=resolve;
     image.src=new URL(url,import.meta.url).href;
-  }))]);
+  }))]).then(()=>{state.loaded=true;});
   return state.ready;
 }
 function stateFor(context){return documents.get(context.canvas?.ownerDocument);}
@@ -104,7 +104,7 @@ export function drawCourseArt(c,e,{scale=1,distance=e.renderDistance??e.distance
 }
 export function prepareNearLandscape(document,engine){
   const state=documents.get(document),biome=biomeOf(engine),profile=profiles[biome];
-  if(!state||!profile)return null;
+  if(!state?.loaded||!profile)return null;
   const variant=engine.levelIdentity?.variant||0,key=biome+':'+variant;
   if(state.nearLandscapes.has(key))return state.nearLandscapes.get(key);
   const texture=tinted(document,state,profile.texture,profile.tone);
@@ -164,6 +164,13 @@ function drawGeologicalRelief(c,{identity,width,height,surface,top,seed,tone}){
   const sediment=['desert','moonruins','cemetery','cloud'].includes(biome);
   const columnar=['frost','basalt','crystal'].includes(biome);
   const wet=['marsh','pinewood','thorn','fungal'].includes(biome);
+  // Small buried chips belong to the rock face, with a restrained upper facet.
+  // This is baked once with the material rather than generated during flight.
+  for(let chip=0;chip<Math.ceil(width/29);chip++){
+    const x=8+geologyNoise(seed+chip*137)*Math.max(1,width-16),y=at(x)+sign*(13+geologyNoise(seed+chip*191)*68),r=2+geologyNoise(seed+chip*53)*3;
+    plane([[x-r,y],[x-r*.5,y-sign*r*.65],[x+r*.55,y-sign*r*.45],[x+r,y+sign*r*.4],[x-r*.4,y+sign*r*.65]],tone,.36);
+    stroke([[x-r*.5,y-sign*r*.65],[x+r*.55,y-sign*r*.45]],'#a4a18b',.18,1);
+  }
   const lean=(geologyNoise(seed+12)-.5)*(biome==='desert'?.16:.08);
   if(sediment){
     // Beds retain one dip across a whole face; erosion breaks them into
@@ -211,69 +218,5 @@ function drawGeologicalRelief(c,{identity,width,height,surface,top,seed,tone}){
   }
 }
 
-// Two small reusable strips in front of the landform. They are clipped inside
-// real ground, below its rim: no decorative silhouette becomes a false hazard.
-export function drawTerrainForeground(c,e,{scale=1,distance=e.renderDistance??e.distance}={}){
-  const state=stateFor(c),profile=profiles[biomeOf(e)];if(!state||!profile)return;
-  const W=e.width*scale,H=e.height*scale;
-  c.save();c.beginPath();let visible=false;
-  for(const o of e.layout.obstacles){
-    if(o.destroyed||o.x+o.width*2.5<distance||o.x-o.width>distance+e.width)continue;
-    const shape=o.bottomShape;if(!shape)continue;
-    const center=o.center+Math.sin((e.visualTime??e.time)*.9+o.phase)*o.motion;
-    const ox=(o.x-distance)*scale,oy=(center+o.gap/2+9)*scale;
-    shape.forEach(([x,y],i)=>i?c.lineTo(ox+x*scale,oy+y*scale):c.moveTo(ox+x*scale,oy+y*scale));c.closePath();visible=true;
-  }
-  if(!visible){c.restore();return;}c.clip();c.imageSmoothingEnabled=false;
-  for(let layer=0;layer<2;layer++){
-    const key='foreground:'+biomeOf(e)+':'+layer;
-    let strip=state.variants.get(key);
-    if(!strip){
-      strip=c.canvas.ownerDocument.createElement('canvas');strip.width=320;strip.height=72;
-      const p=strip.getContext('2d');p.imageSmoothingEnabled=false;
-      const poly=(points,ink)=>{p.fillStyle=ink;p.beginPath();points.forEach(([x,y],i)=>i?p.lineTo(x,y):p.moveTo(x,y));p.closePath();p.fill();};
-      for(let i=-1;i<15;i++){
-        const seed=i*79+layer*197,base=i*27,x=base+Math.floor(geologyNoise(seed)*13),r=9+Math.floor(geologyNoise(seed+3)*12),y=50+Math.floor(geologyNoise(seed+7)*16);
-        const points=[[x-r,y],[x-r*.65,y-r*.70],[x-r*.1,y-r],[x+r*.5,y-r*.8],[x+r,y-r*.24],[x+r*.8,72],[x-r,72]];
-        poly(points,layer?'#142321':'#253933');
-        poly([[x-r,y],[x-r*.65,y-r*.70],[x-r*.1,y-r],[x+r*.1,y-r*.35],[x-r*.1,y+1]],'#3c4840');
-        p.globalAlpha=.6;poly([[x-r*.1,y-r],[x+r*.5,y-r*.8],[x+r*.2,y-r*.37],[x+r*.1,y-r*.35]],'#47534a');p.globalAlpha=1;
-        // Rock grain uses native texels, not a magnified miniature boulder.
-        const material=tinted(c.canvas.ownerDocument,state,profile.texture,profile.tone);
-        if(material){
-          p.save();p.beginPath();points.forEach(([xx,yy],j)=>j?p.lineTo(xx,yy):p.moveTo(xx,yy));p.closePath();p.clip();p.globalAlpha=.28;
-          const [sx,sy,sw,sh]=profile.patch;
-          for(let yy=Math.floor(y-r);yy<72;yy+=sh)for(let xx=Math.floor(x-r);xx<x+r;xx+=sw)p.drawImage(material,sx,sy,sw,sh,xx,yy,sw,sh);
-          p.restore();
-        }
-        p.fillStyle='#102125';p.fillRect(x-r*.1,y-r*.4,r*.5,1);p.fillRect(x+r*.25,y-r*.22,1,r*.45);
-        if(['frost','cloud'].includes(biomeOf(e))){p.fillStyle='#8ca4a8';p.fillRect(x-r*.4,y-r*.83,r*.65,2);}
-        else if(['pinewood','marsh','thorn','cemetery'].includes(biomeOf(e))){p.fillStyle='#586c48';p.fillRect(x-r*.5,y-r*.7,r*.7,2);p.fillRect(x-r*.7,y-r*.6,2,5);}
-      }
-      const lush=['moonruins','pinewood','marsh','thorn','cemetery','cloud'].includes(biomeOf(e));
-      const cover=tinted(c.canvas.ownerDocument,state,lush?'swampProps':profile.plant,profile.tone);
-      // Dense, uneven understory is cached with the rocks, rather than adding
-      // dozens of animated sprites to the live flight loop.
-      for(let j=0;j<(lush?13:5);j++){
-        const seed=j*157+layer*367,group=Math.floor(j/3),x=group*81+(j%3)*9+geologyNoise(seed)*7,y=51+geologyNoise(seed+3)*16;
-        if(cover&&lush&&j%3!==0){
-          const rect=lush?(j%2?[8,3,39,39]:[124,4,48,37]):[0,0,cover.width,cover.height];
-          const [sx,sy,sw,sh]=rect,h=12+geologyNoise(seed+7)*19;
-          p.globalAlpha=.8;p.drawImage(cover,sx,sy,sw,sh,Math.round(x-sw*h/sh/2),Math.round(y-h),Math.round(sw*h/sh),Math.round(h));p.globalAlpha=1;
-        }
-        for(let blade=0;blade<(lush?4:0);blade++){
-          const height=4+geologyNoise(seed+blade*31)*10;
-          p.fillStyle=blade%2?profile.tone:'#354d3e';
-          p.fillRect(Math.round(x+blade*2),Math.round(y-height),1,Math.round(height));
-          p.fillRect(Math.round(x+blade*2-2),Math.round(y-height*.6),3,1);
-        }
-      }
-      state.variants.set(key,strip);
-    }
-    const zoom=layer?1.12:1.6,tileW=strip.width*scale*zoom,tileH=strip.height*scale*zoom;
-    const offset=(distance*(layer?1.23:1.08)*scale)%tileW;
-    c.globalAlpha=layer?.62:.42;
-    for(let x=-offset-tileW;x<W;x+=tileW)c.drawImage(strip,Math.round(x),Math.round(H-tileH+(layer?15:0)*scale),Math.ceil(tileW),Math.ceil(tileH));
-  }
-  c.restore();
-}
+// Nearest-camera cut-paper land is shared by both flight renderers.
+export {drawTerrainForeground,releaseTerrainForeground} from './terrain-foreground.mjs?v=first-light-1';

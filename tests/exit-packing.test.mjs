@@ -56,6 +56,7 @@ test('Rest refill does not pack a second time and later exits pack only their ow
  let child=node;const path=[];
  for(let row=node.row-1;row>=0;row--){const parent=r.map[row].find(n=>n.nextIds.includes(child.id));path.unshift(parent.id);child=parent;}
  Object.assign(r,{path,step:node.row,phase:'map',current:null,victoryPending:false,flightReward:null});
+ r.flame=60;
  assert.ok(M.selectNode(r,node.id));assert.ok(M.resolveSupport(r,0,s.profile));M.settleCheckpoint(s);
  assert.equal(r.flame,getGlowCapacity(r));assert.equal(r.condensedGlow,wallet);assert.equal(r.condensedEarned,earned);
  assert.equal(M.resolveSupport(r,0,s.profile),false);assert.equal(M.settleCheckpoint(s),0);

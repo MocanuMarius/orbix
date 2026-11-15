@@ -1,0 +1,41 @@
+import http from 'node:http';
+import {spawn} from 'node:child_process';
+import fs from 'node:fs/promises';
+import path from 'node:path';
+import os from 'node:os';
+import assert from 'node:assert/strict';
+const profile=await fs.mkdtemp(path.join(os.tmpdir(),'wisp-first-light-launch-'));
+const types={'.html':'text/html','.mjs':'text/javascript','.js':'text/javascript','.css':'text/css','.svg':'image/svg+xml','.png':'image/png','.webp':'image/webp','.ttf':'font/ttf','.woff2':'font/woff2','.mp3':'audio/mpeg','.webmanifest':'application/manifest+json'};
+let old=true;
+const oldWorker=`self.addEventListener('install',e=>e.waitUntil((async()=>{const c=await caches.open('wispbound:'+self.registration.scope+':old:old');await c.put(new URL('game.html',self.registration.scope),new Response('<h1>STALE_GAME</h1>',{headers:{'Content-Type':'text/html'}}));await self.skipWaiting();})()));self.addEventListener('activate',e=>e.waitUntil(self.clients.claim()));self.addEventListener('fetch',e=>{const u=new URL(e.request.url);u.search='';if(u.pathname.endsWith('/game.html'))e.respondWith(caches.match(u.href));});`;
+const server=http.createServer(async(req,res)=>{try{const url=new URL(req.url,'http://localhost');if(url.pathname==='/old-install.html'){res.writeHead(200,{'Content-Type':'text/html'}).end('<h1>INSTALL OLD</h1><script>navigator.serviceWorker.register("/worker.js").then(()=>navigator.serviceWorker.ready).then(()=>document.body.dataset.ready="1")</script>');return;}if(url.pathname==='/worker.js'&&old){res.writeHead(200,{'Content-Type':'text/javascript','Cache-Control':'no-store'}).end(oldWorker);return;}const file=path.resolve('dist','.'+url.pathname),data=await fs.readFile(file);res.writeHead(200,{'Content-Type':types[path.extname(file)]||'application/octet-stream','Cache-Control':'no-store'}).end(data);}catch{res.writeHead(404).end();}});
+await new Promise(r=>server.listen(0,'127.0.0.1',r));const base='http://127.0.0.1:'+server.address().port;
+const browser=spawn('C:/Program Files/Google/Chrome/Application/chrome.exe',['--headless=new','--no-first-run','--disable-gpu','--no-default-browser-check','--remote-debugging-port=0','--user-data-dir='+profile,'about:blank'],{windowsHide:true,stdio:'ignore'});
+const delay=ms=>new Promise(r=>setTimeout(r,ms));
+async function until(fn,description){for(let i=0;i<600;i++){try{const v=await fn();if(v)return v;}catch{}await delay(100);}throw Error('Timed out: '+description);}
+let socket;
+try{
+ const port=await until(async()=>Number((await fs.readFile(path.join(profile,'DevToolsActivePort'),'utf8')).split('\n')[0]),'Chrome');
+ const target=await until(async()=>(await(await fetch('http://127.0.0.1:'+port+'/json/list')).json()).find(t=>t.type==='page'),'page');
+ socket=new WebSocket(target.webSocketDebuggerUrl);await new Promise(r=>socket.addEventListener('open',r,{once:true}));let id=0;const pending=new Map();
+ socket.addEventListener('message',e=>{const m=JSON.parse(e.data);if(m.id&&pending.has(m.id)){const [ok,no]=pending.get(m.id);pending.delete(m.id);m.error?no(Error(m.error.message)):ok(m.result);}});
+ const send=(method,params={})=>new Promise((ok,no)=>{const i=++id;pending.set(i,[ok,no]);socket.send(JSON.stringify({id:i,method,params}));});
+ const ev=async(expression)=>{const r=await send('Runtime.evaluate',{expression,awaitPromise:true,returnByValue:true});if(r.exceptionDetails)throw Error(r.exceptionDetails.exception?.description||r.exceptionDetails.text);return r.result.value;};
+ await send('Page.enable');await send('Runtime.enable');await send('Network.enable');await send('Emulation.setDeviceMetricsOverride',{width:844,height:390,deviceScaleFactor:1,mobile:true});
+ await send('Page.navigate',{url:base+'/old-install.html'});await until(()=>ev("document.body.dataset.ready==='1'&&!!navigator.serviceWorker.controller"),'old worker control');
+ assert.match(await ev("fetch('/game.html?v=first-light-1').then(r=>r.text())"),/STALE_GAME/);
+ old=false;
+ await send('Page.navigate',{url:base+'/first-light.html'});await until(()=>ev("!!document.querySelector('#launch')"),'fresh online entry');
+ await send('Network.emulateNetworkConditions',{offline:true,latency:0,downloadThroughput:-1,uploadThroughput:-1});
+ await ev("document.querySelector('#launch').click()");assert.match(await ev("document.querySelector('#status').textContent"),/Connect to the internet/);
+ await send('Network.emulateNetworkConditions',{offline:false,latency:0,downloadThroughput:-1,uploadThroughput:-1});
+ await ev("document.querySelector('#launch').click()");
+ await until(()=>ev("!!document.querySelector('.prologue-map')"),'updated practice launch');
+ assert.doesNotMatch(await ev("document.body.textContent"),/STALE_GAME/);
+ const staleUpgrade={url:await ev('location.href'),practice:await ev("document.querySelector('.prologue-tools b').textContent"),caches:await ev('caches.keys()')};
+ await send('Page.navigate',{url:base+'/first-light.html'});await until(()=>ev("!!document.querySelector('#launch')"),'current entry');await ev("document.querySelector('#launch').click()");await until(()=>ev("!!document.querySelector('.prologue-map')"),'already current launch');
+ await ev("(async()=>Promise.all((await navigator.serviceWorker.getRegistrations()).map(r=>r.unregister())))()");
+ await send('Page.navigate',{url:base+'/first-light.html'});await until(()=>ev("!!document.querySelector('#launch')&&!navigator.serviceWorker.controller"),'fresh install entry');
+ await ev("document.querySelector('#launch').click()");await until(()=>ev("!!document.querySelector('.prologue-map')"),'first install launch');
+ console.log(JSON.stringify({staleUpgrade,offlineRetry:true,alreadyCurrentOneTap:true,firstInstallOneTap:true}));
+}finally{socket?.close();browser.kill();server.close();}

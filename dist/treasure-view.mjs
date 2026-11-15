@@ -1,15 +1,15 @@
-import {companionArtSvg} from './companion-art.mjs?v=biome-spirit-1';
-import {resourceSymbol} from './game-symbols.mjs?v=biome-spirit-1';
-import {lifeHeartSvg} from './lives.mjs?v=biome-spirit-1';
-import {getTreasureChoices,getTreasureKind} from './model.mjs?v=biome-spirit-1';
-import {treasureArt} from './treasure-art.mjs?v=biome-spirit-1';
-import {skillIcon,artifactIcon} from './upgrade-icons.mjs?v=biome-spirit-1';
-import {formatGlow,getGlowCapacity} from './vitality.mjs?v=biome-spirit-1';
+import {companionArtSvg} from './companion-art.mjs?v=first-light-1';
+import {resourceSymbol} from './game-symbols.mjs?v=first-light-1';
+import {lifeHeartSvg} from './lives.mjs?v=first-light-1';
+import {getTreasureChoices,getTreasureKind,SKILLS} from './model.mjs?v=first-light-1';
+import {treasureArt} from './treasure-art.mjs?v=first-light-1';
+import {skillIcon,artifactIcon} from './upgrade-icons.mjs?v=first-light-1';
+import {formatGlow,getGlowCapacity} from './vitality.mjs?v=first-light-1';
 
 const esc=value=>String(value??'').replace(/[&<>"']/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
 
 function choiceIcon(kind,run,offer){
- if(offer?.skillId)return skillIcon({id:offer.skillId});
+ if(offer?.skillId)return skillIcon(SKILLS[offer.skillId]||{id:offer.skillId});
  if(offer?.artifactIds?.length)return offer.artifactIds.map(id=>artifactIcon(id)).join('');
  if(kind==='companion')return companionArtSvg(run.companionRole);
  if(kind==='feather')return skillIcon({id:'main-drift'});
@@ -30,8 +30,8 @@ function treasureChoice(offer,index,run,preview){
 
 export function treasureView(run,node,{preview=false,available=false,practiceTools=''}={}){
  const offers=getTreasureChoices(run,node),kind=getTreasureKind(run,node);
- const heading=preview?(available?'REACHABLE CHEST':'CHEST AHEAD'):'CHOOSE ONE';
- return `<section class="treasure-room ${preview?'treasure-route-preview':''}" data-treasure="${esc(kind)}" aria-label="${esc(node.name)}">
+ const heading=node.practiceLoan?'PRACTICE LOAN':preview?(available?'REACHABLE CHEST':'CHEST AHEAD'):'CHOOSE ONE';
+ return `<section class="treasure-room ${node.practiceLoan?'prologue-loan':''} ${preview?'treasure-route-preview':''}" data-treasure="${esc(kind)}" aria-label="${esc(node.name)}">
  <aside class="treasure-place">${treasureArt(kind)}
  <div class="treasure-name"><small>${heading}</small><h2>${esc(node.name)}</h2></div>
  <span class="treasure-energy" aria-label="Current Sparks: ${formatGlow(run.flame)} of ${formatGlow(getGlowCapacity(run))}">${resourceSymbol('energy')} <b>${formatGlow(run.flame)}<small> / ${formatGlow(getGlowCapacity(run))}</small></b></span></aside>

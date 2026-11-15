@@ -1,0 +1,81 @@
+// Local full-application measurement; no production files are instrumented on disk.
+// Prepare a frozen candidate: node scripts/actual-flight-performance.mjs --snapshot --prepare
+// Replay the matched normal app/HUD/music/FX flight without state polling:
+// node scripts/actual-flight-performance.mjs --builds=baseline,candidate --replay --seconds=12 --width=900 --height=405
+// Baseline archive: work/first-light-films/before/dist (public d46f95f).
+// --dpr=2.75 is a separate display-density sensitivity check, not a physical phone.
+import http from 'node:http';
+import {spawn} from 'node:child_process';
+import {mkdir,readFile,writeFile,cp} from 'node:fs/promises';
+import {resolve,extname,sep} from 'node:path';
+import {createHash} from 'node:crypto';
+const options=Object.fromEntries(process.argv.slice(2).map(a=>{const [k,...v]=a.replace(/^--/,'').split('=');return [k,v.join('=')||true]}));
+const work=resolve('work/actual-flight-performance'),baseline=resolve('work/first-light-films/before/dist'),candidate=resolve(work,String(options.candidate||'candidate'));
+await mkdir(work,{recursive:true});
+if(options.snapshot){await cp(resolve('dist'),candidate,{recursive:true,filter:p=>!p.includes(`${sep}assets${sep}previews`)});await writeFile(resolve(work,options.candidate?`${options.candidate}-snapshot.json`:'snapshot.json'),JSON.stringify({at:new Date().toISOString(),files:Object.fromEntries(await Promise.all(['app.mjs','flight.mjs','wisp-renderer.mjs','terrain-boundary.mjs','terrain-ecology.mjs','contact-edge-art.mjs'].map(async f=>[f,createHash('sha256').update(await readFile(resolve(candidate,f))).digest('hex')])) )},null,2));}
+if(options.prepare)process.exit(0);
+const {newState}=await import(new URL('../dist/model.mjs',import.meta.url));
+const synthetic=newState();synthetic.settings.skipTutorial=true;synthetic.profile.tutorialComplete=true;
+const init=`(() => {
+localStorage.clear();localStorage.setItem('wispbound.save.condensed.v7',${JSON.stringify(JSON.stringify(synthetic))});localStorage.setItem('orbix-next-expedition','actual-flight-newgame-20261115');
+performance.setResourceTimingBufferSize(4000);
+const p=window.__pagePerf={gaps:[],longTasks:[],errors:[],events:[]};
+let last=0;function raf(t){const phase=window.__actual?.phase?.()||'loading';if(last)p.gaps.push({at:t,gap:t-last,phase});last=t;requestAnimationFrame(raf)}requestAnimationFrame(raf);
+try{new PerformanceObserver(l=>{for(const e of l.getEntries())p.longTasks.push({at:e.startTime,duration:e.duration,phase:window.__actual?.phase?.()||'loading'})}).observe({type:'longtask',buffered:true})}catch{}
+addEventListener('error',e=>p.errors.push({at:performance.now(),message:e.message}));addEventListener('unhandledrejection',e=>p.errors.push({at:performance.now(),message:String(e.reason)}));
+document.addEventListener('visibilitychange',()=>p.events.push({at:performance.now(),kind:'visibility',hidden:document.hidden}));
+})()`;
+const bridge=`\n// Equivalent read-only benchmark bridge, appended to both builds by local server.
+const __m={hud:[],music:[],render:[],step:[],tick:[],events:[]};
+const __phase=()=>!engine?screen:engine.destroyed?'destroyed':engine.finished?'finished':engine.paused?'paused':engine.dying?'dying':engine.completing?'completing':'active';
+const __time=(name,fn,self,args)=>{const at=performance.now(),phase=__phase();try{return fn.apply(self,args)}finally{__m[name].push({at,ms:performance.now()-at,phase})}};
+const __update=updateFlight;updateFlight=function(...args){return __time('hud',__update,this,args)};
+const __music=music.setFlight;music.setFlight=function(...args){return __time('music',__music,this,args)};
+for(const name of ['render','step','tick']){const fn=WispFlight.prototype[name];WispFlight.prototype[name]=function(...args){return __time(name,fn,this,args)}}
+window.__actual={phase:__phase,metrics:__m,get engine(){return engine},get report(){return flightPerformance?.report()},get state(){return state},get music(){return {enabled:music.enabled,mode:music.mode,transport:music.getTransport()}},get snapshot(){return engine?{phase:__phase(),time:engine.time,distance:engine.distance,y:engine.player.y,vy:engine.player.vy,height:engine.height,width:engine.width,flame:engine.flame,seed:engine.seed,terrain:engine.terrain,level:engine.levelIdentity?.id,tutorial:!!engine.tutorial,boss:engine.bossEncounter,flaps:engine.flaps,renderer:engine.pixiView?.constructor?.name,buffer:engine.pixiView?.buffer?[engine.pixiView.buffer.width,engine.pixiView.buffer.height]:null,canvas:[engine.canvas.width,engine.canvas.height],near:engine.layout.obstacles.filter(o=>!o.destroyed&&o.x+o.width>engine.distance+engine.player.x-30&&o.x<engine.distance+engine.player.x+220).slice(0,4).map(o=>({x:o.x-engine.distance-engine.player.x,width:o.width,center:o.center,gap:o.gap,type:o.type,top:o.top,bottom:o.bottom,shape:o.shape}))}:{phase:screen}}};
+`;
+const mime={'.html':'text/html','.mjs':'text/javascript','.js':'text/javascript','.css':'text/css','.json':'application/json','.png':'image/png','.jpg':'image/jpeg','.webp':'image/webp','.svg':'image/svg+xml','.mp3':'audio/mpeg','.ttf':'font/ttf','.woff2':'font/woff2'};
+const server=http.createServer(async(req,res)=>{try{const url=new URL(req.url,'http://localhost'),[,build,...parts]=url.pathname.split('/'),base=build==='baseline'?baseline:build==='candidate'?candidate:null;if(!base)throw Error('Unknown build');const file=resolve(base,parts.join('/'));if(!file.startsWith(base+sep))throw Error('Bad path');let body=await readFile(file);if(parts.at(-1)==='app.mjs')body=Buffer.from(body.toString()+bridge);if(parts.at(-1)==='wisp-renderer.mjs'&&options.mode==='cpu-buffer')body=Buffer.from(body.toString().replace("this.buffer.getContext('2d', { alpha: false })","this.buffer.getContext('2d', { alpha: false, willReadFrequently: true })"));if(parts.at(-1)==='contact-edge-art.mjs'&&options.mode==='no-spectral')body=Buffer.from(body.toString().replace('if(!STYLES.has(style))return;',"if(style==='spectral'){(line||fallbackLine)(c,x,y,xx,yy,contactEdgeInk(style,palette),1);return;}if(!STYLES.has(style))return;"));const headers={'Content-Type':mime[extname(file)]||'application/octet-stream','Cache-Control':'no-store','Accept-Ranges':'bytes'};const range=/^bytes=(\d+)-(\d*)$/.exec(req.headers.range||'');if(range){const start=+range[1],end=range[2]?Math.min(+range[2],body.length-1):body.length-1;res.writeHead(206,{...headers,'Content-Range':`bytes ${start}-${end}/${body.length}`,'Content-Length':end-start+1});res.end(body.subarray(start,end+1));}else{res.writeHead(200,{...headers,'Content-Length':body.length});res.end(body)}}catch(e){res.writeHead(404);res.end(String(e))}});
+await new Promise(r=>server.listen(4191,'127.0.0.1',r));
+const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+const stats=values=>{const a=values.toSorted((a,b)=>a-b),p=f=>a[Math.min(a.length-1,Math.floor(a.length*f))]||0;return {count:a.length,mean:a.reduce((s,x)=>s+x,0)/Math.max(1,a.length),p50:p(.5),p95:p(.95),p99:p(.99),max:a.at(-1)||0,over50:a.filter(x=>x>50).length,over100:a.filter(x=>x>100).length}};
+const suite=[];
+try{
+ for(const build of String(options.builds||'baseline,candidate').split(',')){
+ const label=String(options.label||'actual'),port=9341;
+ const browser=spawn('C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe',[`--remote-debugging-port=${port}`,`--user-data-dir=${resolve(work,`edge-${label}-${build}-${Date.now()}`)}`,'--no-first-run','--no-default-browser-check','--disable-background-timer-throttling','--disable-renderer-backgrounding','--window-size=1360,850','about:blank'],{windowsHide:true,stdio:'ignore'});
+ let ws,cdp,call;
+ try{
+ let info;for(let i=0;i<100;i++){try{info=await(await fetch(`http://127.0.0.1:${port}/json/version`)).json();break}catch{await sleep(100)}}if(!info)throw Error('No Edge CDP');
+ ws=new WebSocket(info.webSocketDebuggerUrl);await new Promise(r=>ws.addEventListener('open',r,{once:true}));let id=0;const pending=new Map(),eventListeners=new Map();ws.onmessage=e=>{const d=JSON.parse(e.data);if(d.id){const p=pending.get(d.id);pending.delete(d.id);d.error?p.reject(Error(JSON.stringify(d.error))):p.resolve(d.result)}else eventListeners.get(d.method)?.(d.params)};cdp=(method,params={},sessionId)=>new Promise((resolve,reject)=>{const n=++id;pending.set(n,{resolve,reject});ws.send(JSON.stringify({id:n,method,params,...(sessionId?{sessionId}:{})}))});
+ const {targetId}=await cdp('Target.createTarget',{url:'about:blank'}),{sessionId}=await cdp('Target.attachToTarget',{targetId,flatten:true});call=(method,params={})=>cdp(method,params,sessionId);
+ await call('Page.enable');await call('Runtime.enable');await call('Network.enable');await call('Emulation.setDeviceMetricsOverride',{width:Number(options.width)||1280,height:Number(options.height)||720,deviceScaleFactor:Number(options.dpr)||1,mobile:false});await call('Page.addScriptToEvaluateOnNewDocument',{source:init});await call('Page.bringToFront');
+ const evaluate=async expression=>{const r=await call('Runtime.evaluate',{expression,returnByValue:true,awaitPromise:true});if(r.exceptionDetails)throw Error(r.exceptionDetails.text+' '+r.exceptionDetails.exception?.description);return r.result.value};
+ const wait=async(expression,timeout=20000)=>{const start=Date.now();while(Date.now()-start<timeout){const result=await evaluate(expression);if(result)return result;await sleep(100)}throw Error('Timeout '+expression+' '+await evaluate('document.body.innerText'))};
+ const click=async selector=>{const point=await evaluate(`(()=>{const e=document.querySelector(${JSON.stringify(selector)});if(!e)throw Error('Missing '+${JSON.stringify(selector)});e.scrollIntoView({block:'center'});const r=e.getBoundingClientRect();return {x:r.x+r.width/2,y:r.y+r.height/2}})()`);for(const type of ['mousePressed','mouseReleased'])await call('Input.dispatchMouseEvent',{type,...point,button:'left',clickCount:1});return point};
+ const nav=Date.now();await call('Page.navigate',{url:`http://127.0.0.1:4191/${build}/game.html?perf=1`});await wait('window.__actual&&document.querySelector("[data-action=play],[data-action=new-game]")');
+ const homeAt=await evaluate('performance.now()');const home=await evaluate('document.body.innerText');
+ await click('[data-action="new-game"],[data-action="play"]');await wait('document.querySelector("[data-action=new-gift]")');const gifts=await evaluate('[...document.querySelectorAll("[data-action=new-gift]")].map(e=>({id:e.dataset.id,text:e.innerText}))');await click('[data-action="new-gift"]');
+ await wait('document.querySelector("[data-route-state=next]")');const nodes=await evaluate('[...document.querySelectorAll("[data-route-state=next]")].map(e=>({id:e.dataset.id,label:e.getAttribute("aria-label")}))');
+ await click('[data-route-state="next"]');await wait('document.querySelector("[data-action=node]")');const launchAt=await evaluate('performance.now()');await click('[data-action="node"]');await wait('document.querySelector("[data-action=wake-flight]")',30000);const readyAt=await evaluate('performance.now()');const startSnapshot=await evaluate('window.__actual.snapshot');
+ if(options.mode==='native-output')await evaluate('(()=>{const v=window.__actual.engine.pixiView;v.canvas.width=v.buffer.width;v.canvas.height=v.buffer.height;v.canvas.style.imageRendering="pixelated";v.context.imageSmoothingEnabled=false;v.render(window.__actual.engine)})()');
+ if(options.mode==='layer')await evaluate('(()=>{const c=window.__actual.engine.pixiView.canvas;c.style.transform="translateZ(0)";c.style.willChange="transform"})()');
+ await writeFile(resolve(work,`${label}-${build}-entry.png`),Buffer.from((await call('Page.captureScreenshot',{format:'png'})).data,'base64'));
+ let traceDone;if(options.trace){traceDone=new Promise(r=>eventListeners.set('Tracing.tracingComplete',r));await cdp('Tracing.start',{transferMode:'ReturnAsStream',traceConfig:{recordMode:'recordContinuously',includedCategories:['devtools.timeline','disabled-by-default-devtools.timeline','cc','gpu','viz','renderer.scheduler']}});}
+ await click('[data-action="wake-flight"]');await wait('window.__actual.phase()==="active"');const begin=await evaluate('performance.now()');
+ const input=[],states=[];let lastFlap=-1000;const seconds=Number(options.seconds)||20;const until=Date.now()+seconds*1000;let liftPoint;
+ if(options.replay){const recorded=[1412.4,3165.1,4365,5789.8,6780.3,8208.6,9438.3,10751.9,12296.1,13713.1].map(at=>({at,action:'lift'})),liftPoint=await evaluate('(()=>{const r=document.querySelector("#flap-btn").getBoundingClientRect();return {x:r.x+r.width/2,y:r.y+r.height/2}})()'),wall=Date.now();for(const action of recorded){if(action.at>=seconds*1000)break;await sleep(Math.max(0,wall+action.at-Date.now()));for(const type of ['mousePressed','mouseReleased'])await call('Input.dispatchMouseEvent',{type,...liftPoint,button:'left',clickCount:1});input.push(action);}await sleep(Math.max(0,until-Date.now()));}
+ else while(Date.now()<until){const s=await evaluate('window.__actual.snapshot');const at=await evaluate('performance.now()');states.push({at,...s});if(s.phase!=='active')break;
+ // Human-input automation: tap the normal Lift surface to hold a simple safe lane.
+ const next=s.near?.find(o=>Number.isFinite(o.center)&&o.x<160&&o.x+o.width>0),target=next?.center||s.height*.54;
+ if(s.y>target&&s.vy>0&&at-lastFlap>350){liftPoint=liftPoint||await evaluate('(()=>{const r=document.querySelector("#flap-btn").getBoundingClientRect();return {x:r.x+r.width/2,y:r.y+r.height/2}})()');for(const type of ['mousePressed','mouseReleased'])await call('Input.dispatchMouseEvent',{type,...liftPoint,button:'left',clickCount:1});input.push({at:at-begin,action:'lift',y:s.y,target});lastFlap=at;}await sleep(100);
+ }
+ const end=await evaluate('performance.now()');const result=await evaluate('({metrics:window.__actual.metrics,page:window.__pagePerf,report:window.__actual.report,end:window.__actual.snapshot,music:window.__actual.music,hidden:document.hidden,navigation:performance.getEntriesByType("navigation").map(e=>e.toJSON()),resources:performance.getEntriesByType("resource").map(e=>({name:e.name,duration:e.duration,transferSize:e.transferSize,initiatorType:e.initiatorType})),serviceWorker:!!navigator.serviceWorker?.controller,userAgent:navigator.userAgent,dpr:devicePixelRatio,width:innerWidth,height:innerHeight,hardwareConcurrency:navigator.hardwareConcurrency})');
+ if(options.trace){await cdp('Tracing.end');const {stream}=await traceDone;let data='';for(;;){const chunk=await cdp('IO.read',{handle:stream});data+=chunk.base64Encoded?Buffer.from(chunk.data,'base64').toString():chunk.data;if(chunk.eof)break;}await cdp('IO.close',{handle:stream});await writeFile(resolve(work,`${label}-${build}-trace.json`),data);}
+ const active=result.page.gaps.filter(x=>x.at>=begin&&x.at<=end&&x.phase==='active').map(x=>x.gap);const measurements=Object.fromEntries(Object.entries(result.metrics).filter(([,v])=>Array.isArray(v)&&v[0]?.ms!==undefined).map(([k,v])=>[k,stats(v.filter(x=>x.at>=begin&&x.at<=end&&x.phase==='active').map(x=>x.ms))]));
+ const summary={build,label,mode:options.mode||'full',replay:!!options.replay,width:result.width,height:result.height,dpr:result.dpr,wallMs:end-begin,homeReadyMs:homeAt,flightEntryMs:readyAt-launchAt,initial:startSnapshot,end:result.end,music:result.music,rafGapMs:stats(active),cpuMs:measurements,diagnostic:result.report,longTasks:result.page.longTasks,errors:result.page.errors,hidden:result.hidden,inputCount:input.length,system:await cdp('SystemInfo.getInfo')};
+ await writeFile(resolve(work,`${label}-${build}.json`),JSON.stringify({summary,home,gifts,nodes,input,states,begin,endAt:end,nav,...result},null,2));await writeFile(resolve(work,`${label}-${build}-end.png`),Buffer.from((await call('Page.captureScreenshot',{format:'png'})).data,'base64'));suite.push(summary);console.log(JSON.stringify({...summary,system:undefined,diagnostic:summary.diagnostic?{rafGapMs:summary.diagnostic.rafGapMs,renderGapMs:summary.diagnostic.renderGapMs,tickCpuMs:summary.diagnostic.tickCpuMs}:null}));
+ }finally{await cdp?.('Browser.close').catch(()=>{});ws?.close();browser.unref();await sleep(750)}
+ }
+ await writeFile(resolve(work,`${String(options.label||'actual')}-suite.json`),JSON.stringify(suite,null,2));
+}finally{server.close()}

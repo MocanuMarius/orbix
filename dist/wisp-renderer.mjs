@@ -1,37 +1,41 @@
-import {prepareEnvironmentArt,prepareNearLandscape,prepareCourseArt,drawCourseArt,drawNearLandscape,drawTerrainForeground} from './authored-environment.mjs?v=biome-spirit-1';
-import {drawTerrainEcology,drawHabitatBackdrop} from './terrain-ecology.mjs?v=biome-spirit-1';
-import {drawTerrainBoundary,terrainBoundary} from './terrain-boundary.mjs?v=biome-spirit-1';
-import {paintContactEdge,isContactEdgeStyle,contactEdgeInk} from './contact-edge-art.mjs?v=biome-spirit-1';
-import {getContactEdgePalette} from './contact-edge-palettes.mjs?v=biome-spirit-1';
-import {drawAtlasFlight} from './atlas-flight.mjs?v=biome-spirit-1';
-import {drawGuardianPresence} from './guardian-presence.mjs?v=biome-spirit-1';
-import { drawGuardianWarnings } from './guardian-art.mjs?v=biome-spirit-1';
-import { drawShutters } from './shutter-cone.mjs?v=biome-spirit-1';
-import {drawProximityMeter} from './proximity-meter.mjs?v=biome-spirit-1';
-import {drawFourthBeat} from './fourth-beat-art.mjs?v=biome-spirit-1';
-import {drawCollectorField} from './collector-field-art.mjs?v=biome-spirit-1';
-import {drawObjectiveMarks} from './flight-objectives.mjs?v=biome-spirit-1';
-import {drawFlightProjection} from './flight-projection.mjs?v=biome-spirit-1';
-import {drawGlowSense} from './glow-sense.mjs?v=biome-spirit-1';
-import {formatGlow} from './vitality.mjs?v=biome-spirit-1';
-import {LOCATION_PALETTES} from './world-expansion.mjs?v=biome-spirit-1';
-import {biomePalette} from './biome-art.mjs?v=biome-spirit-1';
-import { sceneryIdentity, drawIdentityBackground, drawIdentityMaterial, drawIdentityLife } from './level-scenery.mjs?v=biome-spirit-1';
-import { getCompanionAbility, normalizeCompanionRole } from './companion-abilities.mjs?v=biome-spirit-1';
-import { companionPalette, makeCompanionSprite, makeWispSprite } from './companion-art.mjs?v=biome-spirit-1';
-import { createScenePropArt } from './scene-prop-art.mjs?v=biome-spirit-1';
-import { drawBoss } from './boss.mjs?v=biome-spirit-1';
-import {drawFlashTether} from './flash-tether.mjs?v=biome-spirit-1';
-import { drawPickup, drawSparkSymbol } from './pickup-art.mjs?v=biome-spirit-1';
-import {sparkBodyRadius,sparkArtScale,sparkMass} from './spark-size.mjs?v=biome-spirit-1';
-import { pickupKind, getPickupSpec } from './pickups.mjs?v=biome-spirit-1';
-import { LIGHT_EXTENT,lightAttenuation,lightVisibility,createLightMaskCanvas,castFlightFlashLights,revealLanternWake,sceneRevealStrength,renderLightState,lightDreamScenery } from './light-field.mjs?v=biome-spirit-1';
-import {drawExitLandmark} from './exit-landmark.mjs?v=biome-spirit-1';
-import {drawBlackHoles} from './black-hole-art.mjs?v=biome-spirit-1';
-import {drawCapture, drawShellPuff, drawCarriedSpark} from './capture-art.mjs?v=biome-spirit-1';
-import {drawShellArcs} from './shell-arcs.mjs?v=biome-spirit-1';
-import {drawFlightForks,drawFlightForkBackdrops} from './flight-forks.mjs?v=biome-spirit-1';
-import {drawFallWarning} from './fall-chain-art.mjs?v=biome-spirit-1';
+import {prepareEnvironmentArt,prepareNearLandscape,prepareCourseArt,drawCourseArt,drawNearLandscape,drawTerrainForeground,releaseTerrainForeground} from './authored-environment.mjs?v=first-light-1';
+import {drawTerrainEcology,drawHabitatBackdrop} from './terrain-ecology.mjs?v=first-light-1';
+import {drawTerrainBoundary,terrainBoundary,beginTerrainBoundaryFrame,endTerrainBoundaryFrame,releaseTerrainBoundaryFrame} from './terrain-boundary.mjs?v=first-light-1';
+import {spacetimeBaseShape,drawSpacetimeTerrain} from './spacetime.mjs?v=first-light-1';
+import {paintContactEdge,isContactEdgeStyle,contactEdgeInk} from './contact-edge-art.mjs?v=first-light-1';
+import {ContactEdgeRaster} from './contact-edge-raster.mjs?v=first-light-1';
+import {getContactEdgePalette} from './contact-edge-palettes.mjs?v=first-light-1';
+import {drawAtlasFlight} from './atlas-flight.mjs?v=first-light-1';
+import {drawGuardianPresence} from './guardian-presence.mjs?v=first-light-1';
+import { drawGuardianWarnings } from './guardian-art.mjs?v=first-light-1';
+import { drawShutters } from './shutter-cone.mjs?v=first-light-1';
+import {drawProximityMeter} from './proximity-meter.mjs?v=first-light-1';
+import {drawFourthBeat} from './fourth-beat-art.mjs?v=first-light-1';
+import {drawCollectorField} from './collector-field-art.mjs?v=first-light-1';
+import {drawObjectiveMarks} from './flight-objectives.mjs?v=first-light-1';
+import {drawFlightProjection} from './flight-projection.mjs?v=first-light-1';
+import {drawGlowSense} from './glow-sense.mjs?v=first-light-1';
+import {drawLastGlimmer} from './last-glimmer.mjs?v=first-light-1';
+import {formatGlow} from './vitality.mjs?v=first-light-1';
+import {LOCATION_PALETTES} from './world-expansion.mjs?v=first-light-1';
+import {biomePalette} from './biome-art.mjs?v=first-light-1';
+import { sceneryIdentity, drawIdentityBackground, drawIdentityMaterial, drawIdentityLife } from './level-scenery.mjs?v=first-light-1';
+import { getCompanionAbility, normalizeCompanionRole } from './companion-abilities.mjs?v=first-light-1';
+import { companionPalette, makeCompanionSprite, makeWispSprite } from './companion-art.mjs?v=first-light-1';
+import { createScenePropArt } from './scene-prop-art.mjs?v=first-light-1';
+import { drawBoss } from './boss.mjs?v=first-light-1';
+import {drawFlashTether} from './flash-tether.mjs?v=first-light-1';
+import { drawPickup, drawSparkSymbol } from './pickup-art.mjs?v=first-light-1';
+import {sparkBodyRadius,sparkArtScale,sparkMass} from './spark-size.mjs?v=first-light-1';
+import { pickupKind, getPickupSpec } from './pickups.mjs?v=first-light-1';
+import { LIGHT_EXTENT,lightAttenuation,lightVisibility,createLightMaskCanvas,castFlightFlashLights,revealLanternWake,sceneRevealStrength,renderLightState,lightDreamScenery } from './light-field.mjs?v=first-light-1';
+import {drawExitLandmark} from './exit-landmark.mjs?v=first-light-1';
+import {drawBlackHoles} from './black-hole-art.mjs?v=first-light-1';
+import {drawCapture, drawShellPuff, drawCarriedSpark} from './capture-art.mjs?v=first-light-1';
+import {drawShellArcs} from './shell-arcs.mjs?v=first-light-1';
+import {drawFlightForks,drawFlightForkBackdrops} from './flight-forks.mjs?v=first-light-1';
+import {drawFallWarning} from './fall-chain-art.mjs?v=first-light-1';
+import {castTerrainLight,releaseTerrainLight,prepareTerrainLight} from './terrain-light.mjs?v=first-light-1';
 
 const TAU = Math.PI * 2;
 const propContactCache=new WeakMap();
@@ -238,6 +242,7 @@ export class WispFlightView {
       this.fogContext = this.fog.getContext('2d');
       if (!this.context || !this.bufferContext || !this.fogContext) throw Error('Canvas 2D is unavailable.');
       this.document = document;
+      prepareTerrainLight();
       await prepareEnvironmentArt(document);
       if(this.destroyed||e.destroyed)return false;
       prepareCourseArt(document,e);
@@ -561,9 +566,10 @@ export class WispFlightView {
       for (const top of SIDES) {
         const shape = top ? obstacle.topShape : obstacle.bottomShape;
         if (!shape?.length) continue;
-        const item = this.terrainImage(e, obstacle, shape, top, palette);
-        c.drawImage(item.canvas, Math.round((obstacle.x + item.x) * s) - Math.round(distance * s) - item.pad,
-          Math.round((center + (top ? -1 : 1) * obstacle.gap / 2 + item.y) * s) - item.pad);
+        const item = this.terrainImage(e, obstacle, spacetimeBaseShape(shape), top, palette);
+        const x=Math.round((obstacle.x + item.x) * s) - Math.round(distance * s) - item.pad,
+          y=Math.round((center + (top ? -1 : 1) * obstacle.gap / 2 + item.y) * s) - item.pad;
+        if(!shape.spacetime||!drawSpacetimeTerrain(c,item,shape,{scale:s,x,y,path,fill:palette.stone}))c.drawImage(item.canvas,x,y);
       }
     }
   }
@@ -688,7 +694,7 @@ export class WispFlightView {
         const shape = top ? obstacle.topShape : obstacle.bottomShape;
         if (!shape?.length) continue;
         const key = `${identity.id}:${obstacle.sectionId || ''}:${obstacle.id}:${top ? 'top' : 'floor'}:${this.buffer.height}`;
-        if (!this.terrainCache.has(key)) { this.terrainImage(e, obstacle, shape, top, palette); return; }
+        if (!this.terrainCache.has(key)) { this.terrainImage(e, obstacle, spacetimeBaseShape(shape), top, palette); return; }
       }
       const center = obstacle.center + Math.sin(timeOf(e) * .9 + obstacle.phase) * obstacle.motion;
       for (const prop of obstacle.sceneProps || []) {
@@ -777,29 +783,24 @@ export class WispFlightView {
     f.setTransform(1, 0, 0, 1, 0, 0); f.globalCompositeOperation = 'source-over'; f.globalAlpha = 1;
     f.clearRect(0, 0, W, H); f.fillStyle = '#000000'; f.fillRect(0, 0, W, H);
     f.globalCompositeOperation = 'destination-out';
-    const mask = this.lightMask(), radius = this.lightRadius * s * LIGHT_EXTENT;
-    f.globalAlpha = this.lightIntensity;
+    const mask = this.lightMask();
     // Baseline light is circular. Forward scouting is earned through skills,
     // the Flash Powerup and artifacts.
-    f.drawImage(mask,playerX-radius,playerY-radius,radius*2,radius*2);
+    castTerrainLight(f,mask,e,{x:playerX/s,y:playerY/s,radius:this.lightRadius,alpha:this.lightIntensity,scale:s,channel:'main'});
     const forward = light.forwardLight || e.forwardLight;
     if (forward?.active && forward.radius > 0) {
-      const fr = forward.radius * s * LIGHT_EXTENT;
-      const fx = (Number.isFinite(forward.screenX) ? forward.screenX : forward.x) * s;
-      const fy = (forward.y+yOf(e)-e.player.y) * s;
-      f.globalAlpha = clamp((forward.intensity ?? 1) * this.lightIntensity, 0, 1);
-      f.drawImage(mask, fx - fr, fy - fr, fr * 2, fr * 2);
+      castTerrainLight(f,mask,e,{x:Number.isFinite(forward.screenX)?forward.screenX:forward.x,y:forward.y+yOf(e)-e.player.y,
+        radius:forward.radius,alpha:clamp((forward.intensity??1)*this.lightIntensity,0,1),scale:s,channel:'forward'});
     }
-    if(light.landmarkLight){const lamp=light.landmarkLight,r=lamp.radius*s*LIGHT_EXTENT;
-      f.globalAlpha=lamp.intensity;f.drawImage(mask,lamp.x*s-r,lamp.y*s-r,r*2,r*2);}
+    if(light.landmarkLight){const lamp=light.landmarkLight;
+      castTerrainLight(f,mask,e,{x:lamp.x,y:lamp.y,radius:lamp.radius,alpha:lamp.intensity,scale:s,channel:'landmark'});}
     castFlightFlashLights(f,mask,e,light,s,distanceOf(e),yOf(e));
     revealLanternWake(f,e,{distance:distanceOf(e),playerY:yOf(e),scale:s,light});
     for (let i = 0; i < fleet.length && i < 3; i++) {
       const orb = fleet[i], collecting = orb.role === 'collector';
       const recovery = clamp(orb.recovery ?? 1, 0, 1);
-      const r = (collecting ? orb.phase === 'cooldown' ? 17 + recovery * 10 : 31 : 19) * s * this.lightDimScale * LIGHT_EXTENT;
-      f.globalAlpha = this.lightIntensity * (collecting ? .82 : .45);
-      f.drawImage(mask, orb.x * s - r, orb.y * s - r, r * 2, r * 2);
+      const r = (collecting ? orb.phase === 'cooldown' ? 17 + recovery * 10 : 31 : 19) * this.lightDimScale;
+      castTerrainLight(f,mask,e,{x:orb.x,y:orb.y,radius:r,alpha:this.lightIntensity*(collecting?.82:.45),scale:s,channel:`fleet${i}`});
     }
     f.globalAlpha = 1; f.globalCompositeOperation = 'source-over';
     const reveal=e.completionProgress||0;
@@ -1094,6 +1095,8 @@ export class WispFlightView {
     const c = this.bufferContext, t = timeOf(e), distance = distanceOf(e), s = this.scale;
     const identity = this.identity, palette = this.palette;
     const rehearsing = e.dream?.mode === 'record';
+    beginTerrainBoundaryFrame(e,t,distance);
+    try {
     if (this.canvas.dataset.levelIdentity !== identity.id) this.canvas.dataset.levelIdentity = identity.id;
     c.setTransform(1, 0, 0, 1, 0, 0); c.globalAlpha = 1; c.globalCompositeOperation = 'source-over';
     this.updateVisible(e, distance);
@@ -1114,9 +1117,17 @@ export class WispFlightView {
     boss.pass = 'hands'; drawBoss(c, boss);
     this.drawSceneProps(e, t, distance);
     drawTerrainEcology(c,e,{scale:s,distance,time:t});
-    drawTerrainForeground(c,e,{scale:s,distance});
-    drawTerrainBoundary(c,e,{scale:s,distance,time:t,line:pixelLine});
-    this.drawScenePropContacts(e,t,distance);
+    if(e.boundaryStyle==='spectral'&&this.edgeRasterEnabled!==false){
+      const edge=this.contactEdgeRaster??=new ContactEdgeRaster(this.document);
+      edge.begin(this.buffer.width,this.buffer.height);
+      drawTerrainBoundary(edge,e,{scale:s,distance,time:t,line:pixelLine});
+      this.bufferContext=edge;
+      try { this.drawScenePropContacts(e,t,distance); } finally { this.bufferContext=c; }
+      edge.composite(c);
+    }else{
+      drawTerrainBoundary(c,e,{scale:s,distance,time:t,line:pixelLine});
+      this.drawScenePropContacts(e,t,distance);
+    }
     e.biomeDynamics?.draw(c,{distance,scale:s,height:this.buffer.height});
     this.drawPortal(e,t);
     if (rehearsing) lightDreamScenery(c,this.buffer.width,this.buffer.height);
@@ -1136,6 +1147,7 @@ export class WispFlightView {
     const playerX = e.player.x * s, playerY = yOf(e) * s;
     e.luminanceWaves?.draw(c,{distance,scale:s,time:t});
     this.lightFog(e, fleet, playerX, playerY);
+    drawTerrainForeground(c,e,{scale:s,distance});
     drawFallWarning(c,e,{distance,scale:s,light:this.currentLightState});
     e.drawWayfinder?.(c,s);
     drawGuardianWarnings(c,{engine:e,distance,scale:s,time:t});
@@ -1144,6 +1156,7 @@ export class WispFlightView {
     drawObjectiveMarks(c,e,{scale:s,distance});
     drawFlightProjection(c,e,{scale:s,distance,playerY:yOf(e)});
     if (!rehearsing) drawGlowSense(c,e,{scale:s,distance,playerY:yOf(e),light:this.currentLightState});
+    if (!rehearsing) drawLastGlimmer(c,e,{scale:s,distance,playerY:yOf(e),light:this.currentLightState,time:t});
     drawCollectorField(c,e,{distance,scale:s,playerY:yOf(e),time:t});
     let collector = null;
     for (let i = 0; i < fleet.length; i++) if (fleet[i].role === 'collector') { collector = fleet[i]; break; }
@@ -1173,15 +1186,23 @@ export class WispFlightView {
     c.globalAlpha = 1;
     if (e.flash > 0) { c.globalAlpha = Math.min(.2, e.flash * 1.3); c.fillStyle = '#dbc2a1'; c.fillRect(0, 0, this.buffer.width, this.buffer.height); c.globalAlpha = 1; }
     if(e.completing){c.save();c.globalCompositeOperation='screen';const p=e.completionProgress||0;c.globalAlpha=.11*p*p*(3-2*p)+Math.sin(Math.PI*p)*.02;c.fillStyle='#efd4a0';c.fillRect(0,0,this.buffer.width,this.buffer.height);c.restore();}
+    // Full-scene Flash and exit washes never turn the nearest cut-paper plane
+    // into lit material. Redraw only on these brief wash frames.
+    if(e.flash>0||e.completing)drawTerrainForeground(c,e,{scale:s,distance});
     if (!rehearsing) drawProximityMeter(c,e,{scale:s});
     this.context.imageSmoothingEnabled = false;
     this.context.drawImage(this.buffer, 0, 0, this.canvas.width, this.canvas.height);
     if (!this.backgroundRepainted) this.prewarmSurfaces(e, distance);
+    } finally { endTerrainBoundaryFrame(e); }
   }
 
   destroy() {
     if (this.destroyed) return;
     this.destroyed = true; this.ready = false;
+    releaseTerrainLight(this.engine);
+    releaseTerrainBoundaryFrame(this.engine);
+    releaseTerrainForeground(this.engine);
+    this.contactEdgeRaster?.destroy();this.contactEdgeRaster=null;
     if (this.engine.canvas.style) this.engine.canvas.style.opacity = this.originalOpacity;
     this.canvas?.remove();
     for (const item of this.terrainCache.values()) { item.canvas.width = 1; item.canvas.height = 1; }

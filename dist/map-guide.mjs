@@ -1,6 +1,6 @@
-import {getFlightClearReward} from './checkpoint-rewards.mjs?v=biome-spirit-1';
-import {landmarkArt,landmarkCategory,guardianNames} from './map-landmarks.mjs?v=biome-spirit-1';
-import {glowText} from './vitality.mjs?v=biome-spirit-1';
+import {getFlightClearReward} from './checkpoint-rewards.mjs?v=first-light-1';
+import {landmarkArt,landmarkCategory,guardianNames} from './map-landmarks.mjs?v=first-light-1';
+import {glowText} from './vitality.mjs?v=first-light-1';
 const stop=(kind,label,name,summary)=>Object.freeze({kind,label,name,summary,icon:kind});
 export const MAP_STOP_TYPES=Object.freeze({
 flight:stop('flight','FLIGHT','Flight','Flight length sets its Stored Sparks reward; overflow adds a bonus. Ordinary flights do not drop artifacts.'),
@@ -40,6 +40,8 @@ function kindOf(value){
 }
 export function getMapStopInfo(node={},maxGlow=100){
  const kind=kindOf(node),base=MAP_STOP_TYPES[kind],elite=node.elite===true||node.kind==='elite';
+ if(node.practiceLoan)return {...base,name:node.name,summary:'Borrow Proximity rank 1 for a revealing Surface Pulse. The loan stays in practice.',detail:'One practice loan. Your campaign build stays safe.',eventIndex:null,scenarioId:null};
+ if(node.tutorialLesson==='guardian')return {...base,label:'GUARDIAN',name:'Hollow Warden',summary:'Read the warned stone hands. A wide opening and unlimited retries teach the guardian.',detail:'Reach the waylight to finish First Light. Practice resources stay here.',eventIndex:null,scenarioId:null};
  const event=kind==='encounter'&&node.kind!=='shrine'&&Number.isInteger(node.eventIndex)?getEventScenarios({...node,maxGlow})[node.eventIndex]:null;
  const exit=kind==='flight'&&(node.type==='finale'||node.kind==='finale'),guardian=guardianNames[node.bossId]||node.name||'Guardian';
  if(kind==='treasure')return {...base,name:node.name||base.name,summary:node.rewardPreview||base.summary,detail:node.description||base.summary,eventIndex:null,scenarioId:null};

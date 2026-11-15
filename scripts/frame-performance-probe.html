@@ -1,0 +1,56 @@
+<!doctype html><html><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Wispbound frame benchmark</title><style>body{margin:0;background:#071015;color:#dbebdd;font:14px system-ui}.scene{position:relative;width:900px;height:405px}.scene canvas{position:absolute;inset:0;width:100%;height:100%}#status{padding:10px}</style><div id="scene" class="scene"><canvas id="flight"></canvas></div><div id="status">Loading production renderer…</div><script type="module">
+const query=new URLSearchParams(location.search),variant=query.get('build')||'optimized',scenario=query.get('scene')||'ordinary',mode=query.get('mode')||'full',seconds=Number(query.get('seconds'))||12,warmup=Number(query.get('warmup'))||3,pace=query.get('pace')||'60',detail=query.get('detail')!=='0';
+const {WispFlight}=await import(`/${variant}/flight.mjs`),{BIOME_LEVELS}=await import(`/${variant}/biomes.mjs`);
+const cases={ordinary:{biome:'moonruins',variant:0,row:3,difficulty:2,mapIndex:1},dense:{biome:'pinewood',variant:2,row:7,difficulty:4,mapIndex:2,elite:true,passage:'gauntlet'},guardian:{biome:'basalt',variant:1,row:8,difficulty:3,mapIndex:2,boss:true}};
+const scene=cases[scenario];if(!scene)throw Error('Unknown scene');
+const node={...BIOME_LEVELS.find(l=>l.biomeId===scene.biome&&l.variant===scene.variant),...scene,id:'frame-benchmark',type:scene.boss?'boss':'flight',duration:90};
+const calls={},cpu={},frames=[],renderGaps=[],renderTimes=[],coldRenders=[],skillTimes=[],longTasks=[],errors=[];
+const skimming=mode==='spacetime-on'||mode==='spacetime-off';let deformedFrames=0;
+globalThis.__perfCall=(name,fn,args)=>{if(mode==='no-edges'&&name==='paintContactEdge')return;if(mode==='full-boundary'&&name==='beginTerrainBoundaryFrame')return;if(mode==='no-boundary-draw'&&name==='drawTerrainBoundary')return;if(mode==='no-material-light'&&name==='castTerrainLight'){const [c,mask,,o]=args,r=o.radius*3*o.scale,old=c.globalAlpha;c.globalAlpha=o.alpha;c.drawImage(mask,o.x*o.scale-r,o.y*o.scale-r,2*r,2*r);c.globalAlpha=old;return;}if(!detail)return fn(...args);
+ const t=performance.now();try{return fn(...args)}finally{if(active){(cpu[name]??=[]).push(performance.now()-t);calls[name]=(calls[name]||0)+1;}}};
+let active=false;
+window.addEventListener('error',e=>errors.push(e.message));window.addEventListener('unhandledrejection',e=>errors.push(String(e.reason)));
+let observer;try{observer=new PerformanceObserver(list=>{if(active)for(const e of list.getEntries())longTasks.push(e.duration)});observer.observe({type:'longtask'});}catch{}
+const setupStart=performance.now(),e=window.engine=new WispFlight({canvas:document.querySelector('#flight'),terrain:node.terrain,node,elite:!!node.elite,seed:`frame-probe-${scenario}`,duration:90,flame:30,companions:['collector'],boundaryStyle:'spectral',modifiers:{lightRadius:190,spacetime:mode==='spacetime-on'}});
+e.setMuted(true);e.paused=true;await e.ready;await e.environmentArtReady;
+if(!e.pixiReady||e.pixiView.constructor.name!=='WispFlightView')throw Error('Production view unavailable: '+e.rendererError);
+const readyMs=performance.now()-setupStart;
+if(mode==='native-edges')e.pixiView.edgeRasterEnabled=false;
+const pixelComparisons=[];
+const qaOrigin=(e.layout.obstacles.find(o=>o.sceneProps?.length&&o.x>800)?.x||1820)-220;
+if(mode==='raster-qa')for(const t of [0,.5,2.9,5.1]){
+ e.time=t;e.distance=e.previousDistance=qaOrigin+t*154;e.player.y=e.previousPlayerY=e.height*.65;e.accumulator=0;
+ e.pixiView.edgeRasterEnabled=false;e.render();const a=e.pixiView.bufferContext.getImageData(0,0,e.pixiView.buffer.width,e.pixiView.buffer.height).data;
+ e.pixiView.edgeRasterEnabled=true;e.render();const b=e.pixiView.bufferContext.getImageData(0,0,e.pixiView.buffer.width,e.pixiView.buffer.height).data;
+ let pixels=0,total=0,max=0,over3=0;for(let i=0;i<a.length;i+=4){let error=0;for(let k=0;k<3;k++){const d=Math.abs(a[i+k]-b[i+k]);max=Math.max(max,d);error=Math.max(error,d);total+=d;}if(error)pixels++;if(error>3)over3++;}pixelComparisons.push({t,pixels,over3,max,meanChannelError:total/(a.length/4*3)});
+}
+if(detail)for(const name of ['drawSky','drawTerrain','drawSceneProps','drawScenePropContacts','lightFog','drawCollectibles','prewarmSurfaces','drawFleet','drawMain']){const fn=e.pixiView[name];e.pixiView[name]=function(...args){const t=performance.now();try{return fn.apply(this,args)}finally{if(active)(cpu[name]??=[]).push(performance.now()-t)}};}
+// Render a repeatable normal-speed slice of real generated geometry. Moving
+// colliders, animated edges, companion drift, light masks and camera change every
+// frame. Survival termination is bypassed; this isolates renderer attribution.
+const candidates=e.layout.obstacles.filter(o=>!o.destroyed&&o.x>800&&o.x<e.totalDistance*.6);
+const start=scene.boss?Math.max(800,(e.layout.boss?.x||1800)-500):(candidates.find(o=>o.sceneProps?.length)||candidates[0])?.x-220||900;
+const speed=e.baseSpeed||154;
+const bankProfiles=skimming?e.layout.obstacles.filter(o=>o.bottomShape?.length).map(o=>({x:o.x,anchor:o.center+o.gap/2,points:o.bottomShape.slice(2).toReversed()})):[];
+const skimY=x=>{let floor=Infinity;for(const p of bankProfiles){const local=x-p.x;if(local<p.points[0][0]||local>p.points.at(-1)[0])continue;for(let i=1;i<p.points.length;i++){const a=p.points[i-1],b=p.points[i];if(local>=a[0]&&local<=b[0]){floor=Math.min(floor,p.anchor+a[1]+(b[1]-a[1])*(local-a[0])/(b[0]-a[0]||1));break;}}}return Number.isFinite(floor)?Math.max(28,Math.min(e.height-28,floor-e.player.radius-12)):e.height*.5;};
+const stats=values=>{const a=values.toSorted((a,b)=>a-b),p=f=>a[Math.min(a.length-1,Math.floor(a.length*f))]||0;return{count:a.length,mean:a.reduce((s,x)=>s+x,0)/Math.max(1,a.length),p50:p(.5),p95:p(.95),p99:p(.99),max:a.at(-1)||0,over16_7:a.filter(x=>x>16.7).length,over25:a.filter(x=>x>25).length,over50:a.filter(x=>x>50).length,over100:a.filter(x=>x>100).length};};
+const getGPU=()=>{try{const gl=document.createElement('canvas').getContext('webgl'),d=gl.getExtension('WEBGL_debug_renderer_info');return{vendor:gl.getParameter(d.UNMASKED_VENDOR_WEBGL),renderer:gl.getParameter(d.UNMASKED_RENDERER_WEBGL)}}catch{return null}};
+let previous=0,previousTick=0,previousRender=0,born=0,activeBorn=0,rendered=0,skillAccumulator=0;
+document.querySelector('#status').textContent=`${variant} · ${scenario} · ${mode} · warming…`;
+await new Promise(resolve=>{const tick=timestamp=>{
+ if(!born)born=timestamp;const elapsed=(timestamp-born)/1000;
+ if(elapsed>=warmup&&!active){active=true;activeBorn=timestamp;previous=0;}
+ if(active&&previous)frames.push(timestamp-previous);previous=timestamp;
+ const t=elapsed;e.time=t;e.distance=e.previousDistance=start+elapsed*speed;e.player.y=e.previousPlayerY=e.height*(.5+.22*Math.sin(elapsed*.87));e.player.vy=e.height*.22*.87*Math.cos(elapsed*.87);e.accumulator=0;e.lastFlapTime=t-(Math.cos(t*2)>0?.12:.7);
+ if(skimming){e.player.y=e.previousPlayerY=skimY(e.distance+e.player.x);e.pixiView.updateVisible(e,e.distance);const t0=performance.now();skillAccumulator+=previousTick?Math.min(.1,(timestamp-previousTick)/1000):1/60;while(skillAccumulator>=1/60){e.spacetime?.update(1/60,e.pixiView.visibleObstacles);skillAccumulator-=1/60;}if(active){skillTimes.push(performance.now()-t0);if(e.spacetime?.changed?.size)deformedFrames++;}}previousTick=timestamp;
+ const t0=performance.now(),painted=pace==='all'?(e.render(),true):e.renderScheduledFrame(timestamp),duration=performance.now()-t0;if(painted){if(active){renderTimes.push(duration);rendered++;if(previousRender)renderGaps.push(timestamp-previousRender);previousRender=timestamp;}else coldRenders.push(duration);}
+ if(active&&(timestamp-activeBorn)/1000>=seconds){window.result={schema:1,variant,scenario,mode,pace,detail,seconds:(timestamp-activeBorn)/1000,renderer:e.pixiView.constructor.name,viewport:[e.width,e.height],buffer:[e.pixiView.buffer.width,e.pixiView.buffer.height],canvas:[e.pixiView.canvas.width,e.pixiView.canvas.height],dpr:devicePixelRatio,userAgent:navigator.userAgent,hardwareConcurrency:navigator.hardwareConcurrency,gpu:getGPU(),hidden:document.hidden,seed:e.seed,start,speed,obstacles:e.layout.obstacles.length,visible:e.pixiView.visibleObstacles.length,animated:e.layout.obstacles.filter(o=>o.motion).length,props:e.layout.obstacles.reduce((n,o)=>n+(o.sceneProps?.length||0),0),rendered,fps:(rendered-1)*1000/(timestamp-activeBorn),rafGapMs:stats(frames),renderGapMs:stats(renderGaps),renderCpuMs:stats(renderTimes),coldRenderCpuMs:stats(coldRenders),calls,cpu:Object.fromEntries(Object.entries(cpu).map(([name,a])=>[name,stats(a)])),longTasks,errors,notes:'Real-time RAF render fixture; pace60 uses production renderScheduledFrame; paceAll renders each RAF. Engine simulation and full application HUD excluded. CPU timers are inclusive/nested and omit deferred browser raster/compositor work.'};active=false;observer?.disconnect();document.querySelector('#status').textContent=JSON.stringify({fps:result.fps,frame:result.rafGapMs,render:result.renderCpuMs});resolve();return;}
+ requestAnimationFrame(tick);
+ };requestAnimationFrame(tick);});
+window.result.readyMs=readyMs;
+window.result.pixelComparisons=pixelComparisons;
+window.result.spacetimeCpuMs=stats(skillTimes);window.result.spacetimeDeformedFrames=deformedFrames;
+window.result.notes+=' coldRenderCpuMs covers the traversal warmup only; readyMs separately includes level construction, asset loading and initial renderer preparation.';
+await fetch('/result?name='+[query.get('label')||'probe',variant,scenario,mode].join('-'),{method:'POST',body:JSON.stringify(window.result,null,2)});
+window.done=true;
+</script></html>

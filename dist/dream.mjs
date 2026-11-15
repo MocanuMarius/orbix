@@ -1,13 +1,13 @@
 // A dream records simulation inputs, never run rewards or snapshots of the world.
-import {getChoices} from './model.mjs?v=biome-spirit-1';
-const INPUTS=['beginLiftInput','endLiftInput','flap','activateAbility'];
+import {getChoices} from './model.mjs?v=first-light-1';
+const INPUTS=['beginLiftInput','endLiftInput','flap','activateAbility','activateFieldImpulse'];
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
 const ordered=value=>Array.isArray(value)?value.map(ordered):value&&typeof value==='object'?Object.fromEntries(Object.keys(value).sort().map(k=>[k,ordered(value[k])])):value;
 export function dreamFingerprint(options={}){
   const modifiers = {...options.modifiers};
   delete modifiers.eventFavors;
   delete modifiers.flightBoon; // Waking benefits cannot change rehearsed physics.
-  return JSON.stringify(ordered({simulation:'biome-spirit-1',seed:options.seed,terrain:options.terrain,elite:!!options.elite,duration:options.duration,
+  return JSON.stringify(ordered({simulation:'first-light-1',seed:options.seed,terrain:options.terrain,elite:!!options.elite,duration:options.duration,
     node:options.node,companions:options.companions,modifiers,flame:options.flame,condensedGlow:options.condensedGlow||0,condensedRemainder:options.condensedRemainder||0}));
 }
 export function dreamConfig(run={}){
@@ -19,7 +19,8 @@ export function validateDreamPreset(preset,engine){
   return !!preset&&preset.version===1&&preset.fingerprint===dreamFingerprint(engine.options)
     &&Math.abs(preset.width-engine.width)<.01&&Math.abs(preset.height-engine.height)<.01&&preset.duration<=Number(engine.mod.dreamDuration||0)
     &&preset.duration>=6&&Array.isArray(preset.events)&&preset.events.length<=1000
-    &&preset.events.every(event=>INPUTS.includes(event.action)&&Number.isInteger(event.frame)&&event.frame>=0&&event.frame<=preset.duration*60);
+    &&preset.events.every(event=>INPUTS.includes(event.action)&&Number.isInteger(event.frame)&&event.frame>=0&&event.frame<=preset.duration*60
+      &&(event.action!=='activateFieldImpulse'||['up','down','right'].includes(event.args?.[0])));
 }
 export const dreamEye='<svg viewBox="0 0 32 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" shape-rendering="crispEdges"><path d="M4 9l4 4 4 2h8l4-2 4-4M6 13l-3 3m8 0-1 4m7-3v4m7-6 2 4"/></svg>';
 export function dreamIndicatorMarkup(dream){

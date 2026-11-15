@@ -1,8 +1,8 @@
-import {ARTIFACTS,getArtifactSalvageValue,canSellArtifact} from './model.mjs?v=biome-spirit-1';
-import {artifactDescription,effectMarkup} from './artifact-copy.mjs?v=biome-spirit-1';
-import {artifactIcon} from './upgrade-icons.mjs?v=biome-spirit-1';
-import {artifactRarityLabel} from './replay-ui.mjs?v=biome-spirit-1';
-import {resourceSymbol} from './game-symbols.mjs?v=biome-spirit-1';
+import {ARTIFACTS,getArtifactSalvageValue,canSellArtifact} from './model.mjs?v=first-light-1';
+import {artifactDescription,effectMarkup} from './artifact-copy.mjs?v=first-light-1';
+import {artifactIcon} from './upgrade-icons.mjs?v=first-light-1';
+import {artifactRarityLabel} from './replay-ui.mjs?v=first-light-1';
+import {resourceSymbol} from './game-symbols.mjs?v=first-light-1';
 
 export const COLLECTION_PAGE_SIZE=6;
 const esc=value=>String(value??'').replace(/[&<>"']/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));

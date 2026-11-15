@@ -1,0 +1,36 @@
+<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>First Light actual renderer export</title><style>body{background:#09141b;color:#e5eddf;font:16px system-ui;margin:24px}button{padding:16px;font:inherit}#scenes{position:absolute;left:-3000px;top:0}.scene{position:relative;width:900px;height:405px}.scene canvas{position:absolute;inset:0;width:100%;height:100%}#output{display:block;width:min(100%,432px);height:auto;image-rendering:pixelated}</style><h1>First Light · actual gameplay capture</h1><button id="record" disabled>Preparing game renderer…</button><p id="status" role="status">Loading matched before/after levels</p><div id="scenes"></div><canvas id="output" width="720" height="960"></canvas><script type="module">
+const status=document.querySelector('#status'),button=document.querySelector('#record'),output=document.querySelector('#output'),c=output.getContext('2d');
+window.addEventListener('error',event=>status.textContent='Error: '+event.message);window.addEventListener('unhandledrejection',event=>status.textContent='Error: '+event.reason);
+const before=await import('/before/flight.mjs?v=first-light-film'),after=await import('/after/flight.mjs?v=first-light-film');
+const {createBoundaryInspectorState,frameBoundaryInspection}=await import('/before/boundary-run-inspector.mjs?v=first-light-film');
+const {getRunModifiers}=await import('/before/model.mjs?v=first-light-film');
+const cases=[{id:'pinewood',course:3,title:'OLDGROWTH PINES',color:'#c5dfa0'},{id:'basalt',course:2,title:'BASALT FURNACE',color:'#f0bd8b'}],evidence={source:'WispFlightView.canvas',baseline:'d46f95f',fps:30,frames:360,fullFrame:true,zoom:1,cases:[]};
+const engines=[];
+function safeIntervals(e,x,t){
+ const nearby=e.layout.obstacles.filter(o=>!o.destroyed&&Math.abs(o.x-x)<900),groups=[];let lo=null,last;
+ for(let y=e.player.radius+8;y<e.height-e.player.radius-8;y+=1){const valid=!nearby.some(o=>before.circleHitsObstacle(x,y,e.player.radius+5,o,t,e.obstacleCenter(o)));if(valid){if(lo===null)lo=y;last=y;}else if(lo!==null){groups.push([lo,last]);lo=null;}}
+ if(lo!==null)groups.push([lo,last]);return groups;
+}
+function signature(e){return JSON.stringify(e.layout.obstacles.map(o=>[o.x,o.center,o.gap,o.width,o.motion,o.topShape,o.bottomShape,o.sceneProps]));}
+for(const item of cases){
+ const state=createBoundaryInspectorState(new URLSearchParams({biome:item.id,course:item.course})),run=state.run,node=run.current,pair=[];
+ for(const build of [before,after]){const wrapper=document.createElement('div');wrapper.className='scene';const canvas=document.createElement('canvas');wrapper.append(canvas);document.querySelector('#scenes').append(wrapper);
+  const e=new build.WispFlight({canvas,node:structuredClone(node),terrain:node.terrain,seed:`${run.seed}-${node.id}`,duration:node.duration,flame:30,companions:['collector'],modifiers:getRunModifiers(run)});e.paused=true;await e.ready;await e.environmentArtReady;if(!e.pixiReady||e.pixiView.constructor.name!=='WispFlightView')throw Error('Actual gameplay renderer unavailable');pair.push(e);}
+ if(signature(pair[0])!==signature(pair[1]))throw Error('Before/after geometry differs for '+item.id);
+ frameBoundaryInspection(pair[0]);const start=pair[0].distance,path=[];let previous=pair[0].player.y;
+ for(let frame=0;frame<360;frame++){const t=frame/30,distance=start+t*25;pair[0].time=t;const groups=safeIntervals(pair[0],distance+pair[0].player.x,t),range=groups.sort((a,b)=>{const score=g=>Math.abs(Math.max(g[0],Math.min(g[1],previous))-previous)-Math.min(70,g[1]-g[0])*.08;return score(a)-score(b);})[0]||[previous,previous];
+  const [lo,hi]=range,mid=(lo+hi)/2,approach=(1-Math.cos(t*Math.PI/3))*.5,target=mid+(Math.max(mid,hi-3)-mid)*approach,y=Math.max(lo,Math.min(hi,target));path.push({t,distance,y});previous=y;}
+ engines.push({item,pair,path});evidence.cases.push({biome:item.id,course:item.course,seed:pair[0].seed,renderer:pair[0].pixiView.constructor.name,layoutMatches:true,width:pair[0].width,height:pair[0].height,canvas:[pair[0].pixiView.canvas.width,pair[0].pixiView.canvas.height],path});
+}
+function draw(index,frame){
+ const {item,pair,path}=engines[index],{t,distance,y}=path[frame];c.fillStyle='#09141b';c.fillRect(0,0,720,960);c.imageSmoothingEnabled=false;
+ c.fillStyle=item.color;c.font='700 33px system-ui';c.fillText(item.title,28,43);c.fillStyle='#a6b8b9';c.font='20px system-ui';c.fillText('FIRST LIGHT · TERRAIN & DEPTH',28,78);
+ for(let i=0;i<2;i++){const e=pair[i];e.time=t;e.distance=e.previousDistance=distance;e.player.y=e.previousPlayerY=y;e.player.vy=frame?(y-path[frame-1].y)*30:0;e.accumulator=0;e.lastFlapTime=t-(Math.cos(t*Math.PI/3)>0?.2:1);e.render();const offset=106+i*394;
+  c.fillStyle=i?'#172d2b':'#172329';c.fillRect(0,offset,720,52);c.fillStyle=i?item.color:'#d1d9d4';c.font='700 25px system-ui';c.fillText(i?'AFTER':'BEFORE',28,offset+35);c.textAlign='right';c.font='18px system-ui';c.fillStyle='#adbfbb';c.fillText(i?'First Light terrain':'Spirit Fire baseline',692,offset+34);c.textAlign='left';
+  c.drawImage(e.pixiView.canvas,0,0,e.pixiView.canvas.width,e.pixiView.canvas.height,0,offset+52,720,324);
+ }
+ c.fillStyle='#a6b8b9';c.font='19px system-ui';c.fillText('Same course · same movement · full gameplay frame',28,928);
+}
+draw(0,90);await fetch('/evidence',{method:'POST',body:JSON.stringify(evidence,null,2)});button.disabled=false;button.textContent='Export both 12-second comparisons';status.textContent='Ready · matched geometry · actual WispFlightView · 1× full-frame';
+button.onclick=async()=>{button.disabled=true;try{for(let index=0;index<engines.length;index++){for(let frame=0;frame<360;frame++){draw(index,frame);const blob=await new Promise(resolve=>output.toBlob(resolve,'image/png'));const response=await fetch(`/frame?biome=${cases[index].id}&index=${frame}`,{method:'POST',body:blob});if(!response.ok)throw Error('Frame save failed');if(frame%15===0)status.textContent=`Rendering ${cases[index].title} · ${frame+1}/360`;} }status.textContent='Export complete · 720 matched gameplay frames · Oldgrowth Pines and Basalt';button.textContent='Export complete';}catch(error){status.textContent='Export failed: '+error.message;button.disabled=false;}};
+</script></html>

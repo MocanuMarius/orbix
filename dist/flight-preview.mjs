@@ -1,22 +1,23 @@
-import {getBiome} from './biomes.mjs?v=biome-spirit-1';
-import {getBossPreview} from './boss.mjs?v=biome-spirit-1';
-import {levelMapPreview} from './level-map-art.mjs?v=biome-spirit-1';
-import {mapStopIconMarkup} from './map-guide.mjs?v=biome-spirit-1';
-import {resourceSymbol} from './game-symbols.mjs?v=biome-spirit-1';
-import {getFlightClearReward} from './checkpoint-rewards.mjs?v=biome-spirit-1';
-import {availableFlightArtifacts} from './model.mjs?v=biome-spirit-1';
-import {bonusIcon,boonMarkup} from './route-bonus-ui.mjs?v=biome-spirit-1';
-import {contextualFlightNotice} from './contextual-events.mjs?v=biome-spirit-1';
-import {ATLAS_FORECASTS,atlasGlyph} from './night-atlas.mjs?v=biome-spirit-1';
-import {canDreamAt,dreamConfig} from './dream.mjs?v=biome-spirit-1';
-import {sparkHabitat} from './spark-fields.mjs?v=biome-spirit-1';
-import {lanternFlightCue} from './map-theme.mjs?v=biome-spirit-1';
+import {getBiome} from './biomes.mjs?v=first-light-1';
+import {getBossPreview} from './boss.mjs?v=first-light-1';
+import {levelMapPreview} from './level-map-art.mjs?v=first-light-1';
+import {mapStopIconMarkup} from './map-guide.mjs?v=first-light-1';
+import {resourceSymbol} from './game-symbols.mjs?v=first-light-1';
+import {getFlightClearReward} from './checkpoint-rewards.mjs?v=first-light-1';
+import {availableFlightArtifacts} from './model.mjs?v=first-light-1';
+import {bonusIcon,boonMarkup} from './route-bonus-ui.mjs?v=first-light-1';
+import {contextualFlightNotice} from './contextual-events.mjs?v=first-light-1';
+import {ATLAS_FORECASTS,atlasGlyph} from './night-atlas.mjs?v=first-light-1';
+import {canDreamAt,dreamConfig} from './dream.mjs?v=first-light-1';
+import {sparkHabitat} from './spark-fields.mjs?v=first-light-1';
+import {lanternFlightCue} from './map-theme.mjs?v=first-light-1';
 
 const escapeText = value => String(value ?? '').replace(/[&<>"']/g, char =>
  ({'&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;'}[char]));
 const sparkForecast={filament:'More gentle Sparks',cluster:'More Clusters',vault:'More Caches',mineral:'More dense Caches'};
 
 function regularReward(run,node){
+ if(run.isTutorial&&node.type==='finale')return `<div class="preview-payout">${mapStopIconMarkup(node)}<strong>First Light complete</strong></div><p class="preview-clear-extra">Your practice build stays here.</p>`;
  const final=node.boss && (node.mapIndex??run.mapIndex)===2 && !run.isTutorial;
  if(final)return `<div class="preview-payout">${mapStopIconMarkup(node)}<strong>Expedition victory</strong></div>`;
  const amount=getFlightClearReward(node,run);
