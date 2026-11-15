@@ -53,7 +53,7 @@ export function priceSkillDefinition(s){
  // Small adjustments should compete with saving for a new rule, not cost the
  // same as a second life. General price growth still applies to all purchases.
  const utility={
-  'main-resonant-harvest':40,'main-resonant-purification':80,'main-resonant-bounty':250,
+  'main-resonant-harvest':40,'main-resonant-purification':80,'main-resonant-bounty':150,
   'main-speed':30,'main-tailwind':35,'main-sight':45,'main-glow-sense':55,'main-efficiency':90,
   'main-dream-long':30,'main-dream-deep':250,'main-drift-sense':25,'main-drift-sense-2':40,'main-drift-sense-3':70,
   'collector-last-orbit':155,'collector-far-search':50,'collector-rich-cargo':80,'collector-fleet-return':65,'collector-close-orbit':40,

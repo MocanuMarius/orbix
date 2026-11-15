@@ -25,7 +25,7 @@ The user chose repeated resonance rather than a once-per-Spark reward:
 | --- | ---: | --- |
 | Resonant Harvest | 40 | Every wave intersection with an uncollected ordinary Spark restores 1 Spark to the meter. |
 | Resonant Purification | 80 | Keeps Harvest and dissolves Dark Sparks touched by waves. |
-| Resonant Bounty | 250 | Each ordinary intersection restores 1 Spark and grants 1 Stored Spark. |
+| Resonant Bounty | 150 | Each ordinary intersection restores 1 Spark and grants 1 Stored Spark. |
 
 Each node requires the preceding node; normal training price growth applies. The same map Spark can pay on subsequent waves, but can pay only once to any individual front. The ordinary Spark remains available for collection. Generated fuel, carried items and Flash Powerups cannot generate resonance rewards. Purification gives no fuel or currency, and does not affect black holes.
 
