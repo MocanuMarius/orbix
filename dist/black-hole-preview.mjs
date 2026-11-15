@@ -1,7 +1,7 @@
-import {WispFlight} from './flight.mjs?v=in-game-edges-2';
-import {getRunModifiers} from './model.mjs?v=in-game-edges-2';
-import {wispOrbit} from './wisp.mjs?v=in-game-edges-2';
-import {formatGlow, glowPoints} from './vitality.mjs?v=in-game-edges-2';
+import {WispFlight} from './flight.mjs?v=bold-edge-ideas-1';
+import {getRunModifiers} from './model.mjs?v=bold-edge-ideas-1';
+import {wispOrbit} from './wisp.mjs?v=bold-edge-ideas-1';
+import {formatGlow, glowPoints} from './vitality.mjs?v=bold-edge-ideas-1';
 
 const frame=document.querySelector('#flight-frame'),gate=document.querySelector('#gate');
 const status=document.querySelector('#status'),meter=document.querySelector('meter'),amount=document.querySelector('#meter');

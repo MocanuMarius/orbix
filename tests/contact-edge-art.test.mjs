@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {paintContactEdge} from '../dist/contact-edge-art.mjs';
+import {paintContactEdge,contactEdgeInk} from '../dist/contact-edge-art.mjs';
 import {drawTerrainBoundary,terrainBoundary} from '../dist/terrain-boundary.mjs';
 
 const makeEngine=()=>({layout:{obstacles:[{x:0,center:0,gap:0,bottomShape:[[0,900],[100,900],[100,100],[0,100]]}]},
@@ -36,4 +36,22 @@ test('long offscreen edges clip before grain iteration',()=>{
  const boundary=c.calls.find(call=>call[0]==='line');
  assert.ok(boundary[1]>=-3&&boundary[3]<=303);
  assert.ok(c.calls.length<620);
+});
+
+test('bold concepts keep their final seam exact and leave the collision union intact',()=>{
+ const e=makeEngine(),union=terrainBoundary(e);
+ for(const style of ['carved','spectral','roots','fracture']){
+  e.boundaryStyle=style;const c=canvas();drawTerrainBoundary(c,e,{line});
+  assert.equal(terrainBoundary(e),union);
+  assert.deepEqual(c.calls.at(-1),['line',0,100,100,100,contactEdgeInk(style),1]);
+  assert.equal(c.globalAlpha,1);
+ }
+});
+
+test('reduced motion freezes the flowing fringe and nearby crack pulse',()=>{
+ for(const style of ['spectral','fracture']){
+  const options={x:0,y:40,xx:200,yy:40,inward:1,worldAx:80,worldAy:40,style,line,playerX:80,playerY:25,reducedMotion:true};
+  const a=canvas(),b=canvas();paintContactEdge(a,{...options,time:0});paintContactEdge(b,{...options,time:10});
+  assert.deepEqual(a.calls,b.calls);
+ }
 });

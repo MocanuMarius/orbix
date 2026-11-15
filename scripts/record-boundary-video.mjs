@@ -1,7 +1,8 @@
 import http from 'node:http';
 import {readFile,writeFile,mkdir} from 'node:fs/promises';
 import {resolve,extname,join} from 'node:path';
-const root=resolve('dist'),frames=resolve('work/boundary-video/frames');await mkdir(frames,{recursive:true});
+const ideas=process.env.RECORD_KIND==='ideas',recorder=resolve(ideas?'scripts/edge-ideas-recorder.html':'scripts/boundary-video-recorder.html');
+const root=resolve('dist'),frames=resolve(ideas?'work/edge-ideas/frames':'work/boundary-video/frames');await mkdir(frames,{recursive:true});
 http.createServer(async(req,res)=>{try{
  const url=new URL(req.url,'http://localhost');
  if(req.method==='POST'&&url.pathname==='/frame'){
@@ -9,8 +10,8 @@ http.createServer(async(req,res)=>{try{
   const chunks=[];for await(const chunk of req)chunks.push(chunk);const data=Buffer.concat(chunks);if(data.length>8e6)throw Error('Oversize frame');
   await writeFile(join(frames,String(index).padStart(4,'0')+'.png'),data);res.end('saved');return;
  }
- const file=url.pathname==='/recorder'?resolve('scripts/boundary-video-recorder.html'):resolve(root,'.'+url.pathname);
- if(file!==resolve('scripts/boundary-video-recorder.html')&&!file.startsWith(root+'\\'))throw Error('Invalid path');
+ const file=url.pathname==='/recorder'?recorder:resolve(root,'.'+url.pathname);
+ if(file!==recorder&&!file.startsWith(root+'\\'))throw Error('Invalid path');
  const data=await readFile(file),mime={'.html':'text/html','.mjs':'text/javascript','.js':'text/javascript','.png':'image/png','.webp':'image/webp','.jpg':'image/jpeg','.css':'text/css','.ttf':'font/ttf','.mp3':'audio/mpeg','.mp4':'video/mp4'};
  const headers={'Content-Type':mime[extname(file)]||'application/octet-stream','Cache-Control':'no-store','Accept-Ranges':'bytes'};
  const range=/^bytes=(\d+)-(\d*)$/.exec(req.headers.range||'');

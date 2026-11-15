@@ -1,7 +1,7 @@
-import {newState,createRun,selectNode} from './model.mjs?v=in-game-edges-2';
-import {BIOME_LEVELS} from './biomes.mjs?v=in-game-edges-2';
-import {circleHitsObstacle} from './flight.mjs?v=in-game-edges-2';
-import {scenePropBounds} from './scene-props.mjs?v=in-game-edges-2';
+import {newState,createRun,selectNode} from './model.mjs?v=bold-edge-ideas-1';
+import {BIOME_LEVELS} from './biomes.mjs?v=bold-edge-ideas-1';
+import {circleHitsObstacle} from './flight.mjs?v=bold-edge-ideas-1';
+import {scenePropBounds} from './scene-props.mjs?v=bold-edge-ideas-1';
 
 // A disposable run through the same App, WispFlight, HUD and authored course.
 export function createBoundaryInspectorState(query=new URLSearchParams()){

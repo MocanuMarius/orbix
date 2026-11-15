@@ -1,8 +1,8 @@
-import {ARTIFACTS} from './model.mjs?v=in-game-edges-2';
-import {artifactRarityLabel} from './replay-ui.mjs?v=in-game-edges-2';
-import {artifactDescription,effectMarkup} from './artifact-copy.mjs?v=in-game-edges-2';
-import {resourceSymbol} from './game-symbols.mjs?v=in-game-edges-2';
-import {artifactIcon} from './upgrade-icons.mjs?v=in-game-edges-2';
+import {ARTIFACTS} from './model.mjs?v=bold-edge-ideas-1';
+import {artifactRarityLabel} from './replay-ui.mjs?v=bold-edge-ideas-1';
+import {artifactDescription,effectMarkup} from './artifact-copy.mjs?v=bold-edge-ideas-1';
+import {resourceSymbol} from './game-symbols.mjs?v=bold-edge-ideas-1';
+import {artifactIcon} from './upgrade-icons.mjs?v=bold-edge-ideas-1';
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 export const rewardDescription=(a,run)=>{const c=artifactDescription(a,run,{fresh:true});return [c.effect,[c.trigger,c.limit].filter(Boolean).join(' ')];};
 export function flightRewardMarkup(state,{artifactArt=artifactIcon,upgradeCount=0,skillsAvailable=true}={}){

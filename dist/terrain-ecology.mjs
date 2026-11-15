@@ -1,5 +1,5 @@
-import {drawAuthoredBackdrop,drawAuthoredPlant} from './authored-environment.mjs?v=in-game-edges-2';
-import {terrainBoundary,terrainSurfaceExposed} from './terrain-boundary.mjs?v=in-game-edges-2';
+import {drawAuthoredBackdrop,drawAuthoredPlant} from './authored-environment.mjs?v=bold-edge-ideas-1';
+import {terrainBoundary,terrainSurfaceExposed} from './terrain-boundary.mjs?v=bold-edge-ideas-1';
 // Decorative life is anchored to the actual landform. It never enters the
 // collider, pickup, reward or dynamic-hazard registries.
 const habitats = {
