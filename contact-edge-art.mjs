@@ -1,13 +1,14 @@
 const STYLES=new Set(['moon','living','danger','carved','spectral','roots','fracture']);
 const BOLD=new Set(['carved','spectral','roots','fracture']);
 const INKS={moon:'#c9d9d5',living:'#a5b7a3',danger:'#8b9b91',carved:'#f0e5c6',spectral:'#d3f9ff',roots:'#c3cd9b',fracture:'#d9a292'};
-export const contactEdgeInk=style=>INKS[style]||'#b9c6aa';
+const SPECTRAL_BLUE=Object.freeze({deep:'#15305f',body:'#2964be',fringe:'#45b9ed',core:'#a1efff',hot:'#b5fbff',mote:'#6987ef',seam:'#d3f9ff'});
+export const contactEdgeInk=(style,palette)=>style==='spectral'&&palette?palette.seam:INKS[style]||'#b9c6aa';
 export const isContactEdgeStyle=style=>STYLES.has(style);
 const hash=(x,y)=>{let n=(Math.floor(x*1.7)*374761393+Math.floor(y*1.7)*668265263)|0;n=Math.imul(n^(n>>>13),1274126177);return ((n^(n>>>16))>>>0)/4294967296;};
 const fallbackLine=(c,x,y,xx,yy,color,size)=>{c.beginPath();c.moveTo(x,y);c.lineTo(xx,yy);c.strokeStyle=color;c.lineWidth=size;c.stroke();};
 
 /** A purely visual contact rim. Coordinates describe the actual collider boundary. */
-export function paintContactEdge(c,{x,y,xx,yy,inward=1,worldAx=0,worldAy=0,scale=1,playerX=-10000,playerY=-10000,time=0,style,line,reducedMotion=false}={}) {
+export function paintContactEdge(c,{x,y,xx,yy,inward=1,worldAx=0,worldAy=0,scale=1,playerX=-10000,playerY=-10000,time=0,style,line,reducedMotion=false,palette}={}) {
   if(!STYLES.has(style))return;
   const originalX=x,originalY=y,dx=xx-x,dy=yy-y;
   const width=c.canvas?.width??Math.max(x,xx)+4,height=c.canvas?.height??Math.max(y,yy)+4;
@@ -23,7 +24,7 @@ export function paintContactEdge(c,{x,y,xx,yy,inward=1,worldAx=0,worldAy=0,scale
   const length=Math.hypot(normal.x,normal.y)||1,nx=normal.x/length,ny=normal.y/length;
   const stroke=line||fallbackLine;
   if(BOLD.has(style)){
-    paintBoldEdge(c,{x,y,xx,yy,nx,ny,originalX,originalY,worldAx,worldAy,scale,playerX,playerY,time:reducedMotion?0:time,style,stroke});
+    paintBoldEdge(c,{x,y,xx,yy,nx,ny,originalX,originalY,worldAx,worldAy,scale,playerX,playerY,time:reducedMotion?0:time,style,stroke,palette});
     return;
   }
   // The thin uninterrupted rim always marks the exact contact, never a false offset.
@@ -52,8 +53,9 @@ export function paintContactEdge(c,{x,y,xx,yy,inward=1,worldAx=0,worldAy=0,scale
 
 // Deliberately different visual languages for review. All mass grows into the
 // solid side; the true collision seam is painted last, at its original position.
-function paintBoldEdge(c,{x,y,xx,yy,nx,ny,originalX,originalY,worldAx,worldAy,scale,playerX,playerY,time,style,stroke}){
+function paintBoldEdge(c,{x,y,xx,yy,nx,ny,originalX,originalY,worldAx,worldAy,scale,playerX,playerY,time,style,stroke,palette}){
  const savedAlpha=c.globalAlpha,steps=Math.max(Math.abs(xx-x),Math.abs(yy-y)),tx=-ny,ty=nx;
+ const spectral=palette||SPECTRAL_BLUE;
  const band=(px,py,depth,ink,alpha=1)=>{
   depth=Math.max(1,Math.round(depth));c.globalAlpha=savedAlpha*alpha;c.fillStyle=ink;
   if(Math.abs(nx)<.12)c.fillRect(px,ny<0?py-depth+1:py,1,depth);
@@ -74,9 +76,9 @@ function paintBoldEdge(c,{x,y,xx,yy,nx,ny,originalX,originalY,worldAx,worldAy,sc
   }else if(style==='spectral'){
    const flow=(Math.sin(coord*.089-time*2.4)+Math.sin(coord*.193+time*1.25)*.5)/1.5;
    const depth=(12+flow*8+cluster*10)*scale;
-   band(px,py,depth,'#15305f',.7);band(px,py,depth*.68,'#2964be',.88);band(px,py,depth*.36,'#45b9ed',.9);band(px,py,3.1*scale,'#a1efff');
-   if(Math.sin(coord*.12-time*3.7)>.88)band(px,py,5*scale,'#b5fbff',.9);
-   if(h>.96){const d=depth+Math.sin(time*1.8+cell)*3*scale;c.globalAlpha=savedAlpha*.45;c.fillStyle='#6987ef';c.fillRect(Math.round(px+nx*d),Math.round(py+ny*d),2,2);}
+   band(px,py,depth,spectral.deep,.7);band(px,py,depth*.68,spectral.body,.88);band(px,py,depth*.36,spectral.fringe,.9);band(px,py,3.1*scale,spectral.core);
+   if(Math.sin(coord*.12-time*3.7)>.88)band(px,py,5*scale,spectral.hot,.9);
+   if(h>.96){const d=depth+Math.sin(time*1.8+cell)*3*scale;c.globalAlpha=savedAlpha*.45;c.fillStyle=spectral.mote;c.fillRect(Math.round(px+nx*d),Math.round(py+ny*d),2,2);}
   }else if(style==='roots'){
    band(px,py,2*scale,'#3c4930');
    if(cluster>.36&&h>.90){
@@ -105,5 +107,5 @@ function paintBoldEdge(c,{x,y,xx,yy,nx,ny,originalX,originalY,worldAx,worldAy,sc
    }
   }
  }
- c.globalAlpha=savedAlpha;stroke(c,x,y,xx,yy,contactEdgeInk(style),1);c.globalAlpha=savedAlpha;
+ c.globalAlpha=savedAlpha;stroke(c,x,y,xx,yy,contactEdgeInk(style,palette),1);c.globalAlpha=savedAlpha;
 }

@@ -1,5 +1,5 @@
-import {GLOW_DISPLAY_SCALE} from './vitality.mjs?v=bold-edge-ideas-1';
-import {pickupKind,pickupShellRadius} from './pickups.mjs?v=bold-edge-ideas-1';
+import {GLOW_DISPLAY_SCALE} from './vitality.mjs?v=biome-spirit-1';
+import {pickupKind,pickupShellRadius} from './pickups.mjs?v=biome-spirit-1';
 
 export const LUMINANCE_WAVE_TUNING=Object.freeze({speed:360,interval:1,maximumWaves:48,maximumSources:16});
 const finite=(value,fallback)=>Number.isFinite(Number(value))?Number(value):fallback;

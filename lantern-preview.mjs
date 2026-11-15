@@ -1,9 +1,9 @@
-import { WispFlight, circleHitsObstacle } from './flight.mjs?v=bold-edge-ideas-1';
-import { createRun, getRunModifiers } from './model.mjs?v=bold-edge-ideas-1';
-import { shutterDensityAt } from './shutter-cone.mjs?v=bold-edge-ideas-1';
-import { lanternPassageY, lanternRoute } from './lantern-layout.mjs?v=bold-edge-ideas-1';
-import { wispOrbit } from './wisp.mjs?v=bold-edge-ideas-1';
-import { stepFlashTether } from './flash-tether.mjs?v=bold-edge-ideas-1';
+import { WispFlight, circleHitsObstacle } from './flight.mjs?v=biome-spirit-1';
+import { createRun, getRunModifiers } from './model.mjs?v=biome-spirit-1';
+import { shutterDensityAt } from './shutter-cone.mjs?v=biome-spirit-1';
+import { lanternPassageY, lanternRoute } from './lantern-layout.mjs?v=biome-spirit-1';
+import { wispOrbit } from './wisp.mjs?v=biome-spirit-1';
+import { stepFlashTether } from './flash-tether.mjs?v=biome-spirit-1';
 
 const step = 1 / 60;
 

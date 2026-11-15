@@ -1,5 +1,5 @@
-import {getLifeCapacity} from './vitality.mjs?v=bold-edge-ideas-1';
-import {grantPassageBoon} from './passage-preparations.mjs?v=bold-edge-ideas-1';
+import {getLifeCapacity} from './vitality.mjs?v=biome-spirit-1';
+import {grantPassageBoon} from './passage-preparations.mjs?v=biome-spirit-1';
 
 function bonus(id, name, condition, reward, target) {
   return Object.freeze({id, name, condition, reward, target});

@@ -1,5 +1,5 @@
-import {drawAuthoredMaterial} from './authored-environment.mjs?v=bold-edge-ideas-1';
-import {pineCrown} from './pixel-contour.mjs?v=bold-edge-ideas-1';
+import {drawAuthoredMaterial} from './authored-environment.mjs?v=biome-spirit-1';
+import {pineCrown} from './pixel-contour.mjs?v=biome-spirit-1';
 // Original pixel scenery. Backdrops and solid materials are rasterized by the
 // existing renderer caches; only a few matte weather pixels animate each frame.
 // Nothing here emits light or draws outside the simulation's solid silhouettes.
