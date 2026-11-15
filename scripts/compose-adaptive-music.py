@@ -1,6 +1,6 @@
 """Original Wispbound warm lo-fi score; no third-party samples or melodies.
 
-Offline composition: 160 arranged bars at 78 BPM, three synchronized stems.
+Offline composition: 160 arranged bars at 88 BPM, three synchronized stems.
 Use --bars 32 --output work/lofi-sketch for a shorter production sketch.
 """
 from pathlib import Path
@@ -13,7 +13,7 @@ parser.add_argument('--bars', type=int, default=160)
 parser.add_argument('--output', type=Path, default=ROOT/'dist/assets/audio')
 args = parser.parse_args()
 SR = 32000
-BPM = 78
+BPM = 88
 BEAT = 60 / BPM
 BAR = 4 * BEAT
 BARS = max(16, args.bars)
@@ -137,7 +137,7 @@ for stem, filename in enumerate(['lantern-drift','lantern-pulse','lantern-storm'
         _, progression = SECTIONS[section%len(SECTIONS)]
         root, chord = CHORDS[progression[within//2]]
         at = bar*BAR
-        breath = within in (14,15) and section%3!=2
+        breath = within == 15 and section%3!=2
         if stem==0:
             if bar%2==0:
                 # Strummed chord order changes between sections, with silence
@@ -157,22 +157,22 @@ for stem, filename in enumerate(['lantern-drift','lantern-pulse','lantern-storm'
                     if within%8==6 and k==2:continue
                     note(at+human(beat,.018),chord[k]+(12 if section%4==2 else 0),1.9,.044*rng.uniform(.85,1.12),'felt',rng.uniform(-.28,.28))
         elif stem==1:
-            patterns = [[0,1.75,2.5],[0,1.5,2.75,3.5],[0,.75,2.5],[0,2,3.25]]
+            patterns = [[0,1.5,2.5,3.5],[0,.75,2,2.75],[0,1.75,2.5],[0,1.5,2.75,3.5]]
             kickbeats = [0] if breath else patterns[(section+bar//4)%len(patterns)]
             for beat in kickbeats:
-                hit(at+human(beat),'kick',.43 if beat==0 else .29*rng.uniform(.85,1.1))
-            bassbeats = [0] if breath else [0,1.75,3.25]
+                hit(at+human(beat),'kick',.52 if beat==0 else .33*rng.uniform(.85,1.1))
+            bassbeats = [0] if breath else ([0,1.5,2.5,3.5] if within%4<2 else [0,1.75,3.25])
             for i,beat in enumerate(bassbeats):
                 bass=root+(12 if i==2 and section%3==1 else 0)
                 note(at+human(beat,.012),bass,1.15 if i==0 else .67,.24 if i==0 else .17,'bass')
             if not breath:
                 for beat in [1,3]:
-                    hit(at+human(beat,.023),'snare',.24*rng.uniform(.9,1.06),.055)
+                    hit(at+human(beat,.023),'snare',.30*rng.uniform(.9,1.06),.055)
                     if section%3==1:hit(at+human(beat+.035,.025),'rim',.029,-.08)
                 for step in range(8):
                     if (within+step)%11==0:continue
                     swing=.09*BEAT if step%2 else 0
-                    hit(at+human(step*.5,swing),'hat',(.062 if step%2 else .038)*rng.uniform(.75,1.15),-.3)
+                    hit(at+human(step*.5,swing),'hat',(.075 if step%2 else .046)*rng.uniform(.75,1.15),-.3)
                     if section%3==2 and step%2:
                         hit(at+human(step*.5+.03,swing),'shaker',.043,.37)
                 if within%8==7:
@@ -217,7 +217,7 @@ for stem, filename in enumerate(['lantern-drift','lantern-pulse','lantern-storm'
     mix=np.tanh(mix*1.08)
     peak=float(np.max(np.abs(mix)))
     rms=float(np.sqrt(np.mean(mix**2)))
-    gain=min([.17,.14,.12][stem]/max(rms,.001),.84/max(peak,.01))
+    gain=min([.17,.155,.12][stem]/max(rms,.001),.84/max(peak,.01))
     mix*=gain
     fade=int(1.1*SR)
     mix[:fade]*=np.linspace(0,1,fade,dtype=np.float32)[:,None]
@@ -241,6 +241,6 @@ for filename in ['lantern-drift','lantern-pulse','lantern-storm']:
     command+=['-ss',str(preview_start),'-i',str(OUT/(filename+'.mp3'))]
 command+=['-filter_complex',f"[0:a][1:a][2:a]amix=inputs=3:weights='0.27 0.28 0.04':normalize=0,atrim=duration={preview_length},loudnorm=I=-19:TP=-1.5:LRA=9,afade=t=in:d=0.35,afade=t=out:st={preview_length-1.5}:d=1.5",'-t',str(preview_length),'-codec:a','libmp3lame','-b:a','128k',str(OUT/'lantern-hours-preview.mp3')]
 subprocess.run(command,check=True)
-(OUT/'README.txt').write_text('Original Wispbound adaptive lo-fi score. No third-party samples, recordings or melodies.\nComposed offline by scripts/compose-adaptive-music.py.\n78 BPM, 160 arranged bars (8m12s): warm electric piano, soft felt-key melodies, rootless jazz voicings, rounded bass, swung brushed drums and a quiet diffuse room.\nTen harmonic sections and written breathing spaces vary the arrangement. Three equal-length stems stream as MP3s; scene changes adjust volume without synthesizing or allocating an audio graph during gameplay.\n',encoding='utf-8')
+(OUT/'README.txt').write_text('Original Wispbound adaptive lo-fi score. No third-party samples, recordings or melodies.\nComposed offline by scripts/compose-adaptive-music.py.\n88 BPM, 160 arranged bars (7m16s): warm electric piano, soft felt-key melodies, rootless jazz voicings, rounded bass, a firmer swung kick/snare groove and a quiet diffuse room.\nTen harmonic sections and written breathing spaces vary the arrangement. Three equal-length stems stream as MP3s; scene changes adjust volume without synthesizing or allocating an audio graph during gameplay.\n',encoding='utf-8')
 (SCRATCH/'render-metrics.json').write_text(json.dumps(metrics,indent=2),encoding='utf-8')
 print('All synchronized lo-fi stems complete.',flush=True)

@@ -15,7 +15,7 @@ test('black-hole tape slowdown stays shared, pulses lift melodic layers and scen
  music.setFlight(near);tick();assert.ok(players[0].playbackRate<1&&players[0].playbackRate>.72);
  for(let i=0;i<120;i++)tick();
  assert.ok(players.every(p=>p.playbackRate===players[0].playbackRate&&p.preservesPitch===false));
- assert.ok(players[0].playbackRate<.721);assert.deepEqual(music.getTransport(),{time:12,rate:players[0].playbackRate,bpm:78});
+ assert.ok(players[0].playbackRate<.721);assert.deepEqual(music.getTransport(),{time:12,rate:players[0].playbackRate,bpm:88});
  music.setFlight({flame:100});for(let i=0;i<160;i++)tick();const baseline=players.map(p=>p.volume);
  music.setFlight({flame:100,light:{forwardLight:{intensity:1}}});for(let i=0;i<160;i++)tick();
  assert.ok(players[0].volume>baseline[0]);assert.ok(players[2].volume>baseline[2]);assert.ok(players[1].volume<baseline[1]);

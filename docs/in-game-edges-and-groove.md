@@ -1,0 +1,13 @@
+# Real flight edge comparison and a stronger lo-fi groove
+
+The earlier separate boundary illustration has been replaced. `boundary-preview.html` now embeds the actual game App, WispFlight, pixel renderer, HUD, Collector, collision geometry, scenery, fog and controls. The disposable `mock=boundary` run never writes the player's expedition save. It starts paused at a safe position within a real authored course rather than at its empty entrance.
+
+Moonlit Rim uses a cool ivory contact line and a soft local blue rim. Living Stone adds stable mineral/lichen grain on the solid side. Danger Wake keeps distant edges quiet and warms nearby contacts. All three use the same exposed terrain union and real solid-prop polygons. Overlap seams, buried prop roots and decorative background art do not acquire false collision edges. They remain opt-in preview treatments; the ordinary game's existing edge art is unchanged pending a player choice.
+
+Style switches retain the same flight and camera, pausing safely if flight was running. Biome/course selectors cover twelve biomes and four authored courses each. Reveal lifts the fog for inspection; Restart returns to the same course's safe preview position. Neither changes normal gameplay lighting or progression.
+
+The original adaptive score has been recomposed at 88 BPM, up from 78, with a firmer kick/snare groove, more bass movement, stronger hats and fewer long rhythmic rests. Warm keys and ten changing harmonic sections remain. Three synchronized 160-bar MP3 stems each last about 7m16s, with equal encoded lengths. A separate 45-second sample is available on `music-preview.html`.
+
+Music transport, harmonic effects and their fallback tempo all use 88 BPM. Existing danger/guardian/dream mixes, black-hole tape slowdown, pulse shimmer, priority limits, warning ducking and independent Music/FX controls remain. The score is rendered offline; no additional runtime synthesis or per-frame audio graph construction was added. Pre-encoding peaks are at most 0.84 for the keys/rhythm and 0.609 for the atmosphere stem.
+
+Validation: 18 focused contact-edge, exposed-terrain, adaptive-music and reactive-FX tests pass. All 48 biome/course preview positions were checked against actual terrain and solid-prop collision geometry with an extra safety margin. Browser review at 915×412 confirms real HUD/controls, same-flight style selection, Reveal, Restart and a second biome. The existing broader pixel-renderer test has an unrelated missing `getModifiers` export and was not used to claim full-suite success. No broad balance simulations were run for this visual/audio change.

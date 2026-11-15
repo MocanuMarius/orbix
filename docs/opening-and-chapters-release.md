@@ -14,6 +14,4 @@ Nineteen focused opening, catalogue, pricing and skill-book checks pass, includi
 
 ## Boundary directions: preview only
 
-`boundary-preview.html` is a silent, separate art study. Moonlit Rim, Living Stone and Danger Wake share one scene, native textures, geometry and raster size. Only the boundary treatment changes. The common exposed-union helper avoids highlighting buried terrain joins. Background trees have no collision rim; the interactive mushroom stays teal. Approach and Impact controls demonstrate local responses.
-
-No boundary direction has been selected or applied to the game. The study gives the player a concrete comparison before changing the live art. It is intentionally a comparison scene rather than a new level or a game-balance change.
+The initial separate illustration was superseded by an actual playable flight comparison after player feedback. See [the real-game preview release](in-game-edges-and-groove.md). No boundary direction has been selected for the ordinary game yet.

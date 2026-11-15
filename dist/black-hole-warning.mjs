@@ -1,4 +1,4 @@
-import {lightVisibility} from './light-field.mjs?v=small-openings-1';
+import {lightVisibility} from './light-field.mjs?v=in-game-edges-1';
 
 const clamp=(n,a,b)=>Math.max(a,Math.min(b,n));
 export const WARNING_NOTICE=.31;

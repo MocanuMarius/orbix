@@ -1,4 +1,4 @@
-import {drawAtlasGuardian} from './atlas-flight.mjs?v=small-openings-1';
+import {drawAtlasGuardian} from './atlas-flight.mjs?v=in-game-edges-1';
 // World-anchored background figure. Never a collider or screen-following HUD.
 export function guardianPresenceState(engine,distance=engine.distance){
  const boss=engine.layout?.boss,exit=engine.layout?.exitLandmark;

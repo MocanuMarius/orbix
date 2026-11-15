@@ -24,7 +24,7 @@ export function createFlightFX({AudioContextClass}={}) {
   const shimmerTones=[];
   let chargeBus,chargeFilter,chargeTone;
   const crackleLayers=[];
-  let state={hole:0,pulse:0,dream:0,paused:false,pan:0,proximity:0,proximityContact:false,transport:{time:0,rate:1,bpm:78}};
+  let state={hole:0,pulse:0,dream:0,paused:false,pan:0,proximity:0,proximityContact:false,transport:{time:0,rate:1,bpm:88}};
   let lastState=-Infinity, serial=0;
   // Three foreground events: decoration < world action < danger/contact.
   // Six source slots remain reserved for danger; fading stolen tails still count
@@ -39,7 +39,7 @@ export function createFlightFX({AudioContextClass}={}) {
     param.setTargetAtTime(value,ctx.currentTime,smoothing);
   }
   function chord() {
-    const t=state.transport||{}, bar=Math.floor(Math.max(0,Number(t.time)||0)*(Number(t.bpm)||78)/240)%160;
+    const t=state.transport||{}, bar=Math.floor(Math.max(0,Number(t.time)||0)*(Number(t.bpm)||88)/240)%160;
     return CHORDS[SECTIONS[Math.floor(bar/16)][Math.floor((bar%16)/2)]];
   }
   function stopVoices() {

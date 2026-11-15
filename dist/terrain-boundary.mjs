@@ -1,5 +1,6 @@
 // Terrain collides as a union of filled polygons. Its visible contact outline
 // must be that same union, rather than outlining every buried source piece.
+import {isContactEdgeStyle,paintContactEdge} from './contact-edge-art.mjs?v=composed-worlds-1';
 const cache=new WeakMap();
 const EPS=1e-6;
 function edgeAt(profile,x){
@@ -102,6 +103,8 @@ export function drawTerrainBoundary(c,engine,{scale=1,distance=engine.renderDist
   const x=Math.round(ax*scale)-camera,y=Math.round(ay*scale),xx=Math.round(bx*scale)-camera,yy=Math.round(by*scale),inward=segment.top?-1:1;
   if(Math.max(y,yy)<-4||Math.min(y,yy)>height+4||x>width+4)continue;
   stroke(c,x,y+inward*2,xx,yy+inward*2,'#14201f',2);
-  stroke(c,x,y,xx,yy,'#b9c6aa',1);
+  if(isContactEdgeStyle(engine.boundaryStyle))paintContactEdge(c,{x,y,xx,yy,inward,worldAx:ax,worldAy:ay,scale,
+    playerX:engine.player.x*scale,playerY:(engine.renderPlayerY??engine.player.y)*scale,time,style:engine.boundaryStyle,line:stroke});
+  else stroke(c,x,y,xx,yy,'#b9c6aa',1);
  }
 }

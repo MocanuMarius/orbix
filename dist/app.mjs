@@ -1,74 +1,76 @@
-import {setCollectorPreference} from './model.mjs?v=small-openings-1';
-import {menuIcon as icon} from './menu-icons.mjs?v=small-openings-1';
-import {installationState,installationInstructions,onInstallationChange,requestInstall,refreshBuild} from './pwa.mjs?v=small-openings-1';
-import {prepareRouteOffer} from './route-offers.mjs?v=small-openings-1';
-import {ROUTE_BONUSES} from './route-bonuses.mjs?v=small-openings-1';
-import {updateBonusGauge} from './route-bonus-ui.mjs?v=small-openings-1';
-import {forecastCheckpointMarkup} from './night-atlas.mjs?v=small-openings-1';
-import {markFlightAttemptStarted,previewAtlasMap} from './model.mjs?v=small-openings-1';
-import {getBossPreview} from './boss.mjs?v=small-openings-1';
-import {flightPreviewMarkup} from './flight-preview.mjs?v=small-openings-1';
-import {collectionMarkup,COLLECTION_PAGE_SIZE} from './collection-view.mjs?v=small-openings-1';
-import {restBenefitsMarkup} from './rest-choice-view.mjs?v=small-openings-1';
-import {treasureView} from './treasure-view.mjs?v=small-openings-1';
-import {getFlightClearReward} from './checkpoint-rewards.mjs?v=small-openings-1';
-import {artifactDescription} from './artifact-copy.mjs?v=small-openings-1';
-import {showNightmare} from './nightmare.mjs?v=small-openings-1';
-import {startResumeCountdown} from './resume-countdown.mjs?v=small-openings-1';
-import {automaticTipsEnabled,nextOnboardingLesson,markOnboardingSeen,resetOnboarding,noteOnboardingPrompt,noteOnboardingProgress,onboardingFeatureAvailable,onboardingFlightPlan,lanternEntryLesson,giantBlackHoleEntryLesson} from './onboarding.mjs?v=small-openings-1';
-import {flightRewardMarkup} from './reward-screen.mjs?v=small-openings-1';
-import {flightEntryMarkup,resumeGateMarkup,waitForFlightEntry,preloadFlightEntry} from './flight-entry.mjs?v=small-openings-1';
-import {TUTORIAL_TOPICS,topicSteps} from './tutorial-curriculum.mjs?v=small-openings-1';
-import {resourceCycleSteps} from './resource-cycle.mjs?v=small-openings-1';
-import {tutorialVisualMarkup} from './tutorial-visuals.mjs?v=small-openings-1';
-import {deathScreenMarkup} from './death-screen.mjs?v=small-openings-1';
-import {createRestInspectorState,createTreasureInspectorState} from './rest-inspector.mjs?v=small-openings-1';
-import {createLanternMapInspectorState} from './lantern-map-inspector.mjs?v=small-openings-1';
-import {LANTERN_THEME,LANTERN_CHAPTER} from './map-theme.mjs?v=small-openings-1';
-import {choiceScene} from './choice-art.mjs?v=small-openings-1';
-import {contextualFlightNotice} from './contextual-events.mjs?v=small-openings-1';
-import {createMusic} from './music.mjs?v=small-openings-1';
-import {resourceSymbol} from './game-symbols.mjs?v=small-openings-1';
-import {nextArtifactNotice,artifactUseLesson} from './artifact-lessons.mjs?v=small-openings-1';
-import {getArtifactInfo,CONSUMABLE_ARTIFACTS,EVOLVING_ARTIFACTS} from './artifact-info.mjs?v=small-openings-1';
-import {checkpointTutorialLesson,observedFlightLesson,flightEffectLesson} from './tutorial-steps.mjs?v=small-openings-1';
-import {ARTIFACT_ENGINE_RULES} from './artifact-effects.mjs?v=small-openings-1';
-import {rewardThemeMarkup,encounterIntent,encounterIntentMarkup,artifactOfferMarkup,artifactDetailMarkup,artifactRarityLabel,artifactSummaryMarkup,artifactLifetimeMarkup} from './replay-ui.mjs?v=small-openings-1';
-import {installLandscapeMode} from './landscape.mjs?v=small-openings-1';
-import {drawLandscapeMap} from './landscape-map.mjs?v=small-openings-1';
-import {attachDream,canDreamAt,dreamEye,prepareDreamHandoff,updateDreamIndicator,validateDreamPreset} from './dream.mjs?v=small-openings-1';
-import {chooseFlightReward,getAvailableUpgrades,acknowledgeVictory,takeClearRewardReceipt} from './model.mjs?v=small-openings-1';
-import {formatGlow,glowPercent,getGlowCapacity,glowText} from './vitality.mjs?v=small-openings-1';
-import {glowGaugeMarkup,updateGlowGauge} from './glow-ui.mjs?v=small-openings-1';
-import {edgingPulseMarkup,updateEdgingPulse} from './edging-ui.mjs?v=small-openings-1';
-import {skillBookMarkup,skillBookChapter} from './skill-book.mjs?v=small-openings-1';
-import {livesMarkup,lifeHeartSvg} from './lives.mjs?v=small-openings-1';
-import {attachFlightPerformance,downloadPerformanceReport} from './flight-performance.mjs?v=small-openings-1';
-import {getChallengePreview} from './flight-challenges.mjs?v=small-openings-1';
-import {homeMenuMarkup,runProgressMarkup,companionLockIcon} from './run-menu.mjs?v=small-openings-1';
-import {skillIcon,artifactIcon} from './upgrade-icons.mjs?v=small-openings-1';
-import {TERRAINS,SKILLS,ARTIFACTS,newState,loadState,saveState,createRun,getStartingArtifact,getStartingGiftOffers,canChooseStartingGift,chooseStartingGift,chooseStartingSkill,setTestOverride,grantTestCondensedGlow,getStartingCompanion,setStartingCompanion,startTutorial,leaveTutorial,getChoices,getRouteMapState,selectNode,beginFlightAttempt,retryFlight,finishFlight,getSupportChoices,resolveSupport,settleCheckpoint,bankRun,advanceMap,previewGlowReward,getSkillCost,getSkillPrice,getSkillWallet,getSkillLockReason,suspendRun,abandonRun,isSkillRevealed,canBuyCheckpointSkills,buyCheckpointSkill,getRunModifiers,canChangeCompanion,setCompanions,sellArtifact,canSellArtifact,getArtifactSalvageValue} from './model.mjs?v=small-openings-1';
-import {WispFlight} from './flight.mjs?v=small-openings-1';
-import {COMPANION_ABILITIES,getCompanionAbility,getCompanionUnlock,normalizeCompanionRole} from './companion-abilities.mjs?v=small-openings-1';
-import {companionArtSvg} from './companion-art.mjs?v=small-openings-1';
-import {boostControlMarkup,updateBoostControl} from './boost-control.mjs?v=small-openings-1';
-import {campaignStrip,bossSigil,guardianRitualMarkup} from './campaign-ui.mjs?v=small-openings-1';
-import {resolveLevelIdentity} from './level-catalog.mjs?v=small-openings-1';
-import {levelMapGlyph,levelMapPreview} from './level-map-art.mjs?v=small-openings-1';
-import {getAscentInfo} from './ascent.mjs?v=small-openings-1';
-import {getRouteForecast} from './route-forecast.mjs?v=small-openings-1';
-import {MAP_STOP_TYPES,getMapStopInfo,mapStopIconMarkup,getEventScenarios} from './map-guide.mjs?v=small-openings-1';
-import {formatFlightDuration} from './level-length.mjs?v=small-openings-1';
-import {condensedIconMarkup} from './afterglow-ui.mjs?v=small-openings-1';
-import {pickupGuideMarkup,pickupLesson} from './pickup-guide.mjs?v=small-openings-1';
-import {pickupArtSvg} from './pickup-art.mjs?v=small-openings-1';
-import {createTutorialCoach} from './tutorial-coach.mjs?v=small-openings-1';
-import {getTutorialWorldFocus} from './tutorial.mjs?v=small-openings-1';
+import {setCollectorPreference} from './model.mjs?v=in-game-edges-1';
+import {menuIcon as icon} from './menu-icons.mjs?v=in-game-edges-1';
+import {installationState,installationInstructions,onInstallationChange,requestInstall,refreshBuild} from './pwa.mjs?v=in-game-edges-1';
+import {prepareRouteOffer} from './route-offers.mjs?v=in-game-edges-1';
+import {ROUTE_BONUSES} from './route-bonuses.mjs?v=in-game-edges-1';
+import {updateBonusGauge} from './route-bonus-ui.mjs?v=in-game-edges-1';
+import {forecastCheckpointMarkup} from './night-atlas.mjs?v=in-game-edges-1';
+import {markFlightAttemptStarted,previewAtlasMap} from './model.mjs?v=in-game-edges-1';
+import {getBossPreview} from './boss.mjs?v=in-game-edges-1';
+import {flightPreviewMarkup} from './flight-preview.mjs?v=in-game-edges-1';
+import {collectionMarkup,COLLECTION_PAGE_SIZE} from './collection-view.mjs?v=in-game-edges-1';
+import {restBenefitsMarkup} from './rest-choice-view.mjs?v=in-game-edges-1';
+import {treasureView} from './treasure-view.mjs?v=in-game-edges-1';
+import {getFlightClearReward} from './checkpoint-rewards.mjs?v=in-game-edges-1';
+import {artifactDescription} from './artifact-copy.mjs?v=in-game-edges-1';
+import {showNightmare} from './nightmare.mjs?v=in-game-edges-1';
+import {startResumeCountdown} from './resume-countdown.mjs?v=in-game-edges-1';
+import {automaticTipsEnabled,nextOnboardingLesson,markOnboardingSeen,resetOnboarding,noteOnboardingPrompt,noteOnboardingProgress,onboardingFeatureAvailable,onboardingFlightPlan,lanternEntryLesson,giantBlackHoleEntryLesson} from './onboarding.mjs?v=in-game-edges-1';
+import {flightRewardMarkup} from './reward-screen.mjs?v=in-game-edges-1';
+import {flightEntryMarkup,resumeGateMarkup,waitForFlightEntry,preloadFlightEntry} from './flight-entry.mjs?v=in-game-edges-1';
+import {TUTORIAL_TOPICS,topicSteps} from './tutorial-curriculum.mjs?v=in-game-edges-1';
+import {resourceCycleSteps} from './resource-cycle.mjs?v=in-game-edges-1';
+import {tutorialVisualMarkup} from './tutorial-visuals.mjs?v=in-game-edges-1';
+import {deathScreenMarkup} from './death-screen.mjs?v=in-game-edges-1';
+import {createRestInspectorState,createTreasureInspectorState} from './rest-inspector.mjs?v=in-game-edges-1';
+import {createLanternMapInspectorState} from './lantern-map-inspector.mjs?v=in-game-edges-1';
+import {createBoundaryInspectorState,frameBoundaryInspection} from './boundary-run-inspector.mjs?v=in-game-edges-1';
+import {LANTERN_THEME,LANTERN_CHAPTER} from './map-theme.mjs?v=in-game-edges-1';
+import {choiceScene} from './choice-art.mjs?v=in-game-edges-1';
+import {contextualFlightNotice} from './contextual-events.mjs?v=in-game-edges-1';
+import {createMusic} from './music.mjs?v=in-game-edges-1';
+import {resourceSymbol} from './game-symbols.mjs?v=in-game-edges-1';
+import {nextArtifactNotice,artifactUseLesson} from './artifact-lessons.mjs?v=in-game-edges-1';
+import {getArtifactInfo,CONSUMABLE_ARTIFACTS,EVOLVING_ARTIFACTS} from './artifact-info.mjs?v=in-game-edges-1';
+import {checkpointTutorialLesson,observedFlightLesson,flightEffectLesson} from './tutorial-steps.mjs?v=in-game-edges-1';
+import {ARTIFACT_ENGINE_RULES} from './artifact-effects.mjs?v=in-game-edges-1';
+import {rewardThemeMarkup,encounterIntent,encounterIntentMarkup,artifactOfferMarkup,artifactDetailMarkup,artifactRarityLabel,artifactSummaryMarkup,artifactLifetimeMarkup} from './replay-ui.mjs?v=in-game-edges-1';
+import {installLandscapeMode} from './landscape.mjs?v=in-game-edges-1';
+import {drawLandscapeMap} from './landscape-map.mjs?v=in-game-edges-1';
+import {attachDream,canDreamAt,dreamEye,prepareDreamHandoff,updateDreamIndicator,validateDreamPreset} from './dream.mjs?v=in-game-edges-1';
+import {chooseFlightReward,getAvailableUpgrades,acknowledgeVictory,takeClearRewardReceipt} from './model.mjs?v=in-game-edges-1';
+import {formatGlow,glowPercent,getGlowCapacity,glowText} from './vitality.mjs?v=in-game-edges-1';
+import {glowGaugeMarkup,updateGlowGauge} from './glow-ui.mjs?v=in-game-edges-1';
+import {edgingPulseMarkup,updateEdgingPulse} from './edging-ui.mjs?v=in-game-edges-1';
+import {skillBookMarkup,skillBookChapter} from './skill-book.mjs?v=in-game-edges-1';
+import {livesMarkup,lifeHeartSvg} from './lives.mjs?v=in-game-edges-1';
+import {attachFlightPerformance,downloadPerformanceReport} from './flight-performance.mjs?v=in-game-edges-1';
+import {getChallengePreview} from './flight-challenges.mjs?v=in-game-edges-1';
+import {homeMenuMarkup,runProgressMarkup,companionLockIcon} from './run-menu.mjs?v=in-game-edges-1';
+import {skillIcon,artifactIcon} from './upgrade-icons.mjs?v=in-game-edges-1';
+import {TERRAINS,SKILLS,ARTIFACTS,newState,loadState,saveState,createRun,getStartingArtifact,getStartingGiftOffers,canChooseStartingGift,chooseStartingGift,chooseStartingSkill,setTestOverride,grantTestCondensedGlow,getStartingCompanion,setStartingCompanion,startTutorial,leaveTutorial,getChoices,getRouteMapState,selectNode,beginFlightAttempt,retryFlight,finishFlight,getSupportChoices,resolveSupport,settleCheckpoint,bankRun,advanceMap,previewGlowReward,getSkillCost,getSkillPrice,getSkillWallet,getSkillLockReason,suspendRun,abandonRun,isSkillRevealed,canBuyCheckpointSkills,buyCheckpointSkill,getRunModifiers,canChangeCompanion,setCompanions,sellArtifact,canSellArtifact,getArtifactSalvageValue} from './model.mjs?v=in-game-edges-1';
+import {WispFlight} from './flight.mjs?v=in-game-edges-1';
+import {COMPANION_ABILITIES,getCompanionAbility,getCompanionUnlock,normalizeCompanionRole} from './companion-abilities.mjs?v=in-game-edges-1';
+import {companionArtSvg} from './companion-art.mjs?v=in-game-edges-1';
+import {boostControlMarkup,updateBoostControl} from './boost-control.mjs?v=in-game-edges-1';
+import {campaignStrip,bossSigil,guardianRitualMarkup} from './campaign-ui.mjs?v=in-game-edges-1';
+import {resolveLevelIdentity} from './level-catalog.mjs?v=in-game-edges-1';
+import {levelMapGlyph,levelMapPreview} from './level-map-art.mjs?v=in-game-edges-1';
+import {getAscentInfo} from './ascent.mjs?v=in-game-edges-1';
+import {getRouteForecast} from './route-forecast.mjs?v=in-game-edges-1';
+import {MAP_STOP_TYPES,getMapStopInfo,mapStopIconMarkup,getEventScenarios} from './map-guide.mjs?v=in-game-edges-1';
+import {formatFlightDuration} from './level-length.mjs?v=in-game-edges-1';
+import {condensedIconMarkup} from './afterglow-ui.mjs?v=in-game-edges-1';
+import {pickupGuideMarkup,pickupLesson} from './pickup-guide.mjs?v=in-game-edges-1';
+import {pickupArtSvg} from './pickup-art.mjs?v=in-game-edges-1';
+import {createTutorialCoach} from './tutorial-coach.mjs?v=in-game-edges-1';
+import {getTutorialWorldFocus} from './tutorial.mjs?v=in-game-edges-1';
 if(window.parent!==window&&new URLSearchParams(location.search).has('hosted'))document.documentElement.dataset.framed='';
 const app=document.querySelector('#app'),header=document.querySelector('#header');
 const mockScene=new URLSearchParams(location.search).get('mock');
-const restInspector=mockScene==='rest',treasureInspector=mockScene==='treasure',lanternInspector=mockScene==='lantern-map',mockMode=restInspector||lanternInspector||treasureInspector;
-let state;if(restInspector)state=createRestInspectorState();else if(treasureInspector)state=createTreasureInspectorState(new URLSearchParams(location.search).get('treasure')||'vessel');else if(lanternInspector)state=createLanternMapInspectorState();else try{state=loadState(localStorage)}catch{state=newState()}
+const restInspector=mockScene==='rest',treasureInspector=mockScene==='treasure',lanternInspector=mockScene==='lantern-map',boundaryInspector=mockScene==='boundary',mockMode=restInspector||lanternInspector||treasureInspector||boundaryInspector;
+let state;if(boundaryInspector)state=createBoundaryInspectorState(new URLSearchParams(location.search));else if(restInspector)state=createRestInspectorState();else if(treasureInspector)state=createTreasureInspectorState(new URLSearchParams(location.search).get('treasure')||'vessel');else if(lanternInspector)state=createLanternMapInspectorState();else try{state=loadState(localStorage)}catch{state=newState()}
+let boundaryEdgeStyle=new URLSearchParams(location.search).get('edge')||'moon',boundaryReveal=false;
 if(state.settings.reducedMotion)document.documentElement.dataset.reducedMotion='true';
 let launchTicket=0,flightLoading=false,resumeArmed=false,cancelCountdown=null,rewardAnimating=false;
 let screen='home',engine=null,paused=false,hud=null,bookChapter='wisp',lesson=null,lastSnapshot=null;
@@ -510,7 +512,7 @@ async function launch(retry=false,waking=null){
   try{
   await new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)));if(ticket!==launchTicket)return;
   hud={bonus:document.querySelector('#flight-bonus'),edging:document.querySelector('.edging-pulse-gauge'),fill:document.querySelector('#flame-fill'),meter:document.querySelector('#flame-meter'),progress:document.querySelector('#flight-progress-bar'),power:document.querySelector('#boost-btn'),event:document.querySelector('#flight-event'),flap:document.querySelector('#flap-label'),flapCostArt:document.querySelector('.lift-cost>.resource-symbol-energy'),boss:document.querySelector('#boss-phase')};
-  engine=new WispFlight({reducedMotion:state.settings.reducedMotion,canvas:document.querySelector('#flight-canvas'),terrain:n.terrain,elite:n.elite,seed:`${r.seed}-${n.id}`,duration:n.duration,node:n,challengeId:n.challengeId,challengeTarget:n.challengeTarget,flame:r.flame,condensedGlow:getSkillWallet(state).condensedGlow,condensedRemainder:r.condensedRemainder||0,companions:r.companions,companionRole:r.companions[0],skills:r.skills,cards:[],modifiers:{...getRunModifiers(r),onboardingPlan:onboardingFlightPlan(state.profile,r)},getAudioTransport:()=>music.getTransport(),onUpdate:updateFlight,onFinish:dream?()=>{}:completeFlight,onPause:()=>{if(!paused){paused=true;showMenu()}}});engine.setMuted?.(muted);
+  engine=new WispFlight({boundaryStyle:boundaryInspector?boundaryEdgeStyle:undefined,reducedMotion:state.settings.reducedMotion,canvas:document.querySelector('#flight-canvas'),terrain:n.terrain,elite:n.elite,seed:`${r.seed}-${n.id}`,duration:n.duration,node:n,challengeId:n.challengeId,challengeTarget:n.challengeTarget,flame:r.flame,condensedGlow:getSkillWallet(state).condensedGlow,condensedRemainder:r.condensedRemainder||0,companions:r.companions,companionRole:r.companions[0],skills:r.skills,cards:[],modifiers:{...getRunModifiers(r),onboardingPlan:onboardingFlightPlan(state.profile,r)},getAudioTransport:()=>music.getTransport(),onUpdate:updateFlight,onFinish:dream?()=>{}:completeFlight,onPause:()=>{if(!paused){paused=true;showMenu()}}});engine.setMuted?.(muted);
   engine.nightmareAvailable=()=>!dream&&!r.isTutorial&&r.nightmareSpentMap!==r.mapIndex;
   engine.onNightmare=(scene,path)=>{
    r.nightmareSpentMap=r.mapIndex;persist();
@@ -545,6 +547,12 @@ async function launch(retry=false,waking=null){
    const memory=waking.memory;
    const fade=memory.animate([{opacity:1},{opacity:0}],{duration:scene.reducedMotion?180:1400,easing:'ease-in-out',fill:'forwards'});
    fade.finished.then(()=>{memory.remove();device.classList.remove('dream-waking')}).catch(()=>{});
+  }
+  if(boundaryInspector){
+   const normal=scene.getLightState.bind(scene);
+   scene.getLightState=()=>boundaryReveal?{...normal(),radius:5000,pickupReveal:1}:normal();
+   frameBoundaryInspection(scene);
+   window.parent.postMessage({type:'wisp-boundary-ready'},location.origin);
   }
   if(!handoff)resumeFlight({waitForTap:true});
   if(r.isTutorial&&!dream&&!waking)requestAnimationFrame(()=>guideScreen('flight'));
@@ -731,6 +739,16 @@ document.addEventListener('keyup',e=>{if(['Space','ArrowUp'].includes(e.code))en
 window.addEventListener('blur',()=>engine?.endLiftInput(true));
 let treeResizeFrame=0;
 window.addEventListener('resize',()=>{cancelAnimationFrame(treeResizeFrame);treeResizeFrame=requestAnimationFrame(()=>{if(screen==='map')drawMap()})});
+
+if(boundaryInspector)window.addEventListener('message',event=>{
+ if(event.origin!==location.origin||event.source!==window.parent)return;
+ if(event.data?.type==='wisp-boundary-style'&&['moon','living','danger'].includes(event.data.style)){
+  boundaryEdgeStyle=event.data.style;
+  if(engine){if(!engine.paused){pauseFlight();resumeFlight({waitForTap:true});}engine.boundaryStyle=boundaryEdgeStyle;engine.render();}
+ }
+ if(event.data?.type==='wisp-boundary-scene'&&event.data.action==='relight'){boundaryReveal=!boundaryReveal;engine?.render();}
+ if(event.data?.type==='wisp-boundary-scene'&&event.data.action==='restart'){boundaryReveal=false;destroyFlight();state=createBoundaryInspectorState(new URLSearchParams(location.search));goToRun();}
+});
 
 if(mockMode)goToRun();
 

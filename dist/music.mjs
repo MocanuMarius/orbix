@@ -1,4 +1,4 @@
-// Original, synchronized eight-minute lo-fi stems. Gains and a shared varispeed
+// Original, synchronized seven-minute lo-fi stems. Gains and a shared varispeed
 // transport respond to flight without audio graph allocation or simulation changes.
 const TRACKS=['./assets/audio/lantern-drift.mp3','./assets/audio/lantern-pulse.mp3','./assets/audio/lantern-storm.mp3'];
 const unit=n=>Math.max(0,Math.min(1,Number(n)||0));
@@ -69,7 +69,7 @@ export function createMusic({storage=globalThis.localStorage,document=globalThis
  document.addEventListener('keydown',gesture,{capture:true});
  document.addEventListener('visibilitychange',visibility);
  return {get enabled(){return enabled},get mode(){return mode},
-  getTransport(){return {time:Number(players[0]?.currentTime)||0,rate,bpm:78};},
+  getTransport(){return {time:Number(players[0]?.currentTime)||0,rate,bpm:88};},
   setScene(next,pressure=0){if(destroyed)return;mode=next;danger=Math.round(unit(pressure)*10)/10;targets=musicMix(mode,danger);clearReaction();},
   setFlight(s){if(destroyed)return;this.setScene(s.dream?.mode==='record'?'dream':s.dying?'loss':s.completing?'clear':s.paused?'pause':s.boss?'boss':'flight',Math.max(Math.min(1,(s.blackHole?.rate||0)/20),Math.max(0,1-(s.flame||0)/Math.max(1,(s.maxFlame||100)*.3)),s.boss?Math.min(1,(s.boss.phase||1)/3):0));if(enabled&&!document.hidden){const reaction=musicReactivity(s);holeTarget=reaction.hole;pulseTarget=reaction.pulse;if(mode==='flight'||mode==='boss')focusTarget=unit(s.audioFocus);}},
   setEnabled(value){if(destroyed)return;enabled=!!value;unlocked=true;try{storage.setItem(key,String(enabled))}catch{}if(enabled)play();else{clearReaction();stop();}},

@@ -1,5 +1,5 @@
-import {getArtifactInfo} from './artifact-info.mjs?v=small-openings-1';
-import {glowText} from './vitality.mjs?v=small-openings-1';
+import {getArtifactInfo} from './artifact-info.mjs?v=in-game-edges-1';
+import {glowText} from './vitality.mjs?v=in-game-edges-1';
 
 // One small first-use explanation per flight. Remaining discoveries stay
 // eligible next flight rather than chaining several modal interruptions.
