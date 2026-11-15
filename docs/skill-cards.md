@@ -1,12 +1,13 @@
 # Skills as cards
 
-**Design for the proposed card playtest · 15 November 2026.** The three decisions below are settled. Remaining pilot hypotheses are marked separately. This supersedes the two-milestone, two-pick suggestion. The campaign and First Light stay unchanged.
+**Design for the proposed card playtest · 15 November 2026.** The four decisions below are settled. Remaining pilot hypotheses are marked separately. This supersedes the two-milestone, two-pick suggestion. The campaign and First Light stay unchanged.
 
-## Three settled decisions
+## Four settled decisions
 
-1. **Melt into one wallet.** Every unwanted playable reward card can immediately **Melt** for a visible amount of **Stored Sparks**, the existing run wallet also earned through flight and packing. That wallet pays to improve a chosen mounted card or forge a random higher-rarity card. Aim for roughly three Common melts to fund a Rare. This is an economy target, not a three-card recipe. No matching-copy requirement, duplicate tally or spare-card inventory.
+1. **Melt into one wallet.** Every unwanted playable reward card can immediately **Melt** for a visible amount of **Stored Sparks**, the existing run wallet also earned through flight and packing. That wallet pays to improve a chosen mounted card or forge a random higher-rarity card. The first playtest uses **+10 Stored Sparks per Common Melt** and **30 Stored Sparks to forge one Rare**, so three Common melts fund a Rare. These are pilot prices, not a three-card recipe. No matching-copy requirement, duplicate tally or spare-card inventory.
 2. **Separate the timings.** Freely equip and reorder after flight. Improve at **any checkpoint**. Forge at **Rest only**.
 3. **Two optional Rest opportunities per map.** Every playable route through each ten-stop map must offer two reachable Rest forks: one around mid-map and one before the guardian. Either Rest can be bypassed for treasure, an event or another flight. Reaching or taking the first must leave the second reachable.
+4. **Forge uses a Rest action.** Rest normally permits one action from **Recover, Add slot or Forge**. Forge spends Stored Sparks and consumes an action; it grants no additional healing, refill, growth or slot. A specific mounted **Rare skill card** unlocks Grow as another choice. A separate **consumable camp card** grants a second distinct eligible action at one Rest. Details and proposed defaults are below.
 
 ## The player loop
 
@@ -28,7 +29,7 @@ Three slots means capacity, not three free cards. Could the existing starter gif
 Keep these distinctions visible:
 
 - **Rarity:** Common grey, Rare green, Legendary purple, with written labels.
-- **Cost:** free to mount. Improvements and forging spend existing **Stored Sparks**, never flight fuel. No new currency. Improve a chosen mounted card at any checkpoint. Forge only at Rest.
+- **Cost:** free to mount. Improvements and forging spend existing **Stored Sparks**, never flight fuel. No new currency. Improve a chosen mounted card at any checkpoint. Forge only at Rest, consuming one camp action as well as its price.
 - **Rank:** improvement within a card. Map level may unlock selected upgrades without automatically raising rarity. Tap to preview the actual number changed and price.
 - **Charges:** remaining uses on that real card.
 - **Temporary modifiers:** their own printed duration, separate from rank and charges.
@@ -53,15 +54,21 @@ Limited uses are shared with the real source **per execution**. Repeating +2 twi
 
 Melt exchanges one unwanted playable card for the shown Stored Sparks. It does not save ingredients or count matching cards. Preview the card and ability lost, its remaining charges and the amount gained. Consume the card once and never leave it active after the exchange. Exhausted cards cannot Melt.
 
-At Rest, spend from the shared wallet to forge a **seeded random higher-rarity card**, progressing through Common → Rare → Legendary, with no tier above Legendary. Show the price and output rarity before committing. Melt payouts and forged results survive reload and retry without duplicate transactions or rerolls.
+At Rest, spend from the shared wallet and consume one camp action to forge a **seeded random higher-rarity card**, progressing through Common → Rare → Legendary, with no tier above Legendary. **One Rare costs 30 Stored Sparks in the first playtest.** Show the price and output rarity before committing. Melt payouts and forged results survive reload and retry without duplicate transactions or rerolls.
 
-Exact Melt values, improvement prices, forge prices and rarity odds remain pilot hypotheses. The roughly three-Common-melts-to-a-Rare target does not fix an absolute price. Whether to show the pre-rolled result or only its pool also remains open.
+**One Common Melt returns 10 Stored Sparks in the first playtest.** Other tiers' Melt values and forge prices, rank-improvement prices and rarity/drop odds remain open. Whether to show the pre-rolled result or only its pool also remains open.
 
 ## Rest and archetypes
 
-Rest offers **Recover, Grow or Add slot** as its benefit choices: expansion costs the recovery or growth passed up. **The next design decision is still open:** does Forge use the camp's sole benefit, competing with those choices, or is it a once-per-visit service paid from Stored Sparks alongside one chosen benefit?
+Rest normally offers **one action per visit**: choose **Recover, Add slot or Forge**. Forge costs Stored Sparks as well as the action passed up; choosing it grants no additional healing, refill, growth or slot.
 
-Separate pilot hypotheses: **five slots maximum, at most one addition per map**. Add slot restores neither hearts nor fuel. Show Recover/Grow refills clearly. At cap, retain useful choices or Continue without resetting the run. Test whether slots are worthwhile without becoming the guaranteed best camp choice. Neither the slot cap nor exact prices are settled by the three decisions above.
+A specific **Rare skill card unlocks Grow while mounted**; it does not grant growth automatically. Selecting Grow preserves the current benefit: **+3 maximum Sparks for the rest of the run and a full meter refill, with no heart restoration**. Preserve the existing limit of **three Grow actions per run, +9 maximum Sparks total**. Proposed default: the unlock card lasts for the run while mounted.
+
+A separate **consumable camp card** grants **one second, distinct eligible action at one Rest**. Its rarity remains open. Proposed one-use behavior: spend its one charge only when the second action successfully commits. Visiting, declining, swapping or leaving after the first action does not spend it; if no second action is possible, preserve the charge. Do not repeat the same choice or Forge twice. Forge still deducts its quoted price once when committed.
+
+**Interpretation for review:** with both cards mounted, Grow may be either action in the pair, provided it remains eligible. Working proposal: check mounted camp-card eligibility on arrival at Rest, so same-visit re-equipping or consuming cards cannot create unlimited extra actions.
+
+Separate pilot hypotheses: **five slots maximum, at most one addition per map**. Add slot restores neither hearts nor fuel. Show Recover/Grow refills clearly. At cap, retain useful choices or Continue without resetting the run. Test whether slots are worthwhile without becoming the guaranteed best camp choice. Slot caps, other tier prices, rank-improvement prices, drop odds and the consumable card's rarity remain open; the Common Melt and Rare forge pilot prices above are established.
 
 Keep **Bankrunner** skimming and **Glider** coasting into a direct fuel Spark as archetype examples, each priming one free Lift. Candidate follow-ups reveal nearby space or accelerate a recovering Collector when that Lift is spent. Retain one stored free Lift, tentatively two priming triggers per flight, and preserve the opportunity while a free Lift is stored. Show each step clearly.
 
