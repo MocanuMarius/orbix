@@ -1,7 +1,7 @@
-import {WispFlight} from './flight.mjs?v=lofi-contours-1';
-import {getRunModifiers} from './model.mjs?v=lofi-contours-1';
-import {wispOrbit} from './wisp.mjs?v=lofi-contours-1';
-import {formatGlow, glowPoints} from './vitality.mjs?v=lofi-contours-1';
+import {WispFlight} from './flight.mjs?v=starter-flow-1';
+import {getRunModifiers} from './model.mjs?v=starter-flow-1';
+import {wispOrbit} from './wisp.mjs?v=starter-flow-1';
+import {formatGlow, glowPoints} from './vitality.mjs?v=starter-flow-1';
 
 const frame=document.querySelector('#flight-frame'),gate=document.querySelector('#gate');
 const status=document.querySelector('#status'),meter=document.querySelector('meter'),amount=document.querySelector('#meter');

@@ -1,5 +1,5 @@
-import {getMapStopInfo} from './map-guide.mjs?v=lofi-contours-1';
-import {getChoices} from './model.mjs?v=lofi-contours-1';
+import {getMapStopInfo} from './map-guide.mjs?v=starter-flow-1';
+import {getChoices} from './model.mjs?v=starter-flow-1';
 
 const emptyForecast=()=>({restReachable:false,restGuaranteed:false,nextRestDistance:null,flightsToRest:null,nextStops:[],minFlights:0,maxFlights:0,minTotalFlights:0,maxTotalFlights:0,minRests:0,maxRests:0});
 
