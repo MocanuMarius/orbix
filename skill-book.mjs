@@ -1,12 +1,14 @@
-import {SKILLS,getRunModifiers} from './model.mjs?v=nature-sounds-1';
-import {collectorPreferenceMarkup} from './collector-preferences.mjs?v=nature-sounds-1';
-import {formatLuminance} from './luminance-units.mjs?v=nature-sounds-1';
-import {WISP_ART} from './companion-art.mjs?v=nature-sounds-1';
-import {skillTreeState,skillTreeStatus} from './skill-tree-state.mjs?v=nature-sounds-1';
-import {getCompanionAbility} from './companion-abilities.mjs?v=nature-sounds-1';
-import {skillIcon} from './upgrade-icons.mjs?v=nature-sounds-1';
-import {resourceSymbol} from './game-symbols.mjs?v=nature-sounds-1';
-import {glowText,getGlowCapacity} from './vitality.mjs?v=nature-sounds-1';
+import {SKILLS,getRunModifiers} from './model.mjs?v=small-openings-1';
+import {collectorPreferenceMarkup} from './collector-preferences.mjs?v=small-openings-1';
+import {formatLuminance} from './luminance-units.mjs?v=small-openings-1';
+import {WISP_ART} from './companion-art.mjs?v=small-openings-1';
+import {skillTreeState,skillTreeStatus} from './skill-tree-state.mjs?v=small-openings-1';
+import {getCompanionAbility} from './companion-abilities.mjs?v=small-openings-1';
+import {skillIcon} from './upgrade-icons.mjs?v=small-openings-1';
+import {resourceSymbol} from './game-symbols.mjs?v=small-openings-1';
+import {glowText,getGlowCapacity} from './vitality.mjs?v=small-openings-1';
+import {skillBookChapter} from './skill-chapters.mjs?v=small-openings-1';
+export {skillBookChapter} from './skill-chapters.mjs?v=small-openings-1';
 
 const chapters=[
  ['wisp','Flight','main-efficiency'],['luminance','Luminance','main-sight'],
@@ -21,14 +23,6 @@ const groupId=skill=>skill.treeGroup||skill.id;
 const art=skill=>skillIcon(skill);
 const money=()=>resourceSymbol('packed');
 
-export function skillBookChapter(skill){
- if(skill.treeTab==='companion')return 'companion';
- if(skill.branch==='proximity')return 'proximity';
- if(skill.branch==='afterglow'||['main-afterglow','main-clear-dividend'].includes(skill.id))return 'packing';
- if(skill.treeGroup==='main-dream')return 'dream';
- if(['main-sight','main-glow-sense','main-long-flash','main-resonant-harvest','main-resonant-purification','main-resonant-bounty'].includes(groupId(skill)))return 'luminance';
- return 'wisp';
-}
 function perkOrder(a,b){
  return (a.treeStage||1)-(b.treeStage||1)||(a.name||a.id).localeCompare(b.name||b.id);
 }

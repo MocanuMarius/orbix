@@ -1,11 +1,11 @@
-import {drawFluidCapture, FLUID_STYLES} from './fluid-capture.mjs?v=nature-sounds-1';
-import {drawPickup} from './pickup-art.mjs?v=nature-sounds-1';
-import {drawShellPuff} from './capture-art.mjs?v=nature-sounds-1';
-import {drawShellArcs} from './shell-arcs.mjs?v=nature-sounds-1';
-import {sparkArtScale, sparkBodyRadius} from './spark-size.mjs?v=nature-sounds-1';
-import {makeWispSprite} from './companion-art.mjs?v=nature-sounds-1';
-import {createDepthScenery, drawDepthScenery} from './depth-scenery.mjs?v=nature-sounds-1';
-import {biomePalette} from './biome-art.mjs?v=nature-sounds-1';
+import {drawFluidCapture, FLUID_STYLES} from './fluid-capture.mjs?v=small-openings-1';
+import {drawPickup} from './pickup-art.mjs?v=small-openings-1';
+import {drawShellPuff} from './capture-art.mjs?v=small-openings-1';
+import {drawShellArcs} from './shell-arcs.mjs?v=small-openings-1';
+import {sparkArtScale, sparkBodyRadius} from './spark-size.mjs?v=small-openings-1';
+import {makeWispSprite} from './companion-art.mjs?v=small-openings-1';
+import {createDepthScenery, drawDepthScenery} from './depth-scenery.mjs?v=small-openings-1';
+import {biomePalette} from './biome-art.mjs?v=small-openings-1';
 
 const canvas = document.querySelector('#scene');
 const ctx = canvas.getContext('2d');

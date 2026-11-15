@@ -1,37 +1,37 @@
-import {collectorPreference,learnedCollectorPreferences} from './collector-preferences.mjs?v=nature-sounds-1';
-import {FLIGHT_PACTS,pactOffers,activeFlightPact,pactBonus} from './flight-pacts.mjs?v=nature-sounds-1';
-import {chestRewardPair} from './chest-rewards.mjs?v=nature-sounds-1';
-import {STARTING_GIFTS} from './starting-gifts.mjs?v=nature-sounds-1';
-import {EVENT_EDITION,eventChoices,rollPrism} from './event-choices.mjs?v=nature-sounds-1';
-import {GUARDIAN_RELICS} from './guardian-artifacts.mjs?v=nature-sounds-1';
-import {ATLAS_FORECASTS,atlasBranches} from './night-atlas.mjs?v=nature-sounds-1';
-import {getRouteBonus,awardRouteBonus} from './route-bonuses.mjs?v=nature-sounds-1';
-export {getRouteBonus,getRouteBonusCandidates,nextBonusFlightNodes} from './route-bonuses.mjs?v=nature-sounds-1';
-import {consolidateSkills,refundRetiredSkills} from './skill-consolidation.mjs?v=nature-sounds-1';
-import {PROXIMITY_SKILLS} from './proximity-skills.mjs?v=nature-sounds-1';
-import {getGuardianForMap,getBossPreview} from './boss.mjs?v=nature-sounds-1';
-import {guardianMapTheme} from './map-theme.mjs?v=nature-sounds-1';
-import {getFlightLengthProfile} from './level-length.mjs?v=nature-sounds-1';
-import {cleanOnboarding} from './onboarding.mjs?v=nature-sounds-1';
-import {CONDENSED_TUNING,getCondensationRules,condenseGlow,getKeptLightDividend,getFlightPackingLimit,packExitReserve} from './condensed-glow.mjs?v=nature-sounds-1';
-import {CONSUMABLE_ARTIFACTS,EVOLVING_ARTIFACTS,getArtifactStackPreview} from './artifact-info.mjs?v=nature-sounds-1';
-import {getFlightClearReward} from './checkpoint-rewards.mjs?v=nature-sounds-1';
-export {getCondensationRules} from './condensed-glow.mjs?v=nature-sounds-1';
-import {ROUTE_RECIPES,ROUTE_TOPOLOGY_VERSION,MAP_STOP_COUNT,REWARD_THEMES,nodeEconomy} from './route-recipes.mjs?v=nature-sounds-1';
-import {COMPANION_ABILITIES,getCompanionUnlock,normalizeCompanionFleet} from './companion-abilities.mjs?v=nature-sounds-1';
-import {MAIN_TUNING_SKILLS} from './main-tuning.mjs?v=nature-sounds-1';
-import {activePassageBoons,activeEventFavors,grantEventFavor,spendPreparationClear} from './passage-preparations.mjs?v=nature-sounds-1';
-import {STARTING_CONDENSED_GLOW,getGlowCapacity,getRestGlowBonus,REST_GLOW_TUNING,glowText} from './vitality.mjs?v=nature-sounds-1';
-import {expandSkillSteps,skillProgress} from './skill-increments.mjs?v=nature-sounds-1';
-import {MAX_ASCENSION} from './ascent.mjs?v=nature-sounds-1';
-import {EXPANDED_SKILLS,applyExpandedSkills} from './skill-paths.mjs?v=nature-sounds-1';
+import {collectorPreference,learnedCollectorPreferences} from './collector-preferences.mjs?v=small-openings-1';
+import {FLIGHT_PACTS,pactOffers,activeFlightPact,pactBonus} from './flight-pacts.mjs?v=small-openings-1';
+import {chestRewardPair} from './chest-rewards.mjs?v=small-openings-1';
+import {STARTING_GIFTS,STARTING_SKILL_COST_LIMIT} from './starting-gifts.mjs?v=small-openings-1';
+import {EVENT_EDITION,eventChoices,rollPrism} from './event-choices.mjs?v=small-openings-1';
+import {GUARDIAN_RELICS} from './guardian-artifacts.mjs?v=small-openings-1';
+import {ATLAS_FORECASTS,atlasBranches} from './night-atlas.mjs?v=small-openings-1';
+import {getRouteBonus,awardRouteBonus} from './route-bonuses.mjs?v=small-openings-1';
+export {getRouteBonus,getRouteBonusCandidates,nextBonusFlightNodes} from './route-bonuses.mjs?v=small-openings-1';
+import {consolidateSkills,refundRetiredSkills} from './skill-consolidation.mjs?v=small-openings-1';
+import {PROXIMITY_SKILLS} from './proximity-skills.mjs?v=small-openings-1';
+import {getGuardianForMap,getBossPreview} from './boss.mjs?v=small-openings-1';
+import {guardianMapTheme} from './map-theme.mjs?v=small-openings-1';
+import {getFlightLengthProfile} from './level-length.mjs?v=small-openings-1';
+import {cleanOnboarding} from './onboarding.mjs?v=small-openings-1';
+import {CONDENSED_TUNING,getCondensationRules,condenseGlow,getKeptLightDividend,getFlightPackingLimit,packExitReserve} from './condensed-glow.mjs?v=small-openings-1';
+import {CONSUMABLE_ARTIFACTS,EVOLVING_ARTIFACTS,getArtifactStackPreview} from './artifact-info.mjs?v=small-openings-1';
+import {getFlightClearReward} from './checkpoint-rewards.mjs?v=small-openings-1';
+export {getCondensationRules} from './condensed-glow.mjs?v=small-openings-1';
+import {ROUTE_RECIPES,ROUTE_TOPOLOGY_VERSION,MAP_STOP_COUNT,REWARD_THEMES,nodeEconomy} from './route-recipes.mjs?v=small-openings-1';
+import {COMPANION_ABILITIES,getCompanionUnlock,normalizeCompanionFleet} from './companion-abilities.mjs?v=small-openings-1';
+import {MAIN_TUNING_SKILLS} from './main-tuning.mjs?v=small-openings-1';
+import {activePassageBoons,activeEventFavors,grantEventFavor,spendPreparationClear} from './passage-preparations.mjs?v=small-openings-1';
+import {STARTING_CONDENSED_GLOW,getGlowCapacity,getRestGlowBonus,REST_GLOW_TUNING,glowText} from './vitality.mjs?v=small-openings-1';
+import {expandSkillSteps,skillProgress} from './skill-increments.mjs?v=small-openings-1';
+import {MAX_ASCENSION} from './ascent.mjs?v=small-openings-1';
+import {EXPANDED_SKILLS,applyExpandedSkills} from './skill-paths.mjs?v=small-openings-1';
 /** Run-owned skills and currency; persistent ascension unlocks and boss artifacts. */
-import { FLAME_TUNING, LIFE_TUNING, getLifeCapacity } from './vitality.mjs?v=nature-sounds-1';
-import { getBiomeLevelIdentity } from './level-catalog.mjs?v=nature-sounds-1';
-import { BIOMES } from './biomes.mjs?v=nature-sounds-1';
-import { EVENT_SCENARIOS } from './map-guide.mjs?v=nature-sounds-1';
-import {contextualEventChoices,resolvePilgrimVow,ROUTE_PREPARATION} from './contextual-events.mjs?v=nature-sounds-1';
-import {TREASURE_KINDS, describeTreasure, treasureChoices, treasureRank, grantTreasureGift, treasureClearDividend, LENS_SIGHT, LENS_RECOVERY, settleTreasureWager} from './treasure.mjs?v=nature-sounds-1';
+import { FLAME_TUNING, LIFE_TUNING, getLifeCapacity } from './vitality.mjs?v=small-openings-1';
+import { getBiomeLevelIdentity } from './level-catalog.mjs?v=small-openings-1';
+import { BIOMES } from './biomes.mjs?v=small-openings-1';
+import { EVENT_SCENARIOS } from './map-guide.mjs?v=small-openings-1';
+import {contextualEventChoices,resolvePilgrimVow,ROUTE_PREPARATION} from './contextual-events.mjs?v=small-openings-1';
+import {TREASURE_KINDS, describeTreasure, treasureChoices, treasureRank, grantTreasureGift, treasureClearDividend, LENS_SIGHT, LENS_RECOVERY, settleTreasureWager} from './treasure.mjs?v=small-openings-1';
 export const SAVE_KEY='wispbound.save.condensed.v7';
 export const CAMPAIGN_MAP_NAMES=Object.freeze(['The Forgotten Verge','The Rootbound March','The Warden’s Reach']);
 export const TERRAINS=Object.freeze({ruins:{id:'ruins',name:'Sunken Ruins',color:'#cdb183',description:'Broken homes, worn arches and overgrown stone.'},canopy:{id:'canopy',name:'Luminous Canopy',color:'#94b48a',description:'Hollow trees, hanging roots and sheltered forest passages.'},storm:{id:'storm',name:'Stormglass Peaks',color:'#a8bbca',description:'Pine ridges, old mine timbers and local draft puffs.'}});
@@ -366,10 +366,21 @@ export function createRun(profile=newState().profile,seed=freshSeed(),difficulty
 }
 export const STARTING_SKILL_IDS=Object.freeze(STARTING_GIFTS.filter(gift=>gift.skillId).map(gift=>gift.skillId));
 export const STARTING_GIFT_IDS=Object.freeze(STARTING_GIFTS.map(gift=>gift.id));
+export function isStartingGiftEligible(run,gift){
+ if(!run||!gift)return false;
+ if(gift.skillId){
+  const skill=SKILLS[gift.skillId],owned=run.skills||{};
+  if(!skill||skill.retired||!Number.isFinite(skill.cost)||skill.cost>STARTING_SKILL_COST_LIMIT||rank(owned,skill.id))return false;
+  if(![skill.requires].flat().filter(Boolean).every(id=>rank(owned,id)>0))return false;
+  if((skill.excludes||[]).some(id=>rank(owned,id)>0))return false;
+  if(skill.treeTab==='companion'&&normalizeCompanionFleet(run.companions,run.companionRole)[0]!==skill.branch)return false;
+ }
+ return (gift.artifactIds||[]).every(id=>artifactFitsRun(run,id));
+}
 export function getStartingGiftOffers(run){
  if(!run)return [];
- const random=rng((run.campaignSeed||run.seed)+':opening-gift-pair-v1');
- const pool=STARTING_GIFTS.filter(gift=>gift.artifactIds.every(id=>artifactFitsRun(run,id)));
+ const random=rng((run.campaignSeed||run.seed)+':opening-gift-pair-v2');
+ const pool=STARTING_GIFTS.filter(gift=>isStartingGiftEligible(run,gift));
  for(let index=pool.length-1;index>0;index--){
   const other=Math.floor(random()*(index+1));
   [pool[index],pool[other]]=[pool[other],pool[index]];
@@ -379,7 +390,7 @@ export function getStartingGiftOffers(run){
 
 // All three work with every starting companion and ordinary fuel, before any
 // advanced mechanics are unlocked. The actual relic is visible before choosing.
-const startingArtifacts=['overflow-coil','echo-bell','echo-vessel'];
+const startingArtifacts=['ember-lens','reed-charm','wayward-seed'];
 export function getStartingArtifact(run){
  if(!run)return null;
  if(run.startingArtifact)return ARTIFACTS[run.startingArtifact]||null;

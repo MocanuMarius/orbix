@@ -1,7 +1,7 @@
-import {resourceSymbol} from './game-symbols.mjs?v=nature-sounds-1';
-import {pickupArtSvg} from './pickup-art.mjs?v=nature-sounds-1';
-import {lifeHeartSvg} from './lives.mjs?v=nature-sounds-1';
-import {skillIcon} from './upgrade-icons.mjs?v=nature-sounds-1';
+import {resourceSymbol} from './game-symbols.mjs?v=small-openings-1';
+import {pickupArtSvg} from './pickup-art.mjs?v=small-openings-1';
+import {lifeHeartSvg} from './lives.mjs?v=small-openings-1';
+import {skillIcon} from './upgrade-icons.mjs?v=small-openings-1';
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 export function tutorialTarget(step={}){
  const kind=step.visual||'';

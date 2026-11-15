@@ -1,5 +1,5 @@
-import {canCompanionCollect,pickupKind} from './pickups.mjs?v=nature-sounds-1';
-import {sparkMass} from './spark-size.mjs?v=nature-sounds-1';
+import {canCompanionCollect,pickupKind} from './pickups.mjs?v=small-openings-1';
+import {sparkMass} from './spark-size.mjs?v=small-openings-1';
 
 // Body collection retains the original plasma density and fuel. A carrier
 // can learn Cache handling; deliveries condense to one 12-Spark Cluster.

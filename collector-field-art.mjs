@@ -1,7 +1,7 @@
-import {pickupKind} from './pickups.mjs?v=nature-sounds-1';
-import {sparkBodyRadius} from './spark-size.mjs?v=nature-sounds-1';
-import {drawCollectorGuard} from './collector-guard-art.mjs?v=nature-sounds-1';
-import {companionPalette} from './companion-art.mjs?v=nature-sounds-1';
+import {pickupKind} from './pickups.mjs?v=small-openings-1';
+import {sparkBodyRadius} from './spark-size.mjs?v=small-openings-1';
+import {drawCollectorGuard} from './collector-guard-art.mjs?v=small-openings-1';
+import {companionPalette} from './companion-art.mjs?v=small-openings-1';
 
 const TAU = 2 * Math.PI;
 const green = companionPalette('collector');
