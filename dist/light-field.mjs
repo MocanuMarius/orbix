@@ -1,6 +1,6 @@
-import {drawShutterWake,shutterLightFactor,shutterWakeAt} from './shutter-cone.mjs?v=composed-worlds-1';
-import {lanternField} from './lantern-layout.mjs?v=composed-worlds-1';
-import { LIGHT_EXTENT, lightAttenuation } from './light-attenuation.mjs?v=composed-worlds-1';
+import {drawShutterWake,shutterLightFactor,shutterWakeAt} from './shutter-cone.mjs?v=resonance-1';
+import {lanternField} from './lantern-layout.mjs?v=resonance-1';
+import { LIGHT_EXTENT, lightAttenuation } from './light-attenuation.mjs?v=resonance-1';
 export { LIGHT_EXTENT, lightAttenuation };
 const reflectedLight = .6;
 

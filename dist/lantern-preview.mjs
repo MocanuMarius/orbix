@@ -1,9 +1,9 @@
-import { WispFlight, circleHitsObstacle } from './flight.mjs?v=composed-worlds-1';
-import { createRun, getRunModifiers } from './model.mjs?v=composed-worlds-1';
-import { shutterDensityAt } from './shutter-cone.mjs?v=composed-worlds-1';
-import { lanternPassageY, lanternRoute } from './lantern-layout.mjs?v=composed-worlds-1';
-import { wispOrbit } from './wisp.mjs?v=composed-worlds-1';
-import { stepFlashTether } from './flash-tether.mjs?v=composed-worlds-1';
+import { WispFlight, circleHitsObstacle } from './flight.mjs?v=resonance-1';
+import { createRun, getRunModifiers } from './model.mjs?v=resonance-1';
+import { shutterDensityAt } from './shutter-cone.mjs?v=resonance-1';
+import { lanternPassageY, lanternRoute } from './lantern-layout.mjs?v=resonance-1';
+import { wispOrbit } from './wisp.mjs?v=resonance-1';
+import { stepFlashTether } from './flash-tether.mjs?v=resonance-1';
 
 const step = 1 / 60;
 

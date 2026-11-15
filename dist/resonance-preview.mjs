@@ -1,6 +1,6 @@
-import {createMusic} from './music.mjs?v=composed-worlds-1';
-import {createFlightFX} from './reactive-fx.mjs?v=composed-worlds-1';
-import {LuminanceWaves} from './luminance-waves.mjs?v=composed-worlds-1';
+import {createMusic} from './music.mjs?v=resonance-1';
+import {createFlightFX} from './reactive-fx.mjs?v=resonance-1';
+import {LuminanceWaves} from './luminance-waves.mjs?v=resonance-1';
 // Deliberately isolated: the audition never reads or writes a saved game.
 const music=createMusic({storage:{getItem:()=> 'false',setItem(){}},document});
 const fx=createFlightFX();fx.setMuted(true);

@@ -1,11 +1,11 @@
-import {drawFluidCapture, FLUID_STYLES} from './fluid-capture.mjs?v=composed-worlds-1';
-import {drawPickup} from './pickup-art.mjs?v=composed-worlds-1';
-import {drawShellPuff} from './capture-art.mjs?v=composed-worlds-1';
-import {drawShellArcs} from './shell-arcs.mjs?v=composed-worlds-1';
-import {sparkArtScale, sparkBodyRadius} from './spark-size.mjs?v=composed-worlds-1';
-import {makeWispSprite} from './companion-art.mjs?v=composed-worlds-1';
-import {createDepthScenery, drawDepthScenery} from './depth-scenery.mjs?v=composed-worlds-1';
-import {biomePalette} from './biome-art.mjs?v=composed-worlds-1';
+import {drawFluidCapture, FLUID_STYLES} from './fluid-capture.mjs?v=resonance-1';
+import {drawPickup} from './pickup-art.mjs?v=resonance-1';
+import {drawShellPuff} from './capture-art.mjs?v=resonance-1';
+import {drawShellArcs} from './shell-arcs.mjs?v=resonance-1';
+import {sparkArtScale, sparkBodyRadius} from './spark-size.mjs?v=resonance-1';
+import {makeWispSprite} from './companion-art.mjs?v=resonance-1';
+import {createDepthScenery, drawDepthScenery} from './depth-scenery.mjs?v=resonance-1';
+import {biomePalette} from './biome-art.mjs?v=resonance-1';
 
 const canvas = document.querySelector('#scene');
 const ctx = canvas.getContext('2d');

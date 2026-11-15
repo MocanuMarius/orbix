@@ -1,7 +1,7 @@
-import {WispFlight} from './flight.mjs?v=composed-worlds-1';
-import {getRunModifiers} from './model.mjs?v=composed-worlds-1';
-import {wispOrbit} from './wisp.mjs?v=composed-worlds-1';
-import {formatGlow, glowPoints} from './vitality.mjs?v=composed-worlds-1';
+import {WispFlight} from './flight.mjs?v=resonance-1';
+import {getRunModifiers} from './model.mjs?v=resonance-1';
+import {wispOrbit} from './wisp.mjs?v=resonance-1';
+import {formatGlow, glowPoints} from './vitality.mjs?v=resonance-1';
 
 const frame=document.querySelector('#flight-frame'),gate=document.querySelector('#gate');
 const status=document.querySelector('#status'),meter=document.querySelector('meter'),amount=document.querySelector('#meter');
