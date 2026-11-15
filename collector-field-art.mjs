@@ -1,7 +1,7 @@
-import {pickupKind} from './pickups.mjs?v=biome-life-1';
-import {sparkBodyRadius} from './spark-size.mjs?v=biome-life-1';
-import {drawCollectorGuard} from './collector-guard-art.mjs?v=biome-life-1';
-import {companionPalette} from './companion-art.mjs?v=biome-life-1';
+import {pickupKind} from './pickups.mjs?v=authored-biomes-1';
+import {sparkBodyRadius} from './spark-size.mjs?v=authored-biomes-1';
+import {drawCollectorGuard} from './collector-guard-art.mjs?v=authored-biomes-1';
+import {companionPalette} from './companion-art.mjs?v=authored-biomes-1';
 
 const TAU = 2 * Math.PI;
 const green = companionPalette('collector');

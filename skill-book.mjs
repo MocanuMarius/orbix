@@ -1,11 +1,11 @@
-import {SKILLS,getRunModifiers} from './model.mjs?v=biome-life-1';
-import {formatLuminance} from './luminance-units.mjs?v=biome-life-1';
-import {WISP_ART} from './companion-art.mjs?v=biome-life-1';
-import {skillTreeState,skillTreeStatus} from './skill-tree-state.mjs?v=biome-life-1';
-import {getCompanionAbility} from './companion-abilities.mjs?v=biome-life-1';
-import {skillIcon} from './upgrade-icons.mjs?v=biome-life-1';
-import {resourceSymbol} from './game-symbols.mjs?v=biome-life-1';
-import {glowText,getGlowCapacity} from './vitality.mjs?v=biome-life-1';
+import {SKILLS,getRunModifiers} from './model.mjs?v=authored-biomes-1';
+import {formatLuminance} from './luminance-units.mjs?v=authored-biomes-1';
+import {WISP_ART} from './companion-art.mjs?v=authored-biomes-1';
+import {skillTreeState,skillTreeStatus} from './skill-tree-state.mjs?v=authored-biomes-1';
+import {getCompanionAbility} from './companion-abilities.mjs?v=authored-biomes-1';
+import {skillIcon} from './upgrade-icons.mjs?v=authored-biomes-1';
+import {resourceSymbol} from './game-symbols.mjs?v=authored-biomes-1';
+import {glowText,getGlowCapacity} from './vitality.mjs?v=authored-biomes-1';
 
 const chapters=[
  ['wisp','Flight','main-efficiency'],['luminance','Luminance','main-sight'],

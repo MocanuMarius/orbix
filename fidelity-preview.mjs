@@ -1,6 +1,6 @@
-import {drawPickup} from './pickup-art.mjs?v=biome-life-1';
-import {SPARK_TIERS,sparkArtScale} from './spark-size.mjs?v=biome-life-1';
-import {makeWispSprite} from './companion-art.mjs?v=biome-life-1';
+import {drawPickup} from './pickup-art.mjs?v=authored-biomes-1';
+import {SPARK_TIERS,sparkArtScale} from './spark-size.mjs?v=authored-biomes-1';
+import {makeWispSprite} from './companion-art.mjs?v=authored-biomes-1';
 
 const canvas=document.querySelector('canvas'),ctx=canvas.getContext('2d');
 const button=document.querySelector('#motion'),raster=240/390;

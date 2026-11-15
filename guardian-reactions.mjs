@@ -1,6 +1,6 @@
-import {GUARDIAN_RELICS} from './guardian-artifacts.mjs?v=biome-life-1';
-import {GLOW_DISPLAY_SCALE} from './vitality.mjs?v=biome-life-1';
-import {sparkMass} from './spark-size.mjs?v=biome-life-1';
+import {GUARDIAN_RELICS} from './guardian-artifacts.mjs?v=authored-biomes-1';
+import {GLOW_DISPLAY_SCALE} from './vitality.mjs?v=authored-biomes-1';
+import {sparkMass} from './spark-size.mjs?v=authored-biomes-1';
 
 // All counters belong to one attempt. No reaction dispatches a second pickup.
 export class GuardianReactions {

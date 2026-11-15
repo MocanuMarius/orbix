@@ -1,3 +1,4 @@
+import {drawAuthoredBackdrop,drawAuthoredPlant} from './authored-environment.mjs?v=authored-biomes-1';
 // Decorative life is anchored to the actual landform. It never enters the
 // collider, pickup, reward or dynamic-hazard registries.
 const habitats = {
@@ -17,6 +18,7 @@ const habitats = {
 const habitatId=e=>e.levelIdentity?.biomeId||({ruins:'moonruins',canopy:'pinewood',storm:'frost'}[e.terrain]);
 export const ECOLOGY_BIOMES = Object.freeze(Object.keys(habitats));
 export function drawHabitatBackdrop(c,e,{scale=1,distance=e.renderDistance??e.distance,time=e.visualTime??e.time}={}){
+  if(drawAuthoredBackdrop(c,e,{scale,distance}))return;
   const habitat=habitats[habitatId(e)];if(!habitat)return;
   const biome=habitatId(e),offset=distance*.26,span=290;
   c.save();c.scale(scale,scale);c.globalAlpha=.48;
@@ -162,8 +164,8 @@ export function drawTerrainEcology(c,e,{scale=1,distance=e.renderDistance??e.dis
         const seed=site.seed+Math.floor(o.x)*13;
         const near=Math.max(0,1-Math.hypot(x-e.player.x,y-py)/95);
         const push=e.reducedMotion?0:near*near*(x<e.player.x?-7:5);
-        c.globalAlpha=.64;
-        tuft(c,h,x,y,sign,seed,time,push,e.reducedMotion);
+        c.globalAlpha=.92;
+        if(!drawAuthoredPlant(c,e,{x,y,sign,push,seed}))tuft(c,h,x,y,sign,seed,time,push,e.reducedMotion);
         c.globalAlpha=1;
         // Shallow reflective pockets stay inset behind the solid lip. They
         // suggest wet rock and pools without adding a second collision edge.
