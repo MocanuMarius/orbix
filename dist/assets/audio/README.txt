@@ -1,5 +1,4 @@
-Lantern Drift — original Wispbound score.
-Composed and synthesized by scripts/compose-music.py.
-No third-party samples, recordings, or licensed musical material.
-72 BPM, 64 evolving eight-beat phrases; seven minutes of pads, electric keys, soft bells and brushed rhythm.
-The game streams one pre-rendered MP3 to keep synthesis off the gameplay thread.
+Original Wispbound adaptive score. No third-party samples or recordings.
+Composed by scripts/compose-adaptive-music.py.
+88 BPM, 160 evolving bars (7m16s), synchronized ambient, rhythmic and guardian stems.
+All stems stream as MP3s; gameplay changes their mix without live synthesis.

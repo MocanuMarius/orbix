@@ -1,9 +1,9 @@
-import { WispFlight, circleHitsObstacle } from './flight.mjs?v=authored-biomes-1';
-import { createRun, getRunModifiers } from './model.mjs?v=authored-biomes-1';
-import { shutterDensityAt } from './shutter-cone.mjs?v=authored-biomes-1';
-import { lanternPassageY, lanternRoute } from './lantern-layout.mjs?v=authored-biomes-1';
-import { wispOrbit } from './wisp.mjs?v=authored-biomes-1';
-import { stepFlashTether } from './flash-tether.mjs?v=authored-biomes-1';
+import { WispFlight, circleHitsObstacle } from './flight.mjs?v=spark-choices-2';
+import { createRun, getRunModifiers } from './model.mjs?v=spark-choices-2';
+import { shutterDensityAt } from './shutter-cone.mjs?v=spark-choices-2';
+import { lanternPassageY, lanternRoute } from './lantern-layout.mjs?v=spark-choices-2';
+import { wispOrbit } from './wisp.mjs?v=spark-choices-2';
+import { stepFlashTether } from './flash-tether.mjs?v=spark-choices-2';
 
 const step = 1 / 60;
 

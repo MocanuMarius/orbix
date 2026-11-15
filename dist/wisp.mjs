@@ -1,8 +1,8 @@
-import { LIGHT_PACKET_TUNING } from './vitality.mjs?v=authored-biomes-1';
-import { getCompanionAbility } from './companion-abilities.mjs?v=authored-biomes-1';
-import { pickupKind, pickupContactRadius } from './pickups.mjs?v=authored-biomes-1';
-import {sparkArtScale,sparkBodyRadius,sparkMass} from './spark-size.mjs?v=authored-biomes-1';
-import {collectorCanFetch,collectorCompactSeconds,compressCollectorCargo} from './collector-load.mjs?v=authored-biomes-1';
+import { LIGHT_PACKET_TUNING } from './vitality.mjs?v=spark-choices-2';
+import { getCompanionAbility } from './companion-abilities.mjs?v=spark-choices-2';
+import { pickupKind, pickupContactRadius } from './pickups.mjs?v=spark-choices-2';
+import {sparkArtScale,sparkBodyRadius,sparkMass} from './spark-size.mjs?v=spark-choices-2';
+import {collectorCanFetch,collectorCompactSeconds,compressCollectorCargo} from './collector-load.mjs?v=spark-choices-2';
 
 const clamp = (value, lo, hi) => Math.min(hi, Math.max(lo, value));
 export const WISP_TUNING = Object.freeze({ range: 52.5, cooldown: 10, lightRadius: 175,
@@ -57,6 +57,13 @@ export class WispCompanion {
     this.x=this.previousX=engine.player.x;
     this.y=this.previousY=engine.player.y;
     this.vx=this.vy=0;
+  }
+
+  repairGuard(engine){
+    if(this.phase!=='guard-recovery'||!engine.mod.collectorGuardRepair)return 0;
+    const saved=Math.min(this.cooldown,engine.mod.collectorGuardRepair);
+    this.cooldown-=saved;this.guardRepairAt=engine.time;
+    return saved;
   }
 
   range(engine) {
@@ -220,7 +227,7 @@ export class WispCompanion {
       this.x = orbit.x; this.y = orbit.y;
       this.vx = (this.x - this.previousX) / dt; this.vy = (this.y - this.previousY) / dt;
       {
-        let nearest = null, nearestDistance = reach;
+        let nearest = null, nearestScore = Infinity;
         for (const ember of packets) {
           if (!collectorCanFetch(ember,engine.mod) || ember.collected || ember.carried || ember.attracted) continue;
           const x = ember.x - engine.distance;
@@ -232,7 +239,11 @@ export class WispCompanion {
           if (x >= home.x - pickupContactRadius(ember,engine.height)) continue;
           if (engine.collectorContains && !engine.collectorContains(ember)) continue;
           const distance = Math.hypot(x - home.x, ember.y - home.y) - shell;
-          if (distance <= nearestDistance) { nearest = ember; nearestDistance = distance; }
+          if(distance>reach)continue;
+          const preference=engine.mod.collectorPreference;
+          const priority=preference==='dense'?sparkMass(ember):preference==='flash'&&pickupKind(ember)==='sight'?10:0;
+          const score=distance-priority*10000;
+          if (score <= nearestScore) { nearest = ember; nearestScore = score; }
         }
         if (nearest) {
           this.target = nearest; nearest.attracted = true; this.phase = 'outbound';
@@ -266,8 +277,8 @@ export class WispCompanion {
         this.cooldownMax = this.recoveryDuration(engine);
         // An empty rescue trip must not spend a full successful-pickup recovery.
         if (this.cargo) {
-          const surgeDelivery = sparkMass(this.cargo) === 6 && engine.mod.collectorFetchMass >= 6;
-          this.cooldown = surgeDelivery ? 0 : this.cooldownMax;
+          const cacheDelivery = sparkMass(this.cargo) === 3 && engine.mod.collectorFetchMass >= 3;
+          this.cooldown = cacheDelivery ? 0 : this.cooldownMax;
         }
         this.phase = this.cooldown > 0 ? 'cooldown' : 'ready';
         this.leg = null;

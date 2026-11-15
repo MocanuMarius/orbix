@@ -1,4 +1,4 @@
-import {newState,createRun,chooseStartingGift} from './model.mjs?v=authored-biomes-1';
+import {newState,createRun,chooseStartingGift} from './model.mjs?v=spark-choices-2';
 
 export function createLanternMapInspectorState() {
  const state=newState();

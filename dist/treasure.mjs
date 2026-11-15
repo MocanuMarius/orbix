@@ -1,6 +1,6 @@
-import {glowPoints, getGlowCapacity,getLifeCapacity} from './vitality.mjs?v=authored-biomes-1';
-import {getCompanionAbility} from './companion-abilities.mjs?v=authored-biomes-1';
-import {activeEventFavors} from './passage-preparations.mjs?v=authored-biomes-1';
+import {glowPoints, getGlowCapacity,getLifeCapacity} from './vitality.mjs?v=spark-choices-2';
+import {getCompanionAbility} from './companion-abilities.mjs?v=spark-choices-2';
+import {activeEventFavors} from './passage-preparations.mjs?v=spark-choices-2';
 
 export const TREASURE_KINDS = Object.freeze(['vessel', 'lens', 'tithe', 'wager']);
 export const LENS_SIGHT = 1.15;
@@ -31,10 +31,10 @@ export function treasureClearDividend(run,result){
 }
 
 const sites = {
-  vessel: ['Hollow Vessel', 'A seed of living glass still holds a charge.', 'Grow your Spark capacity or sell the seed.'],
-  lens: ['Split Lens', 'Two lenses share one silver setting. Only one will come free.', 'Fit a run-long lens for Luminance or companion recovery.'],
-  tithe: ['Tollkeeper’s Strongbox', 'A hungry lock guards a second compartment.', 'Carry a recovery wick or pay for a stamp that rewards body pickups.'],
-  wager: ['Lamplighter’s Escrow', 'Its seal opens at the far end of a flight.', 'Claim the purse or earn a seal for keeping 12 Sparks at the exit.']
+  vessel: ['Hollow Vessel', 'Living glass shelters two forgotten gifts.', 'Choose one of two lasting finds.'],
+  lens: ['Starglass Cache', 'Two finds sleep beneath a cracked silver setting.', 'Choose one of two lasting finds.'],
+  tithe: ['Tollkeeper’s Strongbox', 'An old lock guards a traveller’s provisions.', 'Choose one of two lasting finds.'],
+  wager: ['Lamplighter’s Reliquary', 'A sealed keepsake waits for another journey.', 'Choose one of two lasting finds.']
 };
 
 export function describeTreasure(kind) {

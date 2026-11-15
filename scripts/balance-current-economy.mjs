@@ -85,7 +85,7 @@ function simulateFlow(run,inv,style,rng,{captureDelta=0,effortScale=1,artifactSc
   if(!caught&&!item.manual&&has('collector')&&item.mass<=(mod.collectorFetchMass||2)){
    const recovery=clamp((t-lastFetched)/Math.max(1,WISP_TUNING.cooldown*(mod.wispCooldown||1)),.1,1);
    const rescueChance=clamp((.17+.17*recovery)*(WISP_TUNING.range/105)*(mod.attract||1),.05,.58);
-   if(rng()<rescueChance){caught=true;delivery=true;lastFetched=item.mass===6?-Infinity:t;fetched++;}
+   if(rng()<rescueChance){caught=true;delivery=true;lastFetched=item.mass>=3?-Infinity:t;fetched++;}
   }
   if(!caught)continue;captured++;
   let fuel=(delivery&&item.mass>2?40:item.fuel)+(run.current?.fuelBonus||0)+clamp(mod.cacheFuelBonus||0,0,32)+(item.rich&&!delivery?(mod.richFuelBonus||0):0);
@@ -146,7 +146,7 @@ function simulateFlow(run,inv,style,rng,{captureDelta=0,effortScale=1,artifactSc
    if(mod.pickupReveal||mod.mainSeer)actor.pickupRevealHoldUntil=event.t+1.5;
    effects.onFuel(packet,spec,surplus);fuel=actor.flame;
 
-   const conversion=condenseGlow(surplus,{rules,wallet:run.condensedGlow+condensed,remainder});
+   const conversion=condenseGlow(surplus,{rules,wallet:run.condensedGlow+condensed,remainder,limit:mod.packingLimit??20,packed:condensed});
    condensed+=conversion.amount;remainder=conversion.remainder;rawOverflow+=surplus;
   }
   minFuel=Math.min(minFuel,fuel);
@@ -158,8 +158,8 @@ function simulateFlow(run,inv,style,rng,{captureDelta=0,effortScale=1,artifactSc
 }
 const priorities={
  survival:['main-efficiency','main-lift','main-glide-regen','main-sight','main-glow-sense','main-glide-regen-2','main-reservoir','main-drift-sense','main-dream'],
- conversion:['main-efficiency','main-afterglow','afterglow-vessel','afterglow-retention','main-reservoir','main-glow-sense','main-glide-regen-2','main-sight','main-dream'],
- hoard:['main-efficiency','main-afterglow','afterglow-anchor','afterglow-vessel','main-reservoir','main-glow-sense','main-sight','main-glide-regen-2','main-dream'],
+ conversion:['main-efficiency','main-clear-dividend','main-afterglow','afterglow-vessel','afterglow-retention','main-reservoir','main-glow-sense','main-glide-regen-2','main-sight','main-dream'],
+ hoard:['main-efficiency','main-clear-dividend','main-afterglow','afterglow-anchor','afterglow-vessel','main-reservoir','main-glow-sense','main-sight','main-glide-regen-2','main-dream'],
  companion:['main-efficiency'],
 };
 function buy(state,policy,metrics){
@@ -201,11 +201,11 @@ function reward(state,policy,rng,metrics){
  if(!id)return;
  assert.ok(M.chooseFlightReward(state,id));metrics.supportIncome+=r.condensedGlow-before;
 }
-function runCase({seed,tier,role,style,policy,attrition=false,captureDelta=0,effortScale=1,artifactScale=1,startingSkill='proximity-awakening',flightSimulator=null}){
+function runCase({seed,tier,role,style,policy,attrition=false,captureDelta=0,effortScale=1,artifactScale=1,startingSkill=null,startingChoice=0,flightSimulator=null}){
  const state=M.newState();state.profile.difficulty=6;state.run=M.createRun(state.profile,`condensed-${seed}-${tier}`,tier);
- const r=state.run;assert.ok(r.companions[0]===role||M.setCompanions(r,[role]));assert.ok(M.chooseStartingGift(state,startingSkill),'Simulator must take a real starting gift');
+ const r=state.run;assert.ok(r.companions[0]===role||M.setCompanions(r,[role]));const offers=M.getStartingGiftOffers(r);startingSkill=offers.find(g=>g.id===startingSkill)?.id||offers[startingChoice].id;assert.ok(M.chooseStartingGift(state,startingSkill),'Simulator must take a real starting gift');
  const rng=rngFor([seed,tier,style].join(':')); // common seed streams across policies and sensitivities
- const m={seed,tier,role,style,policy,attrition,captureDelta,effortScale,artifactScale,startingSkill,spent:0,buys:0,firstBuy:null,purchases:[],flightIncome:0,supportIncome:0,failures:0,fuelFailures:0,collisionFailures:0,starvedFlights:0,attempts:0,coverage:[],mapBuys:[0,0,0],mapIncome:[0,0,0],mapWallet:[0,0,0],totalLostCurrency:0};
+ const m={seed,tier,role,style,policy,attrition,captureDelta,effortScale,artifactScale,startingSkill,spent:0,buys:0,firstBuy:null,purchases:[],flightIncome:0,packingIncome:0,clearIncome:0,supportIncome:0,failures:0,fuelFailures:0,collisionFailures:0,starvedFlights:0,attempts:0,coverage:[],mapBuys:[0,0,0],mapIncome:[0,0,0],mapWallet:[0,0,0],totalLostCurrency:0};
  for(let guard=0;guard<130;guard++){
   if(r.victoryPending){reward(state,policy,rng,m);buy(state,policy,m);M.acknowledgeVictory(state);continue;}
   if(r.phase==='ended')break;
@@ -220,9 +220,9 @@ function runCase({seed,tier,role,style,policy,attrition=false,captureDelta=0,eff
    else{
     const receipt=r.lastFlight,secured=r.condensedGlow-before;
     const expected=receipt.pickupCondensedGlow+receipt.completionBonus+(receipt.routeBonus?.amount||0)+(receipt.vow?.reward||0)
-      +(receipt.treasureWager?.reward||0)+(receipt.chestIncome?.amount||0)+(receipt.keptLightDividend||0)+(receipt.storageBonus||0);
+      +(receipt.treasureWager?.reward||0)+(receipt.chestIncome?.amount||0)+(receipt.keptLightDividend||0)+(receipt.storageBonus||0)+(receipt.pactBonus||0);
     assert.equal(secured,expected,'ordinary autobanking and checkpoint settlements reconcile');
-    m.flightIncome+=secured;
+    m.flightIncome+=secured;m.packingIncome+=receipt.pickupCondensedGlow;m.clearIncome+=receipt.completionBonus;
    }
    continue;
   }
@@ -266,7 +266,7 @@ if(!args.importOnly){
 const rows=[];
 const phases=args.quick?[false]:[false,true];
 for(let seed=0;seed<seeds;seed++){
- if(args.startingOnly){for(const role of roles)for(const style of ['learning','steady'])for(const policy of policies)for(const attrition of phases)for(const startingSkill of M.STARTING_GIFT_IDS)rows.push(runCase({seed:seed+201,tier:1,role,style,policy,attrition,startingSkill}));}
+ if(args.startingOnly){for(const role of roles)for(const style of ['learning','steady'])for(const policy of policies)for(const attrition of phases)for(const startingChoice of [0,1])rows.push(runCase({seed:seed+201,tier:1,role,style,policy,attrition,startingChoice}));}
  else for(const tier of tiers)for(const role of roles)for(const style of Object.keys(profiles))for(const policy of policies)for(const attrition of phases)rows.push(runCase({seed,tier,role,style,policy,attrition}));
  if(seed%4===3||seed===seeds-1)console.log(JSON.stringify({seed:seed+1,campaigns:rows.length,inventories:inventories.size,seconds:round((Date.now()-started)/1000)}));
 }
@@ -286,7 +286,7 @@ const inv=[...inventories.values()],coverage={layouts:inv.length,biomes:[...new 
 const endHashes=hashes(),sourceChangedFiles=Object.keys(initialHashes).filter(name=>initialHashes[name]!==endHashes[name]);
 const report={schema:2,model:'clear-sparks-current',createdAt:new Date().toISOString(),seconds:round((Date.now()-started)/1000),sourceHashes:initialHashes,endSourceHashes:endHashes,sourceChangedFiles,sourceUnchanged:sourceChangedFiles.length===0,
  assumptions:{profiles,roles,policies,proposedPriceGrowth:proposedGrowth,proposedPricePowerK:proposedPowerK,proposedConversionBase,proposedTrainingGrowth,campaigns:rows.length,sensitivityCampaigns:sensitivity.length,
-  limits:['Economic inventory stress, not a geometric flight controller or measured human win rate.','Reaction figures label correction/miss scenarios; no reaction-delayed physics controller is claimed.','Pickup contacts, bad-packet avoidance, correction taps and imposed collisions are stochastic assumptions. Dark Seeds reduce visibility in play; their secondary targeting effect is represented by the miss sensitivity, not simulated as a separate fuel penalty.','Conditional-clear scenarios isolate economy even if fuel stress flags occur; attrition scenarios end failed attempts and lose their income.','Real production map graph, pickups, prices, modifiers, rewards, banking, conversion fractions and spending are used.','Uses actual node row and duration with a deterministic cached inventory per level/route/phase; does not enumerate every layout seed.','No TEST purchasing. Default campaigns use the Proximity starting gift; startingOnly compares all starting gifts with shared streams.','Spending policies buy main, the currently playable companion, Proximity and conversion skills; extra-life purchases are excluded.','Actual ArtifactEffects handles charges, seed chains and free-Lift caps; work/reveal/recharge opportunities remain scenario approximations. Black Hole exposure is an assumed straight pass at 85/140/195 clearance.','Tree fraction uses all nominal main/selected-companion/conversion ranks, including mutually exclusive paths; it is not a claim about fully purchasable completion.']},
+  limits:['Economic inventory stress, not a geometric flight controller or measured human win rate.','Reaction figures label correction/miss scenarios; no reaction-delayed physics controller is claimed.','Pickup contacts, bad-packet avoidance, correction taps and imposed collisions are stochastic assumptions. Dark Seeds reduce visibility in play; their secondary targeting effect is represented by the miss sensitivity, not simulated as a separate fuel penalty.','Conditional-clear scenarios isolate economy even if fuel stress flags occur; attrition scenarios end failed attempts and lose their income.','Real production map graph, pickups, prices, modifiers, rewards, banking, conversion fractions and spending are used.','Uses actual node row and duration with a deterministic cached inventory per level/route/phase; does not enumerate every layout seed.','No TEST purchasing. Default campaigns choose the first of the actual two seeded gifts; startingOnly compares both offered choices with shared streams.','Spending policies buy main, the currently playable companion, Proximity and conversion skills; extra-life purchases are excluded.','Actual ArtifactEffects handles charges, seed chains and free-Lift caps; work/reveal/recharge opportunities remain scenario approximations. Black Hole exposure is an assumed straight pass at 85/140/195 clearance.','Tree fraction uses all nominal main/selected-companion/conversion ranks, including mutually exclusive paths; it is not a claim about fully purchasable completion.']},
  coverage,groups,rows,sensitivity};
 fs.mkdirSync(path.dirname(out),{recursive:true});fs.writeFileSync(out,JSON.stringify(report,null,2));
 console.log(JSON.stringify({out,sourceUnchanged:report.sourceUnchanged,campaigns:rows.length,sensitivity:sensitivity.length,coverage,steady:groups['style:steady'],learning:groups['style:learning'],practiced:groups['style:practiced']},null,2));

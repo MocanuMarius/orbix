@@ -1,8 +1,8 @@
-import {ROUTE_BONUSES} from './route-bonuses.mjs?v=authored-biomes-1';
-import {blackHoleDrainRate} from './black-holes.mjs?v=authored-biomes-1';
-import {flashPowerupDuration, pickupKind} from './pickups.mjs?v=authored-biomes-1';
-import {GLOW_DISPLAY_SCALE} from './vitality.mjs?v=authored-biomes-1';
-import {sparkMass} from './spark-size.mjs?v=authored-biomes-1';
+import {ROUTE_BONUSES} from './route-bonuses.mjs?v=spark-choices-2';
+import {blackHoleDrainRate} from './black-holes.mjs?v=spark-choices-2';
+import {flashPowerupDuration, pickupKind} from './pickups.mjs?v=spark-choices-2';
+import {GLOW_DISPLAY_SCALE} from './vitality.mjs?v=spark-choices-2';
+import {sparkMass} from './spark-size.mjs?v=spark-choices-2';
 
 const fuelKinds = new Set(['light', 'cluster', 'cache']);
 const helpfulFamilies = new Set(['lift', 'reveal', 'bloom']);

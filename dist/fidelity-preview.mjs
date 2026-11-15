@@ -1,11 +1,11 @@
-import {drawPickup} from './pickup-art.mjs?v=authored-biomes-1';
-import {SPARK_TIERS,sparkArtScale} from './spark-size.mjs?v=authored-biomes-1';
-import {makeWispSprite} from './companion-art.mjs?v=authored-biomes-1';
+import {drawPickup} from './pickup-art.mjs?v=spark-choices-2';
+import {SPARK_TIERS,sparkArtScale} from './spark-size.mjs?v=spark-choices-2';
+import {makeWispSprite} from './companion-art.mjs?v=spark-choices-2';
 
 const canvas=document.querySelector('canvas'),ctx=canvas.getContext('2d');
 const button=document.querySelector('#motion'),raster=240/390;
 const wisp=makeWispSprite(document,32);
-const samples=SPARK_TIERS.map((tier,i)=>({tier,x:70+i*177,
+const samples=SPARK_TIERS.map((tier,i)=>({tier,x:180+i*270,
   kind:tier.mass===1?'light':tier.mass===2?'cluster':'cache',
   scale:sparkArtScale({kind:'light',sparkMass:tier.mass},430)*raster}));
 let paused=matchMedia('(prefers-reduced-motion:reduce)').matches,clock=1.7,last;

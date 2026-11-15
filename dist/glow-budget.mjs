@@ -1,14 +1,39 @@
-import {getPickupSpec,pickupKind,pickupContactRadius} from './pickups.mjs?v=authored-biomes-1';
-import {sparkBodyRadius} from './spark-size.mjs?v=authored-biomes-1';
+import {getPickupSpec,pickupKind,pickupContactRadius} from './pickups.mjs?v=spark-choices-2';
+import {sparkBodyRadius} from './spark-size.mjs?v=spark-choices-2';
 
 // Roof-heavy courses used to lose half their fuel to floor-cache placement.
 // A duration floor repairs that disparity with richer lights before adding
 // more objects. This is a supply budget, never a guaranteed collection reward.
-export const GLOW_BUDGET_TUNING=Object.freeze({minimumFuelPerSecond:8.2,firstMapFuelPerSecond:14,easyFuelPerSecond:11,minimumSpacing:270});
+export const GLOW_BUDGET_TUNING=Object.freeze({minimumFuelPerSecond:7.5,firstMapFuelPerSecond:11,easyFuelPerSecond:8.8,minimumSpacing:330});
 export function fuelBudgetProfile(difficulty=1,mapIndex=0){
  const tier=Math.max(1,Math.min(6,Number(difficulty)||1)),progress=(tier-1)/5;
  const opening=mapIndex===0?GLOW_BUDGET_TUNING.firstMapFuelPerSecond:GLOW_BUDGET_TUNING.easyFuelPerSecond;
- return {rate:opening+(GLOW_BUDGET_TUNING.minimumFuelPerSecond-opening)*progress,spacing:(mapIndex===0?460:580)+(tier-1)*140};
+ return {rate:opening+(GLOW_BUDGET_TUNING.minimumFuelPerSecond-opening)*progress,spacing:(mapIndex===0?560:700)+(tier-1)*140};
+}
+// Trim redundant fuel after sizes and marked rewards are settled. Keep the
+// local recovery lane and every authored challenge, fork and hazard supply.
+export function trimSurplusFuel(layout,{speed,height,endX,opening=false,targets=[],hazards=[]}){
+ const marked=new Set(targets.map(t=>t.object));
+ const fuel=layout.embers.filter(p=>!p.generated&&getPickupSpec(p).fuel>0&&!getPickupSpec(p).dim);
+ const protectedPacket=p=>p.intro||p.riskChain||p.forkCache||p.feature==='fork-safe-fuel'||p.blackHoleBypass||p.atlasBypass||p.challengeLandmark||marked.has(p)||p.x<speed*5||p.x>endX-speed*2||hazards.some(h=>Math.abs(p.x-h.x)<(h.influence||h.radius||60)+140);
+ const removed=new Set(),wanted=Math.floor(fuel.length*.25);
+ let available=fuel.reduce((n,p)=>n+getPickupSpec(p).fuel,0);
+ const floor=(layout.glowBudget?.target||0)*1.2;
+ const candidates=fuel.filter(p=>!protectedPacket(p)).sort((a,b)=>Number(!!b.budgetAdded)-Number(!!a.budgetAdded)||Number(!!a.accessible)-Number(!!b.accessible)||a.x-b.x);
+ for(const p of candidates){
+  if(removed.size>=wanted)break;
+  const amount=getPickupSpec(p).fuel;if(available-amount<floor)continue;
+  const nearby=fuel.filter(q=>q!==p&&!removed.has(q));
+  const left=nearby.filter(q=>q.x<p.x).at(-1),right=nearby.find(q=>q.x>p.x);
+  if(!left||!right||right.x-left.x>speed*(opening?4.2:4.8))continue;
+  const local=nearby.filter(q=>Math.abs(q.x-p.x)<speed*3);
+  if(local.reduce((n,q)=>n+Math.min(getPickupSpec(q).fuel,60),0)<80)continue;
+  if(p.accessible&&!local.some(q=>q.accessible&&Math.abs(q.x-p.x)<speed*1.75&&Math.abs(q.y-p.y)<30))continue;
+  removed.add(p);available-=amount;
+ }
+ layout.embers=layout.embers.filter(p=>!removed.has(p));
+ layout.supplyTrim={removed:removed.size,available};
+ if(layout.glowBudget){layout.glowBudget.available=available;layout.glowBudget.shortfall=Math.max(0,layout.glowBudget.target-available);}
 }
 export function ensureGlowBudget(layout,{duration,height,endX,clear,drafts=[],tutorial=false,difficulty=2,mapIndex=0,row=0}={}){
  if(tutorial||!Number.isFinite(duration)||!Number.isFinite(endX)||!clear)return;
@@ -18,7 +43,7 @@ export function ensureGlowBudget(layout,{duration,height,endX,clear,drafts=[],tu
  const openingSupport=difficulty<=2&&mapIndex===0&&row<=2;
  let supplyAdded=0;
  {
-  const spacing=openingSupport?360:fuelBudgetProfile(difficulty,mapIndex).spacing;
+  const spacing=openingSupport?480:fuelBudgetProfile(difficulty,mapIndex).spacing;
   for(let anchor=420;anchor<endX-150;anchor+=spacing){
    let placed=false;
    for(const offset of [0,70,-70,140,-140]){
@@ -39,7 +64,7 @@ export function ensureGlowBudget(layout,{duration,height,endX,clear,drafts=[],tu
  }
  let available=packets.filter(eligible).reduce((sum,p)=>sum+getPickupSpec(p).fuel,0);
  const {rate}=fuelBudgetProfile(difficulty,mapIndex);
- const target=Math.ceil(duration*(openingSupport?Math.max(rate,16):rate));
+ const target=Math.ceil(duration*(openingSupport?Math.max(rate,12):rate));
  const before=available;let enriched=0,added=0;
  const upgrade=packets.filter(p=>eligible(p)&&pickupKind(p)==='light'&&!p.riskChain&&!p.intro)
   .sort((a,b)=>Number(!!b.accessible)-Number(!!a.accessible)||a.x-b.x);
@@ -83,13 +108,9 @@ export function ensureGlowBudget(layout,{duration,height,endX,clear,drafts=[],tu
   }
  }
  const sequence=balanceSparkSequence(layout,{duration,endX,clear});
- const extraLayers=enrichSparkLayers(layout,{clear,duration,endX});
- // Keep the safe route dependable even after sequence redistribution. The
- // starter Collector cannot bridge a lean run of one-ring packets on its own.
- if(openingSupport)for(const packet of packets){
-  if(packet.accessible&&!packet.riskChain&&!packet.intro&&eligible(packet)&&pickupKind(packet)==='light')
-   Object.assign(packet,{kind:'cluster',value:2});
- }
+ // The budget already enriches lean windows. Additional blanket enrichment
+ // made well-fed routes richer again after their reserve had been met.
+ const extraLayers={pickups:0,added:0,extraFuel:0};
  available=packets.filter(eligible).reduce((sum,p)=>sum+getPickupSpec(p).fuel,0);
  packets.sort((a,b)=>a.x-b.x);
  layout.glowBudget={target,before,available,enriched,added,supplyAdded,sequence,extraLayers,shortfall:Math.max(0,target-available)};

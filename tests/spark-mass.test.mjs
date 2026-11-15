@@ -9,28 +9,28 @@ import {WispFlightView} from '../dist/wisp-renderer.mjs';
 import {compressCollectorCargo} from '../dist/collector-load.mjs';
 
 const canvas={getContext:()=>({setTransform(){}}),getBoundingClientRect:()=>({width:900,height:405})};
-test('the larger six-Spark shell has a matching body contact and stays distinct from richer fuel',()=>{
+test('the shared Spark shell has matching body contact for every fuel strength',()=>{
  const small={kind:'light'},cluster={kind:'cluster'},cache={kind:'cache'};
- assert.ok(Math.abs(sparkBodyRadius(small)-6.4*1.75)<1e-10);
+ assert.ok(Math.abs(sparkBodyRadius(small)-12.8)<1e-10);
  assert.equal(sparkBodyRadius({kind:'dark'}),sparkBodyRadius(small));
  assert.ok(pickupContactRadius(small)>20);
- assert.ok(sparkBodyRadius(small)<sparkBodyRadius(cluster));
- assert.ok(sparkBodyRadius(cluster)<sparkBodyRadius(cache));
+ assert.equal(sparkBodyRadius(small),sparkBodyRadius(cluster));
+ assert.equal(sparkBodyRadius(cluster),sparkBodyRadius(cache));
  assert.equal(glowPoints(getPickupSpec(small).fuel),6);
 });
-test('the five world sizes and payouts stay distinct across phone heights and both polarities',()=>{
- assert.deepEqual(SPARK_TIERS.map(t=>t.probability),[.50,.27,.15,.07,.01]);
+test('three fuel strengths share one radius across phone heights and polarities',()=>{
+ assert.deepEqual(SPARK_TIERS.map(t=>t.probability),[.30,.42,.28]);
  for(const h of [320,430,620]){
   let previous=0;
   for(const {mass} of SPARK_TIERS){
    const packet={kind:'light',sparkMass:mass},dark={kind:'dark',sparkMass:mass};
    const r=sparkBodyRadius(packet,h);
-   assert.ok(r>previous*1.3);
+   assert.equal(r,12.8);
    assert.equal(sparkBodyRadius(dark,h),r);
    assert.equal(glowPoints(getPickupSpec(packet).fuel),mass*6);
    assert.equal(getPickupSpec(dark).fuel,0);previous=r;
   }
-  assert.equal(previous,h*.25);
+  assert.equal(previous,12.8);
  }
 });
 test('terrain motes have the Small shell in flight, at the Collector and during a body pickup',()=>{
@@ -59,7 +59,7 @@ test('terrain motes have the Small shell in flight, at the Collector and during 
 test('large Sparks keep their field tier until capture then compact to Cluster for the delivery ribbon',()=>{
  const e=new WispFlight({canvas,preflight:true,seed:'giant-art-tier'});
  const raster=240/390;
- for(const mass of [6,10]){
+ for(const mass of [3]){
   const packet={kind:'cache',sparkMass:mass,x:e.distance+e.player.x,y:e.player.y,carriedAt:0};
   let field;
   WispFlightView.prototype.drawCollectibles.call({scale:raster,buffer:{width:600},
@@ -68,7 +68,7 @@ test('large Sparks keep their field tier until capture then compact to Cluster f
   const cargo=e.wisp.cargoPose(packet,1,e.height);
   assert.equal(field.massTier,mass);
   assert.equal(field.scale,contact.scale*raster);
-  assert.ok(cargo.scale<contact.scale);
+  assert.equal(cargo.scale,contact.scale);
   assert.equal(cargo.massTier,2);
   const delivery={...cargo,worldX:packet.x,previousWorldX:packet.x,y:packet.y,previousY:packet.y,interval:1/60};
   compressCollectorCargo(packet);e.absorbPacket(packet,'light',delivery);
@@ -90,24 +90,20 @@ test('biome profiles affect real pickups while authored fuel chains keep their p
  const wood=field('pinewood'),stone=field('crystal');
  assert.deepEqual(wood,field('pinewood'));
  assert.ok(wood.filter(m=>m===1).length>stone.filter(m=>m===1).length+150);
- assert.ok(stone.filter(m=>m>=6).length>wood.filter(m=>m>=6).length+55);
+ assert.ok(stone.filter(m=>m===3).length>wood.filter(m=>m===3).length+150);
  assert.equal(sparkHabitat('moonruins'),'vault');assert.equal(sparkHabitat('fungal'),'cluster');
 });
-test('a giant fills available capacity first; only its actual surplus reaches packing',()=>{
- for(const [max,rate,stored] of [[100,1/6,5],[150,1/6,2],[100,1/3,10]]){
-  const e=new WispFlight({canvas,preflight:true,seed:'giant-receipt',modifiers:{maxGlow:max,condensationRules:{multiplier:rate}}});
-  e.flame=0;
-  const p={kind:'cache',sparkMass:10,id:'receipt',x:e.distance+e.player.x,y:e.player.y};
-  assert.equal(glowPoints(getPickupSpec(p).fuel),60);
-  assert.equal(sparkBodyRadius(p,e.height)*2,e.height/2);
-  e.collect(p);e.collect(p);
-  assert.equal(glowPoints(e.flame),glowPoints(max));assert.equal(e.condensedGlow,stored);
-  assert.equal(glowPoints(e.pickupOverflow),60-glowPoints(max));assert.equal(e.baseEmbers,1);
+test('a Cache fills available capacity first and only its surplus reaches packing',()=>{
+ for(const [start,rate,stored] of [[60,1/6,1],[80,1/6,2],[80,1/3,4]]){
+  const e=new WispFlight({canvas,preflight:true,seed:'cache-receipt',modifiers:{condensationRules:{multiplier:rate}}});e.flame=start;
+  const p={kind:'cache',sparkMass:3,id:'receipt',x:e.player.x,y:e.player.y};
+  assert.equal(glowPoints(getPickupSpec(p).fuel),18);e.collect(p);e.collect(p);
+  assert.equal(glowPoints(e.flame),30);assert.equal(e.condensedGlow,stored);assert.equal(e.baseEmbers,1);e.destroy();
  }
 });
-test('a giant Dark Spark enlarges the hazard without granting fuel or secretly increasing darkness',()=>{
- const e=new WispFlight({canvas,preflight:true,seed:'dark-giant-receipt'});e.flame=40;
- const p={kind:'dark',sparkMass:10,id:'dark',x:e.distance+e.player.x,y:e.player.y,harmful:true};
- assert.ok(pickupContactRadius(p,e.height)>100);
- e.collect(p);assert.equal(e.flame,40);assert.equal(e.condensedGlow,0);assert.deepEqual(e.lightPenalties,[8]);
+test('Dark Sparks share the shell and grant no fuel',()=>{
+ const e=new WispFlight({canvas,preflight:true,seed:'dark-receipt'});e.flame=40;
+ const p={kind:'dark',sparkMass:3,id:'dark',x:e.player.x,y:e.player.y,harmful:true};
+ assert.equal(sparkBodyRadius(p),sparkBodyRadius({kind:'light'}));
+ e.collect(p);assert.equal(e.flame,40);assert.equal(e.condensedGlow,0);assert.deepEqual(e.lightPenalties,[8]);e.destroy();
 });

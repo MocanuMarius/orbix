@@ -1,11 +1,11 @@
-import {drawFluidCapture, FLUID_STYLES} from './fluid-capture.mjs?v=authored-biomes-1';
-import {drawPickup} from './pickup-art.mjs?v=authored-biomes-1';
-import {drawShellPuff} from './capture-art.mjs?v=authored-biomes-1';
-import {drawShellArcs} from './shell-arcs.mjs?v=authored-biomes-1';
-import {sparkArtScale, sparkBodyRadius} from './spark-size.mjs?v=authored-biomes-1';
-import {makeWispSprite} from './companion-art.mjs?v=authored-biomes-1';
-import {createDepthScenery, drawDepthScenery} from './depth-scenery.mjs?v=authored-biomes-1';
-import {biomePalette} from './biome-art.mjs?v=authored-biomes-1';
+import {drawFluidCapture, FLUID_STYLES} from './fluid-capture.mjs?v=spark-choices-2';
+import {drawPickup} from './pickup-art.mjs?v=spark-choices-2';
+import {drawShellPuff} from './capture-art.mjs?v=spark-choices-2';
+import {drawShellArcs} from './shell-arcs.mjs?v=spark-choices-2';
+import {sparkArtScale, sparkBodyRadius} from './spark-size.mjs?v=spark-choices-2';
+import {makeWispSprite} from './companion-art.mjs?v=spark-choices-2';
+import {createDepthScenery, drawDepthScenery} from './depth-scenery.mjs?v=spark-choices-2';
+import {biomePalette} from './biome-art.mjs?v=spark-choices-2';
 
 const canvas = document.querySelector('#scene');
 const ctx = canvas.getContext('2d');
@@ -25,13 +25,13 @@ const approachAngles = [{label:'↗ Above', angle:-.43}, {label:'↘ Below', ang
   {label:'↖ Behind', angle:-2.70}];
 const params = new URLSearchParams(location.search);
 let mode = Object.hasOwn(FLUID_STYLES,location.hash.slice(1)) ? location.hash.slice(1) : 'hybrid';
-let mass = params.get('size') === 'surge' ? 6 : 10;
+let mass = params.get('size') === 'cluster' ? 2 : 3;
 let direction = Math.max(0, approachAngles.findIndex(a => a.label.toLowerCase().includes(params.get('angle') || 'above')));
 let elapsed = 0, last = 0, speed = 1;
 let running = !matchMedia('(prefers-reduced-motion: reduce)').matches;
 let sceneWidth = 640, sceneScale = 1;
 let frame = 0;
-const duration = () => FLUID_STYLES[mode].duration * (mass===10 ? 1 : .83);
+const duration = () => FLUID_STYLES[mode].duration * (mass===3 ? 1 : .83);
 const total = () => contact + duration() + .52;
 function syncControls() {
   document.querySelectorAll('[data-style]').forEach(button =>

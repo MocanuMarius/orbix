@@ -101,3 +101,5 @@ html body .skill-book .book-chapters button[data-id] { border-left-color:var(--c
 html body .skill-book button.book-buy-inline { min-height:34px; padding:5px 9px; gap:8px; margin-bottom:6px!important; background:#2e4a3a; color:#f5eac0; font-weight:600 }
 .book-buy-inline span { display:inline-flex; align-items:center; gap:4px; white-space:nowrap }
 .book-buy-inline svg { width:18px; height:18px }
+
+.book-targeting{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:7px}.book-targeting button{font:inherit;min-height:32px;padding:4px 8px;background:#3c5141;color:#f5eccd}.book-targeting button[aria-pressed=true]{background:#536d4e;outline:2px solid #99ac72}.book-targeting small{width:100%;color:#51604b}

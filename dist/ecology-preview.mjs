@@ -1,6 +1,6 @@
-import {WispFlight} from './flight.mjs?v=authored-biomes-1';
-import {BIOMES,BIOME_LEVELS} from './biomes.mjs?v=authored-biomes-1';
-import {getRunModifiers} from './model.mjs?v=authored-biomes-1';
+import {WispFlight} from './flight.mjs?v=spark-choices-2';
+import {BIOMES,BIOME_LEVELS} from './biomes.mjs?v=spark-choices-2';
+import {getRunModifiers} from './model.mjs?v=spark-choices-2';
 const canvas=document.querySelector('canvas'),select=document.querySelector('select'),slider=document.querySelector('input');
 const course=document.querySelector('#course');
 const mode=document.querySelector('#mode'),light=document.querySelector('#light'),status=document.querySelector('#status'),gate=document.querySelector('#gate');

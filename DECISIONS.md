@@ -989,3 +989,9 @@ The first procedural ecology pass was rated insufficient across foliage, terrain
 This art direction is published under art-review/ for phone evaluation before the main game changes. Pixel granularity still requires player approval. All 48 biome/course combinations loaded in the browser without rendering errors. The 915×412 preview has no page overflow. Physical-device frame timing remains unmeasured.
 
 The player approved the authored environment art. Publish it in the main game as authored-biomes-1.
+
+## 15 November · Spark choices release
+
+The three-strength shared-shell design replaces the five size tiers. Keep values 6/12/18, one shell smaller than the main wisp, and density-based plasma intensity. Cache Handling remains one 50-Stored-Spark purchase; deliveries condense to 12 and refill the ring. Base packing is limited to 20 per flight, with explicit Storage upgrades. Clear income varies by length and Trail Dividend adds 10. Each map gains three flights before its guardian. Pacts offer bounded multipliers for visible next-attempt penalties. Twenty seeded gifts offer two choices; thirty chest finds prefer unseen offers. Relics have no discovery or ascension availability gates, and the almanac is complete from the start. Complete the accepted Collector Guard/targeting follow-up; keep the separate item-rating conversation paused.
+
+Terrain uses cached geological relief and two foreground layers without new collision objects or a pixel-grain change. Audio uses three newly rendered synchronized stems with an adaptive mix.

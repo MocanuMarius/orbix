@@ -1,11 +1,12 @@
-import {SKILLS,getRunModifiers} from './model.mjs?v=authored-biomes-1';
-import {formatLuminance} from './luminance-units.mjs?v=authored-biomes-1';
-import {WISP_ART} from './companion-art.mjs?v=authored-biomes-1';
-import {skillTreeState,skillTreeStatus} from './skill-tree-state.mjs?v=authored-biomes-1';
-import {getCompanionAbility} from './companion-abilities.mjs?v=authored-biomes-1';
-import {skillIcon} from './upgrade-icons.mjs?v=authored-biomes-1';
-import {resourceSymbol} from './game-symbols.mjs?v=authored-biomes-1';
-import {glowText,getGlowCapacity} from './vitality.mjs?v=authored-biomes-1';
+import {SKILLS,getRunModifiers} from './model.mjs?v=spark-choices-2';
+import {collectorPreferenceMarkup} from './collector-preferences.mjs?v=spark-choices-2';
+import {formatLuminance} from './luminance-units.mjs?v=spark-choices-2';
+import {WISP_ART} from './companion-art.mjs?v=spark-choices-2';
+import {skillTreeState,skillTreeStatus} from './skill-tree-state.mjs?v=spark-choices-2';
+import {getCompanionAbility} from './companion-abilities.mjs?v=spark-choices-2';
+import {skillIcon} from './upgrade-icons.mjs?v=spark-choices-2';
+import {resourceSymbol} from './game-symbols.mjs?v=spark-choices-2';
+import {glowText,getGlowCapacity} from './vitality.mjs?v=spark-choices-2';
 
 const chapters=[
  ['wisp','Flight','main-efficiency'],['luminance','Luminance','main-sight'],
@@ -23,7 +24,7 @@ const money=()=>resourceSymbol('packed');
 export function skillBookChapter(skill){
  if(skill.treeTab==='companion')return 'companion';
  if(skill.branch==='proximity')return 'proximity';
- if(skill.branch==='afterglow'||skill.id==='main-afterglow')return 'packing';
+ if(skill.branch==='afterglow'||['main-afterglow','main-clear-dividend'].includes(skill.id))return 'packing';
  if(skill.treeGroup==='main-dream')return 'dream';
  if(['main-sight','main-glow-sense','main-long-flash'].includes(groupId(skill)))return 'luminance';
  return 'wisp';
@@ -38,8 +39,8 @@ const rankEffects={
   'On a clear, earn 5% of the Stored Sparks you carried into the flight, rounded down. Earn up to 5. The final guardian pays no interest.',
   'Double your clear dividend to 10% of the Stored Sparks you carried into the flight, rounded down. Earn up to 10. The final guardian pays no interest.'
  ],
- 'afterglow-vessel':['Store 5 more Sparks per 100 surplus Sparks collected.','Store another 5 Sparks per 100 surplus Sparks collected.'],
- 'afterglow-retention':['Store 5 more Sparks per 100 surplus Sparks collected.','Store another 5 Sparks per 100 surplus Sparks collected.']
+ 'afterglow-vessel':['Conversion +5 percentage points. Packing limit +5 Stored Sparks.','Conversion +5 more percentage points. Packing limit +5 more Stored Sparks.'],
+ 'afterglow-retention':['Conversion +5 percentage points. Packing limit +5 Stored Sparks.','Conversion +5 more percentage points. Packing limit +5 more Stored Sparks.']
 };
 function rankNodes(base){
  return Array.from({length:base.maxRank},(_,i)=>{
@@ -166,5 +167,5 @@ export function skillBookMarkup({run,wallet,canBuy=true,variant='map',chapter,se
   if(scope.some(s=>views.get(s.id).closedBy))content+='<p class="book-condition">× Alternate path closed</p>';
  }
  const reach=chapter==='luminance'?'<div class="book-current-reach"><span>Base Luminance radius</span><b>'+formatLuminance(getRunModifiers(run).lightRadius)+'</b><small>From your centre. Outer light gradually fades.</small></div>':'';
- return '<section class="skill-book" aria-label="Skills" data-variant="'+variant+'" data-chapter="'+chapter+'">'+titleBar+'<div class="book-spread">'+side+'<section class="book-page" aria-label="'+escape(title(chapter))+'"><h3>'+escape(title(chapter))+'</h3>'+reach+'<div class="book-page-scroll" data-tree-key="'+variant+'-'+chapter+'">'+content+'</div></section>'+skillInspector(focus,views,entries,focus?title(skillBookChapter(focus)):'',run)+'</div></section>';
+ return '<section class="skill-book" aria-label="Skills" data-variant="'+variant+'" data-chapter="'+chapter+'">'+titleBar+'<div class="book-spread">'+side+'<section class="book-page" aria-label="'+escape(title(chapter))+'"><h3>'+escape(title(chapter))+'</h3>'+reach+(chapter==='companion'?collectorPreferenceMarkup(run):'')+'<div class="book-page-scroll" data-tree-key="'+variant+'-'+chapter+'">'+content+'</div></section>'+skillInspector(focus,views,entries,focus?title(skillBookChapter(focus)):'',run)+'</div></section>';
 }

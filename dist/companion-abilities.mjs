@@ -3,7 +3,7 @@ const ability = (id, name, action, label, duration, cooldown, description, passi
 export const COMPANION_TEST_UNLOCKS = false;
 export const COMPANION_ABILITIES = Object.freeze({
   collector: ability('collector', 'Collector', 'collect', 'COLLECTOR', 0, 0,
-    'Starts by rescuing missed Small and Cluster Sparks. Learn larger loads and Flash in its skill chapter. Larger loads shrink to 12 base Sparks. The boundary regrows over 10 seconds after delivery.', true, true, 1),
+    'Starts by rescuing missed Sparks and Clusters. Learn Cache handling and Flash in its skill chapter. Larger loads shrink to 12 base Sparks. The boundary regrows over 10 seconds after delivery.', true, true, 1),
   protector: ability('protector', 'Protector', 'protect', 'PROTECTOR', 0, 0,
     'Spends 12 Sparks and one recovered shell charge to save a collision. An empty shell or insufficient Sparks cannot protect you.', true, false, 2),
   swift: ability('swift', 'Runner', 'boost', 'BOOST', 1.25, 7.5,

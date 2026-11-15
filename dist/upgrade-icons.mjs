@@ -1,5 +1,5 @@
-import {artifactPixelPortrait} from './artifact-pixel-art.mjs?v=authored-biomes-1';
-import {skillPortrait} from './skill-art.mjs?v=authored-biomes-1';
+import {artifactPixelPortrait} from './artifact-pixel-art.mjs?v=spark-choices-2';
+import {skillPortrait} from './skill-art.mjs?v=spark-choices-2';
 
 export const skillIcon=skillPortrait;
 export const artifactIcon=artifactPixelPortrait;

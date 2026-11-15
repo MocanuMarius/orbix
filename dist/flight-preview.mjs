@@ -1,25 +1,25 @@
-import {getBiome} from './biomes.mjs?v=authored-biomes-1';
-import {getBossPreview} from './boss.mjs?v=authored-biomes-1';
-import {levelMapPreview} from './level-map-art.mjs?v=authored-biomes-1';
-import {mapStopIconMarkup} from './map-guide.mjs?v=authored-biomes-1';
-import {resourceSymbol} from './game-symbols.mjs?v=authored-biomes-1';
-import {getFlightClearReward} from './checkpoint-rewards.mjs?v=authored-biomes-1';
-import {availableFlightArtifacts} from './model.mjs?v=authored-biomes-1';
-import {bonusIcon,boonMarkup} from './route-bonus-ui.mjs?v=authored-biomes-1';
-import {contextualFlightNotice} from './contextual-events.mjs?v=authored-biomes-1';
-import {ATLAS_FORECASTS,atlasGlyph} from './night-atlas.mjs?v=authored-biomes-1';
-import {canDreamAt,dreamConfig} from './dream.mjs?v=authored-biomes-1';
-import {sparkHabitat} from './spark-fields.mjs?v=authored-biomes-1';
-import {lanternFlightCue} from './map-theme.mjs?v=authored-biomes-1';
+import {getBiome} from './biomes.mjs?v=spark-choices-2';
+import {getBossPreview} from './boss.mjs?v=spark-choices-2';
+import {levelMapPreview} from './level-map-art.mjs?v=spark-choices-2';
+import {mapStopIconMarkup} from './map-guide.mjs?v=spark-choices-2';
+import {resourceSymbol} from './game-symbols.mjs?v=spark-choices-2';
+import {getFlightClearReward} from './checkpoint-rewards.mjs?v=spark-choices-2';
+import {availableFlightArtifacts} from './model.mjs?v=spark-choices-2';
+import {bonusIcon,boonMarkup} from './route-bonus-ui.mjs?v=spark-choices-2';
+import {contextualFlightNotice} from './contextual-events.mjs?v=spark-choices-2';
+import {ATLAS_FORECASTS,atlasGlyph} from './night-atlas.mjs?v=spark-choices-2';
+import {canDreamAt,dreamConfig} from './dream.mjs?v=spark-choices-2';
+import {sparkHabitat} from './spark-fields.mjs?v=spark-choices-2';
+import {lanternFlightCue} from './map-theme.mjs?v=spark-choices-2';
 
 const escapeText = value => String(value ?? '').replace(/[&<>"']/g, char =>
  ({'&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;'}[char]));
-const sparkForecast={filament:'More small Sparks',cluster:'More Clusters',vault:'More Caches',mineral:'Better odds of large Sparks'};
+const sparkForecast={filament:'More gentle Sparks',cluster:'More Clusters',vault:'More Caches',mineral:'More dense Caches'};
 
 function regularReward(run,node){
  const final=node.boss && (node.mapIndex??run.mapIndex)===2 && !run.isTutorial;
  if(final)return `<div class="preview-payout">${mapStopIconMarkup(node)}<strong>Expedition victory</strong></div>`;
- const amount=getFlightClearReward(node);
+ const amount=getFlightClearReward(node,run);
  const offers=availableFlightArtifacts(run,node).length;
  const artifact=offers>1?'Choose 1 of 2 artifacts':offers===1?'Gain 1 artifact':'';
  return `<div class="preview-payout">${resourceSymbol('packed')}<strong>+${amount} <span>Stored Sparks</span></strong></div>

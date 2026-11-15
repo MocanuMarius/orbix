@@ -36,7 +36,7 @@ test('each ordinary clear immediately secures a fixed reward plus overflow once,
   assert.equal(M.takeClearRewardReceipt(s.run).amount,20+overflow);
   assert.equal(M.takeClearRewardReceipt(s.run),null,'the map receipt is consumed only once');
  }
- assert.equal(FLIGHT_CLEAR_REWARD,20);assert.equal(getFlightClearReward({type:'flight',elite:true}),20);
+ assert.equal(FLIGHT_CLEAR_REWARD,20);assert.equal(getFlightClearReward({type:'flight',elite:true}),25);
  assert.equal(getFlightClearReward({type:'finale',boss:false}),20);
  assert.equal(getFlightClearReward({type:'finale',boss:true,mapIndex:2}),0);
 });
@@ -53,15 +53,12 @@ test('failed attempts earn nothing; a successful retry earns one clear reward',(
 test('practice rewards stay in practice; final guardian offers a permanent collection discovery',()=>{
  const practice=M.newState();M.startTutorial(practice);const profile=structuredClone(practice.profile),wallet=practice.run.practiceCondensedGlow;start(practice);
  assert.ok(M.finishFlight(practice.run,{success:true,flame:70,condensedGlow:7}));
- assert.equal(practice.run.practiceCondensedGlow,wallet+27);assert.equal(practice.run.condensedGlow,0);
+ assert.equal(practice.run.practiceCondensedGlow,wallet+22);assert.equal(practice.run.condensedGlow,0);
  assert.equal(M.settleCheckpoint(practice),0);assert.deepEqual(practice.profile,profile);
  const boss=fixture('last-guardian');start(boss);Object.assign(boss.run.current,{type:'finale',boss:true,mapIndex:2});boss.run.mapIndex=2;
- assert.ok(M.finishFlight(boss.run,{success:true,flame:60}));assert.equal(M.settleCheckpoint(boss),0);
- assert.equal(boss.run.lastFlight.completionBonus,0);assert.equal(boss.run.flightReward.offers.length,2);
- assert.equal(boss.run.victoryPending,true);assert.equal(boss.run.phase,'ended');
- const id=boss.run.flightReward.offers[0];assert.ok(M.chooseFlightReward(boss,id));assert.deepEqual(boss.profile.ownedArtifacts,[id]);assert.ok(M.acknowledgeVictory(boss));
- assert.equal(boss.run.success,true);assert.equal(boss.profile.difficulty,2);
- assert.equal(M.takeClearRewardReceipt(boss.run),null,'the completed run does not enqueue an ordinary map receipt');
+ assert.ok(M.finishFlight(boss.run,{success:true,flame:60}));M.settleCheckpoint(boss);
+ assert.equal(boss.run.lastFlight.completionBonus,0);assert.equal(boss.run.flightReward,null);
+ assert.equal(boss.run.victoryPending,false);assert.equal(boss.run.phase,'ended');assert.equal(boss.run.success,true);
 });
 
 test('Rest always offers Recover or Grow; both fill fuel but only Recover restores hearts',()=>{

@@ -24,7 +24,7 @@ test('chapter view offers reachable, owned and future perks and keeps closed pat
  const s=sample('collector');
  s.run.skills['collector-attunement']=1;
  const map=html(s,{chapter:'companion',selected:'collector-last-orbit'});
- assert.match(map,/class="book-trails"/);assert.match(map,/data-action="book-skill" data-chapter="companion" data-id="collector-mastery"/);
+ assert.match(map,/class="book-trails"/);assert.match(map,/data-action="book-skill" data-id="collector-mastery"/);
  assert.equal(skillBookChapter(SKILLS['main-dream']),'dream');assert.equal(skillBookChapter(SKILLS['main-long-flash']),'luminance');
  s.run.skills['collector-far-search']=1;
  assert.match(html(s,{chapter:'companion'}),/Other path chosen/);

@@ -14,33 +14,33 @@ const make=skills=>new WispFlight({canvas,seed:'collector-size-unlocks',prefligh
 
 test('Small and Cluster start available, larger loads unlock together, Flash separately',()=>{
  const s=M.newState();s.run=M.createRun(s.profile,'load-purchases');s.run.condensedGlow=10000;
- const allowed=()=>[1,2,3,6,10].filter(m=>collectorCanFetch({kind:'cache',sparkMass:m},M.getRunModifiers(s.run)));
+ const allowed=()=>[1,2,3].filter(m=>collectorCanFetch({kind:'cache',sparkMass:m},M.getRunModifiers(s.run)));
  assert.deepEqual(allowed(),[1,2]);assert.equal(M.buyCheckpointSkill(s,'collector-fetch-large'),false);
  assert.ok(M.buyCheckpointSkill(s,'collector-attunement'));
  assert.equal(M.getSkillPrice(M.getSkillWallet(s),'collector-fetch-large'),50);
  assert.ok(M.buyCheckpointSkill(s,'collector-fetch-large'));
- assert.deepEqual(allowed(),[1,2,3,6,10]);
+ assert.deepEqual(allowed(),[1,2,3]);
  assert.equal(collectorCanFetch({kind:'sight'},M.getRunModifiers(s.run)),false);
  assert.ok(M.buyCheckpointSkill(s,'collector-fetch-flash'));
  assert.equal(collectorCanFetch({kind:'sight'},M.getRunModifiers(s.run)),true);
  for(const p of [{kind:'dark',sparkMass:1},{kind:'dusk'},{kind:'cache',sparkMass:10,manualOnly:true}])assert.equal(collectorCanFetch(p,M.getRunModifiers(s.run)),false);
 });
-test('locked Sparks stay for the body; learned large cargo shrinks fully before one 12-Spark delivery',()=>{
- for(const mass of [3,6,10]){
+test('locked Caches stay for the body; learned cargo reduces density before one 12-Spark delivery',()=>{
+ for(const mass of [3]){
   const e=make(all);e.flame=0;e.getNearbyPickups=()=>e.layout.embers;e.collectorContains=()=>true;
   const p={id:'load-'+mass,kind:'cache',sparkMass:mass,x:0,y:e.player.y};
   p.x=e.distance+e.player.x-pickupContactRadius(p,e.height)-5;e.layout.embers=[p];
-  let firstRadius=0,sawContraction=false;
+  let firstRadius=0,sawCompaction=false;
   for(let i=0;i<240&&!p.collected;i++){
    e.time+=1/60;e.wisp.update(e,1/60);
    if(p.carried){const pose=e.wisp.cargoPose(p,e.time,e.height);firstRadius||=pose.scale;
-    if(e.time-p.carriedAt>.1)sawContraction||=pose.scale<firstRadius;
+    if(e.time-p.carriedAt>.1)sawCompaction||=pose.compacting;
     assert.equal(e.flame,0,'The trip cannot pay before delivery');
    }
   }
-  if(mass===6)assert.equal(e.wisp.recoveryFraction(),1,'Surge delivery restores the entire search ring');
+  if(mass===3)assert.equal(e.wisp.recoveryFraction(),1,'Cache delivery restores the entire search ring');
   else assert.ok(e.wisp.recoveryFraction()<1,'Other loads still spend recovery');
-  assert.ok(p.collected,'Learned load returns');assert.ok(sawContraction);
+  assert.ok(p.collected,'Learned load returns');assert.ok(sawCompaction);
   assert.ok(e.time-p.carriedAt>=.32,'Compression completes before absorption');
   assert.equal(p.collectorOriginalMass,mass);assert.equal(sparkMass(p),2);
   assert.equal(glowPoints(e.flame),12);assert.equal(e.condensedTotal,0);
@@ -53,14 +53,12 @@ test('locked Sparks stay for the body; learned large cargo shrinks fully before 
  locked.time+=1/60;locked.wisp.update(locked,1/60);assert.equal(locked.wisp.target,null);assert.equal(p.attracted,undefined);
  locked.flame=0;locked.collect(p);assert.equal(glowPoints(locked.flame),18);assert.equal(sparkMass(p),3);locked.destroy();
 });
-test('body Giant keeps 60 Sparks while delivered Giant packs only the converted Cluster surplus',()=>{
- const direct=make({});direct.flame=0;
- const p={id:'body-giant',kind:'cache',sparkMass:10,x:direct.distance+direct.player.x,y:direct.player.y};
- assert.equal(glowPoints(getPickupSpec(p).fuel),60);direct.collect(p);
- assert.equal(glowPoints(direct.flame),30);assert.equal(glowPoints(direct.pickupOverflow),30);assert.equal(direct.condensedGlow,5);direct.destroy();
- const carried=make(all),packet={id:'compressed-giant',kind:'cache',sparkMass:10,x:carried.distance+carried.player.x,y:carried.player.y};
- carried.flame=carried.maxFlame;compressCollectorCargo(packet);packet.deliveredByWisp=true;carried.collect(packet);
- assert.equal(glowPoints(carried.pickupOverflow),12);assert.equal(carried.condensedGlow,2);assert.equal(carried.baseEmbers,1);carried.destroy();
+test('body Cache keeps 18 Sparks while a delivered Cache compacts to 12',()=>{
+ const direct=make({});direct.flame=0;const p={kind:'cache',sparkMass:3,x:direct.player.x,y:direct.player.y};direct.collect(p);
+ assert.equal(glowPoints(direct.flame),18);direct.destroy();
+ const carried=make(all);carried.flame=carried.maxFlame;const packet={kind:'cache',sparkMass:3,x:carried.player.x,y:carried.player.y};
+ compressCollectorCargo(packet);packet.deliveredByWisp=true;carried.collect(packet);
+ assert.equal(glowPoints(carried.pickupOverflow),12);assert.equal(carried.condensedGlow,2);carried.destroy();
 });
 
 test('Flash Handling restores missing fuel once on body or carrier contact, without packing surplus',()=>{

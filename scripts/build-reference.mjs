@@ -1,7 +1,8 @@
 import {writeFile} from 'node:fs/promises';
 import {SKILLS,ARTIFACTS,getSkillPrice,getArtifactSalvageValue} from '../dist/model.mjs';
 import {getArtifactInfo} from '../dist/artifact-info.mjs';
-import {TREASURE_KINDS,describeTreasure,treasureChoices} from '../dist/treasure.mjs';
+import {CHEST_REWARDS} from '../dist/chest-rewards.mjs';
+import {STARTING_GIFTS} from '../dist/starting-gifts.mjs';
 const esc=value=>String(value??'').replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;');
 const groups={relics:[],skills:[],chests:[]};
 function row(group,id,name,meta,details){
@@ -16,23 +17,12 @@ for(const s of Object.values(SKILLS).sort((a,b)=>a.branch.localeCompare(b.branch
  const costs=Array.from({length:s.maxRank},(_,rank)=>getSkillPrice({skills:{[s.id]:rank}},s.id));
  row('skills',s.id,s.name,s.branch+' · '+(s.retired?'Retired · ':'')+'Base price '+costs.join(' / ')+' Stored Sparks',[s.description,s.requires&&'Requires '+names(s.requires),s.excludes?.length?'Exclusive with '+names(s.excludes):'']);
 }
-const run={flame:50,lives:3,skills:{},companions:['collector']};
-for(const kind of TREASURE_KINDS){
- const site=describeTreasure(kind),seen=new Set();
- function visit(state,condition){
-  for(const o of treasureChoices(kind,{...run,...state})){
-   const key=o.id+o.description;if(seen.has(key))continue;seen.add(key);
-   row('chests',kind+'-'+seen.size,o.title,site.name+' · '+condition,[o.description,o.id==='tithe-pay'?'Requires at least 9 Sparks.':'']);
-  }
- }
- visit({},'First visit');
- const gifts={vessel:2,farLens:1,quickLens:1,wick:1,toll:1,seal:1};
- visit({treasureGifts:gifts},'Gift already owned');
- for(const lives of [2,3])for(let n=0;n<=4;n++){
-  visit({treasureGifts:gifts,treasurePact:'wager',lives,eventFavors:['feather','haste','wick','lens'].slice(0,n)},'Replacement when the usual gift is unavailable');
- }
+for(const reward of CHEST_REWARDS){
+ const contents=reward.skillId?'Learn '+SKILLS[reward.skillId].name:reward.artifactIds.length?reward.artifactIds.map(id=>ARTIFACTS[id].name).join(' + '):'Permanent supply';
+ row('chests','chest-'+reward.id,reward.title,'Chest find · '+contents,[reward.description,reward.needsHeart?'Only offered with a missing heart.':reward.growth?'Offered before reaching the glass seed growth limit.':'Owned skills and artifacts are removed from the pool.']);
 }
-const notes={relics:'Melt values are proceeds at Rest. Select a name to link directly to it.',skills:'Base prices are in Stored Sparks. Other training can raise the price in a run. Retired entries are marked.',chests:'Each chest offers a choice. Repeat visits can substitute rewards based on gifts owned, missing hearts and active preparations. Immediate refill values assume room in the meter.'};
+for(const gift of STARTING_GIFTS)row('chests','starter-'+gift.id,gift.name,'Starting gift · Choose one of two random offers',[gift.description]);
+const notes={relics:'Melt values are proceeds at Rest. Select a name to link directly to it.',skills:'Base prices are in Stored Sparks. Other training can raise the price in a run. Retired entries are marked.',chests:'30 chest finds, plus the 20 starting gifts. Chests offer two different rewards and prefer unseen finds. Already-owned or incompatible rewards are excluded; rewards persist through the expedition. Starting gifts offer two seeded choices, and only one can be taken.'};
 for(const [group,rows] of Object.entries(groups)){
  const title=group[0].toUpperCase()+group.slice(1);
  const nav=Object.keys(groups).map(g=>'<a '+(g===group?'aria-current="page" ':'')+'href="reference-'+g+'.html">'+g+'</a>').join(' ');

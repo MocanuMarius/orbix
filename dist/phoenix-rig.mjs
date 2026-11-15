@@ -1,5 +1,5 @@
-import * as PIXI from './vendor/pixi.mjs?v=authored-biomes-1';
-import { PhoenixMotion, deformWing, deformTail } from './phoenix-motion.mjs?v=authored-biomes-1';
+import * as PIXI from './vendor/pixi.mjs?v=spark-choices-2';
+import { PhoenixMotion, deformWing, deformTail } from './phoenix-motion.mjs?v=spark-choices-2';
 
 export class PhoenixRig {
   constructor(texture) {

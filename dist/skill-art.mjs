@@ -1,6 +1,6 @@
-import {sparkImageArt,sparkSymbolArt} from './spark-symbol.mjs?v=authored-biomes-1';
-import {condensedIconMarkup} from './afterglow-ui.mjs?v=authored-biomes-1';
-import {fineTreasureObject} from './fine-treasure-art.mjs?v=authored-biomes-1';
+import {sparkImageArt,sparkSymbolArt} from './spark-symbol.mjs?v=spark-choices-2';
+import {condensedIconMarkup} from './afterglow-ui.mjs?v=spark-choices-2';
+import {fineTreasureObject} from './fine-treasure-art.mjs?v=spark-choices-2';
 
 // Three material tones sit above a shared dark contour. Keep light and shadow
 // readable at the tree's smallest size, even with all motion switched off.

@@ -1,3 +1,26 @@
+# Spark choices, longer journeys and living terrain — 15 November 2026
+
+Current release: `spark-choices-2`. This supersedes the older size and reward rules below.
+
+- [x] Restore three fuel strengths (6/12/18) at one shared 12.8-world-unit shell radius, between Collector and main-wisp size. Arc density differentiates strength. Update live rendering, contacts, Collector cargo, lessons and all shared previews.
+- [x] Thin redundant fuel and preserve useful approach/recovery lanes and marked challenges. Retain more Dark Sparks instead of converting them into extra fuel.
+- [x] Twenty starting gifts; offer exactly two seeded choices, grant one, keep the offer stable through save/reload.
+- [x] Thirty chest finds spanning learned skills, relics, bundles, permanent capacity, recovery and currency. Prefer unseen finds; filter owned/incompatible benefits; record both displayed options after a choice.
+- [x] Length-based clear pay: 15/20/25, plus 5 for elites. Trail Dividend adds 10 per clear (standard 20→30), in the Storage chapter.
+- [x] Base flight packing limit 20; Efficient Storage raises it to 30. Fine Facets and Prismatic Yield each add 5 per rank. Ordinary clear pay and optional map rewards remain separate from packing.
+- [x] Ten stops per map: three extra flights before each guardian. Preserve committed edges, ordinary paths, single dreamable Rest exits and the original encounter-pressure range.
+- [x] Three optional pacts: 55% Luminance for double packing (+20 maximum), 38% for triple packing (+40 maximum), or −45% Collector reach for double packing (+20 maximum). One attempt, clear required, no recursive packing or stacking, free decline. Do not offer a currency pact before the final guardian.
+- [x] Remove discovery/ascension gates from relic availability. Elites can roll legendary relics at low frequency; guardians offer strong relics from the first map. Rejected offers cycle after unseen finds are exhausted. Almanac shows all relics. Final victory has no pointless item-unlock choice.
+- [x] Complete the accepted Collector follow-up: cheap learned Dense/Flash targeting preferences, switched at checkpoints; independent Last Orbit Guard branch; Kindled Guard lets direct body pickups repair 2 seconds of post-rescue recovery.
+- [x] Richer cached rock bedding, fractures, ledge deposits, opaque atlas sampling and two nondamaging foreground parallax strips clipped inside real ground. Bedrock faces become less uniformly rounded without raising the old route boundary. Preserve camera registration and cropped material bakes.
+- [x] New original adaptive score: three synchronized 7m16s stems at 88 BPM, changing harmony, motifs, bass, percussion and arpeggios. Smooth mix changes for quiet sites, flights, danger, guardians, dreams, pause and victory. Pre-rendered audio; mute and background pause retained. Standalone music preview included.
+
+Verification: 46 focused tests passed, covering the changes above and checkpoint accounting, terrain registration, skill-book availability and audio lifecycle. All 174 top-level modules pass syntax checks. The 72 completed-flight inventory scenarios use the actual model, three imperfect collection styles and four purchase policies at A1/A2. They yield about 16–20 packed per clear, about 20 clear pay, and 11–12 purchases over about 24 cleared flights. These assume completed flights and do not measure human win rates. A separate 72-flight physics sample uses limited visibility, 250ms reaction delay and missed/corrective inputs: 17/24 opening and 27/48 later-stage clears; 8 failures occurred with low fuel. This is diagnostic evidence, not proof that every seed is fair or completable.
+
+Physical Pixel 10 frame-time traces and human play remain unavailable. The item-by-item rating conversation remains paused; resume at Search Spark when requested. The full Night Atlas replacement remains an unapproved design proposal, not a shipped system. Other companions remain deliberately deferred/locked while Collector is developed.
+
+---
+
 # Guardian paths, Spark mass and run treasures — 14 November 2026
 
 ## Completion audit and current rules
