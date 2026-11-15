@@ -1,4 +1,4 @@
-import {GUARDIAN_RELICS} from './guardian-artifacts.mjs?v=authored-biomes-1';
+import {GUARDIAN_RELICS} from './guardian-artifacts.mjs?v=spark-choices-2';
 // Lifetime is separate from rarity: a rare relic is not a consumable by default.
 export const CONSUMABLE_ARTIFACTS=Object.freeze({
   'glow-wick':Object.freeze({charges:3,maxCharges:3}),

@@ -1,2 +1,2 @@
-import {branchTreeMarkup} from './skill-tree.mjs?v=authored-biomes-1';
+import {branchTreeMarkup} from './skill-tree.mjs?v=spark-choices-2';
 export function mainWispTreeMarkup(options){return branchTreeMarkup({...options,branch:'main'});}

@@ -1,13 +1,13 @@
-import {drawPickup} from './pickup-art.mjs?v=authored-biomes-1';
-import {drawCapture} from './capture-art.mjs?v=authored-biomes-1';
-import {captureMassDuration} from './tidal-light.mjs?v=authored-biomes-1';
-import {SPARK_TIERS,sparkArtScale,sparkBodyRadius} from './spark-size.mjs?v=authored-biomes-1';
-import {getPickupSpec,pickupContactRadius} from './pickups.mjs?v=authored-biomes-1';
-import {makeWispSprite} from './companion-art.mjs?v=authored-biomes-1';
-import {biomePalette} from './biome-art.mjs?v=authored-biomes-1';
-import {createDepthScenery,drawDepthScenery} from './depth-scenery.mjs?v=authored-biomes-1';
-import {LIGHT_PACKET_TUNING,getGlowCapacity,glowPoints,GLOW_DISPLAY_SCALE} from './vitality.mjs?v=authored-biomes-1';
-import {condenseGlow,getCondensationRules} from './condensed-glow.mjs?v=authored-biomes-1';
+import {drawPickup} from './pickup-art.mjs?v=spark-choices-2';
+import {drawCapture} from './capture-art.mjs?v=spark-choices-2';
+import {captureMassDuration} from './tidal-light.mjs?v=spark-choices-2';
+import {SPARK_TIERS,sparkArtScale,sparkBodyRadius} from './spark-size.mjs?v=spark-choices-2';
+import {getPickupSpec,pickupContactRadius} from './pickups.mjs?v=spark-choices-2';
+import {makeWispSprite} from './companion-art.mjs?v=spark-choices-2';
+import {biomePalette} from './biome-art.mjs?v=spark-choices-2';
+import {createDepthScenery,drawDepthScenery} from './depth-scenery.mjs?v=spark-choices-2';
+import {LIGHT_PACKET_TUNING,getGlowCapacity,glowPoints,GLOW_DISPLAY_SCALE} from './vitality.mjs?v=spark-choices-2';
+import {condenseGlow,getCondensationRules} from './condensed-glow.mjs?v=spark-choices-2';
 
 // The phone renderer uses 240 raster pixels per 390 world units. Keep the
 // wisp sprite in the same raster scale while the pickups use world dimensions.
@@ -17,7 +17,7 @@ const wispSize=36*.85;
 
 export function createSparkSizesPreview({isPaused,setPaused,reducedMotion}){
   const element=document.createElement('section');element.className='spark-size-scene';
-  element.innerHTML='<div class="spark-size-picker" role="group" aria-label="Spark size"></div><canvas role="img"></canvas><div class="spark-size-summary"><p aria-live="polite"></p><button type="button" class="spark-polarity" aria-pressed="false">Dark Spark</button><button type="button" class="spark-replay">↻ Replay</button></div>';
+  element.innerHTML='<div class="spark-size-picker" role="group" aria-label="Spark strength"></div><canvas role="img"></canvas><div class="spark-size-summary"><p aria-live="polite"></p><button type="button" class="spark-polarity" aria-pressed="false">Dark Spark</button><button type="button" class="spark-replay">↻ Replay</button></div>';
   const options=element.querySelector('.spark-size-picker'),field=element.querySelector('canvas');
   const caption=element.querySelector('p'),replay=element.querySelector('.spark-replay'),polarity=element.querySelector('.spark-polarity');
   field.width=width;field.height=height;
@@ -43,7 +43,7 @@ export function createSparkSizesPreview({isPaused,setPaused,reducedMotion}){
     const outcome=dark?`Dims Luminance for ${spec.dimDuration}s.`
       : fuel>capacity?`+${fuel} Sparks fills an empty meter and packs ${stored} at base efficiency.`
       : `+${fuel} Sparks fills ${fuel}/${capacity} of an empty meter.`;
-    caption.textContent=`${outcome} About ${Math.round(tier.probability*100)}% across maps.`;
+    caption.textContent=`${outcome} Same shell; arc density shows strength.`;
     field.setAttribute('aria-label',`${tier.name} ${dark?'Dark':'fuel'} Spark approaches the wisp and its shell breaks on contact.`);
     Array.from(options.children).forEach((button,i)=>button.setAttribute('aria-pressed',String(SPARK_TIERS[i]===tier)));
   }

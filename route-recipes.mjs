@@ -1,10 +1,24 @@
-// Seven stops, but different timings for recovery, treasure and commitment.
+// Ten stops, with three extra flights before each guardian. Recovery, treasure
+// and event lanes retain their authored commitments and single exits at Rests.
 // F=ordinary flight, E=elite, R=rest, T=treasure, V=event, B=map finale.
 // Authored crossings keep a route committed for several stops. Each row's three
 // strings list destination lanes for source lanes 0/1/2. A crossing is a real
 // junction, never an automatic connection to every adjacent node.
 const straight=['0','1','2'],finish=['1','1','1'];
-export const ROUTE_TOPOLOGY_VERSION='committed-paths-1';
+export const ROUTE_TOPOLOGY_VERSION='longer-journeys-2';
+export const MAP_STOP_COUNT=10;
+function extendJourney(recipe){
+ const rows=[],edges=[],extraFlightRows=[];
+ for(let i=0;i<recipe.rows.length;i++){
+  rows.push(recipe.rows[i]);
+  if(i===recipe.rows.length-1)break;
+  edges.push(recipe.edges[i]);
+  if([0,2,4].includes(i)){
+   extraFlightRows.push(rows.length);rows.push('FFF');edges.push(straight);
+  }
+ }
+ return {...recipe,rows,edges,extraFlightRows:Object.freeze(extraFlightRows)};
+}
 export const ROUTE_RECIPES=Object.freeze([
  {id:'lantern-forks',name:'Lantern Forks',rows:['FFF','RVF','FFE','TFV','FRF','EFF',' B '],edges:[straight,['0','1','12'],['01','1','2'],straight,['01','1','2'],finish]},
  {id:'long-crossing',name:'Long Crossing',rows:['FFF','FEF','RFT','FFF','VRV','FFE',' B '],edges:[['0','12','2'],straight,['0','12','2'],['01','1','2'],['0','1','12'],finish]},
@@ -12,7 +26,7 @@ export const ROUTE_RECIPES=Object.freeze([
  {id:'sheltered-weave',name:'Sheltered Weave',rows:['FFF','RFV','FFF','TVR','FFF','FEF',' B '],edges:[straight,straight,['0','12','2'],straight,['0','01','2'],finish]},
  {id:'crossroads',name:'Crossroads',rows:['FFF','FVR','FFF','RTE','FFF','VFE',' B '],edges:[straight,straight,['0','1','12'],straight,['0','01','12'],finish]},
  {id:'late-haven',name:'Late Haven',rows:['FFF','FEF','VFT','FRF','EFV','FTF',' B '],edges:[['0','12','2'],straight,straight,['01','1','2'],['0','01','2'],finish]},
-].map(r=>Object.freeze({...r,rows:Object.freeze(r.rows),edges:Object.freeze(r.edges.map(row=>Object.freeze([...row])))})));
+].map(extendJourney).map(r=>Object.freeze({...r,rows:Object.freeze(r.rows),edges:Object.freeze(r.edges.map(row=>Object.freeze([...row])))})));
 
 
 export const REWARD_THEMES=Object.freeze({

@@ -1,8 +1,8 @@
-import {canCompanionCollect,pickupKind} from './pickups.mjs?v=authored-biomes-1';
-import {sparkMass} from './spark-size.mjs?v=authored-biomes-1';
+import {canCompanionCollect,pickupKind} from './pickups.mjs?v=spark-choices-2';
+import {sparkMass} from './spark-size.mjs?v=spark-choices-2';
 
-// Body collection always retains the original size and fuel. A carrier can
-// rescue a learned size, but larger loads compact into one 12-Spark Cluster.
+// Body collection retains the original plasma density and fuel. A carrier
+// can learn Cache handling; deliveries condense to one 12-Spark Cluster.
 export function collectorCanFetch(packet,mod={}){
   if(!canCompanionCollect(packet))return false;
   if(pickupKind(packet)==='sight')return mod.collectorFlashFetch===true;

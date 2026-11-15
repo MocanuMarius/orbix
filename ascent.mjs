@@ -1,4 +1,4 @@
-// Five flights per map; the campaign difficulty tier is a separate value.
+// Encounter pressure scales across the longer map; the campaign difficulty tier is a separate value.
 // The authored difficulty curve tops out here. Do not unlock identical tiers.
 export const MAX_ASCENSION = 6;
 const ROW_LEVELS = [1, 2, 2, 3, 4, 4, 5];
@@ -8,7 +8,7 @@ const LABELS = ['WIDER PASSAGES', 'TIGHTER PASSAGES', 'TIGHTER PASSAGES', 'DEEP 
 
 export function getAscentInfo(nodeOrRow = 0, tutorial = false) {
   const node = nodeOrRow && typeof nodeOrRow === 'object' ? nodeOrRow : null;
-  const raw = Number(node ? node.row ?? 0 : nodeOrRow);
+  const raw = Number(node ? node.encounterStage ?? node.row ?? 0 : nodeOrRow);
   const isTutorial = Boolean(tutorial || node?.isTutorial || node?.tutorialLesson);
   const row = !isTutorial && node?.type === 'finale' ? 6 : Math.max(0, Math.min(6, Math.floor(Number.isFinite(raw) ? raw : 0)));
   const isSupport = node ? node.type === 'support' : row === 1 || row === 4;

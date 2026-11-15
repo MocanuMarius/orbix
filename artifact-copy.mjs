@@ -1,8 +1,8 @@
-import {resourceSymbol} from './game-symbols.mjs?v=authored-biomes-1';
-import {GUARDIAN_RELICS} from './guardian-artifacts.mjs?v=authored-biomes-1';
-import {getArtifactInfo,CONSUMABLE_ARTIFACTS} from './artifact-info.mjs?v=authored-biomes-1';
-import {getCompanionAbility,normalizeCompanionRole} from './companion-abilities.mjs?v=authored-biomes-1';
-import {formatGlow,glowText,getGlowCapacity} from './vitality.mjs?v=authored-biomes-1';
+import {resourceSymbol} from './game-symbols.mjs?v=spark-choices-2';
+import {GUARDIAN_RELICS} from './guardian-artifacts.mjs?v=spark-choices-2';
+import {getArtifactInfo,CONSUMABLE_ARTIFACTS} from './artifact-info.mjs?v=spark-choices-2';
+import {getCompanionAbility,normalizeCompanionRole} from './companion-abilities.mjs?v=spark-choices-2';
+import {formatGlow,glowText,getGlowCapacity} from './vitality.mjs?v=spark-choices-2';
 
 const esc=value=>String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const action={collector:'Collector delivers a Spark',protector:'Protector deflects a collision',swift:'Runner starts a burst',leveler:'Space Timer starts levitating'};
@@ -16,7 +16,7 @@ export function artifactDescription(a,run={}, {fresh=false}={}){
  const convert=value=>glowText(value||'',getGlowCapacity(run));
  const companionWork=`After ${action[role]}`;
  const entries={
-  'cache-cup':{trigger:'Collect a Cache, Surge or Giant Spark.',effect:'Restore 2 extra Sparks.',limit:'Automatic · permanent.'},
+  'cache-cup':{trigger:'Collect a Cache Spark.',effect:'Restore 2 extra Sparks.',limit:'Automatic · permanent.'},
   'wayward-seed':{trigger:'Collect 3 Sparks in a row with your body.',effect:'Restore up to 1 Spark.',limit:chainLimit(role,'Evolves after Map 1.')},
   'hearth-bloom':{trigger:'Collect 3 Sparks in a row with your body.',effect:'Restore up to 3 Sparks.',limit:chainLimit(role,'Bonus Sparks cannot become Stored Sparks.')},
   'lantern-bloom':{trigger:'Collect 3 Sparks in a row with your body.',effect:'Reveal the whole scene for 1.5 seconds.',limit:chainLimit(role)},

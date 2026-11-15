@@ -1,11 +1,11 @@
-import {getGlowCapacity,getLifeCapacity,formatGlow} from './vitality.mjs?v=authored-biomes-1';
-import {livesMarkup} from './lives.mjs?v=authored-biomes-1';
-import {resourceSymbol} from './game-symbols.mjs?v=authored-biomes-1';
-import {choiceScene} from './choice-art.mjs?v=authored-biomes-1';
-import {mapStopIconMarkup} from './map-guide.mjs?v=authored-biomes-1';
-import {canDreamAt} from './dream.mjs?v=authored-biomes-1';
-import {skillIcon,artifactIcon} from './upgrade-icons.mjs?v=authored-biomes-1';
-import {companionArtSvg} from './companion-art.mjs?v=authored-biomes-1';
+import {getGlowCapacity,getLifeCapacity,formatGlow} from './vitality.mjs?v=spark-choices-2';
+import {livesMarkup} from './lives.mjs?v=spark-choices-2';
+import {resourceSymbol} from './game-symbols.mjs?v=spark-choices-2';
+import {choiceScene} from './choice-art.mjs?v=spark-choices-2';
+import {mapStopIconMarkup} from './map-guide.mjs?v=spark-choices-2';
+import {canDreamAt} from './dream.mjs?v=spark-choices-2';
+import {skillIcon,artifactIcon} from './upgrade-icons.mjs?v=spark-choices-2';
+import {companionArtSvg} from './companion-art.mjs?v=spark-choices-2';
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 export function restBenefitsMarkup(run,node,choices=[],{nextNode=null}={}){
  const capacity=getGlowCapacity(run),fullHearts={...run,lives:getLifeCapacity(run)},resolved=run.restReady===true;

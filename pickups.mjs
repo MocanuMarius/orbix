@@ -1,5 +1,6 @@
-import {FLAME_TUNING,LIGHT_PACKET_TUNING,glowPoints} from './vitality.mjs?v=authored-biomes-1';
-import {SPARK_TIERS,sparkBodyRadius,sparkMass} from './spark-size.mjs?v=authored-biomes-1';
+import {WISP_ART} from './companion-art.mjs?v=spark-choices-2';
+import {FLAME_TUNING,LIGHT_PACKET_TUNING,glowPoints} from './vitality.mjs?v=spark-choices-2';
+import {SPARK_TIERS,sparkBodyRadius,sparkMass} from './spark-size.mjs?v=spark-choices-2';
 
 const FLASH_POWERUP = {sightBonus:120, sightDuration:8};
 const type=(id,name,color,radius,contactRadius,description,extra={})=>Object.freeze({id,name,color,radius,contactRadius:contactRadius*.8,description,fuel:0,sightBonus:0,sightDuration:0,dim:0,dimDuration:0,manualOnly:false,...extra});
@@ -41,7 +42,7 @@ export function getPickupSpec(packet){
 export function pickupContactRadius(packet,height){
   const spec=getPickupSpec(packet);
   if(!packet||typeof packet!=='object'||packet.generated||!sparkMass(packet))return spec.contactRadius;
-  const radius=sparkBodyRadius(packet,height)+9.35; // visible shell plus the wisp body
+  const radius=sparkBodyRadius(packet,height)+WISP_ART.worldRadius; // visible shell plus the wisp body
   return packet.accessible||packet.riskChain||packet.intro||packet.forgivingContact?Math.max(radius,spec.contactRadius):radius;
 }
 export const SPARK_ART_SCALE = .8;

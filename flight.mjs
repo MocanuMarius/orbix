@@ -1,62 +1,62 @@
-import {prepareEnvironmentArt} from './authored-environment.mjs?v=authored-biomes-1';
-import {drawTerrainEcology,drawHabitatBackdrop} from './terrain-ecology.mjs?v=authored-biomes-1';
-import {prepareAtlasFlight,resizeAtlasFlight,ringBellwind,bellwindAcceleration,moonLightScale,drawAtlasFlight} from './atlas-flight.mjs?v=authored-biomes-1';
-import {canShowFlightHint} from './flight-hint-safety.mjs?v=authored-biomes-1';
-import {updateGlideRegeneration} from './glide-regeneration.mjs?v=authored-biomes-1';
-import {drawGuardianPresence} from './guardian-presence.mjs?v=authored-biomes-1';
-import { updateGuardian, resizeGuardian, placeGuardianFuel } from './guardian-effects.mjs?v=authored-biomes-1';
-import { drawGuardianWarnings } from './guardian-art.mjs?v=authored-biomes-1';
-import { drawShutters, resizeShutters } from './shutter-cone.mjs?v=authored-biomes-1';
-import { inLanternRoom, installPassageLanterns, lanternField } from './lantern-layout.mjs?v=authored-biomes-1';
-import {drawProximityMeter} from './proximity-meter.mjs?v=authored-biomes-1';
-import {drawFourthBeat} from './fourth-beat-art.mjs?v=authored-biomes-1';
-import {drawCollectorField} from './collector-field-art.mjs?v=authored-biomes-1';
-import {buildObjectivePlan,createFlightObjective,drawObjectiveMarks} from './flight-objectives.mjs?v=authored-biomes-1';
-import {FlightProjection,drawFlightProjection} from './flight-projection.mjs?v=authored-biomes-1';
-import {drawGlowSense} from './glow-sense.mjs?v=authored-biomes-1';
-import {formatGlow} from './vitality.mjs?v=authored-biomes-1';
-import {installRiskChains} from './risk-chains.mjs?v=authored-biomes-1';
-import {installSparkField} from './spark-fields.mjs?v=authored-biomes-1';
-import {drawFallWarning} from './fall-chain-art.mjs?v=authored-biomes-1';
-import {EXTRA_COURSES} from './world-expansion.mjs?v=authored-biomes-1';
-import {BIOME_COURSES} from './biome-courses.mjs?v=authored-biomes-1';
-import {BiomeDynamics} from './biome-dynamics.mjs?v=authored-biomes-1';
-import {condenseGlow} from './condensed-glow.mjs?v=authored-biomes-1';
-import {ensureGlowBudget,shapeExpeditionSupply} from './glow-budget.mjs?v=authored-biomes-1';
-import {EdgingPulse} from './edging-pulse.mjs?v=authored-biomes-1';
-import {isVowBodyPickup} from './contextual-events.mjs?v=authored-biomes-1';
-import {FlightBoon} from './flight-boons.mjs?v=authored-biomes-1';
-import {BlackHoles} from './black-holes.mjs?v=authored-biomes-1';
-import {drawWispBody,makeWispSprite,makeCompanionSprite,WISP_ART} from './companion-art.mjs?v=authored-biomes-1';
-import {drawBlackHoles} from './black-hole-art.mjs?v=authored-biomes-1';
-import {drawCapture, drawShellPuff, drawCarriedSpark} from './capture-art.mjs?v=authored-biomes-1';
-import {drawShellArcs} from './shell-arcs.mjs?v=authored-biomes-1';
-import {sparkBodyRadius,sparkArtScale,sparkMass} from './spark-size.mjs?v=authored-biomes-1';
-import {captureMassDuration} from './tidal-light.mjs?v=authored-biomes-1';
-import {readCaptureStyle} from './capture-styles.mjs?v=authored-biomes-1';
+import {prepareEnvironmentArt} from './authored-environment.mjs?v=spark-choices-2';
+import {drawTerrainEcology,drawHabitatBackdrop} from './terrain-ecology.mjs?v=spark-choices-2';
+import {prepareAtlasFlight,resizeAtlasFlight,ringBellwind,bellwindAcceleration,moonLightScale,drawAtlasFlight} from './atlas-flight.mjs?v=spark-choices-2';
+import {canShowFlightHint} from './flight-hint-safety.mjs?v=spark-choices-2';
+import {updateGlideRegeneration} from './glide-regeneration.mjs?v=spark-choices-2';
+import {drawGuardianPresence} from './guardian-presence.mjs?v=spark-choices-2';
+import { updateGuardian, resizeGuardian, placeGuardianFuel } from './guardian-effects.mjs?v=spark-choices-2';
+import { drawGuardianWarnings } from './guardian-art.mjs?v=spark-choices-2';
+import { drawShutters, resizeShutters } from './shutter-cone.mjs?v=spark-choices-2';
+import { inLanternRoom, installPassageLanterns, lanternField } from './lantern-layout.mjs?v=spark-choices-2';
+import {drawProximityMeter} from './proximity-meter.mjs?v=spark-choices-2';
+import {drawFourthBeat} from './fourth-beat-art.mjs?v=spark-choices-2';
+import {drawCollectorField} from './collector-field-art.mjs?v=spark-choices-2';
+import {buildObjectivePlan,createFlightObjective,drawObjectiveMarks} from './flight-objectives.mjs?v=spark-choices-2';
+import {FlightProjection,drawFlightProjection} from './flight-projection.mjs?v=spark-choices-2';
+import {drawGlowSense} from './glow-sense.mjs?v=spark-choices-2';
+import {formatGlow} from './vitality.mjs?v=spark-choices-2';
+import {installRiskChains} from './risk-chains.mjs?v=spark-choices-2';
+import {installSparkField} from './spark-fields.mjs?v=spark-choices-2';
+import {drawFallWarning} from './fall-chain-art.mjs?v=spark-choices-2';
+import {EXTRA_COURSES} from './world-expansion.mjs?v=spark-choices-2';
+import {BIOME_COURSES} from './biome-courses.mjs?v=spark-choices-2';
+import {BiomeDynamics} from './biome-dynamics.mjs?v=spark-choices-2';
+import {condenseGlow} from './condensed-glow.mjs?v=spark-choices-2';
+import {ensureGlowBudget,shapeExpeditionSupply,trimSurplusFuel} from './glow-budget.mjs?v=spark-choices-2';
+import {EdgingPulse} from './edging-pulse.mjs?v=spark-choices-2';
+import {isVowBodyPickup} from './contextual-events.mjs?v=spark-choices-2';
+import {FlightBoon} from './flight-boons.mjs?v=spark-choices-2';
+import {BlackHoles} from './black-holes.mjs?v=spark-choices-2';
+import {drawWispBody,makeWispSprite,makeCompanionSprite,WISP_ART} from './companion-art.mjs?v=spark-choices-2';
+import {drawBlackHoles} from './black-hole-art.mjs?v=spark-choices-2';
+import {drawCapture, drawShellPuff, drawCarriedSpark} from './capture-art.mjs?v=spark-choices-2';
+import {drawShellArcs} from './shell-arcs.mjs?v=spark-choices-2';
+import {sparkBodyRadius,sparkArtScale,sparkMass} from './spark-size.mjs?v=spark-choices-2';
+import {captureMassDuration} from './tidal-light.mjs?v=spark-choices-2';
+import {readCaptureStyle} from './capture-styles.mjs?v=spark-choices-2';
 /* Emberwing's self-contained canvas flight simulation and renderer. */
-import { glowPoints, FLAME_TUNING, LIGHT_PACKET_TUNING } from './vitality.mjs?v=authored-biomes-1';
-import { flightEndDistance } from './flight-end.mjs?v=authored-biomes-1';
-import {getExitLandmarkState,drawExitLandmark} from './exit-landmark.mjs?v=authored-biomes-1';
-import { WispCompanion, wispHome } from './wisp.mjs?v=authored-biomes-1';
-import { getAscentInfo } from './ascent.mjs?v=authored-biomes-1';
-import { LEVEL_LENGTH, getLevelLengthScale } from './level-length.mjs?v=authored-biomes-1';
-import { resolveLevelIdentity } from './level-catalog.mjs?v=authored-biomes-1';
-import { DraftField, DRAFT_TUNING } from './drafts.mjs?v=authored-biomes-1';
-import { normalizeCompanionRole, normalizeCompanionFleet, getCompanionAbility } from './companion-abilities.mjs?v=authored-biomes-1';
-import { populateSceneProps, scenePropPolygons } from './scene-props.mjs?v=authored-biomes-1';
-import { pickupKind, getPickupSpec, pickupContactRadius, canCompanionCollect, flashPowerupDuration } from './pickups.mjs?v=authored-biomes-1';
-import { createFlashTether, stepFlashTether, drawFlashTether, flashLightPulse } from './flash-tether.mjs?v=authored-biomes-1';
-import { drawPickup, drawSparkSymbol } from './pickup-art.mjs?v=authored-biomes-1';
-import { buildBossLayout, getBossState as bossState, drawBoss } from './boss.mjs?v=authored-biomes-1';
-import { getAuthoredChallenge, finalizeFlightChallenges, installAuthoredDraftCrossings, FlightChallengeDirector } from './flight-challenges.mjs?v=authored-biomes-1';
-import { installEncounterFamily } from './encounter-families.mjs?v=authored-biomes-1';
-import { installFlightForks, resizeFlightForks } from './flight-forks.mjs?v=authored-biomes-1';
-import { ArtifactEffects } from './artifact-effects.mjs?v=authored-biomes-1';
-import { LIGHT_EXTENT,lightAttenuation,lightVisibility,createLightMaskCanvas,castFlightFlashLights,revealLanternWake,sceneRevealStrength,flashRangeStrength,pickupRevealHold,pickupRevealAt,renderLightState,lightDreamScenery } from './light-field.mjs?v=authored-biomes-1';
+import { glowPoints, FLAME_TUNING, LIGHT_PACKET_TUNING } from './vitality.mjs?v=spark-choices-2';
+import { flightEndDistance } from './flight-end.mjs?v=spark-choices-2';
+import {getExitLandmarkState,drawExitLandmark} from './exit-landmark.mjs?v=spark-choices-2';
+import { WispCompanion, wispHome } from './wisp.mjs?v=spark-choices-2';
+import { getAscentInfo } from './ascent.mjs?v=spark-choices-2';
+import { LEVEL_LENGTH, getLevelLengthScale } from './level-length.mjs?v=spark-choices-2';
+import { resolveLevelIdentity } from './level-catalog.mjs?v=spark-choices-2';
+import { DraftField, DRAFT_TUNING } from './drafts.mjs?v=spark-choices-2';
+import { normalizeCompanionRole, normalizeCompanionFleet, getCompanionAbility } from './companion-abilities.mjs?v=spark-choices-2';
+import { populateSceneProps, scenePropPolygons } from './scene-props.mjs?v=spark-choices-2';
+import { pickupKind, getPickupSpec, pickupContactRadius, canCompanionCollect, flashPowerupDuration } from './pickups.mjs?v=spark-choices-2';
+import { createFlashTether, stepFlashTether, drawFlashTether, flashLightPulse } from './flash-tether.mjs?v=spark-choices-2';
+import { drawPickup, drawSparkSymbol } from './pickup-art.mjs?v=spark-choices-2';
+import { buildBossLayout, getBossState as bossState, drawBoss } from './boss.mjs?v=spark-choices-2';
+import { getAuthoredChallenge, finalizeFlightChallenges, installAuthoredDraftCrossings, FlightChallengeDirector } from './flight-challenges.mjs?v=spark-choices-2';
+import { installEncounterFamily } from './encounter-families.mjs?v=spark-choices-2';
+import { installFlightForks, resizeFlightForks } from './flight-forks.mjs?v=spark-choices-2';
+import { ArtifactEffects } from './artifact-effects.mjs?v=spark-choices-2';
+import { LIGHT_EXTENT,lightAttenuation,lightVisibility,createLightMaskCanvas,castFlightFlashLights,revealLanternWake,sceneRevealStrength,flashRangeStrength,pickupRevealHold,pickupRevealAt,renderLightState,lightDreamScenery } from './light-field.mjs?v=spark-choices-2';
 import { createTutorialState, buildTutorialLayout, recordTutorialPickup,
-  updateTutorial, updateTutorialCompanion, getTutorialHint } from './tutorial.mjs?v=authored-biomes-1';
-export { FLAME_TUNING } from './vitality.mjs?v=authored-biomes-1';
+  updateTutorial, updateTutorialCompanion, getTutorialHint } from './tutorial.mjs?v=spark-choices-2';
+export { FLAME_TUNING } from './vitality.mjs?v=spark-choices-2';
 const TAU = Math.PI * 2;
 const STEP = 1 / 60;
 const FALLBACK_WISP_RADIUS = WISP_ART.worldRadius/.85;
@@ -68,7 +68,7 @@ const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
 const lerp = (a, b, t) => a + (b - a) * t;
 export const FLIGHT_TUNING = Object.freeze({ gravity: 300, flapImpulse: 205,
   forwardSpeed: 154, terminalFall: 245, pickupRadius: LIGHT_PACKET_TUNING.pickupRadius });
-export { DRAFT_TUNING } from './drafts.mjs?v=authored-biomes-1';
+export { DRAFT_TUNING } from './drafts.mjs?v=spark-choices-2';
 // Retain the public tuning name for consumers; wind now has no global cycle.
 export const WIND_TUNING = DRAFT_TUNING;
 
@@ -268,7 +268,7 @@ const ERODED_GROUND_DEPTHS = Object.freeze({
   ],
 });
 
-function sampleTerrainContour(xs, depths) {
+function sampleTerrainContour(xs, depths, bedding = 0) {
   const secants = depths.slice(1).map((value, i) => (value - depths[i]) / (xs[i + 1] - xs[i]));
   const slopes = depths.map((_, i) => i === 0 ? secants[0] : i === depths.length - 1 ? secants.at(-1)
     : secants[i - 1] * secants[i] <= 0 ? 0 : (secants[i - 1] + secants[i]) * .5);
@@ -292,7 +292,10 @@ function sampleTerrainContour(xs, depths) {
         + (t3 - 2 * t2 + t) * width * slopes[i]
         + (-2 * t3 + 3 * t2) * depths[i + 1]
         + (t3 - t2) * width * slopes[i + 1];
-      points.push([lerp(xs[i], xs[i + 1], t), clamp(depth, Math.min(depths[i], depths[i + 1]), Math.max(depths[i], depths[i + 1]))]);
+      // Bedrock exposes planar faces; carve toward them without raising rock
+      // into the established passage. Root-bound earth keeps softer curves.
+      const carved=Math.max(depth,lerp(depth,lerp(depths[i],depths[i+1],t),bedding));
+      points.push([lerp(xs[i], xs[i + 1], t), clamp(carved, Math.min(depths[i], depths[i + 1]), Math.max(depths[i], depths[i + 1]))]);
     }
   }
   points.push([xs.at(-1), depths.at(-1)]);
@@ -304,10 +307,11 @@ function makeTerrainShape(width, scale, top, variant, terrain, passage) {
   const roof = top && (passage === 'cavern' || terrain === 'canopy');
   const profiles = roof ? family.vault : family.ground;
   const depths = profiles[variant % profiles.length];
-  const surface = sampleTerrainContour(roof ? VAULT_X : RIDGE_X, depths);
+  const bedding=terrain==='storm'?.72:terrain==='ruins'?.48:0;
+  const surface = sampleTerrainContour(roof ? VAULT_X : RIDGE_X, depths,bedding);
   if (!top && ERODED_GROUND_DEPTHS[terrain]) {
     const erosion = ERODED_GROUND_DEPTHS[terrain];
-    const carved = sampleTerrainContour(RIDGE_X, erosion[variant % erosion.length]);
+    const carved = sampleTerrainContour(RIDGE_X, erosion[variant % erosion.length],bedding);
     for (let i = 0; i < surface.length; i++) surface[i][1] = Math.max(surface[i][1], carved[i][1]);
   }
   const sign = top ? -1 : 1;
@@ -624,11 +628,11 @@ export function buildFlightLayout({ seed = 1, terrain = 'ruins', elite = false,
     }
   }
   // Harmful seeds are extra, optional side-lane encounters. The first
-  // ordinary flight introduces exactly one near its middle; practice has its
+  // ordinary flight introduces three after the opening; practice has its
   // own authored layout. Existing fuel opportunities are never replaced.
   const introductoryDark = stage === 0 && !elite;
-  const darkPerLeg = elite || stage >= 6 ? 2 : 1;
-  const darkCount = introductoryDark ? 1 : darkPerLeg * legCount;
+  const darkPerLeg = elite || stage >= 6 ? 5 : 4;
+  const darkCount = introductoryDark ? 3 : darkPerLeg * legCount;
   if (darkCount) {
     const darkRng = seededRandom(`${seed}:${identity.id}:dark-packets`);
     const candidates = [], scale = height / 620;
@@ -677,9 +681,8 @@ export function buildFlightLayout({ seed = 1, terrain = 'ruins', elite = false,
     }
     const selected = [];
     for (let i = 0; i < darkCount; i++) {
-      const fraction = introductoryDark ? .50 : legCount === 1
-        ? darkCount === 1 ? .56 : .40 + i * .32
-        : (Math.floor(i / darkPerLeg) + (darkPerLeg === 1 ? .56 : .40 + (i % darkPerLeg) * .32)) / legCount;
+      const fraction = introductoryDark ? .28+i*.22
+        : (Math.floor(i/darkPerLeg)+.22+(i%darkPerLeg)*(.58/Math.max(1,darkPerLeg-1)))/legCount;
       const target = duration * speed * fraction;
       const available = candidates.filter(site => selected.every(other => Math.abs(other.x - site.x) > 480));
       available.sort((a, b) => Math.abs(a.x - target) - Math.abs(b.x - target));
@@ -702,24 +705,8 @@ export function buildFlightLayout({ seed = 1, terrain = 'ruins', elite = false,
         feature:'sight-niche',collected:false,attracted:false,phase:flashRng()*TAU});
     }
   }
-  // Reuse optional side-lane slots, never the route's existing fuel opportunities.
-  const niches = embers.filter(packet => pickupKind(packet) === 'dark');
-  if (niches.length > 1 && ascent.level > 1) {
-    const utilityRng = seededRandom(`${seed}:${terrain}:${stage}:niche-kinds`);
-    const keepDark = Math.floor(utilityRng() * niches.length);
-    const darkSlots = new Set([keepDark]);
-    const retained = Math.min(niches.length,elite?3:2);
-    for(let i=1;i<retained;i++)darkSlots.add((keepDark+Math.floor(i*niches.length/retained))%niches.length);
-    const pool = ascent.level >= 4 ? ['cluster', 'dusk'] : ['cluster'];
-    const offset = Math.floor(utilityRng() * pool.length) + ['ruins', 'canopy', 'storm'].indexOf(terrain);
-    let utilityIndex = 0;
-    niches.forEach((packet, i) => {
-      if (darkSlots.has(i)) return;
-      const kind = pool[(offset + utilityIndex++) % pool.length], spec = getPickupSpec(kind);
-      Object.assign(packet, { kind, harmful: false, manualOnly: spec.manualOnly,
-        value: 0, fuel: spec.fuel > 0, feature: `${kind}-niche` });
-    });
-  }
+  // Keep these encounters harmful. Converting most Dark Sparks into fuel
+  // previously made later flights both richer and less hazardous.
   const sceneProps = populateSceneProps({ obstacles, embers, terrain, height, seed,
     totalDistance: duration * speed, scene: identity.scene, circleHitsPolygon });
   // Both renderers and the collection broad phase rely on world-X ordering.
@@ -742,7 +729,7 @@ function addAccessibleGlow(layout,{duration,speed,height,elite,difficulty,stage,
   if(duration<30)return;
   const fuel=layout.embers.filter(p=>getPickupSpec(p).fuel>0&&!p.generated&&pickupKind(p)!=='dusk');
   const gentle=!elite&&difficulty===1, easy=gentle&&(stage<=2||passage==='open');
-  const wanted=Math.min(Math.ceil(fuel.length*(elite?.15:easy?.70:gentle?.50:.30)),Math.max(1,Math.floor(duration/(easy?5:gentle?8:12))));
+  const wanted=Math.min(Math.ceil(fuel.length*(elite?.10:easy?.45:gentle?.32:.20)),Math.max(1,Math.floor(duration/(easy?5:gentle?8:12))));
   let placed=0;
   for(let i=0;i<wanted;i++){
     const target=800+(duration*speed-1400)*(i/Math.max(1,wanted-1));
@@ -914,7 +901,7 @@ export class WispFlight {
       ||x+r<o.x-o.width||x-r>o.x+o.width*2.5
       ||[-1,1].every(sign=>!circleHitsObstacle(x,y,r,o,0,o.center+sign*Math.abs(o.motion||0))));
     ensureGlowBudget(this.layout,{duration:(this.totalDistance-this.distanceOrigin)/(FLIGHT_TUNING.forwardSpeed*(this.openingSpeedScale||1)),height:this.height,
-      difficulty:this.ascentInfo.difficulty,mapIndex:Number(route.mapIndex)||0,row:Number(route.row)||0,
+      difficulty:this.ascentInfo.difficulty,mapIndex:Number(route.mapIndex)||0,row:this.ascentInfo.row,
       endX:this.totalDistance+this.player.x,tutorial:!!this.tutorial,drafts:this.drafts.zones,
       clear:bodyClear});
     placeGuardianFuel(this.layout,bodyClear);
@@ -944,6 +931,9 @@ export class WispFlight {
     if(!this.tutorial)shapeExpeditionSupply(this.layout,{mapIndex:Number(route.mapIndex)||0,height:this.height,speed:FLIGHT_TUNING.forwardSpeed,
       endX:this.totalDistance+this.player.x,clear:bodyClear,targets:this.routeObjective?.targets,
       hazards:[...this.blackHoles.items,...this.biomeDynamics.items],drafts:this.drafts.zones});
+    if(!this.tutorial)trimSurplusFuel(this.layout,{speed:FLIGHT_TUNING.forwardSpeed,height:this.height,endX:this.totalDistance+this.player.x,
+      opening:this.ascentInfo.difficulty<=2&&Number(route.mapIndex||0)===0,targets:this.routeObjective?.targets,
+      hazards:[...this.blackHoles.items,...(lanternField(this.layout)?.shutters||[])]});
     this.challengeDirector=new FlightChallengeDirector(this.layout);
     this.flashProps=this.layout.embers.filter(packet=>pickupKind(packet)==='sight');
     this.flightChallenge=null;this.caveDimming=0;
@@ -973,7 +963,7 @@ export class WispFlight {
 
   async initPixelView() {
     try {
-      const { WispFlightView } = await import('./wisp-renderer.mjs?v=authored-biomes-1');
+      const { WispFlightView } = await import('./wisp-renderer.mjs?v=spark-choices-2');
       if (this.destroyed) return;
       this.pixiView = new WispFlightView(this);
       const initialized = await this.pixiView.init();
@@ -1687,7 +1677,7 @@ export class WispFlight {
 
   storeNaturalOverflow(packet,spec,surplus,naturalSurplus){
     if(packet.generated||packet.harmful||!(spec.fuel>0)||!(surplus>0))return 0;
-    const gain=condenseGlow(surplus,{rules:this.mod.condensationRules,wallet:this.condensedTotal,remainder:this.condensedRemainder});
+    const gain=condenseGlow(surplus,{rules:this.mod.condensationRules,wallet:this.condensedTotal,remainder:this.condensedRemainder,limit:this.mod.packingLimit??20,packed:this.condensedGlow});
     this.routeObjective?.recordPacking(packet,gain);
     this.pickupOverflow+=surplus;this.condensedGlow+=gain.amount;this.condensedRemainder=gain.remainder;
     let bonus=0;
@@ -1697,7 +1687,7 @@ export class WispFlight {
       else if (this.mod.deepCache && sparkMass(packet)>=3) bonus=2;
     }
     if(bonus){this.storageAwards++;this.storageBonus+=bonus;}
-    this.condensationFlow={amount:gain.amount+bonus,rawAmount:surplus,time:this.time,count:this.condensationFlow.count+1,total:this.condensedGlow+this.storageBonus,multiplier:gain.multiplier};
+    if(gain.amount+bonus>0)this.condensationFlow={amount:gain.amount+bonus,rawAmount:surplus,time:this.time,count:this.condensationFlow.count+1,total:this.condensedGlow+this.storageBonus,multiplier:gain.multiplier};
     return surplus;
   }
 
@@ -2060,7 +2050,7 @@ export class WispFlight {
       return;
     }
     this.baseEmbers++;
-    if(isVowBodyPickup(this,ember,spec))this.bodyFuelCollected++;
+    if(isVowBodyPickup(this,ember,spec)){this.bodyFuelCollected++;this.wisp.repairGuard(this);}
     const value = ember.value === 3 ? 3 : 1;
     this.bonusEmbers += value - 1;
     this.score += value * ((ember.boostedPickup ?? this.isCompanionWorking()) && this.cards.has('golden-wake') ? 20 : 10);

@@ -1,5 +1,5 @@
-import {drawAuthoredMaterial} from './authored-environment.mjs?v=authored-biomes-1';
-import {pineCrown} from './pixel-contour.mjs?v=authored-biomes-1';
+import {drawAuthoredMaterial} from './authored-environment.mjs?v=spark-choices-2';
+import {pineCrown} from './pixel-contour.mjs?v=spark-choices-2';
 // Original pixel scenery. Backdrops and solid materials are rasterized by the
 // existing renderer caches; only a few matte weather pixels animate each frame.
 // Nothing here emits light or draws outside the simulation's solid silhouettes.
@@ -101,7 +101,7 @@ export function drawBiomeMaterial(c,{identity,surface,top,palette:p,width:W,heig
  const line=(x,y,xx,yy,ink,w=1)=>h.line(c,x,y,xx,yy,ink,w);
  const box=(x,y,w,hh,ink)=>{c.fillStyle=ink;c.fillRect(Math.round(x),Math.round(y),Math.round(w),Math.round(hh));};
  const poly=(points,ink)=>{c.fillStyle=ink;h.polygon(c,points);c.fill();};
- const authored=drawAuthoredMaterial(c,{identity,width:W,height:H});
+ const authored=drawAuthoredMaterial(c,{identity,width:W,height:H,surface,top,seed});
  if(!authored){
  if(biome==='moonruins'||biome==='cemetery'){
   for(let row=0,y=0;y<H;y+=10,row++)for(let x=-(row%2)*11;x<W;x+=22){box(x+1,y+1,20,8,n(x+y,seed)>.3?p.face:p.stone);line(x+2,y+2,x+16,y+2,p.grain);}

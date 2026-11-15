@@ -1,5 +1,5 @@
-import {getLifeCapacity} from './vitality.mjs?v=authored-biomes-1';
-import {grantPassageBoon} from './passage-preparations.mjs?v=authored-biomes-1';
+import {getLifeCapacity} from './vitality.mjs?v=spark-choices-2';
+import {grantPassageBoon} from './passage-preparations.mjs?v=spark-choices-2';
 
 function bonus(id, name, condition, reward, target) {
   return Object.freeze({id, name, condition, reward, target});

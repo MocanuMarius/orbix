@@ -11,6 +11,7 @@ const groups=[
  ['main','Spark Sense',['main-glow-sense','main-dawnburst']],
  ['mystic','Storage',['main-afterglow','afterglow-vessel']],
  ['mystic','Prismatic Yield',['afterglow-retention']],
+ ['mystic','Trail Dividend',['main-clear-dividend']],
  ['mystic','Kept Light',['afterglow-anchor']],
  ['mystic','Hand Seal',['packing-hand-seal']],
  ['mystic','Deep Cache',['packing-deep-cache']],
@@ -30,6 +31,7 @@ export function consolidateSkills(definitions){
   if(index)s.requires=ids[index-1];
  });
  for(const role of ['collector','protector','swift','leveler'])for(const [i,id]of [`${role}-attunement`,`${role}-mastery`].entries())Object.assign(result[id],{treeGroup:`${role}-attunement`,treeStage:i+1,treeName:role==='collector'?'Search Spark':role==='protector'?'Ward Spark':role==='swift'?'Surge Spark':'Balance Spark'});
+ for(const [i,id]of ['collector-last-orbit','collector-guard-repair'].entries())Object.assign(result[id],{treeGroup:'collector-guard',treeName:'Guard',treeStage:i+1});
  // Remove exclusions pointing to retired alternatives, never strand a live rank.
  for(const s of Object.values(result))if(!s.retired)s.excludes=(s.excludes||[]).filter(id=>!result[id]?.retired);
  return result;

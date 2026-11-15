@@ -13,12 +13,12 @@ const artFiles = {
 };
 const profiles = {
   moonruins:{layers:[['graveBack',.06,.7],['castleBack',.18,.64],['graveMid',.34,.48]],texture:'castleTiles',patch:[36,144,48,32],tone:'#707b71',plant:'swampProps'},
-  frost:{layers:[['rockBack',.06,.7],['rockMid',.18,.66],['rockNear',.31,.46]],texture:'rockTiles',patch:[32,32,32,32],tone:'#859fa7',plant:'rockPlant1'},
+  frost:{layers:[['rockBack',.06,.7],['rockMid',.18,.66],['rockNear',.31,.46]],texture:'rockTiles',patch:[18,24,12,24],tone:'#859fa7',plant:'rockPlant1'},
   pinewood:{layers:[['forestBack',.05,.65],['forestMid',.13,.55],['swampMid',.22,.56],['swampTrees',.36,.55]],texture:'swampTiles',patch:[223,24,56,26],tone:'#67785a',plant:'swampProps'},
   marsh:{layers:[['swampBack',.04,.4],['swampMid',.15,.7],['swampNear',.29,.5],['swampTrees',.42,.48]],texture:'swampTiles',patch:[223,24,56,26],tone:'#68745b',plant:'swampProps'},
   fungal:{layers:[['caveBack',.07,.72],['caveWall',.23,.54]],texture:'caveTiles',patch:[116,32,12,40],tone:'#7e6b8e',plant:'rockPlant2'},
-  basalt:{layers:[['rockBack',.06,.62],['caveWall',.22,.54],['rockNear',.37,.5]],texture:'rockTiles',patch:[32,32,32,32],tone:'#806961',plant:'rockPlant2'},
-  desert:{layers:[['rockBack',.06,.68],['rockMid',.17,.7],['rockNear',.35,.55]],texture:'rockTiles',patch:[32,32,32,32],tone:'#a48d6e',plant:'rockPlant1'},
+  basalt:{layers:[['rockBack',.06,.62],['caveWall',.22,.54],['rockNear',.37,.5]],texture:'rockTiles',patch:[18,24,12,24],tone:'#806961',plant:'rockPlant2'},
+  desert:{layers:[['rockBack',.06,.68],['rockMid',.17,.7],['rockNear',.35,.55]],texture:'rockTiles',patch:[18,24,12,24],tone:'#a48d6e',plant:'rockPlant1'},
   coral:{layers:[['reefFar',.07,.64],['reefFront',.23,.48]],texture:'graveTiles',patch:[320,48,32,24],tone:'#9b8587',plant:'rockPlant2'},
   crystal:{layers:[['caveBack',.06,.65],['rockMid',.18,.48],['caveWall',.3,.55]],texture:'caveTiles',patch:[116,32,12,40],tone:'#8c83a0',plant:'rockPlant1'},
   cloud:{layers:[['rockBack',.05,.6],['rockMid',.17,.48]],texture:'graveTiles',patch:[320,48,32,24],tone:'#8b9fa1',plant:'swampProps'},
@@ -92,7 +92,7 @@ export function drawAuthoredPlant(context,engine,{x,y,sign,push,seed}){
   context.drawImage(image,sx,sy,sw,sh,-width/2,-height,width,height);
   context.restore();return true;
 }
-export function drawAuthoredMaterial(context,{identity,width,height}){
+export function drawAuthoredMaterial(context,{identity,width,height,surface,top=false,seed=0}){
   const state=stateFor(context),profile=profiles[identity.biomeId];if(!state||!profile)return false;
   const source=tinted(context.canvas.ownerDocument,state,profile.texture,profile.tone);if(!source)return false;
   const [sx,sy,sw,sh]=profile.patch;
@@ -103,5 +103,86 @@ export function drawAuthoredMaterial(context,{identity,width,height}){
     const shift=(Math.floor(y/sh)%2)*Math.floor(sw*.37);
     context.drawImage(source,sx,sy,sw,sh,Math.round(x+shift),Math.round(y),sw,sh);
   }
+  if(surface?.length)drawGeologicalRelief(context,{identity,width,height,surface,top,seed,tone:profile.tone});
   context.restore();return true;
+}
+
+const geologyNoise=n=>{let h=Math.imul(n|0,1597334677);h=Math.imul(h^(h>>>13),1274126177);return((h^(h>>>16))>>>0)/4294967296;};
+function drawGeologicalRelief(c,{identity,width,height,surface,top,seed,tone}){
+  const sign=top?-1:1,biome=identity.biomeId;
+  const at=x=>{for(let i=1;i<surface.length;i++){const a=surface[i-1],b=surface[i];if(x>=a[0]&&x<=b[0])return a[1]+(b[1]-a[1])*(x-a[0])/(b[0]-a[0]||1);}return surface.at(-1)[1];};
+  const stroke=(points,color,alpha,width=1)=>{c.globalAlpha=alpha;c.strokeStyle=color;c.lineWidth=width;c.beginPath();points.forEach(([x,y],i)=>i?c.lineTo(Math.round(x),Math.round(y)):c.moveTo(Math.round(x),Math.round(y)));c.stroke();};
+  // Bedding is independent of the skyline: layers are buried into the face,
+  // rather than tracing every bump as if the mountain were made of rubber.
+  const sediment=['desert','moonruins','cemetery','cloud'].includes(biome);
+  const wet=['marsh','pinewood','thorn','fungal'].includes(biome);
+  for(let row=0;row<Math.ceil(height/14);row++){
+    const y=row*14+geologyNoise(seed+row*43)*8,lean=(geologyNoise(seed+12)-.5)*.20,points=[];
+    for(let x=-8;x<width+9;x+=11)points.push([x,y+x*lean+Math.sin(x*.025+row*.7)*3]);
+    stroke(points,sediment?'#a79c79':tone,sediment?.27:.15,sediment?2:1);
+    stroke(points.map(([x,yy])=>[x,yy+sign*2]),'#0b161a',.32,1);
+  }
+  for(let col=0;col<Math.ceil(width/38);col++){
+    const x=col*38+geologyNoise(seed+col*73)*19,sy=at(x)+sign*5;
+    const depth=22+geologyNoise(seed+col*97)*65,lean=(geologyNoise(seed+col*131)-.5)*18;
+    const fracture=[[x,sy],[x+lean*.3,sy+sign*depth*.32],[x+lean*.4-3,sy+sign*depth*.51],[x+lean,sy+sign*depth]];
+    stroke(fracture,'#09151b',.56,2);
+    stroke(fracture.map(([xx,y])=>[xx+2,y]),tone,.37,1);
+    stroke([fracture[2],[x+lean-11,sy+sign*depth*.72]],'#111d21',.45,1);
+    // Slope-dependent ledge deposits: snow, roots, mineral seams and talus.
+    const slope=Math.abs(at(x+4)-at(x-4))/8;
+    if(slope<.8){
+      stroke([[x-4,sy],[x+4,at(x+4)+sign*5]],biome==='frost'?'#b2c9cf':wet?'#81916b':tone,.6,2);
+      if(wet)stroke([[x+2,sy],[x+3,sy+sign*11],[x,sy+sign*19]],'#354b3e',.75,2);
+    }
+  }
+}
+
+// Two small reusable strips in front of the landform. They are clipped inside
+// real ground, below its rim: no decorative silhouette becomes a false hazard.
+export function drawTerrainForeground(c,e,{scale=1,distance=e.renderDistance??e.distance}={}){
+  const state=stateFor(c),profile=profiles[biomeOf(e)];if(!state||!profile)return;
+  const W=e.width*scale,H=e.height*scale;
+  c.save();c.beginPath();let visible=false;
+  for(const o of e.layout.obstacles){
+    if(o.destroyed||o.x+o.width*2.5<distance||o.x-o.width>distance+e.width)continue;
+    const shape=o.bottomShape;if(!shape)continue;
+    const center=o.center+Math.sin((e.visualTime??e.time)*.9+o.phase)*o.motion;
+    const ox=(o.x-distance)*scale,oy=(center+o.gap/2+9)*scale;
+    shape.forEach(([x,y],i)=>i?c.lineTo(ox+x*scale,oy+y*scale):c.moveTo(ox+x*scale,oy+y*scale));c.closePath();visible=true;
+  }
+  if(!visible){c.restore();return;}c.clip();c.imageSmoothingEnabled=false;
+  for(let layer=0;layer<2;layer++){
+    const key='foreground:'+biomeOf(e)+':'+layer;
+    let strip=state.variants.get(key);
+    if(!strip){
+      strip=c.canvas.ownerDocument.createElement('canvas');strip.width=320;strip.height=72;
+      const p=strip.getContext('2d');p.imageSmoothingEnabled=false;
+      const poly=(points,ink)=>{p.fillStyle=ink;p.beginPath();points.forEach(([x,y],i)=>i?p.lineTo(x,y):p.moveTo(x,y));p.closePath();p.fill();};
+      for(let i=-1;i<15;i++){
+        const seed=i*79+layer*197,base=i*27,x=base+Math.floor(geologyNoise(seed)*13),r=9+Math.floor(geologyNoise(seed+3)*12),y=50+Math.floor(geologyNoise(seed+7)*16);
+        const points=[[x-r,y],[x-r*.65,y-r*.70],[x-r*.1,y-r],[x+r*.5,y-r*.8],[x+r,y-r*.24],[x+r*.8,72],[x-r,72]];
+        poly(points,layer?'#142321':'#253933');
+        poly([[x-r,y],[x-r*.65,y-r*.70],[x-r*.1,y-r],[x+r*.1,y-r*.35],[x-r*.1,y+1]],'#3c4840');
+        p.globalAlpha=.6;poly([[x-r*.1,y-r],[x+r*.5,y-r*.8],[x+r*.2,y-r*.37],[x+r*.1,y-r*.35]],'#47534a');p.globalAlpha=1;
+        // Rock grain uses native texels, not a magnified miniature boulder.
+        const material=tinted(c.canvas.ownerDocument,state,profile.texture,profile.tone);
+        if(material){
+          p.save();p.beginPath();points.forEach(([xx,yy],j)=>j?p.lineTo(xx,yy):p.moveTo(xx,yy));p.closePath();p.clip();p.globalAlpha=.28;
+          const [sx,sy,sw,sh]=profile.patch;
+          for(let yy=Math.floor(y-r);yy<72;yy+=sh)for(let xx=Math.floor(x-r);xx<x+r;xx+=sw)p.drawImage(material,sx,sy,sw,sh,xx,yy,sw,sh);
+          p.restore();
+        }
+        p.fillStyle='#102125';p.fillRect(x-r*.1,y-r*.4,r*.5,1);p.fillRect(x+r*.25,y-r*.22,1,r*.45);
+        if(['frost','cloud'].includes(biomeOf(e))){p.fillStyle='#8ca4a8';p.fillRect(x-r*.4,y-r*.83,r*.65,2);}
+        else if(['pinewood','marsh','thorn','cemetery'].includes(biomeOf(e))){p.fillStyle='#586c48';p.fillRect(x-r*.5,y-r*.7,r*.7,2);p.fillRect(x-r*.7,y-r*.6,2,5);}
+      }
+      state.variants.set(key,strip);
+    }
+    const zoom=layer?1.12:1.6,tileW=strip.width*scale*zoom,tileH=strip.height*scale*zoom;
+    const offset=(distance*(layer?1.23:1.08)*scale)%tileW;
+    c.globalAlpha=layer?.62:.42;
+    for(let x=-offset-tileW;x<W;x+=tileW)c.drawImage(strip,Math.round(x),Math.round(H-tileH+(layer?15:0)*scale),Math.ceil(tileW),Math.ceil(tileH));
+  }
+  c.restore();
 }

@@ -7,7 +7,7 @@ export const TUTORIAL_TOPICS={
   s('Glide','Release to fall naturally. Small, deliberate Lifts leave more Sparks for the rest of the passage.','lift')]},
  sparks:{name:'From Spark to Stored Sparks',visual:'spark-storage',steps:[
   s('Spark Meter','Touch a Spark to refill the meter on the left. Each lit division pays for one Lift.','meter'),
-  s('Read the glow','Most fuel is small. Watch for the brighter, wider shells: a Surge gives 36 Sparks and a rare Giant gives 60.','spark-layers'),
+  s('Read the glow','All fuel Sparks share one shell size. Sparse arcs give 6 Sparks, medium arcs give 12, and dense arcs give 18.','spark-layers'),
   s('Store the surplus','A full meter sends surplus to the upper-left box. Open Skills to spend your Stored Sparks.','spark-storage')]},
  luminance:{name:'Luminance',visual:'luminance',steps:[
   s('Luminance','Luminance is how far your wisp lights the world. It fades with distance; faraway scenery and Sparks disappear into darkness.','luminance'),
@@ -41,10 +41,10 @@ export const TUTORIAL_TOPICS={
  companions:{name:'Companions',visual:'companion:collector',steps:[
   s('Your companion','The green Collector accompanies you throughout the run. The three other portraits in the roster are locked.','companion:collector'),
   s('Read the range','The green boundary marks the reach of the next fetch. When a delivery arrives, the boundary contracts and slowly grows back.','collector-recovery'),
-  s('Choose its loads','Collector starts with Small and Cluster Sparks. Large Spark Handling unlocks Cache, Surge and Giant together. Each larger rescue shrinks to a 12-Spark Cluster; body pickups keep their full value. Flash has its own unlock.','collector-return'),
+  s('Choose its loads','Collector starts with Sparks and Clusters. Cache Handling unlocks dense Caches. Each larger rescue shrinks to a 12-Spark Cluster; body pickups keep their full value. Flash has its own unlock.','collector-return'),
   s('Build your Collector','Open the Collector chapter in Skills to change its reach or recovery. Last Orbit lets a fully ready Collector catch a fatal impact.','collector-range')]},
  packed:{name:'Stored Sparks',visual:'clear-reward',steps:[
-  s('A reward for every clear','Ordinary flights earn 20 Stored Sparks for run skills. Elite and guardian victories also offer two artifacts: choose one. The third guardian ends the run with victory.','clear-reward'),
+  s('A reward for every clear','Ordinary flights earn 15–25 Stored Sparks for run skills. Elite and guardian victories also offer two artifacts: choose one. The third guardian ends the run with victory.','clear-reward'),
   s('Overflow is a bonus','When a pickup overfills Sparks, the surplus becomes extra Stored Sparks. Clear the flight to keep them. Rest refills do not create Stored Sparks.','packed'),
   s('Your skill book','Browse the chapters to see where a perk leads. Can learn shows every upgrade you can afford, including skills for your chosen companion.','skills'),
   s('Glide Regeneration','Find it in Flight. Stop pressing Lift and fall unassisted to recover Sparks after a delay. Hovering, boosting, dreams and pauses do not regenerate Sparks.','meter'),
@@ -55,7 +55,7 @@ export const TUTORIAL_TOPICS={
   s('Read the skill states','Blue means Owned. Gold means Can learn. Grey shows how much more to save. A lock points to the prerequisite you need. Each rank is a separate perk.','skill-states'),
   s('Commit to your build','Following a prerequisite chain keeps its next upgrades cheaper. Specializing leaves fewer Stored Sparks for other paths. Some forks close their alternative permanently.','skills')]},
  rewards:{name:'Flight rewards',visual:'artifact',steps:[
-  s('Clear the passage','Reaching the waylight completes a flight. Before the final guardian, earn 20 Stored Sparks plus pickup overflow. Some Sparks recover for the next flight. A bonus challenge is optional.','clear-reward'),
+  s('Clear the passage','Reaching the waylight completes a flight. Before the final guardian, earn a length-based Stored Sparks reward plus pickup overflow. Some Sparks recover for the next flight. A bonus challenge is optional.','clear-reward'),
   s('Choose one artifact','Elite and guardian victories offer two artifacts. Choose one automatic effect to add to this run. Ordinary flights reward Stored Sparks, without an artifact choice.','artifact'),
   s('Upgrade any time','Tap the Stored Sparks box to open Skills. Flight pauses while you choose. New overflow becomes spendable when you clear the flight.','skills')]},
  artifacts:{name:'Artifacts',visual:'artifact',steps:[

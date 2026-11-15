@@ -1,14 +1,16 @@
-import {companionArtSvg} from './companion-art.mjs?v=authored-biomes-1';
-import {resourceSymbol} from './game-symbols.mjs?v=authored-biomes-1';
-import {lifeHeartSvg} from './lives.mjs?v=authored-biomes-1';
-import {getTreasureChoices,getTreasureKind} from './model.mjs?v=authored-biomes-1';
-import {treasureArt} from './treasure-art.mjs?v=authored-biomes-1';
-import {skillIcon} from './upgrade-icons.mjs?v=authored-biomes-1';
-import {formatGlow,getGlowCapacity} from './vitality.mjs?v=authored-biomes-1';
+import {companionArtSvg} from './companion-art.mjs?v=spark-choices-2';
+import {resourceSymbol} from './game-symbols.mjs?v=spark-choices-2';
+import {lifeHeartSvg} from './lives.mjs?v=spark-choices-2';
+import {getTreasureChoices,getTreasureKind} from './model.mjs?v=spark-choices-2';
+import {treasureArt} from './treasure-art.mjs?v=spark-choices-2';
+import {skillIcon,artifactIcon} from './upgrade-icons.mjs?v=spark-choices-2';
+import {formatGlow,getGlowCapacity} from './vitality.mjs?v=spark-choices-2';
 
 const esc=value=>String(value??'').replace(/[&<>"']/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
 
-function choiceIcon(kind,run){
+function choiceIcon(kind,run,offer){
+ if(offer?.skillId)return skillIcon({id:offer.skillId});
+ if(offer?.artifactIds?.length)return offer.artifactIds.map(id=>artifactIcon(id)).join('');
  if(kind==='companion')return companionArtSvg(run.companionRole);
  if(kind==='feather')return skillIcon({id:'main-drift'});
  if(kind==='heart')return lifeHeartSvg();
@@ -19,7 +21,7 @@ function choiceIcon(kind,run){
 }
 
 function treasureChoice(offer,index,run,preview){
- const body=`<span class="treasure-choice-icon" aria-hidden="true">${choiceIcon(offer.icon,run)}</span>
+ const body=`<span class="treasure-choice-icon" aria-hidden="true">${choiceIcon(offer.icon,run,offer)}</span>
  <span class="treasure-choice-copy"><strong>${esc(offer.title)}</strong><span>${esc(offer.description)}</span>
  ${offer.disabled? `<small class="treasure-constraint">${esc(offer.disabledReason)}</small>`:''}</span>`;
  if(preview)return `<div class="treasure-offer treasure-offer-preview">${body}</div>`;

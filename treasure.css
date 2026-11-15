@@ -76,3 +76,5 @@ dialog.treasure-route-sheet[open]{width:min(895px,calc(100vw - 24px))!important;
  .treasure-room{height:auto;grid-template-columns:1fr;gap:14px}
  .treasure-place .treasure-art{max-height:17dvh}
 }
+
+.treasure-choice-icon{display:flex;align-items:center;justify-content:center;gap:3px}.treasure-choice-icon>svg{min-width:0;flex:1}

@@ -1,6 +1,7 @@
-import {completeOffers,EVENT_FAVORS,hasFutureRest} from './event-choices.mjs?v=authored-biomes-1';
-import {getGlowCapacity} from './vitality.mjs?v=authored-biomes-1';
-import {treasureFlightNotice} from './treasure.mjs?v=authored-biomes-1';
+import {activeFlightPact} from './flight-pacts.mjs?v=spark-choices-2';
+import {completeOffers,EVENT_FAVORS,hasFutureRest} from './event-choices.mjs?v=spark-choices-2';
+import {getGlowCapacity} from './vitality.mjs?v=spark-choices-2';
+import {treasureFlightNotice} from './treasure.mjs?v=spark-choices-2';
 // Event stakes are fixed when offered. They are not rolled during flight.
 const choice=(id,title,description,effect)=>({id,title,description,detail:description,effect});
 export const PILGRIM_VOW=Object.freeze({target:4,reward:8});
@@ -43,7 +44,9 @@ export function isVowBodyPickup(engine,packet,spec){
 
 export function contextualFlightNotice(run,node=run.current){
   if(!node||node.type==='support')return '';
+  const pact=activeFlightPact(run);
   const lines=(run.eventFavors||[]).map(id=>EVENT_FAVORS[id]).filter(Boolean).map(f=>f.title+' · '+f.text);
+  if(pact)lines.push(pact.name+' · '+pact.description);
   const treasure=treasureFlightNotice(run.treasurePact,run);
   if(treasure)lines.push(treasure);
   if(run.pilgrimVow)lines.push(`PILGRIM VOW · Clear with ${run.pilgrimVow.target} body Spark pickups → ${run.pilgrimVow.reward} Stored Sparks · First attempt`);
