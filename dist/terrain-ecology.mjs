@@ -1,5 +1,5 @@
-import {drawAuthoredBackdrop,drawAuthoredPlant} from './authored-environment.mjs?v=resonance-2';
-import {terrainBoundary,terrainSurfaceExposed} from './terrain-boundary.mjs?v=resonance-2';
+import {drawAuthoredBackdrop,drawAuthoredPlant} from './authored-environment.mjs?v=nature-sounds-1';
+import {terrainBoundary,terrainSurfaceExposed} from './terrain-boundary.mjs?v=nature-sounds-1';
 // Decorative life is anchored to the actual landform. It never enters the
 // collider, pickup, reward or dynamic-hazard registries.
 const habitats = {

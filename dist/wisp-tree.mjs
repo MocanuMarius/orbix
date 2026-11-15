@@ -1,2 +1,2 @@
-import {branchTreeMarkup} from './skill-tree.mjs?v=resonance-2';
+import {branchTreeMarkup} from './skill-tree.mjs?v=nature-sounds-1';
 export function mainWispTreeMarkup(options){return branchTreeMarkup({...options,branch:'main'});}
