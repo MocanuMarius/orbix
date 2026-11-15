@@ -1,7 +1,7 @@
-import {pickupKind} from './pickups.mjs?v=spark-progression-1';
-import {sparkBodyRadius} from './spark-size.mjs?v=spark-progression-1';
-import {drawCollectorGuard} from './collector-guard-art.mjs?v=spark-progression-1';
-import {companionPalette} from './companion-art.mjs?v=spark-progression-1';
+import {pickupKind} from './pickups.mjs?v=near-landscape-1';
+import {sparkBodyRadius} from './spark-size.mjs?v=near-landscape-1';
+import {drawCollectorGuard} from './collector-guard-art.mjs?v=near-landscape-1';
+import {companionPalette} from './companion-art.mjs?v=near-landscape-1';
 
 const TAU = 2 * Math.PI;
 const green = companionPalette('collector');

@@ -1,3 +1,4 @@
+import {createNearLandscape,drawNearLandscapePlates} from './near-landscape.mjs?v=near-landscape-1';
 // Artwork by Luis Zuno / Ansimuz. Source packs and licences are listed in
 // nature-credits.html and assets/nature/licenses/. Prepared once per document.
 const artFiles = {
@@ -32,7 +33,7 @@ function biomeOf(engine){
 export function prepareEnvironmentArt(document){
   if(!document?.createElement)return Promise.resolve();
   if(documents.has(document))return documents.get(document).ready;
-  const state={images:new Map(),variants:new Map(),ready:null};documents.set(document,state);
+  const state={images:new Map(),variants:new Map(),nearLandscapes:new Map(),ready:null};documents.set(document,state);
   state.ready=Promise.all(Object.entries(artFiles).map(([key,url])=>new Promise(resolve=>{
     const image=document.createElement('img');
     image.onload=()=>{state.images.set(key,image);resolve();};image.onerror=resolve;
@@ -76,6 +77,26 @@ export function drawAuthoredBackdrop(context,engine,{scale=1,distance=engine.ren
     painted=true;
   }
   context.restore();return painted;
+}
+export function prepareNearLandscape(document,engine){
+  const state=documents.get(document),biome=biomeOf(engine),profile=profiles[biome];
+  if(!state||!profile)return null;
+  const variant=engine.levelIdentity?.variant||0,key=biome+':'+variant;
+  if(state.nearLandscapes.has(key))return state.nearLandscapes.get(key);
+  const texture=tinted(document,state,profile.texture,profile.tone);
+  const wet=['moonruins','pinewood','marsh','thorn','cemetery','cloud'].includes(biome);
+  const image=tinted(document,state,wet?'swampProps':profile.plant,profile.tone);
+  const plants=!image?[]:wet?[[8,3,39,39],[124,4,48,37]].map(rect=>({image,rect})):
+    [{image,rect:[0,0,image.width,image.height]}];
+  const plates=createNearLandscape(document,{biome,texture,patch:profile.patch,plants,variant});
+  // Three course sets are enough for a map; bound retained canvas memory when
+  // inspecting many biomes or playing multiple expeditions in the same tab.
+  if(state.nearLandscapes.size>=3)state.nearLandscapes.delete(state.nearLandscapes.keys().next().value);
+  state.nearLandscapes.set(key,plates);return plates;
+}
+export function drawNearLandscape(c,e,{scale=1,distance=e.renderDistance??e.distance}={}){
+  const plates=prepareNearLandscape(c.canvas.ownerDocument,e);if(!plates)return;
+  drawNearLandscapePlates(c,plates,{width:e.width,height:e.height,distance,scale,variant:e.levelIdentity?.variant||0});
 }
 export function drawAuthoredPlant(context,engine,{x,y,sign,push,seed}){
   const state=stateFor(context),profile=profiles[biomeOf(engine)];if(!state||!profile)return false;
@@ -176,6 +197,24 @@ export function drawTerrainForeground(c,e,{scale=1,distance=e.renderDistance??e.
         p.fillStyle='#102125';p.fillRect(x-r*.1,y-r*.4,r*.5,1);p.fillRect(x+r*.25,y-r*.22,1,r*.45);
         if(['frost','cloud'].includes(biomeOf(e))){p.fillStyle='#8ca4a8';p.fillRect(x-r*.4,y-r*.83,r*.65,2);}
         else if(['pinewood','marsh','thorn','cemetery'].includes(biomeOf(e))){p.fillStyle='#586c48';p.fillRect(x-r*.5,y-r*.7,r*.7,2);p.fillRect(x-r*.7,y-r*.6,2,5);}
+      }
+      const lush=['moonruins','pinewood','marsh','thorn','cemetery','cloud'].includes(biomeOf(e));
+      const cover=tinted(c.canvas.ownerDocument,state,lush?'swampProps':profile.plant,profile.tone);
+      // Dense, uneven understory is cached with the rocks, rather than adding
+      // dozens of animated sprites to the live flight loop.
+      for(let j=0;j<(lush?24:14);j++){
+        const seed=j*157+layer*367,x=j*(lush?14:25)+geologyNoise(seed)*9,y=51+geologyNoise(seed+3)*16;
+        if(cover&&j%3!==0){
+          const rect=lush?(j%2?[8,3,39,39]:[124,4,48,37]):[0,0,cover.width,cover.height];
+          const [sx,sy,sw,sh]=rect,h=12+geologyNoise(seed+7)*19;
+          p.globalAlpha=.8;p.drawImage(cover,sx,sy,sw,sh,Math.round(x-sw*h/sh/2),Math.round(y-h),Math.round(sw*h/sh),Math.round(h));p.globalAlpha=1;
+        }
+        for(let blade=0;blade<(lush?5:3);blade++){
+          const height=4+geologyNoise(seed+blade*31)*10;
+          p.fillStyle=blade%2?profile.tone:'#354d3e';
+          p.fillRect(Math.round(x+blade*2),Math.round(y-height),1,Math.round(height));
+          p.fillRect(Math.round(x+blade*2-2),Math.round(y-height*.6),3,1);
+        }
       }
       state.variants.set(key,strip);
     }

@@ -1,7 +1,7 @@
-import {WispFlight} from './flight.mjs?v=spark-progression-1';
-import {getRunModifiers} from './model.mjs?v=spark-progression-1';
-import {wispOrbit} from './wisp.mjs?v=spark-progression-1';
-import {formatGlow, glowPoints} from './vitality.mjs?v=spark-progression-1';
+import {WispFlight} from './flight.mjs?v=near-landscape-1';
+import {getRunModifiers} from './model.mjs?v=near-landscape-1';
+import {wispOrbit} from './wisp.mjs?v=near-landscape-1';
+import {formatGlow, glowPoints} from './vitality.mjs?v=near-landscape-1';
 
 const frame=document.querySelector('#flight-frame'),gate=document.querySelector('#gate');
 const status=document.querySelector('#status'),meter=document.querySelector('meter'),amount=document.querySelector('#meter');

@@ -1,6 +1,6 @@
-import {LOCATION_CHALLENGE_NAMES} from './world-expansion.mjs?v=spark-progression-1';
-import { createDraftZones, DRAFT_TUNING } from './drafts.mjs?v=spark-progression-1';
-import { getEncounterFamily, familyChallengeCells } from './encounter-families.mjs?v=spark-progression-1';
+import {LOCATION_CHALLENGE_NAMES} from './world-expansion.mjs?v=near-landscape-1';
+import { createDraftZones, DRAFT_TUNING } from './drafts.mjs?v=near-landscape-1';
+import { getEncounterFamily, familyChallengeCells } from './encounter-families.mjs?v=near-landscape-1';
 
 const clamp = (value, low, high) => Math.max(low, Math.min(high, value));
 const NAMES = Object.freeze({
