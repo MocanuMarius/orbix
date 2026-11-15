@@ -1,6 +1,6 @@
-import {sparkImageArt,sparkSymbolArt} from './spark-symbol.mjs?v=near-landscape-1';
-import {condensedIconMarkup} from './afterglow-ui.mjs?v=near-landscape-1';
-import {fineTreasureObject} from './fine-treasure-art.mjs?v=near-landscape-1';
+import {sparkImageArt,sparkSymbolArt} from './spark-symbol.mjs?v=living-habitats-1';
+import {condensedIconMarkup} from './afterglow-ui.mjs?v=living-habitats-1';
+import {fineTreasureObject} from './fine-treasure-art.mjs?v=living-habitats-1';
 
 // Three material tones sit above a shared dark contour. Keep light and shadow
 // readable at the tree's smallest size, even with all motion switched off.

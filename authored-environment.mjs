@@ -1,4 +1,5 @@
-import {createNearLandscape,drawNearLandscapePlates} from './near-landscape.mjs?v=near-landscape-1';
+import {createNearLandscape,drawNearLandscapePlates} from './near-landscape.mjs?v=living-habitats-1';
+import {prepareWildlife} from './habitat-wildlife.mjs?v=living-habitats-1';
 // Artwork by Luis Zuno / Ansimuz. Source packs and licences are listed in
 // nature-credits.html and assets/nature/licenses/. Prepared once per document.
 const artFiles = {
@@ -13,18 +14,18 @@ const artFiles = {
   graveTiles:'assets/nature/grave-tiles.png', castleBack:'assets/nature/castle-back.png', castleTiles:'assets/nature/castle-tiles.png',
 };
 const profiles = {
-  moonruins:{layers:[['graveBack',.06,.7],['castleBack',.18,.64],['graveMid',.34,.48]],texture:'castleTiles',patch:[36,144,48,32],tone:'#707b71',plant:'swampProps'},
-  frost:{layers:[['rockBack',.06,.7],['rockMid',.18,.66],['rockNear',.31,.46]],texture:'rockTiles',patch:[18,24,12,24],tone:'#859fa7',plant:'rockPlant1'},
-  pinewood:{layers:[['forestBack',.05,.65],['forestMid',.13,.55],['swampMid',.22,.56],['swampTrees',.36,.55]],texture:'swampTiles',patch:[223,24,56,26],tone:'#67785a',plant:'swampProps'},
-  marsh:{layers:[['swampBack',.04,.4],['swampMid',.15,.7],['swampNear',.29,.5],['swampTrees',.42,.48]],texture:'swampTiles',patch:[223,24,56,26],tone:'#68745b',plant:'swampProps'},
-  fungal:{layers:[['caveBack',.07,.72],['caveWall',.23,.54]],texture:'caveTiles',patch:[116,32,12,40],tone:'#7e6b8e',plant:'rockPlant2'},
-  basalt:{layers:[['rockBack',.06,.62],['caveWall',.22,.54],['rockNear',.37,.5]],texture:'rockTiles',patch:[18,24,12,24],tone:'#806961',plant:'rockPlant2'},
-  desert:{layers:[['rockBack',.06,.68],['rockMid',.17,.7],['rockNear',.35,.55]],texture:'rockTiles',patch:[18,24,12,24],tone:'#a48d6e',plant:'rockPlant1'},
-  coral:{layers:[['reefFar',.07,.64],['reefFront',.23,.48]],texture:'graveTiles',patch:[320,48,32,24],tone:'#9b8587',plant:'rockPlant2'},
-  crystal:{layers:[['caveBack',.06,.65],['rockMid',.18,.48],['caveWall',.3,.55]],texture:'caveTiles',patch:[116,32,12,40],tone:'#8c83a0',plant:'rockPlant1'},
-  cloud:{layers:[['rockBack',.05,.6],['rockMid',.17,.48]],texture:'graveTiles',patch:[320,48,32,24],tone:'#8b9fa1',plant:'swampProps'},
-  thorn:{layers:[['forestBack',.06,.56],['swampNear',.18,.5],['swampTrees',.37,.62]],texture:'swampTiles',patch:[223,24,56,26],tone:'#788067',plant:'swampProps'},
-  cemetery:{layers:[['graveBack',.06,.72],['graveMid',.21,.76],['forestFront',.4,.38]],texture:'graveTiles',patch:[320,48,32,24],tone:'#7e8c81',plant:'graveObjects'},
+  moonruins:{layers:[['graveBack',.06,.7],['castleBack',.18,.64],['graveMid',.34,.48]],texture:'castleTiles',patch:[36,32,24,24],tone:'#707b71',plant:'swampProps'},
+  frost:{layers:[['rockBack',.06,.7],['rockMid',.18,.66],['rockNear',.31,.46]],texture:'rockTiles',patch:[48,24,24,24],tone:'#859fa7',plant:'rockPlant1'},
+  pinewood:{layers:[['forestBack',.05,.65],['forestMid',.13,.55],['swampMid',.22,.56],['swampTrees',.36,.55]],texture:'swampTiles',patch:[68,24,24,24],tone:'#67785a',plant:'swampProps'},
+  marsh:{layers:[['swampBack',.04,.4],['swampMid',.15,.7],['swampNear',.29,.5],['swampTrees',.42,.48]],texture:'swampTiles',patch:[68,24,24,24],tone:'#68745b',plant:'swampProps'},
+  fungal:{layers:[['caveBack',.07,.72],['caveWall',.23,.54]],texture:'rockTiles',patch:[48,24,24,24],tone:'#7e6b8e',plant:'rockPlant2'},
+  basalt:{layers:[['rockBack',.06,.62],['caveWall',.22,.54],['rockNear',.37,.5]],texture:'rockTiles',patch:[48,24,24,24],tone:'#806961',plant:'rockPlant2'},
+  desert:{layers:[['rockBack',.06,.68],['rockMid',.17,.7],['rockNear',.35,.55]],texture:'rockTiles',patch:[48,24,24,24],tone:'#a48d6e',plant:'rockPlant1'},
+  coral:{layers:[['reefFar',.07,.64],['reefFront',.23,.48]],texture:'graveTiles',patch:[336,92,24,24],tone:'#9b8587',plant:'rockPlant2'},
+  crystal:{layers:[['caveBack',.06,.65],['rockMid',.18,.48],['caveWall',.3,.55]],texture:'rockTiles',patch:[48,24,24,24],tone:'#8c83a0',plant:'rockPlant1'},
+  cloud:{layers:[['rockBack',.05,.6],['rockMid',.17,.48]],texture:'graveTiles',patch:[336,92,24,24],tone:'#8b9fa1',plant:'swampProps'},
+  thorn:{layers:[['forestBack',.06,.56],['swampNear',.18,.5],['swampTrees',.37,.62]],texture:'swampTiles',patch:[68,24,24,24],tone:'#788067',plant:'swampProps'},
+  cemetery:{layers:[['graveBack',.06,.72],['graveMid',.21,.76],['forestFront',.4,.38]],texture:'graveTiles',patch:[336,92,24,24],tone:'#7e8c81',plant:'graveObjects'},
 };
 const documents = new WeakMap();
 function biomeOf(engine){
@@ -34,11 +35,11 @@ export function prepareEnvironmentArt(document){
   if(!document?.createElement)return Promise.resolve();
   if(documents.has(document))return documents.get(document).ready;
   const state={images:new Map(),variants:new Map(),nearLandscapes:new Map(),ready:null};documents.set(document,state);
-  state.ready=Promise.all(Object.entries(artFiles).map(([key,url])=>new Promise(resolve=>{
+  state.ready=Promise.all([prepareWildlife(document),...Object.entries(artFiles).map(([key,url])=>new Promise(resolve=>{
     const image=document.createElement('img');
     image.onload=()=>{state.images.set(key,image);resolve();};image.onerror=resolve;
     image.src=new URL(url,import.meta.url).href;
-  })));
+  }))]);
   return state.ready;
 }
 function stateFor(context){return documents.get(context.canvas?.ownerDocument);}
@@ -47,7 +48,7 @@ function tinted(document,state,key,tone){
   const image=state.images.get(key);if(!image)return null;
   const surface=document.createElement('canvas');surface.width=image.width;surface.height=image.height;
   const c=surface.getContext('2d',{willReadFrequently:true});c.drawImage(image,0,0);
-  if(['#859fa7','#8b9fa1','#8c83a0'].includes(tone)){
+  if(key.endsWith('Tiles')||['#859fa7','#8b9fa1','#8c83a0'].includes(tone)){
     const pixels=c.getImageData(0,0,surface.width,surface.height);
     const channels=[1,3,5].map(index=>parseInt(tone.slice(index,index+2),16));
     for(let index=0;index<pixels.data.length;index+=4){
@@ -85,7 +86,8 @@ export function prepareNearLandscape(document,engine){
   if(state.nearLandscapes.has(key))return state.nearLandscapes.get(key);
   const texture=tinted(document,state,profile.texture,profile.tone);
   const wet=['moonruins','pinewood','marsh','thorn','cemetery','cloud'].includes(biome);
-  const image=tinted(document,state,wet?'swampProps':profile.plant,profile.tone);
+  const barren=['frost','basalt','crystal','fungal'].includes(biome);
+  const image=barren?null:tinted(document,state,wet?'swampProps':profile.plant,profile.tone);
   const plants=!image?[]:wet?[[8,3,39,39],[124,4,48,37]].map(rect=>({image,rect})):
     [{image,rect:[0,0,image.width,image.height]}];
   const plates=createNearLandscape(document,{biome,texture,patch:profile.patch,plants,variant});
@@ -96,10 +98,11 @@ export function prepareNearLandscape(document,engine){
 }
 export function drawNearLandscape(c,e,{scale=1,distance=e.renderDistance??e.distance}={}){
   const plates=prepareNearLandscape(c.canvas.ownerDocument,e);if(!plates)return;
-  drawNearLandscapePlates(c,plates,{width:e.width,height:e.height,distance,scale,variant:e.levelIdentity?.variant||0});
+  drawNearLandscapePlates(c,plates,{width:e.width,height:e.height,distance,scale,variant:e.levelIdentity?.variant||0,time:e.visualTime??e.time,reducedMotion:e.reducedMotion});
 }
 export function drawAuthoredPlant(context,engine,{x,y,sign,push,seed}){
   const state=stateFor(context),profile=profiles[biomeOf(engine)];if(!state||!profile)return false;
+  if(['frost','basalt','crystal','fungal','coral'].includes(biomeOf(engine)))return false;
   // Forest and marsh props are deliberately placed in clusters with open gaps.
   if(seed%5===0)return false;
   const image=tinted(context.canvas.ownerDocument,state,profile.plant,profile.tone);if(!image)return false;
@@ -107,7 +110,7 @@ export function drawAuthoredPlant(context,engine,{x,y,sign,push,seed}){
   if(profile.plant==='swampProps')rect=seed%2?[8,3,39,39]:[124,4,48,37];
   else if(profile.plant==='graveObjects')rect=[177,7,40,42];
   else rect=[0,0,image.width,image.height];
-  const [sx,sy,sw,sh]=rect,height=36+(seed%19),width=sw*height/sh;
+  const [sx,sy,sw,sh]=rect,height=18+Math.abs(seed%19),width=sw*height/sh;
   context.save();context.translate(x,y+sign*2);
   context.transform(1,0,push*.016,sign,0,0);context.globalAlpha*=.96;context.imageSmoothingEnabled=false;
   context.drawImage(image,sx,sy,sw,sh,-width/2,-height,width,height);
@@ -121,8 +124,9 @@ export function drawAuthoredMaterial(context,{identity,width,height,surface,top=
   context.fillStyle='#1e282b';context.fillRect(0,0,width,height);
   // Stagger neighbouring texture rows to soften visible repetition.
   for(let y=-sh;y<height;y+=sh)for(let x=-sw;x<width;x+=sw){
-    const shift=(Math.floor(y/sh)%2)*Math.floor(sw*.37);
-    context.drawImage(source,sx,sy,sw,sh,Math.round(x+shift),Math.round(y),sw,sh);
+    const shift=Math.floor(geologyNoise(seed+Math.floor(y/sh)*79)*sw*.77);
+    const flip=geologyNoise(seed+Math.floor(x/sw)*193+Math.floor(y/sh)*47)>.5;
+    context.save();context.translate(Math.round(x+shift)+(flip?sw:0),Math.round(y));context.scale(flip?-1:1,1);context.drawImage(source,sx,sy,sw,sh,0,0,sw,sh);context.restore();
   }
   if(surface?.length)drawGeologicalRelief(context,{identity,width,height,surface,top,seed,tone:profile.tone});
   context.restore();return true;
@@ -131,30 +135,55 @@ export function drawAuthoredMaterial(context,{identity,width,height,surface,top=
 const geologyNoise=n=>{let h=Math.imul(n|0,1597334677);h=Math.imul(h^(h>>>13),1274126177);return((h^(h>>>16))>>>0)/4294967296;};
 function drawGeologicalRelief(c,{identity,width,height,surface,top,seed,tone}){
   const sign=top?-1:1,biome=identity.biomeId;
-  const at=x=>{for(let i=1;i<surface.length;i++){const a=surface[i-1],b=surface[i];if(x>=a[0]&&x<=b[0])return a[1]+(b[1]-a[1])*(x-a[0])/(b[0]-a[0]||1);}return surface.at(-1)[1];};
+  const at=x=>{for(let i=1;i<surface.length;i++){const a=surface[i-1],b=surface[i];if(x>=a[0]&&x<=b[0])return a[1]+(b[1]-a[1])*(x-a[0])/(b[0]-a[0]||1);}return x<surface[0][0]?surface[0][1]:surface.at(-1)[1];};
   const stroke=(points,color,alpha,width=1)=>{c.globalAlpha=alpha;c.strokeStyle=color;c.lineWidth=width;c.beginPath();points.forEach(([x,y],i)=>i?c.lineTo(Math.round(x),Math.round(y)):c.moveTo(Math.round(x),Math.round(y)));c.stroke();};
-  // Bedding is independent of the skyline: layers are buried into the face,
-  // rather than tracing every bump as if the mountain were made of rubber.
+  const plane=(points,color,alpha)=>{c.globalAlpha=alpha;c.fillStyle=color;c.beginPath();points.forEach(([x,y],i)=>i?c.lineTo(Math.round(x),Math.round(y)):c.moveTo(Math.round(x),Math.round(y)));c.closePath();c.fill();};
   const sediment=['desert','moonruins','cemetery','cloud'].includes(biome);
+  const columnar=['frost','basalt','crystal'].includes(biome);
   const wet=['marsh','pinewood','thorn','fungal'].includes(biome);
-  for(let row=0;row<Math.ceil(height/14);row++){
-    const y=row*14+geologyNoise(seed+row*43)*8,lean=(geologyNoise(seed+12)-.5)*.20,points=[];
-    for(let x=-8;x<width+9;x+=11)points.push([x,y+x*lean+Math.sin(x*.025+row*.7)*3]);
-    stroke(points,sediment?'#a79c79':tone,sediment?.27:.15,sediment?2:1);
-    stroke(points.map(([x,yy])=>[x,yy+sign*2]),'#0b161a',.32,1);
+  const lean=(geologyNoise(seed+12)-.5)*(biome==='desert'?.16:.08);
+  if(sediment){
+    // Beds retain one dip across a whole face; erosion breaks them into
+    // unequal ledges. They do not follow every bump of the collision surface.
+    let row=0;
+    for(let y=-width*.1;y<height+width*.1;y+=13+geologyNoise(seed+row++*43)*16){
+      const a=width*(.02+geologyNoise(seed+row*61)*.14),b=width*(.7+geologyNoise(seed+row*89)*.3);
+      plane([[a,y+a*lean],[b,y+b*lean-2],[b-7,y+b*lean+5],[a+14,y+a*lean+3]],tone,.23);
+      stroke([[a+3,y+5+a*lean],[width*.48,y+4+width*.48*lean],[b-6,y+3+b*lean]],'#0e191d',.4,2);
+      stroke([[a+12,y+a*lean],[a+width*.2,y+(a+width*.2)*lean]],'#b6ab8a',.22,1);
+    }
+  }else if(columnar){
+    // Cooling basalt, split ice and mineral slabs have vertical load-bearing
+    // facets, unlike the sedimentary faces above.
+    let col=0;
+    for(let x=-10;x<width;x+=23+geologyNoise(seed+col++*73)*29){
+      const w=19+geologyNoise(seed+col*17)*19,y=at(x),d=32+geologyNoise(seed+col*97)*85,slant=(geologyNoise(seed+col*13)-.5)*11;
+      plane([[x,y],[x+w,at(x+w)],[x+w+slant,y+sign*d],[x+slant,y+sign*(d+13)]],tone,.24);
+      stroke([[x,y+sign*4],[x+slant*.4,y+sign*d*.48],[x+slant,y+sign*(d+13)]],'#0c171e',.64,2);
+      stroke([[x+3,y+sign*8],[x+slant*.4+3,y+sign*d*.48]],biome==='frost'?'#b1c9cf':'#aaa3b9',.31,1);
+      if(col%3===1)stroke([[x+slant*.4,y+sign*d*.48],[x+w*.6,y+sign*d*.61]],'#102026',.5,1);
+    }
+  }else{
+    // A darker soil cap, buried stones and branching roots form an organic
+    // bank. Root masses are clustered and stop well below the contact lip.
+    for(let mass=0;mass<Math.ceil(width/105);mass++){
+      const x=24+mass*109+geologyNoise(seed+mass*47)*26,y=at(x),d=35+geologyNoise(seed+mass*91)*55;
+      const root=[[x,y+sign*5],[x-5,y+sign*d*.27],[x+4,y+sign*d*.63],[x-2,y+sign*d]];
+      stroke(root,'#14261f',.7,4);stroke(root.map(([xx,yy])=>[xx+2,yy]),'#718060',.32,1);
+      stroke([root[1],[x-14,y+sign*d*.48],[x-19,y+sign*d*.62]],'#192a23',.7,2);
+      stroke([root[2],[x+15,y+sign*d*.8]],'#192a23',.65,2);
+      plane([[x+15,y+sign*29],[x+27,y+sign*24],[x+38,y+sign*30],[x+32,y+sign*39],[x+17,y+sign*40]],tone,.28);
+    }
   }
-  for(let col=0;col<Math.ceil(width/38);col++){
-    const x=col*38+geologyNoise(seed+col*73)*19,sy=at(x)+sign*5;
-    const depth=22+geologyNoise(seed+col*97)*65,lean=(geologyNoise(seed+col*131)-.5)*18;
-    const fracture=[[x,sy],[x+lean*.3,sy+sign*depth*.32],[x+lean*.4-3,sy+sign*depth*.51],[x+lean,sy+sign*depth]];
-    stroke(fracture,'#09151b',.56,2);
-    stroke(fracture.map(([xx,y])=>[xx+2,y]),tone,.37,1);
-    stroke([fracture[2],[x+lean-11,sy+sign*depth*.72]],'#111d21',.45,1);
-    // Slope-dependent ledge deposits: snow, roots, mineral seams and talus.
-    const slope=Math.abs(at(x+4)-at(x-4))/8;
-    if(slope<.8){
-      stroke([[x-4,sy],[x+4,at(x+4)+sign*5]],biome==='frost'?'#b2c9cf':wet?'#81916b':tone,.6,2);
-      if(wet)stroke([[x+2,sy],[x+3,sy+sign*11],[x,sy+sign*19]],'#354b3e',.75,2);
+  // Unequal joints and slope-dependent deposits break up texture repetition.
+  let joint=0;
+  for(let x=18;x<width;x+=41+geologyNoise(seed+joint++*131)*49){
+    const sy=at(x)+sign*6,depth=18+geologyNoise(seed+joint*97)*47;
+    if(!wet)stroke([[x,sy],[x-3,sy+sign*depth*.43],[x+4,sy+sign*depth]],'#0b171c',.42,1);
+    const slope=Math.abs(at(x+5)-at(x-5))/10;
+    if(slope<.5){
+      stroke([[x-5,sy],[x+7,at(x+7)+sign*6]],biome==='frost'?'#b2c9cf':wet?'#81916b':tone,.53,2);
+      if(wet)stroke([[x+2,sy],[x+3,sy+sign*10],[x,sy+sign*16]],'#354b3e',.66,2);
     }
   }
 }
@@ -202,14 +231,14 @@ export function drawTerrainForeground(c,e,{scale=1,distance=e.renderDistance??e.
       const cover=tinted(c.canvas.ownerDocument,state,lush?'swampProps':profile.plant,profile.tone);
       // Dense, uneven understory is cached with the rocks, rather than adding
       // dozens of animated sprites to the live flight loop.
-      for(let j=0;j<(lush?24:14);j++){
-        const seed=j*157+layer*367,x=j*(lush?14:25)+geologyNoise(seed)*9,y=51+geologyNoise(seed+3)*16;
-        if(cover&&j%3!==0){
+      for(let j=0;j<(lush?13:5);j++){
+        const seed=j*157+layer*367,group=Math.floor(j/3),x=group*81+(j%3)*9+geologyNoise(seed)*7,y=51+geologyNoise(seed+3)*16;
+        if(cover&&lush&&j%3!==0){
           const rect=lush?(j%2?[8,3,39,39]:[124,4,48,37]):[0,0,cover.width,cover.height];
           const [sx,sy,sw,sh]=rect,h=12+geologyNoise(seed+7)*19;
           p.globalAlpha=.8;p.drawImage(cover,sx,sy,sw,sh,Math.round(x-sw*h/sh/2),Math.round(y-h),Math.round(sw*h/sh),Math.round(h));p.globalAlpha=1;
         }
-        for(let blade=0;blade<(lush?5:3);blade++){
+        for(let blade=0;blade<(lush?4:0);blade++){
           const height=4+geologyNoise(seed+blade*31)*10;
           p.fillStyle=blade%2?profile.tone:'#354d3e';
           p.fillRect(Math.round(x+blade*2),Math.round(y-height),1,Math.round(height));
