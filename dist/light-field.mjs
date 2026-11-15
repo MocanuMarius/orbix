@@ -1,6 +1,6 @@
-import {drawShutterWake,shutterLightFactor,shutterWakeAt} from './shutter-cone.mjs?v=exit-packing-1';
-import {lanternField} from './lantern-layout.mjs?v=exit-packing-1';
-import { LIGHT_EXTENT, lightAttenuation } from './light-attenuation.mjs?v=exit-packing-1';
+import {drawShutterWake,shutterLightFactor,shutterWakeAt} from './shutter-cone.mjs?v=spark-balance-1';
+import {lanternField} from './lantern-layout.mjs?v=spark-balance-1';
+import { LIGHT_EXTENT, lightAttenuation } from './light-attenuation.mjs?v=spark-balance-1';
 export { LIGHT_EXTENT, lightAttenuation };
 const reflectedLight = .6;
 

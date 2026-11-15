@@ -1,9 +1,9 @@
-import { WispFlight, circleHitsObstacle } from './flight.mjs?v=exit-packing-1';
-import { createRun, getRunModifiers } from './model.mjs?v=exit-packing-1';
-import { shutterDensityAt } from './shutter-cone.mjs?v=exit-packing-1';
-import { lanternPassageY, lanternRoute } from './lantern-layout.mjs?v=exit-packing-1';
-import { wispOrbit } from './wisp.mjs?v=exit-packing-1';
-import { stepFlashTether } from './flash-tether.mjs?v=exit-packing-1';
+import { WispFlight, circleHitsObstacle } from './flight.mjs?v=spark-balance-1';
+import { createRun, getRunModifiers } from './model.mjs?v=spark-balance-1';
+import { shutterDensityAt } from './shutter-cone.mjs?v=spark-balance-1';
+import { lanternPassageY, lanternRoute } from './lantern-layout.mjs?v=spark-balance-1';
+import { wispOrbit } from './wisp.mjs?v=spark-balance-1';
+import { stepFlashTether } from './flash-tether.mjs?v=spark-balance-1';
 
 const step = 1 / 60;
 
