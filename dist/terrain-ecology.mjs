@@ -9,7 +9,7 @@ const habitats = {
   fungal: {plant:'mushroom',leaf:'#927a9d',shade:'#554965',flower:'#b3c5bc',animal:'moth'},
   basalt: {plant:'lichen',leaf:'#8c7c74',shade:'#514848',flower:'#b0967b',animal:'ash'},
   desert: {plant:'drygrass',leaf:'#aa9769',shade:'#6b6450',flower:'#c7b394',animal:'beetle'},
-  coral: {plant:'fan',leaf:'#a5828f',shade:'#65586d',flower:'#b6bdba',water:true,animal:'moth'},
+  coral: {plant:'fan',leaf:'#a5828f',shade:'#65586d',flower:'#b6bdba',water:true,animal:'fish'},
   crystal: {plant:'lichen',leaf:'#9189ab',shade:'#575673',flower:'#bdc1d5',animal:'moth'},
   cloud: {plant:'grass',leaf:'#9aab9d',shade:'#657f80',flower:'#d1d2b8',water:true,animal:'moth'},
   thorn: {plant:'fern',leaf:'#819165',shade:'#465842',flower:'#bc9e99',animal:'beetle'},
@@ -78,15 +78,33 @@ const noise = n => {
 function surfaceSites(shape) {
   if(anchors.has(shape))return anchors.get(shape);
   const points=shape.slice(2).reverse(),sites=[];
-  let walked=0,next=22;
+  const sample=x=>{
+    for(let i=1;i<points.length;i++){
+      const a=points[i-1],b=points[i];
+      if(x>=a[0]&&x<=b[0]){const slope=(b[1]-a[1])/(b[0]-a[0]||1);return {y:a[1]+(x-a[0])*slope,slope};}
+    }
+    return null;
+  };
+  // A bank has a few soil pockets, not a garden planted at fixed intervals.
+  // Keep clusters and their gaps attached to the landform's immutable shape.
+  let walked=0,next=48;
   for(let i=1;i<points.length;i++){
     const [ax,ay]=points[i-1],[bx,by]=points[i],length=Math.hypot(bx-ax,by-ay);
     if(!length)continue;
     while(next<walked+length){
       const t=(next-walked)/length;
-      if(Math.abs(bx-ax)>1&&Math.abs((by-ay)/(bx-ax))<.72)
-        sites.push({x:ax+(bx-ax)*t,y:ay+(by-ay)*t,slope:(by-ay)/(bx-ax),seed:sites.length*71+i*313});
-      next+=34+noise(i*31+Math.floor(next))*39;
+      const slope=(by-ay)/(bx-ax||1),seed=i*313+Math.floor(next)*71;
+      if(Math.abs(bx-ax)>1&&Math.abs(slope)<.55){
+        const x=ax+(bx-ax)*t,y=ay+(by-ay)*t,count=2+Math.floor(noise(seed)*3);
+        for(let j=0;j<count;j++){
+          const dx=(j-(count-1)/2)*10;
+          const root=sample(x+dx);
+          if(root&&Math.abs(root.slope)<.55)
+            sites.push({x:x+dx,y:root.y,slope:root.slope,seed:seed+j*53,cluster:j});
+        }
+        if(!sites.length||sites.at(-1).seed<seed)sites.push({x,y,slope,seed,cluster:0});
+      }
+      next+=100+noise(seed+91)*126;
     }
     walked+=length;
   }
@@ -141,6 +159,9 @@ function animal(c,h,x,y,seed,time,reaction,reduced){
     c.fillStyle=h.flower;c.globalAlpha=.55;
     c.fillRect(Math.round(xx-2),Math.round(yy-flutter),2,1+Math.round(Math.abs(flutter)));
     c.fillRect(Math.round(xx+1),Math.round(yy+flutter),2,1);c.globalAlpha=1;
+  }else if(h.animal==='fish'){
+    c.globalAlpha=.5;c.fillStyle=h.leaf;c.fillRect(Math.round(xx-3),Math.round(yy-1),6,2);
+    c.fillRect(Math.round(xx-5),Math.round(yy-1-flutter),2,2);c.globalAlpha=1;
   }else if(h.animal==='beetle'){
     c.fillStyle=h.shade;c.fillRect(Math.round(x+flutter*2),Math.round(y-2),3,2);
   }else{
@@ -162,10 +183,22 @@ export function drawTerrainEcology(c,e,{scale=1,distance=e.renderDistance??e.dis
         const x=o.x+site.x-distance,y=base+site.y;
         if(x< -40||x>e.width+40||y< -35||y>e.height+35)continue;
         const seed=site.seed+Math.floor(o.x)*13;
+        // Roofs carry roots/lichen rather than upside-down bushes. Frost and
+        // bare crests retain quiet space so the actual contact edge stays clear.
+        if(top&&noise(seed+9)<.72)continue;
+        if(['frost','basalt','crystal'].includes(habitatId(e))&&noise(seed+12)<.55)continue;
         const near=Math.max(0,1-Math.hypot(x-e.player.x,y-py)/95);
         const push=e.reducedMotion?0:near*near*(x<e.player.x?-7:5);
         c.globalAlpha=.92;
-        if(!drawAuthoredPlant(c,e,{x,y,sign,push,seed}))tuft(c,h,x,y,sign,seed,time,push,e.reducedMotion);
+        if(top){
+          const rooted=['fern','reed','grass'].includes(h.plant);
+          if(rooted)for(let j=0;j<3;j++){
+            const xx=x+(j-1)*4,drop=8+noise(seed+j*41)*13;
+            stroke(c,[[xx,y-2],[xx+1,y+drop*.5],[xx-2+push*.12,y+drop]],h.shade,1);
+          }else{
+            stroke(c,[[x-4,y-2],[x,y+2],[x+4,y-1]],h.leaf,1);
+          }
+        }else if(!drawAuthoredPlant(c,e,{x,y,sign,push,seed}))tuft(c,h,x,y,sign,seed,time,push,e.reducedMotion);
         c.globalAlpha=1;
         // Shallow reflective pockets stay inset behind the solid lip. They
         // suggest wet rock and pools without adding a second collision edge.
@@ -176,7 +209,7 @@ export function drawTerrainEcology(c,e,{scale=1,distance=e.renderDistance??e.dis
           stroke(c,[[x-width*.25+reflection,y+5],[x+width*.3+reflection,y+5]],'#92aba5',1);
           if(near>.1)stroke(c,[[x-3-near*8,y+7],[x+3+near*8,y+7]],'#819c98',1);
         }
-        if(!top&&noise(seed+7)>.68)animal(c,h,x,y,seed,time,push,e.reducedMotion);
+        if(!top&&site.cluster===0&&noise(seed+7)>.66)animal(c,h,x,y,seed,time,push,e.reducedMotion);
       }
       // Trace the real surface over translucent vegetation roots. Decorative
       // tips use muted color; the continuous bright lip is the solid boundary.
