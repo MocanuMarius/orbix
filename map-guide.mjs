@@ -1,6 +1,6 @@
-import {getFlightClearReward} from './checkpoint-rewards.mjs?v=living-habitats-1';
-import {landmarkArt,landmarkCategory,guardianNames} from './map-landmarks.mjs?v=living-habitats-1';
-import {glowText} from './vitality.mjs?v=living-habitats-1';
+import {getFlightClearReward} from './checkpoint-rewards.mjs?v=lofi-contours-1';
+import {landmarkArt,landmarkCategory,guardianNames} from './map-landmarks.mjs?v=lofi-contours-1';
+import {glowText} from './vitality.mjs?v=lofi-contours-1';
 const stop=(kind,label,name,summary)=>Object.freeze({kind,label,name,summary,icon:kind});
 export const MAP_STOP_TYPES=Object.freeze({
 flight:stop('flight','FLIGHT','Flight','Flight length sets its Stored Sparks reward; overflow adds a bonus. Ordinary flights do not drop artifacts.'),

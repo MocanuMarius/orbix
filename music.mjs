@@ -1,15 +1,17 @@
-// Original, synchronized seven-minute stems. Only their volumes change during
+// Original, synchronized eight-minute lo-fi stems. Only their volumes change during
 // flight: no live oscillators, decoding jobs or audio graph allocation per frame.
 const TRACKS=['./assets/audio/lantern-drift.mp3','./assets/audio/lantern-pulse.mp3','./assets/audio/lantern-storm.mp3'];
 export function musicMix(mode='menu',danger=0){
  const pressure=Math.max(0,Math.min(1,Number(danger)||0));
- if(mode==='boss')return [.17,.29,.18+pressure*.12];
- if(mode==='flight')return [.22,.19+pressure*.06,pressure*.18];
- if(mode==='dream')return [.24,.055,0];
- if(mode==='clear')return [.25,.12,0];
- if(mode==='loss')return [.14,.025,0];
- if(mode==='pause')return [.15,.025,0];
- return [.21,.035,0];
+ if(mode==='boss')return [.24,.28,.14+pressure*.08];
+ if(mode==='flight')return [.27,.27+pressure*.02,pressure*.07];
+ if(mode==='dream')return [.26,.065,0];
+ if(mode==='clear')return [.27,.17,0];
+ if(mode==='loss')return [.15,.035,0];
+ if(mode==='pause')return [.16,.045,0];
+ // Keep a soft beat at checkpoints too: the groove is part of the score's
+ // identity, while heavier percussion remains reserved for actual pressure.
+ return [.25,.19,0];
 }
 export function createMusic({storage=globalThis.localStorage,document=globalThis.document,AudioClass=globalThis.Audio,schedule=globalThis.setInterval,cancel=globalThis.clearInterval}={}){
  const key='wispbound-music-enabled';let enabled=true,unlocked=false,players=[],timer=null,mode='menu',danger=0;

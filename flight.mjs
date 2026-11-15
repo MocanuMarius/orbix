@@ -1,63 +1,64 @@
-import {prepareEnvironmentArt} from './authored-environment.mjs?v=living-habitats-1';
-import {drawTerrainEcology,drawHabitatBackdrop} from './terrain-ecology.mjs?v=living-habitats-1';
-import {prepareAtlasFlight,resizeAtlasFlight,ringBellwind,bellwindAcceleration,moonLightScale,drawAtlasFlight} from './atlas-flight.mjs?v=living-habitats-1';
-import {canShowFlightHint} from './flight-hint-safety.mjs?v=living-habitats-1';
-import {updateGlideRegeneration} from './glide-regeneration.mjs?v=living-habitats-1';
-import {drawGuardianPresence} from './guardian-presence.mjs?v=living-habitats-1';
-import { updateGuardian, resizeGuardian, placeGuardianFuel } from './guardian-effects.mjs?v=living-habitats-1';
-import { drawGuardianWarnings } from './guardian-art.mjs?v=living-habitats-1';
-import { drawShutters, resizeShutters } from './shutter-cone.mjs?v=living-habitats-1';
-import { inLanternRoom, installPassageLanterns, lanternField } from './lantern-layout.mjs?v=living-habitats-1';
-import {drawProximityMeter} from './proximity-meter.mjs?v=living-habitats-1';
-import {drawFourthBeat} from './fourth-beat-art.mjs?v=living-habitats-1';
-import {drawCollectorField} from './collector-field-art.mjs?v=living-habitats-1';
-import {buildObjectivePlan,createFlightObjective,drawObjectiveMarks} from './flight-objectives.mjs?v=living-habitats-1';
-import {FlightProjection,drawFlightProjection} from './flight-projection.mjs?v=living-habitats-1';
-import {drawGlowSense} from './glow-sense.mjs?v=living-habitats-1';
-import {formatGlow} from './vitality.mjs?v=living-habitats-1';
-import {installRiskChains} from './risk-chains.mjs?v=living-habitats-1';
-import {installSparkField} from './spark-fields.mjs?v=living-habitats-1';
-import {drawFallWarning} from './fall-chain-art.mjs?v=living-habitats-1';
-import {EXTRA_COURSES} from './world-expansion.mjs?v=living-habitats-1';
-import {BIOME_COURSES} from './biome-courses.mjs?v=living-habitats-1';
-import {BiomeDynamics} from './biome-dynamics.mjs?v=living-habitats-1';
-import {condenseGlow,packExitReserve} from './condensed-glow.mjs?v=living-habitats-1';
-import {ensureGlowBudget,shapeExpeditionSupply,trimSurplusFuel} from './glow-budget.mjs?v=living-habitats-1';
-import {balanceSparkSupply} from './spark-supply.mjs?v=living-habitats-1';
-import {EdgingPulse} from './edging-pulse.mjs?v=living-habitats-1';
-import {isVowBodyPickup} from './contextual-events.mjs?v=living-habitats-1';
-import {FlightBoon} from './flight-boons.mjs?v=living-habitats-1';
-import {BlackHoles} from './black-holes.mjs?v=living-habitats-1';
-import {drawWispBody,makeWispSprite,makeCompanionSprite,WISP_ART} from './companion-art.mjs?v=living-habitats-1';
-import {drawBlackHoles} from './black-hole-art.mjs?v=living-habitats-1';
-import {drawCapture, drawShellPuff, drawCarriedSpark} from './capture-art.mjs?v=living-habitats-1';
-import {drawShellArcs} from './shell-arcs.mjs?v=living-habitats-1';
-import {sparkBodyRadius,sparkArtScale,sparkMass} from './spark-size.mjs?v=living-habitats-1';
-import {captureMassDuration} from './tidal-light.mjs?v=living-habitats-1';
-import {readCaptureStyle} from './capture-styles.mjs?v=living-habitats-1';
+import {prepareEnvironmentArt} from './authored-environment.mjs?v=lofi-contours-1';
+import {drawTerrainEcology,drawHabitatBackdrop} from './terrain-ecology.mjs?v=lofi-contours-1';
+import {drawTerrainBoundary} from './terrain-boundary.mjs?v=lofi-contours-1';
+import {prepareAtlasFlight,resizeAtlasFlight,ringBellwind,bellwindAcceleration,moonLightScale,drawAtlasFlight} from './atlas-flight.mjs?v=lofi-contours-1';
+import {canShowFlightHint} from './flight-hint-safety.mjs?v=lofi-contours-1';
+import {updateGlideRegeneration} from './glide-regeneration.mjs?v=lofi-contours-1';
+import {drawGuardianPresence} from './guardian-presence.mjs?v=lofi-contours-1';
+import { updateGuardian, resizeGuardian, placeGuardianFuel } from './guardian-effects.mjs?v=lofi-contours-1';
+import { drawGuardianWarnings } from './guardian-art.mjs?v=lofi-contours-1';
+import { drawShutters, resizeShutters } from './shutter-cone.mjs?v=lofi-contours-1';
+import { inLanternRoom, installPassageLanterns, lanternField } from './lantern-layout.mjs?v=lofi-contours-1';
+import {drawProximityMeter} from './proximity-meter.mjs?v=lofi-contours-1';
+import {drawFourthBeat} from './fourth-beat-art.mjs?v=lofi-contours-1';
+import {drawCollectorField} from './collector-field-art.mjs?v=lofi-contours-1';
+import {buildObjectivePlan,createFlightObjective,drawObjectiveMarks} from './flight-objectives.mjs?v=lofi-contours-1';
+import {FlightProjection,drawFlightProjection} from './flight-projection.mjs?v=lofi-contours-1';
+import {drawGlowSense} from './glow-sense.mjs?v=lofi-contours-1';
+import {formatGlow} from './vitality.mjs?v=lofi-contours-1';
+import {installRiskChains} from './risk-chains.mjs?v=lofi-contours-1';
+import {installSparkField} from './spark-fields.mjs?v=lofi-contours-1';
+import {drawFallWarning} from './fall-chain-art.mjs?v=lofi-contours-1';
+import {EXTRA_COURSES} from './world-expansion.mjs?v=lofi-contours-1';
+import {BIOME_COURSES} from './biome-courses.mjs?v=lofi-contours-1';
+import {BiomeDynamics} from './biome-dynamics.mjs?v=lofi-contours-1';
+import {condenseGlow,packExitReserve} from './condensed-glow.mjs?v=lofi-contours-1';
+import {ensureGlowBudget,shapeExpeditionSupply,trimSurplusFuel} from './glow-budget.mjs?v=lofi-contours-1';
+import {balanceSparkSupply} from './spark-supply.mjs?v=lofi-contours-1';
+import {EdgingPulse} from './edging-pulse.mjs?v=lofi-contours-1';
+import {isVowBodyPickup} from './contextual-events.mjs?v=lofi-contours-1';
+import {FlightBoon} from './flight-boons.mjs?v=lofi-contours-1';
+import {BlackHoles} from './black-holes.mjs?v=lofi-contours-1';
+import {drawWispBody,makeWispSprite,makeCompanionSprite,WISP_ART} from './companion-art.mjs?v=lofi-contours-1';
+import {drawBlackHoles} from './black-hole-art.mjs?v=lofi-contours-1';
+import {drawCapture, drawShellPuff, drawCarriedSpark} from './capture-art.mjs?v=lofi-contours-1';
+import {drawShellArcs} from './shell-arcs.mjs?v=lofi-contours-1';
+import {sparkBodyRadius,sparkArtScale,sparkMass} from './spark-size.mjs?v=lofi-contours-1';
+import {captureMassDuration} from './tidal-light.mjs?v=lofi-contours-1';
+import {readCaptureStyle} from './capture-styles.mjs?v=lofi-contours-1';
 /* Emberwing's self-contained canvas flight simulation and renderer. */
-import { glowPoints, FLAME_TUNING, LIGHT_PACKET_TUNING } from './vitality.mjs?v=living-habitats-1';
-import { flightEndDistance } from './flight-end.mjs?v=living-habitats-1';
-import {getExitLandmarkState,drawExitLandmark} from './exit-landmark.mjs?v=living-habitats-1';
-import { WispCompanion, wispHome } from './wisp.mjs?v=living-habitats-1';
-import { getAscentInfo } from './ascent.mjs?v=living-habitats-1';
-import { LEVEL_LENGTH, getLevelLengthScale } from './level-length.mjs?v=living-habitats-1';
-import { resolveLevelIdentity } from './level-catalog.mjs?v=living-habitats-1';
-import { DraftField, DRAFT_TUNING } from './drafts.mjs?v=living-habitats-1';
-import { normalizeCompanionRole, normalizeCompanionFleet, getCompanionAbility } from './companion-abilities.mjs?v=living-habitats-1';
-import { populateSceneProps, scenePropPolygons } from './scene-props.mjs?v=living-habitats-1';
-import { pickupKind, getPickupSpec, pickupContactRadius, canCompanionCollect, flashPowerupDuration } from './pickups.mjs?v=living-habitats-1';
-import { createFlashTether, stepFlashTether, drawFlashTether, flashLightPulse } from './flash-tether.mjs?v=living-habitats-1';
-import { drawPickup, drawSparkSymbol } from './pickup-art.mjs?v=living-habitats-1';
-import { buildBossLayout, getBossState as bossState, drawBoss } from './boss.mjs?v=living-habitats-1';
-import { getAuthoredChallenge, finalizeFlightChallenges, installAuthoredDraftCrossings, FlightChallengeDirector } from './flight-challenges.mjs?v=living-habitats-1';
-import { installEncounterFamily } from './encounter-families.mjs?v=living-habitats-1';
-import { installFlightForks, resizeFlightForks } from './flight-forks.mjs?v=living-habitats-1';
-import { ArtifactEffects } from './artifact-effects.mjs?v=living-habitats-1';
-import { LIGHT_EXTENT,lightAttenuation,lightVisibility,createLightMaskCanvas,castFlightFlashLights,revealLanternWake,sceneRevealStrength,flashRangeStrength,pickupRevealHold,pickupRevealAt,renderLightState,lightDreamScenery } from './light-field.mjs?v=living-habitats-1';
+import { glowPoints, FLAME_TUNING, LIGHT_PACKET_TUNING } from './vitality.mjs?v=lofi-contours-1';
+import { flightEndDistance } from './flight-end.mjs?v=lofi-contours-1';
+import {getExitLandmarkState,drawExitLandmark} from './exit-landmark.mjs?v=lofi-contours-1';
+import { WispCompanion, wispHome } from './wisp.mjs?v=lofi-contours-1';
+import { getAscentInfo } from './ascent.mjs?v=lofi-contours-1';
+import { LEVEL_LENGTH, getLevelLengthScale } from './level-length.mjs?v=lofi-contours-1';
+import { resolveLevelIdentity } from './level-catalog.mjs?v=lofi-contours-1';
+import { DraftField, DRAFT_TUNING } from './drafts.mjs?v=lofi-contours-1';
+import { normalizeCompanionRole, normalizeCompanionFleet, getCompanionAbility } from './companion-abilities.mjs?v=lofi-contours-1';
+import { populateSceneProps, scenePropPolygons } from './scene-props.mjs?v=lofi-contours-1';
+import { pickupKind, getPickupSpec, pickupContactRadius, canCompanionCollect, flashPowerupDuration } from './pickups.mjs?v=lofi-contours-1';
+import { createFlashTether, stepFlashTether, drawFlashTether, flashLightPulse } from './flash-tether.mjs?v=lofi-contours-1';
+import { drawPickup, drawSparkSymbol } from './pickup-art.mjs?v=lofi-contours-1';
+import { buildBossLayout, getBossState as bossState, drawBoss } from './boss.mjs?v=lofi-contours-1';
+import { getAuthoredChallenge, finalizeFlightChallenges, installAuthoredDraftCrossings, FlightChallengeDirector } from './flight-challenges.mjs?v=lofi-contours-1';
+import { installEncounterFamily } from './encounter-families.mjs?v=lofi-contours-1';
+import { installFlightForks, resizeFlightForks } from './flight-forks.mjs?v=lofi-contours-1';
+import { ArtifactEffects } from './artifact-effects.mjs?v=lofi-contours-1';
+import { LIGHT_EXTENT,lightAttenuation,lightVisibility,createLightMaskCanvas,castFlightFlashLights,revealLanternWake,sceneRevealStrength,flashRangeStrength,pickupRevealHold,pickupRevealAt,renderLightState,lightDreamScenery } from './light-field.mjs?v=lofi-contours-1';
 import { createTutorialState, buildTutorialLayout, recordTutorialPickup,
-  updateTutorial, updateTutorialCompanion, getTutorialHint } from './tutorial.mjs?v=living-habitats-1';
-export { FLAME_TUNING } from './vitality.mjs?v=living-habitats-1';
+  updateTutorial, updateTutorialCompanion, getTutorialHint } from './tutorial.mjs?v=lofi-contours-1';
+export { FLAME_TUNING } from './vitality.mjs?v=lofi-contours-1';
 const TAU = Math.PI * 2;
 const STEP = 1 / 60;
 const FALLBACK_WISP_RADIUS = WISP_ART.worldRadius/.85;
@@ -69,7 +70,7 @@ const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
 const lerp = (a, b, t) => a + (b - a) * t;
 export const FLIGHT_TUNING = Object.freeze({ gravity: 300, flapImpulse: 205,
   forwardSpeed: 154, terminalFall: 245, pickupRadius: LIGHT_PACKET_TUNING.pickupRadius });
-export { DRAFT_TUNING } from './drafts.mjs?v=living-habitats-1';
+export { DRAFT_TUNING } from './drafts.mjs?v=lofi-contours-1';
 // Retain the public tuning name for consumers; wind now has no global cycle.
 export const WIND_TUNING = DRAFT_TUNING;
 
@@ -976,7 +977,7 @@ export class WispFlight {
 
   async initPixelView() {
     try {
-      const { WispFlightView } = await import('./wisp-renderer.mjs?v=living-habitats-1');
+      const { WispFlightView } = await import('./wisp-renderer.mjs?v=lofi-contours-1');
       if (this.destroyed) return;
       this.pixiView = new WispFlightView(this);
       const initialized = await this.pixiView.init();
@@ -2262,6 +2263,7 @@ export class WispFlight {
     drawBoss(c, { engine: this, width: W, height: H, distance: this.renderDistance,
       time: this.visualTime, pass: 'hands' });
     drawTerrainEcology(c,this);
+    drawTerrainBoundary(c,this);
     this.biomeDynamics?.draw(c,{distance:this.renderDistance,scale:1,height:H});
     this.drawPortal(c,W,H);
     if(light.rehearsing)lightDreamScenery(c,W,H);
@@ -2462,7 +2464,7 @@ export class WispFlight {
       c.fillStyle = light; c.fillRect(left, top, width, height);
     }
     c.restore();
-    path(); c.strokeStyle = this.terrain === 'storm' ? 'rgba(173,225,230,.43)' : 'rgba(234,204,154,.31)'; c.lineWidth = 1.15; c.stroke();
+    // The shared exposed-terrain pass outlines the union after every piece.
     // Hairline roots and moss are decorative; the large shaded silhouette is
     // exactly the polygon used by circle collisions.
     if (this.terrain !== 'storm') {

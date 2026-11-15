@@ -1,11 +1,11 @@
-import {drawFluidCapture, FLUID_STYLES} from './fluid-capture.mjs?v=living-habitats-1';
-import {drawPickup} from './pickup-art.mjs?v=living-habitats-1';
-import {drawShellPuff} from './capture-art.mjs?v=living-habitats-1';
-import {drawShellArcs} from './shell-arcs.mjs?v=living-habitats-1';
-import {sparkArtScale, sparkBodyRadius} from './spark-size.mjs?v=living-habitats-1';
-import {makeWispSprite} from './companion-art.mjs?v=living-habitats-1';
-import {createDepthScenery, drawDepthScenery} from './depth-scenery.mjs?v=living-habitats-1';
-import {biomePalette} from './biome-art.mjs?v=living-habitats-1';
+import {drawFluidCapture, FLUID_STYLES} from './fluid-capture.mjs?v=lofi-contours-1';
+import {drawPickup} from './pickup-art.mjs?v=lofi-contours-1';
+import {drawShellPuff} from './capture-art.mjs?v=lofi-contours-1';
+import {drawShellArcs} from './shell-arcs.mjs?v=lofi-contours-1';
+import {sparkArtScale, sparkBodyRadius} from './spark-size.mjs?v=lofi-contours-1';
+import {makeWispSprite} from './companion-art.mjs?v=lofi-contours-1';
+import {createDepthScenery, drawDepthScenery} from './depth-scenery.mjs?v=lofi-contours-1';
+import {biomePalette} from './biome-art.mjs?v=lofi-contours-1';
 
 const canvas = document.querySelector('#scene');
 const ctx = canvas.getContext('2d');

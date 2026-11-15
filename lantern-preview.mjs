@@ -1,9 +1,9 @@
-import { WispFlight, circleHitsObstacle } from './flight.mjs?v=living-habitats-1';
-import { createRun, getRunModifiers } from './model.mjs?v=living-habitats-1';
-import { shutterDensityAt } from './shutter-cone.mjs?v=living-habitats-1';
-import { lanternPassageY, lanternRoute } from './lantern-layout.mjs?v=living-habitats-1';
-import { wispOrbit } from './wisp.mjs?v=living-habitats-1';
-import { stepFlashTether } from './flash-tether.mjs?v=living-habitats-1';
+import { WispFlight, circleHitsObstacle } from './flight.mjs?v=lofi-contours-1';
+import { createRun, getRunModifiers } from './model.mjs?v=lofi-contours-1';
+import { shutterDensityAt } from './shutter-cone.mjs?v=lofi-contours-1';
+import { lanternPassageY, lanternRoute } from './lantern-layout.mjs?v=lofi-contours-1';
+import { wispOrbit } from './wisp.mjs?v=lofi-contours-1';
+import { stepFlashTether } from './flash-tether.mjs?v=lofi-contours-1';
 
 const step = 1 / 60;
 

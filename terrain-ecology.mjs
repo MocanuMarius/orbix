@@ -1,4 +1,5 @@
-import {drawAuthoredBackdrop,drawAuthoredPlant} from './authored-environment.mjs?v=living-habitats-1';
+import {drawAuthoredBackdrop,drawAuthoredPlant} from './authored-environment.mjs?v=lofi-contours-1';
+import {terrainBoundary,terrainSurfaceExposed} from './terrain-boundary.mjs?v=lofi-contours-1';
 // Decorative life is anchored to the actual landform. It never enters the
 // collider, pickup, reward or dynamic-hazard registries.
 const habitats = {
@@ -170,6 +171,7 @@ function animal(c,h,x,y,seed,time,reaction,reduced){
 }
 export function drawTerrainEcology(c,e,{scale=1,distance=e.renderDistance??e.distance,time=e.visualTime??e.time}={}){
   const h=habitats[habitatId(e)];if(!h)return;
+  const boundary=terrainBoundary(e,time);
   const py=e.renderPlayerY??e.player.y;
   c.save();c.scale(scale,scale);c.lineCap='butt';c.lineJoin='miter';
   for(const o of e.layout.obstacles){
@@ -182,6 +184,7 @@ export function drawTerrainEcology(c,e,{scale=1,distance=e.renderDistance??e.dis
       for(const site of sites){
         const x=o.x+site.x-distance,y=base+site.y;
         if(x< -40||x>e.width+40||y< -35||y>e.height+35)continue;
+        if(!terrainSurfaceExposed(e,o,top,o.x+site.x,y,time,boundary))continue;
         const seed=site.seed+Math.floor(o.x)*13;
         // Roofs carry roots/lichen rather than upside-down bushes. Frost and
         // bare crests retain quiet space so the actual contact edge stays clear.
@@ -210,13 +213,6 @@ export function drawTerrainEcology(c,e,{scale=1,distance=e.renderDistance??e.dis
           if(near>.1)stroke(c,[[x-3-near*8,y+7],[x+3+near*8,y+7]],'#819c98',1);
         }
         if(!top&&site.cluster===0&&noise(seed+7)>.66)animal(c,h,x,y,seed,time,push,e.reducedMotion);
-      }
-      // Trace the real surface over translucent vegetation roots. Decorative
-      // tips use muted color; the continuous bright lip is the solid boundary.
-      for(let i=1;i<points.length;i++){
-        const a=points[i-1],b=points[i];
-        if(Math.max(a[0],b[0])+o.x-distance<0||Math.min(a[0],b[0])+o.x-distance>e.width)continue;
-        stroke(c,[[o.x+a[0]-distance,base+a[1]],[o.x+b[0]-distance,base+b[1]]],'#b1c0a6',1/scale);
       }
     }
   }

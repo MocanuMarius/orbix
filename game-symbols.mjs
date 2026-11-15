@@ -1,5 +1,5 @@
-import {condensedIconMarkup} from './afterglow-ui.mjs?v=living-habitats-1';
-import {sparkSymbolArt} from './spark-symbol.mjs?v=living-habitats-1';
+import {condensedIconMarkup} from './afterglow-ui.mjs?v=lofi-contours-1';
+import {sparkSymbolArt} from './spark-symbol.mjs?v=lofi-contours-1';
 // Small shared pixel silhouettes. Conditions retain words; basic resources do not.
 const shapes={
  up:'<path d="M7 2h2v2h2v2h2v2h-3v6H6V8H3V6h2V4h2z"/>',

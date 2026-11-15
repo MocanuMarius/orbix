@@ -1,10 +1,10 @@
-import {companionArtSvg} from './companion-art.mjs?v=living-habitats-1';
-import {resourceSymbol} from './game-symbols.mjs?v=living-habitats-1';
-import {lifeHeartSvg} from './lives.mjs?v=living-habitats-1';
-import {getTreasureChoices,getTreasureKind} from './model.mjs?v=living-habitats-1';
-import {treasureArt} from './treasure-art.mjs?v=living-habitats-1';
-import {skillIcon,artifactIcon} from './upgrade-icons.mjs?v=living-habitats-1';
-import {formatGlow,getGlowCapacity} from './vitality.mjs?v=living-habitats-1';
+import {companionArtSvg} from './companion-art.mjs?v=lofi-contours-1';
+import {resourceSymbol} from './game-symbols.mjs?v=lofi-contours-1';
+import {lifeHeartSvg} from './lives.mjs?v=lofi-contours-1';
+import {getTreasureChoices,getTreasureKind} from './model.mjs?v=lofi-contours-1';
+import {treasureArt} from './treasure-art.mjs?v=lofi-contours-1';
+import {skillIcon,artifactIcon} from './upgrade-icons.mjs?v=lofi-contours-1';
+import {formatGlow,getGlowCapacity} from './vitality.mjs?v=lofi-contours-1';
 
 const esc=value=>String(value??'').replace(/[&<>"']/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
 
