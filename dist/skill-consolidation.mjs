@@ -25,7 +25,7 @@ export function consolidateSkills(definitions){
   const main=['main','proximity','afterglow'].includes(s.branch);
   result[id]={...s,retired:main,treeTab:main?'main':'companion',treeGroup:s.incrementBase||s.id,treeStage:s.incrementStage||1,treeName:s.baseName||s.name};
  }
- for(const [tab,name,ids]of groups)ids.forEach((id,index)=>{const s=result[id];if(!s)return;Object.assign(s,{retired:false,treeTab:tab,treeGroup:ids[0],treeStage:index+1,treeName:name,name:ids.length>1?`${name} ${index+1}`:name,treeIcon:({Lift:'lift',Luminance:'sight',Momentum:'swift','Spark Vessel':'reserve','Glide Regeneration':'regen',Vitality:'heart','Trajectory Guide':'trajectory','Spark Sense':'beacon'})[name]||s.icon});
+ for(const [tab,name,ids]of groups)ids.forEach((id,index)=>{const s=result[id];if(!s)return;Object.assign(s,{retired:false,treeTab:tab,treeGroup:ids[0],treeStage:index+1,treeName:name,name:id==='main-dream-deep'?s.name:ids.length>1?`${name} ${index+1}`:name,treeIcon:({Lift:'lift',Luminance:'sight',Momentum:'swift','Spark Vessel':'reserve','Glide Regeneration':'regen',Vitality:'heart','Trajectory Guide':'trajectory','Spark Sense':'beacon'})[name]||s.icon});
   // Ranks on one marker are sequential; each keeps its own effect and price.
   if(index)s.requires=ids[index-1];
  });

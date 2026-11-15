@@ -14,7 +14,7 @@ export const MAIN_TUNING_SKILLS={
  'main-purifying-touch':node('main-purifying-touch','Purifying Touch',45,'main-kindled-touch','Touch a Dark Spark to turn it into 12 Sparks instead of dimming. Recharges in 10 seconds.','purify','Cleanse seeds'),
  'main-dream':node('main-dream','Dream',35,'main-sight','Rehearse the first 8s of each flight in golden light. Lifts are free. Wake at the end of your rehearsal with your pickups.','dream','Dream 8s'),
  'main-dream-long':node('main-dream-long','Long Dream',40,'main-dream','Extend rehearsals and preset playback to 12 seconds.','dream','Dream 12s'),
- 'main-dream-deep':node('main-dream-deep','Deep Dream',55,'main-dream-long','Rehearse 16 seconds. Once per map, Nightmare undoes a Lift that would cause a collision. Gain +70 Luminance during your saved opening and for 3 seconds after taking control.','dream','Dream 16s + Nightmare'),
+ 'main-dream-deep':node('main-dream-deep','Nightmare',55,'main-dream-long','Rehearse 16 seconds. Once per map, Nightmare undoes a Lift that would cause a collision. Gain +70 Luminance during your saved opening and for 3 seconds after taking control.','dream','Dream 16s + Nightmare'),
  'main-dream-wake':node('main-dream-wake','Gentle Awakening',30,'main-dream','After waking and tapping to resume, ease back to full speed over 4 seconds instead of 3.','dream','Soft wake'),
  'main-dream-sight':node('main-dream-sight','Lucid Luminance',35,'main-dream','Gain +70 Luminance during playback and the first 3s after you take control.','sight','Lucid Luminance'),
  'main-recovery':node('main-recovery','Renewal',30,'main-efficiency','Victory recovery becomes 55% Sparks; it scales with your vessel.','recovery','+5 Sparks recovery'),
