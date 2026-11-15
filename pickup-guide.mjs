@@ -1,7 +1,7 @@
-import {formatGlow} from './vitality.mjs?v=composed-worlds-1';
-import { PICKUP_TYPES, getPickupSpec, flashPowerupDescription } from './pickups.mjs?v=composed-worlds-1';
-import { pickupArtSvg } from './pickup-art.mjs?v=composed-worlds-1';
-import { normalizeCompanionRole, normalizeCompanionFleet } from './companion-abilities.mjs?v=composed-worlds-1';
+import {formatGlow} from './vitality.mjs?v=resonance-1';
+import { PICKUP_TYPES, getPickupSpec, flashPowerupDescription } from './pickups.mjs?v=resonance-1';
+import { pickupArtSvg } from './pickup-art.mjs?v=resonance-1';
+import { normalizeCompanionRole, normalizeCompanionFleet } from './companion-abilities.mjs?v=resonance-1';
 
 const esc = value => String(value ?? '').replace(/[&<>"']/g, char =>
   ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));

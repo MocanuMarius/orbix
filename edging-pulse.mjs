@@ -1,6 +1,6 @@
 // Risk-earned sight, plus bounded fuel recovery with Regenerative Pulse.
 // Neither outcome is a pickup or invokes artifact hooks.
-import { GLOW_DISPLAY_SCALE } from './vitality.mjs?v=composed-worlds-1';
+import { GLOW_DISPLAY_SCALE } from './vitality.mjs?v=resonance-1';
 const clamp = (n, lo, hi) => Math.min(hi, Math.max(lo, n));
 const smooth = n => n * n * (3 - 2 * n);
 const EPSILON = 1e-9;
@@ -163,6 +163,9 @@ export class EdgingPulse {
       }
       this.duration = number(e.mod?.edgingDuration, EDGING_PULSE_TUNING.duration, 1, 12);
       this.remaining = this.duration;this.burstOrigin.x=e.distance+e.player.x;this.burstOrigin.y=e.player.y;
+      e.radiateLight?.({id:'proximity',follow:'wisp',duration:this.duration,
+        radius:Math.hypot(e.width,e.height),color:'#bce9ff'});
+      e.sound?.('pulse');
       if(!this.regenerative||this.exhausted)e.setEvent?.('Edging Pulse · the way is revealed');
     }
   }

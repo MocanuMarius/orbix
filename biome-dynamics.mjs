@@ -1,8 +1,8 @@
-import { DRAFT_TUNING } from './drafts.mjs?v=composed-worlds-1';
-import { scenePropBounds } from './scene-props.mjs?v=composed-worlds-1';
-import { formatGlow } from './vitality.mjs?v=composed-worlds-1';
-import { lightVisibility } from './light-field.mjs?v=composed-worlds-1';
-import { inLanternRoom } from './lantern-layout.mjs?v=composed-worlds-1';
+import { DRAFT_TUNING } from './drafts.mjs?v=resonance-1';
+import { scenePropBounds } from './scene-props.mjs?v=resonance-1';
+import { formatGlow } from './vitality.mjs?v=resonance-1';
+import { lightVisibility } from './light-field.mjs?v=resonance-1';
+import { inLanternRoom } from './lantern-layout.mjs?v=resonance-1';
 
 // Small, deterministic actors attached to existing terrain. Static mountain
 // meshes never change, and each actor is used once: no repeatable currency farm.
@@ -183,13 +183,17 @@ export class BiomeDynamics {
         e.player.vy = Math.min(e.player.vy, -136 * sy);
         if (e.projection) e.projection.nextAt = -Infinity;
         e.setEvent?.(item.kind === 'spore' ? 'Puffcap · free lift' : 'Reed bubble · free lift');
+        e.radiateLight?.({id:item.id,x:item.x,y:item.y,radius:200,duration:1.5,color:item.color});
+        e.sound?.('flap');
       } else if (item.family === 'reveal') {
-        e.revealFromPickup?.(true); e.setEvent?.(item.kind === 'bell' ? 'Grave bell · path revealed' : 'Crystal resonance · path revealed');
+        e.revealFromPickup?.(true,item); e.setEvent?.(item.kind === 'bell' ? 'Grave bell · path revealed' : 'Crystal resonance · path revealed');
+        e.sound?.('bellwind');
       } else if (item.family === 'bloom') {
         const gain = Math.min(BIOME_DYNAMIC_TUNING.glowGift, Math.max(0, e.maxFlame - e.flame));
         e.flame += gain; e.flameRestored += gain;
         e.storeNaturalOverflow?.({id:item.id,kind:'light'},{fuel:BIOME_DYNAMIC_TUNING.glowGift},BIOME_DYNAMIC_TUNING.glowGift-gain);
         e.setEvent?.(gain > 0 ? `Seedpod · +${formatGlow(gain)} Sparks` : 'Seedpod · Sparks full');
+        e.sound?.('collect',{tier:2});
       }
       e.burst?.(item.x - e.distance, item.y, 9, item.color);
     }

@@ -1,4 +1,4 @@
-import {newState,createRun,chooseStartingGift} from './model.mjs?v=composed-worlds-1';
+import {newState,createRun,chooseStartingGift} from './model.mjs?v=resonance-1';
 
 export function createLanternMapInspectorState() {
  const state=newState();
