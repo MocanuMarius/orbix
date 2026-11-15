@@ -1,36 +1,65 @@
-import {makeWispSprite} from './companion-art.mjs?v=spark-field-guide-1';
-const canvas=document.querySelector('canvas'), c=canvas.getContext('2d'), sprite=makeWispSprite(document,30);
-const action=document.querySelector('#act'), message=document.querySelector('output'), panel=document.querySelector('aside'), wake=document.querySelector('#wake');
-let phase='ready',age=0,clock=0,last=0,spent=false;
-const startY=125,x=181,fall=t=>startY+12*t*t, lift=t=>startY-170*t+60*t*t;
-const roof=[[0,36],[50,43],[83,38],[122,53],[152,49],[169,61],[186,78],[199,71],[216,58],[237,62],[264,39],[309,33],[344,48],[390,33],[429,44],[478,28],[523,37],[575,30]];
-function go(next,label){phase=next;age=0;message.textContent=label;action.disabled=!['ready','done'].includes(next);action.textContent=next==='done'?'Replay':'Lift';}
-function activate(){if(phase==='done'){spent=false;go('ready','Lift beneath the arch');}else if(phase==='ready'&&!spent){spent=true;go('vision','0.25×');}}
-canvas.onclick=action.onclick=activate;
-wake.onclick=()=>{panel.hidden=true;go('saved','Lift undone');};
-document.addEventListener('keydown',e=>{if(e.code==='Space'&&document.activeElement.tagName!=='BUTTON'){e.preventDefault();activate();}});
-function polygon(points,ink){c.fillStyle=ink;c.beginPath();points.forEach(([u,v],i)=>i?c.lineTo(u,v):c.moveTo(u,v));c.closePath();c.fill();}
-function paint(now){
- const dt=last&&!document.hidden?Math.min(.05,(now-last)/1000):0;last=now;age+=dt;clock+=dt;
- if(phase==='vision'&&age>=2.12)go('blink','');
- if(phase==='blink'&&age>=1.1){go('waiting','');panel.hidden=false;wake.focus();}
- if(phase==='saved'&&age>=1.5)go('done','Nightmare spent · once per map');
- const vision=phase==='vision',sim=vision?age*.25:0,impact=.25;
- const offset=vision?sim*32:phase==='saved'?age*27:phase==='done'?40:0;
- c.fillStyle='#101c28';c.fillRect(0,0,560,208);
- for(let i=0;i<19;i++){let u=i*34-offset*.18;polygon([[u-28,176],[u+4,65+(i*37)%58],[u+38,180]],i%2?'#253343':'#1d2c37');}
- const edge=roof.map(([u,v])=>[u-offset,v]);polygon([[-50,-2],[580,-2],...edge.slice().reverse()],'#52615d');
- polygon([[-50,-2],[580,-2],...edge.slice().reverse().map(([u,v])=>[u,v-3])],'#263438');
- for(let i=0;i<110;i++){let u=(i*67)%600-offset,v=(i*17)%31;c.fillStyle=i%2?'#344448':'#293a40';c.fillRect(u,v,3+i%10,2);}
- const floor=Array.from({length:37},(_,i)=>[i*18-40-offset,177+Math.sin(i*1.9)*4+Math.cos(i*.67)*6]);polygon([...floor,[600,208],[-60,208]],'#4a5853');polygon([...floor.map(([u,v])=>[u,v+3]),[600,208],[-60,208]],'#263636');
- const y=vision?lift(Math.min(sim,impact)):phase==='saved'?fall(Math.min(age,1.5)):phase==='done'?fall(1.5):startY;
- const flash=phase==='saved'&&age<1?Math.pow(Math.sin(age*3*Math.PI),2):0;
- const g=c.createRadialGradient(x,y,0,x,y,34+flash*9);g.addColorStop(0,flash>.1?'#81caff':'#e4e5a9');g.addColorStop(1,'transparent');c.fillStyle=g;c.fillRect(x-45,y-45,90,90);
- c.imageSmoothingEnabled=false;
- if(!vision||sim<impact){c.drawImage(sprite,x-15,y-15,30,30);if(flash){c.globalAlpha=flash;c.fillStyle='#91d5ff';c.beginPath();c.arc(x,y,10,0,Math.PI*2);c.fill();c.globalAlpha=1;}}
- else{const p=(sim-impact)/.28;for(let i=0;i<48;i++){const a=i*2.4,r=(3+i%8)+p*(9+i%19);c.globalAlpha=Math.max(0,1-p*.9);c.fillStyle=i%3?'#dae7db':'#83bcd2';c.fillRect(Math.round(x+Math.cos(a)*r),Math.round(y+Math.sin(a)*r+9*p*p),2,2);}c.globalAlpha=1;}
- if(vision){c.textAlign='center';c.font='18px Pixel';c.fillStyle='#e6e6ce';c.fillText('0.25×',280,112);}
- if(phase==='blink'){const opening=age<.42?1-age/.42:age<.62?0:Math.min(1,(age-.62)/.48);for(let u=0;u<560;u+=2){const aperture=opening*170*(1-.32*((u-280)/280)**2);c.fillStyle='#020407';c.fillRect(u,0,2,Math.max(0,105-aperture));c.fillRect(u,104+aperture,2,105);}}
- requestAnimationFrame(paint);
+import {WispFlight,FLIGHT_TUNING,circleHitsObstacle} from './flight.mjs?v=spark-field-guide-1';
+import {FlightProjection} from './flight-projection.mjs?v=spark-field-guide-1';
+import {getRunModifiers} from './model.mjs?v=spark-field-guide-1';
+import {glowPoints} from './vitality.mjs?v=spark-field-guide-1';
+const $=id=>document.getElementById(id),canvas=document.querySelector('canvas');
+const forecast=new FlightProjection(FLIGHT_TUNING,circleHitsObstacle);
+let phase='loading',spent=false,flashStart=-Infinity;
+const node={id:'nightmare-rehearsal',levelId:'moonruins-bell-stair',name:'Bell Stair',terrain:'ruins',type:'flight',row:1,mapIndex:0,difficulty:1,duration:60};
+const e=new WispFlight({canvas,node,terrain:'ruins',duration:60,seed:1,flame:100,companions:['collector'],skills:{},modifiers:getRunModifiers({companions:['collector'],skills:{}}),onFinish:result=>{phase='ended';$('gate').hidden=false;$('gate').textContent=result.success?'Passage cleared':'The light scatters';},onPause:()=>{if(phase==='flying'){phase='ready';$('gate').hidden=false;$('gate').textContent='Tap to resume';}}});
+e.setMuted(true);
+function position(){
+ for(const obstacle of e.layout.obstacles.slice(0,10)){
+  for(let dx=-80;dx<=20;dx+=10)for(let y=30;y<e.height*.8;y+=5){
+   e.distance=e.previousDistance=obstacle.x+dx-e.player.x;e.player.y=e.previousPlayerY=y;
+   if(circleHitsObstacle(e.distance+e.player.x,y,e.player.radius,obstacle,e.time))continue;
+   const p=forecast.predict(e,1,[0]);
+   if(p.ceilingContact&&p.ceilingContact.time-e.time>.12&&!forecast.predict(e,1,[]).contact)return true;
+  }
+ }
+ return false;
 }
-requestAnimationFrame(paint);
+const positioned=position();e.start({paused:true});await e.ready;e.render();phase='ready';
+$('gate').textContent='Tap to begin';$('status').textContent=positioned?'Tap once to start, then Lift beneath the stone roof.':'Fly close to a roof, then Lift.';
+function blink(amount){for(const lid of document.querySelectorAll('.lid'))lid.style.transform='scaleY('+amount+')';}
+function nightmare(path){
+ spent=true;phase='vision';e.pause();
+ const ghost=Object.create(e);ghost.player={...e.player};ghost.dyingDuration=.38;
+ const first=path.points[0],last=path.points.at(-1);
+ let elapsed=0,previous=performance.now();
+ function frame(now){
+  elapsed+=document.hidden?0:Math.min(.05,(now-previous)/1000);previous=now;
+  const t=first.time+elapsed*.25,points=path.points;
+  const j=points.findIndex(p=>p.time>=t);
+  const a=j>0?points[j-1]:last,b=j>0?points[j]:last;
+  const f=j>0?(t-a.time)/(b.time-a.time):0;
+  ghost.distance=ghost.previousDistance=a.x+(b.x-a.x)*f-e.player.x;
+  ghost.player.y=ghost.previousPlayerY=a.y+(b.y-a.y)*f;
+  ghost.time=t;ghost.dying=t>=last.time;ghost.dyingAge=Math.max(0,t-last.time);ghost.deathCause='collision';
+  const closing=elapsed-(last.time-first.time+.38)*4;
+  if(closing<.42)ghost.render();else e.render();
+  blink(closing<0?0:closing<.42?closing/.42:closing<.6?1:Math.max(0,1-(closing-.6)/.45));
+  if(closing<1.05)requestAnimationFrame(frame);else{phase='waiting';$('speed').textContent='';$('wake').hidden=false;$('wake').focus();}
+ }
+ $('speed').textContent='0.25×';requestAnimationFrame(frame);
+}
+function press(){
+ if(phase==='ready'){phase='flying';$('gate').hidden=true;e.resume();return;}
+ if(phase!=='flying'||e.dying)return;
+ if(!spent&&e.availableGlow>=e.nextLiftCost){const p=forecast.predict(e,1,[0]);if(p.contact&&!p.uncertain&&!forecast.predict(e,1,[]).contact){nightmare(p);return;}}
+ e.beginLiftInput();
+}
+$('flight-frame').onpointerdown=ev=>{if(ev.isPrimary&&ev.button===0)press();};
+$('flight-frame').onpointerup=()=>e.endLiftInput();
+$('flight-frame').onclick=ev=>{if(ev.detail===0)press();};
+$('restart').onclick=()=>location.reload();
+$('wake').onclick=()=>{phase='flying';$('wake').hidden=true;$('flight-frame').focus();flashStart=performance.now();$('status').textContent='Nightmare spent · continue flying';e.resume();};
+function hud(now){
+ $('fuel').textContent=glowPoints(e.flame)+' Sparks';
+ if(phase==='flying')$('speed').textContent=e.resumeRemaining>0?e.resumeScale.toFixed(2)+'×':'';
+ const f=(now-flashStart)/1000,flash=$('flash');
+ flash.style.opacity=f>=0&&f<1?String(Math.sin(3*Math.PI*f)**2):'0';
+ if(f<1){flash.style.left=100*e.player.x/e.width+'%';flash.style.top=100*e.player.y/e.height+'%';}
+ requestAnimationFrame(hud);
+}
+requestAnimationFrame(hud);
