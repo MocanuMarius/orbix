@@ -1,2 +1,2 @@
-import {branchTreeMarkup} from './skill-tree.mjs?v=spark-choices-2';
+import {branchTreeMarkup} from './skill-tree.mjs?v=exit-packing-1';
 export function mainWispTreeMarkup(options){return branchTreeMarkup({...options,branch:'main'});}

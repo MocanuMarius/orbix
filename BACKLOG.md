@@ -217,3 +217,14 @@ Resume at **Search Spark**, the next unrated item (30 Stored Sparks base, +12% C
 - [x] Check the 48 course views and phone landscape preview layout.
 - [x] Player approved the imported art scale, palette and granularity.
 - [x] Roll the approved art direction into the main public game as authored-biomes-1.
+
+
+## Exit packing release — 15 November 2026
+
+- [x] Convert remaining flight Sparks to Stored Sparks automatically at a successful exit, using current Storage efficiency and fractional carry. The finite reserve packs independently of the pickup-overflow allowance.
+- [x] Drain the displayed meter during the clear animation and finish any preceding parcel before sending the last parcel. No extra reward popup.
+- [x] Consume the converted reserve, then apply baseline 50% checkpoint recovery. Rest refills do not mint currency. Restore Renewal, Last Spark and Earned Rest to the skill book.
+- [x] Reconcile clear receipts, elite reward totals and bounded pact bonuses with exit packing; keep failed attempts and practice isolated.
+- [ ] Continue the separate 60%-collection/progression balance goal. Its experimental supply pruning and later-map pressure are excluded from this release: the delayed, visibility-limited controller showed excessive starvation.
+
+Verification: focused transaction/engine/reward checks; 24 opening-flight physics simulations; 48 campaign economic scenarios across 48 course variants and twelve biomes. Economic scenarios are inventory models, not measured human win rates. The unchanged opening cohort clears 17/24 with seven terrain failures, three of those at low fuel; this is regression evidence, not proof of finished balance.

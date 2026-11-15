@@ -11,7 +11,7 @@ const ready=(elite=false,practice=false)=>{
  assert.ok(finishFlight(r,{success:true,flame:40,collected:4}));return s;
 };
 test('ordinary clears offer currency without artifacts; elite choices cannot be melted',()=>{
- const ordinary=ready();assert.equal(ordinary.run.flightReward,null);assert.equal(ordinary.run.victoryPending,false);assert.equal(flightRewardMarkup(ordinary),'');assert.equal(ordinary.run.lastFlight.completionBonus,20);
+ const ordinary=ready();assert.equal(ordinary.run.flightReward,null);assert.equal(ordinary.run.victoryPending,false);assert.equal(flightRewardMarkup(ordinary),'');assert.equal(ordinary.run.lastFlight.completionBonus,15);
  for(let seed=0;seed<60;seed++){
   const s=newState();s.run=createRun(s.profile,`pair-${seed}`);const r=s.run;r.stats.flights=1;
   const node=getChoices(r)[0];node.elite=true;selectNode(r,node.id);beginFlightAttempt(r);finishFlight(r,{success:true,flame:60});
@@ -34,7 +34,7 @@ test('reward shows two readable choices and no slot controls; claimed effect rem
  const s=ready(true);s.run.flightReward.offers=['echo-bell','glass-lantern'];s.run.companions=['collector'];
  const options={artifactArt:id=>`<svg data-artifact="${id}"></svg>`};
  const before=flightRewardMarkup(s,options);assert.equal((before.match(/<article /g)||[]).length,2);assert.match(before,/Collector delivers a Spark/);assert.match(before,/Choose one/);assert.doesNotMatch(before,/data-reward-slot|Equip and replace|SPARKS RECOVERED|Packed Light/);
- assert.ok(chooseFlightReward(s,'echo-bell'));const after=flightRewardMarkup(s,options);assert.equal((after.match(/<article /g)||[]).length,1);assert.match(after,/Active for this run/);assert.match(after,/victory-next/);
+ assert.ok(chooseFlightReward(s,'echo-bell'));const after=flightRewardMarkup(s,options);assert.equal((after.match(/<article /g)||[]).length,1);assert.match(after,/Active permanently/);assert.match(after,/victory-next/);
 });
 test('resume countdown keeps physics blocked for all three seconds and supports cancellation',()=>{
  let clock=0,callback,completed=0;const number={textContent:'3'},bar={style:{}},panel={querySelector:s=>s==='b'?number:bar,setAttribute(){}};

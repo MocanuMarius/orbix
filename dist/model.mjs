@@ -1,37 +1,37 @@
-import {collectorPreference,learnedCollectorPreferences} from './collector-preferences.mjs?v=spark-choices-2';
-import {FLIGHT_PACTS,pactOffers,activeFlightPact,pactBonus} from './flight-pacts.mjs?v=spark-choices-2';
-import {chestRewardPair} from './chest-rewards.mjs?v=spark-choices-2';
-import {STARTING_GIFTS} from './starting-gifts.mjs?v=spark-choices-2';
-import {EVENT_EDITION,eventChoices,rollPrism} from './event-choices.mjs?v=spark-choices-2';
-import {GUARDIAN_RELICS} from './guardian-artifacts.mjs?v=spark-choices-2';
-import {ATLAS_FORECASTS,atlasBranches} from './night-atlas.mjs?v=spark-choices-2';
-import {getRouteBonus,awardRouteBonus} from './route-bonuses.mjs?v=spark-choices-2';
-export {getRouteBonus,getRouteBonusCandidates,nextBonusFlightNodes} from './route-bonuses.mjs?v=spark-choices-2';
-import {consolidateSkills,refundRetiredSkills} from './skill-consolidation.mjs?v=spark-choices-2';
-import {PROXIMITY_SKILLS} from './proximity-skills.mjs?v=spark-choices-2';
-import {getGuardianForMap,getBossPreview} from './boss.mjs?v=spark-choices-2';
-import {guardianMapTheme} from './map-theme.mjs?v=spark-choices-2';
-import {getFlightLengthProfile} from './level-length.mjs?v=spark-choices-2';
-import {cleanOnboarding} from './onboarding.mjs?v=spark-choices-2';
-import {CONDENSED_TUNING,getCondensationRules,condenseGlow,getKeptLightDividend,getFlightPackingLimit} from './condensed-glow.mjs?v=spark-choices-2';
-import {CONSUMABLE_ARTIFACTS,EVOLVING_ARTIFACTS,getArtifactStackPreview} from './artifact-info.mjs?v=spark-choices-2';
-import {getFlightClearReward} from './checkpoint-rewards.mjs?v=spark-choices-2';
-export {getCondensationRules} from './condensed-glow.mjs?v=spark-choices-2';
-import {ROUTE_RECIPES,ROUTE_TOPOLOGY_VERSION,MAP_STOP_COUNT,REWARD_THEMES,nodeEconomy} from './route-recipes.mjs?v=spark-choices-2';
-import {COMPANION_ABILITIES,getCompanionUnlock,normalizeCompanionFleet} from './companion-abilities.mjs?v=spark-choices-2';
-import {MAIN_TUNING_SKILLS} from './main-tuning.mjs?v=spark-choices-2';
-import {activePassageBoons,activeEventFavors,grantEventFavor,spendPreparationClear} from './passage-preparations.mjs?v=spark-choices-2';
-import {STARTING_CONDENSED_GLOW,getGlowCapacity,getRestGlowBonus,REST_GLOW_TUNING,glowText} from './vitality.mjs?v=spark-choices-2';
-import {expandSkillSteps,skillProgress} from './skill-increments.mjs?v=spark-choices-2';
-import {MAX_ASCENSION} from './ascent.mjs?v=spark-choices-2';
-import {EXPANDED_SKILLS,applyExpandedSkills} from './skill-paths.mjs?v=spark-choices-2';
+import {collectorPreference,learnedCollectorPreferences} from './collector-preferences.mjs?v=exit-packing-1';
+import {FLIGHT_PACTS,pactOffers,activeFlightPact,pactBonus} from './flight-pacts.mjs?v=exit-packing-1';
+import {chestRewardPair} from './chest-rewards.mjs?v=exit-packing-1';
+import {STARTING_GIFTS} from './starting-gifts.mjs?v=exit-packing-1';
+import {EVENT_EDITION,eventChoices,rollPrism} from './event-choices.mjs?v=exit-packing-1';
+import {GUARDIAN_RELICS} from './guardian-artifacts.mjs?v=exit-packing-1';
+import {ATLAS_FORECASTS,atlasBranches} from './night-atlas.mjs?v=exit-packing-1';
+import {getRouteBonus,awardRouteBonus} from './route-bonuses.mjs?v=exit-packing-1';
+export {getRouteBonus,getRouteBonusCandidates,nextBonusFlightNodes} from './route-bonuses.mjs?v=exit-packing-1';
+import {consolidateSkills,refundRetiredSkills} from './skill-consolidation.mjs?v=exit-packing-1';
+import {PROXIMITY_SKILLS} from './proximity-skills.mjs?v=exit-packing-1';
+import {getGuardianForMap,getBossPreview} from './boss.mjs?v=exit-packing-1';
+import {guardianMapTheme} from './map-theme.mjs?v=exit-packing-1';
+import {getFlightLengthProfile} from './level-length.mjs?v=exit-packing-1';
+import {cleanOnboarding} from './onboarding.mjs?v=exit-packing-1';
+import {CONDENSED_TUNING,getCondensationRules,condenseGlow,getKeptLightDividend,getFlightPackingLimit,packExitReserve} from './condensed-glow.mjs?v=exit-packing-1';
+import {CONSUMABLE_ARTIFACTS,EVOLVING_ARTIFACTS,getArtifactStackPreview} from './artifact-info.mjs?v=exit-packing-1';
+import {getFlightClearReward} from './checkpoint-rewards.mjs?v=exit-packing-1';
+export {getCondensationRules} from './condensed-glow.mjs?v=exit-packing-1';
+import {ROUTE_RECIPES,ROUTE_TOPOLOGY_VERSION,MAP_STOP_COUNT,REWARD_THEMES,nodeEconomy} from './route-recipes.mjs?v=exit-packing-1';
+import {COMPANION_ABILITIES,getCompanionUnlock,normalizeCompanionFleet} from './companion-abilities.mjs?v=exit-packing-1';
+import {MAIN_TUNING_SKILLS} from './main-tuning.mjs?v=exit-packing-1';
+import {activePassageBoons,activeEventFavors,grantEventFavor,spendPreparationClear} from './passage-preparations.mjs?v=exit-packing-1';
+import {STARTING_CONDENSED_GLOW,getGlowCapacity,getRestGlowBonus,REST_GLOW_TUNING,glowText} from './vitality.mjs?v=exit-packing-1';
+import {expandSkillSteps,skillProgress} from './skill-increments.mjs?v=exit-packing-1';
+import {MAX_ASCENSION} from './ascent.mjs?v=exit-packing-1';
+import {EXPANDED_SKILLS,applyExpandedSkills} from './skill-paths.mjs?v=exit-packing-1';
 /** Run-owned skills and currency; persistent ascension unlocks and boss artifacts. */
-import { FLAME_TUNING, LIFE_TUNING, getLifeCapacity } from './vitality.mjs?v=spark-choices-2';
-import { getBiomeLevelIdentity } from './level-catalog.mjs?v=spark-choices-2';
-import { BIOMES } from './biomes.mjs?v=spark-choices-2';
-import { EVENT_SCENARIOS } from './map-guide.mjs?v=spark-choices-2';
-import {contextualEventChoices,resolvePilgrimVow,ROUTE_PREPARATION} from './contextual-events.mjs?v=spark-choices-2';
-import {TREASURE_KINDS, describeTreasure, treasureChoices, treasureRank, grantTreasureGift, treasureClearDividend, LENS_SIGHT, LENS_RECOVERY, settleTreasureWager} from './treasure.mjs?v=spark-choices-2';
+import { FLAME_TUNING, LIFE_TUNING, getLifeCapacity } from './vitality.mjs?v=exit-packing-1';
+import { getBiomeLevelIdentity } from './level-catalog.mjs?v=exit-packing-1';
+import { BIOMES } from './biomes.mjs?v=exit-packing-1';
+import { EVENT_SCENARIOS } from './map-guide.mjs?v=exit-packing-1';
+import {contextualEventChoices,resolvePilgrimVow,ROUTE_PREPARATION} from './contextual-events.mjs?v=exit-packing-1';
+import {TREASURE_KINDS, describeTreasure, treasureChoices, treasureRank, grantTreasureGift, treasureClearDividend, LENS_SIGHT, LENS_RECOVERY, settleTreasureWager} from './treasure.mjs?v=exit-packing-1';
 export const SAVE_KEY='wispbound.save.condensed.v7';
 export const CAMPAIGN_MAP_NAMES=Object.freeze(['The Forgotten Verge','The Rootbound March','The Warden’s Reach']);
 export const TERRAINS=Object.freeze({ruins:{id:'ruins',name:'Sunken Ruins',color:'#cdb183',description:'Broken homes, worn arches and overgrown stone.'},canopy:{id:'canopy',name:'Luminous Canopy',color:'#94b48a',description:'Hollow trees, hanging roots and sheltered forest passages.'},storm:{id:'storm',name:'Stormglass Peaks',color:'#a8bbca',description:'Pine ridges, old mine timbers and local draft puffs.'}});
@@ -606,6 +606,8 @@ export function finishFlight(run,result){
  const consumedArtifacts=commitArtifactCharges(run,result.artifactCharges);
  let max=getGlowCapacity(run);const remaining=clamp(finite(result.flame,run.flame),0,max),recovery=getRecoveryRules(run);
  const pickupCondensedGlow=count(result.condensedGlow,getFlightPackingLimit(run.skills)),completionBonus=getFlightClearReward(n,run);
+ const exitPacking=packExitReserve(remaining,{rules:getRunModifiers(run).condensationRules,
+  remainder:finite(result.condensedRemainder,run.condensedRemainder)});
  const keptLightDividend=completionBonus&&!run.isTutorial?count(attempt?.keptLightDividend,10):0;
  const storageBonus=completionBonus&&!run.isTutorial?count(result.storageBonus,run.skills['packing-deep-cache']?4:run.skills['packing-hand-seal']?2:0):0;
  spendPreparationClear(run,attempt);
@@ -613,14 +615,14 @@ export function finishFlight(run,result){
  max=getGlowCapacity(run);
  const challengeComplete=attempt?.bonusId?!!routeBonus:result.challengeComplete===true;
  const rate=recovery.rate+(remaining<max*.2?recovery.rescue:0)+(challengeComplete?recovery.challenge:0),amount=max*rate+10*treasureRank(run,'wick');
- run.flame=energy(Math.min(max,remaining+amount));
+ run.flame=energy(Math.min(max,amount));
  run.nextFlightBurden=false;run.nextFlightBlessing=false;
  run.stats.flights++;run.mapFlights++;run.stats.collected+=count(result.collected);run.stats.elites+=n.elite?1:0;
  if(challengeComplete)run.stats.challenges++;
- if(run.isTutorial)run.practiceCondensedGlow+=pickupCondensedGlow+completionBonus;
- else{queue(run,completionBonus,'flight-clear');queue(run,pickupCondensedGlow,'flight');if(routeBonus?.amount)queue(run,routeBonus.amount,'route-bonus');}
- run.condensedRemainder=clamp(finite(result.condensedRemainder,run.condensedRemainder),0,.999999999);
- run.condensedEarned=count(run.condensedEarned)+pickupCondensedGlow+completionBonus+(routeBonus?.amount||0);
+ if(run.isTutorial)run.practiceCondensedGlow+=pickupCondensedGlow+exitPacking.amount+completionBonus;
+ else{queue(run,completionBonus,'flight-clear');queue(run,pickupCondensedGlow,'flight');queue(run,exitPacking.amount,'exit-packing');if(routeBonus?.amount)queue(run,routeBonus.amount,'route-bonus');}
+ run.condensedRemainder=exitPacking.remainder;
+ run.condensedEarned=count(run.condensedEarned)+pickupCondensedGlow+exitPacking.amount+completionBonus+(routeBonus?.amount||0);
  run.lastFlight={success:true,nodeId:n.id,mapIndex:run.mapIndex,difficulty:run.difficulty,flightNumber:n.flightNumber,terrain:n.terrain,elite:n.elite,boss:n.boss===true,completionBonus,pickupCondensedGlow,routeBonus,challengeBonus:0,challengeComplete,securedCondensedGlow:0,collected:count(result.collected),flame:remaining,pickupOverflow:Math.max(0,finite(result.pickupOverflow)),consumedArtifacts,recovery:{amount,rate,before:remaining,after:run.flame,overflow:0,stored:0}};
  if(keptLightDividend){
   queue(run,keptLightDividend,'kept-light');
@@ -641,7 +643,9 @@ export function finishFlight(run,result){
    run.condensedEarned+=wager.reward;
   }
  }
- const pactIncome=pactBonus(attempt?.flightPact,result,pickupCondensedGlow);
+ run.lastFlight.exitPacking=exitPacking;
+ run.lastFlight.recovery.before=0;
+ const pactIncome=pactBonus(attempt?.flightPact,result,pickupCondensedGlow+exitPacking.amount);
  if(pactIncome){queue(run,pactIncome,'flight-pact');run.condensedEarned+=pactIncome;run.lastFlight.pactBonus=pactIncome;run.lastFlight.flightPact=attempt.flightPact;}
  const chestIncome=treasureClearDividend(run,result);
  if(chestIncome.amount){
@@ -667,7 +671,7 @@ function secureBoss(state){
 function settleRunRewards(r){
  const amount=count(r.pendingCondensedGlow),earned=r.pendingRewards.reduce((sum,reward)=>sum+(reward.kind==='respec'?0:count(reward.amount)),0);
  r.condensedGlow=count(r.condensedGlow)+amount;r.securedCondensedGlow+=Math.min(amount,earned);
- for(const reward of r.pendingRewards)if(['flight','flight-clear','route-bonus','kept-light','storage-bonus'].includes(reward.kind)&&r.lastFlight?.nodeId===reward.nodeId)r.lastFlight.securedCondensedGlow+=reward.amount;
+ for(const reward of r.pendingRewards)if(['flight','flight-clear','exit-packing','route-bonus','kept-light','storage-bonus','flight-pact','pilgrim-vow','treasure-wager','chest-dividend'].includes(reward.kind)&&r.lastFlight?.nodeId===reward.nodeId)r.lastFlight.securedCondensedGlow+=reward.amount;
  if(amount)r.lastCheckpointReward={amount,rewards:copy(r.pendingRewards)};
  r.pendingCondensedGlow=0;r.pendingRewards=[];
  return amount;
@@ -680,7 +684,7 @@ export function settleCheckpoint(state){
 function flightClearReceipt(run){
  const flight=run.lastFlight;
  return {nodeId:flight.nodeId,mapIndex:flight.mapIndex,
-  amount:count(flight.completionBonus)+count(flight.pickupCondensedGlow)+count(flight.vow?.reward)+count(flight.treasureWager?.reward)+count(flight.routeBonus?.amount)+count(flight.chestIncome?.amount)+count(flight.keptLightDividend)+count(flight.storageBonus),
+  amount:count(flight.completionBonus)+count(flight.pickupCondensedGlow)+count(flight.exitPacking?.amount)+count(flight.pactBonus)+count(flight.vow?.reward)+count(flight.treasureWager?.reward)+count(flight.routeBonus?.amount)+count(flight.chestIncome?.amount)+count(flight.keptLightDividend)+count(flight.storageBonus),
   storageBonus:count(flight.storageBonus),
   notes:[flight.vow?.message,flight.treasureWager?.message,flight.routeBonus?.message,flight.chestIncome?.message].filter(Boolean)};
 }

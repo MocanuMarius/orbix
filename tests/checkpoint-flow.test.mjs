@@ -25,15 +25,15 @@ test('each ordinary clear immediately secures a fixed reward plus overflow once,
   s.run.skills['main-afterglow']=1;s.run.skills['afterglow-anchor']=2;
   assert.ok(M.finishFlight(s.run,{success:true,flame:60,condensedGlow:overflow,completionBonus:9999}));
   assert.equal(s.run.lastFlight.completionBonus,20);assert.equal(s.run.pendingCondensedGlow,0);
-  assert.equal(s.run.condensedGlow,initial+20+overflow,'the ordinary clear banks immediately');
+  assert.equal(s.run.condensedGlow,initial+26+overflow,'the ordinary clear banks immediately');
   assert.equal(s.run.flightReward,null);assert.equal(s.run.victoryPending,false);
   assert.equal(M.finishFlight(s.run,{success:true,condensedGlow:9999}),false);
   s=reload(s);assert.equal(s.run.pendingCondensedGlow,0,'loading cannot recreate a banked reward');
-  assert.equal(M.settleCheckpoint(s),0);assert.equal(s.run.condensedGlow,initial+20+overflow);
-  assert.equal(s.run.lastFlight.securedCondensedGlow,20+overflow);assert.equal(s.run.condensedEarned,20+overflow);
+  assert.equal(M.settleCheckpoint(s),0);assert.equal(s.run.condensedGlow,initial+26+overflow);
+  assert.equal(s.run.lastFlight.securedCondensedGlow,26+overflow);assert.equal(s.run.condensedEarned,26+overflow);
   assert.equal(M.settleCheckpoint(reload(s)),0);
   assert.equal(flightRewardMarkup(s,{artifactArt:()=>'<svg></svg>'}),'','ordinary clears have no reward page');
-  assert.equal(M.takeClearRewardReceipt(s.run).amount,20+overflow);
+  assert.equal(M.takeClearRewardReceipt(s.run).amount,26+overflow);
   assert.equal(M.takeClearRewardReceipt(s.run),null,'the map receipt is consumed only once');
  }
  assert.equal(FLIGHT_CLEAR_REWARD,20);assert.equal(getFlightClearReward({type:'flight',elite:true}),25);
@@ -46,14 +46,14 @@ test('failed attempts earn nothing; a successful retry earns one clear reward',(
  assert.ok(M.finishFlight(s.run,{success:false,condensedGlow:400}));assert.equal(M.settleCheckpoint(s),0);
  assert.equal(s.run.condensedGlow,initial);assert.equal(s.run.lives,2);
  s.run.deathPending=false;start(s);assert.ok(M.finishFlight(s.run,{success:true,flame:40}));
- assert.equal(s.run.condensedGlow,initial+20);assert.equal(M.settleCheckpoint(s),0);
- assert.equal(s.run.lastFlight.securedCondensedGlow,20);
+ assert.equal(s.run.condensedGlow,initial+22);assert.equal(M.settleCheckpoint(s),0);
+ assert.equal(s.run.lastFlight.securedCondensedGlow,22);
 });
 
 test('practice rewards stay in practice; final guardian offers a permanent collection discovery',()=>{
  const practice=M.newState();M.startTutorial(practice);const profile=structuredClone(practice.profile),wallet=practice.run.practiceCondensedGlow;start(practice);
  assert.ok(M.finishFlight(practice.run,{success:true,flame:70,condensedGlow:7}));
- assert.equal(practice.run.practiceCondensedGlow,wallet+22);assert.equal(practice.run.condensedGlow,0);
+ assert.equal(practice.run.practiceCondensedGlow,wallet+25);assert.equal(practice.run.condensedGlow,0);
  assert.equal(M.settleCheckpoint(practice),0);assert.deepEqual(practice.profile,profile);
  const boss=fixture('last-guardian');start(boss);Object.assign(boss.run.current,{type:'finale',boss:true,mapIndex:2});boss.run.mapIndex=2;
  assert.ok(M.finishFlight(boss.run,{success:true,flame:60}));M.settleCheckpoint(boss);

@@ -28,3 +28,11 @@ export function condenseGlow(rawInternal,{rules={},remainder=0,limit=Infinity,pa
  const room=Math.max(0,limit-Math.max(0,finite(packed))),amount=Math.min(room,Math.floor(total+1e-9));
  return{amount,remainder:room<=amount?0:Math.round(Math.max(0,total-amount)*1e9)/1e9,multiplier,rawGlow};
 }
+
+// Exit reserves use the conversion rate, independently of the overflow harvest
+// allowance: reaching that allowance must not throw away the final reserve.
+// The vessel's finite capacity bounds this payment. No pickup effects run.
+export function packExitReserve(remaining,{rules={},remainder=0}={}){
+ const reserve=Math.max(0,finite(remaining));
+ return {...condenseGlow(reserve,{rules,remainder}),reserve};
+}

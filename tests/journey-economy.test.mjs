@@ -57,9 +57,9 @@ test('pacts apply one declared penalty and one bounded clear-only bonus, with no
   assert.ok(M.selectNode(r,M.getChoices(r)[0].id));const clear=getFlightClearReward(r.current,r),wallet=r.condensedGlow;
   assert.ok(M.beginFlightAttempt(r));assert.equal(r.nextFlightPact,undefined);assert.equal(r.attemptEntry.flightPact,id);
   assert.ok(M.finishFlight(r,{success,flame:70,condensedGlow:10}));M.settleCheckpoint(s);
-  assert.equal(r.condensedGlow,wallet+(success?clear+10+10*(pact.multiplier-1):0));
+  assert.equal(r.condensedGlow,wallet+(success?clear+13+Math.min(pact.bonusLimit,13*(pact.multiplier-1)):0));
   assert.equal(M.finishFlight(r,{success:true,condensedGlow:999}),false);assert.equal(r.nextFlightPact,undefined);
-  if(success)assert.equal(r.lastFlight.pactBonus,10*(pact.multiplier-1));
+  if(success)assert.equal(r.lastFlight.pactBonus,Math.min(pact.bonusLimit,13*(pact.multiplier-1)));
  }
  const s=visitPact(1);assert.ok(M.resolveSupport(s.run,1));assert.equal(s.run.nextFlightPact,undefined);
 });

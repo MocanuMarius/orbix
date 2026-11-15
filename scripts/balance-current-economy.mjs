@@ -219,10 +219,10 @@ function runCase({seed,tier,role,style,policy,attrition=false,captureDelta=0,eff
    if(!flow.success){m.failures++;m.fuelFailures+=Number(flow.fuelFailure);m.collisionFailures+=Number(flow.collisionFailure);m.totalLostCurrency+=flow.condensedGlow;assert.equal(r.condensedGlow,before,'failed pickups cannot farm currency');assert.equal(r.condensedRemainder,remainder,'failed fractions roll back');}
    else{
     const receipt=r.lastFlight,secured=r.condensedGlow-before;
-    const expected=receipt.pickupCondensedGlow+receipt.completionBonus+(receipt.routeBonus?.amount||0)+(receipt.vow?.reward||0)
+    const expected=receipt.pickupCondensedGlow+(receipt.exitPacking?.amount||0)+receipt.completionBonus+(receipt.routeBonus?.amount||0)+(receipt.vow?.reward||0)
       +(receipt.treasureWager?.reward||0)+(receipt.chestIncome?.amount||0)+(receipt.keptLightDividend||0)+(receipt.storageBonus||0)+(receipt.pactBonus||0);
     assert.equal(secured,expected,'ordinary autobanking and checkpoint settlements reconcile');
-    m.flightIncome+=secured;m.packingIncome+=receipt.pickupCondensedGlow;m.clearIncome+=receipt.completionBonus;
+    m.flightIncome+=secured;m.packingIncome+=receipt.pickupCondensedGlow+(receipt.exitPacking?.amount||0);m.clearIncome+=receipt.completionBonus;
    }
    continue;
   }

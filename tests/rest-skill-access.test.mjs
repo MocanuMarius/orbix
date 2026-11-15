@@ -4,6 +4,7 @@ import * as M from '../dist/model.mjs';
 import {skillTreeState,skillTreeStatus} from '../dist/skill-tree-state.mjs';
 import {WispFlight} from '../dist/flight.mjs';
 import {treeDetail} from '../dist/living-tree.mjs';
+import {getFlightClearReward} from '../dist/checkpoint-rewards.mjs';
 
 const fresh=()=>{
  const state=M.newState();
@@ -19,7 +20,7 @@ function enterFlight(state){
 
 test('learn at the opening, a camp before its benefit, or after a win',()=>{
  const state=fresh(),r=state.run,start=r.condensedGlow;
- assert.ok(M.chooseStartingSkill(state,'proximity-awakening'));
+ assert.ok(M.chooseStartingGift(state,M.getStartingGiftOffers(r)[0].id));
  assert.equal(r.condensedGlow,start);
  for(const phase of ['map','support','briefing','map-clear']){
    r.phase=phase;
@@ -38,7 +39,7 @@ test('a paid live upgrade survives a loss, interrupted reload or clear, once',()
    const r=state.run;
    const price=M.getSkillCost(M.getSkillWallet(state),'main-efficiency');
    assert.ok(M.buyCheckpointSkill(state,'main-efficiency'));
-   const amount=1000-price;
+   const amount=1000-price,clearReward=getFlightClearReward(r.current,r);
    assert.equal(r.condensedGlow,amount);
    assert.equal(r.attemptEntry.skills['main-efficiency'],1);
    if(outcome==='reload'){
@@ -51,7 +52,7 @@ test('a paid live upgrade survives a loss, interrupted reload or clear, once',()
    }
    assert.equal(state.run.skills['main-efficiency'],1,outcome);
    assert.equal(state.run.skillPaid['main-efficiency'],price,outcome);
-   assert.equal(state.run.condensedGlow,amount+(outcome==='win'?23:0),outcome);
+   assert.equal(state.run.condensedGlow,amount+(outcome==='win'?clearReward+3+2:0),outcome);
  }
 });
 
