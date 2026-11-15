@@ -1,7 +1,7 @@
 <!doctype html><html><meta charset="utf-8"><title>Actual game video export</title><style>body{background:#0a151b;color:#ebedda;font:16px system-ui}#scene{position:relative;width:915px;height:412px}#scene canvas{position:absolute;inset:0;width:100%;height:100%}#output{width:480px;height:780px}button{padding:16px;font:inherit}</style><h1>Actual game edge recordings</h1><button id="record" disabled>Loading actual renderer…</button><p id="status" role="status">Preparing assets</p><div id="scene"><canvas id="game"></canvas></div><canvas id="output" width="960" height="1560"></canvas><script type="module">
-import {WispFlight,circleHitsObstacle} from '/flight.mjs?v=bold-edge-ideas-1';
-import {createBoundaryInspectorState,frameBoundaryInspection} from '/boundary-run-inspector.mjs?v=bold-edge-ideas-1';
-import {getRunModifiers} from '/model.mjs?v=bold-edge-ideas-1';
+import {WispFlight,circleHitsObstacle} from '/flight.mjs?v=biome-spirit-1';
+import {createBoundaryInspectorState,frameBoundaryInspection} from '/boundary-run-inspector.mjs?v=biome-spirit-1';
+import {getRunModifiers} from '/model.mjs?v=biome-spirit-1';
 const state=createBoundaryInspectorState(),run=state.run,node=run.current;
 const engine=new WispFlight({canvas:document.querySelector('#game'),node,terrain:node.terrain,seed:`${run.seed}-${node.id}`,duration:node.duration,flame:30,companions:['collector'],modifiers:getRunModifiers(run),boundaryStyle:'moon'});
 engine.paused=true;await engine.ready;await engine.environmentArtReady;

@@ -1,0 +1,38 @@
+<!doctype html><html><meta charset="utf-8"><title>Biome Spirit Fire recordings</title><style>body{background:#0a151b;color:#ebedda;font:16px system-ui}.scene{position:relative;width:915px;height:412px}.scene canvas{position:absolute;inset:0;width:100%;height:100%}#output{width:480px;height:1040px}button{padding:16px;font:inherit}</style><h1>Spirit Fire across biomes</h1><button id="record" disabled>Loading actual game…</button><p id="status" role="status">Preparing four real levels</p><div id="scenes"></div><canvas id="output" width="960" height="2080"></canvas><script type="module">
+import {WispFlight,circleHitsObstacle} from '/flight.mjs?v=biome-spirit-1';
+import {createBoundaryInspectorState,frameBoundaryInspection} from '/boundary-run-inspector.mjs?v=biome-spirit-1';
+import {getRunModifiers} from '/model.mjs?v=biome-spirit-1';
+const ids=['pinewood','frost','basalt','fungal'],courses=[3,1,2,3],titles=['OLDGROWTH PINES','FROSTBOUND REACH','BASALT FURNACE','SPORE HOLLOWS'],notes=['Sage light','Ice cyan','Copper amber','Lavender light'];
+const engines=[],paths=[];
+function safeInterval(e,x,t,previous){
+ const nearby=e.layout.obstacles.filter(o=>!o.destroyed&&Math.abs(o.x-x)<900),groups=[];let lo=null,last;
+ for(let y=e.player.radius+6;y<e.height-e.player.radius-6;y+=2){
+  const valid=!nearby.some(o=>circleHitsObstacle(x,y,e.player.radius+4,o,t,e.obstacleCenter(o)));
+  if(valid){if(lo===null)lo=y;last=y;}else if(lo!==null){groups.push([lo,last]);lo=null;}
+ }if(lo!==null)groups.push([lo,last]);
+ return groups.sort((a,b)=>{const score=g=>Math.abs(Math.max(g[0],Math.min(g[1],previous))-previous)-Math.min(50,g[1]-g[0])*.08;return score(a)-score(b);})[0]||[previous,previous];
+}
+for(let i=0;i<ids.length;i++){
+ const wrapper=document.createElement('div');wrapper.className='scene';const canvas=document.createElement('canvas');wrapper.append(canvas);document.querySelector('#scenes').append(wrapper);
+ const state=createBoundaryInspectorState(new URLSearchParams({biome:ids[i],course:courses[i]})),run=state.run,node=run.current;
+ const e=new WispFlight({canvas,node,terrain:node.terrain,seed:`${run.seed}-${node.id}`,duration:node.duration,flame:30,companions:['collector'],modifiers:getRunModifiers(run)});
+ e.paused=true;await e.ready;await e.environmentArtReady;if(!e.pixiReady||e.boundaryStyle!=='spectral')throw Error('Approved renderer not ready');frameBoundaryInspection(e);
+ const start=e.distance,path=[];let previous=e.player.y;
+ for(let frame=0;frame<360;frame++){
+  const t=frame/30,distance=start+t*19;e.time=t;const [lo,hi]=safeInterval(e,distance+e.player.x,t,previous),approach=(1-Math.cos(t*Math.PI/3))*.5;
+  const mid=(lo+hi)/2,y=mid+(Math.max(mid,hi-6)-mid)*approach;path.push({t,distance,y});previous=y;
+ }engines.push(e);paths.push(path);
+}
+const output=document.querySelector('#output'),c=output.getContext('2d'),status=document.querySelector('#status'),button=document.querySelector('#record');
+function draw(frame){
+ c.fillStyle='#071217';c.fillRect(0,0,960,2080);c.imageSmoothingEnabled=false;
+ for(let i=0;i<engines.length;i++){
+  const e=engines[i],{t,distance,y}=paths[i][frame];e.time=t;e.distance=e.previousDistance=distance;e.player.y=e.previousPlayerY=y;e.player.vy=frame?(y-paths[i][frame-1].y)*30:0;e.accumulator=0;e.lastFlapTime=t-(Math.cos(t*Math.PI/3)>0?.2:1);e.render();
+  const view=e.pixiView.canvas,offset=i*520;c.fillStyle='#122329';c.fillRect(0,offset,960,48);c.fillStyle=e.contactEdgePalette.core;c.font='bold 23px monospace';c.fillText(titles[i],22,offset+32);c.textAlign='right';c.font='18px monospace';c.fillText(notes[i],938,offset+31);c.textAlign='left';
+  const z=t<2?1:1+Math.min(1,(t-2)/.8),sw=view.width/z,sh=sw*472/960,px=e.player.x/e.width*view.width,py=y/e.height*view.height;
+  const sx=Math.max(0,Math.min(view.width-sw,px-sw*.28)),sy=Math.max(0,Math.min(view.height-sh,py-sh*.48));c.drawImage(view,sx,sy,sw,sh,0,offset+48,960,472);
+ }
+}
+draw(0);button.disabled=false;button.textContent='Export biome videos';status.textContent='Ready · four actual levels · approved Spirit Fire default';
+button.onclick=async()=>{button.disabled=true;try{for(let frame=0;frame<360;frame++){draw(frame);const blob=await new Promise(resolve=>output.toBlob(resolve,'image/png'));const response=await fetch('/frame?index='+frame,{method:'POST',body:blob});if(!response.ok)throw Error('Frame save failed');if(frame%15===0)status.textContent=`Rendering biome frame ${frame+1}/360`;}status.textContent='Export complete · 360 frames · four biome palettes';button.textContent='Export complete';}catch(error){status.textContent='Export failed: '+error.message;button.disabled=false;}};
+</script></html>

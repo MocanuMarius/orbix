@@ -1,7 +1,7 @@
-import {drawPickup} from './pickup-art.mjs?v=bold-edge-ideas-1';
-import {pickupKind} from './pickups.mjs?v=bold-edge-ideas-1';
-import {sparkArtScale, sparkBodyRadius, sparkMass} from './spark-size.mjs?v=bold-edge-ideas-1';
-import {lightVisibility} from './light-field.mjs?v=bold-edge-ideas-1';
+import {drawPickup} from './pickup-art.mjs?v=biome-spirit-1';
+import {pickupKind} from './pickups.mjs?v=biome-spirit-1';
+import {sparkArtScale, sparkBodyRadius, sparkMass} from './spark-size.mjs?v=biome-spirit-1';
+import {lightVisibility} from './light-field.mjs?v=biome-spirit-1';
 
 export function glowSenseCues(e, {
   distance = e.renderDistance ?? e.distance,

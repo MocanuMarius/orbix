@@ -1,5 +1,7 @@
 # Four distinct contact-edge concepts
 
+Spirit Fire was subsequently selected by the player and adopted with biome-specific colors. See [the approved biome treatment](biome-spirit-fire.md). The recordings on this page document the earlier choice between four alternatives.
+
 The former narrow ivory/green/amber rim variants were too similar. This preview changes the visual structure, not only the color:
 
 - **Carved Stone:** a broad, matte mineral bevel, chunky depth changes, dark cuts and an ivory lip. Static material rather than an animated effect.

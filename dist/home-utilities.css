@@ -92,7 +92,7 @@ html body[data-screen=home] #app .test-controls>.tutorial-skip-toggle{
 }
 .tutorial-skip-box{
  flex:none;display:grid;place-items:center;width:24px;height:24px;
- border:3px solid #566b70;border-image:url('assets/rough-frame.svg?v=bold-edge-ideas-1') 8 / 3px / 0 stretch;
+ border:3px solid #566b70;border-image:url('assets/rough-frame.svg?v=biome-spirit-1') 8 / 3px / 0 stretch;
  background:#0b1920;box-shadow:1px 2px #03090d;
 }
 .tutorial-skip-box>svg{width:20px;height:20px;color:#e4dfa7}

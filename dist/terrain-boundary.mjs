@@ -1,6 +1,7 @@
 // Terrain collides as a union of filled polygons. Its visible contact outline
 // must be that same union, rather than outlining every buried source piece.
-import {isContactEdgeStyle,paintContactEdge} from './contact-edge-art.mjs?v=composed-worlds-1';
+import {isContactEdgeStyle,paintContactEdge} from './contact-edge-art.mjs?v=biome-spirit-1';
+import {getContactEdgePalette} from './contact-edge-palettes.mjs?v=biome-spirit-1';
 const cache=new WeakMap();
 const EPS=1e-6;
 function edgeAt(profile,x){
@@ -93,6 +94,7 @@ export function terrainSurfaceExposed(engine,owner,top,x,y,time,boundary){
 }
 export function drawTerrainBoundary(c,engine,{scale=1,distance=engine.renderDistance??engine.distance,time=engine.visualTime??engine.time,line}={}){
  const {segments}=terrainBoundary(engine,time),camera=Math.round(distance*scale),width=engine.width*scale,height=engine.height*scale;
+ const palette=engine.contactEdgePalette||getContactEdgePalette(engine);
  const stroke=line||((c,x,y,xx,yy,color,size)=>{c.beginPath();c.moveTo(x,y);c.lineTo(xx,yy);c.strokeStyle=color;c.lineWidth=size;c.stroke();});
  for(const segment of segments){
   let [ax,ay]=segment.a,[bx,by]=segment.b;
@@ -104,7 +106,7 @@ export function drawTerrainBoundary(c,engine,{scale=1,distance=engine.renderDist
   if(Math.max(y,yy)<-4||Math.min(y,yy)>height+4||x>width+4)continue;
   stroke(c,x,y+inward*2,xx,yy+inward*2,'#14201f',2);
   if(isContactEdgeStyle(engine.boundaryStyle))paintContactEdge(c,{x,y,xx,yy,inward,worldAx:ax,worldAy:ay,scale,
-    playerX:engine.player.x*scale,playerY:(engine.renderPlayerY??engine.player.y)*scale,time,style:engine.boundaryStyle,line:stroke,reducedMotion:engine.reducedMotion});
+    playerX:engine.player.x*scale,playerY:(engine.renderPlayerY??engine.player.y)*scale,time,style:engine.boundaryStyle,line:stroke,reducedMotion:engine.reducedMotion,palette});
   else stroke(c,x,y,xx,yy,'#b9c6aa',1);
  }
 }

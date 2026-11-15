@@ -1,8 +1,8 @@
 import http from 'node:http';
 import {readFile,writeFile,mkdir} from 'node:fs/promises';
 import {resolve,extname,join} from 'node:path';
-const ideas=process.env.RECORD_KIND==='ideas',recorder=resolve(ideas?'scripts/edge-ideas-recorder.html':'scripts/boundary-video-recorder.html');
-const root=resolve('dist'),frames=resolve(ideas?'work/edge-ideas/frames':'work/boundary-video/frames');await mkdir(frames,{recursive:true});
+const ideas=process.env.RECORD_KIND==='ideas',biomes=process.env.RECORD_KIND==='biomes',recorder=resolve(biomes?'scripts/biome-edges-recorder.html':ideas?'scripts/edge-ideas-recorder.html':'scripts/boundary-video-recorder.html');
+const root=resolve('dist'),frames=resolve(biomes?'work/biome-edges/frames':ideas?'work/edge-ideas/frames':'work/boundary-video/frames');await mkdir(frames,{recursive:true});
 http.createServer(async(req,res)=>{try{
  const url=new URL(req.url,'http://localhost');
  if(req.method==='POST'&&url.pathname==='/frame'){

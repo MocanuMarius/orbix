@@ -2,6 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {paintContactEdge,contactEdgeInk} from '../dist/contact-edge-art.mjs';
 import {drawTerrainBoundary,terrainBoundary} from '../dist/terrain-boundary.mjs';
+import {getContactEdgePalette} from '../dist/contact-edge-palettes.mjs';
 
 const makeEngine=()=>({layout:{obstacles:[{x:0,center:0,gap:0,bottomShape:[[0,900],[100,900],[100,100],[0,100]]}]},
  width:300,height:200,distance:0,time:0,player:{x:30,y:80}});
@@ -43,9 +44,16 @@ test('bold concepts keep their final seam exact and leave the collision union in
  for(const style of ['carved','spectral','roots','fracture']){
   e.boundaryStyle=style;const c=canvas();drawTerrainBoundary(c,e,{line});
   assert.equal(terrainBoundary(e),union);
-  assert.deepEqual(c.calls.at(-1),['line',0,100,100,100,contactEdgeInk(style),1]);
+  assert.deepEqual(c.calls.at(-1),['line',0,100,100,100,contactEdgeInk(style,getContactEdgePalette(e)),1]);
   assert.equal(c.globalAlpha,1);
  }
+});
+
+test('biome hues preserve the same Spirit Fire shape and flow',()=>{
+ const options={x:0,y:40,xx:200,yy:40,inward:1,worldAx:80,worldAy:40,style:'spectral',line,time:3};
+ const a=canvas(),b=canvas();paintContactEdge(a,{...options,palette:getContactEdgePalette('pinewood')});paintContactEdge(b,{...options,palette:getContactEdgePalette('frost')});
+ const shape=calls=>calls.map(call=>call[0]==='pixel'?[call[0],...call.slice(2)]:[...call.slice(0,5),call.at(-1)]);
+ assert.deepEqual(shape(a.calls),shape(b.calls));assert.notDeepEqual(a.calls,b.calls);
 });
 
 test('reduced motion freezes the flowing fringe and nearby crack pulse',()=>{
