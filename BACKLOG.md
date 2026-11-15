@@ -18,17 +18,9 @@ The full suite is not claimed green. Unchanged `d46f95f` has six failing seamles
 
 ## Run archetypes
 
-- [ ] NEXT — design an isolated playtest after First Light. Keep the campaign and six-stop prologue unchanged. Trial at most two passive technique cards. At each of two milestones between flights, offer two cards and let the player choose one or skip. The first choice changes how to fly. The second adds an immediately visible synergy. Keep controllable essentials in the skill book and boss relics passive. Add no consumable or currency.
+- [ ] NEXT — review the [skills-as-cards proposal](docs/skill-cards.md), then design an isolated playtest after First Light. It supersedes the earlier two-milestone, two-pick suggestion: start with three ordered active slots, one card per first real flight clear, deliberate Equip / Set aside choices, and a bounded melting trial. Keep the campaign and six-stop prologue unchanged. This is a proposal for later iteration, not an implemented system or shipping commitment.
 
-For the first pick, Bankrunner primes one free Lift after a deliberate skim beside a real bank. Glider primes the same payoff after a short coast into a direct fuel Spark. Both should reward a deliberate change in flight line.
-
-For the second pick, spending that primed Lift either sends a small reveal wave or accelerates a recovering Collector. Use the existing single stored free Lift. Allow at most two priming triggers per flight and preserve the trigger opportunity whenever a free Lift is already stored. Show the priming, stored Lift and modifier firing clearly. Thresholds, effect strengths and the two-trigger cap are pilot hypotheses.
-
-The isolated playtest must assume neither Proximity nor Dream is learned and grant no expensive skills. Block generated-reward loops, Dream/retry farming and rewards carried from practice.
-
-Compare the cards with the existing skill book at equal economy on the same seed. Include the open middle and riskier bank route. Record offers, picks/skips, time near banks, direct versus Collector-fetched Sparks, route decisions and survival. Ask whether players intentionally changed their flight line and why. Advance only if the combinations create readable choices beyond the skill book.
-
-Only after that test, consider letting a campfire change one pick. This is a candidate for review, not a shipping commitment.
+Bankrunner's bank skimming and Glider's coasting remain archetype candidates, with their free-Lift follow-ups and limits retained as prototype ideas in the proposal. Compare cards with the skill book at equal economy on the same seed; include open-middle and riskier-bank routes, player feedback and actual flight/duplicate supply. Review charge/copy safety, passive relic rewards, the final-guardian reward and Rest's Recover / Grow / Add slot tradeoff before implementation.
 
 Mega Crit's original GDC talk, [Slay the Spire: Metrics Driven Design and Balance](https://media.gdcvault.com/gdc2019/presentations/Giovannetti_Anthony_SlayTheSpire.pdf), informs this method. Use picks/skips as evidence and combine measured outcomes with player feedback.
 
