@@ -1,5 +1,5 @@
 import {observeFlight} from './human-flight-perception.mjs';
-import {planHumanLift} from './human-flight-planner.mjs';
+import {planHumanLift,selectHumanFuel} from './human-flight-planner.mjs';
 import {iceShardContact,sampleIceShard} from '../dist/guardian-geometry.mjs';
 import {humanProfile,queueHumanLift} from './human-flight-planner.mjs';
 import fs from 'node:fs';
@@ -20,6 +20,7 @@ const hashNames=['flight.mjs','flight-challenges.mjs','boss.mjs','drafts.mjs','w
 const hashes=()=>Object.fromEntries(hashNames.map(name=>[name,createHash('sha256').update(fs.readFileSync(path.join(source,name))).digest('hex')]));
 const initialHashes=hashes();
 const {WispFlight,FLIGHT_TUNING,FLAME_TUNING,obstaclePolygons,circleHitsPolygon}=await import(pathToFileURL(path.join(source,'flight.mjs')));
+const {attachDream}=await import(pathToFileURL(path.join(source,'dream.mjs')));
 const {getRunModifiers,ROUTE_PROFILES}=await import(pathToFileURL(path.join(source,'model.mjs')));
 const {getFlightLengthProfile}=await import(pathToFileURL(path.join(source,'level-length.mjs')));
 const {getLevelIdentity,BIOME_LEVELS}=await import(pathToFileURL(path.join(source,'level-catalog.mjs')));
@@ -156,7 +157,12 @@ function choose(e,style,memory){
     memory.firstSightLead.set(spark.id,round(Math.max(0,(spark.x-view.player.x)/view.speed)));
    if(!memory.noticed.has(spark.id))memory.noticed.set(spark.id,memory.random()>=memory.human.drop*.5);
   }
-  const target=view.energy>=view.maxEnergy*.9?null:view.sparks.find(p=>memory.noticed.get(p.id)&&(!p.dim||view.energy<view.maxEnergy*.4));
+  const targetView=memory.human.seekTerrainHelp?view:{...view,sparks:view.sparks.filter(p=>!p.assist)};
+  const fuelTarget=view.energy>=view.maxEnergy*.9?null:selectHumanFuel(targetView,memory.noticed,memory.human.reaction);
+  const flashTarget=!view.flashActive?view.sparks.find(p=>p.flash&&memory.noticed.get(p.id)):null;
+  // A visible white triangle is useful even at a full meter. Prefer immediate
+  // fuel when nearly empty; otherwise seek light before a visibly dark reach.
+  const target=flashTarget&&(!fuelTarget||view.dimAhead&&view.energy>view.liftCost*2)?flashTarget:fuelTarget;
   const etaTarget=target?{...target,eta:(target.x-view.player.x)/view.speed}:null;
   if(e.time>=memory.powerGate&&powerInput(e,style,etaTarget)){
    memory.powerGate=e.time+Math.max(3,e.roleCooldown(e.companionRole));
@@ -253,20 +259,45 @@ function buildCase({terrain,difficulty,stage,role,style,seedIndex=0,profile='ref
 }
 function simulate(config){
  let result=null;
- const modifiers=getRunModifiers(config.run||{skills:config.skills,artifacts:[],companions:config.fleet,companionRole:config.fleet[0]});
+ const modifiers={...getRunModifiers(config.run||{skills:config.skills,artifacts:[],companions:config.fleet,companionRole:config.fleet[0]}),...(config.onboardingPlan?{onboardingPlan:config.onboardingPlan}:{})};
  const e=new WispFlight({canvas:canvas(),node:config.node,seed:config.seed,terrain:config.terrain,duration:config.duration,
   elite:config.profile==='gauntlet',companions:config.fleet,companionRole:config.fleet[0],modifiers,
   skills:config.skills,condensedGlow:config.run?.condensedGlow||0,condensedRemainder:config.run?.condensedRemainder||0,flame:config.run?.flame??(config.practice?80:FLAME_TUNING.starting),onFinish:value=>{result=value;}});
+ config.prepareEngine?.(e);
  const record={levelId:config.node.levelId,biomeId:config.node.biomeId,terrain:config.terrain,difficulty:config.difficulty,stage:config.stage,role:config.role,fleet:config.fleet,
   style:config.style,profile:config.profile,seed:config.seed,practice:config.practice,duration:config.duration,
-  flapCost:e.flapCost,startFuel:e.flame,available:[],direct:0,collector:0,pickupCounts:{},fuelRestored:0,
+  flapCost:e.flapCost,startFuel:e.flame,available:[],direct:0,collector:0,pickupCounts:{},fuelRestored:0,baseFuelCollected:0,
   minFuel:e.flame,shieldsSpent:0,powerPresses:0,powerUses:{},levelerReleases:0,hitLog:[],fatalCause:null,
   draftZones:e.drafts.zones.length,patterns:(e.layout.challenges||[]).map(item=>({type:item.type,name:item.name,available:item.available})),
   requiredHardWindows:e.layout.requestedHardWindows,actualHardWindows:e.layout.hardWindows};
  record.layoutDiagnostics=diagnoseLayout(e,config.seed+':'+config.profile+':'+config.practice);
  for(const packet of e.layout.embers){const spec=getPickupSpec(packet);record.available.push({id:packet.id,kind:pickupKind(packet),x:round(packet.x),y:round(packet.y),fuel:spec.fuel+(spec.fuel?e.fuelBonus+e.mod.cacheFuelBonus:0)});}
+ // Counterfactual collection envelopes retain a seeded, stratified subset.
+ // Keep the full inventory in the denominator, and hide forgone fuel from the
+ // controller; neither the game nor completion eligibility has a capture quota.
+ if(Number.isFinite(config.captureEnvelope)){
+  const ratio=clamp(config.captureEnvelope,0,1),random=rngFor(config.seed+':capture-envelope'),eligible=e.layout.embers.filter(p=>!p.generated&&!p.harmful&&getPickupSpec(p).fuel>0);
+  const order=new Map(eligible.map(p=>[p,random()]));
+  const windows=new Map();for(const p of eligible){const key=Math.floor(p.x/(e.baseSpeed*8));if(!windows.has(key))windows.set(key,[]);windows.get(key).push(p);}
+  const selected=new Set();let total=0,allowed=0;
+  if(config.captureOrder==='lane'){
+   total=eligible.reduce((n,p)=>n+getPickupSpec(p).fuel,0);
+   // Adversarial check: prefer a readable central route and spread the
+   // retained fuel over time, rather than rely only on random missed pickups.
+   const quality=p=>Math.abs(p.y-e.height*.5)/e.height+(p.accessible?0:.25)+(p.riskChain?.15:0);
+   const queues=[...windows.values()].map(packets=>packets.sort((a,b)=>quality(a)-quality(b)||getPickupSpec(b).fuel-getPickupSpec(a).fuel));
+   for(let rank=0;queues.some(q=>q.length>rank);rank++)for(const queue of queues){
+    const p=queue[rank];if(p&&allowed+getPickupSpec(p).fuel<=total*ratio+1e-7){selected.add(p);allowed+=getPickupSpec(p).fuel;}
+   }
+  }else for(const packets of windows.values())for(const p of packets.sort((a,b)=>order.get(a)-order.get(b))){
+   total+=getPickupSpec(p).fuel;
+   if(allowed+getPickupSpec(p).fuel<=total*ratio+1e-7){selected.add(p);allowed+=getPickupSpec(p).fuel;}
+  }
+  e.layout.embers=e.layout.embers.filter(p=>!eligible.includes(p)||selected.has(p));
+  record.captureEnvelope={requested:ratio,order:config.captureOrder||'stratified',availableFuel:allowed,share:allowed/Math.max(1,total)};
+ }
  const collect=e.collect.bind(e);e.collect=packet=>{const before=e.flame,was=packet.collected,delivered=!!packet.deliveredByWisp,kind=pickupKind(packet);collect(packet);
-  if(!was&&packet.collected){record[delivered?'collector':'direct']++;record.pickupCounts[kind]=(record.pickupCounts[kind]||0)+1;record.fuelRestored+=Math.max(0,e.flame-before);}};
+  if(!was&&packet.collected){record[delivered?'collector':'direct']++;record.pickupCounts[kind]=(record.pickupCounts[kind]||0)+1;record.fuelRestored+=Math.max(0,e.flame-before);if(!packet.generated)record.baseFuelCollected+=getPickupSpec(packet).fuel;}};
  const hit=e.hit.bind(e);e.hit=obstacle=>{const before=e.collisions,charges=e.shield.charges;hit(obstacle);
   if(e.collisions>before)record.hitLog.push({time:round(e.time),fuel:round(e.flame),obstacle:obstacle?.id??'boundary',saved:!e.finished&&!e.dying});
   record.shieldsSpent+=Math.max(0,charges-e.shield.charges);if(e.finished)record.fatalCause='collision';};
@@ -287,11 +318,34 @@ function simulate(config){
   return ok;
  };
  const missedManualFuel=new Set(),passedFuel=new Set();
+ let rehearsal=null,nightmareUsed=false,wakePending=false;
+ e.nightmareAvailable=()=>!config.dreamMode&&!nightmareUsed&&config.run?.nightmareSpentMap!==config.node.mapIndex;
+ e.onNightmare=()=>{nightmareUsed=true;memory.pending=null;memory.nextDecision=e.time+.35;};
+ if(config.dreamMode==='record')attachDream(e,{mode:'record',onReady:r=>{rehearsal=r;}});
+ else if(e.mod.dreamDuration>0&&!config.skipDream){
+  const dreams=[];
+  for(let attempt=0;attempt<8;attempt++){
+   const rehearsalFlight=simulate({...config,dreamMode:'record',skipDream:true,controllerSeed:(config.controllerSeed||0)+attempt});
+   dreams.push({valid:rehearsalFlight.rehearsalValid,seconds:rehearsalFlight.time});
+   if(rehearsalFlight.dreamPreset){
+    const replay=attachDream(e,{mode:'replay',preset:rehearsalFlight.dreamPreset,onAwake:()=>{wakePending=true;}});
+    if(!replay)throw Error('Rehearsal could not replay the exact same flight');
+    break;
+   }
+  }
+  record.rehearsals=dreams;
+  if(!e.dream)throw Error('Eight limited-input rehearsals failed: '+config.seed);
+ }
  e.start();
  if(e.tutorialAwaitingLift){e.flap();memory.lastLift=e.time;}
  if(args.trace)record.trace=[];
  const maxFrames=Math.ceil(config.duration*60*1.15)+180;
- for(let frame=0;frame<maxFrames&&!e.finished;frame++){
+ for(let frame=0;frame<maxFrames&&!e.finished&&!rehearsal;frame++){
+  if(wakePending){
+   wakePending=false;memory.pending=null;memory.pendingPower=null;memory.lastTouch=e.time;memory.lastLift=e.time-.3;memory.nextDecision=e.time+(human?.reaction||0);
+   e.dream.resume();
+  }
+  if(e.dream?.phase==='replay'){e.step(1/60);continue;}
   if(!e.dying&&!e.completing&&e.time>=memory.nextDecision){const input=choose(e,config.style,memory);memory.nextDecision=human?e.time+human.cadence*(.9+.2*memory.random()):memory.nextDecision+(config.style==='imperfect'?.20:.05);
    if(args.trace)record.trace.push({time:round(e.time),y:round(e.player.y),vy:round(e.player.vy),fuel:round(e.flame),flap:input.flap,target:input.target});
    if(human){queueHumanLift(memory,e.time,input);}else if(input.flap){if(config.style==='imperfect')memory.pending=e.time+.12;else if(e.flap())memory.lastLift=e.time;}}
@@ -319,7 +373,11 @@ function simulate(config){
   endFuel:round(e.flame),minFuel:round(record.minFuel),fuelRestored:round(record.fuelRestored),effortSpent:round(e.effortSpent),flaps:e.flaps,
   collisions:e.collisions,elapsedPhase:e.flightChallenge?.type||null,lowFuelAtDeath:!result?.success&&e.flame<e.flapCost,
   fatalCause:result?.success?null:record.fatalCause||'timeout',maxAvailableFuel:round(record.available.reduce((sum,item)=>sum+item.fuel,0)),
-  regenerated:e.glideRegenerated||0,result:result||null});
+  dreamPreset:rehearsal?.preset||null,rehearsalValid:!!rehearsal?.valid,nightmareUsed,
+  regenerated:e.glideRegenerated||0,sparkSupply:e.layout.sparkSupply,
+  encounteredFuel:record.available.filter(p=>p.x<=e.distance+e.player.x).reduce((n,p)=>n+p.fuel,0),
+  capturedFuelShare:record.baseFuelCollected/Math.max(1,record.available.reduce((n,p)=>n+p.fuel,0)),result:result||null});
+ if(record.result)record.result.nightmareUsed=nightmareUsed;
  e.destroy();return record;
 }
 function summarize(records){

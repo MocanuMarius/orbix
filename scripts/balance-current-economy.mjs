@@ -162,9 +162,19 @@ const priorities={
  hoard:['main-efficiency','main-clear-dividend','main-afterglow','afterglow-anchor','afterglow-vessel','main-reservoir','main-glow-sense','main-sight','main-glide-regen-2','main-dream'],
  companion:['main-efficiency'],
 };
+const focusedGoals={
+ 'focused-survival':['main-efficiency','main-recovery','main-reservoir','main-sight','main-lift','main-glide-regen'],
+ 'focused-storage':['main-clear-dividend','main-afterglow','afterglow-anchor','afterglow-vessel','main-reservoir','afterglow-retention'],
+ 'focused-collector':['collector-fetch-large','collector-last-orbit','collector-guard-repair','collector-reach','collector-recovery','main-sight'],
+};
+function goalSequence(goals){
+ const result=[],seen=new Set();
+ function visit(id){const s=M.SKILLS[id];if(!s||s.retired||seen.has(id))return;seen.add(id);for(const parent of [s.requires].flat().filter(Boolean))visit(parent);result.push(id);}
+ for(const id of goals)visit(id);return result;
+}
 function buy(state,policy,metrics){
  const run=state.run,own=run.companions[0],ownedSkills=Object.values(M.SKILLS).filter(s=>s.branch===own).sort((a,b)=>a.cost-b.cost||a.id.localeCompare(b.id)).map(s=>s.id);
- const preferred=[...priorities[policy],`${own}-attunement`,`${own}-recovery`,`${own}-cost`,`${own}-duration`,`${own}-reach`,...(policy==='companion'?ownedSkills:[])];
+ const preferred=[...(priorities[policy]||[]),`${own}-attunement`,`${own}-recovery`,`${own}-cost`,`${own}-duration`,`${own}-reach`,...(policy==='companion'?ownedSkills:[])];
  for(let guard=0;guard<30;guard++){
   const w=M.getSkillWallet(state),paidRanks=M.getTrainingRankCount(w);
   const quote=id=>{
@@ -175,6 +185,13 @@ function buy(state,policy,metrics){
     :proposedTrainingGrowth!==null?base*(1+proposedTrainingGrowth*paidRanks**CONDENSED_TUNING.trainingExponent):ordinary;
    return Math.ceil(price*(proposedGrowth**paidRanks)*(1+proposedPowerK*paidRanks**1.5)/5)*5;
   };
+  if(focusedGoals[policy]){
+   const next=goalSequence(focusedGoals[policy]).find(id=>M.getSkillCost(w,id)!==null);
+   if(!next||quote(next)>run.condensedGlow)break;
+   const price=M.getSkillCost(w,next);assert.ok(M.buyCheckpointSkill(state,next));
+   metrics.spent+=price;metrics.buys++;metrics.firstBuy??=run.stats.flights;
+   metrics.purchases.push({id:next,cost:price,flight:run.stats.flights,map:run.mapIndex});continue;
+  }
   const branches=new Set(['main','proximity',own,...(w.condensationUnlocked?['afterglow']:[])]);
   const eligible=Object.keys(M.SKILLS).filter(id=>branches.has(M.SKILLS[id].branch)&&M.getSkillCost(w,id)!==null&&!['main-bond','main-spare-spark','main-deep-reserve'].includes(id)&&quote(id)<=run.condensedGlow);
   if(!eligible.length)break;
@@ -188,10 +205,11 @@ function buy(state,policy,metrics){
  }
 }
 function restDistance(run,node){const all=new Map(run.map.flat().map(n=>[n.id,n])),q=[[node,0]],seen=new Set();while(q.length){const[n,d]=q.shift();if(seen.has(n.id))continue;seen.add(n.id);if(n.kind==='camp')return d;for(const id of n.nextIds||[])if(all.has(id))q.push([all.get(id),d+1])}return 8;}
-function chooseRoute(run,rng){
- const choices=M.getChoices(run);assert.ok(choices.length);
+function chooseRoute(run,rng,failedNodes={}){
+ const reachable=M.getChoices(run);assert.ok(reachable.length);
+ const untried=reachable.filter(n=>!failedNodes[n.id]),choices=untried.length?untried:reachable;
  const low=run.flame<getGlowCapacity(run)*.65||run.lives<2;
- return choices.map(node=>({node,score:rng()*1.1+(node.elite?(low?-2:-.2):.15)-(low?.6:.16)*restDistance(run,node)+(node.kind==='camp'?.6:0)})).sort((a,b)=>b.score-a.score)[0].node;
+ return choices.map(node=>({node,score:rng()*1.1-1.6*(failedNodes[node.id]||0)+(node.elite?(low?-2:-.2):.15)-(low?.6:.16)*restDistance(run,node)+(node.kind==='camp'?.6:0)})).sort((a,b)=>b.score-a.score)[0].node;
 }
 function reward(state,policy,rng,metrics){
  const r=state.run,reward=r.flightReward;if(!reward||reward.claimed)return;
@@ -205,18 +223,19 @@ function runCase({seed,tier,role,style,policy,attrition=false,captureDelta=0,eff
  const state=M.newState();state.profile.difficulty=6;state.run=M.createRun(state.profile,`condensed-${seed}-${tier}`,tier);
  const r=state.run;assert.ok(r.companions[0]===role||M.setCompanions(r,[role]));const offers=M.getStartingGiftOffers(r);startingSkill=offers.find(g=>g.id===startingSkill)?.id||offers[startingChoice].id;assert.ok(M.chooseStartingGift(state,startingSkill),'Simulator must take a real starting gift');
  const rng=rngFor([seed,tier,style].join(':')); // common seed streams across policies and sensitivities
- const m={seed,tier,role,style,policy,attrition,captureDelta,effortScale,artifactScale,startingSkill,spent:0,buys:0,firstBuy:null,purchases:[],flightIncome:0,packingIncome:0,clearIncome:0,supportIncome:0,failures:0,fuelFailures:0,collisionFailures:0,starvedFlights:0,attempts:0,coverage:[],mapBuys:[0,0,0],mapIncome:[0,0,0],mapWallet:[0,0,0],totalLostCurrency:0};
+ const m={seed,tier,role,style,policy,attrition,captureDelta,effortScale,artifactScale,startingSkill,spent:0,buys:0,firstBuy:null,purchases:[],flightIncome:0,packingIncome:0,clearIncome:0,supportIncome:0,failures:0,fuelFailures:0,collisionFailures:0,starvedFlights:0,attempts:0,coverage:[],mapBuys:[0,0,0],mapIncome:[0,0,0],mapWallet:[0,0,0],totalLostCurrency:0,failedNodes:{}};
  for(let guard=0;guard<130;guard++){
   if(r.victoryPending){reward(state,policy,rng,m);buy(state,policy,m);M.acknowledgeVictory(state);continue;}
   if(r.phase==='ended')break;
-  if(r.phase==='map'){buy(state,policy,m);M.selectNode(r,chooseRoute(r,rng).id);continue;}
+  if(r.phase==='map'){buy(state,policy,m);M.selectNode(r,chooseRoute(r,rng,m.failedNodes).id);continue;}
   if(r.phase==='map-clear'){m.mapBuys[r.mapIndex]=m.buys;m.mapIncome[r.mapIndex]=m.flightIncome+m.supportIncome;m.mapWallet[r.mapIndex]=r.condensedGlow;M.advanceMap(r);continue;}
   if(r.phase==='briefing'){
-   const inv=inventory(r.current,tier),before=r.condensedGlow,remainder=r.condensedRemainder;M.beginFlightAttempt(r);
+   const attemptedNodeId=r.current.id,inv=inventory(r.current,tier),before=r.condensedGlow,remainder=r.condensedRemainder;M.beginFlightAttempt(r);
    const flow=flightSimulator?flightSimulator(r,style,m.attempts):simulateFlow(r,inv,style,rngFor(`${seed}:${tier}:${style}:${r.current.id}:${m.attempts}`),{captureDelta,effortScale,artifactScale,attrition});m.attempts++;m.coverage.push(flow.coverage);m.starvedFlights+=Number(flow.starved);
    if(args.debug&&seed===0&&tier===1&&role==='collector'&&style==='steady'&&policy==='survival'&&m.attempts<3)console.error(JSON.stringify({debug:true,node:r.current,mod:M.getRunModifiers(r),inv:{seconds:inv.seconds,rawFuel:inv.rawFuel,items:inv.items.length},flow}));
+   if(flow.nightmareUsed)r.nightmareSpentMap=r.mapIndex;
    M.finishFlight(r,flow);M.settleCheckpoint(state);assert.equal(M.settleCheckpoint(state),0,'settlement is idempotent');
-   if(!flow.success){m.failures++;m.fuelFailures+=Number(flow.fuelFailure);m.collisionFailures+=Number(flow.collisionFailure);m.totalLostCurrency+=flow.condensedGlow;assert.equal(r.condensedGlow,before,'failed pickups cannot farm currency');assert.equal(r.condensedRemainder,remainder,'failed fractions roll back');}
+   if(!flow.success){m.failedNodes[attemptedNodeId]=(m.failedNodes[attemptedNodeId]||0)+1;m.failures++;m.fuelFailures+=Number(flow.fuelFailure);m.collisionFailures+=Number(flow.collisionFailure);m.totalLostCurrency+=flow.condensedGlow;assert.equal(r.condensedGlow,before,'failed pickups cannot farm currency');assert.equal(r.condensedRemainder,remainder,'failed fractions roll back');}
    else{
     const receipt=r.lastFlight,secured=r.condensedGlow-before;
     const expected=receipt.pickupCondensedGlow+(receipt.exitPacking?.amount||0)+receipt.completionBonus+(receipt.routeBonus?.amount||0)+(receipt.vow?.reward||0)

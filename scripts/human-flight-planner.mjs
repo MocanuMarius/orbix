@@ -4,13 +4,14 @@
  * These profiles are not fits to observed players or device timing.
  */
 const profiles = {
-  human150: { reaction: .15, jitter: .04, cadence: .10, horizon: 1.15, drop: .20 },
-  human250: { reaction: .25, jitter: .07, cadence: .14, horizon: 1.00, drop: .30 },
-  human350: { reaction: .35, jitter: .10, cadence: .18, horizon: .85, drop: .40 }
+  human150: { reaction: .15, jitter: .04, cadence: .10, horizon: 1.8, drop: .20 },
+  human250: { reaction: .25, jitter: .07, cadence: .14, horizon: 1.65, drop: .30 },
+  human350: { reaction: .35, jitter: .10, cadence: .18, horizon: 1.4, drop: .40 }
 };
 
 export function humanProfile(style) {
-  return profiles[style] ? { ...profiles[style] } : null;
+  const base=String(style).replace(/-env$/,'');
+  return profiles[base] ? { ...profiles[base],seekTerrainHelp:String(style).endsWith('-env') } : null;
 }
 
 export function queueHumanLift(memory, now, plan) {
@@ -22,13 +23,13 @@ export function queueHumanLift(memory, now, plan) {
   memory.inputSamples++;
 }
 
-// Only these two alternatives are considered: glide, or one Lift after reacting.
+// Consider coasting or one deliberately timed Lift within the visible horizon.
 // All scene inputs are samples taken from the currently illuminated image.
 // No candidate can query future movement of a wall, draft or guardian.
 export function planHumanLift(view, target, memory) {
   const {player, speed, terrainStep, hazards} = view;
   const {reaction, horizon} = memory.human;
-  const sampleTime = .125;
+  const sampleTime = .05;
   const steps = Math.max(1, Math.round(horizon / sampleTime));
   const dt = horizon / steps;
   const stepsToTarget = target ? (target.x - player.x) / Math.max(1, speed) : Infinity;
@@ -43,22 +44,29 @@ export function planHumanLift(view, target, memory) {
       hazards: hazards.filter(hazard => Math.abs(hazard.x - x) <= radius + hazard.radius)
     });
   }
-  function score(lift) {
+  function score(delay) {
+    const lift=Number.isFinite(delay);
     let y = player.y;
     let vy = player.vy;
     let spent = false;
     let total = 0;
+    const touchedHelpers=new Set();
     // A tap has a real opportunity cost, so two equally safe choices favor glide.
     if (lift) total += 2;
     for (let i = 1; i <= steps; i++) {
       const t = i * dt;
-      if (lift && !spent && t >= reaction) {
+      if (lift && !spent && t >= delay) {
         vy = -Math.abs(view.liftImpulse);
         spent = true;
       }
       const ay = view.gravity + (view.gustAcceleration || 0);
       y += vy * dt + .5 * ay * dt * dt;
       vy = Math.min(view.terminalFall, vy + ay * dt);
+      if(memory.human.seekTerrainHelp)for(const helper of view.sparks.filter(p=>p.helpFamily==='lift')){
+        if(!touchedHelpers.has(helper.id)&&Math.hypot(player.x+speed*t-helper.x,y-helper.y)<=helper.radius){
+          touchedHelpers.add(helper.id);vy=Math.min(vy,-136*view.scaleY);
+        }
+      }
       let margin = Math.min(y + player.radius, view.height + player.radius - y);
       for (const pixel of slices[i-1].terrain) margin = Math.min(margin, Math.abs(y - pixel.y) - radius);
       let warningCost=0;
@@ -86,7 +94,7 @@ export function planHumanLift(view, target, memory) {
       total+=warningCost*timeWeight;
       if (margin <= 0) total += (800 + Math.min(50, -margin)*3) * timeWeight;
       else if (margin < 22) total += (22 - margin) * 1.2 * timeWeight;
-      const targetWeight = Math.max(0, 1 - Math.abs(t - stepsToTarget) / .42);
+      const targetWeight = Math.max(0, 1 - Math.abs(t - stepsToTarget) / .48);
       const mid = view.height * .50;
       const aim = target ? mid + (target.y - mid) * targetWeight : mid;
       // Large fuel can be caught on its near side. Allow most of the visible
@@ -97,6 +105,34 @@ export function planHumanLift(view, target, memory) {
     }
     return total;
   }
-  const lift = score(true) < score(false);
-  return {flap:lift, delay:lift ? reaction : Infinity, target:target ? {id:target.id,x:target.x,y:target.y} : null};
+  const options=[Infinity,...[0,.15,.30,.45,.60,.75,.90].map(t=>reaction+t).filter(t=>t<horizon-.12)];
+  let delay=Infinity,best=Infinity;
+  for(const candidate of options){const value=score(candidate);if(value<best){best=value;delay=candidate;}}
+  return {flap:Number.isFinite(delay), delay, target:target ? {id:target.id,x:target.x,y:target.y} : null};
+}
+
+
+// Estimate whether one delayed Lift or coasting can reach a *visible* Spark.
+// This prevents chasing every low-value wall pocket simply because it is first.
+export function selectHumanFuel(view,noticed,reaction){
+ let best=null,utility=-Infinity;
+ const gravity=view.gravity+(view.gustAcceleration||0),player=view.player;
+ for(const p of view.sparks){
+  if(p.flash||!noticed.get(p.id)||p.dim&&view.energy>=view.maxEnergy*.4)continue;
+  const eta=(p.x-player.x)/Math.max(1,view.speed);if(eta<0||eta>3)continue;
+  let miss=Infinity;
+  for(const delay of [Infinity,reaction,reaction+.2,reaction+.4,reaction+.6,reaction+.8]){
+   let y=player.y,vy=player.vy,pressed=false;
+   for(let t=0;t<eta;t+=.05){
+    const dt=Math.min(.05,eta-t);
+    if(!pressed&&t>=delay){vy=-view.liftImpulse;pressed=true;}
+    y+=vy*dt+.5*gravity*dt*dt;vy=Math.min(view.terminalFall,vy+gravity*dt);
+   }
+   const fetchMargin=(p.mass||1)<=(view.collectorMass||2)?(view.collectorRange||0)*.35:0;
+   miss=Math.min(miss,Math.max(0,Math.abs(y-p.y)-(p.radius||20)-fetchMargin));
+  }
+  const value=(1+.3*((p.mass||1)-1))/(.6+eta)-Math.abs(p.y-player.y)/view.height*.55-miss/35;
+  if(value>utility){utility=value;best=p;}
+ }
+ return best;
 }

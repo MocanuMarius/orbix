@@ -22,11 +22,11 @@ function inRoom(e, x, y, radius = 16) {
 const eligibleFuel = new WeakMap();
 function safeSparks(e) {
   const cached = eligibleFuel.get(e);
-  if (cached) return cached;
+  if (cached?.source===e.layout.embers) return cached.packets;
   const packets = e.layout.embers.filter(p => fuel(p) && inRoom(e, p.x, p.y)
     && !e.blackHoles.items.some(h => Math.hypot(h.x-p.x, h.y-p.y) < 130))
     .sort((a,b) => a.x-b.x);
-  eligibleFuel.set(e,packets);
+  eligibleFuel.set(e,{source:e.layout.embers,packets});
   return packets;
 }
 
@@ -52,7 +52,11 @@ function placeFuel(e, points, donors) {
     if (!inRoom(e, point.x, point.y, 18)) return null;
     let closest = null, distance = Infinity;
     for (const candidate of donors) {
-      if (reserved.has(candidate) || candidate.forkCache || candidate.atlasBypass) continue;
+      if (reserved.has(candidate) || candidate.forkCache || candidate.atlasBypass || candidate.intro) continue;
+      // Optional maneuvers borrow optional pockets. Moving the main fuel lane
+      // made an optional two-second dive mandatory for ordinary survival.
+      if ((candidate.accessible || candidate.blackHoleBypass) &&
+          (Math.abs(candidate.x-point.x)>45 || Math.abs(candidate.y-point.y)>20)) continue;
       const gap = Math.abs(candidate.x - point.x);
       if (gap < distance) { distance = gap; closest = candidate; }
     }

@@ -228,3 +228,13 @@ Resume at **Search Spark**, the next unrated item (30 Stored Sparks base, +12% C
 - [ ] Continue the separate 60%-collection/progression balance goal. Its experimental supply pruning and later-map pressure are excluded from this release: the delayed, visibility-limited controller showed excessive starvation.
 
 Verification: focused transaction/engine/reward checks; 24 opening-flight physics simulations; 48 campaign economic scenarios across 48 course variants and twelve biomes. Economic scenarios are inventory models, not measured human win rates. The unchanged opening cohort clears 17/24 with seven terrain failures, three of those at low fuel; this is regression evidence, not proof of finished balance.
+
+## Spark supply release — 15 November 2026
+
+- [x] Final duration/chapter-based finite Spark budget, protected authored objectives and redistribution into fuel droughts. No adaptive tax on purchased builds and no collection quota.
+- [x] Prevent optional glide challenges from stealing the essential central fuel lane.
+- [x] Apply later-map difficulty scaling to real obstacle apertures; gradually increase hard sections and draft pressure.
+- [x] Exercise actual earned skills, gifts, relics and Dream inputs in visibility-limited campaign simulations. Validate terrain-assisted starter cases below 60% fuel value and all 48 later courses with earned builds.
+- [ ] Calibrate reaction/missed-notice assumptions against Pixel 10 play and refine the later-chapter difficulty curve. Paired clear rates are not yet monotonic; do not treat sampled solvability as universal proof.
+
+Evidence, exact counts and limitations: `docs/spark-supply-release.md`. This release supersedes the preceding note that supply normalization is excluded, while retaining the explicit tuning follow-up.

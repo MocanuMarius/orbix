@@ -25,7 +25,7 @@ function clearGuardian(s){
  return r.flightReward;
 }
 
-test('each legendary can appear in actual guardian choices; the final discovery persists and cannot be farmed',()=>{
+test('each legendary can appear without discovery gates; the final guardian ends the run without another draft',()=>{
  const found=new Set();
  for(let i=0;i<360;i++){
    const s=newState();s.run=createRun(s.profile,'relic-draft-'+i);
@@ -36,11 +36,11 @@ test('each legendary can appear in actual guardian choices; the final discovery 
    assert.ok(chooseFlightReward(s,first.offers[0]));assert.ok(acknowledgeVictory(s));assert.ok(advanceMap(s.run));
    const second=clearGuardian(s);assert.ok(second.offers.every(id=>!first.offers.includes(id)));
    assert.ok(chooseFlightReward(s,second.offers[0]));assert.ok(acknowledgeVictory(s));assert.ok(advanceMap(s.run));
-   const final=clearGuardian(s);assert.equal(final.permanent,true);assert.equal(final.offers.length,2);
-   const collection=final.offers[0];assert.ok(chooseFlightReward(s,collection));assert.deepEqual(s.profile.ownedArtifacts,[collection]);
-   assert.equal(s.run.artifacts.includes(collection),false);assert.equal(chooseFlightReward(s,collection),false);
-   assert.ok(acknowledgeVictory(s));
-   let saved;const store={setItem:(_,v)=>saved=v,getItem:()=>saved};assert.ok(saveState(s,store));assert.deepEqual(loadState(store).profile.ownedArtifacts,[collection]);
+   const final=clearGuardian(s);assert.equal(final,null);assert.equal(s.run.phase,'ended');assert.equal(s.run.success,true);
+   assert.equal(chooseFlightReward(s,legendaries[0]),false,'a finished run cannot claim another artifact');
+   let saved;const store={setItem:(_,v)=>saved=v,getItem:()=>saved};assert.ok(saveState(s,store));
+   const loaded=loadState(store);assert.equal(loaded.run.success,true);assert.equal(loaded.run.flightReward,null);
+
  }
  assert.deepEqual(found,new Set(legendaries));assert.ok(found.size>=20);
  for(const [id,r] of Object.entries(GUARDIAN_RELICS)){
@@ -93,23 +93,26 @@ test('guardian passive modifiers influence real systems and generated Sparks can
  assert.deepEqual(e.artifactEffects.guardian.uses,{});
 });
 
-test('Threefold Chalice requires its three named sizes and Twin Lanterns matches actual strength',()=>{
- const e=mount('threefold-chalice','twin-lanterns');
- pick(e,'light');pick(e,'cluster');
- for(const mass of [6,10,6]){
-  e.flame=0;pick(e,'cache',{sparkMass:mass});
-  assert.equal(e.artifactEffects.guardian.pendingChalice,false);
-  assert.equal(e.artifactEffects.guardian.uses['twin-lanterns'],undefined);
- }
- e.flame=0;pick(e,'cache',{sparkMass:6});
- assert.equal(e.artifactEffects.guardian.uses['twin-lanterns'],undefined,'a full meter leaves the reward unspent');
- e.flame=0;e.mod.maxGlow=250;
- pick(e,'cache',{sparkMass:6});pick(e,'cache',{sparkMass:6});
- assert.equal(e.artifactEffects.guardian.uses['twin-lanterns'],1);
- assert.equal(e.artifactEffects.guardian.pendingChalice,false);
- pick(e,'cache',{sparkMass:3});
- assert.equal(e.artifactEffects.guardian.pendingChalice,true);
- e.destroy();
+test('Threefold Chalice uses the three current strengths, and Twin Lanterns matches actual fuel rather than names',()=>{
+ const chalice=mount('threefold-chalice');
+ pick(chalice,'light');pick(chalice,'cluster');
+ assert.equal(chalice.artifactEffects.guardian.pendingChalice,false);
+ pick(chalice,'cache');assert.equal(chalice.artifactEffects.guardian.pendingChalice,true);
+ chalice.flame=30;assert.ok(chalice.flap());
+ assert.equal(chalice.artifactEffects.guardian.pendingChalice,false);
+ assert.equal(chalice.artifactEffects.guardian.uses['threefold-chalice'],1);
+ assert.equal(glowPoints(chalice.flame),15);chalice.destroy();
+ const twins=mount('twin-lanterns');twins.flame=0;
+ pick(twins,'light');pick(twins,'cluster',{sparkMass:1});
+ assert.equal(twins.artifactEffects.guardian.uses['twin-lanterns'],1);
+ assert.equal(glowPoints(twins.flame),18,'two 6-Spark pickups match and restore 6 more');
+ twins.flame=twins.maxFlame;pick(twins,'cluster');pick(twins,'cluster');
+ assert.equal(twins.artifactEffects.guardian.uses['twin-lanterns'],1,'a full meter does not spend a use');
+ twins.flame=0;pick(twins,'light');pick(twins,'cache');
+ assert.equal(twins.artifactEffects.guardian.uses['twin-lanterns'],1,'different fuel strengths do not match');
+ twins.flame=0;pick(twins,'cache');
+ assert.equal(twins.artifactEffects.guardian.uses['twin-lanterns'],2);
+ assert.equal(glowPoints(twins.flame),24);twins.destroy();
 });
 
 test('Night Gardener heals only real near misses, never overflow, and pays for five separate seeds',()=>{

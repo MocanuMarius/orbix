@@ -23,6 +23,7 @@ import {BIOME_COURSES} from './biome-courses.mjs?v=exit-packing-1';
 import {BiomeDynamics} from './biome-dynamics.mjs?v=exit-packing-1';
 import {condenseGlow,packExitReserve} from './condensed-glow.mjs?v=exit-packing-1';
 import {ensureGlowBudget,shapeExpeditionSupply,trimSurplusFuel} from './glow-budget.mjs?v=exit-packing-1';
+import {balanceSparkSupply} from './spark-supply.mjs?v=exit-packing-1';
 import {EdgingPulse} from './edging-pulse.mjs?v=exit-packing-1';
 import {isVowBodyPickup} from './contextual-events.mjs?v=exit-packing-1';
 import {FlightBoon} from './flight-boons.mjs?v=exit-packing-1';
@@ -416,7 +417,7 @@ export function buildFlightLayout({ seed = 1, terrain = 'ruins', elite = false,
   duration = 38, speed = 154, height = 620, passage = 'open', fuelCadence = 3,
   levelId, stage = 0, difficulty = 1, mapIndex = 0, lengthScale = 1, encounterFamily = null, gentleOpening = false,
   fallPhysics,allowFall=true,mapTheme=null } = {}) {
-  const ascent = getAscentInfo({ row: stage, difficulty });
+  const ascent = getAscentInfo({ row: stage, difficulty,mapIndex });
   const legCount = lengthScale === LEVEL_LENGTH.multiplier ? LEVEL_LENGTH.multiplier : 1;
   const identity = resolveLevelIdentity(levelId, terrain, seed);
   const course = MACRO_COURSES[identity.id] || MACRO_COURSES['ruins-aqueduct'];
@@ -449,8 +450,7 @@ export function buildFlightLayout({ seed = 1, terrain = 'ruins', elite = false,
         : clamp(opening * height / 620 * (passage === 'cavern' ? .96 : 1), height * .28, height * .58);
       // Scale the finished authored aperture, so capped openings also tighten
       // visibly with depth. Intro and recovery sections retain their full gap.
-      const gap = hard ? Math.max(tight ? elite ? 104 : 120 : height * .28,
-        baseGap * ascent.hardGapScale) : baseGap;
+      const gap = hard ? Math.max(84, baseGap * ascent.hardGapScale) : baseGap;
       const obstacle = {
         id: index, x, width, center,
         gap:gentleOpening?Math.min(height*.64,gap*1.15):gap, phase: rng() * TAU, pattern: `${identity.scene}-${form}`,
@@ -934,6 +934,12 @@ export class WispFlight {
     if(!this.tutorial)trimSurplusFuel(this.layout,{speed:FLIGHT_TUNING.forwardSpeed,height:this.height,endX:this.totalDistance+this.player.x,
       opening:this.ascentInfo.difficulty<=2&&Number(route.mapIndex||0)===0,targets:this.routeObjective?.targets,
       hazards:[...this.blackHoles.items,...(lanternField(this.layout)?.shutters||[])]});
+    if(!this.tutorial)balanceSparkSupply(this.layout,{duration:(this.totalDistance-this.distanceOrigin)/
+      (FLIGHT_TUNING.forwardSpeed*(this.openingSpeedScale||1)),height:this.height,speed:FLIGHT_TUNING.forwardSpeed,
+      endX:this.totalDistance+this.player.x,mapIndex:Number(route.mapIndex)||0,stage:this.ascentInfo.row,
+      difficulty:this.ascentInfo.difficulty,elite:this.elite,boss:this.bossEncounter,targets:this.routeObjective?.targets,
+      clear:bodyClear,hazards:[...this.blackHoles.items,...(lanternField(this.layout)?.shutters||[])],drafts:this.drafts.zones,actors:this.biomeDynamics.items,
+      physics:{gravity:FLIGHT_TUNING.gravity,impulse:FLIGHT_TUNING.flapImpulse}});
     this.challengeDirector=new FlightChallengeDirector(this.layout);
     this.flashProps=this.layout.embers.filter(packet=>pickupKind(packet)==='sight');
     this.flightChallenge=null;this.caveDimming=0;

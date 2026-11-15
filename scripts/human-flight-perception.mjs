@@ -1,7 +1,8 @@
 import {FLIGHT_TUNING, obstaclePolygons} from '../dist/flight.mjs';
-import {lightAttenuation, lightVisibility} from '../dist/light-field.mjs';
+import {lightAttenuation, lightVisibility, renderLightState} from '../dist/light-field.mjs';
 import {getPickupSpec, pickupKind, pickupContactRadius} from '../dist/pickups.mjs';
-import {sparkBodyRadius} from '../dist/spark-size.mjs';
+import {sparkBodyRadius,sparkMass} from '../dist/spark-size.mjs';
+import {glowSenseCues} from '../dist/glow-sense.mjs';
 import {ICE_GUIDE_FACETS} from '../dist/guardian-geometry.mjs';
 import {shutterLightFactor} from '../dist/shutter-cone.mjs';
 import {lanternField} from '../dist/lantern-layout.mjs';
@@ -62,7 +63,8 @@ function seenTerrain(e,sight) {
 }
 
 export function observeFlight(e){
- const light=e.getLightState(),sight=sightAt(e,light),sparks=[],hazards=[];
+ const light=renderLightState(e),sight=sightAt(e,light),sparks=[],hazards=[];
+ const sensed=new Map(glowSenseCues(e,{distance:e.distance,playerY:e.player.y,light}).filter(c=>c.strength>=.075).map(c=>[c.packet.id,c]));
  const recordHazard=(x,y,radius)=>{
   if(sight(x,y)>=VISION.hazard)hazards.push({x:snap(x,4),y:snap(y,4),radius});
  };
@@ -71,9 +73,10 @@ export function observeFlight(e){
   const x=packet.x-e.distance,y=packet.y,spec=getPickupSpec(packet);
   const dark=pickupKind(packet)==='dark',threshold=dark?VISION.hazard:VISION.spark;
   const shell=sparkBodyRadius(packet,e.height),radius=pickupContactRadius(packet,e.height);
-  if(sight(x,y)>=threshold){
+  const cue=sensed.get(packet.id),visible=sight(x,y)>=threshold;
+  if(visible||cue){
    if(dark)hazards.push({x:snap(x,4),y:snap(y,4),radius:shell});
-   else if(spec.fuel>0&&x>=e.player.x-12)sparks.push({id:packet.id,x:snap(x,4),y:snap(y,4),radius,dim:spec.dim>0});
+   else if((spec.fuel>0||spec.sightDuration>0)&&x>=e.player.x-12)sparks.push({id:packet.id,x:snap(x,visible?4:8),y:snap(y,visible?4:8),radius,dim:spec.dim>0,flash:spec.sightDuration>0,mass:visible?sparkMass(packet):1,hint:!visible});
   }else if(shell>=24){
    // A large silhouette can enter the light before its centre. Expose just
    // the illuminated pixels; do not give the player the hidden centre/radius.
@@ -105,7 +108,14 @@ export function observeFlight(e){
   }
  }
  for(const item of e.biomeDynamics?.items||[]){
-  if(item.family!=='fall'||(item.phase!=='warning'&&item.phase!=='falling'))continue;
+  if(item.family!=='fall'){
+   const x=item.x-e.distance;
+   if(['lift','bloom','vent'].includes(item.family)&&item.phase!=='spent'&&x>=e.player.x-12&&sight(x,item.y)>=VISION.spark){
+    sparks.push({id:'helper:'+item.id,x:snap(x,4),y:snap(item.y,4),radius:item.radius+e.player.radius,dim:false,flash:false,mass:.6,assist:true,helpFamily:item.family});
+   }
+   continue;
+  }
+  if(item.phase!=='warning'&&item.phase!=='falling')continue;
   const x=item.x-e.distance,y=snap(item.y,4);
   if(sight(x,item.y)<VISION.hazard)continue;
   // The warm cracks and descending flecks signal a fall. Infer its speed
@@ -149,6 +159,8 @@ export function observeFlight(e){
  }
  const gust=e.gustState(),sy=e.scaleY;
  return {width:e.width,height:e.height,player:{x:e.player.x,y:snap(e.player.y,2),vy:snap(e.player.vy,12),radius:e.player.radius},
+  collectorRange:['ready','cooldown'].includes(e.wisp?.phase)?e.wisp.currentRange(e):0,collectorMass:e.mod.collectorFetchMass||2,
+  flashActive:e.sightUntil>e.time,dimAhead:sight(e.player.x+e.baseSpeed*.9,e.player.y)<.18,
   speed:e.baseSpeed*(e.boostTime>0?1.48:1),energy:e.flame,maxEnergy:e.maxFlame,liftCost:e.flapCost,scaleY:sy,
   gravity:FLIGHT_TUNING.gravity*sy*clip(e.mod.gravity,.8,1.2),liftImpulse:FLIGHT_TUNING.flapImpulse*sy*clip(e.mod.flap,.8,1.2),
   terminalFall:FLIGHT_TUNING.terminalFall*sy,gustAcceleration:gust.active?snap(gust.direction*gust.force*sy,20):0,
