@@ -17,16 +17,21 @@ const engine = {width:390,height:620,distance:100,time:0,player:{x:100,y:310},
 const packet = (x, y, extra = {}) => ({kind:'light',x:x+engine.distance,y,...extra});
 
 for (const kind of ['light','cluster','cache','dark','dusk','sight']) {
-  packets = [packet(348,42,{kind})];
+  packets = [packet(245,310,{kind})];
   const [seen] = glowSenseCues(engine);
-  assert.deepEqual([seen.x,seen.y,seen.packet.kind], [348,42,kind]);
+  assert.deepEqual([seen.x,seen.y,seen.packet.kind], [245,310,kind]);
   assert.ok(seen.strength > 0 && seen.strength < .4);
 }
-packets = [packet(302,59),packet(321,59,{kind:'dark'}),packet(343,59)];
-assert.deepEqual(glowSenseCues(engine).map(c=>c.x), [302,321,343], 'neighbours keep their individual positions');
+packets = [packet(243,310),packet(249,310,{kind:'dark'}),packet(255,310)];
+assert.deepEqual(glowSenseCues(engine).map(c=>c.x), [243,249,255], 'neighbours keep their individual positions');
 packets = [packet(550,50),packet(388,40,{collected:true}),packet(345,40,{carried:true}),packet(103,310)];
 assert.equal(glowSenseCues(engine).length,0,'offscreen, carried, collected and fully lit pickups have no overlay');
-packets=[packet(350,35)];
+packets=[packet(348,42),packet(100,30)];
+assert.equal(glowSenseCues(engine).length,0,'distant fog stays dark in both axes');
+engine.width=900;engine.player.x=570;light.radius=500;light.intensity=0;
+packets=[packet(685,310),packet(715,310),packet(685,310,{kind:'cache',sparkMass:10})];
+assert.deepEqual(glowSenseCues(engine).map(c=>c.x),[685],'outer fifth stays clear of hints, including giant rims');
+packets=[packet(685,310)];
 light.pickupReveal=1;
 assert.equal(glowSenseCues(engine).length,0);
 light.pickupReveal=0;

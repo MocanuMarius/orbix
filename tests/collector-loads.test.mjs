@@ -9,17 +9,17 @@ import {glowPoints} from '../dist/vitality.mjs';
 const context=new Proxy({},{get:(o,k)=>o[k]??(String(k).includes('Gradient')?()=>({addColorStop(){}}):()=>{}),set:(o,k,v)=>(o[k]=v,true)});
 const canvas={style:{},getContext:()=>context,getBoundingClientRect:()=>({width:915,height:412})};
 const run=skills=>({companions:['collector'],skills});
-const all={'collector-fetch-cache':1,'collector-fetch-surge':1,'collector-fetch-giant':1};
+const all={'collector-fetch-large':1};
 const make=skills=>new WispFlight({canvas,seed:'collector-size-unlocks',preflight:true,companions:['collector'],modifiers:M.getRunModifiers(run(skills))});
 
-test('Small and Cluster start available, larger loads unlock sequentially, Flash separately',()=>{
+test('Small and Cluster start available, larger loads unlock together, Flash separately',()=>{
  const s=M.newState();s.run=M.createRun(s.profile,'load-purchases');s.run.condensedGlow=10000;
  const allowed=()=>[1,2,3,6,10].filter(m=>collectorCanFetch({kind:'cache',sparkMass:m},M.getRunModifiers(s.run)));
- assert.deepEqual(allowed(),[1,2]);assert.equal(M.buyCheckpointSkill(s,'collector-fetch-surge'),false);
+ assert.deepEqual(allowed(),[1,2]);assert.equal(M.buyCheckpointSkill(s,'collector-fetch-large'),false);
  assert.ok(M.buyCheckpointSkill(s,'collector-attunement'));
- for(const[id,mass,price]of [['collector-fetch-cache',3,25],['collector-fetch-surge',6,35],['collector-fetch-giant',10,45]]){
-  assert.equal(M.SKILLS[id].cost,price);assert.ok(M.buyCheckpointSkill(s,id));assert.equal(M.getRunModifiers(s.run).collectorFetchMass,mass);assert.equal(allowed().at(-1),mass);
- }
+ assert.equal(M.getSkillPrice(M.getSkillWallet(s),'collector-fetch-large'),50);
+ assert.ok(M.buyCheckpointSkill(s,'collector-fetch-large'));
+ assert.deepEqual(allowed(),[1,2,3,6,10]);
  assert.equal(collectorCanFetch({kind:'sight'},M.getRunModifiers(s.run)),false);
  assert.ok(M.buyCheckpointSkill(s,'collector-fetch-flash'));
  assert.equal(collectorCanFetch({kind:'sight'},M.getRunModifiers(s.run)),true);
@@ -38,6 +38,8 @@ test('locked Sparks stay for the body; learned large cargo shrinks fully before 
     assert.equal(e.flame,0,'The trip cannot pay before delivery');
    }
   }
+  if(mass===6)assert.equal(e.wisp.recoveryFraction(),1,'Surge delivery restores the entire search ring');
+  else assert.ok(e.wisp.recoveryFraction()<1,'Other loads still spend recovery');
   assert.ok(p.collected,'Learned load returns');assert.ok(sawContraction);
   assert.ok(e.time-p.carriedAt>=.32,'Compression completes before absorption');
   assert.equal(p.collectorOriginalMass,mass);assert.equal(sparkMass(p),2);
@@ -59,4 +61,17 @@ test('body Giant keeps 60 Sparks while delivered Giant packs only the converted 
  const carried=make(all),packet={id:'compressed-giant',kind:'cache',sparkMass:10,x:carried.distance+carried.player.x,y:carried.player.y};
  carried.flame=carried.maxFlame;compressCollectorCargo(packet);packet.deliveredByWisp=true;carried.collect(packet);
  assert.equal(glowPoints(carried.pickupOverflow),12);assert.equal(carried.condensedGlow,2);assert.equal(carried.baseEmbers,1);carried.destroy();
+});
+
+test('Flash Handling restores missing fuel once on body or carrier contact, without packing surplus',()=>{
+ for(const [trained,delivered,start,expected] of [[true,false,0,6],[true,true,0,6],[true,false,95,30],[false,false,0,0]]){
+  const flight=make(trained?{'collector-fetch-flash':1}:{});
+  flight.flame=start;
+  const flash={kind:'sight',x:flight.player.x,y:flight.player.y,deliveredByWisp:delivered};
+  flight.collect(flash);flight.collect(flash);
+  assert.equal(glowPoints(flight.flame),expected);
+  assert.equal(flight.condensedGlow,0);
+  assert.ok(flight.sightUntil>flight.time);
+  flight.destroy();
+ }
 });

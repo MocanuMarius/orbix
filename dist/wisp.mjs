@@ -265,7 +265,10 @@ export class WispCompanion {
         // Delivery-triggered cards can shorten this trip's recovery immediately.
         this.cooldownMax = this.recoveryDuration(engine);
         // An empty rescue trip must not spend a full successful-pickup recovery.
-        if (this.cargo) this.cooldown = this.cooldownMax;
+        if (this.cargo) {
+          const surgeDelivery = sparkMass(this.cargo) === 6 && engine.mod.collectorFetchMass >= 6;
+          this.cooldown = surgeDelivery ? 0 : this.cooldownMax;
+        }
         this.phase = this.cooldown > 0 ? 'cooldown' : 'ready';
         this.leg = null;
         engine._auraUntil = -1;

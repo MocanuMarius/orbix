@@ -85,7 +85,7 @@ function simulateFlow(run,inv,style,rng,{captureDelta=0,effortScale=1,artifactSc
   if(!caught&&!item.manual&&has('collector')&&item.mass<=(mod.collectorFetchMass||2)){
    const recovery=clamp((t-lastFetched)/Math.max(1,WISP_TUNING.cooldown*(mod.wispCooldown||1)),.1,1);
    const rescueChance=clamp((.17+.17*recovery)*(WISP_TUNING.range/105)*(mod.attract||1),.05,.58);
-   if(rng()<rescueChance){caught=true;delivery=true;lastFetched=t;fetched++;}
+   if(rng()<rescueChance){caught=true;delivery=true;lastFetched=item.mass===6?-Infinity:t;fetched++;}
   }
   if(!caught)continue;captured++;
   let fuel=(delivery&&item.mass>2?40:item.fuel)+(run.current?.fuelBonus||0)+clamp(mod.cacheFuelBonus||0,0,32)+(item.rich&&!delivery?(mod.richFuelBonus||0):0);

@@ -30,7 +30,7 @@ test('one free starting skill starts working immediately and survives saving',()
     assert.equal(effect.liftCostPoints,baseline.liftCostPoints);
     assert.equal(effect.proximityUnlocked,id==='proximity-awakening');
     assert.equal(effect.proximityShield,false);
-    assert.equal(effect.dreamDuration,id==='main-dream'?6:0);
+    assert.equal(effect.dreamDuration,id==='main-dream'?8:0);
     if(id==='main-dream')assert.ok(getSkillCost(getSkillWallet(state),'main-dream-long')>0);
     if(id==='proximity-awakening')assert.ok(getSkillCost(getSkillWallet(state),'main-edging-attunement')>0);
     let value;

@@ -69,14 +69,14 @@ for(const kind of ['normal','elite','finale']){
   const a=scene();let recording;
   assert.ok(a.layout.lanternEncounter||a.layout.boss.shutters.length);
   attachDream(a,{onReady:result=>recording=result});a.start();
-  for(let i=0;i<600;i++){
+  for(let i=0;i<a.mod.dreamDuration*60;i++){
     if(a.player.y>a.height*.52&&a.player.vy>0)a.flap();
     a.step(1/60);
   }
   assert.ok(recording.valid);assert.ok(beginFlightAttempt(run));
   const b=scene();const replay=attachDream(b,{mode:'replay',preset:recording.preset});
   assert.ok(replay);b.start();
-  for(let i=0;i<600;i++)b.step(1/60);
+  for(let i=0;i<a.mod.dreamDuration*60;i++)b.step(1/60);
   assert.equal(replay.phase,'awakening');
   assert.equal(snapshot(b),snapshot(a));
   assert.deepEqual(b.layout.embers.map(p=>[p.x,p.y,p.collected]),a.layout.embers.map(p=>[p.x,p.y,p.collected]));
@@ -94,7 +94,7 @@ for(const kind of ['normal','elite','finale']){
   assert.equal(await prepareDreamHandoff(c),false,'A second wake cannot duplicate the opening');
   assert.equal(await preparing,true);
   assert.equal(c.dream.phase,'awakening');assert.ok(c.paused);
-  assert.equal(steps,600);assert.ok(maxTaskSteps<=32);
+  assert.equal(steps,a.mod.dreamDuration*60);assert.ok(maxTaskSteps<=32);
   assert.equal(draws+sounds+notifications,0,'Loading never presents an intermediate frame, sound or HUD update');
   assert.equal(snapshot(c),snapshot(b));
   assert.deepEqual(c.layout.embers.map(p=>p.collected),b.layout.embers.map(p=>p.collected));

@@ -961,3 +961,17 @@ being spent on death; and the Fallen Giant's one-time permanent +3 capacity
 challenge reward. Reward copy drops redundant “now” and uses “permanently.”
 New Game still resets run upgrades and artifacts. See
 `docs/visual-consistency-review.md` for screenshots and preview links.
+
+## Item ratings
+
+- Cache Handling was rated **Weak at 25 Stored Sparks**. Reduce the base price to **20**.
+- Surge Handling was rated **Weak at 35 Stored Sparks**. Keep the price and instantly refill the Collector search ring on a successful Surge delivery.
+- Large Spark Handling replaces the three size purchases for a fixed 50 Stored Sparks after Search Spark. Flash remains separate.
+- Flash Handling rated Weak at 30 base. All Flash pickups now restore up to 6 missing Sparks with the skill.
+- Long Flash rated Ok at its base price of 45 Stored Sparks.
+- Spark Sense 1 rated OP at 55 with viewport-wide hints. Cap radial reach, fade with distance, and reserve the rightmost fifth of the viewport from Sense hints.
+- Spark Sense 2 rated Ok at its base price of 130 Stored Sparks.
+- Luminance 2 rated Ok at its base price of 100 Stored Sparks.
+- Luminance 1 rated Ok at its base price of 45 Stored Sparks.
+- Dream 1 costs 90 Stored Sparks base. Rehearsal durations are 8, 10 and 12 seconds. Its translucent wisp and golden scene dissolve into the paused waking flight.
+- Approved Nightmare in Dream 3. Dream 1/2/3 rehearse 8/12/16 seconds. Dream 2 costs 30, Dream 3 costs 250. One Nightmare per map negates an otherwise fatal Lift and wakes into the resume ramp.

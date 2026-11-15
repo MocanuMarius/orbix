@@ -33,7 +33,7 @@ import {sparkBodyRadius,sparkArtScale,sparkMass} from './spark-size.mjs?v=spark-
 import {captureMassDuration} from './tidal-light.mjs?v=spark-field-guide-1';
 import {readCaptureStyle} from './capture-styles.mjs?v=spark-field-guide-1';
 /* Emberwing's self-contained canvas flight simulation and renderer. */
-import { FLAME_TUNING, LIGHT_PACKET_TUNING } from './vitality.mjs?v=spark-field-guide-1';
+import { glowPoints, FLAME_TUNING, LIGHT_PACKET_TUNING } from './vitality.mjs?v=spark-field-guide-1';
 import { flightEndDistance } from './flight-end.mjs?v=spark-field-guide-1';
 import {getExitLandmarkState,drawExitLandmark} from './exit-landmark.mjs?v=spark-field-guide-1';
 import { WispCompanion, wispHome } from './wisp.mjs?v=spark-field-guide-1';
@@ -1204,6 +1204,15 @@ export class WispFlight {
       this.setEvent('Not enough Sparks · find a Spark'); this.notify();
       return false;
     }
+    if(this.mod.nightmare && !this.dream?.active && this.nightmareAvailable?.()){
+      this.hintProjection??=new FlightProjection(FLIGHT_TUNING,circleHitsObstacle);
+      const lifted=this.hintProjection.predict(this,1,[0]);
+      const glide=lifted.contact&&!lifted.uncertain?this.hintProjection.predict(this,1,[]):null;
+      if(glide&&!glide.contact&&!glide.uncertain){
+        this.onNightmare(this,lifted);
+        return false;
+      }
+    }
     this.cancelLeveler(true); this.levelDive = 0;
     // A rhythmic Lift expires first, so spend it before a stored Lift or route boon.
     const freeLift=this.dream?.freeGlow || beat.ready || this.artifactEffects.consumeLift();
@@ -1232,6 +1241,7 @@ export class WispFlight {
   beginLiftInput() {
     if (!this.running || this.paused || this.finished || this.dying || this.completing || this.liftHeld) return false;
     const lifted = this.flap();
+    if(this.paused)return false;
     this.liftHeld = true; this.liftHeldAt = this.time; this.levelExhausted = false;
     return lifted;
   }
@@ -1987,7 +1997,14 @@ export class WispFlight {
         duration:flashPowerupDuration(this.mod),initialScale:delivery?.scale??1,phase:ember.phase,reducedMotion:this.reducedMotion});
       this.sightUntil=this.flashTether.expires;
       this.revealFromPickup(true);
-      this.setEvent(`${spec.name} · Passage revealed`);
+      let restored = 0;
+      if (this.mod.collectorFlashFetch) {
+        restored = Math.min(FLAME_TUNING.emberFuel, Math.max(0, this.maxFlame - this.flame));
+        this.flame += restored;
+        this.flameRestored += restored;
+      }
+      const refill = glowPoints(restored);
+      this.setEvent(`${spec.name} · Passage revealed${refill ? ' · +' + refill + ' Sparks' : ''}`);
       this.sound('collect');
       return;
     }
@@ -2545,6 +2562,8 @@ export class WispFlight {
     const fade=this.dying?Math.max(.02,1-this.dyingProgress):1;
     c.scale(pulse*fade*WISP_BODY_SCALE, pulse*fade*WISP_BODY_SCALE);
     const band=Math.round(clamp(this.visibleGlow/this.maxFlame,0,1)*32),doc=this.canvas.ownerDocument||globalThis.document;
+    c.save();
+    if(this.dream?.mode==='record')c.globalAlpha*=this.reducedMotion?.48:.46+.09*Math.sin(t*3);
     if(doc?.createElement){
       this.fallbackWispSprites??=new Map();
       let sprite=this.fallbackWispSprites.get(band);
@@ -2552,6 +2571,7 @@ export class WispFlight {
       const size=WISP_ART.size*FALLBACK_WISP_RADIUS/WISP_ART.radius;
       c.imageSmoothingEnabled=false;c.drawImage(sprite,-size/2,-size/2,size,size);
     }else drawWispBody(c,band,0,0,FALLBACK_WISP_RADIUS);
+    c.restore();
     const aegis = this.proximityShieldRemaining > 0 || this.flightBoon.wardReady && !this.hasCompanion('protector');
     if(aegis || this.hasCompanion('protector')){
       const charged = aegis || this.shield.charges > 0;

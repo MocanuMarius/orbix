@@ -12,7 +12,7 @@ export const TUTORIAL_TOPICS={
  luminance:{name:'Luminance',visual:'luminance',steps:[
   s('Luminance','Luminance is how far your wisp lights the world. It fades with distance; faraway scenery and Sparks disappear into darkness.','luminance'),
   s('Sparks and sight','Sparks pay for Lift. Luminance reveals the route around your wisp.','luminance'),
-  s('See farther','Open the Luminance chapter. Luminance widens your light. Spark Sense lets you see pickups through darkness. Long Flash extends the white triangle’s light from 8 to 24 seconds.','pickup:sight')]},
+  s('See farther','Open the Luminance chapter. Luminance widens your light. Spark Sense lets you sense nearby pickups through fog. Long Flash extends the white triangle’s light from 8 to 24 seconds.','pickup:sight')]},
  utilities:{name:'Flash & hazards',visual:'pickup:sight',steps:[
   s('Flash Powerup','Catch the white triangle. It follows on a thread, lighting the passage with each pulse. The puff means its light has run out.','pickup:sight'),
   s('Dusk Spark','The rose Dusk Spark trades reduced Luminance for fuel. Its red ring warns of the cost. Only body contact collects it.','pickup:dusk'),
@@ -41,7 +41,7 @@ export const TUTORIAL_TOPICS={
  companions:{name:'Companions',visual:'companion:collector',steps:[
   s('Your companion','The green Collector accompanies you throughout the run. The three other portraits in the roster are locked.','companion:collector'),
   s('Read the range','The green boundary marks the reach of the next fetch. When a delivery arrives, the boundary contracts and slowly grows back.','collector-recovery'),
-  s('Choose its loads','Collector starts with Small and Cluster Sparks. Learn Cache, then Surge, then Giant Handling. Each larger rescue shrinks to a 12-Spark Cluster; body pickups keep their full value. Flash has its own unlock.','collector-return'),
+  s('Choose its loads','Collector starts with Small and Cluster Sparks. Large Spark Handling unlocks Cache, Surge and Giant together. Each larger rescue shrinks to a 12-Spark Cluster; body pickups keep their full value. Flash has its own unlock.','collector-return'),
   s('Build your Collector','Open the Collector chapter in Skills to change its reach or recovery. Last Orbit lets a fully ready Collector catch a fatal impact.','collector-range')]},
  packed:{name:'Stored Sparks',visual:'clear-reward',steps:[
   s('A reward for every clear','Ordinary flights earn 20 Stored Sparks for run skills. Elite and guardian victories also offer two artifacts: choose one. The third guardian ends the run with victory.','clear-reward'),
@@ -68,7 +68,7 @@ export const TUTORIAL_TOPICS={
   s('Then prepare','After Recover or Grow, open Skills to learn a perk or Collection to melt an artifact. Both are optional. Leave Rest when you’re ready.','tools'),
   s('Plan your next passage','Each Rest leads to one known flight. Inspect its terrain and prepare. If you lose a heart there, you can retry that same passage.','route')]},
  dream:{name:'Dream',visual:'dream',steps:[
-  s('Dream: rehearse six seconds','With Dream learned, choosing a flight opens a golden rehearsal. Follow the timer and practise the opening for free.','dream'),
+  s('Dream: rehearse eight seconds','With Dream learned, choosing a flight opens a golden rehearsal. Follow the timer and practise the opening for free.','dream'),
   s('Sleep or wake','Go back to sleep to practise again. Wake up at the end of your chosen opening with its pickups and free Lifts.','dream'),
   s('Wake safely','The passage returns to ordinary light and waits. Tap once to resume, then tap again to Lift.','pause')]},
  routes:{name:'Paths & stops',visual:'route',steps:[

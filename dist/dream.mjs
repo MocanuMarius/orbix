@@ -12,7 +12,7 @@ export function dreamFingerprint(options={}){
 }
 export function dreamConfig(run={}){
   const s=run.skills||{};
-  return {duration:s['main-dream']?(s['main-dream-deep']?10:s['main-dream-long']?8:6):0,
+  return {duration:s['main-dream']?(s['main-dream-deep']?16:s['main-dream-long']?12:8):0,
     wake:s['main-dream-wake']?4:3,sight:!!s['main-dream-deep']};
 }
 export function validateDreamPreset(preset,engine){
@@ -86,7 +86,7 @@ export async function prepareDreamHandoff(engine){
 export function attachDream(engine,{mode='record',preset,duration=engine.mod.dreamDuration,onReady=()=>{},onAwake=()=>{}}={}){
   if(mode==='replay'&&!validateDreamPreset(preset,engine))return null;
   if(mode!=='record'&&mode!=='replay'||!duration)return null;
-  const dream={engine,mode,phase:mode==='record'?'recording':'replay',duration:clamp(mode==='replay'?preset.duration:duration,6,10),
+  const dream={engine,mode,phase:mode==='record'?'recording':'replay',duration:clamp(mode==='replay'?preset.duration:duration,6,16),
     events:mode==='replay'?preset.events.map(event=>({...event,args:[...(event.args||[])]})):[],index:0,depth:0,internal:false,
     get active(){return this.phase==='recording'||this.phase==='replay'},
     get freeGlow(){return this.active},

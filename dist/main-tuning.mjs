@@ -12,9 +12,9 @@ export const MAIN_TUNING_SKILLS={
  'main-kindled-touch':node('main-kindled-touch','Kindled Touch',35,'main-efficiency','Direct natural Spark pickups restore 6 extra Sparks. Companion deliveries keep their usual value.','fuel','Direct +6 Sparks'),
  'main-kindled-rich':node('main-kindled-rich','Bright Touch',40,'main-kindled-touch','Direct natural Spark pickups restore another 4 Sparks.','fuel','Direct +4 Sparks'),
  'main-purifying-touch':node('main-purifying-touch','Purifying Touch',45,'main-kindled-touch','Touch a Dark Spark to turn it into 12 Sparks instead of dimming. Recharges in 10 seconds.','purify','Cleanse seeds'),
- 'main-dream':node('main-dream','Dream',35,'main-sight','Rehearse the first 6s of each flight in golden light. Lifts are free. Wake at the end of your rehearsal with your pickups.','dream','Dream 6s'),
- 'main-dream-long':node('main-dream-long','Long Dream',40,'main-dream','Extend rehearsals and preset playback to 8 seconds.','dream','Dream 8s'),
- 'main-dream-deep':node('main-dream-deep','Deep Dream',55,'main-dream-long','Preview 10 seconds. Gain +70 Luminance during your saved opening and for 3 seconds after taking control.','dream','Dream 10s'),
+ 'main-dream':node('main-dream','Dream',35,'main-sight','Rehearse the first 8s of each flight in golden light. Lifts are free. Wake at the end of your rehearsal with your pickups.','dream','Dream 8s'),
+ 'main-dream-long':node('main-dream-long','Long Dream',40,'main-dream','Extend rehearsals and preset playback to 12 seconds.','dream','Dream 12s'),
+ 'main-dream-deep':node('main-dream-deep','Deep Dream',55,'main-dream-long','Rehearse 16 seconds. Once per map, Nightmare undoes a Lift that would cause a collision. Gain +70 Luminance during your saved opening and for 3 seconds after taking control.','dream','Dream 16s + Nightmare'),
  'main-dream-wake':node('main-dream-wake','Gentle Awakening',30,'main-dream','After waking and tapping to resume, ease back to full speed over 4 seconds instead of 3.','dream','Soft wake'),
  'main-dream-sight':node('main-dream-sight','Lucid Luminance',35,'main-dream','Gain +70 Luminance during playback and the first 3s after you take control.','sight','Lucid Luminance'),
  'main-recovery':node('main-recovery','Renewal',30,'main-efficiency','Victory recovery becomes 55% Sparks; it scales with your vessel.','recovery','+5 Sparks recovery'),
@@ -22,7 +22,7 @@ export const MAIN_TUNING_SKILLS={
  'main-recovery-rescue':node('main-recovery-rescue','Last Spark',40,'main-recovery','Finish below 20% Sparks to recover an extra 10% Sparks.','recovery','Low Sparks aid'),
  'main-recovery-challenge':node('main-recovery-challenge','Earned Rest',40,'main-recovery','Completing the optional flight challenge restores an extra 10% Sparks.','recovery','Bonus +10 Sparks'),
  'main-afterglow':node('main-afterglow','Efficient Storage',35,'main-efficiency','Pack one-third of excess Sparks, up from one-sixth. Only real pickup surplus converts; recovery never does.','reserve','6 Sparks → 2'),
- 'main-glow-sense':node('main-glow-sense','Spark Sense',40,'main-sight','See pickups faintly through darkness.','beacon','Sense pickups'),
+ 'main-glow-sense':node('main-glow-sense','Spark Sense',40,'main-sight','Sense nearby pickups faintly through fog. The hint fades with distance.','beacon','Sense pickups'),
  'main-edging-attunement':node('main-edging-attunement','Edge Attunement',80,'main-sight','Edging Pulse is innate: skim clear of edges to build a 5s light pulse. Charge 25% faster: 1.6s instead of 2s.','edge-pulse','+25% charge'),
  'main-edging-lasting':node('main-edging-lasting','Lasting Pulse',100,'main-edging-attunement','Extend Edging Pulse from 5s to 7s. Regenerative Pulse can be learned alongside it.','edge-pulse','+2s pulse'),
  'main-edging-tension':node('main-edging-tension','Held Tension',90,'main-edging-attunement','Edging Pulse loses charge 50% more slowly away from edges. Regenerative Pulse can be learned alongside it.','edge-pulse','−50% decay'),
@@ -55,7 +55,7 @@ export function priceSkillDefinition(s){
   'main-speed':30,'main-tailwind':35,'main-sight':45,'main-glow-sense':55,'main-efficiency':90,
   'main-dream-long':45,'main-dream-deep':65,'main-drift-sense':25,'main-drift-sense-2':40,'main-drift-sense-3':70,
   'collector-last-orbit':155,'collector-far-search':50,'collector-rich-cargo':80,'collector-fleet-return':65,'collector-close-orbit':40,
-  'collector-fetch-cache':25,'collector-fetch-surge':35,'collector-fetch-giant':45,'collector-fetch-flash':30,
+  'collector-fetch-large':50,'collector-fetch-flash':30,
   'protector-cost':45,'protector-layers':90,'protector-clean-break':25,'protector-lasting-shell':25,'protector-thrifty-shell':55,'protector-returning-shell':65,
   'leveler-deep-dive':25,'leveler-ready-release':40,'leveler-quick-balance':45,'leveler-long-balance':55,
   'swift-long-spark':40,'swift-rapid-spark':55,'swift-storm-runner':25,'swift-sheltered-pace':35,
@@ -79,6 +79,6 @@ export function priceSkillDefinition(s){
  if(s.id.endsWith('-mastery'))return{...s,cost:s.branch==='swift'?55:45};
  const valuePrices={'main-glide-regen':85,'main-glide-regen-2':110,'main-lift':125,'main-dream-wake':30,'main-dream-sight':40,'main-echo-long':45,'main-echo-range':50,'main-recovery':50,'main-recovery-deep':55,'main-recovery-rescue':45,'main-recovery-challenge':45,'main-plummet':40,'main-deep-plummet':50,'main-tailwind':55,'main-drift':65,'main-kindled-touch':120,'main-kindled-rich':85,'main-dawnburst':130,'main-afterglow':110};
  if(valuePrices[s.id]!=null)return {...s,cost:valuePrices[s.id]};
- const prices={'main-sight':80,'main-speed':80,'main-efficiency':80,'main-drift-sense':25,'main-drift-sense-2':40,'main-drift-sense-3':70,'main-dream':85,'main-dream-long':100,'main-dream-deep':110,'main-dream-wake':80,'main-dream-sight':85,'main-afterglow':85,'main-reservoir':90,'main-vast-vessel':110,'main-purifying-touch':105,'main-kindled-rich':95,'main-dawnburst':100,'main-edging-lasting':100,'main-edging-tension':90,'main-edging-regeneration':100,'protector-layers':110,'leveler-dive':95};
+ const prices={'main-sight':80,'main-speed':80,'main-efficiency':80,'main-drift-sense':25,'main-drift-sense-2':40,'main-drift-sense-3':70,'main-dream':90,'main-dream-long':30,'main-dream-deep':250,'main-dream-wake':80,'main-dream-sight':85,'main-afterglow':85,'main-reservoir':90,'main-vast-vessel':110,'main-purifying-touch':105,'main-kindled-rich':95,'main-dawnburst':100,'main-edging-lasting':100,'main-edging-tension':90,'main-edging-regeneration':100,'protector-layers':110,'leveler-dive':95};
  return{...s,cost:prices[s.id]??(s.expansion?105:100)};
 }

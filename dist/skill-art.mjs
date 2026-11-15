@@ -183,7 +183,7 @@ const aliases={
  duration:'Longer Level',level:'Still Point',dive:'Falling Release',wind:'Wind Lance',swift:'Momentum',fuel:'Search Spark'
 };
 const byId={
- 'collector-fetch-cache':'Spark Vessel','collector-fetch-surge':'Spark Vessel','collector-fetch-giant':'Spark Vessel','collector-fetch-flash':'Long Flash',
+ 'collector-fetch-large':'Spark Vessel','collector-fetch-flash':'Long Flash',
  'main-long-flash':'Long Flash',
  'main-sight':'Luminance','main-horizon':'Luminance','main-edging-attunement':'Proximity','main-reservoir':'Spark Vessel',
  'main-dream':'Dream','main-speed':'Momentum','main-lift':'Lift','main-efficiency':'Lift','main-glide-regen':'Glide Regeneration',
