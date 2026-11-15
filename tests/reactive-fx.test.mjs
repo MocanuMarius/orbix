@@ -43,7 +43,8 @@ test('FX opens one context only on unlock and allocates no graph during state up
   const count=h.nodes.length;
   for(let i=0;i<100;i++){
     h.contexts[0].currentTime+=.1;
-    fx.setState({hole:i/100,pulse:1-i/100,transport:{time:i,rate:.8,bpm:78}});
+    fx.setState({hole:i/100,pulse:i%2?0:1-i/100,proximity:i/100,proximityContact:i%3!==0,
+      proximityRecovery:i%5===0,transport:{time:i,rate:.8,bpm:78}});
   }
   assert.equal(h.nodes.length,count);
   fx.destroy();fx.destroy();
@@ -98,4 +99,19 @@ test('hidden document stops events, fades master and removes its listener on dis
     fx.destroy();
     if(original===undefined)delete globalThis.document;else globalThis.document=original;
   }
+});
+
+test('busy scenes keep warnings ahead of pickup chatter within foreground and voice limits',async()=>{
+ const h=audioHarness(),fx=createFlightFX({AudioContextClass:h.AudioContext});await fx.unlock();
+ const context=h.contexts[0];
+ for(const [at,type]of [[0,'pickup'],[.04,'spore'],[.08,'flash'],[.10,'ice-warning'],[.20,'shield'],[.50,'pickup']]){
+  context.currentTime=at;fx.play(type);
+  const mix=fx.getMixState();assert.ok(mix.events<=3);assert.ok(mix.voices<=18);assert.ok(mix.priorities[0]<=1);
+ }
+ assert.ok(fx.getMixState().priorities[2]>0,'danger survives the busy scene');
+ assert.equal(fx.getMixState().priorities[0],0,'new pickup detail yields to danger');
+ assert.ok(fx.getFocus()>0);fx.setMuted(true);assert.equal(fx.getFocus(),0);
+ fx.setMuted(false);context.currentTime=4;
+ assert.equal(fx.getMixState().events,0);assert.equal(fx.getMixState().voices,0);
+ assert.ok(fx.getFocus()<.01);fx.destroy();
 });

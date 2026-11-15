@@ -41,3 +41,22 @@ test('three streamed layers ease their gains, mute completely, respect visibilit
  document.hidden=true;events.visibilitychange();assert.ok(players.every(p=>p.paused));
  music.destroy();assert.ok(cleared>=2);assert.equal(Object.keys(events).length,0);
 });
+test('important effects duck every music stem gently, release slowly and preserve transport',()=>{
+ const events={},players=[];let tick,plays=0;
+ const document={hidden:false,addEventListener:(key,fn)=>events[key]=fn,removeEventListener(){}};
+ class Audio{constructor(){this.currentTime=24;this.paused=true;players.push(this);}play(){plays++;this.paused=false;}pause(){this.paused=true;}addEventListener(){}}
+ const music=createMusic({document,AudioClass:Audio,storage:{getItem(){},setItem(){}},schedule:fn=>{tick=fn;return 1;},cancel(){}});
+ events.pointerdown({});music.setFlight({boss:{phase:3},flame:100});for(let i=0;i<200;i++)tick();
+ const normal=players.map(p=>p.volume),transport=music.getTransport();
+ music.setFlight({boss:{phase:3},flame:100,audioFocus:1});tick();
+ assert.ok(players.every((p,i)=>p.volume<normal[i]&&p.volume>normal[i]*.78));
+ for(let i=0;i<30;i++)tick();
+ assert.ok(players.every((p,i)=>Math.abs(p.volume/normal[i]-.78)<.003));
+ assert.deepEqual(music.getTransport(),transport);assert.equal(plays,3);
+ music.setFlight({boss:{phase:3},flame:100,audioFocus:0});tick();
+ assert.ok(players.every((p,i)=>p.volume>normal[i]*.78&&p.volume<normal[i]*.9));
+ for(let i=0;i<100;i++)tick();assert.ok(players.every((p,i)=>Math.abs(p.volume-normal[i])<.002));
+ music.setFlight({boss:{phase:3},flame:100,audioFocus:1});for(let i=0;i<30;i++)tick();
+ music.setScene('boss',1);for(let i=0;i<160;i++)tick();assert.ok(players.every((p,i)=>Math.abs(p.volume-normal[i])<.002));
+ assert.ok(players.every(p=>p.playbackRate===1));music.destroy();
+});

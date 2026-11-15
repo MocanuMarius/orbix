@@ -2155,6 +2155,7 @@ export class WispFlight {
       ability, companions:this.getCompanionStates().map(item=>({...item})),shield:this.getShieldState(),leveler:this.getLevelerState(),
       completing:this.completing,completionProgress:this.completionProgress,collectorAura:this.getCollectorAuraState(),dying:this.dying,dyingProgress:this.dyingProgress,deathCause:this.deathCause,
       light: this.getLightState(),edgingPulse:this.edgingPulse.state,luminanceWaves:this.luminanceWaves.getState(),
+      audioFocus:this.fx?.getFocus?.()||0,
       blackHole:this.blackHoles.state,
       mainTraits:{seer:!!this.mod.mainSeer,seerRemaining:Math.max(0,this.mainSeerUntil-this.time),seerCooldown:Math.max(0,this.mainSeerReadyAt-this.time),kindler:!!this.mod.mainKindler,kindlerPulse:this.kindlerPulse,purifyCooldown:this.purifyCooldown},
       collected: this.baseEmbers, boostCooldown: this.cooldown,
@@ -2177,6 +2178,10 @@ export class WispFlight {
     const nearest=this.blackHoles?.items.find(item=>item.id===state.blackHole?.nearest?.id);
     this.fx?.setState({...reaction,dream:state.dream?.mode==='record'?1:0,
       paused:state.paused||state.finished,
+      proximity:state.edgingPulse.charge,
+      proximityContact:state.edgingPulse.nearEdge&&!state.edgingPulse.active&&!state.edgingPulse.recovering
+        &&!state.dying&&!state.completing&&Number.isFinite(this.edgingPulse.surface?.clearance),
+      proximityRecovery:state.edgingPulse.active||state.edgingPulse.recovering,
       pan:nearest?clamp((nearest.x-this.distance-this.player.x)/(this.width*.5),-.7,.7):0,
       transport:this.getAudioTransport?.()||{time:this.time,rate:1,bpm:78}});
     this.onUpdate(state);
