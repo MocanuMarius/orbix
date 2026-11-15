@@ -18,13 +18,19 @@ The full suite is not claimed green. Unchanged `d46f95f` has six failing seamles
 
 ## Run archetypes
 
-- [ ] NEXT — design and isolated playtest after First Light; no campaign or prologue change. Test run identity from two passive technique cards maximum: at two milestones between flights, pick one of two offers or skip. The first pick changes how to fly; the second adds an immediately visible synergy. Keep controllable essentials in the skill book and boss relics passive; add no consumable or currency.
-- **First pick:** Bankrunner primes one free Lift after a deliberate skim beside a real bank; Glider primes the same payoff after a short coast into a direct fuel Spark. The alternatives should change flight lines, rather than reward ordinary play automatically.
-- **Second pick:** spending that primed Lift either sends a small reveal wave or accelerates a recovering Collector. Share the existing single stored free Lift; prime at most twice per flight and do not spend a proc opportunity while that bank is full. Show the priming, stored payoff and modifier firing clearly. Thresholds, effect strengths and the two-proc cap are pilot hypotheses, not settled balance.
-- **Guardrails:** no generated-reward loops, Dream/retry farming or rewards carried from practice. Keep the six-stop First Light stable; use an isolated playtest that assumes neither Proximity nor Dream is learned and grants no expensive skills.
-- **Decision test:** pair the same seed and equal economy against the existing skill book, including cheap-side versus center/bank routes. Record offers, picks/skips, time near banks, direct versus Collector-fetched Sparks, route decisions and survival; ask whether players intentionally changed their flight line and why. Advance only if the combinations create readable choices beyond the skill book. After that test, consider a campfire change-one-pick option; it is not a shipping commitment.
+- [ ] NEXT — design an isolated playtest after First Light. Keep the campaign and six-stop prologue unchanged. Trial at most two passive technique cards. At each of two milestones between flights, offer two cards and let the player choose one or skip. The first choice changes how to fly. The second adds an immediately visible synergy. Keep controllable essentials in the skill book and boss relics passive. Add no consumable or currency.
 
-Method reference: Mega Crit's original GDC talk, [Slay the Spire: Metrics Driven Design and Balance](https://media.gdcvault.com/gdc2019/presentations/Giovannetti_Anthony_SlayTheSpire.pdf): use picks/skips as evidence and combine measured outcomes with player feedback rather than treating metrics as the conclusion.
+For the first pick, Bankrunner primes one free Lift after a deliberate skim beside a real bank. Glider primes the same payoff after a short coast into a direct fuel Spark. Both should reward a deliberate change in flight line.
+
+For the second pick, spending that primed Lift either sends a small reveal wave or accelerates a recovering Collector. Use the existing single stored free Lift. Allow at most two priming triggers per flight and preserve the trigger opportunity whenever a free Lift is already stored. Show the priming, stored Lift and modifier firing clearly. Thresholds, effect strengths and the two-trigger cap are pilot hypotheses.
+
+The isolated playtest must assume neither Proximity nor Dream is learned and grant no expensive skills. Block generated-reward loops, Dream/retry farming and rewards carried from practice.
+
+Compare the cards with the existing skill book at equal economy on the same seed. Include the open middle and riskier bank route. Record offers, picks/skips, time near banks, direct versus Collector-fetched Sparks, route decisions and survival. Ask whether players intentionally changed their flight line and why. Advance only if the combinations create readable choices beyond the skill book.
+
+Only after that test, consider letting a campfire change one pick. This is a candidate for review, not a shipping commitment.
+
+Mega Crit's original GDC talk, [Slay the Spire: Metrics Driven Design and Balance](https://media.gdcvault.com/gdc2019/presentations/Giovannetti_Anthony_SlayTheSpire.pdf), informs this method. Use picks/skips as evidence and combine measured outcomes with player feedback.
 
 ---
 
