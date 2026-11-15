@@ -1,8 +1,8 @@
-import {showNightmare} from './nightmare.mjs?v=in-game-edges-1';
-import {WispFlight,FLIGHT_TUNING,circleHitsObstacle} from './flight.mjs?v=in-game-edges-1';
-import {FlightProjection} from './flight-projection.mjs?v=in-game-edges-1';
-import {getRunModifiers} from './model.mjs?v=in-game-edges-1';
-import {glowPoints} from './vitality.mjs?v=in-game-edges-1';
+import {showNightmare} from './nightmare.mjs?v=in-game-edges-2';
+import {WispFlight,FLIGHT_TUNING,circleHitsObstacle} from './flight.mjs?v=in-game-edges-2';
+import {FlightProjection} from './flight-projection.mjs?v=in-game-edges-2';
+import {getRunModifiers} from './model.mjs?v=in-game-edges-2';
+import {glowPoints} from './vitality.mjs?v=in-game-edges-2';
 const $=id=>document.getElementById(id),canvas=document.querySelector('canvas');
 const forecast=new FlightProjection(FLIGHT_TUNING,circleHitsObstacle);
 let phase='loading',spent=false,flashStart=-Infinity;

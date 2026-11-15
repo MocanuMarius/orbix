@@ -1,6 +1,6 @@
-import {glowPoints, getGlowCapacity,getLifeCapacity} from './vitality.mjs?v=in-game-edges-1';
-import {getCompanionAbility} from './companion-abilities.mjs?v=in-game-edges-1';
-import {activeEventFavors} from './passage-preparations.mjs?v=in-game-edges-1';
+import {glowPoints, getGlowCapacity,getLifeCapacity} from './vitality.mjs?v=in-game-edges-2';
+import {getCompanionAbility} from './companion-abilities.mjs?v=in-game-edges-2';
+import {activeEventFavors} from './passage-preparations.mjs?v=in-game-edges-2';
 
 export const TREASURE_KINDS = Object.freeze(['vessel', 'lens', 'tithe', 'wager']);
 export const LENS_SIGHT = 1.15;

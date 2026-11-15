@@ -1,10 +1,10 @@
-import {companionArtSvg} from './companion-art.mjs?v=in-game-edges-1';
-import {resourceSymbol} from './game-symbols.mjs?v=in-game-edges-1';
-import {lifeHeartSvg} from './lives.mjs?v=in-game-edges-1';
-import {getTreasureChoices,getTreasureKind} from './model.mjs?v=in-game-edges-1';
-import {treasureArt} from './treasure-art.mjs?v=in-game-edges-1';
-import {skillIcon,artifactIcon} from './upgrade-icons.mjs?v=in-game-edges-1';
-import {formatGlow,getGlowCapacity} from './vitality.mjs?v=in-game-edges-1';
+import {companionArtSvg} from './companion-art.mjs?v=in-game-edges-2';
+import {resourceSymbol} from './game-symbols.mjs?v=in-game-edges-2';
+import {lifeHeartSvg} from './lives.mjs?v=in-game-edges-2';
+import {getTreasureChoices,getTreasureKind} from './model.mjs?v=in-game-edges-2';
+import {treasureArt} from './treasure-art.mjs?v=in-game-edges-2';
+import {skillIcon,artifactIcon} from './upgrade-icons.mjs?v=in-game-edges-2';
+import {formatGlow,getGlowCapacity} from './vitality.mjs?v=in-game-edges-2';
 
 const esc=value=>String(value??'').replace(/[&<>"']/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
 

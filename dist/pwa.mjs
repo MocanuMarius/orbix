@@ -11,7 +11,9 @@ const installation = host[key] ??= { registration: null, prompt: null, installed
 const changeEvent = key + ':change';
 function notify() { host.dispatchEvent(new host.Event(changeEvent)); }
 export function onInstallationChange(listener) { host.addEventListener(changeEvent, listener); }
-if (!installation.started && host.isSecureContext) {
+// A disposable flight comparison stays online and never installs a second PWA.
+const flightComparison = new URLSearchParams(location.search).get('mock') === 'boundary';
+if (!flightComparison && !installation.started && host.isSecureContext) {
   installation.started = true;
   host.addEventListener('beforeinstallprompt', event => {
     event.preventDefault();
