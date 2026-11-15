@@ -1,6 +1,6 @@
-import {glowPoints, getGlowCapacity,getLifeCapacity} from './vitality.mjs?v=nature-sounds-1';
-import {getCompanionAbility} from './companion-abilities.mjs?v=nature-sounds-1';
-import {activeEventFavors} from './passage-preparations.mjs?v=nature-sounds-1';
+import {glowPoints, getGlowCapacity,getLifeCapacity} from './vitality.mjs?v=small-openings-1';
+import {getCompanionAbility} from './companion-abilities.mjs?v=small-openings-1';
+import {activeEventFavors} from './passage-preparations.mjs?v=small-openings-1';
 
 export const TREASURE_KINDS = Object.freeze(['vessel', 'lens', 'tithe', 'wager']);
 export const LENS_SIGHT = 1.15;

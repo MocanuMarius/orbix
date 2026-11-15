@@ -1,7 +1,7 @@
-import {WispFlight} from './flight.mjs?v=nature-sounds-1';
-import {getRunModifiers} from './model.mjs?v=nature-sounds-1';
-import {wispOrbit} from './wisp.mjs?v=nature-sounds-1';
-import {formatGlow, glowPoints} from './vitality.mjs?v=nature-sounds-1';
+import {WispFlight} from './flight.mjs?v=small-openings-1';
+import {getRunModifiers} from './model.mjs?v=small-openings-1';
+import {wispOrbit} from './wisp.mjs?v=small-openings-1';
+import {formatGlow, glowPoints} from './vitality.mjs?v=small-openings-1';
 
 const frame=document.querySelector('#flight-frame'),gate=document.querySelector('#gate');
 const status=document.querySelector('#status'),meter=document.querySelector('meter'),amount=document.querySelector('#meter');

@@ -1,4 +1,4 @@
-import {terrainBoundary} from './terrain-boundary.mjs?v=nature-sounds-1';
+import {terrainBoundary} from './terrain-boundary.mjs?v=small-openings-1';
 // A standalone art study. These surfaces belong to this preview, never a run.
 const canvas=document.querySelector('#scene'),c=canvas.getContext('2d');
 const W=800,H=360,S=canvas.width/W;

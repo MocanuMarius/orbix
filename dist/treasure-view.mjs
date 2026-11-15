@@ -1,10 +1,10 @@
-import {companionArtSvg} from './companion-art.mjs?v=nature-sounds-1';
-import {resourceSymbol} from './game-symbols.mjs?v=nature-sounds-1';
-import {lifeHeartSvg} from './lives.mjs?v=nature-sounds-1';
-import {getTreasureChoices,getTreasureKind} from './model.mjs?v=nature-sounds-1';
-import {treasureArt} from './treasure-art.mjs?v=nature-sounds-1';
-import {skillIcon,artifactIcon} from './upgrade-icons.mjs?v=nature-sounds-1';
-import {formatGlow,getGlowCapacity} from './vitality.mjs?v=nature-sounds-1';
+import {companionArtSvg} from './companion-art.mjs?v=small-openings-1';
+import {resourceSymbol} from './game-symbols.mjs?v=small-openings-1';
+import {lifeHeartSvg} from './lives.mjs?v=small-openings-1';
+import {getTreasureChoices,getTreasureKind} from './model.mjs?v=small-openings-1';
+import {treasureArt} from './treasure-art.mjs?v=small-openings-1';
+import {skillIcon,artifactIcon} from './upgrade-icons.mjs?v=small-openings-1';
+import {formatGlow,getGlowCapacity} from './vitality.mjs?v=small-openings-1';
 
 const esc=value=>String(value??'').replace(/[&<>"']/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
 
