@@ -1,5 +1,5 @@
-import {getLifeCapacity} from './vitality.mjs?v=spark-balance-1';
-import {grantPassageBoon} from './passage-preparations.mjs?v=spark-balance-1';
+import {getLifeCapacity} from './vitality.mjs?v=spark-progression-1';
+import {grantPassageBoon} from './passage-preparations.mjs?v=spark-progression-1';
 
 function bonus(id, name, condition, reward, target) {
   return Object.freeze({id, name, condition, reward, target});
@@ -50,6 +50,9 @@ function canOfferUtility(run, node, id) {
   const experienced = run.testMode || run.mapIndex > 0;
   const flights = run.stats?.flights || 0;
   switch (id) {
+    // These hunts reserve several rich pickups. Short courses cannot fund
+    // them alongside opening fuel and dark chains without oversupplying fuel.
+    case 'constellation': return !Number.isFinite(node.duration)||node.duration>=75;
     case 'wild-circuit': return !node.boss && helpfulBiomes.has(node.biomeId) && (experienced || flights >= 1);
     case 'flash-relay': return experienced || flights >= 2;
     case 'edgeweaver': return !!run.skills?.['proximity-awakening'];
@@ -68,7 +71,7 @@ export function getRouteBonusCandidates(run, node) {
   const currencyId = hash(run.campaignSeed + ':gilded-map') % 3 === run.mapIndex ? 'gilded' : 'precision';
   const ids = [];
   if (node.id === purse?.id && !run.pilgrimVow && run.treasurePact !== 'wager' && !alreadyAwarded(run, currencyId)) ids.push(currencyId);
-  const heartSites = flights.filter(site => site.id !== purse?.id);
+  const heartSites = flights.filter(site => site.id !== purse?.id&&(!Number.isFinite(site.duration)||site.duration>=75));
   const heart = heartSites[hash(run.seed + ':bonus-heart') % heartSites.length];
   if (node.id === heart?.id && run.lives < getLifeCapacity(run) && !alreadyAwarded(run, 'three-suns')) ids.push('three-suns');
   const prefix = run.seed + ':bonus-row:' + node.row + ':';

@@ -36,6 +36,6 @@ export function getAscentInfo(nodeOrRow = 0, tutorial = false) {
     hardGapScale: Math.max(.78, GAP_SCALES[pressureLevel - 1] * difficultyGapScale*(1-chapterPressure*.025)),
     hardGapReduction: 1 - Math.max(.78, GAP_SCALES[pressureLevel - 1] * difficultyGapScale*(1-chapterPressure*.025)),
     difficulty, difficultyPressure, difficultyGapScale, draftForceScale,
-    requestedHardWindows: (pressureLevel === 1 ? 1 : pressureLevel < 4 ? 2 : 3)+(row>=3?mapIndex:0),
+    requestedHardWindows: (pressureLevel === 1 ? 1 : pressureLevel < 4 ? 2 : 3)+mapIndex*(1+Math.floor(row/3)),
   };
 }

@@ -1,5 +1,5 @@
-import {newState,createRun,advanceMap,selectNode} from './model.mjs?v=spark-balance-1';
-import {describeTreasure,TREASURE_KINDS} from './treasure.mjs?v=spark-balance-1';
+import {newState,createRun,advanceMap,selectNode} from './model.mjs?v=spark-progression-1';
+import {describeTreasure,TREASURE_KINDS} from './treasure.mjs?v=spark-progression-1';
 // Deliberately independent of storage. Every refresh creates the same mock run.
 export function createRestInspectorState(){
  const state=newState();state.profile.difficulty=4;
