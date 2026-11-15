@@ -1,0 +1,119 @@
+/* Game text has four jobs: title, consequence, rule, and quiet label.
+   Keep the pixel face, but give each job a consistent size and contrast.
+   These are logical phone-viewport sizes, never a zoom of the flight scene. */
+:root{
+ --menu-ink:#f0edcf;
+ --menu-copy:#d3ddc4;
+ --menu-note:#b9cbb0;
+ --menu-inactive:#aebda6;
+ --menu-ground:#12221b;
+ --menu-raised:#26382b;
+ --menu-title-size:25px;
+ --menu-effect-size:18px;
+ --menu-body-size:16px;
+ --menu-note-size:14px;
+ --menu-label-size:12px;
+}
+body:not(.playing){color:var(--menu-ink);font-kerning:none}
+body:not(.playing) :is(button,strong,b,[role=meter]){font-variant-numeric:tabular-nums lining-nums}
+body:not(.playing) :is(p,.artifact-explanation,.reward-copy,.tree-inspector){font-kerning:none;letter-spacing:0;text-rendering:optimizeSpeed}
+
+/* Consequences are prominent; conditions and limits stay visible beside them. */
+.reward-copy h2,.artifact-inspection .relic-detail-crest h2{color:var(--menu-ink)}
+.reward-copy>.reward-effect-sentence,.artifact-explanation>.artifact-effect-main{font-size:var(--menu-effect-size);line-height:1.4;color:var(--menu-ink)}
+.reward-copy>.reward-trigger,.artifact-explanation>.artifact-trigger-line{font-size:var(--menu-body-size);line-height:1.4;color:var(--menu-copy)}
+.reward-copy>.reward-condition,.artifact-explanation>.artifact-limit-line{font-size:var(--menu-note-size);line-height:1.4;color:var(--menu-note)}
+.reward-identity>span,.artifact-duration{font-size:var(--menu-label-size);line-height:1.35;color:var(--menu-note)}
+.reward-packed-earned>span,.artifact-inspection .relic-detail-crest small{color:var(--menu-note)}
+.artifact-reward-actions>button{font-size:18px;line-height:1.2}
+.artifact-reward-actions .reward-melt{color:#f2d7b7}
+.reward-art-column .reward-trophy>span{font-size:12px;letter-spacing:.5px}
+.reward-art-column .reward-trophy>span,.reward-state{text-shadow:1px 1px #0a160f}
+
+/* Optional inspection retains one scroll surface. It must not shrink prose
+   merely because an artifact has a longer explanation. */
+.artifact-inspection .artifact-explanation>.artifact-effect-main{font-size:20px;line-height:1.4}
+.artifact-sheet .artifact-explanation>.artifact-effect-main{font-size:18px;line-height:1.35}
+.artifact-sheet .artifact-explanation>.artifact-trigger-line{font-size:14px;line-height:1.4}
+.artifact-sheet .artifact-explanation>.artifact-limit-line{font-size:13px;line-height:1.4}
+.artifact-sheet .artifact-duration{font-size:12px}
+.artifact-rule,.artifact-service-note,.artifact-salvage-note>small{color:var(--menu-note)!important}
+.artifact-selected .artifact-description{scrollbar-color:#82946a #14251d}
+.artifact-inspection .artifact-combo-note{color:#dfcc9f;line-height:1.4}
+.artifact-workshop-heading>span{color:var(--menu-copy)}
+.artifact-alternatives>button{font-size:16px!important;line-height:1.25!important}
+.artifact-alternatives>button small{font-size:12px!important;line-height:1.3!important;color:var(--menu-note)}
+.artifact-workshop-footer>button,.swap-actions>button,.forge-ritual-actions>button{font-size:16px!important;line-height:1.2!important}
+.swap-instruction{color:var(--menu-copy);font-size:15px}
+.swap-loss{color:#dec7a4;font-size:13px;line-height:1.35}
+
+/* Rest is read through its picture, choice name and resulting value. Secondary
+   labels share one baseline instead of several competing tiny text styles. */
+.rest-eyebrow,.rest-choice-caption b,.rest-dream-passage .rest-next small{font-size:var(--menu-label-size)!important;letter-spacing:.5px;color:var(--menu-note)}
+.rest-choice-caption>span{font-size:var(--menu-label-size);line-height:1.3;color:var(--menu-note)}
+.rest-benefit h2{color:var(--menu-ink)!important}
+.rest-outcome-track,.rest-glow b,.rest-capacity-gain{color:var(--menu-ink)}
+.rest-outcome-track b small,.rest-glow b small{color:var(--menu-note)}
+.rest-pick-cue,.rest-service-cards small,.rest-receipt{color:var(--menu-copy);font-size:var(--menu-note-size)}
+.rest-rules summary,.rest-route-link{font-size:var(--menu-note-size)!important;color:var(--menu-copy)!important}
+.rest-rules p{font-size:var(--menu-note-size);line-height:1.5;color:var(--menu-copy)}
+.rest-rules p b{color:var(--menu-ink)}
+.rest-outcome-track>.resource-symbol,.rest-outcome-track .resource-symbol,.rest-glow>.resource-symbol{width:22px;height:22px;flex:0 0 22px}
+.rest-capacity-gain .resource-symbol{width:17px;height:17px;flex-basis:17px}
+.rest-service-cards small>.resource-symbol{width:17px;height:17px;flex-basis:17px}
+.rest-dream-passage>.rest-dream>span{font-size:14px}
+.rest-dream-passage>.rest-dream>small{font-size:12px;color:var(--menu-note)}
+
+/* Inspecting a skill never relies on a price color alone. Existing +, check,
+   lock and rank markers remain intact, with distinct border treatments. */
+.tree-state-key{color:var(--menu-copy);font-size:12px}
+.tree-state-key>span{font-size:12px}
+.tree-sheet .tree-bud[data-tree-state=learned]{background:#233f43;border-color:#9bcad2;border-style:solid;color:#cbe8ea}
+.tree-sheet .tree-bud[data-tree-state=available]{background:#3b492d;border-color:#eed49b;border-style:solid;color:#f5e6bd}
+.tree-sheet .tree-bud[data-tree-state=saving]{background:#293329;border-color:#a69070;border-style:double;color:#dbc8a6}
+.tree-sheet .tree-bud:is([data-tree-state=locked],[data-tree-state=preview]){background:#19291f;border-color:#84977c;border-style:dashed;color:var(--menu-inactive)}
+.tree-sheet .tree-bud[data-tree-state=distant]{color:#73866d;border-color:#455b45}
+.tree-sheet .tree-bud .bud-price{font-size:12px;line-height:1;color:var(--menu-ink);background:#0d1b15}
+.tree-sheet .tree-bud[data-tree-state=learned] .bud-price{color:#c6e4e6;border-color:#7daeb5}
+.tree-sheet .tree-bud[data-tree-state=saving] .bud-price{color:#e1c6a1;border-color:#9a8465}
+.tree-sheet .tree-inspector-title h3{font-size:20px!important;line-height:1.2;color:var(--menu-ink)}
+.tree-sheet .tree-inspector p{font-size:14px!important;line-height:1.4!important;color:var(--menu-copy)}
+.tree-sheet .tree-inspector .skill-purchase{font-size:15px!important;line-height:1.25!important}
+.tree-sheet .tree-selection-status{color:var(--menu-copy);font-size:13px}
+.tree-sheet .tree-crown>span{font-size:17px;color:var(--menu-ink)}
+
+/* Text stays readable on inactive choices. Muted ground, dashed edges and the
+   existing lock/check explain why it differs from a selectable choice. */
+body:not(.playing) button:disabled:not(.tree-bud),body:not(.playing) [role=button][aria-disabled=true]:not(.tree-bud){
+ color:var(--menu-inactive)!important;-webkit-text-fill-color:var(--menu-inactive)!important;
+ background:#1d2b22!important;border-color:#64775d!important;border-style:dashed!important;
+ opacity:1!important;filter:none!important;box-shadow:none!important;text-shadow:none!important;
+}
+body:not(.playing) button:disabled:not(.tree-bud) :is(span,small,strong,b,p){color:inherit!important;opacity:1!important}
+body:not(.playing) button:focus-visible,body:not(.playing) summary:focus-visible{outline:2px solid #f2dfad;outline-offset:3px}
+body:not(.playing) button:focus-visible:not(:disabled){filter:brightness(1.08)}
+.guide-topics strong{font-size:15px;line-height:1.25;color:var(--menu-ink)}
+.guide-topics small,.field-guide-heading h2 small{color:var(--menu-note)}
+.game-menu-sheet p,.menu-pause p{color:var(--menu-copy)}
+.single-companion-description>p{color:var(--menu-copy);line-height:1.4}
+.tutorial-coach-card>p{color:var(--menu-copy);line-height:1.45}
+.tutorial-coach-card>h2{color:var(--menu-ink)}
+.tutorial-coach-actions>button{font-size:15px;line-height:1.25}
+.tutorial-coach-actions>[data-coach=skip]{color:#e3d7ba}
+
+@media(orientation:landscape) and (max-height:350px){
+ :root{--menu-title-size:21px;--menu-effect-size:16px;--menu-body-size:13px;--menu-note-size:12px;--menu-label-size:11px}
+ .reward-copy>.reward-effect-sentence{line-height:1.3}.reward-copy>.reward-trigger{line-height:1.25}.reward-copy>.reward-condition{line-height:1.3}
+ .reward-identity>span{font-size:10px;line-height:1.3}.reward-art-column .reward-trophy>span{font-size:11px}
+ .artifact-reward-actions>button{font-size:16px}
+ .artifact-inspection .artifact-explanation>.artifact-effect-main{font-size:17px;line-height:1.3}
+ .artifact-sheet .artifact-explanation>.artifact-effect-main{font-size:16px;line-height:1.3}.artifact-sheet .artifact-explanation>.artifact-trigger-line{font-size:13px;line-height:1.3}.artifact-sheet .artifact-explanation>.artifact-limit-line{font-size:12px;line-height:1.35}.artifact-sheet .artifact-duration{font-size:11px}
+ .artifact-alternatives>button,.artifact-workshop-footer>button,.swap-actions>button,.forge-ritual-actions>button{font-size:13px!important}
+ .artifact-alternatives>button small{font-size:11px!important}.swap-instruction{font-size:13px}.swap-loss{font-size:12px}
+ .rest-choice-caption>span{font-size:11px}.rest-pick-cue,.rest-service-cards small,.rest-receipt{font-size:12px}
+ .rest-outcome-track>.resource-symbol,.rest-outcome-track .resource-symbol,.rest-glow>.resource-symbol{width:19px;height:19px;flex-basis:19px}.rest-capacity-gain .resource-symbol,.rest-service-cards small>.resource-symbol{width:15px;height:15px;flex-basis:15px}
+ .rest-dream-passage>.rest-dream>span{font-size:12px}.rest-dream-passage>.rest-dream>small{font-size:11px}
+ .tree-state-key,.tree-state-key>span{font-size:11px}.tree-sheet .tree-bud .bud-price{font-size:11px}.tree-sheet .tree-inspector-title h3{font-size:18px!important}.tree-sheet .tree-inspector p{font-size:12px!important;line-height:1.35!important}.tree-sheet .tree-inspector .skill-purchase{font-size:13px!important}.tree-sheet .tree-selection-status{font-size:12px}
+ .guide-topics strong{font-size:13px}.tutorial-coach-actions>button{font-size:13px}.tutorial-coach-card>p{line-height:1.35}
+}
+@media(prefers-reduced-motion:reduce){body:not(.playing) button:focus-visible:not(:disabled){filter:none}}

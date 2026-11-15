@@ -1,6 +1,6 @@
-import {drawShutterWake,shutterLightFactor,shutterWakeAt} from './shutter-cone.mjs?v=in-game-edges-1';
-import {lanternField} from './lantern-layout.mjs?v=in-game-edges-1';
-import { LIGHT_EXTENT, lightAttenuation } from './light-attenuation.mjs?v=in-game-edges-1';
+import {drawShutterWake,shutterLightFactor,shutterWakeAt} from './shutter-cone.mjs?v=in-game-edges-2';
+import {lanternField} from './lantern-layout.mjs?v=in-game-edges-2';
+import { LIGHT_EXTENT, lightAttenuation } from './light-attenuation.mjs?v=in-game-edges-2';
 export { LIGHT_EXTENT, lightAttenuation };
 const reflectedLight = .6;
 

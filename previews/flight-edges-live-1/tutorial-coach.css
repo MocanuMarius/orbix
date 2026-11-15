@@ -1,0 +1,238 @@
+.tutorial-coach {
+  position: fixed;
+  inset: 0;
+  z-index: 2147483000;
+  pointer-events: none;
+  isolation: isolate;
+  color: #d4d9be;
+  font-family: var(--sans, monospace);
+}
+/* Native sheets remain the top layer; their coach uses viewport coordinates. */
+dialog:has(> .tutorial-coach:not([hidden])) {
+  transform: none !important;
+  animation: none !important;
+  filter: none !important;
+  contain: none !important;
+}
+body:has(.tutorial-coach:not([hidden])) #tutorial-hint { visibility: hidden; }
+.tutorial-coach[hidden],
+.tutorial-coach [hidden] { display: none !important; }
+.tutorial-coach-shade { position: fixed; inset: 0; background: #030b08d6; }
+.tutorial-coach[data-has-target=true] .tutorial-coach-shade { display: none; }
+.tutorial-coach-spotlight {
+  position: fixed;
+  box-sizing: border-box;
+  border: 2px solid #e8d59c;
+  border-radius: 4px;
+  box-shadow: 0 0 0 200vmax #030b08d6, inset 0 0 0 1px #f2e6b840;
+  pointer-events: none;
+}
+.tutorial-coach-blocker {
+  position: fixed;
+  background: transparent;
+  pointer-events: auto;
+  touch-action: none;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+.tutorial-coach-card {
+  position: fixed;
+  z-index: 2;
+  box-sizing: border-box;
+  margin: 0;
+  padding: 15px 14px 12px;
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  pointer-events: auto;
+  border: 2px solid #a4ac7c;
+  border-radius: 3px;
+  color: #d4d9be;
+  background: repeating-linear-gradient(135deg, #ffffff04 0 1px, transparent 1px 5px), #203326;
+  box-shadow: inset 0 0 0 3px #122218, 3px 4px 0 #06120bd9;
+  text-align: left;
+  outline: none;
+  touch-action: pan-y;
+}
+.tutorial-coach-progress {
+  display: block;
+  margin: 0 0 7px;
+  color: #a5b18d;
+  font: 700 10px/1.4 var(--sans, monospace);
+  letter-spacing: 1px;
+}
+.tutorial-coach-card h2 {
+  margin: 0 0 8px;
+  color: #ece2b8;
+  font: 700 17px/1.3 var(--sans, monospace);
+  letter-spacing: -.3px;
+  text-shadow: 1px 1px #0c1c11;
+}
+.tutorial-coach-card p {
+  margin: 0 0 14px;
+  color: #cad4b6;
+  font: 400 13px/1.55 var(--sans, monospace);
+  overflow-wrap: anywhere;
+}
+.tutorial-coach-actions { display: flex; align-items: stretch; gap: 8px; }
+.tutorial-coach-actions button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  min-width: 58px;
+  min-height: 44px;
+  box-sizing: border-box;
+  padding: 8px 9px;
+  border: 1px solid #758561;
+  border-radius: 2px;
+  background: #2c422e;
+  color: #cbd4b3;
+  font: 700 11px/1.3 var(--sans, monospace);
+  letter-spacing: .3px;
+  white-space: normal;
+  touch-action: manipulation;
+  box-shadow: inset 0 0 0 2px #1a2d1d;
+}
+.tutorial-coach-actions .tutorial-coach-next {
+  flex: 1 1 auto;
+  min-width: 64px;
+  border-color: #d5c68c;
+  background: #666c43;
+  color: #fff0c5;
+  box-shadow: inset 0 0 0 2px #3b4a2b;
+}
+.tutorial-coach-actions button[data-coach=skip] { background: transparent; border-color: #586e50; color: #a9ba9b; }
+.tutorial-coach-actions button:focus-visible { outline: 2px solid #fff0ba; outline-offset: 2px; }
+.tutorial-coach-actions button:active:not(:disabled) { transform: translateY(1px); }
+.tutorial-coach-actions button:disabled { opacity: .4; cursor: default; }
+@media (max-width: 350px) {
+  .tutorial-coach-card { padding: 13px 12px 11px; }
+  .tutorial-coach-card h2 { font-size: 16px; }
+  .tutorial-coach-actions { gap: 6px; }
+  .tutorial-coach-actions button { min-width: 54px; padding-inline: 7px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .tutorial-coach,
+  .tutorial-coach * { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
+}
+
+/* Resume feedback sits in the flight scene and never intercepts Lift. */
+.game-speed-overlay{position:absolute;z-index:8;left:50%;top:46%;transform:translate(-50%,-50%);display:flex;flex-direction:column;align-items:center;gap:9px;pointer-events:none;color:#fff0c8;text-shadow:2px 2px #07110e,-2px -2px #07110e;filter:drop-shadow(0 3px 0 #07110e);font-family:var(--pixel)}
+.game-speed-overlay[hidden]{display:none}.game-speed-overlay>span{font-size:13px;letter-spacing:2px;white-space:nowrap}.game-speed-overlay>b{font-size:clamp(30px,5vw,46px);line-height:1.1}.game-speed-overlay>i{width:140px;height:6px;background:#132721;border:1px solid #a7b794}.game-speed-overlay em{display:block;height:100%;background:#e2d9ad;transform-origin:left;transform:scaleX(0)}
+.tutorial-coach[data-step^="artifact:"] [data-coach=back]{display:none}
+
+.tutorial-coach-visual{display:flex;align-items:center;justify-content:center;gap:12px;margin:0 0 10px;min-height:64px}.coach-term{display:flex;flex:1 1 0;min-width:0;align-items:center;justify-content:center;flex-direction:column;gap:5px}.coach-term>svg{width:44px!important;height:44px!important;flex:none;image-rendering:pixelated}.coach-term b{font:10px/1.25 var(--pixel);color:#e3e8bf;text-align:center}.coach-term-arrow{font:18px var(--pixel);color:#b6c9a2;font-style:normal}.coach-meter{display:flex;flex-direction:column-reverse;gap:2px;width:14px;height:44px;justify-content:center}.coach-meter>i{display:block;width:14px;height:3px;background:#273a30}.coach-meter>i.filled{background:#daedb8}.tutorial-coach-card h2{font:16px/1.25 var(--pixel)}.tutorial-coach-card p{font:12px/1.45 var(--pixel)}.tutorial-coach-actions button{font-family:var(--pixel)}
+@media(orientation:landscape) and (max-height:350px){.tutorial-coach-card{padding:10px}.tutorial-coach-progress{margin-bottom:4px}.tutorial-coach-visual{min-height:48px;margin-bottom:7px;gap:8px}.coach-term>svg{width:36px!important;height:36px!important}.tutorial-coach-card h2{font-size:14px;margin-bottom:5px}.tutorial-coach-card p{font-size:11px;line-height:1.3;margin-bottom:9px}}
+
+.tutorial-coach-actions [data-coach=back]:disabled{display:none}
+
+/* Keep lesson navigation visible on short landscape phones. */
+.tutorial-coach-card{display:flex;flex-direction:column;overflow:hidden}
+.tutorial-coach-card>p{min-height:0;overflow:auto;flex:1}
+.tutorial-coach-actions{flex:none}
+.coach-skill-key{display:grid;grid-template-columns:1fr 1fr;gap:10px;font:12px var(--pixel)}.coach-skill-key>b:nth-child(1){color:#9fd5e8}.coach-skill-key>b:nth-child(2){color:#f3dda0}.coach-skill-key>b:nth-child(3){color:#c9a98e}.coach-skill-key>b:nth-child(4){color:#a4b5ba}
+.field-guide-sheet[open]{display:flex!important;flex-direction:column;height:calc(100dvh - 16px);overflow:hidden!important;gap:8px}.field-guide-heading{display:flex;justify-content:space-between;align-items:center;flex:none}.field-guide-heading h2{margin:0;font:20px var(--pixel)}.field-guide-heading>button{width:44px;height:44px;padding:0}.guide-topics{min-height:0;overflow:auto;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;align-content:start}.guide-topics>button{min-width:0;min-height:92px;padding:6px;display:flex;align-items:center;flex-direction:column;gap:3px}.guide-topics>button .coach-term{flex:none}.guide-topics>button .coach-term:not(:first-child),.guide-topics .coach-term-arrow,.guide-topics .coach-term b{display:none}.guide-topics .coach-term>svg{width:32px!important;height:32px!important}.guide-topics strong{font:14px/1.15 var(--pixel)}.guide-topics small{font:11px var(--pixel);color:#bdccb4}.field-guide-button{min-height:44px!important}
+@media(orientation:landscape) and (max-height:350px){.guide-topics>button{min-height:75px}.guide-topics strong{font-size:12px}.guide-topics small{font-size:10px}.guide-topics .coach-term>svg{width:26px!important;height:26px!important}}
+
+.field-guide-heading h2 small{display:block;font:11px var(--pixel);color:#b6c5a9;margin-top:4px}.guide-topics{grid-template-columns:repeat(3,minmax(0,1fr));grid-template-rows:repeat(2,minmax(0,1fr));flex:1;overflow:hidden;align-content:stretch}.guide-topics>button{min-height:0;justify-content:center}.guide-pages{display:flex;align-items:center;justify-content:space-between;gap:12px;flex:none}.guide-pages>button{min-height:44px;width:130px}.guide-pages>span{font:14px var(--pixel)}.game-menu-sheet:not(:has(.run-pause-heading))>.run-pause-actions{grid-template-columns:1fr 1fr;grid-template-rows:44px}
+@media(orientation:landscape) and (max-height:350px){.field-guide-sheet[open]{gap:4px}.guide-topics{gap:4px}.guide-topics>button{min-height:0;gap:1px;padding:3px}.guide-topics>button small{display:none}.guide-topics .coach-term>svg{width:24px!important;height:24px!important}.field-guide-heading h2{font-size:16px}.field-guide-heading h2 small{font-size:10px}}
+
+/* Spacious teaching cards share the game's pixel type, with one brief idea.
+   The scene stays paused; larger text is not scaled down to squeeze a panel. */
+.tutorial-coach-card{padding:20px 22px 18px;gap:10px;border-radius:0;border-width:2px;background:#1c3028;box-shadow:inset 0 0 0 4px #0c1b16,4px 5px 0 #06120be8;max-width:calc(100vw - 28px)}
+.tutorial-coach-progress{margin:0;font:12px/1.2 var(--pixel);letter-spacing:.5px;color:#a7bd9f;flex:none}
+.tutorial-coach[data-single=true] .tutorial-coach-progress{display:none}
+.tutorial-coach-visual{min-height:56px;margin:0;gap:18px;flex:none}
+.tutorial-coach-visual .coach-term>svg{width:48px!important;height:48px!important}
+.tutorial-coach-visual .coach-term b{font:12px/1.3 var(--pixel);color:#dce5c1}
+.tutorial-coach-card>h2{margin:0;font:24px/1.2 var(--pixel);color:#f0e7c2;flex:none;letter-spacing:0}
+.tutorial-coach-card>p{margin:0;font:18px/1.45 var(--pixel);color:#d2dfc3;overflow-wrap:normal;scrollbar-width:thin}
+.tutorial-coach-actions{gap:12px;margin-top:4px;flex:none}
+.tutorial-coach-actions>button{min-height:48px;min-width:72px;padding:9px 14px;font:14px/1.25 var(--pixel);border-radius:0;color:#d5dfc1}
+.tutorial-coach-actions>.tutorial-coach-next{flex:1;background:#3d5136;border-color:#d6c68f;color:#f4edc7;box-shadow:inset 0 0 0 3px #233c2b}
+.tutorial-coach-actions>[data-coach=skip]{flex:1.1;color:#d3d4ba;border-color:#a39071;background:#38372d;box-shadow:inset 0 0 0 3px #1c2a21}
+.tutorial-coach-actions>[data-coach=back]{flex:0 0 70px;min-width:0}
+@media(orientation:landscape) and (max-height:350px){
+ .tutorial-coach-card{padding:11px 16px 12px;gap:6px}
+ .tutorial-coach-progress{font-size:10px}
+ .tutorial-coach-visual{min-height:39px;gap:14px}
+ .tutorial-coach-visual .coach-term>svg{width:32px!important;height:32px!important}
+ .tutorial-coach-visual .coach-term b{font-size:10px;line-height:1.2}
+ .tutorial-coach-card>h2{font-size:20px;line-height:1.15}
+ .tutorial-coach-card>p{font-size:16px;line-height:1.35}
+ .tutorial-coach-actions{margin-top:2px;gap:9px}
+ .tutorial-coach-actions>button{min-height:44px;padding:7px 12px;font-size:13px}
+}
+@media(max-width:420px){
+ .tutorial-coach-card{padding:15px;gap:8px}
+ .tutorial-coach-card>h2{font-size:21px}.tutorial-coach-card>p{font-size:16px}
+ .tutorial-coach-actions>button{padding:7px 9px;font-size:12px;min-width:0}
+}
+
+/* In-context pictures and a leader to the actual paused interface. */
+.coach-pointer{position:fixed;inset:0;width:100%;height:100%;z-index:1;pointer-events:none;overflow:visible;display:none}
+.coach-pointer path{fill:none;stroke:#d7f1b8;stroke-width:2;stroke-linejoin:round;filter:drop-shadow(1px 2px 0 #04100d)}
+.coach-vocabulary{display:flex;align-items:center;justify-content:center;gap:12px;flex:1;min-width:0}
+.coach-example{margin:0;flex:0 1 210px;min-width:0;max-width:48%}
+.coach-example>img,.coach-example>svg{display:block;width:100%;height:auto;max-height:110px;object-fit:contain;background:#071416;border:1px solid #728970;image-rendering:pixelated}
+.coach-example figcaption{font:11px/1.3 var(--pixel);text-align:center;color:#c4d8bd;margin-top:4px}
+.coach-inline-term{white-space:nowrap;color:#edf2d5}
+.coach-inline-term>svg{display:inline-block!important;width:1em!important;height:1em!important;vertical-align:-.12em;margin-right:.25em;color:#d6efba}
+.tutorial-coach[data-has-example=true] .tutorial-coach-visual{align-items:center;gap:18px}
+@media(orientation:landscape) and (max-height:350px){.coach-example{flex-basis:165px}.coach-example>img,.coach-example>svg{max-height:76px}.coach-example figcaption{font-size:10px}.coach-vocabulary{gap:6px}.tutorial-coach[data-has-example=true] .tutorial-coach-visual{gap:12px}}
+
+/* Landscape teaching cards: illustration first, explanation beside it. */
+@media(min-width:600px){
+ .tutorial-coach[data-has-visual=true] .tutorial-coach-card{display:grid;grid-template-columns:minmax(180px, .8fr) minmax(0,1.6fr);grid-template-rows:auto auto minmax(0,1fr) auto;column-gap:26px;row-gap:10px;padding:22px;}
+ .tutorial-coach[data-has-visual=true] .tutorial-coach-progress{grid-column:2;grid-row:1;}
+ .tutorial-coach[data-has-visual=true] .tutorial-coach-visual{grid-column:1;grid-row:1 / 4;display:flex;flex-direction:column;justify-content:center;align-self:stretch;gap:12px;min-height:180px;padding:12px 14px 12px 0;border-right:1px solid #9bab7140;}
+ .tutorial-coach[data-has-visual=true] .tutorial-coach-card>h2{grid-column:2;grid-row:2;font-size:24px;line-height:1.2;align-self:end;}
+ .tutorial-coach[data-has-visual=true] .tutorial-coach-card>p{grid-column:2;grid-row:3;font-size:18px;line-height:1.45;align-self:start;max-height:100%;}
+ .tutorial-coach[data-has-visual=true] .tutorial-coach-actions{grid-column:1 / -1;grid-row:4;margin-top:10px;}
+ .tutorial-coach-visual .coach-vocabulary{flex:0 1 auto;flex-wrap:wrap;width:100%;gap:10px;}
+ .tutorial-coach-visual .coach-term{flex:1 1 70px;}
+ .tutorial-coach-visual .coach-term>svg{width:80px!important;height:80px!important;}
+ .tutorial-coach-visual .coach-term b{font-size:12px;}
+ .tutorial-coach-visual .coach-example{flex:none;max-width:100%;width:100%;}
+ .tutorial-coach-visual .coach-example>img,.tutorial-coach-visual .coach-example>svg{max-height:150px;}
+ .tutorial-coach[data-has-example=true] .coach-vocabulary .coach-term>svg{width:48px!important;height:48px!important;}
+ .tutorial-coach-visual .coach-meter{width:24px;height:100px;gap:4px;}
+ .tutorial-coach-visual .coach-meter>i{width:24px;height:6px;}
+}
+@media(min-width:600px) and (max-height:450px){
+ .tutorial-coach[data-has-visual=true] .tutorial-coach-card{padding:14px 18px;column-gap:20px;row-gap:6px;}
+ .tutorial-coach[data-has-visual=true] .tutorial-coach-visual{min-height:150px;padding-block:4px;gap:7px;}
+ .tutorial-coach[data-has-visual=true] .tutorial-coach-card>h2{font-size:22px;}
+ .tutorial-coach[data-has-visual=true] .tutorial-coach-card>p{font-size:17px;line-height:1.35;}
+ .tutorial-coach-visual .coach-example>img,.tutorial-coach-visual .coach-example>svg{max-height:100px;}
+ .tutorial-coach[data-has-visual=true] .tutorial-coach-actions{margin-top:6px;}
+}
+
+.tutorial-coach-copy{min-height:0;overflow:auto;}
+.tutorial-coach-copy h2{margin:0 0 10px;font:24px/1.2 var(--pixel);color:#f0e7c2;}
+.tutorial-coach-copy p{margin:0;font:18px/1.45 var(--pixel);color:#d2dfc3;}
+@media(min-width:600px){
+ .tutorial-coach[data-has-visual=true] .tutorial-coach-card{grid-template-rows:minmax(0,1fr) auto;}
+ .tutorial-coach[data-has-visual=true] .tutorial-coach-visual{grid-row:1;}
+ .tutorial-coach[data-has-visual=true] .tutorial-coach-copy{grid-column:2;grid-row:1;align-self:center;max-height:100%;}
+ .tutorial-coach[data-has-visual=true] .tutorial-coach-actions{grid-row:2;}
+ .tutorial-coach-copy .tutorial-coach-progress{margin-bottom:8px;}
+}
+@media(max-height:450px),(max-width:599px){
+ .tutorial-coach-copy h2{font-size:22px;}
+ .tutorial-coach-copy p{font-size:17px;line-height:1.35;}
+}
+
+.coach-vocabulary>.collector-teaching-diagram{display:block;width:100%;height:auto;max-height:220px;image-rendering:pixelated}
+
+.tutorial-coach-visual .coach-vocabulary:has(.cycle-scene){width:100%;display:grid;align-content:center}
+.tutorial-coach-visual .cycle-scene{display:block;width:100%!important;height:auto!important;max-height:160px;overflow:visible}
+.cycle-scene text{font:bold 12px ui-monospace,monospace}
+.cycle-flight{animation:cycle-light-route 1.45s ease-in-out infinite}
+@keyframes cycle-light-route{from{stroke-dashoffset:9}to{stroke-dashoffset:-91}}
+@media(prefers-reduced-motion:reduce){.cycle-flight{animation:none;stroke-dasharray:3 5}}
+body.reduce-motion .cycle-flight,body.reduced-motion .cycle-flight,.reduced-motion .cycle-flight{animation:none}
+.guide-lantern-icon{display:block;object-fit:cover;object-position:48% 50%;image-rendering:pixelated}
+.tutorial-coach-visual:has(.lantern-guide-example) .coach-vocabulary{display:none}
+.tutorial-coach-visual .lantern-guide-example img{max-height:clamp(96px,37dvh,190px)}

@@ -1,0 +1,180 @@
+/* One right-thumb Power control activates all ready equipped active companions. */
+.flight-dock #boost-btn.boost-control-v2 {
+  --boost-charge-offset: 0;
+  --ability-ink: #ffe4a7;
+  --ability-edge: #e0c286;
+  --ability-glow: 213, 160, 68;
+  --ability-base: #5c4c2c;
+  position: relative;
+  isolation: isolate;
+  flex: 0 0 88px;
+  width: 88px;
+  min-width: 88px;
+  height: 88px;
+  min-height: 88px;
+  padding: 6px 3px;
+  gap: 2px;
+  overflow: visible;
+  border: 2px solid var(--ability-edge);
+  border-radius: 0;
+  background: linear-gradient(var(--ability-base), #292d22);
+  color: var(--ability-ink);
+  box-shadow: inset 0 0 0 3px #20291e, inset 0 0 15px rgba(var(--ability-glow), .22),
+    3px 3px 0 #0b1511, 0 0 22px rgba(var(--ability-glow), .38);
+  touch-action: none;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  transition: none;
+}
+.flight-dock #boost-btn.boost-control-v2[data-companion-role=leveler] {
+  --ability-ink: #c9fff0; --ability-edge: #64b8b7; --ability-glow: 76, 188, 189; --ability-base: #264f51;
+}
+.flight-dock #boost-btn.boost-control-v2[data-companion-role=seer] {
+  --ability-ink: #f0dfff; --ability-edge: #a57bd1; --ability-glow: 164, 113, 215; --ability-base: #50345e;
+}
+#boost-btn.boost-control-v2[data-boost-state=ready]::before {
+  content: ''; position: absolute; inset: 0; pointer-events: none; z-index: -1;
+  box-shadow: 0 0 25px rgba(var(--ability-glow), .6);
+  animation: ability-ready-beacon 1.8s ease-in-out infinite alternate;
+}
+.flight-dock #boost-btn.boost-control-v2:focus-visible {
+  outline: 2px solid #fff0c3;
+  outline-offset: 7px;
+}
+.flight-dock #boost-btn.boost-control-v2:active {
+  transform: translate(1px, 1px);
+  box-shadow: inset 0 0 0 3px #29271d, 2px 2px 0 #0b1511, 0 0 20px rgba(var(--ability-glow), .4);
+}
+#boost-btn.boost-control-v2 .boost-charge-ring {
+  position: absolute;
+  inset: -6px;
+  width: calc(100% + 12px);
+  height: calc(100% + 12px);
+  pointer-events: none;
+  overflow: visible;
+}
+.boost-charge-ring path {
+  fill: none;
+  stroke-width: 2;
+  stroke-linejoin: bevel;
+}
+.boost-charge-track { stroke: #556049; opacity: .75; }
+.boost-charge-fill {
+  stroke: var(--ability-edge, #e9c77f);
+  stroke-dasharray: 100;
+  stroke-dashoffset: var(--boost-charge-offset, 0);
+  filter: drop-shadow(0 0 2px rgba(var(--ability-glow), .55));
+}
+#boost-btn.boost-control-v2 .boost-symbol {
+  z-index: 1;
+  flex: none;
+  width: 32px;
+  height: 32px;
+  margin-top: -1px;
+  fill: none;
+  stroke: var(--ability-ink);
+  stroke-width: 2.4;
+  stroke-linecap: square;
+  stroke-linejoin: bevel;
+  filter: drop-shadow(0 0 4px rgba(var(--ability-glow), .55));
+}
+#boost-btn.boost-control-v2 .boost-name {
+  z-index: 1;
+  font: 700 12px/1.3 var(--sans, monospace);
+  letter-spacing: .7px;
+  color: var(--ability-ink);
+  text-shadow: 1px 1px #181e14;
+}
+#boost-btn.boost-control-v2 .boost-status {
+  z-index: 1;
+  min-height: 12px;
+  font: 700 9px/1.35 var(--sans, monospace);
+  letter-spacing: .3px;
+  color: var(--ability-ink);
+  font-variant-numeric: tabular-nums;
+}
+#boost-btn.boost-control-v2[data-boost-state=ready] .boost-charge-fill {
+  stroke: var(--ability-ink);
+  animation: boost-ready-light 2.4s ease-in-out infinite alternate;
+}
+#boost-btn.boost-control-v2.boost-motion-reduced .boost-charge-fill,
+#boost-btn.boost-control-v2.boost-motion-reduced::before { animation: none; opacity: 1; }
+.flight-dock #boost-btn.boost-control-v2[data-boost-state=cooling],
+.flight-dock #boost-btn.boost-control-v2[data-boost-state=waiting],
+.flight-dock #boost-btn.boost-control-v2[data-boost-state=paused],
+.flight-dock #boost-btn.boost-control-v2[data-boost-state=ended] {
+  border-color: #7d805c;
+  background: linear-gradient(#303b2e, #202b22);
+  color: #c9bc89;
+  box-shadow: inset 0 0 0 3px #16251c, 3px 3px 0 #0b1511;
+}
+#boost-btn.boost-control-v2[data-boost-state=cooling] .boost-symbol,
+#boost-btn.boost-control-v2[data-boost-state=waiting] .boost-symbol,
+#boost-btn.boost-control-v2[data-boost-state=paused] .boost-symbol,
+#boost-btn.boost-control-v2[data-boost-state=ended] .boost-symbol {
+  stroke: #979d82;
+  filter: none;
+}
+.flight-dock #boost-btn.boost-control-v2[data-boost-state=active] {
+  border-color: #fff1bc;
+  background: linear-gradient(var(--ability-base), #353729);
+  box-shadow: inset 0 0 0 3px #333c2c, 3px 3px 0 #0b1511, 0 0 28px rgba(var(--ability-glow), .65);
+}
+#boost-btn.boost-control-v2[data-boost-state=active] .boost-status { color: #fff1c3; }
+.flight-dock #boost-btn.flight-passive-indicator {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 4px;
+  border: 1px solid #715c82;
+  background: linear-gradient(#302b3b, #24242d);
+  color: #d3b1f2;
+  box-shadow: inset 0 0 0 2px #20212a;
+  cursor: default;
+  touch-action: auto;
+  pointer-events: none;
+}
+.flight-dock #boost-btn.flight-passive-indicator:active {
+  transform: none;
+  box-shadow: inset 0 0 0 2px #20212a;
+}
+#boost-btn.flight-passive-indicator .boost-symbol {
+  stroke: #a57bd1;
+  filter: none;
+  opacity: .85;
+}
+#boost-btn.flight-passive-indicator .boost-name { color: #d3b1f2; }
+#boost-btn.flight-passive-indicator .boost-status { color: #a999b8; font-size: 9px; letter-spacing: 1px; }
+#boost-btn.flight-passive-indicator[data-boost-state=paused],
+#boost-btn.flight-passive-indicator[data-boost-state=waiting],
+#boost-btn.flight-passive-indicator[data-boost-state=ended] { opacity: .62; }
+@keyframes boost-ready-light { from { opacity: .72; } to { opacity: 1; } }
+@keyframes ability-ready-beacon { from { opacity: .35; } to { opacity: .8; } }
+@media (max-width: 370px), (max-height: 740px) {
+  .flight-dock #boost-btn.boost-control-v2 {
+    flex-basis: 80px;
+    width: 80px;
+    min-width: 80px;
+    height: 80px;
+    min-height: 80px;
+  }
+  #boost-btn.boost-control-v2 .boost-symbol { width: 29px; height: 29px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  #boost-btn.boost-control-v2 .boost-charge-fill { animation: none; opacity: 1; }
+  #boost-btn.boost-control-v2::before { animation: none; opacity: .5; }
+}
+
+/* Collector is an automatic status badge; all companion art shares one round body. */
+.flight-dock #boost-btn.boost-control-v2[data-companion-role=collector]{--ability-ink:#dff4cf;--ability-edge:#8db778;--ability-glow:141,183,120;--ability-base:#314a2f}.flight-dock #boost-btn.flight-passive-indicator[data-companion-role=collector]{border-color:#779663;background:linear-gradient(#293c2c,#1f2f24);color:#b9dfa0}.flight-passive-indicator[data-companion-role=collector] .boost-name{color:#c9e8b7}.flight-passive-indicator[data-companion-role=collector] .boost-status{color:#a9c69a;letter-spacing:.3px}#boost-btn.boost-control-v2 .boost-symbol.ability-companion-art{stroke:none;fill:none;image-rendering:pixelated;shape-rendering:crispEdges}#boost-btn.boost-control-v2 .ability-companion-art rect{stroke:none}.flight-dock #boost-btn.flight-passive-indicator .boost-symbol.ability-companion-art{stroke:none;filter:none;opacity:1}.tuning-row[aria-disabled=true]{opacity:.45}
+/* Fleet art stays a row of the same small colored light orbs. */
+#boost-btn .boost-symbol.ability-fleet-art{display:flex;align-items:center;justify-content:center;gap:3px;width:65px;height:28px;stroke:none;filter:none;overflow:visible}
+#boost-btn .ability-fleet-light{display:block;flex:none;width:19px;height:19px;image-rendering:pixelated;stroke:none;fill:none}
+.flight-dock #boost-btn[data-companion-role=protector]{--ability-ink:#c8e2ff;--ability-edge:#81afd5;--ability-glow:126,180,225;--ability-base:#2a4156}
+.flight-dock #boost-btn[data-companion-role=leveler]{--ability-ink:#c9fff0;--ability-edge:#64b8b7;--ability-glow:76,188,189;--ability-base:#264f51}
+.flight-dock #boost-btn[data-companion-role=seer]{--ability-ink:#f0dfff;--ability-edge:#a57bd1;--ability-glow:164,113,215;--ability-base:#50345e}
+.flight-dock #boost-btn[data-companion-role=kindler]{--ability-ink:#f3c2d0;--ability-edge:#c68ca2;--ability-glow:215,146,174;--ability-base:#543641}
+.flight-dock #boost-btn[data-fleet=true]:not(.flight-passive-indicator){--ability-ink:#ebe7cd;--ability-edge:#b9bb9c;--ability-glow:190,196,159;--ability-base:#444c37}
+.flight-dock #boost-btn[data-boost-state=release]{border-color:#a7e8df;background:linear-gradient(#365a54,#283c36);box-shadow:inset 0 0 0 3px #243b32,0 0 20px #64b8b74d}
+#boost-btn[data-boost-state=release] .boost-status{color:#b8ecdf}

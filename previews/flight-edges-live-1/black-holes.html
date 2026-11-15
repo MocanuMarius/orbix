@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="en">
+<head>
+ <meta charset="utf-8">
+ <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+ <meta name="theme-color" content="#0a1014">
+ <title>Giant Black Hole · Wispbound</title>
+ <link rel="stylesheet" href="black-hole-preview.css?v=in-game-edges-2">
+</head>
+<body>
+ <main>
+  <header><h1>Giant Black Hole</h1>
+   <div class="edge-choice" role="group" aria-label="Position of the giant">
+    <button type="button" data-edge="roof" aria-pressed="true">Roof</button>
+    <button type="button" data-edge="floor" aria-pressed="false">Floor</button>
+   </div>
+   <button type="button" id="restart" aria-label="Restart at approach">↺ Retry</button>
+  </header>
+  <div class="approach">
+   <button type="button" id="flight-frame" aria-label="Begin the approach without lifting"><canvas aria-hidden="true"></canvas></button>
+   <div id="gate"><strong>Preparing passage…</strong><span></span></div>
+   <div class="readout"><span>Sparks</span> <b id="meter">30</b><meter min="0" max="30" value="30" aria-label="Spark Meter"></meter></div>
+  </div>
+  <footer><span role="status" id="status">Opening the passage…</span><a href="./">Back to game</a></footer>
+ </main>
+ <script type="module" src="black-hole-preview.mjs?v=in-game-edges-2"></script>
+</body>
+</html>

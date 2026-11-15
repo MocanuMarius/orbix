@@ -1,0 +1,107 @@
+/* Available wisps sit on pressable bronze keys. Locked wisps have no key. */
+html body[data-screen=home] #app .menu-art-home .starter-roster .roster-choice {
+  --key-top: #475749;
+  --key-face: #233b32;
+  --key-shadow: #111e19;
+  --key-edge: #78917a;
+  position: relative;
+  isolation: isolate;
+  box-sizing: border-box;
+  height: 59px;
+  min-height: 59px !important;
+  background: transparent !important;
+  padding: 3px 1px 5px !important;
+  gap: 3px;
+  touch-action: manipulation;
+  overflow: visible;
+}
+.starter-roster .roster-choice:not(:disabled) { cursor: pointer; }
+html body[data-screen=home] #app .menu-art-home .starter-roster .roster-choice::before {
+  content: none;
+}
+.starter-roster .roster-choice:not(:disabled)::after {
+  content: '';
+  pointer-events: none;
+  position: absolute;
+  z-index: -1;
+  inset: 1px 0 0;
+  /* A raised face, cut corners and a low, dark front lip. */
+  clip-path: polygon(0 7px,3px 7px,3px 3px,7px 3px,7px 0,
+    calc(100% - 5px) 0,calc(100% - 5px) 3px,100% 3px,100% calc(100% - 7px),
+    calc(100% - 3px) calc(100% - 7px),calc(100% - 3px) calc(100% - 3px),
+    calc(100% - 8px) calc(100% - 3px),calc(100% - 8px) 100%,5px 100%,5px calc(100% - 4px),0 calc(100% - 4px));
+  background: linear-gradient(to bottom,
+    var(--key-edge) 0 2px,var(--key-top) 2px 4px,var(--key-face) 4px calc(100% - 7px),
+    var(--key-top) calc(100% - 7px) calc(100% - 5px),var(--key-shadow) calc(100% - 5px));
+}
+html body[data-screen=home] #app .menu-art-home .starter-roster .roster-choice[aria-pressed=true] {
+  --key-top: #625c41;
+  --key-face: #384238;
+  --key-edge: #dfcd94;
+  --key-shadow: #302b1f;
+  color: #fff0be;
+}
+.starter-roster .roster-state {
+  position: absolute;
+  top: 7px;
+  left: 6px;
+  width: 9px;
+  height: 9px;
+  background: #adbe9c;
+  clip-path: polygon(15% 0,40% 0,40% 20%,60% 20%,60% 40%,80% 40%,80% 60%,60% 60%,60% 80%,40% 80%,40% 100%,15% 100%,15% 75%,35% 75%,35% 55%,55% 55%,55% 45%,35% 45%,35% 25%,15% 25%);
+  pointer-events: none;
+}
+.starter-roster [aria-pressed=true] .roster-state {
+  width: 13px;
+  height: 11px;
+  background: #ffdf8c;
+  clip-path: polygon(0 45%,20% 45%,20% 63%,35% 63%,35% 47%,50% 47%,50% 32%,65% 32%,65% 16%,80% 16%,80% 0,100% 0,100% 32%,84% 32%,84% 48%,68% 48%,68% 64%,52% 64%,52% 83%,36% 83%,36% 100%,20% 100%,20% 80%,0 80%);
+}
+html body[data-screen=home] #app .menu-art-home .starter-roster .roster-lock {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  height: 13px;
+  width: 11px;
+  padding: 0;
+  transform: none;
+  background: transparent;
+  color: #d0d8cb;
+  font: 11px/1 var(--pixel);
+  pointer-events: none;
+}
+html body[data-screen=home] #app .menu-art-home .starter-roster .roster-lock .unlock-lock {
+  display: block;
+  width: 10px !important;
+  height: 12px !important;
+  min-width: 0;
+  min-height: 0;
+}
+.starter-roster .roster-choice:disabled { cursor: default; }
+html body[data-screen=home] #app .menu-art-home .starter-roster .roster-choice:disabled > svg {
+  filter: grayscale(.8) brightness(.62);
+}
+html body[data-screen=home] #app .menu-art-home .starter-roster .roster-choice>span {
+  font-size: clamp(11px,1.45vw,13px) !important;
+  white-space: normal;
+  text-wrap: balance;
+}
+html body[data-screen=home] #app .menu-art-home .starter-roster .roster-choice > svg {
+  width: 29px !important;
+  height: 29px !important;
+  margin: 0;
+}
+@media (orientation:landscape) and (max-height:350px) {
+  html body[data-screen=home] #app .menu-art-home .starter-roster .roster-choice {
+    height: 55px;
+    min-height: 55px !important;
+    gap: 2px;
+  }
+  html body[data-screen=home] #app .menu-art-home .starter-roster .roster-choice > svg {
+    width: 25px !important;
+    height: 25px !important;
+  }
+}

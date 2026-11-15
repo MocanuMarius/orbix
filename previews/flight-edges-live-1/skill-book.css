@@ -1,0 +1,105 @@
+/* The book uses one landscape spread. Only its lists scroll; purchases stay in reach. */
+html body dialog.game-sheet.book-sheet[open]{
+ display:block!important;box-sizing:border-box;width:min(1110px,calc(100vw - max(16px,env(safe-area-inset-left) + env(safe-area-inset-right) + 12px)))!important;
+ height:min(680px,calc(100dvh - max(14px,env(safe-area-inset-top) + env(safe-area-inset-bottom) + 8px)))!important;
+ min-height:0!important;max-height:calc(100dvh - 8px)!important;max-width:100vw!important;padding:0!important;overflow:hidden!important;margin:auto!important;
+ background:#131f22!important;border:3px solid #788071!important;box-shadow:0 0 0 2px #172020,0 12px 54px #000b!important;
+}
+.skill-book {--book-paper:#dce1bd;--book-ink:#242f2d;--book-gold:#efd194;--book-muted:#aabeb2;box-sizing:border-box;display:flex;flex-direction:column;width:100%;height:100%;min-height:0;text-align:left;color:#e8ead1;background:#151f20;font:14px/1.35 var(--sans,system-ui);}
+.skill-book *, .skill-book *::before,.skill-book *::after {box-sizing:border-box}
+html body .skill-book button{appearance:none;display:flex;align-items:center;text-align:left;margin:0!important;padding:4px 7px;min-height:0;min-width:0;width:auto;height:auto;max-width:100%;font:inherit;letter-spacing:normal;line-height:1.25;text-transform:none;color:inherit;border:0!important;border-image:none!important;border-radius:0!important;box-shadow:none!important;text-shadow:none!important;clip-path:none!important;background:transparent;cursor:pointer}
+html body .skill-book button:before,html body .skill-book button:after{display:none!important}
+html body .skill-book button:focus-visible{outline:2px solid #ffe4a2!important;outline-offset:-2px;z-index:1}
+.skill-book h2,.skill-book h3,.skill-book h4,.skill-book p,.skill-book ul{margin:0;padding:0;text-align:left;line-height:1.26}
+.skill-book svg{display:inline-block;vertical-align:middle;flex:none}
+.skill-book .skill-portrait{width:26px;height:26px}
+.skill-book .book-header{position:static;display:flex;align-items:center;min-height:42px;gap:12px;flex:none;padding:4px 10px;background:#172826;border-bottom:2px solid #616b52}
+.skill-book .book-header h2{font:clamp(17px,2vw,24px)/1.15 var(--pixel,monospace);color:#eee1b0}
+.skill-book .book-switch{display:flex;border-left:1px solid #465748;padding-left:9px;gap:2px}
+html body .skill-book .book-switch button{padding:6px 9px;min-height:32px;color:#c2cec3}
+html body .skill-book .book-switch button[aria-pressed=true]{color:#f3e0ac;box-shadow:inset 0 -2px #ddbd7f!important;background:#293832}
+.skill-book .book-wallet{display:flex;align-items:center;gap:4px;margin-left:auto;white-space:nowrap;color:#ffe3a6;font:14px var(--pixel,monospace)}
+.skill-book .book-wallet svg,.skill-book .book-buy svg{width:19px;height:19px}
+html body .skill-book .book-close{font:23px/1 system-ui;width:36px;min-height:32px;justify-content:center;color:#e9e7d0}
+.skill-book .book-spread{display:grid;grid-template-columns:clamp(112px,18%,185px) minmax(0,1.65fr) minmax(161px,1fr);min-height:0;flex:1}
+.skill-book .book-chapters{display:flex;flex-direction:column;gap:2px;min-height:0;overflow:auto;overscroll-behavior:contain;padding:5px;background:#1b2c2b;border-right:2px solid #68715a}
+html body .skill-book .book-chapters button{flex:1 0 30px;gap:5px;max-height:52px;width:100%;color:#bacbbf;font-size:clamp(12px,1.55vw,16px);padding:3px 5px;border-left:3px solid transparent!important}
+html body .skill-book .book-chapters button[aria-pressed=true]{color:#ffedb5;border-left-color:#e1c17d!important;background:#364238}
+.skill-book .book-chapters .skill-portrait,.skill-book .book-plus{width:24px;height:24px}
+.skill-book .book-plus{display:grid;place-items:center;font:24px/1 var(--pixel,monospace);color:#f7d18b}
+.skill-book .book-chapters small{margin-left:auto;color:#edce8e;font-size:12px}
+.skill-book .book-page{display:flex;flex-direction:column;overflow:hidden;min-width:0;min-height:0;padding:10px 9px 8px 12px;background:linear-gradient(95deg,#1d2b2a,#172623 90%,#142120)}
+.skill-book .book-page>h3{color:#e9dbaf;font:clamp(15px,1.7vw,21px)/1.28 var(--pixel,monospace);padding-bottom:6px}
+.skill-book .book-page-scroll,.skill-book .book-inspector-scroll{min-height:0;overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain;scrollbar-width:thin;scrollbar-color:#698273 transparent}
+.skill-book .book-page-scroll{flex:1;padding:2px 4px 5px 0}
+.skill-book .book-trails,.skill-book .book-trails ul{list-style:none}
+.skill-book .book-trails{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(170px,100%),1fr));align-items:start;gap:10px 8px}
+.skill-book .book-trails>li{min-width:0}
+.skill-book .book-trails ul{margin:1px 0 0 4px;padding-left:8px;border-left:1px solid #617a66}
+.skill-book .book-trails ul>li{position:relative;padding-top:5px}
+.skill-book .book-trails ul>li:before{content:"";position:absolute;left:-8px;top:22px;width:8px;border-top:1px solid #617a66}
+.skill-book .book-secret{min-height:17px;font-size:12px;color:#8e9e90}
+.skill-book .book-group+.book-group{margin-top:10px}
+.skill-book .book-group h4{color:#acbead;font:13px/1.2 var(--sans,system-ui);margin:0 0 4px}
+.skill-book .book-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(150px,100%),1fr));gap:4px}
+html body .skill-book button.book-perk{position:relative;display:flex;gap:5px;width:100%;min-height:38px;padding:4px 6px;background:#26332e;border-left:3px solid #728277!important;color:#bac9b9;align-items:center}
+html body .skill-book button.book-perk.available{border-left-color:#ffed9f!important;background:#d8bb73;color:#251f13}
+html body .skill-book button.book-perk.learned{border-left-color:#90d9ef!important;background:#285771;color:#e1f6ff}
+html body .skill-book button.book-perk.saving{border-left-color:#bbc1bd!important;background:#444c4e;color:#f1eee7}
+html body .skill-book button.book-perk.preview,html body .skill-book button.book-perk.locked{border-left-color:#6a7574!important;background:#202929;color:#c0ceca}
+html body .skill-book button.book-perk[aria-pressed=true]{outline:2px solid #ffedcf!important;outline-offset:-2px}
+.skill-book .book-perk-copy,.skill-book .book-perk-copy strong{display:block;min-width:0}
+.skill-book .book-perk-copy strong{font-size:clamp(12px,1.55vw,16px);font-weight:600}
+.skill-book .book-perk-copy>span{display:flex;align-items:center;flex-wrap:wrap;gap:3px;font-size:clamp(11px,1.32vw,13px);font-weight:550}
+.skill-book .book-inspector{display:flex;flex-direction:column;gap:9px;min-height:0;min-width:0;padding:14px clamp(9px,2vw,24px);color:#273b35;background:linear-gradient(93deg,#b0b79a 0,#d3d9b8 3%,#e0e3c3 65%,#d2d8b7);border-left:3px solid #8b947b}
+.skill-book .book-inspector-scroll{flex:1}
+.skill-book .book-kicker{color:#546054;font:11px/1.3 var(--pixel,monospace)}
+.skill-book .book-title{display:flex;align-items:center;gap:8px;margin:6px 0 9px}
+.skill-book .book-title .skill-portrait{width:clamp(32px,4vw,58px);height:clamp(32px,4vw,58px)}
+.skill-book .book-title h3{font:clamp(17px,2.4vw,28px)/1.22 var(--pixel,monospace);color:#25372d;overflow-wrap:anywhere}
+.skill-book .book-effect,.skill-book .book-empty{font:clamp(14px,1.9vw,19px)/1.43 var(--sans,system-ui);color:inherit;margin:8px 0}
+.skill-book .book-condition,.skill-book .book-status{font:clamp(12px,1.55vw,16px)/1.35 var(--sans,system-ui);margin:6px 0;color:#4c5643}
+.skill-book .book-group .book-condition,.skill-book .book-page .book-condition{color:#bec9ba}
+html body .skill-book .book-buy{justify-content:space-between;width:100%;flex:none;padding:7px 10px;min-height:38px;background:#415c42;color:#fff3c5;border-bottom:3px solid #2c4432!important;font-weight:650}
+.skill-book .book-status{color:#394c41;font-weight:650}
+.skill-book .book-status.learned{color:#254955}
+@media(max-width:720px){.skill-book .book-spread{grid-template-columns:100px minmax(0,1.32fr) minmax(144px,1fr)}.skill-book .book-chapters .skill-portrait,.skill-book .book-plus{width:19px;height:19px}.skill-book .book-header{gap:6px}.skill-book .book-page{padding:6px}.skill-book .book-inspector{padding:8px}.skill-book .book-trails{grid-template-columns:repeat(auto-fit,minmax(min(117px,100%),1fr))}.skill-book .book-perk .skill-portrait{width:20px;height:20px}}
+@media(max-height:330px){.skill-book .book-header{min-height:34px;padding:1px 6px}.skill-book .book-chapters{gap:0;padding:2px}.skill-book .book-inspector{gap:3px}.skill-book .book-title{margin:3px 0}.skill-book .book-chapters button{min-height:26px}}
+@media(max-width:530px) and (orientation:portrait){.skill-book .book-spread{grid-template-columns:100px minmax(0,1fr);grid-template-rows:minmax(150px,1.5fr) minmax(130px,1fr)}.skill-book .book-chapters{grid-row:1/3}.skill-book .book-inspector{grid-column:2;border-left:0;border-top:3px solid #8b947b}.skill-book .book-header{gap:3px}.skill-book .book-header h2{font-size:15px}html body .skill-book .book-switch button{font-size:12px;padding:4px}}
+
+.skill-book .book-perk-copy>span svg{width:13px;height:13px}
+html body .skill-book .book-condition button.book-link{display:inline;min-height:23px;padding:2px 4px;color:#254940;text-decoration:underline}
+
+html body .skill-book .book-inspector,
+html body .skill-book .book-inspector * {text-shadow:none!important}
+html body .skill-book .book-inspector .book-effect,
+html body .skill-book .book-inspector h3,
+html body .skill-book .book-inspector.empty p {color:#26392e!important}
+html body .skill-book .book-inspector .book-condition,
+html body .skill-book .book-inspector .book-status,
+html body .skill-book .book-inspector .book-kicker {color:#425447!important}
+
+/* Each chapter keeps its ink on the tab, the heading and the branch connectors. */
+.skill-book [data-id="wisp"],.skill-book[data-chapter="wisp"] { --chapter-ink:#d5ba80 }
+.skill-book [data-id="luminance"],.skill-book[data-chapter="luminance"] { --chapter-ink:#eee6a6 }
+.skill-book [data-id="companion"],.skill-book[data-chapter="companion"] { --chapter-ink:#92c59e }
+.skill-book [data-id="proximity"],.skill-book[data-chapter="proximity"] { --chapter-ink:#86b9d4 }
+.skill-book [data-id="dream"],.skill-book[data-chapter="dream"] { --chapter-ink:#c5a0cf }
+.skill-book [data-id="packing"],.skill-book[data-chapter="packing"] { --chapter-ink:#dcaa88 }
+html body .skill-book .book-chapters button[data-id] { border-left-color:var(--chapter-ink,#91a191)!important }
+.skill-book .book-page>h3 { color:var(--chapter-ink,#d8d5bc) }
+.skill-book .book-trails ul,.skill-book .book-trails ul>li:before { border-color:var(--chapter-ink,#788b78) }
+.book-inline-requirement summary { cursor:pointer; text-decoration:underline; padding:4px 0 }
+.book-current-reach{display:grid;grid-template-columns:1fr auto;align-items:baseline;gap:2px 8px;flex:none;margin:0 0 8px;padding:6px 0;border-block:1px solid #526653;color:#c8d7c3;font:13px/1.3 var(--pixel)}
+.book-current-reach>b{color:#f1e7b4;font-size:17px;font-weight:400}.book-current-reach>small{grid-column:1/-1;color:#b1c1b2;font:12px/1.3 var(--pixel)}
+.book-reach-preview{margin:4px 0 6px;padding:5px 0;border-block:1px solid #89987a;text-align:center;color:#334b34}
+.book-reach-preview>svg{display:block;width:100%;height:48px}.book-reach-preview>b,.book-reach-preview>small{display:block;font:16px/1.25 var(--pixel)}
+.book-reach-preview>b>i{font-style:normal;color:#796032}.book-reach-preview>small{font-size:12px;color:#52664b;margin-top:3px}
+@media(max-height:350px){.book-reach-preview{display:grid;grid-template-columns:42px minmax(0,1fr);align-items:center;gap:2px 5px;margin:0 0 4px;padding:3px 0}.book-reach-preview>svg{grid-row:1/3;width:42px;height:36px}.book-reach-preview>b{font-size:14px;text-align:left}.book-reach-preview>small{font-size:11px;text-align:left}.book-current-reach{padding:3px 0;margin-bottom:5px}.book-current-reach>b{font-size:14px}.book-inspector:has(.book-reach-preview) .book-title{margin:3px 0}.book-inspector:has(.book-reach-preview) .book-effect{margin:3px 0}}
+.book-inline-requirement p { margin:3px 0 6px }
+.book-inline-requirement summary small { font:inherit; color:#4c6252 }
+html body .skill-book button.book-buy-inline { min-height:34px; padding:5px 9px; gap:8px; margin-bottom:6px!important; background:#2e4a3a; color:#f5eac0; font-weight:600 }
+.book-buy-inline span { display:inline-flex; align-items:center; gap:4px; white-space:nowrap }
+.book-buy-inline svg { width:18px; height:18px }
+
+.book-targeting{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:7px}.book-targeting button{font:inherit;min-height:32px;padding:4px 8px;background:#3c5141;color:#f5eccd}.book-targeting button[aria-pressed=true]{background:#536d4e;outline:2px solid #99ac72}.book-targeting small{width:100%;color:#51604b}

@@ -1,5 +1,5 @@
-import {GLOW_DISPLAY_SCALE} from './vitality.mjs?v=in-game-edges-1';
-import {pickupKind,pickupShellRadius} from './pickups.mjs?v=in-game-edges-1';
+import {GLOW_DISPLAY_SCALE} from './vitality.mjs?v=in-game-edges-2';
+import {pickupKind,pickupShellRadius} from './pickups.mjs?v=in-game-edges-2';
 
 export const LUMINANCE_WAVE_TUNING=Object.freeze({speed:360,interval:1,maximumWaves:48,maximumSources:16});
 const finite=(value,fallback)=>Number.isFinite(Number(value))?Number(value):fallback;

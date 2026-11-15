@@ -1,0 +1,190 @@
+/* Quiet ink grounds keep pixel glyphs readable where textured art meets UI.
+   State accents stay local to their border, marker or resource symbol. */
+:root{
+ --ui-ink:#081114;
+ --ui-text:#f4edcf;
+ --ui-muted:#b8c7ba;
+ --ui-copy:#dce4d5;
+ --ui-gold:#f1d794;
+ --ui-positive:#c1e3ba;
+ --ui-negative:#f0baab;
+ --menu-ink:var(--ui-text);
+ --menu-copy:var(--ui-copy);
+ --menu-note:var(--ui-muted);
+ --menu-inactive:#b2bdb7;
+ --menu-ground:#101c1c;
+ --menu-raised:#1b2928;
+ --muted:var(--ui-muted);
+}
+body{color:var(--ui-text)}
+/* Prose uses a neutral light value. Color is reserved for a consequence. */
+:is(dialog.game-sheet,.tutorial-coach-card,.compact-support,.passage-choice,.run-summary,.rest-one-scene) :is(p,.subtle,.run-pause-note){
+ color:var(--ui-copy);
+ text-shadow:1px 1px 0 var(--ui-ink);
+}
+html body :is(dialog.game-sheet,.tutorial-coach-card){
+ background-color:#101c1c!important;
+ color:var(--ui-text);
+}
+:is(.game-sheet,.tutorial-coach-card) :is(h1,h2,h3){color:var(--ui-text);text-shadow:1px 2px 0 var(--ui-ink)}
+:is(.run-pause-heading,.game-wheel-heading,.field-guide-heading) :is(small,span),
+:is(.run-tools,.run-pause-actions,.audio-controls) small,
+:is(.entry-safe-note,.entry-eyebrow,.entry-tip,.result-stats span,.summary-prize small,.passage-kind,.passage-notice){
+ color:var(--ui-muted);
+ text-shadow:1px 1px 0 var(--ui-ink);
+}
+html body :is(dialog.game-sheet,.tutorial-coach-card) :is(button.primary,button.secondary,button.danger){
+ color:var(--ui-text)!important;
+ background-color:#1b302c;
+ text-shadow:1px 1px 0 #050b0d;
+}
+html body :is(dialog.game-sheet,.tutorial-coach-card) button.danger,
+html body :is(dialog.game-sheet,.tutorial-coach-card) [data-action='close-sheet']{
+ background-color:#38272b;
+ color:#f5dbd0!important;
+}
+html body :is(dialog.game-sheet,.tutorial-coach-card) button.primary{background-color:#243a2d}
+/* Readable unavailable labels rely on the existing lock/dash cues, with no
+   group opacity that would fade words and the picture together. */
+html body button:disabled:not(.tree-bud){
+ opacity:1!important;filter:none!important;
+ color:#b2bdb7!important;-webkit-text-fill-color:#b2bdb7!important;
+ background-color:#172121!important;text-shadow:1px 1px 0 #050b0d!important;
+}
+html body button:disabled:not(.tree-bud) :is(span,small,strong,b,p){color:inherit!important;opacity:1!important}
+body :is(button,summary,[role='button']):focus-visible{
+ outline:2px solid #fff1b8;outline-offset:3px;
+}
+/* A single hard dark edge separates glyphs from scenes without bloom. */
+:is(#header,.rest-one-scene,.compact-support,.game-sheet,.tutorial-coach-card) .resource-symbol{
+ filter:drop-shadow(1px 0 0 #060d10) drop-shadow(-1px 0 0 #060d10) drop-shadow(0 1px 0 #060d10);
+}
+html body #header :is(.back-icon,.condensed-wallet,.game-menu-trigger){
+ background-color:#101c1c;
+ color:var(--ui-text);
+ text-shadow:1px 1px #050b0d;
+}
+html body #header .condensed-wallet b{color:var(--ui-gold)}
+/* Rest art and rules share a calm dark value behind the written consequence. */
+.rest-one-scene .rest-rail{background:linear-gradient(90deg,#081314e8,#081314a0,transparent)}
+.rest-one-scene :is(.rest-benefit,.rest-optional-tools>button){background-color:#0d1b1c!important}
+.rest-one-scene :is(.rest-benefit h2,.rest-optional-tools strong,.rest-full-sparks){color:var(--ui-text)!important;text-shadow:1px 2px 0 #050b0d}
+.rest-one-scene :is(.rest-eyebrow,.rest-refill-note,.rest-choice-caption>span,.rest-leave-row>span,.rest-pick-cue,.rest-receipt,.rest-rules summary,.rest-optional-tools small,.rest-next small){color:var(--ui-muted)!important}
+.rest-one-scene .rest-boon-passed{opacity:1!important;border-color:#41514d!important}
+.rest-one-scene .rest-boon-passed>.choice-scene{opacity:.35}
+.rest-one-scene .rest-chosen-mark{color:var(--ui-positive)}
+.rest-one-scene .rest-rules>div{background:#101c1c;color:var(--ui-copy)}
+.rest-capacity-gain{color:var(--ui-positive)}
+/* Event choices keep gains legible and preserve the cost's warm accent. */
+.compact-support .boon-choice{background-color:#101c1c!important;color:var(--ui-text);text-shadow:1px 1px 0 #050b0d}
+.compact-support :is(.boon-choice h3,.support-vitals){color:var(--ui-text)}
+.compact-support .boon-choice p{color:var(--ui-copy)}
+.compact-support .boon-emblem{color:var(--ui-gold);filter:drop-shadow(1px 2px 0 #050b0d)}
+.compact-support .boon-values{color:var(--ui-positive)}
+.compact-support .boon-values .cost{color:var(--ui-negative)}
+.route-inspection-copy p{color:var(--ui-copy)}
+.route-inspection-copy small{color:var(--ui-muted)}
+.route-inspection-art{background:radial-gradient(ellipse,#081114 0 47%,transparent 68%)}
+.route-inspection-art .map-stop-icon{filter:drop-shadow(1px 1px 0 #000) drop-shadow(-1px -1px 0 #000)}
+.route-inspection-reward{color:var(--ui-gold)!important}
+/* Teaching visuals get their own dark ink, so a pale example cannot wash
+   into the card behind it. The words and example remain one composition. */
+.tutorial-coach-copy p{color:var(--ui-copy);text-shadow:1px 1px #050b0d}
+.tutorial-coach-copy h2{color:var(--ui-text)}
+.tutorial-coach-visual{background:radial-gradient(ellipse,#071113 12%,#071113a0 65%,transparent 72%)}
+.tutorial-coach-visual .coach-term b,.coach-example figcaption{color:var(--ui-text);text-shadow:1px 1px #050b0d}
+.tutorial-coach-visual .coach-term>svg{filter:drop-shadow(1px 2px 0 #000)}
+.tutorial-coach-progress{color:var(--ui-muted)}
+.coach-inline-term{color:var(--ui-text)}
+.coach-inline-term>svg{color:var(--ui-gold)}
+#toast{background:#101c1c;color:var(--ui-text);font-size:13px;text-shadow:1px 1px #050b0d}
+/* Flight labels have a solid local ground even when the world lights up. */
+.flight-artifact-bar>button{background-color:#0b1518;filter:drop-shadow(1px 1px 0 #000)}
+.flight-artifact-bar>button .artifact-stack-count{background:#081114;color:var(--ui-text)}
+.flight-dock :is(#flap-btn,#boost-btn){color:var(--ui-text);text-shadow:1px 1px #050b0d}
+@media(prefers-contrast:more){
+ :root{--ui-text:#fff8e6;--ui-copy:#f1f4e8;--ui-muted:#d4ded6}
+ :is(dialog.game-sheet,.tutorial-coach-card){background-color:#081114!important}
+}
+
+/* Encounter copy and choices form two bounded columns on a landscape phone. */
+@media(orientation:landscape){
+ html body .compact-support{
+  height:100%;min-height:0;max-width:1100px;padding:4px 12px;
+  display:grid;grid-template-columns:minmax(145px,.65fr) minmax(0,2fr);
+  grid-template-rows:auto minmax(0,1fr);gap:8px 18px;
+ }
+ .compact-support>.support-context{
+  grid-column:1;grid-row:2;display:flex;flex-direction:column;align-items:center;
+  justify-content:center;gap:12px;min-height:0;text-align:center;
+ }
+ .support-context>.support-symbol{height:52px;flex:none;display:grid;place-items:center}
+ .support-context>.support-symbol>svg{height:52px;width:58px;filter:drop-shadow(1px 2px 0 #000)}
+ .support-context h1{font:21px/1.3 var(--pixel);color:var(--ui-text);margin:0;text-shadow:1px 2px #050b0d}
+ .support-context>.support-vitals{display:flex;align-items:center;gap:12px;flex-wrap:wrap;justify-content:center}
+ .support-context .glow-label{display:flex;align-items:center;gap:4px;white-space:nowrap;color:var(--ui-text)}
+ .support-context>.route-consequences{font-size:11px;line-height:1.4;margin:0}
+ .support-context .route-consequences>div>span{color:var(--ui-muted)}
+ .support-context .forecast-path,.support-context .reward-theme{display:none}
+ .support-context>button.secondary{font-size:12px;min-height:40px;padding:7px 10px}
+ html body .compact-support>.support-offers{grid-column:2;grid-row:2;min-height:0;align-items:stretch}
+ html body .compact-support .boon-choice{
+  min-height:0;padding:12px 10px;display:flex;flex-direction:column;justify-content:center;
+  gap:10px;overflow:auto;overscroll-behavior:contain;
+ }
+ html body .compact-support .boon-choice h3{font-size:18px;line-height:1.3;margin:0}
+ html body .compact-support .boon-choice p{font-size:14px;line-height:1.5;margin:0}
+ html body .compact-support .boon-values{font-size:15px;line-height:1.25}
+}
+@media(orientation:landscape) and (max-height:350px){
+ .support-context h1{font-size:18px}
+ .compact-support>.support-context{gap:8px}
+ .support-context>.support-symbol,.support-context>.support-symbol>svg{height:36px}
+ html body .compact-support .boon-choice{gap:7px;padding:7px}
+ html body .compact-support .boon-choice h3{font-size:16px}
+ html body .compact-support .boon-choice p{font-size:12px;line-height:1.4}
+}
+/* The icon uses the same map silhouette rather than an old hidden placeholder. */
+html body .support-context>.support-symbol>svg{display:block}
+.compact-support>.support-context{height:100%;min-height:0}
+html body .compact-support>.support-offers{height:100%;align-self:stretch}
+@media(orientation:landscape) and (max-height:350px){
+ html body .compact-support{grid-template-rows:minmax(0,1fr);gap:8px 12px}
+ .compact-support>.campaign-strip{display:none}
+ .compact-support>.support-context,html body .compact-support>.support-offers{grid-row:1}
+ .compact-support>.support-context{gap:8px}
+ html body .support-context h1{font-size:18px!important;line-height:1.3!important}
+ html body .support-context .route-consequences{font-size:10px!important;padding:0!important}
+ html body .support-context>.support-symbol>svg{width:42px}
+ html body .compact-support .boon-choice h3{font-size:16px!important}
+ html body .compact-support .boon-choice p{font-size:12px!important}
+}
+
+/* Give symbols the room already available inside their controls. */
+html body #header .condensed-wallet .condensed-icon{width:34px;height:34px}
+html body #header .back-icon>.ico{width:27px;height:27px}
+html body :is(.game-menu-trigger,.run-tools>button,.audio-controls>button)>svg{width:27px;height:27px;flex-shrink:0}
+html body .passage-clear-pay>.resource-symbol{width:30px;height:30px;flex-basis:30px}
+html body .passage-choice .route-consequences b{display:flex;align-items:center;gap:8px}
+html body .passage-choice .route-consequences b>.map-stop-icon{width:28px!important;height:30px!important}
+html body .passage-actions .enter-passage>.ico{width:25px;height:25px}
+html body .rest-one-scene .rest-optional-tools>button>.resource-symbol{width:28px;height:28px;flex-basis:28px}
+html body .flight-hud .flight-menu-slot{width:52px;min-width:52px;flex-shrink:0;justify-content:flex-end}
+@media(orientation:landscape) and (max-height:350px){
+ html body #header .condensed-wallet .condensed-icon{width:30px;height:30px}
+ html body .passage-choice .route-consequences b>.map-stop-icon{width:24px!important;height:26px!important}
+}
+
+html body .companion-sheet .companion-role>.companion-portrait{
+ width:48px;height:48px;padding:6px;background:transparent url('assets/wisp-socket.svg') center/contain no-repeat;
+ clip-path:none;box-sizing:border-box;
+}
+
+/* The campfire identifies where banked skill currency can be spent. */
+.wallet-rest-marker{display:grid;place-items:center;width:26px;height:30px;flex:none}
+.wallet-rest-marker>.map-stop-icon{display:block;width:26px;height:30px}
+.skill-purchase .map-stop-icon{width:28px;height:28px;flex:none}
+.tree-rest-notice{color:var(--ui-gold);display:flex;align-items:center;gap:7px;font:13px/1.35 var(--pixel)}
+.tree-rest-notice>.map-stop-icon{width:26px;height:28px;flex:none}
+.tree-selection-status.rest-required{display:flex;align-items:center;gap:8px;color:var(--ui-gold)!important}
+.tree-selection-status.rest-required>.map-stop-icon{width:28px;height:30px;flex:none}

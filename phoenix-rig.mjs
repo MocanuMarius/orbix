@@ -1,5 +1,5 @@
-import * as PIXI from './vendor/pixi.mjs?v=in-game-edges-1';
-import { PhoenixMotion, deformWing, deformTail } from './phoenix-motion.mjs?v=in-game-edges-1';
+import * as PIXI from './vendor/pixi.mjs?v=in-game-edges-2';
+import { PhoenixMotion, deformWing, deformTail } from './phoenix-motion.mjs?v=in-game-edges-2';
 
 export class PhoenixRig {
   constructor(texture) {

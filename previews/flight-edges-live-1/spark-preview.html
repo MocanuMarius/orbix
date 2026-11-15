@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#081314">
+  <title>Icon preview · Wispbound</title>
+  <link rel="stylesheet" href="game-symbols.css?v=in-game-edges-2">
+  <link rel="stylesheet" href="map-clarity.css?v=in-game-edges-2">
+  <link rel="stylesheet" href="radial-tree.css?v=in-game-edges-2">
+  <link rel="stylesheet" href="living-icons.css?v=in-game-edges-2">
+  <link rel="stylesheet" href="spark-preview.css?v=in-game-edges-2">
+</head>
+<body>
+  <main>
+    <header>
+      <h1>Icon preview</h1>
+      <div class="controls">
+        <button id="scale" type="button" aria-pressed="false">Enlarge icons</button>
+        <button id="motion" type="button">Pause motion</button>
+      </div>
+    </header>
+    <section class="menu-sample" aria-label="Menu icons">
+      <div><div class="resource-drawing" id="fuel-mark"></div><span>Spark Meter</span></div>
+      <div><div class="resource-drawing" id="wallet-mark"></div><span>Stored Sparks</span></div>
+      <div><div class="resource-drawing" id="sight-mark"></div><span>Luminance</span></div>
+    </section>
+    <div class="gallery-filters">
+      <label class="group-picker">Show
+        <select id="group">
+          <option value="absorption">Compare absorption</option>
+          <option value="sizes">Spark strengths</option>
+          <option value="fuel">Fuel Sparks</option>
+          <option value="flash">Flash Powerup</option>
+          <option value="other">Flash &amp; hazards</option>
+          <option value="siphon">Black hole</option>
+          <option value="lantern">Darkness Lantern</option>
+          <option value="skills">Skills</option>
+          <option value="companions">Companions</option>
+          <option value="relics">Artifacts</option>
+          <option value="sites">Map landmarks</option>
+          <option value="bonuses">Flight bonuses</option>
+          <option value="controls">Menu symbols</option>
+        </select>
+      </label>
+      <div id="comparison-controls" hidden>
+        <label>Spark <select id="sample-kind">
+          <option value="light">Spark</option><option value="cluster" selected>Cluster</option><option value="cache">Cache</option>
+        </select></label>
+        <label>From <select id="capture-angle" aria-label="Spark approach direction">
+          <option value="ahead">Ahead</option><option value="above">Above</option>
+          <option value="below">Below</option><option value="behind">Behind</option>
+        </select></label>
+        <label class="timeline">Scrub <input type="range" id="capture-time" min="0" max="1000" value="0" aria-label="Absorption timeline"></label>
+      </div>
+    </div>
+    <section id="gallery" aria-label="Icon artwork"></section>
+    <p id="style-note" role="status" hidden></p>
+    <a class="play" href="./">Play Wispbound →</a>
+    <noscript>Enable JavaScript to view the animated Sparks.</noscript>
+  </main>
+  <script type="module" src="spark-preview.mjs?v=in-game-edges-2"></script>
+</body></html>

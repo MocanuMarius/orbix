@@ -1,0 +1,105 @@
+/* Small utilities painted directly over the landscape. The whole button remains interactive. */
+html body[data-screen=home] #app>.test-controls {
+  background: #071810 !important;
+  border: 0 !important;
+  box-shadow: none !important;
+}
+html body[data-screen=home] #app .test-controls>.test-toggle,
+html body[data-screen=home] #header .game-menu-trigger {
+  border: 0 !important;
+  border-image: none !important;
+  box-shadow: none !important;
+  background: transparent !important;
+  clip-path: none !important;
+}
+html body[data-screen=home] #app .test-controls>.test-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 9px;
+  padding-left: 2px !important;
+}
+html body[data-screen=home] .test-controls>.test-toggle::before {
+  content: "";
+  flex: none;
+  width: 23px;
+  height: 13px;
+  background: url('assets/home-lever.svg') left top / 46px 13px no-repeat;
+  image-rendering: pixelated;
+}
+html body[data-screen=home] .test-controls>.test-toggle.active::before {background-position: right top;}
+html body[data-screen=home] #header .game-menu-trigger::before {
+  content: "";
+  position: absolute;
+  inset: 4px;
+  background: url('assets/home-dial.svg') center/contain no-repeat;
+  image-rendering: pixelated;
+  pointer-events: none;
+}
+html body[data-screen=home] #header .game-menu-trigger svg {position: relative;width: 18px;height: 18px;color: #eee5bb;}
+html body[data-screen=home] :is(.test-toggle,.game-menu-trigger):focus-visible {outline: 2px dashed #ffe9a6;outline-offset: -2px;}
+
+.menu-art-home > img.menu-world-art {
+  object-fit: cover;
+  object-position: center 49%;
+}
+body[data-screen=home] .menu-art-home :is(.front-title,.journey-caption,.test-starter-picker,.front-actions) {
+  text-shadow: 1px 2px #081410, -1px 0 #081410;
+}
+body[data-screen=home] #app {
+  position: relative;
+}
+body[data-screen=home] #app .menu-art-home.run-front-page {
+  height: 100dvh !important;
+  padding-bottom: 50px !important;
+}
+html body[data-screen=home] #app>.test-controls {
+  position: fixed !important;
+  inset: auto 0 0;
+  z-index: 2;
+  background: transparent !important;
+  pointer-events: none;
+}
+html body[data-screen=home] #app>.test-controls button {pointer-events:auto;}
+body[data-screen=home] .menu-art-home::after {
+  content: "";
+  display: block !important;
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background: linear-gradient(to top, #05110ee8, #05110e54 26%, transparent 46%);
+}
+
+html body[data-screen=home] #app .test-controls > .test-toggle {
+  color: #d8e3ca;
+  text-shadow: -1px 0 #020807, 1px 0 #020807, 0 1px #020807;
+}
+html body[data-screen=home] #app .test-controls > .test-toggle.active {
+  color: #f8dfa5;
+}
+html body[data-screen=home] #header .game-menu-trigger::before {
+  filter: drop-shadow(1px 1px #020807);
+}
+
+/* The tip preference is a true checkbox, kept alongside the testing lever. */
+html body[data-screen=home] #app>.test-controls{gap:18px}
+html body[data-screen=home] #app .test-controls>.tutorial-skip-toggle{
+ display:inline-flex;align-items:center;justify-content:flex-start;gap:8px;
+ min-height:44px;height:44px;margin:0;padding:0 4px!important;border:0!important;border-image:none!important;
+ background:transparent!important;box-shadow:none!important;clip-path:none!important;
+ color:#e4e8d6;font:13px/1.2 var(--pixel)!important;text-shadow:1px 1px #03090d;
+}
+.tutorial-skip-box{
+ flex:none;display:grid;place-items:center;width:24px;height:24px;
+ border:3px solid #566b70;border-image:url('assets/rough-frame.svg?v=in-game-edges-2') 8 / 3px / 0 stretch;
+ background:#0b1920;box-shadow:1px 2px #03090d;
+}
+.tutorial-skip-box>svg{width:20px;height:20px;color:#e4dfa7}
+.tutorial-skip-toggle[aria-checked=true]{color:#f7e7b8!important}
+.tutorial-skip-toggle[aria-checked=true] .tutorial-skip-box{border-color:#b8bd8a;background:#24372b}
+.tutorial-skip-toggle:focus-visible{outline:2px solid #ffe9a6;outline-offset:2px}
+@media(orientation:landscape) and (max-height:350px){
+ html body[data-screen=home] #app>.test-controls{gap:14px}
+ html body[data-screen=home] #app .test-controls>.tutorial-skip-toggle{font-size:12px!important}
+}
