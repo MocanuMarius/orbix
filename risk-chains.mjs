@@ -1,5 +1,5 @@
-import {pickupKind,getPickupSpec} from './pickups.mjs?v=lofi-contours-1';
-import {inLanternRoom} from './lantern-layout.mjs?v=lofi-contours-1';
+import {pickupKind,getPickupSpec} from './pickups.mjs?v=starter-flow-1';
+import {inLanternRoom} from './lantern-layout.mjs?v=starter-flow-1';
 
 // Rise from the launch mark to the first Spark, fall through the seed, then
 // fly another half second in dim light before the third fuel pickup.

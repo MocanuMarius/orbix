@@ -1,9 +1,9 @@
-import {menuWorldMarkup} from './menu-world.mjs?v=lofi-contours-1';
-import {resourceSymbol} from './game-symbols.mjs?v=lofi-contours-1';
-import {formatGlow,getGlowCapacity} from './vitality.mjs?v=lofi-contours-1';
-import {livesMarkup} from './lives.mjs?v=lofi-contours-1';
-import { COMPANION_ABILITIES, getCompanionUnlock } from './companion-abilities.mjs?v=lofi-contours-1';
-import { companionArtSvg } from './companion-art.mjs?v=lofi-contours-1';
+import {menuWorldMarkup} from './menu-world.mjs?v=starter-flow-1';
+import {resourceSymbol} from './game-symbols.mjs?v=starter-flow-1';
+import {formatGlow,getGlowCapacity} from './vitality.mjs?v=starter-flow-1';
+import {livesMarkup} from './lives.mjs?v=starter-flow-1';
+import { COMPANION_ABILITIES, getCompanionUnlock } from './companion-abilities.mjs?v=starter-flow-1';
+import { companionArtSvg } from './companion-art.mjs?v=starter-flow-1';
 
 const esc = value => String(value ?? '').replace(/[&<>"']/g, char =>
   ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[char]));
