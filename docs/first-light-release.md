@@ -1,6 +1,16 @@
 # First Light release — 15 November 2026
 
-Release marker: `first-light-1`. This integrates the six-stop opening, terrain and lighting work, performance corrections, visible activations, Last Glimmer, campfire benefits, Spacetime and Collector Field Impulse.
+Current release marker: `first-light-2`. The initial `first-light-1` release integrated the six-stop opening, terrain and lighting work, performance corrections, visible activations, Last Glimmer, campfire benefits, Spacetime and Collector Field Impulse.
+
+## Foreground correction
+
+- Nearest-camera foliage and rock now stay inside actual filled floor and roof banks, including moving terrain and Spacetime. Open sky, gaps and destroyed banks remain clear. The collision boundary and its contact rim stay visible.
+- The closest plane composites once after world lighting, Flash and exit washes in both renderers. Its cached art and integer raster edges remain opaque black; it no longer cuts moving holes around the wisp, companions or Sparks. It does not add collision or change flight balance.
+- The new matched motion comparison is `assets/previews/foreground-banks.mp4`. The earlier `first-light-terrain.html` films document `first-light-1`; they are retained as historical comparisons. The current phone gallery is `ecology-preview.html?biome=pinewood&course=1&at=30&pan=1`.
+
+Verification for this correction: 30 focused terrain, foreground, registration, light and contact-edge tests pass after release stamping; all 199 top-level JavaScript modules pass syntax checks. An independent browser audit covers 40 states across all twelve biomes plus both Spacetime banks, with no partial-alpha foreground pixels or ink outside real terrain. All 300 corrected source frames in the new film also have black opaque ink. The ten-second film uses a controlled, collision-safe renderer traversal with matched movement, not a player survival run; its held native Flash wash is labeled for contrast.
+
+The matched twelve-second production-app phone-viewport replay remains active with the same eight Lift taps: mean render CPU is 3.263 ms (previous release 3.280 ms), p99 is 6.6 ms (previously 7.1 ms), and neither run has an active render/RAF gap over 50 ms or runtime error. A separate dense traversal is 59.96 FPS. These are desktop-browser measurements, not physical-phone results. The real previous `e0cc739` installed worker upgrades to `first-light-2`, preserves the ordinary suspended campaign and sound preference, and serves the updated foreground module. Offline reload opens Home; Continue restores practice. The already-current launcher also succeeds.
 
 ## Shipped behavior
 

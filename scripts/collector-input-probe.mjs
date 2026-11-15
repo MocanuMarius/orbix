@@ -4,6 +4,8 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import os from 'node:os';
 import assert from 'node:assert/strict';
+const release=/src="app\.mjs\?v=([^"]+)"/.exec(await fs.readFile('dist/game.html','utf8'))?.[1];
+assert.ok(release,'The game entry must declare its release marker');
 const profile=await fs.mkdtemp(path.join(os.tmpdir(),'wisp-field-input-'));
 const types={'.html':'text/html','.mjs':'text/javascript','.js':'text/javascript','.css':'text/css','.svg':'image/svg+xml','.png':'image/png','.webp':'image/webp','.woff2':'font/woff2'};
 const server=http.createServer(async(req,res)=>{try{const file=path.resolve('dist','.'+new URL(req.url,'http://localhost').pathname);res.writeHead(200,{'Content-Type':types[path.extname(file)]||'application/octet-stream'}).end(await fs.readFile(file));}catch{res.writeHead(404).end();}});
@@ -27,7 +29,7 @@ try{
  await send('Page.addScriptToEvaluateOnNewDocument',{source:"localStorage.setItem('wispbound.save.condensed.v7','preserved-field-input-save')"});
  await send('Page.navigate',{url:base+'/game.html?mock=boundary&fieldimpulse=1&biome=pinewood&course=3'});
  await until(()=>ev("!!document.querySelector('.flight-resume-gate')"));
- await ev(`(async()=>{const {WispFlight}=await import('./flight.mjs?v=first-light-1');const resume=WispFlight.prototype.resume;WispFlight.prototype.resume=function(...args){window.qaEngine=this;this.tick=()=>{};return resume.apply(this,args);};})()`);
+ await ev(`(async()=>{const {WispFlight}=await import(${JSON.stringify('./flight.mjs?v='+release)});const resume=WispFlight.prototype.resume;WispFlight.prototype.resume=function(...args){window.qaEngine=this;this.tick=()=>{};return resume.apply(this,args);};})()`);
  const gate=await box('.flight-resume-gate');await gesture(gate,gate);
  await until(()=>ev('!!window.qaEngine&&!qaEngine.paused'));
  assert.equal(await ev('qaEngine.flaps'),0,'the first tap only unpauses');
@@ -55,7 +57,7 @@ try{
  await fs.writeFile('work/collector-field-impulse-proof.png',Buffer.from((await send('Page.captureScreenshot',{format:'png'})).data,'base64'));
  assert.equal(await ev("localStorage.getItem('wispbound.save.condensed.v7')"),'preserved-field-input-save');
  // Exercise real browser pointer capture and CSS matrices for rotated layouts.
- await ev(`(async()=>{qaEngine.pause();const {bindFlightPointerControls}=await import('./flight-input.mjs?v=first-light-1');const stage=document.createElement('div');stage.style.cssText='position:fixed;left:300px;top:40px;width:180px;height:300px;transform:rotate(90deg);background:#183329;z-index:20000';document.body.append(stage);const button=document.createElement('button');document.body.append(button);window.rotatedCalls=[];window.rotatedControls=bindFlightPointerControls({lift:button,playfield:stage,getEngine:()=>window.rotatedScene});window.rotatedScene={running:true,mod:{collectorFieldImpulse:true},hasCompanion:()=>true,flap:()=>rotatedCalls.push('tap'),activateFieldImpulse:d=>rotatedCalls.push(d)};stage.id='rotated-qa';})()`);
+ await ev(`(async()=>{qaEngine.pause();const {bindFlightPointerControls}=await import(${JSON.stringify('./flight-input.mjs?v='+release)});const stage=document.createElement('div');stage.style.cssText='position:fixed;left:300px;top:40px;width:180px;height:300px;transform:rotate(90deg);background:#183329;z-index:20000';document.body.append(stage);const button=document.createElement('button');document.body.append(button);window.rotatedCalls=[];window.rotatedControls=bindFlightPointerControls({lift:button,playfield:stage,getEngine:()=>window.rotatedScene});window.rotatedScene={running:true,mod:{collectorFieldImpulse:true},hasCompanion:()=>true,flap:()=>rotatedCalls.push('tap'),activateFieldImpulse:d=>rotatedCalls.push(d)};stage.id='rotated-qa';})()`);
  const rotated=await box('#rotated-qa');await gesture(rotated,{x:rotated.x+65,y:rotated.y});assert.deepEqual(await ev('rotatedCalls'),['up']);
  await ev('rotatedControls.destroy()');
  console.log(JSON.stringify({passed:['one-tap unpause','owner tap on release','instant dedicated Lift','instant nonowner tap','up/down/right no-Lift swipe','ignored left/ambiguous/ineligible swipe','real touch swipe','touch cancellation','multitouch cancellation','CSS rotated landscape mapping','visible existing skill feedback','ordinary save preserved'],viewport:'844×390',screenshot:path.resolve('work/collector-field-impulse-proof.png')}));

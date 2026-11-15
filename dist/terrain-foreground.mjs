@@ -1,11 +1,33 @@
-import {terrainBoundary} from './terrain-boundary.mjs?v=first-light-1';
-import {sparkBodyRadius} from './spark-size.mjs?v=first-light-1';
+import {terrainBoundary} from './terrain-boundary.mjs?v=first-light-2';
 
 // The closest plane is cut paper: opaque black land and foliage, without any
 // material, rim light or texture. Three small plates are baked per biome.
 const documents=new WeakMap();
 const foregroundInk=new WeakMap();
 const noise=n=>{let h=Math.imul(n|0,1597334677);h=Math.imul(h^(h>>>13),1274126177);return((h^(h>>>16))>>>0)/4294967296;};
+function opaqueSilhouette(context,canvas){
+ // This is a plate-bake operation only. Canvas paths antialias their edges;
+ // the nearest pixel-art plane has binary coverage, including its fine stems.
+ const image=context.getImageData(0,0,canvas.width,canvas.height);if(!image?.data)return;
+ for(let i=3;i<image.data.length;i+=4)image.data[i]=image.data[i]>=128?255:0;
+ context.putImageData(image,0,0);
+}
+function hardContactClearance(c,ax,ay,bx,by,size,width,height){
+ // Clip before integer stepping: a long offscreen shoulder costs no more
+ // than a viewport contour. A single fill batches all hard-edged rectangles.
+ const dx=bx-ax,dy=by-ay,pad=size;let start=0,end=1;
+ for(const [p,q]of [[-dx,ax+pad],[dx,width+pad-ax],[-dy,ay+pad],[dy,height+pad-ay]]){
+  if(!p){if(q<0)return;continue;}
+  const u=q/p;if(p<0)start=Math.max(start,u);else end=Math.min(end,u);if(start>end)return;
+ }
+ let x=Math.round(ax+dx*start),y=Math.round(ay+dy*start);
+ const xx=Math.round(ax+dx*end),yy=Math.round(ay+dy*end),sx=x<xx?1:-1,sy=y<yy?1:-1,
+  wx=Math.abs(xx-x),hy=-Math.abs(yy-y),half=Math.floor(size/2);let error=wx+hy;
+ while(true){
+  c.rect(x-half,y-half,size,size);if(x===xx&&y===yy)break;
+  const twice=error*2;if(twice>=hy){error+=hy;x+=sx;}if(twice<=wx){error+=wx;y+=sy;}
+ }
+}
 export const FOREGROUND_BIOMES=Object.freeze(['moonruins','frost','pinewood','marsh','fungal','basalt','desert','coral','crystal','cloud','thorn','cemetery']);
 export function createForegroundSilhouettes(document,biome,variant=0){
  const plates=[];
@@ -58,6 +80,7 @@ export function createForegroundSilhouettes(document,biome,variant=0){
     }
    }
   }
+  opaqueSilhouette(c,canvas);opaqueSilhouette(r,roofCanvas);
   plates.push({canvas,roofCanvas,roof:tile===((variant+1)%3)});
  }
  return plates;
@@ -71,29 +94,49 @@ function platesFor(document,biome,variant){
 }
 export function drawTerrainForeground(c,e,{scale=1,distance=e.renderDistance??e.distance??0}={}){
  const document=c.canvas?.ownerDocument;if(!document)return;
+ const time=e.visualTime??e.time??0,boundary=terrainBoundary(e,time);
+ if(!boundary.profiles.length)return;
  const biome=e.levelIdentity?.biomeId||({ruins:'moonruins',canopy:'pinewood',storm:'frost'}[e.terrain]),variant=e.levelIdentity?.variant||0;
- const plates=platesFor(document,biome,variant),W=e.width,H=e.height,time=e.visualTime??e.time??0;
+ const plates=platesFor(document,biome,variant),W=e.width,H=e.height;
  let ink=foregroundInk.get(e);if(!ink){const canvas=document.createElement('canvas');ink={canvas,context:canvas.getContext('2d')};foregroundInk.set(e,ink);}
  const rw=Math.ceil(W*scale),rh=Math.ceil(H*scale);if(ink.canvas.width!==rw||ink.canvas.height!==rh){ink.canvas.width=rw;ink.canvas.height=rh;}
- const p=ink.context;p.setTransform(1,0,0,1,0,0);p.clearRect(0,0,rw,rh);p.setTransform(scale,0,0,scale,0,0);p.globalAlpha=1;p.globalCompositeOperation='source-over';p.imageSmoothingEnabled=false;
+ const p=ink.context;p.setTransform(1,0,0,1,0,0);p.clearRect(0,0,rw,rh);p.globalAlpha=1;p.globalCompositeOperation='source-over';p.imageSmoothingEnabled=false;
+ // The same current-camera union supplies ecology and contact edges. Clip the
+ // nearest art to its actual filled polygons, including motion and Spacetime,
+ // rather than treating a screen-edge band as ground. Opposite bank polygons
+ // have opposite winding; reverse roofs so overlapping solids remain a union.
+ const camera=Math.round(distance*scale);p.save();p.beginPath();
+ for(const profile of boundary.profiles){
+  if(profile.points.at(-1)[0]<distance||profile.points[0][0]>distance+W)continue;
+  const owner=profile.owner,shape=profile.top?owner.topShape:owner.bottomShape;
+  const anchor=owner.center+Math.sin(time*.9+(owner.phase||0))*(owner.motion||0)+(profile.top?-1:1)*owner.gap/2;
+  for(let i=0;i<shape.length;i++){
+   const [x,y]=shape[profile.top?shape.length-1-i:i],px=Math.round((owner.x+x)*scale)-camera,py=Math.round((anchor+y)*scale);
+   if(i)p.lineTo(px,py);else p.moveTo(px,py);
+  }
+  p.closePath();
+ }
+ p.clip();
  const speed=1.22,scroll=distance*speed,span=512,first=Math.floor(scroll/span)-1,last=Math.ceil((scroll+W)/span);
+ const floorY=Math.round((H-160)*scale),roofHeight=Math.round(76*scale);
  for(let tile=first;tile<=last;tile++){
-  const item=plates[((tile+variant)%plates.length+plates.length)%plates.length],x=Math.round(tile*span-scroll);
-  p.drawImage(item.canvas,x,H-160);if(item.roof)p.drawImage(item.roofCanvas,x,0);
+  const item=plates[((tile+variant)%plates.length+plates.length)%plates.length],left=Math.round((tile*span-scroll)*scale),right=Math.round(((tile+1)*span-scroll)*scale);
+  // Snap shared tile edges and destination extents in the actual game raster.
+  // Even a binary texture acquires fractional alpha at a transformed blit edge.
+  p.drawImage(item.canvas,left,floorY,right-left,rh-floorY);
+  if(item.roof)p.drawImage(item.roofCanvas,left,0,right-left,roofHeight);
  }
- // One bounded erase pass preserves the true contact seam. Geometry nowhere
- // near the top/bottom ink bands never enters this path, even in dense courses.
- p.globalCompositeOperation='destination-out';p.strokeStyle='#000000';p.lineWidth=8;p.lineCap='round';p.beginPath();
- for(const segment of terrainBoundary(e,time).segments){
+ p.restore();
+ // Preserve the real contact seam with binary raster clearance. A native
+ // antialiased erase stroke would leave gray, partly transparent ink along it.
+ p.setTransform(1,0,0,1,0,0);p.globalCompositeOperation='destination-out';p.fillStyle='#000000';p.beginPath();
+ const clearance=Math.max(1,Math.ceil(8*scale));
+ for(const segment of boundary.segments){
   const ax=segment.a[0]-distance,ay=segment.a[1],bx=segment.b[0]-distance,by=segment.b[1];
-  if(Math.max(ax,bx)<-6||Math.min(ax,bx)>W+6||Math.max(ay,by)<-6||Math.min(ay,by)>H+6||Math.min(ay,by)>76&&Math.max(ay,by)<H-88)continue;
-  p.moveTo(ax,ay);p.lineTo(bx,by);
+  if(Math.max(ax,bx)<-6||Math.min(ax,bx)>W+6||Math.max(ay,by)<-6||Math.min(ay,by)>H+6||Math.min(ay,by)>76&&Math.max(ay,by)<H-160)continue;
+  hardContactClearance(p,Math.round(segment.a[0]*scale)-camera,Math.round(ay*scale),
+   Math.round(segment.b[0]*scale)-camera,Math.round(by*scale),clearance,rw,rh);
  }
- p.stroke();p.fillStyle='#000000';p.beginPath();
- const protect=(x,y,r)=>{if(x+r<0||x-r>W||y+r<0||y-r>H||y-r>76&&y+r<H-88)return;p.moveTo(x+r,y);p.arc(x,y,r,0,Math.PI*2);};
- protect(e.player.x,e.renderPlayerY??e.player.y,19);
- for(const orb of e._companionViews||[])if(Number.isFinite(orb.x)&&Number.isFinite(orb.y))protect(orb.x,orb.y,11);
- for(const spark of e.layout.embers||[])if(!spark.collected&&!spark.carried){const x=spark.x-distance;if(x<-70||x>W+70)continue;protect(x,spark.y,sparkBodyRadius(spark,H)+1);}
  p.fill();p.globalCompositeOperation='source-over';
  c.save();c.globalAlpha=1;c.globalCompositeOperation='source-over';c.imageSmoothingEnabled=false;c.drawImage(ink.canvas,0,0);c.restore();
 }

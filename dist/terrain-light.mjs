@@ -1,4 +1,4 @@
-import {LIGHT_EXTENT,lightAttenuation} from './light-attenuation.mjs?v=first-light-1';
+import {LIGHT_EXTENT,lightAttenuation} from './light-attenuation.mjs?v=first-light-2';
 
 // Rendering only: rock consumes three units of Luminance reach for each unit
 // travelled. Gameplay visibility, encounters and collection use their own law.

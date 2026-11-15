@@ -1,41 +1,41 @@
-import {prepareEnvironmentArt,prepareNearLandscape,prepareCourseArt,drawCourseArt,drawNearLandscape,drawTerrainForeground,releaseTerrainForeground} from './authored-environment.mjs?v=first-light-1';
-import {drawTerrainEcology,drawHabitatBackdrop} from './terrain-ecology.mjs?v=first-light-1';
-import {drawTerrainBoundary,terrainBoundary,beginTerrainBoundaryFrame,endTerrainBoundaryFrame,releaseTerrainBoundaryFrame} from './terrain-boundary.mjs?v=first-light-1';
-import {spacetimeBaseShape,drawSpacetimeTerrain} from './spacetime.mjs?v=first-light-1';
-import {paintContactEdge,isContactEdgeStyle,contactEdgeInk} from './contact-edge-art.mjs?v=first-light-1';
-import {ContactEdgeRaster} from './contact-edge-raster.mjs?v=first-light-1';
-import {getContactEdgePalette} from './contact-edge-palettes.mjs?v=first-light-1';
-import {drawAtlasFlight} from './atlas-flight.mjs?v=first-light-1';
-import {drawGuardianPresence} from './guardian-presence.mjs?v=first-light-1';
-import { drawGuardianWarnings } from './guardian-art.mjs?v=first-light-1';
-import { drawShutters } from './shutter-cone.mjs?v=first-light-1';
-import {drawProximityMeter} from './proximity-meter.mjs?v=first-light-1';
-import {drawFourthBeat} from './fourth-beat-art.mjs?v=first-light-1';
-import {drawCollectorField} from './collector-field-art.mjs?v=first-light-1';
-import {drawObjectiveMarks} from './flight-objectives.mjs?v=first-light-1';
-import {drawFlightProjection} from './flight-projection.mjs?v=first-light-1';
-import {drawGlowSense} from './glow-sense.mjs?v=first-light-1';
-import {drawLastGlimmer} from './last-glimmer.mjs?v=first-light-1';
-import {formatGlow} from './vitality.mjs?v=first-light-1';
-import {LOCATION_PALETTES} from './world-expansion.mjs?v=first-light-1';
-import {biomePalette} from './biome-art.mjs?v=first-light-1';
-import { sceneryIdentity, drawIdentityBackground, drawIdentityMaterial, drawIdentityLife } from './level-scenery.mjs?v=first-light-1';
-import { getCompanionAbility, normalizeCompanionRole } from './companion-abilities.mjs?v=first-light-1';
-import { companionPalette, makeCompanionSprite, makeWispSprite } from './companion-art.mjs?v=first-light-1';
-import { createScenePropArt } from './scene-prop-art.mjs?v=first-light-1';
-import { drawBoss } from './boss.mjs?v=first-light-1';
-import {drawFlashTether} from './flash-tether.mjs?v=first-light-1';
-import { drawPickup, drawSparkSymbol } from './pickup-art.mjs?v=first-light-1';
-import {sparkBodyRadius,sparkArtScale,sparkMass} from './spark-size.mjs?v=first-light-1';
-import { pickupKind, getPickupSpec } from './pickups.mjs?v=first-light-1';
-import { LIGHT_EXTENT,lightAttenuation,lightVisibility,createLightMaskCanvas,castFlightFlashLights,revealLanternWake,sceneRevealStrength,renderLightState,lightDreamScenery } from './light-field.mjs?v=first-light-1';
-import {drawExitLandmark} from './exit-landmark.mjs?v=first-light-1';
-import {drawBlackHoles} from './black-hole-art.mjs?v=first-light-1';
-import {drawCapture, drawShellPuff, drawCarriedSpark} from './capture-art.mjs?v=first-light-1';
-import {drawShellArcs} from './shell-arcs.mjs?v=first-light-1';
-import {drawFlightForks,drawFlightForkBackdrops} from './flight-forks.mjs?v=first-light-1';
-import {drawFallWarning} from './fall-chain-art.mjs?v=first-light-1';
-import {castTerrainLight,releaseTerrainLight,prepareTerrainLight} from './terrain-light.mjs?v=first-light-1';
+import {prepareEnvironmentArt,prepareNearLandscape,prepareCourseArt,drawCourseArt,drawNearLandscape,drawTerrainForeground,releaseTerrainForeground} from './authored-environment.mjs?v=first-light-2';
+import {drawTerrainEcology,drawHabitatBackdrop} from './terrain-ecology.mjs?v=first-light-2';
+import {drawTerrainBoundary,terrainBoundary,beginTerrainBoundaryFrame,endTerrainBoundaryFrame,releaseTerrainBoundaryFrame} from './terrain-boundary.mjs?v=first-light-2';
+import {spacetimeBaseShape,drawSpacetimeTerrain} from './spacetime.mjs?v=first-light-2';
+import {paintContactEdge,isContactEdgeStyle,contactEdgeInk} from './contact-edge-art.mjs?v=first-light-2';
+import {ContactEdgeRaster} from './contact-edge-raster.mjs?v=first-light-2';
+import {getContactEdgePalette} from './contact-edge-palettes.mjs?v=first-light-2';
+import {drawAtlasFlight} from './atlas-flight.mjs?v=first-light-2';
+import {drawGuardianPresence} from './guardian-presence.mjs?v=first-light-2';
+import { drawGuardianWarnings } from './guardian-art.mjs?v=first-light-2';
+import { drawShutters } from './shutter-cone.mjs?v=first-light-2';
+import {drawProximityMeter} from './proximity-meter.mjs?v=first-light-2';
+import {drawFourthBeat} from './fourth-beat-art.mjs?v=first-light-2';
+import {drawCollectorField} from './collector-field-art.mjs?v=first-light-2';
+import {drawObjectiveMarks} from './flight-objectives.mjs?v=first-light-2';
+import {drawFlightProjection} from './flight-projection.mjs?v=first-light-2';
+import {drawGlowSense} from './glow-sense.mjs?v=first-light-2';
+import {drawLastGlimmer} from './last-glimmer.mjs?v=first-light-2';
+import {formatGlow} from './vitality.mjs?v=first-light-2';
+import {LOCATION_PALETTES} from './world-expansion.mjs?v=first-light-2';
+import {biomePalette} from './biome-art.mjs?v=first-light-2';
+import { sceneryIdentity, drawIdentityBackground, drawIdentityMaterial, drawIdentityLife } from './level-scenery.mjs?v=first-light-2';
+import { getCompanionAbility, normalizeCompanionRole } from './companion-abilities.mjs?v=first-light-2';
+import { companionPalette, makeCompanionSprite, makeWispSprite } from './companion-art.mjs?v=first-light-2';
+import { createScenePropArt } from './scene-prop-art.mjs?v=first-light-2';
+import { drawBoss } from './boss.mjs?v=first-light-2';
+import {drawFlashTether} from './flash-tether.mjs?v=first-light-2';
+import { drawPickup, drawSparkSymbol } from './pickup-art.mjs?v=first-light-2';
+import {sparkBodyRadius,sparkArtScale,sparkMass} from './spark-size.mjs?v=first-light-2';
+import { pickupKind, getPickupSpec } from './pickups.mjs?v=first-light-2';
+import { LIGHT_EXTENT,lightAttenuation,lightVisibility,createLightMaskCanvas,castFlightFlashLights,revealLanternWake,sceneRevealStrength,renderLightState,lightDreamScenery } from './light-field.mjs?v=first-light-2';
+import {drawExitLandmark} from './exit-landmark.mjs?v=first-light-2';
+import {drawBlackHoles} from './black-hole-art.mjs?v=first-light-2';
+import {drawCapture, drawShellPuff, drawCarriedSpark} from './capture-art.mjs?v=first-light-2';
+import {drawShellArcs} from './shell-arcs.mjs?v=first-light-2';
+import {drawFlightForks,drawFlightForkBackdrops} from './flight-forks.mjs?v=first-light-2';
+import {drawFallWarning} from './fall-chain-art.mjs?v=first-light-2';
+import {castTerrainLight,releaseTerrainLight,prepareTerrainLight} from './terrain-light.mjs?v=first-light-2';
 
 const TAU = Math.PI * 2;
 const propContactCache=new WeakMap();
@@ -1147,7 +1147,6 @@ export class WispFlightView {
     const playerX = e.player.x * s, playerY = yOf(e) * s;
     e.luminanceWaves?.draw(c,{distance,scale:s,time:t});
     this.lightFog(e, fleet, playerX, playerY);
-    drawTerrainForeground(c,e,{scale:s,distance});
     drawFallWarning(c,e,{distance,scale:s,light:this.currentLightState});
     e.drawWayfinder?.(c,s);
     drawGuardianWarnings(c,{engine:e,distance,scale:s,time:t});
@@ -1186,9 +1185,9 @@ export class WispFlightView {
     c.globalAlpha = 1;
     if (e.flash > 0) { c.globalAlpha = Math.min(.2, e.flash * 1.3); c.fillStyle = '#dbc2a1'; c.fillRect(0, 0, this.buffer.width, this.buffer.height); c.globalAlpha = 1; }
     if(e.completing){c.save();c.globalCompositeOperation='screen';const p=e.completionProgress||0;c.globalAlpha=.11*p*p*(3-2*p)+Math.sin(Math.PI*p)*.02;c.fillStyle='#efd4a0';c.fillRect(0,0,this.buffer.width,this.buffer.height);c.restore();}
-    // Full-scene Flash and exit washes never turn the nearest cut-paper plane
-    // into lit material. Redraw only on these brief wash frames.
-    if(e.flash>0||e.completing)drawTerrainForeground(c,e,{scale:s,distance});
+    // Composite the closest opaque plane once, after every world light/wash
+    // and overlay. Its real-terrain clip leaves open flight and actors clear.
+    drawTerrainForeground(c,e,{scale:s,distance});
     if (!rehearsing) drawProximityMeter(c,e,{scale:s});
     this.context.imageSmoothingEnabled = false;
     this.context.drawImage(this.buffer, 0, 0, this.canvas.width, this.canvas.height);

@@ -1,11 +1,12 @@
 # First Light, living terrain and visible triggers — 15 November 2026
 
-Current release: `first-light-1`.
+Current release: `first-light-2`.
 
 - [x] Replace the old practice with six separate First Light stops: real flight and Collector pickups, a practice Proximity loan, close-flight charging and packing, Rest, a real Black Hole bypass and a forgiving Warden. Preserve the suspended campaign, unlimited entrance-state retries, saved continuation, skip/reset preferences and Field Guide replay.
 - [x] Show brief source-art cues for actual skill, artifact and companion triggers, including repeated and simultaneous effects. Keep passive bonuses quiet and clear old cues on pause/resume.
 - [x] Add Last Glimmer, a one-rank Flight skill after Momentum. A fatal position remains visible only on a matching passage retry, survives reload and does not change collisions or rewards.
 - [x] Add opaque nearest-camera silhouettes, authored habitat animals and Luminance attenuation through the union of real terrain and solid props. Preserve real collision boundaries, camera registration and reduced-motion behavior.
+- [x] Correct nearest-camera ground and canopy clipping: use the actual current floor/roof union, preserve gaps and contact rims, keep binary black edges, and composite the closest plane after world lighting in both renderers. Retain the earlier films as historical evidence and provide a new matched foreground clip.
 - [x] Provide a cache-proof phone entry at `first-light.html`. A user tap updates an installed game before opening practice; first installs, already-current builds and offline retry are covered. Keep the ordinary `?tutorial=1` route available.
 - [x] Disable campfire Recover when hearts and Sparks are full; retain Grow until its cap. Offer a no-benefit Continue when both are exhausted, while preserving preparation, the seller and its single Dream route. Revalidate stale offers and repeated taps.
 - [x] Add Spacetime after Steady Current at base cost 160: nearby ordinary banks yield shallowly, with one shared polygon for collisions, contact edges, light and Proximity. Leave Sparks, props and guardian geometry fixed; keep forecasts private.
