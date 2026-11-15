@@ -238,3 +238,13 @@ Verification: focused transaction/engine/reward checks; 24 opening-flight physic
 - [ ] Calibrate reaction/missed-notice assumptions against Pixel 10 play and refine the later-chapter difficulty curve. Paired clear rates are not yet monotonic; do not treat sampled solvability as universal proof.
 
 Evidence, exact counts and limitations: `docs/spark-supply-release.md`. This release supersedes the preceding note that supply normalization is excluded, while retaining the explicit tuning follow-up.
+
+## Spark progression completion — 15 November 2026
+
+- [x] Budget all bare starter depths for a full entry vessel; separately place fuel for half-full checkpoint entries. Reproduce and fix the early Cemetery drought without adding fuel.
+- [x] Choose optional mission marks after funding the inventory, so protected construction pickups cannot exceed the supply cap. Match simulation offer preflight to the real game; reserve rich hunts for longer routes.
+- [x] Pace authored challenges across ordinary progressed flights instead of front-loading hard terrain and skipping previewed encounter families.
+- [x] Verify the 60% fuel-value target, automatic exit packing and progression-aware pressure with the current runtime and real earned builds, gifts, relics, Dream and reward settlement.
+- [x] Pass 80 focused checks, 1,296 layout inventory cases and 4,949 flight scenarios. Check all 48 courses and all twenty starting gifts; retain raw hashes and limitations in the evidence report.
+
+The implementation and simulation goal is complete; physical phone feedback remains a future calibration step rather than a claim of measured human win rates. See `docs/spark-progression-release.md` and `docs/spark-balance-evidence.json`. This supersedes the preceding open balance-tuning item.

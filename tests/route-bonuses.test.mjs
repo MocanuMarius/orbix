@@ -6,6 +6,7 @@ import {
   getRunModifiers, takeClearRewardReceipt, saveState, loadState, suspendRun
 } from '../dist/model.mjs';
 import {ROUTE_BONUSES} from '../dist/route-bonuses.mjs';
+import {getFlightClearReward} from '../dist/checkpoint-rewards.mjs';
 
 function firstOffer(id) {
   for (let seed=0; seed<1000; seed++) {
@@ -35,16 +36,31 @@ function memory() {
   return {setItem:(k,v)=>value=v,getItem:()=>value};
 }
 
+test('rich multi-stage hunts are reserved for flights long enough to fund their pickups',()=>{
+ const state=newState(),run=createRun(state.profile,'short-hunt-budget');
+ run.testMode=true;run.lives=1;
+ const flights=run.map.flat().filter(n=>n.type==='flight');
+ for(const n of flights)n.duration=50;
+ for(const n of flights){
+  const offers=getRouteBonusCandidates(run,n);
+  assert.ok(!offers.includes('constellation'));assert.ok(!offers.includes('three-suns'));
+ }
+ for(const n of flights)n.duration=100;
+ const offers=flights.flatMap(n=>getRouteBonusCandidates(run,n));
+ assert.ok(offers.includes('constellation'));assert.ok(offers.includes('three-suns'));
+});
+
 test('every route bonus pays exactly its advertised clear effect and survives save once',()=>{
   for (const id of Object.keys(ROUTE_BONUSES)) {
     const {run,state}=firstOffer(id);
-    const funds=run.condensedGlow, hearts=run.lives;
+    const funds=run.condensedGlow, hearts=run.lives,clearPay=getFlightClearReward(run.current,run);
     assert.ok(finishFlight(run,cleared(id)));
     const claimed=run.lastFlight.routeBonus;
     assert.equal(claimed.id,id);
     const currency=id==='gilded'?30:id==='precision'?8:0;
     assert.equal(claimed.amount,currency);
-    assert.equal(run.condensedGlow,funds+39+currency);
+    const earned=clearPay+19+3+currency; // 60 internal reserve packs to 3 Stored Sparks.
+    assert.equal(run.condensedGlow,funds+earned);
     assert.equal(run.lives,hearts+Number(id==='three-suns'));
     assert.equal(run.nextFlightBoon, ['three-suns','precision','gilded'].includes(id)?undefined:id);
     assert.equal(finishFlight(run,cleared(id)),false);
@@ -54,7 +70,7 @@ test('every route bonus pays exactly its advertised clear effect and survives sa
     assert.equal(saved.run.condensedGlow,run.condensedGlow);
     assert.equal(saved.run.nextFlightBoon,run.nextFlightBoon);
     const receipt=takeClearRewardReceipt(saved.run);
-    assert.equal(receipt.amount,39+currency);
+    assert.equal(receipt.amount,earned);
     assert.ok(receipt.notes.some(note=>note.includes(claimed.name)));
     assert.equal(takeClearRewardReceipt(saved.run),null);
   }
@@ -120,8 +136,9 @@ test('cash and heart offers are capped by map, state and outstanding contracts',
 });
 
 test('Gilded matches waking Packing and the clear reward within both transfer limits',()=>{
-  for(const [received,waking,expected] of [[12,1,21],[2,20,22],[50,0,20],[50,49,30]]) {
+  for(const [received,waking,matched] of [[12,1,1],[2,20,2],[50,0,0],[50,49,20]]) {
     const {run}=firstOffer('gilded');
+    const expected=Math.min(30,getFlightClearReward(run.current,run)+matched);
     const result=cleared('gilded',{condensedGlow:received});
     result.routeBonus.packed=waking;
     finishFlight(run,result);

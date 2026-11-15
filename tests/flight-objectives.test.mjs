@@ -7,12 +7,20 @@ import {getPickupSpec} from '../dist/pickups.mjs';
 import {sparkMass} from '../dist/spark-size.mjs';
 import {createFlightObjective} from '../dist/flight-objectives.mjs';
 
-function flight(id, modifiers={}) {
-  const game=new WispFlight({canvas:{getContext:()=>({setTransform(){}}),getBoundingClientRect:()=>({width:900,height:405})},
-    preflight:true,seed:1,terrain:'canopy',duration:60,node:{mapIndex:1,row:2,difficulty:3,bonusId:id},
-    modifiers:{proximityUnlocked:true,...modifiers}});
-  game.running=true;
-  return game;
+const fixtureSeeds=new Map();
+function flight(id, modifiers={},spare=false) {
+  const key=id+':'+spare;
+  const choices=fixtureSeeds.has(key)?[fixtureSeeds.get(key)]:[{seed:1,duration:60},...Array.from({length:40},(_,i)=>({seed:i+1,duration:140}))];
+  for(const spec of choices){
+    const game=new WispFlight({canvas:{getContext:()=>({setTransform(){}}),getBoundingClientRect:()=>({width:900,height:405})},
+      preflight:true,...spec,terrain:'canopy',node:{mapIndex:1,row:2,difficulty:3,bonusId:id},
+      modifiers:{proximityUnlocked:true,...modifiers}});
+    if(id==null||game.routeObjective.eligible&&(!spare||game.routeObjective.targets.filter(t=>t.stage===0).length>1)){
+      fixtureSeeds.set(key,spec);game.running=true;return game;
+    }
+    game.destroy();
+  }
+  throw Error('No funded objective fixture for '+id);
 }
 const targets = game=>game.routeObjective.targets;
 function visit(game,x,y) {
@@ -24,17 +32,17 @@ function take(game,index,extra={}) {
   game.collect(packet);
 }
 
-test('a 36-Spark Surge counts as one pickup, names its real fuel and keeps generated motes out of onboarding',()=>{
+test('an 18-Spark Cache counts as one pickup, names its real fuel and keeps generated motes out of onboarding',()=>{
   const game=flight(null,{maxGlow:300});
   const x=game.distance+game.player.x+90,y=game.player.y;
   const mote={kind:'light',generated:true,x:x-20,y};
-  const surge={kind:'cache',value:3,sparkMass:6,x,y};
+  const surge={kind:'cache',value:3,sparkMass:3,x,y};
   game.layout.embers=[mote,surge];
   assert.equal(game.getNearbyPickup()?.packet,surge);
   game.flame=0;
   game.collect(surge);
   game.collect(surge);
-  assert.equal(game.event,'Surge Spark · +36 Sparks');
+  assert.equal(game.event,'Spark Cache · +18 Sparks');
   assert.equal(game.baseEmbers,1);
   assert.equal(game.bodyFuelCollected,1);
   game.collect(mote);
@@ -43,10 +51,10 @@ test('a 36-Spark Surge counts as one pickup, names its real fuel and keeps gener
   game.destroy();
 });
 
-test('all ten plans are deterministic, pure before acceptance, and mark real geometry',()=>{
-  const game=flight(null), before=JSON.stringify(game.layout.embers);
+test('all ten eligible plans are deterministic, pure to inspect, and mark funded real geometry',()=>{
   for(const id of Object.keys(ROUTE_BONUSES)){
-    const p=game.planRouteObjective(id),second=flight(null).planRouteObjective(id);
+    const game=flight(id),before=JSON.stringify(game.layout.embers);
+    const p=game.planRouteObjective(id),second=flight(id).planRouteObjective(id);
     assert.ok(p,id);
     assert.deepEqual(p.targets.map(t=>[t.x,t.y]),second.targets.map(t=>[t.x,t.y]),id);
     for(const t of p.targets){
@@ -54,8 +62,8 @@ test('all ten plans are deterministic, pure before acceptance, and mark real geo
       assert.ok(game.objectiveBodyClear(t.x,t.y,9),id);
       if(t.type==='spark')assert.ok(game.layout.embers.includes(t.object),id);
     }
+    assert.equal(JSON.stringify(game.layout.embers),before);game.destroy();
   }
-  assert.equal(JSON.stringify(game.layout.embers),before);
   assert.equal(flight(null,{proximityUnlocked:false}).planRouteObjective('edgeweaver'),null);
   const dream=flight(null,{dreamDuration:10});
   for(const id of Object.keys(ROUTE_BONUSES))
@@ -95,9 +103,8 @@ test('collection needs distinct marked natural packets, Precision needs the body
 });
 
 test('Flash Relay marks a single Flash Powerup and accepts Sparks throughout its light',()=>{
-  const game=flight(null);
-  const natural=game.layout.embers.find(p=>p.kind==='sight') || {id:'side-pocket',kind:'sight',x:50,y:150};
-  if(!game.layout.embers.includes(natural))game.layout.embers.unshift(natural);
+  const game=flight('flash-relay');
+  const natural=targets(game)[0].object;
   const fuelBefore=game.layout.embers.filter(p=>getPickupSpec(p).fuel>0).length;
   game.routeObjective=createFlightObjective(game,'flash-relay');
   assert.equal(targets(game)[0].object,natural);
@@ -121,23 +128,25 @@ test('Flash Relay marks a single Flash Powerup and accepts Sparks throughout its
 });
 
 test('Constellation recovers a missed first mark, ignores completed layers, and requires all three in order',()=>{
-  const game=flight('constellation');
+  const game=flight('constellation',{},true);
   const marks=targets(game);
-  assert.deepEqual(marks.map(t=>sparkMass(t.object)),[1,1,2,2,3,3]);
+  const groups=[0,1,2].map(stage=>marks.filter(t=>t.stage===stage));
+  assert.ok(groups[0].length>=2&&groups[1].length>=1&&groups[2].length>=1);
+  assert.ok(marks.every(t=>sparkMass(t.object)===t.stage+1));
   visit(game,marks[0].x+40,0); // Fly past the first one without collecting it.
   game.routeObjective.update();
   assert.equal(game.routeObjective.progress,0);
   visit(game,marks[1].x,marks[1].y);
   take(game,1);
   assert.equal(game.routeObjective.progress,1);
-  take(game,2);
-  take(game,3);
+  take(game,marks.indexOf(groups[1][0]));
+  if(groups[1][1])take(game,marks.indexOf(groups[1][1]));
   assert.equal(game.routeObjective.progress,2);
-  take(game,4);
+  take(game,marks.indexOf(groups[2][0]));
   assert.ok(game.routeObjective.complete);
-  const skipped=flight('constellation');
-  take(skipped,2);
-  take(skipped,4);
+  const skipped=flight('constellation',{},true);
+  take(skipped,marks.indexOf(groups[1][0]));
+  take(skipped,marks.indexOf(groups[2][0]));
   assert.equal(skipped.routeObjective.progress,0);
   const lastOne=targets(skipped)[1];
   visit(skipped,lastOne.x+800,lastOne.y);

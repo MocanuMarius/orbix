@@ -1,14 +1,17 @@
 // Cross-course stress using builds actually purchased in a coupled campaign.
 import fs from 'node:fs';
+import {createHash} from 'node:crypto';
 import {balanceSourceHashes} from './balance-source-hashes.mjs';
 const options=Object.fromEntries(process.argv.slice(2).map(a=>a.replace(/^--/,'').split('=')));
 process.argv.push('--importOnly');
 const {simulate,summarize}=await import('./balance-current-flight.mjs');
 const {BIOME_LEVELS}=await import('../dist/biomes.mjs');
 const {getFlightLengthProfile}=await import('../dist/level-length.mjs');
-const reference=JSON.parse(fs.readFileSync(options.reference||'work/supply-coupled-dream-builds.json'));
+const referenceSource=options.reference||'work/supply-coupled-dream-builds.json';
+const referenceBytes=fs.readFileSync(referenceSource),reference=JSON.parse(referenceBytes);
 const policies=(options.policies||'focused-survival,focused-storage,focused-collector').split(',');
 const out=options.out||'work/balance-progressed-courses.json',rows=[];
+const stressTier=options.tier?Math.max(1,Math.min(6,Number(options.tier))):null;
 const hashes=balanceSourceHashes;
 const before=hashes(),start=Date.now(),templates=[];
 for(const mapIndex of [1,2])for(const stage of [0,5])for(const policy of policies){
@@ -26,8 +29,12 @@ function configurationFor(level,template,style='human250',controllerSeed=0){
  c.duration=getFlightLengthProfile({seed:c.seed,row:stage,mapIndex}).duration;c.node.duration=c.duration;
  c.run.current=c.node;c.run.mapIndex=mapIndex;return c;
 }
+function applyTier(c){
+ if(stressTier){c.difficulty=stressTier;c.node.difficulty=stressTier;c.run.difficulty=stressTier;}
+ return c;
+}
 for(const level of BIOME_LEVELS)for(const template of templates){
- const record=simulate(configurationFor(level,template));record.buildPolicy=template.policy;record.sourceBuild=template.sourceCampaign;rows.push(record);
+ const record=simulate(applyTier(configurationFor(level,template)));record.buildPolicy=template.policy;record.sourceBuild=template.sourceCampaign;rows.push(record);
  if(rows.length%24===0)console.log(JSON.stringify({cases:rows.length,planned:BIOME_LEVELS.length*templates.length,seconds:+((Date.now()-start)/1000).toFixed(1)}));
 }
 const groups=new Map();for(const r of rows){const key=[r.levelId,r.sourceBuild.map,r.stage].join(':');if(!groups.has(key))groups.set(key,[]);groups.get(key).push(r);}
@@ -39,7 +46,7 @@ for(const [key,items]of groups){
  let found=false;
  for(const template of candidates){
   for(const style of ['human150','human250'])for(const inputSeed of [1,2,3]){
-   const result=simulate(configurationFor(level,template,style,inputSeed));
+   const result=simulate(applyTier(configurationFor(level,template,style,inputSeed)));
    retryWitnesses.push({key,buildPolicy:template.policy,style,inputSeed,success:result.success,progress:result.progress,lowFuel:result.lowFuelAtDeath});
    if(result.success){found=true;break;}
   }
@@ -49,9 +56,11 @@ for(const [key,items]of groups){
 const unwitnessed=[...groups].filter(([key,items])=>!items.some(r=>r.success)&&!retryWitnesses.some(r=>r.key===key&&r.success))
  .map(([key,items])=>({key,cases:items.map(r=>({policy:r.buildPolicy,lowFuel:r.lowFuelAtDeath,progress:r.progress}))}));
 const report={createdAt:new Date().toISOString(),seconds:(Date.now()-start)/1000,sourceHashes:before,sourceUnchanged:JSON.stringify(before)===JSON.stringify(hashes()),
- scope:{levels:BIOME_LEVELS.length,maps:[1,2],stages:[0,5],policies},templates,cases:rows.length,retryWitnesses,unwitnessed,summary:summarize(rows),rows,
+ reference:{source:referenceSource,sha256:createHash('sha256').update(referenceBytes).digest('hex')},
+ scope:{levels:BIOME_LEVELS.length,maps:[1,2],stages:[0,5],policies,stressTier},templates,cases:rows.length,retryWitnesses,unwitnessed,summary:summarize(rows),rows,
  limitations:['Each build was actually bought and equipped using earned campaign rewards, not granted as a perfect end-game loadout.',
  'Transplanting that legal build to another course tests resource and terrain viability; it is not a claim that every procedural route produces the same relics.',
+ 'An explicit stressTier holds these earned builds fixed at a higher difficulty; it does not claim they were earned during that harder campaign.',
  'No guardian attacks or authored encounter-family overrides in this ordinary-course census. Coupled campaigns cover those separately.',
  'Human250 is an assumed delayed visible-cue controller, not a measured population win rate.']};
 fs.writeFileSync(out,JSON.stringify(report));console.log(JSON.stringify({out,cases:rows.length,sourceUnchanged:report.sourceUnchanged,unwitnessed:unwitnessed.length,summary:report.summary.all}));

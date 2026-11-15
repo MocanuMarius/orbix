@@ -1,10 +1,11 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {WispFlight} from '../dist/flight.mjs';
+import {WispFlight,buildFlightLayout} from '../dist/flight.mjs';
 import {BIOME_LEVELS} from '../dist/biomes.mjs';
 import {getPickupSpec} from '../dist/pickups.mjs';
 import {getRunModifiers} from '../dist/model.mjs';
 import {sparkMass} from '../dist/spark-size.mjs';
+import {sparkDemand} from '../dist/spark-supply.mjs';
 const canvas={getContext:()=>({setTransform(){}}),getBoundingClientRect:()=>({width:915,height:412})};
 const total=e=>e.layout.embers.reduce((n,p)=>n+(!p.generated&&!p.harmful?getPickupSpec(p).fuel:0),0);
 const flight=(level,difficulty,duration,extra={})=>new WispFlight({canvas,preflight:true,seed:'supply-contract:'+level.id,terrain:level.terrain,duration,
@@ -38,6 +39,15 @@ test('the same course never increases its fuel tax in response to a better playe
  a.destroy();b.destroy();
 });
 
+test('every bare starter budget accounts for a full vessel, including flights after a Rest',()=>{
+ for(const stage of [0,1,2])for(const duration of [50,90,140]){
+  const demand=sparkDemand({duration,mapIndex:0,stage,difficulty:1});
+  assert.equal(demand.referenceReserve,30);
+  assert.ok(demand.requiredShare>=.6);
+ }
+ assert.equal(sparkDemand({duration:100,mapIndex:1,stage:0}).referenceReserve,15);
+});
+
 test('fuel shaping preserves marked strengths and actual objects for selected collection challenges',()=>{
  for(const id of ['constellation','three-suns','precision','long-glide']){
   let eligible=0;
@@ -60,16 +70,49 @@ test('fuel shaping preserves marked strengths and actual objects for selected co
  }
 });
 
+test('optional marks are chosen from funded inventory and cannot inflate a short flight budget',()=>{
+ for(const bonusId of [null,'constellation','three-suns','gilded','precision','long-glide']){
+  const e=new WispFlight({canvas,preflight:true,seed:'condensed-0-1|tier:1|map:0-m0-1-2',terrain:'storm',duration:52,
+   node:{levelId:'basalt-column-stair',biomeId:'basalt',mapIndex:0,row:1,difficulty:1,bonusId,
+    encounterFamily:'draft-staircase',fuelCadence:3,passage:'cavern'},companions:['collector']});
+  assert.equal(e.layout.sparkSupply.budgetExcess,0,bonusId);
+  assert.equal(total(e),e.layout.sparkSupply.targetFuel,bonusId);
+  assert.ok(e.layout.sparkSupply.actualReferenceShare>=.6,bonusId);
+  e.destroy();
+ }
+});
+
 
 test('later chapter pressure changes real authored apertures, while preserving the opening and a body-sized passage',()=>{
  const level=BIOME_LEVELS[0],averages=[];
  for(const mapIndex of [0,1,2]){
-  const e=flight(level,1,120,{row:5,mapIndex});
-  const hard=e.layout.obstacles.filter(o=>o.hard);
+  const e=flight(level,1,120,{row:5,mapIndex,encounterFamily:'stillwater-tunnel'});
+  const hard=e.layout.obstacles.filter(o=>o.hard&&!o.reservedDraft);
   assert.ok(hard.length>0);assert.ok(hard.every(o=>o.gap>=84));
   for(const o of hard)assert.ok(o.hardGapScale<1);
   averages.push(hard.reduce((n,o)=>n+o.gap,0)/hard.length);
   e.destroy();
  }
  assert.ok(averages[1]<averages[0]);assert.ok(averages[2]<averages[1]);
+});
+
+test('ordinary progressed courses deliver their encounter patterns through the flight, not just the opening',()=>{
+ for(const level of BIOME_LEVELS)for(const mapIndex of [1,2])for(const stage of [0,5]){
+  const layout=buildFlightLayout({seed:'paced:'+level.id,levelId:level.id,terrain:level.terrain,
+   duration:140,height:620,speed:154,lengthScale:1,mapIndex,stage,difficulty:1});
+  const authored=layout.sections.filter(s=>s.authoredChallenge),last=layout.obstacles.at(-1);
+  assert.ok(authored.length>=2,level.id);
+  assert.ok(authored.at(-1).end>last.x*.6,level.id);
+  assert.ok(authored.every(s=>s.warningStart<s.start&&s.end>s.start),level.id);
+ }
+});
+
+test('a normal-length flight actually builds the family advertised on its route',()=>{
+ for(const encounterFamily of ['stillwater-tunnel','draft-staircase','seed-orchard']){
+  const layout=buildFlightLayout({seed:'family-pacing',duration:140,lengthScale:1,mapIndex:1,stage:3,
+   encounterFamily,terrain:'canopy'});
+  const authored=layout.sections.filter(s=>s.authoredChallenge);
+  assert.ok(authored.length>=2,encounterFamily);
+  assert.ok(authored.every(s=>s.authoredChallenge.family===encounterFamily),encounterFamily);
+ }
 });

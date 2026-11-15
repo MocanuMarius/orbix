@@ -21,7 +21,9 @@ export function sparkDemand({duration,mapIndex=0,stage=0,difficulty=1,elite=fals
  const referenceCost=starter?3:SUPPLY_CURVE.referenceLift[map];
  const steering=starter?1:SUPPLY_CURVE.steering[map]+depth*.055+(boss?.035:0);
  const effort=minimumLifts*referenceCost*steering;
- const reserve=first?SUPPLY_CURVE.firstReserve:SUPPLY_CURVE.checkpointReserve;
+ // Any bare starter can follow a Rest and enter full. Using the half-full
+ // checkpoint reserve here would let that refill bypass the 60% budget.
+ const reserve=first||starter?SUPPLY_CURVE.firstReserve:SUPPLY_CURVE.checkpointReserve;
  const environment=Math.min(effort*.10,Math.max(0,bloomFuel)*DISPLAY);
  const needed=Math.max(6,effort-reserve-environment);
  const units=Math.max(1,Math.floor(needed/capture/6));
@@ -103,7 +105,9 @@ export function balanceSparkSupply(layout,{duration,height,speed,endX,mapIndex=0
  const effortRate=demand.referenceEffort/Math.max(1,duration)/DISPLAY;
  const usable=p=>fuel(p)*(p.accessible?.85:p.riskChain?.55:.5);
  const forecast=()=>{
-  let reserve=demand.referenceReserve/DISPLAY,last=0;
+  // Total supply assumes the most generous legal starter entry (full after
+  // Rest); placement must also work after the normal half-full checkpoint.
+  let reserve=(stage===0&&mapIndex===0?SUPPLY_CURVE.firstReserve:SUPPLY_CURVE.checkpointReserve)/DISPLAY,last=0;
   for(const p of [...kept].sort((a,b)=>a.x-b.x)){
    const t=Math.max(0,(p.x-firstX)/speed);
    if(t>duration)break;

@@ -494,8 +494,11 @@ export function buildFlightLayout({ seed = 1, terrain = 'ruins', elite = false,
     return true;
   };
   const requestedWindows = Math.max(ascent.requestedHardWindows, elite ? 2 : 1);
-  if (legCount === 1) {
-    // Preserve the original seeded course for old attempts and short fixtures.
+  const starterPacing = mapIndex === 0 && stage <= 2 && !elite;
+  if (legCount === 1 && starterPacing) {
+    // Bare starters retain their tested fuel approaches and gentle opening.
+    // Progressed courses use the full-distance authored pacing below too;
+    // flightLengthScale=1 must not reduce them to one early obstacle cluster.
     appendSection('intro', course.entry);
     for (let window = 0; window < requestedWindows; window++) {
       if (!fits(course.hard)) break;
@@ -925,7 +928,7 @@ export class WispFlight {
     }
     this.objectiveBodyClear=bodyClear;
     this.atlas=prepareAtlasFlight(this);
-    this.routeObjective=createFlightObjective(this,route.bonusId);
+    this.routeObjective=null;
     if(!this.tutorial)installSparkField(this.layout,{height:this.height,opening:this.ascentInfo.difficulty<=2&&Number(route.mapIndex||0)===0,random:seededRandom(`${this.seed}:spark-masses`),
       clear:bodyClear,targets:this.routeObjective?.targets,protectedSites:[...(this.blackHoles.items||[]),...(lanternField(this.layout)?.shutters||[])]});
     if(!this.tutorial)shapeExpeditionSupply(this.layout,{mapIndex:Number(route.mapIndex)||0,height:this.height,speed:FLIGHT_TUNING.forwardSpeed,
@@ -937,9 +940,13 @@ export class WispFlight {
     if(!this.tutorial)balanceSparkSupply(this.layout,{duration:(this.totalDistance-this.distanceOrigin)/
       (FLIGHT_TUNING.forwardSpeed*(this.openingSpeedScale||1)),height:this.height,speed:FLIGHT_TUNING.forwardSpeed,
       endX:this.totalDistance+this.player.x,mapIndex:Number(route.mapIndex)||0,stage:this.ascentInfo.row,
-      difficulty:this.ascentInfo.difficulty,elite:this.elite,boss:this.bossEncounter,targets:this.routeObjective?.targets,
+      difficulty:this.ascentInfo.difficulty,elite:this.elite,boss:this.bossEncounter,
       clear:bodyClear,hazards:[...this.blackHoles.items,...(lanternField(this.layout)?.shutters||[])],drafts:this.drafts.zones,actors:this.biomeDynamics.items,
       physics:{gravity:FLIGHT_TUNING.gravity,impulse:FLIGHT_TUNING.flapImpulse}});
+    // Mark the actual funded inventory, just as route preflight does. Planning
+    // against the richer construction inventory and protecting those marks
+    // could silently force an optional challenge above the final fuel cap.
+    this.routeObjective=createFlightObjective(this,route.bonusId);
     this.challengeDirector=new FlightChallengeDirector(this.layout);
     this.flashProps=this.layout.embers.filter(packet=>pickupKind(packet)==='sight');
     this.flightChallenge=null;this.caveDimming=0;

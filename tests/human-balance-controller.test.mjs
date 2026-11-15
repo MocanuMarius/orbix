@@ -40,3 +40,16 @@ test('an optional glide cannot steal the starter fuel lane in Drifting Icebergs'
  assert.equal(r.lives,3);assert.equal(r.stats.flights,0,'a simulation cannot settle the source run');
  assert.ok(M.finishFlight(r,result.result));assert.equal(r.stats.flights,1);assert.equal(r.lives,3);
 });
+
+test('half-full early checkpoints retain an attainable fuel approach without raising the full-vessel budget',()=>{
+ const c=buildCase({terrain:'ruins',difficulty:2,stage:1,role:'collector',style:'human250'});
+ Object.assign(c,{seed:'condensed-0-2|tier:2|map:0-m0-1-0',duration:69,controllerSeed:0});
+ Object.assign(c.node,{levelId:'cemetery-sepulchre-stair',biomeId:'cemetery',passage:'cavern',fuelCadence:3,
+  encounterFamily:'draft-staircase',bonusId:'wild-circuit',duration:69});
+ c.run={skills:{'proximity-awakening':1},companions:['collector'],flame:50,condensedRemainder:.5};
+ c.skills=c.run.skills;
+ const r=simulate(c);
+ assert.equal(r.success,true);assert.ok(r.capturedFuelShare>=.6);
+ assert.equal(r.sparkSupply.referenceReserve,30);
+ assert.equal(r.sparkSupply.budgetExcess,0);assert.ok(r.sparkSupply.relocations>0);
+});

@@ -8,6 +8,7 @@ import path from 'node:path';
 import assert from 'node:assert/strict';
 import {createHash} from 'node:crypto';
 import * as M from '../dist/model.mjs';
+import {prepareRouteOffer} from '../dist/route-offers.mjs';
 import {WispFlight,FLIGHT_TUNING,FLAME_TUNING} from '../dist/flight.mjs';
 import {getPickupSpec,pickupKind} from '../dist/pickups.mjs';
 import {BIOME_LEVELS} from '../dist/biomes.mjs';
@@ -227,7 +228,11 @@ function runCase({seed,tier,role,style,policy,attrition=false,captureDelta=0,eff
  for(let guard=0;guard<130;guard++){
   if(r.victoryPending){reward(state,policy,rng,m);buy(state,policy,m);M.acknowledgeVictory(state);continue;}
   if(r.phase==='ended')break;
-  if(r.phase==='map'){buy(state,policy,m);M.selectNode(r,chooseRoute(r,rng,m.failedNodes).id);continue;}
+  if(r.phase==='map'){
+   buy(state,policy,m);const choice=chooseRoute(r,rng,m.failedNodes);
+   if(flightSimulator&&choice.type!=='support')prepareRouteOffer(r,choice,{profile:state.profile,width:900,height:405});
+   M.selectNode(r,choice.id);continue;
+  }
   if(r.phase==='map-clear'){m.mapBuys[r.mapIndex]=m.buys;m.mapIncome[r.mapIndex]=m.flightIncome+m.supportIncome;m.mapWallet[r.mapIndex]=r.condensedGlow;M.advanceMap(r);continue;}
   if(r.phase==='briefing'){
    const attemptedNodeId=r.current.id,inv=inventory(r.current,tier),before=r.condensedGlow,remainder=r.condensedRemainder;M.beginFlightAttempt(r);

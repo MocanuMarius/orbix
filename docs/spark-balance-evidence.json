@@ -1,0 +1,695 @@
+{
+  "release": "spark-progression-1",
+  "createdAt": "2026-11-15T05:44:37.700Z",
+  "sourceFingerprint": "7c7b005e806a3b2f320fd372235059e62d7897f9c402dff19bd9a6eb64634799",
+  "affectedRuntimeHashes": {
+    "dist/flight.mjs": "b9d3a64e1055d0b5e3e7fa377e260d5eab0d969f9cf2eb6be7c21a1f59da629b",
+    "dist/ascent.mjs": "20e9288553cd77fffb14d60d97e47b435bcb252e9764dc76db773de5f6ed6aee",
+    "dist/spark-supply.mjs": "ba2c19e9db5539e18896a3c9a3274b8ee1d164f0812d81b4bf1034481e431183",
+    "dist/flight-objectives.mjs": "b39847fb1ae450073cfd004086b8de19e424c56b343601c095de9a9458391980",
+    "dist/route-bonuses.mjs": "a9955c289812a9bb9965cde1ecb2bab7ef123a34673ddff091ae523a41ce1187",
+    "dist/model.mjs": "6c208439ab45e84ff813abe4d3a8ab4d51f462d423437fbf99816a1adfc7e1b2",
+    "dist/condensed-glow.mjs": "d620337068bb0fa2ba5fe07c20ebcc406ebc207b2213ad6cd15d30e98242f8dc"
+  },
+  "inventory": {
+    "cases": 1296,
+    "excess": 0,
+    "deficit": 0
+  },
+  "starter": {
+    "scope": {
+      "levels": 48,
+      "tiers": [
+        1,
+        2
+      ],
+      "stages": [
+        0,
+        1,
+        2
+      ],
+      "styles": [
+        "human150-env",
+        "human250-env"
+      ],
+      "seeds": 1,
+      "envelopes": [
+        "all",
+        "0.599"
+      ],
+      "onboarding": false,
+      "captureOrder": "lane"
+    },
+    "cases": 1152,
+    "groups": {
+      "all": {
+        "n": 576,
+        "clears": 438,
+        "clearRate": 0.760417,
+        "clearPercent": 76.04,
+        "fuelDeaths": 0,
+        "collisionDeaths": 138,
+        "lowFuelDeaths": 85,
+        "meanProgress": 0.89,
+        "meanDirect": 16.22,
+        "meanCollector": 1.17,
+        "meanRestored": 551.82,
+        "meanEffort": 597.4,
+        "clearFuel": 58.9,
+        "meanFlaps": 59.74
+      },
+      "0.599": {
+        "n": 576,
+        "clears": 0,
+        "clearRate": 0,
+        "clearPercent": 0,
+        "fuelDeaths": 0,
+        "collisionDeaths": 576,
+        "lowFuelDeaths": 541,
+        "meanProgress": 0.45,
+        "meanDirect": 4.84,
+        "meanCollector": 0.29,
+        "meanRestored": 180.51,
+        "meanEffort": 275.87,
+        "clearFuel": null,
+        "meanFlaps": 27.59
+      }
+    },
+    "belowThresholdClears": 0
+  },
+  "fasterSolver": {
+    "cases": 288,
+    "belowThresholdClears": 0,
+    "purpose": "Falsification check, not a human difficulty estimate"
+  },
+  "earnedBuilds": [
+    {
+      "scope": {
+        "levels": 48,
+        "maps": [
+          1,
+          2
+        ],
+        "stages": [
+          0,
+          5
+        ],
+        "policies": [
+          "focused-survival",
+          "focused-storage",
+          "focused-collector"
+        ],
+        "stressTier": null
+      },
+      "reference": {
+        "source": "work/earned-final-builds.json",
+        "sha256": "715c754e2f8fa7f65f02ce6f0d3c9a42817046d130623139114dc91fde8acc2d"
+      },
+      "cases": 576,
+      "unwitnessed": 0,
+      "summary": {
+        "n": 576,
+        "clears": 525,
+        "clearRate": 0.911458,
+        "clearPercent": 91.15,
+        "fuelDeaths": 0,
+        "collisionDeaths": 51,
+        "lowFuelDeaths": 1,
+        "meanProgress": 0.94,
+        "meanDirect": 16.32,
+        "meanCollector": 2.16,
+        "meanRestored": 302.63,
+        "meanEffort": 310.91,
+        "clearFuel": 98.42,
+        "meanFlaps": 69.09
+      }
+    },
+    {
+      "scope": {
+        "levels": 48,
+        "maps": [
+          1,
+          2
+        ],
+        "stages": [
+          0,
+          5
+        ],
+        "policies": [
+          "focused-survival",
+          "focused-storage",
+          "focused-collector"
+        ],
+        "stressTier": 2
+      },
+      "reference": {
+        "source": "work/earned-final-builds.json",
+        "sha256": "715c754e2f8fa7f65f02ce6f0d3c9a42817046d130623139114dc91fde8acc2d"
+      },
+      "cases": 576,
+      "unwitnessed": 0,
+      "summary": {
+        "n": 576,
+        "clears": 538,
+        "clearRate": 0.934028,
+        "clearPercent": 93.4,
+        "fuelDeaths": 0,
+        "collisionDeaths": 38,
+        "lowFuelDeaths": 1,
+        "meanProgress": 0.95,
+        "meanDirect": 15.37,
+        "meanCollector": 2.06,
+        "meanRestored": 301.75,
+        "meanEffort": 311.09,
+        "clearFuel": 98.41,
+        "meanFlaps": 69.36
+      }
+    },
+    {
+      "scope": {
+        "levels": 48,
+        "maps": [
+          1,
+          2
+        ],
+        "stages": [
+          0,
+          5
+        ],
+        "policies": [
+          "focused-survival",
+          "focused-storage",
+          "focused-collector"
+        ],
+        "stressTier": 6
+      },
+      "reference": {
+        "source": "work/earned-final-builds.json",
+        "sha256": "715c754e2f8fa7f65f02ce6f0d3c9a42817046d130623139114dc91fde8acc2d"
+      },
+      "cases": 576,
+      "unwitnessed": 0,
+      "summary": {
+        "n": 576,
+        "clears": 512,
+        "clearRate": 0.888889,
+        "clearPercent": 88.89,
+        "fuelDeaths": 0,
+        "collisionDeaths": 64,
+        "lowFuelDeaths": 5,
+        "meanProgress": 0.93,
+        "meanDirect": 15.44,
+        "meanCollector": 2.75,
+        "meanRestored": 287.42,
+        "meanEffort": 303.9,
+        "clearFuel": 94.63,
+        "meanFlaps": 67.8
+      }
+    }
+  ],
+  "campaigns": {
+    "scope": {
+      "tiers": [
+        1,
+        2,
+        3,
+        6
+      ],
+      "roles": [
+        "collector"
+      ],
+      "styles": [
+        "steady",
+        "practiced"
+      ],
+      "policies": [
+        "focused-survival",
+        "focused-storage",
+        "focused-collector"
+      ],
+      "startingChoices": [
+        0,
+        1
+      ],
+      "seeds": 3
+    },
+    "coverage": {
+      "guardians": [
+        "rootbound-heart",
+        "hollow-warden",
+        "hollow-sun",
+        "moonweaver",
+        "frost-matron",
+        "storm-shepherd"
+      ],
+      "relics": [
+        "night-gardener",
+        "cache-cup",
+        "hollow-covenant",
+        "wayfinder-seed",
+        "path-prism",
+        "storm-keel",
+        "reed-charm",
+        "silk-sail",
+        "sunspool",
+        "stone-anchor",
+        "moon-glass",
+        "ember-lens",
+        "dreamcatcher",
+        "dream-sovereign",
+        "silver-feather",
+        "relay-moth",
+        "flash-stone",
+        "quiet-cinder",
+        "beacon-chain",
+        "ascent-chime",
+        "glass-lantern",
+        "black-atlas",
+        "lantern-bloom",
+        "rescue-wick",
+        "wayward-seed",
+        "echo-vessel",
+        "moonwake-lens",
+        "dawn-loom",
+        "overflow-coil",
+        "echo-bell",
+        "sunken-vault",
+        "salt-crown",
+        "threefold-chalice"
+      ]
+    },
+    "summary": {
+      "n": 144,
+      "complete": 16,
+      "medianFlights": 3,
+      "medianBuys": 1,
+      "meanBuys": 2.354,
+      "medianPaidRanksPerFlight": 0.273,
+      "medianIncome": 101,
+      "incomeP10": 15,
+      "incomeP90": 981,
+      "medianWallet": 37,
+      "walletP90": 183,
+      "medianFirstBuy": 2,
+      "noPurchaseCases": 58,
+      "medianTreeFraction": 0.032,
+      "maxTreeFraction": 0.145,
+      "meanCapture": 0.61,
+      "starvedAttemptShare": 0.15,
+      "failedAttempts": 477,
+      "fuelFailures": 234,
+      "collisionFailures": 243,
+      "mapMedianBuys": [
+        1,
+        5,
+        8
+      ],
+      "mapMedianWallet": [
+        29,
+        87,
+        178
+      ],
+      "meanFlightIncome": 44.378,
+      "meanSupportIncome": 0.278
+    },
+    "byTier": {
+      "1": {
+        "n": 36,
+        "complete": 13,
+        "medianFlights": 11,
+        "medianBuys": 5,
+        "meanBuys": 4.472,
+        "medianPaidRanksPerFlight": 0.32,
+        "medianIncome": 576,
+        "incomeP10": 31,
+        "incomeP90": 1558,
+        "medianWallet": 68,
+        "walletP90": 731,
+        "medianFirstBuy": 2,
+        "noPurchaseCases": 6,
+        "medianTreeFraction": 0.081,
+        "maxTreeFraction": 0.145,
+        "meanCapture": 0.701,
+        "starvedAttemptShare": 0.066,
+        "failedAttempts": 108,
+        "fuelFailures": 40,
+        "collisionFailures": 68,
+        "mapMedianBuys": [
+          3,
+          6,
+          8
+        ],
+        "mapMedianWallet": [
+          39,
+          104,
+          162
+        ],
+        "meanFlightIncome": 47.832,
+        "meanSupportIncome": 1.111
+      },
+      "2": {
+        "n": 36,
+        "complete": 2,
+        "medianFlights": 7,
+        "medianBuys": 2,
+        "meanBuys": 2.472,
+        "medianPaidRanksPerFlight": 0.286,
+        "medianIncome": 208,
+        "incomeP10": 24,
+        "incomeP90": 1053,
+        "medianWallet": 46,
+        "walletP90": 300,
+        "medianFirstBuy": 2,
+        "noPurchaseCases": 8,
+        "medianTreeFraction": 0.048,
+        "maxTreeFraction": 0.145,
+        "meanCapture": 0.629,
+        "starvedAttemptShare": 0.137,
+        "failedAttempts": 130,
+        "fuelFailures": 57,
+        "collisionFailures": 73,
+        "mapMedianBuys": [
+          2,
+          3,
+          7
+        ],
+        "mapMedianWallet": [
+          48,
+          71,
+          508
+        ],
+        "meanFlightIncome": 46.719,
+        "meanSupportIncome": 0
+      },
+      "3": {
+        "n": 36,
+        "complete": 0,
+        "medianFlights": 6,
+        "medianBuys": 2,
+        "meanBuys": 2.083,
+        "medianPaidRanksPerFlight": 0.286,
+        "medianIncome": 172,
+        "incomeP10": 17,
+        "incomeP90": 564,
+        "medianWallet": 29,
+        "walletP90": 129,
+        "medianFirstBuy": 2,
+        "noPurchaseCases": 15,
+        "medianTreeFraction": 0.032,
+        "maxTreeFraction": 0.129,
+        "meanCapture": 0.68,
+        "starvedAttemptShare": 0.165,
+        "failedAttempts": 134,
+        "fuelFailures": 59,
+        "collisionFailures": 75,
+        "mapMedianBuys": [
+          2,
+          4,
+          7
+        ],
+        "mapMedianWallet": [
+          28,
+          55,
+          1107
+        ],
+        "meanFlightIncome": 39.464,
+        "meanSupportIncome": 0
+      },
+      "6": {
+        "n": 36,
+        "complete": 1,
+        "medianFlights": 1,
+        "medianBuys": 0,
+        "meanBuys": 0.389,
+        "medianPaidRanksPerFlight": 0,
+        "medianIncome": 17,
+        "incomeP10": 0,
+        "incomeP90": 57,
+        "medianWallet": 25,
+        "walletP90": 62,
+        "medianFirstBuy": 3,
+        "noPurchaseCases": 29,
+        "medianTreeFraction": 0,
+        "maxTreeFraction": 0.129,
+        "meanCapture": 0.432,
+        "starvedAttemptShare": 0.436,
+        "failedAttempts": 105,
+        "fuelFailures": 78,
+        "collisionFailures": 27,
+        "mapMedianBuys": [
+          0,
+          4,
+          6
+        ],
+        "mapMedianWallet": [
+          25,
+          4,
+          76
+        ],
+        "meanFlightIncome": 27.122,
+        "meanSupportIncome": 0
+      }
+    },
+    "progression": {
+      "1": {
+        "matchedCampaigns": 18,
+        "chapters": [
+          {
+            "map": 1,
+            "campaigns": 18,
+            "attempts": 160,
+            "clearShare": 0.9563,
+            "equallyWeightedCampaignClearShare": 0.9611,
+            "meanCaptureShare": 0.8488,
+            "lowFuelFailureShare": 0.0438,
+            "meanLiftCost": 2.425,
+            "meanRealHardWindows": 3.6188,
+            "meanProgress": 0.9871
+          },
+          {
+            "map": 2,
+            "campaigns": 18,
+            "attempts": 148,
+            "clearShare": 0.9392,
+            "equallyWeightedCampaignClearShare": 0.9469,
+            "meanCaptureShare": 0.8201,
+            "lowFuelFailureShare": 0.0135,
+            "meanLiftCost": 1.5676,
+            "meanRealHardWindows": 4.4392,
+            "meanProgress": 0.9671
+          },
+          {
+            "map": 3,
+            "campaigns": 18,
+            "attempts": 160,
+            "clearShare": 0.7938,
+            "equallyWeightedCampaignClearShare": 0.761,
+            "meanCaptureShare": 0.7739,
+            "lowFuelFailureShare": 0.0188,
+            "meanLiftCost": 1.475,
+            "meanRealHardWindows": 6.6063,
+            "meanProgress": 0.8981
+          }
+        ]
+      },
+      "2": {
+        "matchedCampaigns": 5,
+        "chapters": [
+          {
+            "map": 1,
+            "campaigns": 5,
+            "attempts": 39,
+            "clearShare": 0.8974,
+            "equallyWeightedCampaignClearShare": 0.9,
+            "meanCaptureShare": 0.8144,
+            "lowFuelFailureShare": 0,
+            "meanLiftCost": 2.9231,
+            "meanRealHardWindows": 3.7436,
+            "meanProgress": 0.9036
+          },
+          {
+            "map": 2,
+            "campaigns": 5,
+            "attempts": 43,
+            "clearShare": 0.9535,
+            "equallyWeightedCampaignClearShare": 0.9578,
+            "meanCaptureShare": 0.812,
+            "lowFuelFailureShare": 0.0465,
+            "meanLiftCost": 2.3953,
+            "meanRealHardWindows": 4.9767,
+            "meanProgress": 0.96
+          },
+          {
+            "map": 3,
+            "campaigns": 5,
+            "attempts": 43,
+            "clearShare": 0.814,
+            "equallyWeightedCampaignClearShare": 0.8229,
+            "meanCaptureShare": 0.6991,
+            "lowFuelFailureShare": 0,
+            "meanLiftCost": 2.2791,
+            "meanRealHardWindows": 10.0465,
+            "meanProgress": 0.8626
+          }
+        ]
+      },
+      "3": {
+        "matchedCampaigns": 1,
+        "chapters": [
+          {
+            "map": 1,
+            "campaigns": 1,
+            "attempts": 9,
+            "clearShare": 0.7778,
+            "equallyWeightedCampaignClearShare": 0.7778,
+            "meanCaptureShare": 0.7471,
+            "lowFuelFailureShare": 0,
+            "meanLiftCost": 2.5556,
+            "meanRealHardWindows": 7.2222,
+            "meanProgress": 0.8556
+          },
+          {
+            "map": 2,
+            "campaigns": 1,
+            "attempts": 11,
+            "clearShare": 0.8182,
+            "equallyWeightedCampaignClearShare": 0.8182,
+            "meanCaptureShare": 0.7446,
+            "lowFuelFailureShare": 0,
+            "meanLiftCost": 2,
+            "meanRealHardWindows": 3.9091,
+            "meanProgress": 0.8982
+          },
+          {
+            "map": 3,
+            "campaigns": 1,
+            "attempts": 12,
+            "clearShare": 0.6667,
+            "equallyWeightedCampaignClearShare": 0.6667,
+            "meanCaptureShare": 0.5179,
+            "lowFuelFailureShare": 0.0833,
+            "meanLiftCost": 2.75,
+            "meanRealHardWindows": 12.3333,
+            "meanProgress": 0.7475
+          }
+        ]
+      },
+      "6": {
+        "matchedCampaigns": 1,
+        "chapters": [
+          {
+            "map": 1,
+            "campaigns": 1,
+            "attempts": 8,
+            "clearShare": 1,
+            "equallyWeightedCampaignClearShare": 1,
+            "meanCaptureShare": 0.7477,
+            "lowFuelFailureShare": 0,
+            "meanLiftCost": 2,
+            "meanRealHardWindows": 4.5,
+            "meanProgress": 1
+          },
+          {
+            "map": 2,
+            "campaigns": 1,
+            "attempts": 7,
+            "clearShare": 1,
+            "equallyWeightedCampaignClearShare": 1,
+            "meanCaptureShare": 0.7501,
+            "lowFuelFailureShare": 0,
+            "meanLiftCost": 2,
+            "meanRealHardWindows": 4.8571,
+            "meanProgress": 1
+          },
+          {
+            "map": 3,
+            "campaigns": 1,
+            "attempts": 9,
+            "clearShare": 1,
+            "equallyWeightedCampaignClearShare": 1,
+            "meanCaptureShare": 0.8346,
+            "lowFuelFailureShare": 0,
+            "meanLiftCost": 2,
+            "meanRealHardWindows": 6.1111,
+            "meanProgress": 1
+          }
+        ]
+      }
+    }
+  },
+  "gifts": {
+    "coverage": {
+      "gifts": 20,
+      "relics": [
+        "beacon-chain",
+        "flash-stone",
+        "storm-keel",
+        "dawn-loom",
+        "dream-sovereign",
+        "glow-wick",
+        "echo-vessel",
+        "echo-bell",
+        "overflow-coil",
+        "night-gardener",
+        "wayward-seed",
+        "glass-lantern",
+        "hollow-covenant",
+        "quiet-cinder",
+        "reed-charm",
+        "silver-feather",
+        "eclipse-mirror",
+        "wayfinder-seed",
+        "path-prism",
+        "black-atlas",
+        "ember-lens",
+        "moon-glass",
+        "cache-cup",
+        "stone-anchor",
+        "silk-sail",
+        "sunspool"
+      ],
+      "dreamFlights": 6
+    },
+    "summary": {
+      "n": 20,
+      "complete": 4,
+      "medianFlights": 4,
+      "medianBuys": 2,
+      "meanBuys": 2.6,
+      "medianPaidRanksPerFlight": 0.333,
+      "medianIncome": 143,
+      "incomeP10": 34,
+      "incomeP90": 992,
+      "medianWallet": 49,
+      "walletP90": 207,
+      "medianFirstBuy": 2,
+      "noPurchaseCases": 3,
+      "medianTreeFraction": 0.032,
+      "maxTreeFraction": 0.161,
+      "meanCapture": 0.614,
+      "starvedAttemptShare": 0.071,
+      "failedAttempts": 60,
+      "fuelFailures": 16,
+      "collisionFailures": 44,
+      "mapMedianBuys": [
+        2,
+        4,
+        5
+      ],
+      "mapMedianWallet": [
+        49,
+        50,
+        207
+      ],
+      "meanFlightIncome": 40.139,
+      "meanSupportIncome": 0.8
+    }
+  },
+  "limitations": [
+    "60% means available fuel value for the bare starter; purchased skills, gifts and relics can lower the required share.",
+    "Reaction and visibility profiles are explicit assumptions, not fitted human distributions. Modeled win rates are not player win predictions.",
+    "A successful witness across all course groups is evidence of sampled playability, not a proof for every seed or build.",
+    "Fixed-build tier stress tests use legally earned builds from the first-tier cohort, rather than claiming those builds were earned in that harder campaign.",
+    "Runtime hashes precede the release cache-token-only stamp. Raw scenario logs stay in ignored work/."
+  ]
+}
