@@ -1,5 +1,6 @@
 {
-  "version": "in-game-edges-2",
-  "sourceCommit": "725491949f49d072f14acd3eb21c63a183c226ae",
-  "publishedAt": "2026-11-15T15:54:18.399279+00:00"
+  "version": "edge-videos-1",
+  "gameVersion": "in-game-edges-2",
+  "sourceCommit": "5c83219a9798c679c23d06daeacbb3e72a04a7f3",
+  "publishedAt": "2026-11-15T16:12:16.906300+00:00"
 }
