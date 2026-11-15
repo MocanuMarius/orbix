@@ -126,7 +126,7 @@ export function drawBiomeMaterial(c,{identity,surface,top,palette:p,width:W,heig
  // Larger mineral seams and eroded pockets break up the fine material grain.
  // The caller clips these deposits to the existing collision silhouette.
  c.save();if(authored)c.globalAlpha=.22;
- for(let seam=0;seam<5;seam++){
+ for(let seam=0;seam<(authored?0:5);seam++){
   const depth=12+seam*23+n(seam,seed)*15;
   let prev=[0,at(0)+sign*depth];
   for(let x=9;x<W;x+=9){

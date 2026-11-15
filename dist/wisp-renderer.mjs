@@ -1,4 +1,4 @@
-import {prepareEnvironmentArt,prepareNearLandscape,drawNearLandscape,drawTerrainForeground} from './authored-environment.mjs?v=starter-flow-1';
+import {prepareEnvironmentArt,prepareNearLandscape,prepareCourseArt,drawCourseArt,drawNearLandscape,drawTerrainForeground} from './authored-environment.mjs?v=starter-flow-1';
 import {drawTerrainEcology,drawHabitatBackdrop} from './terrain-ecology.mjs?v=starter-flow-1';
 import {drawTerrainBoundary} from './terrain-boundary.mjs?v=starter-flow-1';
 import {drawAtlasFlight} from './atlas-flight.mjs?v=starter-flow-1';
@@ -181,6 +181,7 @@ export class WispFlightView {
       this.document = document;
       await prepareEnvironmentArt(document);
       if(this.destroyed||e.destroyed)return false;
+      prepareCourseArt(document,e);
       prepareNearLandscape(document,e);
       e.canvas.parentElement.appendChild(this.canvas);
       this.resize();
@@ -981,12 +982,15 @@ export class WispFlightView {
     // Authored parallax supplies the major depth layers in the new art pass.
     c.globalAlpha = rehearsing ? .1 : .34; c.fillStyle = '#03080b'; c.fillRect(0, 0, this.buffer.width, this.buffer.height); c.globalAlpha = 1;
     const boss = this.bossOptions; boss.height = this.buffer.height; boss.distance = distance; boss.time = t; boss.scale = s; boss.pass = 'silhouette';
+    drawHabitatBackdrop(c,e,{scale:s,distance,time:t});
+    drawCourseArt(c,e,{scale:s,distance});
+    drawNearLandscape(c,e,{scale:s,distance});
+    drawCourseArt(c,e,{scale:s,distance,pass:'near'});
+    drawFlightForkBackdrops(c,e,{distance,scale:s});
+    // The world-anchored guardian stays behind solid ground, but is no longer
+    // buried under opaque background layers or the new course landmarks.
     drawBoss(c, boss);
     drawGuardianPresence(c,{engine:e,width:this.buffer.width,height:this.buffer.height,distance,time:t});
-
-    drawHabitatBackdrop(c,e,{scale:s,distance,time:t});
-    drawNearLandscape(c,e,{scale:s,distance});
-    drawFlightForkBackdrops(c,e,{distance,scale:s});
     this.drawTerrain(e, t, distance, palette);
     boss.pass = 'hands'; drawBoss(c, boss);
     this.drawSceneProps(e, t, distance);

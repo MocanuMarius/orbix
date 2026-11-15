@@ -1,5 +1,6 @@
 import {prepareEnvironmentArt} from './authored-environment.mjs?v=starter-flow-1';
 import {drawTerrainEcology,drawHabitatBackdrop} from './terrain-ecology.mjs?v=starter-flow-1';
+import {drawCourseArt} from './authored-environment.mjs?v=starter-flow-1';
 import {drawTerrainBoundary} from './terrain-boundary.mjs?v=starter-flow-1';
 import {prepareAtlasFlight,resizeAtlasFlight,ringBellwind,bellwindAcceleration,moonLightScale,drawAtlasFlight} from './atlas-flight.mjs?v=starter-flow-1';
 import {canShowFlightHint} from './flight-hint-safety.mjs?v=starter-flow-1';
@@ -2248,6 +2249,8 @@ export class WispFlight {
     c.globalAlpha = 1; c.globalCompositeOperation = 'source-over';
     this.drawBackground(c, W, H);
     drawHabitatBackdrop(c,this);
+    drawCourseArt(c,this);
+    drawCourseArt(c,this,{pass:'near'});
     drawGuardianPresence(c,{engine:this,width:W,height:H,distance:this.renderDistance,time:this.visualTime});
     drawBoss(c, { engine: this, width: W, height: H, distance: this.renderDistance,
       time: this.visualTime, pass: 'silhouette' });
