@@ -16,7 +16,15 @@ Verification: 81 integrated targeted tests passed, including all twelve real fli
 
 The full suite is not claimed green. Unchanged `d46f95f` has six failing seamless-clear tests; current has five, each reproducing the same baseline assertion. All six terrain-geometry failures also reproduce identically. Full scope, methods and limitations are recorded in [the release notes](docs/first-light-release.md).
 
-- [ ] NEXT — design proposal after this release: build archetypes through meaningful combinations of Flight, Collector, Proximity, Luminance and Storage. Evaluate cards or limited slots against the skill book; retain boss relics without equipment juggling. Compare directions before implementation; no replacement system is shipped by this release.
+## Run archetypes
+
+- [ ] NEXT — design and isolated playtest after First Light; no campaign or prologue change. Test run identity from two passive technique cards maximum: at two milestones between flights, pick one of two offers or skip. The first pick changes how to fly; the second adds an immediately visible synergy. Keep controllable essentials in the skill book and boss relics passive; add no consumable or currency.
+- **First pick:** Bankrunner primes one free Lift after a deliberate skim beside a real bank; Glider primes the same payoff after a short coast into a direct fuel Spark. The alternatives should change flight lines, rather than reward ordinary play automatically.
+- **Second pick:** spending that primed Lift either sends a small reveal wave or accelerates a recovering Collector. Share the existing single stored free Lift; prime at most twice per flight and do not spend a proc opportunity while that bank is full. Show the priming, stored payoff and modifier firing clearly. Thresholds, effect strengths and the two-proc cap are pilot hypotheses, not settled balance.
+- **Guardrails:** no generated-reward loops, Dream/retry farming or rewards carried from practice. Keep the six-stop First Light stable; use an isolated playtest that assumes neither Proximity nor Dream is learned and grants no expensive skills.
+- **Decision test:** pair the same seed and equal economy against the existing skill book, including cheap-side versus center/bank routes. Record offers, picks/skips, time near banks, direct versus Collector-fetched Sparks, route decisions and survival; ask whether players intentionally changed their flight line and why. Advance only if the combinations create readable choices beyond the skill book. After that test, consider a campfire change-one-pick option; it is not a shipping commitment.
+
+Method reference: Mega Crit's original GDC talk, [Slay the Spire: Metrics Driven Design and Balance](https://media.gdcvault.com/gdc2019/presentations/Giovannetti_Anthony_SlayTheSpire.pdf): use picks/skips as evidence and combine measured outcomes with player feedback rather than treating metrics as the conclusion.
 
 ---
 
