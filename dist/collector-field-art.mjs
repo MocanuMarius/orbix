@@ -1,7 +1,7 @@
-import {pickupKind} from './pickups.mjs?v=living-habitats-1';
-import {sparkBodyRadius} from './spark-size.mjs?v=living-habitats-1';
-import {drawCollectorGuard} from './collector-guard-art.mjs?v=living-habitats-1';
-import {companionPalette} from './companion-art.mjs?v=living-habitats-1';
+import {pickupKind} from './pickups.mjs?v=lofi-contours-1';
+import {sparkBodyRadius} from './spark-size.mjs?v=lofi-contours-1';
+import {drawCollectorGuard} from './collector-guard-art.mjs?v=lofi-contours-1';
+import {companionPalette} from './companion-art.mjs?v=lofi-contours-1';
 
 const TAU = 2 * Math.PI;
 const green = companionPalette('collector');

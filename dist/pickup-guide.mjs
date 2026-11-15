@@ -1,7 +1,7 @@
-import {formatGlow} from './vitality.mjs?v=living-habitats-1';
-import { PICKUP_TYPES, getPickupSpec, flashPowerupDescription } from './pickups.mjs?v=living-habitats-1';
-import { pickupArtSvg } from './pickup-art.mjs?v=living-habitats-1';
-import { normalizeCompanionRole, normalizeCompanionFleet } from './companion-abilities.mjs?v=living-habitats-1';
+import {formatGlow} from './vitality.mjs?v=lofi-contours-1';
+import { PICKUP_TYPES, getPickupSpec, flashPowerupDescription } from './pickups.mjs?v=lofi-contours-1';
+import { pickupArtSvg } from './pickup-art.mjs?v=lofi-contours-1';
+import { normalizeCompanionRole, normalizeCompanionFleet } from './companion-abilities.mjs?v=lofi-contours-1';
 
 const esc = value => String(value ?? '').replace(/[&<>"']/g, char =>
   ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));

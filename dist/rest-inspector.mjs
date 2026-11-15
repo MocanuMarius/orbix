@@ -1,5 +1,5 @@
-import {newState,createRun,advanceMap,selectNode} from './model.mjs?v=living-habitats-1';
-import {describeTreasure,TREASURE_KINDS} from './treasure.mjs?v=living-habitats-1';
+import {newState,createRun,advanceMap,selectNode} from './model.mjs?v=lofi-contours-1';
+import {describeTreasure,TREASURE_KINDS} from './treasure.mjs?v=lofi-contours-1';
 // Deliberately independent of storage. Every refresh creates the same mock run.
 export function createRestInspectorState(){
  const state=newState();state.profile.difficulty=4;

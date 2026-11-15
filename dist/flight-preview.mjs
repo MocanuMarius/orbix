@@ -1,16 +1,16 @@
-import {getBiome} from './biomes.mjs?v=living-habitats-1';
-import {getBossPreview} from './boss.mjs?v=living-habitats-1';
-import {levelMapPreview} from './level-map-art.mjs?v=living-habitats-1';
-import {mapStopIconMarkup} from './map-guide.mjs?v=living-habitats-1';
-import {resourceSymbol} from './game-symbols.mjs?v=living-habitats-1';
-import {getFlightClearReward} from './checkpoint-rewards.mjs?v=living-habitats-1';
-import {availableFlightArtifacts} from './model.mjs?v=living-habitats-1';
-import {bonusIcon,boonMarkup} from './route-bonus-ui.mjs?v=living-habitats-1';
-import {contextualFlightNotice} from './contextual-events.mjs?v=living-habitats-1';
-import {ATLAS_FORECASTS,atlasGlyph} from './night-atlas.mjs?v=living-habitats-1';
-import {canDreamAt,dreamConfig} from './dream.mjs?v=living-habitats-1';
-import {sparkHabitat} from './spark-fields.mjs?v=living-habitats-1';
-import {lanternFlightCue} from './map-theme.mjs?v=living-habitats-1';
+import {getBiome} from './biomes.mjs?v=lofi-contours-1';
+import {getBossPreview} from './boss.mjs?v=lofi-contours-1';
+import {levelMapPreview} from './level-map-art.mjs?v=lofi-contours-1';
+import {mapStopIconMarkup} from './map-guide.mjs?v=lofi-contours-1';
+import {resourceSymbol} from './game-symbols.mjs?v=lofi-contours-1';
+import {getFlightClearReward} from './checkpoint-rewards.mjs?v=lofi-contours-1';
+import {availableFlightArtifacts} from './model.mjs?v=lofi-contours-1';
+import {bonusIcon,boonMarkup} from './route-bonus-ui.mjs?v=lofi-contours-1';
+import {contextualFlightNotice} from './contextual-events.mjs?v=lofi-contours-1';
+import {ATLAS_FORECASTS,atlasGlyph} from './night-atlas.mjs?v=lofi-contours-1';
+import {canDreamAt,dreamConfig} from './dream.mjs?v=lofi-contours-1';
+import {sparkHabitat} from './spark-fields.mjs?v=lofi-contours-1';
+import {lanternFlightCue} from './map-theme.mjs?v=lofi-contours-1';
 
 const escapeText = value => String(value ?? '').replace(/[&<>"']/g, char =>
  ({'&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;'}[char]));

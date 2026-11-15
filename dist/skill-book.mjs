@@ -1,12 +1,12 @@
-import {SKILLS,getRunModifiers} from './model.mjs?v=living-habitats-1';
-import {collectorPreferenceMarkup} from './collector-preferences.mjs?v=living-habitats-1';
-import {formatLuminance} from './luminance-units.mjs?v=living-habitats-1';
-import {WISP_ART} from './companion-art.mjs?v=living-habitats-1';
-import {skillTreeState,skillTreeStatus} from './skill-tree-state.mjs?v=living-habitats-1';
-import {getCompanionAbility} from './companion-abilities.mjs?v=living-habitats-1';
-import {skillIcon} from './upgrade-icons.mjs?v=living-habitats-1';
-import {resourceSymbol} from './game-symbols.mjs?v=living-habitats-1';
-import {glowText,getGlowCapacity} from './vitality.mjs?v=living-habitats-1';
+import {SKILLS,getRunModifiers} from './model.mjs?v=lofi-contours-1';
+import {collectorPreferenceMarkup} from './collector-preferences.mjs?v=lofi-contours-1';
+import {formatLuminance} from './luminance-units.mjs?v=lofi-contours-1';
+import {WISP_ART} from './companion-art.mjs?v=lofi-contours-1';
+import {skillTreeState,skillTreeStatus} from './skill-tree-state.mjs?v=lofi-contours-1';
+import {getCompanionAbility} from './companion-abilities.mjs?v=lofi-contours-1';
+import {skillIcon} from './upgrade-icons.mjs?v=lofi-contours-1';
+import {resourceSymbol} from './game-symbols.mjs?v=lofi-contours-1';
+import {glowText,getGlowCapacity} from './vitality.mjs?v=lofi-contours-1';
 
 const chapters=[
  ['wisp','Flight','main-efficiency'],['luminance','Luminance','main-sight'],

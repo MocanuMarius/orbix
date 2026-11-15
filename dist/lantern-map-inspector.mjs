@@ -1,4 +1,4 @@
-import {newState,createRun,chooseStartingGift} from './model.mjs?v=living-habitats-1';
+import {newState,createRun,chooseStartingGift} from './model.mjs?v=lofi-contours-1';
 
 export function createLanternMapInspectorState() {
  const state=newState();
