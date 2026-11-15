@@ -3,7 +3,7 @@ export function showNightmare(scene,path,onWake){
  dialog.className='nightmare-vision';
  dialog.setAttribute('aria-label','Nightmare');
  dialog.innerHTML='<span>0.25×</span><i></i><i></i><button hidden>Must have been a nightmare</button>';
- document.querySelector('.canvas-wrap').append(dialog);
+ scene.canvas.parentElement.parentElement.append(dialog);
  // Match the playfield even inside the scaled desktop phone frame.
  const bounds=scene.canvas.getBoundingClientRect();
  Object.assign(dialog.style,{left:bounds.left+'px',top:bounds.top+'px',width:bounds.width+'px',height:bounds.height+'px'});
