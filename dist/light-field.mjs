@@ -1,6 +1,6 @@
-import {drawShutterWake,shutterLightFactor,shutterWakeAt} from './shutter-cone.mjs?v=biome-life-1';
-import {lanternField} from './lantern-layout.mjs?v=biome-life-1';
-import { LIGHT_EXTENT, lightAttenuation } from './light-attenuation.mjs?v=biome-life-1';
+import {drawShutterWake,shutterLightFactor,shutterWakeAt} from './shutter-cone.mjs?v=authored-biomes-1';
+import {lanternField} from './lantern-layout.mjs?v=authored-biomes-1';
+import { LIGHT_EXTENT, lightAttenuation } from './light-attenuation.mjs?v=authored-biomes-1';
 export { LIGHT_EXTENT, lightAttenuation };
 const reflectedLight = .6;
 

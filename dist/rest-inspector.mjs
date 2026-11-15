@@ -1,5 +1,5 @@
-import {newState,createRun,advanceMap,selectNode} from './model.mjs?v=biome-life-1';
-import {describeTreasure,TREASURE_KINDS} from './treasure.mjs?v=biome-life-1';
+import {newState,createRun,advanceMap,selectNode} from './model.mjs?v=authored-biomes-1';
+import {describeTreasure,TREASURE_KINDS} from './treasure.mjs?v=authored-biomes-1';
 // Deliberately independent of storage. Every refresh creates the same mock run.
 export function createRestInspectorState(){
  const state=newState();state.profile.difficulty=4;

@@ -1,8 +1,8 @@
-import { DRAFT_TUNING } from './drafts.mjs?v=biome-life-1';
-import { scenePropBounds } from './scene-props.mjs?v=biome-life-1';
-import { formatGlow } from './vitality.mjs?v=biome-life-1';
-import { lightVisibility } from './light-field.mjs?v=biome-life-1';
-import { inLanternRoom } from './lantern-layout.mjs?v=biome-life-1';
+import { DRAFT_TUNING } from './drafts.mjs?v=authored-biomes-1';
+import { scenePropBounds } from './scene-props.mjs?v=authored-biomes-1';
+import { formatGlow } from './vitality.mjs?v=authored-biomes-1';
+import { lightVisibility } from './light-field.mjs?v=authored-biomes-1';
+import { inLanternRoom } from './lantern-layout.mjs?v=authored-biomes-1';
 
 // Small, deterministic actors attached to existing terrain. Static mountain
 // meshes never change, and each actor is used once: no repeatable currency farm.

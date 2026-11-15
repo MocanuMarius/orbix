@@ -987,3 +987,5 @@ The ecology preview exposes all 48 courses with camera exploration and normal/in
 The first procedural ecology pass was rated insufficient across foliage, terrain and backgrounds. A new review build integrates 26 original PNG files from Ansimuz's freely licensed environment packs, using cropped rock textures, cached palette adaptation and layered parallax. The retained foliage reaction and collision-edge emphasis operate with the imported props. Image downloads total about 200 KB before cache preparation. The Underwater Fantasy artwork is CC-BY 3.0 and carries explicit author, source, licence and adaptation credits; the other selected packs are CC0/public domain.
 
 This art direction is published under art-review/ for phone evaluation before the main game changes. Pixel granularity still requires player approval. All 48 biome/course combinations loaded in the browser without rendering errors. The 915×412 preview has no page overflow. Physical-device frame timing remains unmeasured.
+
+The player approved the authored environment art. Publish it in the main game as authored-biomes-1.

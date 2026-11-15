@@ -1,5 +1,5 @@
-import {drawAuthoredMaterial} from './authored-environment.mjs?v=biome-art-review-1';
-import {pineCrown} from './pixel-contour.mjs?v=biome-art-review-1';
+import {drawAuthoredMaterial} from './authored-environment.mjs?v=authored-biomes-1';
+import {pineCrown} from './pixel-contour.mjs?v=authored-biomes-1';
 // Original pixel scenery. Backdrops and solid materials are rasterized by the
 // existing renderer caches; only a few matte weather pixels animate each frame.
 // Nothing here emits light or draws outside the simulation's solid silhouettes.
