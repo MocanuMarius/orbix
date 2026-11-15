@@ -13,9 +13,11 @@ export function getAscentInfo(nodeOrRow = 0, tutorial = false) {
   const row = !isTutorial && node?.type === 'finale' ? 6 : Math.max(0, Math.min(6, Math.floor(Number.isFinite(raw) ? raw : 0)));
   const isSupport = node ? node.type === 'support' : row === 1 || row === 4;
   const difficulty = Math.max(1, Math.floor(Number(node?.difficulty) || 1));
+  const mapIndex=Math.max(0,Math.min(2,Math.floor(Number(node?.mapIndex)||0)));
+  const chapterPressure=mapIndex*(.4+.6*row/6);
   const difficultyPressure = Math.min(.10, (difficulty - 1) * .02);
   const difficultyGapScale = 1 - difficultyPressure;
-  const draftForceScale = 1 + Math.min(.20, (difficulty - 1) * .04);
+  const draftForceScale = (1 + Math.min(.20, (difficulty - 1) * .04))*(1+chapterPressure*.075);
   if (isTutorial) return {
     row, level: 0, total: 5, label: 'PRACTICE', challengeLabel: 'LEARN THE RHYTHM',
     riskSummary: 'GENTLE PRACTICE', isTutorial: true, isSupport, isUpcoming: isSupport,
@@ -31,9 +33,9 @@ export function getAscentInfo(nodeOrRow = 0, tutorial = false) {
     riskSummary: LABELS[pressureLevel - 1], isTutorial: false, isSupport, isUpcoming: isSupport,
     isFinal: node?.type === 'finale' || row === 6, completedFlights: level - 1,
     nextLevel, nextLabel: nextLevel === null ? null : `FLIGHT ${nextLevel}`,
-    hardGapScale: Math.max(.78, GAP_SCALES[pressureLevel - 1] * difficultyGapScale),
-    hardGapReduction: 1 - Math.max(.78, GAP_SCALES[pressureLevel - 1] * difficultyGapScale),
+    hardGapScale: Math.max(.78, GAP_SCALES[pressureLevel - 1] * difficultyGapScale*(1-chapterPressure*.025)),
+    hardGapReduction: 1 - Math.max(.78, GAP_SCALES[pressureLevel - 1] * difficultyGapScale*(1-chapterPressure*.025)),
     difficulty, difficultyPressure, difficultyGapScale, draftForceScale,
-    requestedHardWindows: pressureLevel === 1 ? 1 : pressureLevel < 4 ? 2 : 3,
+    requestedHardWindows: (pressureLevel === 1 ? 1 : pressureLevel < 4 ? 2 : 3)+(row>=3?mapIndex:0),
   };
 }

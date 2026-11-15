@@ -1,4 +1,4 @@
-import {newState,createRun,chooseStartingGift} from './model.mjs?v=exit-packing-1';
+import {newState,createRun,chooseStartingGift} from './model.mjs?v=spark-balance-1';
 
 export function createLanternMapInspectorState() {
  const state=newState();
