@@ -1,8 +1,7 @@
-import {prepareEnvironmentArt,drawTerrainForeground} from './authored-environment.mjs?v=spark-progression-1';
+import {prepareEnvironmentArt,prepareNearLandscape,drawNearLandscape,drawTerrainForeground} from './authored-environment.mjs?v=spark-progression-1';
 import {drawTerrainEcology,drawHabitatBackdrop} from './terrain-ecology.mjs?v=spark-progression-1';
 import {drawAtlasFlight} from './atlas-flight.mjs?v=spark-progression-1';
 import {drawGuardianPresence} from './guardian-presence.mjs?v=spark-progression-1';
-import {createDepthScenery,drawDepthScenery} from './depth-scenery.mjs?v=spark-progression-1';
 import { drawGuardianWarnings } from './guardian-art.mjs?v=spark-progression-1';
 import { drawShutters } from './shutter-cone.mjs?v=spark-progression-1';
 import {drawProximityMeter} from './proximity-meter.mjs?v=spark-progression-1';
@@ -181,6 +180,7 @@ export class WispFlightView {
       this.document = document;
       await prepareEnvironmentArt(document);
       if(this.destroyed||e.destroyed)return false;
+      prepareNearLandscape(document,e);
       e.canvas.parentElement.appendChild(this.canvas);
       this.resize();
       this.ready = true;
@@ -981,7 +981,6 @@ export class WispFlightView {
     c.setTransform(1, 0, 0, 1, 0, 0); c.globalAlpha = 1; c.globalCompositeOperation = 'source-over';
     this.updateVisible(e, distance);
     this.drawSky(e, t, distance, palette);
-    if(!this.depthLayers||this.depthHeight!==this.buffer.height){this.depthLayers=createDepthScenery(this.document,this.buffer.height,e.terrain,palette);this.depthHeight=this.buffer.height;}
     // Authored parallax supplies the major depth layers in the new art pass.
     c.globalAlpha = rehearsing ? .1 : .34; c.fillStyle = '#03080b'; c.fillRect(0, 0, this.buffer.width, this.buffer.height); c.globalAlpha = 1;
     const boss = this.bossOptions; boss.height = this.buffer.height; boss.distance = distance; boss.time = t; boss.scale = s; boss.pass = 'silhouette';
@@ -989,6 +988,7 @@ export class WispFlightView {
     drawGuardianPresence(c,{engine:e,width:this.buffer.width,height:this.buffer.height,distance,time:t});
 
     drawHabitatBackdrop(c,e,{scale:s,distance,time:t});
+    drawNearLandscape(c,e,{scale:s,distance});
     drawFlightForkBackdrops(c,e,{distance,scale:s});
     this.drawTerrain(e, t, distance, palette);
     boss.pass = 'hands'; drawBoss(c, boss);
