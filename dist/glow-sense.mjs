@@ -1,7 +1,7 @@
-import {drawPickup} from './pickup-art.mjs?v=near-landscape-1';
-import {pickupKind} from './pickups.mjs?v=near-landscape-1';
-import {sparkArtScale, sparkBodyRadius, sparkMass} from './spark-size.mjs?v=near-landscape-1';
-import {lightVisibility} from './light-field.mjs?v=near-landscape-1';
+import {drawPickup} from './pickup-art.mjs?v=living-habitats-1';
+import {pickupKind} from './pickups.mjs?v=living-habitats-1';
+import {sparkArtScale, sparkBodyRadius, sparkMass} from './spark-size.mjs?v=living-habitats-1';
+import {lightVisibility} from './light-field.mjs?v=living-habitats-1';
 
 export function glowSenseCues(e, {
   distance = e.renderDistance ?? e.distance,
