@@ -74,10 +74,8 @@ export const SKILLS=Object.freeze(consolidateSkills(Object.fromEntries(Object.en
  'swift-recovery':skill('swift-recovery','Quick Surge','swift',90,3,'swift-duration','Runner recharges 10% sooner per rank.'),
  'swift-resistance':skill('swift-resistance','Windbreak','swift',100,2,'swift-duration','Runner resists 5 percentage points more draft force per rank.'),
  'collector-attunement':skill('collector-attunement','Search Spark','collector',35,1,null,'Collector range +12%.'),
- 'collector-fetch-cache':skill('collector-fetch-cache','Cache Handling','collector',25,1,'collector-attunement','Collector can fetch Cache Sparks. It shrinks them into a Cluster worth 12 base Sparks. Body pickups keep all 18.'),
- 'collector-fetch-surge':skill('collector-fetch-surge','Surge Handling','collector',35,1,'collector-fetch-cache','Collector can fetch Surge Sparks. It shrinks them into a Cluster worth 12 base Sparks. Body pickups keep all 36.'),
- 'collector-fetch-giant':skill('collector-fetch-giant','Giant Handling','collector',45,1,'collector-fetch-surge','Collector can fetch Giant Sparks. It shrinks them into a Cluster worth 12 base Sparks. Body pickups keep all 60.'),
- 'collector-fetch-flash':skill('collector-fetch-flash','Flash Handling','collector',30,1,'collector-attunement','Collector can fetch missed Flash Powerups. They keep their full Luminance effect.'),
+ 'collector-fetch-large':skill('collector-fetch-large','Large Spark Handling','collector',50,1,'collector-attunement','Fetch Cache, Surge and Giant Sparks. Each delivery gives 12 base Sparks. Surge deliveries fully recharge the search ring.'),
+ 'collector-fetch-flash':skill('collector-fetch-flash','Flash Handling','collector',30,1,'collector-attunement','Collector can fetch missed Flash Powerups. Every Flash you or Collector picks up also restores up to 6 missing Sparks.'),
  'collector-mastery':skill('collector-mastery','Deep Spark','collector',75,1,'collector-attunement','Collector range +12%. Adds to your first Spark.'),
  'collector-last-orbit':{id:'collector-last-orbit',name:'Last Orbit',branch:'collector',cost:95,maxRank:1,requires:'collector-mastery',description:'A full Collector ring catches a fatal impact while your companion is home. You bounce clear. Fetching shuts down for four normal recovery cycles.',consequence:'Save a heart · 4× recovery'},
  'protector-attunement':skill('protector-attunement','Ward Spark','protector',35,1,null,'Shell costs 2 less Sparks.'),
@@ -202,6 +200,10 @@ function commitArtifactCharges(run,result){
 // Discard the retired multi-companion capacity purchase when loading saves or
 // restoring an attempt. Artifact capacity is an independent system.
 function cleanRunCompanion(run){
+ if(!run)return;
+ for(const id of ['collector-fetch-cache','collector-fetch-surge','collector-fetch-giant']){
+  if(run.skills?.[id]){run.skills['collector-fetch-large']=1;delete run.skills[id];}
+ }
  if(!run)return;
  refundRetiredSkills(run,SKILLS);
  if(Number.isFinite(run.flame))run.flame=clamp(run.flame,0,getGlowCapacity(run));
@@ -806,6 +808,7 @@ function relatedTraining(wallet,skill){
 }
 export function getSkillPrice(wallet,id){
  const s=SKILLS[id];if(!s)return null;const r=rank(wallet?.skills,id);if(r>=s.maxRank)return null;
+ if(['collector-fetch-large','main-dream-long','main-dream-deep'].includes(id))return s.cost;
  const base=s.prices?.[r]??Math.round(s.cost*1.5**r),growth=1+CONDENSED_TUNING.trainingGrowth*Math.max(0,getTrainingRankCount(wallet)-relatedTraining(wallet,s))**CONDENSED_TUNING.trainingExponent;
  return Math.ceil(base*growth/CONDENSED_TUNING.priceStep)*CONDENSED_TUNING.priceStep;
 }
@@ -863,7 +866,7 @@ export function sellArtifact(state,id){
  delete r.artifactCharges?.[id];r.lastCheckpointReward={amount:value,kind:'artifact-forge',artifactId:id};return true;
 }
 
-export function getRunModifiers(run={}){const rank=skillProgress,companion=normalizeCompanionFleet(run.companions,run.companionRole)[0],s=Object.fromEntries(Object.entries(run.skills||{}).filter(([id])=>!ROLES.some(role=>id.startsWith(role+'-'))||id.startsWith(companion+'-'))),m={condensationRules:getCondensationRules(s),condensationBonus:0,overflowRecharge:0,workFuel:0,rechargeSight:0,litLift:0,dreamRecharge:0,secondDawn:0,nightGarden:0,dreamDuration:rank(s,'main-dream')?(rank(s,'main-dream-deep')?10:rank(s,'main-dream-long')?8:6):0,dreamWake:rank(s,'main-dream-wake')?4:3,dreamSight:rank(s,'main-dream-deep')>0,glowSense:rank(s,'main-glow-sense')>0,driftSense:rank(s,'main-drift-sense-3')?3:rank(s,'main-drift-sense-2')?2:rank(s,'main-drift-sense')?1:0,pickupReveal:rank(s,'main-dawnburst')>0,proximityUnlocked:rank(s,'proximity-awakening')>0,proximityShield:rank(s,'proximity-light-shield')>0,edgingGrace:rank(s,'proximity-grace')?2:1.25,edgingChargeRate:rank(s,'main-edging-attunement')?1.25:1,edgingDecayRate:rank(s,'main-edging-tension')?.5:1,edgingDuration:rank(s,'main-edging-lasting')?7:5,edgingRecovery:2,edgingRegen:rank(s,'main-edging-regeneration')>0,maxGlow:getGlowCapacity(run),richFuelBonus:8*rank(s,'main-cache-feast'),terminalFall:1+.08*rank(s,'main-deep-plummet'),speed:1+.08*rank(s,'main-speed')+.06*rank(s,'main-tailwind'),flap:1-.08*rank(s,'main-low-lift'),gravity:(1-.1*rank(s,'main-drift'))*(1+.12*rank(s,'main-plummet'))*(1+.06*rank(s,'main-deep-plummet')),flapCost:Math.max(.65,(1-.12*rank(s,'main-efficiency'))*(1-.10*rank(s,'main-lift'))*(1-.08*rank(s,'main-low-lift'))),lightRadius:145+35*rank(s,'main-sight')+45*rank(s,'main-horizon'),darkResistance:.4*rank(s,'main-dawn'),attract:1,wispCooldown:1,boostCooldown:1,boostDuration:1,reward:1,windSensitivity:1,cacheFuelBonus:4*rank(s,'main-kindling'),warmCore:false,steady:false,protectorCost:12*(1-.15*rank(s,'protector-cost')),protectorRecovery:7,protectorLayers:1+rank(s,'protector-layers'),levelerDuration:2.4+.5*rank(s,'leveler-duration'),levelerSteadiness:.2*rank(s,'leveler-steadiness'),levelerDive:rank(s,'leveler-dive')?1+.25*rank(s,'leveler-dive'):0,levelerRecovery:9,swiftDuration:1.25+.20*rank(s,'swift-duration'),swiftRecovery:7.5,swiftResistance:.72+.05*rank(s,'swift-resistance'),mainSeer:['main-echo-sight','main-echo-long','main-echo-range'].some(id=>rank(s,id)>0),seerRadius:230+50*rank(s,'main-echo-range'),seerDuration:2+rank(s,'main-echo-long'),seerRecovery:8,mainKindler:['main-kindled-touch','main-kindled-rich','main-purifying-touch'].some(id=>rank(s,id)>0),kindlerBonus:6+4*rank(s,'main-kindled-rich'),kindlerPurify:rank(s,'main-purifying-touch')>0};
+export function getRunModifiers(run={}){const rank=skillProgress,companion=normalizeCompanionFleet(run.companions,run.companionRole)[0],s=Object.fromEntries(Object.entries(run.skills||{}).filter(([id])=>!ROLES.some(role=>id.startsWith(role+'-'))||id.startsWith(companion+'-'))),m={condensationRules:getCondensationRules(s),condensationBonus:0,overflowRecharge:0,workFuel:0,rechargeSight:0,litLift:0,dreamRecharge:0,secondDawn:0,nightGarden:0,dreamDuration:rank(s,'main-dream')?(rank(s,'main-dream-deep')?16:rank(s,'main-dream-long')?12:8):0,dreamWake:rank(s,'main-dream-wake')?4:3,dreamSight:rank(s,'main-dream-deep')>0,glowSense:rank(s,'main-glow-sense')>0,driftSense:rank(s,'main-drift-sense-3')?3:rank(s,'main-drift-sense-2')?2:rank(s,'main-drift-sense')?1:0,pickupReveal:rank(s,'main-dawnburst')>0,proximityUnlocked:rank(s,'proximity-awakening')>0,proximityShield:rank(s,'proximity-light-shield')>0,edgingGrace:rank(s,'proximity-grace')?2:1.25,edgingChargeRate:rank(s,'main-edging-attunement')?1.25:1,edgingDecayRate:rank(s,'main-edging-tension')?.5:1,edgingDuration:rank(s,'main-edging-lasting')?7:5,edgingRecovery:2,edgingRegen:rank(s,'main-edging-regeneration')>0,maxGlow:getGlowCapacity(run),richFuelBonus:8*rank(s,'main-cache-feast'),terminalFall:1+.08*rank(s,'main-deep-plummet'),speed:1+.08*rank(s,'main-speed')+.06*rank(s,'main-tailwind'),flap:1-.08*rank(s,'main-low-lift'),gravity:(1-.1*rank(s,'main-drift'))*(1+.12*rank(s,'main-plummet'))*(1+.06*rank(s,'main-deep-plummet')),flapCost:Math.max(.65,(1-.12*rank(s,'main-efficiency'))*(1-.10*rank(s,'main-lift'))*(1-.08*rank(s,'main-low-lift'))),lightRadius:145+35*rank(s,'main-sight')+45*rank(s,'main-horizon'),darkResistance:.4*rank(s,'main-dawn'),attract:1,wispCooldown:1,boostCooldown:1,boostDuration:1,reward:1,windSensitivity:1,cacheFuelBonus:4*rank(s,'main-kindling'),warmCore:false,steady:false,protectorCost:12*(1-.15*rank(s,'protector-cost')),protectorRecovery:7,protectorLayers:1+rank(s,'protector-layers'),levelerDuration:2.4+.5*rank(s,'leveler-duration'),levelerSteadiness:.2*rank(s,'leveler-steadiness'),levelerDive:rank(s,'leveler-dive')?1+.25*rank(s,'leveler-dive'):0,levelerRecovery:9,swiftDuration:1.25+.20*rank(s,'swift-duration'),swiftRecovery:7.5,swiftResistance:.72+.05*rank(s,'swift-resistance'),mainSeer:['main-echo-sight','main-echo-long','main-echo-range'].some(id=>rank(s,id)>0),seerRadius:230+50*rank(s,'main-echo-range'),seerDuration:2+rank(s,'main-echo-long'),seerRecovery:8,mainKindler:['main-kindled-touch','main-kindled-rich','main-purifying-touch'].some(id=>rank(s,id)>0),kindlerBonus:6+4*rank(s,'main-kindled-rich'),kindlerPurify:rank(s,'main-purifying-touch')>0};
   m.handSeal=rank(s,'packing-hand-seal')>0;
   m.deepCache=rank(s,'packing-deep-cache')>0;
   if(rank(s,'collector-reach')){m.attract*=1+.35*rank(s,'collector-reach');m.wispCooldown*=1+.20*rank(s,'collector-reach');}
@@ -878,7 +881,8 @@ export function getRunModifiers(run={}){const rank=skillProgress,companion=norma
   m.longFlash=Boolean(rank(s,'main-long-flash'));
   m.fourthBeatRank=rank(s,'main-fourth-beat-2')?2:rank(s,'main-fourth-beat');
   m.collectorGuard=rank(s,'collector-last-orbit')>0;
-  m.collectorFetchMass=rank(s,'collector-fetch-giant')?10:rank(s,'collector-fetch-surge')?6:rank(s,'collector-fetch-cache')?3:2;
+  m.collectorFetchMass=rank(s,'collector-fetch-large')?10:2;
+  m.nightmare=rank(s,'main-dream-deep')>0;
   m.collectorFlashFetch=rank(s,'collector-fetch-flash')>0;
   const spark=role=>rank(s,`${role}-attunement`)+rank(s,`${role}-mastery`);
   m.attract*=1+.12*spark('collector');m.protectorCost=Math.max(1,m.protectorCost-2*spark('protector'));

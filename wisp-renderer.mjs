@@ -753,6 +753,7 @@ export class WispFlightView {
     const power = (this.lightIntensity || 1) * (dying ? 1 - progress * .85 : .76 + fuel * .24);
     this.glow(x, y, (24 + fuel * 7) * Math.max(.1, size), MAIN_LIGHT.outer, .29 * power);
     c.save(); c.globalAlpha = power;
+    if(e.dream?.mode==='record')c.globalAlpha*=e.reducedMotion?.48:.46+.09*Math.sin(t*3);
     if (size > .02) c.drawImage(this.mainSprite(fuel), x - 18 * size, y - 18 * size, 36 * size, 36 * size);
     if (dying && progress > .25 && !e.reducedMotion) {
       c.fillStyle = '#f7f5d8'; c.globalAlpha = (1 - progress) ** 1.5;

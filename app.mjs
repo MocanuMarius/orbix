@@ -12,6 +12,7 @@ import {restBenefitsMarkup} from './rest-choice-view.mjs?v=spark-field-guide-1';
 import {treasureView} from './treasure-view.mjs?v=spark-field-guide-1';
 import {getFlightClearReward} from './checkpoint-rewards.mjs?v=spark-field-guide-1';
 import {artifactDescription} from './artifact-copy.mjs?v=spark-field-guide-1';
+import {showNightmare} from './nightmare.mjs?v=spark-field-guide-1';
 import {startResumeCountdown} from './resume-countdown.mjs?v=spark-field-guide-1';
 import {automaticTipsEnabled,nextOnboardingLesson,markOnboardingSeen,resetOnboarding,noteOnboardingPrompt,noteOnboardingProgress,onboardingFeatureAvailable,onboardingFlightPlan,lanternEntryLesson,giantBlackHoleEntryLesson} from './onboarding.mjs?v=spark-field-guide-1';
 import {flightRewardMarkup} from './reward-screen.mjs?v=spark-field-guide-1';
@@ -163,7 +164,7 @@ function showStartingGifts(existing=false){
  const relicEffect=({'echo-vessel':'Pack 2 Sparks per 6 surplus Sparks instead of 1.','overflow-coil':'Overfill Sparks to speed up companion recovery: up to 2 seconds per Spark.','echo-bell':copy.trigger.replace(/\.$/,',')+' '+copy.effect.replace(/^Touch/,'touch')})[rare.id]||[copy.trigger,copy.effect].filter(Boolean).join(' ');
  const gifts=[
   ['proximity-awakening','Proximity','Flight skill',skillIcon(SKILLS['proximity-awakening']),'Skim solid terrain to charge a pulse that reveals the passage.'],
-  ['main-dream','Dream','Rehearsal',dreamEye,'Rehearse the first 6s with free Lifts. Wake where your Dream ended.'],
+  ['main-dream','Dream','Rehearsal',dreamEye,'Rehearse the first 8s with free Lifts. Wake where your Dream ended.'],
   ['rare-artifact',rare.name,'Rare artifact',artifactIcon(rare.id),relicEffect]
  ];
  openSheet(`<section class="starting-gifts"><header><div><small>NEW EXPEDITION</small><h2>Choose your starting gift</h2></div><button class="secondary gift-back" data-action="close-sheet">Back</button></header><div class="starting-gift-trio">${gifts.map(([id,title,kind,art,effect])=>`<button class="starting-gift gift-${id}" data-action="${existing?'existing-gift':'new-gift'}" data-id="${id}"><span class="gift-art">${art}</span><small>${kind}</small><strong>${esc(title)}</strong><span class="gift-effect">${esc(effect)}</span></button>`).join('')}</div></section>`,'starting-gift-sheet');
@@ -261,7 +262,12 @@ function dreamFinished(result){
 function acceptDream(){
  if(!dreamReady||engine?.dream?.mode!=='record')return;
  const preset=dreamReady.preset;
- closeSheet();destroyFlight();launch(false,{preset});
+ const source=document.querySelector('#flight-canvas');
+ const memory=document.createElement('canvas');
+ memory.width=source.width;memory.height=source.height;
+ memory.getContext('2d').drawImage(source,0,0);
+ memory.className='dream-memory';memory.setAttribute('aria-hidden','true');
+ closeSheet();destroyFlight();launch(false,{preset,memory});
 }
 function dreamAwake(){paused=true;document.querySelector('#pause-layer').innerHTML=`<button class="dream-awakening" data-action="dream-wake"><svg viewBox="0 0 32 32" fill="currentColor" aria-hidden="true"><path d="M8 5h5v22H8zM19 5h5v22h-5z"/></svg><span>Tap to resume</span><small>Then tap again to Lift</small></button>`;teachEntryHazard()}
 function teachEntryHazard(){
@@ -269,7 +275,7 @@ function teachEntryHazard(){
  const tip=giantBlackHoleEntryLesson(state.settings,state.profile,state.run,giant)||lanternEntryLesson(state.settings,state.profile,state.run);
  if(tip&&paused&&!lesson)startLesson(tip.id,tip.steps);
 }
-function wakeDream(){if(engine?.dream?.phase==='awakening'){resumeArmed=true;wakeFlight()}}
+function wakeDream(){if(engine?.dream?.phase==='awakening')beginResumeCountdown()}
 
 function renderHome(){return homeMenuMarkup({profile:state.profile,run:state.run,selectedDifficulty,testOverride:state.settings.testOverride})+testControls({showTutorialSkip:true})}
 function forecastMarkup(n){if(state.run?.isTutorial||!featureAvailable('artifacts'))return '';const f=getRouteForecast(state.run,n)||{};return `<div class="route-consequences ${!f.restReachable?'rest-scarce':''}"><div><b>${mapStopIconMarkup('rest')}${f.nextRestDistance===0?'REST HERE':f.restReachable?`${f.restGuaranteed?'REST IN':'REST OPTION'} ${f.nextRestDistance} ${f.nextRestDistance===1?'STOP':'STOPS'}`:'NO REST AHEAD'}</b><span>${n.type==='support'?(n.kind==='camp'?'RECOVER OR GROW':'A TRADE'):esc(encounterIntent(n)?.name||n.fuelPreview||'CONSERVE SPARKS')}</span></div>${rewardThemeMarkup(n)}<div class="forecast-path">${(f.nextStops||[]).slice(0,3).map(stop=>`<span title="${esc(stop.name)}">${mapStopIconMarkup(stop)}<small>${esc(getMapStopInfo(stop).label)}</small></span>`).join('<i>OR</i>')}</div></div>`}
@@ -492,11 +498,22 @@ async function launch(retry=false,waking=null){
  if(!r.attemptActive&&!Object.hasOwn(n,'bonusId'))prepareOffer(r,n);
  if(!dream&&!beginFlightAttempt(r))return goToRun();
  document.body.classList.toggle('dream-rehearsal',dream);
- activeFlightEntry=entryState;const ticket=++launchTicket;flightLoading=true;resumeArmed=false;dreamReady=null;screen='flight';paused=true;persist();renderHeader();document.body.classList.add('playing');document.body.dataset.screen='flight';app.innerHTML=`<section class="flight-shell"><div class="flight-device"><div class="flight-hud"><button type="button" class="ember-counter flight-condensed-counter" data-action="skills" title="Skills · overflow banks on clear" aria-label="Pause and open Skills">${condensedIconMarkup()}<b id="flight-condensed">${getSkillWallet(state).condensedGlow}</b></button><span class="flight-bonus-counter" id="flight-bonus" hidden></span><div class="flight-run-status">${livesMarkup(r)}<div class="boss-phase-hud" id="boss-phase"></div></div><span class="flight-menu-slot">${menuButton()}</span></div><div class="flight-artifact-bar" aria-label="Automatic artifact effects">${(r.artifacts||[]).filter(Boolean).map(id=>`<button type="button" data-action="inspect-flight-artifact" data-id="${id}" data-relic="${id}" aria-label="Inspect ${esc(ARTIFACTS[id]?.name||id)}; pause flight">${artifactArt(id)}${EVOLVING_ARTIFACTS.includes(id)?'<small class="artifact-seed-pips" aria-hidden="true"><i></i><i></i><i></i></small>':''}${getArtifactInfo(id).type==='consumable'?`<small class="artifact-flight-charge">${r.artifactCharges?.[id]??getArtifactInfo(id).charges}</small>`:''}</button>`).join('')}</div><div class="flight-progress"><i id="flight-progress-bar"></i></div><div class="canvas-wrap">${glowGaugeMarkup(r)}${edgingPulseMarkup()}<canvas id="flight-canvas" aria-label="Tap to Lift. With Space Timer, keep holding to levitate and release to glide. Power is on the right. MENU pauses."></canvas><div class="flight-event" id="flight-event"></div><div class="game-speed-overlay" id="game-speed" role="status" aria-label="Game speed" hidden><span>GAME SPEED</span><b>0.1×</b><i><em></em></i></div><div class="dream-mark" id="dream-mark"></div>${performanceEnabled?'<div class="perf-status" id="perf-status">MEASURING…</div>':''}<div class="tutorial-flight-hint" id="tutorial-hint" hidden></div></div><div class="flight-dock"><div class="flight-fleet-status" id="fleet-status">${fleetArt()}</div>${boostControlMarkup(r.companions)}<button class="flight-control flap-control" id="flap-btn" aria-label="Lift">${resourceSymbol('up')}<span class="lift-cost">${resourceSymbol('energy')}<span id="flap-label"></span></span></button></div><div id="pause-layer">${flightEntryMarkup(r,n,{artifactArt,dream,showTips:automaticTipsEnabled(state.settings,r)})}</div></div></section>`;
+ activeFlightEntry=entryState;const ticket=++launchTicket;flightLoading=true;resumeArmed=false;dreamReady=null;screen='flight';paused=true;persist();renderHeader();document.body.classList.add('playing');document.body.dataset.screen='flight';app.innerHTML=`<section class="flight-shell"><div class="flight-device"><div class="flight-hud"><button type="button" class="ember-counter flight-condensed-counter" data-action="skills" title="Skills · overflow banks on clear" aria-label="Pause and open Skills">${condensedIconMarkup()}<b id="flight-condensed">${getSkillWallet(state).condensedGlow}</b></button><span class="flight-bonus-counter" id="flight-bonus" hidden></span><div class="flight-run-status">${livesMarkup(r)}<div class="boss-phase-hud" id="boss-phase"></div></div><span class="flight-menu-slot">${menuButton()}</span></div><div class="flight-artifact-bar" aria-label="Automatic artifact effects">${(r.artifacts||[]).filter(Boolean).map(id=>`<button type="button" data-action="inspect-flight-artifact" data-id="${id}" data-relic="${id}" aria-label="Inspect ${esc(ARTIFACTS[id]?.name||id)}; pause flight">${artifactArt(id)}${EVOLVING_ARTIFACTS.includes(id)?'<small class="artifact-seed-pips" aria-hidden="true"><i></i><i></i><i></i></small>':''}${getArtifactInfo(id).type==='consumable'?`<small class="artifact-flight-charge">${r.artifactCharges?.[id]??getArtifactInfo(id).charges}</small>`:''}</button>`).join('')}</div><div class="flight-progress"><i id="flight-progress-bar"></i></div><div class="canvas-wrap">${glowGaugeMarkup(r)}${edgingPulseMarkup()}<canvas id="flight-canvas" aria-label="Tap to Lift. With Space Timer, keep holding to levitate and release to glide. Power is on the right. MENU pauses."></canvas><div class="flight-event" id="flight-event"></div><div class="game-speed-overlay" id="game-speed" role="status" aria-label="Game speed" hidden><span>GAME SPEED</span><b>0.1×</b><i><em></em></i></div><div class="dream-mark" id="dream-mark"></div>${performanceEnabled?'<div class="perf-status" id="perf-status">MEASURING…</div>':''}<div class="tutorial-flight-hint" id="tutorial-hint" hidden></div></div><div class="flight-dock"><div class="flight-fleet-status" id="fleet-status">${fleetArt()}</div>${boostControlMarkup(r.companions)}<button class="flight-control flap-control" id="flap-btn" aria-label="Lift">${resourceSymbol('up')}<span class="lift-cost">${resourceSymbol('energy')}<span id="flap-label"></span></span></button></div><div id="pause-layer">${waking?.memory?'':flightEntryMarkup(r,n,{artifactArt,dream,showTips:automaticTipsEnabled(state.settings,r)})}</div></div></section>`;
+ if(waking?.memory){
+  document.querySelector('.flight-device').classList.add('dream-preparing');
+  document.querySelector('.canvas-wrap').append(waking.memory);
+ }
+
   try{
   await new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)));if(ticket!==launchTicket)return;
   hud={bonus:document.querySelector('#flight-bonus'),edging:document.querySelector('.edging-pulse-gauge'),fill:document.querySelector('#flame-fill'),meter:document.querySelector('#flame-meter'),progress:document.querySelector('#flight-progress-bar'),power:document.querySelector('#boost-btn'),event:document.querySelector('#flight-event'),flap:document.querySelector('#flap-label'),flapCostArt:document.querySelector('.lift-cost>.resource-symbol-energy'),boss:document.querySelector('#boss-phase')};
   engine=new WispFlight({reducedMotion:state.settings.reducedMotion,canvas:document.querySelector('#flight-canvas'),terrain:n.terrain,elite:n.elite,seed:`${r.seed}-${n.id}`,duration:n.duration,node:n,challengeId:n.challengeId,challengeTarget:n.challengeTarget,flame:r.flame,condensedGlow:getSkillWallet(state).condensedGlow,condensedRemainder:r.condensedRemainder||0,companions:r.companions,companionRole:r.companions[0],skills:r.skills,cards:[],modifiers:{...getRunModifiers(r),onboardingPlan:onboardingFlightPlan(state.profile,r)},onUpdate:updateFlight,onFinish:dream?()=>{}:completeFlight,onPause:()=>{if(!paused){paused=true;showMenu()}}});engine.setMuted?.(muted);
+  engine.nightmareAvailable=()=>!dream&&!r.isTutorial&&r.nightmareSpentMap!==r.mapIndex;
+  engine.onNightmare=(scene,path)=>{
+   r.nightmareSpentMap=r.mapIndex;persist();
+   paused=true;scene.pause();
+   showNightmare(scene,path,()=>{if(engine===scene){paused=false;scene.resume();}});
+  };
   if(dream)attachDream(engine,{mode:'record',onReady:dreamFinished});
   else if(waking?.preset&&!attachDream(engine,{mode:'replay',preset:waking.preset})){
    cancelFlightEntry({keepRoute:true});
@@ -508,7 +525,8 @@ async function launch(retry=false,waking=null){
   const scene=engine;
   scene.start({paused:true});
   const handoff=waking?.preset?prepareDreamHandoff(scene):null;
-  const [prepared]=await waitForFlightEntry(Promise.all([handoff,scene.ready,preloadFlightEntry(scene.reducedMotion).catch(()=>null)]));
+  const ready=Promise.all([handoff,scene.ready,preloadFlightEntry(scene.reducedMotion).catch(()=>null)]);
+  const [prepared]=await (waking?.memory?ready:waitForFlightEntry(ready));
   if(ticket!==launchTicket||engine!==scene)return;
   if(handoff&&(!prepared||!validateDreamPreset(waking.preset,scene))){
    cancelFlightEntry({keepRoute:true});
@@ -517,7 +535,15 @@ async function launch(retry=false,waking=null){
   }
   flightLoading=false;activeFlightEntry=null;
   if(handoff){scene.render();scene.notify();dreamAwake();}
-  else resumeFlight({waitForTap:true});
+  if(waking?.memory){
+   const device=document.querySelector('.flight-device');
+   device.classList.remove('dream-preparing');
+   device.classList.add('dream-waking');
+   const memory=waking.memory;
+   const fade=memory.animate([{opacity:1},{opacity:0}],{duration:scene.reducedMotion?180:1400,easing:'ease-in-out',fill:'forwards'});
+   fade.finished.then(()=>{memory.remove();device.classList.remove('dream-waking')}).catch(()=>{});
+  }
+  if(!handoff)resumeFlight({waitForTap:true});
   if(r.isTutorial&&!dream&&!waking)requestAnimationFrame(()=>guideScreen('flight'));
   else if(!dream&&!waking&&!r.testMode&&automaticTipsEnabled(state.settings,r)&&!state.profile.onboarding?.seen?.includes('lift')&&(r.stats?.flights||0)===0&&r.mapIndex===0){
    noteOnboardingPrompt(r,'briefing');
