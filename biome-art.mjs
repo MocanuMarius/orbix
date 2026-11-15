@@ -1,4 +1,4 @@
-import {pineCrown} from './pixel-contour.mjs?v=spark-field-guide-1';
+import {pineCrown} from './pixel-contour.mjs?v=biome-life-1';
 // Original pixel scenery. Backdrops and solid materials are rasterized by the
 // existing renderer caches; only a few matte weather pixels animate each frame.
 // Nothing here emits light or draws outside the simulation's solid silhouettes.
@@ -118,6 +118,24 @@ export function drawBiomeMaterial(c,{identity,surface,top,palette:p,width:W,heig
   for(let x=2;x<W;x+=17){const y=at(x);line(x,y+sign*2,x+8,y+sign*52,p.shade,3);line(x+8,y+sign*52,x+2,y+sign*73,p.shade,2);box(x+3,y+sign*11,8,2,p.grain);}
  }else if(biome==='coral'||biome==='fungal'){
   for(let x=8;x<W;x+=20){const y=at(x)+sign*(12+n(x,seed)*15);for(let d=0;d<130;d+=25){const yy=y+sign*d,ox=x+Math.sin(d*.1)*6;poly([[ox-4,yy],[ox,yy-4],[ox+6,yy],[ox+3,yy+6],[ox-3,yy+5]],p.face);box(ox-1,yy-1,3,3,p.shade);if(biome==='fungal'){line(ox+3,yy+5,ox+10,yy+13,p.grain);line(ox+10,yy+13,ox+7,yy+21,p.face);}else{line(ox-4,yy,ox,yy-4,p.grain);line(ox,yy-4,ox+6,yy,p.grain);}}}
+ }
+ // Larger mineral seams and eroded pockets break up the fine material grain.
+ // The caller clips these deposits to the existing collision silhouette.
+ for(let seam=0;seam<5;seam++){
+  const depth=12+seam*23+n(seam,seed)*15;
+  let prev=[0,at(0)+sign*depth];
+  for(let x=9;x<W;x+=9){
+   const next=[x,at(x)+sign*(depth+Math.sin(x*.018+seam*1.7)*8+n(Math.floor(x/29)+seam*47,seed)*4)];
+   line(...prev,...next,seam%2?p.shade:p.face,seam%2?2:3);
+   prev=next;
+  }
+ }
+ for(let pocket=0;pocket<Math.ceil(W/62);pocket++){
+  const x=15+pocket*61+n(pocket+22,seed)*18,y=at(x)+sign*(9+n(pocket+71,seed)*44);
+  const r=3+n(pocket+85,seed)*7;
+  poly([[x-r,y],[x-r*.6,y-sign*r*.6],[x+r*.5,y-sign*r*.45],[x+r,y+sign*r*.3],[x,y+sign*r*.7]],p.shade);
+  line(x-r*.6,y-sign*r*.6,x+r*.5,y-sign*r*.45,p.face);
+  if(['marsh','moonruins','cemetery'].includes(biome))line(x,y+sign*r*.6,x-2,y+sign*(r+13),'#455d50',2);
  }
  for(let y=2;y<H;y+=7)for(let x=2;x<W;x+=6){const q=n(x+y*43,seed);if(q<.16)box(x,y,1,q<.04?2:1,q<.06?p.grain:p.shade);}
  if(hardEntry){const x=surface[Math.floor(surface.length*.25)][0],y=at(x);for(let i=0;i<3;i++)line(x+i*5,y+sign*10,x+i*5+3,y+sign*5,p.rim);}

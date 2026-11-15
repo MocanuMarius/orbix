@@ -1,8 +1,8 @@
-import {bellwindAcceleration} from './atlas-flight.mjs?v=spark-field-guide-1';
-import {DraftField,DRAFT_TUNING} from './drafts.mjs?v=spark-field-guide-1';
-import {lightVisibility} from './light-field.mjs?v=spark-field-guide-1';
-import {isFuelPickup,pickupContactRadius} from './pickups.mjs?v=spark-field-guide-1';
-import {obstacleEdgeClearance} from './edging-pulse.mjs?v=spark-field-guide-1';
+import {bellwindAcceleration} from './atlas-flight.mjs?v=biome-life-1';
+import {DraftField,DRAFT_TUNING} from './drafts.mjs?v=biome-life-1';
+import {lightVisibility} from './light-field.mjs?v=biome-life-1';
+import {isFuelPickup,pickupContactRadius} from './pickups.mjs?v=biome-life-1';
+import {obstacleEdgeClearance} from './edging-pulse.mjs?v=biome-life-1';
 const clamp=(n,a,b)=>Math.max(a,Math.min(b,n)),DT=1/60;
 export const PROJECTION_HORIZONS=Object.freeze([0,.7,1.2,1.8]);
 

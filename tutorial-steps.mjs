@@ -1,4 +1,4 @@
-import {topicSteps} from './tutorial-curriculum.mjs?v=spark-field-guide-1';
+import {topicSteps} from './tutorial-curriculum.mjs?v=biome-life-1';
 const step=(id,title,text,target)=>({id,title,text,target,allowTarget:false});
 const chapter=(id,steps,target)=>({id,steps:steps.map(s=>({...s,...(target?{target}:{}),allowTarget:false}))});
 export function checkpointTutorialLesson(screen,{run={}}={}){

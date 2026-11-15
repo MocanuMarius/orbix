@@ -1,0 +1,189 @@
+// Decorative life is anchored to the actual landform. It never enters the
+// collider, pickup, reward or dynamic-hazard registries.
+const habitats = {
+  moonruins: {plant:'fern',leaf:'#718974',shade:'#3b5850',flower:'#b5c2ac',water:true,animal:'moth'},
+  frost: {plant:'lichen',leaf:'#728e92',shade:'#405c67',flower:'#b2c3c8',water:true,animal:'snow'},
+  pinewood: {plant:'fern',leaf:'#6a8b61',shade:'#354e40',flower:'#b5bb89',animal:'firefly'},
+  marsh: {plant:'reed',leaf:'#85915c',shade:'#405d50',flower:'#8a6d4e',water:true,animal:'firefly'},
+  fungal: {plant:'mushroom',leaf:'#927a9d',shade:'#554965',flower:'#b3c5bc',animal:'moth'},
+  basalt: {plant:'lichen',leaf:'#8c7c74',shade:'#514848',flower:'#b0967b',animal:'ash'},
+  desert: {plant:'drygrass',leaf:'#aa9769',shade:'#6b6450',flower:'#c7b394',animal:'beetle'},
+  coral: {plant:'fan',leaf:'#a5828f',shade:'#65586d',flower:'#b6bdba',water:true,animal:'moth'},
+  crystal: {plant:'lichen',leaf:'#9189ab',shade:'#575673',flower:'#bdc1d5',animal:'moth'},
+  cloud: {plant:'grass',leaf:'#9aab9d',shade:'#657f80',flower:'#d1d2b8',water:true,animal:'moth'},
+  thorn: {plant:'fern',leaf:'#819165',shade:'#465842',flower:'#bc9e99',animal:'beetle'},
+  cemetery: {plant:'grass',leaf:'#80958a',shade:'#495e58',flower:'#c0c9b9',water:true,animal:'moth'},
+};
+const habitatId=e=>e.levelIdentity?.biomeId||({ruins:'moonruins',canopy:'pinewood',storm:'frost'}[e.terrain]);
+export const ECOLOGY_BIOMES = Object.freeze(Object.keys(habitats));
+export function drawHabitatBackdrop(c,e,{scale=1,distance=e.renderDistance??e.distance,time=e.visualTime??e.time}={}){
+  const habitat=habitats[habitatId(e)];if(!habitat)return;
+  const biome=habitatId(e),offset=distance*.26,span=290;
+  c.save();c.scale(scale,scale);c.globalAlpha=.48;
+  for(let i=Math.floor(offset/span)-1;i<Math.ceil((offset+e.width)/span)+1;i++){
+    const seed=i*43+(e.levelIdentity?.variant||0)*177,x=i*span-offset;
+    const ground=e.height*(.78+noise(seed+16)*.12);
+    if(habitat.water){
+      c.fillStyle='#263e46';c.fillRect(Math.round(x-12),Math.round(ground),265,e.height-ground);
+      for(let band=0;band<8;band++){
+        const drift=e.reducedMotion?0:Math.sin(time*.45+band+seed)*3;
+        c.fillStyle=band%2?'#3d585d':'#354b52';
+        c.fillRect(Math.round(x+noise(seed+band)*65+drift),Math.round(ground+band*7),100+noise(seed+band+6)*100,1);
+      }
+    }
+    for(let j=0;j<3;j++){
+      const root=x+j*77+noise(seed+j)*18,high=28+noise(seed+j+18)*55;
+      if(['pinewood','thorn','cemetery','marsh','moonruins'].includes(biome)){
+        stroke(c,[[root,ground],[root+2,ground-high*.6],[root-4,ground-high]],habitat.shade,3);
+        for(let branch=0;branch<4;branch++){
+          const y=ground-high*.3-branch*high*.17,side=branch%2?-1:1;
+          stroke(c,[[root,y+8],[root+side*(12+branch*2),y-5],[root+side*22,y-9]],habitat.shade,2);
+          if(biome==='pinewood')for(let leaf=0;leaf<5;leaf++)
+            stroke(c,[[root-18+leaf*7,y+7],[root+leaf-2,y-9],[root+20-leaf*5,y+4]],habitat.leaf);
+        }
+        if(['marsh','thorn','moonruins'].includes(biome)){
+          c.fillStyle=habitat.shade;
+          for(let crown=0;crown<4;crown++){
+            const cx=root+(crown-1.5)*13,cy=ground-high+(crown%2)*11;
+            c.beginPath();c.moveTo(cx-17,cy+12);c.lineTo(cx-19,cy+2);
+            c.lineTo(cx-10,cy-6);c.lineTo(cx-3,cy-9);c.lineTo(cx+8,cy-5);
+            c.lineTo(cx+18,cy+3);c.lineTo(cx+14,cy+14);c.lineTo(cx+1,cy+17);c.fill();
+            if(biome==='marsh')for(let tendril=0;tendril<4;tendril++)
+              stroke(c,[[cx-10+tendril*7,cy+9],[cx-8+tendril*7,cy+31+tendril*3]],habitat.shade);
+          }
+        }
+      }else if(biome==='fungal'){
+        stroke(c,[[root,ground],[root+3,ground-high]],habitat.shade,4);
+        c.fillStyle=habitat.shade;
+        for(let k=0;k<4;k++)c.fillRect(Math.round(root-19+k*3),Math.round(ground-high-2*k),38-6*k,3);
+      }else{
+        // Layered stacks, talus fans and broken crests follow the local rock.
+        const summit=ground-high;c.fillStyle=habitat.shade;
+        c.beginPath();c.moveTo(root-20,ground);c.lineTo(root-12,summit+15);
+        c.lineTo(root-4,summit);c.lineTo(root+6,summit+4);c.lineTo(root+11,summit+27);c.lineTo(root+24,ground);c.fill();
+        stroke(c,[[root-10,summit+21],[root+7,summit+25]],habitat.leaf);
+        stroke(c,[[root-15,ground-12],[root+18,ground-8]],habitat.leaf);
+      }
+    }
+  }
+  c.restore();
+}
+const anchors = new WeakMap();
+const noise = n => {
+  let h=Math.imul(n|0,1597334677);h=Math.imul(h^(h>>>13),1274126177);
+  return ((h^(h>>>16))>>>0)/4294967296;
+};
+function surfaceSites(shape) {
+  if(anchors.has(shape))return anchors.get(shape);
+  const points=shape.slice(2).reverse(),sites=[];
+  let walked=0,next=22;
+  for(let i=1;i<points.length;i++){
+    const [ax,ay]=points[i-1],[bx,by]=points[i],length=Math.hypot(bx-ax,by-ay);
+    if(!length)continue;
+    while(next<walked+length){
+      const t=(next-walked)/length;
+      if(Math.abs(bx-ax)>1&&Math.abs((by-ay)/(bx-ax))<.72)
+        sites.push({x:ax+(bx-ax)*t,y:ay+(by-ay)*t,slope:(by-ay)/(bx-ax),seed:sites.length*71+i*313});
+      next+=34+noise(i*31+Math.floor(next))*39;
+    }
+    walked+=length;
+  }
+  anchors.set(shape,{points,sites});return anchors.get(shape);
+}
+function stroke(c,points,ink,width=1){
+  c.beginPath();for(let i=0;i<points.length;i++){
+    const [x,y]=points[i];if(i)c.lineTo(Math.round(x),Math.round(y));else c.moveTo(Math.round(x),Math.round(y));
+  }
+  c.strokeStyle=ink;c.lineWidth=width;c.stroke();
+}
+function tuft(c,h,x,y,sign,seed,time,push,reduced){
+  const flutter=reduced?0:Math.sin(time*1.6+seed)*1.3;
+  const mushroom=h.plant==='mushroom';
+  const count=mushroom?3:h.plant==='lichen'?3:5;
+  for(let i=0;i<count;i++){
+    const size=6+noise(seed+i*33)*16,root=x+(i-count/2)*3;
+    const bend=flutter+push*(.5+i*.22)+(i-count/2)*1.2;
+    const tipX=root+bend,tipY=y-sign*size;
+    stroke(c,[[root,y],[root+bend*.2,y-sign*size*.45],[tipX,tipY]],i%2?h.leaf:h.shade);
+    if(mushroom){
+      c.fillStyle=h.leaf;c.fillRect(Math.round(tipX-4),Math.round(tipY),8,2);
+      c.fillRect(Math.round(tipX-2),Math.round(tipY-2*sign),4,2);
+      c.fillStyle=h.flower;c.fillRect(Math.round(tipX-2),Math.round(tipY),1,1);
+    }else if(h.plant==='fern'||h.plant==='fan'){
+      for(let k=1;k<=3;k++){
+        const t=k/4,xx=root+bend*t,yy=y-sign*size*t,spread=(1-t)*5;
+        stroke(c,[[xx-spread,yy-sign*2],[xx,yy],[xx+spread,yy-sign*3]],h.leaf);
+        c.fillStyle=h.leaf;
+        c.beginPath();c.moveTo(xx,yy);c.lineTo(xx-spread-2,yy-sign*4);
+        c.lineTo(xx-1,yy-sign*2);c.lineTo(xx+spread+2,yy-sign*4);c.fill();
+      }
+    }else if(h.plant==='reed'){
+      c.fillStyle=h.flower;c.fillRect(Math.round(tipX-1),Math.round(tipY-4*sign),2,5);
+    }else if(h.plant==='lichen'){
+      stroke(c,[[root-3,y-sign*3],[root,y-sign*6],[root+4,y-sign*4]],h.leaf);
+    }else if(i===1&&noise(seed)>.6){
+      c.fillStyle=h.flower;c.fillRect(Math.round(tipX-1),Math.round(tipY),3,1);
+    }
+  }
+}
+function animal(c,h,x,y,seed,time,reaction,reduced){
+  const flutter=reduced?0:Math.sin(time*4+seed);
+  const fly=h.animal==='firefly',wing=h.animal==='moth';
+  const xx=x+(reduced?0:Math.sin(time*.7+seed)*8)+reaction*3;
+  const yy=y-18-(reduced?0:Math.cos(time*1.1+seed)*5)-Math.abs(reaction)*2;
+  if(fly){
+    const brightness=Math.min(1,.35+.4*(.5+.5*Math.sin(time*1.9+seed))+Math.abs(reaction)*.07);
+    c.globalAlpha=brightness*.23;c.fillStyle='#b9cf95';c.fillRect(Math.round(xx-2),Math.round(yy-2),5,5);
+    c.globalAlpha=brightness;c.fillRect(Math.round(xx),Math.round(yy),1,1);c.globalAlpha=1;
+  }else if(wing){
+    c.fillStyle=h.flower;c.globalAlpha=.55;
+    c.fillRect(Math.round(xx-2),Math.round(yy-flutter),2,1+Math.round(Math.abs(flutter)));
+    c.fillRect(Math.round(xx+1),Math.round(yy+flutter),2,1);c.globalAlpha=1;
+  }else if(h.animal==='beetle'){
+    c.fillStyle=h.shade;c.fillRect(Math.round(x+flutter*2),Math.round(y-2),3,2);
+  }else{
+    c.fillStyle=h.flower;c.globalAlpha=.35;c.fillRect(Math.round(xx),Math.round(yy),1,1);c.globalAlpha=1;
+  }
+}
+export function drawTerrainEcology(c,e,{scale=1,distance=e.renderDistance??e.distance,time=e.visualTime??e.time}={}){
+  const h=habitats[habitatId(e)];if(!h)return;
+  const py=e.renderPlayerY??e.player.y;
+  c.save();c.scale(scale,scale);c.lineCap='butt';c.lineJoin='miter';
+  for(const o of e.layout.obstacles){
+    if(o.x-distance>e.width+180)break;
+    if(o.destroyed||o.x+o.width*2.5<distance-180)continue;
+    const center=o.center+Math.sin(time*.9+o.phase)*o.motion;
+    for(const top of [true,false]){
+      const shape=top?o.topShape:o.bottomShape;if(!shape)continue;
+      const {points,sites}=surfaceSites(shape),sign=top?-1:1,base=center+sign*o.gap/2;
+      for(const site of sites){
+        const x=o.x+site.x-distance,y=base+site.y;
+        if(x< -40||x>e.width+40||y< -35||y>e.height+35)continue;
+        const seed=site.seed+Math.floor(o.x)*13;
+        const near=Math.max(0,1-Math.hypot(x-e.player.x,y-py)/95);
+        const push=e.reducedMotion?0:near*near*(x<e.player.x?-7:5);
+        c.globalAlpha=.64;
+        tuft(c,h,x,y,sign,seed,time,push,e.reducedMotion);
+        c.globalAlpha=1;
+        // Shallow reflective pockets stay inset behind the solid lip. They
+        // suggest wet rock and pools without adding a second collision edge.
+        if(!top&&h.water&&Math.abs(site.slope)<.18&&noise(seed)>.42){
+          const width=18+noise(seed+5)*18;
+          stroke(c,[[x-width/2,y+5],[x+width/2,y+5]],'#45656a',3);
+          const reflection=e.reducedMotion?0:Math.sin(time*1.5+seed)*2;
+          stroke(c,[[x-width*.25+reflection,y+5],[x+width*.3+reflection,y+5]],'#92aba5',1);
+          if(near>.1)stroke(c,[[x-3-near*8,y+7],[x+3+near*8,y+7]],'#819c98',1);
+        }
+        if(!top&&noise(seed+7)>.68)animal(c,h,x,y,seed,time,push,e.reducedMotion);
+      }
+      // Trace the real surface over translucent vegetation roots. Decorative
+      // tips use muted color; the continuous bright lip is the solid boundary.
+      for(let i=1;i<points.length;i++){
+        const a=points[i-1],b=points[i];
+        if(Math.max(a[0],b[0])+o.x-distance<0||Math.min(a[0],b[0])+o.x-distance>e.width)continue;
+        stroke(c,[[o.x+a[0]-distance,base+a[1]],[o.x+b[0]-distance,base+b[1]]],'#b1c0a6',1/scale);
+      }
+    }
+  }
+  c.restore();
+}

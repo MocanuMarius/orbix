@@ -1,5 +1,5 @@
-import {newState,createRun,getSkillWallet,buyCheckpointSkill,chooseStartingSkill} from './model.mjs?v=spark-field-guide-1';
-import {skillBookMarkup} from './skill-book.mjs?v=spark-field-guide-1';
+import {newState,createRun,getSkillWallet,buyCheckpointSkill,chooseStartingSkill} from './model.mjs?v=biome-life-1';
+import {skillBookMarkup} from './skill-book.mjs?v=biome-life-1';
 
 const book=document.querySelector('#preview-book'),status=document.querySelector('#preview-status');
 const storageLink=()=>new URLSearchParams(location.search).get('chapter')==='packing'||location.hash==='#packing';

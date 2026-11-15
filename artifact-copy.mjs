@@ -1,8 +1,8 @@
-import {resourceSymbol} from './game-symbols.mjs?v=spark-field-guide-1';
-import {GUARDIAN_RELICS} from './guardian-artifacts.mjs?v=spark-field-guide-1';
-import {getArtifactInfo,CONSUMABLE_ARTIFACTS} from './artifact-info.mjs?v=spark-field-guide-1';
-import {getCompanionAbility,normalizeCompanionRole} from './companion-abilities.mjs?v=spark-field-guide-1';
-import {formatGlow,glowText,getGlowCapacity} from './vitality.mjs?v=spark-field-guide-1';
+import {resourceSymbol} from './game-symbols.mjs?v=biome-life-1';
+import {GUARDIAN_RELICS} from './guardian-artifacts.mjs?v=biome-life-1';
+import {getArtifactInfo,CONSUMABLE_ARTIFACTS} from './artifact-info.mjs?v=biome-life-1';
+import {getCompanionAbility,normalizeCompanionRole} from './companion-abilities.mjs?v=biome-life-1';
+import {formatGlow,glowText,getGlowCapacity} from './vitality.mjs?v=biome-life-1';
 
 const esc=value=>String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const action={collector:'Collector delivers a Spark',protector:'Protector deflects a collision',swift:'Runner starts a burst',leveler:'Space Timer starts levitating'};
