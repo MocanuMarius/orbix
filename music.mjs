@@ -26,20 +26,26 @@ export function musicMix(mode='menu',danger=0){
 }
 export function createMusic({storage=globalThis.localStorage,document=globalThis.document,AudioClass=globalThis.Audio,schedule=globalThis.setInterval,cancel=globalThis.clearInterval}={}){
  const key='wispbound-music-enabled';let enabled=true,unlocked=false,players=[],timer=null,mode='menu',danger=0;
- let targets=musicMix(mode),destroyed=false,holeTarget=0,pulseTarget=0,hole=0,pulse=0,rate=1;
- const clearReaction=()=>{holeTarget=0;pulseTarget=0;};
+ let targets=musicMix(mode),destroyed=false,holeTarget=0,pulseTarget=0,focusTarget=0,hole=0,pulse=0,focus=0,rate=1;
+ const levels=[0,0,0];
+ const clearReaction=()=>{holeTarget=0;pulseTarget=0;focusTarget=0;};
  try{enabled=storage.getItem(key)!=='false'}catch{}
  const stop=()=>{for(const p of players)p.pause();if(timer!==null){cancel(timer);timer=null;}};
  const tick=()=>{
   if(!enabled||document.hidden||destroyed)return;
   hole+=(holeTarget-hole)*(holeTarget>hole ? .16 : .09);
   pulse+=(pulseTarget-pulse)*(pulseTarget>pulse ? .28 : .12);
+  // Leave room for important effects: ~100 ms attack, ~850 ms release.
+  // Apply after the slow scene fade so brief warnings receive space promptly.
+  focus+=(focusTarget-focus)*(focusTarget>focus ? .55 : .09);
+  const duck=1-focus*.22;
   rate=1-hole*.28;
   for(let i=0;i<players.length;i++){
    // A pulse foregrounds the written Rhodes/felt melody and ghost-note layer,
    // trading some bass/beat gain for sparkle rather than simply getting louder.
    const gain=i===0?targets[i]*(1-hole*.12)+pulse*.045:i===1?targets[i]*(1-hole*.24-pulse*.2):targets[i]*(1-hole*.4)+pulse*.055;
-   const p=players[i],next=p.volume+(gain-p.volume)*.055;
+   levels[i]+=(gain-levels[i])*.055;
+   const p=players[i],next=levels[i]*duck;
    p.playbackRate=rate;
    if(Math.abs(next-p.volume)>.00015)p.volume=Math.max(0,Math.min(1,next));
   }
@@ -65,7 +71,7 @@ export function createMusic({storage=globalThis.localStorage,document=globalThis
  return {get enabled(){return enabled},get mode(){return mode},
   getTransport(){return {time:Number(players[0]?.currentTime)||0,rate,bpm:78};},
   setScene(next,pressure=0){if(destroyed)return;mode=next;danger=Math.round(unit(pressure)*10)/10;targets=musicMix(mode,danger);clearReaction();},
-  setFlight(s){if(destroyed)return;this.setScene(s.dream?.mode==='record'?'dream':s.dying?'loss':s.completing?'clear':s.paused?'pause':s.boss?'boss':'flight',Math.max(Math.min(1,(s.blackHole?.rate||0)/20),Math.max(0,1-(s.flame||0)/Math.max(1,(s.maxFlame||100)*.3)),s.boss?Math.min(1,(s.boss.phase||1)/3):0));if(enabled&&!document.hidden){const reaction=musicReactivity(s);holeTarget=reaction.hole;pulseTarget=reaction.pulse;}},
+  setFlight(s){if(destroyed)return;this.setScene(s.dream?.mode==='record'?'dream':s.dying?'loss':s.completing?'clear':s.paused?'pause':s.boss?'boss':'flight',Math.max(Math.min(1,(s.blackHole?.rate||0)/20),Math.max(0,1-(s.flame||0)/Math.max(1,(s.maxFlame||100)*.3)),s.boss?Math.min(1,(s.boss.phase||1)/3):0));if(enabled&&!document.hidden){const reaction=musicReactivity(s);holeTarget=reaction.hole;pulseTarget=reaction.pulse;if(mode==='flight'||mode==='boss')focusTarget=unit(s.audioFocus);}},
   setEnabled(value){if(destroyed)return;enabled=!!value;unlocked=true;try{storage.setItem(key,String(enabled))}catch{}if(enabled)play();else{clearReaction();stop();}},
   destroy(){destroyed=true;stop();document.removeEventListener('pointerdown',gesture,true);document.removeEventListener('keydown',gesture,true);document.removeEventListener('visibilitychange',visibility)}
  };

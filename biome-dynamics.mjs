@@ -1,13 +1,21 @@
-import { DRAFT_TUNING } from './drafts.mjs?v=resonance-2';
-import { scenePropBounds } from './scene-props.mjs?v=resonance-2';
-import { formatGlow } from './vitality.mjs?v=resonance-2';
-import { lightVisibility } from './light-field.mjs?v=resonance-2';
-import { inLanternRoom } from './lantern-layout.mjs?v=resonance-2';
+import { DRAFT_TUNING } from './drafts.mjs?v=nature-sounds-1';
+import { scenePropBounds } from './scene-props.mjs?v=nature-sounds-1';
+import { formatGlow } from './vitality.mjs?v=nature-sounds-1';
+import { lightVisibility } from './light-field.mjs?v=nature-sounds-1';
+import { inLanternRoom } from './lantern-layout.mjs?v=nature-sounds-1';
 
 // Small, deterministic actors attached to existing terrain. Static mountain
 // meshes never change, and each actor is used once: no repeatable currency farm.
 const TAU = Math.PI * 2;
 const clamp = (n, lo, hi) => Math.max(lo, Math.min(hi, n));
+function environmentSound(e,item,type,detail={}) {
+  if(e.paused||e.muted||!e.sound)return;
+  const x=item.x-e.distance,width=e.width||900;
+  if(x < -64||x>width+64)return;
+  const dx=x-e.player.x,dy=item.y-e.player.y;
+  e.sound(type,{...detail,attenuation:clamp(1-Math.hypot(dx,dy)/Math.max(320,width*.85),.08,1),
+    pan:clamp(dx/(width*.5),-.7,.7)});
+}
 export const BIOME_INTERACTIONS = Object.freeze({
   moonruins: { kind: 'crumble', family: 'fall', color: '#c9b293', instruction: 'Cracked masonry · watch for falling stones' },
   frost: { kind: 'thaw', family: 'fall', color: '#b9e5ec', instruction: 'Warm light melts the ice · watch the cracks' },
@@ -124,7 +132,7 @@ export class BiomeDynamics {
 
   update(dt) {
     const e = this.engine;
-    if (!this.items.length || e.dying || e.completing || e.finished) return;
+    if (!this.items.length || e.paused || e.dying || e.completing || e.finished) return;
     const worldX = e.distance + e.player.x, sy = e.scaleY || e.height / 620;
     const fallingLead = (e.baseSpeed || 154) * (BIOME_DYNAMIC_TUNING.warning + .70);
     let light = null;
@@ -137,10 +145,15 @@ export class BiomeDynamics {
       }
       if (!item.hinted && dx < (item.family === 'fall' ? fallingLead : 225) && dx > -30) { item.hinted = true; e.setEvent?.(item.instruction); }
       if (item.family === 'vent') {
+        const previousPhase=item.phase;
         if (item.zone?.triggeredAt !== null) {
           item.age = e.time - item.zone.triggeredAt;
           item.phase = item.age < DRAFT_TUNING.warning ? 'warning'
             : item.age < DRAFT_TUNING.warning + DRAFT_TUNING.duration + DRAFT_TUNING.fade ? 'active' : 'spent';
+        }
+        if(item.phase!==previousPhase){
+          if(item.phase==='warning')environmentSound(e,item,'vent',{warning:true,strength:.3});
+          else if(item.phase==='active')environmentSound(e,item,'vent',{strength:.8});
         }
         continue;
       }
@@ -155,6 +168,7 @@ export class BiomeDynamics {
         }
         if (item.phase === 'idle' && dx > -20 && (item.kind === 'thaw' ? warmth > .08 : dx < fallingLead)) {
           item.phase = 'warning'; item.age = 0;
+          environmentSound(e,item,item.kind==='thaw'?'ice-warning':'debris',{warning:true,kind:item.kind,strength:.35});
         }
         if (item.phase === 'warning') {
           item.age = Math.max(0, item.age + dt * (item.kind === 'thaw' ? warmth > .05 ? .65 + warmth * .35 : -.15 : 1));
@@ -165,11 +179,13 @@ export class BiomeDynamics {
           if (dx * dx + (item.y - e.player.y) ** 2 < contactRadius ** 2) {
             item.phase = 'spent'; item.age = 0; item.spent = true;
             e.burst?.(item.x - e.distance, item.y, 8, item.color);
+            environmentSound(e,item,'debris',{kind:item.kind,strength:.7});
             // Existing Protector / fatal-contact rules own collision outcomes.
             e.hit?.(item); if (e.dying) return;
           } else if (item.y >= item.floorY || item.age > 2.5) {
             item.y = Math.min(item.y, item.floorY); item.phase = 'spent'; item.age = 0;
             e.burst?.(item.x - e.distance, item.y, 6, item.color);
+            environmentSound(e,item,'debris',{kind:item.kind,strength:.6});
           }
         } else if (item.phase === 'spent') item.age += dt;
         continue;
@@ -184,16 +200,16 @@ export class BiomeDynamics {
         if (e.projection) e.projection.nextAt = -Infinity;
         e.setEvent?.(item.kind === 'spore' ? 'Puffcap · free lift' : 'Reed bubble · free lift');
         e.radiateLight?.({id:item.id,x:item.x,y:item.y,radius:200,duration:1.5,color:item.color});
-        e.sound?.('flap');
+        environmentSound(e,item,item.kind==='spore'?'spore':'bubble');
       } else if (item.family === 'reveal') {
         e.revealFromPickup?.(true,item); e.setEvent?.(item.kind === 'bell' ? 'Grave bell · path revealed' : 'Crystal resonance · path revealed');
-        e.sound?.('bellwind');
+        environmentSound(e,item,item.kind==='bell'?'gravebell':'crystal');
       } else if (item.family === 'bloom') {
         const gain = Math.min(BIOME_DYNAMIC_TUNING.glowGift, Math.max(0, e.maxFlame - e.flame));
         e.flame += gain; e.flameRestored += gain;
         e.storeNaturalOverflow?.({id:item.id,kind:'light'},{fuel:BIOME_DYNAMIC_TUNING.glowGift},BIOME_DYNAMIC_TUNING.glowGift-gain);
         e.setEvent?.(gain > 0 ? `Seedpod · +${formatGlow(gain)} Sparks` : 'Seedpod · Sparks full');
-        e.sound?.('collect',{tier:2});
+        environmentSound(e,item,'seedpod');
       }
       e.burst?.(item.x - e.distance, item.y, 9, item.color);
     }

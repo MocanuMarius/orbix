@@ -15,11 +15,7 @@ export function drawProximityEnergy(c,e,{scale=1}={}){
   c.globalCompositeOperation='screen';c.globalAlpha=strength*.19;c.fillStyle='#389bdc';
   c.fillRect(0,0,e.width*scale,e.height*scale);
   c.globalCompositeOperation='source-over';
-  if(!e.reducedMotion){
-   const wave=(elapsed%1.65)/1.65,radius=wave*Math.hypot(e.width,e.height);
-   c.globalAlpha=(1-wave)*Math.min(1,p.remaining/p.duration)*.28;
-   c.strokeStyle='#b5eaff';c.lineWidth=Math.max(1,scale*2);c.beginPath();c.arc(px(x),px(y),px(radius),0,TAU);c.stroke();
-  }
+  // Outgoing fronts come from the shared one-per-second light-wave system.
   if(elapsed<1.35){
    const age=elapsed/1.35,origin=p.burstOrigin;
    const bx=(origin?.x??e.distance+x)-(e.renderDistance??e.distance),by=origin?.y??y;
