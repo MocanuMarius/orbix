@@ -1,8 +1,8 @@
-import { LIGHT_PACKET_TUNING } from './vitality.mjs?v=spark-field-guide-1';
-import { getCompanionAbility } from './companion-abilities.mjs?v=spark-field-guide-1';
-import { pickupKind, pickupContactRadius } from './pickups.mjs?v=spark-field-guide-1';
-import {sparkArtScale,sparkBodyRadius,sparkMass} from './spark-size.mjs?v=spark-field-guide-1';
-import {collectorCanFetch,collectorCompactSeconds,compressCollectorCargo} from './collector-load.mjs?v=spark-field-guide-1';
+import { LIGHT_PACKET_TUNING } from './vitality.mjs?v=biome-life-1';
+import { getCompanionAbility } from './companion-abilities.mjs?v=biome-life-1';
+import { pickupKind, pickupContactRadius } from './pickups.mjs?v=biome-life-1';
+import {sparkArtScale,sparkBodyRadius,sparkMass} from './spark-size.mjs?v=biome-life-1';
+import {collectorCanFetch,collectorCompactSeconds,compressCollectorCargo} from './collector-load.mjs?v=biome-life-1';
 
 const clamp = (value, lo, hi) => Math.min(hi, Math.max(lo, value));
 export const WISP_TUNING = Object.freeze({ range: 52.5, cooldown: 10, lightRadius: 175,

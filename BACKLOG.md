@@ -177,3 +177,12 @@ Published as `steady-giants-1`, source `15dc15a`. All 259 release assets matched
 ## Paused item-by-item balance review
 
 Resume at **Search Spark**, the next unrated item (30 Stored Sparks base, +12% Collector reach). Compare each item's effect with its cost and offer Useless, Weak, Ok, Strong or OP. Prior ratings and accepted changes are in DECISIONS.md. The final Dream skill is named Nightmare.
+
+## Living biome scenery
+
+- [x] Surface-anchored, reactive decorative foliage and wildlife across all twelve biomes.
+- [x] Water pockets and layered distant habitat scenery.
+- [x] Mineral seams, erosion pockets and damp rock detail in cached materials.
+- [x] Highlight true collision edges through softer vegetation.
+- [x] Inspect all 48 authored courses and verify decoration leaves gameplay state intact.
+- [ ] Evaluate the scenery density and frame timing on the physical Pixel 10.

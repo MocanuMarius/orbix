@@ -975,3 +975,9 @@ New Game still resets run upgrades and artifacts. See
 - Luminance 1 rated Ok at its base price of 45 Stored Sparks.
 - Dream 1 costs 90 Stored Sparks base. Rehearsal durations are 8, 10 and 12 seconds. Its translucent wisp and golden scene dissolve into the paused waking flight.
 - Approved Nightmare in Dream 3. Dream 1/2/3 rehearse 8/12/16 seconds. Dream 2 costs 30, Dream 3 costs 250. One Nightmare per map negates an otherwise fatal Lift and wakes into the resume ramp.
+
+## Living terrain scenery
+
+All twelve biomes and their four authored courses use surface-anchored decorative life. Reeds, ferns, mushrooms, grasses and lichens use muted color above a bright solid terrain lip. Wisp proximity bends plants and disturbs water reflections. Fireflies brighten nearby; moths, beetles, snow and ash vary by habitat. Pools, willow crowns, layered rock stacks and fungal silhouettes add depth behind the flight. Material caches include broad mineral seams, erosion pockets and damp deposits. Decorative passes never enter collision or reward registries.
+
+The ecology preview exposes all 48 courses with camera exploration and normal/inspection light. Browser cycling covered all 48 without rendering errors. A separate draw audit verified unchanged terrain, pickups, player and fuel across all 48. Physical Pixel 10 frame timing remains unmeasured.

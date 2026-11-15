@@ -1,16 +1,16 @@
-import {getBiome} from './biomes.mjs?v=spark-field-guide-1';
-import {getBossPreview} from './boss.mjs?v=spark-field-guide-1';
-import {levelMapPreview} from './level-map-art.mjs?v=spark-field-guide-1';
-import {mapStopIconMarkup} from './map-guide.mjs?v=spark-field-guide-1';
-import {resourceSymbol} from './game-symbols.mjs?v=spark-field-guide-1';
-import {getFlightClearReward} from './checkpoint-rewards.mjs?v=spark-field-guide-1';
-import {availableFlightArtifacts} from './model.mjs?v=spark-field-guide-1';
-import {bonusIcon,boonMarkup} from './route-bonus-ui.mjs?v=spark-field-guide-1';
-import {contextualFlightNotice} from './contextual-events.mjs?v=spark-field-guide-1';
-import {ATLAS_FORECASTS,atlasGlyph} from './night-atlas.mjs?v=spark-field-guide-1';
-import {canDreamAt,dreamConfig} from './dream.mjs?v=spark-field-guide-1';
-import {sparkHabitat} from './spark-fields.mjs?v=spark-field-guide-1';
-import {lanternFlightCue} from './map-theme.mjs?v=spark-field-guide-1';
+import {getBiome} from './biomes.mjs?v=biome-life-1';
+import {getBossPreview} from './boss.mjs?v=biome-life-1';
+import {levelMapPreview} from './level-map-art.mjs?v=biome-life-1';
+import {mapStopIconMarkup} from './map-guide.mjs?v=biome-life-1';
+import {resourceSymbol} from './game-symbols.mjs?v=biome-life-1';
+import {getFlightClearReward} from './checkpoint-rewards.mjs?v=biome-life-1';
+import {availableFlightArtifacts} from './model.mjs?v=biome-life-1';
+import {bonusIcon,boonMarkup} from './route-bonus-ui.mjs?v=biome-life-1';
+import {contextualFlightNotice} from './contextual-events.mjs?v=biome-life-1';
+import {ATLAS_FORECASTS,atlasGlyph} from './night-atlas.mjs?v=biome-life-1';
+import {canDreamAt,dreamConfig} from './dream.mjs?v=biome-life-1';
+import {sparkHabitat} from './spark-fields.mjs?v=biome-life-1';
+import {lanternFlightCue} from './map-theme.mjs?v=biome-life-1';
 
 const escapeText = value => String(value ?? '').replace(/[&<>"']/g, char =>
  ({'&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;'}[char]));
