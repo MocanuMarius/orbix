@@ -1,5 +1,6 @@
 import {prepareEnvironmentArt,prepareNearLandscape,drawNearLandscape,drawTerrainForeground} from './authored-environment.mjs?v=living-habitats-1';
 import {drawTerrainEcology,drawHabitatBackdrop} from './terrain-ecology.mjs?v=living-habitats-1';
+import {drawTerrainBoundary} from './terrain-boundary.mjs?v=living-habitats-1';
 import {drawAtlasFlight} from './atlas-flight.mjs?v=living-habitats-1';
 import {drawGuardianPresence} from './guardian-presence.mjs?v=living-habitats-1';
 import { drawGuardianWarnings } from './guardian-art.mjs?v=living-habitats-1';
@@ -467,12 +468,8 @@ export class WispFlightView {
     drawIdentityMaterial(c, { identity, surface, top, palette, width: canvas.width,
       height: canvas.height, obstacle, hardEntry }, { line: pixelLine, polygon: path });
     const inward = top ? -1 : 1;
-    for (let i = 1; i < surface.length; i++) {
-      const a = surface[i - 1], b = surface[i];
-      pixelLine(c, a[0], a[1] + inward * 2, b[0], b[1] + inward * 2, palette.shade, 2);
-      pixelLine(c, a[0], a[1], b[0], b[1], '#0b1618', 3);
-      pixelLine(c, a[0], a[1], b[0], b[1], hexMix(palette.rim, '#e2e5ce', .52), 2);
-    }
+    // Contact edges are drawn once, from the exposed union, after all ground
+    // pieces. A cached source polygon must never expose a buried join.
     if (obstacle.soft) {
       // Shatter Wake's convertible brambles stay inside the real silhouette but
       // carry a distinct dry-vine weave and a few dormant amber thorn tips.
@@ -995,6 +992,7 @@ export class WispFlightView {
     this.drawSceneProps(e, t, distance);
     drawTerrainEcology(c,e,{scale:s,distance,time:t});
     drawTerrainForeground(c,e,{scale:s,distance});
+    drawTerrainBoundary(c,e,{scale:s,distance,time:t,line:pixelLine});
     e.biomeDynamics?.draw(c,{distance,scale:s,height:this.buffer.height});
     this.drawPortal(e,t);
     if (rehearsing) lightDreamScenery(c,this.buffer.width,this.buffer.height);

@@ -1,5 +1,6 @@
 import {prepareEnvironmentArt} from './authored-environment.mjs?v=living-habitats-1';
 import {drawTerrainEcology,drawHabitatBackdrop} from './terrain-ecology.mjs?v=living-habitats-1';
+import {drawTerrainBoundary} from './terrain-boundary.mjs?v=living-habitats-1';
 import {prepareAtlasFlight,resizeAtlasFlight,ringBellwind,bellwindAcceleration,moonLightScale,drawAtlasFlight} from './atlas-flight.mjs?v=living-habitats-1';
 import {canShowFlightHint} from './flight-hint-safety.mjs?v=living-habitats-1';
 import {updateGlideRegeneration} from './glide-regeneration.mjs?v=living-habitats-1';
@@ -2262,6 +2263,7 @@ export class WispFlight {
     drawBoss(c, { engine: this, width: W, height: H, distance: this.renderDistance,
       time: this.visualTime, pass: 'hands' });
     drawTerrainEcology(c,this);
+    drawTerrainBoundary(c,this);
     this.biomeDynamics?.draw(c,{distance:this.renderDistance,scale:1,height:H});
     this.drawPortal(c,W,H);
     if(light.rehearsing)lightDreamScenery(c,W,H);
@@ -2462,7 +2464,7 @@ export class WispFlight {
       c.fillStyle = light; c.fillRect(left, top, width, height);
     }
     c.restore();
-    path(); c.strokeStyle = this.terrain === 'storm' ? 'rgba(173,225,230,.43)' : 'rgba(234,204,154,.31)'; c.lineWidth = 1.15; c.stroke();
+    // The shared exposed-terrain pass outlines the union after every piece.
     // Hairline roots and moss are decorative; the large shaded silhouette is
     // exactly the polygon used by circle collisions.
     if (this.terrain !== 'storm') {
