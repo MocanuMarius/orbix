@@ -163,6 +163,9 @@ export class EdgingPulse {
       }
       this.duration = number(e.mod?.edgingDuration, EDGING_PULSE_TUNING.duration, 1, 12);
       this.remaining = this.duration;this.burstOrigin.x=e.distance+e.player.x;this.burstOrigin.y=e.player.y;
+      e.radiateLight?.({id:'proximity',follow:'wisp',duration:this.duration,
+        radius:Math.hypot(e.width,e.height),color:'#bce9ff'});
+      e.sound?.('pulse');
       if(!this.regenerative||this.exhausted)e.setEvent?.('Edging Pulse · the way is revealed');
     }
   }

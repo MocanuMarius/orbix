@@ -26,7 +26,7 @@ export function skillBookChapter(skill){
  if(skill.branch==='proximity')return 'proximity';
  if(skill.branch==='afterglow'||['main-afterglow','main-clear-dividend'].includes(skill.id))return 'packing';
  if(skill.treeGroup==='main-dream')return 'dream';
- if(['main-sight','main-glow-sense','main-long-flash'].includes(groupId(skill)))return 'luminance';
+ if(['main-sight','main-glow-sense','main-long-flash','main-resonant-harvest','main-resonant-purification','main-resonant-bounty'].includes(groupId(skill)))return 'luminance';
  return 'wisp';
 }
 function perkOrder(a,b){

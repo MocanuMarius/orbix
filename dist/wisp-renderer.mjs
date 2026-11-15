@@ -1014,6 +1014,7 @@ export class WispFlightView {
       fleet = this.fallbackFleet;
     }
     const playerX = e.player.x * s, playerY = yOf(e) * s;
+    e.luminanceWaves?.draw(c,{distance,scale:s,time:t});
     this.lightFog(e, fleet, playerX, playerY);
     drawFallWarning(c,e,{distance,scale:s,light:this.currentLightState});
     e.drawWayfinder?.(c,s);

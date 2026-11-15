@@ -185,6 +185,7 @@ const aliases={
 const byId={
  'collector-fetch-large':'Spark Vessel','collector-fetch-flash':'Long Flash',
  'main-long-flash':'Long Flash',
+ 'main-resonant-harvest':'Luminance','main-resonant-purification':'Luminance','main-resonant-bounty':'Luminance',
  'main-sight':'Luminance','main-horizon':'Luminance','main-edging-attunement':'Proximity','main-reservoir':'Spark Vessel',
  'main-dream':'Dream','main-speed':'Momentum','main-lift':'Lift','main-efficiency':'Lift','main-glide-regen':'Glide Regeneration',
  'main-spare-spark':'Vitality','main-glow-sense':'Spark Sense','main-drift-sense':'Trajectory Guide','main-afterglow':'Storage'

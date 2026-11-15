@@ -30,6 +30,9 @@ import {EdgingPulse} from './edging-pulse.mjs?v=composed-worlds-1';
 import {isVowBodyPickup} from './contextual-events.mjs?v=composed-worlds-1';
 import {FlightBoon} from './flight-boons.mjs?v=composed-worlds-1';
 import {BlackHoles} from './black-holes.mjs?v=composed-worlds-1';
+import {createFlightFX} from './reactive-fx.mjs?v=composed-worlds-1';
+import {musicReactivity} from './music.mjs?v=composed-worlds-1';
+import {LuminanceWaves} from './luminance-waves.mjs?v=composed-worlds-1';
 import {drawWispBody,makeWispSprite,makeCompanionSprite,WISP_ART} from './companion-art.mjs?v=composed-worlds-1';
 import {drawBlackHoles} from './black-hole-art.mjs?v=composed-worlds-1';
 import {drawCapture, drawShellPuff, drawCarriedSpark} from './capture-art.mjs?v=composed-worlds-1';
@@ -818,7 +821,7 @@ export class WispFlight {
     this.flame = clamp(Number.isFinite(options.flame) ? options.flame : FLAME_TUNING.starting, 0, this.maxFlame);
     this.condensedStart=Math.max(0,Math.floor(Number(options.condensedGlow)||0));
     this.condensedGlow=0;this.condensedRemainder=clamp(Number(options.condensedRemainder)||0,0,.999999999);
-    this.storageBonus=0;this.storageAwards=0;
+    this.storageBonus=0;this.storageAwards=0;this.resonanceStored=0;
     this.pickupOverflow=0;this.condensationFlow={amount:0,rawAmount:0,time:-Infinity,count:0,total:0};
     this.nightGardenCount=0; this.dreamCompleted=false; this.secondDawnUsed=false;
     this.flaps = 0; this.effortSpent = 0; this.flameRestored = 0; this.bodyFuelCollected = 0;
@@ -850,8 +853,10 @@ export class WispFlight {
     this.cosmeticRng = seededRandom(`${this.seed}:cosmetics`);
     this.artifactEffects=new ArtifactEffects(this);
     this.edgingPulse=new EdgingPulse(this);
+    this.luminanceWaves=new LuminanceWaves(this);
     this.rigImage = null; this.background = null;
-    this.audio = null; this.muted = false; this.lastFlapSound = 0;
+    this.fx = createFlightFX(); this.muted = false;
+    this.getAudioTransport = typeof options.getAudioTransport === 'function' ? options.getAudioTransport : null;
     this.reducedMotion = options.reducedMotion === true || typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches;
     this._resizeRaf = null;
     this._resize = () => {
@@ -1009,6 +1014,8 @@ export class WispFlight {
         this.routeObjective.flashUntil+=extraFlashTime;
       }
     }
+    if(this.flashTether&&this.time<this.sightUntil)this.radiateLight({id:'flash',follow:'flash',
+      duration:this.sightUntil-this.time,radius:this.getLightState().radius,color:'#f0f7ff'});
     if(previousBeatRank!==this.mod.fourthBeatRank)this.fourthBeatTaps.length=0;
     this.options.modifiers={...this.options.modifiers,...modifiers};
     this.condensedStart=bankedSparks;
@@ -1061,7 +1068,7 @@ export class WispFlight {
   // Dream supplies the flight's usable reserves until control passes back.
   get availableGlow() { return this.dream?.active ? this.maxFlame : this.flame; }
   get visibleGlow() { return this.dream?.mode==='record' ? this.maxFlame : this.completing ? this.flame*(1-clamp(this.completionAge/.7,0,1)) : this.flame; }
-  get condensedTotal() { return this.condensedStart+this.condensedGlow+this.storageBonus+(this.exitPacking?.amount||0); }
+  get condensedTotal() { return this.condensedStart+this.condensedGlow+this.storageBonus+this.resonanceStored+(this.exitPacking?.amount||0); }
   spendGlow(amount) { this.flame=Math.max(0,this.flame-Math.max(0,amount)); }
 
   get flapCost() { return ((Number.isFinite(this.mod.liftCostPoints)?Math.max(1,Math.round(this.mod.liftCostPoints)):Math.max(1,Math.round(3*(Number(this.mod.flapCost)||1))))+Number(this.burdenLiftsRemaining>0||(this.flightBoon?.awake&&this.flightBoon.extraCostLifts>0)))/.3; }
@@ -1326,8 +1333,11 @@ export class WispFlight {
 
   setMuted(value) {
     this.muted = Boolean(value);
-    if (this.muted && this.audio?.state === 'running') this.audio.suspend().catch(() => {});
+    this.fx?.setMuted(this.muted);
   }
+
+  // Called by the input surface, never by a simulation or ambient update.
+  unlockAudio() { if (!this.muted && !this.destroyed) return this.fx?.unlock(); }
 
   destroy() {
     this.destroyed = true; this.running = false;
@@ -1341,7 +1351,8 @@ export class WispFlight {
       window.removeEventListener('orientationchange', this._orientation);
       document.removeEventListener('visibilitychange', this._visibility);
     }
-    if (this.audio) this.audio.close().catch(() => {});
+    this.fx?.destroy();
+    this.luminanceWaves?.clear();
     this.pixiView?.destroy();
     this.pixiView = null;
     for(const canvas of [this.fallbackFog,this.fallbackMask])if(canvas)canvas.width=canvas.height=1;
@@ -1543,6 +1554,8 @@ export class WispFlight {
     this.mainSeerStartedAt=this.time;
     this.mainSeerUntil=this.time+clamp(Number(this.mod.seerDuration)||2,.5,8);
     this.mainSeerReadyAt=this.time+clamp(Number(this.mod.seerRecovery)||8,2,30);
+    this.radiateLight({id:'seer',duration:this.mainSeerUntil-this.time,
+      radius:(Number(this.mod.lightRadius)||LIGHT_PACKET_TUNING.baseRadius)+120,follow:'wisp'});
     this.artifactEffects.notice('dawn-thread','passive');
     return true;
   }
@@ -1618,6 +1631,7 @@ export class WispFlight {
   beginDying(cause = 'collision') {
     if(this.dying||this.completing||this.finished||this.destroyed)return;
     this.edgingPulse.reset();
+    this.luminanceWaves?.clear();
     this.blackHoles.stop();
     this.deathCause=cause;this.dyingDuration=2;
     this.dying=true;this.dyingAge=0;this.tutorialAwaitingLift=false;
@@ -1702,7 +1716,7 @@ export class WispFlight {
       else if (this.mod.deepCache && sparkMass(packet)>=3) bonus=2;
     }
     if(bonus){this.storageAwards++;this.storageBonus+=bonus;}
-    if(gain.amount+bonus>0)this.condensationFlow={amount:gain.amount+bonus,rawAmount:surplus,time:this.time,count:this.condensationFlow.count+1,total:this.condensedGlow+this.storageBonus,multiplier:gain.multiplier};
+    if(gain.amount+bonus>0)this.condensationFlow={amount:gain.amount+bonus,rawAmount:surplus,time:this.time,count:this.condensationFlow.count+1,total:this.condensedGlow+this.storageBonus+this.resonanceStored,multiplier:gain.multiplier};
     return surplus;
   }
 
@@ -1710,12 +1724,19 @@ export class WispFlight {
     return pickupRevealAt(this.time,this.pickupRevealStartedAt,this.pickupRevealHoldUntil,this.pickupRevealFrom,this.reducedMotion);
   }
 
-  revealFromPickup(force=false) {
+  radiateLight({id='reveal',x=this.distance+this.player.x,y=this.player.y,
+    radius=Math.hypot(this.width,this.height),duration=1.5,color='#c5ecff',follow=null}={}) {
+    this.luminanceWaves?.addSource({id,x,y,radius,duration,color,follow});
+  }
+
+  revealFromPickup(force=false,source=null) {
     if(!this.mod.pickupReveal&&!force)return;
     const from=this.pickupRevealStrength;
     this.pickupRevealFrom=from;this.pickupRevealStartedAt=this.time;
     // Refresh from current illumination; never blink dark or stack exposure.
     this.pickupRevealHoldUntil=pickupRevealHold(this.time,from,this.reducedMotion);
+    this.radiateLight(source?{id:source.id,x:source.x,y:source.y,color:source.color,duration:1.5}
+      :{id:'pickup-reveal',follow:'wisp',duration:1.5});
   }
 
   step(dt) {
@@ -1822,6 +1843,11 @@ export class WispFlight {
     if (this.dying || !this.alive) return;
     const nearbyObstacles = this.getNearbyObstacles();
     this.edgingPulse.update(dt, nearbyObstacles);
+    if(this.artifactEffects.sightUntil>this.time){
+      this.radiateLight({id:'artifact-sight',follow:'wisp',duration:.2,
+        radius:Math.max(this.getLightState().radius,Number(this.mod.seerRadius)||230)});
+    }else this.luminanceWaves.removeSource('artifact-sight');
+    this.luminanceWaves.update(dt);
     this.routeObjective?.update();
     const breathingBank = Math.sin(this.wingPhase * TAU / 6) * .012;
     this.visualBank = lerp(this.visualBank, clamp(this.player.vy / (690 * this.scaleY), -.30, .35) + breathingBank, 1 - Math.exp(-dt * 9));
@@ -1962,7 +1988,7 @@ export class WispFlight {
           this.artifactEffects.onWork();
           this.artifactEffects.notice('iron-petal','passive');
         }
-        this.setEvent(lightAegis?'Light Aegis · shield spent':rewardWard?'Edgeweaver · ward spent':lastOrbit?'Last Orbit · ring spent':`Protector · shell spent, −${formatGlow(cost,this.maxFlame)} Sparks`);this.sound('hit');
+        this.setEvent(lightAegis?'Light Aegis · shield spent':rewardWard?'Edgeweaver · ward spent':lastOrbit?'Last Orbit · ring spent':`Protector · shell spent, −${formatGlow(cost,this.maxFlame)} Sparks`);this.sound('shield');
         this.notify();return;
       }
     }
@@ -1997,6 +2023,7 @@ export class WispFlight {
         text:`SIGHT -${Math.round(spec.dim*100)}%`,color:'#c5b1cf',restored:0,value:0,life:.72 });
       if(this.pickupEffects.length>12)this.pickupEffects.shift();
       this.setEvent(`${spec.name} · Luminance -${Math.round(spec.dim*100)}%`);
+      this.sound('dark');
       return;
     }
     if (kind === 'sight') {
@@ -2005,6 +2032,8 @@ export class WispFlight {
         playerX:this.distance+this.player.x,playerY:this.player.y,time:this.time,
         duration:flashPowerupDuration(this.mod),initialScale:delivery?.scale??1,phase:ember.phase,reducedMotion:this.reducedMotion});
       this.sightUntil=this.flashTether.expires;
+      this.radiateLight({id:'flash',x:this.flashTether.x,y:this.flashTether.y,follow:'flash',
+        duration:flashPowerupDuration(this.mod),radius:this.getLightState().radius,color:'#f0f7ff'});
       this.revealFromPickup(true);
       let restored = 0;
       if (this.mod.collectorFlashFetch) {
@@ -2014,7 +2043,7 @@ export class WispFlight {
       }
       const refill = glowPoints(restored);
       this.setEvent(`${spec.name} · Passage revealed${refill ? ' · +' + refill + ' Sparks' : ''}`);
-      this.sound('collect');
+      this.sound('flash');
       return;
     }
     if (this.tutorial) recordTutorialPickup(this, ember);
@@ -2093,7 +2122,7 @@ export class WispFlight {
       this.setEvent(`${spec.name} · ${text}`);
     }
     else if (cleansed) this.setEvent('Light restored · dark packet cleansed');
-    this.sound('collect');
+    this.sound(kind==='dusk'?'dark':'collect',{tier:spec.plasma||1,via:ember.deliveredByWisp?'collector':'body',strength:cleansed?1:.85});
   }
 
   challengeComplete() {
@@ -2109,7 +2138,7 @@ export class WispFlight {
     const boss = this.getBossState(), ability=this.getAbilityState(),artifacts=this.artifactEffects.state;
     const fourthBeat=this.fourthBeat, nextLiftCost=this.liftCostForBeat(fourthBeat.ready);
     const canAffordFlap=this.availableGlow+1e-7>=nextLiftCost;
-    return { alive: this.alive, score: Math.floor(this.score), condensedGlow:this.condensedGlow+this.storageBonus+(this.exitPacking?.amount||0),storageBonus:this.storageBonus,condensedTotal:this.condensedTotal,condensedRemainder:this.condensedRemainder,exitPacking:this.exitPacking||null,
+    return { alive: this.alive, score: Math.floor(this.score), condensedGlow:this.condensedGlow+this.storageBonus+this.resonanceStored+(this.exitPacking?.amount||0),storageBonus:this.storageBonus,resonanceStored:this.resonanceStored,condensedTotal:this.condensedTotal,condensedRemainder:this.condensedRemainder,exitPacking:this.exitPacking||null,
       ascent: this.ascentInfo,
       boss, bossPhase: boss ? `${boss.phase}/3 · ${boss.phaseName}` : '',
       bossWarning: boss?.warning || '',
@@ -2125,7 +2154,7 @@ export class WispFlight {
       wisp: this.getWispState(),
       ability, companions:this.getCompanionStates().map(item=>({...item})),shield:this.getShieldState(),leveler:this.getLevelerState(),
       completing:this.completing,completionProgress:this.completionProgress,collectorAura:this.getCollectorAuraState(),dying:this.dying,dyingProgress:this.dyingProgress,deathCause:this.deathCause,
-      light: this.getLightState(),edgingPulse:this.edgingPulse.state,
+      light: this.getLightState(),edgingPulse:this.edgingPulse.state,luminanceWaves:this.luminanceWaves.getState(),
       blackHole:this.blackHoles.state,
       mainTraits:{seer:!!this.mod.mainSeer,seerRemaining:Math.max(0,this.mainSeerUntil-this.time),seerCooldown:Math.max(0,this.mainSeerReadyAt-this.time),kindler:!!this.mod.mainKindler,kindlerPulse:this.kindlerPulse,purifyCooldown:this.purifyCooldown},
       collected: this.baseEmbers, boostCooldown: this.cooldown,
@@ -2142,30 +2171,40 @@ export class WispFlight {
       challenge: this.challengeText, challengeComplete: this.challengeComplete() };
   }
 
-  notify() { if (!this.destroyed) this.onUpdate(this.getState()); }
+  notify() {
+    if(this.destroyed)return;
+    const state=this.getState(),reaction=musicReactivity(state);
+    const nearest=this.blackHoles?.items.find(item=>item.id===state.blackHole?.nearest?.id);
+    this.fx?.setState({...reaction,dream:state.dream?.mode==='record'?1:0,
+      paused:state.paused||state.finished,
+      pan:nearest?clamp((nearest.x-this.distance-this.player.x)/(this.width*.5),-.7,.7):0,
+      transport:this.getAudioTransport?.()||{time:this.time,rate:1,bpm:78}});
+    this.onUpdate(state);
+  }
 
   setEvent(value) { this.event = value; this.eventUntil = this.time + 2.2; }
 
   finish(success) {
     if (this.finished || this.destroyed) return;
     this.edgingPulse.reset();
+    this.luminanceWaves?.clear();
     this.blackHoles.stop();
     if(success&&!this.completing){
       this.completing=true;this.completionAge=0;
       this.exitPacking=packExitReserve(this.flame,{rules:this.mod.condensationRules,remainder:this.condensedRemainder});
       this.completionDuration=this.exitPacking.amount>0?2.25:1.5;
       if(this.exitPacking.reserve>0)this.condensationFlow={amount:this.exitPacking.amount,rawAmount:this.exitPacking.reserve,time:this.time,
-        count:this.condensationFlow.count+1,total:this.condensedGlow+this.storageBonus+this.exitPacking.amount,source:'exit'};
+        count:this.condensationFlow.count+1,total:this.condensedGlow+this.storageBonus+this.resonanceStored+this.exitPacking.amount,source:'exit'};
       this.distance=this.previousDistance=this.totalDistance;
       this.previousPlayerY=this.player.y;this.player.vy=0;this.resumeElapsed=this.resumeRampSeconds;
-      this.setEvent('PASSAGE CLEARED');this.burst(this.player.x,this.player.y,28,'#f3e4af');this.sound('collect');this.notify();return;
+      this.setEvent('PASSAGE CLEARED');this.burst(this.player.x,this.player.y,28,'#f3e4af');this.sound('clear');this.notify();return;
     }
     if(success&&this.completionProgress<1)return;
     this.finished = true; this.running = false;
     this.alive = Boolean(success) && this.alive;
     if (this.raf != null) cancelAnimationFrame(this.raf);
     this.raf = null;
-    const result = { success: Boolean(success) && this.alive, alive: this.alive, condensedGlow:this.condensedGlow,storageBonus:success&&this.alive?this.storageBonus:0,condensedRemainder:this.condensedRemainder,pickupOverflow:this.pickupOverflow,
+    const result = { success: Boolean(success) && this.alive, alive: this.alive, condensedGlow:this.condensedGlow,storageBonus:success&&this.alive?this.storageBonus:0,resonanceStored:success&&this.alive?this.resonanceStored:0,condensedRemainder:this.condensedRemainder,pickupOverflow:this.pickupOverflow,
       boss: this.bossEncounter ? { id:this.layout.boss?.id||'hollow-warden', defeated: Boolean(success) && this.alive } : null,
       flame: this.flame,artifactCharges:{...this.artifactEffects.charges},
       score: Math.floor(this.score), collected: this.baseEmbers, bodyFuelCollected: this.bodyFuelCollected, collisions: this.collisions,
@@ -2206,29 +2245,7 @@ export class WispFlight {
     }
   }
 
-  sound(type) {
-    if (this.muted || typeof window === 'undefined') return;
-    try {
-      const AudioContext = window.AudioContext || window.webkitAudioContext;
-      if (!AudioContext) return;
-      if (!this.audio) this.audio = new AudioContext();
-      if (this.audio.state === 'suspended') this.audio.resume().catch(() => {});
-      const now = this.audio.currentTime;
-      if (type === 'flap' && now - this.lastFlapSound < .10) return;
-      if (type === 'flap') this.lastFlapSound = now;
-      const tones = { flap: [220, 150, .06, .018], collect: [780, 1280, .075, .025],
-        bellwind: [1030, 679, .45, .025], boost: [120, 610, .26, .045], hit: [130, 65, .16, .035] };
-      const [from, to, length, volume] = tones[type] || tones.flap;
-      const oscillator = this.audio.createOscillator(), gain = this.audio.createGain();
-      oscillator.type = type === 'hit' ? 'triangle' : 'sine';
-      oscillator.frequency.setValueAtTime(from, now);
-      oscillator.frequency.exponentialRampToValueAtTime(to, now + length);
-      gain.gain.setValueAtTime(volume, now);
-      gain.gain.exponentialRampToValueAtTime(.0001, now + length);
-      oscillator.connect(gain); gain.connect(this.audio.destination);
-      oscillator.start(now); oscillator.stop(now + length + .02);
-    } catch { /* Audio is optional and never affects play. */ }
-  }
+  sound(type,detail) { this.fx?.play(type,detail); }
 
   render() {
     if (this.destroyed) return;
@@ -2272,6 +2289,7 @@ export class WispFlight {
     if(light.rehearsing)lightDreamScenery(c,W,H);
     this.drawEmbers(c);
     this.drawForeground(c,W,H);
+    this.luminanceWaves?.draw(c,{distance:this.renderDistance,time:this.visualTime});
     if(!light.rehearsing)this.drawFallbackLight(c,light);
     drawFallWarning(c,this,{light});
     this.drawWayfinder(c);
