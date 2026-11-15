@@ -1,6 +1,6 @@
-import {WispFlight} from './flight.mjs?v=small-openings-1';
-import {BIOMES,BIOME_LEVELS} from './biomes.mjs?v=small-openings-1';
-import {getRunModifiers} from './model.mjs?v=small-openings-1';
+import {WispFlight} from './flight.mjs?v=in-game-edges-1';
+import {BIOMES,BIOME_LEVELS} from './biomes.mjs?v=in-game-edges-1';
+import {getRunModifiers} from './model.mjs?v=in-game-edges-1';
 const canvas=document.querySelector('canvas'),select=document.querySelector('select'),slider=document.querySelector('input');
 const course=document.querySelector('#course');
 const mode=document.querySelector('#mode'),light=document.querySelector('#light'),status=document.querySelector('#status'),gate=document.querySelector('#gate');

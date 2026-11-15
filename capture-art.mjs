@@ -1,9 +1,9 @@
-import {drawAbsorbingSpark} from './tidal-light.mjs?v=small-openings-1';
-import {getPickupSpec, pickupShellRadius} from './pickups.mjs?v=small-openings-1';
-import {drawPickup} from './pickup-art.mjs?v=small-openings-1';
-import {drawShellArcs} from './shell-arcs.mjs?v=small-openings-1';
-import {drawFluidCapture} from './fluid-capture.mjs?v=small-openings-1';
-import {DEFAULT_CAPTURE_STYLE} from './capture-styles.mjs?v=small-openings-1';
+import {drawAbsorbingSpark} from './tidal-light.mjs?v=in-game-edges-1';
+import {getPickupSpec, pickupShellRadius} from './pickups.mjs?v=in-game-edges-1';
+import {drawPickup} from './pickup-art.mjs?v=in-game-edges-1';
+import {drawShellArcs} from './shell-arcs.mjs?v=in-game-edges-1';
+import {drawFluidCapture} from './fluid-capture.mjs?v=in-game-edges-1';
+import {DEFAULT_CAPTURE_STYLE} from './capture-styles.mjs?v=in-game-edges-1';
 
 const TAU = Math.PI * 2;
 const clamp = value => Math.max(0, Math.min(1, value));

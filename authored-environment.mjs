@@ -1,6 +1,6 @@
-import {createNearLandscape,drawNearLandscapePlates} from './near-landscape.mjs?v=small-openings-1';
-import {prepareWildlife} from './habitat-wildlife.mjs?v=small-openings-1';
-import {makeCourseTableaux,drawCourseTableaux} from './course-tableaux.mjs?v=small-openings-1';
+import {createNearLandscape,drawNearLandscapePlates} from './near-landscape.mjs?v=in-game-edges-1';
+import {prepareWildlife} from './habitat-wildlife.mjs?v=in-game-edges-1';
+import {makeCourseTableaux,drawCourseTableaux} from './course-tableaux.mjs?v=in-game-edges-1';
 // Artwork by Luis Zuno / Ansimuz. Source packs and licences are listed in
 // nature-credits.html and assets/nature/licenses/. Prepared once per document.
 const artFiles = {

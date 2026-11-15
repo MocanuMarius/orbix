@@ -1,10 +1,10 @@
-import {getPickupSpec} from './pickups.mjs?v=small-openings-1';
-import {glowPoints,getGlowCapacity,GLOW_DISPLAY_SCALE} from './vitality.mjs?v=small-openings-1';
-import {condenseGlow,getCondensationRules} from './condensed-glow.mjs?v=small-openings-1';
-import {pickupArtSvg} from './pickup-art.mjs?v=small-openings-1';
-import {resourceSymbol} from './game-symbols.mjs?v=small-openings-1';
-import {skillIcon} from './upgrade-icons.mjs?v=small-openings-1';
-import {SPARK_TIERS} from './spark-size.mjs?v=small-openings-1';
+import {getPickupSpec} from './pickups.mjs?v=in-game-edges-1';
+import {glowPoints,getGlowCapacity,GLOW_DISPLAY_SCALE} from './vitality.mjs?v=in-game-edges-1';
+import {condenseGlow,getCondensationRules} from './condensed-glow.mjs?v=in-game-edges-1';
+import {pickupArtSvg} from './pickup-art.mjs?v=in-game-edges-1';
+import {resourceSymbol} from './game-symbols.mjs?v=in-game-edges-1';
+import {skillIcon} from './upgrade-icons.mjs?v=in-game-edges-1';
+import {SPARK_TIERS} from './spark-size.mjs?v=in-game-edges-1';
 
 const fuelSizes=SPARK_TIERS.map(({mass,name})=>{
  const kind=mass===1?'light':mass===2?'cluster':'cache';

@@ -1,4 +1,4 @@
-import {newState,createRun,chooseStartingGift} from './model.mjs?v=small-openings-1';
+import {newState,createRun,chooseStartingGift} from './model.mjs?v=in-game-edges-1';
 
 export function createLanternMapInspectorState() {
  const state=newState();
