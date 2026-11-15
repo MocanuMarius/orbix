@@ -186,3 +186,11 @@ Resume at **Search Spark**, the next unrated item (30 Stored Sparks base, +12% C
 - [x] Highlight true collision edges through softer vegetation.
 - [x] Inspect all 48 authored courses and verify decoration leaves gameplay state intact.
 - [ ] Evaluate the scenery density and frame timing on the physical Pixel 10.
+
+## Authored scenery review
+
+- [x] Source freely licensed foliage, terrain and parallax artwork and retain author/licence notices.
+- [x] Integrate the new material and prop treatment across twelve biome profiles and both flight renderers.
+- [x] Check the 48 course views and phone landscape preview layout.
+- [ ] Review the imported art's scale, palette and granularity with the player.
+- [ ] Roll the approved art direction into the main public game.

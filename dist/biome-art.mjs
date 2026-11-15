@@ -1,4 +1,5 @@
-import {pineCrown} from './pixel-contour.mjs?v=biome-life-1';
+import {drawAuthoredMaterial} from './authored-environment.mjs?v=biome-art-review-1';
+import {pineCrown} from './pixel-contour.mjs?v=biome-art-review-1';
 // Original pixel scenery. Backdrops and solid materials are rasterized by the
 // existing renderer caches; only a few matte weather pixels animate each frame.
 // Nothing here emits light or draws outside the simulation's solid silhouettes.
@@ -100,6 +101,8 @@ export function drawBiomeMaterial(c,{identity,surface,top,palette:p,width:W,heig
  const line=(x,y,xx,yy,ink,w=1)=>h.line(c,x,y,xx,yy,ink,w);
  const box=(x,y,w,hh,ink)=>{c.fillStyle=ink;c.fillRect(Math.round(x),Math.round(y),Math.round(w),Math.round(hh));};
  const poly=(points,ink)=>{c.fillStyle=ink;h.polygon(c,points);c.fill();};
+ const authored=drawAuthoredMaterial(c,{identity,width:W,height:H});
+ if(!authored){
  if(biome==='moonruins'||biome==='cemetery'){
   for(let row=0,y=0;y<H;y+=10,row++)for(let x=-(row%2)*11;x<W;x+=22){box(x+1,y+1,20,8,n(x+y,seed)>.3?p.face:p.stone);line(x+2,y+2,x+16,y+2,p.grain);}
   for(let x=15;x<W;x+=53){const y=at(x)+sign*30;line(x,y-6,x-5,y+3,p.shade,2);line(x-5,y+3,x+1,y+12,p.shade);if(biome==='cemetery'){line(x+17,y-8,x+17,y+10,p.grain,2);line(x+12,y-3,x+22,y-3,p.grain);}}
@@ -119,8 +122,10 @@ export function drawBiomeMaterial(c,{identity,surface,top,palette:p,width:W,heig
  }else if(biome==='coral'||biome==='fungal'){
   for(let x=8;x<W;x+=20){const y=at(x)+sign*(12+n(x,seed)*15);for(let d=0;d<130;d+=25){const yy=y+sign*d,ox=x+Math.sin(d*.1)*6;poly([[ox-4,yy],[ox,yy-4],[ox+6,yy],[ox+3,yy+6],[ox-3,yy+5]],p.face);box(ox-1,yy-1,3,3,p.shade);if(biome==='fungal'){line(ox+3,yy+5,ox+10,yy+13,p.grain);line(ox+10,yy+13,ox+7,yy+21,p.face);}else{line(ox-4,yy,ox,yy-4,p.grain);line(ox,yy-4,ox+6,yy,p.grain);}}}
  }
+ }
  // Larger mineral seams and eroded pockets break up the fine material grain.
  // The caller clips these deposits to the existing collision silhouette.
+ c.save();if(authored)c.globalAlpha=.22;
  for(let seam=0;seam<5;seam++){
   const depth=12+seam*23+n(seam,seed)*15;
   let prev=[0,at(0)+sign*depth];
@@ -137,7 +142,8 @@ export function drawBiomeMaterial(c,{identity,surface,top,palette:p,width:W,heig
   line(x-r*.6,y-sign*r*.6,x+r*.5,y-sign*r*.45,p.face);
   if(['marsh','moonruins','cemetery'].includes(biome))line(x,y+sign*r*.6,x-2,y+sign*(r+13),'#455d50',2);
  }
- for(let y=2;y<H;y+=7)for(let x=2;x<W;x+=6){const q=n(x+y*43,seed);if(q<.16)box(x,y,1,q<.04?2:1,q<.06?p.grain:p.shade);}
+ c.restore();
+ if(!authored)for(let y=2;y<H;y+=7)for(let x=2;x<W;x+=6){const q=n(x+y*43,seed);if(q<.16)box(x,y,1,q<.04?2:1,q<.06?p.grain:p.shade);}
  if(hardEntry){const x=surface[Math.floor(surface.length*.25)][0],y=at(x);for(let i=0;i<3;i++)line(x+i*5,y+sign*10,x+i*5+3,y+sign*5,p.rim);}
  // Shelter vegetation on gentle ledges. Bind the roots, strata and tips
  // to the cached surface so they cannot slide as the camera moves.
