@@ -1,76 +1,99 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { WispFlight } from '../dist/flight.mjs';
-import { LIFT_GUIDE_TUNING } from '../dist/flight-projection.mjs';
+import { WispFlight, FLIGHT_TUNING } from '../dist/flight.mjs';
+import { LiftGuide, LIFT_GUIDE_TUNING } from '../dist/flight-projection.mjs';
 
-function flight() {
+function flight(modifiers = {}) {
   const e = new WispFlight({
     canvas: { getContext: () => ({ setTransform() {} }), getBoundingClientRect: () => ({ width: 900, height: 430 }) },
-    preflight: true, seed: 'guide-boundary', modifiers: { cardLiftGuide: true },
+    preflight: true, seed: 'guide-physical-cadence', modifiers: { cardLiftGuide: true, ...modifiers },
   });
-  Object.assign(e, { running: true, tutorialAwaitingLift: false, biomeDynamics: null, spacetime: null, atlas: null, blackHoles: null, flame: 100 });
+  Object.assign(e, { running: true, tutorialAwaitingLift: false, biomeDynamics: null, spacetime: null, atlas: null, flame: 100 });
   e.resumeElapsed = e.resumeRampSeconds;
   e.layout.obstacles = [];
   e.layout.boss = null;
+  e.layout.embers = [];
   e.drafts.zones = [];
-  e.getLightState = () => ({ rehearsing: true });
+  e.blackHoles = { update() {}, stop() {}, items: [] };
   e.player.y = 300;
-  e.player.vy = 50;
-  e.getLiftGuide();
-  e.liftGuide.clear();
   return e;
 }
 
-test('a visible lower-screen fall gets a paid late safe window without automatic input', () => {
-  const e = flight(), guide = e.liftGuide;
-  try {
-    const before = { y: e.player.y, vy: e.player.vy, flame: e.flame, flaps: e.flaps };
-    const coast = guide.forecast(e, null), plan = guide.search(e, e.getLightState());
-    assert.equal(coast.contactKind, 'lower-boundary');
-    assert.equal(guide.visible(e, coast, e.getLightState()), false, 'the terminal point itself leaves the screen');
-    assert.ok(plan, 'the visible approach to the known boundary still permits advice');
-    assert.equal(plan.cost, e.flapCost);
-    assert.equal(plan.at, .8, 'equally useful paid routes prefer the later safe input');
-    for (const delay of [.32, plan.start, plan.at, plan.end]) {
-      const path = guide.forecast(e, delay);
-      assert.equal(path.contact, false);
-      assert.equal(guide.visible(e, path, e.getLightState()), true);
-    }
-    assert.ok(Math.abs(plan.end - plan.start - LIFT_GUIDE_TUNING.window) < 1e-9);
-    assert.deepEqual({ y: e.player.y, vy: e.player.vy, flame: e.flame, flaps: e.flaps }, before);
-  } finally { e.destroy(); }
+test('Guide reads present velocity without accessing terrain, light, altitude or route predictions', () => {
+  const e = { running: true, alive: true, time: 1, scaleY: 1, mod: { cardLiftGuide: true }, player: { vy: 205 }, nextLiftCost: 3, availableGlow: 50 };
+  for (const key of ['layout', 'blackHoles', 'atlas', 'getLightState', 'distance', 'height'])
+    Object.defineProperty(e, key, { get() { throw Error(`Guide read ${key}`); } });
+  Object.defineProperty(e.player, 'y', { get() { throw Error('Guide read altitude'); } });
+  const guide = new LiftGuide(FLIGHT_TUNING);
+  assert.equal(guide.read(e).phase, 'open');
+  assert.equal(e.player.vy, 205); assert.equal(e.availableGlow, 50);
+  e.player.vy = 245;
+  assert.equal(guide.read(e).late, true, 'a late cue remains subtly actionable');
+  assert.equal(guide.projections, 0);
 });
 
-test('the Guide keeps dark approaches, upper-edge risk and successful route exits quiet', () => {
-  const e = flight(), guide = e.liftGuide;
-  try {
-    assert.equal(guide.search(e, { radius: 1, intensity: 0 }), null);
-    e.totalDistance = e.distance + 40;
-    const finish = guide.forecast(e, null);
-    assert.equal(finish.exit, true);
-    assert.equal(guide.search(e, e.getLightState()), null);
-    e.totalDistance = 10000;
-    e.player.y = e.player.radius + 6;
-    e.player.vy = -50;
-    assert.equal(guide.search(e, e.getLightState()), null);
-    assert.equal(guide.visible(e, guide.forecast(e, 0), e.getLightState()), false);
-  } finally { e.destroy(); }
+test('actual Lift resets descent and returns to its starting altitude at about 1.37s, before terminal fall', () => {
+  for (const initialDescent of [0, 100, 245]) {
+    const e = flight();
+    try {
+      e.player.vy = initialDescent;
+      assert.ok(e.flap());
+      assert.equal(e.player.vy, -205 * e.scaleY);
+      assert.equal(e.getLiftGuide(), null, 'no immediate repeat after a manual Lift');
+      let apex = null, returned = null;
+      for (let i = 0; i < 180; i++) {
+        e.step(1 / 120);
+        if (!apex && e.player.vy >= 0) apex = e.time;
+        if (apex && e.player.y >= 300) { returned = { time: e.time, vy: e.player.vy }; break; }
+      }
+      assert.ok(apex > .67 && apex < .70);
+      assert.ok(returned.time > 1.34 && returned.time < 1.39);
+      assert.ok(returned.vy / e.scaleY > 195 && returned.vy / e.scaleY < 215);
+      assert.ok(returned.vy < FLIGHT_TUNING.terminalFall * e.scaleY);
+      assert.equal(e.getLiftGuide().phase, 'open');
+    } finally { e.destroy(); }
+  }
 });
 
-test('the real predictor returns to its Lift altitude after about 1.37 seconds regardless of prior descent', () => {
+test('ordinary flight offers repeated early cadence cues at actual velocity and never supplies input', () => {
   const e = flight();
   try {
-    const distances = [];
-    for (const descent of [0, 100]) {
-      e.player.vy = descent;
-      const path = e.liftGuide.projection.predict(e, 3, [0]);
-      const apex = path.points.reduce((best, point) => point.y < best.y ? point : best);
-      const returned = path.points.find(point => point.time > apex.time && point.y >= e.player.y);
-      assert.ok(returned.time >= 1.3 && returned.time <= 1.4);
-      assert.ok(apex.time >= .6 && apex.time <= .75);
-      distances.push(returned.x - path.points[0].x);
+    assert.ok(e.flap());
+    const periods = [], cueTimes = []; let last = e.time;
+    for (let i = 0; i < 840 && periods.length < 4; i++) {
+      e.step(1 / 120);
+      const cue = e.getLiftGuide();
+      if (cue?.phase === 'soon' && (!cueTimes.length || cueTimes.at(-1) < last)) {
+        cueTimes.push(e.time);
+        assert.ok(cue.opensIn <= LIFT_GUIDE_TUNING.lead);
+      }
+      if (e.player.vy >= 205 * e.scaleY) {
+        assert.equal(cue.phase, 'open');
+        periods.push(e.time - last); last = e.time;
+        const flaps = e.flaps;
+        e.getLiftGuide(); assert.equal(e.flaps, flaps);
+        assert.ok(e.flap()); assert.equal(e.getLiftGuide(), null);
+      }
     }
-    assert.equal(distances[0], distances[1], 'Lift resets velocity rather than adding to descent');
-    assert.ok(distances[0] > 195 && distances[0] < 220);
+    assert.equal(periods.length, 4);
+    assert.equal(cueTimes.length, 4);
+    assert.ok(periods.every(period => period > 1.35 && period < 1.39));
+    assert.equal(e.dying, false);
+  } finally { e.destroy(); }
+});
+
+test('modified impulse/gravity scale the cue and unavailable input or fuel keeps it quiet', () => {
+  const e = flight({ flap: .8, gravity: 1.2 });
+  try {
+    e.player.vy = 164 * e.scaleY;
+    assert.equal(e.getLiftGuide().phase, 'open');
+    e.player.vy = (164 - 360 * .25) * e.scaleY;
+    assert.equal(e.getLiftGuide().phase, 'soon');
+    for (const [key, value] of [['paused', true], ['running', false], ['liftHeld', true], ['dying', true], ['flame', 0]]) {
+      const previous = e[key]; e[key] = value;
+      assert.equal(e.getLiftGuide(), null, key); e[key] = previous;
+    }
+    e.mod.cardLiftGuide = false;
+    assert.equal(e.getLiftGuide(), null);
   } finally { e.destroy(); }
 });

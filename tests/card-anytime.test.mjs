@@ -17,6 +17,11 @@ function add(run, cardId, id, mounted = null, extra = {}) {
   else run.mountedCards[mounted] = card;
   return card;
 }
+function camp(run) {
+  const node = run.map.flat().find(site => site.kind === 'camp');
+  Object.assign(run, { step: node.row, current: node, path: [node.id], phase: 'support' });
+  M.getSupportChoices(run);
+}
 function launch(state) {
   const run = state.run, node = M.getChoices(run).find((choice) => choice.type !== 'support');
   assert.ok(M.selectNode(run, node.id));
@@ -50,7 +55,7 @@ function finish(state, engine, success) {
   return result;
 }
 
-test('Forge repeats from every live checkpoint with stable exact offers, unique instances and stale-tap rejection', () => {
+test('Forge previews anywhere but purchases only at Rest with exact offers and stale-tap rejection', () => {
   let state = fresh(), run = state.run;
   const first = M.getCardForgePreview(run);
   assert.equal(first.actionCost, 0);
@@ -58,7 +63,9 @@ test('Forge repeats from every live checkpoint with stable exact offers, unique 
     run.phase = phase;
     assert.equal(M.canManageCards(run), true);
     assert.deepEqual(M.getCardForgePreview(run), first);
+    assert.equal(M.forgeOwnedCard(state, 'rare', first.token), false);
   }
+  camp(run);
   assert.ok(M.forgeOwnedCard(state, 'rare', first.token));
   assert.equal(M.forgeOwnedCard(state, 'rare', first.token), false);
   const second = M.getCardForgePreview(run);
@@ -100,7 +107,7 @@ test('Forge previews and purchases reject invalid, unaffordable, terminal and no
   assert.deepEqual(run, before);
 });
 
-test('a live paused Deck settles uses before editing, applies ordering/rank/capacity and never resets flight state', () => {
+test('a live paused Deck settles uses, edits ordering/capacity and rejects rank changes without resetting flight state', () => {
   const state = fresh(), run = state.run;
   add(run, 'echo', 'echo', 0);
   add(run, 'spark-cache', 'finite', 1, { charges: 4 });
@@ -123,14 +130,14 @@ test('a live paused Deck settles uses before editing, applies ordering/rank/capa
   assert.ok(M.syncCardFlightForEdit(run, engine));
   assert.ok(M.syncCardFlightForEdit(run, engine));
   assert.equal(run.mountedCards[1].charges, 2);
-  assert.ok(M.improveOwnedCard(state, 'finite', 1));
+  assert.equal(M.improveOwnedCard(state, 'finite', 1), false);
   assert.ok(M.moveMountedCard(run, 0, 1));
   assert.ok(M.equipOwnedCard(run, 'rhythm', 2, 'capacity'));
   assert.ok(M.applyCardFlightEdits(run, engine));
   assert.equal(engine.maxFlame, 100);
   assert.ok(engine.cardRhythm);
   assert.deepEqual(engine.cardExecution.cards.map((card) => card?.instanceId || null), ['finite', 'echo', 'rhythm']);
-  assert.equal(engine.cardExecution.cards[0].rank, 2);
+  assert.equal(engine.cardExecution.cards[0].rank, 1);
   assert.equal(engine.cardExecution.cards[0].charges, 2);
   assert.deepEqual({ time: engine.time, distance: engine.distance, y: engine.player.y, vy: engine.player.vy,
     fuel: engine.flame, pickups: engine.bodyPickups, flaps: engine.flaps, ring: engine.wisp.cooldown,
@@ -150,7 +157,7 @@ test('a live paused Deck settles uses before editing, applies ordering/rank/capa
   engine.destroy();
 });
 
-test('batch melt and two mid-flight forges spend only banked money, survive failure/reload and preserve finite uses', () => {
+test('mid-flight Melt survives failure and reload while Forge remains at Rest', () => {
   let state = fresh('live-wallet'), run = state.run;
   run.condensedGlow = 60;
   add(run, 'spark-cache', 'finite', 0, { charges: 2 });
@@ -163,23 +170,22 @@ test('batch melt and two mid-flight forges spend only banked money, survive fail
   assert.ok(M.meltOwnedCards(state, ['melt:a', 'melt:b'], melt.token));
   assert.equal(M.meltOwnedCards(state, ['melt:a', 'melt:b'], melt.token), false);
   const first = M.getCardForgePreview(run);
-  assert.ok(M.forgeOwnedCard(state, 'rare', first.token));
-  assert.ok(M.forgeOwnedCard(state, 'rare', M.getCardForgePreview(run).token));
-  assert.equal(run.condensedGlow, 20);
-  assert.match(M.getCardForgePreview(run).reason, /Not enough/);
+  assert.equal(M.forgeOwnedCard(state, 'rare', first.token), false);
+  assert.equal(run.condensedGlow, 80);
+  assert.match(M.getCardForgePreview(run).reason, /at Rest/);
   assert.ok(M.applyCardFlightEdits(run, engine));
-  assert.equal(engine.condensedStart, 20);
+  assert.equal(engine.condensedStart, 80);
   assert.equal(engine.condensedGlow, 9);
-  assert.equal(engine.condensedTotal, 29);
+  assert.equal(engine.condensedTotal, 89);
   assert.ok(M.closeCardFlightEdit(run, engine));
   finish(state, engine, false);
-  assert.equal(run.condensedGlow, 20, 'failure does not undo banked transactions');
+  assert.equal(run.condensedGlow, 80, 'failure does not undo the banked Melt');
   assert.equal(run.mountedCards[0].charges, 1);
-  assert.equal(run.reserveCards.length, 2);
+  assert.equal(run.reserveCards.length, 0);
   engine.destroy();
   state = reload(state); run = state.run;
-  assert.equal(run.condensedGlow, 20);
-  assert.equal(run.reserveCards.length, 2);
+  assert.equal(run.condensedGlow, 80);
+  assert.equal(run.reserveCards.length, 0);
   assert.equal(run.mountedCards[0].charges, 1);
   assert.equal(M.forgeOwnedCard(state, 'rare', first.token), false);
 });
@@ -207,7 +213,7 @@ test('closing/cancelling a live Deck releases its gate and resumed, mismatched o
   engine.destroy();
 });
 
-test('interrupted reload retains paused Deck purchases, order and consumed uses without regranting earnings', () => {
+test('interrupted reload retains paused Deck order and consumed uses without permitting Forge', () => {
   let state = fresh('interrupted-pack'), run = state.run;
   add(run, 'spark-cache', 'source', 0, { charges: 2 });
   add(run, 'deep-vessel', 'vessel');
@@ -217,14 +223,14 @@ test('interrupted reload retains paused Deck purchases, order and consumed uses 
   assert.ok(M.moveMountedCard(run, 0, 2));
   assert.ok(M.equipOwnedCard(run, 'vessel', 0));
   const quote = M.getCardForgePreview(run);
-  assert.ok(M.forgeOwnedCard(state, 'rare', quote.token));
+  assert.equal(M.forgeOwnedCard(state, 'rare', quote.token), false);
   engine.condensedGlow = 7;
   state = reload(state); run = state.run;
   assert.equal(run.attemptActive, false);
-  assert.equal(run.condensedGlow, 170);
+  assert.equal(run.condensedGlow, 200);
   assert.deepEqual(run.mountedCards.map((card) => card?.instanceId || null), ['vessel', null, 'source']);
   assert.equal(run.mountedCards[2].charges, 1);
-  assert.equal(run.reserveCards.filter((card) => card.instanceId === quote.card.instanceId).length, 1);
+  assert.equal(run.reserveCards.filter((card) => card.instanceId === quote.card.instanceId).length, 0);
   assert.equal(M.forgeOwnedCard(state, 'rare', quote.token), false);
   engine.destroy();
 });
@@ -264,6 +270,9 @@ test('a successful purchased flight keeps pending earnings and credits its exit 
   const state = fresh('live-paid-clear'), run = state.run;
   run.condensedGlow = 30; run.cardPackingRemainder = 3;
   add(run, 'tight-packing', 'packing', 0);
+  camp(run);
+  assert.ok(M.forgeOwnedCard(state, 'rare', M.getCardForgePreview(run).token));
+  assert.ok(M.resolveSupport(run, M.getSupportChoices(run).findIndex(choice => choice.effect?.restContinue)));
   const engine = launch(state);
   engine.flame = engine.maxFlame;
   for (let i = 0; i < 3; i++) engine.collect({ kind: 'light' });
@@ -271,9 +280,8 @@ test('a successful purchased flight keeps pending earnings and credits its exit 
   assert.equal(engine.cardPackingBonus, 1);
   assert.equal(engine.cardPackingRemainder, 2);
   engine.pause(); assert.ok(M.syncCardFlightForEdit(run, engine));
-  assert.ok(M.forgeOwnedCard(state, 'rare', M.getCardForgePreview(run).token));
-  assert.equal(run.condensedGlow, 0);
   assert.equal(M.forgeOwnedCard(state, 'rare', M.getCardForgePreview(run).token), false);
+  assert.equal(run.condensedGlow, 0);
   assert.ok(M.closeCardFlightEdit(run, engine));
   assert.equal(engine.condensedStart, 0);
   assert.equal(engine.condensedTotal, 4, 'banked purchase preserves pending base and bonus');

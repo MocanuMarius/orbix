@@ -61,10 +61,15 @@ test('the first flight uses body pickups and the real returning Collector',()=>{
  assert.equal(e.tutorial.directPickups,1);assert.ok(e.flame>40);
  const packet=e.layout.embers[1];packet.x=e.distance+e.player.x-45;packet.y=e.player.y+22;
  e._nearbyPacketsUntil=-1;
- for(let i=0;i<240&&!e.tutorial.carrierDeliveries&&!e.dying;i++){
+ const attachmentMargin=2,integrationMargin=.2;
+ const deliveryFrames=Math.ceil((attachmentMargin+e.wisp.recoveryDuration(e)+integrationMargin)*60);
+ let sawReel=false;
+ for(let i=0;i<deliveryFrames&&!e.tutorial.carrierDeliveries&&!e.dying;i++){
   e.player.y=e.height*.5;e.player.vy=0;e.step(1/60);
+  sawReel||=e.wisp.phase==='returning'&&e.wisp.cargo===packet;
  }
  assert.equal(packet.deliveredByWisp,true);assert.ok(e.tutorial.carrierDeliveries>0);
+ assert.ok(sawReel);assert.equal(e.tutorial.carrierDeliveries,1);
  assert.ok(demonstratedTutorialTopics(e).includes('collector'));e.destroy();
 });
 
@@ -90,6 +95,12 @@ test('the Black Hole is real, visibly lit and has a wide safe bypass at phone he
   assert.ok(hole.bypass.y-hole.y>=e.height*.47);
   e.running=true;e.tutorialAwaitingLift=false;e.distance=hole.x-e.player.x;e.player.y=hole.bypass.y;
   assert.ok(e.layout.obstacles.every(o=>!circleHitsObstacle(hole.x,hole.bypass.y,e.player.radius,o,0)));
+  const recovery=e.layout.embers.filter(p=>p.feature==='practice-bypass'&&p.x>hole.bypass.endX);
+  assert.ok(recovery.length>=3);
+  for(const spark of recovery){
+   assert.ok(Math.hypot(spark.x-hole.x,spark.y-hole.y)>hole.influence,'recovery is beyond the drain');
+   assert.ok(e.layout.obstacles.every(o=>!circleHitsObstacle(spark.x,spark.y,e.player.radius,o,0)),'recovery has a safe body-contact lane');
+  }
   e.blackHoles.update(1/60);const bypass=e.blackHoles.rate;
   e.player.y=hole.y;e.blackHoles.update(1/60);
   assert.ok(e.blackHoles.rate>bypass*10);assert.ok(e.blackHoles.drained>0);e.destroy();

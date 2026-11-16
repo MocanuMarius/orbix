@@ -126,6 +126,7 @@ test('reserve improvements charge the same wallet and preserve rank, uses, fuel 
   let state = fresh(), run = state.run;
   add(run, 'spark-cache', 'upgrade', { charges: 2 });
   run.condensedGlow = 14; run.flame = 37;
+  rest(state);
   assert.equal(M.getCardImprovePreview(run, 'upgrade').price, 15);
   assert.equal(M.improveOwnedCard(state, 'upgrade', 1), false);
   run.condensedGlow = 45;

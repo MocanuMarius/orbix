@@ -29,9 +29,9 @@ test('locked Caches stay for the body; learned cargo reduces density before one 
  for(const mass of [3]){
   const e=make(all);e.flame=0;e.getNearbyPickups=()=>e.layout.embers;e.collectorContains=()=>true;
   const p={id:'load-'+mass,kind:'cache',sparkMass:mass,x:0,y:e.player.y};
-  p.x=e.distance+e.player.x-pickupContactRadius(p,e.height)-5;e.layout.embers=[p];
+  p.x=e.distance+e.player.x-pickupContactRadius(p,e.height)-7;e.layout.embers=[p];
   let firstRadius=0,sawCompaction=false;
-  for(let i=0;i<240&&!p.collected;i++){
+  for(let i=0;i<900&&!p.collected;i++){
    e.time+=1/60;e.wisp.update(e,1/60);
    if(p.carried){const pose=e.wisp.cargoPose(p,e.time,e.height);firstRadius||=pose.scale;
     if(e.time-p.carriedAt>.1)sawCompaction||=pose.compacting;

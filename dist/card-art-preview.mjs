@@ -1,6 +1,6 @@
-import {cardFace} from './card-ui.mjs?v=flight-120-1';
-import {makeSkillCard,describeSkillCard} from './skill-cards.mjs?v=flight-120-1';
-import {installCardTermHelp} from './card-terms.mjs?v=flight-120-1';
+import {cardFace} from './card-ui.mjs?v=collector-reel-1';
+import {makeSkillCard,describeSkillCard} from './skill-cards.mjs?v=collector-reel-1';
+import {installCardTermHelp} from './card-terms.mjs?v=collector-reel-1';
 const variants = [{name:'Current',scale:1,note:'Original illustration'},{name:'Mild',scale:.75,note:'75% resolution · nearest neighbor'},{name:'Medium',scale:.58,note:'58% resolution · nearest neighbor'}];
 const cards = ['body-spark','field-impulse','flash-handling','harvest-legendary'];
 const atlas = new Image(); atlas.src = './assets/cards/skill-card-scenes.webp';

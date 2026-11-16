@@ -105,11 +105,11 @@ test('pilot loan is visible in the actual Lift lesson, then advises useful early
   assert.equal(normal.getLiftGuide(),null);assert.equal(normal.liftGuide,undefined);assert.equal(normal.cardExecution,null);normal.destroy();
 });
 
-test('Guide honors future real Lift cost, free opportunities and uncertainty without changing live beat taps',()=>{
+test('Guide honors actual Lift cost and free opportunities without reading the route or changing live beat taps',()=>{
   const {engine:e,tap,clock}=flight({cardLiftGuide:true,fourthBeatRank:1});
   for(const t of [0,.08,.19])tap(t);clock(.95);e.flame=0;
   assert.equal(projectedLiftCost(e,0),0);assert.equal(projectedLiftCost(e,.3),e.flapCost);assert.deepEqual(e.fourthBeatTaps,[0,.08,.19]);
   e.artifactEffects.freeLift=true;assert.equal(projectedLiftCost(e,.3),0);
-  e.layout.boss={attacks:[{}]};assert.equal(e.getLiftGuide(),null);assert.equal(e.liftGuide.projections,0);
-  e.layout.boss=null;e.getLightState=()=>({radius:1,intensity:0});assert.equal(e.getLiftGuide(),null);e.destroy();
+  e.player.vy=205*e.scaleY;e.layout.boss={attacks:[{}]};assert.equal(e.getLiftGuide().phase,'open');assert.equal(e.liftGuide.projections,0);
+  e.getLightState=()=>{throw Error('Cadence does not inspect light');};assert.equal(e.getLiftGuide().phase,'open');e.destroy();
 });

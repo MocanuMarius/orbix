@@ -18,7 +18,13 @@ test('the direct sample works on real card actions and never touches either play
   assert.match(readFileSync(new URL('../dist/cards-launcher.mjs', import.meta.url), 'utf8'), /query\.get\('mock'\)\s*===\s*'cards'/);
   const sample = createCardInspectorState(), initial = structuredClone(sample.run.mountedCards);
   assert.ok(moveMountedCard(sample.run, 0, 1));
-  assert.ok(improveMountedCard(sample, 0, 1));
+  const outside = JSON.stringify(sample);
+  assert.equal(improveMountedCard(sample, 0, 1), false, 'sample services obey the real camp gate');
+  assert.equal(JSON.stringify(sample), outside);
+  const camp = createCardInspectorState(new URLSearchParams('scenario=rest'));
+  assert.ok(moveMountedCard(camp.run, 0, 1));
+  assert.ok(improveMountedCard(camp, 0, 1));
+  assert.equal(camp.run.mountedCards[0].charges, 4, 'camp improvement preserves remaining uses');
   assert.equal(sample.run.mountedCards[0].charges, 4);
   prepareCardInspectorReward(sample.run);
   const reward = getCardReward(sample.run);
@@ -48,7 +54,9 @@ test('Equipped foreground keeps collection behind one scrolling Deck and melting
   assert.doesNotMatch(foreground, /card-deck-gallery|card-preview-forge|card-melt-mode/);
   assert.match(bench, /Equipped · slot 2 · Ready/);
   assert.match(bench, /aria-label="4 of 6 uses remaining: help"/);
-  assert.match(bench, /Improve · 15/);
+  assert.match(bench, /disabled>Improve · Rest/);
+  const campBench = cardsBenchMarkup(createCardInspectorState(new URLSearchParams('scenario=rest')), { selectedId: 'sample:1', inspecting: true });
+  assert.match(campBench, /Improve · 15/);
   assert.match(bench, /card-unequip/);
   assert.match(bench, /card-readable/);
   assert.match(bench, /card-rule-band/);
@@ -144,7 +152,9 @@ test('body rewards stay together and scale with rank; only concrete terms use in
   assert.deepEqual([...legendary.matchAll(/data-rule-type="([^"]+)"/g)].map(match=>match[1]), ['condition','effect','condition','effect']);
   assert.doesNotMatch(cardMechanicMarkup(describeSkillCard(makeSkillCard('deep-vessel', 'passive'))), /data-rule-type="condition"/);
   const terms = readFileSync(new URL('../dist/card-terms.mjs', import.meta.url), 'utf8');
-  assert.match(terms, /collector-orbit\.webp/);
+  assert.match(terms, /collector-tether\/reel-front\.png/);
+  assert.match(terms, /collector-tether\/reel\.mp4/);
+  assert.match(terms, /controls muted playsinline/);
   assert.doesNotMatch(terms, /companionArtSvg|skillPortrait|pickupArtSvg/);
   const rhythm = cardMechanicMarkup(describeSkillCard(makeSkillCard('rhythm', 'rhythm')));
   assert.match(rhythm, /resource-symbol-lift/);

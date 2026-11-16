@@ -1,7 +1,7 @@
 /** Configuration hints only. Every numeric verdict comes from a read-only row quote. */
-import { SKILL_CARDS, CARD_ROW_EVENTS, getEffectiveCardSources, getCardRowRule, previewCardRowEvent } from './skill-cards.mjs?v=flight-120-1';
-import { normalizeCompanionFleet } from './companion-abilities.mjs?v=flight-120-1';
-import { skillProgress } from './skill-increments.mjs?v=flight-120-1';
+import { SKILL_CARDS, CARD_ROW_EVENTS, getEffectiveCardSources, getCardRowRule, previewCardRowEvent } from './skill-cards.mjs?v=collector-reel-1';
+import { normalizeCompanionFleet } from './companion-abilities.mjs?v=collector-reel-1';
+import { skillProgress } from './skill-increments.mjs?v=collector-reel-1';
 
 const ready = reason => ({ state: 'ready', symbol: '✓', label: 'Ready', reason, fix: 'Keep this arrangement to use it when its condition happens.' });
 const blocked = (label, reason, fix) => ({ state: 'blocked', symbol: '!', label, reason, fix });
@@ -23,9 +23,10 @@ function buildContext(run, native) {
 function fixtures(context) {
   const events = [];
   const add = (kind, detail = {}, { guard = true, recovery = true } = {}) => {
-    for (const meterFraction of [.2, .8]) for (const guardRecovering of guard && context.guard ? [false, true] : [false]) {
+    for (const meterFraction of [.2, .8]) for (const collectorReeling of recovery && context.collector ? [false, true] : [false]) for (const guardRecovering of guard && context.guard && !collectorReeling ? [false, true] : [false]) {
       for (const availableRecovery of recovery && context.collector ? [0, 64] : [0])
-        events.push({ kind, meterFraction, guardRecovering, availableRecovery, ...detail });
+        events.push({ kind, meterFraction, guardRecovering, availableRecovery, collectorReeling,
+          availableReel: collectorReeling ? availableRecovery : 0, ...detail });
     }
   };
   for (const pickupKind of ['light', 'dusk', 'cluster', 'cache']) add(CARD_ROW_EVENTS.body, { pickupKind });
@@ -34,9 +35,11 @@ function fixtures(context) {
   add(CARD_ROW_EVENTS.lift);
   add(CARD_ROW_EVENTS.overfill, { meterFraction: 1 });
   if (context.collector) for (const pickupKind of ['light', 'cluster', ...(context.cache ? ['cache'] : [])]) {
-    // Delivery starts recovery; a fetched Cache instead immediately restores the ring.
-    add(CARD_ROW_EVENTS.delivery, { pickupKind, availableRecovery: pickupKind === 'cache' ? 0 : 10 }, { guard: false, recovery: false });
+    // A completed reel delivers at home with its ring ready.
+    add(CARD_ROW_EVENTS.delivery, { pickupKind, availableRecovery: 0 }, { guard: false, recovery: false });
+    add(CARD_ROW_EVENTS.attach, { pickupKind, availableRecovery: 4, availableReel: 4, collectorReeling: true }, { guard: false, recovery: false });
   }
+  add(CARD_ROW_EVENTS.victory, {}, { guard: false, recovery: false });
   if (context.rhythm) add(CARD_ROW_EVENTS.rhythm);
   if (context.field) for (const direction of ['up', 'down', 'right'])
     add(CARD_ROW_EVENTS.field, { direction, availableRecovery: 10 }, { guard: false, recovery: false });
@@ -55,7 +58,7 @@ function missingTrigger(rule, context) {
     return blocked('Needs Collector', 'This card needs a natural fuel delivery by Collector.', 'Choose Collector as your companion.');
   if (rule?.event === CARD_ROW_EVENTS.delivery && rule.when?.pickupKind === 'cache' && !context.cache)
     return blocked('Needs Cache fetch', 'Collector cannot deliver a Cache in this build. Touching it yourself is a different event.', 'Equip Cache Handling, or use the native Collector Cache Handling skill.');
-  if (rule?.operation === 'shorten-recovery' && !context.collector)
+  if (['shorten-recovery', 'shorten-reel'].includes(rule?.operation) && !context.collector)
     return blocked('Needs Collector', 'This card shortens Collector’s recovery, so it needs Collector in the active build.', 'Choose Collector as your companion.');
   return null;
 }
@@ -73,7 +76,7 @@ export function getEquippedCardStatuses(run = {}, native = null) {
   const receipts = fixtures(context).map(event => previewCardRowEvent(cards, event));
   const successes = new Set(), copiedUse = new Set(), replaySlots = new Set();
   for (const receipt of receipts) {
-    const replayPays = receipt.steps.some(step => step.pass === 2 && step.success && step.operation !== 'replay-row' && (step.amount > 0 || step.stored > 0 || step.recoverySeconds > 0));
+    const replayPays = receipt.steps.some(step => step.pass === 2 && step.success && step.operation !== 'replay-row' && (step.amount > 0 || step.stored > 0 || step.recoverySeconds > 0 || step.reelSeconds > 0 || step.futureCapacity > 0));
     for (const step of receipt.steps) {
       if (step.success && step.operation !== 'replay-row') successes.add(step.slot);
       if (step.success && step.copiedBy && step.chargesAfter === 0) copiedUse.add(step.sourceInstanceId);
@@ -106,6 +109,8 @@ export function getEquippedCardStatuses(run = {}, native = null) {
     if (rule) {
       if (successes.has(slot)) return ready(copy ? `Can ${ownDef.kind === 'echo' ? 'repeat' : 'borrow'} ${name(physical)} when its condition happens. Remaining uses belong to the real card.` : 'Can contribute in this arrangement when its printed condition happens. A full meter or temporary recovery does not mean the placement is wrong.');
       if (copiedUse.has(card.instanceId)) return shared('Shared use', 'The earlier copying card can spend this card’s last available use before its own slot acts. The use still pays through the copy.');
+      if (rule.operation === 'multiply-future-capacity')
+        return blocked('Move after a vessel', 'No earlier action grants future maximum Sparks during the victory event in this pass.', 'Equip Trail Vessel before this card. Echo and Chameleon can repeat its gain.');
       if (rule.when?.lastOccupied && slot !== lastOccupied) return blocked('Must be last', 'Closing Chord only works from the rightmost occupied slot.', 'Move it after every other equipped card, with a Spark payer earlier in the row.');
       if (rule.minimumEarlierPayers >= 2) return blocked('Needs 2 payers', 'This card needs two earlier additive actions that pay Sparks during the same event and pass. Payers for different events cannot combine.', 'Move it after two actions for the same event. Echo repeats count as separate paying actions.');
       if (rule.operation === 'multiply' || rule.operation === 'add-last-payout' || rule.minimumEarlierPayers)

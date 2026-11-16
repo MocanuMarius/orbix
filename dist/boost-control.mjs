@@ -1,5 +1,5 @@
-import { getCompanionAbility, normalizeCompanionFleet } from './companion-abilities.mjs?v=flight-120-1';
-import { companionArtSvg, companionPalette } from './companion-art.mjs?v=flight-120-1';
+import { getCompanionAbility, normalizeCompanionFleet } from './companion-abilities.mjs?v=collector-reel-1';
+import { companionArtSvg, companionPalette } from './companion-art.mjs?v=collector-reel-1';
 const clamp=n=>Math.max(0,Math.min(1,Number(n)||0));
 const finite=(n,f=0)=>Number.isFinite(Number(n))?Number(n):f;
 const sparks=[[0,-54],[38,-38],[54,0],[38,38],[0,54],[-38,38],[-54,0],[-38,-38]];
@@ -27,9 +27,10 @@ export function updateBoostControl(element,state={}){
     mode=state.leveler?.active?'active':charge>=.999?'ready':'cooling';meaning='Hold flight area or Lift to levitate; release to glide';
   }else if(roles.includes('collector')){
     role='collector';charge=wisp.phase==='guard-recovery'?clamp(wisp.recovery):clamp(finite(wisp.currentRange,finite(wisp.radius)*finite(wisp.recovery,1))/Math.max(1,finite(wisp.radius,140)));
-    mode=wisp.phase==='outbound'||wisp.phase==='returning'?'active':charge>=.999?'ready':'cooling';
+    mode=['outbound','reeling','returning'].includes(wisp.phase)?'active':charge>=.999?'ready':'cooling';
     meaning=`Collector range ${Math.round(charge*100)} percent. Fetches automatically`;
     if(wisp.phase==='guard-recovery'){mode='cooling';meaning='Last Orbit recovering. Collector fetch disabled';}
+    else if(['outbound','reeling','returning'].includes(wisp.phase))meaning='Collector busy reeling a pickup. Ready again on body contact';
     else if(wisp.guardReady)meaning='Last Orbit ready. Collector fetch available';
   }else if(roles.includes('protector')){
     role='protector';charge=shield.charges>0?1:clamp(1-finite(shield.recovery)/Math.max(.001,finite(shield.recoveryTotal,14)));

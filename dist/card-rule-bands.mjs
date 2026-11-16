@@ -15,7 +15,7 @@ const legacy = {
   harvest: (card, def) => [condition('When a wave crosses an uncollected Spark'), effect(`+${card.amount} Sparks`), ...(def.stored || card.rarity === 'legendary' ? [condition('First crossing of each wave'), effect(`+${def.stored || 1} Stored Spark`)] : [])],
   'camp-extra': () => [effect('Take 2 different actions at one Rest'), note('1 use after the second action')],
   'camp-grow': () => [condition('At Rest, choose Grow'), effect('+3 maximum Sparks and refill your meter'), note('3 Grow actions per journey')],
-  'cache-handling': () => [effect('Collector can fetch Caches'), condition('On a Cache delivery'), effect('+12 Sparks and refill its ring')],
+  'cache-handling': () => [effect('Collector can fetch Caches'), condition('On a Cache delivery'), effect('+12 Sparks')],
   'flash-handling': () => [effect('Collector can fetch Flash'), condition('When either of you picks up Flash'), effect('+6 Sparks')],
   prism: () => [effect('Multiply this pass’s Sparks so far by 1.25')],
   crescendo: () => [condition('After two earlier cards pay Sparks this pass'), effect('Double this pass’s Sparks so far')],

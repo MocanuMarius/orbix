@@ -1,8 +1,28 @@
 # Current backlog status — Cards default · 16 November 2026
 
-Current release: **`flight-120-1`**. [Performance verification](docs/performance-120.md) · [Cards verification](docs/skills-cards-release.md) · [Current card rules](docs/skill-cards.md) · [Item-by-item audit](docs/backlog-current.md).
+Current release: **`collector-reel-1`**. [Release verification](docs/collector-reel-release.md) · [Performance verification](docs/performance-120.md) · [Cards verification](docs/skills-cards-release.md) · [Current card rules](docs/skill-cards.md) · [Item-by-item audit](docs/backlog-current.md).
 
-The entries below are chronological release snapshots. Their old “current” labels, checked boxes and pending notes describe those snapshots; later decisions take precedence. In particular, the present game has 71 cards, an owned Deck editable during safely paused flight, a guaranteed meltable Lift Guide, independent repeatable Forge, copy-compatible numeric Field Impulse duration and a two-ink Collector. The original skill book stays under Settings → Advanced with a separate save.
+The entries below are chronological release snapshots. Their old “current” labels, checked boxes and pending notes describe those snapshots; later decisions take precedence. The current local source has 75 cards, an owned Deck editable during safely paused flight, a guaranteed meltable Lift Guide, repeatable Forge and card improvements at Rest, copy-compatible numeric Field Impulse duration and Collector’s visible reel. The original skill book stays under Settings → Advanced with a separate save. Cards and Stored Sparks reset with the expedition; earned future maximum Sparks are the explicit permanent exception.
+
+## Latest requested batch — collector-reel-1
+
+- [x] Preserve completed Rest receipts, offer three reachable optional camps on each newly generated map (existing visited routes stay intact) and keep each camp’s ordinary flight exit.
+- [x] Keep Forge, Improve and Evolve at a verified active or completed Rest. Forge spends Stored Sparks without consuming a Rest action.
+- [x] Confirm the chosen starting card with an explicit Are you sure? / Yes / No screen; preview and cancel do not commit, and confirmation grants the guaranteed Lift Guide once.
+- [x] Give permanent artifact chests a distinct casing and icon in every context, separate from temporary effects with exact Next flight / Next 3 cleared flights lifetimes.
+- [x] Use the canonical card presentation for starter, equipped and inspected cards; keep rules readable at mobile landscape scale.
+- [x] Extend the clickable glossary and use the established Spark and Stored Sparks symbols consistently for cards and artifacts.
+- [x] Reel missed pickups intact to the moving main wisp, then deliver once and return ready. Return Spring and Haul Winch shorten the live reel at attachment; fuel bonuses still pay on delivery.
+- [x] Make Lift Guide a motion cue with its printed limitations, without reading the route.
+- [x] Support equipped-card reordering with drag, touch and explicit accessible move controls.
+- [x] Add four Commons to the 75-card catalog. Trail Vessel grants +1 maximum Spark after a completed expedition for future Cards expeditions; Bellows Seal doubles earlier gains in the victory pass. Wick Doubler has three successful fuel doublings; Fast Spool has three successful active-reel reductions. Copies and replay share actual source uses.
+- [x] Retain compact event-driven card-chain feedback with an inspectable exact receipt, typed fuel/reel/future-capacity totals and one shared replay.
+- [x] Give the main wisp a flowing wake consistent with current motion and reduced-motion settings.
+- [x] Complete the integrated visual review, focused balance report and release packaging. Installed-upgrade and public publication receipts are recorded in the release verification.
+
+First Light retains 5/5 matched synthetic clears after moving only existing post-rim practice Sparks from .69h to .61h. The small ordinary sample stays A1 3/5 → 3/5 and A2 3/5 → 2/5; one pending Collector delivery still causes an extra A2 fuel loss. This is a retained balance limitation, not a human win-rate estimate.
+
+The combined focused gameplay checks passed **131/131 tests**, including ordinary three-map victory progression, future-capacity settlement and reload idempotency, full opening meters, excluded practice/TEST/Dream/failure cases, current camp services, finite shared card uses and real Collector attachment-to-delivery behavior. This is scoped automated evidence; physical Pixel 10 timing and human difficulty feedback remain open.
 
 | Surviving item | Current disposition |
 | --- | --- |

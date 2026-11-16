@@ -11,6 +11,7 @@ const fresh = (seed = 'catalog-evolution') => {
   const state = M.newState();
   state.profile.tutorialComplete = true;
   state.run = M.createRun(state.profile, seed, 1, { cards: true });
+  assert.ok(M.chooseStartingGift(state, M.getStartingGiftOffers(state.run)[0].id));
   state.run.condensedGlow = 500;
   return state;
 };
@@ -30,17 +31,31 @@ const rng = seed => {
     return ((n ^ (n >>> 14)) >>> 0) / 4294967296;
   };
 };
+function reachCamp(state) {
+  const r=state.run,target=r.map.flat().find(n=>n.kind==='camp'),path=[target];let cursor=target;
+  while(cursor.row>0){cursor=r.map[cursor.row-1].find(n=>n.nextIds.includes(cursor.id));assert.ok(cursor);path.unshift(cursor);}
+  for(const n of path){
+    assert.ok(M.selectNode(r,n.id));if(n===target)break;
+    if(n.type==='support')assert.ok(M.resolveSupport(r,M.getSupportChoices(r,state.profile).findIndex(c=>!c.disabled),state.profile));
+    else{
+      assert.ok(M.beginFlightAttempt(r));assert.ok(M.markFlightAttemptStarted(r));assert.ok(M.finishFlight(r,{success:true,flame:50}));M.settleCheckpoint(state);
+      if(r.cardReward)r.cardReward.uiAcknowledged=true;
+      if(r.flightReward&&!r.flightReward.claimed)assert.ok(M.chooseFlightReward(state,r.flightReward.offers[0]));
+      assert.ok(M.acknowledgeVictory(state));
+    }
+  }
+}
 
-test('all 71 literal definitions have supported rules, unique IDs, honest art families and complete bands', () => {
+test('all 75 literal definitions have supported rules, unique IDs, honest art families and complete bands', () => {
   const defs = Object.values(CARD_CATALOG), supportedEvents = new Set([
     '*', 'body-spark', 'wave-crossing', 'flash-pickup', 'downbeat-lift', 'natural-overfill',
-    'collector-delivery', 'rhythm-phrase', 'field-swipe', 'guard-rescue',
+    'collector-delivery', 'collector-attach', 'expedition-victory', 'rhythm-phrase', 'field-swipe', 'guard-rescue',
   ]), physicalKinds = new Set(['proximity-range', 'capacity', 'packing', 'echo', 'chameleon', 'field', 'guide',
     'rhythm', 'camp-extra', 'camp-grow', 'cache-handling', 'refrain', 'watchlight', 'wave-loom', 'spillway']);
-  assert.equal(defs.length, 71);
-  assert.equal(new Set(CARD_CATALOG_IDS).size, 71);
+  assert.equal(defs.length, 75);
+  assert.equal(new Set(CARD_CATALOG_IDS).size, 75);
   assert.deepEqual(defs.reduce((totals, def) => (totals[def.rarity]++, totals), { common: 0, rare: 0, legendary: 0 }),
-    { common: 33, rare: 24, legendary: 14 });
+    { common: 37, rare: 24, legendary: 14 });
   for (const [index, def] of defs.entries()) {
     assert.deepEqual(SKILL_CARDS[def.id], def);
     assert.equal(CARD_CATALOG_IDS[index], def.id);
@@ -55,9 +70,9 @@ test('all 71 literal definitions have supported rules, unique IDs, honest art fa
     if (!rule) assert.ok(physicalKinds.has(def.kind), `${def.id}: supported passive or physical kind`);
     else {
       assert.ok(supportedEvents.has(rule.event), `${def.id}: event`);
-      assert.ok(['add-sparks', 'shorten-recovery', 'multiply', 'add-last-payout'].includes(rule.operation));
+      assert.ok(['add-sparks', 'shorten-recovery', 'shorten-reel', 'multiply', 'add-last-payout', 'add-future-capacity', 'multiply-future-capacity'].includes(rule.operation));
       assert.ok(Number.isFinite(rule.amount));
-      if (rule.operation === 'multiply' || rule.operation === 'add-last-payout') assert.equal(def.copyable, false);
+      if (['multiply', 'add-last-payout', 'multiply-future-capacity'].includes(rule.operation)) assert.equal(def.copyable, false);
     }
     if (def.evolvesTo) {
       const target = CARD_CATALOG[def.evolvesTo];
@@ -72,7 +87,7 @@ test('every numeric catalog rule produces its declared effect on a matching exec
   const additive = {
     'body-spark': 'body-spark', 'wave-crossing': 'harvest-common', 'flash-pickup': 'flash-handling',
     'downbeat-lift': 'downbeat', 'collector-delivery': 'courier-tip', 'rhythm-phrase': 'toll-bell',
-    'field-swipe': 'springboard', 'guard-rescue': 'home-beacon',
+    'field-swipe': 'springboard', 'guard-rescue': 'home-beacon', 'expedition-victory': 'trail-vessel',
   };
   for (const def of Object.values(CARD_CATALOG)) {
     const card = makeSkillCard(def.id, `row:${def.id}`), rule = getCardRowRule(def, card);
@@ -80,9 +95,9 @@ test('every numeric catalog rule produces its declared effect on a matching exec
     const kind = rule.event === '*' ? 'body-spark' : rule.event,
       event = { kind, firstCrossing: rule.when?.firstCrossing ?? true,
         pickupKind: rule.when?.pickupKind || 'light', meterFraction: 0.1,
-        direction: rule.when?.direction || 'up', guardRecovering: true, availableRecovery: 10 },
+        direction: rule.when?.direction || 'up', guardRecovering: true, availableRecovery: 10, collectorReeling: true, availableReel: 10 },
       prefix = Array.from({ length: Math.max(rule.minimumEarlierPayers || 0,
-        ['multiply', 'add-last-payout'].includes(rule.operation) ? 1 : 0) }, (_, i) =>
+        ['multiply', 'add-last-payout', 'multiply-future-capacity'].includes(rule.operation) ? 1 : 0) }, (_, i) =>
         makeSkillCard(additive[kind] || 'body-spark', `prefix:${i}`)),
       receipt = resolveCardRow(createCardExecution([...prefix, card]), event),
       steps = receipt.steps.filter(step => step.actingInstanceId === card.instanceId);
@@ -92,8 +107,9 @@ test('every numeric catalog rule produces its declared effect on a matching exec
 });
 
 test('old rank improvements precede family evolution, retaining instance, rank and real uses', () => {
-  const state = fresh(), run = state.run,
-    finite = add(run, 'spark-cache', 'finite', { charges: 2 }),
+  const state = fresh(), run = state.run;
+  reachCamp(state);
+  const finite = add(run, 'spark-cache', 'finite', { charges: 2 }),
     harvest = add(run, 'harvest-common', 'harvest');
   for (const rank of [1, 2]) {
     const quote = M.getCardImprovePreview(run, 'finite');
@@ -128,10 +144,12 @@ test('old rank improvements precede family evolution, retaining instance, rank a
 
 test('all evolution families use exact tier costs and independent, stale-safe duplicate previews', () => {
   for (const definition of Object.values(CARD_CATALOG).filter(def => def.evolvesTo)) {
-    const state = fresh(definition.id), run = state.run,
-      card = add(run, definition.id, 'chosen', { rank: definition.maxRank }),
+    const state = fresh(definition.id), run = state.run;
+    reachCamp(state);
+    const card = add(run, definition.id, 'chosen', { rank: definition.maxRank }),
       duplicate = add(run, definition.id, 'other', { rank: definition.maxRank }),
-      otherBefore = structuredClone(duplicate), quote = M.getCardImprovePreview(run, 'chosen'),
+      otherBefore = structuredClone(duplicate);
+    const quote = M.getCardImprovePreview(run, 'chosen'),
       price = quote.after.rarity === 'rare' ? 25 : 40;
     assert.equal(quote.price, price);
     run.condensedGlow = price - 1;
@@ -162,7 +180,7 @@ test('all evolution families use exact tier costs and independent, stale-safe du
   }
 });
 
-test('paused evolution changes only the row definition and preserves the live flight and charge ledger', () => {
+test('paused evolution is refused while preserving the live flight and shared charge ledger', () => {
   const state = fresh('live-evolution'), run = state.run;
   run.mountedCards[0] = makeSkillCard('echo', 'echo');
   run.mountedCards[1] = { ...makeSkillCard('spark-cache', 'finite'), charges: 5 };
@@ -183,9 +201,9 @@ test('paused evolution changes only the row definition and preserves the live fl
     const before = { time: engine.time, distance: engine.distance, y: engine.player.y, vy: engine.player.vy,
       fuel: engine.flame, pickups: engine.bodyPickups, cooldown: engine.wisp.cooldown, executions: engine.cardExecutions };
     const quote = M.getCardImprovePreview(run, 'echo');
-    assert.ok(M.improveOwnedCard(state, 'echo', 1, quote.token));
+    assert.equal(M.improveOwnedCard(state, 'echo', 1, quote.token),false);
     assert.ok(M.applyCardFlightEdits(run, engine));
-    assert.equal(engine.cardExecution.cards[0].cardId, 'echo-ii');
+    assert.equal(engine.cardExecution.cards[0].cardId, 'echo');
     assert.equal(engine.cardExecution.cards[1].charges, 3);
     assert.deepEqual({ time: engine.time, distance: engine.distance, y: engine.player.y, vy: engine.player.vy,
       fuel: engine.flame, pickups: engine.bodyPickups, cooldown: engine.wisp.cooldown, executions: engine.cardExecutions }, before);
@@ -194,7 +212,7 @@ test('paused evolution changes only the row definition and preserves the live fl
     engine.paused = false;
     engine.flame = 0;
     engine.collect({ kind: 'light' });
-    assert.equal(engine.getState().cardCharges.finite, 0, 'two repeats and original share three remaining uses');
+    assert.equal(engine.getState().cardCharges.finite, 1, 'unchanged Echo and original share two remaining uses');
   } finally { engine.destroy(); }
 });
 

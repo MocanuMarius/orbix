@@ -1,6 +1,6 @@
-import {flashPowerupDuration} from './pickups.mjs?v=flight-120-1';
-import {resourceCycleSteps} from './resource-cycle.mjs?v=flight-120-1';
-import {LANTERN_THEME} from './map-theme.mjs?v=flight-120-1';
+import {flashPowerupDuration} from './pickups.mjs?v=collector-reel-1';
+import {resourceCycleSteps} from './resource-cycle.mjs?v=collector-reel-1';
+import {LANTERN_THEME} from './map-theme.mjs?v=collector-reel-1';
 // Normal-run onboarding is profile-owned. Prompts are contextual, one short
 // card at a time; the run owns only pacing so a new game keeps learned topics.
 export const ONBOARDING_VERSION=1;
@@ -114,15 +114,15 @@ export function nextOnboardingLesson(view,{profile,run,modifiers,flight,snapshot
  if(view==='skills'&&newTopic('skills'))return card('skills','One small upgrade','Tap Stored Sparks to open Skills any time. Gold skills are affordable. Blue skills are yours. Opening Skills pauses flight.','skill-states','.book-spread');
  if(view==='support'&&run.current?.kind==='camp'&&newTopic('rest'))return card('rest','Recover or Grow','Recover restores missing hearts. Grow adds 3 Spark capacity permanently. Both refill Sparks.','rest','.rest-benefit-cards');
  if(view==='support'&&run.current?.kind!=='camp'&&newTopic('events'))return run.current?.kind==='treasure'?card('events','Choose one treasure','Each chest has a specialty. Read both offers, then take one. On the map, tap a chest to inspect its stakes before choosing your path.','site:treasure','.support-offers'):card('events','An encounter','Read what you gain and what you give up. Choose one outcome.','sites-support','.support-offers');
- if(view==='companions'&&newTopic('companions'))return card('companions','Your Collector','Collector fetches missed Sparks and Clusters inside its green boundary. Its skill chapter unlocks Caches, Flash, range and recovery.','companion:'+role,'.companion-roles');
+ if(view==='companions'&&newTopic('companions'))return card('companions','Your Collector','Collector fetches missed Sparks and Clusters within its orbit. Its skill chapter unlocks Caches, Flash, range and recovery.','companion:'+role,'.companion-roles');
  if(view==='dream'&&newTopic('dream'))return card('dream','Rehearse the opening','Practise in golden light with free Lifts. Wake where you finished, with your pickups. Tap once to continue.','dream');
  if(view==='map'&&completed>0&&newTopic('routes'))return card('routes','Choose a connected path','Bright stops are reachable next. A fork commits your route. Campfire means Rest; chest means treasure. Tap a later stop to preview it before planning ahead.','sites','#journey-map');
  if((view==='map-clear'||view==='result'||view==='briefing'&&run.current?.type==='finale')&&newTopic('progression'))return card('progression','Three maps make a run','Your hearts, Sparks, skills and artifacts continue into the next map. Clear all three maps and the final guardian to unlock the next Ascension.','site:boss');
  if(view!=='flight'||flight?.dying||flight?.completing||flight?.dream?.active||snapshot.dying||snapshot.completing)return null;
  const time=Number(flight?.time)||0;
  if(firstMap&&completed===0&&time>=18&&newTopic('luminance'))return card('luminance','This reach is Luminance','Luminance is how far your wisp lights the passage. Farther terrain fades into darkness. Open the Luminance chapter in Skills to see farther.','luminance','.canvas-wrap');
- if(role==='collector'&&time>=6&&newTopic('collector'))return card('collector','Collector is automatic','A Spark’s lower shell flows into a small green circle for Collector to catch and tow a miss to your main wisp. Sparks arrive on contact. Learn Cache Handling to tow dense Caches as a 12-Spark Cluster.','collector-return','#boost-btn');
- if(role==='collector'&&completed>=1&&time>=8&&newTopic('collector-recovery'))return card('collector-recovery','Smaller range, still working','After delivery, the green boundary shrinks and regrows. It can fetch again inside that smaller range. The Power indicator shows range: you do not need to press it. Red-ring Sparks are ignored.','collector-recovery','#boost-btn');
+ if(role==='collector'&&time>=6&&newTopic('collector'))return card('collector','Collector is automatic','A Spark’s lower shell flows into a small green circle for Collector to catch and reel a miss to your main wisp. Sparks arrive on contact. Learn Cache Handling to reel dense Caches as a 12-Spark Cluster.','collector-return','#boost-btn');
+ if(role==='collector'&&completed>=1&&time>=8&&newTopic('collector-recovery'))return card('collector-recovery','Watch the reel','Collector reels the intact pickup to your moving wisp. It stays busy until contact, then is ready again. Its orbit and Power indicator show reach; red-ring pickups are ignored.','collector-recovery','#boost-btn');
  if(role!=='collector'&&time>=6&&newTopic(role)){
   const lessons={protector:['Protector works automatically','A charged blue shell spends Sparks to deflect a collision, then rebuilds. No charge or too little Sparks means no rescue. Collect Sparks with your own body.'],swift:['Runner: press Power','Press the filled Power button for a short speed burst with draft resistance. Terrain still kills. The button refills during cooldown; collect Sparks yourself.'],leveler:['Space Timer: hold, then release','Hold the scene or Lift to levitate. Release to fall and recharge. Empty charge ends the hold; drafts still push you. Collect Sparks with your own body.']};
   const tip=lessons[role];if(tip)return card(role,...tip,'companion:'+role,role==='leveler'?'#flap-btn':'#boost-btn');

@@ -163,12 +163,13 @@ test("pending legacy starter choices commit safely and completed or melted start
   assert.equal(pendingWithCards.run.mountedCards[0].charges, 2);
 });
 
-test("every generated node is reachable; all routes see both optional Rest forks and taking mid preserves late", () => {
+test("every generated node is reachable; three optional Rest sites retain both later forks", () => {
   for (let seed = 0; seed < 120; seed++) {
     const state = fresh(`routes-${seed}`),
       run = state.run,
       byId = new Map(run.map.flat().map((node) => [node.id, node]));
     assert.equal(run.map.length, 10);
+    assert.equal(run.map.flat().filter(node => node.kind === "camp").length, 3);
     const reachable = new Set(run.map[0].map((node) => node.id));
     for (const row of run.map)
       for (const node of row) {
@@ -316,6 +317,7 @@ test("rank improvement changes the printed and executed amount, costs once, neve
   run.mountedCards[0].charges = 2;
   run.flame = 61;
   run.condensedGlow = 100;
+  camp(state);
   const preview = M.getCardImprovePreview(run, 0);
   assert.equal(preview.before.amount, 4);
   assert.equal(preview.after.amount, 5);
@@ -353,7 +355,7 @@ test("Rare Cache and Flash Handling grant all mounted capabilities without perma
   assert.equal(collectorCanFetch(flash, modifiers), true);
   assert.deepEqual(run.skills, {});
   assert.equal(SKILL_CARDS["cache-handling"].rarity, "rare");
-  assert.match(M.getMountedCards(run)[0].effect, /12 Sparks.*refills its ring/);
+  assert.match(M.getMountedCards(run)[0].effect, /delivered Cache gives 12 Sparks/);
   assert.match(M.getMountedCards(run)[1].effect, /up to 6 missing Sparks/);
   M.meltMountedCard(state, 0);
   M.meltMountedCard(state, 1);

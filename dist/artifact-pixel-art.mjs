@@ -1,4 +1,4 @@
-import {guardianPortraits} from './guardian-portraits.mjs?v=flight-120-1';
+import {guardianPortraits} from './guardian-portraits.mjs?v=collector-reel-1';
 // Hand-authored pixel silhouettes, shared by rewards, Collection, HUD and lessons.
 // 1=ink, 2=shade, 3=material, 4=lit edge, 5=magic, 6=hot highlight, 7=metal.
 const sprites={
@@ -83,7 +83,7 @@ export function artifactPixelPortrait(id){
  const [gx,gy]=witness||[18,8];
  const mode=glowing.has(shape)?'glow':fluttering.has(shape)?'flutter':'glint';
  const gleam=`<g class="relic-glint" opacity=".65" fill="${palette[5]}"><path d="M${gx} ${gy}h2v2h-2z"/><path d="M${gx+3} ${gy-2}h1v1h-1z"/></g>`;
- const out=`<svg class="upgrade-glyph artifact-portrait" data-rarity="${tier}" data-artifact-art="${id}" data-relic-motion="${mode}" viewBox="0 0 40 40" aria-hidden="true" shape-rendering="crispEdges" style="--relic-delay:-${(id.length+shape.length)%7*.41}s"><path d="M2 0h36v2h2v36h-2v2H2v-2H0V2h2z" fill="${bg}"/><path d="M2 2h36v2H4v32H2zM36 4h2v34H4v-2h32z" fill="${edge}"/><path d="M6 6h12v2H8v8H6z" fill="${palette[3]}" opacity=".13"/><path d="M8 30h24v4H8z" fill="#080e17" opacity=".55"/><path d="M10 12h20v16H10z" fill="${palette[4]}" opacity=".09"/><g class="relic-body">${art}${gleam}</g>${tier==='boss'?`<path d="M4 4h4v2H6v2H4zM32 32h4v4h-2v-2h-2z" fill="#f1cf91"/>`:''}</svg>`;
+ const out=`<svg class="upgrade-glyph artifact-portrait artifact-chest" data-rarity="${tier}" data-artifact-art="${id}" data-relic-motion="${mode}" viewBox="0 0 40 40" aria-hidden="true" shape-rendering="crispEdges" style="--relic-delay:-${(id.length+shape.length)%7*.41}s"><g class="artifact-chest-casing"><path d="M6 0h28v2h4v4h2v30h-2v3H2v-3H0V6h2V2h4z" fill="#101711"/><path d="M6 2h28v2h3v31h-3v2H6v-2H3V5h3z" fill="${tier==='boss'?'#573669':tier==='rare'?'#72582b':'#4b4634'}"/><path d="M6 4h28v2H6zM4 7h2v25H4zM34 7h2v25h-2zM7 34h26v2H7z" fill="${tier==='boss'?'#b58dcd':tier==='rare'?'#e2bd66':'#a69970'}"/><path d="M7 7h26v25H7z" fill="${bg}"/><path d="M8 8h24v2H10v20H8z" fill="${edge}" opacity=".45"/><path d="M0 10h7v5H0zM33 10h7v5h-7zM0 25h7v5H0zM33 25h7v5h-7z" fill="#8f794c"/><path d="M1 10h5v2H1zM34 10h5v2h-5zM1 25h5v2H1zM34 25h5v2h-5z" fill="#dfc887"/><path d="M2 13h2v2H2zM36 13h2v2h-2zM2 28h2v2H2zM36 28h2v2h-2z" fill="#352e20"/><path d="M15 32h10v6H15zM17 30h6v2h-6z" fill="#a98b4d"/><path d="M17 32h6v4h-6z" fill="#ead18d"/><path d="M19 33h2v3h-2z" fill="#3e3023"/></g><g class="relic-body" transform="translate(4 3) scale(.8)">${art}${gleam}</g>${tier==='boss'?'<path d="M18 2h4v2h2v3h-2v2h-4V7h-2V4h2z" fill="#d9b1ef"/><path d="M18 3h3v2h-3z" fill="#f3dbfa"/>':''}</svg>`;
  cache.set(id,out);return out;
 }
 export const artifactPortraitIds=Object.freeze(Object.keys(designs));

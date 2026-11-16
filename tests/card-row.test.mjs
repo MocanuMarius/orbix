@@ -223,20 +223,20 @@ test('new Common never changes the established seeded starter pool',()=>{
 });
 
 test('every declarative catalog rule executes with its exact approved event and conditions',()=>{
-  assert.equal(Object.keys(SKILL_CARDS).length,71);
+  assert.equal(Object.keys(SKILL_CARDS).length,75);
   const payer={
     'body-spark':'body-spark','wave-crossing':'harvest-common','flash-pickup':'flash-handling',
     'downbeat-lift':'downbeat','collector-delivery':'courier-tip','rhythm-phrase':'toll-bell',
-    'field-swipe':'springboard','guard-rescue':'home-beacon',
+    'field-swipe':'springboard','guard-rescue':'home-beacon','expedition-victory':'trail-vessel',
   };
   for(const def of Object.values(SKILL_CARDS).filter(d=>d.row)){
     const kind=def.row.event==='*'?CARD_ROW_EVENTS.body:def.row.event;
     const rows=[];
-    if(def.row.operation==='multiply'||def.row.operation==='add-last-payout'||def.row.minimumEarlierPayers){
+    if(['multiply','add-last-payout','multiply-future-capacity'].includes(def.row.operation)||def.row.minimumEarlierPayers){
       for(let i=0;i<Math.max(1,def.row.minimumEarlierPayers||0);i++)rows.push(payer[kind]);
     }
     rows.push(def.id);
-    const event={kind,availableRecovery:10,meterFraction:.2,pickupKind:def.row.when?.pickupKind||'light',
+    const event={kind,availableRecovery:10,availableReel:10,collectorReeling:true,meterFraction:.2,pickupKind:def.row.when?.pickupKind||'light',
       firstCrossing:def.row.when?.firstCrossing??true,direction:def.row.when?.direction||'up',guardRecovering:true};
     const result=previewCardRow(cards(rows),event);
     assert.ok(result.steps.some(s=>s.actingCardId===def.id&&s.success),def.id);
@@ -279,7 +279,7 @@ test('catalog meter, pickup kind and first/later crossing conditions use native 
   const courier=flight(['courier-tip','courier-glass','return-spring']);
   try{
     courier.flame=0;courier.wisp.cooldown=5;courier.collect({kind:'light',deliveredByWisp:true});
-    near(courier.flame,20+3*CARD_UNIT);near(courier.wisp.cooldown,4.5);
+    near(courier.flame,20+3*CARD_UNIT);near(courier.wisp.cooldown,5,'Return Spring acts at attachment, never after delivery');
     assert.equal(courier.cardRowTrace.event.kind,CARD_ROW_EVENTS.delivery);
     courier.flame=0;courier.collect({kind:'light'});near(courier.flame,20);
   }finally{courier.destroy();}

@@ -24,7 +24,8 @@ export function drawCollectorGuard(ctx,aura,x,y,scale,reducedMotion){
       ctx.arc(0,0,radius,-TAU/4,-TAU/4+TAU*aura.growth);ctx.stroke();
     }
   }else{
-    const r=aura.radius;
+    // A fixed body-sized defense cue, separate from the reach-bearing orbit.
+    const r=16;
     ctx.strokeStyle='#d8e8b8';ctx.globalAlpha=.74;ctx.beginPath();
     for(let i=0;i<4;i++){
       const angle=(i+.5)*TAU/4,cos=Math.cos(angle),sin=Math.sin(angle);

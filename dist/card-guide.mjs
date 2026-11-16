@@ -8,17 +8,17 @@ export const CARD_GUIDE_TOPICS = {
     steps: [
       step(
         "Read the pickup mark",
-        "A pickup’s lower shell flows into a small green circle when Collector can fetch it. Collector starts with Sparks and Clusters. It catches the pickup’s circle and tows the intact pickup to your main wisp; Sparks arrive on contact.",
+        "A pickup’s lower shell flows into a small green circle when Collector can fetch it. Collector starts with Sparks and Clusters. It catches the pickup’s circle and reels the intact pickup to your main wisp; Sparks arrive on contact.",
         "collector-range",
       ),
       step(
         "Handling cards",
-        "Equip Cache Handling to fetch Caches, or Flash Handling to fetch white triangles. A Cache delivery restores 12 Sparks and recharges the search ring. Flash restores up to 6 missing Sparks per equipped or compatible copied Flash Handling source.",
+        "Equip Cache Handling to fetch Caches, or Flash Handling to fetch white triangles. A Cache delivery restores 12 Sparks. Flash restores up to 6 missing Sparks per equipped or compatible copied Flash Handling source.",
         "collector-return",
       ),
       step(
         "Recovery changes reach",
-        "After an ordinary delivery, Collector’s green boundary shrinks and grows back. The pickup marks show its learned handling even while it is recovering or busy.",
+        "Catching a pickup starts its reel and recovery together. Collector stays busy until the intact pickup touches your wisp, then is ready for another search. The pickup marks keep showing its learned handling.",
         "collector-recovery",
       ),
       step(
@@ -39,7 +39,7 @@ export const CARD_GUIDE_TOPICS = {
       ),
       step(
         "Check what it can fetch",
-        "A small green circle below the pickup shows a fetchable type. Handling cards add circles to Caches and Flash. Collector tows each pickup to your moving main wisp before it absorbs; recovery changes range, not handling.",
+        "A small green circle below the pickup shows a fetchable type. Handling cards add circles to Caches and Flash. Collector reels each pickup to your moving main wisp before it absorbs; it is ready again on contact.",
         "collector-range",
       ),
     ],
@@ -60,7 +60,7 @@ export const CARD_GUIDE_TOPICS = {
       ),
       step(
         "Edit anytime",
-        "Open Deck anytime, including a paused flight, to equip, reorder, unequip, improve or Melt cards. Equip and Improve keep remaining uses; Melt destroys the card and its uses. Close Deck and use the normal resume controls to fly again.",
+        "Open Deck anytime, including a paused flight, to equip, reorder, unequip or Melt cards. Improve, Evolve and Forge are available at Rest. Equipping keeps remaining uses; Melt destroys the card and its uses. Close Deck and use the normal resume controls to fly again.",
         "skills",
       ),
     ],
@@ -71,12 +71,12 @@ export const CARD_GUIDE_TOPICS = {
     steps: [
       step(
         "One wallet",
-        "Stored Sparks come from clearing, packing surplus and melting cards. Spend banked Stored Sparks to improve or Forge any time you open Deck. Every third natural Spark overfill releases a Luminance wave.",
+        "Stored Sparks come from clearing, packing surplus and melting cards. Spend banked Stored Sparks to improve or Forge at Rest. Every third passage Spark overfill releases a Luminance wave.",
         "packed",
       ),
       step(
         "Read the quote",
-        "A Common Melt gives 10. Forge Rare costs 30; Legendary costs 60 with a Rare equipped. Forge uses no camp action. Review the exact next card, then forge again while you can afford it.",
+        "A Common Melt gives 10. Forge Rare costs 30; Legendary costs 60 with a Rare equipped. Forge is a Rest service and uses no Rest action. Review the exact next card, then forge again while you can afford it.",
         "forge",
       ),
     ],
@@ -134,7 +134,7 @@ export const CARD_GUIDE_TOPICS = {
       ),
       step(
         "Lift Guide",
-        "Loaned during First Light’s Lift lesson. An amber chevron opens just before a good manual tap window. It offers advice, then disappears on Lift. It never flies for you.",
+        "Loaned during First Light’s Lift lesson. The amber chevron appears when your current fall makes a Lift reach the same height as a Lift from level flight. It judges motion only; check the terrain and choose when to tap. It disappears on Lift.",
         "lift",
       ),
       step(
