@@ -1,4 +1,4 @@
-import {newState,createRun,chooseStartingGift} from './model.mjs?v=combo-camp-1';
+import {newState,createRun,chooseStartingGift} from './model.mjs?v=rowcraft-1';
 
 export function createLanternMapInspectorState() {
  const state=newState();

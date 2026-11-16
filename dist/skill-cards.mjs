@@ -1,7 +1,8 @@
 /** Small, serializable skills-as-cards pilot. Printed Sparks use the existing .3 display scale. */
 export const CARD_SYSTEM = "cards-v1";
 export const CARD_UNIT = 10 / 3;
-import {CARD_CATALOG,CARD_DROP_WEIGHTS} from './card-catalog.mjs?v=combo-camp-1';
+import {CARD_CATALOG,CARD_DROP_WEIGHTS} from './card-catalog.mjs?v=rowcraft-1';
+import {cardOfferMultiplier} from './card-offer-context.mjs?v=rowcraft-1';
 const maximumGrowthAmount = Math.max(...Object.values(CARD_CATALOG)
   .filter(card => card.kind === 'camp-grow').map(card => card.amount + card.maxRank - 1));
 export const CARD_ECONOMY = Object.freeze({
@@ -62,6 +63,50 @@ export function makeSkillCard(cardId, instanceId) {
       }
     : null;
 }
+/** A doubled card keeps its actual ceiling through saves, swaps and paid refills. */
+export function getCardChargeCapacity(card) {
+  const base = SKILL_CARDS[card?.cardId || card?.id]?.charges;
+  return Number.isFinite(base) ? Math.max(base, integer(card?.chargeCapacity)) : 0;
+}
+export const getCardFeederCapacity = card =>
+  SKILL_CARDS[card?.cardId || card?.id]?.kind === 'ember-feeder' ? integer(card?.fedCapacity) : 0;
+const livePhysicalCard = card => {
+  const def = SKILL_CARDS[card?.cardId];
+  return !!def && !isInventoryOnlyCard(card) && (!def.charges || card.charges > 0);
+};
+export function getUseDoublerTarget(cards, slot) {
+  const target = cards?.[slot + 1], def = SKILL_CARDS[target?.cardId];
+  return livePhysicalCard(target) && def.charges && def.kind !== 'use-doubler' ? target : null;
+}
+/** Physical targets keep their slots and instance identities; holes are skipped. */
+export function getEmberFeederTargets(cards, slot) {
+  const targets = [];
+  for (let index = slot + 1; index < (cards?.length || 0) && targets.length < 2; index++) {
+    if (livePhysicalCard(cards[index])) targets.push({ card: cards[index], slot: index });
+  }
+  return targets.length === 2 ? targets : [];
+}
+/** Called only once when the real attempt starts, never by a build quote. */
+export function consumeCardUseDoublers(run) {
+  if (!isCardRun(run)) return [];
+  const grants = [], cards = run.mountedCards || [];
+  for (let slot = 0; slot < cards.length; slot++) {
+    const source = cards[slot], target = getUseDoublerTarget(cards, slot);
+    if (source?.cardId !== 'use-doubler' || !(source.charges > 0) || !target) continue;
+    const before = integer(target.charges), after = integer(before * 2);
+    if (after <= before) continue;
+    target.charges = after;
+    const capacity = Math.max(getCardChargeCapacity(target), after);
+    if (capacity > SKILL_CARDS[target.cardId].charges) target.chargeCapacity = capacity;
+    const grant = { sourceInstanceId: source.instanceId, sourceCardId: source.cardId,
+      targetInstanceId: target.instanceId, cardId: target.cardId, name: SKILL_CARDS[target.cardId].name,
+      slot: slot + 1, before, after, chargeCapacity: capacity };
+    cards[slot] = null;
+    run.reserveCards = (run.reserveCards || []).filter(card => card.instanceId !== source.instanceId);
+    grants.push(grant); recordCardEvent(run, 'use-doubler', grant);
+  }
+  return grants;
+}
 function cleanCard(card, seen) {
   if (['courier-tip-ii','downbeat-ii','toll-bell-ii'].includes(card?.cardId)) card = {...card,cardId:card.cardId.slice(0,-3),rank:2};
   if (card?.cardId === 'trail-vessel') card = {...card, cardId: 'growth-ring'};
@@ -71,7 +116,7 @@ function cleanCard(card, seen) {
   if (!def || !id || seen.has(id)) return null;
   const charges = def.charges
     ? Number.isFinite(card.charges)
-      ? integer(card.charges, def.charges)
+      ? integer(card.charges, getCardChargeCapacity(card))
       : def.charges
     : null;
   if (charges === 0) return null;
@@ -81,6 +126,8 @@ function cleanCard(card, seen) {
     cardId: card.cardId,
     rank: Math.max(1, integer(card.rank || 1, def.maxRank)),
     ...(charges === null ? {} : { charges }),
+    ...(def.charges && getCardChargeCapacity(card) > def.charges ? { chargeCapacity: getCardChargeCapacity(card) } : {}),
+    ...(def.kind === 'ember-feeder' && getCardFeederCapacity(card) ? { fedCapacity: getCardFeederCapacity(card) } : {}),
   };
 }
 /** Rewards are receipts. The actual card enters the reserve before progression. */
@@ -275,7 +322,7 @@ export function describeSkillCard(card) {
     default:
       effect = "";
   }
-  const interpolate=(text)=>String(text).replace(/\{(amount|charges|name)\}/g,(_,key)=>key==='amount'?amount:key==='charges'?(card.charges??d.charges??''):d.name);
+  const interpolate=(text)=>String(text).replace(/\{(amount|charges|name|fedCapacity)\}/g,(_,key)=>key==='amount'?amount:key==='charges'?(card.charges??d.charges??''):key==='fedCapacity'?getCardFeederCapacity(card):d.name);
   const ruleBands=Array.isArray(d.ruleBands)?d.ruleBands.map((band)=>({...band,text:interpolate(band.text)})):undefined;
   if((!effect||d.excludeStarter)&&ruleBands)effect=ruleBands.map((band)=>band.text).join(' ');
   return {
@@ -293,6 +340,7 @@ export function describeSkillCard(card) {
     copyable: d.copyable === true,
     inventoryOnly: isInventoryOnlyCard(card),
     limited: Number.isFinite(card.charges),
+    ...(d.kind === 'ember-feeder' ? { fedCapacity: getCardFeederCapacity(card) } : {}),
     ...(ruleBands?{ruleBands}:{}),
     ...(d.artFamily?{artFamily:d.artFamily}:{}),
     ...(d.evolvesTo?{evolvesTo:d.evolvesTo}:{}),
@@ -395,6 +443,18 @@ export function getMountedCards(run) {
         ? `After a successful clear with a missing heart, consume ${describeSkillCard(neighbor).name} in slot ${index+2} to restore 1 heart. At full hearts it is spared. Devourers resolve left to right, after Heart Stitch.`
         : 'No Rare target immediately right. Place a Rare in the next slot to consume it after a successful clear with a missing heart. Full hearts spare the target.';
     }
+    if (d.kind === 'use-doubler') {
+      const neighbor = getUseDoublerTarget(run.mountedCards, index);
+      printed.effectiveSummary = neighbor
+        ? `At real flight entry, consume Use Doubler to give ${SKILL_CARDS[neighbor.cardId].name} in slot ${index + 2} ${neighbor.charges} → ${integer(neighbor.charges * 2)} remaining uses. The added uses stay with that card. Preview and Dream do nothing.`
+        : 'No eligible consumable immediately right. Place a card with remaining uses in the next slot. Use Doubler cannot target another Use Doubler; an invalid target keeps this card.';
+    }
+    if (d.kind === 'ember-feeder') {
+      const targets = getEmberFeederTargets(run.mountedCards, index), growth = getCardFeederCapacity(card);
+      printed.effectiveSummary = `Stored growth +${growth} maximum Sparks while equipped. ` + (targets.length
+        ? `After a successful flight, permanently consume ${targets.map(({card: target, slot}) => `${SKILL_CARDS[target.cardId].name} in slot ${slot + 1}`).join(' and ')} together for +1 more maximum Spark on this Ember Feeder. Physical consumers resolve left to right; targets must still be present. No refill.`
+        : 'Needs two occupied cards anywhere to its right. Fewer than two consumes neither. Failed flights and Dream consume nothing. Equipping does not refill.');
+    }
     if (effective?.copiedBy) {
       const repeats=d.kind==='echo'?(d.repeatCount||1):1;
       if (effective.def.kind === "field") printed.copyPreview = `Adds ${repeats} Field Impulse ${repeats===1?'source':'sources'} · ${decimal(.8*repeats)}s extra with a full ring · one ring spend`;
@@ -425,7 +485,8 @@ export function getReserveCards(run) {
 export function getCardCapacityBonus(run) {
   if (!isCardRun(run)) return 0;
   return getEffectiveCardSources(run).filter(({ def }) => def.kind === "capacity")
-    .reduce((sum, { source }) => sum + cardAmount(source) * CARD_UNIT, 0);
+    .reduce((sum, { source }) => sum + cardAmount(source) * CARD_UNIT, 0)
+    + (run.mountedCards || []).reduce((sum, card) => sum + getCardFeederCapacity(card) * CARD_UNIT, 0);
 }
 /** Integer quarters preserve earned fractions without multiplying wallet grants. */
 export function getCardPackingBonus(packed, sources = 0, remainder = 0) {
@@ -487,10 +548,12 @@ export function drawSkillCard(run, source, node = run.current, rarity = null) {
   const pool = Object.values(SKILL_CARDS).filter(
       (d) => d.rarity === tier && !d.starterOnly,
     );
-  let ticket = draw() * pool.reduce((sum, def) => sum + (def.dropWeight || 1), 0),
+  const weight = def => (def.dropWeight || 1) * (rarity && source.startsWith('forge:v2:')
+    ? cardOfferMultiplier({def, rule: getCardRowRule(def, {cardId:def.id, rank:1})}, [], {mode:'forge'}) : 1);
+  let ticket = draw() * pool.reduce((sum, def) => sum + weight(def), 0),
     d = pool.at(-1);
   for (const def of pool) {
-    ticket -= def.dropWeight || 1;
+    ticket -= weight(def);
     if (ticket < 0) { d = def; break; }
   }
   return makeSkillCard(d.id, identity);
@@ -501,14 +564,23 @@ export function drawSkillCard(run, source, node = run.current, rarity = null) {
  * already on the table (including same-name evolved variants).
  */
 export function drawSkillCardDraft(run, node = run.current) {
-  const offers = [drawSkillCard(run, 'flight', node)], names = new Set([SKILL_CARDS[offers[0].cardId].name]);
+  const offers = [drawSkillCard(run, 'flight', node)], names = new Set([SKILL_CARDS[offers[0].cardId].name]),
+    seenOwned = new Set(),
+    owned = [...(run.mountedCards || []), ...(run.reserveCards || [])].filter(card => {
+      const def = SKILL_CARDS[card?.cardId];
+      if (!def || seenOwned.has(card.instanceId) || (def.charges && !(card.charges > 0))) return false;
+      seenOwned.add(card.instanceId);return true;
+    }).map(card => ({def:SKILL_CARDS[card.cardId], rule:getCardRowRule(SKILL_CARDS[card.cardId], card)})),
+    contextSlot = random(`${run.campaignSeed || run.seed}:${run.mapIndex}:${node?.id}:chain-opportunity:v1`)() < .5 ? 1 : 2;
   for (let index = 1; index < 3; index++) {
     const source = `flight-draft:${index}`, rolled = drawSkillCard(run, source, node),
       tier = SKILL_CARDS[rolled.cardId].rarity,
       pool = Object.values(SKILL_CARDS).filter(def => def.rarity === tier && !def.starterOnly && !names.has(def.name)),
-      draw = random(`${run.campaignSeed || run.seed}:${run.mapIndex}:${node?.id}:draft:${index}:distinct:v1`);
-    let ticket = draw() * pool.reduce((sum, def) => sum + (def.dropWeight || 1), 0), selected = pool.at(-1);
-    for (const def of pool) { ticket -= def.dropWeight || 1; if (ticket < 0) { selected = def; break; } }
+      draw = random(`${run.campaignSeed || run.seed}:${run.mapIndex}:${node?.id}:draft:${index}:distinct:v1`),
+      weight = def => (def.dropWeight || 1) * (index === contextSlot
+        ? cardOfferMultiplier({def,rule:getCardRowRule(def,{cardId:def.id,rank:1})}, owned, {slots:run.cardSlots || 3}) : 1);
+    let ticket = draw() * pool.reduce((sum, def) => sum + weight(def), 0), selected = pool.at(-1);
+    for (const def of pool) { ticket -= weight(def); if (ticket < 0) { selected = def; break; } }
     const card = makeSkillCard(selected.id, rolled.instanceId);
     offers.push(card); names.add(selected.name);
   }

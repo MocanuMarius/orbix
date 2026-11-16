@@ -1,10 +1,10 @@
-import {menuWorldMarkup} from './menu-world.mjs?v=combo-camp-1';
-import {resourceSymbol} from './game-symbols.mjs?v=combo-camp-1';
-import {formatGlow,getGlowCapacity} from './vitality.mjs?v=combo-camp-1';
-import {livesMarkup} from './lives.mjs?v=combo-camp-1';
-import { COMPANION_ABILITIES, getCompanionUnlock } from './companion-abilities.mjs?v=combo-camp-1';
-import { companionArtSvg } from './companion-art.mjs?v=combo-camp-1';
-import { GAME_VERSION } from './build-version.mjs?v=combo-camp-1';
+import {menuWorldMarkup} from './menu-world.mjs?v=rowcraft-1';
+import {resourceSymbol} from './game-symbols.mjs?v=rowcraft-1';
+import {formatGlow,getGlowCapacity} from './vitality.mjs?v=rowcraft-1';
+import {livesMarkup} from './lives.mjs?v=rowcraft-1';
+import { COMPANION_ABILITIES, getCompanionUnlock } from './companion-abilities.mjs?v=rowcraft-1';
+import { companionArtSvg } from './companion-art.mjs?v=rowcraft-1';
+import { GAME_VERSION } from './build-version.mjs?v=rowcraft-1';
 
 const esc = value => String(value ?? '').replace(/[&<>"']/g, char =>
   ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[char]));

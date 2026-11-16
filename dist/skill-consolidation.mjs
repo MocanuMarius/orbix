@@ -1,4 +1,4 @@
-import {normalizeChapterPrerequisites} from './skill-chapters.mjs?v=combo-camp-1';
+import {normalizeChapterPrerequisites} from './skill-chapters.mjs?v=rowcraft-1';
 const groups=[
  ['main','Lift',['main-efficiency','main-lift']],
  ['main','Fourth Beat',['main-fourth-beat','main-fourth-beat-2']],

@@ -1,6 +1,6 @@
-import {getGlowCapacity,GLOW_DISPLAY_SCALE} from './vitality.mjs?v=combo-camp-1';
-import {resourceSymbol} from './game-symbols.mjs?v=combo-camp-1';
-import {sparkSymbolArt} from './spark-symbol.mjs?v=combo-camp-1';
+import {getGlowCapacity,GLOW_DISPLAY_SCALE} from './vitality.mjs?v=rowcraft-1';
+import {resourceSymbol} from './game-symbols.mjs?v=rowcraft-1';
+import {sparkSymbolArt} from './spark-symbol.mjs?v=rowcraft-1';
 const clamp=v=>Math.max(0,Math.min(1,v));
 // A cell represents one paid Lift, even during a temporary free-Lift effect.
 export function glowGaugeUnits(flame,maximum=100,liftCost=10){

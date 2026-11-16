@@ -1,6 +1,6 @@
 // A disposable deck for phone inspection. Never reads or writes a player save.
-import { newState, createRun, getSupportChoices } from './model.mjs?v=combo-camp-1';
-import { makeSkillCard } from './skill-cards.mjs?v=combo-camp-1';
+import { newState, createRun, getSupportChoices } from './model.mjs?v=rowcraft-1';
+import { makeSkillCard } from './skill-cards.mjs?v=rowcraft-1';
 
 export function prepareCardInspectorReward(run, cardId = 'harvest-rare') {
   if (run.cardReward && !run.cardReward.uiAcknowledged) return;
@@ -35,6 +35,12 @@ export function createCardInspectorState(params = new URLSearchParams()) {
     run.artifacts=['dawn-loom','echo-bell','wayward-seed'];
     run.mountedCards=['rhythm','harvest-common','ring-spring'].map((id,i)=>makeSkillCard(id,`sample:combo:${i}`));
     run.reserveCards=['toll-bell','echo','deep-vessel','harvest-rare'].map((id,i)=>makeSkillCard(id,`sample:stored:combo:${i}`));
+  }
+  if (params.get('scenario') === 'rowcraft') {
+    run.companions = ['collector']; run.companionRole = 'collector';
+    run.cardSlots = 5;
+    run.mountedCards = ['echo', 'body-spark', 'kindling-bead', 'refrain', 'closing-chord'].map((id, i) => makeSkillCard(id, `sample:rowcraft:${i}`));
+    run.reserveCards = ['use-doubler', 'ember-feeder', 'spark-cache', 'fast-spool', 'devourer', 'edge-reach'].map((id, i) => makeSkillCard(id, `sample:stored:rowcraft:${i}`));
   }
   if (params.get('scenario') === 'new-common') {
     run.cardSlots = 5;

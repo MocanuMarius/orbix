@@ -223,7 +223,7 @@ test('new Common never changes the established seeded starter pool',()=>{
 });
 
 test('every declarative catalog rule executes with its exact approved event and conditions',()=>{
-  assert.equal(Object.keys(SKILL_CARDS).length,82);
+  assert.equal(Object.keys(SKILL_CARDS).length,84);
   const payer={
     'body-spark':'body-spark','wave-crossing':'harvest-common','flash-pickup':'flash-handling',
     'downbeat-lift':'downbeat','collector-delivery':'courier-tip','rhythm-phrase':'toll-bell',

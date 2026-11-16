@@ -48,17 +48,17 @@ function reachCamp(state) {
   }
 }
 
-test('all 82 literal definitions have supported rules, unique IDs, honest art families and complete bands', () => {
+test('all 84 literal definitions have supported rules, unique IDs, honest art families and complete bands', () => {
   const defs = Object.values(CARD_CATALOG), supportedEvents = new Set([
     '*', 'body-spark', 'wave-crossing', 'flash-pickup', 'flash-expiry', 'downbeat-lift', 'natural-overfill',
     'collector-delivery', 'collector-attach', 'flight-clear', 'rhythm-phrase', 'field-swipe', 'guard-rescue',
   ]), physicalKinds = new Set(['luminance', 'proximity-range', 'capacity', 'packing', 'echo', 'chameleon', 'field', 'guide',
     'rhythm', 'camp-extra', 'camp-grow', 'cache-handling', 'refrain', 'watchlight', 'wave-loom', 'spillway',
-    'proximity', 'springboard', 'heart-stitch', 'devourer', 'twin-orbit', 'twin-wick', 'collector-range']);
-  assert.equal(defs.length, 82);
-  assert.equal(new Set(CARD_CATALOG_IDS).size, 82);
+    'proximity', 'springboard', 'heart-stitch', 'devourer', 'use-doubler', 'ember-feeder', 'twin-orbit', 'twin-wick', 'collector-range']);
+  assert.equal(defs.length, 84);
+  assert.equal(new Set(CARD_CATALOG_IDS).size, 84);
   assert.deepEqual(defs.reduce((totals, def) => (totals[def.rarity]++, totals), { common: 0, rare: 0, legendary: 0 }),
-    { common: 44, rare: 23, legendary: 15 });
+    { common: 45, rare: 24, legendary: 15 });
   for (const [index, def] of defs.entries()) {
     assert.deepEqual(SKILL_CARDS[def.id], def);
     assert.equal(CARD_CATALOG_IDS[index], def.id);
