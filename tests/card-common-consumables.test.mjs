@@ -51,31 +51,32 @@ test('Fast Spool reduces only an actual active reel, clamps the last time and sh
   }finally{e.destroy();}
 });
 
-test('Fast Spool has three successful 3-second uses and no uses for generated or Dream body pickups',()=>{
+test('Fast Spool spends only successful 3-second uses and excludes generated or Dream body pickups',()=>{
   const e=flight(['fast-spool'],{wispCooldown:1});try{
-    const p=missed(e);until(e,()=>!!e.wisp.cargo);const initial=e.wisp.activeReelSeconds();
+    const p=missed(e),initial=e.wisp.recoveryDuration(e,p);until(e,()=>!!e.wisp.cargo);near(e.wisp.activeReelSeconds(),initial);
     e.collect({kind:'light',generated:true});assert.equal(charges(e,0),3);
     e.dream={phase:'recording'};e.collect({kind:'light'});assert.equal(charges(e,0),3);e.dream=null;
-    for(let i=0;i<3;i++){e.collect({kind:'light'});assert.equal(charges(e,0),2-i);}
-    near(e.wisp.activeReelSeconds(),initial-9);e.collect({kind:'light'});near(e.wisp.activeReelSeconds(),initial-9);
+    for(let i=0;i<3;i++){e.collect({kind:'light'});assert.equal(charges(e,0),3-Math.min(i+1,Math.ceil(initial/3)));}
+    const remaining=Math.max(0,initial-9);near(e.wisp.activeReelSeconds(),remaining);e.collect({kind:'light'});near(e.wisp.activeReelSeconds(),remaining);
     until(e,()=>p.collected);assert.equal(e.collectorPickups,1);
   }finally{e.destroy();}
 });
 
 test('Return Spring and Haul Winch act once at real attachment before one genuine delivery, with bounded copies and replay',()=>{
   const e=flight(['echo','haul-winch','refrain','courier-tip','kindling-bead']);try{
-    const p=missed(e,'cluster');until(e,()=>!!e.wisp.cargo);
-    const trace=e.cardRowTrace;assert.equal(trace.event.kind,CARD_ROW_EVENTS.attach);near(trace.reelSeconds,4);
+    const p=missed(e,'cluster'),recovery=e.wisp.recoveryDuration(e,p);until(e,()=>!!e.wisp.cargo);
+    const trace=e.cardRowTrace;assert.equal(trace.event.kind,CARD_ROW_EVENTS.attach);near(trace.reelSeconds,recovery);
     assert.equal(trace.sparks,0);assert.equal(trace.futureCapacity,0);assert.equal(e.flame,0,'attachment is not a fuel pickup');
-    assert.equal(trace.steps.filter(step=>step.success&&step.operation==='shorten-reel').length,2);
-    assert.equal(charges(e,1),3,'the copy and original save 3s and 1s; replay has no time left to spend');
+    const spentUses=Math.ceil(recovery/3);
+    assert.equal(trace.steps.filter(step=>step.success&&step.operation==='shorten-reel').length,spentUses);
+    assert.equal(charges(e,1),SKILL_CARDS['haul-winch'].charges-spentUses,'only copies that shorten actual reel time spend a use');
     assert.equal(e.bodyPickups,0);assert.equal(e.collectorPickups,0);
     until(e,()=>p.collected);assert.equal(e.collectorPickups,1);assert.equal(e.bodyPickups,0);near(e.flame,40+6*CARD_UNIT);
     assert.equal(e.cardRowTrace.event.kind,CARD_ROW_EVENTS.delivery);assert.equal(e.wisp.cooldown,0);
     for(let i=0;i<180;i++)tick(e);assert.equal(e.collectorPickups,1);
   }finally{e.destroy();}
   const spring=flight(['return-spring']);try{
-    missed(spring);until(spring,()=>!!spring.wisp.cargo);near(spring.cardRowTrace.reelSeconds,.5);near(spring.wisp.activeReelSeconds(),3.5);
+    const p=missed(spring),recovery=spring.wisp.recoveryDuration(spring,p);until(spring,()=>!!spring.wisp.cargo);near(spring.cardRowTrace.reelSeconds,.5);near(spring.wisp.activeReelSeconds(),Math.max(0,recovery-.5));
   }finally{spring.destroy();}
 });
 
@@ -169,7 +170,7 @@ test('old-save Commons gain finite caps once, preserve partial duplicate identit
 
 test('attachment checks the original kind and excludes generated and Dream-caught fuel',()=>{
   const cache=flight(['haul-winch'],{collectorFetchMass:3});try{
-    const p=missed(cache,'cache');until(cache,()=>!!cache.wisp.cargo);near(cache.wisp.activeReelSeconds(),4);
+    const p=missed(cache,'cache'),recovery=cache.wisp.recoveryDuration(cache,p);until(cache,()=>!!cache.wisp.cargo);near(cache.wisp.activeReelSeconds(),recovery);
     assert.equal(cache.cardRowTrace,null);until(cache,()=>p.collected);assert.equal(p.kind,'cluster');assert.equal(p.collectorOriginalKind,'cache');
     assert.equal(cache.cardRowTrace,null,'compressed delivery never invents a Cluster attachment');
   }finally{cache.destroy();}
@@ -177,7 +178,7 @@ test('attachment checks the original kind and excludes generated and Dream-caugh
     const e=flight(['return-spring']);try{
       if(mode==='dream')e.dream={phase:'recording',active:true};
       const p=missed(e,'light',mode==='generated'?{generated:true}:{});until(e,()=>!!e.wisp.cargo);
-      near(e.wisp.activeReelSeconds(),4);assert.equal(e.cardRowTrace,null,mode);
+      near(e.wisp.activeReelSeconds(),e.wisp.recoveryDuration(e,p));assert.equal(e.cardRowTrace,null,mode);
       if(mode==='dream'){assert.equal(p.fetchedInDream,true);e.dream=null;}
       until(e,()=>p.collected);assert.equal(e.cardRowTrace,null,mode);
     }finally{e.destroy();}

@@ -1066,7 +1066,7 @@ export class WispFlight {
     if(role==='collector')for(const wisp of this.collectors){
       if(!(wisp.cooldownMax>0))continue;
       const progress=wisp.cooldown/wisp.cooldownMax;
-      wisp.cooldownMax=wisp.recoveryDuration(this)*(wisp.phase==='guard-recovery'?4:1);
+      wisp.cooldownMax=wisp.recoveryDuration(this,wisp.cargo)*(wisp.phase==='guard-recovery'?4:1);
       wisp.cooldown=progress*wisp.cooldownMax;
     }
     if(role==='protector'){
@@ -1295,6 +1295,7 @@ export class WispFlight {
     this.liftGuide?.clear();
     this.cardRhythm?.lift(this.time,cardLiftContext);
     this.player.vy = -FLIGHT_TUNING.flapImpulse * this.scaleY * clamp(Number(this.mod.flap) || 1, .80, 1.20);
+    this.routeObjective?.lift();
     if (this.tutorialAwaitingLift) {
       this.tutorialAwaitingLift = false;
       this.accumulator = 0; this.lastFrame = 0; this.nextRenderAt = null;
@@ -1398,7 +1399,7 @@ export class WispFlight {
 
   resolveCardRowEvent(kind, detail = {}, collector = null) {
     if(!this.cardExecution||!this.running||this.paused||!this.alive||this.finished||this.destroyed||this.dying||this.completing
-      ||this.tutorial||(this.dream&&this.dream.phase!=='done'))return null;
+      ||this.tutorial&&!this.mod.practiceCards||(this.dream&&this.dream.phase!=='done'))return null;
     if(!hasCardRowEvent(this.cardExecution,kind))return null;
     // One event shortens one Collector, so its recovery and reel budgets agree.
     // Attachments act on their owner; ordinary events prefer the longest reel.
@@ -1411,6 +1412,7 @@ export class WispFlight {
     const liveReceipt=Object.freeze({...receipt,restoredSparks:gain/CARD_UNIT});
     if(receipt.steps.some(step=>step.success&&step.operation!=='replay-row'))this.cardRowTrace=liveReceipt;
     this.flame+=gain;this.flameRestored+=gain;
+    if(this.tutorial&&this.mod.practiceCards&&kind==='wave-crossing'&&gain>0)this.tutorial.harvestPaid=true;
     this.resonanceStored+=receipt.stored;
     if(receipt.recoverySeconds>0){
       const before=w.cooldown;
@@ -2124,7 +2126,7 @@ export class WispFlight {
         radius:Math.max(this.getLightState().radius,Number(this.mod.seerRadius)||230)});
     }else this.luminanceWaves.removeSource('artifact-sight');
     this.luminanceWaves.update(dt);
-    this.routeObjective?.update();
+    this.routeObjective?.update(dt,gust);
     const breathingBank = Math.sin(this.wingPhase * TAU / 6) * .012;
     this.visualBank = lerp(this.visualBank, clamp(this.player.vy / (690 * this.scaleY), -.30, .35) + breathingBank, 1 - Math.exp(-dt * 9));
 
@@ -2275,7 +2277,7 @@ export class WispFlight {
           this.artifactEffects.onWork();
           this.artifactEffects.notice('iron-petal','passive');
         }
-        this.setEvent(lightAegis?'Light Aegis · shield spent':rewardWard?'Edgeweaver · ward spent':lastOrbit?(watchlight?'Watchlight · ring spent':'Last Orbit · ring spent'):`Protector · shell spent, −${formatGlow(cost,this.maxFlame)} Sparks`);this.sound('shield');
+        this.setEvent(lightAegis?'Light Aegis · shield spent':rewardWard?'Collision ward spent':lastOrbit?(watchlight?'Watchlight · ring spent':'Last Orbit · ring spent'):`Protector · shell spent, −${formatGlow(cost,this.maxFlame)} Sparks`);this.sound('shield');
         this.activation(lightAegis?'proximity-light-shield':rewardWard?'edgeweaver':lastOrbit?(watchlight?'card-watchlight':'collector-last-orbit'):'protector',
           {label:lastOrbit&&watchlight?'Watchlight':undefined,kind:!lightAegis&&!rewardWard&&!lastOrbit?'companion':'skill',priority:10,outcome:{saved:1}});
         this.notify();return;
@@ -2527,6 +2529,7 @@ export class WispFlight {
 
   finish(success) {
     if (this.finished || this.destroyed) return;
+    this.routeObjective?.finish(success);
     this.cardRhythm?.clear();
     this.edgingPulse.reset();
     this.luminanceWaves?.clear();

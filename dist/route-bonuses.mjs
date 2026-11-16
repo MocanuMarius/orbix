@@ -2,8 +2,8 @@ import {getLifeCapacity} from './vitality.mjs?v=guide-clarity-1';
 import {grantPassageBoon} from './passage-preparations.mjs?v=guide-clarity-1';
 import {getCardModifiers,isCardRun} from './skill-cards.mjs?v=guide-clarity-1';
 
-function bonus(id, name, condition, reward, target, hint='') {
-  return Object.freeze({id, name, condition, reward, target, hint});
+function bonus(id, name, condition, reward, target, hint='', boonId=null) {
+  return Object.freeze({id, name, condition, reward, target, hint, ...(boonId?{boonId}:{})});
 }
 
 export const ROUTE_BONUSES = Object.freeze({
@@ -17,10 +17,17 @@ export const ROUTE_BONUSES = Object.freeze({
   'night-sail': bonus('night-sail', 'Night Sail', 'Collect both bypass Sparks. Lose at most 3 Sparks to the marked Black Hole.', 'Black Holes drain 25% fewer Sparks for 3 cleared flights.', 2),
   wayfinder: bonus('wayfinder', 'Wayfinder', 'Fly between all 3 gold gates, then finish.', 'Preview the opening 2.5s before takeoff for your next 3 clears.', 3, 'Gold brackets mark each gate. Fly between them; collecting a nearby Spark does not count. After you clear this flight, the opening route is revealed while paused at each start. It vanishes when you begin. Failed or interrupted flights keep the reward; each successful clear spends one of its 3 uses.'),
   'spark-trail': bonus('spark-trail', 'Spark Trail', 'Collect 3 of 5 marked Sparks. Collector deliveries count.', 'Below 6 Sparks, restore up to 6 missing Sparks once per flight, for 3 cleared flights.', 3),
-  constellation: bonus('constellation', 'Rising Constellation', 'Collect the gold marks: Spark → Cluster → Cache.', 'First 3 fuel pickups restore +2 missing Sparks each, for 3 cleared flights.', 3, 'Only the next kind is marked. If you miss one, look for another matching mark ahead.')
+  constellation: bonus('constellation', 'Rising Constellation', 'Collect the gold marks: Spark → Cluster → Cache.', 'First 3 fuel pickups restore +2 missing Sparks each, for 3 cleared flights.', 3, 'Only the next kind is marked. If you miss one, look for another matching mark ahead.'),
+  'reserve-finish': bonus('reserve-finish', 'Exit reserve', 'Reach the exit with at least 6 Sparks.', 'Below 6 Sparks, restore up to 6 missing Sparks once per flight, for 3 cleared flights.', 6, 'Your current Sparks may rise or fall. The reserve counts only when you reach the exit awake.', 'spark-trail'),
+  'lift-windows': bonus('lift-windows', 'Marked Lifts', 'Lift inside 2 of the 3 marked windows.', 'Save up to 9 Sparks on your first 3 Lifts per flight, for 3 cleared flights.', 2, 'Fly inside the gold window and Lift. Each window counts once; you may miss one.', 'long-glide'),
+  'draft-rider': bonus('draft-rider', 'Draft contact', 'Ride the marked draft for 0.5s.', 'Companion recovery 20% faster for 3 cleared flights.', .5, 'Stay inside the moving air while the marked draft is blowing. Approaching it does not count.', 'wild-circuit')
 });
 
-const utility = ['wild-circuit', 'flash-relay', 'long-glide', 'edgeweaver', 'night-sail', 'wayfinder', 'constellation', 'spark-trail'];
+const utility = ['wild-circuit', 'flash-relay', 'long-glide', 'edgeweaver', 'night-sail', 'wayfinder', 'constellation', 'spark-trail', 'reserve-finish', 'lift-windows', 'draft-rider'];
+export const routeBonusFamily = id => ({gilded:'collect',precision:'collect','three-suns':'collect',
+  'spark-trail':'collect',constellation:'collect','flash-relay':'collect',wayfinder:'gates',
+  'wild-circuit':'terrain','long-glide':'glide',edgeweaver:'edge','night-sail':'void',
+  'reserve-finish':'reserve','lift-windows':'timing','draft-rider':'draft'})[id] || id;
 const helpfulBiomes = new Set(['marsh', 'fungal', 'crystal', 'thorn', 'cemetery']);
 const currency = new Set(['gilded', 'precision']);
 
@@ -93,7 +100,11 @@ export function getRouteBonusCandidates(run, node) {
   const offset = (node.routeLane ?? node.lane ?? 0) % order.length;
   const prior=(run.path||[]).map(id=>run.map.flat().find(site=>site.id===id))
     .filter(site=>site&&site.row<node.row&&site.bonusId).slice(-3).map(site=>site.bonusId);
-  const preference=id=>(run.passageBoons?.[id]>0||run.nextFlightBoon===id?3:0)+prior.filter(p=>p===id).length;
+  const preference=id=>{
+    const effect=ROUTE_BONUSES[id]?.boonId||id;
+    return (run.passageBoons?.[effect]>0||run.nextFlightBoon===effect?3:0)
+      +prior.reduce((cost,p,index)=>cost+(routeBonusFamily(p)===routeBonusFamily(id)?(index===prior.length-1?4:2):0)+(p===id?2:0),0);
+  };
   return ids.concat([...order.slice(offset), ...order.slice(0,offset)]
     .filter(id => canOfferUtility(run, node, id)).sort((a,b)=>preference(a)-preference(b)));
 }
@@ -125,20 +136,20 @@ export function awardRouteBonus(run, node, attempt, result, clearPay, pickupPack
   let message;
   if(node.levelId==='pinewood-fallen-giant'&&!run.fallenGiantHeartwood){
     run.fallenGiantHeartwood=true;run.treasureCapacity=(run.treasureCapacity||0)+10;
-    message='Heartwood Trail · +3 maximum Sparks permanently';
+    message='+3 maximum Sparks permanently';
   } else if (currency.has(id)) {
     if (hasCurrencyContract || alreadyAwarded(run, id)) return null;
     const wakingPacked = Number.isFinite(observed.packed) ? Math.max(0, Math.floor(observed.packed)) : 0;
     amount = id === 'gilded' ? Math.min(30, clearPay + Math.min(wakingPacked, pickupPacked)) : 8;
-    message = definition.name + ' · +' + amount + ' Stored Sparks';
+    message = '+' + amount + ' Stored Sparks';
   } else if (id === 'three-suns') {
     if (alreadyAwarded(run, id) || run.lives >= getLifeCapacity(run)) return null;
     run.lives++;
-    message = 'Three Suns · one heart restored';
+    message = 'One heart restored.';
   } else {
-    grantPassageBoon(run,id);
-    message = definition.name + ' · ' + definition.reward;
+    grantPassageBoon(run,definition.boonId||id);
+    message = definition.reward;
   }
   (run.routeBonusClaims ??= {})[node.id] = {id, mapIndex:run.mapIndex};
-  return {id, name:message.startsWith('Heartwood Trail')?'Heartwood Trail':definition.name, message, amount};
+  return {id, message, amount};
 }

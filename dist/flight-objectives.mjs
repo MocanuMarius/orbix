@@ -12,6 +12,7 @@ const lastX = e => e.totalDistance + e.player.x - e.baseSpeed * 1.5;
 const excludesFork = (e, x) => !(e.layout.flightForks || []).some(f => x >= f.approachStart && x <= f.exitEnd);
 const outsideBell = (engine, x) => !engine.atlas?.bells?.some(b=>x>b.start-45 && x<b.x+55);
 const sleep = e => Boolean(e.dream?.active || e.dream?.mode === 'record');
+const wakingFlight = e => e.running && e.alive && !e.paused && !e.destroyed && !e.finished && !e.dying && !e.completing && !sleep(e);
 const fuel = p => !p.generated && !p.harmful && !p.riskChain && !p.forkCache && fuelKinds.has(pickupKind(p));
 const mark = (object, type = 'spark') => ({object, x:object.x, y:object.y, type});
 
@@ -214,18 +215,73 @@ function constellation(e,sparks) {
   return finishes.reduce((best,p)=>!best || p.score>best.score?p:best,null)?.targets || null;
 }
 
+function quietRoom(e,start,end) {
+  return !e.drafts.zones.some(z=>start<z.x+z.rx+25&&end>z.x-z.rx-25)
+    && !e.biomeDynamics.items.some(a=>start<a.x+85&&end>a.x-85)
+    && !e.blackHoles.items.some(h=>start<h.x+h.influence&&end>h.x-h.influence);
+}
+
+// A broad timing window is a real room, not a pickup recoloured as a goal.
+// Check the full Lift arc from both ends and both vertical edges. Its spare
+// chance and separation leave time to read the next window with base sight.
+function liftWindows(e,sparks) {
+  const speed=maxSpeed(e), half=speed*.4, radius=Math.max(22,34*e.scaleY);
+  const gravity=300*e.scaleY*Math.max(.8,Math.min(1.2,e.mod.gravity||1));
+  const rise=-205*e.scaleY*Math.max(.8,Math.min(1.2,e.mod.flap||1));
+  const candidates=[];
+  for(const p of sparks) {
+    if(candidates.length&&p.x-candidates.at(-1).x<speed*2.8)continue;
+    const start=p.x-half,end=p.x+half;
+    if(!quietRoom(e,start,end+speed*1.1))continue;
+    let valid=true;
+    for(const x of [start,p.x,end]) {
+      for(const offset of [-radius,radius]) {
+        let y=p.y+offset,vy=rise;
+        for(let frame=0;frame<=66;frame+=3) {
+          if(!inRoom(e,x+speed*frame/60,y,20)){valid=false;break;}
+          vy+=gravity*.05;y+=vy*.05;
+        }
+        if(!valid)break;
+      }
+      if(!valid)break;
+    }
+    if(valid)candidates.push({type:'lift',x:p.x,y:p.y,start,end,radius});
+  }
+  return spread(candidates,3,speed*2.8);
+}
+
+function draftContact(e) {
+  const speed=maxSpeed(e);
+  for(const zone of e.drafts.zones) {
+    if(zone.guardian||zone.rx*1.5<speed*.6||zone.ry<e.height*.065)continue;
+    if(e.blackHoles.items.some(h=>Math.abs(h.x-zone.x)<h.influence+zone.rx)
+      ||e.biomeDynamics.items.some(a=>Math.abs(a.x-zone.x)<zone.rx+85))continue;
+    let valid=true;
+    for(const dx of [-.75,0,.75])for(const dy of [-.5,0,.5])
+      if(!inRoom(e,zone.x+zone.rx*dx,zone.y+zone.ry*dy,20))valid=false;
+    if(valid)return [{type:'draft',object:zone,x:zone.x,y:zone.y,start:zone.x-zone.rx,end:zone.x+zone.rx,radius:zone.ry}];
+  }
+  return null;
+}
+
 export function buildObjectivePlan(e,id) {
   if (!ROUTE_BONUSES[id] || e.tutorial) return null;
   const speed=maxSpeed(e);
   let targets=null, hole=null, guide=[];
-  if (id==='wild-circuit') {
+  if(id==='reserve-finish') {
+    // The existing fuel budget is unchanged. The exit itself is the target.
+    targets=[];
+  } else if(id==='draft-rider') {
+    targets=draftContact(e);
+  } else if (id==='wild-circuit') {
     const actors=e.biomeDynamics.items.filter(a=>helpfulFamilies.has(a.family) && inRoom(e,a.x,a.y,10));
     targets=spread(actors,2,speed*2)?.map(a=>mark(a,'prop'));
   } else if (id==='edgeweaver') {
     targets=edgeSections(e);
   } else {
     const sparks=safeSparks(e);
-    if (id==='night-sail') {
+    if(id==='lift-windows')targets=liftWindows(e,sparks);
+    else if (id==='night-sail') {
       const plan=bypass(e,sparks);
       if (plan) ({targets,hole}=plan);
     } else if (id==='flash-relay') targets=relay(e,sparks);
@@ -290,15 +346,34 @@ export class FlightObjective {
 
   get complete() {
     const pastHole=!this.hole || this.engine.distance+this.engine.player.x>=this.hole.x+this.hole.influence;
-    return this.eligible && !this.failed && this.progress>=this.target && pastHole;
+    return this.eligible && !this.failed && this.progress+1e-8>=this.target && pastHole && (this.id!=='reserve-finish'||this.reachedExit===true);
   }
   get state() {
-    return {id:this.id,progress:this.progress,target:this.target,complete:this.complete,failed:this.failed,eligible:this.eligible,packed:this.packed};
+    this.refreshReserve();
+    return {id:this.id,progress:this.progress,target:this.target,complete:this.complete,failed:this.failed,eligible:this.eligible,packed:this.packed,
+      ...(this.id==='reserve-finish'?{current:this.reserve,waitingForExit:!this.reachedExit}:{}),
+      ...(this.id==='draft-rider'?{unit:'s'}:{})};
+  }
+  refreshReserve() {
+    if(this.id!=='reserve-finish'||this.reachedExit)return;
+    this.reserve=Math.max(0,Math.floor(this.engine.flame*GLOW_DISPLAY_SCALE*10+1e-8)/10);
+    this.progress=Math.min(this.target,this.reserve);
+  }
+  finish(success) {
+    if(this.id!=='reserve-finish'||!success||!wakingFlight(this.engine)||this.engine.distance<this.engine.totalDistance)return;
+    this.refreshReserve();this.reachedExit=true;
+    if(this.progress<this.target)this.failed=true;
+  }
+  lift() {
+    if(this.id!=='lift-windows'||!this.eligible||this.failed||this.complete||!wakingFlight(this.engine))return;
+    const x=this.engine.distance+this.engine.player.x,y=this.engine.player.y;
+    const window=this.targets.find(t=>x>=t.start&&x<=t.end&&Math.abs(y-t.y)<=t.radius);
+    if(window)this.count(window);
   }
   recordPacking(packet,gain) {
     // An incoming wallet remainder or a Dream pickup does not count toward
     // this flight's Gilded payout. Carry fractions only between waking pickups.
-    if(this.id!=='gilded' || sleep(this.engine) || !packet.collected || packet.fetchedInDream)return;
+    if(this.id!=='gilded' || !wakingFlight(this.engine) || !packet.collected || packet.fetchedInDream)return;
     const credit=gain.rawGlow*gain.multiplier+this.packingRemainder;
     const units=Math.floor(credit+1e-9);
     this.packed+=units;
@@ -311,7 +386,7 @@ export class FlightObjective {
   }
   collect(packet) {
     const e=this.engine;
-    if (sleep(e) || this.complete || this.failed || packet.generated || packet.fetchedInDream) return;
+    if (!wakingFlight(e) || this.complete || this.failed || packet.generated || packet.fetchedInDream) return;
     const t=this.targets.find(t=>t.object===packet && (t.type==='spark' || t.flash));
     if (!t || this.seen.has(t) || (this.id==='precision' && packet.deliveredByWisp)) return;
     if (t.flash) {
@@ -335,7 +410,7 @@ export class FlightObjective {
     }
     this.count(t);
   }
-  update() {
+  update(dt=0,gust=null) {
     if (!this.eligible || this.failed) return;
     const e=this.engine, worldX=e.distance+e.player.x;
     if (sleep(e)) {
@@ -343,6 +418,8 @@ export class FlightObjective {
       this.lastPulse=e.edgingPulse.triggerCount;
       return;
     }
+    if(!wakingFlight(e))return;
+    if(this.id==='reserve-finish'){this.refreshReserve();return;}
     if (this.hole && this.hole.drained*GLOW_DISPLAY_SCALE>3+1e-8) {this.failed=true;return;}
     if (this.complete) return;
     if(this.id==='constellation'){
@@ -366,6 +443,12 @@ export class FlightObjective {
       this.lastPulse=e.edgingPulse.triggerCount;
     } else if (this.id==='wild-circuit') {
       for (const t of this.targets) if (t.object.spent) this.count(t);
+    } else if(this.id==='draft-rider') {
+      const t=this.targets[0];
+      if(gust?.active&&gust.puffId===t.object.id&&dt>0&&dt<=.1){
+        const contact=this.progress+dt;
+        this.progress=contact+1e-8>=this.target?this.target:contact;
+      }
     } else if (this.id==='wayfinder') {
       for (const t of this.targets) {
         if (Math.abs(worldX-t.x)<10 && Math.abs(e.player.y-t.y)<=t.radius) this.count(t);
@@ -373,6 +456,7 @@ export class FlightObjective {
     }
     // A missed marker can no longer be earned after both the wisp and its
     // possible Collector delivery have left. Keep the HUD truthful on misses.
+    if(this.id==='lift-windows'&&this.targets.filter(t=>this.seen.has(t)||worldX<=t.end).length<this.target)this.failed=true;
     if (worldX>this.targets.at(-1).x+Math.max(400,maxSpeed(e)*3.5) && !this.complete &&
       !(this.id==='edgeweaver' && worldX<=this.targets.at(-1).end)) this.failed=true;
   }
@@ -381,6 +465,7 @@ export class FlightObjective {
     for (const p of this.guide) p.y*=factor;
     for (const t of this.targets) {
       t.y*=factor;
+      if(t.type==='lift')t.radius*=factor;
       for (const p of t.ribbon||[]) {p.y*=factor;p.surface*=factor;}
     }
   }
@@ -424,6 +509,32 @@ export function drawObjectiveMarks(c,e,{scale=1,distance=e.renderDistance}={}) {
         if (p.x-playerX < -95 || p.x-playerX > lead) continue;
         pixel(p.x-distance-4,p.surface-t.side*6,9,2,'#f4c87d');
       }
+    }
+    if(t.type==='lift') {
+      if(playerX>t.end||t.start-playerX>lead)continue;
+      const left=t.start-distance,right=t.end-distance;
+      for(const edge of [y-t.radius,y+t.radius]){
+        pixel(left,edge,Math.max(1,right-left),2,'#d4ac69');
+        pixel(left,edge-3,3,7,'#ffe7a3');pixel(right-2,edge-3,3,7,'#ffe7a3');
+      }
+      for(let j=0;j<4;j++){
+        pixel(x-2-j*3,y-7+j*3,4,3,'#a4e6f3');
+        pixel(x-1+j*3,y-7+j*3,4,3,'#a4e6f3');
+      }
+      continue;
+    }
+    if(t.type==='draft') {
+      if(playerX>t.end||t.start-playerX>lead)continue;
+      const zone=t.object;
+      for(const side of [-1,1]){
+        pixel(x+side*zone.rx-2,y-7,3,14,'#ffe7a3');
+        pixel(x-9,y+side*zone.ry,18,2,'#d4ac69');
+      }
+      for(let j=0;j<4;j++){
+        pixel(x-j*3,y+zone.direction*(j*3-5),4,3,'#ffe7a3');
+        pixel(x+j*3,y+zone.direction*(j*3-5),4,3,'#ffe7a3');
+      }
+      continue;
     }
     if(dx>lead || x < -40 || x>e.width+35) continue;
     const gate=t.type==='gate', a=gate?14:22, b=gate?t.radius:19;

@@ -6,6 +6,7 @@ import {GLOW_DISPLAY_SCALE} from '../dist/vitality.mjs';
 import {getPickupSpec} from '../dist/pickups.mjs';
 import {sparkMass} from '../dist/spark-size.mjs';
 import {createFlightObjective} from '../dist/flight-objectives.mjs';
+import {DRAFT_TUNING} from '../dist/drafts.mjs';
 
 const fixtureSeeds=new Map();
 function flight(id, modifiers={},spare=false) {
@@ -230,4 +231,101 @@ test('Night Sail waits until the marked hole has passed and counts its Energy dr
     assert.equal(game.routeObjective.complete,drain===3);
     assert.equal(game.routeObjective.failed,drain>3);
   }
+});
+
+test('exit reserve is the current waking fuel, falls after a Lift and only completes at the real exit',()=>{
+  const game=flight('reserve-finish');game.render=game.notify=()=>{};
+  game.flame=20;
+  assert.equal(game.routeObjective.state.current,6);
+  assert.equal(game.routeObjective.state.progress,6);
+  assert.equal(game.routeObjective.complete,false);
+  assert.ok(game.flap());
+  assert.equal(game.routeObjective.state.current,3);
+  assert.equal(game.routeObjective.complete,false);
+  game.mod.maxGlow=200;game.flame=19.9;
+  assert.equal(game.routeObjective.state.current,5.9);
+  game.finish(true); // A fabricated early clear is not reaching the exit.
+  assert.equal(game.routeObjective.complete,false);
+  game.destroy();
+  for(const [fuel,success] of [[20,true],[19.9,false]]){
+    const end=flight('reserve-finish');end.render=end.notify=()=>{};end.flame=fuel;
+    end.distance=end.totalDistance;end.finish(true);
+    assert.equal(end.routeObjective.complete,success);
+    assert.equal(end.routeObjective.failed,!success);
+    end.destroy();
+  }
+  for(const blocked of [{paused:true},{alive:false},{dream:{active:true,mode:'replay'}},{dream:{active:false,mode:'record'}},{dying:true}]){
+    const end=flight('reserve-finish');end.render=end.notify=()=>{};end.distance=end.totalDistance;end.flame=20;
+    Object.assign(end,blocked);end.finish(true);
+    assert.equal(end.routeObjective.complete,false);end.destroy();
+  }
+});
+
+test('marked Lift windows count successful waking inputs once and allow one missed chance',()=>{
+  const game=flight('lift-windows');game.render=game.notify=()=>{};
+  const marks=targets(game),fuel=JSON.stringify(game.layout.embers);
+  assert.equal(marks.length,3);
+  for(const mark of marks.slice(1)){
+    visit(game,mark.x,mark.y+mark.radius+1);game.flap();
+    const before=game.routeObjective.progress;
+    visit(game,mark.x,mark.y);game.flame=0;
+    assert.equal(game.flap(),false);assert.equal(game.routeObjective.progress,before);
+    game.flame=100;game.paused=true;
+    assert.equal(game.flap(),false);assert.equal(game.routeObjective.progress,before);
+    game.paused=false;game.dream={active:true,mode:'replay'};
+    game.flap();assert.equal(game.routeObjective.progress,before);
+    game.dream=null;assert.ok(game.beginLiftInput());game.endLiftInput(false);
+    assert.equal(game.routeObjective.progress,before+1);
+    game.flap();assert.equal(game.routeObjective.progress,before+1);
+  }
+  assert.ok(game.routeObjective.complete);
+  // Flight operations did not move or generate objective fuel.
+  assert.equal(JSON.stringify(game.layout.embers),fuel);
+  game.destroy();
+  const missed=flight('lift-windows');
+  visit(missed,targets(missed)[1].end+1,missed.height*.5);missed.routeObjective.update();
+  assert.ok(missed.routeObjective.failed);missed.destroy();
+});
+
+test('every marked Lift window supports its actual Lift arc at both horizontal ends',()=>{
+  const fixture=flight('lift-windows');
+  for(const t of targets(fixture))for(const x of [t.start,t.end]){
+    const game=flight('lift-windows');game.render=game.notify=()=>{};
+    visit(game,x,t.y);game.player.vy=0;game.time=(x-98)/game.baseSpeed;game.flame=100;
+    assert.ok(game.flap());
+    for(let frame=0;frame<66;frame++)game.step(1/60);
+    assert.ok(game.alive&&!game.dying,JSON.stringify({x,y:t.y,cause:game.deathCause}));game.destroy();
+  }
+  fixture.destroy();
+});
+
+test('draft progress needs half a second of actual marked moving air, excluding approaches and paused or Dream time',()=>{
+  const game=flight('draft-rider'),t=targets(game)[0],zone=t.object;
+  game.render=game.notify=()=>{};
+  assert.ok(game.drafts.zones.includes(zone)&&!zone.guardian);
+  visit(game,zone.x-zone.rx,zone.y);game.player.vy=0;
+  game.time=(zone.x-zone.rx-98)/game.baseSpeed;
+  zone.triggeredAt=game.time-DRAFT_TUNING.warning;
+  assert.equal(game.routeObjective.progress,0);
+  game.step(1/60); // Actual sampled air begins just inside its footprint.
+  for(let frame=0;frame<90&&!game.routeObjective.complete&&!game.dying;frame++){
+    if(game.player.y>zone.y+zone.ry*.2&&game.player.vy>0)game.flap();
+    game.step(1/60);
+  }
+  assert.ok(game.alive&&!game.dying);
+  assert.ok(game.routeObjective.complete,JSON.stringify(game.routeObjective.state));
+  assert.equal(game.routeObjective.state.progress,.5);game.destroy();
+  const missed=flight('draft-rider'),mark=targets(missed)[0],draft=mark.object;
+  visit(missed,draft.x,draft.y);draft.triggeredAt=0;missed.time=DRAFT_TUNING.warning+.3;
+  const gust=missed.gustState();assert.ok(gust.active);
+  for(const patch of [{paused:true},{dream:{active:true,mode:'replay'}},{dream:{active:false,mode:'record'}},{dying:true},{running:false}]){
+    Object.assign(missed,patch);missed.routeObjective.update(1/60,gust);
+    assert.equal(missed.routeObjective.progress,0);
+    Object.assign(missed,{paused:false,dream:null,dying:false,running:true});
+  }
+  missed.routeObjective.update(1/60,{...gust,puffId:'another-draft'});
+  missed.routeObjective.update(1/60,{...gust,active:false});
+  assert.equal(missed.routeObjective.progress,0);
+  visit(missed,draft.x+draft.rx+600,draft.y);missed.routeObjective.update();
+  assert.ok(missed.routeObjective.failed);missed.destroy();
 });

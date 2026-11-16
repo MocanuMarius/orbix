@@ -4,7 +4,7 @@
  * ordinary overflow are sensitivity inputs, not measurements of human wins.
  */
 import {writeFileSync} from 'node:fs';
-import {newState,createRun,advanceMap,chooseStartingGift,getRouteBonusCandidates,getAvailableUpgrades,
+import {newState,createRun,advanceMap,chooseStartingGift,getStartingGiftOffers,getChoices,selectNode,getRouteBonusCandidates,getAvailableUpgrades,
   getSkillCost,getSkillWallet,buyCheckpointSkill} from '../dist/model.mjs';
 import {prepareRouteOffer} from '../dist/route-offers.mjs';
 import {ROUTE_BONUSES} from '../dist/route-bonuses.mjs';
@@ -31,7 +31,7 @@ for(let i=0;i<scenarios;i++){
   const run=createRun(profile,'route-bonus-audit-'+i,[1,2,4,6][i%4]);
   run.companionRole=roles[(i+Math.floor(i/4))%4];run.companions=[run.companionRole];seenRoles.add(run.companionRole);
   byRole[run.companionRole]??=counts();
-  const gift=i%2?'proximity-awakening':'main-dream';
+  const gift=getStartingGiftOffers(run)[i%2]?.id||getStartingGiftOffers(run)[0]?.id;
   if(!chooseStartingGift({run,profile},gift))throw Error('Invalid starting gift '+gift);
   const walletTemplate=structuredClone(run);
   if(i%3===1)run.skills['main-speed']=1;
@@ -119,10 +119,43 @@ for(const hit of [.55,.7,.85])for(const policy of ['uniform','seek-cash']){
  }
  results.push({hit,policy,samples:trials,paidPerFlight:+(paid/flights).toFixed(3),paidPerRun:+(paid/trials).toFixed(2),maxRun:maxPaid,baseRestPurchases:+(beforeRanks/trials).toFixed(2),rewardRestPurchases:+((beforeRanks+extraRanks)/trials).toFixed(2),extraRestPurchases:+(extraRanks/trials).toFixed(2),taken,metCondition});
 }
+const actualPaths=[];
+const pathOffered=counts(),pathTaken=counts();
+for(let i=0;i<scenarios;i++){
+ const profile=newState().profile;profile.stats.flights=32;profile.difficulty=6;
+ const run=createRun(profile,'route-bonus-actual-path-'+i,[1,2,4,6][i%4]);
+ run.companionRole=roles[i%4];run.companions=[run.companionRole];
+ const gift=getStartingGiftOffers(run)[i%2]?.id||getStartingGiftOffers(run)[0]?.id;
+ if(!chooseStartingGift({run,profile},gift))throw Error('Invalid actual-path gift '+gift);
+ const random=rand(773+i*113),maps=[];
+ for(let m=0;m<3;m++){
+  if(m){run.phase='map-clear';advanceMap(run);}
+  const reached=[];
+  while(run.step<run.map.length){
+   run.phase='map';
+   const choices=getChoices(run);
+   if(!choices.length)throw Error('Actual route has no connected choice');
+   for(const site of choices){
+    if(site.type==='support'||site.boss&&m===2)continue;
+    const offer=prepareRouteOffer(run,site,{profile,width:i%2?740:900,height:i%2?333:405});
+    if(offer)pathOffered[offer.id]++;
+   }
+   const chosen=choices[Math.floor(random()*choices.length)];
+   if(!selectNode(run,chosen.id))throw Error('Actual route selection failed');
+   reached.push({row:chosen.row,nodeId:chosen.id,bonusId:chosen.bonusId||null});
+   if(chosen.type!=='support'){run.stats.flights++;if(chosen.bonusId)pathTaken[chosen.bonusId]++;}
+   // Clear conditioning concerns the offered challenge mix, not physical wins.
+   // Advance only the selected connected stop; run.path retains real history.
+   run.step++;run.current=null;
+  }
+  maps.push(reached);
+ }
+ actualPaths.push({seed:run.campaignSeed,gift,maps});
+}
 const witnesses=[];
 for(const [index,example]of [...witnessCases.values()].entries()){
  for(const [j,style]of ['human150','human250','human350'].entries())witnesses.push(playRouteWitness(example,style,rand(1447+index*37+j)));
 }
-const report={scenarios,cases,biomes:biomes.size,levelIdentities:locations.size,companions:[...seenRoles],fallbacks,unoffered,proposed,offered,byRole,byMap,economy:results,witnesses};
+const report={scenarios,actualPathAudit:{offered:pathOffered,taken:pathTaken,paths:actualPaths},cases,biomes:biomes.size,levelIdentities:locations.size,companions:[...seenRoles],fallbacks,unoffered,proposed,offered,byRole,byMap,economy:results,witnesses};
 console.log(JSON.stringify(report,null,2));
 if(process.argv[3])writeFileSync(process.argv[3],JSON.stringify(report,null,2)+'\n');

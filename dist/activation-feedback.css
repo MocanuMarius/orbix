@@ -14,3 +14,11 @@
 @media(max-height:440px){.activation-feedback{top:74px;gap:3px 9px}.activation-source,.activation-source>svg{width:29px!important;height:29px!important}.activation-cue{min-height:30px;font-size:10px}}
 @media(prefers-reduced-motion:reduce){.activation-cue,.activation-source,.activation-triggered{animation:none!important;transition:none!important}}
 [data-reduced-motion=true] .activation-cue,[data-reduced-motion=true] .activation-triggered{animation:none!important;transition:none!important}
+
+/* Live Collector effects occupy the former Power area beside Lift. */
+.flight-effect-space .activation-feedback{position:relative;inset:auto;order:1;flex:none;justify-content:flex-end;flex-wrap:nowrap;width:100%;gap:3px;min-height:0}
+.flight-effect-space .activation-cue{min-height:26px;font-size:11px;gap:3px;padding:0 2px;background:#10271dbf;border-radius:2px}
+.flight-effect-space .activation-source,.flight-effect-space .activation-source>svg{width:24px!important;height:24px!important}
+.flight-effect-space .activation-outcome{max-width:100px;gap:3px}
+.flight-effect-space .activation-outcome svg{width:14px!important;height:14px!important}
+.flight-effect-space .activation-cue:nth-last-child(n+4){display:none}

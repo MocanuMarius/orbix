@@ -38,7 +38,7 @@ try{
   const layout=await browser.ev(`(()=>{const d=document.querySelector('dialog.flight-preview-sheet'),read=d.querySelector('.preview-reading'),foot=d.querySelector('footer');return{body:d.innerText,readingHeight:read.clientHeight,readingScroll:read.scrollHeight,footer:foot.getBoundingClientRect().toJSON(),dialog:d.getBoundingClientRect().toJSON(),overflow:document.documentElement.scrollWidth>innerWidth,buttons:[...foot.querySelectorAll('button')].map(b=>({text:b.innerText,height:b.getBoundingClientRect().height}))}})()`);
   assert.ok(!layout.overflow,label);assert.ok(layout.footer.bottom<=height,label);
   assert.ok(layout.buttons.every(b=>b.height>=44),label);
-  assert.match(layout.body,/On clear/);assert.match(layout.body,/Optional challenge/);assert.match(layout.body,/Then clear/);
+  assert.match(layout.body,/On clear/);assert.match(layout.body,/Optional challenge/);assert.doesNotMatch(layout.body,new RegExp(fixture.bonusName));
   if(desired==='heartwood')assert.match(layout.body,/\+3 maximum Sparks permanently/);
   await browser.shot(out+'/'+label+'-'+width+'x'+height+'.png');
   checks.push({label,fixture,layout});

@@ -1,6 +1,6 @@
 import {atlasGlyph,ATLAS_FORECASTS} from './night-atlas.mjs?v=guide-clarity-1';
 import {bonusIcon} from './route-bonus-ui.mjs?v=guide-clarity-1';
-import {ROUTE_BONUSES} from './route-bonuses.mjs?v=guide-clarity-1';
+import {getRouteBonus} from './route-bonuses.mjs?v=guide-clarity-1';
 import {landmarkArt,landmarkCategory,biomeGroundArt} from './map-landmarks.mjs?v=guide-clarity-1';
 import {THEME_INKS} from './replay-ui.mjs?v=guide-clarity-1';
 import {getRouteMapState} from './model.mjs?v=guide-clarity-1';
@@ -58,7 +58,8 @@ export function landscapeRouteView(run,{compact=false}={}){
   const labelHalf=compact?88:77,labelHeight=28;
   const weather=ATLAS_FORECASTS[n.atlasForecast];
   const environment=(weather?weather.name+'. ':'')+(n.type!=='support'&&n.biomeName?`${n.biomeName}. ${n.interactionHint||''} `:'');
-  const aria=here?`You are here: ${label}, ${name}. Choose a lit next stop.`:reachable?`Next stop. Preview ${label}: ${name}. ${environment}${info.summary} ${n.rewardPreview||''} ${ROUTE_BONUSES[n.bonusId]?.name||''}`:possible?`Future stop. Preview ${label}: ${name}. ${environment}${info.summary} ${n.rewardPreview||''} ${ROUTE_BONUSES[n.bonusId]?.name||''}`:seen?`Completed: ${label}, ${name}.`:`Closed branch: ${label}, ${name}. Not reachable from your path.`;
+  const bonus=n.bonusId?getRouteBonus(run,n):null,challenge=bonus?`Optional challenge. ${bonus.condition} ${bonus.reward}`:'';
+  const aria=here?`You are here: ${label}, ${name}. Choose a lit next stop.`:reachable?`Next stop. Preview ${label}: ${name}. ${environment}${info.summary} ${n.rewardPreview||''} ${challenge}`:possible?`Future stop. Preview ${label}: ${name}. ${environment}${info.summary} ${n.rewardPreview||''} ${challenge}`:seen?`Completed: ${label}, ${name}.`:`Closed branch: ${label}, ${name}. Not reachable from your path.`;
   nodes+=`<g class="world-map-node route-state-${routeState} ${reachable?'reachable':''} ${seen?'taken':''} ${!possible&&!seen?'unreachable':''} ${here?'current-position':''}" data-route-state="${routeState}" data-route-label="${showName?'full':showType?'type':'none'}" ${interactive?actionAttributes('preview-node',{id:n.id,tabindex:0,role:'button'}):'role="img"'} ${here?'aria-current="location"':''} aria-label="${esc(aria)}">
    <title>${esc(aria)}</title>${interactive?`<rect class="route-node-hit" x="${p.x-(compact?82:66)}" y="${p.y-32}" width="${compact?164:132}" height="${showName?94:showType?75:64}" fill="transparent"/>`:''}
    <g class="route-node-art" aria-hidden="true">

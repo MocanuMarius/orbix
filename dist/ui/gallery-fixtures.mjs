@@ -16,7 +16,7 @@ export function createComponentFixture(family,variant){
   if(family==='route'&&variant==='wayfinder'){
     // A naturally generated first stop: no replacement level or forced quest.
     const node=run.map[0].find(item=>item.levelId==='thorn-thorn-steeple');
-    if(!node||prepareRouteOffer(run,node,{profile:state.profile,width:900,height:405})?.id!=='wayfinder')throw Error('Thorn Steeple Wayfinder fixture changed.');
+    if(!node||prepareRouteOffer(run,node,{profile:state.profile,width:900,height:405})?.id!=='wayfinder')throw Error('Thorn Steeple gate fixture changed.');
   }
   if(family==='collection'){
     run.restReady=['rest','confirm'].includes(variant);
@@ -24,12 +24,12 @@ export function createComponentFixture(family,variant){
   }
   if(family==='rewards'||family==='dialogs'){
     run.phase='victory';
-    run.lastFlight={elite:true,success:true,completionBonus:12,pickupCondensedGlow:3,routeBonus:{amount:5,message:'Wayfinder challenge completed.'}};
+    run.lastFlight={elite:true,success:true,completionBonus:12,pickupCondensedGlow:3,routeBonus:{id:'precision',amount:8,message:'+8 Stored Sparks'}};
     run.flightReward={offers:['glass-lantern','echo-vessel'],claimed:variant==='acquired',chosen:variant==='acquired'?'echo-vessel':null};
     if(variant==='clear')run.flightReward={offers:[],claimed:true};
     if(family==='rewards'&&['pedestal','horizontal','compact'].includes(variant)){
       run.artifacts.push('dawn-loom');
-      run.lastFlight={elite:true,success:true,completionBonus:12,pickupCondensedGlow:3,routeBonus:{id:'wild-circuit',amount:0,message:'Wild Circuit completed. Companion recovery 20% faster for 3 cleared flights.'}};
+      run.lastFlight={elite:true,success:true,completionBonus:12,pickupCondensedGlow:3,routeBonus:{id:'wild-circuit',amount:0,message:'Companion recovery 20% faster for 3 cleared flights.'}};
       run.flightReward={offers:['dawn-loom','echo-vessel'],claimed:true,chosen:'dawn-loom'};
       run.passageBoons={'wild-circuit':3};
     }

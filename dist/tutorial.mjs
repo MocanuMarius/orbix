@@ -7,8 +7,8 @@ const clamp = (n, lo, hi) => Math.min(hi, Math.max(lo, n));
 const collects = engine => engine.hasCompanion?.('collector') ?? getCompanionAbility(engine.companionRole).collects;
 
 export function createTutorialState(node = {}) {
-  if (!['glide', 'wind', 'hazards', 'proximity', 'black-hole', 'guardian'].includes(node.tutorialLesson)) return null;
-  return { lesson: node.tutorialLesson, directPickups: 0, carrierDeliveries: 0,
+  if (!['glide', 'wind', 'hazards', 'proximity', 'black-hole', 'guardian', 'rhythm'].includes(node.tutorialLesson)) return null;
+  return { lesson: node.tutorialLesson, practiceCards:node.practiceCards===true, directPickups: 0, carrierDeliveries: 0,
     firstDirectAt: null, firstDeliveryAt: null, glideSeconds: 0,
     sawWind: false, sawWindWarning: false, windRevealed: false, finishedWind: false,
     avoidedWind: false, sawCooldown: false, sawReel: false, toolObserved: false,
@@ -37,7 +37,7 @@ export function buildTutorialLayout({ lesson, duration, height, speed = 154 }) {
   const lastSolid = duration * speed - speed * 2.8;
   for (let x = 390, index = 0; x + 170 * 2.45 + 35 < lastSolid; x += 300, index++) {
     const width = 170, firstShelf = lesson === 'glide' && index === 0;
-    const gap = height * (firstShelf ? .58 : lesson === 'black-hole' ? .74 : lesson === 'wind' ? .64 : .66);
+    const gap = height * (lesson==='rhythm' ? .84 : firstShelf ? .58 : lesson === 'black-hole' ? .74 : lesson === 'wind' ? .64 : .66);
     obstacles.push({ id: `practice-${index}`, x, width,
       center: height * (.5 + Math.sin(index * 1.2) * .022), gap,
       phase: 0, motion: 0, pattern: 'practice-terraces', variation: index % 4,
@@ -117,8 +117,13 @@ export function tuneTutorialGuardian(layout,height){
  return layout;
 }
 export function configureTutorialScene(engine){
- const lesson=engine.tutorial?.lesson;if(!['glide','proximity','black-hole','guardian'].includes(lesson))return;
+ const lesson=engine.tutorial?.lesson;if(!['glide','proximity','black-hole','guardian','rhythm'].includes(lesson))return;
  engine.drafts.zones=[];engine.biomeDynamics.items=[];engine.blackHoles.items=[];
+ if(['proximity','black-hole'].includes(lesson)){
+  engine.layout.embers.push({id:`practice-${lesson}-flash`,kind:'sight',x:lesson==='proximity'?900:650,y:engine.height*.52,value:0,fuel:false,collected:false,attracted:false,phase:1});
+  if(lesson==='black-hole')engine.layout.embers.push({id:'practice-dark-optional',kind:'dark',x:2450,y:engine.height*.30,value:0,fuel:false,harmful:true,tutorialDark:true,collected:false,attracted:false,phase:2});
+  engine.layout.embers.sort((a,b)=>a.x-b.x);
+ }
  if(lesson!=='black-hole')return;
  const y=engine.height*.24,bypassY=engine.height*.72,x=1380;
  engine.mod.lightRadius=Math.max(360,engine.mod.lightRadius||0);
@@ -196,7 +201,7 @@ export function getTutorialHint(engine) {
   const hint=(id,title,text,step)=>({id,title,text,step,total:4,waitingForLift:Boolean(engine.tutorialAwaitingLift),
     worldFocus:getTutorialWorldFocus(engine),observed:{directPickups:state.directPickups,carrierDeliveries:state.carrierDeliveries,
       carrierRest:state.sawReel||state.sawCooldown,tool:state.toolObserved,draft:state.finishedWind,darkAvoided:state.darkAvoided,darkCleared:state.darkCleared}});
-  if(engine.tutorialAwaitingLift)return hint('launch','Tap Lift to begin',state.lesson==='glide'?(engine.options?.cardPilot?'Lift Guide is loaned here. The amber chevron opens for a good tap window. Tap Lift yourself; release to glide.':'Tap Lift or the scene to rise; release to glide. MENU pauses.'):state.lesson==='proximity'?'Follow the Sparks near the floor. Keep a little space from solid rock.':state.lesson==='black-hole'?'The dark core ahead drains Sparks. Follow the lower, wider route.':'Watch the Warden’s warning, then fly through the wide opening.',1);
+  if(engine.tutorialAwaitingLift)return hint('launch','Tap Lift to begin',state.lesson==='glide'?(engine.options?.cardPilot?'Lift Guide is loaned here. The amber chevron opens for a good tap window. Tap Lift yourself; release to glide.':'Tap Lift or the scene to rise; release to glide. MENU pauses.'):state.lesson==='proximity'?'Follow the Sparks near the floor. Keep a little space from solid rock.':state.lesson==='rhythm'?'Tap three evenly spaced Lifts. Watch the wave cross an uncollected Spark.':state.lesson==='black-hole'?'The dark core ahead drains Sparks. Follow the lower, wider route.':'Watch the Warden’s warning, then fly through the wide opening.',1);
   if(engine.dying)return hint('last-spark','The light scatters','Try again from this entrance. Practice retries are unlimited; your entrance fuel and build return.',2);
   if(engine.flame<engine.flapCost*2)return hint('low-glow','Find a Spark','Without enough Sparks you cannot Lift, but you can still collect fuel while falling. Collector keeps searching.',2);
   const exit=engine.getExitLandmark?.();
@@ -225,6 +230,7 @@ export function getTutorialHint(engine) {
     if(x>engine.player.x-60)return hint('bypass','Give the dark core space','Stay on the lower Spark route. Distance keeps the drain small; the core is not a pickup.',2);
     return hint('clear-core','The wide route is safer','Collect the recovery Sparks beyond the core, then reach the waylight.',4);
   }
+  if(state.lesson==='rhythm')return hint('rhythm','Three even Lifts → a wave','Let the ring cross a Spark you have not collected. Resonant Harvest rewards the crossing.',2);
   if(state.lesson==='guardian')return hint('guardian','Read the Warden’s hands',engine.getBossState?.()?.warning||'Stone hands mark the solid edges. Use small Lifts through each broad opening; the quiet rooms give you time.',2);
   const gust=engine.gustState();
   const dark=engine.layout.embers.find(packet=>packet.tutorialDark),darkX=dark?dark.x-engine.distance:Infinity;

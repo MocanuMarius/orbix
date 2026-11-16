@@ -1,3 +1,4 @@
+import {PRACTICE_EDITION,isPlayablePractice,loanPracticeCards,practiceModifiers} from './practice-route.mjs?v=guide-clarity-1';
 import {prepareScoreLedger,awardScoreStores,awardSettledScoreStores,freezeCompletedGameScore,recordCompletedGameScore} from './game-score.mjs?v=guide-clarity-1';
 import {getCardChargeCapacity,getCardFeederCapacity,getEmberFeederTargets,consumeCardUseDoublers} from './skill-cards.mjs?v=guide-clarity-1';
 import {collectorPreference,learnedCollectorPreferences} from './collector-preferences.mjs?v=guide-clarity-1';
@@ -36,6 +37,7 @@ import { BIOMES } from './biomes.mjs?v=guide-clarity-1';
 import { EVENT_SCENARIOS } from './map-guide.mjs?v=guide-clarity-1';
 import {contextualEventChoices,resolvePilgrimVow,ROUTE_PREPARATION} from './contextual-events.mjs?v=guide-clarity-1';
 import {TREASURE_KINDS, describeTreasure, treasureChoices, treasureRank, grantTreasureGift, treasureClearDividend, LENS_SIGHT, LENS_RECOVERY, settleTreasureWager} from './treasure.mjs?v=guide-clarity-1';
+import {routeBonusNoteText,routeBonusReceiptText} from './route-bonus-copy.mjs?v=guide-clarity-1';
 export const SAVE_KEY='wispbound.save.condensed.v7';
 export const CAMPAIGN_MAP_NAMES=Object.freeze(['The Forgotten Verge','The Rootbound March','The Warden’s Reach']);
 export const TERRAINS=Object.freeze({ruins:{id:'ruins',name:'Sunken Ruins',color:'#cdb183',description:'Broken homes, worn arches and overgrown stone.'},canopy:{id:'canopy',name:'Luminous Canopy',color:'#94b48a',description:'Hollow trees, hanging roots and sheltered forest passages.'},storm:{id:'storm',name:'Stormglass Peaks',color:'#a8bbca',description:'Pine ridges, old mine timbers and local draft puffs.'}});
@@ -300,6 +302,7 @@ export function getTreasureKind(run,node=run?.current){
  return treasureDeck(run.seed,run.mapIndex)[Math.max(0,index)%TREASURE_KINDS.length];
 }
 export function getTreasureChoices(run,node=run?.current){
+ if(isPlayablePractice(run)&&node.practiceLoan)return [{title:'Borrow Proximity',icon:'sight',description:'A real card loan: skim solid terrain to earn a revealing pulse. Catch the white Flash triangle along the way.',displayUnits:true,effect:{practiceLoan:true}}];
  if(run.isTutorial&&node.practiceLoan)return [{title:'Borrow Proximity · rank 1',skillId:'proximity-awakening',icon:'sight',description:'Fly near solid terrain to charge a revealing Surface Pulse. This rank-one skill loan stays in practice.',displayUnits:true,effect:{practiceLoan:true}}];
  if(run.isTutorial)return treasureChoices(getTreasureKind(run,node),run);
  return chestRewardPair(run,(run.campaignSeed||run.seed)+':'+run.mapIndex+':'+node.id,{
@@ -1500,7 +1503,7 @@ function flightClearReceipt(run){
   cardPackingBonus:count(flight.cardPackingBonus),
   storageBonus:count(flight.storageBonus),
   resonanceStored:count(flight.resonanceStored),
-  notes:[flight.vow?.message,flight.treasureWager?.message,flight.routeBonus?.message,flight.chestIncome?.message,flight.cardClearReceipt?.stored?`Cards on clear · +${flight.cardClearReceipt.stored} Stored Sparks`:null,flight.cardClearReceipt?.futureCapacity?`Growth Ring · +${flight.cardClearReceipt.futureCapacity} maximum Sparks permanently`:null,flight.cardClearReceipt?.cruisingSpeed?`Wind Feather · +${flight.cardClearReceipt.cruisingSpeed}% cruising speed unlocked (cap +6%)`:null,flight.cardPackingBonus?`Tight Packing · +${flight.cardPackingBonus} Stored Sparks`:null].filter(Boolean)};
+  notes:[flight.vow?.message,flight.treasureWager?.message,routeBonusReceiptText(flight.routeBonus),flight.chestIncome?.message,flight.cardClearReceipt?.stored?`Cards on clear · +${flight.cardClearReceipt.stored} Stored Sparks`:null,flight.cardClearReceipt?.futureCapacity?`Growth Ring · +${flight.cardClearReceipt.futureCapacity} maximum Sparks permanently`:null,flight.cardClearReceipt?.cruisingSpeed?`Wind Feather · +${flight.cardClearReceipt.cruisingSpeed}% cruising speed unlocked (cap +6%)`:null,flight.cardPackingBonus?`Tight Packing · +${flight.cardPackingBonus} Stored Sparks`:null].filter(Boolean)};
 }
 function normalizeClearFlow(run){
  if(!run?.victoryPending||!run.lastFlight?.success||run.lastFlight.elite||run.lastFlight.boss||run.flightReward?.offers?.length)return;
@@ -1510,6 +1513,7 @@ function normalizeClearFlow(run){
 export function takeClearRewardReceipt(run){
  if(!run||run.phase!=='map'||run.victoryPending||!run.clearRewardReceipt)return null;
  const receipt=copy(run.clearRewardReceipt);
+ if(Array.isArray(receipt.notes))receipt.notes=receipt.notes.map(routeBonusNoteText).filter(Boolean);
  delete run.clearRewardReceipt;
  return receipt;
 }
@@ -1588,6 +1592,7 @@ function inRefundBranch(id,root,seen=new Set()){
 function rawSupportChoices(run,profile=null){
  if(run?.phase!=='support')return[];const n=run.current;
  if(n.kind==='camp'){
+  if(isPlayablePractice(run))return [choice('practice-recover','Recover & borrow a combination','Restore missing hearts and all Sparks. Borrow Rhythm and Resonant Harvest for the next passage.',{lives:Math.max(0,getLifeCapacity(run)-run.lives),flame:100,rest:'recover',practiceCombo:true})];
   const growth=Math.min(REST_GLOW_TUNING.capacityStep,REST_GLOW_TUNING.capacityLimit-getRestGlowBonus(run)),hearts=Math.max(0,getLifeCapacity(run)-run.lives),fuel=Math.max(0,getGlowCapacity(run)-run.flame),recover=hearts>0||fuel>0;
   const offers=[
    {...choice('rest-recover','Recover','Restore every missing heart and refill Sparks.',{lives:hearts,flame:100,rest:'recover'}),disabled:!recover,...(!recover?{disabledReason:'Hearts and Sparks are already full.'}:{})},
@@ -1616,7 +1621,8 @@ export function resolveSupport(run,index,profile=null){
  if(e.upgrade&&!canBuyCheckpointSkills({run}))return false;
  if(e.upgrade&&(getSkillCost(wallet,e.upgrade)===null||!run.testMode&&SKILLS[e.upgrade].requires&&!rank(run.skills,SKILLS[e.upgrade].requires)))return false;
  if(run.isTutorial)run.practiceCondensedGlow-=cost;else run.condensedGlow-=cost;
- if(e.practiceLoan){run.skills['proximity-awakening']=1;run.practiceLoan='proximity-awakening';}
+ if(e.practiceLoan){if(isPlayablePractice(run)){loanPracticeCards(run,['lift-guide','slip-feather']);run.practiceLoan='slip-feather';}else{run.skills['proximity-awakening']=1;run.practiceLoan='proximity-awakening';}}
+ if(e.practiceCombo)loanPracticeCards(run,['lift-guide','rhythm','harvest-common']);
  if(e.upgrade){if(run.testMode)for(const id of SKILLS[e.upgrade].excludes||[])forgetSkillBranch(run.skills,id,run.skillPaid);run.skills[e.upgrade]=rank(run.skills,e.upgrade)+1;(run.skillPaid??={})[e.upgrade]=(run.skillPaid[e.upgrade]||0)+cost;if(e.upgrade==='main-afterglow')run.condensationJustUnlocked=true;}
  if(e.chestRewardId){
   run.chestRewardHistory=[...new Set([...(run.chestRewardHistory||[]),...offers.map(choice=>choice.effect.chestRewardId).filter(Boolean)])];
@@ -1772,7 +1778,7 @@ export function getRunModifiers(run={}){const rank=skillProgress,companion=norma
   if(pact?.sight)m.lightRadius*=pact.sight;
   if(pact?.reach)m.attract*=pact.reach;
   if(isCardRun(run))m.speed+=cleanCardCruisingSpeed(run.attemptActive?run.cardCruisingSpeed:run.cardCruisingSpeedNext??run.cardCruisingSpeed)/100;
-  Object.assign(m,getCardModifiers(run));
+  Object.assign(m,getCardModifiers(run),practiceModifiers(run));
   if(m.cardProximityUnlocked||m.cardProximitySources>0)m.proximityUnlocked=true;
   if(m.cardFieldImpulse)m.collectorFieldImpulse=true;
   if(m.cardCacheHandling)m.collectorFetchMass=Math.max(3,m.collectorFetchMass);
@@ -1785,23 +1791,30 @@ export function getRunModifiers(run={}){const rank=skillProgress,companion=norma
 export function shouldStartTutorial(state){return !!state?.profile&&!state.settings?.skipTutorial&&!state.profile.tutorialComplete;}
 function createTutorial(profile){
  const r=createRun(profile,`practice-${freshSeed()}`);
- Object.assign(r,{isTutorial:true,tutorialEdition:2,mapIndex:0,mapName:'First Light · Six lessons',difficulty:1,
+ Object.assign(r,{isTutorial:true,tutorialEdition:PRACTICE_EDITION,mapIndex:0,mapName:'First Light · Seven stops',difficulty:1,
   skills:{'main-sight':1},artifacts:[],artifactCharges:{},companions:['collector'],companionRole:'collector',
   practiceCondensedGlow:0,condensedGlow:0,condensedRemainder:0,lives:2,maxLives:3,flame:100,unlockedCompanionDifficulty:1});
- const base={mapIndex:0,difficulty:1,elite:false,boss:false,bossId:null,...ROUTE_PROFILES.refuge,flightLengthScale:1,challengeId:'',challengeTarget:0,challengeBonus:0};
+ const base={mapIndex:0,difficulty:1,elite:false,boss:false,bossId:null,...ROUTE_PROFILES.refuge,flightLengthScale:1,challengeId:'',challengeTarget:0,challengeBonus:0,practiceCards:true};
  const node=(row,id,type,kind,terrain,name,nextIds,extra={})=>({...base,row,id,type,kind,terrain,name,locationName:name,lane:1,duration:0,nextIds,...extra});
  r.map=[
   [node(0,'practice-glide','flight','normal','ruins','Lift & Sparks',['practice-chest'],{levelId:'ruins-aqueduct',tutorialLesson:'glide',duration:22})],
   [node(1,'practice-chest','support','treasure','ruins','A Borrowed Pulse',['practice-proximity'],{treasureKind:'vessel',practiceLoan:true})],
   [node(2,'practice-proximity','flight','normal','ruins','Follow the Bend',['practice-rest'],{levelId:'ruins-aqueduct',tutorialLesson:'proximity',duration:24})],
-  [node(3,'practice-rest','support','camp','canopy','Rest & Recover',['practice-black-hole'])],
-  [node(4,'practice-black-hole','flight','normal','canopy','Give Darkness Space',['practice-guardian'],{levelId:'canopy-oldgrowth',tutorialLesson:'black-hole',duration:24})],
-  [node(5,'practice-guardian','finale','finale','ruins','Meet the Hollow Warden',[],{levelId:'ruins-aqueduct',tutorialLesson:'guardian',boss:true,bossId:'hollow-warden',duration:36})]
- ];return r;
+  [node(3,'practice-rest','support','camp','canopy','Rest & Recover',['practice-rhythm'])],
+  [node(4,'practice-rhythm','flight','normal','ruins','A Rhythm of Light',['practice-black-hole'],{levelId:'ruins-aqueduct',tutorialLesson:'rhythm',duration:26})],
+  [node(5,'practice-black-hole','flight','normal','canopy','Give Darkness Space',['practice-guardian'],{levelId:'canopy-oldgrowth',tutorialLesson:'black-hole',duration:24})],
+  [node(6,'practice-guardian','finale','finale','ruins','Meet the Hollow Warden',[],{levelId:'ruins-aqueduct',tutorialLesson:'guardian',boss:true,bossId:'hollow-warden',duration:36})]
+ ];loanPracticeCards(r,['lift-guide']);return r;
 }
 export function startTutorial(state,{forNewGame=false,difficulty=1}={}){
  if(!state?.profile)return false;const old=state.run;
- if(old?.isTutorial&&old.phase!=='ended')return false;
+ if(old?.isTutorial&&old.phase!=='ended'){
+  if(isPlayablePractice(old))return false;
+  const continuation=old.tutorialContinuation;state.run=createTutorial(state.profile);
+  if(continuation)state.run.tutorialContinuation=copy(continuation);
+  else if(forNewGame)state.run.tutorialContinuation={difficulty:Math.max(1,Math.floor(Number(difficulty)||1))};
+  return true;
+ }
  if(old?.isTutorial)bankRun(state);
  else{state.suspendedRun=old&&old.phase!=='ended'&&!old.banked?copy(old):null;if(state.suspendedRun?.attemptActive)interrupt(state.suspendedRun);}
  state.run=createTutorial(state.profile);

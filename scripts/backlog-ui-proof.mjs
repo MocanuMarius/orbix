@@ -1,0 +1,57 @@
+import http from 'node:http';
+import fs from 'node:fs/promises';
+import path from 'node:path';
+import assert from 'node:assert/strict';
+import {chrome,until,delay} from './browser-probe.mjs';
+const root=path.resolve('dist'),out=path.resolve('outputs/backlog-ui');await fs.mkdir(out,{recursive:true});
+const mime={'.html':'text/html','.mjs':'text/javascript','.js':'text/javascript','.css':'text/css','.svg':'image/svg+xml','.png':'image/png','.webp':'image/webp','.woff2':'font/woff2','.mp3':'audio/mpeg'};
+const server=http.createServer(async(req,res)=>{try{if(req.url==='/__dev-revision'){res.writeHead(200,{'Content-Type':'application/json'}).end(JSON.stringify({revision:'proof'}));return;}const file=path.resolve(root,'.'+new URL(req.url,'http://localhost').pathname);if(!file.startsWith(root+path.sep))throw Error();const bytes=await fs.readFile(file);res.writeHead(200,{'Content-Type':mime[path.extname(file)]||'application/octet-stream','Cache-Control':'no-store'}).end(bytes);}catch{res.writeHead(404).end();}});await new Promise(r=>server.listen(0,'127.0.0.1',r));
+const base='http://127.0.0.1:'+server.address().port,b=await chrome(['--mute-audio']),{ev,send}=b,report={checks:[],layouts:[]};
+const release=/src="app\.mjs\?v=([^"]+)"/.exec(await fs.readFile('dist/game.html','utf8'))[1];
+const click=selector=>ev(`document.querySelector(${JSON.stringify(selector)}).dispatchEvent(new MouseEvent('click',{bubbles:true}))`);
+const size=async(w,h)=>{await send('Emulation.setDeviceMetricsOverride',{width:w,height:h,deviceScaleFactor:1,mobile:true});await send('Emulation.setTouchEmulationEnabled',{enabled:true,maxTouchPoints:1});};
+async function seed(kind){
+ await b.visit(base+'/components-preview.html?family=cards&state=reward');await delay(300);await until(()=>ev("document.documentElement.dataset.previewReady==='true'"),'fixture seed page',100);
+ await ev(`(async()=>{const M=await import('./model.mjs?v=${release}'),C=await import('./skill-cards.mjs?v=${release}');const s=M.newState();s.settings.skipTutorial=true;s.profile.tutorialComplete=true;s.profile.pickupCoachSkipped=true;s.profile.difficulty=3;s.run=M.createRun(s.profile,${JSON.stringify(kind)}==='long'?'ui-long-8':'travel-guide-6',2,{cards:true});const r=s.run;r.startingGiftId='card:body-spark';r.guideSkipped=true;r.companions=['collector'];r.companionRole='collector';r.mountedCards=['downbeat','glide-prism','downbeat-iii'].map((id,i)=>C.makeSkillCard(id,'proof:'+i));r.condensedGlow=90;if(${JSON.stringify(kind)}==='reward'){r.cardReward={id:'ui-earned',source:'flight',claimed:false,card:C.makeSkillCard('watchlight','ui-earned')};}M.saveState(s,{getItem:k=>localStorage.getItem('cards-pilot:'+k),setItem:(k,v)=>localStorage.setItem('cards-pilot:'+k,v)});localStorage.setItem('emberwing-muted','true');})()`);
+ await b.visit(base+'/game.html?cards=1');await delay(300);await until(()=>ev("!!document.querySelector('[data-action=play],[data-action=continue-run],[data-action=new-game]')"),'seed home',100);await click('[data-action=continue-run],[data-action=play]');
+}
+const geometry=()=>ev(`(()=>{const rect=n=>n.getBoundingClientRect().toJSON();return{width:innerWidth,height:innerHeight,faces:[...document.querySelectorAll('.card-reward-body .skill-card')].map(n=>({...rect(n),name:n.dataset.cardName,rarity:[...n.classList].find(x=>['card-common','card-rare','card-legendary'].includes(x)),header:getComputedStyle(n.querySelector('.card-face-heading')).backgroundImage})),rules:[...document.querySelectorAll('.card-reward-body .card-rule-band')].map(n=>({height:n.clientHeight,scroll:n.scrollHeight,text:n.textContent})),text:document.body.innerText}})()`);
+try{
+ for(const [w,h]of [[900,405],[667,300],[667,375]]){
+  await size(w,h);await seed('reward');await until(()=>ev("!!document.querySelector('.card-reward-equip')"),'actual reward',100);await delay(80);const g=await geometry();
+  assert.equal(g.faces.length,4);assert.ok(g.faces.some(f=>f.rarity==='card-rare'&&f.header.includes('40, 86, 109')),'Rare blue header');
+  for(const r of g.faces)assert.ok(r.x>=0&&r.y>=0&&r.right<=w+1&&r.bottom<=h+1,'visible card');
+  assert.ok(g.rules.every(r=>r.scroll<=r.height+2),'complete actual reward rules '+JSON.stringify(g.rules));
+  await b.shot(path.join(out,`actual-reward-${w}x${h}.png`));report.layouts.push(g);
+  await click('[data-action=card-reward-equip]');await click('[data-action=card-reward-slot][data-index="0"]');assert.equal(await ev("document.querySelector('[data-index=\"0\"] .skill-card').dataset.cardInstance"),'ui-earned');
+  await click('[data-action=card-preview-reward-melt]');assert.ok(await ev("!!document.querySelector('.card-melt-confirm')"));await click('[data-action=card-cancel-melt]');report.checks.push(`normal-game-card-reward-equip-melt-cancel-${w}x${h}`);
+  await seed('map');await until(()=>ev("!!document.querySelector('.world-map-node[data-action=preview-node]')"),'actual map',100);
+  await click('[data-action=menu]');await click('[data-action=map-key]');await click('.map-biome-guide summary');assert.match(await ev("document.querySelector('.map-biome-guide').innerText"),/Briar Cathedral/);assert.ok(await ev("document.querySelectorAll('.map-biome-guide p').length<=3"));await b.shot(path.join(out,`actual-route-key-biomes-${w}x${h}.png`));await click('[data-action=close-sheet]');
+  const node=await ev("[...document.querySelectorAll('.world-map-node[data-action=preview-node]')].find(n=>n.textContent.includes('Thorn Steeple'))?.dataset.id");
+  assert.ok(node,'natural gate node');await click(`.world-map-node[data-id="${node}"]`);await until(()=>ev("!!document.querySelector('.preview-atlas')"),'Atlas',100);
+  const atlas=await ev(`(()=>{const p=document.querySelector('.preview-atlas'),r=p.querySelector('.preview-reading');return{text:p.innerText,clientHeight:r.clientHeight,scrollHeight:r.scrollHeight,rails:[...p.querySelectorAll('footer button')].map(n=>({height:n.getBoundingClientRect().height,disabled:n.disabled})),columns:getComputedStyle(p.querySelector('.preview-rewards')).gridTemplateColumns}})()`);
+  assert.doesNotMatch(atlas.text,/Travel Guide|Route details|Wayfinder|Reward/);assert.match(atlas.text,/On clear/);assert.match(atlas.text,/Optional/);assert.ok(atlas.scrollHeight<=atlas.clientHeight+1);assert.ok(atlas.rails.every(r=>r.height===h));await b.shot(path.join(out,`actual-atlas-gates-${w}x${h}.png`));report.layouts.push(atlas);
+  await click('.preview-back');const future=await ev("[...document.querySelectorAll('.world-map-node[data-action=preview-node]')].find(n=>n.dataset.routeState==='future')?.dataset.id");
+  if(future){await click(`.world-map-node[data-id="${future}"]`);assert.equal(await ev("document.querySelector('.preview-advance').disabled"),true);await b.shot(path.join(out,`actual-atlas-future-${w}x${h}.png`));await click('.preview-back');}
+  const boss=await ev("JSON.parse(localStorage.getItem('cards-pilot:wispbound.save.condensed.v7')).run.map.flat().find(n=>n.boss).id");await click(`.world-map-node[data-id="${boss}"]`);assert.equal(await ev("document.querySelector('.preview-advance').disabled"),true);assert.ok(await ev("!!document.querySelector('.preview-guardian-cue')"));await b.shot(path.join(out,`actual-atlas-guardian-${w}x${h}.png`));await click('.preview-back');
+  report.checks.push(`normal-map-atlas-gates-future-${w}x${h}`);
+ }
+
+ for(const [w,h]of [[900,405],[667,300]]){
+  await size(w,h);await seed('long');await until(()=>ev("!!document.querySelector('.world-map-node[data-action=preview-node]')"),'long map',100);
+  const target=await ev("[...document.querySelectorAll('.world-map-node[data-action=preview-node]')].find(n=>n.textContent.includes('Wedge Run'))?.dataset.id");assert.ok(target);
+  await click(`.world-map-node[data-id="${target}"]`);await until(()=>ev("!!document.querySelector('.preview-atlas')"),'long Atlas',100);
+  const fit=await ev("(()=>{const r=document.querySelector('.preview-reading');return{text:r.innerText,height:r.clientHeight,scroll:r.scrollHeight}})()");assert.match(fit.text,/Below 6 Sparks/);assert.ok(fit.scroll<=fit.height+1);await b.shot(path.join(out,`actual-atlas-long-${w}x${h}.png`));report.layouts.push(fit);report.checks.push(`actual-long-prize-atlas-${w}x${h}`);
+ }
+ for(const [w,h]of [[900,405],[667,300]]){
+ await size(w,h);await seed('map');await until(()=>ev("!!document.querySelector('.world-map-node[data-action=preview-node]')"),'map',100);await click('.world-map-node[data-route-state=next][data-action=preview-node]');await click('.preview-advance');await until(()=>ev("!!document.querySelector('[data-action=wake-flight]')"),'actual flight',200);await click('[data-action=wake-flight]');
+ assert.equal(await ev("getComputedStyle(document.querySelector('#boost-btn')).display"),'none');assert.ok(await ev("!!document.querySelector('.flight-effect-space .activation-feedback')"));
+ // A real falling Lift drives Downbeat and its later multiplier in slot order.
+ for(let i=0;i<8;i++){await delay(1050);await send('Input.dispatchKeyEvent',{type:'keyDown',key:' ',code:'Space',windowsVirtualKeyCode:32});await send('Input.dispatchKeyEvent',{type:'keyUp',key:' ',code:'Space',windowsVirtualKeyCode:32});if(await ev("!!document.querySelector('.flight-effect-space .flight-card-row:not([hidden])')"))break;}
+ await until(()=>ev("!!document.querySelector('.flight-effect-space .flight-card-row:not([hidden])')"),'live card event',30);
+ const hud=await ev(`(()=>{const row=document.querySelector('.flight-card-row'),dock=document.querySelector('.flight-dock');return{label:row.getAttribute('aria-label'),text:row.textContent,slots:[...row.querySelectorAll('.card-row-source:not([hidden])')].map(n=>n.dataset.traceSlot),row:row.getBoundingClientRect().toJSON(),dock:dock.getBoundingClientRect().toJSON(),lift:document.querySelector('#flap-btn').getBoundingClientRect().toJSON()}})()`);assert.match(hud.label,/Downbeat/);assert.ok(hud.slots.length>=2);assert.ok(hud.row.right<=hud.lift.x);assert.ok(hud.row.height>=44);assert.ok(hud.row.x>=0&&hud.row.bottom<=h);await b.shot(path.join(out,`actual-flight-card-event-${w}x${h}.png`));report.layouts.push(hud);report.checks.push('actual-live-falling-Lift-card-order-bonus-Collector-bar-removed');
+ await click('.flight-card-row');assert.ok(await ev("!!document.querySelector('.card-row-dialog[open]')"));await b.shot(path.join(out,'actual-card-receipt.png'));report.checks.push(`actual-card-receipt-inspection-${w}x${h}`);
+ }
+ for(const [w,h]of [[900,405],[667,300]]){await size(w,h);await b.visit(base+'/travel-guide-studies.html?art=atlas&view=full');await delay(200);await until(()=>ev("document.documentElement.dataset.guideStudyReady==='true'"),'historical Atlas',100);assert.ok(await ev("!!document.querySelector('#guide-frame').contentDocument.querySelector('.guide-study.study-atlas')"));await b.shot(path.join(out,`historical-atlas-${w}x${h}.png`));report.checks.push(`historical-comparison-atlas-${w}x${h}`);}
+ assert.deepEqual(b.errors,[]);assert.deepEqual(b.badResponses,[]);report.errors=b.errors;report.badResponses=b.badResponses;await fs.writeFile(path.join(out,'report.json'),JSON.stringify(report,null,2));console.log(JSON.stringify({passed:true,checks:report.checks,out},null,2));
+}catch(error){console.error(JSON.stringify({errors:b.errors,bad:b.badResponses,state:await ev('({url:location.href,text:document.body.innerText,save:localStorage.getItem("cards-pilot:wispbound.save.condensed.v7")?.slice(0,1800)})')}));await b.shot(path.join(out,'failure.png'));throw error;}finally{b.close();server.close();}

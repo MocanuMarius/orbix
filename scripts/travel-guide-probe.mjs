@@ -19,7 +19,7 @@ try{
     actions:[...dialog.querySelectorAll('footer button')].map(node=>({text:node.textContent,...bounds(node)})),
     features:[...dialog.querySelectorAll('.preview-feature summary')].map(node=>({text:node.textContent,...bounds(node)})),overflow:document.documentElement.scrollWidth>innerWidth};
   })()`);
-  assert.equal(layout.title,'Thorn Steeple');assert.match(layout.body,/Wayfinder/);
+  assert.equal(layout.title,'Thorn Steeple');assert.doesNotMatch(layout.body,/Wayfinder/);assert.match(layout.body,/Optional challenge[\s\S]*Fly between all 3 gold gates, then finish/);
   assert.doesNotMatch(layout.body,/51 s|Briar Cathedral|Gold brackets/,'Extra rules begin disclosed');
   assert.ok(!layout.overflow&&layout.reading.scrollWidth<=layout.reading.width+1,'No horizontal overflow');
   await browser.shot(`${output}/wayfinder-${width}x${height}.png`);
@@ -60,7 +60,7 @@ try{
  await click('[data-action="continue-run"]');
  await until(()=>browser.ev(`!!document.querySelector('#journey-map [data-action="preview-node"][data-id="m0-0-0"]')`),'Actual reachable route');
  await click('#journey-map [data-action="preview-node"][data-id="m0-0-0"]');
- assert.match(await browser.ev(`document.querySelector('dialog.flight-preview-sheet').innerText`),/Thorn Steeple[\s\S]*Wayfinder/);
+ assert.match(await browser.ev(`document.querySelector('dialog.flight-preview-sheet').innerText`),/Thorn Steeple[\s\S]*Optional challenge[\s\S]*Fly between all 3 gold gates, then finish/);
  await browser.shot(`${output}/actual-thorn-steeple-guide-900x405.png`);
  await browser.send('Emulation.setDeviceMetricsOverride',{width:740,height:333,deviceScaleFactor:1,mobile:true});
  await browser.shot(`${output}/actual-thorn-steeple-guide-740x333.png`);

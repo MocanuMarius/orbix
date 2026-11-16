@@ -10,6 +10,7 @@ import {drawCollectorGrip,drawCarriedSpark} from '../dist/capture-art.mjs';
 import {drawCollectorField} from '../dist/collector-field-art.mjs';
 import {WispFlightView} from '../dist/wisp-renderer.mjs';
 import {WispFlight} from '../dist/flight.mjs';
+import {vortexScale} from '../dist/collector-vortex.mjs';
 
 function fixture(kind='light',mod={},speed=154){
   const e={player:{x:110,y:310,radius:WISP_ART.worldRadius},height:620,time:0,distance:0,previousDistance:0,baseSpeed:speed,
@@ -28,7 +29,7 @@ test('Collector latches at the real loop, then winds around a Spark-to-main-wisp
   until(f,()=>w.phase==='returning');
   const hook=pickupHookAnchor(p,p.x-e.distance,p.y);
   assert.ok(Math.hypot(w.x-hook.x,w.y-hook.y)<1e-8);latch=true;
-  const latchedAt=e.time;assert.equal(w.activeReelSeconds(),w.recoveryDuration(e));
+  const latchedAt=e.time;assert.equal(w.activeReelSeconds(),w.recoveryDuration(e,p));
   for(let i=0;i<800&&!p.collected;i++){
     e.player.y=310+Math.sin(i/60*5)*32;tick();
     assert.ok([w.x,w.y,w.vx,w.vy,w.cargoX,w.cargoY].every(Number.isFinite));
@@ -36,12 +37,12 @@ test('Collector latches at the real loop, then winds around a Spark-to-main-wisp
     const state=w.state(e),pose=state.cargoPose;
     assert.equal(state.motion,'reeling');assert.equal(state.canFetch,false);assert.equal(state.busy,true);
     assert.equal(state.tetherPose.x,e.player.x);assert.equal(state.tetherPose.y,e.player.y);
-    assert.equal(pose.scale,1);if(state.towStage==='tow'||state.towStage==='setup')assert.ok(w.cargoX<e.player.x,'cruise cargo remains aft through Lift and Dive');
+    assert.equal(pose.scale,w.sling?vortexScale(w.sling.elapsed):1);if(state.towStage==='tow'||state.towStage==='setup')assert.ok(w.cargoX<e.player.x,'cruise cargo remains aft through Lift and Dive');
     assert.ok(w.reelProgress>=progress);progress=w.reelProgress;
     back||=state.depth<-.6;front||=state.depth>.6;
     assert.equal(e.shatters.length,0);assert.equal(e.deliveries.length,0);
   }
-  assert.ok(latch&&back&&front);assert.ok(Math.abs(e.deliveries[0].time-latchedAt-w.recoveryDuration(e))<.04);
+  assert.ok(latch&&back&&front);assert.ok(Math.abs(e.deliveries[0].time-latchedAt-w.recoveryDuration(e,p))<.04);
   assert.equal(e.deliveries.length,1);assert.equal(e.shatters.length,1);
   assert.equal(w.phase,'ready');assert.equal(w.cooldown,0);assert.equal(w.state(e).canFetch,true);
   const {source,home}=e.deliveries[0];
@@ -89,7 +90,7 @@ test('recovery rank and world recovery boon determine reel time without a second
   for(const [cooldown,rate] of [[1,1],[.5,1],[1,2]]){
     const f=fixture('light',{wispCooldown:cooldown}),{e,w,p}=f;e.flightBoon={recoveryRate:rate};
     until(f,()=>w.cargo===p);const at=e.time;until(f,()=>p.collected);
-    assert.ok(Math.abs(e.time-at-10*cooldown/rate)<.04);assert.equal(w.cooldown,0);assert.equal(w.phase,'ready');
+    assert.ok(Math.abs(e.time-at-10/3*cooldown/rate)<.04);assert.equal(w.cooldown,0);assert.equal(w.phase,'ready');
   }
 });
 

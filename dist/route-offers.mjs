@@ -1,6 +1,7 @@
 import {WispFlight} from './flight.mjs?v=guide-clarity-1';
 import {getRunModifiers,getRouteBonusCandidates,getRouteBonus,nextBonusFlightNodes} from './model.mjs?v=guide-clarity-1';
 import {onboardingFlightPlan} from './onboarding.mjs?v=guide-clarity-1';
+import {routeBonusFamily} from './route-bonuses.mjs?v=guide-clarity-1';
 
 // Only the selected ID is saved. Geometry and transient planning instances never enter the save.
 const memo=new WeakMap();
@@ -55,7 +56,8 @@ export function prepareRouteOffer(run,node,{profile={},width=900,height=405}={})
  let best=null,bestScore=Infinity;
  function assign(index,ids,cost){
   if(index===entries.length){
-   const present=ids.filter(Boolean),score=(present.length-new Set(present).size)*1000+cost;
+   const present=ids.filter(Boolean),families=present.map(routeBonusFamily);
+   const score=(present.length-new Set(present).size)*1000+(families.length-new Set(families).size)*100+cost;
    if(score<bestScore){bestScore=score;best=ids;}return;
   }
   const eligible=entries[index].eligible;

@@ -11,7 +11,7 @@ const shot=async name=>{await browser.shot(`${output}/${name}`);if(publish)await
 const ready=art=>until(()=>browser.ev(`document.documentElement.dataset.previewReady==='true'&&document.fonts.status==='loaded'&&!!document.querySelector('dialog.flight-preview-sheet[open] .preview-art-${art}')`),`${art} guide`,300);
 const layout=()=>browser.ev(`(()=>{
  const guide=document.querySelector('.flight-preview'),reading=guide.querySelector('.preview-reading'),rect=n=>n.getBoundingClientRect().toJSON();
- const text=[...guide.querySelectorAll('h2,h3,.preview-goal-title strong,.preview-condition,.preview-prize,.preview-clear-extra,.preview-payout strong')].map(n=>{const r=document.createRange();r.selectNodeContents(n);const css=getComputedStyle(n);return{text:n.textContent,rect:rect(n),lines:[...r.getClientRects()].map(r=>r.toJSON()),font:{size:parseFloat(css.fontSize),lineHeight:css.lineHeight,family:css.fontFamily}};});
+ const text=[...guide.querySelectorAll('h2,h3,.preview-condition,.preview-prize,.preview-clear-extra,.preview-payout strong')].map(n=>{const r=document.createRange();r.selectNodeContents(n);const css=getComputedStyle(n);return{text:n.textContent,rect:rect(n),lines:[...r.getClientRects()].map(r=>r.toJSON()),font:{size:parseFloat(css.fontSize),lineHeight:css.lineHeight,family:css.fontFamily}};});
  return{art:guide.className,body:guide.innerText,reading:{...rect(reading),height:reading.clientHeight,scroll:reading.scrollHeight,width:reading.clientWidth,scrollWidth:reading.scrollWidth,overflowY:getComputedStyle(reading).overflowY},text,actions:[...guide.querySelectorAll('footer button')].map(n=>({label:n.getAttribute('aria-label'),text:n.innerText,disabled:n.disabled,sign:rect(n.querySelector('svg')),color:getComputedStyle(n).color,...rect(n)})),features:[...guide.querySelectorAll('.preview-feature summary,.preview-glossary')].map(rect),overflow:document.documentElement.scrollWidth>innerWidth};
 })()`);
 function verify(r,width,height){
@@ -32,7 +32,7 @@ async function help(){
 try{
  for(const art of variants)for(const [width,height]of viewports){
   await browser.send('Emulation.setDeviceMetricsOverride',{width,height,deviceScaleFactor:1,mobile:true});await browser.visit(`${base}/components-preview.html?family=route&state=wayfinder&guideArt=${art}&v=${release}`);await ready(art);
-  const r=await layout();verify(r,width,height);assert.ok(r.reading.scroll<=r.reading.height+1,`Closed Wayfinder fits at ${art} ${width}×${height}: ${r.reading.scroll}/${r.reading.height}`);assert.match(r.body,/Thorn Steeple[\s\S]*Wayfinder/);assert.doesNotMatch(r.body,/51 s|Gold brackets/);assert.equal(r.actions[1].label,'Fly to Thorn Steeple');await shot(`${art}-${width}x${height}.png`);await help();
+  const r=await layout();verify(r,width,height);assert.ok(r.reading.scroll<=r.reading.height+1,`Closed Wayfinder fits at ${art} ${width}×${height}: ${r.reading.scroll}/${r.reading.height}`);assert.match(r.body,/Thorn Steeple[\s\S]*Optional challenge[\s\S]*Fly between all 3 gold gates, then finish/);assert.doesNotMatch(r.body,/51 s|Gold brackets|Wayfinder/);assert.equal(r.actions[1].label,'Fly to Thorn Steeple');await shot(`${art}-${width}x${height}.png`);await help();
   await key('Escape');assert.equal(await browser.ev(`!!document.querySelector('dialog.flight-preview-sheet[open]')`),false);await click('[data-action="preview-node"][data-id="m0-0-0"]');await ready(art);checks.push({art,viewport:[width,height],layout:r});
  }
  // A naturally generated first-row Long Glide offer; the production renderer and copy are unmodified.

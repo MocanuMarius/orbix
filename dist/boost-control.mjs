@@ -7,7 +7,9 @@ export function boostControlMarkup(roleOrFleet='collector'){
   const roles=normalizeCompanionFleet(Array.isArray(roleOrFleet)?roleOrFleet:null,Array.isArray(roleOrFleet)?'collector':roleOrFleet);
   const active=roles.filter(id=>id!=='leveler'&&!getCompanionAbility(id).passive),passive=!active.length,role=active[0]||roles[0];
   const tag=passive?'div':'button';
-  return `<${tag} ${passive?'role="status"':'type="button"'} id="boost-btn" class="flight-control boost-control boost-control-v2 power-fill-control ${passive?'flight-passive-indicator':''}" data-companion-role="${role}" data-companions="${roles.join(',')}" data-boost-state="waiting" aria-label="${passive?'Companion range and recovery':'Companion power'}"><span class="power-fill-window" aria-hidden="true"><i class="power-liquid"></i></span><span class="power-orbs" aria-hidden="true">${roles.map(id=>companionArtSvg(id,{className:'power-orb'})).join('')}</span><span class="power-release-glyph" aria-hidden="true">Ⅱ</span><span class="power-ready-sparks" aria-hidden="true">${sparks.map(([x,y],i)=>`<i style="--spark-x:${x}px;--spark-y:${y}px;--spark-delay:${i%3*35}ms"></i>`).join('')}</span></${tag}>`;
+  const collectorOnly=roles.length===1&&roles[0]==='collector';
+  const control=`<${tag} ${passive?'role="status"':'type="button"'} id="boost-btn" class="flight-control boost-control boost-control-v2 power-fill-control ${passive?'flight-passive-indicator':''}" data-companion-role="${role}" data-companions="${roles.join(',')}" data-boost-state="waiting" aria-label="${passive?'Companion range and recovery':'Companion power'}"><span class="power-fill-window" aria-hidden="true"><i class="power-liquid"></i></span><span class="power-orbs" aria-hidden="true">${roles.map(id=>companionArtSvg(id,{className:'power-orb'})).join('')}</span><span class="power-release-glyph" aria-hidden="true">Ⅱ</span><span class="power-ready-sparks" aria-hidden="true">${sparks.map(([x,y],i)=>`<i style="--spark-x:${x}px;--spark-y:${y}px;--spark-delay:${i%3*35}ms"></i>`).join('')}</span></${tag}>`;
+  return collectorOnly?`<div class="flight-effect-space" aria-label="Card and companion bonuses">${control}</div>`:control;
 }
 export function updateBoostControl(element,state={}){
   if(!element)return;
@@ -30,7 +32,7 @@ export function updateBoostControl(element,state={}){
     mode=['outbound','reeling','returning'].includes(wisp.phase)?'active':charge>=.999?'ready':'cooling';
     meaning=`Collector range ${Math.round(charge*100)} percent. Fetches automatically`;
     if(wisp.phase==='guard-recovery'){mode='cooling';meaning='Last Orbit recovering. Collector fetch disabled';}
-    else if(['outbound','reeling','returning'].includes(wisp.phase))meaning='Collector busy reeling a pickup. Ready again on body contact';
+    else if(['outbound','reeling','returning'].includes(wisp.phase))meaning='Collector is fetching a pickup. Charge rebuilds after delivery';
     else if(wisp.guardReady)meaning='Last Orbit ready. Collector fetch available';
   }else if(roles.includes('protector')){
     role='protector';charge=shield.charges>0?1:clamp(1-finite(shield.recovery)/Math.max(.001,finite(shield.recoveryTotal,14)));

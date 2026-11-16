@@ -5,7 +5,7 @@ import {WISP_ART} from '../dist/companion-art.mjs';
 
 function fixture(hz,{quiet=false,short=false,paired=false,cache=false}={}){
  const e={player:{x:110,y:310},height:620,time:0,distance:0,previousDistance:0,baseSpeed:154,
-  mod:{wispCooldown:.4,collectorFetchMass:3},wispBoost:0,companions:['collector'],reducedMotion:quiet,
+  mod:{wispCooldown:1.2,collectorFetchMass:3},wispBoost:0,companions:['collector'],reducedMotion:quiet,
   hasCompanion:r=>r==='collector',layout:{embers:[]},deliveries:[],
   collect(p,source){assert.ok(!p.collected,'one contact per packet');p.collected=true;this.deliveries.push({p,time:this.time,source});}};
  const packets=[{kind:cache?'cache':'light',x:short?75:70,y:short?310:335}];
@@ -15,7 +15,7 @@ function fixture(hz,{quiet=false,short=false,paired=false,cache=false}={}){
  if(short)e.collectors[0].beginReel(e,packets[0],e.player);
  return {e,packets,w:e.collectors[0],tick,hz};
 }
-function finish(f){for(let i=0;i<f.hz*8&&!f.packets.every(p=>p.collected);i++)f.tick();assert.ok(f.packets.every(p=>p.collected));}
+function finish(f){for(let i=0;i<f.hz*16&&!f.packets.every(p=>p.collected);i++)f.tick();assert.ok(f.packets.every(p=>p.collected));}
 for(const hz of [30,60,120]){
  test(`${hz}Hz cargo trails, slings past the body, makes two turns and reaches front contact once`,()=>{
   const f=fixture(hz),{e,w,packets:[p]}=f,samples=[];let attached;
@@ -70,7 +70,7 @@ test('resize keeps the scaled cargo attached and resumes from that gap without a
  finish(f);assert.equal(e.deliveries.length,1);
 });
 
-test('upper and lower approaches retain their side, clear the body, and use one unchanged shell',()=>{
+test('upper and lower approaches retain their side, clear the body, and shrink the actual shell',()=>{
  for(const side of [-1,1]){
   const f=fixture(120),{w,e,packets:[p]}=f;p.y=e.player.y+side*25;
   while(!w.cargo)f.tick();const samples=[];
@@ -82,7 +82,7 @@ test('upper and lower approaches retain their side, clear the body, and use one 
   const sling=samples.filter(s=>s.stage==='sling');
   assert.ok(sling.some(s=>s.x>0&&s.y*w.sling.side>25),'Spark overtakes on its snap side');
   assert.ok(sling.every(s=>Math.hypot(s.x,s.y)>30),'the pass never hits the rear of the body');
-  assert.ok(samples.every(s=>s.scale===1),'the carried shell keeps the established size');
+  assert.ok(Math.abs(Math.min(...samples.map(s=>s.scale))-.22)<1e-9,'the carried shell reaches the approved reduced size');
   assert.equal(e.deliveries.length,1);
  }
 });

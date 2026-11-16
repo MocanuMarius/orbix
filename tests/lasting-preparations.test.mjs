@@ -34,7 +34,7 @@ test('Spark Trail restores missing fuel once while awake and shares the stronger
   e.flame=5/.3;
   const amount=(favors.length?9:6)/.3;
   assert.equal(b.tryReserve(),amount);assert.equal(e.flameRestored,amount);
-  assert.match(events[0],favors.length?/Reserve Wick/:/Spark Trail/);
+  assert.match(events[0],favors.length?/Reserve Wick/:/\+6 Sparks/);
   e.flame=0;assert.equal(b.tryReserve(),0);assert.equal(events.length,1);
   assert.equal(e.condensedGlow,undefined);
  }
@@ -47,6 +47,6 @@ test('Fallen Giant offers permanent Heartwood capacity and cannot grant it twice
  const b=getRouteBonus(r,n);n.bonusId=b.id;assert.match(b.reward,/\+3 maximum Sparks permanently/);
  const result={success:true,routeBonus:{id:b.id,eligible:true,complete:true,target:b.target,progress:b.target,failed:false,packed:0}};
  const before=getGlowCapacity(r),attempt={nodeId:n.id,bonusId:b.id};
- const receipt=awardRouteBonus(r,n,attempt,result,20,0,false);assert.match(receipt.message,/Heartwood/);assert.equal(getGlowCapacity(r),before+10);
+ const receipt=awardRouteBonus(r,n,attempt,result,20,0,false);assert.match(receipt.message,/\+3 maximum Sparks permanently/);assert.doesNotMatch(receipt.message,/Heartwood/);assert.equal(getGlowCapacity(r),before+10);
  assert.equal(awardRouteBonus(r,n,attempt,result,20,0,false),null);assert.equal(getGlowCapacity(r),before+10);
 });

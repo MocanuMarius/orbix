@@ -12,7 +12,7 @@ test('the direct sample works on real card actions and never touches either play
   // The factory is selected before loadState; all persistence exits in mock mode.
   assert.match(app, /if\(cardInspector\)state=createCardInspectorState/);
   assert.match(app, /mockMode=[^;]*\|\|cardInspector/);
-  assert.match(app, /function persist\(\)\{if\(mockMode\)return/);
+  assert.match(app, /function persist\(\)\{if\(mockMode\)\{updateCheckpoint\(\);return true;\}/);
   assert.match(app, /if\(cardInspector\)\{const scenario=/);
   assert.match(readFileSync(new URL('../dist/cards.html', import.meta.url), 'utf8'), /cards-launcher\.mjs/);
   assert.match(readFileSync(new URL('../dist/cards-launcher.mjs', import.meta.url), 'utf8'), /query\.get\('mock'\)\s*===\s*'cards'/);
@@ -159,8 +159,8 @@ test('playing-card faces print complete rules with contextual term controls and 
   assert.match(mechanics, /<summary>Details<\/summary>/);
   const swipe = cardMechanicMarkup(describeSkillCard(makeSkillCard('field-impulse', 'portrait:swipe')));
   const echo = cardMechanicMarkup(describeSkillCard(makeSkillCard('echo', 'portrait:echo')));
-  assert.match(plain(swipe), /Collector is home with its ring at least ¼ full/);
-  assert.match(plain(swipe), /Spend the ring\. Swipe up to float, down to dive, or right to speed up/);
+  assert.match(plain(swipe), /Collector is beside you with at least ¼ charge/);
+  assert.match(plain(swipe), /Spend Collector charge\. Swipe up to float, down to dive, or right to speed up/);
   assert.match(swipe, /data-card-term="collector"/);
   assert.match(swipe, /data-card-term="ring"/);
   assert.match(plain(echo), /Repeat the action on the card to the right\./);

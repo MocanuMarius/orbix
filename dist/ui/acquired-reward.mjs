@@ -3,6 +3,7 @@ import {resourceSymbol} from '../game-symbols.mjs?v=guide-clarity-1';
 import {artifactRarityLabel} from '../replay-ui.mjs?v=guide-clarity-1';
 import {ROUTE_BONUSES} from '../route-bonuses.mjs?v=guide-clarity-1';
 import {bonusIcon} from '../route-bonus-ui.mjs?v=guide-clarity-1';
+import {routeBonusReceiptText} from '../route-bonus-copy.mjs?v=guide-clarity-1';
 import {reliquaryNicheMarkup} from './reliquary-art.mjs?v=guide-clarity-1';
 import {relicRulesButton} from './relic-primitives.mjs?v=guide-clarity-1';
 import {actionButton,escapeHtml as esc} from './primitives.mjs?v=guide-clarity-1';
@@ -21,10 +22,8 @@ function horizonMarkup(){
 
 export function acquiredRewardMarkup({artifact,copy,run,title,earned,receiptAvailable,presentation,artifactArt,skillsAvailable,deckAvailable,upgradeCount=0}){
  const receipt=run.lastFlight?.routeBonus,bonus=ROUTE_BONUSES[receipt?.id];
- const awarded=!!bonus&&(!!receipt.message?.trim()||Number(receipt.amount)>0),name=receipt?.name||bonus?.name;
- const message=receipt?.message?.trim()||(Number(receipt?.amount)>0?`+${Math.floor(receipt.amount)} Stored Sparks`:'');
- const detail=message.startsWith(`${name} · `)?message.slice(name.length+3):message;
- const boon=awarded?`<aside class="acquired-boon">${bonusIcon(bonus.id)}<span><strong>${esc(name)}</strong><span>${esc(detail)}</span></span><b aria-label="Completed">✓</b></aside>`:'';
+ const detail=routeBonusReceiptText(receipt);
+ const boon=bonus&&detail?`<aside class="acquired-boon">${bonusIcon(bonus.id)}<span>${esc(detail)}</span><b aria-label="Optional challenge completed">✓</b></aside>`:'';
  const buildAvailable=deckAvailable||skillsAvailable;
  const longCopy=copy.effect.length>65||copy.trigger?.length>60||copy.limit?.length>80;
  return `<section class="acquired-reward acquired-${presentation} ${boon?'acquired-has-boon':'acquired-no-boon'} ${buildAvailable?'acquired-has-build':'acquired-no-build'} ${longCopy?'acquired-long-copy':''}" data-acquired-presentation="${presentation}">

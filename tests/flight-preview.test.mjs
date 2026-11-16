@@ -17,14 +17,15 @@ test('preview shows earned pay and the optional condition separately, with claim
  const {run,node,render}=sample(),html=render({},{bonus:ROUTE_BONUSES.constellation});
  assert.match(html,/id="preview-regular">On clear/);
  assert.ok(html.includes(`+${getFlightClearReward(node,run)} <span>Stored Sparks`));
- assert.match(html,/id="preview-optional">Optional challenge/);
- assert.match(html,/Rising Constellation/);
+ assert.match(html,/id="preview-optional">Optional/);
+ assert.doesNotMatch(html,/Rising Constellation/);
+ assert.match(html,/Optional<\/h3><\/div>\s*<p class="preview-condition">Collect the gold marks/);
  assert.match(html,/First 3 fuel pickups restore \+2 missing Sparks/);
- assert.match(html,/Then clear →/);
+ assert.doesNotMatch(html,/Then clear →|preview-claim/);
  assert.doesNotMatch(html.split('<footer>')[0],/data-action=|No Rest ahead|of .* hearts/);
  assert.match(html,/data-action="close-sheet" aria-label="Back to route"><svg/);
  assert.match(html,/data-action="node"[^>]*aria-label="Fly to [^"]+"><svg/);
- assert.match(html,/data-card-term="stored"/);assert.match(html,/data-card-glossary/);
+ assert.match(html,/data-card-term="stored"/);assert.doesNotMatch(html,/data-card-glossary|Route details|preview-landmark/);
  assert.doesNotMatch(visibleText(html.split('<footer>')[1]),/Back|Fly|→/);
 });
 
@@ -34,10 +35,10 @@ test('artifact copy follows available offers, and the last guardian previews the
  run.artifacts=Object.keys(ARTIFACTS).filter(id=>id!=='echo-bell');
  assert.match(render({elite:true}),/1 relic/);
  run.artifacts.push('echo-bell');
- assert.doesNotMatch(render({elite:true}),/relics?|Optional challenge/);
+ assert.doesNotMatch(render({elite:true}),/relics?|Optional/);
  const last=render({boss:true,mapIndex:2});
  assert.match(last,/Expedition victory/);
- assert.doesNotMatch(last,/Stored Sparks|Optional challenge|Choose 1/);
+ assert.doesNotMatch(last,/Stored Sparks|Optional|Choose 1/);
 });
 
 test('card runs promise the guaranteed card without drawing it, including the final trophy',()=>{
@@ -50,10 +51,9 @@ test('card runs promise the guaranteed card without drawing it, including the fi
  assert.equal(JSON.stringify(run),before);
 });
 
-test('the committed forecast gets one cue; future previews cannot start a flight',()=>{
+test('future Atlas previews stay concise and cannot start a flight',()=>{
  const {render}=sample(),html=render({atlasForecast:'bellwind',interactionHint:'Only the unmodified terrain cue'},{available:false});
- assert.match(html,/Bellwind/);
- assert.match(visibleText(html),/upper Sparks/);
+ assert.doesNotMatch(html,/preview-weather|preview-features/);
  assert.doesNotMatch(html,/Only the unmodified terrain cue|data-action="node"/);
  assert.match(html,/class="preview-rail preview-advance preview-unavailable"[^>]*aria-label="Unavailable: [^"]+" disabled/);
 });
@@ -74,18 +74,13 @@ test('learned Dream replaces Fly on each reachable flight and stays hidden from 
  assert.doesNotMatch(render(),/Dream for/);
 });
 
-test('Travel Guide discloses biome features, fuel mix, and duration without crowding the rewards',()=>{
+test('approved Atlas keeps only its title and accurate side-by-side outcomes',()=>{
  const {render}=sample(),html=render({name:'Thorn Steeple',biomeId:'thorn',duration:51},{bonus:ROUTE_BONUSES.wayfinder});
- assert.match(html,/Travel Guide/);
+ assert.match(html,/preview-atlas/);
  assert.match(html,/<h2 id="preview-place">Thorn Steeple<\/h2>/);
- assert.match(html,/<summary>Ripe pods<\/summary>/);
- assert.match(html,/<summary>More gentle Sparks<\/summary>/);
- assert.match(html,/<summary>Details<\/summary><div class="preview-feature-copy"><p>Briar Cathedral · Flight · 51 s<\/p>/);
- assert.doesNotMatch(html.split('preview-features')[0],/51 s|Briar Cathedral/);
+ assert.doesNotMatch(html,/Travel Guide|Route details|preview-landmark|preview-features|51 s|Briar Cathedral/);
  assert.match(html,/Fly between all 3 gold gates, then finish/);
  assert.match(html,/Preview the opening 2.5s before takeoff for your next 3 clears/);
- assert.match(visibleText(html),/collecting a nearby Spark does not count/);
- assert.match(html,/Failed or interrupted flights keep the reward/);
 });
 
 test('three preview art choices decorate the shared guide without changing rewards or becoming the game default',()=>{
@@ -94,7 +89,8 @@ test('three preview art choices decorate the shared guide without changing rewar
  for(const guideArt of ['waystone','rootwood','night-atlas']){
   const decorated=render({},{bonus:ROUTE_BONUSES.wayfinder,guideArt});
   assert.match(decorated,new RegExp(`preview-art-${guideArt}`));
-  assert.equal(visibleText(decorated),visibleText(plain));
+  assert.match(decorated,/Travel Guide/);assert.match(decorated,/preview-route-details/);
+  for(const marker of ['On clear','Optional','preview-condition','preview-prize'])assert.ok(decorated.includes(marker)&&plain.includes(marker));
  }
  assert.doesNotMatch(render({},{guideArt:'bad" onclick="alert(1)'}),/onclick|preview-art-/);
  const signs=[...plain.matchAll(/class="preview-chevron"[^>]*>([\s\S]*?)<\/svg>/g)].map(match=>match[1]);

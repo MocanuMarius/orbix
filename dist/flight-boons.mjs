@@ -47,7 +47,7 @@ export class FlightBoon {
     this.reserveWick=false;this.trailReserve=false;
     const gain=Math.min(f.maxFlame-f.flame,(wick?9:6)/DISPLAY_SCALE);
     f.flame+=gain;f.flameRestored+=gain;
-    f.setEvent?.((wick?'Reserve Wick':'Spark Trail')+' · +'+Math.round(gain*DISPLAY_SCALE)+' Sparks');
+    f.setEvent?.((wick?'Reserve Wick · ':'')+'+'+Math.round(gain*DISPLAY_SCALE)+' Sparks');
     return gain;
   }
   get wardReady() {

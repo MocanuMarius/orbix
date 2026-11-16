@@ -9,7 +9,7 @@ function flight(cards=[]){
  const ctx=new Proxy({globalAlpha:1},{get:(o,k)=>o[k]??=(String(k).includes('Gradient')?()=>({addColorStop(){}}):()=>{})});
  const canvas={style:{},getContext:()=>ctx,getBoundingClientRect:()=>({width:900,height:405})};
  const e=new WispFlight({canvas,seed:'reel-world-clock',preflight:true,companions:['collector'],duration:90,
-  modifiers:{...getCardModifiers({skillSystem:CARD_SYSTEM,mountedCards:cards.map((id,i)=>makeSkillCard(id,'reel:'+i))}),wispCooldown:.4,dreamDuration:6}});
+  modifiers:{...getCardModifiers({skillSystem:CARD_SYSTEM,mountedCards:cards.map((id,i)=>makeSkillCard(id,'reel:'+i))}),wispCooldown:1.2,dreamDuration:6}});
  e.render=()=>{};e.renderScheduledFrame=()=>{};e.notify=()=>{};e.layout.obstacles=[];e.layout.embers=[];e.drafts.zones=[];e.biomeDynamics.items=[];e.blackHoles.items=[];
  e.running=true;e.resumeElapsed=e.resumeRampSeconds;
  const p={id:'carried-test',kind:'light',x:e.distance+e.player.x-40,y:e.player.y+20};e.layout.embers=[p];e.wisp.beginReel(e,p,e.player);

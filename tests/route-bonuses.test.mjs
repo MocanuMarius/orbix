@@ -101,7 +101,7 @@ test('Fallen Giant fresh, memoized and saved previews match its permanent settle
  assert.deepEqual(preview,first);
  const before=getGlowCapacity(saved),result={success:true,routeBonus:{id:preview.id,eligible:true,complete:true,failed:false,target:preview.target,progress:preview.target}};
  const receipt=awardRouteBonus(saved,saved.current,{nodeId:node.id,bonusId:preview.id},result,20,0,false);
- assert.equal(receipt.name,preview.name);assert.match(receipt.message,/\+3 maximum Sparks permanently/);
+ assert.equal(receipt.id,preview.id);assert.doesNotMatch(receipt.message,/Heartwood Trail/);assert.match(receipt.message,/\+3 maximum Sparks permanently/);
  assert.equal(getGlowCapacity(saved),before+10);
 });
 
@@ -117,7 +117,7 @@ test('every route bonus pays exactly its advertised clear effect and survives sa
     const earned=clearPay+19+3+currency; // 60 internal reserve packs to 3 Stored Sparks.
     assert.equal(run.condensedGlow,funds+earned);
     assert.equal(run.lives,hearts+Number(id==='three-suns'));
-    assert.equal(run.nextFlightBoon, ['three-suns','precision','gilded'].includes(id)?undefined:id);
+    assert.equal(run.nextFlightBoon, ['three-suns','precision','gilded'].includes(id)?undefined:ROUTE_BONUSES[id].boonId||id);
     assert.equal(finishFlight(run,cleared(id)),false);
     const store=memory();
     saveState(state,store);
@@ -126,7 +126,7 @@ test('every route bonus pays exactly its advertised clear effect and survives sa
     assert.equal(saved.run.nextFlightBoon,run.nextFlightBoon);
     const receipt=takeClearRewardReceipt(saved.run);
     assert.equal(receipt.amount,earned);
-    assert.ok(receipt.notes.some(note=>note.includes(claimed.name)));
+    assert.ok(receipt.notes.includes(claimed.message));
     assert.equal(takeClearRewardReceipt(saved.run),null);
   }
 });

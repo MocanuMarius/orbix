@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="360" height="180" viewBox="0 0 360 180" preserveAspectRatio="none" shape-rendering="crispEdges">
+<path fill="#493c2b" d="M0 0h360v180H0z"/><path fill="#aa8d5c" d="M8 5h158l14 5 14-5h158v165H194l-14 6-14-6H8z"/><path fill="#d4bb83" d="M12 3h151l17 8 17-8h151v162H197l-17 7-17-7H12z"/>
+<path fill="#e5d19d" d="M16 7h144l16 7v149l-16-5H16z"/><path fill="#dfc48b" d="M184 14l16-7h144v151H200l-16 5z"/>
+<path fill="#e5d19d" d="M163 7l17 5v46h-17zM163 146h17v24l-17-7z"/><path fill="#dfc48b" d="M180 12l17-5v51h-17zM180 146h17v17l-17 7z"/>
+<path fill="#c8ac73" d="M174 58h4v88h-4zm8 0h4v88h-4z"/><path fill="#9d8254" d="M179 58h2v88h-2z"/>
+<!-- Torn page tips, pressed leaves and mapmaker's ink. -->
+<path fill="#bfa16b" d="M16 7h12v3H16zm0 71h3v19h-3zm0 70h18v10H16zM332 7h12v16h-4V11h-8zM337 153h7v5h-7z"/>
+<path fill="#978652" d="M23 133h2v19h-2zm2 2h8v3h-8zm-6 5h4v3h-4zm6 4h6v3h-6zM327 21h2v16h-2zm2 3h7v3h-7zm-7 5h5v3h-5z"/>
+<path fill="#b69c68" d="M27 17h39v1H27zM28 20h25v1H28zM298 143h34v1h-34zm9 4h25v1h-25z"/>
+<path fill="#ac925e" d="M32 161h41v2H32zm25-5h3v4h-3zM291 159h34v2h-34z"/>
+</svg>

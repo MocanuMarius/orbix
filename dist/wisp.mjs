@@ -1,10 +1,11 @@
 import { getCompanionAbility } from './companion-abilities.mjs?v=guide-clarity-1';
-import { pickupKind, pickupContactRadius } from './pickups.mjs?v=guide-clarity-1';
+import { pickupKind, pickupContactRadius, getPickupSpec } from './pickups.mjs?v=guide-clarity-1';
 import {sparkArtScale,sparkBodyRadius,sparkMass} from './spark-size.mjs?v=guide-clarity-1';
 import {collectorCanFetch,collectorCompactSeconds,compressCollectorCargo} from './collector-load.mjs?v=guide-clarity-1';
 import {pickupHookAnchor} from './pickup-handling-cue.mjs?v=guide-clarity-1';
 import {WISP_ART} from './companion-art.mjs?v=guide-clarity-1';
 import {collectorTowPose,collectorTowOrbit} from './collector-tow-geometry.mjs?v=guide-clarity-1';
+import {COLLECTOR_VORTEX,vortexProgress,vortexScale,vortexCargoPoint,createVortexTrail,recordVortexTrail} from './collector-vortex.mjs?v=guide-clarity-1';
 
 const clamp = (value, lo, hi) => Math.min(hi, Math.max(lo, value));
 const smooth = value => {const u=clamp(value,0,1);return u*u*(3-2*u);};
@@ -51,8 +52,12 @@ export class WispCompanion {
     this.reelStartReach=0;this.settle=0;this.settleX=this.x;this.settleY=this.y;
   }
 
-  recoveryDuration(engine) {
-    return WISP_TUNING.cooldown * clamp(Number(engine.mod.wispCooldown) || 1, .4, 1.5) * (engine.mod.treasureRecoveryScale || 1);
+  recoveryDuration(engine, packet) {
+    // Read the natural packet before Cache handling compresses its payload.
+    // Flash, Field Impulse and guard spends retain the full base recovery.
+    const fuel = packet ? getPickupSpec(packet).fuel : 0;
+    const base = fuel > 0 ? WISP_TUNING.cooldown * fuel / getPickupSpec('cache').fuel : WISP_TUNING.cooldown;
+    return base * clamp(Number(engine.mod.wispCooldown) || 1, .4, 1.5) * (engine.mod.treasureRecoveryScale || 1);
   }
 
   canGuard(engine) {
@@ -115,7 +120,7 @@ export class WispCompanion {
     const elapsed = clamp(age / (compact||Math.min(.42,.18*Math.max(1,Math.sqrt(fieldScale)))), 0, 1);
     const tucked = elapsed * elapsed * (3 - 2 * elapsed);
     return { offsetX:this.cargoX-this.x,offsetY:this.cargoY-this.y,age:time-packet.carriedAt,
-      scale: fieldScale + (stowedScale-fieldScale)*tucked, massTier:compact&&elapsed===1?2:sparkMass(packet),compacting:compact>0&&elapsed<1 };
+      scale: (fieldScale + (stowedScale-fieldScale)*tucked)*(this.sling?vortexScale(this.sling.elapsed):1), massTier:compact&&elapsed===1?2:sparkMass(packet),compacting:compact>0&&elapsed<1 };
   }
 
   state(engine, y = engine.player.y, time = engine.time, renderBlend) {
@@ -165,6 +170,7 @@ export class WispCompanion {
       cargoKind: enabled && this.cargo ? pickupKind(this.cargo) : null,
       cargoPhase: this.cargo?.phase || 0,
       cargoPose: pose,gripPose,
+      vortex:enabled&&this.cargo&&this.sling?{elapsed:this.sling.elapsed,trail:this.sling.trail}:null,
       tetherPose,towStage:this.towStage||'tow' };
   }
 
@@ -220,6 +226,7 @@ export class WispCompanion {
       if(this.sling){
         this.sling.startY*=factor;this.sling.verticalScale=(this.sling.verticalScale??1)*factor;
         if(this.sling.launch){this.sling.launch.y*=factor;this.sling.launch.vy*=factor;}
+        for(const point of this.sling.trail.points)point.y*=factor;
       }
     }
     if (this.leg) { this.leg.y *= factor; this.leg.vy *= factor; this.leg.endVY *= factor; }
@@ -268,7 +275,7 @@ export class WispCompanion {
     this.reelAngleOffset=Math.atan2(Math.sin(Math.atan2(this.cargoY-home.y,this.cargoX-home.x)-Math.PI),
       Math.cos(Math.atan2(this.cargoY-home.y,this.cargoX-home.x)-Math.PI));
     this.reelHomeX=home.x;
-    this.reelProgress=0;this.cooldownMax=this.cooldown=this.recoveryDuration(engine);
+    this.reelProgress=0;this.cooldownMax=this.cooldown=this.recoveryDuration(engine,target);
     this.sling=null;this.cordAlpha=1;this.towStage='tow';this.reelCloseSpeed=0;
     this.reelLastCooldown=this.cooldown;
     // Start on the actual loop, then blend into the winding path without a snap.
@@ -303,51 +310,27 @@ export class WispCompanion {
   }
 
   advanceSling(engine,home,dt,contact) {
-    const s=this.sling,old=s.elapsed;s.elapsed=Math.min(s.duration,s.elapsed+dt*(s.speed||1));
-    const verticalScale=s.verticalScale??1;
-    const setup=s.duration*.24,launchSeconds=s.duration*.24,orbitSeconds=s.duration*.46;
-    const snap=setup,orbitAt=setup+launchSeconds,absorbAt=orbitAt+orbitSeconds;
-    if(old<snap){
+    const s=this.sling,old=s.elapsed;
+    s.elapsed=Math.min(s.duration,s.elapsed+dt*(s.speed||1));
+    const setup=COLLECTOR_VORTEX.setup;
+    if(old<setup){
       this.advanceTowCargo(engine,home,dt);
-      if(s.elapsed<setup*.65)s.side=this.cargoY<home.y?-1:1;
-      this.towStage=s.elapsed<snap?'setup':'snap';
+      if(s.elapsed<setup*.55)s.side=this.cargoY<home.y?-1:1;
+      this.towStage=s.elapsed<setup?'setup':'snap';
     }
-    if(s.elapsed>=snap){
-      if(!s.launch){
-        s.launch={x:this.cargoX-home.x,y:this.cargoY-home.y,
-          vx:this.reelVX,vy:this.reelVY-(Number(engine.player.vy)||0)};
-      }
-      const t=s.elapsed-snap;
-      let x,y;
-      if(t<launchSeconds){
-        this.towStage='sling';
-        const u=t/launchSeconds,u2=u*u,u3=u2*u;
-        const a=2*u3-3*u2+1,b=u3-2*u2+u,c=-2*u3+3*u2,d=u3-u2;
-        // Departure inherits the actual load velocity. The broad side lobe
-        // clears the body before the Spark overtakes it on that same side.
-        x=a*s.launch.x+b*launchSeconds*s.launch.vx+c*s.radius;
-        const turnSpeed=engine.reducedMotion?Math.PI*Math.PI*.4:TAU*2;
-        y=a*s.launch.y+b*launchSeconds*s.launch.vy+d*launchSeconds*(-s.side*s.radius*turnSpeed/orbitSeconds)*verticalScale
-          +s.side*Math.sin(Math.PI*u)**2*Math.max(24,s.radius*.7)*verticalScale;
-      }else if(s.elapsed<absorbAt){
-        this.towStage='spiral';
-        const u=(s.elapsed-orbitAt)/orbitSeconds;
-        const angle=-s.side*(engine.reducedMotion?Math.PI*.4*Math.sin(Math.PI*u):TAU*2*u);
-        const radius=s.radius+(contact+7-s.radius)*smooth(u);
-        x=Math.cos(angle)*radius;y=Math.sin(angle)*radius*verticalScale;
-      }else{
-        this.towStage='absorb';
-        x=contact+7-(7+contact*.12)*smooth((s.elapsed-absorbAt)/(s.duration-absorbAt));y=0;
-      }
-      // Advance the live cargo along the continuous release trajectory; these
-      // are also the coordinates used for contact, shell, awards and replay.
+    if(s.elapsed>=setup){
+      if(!s.launch)s.launch={x:this.cargoX-home.x,y:this.cargoY-home.y,
+        vx:this.reelVX,vy:this.reelVY-(Number(engine.player.vy)||0)};
+      const point=vortexCargoPoint(s,contact,engine.reducedMotion,s.point);
       const beforeX=this.cargoX,beforeY=this.cargoY;
-      this.cargoX=home.x+x;this.cargoY=home.y+y;
+      this.towStage=point.stage;
+      this.cargoX=home.x+point.x;this.cargoY=home.y+point.y;
       this.reelVX=(this.cargoX-beforeX)/dt;this.reelVY=(this.cargoY-beforeY)/dt;
       this.reelWorldVX=this.reelVX+this.scrollSpeed;
-      this.cordAlpha=1-smooth(t/.18);
+      this.cordAlpha=1-smooth((s.elapsed-setup)/.16);
       this.reelAnchorX=engine.distance+home.x;this.reelAnchorY=home.y;
     }
+    recordVortexTrail(s,this.cargoX-home.x,this.cargoY-home.y);
   }
 
   updateReel(engine,home,dt) {
@@ -363,29 +346,36 @@ export class WispCompanion {
     this.reelProgress=Math.max(this.reelProgress,this.recoveryFraction());
     const rate=engine.flightBoon?.recoveryRate??1;
     const contact=sparkBodyRadius(cargo,engine.height)+WISP_ART.worldRadius;
-    const finishWindow=clamp(this.cooldownMax/rate*.42,1.6,2.1);
+    const finishWindow=COLLECTOR_VORTEX.duration;
+    const minimumFinish=Math.min(.65,this.cooldownMax/rate);
     if(!this.sling&&this.cooldown/rate<=finishWindow){
-      this.sling={elapsed:0,duration:Math.max(.85,this.cooldown/rate+dt),
+      this.sling={elapsed:0,duration:finishWindow,
+        speed:finishWindow/Math.max(minimumFinish,Math.min(finishWindow,this.cooldown/rate+dt)),trail:createVortexTrail(),point:{x:0,y:0},
         radius:Math.max(contact+18,Math.min(62,this.reelStartReach*.62)),
         startX:this.x-home.x,startY:this.y-home.y,side:this.cargoY<home.y?-1:1};
     }
-    if(this.sling&&Math.abs(this.cooldown-Math.max(0,this.reelLastCooldown-dt*rate))>1e-7){
+    if(this.sling&&(Math.abs(this.cooldown-Math.max(0,this.reelLastCooldown-dt*rate))>1e-7||this.reelLastRate!==undefined&&rate!==this.reelLastRate)){
       const s=this.sling;
-      s.speed=Math.max(1e-6,(s.duration-s.elapsed)/Math.max(.65,this.cooldown/rate+dt));
+      s.speed=Math.max(1e-6,(s.duration-s.elapsed)/Math.max(minimumFinish,this.cooldown/rate+dt));
     }
     if(this.sling)this.advanceSling(engine,home,dt,contact);else this.advanceTowCargo(engine,home,dt);
     const oldGap=this.reelGap;this.reelGap=Math.hypot(this.cargoX-home.x,this.cargoY-home.y);
-    this.reelCloseSpeed=(oldGap-this.reelGap)/dt;this.reelLastCooldown=this.cooldown;
+    this.reelCloseSpeed=(oldGap-this.reelGap)/dt;this.reelLastCooldown=this.cooldown;this.reelLastRate=rate;
     const pose=this.cargoPose(cargo,engine.time,engine.height);
     const tether=collectorTowPose({kind:pickupKind(cargo),sparkMass:pose.massTier},this.cargoX,this.cargoY,home.x,home.y,pose.scale,age,engine.reducedMotion,this.collectorIndex);
     const orbit=collectorTowOrbit(tether,age,engine.reducedMotion,WISP_TUNING.reelTurnsPerSecond);
     let cx=orbit.x,cy=orbit.y,depth=orbit.depth;
     if(this.sling){
-      const s=this.sling,u=s.elapsed/(s.duration*.24);
-      if(u<.65){const v=smooth(u/.65);cx=home.x+s.startX*(1-v);cy=home.y+s.startY*(1-v);depth=1;}
-      else if(u<.88){const v=smooth((u-.65)/.23);cx=home.x+36*v;cy=home.y+s.side*5*v;depth=1;}
-      else {const v=smooth((u-.88)/.12);cx=home.x+36+12*v;cy=home.y+s.side*(5-(engine.reducedMotion?15:37)*v);depth=1;}
-      if(s.elapsed>s.duration*.34){const v=smooth((s.elapsed-s.duration*.34)/(s.duration*.45));cx+=(this.orbitPose.x-cx)*v;cy+=(this.orbitPose.y-cy)*v;depth+=(this.orbitPose.depth-depth)*v;}
+      const s=this.sling,p=vortexProgress(s.elapsed);
+      if(p<.24){
+        const u=p/.24;
+        if(engine.reducedMotion){const v=smooth(u);cx=home.x+s.startX*(1-v);cy=home.y+s.startY*(1-v);depth=1;}
+        else{const a=-s.side*TAU*1.7*u,r=18+7*Math.sin(Math.PI*u);cx=this.cargoX+Math.cos(a)*r;cy=this.cargoY+Math.sin(a)*r;depth=Math.sin(a);}
+      }else if(p<.42){
+        const u=smooth((p-.24)/.18);cx=home.x-18+75*u;cy=home.y+s.side*(13-(engine.reducedMotion?20:55)*u);depth=1;
+      }else if(s.elapsed>s.duration*.34){
+        const v=smooth((s.elapsed-s.duration*.34)/(s.duration*.45));cx+=(this.orbitPose.x-cx)*v;cy+=(this.orbitPose.y-cy)*v;depth+=(this.orbitPose.depth-depth)*v;
+      }
     }
     const blend=clamp(age/.18,0,1);
     this.x=this.reelStartX+(cx-this.reelStartX)*blend;this.y=this.reelStartY+(cy-this.reelStartY)*blend;this.depth=depth;

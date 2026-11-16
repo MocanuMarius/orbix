@@ -71,28 +71,29 @@ export function flightPreviewMarkup(run,node,{available=false,level,bonus=null,g
  const cue=forecast?[themeCue,forecast.cue].filter(Boolean).join(' '):themeCue||hazard;
  const interaction=biomeFeatures[biome?.interaction];
  const details=[place,kind,Number(node.duration)>0?`${Math.round(node.duration)} s`:''].filter(Boolean).map(escapeText).join(' · ');
- const routeDetails=`<p>${details}</p>${!available?'<p>Follow the connected path to reach this flight.</p>':''}${cue&&cue!==biome?.interactionHint?`<p>${forecast?`<span class="preview-weather">${atlasGlyph(forecast.id)} ${escapeText(forecast.name)}</span>`:''}${cardTermTextMarkup(cue,{sparkContext:'pickup'})}</p>`:''}${bonus?.hint?`<p class="preview-mark-help"><strong>${escapeText(bonus.name)}</strong> · ${cardTermTextMarkup(bonus.hint,{sparkContext:'pickup',exclude:['uses']})}</p>`:''}`;
- const ornament=TRAVEL_GUIDE_ART.includes(guideArt)?` preview-art-${guideArt}`:'';
+ const routeDetails=`<p>${details}</p>${!available?'<p>Follow the connected path to reach this flight.</p>':''}${cue&&cue!==biome?.interactionHint?`<p>${forecast?`<span class="preview-weather">${atlasGlyph(forecast.id)} ${escapeText(forecast.name)}</span>`:''}${cardTermTextMarkup(cue,{sparkContext:'pickup'})}</p>`:''}${bonus?.hint?`<p class="preview-mark-help">${cardTermTextMarkup(bonus.hint,{sparkContext:'pickup',exclude:['uses']})}</p>`:''}`;
+ const ornament=TRAVEL_GUIDE_ART.includes(guideArt)?` preview-art-${guideArt}`:' preview-atlas';
+ const productionAtlas=!TRAVEL_GUIDE_ART.includes(guideArt);
  return `<section class="flight-preview${ornament}" aria-labelledby="preview-place">
   <div class="preview-reading">
    <header class="preview-place">
-    <div class="preview-landmark">${art}</div>
-    <div class="preview-location"><span class="preview-kind">Travel Guide${available?'':' · Future '+kind.toLowerCase()}</span><h2 id="preview-place">${escapeText(node.name)}</h2></div>
+    ${productionAtlas?'':`<div class="preview-landmark">${art}</div>`}
+    <div class="preview-location">${productionAtlas?'':`<span class="preview-kind">Travel Guide${available?'':' · Future '+kind.toLowerCase()}</span>`}<h2 id="preview-place">${escapeText(node.name)}</h2></div>
    </header>
    <div class="preview-rewards${bonus?' has-objective':''}">
     <section class="preview-regular" aria-labelledby="preview-regular"><h3 id="preview-regular">On clear</h3>${regularReward(run,node)}</section>
     ${bonus?`<section class="preview-optional" aria-labelledby="preview-optional">
-     <div class="preview-goal-title">${bonusIcon(bonus.id)}<div><h3 id="preview-optional">Optional challenge</h3><strong>${escapeText(bonus.name)}</strong></div></div>
+     <div class="preview-goal-title">${bonusIcon(bonus.id)}<h3 id="preview-optional">Optional</h3></div>
      <p class="preview-condition">${escapeText(bonus.condition)}</p>
-     <p class="preview-prize"><span class="preview-claim">${bonus.id==='wayfinder'?'Reward':'Then clear →'}</span><span>${escapeText(bonus.reward)}</span></p>
+     <p class="preview-prize"><span>${escapeText(bonus.reward)}</span></p>
     </section>`:''}
    </div>
-   <div class="preview-features" aria-label="Tap for route details">
+   ${productionAtlas?(node.boss?`<p class="preview-guardian-cue">${cardTermTextMarkup(hazard,{sparkContext:'pickup'})}</p>`:''):`<div class="preview-features" aria-label="Tap for route details">
     ${interaction?featureDisclosure(interaction,`<p>${cardTermTextMarkup(biome.interactionHint,{sparkContext:'pickup'})}</p>`,'preview-biome-feature'):''}
     ${deposits?featureDisclosure(deposits,`<p>${cardTermTextMarkup(sparkForecastDetails[habitat],{sparkContext:'pickup'})}</p>`,'preview-spark-feature'):''}
     ${featureDisclosure('Details',routeDetails,'preview-route-details')}
     <button type="button" class="preview-glossary" data-card-glossary aria-haspopup="dialog">Glossary</button>
-   </div>${flightTerms(run,node,available)}
+   </div>${flightTerms(run,node,available)}`}
   </div>
   <footer>${actionButton('',{className:'preview-rail preview-back',action:'close-sheet',ariaLabel:'Back to route',icon:travelGuideChevron(true)})}${action}</footer>
  </section>`;

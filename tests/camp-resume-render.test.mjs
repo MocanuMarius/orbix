@@ -8,6 +8,7 @@ import { cardRestMarkup } from '../dist/card-ui.mjs';
 import { artifactIcon } from '../dist/upgrade-icons.mjs';
 import { homeMenuMarkup } from '../dist/run-menu.mjs';
 import { getGlowCapacity } from '../dist/vitality.mjs';
+import { isPlayablePractice } from '../dist/practice-route.mjs';
 
 const source = readFileSync(new URL('../dist/app.mjs', import.meta.url), 'utf8');
 const line = name => source.split(/\r?\n/).find(text => text.startsWith(`function ${name}(`));
@@ -24,12 +25,12 @@ function app(state) {
     cardRewardEquipping: false, cardRewardNotice: '',
     app: main, document: { body }, music: { setScene() {} },
     roleFleet: () => ['collector'], normalizeCompanionRole: role => role,
-    cardRestMarkup, artifactIcon, homeMenuMarkup,
+    cardRestMarkup, artifactIcon, homeMenuMarkup, isPlayablePractice,
     renderHeader: () => calls.header.push(body.dataset.screen),
     renderBriefing: () => '', renderRetry: () => '', deathScreenMarkup: () => '',
     renderMapClear: () => '', renderResult: () => '', renderVictory: () => '',
     drawMap: () => { calls.maps++; }, requestAnimationFrame() {},
-    guideScreen() {}, closeSheet() {}, showMapEarnings() {},
+    guideScreen() {}, closeSheet() {}, showMapEarnings() {}, updateCheckpoint() {},
     tutorialCheckpoint: () => '', icon: () => '<svg></svg>', mapHeight: () => 1000,
     featureAvailable: () => true, landscape: { isPortrait: () => false },
     notify: notice => calls.notices.push(notice),

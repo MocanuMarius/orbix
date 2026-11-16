@@ -9,7 +9,7 @@ const esc=value=>String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;
 const names={'card-watchlight':'Watchlight',collector:'Collector',protector:'Protector',swift:'Runner',leveler:'Space Timer',
   'main-echo-sight':'Echo Luminance','main-purifying-touch':'Purifying Touch','main-kindled-touch':'Kindled Touch',
   'proximity-awakening':'Edging Pulse','main-edging-regeneration':'Regenerative Pulse','proximity-light-shield':'Light Aegis',
-  'collector-last-orbit':'Last Orbit','main-fourth-beat':'Fourth Beat','warm-core':'Warm Core','kindled-spirit':'Kindled Spirit',edgeweaver:'Edgeweaver'};
+  'collector-last-orbit':'Last Orbit','main-fourth-beat':'Fourth Beat','warm-core':'Warm Core','kindled-spirit':'Kindled Spirit',edgeweaver:'Collision ward'};
 const portraitNames={'proximity-awakening':'Proximity','main-edging-regeneration':'Regenerative Pulse','proximity-light-shield':'Light Aegis','collector-last-orbit':'Last Orbit','main-fourth-beat':'Fourth Beat'};
 export function activationPresentation(event){
   const name=ARTIFACTS[event.source]?.name||names[event.source]||SKILLS[event.source]?.name||event.label||'Activated';
@@ -37,7 +37,7 @@ export function createActivationFeedback(root){
   if(!root)return {update(){},clear(){},destroy(){}};
   const doc=root.ownerDocument,feed=new ActivationFeed(),nodes=new Map(),pulses=new Map();
   const layer=doc.createElement('div');layer.className='activation-feedback';layer.setAttribute('aria-live','off');layer.setAttribute('aria-label','Activated effects');
-  const host=root.querySelector('.canvas-wrap')||root;host.append(layer);
+  const host=root.querySelector('.flight-effect-space')||root.querySelector('.canvas-wrap')||root;host.append(layer);
   let lastSequence=0,lastItems=null;
   const stopPulses=()=>{for(const [node,animation]of pulses){animation?.cancel?.();node.classList.remove('activation-triggered');}pulses.clear();};
   const clear=snapshot=>{feed.clear(snapshot);nodes.clear();layer.replaceChildren();stopPulses();lastItems=null;lastSequence=Number(snapshot?.activationSequence)||0;};

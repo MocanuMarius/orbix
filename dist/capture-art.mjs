@@ -1,3 +1,4 @@
+import {drawCollectorVortex} from './collector-vortex.mjs?v=guide-clarity-1';
 import {drawAbsorbingSpark} from './tidal-light.mjs?v=guide-clarity-1';
 import {getPickupSpec, pickupShellRadius} from './pickups.mjs?v=guide-clarity-1';
 import {drawPickup} from './pickup-art.mjs?v=guide-clarity-1';
@@ -28,6 +29,7 @@ function towVisibility(state,engine,light,playerY){
 }
 
 export function drawCollectorGrip(ctx,state,scale=1,{engine,light,playerY}={}){
+  drawCollectorVortex(ctx,state,scale,Boolean(engine?.reducedMotion));
   const tether=state.tetherPose;
   if(tether){
     // One cord joins the Spark's own eyelet to the MAIN wisp. The Collector

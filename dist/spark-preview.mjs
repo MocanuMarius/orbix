@@ -45,7 +45,7 @@ const groups = {
   companions: () => [['collector','Collector'],['protector','Protector'],['swift','Runner'],['leveler','Space Timer']].map(([id,name]) => card(name,companionArtSvg(id))),
   relics: () => Object.values(ARTIFACTS).map(artifact => card(artifact.name,artifactIcon(artifact.id))),
   sites: () => [['flight','Flight'],['rest','Rest'],['treasure','Treasure'],['encounter','Encounter'],['elite','Elite'],['boss','Guardian']].map(([id,name]) => card(name,mapStopIconMarkup(id))),
-  bonuses: () => Object.values(ROUTE_BONUSES).map(b => card(b.name,bonusIcon(b.id))),
+  bonuses: () => Object.values(ROUTE_BONUSES).map(b => card(b.condition,bonusIcon(b.id),b.reward)),
   controls: () => [
     card('Heart',lifeHeartSvg()), card('Spent heart',lifeHeartSvg(true)),
     ...[['up','Lift'],['down','Decrease'],['uses','Uses'],['auto','Automatic'],['clock','Duration'],['music','Music']].map(([id,name]) => card(name,resourceSymbol(id))),

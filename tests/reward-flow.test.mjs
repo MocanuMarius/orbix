@@ -59,9 +59,10 @@ test('claimed relic boon and receipt reflect real awards and handle no bonus',()
  const s=ready(true);assert.ok(chooseFlightReward(s,s.run.flightReward.offers[0]));
  s.run.lastFlight={elite:true,routeBonus:{id:'wild-circuit'},cardClearReceipt:{}};
  const empty=flightRewardMarkup(s);assert.match(empty,/acquired-no-boon/);assert.doesNotMatch(empty,/acquired-boon"|data-action="reward-earnings"|Wild Circuit/);
+ s.run.lastFlight.routeBonus={id:'wayfinder',message:'Wayfinder challenge completed.'};assert.doesNotMatch(flightRewardMarkup(s),/acquired-boon"|data-action="reward-earnings"/);
  s.run.lastFlight.routeBonus={id:'wild-circuit',name:'Heartwood Trail',amount:0,message:'Heartwood Trail · +3 maximum Sparks permanently'};
- const special=flightRewardMarkup(s);assert.match(special,/acquired-has-boon/);assert.match(special,/Heartwood Trail/);assert.match(special,/\+3 maximum Sparks permanently/);assert.doesNotMatch(special,/Companion recovery/);assert.match(special,/data-action="reward-earnings"/);
- s.run.lastFlight.routeBonus={id:'precision',amount:8};assert.match(flightRewardMarkup(s),/Pilgrim Precision/);assert.match(flightRewardMarkup(s),/\+8 Stored Sparks/);
+ const special=flightRewardMarkup(s);assert.match(special,/acquired-has-boon/);assert.doesNotMatch(special,/Heartwood Trail/);assert.match(special,/\+3 maximum Sparks permanently/);assert.doesNotMatch(special,/Companion recovery/);assert.match(special,/data-action="reward-earnings"/);
+ s.run.lastFlight.routeBonus={id:'precision',amount:8};assert.doesNotMatch(flightRewardMarkup(s),/Pilgrim Precision/);assert.match(flightRewardMarkup(s),/\+8 Stored Sparks/);
  delete s.run.lastFlight.routeBonus;s.run.lastFlight.cardClearReceipt={futureCapacity:3};const growth=flightRewardMarkup(s);assert.match(growth,/data-action="reward-earnings"/);assert.match(growth,/acquired-no-boon/);
 });
 test('resume countdown keeps physics blocked for all three seconds and supports cancellation',()=>{

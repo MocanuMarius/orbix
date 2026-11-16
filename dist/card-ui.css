@@ -1662,3 +1662,50 @@ html body .card-starter-trio .skill-card .card-rule-band .card-mechanic-main{fon
 html body .card-starter-trio .skill-card .card-rule-stripe{padding:4px 6px}
 @media(max-height:360px){.card-starter-pair.card-starter-trio{gap:12px}html body .card-starter-trio .skill-card.card-readable{grid-template-rows:28px clamp(22px,calc(var(--card-height) - 165px),80px) minmax(0,1fr)!important}html body .card-starter-trio .skill-card .card-rule-band .card-mechanic-main{font-size:12px!important;line-height:1.08!important}html body .card-starter-trio .skill-card .card-rule-stripe{padding:3px 5px}}
 @media(orientation:portrait){.card-starter-pair.card-starter-trio{grid-template-columns:repeat(3,minmax(0,1fr));overflow:auto}.card-starter-trio .card-pick-label{font-size:10px}}
+
+/* Rare slate keeps its arch and moss details, with an unmistakable blue ink. */
+html body .skill-card.card-rare{background:#193443!important;--card-ink:#a6d8ef}
+html body .skill-card.card-rare .card-face-heading{background:linear-gradient(#28566d,#18394f)!important;border-color:#86b4c9;box-shadow:inset 0 1px #a6d4e555}
+html body .skill-card.card-rare .card-illustration{background:#193748;border-color:#88aec1}
+html body .card-rare .card-rarity{color:#c2ebff!important}
+html body .skill-card-art[data-card-rarity="rare"]{border-color:#81b6d4!important}
+/* Incoming and equipped cards are separate groups; all four faces stay visible. */
+html body .card-reward-equip .card-reward-body{gap:26px;overflow:visible}
+.card-reward-incoming{position:relative;padding:18px 5px 0;background:#34463055;box-shadow:inset 0 0 0 1px #9aaa7b66}
+.card-reward-incoming::before{content:'New card';position:absolute;inset:2px 0 auto;text-align:center;color:#f0db9e;font:12px/1.1 var(--pixel)}
+html body .card-reward-equip .card-reward-choice{padding:18px 5px 0;background:#1a302744;box-shadow:inset 0 0 0 1px #65837266;overflow:visible}
+.card-reward-equip .card-reward-choice::before{content:'Equipped';position:absolute;inset:2px 0 auto;text-align:center;color:#c6d6c2;font:12px/1.1 var(--pixel)}
+.card-reward-equip .card-reward-choice::after{content:'';position:absolute;left:-14px;top:6px;bottom:6px;border-left:2px solid #9aaa7b77;pointer-events:none}
+html body .card-reward-equip .card-reward-slots{padding-bottom:2px}
+html body .card-reward-equip .card-reward-choice:has(>.card-flight-changes){padding-top:18px}
+@media(max-height:360px) and (orientation:landscape){html body .card-reward-equip .card-reward-body{gap:20px}.card-reward-equip .card-reward-choice::after{left:-11px}.card-reward-incoming,html body .card-reward-equip .card-reward-choice{padding-inline:3px}}
+/* Collector's former Power badge is reserved for compact event receipts. */
+.flight-effect-space{position:relative;display:flex;flex-direction:column;justify-content:flex-end;align-items:flex-end;gap:5px;width:216px;height:72px;pointer-events:none;margin-bottom:7px}
+.flight-effect-space>#boost-btn{display:none!important}
+html body .flight-effect-space button.flight-card-row{position:relative;inset:auto;transform:none;order:2;flex:none;justify-content:flex-end;max-width:216px;min-height:28px;height:auto;padding:3px;background:#10271dd9;pointer-events:auto;gap:3px}
+.flight-effect-space .card-row-source{width:23px;height:23px}
+.flight-effect-space .card-row-bonus{display:flex;align-items:center;gap:2px;font:12px/1 var(--pixel);color:#d9ecc1;white-space:nowrap;margin-left:4px}
+.card-row-bonus>svg{width:15px;height:15px}
+@media(max-width:700px){.flight-effect-space{width:180px}html body .flight-effect-space button.flight-card-row{max-width:180px}.flight-effect-space .card-row-source{width:21px;height:21px}.flight-effect-space .card-row-bonus{font-size:11px}}
+
+@media(max-height:360px) and (orientation:landscape){html body .card-reward-equip .skill-card.card-readable{grid-template-rows:clamp(27px,calc(var(--card-height) * .12),34px) clamp(16px,calc(var(--card-height) * .6 - 108px),86px) minmax(0,1fr)!important}}
+
+@media(max-width:700px) and (orientation:landscape){
+ html body .card-reward-equip .skill-card.card-readable .card-rule-band .card-mechanic-main{font-size:12px!important;line-height:1.1!important}
+ html body .card-reward-equip .skill-card.card-readable .card-rule-stripe{padding:2px 4px}
+}
+
+/* The equipped label shares its rail with slot numbers, keeping compact cards tall. */
+html body .card-reward-equip .card-reward-choice{padding-top:0}
+.card-reward-equip .card-reward-choice::before{inset:3px auto auto 7px;text-align:left;width:max-content;font-size:10px}
+
+html body .flight-effect-space button.flight-card-row{min-height:44px;height:44px}
+.flight-effect-space{height:80px}
+.flight-effect-space .card-row-source{width:28px;height:28px}
+.flight-effect-space .card-row-bonus{font-size:16px;max-width:72px;overflow:hidden}
+.flight-effect-space .card-row-bonus>svg{width:18px;height:18px;flex:none}
+@media(max-width:700px){.flight-effect-space .card-row-source{width:24px;height:24px}html body .flight-effect-space button.flight-card-row{gap:2px}.flight-effect-space .card-row-bonus{font-size:14px;max-width:60px;margin-left:2px}.flight-effect-space .card-row-bonus>svg{width:16px;height:16px}}
+
+.card-reward-incoming::before,.card-reward-equip .card-reward-choice::before{content:none}
+.card-reward-incoming>.card-reward-group-heading{position:absolute;inset:2px 0 auto;font:12px/1.1 var(--pixel)!important;text-align:center;color:#f0db9e;margin:0}
+.card-reward-equip .card-reward-choice>.card-reward-group-heading{position:absolute;inset:3px auto auto 7px;font:10px/1.1 var(--pixel)!important;text-align:left;color:#c6d6c2;margin:0;width:max-content;z-index:1}
