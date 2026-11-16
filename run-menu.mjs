@@ -1,10 +1,11 @@
-import {menuWorldMarkup} from './menu-world.mjs?v=starter-flow-1';
-import {resourceSymbol} from './game-symbols.mjs?v=starter-flow-1';
-import {formatGlow,getGlowCapacity} from './vitality.mjs?v=starter-flow-1';
-import {livesMarkup} from './lives.mjs?v=starter-flow-1';
-import { COMPANION_ABILITIES, getCompanionUnlock } from './companion-abilities.mjs?v=starter-flow-1';
-import { companionArtSvg } from './companion-art.mjs?v=starter-flow-1';
-import { GAME_VERSION } from './build-version.mjs?v=starter-flow-1';
+import {menuWorldMarkup} from './menu-world.mjs?v=early-play-1';
+import {resourceSymbol} from './game-symbols.mjs?v=early-play-1';
+import {formatGlow,getGlowCapacity} from './vitality.mjs?v=early-play-1';
+import {livesMarkup} from './lives.mjs?v=early-play-1';
+import { COMPANION_ABILITIES, getCompanionUnlock } from './companion-abilities.mjs?v=early-play-1';
+import { companionArtSvg } from './companion-art.mjs?v=early-play-1';
+import { GAME_VERSION } from './build-version.mjs?v=early-play-1';
+import { menuIcon } from './menu-icons.mjs?v=early-play-1';
 
 const esc = value => String(value ?? '').replace(/[&<>"']/g, char =>
   ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[char]));
@@ -14,7 +15,6 @@ const benefits = Object.freeze({
   leveler: 'Hold to hover. Release to glide.', swift: 'Surges through drafts.',
 });
 export const companionLockIcon = '<svg class="unlock-lock" viewBox="0 0 12 14" fill="none" aria-hidden="true"><path d="M3 6V4a3 3 0 0 1 6 0v2M1 6h10v7H1z" stroke="currentColor" stroke-width="1.5"/><path d="M6 9v2" stroke="currentColor"/></svg>';
-const arrow = '<svg class="front-arrow" viewBox="0 0 20 20" fill="currentColor" shape-rendering="crispEdges" aria-hidden="true"><path d="M3 8h8V4h2v2h2v2h2v2h2v1h-2v2h-2v2h-2v2h-2v-5H3z"/></svg>';
 // Three places along one path. The soil, roots and windows deliberately leave
 // negative space through the illustration so that the menu sky shows between them.
 const journeyPlaces = [
@@ -94,26 +94,36 @@ export function runProgressMarkup(run) {
   return `<section class="run-progress">${path}<div class="run-checkpoint"><div><b>${practice ? 'PRACTICE' : `${run.testMode?'TEST · ':''}ASCENSION ${tier(run.difficulty)}`}</b><span>${practice ? '' : `MAP ${map + 1}/3 · `}${mapCleared ? 'REFUGE REACHED' : `STOP ${stop}/${totalStops}`}</span></div><div class="run-checkpoint-resources">${livesMarkup(run,{compact:true})}<span class="front-glow" aria-label="Spark Meter: ${formatGlow(run.flame)} of ${formatGlow(getGlowCapacity(run))}">${resourceSymbol('energy')}${formatGlow(run.flame)} / ${formatGlow(getGlowCapacity(run))}</span></div></div>${run.phase === 'retry' ? `<p class="run-retry-note">RETRY WAITING · ${esc(run.current?.name || 'Same passage')}</p>` : ''}</section>`;
 }
 
+/** Companion tab. Locked portraits appear only when a real choice exists, or in TEST. */
 export function testStarterMarkup({testOverride=false}={}){
- // Locked portraits appear only when a real choice exists, or in TEST.
  const roles=Object.values(COMPANION_ABILITIES),selectable=roles.filter(role=>getCompanionUnlock(role.id).selectable);
- const choices=(testOverride||selectable.length>1?roles:selectable).map(role=>{
+ const shown=testOverride||selectable.length>1?roles:selectable;
+ const choices=shown.map(role=>{
    const available=getCompanionUnlock(role.id).selectable;
    const label=esc(role.name+(available?' equipped':' locked'));
-   return `<button type="button" class="test-starter-option roster-choice${available?' selected':''}" data-action="starting-companion" data-id="${role.id}" aria-label="${label}" title="${label}" aria-pressed="${available}" ${available?'':'disabled'}>
-     ${companionArtSvg(role.id)}<span>${esc(role.name)}</span>${available?'<i class="roster-state" aria-hidden="true"></i>':`<small class="roster-lock" aria-hidden="true">${companionLockIcon}</small>`}
-   </button>`;
+   return `<button type="button" class="home-companion-option${available?' selected':''}" data-action="starting-companion" data-id="${role.id}" aria-label="${label}" title="${label}" aria-pressed="${available}" ${available?'':'disabled'}>${companionArtSvg(role.id)}<span>${esc(role.name)}</span>${available?'<i class="home-companion-state" aria-hidden="true"></i>':`<small class="home-companion-lock" aria-hidden="true">${companionLockIcon}</small>`}</button>`;
  }).join('');
- return `<section class="test-starter-picker starter-roster" aria-label="Companions">
-   <div class="test-starter-heading"><strong>Companion</strong></div>
-   <div class="test-starter-options" role="group" aria-label="Companion roster">${choices}</div>
-   <p>${esc(benefits.collector)}</p>
- </section>`;
+ return `<section class="home-companion wb-tabbox${shown.length>1?' is-roster':''}" aria-label="Companions"><strong class="home-companion-heading">Companion</strong><div class="home-companion-options" role="group" aria-label="Companion roster">${choices}</div><p class="home-companion-benefit">${esc(benefits.collector)}</p></section>`;
+}
+
+/** One Waystone plaque (ui/waystone.css). Primary plaques carry no art, as in the kit. */
+function homeSign(role,action,title,sub,{cls='',art=''}={}){
+ return `<button type="button" class="wb-sign wb-sign-${role}${cls?` ${cls}`:''}" data-action="${action}">${art?`<i class="wb-sign-art" aria-hidden="true">${menuIcon(art)}</i>`:''}<span class="wb-sign-text"><b>${esc(title)}</b><small>${esc(sub)}</small></span></button>`;
 }
 
 export function homeMenuMarkup({ profile = {}, run = null, selectedDifficulty, testOverride = false, gameMode = 'cards', modeLinks = null, practiceFirst = false } = {}) {
   const maximum = testOverride ? Math.max(6,tier(profile.difficulty)) : tier(profile.difficulty), chosen = Math.min(maximum, tier(selectedDifficulty ?? maximum));
   const active = Boolean(run && (run.phase !== 'ended' || run.victoryPending || run.cardDraft && !run.cardDraft.claimed || run.cardReward?.draftId && !run.cardReward.uiAcknowledged) && !run.banked);
-
-  return `<section class="run-front-page menu-art-home">${menuWorldMarkup()}<header class="front-title"><div class="front-main-light" aria-hidden="true"></div><h1>WISPBOUND</h1><p>A LIGHT IN THE LOST WOODS</p><small class="front-version" data-game-version="${esc(GAME_VERSION)}">Version ${esc(GAME_VERSION)}</small></header>${!active&&run?.endScore?`<button class="front-last-score" data-action="score-view">Last scorecard · ${Math.max(0,Math.floor(run.endScore.earned||0))} Stored Sparks</button>`:runProgressMarkup(active ? run : null)}<div class="front-actions">${active ? `<button class="front-continue home-command primary" data-action="continue-run"><span>CONTINUE<small>${run.isTutorial ? 'Your practice route' : `MAP ${Math.min(3,(Number(run.mapIndex)||0)+1)}/3 · ${run.phase==='map-clear'?'MAP CLEARED':`STOP ${Math.min(run.map?.length||10,(Number(run.step)||0)+1)}/${run.map?.length||10}`}`}</small></span>${arrow}</button>` : ''}<div class="front-new-game"><button class="front-new-button home-command ${active ? 'secondary' : 'primary'}" data-action="new-game"><span>NEW GAME<small>${practiceFirst ? 'First Light practice first' : 'Choose a starting gift'}</small></span>${arrow}</button><div class="front-ascension-picker${maximum===1?' is-fixed':''}" role="group" aria-label="Choose ascension for a new game"><button data-action="choose-ascension" data-value="${Math.max(1, chosen - 1)}" aria-label="Previous ascension" ${chosen <= 1 ? 'disabled' : ''}>−</button><span>ASCENSION <b>${chosen}</b><small>${testOverride ? `TEST · 1–${maximum}` : maximum > 1 ? `UNLOCKED 1–${maximum}` : 'FIRST JOURNEY'}</small></span><button data-action="choose-ascension" data-value="${Math.min(maximum, chosen + 1)}" aria-label="Next ascension" ${chosen >= maximum ? 'disabled' : ''}>+</button></div></div><button class="front-tutorial home-command secondary" data-action="tutorial"><span>TUTORIAL<small>Lessons & practice</small></span>${arrow}</button><button class="front-settings home-command secondary" data-action="settings"><span>SETTINGS<small>Sound & options</small></span>${arrow}</button></div>${testStarterMarkup({testOverride})}</section>`;
+  const continueSub = active ? (run.isTutorial ? 'Your practice route' : `MAP ${Math.min(3,(Number(run.mapIndex)||0)+1)}/3 · ${run.phase==='map-clear'?'MAP CLEARED':`STOP ${Math.min(run.map?.length||10,(Number(run.step)||0)+1)}/${run.map?.length||10}`}`) : '';
+  const journey = !active&&run?.endScore
+    ? `<button type="button" class="home-score-tab wb-tabbox" data-action="score-view"><b>Last scorecard</b><small>${Math.max(0,Math.floor(run.endScore.earned||0))} Stored Sparks</small></button>`
+    : `<div class="home-journey wb-tabbox">${runProgressMarkup(active ? run : null)}</div>`;
+  const ascension = `<div class="home-ascension${maximum===1?' is-fixed':''}" role="group" aria-label="Choose ascension for a new game"><button type="button" class="home-ascension-step" data-action="choose-ascension" data-value="${Math.max(1, chosen - 1)}" aria-label="Previous ascension" ${chosen <= 1 ? 'disabled' : ''}>−</button><span class="home-ascension-label">ASCENSION <b>${chosen}</b><small>${testOverride ? `TEST · 1–${maximum}` : maximum > 1 ? `UNLOCKED 1–${maximum}` : 'FIRST JOURNEY'}</small></span><button type="button" class="home-ascension-step" data-action="choose-ascension" data-value="${Math.min(maximum, chosen + 1)}" aria-label="Next ascension" ${chosen >= maximum ? 'disabled' : ''}>+</button></div>`;
+  const menu = (active ? homeSign('primary','continue-run','CONTINUE',continueSub,{cls:'front-continue'}) : '')
+    + homeSign(active ? 'standard' : 'primary','new-game','NEW GAME',practiceFirst ? 'First Light practice first' : 'Choose a starting gift',{cls:'front-new-button',art:active?'wing':''})
+    + ascension
+    + homeSign('standard','tutorial','TUTORIAL','Lessons & practice',{cls:'front-tutorial',art:'info'})
+    + homeSign('standard','settings','SETTINGS','Sound & options',{cls:'front-settings',art:'tune'});
+  // DOM order is focus order: the page's menu first, then the tabs on the painting.
+  return `<section class="menu-art-home wb-ground${active?' has-continue':''}">${menuWorldMarkup()}<div class="wb-shade home-shade" aria-hidden="true"></div><div class="wb-page home-page"><div class="wb-pagelight" aria-hidden="true"></div><header class="wb-head home-head"><div class="wb-title-row"><i class="wb-flourish" aria-hidden="true"></i><h1 class="wb-title">WISPBOUND</h1><i class="wb-flourish wb-flip" aria-hidden="true"></i></div><p class="wb-context home-tagline">A LIGHT IN THE LOST WOODS</p></header><nav class="home-menu" aria-label="Main menu">${menu}</nav><small class="front-version" data-game-version="${esc(GAME_VERSION)}">Version ${esc(GAME_VERSION)}</small></div><div class="home-tabs">${journey}${testStarterMarkup({testOverride})}</div></section>`;
 }

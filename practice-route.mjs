@@ -1,4 +1,4 @@
-import {CARD_SYSTEM,makeSkillCard,getCardModifiers,getMountedCards} from './skill-cards.mjs?v=starter-flow-1';
+import {CARD_SYSTEM,makeSkillCard,getCardModifiers,getMountedCards} from './skill-cards.mjs?v=early-play-1';
 
 export const PRACTICE_EDITION=3;
 export const isPlayablePractice=run=>run?.isTutorial===true&&run.tutorialEdition===PRACTICE_EDITION;
@@ -33,7 +33,7 @@ export function nextPracticeLesson(engine,run,snapshot={}){
   add('lift',t>1.2,'Lift, then glide','Tap Lift to rise. Release to fall. Each ordinary Lift spends 3 Sparks.','#flap-btn');
   add('sparks',t>4,'Sparks refill your meter','Touch a bright Spark for fuel. Watch the meter on the left refill.','.glow-side-gauge',point(packet(p=>p.fuel)));
   const collector=engine.getWispState?.();
-  add('collector',t>7&&(state.carrierDeliveries>0||state.sawReel||state.directPickups>0),'Collector fetches a miss','The green orb reels a missed Spark to you. Fuel arrives when its shell reaches your wisp.',null,collector?{x:collector.x,y:collector.y,radius:18}:null);
+  add('collector',t>7&&(state.carrierDeliveries>0||state.sawReel||state.directPickups>0),'Meet Collector','Collector is the green companion. It fetches missed Sparks, then reels them to you. Fuel arrives when the shell touches your wisp.',null,collector?{x:collector.x,y:collector.y,radius:18}:null);
   add('luminance',t>11,'Luminance is your sight','The light around your wisp reveals nearby terrain. Collector’s green orbit shows its separate fetching reach.',null,{x:engine.player.x,y:engine.player.y,radius:34});
   add('packing',t>15&&(snapshot.condensedGlow||0)>0,'Surplus becomes Stored Sparks','Overfilling the Spark Meter packs surplus here. Clear this passage to keep it in your practice wallet.','.flight-condensed-counter');
  }

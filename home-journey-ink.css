@@ -1,28 +1,18 @@
-/* The title-screen atlas is one drawing on the landscape. */
-html body[data-screen=home] #app .menu-art-home .journey-landscape.journey-ink {
-  pointer-events: none;
-  overflow: visible;
-  border: 0;
-  background: none;
-  box-shadow: none;
-}
-
-html body[data-screen=home] #app .menu-art-home .journey-ink::before {
-  content: none;
-}
+/* Journey tab: the three-map drawing on a small leather tab over the painting. */
+html body[data-screen=home] #app .menu-art-home .home-journey .run-progress{display:block;width:100%;margin:0!important;padding:0!important;border:0!important;background:none!important;transform:none}
+html body[data-screen=home] #app .menu-art-home .home-journey .run-checkpoint{display:none!important}
+html body[data-screen=home] #app .menu-art-home .home-journey .run-retry-note{margin:2px 0 0;font:400 10px/1.2 var(--pixel,monospace);color:var(--wb-ink-sub)}
+html body[data-screen=home] #app .menu-art-home .journey-landscape.journey-ink{display:block;width:100%;margin:0;padding:0;pointer-events:none;overflow:visible;border:0;background:none;box-shadow:none}
+html body[data-screen=home] #app .menu-art-home .journey-landscape.journey-ink::before{content:none;display:none}
+html body[data-screen=home] #app .menu-art-home .journey-ink>svg{display:block;width:100%;height:auto;image-rendering:pixelated}
 
 .journey-ink .journey-road-ahead { stroke: #8d9175; }
 .journey-ink .journey-road-cleared { stroke: #c4df9a; }
 .journey-ink .chapter-future { opacity: .88; }
 
-html body[data-screen=home] #app .menu-art-home .journey-ink figcaption {
-  position: relative;
-  display: block;
-  height: 1.2em;
-  margin: 0;
-  color: #cbd1b9;
-  font: 12px/1.2 var(--pixel);
-}
+html body[data-screen=home] #app .menu-art-home .journey-ink figcaption{position:relative;display:block;height:14px;margin:2px 0 0;color:var(--wb-ink-sub);font:400 11px/14px var(--pixel,monospace);text-shadow:var(--wb-ink-shadow)}
+html body[data-screen=home] #app .menu-art-home .journey-ink .journey-caption.current{color:var(--wb-accent)}
+html body[data-screen=home] #app .menu-art-home .journey-ink .journey-caption.complete{color:#c4df9a}
 
 .journey-ink .journey-caption {
   position: absolute;

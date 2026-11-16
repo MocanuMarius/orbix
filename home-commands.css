@@ -1,25 +1,97 @@
-/* An embossed action surface and a stepped arrow are reserved for the controls. */
-html body[data-screen=home] #app .menu-art-home .front-actions button.home-command{
- --surface:url('assets/command-waystone.svg');
- background:var(--surface) center / 100% 100% no-repeat!important;
- clip-path:none!important;border:0!important;border-image:none!important;border-radius:0!important;
- box-shadow:none!important;cursor:pointer;touch-action:manipulation;position:relative;
- grid-template-columns:var(--action-art-size) minmax(0,1fr) 15%;column-gap:9px;
- padding-inline:clamp(12px,1.8vw,24px) 0!important;min-height:44px!important;
- color:#f1eddb!important;text-shadow:1px 2px #092020;image-rendering:pixelated;
+/* Home (main menu) in the Waystone kit, v2.5-theme "Atlas over the woods" (ui/waystone.css).
+   The lost-woods painting is the hero and stays bright on the left; a paper page on the right
+   (right-thumb side) holds the title and the menu as kit plaques; small leather tabs on the painting,
+   lower left, carry the journey (or the last scorecard) and the companion.
+   Every colour and art URL comes from the --wb-* skin variables. Selectors start with
+   html body #app so production button rules (rough-ui.css and others, some with ids) cannot reach in.
+
+   Local kit pieces, to fold into waystone.css: .home-ascension (compact level stepper: two 44px
+   leather keys around an ink label), .home-score-tab (a leather tab used as a button), and the
+   right-anchored page (--px from the right edge). */
+
+/* ── Composition ─────────────────────────────────────────────────────────── */
+html body[data-screen=home] #app .menu-art-home.wb-ground{
+ --pw:clamp(290px,44%,400px);
+ --px:calc(100% - var(--pw) - max(8px,env(safe-area-inset-right)));
+ /* Lighter than the pause menu: the painting stays clearly visible. */
+ --wb-shade-1:#00000014;--wb-shade-2:#00000024;--wb-shade-3:#00000038;
+ position:absolute;inset:0;z-index:0;display:block!important;width:auto;height:auto;max-width:none;min-height:0;margin:0!important;padding:0!important;overflow:hidden;isolation:isolate;
 }
-html body[data-screen=home] #app .menu-art-home .front-actions button.home-command.primary{--surface:url('assets/command-waystone-gold.svg');color:#fff1c5!important}
-html body[data-screen=home] #app .menu-art-home .front-actions button.home-command>.front-arrow{width:20px;height:20px;color:#d6ddc8;justify-self:center;opacity:1}
-html body[data-screen=home] #app .menu-art-home .front-actions button.home-command.primary>.front-arrow{color:#ffe39c}
-html body[data-screen=home] #app .menu-art-home .front-actions button.home-command:focus-visible{outline:2px solid #fff1af!important;outline-offset:2px;filter:brightness(1.15)!important}
-@media (hover:hover){html body[data-screen=home] #app .menu-art-home .front-actions button.home-command:hover{filter:brightness(1.14)!important}}
-html body[data-screen=home] #app .menu-art-home .front-actions button.home-command:active{transform:translateY(2px)!important;filter:brightness(.95)!important}
-html body[data-screen=home] #app .menu-art-home .front-actions button.home-command>span>small{color:#dce6d4!important}
-html body[data-screen=home] #app .menu-art-home .front-ascension-picker>button:not(:disabled){
- position:relative;background:#324842!important;background-clip:content-box!important;padding:5px!important;
- color:#fff3ca!important;cursor:pointer;font-weight:bold;outline-offset:-4px
+html body[data-screen=home] #app .menu-art-home::before,html body[data-screen=home] #app .menu-art-home::after{content:none;display:none}
+html body[data-screen=home] #app .menu-art-home>.menu-world-art{position:absolute;inset:0;z-index:0;width:100%;height:100%;object-fit:cover;object-position:center 49%;filter:brightness(.86) saturate(.95);image-rendering:pixelated;pointer-events:none}
+html body[data-screen=home] #app .menu-art-home>.home-shade{z-index:0}
+
+/* ── The page ────────────────────────────────────────────────────────────── */
+html body[data-screen=home] #app .menu-art-home .home-page{justify-content:center;gap:4px}
+html body[data-screen=home] #app .menu-art-home .home-head{flex:none}
+/* WISPBOUND is wider than a menu title: the ribbons take the kit's short length so they end above the
+   title row's flourishes. */
+html body[data-screen=home] #app .menu-art-home .home-page::after{height:56px;background-size:24px 56px,24px 44px}
+html body[data-screen=home] #app .menu-art-home .home-tagline{margin:0}
+html body[data-screen=home] #app .menu-art-home .home-menu{display:grid;grid-template-columns:minmax(0,1fr);gap:5px;width:100%;margin-block:auto;flex:none}
+html body[data-screen=home] #app .menu-art-home .front-version{display:block;flex:none;margin:0;font:400 10px/12px var(--pixel,monospace);letter-spacing:.5px;color:var(--wb-context);text-shadow:none}
+
+/* ── Plaques ─────────────────────────────────────────────────────────────── */
+/* Restate the kit frame with ids in the selector: rough-ui.css gives .front-* buttons its own frame. */
+html body[data-screen=home] #app .menu-art-home .home-menu .wb-sign{height:54px;border-image:var(--wb-plaque-standard) 6 / 12px stretch!important;box-shadow:none!important;clip-path:none!important;outline-offset:2px;transition:none!important;font-size:16px!important;letter-spacing:0;line-height:1.6;min-height:44px!important}
+html body[data-screen=home] #app .menu-art-home .home-menu .wb-sign-primary{border-image-source:var(--wb-plaque-primary)!important;background:var(--wb-fill-primary) padding-box!important}
+html body[data-screen=home] #app .menu-art-home .home-menu .wb-sign-standard{background:var(--wb-fill-standard) padding-box!important}
+html body[data-screen=home] #app .menu-art-home .home-menu .wb-sign:focus-visible{outline:2px solid var(--wb-focus)!important;filter:brightness(1.15)}
+html body[data-screen=home] #app .menu-art-home .home-menu .wb-sign:not(:disabled):active{transform:translateY(2px)!important}
+/* The flourishes on the moss plaque need a page at least 376px wide to stay clear of the lettering. */
+@media(min-width:860px){
+ html body[data-screen=home] #app .menu-art-home .home-menu .wb-sign-primary{background:var(--wb-flourish) left 4px center/64px 16px no-repeat padding-box,var(--wb-flourish-flip) right 4px center/64px 16px no-repeat padding-box,var(--wb-fill-primary) padding-box!important}
 }
-html body[data-screen=home] #app .menu-art-home .front-ascension-picker>button:disabled{background:transparent!important;cursor:default}
-html body[data-screen=home] #app .menu-art-home .front-ascension-picker.is-fixed>button{visibility:hidden}
-/* Remove old pointer feedback on inherited styles from purely decorative elements. */
-@media(prefers-reduced-motion:reduce){html body[data-screen=home] #app .menu-art-home .front-actions button.home-command:active{transform:none!important}}
+
+/* ── Ascension: a compact stepper directly under New Game ───────────────── */
+html body[data-screen=home] #app .menu-art-home .home-ascension{display:grid;grid-template-columns:44px minmax(0,1fr) 44px;align-items:center;gap:8px;height:44px;margin:0;padding:0 4px}
+html body[data-screen=home] #app .menu-art-home .home-ascension-label{display:flex;flex-wrap:wrap;justify-content:center;align-items:baseline;column-gap:6px;row-gap:4px;font:400 13px/1 var(--pixel,monospace);letter-spacing:1.5px;color:var(--wb-label);text-shadow:none}
+html body[data-screen=home] #app .menu-art-home .home-ascension-label>b{display:inline;font:400 16px/1 var(--pixel,monospace);color:var(--wb-label)}
+html body[data-screen=home] #app .menu-art-home .home-ascension-label>small{display:block;flex-basis:100%;text-align:center;font:400 10px/1 var(--pixel,monospace);letter-spacing:1px;color:var(--wb-context)}
+html body[data-screen=home] #app .menu-art-home .home-ascension-step{display:grid!important;place-items:center;width:44px!important;height:44px!important;min-width:44px!important;min-height:44px!important;margin:0!important;padding:0!important;box-sizing:border-box;border:12px solid transparent!important;border-image:var(--wb-plaque-standard) 6 fill / 12px stretch!important;border-radius:0!important;clip-path:none!important;background:none!important;box-shadow:none!important;image-rendering:pixelated;color:var(--wb-ink)!important;font:400 18px/1 var(--pixel,monospace)!important;text-shadow:var(--wb-ink-shadow);cursor:pointer;touch-action:manipulation;transition:none!important;transform:none}
+html body[data-screen=home] #app .menu-art-home .home-ascension-step:disabled{cursor:default;opacity:.45;filter:saturate(.5)}
+html body[data-screen=home] #app .menu-art-home .home-ascension-step:focus-visible{outline:2px solid var(--wb-focus)!important;outline-offset:2px}
+@media(hover:hover){html body[data-screen=home] #app .menu-art-home .home-ascension-step:not(:disabled):hover{filter:brightness(1.14)}}
+html body[data-screen=home] #app .menu-art-home .home-ascension-step:not(:disabled):active{transform:translateY(2px)}
+/* One level only: no controls, a shorter line of ink. */
+html body[data-screen=home] #app .menu-art-home .home-ascension.is-fixed{height:26px}
+html body[data-screen=home] #app .menu-art-home .home-ascension.is-fixed>.home-ascension-step{visibility:hidden;height:26px!important;min-height:0!important}
+html body[data-screen=home] #app .menu-art-home .home-ascension.is-fixed>.home-ascension-label>small{flex-basis:auto}
+
+/* ── Tabs on the painting, lower left ───────────────────────────────────── */
+html body[data-screen=home] #app .menu-art-home .home-tabs{position:absolute;z-index:1;left:max(12px,env(safe-area-inset-left));bottom:10px;width:calc(var(--px) - max(12px,env(safe-area-inset-left)) - 14px);display:flex;flex-wrap:wrap;align-items:flex-end;align-content:flex-end;gap:8px;margin:0;padding:0;pointer-events:none;text-align:left}
+html body[data-screen=home] #app .menu-art-home .home-tabs>*{pointer-events:auto;flex:none;max-width:100%;box-sizing:border-box}
+html body[data-screen=home] #app .menu-art-home .home-journey{width:236px;padding:0 6px}
+html body[data-screen=home] #app .menu-art-home .home-score-tab{display:grid!important;justify-items:start;gap:4px;min-height:44px!important;height:auto;width:auto;margin:0!important;padding:2px 8px!important;border:12px solid transparent!important;border-image:var(--wb-tab) 6 fill / 12px stretch!important;border-radius:0!important;clip-path:none!important;background:none!important;box-shadow:var(--wb-tab-shadow)!important;color:var(--wb-ink)!important;text-shadow:var(--wb-ink-shadow);text-align:left;cursor:pointer;touch-action:manipulation;transition:none!important;transform:none}
+html body[data-screen=home] #app .menu-art-home .home-score-tab>b{font:400 14px/1 var(--pixel,monospace);letter-spacing:1px;text-transform:uppercase}
+html body[data-screen=home] #app .menu-art-home .home-score-tab>small{font:400 11px/1 var(--pixel,monospace);color:var(--wb-ink-sub)}
+html body[data-screen=home] #app .menu-art-home .home-score-tab:focus-visible{outline:2px solid var(--wb-focus)!important;outline-offset:2px}
+@media(hover:hover){html body[data-screen=home] #app .menu-art-home .home-score-tab:hover{filter:brightness(1.14)}}
+
+/* ── Short screens (landscape phones) ───────────────────────────────────── */
+@media(max-height:340px){
+ html body[data-screen=home] #app .menu-art-home .home-page{gap:2px}
+ html body[data-screen=home] #app .menu-art-home .home-head{flex-wrap:wrap;row-gap:0}
+ html body[data-screen=home] #app .menu-art-home .home-tagline{flex-basis:100%;padding-left:19px;font-size:10px}
+ html body[data-screen=home] #app .menu-art-home.has-continue .home-tagline{display:none}
+ html body[data-screen=home] #app .menu-art-home .home-menu{gap:3px}
+ html body[data-screen=home] #app .menu-art-home .home-menu .wb-sign{height:44px}
+ html body[data-screen=home] #app .menu-art-home .home-menu .wb-sign-text>small{display:none!important}
+ html body[data-screen=home] #app .menu-art-home .home-ascension-label>small{display:none}
+ html body[data-screen=home] #app .menu-art-home .front-version{font-size:9px;line-height:10px}
+ html body[data-screen=home] #app .menu-art-home .home-tabs{bottom:6px;gap:6px}
+ html body[data-screen=home] #app .menu-art-home .home-journey{width:196px}
+}
+@media(max-height:310px){
+ html body[data-screen=home] #app .menu-art-home .home-menu{gap:2px}
+ html body[data-screen=home] #app .menu-art-home .home-ascension.is-fixed{height:22px}
+}
+@media(prefers-reduced-motion:reduce){
+ html body[data-screen=home] #app .menu-art-home :is(.wb-sign,.home-ascension-step):active{transform:none!important}
+}
+html[data-reduced-motion=true] body[data-screen=home] #app .menu-art-home :is(.wb-sign,.home-ascension-step):active{transform:none!important}
+/* Portrait shows the rotate screen; behind it the page simply takes the width. */
+@media(orientation:portrait){
+ html body[data-screen=home] #app .menu-art-home.wb-ground{--pw:calc(100% - 16px)}
+ html body[data-screen=home] #app .menu-art-home .home-tabs{display:none}
+}

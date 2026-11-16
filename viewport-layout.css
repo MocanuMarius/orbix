@@ -1,11 +1,12 @@
-/* Action color is a verb, not an availability signal: green accepts, muted red
-   returns/cancels, and amber consumes an artifact in the forge. Navigation and
+/* Action color is a verb, not an availability signal: green accepts, neutral
+   slate returns or closes, muted red destroys (Abandon run, Melt and their
+   confirmations), and amber consumes an artifact in the forge. Navigation and
    unaffordable skill nodes keep their own existing state vocabulary. */
 :is(.game-sheet,.menu-pause,.victory-actions,.compact-briefing,.rest-preparation-screen) button:is([data-action="confirm-reward"],[data-action="confirm-mount-artifact"],[data-action="resume"],[data-action="victory-next"],[data-action="launch"],[data-action="node"],[data-action="dream-preset"]):not(:disabled){
  color:#e9f6cf!important;-webkit-text-fill-color:#e9f6cf;background:#2b4b39!important;border-image-source:url('assets/shrine-frame.svg')!important;text-shadow:1px 1px #10271d;box-shadow:inset 0 0 0 1px #a9c89455!important;
 }
 :is(.game-sheet,.menu-pause) button:is([data-action="close-sheet"],[data-action="close-power"],[data-action="artifact-details-back"],[data-action="exit-menu"],[data-action="dream-back"]){
- color:#f1cbc0!important;-webkit-text-fill-color:#f1cbc0;background:#432d2d!important;border-image-source:url('assets/shrine-frame.svg')!important;text-shadow:1px 1px #281a1c;box-shadow:inset 0 0 0 1px #ba8c8055!important;
+ color:var(--ui-text,#f4edcf)!important;-webkit-text-fill-color:var(--ui-text,#f4edcf);background-color:#1b302c!important;text-shadow:1px 1px #050b0d;
 }
 :is(.game-sheet,.menu-pause) button:is([data-action="confirm-abandon"],[data-action="confirm-new-game"]),:is(.game-sheet,.menu-pause)>.run-menu-danger{
  color:#f2bdb2!important;-webkit-text-fill-color:#f2bdb2;background:#462729!important;border-color:#bd8579;text-shadow:1px 1px #291519;
@@ -195,7 +196,7 @@
 
 /* Resource and action identity survives tiny landscape layouts. */
 .condensed-wallet small,.flight-condensed-counter>small{display:none!important}.condensed-wallet .condensed-icon,.flight-condensed-counter>.condensed-icon{width:26px!important;height:26px!important}.condensed-wallet b{font-size:18px!important}
-button.primary,.primary[data-action]{color:#e6f4ca!important;background-color:#314d3c!important}button[data-action="close-sheet"],button[data-action="artifacts-back"],button[data-action="exit-menu"]{background-color:#473438!important;color:#f0d1ca!important}
+button.primary,.primary[data-action]{color:#e6f4ca!important;background-color:#314d3c!important}
 button[data-action*="forge"],.forge-ritual .primary{background-color:#664826!important;color:#ffe0a0!important}button[data-action="abandon-run"]{color:#efb3a6!important}
 .artifact-portrait{image-rendering:pixelated}.artifact-copy-squares{display:inline-flex;gap:3px;vertical-align:middle;margin:0 4px}.artifact-copy-squares i{width:6px;height:6px;border:1px solid #bca778;background:#22342c}.artifact-copy-squares i.filled{background:#ead2a0}
 @media(prefers-reduced-motion:no-preference){.run-front-page button,.run-tools button,.reward-relic{transition:transform .12s steps(3),filter .12s!important}.run-front-page button:active,.run-tools button:active,.reward-relic:active{transform:translateY(2px);filter:brightness(1.18)}}

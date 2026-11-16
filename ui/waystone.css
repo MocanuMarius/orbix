@@ -1,0 +1,230 @@
+/* Waystone: the approved menu kit. Components and layout: v1.5-theme / v1.5-pause / v1.1-settings.
+   Skin and composition: v2.5-theme "Atlas over the woods" (v2.4-theme with green primary and wine
+   danger), approved 2026-11-16. Promoted from dist/design-lab/variants.css.
+   Pieces: 9-slice plaques (drawn at 1x, shown at exactly 2x) in four roles, the edge clasp, title
+   with flourishes, context line, carved rule, the level control, the paper page with the wisp orb
+   and bookmark ribbons, leather side tabs and the dimmed woods painting with a stepped light pool.
+   Rejected and not carried over: stone grain, pointed signs, arrows, plain toggles, the green
+   stone skin.
+
+   SKINS. Every colour and every art URL comes from the --wb-* custom properties declared once in a
+   skin block. Component rules below reference only those variables. To add a skin, add one more
+   block (for example .wb-theme-paper{...}) here with the same variable names plus its art files,
+   and put the class on the menu root or any ancestor (body skins every menu). Keep skin art URLs in
+   this file so relative paths resolve against dist/ui/.
+
+   .wb-ground is the layout root. Every component selector is scoped to it, so production button
+   and dialog rules (many with !important) cannot reach in, and the kit cannot leak out. */
+
+/* ── Skin: Atlas (default) ──────────────────────────────────────────────── */
+:root,.wb-theme-atlas{
+ --wb-backdrop:#0c0907;
+ --wb-world:url('../assets/moonwell-title.webp');
+ --wb-world-filter:brightness(.5) saturate(.85);
+ --wb-shade-1:#0000002e;--wb-shade-2:#00000059;--wb-shade-3:#00000080;
+ --wb-page:url('../assets/ui/waystone/plaque-page.svg');
+ --wb-pagelight-1:#fff6d833;--wb-pagelight-2:#fff6d81a;--wb-pagelight-3:#5a46321a;--wb-pagelight-4:#5a463233;
+ --wb-ribbon-a:url('../assets/ui/waystone/ribbon-wine.svg');
+ --wb-ribbon-b:url('../assets/ui/waystone/ribbon-olive.svg');
+ --wb-orb:url('../assets/ui/waystone/orb-wisp.svg');
+ --wb-orb-filter:drop-shadow(0 0 10px #fff6d8) drop-shadow(0 0 24px #f3e6b9aa);
+ --wb-tab:url('../assets/ui/waystone/plaque-leather.svg');
+ --wb-tab-shadow:0 4px 0 #0006;
+ --wb-plaque-standard:url('../assets/ui/waystone/plaque-leather.svg');
+ --wb-plaque-primary:url('../assets/ui/waystone/plaque-moss.svg');
+ --wb-plaque-quiet:url('../assets/ui/waystone/plaque-slip.svg');
+ --wb-plaque-danger:url('../assets/ui/waystone/plaque-ribbon.svg');
+ --wb-clasp:url('../assets/ui/waystone/clasp.svg');
+ --wb-flourish:url('../assets/ui/waystone/flourish.svg');
+ --wb-flourish-flip:url('../assets/ui/waystone/flourish-flip.svg');
+ --wb-flourish-filter:sepia(1) saturate(1.4) brightness(.5);
+ --wb-fill-standard:#5a4632;
+ --wb-fill-primary:#536430;
+ --wb-fill-quiet:#e0c98f;
+ --wb-fill-danger:#7a2f2a;
+ --wb-ink:#f6ebcc;            --wb-ink-shadow:1px 2px #2a1d12;
+ --wb-ink-primary:#fff6d8;    --wb-ink-primary-shadow:1px 2px #1c230f;
+ --wb-ink-quiet:#3b2d20;      --wb-ink-quiet-shadow:none;
+ --wb-ink-danger:#fff1c5;     --wb-ink-danger-shadow:1px 2px #3a1512;
+ --wb-ink-sub:#e2d0a6;
+ --wb-text:#f4edcf;
+ --wb-title:#2a2118;
+ --wb-title-shadow:none;
+ --wb-context:#6b5335;
+ --wb-group:#2a2118;
+ --wb-group-rule:#8a6d44;
+ --wb-label:#2a2118;
+ --wb-accent:#e6c77c;
+ --wb-copy:#e2d0a6;
+ --wb-rule:#8a6d44;
+ --wb-rule-centre:#7a2f2a;
+ --wb-focus:#fff1af;
+ --wb-bar:#33261a;
+ --wb-bar-edge:#140e09;
+ --wb-bar-highlight:#4a3828;
+ --wb-bar-lit:#e6c77c;
+ --wb-bar-lit-edge:#2a1d12;
+ --wb-bar-lit-highlight:#fff1c5;
+ --wb-bar-lit-shade:#b98f4a;
+}
+
+/* ── Plaque ──────────────────────────────────────────────────────────────── */
+/* role = primary (the one next step) | standard (go somewhere)
+   | quiet (leave or step back) | danger (cannot be undone). */
+html body .wb-ground .wb-sign{position:relative;display:grid!important;grid-template-columns:24px minmax(0,1fr);align-items:center;column-gap:12px;width:100%;min-width:0;height:54px;min-height:44px!important;margin:0!important;padding:0 8px!important;box-sizing:border-box;border:12px solid transparent!important;border-image:var(--wb-plaque-standard) 6 / 12px stretch!important;border-radius:0!important;clip-path:none!important;box-shadow:none!important;background:var(--wb-fill-standard) padding-box!important;image-rendering:pixelated;color:var(--wb-ink)!important;-webkit-text-fill-color:currentColor!important;font:400 16px/1.6 var(--pixel,monospace);text-shadow:var(--wb-ink-shadow);text-align:left;cursor:pointer;touch-action:manipulation}
+html body .wb-ground .wb-sign:not(:has(.wb-sign-art)){grid-template-columns:minmax(0,1fr);text-align:center}
+html body .wb-ground .wb-sign-art{display:block;width:24px;height:24px}
+html body .wb-ground .wb-sign-art>svg{display:block;width:24px;height:24px}
+html body .wb-ground .wb-sign-text{display:block;min-width:0}
+html body .wb-ground .wb-sign-text>b{display:block;font:400 18px/18px var(--pixel,monospace);letter-spacing:1px;text-transform:uppercase;white-space:nowrap;overflow:visible;text-overflow:ellipsis}
+html body .wb-ground .wb-sign-text>small{display:block;margin-top:4px;font:400 11px/11px var(--pixel,monospace);letter-spacing:.3px;color:var(--wb-ink-sub);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+html body .wb-ground .wb-sign-primary{border-image-source:var(--wb-plaque-primary)!important;background:var(--wb-flourish) left 4px center/64px 16px no-repeat padding-box,var(--wb-flourish-flip) right 4px center/64px 16px no-repeat padding-box,var(--wb-fill-primary) padding-box!important;color:var(--wb-ink-primary)!important;text-shadow:var(--wb-ink-primary-shadow)}
+html body .wb-ground .wb-sign-quiet,html body .wb-ground .wb-sign-danger{grid-template-columns:minmax(0,1fr)!important;height:46px;text-align:center}
+html body .wb-ground .wb-sign-quiet{border-image-source:var(--wb-plaque-quiet)!important;background:var(--wb-fill-quiet) padding-box!important;color:var(--wb-ink-quiet)!important;text-shadow:var(--wb-ink-quiet-shadow)}
+html body .wb-ground .wb-sign-danger{border-image-source:var(--wb-plaque-danger)!important;background:var(--wb-fill-danger) padding-box!important;color:var(--wb-ink-danger)!important;text-shadow:var(--wb-ink-danger-shadow)}
+html body .wb-ground .wb-sign-quiet .wb-sign-text>b,html body .wb-ground .wb-sign-danger .wb-sign-text>b{font-size:15px;line-height:15px}
+/* Edge clasp: one clasp on the top edge of each main plaque. */
+html body .wb-ground :is(.wb-sign-primary,.wb-sign-standard)::before{content:'';position:absolute;top:-12px;left:50%;width:28px;height:12px;margin-left:-14px;background:var(--wb-clasp) center/28px 12px no-repeat;image-rendering:pixelated;pointer-events:none}
+html body .wb-ground .wb-sign::after{display:none}
+/* Paired plaques are half as wide: a slightly smaller title keeps whole words. */
+html body .wb-ground .wb-split{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+html body .wb-ground .wb-split>.wb-sign:not(.wb-sign-quiet,.wb-sign-danger){column-gap:10px;padding:0 4px!important}
+html body .wb-ground .wb-split>.wb-sign:not(.wb-sign-quiet,.wb-sign-danger) .wb-sign-text>b{font-size:15px;line-height:15px;letter-spacing:.5px}
+html body .wb-ground .wb-sign:focus-visible{outline:2px solid var(--wb-focus)!important;outline-offset:2px;filter:brightness(1.15)}
+@media(hover:hover){html body .wb-ground .wb-sign:hover{filter:brightness(1.14)}}
+html body .wb-ground .wb-sign:active{transform:translateY(2px);filter:brightness(.95)}
+html body .wb-ground .wb-sign:disabled{cursor:default;filter:saturate(.5) brightness(.85)}
+
+/* ── Title, context line, flourish, carved rule ─────────────────────────── */
+html body .wb-ground .wb-title{margin:0!important;font:400 25px/1.4 var(--pixel,monospace)!important;letter-spacing:2px!important;text-transform:uppercase;color:var(--wb-title)!important;text-shadow:var(--wb-title-shadow)!important}
+html body .wb-ground .wb-context{display:block;font:400 11px/1 var(--pixel,monospace);letter-spacing:1.5px;text-transform:uppercase;color:var(--wb-context)}
+html body .wb-ground .wb-title-row{display:flex;align-items:center;justify-content:center;gap:14px}
+html body .wb-ground .wb-flourish{display:block;flex:none;width:64px;height:16px;background:var(--wb-flourish) center/64px 16px no-repeat;image-rendering:pixelated;filter:var(--wb-flourish-filter)}
+html body .wb-ground .wb-flourish.wb-flip{transform:scaleX(-1)}
+/* A stepped rule: three whole-pixel segments, like a carved groove. */
+html body .wb-ground .wb-rule{height:2px;margin:4px 0;background:linear-gradient(90deg,transparent 0 4px,var(--wb-rule) 4px calc(50% - 5px),transparent calc(50% - 5px) calc(50% - 2px),var(--wb-rule-centre) calc(50% - 2px) calc(50% + 2px),transparent calc(50% + 2px) calc(50% + 5px),var(--wb-rule) calc(50% + 5px) calc(100% - 4px),transparent calc(100% - 4px))}
+
+/* ── Level control ───────────────────────────────────────────────────────── */
+/* Tap the icon to mute or unmute, tap a bar to set the level, arrow keys on the bars. */
+html body .wb-ground .wb-sound{display:grid;gap:0;justify-items:center}
+html body .wb-ground .wb-level{display:flex;align-items:center;justify-content:center;gap:4px}
+html body .wb-ground .wb-level-icon{display:grid!important;place-items:center;width:44px;height:44px;min-width:44px!important;min-height:44px!important;margin:0!important;padding:0!important;border:0!important;border-image:none!important;border-radius:0!important;background:none!important;box-shadow:none!important;clip-path:none!important;color:var(--wb-text);cursor:pointer;touch-action:manipulation}
+html body .wb-ground .wb-level-icon>svg{width:32px;height:32px;image-rendering:pixelated}
+html body .wb-ground .wb-level-icon>svg.menu-carving{width:24px;height:24px}
+html body .wb-ground .wb-level[data-level="0"] .wb-level-icon>svg{opacity:.4}
+html body .wb-ground .wb-level-bars{display:flex;align-items:flex-end;gap:4px;height:44px;padding:6px 4px;box-sizing:border-box;cursor:pointer;touch-action:manipulation}
+html body .wb-ground .wb-level-bars>i{display:block;width:12px;background:var(--wb-bar);box-shadow:0 0 0 2px var(--wb-bar-edge),inset 0 2px 0 var(--wb-bar-highlight);transform-origin:bottom}
+html body .wb-ground .wb-level-bars>i:nth-child(1){height:10px}html body .wb-ground .wb-level-bars>i:nth-child(2){height:16px}html body .wb-ground .wb-level-bars>i:nth-child(3){height:24px}html body .wb-ground .wb-level-bars>i:nth-child(4){height:32px}
+html body .wb-ground .wb-level-bars>i.lit{background:var(--wb-bar-lit);box-shadow:0 0 0 2px var(--wb-bar-lit-edge),inset 0 2px 0 var(--wb-bar-lit-highlight),inset 0 -2px 0 var(--wb-bar-lit-shade)}
+html body .wb-ground .wb-level-icon:focus-visible,html body .wb-ground .wb-level-bars:focus-visible{outline:2px solid var(--wb-focus);outline-offset:2px}
+/* Music keeps time: lit bars nod in whole-pixel steps. */
+@keyframes wb-nod{0%,49%{transform:scaleY(1)}50%,100%{transform:scaleY(.84)}}
+html body .wb-ground .wb-level[data-beat] .wb-level-bars>i.lit{animation:wb-nod .9s steps(1) infinite}
+html body .wb-ground .wb-level[data-beat] .wb-level-bars>i.lit:nth-child(2){animation-delay:.22s}
+html body .wb-ground .wb-level[data-beat] .wb-level-bars>i.lit:nth-child(3){animation-delay:.45s}
+html body .wb-ground .wb-level[data-beat] .wb-level-bars>i.lit:nth-child(4){animation-delay:.67s}
+@media(prefers-reduced-motion:reduce){
+ html body .wb-ground .wb-sign:active{transform:none}
+ html body .wb-ground .wb-level-bars>i{animation:none!important}
+}
+html[data-reduced-motion=true] .wb-ground .wb-level-bars>i{animation:none!important}
+html[data-reduced-motion=true] .wb-ground .wb-sign:active{transform:none}
+
+/* ── Composition: the book over the lost woods ──────────────────────────── */
+/* --pw / --px: page width and left edge. The page centres while both side areas fit; otherwise it
+   keeps at least 172px on the right for the sound tab. */
+html body .wb-ground{position:absolute;inset:0;z-index:10;display:block;margin:0;padding:0;box-sizing:border-box;overflow:hidden;backdrop-filter:none;background:var(--wb-backdrop);color:var(--wb-text);font:400 16px/1.6 var(--pixel,monospace);text-align:center;--pw:min(470px,calc(100% - 180px));--px:max(8px,min(calc((100% - var(--pw))/2),calc(100% - var(--pw) - 172px)))}
+html body .wb-ground .wb-world{position:absolute;inset:0;z-index:0;background:var(--wb-world) center 49%/cover no-repeat;image-rendering:pixelated;filter:var(--wb-world-filter);pointer-events:none}
+/* Light pools around the book and fades into the woods, in steps. */
+html body .wb-ground .wb-shade{position:absolute;inset:0;z-index:0;pointer-events:none;background:radial-gradient(circle at calc(var(--px) + var(--pw)/2) 45%,transparent 0 300px,var(--wb-shade-1) 300px 380px,var(--wb-shade-2) 380px 470px,var(--wb-shade-3) 470px)}
+html body .wb-ground .wb-page{position:absolute;z-index:1;top:5px;bottom:5px;left:var(--px);width:var(--pw);box-sizing:border-box;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;padding:0 13px;border:12px solid transparent;border-image:var(--wb-page) 6 fill / 12px stretch}
+/* Two bookmark ribbons hang from the page's top right. */
+html body .wb-ground .wb-page::after{content:'';position:absolute;top:-12px;right:14px;width:52px;height:80px;background:var(--wb-ribbon-a) left top/24px 80px no-repeat,var(--wb-ribbon-b) right top/24px 64px no-repeat;image-rendering:pixelated;pointer-events:none}
+html body .wb-ground .wb-pagelight{position:absolute;inset:0;z-index:0;pointer-events:none;background:radial-gradient(circle at 50% 46px,var(--wb-pagelight-1) 0 90px,var(--wb-pagelight-2) 90px 170px,transparent 170px 260px,var(--wb-pagelight-3) 260px 340px,var(--wb-pagelight-4) 340px)}
+html body .wb-ground .wb-page>:not(.wb-pagelight){position:relative;z-index:1}
+html body .wb-ground .wb-head{display:grid;justify-items:center;gap:3px;margin:0}
+html body .wb-ground .wb-head::before{content:'';width:32px;height:32px;background:var(--wb-orb) center/32px 32px no-repeat;image-rendering:pixelated;filter:var(--wb-orb-filter)}
+html body .wb-ground .wb-side{position:absolute;z-index:1;top:0;bottom:0;display:grid;place-items:center;align-content:center}
+html body .wb-ground .wb-side-right{left:calc(var(--px) + var(--pw));right:0}
+html body .wb-ground .wb-side-left{left:0;width:var(--px)}
+html body .wb-ground .wb-tabbox{display:grid;gap:0;justify-items:center;padding:0 4px;border:12px solid transparent;border-image:var(--wb-tab) 6 fill / 12px stretch;box-shadow:var(--wb-tab-shadow)}
+/* Run status (left tab): hearts, Spark Meter and Stored Sparks. */
+html body .wb-ground .wb-stat{display:flex;align-items:center;justify-content:flex-start;gap:8px;width:100%;height:36px;color:var(--wb-ink);text-shadow:var(--wb-ink-shadow)}
+html body .wb-ground .wb-stat>b{font:400 16px/1 var(--pixel,monospace);letter-spacing:1px}
+html body .wb-ground .wb-stat>svg{width:20px;height:20px;flex:none}
+html body .wb-ground .wb-stat>svg.resource-symbol-packed{width:32px;height:32px;margin:0 -6px}
+html body .wb-ground .wb-stat-hearts{display:flex;gap:4px}
+html body .wb-ground .wb-stat-hearts>svg{width:32px;height:28px}
+@media(max-width:820px){html body .wb-ground .wb-side-left{display:none}}
+
+/* ── Pause menu (v1.5-pause) ─────────────────────────────────────────────── */
+/* One column: Resume, build, Help, Settings, a carved rule, then the leave row. The same markup is
+   used in flight (#pause-layer) and on the map (inside a <dialog>). */
+html body .wb-pause .wb-pause-col{display:grid;grid-template-columns:minmax(0,1fr);gap:5px;width:100%;margin:0}
+html body .wb-pause .wb-page .wb-sign:not(.wb-sign-quiet,.wb-sign-danger){height:50px}
+/* Optional-challenge reminder: under the sound tab in the right side area (the page has no free
+   height). The summary's hit area reaches 44px through a transparent extension. */
+html body .wb-pause .pause-bonus-rule{max-width:calc(100% - 16px);margin:14px 0 0;font:400 11px/15px var(--pixel,monospace);letter-spacing:.5px;color:var(--wb-copy);text-align:center;text-shadow:var(--wb-ink-shadow)}
+html body .wb-pause .pause-bonus-rule>summary{position:relative;cursor:pointer;color:var(--wb-accent);touch-action:manipulation}
+html body .wb-pause .pause-bonus-rule>summary::after{content:'';position:absolute;inset:-15px -8px -14px}
+html body .wb-pause .pause-bonus-rule>summary:focus-visible{outline:2px solid var(--wb-focus);outline-offset:2px}
+html body .wb-pause .pause-bonus-rule>p{margin:4px 0 0;font-size:11px;color:var(--wb-copy)}
+@media(max-height:340px){
+ html body .wb-ground .wb-page{top:2px;bottom:2px;gap:2px}
+ html body .wb-ground .wb-head{display:flex;align-items:baseline;gap:3px;align-self:flex-start;padding-right:64px;white-space:nowrap}
+ html body .wb-ground .wb-head::before{width:16px;height:16px;background-size:16px 16px}
+ html body .wb-ground .wb-flourish{display:none}
+ html body .wb-ground .wb-title{font-size:22px!important}
+ html body .wb-ground .wb-page::after{height:56px;background-size:24px 56px,24px 44px}
+ html body .wb-pause .wb-pause-col{gap:2px}
+ html body .wb-pause .wb-sign,html body .wb-pause .wb-page .wb-sign:not(.wb-sign-quiet,.wb-sign-danger){height:44px}
+ html body .wb-pause .wb-sign-text>small{display:none}
+ html body .wb-pause .wb-page .wb-rule{margin:0}
+}
+@media(max-height:310px){
+ html body .wb-pause .wb-pause-col{gap:3px}
+ html body .wb-pause .wb-page .wb-rule{margin:1px 0}
+ html body .wb-ground .wb-title{font-size:20px!important}
+}
+
+/* ── Settings (v1.1-settings) ───────────────────────────────────────────── */
+/* One wider page: title, three groups (Sound, Gameplay, App), Back bottom left, Advanced bottom right. */
+html body .wb-settings{--pw:min(870px,calc(100% - 16px));--px:calc((100% - var(--pw))/2)}
+html body .wb-settings .wb-page{justify-content:center;gap:8px}
+html body .wb-settings .wb-head{margin-bottom:6px}
+html body .wb-settings .wb-set-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:0 22px;width:100%;align-items:start;margin:0;padding:0;overflow:visible;max-height:none;background:none;border:0}
+html body .wb-settings .wb-set-grid>section{display:grid;gap:6px;align-content:start;min-width:0}
+html body .wb-settings .wb-set-group{margin:0 0 2px!important;padding:0 0 4px;border:0;border-bottom:2px solid var(--wb-group-rule);font:400 13px/1 var(--pixel,monospace)!important;letter-spacing:2px;text-transform:uppercase;text-align:center;color:var(--wb-group)!important;text-shadow:none!important}
+html body .wb-settings .wb-set-row{display:flex;align-items:center;justify-content:space-between;gap:8px;min-height:46px}
+html body .wb-settings .wb-set-label{font:400 16px/1 var(--pixel,monospace);letter-spacing:1px;text-transform:uppercase;color:var(--wb-label);text-shadow:none}
+html body .wb-settings .wb-set-row .wb-level-icon{color:var(--wb-label)}
+html body .wb-settings .wb-set-grid .wb-sign{height:46px}
+html body .wb-settings .wb-set-grid .wb-sign-text>b{font-size:15px;line-height:15px}
+html body .wb-settings .wb-set-grid .wb-sign-text>small{margin-top:3px}
+html body .wb-settings a.wb-sign{text-decoration:none}
+/* Toggle: the state is spelled out; when off the plaque is the quiet slip. */
+html body .wb-ground .wb-toggle[aria-pressed=false]{border-image-source:var(--wb-plaque-quiet)!important;background:var(--wb-fill-quiet) padding-box!important;color:var(--wb-ink-quiet)!important;text-shadow:var(--wb-ink-quiet-shadow)}
+html body .wb-ground .wb-toggle[aria-pressed=false] .wb-sign-art{opacity:.45}
+/* Speed: a real <select> covers the plaque, so a tap opens the native picker. */
+html body .wb-ground .wb-select{cursor:pointer}
+html body .wb-ground .wb-select>select{position:absolute;inset:-12px;width:calc(100% + 24px);height:calc(100% + 24px);margin:0;padding:0;opacity:0;font-size:16px;cursor:pointer;appearance:none;-webkit-appearance:none}
+html body .wb-ground .wb-select:has(select:focus-visible){outline:2px solid var(--wb-focus);outline-offset:2px}
+html body .wb-settings .wb-set-foot{display:grid;grid-template-columns:150px 150px;justify-content:space-between;width:100%;margin:0;padding:0;border:0;background:none}
+@media(max-width:700px){html body .wb-settings .wb-set-grid{gap:0 12px}html body .wb-settings .wb-set-label{font-size:13px}html body .wb-settings .wb-level-icon{position:relative;width:36px;min-width:36px!important}
+ /* Drawn 36px wide as in the preview; the tap area still reaches 44px. */
+ html body .wb-settings .wb-level-icon::after{content:'';position:absolute;top:0;bottom:0;left:-4px;right:-4px}}
+@media(max-height:340px){
+ html body .wb-settings .wb-page{gap:4px}
+ html body .wb-settings .wb-head{margin-bottom:2px;align-self:center;padding-right:0}
+ html body .wb-settings .wb-set-grid>section{gap:3px}
+ html body .wb-settings .wb-set-grid .wb-sign,html body .wb-settings .wb-set-row{height:44px;min-height:44px}
+ html body .wb-settings .wb-set-grid .wb-sign-text>small{display:none}
+ html body .wb-settings .wb-set-group{padding-bottom:2px}
+ html body .wb-settings .wb-set-foot .wb-sign{height:44px}
+}
+
+/* Map screen and Settings open in a <dialog>. Strip the shared sheet frame so the dialog is only a
+   full-screen host for the same composition (dialog semantics, Escape and focus return stay). */
+html body dialog.game-sheet:is(.wb-pause-sheet,.wb-settings-sheet),html body dialog:is(.wb-pause-sheet,.wb-settings-sheet){position:fixed!important;inset:0!important;width:100%!important;max-width:none!important;height:100%!important;max-height:none!important;margin:0!important;padding:0!important;border:0!important;border-image:none!important;border-radius:0!important;background:transparent!important;box-shadow:none!important;overflow:hidden!important}
+html body dialog:is(.wb-pause-sheet,.wb-settings-sheet)[open]{display:block!important}
+html body dialog:is(.wb-pause-sheet,.wb-settings-sheet)::backdrop{background:var(--wb-backdrop)}

@@ -1,5 +1,5 @@
-import {GLOW_DISPLAY_SCALE} from './vitality.mjs?v=starter-flow-1';
-import {pickupKind,pickupShellRadius,isFuelPickup} from './pickups.mjs?v=starter-flow-1';
+import {GLOW_DISPLAY_SCALE} from './vitality.mjs?v=early-play-1';
+import {pickupKind,pickupShellRadius,isFuelPickup} from './pickups.mjs?v=early-play-1';
 
 export const LUMINANCE_WAVE_TUNING=Object.freeze({speed:360,interval:1,maximumWaves:48,maximumSources:16});
 const finite=(value,fallback)=>Number.isFinite(Number(value))?Number(value):fallback;
@@ -114,6 +114,7 @@ export class LuminanceWaves {
               }
               wave.storedPaid=true;
             }
+            if(cardAction&&packet.feature==='first-light-combo-wave')packet.harvestFlashUntil=e.time+.55;
             if(bookFuel||cardAction){hit=true;e.burst?.(screenX,packet.y,3,'#c6ecf2');}
           }
         }

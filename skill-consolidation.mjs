@@ -1,4 +1,4 @@
-import {normalizeChapterPrerequisites} from './skill-chapters.mjs?v=starter-flow-1';
+import {normalizeChapterPrerequisites} from './skill-chapters.mjs?v=early-play-1';
 const groups=[
  ['main','Lift',['main-efficiency','main-lift']],
  ['main','Fourth Beat',['main-fourth-beat','main-fourth-beat-2']],

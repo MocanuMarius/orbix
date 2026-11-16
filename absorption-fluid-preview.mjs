@@ -1,11 +1,11 @@
-import {drawFluidCapture, FLUID_STYLES} from './fluid-capture.mjs?v=starter-flow-1';
-import {drawPickup} from './pickup-art.mjs?v=starter-flow-1';
-import {drawShellPuff} from './capture-art.mjs?v=starter-flow-1';
-import {drawShellArcs} from './shell-arcs.mjs?v=starter-flow-1';
-import {sparkArtScale, sparkBodyRadius} from './spark-size.mjs?v=starter-flow-1';
-import {makeWispSprite} from './companion-art.mjs?v=starter-flow-1';
-import {createDepthScenery, drawDepthScenery} from './depth-scenery.mjs?v=starter-flow-1';
-import {biomePalette} from './biome-art.mjs?v=starter-flow-1';
+import {drawFluidCapture, FLUID_STYLES} from './fluid-capture.mjs?v=early-play-1';
+import {drawPickup} from './pickup-art.mjs?v=early-play-1';
+import {drawShellPuff} from './capture-art.mjs?v=early-play-1';
+import {drawShellArcs} from './shell-arcs.mjs?v=early-play-1';
+import {sparkArtScale, sparkBodyRadius} from './spark-size.mjs?v=early-play-1';
+import {makeWispSprite} from './companion-art.mjs?v=early-play-1';
+import {createDepthScenery, drawDepthScenery} from './depth-scenery.mjs?v=early-play-1';
+import {biomePalette} from './biome-art.mjs?v=early-play-1';
 
 const canvas = document.querySelector('#scene');
 const ctx = canvas.getContext('2d');

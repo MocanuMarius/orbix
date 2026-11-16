@@ -1,44 +1,44 @@
-import {prepareEnvironmentArt,prepareNearLandscape,prepareCourseArt,drawCourseArt,drawNearLandscape,drawTerrainForeground,releaseTerrainForeground} from './authored-environment.mjs?v=starter-flow-1';
-import {drawTerrainEcology,drawHabitatBackdrop} from './terrain-ecology.mjs?v=starter-flow-1';
-import {drawTerrainBoundary,terrainBoundary,beginTerrainBoundaryFrame,endTerrainBoundaryFrame,releaseTerrainBoundaryFrame} from './terrain-boundary.mjs?v=starter-flow-1';
-import {spacetimeBaseShape,drawSpacetimeTerrain} from './spacetime.mjs?v=starter-flow-1';
-import {paintContactEdge,isContactEdgeStyle,contactEdgeInk} from './contact-edge-art.mjs?v=starter-flow-1';
-import {ContactEdgeRaster} from './contact-edge-raster.mjs?v=starter-flow-1';
-import {getContactEdgePalette} from './contact-edge-palettes.mjs?v=starter-flow-1';
-import {drawAtlasFlight} from './atlas-flight.mjs?v=starter-flow-1';
-import {drawGuardianPresence} from './guardian-presence.mjs?v=starter-flow-1';
-import { drawGuardianWarnings } from './guardian-art.mjs?v=starter-flow-1';
-import { drawShutters } from './shutter-cone.mjs?v=starter-flow-1';
-import {drawProximityMeter} from './proximity-meter.mjs?v=starter-flow-1';
-import {drawFourthBeat} from './fourth-beat-art.mjs?v=starter-flow-1';
-import {drawCollectorField} from './collector-field-art.mjs?v=starter-flow-1';
-import {drawObjectiveMarks} from './flight-objectives.mjs?v=starter-flow-1';
-import {drawFlightProjection,drawLiftGuide} from './flight-projection.mjs?v=starter-flow-1';
-import {revealLuminanceWaves} from './luminance-waves.mjs?v=starter-flow-1';
-import {drawGlowSense} from './glow-sense.mjs?v=starter-flow-1';
-import {drawLastGlimmer} from './last-glimmer.mjs?v=starter-flow-1';
-import {formatGlow} from './vitality.mjs?v=starter-flow-1';
-import {LOCATION_PALETTES} from './world-expansion.mjs?v=starter-flow-1';
-import {biomePalette} from './biome-art.mjs?v=starter-flow-1';
-import { sceneryIdentity, drawIdentityBackground, drawIdentityMaterial, drawIdentityLife } from './level-scenery.mjs?v=starter-flow-1';
-import { getCompanionAbility, normalizeCompanionRole } from './companion-abilities.mjs?v=starter-flow-1';
-import { companionPalette, makeCompanionSprite, makeWispSprite } from './companion-art.mjs?v=starter-flow-1';
-import { createScenePropArt } from './scene-prop-art.mjs?v=starter-flow-1';
-import { drawBoss } from './boss.mjs?v=starter-flow-1';
-import {drawFlashTether} from './flash-tether.mjs?v=starter-flow-1';
-import { drawPickup, drawSparkSymbol } from './pickup-art.mjs?v=starter-flow-1';
-import {pickupHookAnchor} from './pickup-handling-cue.mjs?v=starter-flow-1';
-import {sparkBodyRadius,sparkArtScale,sparkMass} from './spark-size.mjs?v=starter-flow-1';
-import { pickupKind, getPickupSpec } from './pickups.mjs?v=starter-flow-1';
-import { LIGHT_EXTENT,lightAttenuation,lightVisibility,createLightMaskCanvas,castFlightFlashLights,revealLanternWake,sceneRevealStrength,renderLightState,lightDreamScenery,companionTerrainLight } from './light-field.mjs?v=starter-flow-1';
-import {drawExitLandmark} from './exit-landmark.mjs?v=starter-flow-1';
-import {drawBlackHoles} from './black-hole-art.mjs?v=starter-flow-1';
-import {drawCapture, drawShellPuff, drawCarriedSpark,drawCollectorGrip} from './capture-art.mjs?v=starter-flow-1';
-import {drawShellArcs} from './shell-arcs.mjs?v=starter-flow-1';
-import {drawWispWake} from './wisp-wake.mjs?v=starter-flow-1';
-import {drawFlightForks,drawFlightForkBackdrops} from './flight-forks.mjs?v=starter-flow-1';
-import {drawFallWarning} from './fall-chain-art.mjs?v=starter-flow-1';
-import {castTerrainLight,releaseTerrainLight,prepareTerrainLight} from './terrain-light.mjs?v=starter-flow-1';
+import {prepareEnvironmentArt,prepareNearLandscape,prepareCourseArt,drawCourseArt,drawNearLandscape,drawTerrainForeground,releaseTerrainForeground} from './authored-environment.mjs?v=early-play-1';
+import {drawTerrainEcology,drawHabitatBackdrop} from './terrain-ecology.mjs?v=early-play-1';
+import {drawTerrainBoundary,terrainBoundary,beginTerrainBoundaryFrame,endTerrainBoundaryFrame,releaseTerrainBoundaryFrame} from './terrain-boundary.mjs?v=early-play-1';
+import {spacetimeBaseShape,drawSpacetimeTerrain} from './spacetime.mjs?v=early-play-1';
+import {paintContactEdge,isContactEdgeStyle,contactEdgeInk} from './contact-edge-art.mjs?v=early-play-1';
+import {ContactEdgeRaster} from './contact-edge-raster.mjs?v=early-play-1';
+import {getContactEdgePalette} from './contact-edge-palettes.mjs?v=early-play-1';
+import {drawAtlasFlight} from './atlas-flight.mjs?v=early-play-1';
+import {drawGuardianPresence} from './guardian-presence.mjs?v=early-play-1';
+import { drawGuardianWarnings } from './guardian-art.mjs?v=early-play-1';
+import { drawShutters } from './shutter-cone.mjs?v=early-play-1';
+import {drawProximityMeter} from './proximity-meter.mjs?v=early-play-1';
+import {drawFourthBeat} from './fourth-beat-art.mjs?v=early-play-1';
+import {drawCollectorField} from './collector-field-art.mjs?v=early-play-1';
+import {drawObjectiveMarks} from './flight-objectives.mjs?v=early-play-1';
+import {drawFlightProjection,drawLiftGuide} from './flight-projection.mjs?v=early-play-1';
+import {revealLuminanceWaves} from './luminance-waves.mjs?v=early-play-1';
+import {drawGlowSense} from './glow-sense.mjs?v=early-play-1';
+import {drawLastGlimmer} from './last-glimmer.mjs?v=early-play-1';
+import {formatGlow} from './vitality.mjs?v=early-play-1';
+import {LOCATION_PALETTES} from './world-expansion.mjs?v=early-play-1';
+import {biomePalette} from './biome-art.mjs?v=early-play-1';
+import { sceneryIdentity, drawIdentityBackground, drawIdentityMaterial, drawIdentityLife } from './level-scenery.mjs?v=early-play-1';
+import { getCompanionAbility, normalizeCompanionRole } from './companion-abilities.mjs?v=early-play-1';
+import { companionPalette, makeCompanionSprite, makeWispSprite } from './companion-art.mjs?v=early-play-1';
+import { createScenePropArt } from './scene-prop-art.mjs?v=early-play-1';
+import { drawBoss } from './boss.mjs?v=early-play-1';
+import {drawFlashTether} from './flash-tether.mjs?v=early-play-1';
+import { drawPickup, drawSparkSymbol } from './pickup-art.mjs?v=early-play-1';
+import {pickupHookAnchor} from './pickup-handling-cue.mjs?v=early-play-1';
+import {sparkBodyRadius,sparkArtScale,sparkMass} from './spark-size.mjs?v=early-play-1';
+import { pickupKind, getPickupSpec } from './pickups.mjs?v=early-play-1';
+import { LIGHT_EXTENT,lightAttenuation,lightVisibility,createLightMaskCanvas,castFlightFlashLights,revealLanternWake,sceneRevealStrength,renderLightState,lightDreamScenery,companionTerrainLight } from './light-field.mjs?v=early-play-1';
+import {drawExitLandmark} from './exit-landmark.mjs?v=early-play-1';
+import {drawBlackHoles} from './black-hole-art.mjs?v=early-play-1';
+import {drawCapture, drawShellPuff, drawCarriedSpark,drawCollectorGrip} from './capture-art.mjs?v=early-play-1';
+import {drawShellArcs} from './shell-arcs.mjs?v=early-play-1';
+import {drawWispWake} from './wisp-wake.mjs?v=early-play-1';
+import {drawFlightForks,drawFlightForkBackdrops} from './flight-forks.mjs?v=early-play-1';
+import {drawFallWarning} from './fall-chain-art.mjs?v=early-play-1';
+import {castTerrainLight,releaseTerrainLight,prepareTerrainLight} from './terrain-light.mjs?v=early-play-1';
 
 const TAU = Math.PI * 2;
 const propContactCache=new WeakMap();
@@ -729,6 +729,13 @@ export class WispFlightView {
       this.drawPacket(x, y, { kind: pickupKind(ember), time: e.captureTime ?? t, phase: ember.phase, reducedMotion: e.reducedMotion,
         scale: s*sparkArtScale(ember,e.height), massTier:sparkMass(ember),
         handling });
+      // The real successful Harvest crossing owns this brief, stationary cue.
+      // Draw in the same pixel buffer as the pickup, before ordinary fog masking.
+      if(ember.harvestFlashUntil>e.time){
+        const c=this.bufferContext;
+        c.save();c.strokeStyle='#edffd0';c.globalAlpha=Math.min(1,(ember.harvestFlashUntil-e.time)*3);c.lineWidth=Math.max(1,3*s);
+        c.beginPath();c.arc(x,y,margin+5*s,0,Math.PI*2);c.stroke();c.restore();
+      }
     }
   }
 

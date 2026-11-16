@@ -20,7 +20,7 @@ const clamp = (n, lo=0, hi=1) => Math.max(lo, Math.min(hi, Number(n)||0));
 const hz = n => 440 * 2 ** ((n-69)/12);
 
 export function createFlightFX({AudioContextClass}={}) {
-  let ctx, master, bed, air, sub, shimmer, panNode, noise, disposed=false, muted=false;
+  let ctx, master, bed, air, sub, shimmer, panNode, noise, disposed=false, muted=false, fxVolume=1;
   const shimmerTones=[];
   let chargeBus,chargeFilter,chargeTone;
   const crackleLayers=[];
@@ -88,7 +88,7 @@ export function createFlightFX({AudioContextClass}={}) {
     if(!ctx || disposed) return;
     if(!force && ctx.currentTime-lastState<.045) return;
     lastState=ctx.currentTime;
-    target(master.gain,audible()?.62:0,.035);
+    target(master.gain,audible()?.62*fxVolume:0,.035);
     const focus=getFocus(),charging=chargeActive(),ambient=(1-.76*focus)*(charging?.38:1);
     target(bed.gain,audible()?Math.pow(clamp(state.hole),1.45)*.072*ambient:0,.15);
     target(air.frequency,270+clamp(state.hole)*580+clamp(state.dream)*220,.3);
@@ -262,6 +262,9 @@ export function createFlightFX({AudioContextClass}={}) {
   return {
     unlock,
     setMuted(value){muted=Boolean(value);if(muted)stopVoices();update(true);},
+    // Player FX level as a gain multiplier (see sound-level.mjs); 1 is the original mix.
+    setVolume(value){fxVolume=Math.max(0,Math.min(2,Number(value)||0));update(true);},
+    get volume(){return fxVolume},
     setState(next={}){const wasAudible=audible(),wasCharging=chargeActive();state={...state,...next};if(wasAudible&&!audible())stopVoices();update(wasAudible!==audible()||wasCharging!==chargeActive());},
     play,
     getFocus,

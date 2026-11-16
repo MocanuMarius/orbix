@@ -292,3 +292,28 @@ html body .practice-card-row .card-readable .card-rule-band .card-mechanic-main{
  .practice-stop-cards>small{font-size:10px}.practice-deck-sheet .practice-card-row>.skill-card{min-height:200px}
  .tutorial-coach[data-contextual=true] .tutorial-coach-card{padding:12px;gap:9px}
 }
+
+/* Field Guide header: every control is a labelled button of one size and one
+   neutral treatment, wrapping to two balanced lines when the row is short.
+   Only the close cross stays a square icon button. */
+html body :is(#app,#header,dialog) .field-guide-heading{gap:8px;min-width:0}
+html body :is(#app,#header,dialog) .field-guide-heading>h2{flex:none}
+html body :is(#app,#header,dialog) .field-guide-heading>:is(button,a):not([data-action="guide-back"]){
+ flex:0 1 auto;display:inline-flex;align-items:center;justify-content:center;box-sizing:border-box;
+ width:auto!important;min-width:max(44px,min-content)!important;max-width:150px!important;height:44px!important;min-height:44px!important;
+ margin:0!important;padding:0 8px!important;border-width:4px!important;font:13px/1.15 var(--pixel)!important;
+ white-space:normal!important;text-wrap:balance;text-align:center;overflow:visible
+}
+html body :is(#app,#header,dialog) .field-guide-heading>a.guide-phone-link{
+ color:var(--ui-text,#f4edcf)!important;text-decoration:none!important;
+ border-image-source:url('assets/rough-frame.svg?v=early-play-1')!important;border-image-slice:8!important;border-image-width:5px!important;border-image-repeat:stretch!important
+}
+/* Longer labels break once, into two balanced lines, never three. */
+html body :is(#app,#header,dialog) .field-guide-heading>.guide-practice{min-width:calc(5.8em + 24px)!important}
+html body :is(#app,#header,dialog) .field-guide-heading>.guide-phone-link{min-width:calc(6.8em + 24px)!important}
+html body :is(#app,#header,dialog) .field-guide-heading>[data-action="guide-back"]{flex:none}
+@media(orientation:landscape) and (max-height:350px){
+ html body :is(#app,#header,dialog) .field-guide-heading{gap:6px}
+ html body :is(#app,#header,dialog) .field-guide-heading>h2{font-size:16px!important}
+ html body :is(#app,#header,dialog) .field-guide-heading>:is(button,a):not([data-action="guide-back"]){padding:0 6px!important;font-size:12px!important;line-height:1.1!important}
+}

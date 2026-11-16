@@ -1,9 +1,9 @@
 // Disposable, deterministic equipped samples. No app boot, persistence or economy actions.
-import { CARD_SYSTEM, SKILL_CARDS, makeSkillCard, getMountedCards, previewCardRow } from './skill-cards.mjs?v=starter-flow-1';
-import { cardRowTraceMarkup, cardRowSequenceMarkup } from './card-row-feedback.mjs?v=starter-flow-1';
-import { cardFace } from './card-ui.mjs?v=starter-flow-1';
-import { CARD_TERMS, cardTermTextMarkup, installCardTermHelp } from './card-terms.mjs?v=starter-flow-1';
-import {resolveCardHelpContext} from './card-row-help.mjs?v=starter-flow-1';
+import { CARD_SYSTEM, SKILL_CARDS, makeSkillCard, getMountedCards, previewCardRow } from './skill-cards.mjs?v=early-play-1';
+import { cardRowTraceMarkup, cardRowSequenceMarkup } from './card-row-feedback.mjs?v=early-play-1';
+import { cardFace } from './card-ui.mjs?v=early-play-1';
+import { CARD_TERMS, cardTermTextMarkup, installCardTermHelp } from './card-terms.mjs?v=early-play-1';
+import {resolveCardHelpContext} from './card-row-help.mjs?v=early-play-1';
 
 const esc = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 export const DEFAULT_COMBO_SEED = 'moonwell-15';

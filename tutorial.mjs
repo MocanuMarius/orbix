@@ -1,6 +1,7 @@
-import {getCompanionAbility} from './companion-abilities.mjs?v=starter-flow-1';
-import {pickupHandlingCue} from './pickup-handling-cue.mjs?v=starter-flow-1';
-import {lightVisibility} from './light-field.mjs?v=starter-flow-1';
+import {getCompanionAbility} from './companion-abilities.mjs?v=early-play-1';
+import {pickupHandlingCue} from './pickup-handling-cue.mjs?v=early-play-1';
+import {lightVisibility} from './light-field.mjs?v=early-play-1';
+import {formatGlow} from './vitality.mjs?v=early-play-1';
 // Practice is an authored flight using the same controls, fuel and colliders.
 // This module contains guidance and lesson scenery; it never grants rewards.
 const clamp = (n, lo, hi) => Math.min(hi, Math.max(lo, n));
@@ -231,7 +232,7 @@ export function getTutorialHint(engine) {
     return hint('clear-core','The wide route is safer','Collect the recovery Sparks beyond the core, then reach the waylight.',4);
   }
   if(state.lesson==='rhythm')return hint('rhythm','Three even Lifts → a wave','Let the ring cross a Spark you have not collected. Resonant Harvest rewards the crossing.',2);
-  if(state.lesson==='guardian')return hint('guardian','Read the Warden’s hands',engine.getBossState?.()?.warning||'Stone hands mark the solid edges. Use small Lifts through each broad opening; the quiet rooms give you time.',2);
+  if(state.lesson==='guardian')return hint('guardian','Read the Warden’s hands',engine.getBossState?.()?.warning||GUARDIAN_HINT_TEXT,2);
   const gust=engine.gustState();
   const dark=engine.layout.embers.find(packet=>packet.tutorialDark),darkX=dark?dark.x-engine.distance:Infinity;
   if(dark&&!dark.collected&&darkX>engine.player.x-18&&darkX<engine.width-18)return hint('dark-packet','Avoid the dark seed',
@@ -244,6 +245,74 @@ export function getTutorialHint(engine) {
   if(!state.finishedWind)return hint('watch-wind','Watch for the local draft','Only the visible puff pushes you. Its warning gives you time to choose above or below.',3);
   return hint('ready','Keep fuel for the waylight','Glide, collect deliberately, and reach the refuge. MENU pauses whenever you need it.',4);
 }
+
+// Never require reading during active play. Practice hint text is shown only in
+// the paused coach: the entry hint before the first Lift (with its own button),
+// and in-flight hints queued until the app's safe-pause check allows a stop.
+const GUARDIAN_HINT_TEXT='Stone hands mark the solid edges. Use small Lifts through each broad opening; the quiet rooms give you time.';
+export const PRACTICE_ENTRY_PREFIX='practice-entry:';
+export const PRACTICE_HINT_PREFIX='practice-hint:';
+// launch is the entry hint; last-spark plays during the death animation, when
+// no pause is possible and the retry screen repeats it.
+const UNQUEUED_HINTS=new Set(['launch','last-spark']);
+// One stop per topic: these hints repeat a practice coach lesson, which is the one card kept.
+const COACH_DUPLICATES={glide:new Set(['direct','carrier','luminance'])};
+// The first flight already stops for Sparks, Collector and Luminance; other hints wait for the checkpoint.
+const CHECKPOINT_ONLY_LESSONS=new Set(['glide']);
+// Hints that refer to the flight they appear in and are meaningless afterwards.
+const FLIGHT_ONLY_HINTS=new Set(['exit']);
+const hintStep=(id,title,text,extra={})=>({id,title,text,contextual:true,allowTarget:false,focusAction:true,actionLabel:'Continue',skipLabel:false,...extra});
+
+/** The entry hint as a paused coach step, once per lesson per practice run. */
+export function tutorialEntryLesson(engine,run={}){
+  const state=engine?.tutorial;if(!state||!engine.tutorialAwaitingLift||run?.guideSkipped)return null;
+  const id=PRACTICE_ENTRY_PREFIX+state.lesson;if(run?.guideSeen?.[id])return null;
+  const hint=getTutorialHint(engine);if(hint?.id!=='launch')return null;
+  const teachesLift=state.lesson==='glide';
+  // The cost comes from the live Lift cost, the same value the Lift button shows.
+  const cost=Number.isFinite(engine.flapCost)?formatGlow(engine.flapCost):null;
+  const text=teachesLift&&cost?`${hint.text} Each Lift spends ${cost} ${cost==='1'?'Spark':'Sparks'}.`:hint.text;
+  return hintStep(id,hint.title,text,{actionLabel:'Got it',entry:true,teachesLift});
+}
+
+/** Remember a newly relevant in-flight hint; it is shown only at a safe pause. */
+export function notePracticeHint(engine,run={},hint){
+  const state=engine?.tutorial;if(!state||!hint?.id||UNQUEUED_HINTS.has(hint.id)||run?.guideSkipped)return false;
+  if(run?.guideSeen?.[PRACTICE_HINT_PREFIX+hint.id]||COACH_DUPLICATES[state.lesson]?.has(hint.id))return false;
+  state.hintQueue||=[];if(state.hintQueue.some(item=>item.id===hint.id))return false;
+  state.hintQueue.push({id:hint.id,title:hint.title,text:hint.id==='guardian'?GUARDIAN_HINT_TEXT:hint.text});
+  return true;
+}
+const keyOf=item=>item.key||PRACTICE_HINT_PREFIX+item.id;
+const unseen=(queue,run)=>{while(queue?.length&&run?.guideSeen?.[keyOf(queue[0])])queue.shift();return queue?.[0]||null;};
+const inFlight=engine=>!CHECKPOINT_ONLY_LESSONS.has(engine?.tutorial?.lesson);
+export function hasPracticeHint(engine,run={}){return inFlight(engine)&&!!unseen(engine?.tutorial?.hintQueue,run);}
+/** Take the oldest queued hint as a paused coach step. */
+export function takePracticeHint(engine,run={}){
+  if(!inFlight(engine))return null;
+  const queue=engine?.tutorial?.hintQueue,item=unseen(queue,run);if(!item)return null;queue.shift();
+  (engine.tutorial.shownHints||=[]).includes(item.id)||engine.tutorial.shownHints.push(item.id);
+  return hintStep(PRACTICE_HINT_PREFIX+item.id,item.title,item.text);
+}
+/** Hints still queued when a flight ends wait for the next checkpoint. */
+export function carryPracticeHints(engine,run){
+  const queue=engine?.tutorial?.hintQueue;if(!run||!queue?.length)return;
+  const carried=run.pendingPracticeHints||=[];
+  for(const item of queue)if(!FLIGHT_ONLY_HINTS.has(item.id)&&!run.guideSeen?.[keyOf(item)]&&!carried.some(c=>keyOf(c)===keyOf(item)))carried.push(item);
+  queue.length=0;
+}
+/** Defer a practice coach lesson (its own guideSeen key) to the next checkpoint. */
+export function deferPracticeLesson(run,step){
+  if(!run||!step?.id||run.guideSeen?.[step.id])return false;
+  const carried=run.pendingPracticeHints||=[];if(carried.some(c=>keyOf(c)===step.id))return false;
+  carried.push({id:step.id,key:step.id,title:step.title,text:step.text});return true;
+}
+export function takeCarriedPracticeHint(run){
+  const item=unseen(run?.pendingPracticeHints,run);if(!item)return null;run.pendingPracticeHints.shift();
+  return hintStep(keyOf(item),item.title,item.text);
+}
+/** Coach lessons allowed to stop the first practice flight; any other waits for the checkpoint. */
+export const FIRST_FLIGHT_STOPS=new Set(['practice:sparks','practice:collector','practice:luminance']);
 
 /** A semantic focus over a real visible world object; reading it never pauses or advances play. */
 export function getTutorialWorldFocus(engine, seenIds = null) {

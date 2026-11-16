@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="32" height="8" viewBox="0 0 32 8" shape-rendering="crispEdges"><g transform="translate(32 0) scale(-1 1)">
+<!-- Title flourish: a carved groove, a leaf, a bronze diamond. Mirror it for the other side. -->
+<path fill="#5d6e4f" d="M0 4h2v1H0zM4 4h18v1H4z"/>
+<path fill="#9db08c" d="M10 2h2v1h-2zM9 3h2v1H9zM15 5h2v1h-2zM16 6h2v1h-2z"/>
+<path fill="#d8c98a" d="M27 1h1v1h-1zM26 2h3v1h-3zM25 3h5v2h-5zM26 5h3v1h-3zM27 6h1v1h-1z"/>
+<path fill="#fff1c5" d="M27 3h1v1h-1z"/>
+</g></svg>
