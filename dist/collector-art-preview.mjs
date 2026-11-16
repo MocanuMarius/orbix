@@ -1,9 +1,9 @@
-import {companionArtSvg} from './companion-art.mjs?v=skills-cards-2';
+import {companionArtSvg} from './companion-art.mjs?v=skills-cards-3';
 const variants=['current','flat2','flat3'],videos=[...document.querySelectorAll('#movies video,.detail-stage video')];
 const pauseButton=document.querySelector('#play-pause');
 const names={current:'Previous · Shaded',flat2:'Current · Flat A',flat3:'B · Soft edge'};
 const descriptions={current:'The previous four-tone shaded orb, retained for comparison.',flat2:'The game default: a single mint face with a dark, stepped contour.',flat3:'A flat mint face with a softer, three-ink contour.'};
-const moments={front:{time:5/30,note:'Larger in front · 0.20 s. The mint face stays flat.'},back:{time:20/30,note:'Smaller behind · 0.70 s. The orbit supplies the depth.'},fetch:{time:40/30,note:'Approaching an authored Spark’s shell curl · 1.37 s. Its intact shell is towed back.'}};
+const moments={front:{time:5/30,note:'Larger in front · 0.20 s. The mint face stays flat.'},back:{time:20/30,note:'Smaller behind · 0.70 s. The orbit supplies the depth.'},fetch:{time:40/30,note:'Approaching an authored Spark’s green circle · 1.37 s. Its intact shell is towed back.'}};
 let selected='flat2',paused=false,moment='front',desiredTime=0;
 const current=()=>document.querySelector('#movie-'+selected),detail=()=>document.querySelector('#detail-'+selected);
 for(const holder of document.querySelectorAll('[data-portrait]'))holder.innerHTML=companionArtSvg('collector',{collectorArt:holder.dataset.portrait});

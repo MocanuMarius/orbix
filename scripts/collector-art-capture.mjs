@@ -21,6 +21,7 @@ window.__collectorStudy={
   document.querySelector('#pause-layer').replaceChildren();
   const {WispCompanion}=await import('./wisp.mjs?v=skills-cards-2');
   this.canFetch=(await import('./collector-load.mjs?v=skills-cards-2')).collectorCanFetch;
+  this.hook=(await import('./pickup-handling-cue.mjs?v=skills-cards-2')).pickupHookAnchor;
   e.wisp=new WispCompanion(e.player);e.accumulator=1/60;
   await document.fonts.ready;await e.environmentArtReady;
   this.initial={distance:e.distance,y:e.player.y,width:e.width,height:e.height,seed:e.seed};
@@ -32,7 +33,7 @@ window.__collectorStudy={
   e.step=dt=>{
    if(e.player.y>this.initial.y+12&&e.player.vy>20){e.beginLiftInput();e.endLiftInput();this.inputs.push({step:this.steps,time:e.time,y:e.player.y,vy:e.player.vy});}
    const phase=e.wisp.phase;step(dt);this.steps++;
-   if(e.wisp.phase!==phase)this.events.push({event:e.wisp.phase,time:e.time,x:e.wisp.x,y:e.wisp.y,hook:e.wisp.target?[e.wisp.target.x-e.distance,e.wisp.target.y+15.8]:null});
+   if(e.wisp.phase!==phase)this.events.push({event:e.wisp.phase,time:e.time,x:e.wisp.x,y:e.wisp.y,hook:e.wisp.target?Object.values(this.hook(e.wisp.target,e.wisp.target.x-e.distance,e.wisp.target.y)):null});
   };
   e.render();e.notify();return this.initial;
  },
@@ -49,6 +50,19 @@ window.__collectorStudy={
     x:w.x,y:w.y,depth:w.depth,phase:w.phase,carrying:w.carrying,cargoPose:w.cargoPose,dying:e.dying,
     scale:e.pixiView.scale,canvas:JSON.parse(JSON.stringify(document.querySelector('#flight-canvas').getBoundingClientRect()))};
   this.states.push(state);return state;
+ },
+ stageHandling(){
+  const e=engine;
+  // Explicitly staged review example, drawn by the full production renderer.
+  // No simulation or eligibility substitutes are used for the capture.
+  e.mod={...e.mod,collectorFetchMass:2,collectorFlashFetch:true};
+  e.wisp.target=null;e.wisp.cargo=null;e.wisp.phase='cooldown';e.wisp.cooldown=99;
+  const offsets=[['light',-30,-48],['cache',65,-48],['sight',-30,35],['dark',65,35]];
+  e.layout.embers=offsets.map(([kind,x,y],i)=>({kind,id:'staged-handling-'+i,x:e.distance+e.player.x+x,y:e.player.y+y,phase:0}));
+  e.render();e.notify();
+  return {label:'Staged production-renderer example: Spark and learned Flash marked; locked Cache and harmful Dark unmarked.',
+   playerX:e.player.x,playerY:e.player.y,width:e.width,height:e.height,
+   packets:e.layout.embers.map(p=>({kind:p.kind,x:p.x-e.distance,y:p.y,eligible:this.canFetch(p,e.mod),hook:this.hook(p,p.x-e.distance,p.y)}))};
  },
  cadence(hz){
   const e=engine,render=e.renderScheduledFrame,raf=window.requestAnimationFrame;
@@ -108,6 +122,8 @@ try{
   if(results.length){assert.deepEqual(states,results[0].states,'Art must not change orbit, player, phase or depth');assert.deepEqual(extra.inputs,results[0].inputs);}
   results.push({art,initial,states,...extra});console.log(art+': '+states.length+' matched real-game frames, '+extra.inputs.length+' Lifts');
  }
+ const staged=await evaluate('__collectorStudy.stageHandling()');
+ await fs.writeFile(path.join(output,'handling-staged.png'),Buffer.from((await call('Page.captureScreenshot',{format:'png',captureBeyondViewport:false})).data,'base64'));
  const cadences=[];
  for(const hz of [30,60,120]){
   await call('Page.navigate',{url:base+'/game.html?mock=boundary&cards=1&biome=pinewood&course=1&collectorArt=flat2'});
@@ -117,7 +133,7 @@ try{
   const {hz:ignore,...matched}=result;if(cadences.length){const {hz:other,...baseline}=cadences[0];assert.deepEqual(matched,baseline,'Actual fixed-step Lift and tow events match across render frame rates');}
   cadences.push(result);console.log(hz+'Hz: '+result.steps+' physical steps, '+result.events.filter(e=>e.event==='collect'&&e.via==='collector').length+' deliveries');
  }
- const report={cadences,at:new Date().toISOString(),fps,seconds,viewport:[900,405],note:'Full application/HUD, production WispFlight and WispFlightView. Disposable boundary inspector course/seed, real Lift inputs and normal physics. All Sparks are from the authored course. Headless mobile layout; not a physical-phone performance measurement.',results};
+ const report={staged,cadences,at:new Date().toISOString(),fps,seconds,viewport:[900,405],note:'Full application/HUD, production WispFlight and WispFlightView. Disposable boundary inspector course/seed, real Lift inputs and normal physics. All Sparks are from the authored course. Headless mobile layout; not a physical-phone performance measurement.',results};
  await fs.writeFile(path.join(output,'report.json'),JSON.stringify(report,null,2));
  console.log('Capture saved to '+output+'; encode with python scripts/encode-collector-art.py');
 }finally{socket?.close();browser.kill();server.close();}

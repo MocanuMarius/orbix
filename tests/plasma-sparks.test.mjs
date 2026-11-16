@@ -145,12 +145,18 @@ test('the Flash Powerup uses the same white triangle and halo in the field and m
   assert.ok(motion.frames.some(f=>!f.rgba.equals(motion.frames[0].rgba)));
 });
 
-test('the menu, its wallet window and canvas labels use the scaled flight Spark', () => {
+test('small menu and wallet glyphs share the flight Spark shell, branches and core motif', () => {
   const fuelImages = images(pickupArtSvg('light'));
   assert.equal(fuelImages.length, 2);
-  assert.deepEqual(images(resourceSymbol('energy')), fuelImages);
-  assert.deepEqual(images(resourceSymbol('glow')), fuelImages);
-  assert.deepEqual(images(resourceSymbol('packed')), fuelImages);
+  assert.equal(resourceSymbol('energy'), resourceSymbol('glow'));
+  for(const kind of ['energy','packed']) {
+    const symbol=resourceSymbol(kind);
+    assert.match(symbol,/class="spark-glyph-shell"/);
+    assert.match(symbol,/class="spark-glyph-arcs"/);
+    assert.match(symbol,/class="spark-glyph-core"/);
+    assert.deepEqual(images(symbol),[],'small UI drawing does not shrink the detailed flight texture');
+  }
+  assert.match(resourceSymbol('packed'),/resource-symbol-packed/);
   assert.doesNotMatch(resourceSymbol('energy'), /\sid=/);
   const {ctx} = atlasFixture();
   for (const reducedMotion of [true,false]) {
@@ -167,7 +173,7 @@ test('the menu, its wallet window and canvas labels use the scaled flight Spark'
   }
 });
 
-test('flight and menu use the same animated Spark, and cargo carries its shell-free interior', async () => {
+test('flight keeps its detailed animated Spark, and cargo carries its shell-free interior', async () => {
   const {ctx,doc,sprites} = atlasFixture();
   await prepareFuelSprites(doc);
   await prepareFuelSprites(doc,true);

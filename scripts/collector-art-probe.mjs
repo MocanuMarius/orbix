@@ -60,6 +60,9 @@ try{
   await until(()=>evaluate('document.querySelector("#tow-movie").readyState>=2'),'actual tow preview');
   assert.deepEqual(await evaluate('(()=>{const v=document.querySelector("#tow-movie");return[v.videoWidth,v.videoHeight]})()'),[256,192]);
   assert.equal(await evaluate('document.documentElement.scrollWidth<=innerWidth'),true,'Tow preview fits at '+width);
+  await until(()=>evaluate('document.querySelector(".handling-example img").complete'),'native handling example');
+  assert.deepEqual(await evaluate('(()=>{const i=document.querySelector(".handling-example img");return [i.width,i.height,i.naturalWidth,i.naturalHeight]})()'),[256,192,256,192]);
+  assert.match(await evaluate('document.querySelector(".handling-example figcaption").textContent'),/staged production-renderer example/);
   await fs.writeFile(path.join(out,'tow-'+width+'.png'),Buffer.from((await call('Page.captureScreenshot',{format:'png',captureBeyondViewport:false})).data,'base64'));
   const links=await evaluate('Array.from(document.querySelectorAll("[src],a[href],link[href]"),e=>e.src||e.href).filter(u=>new URL(u).origin===location.origin)');
   for(const url of new Set(links)){const response=await fetch(url);assert.equal(response.status,200,url);}

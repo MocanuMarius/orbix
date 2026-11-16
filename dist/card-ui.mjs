@@ -1,22 +1,29 @@
-import { skillPortrait } from "./skill-art.mjs?v=skills-cards-2";
-import { pickupArtSvg } from "./pickup-art.mjs?v=skills-cards-2";
-import { cardArt } from "./card-art.mjs?v=skills-cards-2";
+import { cardTermTextMarkup } from "./card-terms.mjs?v=skills-cards-3";
+import { getCardRuleBands } from "./card-rule-bands.mjs?v=skills-cards-3";
+import { getEquippedCardStatuses, cardStatusText } from "./card-status.mjs?v=skills-cards-3";
+import { cardArt } from "./card-art.mjs?v=skills-cards-3";
 import {
   getMountedCards,
+  getOwnedCards,
+  getCardMeltPreview,
   getCardReward,
   getCardImprovePreview,
   getCardForgePreview,
+  getCardCampPreview,
   getSkillWallet,
-} from "./model.mjs?v=skills-cards-2";
-import { resourceSymbol } from "./game-symbols.mjs?v=skills-cards-2";
-import { choiceScene } from "./choice-art.mjs?v=skills-cards-2";
-import { livesMarkup } from "./lives.mjs?v=skills-cards-2";
-import { getGlowCapacity, formatGlow } from "./vitality.mjs?v=skills-cards-2";
-import { mapStopIconMarkup } from "./map-guide.mjs?v=skills-cards-2";
+} from "./model.mjs?v=skills-cards-3";
+import { resourceSymbol } from "./game-symbols.mjs?v=skills-cards-3";
+import { choiceScene } from "./choice-art.mjs?v=skills-cards-3";
+import { livesMarkup } from "./lives.mjs?v=skills-cards-3";
+import { getGlowCapacity, formatGlow } from "./vitality.mjs?v=skills-cards-3";
+import { mapStopIconMarkup } from "./map-guide.mjs?v=skills-cards-3";
 import {
   createCardExecution,
   executeCardBodyPickup,
-} from "./skill-cards.mjs?v=skills-cards-2";
+  describeSkillCard,
+  makeSkillCard,
+  SKILL_CARDS,
+} from "./skill-cards.mjs?v=skills-cards-3";
 
 const esc = (v) =>
   String(v ?? "").replace(
@@ -30,28 +37,6 @@ const amount = (v) => Math.floor(Number(v) || 0);
 const rarity = (c) => String(c?.rarity || "common").toLowerCase();
 const printed = (c) =>
   typeof c === "string" ? c : c?.effect || c?.description || "";
-function cardSummary(card) {
-  const summaries = {
-    body: `Touch a natural Spark: +${card?.amount || 0} extra Sparks. This bonus cannot be packed.`,
-    capacity: `+${card?.amount || 0} maximum Sparks while mounted. No refill.`,
-    packing: "Pack 25% more Stored Sparks. Every 4 you pack earns 1 extra.",
-    echo: "Repeat the compatible action in the next slot →. Share its remaining uses.",
-    chameleon: "Borrow the compatible ability in the next slot →. Share its remaining uses.",
-    field: "Swipe to spend Collector’s recovering ring. Cannot be copied.",
-    guide:
-      "Amber chevron: a good manual Lift window. Advice, not automatic flight.",
-    rhythm: "Three evenly spaced manual Lifts release one Luminance wave.",
-    harvest: `Wave crosses a natural Spark: +${card?.amount || 0} to meter.${card?.rarity === "legendary" ? " First crossing: +1 Stored Spark per wave." : ""}`,
-    "camp-extra":
-      "Take 2 different actions at one Rest. Spent when the second action succeeds.",
-    "camp-grow": "Unlock Grow at Rest: +3 maximum Sparks and a full refill. No healing. Up to 3 times per run.",
-    "cache-handling":
-      "Collector fetches Caches: 12 Sparks + full search-ring recharge.",
-    "flash-handling":
-      "Collector fetches Flash. Any Flash pickup restores up to 6 Sparks.",
-  };
-  return summaries[card?.kind] || printed(card);
-}
 function bodyPickupPreview(run) {
   const runtime = createCardExecution({ cards: run.mountedCards }),
     result = executeCardBodyPickup(runtime);
@@ -81,133 +66,142 @@ function flightPackingReceipt(run, reward) {
     ? ` · Tight Packing +${bonus} Stored Sparks`
     : "";
 }
-export { cardArt } from "./card-art.mjs?v=skills-cards-2";
+export { cardArt } from "./card-art.mjs?v=skills-cards-3";
 export function effectMarkup(text) {
   return esc(text).replace(/([+−]?\d+(?:\.\d+)?%?)/g, '<b class="card-number">$1</b>');
 }
-function mechanicIcon(kind) {
-  if (kind === 'swipe') return '<span class="card-mechanic-icon"><svg class="resource-symbol" viewBox="0 0 24 24" role="img" aria-label="Swipe up, down or right" shape-rendering="crispEdges"><path fill="#96c7ae" d="M4 6h2V4h2V2h2v2h2v2h2v2h-4v4H6V8H2V6ZM6 12h4v4h4v2h-2v2h-2v2H8v-2H6v-2H4v-2h2ZM10 10h6V6h2v2h2v2h2v4h-2v2h-2v2h-2v-4h-6Z"/><path fill="#e8f0c5" d="M8 4h2v6H8ZM18 10h2v4h-2ZM8 16h2v4H8Z"/></svg></span>';
-
-  if (kind === 'wave') return `<span class="card-mechanic-icon" role="img" aria-label="Luminance wave">${skillPortrait({ id: 'main-resonant-harvest' })}</span>`;
-  if (kind === 'flash' || kind === 'cache') return `<span class="card-mechanic-icon">${pickupArtSvg(kind)}</span>`;
-  return `<span class="card-mechanic-icon">${resourceSymbol(kind)}</span>`;
-}
+const cardTerms = card => {
+  const bands = getCardRuleBands(card, SKILL_CARDS[card?.cardId || card?.id]);
+  const markup = bands.map(item => cardTermTextMarkup(item.text)).join('');
+  return [...new Set([...markup.matchAll(/data-card-term="([^"]+)"/g)].map(match => match[1]))];
+};
 export function cardMechanicMarkup(card, { details = false } = {}) {
-  const spark = mechanicIcon('energy'), packed = mechanicIcon('packed'), wave = mechanicIcon('wave');
-  let main = '', note = '';
-  switch (card?.kind) {
-    case 'body': main = `Direct pickup <b>+${card.amount}</b> ${spark}`; note = 'Natural Sparks · no packing'; break;
-    case 'capacity': main = `<b>+${card.amount}</b> ${spark} capacity`; note = 'No refill'; break;
-    case 'packing': main = `Pack <b>+25%</b> ${packed}`; note = '4 packed → +1 extra'; break;
-    case 'echo': case 'chameleon':
-      main = `${mechanicIcon('auto')} ${card.kind === 'echo' ? 'Repeat' : 'Borrow'} next card →`;
-      note = card.copyPreview ? esc(card.copyPreview.replace(/^(Repeats|Borrows) /, 'Next: ').replace('shared charges', 'shared uses')).replace(/Sparks/g, spark) : 'Compatible cards · shared uses';
-      break;
-    case 'field': main = `${mechanicIcon('swipe')} Swipe: Collector burst`; note = 'Spends recovery ring'; break;
-    case 'guide': main = `${mechanicIcon('up')} Amber mark = Lift window`; note = 'You choose when to Lift'; break;
-    case 'rhythm': main = `<b>3</b> even ${mechanicIcon('up')} Lifts → ${wave}`; break;
-    case 'harvest': main = `${wave} Wave: <b>+${card.amount}</b> ${spark}`; note = `Per crossed natural Spark${card.rarity === 'legendary' ? ` · first: +1 ${packed} / wave` : ''}`; break;
-    case 'camp-extra': main = `<b>2</b> different Rest actions`; break;
-    case 'camp-grow': main = `Grow: <b>+3</b> ${spark} + refill`; note = 'At Rest · 3 per run · no healing'; break;
-    case 'cache-handling': main = `Collector fetches ${mechanicIcon('cache')} Caches`; note = `12 ${spark} + ring refill`; break;
-    case 'flash-handling': main = `Collector fetches ${mechanicIcon('flash')} Flash`; note = `Flash pickup: up to +6 ${spark}`; break;
-    default: main = effectMarkup(cardSummary(card));
-  }
-  return `<span class="card-mechanics" title="${esc(printed(card))}" aria-label="${esc(printed(card))}"><span class="card-mechanic-main">${main}</span>${note || card?.charges != null ? `<span class="card-mechanic-detail">${note ? `<span class="card-mechanic-note">${note.includes('<span') ? note : esc(note)}</span>` : ''}${card?.charges != null ? `<span class="card-mechanic-uses">${mechanicIcon('uses')} <b>${amount(card.charges)}</b> uses</span>` : ''}</span>` : ''}</span>${details ? `<details class="card-rules"><summary>Details</summary><p>${esc(printed(card))}</p></details>` : ''}`;
+  const bands = getCardRuleBands(card, SKILL_CARDS[card?.cardId || card?.id]);
+  const main = bands.map(({type, text}) => `<span class="card-rule-stripe card-rule-${type}" data-rule-type="${type}">${cardTermTextMarkup(text)}</span>`).join('');
+  return `<span class="card-mechanics"><span class="card-mechanic-main">${main}</span></span>${details ? `<details class="card-rules"><summary>Details</summary><p>${esc(printed(card))}</p></details>` : ''}`;
 }
-const lifetime = (card) => card.charges == null ? 'While mounted' : `${amount(card.charges)} ${amount(card.charges) === 1 ? 'use' : 'uses'} left`;
+const lifetime = (card) => card.charges == null ? 'While equipped' : `${amount(card.charges)} ${amount(card.charges) === 1 ? 'use' : 'uses'} left`;
 const walletMarkup = (wallet) => `<span class="card-bench-wallet">${resourceSymbol('packed')}<b>${amount(wallet)}</b><small>Stored Sparks</small></span>`;
 function slotMarkup(card, i, { selected = false, action = 'card-select', empty = 'Empty slot' } = {}) {
   return `<button class="card-slot-pick ${selected ? 'selected' : ''} ${!card ? 'empty-slot' : ''}" data-action="${action}" data-index="${i}" aria-pressed="${selected}" aria-label="Slot ${i + 1}: ${card ? esc(cardName(card)) : esc(empty)}"><b class="card-slot-number">${i + 1}</b>${card ? cardArt(card, { compact: true }) : '<span class="card-slot-open">+</span>'}<span class="card-slot-copy"><strong>${card ? esc(cardName(card)) : esc(empty)}</strong><small>${card ? `${card.charges == null ? card.maxRank > 1 ? `Rank ${card.rank || 1}` : lifetime(card) : lifetime(card)}` : 'Ready for a card'}</small></span></button>`;
 }
-export function cardFace(card, { compact = false, slot = null, selected = false } = {}) {
+function rarityInlay(card) {
+  if (rarity(card) === 'legendary') return '<svg class="card-rarity-inlay" viewBox="0 0 40 24" aria-hidden="true" focusable="false"><path d="M2 5 11 10 20 1 29 10 38 5 33 21H7Z" fill="#392b51" stroke="#d7b9f4" stroke-width="2"/><path d="M8 9 13 13 20 6 27 13 32 9 29 18H11Z" fill="#c3a1df"/><path d="m20 9 4 5-4 5-4-5Z" fill="#b9ecdf"/><path d="M9 22h22" stroke="#f3dda8" stroke-width="2"/></svg>';
+  if (rarity(card) === 'rare') return '<svg class="card-rarity-inlay" viewBox="0 0 40 24" aria-hidden="true" focusable="false"><path d="m4 12 9-2 7-9 7 9 9 2-9 2-7 9-7-9Z" fill="#ae9559" stroke="#edd7a0"/><path d="m20 4 8 8-8 8-8-8Z" fill="#59bcb7" stroke="#d1e8cc"/><path d="m20 4 1 9-9-1Z" fill="#c6f1d9"/><path d="m21 13 7-1-8 8Z" fill="#286b73"/></svg>';
+  return '';
+}
+export function cardStatusMarkup(status, { compact = false, slot = null } = {}) {
+  if (!status) return '';
+  const content = `${Number.isInteger(slot) ? `<b class="card-config-slot" aria-hidden="true">${slot + 1}</b>` : ''}<span class="card-config-symbol" aria-hidden="true">${esc(status.symbol)}</span>${compact ? '' : `<span class="card-config-label">${esc(status.label)}</span>`}`;
+  const label = esc(`${Number.isInteger(slot) ? `Slot ${slot + 1}, ` : ''}${cardStatusText(status)}`);
+  return compact ? `<span class="card-config-status card-config-${status.state} card-config-compact" role="img" aria-label="${label}" title="${label}">${content}</span>` : `<button type="button" class="card-config-status card-config-${status.state}" data-card-status-help data-card-status-title="${esc(status.label)}" data-card-status-description="${esc(status.reason)}" data-card-status-fix="${esc(status.fix)}" aria-haspopup="dialog" aria-label="${label} Open status help.">${content}</button>`;
+}
+export function cardFace(card, { compact = false, slot = null, selected = false, status = null } = {}) {
   if (!card) return `<article class="skill-card empty-card"><div class="card-empty-art">+</div><h3>Empty slot${slot === null ? '' : ` ${slot + 1}`}</h3></article>`;
-  return `<article class="skill-card card-${rarity(card)} ${compact ? 'compact-card' : ''} ${selected ? 'card-selected' : ''}" data-card-instance="${esc(card.instanceId || '')}" aria-label="${esc(cardName(card))}, ${esc(rarity(card))}${card.maxRank > 1 ? `, rank ${card.rank || 1}` : ''}"><div class="card-illustration">${cardArt(card, { compact })}</div><div class="card-face-copy"><h3>${esc(cardName(card))}</h3><small class="card-rarity">${esc(rarity(card))}${card.maxRank > 1 ? ` · ${card.rank || 1}/${card.maxRank}` : ''}</small></div></article>`;
+  const maximum = SKILL_CARDS[card.cardId || card.id]?.charges;
+  const finite = Number.isFinite(card.charges) && Number.isFinite(maximum);
+  const uses = finite ? `${amount(card.charges)}/${amount(maximum)}` : '';
+  const usesLabel = `${amount(card.charges)} of ${amount(maximum)} uses remaining`;
+  const bands = getCardRuleBands(card, SKILL_CARDS[card.cardId || card.id]);
+  const dense = status && (bands.length >= 3 || bands.map(band => band.text).join(' ').length > 130);
+  const badge = finite ? compact ? `<span class="card-use-counter" role="img" aria-label="${usesLabel}">${uses}</span>` : `<button type="button" class="card-use-counter" data-card-term="uses" aria-haspopup="dialog" aria-label="${usesLabel}: help">${uses}</button>` : '';
+  return `<article class="skill-card card-${rarity(card)} ${compact ? 'compact-card card-thumbnail' : 'card-readable'} ${finite ? 'card-has-uses' : ''} ${status ? 'card-has-status' : ''} ${dense ? 'card-status-dense' : ''} ${selected ? 'card-selected' : ''}" data-card-instance="${esc(card.instanceId || '')}" data-card-help="${esc(card.cardId || card.id)}" data-card-name="${esc(cardName(card))}" data-card-description="${esc(printed(card))}" aria-label="${esc(cardName(card))}, ${esc(rarity(card))}${status ? `, ${esc(cardStatusText(status))}` : ''}"><header class="card-face-heading"><h3>${esc(cardName(card))}</h3>${compact ? '' : `<button type="button" class="card-help" data-card-term-trigger="${esc(card.cardId || card.id)}" data-card-terms="${cardTerms(card).join(' ')}" aria-haspopup="dialog" aria-label="Help with ${esc(cardName(card))}">?</button>`}</header><div class="card-illustration">${cardArt(card, { compact })}${rarityInlay(card)}</div>${compact ? '' : `<div class="card-rule-band">${cardMechanicMarkup(card)}</div>`}${cardStatusMarkup(status, {compact, slot})}${badge}</article>`;
 }
 export function starterCardsMarkup(run, gifts, existing) {
-  return `<section class="card-starter"><header class="card-heading"><div><h2>Choose your first card</h2></div><button class="secondary" data-action="close-sheet">Back</button></header><div class="card-starter-pair">${gifts.map(gift => { const card = gift.card || { ...gift, effect: gift.description, rarity: 'common' }; return `<button class="card-pick" data-action="${existing ? 'existing-gift' : 'new-gift'}" data-id="${esc(gift.id)}">${cardFace(card)}<span class="card-pick-copy">${cardMechanicMarkup(card)}<span class="card-pick-label">Mount card →</span></span></button>`; }).join('')}</div></section>`;
+  const guide=describeSkillCard(makeSkillCard('lift-guide','included-starter-guide'));
+  return `<section class="card-starter"><header class="card-heading"><div><h2>Choose your other card</h2><small>2 equipped cards · 1 free slot</small></div><div class="card-starter-included">${cardArt(guide,{compact:true})}<span><strong>Lift Guide included</strong><small>Equipped with your choice</small></span></div><button class="secondary" data-action="close-sheet">Back</button></header><div class="card-starter-pair">${gifts.map(gift => { const card = gift.card || { ...gift, effect: gift.description, rarity: 'common' }; return `<div class="card-pick">${cardFace(card)}<button type="button" class="card-pick-label primary" data-action="${existing ? 'existing-gift' : 'new-gift'}" data-id="${esc(gift.id)}" aria-label="Equip ${esc(cardName(card))} alongside Lift Guide">Equip with<br>Lift Guide →</button></div>`; }).join('')}</div></section>`;
 }
-export function cardRewardMarkup(run, { replaceIndex = null } = {}) {
+export function cardRewardMarkup(run) {
   const reward = getCardReward(run), card = reward?.card;
   if (!card) return '';
-  const cards = getMountedCards(run), full = cards.every(Boolean), old = replaceIndex === null ? null : cards[replaceIndex], empty = cards.findIndex(c => !c);
-  return `<section class="card-reward-screen"><header class="card-heading"><div><small>${reward.source === 'forge' ? 'FORGED AT REST' : 'FLIGHT REWARD'}${flightPackingReceipt(run, reward)}</small><h1>A new card</h1></div>${walletMarkup(run.condensedGlow)}<button class="secondary" data-action="cards">Your hand</button><button class="secondary" data-action="menu">Menu</button></header><div class="card-reward-body"><div class="card-reward-new">${cardFace(card)}<div class="card-reward-description">${cardMechanicMarkup(card)}</div></div><div class="card-reward-choice"><h2>${full ? 'Choose a card to replace' : `Mount in open slot ${empty + 1}`}</h2><div class="card-slot-row card-replace-slots" aria-label="Your mounted cards">${cards.map((c, i) => slotMarkup(c, i, { selected: replaceIndex === i, action: full ? 'card-select-replacement' : 'card-inspect-reward-slot' })).join('')}</div>${full ? old ? `<div class="card-loss-preview"><span>LOSE FROM SLOT ${replaceIndex + 1}</span>${cardMechanicMarkup(old)}<small>Melt <b>+${amount(old.meltValue)}</b> ${resourceSymbol('packed')}</small></div>` : '<p class="card-reward-prompt">Your hand is full. Tap a mounted card to compare.</p>' : `<p class="card-reward-prompt">Other cards stay mounted.</p>`}<div class="card-reward-actions"><button class="primary" data-action="${full ? 'card-preview-replace' : 'card-equip-reward'}" ${full && !old ? 'disabled' : ''}>${full ? `Replace ${old ? esc(cardName(old)) : 'a card'}…` : `Mount in slot ${empty + 1} →`}</button><button class="secondary card-danger" data-action="card-preview-reward-melt">Melt incoming · +${amount(card.meltValue)}</button></div></div></div><footer class="card-footnote">${run.flightReward && !run.flightReward.claimed ? 'Your relic choice follows.' : ''}</footer></section>`;
+  return `<section class="card-reward-screen card-deck-receipt"><header class="card-heading"><div><small>${reward.source === 'forge' ? 'FORGED CARD' : 'FLIGHT REWARD'}${flightPackingReceipt(run, reward)}</small><h1>Added to deck</h1></div>${walletMarkup(run.condensedGlow)}<button class="secondary" data-action="menu">Menu</button></header><div class="card-reward-body"><div class="card-reward-new">${cardFace(card)}</div><div class="card-reward-choice"><h2>Yours for this journey</h2><p class="card-reward-prompt">Equip it whenever you’re ready.</p><div class="card-reward-actions"><button class="primary" data-action="card-reward-continue">Continue →</button><button class="secondary" data-action="card-reward-deck" data-id="${esc(card.instanceId)}">Open Deck</button></div></div></div><footer class="card-footnote">${run.flightReward && !run.flightReward.claimed ? 'Your relic choice follows.' : ''}</footer></section>`;
 }
-export function cardReplacementMarkup(run, index) {
-  const incoming = getCardReward(run)?.card, old = getMountedCards(run)[index];
-  if (!incoming || !old) return '';
-  return `<section class="card-exchange card-replacement-confirm"><header class="card-heading"><div><small>REPLACE · SLOT ${index + 1}</small><h2>Make room for ${esc(cardName(incoming))}?</h2></div></header><div class="card-exchange-body"><div class="card-outgoing">${cardFace(old, { showEffect: false })}<span class="card-exchange-tag">${old.charges == null ? 'OUT · MELTED' : `OUT · ${amount(old.charges)} USES LOST`} · +${amount(old.meltValue)}</span></div><div class="card-incoming">${cardFace(incoming, { showEffect: false })}<span class="card-exchange-tag">IN · MOUNTED IN SLOT ${index + 1}</span></div></div><footer class="card-dialog-actions"><p>Lose ${esc(cardName(old))} and its ability. +${amount(old.meltValue)} Stored Sparks.</p><button class="secondary" data-action="card-back-reward">Back to compare</button><button class="primary card-danger" data-action="card-confirm-replace">Replace & Melt old card</button></footer></section>`;
-}
-export function cardsBenchMarkup(state, { selected = 0, locked = false, previewDirection = null, demo = false } = {}) {
-  const run = state.run, cards = getMountedCards(run), card = cards[selected], preview = card ? getCardImprovePreview(run, selected) : null;
-  let orderPreview = '';
-  if (card && previewDirection !== null) {
-    const target = selected + previewDirection;
-    if (target >= 0 && target < cards.length) {
-      const copy = structuredClone(run);
-      [copy.mountedCards[selected], copy.mountedCards[target]] = [copy.mountedCards[target], copy.mountedCards[selected]];
-      const after = getMountedCards(copy), capacity = getGlowCapacity(copy), before = getGlowCapacity(run), oldPayout = bodyPickupPreview(run), newPayout = bodyPickupPreview(copy);
-      orderPreview = `<div class="card-order-preview" role="status"><h3>Move slot ${selected + 1} → ${target + 1}</h3><p>${after.filter(c => c?.copyPreview).map(c => `<b>${esc(cardName(c))}:</b> ${esc(c.copyPreview).replace(/Sparks/g, resourceSymbol('energy')).replace('shared charges', 'shared uses')}`).join(' · ') || 'No copy partners in this hand.'}</p><p>${resourceSymbol('energy')} Pickup 12: <b class="card-number">${oldPayout.total} → ${newPayout.total}</b> ${resourceSymbol('energy')}${capacity !== before ? ` · Capacity ${formatGlow(before)} → ${formatGlow(capacity)}` : ''}.</p><div class="card-order-actions"><button class="secondary" data-action="card-cancel-move">Cancel move</button><button class="primary" data-action="card-confirm-move" data-index="${selected}" data-to="${target}" ${locked ? 'disabled' : ''}>Move to slot ${target + 1} →</button></div></div>`;
-    }
+// Kept as a harmless compatibility export for older inspector links.
+export function cardReplacementMarkup() { return ''; }
+
+const deckHelpMarkup = () => `<details class="card-deck-help"><summary><span class="card-deck-help-open">How to use</span><span class="card-deck-help-close">Close help</span></summary><div class="card-deck-help-panel"><h3>Your cards, your choice</h3><dl><div><dt>Equip</dt><dd>In Deck, tap a card to inspect it, choose Equip, then choose a numbered slot. Replaced cards go to reserve. Drag equipped cards to reorder them.</dd></div><div><dt>Melt</dt><dd>Select cards, review the Stored Sparks returned, then confirm. Melting permanently destroys those cards and their uses.</dd></div><div><dt>Forge</dt><dd>Spend banked Stored Sparks to create the shown card in reserve. Equip it when ready. No camp action; forge again while affordable.</dd></div></dl><p>All earned cards stay in your Deck for this journey. Edit anytime; a flight stays paused.</p></div></details>`;
+
+export function cardsBenchMarkup(state, { selectedId = null, selected = 0, locked = false, paused = false, demo = false, browsing = false, inspecting = false, equip = false, targetSlot = null, readerBack = 'Deck', meltMode = false, meltIds = [], notice = '' } = {}) {
+  const run = state.run, cards = getMountedCards(run), owned = getOwnedCards(run);
+  const statuses = getEquippedCardStatuses(run);
+  const card = owned.find(c => c.instanceId === selectedId) || null;
+  const reserve = owned.filter(c => !c.mounted), choosingReserve = Number.isInteger(targetSlot);
+  const preview = card ? getCardImprovePreview(run, card.instanceId) : null;
+  const canReviewImprove = !!preview && (preview.kind === 'evolution' || preview.kind === 'rank' || (preview.kind === undefined && card.rank < card.maxRank));
+  const visible = reserve;
+  const selectedIds = new Set(meltIds), melt = getCardMeltPreview(run, meltIds);
+  const equippedCount = cards.filter(Boolean).length;
+  const draggable = !locked && !meltMode && !equip && (!browsing || inspecting);
+  const dragId = c => draggable && c ? ` data-deck-drag-id="${esc(c.instanceId)}"` : '';
+  const copyHint = card && ['echo','chameleon'].includes(card.kind) ? `<p class="card-neighbor-hint">${card.mounted ? `Slot ${card.slot + 1} → ${cards[card.slot + 1] ? esc(cardName(cards[card.slot + 1])) : 'empty slot'} · immediate right.` : 'Equip immediately left of the card to copy.'} ${card.kind === 'echo' ? 'Echo repeats compatible triggered actions.' : 'Chameleon copies compatible passives and triggered actions.'}</p>` : '';
+  const slotButton = (c, i) => {
+    const same = c?.instanceId === card?.instanceId && !!c;
+    const consequence = same ? 'Current slot' : !c ? 'Empty · equip here' : card?.mounted ? `Swap to slot ${card.slot + 1}` : 'Moves to reserve';
+    const meltCopy = c ? `${selectedIds.has(c.instanceId) ? '✓ ' : ''}+${amount(c.meltValue)} Stored Sparks` : 'Empty';
+    const disabled = (locked && equip) || (equip && same) || (!c && (meltMode || (!equip && !reserve.length)));
+    return `<button class="card-slot-pick ${inspecting && same && !meltMode ? 'selected' : ''} ${equip || choosingReserve && i === targetSlot ? 'card-slot-target' : ''} ${selectedIds.has(c?.instanceId) ? 'card-slot-melting' : ''}" data-action="card-slot" data-index="${i}" data-deck-slot-id="${esc(c?.instanceId || '')}"${dragId(c)}${draggable ? ` data-deck-drop="slot" data-deck-slot-name="${c ? esc(cardName(c)) : ''}"` : ''} ${meltMode && c ? `aria-pressed="${selectedIds.has(c.instanceId)}"` : ''} aria-label="${equip ? `Equip ${esc(cardName(card))} in ` : ''}slot ${i + 1}${c ? `: ${esc(cardName(c))}, ${esc(cardStatusText(statuses[i]))}` : ': empty'}${meltMode && c ? `, returns ${amount(c.meltValue)} Stored Sparks, ${selectedIds.has(c.instanceId) ? 'selected to melt' : 'tap to select'}` : equip ? `, ${esc(consequence)}` : !c && !reserve.length ? ', no reserve cards to equip' : ''}" ${disabled ? 'disabled' : ''}><b class="card-slot-number">${i + 1}</b>${c ? cardArt(c, { compact: true }) : '<span class="card-slot-open">+</span>'}<span class="card-slot-copy"><strong>${c ? esc(cardName(c)) : 'Empty'}</strong><small>${meltMode ? meltCopy : equip ? consequence : c ? lifetime(c) : reserve.length ? 'Tap to equip' : 'No reserve cards'}</small></span>${c ? cardStatusMarkup(statuses[i], {compact:true}) : ''}</button>`;
+  };
+  if (!browsing && !inspecting && !meltMode) {
+    const foreground = cards.map((c, i) => `<div role="button" tabindex="0" class="card-equipped-face ${c ? '' : 'card-equipped-empty'}" data-action="card-slot" data-index="${i}" data-deck-slot-id="${esc(c?.instanceId || '')}"${dragId(c)}${draggable ? ` data-deck-drop="slot" data-deck-slot-name="${c ? esc(cardName(c)) : ''}"` : ''} aria-label="Slot ${i + 1}: ${c ? `${esc(cardName(c))}, ${esc(cardStatusText(statuses[i]))}, tap to inspect` : 'empty, open Deck to choose a card'}"><b class="card-foreground-number" aria-hidden="true">${i + 1}</b>${cardFace(c, { slot: i, status: statuses[i] })}${!c ? '<span class="card-empty-prompt">Choose from Deck</span>' : ''}</div>`).join('');
+    return `<section data-deck-editable="${draggable}" class="card-bench card-deck card-equipped-foreground"><header class="card-heading"><div>${paused ? '<small>FLIGHT PAUSED</small>' : ''}<h2>Equipped</h2></div><button class="secondary card-open-collection" data-action="card-open-collection">Deck</button><button class="secondary card-close" data-action="close-sheet">Done</button></header><div class="card-foreground-row" aria-label="Equipped cards in slot order" tabindex="0">${foreground}</div>${notice ? `<p class="card-deck-status" role="status">${esc(notice)}</p>` : ''}</section>`;
   }
-  return `<section class="card-bench"><header class="card-heading"><div><small>${locked ? 'FLIGHT PAUSED · INSPECT' : demo ? 'SAMPLE HAND · CHANGES RESET ON RELOAD' : 'CHECKPOINT · YOUR MOUNTED HAND'}</small><h2>Cards <span>${cards.filter(Boolean).length}/${run.cardSlots || 3}</span></h2></div>${demo ? `<button class="secondary card-demo-reward" data-action="card-demo-reward">Try a new reward →</button>` : ''}${walletMarkup(getSkillWallet(state).condensedGlow)}<button class="secondary card-close" data-action="close-sheet">Done</button></header><div class="card-slot-row" aria-label="Mounted cards, from left to right">${cards.map((c, i) => slotMarkup(c, i, { selected: selected === i })).join('')}</div><div class="card-bench-body">${card ? `<div class="card-selected-face">${cardFace(card, { showEffect: false })}</div><div class="card-inspector">${orderPreview || `<div class="card-inspector-copy">${cardMechanicMarkup(card, { details: true })}</div><div class="card-edit-actions"><button class="secondary" data-action="card-preview-move" data-index="${selected}" data-direction="-1" ${locked || selected === 0 ? 'disabled' : ''}>← Move left</button><button class="secondary" data-action="card-preview-move" data-index="${selected}" data-direction="1" ${locked || selected === cards.length - 1 ? 'disabled' : ''}>Move right →</button>${card.maxRank > 1 ? `<button class="primary" data-action="card-preview-improve" data-index="${selected}" ${locked || card.rank >= card.maxRank ? 'disabled' : ''}>${card.rank >= card.maxRank ? 'Fully improved' : `Improve · ${amount(preview?.price)}`}</button>` : ''}<button class="secondary card-danger" data-action="card-preview-melt" data-index="${selected}" ${locked || card.charges === 0 ? 'disabled' : ''}>Melt card · +${amount(card.meltValue)}</button></div>${preview?.reason && card.rank < card.maxRank ? `<p class="card-footnote">${esc(preview.reason)}</p>` : ''}`}</div>` : `<div class="card-empty-detail"><span class="card-empty-art">+</span><h3>Slot ${selected + 1} is open</h3><p>Your next flight reward can be mounted here.</p></div>`}</div><footer class="card-footnote">${locked ? 'Changes become available at the next checkpoint.' : 'Moves and improvements keep remaining uses.'}</footer></section>`;
+  const gallery = visible.map(c => `<div role="button" tabindex="0" class="card-deck-pick ${meltMode ? 'card-melt-pick' : 'card-collection-face'} ${selectedIds.has(c.instanceId) ? 'melt-selected' : ''}" data-action="card-select" data-id="${esc(c.instanceId)}"${meltMode ? ` aria-pressed="${selectedIds.has(c.instanceId)}"` : ''} aria-label="${esc(cardName(c))}, ${esc(rarity(c))}, in reserve${meltMode ? `, returns ${amount(c.meltValue)} Stored Sparks, ${selectedIds.has(c.instanceId) ? 'selected to melt' : 'tap to select for melting'}` : ', tap to inspect'}">${cardFace(c, { compact: true })}${meltMode ? `<span class="card-deck-badge">${selectedIds.has(c.instanceId) ? '✓ ' : ''}+${amount(c.meltValue)} Stored Sparks</span>` : ''}</div>`).join('');
+  const controls = card ? `<div class="card-deck-actions"><button class="primary" data-action="card-equip" ${locked ? 'disabled' : ''}>${card.mounted ? 'Move to slot' : 'Equip'}</button>${card.mounted ? `<button class="secondary" data-action="card-unequip" data-index="${card.slot}" data-id="${esc(card.instanceId)}" title="Keep this card in reserve; its ability stops" ${locked ? 'disabled' : ''}>Unequip</button>` : ''}${card.maxRank > 1 || preview?.kind === 'evolution' ? `<button class="secondary" data-action="card-preview-improve" data-id="${esc(card.instanceId)}" title="${!canReviewImprove ? 'This card is at its highest tier and rank' : `Preview ${cardName(card)} → ${cardName(preview.after)} for ${amount(preview.price)} Stored Sparks; remaining uses stay the same`}" ${locked || !canReviewImprove ? 'disabled' : ''}>${!canReviewImprove ? 'Max rank' : `${preview.kind === 'evolution' ? 'Evolve' : 'Improve'} · ${amount(preview.price)}`}</button>` : ''}</div>` : '';
+  if (inspecting && card && !meltMode) {
+    const status = card.mounted ? statuses[card.slot] : null;
+    const normalReader = `<div class="card-read-location">${card.mounted ? `Equipped · slot ${card.slot + 1} · ${esc(status?.label || 'equipped')}` : 'In reserve · equip to activate'}${status ? `<p class="card-read-config card-read-config-${status.state}"><strong>${esc(status.symbol)} ${esc(status.label)}</strong> ${esc(status.reason)}${status.state !== 'ready' ? `<br>${esc(status.fix)}` : ''}</p>` : ''}${card.mounted && card.effectiveSummary ? `<details class="card-effective-summary"><summary>In these slots · ${card.effectiveSources} ${card.effectiveSources === 1 ? 'source' : 'sources'}${card.effectiveMultiplier ? ` · ${card.effectiveMultiplier}× burst` : ''}</summary><p>Base contributions before row multipliers and replay. ${esc(card.effectiveSummary)}</p></details>` : ''}</div>${controls}${copyHint}${notice ? `<p class="card-deck-status" role="status">${esc(notice)}</p>` : ''}<div class="card-read-footer"><details class="card-reading-details"><summary>Details</summary><p>${esc(printed(card))}</p></details><button class="secondary card-read-melt" data-action="card-melt-this" data-id="${esc(card.instanceId)}" ${locked ? 'disabled' : ''}>Melt this card…</button></div>`;
+    const chooser = `<div class="card-equip-instruction"><h3>Choose a slot for ${esc(cardName(card))}</h3><p>${card.mounted ? 'Occupied slots swap cards.' : 'An occupied card moves to reserve.'}</p></div><div class="card-equipped card-read-equipped"><div class="card-slot-row" aria-label="Choose equipped slot">${cards.map(slotButton).join('')}</div></div>`;
+    return `<section data-deck-editable="${draggable}" class="card-bench card-deck card-deck-reading ${equip ? 'card-deck-equipping' : ''}"><header class="card-heading"><button class="secondary" data-action="${equip ? 'card-cancel-equip' : 'card-reading-back'}">${equip ? 'Cancel' : `← ${esc(readerBack)}`}</button><div><small>${paused ? 'FLIGHT PAUSED' : ''}</small></div>${walletMarkup(getSkillWallet(state).condensedGlow)}</header><div class="card-reading-body"><div class="card-read-face">${cardFace(card, {status, slot: card.mounted ? card.slot : null})}</div><div class="card-read-controls">${equip ? chooser : normalReader}</div></div></section>`;
+  }
+  const meltSummary = `<div class="card-deck-melt-summary"><h3>You’ll receive</h3><p><b>${melt.cards.length}</b> selected · <strong>+${amount(melt.amount)}</strong></p><span class="card-melt-currency">${resourceSymbol('packed')} Stored Sparks</span><small>${melt.cards.length ? 'Confirming destroys these cards and their uses.' : 'Tap equipped or reserve cards to select.'}</small><small class="card-melt-warning" role="status">${melt.mountedCount ? `${melt.mountedCount} equipped ${melt.mountedCount === 1 ? 'slot will' : 'slots will'} become empty.` : melt.reason ? esc(melt.reason) : 'Equipped slots stay as they are.'}</small><div class="card-deck-actions"><button class="primary card-danger" data-action="card-preview-melt-selected" ${locked || !melt.eligible ? 'disabled' : ''}>Review Melt →</button></div></div>`;
+  const heading = meltMode ? `<div><small>1 · SELECT · 2 · REVIEW · 3 · CONFIRM</small><h2>Melt cards</h2></div>${walletMarkup(getSkillWallet(state).condensedGlow)}<button class="secondary" data-action="card-cancel-melt">Cancel</button>` : `<div>${paused ? '<small>FLIGHT PAUSED</small>' : ''}<h2>Deck <span>${reserve.length} in reserve</span></h2></div><button class="secondary" data-action="card-collection-back">← Equipped</button>${deckHelpMarkup()}<button class="secondary" data-action="card-melt-mode" ${locked || !owned.length ? 'disabled' : ''}>Melt cards…</button><button class="secondary card-open-forge" data-action="card-preview-forge" data-rarity="rare" ${locked ? 'disabled' : ''}>Forge</button>${walletMarkup(getSkillWallet(state).condensedGlow)}`;
+  const collectionHeading = `<div class="card-deck-collection-heading"><h3>Reserve</h3><small ${notice ? 'role="status"' : ''}>${esc(notice || (meltMode ? 'Values in Stored Sparks' : choosingReserve ? `Choose a card for slot ${targetSlot + 1} · tap to inspect` : 'Scroll to browse · tap a card to inspect'))}</small></div>`;
+  const empty = `<div class="card-deck-empty"><strong>${meltMode ? 'No reserve cards to melt' : 'No cards in reserve'}</strong><span>${meltMode ? 'You can select equipped cards above.' : equippedCount ? 'Every owned card is equipped. Clear flights or Forge to add more.' : 'Clear flights to earn cards, or open Forge to create one.'}</span></div>`;
+  return `<section data-deck-editable="false" class="card-bench card-deck ${meltMode ? 'card-deck-melt-mode' : 'card-deck-browser'}"><header class="card-heading">${heading}</header>${meltMode ? `<div class="card-equipped"><div class="card-equipped-label"><h3>Equipped</h3><small>Tap to select</small></div><div class="card-slot-row" aria-label="Equipped cards to melt">${cards.map(slotButton).join('')}</div></div>` : ''}<div class="card-deck-body"><div class="card-deck-collection">${collectionHeading}<div class="card-deck-gallery" tabindex="0" aria-label="Reserve cards, scroll to browse">${gallery || empty}</div></div>${meltMode ? `<aside class="card-inspector card-deck-inspector" aria-label="Melt selection">${meltSummary}</aside>` : ''}</div></section>`;
+}
+export function cardMeltSelectionMarkup(run, ids, wallet = 0, { single = false } = {}) {
+  const preview = getCardMeltPreview(run, ids), slots = preview.cards.filter(c => c.mounted).map(c => c.slot + 1);
+  return `<section class="card-exchange card-melt-confirm card-batch-melt"><header class="card-heading"><div><small>${single ? '' : '3 · '}CONFIRM PERMANENT DESTRUCTION</small><h2>Melt ${single ? esc(cardName(preview.cards[0])) : `${preview.cards.length} ${preview.cards.length === 1 ? 'card' : 'cards'}`}?</h2></div>${walletMarkup(wallet)}</header><div class="card-batch-melt-body"><div class="card-batch-melt-list" aria-label="Cards that will be destroyed">${preview.cards.map(c => `<div>${cardArt(c, { compact: true })}<span><strong>${esc(cardName(c))}</strong><small>${c.mounted ? `Equipped slot ${c.slot + 1}` : 'In reserve'} · ${lifetime(c)}</small></span><b aria-label="${amount(c.meltValue)} Stored Sparks returned">+${amount(c.meltValue)}</b></div>`).join('')}</div><div class="card-exchange-result"><strong>+${amount(preview.amount)} Stored Sparks</strong><small class="card-melt-wallet">Banked wallet ${amount(wallet)} → ${amount(wallet) + amount(preview.amount)}</small><p>${slots.length ? `Equipped ${slots.length === 1 ? 'slot' : 'slots'} ${slots.join(', ')} will become empty.` : 'Your equipped slots stay as they are.'}</p><p>These cards and their remaining uses will be lost.</p></div></div><footer class="card-dialog-actions">${single ? '' : '<button class="secondary" data-action="card-back-melt">← Edit selection</button>'}<button class="secondary" data-action="card-cancel-melt">Keep ${single ? 'card' : 'cards'}</button><button class="primary card-danger" data-action="card-confirm-melt-selected" ${!preview.eligible ? 'disabled' : ''}>Destroy ${preview.cards.length} · +${amount(preview.amount)}</button></footer></section>`;
 }
 export function cardExchangeMarkup(card, { kind = 'melt', preview = null, index = null, source = 'mounted', wallet = 0 } = {}) {
   const improve = kind === 'improve';
-  return `<section class="card-exchange ${improve ? 'card-improve-confirm' : 'card-melt-confirm'}"><header class="card-heading"><div><small>${improve ? 'IMPROVE A MOUNTED CARD' : 'PERMANENTLY DESTROY THIS CARD'}</small><h2>${improve ? 'Improve' : 'Melt'} ${esc(cardName(card))}?</h2></div>${walletMarkup(wallet)}</header><div class="card-exchange-body">${cardFace(card)}<div class="card-exchange-result">${improve ? `<h3>Rank ${card.rank || 1} → ${preview.after?.rank || Number(card.rank || 1) + 1}</h3>${cardMechanicMarkup(preview.after)}<p class="card-kept-uses">Remaining uses unchanged</p><strong>−${amount(preview.price)} Stored Sparks</strong><small>${preview.eligible ? `Wallet ${amount(wallet)} → ${amount(wallet) - amount(preview.price)}` : esc(preview.reason || `Need ${Math.max(0, amount(preview.price) - amount(wallet))} more Stored Sparks`)}</small>` : `<div class="card-melt-art">${choiceScene('forge')}</div><h3>Destroy this card</h3><p>${card.charges == null ? 'Its ability ends.' : `${amount(card.charges)} remaining uses will be lost.`}</p><strong>+${amount(card.meltValue)} Stored Sparks</strong><small>Wallet ${amount(wallet)} → ${amount(wallet) + amount(card.meltValue)}</small>`}</div></div><footer class="card-dialog-actions"><button class="secondary" data-action="${source === 'reward' ? 'card-back-reward' : 'cards'}">${improve ? 'Back to card' : 'Keep card'}</button><button class="primary ${improve ? '' : 'card-danger'}" data-action="${improve ? 'card-confirm-improve' : source === 'reward' ? 'card-confirm-reward-melt' : 'card-confirm-melt'}" data-index="${index ?? ''}" data-rank="${card.rank || 1}" ${improve && !preview.eligible ? 'disabled' : ''}>${improve ? `Improve for ${amount(preview.price)}` : `Melt card for +${amount(card.meltValue)}`} →</button></footer></section>`;
+  if(improve) {
+    const before = preview.before || card, after = preview.after;
+    return `<section class="card-exchange card-improve-confirm"><header class="card-heading"><div><small>${preview.kind === 'evolution' ? 'EVOLVE' : 'IMPROVE'} · USES PRESERVED</small><h2>${esc(cardName(before))} → ${esc(cardName(after))}</h2></div>${walletMarkup(wallet)}</header><div class="card-improve-pair"><div class="card-improve-version"><small>Before · ${esc(rarity(before))} · rank ${before.rank || 1}</small><div class="card-improve-face">${cardFace(before)}</div></div><div class="card-improve-version"><small>After · ${esc(rarity(after))} · rank ${after.rank || 1}</small><div class="card-improve-face">${cardFace(after)}</div></div></div><footer class="card-dialog-actions"><button class="secondary" data-action="card-back-improve">Back to card</button><p class="card-improve-wallet" role="status">${preview.eligible ? `Stored Sparks ${amount(wallet)} → ${amount(wallet)-amount(preview.price)}` : esc(preview.reason || `Need ${Math.max(0,amount(preview.price)-amount(wallet))} more Stored Sparks`)}</p><button class="primary" data-action="card-confirm-improve" data-id="${esc(card.instanceId)}" data-rank="${card.rank || 1}" data-token="${esc(preview.token || '')}" ${!preview.eligible ? 'disabled' : ''}>${preview.kind === 'evolution' ? 'Evolve' : 'Improve'} · ${amount(preview.price)} →</button></footer></section>`;
+  }
+  return `<section class="card-exchange ${improve ? 'card-improve-confirm' : 'card-melt-confirm'}"><header class="card-heading"><div><small>${improve ? 'IMPROVE A DECK CARD' : 'PERMANENTLY DESTROY THIS CARD'}</small><h2>${improve ? 'Improve' : 'Melt'} ${esc(cardName(card))}?</h2></div>${walletMarkup(wallet)}</header><div class="card-exchange-body">${cardFace(card)}<div class="card-exchange-result">${improve ? `<h3>${esc(cardName(preview.before || card))} → ${esc(cardName(preview.after))}</h3><small class="card-improve-tier">${esc(rarity(preview.before || card))} · rank ${card.rank || 1} → ${esc(rarity(preview.after))} · rank ${preview.after?.rank || Number(card.rank || 1) + 1}</small>${Number.isFinite(card.amount) && preview.after?.amount !== card.amount ? `<p class="card-improve-amount">Bonus +${card.amount} → +${preview.after.amount}</p>` : ''}${cardMechanicMarkup(preview.after)}<p class="card-kept-uses">Remaining uses unchanged</p><strong>−${amount(preview.price)} Stored Sparks</strong><small>${preview.eligible ? `Wallet ${amount(wallet)} → ${amount(wallet) - amount(preview.price)}` : esc(preview.reason || `Need ${Math.max(0, amount(preview.price) - amount(wallet))} more Stored Sparks`)}</small>` : `<div class="card-melt-art">${choiceScene('forge')}</div><h3>Destroy this card</h3><p>${card.charges == null ? 'Its ability ends.' : `${amount(card.charges)} remaining uses will be lost.`}</p><strong>+${amount(card.meltValue)} Stored Sparks</strong><small>Wallet ${amount(wallet)} → ${amount(wallet) + amount(card.meltValue)}</small>`}</div></div><footer class="card-dialog-actions"><button class="secondary" data-action="${improve ? 'card-back-improve' : source === 'reward' ? 'card-back-reward' : 'cards'}">${improve ? 'Back to card' : 'Keep card'}</button><button class="primary ${improve ? '' : 'card-danger'}" data-action="${improve ? 'card-confirm-improve' : source === 'reward' ? 'card-confirm-reward-melt' : 'card-confirm-melt'}" data-id="${esc(card.instanceId)}" data-index="${index ?? ''}" data-rank="${card.rank || 1}" data-token="${esc(preview?.token || '')}" ${improve && !preview.eligible ? 'disabled' : ''}>${improve ? `${preview.kind === 'evolution' ? 'Evolve' : 'Improve'} for ${amount(preview.price)}` : `Melt card for +${amount(card.meltValue)}`} →</button></footer></section>`;
 }
 export function cardRestMarkup(run, node, choices) {
-  const camp = run.cardRest || {},
-    done = camp.actions || [],
-    used = done.length;
-  const eligible = choices.map((c, index) => ({ ...c, index }));
-  const actions = eligible.filter(
-    (c) => !c.effect?.restContinue && c.effect?.cardForge !== "legendary",
-  );
-  const leave = eligible.find((c) => c.effect?.restContinue);
-  const forge = getCardForgePreview(run);
-  const title =
-    camp.extraSourceId && !camp.closed
-      ? used
-        ? "One different action remains"
-        : "Two different actions available"
-      : used
-        ? "Camp action complete"
-        : "Choose one action";
-  return `<section class="card-rest-screen"><aside class="card-rest-rail">${mapStopIconMarkup(node)}<small>REST · MAP ${run.mapIndex + 1}/3</small><h1>${esc(node.name)}</h1><div class="card-rest-vitals">${livesMarkup(run)}<span>${resourceSymbol("glow")}${formatGlow(run.flame)}/${formatGlow(getGlowCapacity(run))}</span></div><button class="secondary" data-action="cards">Cards · reorder / improve</button><p>${esc(title)}</p>${used ? `<span class="card-camp-receipt">✓ ${done.map((action) => esc({ recover: "Recover", slot: "Add slot", forge: "Forge", grow: "Grow" }[action] || action)).join(" + ")}</span>` : ""}</aside><div class="card-camp-main"><header class="card-heading"><div><small>${used ? "PREPARE OR CONTINUE" : "REST ACTIONS"}</small><h2>${esc(title)}</h2></div></header>${
-    actions.length
-      ? `<div class="card-camp-choices">${actions
-          .map((c) => {
-            const kind = c.effect.rest || "",
-              grow = kind === "grow",
-              slot = kind === "slot",
-              forging = kind === "forge",
-              art = forging
-                ? "forge"
-                : grow
-                  ? "refillGlow"
-                  : slot
-                    ? "skills"
-                    : "hearts";
-            const description = forging
-              ? "Rare 30 · Legendary 60. Preview the exact card."
-              : c.disabled
-                ? c.disabledReason
-                : grow
-                  ? "+3 maximum Sparks + full refill. No hearts."
-                  : slot
-                    ? "One empty slot. No refill. Once per map."
-                    : "All hearts + full Spark Meter.";
-            return `<button class="card-camp-choice ${c.disabled ? "unavailable" : ""}" data-action="${forging ? "card-preview-forge" : "support"}" data-index="${c.index}" ${c.disabled && !forging ? "disabled" : ""}>${choiceScene(art)}<h3>${forging ? "Forge" : esc(c.title)}</h3><p>${esc(description)}</p>${forging && forge?.card ? `<span class="card-forge-name">${esc(cardName(forge.card))} · Rare</span>` : ""}<span class="card-camp-action-cost">${forging ? "Wallet + " : ""}1 camp action</span></button>`;
-          })
-          .join("")}</div>`
-      : `<div class="card-camp-finished">${choiceScene("refillGlow")}<h3>Ready for the next passage</h3><p>Reorder or improve Cards, then choose your route.</p></div>`
-  }<footer class="card-camp-footer"><p>${camp.extraSourceId && !camp.closed ? "Second Ember spends its charge only after a successful second, different action." : used ? "Stored Sparks and your chosen changes are saved." : "Add slot and Forge restore no hearts or Sparks."}</p>${leave ? `<button class="primary" data-action="support" data-index="${leave.index}">Leave Rest →</button>` : '<button class="primary" data-action="view-route">Choose next route →</button>'}</footer></div></section>`;
+  const camp = getCardCampPreview(run);
+  if (!camp) return '';
+  const actions = camp.actions.filter(c => c.key), leave = camp.actions.find(c => c.effect?.restContinue);
+  const available = actions.filter(c => !c.disabled), exclusive = camp.remaining === 1 && available.length > 1;
+  const title = !available.length ? camp.used.length ? "Rest actions complete" : "No actions available"
+    : camp.used.length ? "Choose one more" : camp.remaining > 1 && available.length > 1 ? "Choose up to two different actions" : "Choose one Rest action";
+  const shortReason = c => c.taken ? "✓ Taken" : ({
+    "Hearts and Sparks are already full.": "Hearts and meter full",
+    "Maximum five slots": "All 5 slots unlocked",
+    "One slot already added on this map": "Already added this map",
+    "Mount Growth Seed before arriving at Rest": "Equip Growth Seed before Rest",
+    "Growth Seed must remain mounted": "Equip your Growth Seed",
+    "Maximum growth reached (3/3)": "All 3 Grow actions used",
+    "No Rest action remaining": "No actions remaining",
+  }[c.disabledReason] || c.disabledReason || "");
+  return `<section class="card-rest-screen"><aside class="card-rest-rail">${mapStopIconMarkup(node)}<small>REST · MAP ${run.mapIndex + 1}/3</small><h1>${esc(node.name)}</h1><div class="card-rest-vitals">${livesMarkup(run)}<span>${resourceSymbol("glow")}${formatGlow(run.flame)}/${formatGlow(getGlowCapacity(run))}</span></div><div class="card-rest-deck-links"><button class="secondary" data-action="cards">Deck</button><button class="secondary" data-action="card-preview-forge" data-rarity="rare">Forge</button></div><small>No Rest action</small></aside><div class="card-camp-main"><header class="card-heading"><div><h2>${esc(title)}</h2>${exclusive ? `<p class="card-camp-alternatives">${available.map(c => esc(c.title)).join('<span>OR</span>')}</p>` : ''}</div><button class="secondary card-camp-help" data-card-term="rest" aria-label="Help with Rest actions">?</button></header><div class="card-camp-choices">${actions.map(c => {
+    const grow = c.key === "grow", slot = c.key === "slot", before = c.before, after = c.after;
+    const numbers = slot ? `Slots <b>${before.slots} → ${after.slots}</b>` : grow ? `Max Sparks <b>${formatGlow(before.maxMeter)} → ${formatGlow(after.maxMeter)}</b>` : `Hearts <b>${before.hearts} → ${after.hearts}</b>`;
+    const detail = slot ? 'Once per map · no refill' : `Meter <b>${formatGlow(before.meter)} → ${formatGlow(after.meter)}</b>`;
+    const note = c.taken ? '' : c.disabled ? shortReason(c) : grow ? 'No healing' : '';
+    return `<article class="card-camp-choice ${c.disabled ? "unavailable" : ""} ${c.taken ? 'card-camp-taken' : ''}">${choiceScene(grow ? "refillGlow" : slot ? "skills" : "hearts")}<h3>${esc(c.title)}</h3><div class="card-camp-consequence"><p>${numbers}</p><p>${detail}</p></div><p class="card-camp-note">${esc(note)}</p><button class="${c.disabled ? 'secondary' : 'primary'}" data-action="support" data-index="${c.index}" ${c.disabled ? 'disabled' : ''}>${c.taken ? '✓ Taken' : esc(c.title)}</button></article>`;
+  }).join("")}</div><footer class="card-camp-footer"><p>${camp.extraAvailable && camp.remaining ? "Second Ember is spent only after your second action." : ""}</p>${leave && !leave.disabled ? `<button class="primary" data-action="support" data-index="${leave.index}">Leave Rest →</button>` : '<button class="primary" data-action="view-route">Choose next route →</button>'}</footer></div></section>`;
 }
-export function cardForgeMarkup(run, preview, index) {
-  const rareIndex = index - (preview.rarity === "legendary" ? 1 : 0),
-    legendary = preview.rarity === "legendary";
-  return `<section class="card-forge-preview"><header class="card-heading"><div><small>EXACT RESULT · FIXED FOR THIS REST</small><h2>Forge ${esc(cardName(preview.card))}</h2></div><nav class="card-forge-tiers" aria-label="Forge rarity"><button class="secondary ${!legendary ? "selected" : ""}" data-action="card-preview-forge" data-index="${rareIndex}">Rare · 30</button><button class="secondary ${legendary ? "selected" : ""}" data-action="card-preview-forge" data-index="${rareIndex + 1}">Legendary · 60</button></nav></header><div class="card-exchange-body">${cardFace(preview.card)}<div class="card-exchange-result">${cardMechanicMarkup(preview.card)}<strong>−${amount(preview.price)} Stored Sparks</strong><p>Uses one camp action. No refill or healing.</p><span>${esc(preview.reason || "Choose Equip or Melt after forging.")}</span></div></div><footer class="card-dialog-actions"><button class="secondary" data-action="close-sheet">Back</button><button class="primary" data-action="card-confirm-forge" data-index="${index}" ${!preview.eligible ? "disabled" : ""}>Forge · ${amount(preview.price)} + 1 action →</button></footer></section>`;
+export function cardForgeMarkup(run, preview, { notice = '', paused = false, backLabel = 'Deck', lastForged = null } = {}) {
+  const legendary = preview.rarity === "legendary", wallet = amount(getSkillWallet({run}).condensedGlow);
+  const hasRare = getOwnedCards(run).some(c => c.mounted && c.rarity === 'rare');
+  const short = preview.reason === 'Not enough Stored Sparks';
+  const reason = short ? `Need ${Math.max(0, amount(preview.price) - wallet)} more Stored Sparks.` : preview.reason === 'Mount a Rare card to forge Legendary' ? 'Equip a Rare card to unlock Legendary forging.' : preview.reason;
+  const receipt = lastForged ? `<div class="card-forge-receipt" role="status"><strong>${esc(lastForged.name)} → reserve</strong><button class="secondary" data-action="card-forge-view" data-id="${esc(lastForged.instanceId)}">View card</button></div>` : '';
+  return `<section class="card-forge-preview"><header class="card-heading"><div><small>${paused ? 'FLIGHT PAUSED · ' : ''}CREATE A CARD</small><h2>Forge</h2></div><nav class="card-forge-tiers" aria-label="Forge rarity and cost in Stored Sparks"><button class="secondary ${!legendary ? "selected" : ""}" data-action="card-preview-forge" data-rarity="rare" aria-pressed="${!legendary}">Rare · 30</button><button class="secondary ${legendary ? "selected" : ""} ${!hasRare ? 'card-forge-locked' : ''}" data-action="card-preview-forge" data-rarity="legendary" aria-pressed="${legendary}" aria-label="Legendary, 60 Stored Sparks${!hasRare ? ', locked: equip a Rare card; tap to preview' : ''}">Legendary · 60${!hasRare ? ' · locked' : ''}</button></nav>${walletMarkup(wallet)}</header><div class="card-exchange-body"><div class="card-forge-card">${cardFace(preview.card)}</div><div class="card-exchange-result">${receipt}<span class="card-forge-destination">${lastForged ? 'Next card shown' : 'Shown card'} → reserve</span><strong>−${amount(preview.price)} Stored Sparks</strong><small>${wallet >= amount(preview.price) ? `Banked wallet ${wallet} → ${wallet - amount(preview.price)}` : `Banked wallet ${wallet} · cost ${amount(preview.price)}`}</small>${notice ? `<span class="card-forge-status" role="status">${esc(notice)}</span>` : ''}${reason ? `<span class="card-forge-status" role="status">${esc(reason)}</span>` : !notice ? '<span class="card-forge-status">Equip the new card from Deck.</span>' : ''}<small>No camp action · repeat while affordable.</small></div></div><footer class="card-dialog-actions"><button class="secondary" data-action="card-forge-back">← ${esc(backLabel)}</button>${short ? '<button class="secondary" data-action="card-melt-mode">Melt for Sparks…</button>' : ''}<button class="primary" data-action="card-confirm-forge" data-rarity="${preview.rarity}" data-token="${esc(preview.token)}" ${!preview.eligible ? "disabled" : ""}>Forge ${legendary ? 'Legendary' : 'Rare'} · ${amount(preview.price)} →</button></footer></section>`;
 }
 export function cardVictoryRecap(run) {
   const reward = getCardReward(run),
@@ -215,7 +209,7 @@ export function cardVictoryRecap(run) {
       reward?.card ||
       run.finalCardReward?.card ||
       run.finalCardTrophy;
-  return `<section class="card-victory-recap"><header class="card-heading"><div><small>THREE GUARDIANS · RUN COMPLETE${flightPackingReceipt(run, reward)}</small><h1>The light returns</h1></div></header><div class="card-winning-hand"><div><h2>Your winning hand</h2><div class="card-recap-row">${getMountedCards(
+  return `<section class="card-victory-recap"><header class="card-heading"><div><small>THREE GUARDIANS · RUN COMPLETE${flightPackingReceipt(run, reward)}</small><h1>The light returns</h1></div></header><div class="card-winning-hand"><div><h2>Your equipped cards</h2><div class="card-recap-row">${getMountedCards(
     run,
   )
     .filter(Boolean)

@@ -28,8 +28,10 @@ test('Collector latches at the one lower hook, tows a connected intact shell, an
       assert.ok(Math.hypot(w.x-hook.x,w.y-hook.y)<1e-8,'interception is the art attachment point');
       assert.equal(e.shatters.length,0);assert.equal(e.deliveries.length,0);latch=true;
     }
+    if(w.phase==='outbound'||w.phase==='rejoining')assert.equal(w.state(e).gripPose,null,'plain Collector approaches and leaves without a growing limb');
     if(p.carried){
       const state=w.state(e),pose=state.cargoPose;
+      assert.equal(state.gripPose?.attached,true,'only the loaded Spark loop gains a filament');
       const hook=pickupHookAnchor(p,state.x+pose.offsetX,state.y+pose.offsetY);
       assert.ok(Math.hypot(state.x-hook.x,state.y-hook.y)<=WISP_TUNING.towLength+.001);
       assert.equal(pose.scale,1,'ordinary cargo retains its full shell');

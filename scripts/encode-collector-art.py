@@ -45,7 +45,7 @@ summary['matched'] = [{k:v for k,v in r.items() if k != 'states'} for r in repor
 (out/'capture-notes.json').write_text(json.dumps(summary, indent=2)+'\n')
 print('Encoded 3 full-app movies, 3 synchronized detail movies and 18 native PNG stills.')
 
-# A short, phone-usable gameplay crop includes approach, living-curl latch,
+# A short, phone-usable gameplay crop includes approach, green-circle latch,
 # intact tow, a real Lift while returning, and physical absorption.
 frames = work/'flat2'
 tow_frames = work/'tow-crops'
@@ -64,4 +64,13 @@ for index in range(count):
     if start+index == 55:
         crop.save(out/'tow-pull.png')
 subprocess.run([encoder, '-hide_banner', '-loglevel', 'error', '-y', '-framerate', str(fps), '-i', str(tow_frames/'%04d.png')]+codec+[str(out/'tow.mp4')], check=True)
-print('Encoded the 3-second actual gameplay curl-and-tow clip and contact/pull stills.')
+print('Encoded the 3-second actual gameplay green-circle-and-tow clip and contact/pull stills.')
+
+# An explicitly staged, full-production-renderer field example. Keep native
+# screenshot pixels: left Spark/learned Flash versus right locked Cache/Dark.
+staged = report['staged']
+image = Image.open(work/'handling-staged.png')
+left = round(staged['playerX']/staged['width']*report['viewport'][0])-96
+top = round(staged['playerY']/staged['height']*report['viewport'][1])-88
+image.crop((left,top,left+256,top+192)).save(out/'handling-native.png')
+print('Saved the labelled staged-example native gameplay crop.')

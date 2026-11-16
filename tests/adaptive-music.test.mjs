@@ -5,17 +5,17 @@ test('music responds to flight pressure, guardians, dreams and pauses',()=>{
  assert.ok(musicMix('flight')[1]>musicMix('menu')[1]);assert.ok(musicMix('boss',1)[2]>musicMix('flight',1)[2]);
  assert.equal(musicMix('dream')[2],0);assert.ok(musicMix('pause')[1]<musicMix('flight')[1]);
 });
-test('black-hole tape slowdown stays shared, pulses lift melodic layers and scenes release it',()=>{
+test('world-rate tape slowdown stays shared, pulses lift melodic layers and scenes release it',()=>{
  const events={},players=[];let tick;
  const document={hidden:false,addEventListener:(key,fn)=>events[key]=fn,removeEventListener(){}};
  class Audio{constructor(){this.currentTime=12;this.paused=true;players.push(this);}play(){this.paused=false;}pause(){this.paused=true;}addEventListener(){}}
  const music=createMusic({document,AudioClass:Audio,storage:{getItem(){},setItem(){}},schedule:fn=>{tick=fn;return 1;},cancel(){}});
  events.pointerdown({});
- const near={flame:100,blackHole:{nearest:{distance:20},rate:100}};
- music.setFlight(near);tick();assert.ok(players[0].playbackRate<1&&players[0].playbackRate>.72);
+ const near={worldRate:.35,flame:100,blackHole:{nearest:{distance:20},rate:100}};
+ music.setFlight(near);tick();assert.equal(players[0].playbackRate,.35);
  for(let i=0;i<120;i++)tick();
  assert.ok(players.every(p=>p.playbackRate===players[0].playbackRate&&p.preservesPitch===false));
- assert.ok(players[0].playbackRate<.721);assert.deepEqual(music.getTransport(),{time:12,rate:players[0].playbackRate,bpm:88});
+ assert.deepEqual(music.getTransport(),{time:12,rate:.35,bpm:88});
  music.setFlight({flame:100});for(let i=0;i<160;i++)tick();const baseline=players.map(p=>p.volume);
  music.setFlight({flame:100,light:{forwardLight:{intensity:1}}});for(let i=0;i<160;i++)tick();
  assert.ok(players[0].volume>baseline[0]);assert.ok(players[2].volume>baseline[2]);assert.ok(players[1].volume<baseline[1]);
@@ -24,8 +24,9 @@ test('black-hole tape slowdown stays shared, pulses lift melodic layers and scen
   assert.deepEqual(musicReactivity({...near,...state,light:{pickupReveal:1}}),{hole:0,pulse:0});
  }
  music.setFlight(near);for(let i=0;i<100;i++)tick();music.setScene('menu');
- const slowed=players[0].playbackRate;tick();assert.ok(players[0].playbackRate>slowed);
- for(let i=0;i<160;i++)tick();assert.ok(players[0].playbackRate>.999);
+ assert.ok(players.every(p=>p.playbackRate===1));
+ // Reactive gain pressure alone never invents another slowdown clock.
+ music.setFlight({...near,worldRate:1});tick();assert.ok(players.every(p=>p.playbackRate===1));
  music.destroy();const rate=players[0].playbackRate;music.setFlight(near);tick();assert.equal(players[0].playbackRate,rate);
 });
 test('three streamed layers ease their gains, mute completely, respect visibility and dispose their timer',()=>{
@@ -59,4 +60,70 @@ test('important effects duck every music stem gently, release slowly and preserv
  music.setFlight({boss:{phase:3},flame:100,audioFocus:1});for(let i=0;i<30;i++)tick();
  music.setScene('boss',1);for(let i=0;i<160;i++)tick();assert.ok(players.every((p,i)=>Math.abs(p.volume-normal[i])<.002));
  assert.ok(players.every(p=>p.playbackRate===1));music.destroy();
+});
+
+test('world transport freezes at zero, resumes the same phase and never assigns an invalid media rate',()=>{
+ const events={},players=[],writes=[];let tick;
+ const document={hidden:false,addEventListener:(key,fn)=>events[key]=fn,removeEventListener(){}};
+ class Audio{
+  constructor(){this.currentTime=12;this.paused=true;this._rate=1;players.push(this);}
+  set playbackRate(value){assert.ok(value>0);writes.push(value);this._rate=value;}
+  get playbackRate(){return this._rate;}
+  play(){this.paused=false;}
+  pause(){this.paused=true;}
+  addEventListener(){}
+ }
+ const music=createMusic({document,AudioClass:Audio,storage:{getItem(){},setItem(){}},schedule:fn=>{tick=fn;return 1;},cancel(){}});
+ const advance=seconds=>{for(const p of players)if(!p.paused)p.currentTime+=seconds*p.playbackRate;};
+ events.pointerdown({});advance(1);
+ music.setFlight({worldRate:.35,flame:100});advance(2);
+ assert.deepEqual(music.getTransport(),{time:13.7,rate:.35,bpm:88});
+ const rateWrites=writes.length;
+ for(let i=0;i<100;i++)music.setFlight({worldRate:.35,flame:100});
+ assert.equal(writes.length,rateWrites,'unchanged snapshots do not touch the media rate');
+ music.setScene('pause');advance(10);tick();
+ assert.deepEqual(music.getTransport(),{time:13.7,rate:0,bpm:88});
+ assert.ok(players.every(p=>p.paused&&p.playbackRate===.35));
+ events.pointerdown({});music.setEnabled(false);music.setEnabled(true);
+ document.hidden=true;events.visibilitychange();document.hidden=false;events.visibilitychange();
+ assert.ok(players.every(p=>p.paused),'gesture, enable and visibility cannot bypass the paused world');
+ music.setFlight({worldRate:.1,flame:100});advance(2);
+ assert.ok(players.every(p=>!p.paused&&Math.abs(p.currentTime-13.9)<1e-10&&p.playbackRate===.1));
+ for(const state of [{paused:true},{tutorialAwaitingLift:true},{dying:true},{completing:true},{finished:true}]){
+  music.setFlight({...state,worldRate:0});const time=music.getTransport().time;advance(3);
+  assert.ok(players.every(p=>p.paused));assert.equal(music.getTransport().time,time);
+  music.setFlight({worldRate:.35});
+ }
+ music.setScene('menu');assert.ok(players.every(p=>p.playbackRate===1&&!p.paused));
+ assert.ok(players.every(p=>Math.abs(p.currentTime-13.9)<1e-10),'scene changes never seek back to a new beat');
+ music.destroy();
+});
+
+test('saved music-off remains silent through world-rate and visibility changes',()=>{
+ const events={},players=[];
+ const document={hidden:false,addEventListener:(key,fn)=>events[key]=fn,removeEventListener(){}};
+ class Audio{constructor(){this.paused=true;players.push(this);}play(){this.paused=false;}pause(){this.paused=true;}addEventListener(){}}
+ const music=createMusic({document,AudioClass:Audio,storage:{getItem:()=> 'false',setItem(){}},schedule:()=>1,cancel(){}});
+ events.pointerdown({});music.setFlight({worldRate:.35});music.setFlight({worldRate:0});music.setFlight({worldRate:1});
+ document.hidden=true;events.visibilitychange();document.hidden=false;events.visibilitychange();music.setScene('menu');
+ assert.equal(music.enabled,false);assert.equal(players.length,0);
+ music.setEnabled(true);assert.equal(players.length,3);assert.ok(players.every(p=>!p.paused));music.destroy();
+});
+
+test('deferred media play cannot restart a stopped world or a destroyed player',async()=>{
+ const events={},players=[],requests=[];
+ const document={hidden:false,addEventListener:(key,fn)=>events[key]=fn,removeEventListener(){}};
+ class Audio{
+  constructor(){this.currentTime=12;this.paused=true;this.events={};players.push(this);}
+  play(){return new Promise(resolve=>requests.push(()=>{this.paused=false;this.events.playing?.();resolve();}));}
+  pause(){this.paused=true;}
+  addEventListener(name,fn){this.events[name]=fn;}
+ }
+ const music=createMusic({document,AudioClass:Audio,storage:{getItem(){},setItem(){}},schedule:()=>1,cancel(){}});
+ events.pointerdown({});music.setFlight({worldRate:0,paused:true});
+ for(const request of requests.splice(0))request();await Promise.resolve();
+ assert.ok(players.every(p=>p.paused));
+ music.setFlight({worldRate:.35});assert.equal(requests.length,3);
+ music.destroy();for(const request of requests.splice(0))request();await Promise.resolve();
+ assert.ok(players.every(p=>p.paused));
 });

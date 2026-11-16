@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import {WispFlight} from '../dist/flight.mjs';
 import {attachDream,validateDreamPreset,dreamFingerprint} from '../dist/dream.mjs';
 import {SKILLS,newState,createRun,getRunModifiers,buyCheckpointSkill} from '../dist/model.mjs';
+import {CARD_SYSTEM,makeSkillCard,getCardModifiers} from '../dist/skill-cards.mjs';
 import {fieldImpulseStrength,fieldImpulseSpeed} from '../dist/collector-impulse.mjs';
 import {updateGlideRegeneration} from '../dist/glide-regeneration.mjs';
 import {createBoundaryInspectorState} from '../dist/boundary-run-inspector.mjs';
@@ -71,6 +72,55 @@ test('active impulses pause unassisted regeneration and preserve recovery fracti
   e.wisp.update(e,.8);const fraction=e.wisp.recoveryFraction();e.applySkillUpgrade({...e.mod,wispCooldown:.6},0);
   assert.ok(Math.abs(e.wisp.recoveryFraction()-fraction)<1e-9);
   e.time=e.fieldImpulse.until;updateGlideRegeneration(e,.1);assert.ok(e.flame>20);
+ }finally{e.destroy();}
+});
+
+test('Dive sustains native descent against wind until expiry; Lift cancels it and terminal limits remain',()=>{
+ const e=flight({modifiers:{collectorFieldImpulse:true,cardFieldSources:2}});
+ try{
+  e.player.y=40;e.player.vy=0;
+  e.gustState=()=>({active:true,direction:-1,force:2000,strength:1,guardian:false});
+  assert.ok(e.activateFieldImpulse('down'));assert.equal(e.fieldImpulse.duration,1.6);
+  const floor=200*e.scaleY;
+  for(let i=0;i<18;i++){
+   e.step(1/60);assert.ok(Math.abs(e.player.vy-floor)<1e-7,'updraft cannot erase an active Dive');
+  }
+  e.time=e.fieldImpulse.until;e.player.vy=0;e.step(1/60);
+  assert.ok(e.player.vy<0,'normal upward wind resumes after expiry');
+  e.fieldImpulse=null;e.wisp.cooldown=0;e.wisp.phase='ready';
+  e.activateFieldImpulse('down');assert.ok(e.flap());assert.equal(e.fieldImpulse,null);assert.ok(e.player.vy<0);
+  e.wisp.cooldown=0;e.wisp.phase='ready';e.player.y=40;e.player.vy=10000;
+  assert.ok(e.activateFieldImpulse('down'));e.step(1/600);
+  assert.ok(e.player.vy<1000*e.scaleY,'normal terminal limit bounds even an extreme descent');
+ }finally{e.destroy();}
+});
+
+test('one swipe notifies once after its row replay and one Wave Loom emission',()=>{
+ const cards=['field-impulse','springboard','wave-loom','refrain'].map((id,i)=>makeSkillCard(id,`once:${i}`));
+ const e=flight({modifiers:{...getCardModifiers({skillSystem:CARD_SYSTEM,mountedCards:cards}),collectorFieldImpulse:true}});
+ try{
+  e.flame=0;let notified=0,cooldownCalls=0;
+  const duration=e.wisp.recoveryDuration.bind(e.wisp);e.wisp.recoveryDuration=(...args)=>{cooldownCalls++;return duration(...args)};
+  e.notify=()=>{notified++;assert.equal(e.luminanceWaves.waves.length,1);assert.equal(e.cardRowTrace.passes,2);};
+  assert.ok(e.activateFieldImpulse('right'));assert.equal(notified,1);assert.equal(cooldownCalls,1);
+  assert.equal(e.activationEvents.events.filter(a=>a.source==='collector-field-impulse').length,1);
+  assert.equal(e.cardRowSequence,1);assert.equal(e.luminanceWaves.waves.length,1);
+  assert.equal(e.activateFieldImpulse('right'),false);assert.equal(notified,1);assert.equal(cooldownCalls,1);
+ }finally{e.destroy();}
+});
+
+test('paused midflight reorder changes the next duration, while removal clears the active impulse',()=>{
+ const modifiers=ids=>getRunModifiers({skillSystem:CARD_SYSTEM,companions:['collector'],skills:{},mountedCards:ids.map((id,i)=>makeSkillCard(id,`live:${id}:${i}`))});
+ const e=flight({modifiers:modifiers(['field-impulse','chameleon'])});
+ try{
+  assert.ok(e.activateFieldImpulse('right'));assert.equal(e.fieldImpulse.duration,.8);
+  e.paused=true;assert.ok(e.reconcileCardLoadout({modifiers:modifiers(['chameleon','field-impulse']),condensedGlow:0}));
+  assert.equal(e.fieldImpulse.duration,.8,'accepted action keeps its original duration');
+  e.paused=false;e.time=e.fieldImpulse.until;e.wisp.phase='ready';e.wisp.cooldown=0;
+  assert.ok(e.activateFieldImpulse('right'));assert.equal(e.fieldImpulse.duration,1.6);
+  e.paused=true;assert.ok(e.reconcileCardLoadout({modifiers:modifiers([]),condensedGlow:0}));
+  assert.equal(e.fieldImpulse,null);assert.equal(fieldImpulseSpeed(e),1);
+  e.paused=false;assert.equal(e.activateFieldImpulse('right'),false);
  }finally{e.destroy();}
 });
 

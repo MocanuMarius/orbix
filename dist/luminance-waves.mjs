@@ -1,5 +1,5 @@
-import {GLOW_DISPLAY_SCALE} from './vitality.mjs?v=skills-cards-2';
-import {pickupKind,pickupShellRadius,isFuelPickup} from './pickups.mjs?v=skills-cards-2';
+import {GLOW_DISPLAY_SCALE} from './vitality.mjs?v=skills-cards-3';
+import {pickupKind,pickupShellRadius,isFuelPickup} from './pickups.mjs?v=skills-cards-3';
 
 export const LUMINANCE_WAVE_TUNING=Object.freeze({speed:360,interval:1,maximumWaves:48,maximumSources:16});
 const finite=(value,fallback)=>Number.isFinite(Number(value))?Number(value):fallback;
@@ -30,7 +30,7 @@ export class LuminanceWaves {
   // One event, one front. Rhythm must not create a periodic reveal source.
   emit({x=0,y=0,radius=145,color='#d9f0dc',reveal=false}={}){
     if(this.waves.length>=LUMINANCE_WAVE_TUNING.maximumWaves&&this.waves.shift().reveal)this.revealCount--;
-    const wave={id:++this.serial,x,y,maximum:Math.max(0,finite(radius,145)),radius:0,previous:0,age:0,emittedAt:finite(this.engine.time,this.clock),color,reveal,seen:new Set(),storedPaid:false};
+    const wave={id:++this.serial,x,y,maximum:Math.max(0,finite(radius,145)),radius:0,previous:0,age:0,emittedAt:finite(this.engine.time,this.clock),color,reveal,seen:new Set(),storedPaid:false,naturalCrossings:0};
     this.waves.push(wave);if(reveal)this.revealCount++;return wave;
   }
   removeSource(id){this.sources.delete(id);}
@@ -71,15 +71,17 @@ export class LuminanceWaves {
     }
     const rank=clamp(Math.floor(Number(e.mod?.resonantHarvest)||0),0,3);
     const cardMeter=Math.max(0,Number(e.mod?.cardHarvestMeter)||0),cardStored=Math.max(0,Math.floor(Number(e.mod?.cardHarvestStoredPerWave)||0));
-    if((rank||cardMeter||cardStored)&&!this.dreaming){
+    const orderedCards=!!(e.cardExecution&&typeof e.resolveCardRowEvent==='function');
+    if(!this.dreaming){
       let hit=false;
       for(const wave of this.waves){
         for(const packet of e.getNearbyPickups?.()||e.layout?.embers||[]){
           if(packet.collected||packet.carried||packet.generated||packet.fetchedInDream||wave.seen.has(packet))continue;
           const kind=pickupKind(packet);
           const bookFuel=rank>0&&(kind==='light'||kind==='cluster'||kind==='cache');
-          const cardFuel=(cardMeter>0||cardStored>0)&&isFuelPickup(packet);
-          if(!bookFuel&&!cardFuel&&!(kind==='dark'&&rank>=2))continue;
+          const naturalFuel=isFuelPickup(packet);
+          const cardFuel=(cardMeter>0||cardStored>0||orderedCards)&&naturalFuel;
+          if(!bookFuel&&!naturalFuel&&!(kind==='dark'&&rank>=2))continue;
           // A wave touches the visible shell, without the extra player-contact
           // padding used for body pickups.
           const rim=pickupShellRadius(packet);
@@ -89,16 +91,30 @@ export class LuminanceWaves {
           if(Math.abs(packet.x-wave.x)>wave.radius+rim||Math.abs(packet.y-wave.y)>wave.radius+rim)continue;
           const distance=Math.hypot(packet.x-wave.x,packet.y-wave.y);
           if(distance-rim>wave.radius||distance+rim<wave.previous||distance-rim>wave.maximum)continue;
-          wave.seen.add(packet);hit=true;
+          wave.seen.add(packet);
+          const firstCrossing=naturalFuel&&wave.naturalCrossings===0;
+          if(naturalFuel)wave.naturalCrossings++;
           if(kind==='dark'){
-            packet.collected=true;packet.purified=true;
+            hit=true;packet.collected=true;packet.purified=true;
             e.burst?.(packet.x-(e.distance||0),packet.y,5,'#c7ead4');
           } else {
-            const gain=Math.min((bookFuel?1/GLOW_DISPLAY_SCALE:0)+(cardFuel?cardMeter:0),Math.max(0,(e.maxFlame||100)-(e.flame||0)));
+            const meterFraction=(e.flame||0)/(e.maxFlame||100);
+            const gain=Math.min((bookFuel?1/GLOW_DISPLAY_SCALE:0)+(cardFuel&&!orderedCards?cardMeter:0),Math.max(0,(e.maxFlame||100)-(e.flame||0)));
             e.flame=(e.flame||0)+gain;e.flameRestored=(e.flameRestored||0)+gain;
             if(bookFuel&&rank>=3)e.resonanceStored=(e.resonanceStored||0)+1;
-            if(cardFuel&&!wave.storedPaid){wave.storedPaid=true;e.resonanceStored=(e.resonanceStored||0)+cardStored;}
-            e.burst?.(screenX,packet.y,3,'#c6ecf2');
+            let cardAction=false;
+            if(cardFuel){
+              if(orderedCards){
+                const action=e.resolveCardRowEvent('wave-crossing',{firstCrossing,pickupKind:kind,
+                  meterFraction,guardRecovering:e.wisp?.phase==='guard-recovery'});
+                cardAction=!!action?.receipt.steps.some(step=>step.success&&['add-sparks','add-last-payout'].includes(step.operation));
+              }else{
+                cardAction=cardMeter>0||(!wave.storedPaid&&cardStored>0);
+                if(!wave.storedPaid)e.resonanceStored=(e.resonanceStored||0)+cardStored;
+              }
+              wave.storedPaid=true;
+            }
+            if(bookFuel||cardAction){hit=true;e.burst?.(screenX,packet.y,3,'#c6ecf2');}
           }
         }
       }

@@ -1,5 +1,5 @@
-import {drawProximityEnergy} from './proximity-energy.mjs?v=skills-cards-2';
-import {obstacleEdgeClearance} from './edging-pulse.mjs?v=skills-cards-2';
+import {drawProximityEnergy} from './proximity-energy.mjs?v=skills-cards-3';
+import {obstacleEdgeClearance} from './edging-pulse.mjs?v=skills-cards-3';
 const clamp=n=>Math.max(0,Math.min(1,Number(n)||0));
 
 export function proximityFill(pulse){

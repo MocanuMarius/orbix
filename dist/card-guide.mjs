@@ -8,18 +8,23 @@ export const CARD_GUIDE_TOPICS = {
     steps: [
       step(
         "Read the pickup mark",
-        "A small curl growing from a pickup’s shell means Collector can fetch it. Collector starts with Sparks and Clusters. It latches onto the curl and tows the intact pickup to your main wisp; Sparks arrive on contact.",
+        "A pickup’s lower shell flows into a small green circle when Collector can fetch it. Collector starts with Sparks and Clusters. It catches the pickup’s circle and tows the intact pickup to your main wisp; Sparks arrive on contact.",
         "collector-range",
       ),
       step(
         "Handling cards",
-        "Mount Cache Handling to fetch Caches, or Flash Handling to fetch white triangles. A Cache delivery restores 12 Sparks and recharges the search ring. Any Flash pickup with Flash Handling also restores up to 6 Sparks.",
+        "Equip Cache Handling to fetch Caches, or Flash Handling to fetch white triangles. A Cache delivery restores 12 Sparks and recharges the search ring. Flash restores up to 6 missing Sparks per equipped or compatible copied Flash Handling source.",
         "collector-return",
       ),
       step(
         "Recovery changes reach",
         "After an ordinary delivery, Collector’s green boundary shrinks and grows back. The pickup marks show its learned handling even while it is recovering or busy.",
         "collector-recovery",
+      ),
+      step(
+        "Field Impulse duration",
+        "Swipe up to float, down to dive, or right to speed up. With a full ring, each equipped or compatible copied Field Impulse adds 0.8 seconds: two sources last 1.6 seconds. A smaller ring scales duration and strength. Extra sources extend time at the same force, and one swipe spends the ring once. Lift ends a float or dive.",
+        "collector-range",
       ),
     ],
   },
@@ -34,28 +39,28 @@ export const CARD_GUIDE_TOPICS = {
       ),
       step(
         "Check what it can fetch",
-        "A small curl growing from the shell shows a fetchable type. Handling cards grow curls on Caches and Flash. Collector tows each pickup to your moving main wisp before it absorbs; recovery changes range, not handling.",
+        "A small green circle below the pickup shows a fetchable type. Handling cards add circles to Caches and Flash. Collector tows each pickup to your moving main wisp before it absorbs; recovery changes range, not handling.",
         "collector-range",
       ),
     ],
   },
   skills: {
-    name: "Your Cards",
+    name: "Deck",
     visual: "skills",
     steps: [
       step(
-        "Three ordered slots",
-        "Cards grant skills while mounted. Start with one Common card and two empty slots. Each cleared real flight offers another card.",
+        "Your deck and slots",
+        "Every earned card stays in your Deck. Equipped cards grant skills in three ordered slots. Start with your chosen Common and the included Lift Guide equipped, leaving one slot free.",
         "skills",
       ),
       step(
-        "Equip or Melt",
-        "Equip free. With full slots, choose the old card to replace and read its Melt value. A Common Melt gives 10 Stored Sparks. Exhausted cards disappear.",
+        "Choose what to equip",
+        "Drag any owned card into an equipped slot, or tap it, choose Equip, then tap a slot. The old card moves to reserve. Moving between equipped slots swaps their cards. Echo and Chameleon read the immediate slot to their right; Echo repeats compatible triggered actions.",
         "forge",
       ),
       step(
-        "Prepare at checkpoints",
-        "Open Cards after flight to reorder or improve. Move left and Move right preview the new effect and shared charges. Improvements spend Stored Sparks, never flight fuel.",
+        "Edit anytime",
+        "Open Deck anytime, including a paused flight, to equip, reorder, unequip, improve or Melt cards. Equip and Improve keep remaining uses; Melt destroys the card and its uses. Close Deck and use the normal resume controls to fly again.",
         "skills",
       ),
     ],
@@ -66,12 +71,12 @@ export const CARD_GUIDE_TOPICS = {
     steps: [
       step(
         "One wallet",
-        "Stored Sparks come from clearing, packing surplus and melting cards. Spend them to improve a mounted card at any checkpoint, or Forge at Rest. Every third natural Spark overfill releases a Luminance wave.",
+        "Stored Sparks come from clearing, packing surplus and melting cards. Spend banked Stored Sparks to improve or Forge any time you open Deck. Every third natural Spark overfill releases a Luminance wave.",
         "packed",
       ),
       step(
         "Read the quote",
-        "A Common Melt gives 10. Forge Rare costs 30 and one camp action. The exact seeded result is shown before you spend.",
+        "A Common Melt gives 10. Forge Rare costs 30; Legendary costs 60 with a Rare equipped. Forge uses no camp action. Review the exact next card, then forge again while you can afford it.",
         "forge",
       ),
     ],
@@ -82,17 +87,17 @@ export const CARD_GUIDE_TOPICS = {
     steps: [
       step(
         "One card per flight",
-        "Every first real flight clear drops one card. Equip it free or Melt it for the printed Stored Sparks. Elite and guardian relics stay separate and passive.",
+        "Every first real flight clear adds one card to your Deck. Keep duplicates and equip cards whenever you choose. Elite and guardian relics stay separate and passive.",
         "clear-reward",
       ),
       step(
-        "Keep a deliberate hand",
-        "Full slots require a deliberate replacement. Read the lost ability, remaining charges and Melt return before choosing. There is no spare-card inventory.",
+        "Select cards to melt",
+        "In Deck, choose Melt cards… and tap the cards you want to destroy. Review the total Stored Sparks and any slots that will become empty, then confirm or cancel.",
         "skills",
       ),
       step(
-        "A winning hand",
-        "The third guardian ends the run. Your final card is recorded as a trophy beside your winning hand.",
+        "A winning deck",
+        "The third guardian ends the run. Your final card is recorded as a trophy beside your equipped cards.",
         "artifact",
       ),
     ],
@@ -103,12 +108,12 @@ export const CARD_GUIDE_TOPICS = {
     steps: [
       step(
         "Choose a camp action",
-        "Recover restores hearts and refills Sparks. Add slot adds capacity without a refill, up to five slots and once per map. Forge spends Stored Sparks and one action.",
+        "Recover restores hearts and refills Sparks. Add slot adds capacity without a refill, up to five slots and once per map. Forge has its own button in Deck and uses no camp action.",
         "rest",
       ),
       step(
         "Growth Seed",
-        "Mount this Rare before arriving to unlock Grow: +3 maximum Sparks and a full meter, without hearts. At most three growths per run.",
+        "Equip this Rare before arriving to unlock Grow: +3 maximum Sparks per original or compatible copied source, with one full refill and no hearts. At most three Grow actions per run.",
         "meter",
       ),
       step(
@@ -133,8 +138,8 @@ export const CARD_GUIDE_TOPICS = {
         "lift",
       ),
       step(
-        "An optional starter",
-        "Lift Guide can appear among the two Common starter offers. Choose it if you want coaching. Ordinary flight rewards offer other cards.",
+        "Lift Guide included",
+        "Every new card journey equips Lift Guide alongside your choice of two other Common cards. Two cards start equipped, with one free slot. Ordinary flight rewards offer other cards.",
         "skills",
       ),
     ],

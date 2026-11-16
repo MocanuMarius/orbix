@@ -11,16 +11,16 @@ function flight(modifiers={},options={}){
     preflight:true,seed:'card-flight-proof',modifiers,...rest});
   engine.running=true;let now=0;
   engine.fourthBeatNow=()=>now;
-  const tap=at=>{now=at;const accepted=engine.beginLiftInput();engine.endLiftInput();return accepted;};
+  const tap=at=>{now=at;if(modifiers.cardRhythm)engine.time=at;const accepted=engine.beginLiftInput();engine.endLiftInput();return accepted;};
   return {engine,tap,clock:at=>{now=at;}};
 }
 const near=(a,b)=>assert.ok(Math.abs(a-b)<1e-7,`${a} != ${b}`);
 
-test('six manual even Lifts, including a real free Lift, emit two consumed Rhythm trios on the input clock',()=>{
+test('six manual even Lifts, including a real free Lift, emit two consumed Rhythm trios on the world clock',()=>{
   const {engine:e,tap}=flight({cardRhythm:true,fourthBeatRank:2});
   const cues=[];e.sound=kind=>cues.push(kind);e.flame=100;
   for(const at of [0,.4,.87,1.3,1.73,2.18])assert.ok(tap(at));
-  assert.equal(e.time,0,'cadence is independent of slowed or stopped simulation');
+  assert.equal(e.time,2.18,'accepted Lifts use the same elapsed world time as flight');
   assert.equal(e.cardRhythm.state.waves,2);assert.equal(e.cardRhythm.state.count,0);
   assert.equal(e.luminanceWaves.waves.length,2);assert.equal(e.luminanceWaves.sources.size,0);
   assert.equal(e.luminanceWaves.revealCount,2);assert.equal(cues.filter(c=>c==='luminance').length,2);

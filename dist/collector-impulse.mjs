@@ -18,8 +18,11 @@ export function activateFieldImpulse(engine,direction){
   if(!['up','down','right'].includes(direction))return false;
   const strength=fieldImpulseStrength(engine);
   if(!strength)return false;
-  const duration=FIELD_IMPULSE_TUNING.duration*strength;
-  engine.fieldImpulse={direction,strength,startedAt:engine.time,until:engine.time+duration,targetY:engine.player.y};
+  const sources=clamp(Math.floor(Number(engine.mod.cardFieldSources)||Number(engine.mod.cardFieldMultiplier)||1),1,9);
+  // Every effective source adds one base duration. Physics still runs once at
+  // its native ring-scaled strength, with one ring spend and one recovery.
+  const duration=FIELD_IMPULSE_TUNING.duration*strength*sources;
+  engine.fieldImpulse={direction,strength,sources,multiplier:sources,duration,startedAt:engine.time,until:engine.time+duration,targetY:engine.player.y};
   const wisp=engine.wisp;
   wisp.phase='cooldown';wisp.cooldownMax=wisp.cooldown=wisp.recoveryDuration(engine);
   wisp.contacts.length=0;wisp.contactTimes.clear();
@@ -27,16 +30,24 @@ export function activateFieldImpulse(engine,direction){
   engine.lastHintInputTime=engine.time;
   if(direction==='up')engine.player.vy*=1-strength;
   else if(direction==='down')engine.player.vy=Math.max(engine.player.vy,FIELD_IMPULSE_TUNING.dive*strength*engine.scaleY);
-  engine.activation('collector-field-impulse',{outcome:{direction,duration,strength}});
-  engine.setEvent(`Field Impulse · ${direction==='up'?'levitate':direction==='down'?'dive':'surge'}`);
+  engine.activation('collector-field-impulse',{outcome:{direction,duration,strength,sources,multiplier:sources}});
+  engine.setEvent(`Field Impulse · ${direction==='up'?'levitate':direction==='down'?'dive':'surge'} · ${Number(duration.toFixed(2))}s`);
   engine.burst(engine.player.x,engine.player.y,5,'#b9dfa0');
-  engine.sound('boost');engine.notify();
+  engine.sound('boost');
   return true;
 }
 
 export function fieldImpulseSpeed(engine){
   const impulse=engine.fieldImpulse;
   return impulse?.direction==='right'&&impulse.until>engine.time?1+FIELD_IMPULSE_TUNING.surge*impulse.strength:1;
+}
+
+// Apply after all wind/other acceleration and before the normal terminal clamp.
+// This keeps Dive useful throughout its duration without amplifying its force.
+export function fieldImpulseVelocity(engine,velocity){
+  const impulse=engine.fieldImpulse;
+  return impulse?.direction==='down'&&impulse.until>engine.time
+    ?Math.max(velocity,FIELD_IMPULSE_TUNING.dive*impulse.strength*engine.scaleY):velocity;
 }
 
 export function fieldImpulseGravity(engine,gravity){

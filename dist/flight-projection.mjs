@@ -1,8 +1,8 @@
-import {bellwindAcceleration} from './atlas-flight.mjs?v=skills-cards-2';
-import {DraftField,DRAFT_TUNING} from './drafts.mjs?v=skills-cards-2';
-import {lightVisibility} from './light-field.mjs?v=skills-cards-2';
-import {isFuelPickup,pickupContactRadius} from './pickups.mjs?v=skills-cards-2';
-import {obstacleEdgeClearance} from './edging-pulse.mjs?v=skills-cards-2';
+import {bellwindAcceleration} from './atlas-flight.mjs?v=skills-cards-3';
+import {DraftField,DRAFT_TUNING} from './drafts.mjs?v=skills-cards-3';
+import {lightVisibility} from './light-field.mjs?v=skills-cards-3';
+import {isFuelPickup,pickupContactRadius} from './pickups.mjs?v=skills-cards-3';
+import {obstacleEdgeClearance} from './edging-pulse.mjs?v=skills-cards-3';
 const clamp=(n,a,b)=>Math.max(a,Math.min(b,n)),DT=1/60;
 export const PROJECTION_HORIZONS=Object.freeze([0,.7,1.2,1.8]);
 
@@ -97,7 +97,7 @@ export class FlightProjection {
     // Contact-driven scenery changes after a choice; do not promise a path
     // through a pod, falling shard or switch that has not been resolved yet.
     const interactiveEdge=e.biomeDynamics?.forecastBoundary(startX,maxX)??Infinity;
-    let contact=false,exit=false,uncertain=false,tapIndex=0,ceilingContact=null;
+    let contact=false,exit=false,uncertain=false,tapIndex=0,ceilingContact=null,contactKind=null;
     for(let step=1;step<=Math.round(horizon/DT);step++){
       const previous={x,y,time};time+=DT;
       if(tapIndex<taps.length&&time-e.time>=taps[tapIndex]){vy=-this.tuning.flapImpulse*s*clamp(Number(e.mod.flap)||1,.8,1.2);tapIndex++;}
@@ -121,6 +121,8 @@ export class FlightProjection {
       if(collides(x,y,time)){
         let lo=0,hi=1;
         for(let i=0;i<5;i++){const m=(lo+hi)/2;if(collides(previous.x+(x-previous.x)*m,previous.y+(y-previous.y)*m,previous.time+DT*m))hi=m;else lo=m;}
+        const touchY=previous.y+(y-previous.y)*hi;
+        contactKind=touchY-e.player.radius>e.height?'lower-boundary':touchY+e.player.radius<0?'upper-boundary':'terrain';
         // Locate the solid surface itself, rather than painting the wisp's
         // centre or treating open sky at the viewport edge as a ceiling.
         if(vy<0){
@@ -137,7 +139,7 @@ export class FlightProjection {
       if(step%3===0||contact||exit||step===Math.round(horizon/DT))points.push({x,y,time});
       if(contact||exit||x-e.distance>e.width+20)break;
     }
-    return {rank,horizon,at:e.time,points,contact,exit,uncertain,ceilingContact};
+    return {rank,horizon,at:e.time,points,contact,exit,uncertain,ceilingContact,contactKind};
   }
 }
 
@@ -166,6 +168,17 @@ export class LiftGuide {
     if(!path||path.uncertain||path.exit)return false;
     return path.points.every(p=>p.y>e.player.radius+5&&p.y<e.height-e.player.radius-5
       &&p.x-e.distance<e.width-8&&lightVisibility(e,light,p.x-e.distance,p.y,e.player.y)>.14);
+  }
+  visibleCoast(e,path,light){
+    if(path?.contactKind!=='lower-boundary')return this.visible(e,path,light);
+    // The screen edge is already known. Judge the visible falling approach,
+    // while every proposed rescue still needs a fully visible, safe forecast.
+    const points=[];
+    for(const point of path.points){
+      if(point.y>=e.height-e.player.radius-5)break;
+      points.push(point);
+    }
+    return points.length>1&&this.visible(e,{...path,points},light);
   }
   forecast(e,delay){this.projections++;return this.projection.predict(e,2,delay===null?[]:[Math.max(0,delay)]);}
   read(e,{loan=false}={}){
@@ -198,7 +211,7 @@ export class LiftGuide {
     // The extra clearance and timing checks leave room for a human response.
     const preview=Object.create(e);preview.player={...e.player,radius:e.player.radius+LIFT_GUIDE_TUNING.humanClearance};
     const coast=this.forecast(preview,null);
-    if(!coast.contact||!this.visible(e,coast,light))return null;
+    if(!coast.contact||!this.visibleCoast(e,coast,light))return null;
     const start=e.distance+e.player.x,coastDistance=coast.points.at(-1).x-start;
     let best=null;
     for(const delay of LIFT_GUIDE_TUNING.delays){

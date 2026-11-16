@@ -52,6 +52,19 @@ test('FX opens one context only on unlock and allocates no graph during state up
   assert.equal(await fx.unlock(),false);
 });
 
+test('FX follows world varispeed pitch while keeping harmony on the intrinsic media clock',async()=>{
+  const h=audioHarness(),fx=createFlightFX({AudioContextClass:h.AudioContext});await fx.unlock();
+  const context=h.contexts[0],count=h.nodes.length;
+  const pitches=()=>h.nodes.filter(node=>node.kind==='oscillator'&&node.frequency.targets.length).map(node=>node.frequency.targets.at(-1));
+  context.currentTime=.1;fx.setState({transport:{time:12,rate:1,bpm:88}});const normal=pitches();
+  for(const rate of [.35,.1]){
+    context.currentTime+=.1;fx.setState({transport:{time:12,rate,bpm:88}});
+    const slowed=pitches();assert.equal(slowed.length,normal.length);
+    slowed.forEach((pitch,i)=>assert.ok(Math.abs(pitch-normal[i]*rate)<1e-10));
+  }
+  assert.equal(h.nodes.length,count,'rate changes reuse the existing ambient graph');fx.destroy();
+});
+
 test('FX bounds event overlap, releases completed voices and silences pause and mute',async()=>{
   const h=audioHarness(),fx=createFlightFX({AudioContextClass:h.AudioContext});
   await fx.unlock();

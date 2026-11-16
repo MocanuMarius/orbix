@@ -1,4 +1,4 @@
-import {sparkSymbolArt} from './spark-symbol.mjs?v=skills-cards-2';
+import {sparkGlyphArt} from './spark-symbol.mjs?v=skills-cards-3';
 
 // The case and latch identify savings even when the icon is only 16 pixels wide.
 export const formatCondensedGlow = value => String(Math.max(0, Math.floor(Number(value) || 0)));
@@ -12,7 +12,7 @@ export function condensedIconMarkup() {
     <path fill="#fff0bf" d="M7 5h18v1H7zm6 5h6v1h-6zm1 1h4v3h-4z"/>
     <path fill="#708f8e" d="M9 14h14v10H9z"/>
     <path fill="#314950" d="M10 15h12v8H10z"/>
-    ${sparkSymbolArt(10, 13, 12)}
+    ${sparkGlyphArt(10, 13, 12)}
     <path fill="#684d3d" d="M26 13h2v13H7v-1h19z"/>
     <path fill="#ccd4b2" d="M5 15h1v1H5zm0 7h1v1H5zm19-7h1v1h-1zm0 7h1v1h-1z"/>
   </svg>`;

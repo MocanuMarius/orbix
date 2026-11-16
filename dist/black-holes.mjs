@@ -1,7 +1,7 @@
-import {moonDrainScale} from './atlas-flight.mjs?v=skills-cards-2';
-import {inLanternRoom} from './lantern-layout.mjs?v=skills-cards-2';
-import { obstacleEdgeClearance } from './edging-pulse.mjs?v=skills-cards-2';
-import { sparkBodyRadius } from './spark-size.mjs?v=skills-cards-2';
+import {moonDrainScale} from './atlas-flight.mjs?v=skills-cards-3';
+import {inLanternRoom} from './lantern-layout.mjs?v=skills-cards-3';
+import { obstacleEdgeClearance } from './edging-pulse.mjs?v=skills-cards-3';
+import { sparkBodyRadius } from './spark-size.mjs?v=skills-cards-3';
 
 // Rates are internal flight Sparks. The HUD displays 0.3 of these units.
 // At 2.5× the old drain the core can empty a fresh meter in a quarter second.
@@ -23,6 +23,14 @@ export function blackHoleDrainRate(distance, influence = BLACK_HOLE_TUNING.influ
   const t = coreRadius > BLACK_HOLE_TUNING.coreRadius ? GIANT_BLACK_HOLE_TUNING : BLACK_HOLE_TUNING;
   const d = Math.max(0, distance), soft = t.softening ** 2;
   return clamp(t.coefficient * (1 / (d * d + soft) - 1 / (influence * influence + soft)), 0, t.maximumRate);
+}
+
+// Geometry alone slows the world: an empty Spark meter cannot release it.
+// Each hole's own core and influence give normal and Giant holes the same curve.
+export function blackHoleTimeScale(distance, influence = BLACK_HOLE_TUNING.influence, coreRadius = BLACK_HOLE_TUNING.coreRadius) {
+  if (!Number.isFinite(distance) || !(influence > coreRadius)) return 1;
+  const p = clamp((influence - distance) / (influence - coreRadius), 0, 1);
+  return 1 - .65 * p * p * (3 - 2 * p);
 }
 
 // Placement is validated at the shortest supported viewport. Resizing only
@@ -206,21 +214,21 @@ export class BlackHoles {
       if(Math.hypot(p.x-hole.x,p.y-hole.y)<150&&p.x>=hole.bypass.startX&&p.x<=hole.bypass.endX){p.y=hole.bypass.y;p.accessible=true;p.blackHoleBypass=true;}
       }
     }
-    this.active = false; this.rate = 0; this.potentialRate = 0; this.drained = 0; this.nearest = null;
+    this.active = false; this.rate = 0; this.potentialRate = 0; this.drained = 0; this.nearest = null; this.timeScale = 1;
     this._activeItems = [];
   }
   get live() {
     const e = this.engine;
-    return e.running && e.alive && !e.finished && !e.destroyed && !e.dying && !e.completing && !e.tutorialAwaitingLift;
+    return e.running && !e.paused && e.alive && !e.finished && !e.destroyed && !e.dying && !e.completing && !e.tutorialAwaitingLift;
   }
   get state() {
     return { active: this.live && this.active, rate: this.live ? this.rate : 0,
-      potentialRate: this.live ? this.potentialRate : 0, drained: this.drained,
+      potentialRate: this.live ? this.potentialRate : 0, drained: this.drained, timeScale: this.live ? this.timeScale : 1,
       nearest: this.nearest ? { ...this.nearest } : null };
   }
   stop() {
     for (const item of this._activeItems) item.rate = item.potentialRate = item.frameDrained = 0;
-    this._activeItems.length = 0; this.active = false; this.rate = this.potentialRate = 0; this.nearest = null;
+    this._activeItems.length = 0; this.active = false; this.rate = this.potentialRate = 0; this.nearest = null; this.timeScale = 1;
   }
   resize(factor) {
     for (const item of this.items) {
@@ -232,9 +240,8 @@ export class BlackHoles {
   }
   update(dt) {
     const e = this.engine;
-    if (e.paused || !(dt > 0) || !Number.isFinite(dt)) return;
     this.stop();
-    if (!this.live) return;
+    if (!this.live || !(dt >= 0) || !Number.isFinite(dt)) return;
     const worldX = e.distance + e.player.x;
     // Sorted X and a monotonic cursor avoid scanning the rest of a long map.
     while (this.cursor < this.items.length && this.items[this.cursor].x + this.items[this.cursor].influence < worldX) this.cursor++;
@@ -243,6 +250,9 @@ export class BlackHoles {
       if (dx > item.influence) break;
       const distance = Math.hypot(dx, item.y - e.player.y);
       if (!this.nearest || distance < this.nearest.distance) this.nearest = { id: item.id, distance };
+      this.timeScale = Math.min(this.timeScale, blackHoleTimeScale(distance, item.influence, item.coreRadius));
+      // Start/resume may sample geometry without debiting or simulating a step.
+      if (dt === 0) continue;
       item.potentialRate = blackHoleDrainRate(distance, item.influence, item.coreRadius) * (e.flightBoon?.drainScale ?? 1) * moonDrainScale(e,item);
       if (!(item.potentialRate > 0)) continue;
       this._activeItems.push(item); this.active = true; this.potentialRate += item.potentialRate;

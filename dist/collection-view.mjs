@@ -1,8 +1,8 @@
-import {ARTIFACTS,getArtifactSalvageValue,canSellArtifact} from './model.mjs?v=skills-cards-2';
-import {artifactDescription,effectMarkup} from './artifact-copy.mjs?v=skills-cards-2';
-import {artifactIcon} from './upgrade-icons.mjs?v=skills-cards-2';
-import {artifactRarityLabel} from './replay-ui.mjs?v=skills-cards-2';
-import {resourceSymbol} from './game-symbols.mjs?v=skills-cards-2';
+import {ARTIFACTS,getArtifactSalvageValue,canSellArtifact} from './model.mjs?v=skills-cards-3';
+import {artifactDescription,effectMarkup} from './artifact-copy.mjs?v=skills-cards-3';
+import {artifactIcon} from './upgrade-icons.mjs?v=skills-cards-3';
+import {artifactRarityLabel} from './replay-ui.mjs?v=skills-cards-3';
+import {resourceSymbol} from './game-symbols.mjs?v=skills-cards-3';
 
 export const COLLECTION_PAGE_SIZE=6;
 const esc=value=>String(value??'').replace(/[&<>"']/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));

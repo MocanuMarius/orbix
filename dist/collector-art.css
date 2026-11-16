@@ -2,3 +2,5 @@
 .handling-note .moments{margin-top:12px}.handling-note img{display:block;width:100%;height:auto;image-rendering:pixelated;margin-top:10px;border:1px solid #35513c;border-radius:6px}
 
 .tow-section{scroll-margin-top:12px}.tow-stage{display:flex;justify-content:center;background:#07100d;border:1px solid #324d3a;border-radius:9px;overflow:hidden;margin-top:12px}.tow-stage video{width:512px;max-width:100%;height:auto;image-rendering:pixelated}
+
+.handling-example{margin:14px 0 0;text-align:center}.handling-example img{display:block;width:256px;max-width:100%;height:auto;margin:0 auto;image-rendering:pixelated;outline:1px solid #324d3a}.handling-example figcaption{font-size:11px;line-height:1.6;max-width:440px;color:#a6bda6;margin:8px auto 14px}

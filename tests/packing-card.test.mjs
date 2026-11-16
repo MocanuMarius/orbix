@@ -72,18 +72,18 @@ test('eligible overflow plus independent exit reserve is capped first; flat inco
  clear(flat,{flame:0,condensedGlow:0,storageBonus:100,resonanceStored:7});
  assert.equal(flat.run.lastFlight.resonanceStored,7);assert.equal(flat.run.lastFlight.cardPackingBonus,0);
  const wallet=flat.run.condensedGlow;
- assert.ok(M.chooseCardReward(flat,'melt'));assert.ok(flat.run.condensedGlow>wallet);
+ assert.ok(M.meltOwnedCards(flat,[flat.run.cardReward.card.instanceId]));assert.ok(flat.run.condensedGlow>wallet);
  assert.equal(flat.run.cardPackingRemainder,0);
  const standard=M.newState();standard.run=M.createRun(standard.profile,'packing-standard');
  clear(standard,{condensedGlow:8});assert.equal(standard.run.lastFlight.cardPackingBonus,undefined);
 });
 
-test('genuine copies and Chameleon add percentage points; Echo has no passive action',()=>{
+test('genuine copies, Chameleon and Echo add packing percentage points once',()=>{
  const state=fresh(),run=state.run;
  mount(run,['chameleon','tight-packing','tight-packing','echo','tight-packing']);
- assert.equal(getCardModifiers(run).cardPackingSources,4);
- assert.equal(getMountedCards(run)[3].copyPreview,'No activation to repeat');
- clear(state,{condensedGlow:4});assert.equal(run.lastFlight.cardPackingBonus,4);
+ assert.equal(getCardModifiers(run).cardPackingSources,5);
+ assert.equal(getMountedCards(run)[3].copyPreview,'Repeats +25% packing · extras do not earn extras');
+ clear(state,{condensedGlow:4});assert.equal(run.lastFlight.cardPackingBonus,5);
  assert.equal(SKILL_CARDS['tight-packing'].maxRank,1);
  assert.deepEqual(getCardPackingBonus(4,1),{amount:1,remainder:0});
  assert.deepEqual(getCardPackingBonus(8,1),{amount:2,remainder:0});
@@ -115,8 +115,14 @@ test('Common starter/drop pools include Tight Packing and its clear UI receipt n
  assert.ok(starter);assert.ok(drop);
  const state=fresh();clear(state,{condensedGlow:4});
  const packing=describeSkillCard(makeSkillCard('tight-packing','art'));
- assert.match(cardArt(packing),/viewBox="0 0 120 180"/);
- assert.match(cardMechanicMarkup(packing),/25%/);
+ const art=cardArt(packing);
+ assert.match(art,/data-card-art="tight-packing"/);
+ assert.match(art,/<image href="\.\/assets\/cards\/skill-card-scenes\.webp"/);
+ assert.match(art,/aria-label="[^"]*press[^"]*"/);
+ const rule=cardMechanicMarkup(packing);
+ assert.match(rule.replace(/<[^>]*>/g,'').replace(/\s+/g,' '),/For every 4 (?:Stored Sparks )?you pack:?\+1/);
+ assert.equal((rule.match(/resource-symbol-packed/g)||[]).length,2);
+ assert.doesNotMatch(rule,/resource-symbol-energy/);
  assert.match(cardRewardMarkup(state.run),/Tight Packing \+1 Stored Sparks/);
  state.run.cardReward.source='forge';assert.doesNotMatch(cardRewardMarkup(state.run),/Tight Packing \+1 Stored Sparks/);
  state.run.lastFlight.elite=true;

@@ -1,39 +1,39 @@
-import {collectorPreference,learnedCollectorPreferences} from './collector-preferences.mjs?v=skills-cards-2';
-import {CARD_SYSTEM,CARD_ECONOMY,SKILL_CARDS,isCardRun,makeSkillCard,cleanCardRun,getCardStarterOffers,drawSkillCard,describeSkillCard,getMountedCards,getCardMeltValue,getCardModifiers,getCardPackingBonus,commitCardCharges,recordCardEvent} from './skill-cards.mjs?v=skills-cards-2';
-export {CARD_SYSTEM,CARD_ECONOMY,SKILL_CARDS,isCardRun,getMountedCards,getCardMeltValue,commitCardCharges} from './skill-cards.mjs?v=skills-cards-2';
-import {FLIGHT_PACTS,pactOffers,activeFlightPact,pactBonus} from './flight-pacts.mjs?v=skills-cards-2';
-import {chestRewardPair} from './chest-rewards.mjs?v=skills-cards-2';
-import {STARTING_GIFTS,STARTING_SKILL_COST_LIMIT} from './starting-gifts.mjs?v=skills-cards-2';
-import {EVENT_EDITION,eventChoices,rollPrism} from './event-choices.mjs?v=skills-cards-2';
-import {GUARDIAN_RELICS} from './guardian-artifacts.mjs?v=skills-cards-2';
-import {ATLAS_FORECASTS,atlasBranches} from './night-atlas.mjs?v=skills-cards-2';
-import {getRouteBonus,awardRouteBonus} from './route-bonuses.mjs?v=skills-cards-2';
-export {getRouteBonus,getRouteBonusCandidates,nextBonusFlightNodes} from './route-bonuses.mjs?v=skills-cards-2';
-import {consolidateSkills,refundRetiredSkills} from './skill-consolidation.mjs?v=skills-cards-2';
-import {PROXIMITY_SKILLS} from './proximity-skills.mjs?v=skills-cards-2';
-import {getGuardianForMap,getBossPreview} from './boss.mjs?v=skills-cards-2';
-import {guardianMapTheme} from './map-theme.mjs?v=skills-cards-2';
-import {getFlightLengthProfile} from './level-length.mjs?v=skills-cards-2';
-import {cleanOnboarding,markOnboardingSeen} from './onboarding.mjs?v=skills-cards-2';
-import {CONDENSED_TUNING,getCondensationRules,condenseGlow,getKeptLightDividend,getFlightPackingLimit,packExitReserve} from './condensed-glow.mjs?v=skills-cards-2';
-import {CONSUMABLE_ARTIFACTS,EVOLVING_ARTIFACTS,getArtifactStackPreview} from './artifact-info.mjs?v=skills-cards-2';
-import {getFlightClearReward} from './checkpoint-rewards.mjs?v=skills-cards-2';
-export {getCondensationRules} from './condensed-glow.mjs?v=skills-cards-2';
-import {ROUTE_RECIPES,ROUTE_TOPOLOGY_VERSION,MAP_STOP_COUNT,REWARD_THEMES,nodeEconomy} from './route-recipes.mjs?v=skills-cards-2';
-import {COMPANION_ABILITIES,getCompanionUnlock,normalizeCompanionFleet} from './companion-abilities.mjs?v=skills-cards-2';
-import {MAIN_TUNING_SKILLS} from './main-tuning.mjs?v=skills-cards-2';
-import {activePassageBoons,activeEventFavors,grantEventFavor,spendPreparationClear} from './passage-preparations.mjs?v=skills-cards-2';
-import {STARTING_CONDENSED_GLOW,getGlowCapacity,getRestGlowBonus,REST_GLOW_TUNING,glowText} from './vitality.mjs?v=skills-cards-2';
-import {expandSkillSteps,skillProgress} from './skill-increments.mjs?v=skills-cards-2';
-import {MAX_ASCENSION} from './ascent.mjs?v=skills-cards-2';
-import {EXPANDED_SKILLS,applyExpandedSkills} from './skill-paths.mjs?v=skills-cards-2';
+import {collectorPreference,learnedCollectorPreferences} from './collector-preferences.mjs?v=skills-cards-3';
+import {CARD_SYSTEM,CARD_ECONOMY,SKILL_CARDS,isCardRun,makeSkillCard,cleanCardRun,settleCardReward,getCardStarterOffers,drawSkillCard,describeSkillCard,getMountedCards,getOwnedCards,getReserveCards,getCardMeltValue,getCardModifiers,getCardPackingBonus,getCardGrowthUses,getCardGrowthBonus,commitCardCharges,recordCardEvent} from './skill-cards.mjs?v=skills-cards-3';
+export {CARD_SYSTEM,CARD_ECONOMY,SKILL_CARDS,isCardRun,getMountedCards,getOwnedCards,getReserveCards,getCardMeltValue,commitCardCharges} from './skill-cards.mjs?v=skills-cards-3';
+import {FLIGHT_PACTS,pactOffers,activeFlightPact,pactBonus} from './flight-pacts.mjs?v=skills-cards-3';
+import {chestRewardPair} from './chest-rewards.mjs?v=skills-cards-3';
+import {STARTING_GIFTS,STARTING_SKILL_COST_LIMIT} from './starting-gifts.mjs?v=skills-cards-3';
+import {EVENT_EDITION,eventChoices,rollPrism} from './event-choices.mjs?v=skills-cards-3';
+import {GUARDIAN_RELICS} from './guardian-artifacts.mjs?v=skills-cards-3';
+import {ATLAS_FORECASTS,atlasBranches} from './night-atlas.mjs?v=skills-cards-3';
+import {getRouteBonus,awardRouteBonus} from './route-bonuses.mjs?v=skills-cards-3';
+export {getRouteBonus,getRouteBonusCandidates,nextBonusFlightNodes} from './route-bonuses.mjs?v=skills-cards-3';
+import {consolidateSkills,refundRetiredSkills} from './skill-consolidation.mjs?v=skills-cards-3';
+import {PROXIMITY_SKILLS} from './proximity-skills.mjs?v=skills-cards-3';
+import {getGuardianForMap,getBossPreview} from './boss.mjs?v=skills-cards-3';
+import {guardianMapTheme} from './map-theme.mjs?v=skills-cards-3';
+import {getFlightLengthProfile} from './level-length.mjs?v=skills-cards-3';
+import {cleanOnboarding,markOnboardingSeen} from './onboarding.mjs?v=skills-cards-3';
+import {CONDENSED_TUNING,getCondensationRules,condenseGlow,getKeptLightDividend,getFlightPackingLimit,packExitReserve} from './condensed-glow.mjs?v=skills-cards-3';
+import {CONSUMABLE_ARTIFACTS,EVOLVING_ARTIFACTS,getArtifactStackPreview} from './artifact-info.mjs?v=skills-cards-3';
+import {getFlightClearReward} from './checkpoint-rewards.mjs?v=skills-cards-3';
+export {getCondensationRules} from './condensed-glow.mjs?v=skills-cards-3';
+import {ROUTE_RECIPES,ROUTE_TOPOLOGY_VERSION,MAP_STOP_COUNT,REWARD_THEMES,nodeEconomy} from './route-recipes.mjs?v=skills-cards-3';
+import {COMPANION_ABILITIES,getCompanionUnlock,normalizeCompanionFleet} from './companion-abilities.mjs?v=skills-cards-3';
+import {MAIN_TUNING_SKILLS} from './main-tuning.mjs?v=skills-cards-3';
+import {activePassageBoons,activeEventFavors,grantEventFavor,spendPreparationClear} from './passage-preparations.mjs?v=skills-cards-3';
+import {STARTING_CONDENSED_GLOW,getGlowCapacity,getRestGlowBonus,REST_GLOW_TUNING,glowText} from './vitality.mjs?v=skills-cards-3';
+import {expandSkillSteps,skillProgress} from './skill-increments.mjs?v=skills-cards-3';
+import {MAX_ASCENSION} from './ascent.mjs?v=skills-cards-3';
+import {EXPANDED_SKILLS,applyExpandedSkills} from './skill-paths.mjs?v=skills-cards-3';
 /** Run-owned skills and currency; persistent ascension unlocks and boss artifacts. */
-import { FLAME_TUNING, LIFE_TUNING, getLifeCapacity } from './vitality.mjs?v=skills-cards-2';
-import { getBiomeLevelIdentity } from './level-catalog.mjs?v=skills-cards-2';
-import { BIOMES } from './biomes.mjs?v=skills-cards-2';
-import { EVENT_SCENARIOS } from './map-guide.mjs?v=skills-cards-2';
-import {contextualEventChoices,resolvePilgrimVow,ROUTE_PREPARATION} from './contextual-events.mjs?v=skills-cards-2';
-import {TREASURE_KINDS, describeTreasure, treasureChoices, treasureRank, grantTreasureGift, treasureClearDividend, LENS_SIGHT, LENS_RECOVERY, settleTreasureWager} from './treasure.mjs?v=skills-cards-2';
+import { FLAME_TUNING, LIFE_TUNING, getLifeCapacity } from './vitality.mjs?v=skills-cards-3';
+import { getBiomeLevelIdentity } from './level-catalog.mjs?v=skills-cards-3';
+import { BIOMES } from './biomes.mjs?v=skills-cards-3';
+import { EVENT_SCENARIOS } from './map-guide.mjs?v=skills-cards-3';
+import {contextualEventChoices,resolvePilgrimVow,ROUTE_PREPARATION} from './contextual-events.mjs?v=skills-cards-3';
+import {TREASURE_KINDS, describeTreasure, treasureChoices, treasureRank, grantTreasureGift, treasureClearDividend, LENS_SIGHT, LENS_RECOVERY, settleTreasureWager} from './treasure.mjs?v=skills-cards-3';
 export const SAVE_KEY='wispbound.save.condensed.v7';
 export const CAMPAIGN_MAP_NAMES=Object.freeze(['The Forgotten Verge','The Rootbound March','The Warden’s Reach']);
 export const TERRAINS=Object.freeze({ruins:{id:'ruins',name:'Sunken Ruins',color:'#cdb183',description:'Broken homes, worn arches and overgrown stone.'},canopy:{id:'canopy',name:'Luminous Canopy',color:'#94b48a',description:'Hollow trees, hanging roots and sheltered forest passages.'},storm:{id:'storm',name:'Stormglass Peaks',color:'#a8bbca',description:'Pine ridges, old mine timbers and local draft puffs.'}});
@@ -374,7 +374,7 @@ function makeMap(seed,mapIndex,difficulty,cards=false){
 }
 export function createRun(profile=newState().profile,seed=freshSeed(),difficulty,options={}){
   const p=cleanProfile(profile),selected=Number(difficulty),tier=clamp(Number.isFinite(selected)?Math.floor(selected):p.difficulty,1,p.difficulty),campaignSeed=String(seed),mapSeed=`${campaignSeed}|tier:${tier}|map:0`;
-  return{id:`${campaignSeed}-${freshSeed()}`,campaignSeed,seed:mapSeed,atlasEligible:p.stats.wins>0,mapIndex:0,mapName:CAMPAIGN_MAP_NAMES[0],difficulty:tier,unlockedCompanionDifficulty:p.difficulty,map:makeMap(mapSeed,0,tier,options.cards===true),step:0,path:[],current:null,phase:'map',companions:['collector'],companionRole:'collector',artifactSystem:2,seenArtifacts:[],artifacts:[],artifactCharges:{},skills:{},skillPaid:{},startingSkill:null,lives:LIFE_TUNING.lives,maxLives:LIFE_TUNING.lives,flame:FLAME_TUNING.starting,restGlowCapacity:0,condensedGlow:STARTING_CONDENSED_GLOW,pendingCondensedGlow:0,securedCondensedGlow:0,pendingRewards:[],condensedRemainder:0,condensedEarned:0,condensationJustUnlocked:false,restReady:false,restVisits:[],lastRest:null,attemptActive:false,attemptEntry:null,success:false,banked:false,bossDefeated:false,bossProgressSecured:false,mapHistory:[],mapFlights:0,...(options.cards===true?{skillSystem:CARD_SYSTEM,cardSlots:3,mountedCards:[null,null,null],cardHistory:[],cardRewardedNodes:[],cardSlotMaps:[]}:{}),stats:{flights:0,attempts:0,deaths:0,collected:0,elites:0,events:0,challenges:0}};
+  return{id:`${campaignSeed}-${freshSeed()}`,campaignSeed,seed:mapSeed,atlasEligible:p.stats.wins>0,mapIndex:0,mapName:CAMPAIGN_MAP_NAMES[0],difficulty:tier,unlockedCompanionDifficulty:p.difficulty,map:makeMap(mapSeed,0,tier,options.cards===true),step:0,path:[],current:null,phase:'map',companions:['collector'],companionRole:'collector',artifactSystem:2,seenArtifacts:[],artifacts:[],artifactCharges:{},skills:{},skillPaid:{},startingSkill:null,lives:LIFE_TUNING.lives,maxLives:LIFE_TUNING.lives,flame:FLAME_TUNING.starting,restGlowCapacity:0,condensedGlow:STARTING_CONDENSED_GLOW,pendingCondensedGlow:0,securedCondensedGlow:0,pendingRewards:[],condensedRemainder:0,condensedEarned:0,condensationJustUnlocked:false,restReady:false,restVisits:[],lastRest:null,attemptActive:false,attemptEntry:null,success:false,banked:false,bossDefeated:false,bossProgressSecured:false,mapHistory:[],mapFlights:0,...(options.cards===true?{skillSystem:CARD_SYSTEM,cardStarterVersion:2,cardGrowUses:0,cardGrowCapacity:0,cardSlots:3,mountedCards:[null,null,null],reserveCards:[],cardHistory:[],cardRewardedNodes:[],cardSlotMaps:[]}:{}),stats:{flights:0,attempts:0,deaths:0,collected:0,elites:0,events:0,challenges:0}};
 }
 export const STARTING_SKILL_IDS=Object.freeze(STARTING_GIFTS.filter(gift=>gift.skillId).map(gift=>gift.skillId));
 export const STARTING_GIFT_IDS=Object.freeze(STARTING_GIFTS.map(gift=>gift.id));
@@ -413,14 +413,21 @@ export function getStartingArtifact(run){
 }
 export function canChooseStartingGift(run,id){
  if(!isStartingPrep(run)||run.startingGiftId||run.startingSkill||run.startingArtifact||run.banked||run.lives<=0||run.stats?.attempts>0)return false;
+ if(isCardRun(run)&&[...(run.mountedCards||[]),...(run.reserveCards||[])].some(Boolean))return false;
  if(id===undefined)return true;
- return getStartingGiftOffers(run).some(gift=>gift.id===id);
+ return getStartingGiftOffers(run).some(gift=>gift.id===id)||isCardRun(run)&&run.cardStarterVersion!==2&&getCardStarterOffers(run,{legacy:true}).some(gift=>gift.id===id);
 }
 export function chooseStartingGift(state,id){
  const run=state?.run;
  if(!id||!canChooseStartingGift(run,id))return false;
- const gift=getStartingGiftOffers(run).find(gift=>gift.id===id);
- if(isCardRun(run)){run.mountedCards[0]=makeSkillCard(gift.cardId,`${run.campaignSeed}:starter:${gift.cardId}`);run.startingGiftId=id;recordCardEvent(run,'starter',{cardId:gift.cardId});return true;}
+ const gift=getStartingGiftOffers(run).find(gift=>gift.id===id)||isCardRun(run)&&getCardStarterOffers(run,{legacy:true}).find(gift=>gift.id===id);
+ if(isCardRun(run)){
+  const secondId=gift.cardId==='lift-guide'?getCardStarterOffers(run)[0].cardId:'lift-guide';
+  run.mountedCards[0]=makeSkillCard(gift.cardId,`${run.campaignSeed}:starter:${gift.cardId}`);
+  run.mountedCards[1]=makeSkillCard(secondId,`${run.campaignSeed}:starter:${secondId}`);
+  run.cardStarterVersion=2;run.startingGiftId=id;
+  recordCardEvent(run,'starter',{cardId:gift.cardId,includedCardId:secondId});return true;
+ }
  const capacity=getGlowCapacity(run);
  if(gift.skillId){
   run.skills[gift.skillId]=1;
@@ -446,24 +453,57 @@ export function chooseStartingSkill(state,id){
  return STARTING_SKILL_IDS.includes(id)&&chooseStartingGift(state,id);
 }
 
-function cardCheckpoint(run) {
+const liveCardEdits = new WeakMap();
+function pausedCardFlight(run, engine) {
+  return !!(isCardRun(run) && run.attemptActive && run.attemptEntry &&
+    run.phase === "briefing" && engine?.seed === `${run.seed}-${run.current?.id}` &&
+    typeof engine.getCardChargeLedger === "function" && typeof engine.reconcileCardLoadout === "function" &&
+    engine.running && engine.paused && engine.alive && !engine.finished &&
+    !engine.destroyed && !engine.dying && !engine.completing);
+}
+export function canManageCards(run) {
   return (
     isCardRun(run) &&
-    !run.attemptActive &&
     !run.banked &&
     run.lives > 0 &&
-    ["map", "briefing", "support", "map-clear"].includes(run.phase)
+    ["map", "briefing", "support", "map-clear", "retry"].includes(run.phase) &&
+    (!run.attemptActive || pausedCardFlight(run, liveCardEdits.get(run)))
   );
+}
+const cardCheckpoint = canManageCards;
+/** Register the actual paused flight, settling source uses before displaying cards. */
+export function syncCardFlightForEdit(run, engine) {
+  if (!pausedCardFlight(run, engine) || run.banked || run.lives <= 0) return false;
+  commitCardCharges(run, engine.getCardChargeLedger());
+  run.flame = Math.min(engine.flame, getGlowCapacity(run));
+  liveCardEdits.set(run, engine);
+  return true;
+}
+export function applyCardFlightEdits(run, engine) {
+  if (liveCardEdits.get(run) !== engine || !canManageCards(run)) return false;
+  const applied = engine.reconcileCardLoadout({ modifiers: getRunModifiers(run), condensedGlow: run.condensedGlow });
+  if (applied) run.flame = engine.flame;
+  return applied;
+}
+export function closeCardFlightEdit(run, engine) {
+  const applied = applyCardFlightEdits(run, engine);
+  if (liveCardEdits.get(run) === engine) liveCardEdits.delete(run);
+  return applied;
+}
+function preserveCardWallet(run) {
+  if (run.attemptActive && run.attemptEntry) run.attemptEntry.condensedGlow = run.condensedGlow;
 }
 function clampCardFuel(run) {
   run.flame = Math.min(run.flame, getGlowCapacity(run));
 }
 export function getCardReward(run) {
+  settleCardReward(run);
   return run?.cardReward
     ? { ...copy(run.cardReward), card: describeSkillCard(run.cardReward.card) }
     : null;
 }
 function cardRewardResolved(run) {
+  settleCardReward(run);
   return !run?.cardReward || run.cardReward.claimed;
 }
 function cardDestination(run, index) {
@@ -484,43 +524,47 @@ export function chooseCardReward(state, action, slotIndex = null) {
     run.attemptActive ||
     run.banked ||
     run.phase === "ended" ||
-    !["equip", "melt"].includes(action)
+    !["equip", "melt", "deck"].includes(action)
   )
     return false;
-  const card = reward.card;
-  if (!SKILL_CARDS[card?.cardId]) return false;
-  let index = -1,
-    displaced = null;
-  if (action === "equip") {
-    index = cardDestination(run, slotIndex);
-    if (index < 0) return false;
-    displaced = run.mountedCards[index];
-    run.mountedCards[index] = copy(card);
-    if (displaced) {
-      const amount = getCardMeltValue(displaced);
-      if (amount) grantArtifactMelt(run, amount);
-      recordCardEvent(run, "replace", {
-        slot: index,
-        card: describeSkillCard(displaced),
-        melt: amount,
-      });
-    }
-    clampCardFuel(run);
-  } else {
-    const amount = getCardMeltValue(card);
-    if (!amount) return false;
-    grantArtifactMelt(run, amount);
-    reward.melted = amount;
-  }
-  reward.claimed = true;
-  reward.choice = action;
-  reward.slot = index;
-  recordCardEvent(run, action, {
-    rewardId: reward.id,
-    card: describeSkillCard(card),
-    slot: index,
-    amount: reward.melted || 0,
-  });
+  // Compatibility for an old pending modal. New drops are already stored.
+  const index = action === "equip" ? cardDestination(run, slotIndex) : -1;
+  if (action === "equip" && index < 0) return false;
+  if (!settleCardReward(run)) return false;
+  if (action === "deck") return true;
+  return action === "equip"
+    ? equipOwnedCard(run, reward.card.instanceId, index)
+    : meltOwnedCards(state, [reward.card.instanceId]);
+}
+function findOwnedCard(run, instanceId) {
+  if (typeof instanceId !== "string") return null;
+  const slot = (run?.mountedCards || []).findIndex((card) => card?.instanceId === instanceId);
+  if (slot >= 0) return { card: run.mountedCards[slot], slot, reserveIndex: -1 };
+  const reserveIndex = (run?.reserveCards || []).findIndex((card) => card?.instanceId === instanceId);
+  return reserveIndex >= 0 ? { card: run.reserveCards[reserveIndex], slot: null, reserveIndex } : null;
+}
+export function equipOwnedCard(run, instanceId, slotIndex, expectedSlotId) {
+  settleCardReward(run);
+  if (!cardCheckpoint(run) || !Number.isInteger(slotIndex) || slotIndex < 0 || slotIndex >= run.cardSlots) return false;
+  const owned = findOwnedCard(run, instanceId), displaced = run.mountedCards[slotIndex];
+  if (!owned || owned.slot === slotIndex || (expectedSlotId !== undefined && expectedSlotId !== (displaced?.instanceId || null))) return false;
+  if (owned.slot !== null) return moveMountedCard(run, owned.slot, slotIndex);
+  run.reserveCards.splice(owned.reserveIndex, 1);
+  if (displaced) run.reserveCards.push(displaced);
+  run.mountedCards[slotIndex] = owned.card;
+  clampCardFuel(run);
+  recordCardEvent(run, "equip", { instanceId, slot: slotIndex, displacedId: displaced?.instanceId || null });
+  return true;
+}
+export function unequipMountedCard(run, index, expectedInstanceId) {
+  settleCardReward(run);
+  if (!cardCheckpoint(run) || !Number.isInteger(index)) return false;
+  const card = run.mountedCards[index];
+  if (!card || (expectedInstanceId !== undefined && card.instanceId !== expectedInstanceId)) return false;
+  (run.reserveCards ??= []).push(card);
+  run.mountedCards[index] = null;
+  clampCardFuel(run);
+  recordCardEvent(run, "unequip", { instanceId: card.instanceId, slot: index });
   return true;
 }
 export function moveMountedCard(run, from, to) {
@@ -547,60 +591,99 @@ export function moveMountedCard(run, from, to) {
 export function meltMountedCard(state, index) {
   const run = state?.run;
   if (!cardCheckpoint(run) || !Number.isInteger(index)) return false;
-  const card = run.mountedCards[index],
-    amount = getCardMeltValue(card);
-  if (!amount) return false;
-  run.mountedCards[index] = null;
-  grantArtifactMelt(run, amount);
+  const card = run.mountedCards[index];
+  return !!card && meltOwnedCards(state, [card.instanceId]);
+}
+export function getCardMeltPreview(run, instanceIds) {
+  settleCardReward(run);
+  const ids = Array.isArray(instanceIds) ? instanceIds : [],
+    selected = ids.map((id) => findOwnedCard(run, id)),
+    cards = selected.filter(Boolean).map(({ card, slot }) => ({ ...describeSkillCard(card), mounted: slot !== null, slot })),
+    amount = cards.reduce((total, card) => total + card.meltValue, 0),
+    mountedCount = cards.filter((card) => card.mounted).length,
+    reason = !cardCheckpoint(run) ? "Open Deck while the run is active; pause a flight first"
+      : !ids.length ? "Select cards to melt"
+      : new Set(ids).size !== ids.length ? "Select each card only once"
+      : selected.some((owned) => !owned) ? "A selected card is no longer in the deck"
+      : cards.some((card) => !card.meltValue) ? "A selected card has no remaining uses"
+      : null;
+  return { cards, amount, mountedCount, eligible: !reason, reason,
+    token: JSON.stringify(cards.map((card) => [card.instanceId, card.cardId, card.rank, card.charges ?? null, card.slot, card.meltValue])) };
+}
+export function meltOwnedCards(state, instanceIds, expectedToken) {
+  const run = state?.run, preview = getCardMeltPreview(run, instanceIds);
+  if (!preview.eligible || (expectedToken !== undefined && expectedToken !== preview.token)) return false;
+  const selected = new Set(instanceIds);
+  run.mountedCards = run.mountedCards.map((card) => selected.has(card?.instanceId) ? null : card);
+  run.reserveCards = (run.reserveCards || []).filter((card) => !selected.has(card.instanceId));
+  grantArtifactMelt(run, preview.amount);
+  preserveCardWallet(run);
   clampCardFuel(run);
-  recordCardEvent(run, "melt-mounted", {
-    slot: index,
-    card: describeSkillCard(card),
-    amount,
-  });
+  recordCardEvent(run, "melt", { cards: preview.cards, amount: preview.amount });
   return true;
 }
 export function getCardImprovePreview(run, index) {
-  const card = run?.mountedCards?.[index],
+  settleCardReward(run);
+  const card = typeof index === "string" ? findOwnedCard(run, index)?.card : run?.mountedCards?.[index],
     before = describeSkillCard(card),
     definition = SKILL_CARDS[card?.cardId],
-    price = definition
-      ? CARD_ECONOMY.improve[definition.rarity] * card.rank
-      : 0;
+    nextDefinition = SKILL_CARDS[definition?.evolvesTo],
+    kind = !definition ? null : card.rank < definition.maxRank ? "rank" : nextDefinition ? "evolution" : null,
+    nextCard = kind === "rank" ? { ...card, rank: card.rank + 1 }
+      : kind === "evolution" ? { ...card, cardId: nextDefinition.id, rank: Math.min(card.rank, nextDefinition.maxRank) }
+      : null,
+    after = nextCard ? describeSkillCard(nextCard) : before,
+    price = kind === "evolution"
+      ? (CARD_ECONOMY.evolve || { rare: 25, legendary: 40 })[nextDefinition.rarity]
+      : definition ? CARD_ECONOMY.improve[definition.rarity] * card.rank : 0,
+    slot = card ? (run?.mountedCards || []).findIndex((owned) => owned?.instanceId === card.instanceId) : -1;
   const reason = !before
-    ? "Choose a mounted card"
+    ? "Choose a card from your deck"
     : !cardCheckpoint(run)
-      ? "Improve at a checkpoint"
-      : card.rank >= definition.maxRank
+      ? "Open Deck while the run is active; pause a flight first"
+      : definition.charges && !(card.charges > 0)
+        ? "No remaining uses"
+      : !kind
         ? "Maximum rank"
         : (run.condensedGlow || 0) < price
           ? "Not enough Stored Sparks"
           : null;
   return {
     before,
-    after:
-      before && card.rank < definition.maxRank
-        ? describeSkillCard({ ...card, rank: card.rank + 1 })
-        : before,
+    after,
+    kind,
     price,
+    token: JSON.stringify([run?.id || null, card?.instanceId || null, card?.cardId || null,
+      card?.rank || null, card?.charges ?? null, slot, kind, nextCard?.cardId || null,
+      nextCard?.rank || null, price, run?.condensedGlow || 0]),
     eligible: !reason,
     reason,
   };
 }
-export function improveMountedCard(state, index, expectedRank) {
+export function improveMountedCard(state, index, expectedRank, expectedPreviewToken) {
+  const card = state?.run?.mountedCards?.[index];
+  return !!card && improveOwnedCard(state, card.instanceId, expectedRank, expectedPreviewToken);
+}
+export function improveOwnedCard(state, instanceId, expectedRank, expectedPreviewToken) {
   const run = state?.run,
-    preview = getCardImprovePreview(run, index),
-    card = run?.mountedCards?.[index];
+    preview = getCardImprovePreview(run, instanceId),
+    owned = findOwnedCard(run, instanceId),
+    card = owned?.card;
   if (
     !preview.eligible ||
-    (expectedRank !== undefined && expectedRank !== card.rank)
+    (expectedRank !== undefined && expectedRank !== card.rank) ||
+    (expectedPreviewToken !== undefined && expectedPreviewToken !== preview.token)
   )
     return false;
   run.condensedGlow -= preview.price;
-  card.rank++;
+  preserveCardWallet(run);
+  // Keep the real instance and its settled uses through a family evolution.
+  card.cardId = preview.after.cardId;
+  card.rank = preview.after.rank;
   clampCardFuel(run);
   recordCardEvent(run, "improve", {
-    slot: index,
+    slot: owned.slot,
+    kind: preview.kind,
     price: preview.price,
     before: preview.before,
     after: describeSkillCard(card),
@@ -627,9 +710,7 @@ function ensureCardRest(run) {
       nodeId: run.current.id,
       actions: [],
       extraSourceId: extra?.instanceId || null,
-      growUnlocked: (run.mountedCards || []).some(
-        (card) => SKILL_CARDS[card?.cardId]?.kind === "camp-grow",
-      ),
+      growUnlocked: getCardModifiers(run).cardGrowSources > 0,
       closed: !!used,
     };
   }
@@ -637,49 +718,58 @@ function ensureCardRest(run) {
 }
 export function getCardForgePreview(run, rarity = "rare") {
   const valid = ["rare", "legendary"].includes(rarity),
-    card =
-      valid && run
-        ? drawSkillCard(run, `forge:${rarity}`, run.current, rarity)
-        : null,
-    price = CARD_ECONOMY.forge[rarity] || 0,
-    rest = run?.cardRest;
+    price = valid ? CARD_ECONOMY.forge[rarity] : 0;
+  let sequence = count(run?.cardForgeCounts?.[rarity]), card = null;
+  if (valid && isCardRun(run)) {
+    const occupied = new Set([
+      ...(run.mountedCards || []), ...(run.reserveCards || []),
+      ...(run.cardHistory || []).filter((event) => event.type === "forge").map((event) => event.card),
+    ].filter(Boolean).map((owned) => owned.instanceId));
+    do {
+      card = drawSkillCard({ campaignSeed: run.campaignSeed, seed: run.seed, mapIndex: 0 }, `forge:v2:${rarity}:${sequence}`, null, rarity);
+      if (!occupied.has(card.instanceId)) break;
+      sequence++;
+    } while (true);
+  }
   const hasRare = (run?.mountedCards || []).some(
     (card) => SKILL_CARDS[card?.cardId]?.rarity === "rare",
   );
   const reason =
-    !isCardRun(run) || run?.phase !== "support" || run.current?.kind !== "camp"
-      ? "Forge only at Rest"
+    !cardCheckpoint(run)
+      ? "Open Forge while the run is active; pause a flight first"
       : !valid
         ? "No tier above Legendary"
-        : !cardRewardResolved(run)
-          ? "Resolve the current card first"
-          : rarity === "legendary" && !hasRare
-            ? "Mount a Rare card to forge Legendary"
-            : rest?.closed
-              ? "Rest is complete"
-              : rest?.actions?.includes("forge")
-                ? "Forge already chosen at this Rest"
-                : rest?.actions?.length >= 1 && !cardRestSource(run)
-                  ? "No second Rest action"
-                  : (run.condensedGlow || 0) < price
-                    ? "Not enough Stored Sparks"
-                    : null;
+        : rarity === "legendary" && !hasRare
+          ? "Mount a Rare card to forge Legendary"
+          : (run.condensedGlow || 0) < price
+            ? "Not enough Stored Sparks"
+            : null;
   return {
     card: describeSkillCard(card),
     price,
     rarity,
-    actionCost: 1,
+    actionCost: 0,
+    sequence,
+    token: JSON.stringify([run?.id || null, rarity, sequence, card?.instanceId || null, price]),
     eligible: !reason,
     reason,
   };
 }
+export function forgeOwnedCard(state, rarity = "rare", expectedPreviewToken) {
+  const run = state?.run, preview = getCardForgePreview(run, rarity);
+  if (!preview.eligible || (expectedPreviewToken !== undefined && expectedPreviewToken !== preview.token)) return false;
+  run.condensedGlow -= preview.price;
+  preserveCardWallet(run);
+  (run.cardForgeCounts ??= {})[rarity] = preview.sequence + 1;
+  (run.reserveCards ??= []).push(makeSkillCard(preview.card.cardId, preview.card.instanceId));
+  run.lastCardForged = copy(preview.card);
+  recordCardEvent(run, "forge", { price: preview.price, card: preview.card });
+  return true;
+}
 function makeCardCampChoices(run) {
   const rest = ensureCardRest(run),
     actions = rest.actions,
-    growth = Math.min(
-      REST_GLOW_TUNING.capacityStep,
-      REST_GLOW_TUNING.capacityLimit - getRestGlowBonus(run),
-    ),
+    growth = getCardGrowthUses(run) < 3 ? getCardModifiers(run).cardGrowAmount : 0,
     recover =
       run.lives < getLifeCapacity(run) || run.flame < getGlowCapacity(run),
     extra = cardRestSource(run),
@@ -727,36 +817,18 @@ function makeCardCampChoices(run) {
         : "One slot already added on this map",
     ),
   ];
-  for (const rarity of ["rare", "legendary"]) {
-    const preview = getCardForgePreview(run, rarity);
-    offers.push(
-      option(
-        rarity === "rare" ? "rest-forge" : "rest-forge-legendary",
-        `Forge ${rarity === "rare" ? "Rare" : "Legendary"}`,
-        `${preview.card.name}: ${preview.card.effect} Costs ${preview.price} Stored Sparks and one Rest action.`,
-        "forge",
-        preview.eligible,
-        preview.reason,
-        { cardForge: rarity },
-      ),
-    );
-    offers.at(-1).card = preview.card;
-    offers.at(-1).price = preview.price;
-  }
   offers.push(
     option(
       "rest-grow",
       "Grow",
-      "Increase maximum Sparks by +3 and fully refill. Hearts stay as they are. Three growths per run.",
+      `Increase maximum Sparks by +${Math.round(growth * .3)} and fully refill once. Hearts stay as they are. ${getCardGrowthUses(run)}/3 shared Grow actions used.`,
       "grow",
       rest.growUnlocked &&
-        (run.mountedCards || []).some(
-          (card) => SKILL_CARDS[card?.cardId]?.kind === "camp-grow",
-        ) &&
+        getCardModifiers(run).cardGrowSources > 0 &&
         growth > 0,
       !rest.growUnlocked
         ? "Mount Growth Seed before arriving at Rest"
-        : growth <= 0
+        : getCardGrowthUses(run) >= 3
           ? "Maximum growth reached (3/3)"
           : "Growth Seed must remain mounted",
     ),
@@ -775,6 +847,23 @@ function makeCardCampChoices(run) {
     disabledReason: rest.closed ? "Rest is complete" : undefined,
   });
   return offers;
+}
+/** Read-only Rest quote; commits still use the indexed support choices. */
+export function getCardCampPreview(run) {
+  if (!isCardRun(run) || run.current?.kind !== "camp") return null;
+  const snapshot = copy(run), offers = makeCardCampChoices(snapshot), rest = snapshot.cardRest;
+  const used = [...rest.actions], extra = !!cardRestSource(snapshot);
+  const before = { hearts: snapshot.lives, maxHearts: getLifeCapacity(snapshot), meter: snapshot.flame, maxMeter: getGlowCapacity(snapshot), slots: snapshot.cardSlots };
+  const growth = getCardGrowthUses(snapshot) < 3 ? getCardModifiers(snapshot).cardGrowAmount : 0;
+  const grownMaximum = getGlowCapacity({ ...snapshot, cardGrowCapacity: getCardGrowthBonus(snapshot) + growth, cardGrowUses: getCardGrowthUses(snapshot) + 1 });
+  const actions = offers.map((offer, index) => {
+    const key = offer.effect?.rest;
+    const after = key === "recover" ? { ...before, hearts: before.maxHearts, meter: before.maxMeter }
+      : key === "slot" ? { ...before, slots: Math.min(5, before.slots + 1) }
+        : key === "grow" ? { ...before, meter: grownMaximum, maxMeter: grownMaximum } : { ...before };
+    return { ...offer, index, key, taken: used.includes(key), before: { ...before }, after };
+  });
+  return { used, closed: rest.closed, extraAvailable: extra, remaining: rest.closed ? 0 : Math.max(0, (extra ? 2 : 1) - used.length), actions };
 }
 function resolveCardCamp(run, index) {
   if (!cardRewardResolved(run)) return false;
@@ -826,23 +915,9 @@ function resolveCardCamp(run, index) {
     run.cardSlotMaps.push(run.mapIndex);
   }
   if (action === "grow") {
-    run.restGlowCapacity =
-      getRestGlowBonus(run) + REST_GLOW_TUNING.capacityStep;
+    run.cardGrowCapacity = getCardGrowthBonus(run) + getCardModifiers(run).cardGrowAmount;
+    run.cardGrowUses = getCardGrowthUses(run) + 1;
     run.flame = getGlowCapacity(run);
-  }
-  if (action === "forge") {
-    const preview = getCardForgePreview(run, effect.cardForge);
-    if (!preview.eligible) return false;
-    run.condensedGlow -= preview.price;
-    run.cardReward = {
-      id: preview.card.instanceId,
-      card: makeSkillCard(preview.card.cardId, preview.card.instanceId),
-      source: "forge",
-      sourceName: `Forged ${preview.card.rarityLabel}`,
-      claimed: false,
-      price: preview.price,
-    };
-    recordCardEvent(run, "forge", { price: preview.price, card: preview.card });
   }
   if (second) {
     source.charges--;
@@ -948,13 +1023,13 @@ export function beginFlightAttempt(run){
   keptLightDividend:!run.isTutorial&&getFlightClearReward(run.current)?getKeptLightDividend(run.condensedGlow,run.skills['afterglow-anchor']):0,
   companions:[...run.companions],skills:{...run.skills},artifacts:[...run.artifacts],
   artifactCharges:{...(run.artifactCharges||{}),...getArtifactCharges(run)},
-  ...(isCardRun(run)?{mountedCards:copy(run.mountedCards),cardPackingRemainder:count(run.cardPackingRemainder,3)}:{})
+  ...(isCardRun(run)?{mountedCards:copy(run.mountedCards),cardPackingRemainder:count(run.cardPackingRemainder,3),cardGrowUses:getCardGrowthUses(run),cardGrowCapacity:getCardGrowthBonus(run)}:{})
  };
  delete run.nextFlightPact;delete run.nextFlightBoon;delete run.eventFavors;
  run.attemptActive=true;run.stats.attempts++;
  return true;
 }
-function restoreEntry(run){const e=run.attemptEntry;if(e&&e.step===run.step&&e.nodeId===run.current?.id){run.restGlowCapacity=getRestGlowBonus(e);run.flame=clamp(e.flame,0,getGlowCapacity({...run,skills:e.skills}));run.condensedGlow=e.condensedGlow;if(run.isTutorial){run.practiceCondensedGlow=count(e.practiceCondensedGlow);run.lives=finite(e.practiceLives,run.lives);run.maxLives=finite(e.practiceMaxLives,run.maxLives);run.skillPaid={...e.skillPaid};}run.condensedRemainder=e.condensedRemainder;run.companions=normalizeCompanionFleet(e.companions,run.companionRole);run.companionRole=run.companions[0];run.skills={...e.skills};delete run.skills['main-bond'];run.artifacts=[...e.artifacts];run.artifactCharges={...(e.artifactCharges||getArtifactCharges(run))};}run.attemptActive=false;run.attemptEntry=null;run.restReady=false;}
+function restoreEntry(run){const e=run.attemptEntry;if(e&&e.step===run.step&&e.nodeId===run.current?.id){run.restGlowCapacity=getRestGlowBonus(e);if(isCardRun(run)){run.cardGrowUses=e.cardGrowUses??getCardGrowthUses(run);run.cardGrowCapacity=e.cardGrowCapacity??getCardGrowthBonus(run);}run.flame=clamp(e.flame,0,getGlowCapacity({...run,skills:e.skills}));run.condensedGlow=e.condensedGlow;if(run.isTutorial){run.practiceCondensedGlow=count(e.practiceCondensedGlow);run.lives=finite(e.practiceLives,run.lives);run.maxLives=finite(e.practiceMaxLives,run.maxLives);run.skillPaid={...e.skillPaid};}run.condensedRemainder=e.condensedRemainder;run.companions=normalizeCompanionFleet(e.companions,run.companionRole);run.companionRole=run.companions[0];run.skills={...e.skills};delete run.skills['main-bond'];run.artifacts=[...e.artifacts];run.artifactCharges={...(e.artifactCharges||getArtifactCharges(run))};}run.attemptActive=false;run.attemptEntry=null;run.restReady=false;}
 export function markFlightAttemptStarted(run) {
  if (!run?.attemptActive || !run.attemptEntry || run.attemptEntry.started) return false;
  run.attemptEntry.started = true;
@@ -1119,11 +1194,12 @@ export function finishFlight(run,result){
  const packingModifiers=getCardModifiers({...run,mountedCards:attempt?.mountedCards||run.mountedCards});
  const cardPackingEligible=!result.dreamAttempt?count(result.cardPackingEligible??pickupCondensedGlow,pickupCondensedGlow)+exitPacking.amount:0;
  const packingQuote=getCardPackingBonus(cardPackingEligible,packingModifiers.cardPackingSources,attempt?.cardPackingRemainder??run.cardPackingRemainder);
- const cardPackingBonus=isCardRun(run)?packingQuote.amount:0;
- if(isCardRun(run))run.cardPackingRemainder=packingQuote.remainder;
+ const livePacking=isCardRun(run)&&result.cardPackingLedger===1;
+ const cardPackingBonus=isCardRun(run)?livePacking?count(result.cardPackingBonus,Math.ceil(cardPackingEligible*(CARD_ECONOMY.maxPackingWeight||27)/4)):packingQuote.amount:0;
+ if(isCardRun(run))run.cardPackingRemainder=livePacking?count(result.cardPackingRemainder,3):packingQuote.remainder;
  const keptLightDividend=completionBonus&&!run.isTutorial?count(attempt?.keptLightDividend,10):0;
  const storageBonus=completionBonus&&!run.isTutorial?count(result.storageBonus,run.skills['packing-deep-cache']?4:run.skills['packing-hand-seal']?2:0):0;
- const resonanceStored=!run.isTutorial&&(rank(run.skills,'main-resonant-bounty')||getCardModifiers(run).cardHarvestStoredPerWave>0)?count(result.resonanceStored):0;
+ const resonanceStored=!run.isTutorial&&(rank(run.skills,'main-resonant-bounty')||getCardModifiers(run).cardHarvestStoredPerWave>0||livePacking)?count(result.resonanceStored):0;
  spendPreparationClear(run,attempt);
  const routeBonus=awardRouteBonus(run,n,attempt,result,completionBonus,pickupCondensedGlow,!!(vow||wager));
  max=getGlowCapacity(run);
@@ -1192,6 +1268,7 @@ export function finishFlight(run,result){
     sourceName: n.boss ? 'Guardian card' : n.elite ? 'Elite card' : 'Flight card',
     claimed: false,
    };
+   settleCardReward(run);
    recordCardEvent(run, 'drop', {card: describeSkillCard(card), elite: n.elite, boss: n.boss});
    if (n.boss && run.mapIndex === 2) {
     run.cardReward.claimed = true;
@@ -1221,6 +1298,7 @@ function secureBoss(state){
  r.bossProgressSecured=true;if(!r.testMode)p.difficulty=Math.min(MAX_ASCENSION,Math.max(p.difficulty,r.difficulty+1));
 }
 function settleRunRewards(r){
+ settleCardReward(r);
  const amount=count(r.pendingCondensedGlow),earned=r.pendingRewards.reduce((sum,reward)=>sum+(reward.kind==='respec'?0:count(reward.amount)),0);
  r.condensedGlow=count(r.condensedGlow)+amount;r.securedCondensedGlow+=Math.min(amount,earned);
  for(const reward of r.pendingRewards)if(['flight','flight-clear','exit-packing','card-packing','route-bonus','kept-light','storage-bonus','resonance','flight-pact','pilgrim-vow','treasure-wager','chest-dividend'].includes(reward.kind)&&r.lastFlight?.nodeId===reward.nodeId)r.lastFlight.securedCondensedGlow+=reward.amount;
@@ -1510,6 +1588,7 @@ export function getRunModifiers(run={}){const rank=skillProgress,companion=norma
   if(pact?.sight)m.lightRadius*=pact.sight;
   if(pact?.reach)m.attract*=pact.reach;
   Object.assign(m,getCardModifiers(run));
+  if(m.cardProximitySources>0)m.proximityUnlocked=true;
   if(m.cardFieldImpulse)m.collectorFieldImpulse=true;
   if(m.cardCacheHandling)m.collectorFetchMass=Math.max(3,m.collectorFetchMass);
   if(m.cardFlashHandling)m.collectorFlashFetch=true;

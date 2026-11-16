@@ -60,3 +60,25 @@ test('waves do not harvest future offscreen pickups',()=>{
   e.layout.embers=[{x:180,y:50,kind:'light'},{x:80,y:180,kind:'light'}];
   waves.update(.7);assert.equal(e.flame,0);assert.equal(e.resonanceStored,0);
 });
+
+test('legacy waves without Harvest track physical crossings without harvest feedback or rewards',()=>{
+  const {e,waves,ordinary,dark}=fixture(0),bursts=[],sounds=[];
+  e.burst=(...args)=>bursts.push(args);e.sound=(...args)=>sounds.push(args);
+  waves.update(.4);const wave=waves.waves[0];
+  assert.equal(e.flame,0);assert.equal(e.resonanceStored,0);
+  assert.equal(wave.naturalCrossings,1);assert.ok(wave.seen.has(ordinary));
+  assert.equal(ordinary.collected,undefined);assert.equal(dark.collected,undefined);
+  assert.deepEqual(bursts,[]);assert.deepEqual(sounds,[]);
+});
+
+test('book Harvest and dark purification keep feedback at a full meter',()=>{
+  for(const [rank,kind,count] of [[1,'light',3],[2,'dark',5]]){
+    const {e,waves}=fixture(rank),bursts=[],sounds=[];
+    const packet={x:100,y:50,kind};e.layout.embers=[packet];e.flame=e.maxFlame;
+    e.burst=(...args)=>bursts.push(args);e.sound=(...args)=>sounds.push(args);
+    waves.update(.4);
+    assert.equal(e.flame,e.maxFlame);assert.equal(bursts.length,1);assert.equal(bursts[0][2],count);
+    assert.equal(sounds.length,1);assert.equal(sounds[0][0],'resonate');
+    assert.equal(!!packet.purified,kind==='dark');assert.equal(!!packet.collected,kind==='dark');
+  }
+});

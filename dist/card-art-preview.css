@@ -1,0 +1,15 @@
+.card-art-preview-page main{width:min(100%,940px)}
+.art-card-comparison{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px;align-items:start;margin-top:10px}
+.art-card-variant{min-width:0;container-type:inline-size}
+.art-variant-title{font:14px/1.2 var(--pixel);color:#eadcaf;margin:0 0 5px}
+.art-variant-note{font:10px/1.2 var(--pixel);color:#aabd9a;margin:0 0 8px}
+html body.card-art-preview-page .art-card-variant>.skill-card{--card-height:calc(100cqw * 7 / 5);width:100%!important}
+.art-card-variant .card-illustration>canvas{display:block;width:100%;height:100%;image-rendering:pixelated}
+.art-screen-section{margin-top:30px;border-top:1px solid #68845d;padding-top:16px}
+.art-screen-section h2{font:21px/1.2 var(--pixel);color:#e9ddb3;margin:0 0 8px}
+.art-screen-section>p{font:12px/1.4 var(--pixel);color:#baccac;max-width:680px}
+.art-screen-variant{margin:0 0 20px}
+.art-screen-variant canvas{display:block;width:min(100%,740px);height:auto;aspect-ratio:740/333;image-rendering:pixelated;border:1px solid #8b9c77;background:#11241d}
+.art-screen-status{font:12px/1.4 var(--pixel);color:#d9c898}
+@media(max-width:760px){.art-card-comparison{gap:12px}.art-variant-title{font-size:12px}.art-variant-note{font-size:9px}.card-art-preview-page main{padding-top:12px}.card-art-preview-page .combo-heading h1{font-size:23px}.art-card-preview-page .combo-guide{margin-top:10px}}
+@media(max-width:500px){.art-card-comparison{gap:7px}.art-card-preview-page .card-face-heading h3{font-size:12px!important}.art-card-preview-page .card-rule-stripe{padding:4px}.art-variant-note{min-height:22px}}

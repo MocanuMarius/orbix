@@ -1,10 +1,9 @@
-import {drawAbsorbingSpark} from './tidal-light.mjs?v=skills-cards-2';
-import {getPickupSpec, pickupShellRadius} from './pickups.mjs?v=skills-cards-2';
-import {drawPickup} from './pickup-art.mjs?v=skills-cards-2';
-import {drawShellArcs} from './shell-arcs.mjs?v=skills-cards-2';
-import {DEFAULT_CAPTURE_STYLE} from './capture-styles.mjs?v=skills-cards-2';
-import {companionPalette} from './companion-art.mjs?v=skills-cards-2';
-import {drawLivingStrand} from './living-light-art.mjs?v=skills-cards-2';
+import {drawAbsorbingSpark} from './tidal-light.mjs?v=skills-cards-3';
+import {getPickupSpec, pickupShellRadius} from './pickups.mjs?v=skills-cards-3';
+import {drawPickup} from './pickup-art.mjs?v=skills-cards-3';
+import {drawShellArcs} from './shell-arcs.mjs?v=skills-cards-3';
+import {DEFAULT_CAPTURE_STYLE} from './capture-styles.mjs?v=skills-cards-3';
+import {COLLECTOR_RING} from './pickup-handling-cue.mjs?v=skills-cards-3';
 
 const TAU = Math.PI * 2;
 const clamp = value => Math.max(0, Math.min(1, value));
@@ -17,21 +16,17 @@ const hazeY = new Float32Array(maxPuffSegments);
 const outer = new Float32Array(maxPuffSegments);
 const inner = new Float32Array(maxPuffSegments);
 
-export function drawCollectorGrip(ctx,state,scale=1,radius=6.5){
-  const grip=state.gripPose;if(!grip||!(grip.growth>0))return;
+export function drawCollectorGrip(ctx,state,scale=1){
+  const grip=state.gripPose;if(!grip?.attached||!(grip.growth>0))return;
+  // Under load only: a taut filament rooted in the Spark's own eyelet. The
+  // approaching Collector remains a plain orb and catches the existing loop.
   const x=state.x*scale,y=state.y*scale,tx=grip.x*scale,ty=grip.y*scale;
-  const dx=tx-x,dy=ty-y,distance=Math.hypot(dx,dy);
-  const ux=distance>.05?dx/distance:0,uy=distance>.05?dy/distance:-1;
-  // Bend below the body as a calm curl, rather than a rigid towing cable.
-  const sign=ux<0?-1:1,nx=-uy*sign,ny=ux*sign;
-  const growth=clamp(grip.growth),r=radius*growth;
-  const reach=r+Math.min(4*scale,distance*.35)*growth;
-  const tip=grip.attached?{x:tx,y:ty}:{x:x+ux*(reach-.7*scale)+nx*r*.1,y:y+uy*(reach-.7*scale)+ny*r*.1};
-  const colors=companionPalette('collector');
-  drawLivingStrand(ctx,[{x:x+ux*r*.36,y:y+uy*r*.36},
-    {x:x+ux*r*(grip.attached?.3:1.12)+nx*r*(grip.attached?1.9:.48),y:y+uy*r*(grip.attached?.3:1.12)+ny*r*(grip.attached?1.9:.48)},
-    {x:tip.x+nx*r*(grip.attached?1.75:.95)+ux*(grip.attached?-.6*r:1.6*scale),y:tip.y+ny*r*(grip.attached?1.75:.95)+uy*(grip.attached?-.6*r:1.6*scale)},tip],
-    {width:Math.max(.2,r*.38),color:colors.core,glow:colors.mid,alpha:growth});
+  if(Math.hypot(tx-x,ty-y)<.5*scale)return;
+  ctx.save();ctx.lineCap='round';
+  const line=()=>{ctx.beginPath();ctx.moveTo(tx,ty);ctx.lineTo(x,y);ctx.stroke();};
+  ctx.strokeStyle=COLLECTOR_RING.edge;ctx.lineWidth=2.6*scale;line();
+  ctx.strokeStyle=COLLECTOR_RING.color;ctx.lineWidth=1.2*scale;line();
+  ctx.restore();
 }
 
 export function drawCarriedSpark(ctx,state,time,scale,quiet,style=DEFAULT_CAPTURE_STYLE) {

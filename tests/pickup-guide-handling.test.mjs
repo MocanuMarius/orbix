@@ -36,7 +36,7 @@ test("first-contact lessons use actual packet mass and mounted handling without 
   );
   assert.match(
     pickupLesson("cache", { modifiers: { collectorFetchMass: 3 } }).text,
-    /shell curl below this pickup means Collector can latch/,
+    /lower shell flows into a small green circle: Collector can latch/,
   );
   assert.match(
     pickupLesson("sight", { modifiers: { collectorFlashFetch: false } }).text,
@@ -44,7 +44,7 @@ test("first-contact lessons use actual packet mass and mounted handling without 
   );
   assert.match(
     pickupLesson("sight", { modifiers: { collectorFlashFetch: true } }).text,
-    /shell curl below this pickup means Collector can latch/,
+    /lower shell flows into a small green circle: Collector can latch/,
   );
   assert.match(
     pickupLesson("light", { companions: ["protector"] }).text,

@@ -92,9 +92,9 @@ export function createFlightFX({AudioContextClass}={}) {
     const focus=getFocus(),charging=chargeActive(),ambient=(1-.76*focus)*(charging?.38:1);
     target(bed.gain,audible()?Math.pow(clamp(state.hole),1.45)*.072*ambient:0,.15);
     target(air.frequency,270+clamp(state.hole)*580+clamp(state.dream)*220,.3);
-    target(sub.frequency,hz(chord()[0]-12)*clamp(state.transport?.rate??1,.25,2),.6);
+    target(sub.frequency,hz(chord()[0]-12)*clamp(state.transport?.rate??1,.1,2),.6);
     target(shimmer.gain,audible()?clamp(state.pulse)*.023*ambient:0,.15);
-    const harmony=chord(), rate=clamp(state.transport?.rate??1,.25,2);
+    const harmony=chord(), rate=clamp(state.transport?.rate??1,.1,2);
     shimmerTones.forEach((osc,i)=>target(osc.frequency,hz(harmony[1+i*2]+12)*rate,.6));
     const charge=clamp(state.proximity);
     target(chargeBus.gain,charging?(1-.82*focus):0,charging?.07:.025);
@@ -195,7 +195,7 @@ export function createFlightFX({AudioContextClass}={}) {
     last.set(key,now);update(true);
     try {
     const strength=(.5+.5*clamp(options.strength??1))*clamp(options.attenuation??1), notes=chord(), index=(serial++)%4+1;
-    const rate=clamp(state.transport?.rate??1,.25,2);
+    const rate=clamp(state.transport?.rate??1,.1,2);
     const tone=(midi,duration,volume,delay=0)=>voice({frequency:hz(midi)*rate,duration,volume:volume*strength,delay,filter:2400,pan:options.pan});
     const texture=(duration,volume,filter,attack=.012,delay=0)=>voice({noiseVoice:true,duration,volume:volume*strength,filter,attack,delay,pan:options.pan});
     const glide=(from,to,duration,volume,delay=0)=>voice({frequency:hz(from)*rate,endFrequency:hz(to)*rate,duration,volume:volume*strength,delay,filter:1900,pan:options.pan});

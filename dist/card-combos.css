@@ -1,0 +1,68 @@
+@font-face{font-family:WispPixel;src:url('assets/fonts/pixelify-sans.ttf') format('truetype');font-style:normal;font-weight:400 700;font-display:swap}
+:root{color-scheme:dark;background:#14271e;color:#e6e5cb}
+*{box-sizing:border-box}
+html{min-height:100%;scrollbar-color:#7d9172 #14271e}
+body.card-combos-page{margin:0;font:14px/1.4 var(--pixel,monospace);background:linear-gradient(#10221ba8,#14271ef5 460px),url('assets/moonwell-title.webp') center top / max(100vw,960px) auto no-repeat fixed;overflow-x:hidden}
+.card-combos-page main{width:min(100%,780px);margin:auto;padding:20px max(18px,env(safe-area-inset-right)) 24px max(18px,env(safe-area-inset-left))}
+.combo-heading{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.combo-heading h1{position:relative;isolation:isolate;font:25px/1.15 var(--pixel);margin:0 0 6px;color:#f1e3b5}
+.combo-heading h1::before{content:"";position:absolute;z-index:-1;left:-8px;top:-9px;width:264px;height:45px;background:url('assets/woodland-sign.webp') center / 100% 100% no-repeat}
+.combo-heading p{font-size:11px;color:#c0cfb0;margin:0}
+.combo-heading nav{display:flex;gap:8px;flex:none}
+.combo-heading :is(button,a){display:inline-flex;align-items:center;justify-content:center;font:12px/1.1 var(--pixel);padding:7px 10px;min-height:44px;appearance:none;border:2px solid transparent;border-image:url('assets/rough-frame.svg') 8 / 5px / 0 stretch;background:#253b2c;color:#e7dfb5;cursor:pointer;touch-action:manipulation;text-decoration:none}
+.combo-heading :is(button,a):focus-visible{outline:2px solid #ffe2a3;outline-offset:3px}
+.combo-heading :is(button,a):hover{background:#3d5135}
+.combo-heading .combo-play{background:#3a4b2f;color:#fff0bd}
+.combo-guide{margin:12px 0 4px;color:#d0d9ba;font-size:12px;line-height:1.4}
+.combo-sample-note{margin:0 0 8px;color:#9eb695;font-size:10px;overflow-wrap:anywhere}
+#combo-rows{display:flex;flex-direction:column;gap:22px}
+.combo-row{min-width:0;border:2px solid transparent;border-image:url('assets/menu-ruin-frame.svg') 12 / 9px / 0 stretch;background:#1a3025d9;padding:10px 12px 6px;scroll-margin-top:8px}
+.combo-row-heading{display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin-bottom:7px;padding-inline:4px}
+.combo-row-heading h2{margin:0;font:14px/1.15 var(--pixel);color:#e6dab0}
+.combo-row-heading>span{font-size:10px;color:#a9bd9e}
+.combo-cards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;align-items:start}
+.combo-slot{min-width:0;container-type:inline-size}
+.combo-slot-label{display:flex;justify-content:space-between;gap:5px;font-size:10px;line-height:1.2;color:#c3cfb2;padding:0 4px 5px}
+.combo-slot-label>span:last-child{text-transform:capitalize;color:#9fb296}
+html body.card-combos-page .combo-slot>.skill-card{--card-height:calc(100cqw * 7 / 5);width:100%!important}
+html body.card-combos-page .combo-slot>.card-readable{grid-template-rows:40px 34% minmax(0,1fr)!important}
+html body.card-combos-page .combo-slot .card-rule-band{padding:9px 10px}
+html body.card-combos-page .combo-slot .card-rule-band .card-mechanic-main{font-size:clamp(11px,6.7cqw,15px)!important;line-height:1.2!important}
+.combo-outcomes{margin-top:7px;color:#d6ddbf}
+.combo-outcomes>summary{font-size:12px;min-height:36px;display:flex;align-items:center;gap:6px;cursor:pointer;touch-action:manipulation;padding:3px 5px}
+.combo-outcomes>summary::before{content:'+';font-size:19px;color:#d8c18d}
+.combo-outcomes[open]>summary::before{content:'−'}
+.combo-outcomes>summary:focus-visible{outline:2px solid #ffe2a3;outline-offset:0}
+.combo-outcomes>div{padding:4px 5px 10px;display:grid;gap:15px}
+.combo-outcomes h3{font:13px/1.3 var(--pixel);margin:0 0 4px;color:#eedcb2}
+.combo-outcomes h3 small{font-size:10px;font-weight:400;color:#a9bc9e;text-transform:capitalize}
+.combo-outcomes h3 .combo-source-cards{display:block;text-transform:none;margin-top:2px}
+.combo-outcomes p{font-size:12px;line-height:1.5;margin:3px 0;color:#d0dcbb}
+.combo-outcomes .card-term{background:#e5d7aa!important;padding:1px 2px!important}
+.combo-footer{font-size:11px;line-height:1.5;color:#a9be9e;margin:20px 4px 0}
+@media(min-width:900px){.card-combos-page main{padding-top:28px}.combo-heading h1{font-size:28px}.combo-guide{margin-top:16px}.combo-row{padding:12px 16px 7px}.combo-cards{gap:22px}#combo-rows{gap:30px}.combo-outcomes>div{grid-template-columns:repeat(3,minmax(0,1fr));gap:20px}}
+@media(max-width:600px){.card-combos-page main{padding-inline:10px}.combo-heading h1{font-size:20px}.combo-heading h1::before{width:220px;height:40px}.combo-heading p{font-size:9px}.combo-heading nav{gap:4px}.combo-heading button{font-size:10px;padding:5px 7px;min-height:38px}.combo-guide{font-size:11px}.combo-row{padding:9px 7px 5px}.combo-cards{gap:8px}.combo-row-heading h2{font-size:12px}.combo-row-heading>span{font-size:9px}.combo-slot-label{font-size:9px;padding-inline:0}html body.card-combos-page .combo-slot>.card-readable{grid-template-rows:35px 25% minmax(0,1fr)!important}html body.card-combos-page .combo-slot .card-rule-band{padding:6px}html body.card-combos-page .combo-slot .card-face-heading{padding-inline:15px}html body.card-combos-page .combo-slot .card-face-heading h3{font-size:clamp(10px,8cqw,14px)}html body.card-combos-page .combo-slot .card-rule-band .card-mechanic-main{font-size:clamp(9px,6.5cqw,12px)!important}.combo-slot-label>span:last-child{font-size:8px}}
+
+.combo-example{margin:14px 0 24px}
+.combo-example-controls{display:flex;gap:6px;margin:8px 0 12px;flex-wrap:wrap}
+.combo-example-controls button{appearance:none;min-height:44px;padding:6px 10px;border:1px solid #7f946c;background:#243d2d;color:#d7dfbd;font:12px/1.2 var(--pixel);cursor:pointer;touch-action:manipulation}
+.combo-example-controls button[aria-pressed=true]{background:#586d3e;border-color:#dfce94;color:#fff0bd}
+.combo-example-controls button:focus-visible,.combo-catalog-controls :is(input,select):focus-visible,.combo-event-control select:focus-visible{outline:2px solid #f0da9f;outline-offset:2px}
+.combo-example-result{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:14px;padding:8px 10px;background:#2b452f;color:#eee5bc;font-size:14px;min-height:44px}
+.combo-example-note{font:11px/1.4 var(--pixel);color:#b5c8a7;margin:6px 4px}
+.combo-outcomes>div{display:block}
+.combo-event-control{display:flex;align-items:center;gap:12px;font:12px/1.2 var(--pixel);color:#c1d1ae;margin:0 0 10px}
+.combo-event-control select,.combo-catalog-controls :is(input,select){min-height:44px;max-width:100%;padding:7px 10px;background:#12291d;color:#e3e4c4;border:1px solid #81936c;border-radius:0;font:13px/1.2 var(--pixel);touch-action:manipulation}
+.combo-passives{display:grid;gap:10px;margin-top:15px;border-top:1px solid #556e49;padding-top:10px}
+.combo-catalog-section{margin-top:36px;padding-top:12px;border-top:1px solid #71845f}
+.combo-catalog-section h2{font:21px/1.2 var(--pixel);color:#e6d9ad;margin:0 0 12px}
+.combo-catalog-controls{display:flex;gap:14px;align-items:end;margin-bottom:14px;flex-wrap:wrap}
+.combo-catalog-controls label{display:grid;gap:4px;font-size:11px;color:#b7c8a5}
+.combo-catalog-controls label:first-child{flex:1}
+.combo-catalog-controls input{width:100%;min-width:130px}
+.combo-catalog-controls>span{font-size:11px;padding-bottom:12px;color:#b7c8a5}
+#combo-catalog{row-gap:20px}
+.card-combos-page .card-row-receipt-pass{max-width:500px}
+html body.card-combos-page .combo-slot .card-rule-band .card-mechanic-main{font-size:clamp(10px,6.15cqw,14px)!important;line-height:1.18!important}
+@media(min-width:900px){.combo-passives{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:700px){.combo-heading{align-items:start}.combo-heading nav{flex-wrap:wrap;justify-content:flex-end;max-width:240px;gap:5px}.combo-heading :is(button,a){min-height:38px;padding:5px 7px;font-size:11px}.combo-heading h1{font-size:22px}.combo-example-controls{gap:4px}.combo-example-controls button{font-size:11px;padding:5px 7px}.combo-example-result{font-size:12px}}

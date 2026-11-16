@@ -1,6 +1,6 @@
-import {getCompanionAbility} from './companion-abilities.mjs?v=skills-cards-2';
-import {pickupHandlingCue} from './pickup-handling-cue.mjs?v=skills-cards-2';
-import {lightVisibility} from './light-field.mjs?v=skills-cards-2';
+import {getCompanionAbility} from './companion-abilities.mjs?v=skills-cards-3';
+import {pickupHandlingCue} from './pickup-handling-cue.mjs?v=skills-cards-3';
+import {lightVisibility} from './light-field.mjs?v=skills-cards-3';
 // Practice is an authored flight using the same controls, fuel and colliders.
 // This module contains guidance and lesson scenery; it never grants rewards.
 const clamp = (n, lo, hi) => Math.min(hi, Math.max(lo, n));
@@ -201,12 +201,12 @@ export function getTutorialHint(engine) {
   if(state.directPickups>0&&engine.edgingPulse?.state?.active)return hint('edge-pulse','Your close flight lit the way','The meter beside your wisp fills near solid edges. Full charge briefly reveals the passage.',4);
   if(state.lesson==='glide'){
     if(!state.directPickups)return hint('direct','Lift, then glide into a packet',collector
-      ?'Touch this Spark yourself first. The curl growing from its shell means Collector can fetch a miss.'
+      ?'Touch this Spark yourself first. Its lower shell flows into a green circle that Collector catches to fetch a miss.'
       :'Touch this light yourself for immediate Sparks. Only an equipped Collector fetches misses.',2);
     if(collector&&!state.carrierDeliveries)return hint('carrier','Collector rescues a miss',engine.wisp.phase==='returning'
-      ?'Collector tows the intact packet by its curl. It refills Sparks when its shell reaches your main wisp. The boundary then shrinks and grows back.'
+      ?'Collector tows the intact packet by its green circle. It refills Sparks when its shell reaches your main wisp. The boundary then shrinks and grows back.'
       :'Your body gets first chance. A missed packet touching the boundary reacts. Collector fetches after your body has had its chance.',3);
-    if(collector&&engine.wisp.phase==='cooldown')return hint('rest','Collector is recovering','Its boundary grows back. A shell curl still means it can fetch this type; recovery only changes reach.',3);
+    if(collector&&engine.wisp.phase==='cooldown')return hint('rest','Collector is recovering','Its boundary grows back. A small green circle still means it can fetch this type; recovery only changes reach.',3);
     if(engine.time>12&&engine.time<16)return hint('luminance','Your reach is Luminance','Your light reveals nearby terrain. Collector’s green boundary shows its separate fetching range.',4);
     return hint('glide-ready','Small Lifts, long glides','Time your last Lift so gravity carries you into the next Spark. Direct pickups refill your meter immediately.',4);
   }
@@ -260,14 +260,14 @@ export function getTutorialWorldFocus(engine, seenIds = null) {
   const light = packets.filter(({ packet }) => !packet.harmful && packet.kind !== 'dark')
     .sort((a, b) => Math.abs(a.x - engine.player.x) - Math.abs(b.x - engine.player.x))[0];
   if (light) candidates.push(focus('light-packet', 'Refill the Spark Meter',
-    hasCollector ? (pickupHandlingCue(light.packet,engine.mod,{collector:true})==='collector'?'The shell curl below this pickup lets Collector fetch it after you pass, then tow it to your main wisp. Touching it yourself refills immediately.':'Touch it yourself. Cache Handling or Flash Handling adds the shell curl for Collector.')
+    hasCollector ? (pickupHandlingCue(light.packet,engine.mod,{collector:true})==='collector'?'The small green circle below this pickup lets Collector fetch it after you pass, then tow it to your main wisp. Touching it yourself refills immediately.':'Touch it yourself. Cache Handling or Flash Handling adds the green circle for Collector.')
       : 'Touch this bright packet yourself to refill Sparks. Your selected companion does not fetch.', light.x, light.packet.y, 20));
   for (const puff of engine.getDraftPuffs?.() || []) candidates.push(focus('draft', 'Local draft puff',
     'Only these curls push you. Fly above or below their boundary.',
     puff.x - engine.distance, puff.y, Math.min(puff.rx, puff.ry, 48)));
   const carrier = engine.getWispState?.();
   if (carrier?.phase === 'returning' && carrier.carrying) candidates.push(focus('carrier-return', 'Collector delivery',
-    'Collector is towing by the shell curl. Your Spark Meter refills when the shell touches your main wisp.', carrier.x, carrier.y, 21));
+    'Collector is towing by the green circle. Your Spark Meter refills when the shell touches your main wisp.', carrier.x, carrier.y, 21));
   if (carrier?.phase === 'cooldown' && state.carrierDeliveries > 0) candidates.push(focus('carrier-rest', 'Collector recovery',
     'Its boundary shrinks after delivery, then grows. Collector can still fetch a missed Spark inside the smaller boundary.', carrier.x, carrier.y, 21));
   const exit = engine.getExitLandmark?.();
