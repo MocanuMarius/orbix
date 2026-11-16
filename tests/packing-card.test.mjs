@@ -33,31 +33,31 @@ const reload=state=>{
 const engine=(modifiers={})=>new WispFlight({preflight:true,seed:'packing-card-engine',modifiers,
  canvas:{getContext:()=>({setTransform(){}}),getBoundingClientRect:()=>({width:900,height:430})}});
 
-test('Tight Packing pays 4→5 and 8→10 once, with explicit clear and history receipts',()=>{
+test('Tight Packing pays 4→6 and 8→12 once, with explicit clear and history receipts',()=>{
  for(const base of [4,8]){
   const state=fresh(),run=state.run,gained=clear(state,{condensedGlow:base});
-  assert.equal(gained,run.lastFlight.completionBonus+base*1.25);
-  assert.equal(run.lastFlight.cardPackingBonus,base/4);
+  assert.equal(gained,run.lastFlight.completionBonus+base*1.5);
+  assert.equal(run.lastFlight.cardPackingBonus,base/2);
   assert.equal(run.lastFlight.securedCondensedGlow,gained);
-  assert.equal(run.cardHistory.find(e=>e.type==='packing').bonus,base/4);
+  assert.equal(run.cardHistory.find(e=>e.type==='packing').bonus,base/2);
   const saved=reload(state),wallet=saved.run.condensedGlow;
   assert.equal(M.finishFlight(saved.run,{success:true,condensedGlow:base}),false);
   assert.equal(M.settleCheckpoint(saved),0);assert.equal(saved.run.condensedGlow,wallet);
   const receipt=M.takeClearRewardReceipt(saved.run);
-  assert.equal(receipt.amount,gained);assert.equal(receipt.cardPackingBonus,base/4);
+  assert.equal(receipt.amount,gained);assert.equal(receipt.cardPackingBonus,base/2);
   assert.match(receipt.notes.join(' '),/Tight Packing/);
   assert.equal(M.takeClearRewardReceipt(saved.run),null);
  }
 });
 
 test('earned quarters survive successful clears, reload and unequip; failures and Dream add none',()=>{
- let state=fresh();clear(state,{condensedGlow:1});assert.equal(state.run.cardPackingRemainder,1);
- state=reload(state);clear(state,{condensedGlow:1});assert.equal(state.run.cardPackingRemainder,2);
+ let state=fresh();clear(state,{condensedGlow:1});assert.equal(state.run.cardPackingRemainder,2);
+ state=reload(state);clear(state,{condensedGlow:1});assert.equal(state.run.cardPackingRemainder,0);
  const run=launch(state),wallet=run.condensedGlow;
  assert.ok(M.finishFlight(run,{success:false,flame:100,condensedGlow:20,cardPackingEligible:20}));
- assert.equal(run.cardPackingRemainder,2);assert.equal(run.condensedGlow,wallet);
- clear(state,{condensedGlow:8,dreamAttempt:true});assert.equal(run.lastFlight.cardPackingBonus,0);assert.equal(run.cardPackingRemainder,2);
- mount(run,[]);clear(state,{condensedGlow:8});assert.equal(run.lastFlight.cardPackingBonus,0);assert.equal(run.cardPackingRemainder,2);
+ assert.equal(run.cardPackingRemainder,0);assert.equal(run.condensedGlow,wallet);
+ clear(state,{condensedGlow:8,dreamAttempt:true});assert.equal(run.lastFlight.cardPackingBonus,0);assert.equal(run.cardPackingRemainder,0);
+ mount(run,[]);clear(state,{condensedGlow:8});assert.equal(run.lastFlight.cardPackingBonus,0);assert.equal(run.cardPackingRemainder,0);
  state=reload(state);mount(state.run,['tight-packing']);clear(state,{condensedGlow:2});
  assert.equal(state.run.lastFlight.cardPackingBonus,1);assert.equal(state.run.cardPackingRemainder,0);
 });
@@ -66,7 +66,7 @@ test('eligible overflow plus independent exit reserve is capped first; flat inco
  const state=fresh(),run=state.run;run.nextFlightPact='night-ledger';
  clear(state,{condensedGlow:999,cardPackingEligible:999,flame:80,storageBonus:100,resonanceStored:100});
  assert.equal(run.lastFlight.pickupCondensedGlow,20);assert.equal(run.lastFlight.exitPacking.amount,4);
- assert.equal(run.lastFlight.cardPackingEligible,24);assert.equal(run.lastFlight.cardPackingBonus,6);
+ assert.equal(run.lastFlight.cardPackingEligible,24);assert.equal(run.lastFlight.cardPackingBonus,12);
  assert.equal(run.lastFlight.pactBonus,20,'pact sees only the original packing');
  const flat=fresh();mount(flat.run,['tight-packing','harvest-legendary']);
  clear(flat,{flame:0,condensedGlow:0,storageBonus:100,resonanceStored:7});
@@ -81,9 +81,9 @@ test('eligible overflow plus independent exit reserve is capped first; flat inco
 test('genuine copies, Chameleon and Echo add packing percentage points once',()=>{
  const state=fresh(),run=state.run;
  mount(run,['chameleon','tight-packing','tight-packing','echo','tight-packing']);
- assert.equal(getCardModifiers(run).cardPackingSources,5);
- assert.equal(getMountedCards(run)[3].copyPreview,'Repeats +25% packing · extras do not earn extras');
- clear(state,{condensedGlow:4});assert.equal(run.lastFlight.cardPackingBonus,5);
+ assert.equal(getCardModifiers(run).cardPackingSources,10);
+ assert.equal(getMountedCards(run)[3].copyPreview,'Repeats +50% packing · extras do not earn extras');
+ clear(state,{condensedGlow:4});assert.equal(run.lastFlight.cardPackingBonus,10);
  assert.equal(SKILL_CARDS['tight-packing'].maxRank,1);
  assert.deepEqual(getCardPackingBonus(4,1),{amount:1,remainder:0});
  assert.deepEqual(getCardPackingBonus(8,1),{amount:2,remainder:0});
@@ -92,12 +92,12 @@ test('genuine copies, Chameleon and Echo add packing percentage points once',()=
 test('natural packing displays the extra separately without turning it into base output; Dream/generated pay none',()=>{
  const state=fresh(),e=engine(getCardModifiers(state.run));e.running=true;e.flame=100;
  for(let i=0;i<4;i++)e.collect({kind:'light'});
- assert.equal(e.condensedGlow,4);assert.equal(e.cardPackingBonus,1);assert.equal(e.getState().condensedGlow,5);
+ assert.equal(e.condensedGlow,4);assert.equal(e.cardPackingBonus,2);assert.equal(e.getState().condensedGlow,6);
  assert.equal(e.condensationFlow.cardPackingBonus,1);
  assert.ok(e.activationEvents.events.some(event=>event.label==='Tight Packing'&&event.outcome.stored===1));
  e.storageBonus=12;e.resonanceStored=3;e.flame=80;e.finish(true);
- assert.equal(e.exitPacking.amount,4);assert.equal(e.cardPackingBonus,2);assert.equal(e.condensationFlow.amount,5);
- assert.equal(e.getState().condensedGlow,25);e.destroy();
+ assert.equal(e.exitPacking.amount,4);assert.equal(e.cardPackingBonus,4);assert.equal(e.condensationFlow.amount,6);
+ assert.equal(e.getState().condensedGlow,27);e.destroy();
  const denied=engine(getCardModifiers(state.run));denied.running=true;denied.flame=100;
  denied.collect({kind:'light',generated:true});
  denied.dream={phase:'recording',active:true};for(let i=0;i<8;i++)denied.collect({kind:'light'});
@@ -117,14 +117,14 @@ test('Common starter/drop pools include Tight Packing and its clear UI receipt n
  const packing=describeSkillCard(makeSkillCard('tight-packing','art'));
  const art=cardArt(packing);
  assert.match(art,/data-card-art="tight-packing"/);
- assert.match(art,/<image href="\.\/assets\/cards\/skill-card-scenes\.webp"/);
+ assert.match(art,/<image href="\.\/assets\/cards\/skill-card-scenes-rare\.webp"/);
  assert.match(art,/aria-label="[^"]*press[^"]*"/);
  const rule=cardMechanicMarkup(packing);
- assert.match(rule.replace(/<[^>]*>/g,'').replace(/\s+/g,' '),/For every 4 (?:Stored Sparks )?you pack:?\+1/);
+ assert.match(rule.replace(/<[^>]*>/g,'').replace(/\s+/g,' '),/For every 2 Stored Sparks naturally packed\+1/);
  assert.equal((rule.match(/resource-symbol-packed/g)||[]).length,2);
  assert.doesNotMatch(rule,/resource-symbol-energy/);
- assert.match(cardRewardMarkup(state.run),/Tight Packing \+1 Stored Sparks/);
- state.run.cardReward.source='forge';assert.doesNotMatch(cardRewardMarkup(state.run),/Tight Packing \+1 Stored Sparks/);
+ assert.match(cardRewardMarkup(state.run),/Tight Packing \+2 Stored Sparks/);
+ state.run.cardReward.source='forge';assert.doesNotMatch(cardRewardMarkup(state.run),/Tight Packing \+2 Stored Sparks/);
  state.run.lastFlight.elite=true;
- assert.match(flightRewardMarkup(state),/Tight Packing \+1/);
+ assert.match(flightRewardMarkup(state),/Tight Packing \+2/);
 });

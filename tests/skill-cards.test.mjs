@@ -390,7 +390,7 @@ test("three Common Melts fund the exact 30-Spark Rare and no refill accompanies 
 test("Grow unlock never grants automatic growth and preserves its three-action cap", () => {
   const state = fresh("grow-cap"),
     run = state.run;
-  mount(run, ["growth-seed"]);
+  mount(run, ["growth-seed-common"]);
   run.lives = 2;
   assert.equal(getGlowCapacity(run), 100);
   for (let index = 0; index < 3; index++) {
@@ -482,7 +482,7 @@ test("Legendary forging is locked until a Rare is mounted; insufficient wallet c
 test("second distinct camp action spends one real charge only on successful second commit", () => {
   let state = fresh(),
     run = state.run;
-  mount(run, ["camp-kit", "growth-seed"]);
+  mount(run, ["camp-kit", "growth-seed-common"]);
   run.condensedGlow = 60;
   run.lives = 2;
   run.flame = 20;
@@ -534,16 +534,13 @@ test("leaving after one action or no possible second action preserves camp-kit c
   assert.equal(run2.mountedCards[0].charges, 1);
 });
 
-test("camp eligibility is snapshotted on arrival and slot additions cap at five, one per map", () => {
+test("Second Ember arrival eligibility and slot limits persist while Grow uses the equipped seed", () => {
   const state = fresh(),
     run = state.run;
   run.flame = 20;
   camp(state);
   mount(run, ["camp-kit", "growth-seed"]);
-  assert.match(
-    M.getSupportChoices(run).find((c) => c.id === "rest-grow").disabledReason,
-    /before arriving/,
-  );
+  assert.equal(M.getSupportChoices(run).find((c) => c.id === "rest-grow").disabled, false);
   assert.ok(choose(run, "rest-slot"));
   assert.equal(run.cardSlots, 4);
   assert.equal(run.flame, 20);

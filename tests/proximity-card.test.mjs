@@ -45,6 +45,10 @@ test('help uses exact cloned rows, honest full-slot displacement and all adjacen
   const mounted=makeRun(['chameleon','edge-reach',null]),comparison=proximityCardComparison(mounted,'slot:1');
   assert.equal(comparison.beforeMod.proximityUnlocked,false);assert.equal(comparison.afterMod.cardProximitySources,2);assert.equal(comparison.before.mountedCards[1],null);
   assert.deepEqual(comparison.afterMod,M.getRunModifiers(mounted));
+  const common=makeRun([null,null,null]);common.reserveCards=[makeSkillCard('slip-feather','common')];
+  const commonPreview=proximityCardComparison(common,'common');
+  assert.equal(commonPreview.afterLabel,'With Proximity · slot 1');
+  assert.equal(commonPreview.afterMod.proximityUnlocked,true);assert.equal(getProximityClearance(commonPreview.afterMod),48);
 });
 
 test('paused live reconcile applies/removes range without moving flight or firing on equip',()=>{

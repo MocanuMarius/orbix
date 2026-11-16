@@ -1,4 +1,4 @@
-import {getBiome} from './biomes.mjs?v=collector-reel-1';
+import {getBiome} from './biomes.mjs?v=cards-renewal-1';
 
 const palette=(deep,body,fringe,core,hot,mote,seam)=>Object.freeze({deep,body,fringe,core,hot,mote,seam});
 // Spirit Fire keeps one silhouette and motion vocabulary; only its mineral hue changes.

@@ -1,9 +1,9 @@
 /** Disposable comparisons: real run modifiers, terrain, renderer and proximity HUD. */
-import {getRunModifiers} from './model.mjs?v=collector-reel-1';
-import {makeSkillCard, SKILL_CARDS} from './skill-cards.mjs?v=collector-reel-1';
-import {WispFlight} from './flight.mjs?v=collector-reel-1';
-import {getProximityClearance, obstacleEdgeClearance} from './edging-pulse.mjs?v=collector-reel-1';
-import {edgingPulseMarkup, updateEdgingPulse} from './edging-ui.mjs?v=collector-reel-1';
+import {getRunModifiers} from './model.mjs?v=cards-renewal-1';
+import {makeSkillCard, SKILL_CARDS} from './skill-cards.mjs?v=cards-renewal-1';
+import {WispFlight} from './flight.mjs?v=cards-renewal-1';
+import {getProximityClearance, obstacleEdgeClearance} from './edging-pulse.mjs?v=cards-renewal-1';
+import {edgingPulseMarkup, updateEdgingPulse} from './edging-ui.mjs?v=cards-renewal-1';
 const esc = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const name = card => SKILL_CARDS[card?.cardId]?.name || 'Empty';
 
@@ -22,10 +22,10 @@ export function proximityCardComparison(run, instanceId, slot) {
     if (index >= 0) { displaced = after.mountedCards[index]; after.mountedCards[index] = structuredClone(card); after.reserveCards=(after.reserveCards||[]).filter(c=>c.instanceId!==card.instanceId); if(displaced)after.reserveCards.push(displaced); }
   }
   const beforeMod = getRunModifiers(before), afterMod = index >= 0 ? getRunModifiers(after) : null;
-  return {before, after, beforeMod, afterMod, index, displaced, equipped:mountedIndex >= 0,
+  return {before, after, beforeMod, afterMod, index, displaced, cardId:card.cardId,cardName:name(card),equipped:mountedIndex >= 0,
     needsSlot:index < 0, slots:mounted.map((card,index) => ({index,name:name(card)})),
     beforeLabel:mountedIndex >= 0 ? 'Without this card' : 'Equipped now',
-    afterLabel:mountedIndex >= 0 ? 'Equipped now' : `With Edge Reach · slot ${index + 1}`};
+    afterLabel:mountedIndex >= 0 ? 'Equipped now' : `With ${name(card)} · slot ${index + 1}`};
 }
 
 function rangeLabel(mod, diameter = 18.7) {
@@ -56,7 +56,7 @@ function findPose(engine, gap = 60) {
   return best;
 }
 
-async function capture(doc, run, mod, pose, seconds) {
+async function capture(doc, run, mod, pose, seconds, gap = 60) {
   const stage=doc.createElement('div');
   stage.className='proximity-help-stage';
   Object.assign(stage.style,{position:'fixed',left:'-20000px',top:'0',width:'640px',height:'270px',pointerEvents:'none'});
@@ -70,7 +70,7 @@ async function capture(doc, run, mod, pose, seconds) {
     engine.setMuted(true);
     await engine.ready;
     await engine.environmentArtReady;
-    pose ||= findPose(engine);
+    pose ||= findPose(engine,gap);
     engine.running=true;engine.paused=false;engine.time=0;
     engine.distance=pose.x-engine.player.x;engine.previousDistance=engine.distance;
     engine.player.y=pose.y;engine.previousPlayerY=pose.y;engine.player.vy=0;
@@ -111,14 +111,14 @@ export function mountProximityCardHelp(host, {run,instanceId,example=false} = {}
   let disposed=false,version=0,slot,seconds=1;
   async function render() {
     const ticket=++version,comparison=proximityCardComparison(run,instanceId,slot),doc=host.ownerDocument;
-    host.innerHTML=`<div class="proximity-help-heading"><strong>${example?'Example loadout':'Your loadout'}</strong><span>${esc((run.mountedCards||[]).map((card,i)=>`${i+1}: ${name(card)}`).join(' · '))}</span></div>${comparison.equipped?'':`<label class="proximity-help-slot">Preview in slot <select aria-label="Slot for Edge Reach comparison"><option value="">${comparison.needsSlot?'Choose a card to replace':'Choose a different slot'}</option>${comparison.slots.map(s=>`<option value="${s.index}" ${comparison.index===s.index?'selected':''}>${s.index+1} · ${esc(s.name)}</option>`).join('')}</select></label>`}${comparison.needsSlot?'<p>Every slot is occupied. Choose the card this preview would replace.</p>':`<p class="proximity-help-placement">${comparison.equipped?`Slot ${comparison.index+1} removed only in the left preview.`:comparison.displaced?`Preview replaces ${esc(name(comparison.displaced))} in slot ${comparison.index+1}.`:`Preview uses empty slot ${comparison.index+1}.`} Your deck stays as it is.</p><div class="proximity-help-step"><span>Same pose · ${seconds===1?'1 second near terrain':'2 seconds + wave front'}</span><button type="button" data-proximity-step>${seconds===1?'See the wave at 2 s':'Back to 1 s'}</button></div><div class="proximity-help-pair"><figure data-side="before"><figcaption>${comparison.beforeLabel}<b>${rangeLabel(comparison.beforeMod)}</b></figcaption><small data-proximity-result></small><div class="proximity-help-scene">Loading flight…</div></figure><figure data-side="after"><figcaption>${comparison.afterLabel}<b>${rangeLabel(comparison.afterMod)}</b></figcaption><small data-proximity-result></small><div class="proximity-help-scene">Loading flight…</div></figure></div>`}<p class="proximity-help-reference">Normal reach: ${(getProximityClearance({})/18.7).toFixed(1)} wisp widths. Each source adds 50% of normal: 48 → 72 → 96 world units. Distance is from your wisp’s edge to solid terrain.</p>`;
+    host.innerHTML=`<div class="proximity-help-heading"><strong>${example?'Example loadout':'Your loadout'}</strong><span>${esc((run.mountedCards||[]).map((card,i)=>`${i+1}: ${name(card)}`).join(' · '))}</span></div>${comparison.equipped?'':`<label class="proximity-help-slot">Preview in slot <select aria-label="Slot for Proximity comparison"><option value="">${comparison.needsSlot?'Choose a card to replace':'Choose a different slot'}</option>${comparison.slots.map(s=>`<option value="${s.index}" ${comparison.index===s.index?'selected':''}>${s.index+1} · ${esc(s.name)}</option>`).join('')}</select></label>`}${comparison.needsSlot?'<p>Every slot is occupied. Choose the card this preview would replace.</p>':`<p class="proximity-help-placement">${comparison.equipped?`Slot ${comparison.index+1} removed only in the left preview.`:comparison.displaced?`Preview replaces ${esc(name(comparison.displaced))} in slot ${comparison.index+1}.`:`Preview uses empty slot ${comparison.index+1}.`} Your deck stays as it is.</p><div class="proximity-help-step"><span>Same pose · ${seconds===1?'1 second near terrain':'2 seconds + wave front'}</span><button type="button" data-proximity-step>${seconds===1?'See the wave at 2 s':'Back to 1 s'}</button></div><div class="proximity-help-pair"><figure data-side="before"><figcaption>${comparison.beforeLabel}<b>${rangeLabel(comparison.beforeMod)}</b></figcaption><small data-proximity-result></small><div class="proximity-help-scene">Loading flight…</div></figure><figure data-side="after"><figcaption>${comparison.afterLabel}<b>${rangeLabel(comparison.afterMod)}</b></figcaption><small data-proximity-result></small><div class="proximity-help-scene">Loading flight…</div></figure></div>`}<p class="proximity-help-reference">Normal reach: ${(getProximityClearance({})/18.7).toFixed(1)} wisp widths. Proximity enables normal reach. Each Edge Reach source adds 50% of normal: 48 → 72 → 96 world units. Distance is from your wisp’s edge to solid terrain.</p>`;
     host.querySelector('select')?.addEventListener('change',event=>{slot=event.target.value===''?undefined:Number(event.target.value);render();});
     host.querySelector('[data-proximity-step]')?.addEventListener('click',()=>{seconds=seconds===1?2:1;render();});
     if(comparison.needsSlot)return;
     try {
       let pose;
       for(const side of ['before','after']) {
-        const result=await capture(doc,comparison[side],comparison[`${side}Mod`],pose,seconds);pose=result.pose;
+        const result=await capture(doc,comparison[side],comparison[`${side}Mod`],pose,seconds,comparison.cardId==='slip-feather'?36:60);pose=result.pose;
         if(disposed||ticket!==version)return;
         const figure=host.querySelector(`[data-side="${side}"]`),scene=figure.querySelector('.proximity-help-scene');
         scene.replaceChildren(result.canvas);

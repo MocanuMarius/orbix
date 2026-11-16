@@ -48,13 +48,13 @@ test('Fast Spool reduces only an actual active reel, clamps the last time and sh
   }finally{e.destroy();}
 });
 
-test('Fast Spool has three successful uses over real reeling seconds and no uses for generated or Dream body pickups',()=>{
-  const e=flight(['fast-spool']);try{
+test('Fast Spool has three successful 3-second uses and no uses for generated or Dream body pickups',()=>{
+  const e=flight(['fast-spool'],{wispCooldown:1});try{
     const p=missed(e);until(e,()=>!!e.wisp.cargo);const initial=e.wisp.activeReelSeconds();
     e.collect({kind:'light',generated:true});assert.equal(charges(e,0),3);
     e.dream={phase:'recording'};e.collect({kind:'light'});assert.equal(charges(e,0),3);e.dream=null;
     for(let i=0;i<3;i++){e.collect({kind:'light'});assert.equal(charges(e,0),2-i);}
-    near(e.wisp.activeReelSeconds(),initial-3);e.collect({kind:'light'});near(e.wisp.activeReelSeconds(),initial-3);
+    near(e.wisp.activeReelSeconds(),initial-9);e.collect({kind:'light'});near(e.wisp.activeReelSeconds(),initial-9);
     until(e,()=>p.collected);assert.equal(e.collectorPickups,1);
   }finally{e.destroy();}
 });

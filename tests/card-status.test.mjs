@@ -34,9 +34,9 @@ test('ordering quotes combine actual predicates and only same-event Spark payers
 });
 
 test('trigger availability respects native abilities, baseline events and Collector loadout',()=>{
-  for(const id of ['far-shore','harvest-common','downbeat','flash-bank','glass-spool','ring-spring','courier-tip'])
+  for(const id of ['far-shore','harvest-common','downbeat','flash-bank','glass-spool','ring-spring','courier-tip','slip-feather','diving-bell','springboard','tailwind'])
     assert.equal(states(build([id]))[0],'ready',id);
-  for(const id of ['toll-bell','pacesetter','slip-feather','wave-loom','home-beacon','last-light','mending-moss','crate-lining'])
+  for(const id of ['toll-bell','pacesetter','wave-loom','home-beacon','last-light','mending-moss','crate-lining'])
     assert.equal(states(build([id]))[0],'blocked',id);
   assert.equal(states(build(['rhythm','toll-bell']))[1],'ready');
   assert.equal(states(build(['field-impulse','diving-bell']))[1],'ready');
@@ -45,7 +45,7 @@ test('trigger availability respects native abilities, baseline events and Collec
   const run=build(['slip-feather','home-beacon','crate-lining']);
   run.skills={'collector-field-impulse':1,'collector-last-orbit':1,'collector-fetch-large':1};
   assert.deepEqual(states(run),['ready','ready','ready']);
-  run.companions=['protector'];assert.deepEqual(states(run),['blocked','blocked','blocked']);
+  run.companions=['protector'];assert.deepEqual(states(run),['ready','blocked','blocked']);
 });
 
 test('shared last uses and productive replay are accurate without mutating the build',()=>{

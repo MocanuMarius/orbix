@@ -190,6 +190,61 @@ test('mid-flight Melt survives failure and reload while Forge remains at Rest', 
   assert.equal(M.forgeOwnedCard(state, 'rare', first.token), false);
 });
 
+test('Nest Egg keeps its actual flight-entry savings when a paused Melt changes the rollback wallet', () => {
+  const state = fresh('nest-egg-entry-wallet'), run = state.run;
+  run.condensedGlow = 20;
+  add(run, 'nest-egg', 'nest', 0);
+  add(run, 'body-spark', 'midflight-melt');
+  const engine = launch(state);
+  try {
+    assert.equal(run.attemptEntry.cardCarriedStored, 20);
+    engine.pause(); assert.ok(M.syncCardFlightForEdit(run, engine));
+    const melt = M.getCardMeltPreview(run, ['midflight-melt']);
+    assert.ok(M.meltOwnedCards(state, ['midflight-melt'], melt.token));
+    assert.equal(run.condensedGlow, 30);
+    assert.equal(run.attemptEntry.condensedGlow, 30, 'the banked Melt remains protected on failure');
+    assert.equal(run.attemptEntry.cardCarriedStored, 20, 'the clear payout keeps its original savings');
+    assert.ok(M.closeCardFlightEdit(run, engine));
+    engine.flame = 0; finish(state, engine, true);
+    assert.equal(run.lastFlight.cardClearReceipt.stored, 2);
+    M.settleCheckpoint(state); const wallet = run.condensedGlow;
+    const restored = reload(state);
+    assert.equal(restored.run.condensedGlow, wallet);
+    assert.equal(restored.run.lastFlight.cardClearReceipt.stored, 2);
+    assert.equal(M.settleCheckpoint(restored), 0);
+  } finally { engine.destroy(); }
+});
+
+test('Devourer uses the current paused-Deck arrangement and consumes only the current adjacent Rare', () => {
+  for (const edit of ['move-pair', 'replace-target', 'equip-pair', 'remove-target']) {
+    const state = fresh('devourer-live-' + edit), run = state.run;
+    run.lives = 1;
+    add(run, 'devourer', 'devourer', edit === 'equip-pair' ? null : 0);
+    add(run, 'echo-ii', 'original-rare', edit === 'equip-pair' ? null : 1);
+    add(run, 'edge-reach', 'replacement-rare');
+    const engine = launch(state);
+    try {
+      engine.pause(); assert.ok(M.syncCardFlightForEdit(run, engine));
+      if (edit === 'move-pair') {
+        assert.ok(M.moveMountedCard(run, 1, 2));
+        assert.ok(M.moveMountedCard(run, 0, 1));
+      } else if (edit === 'replace-target') {
+        assert.ok(M.equipOwnedCard(run, 'replacement-rare', 1));
+      } else if (edit === 'equip-pair') {
+        assert.ok(M.equipOwnedCard(run, 'devourer', 0));
+        assert.ok(M.equipOwnedCard(run, 'original-rare', 1));
+      } else assert.ok(M.unequipMountedCard(run, 1, 'original-rare'));
+      assert.ok(M.closeCardFlightEdit(run, engine));
+      engine.flame = 0; finish(state, engine, true);
+      const target = edit === 'replace-target' ? 'replacement-rare' : 'original-rare';
+      assert.equal(run.lives, edit === 'remove-target' ? 1 : 2, edit);
+      assert.deepEqual(run.lastFlight.devourerSacrifices?.map(s => s.targetInstanceId) || [], edit === 'remove-target' ? [] : [target], edit);
+      assert.ok(M.getOwnedCards(run).some(c => c.instanceId === 'devourer'));
+      if (edit === 'replace-target' || edit === 'remove-target') assert.ok(M.getOwnedCards(run).some(c => c.instanceId === 'original-rare'));
+    } finally { engine.destroy(); }
+  }
+});
+
 test('closing/cancelling a live Deck releases its gate and resumed, mismatched or terminal engines cannot edit', () => {
   const state = fresh('edit-gates'), run = state.run;
   add(run, 'body-spark', 'body', 0);
@@ -245,21 +300,21 @@ test('Tight Packing is earned prospectively across live enter/leave edits and ke
   assert.equal(engine.cardPackingBonus, 0);
   edit(() => assert.ok(M.equipOwnedCard(run, 'packing', 0)));
   assert.equal(engine.cardPackingBonus, 0, 'mounting does not backfill earlier earnings');
-  pack(3); assert.equal(engine.cardPackingRemainder, 3);
+  pack(3); assert.equal(engine.cardPackingBonus, 1);assert.equal(engine.cardPackingRemainder, 2);
   edit(() => assert.ok(M.unequipMountedCard(run, 0, 'packing')));
-  pack(4); assert.equal(engine.cardPackingBonus, 0); assert.equal(engine.cardPackingRemainder, 3);
+  pack(4); assert.equal(engine.cardPackingBonus, 1); assert.equal(engine.cardPackingRemainder, 2);
   edit(() => assert.ok(M.equipOwnedCard(run, 'packing', 0)));
-  pack(2); assert.equal(engine.cardPackingBonus, 1); assert.equal(engine.cardPackingRemainder, 1);
+  pack(2); assert.equal(engine.cardPackingBonus, 2); assert.equal(engine.cardPackingRemainder, 2);
   edit(() => assert.ok(M.unequipMountedCard(run, 0, 'packing')));
-  assert.equal(engine.cardPackingBonus, 1, 'removing a card preserves its earned bonus');
+  assert.equal(engine.cardPackingBonus, 2, 'removing a card preserves its earned bonus');
   engine.flame = 0;
   const wallet = run.condensedGlow, result = finish(state, engine, true);
-  assert.equal(result.cardPackingBonus, 1);
-  assert.equal(result.cardPackingRemainder, 1);
-  assert.equal(run.lastFlight.cardPackingBonus, 1);
-  assert.equal(run.cardPackingRemainder, 1);
+  assert.equal(result.cardPackingBonus, 2);
+  assert.equal(result.cardPackingRemainder, 2);
+  assert.equal(run.lastFlight.cardPackingBonus, 2);
+  assert.equal(run.cardPackingRemainder, 2);
   M.settleCheckpoint(state);
-  const earned = wallet + 13 + 1 + run.lastFlight.completionBonus + (run.lastFlight.routeBonus?.amount || 0);
+  const earned = wallet + 13 + 2 + run.lastFlight.completionBonus + (run.lastFlight.routeBonus?.amount || 0);
   assert.equal(run.condensedGlow, earned);
   M.settleCheckpoint(state);
   assert.equal(run.condensedGlow, earned, 'settling again never replays the live packing earnings');
@@ -277,23 +332,23 @@ test('a successful purchased flight keeps pending earnings and credits its exit 
   engine.flame = engine.maxFlame;
   for (let i = 0; i < 3; i++) engine.collect({ kind: 'light' });
   assert.equal(engine.condensedGlow, 3);
-  assert.equal(engine.cardPackingBonus, 1);
-  assert.equal(engine.cardPackingRemainder, 2);
+  assert.equal(engine.cardPackingBonus, 2);
+  assert.equal(engine.cardPackingRemainder, 1);
   engine.pause(); assert.ok(M.syncCardFlightForEdit(run, engine));
   assert.equal(M.forgeOwnedCard(state, 'rare', M.getCardForgePreview(run).token), false);
   assert.equal(run.condensedGlow, 0);
   assert.ok(M.closeCardFlightEdit(run, engine));
   assert.equal(engine.condensedStart, 0);
-  assert.equal(engine.condensedTotal, 4, 'banked purchase preserves pending base and bonus');
+  assert.equal(engine.condensedTotal, 5, 'banked purchase preserves pending base and bonus');
   engine.flame = 40;
   const result = finish(state, engine, true);
   assert.equal(engine.exitPacking.amount, 2);
-  assert.equal(result.cardPackingBonus, 2);
-  assert.equal(result.cardPackingRemainder, 0);
+  assert.equal(result.cardPackingBonus, 3);
+  assert.equal(result.cardPackingRemainder, 1);
   M.settleCheckpoint(state);
-  const earned = 3 + 2 + 2 + run.lastFlight.completionBonus + (run.lastFlight.routeBonus?.amount || 0);
+  const earned = 3 + 2 + 3 + run.lastFlight.completionBonus + (run.lastFlight.routeBonus?.amount || 0);
   assert.equal(run.condensedGlow, earned);
-  assert.equal(run.cardPackingRemainder, 0);
+  assert.equal(run.cardPackingRemainder, 1);
   assert.equal(M.finishFlight(run, result), false);
   assert.equal(M.settleCheckpoint(state), 0);
   assert.equal(run.condensedGlow, earned);

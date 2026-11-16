@@ -1,4 +1,4 @@
-import {SKILL_CARDS} from './skill-cards.mjs?v=collector-reel-1';
+import {SKILL_CARDS} from './skill-cards.mjs?v=cards-renewal-1';
 /** Sixteen original scenes share one locally cached, square-cell atlas.
  * Order matches the 4×4 asset; each SVG clips exactly one 313px cell. */
 const esc = v => String(v ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -23,6 +23,9 @@ const ART = Object.freeze({
 export const CARD_ART_IDS = Object.freeze(Object.keys(ART));
 export function cardArt(card = {}, {compact = false, size = null} = {}) {
   const requested = String(card.cardId || card.id || ''), family = card.artFamily || SKILL_CARDS[requested]?.artFamily || requested, id = Object.hasOwn(ART, family) ? family : 'body-spark';
+  // All three approved ruin frames share Rare's established coarse pixel grain.
+  // Sampling per cell keeps each evolved card's established art family.
   const index = CARD_ART_IDS.indexOf(id), cell = 313, x = (index % 4) * cell, y = Math.floor(index / 4) * cell;
-  return `<svg xmlns="http://www.w3.org/2000/svg" class="skill-card-art skill-card-illustration card-art-${id}${compact ? ' card-art-compact' : ''}" data-card-art="${id}" data-card-rarity="${esc(card.rarity || 'common')}" data-art-size="${compact || size === 'compact' ? 'compact' : 'full'}" viewBox="${x} ${y} ${cell} ${cell}" width="120" height="168" preserveAspectRatio="xMidYMid slice" focusable="false" role="img" aria-label="${esc(ART[id].description)}"><image href="./assets/cards/skill-card-scenes.webp" x="0" y="0" width="1252" height="1252" preserveAspectRatio="none"/></svg>`;
+  const source = './assets/cards/skill-card-scenes-rare.webp';
+  return `<svg xmlns="http://www.w3.org/2000/svg" class="skill-card-art skill-card-illustration card-art-${id}${compact ? ' card-art-compact' : ''}" data-card-art="${id}" data-card-rarity="${esc(card.rarity || 'common')}" data-art-size="${compact || size === 'compact' ? 'compact' : 'full'}" viewBox="${x} ${y} ${cell} ${cell}" width="120" height="168" preserveAspectRatio="xMidYMid slice" focusable="false" role="img" aria-label="${esc(ART[id].description)}"><image href="${source}" x="0" y="0" width="${cell * 4}" height="${cell * 4}" preserveAspectRatio="none" style="image-rendering:pixelated"/></svg>`;
 }

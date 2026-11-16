@@ -1,4 +1,4 @@
-import {newState,createRun,chooseStartingGift} from './model.mjs?v=collector-reel-1';
+import {newState,createRun,chooseStartingGift} from './model.mjs?v=cards-renewal-1';
 
 export function createLanternMapInspectorState() {
  const state=newState();

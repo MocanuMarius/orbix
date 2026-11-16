@@ -1,10 +1,19 @@
 # Current backlog status — Cards default · 16 November 2026
 
-Current release: **`collector-reel-1`**. [Release verification](docs/collector-reel-release.md) · [Performance verification](docs/performance-120.md) · [Cards verification](docs/skills-cards-release.md) · [Current card rules](docs/skill-cards.md) · [Item-by-item audit](docs/backlog-current.md).
+Current release: **`cards-renewal-1`**. [Release verification](docs/cards-renewal-release.md) · [Performance verification](docs/performance-120.md) · [Cards verification](docs/skills-cards-release.md) · [Current card rules](docs/skill-cards.md) · [Item-by-item audit](docs/backlog-current.md).
 
-The entries below are chronological release snapshots. Their old “current” labels, checked boxes and pending notes describe those snapshots; later decisions take precedence. The current local source has 75 cards, an owned Deck editable during safely paused flight, a guaranteed meltable Lift Guide, repeatable Forge and card improvements at Rest, copy-compatible numeric Field Impulse duration and Collector’s visible reel. The original skill book stays under Settings → Advanced with a separate save. Cards and Stored Sparks reset with the expedition; earned future maximum Sparks are the explicit permanent exception.
+The entries below are chronological release snapshots. Their old “current” labels, checked boxes and pending notes describe those snapshots; later decisions take precedence. The current local source has 81 cards, an owned Deck editable during safely paused flight, a guaranteed meltable Lift Guide, repeatable Forge and card improvements at Rest, copy-compatible numeric Field Impulse duration and Collector’s visible reel. The original skill book stays under Settings → Advanced with a separate save. Cards and Stored Sparks reset with the expedition; earned maximum Sparks and unlocked cruising speed are the explicit permanent exceptions.
 
-## Latest requested batch — collector-reel-1
+## Latest requested batch — cards-renewal-1
+
+- [x] Ship the 81-card catalog and approved Cornerstones Common, slate Rare and Eclipse Legendary frames, with complete rules at phone landscape sizes.
+- [x] Add three Growth Seed tiers, six-ticket Common draws, the second-Common safeguard and same-visit Rest equip → Grow; preserve rarity rolls and exact historical growth.
+- [x] Settle Growth Ring and Wind Feather permanently per real clear, retain baseline speed choice, and use frozen entry savings for Nest Egg.
+- [x] Apply Tight Packing’s +50/75/100% tiers; revise standalone Common/Collector abilities and preserve real finite uses and one-pickup/one-wave rules.
+- [x] Add Devourer’s current-adjacent-Rare sacrifice with full-heart preservation; migrate retired Rare II cards to Common rank 2 and preserve instance IDs.
+- [x] Verify the actual previous installed worker/save upgrade, prepared offline assets, reward-to-Grow flow, normal entry, paused Deck and mobile layouts. [Release verification](docs/cards-renewal-release.md).
+
+## Previous requested batch — collector-reel-1
 
 - [x] Preserve completed Rest receipts, offer three reachable optional camps on each newly generated map (existing visited routes stay intact) and keep each camp’s ordinary flight exit.
 - [x] Keep Forge, Improve and Evolve at a verified active or completed Rest. Forge spends Stored Sparks without consuming a Rest action.

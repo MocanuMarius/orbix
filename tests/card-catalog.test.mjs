@@ -46,16 +46,17 @@ function reachCamp(state) {
   }
 }
 
-test('all 75 literal definitions have supported rules, unique IDs, honest art families and complete bands', () => {
+test('all 81 literal definitions have supported rules, unique IDs, honest art families and complete bands', () => {
   const defs = Object.values(CARD_CATALOG), supportedEvents = new Set([
-    '*', 'body-spark', 'wave-crossing', 'flash-pickup', 'downbeat-lift', 'natural-overfill',
-    'collector-delivery', 'collector-attach', 'expedition-victory', 'rhythm-phrase', 'field-swipe', 'guard-rescue',
+    '*', 'body-spark', 'wave-crossing', 'flash-pickup', 'flash-expiry', 'downbeat-lift', 'natural-overfill',
+    'collector-delivery', 'collector-attach', 'flight-clear', 'rhythm-phrase', 'field-swipe', 'guard-rescue',
   ]), physicalKinds = new Set(['proximity-range', 'capacity', 'packing', 'echo', 'chameleon', 'field', 'guide',
-    'rhythm', 'camp-extra', 'camp-grow', 'cache-handling', 'refrain', 'watchlight', 'wave-loom', 'spillway']);
-  assert.equal(defs.length, 75);
-  assert.equal(new Set(CARD_CATALOG_IDS).size, 75);
+    'rhythm', 'camp-extra', 'camp-grow', 'cache-handling', 'refrain', 'watchlight', 'wave-loom', 'spillway',
+    'proximity', 'springboard', 'heart-stitch', 'devourer', 'twin-orbit', 'twin-wick', 'collector-range']);
+  assert.equal(defs.length, 81);
+  assert.equal(new Set(CARD_CATALOG_IDS).size, 81);
   assert.deepEqual(defs.reduce((totals, def) => (totals[def.rarity]++, totals), { common: 0, rare: 0, legendary: 0 }),
-    { common: 37, rare: 24, legendary: 14 });
+    { common: 43, rare: 23, legendary: 15 });
   for (const [index, def] of defs.entries()) {
     assert.deepEqual(SKILL_CARDS[def.id], def);
     assert.equal(CARD_CATALOG_IDS[index], def.id);
@@ -70,7 +71,7 @@ test('all 75 literal definitions have supported rules, unique IDs, honest art fa
     if (!rule) assert.ok(physicalKinds.has(def.kind), `${def.id}: supported passive or physical kind`);
     else {
       assert.ok(supportedEvents.has(rule.event), `${def.id}: event`);
-      assert.ok(['add-sparks', 'shorten-recovery', 'shorten-reel', 'multiply', 'add-last-payout', 'add-future-capacity', 'multiply-future-capacity'].includes(rule.operation));
+      assert.ok(['add-sparks', 'shorten-recovery', 'shorten-reel', 'multiply', 'add-last-payout', 'add-future-capacity', 'multiply-future-capacity', 'add-stored', 'carried-interest', 'add-cruising-speed'].includes(rule.operation));
       assert.ok(Number.isFinite(rule.amount));
       if (['multiply', 'add-last-payout', 'multiply-future-capacity'].includes(rule.operation)) assert.equal(def.copyable, false);
     }
@@ -87,7 +88,7 @@ test('every numeric catalog rule produces its declared effect on a matching exec
   const additive = {
     'body-spark': 'body-spark', 'wave-crossing': 'harvest-common', 'flash-pickup': 'flash-handling',
     'downbeat-lift': 'downbeat', 'collector-delivery': 'courier-tip', 'rhythm-phrase': 'toll-bell',
-    'field-swipe': 'springboard', 'guard-rescue': 'home-beacon', 'expedition-victory': 'trail-vessel',
+    'flash-expiry': 'diving-bell', 'guard-rescue': 'home-beacon', 'flight-clear': 'growth-ring',
   };
   for (const def of Object.values(CARD_CATALOG)) {
     const card = makeSkillCard(def.id, `row:${def.id}`), rule = getCardRowRule(def, card);
@@ -95,7 +96,7 @@ test('every numeric catalog rule produces its declared effect on a matching exec
     const kind = rule.event === '*' ? 'body-spark' : rule.event,
       event = { kind, firstCrossing: rule.when?.firstCrossing ?? true,
         pickupKind: rule.when?.pickupKind || 'light', meterFraction: 0.1,
-        direction: rule.when?.direction || 'up', guardRecovering: true, availableRecovery: 10, collectorReeling: true, availableReel: 10 },
+        direction: rule.when?.direction || 'up', guardRecovering: true, availableRecovery: 10, collectorReeling: true, availableReel: 10, carriedStored:100 },
       prefix = Array.from({ length: Math.max(rule.minimumEarlierPayers || 0,
         ['multiply', 'add-last-payout', 'multiply-future-capacity'].includes(rule.operation) ? 1 : 0) }, (_, i) =>
         makeSkillCard(additive[kind] || 'body-spark', `prefix:${i}`)),
@@ -272,13 +273,13 @@ test('all added cards stay out of the frozen starter pool and tiered packing sur
   run.cardSlots = 5;
   run.mountedCards = ['echo-iii', 'tight-packing-iii', 'echo-iii', 'tight-packing-iii', 'tight-packing-iii']
     .map((id, index) => makeSkillCard(id, `packing:${index}`));
-  assert.equal(getCardModifiers(run).cardPackingSources, 27);
-  assert.deepEqual(getCardPackingBonus(4, 27), { amount: 27, remainder: 0 });
+  assert.equal(getCardModifiers(run).cardPackingSources, 36);
+  assert.deepEqual(getCardPackingBonus(4, 36), { amount: 36, remainder: 0 });
   const node = M.getChoices(run).find(choice => choice.type !== 'support');
   assert.ok(M.selectNode(run, node.id));
   assert.ok(M.beginFlightAttempt(run));
   assert.ok(M.markFlightAttemptStarted(run));
   assert.ok(M.finishFlight(run, { success: true, flame: 0, condensedGlow: 4,
-    cardPackingEligible: 4, cardPackingLedger: 1, cardPackingBonus: 27, cardPackingRemainder: 0 }));
-  assert.equal(run.lastFlight.cardPackingBonus, 27, 'valid live tiered bonus is not clipped to five base cards');
+    cardPackingEligible: 4, cardPackingLedger: 1, cardPackingBonus: 36, cardPackingRemainder: 0 }));
+  assert.equal(run.lastFlight.cardPackingBonus, 36, 'valid live tiered bonus is not clipped to five base cards');
 });

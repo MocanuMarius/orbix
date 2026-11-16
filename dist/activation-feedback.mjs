@@ -1,9 +1,10 @@
-import {ActivationFeed} from './activation-events.mjs?v=collector-reel-1';
-import {artifactIcon,skillIcon} from './upgrade-icons.mjs?v=collector-reel-1';
-import {companionArtSvg} from './companion-art.mjs?v=collector-reel-1';
-import {resourceSymbol} from './game-symbols.mjs?v=collector-reel-1';
-import {ARTIFACTS,SKILLS} from './model.mjs?v=collector-reel-1';
-import {formatGlow} from './vitality.mjs?v=collector-reel-1';
+import {ActivationFeed} from './activation-events.mjs?v=cards-renewal-1';
+import {artifactIcon,skillIcon} from './upgrade-icons.mjs?v=cards-renewal-1';
+import {companionArtSvg} from './companion-art.mjs?v=cards-renewal-1';
+import {resourceSymbol} from './game-symbols.mjs?v=cards-renewal-1';
+import {ARTIFACTS,SKILLS} from './model.mjs?v=cards-renewal-1';
+import {formatGlow} from './vitality.mjs?v=cards-renewal-1';
+import {lifeHeartSvg} from './lives.mjs?v=cards-renewal-1';
 const esc=value=>String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const names={'card-watchlight':'Watchlight',collector:'Collector',protector:'Protector',swift:'Runner',leveler:'Space Timer',
   'main-echo-sight':'Echo Luminance','main-purifying-touch':'Purifying Touch','main-kindled-touch':'Kindled Touch',
@@ -20,6 +21,9 @@ export function activationPresentation(event){
   if(outcome.recovery>0)bits.push(`<span>−${Number(outcome.recovery.toFixed(1))}s${resourceSymbol('clock')}</span>`);
   if(outcome.lifts>0)bits.push(`<span>+${outcome.lifts}${resourceSymbol('up')}</span>`);
   if(outcome.usedLift)bits.push(`<span>FREE${resourceSymbol('up')}</span>`);
+  if(outcome.bounce)bits.push(`<span>FREE ½${resourceSymbol('up')}</span>`);
+  if(outcome.hearts>0)bits.push(`<span>+${outcome.hearts}${lifeHeartSvg()}</span>`);
+  if(outcome.waves>0)bits.push(`<span>+${outcome.waves} ${outcome.waves===1?'wave':'waves'}</span>`);
   if(outcome.reveal>0)bits.push(`<span>${Number(outcome.reveal.toFixed(1))}s${skillIcon({name:'Luminance'})}</span>`);
   if(outcome.duration>0)bits.push(`<span>${Number(outcome.duration.toFixed(1))}s</span>`);
   if(['up','down','right'].includes(outcome.direction))bits.push(`<span>${{up:'↑',down:'↓',right:'→'}[outcome.direction]}</span>`);

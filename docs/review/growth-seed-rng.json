@@ -1,0 +1,169 @@
+{
+  "method": "Same monotonically numbered campaign seeds and seeded connected-route choices before/after. Real production draw, reserve settlement and historical drop data. Clears assumed successful; no Forge, seed-aware route choice, physical flight, or human win-rate inference.",
+  "baselineCommit": "c41f0311811e6869a1c10efe0131235aa3ccfef5",
+  "release": "cards-renewal-1",
+  "runs": 10000,
+  "samplesPerTier": 30000,
+  "catalog": 81,
+  "rarityWeights": {
+    "normal": {
+      "common": 83,
+      "rare": 15,
+      "legendary": 2
+    },
+    "elite": {
+      "common": 55,
+      "rare": 32,
+      "legendary": 13
+    },
+    "boss": {
+      "common": 35,
+      "rare": 47,
+      "legendary": 18
+    }
+  },
+  "referenceNodeMix": {
+    "normal": 75,
+    "elite": 20,
+    "boss": 5
+  },
+  "commonGrowthTickets": 6,
+  "commonOtherTickets": 41,
+  "commonTotalTickets": 47,
+  "before": {
+    "raw": {
+      "normal": {
+        "draws": 30000,
+        "rarities": {
+          "common": 24884,
+          "rare": 4500,
+          "legendary": 616
+        },
+        "growth": 185,
+        "maxWithinTierSigma": 2.691692947112108
+      },
+      "elite": {
+        "draws": 30000,
+        "rarities": {
+          "common": 16506,
+          "rare": 9587,
+          "legendary": 3907
+        },
+        "growth": 395,
+        "maxWithinTierSigma": 2.2024218707822145
+      },
+      "boss": {
+        "draws": 30000,
+        "rarities": {
+          "common": 10462,
+          "rare": 14117,
+          "legendary": 5421
+        },
+        "growth": 620,
+        "maxWithinTierSigma": 2.4673452307902073
+      },
+      "referenceMix": {
+        "draws": 30000,
+        "sourceMix": {
+          "normal": 75,
+          "elite": 20,
+          "boss": 5
+        },
+        "rarities": {
+          "common": 22609,
+          "rare": 5914,
+          "legendary": 1477
+        }
+      }
+    },
+    "routes": {
+      "runs": 10000,
+      "earliestCampAcquired": 141,
+      "firstCampObserved": 9983,
+      "beforeFirstCampAcquired": 245,
+      "byFirstMapAcquired": 594,
+      "byExpeditionAcquired": 1682,
+      "beforeSecondCommonMissing": 9830,
+      "sourceCounts": {
+        "normal": 147667,
+        "elite": 24988,
+        "boss": 30000
+      },
+      "rarityCounts": {
+        "common": 146786,
+        "rare": 44355,
+        "legendary": 11514
+      },
+      "uniqueWithinRun": 173445,
+      "duplicatesWithinRun": 29210
+    }
+  },
+  "after": {
+    "raw": {
+      "normal": {
+        "draws": 30000,
+        "rarities": {
+          "common": 24884,
+          "rare": 4500,
+          "legendary": 616
+        },
+        "growth": 3425,
+        "maxWithinTierSigma": 2.1721865064354344
+      },
+      "elite": {
+        "draws": 30000,
+        "rarities": {
+          "common": 16506,
+          "rare": 9587,
+          "legendary": 3907
+        },
+        "growth": 2793,
+        "maxWithinTierSigma": 2.562853366406078
+      },
+      "boss": {
+        "draws": 30000,
+        "rarities": {
+          "common": 10462,
+          "rare": 14117,
+          "legendary": 5421
+        },
+        "growth": 2371,
+        "maxWithinTierSigma": 2.398650916476139
+      },
+      "referenceMix": {
+        "draws": 30000,
+        "sourceMix": {
+          "normal": 75,
+          "elite": 20,
+          "boss": 5
+        },
+        "rarities": {
+          "common": 22609,
+          "rare": 5914,
+          "legendary": 1477
+        }
+      }
+    },
+    "routes": {
+      "runs": 10000,
+      "earliestCampAcquired": 6892,
+      "firstCampObserved": 9983,
+      "beforeFirstCampAcquired": 8087,
+      "byFirstMapAcquired": 9980,
+      "byExpeditionAcquired": 10000,
+      "beforeSecondCommonMissing": 0,
+      "sourceCounts": {
+        "normal": 147667,
+        "elite": 24988,
+        "boss": 30000
+      },
+      "rarityCounts": {
+        "common": 146786,
+        "rare": 44355,
+        "legendary": 11514
+      },
+      "uniqueWithinRun": 166935,
+      "duplicatesWithinRun": 35720
+    }
+  }
+}

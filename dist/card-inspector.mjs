@@ -1,6 +1,6 @@
 // A disposable deck for phone inspection. Never reads or writes a player save.
-import { newState, createRun, getSupportChoices } from './model.mjs?v=collector-reel-1';
-import { makeSkillCard } from './skill-cards.mjs?v=collector-reel-1';
+import { newState, createRun, getSupportChoices } from './model.mjs?v=cards-renewal-1';
+import { makeSkillCard } from './skill-cards.mjs?v=cards-renewal-1';
 
 export function prepareCardInspectorReward(run, cardId = 'harvest-rare') {
   if (run.cardReward && !run.cardReward.uiAcknowledged) return;
@@ -32,7 +32,7 @@ export function createCardInspectorState(params = new URLSearchParams()) {
   if (params.get('scenario') === 'proximity') run.reserveCards.push(makeSkillCard('edge-reach', 'sample:edge-reach'));
   if (params.get('scenario') === 'new-common') {
     run.cardSlots = 5;
-    run.mountedCards = ['trail-vessel', 'bellows-seal', 'wick-doubler', 'fast-spool', 'body-spark'].map((id, i) => makeSkillCard(id, `sample:new-common:${i}`));
+    run.mountedCards = ['growth-ring', 'wind-feather', 'wick-doubler', 'fast-spool', 'body-spark'].map((id, i) => makeSkillCard(id, `sample:new-common:${i}`));
     run.reserveCards.push(makeSkillCard('echo', 'sample:new-common:echo'));
   }
   if (params.get('scenario') === 'rest') {

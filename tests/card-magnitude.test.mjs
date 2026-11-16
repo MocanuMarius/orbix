@@ -148,7 +148,7 @@ test('Flash magnitude restores meter once per actual body/carrier pickup and nev
 });
 
 test('Grow duplicates and copied sources scale one action/refill, preserve hearts and three shared uses',()=>{
-  let state=fresh(['echo','growth-seed','growth-seed','chameleon','growth-seed']);
+  let state=fresh(['echo','growth-seed-common','growth-seed-common','chameleon','growth-seed-common']);
   let run=state.run;run.lives=2;run.flame=4;
   for(let action=0;action<3;action++){
     const offers=enterCamp(state,action),grow=offers.find(c=>c.id==='rest-grow');
@@ -163,20 +163,20 @@ test('Grow duplicates and copied sources scale one action/refill, preserve heart
   assert.equal(choose(run,'rest-grow'),false);assert.equal(run.cardGrowUses,3);
 });
 
-test('Grow snapshots arrival permission but resolves current reordered source magnitude',()=>{
-  const state=fresh(['echo','growth-seed','body-spark']),run=state.run;
-  run.reserveCards=[makeSkillCard('growth-seed','reserve-grow')];
+test('Grow uses the equipped source and its current reordered magnitude at open Rest',()=>{
+  const state=fresh(['echo','growth-seed-common','body-spark']),run=state.run;
+  run.reserveCards=[makeSkillCard('growth-seed-common','reserve-grow')];
   enterCamp(state);assert.match(M.getSupportChoices(run).find(c=>c.id==='rest-grow').description,/\+6 /);
   assert.ok(M.moveMountedCard(run,0,1));
   assert.match(M.getSupportChoices(run).find(c=>c.id==='rest-grow').description,/\+3 /);
   assert.ok(choose(run,'rest-grow'));near(getGlowCapacity(run),110);
   const later=fresh(['body-spark']),old=later.run;enterCamp(later);
-  old.reserveCards=[makeSkillCard('growth-seed','late-grow')];
-  assert.ok(M.equipOwnedCard(old,'late-grow',1));assert.equal(choose(old,'rest-grow'),false);
+  old.reserveCards=[makeSkillCard('growth-seed-common','late-grow')];
+  assert.ok(M.equipOwnedCard(old,'late-grow',1));assert.equal(choose(old,'rest-grow'),true);
 });
 
 test('legacy card Grow migrates recorded actions once, preserving unrelated capacity and active attempts',()=>{
-  const state=fresh(['growth-seed']),run=state.run;
+  const state=fresh(['growth-seed-common']),run=state.run;
   delete run.cardGrowUses;delete run.cardGrowCapacity;
   run.restGlowCapacity=30;
   run.cardHistory=[{type:'camp',action:'grow',mapIndex:0,nodeId:'rest-a'},{type:'camp',action:'grow',mapIndex:1,nodeId:'rest-a'}];
@@ -212,16 +212,16 @@ test('Harvest duplicates/copies add capped meter and existing Legendary per-wave
 
 test('Echo packing contributes once with bounded integer carry, and unique abilities stay single',()=>{
   const run=fresh(['echo','tight-packing','tight-packing','chameleon','tight-packing']).run;
-  assert.equal(getCardModifiers(run).cardPackingSources,5);
+  assert.equal(getCardModifiers(run).cardPackingSources,10);
   assert.deepEqual(getCardPackingBonus(3,5,2),{amount:4,remainder:1});
-  assert.deepEqual(getCardPackingBonus(3,100,2),{amount:20,remainder:3},'weighted copies are bounded by five slots, Echo III and tier-III packing');
+  assert.deepEqual(getCardPackingBonus(3,100,2),{amount:27,remainder:2},'weighted copies are bounded by five slots, Echo III and tier-III packing');
   const unique=fresh(['rhythm','rhythm','lift-guide','lift-guide','cache-handling']).run,mod=getCardModifiers(unique);
   assert.equal(mod.cardRhythm,true);assert.equal(mod.cardLiftGuide,true);assert.equal(mod.cardCacheHandling,true);
   let waves=0;const e={mod,time:0,running:true,alive:true,player:{x:0,y:40},width:900,height:405,distance:0,
     luminanceWaves:{emit(){waves++;}}};
   const rhythm=new CardRhythm(e);
   for(const at of [0,.6,1.2]){e.time=at;rhythm.lift(at);}assert.equal(waves,1);assert.equal(rhythm.waves,1);rhythm.destroy();
-  const second=fresh(['camp-kit','camp-kit','growth-seed']);second.run.flame=1;enterCamp(second);
+  const second=fresh(['camp-kit','camp-kit','growth-seed-common']);second.run.flame=1;enterCamp(second);
   assert.ok(choose(second.run,'rest-recover'));assert.ok(choose(second.run,'rest-grow'));
   assert.equal(second.run.mountedCards[0],null);assert.equal(second.run.mountedCards[1].charges,1);
   assert.deepEqual(second.run.lastRest.actions,['recover','grow']);

@@ -95,16 +95,16 @@ test('Dive sustains native descent against wind until expiry; Lift cancels it an
  }finally{e.destroy();}
 });
 
-test('one swipe notifies once after its row replay and one Wave Loom emission',()=>{
+test('one swipe notifies once after one Wave Loom emission and standalone Commons add no Field payout',()=>{
  const cards=['field-impulse','springboard','wave-loom','refrain'].map((id,i)=>makeSkillCard(id,`once:${i}`));
  const e=flight({modifiers:{...getCardModifiers({skillSystem:CARD_SYSTEM,mountedCards:cards}),collectorFieldImpulse:true}});
  try{
   e.flame=0;let notified=0,cooldownCalls=0;
   const duration=e.wisp.recoveryDuration.bind(e.wisp);e.wisp.recoveryDuration=(...args)=>{cooldownCalls++;return duration(...args)};
-  e.notify=()=>{notified++;assert.equal(e.luminanceWaves.waves.length,1);assert.equal(e.cardRowTrace.passes,2);};
+  e.notify=()=>{notified++;assert.equal(e.luminanceWaves.waves.length,1);assert.equal(e.cardRowTrace,null);};
   assert.ok(e.activateFieldImpulse('right'));assert.equal(notified,1);assert.equal(cooldownCalls,1);
   assert.equal(e.activationEvents.events.filter(a=>a.source==='collector-field-impulse').length,1);
-  assert.equal(e.cardRowSequence,1);assert.equal(e.luminanceWaves.waves.length,1);
+  assert.equal(e.cardRowSequence,0);assert.equal(e.luminanceWaves.waves.length,1);
   assert.equal(e.activateFieldImpulse('right'),false);assert.equal(notified,1);assert.equal(cooldownCalls,1);
  }finally{e.destroy();}
 });

@@ -1,8 +1,8 @@
 // Disposable, deterministic equipped samples. No app boot, persistence or economy actions.
-import { CARD_SYSTEM, SKILL_CARDS, makeSkillCard, getMountedCards, previewCardRow } from './skill-cards.mjs?v=collector-reel-1';
-import { cardRowTraceMarkup, cardRowSequenceMarkup } from './card-row-feedback.mjs?v=collector-reel-1';
-import { cardFace } from './card-ui.mjs?v=collector-reel-1';
-import { CARD_TERMS, cardTermTextMarkup, installCardTermHelp } from './card-terms.mjs?v=collector-reel-1';
+import { CARD_SYSTEM, SKILL_CARDS, makeSkillCard, getMountedCards, previewCardRow } from './skill-cards.mjs?v=cards-renewal-1';
+import { cardRowTraceMarkup, cardRowSequenceMarkup } from './card-row-feedback.mjs?v=cards-renewal-1';
+import { cardFace } from './card-ui.mjs?v=cards-renewal-1';
+import { CARD_TERMS, cardTermTextMarkup, installCardTermHelp } from './card-terms.mjs?v=cards-renewal-1';
 
 const esc = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 export const DEFAULT_COMBO_SEED = 'moonwell-15';
@@ -59,6 +59,7 @@ export const COMBO_EVENT_PRESETS = Object.freeze([
   ['body-guard','Wisp Spark · Collector recovering from save',{kind:'body-spark',pickupKind:'light',guardRecovering:true}],
   ['flash','Flash pickup',{kind:'flash-pickup',pickupKind:'sight'}],
   ['flash-low','Flash pickup · ¼ meter',{kind:'flash-pickup',pickupKind:'sight',meterFraction:.25}],
+  ['flash-expiry','Passage Flash expires',{kind:'flash-expiry',pickupKind:'sight'}],
   ['lift','Falling paid Lift',{kind:'downbeat-lift'}],
   ['overfill','Spark overfill',{kind:'natural-overfill'}],
   ['collector-light','Collector delivers a Spark',{kind:'collector-delivery',pickupKind:'light'}],

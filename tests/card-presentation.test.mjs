@@ -24,10 +24,10 @@ test('five-slot dense rows reuse one portrait per acting slot across both passes
 });
 
 test('exact paused receipts keep future capacity and reel time separate from Spark payouts',()=>{
- const victory=resolveCardRow(row(['trail-vessel','bellows-seal','refrain']),{kind:CARD_ROW_EVENTS.victory});
- const victoryHtml=cardRowTraceMarkup(victory);assert.match(victoryHtml,/maximum Sparks for future expeditions/);assert.doesNotMatch(victoryHtml,/\+0 Sparks/);
+ const victory=resolveCardRow(row(['growth-ring','wind-feather','refrain']),{kind:CARD_ROW_EVENTS.clear});
+ const victoryHtml=cardRowTraceMarkup(victory);assert.match(victoryHtml,/maximum Sparks permanently/);assert.doesNotMatch(victoryHtml,/\+0 Sparks/);
  const reel=resolveCardRow(row(['fast-spool']),{kind:CARD_ROW_EVENTS.body,collectorReeling:true,availableReel:4,availableRecovery:4});
- assert.equal(reel.reelSeconds,1);const reelHtml=cardRowTraceMarkup(reel);assert.match(reelHtml,/4 → 3 s remaining reel/);assert.doesNotMatch(reelHtml,/\+0 Sparks/);
+ assert.equal(reel.reelSeconds,3);const reelHtml=cardRowTraceMarkup(reel);assert.match(reelHtml,/4 → 1 s remaining reel/);assert.doesNotMatch(reelHtml,/\+0 Sparks/);
 });
 
 test('silent row checks leave retained HUD portraits untouched',()=>{

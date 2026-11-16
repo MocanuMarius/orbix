@@ -108,7 +108,7 @@ test('playing-card faces print complete rules with contextual term controls and 
   const body = describeSkillCard(makeSkillCard('spark-cache', 'portrait:body'));
   const face = cardFace(body), plain = markup => markup.replace(/<[^>]+>/g, '').replace(/\s+/g, ' ');
   assert.match(face, /viewBox="313 0 313 313"/);
-  assert.match(face, /assets\/cards\/skill-card-scenes\.webp/);
+  assert.match(face, /assets\/cards\/skill-card-scenes-rare\.webp/);
   assert.match(face, /card-rule-band/);
   assert.match(plain(face), /When your wisp absorbs a Spark/);
   assert.match(plain(face), /\+4 Sparks/);

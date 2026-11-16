@@ -1,12 +1,14 @@
 /** Contextual card vocabulary. Native modal dialogs keep help above the Deck. */
-import { resourceSymbol } from './game-symbols.mjs?v=collector-reel-1';
+import { resourceSymbol } from './game-symbols.mjs?v=cards-renewal-1';
+import {lifeHeartSvg} from './lives.mjs?v=cards-renewal-1';
 const esc = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 export const CARD_TERMS = Object.freeze({
   spark: ['Spark', 'Fuel for your Spark Meter. Lifts spend it. Absorb a Spark by touching it with your wisp. Fuel pickups include Clusters, Caches and Dusk Sparks. Stored Sparks use the boxed icon and are kept separately.'],
+  heart: ['Heart', 'Each heart is one remaining attempt. A failed flight costs one heart. Heart Stitch restores a missing heart after three direct passage Spark pickups in one flight; it spends a use only when healing succeeds. Devourer can restore one after a clear by consuming the adjacent Rare. Full hearts spend no healing use or Rare target.'],
   stored: ['Stored Sparks', 'Your journey’s savings, shown as a box. Earn them by clearing flights, packing spare Sparks or melting cards. Spend them at Rest to Forge, improve or Evolve cards. These services use no Rest action.'],
   wisp: ['Wisp', 'The flying light you control. “Your wisp absorbs” means you touch the pickup yourself. A Collector delivery or a wave passing over it is a different event.'],
   lift: ['Lift', 'Tap or press Lift to rise. Each successful Lift spends Sparks. You choose when to Lift, even with Lift Guide equipped.'],
-  proximity: ['Proximity', 'Skim near solid terrain for 2 seconds to send a revealing wave. The reveal lasts 5 seconds, then recovers for 2 seconds. Edge Reach enables this while equipped and adds 50% of normal reach per equipped or Chameleon-borrowed source. Echo cannot repeat a passive ability. Brief gaps keep progress for 1.25 seconds; contact, protection and Dream never charge it.'],
+  proximity: ['Proximity', 'Skim near solid terrain for 2 seconds to send a revealing wave. The reveal lasts 5 seconds, then recovers for 2 seconds. Proximity enables normal reach while equipped, without Collector. Edge Reach also enables this and adds 50% of normal reach per equipped or Chameleon-borrowed source. Echo cannot repeat a passive ability. Brief gaps keep progress for 1.25 seconds; contact, protection and Dream never charge it.'],
   wave: ['Wave', 'A pulse of light that spreads outward and reveals the passage. Rhythm sends one after 3 successful Lifts at an even pace. Resonant Harvest rewards it for passing over uncollected fuel pickups already in the passage.'],
   collector: ['Collector', 'The small green light beside your main wisp. It catches a missed pickup and reels the intact pickup back to your moving wisp. Sparks arrive on contact. It stays busy during the reel and is ready again when the pickup is absorbed. Cache Handling and Flash Handling let it fetch those pickups too.'],
   ring: ['Collector’s ring', 'Collector’s search reach and Field Impulse energy. Its orbit shows the available reach. An ordinary reel ends ready for another search; an explicit Field Impulse spends the ring and recovers over time. A fuller ring makes Field Impulse stronger and longer.'],
@@ -19,13 +21,14 @@ export const CARD_TERMS = Object.freeze({
   next: ['Card to the right', 'The next equipped slot, immediately to the right. Empty slots and cards that cannot be copied give no effect. Changing the order changes what Echo and Chameleon copy.'],
   copy: ['Copying cards', 'Echo repeats the action on the card to its right. Higher Echo tiers repeat it more times, as printed. Chameleon borrows its ability. They share that card’s uses. Echo cannot repeat Deep Vessel or Edge Reach, because passive abilities have no action. Neither can copy Echo, Chameleon, Lift Guide, Rhythm, Cache Handling or Second Ember.'],
   packing: ['Packing', 'After a successful flight, spare eligible Sparks become Stored Sparks. Tight Packing adds 1 for every 4 packed, per equipped or copied card. Progress toward the next extra carries forward. The extras do not earn more extras. Pickup card bonuses cannot be packed.'],
-  grow: ['Grow', 'Growth Seed adds this Rest action. Each equipped or copied Growth Seed adds 3 to your maximum Sparks. Grow refills the meter once and does not heal hearts. All copies share 3 Grow actions per journey.'],
+  grow: ['Grow', 'Equip a Growth Seed at an open Rest to add this action immediately. Each equipped or compatible copied source adds its printed amount to your maximum Sparks: Common +3, Rare +5, Legendary +8 (improved to +9 or +10). Grow refills the meter once and does not heal hearts. All Seeds and copies share 3 Grow actions per journey.'],
   pass: ['Row pass', 'For a matching event, equipped cards act from left to right. Each pass starts with zero bonus Sparks. Additions and multipliers affect only that pass’s bonus. Refrain can play the row once more from slot 1. Stored Sparks, pickups, waves and recovery time are separate.'],
 });
 
 /** The same game artwork and keyword ink appear on cards and in their glossary. */
 const termArt = Object.freeze({
   spark: () => resourceSymbol('energy'),
+  heart: () => lifeHeartSvg(),
   stored: () => resourceSymbol('packed'),
   lift: () => resourceSymbol('lift'),
 });
@@ -38,7 +41,7 @@ export function cardTermMarkup(key, label = CARD_TERMS[key]?.[0] || key, {icon =
 
 // Runtime descriptions use the same vocabulary without maintaining a second rules renderer.
 const keywords = [
-  ['Proximity(?: waves?)?', 'proximity'], ['Stored Sparks?', 'stored'], ['Field Impulse', 'impulse'], ['(?:Luminance )?waves?', 'wave'],
+  ['Proximity(?: waves?)?', 'proximity'], ['Stored Sparks?', 'stored'], ['hearts?', 'heart'], ['Field Impulse', 'impulse'], ['(?:Luminance )?waves?', 'wave'],
   ['Collector', 'collector'], ['Flash(?: Powerups?)?', 'flash'], ['Caches?', 'cache'],
   ['Spark Meter|Sparks?', 'spark'], ['wisps?', 'wisp'], ['Lifts?', 'lift'], ['Rest', 'rest'], ['Grow', 'grow'],
   ['(?:remaining|shared) (?:uses|charges)', 'shared'], ['uses?', 'uses'], ['pack(?:ing|ed|s)?', 'packing'], ['next slot|card to the right', 'next'], ['ring', 'ring'],
@@ -58,6 +61,11 @@ export function cardTermTextMarkup(value) {
 }
 
 const CARD_NOTES = Object.freeze({
+  'devourer': 'After a successful clear, Devourer can consume the actual Rare card immediately to its right to restore one missing heart. That Rare must have been equipped for the flight and remain present. Full hearts and failed flights spare it. Heart Stitch heals first; Devourers then resolve from left to right. The target disappears, while Devourer remains. Echo, Chameleon and row replay cannot copy this physical action.',
+  'slip-feather': 'Proximity enables terrain charging at normal reach without Collector or another skill. Skim near real solid terrain for 2 seconds; open sky and touching terrain never charge it. Extra Proximity cards share one meter. Edge Reach is the Rare version with additional reach. Removing every Proximity and Edge Reach source turns it off unless you learned the native skill.',
+  'springboard': 'Touch a natural fuel pickup while descending to bounce upward at half your ordinary Lift impulse. Generated pickups, Collector deliveries, Flash and wave crossings do not trigger it. The bounce costs no Sparks and never counts as a manual Lift, Downbeat or Rhythm tap. Springboard cannot be copied; extra equipped copies keep one bounce.',
+  'diving-bell': 'When the current passage Flash expires, Prism Wick sends one final revealing wave and pays 3 bonus Sparks. A new Flash refreshes the timer. Generated and Dream Flash do not qualify. Echo and Chameleon share its three uses; numeric replay can repeat the Spark payout, while the physical expiry always sends one final wave.',
+  'tailwind': 'While a heart is missing, each direct natural fuel pickup advances Heart Stitch. Three in the same flight restore one heart and spend one of its two uses. Full hearts, Collector deliveries, generated pickups, Flash and Dream do not advance it. Progress resets between flights. Earned healing and spent uses survive a failed attempt. This card cannot be copied.',
   'edge-reach': 'Edge Reach enables the existing proximity wave, independently of Collector’s ring. Normal reach is about 2.6 wisp widths; one source reaches 3.9 and two reach 5.1. Sources add 50% of normal reach, rather than multiplying each other. Removing every source turns proximity off unless you learned the native skill. Equipping never sends a wave or refills its charge.',
   'body-spark': 'This bonus works when your wisp touches a fuel pickup already in the passage, including Clusters, Caches and Dusk Sparks. Collector deliveries, wave crossings and pickups created by powers do not trigger it. The extra Sparks cannot be packed.',
   'spark-cache': 'Touch a fuel pickup already in the passage to gain the bonus and spend 1 use. This includes Clusters, Caches and Dusk Sparks. Collector deliveries, wave crossings and pickups created by powers do not trigger it. The extra Sparks cannot be packed.',
@@ -67,9 +75,16 @@ const CARD_NOTES = Object.freeze({
   'harvest-legendary': 'The wave must cross an uncollected fuel pickup already in the passage. Pickups created by powers do not count. The meter refill does not collect it or add packing rewards. The extra Stored Spark is awarded once per wave, at its first crossing, even if the meter is full.',
   'field-impulse': 'Collector must be home with at least ¼ of its ring ready. A fuller ring scales force and duration. Each equipped or compatible copied source adds 0.8 seconds at a full ring, at the same force. One swipe spends the ring once. Lift ends a float or dive.',
   'flash-handling': 'Either your wisp or Collector picking up Flash restores up to 6 missing Sparks per equipped or copied Flash Handling. Extra copies add more refill. Collector makes one pickup; the meter cannot go above its maximum.',
-  'growth-seed': 'Each equipped or copied Growth Seed adds 3 maximum Sparks per Grow. All copies share 3 Grow actions per journey. Each action refills the meter once, without healing hearts.',
+  'growth-seed-common': 'Equip at an open Rest to unlock Grow immediately. Each equipped or compatible copied source adds this card’s printed maximum Sparks. All Growth Seeds share 3 Grow actions per journey. Each action refills the meter once, without healing hearts. At Rest, Evolve Common to Rare for 25 Stored Sparks, then Rare to Legendary for 40.',
+  'growth-seed': 'Equip at an open Rest to unlock Grow immediately. Each equipped or compatible copied source adds this card’s printed maximum Sparks. All Growth Seeds share 3 Grow actions per journey. Each action refills the meter once, without healing hearts. At Rest, Evolve Rare to Legendary for 40 Stored Sparks.',
+  'growth-seed-legendary': 'Equip at an open Rest to unlock Grow immediately. Each equipped or compatible copied source adds this card’s printed maximum Sparks: +8 at rank 1, +9 at rank 2 and +10 at rank 3. All Growth Seeds share 3 Grow actions per journey. Each action refills the meter once, without healing hearts.',
   'tight-packing': 'Each equipped or copied Tight Packing adds 1 Stored Spark for every 4 packed. Progress carries forward. These extra Stored Sparks do not earn another packing bonus.',
   'cache-handling': 'Extra Cache Handling cards keep one 12-Spark delivery. Your wisp can always touch a Cache for 18 Sparks, plus any pickup card bonus.',
+  'twin-orbit': 'While equipped, a second Collector catches and reels independently. Each pickup belongs to one Collector. Two is the maximum. Removing the card releases its second Collector’s current load, unless Twin Wick already unlocked that Collector for the expedition. The first Collector keeps Field Impulse and fatal-impact saves.',
+  'twin-wick': 'Its single use unlocks a second Collector when you start or resume a real flight with Collector selected. The unlock lasts for this expedition, including retries and removing the card. Preview, practice and Dream do not spend it. If Twin Orbit already supplies the second Collector, the use stays available.',
+  'long-spool': 'For five extra catches, Collector can reach 35% beyond its current normal range. A use is spent only when an eligible missed pickup beyond normal reach is actually attached. Your wisp gets the whole approach and contact window. Long Spool and Cast Line do not stack; the shortest sufficient extension spends one use. Copies share the original uses.',
+  'cast-line': 'For two extra catches, Collector can reach twice its current normal range. Only successful attachments beyond normal reach spend a use. Long Spool pays first if its shorter extension can reach the pickup. Neither extension changes which pickup types Collector can carry or takes the player’s first chance to touch them.',
+  'fast-spool': 'Absorbing a natural passage Spark while a Collector reels shortens one active reel by up to 3 seconds. The longest active reel is chosen. Each successful action spends one of the original card’s three shared uses. No use is spent when there is no remaining reel time.',
   rhythm: 'All 3 Lifts must succeed and be evenly spaced. You perform them yourself. Extra Rhythm cards still send one wave.',
   'camp-kit': 'Choose 2 different actions at one Rest. Spend the use only after the second action succeeds. Extra Second Ember cards do not add a third action or spend another use.',
   'lift-guide': 'The amber chevron uses your current fall and Lift impulse. It opens when a Lift can rise back to its starting height, as from level flight. It does not judge terrain; choose when to tap. Extra copies keep one chevron.',
@@ -118,7 +133,7 @@ export function installCardTermHelp(doc = document, {resolveProximityContext} = 
     const heading = `card-glossary-heading-${++serial}`, dialog = doc.createElement('dialog');
     dialog.className = 'card-term-dialog card-glossary-dialog';
     dialog.setAttribute('aria-labelledby',heading);
-    const groups = [['Flying & fuel',['wisp','spark','lift','wave','proximity','packing','stored']],['Collector',['collector','ring','impulse','flash','cache']],['Your cards',['pass','next','copy','uses','shared','rest','grow']]];
+    const groups = [['Flying & fuel',['wisp','spark','heart','lift','wave','proximity','packing','stored']],['Collector',['collector','ring','impulse','flash','cache']],['Your cards',['pass','next','copy','uses','shared','rest','grow']]];
     dialog.innerHTML = `<header><h2 id="${heading}">Glossary</h2><button type="button" data-card-term-close aria-label="Close glossary">×</button></header><div class="card-term-content card-glossary-list">${groups.map(([title,keys])=>`<section><h3>${esc(title)}</h3><div>${keys.map(key=>cardTermMarkup(key,CARD_TERMS[key][0])).join('')}</div></section>`).join('')}</div><footer><button type="button" data-card-term-close>Back</button></footer>`;
     mount(dialog,button);
   }
@@ -144,13 +159,13 @@ export function installCardTermHelp(doc = document, {resolveProximityContext} = 
     dialog.setAttribute('aria-labelledby', heading);
     dialog.innerHTML = `<header><h2 id="${heading}">${esc(title)}</h2><button type="button" data-card-term-close aria-label="Close card help">×</button></header><div class="card-term-content">${items.map(key => `<section><h3><span class="card-term-label" data-card-term-key="${key}">${cardTermIcon(key)}${esc(CARD_TERMS[key][0])}</span></h3>${termPictureMarkup(key)}<p>${esc(CARD_TERMS[key][1])}</p></section>`).join('')}${note ? `<p class="card-term-note">${esc(note)}</p>` : ''}</div><footer><button type="button" data-card-term-close>Back</button></footer>`;
     const layer = mount(dialog,button);
-    if(button.dataset.cardTerm === 'proximity' || context?.dataset.cardHelp === 'edge-reach') {
+    if(button.dataset.cardTerm === 'proximity' || ['edge-reach','slip-feather'].includes(context?.dataset.cardHelp)) {
       const previewContext=resolveProximityContext?.(button);
       if(previewContext?.run) {
         dialog.classList.add('card-proximity-dialog');
         const host=doc.createElement('section');host.className='proximity-card-help';
         dialog.querySelector('.card-term-content').prepend(host);
-        import('./proximity-card-help.mjs?v=collector-reel-1').then(({mountProximityCardHelp})=>{
+        import('./proximity-card-help.mjs?v=cards-renewal-1').then(({mountProximityCardHelp})=>{
           if(layers.includes(layer))layer.disposePreview=mountProximityCardHelp(host,previewContext);
         });
       }

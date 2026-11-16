@@ -223,11 +223,11 @@ test('new Common never changes the established seeded starter pool',()=>{
 });
 
 test('every declarative catalog rule executes with its exact approved event and conditions',()=>{
-  assert.equal(Object.keys(SKILL_CARDS).length,75);
+  assert.equal(Object.keys(SKILL_CARDS).length,81);
   const payer={
     'body-spark':'body-spark','wave-crossing':'harvest-common','flash-pickup':'flash-handling',
     'downbeat-lift':'downbeat','collector-delivery':'courier-tip','rhythm-phrase':'toll-bell',
-    'field-swipe':'springboard','guard-rescue':'home-beacon','expedition-victory':'trail-vessel',
+    'field-swipe':'springboard','guard-rescue':'home-beacon','flight-clear':'growth-ring',
   };
   for(const def of Object.values(SKILL_CARDS).filter(d=>d.row)){
     const kind=def.row.event==='*'?CARD_ROW_EVENTS.body:def.row.event;
@@ -236,7 +236,7 @@ test('every declarative catalog rule executes with its exact approved event and 
       for(let i=0;i<Math.max(1,def.row.minimumEarlierPayers||0);i++)rows.push(payer[kind]);
     }
     rows.push(def.id);
-    const event={kind,availableRecovery:10,availableReel:10,collectorReeling:true,meterFraction:.2,pickupKind:def.row.when?.pickupKind||'light',
+    const event={kind,carriedStored:100,availableRecovery:10,availableReel:10,collectorReeling:true,meterFraction:.2,pickupKind:def.row.when?.pickupKind||'light',
       firstCrossing:def.row.when?.firstCrossing??true,direction:def.row.when?.direction||'up',guardRecovering:true};
     const result=previewCardRow(cards(rows),event);
     assert.ok(result.steps.some(s=>s.actingCardId===def.id&&s.success),def.id);
@@ -255,10 +255,10 @@ test('Echo II and III spend 2/3 true repeats before original, including finite e
   }
   const row=['echo-iii','tight-packing-iii','echo-iii','tight-packing-iii','tight-packing-iii'];
   const run={skillSystem:CARD_SYSTEM,cardSlots:5,mountedCards:cards(row),reserveCards:[]};
-  assert.equal(getCardModifiers(run).cardPackingSources,27);assert.deepEqual(getCardPackingBonus(4,27),{amount:27,remainder:0});
-  assert.match(getMountedCards(run)[0].copyPreview,/225%/);
+  assert.equal(getCardModifiers(run).cardPackingSources,36);assert.deepEqual(getCardPackingBonus(4,36),{amount:36,remainder:0});
+  assert.match(getMountedCards(run)[0].copyPreview,/300%/);
   run.cardGrowUses=3;run.cardGrowCapacity=270;cleanCardRun(run);assert.equal(run.cardGrowCapacity,270);
-  assert.equal(CARD_ECONOMY.maxGrowPerAction,27);
+  assert.equal(CARD_ECONOMY.maxGrowPerAction,90);
   const field=getCardModifiers({skillSystem:CARD_SYSTEM,mountedCards:cards(['echo-iii','field-impulse','echo-iii','field-impulse','field-impulse'])});
   assert.equal(field.cardFieldSources,9);assert.equal(field.cardFieldMultiplier,9,'nine duration sources preserve native force');
 });
@@ -266,7 +266,7 @@ test('Echo II and III spend 2/3 true repeats before original, including finite e
 test('catalog meter, pickup kind and first/later crossing conditions use native event entry state',()=>{
   const low=flight(['low-wick','dusk-wick','cluster-heart']);
   try{
-    low.flame=30;low.collect({kind:'dusk'});near(low.flame,30+40+6*CARD_UNIT);
+    low.flame=0;low.collect({kind:'dusk'});near(low.flame,Math.min(low.maxFlame,40+23*CARD_UNIT));
     low.flame=34;low.collect({kind:'cluster'});near(low.flame,34+40+4*CARD_UNIT);
     low.flame=0;low.collect({kind:'light',generated:true});assert.equal(low.cardRowTrace.sparks,4,'generated did not issue a new row');
   }finally{low.destroy();}
@@ -295,8 +295,8 @@ test('Rhythm, directional Field and guard rewards pay from actual physical succe
   }finally{rhythm.destroy();}
   const field=flight(['field-impulse','springboard','tailwind','wave-loom','refrain'],{collectorFieldImpulse:true});
   try{
-    field.flame=0;assert.ok(field.activateFieldImpulse('right'));near(field.flame,3*CARD_UNIT);
-    assert.equal(field.luminanceWaves.waves.length,1);assert.equal(field.cardRowTrace.passes,2);
+    field.flame=0;assert.ok(field.activateFieldImpulse('right'));near(field.flame,0);
+    assert.equal(field.luminanceWaves.waves.length,1);assert.equal(field.cardRowTrace,null);
     const sequence=field.cardRowSequence;assert.equal(field.activateFieldImpulse('up'),false);assert.equal(field.cardRowSequence,sequence);
   }finally{field.destroy();}
   const guard=flight(['watchlight','home-beacon','last-light','prism-lens','refrain']);
