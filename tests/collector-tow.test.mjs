@@ -78,7 +78,9 @@ test('no second fetch during reel; shorten-reel cards advance the live cycle and
   const other={kind:'cluster',x:e.distance+e.player.x-35,y:e.player.y};e.layout.embers.push(other);
   tick();assert.equal(w.target,null);assert.equal(other.attracted,undefined);
   const before=w.activeReelSeconds();assert.equal(w.shortenReel(2),2);assert.equal(w.activeReelSeconds(),before-2);
-  assert.equal(w.shortenReel(100),before-2);tick();assert.equal(p.collected,true);assert.equal(w.phase,'ready');
+  assert.equal(w.shortenReel(100),before-2);tick();
+  assert.equal(p.collected,undefined,'spending the deadline cannot teleport an attached load');
+  until(f,()=>p.collected,60);assert.equal(w.phase,'ready');
   other.x=e.distance+e.player.x-35;other.y=e.player.y;tick();assert.equal(w.target,other);
   assert.equal(w.shortenReel(2),0,'an outbound flight is not a reel');
 });

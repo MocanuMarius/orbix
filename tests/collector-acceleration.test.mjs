@@ -19,18 +19,22 @@ function finish(f){for(let i=0;i<f.hz*8&&!f.packets.every(p=>p.collected);i++)f.
 function crossing(samples,gap){for(let i=1;i<samples.length;i++)if(samples[i].gap<=gap){const a=samples[i-1],b=samples[i];return a.time+(a.gap-gap)/(a.gap-b.gap)*(b.time-a.time);}assert.fail('gap crossed');}
 
 for(const hz of [30,60,120]){
- test(`${hz}Hz actual cargo creeps, accelerates and covers its final body width at direct pickup pace`,()=>{
+ test(`${hz}Hz physical cargo keeps its momentum, then accelerates into real body contact`,()=>{
   const f=fixture(hz),{e,w,packets:[p]}=f,samples=[];let attached;
   for(let i=0;i<hz*7&&!p.collected;i++){
    f.tick();if(w.cargo){attached??=e.time;const gap=Math.hypot(w.cargoX-e.player.x,w.cargoY-e.player.y);
-    const before=samples.at(-1);if(before){assert.ok(gap<before.gap);assert.ok(w.reelCloseSpeed>=before.speed-1e-8);}
-    samples.push({time:e.time,gap,speed:w.reelCloseSpeed});}
+    const before=samples.at(-1);if(before)assert.ok(w.reelCloseSpeed>=before.speed-1e-8);
+    samples.push({time:e.time,gap,speed:w.reelCloseSpeed,vx:w.reelVX,vy:w.reelVY});}
   }
   assert.equal(e.deliveries.length,1);assert.ok(Math.abs(e.time-attached-4)<1e-8);
   const d=e.deliveries[0],contact=Math.hypot(d.source.worldX-e.distance-e.player.x,d.source.y-e.player.y);
   samples.push({time:e.time,gap:contact,speed:w.reelCloseSpeed});
   const actual=e.time-crossing(samples,contact+WISP_ART.worldDiameter),direct=WISP_ART.worldDiameter/e.baseSpeed;
-  assert.ok(Math.abs(actual/direct-1)<.025,`${actual}s versus direct ${direct}s`);
+  assert.ok(Math.abs(actual/direct-1)<.25,`${actual}s versus direct ${direct}s`);
+  assert.ok(samples[1].gap>samples[0].gap,'stationary field momentum briefly trails the moving anchor');
+  assert.ok(samples[Math.floor(hz*2)].gap<samples[Math.floor(hz)].gap,'the live pull closes the cruise gap');
+  assert.ok(samples.at(-2).vx>e.baseSpeed*.8,'the actual load accelerates into contact');
+  assert.ok(Math.hypot(d.source.worldX-d.source.previousWorldX,d.source.y-d.source.previousY)<e.baseSpeed/hz*1.8,'delivery uses one physical step without a terminal jump');
   assert.ok(samples[0].speed<e.baseSpeed*.05,'visible slow opening');
   assert.ok(Math.abs(samples.at(-1).speed/e.baseSpeed-1.04)<1e-8,'natural contact speed');
   for(let i=0;i<hz;i++)f.tick();assert.equal(e.deliveries.length,1);

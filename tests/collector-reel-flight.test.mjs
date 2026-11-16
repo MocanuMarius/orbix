@@ -57,6 +57,8 @@ test('paused equipment changes preserve reel progress and Ring Spring reduces on
   let deliveryAvailableRecovery=-1;const resolve=e.resolveCardRowEvent.bind(e);
   e.resolveCardRowEvent=(kind,detail)=>{if(p.deliveredByWisp)deliveryAvailableRecovery=e.wisp.cooldown;return resolve(kind,detail);};
   e.wisp.shortenReel(100);e.time+=1/60;e.wisp.update(e,1/60);
+  assert.equal(p.collected,undefined,'a full recovery spend tightens the physical tow');
+  for(let i=0;i<60&&!p.collected;i++){e.time+=1/60;e.previousDistance=e.distance;e.distance+=e.baseSpeed/60;e.wisp.update(e,1/60);}
   assert.equal(p.collected,true);assert.equal(e.wisp.phase,'ready');assert.equal(e.wisp.cooldown,0);
   assert.equal(deliveryAvailableRecovery,0,'the delivery does not invent another recovery to pay a card');
  }finally{e.destroy();}

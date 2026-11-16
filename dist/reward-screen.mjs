@@ -1,9 +1,9 @@
-import {ARTIFACTS} from './model.mjs?v=glossary-1';
-import {artifactDescription} from './artifact-copy.mjs?v=glossary-1';
-import {resourceSymbol} from './game-symbols.mjs?v=glossary-1';
-import {artifactIcon} from './upgrade-icons.mjs?v=glossary-1';
-import {relicIdentityMarkup,relicRulesMarkup,relicRulesButton} from './ui/relic-primitives.mjs?v=glossary-1';
-import {actionButton} from './ui/primitives.mjs?v=glossary-1';
+import {ARTIFACTS} from './model.mjs?v=tow-swing-1';
+import {artifactDescription} from './artifact-copy.mjs?v=tow-swing-1';
+import {resourceSymbol} from './game-symbols.mjs?v=tow-swing-1';
+import {artifactIcon} from './upgrade-icons.mjs?v=tow-swing-1';
+import {relicIdentityMarkup,relicRulesMarkup,relicRulesButton} from './ui/relic-primitives.mjs?v=tow-swing-1';
+import {actionButton} from './ui/primitives.mjs?v=tow-swing-1';
 import {acquiredRewardMarkup} from './ui/acquired-reward.mjs?v=reward-compositions-1';
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 export const rewardDescription=(a,run)=>{const c=artifactDescription(a,run,{fresh:true});return [c.effect,[c.trigger,c.limit].filter(Boolean).join(' ')];};

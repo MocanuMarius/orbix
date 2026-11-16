@@ -1,32 +1,112 @@
 {
-  "note": "Actual App + HUD + WispFlightView. Staged inspector Spark, equipped .4 recovery multiplier; authored terrain retained. CPU render+HUD samples are a 120Hz budget check, not a physical-phone frame-rate claim.",
+  "note": "Actual application on the authored Pinewood course. A missed Spark and normal 10-second Collector recovery are staged for inspection. Ordinary Lift inputs, production physics, latching, tow and delivery. No motion retiming.",
   "viewport": [
     900,
     405
   ],
-  "dpr": 3,
+  "dpr": 2,
   "fps": 30,
-  "seconds": 6,
-  "errors": [],
-  "deliveryEvents": [
+  "seconds": 12,
+  "events": [
     {
-      "id": "tether-inspection",
-      "time": 4.666666666666655,
-      "via": "collector"
+      "event": "attach",
+      "time": 0.6500000000000004,
+      "gap": 155.36617687834536
+    },
+    {
+      "event": "collect",
+      "time": 10.650000000000109,
+      "via": "collector",
+      "source": {
+        "x": 174.1342675838332,
+        "y": 196.34724920151996,
+        "previousX": 172.78609101517577,
+        "previousY": 194.65669987993442
+      },
+      "body": {
+        "x": 190,
+        "y": 195.49279569892525
+      },
+      "original": {
+        "x": 150,
+        "y": 231.56
+      }
     }
   ],
-  "firstPaintProof": {
-    "worldTime": 0,
-    "simulationStepsAfterLift": 0,
-    "markCount": 5,
-    "changedActorPixelsOver2": 219,
-    "actorDifferenceBounds": [
-      90,
-      132,
-      114,
-      169
-    ],
-    "note": "Identical actual first render; the comparison disables only wake drawing. Native screenshot pixels."
+  "inputs": [
+    {
+      "time": 0.016666666666666666,
+      "whileTowing": false,
+      "y": 211.61779569892474,
+      "vy": -142.17741935483872
+    },
+    {
+      "time": 1.3666666666666667,
+      "whileTowing": true,
+      "y": 211.6177956989248,
+      "vy": -142.17741935483872
+    },
+    {
+      "time": 2.883333333333328,
+      "whileTowing": true,
+      "y": 237.85704301075285,
+      "vy": -142.17741935483872
+    },
+    {
+      "time": 4.133333333333324,
+      "whileTowing": true,
+      "y": 224.8530107526884,
+      "vy": -142.17741935483872
+    },
+    {
+      "time": 5.33333333333332,
+      "whileTowing": true,
+      "y": 206.12720430107555,
+      "vy": -142.17741935483872
+    },
+    {
+      "time": 6.683333333333315,
+      "whileTowing": true,
+      "y": 206.1272043010756,
+      "vy": -142.17741935483872
+    },
+    {
+      "time": 8.04999999999998,
+      "whileTowing": true,
+      "y": 208.49682795698965,
+      "vy": -142.17741935483872
+    },
+    {
+      "time": 9.400000000000047,
+      "whileTowing": true,
+      "y": 208.4968279569897,
+      "vy": -142.17741935483872
+    },
+    {
+      "time": 10.916666666666789,
+      "whileTowing": false,
+      "y": 234.73607526881776,
+      "vy": -142.17741935483872
+    }
+  ],
+  "errors": [],
+  "sourceReport": "work/tow-swing-release/capture/report.json",
+  "cropPixels": [
+    0,
+    160,
+    800,
+    640
+  ],
+  "capture": "Fixed screenshot crop, original pixels, 1x time, muted. Full HUD recording at previews/tow-swing-1/flight.mp4.",
+  "stills": {
+    "front": 67,
+    "back": 101,
+    "near": 317
   },
-  "normalPerformanceReport": "work/collector-tether/report-normal.json"
+  "historicalFiles": [
+    "before.mp4",
+    "after.mp4",
+    "wake-first-paint.png",
+    "wake-first-paint-without.png"
+  ]
 }

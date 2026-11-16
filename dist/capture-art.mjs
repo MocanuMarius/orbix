@@ -1,11 +1,11 @@
-import {drawAbsorbingSpark} from './tidal-light.mjs?v=glossary-1';
-import {getPickupSpec, pickupShellRadius} from './pickups.mjs?v=glossary-1';
-import {drawPickup} from './pickup-art.mjs?v=glossary-1';
-import {drawShellArcs} from './shell-arcs.mjs?v=glossary-1';
-import {DEFAULT_CAPTURE_STYLE} from './capture-styles.mjs?v=glossary-1';
-import {COLLECTOR_RING} from './pickup-handling-cue.mjs?v=glossary-1';
-import {collectorTowPoint} from './collector-tow-geometry.mjs?v=glossary-1';
-import {lightVisibility,renderLightState} from './light-field.mjs?v=glossary-1';
+import {drawAbsorbingSpark} from './tidal-light.mjs?v=tow-swing-1';
+import {getPickupSpec, pickupShellRadius} from './pickups.mjs?v=tow-swing-1';
+import {drawPickup} from './pickup-art.mjs?v=tow-swing-1';
+import {drawShellArcs} from './shell-arcs.mjs?v=tow-swing-1';
+import {DEFAULT_CAPTURE_STYLE} from './capture-styles.mjs?v=tow-swing-1';
+import {COLLECTOR_RING} from './pickup-handling-cue.mjs?v=tow-swing-1';
+import {collectorTowPoint} from './collector-tow-geometry.mjs?v=tow-swing-1';
+import {lightVisibility,renderLightState} from './light-field.mjs?v=tow-swing-1';
 
 const TAU = Math.PI * 2;
 const clamp = value => Math.max(0, Math.min(1, value));

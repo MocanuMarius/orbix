@@ -1,4 +1,4 @@
-import {companionArtSvg} from './companion-art.mjs?v=glossary-1';
+import {companionArtSvg} from './companion-art.mjs?v=tow-swing-1';
 const variants=['current','flat2','flat3'],videos=[...document.querySelectorAll('#movies video,.detail-stage video')];
 const pauseButton=document.querySelector('#play-pause');
 const names={current:'Previous · Shaded',flat2:'Current · Flat A',flat3:'B · Soft edge'};

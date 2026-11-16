@@ -1,12 +1,12 @@
 /** Contextual card vocabulary. Native modal dialogs keep help above the Deck. */
-import { resourceSymbol } from './game-symbols.mjs?v=glossary-1';
-import {lifeHeartSvg} from './lives.mjs?v=glossary-1';
-import {duskGlyphArt} from './spark-symbol.mjs?v=glossary-1';
-import {getGlowCapacity,formatGlow} from './vitality.mjs?v=glossary-1';
-import {glowGaugeUnits} from './glow-ui.mjs?v=glossary-1';
-import {getRunModifiers} from './model.mjs?v=glossary-1';
-import {cardAmount,makeSkillCard,SKILL_CARDS} from './skill-cards.mjs?v=glossary-1';
-import {cardRowTermHelpMarkup} from './card-row-help.mjs?v=glossary-1';
+import { resourceSymbol } from './game-symbols.mjs?v=tow-swing-1';
+import {lifeHeartSvg} from './lives.mjs?v=tow-swing-1';
+import {duskGlyphArt} from './spark-symbol.mjs?v=tow-swing-1';
+import {getGlowCapacity,formatGlow} from './vitality.mjs?v=tow-swing-1';
+import {glowGaugeUnits} from './glow-ui.mjs?v=tow-swing-1';
+import {getRunModifiers} from './model.mjs?v=tow-swing-1';
+import {cardAmount,makeSkillCard,SKILL_CARDS} from './skill-cards.mjs?v=tow-swing-1';
+import {cardRowTermHelpMarkup} from './card-row-help.mjs?v=tow-swing-1';
 const esc = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 export const CARD_TERMS = Object.freeze({
   round: ['Round', 'One flight through a passage, ending in clear rewards or a lost heart.'],
@@ -169,7 +169,7 @@ const termPictures = Object.freeze({
   wisp: {src:'./assets/help/wisp-flight.png', alt:'The main white wisp flying in the passage, captured from the running game.', caption:'Your main wisp is the larger white light.'},
   wave: {src:'./assets/help/wave-flight.png', alt:'An actual revealing wave spreading through the passage.', caption:'A wave reveals the passage as it spreads outward.'},
   proximity: {src:'./assets/help/wave-flight.png', alt:'The revealing wave used by Proximity, rendered in the passage.', caption:'Skimming terrain can send this revealing wave. The live example below shows the required distance.'},
-  collector: {src:'./assets/previews/collector-tether/reel-front.png', video:'./assets/previews/collector-tether/reel.mp4', alt:'The small green Collector catches an intact Spark and reels it to the larger white wisp.', caption:'Actual flight: Collector reels the intact pickup into your moving wisp. Sparks arrive on contact.'},
+  collector: {src:'./assets/previews/collector-tether/reel-front.png', video:'./assets/previews/collector-tether/reel.mp4', alt:'The small green Collector tows a swinging Spark through seven Lifts, then delivers it to the larger white wisp.', caption:'Actual flight: the trailing Spark swings as you Lift. Collector reels it in; Sparks arrive on contact.'},
 });
 function termPictureMarkup(key) {
   const picture = termPictures[key];
@@ -345,7 +345,7 @@ export function installCardTermHelp(doc = document, {resolveProximityContext,res
       dialog.classList.add('card-cache-dialog');
       const host=button.dataset.cardTerm?dialog.querySelector('[data-card-term-example]'):doc.createElement('div');
       if(!button.dataset.cardTerm){host.className='cache-card-example';dialog.querySelector('[data-card-help-rules]').append(host);}
-      import('./cache-card-help.mjs?v=glossary-1').then(({mountCacheCardHelp})=>{
+      import('./cache-card-help.mjs?v=tow-swing-1').then(({mountCacheCardHelp})=>{
         if(layers.includes(layer))appendDisposer(mountCacheCardHelp(host,{focus:cardKind==='harvest'?'cross':cardKind==='cache-handling'?'deliver':'touch',harvestCard:cardKind==='harvest'?cardContext.card:undefined}));
       });
     }
@@ -356,7 +356,7 @@ export function installCardTermHelp(doc = document, {resolveProximityContext,res
         const host=doc.createElement('section');host.className='proximity-card-help';
         const example=dialog.querySelector('[data-card-term-example="proximity"]');
         if(example)example.replaceChildren(host);else dialog.querySelector('.card-term-content').prepend(host);
-        import('./proximity-card-help.mjs?v=glossary-1').then(({mountProximityCardHelp})=>{
+        import('./proximity-card-help.mjs?v=tow-swing-1').then(({mountProximityCardHelp})=>{
           if(layers.includes(layer))appendDisposer(mountProximityCardHelp(host,previewContext));
         });
       }

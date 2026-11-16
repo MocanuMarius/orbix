@@ -1,2 +1,2 @@
-import {branchTreeMarkup} from './skill-tree.mjs?v=glossary-1';
+import {branchTreeMarkup} from './skill-tree.mjs?v=tow-swing-1';
 export function mainWispTreeMarkup(options){return branchTreeMarkup({...options,branch:'main'});}
