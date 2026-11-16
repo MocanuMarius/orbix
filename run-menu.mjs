@@ -1,9 +1,9 @@
-import {menuWorldMarkup} from './menu-world.mjs?v=furnace-tow-1';
-import {resourceSymbol} from './game-symbols.mjs?v=furnace-tow-1';
-import {formatGlow,getGlowCapacity} from './vitality.mjs?v=furnace-tow-1';
-import {livesMarkup} from './lives.mjs?v=furnace-tow-1';
-import { COMPANION_ABILITIES, getCompanionUnlock } from './companion-abilities.mjs?v=furnace-tow-1';
-import { companionArtSvg } from './companion-art.mjs?v=furnace-tow-1';
+import {menuWorldMarkup} from './menu-world.mjs?v=camp-resume-1';
+import {resourceSymbol} from './game-symbols.mjs?v=camp-resume-1';
+import {formatGlow,getGlowCapacity} from './vitality.mjs?v=camp-resume-1';
+import {livesMarkup} from './lives.mjs?v=camp-resume-1';
+import { COMPANION_ABILITIES, getCompanionUnlock } from './companion-abilities.mjs?v=camp-resume-1';
+import { companionArtSvg } from './companion-art.mjs?v=camp-resume-1';
 
 const esc = value => String(value ?? '').replace(/[&<>"']/g, char =>
   ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[char]));

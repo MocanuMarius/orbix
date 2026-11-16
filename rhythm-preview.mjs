@@ -1,9 +1,9 @@
-import {WispFlight} from './flight.mjs?v=furnace-tow-1';
-import {bindFlightPointerControls} from './flight-input.mjs?v=furnace-tow-1';
-import {createRhythmScore} from './rhythm-score.mjs?v=furnace-tow-1';
-import {artifactIcon} from './upgrade-icons.mjs?v=furnace-tow-1';
-import {BLACK_HOLE_TUNING} from './black-holes.mjs?v=furnace-tow-1';
-import {attachFlightPerformance} from './flight-performance.mjs?v=furnace-tow-1';
+import {WispFlight} from './flight.mjs?v=camp-resume-1';
+import {bindFlightPointerControls} from './flight-input.mjs?v=camp-resume-1';
+import {createRhythmScore} from './rhythm-score.mjs?v=camp-resume-1';
+import {artifactIcon} from './upgrade-icons.mjs?v=camp-resume-1';
+import {BLACK_HOLE_TUNING} from './black-holes.mjs?v=camp-resume-1';
+import {attachFlightPerformance} from './flight-performance.mjs?v=camp-resume-1';
 
 const root=document.querySelector('.flight-device'),canvas=root.querySelector('canvas'),status=document.querySelector('#preview-status'),reduced=document.querySelector('#reduced'),pause=document.querySelector('#pause');
 const blackHole=document.querySelector('#black-hole'),rate=document.querySelector('#preview-rate');

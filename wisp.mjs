@@ -1,10 +1,10 @@
-import { getCompanionAbility } from './companion-abilities.mjs?v=furnace-tow-1';
-import { pickupKind, pickupContactRadius } from './pickups.mjs?v=furnace-tow-1';
-import {sparkArtScale,sparkBodyRadius,sparkMass} from './spark-size.mjs?v=furnace-tow-1';
-import {collectorCanFetch,collectorCompactSeconds,compressCollectorCargo} from './collector-load.mjs?v=furnace-tow-1';
-import {pickupHookAnchor} from './pickup-handling-cue.mjs?v=furnace-tow-1';
-import {WISP_ART} from './companion-art.mjs?v=furnace-tow-1';
-import {collectorTowPose,collectorTowOrbit} from './collector-tow-geometry.mjs?v=furnace-tow-1';
+import { getCompanionAbility } from './companion-abilities.mjs?v=camp-resume-1';
+import { pickupKind, pickupContactRadius } from './pickups.mjs?v=camp-resume-1';
+import {sparkArtScale,sparkBodyRadius,sparkMass} from './spark-size.mjs?v=camp-resume-1';
+import {collectorCanFetch,collectorCompactSeconds,compressCollectorCargo} from './collector-load.mjs?v=camp-resume-1';
+import {pickupHookAnchor} from './pickup-handling-cue.mjs?v=camp-resume-1';
+import {WISP_ART} from './companion-art.mjs?v=camp-resume-1';
+import {collectorTowPose,collectorTowOrbit} from './collector-tow-geometry.mjs?v=camp-resume-1';
 
 const clamp = (value, lo, hi) => Math.min(hi, Math.max(lo, value));
 export const WISP_TUNING = Object.freeze({ range: 52.5, cooldown: 10, lightRadius: 175,

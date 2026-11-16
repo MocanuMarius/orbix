@@ -1,7 +1,7 @@
-import { cardTermTextMarkup } from "./card-terms.mjs?v=furnace-tow-1";
-import { getCardRuleBands } from "./card-rule-bands.mjs?v=furnace-tow-1";
-import { getEquippedCardStatuses, cardStatusText } from "./card-status.mjs?v=furnace-tow-1";
-import { cardArt } from "./card-art.mjs?v=furnace-tow-1";
+import { cardTermTextMarkup } from "./card-terms.mjs?v=camp-resume-1";
+import { getCardRuleBands } from "./card-rule-bands.mjs?v=camp-resume-1";
+import { getEquippedCardStatuses, cardStatusText } from "./card-status.mjs?v=camp-resume-1";
+import { cardArt } from "./card-art.mjs?v=camp-resume-1";
 import {
   getMountedCards,
   getOwnedCards,
@@ -13,12 +13,12 @@ import {
   canUseCardCampServices,
   getSkillWallet,
   equipOwnedCard,
-} from "./model.mjs?v=furnace-tow-1";
-import { resourceSymbol } from "./game-symbols.mjs?v=furnace-tow-1";
-import { choiceScene } from "./choice-art.mjs?v=furnace-tow-1";
-import { livesMarkup } from "./lives.mjs?v=furnace-tow-1";
-import { getGlowCapacity, formatGlow } from "./vitality.mjs?v=furnace-tow-1";
-import { mapStopIconMarkup } from "./map-guide.mjs?v=furnace-tow-1";
+} from "./model.mjs?v=camp-resume-1";
+import { resourceSymbol } from "./game-symbols.mjs?v=camp-resume-1";
+import { choiceScene } from "./choice-art.mjs?v=camp-resume-1";
+import { livesMarkup } from "./lives.mjs?v=camp-resume-1";
+import { getGlowCapacity, formatGlow } from "./vitality.mjs?v=camp-resume-1";
+import { mapStopIconMarkup } from "./map-guide.mjs?v=camp-resume-1";
 import {
   createCardExecution,
   executeCardBodyPickup,
@@ -26,7 +26,7 @@ import {
   makeSkillCard,
   getCardGrowthUses,
   SKILL_CARDS,
-} from "./skill-cards.mjs?v=furnace-tow-1";
+} from "./skill-cards.mjs?v=camp-resume-1";
 
 const esc = (v) =>
   String(v ?? "").replace(
@@ -69,7 +69,7 @@ function flightPackingReceipt(run, reward) {
     ? ` · Tight Packing +${bonus} Stored Sparks`
     : "";
 }
-export { cardArt } from "./card-art.mjs?v=furnace-tow-1";
+export { cardArt } from "./card-art.mjs?v=camp-resume-1";
 export function effectMarkup(text) {
   return esc(text).replace(/([+−]?\d+(?:\.\d+)?%?)/g, '<b class="card-number">$1</b>');
 }

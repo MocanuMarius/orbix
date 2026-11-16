@@ -1,6 +1,6 @@
 // One optional side passage carved out of real terrain. The broad original
 // route stays intact; the dividing shelf uses the normal scenery colliders.
-import {inLanternRoom} from './lantern-layout.mjs?v=furnace-tow-1';
+import {inLanternRoom} from './lantern-layout.mjs?v=camp-resume-1';
 const hash=value=>{let n=2166136261;for(const c of String(value))n=Math.imul(n^c.charCodeAt(0),16777619);return n>>>0;};
 const clamp=(n,a,b)=>Math.max(a,Math.min(b,n));
 const smooth=t=>{t=clamp(t,0,1);return t*t*(3-2*t);};
