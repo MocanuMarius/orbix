@@ -1,7 +1,7 @@
-import {skillIcon} from './upgrade-icons.mjs?v=combo-camp-1';
-import {pickupArtSvg} from './pickup-art.mjs?v=combo-camp-1';
-import {mapStopIconMarkup} from './map-guide.mjs?v=combo-camp-1';
-import {lifeHeartSvg} from './lives.mjs?v=combo-camp-1';
+import {skillIcon} from './upgrade-icons.mjs?v=rowcraft-1';
+import {pickupArtSvg} from './pickup-art.mjs?v=rowcraft-1';
+import {mapStopIconMarkup} from './map-guide.mjs?v=rowcraft-1';
+import {lifeHeartSvg} from './lives.mjs?v=rowcraft-1';
 
 const aliases = {'✧':'wisp','✦':'sun','◈':'ember','ϟ':'wind','⌄':'wing','⌃':'wing','»':'wind','◇':'flame','♢':'wind','≈':'wind','♨':'flame','♡':'heart',boost:'flame',survival:'wisp',collection:'wisp',mobility:'wing',spirit:'wisp',ash:'flame',speed:'wind',phoenix:'flame',rebirth:'sun',control:'wing'};
 const objects = {

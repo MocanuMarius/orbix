@@ -1,11 +1,11 @@
-import {drawAbsorbingSpark} from './tidal-light.mjs?v=combo-camp-1';
-import {getPickupSpec, pickupShellRadius} from './pickups.mjs?v=combo-camp-1';
-import {drawPickup} from './pickup-art.mjs?v=combo-camp-1';
-import {drawShellArcs} from './shell-arcs.mjs?v=combo-camp-1';
-import {DEFAULT_CAPTURE_STYLE} from './capture-styles.mjs?v=combo-camp-1';
-import {COLLECTOR_RING} from './pickup-handling-cue.mjs?v=combo-camp-1';
-import {collectorTowPoint} from './collector-tow-geometry.mjs?v=combo-camp-1';
-import {lightVisibility,renderLightState} from './light-field.mjs?v=combo-camp-1';
+import {drawAbsorbingSpark} from './tidal-light.mjs?v=rowcraft-1';
+import {getPickupSpec, pickupShellRadius} from './pickups.mjs?v=rowcraft-1';
+import {drawPickup} from './pickup-art.mjs?v=rowcraft-1';
+import {drawShellArcs} from './shell-arcs.mjs?v=rowcraft-1';
+import {DEFAULT_CAPTURE_STYLE} from './capture-styles.mjs?v=rowcraft-1';
+import {COLLECTOR_RING} from './pickup-handling-cue.mjs?v=rowcraft-1';
+import {collectorTowPoint} from './collector-tow-geometry.mjs?v=rowcraft-1';
+import {lightVisibility,renderLightState} from './light-field.mjs?v=rowcraft-1';
 
 const TAU = Math.PI * 2;
 const clamp = value => Math.max(0, Math.min(1, value));

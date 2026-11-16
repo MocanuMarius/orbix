@@ -1,7 +1,7 @@
-import {drawPickup} from './pickup-art.mjs?v=combo-camp-1';
-import {pickupKind} from './pickups.mjs?v=combo-camp-1';
-import {sparkArtScale, sparkBodyRadius, sparkMass} from './spark-size.mjs?v=combo-camp-1';
-import {lightVisibility} from './light-field.mjs?v=combo-camp-1';
+import {drawPickup} from './pickup-art.mjs?v=rowcraft-1';
+import {pickupKind} from './pickups.mjs?v=rowcraft-1';
+import {sparkArtScale, sparkBodyRadius, sparkMass} from './spark-size.mjs?v=rowcraft-1';
+import {lightVisibility} from './light-field.mjs?v=rowcraft-1';
 
 export function glowSenseCues(e, {
   distance = e.renderDistance ?? e.distance,

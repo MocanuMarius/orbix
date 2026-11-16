@@ -1,7 +1,7 @@
 /** Contextual card vocabulary. Native modal dialogs keep help above the Deck. */
-import { resourceSymbol } from './game-symbols.mjs?v=combo-camp-1';
-import {lifeHeartSvg} from './lives.mjs?v=combo-camp-1';
-import {duskGlyphArt} from './spark-symbol.mjs?v=combo-camp-1';
+import { resourceSymbol } from './game-symbols.mjs?v=rowcraft-1';
+import {lifeHeartSvg} from './lives.mjs?v=rowcraft-1';
+import {duskGlyphArt} from './spark-symbol.mjs?v=rowcraft-1';
 const esc = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 export const CARD_TERMS = Object.freeze({
   round: ['Round', 'One flight through a passage. Clear the Round to earn its rewards and choose your next stop. A failed attempt costs one heart; you can retry while hearts remain.'],
@@ -88,6 +88,8 @@ export function cardTermTextMarkup(value, {exclude = []} = {}) {
 }
 
 const CARD_NOTES = Object.freeze({
+  'use-doubler': 'When an actual flight starts, Use Doubler consumes itself to double the remaining uses of the real consumable immediately to its right. The added uses and expanded ceiling belong to that exact card through swaps, saves and eligible paid refills. An empty slot, a spent card, a lasting card or another Use Doubler keeps the card unspent. Opening a preview, Dream, pausing, resuming and reloading never repeat a grant. Echo, Chameleon and replay cannot copy it.',
+  'ember-feeder': 'After a successful real flight, Ember Feeder consumes the first two occupied cards anywhere to its right together, skipping empty slots. Both cards must still be present; fewer than two consumes neither. Each meal adds one maximum Spark to that specific Ember Feeder while equipped. Stored growth survives swaps and saves, but removing, melting or consuming the Feeder removes its capacity bonus. Equipping never refills the meter. Heart Stitch heals first; physical consumers then resolve left to right before clear rewards. Failed flights, Dream, copying and replay never feed it.',
   'devourer': 'After a successful clear, Devourer can consume the actual Rare card immediately to its right to restore one missing heart. That Rare must have been equipped for the flight and remain present. Full hearts and failed flights spare it. Heart Stitch heals first; Devourers then resolve from left to right. The target disappears, while Devourer remains. Echo, Chameleon and row replay cannot copy this physical action.',
   'slip-feather': 'Proximity enables terrain charging at normal reach without Collector or another skill. Skim near real solid terrain for 2 seconds; open sky and touching terrain never charge it. Extra Proximity cards share one meter. Edge Reach is the Rare version with additional reach. Removing every Proximity and Edge Reach source turns it off unless you learned the native skill.',
   'springboard': 'Touch a natural fuel pickup while descending to bounce upward at half your ordinary Lift impulse. Generated pickups, Collector deliveries, Flash and wave crossings do not trigger it. The bounce costs no Sparks and never counts as a manual Lift, Downbeat or Rhythm tap. Springboard cannot be copied; extra equipped copies keep one bounce.',
@@ -233,7 +235,7 @@ export function installCardTermHelp(doc = document, {resolveProximityContext} = 
         dialog.classList.add('card-proximity-dialog');
         const host=doc.createElement('section');host.className='proximity-card-help';
         dialog.querySelector('.card-term-content').prepend(host);
-        import('./proximity-card-help.mjs?v=combo-camp-1').then(({mountProximityCardHelp})=>{
+        import('./proximity-card-help.mjs?v=rowcraft-1').then(({mountProximityCardHelp})=>{
           if(layers.includes(layer))layer.disposePreview=mountProximityCardHelp(host,previewContext);
         });
       }

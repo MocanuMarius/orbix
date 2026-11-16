@@ -1,11 +1,11 @@
-import {artifactLimitSummary,effectMarkup} from '../artifact-copy.mjs?v=combo-camp-1';
-import {resourceSymbol} from '../game-symbols.mjs?v=combo-camp-1';
-import {artifactRarityLabel} from '../replay-ui.mjs?v=combo-camp-1';
-import {ROUTE_BONUSES} from '../route-bonuses.mjs?v=combo-camp-1';
-import {bonusIcon} from '../route-bonus-ui.mjs?v=combo-camp-1';
-import {reliquaryNicheMarkup} from './reliquary-art.mjs?v=combo-camp-1';
-import {relicRulesButton} from './relic-primitives.mjs?v=combo-camp-1';
-import {actionButton,escapeHtml as esc} from './primitives.mjs?v=combo-camp-1';
+import {artifactLimitSummary,effectMarkup} from '../artifact-copy.mjs?v=rowcraft-1';
+import {resourceSymbol} from '../game-symbols.mjs?v=rowcraft-1';
+import {artifactRarityLabel} from '../replay-ui.mjs?v=rowcraft-1';
+import {ROUTE_BONUSES} from '../route-bonuses.mjs?v=rowcraft-1';
+import {bonusIcon} from '../route-bonus-ui.mjs?v=rowcraft-1';
+import {reliquaryNicheMarkup} from './reliquary-art.mjs?v=rowcraft-1';
+import {relicRulesButton} from './relic-primitives.mjs?v=rowcraft-1';
+import {actionButton,escapeHtml as esc} from './primitives.mjs?v=rowcraft-1';
 
 // An opt-in production recipe. Callers that omit acquiredPresentation retain
 // the shipped reward composition until a player-facing direction is selected.

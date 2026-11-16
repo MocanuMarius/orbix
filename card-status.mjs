@@ -1,7 +1,7 @@
 /** Configuration hints only. Every numeric verdict comes from a read-only row quote. */
-import { SKILL_CARDS, CARD_ROW_EVENTS, getEffectiveCardSources, getCardRowRule, previewCardRowEvent } from './skill-cards.mjs?v=combo-camp-1';
-import { normalizeCompanionFleet } from './companion-abilities.mjs?v=combo-camp-1';
-import { skillProgress } from './skill-increments.mjs?v=combo-camp-1';
+import { SKILL_CARDS, CARD_ROW_EVENTS, getEffectiveCardSources, getCardRowRule, previewCardRowEvent, getUseDoublerTarget, getEmberFeederTargets, getCardFeederCapacity } from './skill-cards.mjs?v=rowcraft-1';
+import { normalizeCompanionFleet } from './companion-abilities.mjs?v=rowcraft-1';
+import { skillProgress } from './skill-increments.mjs?v=rowcraft-1';
 
 const ready = reason => ({ state: 'ready', symbol: '✓', label: 'Ready', reason, fix: 'Keep this arrangement to use it when its condition happens.' });
 const blocked = (label, reason, fix) => ({ state: 'blocked', symbol: '!', label, reason, fix });
@@ -69,7 +69,7 @@ function missingTrigger(rule, context) {
 export function getEquippedCardStatuses(run = {}, native = null) {
   const cards = (Array.isArray(run) ? run : run.mountedCards || run.cards || []).slice(0, 5);
   const base = buildContext(run, native);
-  const key = JSON.stringify([cards.map(card => card ? [card.instanceId, card.cardId, card.rank || 1, card.charges ?? null] : null), base, run.cardGrowUses || 0,run.cardTwinWickUnlocked===true]);
+  const key = JSON.stringify([cards.map(card => card ? [card.instanceId, card.cardId, card.rank || 1, card.charges ?? null, card.chargeCapacity ?? null, card.fedCapacity ?? 0] : null), base, run.cardGrowUses || 0,run.cardTwinWickUnlocked===true]);
   if (key === lastKey) return lastResult;
   const sources = getEffectiveCardSources(cards);
   const has = kind => sources.some(entry => entry.def.kind === kind);
@@ -100,6 +100,16 @@ export function getEquippedCardStatuses(run = {}, native = null) {
       return blocked(`Cannot copy ${name(target)}`, `${name(target)} cannot be ${ownDef.kind === 'echo' ? 'repeated by Echo' : 'borrowed by Chameleon'}.`, 'Move this card directly left of a compatible card. Copying cards cannot copy each other.');
     }
     const def = source?.def || ownDef, physical = source?.source || card, kind = def.kind;
+    if (kind === 'use-doubler') {
+      const target = getUseDoublerTarget(cards, slot);
+      if (!target) return blocked('Needs consumable right', 'The immediately adjacent right slot has no live consumable eligible for doubling.', 'Place a card with remaining uses directly right. Use Doubler cannot target another Use Doubler. It stays unspent without a valid target.');
+      return ready(`At real flight entry, consume Use Doubler and double ${name(target)} in slot ${slot + 2} from ${target.charges} to ${target.charges * 2} remaining uses. Preview, Dream and later resumes do not trigger another doubling.`);
+    }
+    if (kind === 'ember-feeder') {
+      const targets = getEmberFeederTargets(cards, slot), growth = getCardFeederCapacity(card);
+      if (!targets.length) return blocked('Needs 2 cards right', `This Ember Feeder keeps +${growth} maximum Sparks while equipped, but cannot feed without two occupied cards to its right.`, 'Place two cards anywhere to its right. A successful flight consumes both together; fewer than two consumes neither.');
+      return ready(`After a successful flight, permanently consume ${targets.map(({card: target, slot: targetSlot}) => `${name(target)} in slot ${targetSlot + 1}`).join(' and ')} together. This Ember Feeder grows from +${growth} to +${growth + 1} maximum Sparks while equipped. Physical consumers resolve left to right; no refill, copying or replay.`);
+    }
     if (kind === 'devourer') {
       const target=cards[slot+1];
       if (SKILL_CARDS[target?.cardId]?.rarity !== 'rare')
