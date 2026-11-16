@@ -1,4 +1,4 @@
-import {LIGHT_EXTENT,lightAttenuation} from './light-attenuation.mjs?v=skills-cards-3';
+import {LIGHT_EXTENT,lightAttenuation} from './light-attenuation.mjs?v=flight-120-1';
 
 // Rendering only: rock consumes 4.5 units of Luminance reach for each unit
 // travelled. Gameplay visibility, encounters and collection use their own law.

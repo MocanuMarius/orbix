@@ -1,16 +1,16 @@
-import {getBiome} from './biomes.mjs?v=skills-cards-3';
-import {getBossPreview} from './boss.mjs?v=skills-cards-3';
-import {levelMapPreview} from './level-map-art.mjs?v=skills-cards-3';
-import {mapStopIconMarkup} from './map-guide.mjs?v=skills-cards-3';
-import {resourceSymbol} from './game-symbols.mjs?v=skills-cards-3';
-import {getFlightClearReward} from './checkpoint-rewards.mjs?v=skills-cards-3';
-import {availableFlightArtifacts} from './model.mjs?v=skills-cards-3';
-import {bonusIcon,boonMarkup} from './route-bonus-ui.mjs?v=skills-cards-3';
-import {contextualFlightNotice} from './contextual-events.mjs?v=skills-cards-3';
-import {ATLAS_FORECASTS,atlasGlyph} from './night-atlas.mjs?v=skills-cards-3';
-import {canDreamAt,dreamConfig} from './dream.mjs?v=skills-cards-3';
-import {sparkHabitat} from './spark-fields.mjs?v=skills-cards-3';
-import {lanternFlightCue} from './map-theme.mjs?v=skills-cards-3';
+import {getBiome} from './biomes.mjs?v=flight-120-1';
+import {getBossPreview} from './boss.mjs?v=flight-120-1';
+import {levelMapPreview} from './level-map-art.mjs?v=flight-120-1';
+import {mapStopIconMarkup} from './map-guide.mjs?v=flight-120-1';
+import {resourceSymbol} from './game-symbols.mjs?v=flight-120-1';
+import {getFlightClearReward} from './checkpoint-rewards.mjs?v=flight-120-1';
+import {availableFlightArtifacts} from './model.mjs?v=flight-120-1';
+import {bonusIcon,boonMarkup} from './route-bonus-ui.mjs?v=flight-120-1';
+import {contextualFlightNotice} from './contextual-events.mjs?v=flight-120-1';
+import {ATLAS_FORECASTS,atlasGlyph} from './night-atlas.mjs?v=flight-120-1';
+import {canDreamAt,dreamConfig} from './dream.mjs?v=flight-120-1';
+import {sparkHabitat} from './spark-fields.mjs?v=flight-120-1';
+import {lanternFlightCue} from './map-theme.mjs?v=flight-120-1';
 
 const escapeText = value => String(value ?? '').replace(/[&<>"']/g, char =>
  ({'&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;'}[char]));

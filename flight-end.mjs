@@ -1,4 +1,4 @@
-import {installExitLandmark} from './exit-landmark.mjs?v=skills-cards-3';
+import {installExitLandmark} from './exit-landmark.mjs?v=flight-120-1';
 
 // Finish at the grounded refuge's entry plane, just beyond visible scenery.
 // Underground polygon closure vertices no longer add a blank course tail.

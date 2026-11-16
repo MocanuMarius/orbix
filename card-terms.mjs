@@ -1,5 +1,5 @@
 /** Contextual card vocabulary. Native modal dialogs keep help above the Deck. */
-import { resourceSymbol } from './game-symbols.mjs?v=skills-cards-3';
+import { resourceSymbol } from './game-symbols.mjs?v=flight-120-1';
 const esc = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 export const CARD_TERMS = Object.freeze({
   spark: ['Spark', 'Fuel for your Spark Meter. Lifts spend it. Absorb a Spark by touching it with your wisp. Fuel pickups include Clusters, Caches and Dusk Sparks. Stored Sparks use the boxed icon and are kept separately.'],
@@ -145,7 +145,7 @@ export function installCardTermHelp(doc = document, {resolveProximityContext} = 
         dialog.classList.add('card-proximity-dialog');
         const host=doc.createElement('section');host.className='proximity-card-help';
         dialog.querySelector('.card-term-content').prepend(host);
-        import('./proximity-card-help.mjs?v=skills-cards-3').then(({mountProximityCardHelp})=>{
+        import('./proximity-card-help.mjs?v=flight-120-1').then(({mountProximityCardHelp})=>{
           if(layers.includes(layer))layer.disposePreview=mountProximityCardHelp(host,previewContext);
         });
       }

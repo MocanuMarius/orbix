@@ -1,8 +1,8 @@
-import {bellwindAcceleration} from './atlas-flight.mjs?v=skills-cards-3';
-import {DraftField,DRAFT_TUNING} from './drafts.mjs?v=skills-cards-3';
-import {lightVisibility} from './light-field.mjs?v=skills-cards-3';
-import {isFuelPickup,pickupContactRadius} from './pickups.mjs?v=skills-cards-3';
-import {obstacleEdgeClearance} from './edging-pulse.mjs?v=skills-cards-3';
+import {bellwindAcceleration} from './atlas-flight.mjs?v=flight-120-1';
+import {DraftField,DRAFT_TUNING} from './drafts.mjs?v=flight-120-1';
+import {lightVisibility} from './light-field.mjs?v=flight-120-1';
+import {isFuelPickup,pickupContactRadius} from './pickups.mjs?v=flight-120-1';
+import {obstacleEdgeClearance} from './edging-pulse.mjs?v=flight-120-1';
 const clamp=(n,a,b)=>Math.max(a,Math.min(b,n)),DT=1/60;
 export const PROJECTION_HORIZONS=Object.freeze([0,.7,1.2,1.8]);
 
