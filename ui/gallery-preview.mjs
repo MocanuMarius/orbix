@@ -1,10 +1,14 @@
-import {relics,cards,route,menus,hud,art,dialogs,actionButton,escapeHtml as esc} from './index.mjs?v=relic-guide-1';
-import {resolveSample} from './gallery-catalog.mjs?v=relic-guide-1';
-import {createComponentFixture} from './gallery-fixtures.mjs?v=relic-guide-1';
-import {ARTIFACTS,getChoices,getOwnedCards,getMountedCards,getCardReward,getCardMeltPreview,meltOwnedCards,getArtifactSalvageValue,sellArtifact,chooseFlightReward,equipOwnedCard,unequipMountedCard,moveMountedCard} from '../model.mjs?v=relic-guide-1';
-import {bindDeckDragging} from '../deck-drag.mjs?v=relic-guide-1';
-import {ROUTE_BONUSES} from '../route-bonuses.mjs?v=relic-guide-1';
-import {prepareRouteOffer} from '../route-offers.mjs?v=relic-guide-1';
+import {relics,cards,route,menus,hud,art,dialogs,actionButton,escapeHtml as esc} from './index.mjs?v=combo-camp-1';
+import {resolveSample} from './gallery-catalog.mjs?v=combo-camp-1';
+import {createComponentFixture} from './gallery-fixtures.mjs?v=combo-camp-1';
+import {ARTIFACTS,getChoices,getOwnedCards,getMountedCards,getCardReward,getCardDraft,chooseCardDraft,getCardMeltPreview,meltOwnedCards,getArtifactSalvageValue,sellArtifact,chooseFlightReward,equipOwnedCard,unequipMountedCard,moveMountedCard} from '../model.mjs?v=combo-camp-1';
+import {bindDeckDragging} from '../deck-drag.mjs?v=combo-camp-1';
+import {ROUTE_BONUSES} from '../route-bonuses.mjs?v=combo-camp-1';
+import {prepareRouteOffer} from '../route-offers.mjs?v=combo-camp-1';
+import {installComboLessons} from '../combo-lesson.mjs?v=combo-camp-1';
+import {cardWorkshopMarkup,cardRefillMarkup} from '../card-workshop.mjs?v=combo-camp-1';
+import {getCardImprovePreview,improveOwnedCard,getCardRefillPreview,refillOwnedCard,getCardForgePreview,forgeOwnedCard,getSupportChoices,resolveSupport} from '../model.mjs?v=combo-camp-1';
+installComboLessons();
 
 const query=new URLSearchParams(location.search),sample=resolveSample(query.get('family'),query.get('state'));
 const state=createComponentFixture(sample.family,sample.state),run=state.run,app=document.querySelector('#app');
@@ -60,7 +64,18 @@ function renderCollection(){
 }
 function renderRewards(){document.body.dataset.screen='victory';app.innerHTML=relics.flightRewardMarkup(state,{upgradeCount:2,acquiredPresentation:sample.state});}
 function renderCards(){
-  if(sample.state.startsWith('reward')&&!run.cardReward?.uiAcknowledged){
+  if(['workshop','rest'].includes(sample.state)&&!local.restDeck){
+    document.body.dataset.screen='support';
+    if(local.workshop??sample.state==='workshop')sheet(cardWorkshopMarkup(run,{notice:local.workshopNotice||''}),'card-sheet card-bench-sheet card-workshop-sheet');
+    else sheet(cards.cardRestMarkup(run,run.current,getSupportChoices(run)),'card-sheet card-bench-sheet');
+    return;
+  }
+  if(sample.state==='draft'&&getCardDraft(run)){
+    document.body.dataset.screen='card-draft';
+    app.innerHTML=cards.cardDraftMarkup(run);
+    return;
+  }
+  if((sample.state.startsWith('reward')||sample.state==='draft')&&!run.cardReward?.uiAcknowledged){
     document.body.dataset.screen='card-reward';
     app.innerHTML=cards.cardRewardMarkup(run,{equipping:local.equip,notice:local.rewardNotice||''});
     return;
@@ -127,7 +142,7 @@ function transferReward(slot,expectedId){
   renderCards();status(local.rewardNotice+' Sample only.');
 }
 bindDeckDragging({
-  canEdit:()=>sample.family==='cards'&&sample.state.startsWith('reward')&&!run.cardReward?.uiAcknowledged&&!detailSheet,
+  canEdit:()=>sample.family==='cards'&&(sample.state.startsWith('reward')||sample.state==='draft')&&!!run.cardReward&&!run.cardReward.uiAcknowledged&&!detailSheet,
   getCard:id=>getOwnedCards(run).find(card=>card.instanceId===id),
   onDrop:({kind,slot,expectedId})=>{if(kind==='slot')transferReward(slot,expectedId);},
 });
@@ -137,6 +152,35 @@ document.addEventListener('click',event=>{
   const button=event.target.closest?.('[data-action]');
   if(!button||button.disabled)return;
   const {action,id}=button.dataset;
+  if(action==='card-workshop'){closeDetail();local.restDeck=false;local.workshop=true;renderCards();return;}
+  if(action==='card-workshop-back'){local.restDeck=false;local.workshop=false;renderCards();return;}
+  if(action==='cards'&&['workshop','rest'].includes(sample.state)){local.restDeck=true;renderCards();return;}
+  if(action==='support'&&['workshop','rest'].includes(sample.state)){if(resolveSupport(run,Number(button.dataset.index))){renderCards();status('Rest action saved only in this sample.');}return;}
+  if(action==='card-workshop-improve'){
+    const preview=getCardImprovePreview(run,id);if(!preview.before)return;
+    sheet(cards.cardExchangeMarkup(preview.before,{kind:'improve',preview,wallet:run.condensedGlow,backLabel:'Back to Workshop'}),'card-sheet card-exchange-sheet',{detail:true});return;
+  }
+  if(action==='card-back-improve'){closeDetail();return;}
+  if(action==='card-confirm-improve'){
+    if(improveOwnedCard(state,id,Number(button.dataset.rank),button.dataset.token)){closeDetail();local.workshopNotice='Card improved · uses preserved.';renderCards();status('Only sample Stored Sparks spent.');}return;
+  }
+  if(action==='card-workshop-refill'){
+    const preview=getCardRefillPreview(run,id);if(!preview.before)return;
+    sheet(cardRefillMarkup(run,preview),'card-sheet card-exchange-sheet',{detail:true});return;
+  }
+  if(action==='card-confirm-refill'){
+    if(refillOwnedCard(state,id,button.dataset.token)){closeDetail();local.workshopNotice='Card refilled · exact uses restored.';renderCards();status('Only sample Stored Sparks spent.');}return;
+  }
+  if(action==='card-workshop-forge'){
+    local.workshopForgeRarity=button.dataset.rarity;
+    sheet(cards.cardForgeMarkup(run,getCardForgePreview(run,local.workshopForgeRarity),{backLabel:'Workshop'}),'card-sheet card-forge-sheet',{detail:true});return;
+  }
+  if(action==='card-forge-back'){closeDetail();renderCards();return;}
+  if(action==='card-confirm-forge'){
+    if(forgeOwnedCard(state,button.dataset.rarity,button.dataset.token)){
+      renderCards();sheet(cards.cardForgeMarkup(run,getCardForgePreview(run,button.dataset.rarity),{backLabel:'Workshop',notice:'Shown card added to sample Deck.'}),'card-sheet card-forge-sheet',{detail:true});status('Only sample Stored Sparks spent.');
+    }return;
+  }
   if(['collection-artifact-details','reward-artifact-details'].includes(action)){
     const artifact=ARTIFACTS[id];if(!artifact)return;
     sheet(dialogs.artifactDetailMarkup(artifact,{run,fresh:action==='reward-artifact-details',rewardPreview:action==='reward-artifact-details'}),'artifact-sheet',{detail:true});return;
@@ -158,6 +202,9 @@ document.addEventListener('click',event=>{
     if(sellArtifact(state,id)){local.lastMelt=receipt;local.confirmMeltId=null;renderCollection();status(`${receipt.name} melted in sample only. +${receipt.amount} Stored Sparks.`);}return;
   }
   if(action==='keep-flight-reward'){if(chooseFlightReward(state,id)){renderRewards();status(`${ARTIFACTS[id].name} acquired in this sample.`);}return;}
+  if(action==='card-draft-pick'){
+    if(chooseCardDraft(state,button.dataset.draftId,id)){renderCards();status('One card chosen and added only to this sample Deck. The other two are left behind.');}return;
+  }
   if(action==='card-reward-equip'){local.equip=true;local.rewardNotice='';renderCards();return;}
   if(action==='card-reward-cancel'){local.equip=false;renderCards();return;}
   if(action==='card-reward-slot'){if(local.equip)transferReward(Number(button.dataset.index),button.dataset.deckSlotId||null);return;}
@@ -175,15 +222,25 @@ document.addEventListener('click',event=>{
     if(meltOwnedCards(state,[reward.card.instanceId],local.rewardMeltToken)){run.cardReward.uiAcknowledged=true;local.rewardMeltToken=null;closeDetail();local.browsing=true;renderCards();status('Card melted only in this sample. Your saved journey is unchanged.');}return;
   }
   if(action==='card-open-collection'){local.browsing=true;local.inspecting=false;renderCards();return;}
-  if(action==='card-select'){local.cardId=id;renderCards();return;}
+  if(action==='card-select'){local.cardId=id;local.equip=true;renderCards();return;}
   if(action==='card-inspect'){local.cardId=id;local.inspecting=true;renderCards();return;}
   if(action==='card-slot'){
     const index=Number(button.dataset.index),card=getOwnedCards(run).find(item=>item.instanceId===local.cardId);
-    if(card&&(local.equip||local.browsing&&!local.inspecting)){equipOwnedCard(run,card.instanceId,index);local.equip=false;local.inspecting=false;local.browsing=false;}
-    else{local.cardId=getMountedCards(run)[index]?.instanceId||null;local.inspecting=!!local.cardId;if(!local.cardId)local.browsing=true;}
+    if(card&&(local.equip||local.browsing&&!local.inspecting)){
+      const outgoing=getMountedCards(run)[index];
+      if(outgoing&&outgoing.instanceId!==card.instanceId){local.pendingSwap={id:card.instanceId,slot:index,fromSlot:card.slot,expectedId:outgoing.instanceId};sheet(cards.cardSwapMarkup(run,local.pendingSwap),'card-sheet card-exchange-sheet',{detail:true});return;}
+      equipOwnedCard(run,card.instanceId,index);local.equip=false;local.inspecting=false;local.browsing=false;
+    }
+    else{local.cardId=getMountedCards(run)[index]?.instanceId||null;local.inspecting=false;if(!local.cardId)local.browsing=true;}
     renderCards();return;
   }
   if(action==='card-move-one'){moveMountedCard(run,Number(button.dataset.index),Number(button.dataset.index)+Number(button.dataset.direction));renderCards();return;}
+  if(action==='card-swap-back'){local.pendingSwap=null;closeDetail();return;}
+  if(action==='card-swap-confirm'){
+    const pending=local.pendingSwap;
+    if(pending&&equipOwnedCard(run,pending.id,pending.slot,pending.expectedId)){local.pendingSwap=null;local.equip=false;local.inspecting=false;local.browsing=false;local.cardId=null;closeDetail();renderCards();status('Reviewed swap equipped in sample only.');}return;
+  }
+  if(action==='card-collection-back'){local.browsing=false;local.inspecting=false;local.cardId=null;local.equip=false;renderCards();return;}
   if(action==='card-equip'){local.equip=true;renderCards();return;}
   if(action==='card-unequip'){unequipMountedCard(run,Number(button.dataset.index),id);local.inspecting=false;local.browsing=true;renderCards();return;}
   if(['card-cancel-equip','card-reading-back','card-browse-back'].includes(action)){local.equip=false;local.inspecting=false;local.cardId=null;renderCards();return;}

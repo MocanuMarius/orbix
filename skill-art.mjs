@@ -1,6 +1,6 @@
-import {sparkImageArt,sparkSymbolArt} from './spark-symbol.mjs?v=relic-guide-1';
-import {condensedIconMarkup} from './afterglow-ui.mjs?v=relic-guide-1';
-import {fineTreasureObject} from './fine-treasure-art.mjs?v=relic-guide-1';
+import {sparkImageArt,sparkSymbolArt} from './spark-symbol.mjs?v=combo-camp-1';
+import {condensedIconMarkup} from './afterglow-ui.mjs?v=combo-camp-1';
+import {fineTreasureObject} from './fine-treasure-art.mjs?v=combo-camp-1';
 
 // Three material tones sit above a shared dark contour. Keep light and shadow
 // readable at the tree's smallest size, even with all motion switched off.

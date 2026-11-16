@@ -1,6 +1,6 @@
-import {newState,createRun,ARTIFACTS,getChoices,selectNode} from '../model.mjs?v=relic-guide-1';
-import {makeSkillCard} from '../skill-cards.mjs?v=relic-guide-1';
-import {prepareRouteOffer} from '../route-offers.mjs?v=relic-guide-1';
+import {newState,createRun,ARTIFACTS,getChoices,selectNode,beginFlightAttempt,markFlightAttemptStarted,finishFlight,settleCheckpoint} from '../model.mjs?v=combo-camp-1';
+import {makeSkillCard} from '../skill-cards.mjs?v=combo-camp-1';
+import {prepareRouteOffer} from '../route-offers.mjs?v=combo-camp-1';
 
 /** Preview-only data. Never load/persist a player save or start a flight. */
 export function createComponentFixture(family,variant){
@@ -35,6 +35,25 @@ export function createComponentFixture(family,variant){
     }
   }
   if(family==='cards'&&variant==='empty'){run.mountedCards=[null,null,null];run.reserveCards=[];}
+  if(family==='cards'&&['workshop','rest'].includes(variant)){
+    run.startingGiftId='card:body-spark';run.current=run.map[4][0];run.step=4;run.path=[run.current.id];run.phase='support';
+    run.mountedCards=['body-spark','spark-cache','rhythm'].map((id,i)=>makeSkillCard(id,`sample-workshop-${i}`));
+    run.mountedCards[1].charges=1;
+    run.reserveCards=[makeSkillCard('deep-vessel','sample-workshop-reserve'),{...makeSkillCard('cluster-heart','sample-workshop-cluster'),charges:1},makeSkillCard('growth-seed-common','sample-workshop-seed')];
+    run.condensedGlow=100;run.lives=2;run.flame=30;
+  }
+  if(family==='cards'&&variant==='draft'){
+    run.startingGiftId='card:body-spark';
+    const node=getChoices(run).find(node=>node.type!=='support');
+    if(!selectNode(run,node.id)||!beginFlightAttempt(run)||!markFlightAttemptStarted(run)||!finishFlight(run,{success:true,flame:50}))throw Error('Draft fixture clear failed.');
+    settleCheckpoint(state);
+  }
+  if(family==='cards'&&variant==='combos'){
+    run.companions=['collector'];run.companionRole='collector';
+    run.artifacts=['dawn-loom','echo-bell','wayward-seed'];
+    run.mountedCards=['rhythm','harvest-common','ring-spring'].map((id,i)=>makeSkillCard(id,`sample-mounted-${i}`));
+    run.reserveCards=['toll-bell','echo','deep-vessel','harvest-rare'].map((id,i)=>makeSkillCard(id,`sample-reserve-${i}`));
+  }
   if(family==='cards'&&variant.startsWith('reward')){
     run.phase='map';
     const card=makeSkillCard(variant==='rewardSeed'?'growth-seed-common':variant==='rewardLong'?'devourer':'twin-wick','sample-reward');

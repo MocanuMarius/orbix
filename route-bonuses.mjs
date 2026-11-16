@@ -1,6 +1,6 @@
-import {getLifeCapacity} from './vitality.mjs?v=relic-guide-1';
-import {grantPassageBoon} from './passage-preparations.mjs?v=relic-guide-1';
-import {getCardModifiers,isCardRun} from './skill-cards.mjs?v=relic-guide-1';
+import {getLifeCapacity} from './vitality.mjs?v=combo-camp-1';
+import {grantPassageBoon} from './passage-preparations.mjs?v=combo-camp-1';
+import {getCardModifiers,isCardRun} from './skill-cards.mjs?v=combo-camp-1';
 
 function bonus(id, name, condition, reward, target, hint='') {
   return Object.freeze({id, name, condition, reward, target, hint});

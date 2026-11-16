@@ -13,6 +13,7 @@ html body[data-screen=home] #app .menu-art-home>.front-title{grid-column:1;grid-
 html body[data-screen=home] #app .menu-art-home>.front-title::before{inset:-10px -12px}
 html body[data-screen=home] #app .menu-art-home .front-title h1{font-size:32px!important;line-height:1.1}
 html body[data-screen=home] #app .menu-art-home .front-title p{font-size:11px!important;margin-top:5px!important}
+html body[data-screen=home] #app .menu-art-home .front-version{display:block;margin-top:5px;color:#d7dfcb;font:11px/1.3 var(--pixel);letter-spacing:0;text-shadow:1px 1px #04100b}
 html body[data-screen=home] #app .menu-art-home>.run-progress{display:block;grid-column:1;grid-row:2;align-self:center;justify-self:start;width:min(270px,100%);margin:0!important;padding:0!important;transform:none}
 html body[data-screen=home] #app .menu-art-home>.front-actions{grid-column:2;grid-row:1/-1;align-self:center;gap:8px;max-height:100%;margin:0!important}
 html body[data-screen=home] #app .menu-art-home .front-actions button.home-command{

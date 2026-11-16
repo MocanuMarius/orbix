@@ -1,6 +1,6 @@
-import {WISP_ART} from './companion-art.mjs?v=relic-guide-1';
-import {FLAME_TUNING,LIGHT_PACKET_TUNING,glowPoints} from './vitality.mjs?v=relic-guide-1';
-import {SPARK_TIERS,sparkBodyRadius,sparkMass} from './spark-size.mjs?v=relic-guide-1';
+import {WISP_ART} from './companion-art.mjs?v=combo-camp-1';
+import {FLAME_TUNING,LIGHT_PACKET_TUNING,glowPoints} from './vitality.mjs?v=combo-camp-1';
+import {SPARK_TIERS,sparkBodyRadius,sparkMass} from './spark-size.mjs?v=combo-camp-1';
 
 const FLASH_POWERUP = {sightBonus:120, sightDuration:8};
 const type=(id,name,color,radius,contactRadius,description,extra={})=>Object.freeze({id,name,color,radius,contactRadius:contactRadius*.8,description,fuel:0,sightBonus:0,sightDuration:0,dim:0,dimDuration:0,manualOnly:false,...extra});
@@ -9,7 +9,7 @@ export const PICKUP_TYPES=Object.freeze({
   cache:type('cache','Spark Cache','#f4f7ff',6,30,'Dense white plasma. Restores 18 Sparks before bonuses.',{fuel:FLAME_TUNING.heartFuel,plasma:3}),
   cluster:type('cluster','Spark Cluster','#e6f4ea',4,26,'Branching white currents with a green tint. Restores 12 Sparks before bonuses.',{fuel:40,plasma:2}),
   sight:type('sight','Flash Powerup','#ffffff',14,26,flashPowerupDescription(),FLASH_POWERUP),
-  dusk:type('dusk','Dusk Spark','#d798ad',5,25,'A dark-centered rose light. Gain 12 Sparks, but lose some Luminance for four seconds.',{fuel:40,dim:LIGHT_PACKET_TUNING.darkPenalty,dimDuration:4,manualOnly:true}),
+  dusk:type('dusk','Dusk Spark','#d798ad',5,25,'A split rose crescent. Drains up to 3 Sparks and dims Luminance by 20% for four seconds. Dusk Wick pays after the drain.',{drain:10,dim:LIGHT_PACKET_TUNING.darkPenalty,dimDuration:4,manualOnly:true}),
   dark:type('dark','Dark Spark','#e17a70',7,22,'A black seed with a red warning ring. Dims Luminance for eight seconds; a Spark pickup clears one effect.',{dim:LIGHT_PACKET_TUNING.darkPenalty,dimDuration:LIGHT_PACKET_TUNING.darkDuration,manualOnly:true}),
 });
 export function flashPowerupDuration(modifiers = {}) {

@@ -1,9 +1,9 @@
-import {formatGlow} from './vitality.mjs?v=relic-guide-1';
-import { PICKUP_TYPES, getPickupSpec, flashPowerupDescription } from './pickups.mjs?v=relic-guide-1';
-import { pickupArtSvg } from './pickup-art.mjs?v=relic-guide-1';
-import { normalizeCompanionRole, normalizeCompanionFleet } from './companion-abilities.mjs?v=relic-guide-1';
-import {sparkMass} from './spark-size.mjs?v=relic-guide-1';
-import {pickupHandlingCue} from './pickup-handling-cue.mjs?v=relic-guide-1';
+import {formatGlow} from './vitality.mjs?v=combo-camp-1';
+import { PICKUP_TYPES, getPickupSpec, flashPowerupDescription } from './pickups.mjs?v=combo-camp-1';
+import { pickupArtSvg } from './pickup-art.mjs?v=combo-camp-1';
+import { normalizeCompanionRole, normalizeCompanionFleet } from './companion-abilities.mjs?v=combo-camp-1';
+import {sparkMass} from './spark-size.mjs?v=combo-camp-1';
+import {pickupHandlingCue} from './pickup-handling-cue.mjs?v=combo-camp-1';
 
 const esc = value => String(value ?? '').replace(/[&<>"']/g, char =>
   ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
@@ -23,7 +23,7 @@ function effectText(spec,maxGlow=100,modifiers) {
     case 'cache': return 'Cache +18. Same shell, denser arcs. Surplus goes to storage.';
     case 'cluster': return `+${formatGlow(spec.fuel,maxGlow)} Sparks. Surplus above your full meter goes into storage.`;
     case 'sight': return flashPowerupDescription(modifiers);
-    case 'dusk': return `+${formatGlow(spec.fuel,maxGlow)} Sparks (before build bonuses), with ${percent(spec.dim)}% less Luminance for ${spec.dimDuration}s. Manual contact only.`;
+    case 'dusk': return `Drains up to ${formatGlow(spec.drain,maxGlow)} Sparks and dims Luminance by ${percent(spec.dim)}% for ${spec.dimDuration}s. Dusk Wick pays its bonus after the drain. Manual contact only.`;
     case 'dark': return `${percent(spec.dim)}% less Luminance for ${spec.dimDuration}s. Avoid contact; a Spark clears one effect.`;
     default: return spec.description;
   }
@@ -62,7 +62,7 @@ export function pickupLesson(kind, { role = 'collector', companions, maxGlow=100
       text = flashPowerupDescription(modifiers);
       break;
     case 'dusk':
-      text = `Touch it for ${formatGlow(spec.fuel,maxGlow)} Sparks (before build bonuses), with ${percent(spec.dim)}% less Luminance for ${spec.dimDuration} seconds. It requires manual contact.`;
+      text = `This split rose crescent drains up to ${formatGlow(spec.drain,maxGlow)} Sparks and dims Luminance by ${percent(spec.dim)}% for ${spec.dimDuration} seconds. Avoid it, or touch it with Dusk Wick for that card’s bonus after the drain. Collector leaves it alone.`;
       break;
     case 'dark':
       text = `Touching it dims Luminance by ${percent(spec.dim)}% for ${spec.dimDuration} seconds. ${collects?'Collector ignores it; a Spark clears one effect.':'A Spark clears one effect.'}`;

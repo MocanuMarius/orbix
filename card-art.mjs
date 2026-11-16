@@ -1,4 +1,5 @@
-import {SKILL_CARDS} from './skill-cards.mjs?v=relic-guide-1';
+import {SKILL_CARDS} from './skill-cards.mjs?v=combo-camp-1';
+import {duskCardArt} from './dusk-card-art.mjs?v=combo-camp-1';
 /** Sixteen original scenes share one locally cached, square-cell atlas.
  * Order matches the 4×4 asset; each SVG clips exactly one 313px cell. */
 const esc = v => String(v ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -20,8 +21,9 @@ const ART = Object.freeze({
   'cache-handling': {description:'A small mint Collector tethers a bright cubic Cache across a mossy ruin ledge.'},
   'flash-handling': {description:'A small mint Collector tethers a brilliant triangular Flash over misty ruins.'},
 });
-export const CARD_ART_IDS = Object.freeze(Object.keys(ART));
+export const CARD_ART_IDS = Object.freeze([...Object.keys(ART),'dusk-wick']);
 export function cardArt(card = {}, {compact = false, size = null} = {}) {
+  if((card.artFamily || SKILL_CARDS[String(card.cardId || card.id || '')]?.artFamily)==='dusk-wick')return duskCardArt({compact,size,rarity:card.rarity||'common'});
   const requested = String(card.cardId || card.id || ''), family = card.artFamily || SKILL_CARDS[requested]?.artFamily || requested, id = Object.hasOwn(ART, family) ? family : 'body-spark';
   // All three approved ruin frames share Rare's established coarse pixel grain.
   // Sampling per cell keeps each evolved card's established art family.

@@ -15,7 +15,7 @@ export const TUTORIAL_TOPICS={
   s('See farther','Open the Luminance chapter. Luminance widens your light. Spark Sense lets you sense nearby pickups through fog. Long Flash extends the white triangle’s light from 8 to 24 seconds.','pickup:sight')]},
  utilities:{name:'Flash & hazards',visual:'pickup:sight',steps:[
   s('Flash Powerup','Catch the white triangle. It follows on a thread, lighting the passage with each pulse. The puff means its light has run out.','pickup:sight'),
-  s('Dusk Spark','The rose Dusk Spark trades reduced Luminance for fuel. Its red ring warns of the cost. Only body contact collects it.','pickup:dusk'),
+  s('Dusk Spark','The split rose crescent drains up to 3 Sparks and dims Luminance by 20% for 4 seconds. Dusk Wick pays its bonus after the drain. Only body contact collects it.','pickup:dusk'),
   s('Dark Spark','A Dark Spark dims your view for up to eight seconds. Collecting a fuel Spark clears one dimming effect. Collector leaves the red Spark alone.','pickup:dark')]},
  lanterns:{name:'Darkness Lanterns',visual:'lantern-icon',steps:[
   s('Read the pair','Paired lanterns mark Hollow Sun’s chapter. Watch the roof and floor. A lens glows gold before it opens. The crossing is darkest where the two beams overlap.','lantern-pair'),
@@ -80,7 +80,7 @@ export const TUTORIAL_TOPICS={
   s('Guardian','A large guardian portrait marks the end of each map. Survive its warned patterns and reach the finish. Three different guardians stand between you and a completed run.','site:boss')]},
  hazards:{name:'Hazards & pulses',visual:'black-hole',steps:[
   s('Drafts','Local curls show where wind pushes. Leave room to drift or time a Lift against the current. Once you pass the curls, ordinary flight returns.','draft'),
-  s('Bad Sparks','Red rings mean danger or a cost. Dark Sparks reduce Luminance; Dusk Sparks trade Luminance for fuel. Collector ignores harmful pickups.','pickup:dark'),
+  s('Bad Sparks','Red rings warn of a cost. Dark Sparks reduce Luminance; Dusk Sparks drain up to 3 Sparks and dim Luminance by 20% for 4 seconds. Collector leaves them alone.','pickup:dark'),
   s('Black Hole','A black core is a hazard, not a pickup. It continuously steals Sparks nearby; closer means much faster drain. Give it space, even with a shield.','black-hole'),
   s('Giant Black Hole','A giant hangs over the roof or rises through the floor. Its field steadily drains Sparks as you pass. Fly on the far side, then collect the recovery Sparks beyond its rim.','giant-hole'),
   s('Proximity · an earned skill','Buy the first Proximity skill to unlock surface charging. Skim solid terrain without touching it; full charge reveals the scene. Its separate tree offers recovery and a temporary light shield. Open sky never charges it.','edge')]},

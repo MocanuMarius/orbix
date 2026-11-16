@@ -1,2 +1,2 @@
-import {branchTreeMarkup} from './skill-tree.mjs?v=relic-guide-1';
+import {branchTreeMarkup} from './skill-tree.mjs?v=combo-camp-1';
 export function mainWispTreeMarkup(options){return branchTreeMarkup({...options,branch:'main'});}

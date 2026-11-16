@@ -1,10 +1,10 @@
-import {ActivationFeed} from './activation-events.mjs?v=relic-guide-1';
-import {artifactIcon,skillIcon} from './upgrade-icons.mjs?v=relic-guide-1';
-import {companionArtSvg} from './companion-art.mjs?v=relic-guide-1';
-import {resourceSymbol} from './game-symbols.mjs?v=relic-guide-1';
-import {ARTIFACTS,SKILLS} from './model.mjs?v=relic-guide-1';
-import {formatGlow} from './vitality.mjs?v=relic-guide-1';
-import {lifeHeartSvg} from './lives.mjs?v=relic-guide-1';
+import {ActivationFeed} from './activation-events.mjs?v=combo-camp-1';
+import {artifactIcon,skillIcon} from './upgrade-icons.mjs?v=combo-camp-1';
+import {companionArtSvg} from './companion-art.mjs?v=combo-camp-1';
+import {resourceSymbol} from './game-symbols.mjs?v=combo-camp-1';
+import {ARTIFACTS,SKILLS} from './model.mjs?v=combo-camp-1';
+import {formatGlow} from './vitality.mjs?v=combo-camp-1';
+import {lifeHeartSvg} from './lives.mjs?v=combo-camp-1';
 const esc=value=>String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const names={'card-watchlight':'Watchlight',collector:'Collector',protector:'Protector',swift:'Runner',leveler:'Space Timer',
   'main-echo-sight':'Echo Luminance','main-purifying-touch':'Purifying Touch','main-kindled-touch':'Kindled Touch',

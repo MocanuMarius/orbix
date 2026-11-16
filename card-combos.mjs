@@ -1,8 +1,8 @@
 // Disposable, deterministic equipped samples. No app boot, persistence or economy actions.
-import { CARD_SYSTEM, SKILL_CARDS, makeSkillCard, getMountedCards, previewCardRow } from './skill-cards.mjs?v=relic-guide-1';
-import { cardRowTraceMarkup, cardRowSequenceMarkup } from './card-row-feedback.mjs?v=relic-guide-1';
-import { cardFace } from './card-ui.mjs?v=relic-guide-1';
-import { CARD_TERMS, cardTermTextMarkup, installCardTermHelp } from './card-terms.mjs?v=relic-guide-1';
+import { CARD_SYSTEM, SKILL_CARDS, makeSkillCard, getMountedCards, previewCardRow } from './skill-cards.mjs?v=combo-camp-1';
+import { cardRowTraceMarkup, cardRowSequenceMarkup } from './card-row-feedback.mjs?v=combo-camp-1';
+import { cardFace } from './card-ui.mjs?v=combo-camp-1';
+import { CARD_TERMS, cardTermTextMarkup, installCardTermHelp } from './card-terms.mjs?v=combo-camp-1';
 
 const esc = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 export const DEFAULT_COMBO_SEED = 'moonwell-15';
@@ -36,6 +36,13 @@ export function createComboSample(seed = DEFAULT_COMBO_SEED) {
     const run = {skillSystem:CARD_SYSTEM, cardSlots:3, mountedCards:ids.map((id, slot) => makeSkillCard(id, `combo:${row}:${slot}`))};
     return {run, cards:getMountedCards(run)};
   });
+}
+
+// Explicit card IDs keep a shared example reproducible as the catalog grows.
+export function createPinnedCombo(ids, row = 0) {
+  if (!Array.isArray(ids) || ids.length !== 3 || !ids.every(id => typeof id === 'string' && SKILL_CARDS[id]) || !Number.isInteger(row) || row < 0 || row >= 15) return null;
+  const run = {skillSystem:CARD_SYSTEM,cardSlots:3,mountedCards:ids.map((id,slot)=>makeSkillCard(id,`pinned:${row}:${slot}`))};
+  return {run,cards:getMountedCards(run)};
 }
 
 function outcomesMarkup(cards) {
@@ -91,13 +98,16 @@ const exampleRun = example => ({skillSystem:CARD_SYSTEM,cardSlots:3,mountedCards
 if (typeof document !== 'undefined') {
   const params = new URLSearchParams(location.search);
   let seed = params.get('seed')?.slice(0, 80) || DEFAULT_COMBO_SEED;
+  const pinnedRow = Number(params.get('row') || 1) - 1;
+  const pinned = createPinnedCombo((params.get('combo') || '').split(','),pinnedRow);
   let samples = [];
   const render = () => {
     document.getElementById('combo-catalog-count').textContent = Object.keys(SKILL_CARDS).length;
     samples = createComboSample(seed);
+    if (pinned) samples[pinnedRow] = pinned;
     document.getElementById('combo-rows').innerHTML = comboRowsMarkup(samples);
     document.getElementById('combo-coverage-note').textContent = Object.keys(SKILL_CARDS).length <= 45 ? 'Every card appears in this sample.' : '45 sampled slots. Browse every card below.';
-    document.getElementById('combo-sample-note').textContent = `Sample ${seed} · reload keeps these combinations`;
+    document.getElementById('combo-sample-note').textContent = `Sample ${seed} · reload keeps these combinations${pinned ? ` · Combination ${pinnedRow + 1} uses the shared card IDs` : ''}`;
   };
   document.getElementById('combo-glossary').dataset.cardTerms = Object.keys(CARD_TERMS).join(' ');
   document.getElementById('combo-shuffle').addEventListener('click', () => {
