@@ -1,8 +1,8 @@
-import {resourceSymbol} from './game-symbols.mjs?v=flight-120-1';
-import {GUARDIAN_RELICS} from './guardian-artifacts.mjs?v=flight-120-1';
-import {getArtifactInfo,CONSUMABLE_ARTIFACTS} from './artifact-info.mjs?v=flight-120-1';
-import {getCompanionAbility,normalizeCompanionRole} from './companion-abilities.mjs?v=flight-120-1';
-import {formatGlow,glowText,getGlowCapacity} from './vitality.mjs?v=flight-120-1';
+import {resourceSymbol} from './game-symbols.mjs?v=collector-reel-1';
+import {GUARDIAN_RELICS} from './guardian-artifacts.mjs?v=collector-reel-1';
+import {getArtifactInfo,CONSUMABLE_ARTIFACTS} from './artifact-info.mjs?v=collector-reel-1';
+import {getCompanionAbility,normalizeCompanionRole} from './companion-abilities.mjs?v=collector-reel-1';
+import {formatGlow,glowText,getGlowCapacity} from './vitality.mjs?v=collector-reel-1';
 
 const esc=value=>String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const action={collector:'Collector delivers a Spark',protector:'Protector deflects a collision',swift:'Runner starts a burst',leveler:'Space Timer starts levitating'};
@@ -27,7 +27,7 @@ export function artifactDescription(a,run={}, {fresh=false}={}){
   'silver-feather':{trigger:'',effect:'Every Lift pushes 6% more strongly.',limit:'Permanently active.'},
   'glass-lantern':{trigger:'Whenever you collect an Spark:',effect:`+${points(mod.cacheFuelBonus??40/3)} bonus Sparks per pickup. +1 Spark cost per Lift.`,limit:'The bonus is added to the Sparks already inside the Spark.'},
   'moss-heart':{trigger:'Touch a Spark yourself with Kindled Touch learned.',effect:`Kindled Touch restores ${points(mod.kindlerBonus??3)} extra Sparks.`,limit:'Requires Kindled Touch in the Sparks tree.'},
-  'wayfinder-seed':{trigger:'While Collector is equipped.',effect:'Collector reaches 15% farther.',limit:role==='collector'?'Its recovery still shrinks the boundary.':'Requires Collector.'},
+  'wayfinder-seed':{trigger:'While Collector is equipped.',effect:'Collector reaches 15% farther.',limit:role==='collector'?'Its orbit shows the increased reach.':'Requires Collector.'},
   'iron-petal':{trigger:'While Protector is equipped.',effect:'Protector rebuilds its shield 12% sooner.',limit:role==='protector'?'Deflecting a collision still spends Sparks.':'Requires Protector.'},
   'storm-knot':{trigger:'While Runner is equipped.',effect:'Runner recharges 10% sooner and resists more wind.',limit:'Draft resistance increases by 6 percentage points.'},
   'hollow-bell':{trigger:'While Space Timer is equipped.',effect:'Levitate for 0.25 seconds longer.',limit:'Release to fall and recharge.'},

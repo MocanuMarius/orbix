@@ -11,13 +11,18 @@ export const CARD_ECONOMY = Object.freeze({
   maxPackingWeight: 27,
   maxGrowPerAction: 27,
 });
-import {CARD_CATALOG,CARD_DROP_WEIGHTS} from './card-catalog.mjs?v=flight-120-1';
+import {CARD_CATALOG,CARD_DROP_WEIGHTS} from './card-catalog.mjs?v=collector-reel-1';
 export const SKILL_CARDS = CARD_CATALOG;
 const clone = (value) => JSON.parse(JSON.stringify(value));
 const integer = (n, max = 1e9) =>
   Math.max(0, Math.min(max, Number.isFinite(n) ? Math.floor(n) : 0));
 export const isCardRun = (run) =>
   run?.skillSystem === CARD_SYSTEM && !run?.isTutorial;
+/** Permanent capacity is stored in printed Spark units, never rounded simulation fuel. */
+export const cleanCardFutureCapacity = value => Number.isSafeInteger(value) && value >= 0 ? value : 0;
+export function getCardFutureCapacityBonus(run) {
+  return isCardRun(run) ? cleanCardFutureCapacity(run.cardFutureCapacity) * CARD_UNIT : 0;
+}
 function random(seed) {
   let s = 2166136261;
   for (const c of String(seed)) s = Math.imul(s ^ c.charCodeAt(0), 16777619);
@@ -78,6 +83,17 @@ export function settleCardReward(run) {
 }
 export function cleanCardRun(run) {
   if (!isCardRun(run)) return;
+  run.cardFutureCapacity = cleanCardFutureCapacity(run.cardFutureCapacity);
+  // Old saves without a generated final receipt never synthesize an award.
+  if (run.cardVictoryReceipt?.version === 1 && run.cardVictoryReceipt.runId === run.id &&
+      run.cardVictoryReceipt.event?.kind === 'expedition-victory' &&
+      Number.isSafeInteger(run.cardVictoryReceipt.futureCapacity) && run.cardVictoryReceipt.futureCapacity >= 0 &&
+      Array.isArray(run.cardVictoryReceipt.sources) && Array.isArray(run.cardVictoryReceipt.steps) &&
+      run.cardVictoryReceipt.charges && typeof run.cardVictoryReceipt.charges === 'object') {
+    for (const source of run.cardVictoryReceipt.sources) Object.freeze(source);
+    Object.freeze(run.cardVictoryReceipt.sources);
+    freezeReceipt(run.cardVictoryReceipt);
+  } else delete run.cardVictoryReceipt;
   // Only recorded card Grow actions migrate: unrelated Rest capacity stays put.
   const grewAt = new Set([
     ...(run.cardHistory || []).filter((event) => event.type === "camp" && event.action === "grow")
@@ -174,7 +190,7 @@ export function describeSkillCard(card) {
       break;
     case "cache-handling":
       effect =
-        "Collector can fetch Caches. Each delivery gives 12 Sparks and refills its ring. Extra copies keep one delivery. Your wisp can always touch a Cache for 18 Sparks.";
+        "Allows Collector to fetch Caches. A delivered Cache gives 12 Sparks. Extra copies keep one delivery. Your wisp can always touch a Cache for 18 Sparks.";
       break;
     case "flash-handling":
       effect =
@@ -201,7 +217,7 @@ export function describeSkillCard(card) {
       effect = "Gain 2 flight Sparks when a paid manual Lift succeeds while descending, at least 0.75 seconds after the previous successful Lift. The first, free and Dream Lifts do not count.";
       break;
     case "ring-spring":
-      effect = "Each natural Spark overfill shortens Collector’s current recovery by 1 second, including recovery after a save. Requires missing recovery.";
+      effect = "Each passage Spark overfill shortens Collector’s current recovery by 1 second, including recovery after a save. Requires missing recovery.";
       break;
     case "watchlight":
       effect = "Once per flight, a full Collector ring catches a fatal impact while Collector is home. Bounce clear and emit one light wave, then recover for 4 normal recovery cycles. All copies share the save.";
@@ -286,7 +302,7 @@ function effectiveCardSummary(kind, sources, cards) {
     harvest: `+${total} Sparks when a wave crosses an uncollected fuel pickup already in the passage${matching.some((entry) => entry.def.stored) ? `; +${matching.reduce((sum, entry) => sum + (entry.def.stored || 0), 0)} Stored Sparks at the first crossing per wave` : ""}.`,
     guide: "One amber arrow shows when to Lift, even with extra copies.",
     rhythm: "3 successful Lifts at an even pace send one wave, even with extra copies.",
-    "cache-handling": "Collector can fetch Caches for 12 Sparks and a full ring. Extra cards keep that same delivery.",
+    "cache-handling": "Collector can fetch Caches. A delivered Cache gives 12 Sparks. Extra cards keep that same delivery.",
     "camp-extra": "Take 2 different actions at one Rest. The second successful action spends 1 use from one Second Ember.",
   };
   if (kind === "body") {
@@ -410,6 +426,8 @@ export const CARD_ROW_EVENTS = Object.freeze({
   body: "body-spark", wave: "wave-crossing", flash: "flash-pickup",
   lift: "downbeat-lift", overfill: "natural-overfill",
   delivery: "collector-delivery", rhythm: "rhythm-phrase", field: "field-swipe", guard: "guard-rescue",
+  victory: "expedition-victory",
+  attach: "collector-attach",
 });
 export const CARD_ROW_LIMITS = Object.freeze({ slots: 5, passes: 2, repeats: 3, slotVisits: 10, traceSteps: 40 });
 const rowEventKinds = new Set(Object.values(CARD_ROW_EVENTS));
@@ -439,6 +457,7 @@ function matchesRowCondition(when = {}, event, pass, slot, lastOccupied) {
   if (when.firstCrossing !== undefined && !!event.firstCrossing !== when.firstCrossing) return false;
   if (when.direction !== undefined && event.direction !== when.direction) return false;
   if (when.guardRecovering !== undefined && !!event.guardRecovering !== when.guardRecovering) return false;
+  if (when.collectorReeling !== undefined && !!event.collectorReeling !== when.collectorReeling) return false;
   if (when.lastOccupied !== undefined && (slot === lastOccupied) !== when.lastOccupied) return false;
   if (when.pass !== undefined && pass !== when.pass) return false;
   return true;
@@ -459,8 +478,10 @@ export function resolveCardRow(runtime, event = {}) {
   const receipt = { event: { id: event.id ?? sequence, sequence, kind,
     firstCrossing: !!event.firstCrossing, pickupKind: event.pickupKind ?? null,
     meterFraction: event.meterFraction ?? null, direction: event.direction ?? null,
-    guardRecovering: !!event.guardRecovering, availableRecovery: Math.max(0,Number(event.availableRecovery)||0) }, passes: 0, slotVisits: 0, sparks: 0, stored: 0,
-    recoverySeconds: 0, executions: 0, payerActions: 0, steps: [], charges: {} };
+    guardRecovering: !!event.guardRecovering, collectorReeling: !!event.collectorReeling,
+    availableReel: Math.max(0,Number(event.availableReel)||0),
+    availableRecovery: Math.max(0,Number(event.availableRecovery)||0) }, passes: 0, slotVisits: 0, sparks: 0, stored: 0,
+    futureCapacity: 0, recoverySeconds: 0, reelSeconds: 0, executions: 0, payerActions: 0, steps: [], charges: {} };
   if (!runtime || !rowEventKinds.has(kind) || event.eligible === false) {
     receipt.charges = getCardCharges(runtime);return freezeReceipt(receipt);
   }
@@ -469,9 +490,10 @@ export function resolveCardRow(runtime, event = {}) {
   const live = new Map(cards.filter(Boolean).map((card) => [card.instanceId, card]));
   const lastOccupied = topology.findLastIndex((card) => !!card);
   let recoveryLeft = Math.max(0, Number(event.availableRecovery) || 0);
+  let reelLeft = Math.max(0, Number(event.availableReel) || 0);
   let replayRequested = false, productive = false;
   for (let pass = 1; pass <= (replayRequested && productive ? 2 : 1); pass++) {
-    let subtotal = 0, payers = 0, lastPayout = 0;
+    let subtotal = 0, futureSubtotal = 0, payers = 0, lastPayout = 0;
     receipt.passes = pass;
     for (let slot = 0; slot < topology.length; slot++) {
       const acting = topology[slot], ownDef = SKILL_CARDS[acting?.cardId];
@@ -487,6 +509,8 @@ export function resolveCardRow(runtime, event = {}) {
         sourceInstanceId: source?.instanceId ?? null, sourceCardId: source?.cardId ?? null,
         copiedBy: copy ? ownDef.kind : null, operation: "skip", before: subtotal, after: subtotal,
         amount: 0, stored: 0, recoverySeconds: 0, recoveryBefore: recoveryLeft, recoveryAfter: recoveryLeft,
+        futureCapacity: 0, futureCapacityBefore: futureSubtotal, futureCapacityAfter: futureSubtotal,
+        reelSeconds: 0, reelBefore: reelLeft, reelAfter: reelLeft,
         chargesBefore: Number.isFinite(source?.charges)?source.charges:null,
         chargesAfter: Number.isFinite(source?.charges)?source.charges:null,
         success: false, skipReason: null };
@@ -499,7 +523,7 @@ export function resolveCardRow(runtime, event = {}) {
         step.skipReason = "exhausted-source";continue;
       }
       const rule = getCardRowRule(def, source);
-      if (rule && (rule.event === "*" || rule.event === kind) && matchesRowCondition(rule.when,event,pass,slot,lastOccupied)) {
+      if (rule && (rule.event === kind || rule.event === "*" && ![CARD_ROW_EVENTS.victory,CARD_ROW_EVENTS.attach].includes(kind)) && matchesRowCondition(rule.when,event,pass,slot,lastOccupied)) {
       const operation = rule.operation;
       const amount = Math.max(0,Number(pass === 2 && rule.replayAmount !== undefined ? rule.replayAmount : rule.amount) || 0);
       const payout = operation === "add-last-payout" ? lastPayout : amount;
@@ -512,15 +536,33 @@ export function resolveCardRow(runtime, event = {}) {
         }
       } else if (operation === "multiply") {
         step.operation = "multiply";step.multiplier = amount;
-        if (subtotal > 0 && payers >= (Number(rule.minimumEarlierPayers)||0)) {
+        if (subtotal > 0 && amount > 1 && payers >= (Number(rule.minimumEarlierPayers)||0)) {
+          if (def.charges) source.charges--;
           subtotal *= amount;step.amount = subtotal - step.before;step.success = true;
+          receipt.executions++;productive = true;
         } else step.skipReason = subtotal <= 0 ? "empty-subtotal" : "needs-two-earlier-payers";
+      } else if (operation === "add-future-capacity" || operation === "multiply-future-capacity") {
+        step.operation = operation;
+        const increase = operation === "add-future-capacity" ? cleanCardFutureCapacity(amount) : futureSubtotal * Math.max(0, cleanCardFutureCapacity(amount) - 1);
+        if (increase > 0) {
+          if (def.charges) source.charges--;
+          futureSubtotal += increase;step.futureCapacity = increase;step.success = true;
+          receipt.executions++;productive = true;
+        } else step.skipReason = "empty-future-capacity";
+      } else if (operation === "shorten-reel") {
+        step.operation = operation;step.reelSeconds = Math.min(amount, reelLeft, recoveryLeft);
+        if (step.reelSeconds > 0) {
+          if (def.charges) source.charges--;
+          reelLeft -= step.reelSeconds;recoveryLeft -= step.reelSeconds;receipt.reelSeconds += step.reelSeconds;
+          receipt.executions++;productive = true;step.success = true;
+        } else step.skipReason = "no-active-reel";
       } else if (operation === "shorten-recovery") {
         step.operation = operation;
         step.recoverySeconds = Math.min(amount, recoveryLeft);
         if (step.recoverySeconds > 0) {
           if (def.charges) source.charges--;
           recoveryLeft -= step.recoverySeconds;receipt.recoverySeconds += step.recoverySeconds;
+          reelLeft = Math.min(reelLeft, recoveryLeft);
           receipt.executions++;productive = true;step.success = true;
         } else step.skipReason = "no-recovery";
       } else step.skipReason = operation === "add-last-payout" ? "no-earlier-payout" : operation === "add-sparks" ? "needs-earlier-payer" : "unsupported-operation";
@@ -530,11 +572,14 @@ export function resolveCardRow(runtime, event = {}) {
         else step.skipReason = "replay-limit";
       } else step.skipReason = rule ? "event-or-condition-not-met" : "different-event-or-passive";
       step.after = subtotal;
+      step.futureCapacityAfter = futureSubtotal;
+      step.reelAfter = reelLeft;
       step.recoveryAfter = recoveryLeft;
       step.chargesAfter = Number.isFinite(source?.charges)?source.charges:null;
       }
     }
     receipt.sparks += subtotal;
+    receipt.futureCapacity += futureSubtotal;
     // A Refrain by itself cannot schedule a meaningless second walk.
     if (pass === 1 && !productive) for (const step of receipt.steps) {
       if (step.operation === "replay-row" && step.success) {

@@ -32,16 +32,16 @@ export const TUTORIAL_TOPICS={
   s('Recover or start again','Choose Recover at Rest to refill missing hearts. Skills can raise their maximum. At zero hearts the run ends; New Game begins a fresh build.','rest')]},
  collector:{name:'Collector',visual:'companion:collector',steps:[
   s('Automatic helper','Collector is the green orb. The pickup’s lower shell flows into a small green circle when Collector can fetch that type automatically. No Power press is needed.','companion:collector'),
-  s('You collect first','Touch a Spark with your main wisp for immediate Sparks. Collector waits for your body to have its chance, then rescues a missed Spark within its boundary.','collector-range'),
-  s('Wait for delivery','Collector flies to the small green circle, latches on, then slowly tows the intact pickup behind it. The shell reaches your moving main wisp before it breaks and refills Sparks. Farther pickups take longer.','collector-return'),
-  s('Watch the boundary','After delivery, the green boundary contracts and regrows over 10 seconds. Recovery changes reach, not pickup handling. A small green circle still marks each fetchable type while Collector is recovering or busy.','collector-recovery'),
+  s('You collect first','Touch a Spark with your main wisp for immediate Sparks. Collector waits for your body to have its chance, then rescues a missed Spark within its orbit.','collector-range'),
+  s('Wait for delivery','Collector catches the small green circle and reels the intact pickup along a tether to your moving wisp. Sparks arrive on contact. A farther pickup has farther to reel.','collector-return'),
+  s('Watch the reel','Recovery and reeling start together. Collector stays busy until the intact pickup touches your wisp, then is ready for another search. A green circle keeps marking each fetchable type.','collector-recovery'),
   s('Read the Power indicator','For Collector, the filling button shows current range, not an ability to press. A full indicator means maximum reach. Red-ring Sparks are left for you to choose.','companion:collector'),
   s('Upgrade the right reach','The Collector chapter improves fetching range, delivery and recovery. Luminance has a separate chapter for how far you see.','luminance'),
   s('Last Orbit','Learn Last Orbit to catch a fatal impact when Collector is home and its green ring is full. After a rescue, collect Sparks yourself for four normal recovery cycles.','collector-recovery'),
-  s('Field Impulse','Learn Field Impulse after Search Spark. Swipe the playfield: up to levitate, down to dive, right to surge. A larger recovered ring gives more power; each swipe resets it like a fetch. Tap to Lift on release. The Lift button stays instant.','collector-range')]},
+  s('Field Impulse','Learn Field Impulse after Search Spark. Swipe the playfield: up to levitate, down to dive, right to surge. A larger recovered ring gives more power; each swipe spends the ring and temporarily reduces its orbit. Tap to Lift on release. The Lift button stays instant.','collector-range')]},
  companions:{name:'Companions',visual:'companion:collector',steps:[
   s('Your companion','The green Collector accompanies you throughout the run. The three other portraits in the roster are locked.','companion:collector'),
-  s('Read the range','The green boundary marks the reach of the next fetch. When a delivery arrives, the boundary contracts and slowly grows back.','collector-recovery'),
+  s('Read the range','Collector’s orbit shows the reach of its next search. Reeling keeps it busy until pickup contact; a normal delivery ends ready. Field Impulse spends reach and its smaller orbit grows during recovery.','collector-recovery'),
   s('Choose its loads','Collector starts with Sparks and Clusters. Cache Handling unlocks Caches; Flash Handling unlocks white triangles. A small green circle appears below each newly fetchable type when handling is learned. Caches arrive as 12-Spark Clusters.','collector-return'),
   s('Build your Collector','Open the Collector chapter in Skills to change its reach or recovery. Last Orbit lets a fully ready Collector catch a fatal impact.','collector-range')]},
  packed:{name:'Stored Sparks',visual:'clear-reward',steps:[

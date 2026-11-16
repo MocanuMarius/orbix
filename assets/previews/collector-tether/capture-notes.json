@@ -1,0 +1,32 @@
+{
+  "note": "Actual App + HUD + WispFlightView. Staged inspector Spark, equipped .4 recovery multiplier; authored terrain retained. CPU render+HUD samples are a 120Hz budget check, not a physical-phone frame-rate claim.",
+  "viewport": [
+    900,
+    405
+  ],
+  "dpr": 3,
+  "fps": 30,
+  "seconds": 6,
+  "errors": [],
+  "deliveryEvents": [
+    {
+      "id": "tether-inspection",
+      "time": 4.666666666666655,
+      "via": "collector"
+    }
+  ],
+  "firstPaintProof": {
+    "worldTime": 0,
+    "simulationStepsAfterLift": 0,
+    "markCount": 5,
+    "changedActorPixelsOver2": 219,
+    "actorDifferenceBounds": [
+      90,
+      132,
+      114,
+      169
+    ],
+    "note": "Identical actual first render; the comparison disables only wake drawing. Native screenshot pixels."
+  },
+  "normalPerformanceReport": "work/collector-tether/report-normal.json"
+}

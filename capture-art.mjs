@@ -1,9 +1,9 @@
-import {drawAbsorbingSpark} from './tidal-light.mjs?v=flight-120-1';
-import {getPickupSpec, pickupShellRadius} from './pickups.mjs?v=flight-120-1';
-import {drawPickup} from './pickup-art.mjs?v=flight-120-1';
-import {drawShellArcs} from './shell-arcs.mjs?v=flight-120-1';
-import {DEFAULT_CAPTURE_STYLE} from './capture-styles.mjs?v=flight-120-1';
-import {COLLECTOR_RING} from './pickup-handling-cue.mjs?v=flight-120-1';
+import {drawAbsorbingSpark} from './tidal-light.mjs?v=collector-reel-1';
+import {getPickupSpec, pickupShellRadius} from './pickups.mjs?v=collector-reel-1';
+import {drawPickup} from './pickup-art.mjs?v=collector-reel-1';
+import {drawShellArcs} from './shell-arcs.mjs?v=collector-reel-1';
+import {DEFAULT_CAPTURE_STYLE} from './capture-styles.mjs?v=collector-reel-1';
+import {COLLECTOR_RING} from './pickup-handling-cue.mjs?v=collector-reel-1';
 
 const TAU = Math.PI * 2;
 const clamp = value => Math.max(0, Math.min(1, value));
@@ -17,6 +17,19 @@ const outer = new Float32Array(maxPuffSegments);
 const inner = new Float32Array(maxPuffSegments);
 
 export function drawCollectorGrip(ctx,state,scale=1){
+  const tether=state.tetherPose;
+  if(tether){
+    // One cord joins the Spark's own eyelet to the MAIN wisp. The Collector
+    // winds around it in a separate depth pass; it never owns the string.
+    const x=tether.x*scale,y=tether.y*scale,tx=tether.hookX*scale,ty=tether.hookY*scale;
+    const dx=tx-x,dy=ty-y,length=Math.max(1,Math.hypot(dx,dy));
+    if(length<.5*scale)return;
+    ctx.save();ctx.lineCap='round';ctx.beginPath();ctx.moveTo(x,y);
+    for(let i=1;i<=8;i++){const f=i/8,sag=Math.sin(Math.PI*f)*Math.min(4*scale,length*.045);
+      ctx.lineTo(x+dx*f,y+dy*f+sag);}
+    ctx.strokeStyle=COLLECTOR_RING.edge;ctx.lineWidth=2.2*scale;ctx.stroke();
+    ctx.strokeStyle=COLLECTOR_RING.color;ctx.lineWidth=.9*scale;ctx.stroke();ctx.restore();return;
+  }
   const grip=state.gripPose;if(!grip?.attached||!(grip.growth>0))return;
   // Under load only: a taut filament rooted in the Spark's own eyelet. The
   // approaching Collector remains a plain orb and catches the existing loop.

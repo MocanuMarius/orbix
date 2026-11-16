@@ -1,8 +1,8 @@
-import {bellwindAcceleration} from './atlas-flight.mjs?v=flight-120-1';
-import {DraftField,DRAFT_TUNING} from './drafts.mjs?v=flight-120-1';
-import {lightVisibility} from './light-field.mjs?v=flight-120-1';
-import {isFuelPickup,pickupContactRadius} from './pickups.mjs?v=flight-120-1';
-import {obstacleEdgeClearance} from './edging-pulse.mjs?v=flight-120-1';
+import {bellwindAcceleration} from './atlas-flight.mjs?v=collector-reel-1';
+import {DraftField,DRAFT_TUNING} from './drafts.mjs?v=collector-reel-1';
+import {lightVisibility} from './light-field.mjs?v=collector-reel-1';
+import {isFuelPickup,pickupContactRadius} from './pickups.mjs?v=collector-reel-1';
+import {obstacleEdgeClearance} from './edging-pulse.mjs?v=collector-reel-1';
 const clamp=(n,a,b)=>Math.max(a,Math.min(b,n)),DT=1/60;
 export const PROJECTION_HORIZONS=Object.freeze([0,.7,1.2,1.8]);
 
@@ -143,7 +143,7 @@ export class FlightProjection {
   }
 }
 
-export const LIFT_GUIDE_TUNING=Object.freeze({refresh:.17,lead:.22,window:.18,humanClearance:5,delays:Object.freeze([.32,.48,.64,.8]),maximumProjections:7});
+export const LIFT_GUIDE_TUNING=Object.freeze({lead:.22,window:.2});
 
 // A single candidate pays the cost it would really have at that future input,
 // including the expiry of a Fourth Beat and any stored free Lift or route boon.
@@ -153,95 +153,40 @@ export function projectedLiftCost(e,delay=0){
   return Math.max(0,e.flapCost-(e.flightBoon?.liftSaving(e.flapCost)||0));
 }
 
-/** Brief timing advice, using at most seven bounded forecasts per search. */
+/** A manual cadence cue. It reads present motion, never the route ahead. */
 export class LiftGuide {
-  constructor(tuning,hit){this.projection=new FlightProjection(tuning,hit);this.clear();this.searches=0;this.projections=0;}
-  clear(){this.plan=null;this.nextAt=-Infinity;this.state=null;}
-  enabled(e){return e.alive&&!e.paused&&!e.finished&&!e.destroyed&&!e.dying&&!e.completing&&!e.liftHeld
+  constructor(tuning){this.tuning=tuning;this.clear();this.searches=0;this.projections=0;}
+  clear(){this.state=null;}
+  enabled(e){return e.running&&e.alive&&!e.paused&&!e.finished&&!e.destroyed&&!e.dying&&!e.completing&&!e.liftHeld
     &&!e.dream?.active&&!(e.dream&&e.dream.phase!=='done')&&!(e.fieldImpulse?.until>e.time)&&(!e.resumeRemaining||e.tutorialAwaitingLift);}
-  certain(e){
-    if(e.layout.boss?.attacks?.length)return false;
-    const start=e.distance+e.player.x,end=start+e.baseSpeed*1.8;
-    return !(e.blackHoles?.items||[]).some(h=>h.x+(h.radius||100)>start&&h.x-(h.radius||100)<end);
-  }
-  visible(e,path,light){
-    if(!path||path.uncertain||path.exit)return false;
-    return path.points.every(p=>p.y>e.player.radius+5&&p.y<e.height-e.player.radius-5
-      &&p.x-e.distance<e.width-8&&lightVisibility(e,light,p.x-e.distance,p.y,e.player.y)>.14);
-  }
-  visibleCoast(e,path,light){
-    if(path?.contactKind!=='lower-boundary')return this.visible(e,path,light);
-    // The screen edge is already known. Judge the visible falling approach,
-    // while every proposed rescue still needs a fully visible, safe forecast.
-    const points=[];
-    for(const point of path.points){
-      if(point.y>=e.height-e.player.radius-5)break;
-      points.push(point);
-    }
-    return points.length>1&&this.visible(e,{...path,points},light);
-  }
-  forecast(e,delay){this.projections++;return this.projection.predict(e,2,delay===null?[]:[Math.max(0,delay)]);}
   read(e,{loan=false}={}){
-    if(!this.enabled(e)||!this.certain(e)){this.clear();return null;}
+    const cost=e.nextLiftCost;
+    if(!(loan||e.mod.cardLiftGuide)||!this.enabled(e)||cost>e.availableGlow+1e-7){this.clear();return null;}
     if(e.tutorialAwaitingLift){
-      this.state=loan||e.mod.cardLiftGuide?{phase:'open',loan:true,cost:e.nextLiftCost}:null;
+      this.state={phase:'open',loan:true,cost};
       return this.state;
     }
-    if(e.lastFlapTime!==this.lastFlap||e.abilityStartedAt!==this.lastPower||e.height!==this.lastHeight){
-      this.clear();this.lastFlap=e.lastFlapTime;this.lastPower=e.abilityStartedAt;this.lastHeight=e.height;
-    }
-    if(this.plan&&e.time>this.plan.end)this.plan=null;
-    const light=e.getLightState();
-    if(e.time>=this.nextAt){
-      this.nextAt=e.time+LIFT_GUIDE_TUNING.refresh;
-      if(this.plan){
-        const delay=Math.max(0,this.plan.at-e.time),cost=projectedLiftCost(e,delay);
-        const path=this.forecast(e,delay);
-        if(path.contact||!this.visible(e,path,light)||cost>e.availableGlow+1e-7)this.plan=null;
-        else this.plan.cost=cost;
-      }else this.plan=this.search(e,light);
-    }
-    const plan=this.plan;
-    this.state=plan&&e.time>=plan.start-LIFT_GUIDE_TUNING.lead&&e.time<=plan.end
-      ?{phase:e.time<plan.start?'soon':'open',opensIn:Math.max(0,plan.start-e.time),remaining:plan.end-e.time,cost:plan.cost}:null;
+    const scale=e.scaleY,impulse=this.tuning.flapImpulse*scale*clamp(Number(e.mod.flap)||1,.8,1.2),
+      gravity=this.tuning.gravity*scale*clamp(Number(e.mod.gravity)||1,.8,1.2),
+      terminal=this.tuning.terminalFall*scale*clamp(Number(e.mod.terminalFall)||1,1,1.15),
+      // A Lift resets vy to -impulse. In still air, +impulse marks the
+      // return to its starting altitude (~1.37s), before terminal descent.
+      target=Math.min(impulse,terminal),until=(target-e.player.vy)/gravity,
+      half=LIFT_GUIDE_TUNING.window/2,opensIn=Math.max(0,until-half);
+    this.state=opensIn<=LIFT_GUIDE_TUNING.lead
+      ?{phase:until>half?'soon':'open',opensIn,cost,late:until < -half}:null;
     return this.state;
-  }
-  search(e,light){
-    this.searches++;
-    // The extra clearance and timing checks leave room for a human response.
-    const preview=Object.create(e);preview.player={...e.player,radius:e.player.radius+LIFT_GUIDE_TUNING.humanClearance};
-    const coast=this.forecast(preview,null);
-    if(!coast.contact||!this.visibleCoast(e,coast,light))return null;
-    const start=e.distance+e.player.x,coastDistance=coast.points.at(-1).x-start;
-    let best=null;
-    for(const delay of LIFT_GUIDE_TUNING.delays){
-      const cost=projectedLiftCost(e,delay);
-      if(cost>e.availableGlow+1e-7)continue;
-      const path=this.forecast(preview,delay);
-      if(path.contact||path.ceilingContact||!this.visible(e,path,light))continue;
-      const gain=path.points.at(-1).x-start-coastDistance;
-      if(gain<Math.max(12,e.baseSpeed*.1))continue;
-      // Zero-cost inputs are compared by useful distance; no division by zero.
-      const free=cost===0,score=free?gain:gain/cost;
-      if(!best||Number(free)>Number(best.free)||(free===best.free&&(score>best.score+1e-6||Math.abs(score-best.score)<1e-6&&delay>best.delay)))best={delay,cost,free,score};
-    }
-    if(!best)return null;
-    const half=LIFT_GUIDE_TUNING.window/2;
-    for(const delay of [best.delay-half,best.delay+half]){
-      const path=this.forecast(preview,delay);
-      if(path.contact||path.ceilingContact||!this.visible(e,path,light)||projectedLiftCost(e,delay)>e.availableGlow+1e-7)return null;
-    }
-    return {at:e.time+best.delay,start:e.time+best.delay-half,end:e.time+best.delay+half,cost:best.cost};
   }
 }
 
 export function drawLiftGuide(c,e,{scale=1,playerY=e.renderPlayerY??e.player.y}={}){
   const cue=e.getLiftGuide?.();if(!cue)return;
-  const open=cue.phase==='open',x=(e.player.x+28)*scale,y=(playerY-20)*scale,width=(open?7:4)*scale;
+  const open=cue.phase==='open',pulse=open&&!cue.late?.85+.15*Math.sin(e.time*10):1,
+    x=(e.player.x+28)*scale,y=(playerY-20)*scale,width=(open?7:4)*scale*pulse;
   c.save();c.lineCap='round';c.lineJoin='round';
   c.beginPath();c.moveTo(x-width,y+4*scale);c.lineTo(x,y-(open?4:1)*scale);c.lineTo(x+width,y+4*scale);
   c.strokeStyle='#261b11';c.lineWidth=5*scale;c.globalAlpha=.8;c.stroke();
-  c.strokeStyle=open?'#ffcf79':'#e5a54d';c.lineWidth=2.5*scale;c.globalAlpha=open?1:.78;c.stroke();c.restore();
+  c.strokeStyle=open?'#ffcf79':'#e5a54d';c.lineWidth=2.5*scale;c.globalAlpha=cue.late?.55:open?pulse:.78;c.stroke();c.restore();
 }
 
 export function drawFlightProjection(c,e,{scale=1,distance=e.renderDistance??e.distance,playerY=e.renderPlayerY??e.player.y}={}){
