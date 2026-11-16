@@ -196,13 +196,15 @@ export function createTutorialCoach({ onNext, onBack, onSkip } = {}) {
       progress.textContent = info.label;
       root.dataset.single=String(!step.progress||/STEP 1 \/ 1$/.test(info.label));
       next.textContent = String(step.actionLabel || 'NEXT');
-      root.querySelector('[data-coach=skip]').textContent=step.skipLabel||'Remember & skip';
+      const skip=root.querySelector('[data-coach=skip]');skip.textContent=step.skipLabel||'Remember & skip';
+      // A single-action card (entry hint, practice hint) offers only its explicit button.
+      skip.hidden=step.skipLabel===false;
       back.disabled = typeof onBack !== 'function' || info.first;
       root.dataset.step = String(step.id || '');
       root.hidden = false;
       if (changed && target?.scrollIntoView) target.scrollIntoView({ block: 'nearest', inline: 'nearest', behavior: 'instant' });
       position();
-      if (changed) takeFocus(card);
+      if (changed) takeFocus(step.focusAction === true ? next : card);
       schedule();
     },
     hide,

@@ -164,3 +164,37 @@ html body .artifact-collection.collection-flat :is(button.collection-melt,button
  html body .artifact-collection.collection-flat:has(.is-confirming)>footer>span{visibility:hidden}
  html body .artifact-collection.collection-flat .collection-melt-actions{gap:8px}
 }
+
+/* Shelf labels live in the open niche space above each plank. In landscape the
+   grid rows mirror the backdrop (13 / 91 / 22 / 92 / 22 of its 240 rows) and its
+   columns the inner wall (x 19-341 of 360; see reliquary-art.mjs), so a name never
+   prints across a plank or a mortar seam. Every niche starts its label at the same
+   height. Relics draw at 1x (40px) so the sprites stay crisp. */
+@media(orientation:landscape){
+ html body .artifact-collection.collection-flat .artifact-collection-grid{
+  grid-template-rows:13fr 91fr 22fr 92fr 22fr;gap:0;padding:0 5.28%;
+ }
+ html body .artifact-collection.collection-flat .collection-artifact:nth-child(-n+3){grid-row:2}
+ html body .artifact-collection.collection-flat .collection-artifact:nth-child(n+4){grid-row:4}
+ html body .artifact-collection.collection-flat .collection-artifact{
+  flex-direction:column;justify-content:flex-start;gap:0;padding:1px 4px 0!important;min-width:0;
+ }
+ html body .artifact-collection.collection-flat .collection-relic-object{width:76px;max-width:100%;height:44px;margin-bottom:-6px}
+ html body .artifact-collection.collection-flat .collection-relic-object>.artifact-portrait{width:40px;height:40px;margin:2px 0 0}
+ html body .artifact-collection.collection-flat .collection-artifact>b{max-width:100%;margin-top:3px;font:12px/1.1 var(--pixel)}
+ html body .artifact-collection.collection-flat .collection-artifact>small{max-width:100%;margin-top:1px;font:10px/1.1 var(--pixel)}
+}
+/* Short landscape screens move the shelf pager to a slim column beside the
+   cabinet, giving each shelf the height its label needs. */
+@media(orientation:landscape) and (max-height:350px){
+ html body .artifact-collection.collection-flat>.collection-workbench{grid-template-columns:minmax(330px,1fr) minmax(0,1.15fr)}
+ html body .artifact-collection.collection-flat .collection-shelves{grid-template-columns:minmax(0,1fr) 48px;grid-template-rows:minmax(0,1fr);gap:5px}
+ html body .artifact-collection.collection-flat .collection-shelf-nav{grid-template-columns:1fr;grid-template-rows:44px minmax(0,1fr) 44px;gap:2px;min-height:0;padding:0}
+ html body .artifact-collection.collection-flat .collection-shelf-nav>button{width:100%;min-height:44px}
+ html body .artifact-collection.collection-flat .collection-shelf-nav>span{font-size:10px;line-height:1.3}
+ html body .artifact-collection.collection-flat .collection-artifact{padding:0 4px!important}
+ html body .artifact-collection.collection-flat .collection-relic-object{width:70px;height:40px;margin-bottom:-6px}
+ html body .artifact-collection.collection-flat .collection-relic-object>.artifact-portrait{margin:0}
+ html body .artifact-collection.collection-flat .collection-artifact>b{margin-top:2px;font:11px/1.05 var(--pixel)}
+ html body .artifact-collection.collection-flat .collection-artifact>small{font-size:9px}
+}

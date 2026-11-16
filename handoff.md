@@ -366,3 +366,16 @@ Cleanup task:
 Handoff/document instruction:
 
 > make sure the document is called handoff and is very detailed.. and also i have some other items on the backlog i'd want you to note down so the other llm can take over..take in a backlog first too
+
+## Latest update: Tutorial resumes without a countdown (16 November 2026)
+
+- The user requested removing the 3–2–1 delay after accepting a Tutorial popup. `dist/app.mjs` now bypasses the countdown for Tutorial runs and starts the existing linear 0.1× → 1×, three-second resume ramp immediately. The Game Speed overlay remains visible during the ramp.
+- Ordinary expedition countdowns and initial Tap to begin gates remain unchanged. Dismissing a lesson does not issue a Lift.
+- This is a narrow local change on top of existing, uncommitted tutorial/design-lab work from the other tool; preserve that work. No release was performed for this change.
+
+
+## Local early-play handoff — 16 November 2026, not published
+
+The user assigned shipping to the other tool. Codex made no remote writes for early-play-1. See [the exact local integration and shipping instructions](docs/early-play-release.md). Local branch `release/early-play-1` is commit `52247567149112a84fc1875bf307b13821f07c90`, prerequisite `1e6e20bf`; bundle/patch and proof reports are in `work/tutorial-combo-release/`. A read-only merge-tree check found it merges cleanly with concurrent `143d2605`; active main and index were not switched or reset.
+
+Both feature follow-ups are already applied additively in the active F source (primary-renderer target halo and top-HUD portrait positioning). Existing localhost:4173 serves that source: open `/game.html?cards=1` → Tutorial → first flight. Paused reading, immediate slow resume and the early real Rhythm/Harvest practice are ready locally. Verified immutable package: `work/early-play-ready/artifact/dist`, version early-play-1, revision `1113c79aeec8`, 488 offline files; helper output matches the browser-verified runtime bytes. 82 focused tests, 265 syntax files, startup, phone-sized paused-reading bounds and the actual preceding starter-flow-1 installed-worker upgrade pass. Public remains the other tool's starter-flow-1 until it publishes the combined final committed HEAD. Do not publish an older snapshot over concurrent work, claim early-play-1 shipped, or advertise its wisp clip URL yet.

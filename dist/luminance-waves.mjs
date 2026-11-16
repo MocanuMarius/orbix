@@ -114,6 +114,7 @@ export class LuminanceWaves {
               }
               wave.storedPaid=true;
             }
+            if(cardAction&&packet.feature==='first-light-combo-wave')packet.harvestFlashUntil=e.time+.55;
             if(bookFuel||cardAction){hit=true;e.burst?.(screenX,packet.y,3,'#c6ecf2');}
           }
         }

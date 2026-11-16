@@ -38,8 +38,7 @@ html body :is(dialog.game-sheet,.tutorial-coach-card) :is(button.primary,button.
  background-color:#1b302c;
  text-shadow:1px 1px 0 #050b0d;
 }
-html body :is(dialog.game-sheet,.tutorial-coach-card) button.danger,
-html body :is(dialog.game-sheet,.tutorial-coach-card) [data-action='close-sheet']{
+html body :is(dialog.game-sheet,.tutorial-coach-card) button.danger{
  background-color:#38272b;
  color:#f5dbd0!important;
 }

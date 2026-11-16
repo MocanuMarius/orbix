@@ -2,13 +2,15 @@
 // Every verdict on this page comes from the game's own functions: placement status from
 // card-status.mjs › getEquippedCardStatuses, the result line from skill-cards.mjs › previewCardRow,
 // melt values from getCardMeltValue, Rest cards from isInventoryOnlyCard. The page only adds words and layout.
-import {CARD_SYSTEM, CARD_ROW_EVENTS, SKILL_CARDS, makeSkillCard, getMountedCards, describeSkillCard, getCardRowRule, hasCardRowEvent, previewCardRow, getCardMeltValue, isInventoryOnlyCard} from '../skill-cards.mjs?v=guide-clarity-1';
+import {CARD_SYSTEM, CARD_ROW_EVENTS, SKILL_CARDS, makeSkillCard, getCardChargeCapacity, getMountedCards, describeSkillCard, getCardRowRule, hasCardRowEvent, previewCardRow, getCardMeltValue, isInventoryOnlyCard} from '../skill-cards.mjs?v=guide-clarity-1';
 import {getEquippedCardStatuses} from '../card-status.mjs?v=guide-clarity-1';
 import {cardFace, cardArt} from '../card-ui.mjs?v=guide-clarity-1';
 import {resourceSymbol} from '../game-symbols.mjs?v=guide-clarity-1';
+import {getCardRuleBands} from '../card-rule-bands.mjs?v=guide-clarity-1';
 
 const query = new URLSearchParams(location.search);
 const variant = query.get('variant') || 'v1.0-deck';
+const V11 = variant === 'v1.1-deck';
 document.documentElement.dataset.variant = variant;
 
 // Sample state from the brief.
@@ -395,6 +397,7 @@ function activate(node) {
     announce('This place is empty. Pick up a card first, then choose this place.');
   }
 }
+if (!V11) {
 const sheet = $('dk-sheet');
 let suppressClick = false;
 sheet.addEventListener('click', event => {
@@ -499,4 +502,414 @@ window.deck = {
   state, solve, resultText, placeResult, targetsFor, get targets() {return targets;},
   statuses: () => getEquippedCardStatuses({mountedCards: state.row}).map(s => s && {label: s.label, plain: plainStatus(s)}),
 };
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   v1.1-deck: master and detail. The Row and a Reserve grid on the left, the Inspector on the right.
+   A new small "deck card" answers HOW RARE / WHAT IT DOES / WHAT KIND without a tap.
+   Same real functions as v1.0 (placement, resolver, statuses, melt value); tapping selects, "Move" is a second step.
+   ═══════════════════════════════════════════════════════════════════════════ */
+const RARITY_WORD = {common: 'Common', rare: 'Rare', legendary: 'Legendary'};
+const rarityOf = c => SKILL_CARDS[c?.cardId]?.rarity || 'common';
+const SPARK_IMG = '<img class="dc-spark" src="design-lab/assets/spark-a.svg" width="16" height="16" alt="" draggable="false">';
+
+// The two short lines. Source: the card's REAL rule bands (card-rule-bands.mjs › getCardRuleBands) and its real row rule
+// (skill-cards.mjs › getCardRowRule). WHEN = the first "condition" band, EFFECT = the first "effect" band, each cleaned of
+// its trailing full stop and then rewritten by the first matching pattern below. Patterns only change wording to the approved
+// vocabulary (a running total is "Bonus", a card that Adds is a "+ card"). A band no pattern knows keeps its real text, with only
+// the banned words swapped, and wraps small; the Inspector always has the full sentence.
+const tidy = t => String(t || '').replace(/\s+/g, ' ').replace(/[.:]\s*$/, '').trim();
+const noBanned = t => t.replace(/this pass[’']s (?:earlier card )?Sparks(?: so far)?/gi, 'Bonus').replace(/\bpass\b/gi, 'firing').replace(/\bequipped\b/gi, 'in your Row').replace(/\breplay(?:ed)?\b/gi, 'Encore').replace(/\bpayers?\b/gi, '+ cards');
+const WHEN_RULES = [
+  [/^(?:Your wisp touches a Spark|When your wisp absorbs a (?:passage )?Spark)$/i, 'Catch a Spark', true],
+  [/^After (\d+) earlier actions pay Sparks in this pass$/i, 'After $1 + cards'],
+  [/^After an earlier action pays Sparks in this pass$/i, 'After a + card'],
+  [/^After a matching event earns a bonus$/i, 'After a Bonus'],
+  [/^When a wave crosses an uncollected Spark$/i, 'Wave crosses a Spark'],
+  [/^(?:From your Deck at Rest, unlock Grow|At Rest, choose Grow)$/i, 'At Rest'],
+  [/^When Collector delivers a passage Spark$/i, 'Collector delivers'],
+  [/^Paid Lift while falling.*$/i, 'Lift while falling'],
+  [/^When Collector delivers a Cache$/i, 'Cache delivered'],
+];
+const EFFECT_RULES = [
+  [/^Multiply this pass[’']s Sparks so far by ([\d.]+)$/i, '×$1 Bonus'],
+  [/^Double this pass[’']s (?:earlier card )?Sparks(?: so far)?$/i, '×2 Bonus'],
+  [/^Repeat the action on the card to the right twice$/i, 'Repeats next card ×2'],
+  [/^Repeat the action on the card to the right (\d+) times$/i, 'Repeats next card ×$1'],
+  [/^Repeat the action on the card to the right$/i, 'Repeats next card'],
+  [/^Borrow the ability on the card to the right$/i, 'Copies next card'],
+  [/^Finish this pass, then replay once from slot 1$/i, 'Encore: row fires again'],
+  [/^\+(\d+) maximum Sparks and a full meter$/i, '+$1 max Sparks, full meter'],
+  [/^An amber chevron shows when .*$/i, 'Shows when to Lift'],
+  [/^Packing efficiency \+(\d+)%$/i, 'Packs +$1%'],
+  [/^\+(\d+) maximum Sparks while equipped$/i, '+$1 max Sparks'],
+  [/^Take 2 different actions$/i, 'Two actions at Rest'],
+];
+function cardLines(c) {
+  const def = SKILL_CARDS[c.cardId], bands = getCardRuleBands(c, def), rule = getCardRowRule(def, c);
+  const cond = bands.find(b => b.type === 'condition'), eff = bands.find(b => b.type === 'effect');
+  let when, spark = false, fallback = false;
+  if (cond) {
+    const t = tidy(cond.text), hit = WHEN_RULES.find(([re]) => re.test(t));
+    if (hit) {when = t.replace(hit[0], hit[1]);spark = !!hit[2];} else {when = noBanned(t);fallback = true;}
+  } else when = rule?.operation === 'multiply' ? 'After + cards' : 'In your Row';
+  const raw = tidy(eff?.text), hit = EFFECT_RULES.find(([re]) => re.test(raw));
+  let effect;
+  if (hit) effect = raw.replace(hit[0], hit[1]);
+  else {
+    effect = noBanned(raw);fallback = true;
+    if (rule?.operation === 'add-sparks') effect = effect.replace(/\bSparks\b/, 'Bonus');
+  }
+  return {when, spark, effect, fallback, long: bands.map(b => b.text).join(' ')};
+}
+const WHEN_PHRASE = {'Catch a Spark': 'you catch a Spark', 'After a + card': 'a card that Adds fired before it', 'Wave crosses a Spark': 'a wave crosses a Spark', 'Collector delivers': 'Collector delivers a Spark'};
+function cardSentence(c, L, mark) {
+  const rule = getCardRowRule(SKILL_CARDS[c.cardId], c);
+  const phrase = WHEN_PHRASE[L.when] || L.when.replace(/^./, m => m.toLowerCase());
+  if (isRest(c)) return `At Rest: ${L.effect}. It stays in the Reserve and never goes in your Row.`;
+  if (mark?.cls === 'repeat') return `${mark.long} It shares that card's Uses.`;
+  if (mark?.cls === 'encore') return 'After a Bonus, your Row fires once more from the left. Only one Encore fires.';
+  if (rule?.operation === 'multiply') {
+    const x = (L.effect.match(/×([\d.]+)/) || [])[1];
+    return `Multiplies the Bonus so far${x ? ` by ${x}` : ''}. ${rule.minimumEarlierPayers ? `Fires only after ${rule.minimumEarlierPayers} cards that Add.` : 'Put it right of cards that Add.'}`;
+  }
+  if (rule?.operation === 'add-sparks') return `Adds ${L.effect} when ${phrase}.`;
+  if (!rule) return `${L.effect}. Works while it is in your Row, without firing.`;
+  return `${L.effect}.`;
+}
+
+function runV11() {
+  const SLOTS = Math.min(5, Math.max(3, Number(query.get('slots')) || 4));
+  let n = 0;const mk = id => makeSkillCard(id, `d11-${n++}`);
+  state.row = SLOTS === 5 ? ['echo', 'spark-cache', 'kindling-bead', 'prism-lens', 'crescendo'].map(mk) : [...['echo', 'spark-cache', 'prism-lens'].map(mk), ...(SLOTS === 4 ? [null] : [])];
+  state.reserve = (SLOTS === 5 ? ['body-spark', 'refrain', 'lift-guide', 'growth-seed', 'closing-chord'] : ['body-spark', 'refrain', 'lift-guide', 'kindling-bead', 'crescendo', 'growth-seed']).map(mk);
+  Object.assign(state, {sel: {from: 'row', index: 0}, moving: false, melting: false, filter: 'all', msg: '', msgTone: ''});
+  const S = state;
+  const sheet = $('dk-sheet');
+  document.title = 'Deck v1.1 · Design lab';
+  $('deck').classList.add('dk11');$('deck').dataset.slots = String(SLOTS);
+  sheet.innerHTML = `<div class="wb-pagelight" aria-hidden="true"></div>
+  <div class="dk1-left">
+   <h1 class="wb-title dk1-title">Deck</h1>
+   <p class="dk1-result" id="dk1-result"></p>
+   <p class="dk-wallet dk1-wallet" id="dk-wallet"><span class="dk-wallet-icon" id="dk-wallet-icon" aria-hidden="true"></span><b id="dk-wallet-value">8</b><small>Stored Sparks</small></p>
+   <section class="dk1-rowzone" aria-label="Row. Your cards fire left to right."><div class="dk-row dk1-row" id="dk1-row"></div></section>
+   <section class="dk1-reserve" aria-label="Reserve">
+    <div class="dk1-chips" id="dk1-chips" role="group" aria-label="Reserve by rarity"></div>
+    <div class="dk1-grid" id="dk1-grid" role="group" aria-label="Reserve cards"></div>
+   </section>
+   <div class="dk1-foot">
+    <button type="button" class="wb-sign wb-sign-quiet dk1-done" id="dk1-done"><span class="wb-sign-text"><b>Done</b></span></button>
+    <a class="wb-sign wb-sign-standard dk1-fire" id="dk1-fire" href="design-lab/cardflow.html?variant=v1.1-cardflow"><span class="wb-sign-text"><b>See it fire</b></span></a>
+    <button type="button" class="wb-sign wb-sign-standard dk1-workshop" id="dk1-workshop" aria-label="Workshop. Appears only at Rest."><span class="wb-sign-text"><b>Workshop</b><small>Only at Rest</small></span></button>
+   </div>
+  </div>
+  <aside class="dk1-insp" id="dk1-insp" aria-label="Card inspector"></aside>`;
+  $('dk-wallet-icon').innerHTML = resourceSymbol('packed').replace(/role="img" aria-label="Stored Sparks"/, 'aria-hidden="true"');
+
+  const selCard = () => S.sel ? (S.sel.from === 'row' ? S.row : S.reserve)[S.sel.index] || null : null;
+  const pickInfo = () => S.moving && S.sel && selCard() ? S.sel : null;
+  const movingCard = () => pickInfo() ? selCard() : null;
+  const refOf = s => s ? `${s.from}-${s.index}` : '';
+  const usesOf = c => Number.isFinite(c?.charges) ? {now: c.charges, max: getCardChargeCapacity(c)} : null;
+  const countOf = r => S.reserve.filter(c => r === 'all' || rarityOf(c) === r).length;
+  const markHTML = (mark, cls = '') => mark ? `<span class="dc-mark dc-mark-${mark.cls} ${cls}" aria-hidden="true">${mark.glyph}</span>` : '';
+  const usesHTML = c => {const u = usesOf(c);return u ? `<span class="dc-uses" aria-hidden="true">${u.now}/${u.max}</span>` : '';};
+
+  function rowCard(c, i) {
+    const L = cardLines(c), r = rarityOf(c), mark = markOf(c);
+    return `<span class="dc dc-card dc-r-${r}"><span class="dc-band"><i class="dc-no">${i + 1}</i><span class="dc-rarity">${RARITY_WORD[r]}</span></span>
+     <span class="dc-art">${cardArt(c, {compact: true})}${markHTML(mark)}${usesHTML(c)}</span>
+     <b class="dc-name">${esc(nameOf(c))}</b>
+     <span class="dc-when">${L.spark ? SPARK_IMG : ''}<span>${esc(L.when)}</span></span>
+     <b class="dc-effect ${L.fallback ? 'dc-effect-fb' : ''}">${esc(L.effect)}</b></span>`;
+  }
+  function tile(c) {
+    const L = cardLines(c), r = rarityOf(c), mark = markOf(c);
+    return `<span class="dc dc-tile dc-r-${r}"><span class="dc-band"><span class="dc-rarity">${RARITY_WORD[r]}</span><span class="dc-tail">${markHTML(mark, 'dc-mark-inline')}${usesHTML(c)}</span></span>
+     <span class="dc-body"><span class="dc-art">${cardArt(c, {compact: true})}</span><span class="dc-text"><b class="dc-name">${esc(nameOf(c))}</b><b class="dc-effect ${L.fallback ? 'dc-effect-fb' : ''}">${esc(L.effect)}</b></span></span></span>`;
+  }
+  const ARR = ARROW.replace('width="16" height="20"', 'width="12" height="15"');
+
+  let targets11 = [];
+  function render(focusRef) {
+    const act = document.activeElement;
+    const keep = focusRef || (act && act !== document.body ? (act.id ? '#' + act.id : act.dataset?.card ? `[data-card="${act.dataset.card}"]` : act.dataset?.place ? `[data-place="${act.dataset.place}"]` : act.dataset?.filter ? `[data-filter="${act.dataset.filter}"]` : '') : '');
+    if (S.sel && !selCard()) S.sel = null;
+    if (!S.sel) {const i = S.row.findIndex(Boolean);S.sel = i >= 0 ? {from: 'row', index: i} : S.reserve.length ? {from: 'reserve', index: 0} : null;}
+    if (countOf(S.filter) === 0) S.filter = 'all';
+    const pick = pickInfo(), moving = movingCard();
+    targets = pick && !S.melting ? targetsFor(pick) : [];targets11 = targets;
+    const tmap = new Map(targets.map(t => [placeKey(t.place), t]));
+    const printed = getMountedCards({skillSystem: CARD_SYSTEM, cardSlots: S.row.length, mountedCards: S.row});
+    const statuses = getEquippedCardStatuses({mountedCards: S.row});
+
+    // Row
+    let html = '';
+    S.row.forEach((c, i) => {
+      if (i > 0) {
+        const g = tmap.get(`gap-${i}`);
+        const label = g ? `Move ${nameOf(moving)} between ${nameOf(S.row[i - 1])} and ${nameOf(S.row[i])}, to place ${g.result.at + 1}` : 'Then';
+        html += `<button type="button" class="dk-gap ${g ? 'dk-lit' : ''}" data-place="gap-${i}" ${g ? '' : 'disabled aria-hidden="true" tabindex="-1"'} aria-label="${esc(label)}">${g ? INSERT.replace('width="20" height="24"', 'width="16" height="20"') : ARR}</button>`;
+      }
+      const slotT = tmap.get(`slot-${i}`), isSel = S.sel?.from === 'row' && S.sel.index === i, isMove = isSel && S.moving;
+      const plain = plainStatus(statuses[i]), mark = markOf(c), L = c ? cardLines(c) : null;
+      let under = '', ucls = '';
+      if (pick) {
+        if (isMove) {under = '<span class="u-long">Moving</span><span class="u-short">Moving</span>';ucls = 'dk1-u-picked';}
+        else if (slotT) {const sw = slotT.result.kind === 'swap';under = `<span class="u-long">${sw ? 'Swap here' : 'Move here'}</span><span class="u-short">${sw ? 'Swap' : 'Here'}</span>`;ucls = 'dk1-u-target';}
+        else if (moving && isRest(moving)) {under = '<span class="u-long">Stays in Reserve</span><span class="u-short">No</span>';ucls = 'dk1-u-refuse';}
+      } else if (c && plain) {
+        if (plain.state === 'ready') {under = `<span class="dk-tick" aria-hidden="true">${TICK}</span>`;ucls = 'dk1-u-ready';}
+        else {under = `<span class="dk-flag" aria-hidden="true">${plain.state === 'shared' ? '≈' : '!'}</span><span class="u-long u-text">${esc(plain.text)}</span>`;ucls = `dk1-u-warn dk1-u-${plain.state}`;}
+      }
+      const status = c ? (plain?.state === 'ready' ? 'Ready' : plain?.text) : '';
+      let label = c ? `Place ${i + 1}: ${nameOf(c)}. ${RARITY_WORD[rarityOf(c)]}. ${L.when}: ${L.effect}.${mark ? ` ${mark.text}.` : ''}${status ? ` ${status}.` : ''}${isSel ? ' Selected.' : ''}` : `Place ${i + 1}: empty slot`;
+      if (pick) label = isMove ? `${label} Moving. Press to put it down.` : slotT ? `Place ${i + 1}: ${slotT.result.kind === 'swap' ? `swap ${nameOf(moving)} with ${nameOf(c)}` : `move ${nameOf(moving)} here`}` : label;
+      html += `<div class="dk-slot dk1-slot ${slotT ? 'dk-lit' : ''} ${isMove ? 'dk-picked' : ''} ${isSel ? 'dk1-sel' : ''}">
+        <button type="button" class="dk-slot-btn" data-place="slot-${i}" data-card="${c ? 'row-' + i : ''}" aria-label="${esc(label)}" ${c ? `aria-pressed="${isSel}"` : ''} ${pick && !isMove && !slotT ? 'aria-disabled="true"' : ''}>
+         ${c ? rowCard(c, i) : `<span class="dc dc-empty"><b>Empty slot ${i + 1}</b></span>`}</button>
+        <p class="dk1-under ${ucls}" aria-hidden="true">${under}</p></div>`;
+    });
+    $('dk1-row').innerHTML = html;
+
+    // Result line, straight from the resolver.
+    $('dk1-result').innerHTML = esc(resultText(S.row)).replace(/(\+[\d.]+ Bonus|no Bonus)/, '<b>$1</b>');
+    $('dk-wallet-value').textContent = String(S.wallet);
+    $('dk-wallet').setAttribute('aria-label', `Wallet: ${S.wallet} Stored Sparks`);
+
+    // Chips: the rarity overview and the filter.
+    $('dk1-chips').innerHTML = ['all', 'common', 'rare', 'legendary'].map(f => `<button type="button" class="dk1-chip ${f !== 'all' ? 'dc-r-' + f : ''}" data-filter="${f}" aria-pressed="${S.filter === f}" aria-label="${f === 'all' ? 'All cards' : RARITY_WORD[f]}: ${countOf(f)} in Reserve${S.filter === f ? '. Showing' : ''}">${f === 'all' ? '' : '<i class="dk1-sw"></i>'}<span>${f === 'all' ? 'All' : RARITY_WORD[f]}</span><b>${countOf(f)}</b></button>`).join('');
+
+    // Reserve grid.
+    const reserveT = tmap.get('reserve');
+    const grid = $('dk1-grid');
+    grid.classList.toggle('dk-lit', !!reserveT);
+    grid.innerHTML = (reserveT ? `<button type="button" class="dk1-tile dk1-drop" data-place="reserve" aria-label="Move ${esc(nameOf(moving))} to the Reserve">${INSERT}<span><b>Move here</b></span></button>` : '')
+      + S.reserve.map((c, i) => [c, i]).filter(([c]) => S.filter === 'all' || rarityOf(c) === S.filter).map(([c, i]) => {
+        const isSel = S.sel?.from === 'reserve' && S.sel.index === i, isMove = isSel && S.moving, L = cardLines(c), mark = markOf(c);
+        const label = reserveT ? `Move ${nameOf(moving)} to the Reserve` : `${nameOf(c)}. ${RARITY_WORD[rarityOf(c)]}. ${L.when}: ${L.effect}.${mark ? ` ${mark.text}.` : ''} In Reserve.${isMove ? ' Moving. Press to put it down.' : isSel ? ' Selected.' : ''}`;
+        return `<button type="button" class="dk1-tile ${isSel ? 'dk1-sel' : ''} ${isMove ? 'dk-picked' : ''} ${isRest(c) ? 'dk1-rest' : ''}" data-card="reserve-${i}" ${reserveT ? 'data-place="reserve"' : ''} aria-pressed="${isSel}" aria-label="${esc(label)}">${tile(c)}</button>`;
+      }).join('');
+    if (!grid.children.length) grid.innerHTML = '<p class="dk1-empty">No cards here</p>';
+    document.querySelectorAll('#dk1-row svg[role="img"],#dk1-grid svg[role="img"]').forEach(svg => {svg.removeAttribute('role');svg.setAttribute('aria-hidden', 'true');});
+    $('deck').classList.toggle('dk-has-pick', !!pick);
+    $('deck').dataset.row = S.row.map(c => c ? c.cardId : '-').join(',');
+    $('deck').dataset.result = String(solve(S.row).sparks);
+    renderInspector(printed, statuses);
+    if (keep) document.querySelector(keep)?.focus({preventScroll: true});
+  }
+
+  function renderInspector(printedRow, statuses) {
+    const c = selCard(), box = $('dk1-insp');
+    if (!c) {box.innerHTML = '<p class="dk1-empty">No cards. Nothing to inspect.</p>';return;}
+    const r = rarityOf(c), L = cardLines(c), mark = markOf(c), u = usesOf(c);
+    const inRow = S.sel.from === 'row';
+    const plain = inRow ? plainStatus(statuses[S.sel.index]) : null;
+    const where = inRow ? `Row · place ${S.sel.index + 1}` : 'Reserve';
+    const facts = [['What it does', esc(cardSentence(c, L, mark))], ['When', `${L.spark ? SPARK_IMG : ''}${esc(L.when)}`]];
+    if (u) facts.push(['Uses', `${u.now} of ${u.max} left`]);
+    const warn = plain && plain.state !== 'ready' ? `<div class="dk1-warn"><dt>Place</dt><dd><span class="dk-flag" aria-hidden="true">${plain.state === 'shared' ? '≈' : '!'}</span>${esc(plain.text)}</dd></div>` : '';
+    const moving = S.moving, value = getCardMeltValue(c);
+    let msg = S.msg, tone = S.msgTone;
+    if (moving && !msg) {msg = isRest(c) ? `${nameOf(c)} is a Rest card: it works from the Reserve` : 'Tap a lit place';tone = isRest(c) ? 'dk1-msg-rest' : 'dk1-msg-hint';}
+    box.innerHTML = `<div class="dk1-ib dc-r-${r}"><b>${RARITY_WORD[r]}</b><span>${where}</span></div>
+     <h2 class="dk1-name" id="dk1-name" tabindex="-1">${esc(nameOf(c))}</h2>
+     <div class="dk1-main"><div class="dk1-face" id="dk1-face" aria-hidden="true"></div>
+      <div class="dk1-facts"><dl class="dk1-list">${facts.map(([k, v]) => `<div><dt>${k}</dt><dd>${v}</dd></div>`).join('')}${warn}</dl>
+      ${msg ? `<p class="dk1-msg ${tone || ''}">${esc(msg)}</p>` : ''}</div></div>
+     ${S.melting ? `<div class="dk1-melt" role="group" aria-labelledby="dk1-melt-text"><p class="dk1-melt-text" id="dk1-melt-text">You get <b>+${value} Stored Sparks</b>. ${esc(nameOf(c))} is gone for good.</p>
+        <div class="dk1-actions"><button type="button" class="wb-sign wb-sign-quiet" id="dk1-keep"><span class="wb-sign-text"><b>Keep card</b></span></button>
+        <button type="button" class="wb-sign wb-sign-danger" id="dk1-meltgo" aria-label="Melt ${esc(nameOf(c))} for ${value} Stored Sparks. This cannot be undone."><span class="wb-sign-text"><b>Melt</b></span></button></div></div>`
+      : `<div class="dk1-actions"><button type="button" class="wb-sign wb-sign-standard" id="dk1-move" aria-label="${moving ? `Cancel move: put ${esc(nameOf(c))} down` : `Move ${esc(nameOf(c))}: lights every place it can go`}"><span class="wb-sign-text"><b>${moving ? 'Cancel move' : 'Move'}</b></span></button>
+        <button type="button" class="wb-sign wb-sign-quiet" id="dk1-melt" aria-label="Melt ${esc(nameOf(c))}: shows what you get first"><span class="wb-sign-text"><b>Melt…</b></span></button></div>`}`;
+    // The game's real full face (help links made inert; the glossary is not part of this preview).
+    const printed = inRow ? printedRow[S.sel.index] : describeSkillCard(c);
+    const faceBox = $('dk1-face');
+    faceBox.innerHTML = cardFace(printed, {compact: false}).replace(/<button type="button"/g, '<span').replace(/<\/button>/g, '</span>').replace(/ aria-haspopup="dialog"/g, '').replace(/: help"/g, '"');
+    faceBox.querySelector('.card-help')?.remove();
+    faceBox.querySelectorAll('.card-term-icon-spark, .card-term-icon-meter').forEach(icon => {icon.innerHTML = SPARK_IMG;});
+    faceBox.querySelectorAll('[tabindex]').forEach(el => el.removeAttribute('tabindex'));
+    faceBox.querySelectorAll('svg[role="img"]').forEach(svg => {svg.removeAttribute('role');svg.setAttribute('aria-hidden', 'true');});
+    $('dk1-move')?.addEventListener('click', () => S.moving ? cancelMove() : startMove());
+    $('dk1-melt')?.addEventListener('click', askMelt);
+    $('dk1-keep')?.addEventListener('click', keepCard);
+    $('dk1-meltgo')?.addEventListener('click', confirmMelt);
+  }
+
+  // ── Actions ────────────────────────────────────────────────────────────────
+  const firstSentence = t => (t.match(/^.*?[.!?](?:\s|$)/) || [t])[0].trim();
+  function select(from, index) {
+    const c = (from === 'row' ? S.row : S.reserve)[index];
+    if (!c) return;
+    S.sel = {from, index};S.moving = false;S.melting = false;S.msg = '';S.msgTone = '';
+    render(`[data-card="${from}-${index}"]`);
+    announce(`${nameOf(c)} selected. ${RARITY_WORD[rarityOf(c)]}. ${firstSentence(cardSentence(c, cardLines(c), markOf(c)))}`);
+  }
+  function startMove() {
+    const c = selCard();
+    if (!c) return;
+    S.moving = true;S.melting = false;S.msg = '';S.msgTone = '';
+    render('#dk1-move');
+    const k = targets11.length;
+    announce(isRest(c) ? `${nameOf(c)} is a Rest card and works from the Reserve, so it can't go in your row. Press Cancel move.`
+      : `Moving ${nameOf(c)}. ${k} ${k === 1 ? 'place' : 'places'} lit. Use the arrow keys or tap a place, or Cancel move.`);
+    if (!reduced.matches) document.querySelector(`[data-card="${refOf(S.sel)}"]`)?.animate([{transform: 'translateY(0)'}, {transform: 'translateY(-3px)'}], {duration: 120, easing: 'steps(2,end)'});
+  }
+  function cancelMove({silent = false} = {}) {
+    if (!S.moving) return;
+    const c = selCard();S.moving = false;S.msg = '';
+    render('#dk1-move');
+    if (!silent) announce(`${nameOf(c)} put down.`);
+  }
+  function drop(place) {
+    const pk = pickInfo();
+    if (!pk) return;
+    const c = selCard();
+    if (place.type !== 'reserve' && isRest(c)) {refuse(c);return;}
+    const result = placeResult(pk, place);
+    if (!result) return;
+    S.row = result.row;S.reserve = result.reserve;S.moving = false;S.melting = false;S.msg = '';
+    S.sel = result.kind === 'reserve' ? {from: 'reserve', index: 0} : {from: 'row', index: result.at};
+    const res = resultText(S.row);
+    const what = result.kind === 'reserve' ? `${nameOf(c)} moved to the Reserve.`
+      : result.kind === 'swap' ? `${nameOf(c)} swapped with ${nameOf(result.out)}: ${nameOf(c)} is in place ${result.at + 1}, ${nameOf(result.out)} is in the Reserve.`
+      : `${nameOf(c)} moved to place ${result.at + 1}.`;
+    render(`[data-card="${refOf(S.sel)}"]`);
+    announce(`${what} ${res}.`);
+    if (!reduced.matches) document.querySelector(`[data-card="${refOf(S.sel)}"]`)?.animate([{transform: 'translateY(-5px)'}, {transform: 'none'}], {duration: 200, easing: 'steps(3,end)'});
+  }
+  function refuse(c) {
+    S.msg = `${nameOf(c)} is a Rest card: it works from the Reserve, not the row`;S.msgTone = 'dk1-msg-rest';
+    render();
+    announce(`${nameOf(c)} can't go in your row. Rest cards work from the Reserve.`);
+    S.msg = '';S.msgTone = '';
+    const node = document.querySelector('.dk-picked');
+    if (node && !reduced.matches) node.animate([{transform: 'translateX(0)'}, {transform: 'translateX(-4px)'}, {transform: 'translateX(4px)'}, {transform: 'translateX(0)'}], {duration: 240, easing: 'steps(4,end)'});
+  }
+  function askMelt() {
+    const c = selCard();
+    if (!c) return;
+    S.moving = false;S.melting = true;S.msg = '';
+    render('#dk1-keep');
+    announce(`Melt ${nameOf(c)}? You get ${getCardMeltValue(c)} Stored Sparks. It is gone for good.`);
+    $('dk1-keep')?.focus({preventScroll: true});
+  }
+  function keepCard() {
+    S.melting = false;render('#dk1-melt');
+    announce(`Kept ${nameOf(selCard())}.`);
+    $('dk1-melt')?.focus({preventScroll: true});
+  }
+  function confirmMelt() {
+    const sel = S.sel, c = selCard();
+    if (!sel || !c) return;
+    const value = getCardMeltValue(c), was = S.wallet;
+    if (sel.from === 'row') S.row[sel.index] = null; else S.reserve.splice(sel.index, 1);
+    S.wallet += value;S.melting = false;S.moving = false;
+    S.sel = sel.from === 'reserve' && S.reserve.length ? {from: 'reserve', index: Math.min(sel.index, S.reserve.length - 1)} : null;
+    S.msg = `Melted ${nameOf(c)} · +${value} Stored Sparks`;S.msgTone = 'dk1-msg-receipt';
+    render('#dk1-melt');
+    announce(`Melted ${nameOf(c)}. Plus ${value} Stored Sparks: ${was} to ${S.wallet}. ${resultText(S.row)}.`);
+    if (!reduced.matches) $('dk-wallet').animate([{transform: 'scale(1.12)'}, {transform: 'none'}], {duration: 260, easing: 'steps(4,end)'});
+  }
+
+  // ── Input: tap, keyboard, drag ─────────────────────────────────────────────
+  function activate(node) {
+    if (S.melting) return;
+    const cardRef = node.dataset.card, placeRef = node.dataset.place, pk = pickInfo();
+    if (pk) {
+      if (cardRef && cardRef === refOf(pk)) {cancelMove();return;}
+      if (placeRef) {
+        const place = placeFromKey(placeRef);
+        if (targets11.some(t => placeKey(t.place) === placeRef)) {drop(place);return;}
+        if (place.type !== 'reserve' && isRest(movingCard())) {refuse(movingCard());return;}
+      }
+      if (cardRef) {const [from, i] = cardRef.split('-');select(from, Number(i));}
+      return;
+    }
+    if (cardRef) {const [from, i] = cardRef.split('-');select(from, Number(i));return;}
+    if (placeRef?.startsWith('slot-')) {
+      S.msg = 'Select a card, then Move it here';S.msgTone = 'dk1-msg-hint';render();S.msg = '';
+      announce('This place is empty. Select a card, then choose Move.');
+    }
+  }
+  let suppressClick = false;
+  sheet.addEventListener('click', event => {
+    if (suppressClick) {suppressClick = false;return;}
+    const filter = event.target.closest('[data-filter]');
+    if (filter) {
+      S.filter = filter.dataset.filter;render(`[data-filter="${S.filter}"]`);
+      announce(`${S.filter === 'all' ? 'All cards' : RARITY_WORD[S.filter]}: ${countOf(S.filter)} in Reserve.`);return;
+    }
+    const node = event.target.closest('[data-card],[data-place]');
+    if (node && !node.disabled) activate(node);
+  });
+  $('dk1-done').addEventListener('click', () => {S.msg = 'In the game, Done returns to where you opened the Deck';S.msgTone = 'dk1-msg-hint';render();S.msg = '';announce('Done returns to where you opened the Deck.');});
+  $('dk1-workshop').addEventListener('click', () => {S.msg = 'The Workshop button appears only at Rest';S.msgTone = 'dk1-msg-hint';render();S.msg = '';announce('The Workshop appears only at Rest. It opens Forge, Improve and Evolve.');});
+
+  document.addEventListener('keydown', event => {
+    if (S.melting) {if (event.key === 'Escape') {event.preventDefault();keepCard();}return;}
+    if (!S.moving) return;
+    if (event.key === 'Escape') {event.preventDefault();cancelMove();return;}
+    if (!['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'].includes(event.key)) return;
+    const nodes = [document.querySelector(`[data-card="${refOf(S.sel)}"]`), ...targets11.map(t => document.querySelector(`[data-place="${placeKey(t.place)}"]`))].filter(Boolean);
+    if (nodes.length < 2) return;
+    event.preventDefault();
+    const at = nodes.indexOf(document.activeElement.closest('[data-card],[data-place]'));
+    const step = event.key === 'ArrowLeft' || event.key === 'ArrowUp' ? -1 : 1;
+    const next = nodes[((at < 0 ? 0 : at) + step + nodes.length) % nodes.length];
+    next.focus();next.scrollIntoView?.({block: 'nearest', inline: 'nearest'});
+  });
+
+  // Drag: a card still moves directly. It selects, starts a move, and follows the pointer.
+  let drag = null;
+  sheet.addEventListener('pointerdown', event => {
+    const node = event.target.closest('[data-card]');
+    if (!node || !node.dataset.card || event.button !== 0 || S.melting) return;
+    drag = {node, ref: node.dataset.card, x: event.clientX, y: event.clientY, id: event.pointerId, moved: false, ghost: null};
+  });
+  window.addEventListener('pointermove', event => {
+    if (!drag || event.pointerId !== drag.id) return;
+    const dx = event.clientX - drag.x, dy = event.clientY - drag.y;
+    if (!drag.moved && Math.hypot(dx, dy) < 10) return;
+    if (!drag.moved) {
+      drag.moved = true;
+      const [from, i] = drag.ref.split('-');
+      if (!S.moving || refOf(S.sel) !== drag.ref) {S.sel = {from, index: Number(i)};S.msg = '';startMove();}
+      const source = document.querySelector(`[data-card="${drag.ref}"]`);
+      const box = source.getBoundingClientRect();
+      const ghost = source.querySelector('.dc').cloneNode(true);
+      ghost.classList.add('dk-ghost');ghost.style.width = `${Math.round(box.width)}px`;
+      drag.ghost = document.createElement('div');drag.ghost.className = 'dk-ghost-wrap';drag.ghost.append(ghost);
+      drag.offset = {x: drag.x - box.left, y: drag.y - box.top};
+      document.body.append(drag.ghost);
+      event.preventDefault();
+    }
+    drag.ghost.style.transform = `translate(${Math.round(event.clientX - drag.offset.x)}px,${Math.round(event.clientY - drag.offset.y)}px)`;
+    const over = document.elementsFromPoint(event.clientX, event.clientY).map(el => el.closest?.('[data-place]')).find(Boolean);
+    document.querySelectorAll('.dk-over').forEach(el => el.classList.remove('dk-over'));
+    if (over && targets11.some(t => placeKey(t.place) === over.dataset.place)) (over.closest('.dk1-slot') || over.closest('.dk1-grid') || over).classList.add('dk-over');
+  });
+  const endDrag = event => {
+    if (!drag || event.pointerId !== drag.id) return;
+    const {moved, ghost} = drag;drag = null;
+    if (!moved) return;
+    suppressClick = true;setTimeout(() => {suppressClick = false;}, 0);
+    ghost?.remove();
+    document.querySelectorAll('.dk-over').forEach(el => el.classList.remove('dk-over'));
+    if (event.type !== 'pointerup') {cancelMove();return;}
+    const over = document.elementsFromPoint(event.clientX, event.clientY).map(el => el.closest?.('[data-place]')).find(Boolean);
+    const key = over?.dataset.place;
+    if (key && targets11.some(t => placeKey(t.place) === key)) drop(placeFromKey(key));
+    else if (key && key !== 'reserve' && isRest(movingCard())) refuse(movingCard());
+  };
+  window.addEventListener('pointerup', endDrag);
+  window.addEventListener('pointercancel', endDrag);
+
+  render();
+  announce(`Deck. ${nameOf(selCard())} selected. ${RARITY_WORD[rarityOf(selCard())]}.`);
+  window.deck = {state, solve, resultText, placeResult, targetsFor, cardLines, get targets() {return targets11;}, countOf};
+}
+
+if (V11) runV11();
 document.documentElement.dataset.ready = 'true';

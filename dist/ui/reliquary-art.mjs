@@ -1,5 +1,8 @@
 // Physical display furniture for Collection and the shared UI gallery. All
 // geometry is authored on a small integer grid to match the in-game objects.
+// Backdrop contract with ui/reliquary.css: open shelf rows are y 13-104 and
+// 126-218; planks are 104-120 and 218-234; columns split x 19-341 in thirds,
+// so the lower mortar seams (x 125, 233) fall between niches, never under labels.
 export function reliquaryBackdropMarkup(){
  return `<svg class="reliquary-backdrop" viewBox="0 0 360 240" preserveAspectRatio="none" aria-hidden="true" shape-rendering="crispEdges" focusable="false">
  <path fill="#080f12" d="M5 4h350v232H5z"/>
@@ -7,7 +10,7 @@ export function reliquaryBackdropMarkup(){
  <path fill="#39403a" d="M15 7h330v3H15zM14 12h3v214h-3zM343 12h3v214h-3z"/>
  <path fill="#1b2424" d="M19 13h322v100H19zM19 126h322v100H19z"/>
  <path fill="#333a32" d="M20 16h92v2H20zM117 16h110v2H117zM233 16h107v2H233zM20 129h92v2H20zM117 129h110v2H117zM233 129h107v2H233z"/>
- <path fill="#101a1a" d="M20 58h320v2H20zM20 172h320v2H20zM69 18h2v40h-2zM186 18h2v40h-2zM295 18h2v40h-2zM129 60h2v45h-2zM245 60h2v45h-2zM68 130h2v42h-2zM187 130h2v42h-2zM295 130h2v42h-2zM128 174h2v43h-2zM246 174h2v43h-2z"/>
+ <path fill="#101a1a" d="M20 40h320v2H20zM20 153h320v2H20zM69 18h2v22h-2zM186 18h2v22h-2zM295 18h2v22h-2zM125 42h2v62h-2zM233 42h2v62h-2zM68 131h2v22h-2zM187 131h2v22h-2zM295 131h2v22h-2zM125 155h2v63h-2zM233 155h2v63h-2z"/>
  <path fill="#545247" d="M7 104h346v4H7zM7 218h346v4H7zM4 0h352v4H4z"/>
  <path fill="#342c24" d="M7 108h346v12H7zM7 222h346v12H7z"/>
  <path fill="#756750" d="M11 108h338v2H11zM11 222h338v2H11z"/>

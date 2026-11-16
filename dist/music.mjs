@@ -1,5 +1,6 @@
 // Original, synchronized seven-minute lo-fi stems. Gains and a shared varispeed
 // transport respond to flight without audio graph allocation or simulation changes.
+import {createLevelStore,levelGain} from './sound-level.mjs?v=guide-clarity-1';
 const TRACKS=['./assets/audio/lantern-drift.mp3','./assets/audio/lantern-pulse.mp3','./assets/audio/lantern-storm.mp3'];
 const unit=n=>Math.max(0,Math.min(1,Number(n)||0));
 export function musicReactivity(s){
@@ -25,12 +26,15 @@ export function musicMix(mode='menu',danger=0){
  return [.25,.19,0];
 }
 export function createMusic({storage=globalThis.localStorage,document=globalThis.document,AudioClass=globalThis.Audio,schedule=globalThis.setInterval,cancel=globalThis.clearInterval}={}){
- const key='wispbound-music-enabled';let enabled=true,unlocked=false,players=[],timer=null,mode='menu',danger=0;
+ const key='wispbound-music-enabled';let unlocked=false,players=[],timer=null,mode='menu',danger=0;
  let targets=musicMix(mode),destroyed=false,holeTarget=0,pulseTarget=0,focusTarget=0,hole=0,pulse=0,focus=0,rate=1;
  const levels=[0,0,0],pendingPlays=new Map();
  const clearReaction=()=>{holeTarget=0;pulseTarget=0;focusTarget=0;};
- try{enabled=storage.getItem(key)!=='false'}catch{}
- const canPlay=()=>enabled&&unlocked&&!document.hidden&&!destroyed&&rate>0;
+ // Five volume steps (0 off to 4); the legacy on/off key stays in step for older readers.
+ const volume=createLevelStore({storage,levelKey:'wispbound-music-level',lastKey:'wispbound-music-last',legacyOff:()=>storage.getItem(key)==='false',onWrite:level=>storage.setItem(key,String(level>0))});
+ let masterGain=levelGain(volume.level);
+ const enabled=()=>volume.level>0;
+ const canPlay=()=>enabled()&&unlocked&&!document.hidden&&!destroyed&&rate>0;
  const stop=()=>{pendingPlays.clear();for(const p of players)p.pause();if(timer!==null){cancel(timer);timer=null;}};
  const tick=()=>{
   if(!canPlay())return;
@@ -45,7 +49,7 @@ export function createMusic({storage=globalThis.localStorage,document=globalThis
    // trading some bass/beat gain for sparkle rather than simply getting louder.
    const gain=i===0?targets[i]*(1-hole*.12)+pulse*.045:i===1?targets[i]*(1-hole*.24-pulse*.2):targets[i]*(1-hole*.4)+pulse*.055;
    levels[i]+=(gain-levels[i])*.055;
-   const p=players[i],next=levels[i]*duck;
+   const p=players[i],next=levels[i]*duck*masterGain;
    if(Math.abs(next-p.volume)>.00015)p.volume=Math.max(0,Math.min(1,next));
   }
  };
@@ -79,16 +83,18 @@ export function createMusic({storage=globalThis.localStorage,document=globalThis
   if(wasStopped)play();
  };
  const scene=(next,pressure=0)=>{mode=next;danger=Math.round(unit(pressure)*10)/10;targets=musicMix(mode,danger);clearReaction();};
- const gesture=e=>{if(e.target?.closest?.('[data-action="music"]'))return;unlocked=true;play();};
+ const gesture=e=>{if(e.target?.closest?.('[data-action="music"],[data-level-mute="music"],[data-level-bars="music"]'))return;unlocked=true;play();};
  const visibility=()=>{if(document.hidden){clearReaction();stop();}else play();};
  document.addEventListener('pointerdown',gesture,{capture:true,passive:true});
  document.addEventListener('keydown',gesture,{capture:true});
  document.addEventListener('visibilitychange',visibility);
- return {get enabled(){return enabled},get mode(){return mode},
+ const applyLevel=()=>{masterGain=levelGain(volume.level);unlocked=true;if(enabled()){tick();play();}else{clearReaction();stop();}};
+ return {get enabled(){return enabled()},get level(){return volume.level},get lastLevel(){return volume.last},get mode(){return mode},
   getTransport(){return {time:Number(players[0]?.currentTime)||0,rate,bpm:88};},
   setScene(next,pressure=0){if(destroyed)return;scene(next,pressure);if(next==='pause')setRate(0);else if(!['flight','boss','dream'].includes(next))setRate(1);},
-  setFlight(s){if(destroyed)return;scene(s.dream?.mode==='record'?'dream':s.dying?'loss':s.completing?'clear':s.paused?'pause':s.boss?'boss':'flight',Math.max(Math.min(1,(s.blackHole?.rate||0)/20),Math.max(0,1-(s.flame||0)/Math.max(1,(s.maxFlame||100)*.3)),s.boss?Math.min(1,(s.boss.phase||1)/3):0));setRate(Number.isFinite(s.worldRate)?s.worldRate:s.paused||s.tutorialAwaitingLift||s.dying||s.completing||s.finished?0:1);if(enabled&&!document.hidden){const reaction=musicReactivity(s);holeTarget=reaction.hole;pulseTarget=reaction.pulse;if(mode==='flight'||mode==='boss')focusTarget=unit(s.audioFocus);}},
-  setEnabled(value){if(destroyed)return;enabled=!!value;unlocked=true;try{storage.setItem(key,String(enabled))}catch{}if(enabled)play();else{clearReaction();stop();}},
+  setFlight(s){if(destroyed)return;scene(s.dream?.mode==='record'?'dream':s.dying?'loss':s.completing?'clear':s.paused?'pause':s.boss?'boss':'flight',Math.max(Math.min(1,(s.blackHole?.rate||0)/20),Math.max(0,1-(s.flame||0)/Math.max(1,(s.maxFlame||100)*.3)),s.boss?Math.min(1,(s.boss.phase||1)/3):0));setRate(Number.isFinite(s.worldRate)?s.worldRate:s.paused||s.tutorialAwaitingLift||s.dying||s.completing||s.finished?0:1);if(enabled()&&!document.hidden){const reaction=musicReactivity(s);holeTarget=reaction.hole;pulseTarget=reaction.pulse;if(mode==='flight'||mode==='boss')focusTarget=unit(s.audioFocus);}},
+  setEnabled(value){if(destroyed)return;volume.setEnabled(!!value);applyLevel();},
+  setLevel(value){if(destroyed)return;volume.set(value);applyLevel();},
   destroy(){destroyed=true;stop();document.removeEventListener('pointerdown',gesture,true);document.removeEventListener('keydown',gesture,true);document.removeEventListener('visibilitychange',visibility)}
  };
 }

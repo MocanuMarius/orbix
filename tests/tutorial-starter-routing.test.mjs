@@ -84,7 +84,7 @@ for (const cards of [true, false]) {
 
   test(`${mode}: fresh profile New Game says practice comes first, skip once reaches a working starter`, () => {
     const storage = memory(), g = boot(storage, cards);
-    assert.match(g.home(), /NEW GAME<small>First Light practice first/);
+    assert.match(g.home(), /NEW GAME<\/b><small>First Light practice first/);
     g.newGame();
     assert.equal(g.state.run.isTutorial, true); assert.deepEqual(g.state.run.tutorialContinuation, { difficulty: 1 });
     assert.equal(g.ui.sheet, null, 'no gift sheet inside practice');
@@ -156,7 +156,7 @@ for (const cards of [true, false]) {
     assert.equal(g.state.profile.tutorialComplete, true);
     assert.ok(giftSheet(g.ui, cards)); g.pick(1);
     assert.equal(g.state.run.isTutorial, undefined); assert.ok(g.state.run.startingGiftId);
-    g = boot(storage, cards); assert.match(g.home(), /NEW GAME<small>Choose a starting gift/);
+    g = boot(storage, cards); assert.match(g.home(), /NEW GAME<\/b><small>Choose a starting gift/);
   });
 
   test(`${mode}: E - Tutorial from Home without a New Game ends with Back to your game`, () => {

@@ -1502,6 +1502,11 @@ export class WispFlight {
     this.fx?.setMuted(this.muted);
   }
 
+  // Player FX level (0-4) mapped to a gain by sound-level.mjs; level 0 also mutes.
+  setFxGain(gain) {
+    this.fx?.setVolume?.(gain);
+  }
+
   // Called by the input surface, never by a simulation or ambient update.
   unlockAudio() { if (!this.muted && !this.destroyed) return this.fx?.unlock(); }
 
@@ -2875,6 +2880,10 @@ export class WispFlight {
       drawPickup(c,x,ember.y,{kind:pickupKind(ember),time:this.captureTime,phase:ember.phase,
         scale:sparkArtScale(ember,this.height),massTier:sparkMass(ember),reducedMotion:this.reducedMotion,
         handling});
+      if(ember.harvestFlashUntil>this.time){
+        c.save();c.strokeStyle='#edffd0';c.globalAlpha=Math.min(1,(ember.harvestFlashUntil-this.time)*3);c.lineWidth=3;
+        c.beginPath();c.arc(x,ember.y,margin+5,0,Math.PI*2);c.stroke();c.restore();
+      }
     }
   }
 

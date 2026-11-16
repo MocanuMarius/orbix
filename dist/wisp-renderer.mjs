@@ -729,6 +729,13 @@ export class WispFlightView {
       this.drawPacket(x, y, { kind: pickupKind(ember), time: e.captureTime ?? t, phase: ember.phase, reducedMotion: e.reducedMotion,
         scale: s*sparkArtScale(ember,e.height), massTier:sparkMass(ember),
         handling });
+      // The real successful Harvest crossing owns this brief, stationary cue.
+      // Draw in the same pixel buffer as the pickup, before ordinary fog masking.
+      if(ember.harvestFlashUntil>e.time){
+        const c=this.bufferContext;
+        c.save();c.strokeStyle='#edffd0';c.globalAlpha=Math.min(1,(ember.harvestFlashUntil-e.time)*3);c.lineWidth=Math.max(1,3*s);
+        c.beginPath();c.arc(x,y,margin+5*s,0,Math.PI*2);c.stroke();c.restore();
+      }
     }
   }
 
