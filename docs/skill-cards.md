@@ -1,6 +1,6 @@
 # Skills as cards
 
-**Cards default · `skills-cards-3` · 16 November 2026.** Open the [main game](https://mocanumarius.github.io/orbix/) and choose **New Game**, **Continue**, **Tutorial** or **Settings**. The original skill-book game is under **Settings → Advanced → Legacy skills override**, with its own separate save. Existing Cards saves and starter seeds remain in use. The [older card launcher](https://mocanumarius.github.io/orbix/cards.html) still updates installed games before opening the compatible `?cards=1` flow. First Light adds the Lift Guide loan during its Lift lesson. Practice rewards cannot enter the real card run. The [sample Deck](https://mocanumarius.github.io/orbix/card-workbench.html) resets on reload without changing either saved journey.
+**Cards default · `flight-120-1` · 16 November 2026.** Open the [main game](https://mocanumarius.github.io/orbix/) and choose **New Game**, **Continue**, **Tutorial** or **Settings**. The original skill-book game is under **Settings → Advanced → Legacy skills override**, with its own separate save. Existing Cards saves and starter seeds remain in use. The [older card launcher](https://mocanumarius.github.io/orbix/cards.html) still updates installed games before opening the compatible `?cards=1` flow. First Light adds the Lift Guide loan during its Lift lesson. Practice rewards cannot enter the real card run. The [sample Deck](https://mocanumarius.github.io/orbix/card-workbench.html) resets on reload without changing either saved journey.
 
 The rules below describe the implemented pilot unless explicitly marked as a follow-up. Prices, payout values, odds and caps are first-playtest starting points, not claims of solved balance. This supersedes the two-milestone, two-pick suggestion and the earlier replacement-Melt flow. The [Collector art comparison and tow preview](https://mocanumarius.github.io/orbix/collector-art.html#tow) remain available; the two-ink Collector is the current default.
 
@@ -145,7 +145,7 @@ For one payout card, a wave crossing three eligible Sparks with room in the mete
 
 ## What the pilot still needs to answer
 
-Compare with the skill book at **equal economy on the same seed**, across open-middle and riskier-bank routes. Require neither Proximity nor Dream or expensive granted skills. Prevent practice carryover, generated loops and Dream/retry farming.
+The earlier **same-seed, equal-economy comparison with the skill book** is optional historical study work. The later decision makes Cards the primary game and keeps the separate legacy book under Settings → Advanced; legacy-book balance is no longer a release requirement. Evaluate current Cards across open-middle and riskier-bank routes without requiring Proximity, Dream or expensive granted skills. Prevent practice carryover, generated loops and Dream/retry farming.
 
 Record actual flights, card drops, equips, Melts, improvement and forge spending, reordering, direct versus Collector pickups, bank time, routes, survival and camp choices. Check that every playable route offers both optional Rest forks and that taking the first preserves access to the second. Ask why players changed flight line and whether they predicted combinations and charge costs. Do the choices add readable archetypes beyond the book, and can they fit comfortably on a phone?
 

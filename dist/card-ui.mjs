@@ -1,7 +1,7 @@
-import { cardTermTextMarkup } from "./card-terms.mjs?v=skills-cards-3";
-import { getCardRuleBands } from "./card-rule-bands.mjs?v=skills-cards-3";
-import { getEquippedCardStatuses, cardStatusText } from "./card-status.mjs?v=skills-cards-3";
-import { cardArt } from "./card-art.mjs?v=skills-cards-3";
+import { cardTermTextMarkup } from "./card-terms.mjs?v=flight-120-1";
+import { getCardRuleBands } from "./card-rule-bands.mjs?v=flight-120-1";
+import { getEquippedCardStatuses, cardStatusText } from "./card-status.mjs?v=flight-120-1";
+import { cardArt } from "./card-art.mjs?v=flight-120-1";
 import {
   getMountedCards,
   getOwnedCards,
@@ -11,19 +11,19 @@ import {
   getCardForgePreview,
   getCardCampPreview,
   getSkillWallet,
-} from "./model.mjs?v=skills-cards-3";
-import { resourceSymbol } from "./game-symbols.mjs?v=skills-cards-3";
-import { choiceScene } from "./choice-art.mjs?v=skills-cards-3";
-import { livesMarkup } from "./lives.mjs?v=skills-cards-3";
-import { getGlowCapacity, formatGlow } from "./vitality.mjs?v=skills-cards-3";
-import { mapStopIconMarkup } from "./map-guide.mjs?v=skills-cards-3";
+} from "./model.mjs?v=flight-120-1";
+import { resourceSymbol } from "./game-symbols.mjs?v=flight-120-1";
+import { choiceScene } from "./choice-art.mjs?v=flight-120-1";
+import { livesMarkup } from "./lives.mjs?v=flight-120-1";
+import { getGlowCapacity, formatGlow } from "./vitality.mjs?v=flight-120-1";
+import { mapStopIconMarkup } from "./map-guide.mjs?v=flight-120-1";
 import {
   createCardExecution,
   executeCardBodyPickup,
   describeSkillCard,
   makeSkillCard,
   SKILL_CARDS,
-} from "./skill-cards.mjs?v=skills-cards-3";
+} from "./skill-cards.mjs?v=flight-120-1";
 
 const esc = (v) =>
   String(v ?? "").replace(
@@ -66,7 +66,7 @@ function flightPackingReceipt(run, reward) {
     ? ` · Tight Packing +${bonus} Stored Sparks`
     : "";
 }
-export { cardArt } from "./card-art.mjs?v=skills-cards-3";
+export { cardArt } from "./card-art.mjs?v=flight-120-1";
 export function effectMarkup(text) {
   return esc(text).replace(/([+−]?\d+(?:\.\d+)?%?)/g, '<b class="card-number">$1</b>');
 }

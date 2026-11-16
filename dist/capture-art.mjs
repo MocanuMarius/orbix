@@ -1,9 +1,9 @@
-import {drawAbsorbingSpark} from './tidal-light.mjs?v=skills-cards-3';
-import {getPickupSpec, pickupShellRadius} from './pickups.mjs?v=skills-cards-3';
-import {drawPickup} from './pickup-art.mjs?v=skills-cards-3';
-import {drawShellArcs} from './shell-arcs.mjs?v=skills-cards-3';
-import {DEFAULT_CAPTURE_STYLE} from './capture-styles.mjs?v=skills-cards-3';
-import {COLLECTOR_RING} from './pickup-handling-cue.mjs?v=skills-cards-3';
+import {drawAbsorbingSpark} from './tidal-light.mjs?v=flight-120-1';
+import {getPickupSpec, pickupShellRadius} from './pickups.mjs?v=flight-120-1';
+import {drawPickup} from './pickup-art.mjs?v=flight-120-1';
+import {drawShellArcs} from './shell-arcs.mjs?v=flight-120-1';
+import {DEFAULT_CAPTURE_STYLE} from './capture-styles.mjs?v=flight-120-1';
+import {COLLECTOR_RING} from './pickup-handling-cue.mjs?v=flight-120-1';
 
 const TAU = Math.PI * 2;
 const clamp = value => Math.max(0, Math.min(1, value));

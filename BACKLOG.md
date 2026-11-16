@@ -1,3 +1,28 @@
+# Current backlog status — Cards default · 16 November 2026
+
+Current release: **`flight-120-1`**. [Performance verification](docs/performance-120.md) · [Cards verification](docs/skills-cards-release.md) · [Current card rules](docs/skill-cards.md) · [Item-by-item audit](docs/backlog-current.md).
+
+The entries below are chronological release snapshots. Their old “current” labels, checked boxes and pending notes describe those snapshots; later decisions take precedence. In particular, the present game has 71 cards, an owned Deck editable during safely paused flight, a guaranteed meltable Lift Guide, independent repeatable Forge, copy-compatible numeric Field Impulse duration and a two-ink Collector. The original skill book stays under Settings → Advanced with a separate save.
+
+| Surviving item | Current disposition |
+| --- | --- |
+| Cards entry, Deck ownership, card rules, status/help, Rest, Guide, Field Impulse, Rhythm and Black Hole clock | Implemented; current source, focused tests and actual normal-entry checks are identified in the [audit](docs/backlog-current.md). |
+| Incorrect current-release headers and checkpoint-only Deck wording | Corrected in this documentation pass; archive entries remain intact. |
+| 60%-fuel/progression implementation and the earlier excluded supply-pruning experiment | Superseded by the completed [Spark progression release](docs/spark-progression-release.md), not a missing implementation batch. |
+| Collector Guard and learned targeting preferences | Implemented after the earlier planning note; see `dist/model.mjs`, `dist/collector-preferences.mjs` and the archived Spark choices entry. |
+| Performance toward 120 FPS | Implemented 120 Hz interpolation/paint cap with unchanged 60 Hz physics and graphics. Matched desktop Chrome scenarios reached about 118–120 actual paint calls/s; [measured scope and retained entry/retry hitches](docs/performance-120.md). Physical phone evidence remains open. |
+| Physical Pixel 10 timing, reaction assumptions and human Cards difficulty/choice feedback | Evidence still unavailable. Desktop/mobile-emulation scenarios do not establish these results. |
+| Global pixelation/art-grain alternatives | Preview only; awaiting the player's visual choice. Keep the approved game's art defaults. |
+| Cards versus legacy-book equal-economy comparison | Earlier optional study, superseded as a release requirement by the decision to make Cards primary and retain the book only as an Advanced override. |
+| Bankrunner/Glider, full Night Atlas replacement and other companions | Future archetypes, an unapproved proposal and deferred companions respectively; do not invent implementation requirements from their old notes. |
+| Item-by-item legacy skill ratings | Paused at Search Spark; resume only when requested. |
+
+The baseline correctness audit passed 114 focused tests and real Chrome entry/save/upgrade checks. It found no new runtime blocker in those checked scenarios. This is a scoped result, not a full-suite, physical-phone or all-seed balance claim. The final `flight-120-1` package passed 159 focused tests, the Dream replay probe and 445 JavaScript syntax checks; the actual prior installed `skills-cards-3` worker upgraded while preserving both saves byte for byte. See [the performance report](docs/performance-120.md) for scope and remaining hitches.
+
+---
+
+## Historical backlog snapshots
+
 # Skills as cards pilot — 15 November 2026
 
 Current release: `skills-cards-1`.

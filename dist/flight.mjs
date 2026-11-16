@@ -1,89 +1,89 @@
-import {prepareEnvironmentArt,drawNearLandscape,drawTerrainForeground,releaseTerrainForeground} from './authored-environment.mjs?v=skills-cards-3';
-import {castTerrainLight,releaseTerrainLight} from './terrain-light.mjs?v=skills-cards-3';
-import {drawTerrainEcology,drawHabitatBackdrop} from './terrain-ecology.mjs?v=skills-cards-3';
-import {drawCourseArt} from './authored-environment.mjs?v=skills-cards-3';
-import {drawTerrainBoundary,beginTerrainBoundaryFrame,endTerrainBoundaryFrame,releaseTerrainBoundaryFrame} from './terrain-boundary.mjs?v=skills-cards-3';
-import {getContactEdgePalette} from './contact-edge-palettes.mjs?v=skills-cards-3';
-import {prepareAtlasFlight,resizeAtlasFlight,ringBellwind,bellwindAcceleration,moonLightScale,drawAtlasFlight} from './atlas-flight.mjs?v=skills-cards-3';
-import {canShowFlightHint} from './flight-hint-safety.mjs?v=skills-cards-3';
-import {updateGlideRegeneration} from './glide-regeneration.mjs?v=skills-cards-3';
-import {drawGuardianPresence} from './guardian-presence.mjs?v=skills-cards-3';
-import { updateGuardian, resizeGuardian, placeGuardianFuel } from './guardian-effects.mjs?v=skills-cards-3';
-import { drawGuardianWarnings } from './guardian-art.mjs?v=skills-cards-3';
-import { drawShutters, resizeShutters } from './shutter-cone.mjs?v=skills-cards-3';
-import { inLanternRoom, installPassageLanterns, lanternField } from './lantern-layout.mjs?v=skills-cards-3';
-import {drawProximityMeter} from './proximity-meter.mjs?v=skills-cards-3';
-import {drawFourthBeat} from './fourth-beat-art.mjs?v=skills-cards-3';
-import {drawCollectorField} from './collector-field-art.mjs?v=skills-cards-3';
-import {activateFieldImpulse,fieldImpulseSpeed,fieldImpulseGravity,fieldImpulseVelocity,fieldImpulseStrength} from './collector-impulse.mjs?v=skills-cards-3';
-import {buildObjectivePlan,createFlightObjective,drawObjectiveMarks} from './flight-objectives.mjs?v=skills-cards-3';
-import {FlightProjection,LiftGuide,drawFlightProjection,drawLiftGuide} from './flight-projection.mjs?v=skills-cards-3';
-import {drawGlowSense} from './glow-sense.mjs?v=skills-cards-3';
-import {formatGlow} from './vitality.mjs?v=skills-cards-3';
-import {installRiskChains} from './risk-chains.mjs?v=skills-cards-3';
-import {installSparkField} from './spark-fields.mjs?v=skills-cards-3';
-import {drawFallWarning} from './fall-chain-art.mjs?v=skills-cards-3';
-import {EXTRA_COURSES} from './world-expansion.mjs?v=skills-cards-3';
-import {BIOME_COURSES} from './biome-courses.mjs?v=skills-cards-3';
-import {BiomeDynamics} from './biome-dynamics.mjs?v=skills-cards-3';
-import {condenseGlow,packExitReserve} from './condensed-glow.mjs?v=skills-cards-3';
-import {ensureGlowBudget,shapeExpeditionSupply,trimSurplusFuel} from './glow-budget.mjs?v=skills-cards-3';
-import {balanceSparkSupply} from './spark-supply.mjs?v=skills-cards-3';
-import {EdgingPulse} from './edging-pulse.mjs?v=skills-cards-3';
-import {SpacetimeTerrain} from './spacetime.mjs?v=skills-cards-3';
-import {isVowBodyPickup} from './contextual-events.mjs?v=skills-cards-3';
-import {FlightBoon} from './flight-boons.mjs?v=skills-cards-3';
-import {BlackHoles} from './black-holes.mjs?v=skills-cards-3';
-import {createFlightFX} from './reactive-fx.mjs?v=skills-cards-3';
-import {musicReactivity} from './music.mjs?v=skills-cards-3';
-import {LuminanceWaves,revealLuminanceWaves} from './luminance-waves.mjs?v=skills-cards-3';
-import {CardRhythm} from './card-rhythm.mjs?v=skills-cards-3';
-import {CARD_UNIT,CARD_ROW_EVENTS,createCardExecution,resolveCardRow,hasCardRowEvent,getCardCharges,getCardPackingBonus} from './skill-cards.mjs?v=skills-cards-3';
-import {drawWispBody,makeWispSprite,makeCompanionSprite,WISP_ART} from './companion-art.mjs?v=skills-cards-3';
-import {drawBlackHoles} from './black-hole-art.mjs?v=skills-cards-3';
-import {drawCapture, drawShellPuff, drawCarriedSpark,drawCollectorGrip} from './capture-art.mjs?v=skills-cards-3';
-import {drawShellArcs} from './shell-arcs.mjs?v=skills-cards-3';
-import {sparkBodyRadius,sparkArtScale,sparkMass} from './spark-size.mjs?v=skills-cards-3';
-import {captureMassDuration} from './tidal-light.mjs?v=skills-cards-3';
-import {readCaptureStyle} from './capture-styles.mjs?v=skills-cards-3';
+import {prepareEnvironmentArt,drawNearLandscape,drawTerrainForeground,releaseTerrainForeground} from './authored-environment.mjs?v=flight-120-1';
+import {castTerrainLight,releaseTerrainLight} from './terrain-light.mjs?v=flight-120-1';
+import {drawTerrainEcology,drawHabitatBackdrop} from './terrain-ecology.mjs?v=flight-120-1';
+import {drawCourseArt} from './authored-environment.mjs?v=flight-120-1';
+import {drawTerrainBoundary,beginTerrainBoundaryFrame,endTerrainBoundaryFrame,releaseTerrainBoundaryFrame} from './terrain-boundary.mjs?v=flight-120-1';
+import {getContactEdgePalette} from './contact-edge-palettes.mjs?v=flight-120-1';
+import {prepareAtlasFlight,resizeAtlasFlight,ringBellwind,bellwindAcceleration,moonLightScale,drawAtlasFlight} from './atlas-flight.mjs?v=flight-120-1';
+import {canShowFlightHint} from './flight-hint-safety.mjs?v=flight-120-1';
+import {updateGlideRegeneration} from './glide-regeneration.mjs?v=flight-120-1';
+import {drawGuardianPresence} from './guardian-presence.mjs?v=flight-120-1';
+import { updateGuardian, resizeGuardian, placeGuardianFuel } from './guardian-effects.mjs?v=flight-120-1';
+import { drawGuardianWarnings } from './guardian-art.mjs?v=flight-120-1';
+import { drawShutters, resizeShutters } from './shutter-cone.mjs?v=flight-120-1';
+import { inLanternRoom, installPassageLanterns, lanternField } from './lantern-layout.mjs?v=flight-120-1';
+import {drawProximityMeter} from './proximity-meter.mjs?v=flight-120-1';
+import {drawFourthBeat} from './fourth-beat-art.mjs?v=flight-120-1';
+import {drawCollectorField} from './collector-field-art.mjs?v=flight-120-1';
+import {activateFieldImpulse,fieldImpulseSpeed,fieldImpulseGravity,fieldImpulseVelocity,fieldImpulseStrength} from './collector-impulse.mjs?v=flight-120-1';
+import {buildObjectivePlan,createFlightObjective,drawObjectiveMarks} from './flight-objectives.mjs?v=flight-120-1';
+import {FlightProjection,LiftGuide,drawFlightProjection,drawLiftGuide} from './flight-projection.mjs?v=flight-120-1';
+import {drawGlowSense} from './glow-sense.mjs?v=flight-120-1';
+import {formatGlow} from './vitality.mjs?v=flight-120-1';
+import {installRiskChains} from './risk-chains.mjs?v=flight-120-1';
+import {installSparkField} from './spark-fields.mjs?v=flight-120-1';
+import {drawFallWarning} from './fall-chain-art.mjs?v=flight-120-1';
+import {EXTRA_COURSES} from './world-expansion.mjs?v=flight-120-1';
+import {BIOME_COURSES} from './biome-courses.mjs?v=flight-120-1';
+import {BiomeDynamics} from './biome-dynamics.mjs?v=flight-120-1';
+import {condenseGlow,packExitReserve} from './condensed-glow.mjs?v=flight-120-1';
+import {ensureGlowBudget,shapeExpeditionSupply,trimSurplusFuel} from './glow-budget.mjs?v=flight-120-1';
+import {balanceSparkSupply} from './spark-supply.mjs?v=flight-120-1';
+import {EdgingPulse} from './edging-pulse.mjs?v=flight-120-1';
+import {SpacetimeTerrain} from './spacetime.mjs?v=flight-120-1';
+import {isVowBodyPickup} from './contextual-events.mjs?v=flight-120-1';
+import {FlightBoon} from './flight-boons.mjs?v=flight-120-1';
+import {BlackHoles} from './black-holes.mjs?v=flight-120-1';
+import {createFlightFX} from './reactive-fx.mjs?v=flight-120-1';
+import {musicReactivity} from './music.mjs?v=flight-120-1';
+import {LuminanceWaves,revealLuminanceWaves} from './luminance-waves.mjs?v=flight-120-1';
+import {CardRhythm} from './card-rhythm.mjs?v=flight-120-1';
+import {CARD_UNIT,CARD_ROW_EVENTS,createCardExecution,resolveCardRow,hasCardRowEvent,getCardCharges,getCardPackingBonus} from './skill-cards.mjs?v=flight-120-1';
+import {drawWispBody,makeWispSprite,makeCompanionSprite,WISP_ART} from './companion-art.mjs?v=flight-120-1';
+import {drawBlackHoles} from './black-hole-art.mjs?v=flight-120-1';
+import {drawCapture, drawShellPuff, drawCarriedSpark,drawCollectorGrip} from './capture-art.mjs?v=flight-120-1';
+import {drawShellArcs} from './shell-arcs.mjs?v=flight-120-1';
+import {sparkBodyRadius,sparkArtScale,sparkMass} from './spark-size.mjs?v=flight-120-1';
+import {captureMassDuration} from './tidal-light.mjs?v=flight-120-1';
+import {readCaptureStyle} from './capture-styles.mjs?v=flight-120-1';
 /* Emberwing's self-contained canvas flight simulation and renderer. */
-import { glowPoints, FLAME_TUNING, LIGHT_PACKET_TUNING } from './vitality.mjs?v=skills-cards-3';
-import { flightEndDistance } from './flight-end.mjs?v=skills-cards-3';
-import {getExitLandmarkState,drawExitLandmark} from './exit-landmark.mjs?v=skills-cards-3';
-import { WispCompanion, wispHome } from './wisp.mjs?v=skills-cards-3';
-import { getAscentInfo } from './ascent.mjs?v=skills-cards-3';
-import { LEVEL_LENGTH, getLevelLengthScale } from './level-length.mjs?v=skills-cards-3';
-import { resolveLevelIdentity } from './level-catalog.mjs?v=skills-cards-3';
-import { DraftField, DRAFT_TUNING } from './drafts.mjs?v=skills-cards-3';
-import { normalizeCompanionRole, normalizeCompanionFleet, getCompanionAbility } from './companion-abilities.mjs?v=skills-cards-3';
-import { populateSceneProps, scenePropPolygons } from './scene-props.mjs?v=skills-cards-3';
-import { pickupKind, getPickupSpec, pickupContactRadius, canCompanionCollect, flashPowerupDuration } from './pickups.mjs?v=skills-cards-3';
-import { createFlashTether, stepFlashTether, drawFlashTether, flashLightGlow, FLASH_PULSE_INTERVAL } from './flash-tether.mjs?v=skills-cards-3';
-import { drawPickup, drawSparkSymbol } from './pickup-art.mjs?v=skills-cards-3';
-import {pickupHookAnchor} from './pickup-handling-cue.mjs?v=skills-cards-3';
-import { buildBossLayout, getBossState as bossState, drawBoss } from './boss.mjs?v=skills-cards-3';
-import { getAuthoredChallenge, finalizeFlightChallenges, installAuthoredDraftCrossings, FlightChallengeDirector } from './flight-challenges.mjs?v=skills-cards-3';
-import { installEncounterFamily } from './encounter-families.mjs?v=skills-cards-3';
-import { installFlightForks, resizeFlightForks } from './flight-forks.mjs?v=skills-cards-3';
-import { ArtifactEffects } from './artifact-effects.mjs?v=skills-cards-3';
-import {ActivationEvents} from './activation-events.mjs?v=skills-cards-3';
-import {fatalFlightPosition,drawLastGlimmer} from './last-glimmer.mjs?v=skills-cards-3';
-import { LIGHT_EXTENT,lightAttenuation,lightVisibility,createLightMaskCanvas,castFlightFlashLights,revealLanternWake,sceneRevealStrength,flashRangeStrength,pickupRevealHold,pickupRevealAt,renderLightState,lightDreamScenery,companionTerrainLight } from './light-field.mjs?v=skills-cards-3';
+import { glowPoints, FLAME_TUNING, LIGHT_PACKET_TUNING } from './vitality.mjs?v=flight-120-1';
+import { flightEndDistance } from './flight-end.mjs?v=flight-120-1';
+import {getExitLandmarkState,drawExitLandmark} from './exit-landmark.mjs?v=flight-120-1';
+import { WispCompanion, wispHome } from './wisp.mjs?v=flight-120-1';
+import { getAscentInfo } from './ascent.mjs?v=flight-120-1';
+import { LEVEL_LENGTH, getLevelLengthScale } from './level-length.mjs?v=flight-120-1';
+import { resolveLevelIdentity } from './level-catalog.mjs?v=flight-120-1';
+import { DraftField, DRAFT_TUNING } from './drafts.mjs?v=flight-120-1';
+import { normalizeCompanionRole, normalizeCompanionFleet, getCompanionAbility } from './companion-abilities.mjs?v=flight-120-1';
+import { populateSceneProps, scenePropPolygons } from './scene-props.mjs?v=flight-120-1';
+import { pickupKind, getPickupSpec, pickupContactRadius, canCompanionCollect, flashPowerupDuration } from './pickups.mjs?v=flight-120-1';
+import { createFlashTether, stepFlashTether, drawFlashTether, flashLightGlow, FLASH_PULSE_INTERVAL } from './flash-tether.mjs?v=flight-120-1';
+import { drawPickup, drawSparkSymbol } from './pickup-art.mjs?v=flight-120-1';
+import {pickupHookAnchor} from './pickup-handling-cue.mjs?v=flight-120-1';
+import { buildBossLayout, getBossState as bossState, drawBoss } from './boss.mjs?v=flight-120-1';
+import { getAuthoredChallenge, finalizeFlightChallenges, installAuthoredDraftCrossings, FlightChallengeDirector } from './flight-challenges.mjs?v=flight-120-1';
+import { installEncounterFamily } from './encounter-families.mjs?v=flight-120-1';
+import { installFlightForks, resizeFlightForks } from './flight-forks.mjs?v=flight-120-1';
+import { ArtifactEffects } from './artifact-effects.mjs?v=flight-120-1';
+import {ActivationEvents} from './activation-events.mjs?v=flight-120-1';
+import {fatalFlightPosition,drawLastGlimmer} from './last-glimmer.mjs?v=flight-120-1';
+import { LIGHT_EXTENT,lightAttenuation,lightVisibility,createLightMaskCanvas,castFlightFlashLights,revealLanternWake,sceneRevealStrength,flashRangeStrength,pickupRevealHold,pickupRevealAt,renderLightState,lightDreamScenery,companionTerrainLight } from './light-field.mjs?v=flight-120-1';
 import { createTutorialState, buildTutorialLayout, recordTutorialPickup,
-  updateTutorial, updateTutorialCompanion, getTutorialHint, tuneTutorialGuardian, configureTutorialScene } from './tutorial.mjs?v=skills-cards-3';
-export { FLAME_TUNING } from './vitality.mjs?v=skills-cards-3';
+  updateTutorial, updateTutorialCompanion, getTutorialHint, tuneTutorialGuardian, configureTutorialScene } from './tutorial.mjs?v=flight-120-1';
+export { FLAME_TUNING } from './vitality.mjs?v=flight-120-1';
 const TAU = Math.PI * 2;
 const STEP = 1 / 60;
 const FALLBACK_WISP_RADIUS = WISP_ART.worldRadius/.85;
 const WISP_BODY_SCALE = .85;
 const COMPANION_ORBIT_SPEED = {protector:1.3,leveler:1.7,swift:3.4,seer:.8,kindler:2.2};
-const RENDER_INTERVAL_MS = 1000 / 60;
+const RENDER_INTERVAL_MS = 1000 / 120;
 const RESUME_RAMP_SECONDS = 3;
 const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
 const lerp = (a, b, t) => a + (b - a) * t;
 export const FLIGHT_TUNING = Object.freeze({ gravity: 300, flapImpulse: 205,
   forwardSpeed: 154, terminalFall: 245, pickupRadius: LIGHT_PACKET_TUNING.pickupRadius });
-export { DRAFT_TUNING } from './drafts.mjs?v=skills-cards-3';
+export { DRAFT_TUNING } from './drafts.mjs?v=flight-120-1';
 // Retain the public tuning name for consumers; wind now has no global cycle.
 export const WIND_TUNING = DRAFT_TUNING;
 
@@ -1006,7 +1006,7 @@ export class WispFlight {
 
   async initPixelView() {
     try {
-      const { WispFlightView } = await import('./wisp-renderer.mjs?v=skills-cards-3');
+      const { WispFlightView } = await import('./wisp-renderer.mjs?v=flight-120-1');
       if (this.destroyed) return;
       this.pixiView = new WispFlightView(this);
       const initialized = await this.pixiView.init();
@@ -1532,11 +1532,14 @@ export class WispFlight {
   }
 
   renderScheduledFrame(timestamp) {
-    // Keep physics/input on every RAF, but do not repaint the same 60Hz game
-    // four times on a 240Hz display. Preserve the deadline phase on 90/120Hz
-    // displays and after late frames, rather than accumulating interval drift.
+    // Interpolate the unchanged 60Hz simulation at up to 120 paints per second.
+    // Preserve the deadline phase on slower/faster displays and after late
+    // frames; a late callback paints once rather than queuing catch-up work.
     if (this.nextRenderAt === null) this.nextRenderAt = timestamp;
-    const tolerance = .01;
+    // RAF timestamps may be rounded to tenths of a millisecond. A small fixed
+    // allowance also tolerates refresh jitter without skipping alternate 120Hz
+    // callbacks, while remaining well below one paint interval.
+    const tolerance = .75;
     if (timestamp + tolerance < this.nextRenderAt) return false;
     const intervals = Math.floor((Math.max(0, timestamp - this.nextRenderAt) + tolerance) / RENDER_INTERVAL_MS) + 1;
     this.nextRenderAt += intervals * RENDER_INTERVAL_MS;

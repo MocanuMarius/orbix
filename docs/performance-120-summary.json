@@ -1,0 +1,2114 @@
+{
+  "schema": 1,
+  "createdAt": "2026-11-16T02:49:06.395Z",
+  "baselineCommit": "8f87530",
+  "sourceHashes": {
+    "dist/flight.mjs": "60530f9100f4acff018163205659f184569f9540e9fc4b15188b5e84e023bbba",
+    "dist/wisp-renderer.mjs": "214ba7597f7a218d8208841f9ae3da94bf8d3ec80a4b820c1cde2d205ad9775a",
+    "dist/app.mjs": "8e393de685d9a66997e3ac29a606c64d5d5659dfb9e04e7edcf16743f663b4d3",
+    "scripts/render-performance-120.mjs": "fb639a4e2edf026c6cc546f493d7d87ae5a9909e6572b048c804ab6fa3e20d19",
+    "tests/render-cadence.test.mjs": "52a7c1e1ba96cf5a22e5c46d99719ef87c3fbd9821996d63daa8d7390acad0cb"
+  },
+  "environment": {
+    "os": "Windows desktop",
+    "browser": "HeadlessChrome/157.0.0.0",
+    "cpuThreads": 24,
+    "graphics": "ANGLE NVIDIA RTX 3080 Direct3D11 (metadata only; Canvas2D timings are CPU submission time)",
+    "hostDisplayQuery": "2560×1440, CurrentRefreshRate=239; Meta Virtual Monitor also present",
+    "renderer": "WispFlightView / CanvasRenderingContext2D / canvas-pixel",
+    "physicalPhone": false,
+    "physicalScanoutMeasured": false,
+    "audio": "Game music and FX enabled; browser output --mute-audio"
+  },
+  "notes": [
+    "Local full production App, HUD, music, FX, Canvas2D rendering; disposable same-seed course/card fixture plus real CDP touch/Lift/menu inputs. No physics, terrain, visual density, effects or music disabled.",
+    "Normal RAF callback cadence on this host is about 160–175/s, not a physical-display scanout measurement. Uncapped rows measure throughput only.",
+    "Contiguous per-phase render intervals exclude actual phase transitions and explicit pause/retry waits. No interval threshold censoring is applied. Phase wall-time estimates use ~90ms polling and can include control/entry waits.",
+    "Older terminal-clear measurement did not label each render completing separately; its active bucket includes the completion reveal. Use terminal screen and raw states for transition proof.",
+    "45s session retained the same browser page/process across one natural death and a normal UI retry. The engine and canvas view were recreated normally; it is two flights, not one 45s flight.",
+    "63ms and 66ms long tasks appeared during the retry transition. One separate profiled repeat reproduced 67ms/69ms tasks dominated by synchronous route-preview geometry and real flight construction; original tasks were unprofiled. Fresh first-entry construction also has >50ms tasks. Steady active intervals in the 45s session had no >50ms gaps.",
+    "CPU render duration is not GPU completion time; no GPU timings or phone FPS claimed.",
+    "Snapshot hashes describe the measured source before the later release cache-version stamp. Art modules/assets were not edited. Raw JSON/CPU profiles/screenshots stay in ignored work/perf120."
+  ],
+  "rows": [
+    {
+      "artifact": "cli-proof-normal-baseline-plain-900x405-dpr1",
+      "build": "baseline",
+      "cadence": "normal",
+      "viewport": {
+        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/157.0.0.0 Safari/537.36",
+        "dpr": 1,
+        "width": 900,
+        "height": 405,
+        "concurrency": 24
+      },
+      "windowMs": 3005.4,
+      "phases": {
+        "active": {
+          "renders": 181,
+          "contiguousRenderCallsPerSecond": 60.158,
+          "renderGapMs": {
+            "n": 180,
+            "mean": 16.623,
+            "p50": 17.1,
+            "p95": 18.8,
+            "p99": 23.4,
+            "max": 26.6,
+            "over50": 0
+          },
+          "renderCpuMs": {
+            "n": 181,
+            "mean": 1.701,
+            "p50": 1.4,
+            "p95": 3.2,
+            "p99": 4.1,
+            "max": 4.6,
+            "over50": 0
+          }
+        }
+      },
+      "phaseWallEstimateMs": {
+        "active": 2911.6
+      },
+      "rafGapMs": {
+        "n": 519,
+        "mean": 5.792,
+        "p50": 5.6,
+        "p95": 6.1,
+        "p99": 6.6,
+        "max": 28.8,
+        "over8_34": 4,
+        "over16_7": 1,
+        "over50": 0
+      },
+      "stepCpuMs": {
+        "n": 100,
+        "mean": 0.172,
+        "p50": 0.1,
+        "p95": 0.3,
+        "p99": 3.1,
+        "max": 3.1,
+        "over8_34": 0,
+        "over16_7": 0,
+        "over50": 0
+      },
+      "hudCpuMs": {
+        "n": 90,
+        "mean": 0.184,
+        "p50": 0.2,
+        "p95": 0.3,
+        "p99": 2.5,
+        "max": 2.5,
+        "over8_34": 0,
+        "over16_7": 0,
+        "over50": 0
+      },
+      "musicCpuMs": {
+        "n": 90,
+        "mean": 0.057,
+        "p50": 0.1,
+        "p95": 0.1,
+        "p99": 0.2,
+        "max": 0.2,
+        "over8_34": 0,
+        "over16_7": 0,
+        "over50": 0
+      },
+      "longTasks": [],
+      "errors": [],
+      "observed": {
+        "peakWaves": 0,
+        "peakCaptures": 1,
+        "peakBlackHoleRate": 0,
+        "minimumTimeScale": 1,
+        "peakRowEvents": 0,
+        "peakRowOperations": 0,
+        "collectorPickups": 0,
+        "bodyPickups": 1
+      },
+      "placement": {
+        "mode": "entrance",
+        "target": null,
+        "distance": 0,
+        "y": 215,
+        "totalDistance": 13233.320930232558
+      },
+      "screen": "flight",
+      "sessionEvents": []
+    },
+    {
+      "artifact": "cli-proof-normal-current-plain-900x405-dpr1",
+      "build": "current",
+      "cadence": "normal",
+      "viewport": {
+        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/157.0.0.0 Safari/537.36",
+        "dpr": 1,
+        "width": 900,
+        "height": 405,
+        "concurrency": 24
+      },
+      "windowMs": 3045.1,
+      "phases": {
+        "active": {
+          "renders": 366,
+          "contiguousRenderCallsPerSecond": 120.05,
+          "renderGapMs": {
+            "n": 365,
+            "mean": 8.33,
+            "p50": 6.2,
+            "p95": 12,
+            "p99": 12.4,
+            "max": 13.9,
+            "over50": 0
+          },
+          "renderCpuMs": {
+            "n": 366,
+            "mean": 1.417,
+            "p50": 1.2,
+            "p95": 2.7,
+            "p99": 3.3,
+            "max": 4.1,
+            "over50": 0
+          }
+        }
+      },
+      "phaseWallEstimateMs": {
+        "active": 2948.1
+      },
+      "rafGapMs": {
+        "n": 532,
+        "mean": 5.722,
+        "p50": 5.6,
+        "p95": 6.1,
+        "p99": 6.5,
+        "max": 6.6,
+        "over8_34": 0,
+        "over16_7": 0,
+        "over50": 0
+      },
+      "stepCpuMs": {
+        "n": 102,
+        "mean": 0.177,
+        "p50": 0.1,
+        "p95": 0.3,
+        "p99": 2.3,
+        "max": 2.8,
+        "over8_34": 0,
+        "over16_7": 0,
+        "over50": 0
+      },
+      "hudCpuMs": {
+        "n": 91,
+        "mean": 0.195,
+        "p50": 0.2,
+        "p95": 0.3,
+        "p99": 2.1,
+        "max": 2.1,
+        "over8_34": 0,
+        "over16_7": 0,
+        "over50": 0
+      },
+      "musicCpuMs": {
+        "n": 91,
+        "mean": 0.058,
+        "p50": 0.1,
+        "p95": 0.1,
+        "p99": 0.2,
+        "max": 0.2,
+        "over8_34": 0,
+        "over16_7": 0,
+        "over50": 0
+      },
+      "longTasks": [],
+      "errors": [],
+      "observed": {
+        "peakWaves": 0,
+        "peakCaptures": 1,
+        "peakBlackHoleRate": 0,
+        "minimumTimeScale": 1,
+        "peakRowEvents": 0,
+        "peakRowOperations": 0,
+        "collectorPickups": 0,
+        "bodyPickups": 1
+      },
+      "placement": {
+        "mode": "entrance",
+        "target": null,
+        "distance": 0,
+        "y": 215,
+        "totalDistance": 13233.320930232558
+      },
+      "screen": "flight",
+      "sessionEvents": []
+    },
+    {
+      "artifact": "late-a3-normal-cap120-maxRow-900x405-dpr1",
+      "build": "cap120",
+      "cadence": "normal",
+      "viewport": {
+        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/157.0.0.0 Safari/537.36",
+        "dpr": 1,
+        "width": 900,
+        "height": 405,
+        "concurrency": 24
+      },
+      "windowMs": 8059.5,
+      "phases": {
+        "active": {
+          "renders": 960,
+          "contiguousRenderCallsPerSecond": 119.071,
+          "renderGapMs": {
+            "n": 959,
+            "mean": 8.398,
+            "p50": 6.4,
+            "p95": 12.7,
+            "p99": 13.1,
+            "max": 35.1,
+            "over50": 0
+          },
+          "renderCpuMs": {
+            "n": 960,
+            "mean": 2.014,
+            "p50": 1.7,
+            "p95": 3.8,
+            "p99": 4.8,
+            "max": 5.7,
+            "over50": 0
+          }
+        }
+      },
+      "phaseWallEstimateMs": {
+        "active": 7963.8
+      },
+      "rafGapMs": {
+        "n": 1320,
+        "mean": 6.111,
+        "p50": 6.2,
+        "p95": 6.4,
+        "p99": 6.7,
+        "max": 30.1,
+        "over8_34": 9,
+        "over16_7": 3,
+        "over50": 0
+      },
+      "stepCpuMs": {
+        "n": 404,
+        "mean": 0.173,
+        "p50": 0.1,
+        "p95": 0.4,
+        "p99": 0.7,
+        "max": 4,
+        "over8_34": 0,
+        "over16_7": 0,
+        "over50": 0
+      },
+      "hudCpuMs": {
+        "n": 139,
+        "mean": 0.201,
+        "p50": 0.2,
+        "p95": 0.4,
+        "p99": 0.8,
+        "max": 2,
+        "over8_34": 0,
+        "over16_7": 0,
+        "over50": 0
+      },
+      "musicCpuMs": {
+        "n": 139,
+        "mean": 0.045,
+        "p50": 0,
+        "p95": 0.1,
+        "p99": 0.2,
+        "max": 0.2,
+        "over8_34": 0,
+        "over16_7": 0,
+        "over50": 0
+      },
+      "longTasks": [],
+      "errors": [],
+      "observed": {
+        "peakWaves": 2,
+        "peakCaptures": 1,
+        "peakBlackHoleRate": 0,
+        "minimumTimeScale": 1,
+        "peakRowEvents": 0,
+        "peakRowOperations": 0,
+        "collectorPickups": 0,
+        "bodyPickups": 0
+      },
+      "screen": "active",
+      "sessionEvents": []
+    },
+    {
+      "artifact": "late-a3-uncapped-cap120-maxRow-900x405-dpr1",
+      "build": "cap120",
+      "cadence": "uncapped",
+      "viewport": {
+        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/157.0.0.0 Safari/537.36",
+        "dpr": 1,
+        "width": 900,
+        "height": 405,
+        "concurrency": 24
+      },
+      "windowMs": 8071,
+      "phases": {
+        "active": {
+          "renders": 969,
+          "contiguousRenderCallsPerSecond": 120.046,
+          "renderGapMs": {
+            "n": 968,
+            "mean": 8.33,
+            "p50": 8.3,
+            "p95": 8.9,
+            "p99": 9.7,
+            "max": 16.1,
+            "over50": 0
+          },
+          "renderCpuMs": {
+            "n": 969,
+            "mean": 2.065,
+            "p50": 1.8,
+            "p95": 3.8,
+            "p99": 4.8,
+            "max": 5.9,
+            "over50": 0
+          }
+        }
+      },
+      "phaseWallEstimateMs": {
+        "active": 7970.7
+      },
+      "rafGapMs": {
+        "n": 11358,
+        "mean": 0.71,
+        "p50": 0.4,
+        "p95": 2.7,
+        "p99": 4.6,
+        "max": 10,
+        "over8_34": 3,
+        "over16_7": 0,
+        "over50": 0
+      },
+      "stepCpuMs": {
+        "n": 405,
+        "mean": 0.171,
+        "p50": 0.1,
+        "p95": 0.4,
+        "p99": 0.9,
+        "max": 4.6,
+        "over8_34": 0,
+        "over16_7": 0,
+        "over50": 0
+      },
+      "hudCpuMs": {
+        "n": 140,
+        "mean": 0.186,
+        "p50": 0.2,
+        "p95": 0.4,
+        "p99": 0.9,
+        "max": 2,
+        "over8_34": 0,
+        "over16_7": 0,
+        "over50": 0
+      },
+      "musicCpuMs": {
+        "n": 140,
+        "mean": 0.043,
+        "p50": 0,
+        "p95": 0.1,
+        "p99": 0.2,
+        "max": 0.2,
+        "over8_34": 0,
+        "over16_7": 0,
+        "over50": 0
+      },
+      "longTasks": [],
+      "errors": [],
+      "observed": {
+        "peakWaves": 2,
+        "peakCaptures": 1,
+        "peakBlackHoleRate": 0,
+        "minimumTimeScale": 1,
+        "peakRowEvents": 0,
+        "peakRowOperations": 0,
+        "collectorPickups": 0,
+        "bodyPickups": 0
+      },
+      "screen": "active",
+      "sessionEvents": []
+    },
+    {
+      "artifact": "collector-mobile-normal-cap120-maxRow-740x333-dpr3",
+      "build": "cap120",
+      "cadence": "normal",
+      "viewport": {
+        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/157.0.0.0 Safari/537.36",
+        "dpr": 3,
+        "width": 740,
+        "height": 333,
+        "concurrency": 24
+      },
+      "windowMs": 9056.8,
+      "phases": {
+        "active": {
+          "renders": 1078,
+          "contiguousRenderCallsPerSecond": 119.067,
+          "renderGapMs": {
+            "n": 1077,
+            "mean": 8.399,
+            "p50": 6.3,
+            "p95": 12.1,
+            "p99": 12.7,
+            "max": 33.8,
+            "over50": 0
+          },
+          "renderCpuMs": {
+            "n": 1078,
+            "mean": 2.268,
+            "p50": 1.9,
+            "p95": 4.3,
+            "p99": 6.4,
+            "max": 8.9,
+            "over50": 0
+          }
+        }
+      },
+      "phaseWallEstimateMs": {
+        "active": 8957.9
+      },
+      "rafGapMs": {
+        "n": 1552,
+        "mean": 5.837,
+        "p50": 5.7,
+        "p95": 6.4,
+        "p99": 10.8,
+        "max": 28.3,
+        "over8_34": 17,
+        "over16_7": 4,
+        "over50": 0
+      },
+      "stepCpuMs": {
+        "n": 463,
+        "mean": 0.172,
+        "p50": 0.1,
+        "p95": 0.4,
+        "p99": 0.7,
+        "max": 3.5,
+        "over8_34": 0,
+        "over16_7": 0,
+        "over50": 0
+      },
+      "hudCpuMs": {
+        "n": 150,
+        "mean": 0.167,
+        "p50": 0.2,
+        "p95": 0.3,
+        "p99": 0.4,
+        "max": 0.8,
+        "over8_34": 0,
+        "over16_7": 0,
+        "over50": 0
+      },
+      "musicCpuMs": {
+        "n": 150,
+        "mean": 0.031,
+        "p50": 0,
+        "p95": 0.1,
+        "p99": 0.2,
+        "max": 0.2,
+        "over8_34": 0,
+        "over16_7": 0,
+        "over50": 0
+      },
+      "longTasks": [],
+      "errors": [],
+      "observed": {
+        "peakWaves": 2,
+        "peakCaptures": 1,
+        "peakBlackHoleRate": 0,
+        "minimumTimeScale": 1,
+        "peakRowEvents": 0,
+        "peakRowOperations": 0,
+        "collectorPickups": 0,
+        "bodyPickups": 1
+      },
+      "placement": {
+        "mode": "collect",
+        "target": {
+          "x": 1260,
+          "y": 215,
+          "id": "ascent-supply:1"
+        },
+        "distance": 890,
+        "y": 215,
+        "totalDistance": 13103.320930232558
+      },
+      "screen": "flight",
+      "sessionEvents": []
+    },
+    {
+      "artifact": "collector-delivery-normal-current-collectorRow-740x333-dpr2",
+      "build": "current",
+      "cadence": "normal",
+      "viewport": {
+        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/157.0.0.0 Safari/537.36",
+        "dpr": 2,
+        "width": 740,
+        "height": 333,
+        "concurrency": 24
+      },
+      "windowMs": 8025.7,
+      "phases": {
+        "active": {
+          "renders": 953,
+          "contiguousRenderCallsPerSecond": 118.68,
+          "renderGapMs": {
+            "n": 952,
+            "mean": 8.426,
+            "p50": 6.3,
+            "p95": 12.1,
+            "p99": 13.3,
+            "max": 31.1,
+            "over50": 0
+          },
+          "renderCpuMs": {
+            "n": 953,
+            "mean": 2.308,
+            "p50": 1.9,
+            "p95": 4.2,
+            "p99": 4.9,
+            "max": 8.4,
+            "over50": 0
+          }
+        }
+      },
+      "phaseWallEstimateMs": {
+        "active": 7926.7
+      },
+      "rafGapMs": {
+        "n": 1380,
+        "mean": 5.817,
+        "p50": 5.6,
+        "p95": 6.1,
+        "p99": 6.6,
+        "max": 23.5,
+        "over8_34": 10,
+        "over16_7": 6,
+        "over50": 0
+      },
+      "stepCpuMs": {
+        "n": 401,
+        "mean": 0.19,
+        "p50": 0.1,
+        "p95": 0.4,
+        "p99": 1.1,
+        "max": 3.2,
+        "over8_34": 0,
+        "over16_7": 0,
+        "over50": 0
+      },
+      "hudCpuMs": {
+        "n": 141,
+        "mean": 0.227,
+        "p50": 0.2,
+        "p95": 0.3,
+        "p99": 2.5,
+        "max": 5.4,
+        "over8_34": 0,
+        "over16_7": 0,
+        "over50": 0
+      },
+      "musicCpuMs": {
+        "n": 141,
+        "mean": 0.043,
+        "p50": 0,
+        "p95": 0.1,
+        "p99": 0.2,
+        "max": 0.2,
+        "over8_34": 0,
+        "over16_7": 0,
+        "over50": 0
+      },
+      "longTasks": [],
+      "errors": [],
+      "observed": {
+        "peakWaves": 2,
+        "peakCaptures": 1,
+        "peakBlackHoleRate": 0,
+        "minimumTimeScale": 1,
+        "peakRowEvents": 2,
+        "peakRowOperations": 2,
+        "collectorPickups": 0,
+        "bodyPickups": 2
+      },
+      "placement": {
+        "mode": "collect",
+        "target": {
+          "x": 1260,
+          "y": 215,
+          "id": "ascent-supply:1"
+        },
+        "distance": 1030,
+        "y": 237,
+        "totalDistance": 13103.320930232558
+      },
+      "screen": "flight",
+      "sessionEvents": []
+    },
+    {
+      "artifact": "black-hole-normal-current-collectorRow-900x405-dpr1",
+      "build": "current",
+      "cadence": "normal",
+      "viewport": {
+        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/157.0.0.0 Safari/537.36",
+        "dpr": 1,
+        "width": 900,
+        "height": 405,
+        "concurrency": 24
+      },
+      "windowMs": 6154.2,
+      "phases": {
+        "active": {
+          "renders": 727,
+          "contiguousRenderCallsPerSecond": 118.126,
+          "renderGapMs": {
+            "n": 726,
+            "mean": 8.466,
+            "p50": 6.3,
+            "p95": 12.1,
+            "p99": 16.6,
+            "max": 30.7,
+            "over50": 0
+          },
+          "renderCpuMs": {
+            "n": 727,
+            "mean": 2.433,
+            "p50": 2.1,
+            "p95": 4.3,
+            "p99": 4.9,
+            "max": 5.9,
+            "over50": 0
+          }
+        }
+      },
+      "phaseWallEstimateMs": {
+        "active": 5917.2
+      },
+      "rafGapMs": {
+        "n": 1048,
+        "mean": 5.881,
+        "p50": 5.6,
+        "p95": 6.2,
+        "p99": 11.5,
+        "max": 23.5,
+        "over8_34": 14,
+        "over16_7": 8,
+        "over50": 0
+      },
+      "stepCpuMs": {
+        "n": 287,
+        "mean": 0.175,
+        "p50": 0.1,
+        "p95": 0.4,
+        "p99": 0.7,
+        "max": 3.9,
+        "over8_34": 0,
+        "over16_7": 0,
+        "over50": 0
+      },
+      "hudCpuMs": {
+        "n": 125,
+        "mean": 0.186,
+        "p50": 0.2,
+        "p95": 0.3,
+        "p99": 0.7,
+        "max": 1.2,
+        "over8_34": 0,
+        "over16_7": 0,
+        "over50": 0
+      },
+      "musicCpuMs": {
+        "n": 125,
+        "mean": 0.045,
+        "p50": 0,
+        "p95": 0.1,
+        "p99": 0.1,
+        "max": 0.2,
+        "over8_34": 0,
+        "over16_7": 0,
+        "over50": 0
+      },
+      "longTasks": [],
+      "errors": [],
+      "observed": {
+        "peakWaves": 2,
+        "peakCaptures": 1,
+        "peakBlackHoleRate": 30.236173823408393,
+        "minimumTimeScale": 0.5684948346211796,
+        "peakRowEvents": 1,
+        "peakRowOperations": 1,
+        "collectorPickups": 0,
+        "bodyPickups": 1
+      },
+      "placement": {
+        "mode": "hole",
+        "target": {
+          "x": 5787,
+          "y": 366,
+          "id": "black-hole:0"
+        },
+        "distance": 5487,
+        "y": 318,
+        "totalDistance": 13103.320930232558
+      },
+      "screen": "flight",
+      "sessionEvents": []
+    },
+    {
+      "artifact": "frost-mobile-normal-current-collectorRow-740x333-dpr1",
+      "build": "current",
+      "cadence": "normal",
+      "viewport": {
+        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/157.0.0.0 Safari/537.36",
+        "dpr": 1,
+        "width": 740,
+        "height": 333,
+        "concurrency": 24
+      },
+      "windowMs": 5079.4,
+      "phases": {
+        "active": {
+          "renders": 596,
+          "contiguousRenderCallsPerSecond": 117.48,
+          "renderGapMs": {
+            "n": 595,
+            "mean": 8.512,
+            "p50": 6.3,
+            "p95": 12.1,
+            "p99": 22.7,
+            "max": 26.2,
+            "over50": 0
+          },
+          "renderCpuMs": {
+            "n": 596,
+            "mean": 1.694,
+            "p50": 1.5,
+            "p95": 3.4,
+            "p99": 4.3,
+            "max": 5.3,
+            "over50": 0
+          }
+        }
+      },
+      "phaseWallEstimateMs": {
+        "active": 4985.4
+      },
+      "rafGapMs": {
+        "n": 861,
+        "mean": 5.903,
+        "p50": 5.9,
+        "p95": 6.4,
+        "p99": 12.1,
+        "max": 28.1,
+        "over8_34": 11,
+        "over16_7": 7,
+        "over50": 0
+      },
+      "stepCpuMs": {
+        "n": 224,
+        "mean": 0.191,
+        "p50": 0.1,
+        "p95": 0.4,
+        "p99": 0.8,
+        "max": 2.9,
+        "over8_34": 0,
+        "over16_7": 0,
+        "over50": 0
+      },
+      "hudCpuMs": {
+        "n": 112,
+        "mean": 0.216,
+        "p50": 0.2,
+        "p95": 0.3,
+        "p99": 0.7,
+        "max": 5.4,
+        "over8_34": 0,
+        "over16_7": 0,
+        "over50": 0
+      },
+      "musicCpuMs": {
+        "n": 112,
+        "mean": 0.045,
+        "p50": 0,
+        "p95": 0.1,
+        "p99": 0.2,
+        "max": 0.2,
+        "over8_34": 0,
+        "over16_7": 0,
+        "over50": 0
+      },
+      "longTasks": [],
+      "errors": [],
+      "observed": {
+        "peakWaves": 2,
+        "peakCaptures": 1,
+        "peakBlackHoleRate": 0,
+        "minimumTimeScale": 1,
+        "peakRowEvents": 1,
+        "peakRowOperations": 1,
+        "collectorPickups": 0,
+        "bodyPickups": 1
+      },
+      "placement": {
+        "mode": "entrance",
+        "target": null,
+        "distance": 0,
+        "y": 215,
+        "totalDistance": 12861.09872907699
+      },
+      "screen": "flight",
+      "sessionEvents": []
+    },
+    {
+      "artifact": "basalt-density-normal-current-collectorRow-900x405-dpr2.75",
+      "build": "current",
+      "cadence": "normal",
+      "viewport": {
+        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/157.0.0.0 Safari/537.36",
+        "dpr": 2.75,
+        "width": 900,
+        "height": 405,
+        "concurrency": 24
+      },
+      "windowMs": 6023.3,
+      "phases": {
+        "active": {
+          "renders": 715,
+          "contiguousRenderCallsPerSecond": 118.782,
+          "renderGapMs": {
+            "n": 714,
+            "mean": 8.419,
+            "p50": 6.2,
+            "p95": 12.1,
+            "p99": 13.2,
+            "max": 24.1,
+            "over50": 0
+          },
+          "renderCpuMs": {
+            "n": 715,
+            "mean": 1.599,
+            "p50": 1.2,
+            "p95": 4.2,
+            "p99": 4.6,
+            "max": 6.7,
+            "over50": 0
+          }
+        }
+      },
+      "phaseWallEstimateMs": {
+        "active": 5791.9
+      },
+      "rafGapMs": {
+        "n": 1032,
+        "mean": 5.848,
+        "p50": 5.9,
+        "p95": 6.2,
+        "p99": 6.6,
+        "max": 23.4,
+        "over8_34": 10,
+        "over16_7": 5,
+        "over50": 0
+      },
+      "stepCpuMs": {
+        "n": 281,
+        "mean": 0.167,
+        "p50": 0.1,
+        "p95": 0.4,
+        "p99": 0.9,
+        "max": 2.9,
+        "over8_34": 0,
+        "over16_7": 0,
+        "over50": 0
+      },
+      "hudCpuMs": {
+        "n": 120,
+        "mean": 0.205,
+        "p50": 0.2,
+        "p95": 0.3,
+        "p99": 0.8,
+        "max": 4.6,
+        "over8_34": 0,
+        "over16_7": 0,
+        "over50": 0
+      },
+      "musicCpuMs": {
+        "n": 120,
+        "mean": 0.052,
+        "p50": 0,
+        "p95": 0.1,
+        "p99": 0.2,
+        "max": 0.3,
+        "over8_34": 0,
+        "over16_7": 0,
+        "over50": 0
+      },
+      "longTasks": [],
+      "errors": [],
+      "observed": {
+        "peakWaves": 2,
+        "peakCaptures": 1,
+        "peakBlackHoleRate": 0,
+        "minimumTimeScale": 1,
+        "peakRowEvents": 1,
+        "peakRowOperations": 1,
+        "collectorPickups": 0,
+        "bodyPickups": 1
+      },
+      "placement": {
+        "mode": "entrance",
+        "target": null,
+        "distance": 0,
+        "y": 215,
+        "totalDistance": 13017.381158143358
+      },
+      "screen": "flight",
+      "sessionEvents": []
+    },
+    {
+      "artifact": "continuous-session-normal-current-collectorRow-900x405-dpr1",
+      "build": "current",
+      "cadence": "normal",
+      "viewport": {
+        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/157.0.0.0 Safari/537.36",
+        "dpr": 1,
+        "width": 900,
+        "height": 405,
+        "concurrency": 24
+      },
+      "windowMs": 45005,
+      "phases": {
+        "active": {
+          "renders": 4770,
+          "contiguousRenderCallsPerSecond": 119.641,
+          "renderGapMs": {
+            "n": 4768,
+            "mean": 8.358,
+            "p50": 6.3,
+            "p95": 12,
+            "p99": 12.5,
+            "max": 35.1,
+            "over50": 0
+          },
+          "renderCpuMs": {
+            "n": 4770,
+            "mean": 2.188,
+            "p50": 1.8,
+            "p95": 4.3,
+            "p99": 5.4,
+            "max": 9.4,
+            "over50": 0
+          }
+        },
+        "dying": {
+          "renders": 242,
+          "contiguousRenderCallsPerSecond": 120.146,
+          "renderGapMs": {
+            "n": 241,
+            "mean": 8.323,
+            "p50": 6.1,
+            "p95": 12,
+            "p99": 12.4,
+            "max": 12.6,
+            "over50": 0
+          },
+          "renderCpuMs": {
+            "n": 242,
+            "mean": 2.117,
+            "p50": 2.1,
+            "p95": 2.4,
+            "p99": 3.4,
+            "max": 6.1,
+            "over50": 0
+          }
+        }
+      },
+      "phaseWallEstimateMs": {
+        "active": 39794,
+        "dying": 2091.2,
+        "death": 3028
+      },
+      "rafGapMs": {
+        "n": 7730,
+        "mean": 5.823,
+        "p50": 5.6,
+        "p95": 6.1,
+        "p99": 6.6,
+        "max": 259.9,
+        "over8_34": 47,
+        "over16_7": 10,
+        "over50": 4
+      },
+      "stepCpuMs": {
+        "n": 2231,
+        "mean": 0.154,
+        "p50": 0.1,
+        "p95": 0.4,
+        "p99": 0.5,
+        "max": 3.2,
+        "over8_34": 0,
+        "over16_7": 0,
+        "over50": 0
+      },
+      "hudCpuMs": {
+        "n": 511,
+        "mean": 0.169,
+        "p50": 0.1,
+        "p95": 0.3,
+        "p99": 0.6,
+        "max": 4.8,
+        "over8_34": 0,
+        "over16_7": 0,
+        "over50": 0
+      },
+      "musicCpuMs": {
+        "n": 511,
+        "mean": 0.023,
+        "p50": 0,
+        "p95": 0.1,
+        "p99": 0.2,
+        "max": 0.4,
+        "over8_34": 0,
+        "over16_7": 0,
+        "over50": 0
+      },
+      "longTasks": [
+        {
+          "at": 19648.90000000596,
+          "ms": 63
+        },
+        {
+          "at": 20303,
+          "ms": 66
+        }
+      ],
+      "errors": [],
+      "observed": {
+        "peakWaves": 2,
+        "peakCaptures": 2,
+        "peakRowEvents": 5,
+        "peakRowOperations": 5,
+        "peakBlackHoleRate": 0,
+        "minimumTimeScale": 1,
+        "collectorPhases": [
+          "ready",
+          "cooldown",
+          "outbound",
+          "returning",
+          "rejoining"
+        ],
+        "collectorCarrying": true,
+        "collectorPickups": 1,
+        "bodyPickups": 4
+      },
+      "placement": {
+        "mode": "entrance",
+        "target": null,
+        "distance": 0,
+        "y": 215,
+        "totalDistance": 13233.320930232558
+      },
+      "screen": "flight",
+      "sessionEvents": [
+        {
+          "at": 17433.40000000596,
+          "kind": "natural-death"
+        },
+        {
+          "at": 20460.69999998808,
+          "kind": "retry-start"
+        }
+      ],
+      "startup": {
+        "firstFlightReadyMs": 1191.4000000059605,
+        "firstActiveMs": 2039.5,
+        "pausedWarmupFrames": 30,
+        "serviceWorker": false,
+        "domContentLoadedMs": 434.69999998807907,
+        "loadMs": 788.6999999880791,
+        "preActiveRenderCpu": {
+          "n": 38,
+          "mean": 6.255,
+          "p50": 1.4,
+          "p95": 49,
+          "p99": 110.4,
+          "max": 110.4,
+          "over8_34": 3,
+          "over16_7": 3,
+          "over50": 1
+        },
+        "preActiveLongTasks": [
+          {
+            "at": 461.19999998807907,
+            "ms": 276
+          },
+          {
+            "at": 1079.5,
+            "ms": 53
+          },
+          {
+            "at": 1955.5999999940395,
+            "ms": 61
+          }
+        ]
+      }
+    },
+    {
+      "artifact": "pause-resume-normal-current-collectorRow-900x405-dpr1",
+      "build": "current",
+      "cadence": "normal",
+      "viewport": {
+        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/157.0.0.0 Safari/537.36",
+        "dpr": 1,
+        "width": 900,
+        "height": 405,
+        "concurrency": 24
+      },
+      "windowMs": 10022.1,
+      "phases": {
+        "active": {
+          "renders": 797,
+          "contiguousRenderCallsPerSecond": 119.217,
+          "renderGapMs": {
+            "n": 795,
+            "mean": 8.388,
+            "p50": 6.2,
+            "p95": 12.1,
+            "p99": 12.5,
+            "max": 33,
+            "over50": 0
+          },
+          "renderCpuMs": {
+            "n": 797,
+            "mean": 1.606,
+            "p50": 1.4,
+            "p95": 3.2,
+            "p99": 4.2,
+            "max": 4.5,
+            "over50": 0
+          }
+        }
+      },
+      "phaseWallEstimateMs": {
+        "active": 9928.6
+      },
+      "rafGapMs": {
+        "n": 1732,
+        "mean": 5.79,
+        "p50": 5.7,
+        "p95": 6.1,
+        "p99": 6.6,
+        "max": 28.5,
+        "over8_34": 11,
+        "over16_7": 6,
+        "over50": 0
+      },
+      "stepCpuMs": {
+        "n": 255,
+        "mean": 0.16,
+        "p50": 0.1,
+        "p95": 0.4,
+        "p99": 0.5,
+        "max": 2.9,
+        "over8_34": 0,
+        "over16_7": 0,
+        "over50": 0
+      },
+      "hudCpuMs": {
+        "n": 161,
+        "mean": 0.205,
+        "p50": 0.2,
+        "p95": 0.3,
+        "p99": 1,
+        "max": 4.8,
+        "over8_34": 0,
+        "over16_7": 0,
+        "over50": 0
+      },
+      "musicCpuMs": {
+        "n": 161,
+        "mean": 0.057,
+        "p50": 0,
+        "p95": 0.1,
+        "p99": 0.2,
+        "max": 0.5,
+        "over8_34": 0,
+        "over16_7": 0,
+        "over50": 0
+      },
+      "longTasks": [],
+      "errors": [],
+      "observed": {
+        "peakWaves": 1,
+        "peakCaptures": 1,
+        "peakRowEvents": 1,
+        "peakRowOperations": 1,
+        "peakBlackHoleRate": 0,
+        "minimumTimeScale": 1,
+        "collectorPhases": [
+          "ready",
+          "cooldown"
+        ],
+        "collectorCarrying": false,
+        "collectorPickups": 0,
+        "bodyPickups": 1
+      },
+      "placement": {
+        "mode": "entrance",
+        "target": null,
+        "distance": 0,
+        "y": 215,
+        "totalDistance": 13233.320930232558
+      },
+      "screen": "flight",
+      "sessionEvents": [
+        {
+          "at": 3660.699999988079,
+          "kind": "pause"
+        },
+        {
+          "at": 7050.199999988079,
+          "kind": "resume-start"
+        }
+      ],
+      "resumeWindows": [
+        {
+          "startMs": 1997.6,
+          "first3Seconds": {
+            "hud": {
+              "n": 50,
+              "mean": 0.196,
+              "p50": 0.2,
+              "p95": 0.3,
+              "p99": 1,
+              "max": 1,
+              "over8_34": 0,
+              "over16_7": 0,
+              "over50": 0
+            },
+            "music": {
+              "n": 50,
+              "mean": 0.072,
+              "p50": 0.1,
+              "p95": 0.1,
+              "p99": 0.2,
+              "max": 0.2,
+              "over8_34": 0,
+              "over16_7": 0,
+              "over50": 0
+            },
+            "notify": {
+              "n": 50,
+              "mean": 0.336,
+              "p50": 0.3,
+              "p95": 0.6,
+              "p99": 1.2,
+              "max": 1.2,
+              "over8_34": 0,
+              "over16_7": 0,
+              "over50": 0
+            },
+            "tick": {
+              "n": 278,
+              "mean": 1.029,
+              "p50": 1.2,
+              "p95": 2.5,
+              "p99": 3.6,
+              "max": 4.4,
+              "over8_34": 0,
+              "over16_7": 0,
+              "over50": 0
+            }
+          },
+          "next3Seconds": {
+            "hud": {
+              "n": 30,
+              "mean": 0.173,
+              "p50": 0.2,
+              "p95": 0.3,
+              "p99": 0.6,
+              "max": 0.6,
+              "over8_34": 0,
+              "over16_7": 0,
+              "over50": 0
+            },
+            "music": {
+              "n": 30,
+              "mean": 0.06,
+              "p50": 0,
+              "p95": 0.1,
+              "p99": 0.5,
+              "max": 0.5,
+              "over8_34": 0,
+              "over16_7": 0,
+              "over50": 0
+            },
+            "notify": {
+              "n": 30,
+              "mean": 0.303,
+              "p50": 0.3,
+              "p95": 0.4,
+              "p99": 0.7,
+              "max": 0.7,
+              "over8_34": 0,
+              "over16_7": 0,
+              "over50": 0
+            },
+            "tick": {
+              "n": 177,
+              "mean": 0.981,
+              "p50": 1.2,
+              "p95": 2.5,
+              "p99": 2.8,
+              "max": 2.9,
+              "over8_34": 0,
+              "over16_7": 0,
+              "over50": 0
+            }
+          }
+        },
+        {
+          "startMs": 7050.2,
+          "first3Seconds": {
+            "hud": {
+              "n": 90,
+              "mean": 0.219,
+              "p50": 0.2,
+              "p95": 0.3,
+              "p99": 4.8,
+              "max": 4.8,
+              "over8_34": 0,
+              "over16_7": 0,
+              "over50": 0
+            },
+            "music": {
+              "n": 90,
+              "mean": 0.053,
+              "p50": 0,
+              "p95": 0.2,
+              "p99": 0.2,
+              "max": 0.2,
+              "over8_34": 0,
+              "over16_7": 0,
+              "over50": 0
+            },
+            "notify": {
+              "n": 90,
+              "mean": 0.336,
+              "p50": 0.3,
+              "p95": 0.4,
+              "p99": 5.1,
+              "max": 5.1,
+              "over8_34": 0,
+              "over16_7": 0,
+              "over50": 0
+            },
+            "tick": {
+              "n": 522,
+              "mean": 1.169,
+              "p50": 1.3,
+              "p95": 2.9,
+              "p99": 4.3,
+              "max": 6.5,
+              "over8_34": 0,
+              "over16_7": 0,
+              "over50": 0
+            }
+          },
+          "next3Seconds": {
+            "hud": {
+              "n": 19,
+              "mean": 0.142,
+              "p50": 0.1,
+              "p95": 0.4,
+              "p99": 0.4,
+              "max": 0.4,
+              "over8_34": 0,
+              "over16_7": 0,
+              "over50": 0
+            },
+            "music": {
+              "n": 19,
+              "mean": 0.005,
+              "p50": 0,
+              "p95": 0.1,
+              "p99": 0.1,
+              "max": 0.1,
+              "over8_34": 0,
+              "over16_7": 0,
+              "over50": 0
+            },
+            "notify": {
+              "n": 19,
+              "mean": 0.253,
+              "p50": 0.2,
+              "p95": 0.5,
+              "p99": 0.5,
+              "max": 0.5,
+              "over8_34": 0,
+              "over16_7": 0,
+              "over50": 0
+            },
+            "tick": {
+              "n": 343,
+              "mean": 1.397,
+              "p50": 1.5,
+              "p95": 3.5,
+              "p99": 4.2,
+              "max": 4.4,
+              "over8_34": 0,
+              "over16_7": 0,
+              "over50": 0
+            }
+          }
+        }
+      ],
+      "startup": {
+        "firstFlightReadyMs": 1146.5999999940395,
+        "firstActiveMs": 1997.5999999940395,
+        "pausedWarmupFrames": 30,
+        "serviceWorker": false,
+        "domContentLoadedMs": 396.69999998807907,
+        "loadMs": 753.4000000059605,
+        "preActiveRenderCpu": {
+          "n": 38,
+          "mean": 6.316,
+          "p50": 1.3,
+          "p95": 49.8,
+          "p99": 109.2,
+          "max": 109.2,
+          "over8_34": 4,
+          "over16_7": 3,
+          "over50": 1
+        },
+        "preActiveLongTasks": [
+          {
+            "at": 424,
+            "ms": 277
+          },
+          {
+            "at": 1048.0999999940395,
+            "ms": 54
+          },
+          {
+            "at": 1909.9000000059605,
+            "ms": 62
+          }
+        ]
+      }
+    },
+    {
+      "artifact": "terminal-death-final-normal-current-collectorRow-900x405-dpr1",
+      "build": "current",
+      "cadence": "normal",
+      "viewport": {
+        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/157.0.0.0 Safari/537.36",
+        "dpr": 1,
+        "width": 900,
+        "height": 405,
+        "concurrency": 24
+      },
+      "windowMs": 3577.2,
+      "phases": {
+        "active": {
+          "renders": 184,
+          "contiguousRenderCallsPerSecond": 119.6,
+          "renderGapMs": {
+            "n": 183,
+            "mean": 8.361,
+            "p50": 6.2,
+            "p95": 12,
+            "p99": 12.5,
+            "max": 18,
+            "over50": 0
+          },
+          "renderCpuMs": {
+            "n": 184,
+            "mean": 1.279,
+            "p50": 1.2,
+            "p95": 2.4,
+            "p99": 3.3,
+            "max": 4.2,
+            "over50": 0
+          }
+        },
+        "dying": {
+          "renders": 242,
+          "contiguousRenderCallsPerSecond": 120.271,
+          "renderGapMs": {
+            "n": 241,
+            "mean": 8.315,
+            "p50": 6.1,
+            "p95": 12,
+            "p99": 12.2,
+            "max": 12.6,
+            "over50": 0
+          },
+          "renderCpuMs": {
+            "n": 242,
+            "mean": 1.25,
+            "p50": 1.2,
+            "p95": 1.5,
+            "p99": 2,
+            "max": 4,
+            "over50": 0
+          }
+        }
+      },
+      "phaseWallEstimateMs": {
+        "active": 1603.5,
+        "dying": 1971.9
+      },
+      "rafGapMs": {
+        "n": 618,
+        "mean": 5.796,
+        "p50": 5.9,
+        "p95": 6.1,
+        "p99": 6.6,
+        "max": 18,
+        "over8_34": 2,
+        "over16_7": 1,
+        "over50": 0
+      },
+      "stepCpuMs": {
+        "n": 31,
+        "mean": 0.297,
+        "p50": 0.1,
+        "p95": 2.2,
+        "p99": 3.2,
+        "max": 3.2,
+        "over8_34": 0,
+        "over16_7": 0,
+        "over50": 0
+      },
+      "hudCpuMs": {
+        "n": 46,
+        "mean": 0.167,
+        "p50": 0.2,
+        "p95": 0.3,
+        "p99": 0.5,
+        "max": 0.5,
+        "over8_34": 0,
+        "over16_7": 0,
+        "over50": 0
+      },
+      "musicCpuMs": {
+        "n": 46,
+        "mean": 0.065,
+        "p50": 0.1,
+        "p95": 0.2,
+        "p99": 0.2,
+        "max": 0.2,
+        "over8_34": 0,
+        "over16_7": 0,
+        "over50": 0
+      },
+      "longTasks": [],
+      "errors": [],
+      "observed": {
+        "peakWaves": 0,
+        "peakCaptures": 0,
+        "peakRowEvents": 0,
+        "peakRowOperations": 0,
+        "peakBlackHoleRate": 0,
+        "minimumTimeScale": 1,
+        "collectorPhases": [
+          "ready"
+        ],
+        "collectorCarrying": false,
+        "collectorPickups": 0,
+        "bodyPickups": 0
+      },
+      "placement": {
+        "mode": "death",
+        "target": null,
+        "distance": 0,
+        "y": 411.3,
+        "totalDistance": 13233.320930232558
+      },
+      "screen": "death",
+      "sessionEvents": [],
+      "resumeWindows": [
+        {
+          "startMs": 2063.7,
+          "first3Seconds": {
+            "hud": {
+              "n": 46,
+              "mean": 0.167,
+              "p50": 0.2,
+              "p95": 0.3,
+              "p99": 0.5,
+              "max": 0.5,
+              "over8_34": 0,
+              "over16_7": 0,
+              "over50": 0
+            },
+            "music": {
+              "n": 46,
+              "mean": 0.065,
+              "p50": 0.1,
+              "p95": 0.2,
+              "p99": 0.2,
+              "max": 0.2,
+              "over8_34": 0,
+              "over16_7": 0,
+              "over50": 0
+            },
+            "notify": {
+              "n": 46,
+              "mean": 0.313,
+              "p50": 0.3,
+              "p95": 0.6,
+              "p99": 0.9,
+              "max": 0.9,
+              "over8_34": 0,
+              "over16_7": 0,
+              "over50": 0
+            },
+            "tick": {
+              "n": 266,
+              "mean": 0.994,
+              "p50": 1.1,
+              "p95": 2.2,
+              "p99": 3.9,
+              "max": 6.6,
+              "over8_34": 0,
+              "over16_7": 0,
+              "over50": 0
+            }
+          },
+          "next3Seconds": {
+            "hud": {
+              "n": 0,
+              "mean": 0,
+              "p50": 0,
+              "p95": 0,
+              "p99": 0,
+              "max": 0,
+              "over8_34": 0,
+              "over16_7": 0,
+              "over50": 0
+            },
+            "music": {
+              "n": 0,
+              "mean": 0,
+              "p50": 0,
+              "p95": 0,
+              "p99": 0,
+              "max": 0,
+              "over8_34": 0,
+              "over16_7": 0,
+              "over50": 0
+            },
+            "notify": {
+              "n": 0,
+              "mean": 0,
+              "p50": 0,
+              "p95": 0,
+              "p99": 0,
+              "max": 0,
+              "over8_34": 0,
+              "over16_7": 0,
+              "over50": 0
+            },
+            "tick": {
+              "n": 0,
+              "mean": 0,
+              "p50": 0,
+              "p95": 0,
+              "p99": 0,
+              "max": 0,
+              "over8_34": 0,
+              "over16_7": 0,
+              "over50": 0
+            }
+          }
+        }
+      ],
+      "startup": {
+        "firstFlightReadyMs": 1195.2999999821186,
+        "firstActiveMs": 2063.699999988079,
+        "pausedWarmupFrames": 30,
+        "serviceWorker": false,
+        "domContentLoadedMs": 430.7999999821186,
+        "loadMs": 799.5999999940395,
+        "preActiveRenderCpu": {
+          "n": 37,
+          "mean": 6.576,
+          "p50": 1.3,
+          "p95": 47.8,
+          "p99": 116.9,
+          "max": 116.9,
+          "over8_34": 3,
+          "over16_7": 3,
+          "over50": 1
+        },
+        "preActiveLongTasks": [
+          {
+            "at": 458.09999999403954,
+            "ms": 287
+          },
+          {
+            "at": 1086.9000000059605,
+            "ms": 51
+          },
+          {
+            "at": 1987.2999999821186,
+            "ms": 63
+          }
+        ]
+      },
+      "lifecycle": {
+        "dyingObserved": true,
+        "afterContinue": "map"
+      }
+    },
+    {
+      "artifact": "terminal-clear-normal-current-maxRow-900x405-dpr1",
+      "build": "current",
+      "cadence": "normal",
+      "viewport": {
+        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/157.0.0.0 Safari/537.36",
+        "dpr": 1,
+        "width": 900,
+        "height": 405,
+        "concurrency": 24
+      },
+      "windowMs": 4919.1,
+      "phases": {
+        "active": {
+          "renders": 577,
+          "contiguousRenderCallsPerSecond": 117.861,
+          "renderGapMs": {
+            "n": 576,
+            "mean": 8.485,
+            "p50": 6.9,
+            "p95": 12.1,
+            "p99": 14.5,
+            "max": 31.7,
+            "over50": 0
+          },
+          "renderCpuMs": {
+            "n": 577,
+            "mean": 2.116,
+            "p50": 1.3,
+            "p95": 7.2,
+            "p99": 7.7,
+            "max": 9,
+            "over50": 0
+          }
+        }
+      },
+      "phaseWallEstimateMs": {
+        "active": 2709.7,
+        "completing": 2207.7
+      },
+      "rafGapMs": {
+        "n": 826,
+        "mean": 5.966,
+        "p50": 5.9,
+        "p95": 6.5,
+        "p99": 11.7,
+        "max": 30.1,
+        "over8_34": 19,
+        "over16_7": 7,
+        "over50": 0
+      },
+      "stepCpuMs": {
+        "n": 214,
+        "mean": 0.109,
+        "p50": 0,
+        "p95": 0.3,
+        "p99": 0.5,
+        "max": 3.3,
+        "over8_34": 0,
+        "over16_7": 0,
+        "over50": 0
+      },
+      "hudCpuMs": {
+        "n": 100,
+        "mean": 0.182,
+        "p50": 0.2,
+        "p95": 0.3,
+        "p99": 1.8,
+        "max": 1.8,
+        "over8_34": 0,
+        "over16_7": 0,
+        "over50": 0
+      },
+      "musicCpuMs": {
+        "n": 100,
+        "mean": 0.048,
+        "p50": 0,
+        "p95": 0.2,
+        "p99": 0.2,
+        "max": 0.2,
+        "over8_34": 0,
+        "over16_7": 0,
+        "over50": 0
+      },
+      "longTasks": [],
+      "errors": [],
+      "observed": {
+        "peakWaves": 1,
+        "peakCaptures": 0,
+        "peakBlackHoleRate": 0,
+        "minimumTimeScale": 1,
+        "peakRowEvents": 0,
+        "peakRowOperations": 0,
+        "collectorPickups": 0,
+        "bodyPickups": 0
+      },
+      "placement": {
+        "mode": "clear",
+        "target": null,
+        "distance": 12973.320930232558,
+        "y": 215,
+        "totalDistance": 13233.320930232558
+      },
+      "screen": "card-reward",
+      "sessionEvents": [],
+      "lifecycle": {
+        "dyingObserved": false
+      }
+    },
+    {
+      "artifact": "report-plain-normal-cap120-maxRow-900x405-dpr1",
+      "build": "cap120",
+      "cadence": "normal",
+      "viewport": {
+        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/157.0.0.0 Safari/537.36",
+        "dpr": 1,
+        "width": 900,
+        "height": 405,
+        "concurrency": 24
+      },
+      "windowMs": 4049.4,
+      "phases": {
+        "active": {
+          "renders": 479,
+          "contiguousRenderCallsPerSecond": 118.367,
+          "renderGapMs": {
+            "n": 478,
+            "mean": 8.448,
+            "p50": 6.2,
+            "p95": 12.1,
+            "p99": 14,
+            "max": 33.7,
+            "over50": 0
+          },
+          "renderCpuMs": {
+            "n": 479,
+            "mean": 1.65,
+            "p50": 1.4,
+            "p95": 3.2,
+            "p99": 4.2,
+            "max": 5.3,
+            "over50": 0
+          }
+        }
+      },
+      "phaseWallEstimateMs": {
+        "active": 3943.3
+      },
+      "rafGapMs": {
+        "n": 687,
+        "mean": 5.897,
+        "p50": 5.9,
+        "p95": 6.5,
+        "p99": 11.5,
+        "max": 29.7,
+        "over8_34": 10,
+        "over16_7": 3,
+        "over50": 0
+      },
+      "stepCpuMs": {
+        "n": 162,
+        "mean": 0.162,
+        "p50": 0.1,
+        "p95": 0.4,
+        "p99": 2.1,
+        "max": 3,
+        "over8_34": 0,
+        "over16_7": 0,
+        "over50": 0
+      },
+      "hudCpuMs": {
+        "n": 99,
+        "mean": 0.196,
+        "p50": 0.2,
+        "p95": 0.4,
+        "p99": 2,
+        "max": 2,
+        "over8_34": 0,
+        "over16_7": 0,
+        "over50": 0
+      },
+      "musicCpuMs": {
+        "n": 99,
+        "mean": 0.049,
+        "p50": 0,
+        "p95": 0.1,
+        "p99": 0.2,
+        "max": 0.2,
+        "over8_34": 0,
+        "over16_7": 0,
+        "over50": 0
+      },
+      "longTasks": [],
+      "errors": [],
+      "observed": {
+        "peakWaves": 1,
+        "peakCaptures": 1,
+        "peakBlackHoleRate": 0,
+        "minimumTimeScale": 1,
+        "peakRowEvents": 0,
+        "peakRowOperations": 0,
+        "collectorPickups": 0,
+        "bodyPickups": 0
+      },
+      "placement": {
+        "mode": "entrance",
+        "target": null,
+        "distance": 0,
+        "y": 215,
+        "totalDistance": 13233.320930232558
+      },
+      "screen": "flight",
+      "sessionEvents": []
+    }
+  ],
+  "retryAttribution": {
+    "artifact": "work/perf120/retry-attribution-normal-current-collectorRow-900x405-dpr1",
+    "scope": "Separate single 22-second CPU-profile diagnostic. Not part of the quantitative unprofiled matrix.",
+    "clockAlignment": "Profile.stop occurs just after benchmark end; sample/page clock alignment is approximate, ±5ms analysis padding. Separate profiled run, not quantitative matrix.",
+    "events": [
+      {
+        "at": 21654.100000023842,
+        "kind": "natural-death"
+      },
+      {
+        "at": 24715.5,
+        "kind": "retry-start"
+      }
+    ],
+    "windows": [
+      {
+        "task": {
+          "at": 23871.70000001788,
+          "ms": 67
+        },
+        "hotPaths": [
+          {
+            "function": "drawMap",
+            "file": "app.mjs",
+            "line": 913,
+            "inclusiveMs": 61.364
+          },
+          {
+            "function": "prepareOffer",
+            "file": "app.mjs",
+            "line": 446,
+            "inclusiveMs": 56.715
+          },
+          {
+            "function": "prepareRouteOffer",
+            "file": "route-offers.mjs",
+            "line": 8,
+            "inclusiveMs": 55.188
+          },
+          {
+            "function": "WispFlight",
+            "file": "flight.mjs",
+            "line": 781,
+            "inclusiveMs": 53.682
+          },
+          {
+            "function": "geometry",
+            "file": "route-offers.mjs",
+            "line": 16,
+            "inclusiveMs": 53.682
+          },
+          {
+            "function": "ensureGlowBudget",
+            "file": "glow-budget.mjs",
+            "line": 38,
+            "inclusiveMs": 20.29
+          },
+          {
+            "function": "createDraftZones",
+            "file": "drafts.mjs",
+            "line": 50,
+            "inclusiveMs": 14.235
+          }
+        ]
+      },
+      {
+        "task": {
+          "at": 24537.20000001788,
+          "ms": 69
+        },
+        "hotPaths": [
+          {
+            "function": "launch",
+            "file": "app.mjs",
+            "line": 717,
+            "inclusiveMs": 61.735
+          },
+          {
+            "function": "WispFlight",
+            "file": "flight.mjs",
+            "line": 781,
+            "inclusiveMs": 58.458
+          },
+          {
+            "function": "ensureGlowBudget",
+            "file": "glow-budget.mjs",
+            "line": 38,
+            "inclusiveMs": 22.075
+          },
+          {
+            "function": "createDraftZones",
+            "file": "drafts.mjs",
+            "line": 50,
+            "inclusiveMs": 15.766
+          }
+        ]
+      }
+    ]
+  },
+  "releasePackage": {
+    "release": "flight-120-1",
+    "offline": {
+      "release": "flight-120-1",
+      "revision": "cedaf0008053",
+      "files": 404
+    },
+    "focusedTests": {
+      "tests": 159,
+      "pass": 159,
+      "fail": 0,
+      "skipped": 0
+    },
+    "syntaxChecked": 445,
+    "dreamProbePassed": true,
+    "previousInstalledRelease": "skills-cards-3",
+    "saveBytesPreserved": true,
+    "hashFormat": "SHA-256 of committed Git text with LF line endings",
+    "sourceHashes": {
+      "dist/flight.mjs": "67a96e3f3c38e654e1a9b479a2f1d857e6e95812a411bab2af8ac81694ea70d8",
+      "dist/wisp-renderer.mjs": "08aafc85f94100d49b4b42a1e41b41a8709cf299471c54e8f8e272d7ed9b24c7",
+      "dist/app.mjs": "913daebaa638e117716a4843fbfa52db2c005e3c9a4c1287d70d765f5ca4cba6",
+      "dist/offline-list.js": "a5f23b1b1186250f1940a73fbd79fc43be83302fb3ec4595215bd96e684b0fd1"
+    }
+  }
+}

@@ -1,6 +1,6 @@
-import {glowPoints, getGlowCapacity,getLifeCapacity} from './vitality.mjs?v=skills-cards-3';
-import {getCompanionAbility} from './companion-abilities.mjs?v=skills-cards-3';
-import {activeEventFavors} from './passage-preparations.mjs?v=skills-cards-3';
+import {glowPoints, getGlowCapacity,getLifeCapacity} from './vitality.mjs?v=flight-120-1';
+import {getCompanionAbility} from './companion-abilities.mjs?v=flight-120-1';
+import {activeEventFavors} from './passage-preparations.mjs?v=flight-120-1';
 
 export const TREASURE_KINDS = Object.freeze(['vessel', 'lens', 'tithe', 'wager']);
 export const LENS_SIGHT = 1.15;

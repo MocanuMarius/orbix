@@ -11,7 +11,7 @@ export const CARD_ECONOMY = Object.freeze({
   maxPackingWeight: 27,
   maxGrowPerAction: 27,
 });
-import {CARD_CATALOG,CARD_DROP_WEIGHTS} from './card-catalog.mjs?v=skills-cards-3';
+import {CARD_CATALOG,CARD_DROP_WEIGHTS} from './card-catalog.mjs?v=flight-120-1';
 export const SKILL_CARDS = CARD_CATALOG;
 const clone = (value) => JSON.parse(JSON.stringify(value));
 const integer = (n, max = 1e9) =>

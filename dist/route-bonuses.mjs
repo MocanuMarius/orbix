@@ -1,5 +1,5 @@
-import {getLifeCapacity} from './vitality.mjs?v=skills-cards-3';
-import {grantPassageBoon} from './passage-preparations.mjs?v=skills-cards-3';
+import {getLifeCapacity} from './vitality.mjs?v=flight-120-1';
+import {grantPassageBoon} from './passage-preparations.mjs?v=flight-120-1';
 
 function bonus(id, name, condition, reward, target) {
   return Object.freeze({id, name, condition, reward, target});

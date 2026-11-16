@@ -1,4 +1,4 @@
-import {lightVisibility} from './light-field.mjs?v=skills-cards-3';
+import {lightVisibility} from './light-field.mjs?v=flight-120-1';
 
 const clamp=(n,a,b)=>Math.max(a,Math.min(b,n));
 export const WARNING_NOTICE=.31;

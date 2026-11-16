@@ -4,9 +4,11 @@ A landscape, one-handed pixel flight roguelite. The static game lives in `dist/`
 
 ## Current release
 
-[Play](https://mocanumarius.github.io/orbix/) · [Compare Skills layouts on your phone](https://mocanumarius.github.io/orbix/skills-preview.html) · [Fly through a Darkness Lantern](https://mocanumarius.github.io/orbix/spark-preview.html#lantern) · [See the five Spark sizes](https://mocanumarius.github.io/orbix/spark-preview.html#sizes) · [Compare Spark absorption styles](https://mocanumarius.github.io/orbix/spark-preview.html#absorption) · [Landscape desktop preview](https://mocanumarius.github.io/orbix/preview.html)
+[Play](https://mocanumarius.github.io/orbix/) · [Compare Skills layouts on your phone](https://mocanumarius.github.io/orbix/skills-preview.html) · [Fly through a Darkness Lantern](https://mocanumarius.github.io/orbix/spark-preview.html#lantern) · [Compare the three Spark strengths](https://mocanumarius.github.io/orbix/spark-preview.html#sizes) · [Compare Spark absorption styles](https://mocanumarius.github.io/orbix/spark-preview.html#absorption) · [Landscape desktop preview](https://mocanumarius.github.io/orbix/preview.html)
 
-Release `skills-cards-3` makes **Cards** the default game at the [main link](https://mocanumarius.github.io/orbix/). Choose **New Game**, **Continue**, **Tutorial** or **Settings**. The original skill-book game is available under **Settings → Advanced → Legacy skills override** and keeps its separate save. Existing card journeys retain their save and starter seed. The [older card launcher](https://mocanumarius.github.io/orbix/cards.html) remains supported and updates installed games before entry, retaining desktop display controls and native phone routing. First Light loans Lift Guide during its Lift lesson; practice rewards do not carry into the real run.
+Release `flight-120-1` raises interpolated flight rendering to **120 Hz** while retaining the 60 Hz physics and existing graphics. Matched desktop Chrome scenarios reached about 118–120 actual paint calls/s; physical Pixel 10 timing remains unmeasured. Cold entry and retry hitches remain specific follow-ups. [Measurements and reproduction](docs/performance-120.md).
+
+**Cards** is the default game at the [main link](https://mocanumarius.github.io/orbix/). Choose **New Game**, **Continue**, **Tutorial** or **Settings**. The original skill-book game is available under **Settings → Advanced → Legacy skills override** and keeps its separate save. Existing card journeys retain their save and starter seed. The [older card launcher](https://mocanumarius.github.io/orbix/cards.html) remains supported and updates installed games before entry, retaining desktop display controls and native phone routing. First Light loans Lift Guide during its Lift lesson; practice rewards do not carry into the real run.
 
 Cards start with three ordered active slots: your choice of two Common starter gifts in the first slot, guaranteed Lift Guide in the second, and one free slot. Earned and forged cards enter the owned Deck automatically. Equip a card into a slot; an occupied slot's previous card returns to the Deck. Equip, unequip, drag, reorder, improve, Melt and Forge anytime in Deck, including during paused flight. Select several cards and preview their combined Melt return before confirming. Banked Stored Sparks pay for improvements and repeatable forging: Rare 30, Legendary 60 with a Rare equipped. Forge uses no Rest action. Try the [disposable sample Deck](https://mocanumarius.github.io/orbix/card-workbench.html) without changing either saved journey. Prices, rarity odds and the five-slot cap remain provisional; see [the pilot rules](docs/skill-cards.md). The [Collector art comparison](https://mocanumarius.github.io/orbix/collector-art.html#tow) includes the living tow preview; the two-ink Collector is the current default.
 
@@ -16,7 +18,7 @@ Browse [15 sample trios and the full catalog](https://mocanumarius.github.io/orb
 
 The ground's Spirit Fire mineral rim now stays fixed to world pixels, with a narrower inward band. Luminance penetrates rock one third less deeply while its open-air falloff and dynamic physical shadows remain intact. [Matched terrain-light frames](https://mocanumarius.github.io/orbix/assets/previews/terrain-light-comparison.png) · [Release verification](docs/skills-cards-release.md).
 
-Use **Settings → Refresh build** to apply a published update. On a phone, open the game link directly or install it as a PWA.
+Use **Settings → Advanced → Refresh build** to apply a published update. On a phone, open the game link directly or install it as a PWA. To record a device flight, open [performance diagnostics](https://mocanumarius.github.io/orbix/?perf=1), play, then choose **Settings → Advanced → Save performance report**.
 
 Run `npm start` at localhost:4173, or `npm run preview:rest` at localhost:4180 for local inspection fixtures.
 
@@ -24,7 +26,7 @@ The main URL automatically presents a **900 × 405 logical landscape game** on d
 
 ## Clear Rewards
 
-Cleared flights grant predictable income. Surplus fuel adds a bonus, and standard Rest offers a choice between Recover and Grow. The separate card pilot uses the action-based Rest rules below. [Income-model assumptions and results](docs/checkpoint-economy.md).
+Cleared flights grant predictable income. Surplus fuel adds a bonus, and legacy skill-book Rest offers a choice between Recover and Grow. Cards uses the action-based Rest rules below. [Income-model assumptions and results](docs/checkpoint-economy.md).
 
 ## Moonlit Menus
 
@@ -36,11 +38,11 @@ Cleared flights grant predictable income. Surplus fuel adds a bonus, and standar
 
 ## Current rules
 
-Three branching maps form a run. Choose one companion at the start. Skills belong to that run. In standard play, open the skill tree from the Stored Sparks counter to spend banked currency, including during a flight. Opening the tree pauses play. In the card pilot, the counter opens the Deck and its ordered active slots; changes and improvements require a checkpoint.
+Three branching maps form a run with Collector, the currently available companion. Skills belong to that run. In the legacy skill-book game, open the skill tree from the Stored Sparks counter to spend banked currency, including during a flight. Opening the tree pauses play. In Cards, the counter opens the Deck and its ordered active slots. Equip, reorder, improve, Melt and Forge remain available during the run, including a safely paused flight; purchases use banked Stored Sparks.
 
 **Sparks** fuel flight. A baseline meter holds 30 and a Lift costs 3 before upgrades. A Spark, Cluster and Cache restore 6, 12 and 18 respectively. Their white arcs grow denser as the value rises. Surplus fuel earns Stored Sparks on a clear. An unshielded collision costs one attempt. At zero fuel the wisp can still fall into a Spark and recover.
 
-Standard Rest offers **Recover** to relight missing hearts or **Grow** to raise capacity by 3, up to three times in a run. Both refill the Spark Meter. Card Rest normally permits one action: Recover or Add slot. Mounted Growth Seed unlocks Grow; Second Ember can spend its single charge on a second distinct eligible action. Add slot grants no healing or refill. Forge is available anytime in Deck and uses no camp action. Each Rest leads to one flight. Once you learn Dream, each flight opens with a fully lit rehearsal. Go back to sleep to retry, or wake to replay a successful opening in normal light. Playback pauses for the handoff.
+Legacy skill-book Rest offers **Recover** to relight missing hearts or **Grow** to raise capacity by 3, up to three times in a run. Both refill the Spark Meter. Card Rest normally permits one action: Recover or Add slot. Mounted Growth Seed unlocks Grow; Second Ember can spend its single charge on a second distinct eligible action. Add slot grants no healing or refill. Forge is available anytime in Deck and uses no camp action. Each Rest leads to one flight. Once you learn Dream, each flight opens with a fully lit rehearsal. Go back to sleep to retry, or wake to replay a successful opening in normal light. Playback pauses for the handoff.
 
 Normal play teaches one contextual concept at a time. Field Guide and separate practice remain available. Remember & skip persists; Reset tutorial replays the introduction on New Game. Entry loads for five seconds and ends paused. Resume uses a frozen three-second countdown followed by the three-second 0.1× → 1× recovery.
 

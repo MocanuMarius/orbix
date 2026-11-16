@@ -1,4 +1,4 @@
-import {topicSteps} from './tutorial-curriculum.mjs?v=skills-cards-3';
+import {topicSteps} from './tutorial-curriculum.mjs?v=flight-120-1';
 const step=(id,title,text,target)=>({id,title,text,target,allowTarget:false});
 const chapter=(id,steps,target)=>({id,steps:steps.map(s=>({...s,...(target?{target}:{}),allowTarget:false}))});
 export function checkpointTutorialLesson(screen,{run={}}={}){

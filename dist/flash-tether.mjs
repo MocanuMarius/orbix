@@ -1,4 +1,4 @@
-import {drawPickup} from './pickup-art.mjs?v=skills-cards-3';
+import {drawPickup} from './pickup-art.mjs?v=flight-120-1';
 
 const TAU = 2 * Math.PI;
 const clamp = (x, lo=0, hi=1) => Math.max(lo,Math.min(hi,x));

@@ -1,6 +1,6 @@
-import {sparkImageArt,sparkSymbolArt} from './spark-symbol.mjs?v=skills-cards-3';
-import {condensedIconMarkup} from './afterglow-ui.mjs?v=skills-cards-3';
-import {fineTreasureObject} from './fine-treasure-art.mjs?v=skills-cards-3';
+import {sparkImageArt,sparkSymbolArt} from './spark-symbol.mjs?v=flight-120-1';
+import {condensedIconMarkup} from './afterglow-ui.mjs?v=flight-120-1';
+import {fineTreasureObject} from './fine-treasure-art.mjs?v=flight-120-1';
 
 // Three material tones sit above a shared dark contour. Keep light and shadow
 // readable at the tree's smallest size, even with all motion switched off.
