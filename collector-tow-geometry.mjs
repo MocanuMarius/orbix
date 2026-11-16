@@ -1,4 +1,4 @@
-import {pickupHookAnchor} from './pickup-handling-cue.mjs?v=dream-gifts-1';
+import {pickupHookAnchor} from './pickup-handling-cue.mjs?v=storm-guide-1';
 
 const TAU=Math.PI*2;
 const unit=value=>Math.max(0,Math.min(1,value));
@@ -41,5 +41,6 @@ export function collectorTowOrbit(tether,age,quiet=false,turnsPerSecond=1.35,out
   const coil=(4+Math.min(7,length*.11))*Math.min(1,age/.2),offset=Math.cos(angle)*coil;
   collectorTowPoint(tether,along,out);
   out.x+=out.nx*offset;out.y+=out.ny*offset;
+  out.depth=Math.sin(angle);
   return out;
 }

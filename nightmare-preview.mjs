@@ -1,8 +1,8 @@
-import {showNightmare} from './nightmare.mjs?v=dream-gifts-1';
-import {WispFlight,FLIGHT_TUNING,circleHitsObstacle} from './flight.mjs?v=dream-gifts-1';
-import {FlightProjection} from './flight-projection.mjs?v=dream-gifts-1';
-import {getRunModifiers} from './model.mjs?v=dream-gifts-1';
-import {glowPoints} from './vitality.mjs?v=dream-gifts-1';
+import {showNightmare} from './nightmare.mjs?v=storm-guide-1';
+import {WispFlight,FLIGHT_TUNING,circleHitsObstacle} from './flight.mjs?v=storm-guide-1';
+import {FlightProjection} from './flight-projection.mjs?v=storm-guide-1';
+import {getRunModifiers} from './model.mjs?v=storm-guide-1';
+import {glowPoints} from './vitality.mjs?v=storm-guide-1';
 const $=id=>document.getElementById(id),canvas=document.querySelector('canvas');
 const forecast=new FlightProjection(FLIGHT_TUNING,circleHitsObstacle);
 let phase='loading',spent=false,flashStart=-Infinity;

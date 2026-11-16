@@ -1,6 +1,6 @@
-import {flashPowerupDuration} from './pickups.mjs?v=dream-gifts-1';
-import {resourceCycleSteps} from './resource-cycle.mjs?v=dream-gifts-1';
-import {LANTERN_THEME} from './map-theme.mjs?v=dream-gifts-1';
+import {flashPowerupDuration} from './pickups.mjs?v=storm-guide-1';
+import {resourceCycleSteps} from './resource-cycle.mjs?v=storm-guide-1';
+import {LANTERN_THEME} from './map-theme.mjs?v=storm-guide-1';
 // Normal-run onboarding is profile-owned. Prompts are contextual, one short
 // card at a time; the run owns only pacing so a new game keeps learned topics.
 export const ONBOARDING_VERSION=1;

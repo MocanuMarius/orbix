@@ -1,9 +1,9 @@
-import {ARTIFACTS,getArtifactSalvageValue,canSellArtifact} from './model.mjs?v=dream-gifts-1';
-import {artifactDescription} from './artifact-copy.mjs?v=dream-gifts-1';
-import {artifactIcon} from './upgrade-icons.mjs?v=dream-gifts-1';
-import {resourceSymbol} from './game-symbols.mjs?v=dream-gifts-1';
-import {reliquaryBackdropMarkup,reliquaryNicheMarkup,furnaceGlyphMarkup} from './ui/reliquary-art.mjs?v=dream-gifts-1';
-import {relicIdentityMarkup,relicRulesMarkup,relicRulesButton} from './ui/relic-primitives.mjs?v=dream-gifts-1';
+import {ARTIFACTS,getArtifactSalvageValue,canSellArtifact} from './model.mjs?v=storm-guide-1';
+import {artifactDescription} from './artifact-copy.mjs?v=storm-guide-1';
+import {artifactIcon} from './upgrade-icons.mjs?v=storm-guide-1';
+import {resourceSymbol} from './game-symbols.mjs?v=storm-guide-1';
+import {reliquaryBackdropMarkup,reliquaryNicheMarkup,furnaceGlyphMarkup} from './ui/reliquary-art.mjs?v=storm-guide-1';
+import {relicIdentityMarkup,relicRulesMarkup,relicRulesButton} from './ui/relic-primitives.mjs?v=storm-guide-1';
 
 export const COLLECTION_PAGE_SIZE=6;
 const esc=value=>String(value??'').replace(/[&<>"']/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));

@@ -1,13 +1,13 @@
-import {relics,cards,route,menus,hud,art,dialogs,actionButton,escapeHtml as esc} from './index.mjs?v=dream-gifts-1';
-import {resolveSample} from './gallery-catalog.mjs?v=dream-gifts-1';
-import {createComponentFixture} from './gallery-fixtures.mjs?v=dream-gifts-1';
-import {ARTIFACTS,getChoices,getOwnedCards,getMountedCards,getCardReward,getCardDraft,chooseCardDraft,getCardMeltPreview,meltOwnedCards,getArtifactSalvageValue,sellArtifact,chooseFlightReward,equipOwnedCard,unequipMountedCard,moveMountedCard} from '../model.mjs?v=dream-gifts-1';
-import {bindDeckDragging} from '../deck-drag.mjs?v=dream-gifts-1';
-import {ROUTE_BONUSES} from '../route-bonuses.mjs?v=dream-gifts-1';
-import {prepareRouteOffer} from '../route-offers.mjs?v=dream-gifts-1';
-import {installComboLessons} from '../combo-lesson.mjs?v=dream-gifts-1';
-import {cardWorkshopMarkup,cardRefillMarkup} from '../card-workshop.mjs?v=dream-gifts-1';
-import {getCardImprovePreview,improveOwnedCard,getCardRefillPreview,refillOwnedCard,getCardForgePreview,forgeOwnedCard,getSupportChoices,resolveSupport} from '../model.mjs?v=dream-gifts-1';
+import {relics,cards,route,menus,hud,art,dialogs,actionButton,escapeHtml as esc} from './index.mjs?v=storm-guide-1';
+import {resolveSample} from './gallery-catalog.mjs?v=storm-guide-1';
+import {createComponentFixture} from './gallery-fixtures.mjs?v=storm-guide-1';
+import {ARTIFACTS,getChoices,getOwnedCards,getMountedCards,getCardReward,getCardDraft,chooseCardDraft,getCardMeltPreview,meltOwnedCards,getArtifactSalvageValue,sellArtifact,chooseFlightReward,equipOwnedCard,unequipMountedCard,moveMountedCard} from '../model.mjs?v=storm-guide-1';
+import {bindDeckDragging} from '../deck-drag.mjs?v=storm-guide-1';
+import {ROUTE_BONUSES} from '../route-bonuses.mjs?v=storm-guide-1';
+import {prepareRouteOffer} from '../route-offers.mjs?v=storm-guide-1';
+import {installComboLessons} from '../combo-lesson.mjs?v=storm-guide-1';
+import {cardWorkshopMarkup,cardRefillMarkup} from '../card-workshop.mjs?v=storm-guide-1';
+import {getCardImprovePreview,improveOwnedCard,getCardRefillPreview,refillOwnedCard,getCardForgePreview,forgeOwnedCard,getSupportChoices,resolveSupport} from '../model.mjs?v=storm-guide-1';
 installComboLessons();
 
 const query=new URLSearchParams(location.search),sample=resolveSample(query.get('family'),query.get('state'));
@@ -97,7 +97,7 @@ function previewRouteNode(node){
   if(!node)return;
   const available=getChoices(run).some(item=>item.id===node.id);
   const bonus=prepareRouteOffer(run,node,{profile:state.profile,width:innerWidth,height:innerHeight});
-  sheet(route.flightPreviewMarkup(run,node,{available,level:node,bonus}),'flight-preview-sheet',{detail:true});
+  sheet(route.flightPreviewMarkup(run,node,{available,level:node,bonus,guideArt:query.get('guideArt')}),'flight-preview-sheet',{detail:true});
 }
 function renderMenus(){document.body.dataset.screen='home';app.innerHTML=menus.homeMenuMarkup({profile:state.profile,run:sample.state==='resume'?run:null,selectedDifficulty:local.chosenDifficulty});}
 function renderHud(){

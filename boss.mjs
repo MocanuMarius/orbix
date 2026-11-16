@@ -1,4 +1,5 @@
-import { prepareGuardian } from './guardian-effects.mjs?v=dream-gifts-1';
+import { prepareGuardian } from './guardian-effects.mjs?v=storm-guide-1';
+import {stormRoomAt} from './storm-encounter.mjs?v=storm-guide-1';
 // The Hollow Warden is a survival encounter: read its hands, keep your Sparks,
 // and reach the waylight. Every solid hand uses the ordinary terrain pipeline.
 const TAU = Math.PI * 2;
@@ -32,9 +33,9 @@ const SIGNATURE_PHASES={
   {id:'roots',name:'REACHING ROOTS',instruction:'Climb the roots, then descend with their pulse.',cells:[[.40,260,'floor',8],[.60,260,'roof',8],[.45,265,'both',12],[.50,335,'both',0]]},
   {id:'heartstorm',name:'THE FINAL BEAT',instruction:'Two living gates, then a quiet room.',cells:[[.58,255,'both',12],[.42,255,'both',12],[.52,265,'both',8],[.50,340,'both',0]]}],
  'storm-shepherd':[
-  {id:'call',name:'THE SHEPHERD CALLS',instruction:'Read the rising ribbons; use short corrections.',cells:[[.50,285,'both',0],[.42,270,'both',0],[.58,270,'both',0],[.50,335,'both',0]]},
-  {id:'answer',name:'THE STORM ANSWERS',instruction:'Updraft, downdraft. Ride each push toward the next room.',cells:[[.40,260,'both',0],[.60,260,'both',0],[.45,270,'both',0],[.50,335,'both',0]]},
-  {id:'chorus',name:'THUNDER CHORUS',instruction:'Follow the alternating current; recover between gusts.',cells:[[.58,250,'both',8],[.42,250,'both',8],[.54,270,'both',0],[.50,340,'both',0]]}],
+  {id:'call',name:'THE SHEPHERD CALLS',instruction:'Ride past the shelf for a Spark, or choose the wide passage.',cells:[[.50,285,'both',0],[.42,270,'both',0],[.58,270,'both',0],[.50,335,'both',0]]},
+  {id:'answer',name:'THE STORM ANSWERS',instruction:'Choose either side of the stone. Recover where the currents end.',cells:[[.40,260,'both',0],[.60,260,'both',0],[.45,270,'both',0],[.50,335,'both',0]]},
+  {id:'chorus',name:'THUNDER CHORUS',instruction:'The double conductor reverses its stream. The other side stays quiet.',cells:[[.58,250,'both',8],[.42,250,'both',8],[.54,270,'both',0],[.50,340,'both',0]]}],
  'hollow-sun':[
   {id:'eclipse',name:'THE FIRST ECLIPSE',instruction:'Keep beneath the dark wells; gather light between them.',cells:[[.55,290,'both',0],[.60,275,'both',0],[.48,280,'both',0],[.50,335,'both',0]]},
   {id:'orbit',name:'DARK ORBITS',instruction:'Two lanterns face each other. Cross their shadows through the rock.',cells:[[.40,270,'both',0],[.60,270,'both',0],[.45,275,'both',0],[.50,340,'both',0]]},
@@ -45,7 +46,7 @@ export const BOSS_PREVIEWS=Object.freeze({
   'hollow-warden':Object.freeze({id:'hollow-warden',name:'Hollow Warden',instruction:'Stone hands and swaying passages.',icon:'boss'}),
   'frost-matron':Object.freeze({id:'frost-matron',name:'Frost Matron',instruction:'Cross away from cracking ice. A shard breaks on contact and drains up to 6 Sparks.',icon:'boss'}),
   'rootbound-heart':Object.freeze({id:'rootbound-heart',name:'Rootbound Heart',instruction:'Living gates breathe open and close. Follow their pulse.',icon:'boss'}),
-  'storm-shepherd':Object.freeze({id:'storm-shepherd',name:'Storm Shepherd',instruction:'Low streams lift you. High streams push you down. Fly around the current or ride it.',icon:'boss'}),
+  'storm-shepherd':Object.freeze({id:'storm-shepherd',name:'Storm Shepherd',instruction:'Ride for a Spark, choose a lane around stone, then read the reversing current. Quiet air connects each room.',icon:'boss'}),
   'hollow-sun':Object.freeze({id:'hollow-sun',name:'Hollow Sun',instruction:'Wells drain nearby Sparks. Wall lanterns cross their beams. A Flash lights a path through.',icon:'boss'}),
   moonweaver:Object.freeze({id:'moonweaver',name:'Moonweaver',instruction:'Alternating crescents and a drifting silver loom.',icon:'boss'})
 });
@@ -235,7 +236,7 @@ export function buildBossLayout({ seed = 1, height = 620, speed = 154, duration 
     boss: { id: identity.id, name: identity.name, difficulty, mapIndex:mapDepth, phases, tuning,
       introEnd: start, end, exitStart: totalDistance - speed * 3.2 },
     legs: phases.map(phase => ({ index: phase.index - 1, start: phase.start, end: phase.end })),
-    hardWindows: sections.filter(section => section.hard).length, lengthScale: 1 }, height, speed);
+    hardWindows: sections.filter(section => section.hard).length, lengthScale: 1 }, height, speed,seed);
 }
 
 export function getBossState(engine) {
@@ -246,12 +247,13 @@ export function getBossState(engine) {
   const upcoming = !boss.attacks && engine.layout.obstacles.find(obstacle => (obstacle.motion > 0||boss.id==='moonweaver'&&obstacle.hard)
     && obstacle.x + obstacle.width * .8 > worldX && obstacle.x - worldX < (boss.tuning?.warningDistance||360));
   const direction = upcoming && Math.cos(engine.time * .9 + upcoming.phase) < 0 ? 'rising' : 'falling';
+  const stormRoom=boss.id==='storm-shepherd'?stormRoomAt(boss,worldX):null;
   return { id: boss.id, name: boss.name, phase: phase.index, phaseName: phase.name,
     progress: clamp((worldX - phase.start) / Math.max(1, phase.end - phase.start), 0, 1),
     warning: upcoming ? boss.id==='moonweaver'?(upcoming.motion>0?`Silver opening ${direction} · follow the loom`
       :upcoming.topShape&&!upcoming.bottomShape?'Upper crescent · pass below':'Lower crescent · pass above'):`Sweeping hands ${direction} · follow the gap`
       : worldX >= boss.exitStart ? `${boss.name} yields · reach the waylight`
-        : worldX < phase.start + 260 ? phase.instruction : '' };
+        : stormRoom?stormRoom.instruction:worldX < phase.start + 260 ? phase.instruction : '' };
 }
 
 function poly(c, points, fill) {

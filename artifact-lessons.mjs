@@ -1,5 +1,5 @@
-import {getArtifactInfo} from './artifact-info.mjs?v=dream-gifts-1';
-import {glowText} from './vitality.mjs?v=dream-gifts-1';
+import {getArtifactInfo} from './artifact-info.mjs?v=storm-guide-1';
+import {glowText} from './vitality.mjs?v=storm-guide-1';
 
 // One small first-use explanation per flight. Remaining discoveries stay
 // eligible next flight rather than chaining several modal interruptions.

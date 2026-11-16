@@ -1,17 +1,19 @@
-import {newState,createRun,selectNode} from './model.mjs?v=dream-gifts-1';
-import {BIOME_LEVELS} from './biomes.mjs?v=dream-gifts-1';
-import {circleHitsObstacle} from './flight.mjs?v=dream-gifts-1';
-import {scenePropBounds} from './scene-props.mjs?v=dream-gifts-1';
-import {terrainBoundary} from './terrain-boundary.mjs?v=dream-gifts-1';
-import {WispCompanion} from './wisp.mjs?v=dream-gifts-1';
+import {newState,createRun,selectNode} from './model.mjs?v=storm-guide-1';
+import {BIOME_LEVELS} from './biomes.mjs?v=storm-guide-1';
+import {circleHitsObstacle} from './flight.mjs?v=storm-guide-1';
+import {scenePropBounds} from './scene-props.mjs?v=storm-guide-1';
+import {terrainBoundary} from './terrain-boundary.mjs?v=storm-guide-1';
+import {WispCompanion} from './wisp.mjs?v=storm-guide-1';
 
 // A disposable run through the same App, WispFlight, HUD and authored course.
 export function createBoundaryInspectorState(query=new URLSearchParams()){
- const state=newState(),run=state.run=createRun(state.profile,'in-game-boundary-study',1);
+ const storm=query.get('boss')==='storm-shepherd';
+ const state=newState(),run=state.run=createRun(state.profile,storm?query.get('seed')||'shepherd-study':'in-game-boundary-study',1);
  const biome=query.get('biome')||'pinewood',course=Math.max(0,Math.min(3,(Number(query.get('course'))||3)-1));
  const choices=BIOME_LEVELS.filter(level=>level.biomeId===biome);
  const level=choices[course]||BIOME_LEVELS.find(level=>level.biomeId==='pinewood'&&level.variant===2)||BIOME_LEVELS[0];
  const node={...level,id:'boundary-flight',levelId:level.id,type:'flight',row:0,mapIndex:0,difficulty:1,duration:90,nextIds:[]};
+ if(storm)Object.assign(node,{name:'Storm Shepherd',terrain:'storm',boss:true,bossId:'storm-shepherd',row:6,type:'finale'});
  run.map=[[node]];run.step=0;run.path=[];run.phase='map';run.guideSkipped=true;
  run.startingGiftId='boundary-inspection';run.stats.flights=4;
  if(query.has('spacetime')&&query.get('spacetime')!=='off')run.skills={'proximity-awakening':1,'main-edging-tension':1,'proximity-grace':1,'proximity-spacetime':1};
@@ -36,6 +38,15 @@ export function frameBoundaryInspection(engine,query=new URLSearchParams()){
   }
   engine.render();engine.notify();
  };
+ if(engine.layout.boss?.id==='storm-shepherd'&&query.get('boss')==='storm-shepherd'){
+  const kind=query.get('part')||'shelf',room=engine.layout.boss.stormRooms.find(room=>room.kind===kind);
+  if(room){
+   const x=room.start-145,y=room.center;
+   engine.distance=engine.previousDistance=x-engine.player.x;
+   engine.player.y=engine.previousPlayerY=y;engine.player.vy=0;
+  }
+  finish();return;
+ }
  if(query.has('spacetime')){
   const roof=query.get('spacetime')==='roof',r=engine.player.radius;
   const segments=terrainBoundary(engine,engine.time).segments.filter(s=>s.top===roof&&s.owner.x>650&&!s.owner.motion&&!s.owner.bossPhase&&s.b[0]-s.a[0]>2&&Math.abs(s.b[1]-s.a[1])<(s.b[0]-s.a[0])*.45&&Math.min(s.a[1],s.b[1])>65&&Math.max(s.a[1],s.b[1])<engine.height-65).sort((a,b)=>(b.b[0]-b.a[0])-(a.b[0]-a.a[0]));

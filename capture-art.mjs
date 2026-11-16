@@ -1,11 +1,11 @@
-import {drawAbsorbingSpark} from './tidal-light.mjs?v=dream-gifts-1';
-import {getPickupSpec, pickupShellRadius} from './pickups.mjs?v=dream-gifts-1';
-import {drawPickup} from './pickup-art.mjs?v=dream-gifts-1';
-import {drawShellArcs} from './shell-arcs.mjs?v=dream-gifts-1';
-import {DEFAULT_CAPTURE_STYLE} from './capture-styles.mjs?v=dream-gifts-1';
-import {COLLECTOR_RING} from './pickup-handling-cue.mjs?v=dream-gifts-1';
-import {collectorTowPoint} from './collector-tow-geometry.mjs?v=dream-gifts-1';
-import {lightVisibility,renderLightState} from './light-field.mjs?v=dream-gifts-1';
+import {drawAbsorbingSpark} from './tidal-light.mjs?v=storm-guide-1';
+import {getPickupSpec, pickupShellRadius} from './pickups.mjs?v=storm-guide-1';
+import {drawPickup} from './pickup-art.mjs?v=storm-guide-1';
+import {drawShellArcs} from './shell-arcs.mjs?v=storm-guide-1';
+import {DEFAULT_CAPTURE_STYLE} from './capture-styles.mjs?v=storm-guide-1';
+import {COLLECTOR_RING} from './pickup-handling-cue.mjs?v=storm-guide-1';
+import {collectorTowPoint} from './collector-tow-geometry.mjs?v=storm-guide-1';
+import {lightVisibility,renderLightState} from './light-field.mjs?v=storm-guide-1';
 
 const TAU = Math.PI * 2;
 const clamp = value => Math.max(0, Math.min(1, value));
@@ -34,7 +34,8 @@ export function drawCollectorGrip(ctx,state,scale=1,{engine,light,playerY}={}){
     // winds around it in a separate depth pass; it never owns the string.
     const length=Math.hypot(tether.hookX-tether.x,tether.hookY-tether.y);
     let visible=towVisibility(state,engine,light,playerY);
-    if(length<.5||!(visible>0))return;
+    const opacity=tether.alpha??1;
+    if(length<.5||!(visible>0)||!(opacity>0))return;
     ctx.save();ctx.lineCap='round';ctx.lineJoin='round';
     ctx.beginPath();ctx.moveTo(tether.x*scale,tether.y*scale);
     const point={},field=engine&&(light||renderLightState(engine)),py=playerY??engine?.renderPlayerY??engine?.player.y;
@@ -45,7 +46,7 @@ export function drawCollectorGrip(ctx,state,scale=1,{engine,light,playerY}={}){
     // The bow can cross a dark shutter even when both attachments are lit.
     // Fade to the least visible sample instead of lighting through that beam.
     if(!(visible>0)){ctx.restore();return;}
-    const alpha=ctx.globalAlpha*visible;
+    const alpha=ctx.globalAlpha*visible*opacity;
     ctx.globalAlpha=alpha*.78;ctx.strokeStyle=COLLECTOR_RING.edge;ctx.lineWidth=2.8*scale;ctx.stroke();
     // A handful of reused strokes gives the filament a mint halo and a pale
     // hot core at the native raster, without blur, gradients or particles.

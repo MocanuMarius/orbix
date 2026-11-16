@@ -1,8 +1,9 @@
-import {iceShardPoints,iceShardContact,sampleIceShard} from './guardian-geometry.mjs?v=dream-gifts-1';
-import {getPickupSpec} from './pickups.mjs?v=dream-gifts-1';
-import {installShutters,resizeShutters} from './shutter-cone.mjs?v=dream-gifts-1';
+import {iceShardPoints,iceShardContact,sampleIceShard} from './guardian-geometry.mjs?v=storm-guide-1';
+import {getPickupSpec} from './pickups.mjs?v=storm-guide-1';
+import {installShutters,resizeShutters} from './shutter-cone.mjs?v=storm-guide-1';
+import {prepareStormEncounter,resizeStormRooms} from './storm-encounter.mjs?v=storm-guide-1';
 const clamp=(value,min,max)=>Math.max(min,Math.min(max,value));
-export function prepareGuardian(layout,height,speed){
+export function prepareGuardian(layout,height,speed,seed=1){
  const boss=layout.boss,s=height/620;
  boss.scale=s;boss.speed=speed;
  boss.crests=layout.obstacles.filter(o=>o.guardianGate);
@@ -12,6 +13,7 @@ export function prepareGuardian(layout,height,speed){
   const o=byId.get(spark.anchor);
   if(o){spark.y=o.center;spark.pocket=false;spark.pocketSide=null;spark.feature='guardian-respite';delete o.cachePocket;}
  }
+ if(boss.id==='storm-shepherd')return prepareStormEncounter(layout,height,speed,seed);
  const phaseCounts=[0,0,0,0];
  boss.attacks=[];
  for(const o of layout.obstacles){
@@ -24,17 +26,6 @@ export function prepareGuardian(layout,height,speed){
   if(order%interval&&!o.guardianGate)continue;
   const index=boss.attacks.length,side=o.guardianLane?-o.guardianLane:o.bossPhase===1?-1:(index%2?1:-1);
   const a={x:o.x+o.width*.65,center:o.center,y:o.center,baseGap:o.gap,side,obstacle:o,index,spent:false};
-  if(boss.id==='storm-shepherd'){
-   // At a reversal the current blows off the outer bank, toward the next
-   // lane. It leaves the middle of the gate placid for a timed manual Lift.
-   const linked=!!o.guardianLane;
-   const direction=linked?-o.guardianLane:(index%2?1:-1);
-   // Alternate between a low updraft and a high downdraft. The opposite half
-   // always has a body-wide bypass. DraftField also powers Runner resistance.
-   a.stormZone={id:'shepherd-'+index,guardian:true,x:a.x,y:a.center-direction*o.gap*(linked?.28:.17),
-    rx:linked?88:96+(o.bossPhase-1)*7+(o.guardianGate?14:0),ry:o.gap*(linked?.20:.28),direction,
-    force:(520+(o.bossPhase-1)*35)*(linked?.90:o.guardianGate?1.20:1),triggeredAt:null};
-  }
   if(boss.id==='frost-matron'){
    // Early shards claim the marked wall side; later swipes reach toward mid-lane.
    a.iceReach=early?([0,.29,.16,.03][o.bossPhase]-(boss.difficulty-1)*.035):-.10;
@@ -116,6 +107,24 @@ export function placeGuardianFuel(layout,clear){
   budget.guardianSurplusLayersRemoved=spared;
  }
  if(!boss.attacks)return;
+ if(boss.id==='storm-shepherd'){
+  for(const p of layout.embers){
+   if(!p.fuel||p.harmful||p.generated||p.stormChoice)continue;
+   const room=boss.stormRooms.find(room=>p.x>=room.start-45&&p.x<=room.end+45);
+   if(room&&['shelf','fork'].includes(room.kind)){
+    // Routine fuel belongs to the quiet reunion. The optional shelf prize
+    // keeps its authored position through all later supply and sizing passes.
+    const x=room.end+65,y=room.center;
+    if(clear(x,y,32)){p.x=x;p.y=y;continue;}
+   }
+   if(clear(p.x,p.y,30))continue;
+   for(const y of [room?.bypassY,p.y-boss.scale*100,p.y+boss.scale*100]){
+    if(Number.isFinite(y)&&clear(p.x,y,30)){p.y=y;break;}
+   }
+  }
+  layout.embers.sort((a,b)=>a.x-b.x);
+  return;
+ }
  let cursor=0;
  for(const p of layout.embers){
   while(cursor<boss.attacks.length&&boss.attacks[cursor].x<p.x-140)cursor++;
@@ -132,6 +141,7 @@ export function placeGuardianFuel(layout,clear){
 export function resizeGuardian(layout,factor){
  const boss=layout?.boss;if(!boss)return;
  boss.scale*=factor;
+ resizeStormRooms(boss,factor);
  resizeShutters(boss,factor);
  for(const a of boss.attacks||[]){
   for(const key of ['center','y','baseGap','iceOrigin','iceEnd','iceY','wellY']){
@@ -178,7 +188,8 @@ export function updateGuardian(engine,dt,gust){
     engine.notify();
    }
   }else if(boss.id==='storm-shepherd'){
-   a.stormContact=!!gust?.active&&gust.puffId===a.stormZone.id;
+   a.stormContact=!!gust?.active&&a.stormZones.some(zone=>gust.puffId===zone.id);
+   a.stormPuffId=a.stormContact?gust.puffId:null;
    a.stormStrength=a.stormContact?gust.strength:0;
   }else if(boss.id==='hollow-sun'){
    a.wellY=center+a.side*(a.obstacle.guardianGate?49:70)*s+Math.sin(now*.8+a.index)*24*s;

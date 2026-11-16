@@ -1,4 +1,5 @@
-import {iceShardPoints,ICE_GUIDE_FACETS} from './guardian-geometry.mjs?v=dream-gifts-1';
+import {iceShardPoints,ICE_GUIDE_FACETS} from './guardian-geometry.mjs?v=storm-guide-1';
+import {stormZoneState} from './storm-encounter.mjs?v=storm-guide-1';
 
 // Draw in world units inside the same camera transform for the pixel buffer and canvas fallback.
 const TAU=Math.PI*2;
@@ -18,13 +19,25 @@ function windX(lane,p,phase){
  return edge*(lane*.85+.072*Math.sin(p*7+phase+lane*3));
 }
 
-function drawStorm(c,a,playerX,playerY,t,s,alpha,reduced,center){
- const z=a.stormZone;
+function drawStormStone(c,a,s,alpha){
+ if(!['shelf','fork'].includes(a.stormRoom?.kind))return;
+ const o=a.obstacle;
+ // Like a gate's crest, this restrained incoming contour survives fog. It
+ // follows the exact solid island, making both lanes readable before entry.
+ for(const prop of o.sceneProps||[])for(const part of prop.parts||[]){
+  const points=part.polygon,origin=o.center+prop.side*o.gap/2;
+  c.beginPath();points.forEach(([x,y],i)=>i?c.lineTo(o.x+x,origin+y):c.moveTo(o.x+x,origin+y));c.closePath();
+  c.globalAlpha=alpha*.48;c.fillStyle='#354650';c.fill();
+  c.globalAlpha=alpha*.72;stroke(c,'#95afb6',1.8*s);
+ }
+}
+
+function drawStorm(c,a,z,playerX,playerY,t,s,alpha,reduced,center){
  if(!z)return;
- const {x,y,rx,ry,direction}=z;
+ const {x,y,rx,ry}=z,state=stormZoneState(z,playerX),direction=state.direction;
  c.save();
  c.translate(x,y);
- c.globalAlpha=alpha*.14;
+ c.globalAlpha=alpha*(.07+.07*state.strength);
  c.fillStyle='#6694b0';
  c.beginPath();c.ellipse(0,0,rx,ry,0,0,TAU);c.fill();
  const phase=t*1.7+a.index;
@@ -57,7 +70,7 @@ function drawStorm(c,a,playerX,playerY,t,s,alpha,reduced,center){
   }
  }
  const mouthY=-direction*ry*.86;
- if(a.obstacle.guardianGate){
+ if(a.obstacle.guardianGate&&!z.reverseX){
   // Conductors grow from the solid bank and visibly feed the jet.
   const bank=-direction,o=a.obstacle,shape=bank===1?o.bottomShape:o.topShape;
   for(const side of [-1,1]){
@@ -83,8 +96,28 @@ function drawStorm(c,a,playerX,playerY,t,s,alpha,reduced,center){
   c.ellipse(0,mouthY+direction*i*4*s,(.19+i*.07)*rx,(3+i)*s,0,.08*Math.PI,1.97*Math.PI);
   c.stroke();
  }
+ if(Number.isFinite(z.reverseX)){
+  // A paired conductor is visible before entry. Its second arrow fills while
+  // the current winds down, then the stream and its live arrow turn together.
+  const markX=-rx*.74,markY=0;
+  c.globalAlpha=alpha*.9;c.beginPath();
+  c.moveTo(markX-12*s,markY);c.lineTo(markX,markY-25*s);
+  c.lineTo(markX+12*s,markY);c.lineTo(markX,markY+25*s);c.closePath();
+  c.fillStyle='#263e4d';c.fill();stroke(c,'#a9d4df',2*s);
+  for(const sign of [-1,1]){
+   const live=sign===direction;
+   c.globalAlpha=alpha*(live?.95:state.warning?.28+.58*state.warningProgress:.25);
+   c.beginPath();c.moveTo(markX-5*s,markY+sign*7*s);c.lineTo(markX,markY+sign*14*s);
+   c.lineTo(markX+5*s,markY+sign*7*s);stroke(c,live?'#f1e4bd':'#a9d4df',2.6*s);
+  }
+  if(state.warning){
+   c.globalAlpha=alpha*.85;c.beginPath();
+   c.moveTo(markX-10*s,markY+31*s);c.lineTo(markX+(-10+20*state.warningProgress)*s,markY+31*s);
+   stroke(c,'#f1e4bd',3*s);
+  }
+ }
  c.restore();
- if(!a.stormContact)return;
+ if(!a.stormContact||a.stormPuffId!==z.id)return;
  c.save();c.translate(playerX,playerY);
  for(let i=0;i<5;i++){
   const p=wrap(t*2.2+i/5),side=i%2?1:-1;
@@ -261,11 +294,14 @@ export function drawGuardianWarnings(c,{engine,distance=engine.distance,scale=1,
  c.save();c.scale(scale,scale);c.translate(-distance,0);
  for(const o of boss.crests||[])drawCrest(c,engine,o,playerX,t,s,boss);
  for(const a of boss.attacks||[]){
-  const width=a.stormZone?.rx??(boss.id==='rootbound-heart'?a.obstacle.width*.75:boss.id==='hollow-sun'?65*s:17*s);
+  const width=a.stormZones?Math.max(...a.stormZones.map(z=>z.rx+Math.abs(z.x-a.x))):a.stormZone?.rx??(boss.id==='rootbound-heart'?a.obstacle.width*.75:boss.id==='hollow-sun'?65*s:17*s);
   const dx=a.x-playerX;
   if(a.x+width<distance||a.x-width>distance+engine.width||dx-width>ahead)continue;
   const alpha=clamp01((ahead-dx+width)/Math.max(1,boss.speed*.55));
-  if(boss.id==='storm-shepherd')drawStorm(c,a,playerX,playerY,t,s,alpha,engine.reducedMotion,engine.obstacleCenter(a.obstacle));
+  if(boss.id==='storm-shepherd'){
+   drawStormStone(c,a,s,alpha);
+   for(const zone of a.stormZones)drawStorm(c,a,zone,playerX,playerY,t,s,alpha,engine.reducedMotion,engine.obstacleCenter(a.obstacle));
+  }
   else if(boss.id==='frost-matron')drawIce(c,a,t,s,alpha);
   else if(boss.id==='rootbound-heart')drawRoots(c,engine,a,t,s,alpha);
   else if(boss.id==='hollow-sun')drawWell(c,a,playerX,playerY,t,s,alpha);

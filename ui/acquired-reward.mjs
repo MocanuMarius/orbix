@@ -1,14 +1,13 @@
-import {artifactLimitSummary,effectMarkup} from '../artifact-copy.mjs?v=dream-gifts-1';
-import {resourceSymbol} from '../game-symbols.mjs?v=dream-gifts-1';
-import {artifactRarityLabel} from '../replay-ui.mjs?v=dream-gifts-1';
-import {ROUTE_BONUSES} from '../route-bonuses.mjs?v=dream-gifts-1';
-import {bonusIcon} from '../route-bonus-ui.mjs?v=dream-gifts-1';
-import {reliquaryNicheMarkup} from './reliquary-art.mjs?v=dream-gifts-1';
-import {relicRulesButton} from './relic-primitives.mjs?v=dream-gifts-1';
-import {actionButton,escapeHtml as esc} from './primitives.mjs?v=dream-gifts-1';
+import {artifactLimitSummary,effectMarkup} from '../artifact-copy.mjs?v=storm-guide-1';
+import {resourceSymbol} from '../game-symbols.mjs?v=storm-guide-1';
+import {artifactRarityLabel} from '../replay-ui.mjs?v=storm-guide-1';
+import {ROUTE_BONUSES} from '../route-bonuses.mjs?v=storm-guide-1';
+import {bonusIcon} from '../route-bonus-ui.mjs?v=storm-guide-1';
+import {reliquaryNicheMarkup} from './reliquary-art.mjs?v=storm-guide-1';
+import {relicRulesButton} from './relic-primitives.mjs?v=storm-guide-1';
+import {actionButton,escapeHtml as esc} from './primitives.mjs?v=storm-guide-1';
 
-// An opt-in production recipe. Callers that omit acquiredPresentation retain
-// the shipped reward composition until a player-facing direction is selected.
+// Claimed relics share this production layout with the comparison recipes.
 function horizonMarkup(){
  return `<svg class="acquired-horizon" viewBox="0 0 240 160" preserveAspectRatio="xMidYMid slice" shape-rendering="crispEdges" aria-hidden="true" focusable="false">
  <path fill="#09171a" d="M0 0h240v160H0z"/><path fill="#23352f" d="M0 107h15V91h17V70h15V58h22V39h16v68h18V92h22V64h12V47h18V31h13v76h18V84h20V59h18v48h16v53H0z"/>
@@ -20,9 +19,15 @@ function horizonMarkup(){
  </svg>`;
 }
 
-export function acquiredRewardMarkup({artifact,copy,run,title,earned,receiptAvailable,presentation,artifactArt}){
- const bonus=ROUTE_BONUSES[run.lastFlight?.routeBonus?.id],boon=bonus?`<aside class="acquired-boon">${bonusIcon(bonus.id)}<span><strong>${esc(bonus.name)}</strong><span>${esc(bonus.reward)}</span></span><b aria-label="Completed">✓</b></aside>`:'';
- return `<section class="acquired-reward acquired-${presentation}" data-acquired-presentation="${presentation}">
+export function acquiredRewardMarkup({artifact,copy,run,title,earned,receiptAvailable,presentation,artifactArt,skillsAvailable,deckAvailable,upgradeCount=0}){
+ const receipt=run.lastFlight?.routeBonus,bonus=ROUTE_BONUSES[receipt?.id];
+ const awarded=!!bonus&&(!!receipt.message?.trim()||Number(receipt.amount)>0),name=receipt?.name||bonus?.name;
+ const message=receipt?.message?.trim()||(Number(receipt?.amount)>0?`+${Math.floor(receipt.amount)} Stored Sparks`:'');
+ const detail=message.startsWith(`${name} · `)?message.slice(name.length+3):message;
+ const boon=awarded?`<aside class="acquired-boon">${bonusIcon(bonus.id)}<span><strong>${esc(name)}</strong><span>${esc(detail)}</span></span><b aria-label="Completed">✓</b></aside>`:'';
+ const buildAvailable=deckAvailable||skillsAvailable;
+ const longCopy=copy.effect.length>65||copy.trigger?.length>60||copy.limit?.length>80;
+ return `<section class="acquired-reward acquired-${presentation} ${boon?'acquired-has-boon':'acquired-no-boon'} ${buildAvailable?'acquired-has-build':'acquired-no-build'} ${longCopy?'acquired-long-copy':''}" data-acquired-presentation="${presentation}">
  <header class="acquired-clear"><h1>${esc(title)}</h1>${receiptAvailable?actionButton(`+${earned}`,{labelMarkup:`${resourceSymbol('packed')}<b>+${earned}</b>`,className:'secondary acquired-earnings',action:'reward-earnings',ariaLabel:`${earned} Stored Sparks earned. View breakdown.`}):''}</header>
  <article class="acquired-hero ${artifact.rarity}" data-reward-artifact="${artifact.id}" aria-label="Acquired relic">
  <div class="acquired-art">${horizonMarkup()}${reliquaryNicheMarkup()}${artifactArt(artifact.id)}</div>
@@ -30,6 +35,6 @@ export function acquiredRewardMarkup({artifact,copy,run,title,earned,receiptAvai
  <div class="acquired-rules">${copy.trigger?`<p class="acquired-trigger">${esc(copy.trigger)}</p>`:''}<p class="acquired-effect">${effectMarkup(copy.effect)}</p>${copy.limit?`<p class="acquired-limit">${esc(artifactLimitSummary(copy))}</p>`:''}</div></div>
  </article>
  ${boon}
- <footer class="acquired-actions">${actionButton('Deck',{className:'secondary',action:'skills'})}${relicRulesButton(artifact)}${actionButton('Continue →',{className:'primary',action:'victory-next'})}</footer>
+ <footer class="acquired-actions">${buildAvailable?actionButton(deckAvailable?'Deck':upgradeCount?'Upgrade':'Skills',{className:`secondary ${!deckAvailable&&upgradeCount?'upgrade-ready':''}`,action:deckAvailable?'cards':'skills'}):''}${relicRulesButton(artifact)}${actionButton('Continue →',{className:'primary',action:'victory-next'})}</footer>
  </section>`;
 }
