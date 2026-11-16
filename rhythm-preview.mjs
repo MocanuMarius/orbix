@@ -1,9 +1,9 @@
-import {WispFlight} from './flight.mjs?v=rowcraft-1';
-import {bindFlightPointerControls} from './flight-input.mjs?v=rowcraft-1';
-import {createRhythmScore} from './rhythm-score.mjs?v=rowcraft-1';
-import {artifactIcon} from './upgrade-icons.mjs?v=rowcraft-1';
-import {BLACK_HOLE_TUNING} from './black-holes.mjs?v=rowcraft-1';
-import {attachFlightPerformance} from './flight-performance.mjs?v=rowcraft-1';
+import {WispFlight} from './flight.mjs?v=glossary-1';
+import {bindFlightPointerControls} from './flight-input.mjs?v=glossary-1';
+import {createRhythmScore} from './rhythm-score.mjs?v=glossary-1';
+import {artifactIcon} from './upgrade-icons.mjs?v=glossary-1';
+import {BLACK_HOLE_TUNING} from './black-holes.mjs?v=glossary-1';
+import {attachFlightPerformance} from './flight-performance.mjs?v=glossary-1';
 
 const root=document.querySelector('.flight-device'),canvas=root.querySelector('canvas'),status=document.querySelector('#preview-status'),reduced=document.querySelector('#reduced'),pause=document.querySelector('#pause');
 const blackHole=document.querySelector('#black-hole'),rate=document.querySelector('#preview-rate');

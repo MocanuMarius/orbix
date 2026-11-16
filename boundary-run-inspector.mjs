@@ -1,8 +1,8 @@
-import {newState,createRun,selectNode} from './model.mjs?v=rowcraft-1';
-import {BIOME_LEVELS} from './biomes.mjs?v=rowcraft-1';
-import {circleHitsObstacle} from './flight.mjs?v=rowcraft-1';
-import {scenePropBounds} from './scene-props.mjs?v=rowcraft-1';
-import {terrainBoundary} from './terrain-boundary.mjs?v=rowcraft-1';
+import {newState,createRun,selectNode} from './model.mjs?v=glossary-1';
+import {BIOME_LEVELS} from './biomes.mjs?v=glossary-1';
+import {circleHitsObstacle} from './flight.mjs?v=glossary-1';
+import {scenePropBounds} from './scene-props.mjs?v=glossary-1';
+import {terrainBoundary} from './terrain-boundary.mjs?v=glossary-1';
 
 // A disposable run through the same App, WispFlight, HUD and authored course.
 export function createBoundaryInspectorState(query=new URLSearchParams()){

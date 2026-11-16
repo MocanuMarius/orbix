@@ -782,26 +782,26 @@ html body .skill-card.card-readable .card-rule-band .card-mechanic-uses{color:#4
 
 /* A worked ruin rim and quiet recesses replace the wireframe gallery. */
 html body dialog.game-sheet:is(.card-bench-sheet,.card-exchange-sheet,.card-forge-sheet)[open]{
- border:3px solid transparent!important;border-image-source:url('assets/menu-ruin-frame.svg?v=rowcraft-1')!important;border-image-slice:12!important;border-image-width:10px!important;border-image-repeat:stretch!important;
+ border:3px solid transparent!important;border-image-source:url('assets/menu-ruin-frame.svg?v=glossary-1')!important;border-image-slice:12!important;border-image-width:10px!important;border-image-repeat:stretch!important;
  background:#182a22!important;background-image:none!important;box-shadow:0 3px 0 #040c09,4px 6px 0 #07100dbb!important;
  clip-path:polygon(9px 0,calc(100% - 10px) 0,calc(100% - 10px) 3px,calc(100% - 4px) 3px,calc(100% - 4px) 9px,100% 9px,100% calc(100% - 10px),calc(100% - 4px) calc(100% - 10px),calc(100% - 4px) calc(100% - 4px),calc(100% - 11px) calc(100% - 4px),calc(100% - 11px) 100%,10px 100%,10px calc(100% - 3px),4px calc(100% - 3px),4px calc(100% - 9px),0 calc(100% - 9px),0 9px,3px 9px,3px 3px,9px 3px)
 }
 html body .card-deck button.card-deck-pick{border-color:transparent!important;border-image:none!important;background:none!important;box-shadow:none!important}
 html body .card-deck button.card-deck-pick .skill-card{box-shadow:2px 4px 2px #06120d99!important}
-html body .card-deck button.card-deck-pick.melt-selected{border:2px solid transparent!important;border-image:url('assets/rough-available.svg?v=rowcraft-1') 8 / 6px / 0 stretch!important;background:#3e392755!important;box-shadow:none!important}
+html body .card-deck button.card-deck-pick.melt-selected{border:2px solid transparent!important;border-image:url('assets/rough-available.svg?v=glossary-1') 8 / 6px / 0 stretch!important;background:#3e392755!important;box-shadow:none!important}
 html body .card-deck .card-slot-row .card-slot-pick{
- border:1px solid transparent!important;border-image:url('assets/rough-frame.svg?v=rowcraft-1') 8 / 5px / 0 stretch!important;background:linear-gradient(180deg,#23382c,#1b2e25)!important;box-shadow:inset 0 2px 4px #09170e99!important;
+ border:1px solid transparent!important;border-image:url('assets/rough-frame.svg?v=glossary-1') 8 / 5px / 0 stretch!important;background:linear-gradient(180deg,#23382c,#1b2e25)!important;box-shadow:inset 0 2px 4px #09170e99!important;
  clip-path:polygon(5px 0,calc(100% - 7px) 0,calc(100% - 7px) 2px,calc(100% - 2px) 2px,calc(100% - 2px) 5px,100% 5px,100% calc(100% - 6px),calc(100% - 3px) calc(100% - 6px),calc(100% - 3px) calc(100% - 2px),calc(100% - 7px) calc(100% - 2px),calc(100% - 7px) 100%,6px 100%,6px calc(100% - 2px),2px calc(100% - 2px),2px calc(100% - 6px),0 calc(100% - 6px),0 5px,2px 5px,2px 2px,5px 2px)!important
 }
-html body .card-deck .card-slot-row .card-slot-pick:is(.selected,.card-slot-target,.card-slot-melting,.card-drop-ready,.card-drop-hover){border-image-source:url('assets/rough-available.svg?v=rowcraft-1')!important;background:#3c3a28!important}
-.card-deck .card-deck-return{border:1px solid transparent;border-image:url('assets/rough-frame.svg?v=rowcraft-1') 8 / 5px / 0 stretch;background:#1a2d24;border-radius:0;clip-path:polygon(6px 0,calc(100% - 8px) 0,100% 8px,100% calc(100% - 6px),calc(100% - 6px) 100%,7px 100%,0 calc(100% - 7px),0 6px)}
+html body .card-deck .card-slot-row .card-slot-pick:is(.selected,.card-slot-target,.card-slot-melting,.card-drop-ready,.card-drop-hover){border-image-source:url('assets/rough-available.svg?v=glossary-1')!important;background:#3c3a28!important}
+.card-deck .card-deck-return{border:1px solid transparent;border-image:url('assets/rough-frame.svg?v=glossary-1') 8 / 5px / 0 stretch;background:#1a2d24;border-radius:0;clip-path:polygon(6px 0,calc(100% - 8px) 0,100% 8px,100% calc(100% - 6px),calc(100% - 6px) 100%,7px 100%,0 calc(100% - 7px),0 6px)}
 .card-deck-melt-mode .card-deck-inspector{border-left:0;padding-left:13px}
 .card-batch-melt-list>div{border-color:transparent;background:none}
-.card-deck-help-panel{border:2px solid transparent;border-image:url('assets/rough-frame.svg?v=rowcraft-1') 8 / 6px / 0 stretch;box-shadow:0 5px 0 #07130ec9;background:#1b3026}
+.card-deck-help-panel{border:2px solid transparent;border-image:url('assets/rough-frame.svg?v=glossary-1') 8 / 6px / 0 stretch;box-shadow:0 5px 0 #07130ec9;background:#1b3026}
 .card-forge-receipt{border-color:transparent}
-html body :is(#app,#header,dialog.game-sheet.card-sheet) :is(.card-bench,.card-exchange,.card-forge-preview) button.card-danger{border-image-source:url('assets/rough-available.svg?v=rowcraft-1')!important;background:#4c392b!important;color:#ffe1b5!important}
-.card-deck-help>summary{border:1px solid transparent;border-image:url('assets/rough-frame.svg?v=rowcraft-1') 8 / 5px / 0 stretch;background:#21362c;clip-path:polygon(5px 0,calc(100% - 6px) 0,100% 6px,100% calc(100% - 5px),calc(100% - 5px) 100%,5px 100%,0 calc(100% - 5px),0 5px)}
-.card-deck-help[open]>summary{border-image-source:url('assets/rough-available.svg?v=rowcraft-1');background:#3a3c29}
+html body :is(#app,#header,dialog.game-sheet.card-sheet) :is(.card-bench,.card-exchange,.card-forge-preview) button.card-danger{border-image-source:url('assets/rough-available.svg?v=glossary-1')!important;background:#4c392b!important;color:#ffe1b5!important}
+.card-deck-help>summary{border:1px solid transparent;border-image:url('assets/rough-frame.svg?v=glossary-1') 8 / 5px / 0 stretch;background:#21362c;clip-path:polygon(5px 0,calc(100% - 6px) 0,100% 6px,100% calc(100% - 5px),calc(100% - 5px) 100%,5px 100%,0 calc(100% - 5px),0 5px)}
+.card-deck-help[open]>summary{border-image-source:url('assets/rough-available.svg?v=glossary-1');background:#3a3c29}
 
 html body .card-deck .card-slot-row .card-slot-pick:focus-visible,.card-deck-help>summary:focus-visible{outline-offset:-3px!important}
 
@@ -1018,7 +1018,7 @@ html body .card-slot-row .card-slot-pick>.card-config-compact{margin-left:auto!i
 @media(max-height:295px){html body .skill-card.card-status-dense .card-rule-stripe{padding:2px 4px}}
 
 /* Shared playing-card frame: actual carved game rims, with equal art padding. */
-html body .skill-card{border-radius:0!important;border:5px solid transparent!important;border-image:url('assets/rough-frame.svg?v=rowcraft-1') 10 / 6px / 0 stretch!important;background:#3f4843!important;box-shadow:2px 3px 0 #08130fb8!important}
+html body .skill-card{border-radius:0!important;border:5px solid transparent!important;border-image:url('assets/rough-frame.svg?v=glossary-1') 10 / 6px / 0 stretch!important;background:#3f4843!important;box-shadow:2px 3px 0 #08130fb8!important}
 html body .skill-card.card-common{border:0!important;border-image:none!important;background:#22352b!important;padding:calc(var(--card-height) * .064286) calc(var(--card-height) * .03215) calc(var(--card-height) * .029)!important;clip-path:polygon(0 1.5%,2% 0,98% 0,100% 1.5%,100% 98.5%,98% 100%,2% 100%,0 98.5%)}
 html body .skill-card.card-common:before{content:'';position:absolute;inset:0;z-index:3;pointer-events:none;background:url('assets/common-cornerstone-frame.svg') center/100% 100% no-repeat;image-rendering:pixelated}
 html body .skill-card.card-common.card-readable{grid-template-rows:clamp(27px,calc(var(--card-height) * .14),34px) clamp(36px,calc(var(--card-height) * .7 - 94px),45%) minmax(0,1fr)!important}
@@ -1525,3 +1525,49 @@ html body .card-reward-equip .card-reward-choice:has(>.card-flight-changes){grid
 .deck-selected-body{min-height:0;overflow-y:auto;overscroll-behavior:contain;scrollbar-width:thin;padding-right:3px}
 .deck-selected-actions{margin-top:0;padding-top:5px;border-top:1px solid #82966a44}
 @media(max-width:760px) and (orientation:landscape){.deck-equipped-stage>.card-foreground-row{--deck-gap:7px}.deck-context-open .deck-equipped-stage{grid-template-columns:minmax(0,1fr) 200px}.deck-live-explanation{gap:6px}.deck-live-result{font-size:11px}.deck-live-explanation summary,.deck-selected-links>summary{font-size:11px}}
+
+/* Glossary receipts retain the selected card and actual row order. */
+.card-row-help{padding-top:10px;border-top:1px solid #82966a66;min-width:0}
+.card-term-dialog .card-row-help p{margin:6px 0}
+.card-term-dialog .card-row-help-context{font-size:12px;color:#b9cbaa}
+.card-term-dialog .card-row-help-selected{color:#f0dfa9}
+.card-help-current-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(74px,1fr));gap:5px;padding:0;margin:9px 0;list-style:none}
+.card-help-current-row li{display:flex;flex-direction:column;gap:3px;min-width:0;padding:6px;border:1px solid #6f8865;border-radius:4px;background:#13271e;font:11px/1.25 var(--pixel,monospace);overflow-wrap:anywhere}
+.card-help-current-row li.is-selected{border-color:#f1d18d;background:#344b30}
+.card-help-current-row b{color:#ead6a1;font-size:10px}
+.card-help-current-row small{color:#bed1a7;font-size:10px}
+.card-row-help-receipt{margin:8px 0}
+.card-row-help-receipt>summary{min-height:44px;display:flex;align-items:center;cursor:pointer;color:#f1dfa7;text-decoration:underline;text-decoration-style:dotted;text-underline-offset:3px}
+.card-row-help .card-row-step-uses{color:#f0d69e;font-size:11px}
+.card-row-help .card-row-receipt-pass li>span:last-child{min-width:0;overflow-wrap:anywhere}
+
+/* One sentence, one example, then optional details in every glossary term. */
+.card-term-example{margin:10px 0 0;padding:10px;border:1px solid #6d8461;border-radius:4px;background:#14271f}
+.card-term-example>figcaption{margin-bottom:7px;color:#b8caa5;font:11px/1.3 var(--pixel,monospace)}
+.card-term-dialog .card-term-definition{color:#e2e8cb;font-size:15px}
+.card-term-example strong{color:#f2e6bc;font:16px/1.3 var(--pixel,monospace)}
+.card-term-example p+p,.card-term-card-example p{margin-top:8px}
+.card-term-action-condition,.card-term-action-effect{padding:8px 10px;font:15px/1.3 var(--pixel,monospace)}
+.card-term-action-condition{background:#d9c58c;color:#453516;border-left:3px solid #977b30}
+.card-term-action-effect{background:#c2d2ae;color:#173d27;border-left:3px solid #527346}
+.card-term-spark-demo{display:grid;grid-template-columns:96px minmax(0,1fr);align-items:center;gap:9px}
+.card-term-spark-demo>img{display:block;width:96px;height:84px;object-fit:cover;image-rendering:pixelated;border:1px solid #5e7758;box-sizing:border-box}
+html body .card-term-action-effect button.card-term{color:#173d27!important;background:transparent!important}
+.card-term-meter-demo{display:flex;align-items:center;gap:22px;min-height:100px}
+.card-term-meter-demo>div:last-child{flex:1;min-width:0}
+.card-term-meter-demo p{margin-top:8px}
+.card-term-meter-rail{display:flex;align-items:center;flex-direction:column;gap:6px;flex:none;padding:4px 10px;background:#0b1814;border:1px solid #6d8461}
+.card-term-meter-rail>.resource-symbol{width:22px;height:22px;filter:none}
+.card-term-meter-bar{width:9px;height:112px;overflow:hidden}
+.card-term-meter-bar>i{height:100%;display:flex;flex-direction:column-reverse;gap:1px;font-style:normal}
+.card-term-meter-bar .glow-unit{display:block;width:9px;min-height:0;height:auto;flex:1 1 0;background:#34463d}
+.card-term-meter-bar .glow-unit.lit{background:#d4dbad;box-shadow:inset 1px 0 #9bad93}
+.card-term-meter-bar .glow-unit.lit:nth-child(5n){background:#eff0c7}
+.card-term-meter-bar .glow-unit.partial{background:linear-gradient(to top,#e3efbe var(--unit-fill),#263a30 var(--unit-fill))}
+.card-term-stored-example>div{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.card-term-stored-example .resource-symbol{width:38px;height:38px;filter:none}
+:is([data-card-term="meter"],[data-card-term-key="meter"]){--term-ink:#254e35}
+.card-glossary-list section>div{display:flex;flex-wrap:wrap;gap:7px;padding:5px 0 3px}
+html body .card-glossary-list button.card-term{display:inline-flex!important;align-items:center;min-height:44px!important;padding:7px 9px!important;border:1px solid #6d8461!important;border-radius:3px!important}
+.card-glossary-list h3{padding-top:4px}
+@media(max-height:400px){.card-term-meter-bar{height:70px}.card-term-meter-demo{min-height:94px}.card-term-example{padding:8px}.card-term-action-condition,.card-term-action-effect{padding:6px 8px}.card-term-picture img{max-height:100px}}
