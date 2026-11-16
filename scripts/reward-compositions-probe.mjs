@@ -38,14 +38,15 @@ try{
  await click('[data-action="reward-artifact-details"]');
  assert.match(await b.ev('document.querySelector("dialog.artifact-sheet").textContent'),/Ordinary cooldown ticking does not trigger it/);
  await click('dialog [data-action="close-sheet"]');assert.equal(await b.ev('document.activeElement.dataset.action'),'reward-artifact-details','Rules restores opener focus');
- await click('[data-action="skills"]');await until(()=>b.ev('!!document.querySelector("dialog.card-sheet")'),'Deck opens');
+ await click('[data-action="cards"]');await until(()=>b.ev('!!document.querySelector("dialog.card-sheet")'),'Deck opens');
  await page('components-preview.html?family=rewards&state=pedestal');await click('[data-action="victory-next"]');await until(()=>b.ev('!!document.querySelector(".game-world-map")'),'Continue opens route');
  await page('components-preview.html?family=rewards&state=acquired');assert.equal(await b.ev('!!document.querySelector(".acquired-reward")'),false,'Default acquired design unchanged');
  for(const [width,height]of [[915,412],[640,320]]){
   await viewport(width,height);await b.visit(`${base}/reward-compare.html`);
-  await until(()=>b.ev(`document.querySelector('#reward-frame')?.contentDocument?.documentElement.dataset.previewReady==='true'`),'Comparison');
+  await until(()=>b.ev(`document.querySelector('#reward-frame')?.contentDocument?.documentElement.dataset.previewReady==='true'&&!!document.querySelector('#reward-frame')?.contentDocument?.querySelector('[data-acquired-presentation="pedestal"]')`),'Comparison');
   for(const variant of variants){
-   await click(`[data-variant="${variant}"]`);await until(()=>b.ev(`document.querySelector('#reward-frame')?.contentDocument?.querySelector('[data-acquired-presentation="${variant}"]')`),'Variant switch');await delay(100);
+   if(!await b.ev(`document.querySelector('[data-variant="${variant}"]').getAttribute('aria-pressed')==='true'`))await click(`[data-variant="${variant}"]`);
+   await until(()=>b.ev(`document.querySelector('#reward-frame')?.contentDocument?.documentElement.dataset.previewReady==='true'&&!!document.querySelector('#reward-frame')?.contentDocument?.querySelector('[data-acquired-presentation="${variant}"]')`),'Variant switch');await delay(100);
    const data=await verify(true);assert.equal(await b.ev(`document.querySelector('[data-variant="${variant}"]').getAttribute('aria-pressed')`),'true');
    assert.equal(await b.ev('document.documentElement.scrollHeight>innerHeight+1'),false,'Comparison no scroll');await b.shot(path.join(output,`compare-${variant}-${width}.png`));report.push({surface:'compare',variant,width,height,innerSize:data.size});
   }
