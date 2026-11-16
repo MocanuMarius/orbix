@@ -1,11 +1,12 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {WispCompanion,WISP_TUNING} from '../dist/wisp.mjs';
-import {pickupHookAnchor} from '../dist/pickup-handling-cue.mjs';
+import {pickupHookAnchor,COLLECTOR_RING} from '../dist/pickup-handling-cue.mjs';
+import {collectorTowPose,collectorTowPoint,collectorTowOrbit} from '../dist/collector-tow-geometry.mjs';
 import {pickupContactRadius} from '../dist/pickups.mjs';
 import {sparkBodyRadius} from '../dist/spark-size.mjs';
 import {WISP_ART} from '../dist/companion-art.mjs';
-import {drawCollectorGrip} from '../dist/capture-art.mjs';
+import {drawCollectorGrip,drawCarriedSpark} from '../dist/capture-art.mjs';
 import {drawCollectorField} from '../dist/collector-field-art.mjs';
 import {WispFlightView} from '../dist/wisp-renderer.mjs';
 import {WispFlight} from '../dist/flight.mjs';
@@ -135,4 +136,60 @@ test('both production renderers place the helix behind and ahead of the main bod
     }
     assert.ok(sizes[1]>sizes[0],backend+' front helix looks closer');
   }
+});
+
+test('loaded hook turns toward the main wisp, stays on its eyelet, and the displayed Collector follows the windy cord',()=>{
+  for(const quiet of [false,true])for(const index of [0,1]){
+    const f=fixture(),{e,w,tick}=f;e.reducedMotion=quiet;w.collectorIndex=index;
+    until(f,()=>w.cargo);const first=w.state(e);
+    assert.ok(Math.abs(first.cargoPose.hookAngle-Math.PI/2)<1e-8,'latch starts at the field eyelet');
+    for(let i=0;i<800&&!f.p.collected;i++){
+      e.player.y=310+Math.sin(i*.09)*25;tick();
+      if(!w.cargo)break;
+      const before={x:w.x,y:w.y,cargoX:w.cargoX,cargoY:w.cargoY,cooldown:w.cooldown};
+      const state=w.state(e),pose=state.cargoPose,tether=state.tetherPose;
+      const cx=state.x+pose.offsetX,cy=state.y+pose.offsetY;
+      const anchor=pickupHookAnchor({kind:state.cargoKind,sparkMass:pose.massTier},cx,cy,pose.scale,pose.hookAngle);
+      assert.ok(Math.hypot(anchor.x-tether.hookX,anchor.y-tether.hookY)<1e-8,'cord and rendered eyelet agree');
+      if(pose.age>.32){
+        const expected=Math.atan2(e.player.y-cy,e.player.x-cx);
+        assert.ok(Math.abs(Math.atan2(Math.sin(pose.hookAngle-expected),Math.cos(pose.hookAngle-expected)))<1e-8);
+        const orbit=collectorTowOrbit(tether,pose.age,quiet,WISP_TUNING.reelTurnsPerSecond);
+        assert.ok(Math.hypot(orbit.x-state.x,orbit.y-state.y)<1e-8,'helix winds around the same curve that is painted');
+      }
+      assert.deepEqual({x:w.x,y:w.y,cargoX:w.cargoX,cargoY:w.cargoY,cooldown:w.cooldown},before,'visual sampling cannot advance gameplay');
+    }
+    assert.equal(f.p.collected,true,'exact attachment survives the entire reel through body contact');
+  }
+});
+
+test('wind has broad fluid swings with fixed ends, fades at short lengths and becomes still with reduced motion',()=>{
+  const sample=(age,quiet=false,reach=70)=>collectorTowPose({kind:'light'},30,50,30+reach,30,1,age,quiet);
+  let minimum=Infinity,maximum=-Infinity;
+  for(let age=.4;age<7;age+=1/120){
+    const tether=sample(age),start=collectorTowPoint(tether,0),end=collectorTowPoint(tether,1),middle=collectorTowPoint(tether,.5);
+    assert.deepEqual([start.x,start.y,end.x,end.y],[tether.x,tether.y,tether.hookX,tether.hookY]);
+    const dy=middle.y-(tether.y+tether.hookY)/2;minimum=Math.min(minimum,dy);maximum=Math.max(maximum,dy);
+    const next=collectorTowPoint(sample(age+1/120),.5);assert.ok(Math.hypot(next.x-middle.x,next.y-middle.y)<.7,'no frame-to-frame whip');
+  }
+  assert.ok(maximum-minimum>17,'wind is visibly broader than the old four-unit sag');
+  assert.deepEqual(collectorTowPoint(sample(1,true),.5),collectorTowPoint(sample(5,true),.5),'reduced motion has a steady curve');
+  assert.ok(sample(1,false,28).wind<sample(1,false,70).wind,'shortening cord tames the swing near contact');
+  assert.notEqual(sample(1).phase,collectorTowPose({kind:'light'},30,50,100,30,1,1,false,1).phase,'paired cords have separate wind phases');
+});
+
+test('mint glow reuses one cheap path, preserves inherited opacity and hides the eyelet and cord outside visibility',()=>{
+  const f=fixture(),{e,w,tick}=f;until(f,()=>w.cargo);for(let i=0;i<60;i++)tick();
+  const state=w.state(e),calls=[],strokes=[],stack=[];
+  const c=new Proxy({globalAlpha:.4,save(){stack.push(this.globalAlpha)},restore(){this.globalAlpha=stack.pop()},stroke(){strokes.push({alpha:this.globalAlpha,width:this.lineWidth,color:this.strokeStyle})}},
+    {get:(o,k)=>o[k]??((...args)=>calls.push([k,...args])),set:(o,k,v)=>(o[k]=v,true)});
+  drawCollectorGrip(c,state,.615);
+  assert.equal(strokes.length,5);assert.equal(calls.filter(c=>c[0]==='beginPath').length,1);
+  assert.ok(strokes.every(s=>s.alpha<=.4));assert.ok(strokes.some(s=>s.color==='#e2ffe9'));
+  assert.ok(!calls.some(c=>/Gradient|shadow/i.test(c[0])));assert.equal(c.globalAlpha,.4);
+  const hidden={engine:e,light:{radius:1,intensity:0}};calls.length=0;strokes.length=0;
+  drawCollectorGrip(c,state,1,hidden);drawCarriedSpark(c,state,e.time,1,false,undefined,hidden);
+  assert.equal(calls.length+strokes.length,0,'new glow cannot reveal an unseen load');
+  const ringCenter=pickupHookAnchor({kind:state.cargoKind},state.x+state.cargoPose.offsetX,state.y+state.cargoPose.offsetY,state.cargoPose.scale,state.cargoPose.hookAngle);
+  assert.ok(Math.hypot(ringCenter.x-state.tetherPose.hookX,ringCenter.y-state.tetherPose.hookY)<COLLECTOR_RING.radius*.001);
 });

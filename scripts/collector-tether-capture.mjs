@@ -18,7 +18,7 @@ window.__tetherStudy={href:location.href,get engine(){return engine},
   // A disposable missed Spark and an equipped fast-recovery modifier make the
   // entire real latch/reel/delivery visible in this six-second art review.
   e.mod.wispCooldown=.4;
-  const {WispCompanion}=await import('./wisp.mjs?v=deck-flow-1');e.wisp=new WispCompanion(e.player);
+  const {WispCompanion}=await import('./wisp.mjs?v=furnace-tow-1');e.wisp=new WispCompanion(e.player);
   this.packet={id:'tether-inspection',kind:'light',sparkMass:1,x:e.distance+e.player.x-40,y:e.player.y+20,phase:0};
   e.layout.embers.push(this.packet);e.layout.embers.sort((a,b)=>a.x-b.x);e._pickupCount=-1;e._nearbyPacketsUntil=-1;
   this.events=[];this.lastLift=-10;

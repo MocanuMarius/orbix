@@ -297,7 +297,8 @@ try {
   assert.equal(beforeReceipt.run.cardReward.choice,'deck');
   assert.equal(beforeReceipt.run.reserveCards.length,7);
   assert.deepEqual(beforeReceipt.run.mountedCards.map(c=>c.instanceId),['echo','cache','field']);
-  assert.equal(await ev("!!document.querySelector('[data-action=card-preview-replace],[data-action=card-preview-reward-melt]')"),false);
+  assert.equal(await ev("!!document.querySelector('[data-action=card-preview-replace]')"),false);
+  assert.equal(await ev("!!document.querySelector('[data-action=card-preview-reward-melt] .card-furnace-icon')"),true);
   for(const [width,height] of [[740,333],[720,280]]){await size(width,height);await bounds('.card-reward-screen button,.card-reward-new>.skill-card','Receipt '+width);await screenshot('real-normal-reward-'+width+'x'+height);}
   await click('[data-action="card-reward-continue"]');
   assert.ok((await saved()).run.cardReward.uiAcknowledged);

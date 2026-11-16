@@ -1,10 +1,17 @@
 # Current backlog status — Cards default · 16 November 2026
 
-Current release: **`deck-flow-1`**. [Release verification](docs/deck-flow-release.md) · [Performance verification](docs/performance-120.md) · [Cards verification](docs/skills-cards-release.md) · [Current card rules](docs/skill-cards.md) · [Item-by-item audit](docs/backlog-current.md).
+Current release: **`furnace-tow-1`**. [Release verification](docs/furnace-tow-release.md) · [Performance verification](docs/performance-120.md) · [Cards verification](docs/skills-cards-release.md) · [Current card rules](docs/skill-cards.md) · [Item-by-item audit](docs/backlog-current.md).
 
 The entries below are chronological release snapshots. Their old “current” labels, checked boxes and pending notes describe those snapshots; later decisions take precedence. The current local source has 81 cards, an owned Deck editable during safely paused flight, a guaranteed meltable Lift Guide, repeatable Forge and card improvements at Rest, copy-compatible numeric Field Impulse duration and Collector’s visible reel. The original skill book stays under Settings → Advanced with a separate save. Cards and Stored Sparks reset with the expedition; earned maximum Sparks and unlocked cruising speed are the explicit permanent exceptions.
 
-## Latest requested batch — deck-flow-1
+## Latest requested batch — furnace-tow-1
+
+- [x] Offer Add to collection, Equip and directly reviewed Melt on earned card receipts; preserve exact identity, uses, separate relics and safe cancellation.
+- [x] Mark destructive card actions with a distinct furnace and show the positive Stored Sparks quote before a single committed Melt.
+- [x] Aim the Collector hook toward the moving wisp and share a luminous wind-bowed cord across native/fallback, paired and reduced-motion renderers.
+- [x] Verify previous installed-worker saves and offline continuity, retain prior published assets, and provide a phone-accessible muted Collector clip. [Release verification](docs/furnace-tow-release.md).
+
+## Previous requested batch — deck-flow-1
 
 - [x] Keep active slots visible while browsing Deck; select a card then a slot, with optional Inspect and native touch scrolling.
 - [x] Review occupied slot transfers with both complete cards and consequences; preserve uses and exact identities on confirm, cancel, gesture cancellation and reload.

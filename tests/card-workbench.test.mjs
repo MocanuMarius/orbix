@@ -82,14 +82,23 @@ test('Equipped foreground keeps collection behind one scrolling Deck and melting
   assert.match(confirm, /Equipped slot 2 will become empty/);
   assert.match(confirm, /Banked wallet 90 → 110/);
   assert.match(confirm, /card-cancel-melt/);
+  assert.match(confirm, /These cards and their remaining uses will be lost/);
+  assert.match(confirm, /card-furnace-icon/);
+  assert.match(confirm, /card-melt-payout/);
   prepareCardInspectorReward(sample.run);
   const reward = cardRewardMarkup(sample.run);
-  assert.match(reward, /Added to Deck/);
+  assert.match(reward, /New card/);
   assert.match(reward, /card-reward-continue/);
   assert.match(reward, /card-reward-equip/);
   assert.match(reward, /card-reward-slot/);
-  assert.match(reward, /Keep in Deck/);
+  assert.match(reward, /class="primary" data-action="card-reward-continue">Add to collection/);
+  assert.match(reward, /card-preview-reward-melt/);
+  assert.match(reward, /card-furnace-icon/);
   assert.doesNotMatch(reward, /replace|Melt incoming|card-equip-reward/i);
+  const beforeReview = JSON.stringify(sample), single = cardMeltSelectionMarkup(sample.run, [sample.run.cardReward.card.instanceId], 90, { single: true });
+  assert.match(single, /This card and its remaining uses will be lost/);
+  assert.match(single, /Cancel · keep card/);
+  assert.equal(JSON.stringify(sample), beforeReview, 'review does not change the receipt');
 });
 
 test('replacement review prints both complete cards, exact destinations and live risks without changing ownership', () => {

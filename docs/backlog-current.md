@@ -1,8 +1,8 @@
 # Current implementation audit — Cards default · 16 November 2026
 
-Current release: **`deck-flow-1`**, following source `0e3f9d6`. [Latest release verification](deck-flow-release.md) · [Performance evidence](performance-120.md) · [Cards release notes](skills-cards-release.md) · [Current rules](skill-cards.md) · [Backlog dispositions](../BACKLOG.md).
+Current release: **`furnace-tow-1`**, following source `0e657c7`. [Latest release verification](furnace-tow-release.md) · [Performance evidence](performance-120.md) · [Cards release notes](skills-cards-release.md) · [Current rules](skill-cards.md) · [Backlog dispositions](../BACKLOG.md).
 
-The Deck follow-up keeps equipped slots visible, makes Inspect optional, reviews occupied swaps and direct reward equipping, and leaves the collection open for repeated edits. Card condition/effect/note descriptions grow by two CSS pixels; title sizes stay unchanged. [Release verification](deck-flow-release.md) records 226 focused tests, 25 touch/keyboard navigation scenarios and exact preservation of the preceding installed Cards save.
+The reward furnace follow-up offers Add to collection, Equip and a directly reviewed Melt with exact receipt guards, positive banked returns and a distinct furnace. Collector uses a shared aimed hook and wind-bowed luminous cord in both renderers, with paired and reduced-motion support. [Release verification](furnace-tow-release.md) records 239 focused tests, 25 retained touch/keyboard navigation scenarios, five live-simulation Collector captures and exact preservation of the preceding installed Cards save.
 
 This audit reconciles accepted backlog items with the current entry and production sources. Older sections below are preserved release history; their “current” wording and earlier pending items are superseded where this table or a later release says so. The accompanying performance change raises interpolated paint cadence to 120 Hz with unchanged 60 Hz physics and graphics.
 
