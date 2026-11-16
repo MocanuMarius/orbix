@@ -1,11 +1,11 @@
-import {drawFluidCapture, FLUID_STYLES} from './fluid-capture.mjs?v=tow-swing-1';
-import {drawPickup} from './pickup-art.mjs?v=tow-swing-1';
-import {drawShellPuff} from './capture-art.mjs?v=tow-swing-1';
-import {drawShellArcs} from './shell-arcs.mjs?v=tow-swing-1';
-import {sparkArtScale, sparkBodyRadius} from './spark-size.mjs?v=tow-swing-1';
-import {makeWispSprite} from './companion-art.mjs?v=tow-swing-1';
-import {createDepthScenery, drawDepthScenery} from './depth-scenery.mjs?v=tow-swing-1';
-import {biomePalette} from './biome-art.mjs?v=tow-swing-1';
+import {drawFluidCapture, FLUID_STYLES} from './fluid-capture.mjs?v=try-row-1';
+import {drawPickup} from './pickup-art.mjs?v=try-row-1';
+import {drawShellPuff} from './capture-art.mjs?v=try-row-1';
+import {drawShellArcs} from './shell-arcs.mjs?v=try-row-1';
+import {sparkArtScale, sparkBodyRadius} from './spark-size.mjs?v=try-row-1';
+import {makeWispSprite} from './companion-art.mjs?v=try-row-1';
+import {createDepthScenery, drawDepthScenery} from './depth-scenery.mjs?v=try-row-1';
+import {biomePalette} from './biome-art.mjs?v=try-row-1';
 
 const canvas = document.querySelector('#scene');
 const ctx = canvas.getContext('2d');

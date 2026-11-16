@@ -1,17 +1,17 @@
-import {getBiome} from './biomes.mjs?v=tow-swing-1';
-import {getBossPreview} from './boss.mjs?v=tow-swing-1';
-import {levelMapPreview} from './level-map-art.mjs?v=tow-swing-1';
-import {mapStopIconMarkup} from './map-guide.mjs?v=tow-swing-1';
-import {resourceSymbol} from './game-symbols.mjs?v=tow-swing-1';
-import {getFlightClearReward} from './checkpoint-rewards.mjs?v=tow-swing-1';
-import {availableFlightArtifacts,isCardRun} from './model.mjs?v=tow-swing-1';
-import {bonusIcon,boonMarkup} from './route-bonus-ui.mjs?v=tow-swing-1';
-import {contextualFlightNotice} from './contextual-events.mjs?v=tow-swing-1';
-import {ATLAS_FORECASTS,atlasGlyph} from './night-atlas.mjs?v=tow-swing-1';
-import {canDreamAt,dreamConfig} from './dream.mjs?v=tow-swing-1';
-import {sparkHabitat} from './spark-fields.mjs?v=tow-swing-1';
-import {lanternFlightCue} from './map-theme.mjs?v=tow-swing-1';
-import {actionButton} from './ui/primitives.mjs?v=tow-swing-1';
+import {getBiome} from './biomes.mjs?v=try-row-1';
+import {getBossPreview} from './boss.mjs?v=try-row-1';
+import {levelMapPreview} from './level-map-art.mjs?v=try-row-1';
+import {mapStopIconMarkup} from './map-guide.mjs?v=try-row-1';
+import {resourceSymbol} from './game-symbols.mjs?v=try-row-1';
+import {getFlightClearReward} from './checkpoint-rewards.mjs?v=try-row-1';
+import {availableFlightArtifacts,isCardRun} from './model.mjs?v=try-row-1';
+import {bonusIcon,boonMarkup} from './route-bonus-ui.mjs?v=try-row-1';
+import {contextualFlightNotice} from './contextual-events.mjs?v=try-row-1';
+import {ATLAS_FORECASTS,atlasGlyph} from './night-atlas.mjs?v=try-row-1';
+import {canDreamAt,dreamConfig} from './dream.mjs?v=try-row-1';
+import {sparkHabitat} from './spark-fields.mjs?v=try-row-1';
+import {lanternFlightCue} from './map-theme.mjs?v=try-row-1';
+import {actionButton} from './ui/primitives.mjs?v=try-row-1';
 
 const escapeText = value => String(value ?? '').replace(/[&<>"']/g, char =>
  ({'&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;'}[char]));

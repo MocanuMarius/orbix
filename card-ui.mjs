@@ -1,8 +1,8 @@
-import { cardTermTextMarkup } from "./card-terms.mjs?v=tow-swing-1";
-import { getCardRuleBands } from "./card-rule-bands.mjs?v=tow-swing-1";
-import { getEquippedCardStatuses, cardStatusText } from "./card-status.mjs?v=tow-swing-1";
-import { cardArt } from "./card-art.mjs?v=tow-swing-1";
-import {deckRelicShelfMarkup,deckContextMarkup,deckLinkedCardFace,deckSwapComboMarkup,deckCardExplanationMarkup} from './deck-combos.mjs?v=tow-swing-1';
+import { cardTermTextMarkup } from "./card-terms.mjs?v=try-row-1";
+import { getCardRuleBands } from "./card-rule-bands.mjs?v=try-row-1";
+import { getEquippedCardStatuses, cardStatusText } from "./card-status.mjs?v=try-row-1";
+import { cardArt } from "./card-art.mjs?v=try-row-1";
+import {deckRelicShelfMarkup,deckContextMarkup,deckLinkedCardFace,deckSwapComboMarkup,deckCardExplanationMarkup} from './deck-combos.mjs?v=try-row-1';
 import {
   getMountedCards,
   getOwnedCards,
@@ -15,12 +15,12 @@ import {
   canUseCardCampServices,
   getSkillWallet,
   equipOwnedCard,
-} from "./model.mjs?v=tow-swing-1";
-import { resourceSymbol } from "./game-symbols.mjs?v=tow-swing-1";
-import { choiceScene } from "./choice-art.mjs?v=tow-swing-1";
-import { livesMarkup } from "./lives.mjs?v=tow-swing-1";
-import { getGlowCapacity, formatGlow } from "./vitality.mjs?v=tow-swing-1";
-import { mapStopIconMarkup } from "./map-guide.mjs?v=tow-swing-1";
+} from "./model.mjs?v=try-row-1";
+import { resourceSymbol } from "./game-symbols.mjs?v=try-row-1";
+import { choiceScene } from "./choice-art.mjs?v=try-row-1";
+import { livesMarkup } from "./lives.mjs?v=try-row-1";
+import { getGlowCapacity, formatGlow } from "./vitality.mjs?v=try-row-1";
+import { mapStopIconMarkup } from "./map-guide.mjs?v=try-row-1";
 import {
   createCardExecution,
   executeCardBodyPickup,
@@ -30,7 +30,7 @@ import {
   getCardChargeCapacity,
   isInventoryOnlyCard,
   SKILL_CARDS,
-} from "./skill-cards.mjs?v=tow-swing-1";
+} from "./skill-cards.mjs?v=try-row-1";
 
 const esc = (v) =>
   String(v ?? "").replace(
@@ -79,7 +79,7 @@ function flightPackingReceipt(run, reward) {
     ? ` · Tight Packing +${bonus} Stored Sparks`
     : "";
 }
-export { cardArt } from "./card-art.mjs?v=tow-swing-1";
+export { cardArt } from "./card-art.mjs?v=try-row-1";
 export function effectMarkup(text) {
   return esc(text).replace(/([+−]?\d+(?:\.\d+)?%?)/g, '<b class="card-number">$1</b>');
 }
@@ -234,7 +234,7 @@ export function cardsBenchMarkup(state, { selectedId = null, selected = 0, locke
   };
   if (!browsing && !inspecting && !meltMode) {
     const foreground = cards.map((c, i) => `<div class="card-equipped-mount" data-deck-mounted-slot="${i}"><div role="button" tabindex="0" class="card-equipped-face ${c ? '' : 'card-equipped-empty'}" data-action="card-slot" data-index="${i}" data-deck-slot-id="${esc(c?.instanceId || '')}"${draggable ? ` data-deck-drop="slot" data-deck-slot-name="${c ? esc(cardName(c)) : ''}"` : ''} aria-label="Slot ${i + 1}: ${c ? `${esc(cardName(c))}, ${esc(cardStatusText(statuses[i]))}, select to move or inspect` : 'empty, open Deck to choose a card'}"><b class="card-foreground-number" aria-hidden="true">${i + 1}</b>${deckLinkedCardFace(cardFace(c, { fitted: true, slot: i, status: statuses[i], selected:card?.instanceId===c?.instanceId }),run,i)}${!c ? '<span class="card-empty-prompt">Choose from Deck</span>' : ''}</div>${c && draggable ? `<nav class="card-move-controls" aria-label="Move ${esc(cardName(c))}">${[-1,1].map(direction=>`<button type="button" data-action="card-move-one" data-index="${i}" data-id="${esc(c.instanceId)}" data-direction="${direction}" data-expected-id="${esc(cards[i+direction]?.instanceId || '')}" aria-label="Move ${esc(cardName(c))} one slot ${direction<0?'left':'right'}" ${i+direction<0||i+direction>=cards.length?'disabled':''}>${direction<0?'←':'→'}</button>${direction<0?`${dragGrip(c)}`:''}`).join('')}</nav>` : '<span class="card-move-spacer" aria-hidden="true"></span>'}</div>`).join('');
-    return `<section data-deck-editable="${draggable}" class="card-bench card-deck card-equipped-foreground ${card?.mounted ? 'deck-context-open' : ''} ${equip?'deck-tap-moving':''}"><header class="card-heading"><div>${paused ? '<small>FLIGHT PAUSED</small>' : ''}<h2>Equipped</h2></div>${deckRelicShelfMarkup(run)}<button class="secondary card-open-collection" data-action="card-open-collection">${deckIcon()} Deck</button><button class="secondary card-glossary-link" data-card-glossary>Glossary</button><button class="secondary card-close" data-action="close-sheet">Done</button></header><div class="deck-equipped-stage"><div class="card-foreground-row" style="--deck-slots:${cards.length}" aria-label="Equipped cards in slot order" tabindex="0">${foreground}</div>${deckContextMarkup(run,{card,locked,moving:equip})}</div><p class="card-deck-status" role="status">${esc(notice||(equip?`${cardName(card)} selected · tap any destination slot`:'Tap a card, then a destination slot · or drag its grip'))}</p></section>`;
+    return `<section data-deck-editable="${draggable}" class="card-bench card-deck card-equipped-foreground ${card?.mounted ? 'deck-context-open' : ''} ${equip?'deck-tap-moving':''}"><header class="card-heading"><div>${paused ? '<small>FLIGHT PAUSED</small>' : ''}<h2>Equipped</h2></div>${deckRelicShelfMarkup(run)}<button class="primary card-try-row" data-action="card-try-row" aria-haspopup="dialog">▶ Try row</button><button class="secondary card-open-collection" data-action="card-open-collection">${deckIcon()} Deck</button><button class="secondary card-glossary-link" data-card-glossary>Glossary</button><button class="secondary card-close" data-action="close-sheet">Done</button></header><div class="deck-equipped-stage"><div class="card-foreground-row" style="--deck-slots:${cards.length}" aria-label="Equipped cards in slot order" tabindex="0">${foreground}</div>${deckContextMarkup(run,{card,locked,moving:equip})}</div><p class="card-deck-status" role="status">${esc(notice||(equip?`${cardName(card)} selected · tap any destination slot`:'Tap a card, then a destination slot · or drag its grip'))}</p></section>`;
   }
   const gallery = visible.map(c => `<div role="button" tabindex="0" data-deck-card class="card-deck-pick ${meltMode ? 'card-melt-pick' : 'card-collection-face'} ${selectedIds.has(c.instanceId) ? 'melt-selected' : ''} ${card?.instanceId===c.instanceId && !meltMode ? 'card-reserve-selected' : ''}" data-action="card-select" data-id="${esc(c.instanceId)}" aria-pressed="${meltMode ? selectedIds.has(c.instanceId) : card?.instanceId===c.instanceId}" aria-label="${esc(cardName(c))}, ${esc(rarity(c))}, in Deck${meltMode ? `, returns ${amount(c.meltValue)} Stored Sparks, ${selectedIds.has(c.instanceId) ? 'selected to melt' : 'tap to select for melting'}` : isInventoryOnlyCard(c) ? ', available at Rest, inspect card' : ', select then tap a slot'}">${cardFace(c, { compact: true })}${!meltMode && isInventoryOnlyCard(c) ? '<span class="card-deck-badge">Rest · from Deck</span>' : ''}${meltMode ? `<span class="card-deck-badge">${selectedIds.has(c.instanceId) ? '✓ ' : ''}+${amount(c.meltValue)} Stored Sparks</span>` : dragGrip(c)}</div>`).join('');
   const controls = card ? `<div class="card-deck-actions">${!inventoryCard ? `<button class="primary card-equip-positive" data-action="card-equip" ${locked ? 'disabled' : ''}>${card.mounted ? 'Move to slot' : 'Equip'}</button>` : ''}${card.mounted ? `<button class="secondary" data-action="card-unequip" data-index="${card.slot}" data-id="${esc(card.instanceId)}" title="Keep this card in reserve; its ability stops" ${locked ? 'disabled' : ''}>Unequip</button>` : ''}${card.maxRank > 1 || preview?.kind === 'evolution' ? `<button class="secondary" data-action="card-preview-improve" data-id="${esc(card.instanceId)}" title="${!atRest ? 'Improve and Evolve are available at Rest' : !canReviewImprove ? 'This card is at its highest tier and rank' : `Preview ${cardName(card)} → ${cardName(preview.after)} for ${amount(preview.price)} Stored Sparks; remaining uses stay the same`}" ${locked || !canReviewImprove || !atRest ? 'disabled' : ''}>${!atRest ? 'Improve · Rest' : !canReviewImprove ? 'Max rank' : `${preview.kind === 'evolution' ? 'Evolve' : 'Improve'} · ${amount(preview.price)}`}</button>` : ''}</div>` : '';

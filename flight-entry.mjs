@@ -1,10 +1,10 @@
-import {resourceSymbol} from './game-symbols.mjs?v=tow-swing-1';
-import {prepareFuelSprites} from './pickup-art.mjs?v=tow-swing-1';
+import {resourceSymbol} from './game-symbols.mjs?v=try-row-1';
+import {prepareFuelSprites} from './pickup-art.mjs?v=try-row-1';
 
 export function preloadFlightEntry(reducedMotion=false){
  if(typeof window==='undefined')return Promise.resolve();
  const quiet=reducedMotion||window.matchMedia('(prefers-reduced-motion: reduce)').matches;
- return Promise.all([import('./wisp-renderer.mjs?v=tow-swing-1'),prepareFuelSprites(document,quiet)]);
+ return Promise.all([import('./wisp-renderer.mjs?v=try-row-1'),prepareFuelSprites(document,quiet)]);
 }
 
 export function flightEntryMarkup(run,node,{dream=false}={}){

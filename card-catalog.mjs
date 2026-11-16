@@ -40,7 +40,7 @@ const cards = [
   { id: 'crescendo', name: 'Crescendo', rarity: 'rare', kind: 'crescendo', amount: 2, copyable: false, maxRank: 1, excludeStarter: true, artFamily: 'rhythm', row: { event: '*', operation: 'multiply', amount: 2, minimumEarlierPayers: 2 },
     ruleBands: [{ type: 'condition', text: 'After 2 earlier actions pay Sparks in this pass' }, { type: 'effect', text: 'Double this pass’s Sparks so far.' }] },
   { id: 'refrain', name: 'Refrain', rarity: 'legendary', kind: 'refrain', amount: 0, copyable: false, maxRank: 1, excludeStarter: true, artFamily: 'echo',
-    ruleBands: [{ type: 'condition', text: 'After a matching event earns a bonus' }, { type: 'effect', text: 'Replay the row once from slot 1.' }, { type: 'note', text: 'All Refrains share one replay.' }] },
+    ruleBands: [{ type: 'condition', text: 'After a matching event earns a bonus' }, { type: 'effect', text: 'Finish this pass, then replay once from slot 1.' }, { type: 'note', text: 'Same event. Shared uses stay spent. All Refrains share one replay.' }] },
   { id: 'downbeat', name: 'Downbeat', rarity: 'common', kind: 'downbeat', amount: 2, copyable: true, maxRank: 2, rankStep: 1, evolvesTo: 'downbeat-iii', excludeStarter: true, artFamily: 'lift-guide', row: { event: 'downbeat-lift', operation: 'add-sparks', amount: 2 },
     ruleBands: [{ type: 'condition', text: 'Paid Lift while falling, at least 0.75s after the last Lift' }, { type: 'effect', text: '+{amount} Sparks.' }] },
   { id: 'ring-spring', name: 'Ring Spring', rarity: 'rare', kind: 'ring-spring', amount: 1, copyable: true, maxRank: 1, evolvesTo: 'ring-spring-ii', excludeStarter: true, artFamily: 'field-impulse', row: { event: 'natural-overfill', operation: 'shorten-recovery', amount: 1 },
