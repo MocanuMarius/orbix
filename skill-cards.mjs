@@ -1,8 +1,8 @@
 /** Small, serializable skills-as-cards pilot. Printed Sparks use the existing .3 display scale. */
 export const CARD_SYSTEM = "cards-v1";
 export const CARD_UNIT = 10 / 3;
-import {CARD_CATALOG,CARD_DROP_WEIGHTS} from './card-catalog.mjs?v=try-row-1';
-import {cardOfferMultiplier} from './card-offer-context.mjs?v=try-row-1';
+import {CARD_CATALOG,CARD_DROP_WEIGHTS} from './card-catalog.mjs?v=dream-gifts-1';
+import {cardOfferMultiplier} from './card-offer-context.mjs?v=dream-gifts-1';
 const maximumGrowthAmount = Math.max(...Object.values(CARD_CATALOG)
   .filter(card => card.kind === 'camp-grow').map(card => card.amount + card.maxRank - 1));
 export const CARD_ECONOMY = Object.freeze({
@@ -407,6 +407,7 @@ function effectiveCardSummary(kind, sources, cards) {
     harvest: `+${total} Sparks when a wave crosses an uncollected fuel pickup already in the passage${matching.some((entry) => entry.def.stored) ? `; +${matching.reduce((sum, entry) => sum + (entry.def.stored || 0), 0)} Stored Sparks at the first crossing per wave` : ""}.`,
     guide: "One amber arrow shows when to Lift, even with extra copies.",
     rhythm: "3 successful Lifts at an even pace send one wave, even with extra copies.",
+    dream: "After a committed Rest, or before an Elite or Guardian: rehearse 8 seconds in full light with free Lifts. Wake at the opening’s end, paused. Extra cards keep one 8-second Dream; copying cards cannot copy it.",
     "cache-handling": "Collector can fetch Caches. A delivered Cache gives 12 Sparks. Extra cards keep that same delivery.",
     "twin-orbit": "Two Collectors fetch and reel independently while equipped. Maximum 2; the first keeps Field Impulse and saves.",
     "twin-wick": "One use unlocks a second Collector for this expedition, even after unequipping. Maximum 2; redundant Twin Orbit does not spend this use.",
@@ -494,19 +495,49 @@ export function getCardPackingBonus(packed, sources = 0, remainder = 0) {
     + integer(remainder, 3);
   return { amount: Math.floor(quarters / 4), remainder: quarters % 4 };
 }
+export const CARD_STARTER_RARE_CHANCE = .20;
+const starterCommonIds = ['body-spark', 'spark-cache', 'deep-vessel', 'tight-packing', 'field-impulse', 'harvest-common', 'dream'];
+const starterRareIds = ['rhythm', 'cache-handling', 'flash-handling'];
 export function getCardStarterOffers(run, { legacy = false } = {}) {
-  const pool = Object.values(SKILL_CARDS).filter((d) => d.rarity === "common" && !d.excludeStarter && (legacy || d.id !== "lift-guide")),
-    draw = random(`${run.campaignSeed || run.seed}:card-starter:v1`);
-  for (let i = pool.length - 1; i > 0; i--) {
-    const j = Math.floor(draw() * (i + 1));
-    [pool[i], pool[j]] = [pool[j], pool[i]];
+  const oldPair = legacy || isCardRun(run) && run.cardStarterVersion !== 3,
+    draw = random(`${run.campaignSeed || run.seed}:card-starter:${oldPair ? 'v1' : 'v3'}`),
+    shuffle = pool => {
+      for (let i = pool.length - 1; i > 0; i--) {
+        const j = Math.floor(draw() * (i + 1));
+        [pool[i], pool[j]] = [pool[j], pool[i]];
+      }
+      return pool;
+    };
+  let pool;
+  if (oldPair) {
+    // Keep unpicked v1/v2 saves and already-open legacy confirmations stable.
+    pool = shuffle(Object.values(SKILL_CARDS).filter(d => d.rarity === 'common' && !d.excludeStarter && (legacy || d.id !== 'lift-guide')));
+    const soloKinds = ['body', 'capacity', 'guide', 'field'];
+    if (!pool.slice(0, 2).some(d => soloKinds.includes(d.kind))) {
+      const index = pool.findIndex(d => soloKinds.includes(d.kind));
+      [pool[0], pool[index]] = [pool[index], pool[0]];
+    }
+    pool = pool.slice(0, 2);
+  } else if (Array.isArray(run.cardStarterOfferIds) && run.cardStarterOfferIds.length === 3 &&
+      new Set(run.cardStarterOfferIds).size === 3 && run.cardStarterOfferIds.every(id => SKILL_CARDS[id] && id !== 'lift-guide')) {
+    pool = run.cardStarterOfferIds.map(id => SKILL_CARDS[id]);
+  } else {
+    pool = shuffle(starterCommonIds.map(id => SKILL_CARDS[id]).filter(Boolean));
+    // At least one of the two retained Commons works without another card.
+    const soloKinds = ['body', 'capacity', 'field'];
+    if (!pool.slice(0, 2).some(d => soloKinds.includes(d.kind))) {
+      const index = pool.findIndex(d => soloKinds.includes(d.kind));
+      [pool[0], pool[index]] = [pool[index], pool[0]];
+    }
+    pool = pool.slice(0, 3);
+    // One lineup roll at every Ascension: 80% three Commons, 20% one Rare.
+    if (draw() < CARD_STARTER_RARE_CHANCE) {
+      const rares = starterRareIds.map(id => SKILL_CARDS[id]).filter(Boolean);
+      pool[2] = rares[Math.floor(draw() * rares.length)];
+    }
+    shuffle(pool);
   }
-  const soloKinds = ["body", "capacity", "guide", "field"];
-  if (!pool.slice(0, 2).some((d) => soloKinds.includes(d.kind))) {
-    const index = pool.findIndex((d) => soloKinds.includes(d.kind));
-    [pool[0], pool[index]] = [pool[index], pool[0]];
-  }
-  return pool.slice(0, 2).map((d) => {
+  return pool.map((d) => {
     const card = describeSkillCard(makeSkillCard(d.id, `starter:${d.id}`));
     return {
       id: `card:${d.id}`,
@@ -837,11 +868,21 @@ export function commitCardCharges(run, charges) {
   run.reserveCards = (run.reserveCards || []).map(commit).filter(Boolean);
   return exhausted;
 }
+/** Route eligibility is independent of attemptActive/restReady: both change on Wake. */
+export function isCardDreamRoute(run, node = run?.current) {
+  if (!node || node.type === 'support') return false;
+  if (node.elite || node.boss || node.kind === 'elite' || node.kind === 'finale' || node.type === 'finale') return true;
+  const rest = run?.lastRest;
+  if (!rest || rest.mapIndex !== run.mapIndex || rest.row !== node.row - 1 || !run.path?.includes(rest.nodeId)) return false;
+  const camp = run.map?.[rest.row]?.find(site => site.id === rest.nodeId && site.kind === 'camp');
+  return camp?.nextIds?.length === 1 && camp.nextIds[0] === node.id;
+}
 export function getCardModifiers(run) {
   const m = {
     cardProximitySources: 0,
     cardProximityUnlocked: false,
     cardRhythm: false,
+    cardDream: false,
     cardLiftGuide:
       run?.isTutorial &&
       (run.cardPilot === true || run.cardPilotTutorial === true) &&
@@ -872,6 +913,9 @@ export function getCardModifiers(run) {
     cardOverfillEvery: 3,
   };
   if (!isCardRun(run)) return m;
+  m.dreamDuration = 0;
+  m.dreamWake = 3;
+  m.dreamSight = false;
   m.cardTwinWickUnlocked = run.cardTwinWickUnlocked === true;
   m.cardPackingRemainder = integer(run.cardPackingRemainder, 3);
   m.cardExecution = { cards: clone(run.mountedCards || []) };
@@ -880,6 +924,7 @@ export function getCardModifiers(run) {
     if (d.kind === "proximity") m.cardProximityUnlocked = true;
     if (d.kind === "proximity-range") m.cardProximitySources++;
     if (d.kind === "rhythm") m.cardRhythm = true;
+    if (d.kind === "dream") m.cardDream = true;
     if (d.kind === "guide") m.cardLiftGuide = true;
     if (d.kind === "field") { m.cardFieldImpulse = true; m.cardFieldSources++; }
     if (d.kind === "cache-handling") m.cardCacheHandling = true;
@@ -903,6 +948,7 @@ export function getCardModifiers(run) {
   m.cardGrowSources = seeds.length;
   m.cardGrowAmount = Math.min(CARD_ECONOMY.maxGrowPerAction, seeds.reduce((total, seed) => total + cardAmount(seed), 0)) * CARD_UNIT;
   m.cardFieldMultiplier = getFieldImpulseMultiplier(m.cardFieldSources);
+  if (m.cardDream && isCardDreamRoute(run)) m.dreamDuration = 8;
   return m;
 }
 export function recordCardEvent(run, type, detail = {}) {

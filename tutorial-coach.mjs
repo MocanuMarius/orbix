@@ -1,5 +1,5 @@
-import {tutorialTarget,tutorialTextMarkup,tutorialExampleMarkup} from './tutorial-context.mjs?v=try-row-1';
-import {tutorialVisualMarkup} from './tutorial-visuals.mjs?v=try-row-1';
+import {tutorialTarget,tutorialTextMarkup,tutorialExampleMarkup} from './tutorial-context.mjs?v=dream-gifts-1';
+import {tutorialVisualMarkup} from './tutorial-visuals.mjs?v=dream-gifts-1';
 let coachId = 0;
 const clamp = (value, low, high) => Math.max(low, Math.min(high, value));
 const focusable = 'button:not(:disabled),a[href],input:not(:disabled),select:not(:disabled),textarea:not(:disabled),[tabindex]:not([tabindex="-1"])';

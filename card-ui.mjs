@@ -1,8 +1,8 @@
-import { cardTermTextMarkup } from "./card-terms.mjs?v=try-row-1";
-import { getCardRuleBands } from "./card-rule-bands.mjs?v=try-row-1";
-import { getEquippedCardStatuses, cardStatusText } from "./card-status.mjs?v=try-row-1";
-import { cardArt } from "./card-art.mjs?v=try-row-1";
-import {deckRelicShelfMarkup,deckContextMarkup,deckLinkedCardFace,deckSwapComboMarkup,deckCardExplanationMarkup} from './deck-combos.mjs?v=try-row-1';
+import { cardTermTextMarkup } from "./card-terms.mjs?v=dream-gifts-1";
+import { getCardRuleBands } from "./card-rule-bands.mjs?v=dream-gifts-1";
+import { getEquippedCardStatuses, cardStatusText } from "./card-status.mjs?v=dream-gifts-1";
+import { cardArt } from "./card-art.mjs?v=dream-gifts-1";
+import {deckRelicShelfMarkup,deckContextMarkup,deckLinkedCardFace,deckSwapComboMarkup,deckCardExplanationMarkup} from './deck-combos.mjs?v=dream-gifts-1';
 import {
   getMountedCards,
   getOwnedCards,
@@ -12,15 +12,17 @@ import {
   getCardImprovePreview,
   getCardForgePreview,
   getCardCampPreview,
+  getChoices,
   canUseCardCampServices,
   getSkillWallet,
   equipOwnedCard,
-} from "./model.mjs?v=try-row-1";
-import { resourceSymbol } from "./game-symbols.mjs?v=try-row-1";
-import { choiceScene } from "./choice-art.mjs?v=try-row-1";
-import { livesMarkup } from "./lives.mjs?v=try-row-1";
-import { getGlowCapacity, formatGlow } from "./vitality.mjs?v=try-row-1";
-import { mapStopIconMarkup } from "./map-guide.mjs?v=try-row-1";
+} from "./model.mjs?v=dream-gifts-1";
+import { resourceSymbol } from "./game-symbols.mjs?v=dream-gifts-1";
+import { choiceScene } from "./choice-art.mjs?v=dream-gifts-1";
+import { livesMarkup } from "./lives.mjs?v=dream-gifts-1";
+import { getGlowCapacity, formatGlow } from "./vitality.mjs?v=dream-gifts-1";
+import { mapStopIconMarkup } from "./map-guide.mjs?v=dream-gifts-1";
+import {canDreamAt} from './dream.mjs?v=dream-gifts-1';
 import {
   createCardExecution,
   executeCardBodyPickup,
@@ -30,7 +32,7 @@ import {
   getCardChargeCapacity,
   isInventoryOnlyCard,
   SKILL_CARDS,
-} from "./skill-cards.mjs?v=try-row-1";
+} from "./skill-cards.mjs?v=dream-gifts-1";
 
 const esc = (v) =>
   String(v ?? "").replace(
@@ -79,7 +81,7 @@ function flightPackingReceipt(run, reward) {
     ? ` · Tight Packing +${bonus} Stored Sparks`
     : "";
 }
-export { cardArt } from "./card-art.mjs?v=try-row-1";
+export { cardArt } from "./card-art.mjs?v=dream-gifts-1";
 export function effectMarkup(text) {
   return esc(text).replace(/([+−]?\d+(?:\.\d+)?%?)/g, '<b class="card-number">$1</b>');
 }
@@ -166,7 +168,7 @@ export function cardFace(card, { compact = false, fitted = false, slot = null, s
 export function starterCardsMarkup(run, gifts, existing) {
   const guide=describeSkillCard(makeSkillCard('lift-guide','included-starter-guide'));
   const capacity=run.cardFutureCapacity>0?`<small>+${run.cardFutureCapacity} permanent maximum Sparks · starting full at ${formatGlow(run.flame)}/${formatGlow(getGlowCapacity(run))}.</small>`:'';
-  return `<section class="card-starter"><header class="card-heading"><div><h2>Choose your other card</h2><small>Tap a card to review its rules and starting placement</small>${capacity}</div><div class="card-starter-included">${cardArt(guide,{compact:true})}<span><strong>Lift Guide included</strong><small>You can keep it or Melt it</small></span></div><button class="secondary" data-action="close-sheet">Back</button></header><div class="card-starter-pair">${gifts.map(gift => { const card = gift.card || { ...gift, effect: gift.description, rarity: 'common' }; return `<div role="button" tabindex="0" class="card-pick" data-action="${existing ? 'existing-gift' : 'new-gift'}" data-id="${esc(gift.id)}" aria-label="Choose ${esc(cardName(card))}. Review before starting.">${cardFace(card)}<span class="card-pick-label" aria-hidden="true">Choose ${esc(cardName(card))}</span></div>`; }).join('')}</div></section>`;
+  return `<section class="card-starter"><header class="card-heading"><div><h2>Choose one starting card</h2><small>Pick 1 of ${gifts.length}. Tap a card to review before starting.</small>${capacity}</div><div class="card-starter-included">${cardArt(guide,{compact:true})}<span><strong>Lift Guide included</strong><small>You can keep it or Melt it</small></span></div><button class="secondary" data-action="close-sheet">Back</button></header><div class="card-starter-pair${gifts.length===3?' card-starter-trio':''}">${gifts.map(gift => { const card = gift.card || { ...gift, effect: gift.description, rarity: 'common' }; return `<div role="button" tabindex="0" class="card-pick" data-action="${existing ? 'existing-gift' : 'new-gift'}" data-id="${esc(gift.id)}" aria-label="Choose ${esc(cardName(card))}. Review before starting.">${cardFace(card,{fitted:gifts.length===3})}<span class="card-pick-label" aria-hidden="true">Choose ${esc(cardName(card))}</span></div>`; }).join('')}</div></section>`;
 }
 export function starterGiftConfirmationMarkup(run, preview, existing) {
   const gift=preview.gift, card=gift.card || {...gift,effect:gift.description,rarity:'common'};
@@ -274,12 +276,13 @@ export function cardRestMarkup(run, node, choices) {
   const rail = `<aside class="card-rest-rail">${mapStopIconMarkup(node)}<small>REST · MAP ${run.mapIndex + 1}/3</small><h1>${esc(node.name)}</h1><div class="card-rest-vitals">${livesMarkup(run)}<span>${resourceSymbol("glow")}${formatGlow(run.flame)}/${formatGlow(getGlowCapacity(run))}</span></div><div class="card-rest-deck-links"><button class="secondary" data-action="cards">Deck</button><button class="primary" data-action="card-workshop">Workshop</button></div><small>Improve · Refill · Forge<br>${resourceSymbol('packed')} ${Math.floor(run.condensedGlow||0)} Stored Sparks · no Rest action</small></aside>`;
   if (camp.completed) {
     const last = run.lastRest || {}, names = { recover: 'Recover', slot: 'Add slot', grow: 'Grow' };
+    const next = getChoices(run)[0], dream = canDreamAt(run, next);
     const receipt = camp.used.length ? camp.used.map(key => {
       const detail = key === 'recover' ? `${Math.max(0, last.heartsRestored || 0)} hearts restored · meter refilled`
         : key === 'slot' ? `${run.cardSlots} equipped slots unlocked` : 'Maximum Sparks increased · meter refilled';
       return `<article class="card-camp-choice card-camp-taken">${choiceScene(key === 'slot' ? 'skills' : key === 'grow' ? 'refillGlow' : 'hearts')}<h3>✓ ${names[key] || esc(key)}</h3><p class="card-camp-consequence">${detail}</p></article>`;
     }).join('') : '<p>You left without taking a Rest action.</p>';
-    return `<section class="card-rest-screen">${rail}<div class="card-camp-main"><header class="card-heading"><div><h2>Rest complete</h2><p>Prepare your Deck, then choose the next route.</p></div></header><div class="card-camp-choices">${receipt}</div><footer class="card-camp-footer"><p>Your choices are saved.</p><button class="primary" data-action="view-route">Choose next route →</button></footer></div></section>`;
+    return `<section class="card-rest-screen">${rail}<div class="card-camp-main"><header class="card-heading"><div><h2>Rest complete</h2><p>Prepare your Deck, then ${dream ? 'enter Dream' : 'choose the next route'}.</p></div></header><div class="card-camp-choices">${receipt}</div><footer class="card-camp-footer"><p>${dream ? `Next · ${esc(next.name)} · 8s full-light Dream` : 'Your choices are saved.'}</p><button class="primary" data-action="${dream ? 'node' : 'view-route'}"${dream ? ` data-id="${esc(next.id)}"` : ''}>${dream ? 'Enter Dream · 8s' : 'Choose next route'} →</button></footer></div></section>`;
   }
   const actions = camp.actions.filter(c => c.key), leave = camp.actions.find(c => c.effect?.restContinue);
   const available = actions.filter(c => !c.disabled), exclusive = camp.remaining === 1 && available.length > 1;

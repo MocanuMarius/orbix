@@ -1,12 +1,13 @@
 /** Contextual card vocabulary. Native modal dialogs keep help above the Deck. */
-import { resourceSymbol } from './game-symbols.mjs?v=try-row-1';
-import {lifeHeartSvg} from './lives.mjs?v=try-row-1';
-import {duskGlyphArt} from './spark-symbol.mjs?v=try-row-1';
-import {getGlowCapacity,formatGlow} from './vitality.mjs?v=try-row-1';
-import {glowGaugeUnits} from './glow-ui.mjs?v=try-row-1';
-import {getRunModifiers} from './model.mjs?v=try-row-1';
-import {cardAmount,makeSkillCard,SKILL_CARDS} from './skill-cards.mjs?v=try-row-1';
-import {cardRowTermHelpMarkup} from './card-row-help.mjs?v=try-row-1';
+import { resourceSymbol } from './game-symbols.mjs?v=dream-gifts-1';
+import {lifeHeartSvg} from './lives.mjs?v=dream-gifts-1';
+import {duskGlyphArt} from './spark-symbol.mjs?v=dream-gifts-1';
+import {getGlowCapacity,formatGlow} from './vitality.mjs?v=dream-gifts-1';
+import {glowGaugeUnits} from './glow-ui.mjs?v=dream-gifts-1';
+import {getRunModifiers} from './model.mjs?v=dream-gifts-1';
+import {cardAmount,makeSkillCard,SKILL_CARDS} from './skill-cards.mjs?v=dream-gifts-1';
+import {cardRowTermHelpMarkup} from './card-row-help.mjs?v=dream-gifts-1';
+import {dreamEye} from './dream.mjs?v=dream-gifts-1';
 const esc = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 export const CARD_TERMS = Object.freeze({
   round: ['Round', 'One flight through a passage, ending in clear rewards or a lost heart.'],
@@ -37,6 +38,7 @@ export const CARD_TERMS = Object.freeze({
   grow: ['Grow', 'At Rest, owned Growth Seeds add maximum Sparks and refill your Spark Meter.'],
   cluster: ['Cluster', 'A group of Sparks that counts as one pickup.'],
   rhythm: ['Rhythm', 'Perform 3 successful Lifts at an even pace to send one wave.'],
+  dream: ['Dream', 'Equip Dream to rehearse 8 seconds after Rest or before an Elite or Guardian, in full light with free Lifts.'],
   watchlight: ['Watchlight', 'With Collector home and a full ring, survive one fatal impact per flight and send a wave.'],
   pass: ['Row pass', 'A matching event starts a left-to-right check of your equipped row.'],
 });
@@ -60,6 +62,7 @@ const CARD_TERM_DETAILS = Object.freeze({
   next: 'Empty slots and cards that cannot be copied give no copied effect. Changing card order changes what Echo and Chameleon target.',
   cluster: 'Your wisp can touch a Cluster and Collector can fetch it. Pickup bonuses check the Cluster once, rather than checking every bright core.',
   rhythm: 'All 3 Lifts must succeed and be evenly spaced. You perform them yourself. Extra Rhythm cards still send only one wave.',
+  dream: 'With Dream equipped, your next flight directly after a visited Rest, or an Elite or Guardian, starts with an 8-second golden rehearsal. Ordinary flights elsewhere start normally. Go back to sleep to practise again, or Wake up at the end of the chosen opening with its pickups and free Lifts. Waking starts paused; resume builds slowly back to full speed and does not Lift. Rehearsing spends no heart, card uses or saved Sparks and grants no run rewards. Extra Dream cards keep one 8-second opening. Echo and Chameleon cannot copy it.',
   watchlight: 'Collector recovers for 4 normal cycles after the save. It must be home with a full ring before the fatal impact.',
   "heart": "Each heart is one remaining attempt. A failed flight costs one heart. Heart Stitch restores a missing heart after three direct passage Spark pickups in one flight; it spends a use only when healing succeeds. Devourer can restore one after a clear by consuming the adjacent Rare. Full hearts spend no healing use or Rare target.",
   "proximity": "Skim near solid terrain for 2 seconds to send a revealing wave. The reveal lasts 5 seconds, then recovers for 2 seconds. Proximity enables normal reach while equipped, without Collector. Edge Reach also enables this and adds 50% of normal reach per equipped or Chameleon-borrowed source. Echo cannot repeat a passive ability. Brief gaps keep progress for 1.25 seconds; contact, protection and Dream never charge it.",
@@ -82,6 +85,7 @@ const termArt = Object.freeze({
   heart: () => lifeHeartSvg(),
   stored: () => resourceSymbol('packed'),
   lift: () => resourceSymbol('lift'),
+  dream: () => dreamEye,
 });
 export function cardTermIcon(key) {
   return termArt[key] ? `<span class="card-term-icon card-term-icon-${esc(key)}" aria-hidden="true">${termArt[key]()}</span>` : '';
@@ -94,7 +98,7 @@ export function cardTermMarkup(key, label = CARD_TERMS[key]?.[0] || key, {icon =
 const keywords = [
   ['Packing efficiency', 'packing-efficiency'], ['Dusk(?: Sparks?)?', 'dusk'], ['Luminance', 'luminance'],
   ['Proximity(?: waves?)?', 'proximity'], ['Stored Sparks?', 'stored'], ['hearts?', 'heart'], ['Field Impulse', 'impulse'], ['waves?', 'wave'],
-  ['Watchlight', 'watchlight'], ['Rhythm(?: phrase)?', 'rhythm'], ['Clusters?', 'cluster'], ['Collector', 'collector'], ['Flash(?: Powerups?)?', 'flash'], ['Caches?', 'cache'],
+  ['Watchlight', 'watchlight'], ['Dream', 'dream'], ['Rhythm(?: phrase)?', 'rhythm'], ['Clusters?', 'cluster'], ['Collector', 'collector'], ['Flash(?: Powerups?)?', 'flash'], ['Caches?', 'cache'],
   ['Spark Meter|meter', 'meter'], ['Sparks?', 'spark'], ['wisps?', 'wisp'], ['Lifts?', 'lift'], ['Rest', 'rest'], ['Grow', 'grow'],
   ['Shared uses|Share its (?:remaining )?uses|Copies share uses', 'shared'], ['remaining (?:uses|charges)|uses?', 'uses'], ['pack(?:ing|ed|s)?', 'packing'], ['next slot|card to the right', 'next'], ['ring', 'ring'],
   ["pass(?:’s|'s)?", 'pass'], ['Repeat|Borrow', 'copy'],
@@ -129,6 +133,7 @@ export function cardTermTextMarkup(value, {exclude = [], sparkContext} = {}) {
 }
 
 const CARD_NOTES = Object.freeze({
+  dream: CARD_TERM_DETAILS.dream,
   'use-doubler': 'When an actual flight starts, Use Doubler consumes itself to double the remaining uses of the real consumable immediately to its right. The added uses and expanded ceiling belong to that exact card through swaps, saves and eligible paid refills. An empty slot, a spent card, a lasting card or another Use Doubler keeps the card unspent. Opening a preview, Dream, pausing, resuming and reloading never repeat a grant. Echo, Chameleon and replay cannot copy it.',
   'ember-feeder': 'After a successful real flight, Ember Feeder consumes the first two occupied cards anywhere to its right together, skipping empty slots. Both cards must still be present; fewer than two consumes neither. Each meal adds one maximum Spark to that specific Ember Feeder while equipped. Stored growth survives swaps and saves, but removing, melting or consuming the Feeder removes its capacity bonus. Equipping never refills the meter. Heart Stitch heals first; physical consumers then resolve left to right before clear rewards. Failed flights, Dream, copying and replay never feed it.',
   'devourer': 'After a successful clear, Devourer can consume the actual Rare card immediately to its right to restore one missing heart. That Rare must have been equipped for the flight and remain present. Full hearts and failed flights spare it. Heart Stitch heals first; Devourers then resolve from left to right. The target disappears, while Devourer remains. Echo, Chameleon and row replay cannot copy this physical action.',
@@ -345,7 +350,7 @@ export function installCardTermHelp(doc = document, {resolveProximityContext,res
       dialog.classList.add('card-cache-dialog');
       const host=button.dataset.cardTerm?dialog.querySelector('[data-card-term-example]'):doc.createElement('div');
       if(!button.dataset.cardTerm){host.className='cache-card-example';dialog.querySelector('[data-card-help-rules]').append(host);}
-      import('./cache-card-help.mjs?v=try-row-1').then(({mountCacheCardHelp})=>{
+      import('./cache-card-help.mjs?v=dream-gifts-1').then(({mountCacheCardHelp})=>{
         if(layers.includes(layer))appendDisposer(mountCacheCardHelp(host,{focus:cardKind==='harvest'?'cross':cardKind==='cache-handling'?'deliver':'touch',harvestCard:cardKind==='harvest'?cardContext.card:undefined}));
       });
     }
@@ -356,7 +361,7 @@ export function installCardTermHelp(doc = document, {resolveProximityContext,res
         const host=doc.createElement('section');host.className='proximity-card-help';
         const example=dialog.querySelector('[data-card-term-example="proximity"]');
         if(example)example.replaceChildren(host);else dialog.querySelector('.card-term-content').prepend(host);
-        import('./proximity-card-help.mjs?v=try-row-1').then(({mountProximityCardHelp})=>{
+        import('./proximity-card-help.mjs?v=dream-gifts-1').then(({mountProximityCardHelp})=>{
           if(layers.includes(layer))appendDisposer(mountProximityCardHelp(host,previewContext));
         });
       }

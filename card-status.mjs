@@ -1,7 +1,7 @@
 /** Configuration hints only. Every numeric verdict comes from a read-only row quote. */
-import { SKILL_CARDS, CARD_ROW_EVENTS, getEffectiveCardSources, getCardRowRule, previewCardRowEvent, getUseDoublerTarget, getEmberFeederTargets, getCardFeederCapacity } from './skill-cards.mjs?v=try-row-1';
-import { normalizeCompanionFleet } from './companion-abilities.mjs?v=try-row-1';
-import { skillProgress } from './skill-increments.mjs?v=try-row-1';
+import { SKILL_CARDS, CARD_ROW_EVENTS, getEffectiveCardSources, getCardRowRule, previewCardRowEvent, getUseDoublerTarget, getEmberFeederTargets, getCardFeederCapacity } from './skill-cards.mjs?v=dream-gifts-1';
+import { normalizeCompanionFleet } from './companion-abilities.mjs?v=dream-gifts-1';
+import { skillProgress } from './skill-increments.mjs?v=dream-gifts-1';
 
 const ready = reason => ({ state: 'ready', symbol: '✓', label: 'Ready', reason, fix: 'Keep this arrangement to use it when its condition happens.' });
 const blocked = (label, reason, fix) => ({ state: 'blocked', symbol: '!', label, reason, fix });
@@ -103,7 +103,7 @@ export function getEquippedCardStatuses(run = {}, native = null) {
     if (copy && !source) {
       const target = cards[slot + 1], targetDef = SKILL_CARDS[target?.cardId];
       if (!target) return blocked('No target', 'There is no card in the slot immediately to the right.', 'Move this card directly left of a compatible card, with no empty slot between them.');
-      if (ownDef.kind === 'echo' && (targetDef?.kind === 'capacity' || targetDef?.passive))
+      if (ownDef.kind === 'echo' && targetDef?.kind !== 'dream' && (targetDef?.kind === 'capacity' || targetDef?.passive))
         return blocked('No action to copy', `${name(target)} is passive. Echo needs a triggered action to repeat.`, 'Move Echo directly left of a compatible action card. Chameleon can borrow this passive.');
       return blocked(`Cannot copy ${name(target)}`, `${name(target)} cannot be ${ownDef.kind === 'echo' ? 'repeated by Echo' : 'borrowed by Chameleon'}.`, 'Move this card directly left of a compatible card. Copying cards cannot copy each other.');
     }
@@ -153,7 +153,7 @@ export function getEquippedCardStatuses(run = {}, native = null) {
       return blocked('Needs Field', 'Wave Loom sends its wave after a successful Field Impulse. This build cannot make that swipe.', 'Equip Field Impulse, or use the native Collector Field Impulse skill.');
     if (kind === 'camp-grow' && run.cardGrowUses >= 3)
       return shared('Grow limit reached', 'All three Grow actions for this journey have already been used. Extra Growth Seeds share that limit.');
-    if (['guide', 'rhythm', 'cache-handling', 'wave-loom', 'watchlight', 'springboard', 'proximity'].includes(kind) && sources.some(entry => entry.index < slot && entry.def.kind === kind))
+    if (['guide', 'rhythm', 'dream', 'cache-handling', 'wave-loom', 'watchlight', 'springboard', 'proximity'].includes(kind) && sources.some(entry => entry.index < slot && entry.def.kind === kind))
       return shared('Already covered', 'An earlier equipped card already provides this single shared ability. Extra copies do not add a second effect.');
     if (kind === 'spillway' && sources.some(entry => entry.def.kind === kind && (entry.def.pulseCadence < def.pulseCadence || entry.def.pulseCadence === def.pulseCadence && entry.index < slot)))
       return shared('Already covered', 'Another Spillway already provides the same or faster wave cadence. Only the strongest cadence applies.');

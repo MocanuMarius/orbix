@@ -1,5 +1,6 @@
 // A dream records simulation inputs, never run rewards or snapshots of the world.
-import {getChoices} from './model.mjs?v=try-row-1';
+import {getChoices} from './model.mjs?v=dream-gifts-1';
+import {getCardModifiers,isCardDreamRoute,isCardRun} from './skill-cards.mjs?v=dream-gifts-1';
 const INPUTS=['beginLiftInput','endLiftInput','flap','activateAbility','activateFieldImpulse'];
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
 const ordered=value=>Array.isArray(value)?value.map(ordered):value&&typeof value==='object'?Object.fromEntries(Object.keys(value).sort().map(k=>[k,ordered(value[k])])):value;
@@ -7,10 +8,11 @@ export function dreamFingerprint(options={}){
   const modifiers = {...options.modifiers};
   delete modifiers.eventFavors;
   delete modifiers.flightBoon; // Waking benefits cannot change rehearsed physics.
-  return JSON.stringify(ordered({simulation:'try-row-1',seed:options.seed,terrain:options.terrain,elite:!!options.elite,duration:options.duration,
+  return JSON.stringify(ordered({simulation:'dream-gifts-1',seed:options.seed,terrain:options.terrain,elite:!!options.elite,duration:options.duration,
     node:options.node,companions:options.companions,modifiers,flame:options.flame,condensedGlow:options.condensedGlow||0,condensedRemainder:options.condensedRemainder||0}));
 }
-export function dreamConfig(run={}){
+export function dreamConfig(run={},node=run.current){
+  if(isCardRun(run))return {duration:getCardModifiers(run).cardDream&&isCardDreamRoute(run,node)?8:0,wake:3,sight:false};
   const s=run.skills||{};
   return {duration:s['main-dream']?(s['main-dream-deep']?16:s['main-dream-long']?12:8):0,
     wake:s['main-dream-wake']?4:3,sight:!!s['main-dream-deep']};
@@ -48,7 +50,7 @@ export function updateDreamIndicator(host,dream){
   }
 }
 export function canDreamAt(run,node){
- if(!node||node.type==='support'||!run||run.attemptActive||run.victoryPending||run.banked||run.lives<=0||!dreamConfig(run).duration)return false;
+ if(!node||node.type==='support'||!run||run.attemptActive||run.victoryPending||run.banked||run.lives<=0||!dreamConfig(run,node).duration)return false;
  if(run.phase==='briefing')return run.current?.id===node.id;
  return getChoices(run).some(choice=>choice.id===node.id);
 }

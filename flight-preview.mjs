@@ -1,17 +1,17 @@
-import {getBiome} from './biomes.mjs?v=try-row-1';
-import {getBossPreview} from './boss.mjs?v=try-row-1';
-import {levelMapPreview} from './level-map-art.mjs?v=try-row-1';
-import {mapStopIconMarkup} from './map-guide.mjs?v=try-row-1';
-import {resourceSymbol} from './game-symbols.mjs?v=try-row-1';
-import {getFlightClearReward} from './checkpoint-rewards.mjs?v=try-row-1';
-import {availableFlightArtifacts,isCardRun} from './model.mjs?v=try-row-1';
-import {bonusIcon,boonMarkup} from './route-bonus-ui.mjs?v=try-row-1';
-import {contextualFlightNotice} from './contextual-events.mjs?v=try-row-1';
-import {ATLAS_FORECASTS,atlasGlyph} from './night-atlas.mjs?v=try-row-1';
-import {canDreamAt,dreamConfig} from './dream.mjs?v=try-row-1';
-import {sparkHabitat} from './spark-fields.mjs?v=try-row-1';
-import {lanternFlightCue} from './map-theme.mjs?v=try-row-1';
-import {actionButton} from './ui/primitives.mjs?v=try-row-1';
+import {getBiome} from './biomes.mjs?v=dream-gifts-1';
+import {getBossPreview} from './boss.mjs?v=dream-gifts-1';
+import {levelMapPreview} from './level-map-art.mjs?v=dream-gifts-1';
+import {mapStopIconMarkup} from './map-guide.mjs?v=dream-gifts-1';
+import {resourceSymbol} from './game-symbols.mjs?v=dream-gifts-1';
+import {getFlightClearReward} from './checkpoint-rewards.mjs?v=dream-gifts-1';
+import {availableFlightArtifacts,isCardRun} from './model.mjs?v=dream-gifts-1';
+import {bonusIcon,boonMarkup} from './route-bonus-ui.mjs?v=dream-gifts-1';
+import {contextualFlightNotice} from './contextual-events.mjs?v=dream-gifts-1';
+import {ATLAS_FORECASTS,atlasGlyph} from './night-atlas.mjs?v=dream-gifts-1';
+import {canDreamAt,dreamConfig} from './dream.mjs?v=dream-gifts-1';
+import {sparkHabitat} from './spark-fields.mjs?v=dream-gifts-1';
+import {lanternFlightCue} from './map-theme.mjs?v=dream-gifts-1';
+import {actionButton} from './ui/primitives.mjs?v=dream-gifts-1';
 
 const escapeText = value => String(value ?? '').replace(/[&<>"']/g, char =>
  ({'&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;'}[char]));
@@ -57,7 +57,7 @@ export function flightPreviewMarkup(run,node,{available=false,level,bonus=null}=
  const kind=node.boss?'Guardian':node.elite?'Elite flight':'Flight';
  const art=node.boss?mapStopIconMarkup(node):levelMapPreview(level||node);
  const habitat=sparkHabitat(biome?.id),deposits=sparkForecast[habitat];
- const duration=available&&canDreamAt(run,node)?dreamConfig(run).duration:0;
+ const duration=available&&canDreamAt(run,node)?dreamConfig(run,node).duration:0;
  const action=available?actionButton(`${duration?`Dream · ${duration}s`:'Fly'} →`,{className:'primary',action:'node',id:node.id})
   :'<span class="preview-future">Follow the connected path</span>';
  const themeCue=lanternFlightCue(node);
