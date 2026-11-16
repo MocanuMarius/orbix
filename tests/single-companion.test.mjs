@@ -25,8 +25,11 @@ test('only Collector is selectable at every ascension and in TEST, including sav
   assert.equal(M.setStartingCompanion(state,'collector'),true);
   assert.deepEqual(run.companions,['collector']);
   const menu=homeMenuMarkup({profile:state.profile,testOverride:testing});
+  // Without a real choice the roster shows only the equipped Collector; TEST keeps every locked portrait.
+  assert.match(menu,/data-id="collector"[^>]*equipped/);
   for(const id of ['protector','swift','leveler']){
-   assert.match(menu,new RegExp('data-id="'+id+'"[^>]*locked[^>]*disabled'));
+   if(testing)assert.match(menu,new RegExp('data-id="'+id+'"[^>]*locked[^>]*disabled'));
+   else assert.doesNotMatch(menu,new RegExp('data-id="'+id+'"'));
   }
  }
  const legacy=structuredClone(state);

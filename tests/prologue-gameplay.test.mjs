@@ -129,7 +129,7 @@ test('lesson cues never open flight cards and the loan has one canonical skill a
 test('a successful guardian hands back the campaign before one ordinary fresh gift',()=>{
  const s=M.newState();s.run=M.createRun(s.profile,'guardian-handoff');const original=structuredClone(s.run);
  M.startTutorial(s,{forNewGame:true,difficulty:1});const r=s.run;
- r.step=5;r.path=r.map.slice(0,5).map(row=>row[0].id);r.phase='map';
+ assert.equal(r.map.length,7,'seven practice stops');r.step=6;r.path=r.map.slice(0,6).map(row=>row[0].id);r.phase='map';
  assert.ok(M.selectNode(r,M.getChoices(r)[0].id));assert.ok(M.beginFlightAttempt(r));
  assert.ok(M.finishFlight(r,{success:true,flame:80,practiceTopics:['lift','collector']}));
  assert.equal(r.phase,'ended');assert.equal(r.success,true);assert.equal(r.victoryPending,false);
