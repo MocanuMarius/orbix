@@ -2,9 +2,15 @@
 
 A landscape, one-handed pixel flight roguelite. The static game lives in `dist/` and uses a custom Canvas simulation and cached renderer. No build step or runtime framework dependency.
 
+**Start with [handoff.md](handoff.md)** for the current project state, architecture, launch/release instructions, latest user decisions and unresolved backlog. The repository now lives at `F:\Vibecode\Orbix`; older sections below retain release history and may describe superseded behavior.
+
 ## Current release
 
-Release **dream-gifts-1** restores the Common **Dream** card and offers **pick 1 of 3** starting cards. [Try the disposable Dream flight](https://mocanumarius.github.io/orbix/?mock=cards&scenario=dream&v=dream-gifts-1) · [Preview the actual starter screen](https://mocanumarius.github.io/orbix/?mock=cards&scenario=starter&v=dream-gifts-1) · [Release verification](docs/dream-gifts-release.md).
+The latest verified public release is **collector-cards-1**, from source `b628df9` and Pages `d7ea81d`, including the chosen Collector Vortex II, Collector cards, route/reward improvements and Edition 3 practice infrastructure. [Play this release](https://mocanumarius.github.io/orbix/cards.html?v=collector-cards-1) · [Verification](work/collector-vortex-release/final-summary.json). The canonical source still carries the older `guide-clarity-1` stamp/482-file manifest because publication used an isolated stamped artifact; see [the release warning](handoff.md#4-exact-code-and-published-release-state) before deployment. Starting-gift routing, tutorial pacing and page/menu cleanup remain pending under the latest user feedback.
+
+## Historical release notes and reference
+
+The remaining README preserves earlier release descriptions and links. Use [handoff.md](handoff.md) and current source for current rules, update behavior and unresolved issues.
 
 [Play](https://mocanumarius.github.io/orbix/) · [Compare Skills layouts on your phone](https://mocanumarius.github.io/orbix/skills-preview.html) · [Fly through a Darkness Lantern](https://mocanumarius.github.io/orbix/spark-preview.html#lantern) · [Compare the three Spark strengths](https://mocanumarius.github.io/orbix/spark-preview.html#sizes) · [Compare Spark absorption styles](https://mocanumarius.github.io/orbix/spark-preview.html#absorption) · [Landscape desktop preview](https://mocanumarius.github.io/orbix/preview.html)
 

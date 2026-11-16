@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" shape-rendering="crispEdges">
+<!-- Waystone plaque, 9-slice (6px corners). Drawn at 1x; shown at whole multiples. -->
+<path fill="#071315" d="M2 0h12v1h1v1h1v12h-1v1h-1v1H2v-1H1v-1H0V2h1V1h1z"/>
+<path fill="#67796e" d="M2 1h12v1h1v12h-1v1H2v-1H1V2h1z"/>
+<path fill="#243d3b" d="M2 2h12v12H2z"/>
+<path fill="#2c4943" d="M3 3h10v10H3z"/>
+<path fill="#81978a" d="M3 2h10v1H3z"/>
+<path fill="#152b2a" d="M3 13h10v1H3z"/>
+<path fill="#b6a87c" d="M3 3h1v1H3zM12 3h1v1h-1zM3 12h1v1H3zM12 12h1v1h-1z"/>
+</svg>

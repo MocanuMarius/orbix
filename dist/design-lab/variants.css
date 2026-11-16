@@ -1,0 +1,102 @@
+/* Design-lab only. Proposed variants live here until one is approved and moved into production styles. */
+html,body{margin:0;height:100%;overflow:hidden;background:#07110e}
+.flight-device{position:relative;width:100vw;height:100vh;overflow:hidden}
+/* Stand-in for a paused flight, including a hint box, so overlay bleed-through is visible. */
+.lab-backdrop{position:absolute;inset:0;background:radial-gradient(circle at 22% 55%,#e9e2b855 0 3%,#3a5a4a33 4% 16%,transparent 30%),linear-gradient(#0a1614,#0d1f1a 60%,#132a1f)}
+.lab-backdrop>p{position:absolute;left:50%;top:14%;transform:translateX(-50%);width:380px;margin:0;padding:10px 14px;border:1px solid #6f8f6f;background:#16302a;color:#e8edd0;font:14px/1.5 var(--pixel,monospace);text-align:center}
+#pause-layer>.pause-overlay{position:absolute;inset:0}
+
+/* ── v1.0-theme · "Waystone" ──────────────────────────────────────────────
+   One menu language, taken from the Home screen's carved signs. Every menu
+   entry is a sign; its role picks the stone. Sizes stay on whole pixels. */
+.wb-sign{display:grid!important;grid-template-columns:24px minmax(0,1fr) 15%;align-items:center;column-gap:11px;width:100%;min-width:0;height:46px;min-height:44px!important;margin:0!important;padding:0 0 0 15px!important;box-sizing:border-box;border:0!important;border-image:none!important;border-radius:0!important;clip-path:none!important;box-shadow:none!important;background:url('../assets/command-waystone.svg') center/100% 100% no-repeat!important;image-rendering:pixelated;color:#f1eddb!important;text-shadow:1px 2px #092020;text-align:left;cursor:pointer;touch-action:manipulation}
+.wb-sign:not(:has(.wb-sign-art)){grid-template-columns:minmax(0,1fr) 15%}
+.wb-sign-art{display:block;width:24px;height:24px}
+.wb-sign-art>svg{display:block;width:24px;height:24px}
+.wb-sign-text{display:block;min-width:0}
+.wb-sign-text>b{display:block;font:400 19px/1 var(--pixel,monospace);letter-spacing:1px;text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.wb-sign-text>small{display:block;margin-top:3px;font:400 11px/1 var(--pixel,monospace);letter-spacing:.3px;color:#dce6d4;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.wb-sign>.front-arrow{width:20px;height:20px;justify-self:center;color:#d6ddc8}
+.wb-sign-primary{background-image:url('../assets/command-waystone-gold.svg')!important;color:#fff1c5!important}
+.wb-sign-primary>.front-arrow{color:#ffe39c}
+.wb-sign-quiet,.wb-sign-danger{grid-template-columns:minmax(0,1fr)!important;padding:0 9% 0 6px!important;text-align:center;height:44px}
+.wb-sign-quiet{background-image:url('assets/sign-quiet.svg')!important;color:#b9c6a8!important}
+.wb-sign-danger{background-image:url('assets/sign-danger.svg')!important;color:#e0b3a3!important}
+.wb-sign-quiet .wb-sign-text>b,.wb-sign-danger .wb-sign-text>b{font-size:15px}
+/* Paired signs are half as wide: a slightly smaller title keeps whole words. */
+.pm-split>.wb-sign:not(.wb-sign-quiet,.wb-sign-danger){column-gap:8px;padding-left:11px!important}
+.pm-split>.wb-sign:not(.wb-sign-quiet,.wb-sign-danger) .wb-sign-text>b{font-size:15px;letter-spacing:.5px}
+.wb-sign:focus-visible{outline:2px solid #fff1af!important;outline-offset:2px;filter:brightness(1.15)}
+@media(hover:hover){.wb-sign:hover{filter:brightness(1.14)}}
+.wb-sign:active{transform:translateY(2px);filter:brightness(.95)}
+.wb-title{margin:0!important;font:400 30px/1 var(--pixel,monospace);letter-spacing:2px;text-transform:uppercase;color:#f3e6b9;text-shadow:2px 3px #041015}
+.wb-context{display:block;font:400 11px/1 var(--pixel,monospace);letter-spacing:1.5px;text-transform:uppercase;color:#9db08c}
+/* A stepped rule: three whole-pixel segments, like a carved groove. */
+.wb-rule{height:2px;margin:4px 0;background:linear-gradient(90deg,transparent 0 4px,#7f8e5c 4px calc(50% - 5px),transparent calc(50% - 5px) calc(50% - 2px),#d8c98a calc(50% - 2px) calc(50% + 2px),transparent calc(50% + 2px) calc(50% + 5px),#7f8e5c calc(50% + 5px) calc(100% - 4px),transparent calc(100% - 4px))}
+.wb-ground{background:#0a1715;background-image:repeating-linear-gradient(0deg,#ffffff04 0 2px,transparent 2px 4px)}
+@media(prefers-reduced-motion:reduce){.wb-sign:active{transform:none}}
+
+/* ── v1.1-theme · flat plaques ────────────────────────────────────────────
+   Same stones, no pointed end and no arrow. The plaque is a 9-slice drawn at
+   1x and shown at exactly 2x, so corners stay crisp at any width, and the
+   lettering sits 20px clear of every edge. */
+.wb-t2 .wb-sign{grid-template-columns:24px minmax(0,1fr);column-gap:12px;height:54px;padding:0 8px!important;background:none!important;border:12px solid transparent!important;border-image:url('assets/plaque-standard.svg') 6 fill / 12px stretch!important}
+.wb-t2 .wb-sign:not(:has(.wb-sign-art)){grid-template-columns:minmax(0,1fr);text-align:center}
+.wb-t2 .wb-sign>.front-arrow{display:none}
+.wb-t2 .wb-sign-primary{border-image-source:url('assets/plaque-gold.svg')!important}
+.wb-t2 .wb-sign-quiet{height:46px;border-image-source:url('assets/plaque-quiet.svg')!important}
+.wb-t2 .wb-sign-danger{height:46px;border-image-source:url('assets/plaque-danger.svg')!important}
+.wb-t2 .wb-sign-text>b{font-size:18px;line-height:18px;overflow:visible}
+.wb-t2 .wb-sign-text>small{margin-top:4px;line-height:11px}
+.wb-t2 .pm-split>.wb-sign:not(.wb-sign-quiet,.wb-sign-danger){column-gap:10px;padding:0 4px!important}
+.wb-t2 .pm-split>.wb-sign:not(.wb-sign-quiet,.wb-sign-danger) .wb-sign-text>b{font-size:15px;line-height:15px}
+.wb-t2 .wb-sign-quiet .wb-sign-text>b,.wb-t2 .wb-sign-danger .wb-sign-text>b{font-size:15px;line-height:15px}
+.wb-t2.menu-pause-v11 .pm-col{gap:6px;width:min(420px,100%)}
+.wb-t2.menu-pause-v11{gap:7px}
+@media(max-height:340px){
+ .wb-t2.menu-pause-v11 .pm-col{gap:4px}
+ .wb-t2 .wb-sign,.wb-t2 .wb-sign-quiet,.wb-t2 .wb-sign-danger{height:44px}
+}
+
+/* ── v1.1-pause: v1.0's order, built from the Waystone theme ────────────── */
+.pause-overlay.menu-pause-v11{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:9px;padding:8px 20px;box-sizing:border-box;backdrop-filter:none;overflow:auto}
+.menu-pause-v11 .pm-head{display:grid;justify-items:center;gap:6px;margin:0}
+.menu-pause-v11 .pm-col{display:grid;grid-template-columns:minmax(0,1fr);gap:6px;width:min(400px,100%)}
+.menu-pause-v11 .pm-split{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+@media(max-height:340px){
+ .pause-overlay.menu-pause-v11{gap:5px;padding-block:5px}
+ .menu-pause-v11 .pm-head{display:flex;align-items:baseline;gap:12px}
+ .menu-pause-v11 .wb-title{font-size:22px}
+ .menu-pause-v11 .pm-col{gap:4px}
+ .menu-pause-v11 .wb-sign{height:44px}
+ .menu-pause-v11 .wb-sign-text>small{display:none}
+}
+
+/* ── Theme sheet ────────────────────────────────────────────────────────── */
+.theme-sheet{position:absolute;inset:0;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px 28px;align-content:center;padding:12px 28px;box-sizing:border-box}
+.theme-sheet>header{grid-column:1/-1;display:flex;align-items:baseline;gap:14px}
+.theme-sheet figure{margin:0;display:grid;gap:4px}
+.theme-sheet figcaption{font:400 11px/1.2 var(--pixel,monospace);letter-spacing:.5px;color:#9db08c}
+.theme-sheet .pm-split{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+
+/* ── v1.0-pause ─────────────────────────────────────────────────────────── */
+.pause-overlay.menu-pause-v1{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;padding:10px 20px;box-sizing:border-box;background:#0b1916fa;backdrop-filter:none;overflow:auto}
+.menu-pause-v1 .pm-head{text-align:center;margin:0}
+.menu-pause-v1 .pm-head h2{margin:0;font:28px/1.1 var(--pixel,monospace);letter-spacing:.5px;color:#f3e6b9;text-shadow:2px 2px #09180f}
+.menu-pause-v1 .pm-head span{display:block;margin-top:5px;font:12px/1.2 var(--pixel,monospace);letter-spacing:1px;color:#8ca17c}
+.menu-pause-v1 .pm-col{display:grid;grid-template-columns:minmax(0,1fr);gap:8px;width:min(400px,100%)}
+.menu-pause-v1 .pm-split{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.menu-pause-v1 .pm-item{display:flex;align-items:center;justify-content:center;gap:9px;width:100%;min-width:0;height:44px;min-height:44px;margin:0;padding:4px 12px;box-sizing:border-box;border:2px solid #6d8560;border-radius:3px;background:linear-gradient(#2c4233,#213627);color:#dfe6c4;font:17px/1.1 var(--pixel,monospace);letter-spacing:.4px;box-shadow:inset 0 0 0 2px #16281d,2px 2px 0 #0a1610;touch-action:manipulation;cursor:pointer}
+.menu-pause-v1 .pm-item>svg{width:20px;height:20px;flex:none}
+.menu-pause-v1 .pm-item:focus-visible{outline:2px solid #f3dda0;outline-offset:3px}
+.menu-pause-v1 .pm-item:active{transform:translate(1px,1px);box-shadow:inset 0 0 0 2px #16281d,1px 1px 0 #0a1610}
+.menu-pause-v1 .pm-resume{height:50px;border-color:#d8c98a;background:linear-gradient(#4c6a45,#33503a);color:#fff6cf;font-size:20px;box-shadow:inset 0 0 0 2px #223a26,2px 3px 0 #0a1610,0 0 14px #c9bd7a22}
+.menu-pause-v1 .pm-rule{height:1px;margin:3px 0;background:#7f8e5c66}
+.menu-pause-v1 .pm-quiet{border-color:#4f6249;background:#182a20;color:#aebb98;font-size:14px;box-shadow:none}
+.menu-pause-v1 .pm-danger{border-color:#7a5148;background:#2c201c;color:#d2a090}
+@media(max-height:340px){
+ .pause-overlay.menu-pause-v1{gap:6px;padding-block:6px}
+ .menu-pause-v1 .pm-head{display:flex;align-items:baseline;gap:12px}
+ .menu-pause-v1 .pm-head h2{font-size:20px}.menu-pause-v1 .pm-head span{margin:0}
+ .menu-pause-v1 .pm-col{gap:6px}.menu-pause-v1 .pm-resume{height:44px;font-size:18px}
+}

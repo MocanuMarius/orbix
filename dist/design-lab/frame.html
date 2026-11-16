@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Design lab frame · Wispbound</title>
+<script>
+// Production stylesheets, in game.html order, so variants are judged in the real cascade.
+const SHEETS=['style','game','boost-control','level-map','companion','progression','orientation','map-clarity','afterglow-ui','tutorial-coach','campaign','pickup-guide','queue-ui','game-art','dream','expedition','landscape','radial-tree','replay','glow-ui','readability','game-symbols','living-icons','choice-art','rest-choices','viewport-layout','typography','death-screen','interface-composition','artifact-reward','artifact-detail','current-batch','menu-art','readability-pass','checkpoint-flow','artifact-collection','rough-ui','journey-art','treasure','ui-contrast','route-bonus','flight-preview','home-commands','home-journey-ink','companion-picker','night-atlas','installation','mobile-rim','skill-book','visual-system','activation-feedback','rhythm-score','card-ui','game-menu','home-utilities','scorecard'];
+for(const name of SHEETS)document.write(`<link rel="stylesheet" href="../${name}.css?v=guide-clarity-1">`);
+</script>
+<link rel="stylesheet" href="variants.css">
+</head>
+<body class="card-pilot playing">
+<main id="app"><section class="flight-shell"><div class="flight-device"><div class="lab-backdrop" aria-hidden="true"><p>Tap Lift to begin<br>Lift Guide is loaned here. The amber chevron opens for a good tap window.</p></div><div id="pause-layer"></div></div></section></main>
+<script type="module">
+import {menuIcon as icon} from '../menu-icons.mjs?v=guide-clarity-1';
+import {resourceSymbol} from '../game-symbols.mjs?v=guide-clarity-1';
+
+const query=new URLSearchParams(location.search);
+const variant=query.get('variant')||'v1.2-pause',ctx=query.get('ctx')||'practice';
+const practice=ctx==='practice',onMap=ctx==='map';
+const context=practice?'FIRST LIGHT PRACTICE · STOP 2/7':'ASCENSION 1 · MAP 1/3 · STOP 4/10';
+
+// v0-pause: the shipped markup, copied from showMenu() in app.mjs.
+function current(){
+ return `<div class="pause-overlay menu-pause"><header class="run-pause-heading"><span>${practice?'SEPARATE PRACTICE':'ASCENSION 1 · MAP 1/3'}</span><h2>Paused</h2></header>
+ <div class="run-pause-actions"><button class="primary">Resume flight</button><button class="secondary">${practice?'Exit tutorial':'Exit to Menu'}</button></div>
+ <p class="run-pause-note">${practice?'Separate practice':'Exit saves the flight entrance.'}</p>
+ <div class="run-tools"><button>${icon('route')}${practice?'LOANED CARDS':'DECK'}</button><button>${icon('star')}ARTIFACTS</button>${onMap?'<button>MAP GUIDE</button>':''}<button>${icon('info')}FIELD GUIDE</button><button>GLOSSARY</button><button>${icon('tune')}SETTINGS</button></div>
+ <div class="audio-controls"><button class="secondary" aria-pressed="true">${resourceSymbol('music')}MUSIC ON</button><button class="secondary" aria-pressed="true">${icon('sound')}FX ON</button></div>
+ ${practice?'<button class="secondary">Skip practice</button>':'<button class="run-menu-danger">Abandon run</button>'}</div>`;
+}
+
+// v1.0-pause: one ordered column. Resume first, build, help, settings; leaving is fenced off below.
+function column(){
+ const build=practice
+  ?`<button class="pm-item">${icon('route')}<span>Loaned Cards</span></button>`
+  :`<div class="pm-split"><button class="pm-item">${icon('route')}<span>Deck</span></button><button class="pm-item">${icon('star')}<span>Collection</span></button></div>`;
+ const leave=practice
+  ?`<button class="pm-item pm-quiet"><span>Skip practice</span></button><button class="pm-item pm-quiet pm-exit"><span>Exit to Menu</span></button>`
+  :`<button class="pm-item pm-quiet pm-exit"><span>Exit to Menu</span></button><button class="pm-item pm-quiet pm-danger"><span>Abandon run</span></button>`;
+ return `<div class="pause-overlay menu-pause-v1" role="dialog" aria-label="Paused">
+  <header class="pm-head"><h2>Paused</h2><span>${context}</span></header>
+  <nav class="pm-col" aria-label="Pause menu">
+   <button class="pm-item pm-resume"><span>Resume flight</span></button>
+   ${build}
+   <button class="pm-item">${icon('info')}<span>Help</span></button>
+   <button class="pm-item">${icon('tune')}<span>Settings</span></button>
+   <div class="pm-rule" role="separator"></div>
+   <div class="pm-split pm-leave">${leave}</div>
+  </nav></div>`;
+}
+
+// Waystone theme: every menu entry is the Home screen's carved sign. role = primary | standard | quiet | danger.
+const ARROW='<svg class="front-arrow" viewBox="0 0 20 20" fill="currentColor" shape-rendering="crispEdges" aria-hidden="true"><path d="M3 8h8V4h2v2h2v2h2v2h2v1h-2v2h-2v2h-2v2h-2v-5H3z"/></svg>';
+function sign(role,title,{sub='',art=''}={}){
+ const plain=role==='quiet'||role==='danger';
+ return `<button type="button" class="wb-sign wb-sign-${role}">${art&&!plain?`<i class="wb-sign-art">${art}</i>`:''}<span class="wb-sign-text"><b>${title}</b>${sub&&!plain?`<small>${sub}</small>`:''}</span>${plain?'':ARROW}</button>`;
+}
+
+// v1.1-pause: the order of v1.0, drawn with the theme.
+function waystone(theme=''){
+ const build=practice
+  ?sign('standard','Loaned Cards',{sub:'Your practice build',art:icon('route')})
+  :`<div class="pm-split">${sign('standard','Deck',{sub:'Cards',art:icon('route')})}${sign('standard','Collection',{sub:'Relics',art:icon('star')})}</div>`;
+ const leave=practice
+  ?sign('quiet','Skip practice')+sign('quiet','Exit to Menu')
+  :sign('quiet','Exit to Menu')+sign('danger','Abandon run');
+ return `<div class="pause-overlay menu-pause-v11 wb-ground ${theme}" role="dialog" aria-label="Paused">
+  <header class="pm-head"><h2 class="wb-title">Paused</h2><span class="wb-context">${context}</span></header>
+  <nav class="pm-col" aria-label="Pause menu">
+   ${sign('primary','Resume flight',{sub:'Back to the passage'})}
+   ${build}
+   ${sign('standard','Help',{sub:onMap?'Guide, glossary & map symbols':'Guide, glossary & pickups',art:icon('info')})}
+   ${sign('standard','Settings',{sub:'Sound & options',art:icon('tune')})}
+   <div class="wb-rule" role="separator"></div>
+   <div class="pm-split">${leave}</div>
+  </nav></div>`;
+}
+
+// v1.0-theme: the kit itself.
+function themeSheet(theme=''){
+ const piece=(caption,markup)=>`<figure>${markup}<figcaption>${caption}</figcaption></figure>`;
+ return `<div class="theme-sheet wb-ground ${theme}">
+  <header><h2 class="wb-title">Waystone</h2><span class="wb-context">One menu language · ${variant}</span></header>
+  ${piece('Primary sign · the one next step (gold)',sign('primary','Resume flight',{sub:'Back to the passage'}))}
+  ${piece('Standard sign · go somewhere',sign('standard','Settings',{sub:'Sound & options',art:icon('tune')}))}
+  ${piece('Standard signs, paired',`<div class="pm-split">${sign('standard','Deck',{sub:'Cards',art:icon('route')})}${sign('standard','Collection',{sub:'Relics',art:icon('star')})}</div>`)}
+  ${piece('Quiet sign · leave or step back  ·  Rust sign · cannot be undone',`<div class="pm-split">${sign('quiet','Exit to Menu')}${sign('danger','Abandon run')}</div>`)}
+  ${piece('Carved rule · fences off a group','<div class="wb-rule"></div>')}
+  ${piece('Title and context line','<span class="wb-context">Ascension 1 · Map 1/3 · Stop 4/10</span>')}
+ </div>`;
+}
+
+const VARIANTS={'v0-pause':current,'v1.0-pause':column,'v1.1-pause':waystone,'v1.0-theme':themeSheet,'v1.2-pause':()=>waystone('wb-t2'),'v1.1-theme':()=>themeSheet('wb-t2')};
+document.querySelector('#pause-layer').innerHTML=(VARIANTS[variant]||VARIANTS['v1.2-pause'])();
+document.documentElement.dataset.variant=variant;
+</script>
+</body>
+</html>

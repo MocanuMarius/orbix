@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Design lab · Wispbound</title>
+<style>
+ :root{color-scheme:dark;font-family:system-ui,sans-serif;background:#0a1210;color:#dfe6cf}
+ body{margin:0;padding:14px 16px 28px;max-width:940px;margin-inline:auto}
+ h1{font-size:17px;margin:0 0 2px}
+ .lead{margin:0 0 12px;color:#9fb094;font-size:13px}
+ .bar{display:flex;flex-wrap:wrap;gap:6px 14px;align-items:center;margin-bottom:10px}
+ .group{display:flex;gap:6px;align-items:center}
+ .group>b{font-size:11px;letter-spacing:.08em;color:#8ca17c;text-transform:uppercase;margin-right:2px}
+ button.tab{padding:7px 12px;border:1px solid #47604a;border-radius:6px;background:#15251d;color:#cfdcc0;font:600 13px system-ui;cursor:pointer}
+ button.tab[aria-pressed=true]{background:#d8c98a;border-color:#d8c98a;color:#14241a}
+ .code{display:inline-block;padding:3px 10px;border-radius:5px;background:#d8c98a;color:#14241a;font:700 15px ui-monospace,Consolas,monospace}
+ .status{font-size:12px;color:#9fb094;margin-left:8px}
+ .stage{position:relative;width:100%;border:1px solid #33483a;border-radius:8px;background:#050b09;overflow:hidden}
+ .stage iframe{display:block;border:0;transform-origin:0 0}
+ .notes{margin:12px 0 0;padding:0 0 0 18px;font-size:14px;line-height:1.55;color:#cbd6bd}
+ .notes li{margin:2px 0}
+ .say{margin-top:12px;padding:10px 12px;border-left:3px solid #d8c98a;background:#15221b;font-size:14px}
+ .say code{font:700 14px ui-monospace,Consolas,monospace;color:#f3e6b9}
+</style>
+</head>
+<body>
+<h1>Design lab</h1>
+<p class="lead">Proposed looks rendered with the game's real stylesheets and icons. Nothing here is live in the game until you approve a code.</p>
+<div class="bar">
+ <div class="group" id="variants"><b>Look</b></div>
+ <div class="group" id="contexts"><b>Situation</b></div>
+ <div class="group" id="sizes"><b>Screen</b></div>
+</div>
+<p style="margin:0 0 8px"><span class="code" id="code"></span><span class="status" id="status"></span></p>
+<div class="stage" id="stage"><iframe id="frame" title="Preview"></iframe></div>
+<ul class="notes" id="notes"></ul>
+<p class="say" id="say"></p>
+<script>
+const LOOKS={
+ 'v1.2-pause':{label:'v1.2-pause · proposed',status:'Proposed — not in the game yet',notes:[
+  'Your two notes on v1.1-pause: the pointed sign end and the arrow are gone, and the lettering has room.',
+  'Flat plaques with stepped corners; text sits 20px clear of every edge.',
+  'The plaque is drawn once and shown at exactly twice its size, so its corners stay crisp at any width.',
+  'Order and stones unchanged: gold = the one next step, basalt = go somewhere, weathered = leave, rust = cannot be undone.']},
+ 'v1.1-theme':{label:'v1.1-theme · the kit',status:'Proposed — the shared menu language',notes:[
+  'The pieces every menu would be built from, now with flat plaques and no arrows.',
+  'Four plaque roles, one title style, one context line, one carved rule.',
+  'Approving this code means Settings, Help, Deck and the rest get rebuilt from these same pieces.']},
+ 'v1.1-pause':{label:'v1.1-pause · pointed signs',status:'Liked; replaced by v1.2-pause (pointed ends, tight text)',notes:[
+  'Same order as v1.0-pause, which you liked: Resume, your build, Help, Settings, then leaving below a rule.',
+  'Every entry is now the Home screen\'s carved waystone sign: title, small subtitle, stepped arrow.',
+  'Stone tells the role: gold = the one next step, basalt = go somewhere, weathered = leave, rust = cannot be undone.',
+  'Pixel art stays on whole pixels: 24px carvings, crisp sign edges, the game\'s pixel type throughout.',
+  'Built entirely from v1.0-theme, so the next menu reuses the same pieces.']},
+ 'v1.0-theme':{label:'v1.0-theme · pointed kit',status:'Replaced by v1.1-theme',notes:[
+  'The pieces every menu would be built from, taken from the Home screen\'s existing sign art.',
+  'Four sign roles, one title style, one context line, one carved rule.',
+  'Approving this code means Settings, Help, Deck and the rest get rebuilt from these same pieces.',
+  'The weathered and rust stones are new recolours of the existing basalt sign; everything else already ships.']},
+ 'v1.0-pause':{label:'v1.0-pause · layout only',status:'Layout liked; art direction replaced by v1.1-pause',notes:[
+  'One column, read top to bottom: Resume first, then your build, Help, Settings.',
+  'Leaving is fenced off below a rule, in quieter buttons, so a hurried tap near Resume cannot exit.',
+  'One Help entry replaces Field Guide + Glossary (+ Map Guide on the map).',
+  'Music and FX move into Settings, where they already exist.',
+  'Same positions in practice and in a real run; only labels change (Loaned Cards ↔ Deck + Collection).',
+  'Opaque backdrop: the paused flight\'s hint text no longer shows through.']},
+ 'v0-pause':{label:'v0-pause · current',status:'What ships today',notes:[
+  'Seven-plus entries across three loose columns with no reading order.',
+  'Help is split across Field Guide and Glossary; audio toggles duplicate Settings.',
+  'Skip practice floats top-right, away from Exit tutorial.',
+  'Translucent backdrop lets the flight hint bleed through.']}
+};
+const CONTEXTS={practice:'Tutorial flight',real:'Real run, in flight',map:'Real run, on map'};
+const SIZES={'900x405':[900,405],'740x333':[740,333],'667x300':[667,300],'640x320':[640,320]};
+const query=new URLSearchParams(location.search);
+let look=LOOKS[query.get('variant')]?query.get('variant'):'v1.2-pause',ctx=CONTEXTS[query.get('ctx')]?query.get('ctx'):'practice',size=SIZES[query.get('size')]?query.get('size'):'900x405';
+const frame=document.querySelector('#frame'),stage=document.querySelector('#stage');
+function tabs(host,items,current,pick){
+ host.querySelectorAll('button').forEach(button=>button.remove());
+ for(const [id,label] of items){const button=document.createElement('button');button.className='tab';button.type='button';button.textContent=label;button.setAttribute('aria-pressed',String(id===current));button.onclick=()=>pick(id);host.append(button);}
+}
+function fit(){const [w,h]=SIZES[size],scale=Math.min(1,stage.clientWidth/w);frame.style.width=w+'px';frame.style.height=h+'px';frame.style.transform=`scale(${scale})`;stage.style.height=Math.round(h*scale)+'px';}
+function show(){
+ tabs(document.querySelector('#variants'),Object.entries(LOOKS).map(([id,v])=>[id,v.label]),look,id=>{look=id;show()});
+ tabs(document.querySelector('#contexts'),Object.entries(CONTEXTS),ctx,id=>{ctx=id;show()});
+ tabs(document.querySelector('#sizes'),Object.keys(SIZES).map(id=>[id,id.replace('x',' × ')]),size,id=>{size=id;show()});
+ document.querySelector('#code').textContent=look;
+ document.querySelector('#status').textContent=LOOKS[look].status;
+ document.querySelector('#notes').innerHTML=LOOKS[look].notes.map(note=>`<li>${note}</li>`).join('');
+ document.querySelector('#say').innerHTML=look==='v0-pause'?'This is the current menu, shown for comparison.':`To ship this look, tell Claude: <code>${look} looks good</code>. To change it, say what to change and it comes back under the next code.`;
+ frame.src=`frame.html?variant=${encodeURIComponent(look)}&ctx=${ctx}`;
+ history.replaceState(null,'',`?variant=${encodeURIComponent(look)}&ctx=${ctx}&size=${size}`);
+ fit();
+}
+addEventListener('resize',fit);show();
+</script>
+</body>
+</html>
