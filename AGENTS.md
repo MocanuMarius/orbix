@@ -10,10 +10,11 @@ Claude is the primary agent for this project from 2026-11-16. Codex / ChatGPT re
 
 | Tool | Coordinator | Worker | Runner |
 | --- | --- | --- | --- |
-| Claude (primary) | Fable 5.2 (`claude-fable-5-2`), selected by the user in the session model picker | Opus (currently Opus 5.5), started as a subagent with `model="opus"` | Haiku, started as a subagent with `model="haiku"` |
+| Claude (primary) | Fable 5.2 (`claude-fable-5-2`), selected by the user in the session model picker | Sonnet (currently Sonnet 5.5), started as a subagent with `model="sonnet"` | Haiku, started as a subagent with `model="haiku"` |
 | Codex / ChatGPT (secondary) | `gpt-6.1-sol`, `high` reasoning | `gpt-6.1-sol`; set `model="gpt-6.1-sol"`, `reasoning_effort="high"`, `fork_turns="none"` | Same as worker |
 
 - Use the coordinator for figuring things out, decisions, and finding logic errors; the worker for mid-tier implementation; the runner for anything a checklist fully describes.
+- Sonnet is the default worker from 2026-11-16 (user decision, to cut cost: Opus workers were 77% of session usage). Escalate a single task to Opus (`model="opus"`) only when it is intricate enough that a mistake is expensive (a live release, core flight or save logic) or after a Sonnet worker has failed it; say so when doing it.
 - Once the user accepts a change, a runner commits and pushes it to `main` without a further request. Pushing `main` does not deploy: the public game is published from `gh-pages` through the isolated-artifact release procedure in `handoff.md` section 15, which the coordinator plans and a runner may then execute step by step.
 
 - The coordinator model (Fable 5.2) is chosen by the user in the app's model picker; a running session cannot switch its own model. If the session is on a different Fable version, say so and continue — do not silently substitute a worker model for coordination.

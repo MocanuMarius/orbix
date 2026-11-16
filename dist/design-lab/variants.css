@@ -229,6 +229,9 @@ html,body{margin:0;height:100%;overflow:hidden;background:#07110e}
 .ic-now{display:inline-grid}.ic-now>svg{width:100%;height:100%}
 .ic-leather{display:flex;align-items:center;gap:8px;padding:0 6px;height:60px;box-sizing:border-box;margin-top:4px;border:12px solid transparent;border-image:url('assets/plaque-leather.svg') 6 fill / 12px stretch;color:#f6ebcc;text-shadow:1px 2px #2a1d12}
 .ic-leather>b{font:400 16px/1 var(--pixel,monospace);letter-spacing:1px}
+.ic-v11 .ic-grid{grid-template-columns:repeat(5,minmax(0,1fr));gap:0 12px}
+.ic-v11 .ic-sizes{gap:8px}
+@media(max-width:700px){.ic-v11 .ic-leather>b,.ic-v11 .ic-sizes>img:last-child{display:none}.ic-v11 .ic-grid{gap:0 6px}.ic-v11 .ic-leather{padding:0}}
 @media(max-height:340px){.ic-v1 .wb-page{gap:4px}.ic-col{gap:4px}.ic-name{display:none}}
 
 /* ── v1.0-settings ──────────────────────────────────────────────────────── */

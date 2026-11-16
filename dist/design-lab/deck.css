@@ -1,0 +1,198 @@
+/* v1.0-deck · design-lab only. One Deck screen in the approved v2.5-theme kit (variants.css):
+   the dimmed woods, one wide paper page, ink on paper, leather tab boxes, moss = go, wine = gone.
+   Card faces are the game's own; this file only lays the screen out. */
+.dk-page .flight-device{background:#0c0907}
+.dk{--dk-card:150px;--dk-gapw:44px;--dk-read:350px;--ink:#2a2118;--ink-soft:#6b5335;--rule:#8a6d44;--moss:#536430;--paper:#e6d19c;--slip:#f1e0b0;
+ position:fixed;inset:0;z-index:1;display:block;padding:0;overflow:hidden;background:#0c0907;--pw:calc(100% - 12px);--px:6px;color:var(--ink)}
+.dk .wb-world{filter:brightness(.42) saturate(.8)}
+.dk .wb-page.dk-sheet{top:4px;bottom:4px;left:6px;right:6px;width:auto;display:grid;grid-template-rows:auto auto auto auto;align-content:space-between;justify-content:stretch;align-items:start;gap:6px;padding:2px 12px 2px;color:var(--ink)}
+.dk-sheet>:not(.wb-pagelight){position:relative;z-index:1}
+.dk-sr{position:absolute!important;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
+
+/* Header: title, the Row label, and the wallet (kept clear of the ribbons in the corner). */
+.dk-head{display:flex;align-items:center;gap:16px;min-width:0;padding-right:70px;min-height:30px}
+.dk .wb-title{font-size:26px;line-height:30px;color:var(--ink)!important;text-shadow:none;flex:none}
+.dk-label{margin:0;font:400 12px/14px var(--pixel,monospace);color:var(--ink-soft);white-space:nowrap;min-width:0}
+.dk-label>b{font-weight:400;font-size:14px;letter-spacing:1.5px;text-transform:uppercase;color:var(--ink)}
+.dk-wallet{margin:0 0 0 auto;flex:none;display:flex;align-items:center;gap:6px;height:30px;padding:0 10px 0 4px;box-sizing:border-box;border:2px solid var(--rule);background:var(--slip);box-shadow:inset 0 -2px 0 #d2b97f}
+.dk-wallet-icon{display:block;width:24px;height:24px}
+.dk-wallet-icon>svg{display:block;width:24px;height:24px}
+.dk-wallet>b{font:400 18px/1 var(--pixel,monospace);color:var(--ink)}
+.dk-wallet>small{font:400 11px/1 var(--pixel,monospace);color:var(--ink-soft);letter-spacing:.5px}
+
+/* Row: places in order, with arrows between them. The right edge keeps clear of the ribbons. */
+.dk-rowzone{min-width:0;padding-right:40px}
+.dk-row{display:flex;align-items:flex-start;justify-content:center;padding-top:4px}
+.dk-slot{flex:1 1 0;min-width:0;display:grid;justify-items:center;max-width:220px}
+.dk-slot-btn{display:flex;align-items:flex-start;gap:12px;cursor:pointer;touch-action:none;-webkit-user-select:none;user-select:none;outline:none}
+.dk-slot-btn:focus-visible .dk-face{outline:2px solid var(--ink);outline-offset:3px}
+.dk-slot-no{width:12px;font:400 12px/1 var(--pixel,monospace);color:var(--ink-soft);text-align:right;padding-top:2px}
+.dk-face{position:relative;display:block;transition:transform .12s steps(2,end)}
+.dk-face>.skill-card{pointer-events:none}
+html body .dk-face>.skill-card.card-thumbnail{--card-height:var(--dk-card);display:flex!important;flex-direction:column!important;transition:box-shadow .12s}
+html body .dk-face .card-thumbnail .card-illustration{flex:1 1 0;min-height:0;width:100%;display:flex;align-items:center;justify-content:center}
+html body .dk-face .card-thumbnail .card-face-heading h3{font-size:12px;line-height:1.1}
+/* Uses sit in the top-right corner, over the art, so the name stays clear. */
+html body .dk-face .skill-card.card-thumbnail.card-has-uses .card-face-heading{padding-right:4px}
+html body .dk-face .skill-card.card-thumbnail .card-use-counter{z-index:6;right:7px!important;left:auto;top:7px;bottom:auto!important;transform:none;min-width:30px!important;font-size:12px!important;line-height:14px!important;border:1px solid #b8a560!important}
+.dk-empty{display:grid;place-items:center;width:calc(var(--dk-card) * 5 / 7);height:var(--dk-card);box-sizing:border-box;border:2px dashed var(--rule);background:#ead7a6;text-align:center;padding:4px}
+.dk-empty>b{font:400 12px/1.2 var(--pixel,monospace);color:var(--ink-soft)}
+/* The mark: what the card does. Glyph chips sit on the frame corner, over art, never over the name. */
+.dk-mark{position:absolute;z-index:7;top:-8px;left:-8px;display:grid;place-items:center;min-width:24px;height:24px;box-sizing:border-box;padding:0 3px;border:2px solid #2a1d12;font:400 20px/1 var(--pixel,monospace);pointer-events:none}
+.dk-mark-add{background:#d8c98a;color:#14241a}
+.dk-mark-mul{background:#9cc3d8;color:#0f1d26}
+.dk-mark-repeat{background:#c4a3cd;color:#22142a}
+.dk-mark-repeat>svg{width:12px;height:12px}
+.dk-mark-encore,.dk-mark-always{left:50%;transform:translateX(-50%);top:-9px;height:20px;padding:0 5px;font-size:11px;letter-spacing:.5px;white-space:nowrap}
+.dk-mark-encore{background:#e3c46f;color:#2a1d12}
+.dk-mark-always{background:#f1e0b0;color:#2a1d12}
+.dk-mark-small{top:-4px;left:-4px;min-width:18px;height:18px;font-size:15px;border-width:2px;padding:0 2px}
+.dk-mark-small.dk-mark-repeat>svg{width:10px;height:10px}
+.dk-mark-small.dk-mark-encore,.dk-mark-small.dk-mark-always{display:none}
+/* One plain instruction under each card (or a small tick when it works). It may run into the gaps. */
+.dk-under{justify-self:stretch;margin:4px -8px 0;height:26px;display:flex;align-items:flex-start;justify-content:center;gap:4px;font:400 11px/12px var(--pixel,monospace);color:var(--ink);text-align:center;overflow:hidden}
+.dk-under>span:last-child{min-width:0}
+.dk-flag{flex:none;display:grid;place-items:center;width:14px;height:14px;margin-top:-1px;background:#b9772c;color:#fff6d8;font-size:11px;line-height:1}
+.dk-under-shared .dk-flag{background:#8a6d44}
+.dk-tick{display:grid;place-items:center;width:20px;height:20px;margin-top:-2px;background:var(--moss);color:#fff6d8}
+.dk-tick>svg{width:12px;height:12px}
+.dk-under-target,.dk-under-picked,.dk-under-refuse{align-items:center}
+.dk-under-target{color:#fff6d8}
+.dk-under-target::before{content:'';position:absolute}
+.dk-lit .dk-under-target{background:none}
+.dk-under-target,.dk-under-picked{font-size:12px}
+.dk-under-picked{color:var(--ink)}
+.dk-under-refuse{color:var(--ink-soft)}
+/* Arrow gaps: a place too, between two row cards. */
+/* Production sheets style every button; these places reset to bare paper. */
+/* readability-pass.css paints every disabled button dark (0,3,2 + !important); these selectors outrank it. */
+html body .dk.dk .dk-row .dk-gap,html body .dk.dk .dk-row .dk-slot-btn{margin:0!important;padding:0!important;border:0!important;border-radius:0!important;background:none!important;box-shadow:none!important;min-width:0!important;min-height:0!important;filter:none!important;opacity:1!important;font:inherit;color:inherit}
+html body .dk.dk .dk-row .dk-slot-btn{padding:0 2px!important}
+html body .dk.dk .dk-row .dk-gap{flex:0 0 var(--dk-gapw);height:var(--dk-card);display:grid;place-items:center;color:var(--rule)!important;-webkit-text-fill-color:currentColor!important;cursor:default}
+.dk-gap:disabled{opacity:1}
+.dk-arrow{display:block}
+
+/* Picked up: the card lifts and gets a moss ring. */
+.dk-picked .dk-face{transform:translateY(-4px)}
+html body .dk-picked .dk-face>.skill-card{box-shadow:0 0 0 2px #2a1d12,0 0 0 5px #fff6d8,0 6px 0 2px #0004!important}
+/* Places it can go: dashed moss, and the words under them on a moss tag. */
+html body .dk-slot.dk-lit .dk-face>.skill-card{box-shadow:0 0 0 2px #2a1d12,0 0 0 4px var(--moss)!important}
+.dk-slot.dk-lit .dk-empty{border-color:var(--moss);border-style:dashed;background:#dfe0a8}
+.dk-slot.dk-lit .dk-under-target>*,.dk-slot.dk-lit .dk-under-target{color:#fff6d8}
+.dk-slot .dk-under-target,.dk-slot .dk-under-picked{justify-self:center;margin:4px 0 4px;height:22px;padding:0 6px;box-sizing:border-box;border:2px solid #2a1d12;white-space:nowrap}
+.dk-slot .dk-under-target{background:var(--moss)}
+.dk-slot.dk-lit .dk-slot-btn{cursor:pointer}
+.dk-slot .dk-slot-btn[aria-disabled=true]{cursor:default}
+.dk-slot .dk-under-picked{background:#fff6d8}
+html body .dk.dk .dk-row .dk-gap.dk-lit{cursor:pointer;color:#fff6d8!important;background:var(--moss)!important;box-shadow:inset 0 0 0 2px #2a1d12,inset 0 0 0 4px #7d8c4c!important}
+.dk-gap.dk-lit:focus-visible,.dk-tile:focus-visible,.dk-shelf .dk-tile-drop:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
+.dk-has-pick .dk-slot:not(.dk-lit,.dk-picked) .dk-face{opacity:.72}
+.dk-over .dk-face,.dk-gap.dk-over{filter:brightness(1.12)}
+
+/* Result line: the resolver's number for the commonest Trigger. */
+.dk-result{display:flex;align-items:center;gap:12px;min-height:44px;min-width:0}
+.dk-result-text{margin:0;font:400 16px/1.1 var(--pixel,monospace);color:var(--ink);white-space:nowrap}
+.dk-result-text>b{font-weight:400;color:#7a4f1c}
+.dk.wb-t2 .dk-fire{display:inline-grid;width:auto;flex:none;height:44px;padding:0 10px!important;text-decoration:none}
+.dk.wb-t3 .dk-fire::before{display:none}
+.dk.wb-t2 .dk-fire .wb-sign-text>b{font-size:13px;line-height:13px}
+.dk-note{margin:0 0 0 auto;min-width:0;font:400 13px/1.15 var(--pixel,monospace);color:var(--ink-soft);text-align:right;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.dk-note-receipt{color:var(--ink);padding:4px 8px;border:2px solid var(--rule);background:var(--slip)}
+.dk-note-rest{color:#3d4a22}
+.dk-note:empty{display:none}
+
+/* Bottom band: Done | Reserve shelf | Workshop. While a card is picked: Cancel | shelf | Read card, Melt…. */
+.dk-bottom{position:relative;align-self:end;display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:end;column-gap:10px;min-width:0}
+.dk-flank{display:flex;align-items:flex-end;gap:8px;padding-bottom:2px}
+.dk.wb-t2 .dk-flank .wb-sign{width:auto;height:46px;padding:0 12px!important}
+.dk.wb-t2 .dk-flank .wb-sign-quiet{height:46px;min-width:96px}
+.dk.wb-t2 .dk-flank .dk-workshop{height:54px;min-width:128px}
+.dk.wb-t2 .dk-flank .wb-sign-text>b{font-size:15px;line-height:15px}
+.dk.wb-t2 .dk-flank .dk-workshop .wb-sign-text>small{margin-top:3px;font-size:10px;line-height:10px;color:#e2d0a6;letter-spacing:.5px;text-transform:none}
+.dk-flank [hidden]{display:none!important}
+.dk-reserve{display:grid;grid-template-rows:auto auto;gap:2px;min-width:0}
+.dk-shelf{display:flex;gap:8px;overflow-x:auto;scroll-padding:0 4px;overflow-y:hidden;padding:5px 4px 6px;scrollbar-width:thin;scrollbar-color:#8a6d44 #0000;overscroll-behavior-x:contain;border:2px dashed #0000}
+.dk-shelf.dk-lit{border-color:var(--moss);background:#dfe0a833}
+.dk-tile{position:relative;flex:none;display:flex;align-items:center;gap:7px;height:48px;min-width:44px;margin:0;padding:3px 9px 3px 3px;box-sizing:border-box;border:2px solid var(--rule);background:var(--slip);box-shadow:0 2px 0 #c4a56b;color:var(--ink);font:inherit;text-align:left;cursor:pointer;touch-action:none;-webkit-user-select:none;user-select:none;transition:transform .12s steps(2,end)}
+.dk-tile-art{position:relative;flex:none;width:38px;height:38px;border:2px solid #2a1d12;box-sizing:border-box;background:#14241e}
+.dk-tile-art>svg{display:block;width:34px!important;height:34px!important}
+.dk-tile-copy{display:grid;gap:2px;min-width:0}
+.dk-tile-copy>b{font:400 12px/1.1 var(--pixel,monospace);white-space:nowrap}
+.dk-tile-copy>small{font:400 11px/1 var(--pixel,monospace);color:var(--ink-soft);white-space:nowrap}
+.dk-tile-copy>small.dk-rest-tag{color:#fff6d8;background:#6b5335;padding:2px 4px;justify-self:start}
+.dk-tile.dk-picked{transform:translateY(-3px);box-shadow:0 0 0 2px #2a1d12,0 0 0 4px #fff6d8,0 4px 0 2px #0003}
+.dk-shelf.dk-lit .dk-tile:not(.dk-tile-drop){opacity:.7}
+.dk-tile-drop{background:var(--moss);border-color:#2a1d12;color:#fff6d8;padding:3px 12px 3px 8px;box-shadow:inset 0 0 0 2px #7d8c4c}
+.dk-tile-drop>svg{flex:none;transform:rotate(90deg)}
+.dk-tile-drop b{font:400 13px/1 var(--pixel,monospace)}
+.dk-shelf-empty{margin:0;align-self:center;font:400 12px/1 var(--pixel,monospace);color:var(--ink-soft);padding:16px 4px}
+/* Melt confirm: the bottom band turns into one strip; the consequence is stated before the wine plaque. */
+.dk-melt{position:absolute;inset:0;z-index:3;display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:end;column-gap:12px;padding-bottom:2px;background:var(--paper)}
+.dk-melt[hidden]{display:none}
+.dk-melt-text{margin:0 0 6px;font:400 14px/1.25 var(--pixel,monospace);color:var(--ink);text-align:center;padding:6px 10px;border:2px solid var(--rule);background:var(--slip)}
+.dk-melt-text>b{font-weight:400;color:#7a4f1c}
+.dk.wb-t2 .dk-melt .wb-sign{width:auto;height:46px;padding:0 14px!important;min-width:110px}
+.dk.wb-t2 .dk-melt .wb-sign-text>b{font-size:15px;line-height:15px}
+.dk-bottom.dk-melting>:not(.dk-melt){visibility:hidden}
+
+/* Reader: the full real face and its rules, beside plain facts. */
+.dk-sheet>.dk-reader{position:absolute;inset:0;z-index:5;display:grid;grid-template-columns:auto minmax(0,1fr);gap:18px;align-items:stretch;padding:4px 70px 4px 4px;background:var(--paper)}
+.dk-reader[hidden]{display:none}
+.dk-reading>:not(.dk-reader,.wb-pagelight){visibility:hidden}
+.dk-reader-face{height:var(--dk-read);align-self:center}
+html body .dk-reader-face>.skill-card{--card-height:var(--dk-read)}
+.dk-reader-facts{display:flex;flex-direction:column;gap:8px;min-width:0;padding:4px 0 2px}
+.dk-reader-name{margin:0;font:400 22px/1.1 var(--pixel,monospace);color:var(--ink);letter-spacing:1px;outline:none}
+.dk-reader-name:focus-visible{outline:2px solid var(--ink);outline-offset:3px}
+.dk-reader-list{margin:0;display:grid;gap:7px}
+.dk-reader-list>div{display:grid;grid-template-columns:86px minmax(0,1fr);gap:8px;align-items:baseline}
+.dk-reader-list dt{font:400 11px/1.2 var(--pixel,monospace);letter-spacing:1px;text-transform:uppercase;color:var(--ink-soft)}
+.dk-reader-list dd{margin:0;font:400 14px/1.25 var(--pixel,monospace);color:var(--ink)}
+.dk.wb-t2 .dk-reader-back{width:150px;height:46px;margin-top:auto;padding:0 12px!important}
+.dk.wb-t2 .dk-reader-back .wb-sign-text>b{font-size:15px;line-height:15px}
+
+/* Dragging: a floating copy follows the pointer. */
+.dk-ghost-wrap{position:fixed;left:0;top:0;z-index:50;pointer-events:none;opacity:.9}
+.dk-ghost-wrap>.skill-card{--card-height:var(--dk-card,112px)}
+
+/* Short frames (740×333, 640×320, 667×300): smaller faces, never clipped text. */
+@media(max-height:380px){
+ .dk{--dk-card:112px;--dk-read:270px}
+ .dk .wb-page.dk-sheet{top:2px;bottom:2px;gap:2px;padding:0 10px 0}
+ .dk-sheet.wb-page::after{height:56px;background-size:24px 56px,24px 44px}
+ .dk-head{min-height:26px;gap:12px}
+ .dk .wb-title{font-size:20px;line-height:26px}
+ .dk-wallet{height:26px}
+ .dk-wallet>b{font-size:16px}
+ .dk-result-text{font-size:14px}
+ .dk-note{font-size:12px}
+ .dk-mark-encore,.dk-mark-always{font-size:10px;height:18px;top:-7px}
+ .dk-mark{top:-6px;left:-6px;min-width:22px;height:22px;font-size:18px}
+ .dk-row{padding-top:3px}
+ .dk-shelf{padding:4px 3px 4px;scrollbar-width:none;-webkit-mask:linear-gradient(90deg,#000 calc(100% - 24px),#0008)}
+ .dk-shelf::-webkit-scrollbar{display:none}
+ .dk-tile{height:44px}
+ .dk-tile-art{width:36px;height:36px}
+ .dk-tile-art>svg{width:32px!important;height:32px!important}
+ .dk-reader-name{font-size:18px}
+ .dk-reader-list{gap:5px}
+ .dk-reader-list dd{font-size:13px}
+}
+@media(max-height:326px){.dk{--dk-card:108px}}
+@media(max-height:310px){
+ .dk{--dk-card:90px;--dk-read:256px}
+ .dk-under{height:25px}
+}
+@media(max-width:700px){
+ .dk-head{gap:10px}
+ .dk-label>span{font-size:11px}
+ .dk.wb-t2 .dk-flank .wb-sign-quiet{min-width:88px}
+}
+@media(prefers-reduced-motion:reduce){
+ .dk-face,.dk-tile,html body .dk-face>.skill-card{transition:none!important}
+ /* No movement: a picked card shows its state by ring alone. */
+ .dk-picked .dk-face,.dk-tile.dk-picked{transform:none}
+}
+/* The approved Spark icon: 16-pixel grid, drawn only at 16px. */
+html body .dk-reader :is(.card-term-icon-spark,.card-term-icon-meter){display:inline-block;width:16px!important;height:16px!important;vertical-align:-3px}
+html body .dk-reader :is(.card-term-icon-spark,.card-term-icon-meter)>.dk-spark{display:block;width:16px!important;height:16px!important;image-rendering:pixelated}

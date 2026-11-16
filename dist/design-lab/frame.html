@@ -162,6 +162,20 @@ function atlasPage(extra=''){
  </div>`;
 }
 
+// v1.1-icons: five takes on the Glint.
+function glintSheet(){
+ const img=(id,size)=>`<img src="assets/spark-${id}.svg" width="${size}" height="${size}" alt="" style="image-rendering:pixelated">`;
+ const col=(code,name,id)=>`<section class="ic-col"><h3 class="set-group">${code}</h3><p class="ic-name">${name}</p>
+   <div class="ic-sizes">${img(id,16)}${img(id,32)}${img(id,48)}</div>
+   <div class="ic-leather">${img(id,32)}<b>18 / 30</b></div></section>`;
+ return `<div class="pause-overlay menu-pause-v11 wb-ground wb-t2 wb-t3 wb-flat wb-atlas wb-a2 wb-go ic-v1 ic-v11" role="dialog" aria-label="Glint variations">
+  <img class="wb-world" src="../assets/moonwell-title.webp" alt="" draggable="false"><div class="wb-shade2" aria-hidden="true"></div>
+  <div class="wb-page"><header class="pm-head">${titleRow('The Glint',true)}<span class="wb-context">Five takes · 16-pixel grid · shown at 16, 32, 48</span></header>
+   <div class="ic-grid">
+    ${col('A1','Classic','a')}${col('A2','Eight rays','a2')}${col('A3','Bold','a3')}${col('A4','Twin','a4')}${col('A5','Round','a5')}
+   </div></div></div>`;
+}
+
 // v1.0-icons: three Spark candidates on one 16-pixel grid, beside today's Spark.
 function iconSheet(){
  const img=(id,size)=>`<img src="assets/spark-${id}.svg" width="${size}" height="${size}" alt="" style="image-rendering:pixelated">`;
@@ -222,7 +236,8 @@ function themeSheet(theme=''){
 const VARIANTS={'v0-pause':current,'v1.0-pause':column,'v1.1-pause':waystone,'v1.0-theme':themeSheet,'v1.2-pause':()=>waystone('wb-t2'),'v1.1-theme':()=>themeSheet('wb-t2'),'v1.3-pause':()=>waystone('wb-t2 menu-pause-v13',{sound:true,ornate:true}),'v1.2-theme':()=>kit(),'v1.4-pause':()=>waystone('wb-t2 wb-t3 menu-pause-v14',{ornate:true,levels:true}),'v1.3-theme':()=>kit(true),'v1.5-pause':()=>waystone('wb-t2 wb-t3 wb-flat menu-pause-v15',{ornate:true,levels:true,beside:true}),'v1.4-theme':()=>kit(true).replace('wb-t3"','wb-t3 wb-flat"').replace('Stone grain and edge clasps','Edge clasp'),'v1.5-theme':()=>kit(true).replace('wb-t3"','wb-t3 wb-flat"').replace('Stone grain and edge clasps','Edge clasp').replaceAll('kit-new">Proposed','kit-ok">Approved'),'v1.0-settings':settingsSheet,'v1.1-settings':settingsSheet,
  'v2.0-theme':()=>waystone('wb-t2 wb-t3 wb-flat menu-pause-v15 wb-atlas',{ornate:true,levels:true,beside:true}),
  'v2.1-theme':()=>waystone('wb-t2 wb-t3 wb-flat menu-pause-v15 wb-lantern',{ornate:true,levels:true,beside:true}),
- 'v1.0-icons':iconSheet,
+ 'v2.5-pause':()=>atlasPage('wb-go'),
+ 'v1.0-icons':iconSheet,'v1.1-icons':glintSheet,
  'v2.4-theme':()=>atlasPage(),'v2.5-theme':()=>atlasPage('wb-go'),
  'v2.3-theme':()=>waystone('wb-t2 wb-t3 wb-flat menu-pause-v15 wb-atlas wb-lit wb-lit3 wb-tab',{ornate:true,levels:true,beside:true}),
  'v2.2-theme':()=>waystone('wb-t2 wb-t3 wb-flat menu-pause-v15 wb-atlas wb-lit',{ornate:true,levels:true,beside:true}),'v0-settings':settingsCurrent};

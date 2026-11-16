@@ -41,6 +41,17 @@
 <p class="say" id="say"></p>
 <script>
 const LOOKS={
+ 'v1.0-deck':{label:'v1.0-deck · proposed',status:'Proposed — not in the game yet',page:'deck.html',notes:[
+  'One Deck screen instead of two screens and a side panel. Row on top (fires left to right), Reserve below.',
+  'Tap a card to pick it up; every place it can go lights up; tap a place. Dragging works too.',
+  'Under the row: the real result, e.g. "Catch a Spark: +10 Bonus". Move Prism Lens to the front and it reads +8.',
+  'A card that cannot work shows one plain instruction, e.g. "Put a card to its right".',
+  'Picked-up card: Read card, Melt (shows what you get first), Cancel. Wallet shows Stored Sparks, not a card count.']},
+ 'v1.1-icons':{label:'v1.1-icons · Glint variations',status:'Proposed — pick A1 to A5',notes:[
+  'Five takes on the Glint, same grid, outline and gold.',
+  'A1 Classic: thin four-point. A2 Eight rays: adds short diagonals. A3 Bold: thicker arms, reads best at 16.',
+  'A4 Twin: a main glint with a small second one. A5 Round: an orb body with four short rays.',
+  'Tell Claude e.g. "v1.1-icons A3", or mix: "A3 but with A2\'s diagonals".']},
  'v1.0-icons':{label:'v1.0-icons · Spark candidates',status:'Proposed — pick A, B or C',notes:[
   'Today\'s Spark is drawn on a 20-pixel grid and never shown at a whole multiple, so it always looks soft.',
   'A, B and C are drawn on one 16-pixel grid with a dark outline, and shown only at 16, 32 or 48.',
@@ -79,7 +90,7 @@ const LOOKS={
   '18 different drawing grids are in use. 96 of 128 icons are shown at an uneven scale somewhere, which is what makes pixel art look soft.',
   'The Spark: drawn on a 20-pixel grid, shown at eight sizes, never once at a whole multiple.',
   'Next: one icon standard (one grid, whole-number sizes only) and a redrawn Spark, shown here as v1.0-icons.']},
- 'v1.1-settings':{label:'v1.1-settings · approved',status:'Approved 2026-11-16 — queued to build',notes:[
+ 'v1.1-settings':{label:'v1.1-settings · approved',status:'Approved 2026-11-16 — being built in the main theme (this preview still shows the retired green skin)',notes:[
   'Settings holds settings only, in three named groups: Sound, Gameplay, App.',
   'The "Cards · version" line is gone from the header; the version now sits under Updates. More room between title and groups.',
   'Sound uses the same icon-and-bars control as the pause menu.',
@@ -90,13 +101,23 @@ const LOOKS={
  'v1.5-theme':{label:'v1.5-theme · Stone (current)',status:'The approved pieces in the green stone skin',notes:[
   'Approved: plaque shapes, four stones, edge clasp, level control, title flourish, carved rule, treeline ground.',
   'Rejected: stone grain, pointed sign ends, arrows.']},
- 'v1.0-cardflow':{label:'v1.0-cardflow · how cards fire',status:'Proposed — not in the game yet',page:'cardflow.html',notes:[
+ 'v1.1-cardflow':{label:'v1.1-cardflow · proposed',status:'Proposed — not in the game yet',page:'cardflow.html',notes:[
+  'The explainer in the book skin. Press Next to step through; Fire again plays it by itself.',
+  'New step: the Spark\'s own fuel fills the meter first, then the cards fire, then the Bonus fills the room left.',
+  'Move, not swap: tap a card, then the place it should go. Prism Lens to the front shows Before 10, Now 8.',
+  'Every number comes from the game\'s real rules, for any order.',
+  'Words in use: Trigger, Bonus, + Adds, × Multiplies. "Pass" is gone.']},
+ 'v1.0-cardflow':{label:'v1.0-cardflow · green skin',status:'Replaced by v1.1-cardflow',page:'cardflow.html',notes:[
   'Press Next: the Trigger lights, then each card fires left to right while one Bonus counter climbs, then the Bonus flows into the Spark Meter.',
   'After the first run, tap two cards to swap them and press Fire again. The result changes, with Before and Now side by side.',
   'Every number comes from the game\'s real rules, for any of the six orders.',
   'New words in use: Trigger, Bonus, + for cards that Add, × for cards that Multiply. The word "pass" is gone.',
   'The Situation buttons do not apply to this look.']},
- 'v1.5-pause':{label:'v1.5-pause · approved',status:'Approved 2026-11-16 — being built into the game',notes:[
+ 'v2.5-pause':{label:'v2.5-pause · approved',status:'Approved 2026-11-16 — being built into the game',notes:[
+  'The pause menu in the main theme (v2.5-theme): book page over the woods, green Resume, wine Abandon.',
+  'Same order and controls as v1.5-pause. Sound tab right, run status left.',
+  'This is what is being built into the game.']},
+ 'v1.5-pause':{label:'v1.5-pause · green stone',status:'Layout kept; green stone skin retired',notes:[
   'Grain removed: plaques are flat stone again. Clasp and Resume flourish stay.',
   'Sound controls moved from the corner to just right of the column, beside Help and Settings, inside right-thumb reach.',
   'Everything else as v1.4-pause.',
@@ -159,7 +180,7 @@ const LOOKS={
   'Translucent backdrop lets the flight hint bleed through.']}
 };
 // Topics, newest first. Set `decided` to the approved code once the user has ruled.
-const TOPICS={settings:{label:'Settings',decided:'v1.1-settings'},icons:{label:'Icons'},cardflow:{label:'How cards fire'},pause:{label:'Pause menu',decided:'v1.5-pause'},theme:{label:'Style kit',decided:'v2.5-theme',contexts:true}};
+const TOPICS={deck:{label:'Deck'},settings:{label:'Settings',decided:'v1.1-settings'},icons:{label:'Icons'},cardflow:{label:'How cards fire'},pause:{label:'Pause menu',decided:'v2.5-pause'},theme:{label:'Style kit',decided:'v2.5-theme',contexts:true}};
 const topicOf=id=>id.slice(id.indexOf('-')+1);
 let earlier=false;
 const CONTEXTS={practice:'Tutorial flight',real:'Real run, in flight',map:'Real run, on map'};

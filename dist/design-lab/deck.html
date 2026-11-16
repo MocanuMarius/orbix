@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Deck · Design lab</title>
+<!-- The game's own modules and art use paths relative to dist/, so the page resolves from there. -->
+<base href="../">
+<link rel="icon" href="assets/favicon.svg">
+<script>
+// Production stylesheets, in game.html order (same list as frame.html and cardflow.html), so the cards are judged in the real cascade.
+const SHEETS=['style','game','boost-control','level-map','companion','progression','orientation','map-clarity','afterglow-ui','tutorial-coach','campaign','pickup-guide','queue-ui','game-art','dream','expedition','landscape','radial-tree','replay','glow-ui','readability','game-symbols','living-icons','choice-art','rest-choices','viewport-layout','typography','death-screen','interface-composition','artifact-reward','artifact-detail','current-batch','menu-art','readability-pass','checkpoint-flow','artifact-collection','rough-ui','journey-art','treasure','ui-contrast','route-bonus','flight-preview','home-commands','home-journey-ink','companion-picker','night-atlas','installation','mobile-rim','skill-book','visual-system','activation-feedback','rhythm-score','card-ui','game-menu','home-utilities','scorecard'];
+for(const name of SHEETS)document.write(`<link rel="stylesheet" href="${name}.css?v=guide-clarity-1">`);
+</script>
+<link rel="stylesheet" href="design-lab/variants.css">
+<link rel="stylesheet" href="design-lab/deck.css">
+</head>
+<body class="card-pilot dk-page">
+<main id="app"><section class="flight-shell"><div class="flight-device">
+ <!-- v2.5-theme kit: the dimmed woods, one wide paper page, leather tab boxes, moss = go, wine = gone. -->
+ <div class="dk wb-ground wb-t2 wb-t3 wb-flat wb-atlas wb-a2 wb-go" id="deck">
+  <img class="wb-world" src="assets/moonwell-title.webp?v=guide-clarity-1" alt="" draggable="false">
+  <div class="wb-shade2" aria-hidden="true"></div>
+  <div class="wb-page dk-sheet" id="dk-sheet">
+   <div class="wb-pagelight" aria-hidden="true"></div>
+   <header class="dk-head">
+    <h1 class="wb-title">Deck</h1>
+    <h2 class="dk-label" id="dk-row-label"><b>Row</b><span> · fires in flight, left to right</span></h2>
+    <p class="dk-wallet" id="dk-wallet" aria-label="Wallet: 8 Stored Sparks"><span class="dk-wallet-icon" id="dk-wallet-icon" aria-hidden="true"></span><b id="dk-wallet-value">8</b><small>Stored Sparks</small></p>
+   </header>
+
+   <section class="dk-rowzone" aria-labelledby="dk-row-label">
+    <div class="dk-row" id="dk-row"></div>
+   </section>
+
+   <div class="dk-result">
+    <p class="dk-result-text" id="dk-result"></p>
+    <a class="wb-sign wb-sign-standard dk-fire" id="dk-fire" href="design-lab/cardflow.html?variant=v1.1-cardflow"><span class="wb-sign-text"><b>See it fire</b></span></a>
+    <p class="dk-note" id="dk-note"></p>
+   </div>
+
+   <div class="dk-bottom" id="dk-bottom">
+    <div class="dk-flank dk-flank-left" id="dk-left">
+     <button type="button" class="wb-sign wb-sign-quiet dk-done" id="dk-done"><span class="wb-sign-text"><b>Done</b></span></button>
+     <button type="button" class="wb-sign wb-sign-quiet dk-cancel" id="dk-cancel" hidden><span class="wb-sign-text"><b>Cancel</b></span></button>
+    </div>
+    <section class="dk-reserve" aria-labelledby="dk-res-label">
+     <h2 class="dk-label" id="dk-res-label"><b>Reserve</b><span> · not in your row</span></h2>
+     <div class="dk-shelf" id="dk-shelf"></div>
+    </section>
+    <div class="dk-flank dk-flank-right" id="dk-right">
+     <button type="button" class="wb-sign wb-sign-standard dk-workshop" id="dk-workshop" aria-label="Workshop. Appears only at Rest."><span class="wb-sign-text"><b>Workshop</b><small>Only at Rest</small></span></button>
+     <button type="button" class="wb-sign wb-sign-standard dk-read" id="dk-read" hidden><span class="wb-sign-text"><b>Read card</b></span></button>
+     <button type="button" class="wb-sign wb-sign-standard dk-meltask" id="dk-meltask" hidden><span class="wb-sign-text"><b>Melt…</b></span></button>
+    </div>
+    <!-- Melt confirm: covers the bottom band; the consequence is stated before the wine plaque. -->
+    <div class="dk-melt" id="dk-melt" role="group" aria-labelledby="dk-melt-text" hidden>
+     <button type="button" class="wb-sign wb-sign-quiet" id="dk-keep"><span class="wb-sign-text"><b>Keep card</b></span></button>
+     <p class="dk-melt-text" id="dk-melt-text"></p>
+     <button type="button" class="wb-sign wb-sign-danger" id="dk-meltgo"><span class="wb-sign-text"><b id="dk-meltgo-label">Melt</b></span></button>
+    </div>
+   </div>
+
+   <!-- Reader: the full real card face and its rules. Back returns to the same state. -->
+   <div class="dk-reader" id="dk-reader" role="dialog" aria-modal="true" aria-labelledby="dk-reader-name" hidden>
+    <div class="dk-reader-face" id="dk-reader-face"></div>
+    <div class="dk-reader-facts">
+     <h2 class="dk-reader-name" id="dk-reader-name" tabindex="-1"></h2>
+     <dl class="dk-reader-list" id="dk-reader-list"></dl>
+     <button type="button" class="wb-sign wb-sign-standard dk-reader-back" id="dk-reader-back"><span class="wb-sign-text"><b>Back</b></span></button>
+    </div>
+   </div>
+  </div>
+ </div>
+</div></section></main>
+<p class="dk-sr" id="dk-live" role="status" aria-live="polite"></p>
+<script type="module" src="design-lab/deck.mjs"></script>
+</body>
+</html>
