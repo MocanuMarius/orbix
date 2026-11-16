@@ -1,12 +1,12 @@
 /** Contextual card vocabulary. Native modal dialogs keep help above the Deck. */
-import { resourceSymbol } from './game-symbols.mjs?v=tow-swing-1';
-import {lifeHeartSvg} from './lives.mjs?v=tow-swing-1';
-import {duskGlyphArt} from './spark-symbol.mjs?v=tow-swing-1';
-import {getGlowCapacity,formatGlow} from './vitality.mjs?v=tow-swing-1';
-import {glowGaugeUnits} from './glow-ui.mjs?v=tow-swing-1';
-import {getRunModifiers} from './model.mjs?v=tow-swing-1';
-import {cardAmount,makeSkillCard,SKILL_CARDS} from './skill-cards.mjs?v=tow-swing-1';
-import {cardRowTermHelpMarkup} from './card-row-help.mjs?v=tow-swing-1';
+import { resourceSymbol } from './game-symbols.mjs?v=try-row-1';
+import {lifeHeartSvg} from './lives.mjs?v=try-row-1';
+import {duskGlyphArt} from './spark-symbol.mjs?v=try-row-1';
+import {getGlowCapacity,formatGlow} from './vitality.mjs?v=try-row-1';
+import {glowGaugeUnits} from './glow-ui.mjs?v=try-row-1';
+import {getRunModifiers} from './model.mjs?v=try-row-1';
+import {cardAmount,makeSkillCard,SKILL_CARDS} from './skill-cards.mjs?v=try-row-1';
+import {cardRowTermHelpMarkup} from './card-row-help.mjs?v=try-row-1';
 const esc = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 export const CARD_TERMS = Object.freeze({
   round: ['Round', 'One flight through a passage, ending in clear rewards or a lost heart.'],
@@ -38,7 +38,7 @@ export const CARD_TERMS = Object.freeze({
   cluster: ['Cluster', 'A group of Sparks that counts as one pickup.'],
   rhythm: ['Rhythm', 'Perform 3 successful Lifts at an even pace to send one wave.'],
   watchlight: ['Watchlight', 'With Collector home and a full ring, survive one fatal impact per flight and send a wave.'],
-  pass: ['Row pass', 'For one event, equipped cards act once from left to right.'],
+  pass: ['Row pass', 'A matching event starts a left-to-right check of your equipped row.'],
 });
 
 const CARD_TERM_DETAILS = Object.freeze({
@@ -71,7 +71,7 @@ const CARD_TERM_DETAILS = Object.freeze({
   "packing": "Convert spare passage Sparks into Stored Sparks during a Round and from the spare meter at its successful exit. Packing efficiency adds extras to the Stored Sparks this conversion normally makes. Open Packing efficiency for examples and exclusions.",
   "packing-efficiency": "Adds extra Stored Sparks to the amount ordinary packing makes from spare passage Sparks. +50% means 2 ordinarily made → 3 total; +75% means 4 → 7 total; +100% means 1 → 2 total. Equipped cards, Echo repeats and Chameleon copies add their percentages: two +50% sources give +100%. Prism and the row’s Spark multipliers multiply bonus flight Sparks only, so they do not multiply packing efficiency or Stored Sparks. Fractions carry between cleared Rounds, and whole extras pay as they are earned. With Rare and no earlier fraction, making 1, 2, 3, then 4 ordinary Stored Sparks earns 0, 1, 2, then 3 extras in total. With Common, making 1 this Round and 1 next Round earns 1 extra overall. A failed Round keeps the fraction saved before that attempt and banks none of that attempt’s new packing. Rewards, card payouts, Melt and the extra Stored Sparks do not earn packing extras. Generated or Dream pickups and bonus fuel from cards do not count.",
   "grow": "Keep Growth Seeds in your Deck to unlock Grow at Rest. Each owned Seed adds its printed amount to your maximum Sparks, up to +90 total: Common +3, Rare +5, Legendary +8 (improved to +9 or +10). Grow refills the meter once and does not heal hearts. All Seeds share 3 Grow actions per journey. No active slot is needed; copying cards cannot copy Rest cards.",
-  "pass": "For a matching event, equipped cards act from left to right. Each pass starts with zero bonus Sparks. Additions and multipliers affect only that pass’s bonus. Refrain can play the row once more from slot 1. Stored Sparks, pickups, waves and recovery time are separate.",
+  "pass": "An event starts a pass when an equipped card listens for it: your wisp touches a passage Spark, a wave crosses a pickup, Collector delivers one, or another printed condition happens. Check slots from left to right. A card acts only if its own condition matches; empty slots, passives and other events are skipped. Echo’s printed repeats happen within its slot and spend the real right-hand card’s uses. Each pass starts at zero bonus Sparks, so additions and multipliers affect that pass’s bonus only. After an event earns a bonus, Refrain finishes pass 1 and checks the row once more from slot 1 for the same event. All Refrains share this second pass. Spent uses and saved recovery time stay spent, so the second pass can pay less or nothing. It creates no extra physical pickup or wave. Use Try row in your Deck to step through your actual equipped cards.",
 });
 
 /** The same game artwork and keyword ink appear on cards and in their glossary. */
@@ -345,7 +345,7 @@ export function installCardTermHelp(doc = document, {resolveProximityContext,res
       dialog.classList.add('card-cache-dialog');
       const host=button.dataset.cardTerm?dialog.querySelector('[data-card-term-example]'):doc.createElement('div');
       if(!button.dataset.cardTerm){host.className='cache-card-example';dialog.querySelector('[data-card-help-rules]').append(host);}
-      import('./cache-card-help.mjs?v=tow-swing-1').then(({mountCacheCardHelp})=>{
+      import('./cache-card-help.mjs?v=try-row-1').then(({mountCacheCardHelp})=>{
         if(layers.includes(layer))appendDisposer(mountCacheCardHelp(host,{focus:cardKind==='harvest'?'cross':cardKind==='cache-handling'?'deliver':'touch',harvestCard:cardKind==='harvest'?cardContext.card:undefined}));
       });
     }
@@ -356,7 +356,7 @@ export function installCardTermHelp(doc = document, {resolveProximityContext,res
         const host=doc.createElement('section');host.className='proximity-card-help';
         const example=dialog.querySelector('[data-card-term-example="proximity"]');
         if(example)example.replaceChildren(host);else dialog.querySelector('.card-term-content').prepend(host);
-        import('./proximity-card-help.mjs?v=tow-swing-1').then(({mountProximityCardHelp})=>{
+        import('./proximity-card-help.mjs?v=try-row-1').then(({mountProximityCardHelp})=>{
           if(layers.includes(layer))appendDisposer(mountProximityCardHelp(host,previewContext));
         });
       }

@@ -1,7 +1,7 @@
-import {drawPickup} from './pickup-art.mjs?v=tow-swing-1';
-import {pickupKind} from './pickups.mjs?v=tow-swing-1';
-import {sparkArtScale, sparkBodyRadius, sparkMass} from './spark-size.mjs?v=tow-swing-1';
-import {lightVisibility} from './light-field.mjs?v=tow-swing-1';
+import {drawPickup} from './pickup-art.mjs?v=try-row-1';
+import {pickupKind} from './pickups.mjs?v=try-row-1';
+import {sparkArtScale, sparkBodyRadius, sparkMass} from './spark-size.mjs?v=try-row-1';
+import {lightVisibility} from './light-field.mjs?v=try-row-1';
 
 export function glowSenseCues(e, {
   distance = e.renderDistance ?? e.distance,

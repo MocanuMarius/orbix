@@ -1,9 +1,9 @@
-import {ARTIFACTS,getArtifactSalvageValue,canSellArtifact} from './model.mjs?v=tow-swing-1';
-import {artifactDescription} from './artifact-copy.mjs?v=tow-swing-1';
-import {artifactIcon} from './upgrade-icons.mjs?v=tow-swing-1';
-import {resourceSymbol} from './game-symbols.mjs?v=tow-swing-1';
-import {reliquaryBackdropMarkup,reliquaryNicheMarkup,furnaceGlyphMarkup} from './ui/reliquary-art.mjs?v=tow-swing-1';
-import {relicIdentityMarkup,relicRulesMarkup,relicRulesButton} from './ui/relic-primitives.mjs?v=tow-swing-1';
+import {ARTIFACTS,getArtifactSalvageValue,canSellArtifact} from './model.mjs?v=try-row-1';
+import {artifactDescription} from './artifact-copy.mjs?v=try-row-1';
+import {artifactIcon} from './upgrade-icons.mjs?v=try-row-1';
+import {resourceSymbol} from './game-symbols.mjs?v=try-row-1';
+import {reliquaryBackdropMarkup,reliquaryNicheMarkup,furnaceGlyphMarkup} from './ui/reliquary-art.mjs?v=try-row-1';
+import {relicIdentityMarkup,relicRulesMarkup,relicRulesButton} from './ui/relic-primitives.mjs?v=try-row-1';
 
 export const COLLECTION_PAGE_SIZE=6;
 const esc=value=>String(value??'').replace(/[&<>"']/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));

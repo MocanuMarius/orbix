@@ -1,12 +1,13 @@
 /** Read-only glossary examples use the same ordered walker as a real flight. */
-import {CARD_SYSTEM, CARD_ROW_EVENTS, SKILL_CARDS, makeSkillCard, describeSkillCard, getCardRowRule, previewCardRow} from './skill-cards.mjs?v=tow-swing-1';
-import {cardRowTraceMarkup, cardRowSequenceMarkup} from './card-row-feedback.mjs?v=tow-swing-1';
-import {getEquippedCardStatuses} from './card-status.mjs?v=tow-swing-1';
+import {CARD_SYSTEM, CARD_ROW_EVENTS, SKILL_CARDS, makeSkillCard, describeSkillCard, getCardRowRule, previewCardRow} from './skill-cards.mjs?v=try-row-1';
+import {cardRowTraceMarkup, cardRowSequenceMarkup} from './card-row-feedback.mjs?v=try-row-1';
+import {getEquippedCardStatuses} from './card-status.mjs?v=try-row-1';
 
 const esc = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const rowTerms = new Set(['uses','shared','copy','repeat','pass']);
 const isCopy = card => ['echo','chameleon'].includes(SKILL_CARDS[card?.cardId]?.kind);
-const rowFor = run => Array.from({length:Math.min(5, Math.max(run?.cardSlots || 0, run?.mountedCards?.length || 0))}, (_,slot) => run?.mountedCards?.[slot] || null);
+export const getCardRowCards = run => Array.from({length:Math.min(5, Math.max(run?.cardSlots || 0, run?.mountedCards?.length || run?.cards?.length || 0))}, (_,slot) => (run?.mountedCards || run?.cards)?.[slot] || null);
+const rowFor = getCardRowCards;
 const name = card => describeSkillCard(card)?.name || 'Empty slot';
 
 /** The card face supplies rank/uses even for a reward or an improvement preview. */
@@ -34,13 +35,14 @@ const fixture = () => {
   return {run:{skillSystem:CARD_SYSTEM, cardSlots:3, mountedCards:cards}, card:cards[0], slot:0, instanceId:cards[0].instanceId, example:true, label:'Example row · 2 shared uses'};
 };
 
-function sourceFor(cards, slot) {
+export function getCardRowSource(cards, slot) {
   const acting = cards[slot], own = SKILL_CARDS[acting?.cardId];
   const source = isCopy(acting) ? cards[slot + 1] : acting;
   const def = SKILL_CARDS[source?.cardId];
   if (!def || isCopy(acting) && (!def.copyable || own.kind === 'echo' && (def.passive || def.kind === 'capacity'))) return null;
   return {source, def, rule:getCardRowRule(def, source)};
 }
+const sourceFor = getCardRowSource;
 
 const unavailableTrigger = status => status?.state === 'blocked' && ['Needs Rhythm','Needs Field','Needs a save','Needs Collector','Needs Cache fetch'].includes(status.label);
 function eventCandidates(cards, run, preferredSlot, statuses) {
@@ -105,21 +107,22 @@ function selectedNote(context, cards) {
   return `${location} · ${name(card)}. ${Number.isFinite(card.charges) ? `${card.charges} ${card.charges === 1 ? 'use' : 'uses'} remaining.` : 'This card has no limited uses.'}`;
 }
 
-function assumptions(event, trace) {
+export function describeCardRowScenario(event, trace) {
   const events = {[CARD_ROW_EVENTS.body]:'your wisp touches a pickup', [CARD_ROW_EVENTS.wave]:'a wave crosses an uncollected pickup', [CARD_ROW_EVENTS.flash]:'your wisp or Collector picks up Flash', [CARD_ROW_EVENTS.flashExpiry]:'a passage Flash expires', [CARD_ROW_EVENTS.lift]:'a Lift succeeds', [CARD_ROW_EVENTS.overfill]:'a passage Spark overfills the meter', [CARD_ROW_EVENTS.delivery]:'Collector delivers a pickup', [CARD_ROW_EVENTS.rhythm]:'3 evenly timed successful Lifts complete Rhythm', [CARD_ROW_EVENTS.field]:'a Field Impulse swipe succeeds', [CARD_ROW_EVENTS.guard]:'Collector saves a fatal impact', [CARD_ROW_EVENTS.clear]:'you clear a flight', [CARD_ROW_EVENTS.victory]:'you defeat the third Guardian', [CARD_ROW_EVENTS.attach]:'Collector attaches to a pickup'};
   const parts = [events[event.kind] || 'one matching event'];
   if (event.kind === CARD_ROW_EVENTS.body || event.kind === CARD_ROW_EVENTS.delivery || event.kind === CARD_ROW_EVENTS.wave) parts.push(`pickup: ${event.pickupKind === 'light' ? 'passage Spark' : event.pickupKind}`);
   if (event.kind === CARD_ROW_EVENTS.wave) parts.push(event.firstCrossing ? 'first crossing of this wave' : 'later crossing');
   if (trace.steps.some(step => getCardRowRule(SKILL_CARDS[step.sourceCardId], {cardId:step.sourceCardId})?.when?.meterAtMost !== undefined)) parts.push(`meter at ${Math.round(event.meterFraction * 100)}% before the event`);
   if (event.guardRecovering) parts.push('Collector recovering after a save');
-  if (event.collectorReeling) parts.push('Collector reeling, with 10s left');
-  else if (trace.recoverySeconds) parts.push('Collector has 10s recovery left');
+  if (event.collectorReeling) parts.push(`Collector reeling, with ${event.availableReel}s left`);
+  else if (trace.recoverySeconds) parts.push(`Collector has ${event.availableRecovery}s recovery left`);
   if (event.kind === CARD_ROW_EVENTS.field) parts.push(`${event.direction} swipe succeeds`);
   if (event.kind === CARD_ROW_EVENTS.lift) parts.push('paid manual Lift while falling, at least 0.75s after the previous Lift');
   if (event.kind === CARD_ROW_EVENTS.victory) parts.push('third Guardian defeated');
   if (trace.steps.some(step => step.operation === 'carried-interest')) parts.push(`${event.carriedStored} Stored Sparks carried`);
   return parts.join(' · ');
 }
+const assumptions = describeCardRowScenario;
 
 export function cardRowTermHelpMarkup(key, context) {
   const example = getCardRowHelpExample(key,context);

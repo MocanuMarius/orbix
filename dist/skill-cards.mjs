@@ -1,8 +1,8 @@
 /** Small, serializable skills-as-cards pilot. Printed Sparks use the existing .3 display scale. */
 export const CARD_SYSTEM = "cards-v1";
 export const CARD_UNIT = 10 / 3;
-import {CARD_CATALOG,CARD_DROP_WEIGHTS} from './card-catalog.mjs?v=tow-swing-1';
-import {cardOfferMultiplier} from './card-offer-context.mjs?v=tow-swing-1';
+import {CARD_CATALOG,CARD_DROP_WEIGHTS} from './card-catalog.mjs?v=try-row-1';
+import {cardOfferMultiplier} from './card-offer-context.mjs?v=try-row-1';
 const maximumGrowthAmount = Math.max(...Object.values(CARD_CATALOG)
   .filter(card => card.kind === 'camp-grow').map(card => card.amount + card.maxRank - 1));
 export const CARD_ECONOMY = Object.freeze({
@@ -308,7 +308,7 @@ export function describeSkillCard(card) {
       effect = "If at least 2 earlier slot actions paid Sparks in this pass, double this pass’s flight Sparks so far. Copied actions count; multipliers do not.";
       break;
     case "refrain":
-      effect = "After a productive flight event, replay the equipped row once from slot 1. All Refrains share one replay. Uses stay shared; no extra pickups, waves or Stored Sparks.";
+      effect = "When a card event earns a bonus, finish this left-to-right pass, then check the equipped row once more from slot 1 for the same event. All Refrains share one replay. Spent uses stay spent. No extra physical pickup or wave; first-crossing Stored Sparks pay only in pass 1.";
       break;
     case "downbeat":
       effect = "Gain 2 flight Sparks when a paid manual Lift succeeds while descending, at least 0.75 seconds after the previous successful Lift. The first, free and Dream Lifts do not count.";

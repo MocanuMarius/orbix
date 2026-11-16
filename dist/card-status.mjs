@@ -1,7 +1,7 @@
 /** Configuration hints only. Every numeric verdict comes from a read-only row quote. */
-import { SKILL_CARDS, CARD_ROW_EVENTS, getEffectiveCardSources, getCardRowRule, previewCardRowEvent, getUseDoublerTarget, getEmberFeederTargets, getCardFeederCapacity } from './skill-cards.mjs?v=tow-swing-1';
-import { normalizeCompanionFleet } from './companion-abilities.mjs?v=tow-swing-1';
-import { skillProgress } from './skill-increments.mjs?v=tow-swing-1';
+import { SKILL_CARDS, CARD_ROW_EVENTS, getEffectiveCardSources, getCardRowRule, previewCardRowEvent, getUseDoublerTarget, getEmberFeederTargets, getCardFeederCapacity } from './skill-cards.mjs?v=try-row-1';
+import { normalizeCompanionFleet } from './companion-abilities.mjs?v=try-row-1';
+import { skillProgress } from './skill-increments.mjs?v=try-row-1';
 
 const ready = reason => ({ state: 'ready', symbol: '✓', label: 'Ready', reason, fix: 'Keep this arrangement to use it when its condition happens.' });
 const blocked = (label, reason, fix) => ({ state: 'blocked', symbol: '!', label, reason, fix });
@@ -49,7 +49,7 @@ function fixtures(context) {
   return events;
 }
 
-function missingTrigger(rule, context) {
+export function getCardRowTriggerIssue(rule, context) {
   if (rule?.event === CARD_ROW_EVENTS.rhythm && !context.rhythm)
     return blocked('Needs Rhythm', 'This card needs a completed Rhythm phrase. This build cannot produce that event.', 'Equip Rhythm anywhere in the row.');
   if (rule?.event === CARD_ROW_EVENTS.field && !context.field)
@@ -65,6 +65,15 @@ function missingTrigger(rule, context) {
   return null;
 }
 
+/** Shared physical prerequisites for status hints and read-only event previews. */
+export function getCardRowTriggerContext(run = {}, native = null) {
+  const cards = (Array.isArray(run) ? run : run.mountedCards || run.cards || []).slice(0, 5);
+  const base = buildContext(run, native), sources = getEffectiveCardSources(cards);
+  const has = kind => sources.some(entry => entry.def.kind === kind);
+  return { ...base, rhythm: has('rhythm'), field: base.collector && (base.field || has('field')),
+    guard: base.collector && (base.guard || has('watchlight')), cache: base.collector && (base.cache || has('cache-handling')) };
+}
+
 /** One bounded cache entry. Reserve, current meter and current cooldown never enter the key. */
 export function getEquippedCardStatuses(run = {}, native = null) {
   const cards = (Array.isArray(run) ? run : run.mountedCards || run.cards || []).slice(0, 5);
@@ -73,8 +82,7 @@ export function getEquippedCardStatuses(run = {}, native = null) {
   if (key === lastKey) return lastResult;
   const sources = getEffectiveCardSources(cards);
   const has = kind => sources.some(entry => entry.def.kind === kind);
-  const context = { ...base, rhythm: has('rhythm'), field: base.collector && (base.field || has('field')),
-    guard: base.collector && (base.guard || has('watchlight')), cache: base.collector && (base.cache || has('cache-handling')) };
+  const context = getCardRowTriggerContext(run, native);
   const receipts = fixtures(context).map(event => previewCardRowEvent(cards, event));
   const successes = new Set(), copiedUse = new Set(), replaySlots = new Set();
   for (const receipt of receipts) {
@@ -117,7 +125,7 @@ export function getEquippedCardStatuses(run = {}, native = null) {
       return ready(`After a successful clear, consume ${name(target)} in slot ${slot+2} to restore 1 missing heart. Full hearts spare it. Devourers resolve left to right, after Heart Stitch; the target must still be equipped and present.`);
     }
     const rule = getCardRowRule(def, physical);
-    const missing = missingTrigger(rule, context);
+    const missing = getCardRowTriggerIssue(rule, context);
     if (missing) return missing;
     if (kind === 'refrain') {
       if (replaySlots.has(slot)) return ready('This row has a matching event whose second pass can pay an additional bonus. All Refrains share one replay.');

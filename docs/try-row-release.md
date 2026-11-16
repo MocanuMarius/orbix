@@ -1,0 +1,19 @@
+# Try the equipped row — 16 November 2026
+
+Release **try-row-1**. [Play](https://mocanumarius.github.io/orbix/?v=try-row-1) · [Try the equipped example](https://mocanumarius.github.io/orbix/?cards=1&mock=cards&scenario=rowcraft&v=try-row-1) · [Update an installed game](https://mocanumarius.github.io/orbix/cards.html?v=try-row-1).
+
+**▶ Try row** opens a player from Equipped, including the paused flight Deck. It uses the actual slots, ranks, remaining uses and order. Play, Pause, Previous, Next and Replay follow one event through each attempted card action. The active slot and copied source are marked separately; a limited source shows its shared uses being spent in the preview. Returning keeps the selected equipped card. Reduced motion starts paused and leaves every step available manually.
+
+The event list derives its scenarios from the equipped cards. Conditions explain assumptions such as the pickup, meter fraction, Collector state or carried Stored Sparks. Skipped slots explain why they do not act. Refrain finishes the current pass before returning to slot 1 for the same event: the second pass starts with a fresh bonus subtotal while shared uses and available recovery or reel time stay spent. It creates no extra pickup or physical wave.
+
+The existing disposable example contains Echo, Body Spark +2, Kindling Bead, Refrain and Closing Chord. A Wisp pickup pays 8.75 bonus Sparks in each pass, for 17.5 before the Spark Meter limit. Try row uses the production row resolver and grants no Sparks, uses, growth, speed, recovery or rewards. It changes neither save, the live charge ledger nor the prior live event receipt. Normal pickup and flight rules are unchanged.
+
+## Verification
+
+- Fresh committed baseline: **666/726** tests pass, 60 fail. Candidate: **675/735** pass with the same 60 historical failures and **zero added failures**. All nine added tests pass. The broad suite remains **not green**; the unchanged failures are listed in [the earlier release](combo-camp-release.md#remaining-full-suite-failures). Focused row, contextual help and glossary checks: **45/45** pass. JavaScript syntax: **539 files**, zero failures.
+- Trusted Chrome touch and keyboard proof at **915×412**, **740×333** and **720×280** covers the actual five cards, copy-source marking, both passes, exact totals, Play/Pause, Previous/Next, Replay, conditions, event changes, reduced motion and return to the selected card. The opener and playback buttons retain 44-pixel height. The scaled desktop example also passes. These checks use desktop Chrome and mobile emulation; physical Pixel 10 testing has not been performed.
+- An actual paused flight with Echo III, Pocket Sparks at two remaining uses, Refrain, an empty slot and Closing Chord previews +14 Sparks. The first copy visibly spends the preview source from 2 to 1. Repeated playback preserves the live execution, charges, event receipt, event sequence, waves, Stored Sparks, fuel and flight time byte for byte, as well as both saved games.
+- The actual preceding `tow-swing-1` Pages worker upgrades through its cached launcher while preserving the ordinary save byte for byte and the Cards save structurally, including partial uses, completed Rest/Grow, future capacity and an unclaimed draft. The equipped example, Try row and contextual glossary work from the prepared offline cache without changing either save.
+- Offline package: **475 files**, revision **21fd5a81d1e6**; all 473 preceding roots retained. Publication overlays canonical committed game bytes on the existing Pages tree and preserves unrelated public files, including the preceding Collector film. Public verification compares packaged assets with their committed source and repeats the phone interaction checks.
+
+Baseline source: `a3cddd1030023ffdf948d57c1bddb7750b0bc340`. Baseline Pages: `ad5e8712ce18fb48e50946f90378e12e71d3de5f`. Local evidence is in `work/try-row-release`.

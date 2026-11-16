@@ -1,14 +1,14 @@
-import {SKILLS,getRunModifiers} from './model.mjs?v=tow-swing-1';
-import {collectorPreferenceMarkup} from './collector-preferences.mjs?v=tow-swing-1';
-import {formatLuminance} from './luminance-units.mjs?v=tow-swing-1';
-import {WISP_ART} from './companion-art.mjs?v=tow-swing-1';
-import {skillTreeState,skillTreeStatus} from './skill-tree-state.mjs?v=tow-swing-1';
-import {getCompanionAbility} from './companion-abilities.mjs?v=tow-swing-1';
-import {skillIcon} from './upgrade-icons.mjs?v=tow-swing-1';
-import {resourceSymbol} from './game-symbols.mjs?v=tow-swing-1';
-import {glowText,getGlowCapacity} from './vitality.mjs?v=tow-swing-1';
-import {skillBookChapter} from './skill-chapters.mjs?v=tow-swing-1';
-export {skillBookChapter} from './skill-chapters.mjs?v=tow-swing-1';
+import {SKILLS,getRunModifiers} from './model.mjs?v=try-row-1';
+import {collectorPreferenceMarkup} from './collector-preferences.mjs?v=try-row-1';
+import {formatLuminance} from './luminance-units.mjs?v=try-row-1';
+import {WISP_ART} from './companion-art.mjs?v=try-row-1';
+import {skillTreeState,skillTreeStatus} from './skill-tree-state.mjs?v=try-row-1';
+import {getCompanionAbility} from './companion-abilities.mjs?v=try-row-1';
+import {skillIcon} from './upgrade-icons.mjs?v=try-row-1';
+import {resourceSymbol} from './game-symbols.mjs?v=try-row-1';
+import {glowText,getGlowCapacity} from './vitality.mjs?v=try-row-1';
+import {skillBookChapter} from './skill-chapters.mjs?v=try-row-1';
+export {skillBookChapter} from './skill-chapters.mjs?v=try-row-1';
 
 const chapters=[
  ['wisp','Flight','main-efficiency'],['luminance','Luminance','main-sight'],
