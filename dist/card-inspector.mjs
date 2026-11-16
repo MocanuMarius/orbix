@@ -1,6 +1,6 @@
 // A disposable deck for phone inspection. Never reads or writes a player save.
-import { newState, createRun, getSupportChoices } from './model.mjs?v=try-row-1';
-import { makeSkillCard } from './skill-cards.mjs?v=try-row-1';
+import { newState, createRun, getSupportChoices } from './model.mjs?v=dream-gifts-1';
+import { makeSkillCard } from './skill-cards.mjs?v=dream-gifts-1';
 
 export function prepareCardInspectorReward(run, cardId = 'harvest-rare') {
   if (run.cardReward && !run.cardReward.uiAcknowledged) return;
@@ -46,6 +46,12 @@ export function createCardInspectorState(params = new URLSearchParams()) {
     run.cardSlots = 5;
     run.mountedCards = ['growth-ring', 'wind-feather', 'wick-doubler', 'fast-spool', 'body-spark'].map((id, i) => makeSkillCard(id, `sample:new-common:${i}`));
     run.reserveCards.push(makeSkillCard('echo', 'sample:new-common:echo'));
+  }
+  if (['dream', 'dream-rest'].includes(params.get('scenario'))) {
+    run.mountedCards = ['dream', 'lift-guide', 'deep-vessel'].map((id, i) => makeSkillCard(id, `sample:dream:${i}`));
+    const node = run.map.flat().find(n => n.kind === (params.get('scenario') === 'dream-rest' ? 'camp' : 'elite'));
+    run.current = node; run.step = node.row; run.path = [node.id];
+    run.phase = node.kind === 'camp' ? 'support' : 'briefing';
   }
   if (params.get('scenario') === 'rest') {
     if (run.cardReward) run.cardReward.uiAcknowledged = true;

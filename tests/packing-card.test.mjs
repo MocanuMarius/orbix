@@ -6,9 +6,9 @@ import {CARD_SYSTEM,SKILL_CARDS,makeSkillCard,getCardModifiers,getCardPackingBon
 import {cardArt,cardRewardMarkup,cardMechanicMarkup} from '../dist/card-ui.mjs';
 import {flightRewardMarkup,rewardEarningsDetailMarkup} from '../dist/reward-screen.mjs';
 
-const fresh=()=>{
+const fresh=(seed='packing-card')=>{
  const state=M.newState();state.profile.tutorialComplete=true;
- state.run=M.createRun(state.profile,'packing-card',1,{cards:true});
+ state.run=M.createRun(state.profile,seed,1,{cards:true});
  mount(state.run,['tight-packing']);return state;
 };
 const mount=(run,ids)=>{
@@ -110,7 +110,7 @@ test('natural packing displays the extra separately without turning it into base
 test('Common starter/drop pools include Tight Packing and its clear UI receipt never leaks to Forge',()=>{
  let starter=false,drop=false;
  for(let seed=0;seed<120&&(!starter||!drop);seed++){
-  const state=fresh();state.run.campaignSeed=`packing-pool-${seed}`;
+  const state=fresh(`packing-pool-${seed}`);
   starter ||= M.getStartingGiftOffers(state.run).some(offer=>offer.cardId==='tight-packing');
   drop ||= drawSkillCard(state.run,'flight',{id:`drop-${seed}`},'common').cardId==='tight-packing';
  }

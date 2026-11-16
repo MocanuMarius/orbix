@@ -1,4 +1,4 @@
-const release = 'try-row-1';
+const release = 'dream-gifts-1';
 const button = document.querySelector('#launch'), status = document.querySelector('#status');
 const root = new URL('./', location.href), target = new URL('index.html', root);
 const query = new URLSearchParams(location.search);

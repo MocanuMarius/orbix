@@ -81,11 +81,11 @@ test('Return Spring and Haul Winch act once at real attachment before one genuin
 
 test('roughly half the Common catalog has charges without consuming persistent build enablers',()=>{
   const common=Object.values(SKILL_CARDS).filter(def=>def.rarity==='common'),droppable=common.filter(def=>!def.starterOnly);
-  assert.equal(common.length,45);assert.equal(common.filter(def=>def.charges).length,22);
-  assert.equal(droppable.length,44);assert.equal(droppable.filter(def=>def.charges).length,22);
-  assert.equal(droppable.reduce((sum,def)=>sum+(def.dropWeight||1),0),49);
+  assert.equal(common.length,46);assert.equal(common.filter(def=>def.charges).length,22);
+  assert.equal(droppable.length,45);assert.equal(droppable.filter(def=>def.charges).length,22);
+  assert.equal(droppable.reduce((sum,def)=>sum+(def.dropWeight||1),0),50);
   for(const id of ['body-spark','deep-vessel','tight-packing','echo','field-impulse','harvest-common',
-    'downbeat','courier-tip','toll-bell','slip-feather','growth-seed-common'])assert.equal(SKILL_CARDS[id].charges,undefined,id);
+    'downbeat','courier-tip','toll-bell','slip-feather','growth-seed-common','dream'])assert.equal(SKILL_CARDS[id].charges,undefined,id);
   let commonDrops=0,finiteDrops=0,finiteDrafts=0;
   for(let seed=0;seed<3000;seed++){
     const run={campaignSeed:`finite-common:${seed}`,mapIndex:0},node={id:'common-frequency'},
@@ -93,7 +93,7 @@ test('roughly half the Common catalog has charges without consuming persistent b
     commonDrops++;if(SKILL_CARDS[card.cardId].charges)finiteDrops++;
     if(drawSkillCardDraft(run,node).some(card=>SKILL_CARDS[card.cardId].rarity==='common'&&SKILL_CARDS[card.cardId].charges))finiteDrafts++;
   }
-  assert.ok(Math.abs(finiteDrops/commonDrops-22/49)<.03,'weighted Common frequency includes Growth Seed weight');
+  assert.ok(Math.abs(finiteDrops/commonDrops-22/50)<.03,'weighted Common frequency includes Growth Seed weight and persistent Dream');
   assert.ok(finiteDrafts>2000&&finiteDrafts<2500,'normal three-card drafts usually offer a finite Common');
 });
 

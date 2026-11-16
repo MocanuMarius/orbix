@@ -100,17 +100,18 @@ test("pilot is explicit; old saves and standard tutorial keep the book", () => {
   assert.equal(M.getRunModifiers(state.run).cardLiftGuide, true);
 });
 
-test("starter offers two other seeded Commons and equips the choice plus one guaranteed working Lift Guide", () => {
+test("starter offers three seeded cards and equips the choice plus one guaranteed working Lift Guide", () => {
   for (let seed = 0; seed < 100; seed++) {
     const state = fresh(`starter-${seed}`),
       offers = M.getStartingGiftOffers(state.run);
-    assert.equal(offers.length, 2);
-    assert.notEqual(offers[0].cardId, offers[1].cardId);
-    assert.ok(offers.every((gift) => gift.rarity === "common"));
+    assert.equal(offers.length, 3);
+    assert.equal(new Set(offers.map(gift=>gift.cardId)).size,3);
+    assert.ok(offers.filter(gift=>gift.rarity==='rare').length<=1);
+    assert.ok(offers.every(gift=>['common','rare'].includes(gift.rarity)));
     assert.ok(offers.every((gift) => gift.cardId !== "lift-guide"));
     assert.ok(
       offers.some((gift) =>
-        ["body", "capacity", "guide", "field"].includes(gift.card.kind),
+        gift.rarity==='common' && ["body", "capacity", "field"].includes(gift.card.kind),
       ),
     );
     assert.deepEqual(M.getStartingGiftOffers(reload(state).run), offers);

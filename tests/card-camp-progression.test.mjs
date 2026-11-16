@@ -7,7 +7,7 @@ import { cardRestMarkup } from '../dist/card-ui.mjs';
 function fresh(seed = 'camp-normal-production-repro') {
   const state = M.newState(); state.profile.tutorialComplete = true;
   state.run = M.createRun(state.profile, seed, 1, { cards: true });
-  const gift = M.getStartingGiftOffers(state.run).find(gift => gift.cardId !== 'camp-kit');
+  const gift = M.getStartingGiftOffers(state.run).find(gift => !['camp-kit','dream'].includes(gift.cardId));
   assert.ok(M.chooseStartingGift(state, gift.id));
   return state;
 }

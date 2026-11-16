@@ -2,6 +2,15 @@
 const step = (title, text, visual) => ({ title, text, visual });
 
 export const CARD_GUIDE_TOPICS = {
+  dream: {
+    name: 'Dream',
+    visual: 'dream',
+    steps: [
+      step('Equip Dream', 'Find this Common card among starting choices or flight rewards. Equip it to rehearse the next flight after Rest, or an Elite or Guardian. Ordinary flights elsewhere start normally. Extra Dream cards keep one 8-second opening.', 'skills'),
+      step('Rehearse in full light', 'Practise the first 8 seconds in golden full light with free Lifts. Go back to sleep to try again. Rehearsal spends no hearts or card uses and changes no saved rewards.', 'dream'),
+      step('Wake at the opening’s end', 'Wake up carries your chosen opening and its pickups into the real flight without showing the opening again. You wake paused. Tap to resume, then tap again to Lift; speed returns slowly.', 'dream'),
+    ],
+  },
   collector: {
     name: "Collector",
     visual: "companion:collector",

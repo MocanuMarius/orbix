@@ -48,17 +48,17 @@ function reachCamp(state) {
   }
 }
 
-test('all 84 literal definitions have supported rules, unique IDs, honest art families and complete bands', () => {
+test('all 85 literal definitions have supported rules, unique IDs, honest art families and complete bands', () => {
   const defs = Object.values(CARD_CATALOG), supportedEvents = new Set([
     '*', 'body-spark', 'wave-crossing', 'flash-pickup', 'flash-expiry', 'downbeat-lift', 'natural-overfill',
     'collector-delivery', 'collector-attach', 'flight-clear', 'rhythm-phrase', 'field-swipe', 'guard-rescue',
-  ]), physicalKinds = new Set(['luminance', 'proximity-range', 'capacity', 'packing', 'echo', 'chameleon', 'field', 'guide',
+  ]), physicalKinds = new Set(['dream', 'luminance', 'proximity-range', 'capacity', 'packing', 'echo', 'chameleon', 'field', 'guide',
     'rhythm', 'camp-extra', 'camp-grow', 'cache-handling', 'refrain', 'watchlight', 'wave-loom', 'spillway',
     'proximity', 'springboard', 'heart-stitch', 'devourer', 'use-doubler', 'ember-feeder', 'twin-orbit', 'twin-wick', 'collector-range']);
-  assert.equal(defs.length, 84);
-  assert.equal(new Set(CARD_CATALOG_IDS).size, 84);
+  assert.equal(defs.length, 85);
+  assert.equal(new Set(CARD_CATALOG_IDS).size, 85);
   assert.deepEqual(defs.reduce((totals, def) => (totals[def.rarity]++, totals), { common: 0, rare: 0, legendary: 0 }),
-    { common: 45, rare: 24, legendary: 15 });
+    { common: 46, rare: 24, legendary: 15 });
   for (const [index, def] of defs.entries()) {
     assert.deepEqual(SKILL_CARDS[def.id], def);
     assert.equal(CARD_CATALOG_IDS[index], def.id);
@@ -268,8 +268,8 @@ test('seeded rarity distributions follow each node tier and an exact 75/20/5 nod
   }
 });
 
-test('all added cards stay out of the frozen starter pool and tiered packing survives the model receipt', () => {
-  const starterIds = new Set(CARD_CATALOG_IDS.slice(0, 16));
+test('the curated starter pool excludes advanced cards and tiered packing survives the model receipt', () => {
+  const starterIds = new Set(['body-spark','spark-cache','deep-vessel','tight-packing','field-impulse','harvest-common','dream','rhythm','cache-handling','flash-handling']);
   for (let seed = 0; seed < 200; seed++) assert.ok(getCardStarterOffers({ seed }).every(gift => starterIds.has(gift.cardId)));
   const state = fresh('tiered-packing'), run = state.run;
   run.cardSlots = 5;

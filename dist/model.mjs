@@ -1,41 +1,41 @@
-import {prepareScoreLedger,awardScoreStores,awardSettledScoreStores,freezeCompletedGameScore,recordCompletedGameScore} from './game-score.mjs?v=try-row-1';
-import {getCardChargeCapacity,getCardFeederCapacity,getEmberFeederTargets,consumeCardUseDoublers} from './skill-cards.mjs?v=try-row-1';
-import {collectorPreference,learnedCollectorPreferences} from './collector-preferences.mjs?v=try-row-1';
-import {CARD_SYSTEM,CARD_ECONOMY,SKILL_CARDS,isCardRun,isInventoryOnlyCard,getInventoryCampCards,makeSkillCard,cleanCardRun,settleCardReward,getCardStarterOffers,drawSkillCard,drawSkillCardDraft,describeSkillCard,getMountedCards,getOwnedCards,getReserveCards,getCardMeltValue,getCardModifiers,getCardPackingBonus,getCardGrowthUses,getCardGrowthBonus,cleanCardFutureCapacity,createCardExecution,resolveCardRow,CARD_ROW_EVENTS,commitCardCharges,recordCardEvent} from './skill-cards.mjs?v=try-row-1';
-export {CARD_SYSTEM,CARD_ECONOMY,SKILL_CARDS,isCardRun,getMountedCards,getOwnedCards,getReserveCards,getCardMeltValue,commitCardCharges} from './skill-cards.mjs?v=try-row-1';
-import {FLIGHT_PACTS,pactOffers,activeFlightPact,pactBonus} from './flight-pacts.mjs?v=try-row-1';
-import {chestRewardPair} from './chest-rewards.mjs?v=try-row-1';
-import {STARTING_GIFTS,STARTING_SKILL_COST_LIMIT} from './starting-gifts.mjs?v=try-row-1';
-import {EVENT_EDITION,eventChoices,rollPrism} from './event-choices.mjs?v=try-row-1';
-import {GUARDIAN_RELICS} from './guardian-artifacts.mjs?v=try-row-1';
-import {ATLAS_FORECASTS,atlasBranches} from './night-atlas.mjs?v=try-row-1';
-import {getRouteBonus,awardRouteBonus} from './route-bonuses.mjs?v=try-row-1';
-export {getRouteBonus,getRouteBonusCandidates,nextBonusFlightNodes} from './route-bonuses.mjs?v=try-row-1';
-import {consolidateSkills,refundRetiredSkills} from './skill-consolidation.mjs?v=try-row-1';
-import {PROXIMITY_SKILLS} from './proximity-skills.mjs?v=try-row-1';
-import {getGuardianForMap,getBossPreview} from './boss.mjs?v=try-row-1';
-import {guardianMapTheme} from './map-theme.mjs?v=try-row-1';
-import {getFlightLengthProfile} from './level-length.mjs?v=try-row-1';
-import {cleanOnboarding,markOnboardingSeen} from './onboarding.mjs?v=try-row-1';
-import {CONDENSED_TUNING,getCondensationRules,condenseGlow,getKeptLightDividend,getFlightPackingLimit,packExitReserve} from './condensed-glow.mjs?v=try-row-1';
-import {CONSUMABLE_ARTIFACTS,EVOLVING_ARTIFACTS,getArtifactStackPreview} from './artifact-info.mjs?v=try-row-1';
-import {getFlightClearReward} from './checkpoint-rewards.mjs?v=try-row-1';
-export {getCondensationRules} from './condensed-glow.mjs?v=try-row-1';
-import {ROUTE_RECIPES,ROUTE_TOPOLOGY_VERSION,MAP_STOP_COUNT,REWARD_THEMES,nodeEconomy} from './route-recipes.mjs?v=try-row-1';
-import {COMPANION_ABILITIES,getCompanionUnlock,normalizeCompanionFleet} from './companion-abilities.mjs?v=try-row-1';
-import {MAIN_TUNING_SKILLS} from './main-tuning.mjs?v=try-row-1';
-import {activePassageBoons,activeEventFavors,grantEventFavor,spendPreparationClear} from './passage-preparations.mjs?v=try-row-1';
-import {STARTING_CONDENSED_GLOW,getGlowCapacity,getRestGlowBonus,REST_GLOW_TUNING,glowText} from './vitality.mjs?v=try-row-1';
-import {expandSkillSteps,skillProgress} from './skill-increments.mjs?v=try-row-1';
-import {MAX_ASCENSION} from './ascent.mjs?v=try-row-1';
-import {EXPANDED_SKILLS,applyExpandedSkills} from './skill-paths.mjs?v=try-row-1';
+import {prepareScoreLedger,awardScoreStores,awardSettledScoreStores,freezeCompletedGameScore,recordCompletedGameScore} from './game-score.mjs?v=dream-gifts-1';
+import {getCardChargeCapacity,getCardFeederCapacity,getEmberFeederTargets,consumeCardUseDoublers} from './skill-cards.mjs?v=dream-gifts-1';
+import {collectorPreference,learnedCollectorPreferences} from './collector-preferences.mjs?v=dream-gifts-1';
+import {CARD_SYSTEM,CARD_ECONOMY,SKILL_CARDS,isCardRun,isInventoryOnlyCard,getInventoryCampCards,makeSkillCard,cleanCardRun,settleCardReward,getCardStarterOffers,drawSkillCard,drawSkillCardDraft,describeSkillCard,getMountedCards,getOwnedCards,getReserveCards,getCardMeltValue,getCardModifiers,getCardPackingBonus,getCardGrowthUses,getCardGrowthBonus,cleanCardFutureCapacity,createCardExecution,resolveCardRow,CARD_ROW_EVENTS,commitCardCharges,recordCardEvent} from './skill-cards.mjs?v=dream-gifts-1';
+export {CARD_SYSTEM,CARD_ECONOMY,SKILL_CARDS,isCardRun,getMountedCards,getOwnedCards,getReserveCards,getCardMeltValue,commitCardCharges} from './skill-cards.mjs?v=dream-gifts-1';
+import {FLIGHT_PACTS,pactOffers,activeFlightPact,pactBonus} from './flight-pacts.mjs?v=dream-gifts-1';
+import {chestRewardPair} from './chest-rewards.mjs?v=dream-gifts-1';
+import {STARTING_GIFTS,STARTING_SKILL_COST_LIMIT} from './starting-gifts.mjs?v=dream-gifts-1';
+import {EVENT_EDITION,eventChoices,rollPrism} from './event-choices.mjs?v=dream-gifts-1';
+import {GUARDIAN_RELICS} from './guardian-artifacts.mjs?v=dream-gifts-1';
+import {ATLAS_FORECASTS,atlasBranches} from './night-atlas.mjs?v=dream-gifts-1';
+import {getRouteBonus,awardRouteBonus} from './route-bonuses.mjs?v=dream-gifts-1';
+export {getRouteBonus,getRouteBonusCandidates,nextBonusFlightNodes} from './route-bonuses.mjs?v=dream-gifts-1';
+import {consolidateSkills,refundRetiredSkills} from './skill-consolidation.mjs?v=dream-gifts-1';
+import {PROXIMITY_SKILLS} from './proximity-skills.mjs?v=dream-gifts-1';
+import {getGuardianForMap,getBossPreview} from './boss.mjs?v=dream-gifts-1';
+import {guardianMapTheme} from './map-theme.mjs?v=dream-gifts-1';
+import {getFlightLengthProfile} from './level-length.mjs?v=dream-gifts-1';
+import {cleanOnboarding,markOnboardingSeen} from './onboarding.mjs?v=dream-gifts-1';
+import {CONDENSED_TUNING,getCondensationRules,condenseGlow,getKeptLightDividend,getFlightPackingLimit,packExitReserve} from './condensed-glow.mjs?v=dream-gifts-1';
+import {CONSUMABLE_ARTIFACTS,EVOLVING_ARTIFACTS,getArtifactStackPreview} from './artifact-info.mjs?v=dream-gifts-1';
+import {getFlightClearReward} from './checkpoint-rewards.mjs?v=dream-gifts-1';
+export {getCondensationRules} from './condensed-glow.mjs?v=dream-gifts-1';
+import {ROUTE_RECIPES,ROUTE_TOPOLOGY_VERSION,MAP_STOP_COUNT,REWARD_THEMES,nodeEconomy} from './route-recipes.mjs?v=dream-gifts-1';
+import {COMPANION_ABILITIES,getCompanionUnlock,normalizeCompanionFleet} from './companion-abilities.mjs?v=dream-gifts-1';
+import {MAIN_TUNING_SKILLS} from './main-tuning.mjs?v=dream-gifts-1';
+import {activePassageBoons,activeEventFavors,grantEventFavor,spendPreparationClear} from './passage-preparations.mjs?v=dream-gifts-1';
+import {STARTING_CONDENSED_GLOW,getGlowCapacity,getRestGlowBonus,REST_GLOW_TUNING,glowText} from './vitality.mjs?v=dream-gifts-1';
+import {expandSkillSteps,skillProgress} from './skill-increments.mjs?v=dream-gifts-1';
+import {MAX_ASCENSION} from './ascent.mjs?v=dream-gifts-1';
+import {EXPANDED_SKILLS,applyExpandedSkills} from './skill-paths.mjs?v=dream-gifts-1';
 /** Run-owned skills and currency; persistent ascension unlocks and boss artifacts. */
-import { FLAME_TUNING, LIFE_TUNING, getLifeCapacity } from './vitality.mjs?v=try-row-1';
-import { getBiomeLevelIdentity } from './level-catalog.mjs?v=try-row-1';
-import { BIOMES } from './biomes.mjs?v=try-row-1';
-import { EVENT_SCENARIOS } from './map-guide.mjs?v=try-row-1';
-import {contextualEventChoices,resolvePilgrimVow,ROUTE_PREPARATION} from './contextual-events.mjs?v=try-row-1';
-import {TREASURE_KINDS, describeTreasure, treasureChoices, treasureRank, grantTreasureGift, treasureClearDividend, LENS_SIGHT, LENS_RECOVERY, settleTreasureWager} from './treasure.mjs?v=try-row-1';
+import { FLAME_TUNING, LIFE_TUNING, getLifeCapacity } from './vitality.mjs?v=dream-gifts-1';
+import { getBiomeLevelIdentity } from './level-catalog.mjs?v=dream-gifts-1';
+import { BIOMES } from './biomes.mjs?v=dream-gifts-1';
+import { EVENT_SCENARIOS } from './map-guide.mjs?v=dream-gifts-1';
+import {contextualEventChoices,resolvePilgrimVow,ROUTE_PREPARATION} from './contextual-events.mjs?v=dream-gifts-1';
+import {TREASURE_KINDS, describeTreasure, treasureChoices, treasureRank, grantTreasureGift, treasureClearDividend, LENS_SIGHT, LENS_RECOVERY, settleTreasureWager} from './treasure.mjs?v=dream-gifts-1';
 export const SAVE_KEY='wispbound.save.condensed.v7';
 export const CAMPAIGN_MAP_NAMES=Object.freeze(['The Forgotten Verge','The Rootbound March','The Warden’s Reach']);
 export const TERRAINS=Object.freeze({ruins:{id:'ruins',name:'Sunken Ruins',color:'#cdb183',description:'Broken homes, worn arches and overgrown stone.'},canopy:{id:'canopy',name:'Luminous Canopy',color:'#94b48a',description:'Hollow trees, hanging roots and sheltered forest passages.'},storm:{id:'storm',name:'Stormglass Peaks',color:'#a8bbca',description:'Pine ridges, old mine timbers and local draft puffs.'}});
@@ -166,7 +166,7 @@ const freshSeed=()=>globalThis.crypto?.getRandomValues?Array.from(globalThis.cry
 function rng(seed){let s=2166136261;for(const c of String(seed))s=Math.imul(s^c.charCodeAt(0),16777619);return()=>{s+=0x6d2b79f5;let n=s;n=Math.imul(n^n>>>15,n|1);n^=n+Math.imul(n^n>>>7,n|61);return((n^n>>>14)>>>0)/4294967296;};}
 const shuffle=(items,random)=>{const a=[...items];for(let i=a.length-1;i>0;i--){const j=Math.floor(random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;};
 
-import {cleanCardCruisingSpeed} from './skill-cards.mjs?v=try-row-1';
+import {cleanCardCruisingSpeed} from './skill-cards.mjs?v=dream-gifts-1';
 
 export function newState(){return{version:7,profile:{difficulty:1,cardFutureCapacity:0,cardCruisingSpeed:0,cardProgressReceipts:[],onboarding:cleanOnboarding(),ownedArtifacts:[],equippedArtifacts:[],seenArtifactLessons:[],seenPickups:[],pickupCoachSkipped:false,tutorialComplete:false,bankedRuns:[],clearedFlights:0,stats:{completedRuns:0,wins:0,flights:0,attempts:0,deaths:0}},run:null,suspendedRun:null,settings:{sound:true,reducedMotion:false,cardCruisingSpeed:null,skipTutorial:false,testOverride:false,testStarterCompanion:'collector',startingCompanion:'collector',companions:['collector'],companionRole:'collector'}};}
 /** Starter preference is validated against earned unlocks, or explicit TEST. */
@@ -392,6 +392,7 @@ function makeMap(seed,mapIndex,difficulty,cards=false){
 export function createRun(profile=newState().profile,seed=freshSeed(),difficulty,options={}){
   const p=cleanProfile(profile),selected=Number(difficulty),tier=clamp(Number.isFinite(selected)?Math.floor(selected):p.difficulty,1,p.difficulty),campaignSeed=String(seed),mapSeed=`${campaignSeed}|tier:${tier}|map:0`;
   const run={scoreLedger:{v:1,earned:0,complete:true},id:`${campaignSeed}-${freshSeed()}`,campaignSeed,seed:mapSeed,atlasEligible:p.stats.wins>0,mapIndex:0,mapName:CAMPAIGN_MAP_NAMES[0],difficulty:tier,unlockedCompanionDifficulty:p.difficulty,map:makeMap(mapSeed,0,tier,options.cards===true),step:0,path:[],current:null,phase:'map',companions:['collector'],companionRole:'collector',artifactSystem:2,seenArtifacts:[],artifacts:[],artifactCharges:{},skills:{},skillPaid:{},startingSkill:null,lives:LIFE_TUNING.lives,maxLives:LIFE_TUNING.lives,flame:FLAME_TUNING.starting,restGlowCapacity:0,condensedGlow:STARTING_CONDENSED_GLOW,pendingCondensedGlow:0,securedCondensedGlow:0,pendingRewards:[],condensedRemainder:0,condensedEarned:0,condensationJustUnlocked:false,restReady:false,restVisits:[],lastRest:null,attemptActive:false,attemptEntry:null,success:false,banked:false,bossDefeated:false,bossProgressSecured:false,mapHistory:[],mapFlights:0,...(options.cards===true?{skillSystem:CARD_SYSTEM,cardStarterVersion:2,cardFutureCapacity:p.cardFutureCapacity,cardCruisingSpeed:Math.min(p.cardCruisingSpeed,options.cruisingSpeed==null?p.cardCruisingSpeed:cleanCardCruisingSpeed(options.cruisingSpeed)),cardCruisingSpeedUnlocked:p.cardCruisingSpeed,cardClearReceipts:[],cardGrowUses:0,cardGrowCapacity:0,cardSlots:3,mountedCards:[null,null,null],reserveCards:[],cardHistory:[],cardRewardedNodes:[],cardSlotMaps:[]}:{}),stats:{flights:0,attempts:0,deaths:0,collected:0,elites:0,events:0,challenges:0}};
+  if(options.cards===true){run.cardStarterVersion=3;run.cardStarterOfferIds=getCardStarterOffers(run).map(gift=>gift.cardId);}
   run.flame=getGlowCapacity(run);
   return run;
 }
@@ -434,7 +435,7 @@ export function canChooseStartingGift(run,id){
  if(!isStartingPrep(run)||run.startingGiftId||run.startingSkill||run.startingArtifact||run.banked||run.lives<=0||run.stats?.attempts>0)return false;
  if(isCardRun(run)&&[...(run.mountedCards||[]),...(run.reserveCards||[])].some(Boolean))return false;
  if(id===undefined)return true;
- return getStartingGiftOffers(run).some(gift=>gift.id===id)||isCardRun(run)&&run.cardStarterVersion!==2&&getCardStarterOffers(run,{legacy:true}).some(gift=>gift.id===id);
+ return getStartingGiftOffers(run).some(gift=>gift.id===id)||isCardRun(run)&&!(run.cardStarterVersion>=2)&&getCardStarterOffers(run,{legacy:true}).some(gift=>gift.id===id);
 }
 export function getStartingGiftPreview(run,id){
  if(!id||!canChooseStartingGift(run,id))return null;
@@ -453,7 +454,7 @@ export function chooseStartingGift(state,id,expectedPreviewToken){
   if(isInventoryOnlyCard(firstCard))run.reserveCards.push(firstCard);
   else run.mountedCards[0]=firstCard;
   run.mountedCards[1]=makeSkillCard(secondId,`${run.campaignSeed}:starter:${secondId}`);
-  run.cardStarterVersion=2;run.startingGiftId=id;
+  run.cardStarterVersion=Math.max(2,run.cardStarterVersion||0);run.startingGiftId=id;
   recordCardEvent(run,'starter',{cardId:gift.cardId,includedCardId:secondId});return true;
  }
  const capacity=getGlowCapacity(run);
@@ -1770,7 +1771,7 @@ export function getRunModifiers(run={}){const rank=skillProgress,companion=norma
   const pact=activeFlightPact(run);
   if(pact?.sight)m.lightRadius*=pact.sight;
   if(pact?.reach)m.attract*=pact.reach;
-  if(isCardRun(run))m.speed+=cleanCardCruisingSpeed(run.cardCruisingSpeed)/100;
+  if(isCardRun(run))m.speed+=cleanCardCruisingSpeed(run.attemptActive?run.cardCruisingSpeed:run.cardCruisingSpeedNext??run.cardCruisingSpeed)/100;
   Object.assign(m,getCardModifiers(run));
   if(m.cardProximityUnlocked||m.cardProximitySources>0)m.proximityUnlocked=true;
   if(m.cardFieldImpulse)m.collectorFieldImpulse=true;

@@ -1,13 +1,13 @@
-import {drawPickup} from './pickup-art.mjs?v=try-row-1';
-import {drawCapture} from './capture-art.mjs?v=try-row-1';
-import {captureMassDuration} from './tidal-light.mjs?v=try-row-1';
-import {SPARK_TIERS,sparkArtScale,sparkBodyRadius} from './spark-size.mjs?v=try-row-1';
-import {getPickupSpec,pickupContactRadius} from './pickups.mjs?v=try-row-1';
-import {makeWispSprite} from './companion-art.mjs?v=try-row-1';
-import {biomePalette} from './biome-art.mjs?v=try-row-1';
-import {createDepthScenery,drawDepthScenery} from './depth-scenery.mjs?v=try-row-1';
-import {LIGHT_PACKET_TUNING,getGlowCapacity,glowPoints,GLOW_DISPLAY_SCALE} from './vitality.mjs?v=try-row-1';
-import {condenseGlow,getCondensationRules} from './condensed-glow.mjs?v=try-row-1';
+import {drawPickup} from './pickup-art.mjs?v=dream-gifts-1';
+import {drawCapture} from './capture-art.mjs?v=dream-gifts-1';
+import {captureMassDuration} from './tidal-light.mjs?v=dream-gifts-1';
+import {SPARK_TIERS,sparkArtScale,sparkBodyRadius} from './spark-size.mjs?v=dream-gifts-1';
+import {getPickupSpec,pickupContactRadius} from './pickups.mjs?v=dream-gifts-1';
+import {makeWispSprite} from './companion-art.mjs?v=dream-gifts-1';
+import {biomePalette} from './biome-art.mjs?v=dream-gifts-1';
+import {createDepthScenery,drawDepthScenery} from './depth-scenery.mjs?v=dream-gifts-1';
+import {LIGHT_PACKET_TUNING,getGlowCapacity,glowPoints,GLOW_DISPLAY_SCALE} from './vitality.mjs?v=dream-gifts-1';
+import {condenseGlow,getCondensationRules} from './condensed-glow.mjs?v=dream-gifts-1';
 
 // The phone renderer uses 240 raster pixels per 390 world units. Keep the
 // wisp sprite in the same raster scale while the pickups use world dimensions.

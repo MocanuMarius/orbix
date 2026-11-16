@@ -1,7 +1,7 @@
 /** Read-only glossary examples use the same ordered walker as a real flight. */
-import {CARD_SYSTEM, CARD_ROW_EVENTS, SKILL_CARDS, makeSkillCard, describeSkillCard, getCardRowRule, previewCardRow} from './skill-cards.mjs?v=try-row-1';
-import {cardRowTraceMarkup, cardRowSequenceMarkup} from './card-row-feedback.mjs?v=try-row-1';
-import {getEquippedCardStatuses} from './card-status.mjs?v=try-row-1';
+import {CARD_SYSTEM, CARD_ROW_EVENTS, SKILL_CARDS, makeSkillCard, describeSkillCard, getCardRowRule, previewCardRow} from './skill-cards.mjs?v=dream-gifts-1';
+import {cardRowTraceMarkup, cardRowSequenceMarkup} from './card-row-feedback.mjs?v=dream-gifts-1';
+import {getEquippedCardStatuses} from './card-status.mjs?v=dream-gifts-1';
 
 const esc = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const rowTerms = new Set(['uses','shared','copy','repeat','pass']);

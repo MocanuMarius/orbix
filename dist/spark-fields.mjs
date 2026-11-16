@@ -1,5 +1,5 @@
-import {getPickupSpec,pickupKind,pickupContactRadius} from './pickups.mjs?v=try-row-1';
-import {SPARK_TIERS,sparkMass,sparkBodyRadius} from './spark-size.mjs?v=try-row-1';
+import {getPickupSpec,pickupKind,pickupContactRadius} from './pickups.mjs?v=dream-gifts-1';
+import {SPARK_TIERS,sparkMass,sparkBodyRadius} from './spark-size.mjs?v=dream-gifts-1';
 
 // These four habitat profiles average to the overall tier probabilities.
 // The percentage shift changes the mix without altering any authored route.

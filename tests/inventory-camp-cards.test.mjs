@@ -60,7 +60,10 @@ test('reward, collection, reader, Forge and starter never offer a Rest card an a
   assert.match(forge, /Available at Rest directly from your Deck/); assert.doesNotMatch(forge, /Equip the new card/);
   let starter;
   for (let index = 0; index < 100 && !starter; index++) {
-    const candidate = fresh(`inventory-starter:${index}`), gift = M.getStartingGiftOffers(candidate.run).find(offer => offer.cardId === 'camp-kit');
+    const candidate = fresh(`inventory-starter:${index}`);
+    candidate.run.cardStarterVersion = 2;
+    delete candidate.run.cardStarterOfferIds;
+    const gift = M.getStartingGiftOffers(candidate.run).find(offer => offer.cardId === 'camp-kit');
     if (gift) starter = { candidate, gift };
   }
   assert.ok(starter); const preview = M.getStartingGiftPreview(starter.candidate.run, starter.gift.id);

@@ -172,6 +172,8 @@ const cards = [
     ruleBands: [{ type: 'condition', text: 'From your Deck at Rest, unlock Grow' }, { type: 'effect', text: '+{amount} maximum Sparks and a full meter.' }, { type: 'note', text: '3 shared Grow actions per journey. Owned Seeds add together, up to +90.' }] },
   { id: 'growth-seed-legendary', name: 'Growth Seed', rarity: 'legendary', kind: 'camp-grow', amount: 8, copyable: false, maxRank: 3, excludeStarter: true, artFamily: 'growth-seed',
     ruleBands: [{ type: 'condition', text: 'From your Deck at Rest, unlock Grow' }, { type: 'effect', text: '+{amount} maximum Sparks and a full meter.' }, { type: 'note', text: '3 shared Grow actions per journey. Owned Seeds add together, up to +90.' }] },
+  { id: 'dream', name: 'Dream', rarity: 'common', kind: 'dream', amount: 8, passive: true, copyable: false, maxRank: 1, excludeStarter: true, artFamily: 'echo',
+    ruleBands: [{ type: 'condition', text: 'While equipped, after Rest or before an Elite or Guardian' }, { type: 'effect', text: 'Rehearse the first 8 seconds in full light with free Lifts.' }, { type: 'note', text: 'Repeat, or Wake at your chosen opening’s end with its pickups. Extra cards keep 8 seconds.' }] },
 ];
 
 const freeze = value => {
