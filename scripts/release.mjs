@@ -283,6 +283,9 @@ function classifySaveDiff(before, after) {
     if (d.path === 'profile.tutorialEvidenceChecked' && d.before !== true && d.after === true) allowed.push({...d, reason: 'one-time tutorial evidence marker'});
     else if (d.path === 'profile.tutorialComplete' && d.before === false && d.after === true && history && p.tutorialEvidenceChecked !== true) allowed.push({...d, reason: 'profile with play history skips the First Light gate'});
     else if (d.path === 'profile.onboarding.stage' && a.profile?.tutorialComplete === true) allowed.push({...d, reason: 'completed tutorial profile onboarding alignment'});
+    // dist/onboarding.mjs noteOnboardingProgress only ever raises the stage (max 4) as an experienced
+    // profile continues a run. It gates first-run hints only. Reviewed 2026-11-16 for early-play-1.
+    else if (d.path === 'profile.onboarding.stage' && Number.isInteger(d.before) && Number.isInteger(d.after) && d.after > d.before && d.after <= 4) allowed.push({...d, reason: 'onboarding progress note (stage only rises, hints only)'});
     else unexpected.push(d);
   }
   return {identical: false, allowed, unexpected};
