@@ -1,6 +1,6 @@
 /** Contextual card vocabulary. Native modal dialogs keep help above the Deck. */
-import { resourceSymbol } from './game-symbols.mjs?v=camp-resume-1';
-import {lifeHeartSvg} from './lives.mjs?v=camp-resume-1';
+import { resourceSymbol } from './game-symbols.mjs?v=relic-guide-1';
+import {lifeHeartSvg} from './lives.mjs?v=relic-guide-1';
 const esc = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 export const CARD_TERMS = Object.freeze({
   spark: ['Spark', 'Fuel for your Spark Meter. Lifts spend it. Absorb a Spark by touching it with your wisp. Fuel pickups include Clusters, Caches and Dusk Sparks. Stored Sparks use the boxed icon and are kept separately.'],
@@ -19,9 +19,9 @@ export const CARD_TERMS = Object.freeze({
   uses: ['Uses', 'A limited card spends a use when its effect works. At zero it leaves your deck. Pocket Sparks spends 1 use per pickup. Second Ember spends its use after your second, different Rest action succeeds.'],
   shared: ['Shared uses', 'Echo and Chameleon spend the copied card’s uses. They do not add more. Each successful repeat or borrowed effect spends a use too.'],
   next: ['Card to the right', 'The next equipped slot, immediately to the right. Empty slots and cards that cannot be copied give no effect. Changing the order changes what Echo and Chameleon copy.'],
-  copy: ['Copying cards', 'Echo repeats the action on the card to its right. Higher Echo tiers repeat it more times, as printed. Chameleon borrows its ability. They share that card’s uses. Echo cannot repeat Deep Vessel or Edge Reach, because passive abilities have no action. Neither can copy Echo, Chameleon, Lift Guide, Rhythm, Cache Handling or Second Ember.'],
+  copy: ['Copying cards', 'Echo repeats the action on the card to its right. Higher Echo tiers repeat it more times, as printed. Chameleon borrows its ability. They share that card’s uses. Echo cannot repeat Deep Vessel or Edge Reach, because passive abilities have no action. Neither can copy Echo, Chameleon, Lift Guide, Rhythm, Cache Handling or Rest cards.'],
   packing: ['Packing', 'After a successful flight, spare eligible Sparks become Stored Sparks. Tight Packing adds 1 for every 4 packed, per equipped or copied card. Progress toward the next extra carries forward. The extras do not earn more extras. Pickup card bonuses cannot be packed.'],
-  grow: ['Grow', 'Equip a Growth Seed at an open Rest to add this action immediately. Each equipped or compatible copied source adds its printed amount to your maximum Sparks: Common +3, Rare +5, Legendary +8 (improved to +9 or +10). Grow refills the meter once and does not heal hearts. All Seeds and copies share 3 Grow actions per journey.'],
+  grow: ['Grow', 'Keep Growth Seeds in your Deck to unlock Grow at Rest. Each owned Seed adds its printed amount to your maximum Sparks, up to +90 total: Common +3, Rare +5, Legendary +8 (improved to +9 or +10). Grow refills the meter once and does not heal hearts. All Seeds share 3 Grow actions per journey. No active slot is needed; copying cards cannot copy Rest cards.'],
   pass: ['Row pass', 'For a matching event, equipped cards act from left to right. Each pass starts with zero bonus Sparks. Additions and multipliers affect only that pass’s bonus. Refrain can play the row once more from slot 1. Stored Sparks, pickups, waves and recovery time are separate.'],
 });
 
@@ -75,9 +75,9 @@ const CARD_NOTES = Object.freeze({
   'harvest-legendary': 'The wave must cross an uncollected fuel pickup already in the passage. Pickups created by powers do not count. The meter refill does not collect it or add packing rewards. The extra Stored Spark is awarded once per wave, at its first crossing, even if the meter is full.',
   'field-impulse': 'Collector must be home with at least ¼ of its ring ready. A fuller ring scales force and duration. Each equipped or compatible copied source adds 0.8 seconds at a full ring, at the same force. One swipe spends the ring once. Lift ends a float or dive.',
   'flash-handling': 'Either your wisp or Collector picking up Flash restores up to 6 missing Sparks per equipped or copied Flash Handling. Extra copies add more refill. Collector makes one pickup; the meter cannot go above its maximum.',
-  'growth-seed-common': 'Equip at an open Rest to unlock Grow immediately. Each equipped or compatible copied source adds this card’s printed maximum Sparks. All Growth Seeds share 3 Grow actions per journey. Each action refills the meter once, without healing hearts. At Rest, Evolve Common to Rare for 25 Stored Sparks, then Rare to Legendary for 40.',
-  'growth-seed': 'Equip at an open Rest to unlock Grow immediately. Each equipped or compatible copied source adds this card’s printed maximum Sparks. All Growth Seeds share 3 Grow actions per journey. Each action refills the meter once, without healing hearts. At Rest, Evolve Rare to Legendary for 40 Stored Sparks.',
-  'growth-seed-legendary': 'Equip at an open Rest to unlock Grow immediately. Each equipped or compatible copied source adds this card’s printed maximum Sparks: +8 at rank 1, +9 at rank 2 and +10 at rank 3. All Growth Seeds share 3 Grow actions per journey. Each action refills the meter once, without healing hearts.',
+  'growth-seed-common': 'Keep in your Deck to unlock Grow at Rest. Each owned Seed adds its printed maximum Sparks, up to +90 total. All Growth Seeds share 3 Grow actions per journey. Each action refills the meter once, without healing hearts. At Rest, Evolve Common to Rare for 25 Stored Sparks, then Rare to Legendary for 40.',
+  'growth-seed': 'Keep in your Deck to unlock Grow at Rest. Each owned Seed adds its printed maximum Sparks, up to +90 total. All Growth Seeds share 3 Grow actions per journey. Each action refills the meter once, without healing hearts. At Rest, Evolve Rare to Legendary for 40 Stored Sparks.',
+  'growth-seed-legendary': 'Keep in your Deck to unlock Grow at Rest. Each owned Seed adds its printed maximum Sparks, up to +90 total: +8 at rank 1, +9 at rank 2 and +10 at rank 3. All Growth Seeds share 3 Grow actions per journey. Each action refills the meter once, without healing hearts.',
   'tight-packing': 'Each equipped or copied Tight Packing adds 1 Stored Spark for every 4 packed. Progress carries forward. These extra Stored Sparks do not earn another packing bonus.',
   'cache-handling': 'Extra Cache Handling cards keep one 12-Spark delivery. Your wisp can always touch a Cache for 18 Sparks, plus any pickup card bonus.',
   'twin-orbit': 'While equipped, a second Collector catches and reels independently. Each pickup belongs to one Collector. Two is the maximum. Removing the card releases its second Collector’s current load, unless Twin Wick already unlocked that Collector for the expedition. The first Collector keeps Field Impulse and fatal-impact saves.',
@@ -86,7 +86,7 @@ const CARD_NOTES = Object.freeze({
   'cast-line': 'For two extra catches, Collector can reach twice its current normal range. Only successful attachments beyond normal reach spend a use. Long Spool pays first if its shorter extension can reach the pickup. Neither extension changes which pickup types Collector can carry or takes the player’s first chance to touch them.',
   'fast-spool': 'Absorbing a natural passage Spark while a Collector reels shortens one active reel by up to 3 seconds. The longest active reel is chosen. Each successful action spends one of the original card’s three shared uses. No use is spent when there is no remaining reel time.',
   rhythm: 'All 3 Lifts must succeed and be evenly spaced. You perform them yourself. Extra Rhythm cards still send one wave.',
-  'camp-kit': 'Choose 2 different actions at one Rest. Spend the use only after the second action succeeds. Extra Second Ember cards do not add a third action or spend another use.',
+  'camp-kit': 'Keep in your Deck when arriving at Rest to choose 2 different actions. No active slot is needed. Spend the use only after the second action succeeds. Extra Second Ember cards do not add a third action or spend another use.',
   'lift-guide': 'The amber chevron uses your current fall and Lift impulse. It opens when a Lift can rise back to its starting height, as from level flight. It does not judge terrain; choose when to tap. Extra copies keep one chevron.',
 });
 
@@ -165,7 +165,7 @@ export function installCardTermHelp(doc = document, {resolveProximityContext} = 
         dialog.classList.add('card-proximity-dialog');
         const host=doc.createElement('section');host.className='proximity-card-help';
         dialog.querySelector('.card-term-content').prepend(host);
-        import('./proximity-card-help.mjs?v=camp-resume-1').then(({mountProximityCardHelp})=>{
+        import('./proximity-card-help.mjs?v=relic-guide-1').then(({mountProximityCardHelp})=>{
           if(layers.includes(layer))layer.disposePreview=mountProximityCardHelp(host,previewContext);
         });
       }

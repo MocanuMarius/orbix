@@ -49,7 +49,7 @@ test('every bare starter budget accounts for a full vessel, including flights af
 });
 
 test('fuel shaping preserves marked strengths and actual objects for selected collection challenges',()=>{
- for(const id of ['constellation','three-suns','precision','long-glide']){
+ for(const id of ['constellation','three-suns','precision','long-glide','spark-trail']){
   let eligible=0;
   for(let seed=0;seed<12;seed++){
    const e=new WispFlight({canvas,preflight:true,seed:'marked-supply:'+seed,terrain:'canopy',duration:100,
@@ -71,7 +71,7 @@ test('fuel shaping preserves marked strengths and actual objects for selected co
 });
 
 test('optional marks are chosen from funded inventory and cannot inflate a short flight budget',()=>{
- for(const bonusId of [null,'constellation','three-suns','gilded','precision','long-glide']){
+ for(const bonusId of [null,'constellation','three-suns','gilded','precision','long-glide','spark-trail']){
   const e=new WispFlight({canvas,preflight:true,seed:'condensed-0-1|tier:1|map:0-m0-1-2',terrain:'storm',duration:52,
    node:{levelId:'basalt-column-stair',biomeId:'basalt',mapIndex:0,row:1,difficulty:1,bonusId,
     encounterFamily:'draft-staircase',fuelCadence:3,passage:'cavern'},companions:['collector']});

@@ -190,7 +190,7 @@ try {
   };
   const fixture=async(five=false,kind='map')=>{
     await send('Page.navigate',{url:base+'/loading.html'});await until(()=>ev("location.pathname.endsWith('/loading.html')"),'fixture');
-    await ev(`(async()=>{const M=await import('./model.mjs?v=skills-cards-2'),C=await import('./skill-cards.mjs?v=skills-cards-2');const s=M.newState();s.profile.tutorialComplete=true;s.settings.skipTutorial=true;s.run=M.createRun(s.profile,'drag-proof',1,{cards:true});const r=s.run;r.startingGiftId='card:body-spark';r.guideSkipped=true;r.mountedCards=['echo','spark-cache','field-impulse'].map((id,i)=>C.makeSkillCard(id,'mounted:'+i));r.reserveCards=['body-spark','spark-cache','harvest-rare','harvest-legendary','cache-handling','flash-handling'].map((id,i)=>C.makeSkillCard(id,'stored:'+i));r.mountedCards[1].charges=4;r.reserveCards[1].charges=2;r.condensedGlow=120;if(${five}){r.cardSlots=5;r.mountedCards.push(C.makeSkillCard('chameleon','mounted:3'),C.makeSkillCard('harvest-legendary','mounted:4'));}if(${JSON.stringify(kind)}==='dense'){r.mountedCards[0]=C.makeSkillCard('twin-wick','mounted:0');r.mountedCards[1]=C.makeSkillCard('edge-reach','mounted:1');r.reserveCards[0]=C.makeSkillCard('devourer','stored:0');}if(${JSON.stringify(kind)}==='camp'){const n=r.map.flat().find(n=>n.kind==='camp');r.step=n.row;r.current=n;r.path=[...r.map.slice(0,n.row).map(row=>row[0].id),n.id];r.phase='support';M.getSupportChoices(r,s.profile);}if(${JSON.stringify(kind)}==='reward'){r.cardReward={id:'reward:new',card:C.makeSkillCard('growth-seed','reward:new'),claimed:false,source:'flight',uiAcknowledged:false};M.getCardReward(r);}M.saveState(s,{setItem:(k,v)=>localStorage.setItem('cards-pilot:'+k,v)});})()`);
+    await ev(`(async()=>{const M=await import('./model.mjs?v=skills-cards-2'),C=await import('./skill-cards.mjs?v=skills-cards-2');const s=M.newState();s.profile.tutorialComplete=true;s.settings.skipTutorial=true;s.run=M.createRun(s.profile,'drag-proof',1,{cards:true});const r=s.run;r.startingGiftId='card:body-spark';r.guideSkipped=true;r.mountedCards=['echo','spark-cache','field-impulse'].map((id,i)=>C.makeSkillCard(id,'mounted:'+i));r.reserveCards=['body-spark','spark-cache','harvest-rare','harvest-legendary','cache-handling','flash-handling'].map((id,i)=>C.makeSkillCard(id,'stored:'+i));r.mountedCards[1].charges=4;r.reserveCards[1].charges=2;r.condensedGlow=120;if(${five}){r.cardSlots=5;r.mountedCards.push(C.makeSkillCard('chameleon','mounted:3'),C.makeSkillCard('harvest-legendary','mounted:4'));}if(${JSON.stringify(kind)}==='dense'){r.mountedCards[0]=C.makeSkillCard('twin-wick','mounted:0');r.mountedCards[1]=C.makeSkillCard('edge-reach','mounted:1');r.reserveCards[0]=C.makeSkillCard('devourer','stored:0');}if(${JSON.stringify(kind)}==='camp'){const n=r.map.flat().find(n=>n.kind==='camp');r.step=n.row;r.current=n;r.path=[...r.map.slice(0,n.row).map(row=>row[0].id),n.id];r.phase='support';M.getSupportChoices(r,s.profile);}if(${JSON.stringify(kind)}==='reward'){r.cardReward={id:'reward:new',card:C.makeSkillCard('harvest-rare','reward:new'),claimed:false,source:'flight',uiAcknowledged:false};M.getCardReward(r);}M.saveState(s,{setItem:(k,v)=>localStorage.setItem('cards-pilot:'+k,v)});})()`);
     await page('/game.html?cards=1');await click('[data-action="continue-run"]');if(kind==='reward')return;await click('[data-action="skills"]');await until(()=>ev("!!document.querySelector('.card-deck')"),'Deck');
   };
   await send('Page.enable');await send('Runtime.enable');
@@ -248,12 +248,12 @@ try {
     await fixture(false,'reward');await bounds('.card-reward-equip button:not(.card-term):not(.card-help),.card-reward-new','Reward controls');await screenshot('reward-'+w+'x'+h);
     const reward=(await saved()).run.cardReward.card.instanceId;
     assert.equal((await saved()).run.reserveCards.filter(c=>c.instanceId===reward).length,1);
-    await tap('[data-action="card-reward-equip"]');await tap('[data-action="card-reward-slot"][data-index="0"]');
-    await screenshot('reward-compare-'+w+'x'+h);await tap('[data-action="card-swap-back"]');
-    assert.equal((await saved()).run.reserveCards.filter(c=>c.instanceId===reward).length,1);
+    await tap('[data-action="card-reward-equip"]');await tap('[data-action="card-reward-slot"][data-index="0"] .card-illustration');
+    assert.equal(await ev("!!document.querySelector('.card-swap-review')"),false,'reward tap applies the visible comparison directly');
+    assert.equal((await saved()).run.mountedCards[0].instanceId,reward);
+    await fixture(false,'reward');
     await drag('[data-deck-surface="reward"] '+card(reward),'[data-action="card-reward-slot"][data-index="0"]');
-    assert.ok(await ev("!!document.querySelector('.card-swap-review')"),'reward drag reviews');
-    await tap('[data-action="card-swap-confirm"]');
+    assert.equal(await ev("!!document.querySelector('.card-swap-review')"),false,'reward drag applies directly');
     assert.equal((await saved()).run.mountedCards[0].instanceId,reward);
     await screenshot('reward-equipped-'+w+'x'+h);
     await page('/game.html?cards=1');await click('[data-action="continue-run"]');
@@ -283,7 +283,7 @@ try {
   await tap('[data-action="card-collection-back"]');await tap('[data-action="close-sheet"]');
   assert.equal(await ev('qaDeckFlight.paused'),true);await tap('#pause-layer [data-action="resume"]');await until(()=>ev('!qaDeckFlight.paused'),'same-world resume');
   assert.deepEqual(errors,[]);
-  console.log(JSON.stringify({passed:true,checks:['equipped-entrance','four-wide-reserve','persistent-slots','tap-select','full-card-compare','cancel-safe','identity-preserved','uses-preserved','occupied-drag-review','empty-drop-direct','mounted-swap','reward-direct-equip','reward-cancel','reward-drag-review','reward-reload','dense-rules-visible','compare-cancel-gesture','compare-reload-safe','paused-same-world','live-uses-preserved','keyboard-equip','arrow-reviewed-swap','optional-inspect','camp-only-services','melt-confirmation'],output},null,2));
+  console.log(JSON.stringify({passed:true,checks:['equipped-entrance','four-wide-reserve','persistent-slots','tap-select','full-card-compare','cancel-safe','identity-preserved','uses-preserved','occupied-drag-review','empty-drop-direct','mounted-swap','reward-direct-equip','reward-direct-drag','reward-reload','dense-rules-visible','compare-cancel-gesture','compare-reload-safe','paused-same-world','live-uses-preserved','keyboard-equip','arrow-reviewed-swap','optional-inspect','camp-only-services','melt-confirmation'],output},null,2));
 } finally {
   socket?.close();browser.kill();await new Promise(resolve=>server.close(resolve));
 }

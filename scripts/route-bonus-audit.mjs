@@ -65,7 +65,7 @@ function met(id,hit,random) {
     if(random()>=hit)return false;
     return [0,1,2].filter(()=>random()<hit).length>=2;
   }
-  const trials=['gilded','precision'].includes(id)?6:ROUTE_BONUSES[id].target;
+  const trials=['gilded','precision'].includes(id)?6:id==='spark-trail'?5:ROUTE_BONUSES[id].target;
   const threshold=ROUTE_BONUSES[id].target;
   let successes=0;
   for(let n=0;n<trials;n++)successes+=Number(random()<hit);

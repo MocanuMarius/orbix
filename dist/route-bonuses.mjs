@@ -1,24 +1,26 @@
-import {getLifeCapacity} from './vitality.mjs?v=camp-resume-1';
-import {grantPassageBoon} from './passage-preparations.mjs?v=camp-resume-1';
+import {getLifeCapacity} from './vitality.mjs?v=relic-guide-1';
+import {grantPassageBoon} from './passage-preparations.mjs?v=relic-guide-1';
+import {getCardModifiers,isCardRun} from './skill-cards.mjs?v=relic-guide-1';
 
-function bonus(id, name, condition, reward, target) {
-  return Object.freeze({id, name, condition, reward, target});
+function bonus(id, name, condition, reward, target, hint='') {
+  return Object.freeze({id, name, condition, reward, target, hint});
 }
 
 export const ROUTE_BONUSES = Object.freeze({
   gilded: bonus('gilded', 'Gilded Passage', 'Collect 4 of 6 marked Sparks.', 'Double this flight’s clear pay and stored surplus, up to +30 Stored Sparks.', 4),
-  'three-suns': bonus('three-suns', 'Three Suns', 'Collect all three marked Spark Caches. Look for dense plasma.', 'Restore one missing heart.', 3),
+  'three-suns': bonus('three-suns', 'Three Suns', 'Collect all 3 marked Spark Caches.', 'Restore 1 missing heart.', 3),
   precision: bonus('precision', 'Pilgrim Precision', 'Touch 4 of 6 marked Sparks with your main wisp.', '+8 Stored Sparks.', 4),
-  'wild-circuit': bonus('wild-circuit', 'Wild Circuit', 'Activate two marked terrain objects.', 'Companion recovery is 20% faster for 3 cleared flights.', 2),
-  'flash-relay': bonus('flash-relay', 'Flash Relay', 'Collect the marked Flash Powerup, then 2 of 3 marked Sparks while the passage is lit.', 'Opening Luminance +25% for 15 seconds, for 3 cleared flights.', 2),
-  'long-glide': bonus('long-glide', 'Long Glide', 'Lift at the blue chevron, then glide through both marked Sparks for two seconds.', 'First 3 Lifts free in each of 3 cleared flights, up to 9 Sparks per flight.', 2),
+  'wild-circuit': bonus('wild-circuit', 'Wild Circuit', 'Activate 2 marked terrain objects.', 'Companion recovery 20% faster for 3 cleared flights.', 2),
+  'flash-relay': bonus('flash-relay', 'Flash Relay', 'Catch the marked Flash, then 2 of 3 marked Sparks before it fades.', '+25% opening Luminance for 15s, for 3 cleared flights.', 2),
+  'long-glide': bonus('long-glide', 'Long Glide', 'Lift at the blue chevron. Glide through both marks without Lifting for 2s.', 'Save up to 9 Sparks on your first 3 Lifts per flight, for 3 cleared flights.', 2),
   edgeweaver: bonus('edgeweaver', 'Edgeweaver', 'Trigger Proximity in both marked sections.', 'One collision ward per flight, for 3 cleared flights.', 2),
-  'night-sail': bonus('night-sail', 'Night Sail', 'Collect both bypass Sparks. Lose at most 3 Sparks to the marked Black Hole.', 'Black Holes drain 25% less Sparks for 3 cleared flights.', 2),
-  wayfinder: bonus('wayfinder', 'Wayfinder', 'Fly through three marked gates.', 'Preview the opening 2.5 seconds of each of 3 cleared flights.', 3),
-  constellation: bonus('constellation', 'Rising Constellation', 'Follow the gold marks. Collect a Spark, then a Cluster, then a Cache. Miss one? Look for the next matching Spark.', 'First 3 fuel Sparks give +2 Sparks each, for 3 cleared flights.', 3)
+  'night-sail': bonus('night-sail', 'Night Sail', 'Collect both bypass Sparks. Lose at most 3 Sparks to the marked Black Hole.', 'Black Holes drain 25% fewer Sparks for 3 cleared flights.', 2),
+  wayfinder: bonus('wayfinder', 'Wayfinder', 'Fly between all 3 gold gates, then finish.', 'Preview the opening 2.5s before takeoff for your next 3 clears.', 3, 'Gold brackets mark each gate. Fly between them; collecting a nearby Spark does not count. After you clear this flight, the opening route is revealed while paused at each start. It vanishes when you begin. Failed or interrupted flights keep the reward; each successful clear spends one of its 3 uses.'),
+  'spark-trail': bonus('spark-trail', 'Spark Trail', 'Collect 3 of 5 marked Sparks. Collector deliveries count.', 'Below 6 Sparks, restore up to 6 missing Sparks once per flight, for 3 cleared flights.', 3),
+  constellation: bonus('constellation', 'Rising Constellation', 'Collect the gold marks: Spark → Cluster → Cache.', 'First 3 fuel pickups restore +2 missing Sparks each, for 3 cleared flights.', 3, 'Only the next kind is marked. If you miss one, look for another matching mark ahead.')
 });
 
-const utility = ['wild-circuit', 'flash-relay', 'long-glide', 'edgeweaver', 'night-sail', 'wayfinder', 'constellation'];
+const utility = ['wild-circuit', 'flash-relay', 'long-glide', 'edgeweaver', 'night-sail', 'wayfinder', 'constellation', 'spark-trail'];
 const helpfulBiomes = new Set(['marsh', 'fungal', 'crystal', 'thorn', 'cemetery']);
 const currency = new Set(['gilded', 'precision']);
 
@@ -26,6 +28,15 @@ function hash(value) {
   let result = 2166136261;
   for (const character of String(value)) result = Math.imul(result ^ character.charCodeAt(0), 16777619);
   return result >>> 0;
+}
+
+// Avalanche the suffix as well as the seed: neighbouring FNV suffixes otherwise
+// keep putting the same few objectives first across many independent maps.
+function bonusOrder(value) {
+  let n=hash(value);
+  n=Math.imul(n^(n>>>16),0x7feb352d);
+  n=Math.imul(n^(n>>>15),0x846ca68b);
+  return (n^(n>>>16))>>>0;
 }
 
 function alreadyAwarded(run, id) {
@@ -55,7 +66,10 @@ function canOfferUtility(run, node, id) {
     case 'constellation': return !Number.isFinite(node.duration)||node.duration>=75;
     case 'wild-circuit': return !node.boss && helpfulBiomes.has(node.biomeId) && (experienced || flights >= 1);
     case 'flash-relay': return experienced || flights >= 2;
-    case 'edgeweaver': return !!run.skills?.['proximity-awakening'];
+    case 'edgeweaver': {
+      const cards=isCardRun(run)?getCardModifiers(run):null;
+      return !!run.skills?.['proximity-awakening'] || !!cards?.cardProximityUnlocked || cards?.cardProximitySources>0;
+    }
     case 'night-sail': return (experienced || flights >= 3) && nextBonusFlightNodes(run, node).length > 0;
     default: return true;
   }
@@ -75,9 +89,13 @@ export function getRouteBonusCandidates(run, node) {
   const heart = heartSites[hash(run.seed + ':bonus-heart') % heartSites.length];
   if (node.id === heart?.id && run.lives < getLifeCapacity(run) && !alreadyAwarded(run, 'three-suns')) ids.push('three-suns');
   const prefix = run.seed + ':bonus-row:' + node.row + ':';
-  const order = [...utility].sort((a,b) => hash(prefix + a) - hash(prefix + b));
+  const order = [...utility].sort((a,b) => bonusOrder(prefix + a) - bonusOrder(prefix + b));
   const offset = (node.routeLane ?? node.lane ?? 0) % order.length;
-  return ids.concat([...order.slice(offset), ...order.slice(0,offset)].filter(id => canOfferUtility(run, node, id)));
+  const prior=(run.path||[]).map(id=>run.map.flat().find(site=>site.id===id))
+    .filter(site=>site&&site.row<node.row&&site.bonusId).slice(-3).map(site=>site.bonusId);
+  const preference=id=>(run.passageBoons?.[id]>0||run.nextFlightBoon===id?3:0)+prior.filter(p=>p===id).length;
+  return ids.concat([...order.slice(offset), ...order.slice(0,offset)]
+    .filter(id => canOfferUtility(run, node, id)).sort((a,b)=>preference(a)-preference(b)));
 }
 
 export function getRouteBonus(run, node) {

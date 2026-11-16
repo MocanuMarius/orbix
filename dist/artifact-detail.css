@@ -40,3 +40,64 @@ html body .artifact-duration{color:#b9c9d1}
 html body .artifact-inspection>.artifact-combo-note{color:#ebd5ac}
 html body .artifact-inspection>.artifact-salvage-note{color:#e2cea8;border-color:#6c7e83}
 html body .artifact-salvage-note>small{color:#c2d0d7}
+
+/* Full rules are a single reading surface; the identity sits beside the rules
+   on a phone in landscape so Back and every use limit fit without inner scroll. */
+html body dialog.game-sheet.artifact-details-sheet:modal{
+ width:min(960px,calc(100vw - 24px));padding:18px 22px!important;gap:14px;
+ overflow-y:auto;overflow-x:hidden;justify-content:space-between;
+}
+html body .artifact-details-sheet .artifact-inspection{display:grid;grid-template-columns:minmax(155px,.6fr) minmax(0,1.7fr);gap:26px;overflow:visible;padding:0;flex:none}
+html body .artifact-details-sheet .artifact-inspection>.relic-detail-crest{flex-direction:column;align-items:flex-start;justify-content:flex-start;gap:12px}
+html body .artifact-details-sheet .artifact-inspection>.relic-detail-crest>svg{width:78px;height:78px;background:none;box-shadow:none;filter:drop-shadow(0 2px 4px #0008)}
+html body .artifact-details-sheet .artifact-inspection>.relic-detail-crest h2{font:27px/1.15 var(--pixel);margin:6px 0 0;text-align:left}
+.artifact-inspection-rules{min-width:0;display:flex;flex-direction:column;gap:12px}
+html body .artifact-details-sheet .artifact-explanation{gap:10px}
+html body .artifact-details-sheet .artifact-explanation>.artifact-effect-main{font:22px/1.35 var(--pixel)}
+html body .artifact-details-sheet .artifact-explanation>.artifact-trigger-line{font:16px/1.35 var(--pixel)}
+html body .artifact-details-sheet .artifact-explanation>.artifact-limit-line{font:15px/1.4 var(--pixel)}
+html body .artifact-details-sheet .artifact-duration{font:12px/1.3 var(--pixel)}
+.artifact-inspection-rules>.artifact-combo-note{font:13px/1.35 var(--pixel);color:#ebd5ac;margin:0}
+.artifact-inspection-rules>.artifact-salvage-note{display:flex;align-items:center;flex-wrap:wrap;gap:7px;font:13px/1.3 var(--pixel);color:#e2cea8;border-top:1px solid #6c7e83;padding-top:9px;margin:0}
+html body dialog.artifact-details-sheet>.primary{position:sticky;bottom:0;min-height:44px;width:180px!important;max-width:100%;margin:0 0 0 auto;background-color:#314634;z-index:1}
+@media(orientation:landscape) and (max-height:350px){
+ html body dialog.game-sheet.artifact-details-sheet:modal{padding:12px 16px!important;gap:10px;max-height:calc(100dvh - 16px)}
+ html body .artifact-details-sheet .artifact-inspection{grid-template-columns:150px minmax(0,1fr);gap:20px}
+ html body .artifact-details-sheet .artifact-inspection>.relic-detail-crest{gap:8px}
+ html body .artifact-details-sheet .artifact-inspection>.relic-detail-crest>svg{width:58px;height:58px}
+ html body .artifact-details-sheet .artifact-inspection>.relic-detail-crest h2{font-size:23px}
+ html body .artifact-details-sheet .artifact-explanation{gap:7px}
+ html body .artifact-details-sheet .artifact-explanation>.artifact-trigger-line{font-size:14px;line-height:1.3}
+ html body .artifact-details-sheet .artifact-explanation>.artifact-effect-main{font-size:19px;line-height:1.3}
+ html body .artifact-details-sheet .artifact-explanation>.artifact-limit-line{font-size:13px;line-height:1.35}
+ html body .artifact-details-sheet .artifact-duration{font-size:11px}
+ .artifact-inspection-rules{gap:8px}
+ .artifact-inspection-rules>.artifact-salvage-note{font-size:12px;padding-top:6px}
+}
+@media(orientation:portrait){
+ html body .artifact-details-sheet .artifact-inspection{grid-template-columns:1fr;gap:15px}
+ html body .artifact-details-sheet .artifact-inspection>.relic-detail-crest{flex-direction:row;align-items:center}
+}
+
+html body dialog.reward-earnings-sheet:modal{width:min(800px,calc(100vw - 24px));max-height:calc(100dvh - 24px);padding:18px 22px!important;overflow:auto;display:flex;flex-direction:column;gap:14px;text-align:left}
+.reward-earnings-detail{min-width:0;flex:none}
+.reward-earnings-detail>header{display:flex;justify-content:space-between;gap:14px;align-items:center;margin-bottom:14px}
+.reward-earnings-detail h2{font:23px/1.2 var(--pixel);margin:0}
+.reward-earnings-detail>header>strong{display:flex;align-items:center;gap:6px;font:22px/1.2 var(--pixel);color:#fff0cc;white-space:nowrap}
+.reward-earnings-detail>header .resource-symbol{width:26px;height:26px}
+.reward-earnings-detail dl{display:grid;grid-template-columns:1fr 1fr;gap:8px 22px;margin:0}
+.reward-earnings-detail dl:has(>div:nth-child(9)){grid-template-columns:repeat(3,minmax(0,1fr))}
+.reward-earnings-detail dl>div{display:flex;justify-content:space-between;gap:10px;font:15px/1.3 var(--pixel);color:#d7e1d0;border-bottom:1px solid #63776166;padding-bottom:5px}
+.reward-earnings-detail dd{margin:0;color:#fff0cc}
+.reward-earnings-context{margin-top:12px;display:grid;grid-template-columns:1fr 1fr;gap:5px 22px}
+.reward-earnings-context p{font:12px/1.3 var(--pixel);color:#c2d1c0;margin:0}
+html body dialog.reward-earnings-sheet>.primary{position:sticky;bottom:0;min-height:44px;width:180px!important;max-width:100%;margin:0 0 0 auto;flex:none;font:15px/1.2 var(--pixel);background-color:#314634}
+@media(max-height:350px){
+ html body dialog.reward-earnings-sheet:modal{padding:12px 16px!important;gap:10px}
+ .reward-earnings-detail>header{margin-bottom:6px}
+ .reward-earnings-detail h2{font-size:20px}
+ .reward-earnings-detail dl{gap:4px 20px}
+ .reward-earnings-detail dl>div{font-size:13px;padding-bottom:3px}
+ .reward-earnings-context{gap:4px 20px;margin-top:5px}
+ .reward-earnings-context p{font-size:11px}
+}

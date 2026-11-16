@@ -1,5 +1,39 @@
 # Conditional passage rewards
 
+## Current short-flight and card-build refresh · 16 November 2026
+
+The historical audit below predates the shorter fuel budgets and main card build. A new four-seed audit uses the production preview and a 740 × 333 landscape viewport, without forced unlocks or missing hearts. It covers 270 standard first-time sites, 170 card first-time sites, and 170 returning card sites. Each sample includes all three maps and each legally reachable flight fork once. Onboarding progression is simulated by row, so this is a generation comparison rather than a path-by-path playthrough or an estimate of human success.
+
+| Objective | Standard first-time | Cards first-time | Cards returning |
+| --- | ---: | ---: | ---: |
+| Gilded Passage | 4 | 4 | 4 |
+| Pilgrim Precision | 8 | 8 | 8 |
+| Wild Circuit | 38 | 26 | 26 |
+| Flash Relay | 6 | 2 | 2 |
+| Long Glide | 18 | 7 | 6 |
+| Night Sail | 5 | 2 | 2 |
+| Wayfinder | 79 | 53 | 53 |
+| Rising Constellation | 34 | 21 | 22 |
+| Spark Trail | 78 | 47 | 47 |
+
+All 610 sites found an eligible objective. The initial-health, ordinary-starter sample does not offer Three Suns or Edgeweaver; separate tests cover their missing-heart and equipped-Proximity requirements. Production flight witnesses for every offered type in each sample retained eligible marks and zero fuel-budget excess.
+
+Seeded row planning prefers distinct physically verified objectives while keeping existing saved offers and the bounded currency/heart sites. Repeated bonuses across reachable flight forks fell from 18 of 49 to 0 of 49 in the standard sample, and from 21 of 48 to 1 of 48 in the first-time card sample. All 12 opening forks in each mode had distinct objectives. The remaining repeated card fork has insufficient eligible alternatives. The same-seed opening-map timing comparison over 16 warmed samples was 168.8 ms median / 342.3 ms maximum before row planning and 178.0 ms / 349.3 ms after.
+
+Spark Trail requires 3 of 5 existing marked natural pickups; Collector deliveries count. The reward restores up to 6 missing Sparks once per waking flight when the meter drops below 6, for three successful clears. It creates no Stored Sparks, does not add or strengthen pickups, and shares the stronger Reserve Wick trigger when both are active. Missed marks, Dream collection, failed flights, duplicate claims and save/reload are tested. Existing objective IDs and targets retain their saved meaning.
+
+The actual map popup was rendered at 900 × 405 and 740 × 333 with distinct ordinary and optional payouts, the guaranteed card, the Long Glide savings cap, and Fallen Giant's permanent Heartwood reward. Footer controls remain at least 44 px high and within the viewport. Constellation's additional explanation is available through a disclosure; the small viewport can scroll its reading area independently of the footer.
+
+```sh
+node scripts/route-variation-audit.mjs 4 work/route-variation-audit.json
+node scripts/route-preview-probe.mjs
+node --test tests/route-bonuses.test.mjs tests/flight-objectives.test.mjs tests/lasting-preparations.test.mjs tests/flight-preview.test.mjs tests/spark-supply.test.mjs
+```
+
+The preview probe expects the development server at `http://localhost:4181`; override `ROUTE_PREVIEW_BASE` for another local port. Rendered evidence is written to `work/route-preview/`.
+
+## Historical longer-course audit
+
 Sixteen seeded expeditions generated 48 maps and 648 eligible passage previews. The sample covered all 48 locations, all 12 biomes, the four companions, Ascensions 1, 2, 4 and 6, and all three map positions. The two landscape viewports were 900 × 405 and 740 × 333. Eight campaigns chose Proximity at the starting-gift screen and eight chose Dream. Three quarters started the audit missing one heart. First-time and returning tutorial profiles used their respective production layouts.
 
 ## What the map actually offered

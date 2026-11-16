@@ -254,18 +254,21 @@ try {
   // The keeping action uses the same owned instance and preserves all uses.
   await tap('[data-action="card-reward-continue"]');const kept=(await saved()).run;
   assert.deepEqual(retained(kept,replacement.id),retained(replacement.run,replacement.id));assert.equal(kept.condensedGlow,replacement.run.condensedGlow);assert.equal(kept.cardReward.uiAcknowledged,true);
-  // Existing tap and drag equipping still open the complete safe comparison.
-  await fixture();const equippedReward=await quote();await tap('[data-action="card-reward-equip"]');await tap('[data-action="card-reward-slot"][data-index="0"]');
-  assert.equal(await ev("document.querySelectorAll('.card-swap-review .card-rule-band').length"),2);await tap('[data-action="card-swap-back"]');assert.deepEqual(await saved(),equippedReward.state);
+  // Full faces are already visible; reversible tap and drag transfers apply directly.
+  await fixture();const equippedReward=await quote();await tap('[data-action="card-reward-equip"]');await tap('[data-action="card-reward-slot"][data-index="0"] .card-illustration');
+  assert.equal(await ev("!!document.querySelector('.card-swap-review')"),false);
+  assert.equal((await saved()).run.mountedCards[0].instanceId,equippedReward.id);
+  await fixture();
   await drag('[data-deck-surface="reward"] '+card(equippedReward.id),'[data-action="card-reward-slot"][data-index="0"]');
-  assert.ok(await ev("!!document.querySelector('.card-swap-review')"));await tap('[data-action="card-swap-confirm"]');
+  assert.equal(await ev("!!document.querySelector('.card-swap-review')"),false);
   assert.equal((await saved()).run.mountedCards[0].instanceId,equippedReward.id);assert.ok((await saved()).run.reserveCards.some(c=>c.instanceId==='mounted:0'));
-  await tap('[data-action="card-reward-continue"]');await tap('[data-action="skills"]');await tap('[data-action="card-open-collection"]');
+  await tap('[data-action="card-reward-continue"]');await tap('[data-action="skills"]');
+  await tap('[data-action="card-open-collection"]');
   assert.ok(await ev("!!document.querySelector('[data-action=card-melt-mode] .card-furnace-icon')"));await tap('[data-action="card-melt-mode"]');await tap('[data-action="card-slot"][data-index="0"]');await tap('[data-action="card-select"][data-id="stored:keep"]');await tap('[data-action="card-preview-melt-selected"]');
   assert.ok(await ev("!!document.querySelector('[data-action=card-confirm-melt-selected] .card-furnace-icon')"));await bounds('.card-melt-confirm .card-dialog-actions button','Batch review');await screenshot('deck-batch-furnace-720x280');await tap('[data-action="card-cancel-melt"]');
   await tap('[data-action="card-select"][data-id="stored:keep"]');await tap('[data-action="card-inspect"]');assert.ok(await ev("!!document.querySelector('[data-action=card-melt-this] .card-furnace-icon')"));await tap('[data-action="card-melt-this"]');await screenshot('deck-single-furnace-720x280');
   assert.deepEqual(errors,[]);
-  console.log(JSON.stringify({passed:true,checks:['real-normal-reward','primary-add-to-collection','direct-furnace-melt','exact-positive-stored-quote','uses-warning','cancel-and-escape-no-save-changes','one-time-credit','stale-receipt-guard','reload-no-recreation','guardian-relic-preserved','keep-identity-and-uses','tap-comparison','drag-comparison','deck-single-and-batch-furnace'],output},null,2));
+  console.log(JSON.stringify({passed:true,checks:['real-normal-reward','primary-add-to-collection','direct-furnace-melt','exact-positive-stored-quote','uses-warning','cancel-and-escape-no-save-changes','one-time-credit','stale-receipt-guard','reload-no-recreation','guardian-relic-preserved','keep-identity-and-uses','direct-tap-equip','direct-drag-equip','deck-single-and-batch-furnace'],output},null,2));
 } finally {
   socket?.close();browser.kill();await new Promise(resolve=>server.close(resolve));
 }

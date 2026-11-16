@@ -73,21 +73,21 @@ test('Growth family prints its real tier/rank values and evolves through existin
   assert.equal(M.getCardImprovePreview(run, seed.instanceId).reason, 'Maximum rank');
 });
 
-test('each Growth amount, mixed copies and the nine-source ceiling survive exact previews and save reloads', () => {
+test('each Growth amount, owned Seeds and the +90 ceiling survive exact previews and save reloads', () => {
   const layouts = [
     { cards: [['growth-seed-common', 1]], amount: 3 },
     { cards: [['growth-seed', 1]], amount: 5 },
     { cards: [['growth-seed-legendary', 1]], amount: 8 },
     { cards: [['growth-seed-legendary', 2]], amount: 9 },
     { cards: [['growth-seed-legendary', 3]], amount: 10 },
-    { cards: [['echo-iii', 1], ['growth-seed', 1], ['chameleon', 1], ['growth-seed-legendary', 3], ['growth-seed-common', 1]], amount: 43 },
-    { cards: [['echo-iii', 1], ['growth-seed-legendary', 3], ['echo-iii', 1], ['growth-seed-legendary', 3], ['growth-seed-legendary', 3]], amount: 90 },
+    { cards: [['echo-iii', 1], ['growth-seed', 1], ['chameleon', 1], ['growth-seed-legendary', 3], ['growth-seed-common', 1]], amount: 18 },
+    { cards: Array(12).fill(['growth-seed-legendary', 3]), amount: 90 },
   ];
   for (const { cards, amount } of layouts) {
     let state = fresh(`growth-amount:${amount}`), run = state.run;
-    run.cardSlots = Math.max(3, cards.length);
-    run.mountedCards = Array.from({ length: run.cardSlots }, (_, i) => cards[i]
-      ? { ...makeSkillCard(cards[i][0], `grow:${i}`), rank: cards[i][1] } : null);
+    run.cardSlots = 3;
+    run.mountedCards = [makeSkillCard('echo-iii', 'grow:echo'), makeSkillCard('chameleon', 'grow:chameleon'), null];
+    run.reserveCards = cards.filter(([id]) => SKILL_CARDS[id].kind === 'camp-grow').map(([id, rank], i) => ({ ...makeSkillCard(id, `grow:${i}`), rank }));
     run.lives = 2;
     for (let i = 0; i < 3; i++) {
       const quote = enterCamp(run, i), grow = quote.actions.find(action => action.key === 'grow');

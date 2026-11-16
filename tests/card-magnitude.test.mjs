@@ -147,32 +147,32 @@ test('Flash magnitude restores meter once per actual body/carrier pickup and nev
   }
 });
 
-test('Grow duplicates and copied sources scale one action/refill, preserve hearts and three shared uses',()=>{
+test('Owned Grow duplicates without copying cards scale one action/refill, preserve hearts and three shared uses',()=>{
   let state=fresh(['echo','growth-seed-common','growth-seed-common','chameleon','growth-seed-common']);
   let run=state.run;run.lives=2;run.flame=4;
   for(let action=0;action<3;action++){
     const offers=enterCamp(state,action),grow=offers.find(c=>c.id==='rest-grow');
-    assert.match(grow.description,/\+15.*refill once/);assert.equal(grow.disabled,false);
+    assert.match(grow.description,/\+9.*refill once/);assert.equal(grow.disabled,false);
     assert.ok(choose(run,'rest-grow'));
-    assert.equal(run.cardGrowUses,action+1);near(run.cardGrowCapacity,50*(action+1));
-    near(getGlowCapacity(run),100+50*(action+1));near(run.flame,getGlowCapacity(run));assert.equal(run.lives,2);
+    assert.equal(run.cardGrowUses,action+1);near(run.cardGrowCapacity,30*(action+1));
+    near(getGlowCapacity(run),100+30*(action+1));near(run.flame,getGlowCapacity(run));assert.equal(run.lives,2);
     assert.deepEqual(run.lastRest.actions,['grow']);
-    state=reload(state);run=state.run;near(getGlowCapacity(run),100+50*(action+1));
+    state=reload(state);run=state.run;near(getGlowCapacity(run),100+30*(action+1));
   }
   enterCamp(state,3);assert.equal(M.getSupportChoices(run).find(c=>c.id==='rest-grow').disabled,true);
   assert.equal(choose(run,'rest-grow'),false);assert.equal(run.cardGrowUses,3);
 });
 
-test('Grow uses the equipped source and its current reordered magnitude at open Rest',()=>{
+test('Grow uses owned inventory amounts independently of equipped ordering at open Rest',()=>{
   const state=fresh(['echo','growth-seed-common','body-spark']),run=state.run;
   run.reserveCards=[makeSkillCard('growth-seed-common','reserve-grow')];
   enterCamp(state);assert.match(M.getSupportChoices(run).find(c=>c.id==='rest-grow').description,/\+6 /);
-  assert.ok(M.moveMountedCard(run,0,1));
-  assert.match(M.getSupportChoices(run).find(c=>c.id==='rest-grow').description,/\+3 /);
-  assert.ok(choose(run,'rest-grow'));near(getGlowCapacity(run),110);
+  assert.ok(M.moveMountedCard(run,0,2));
+  assert.match(M.getSupportChoices(run).find(c=>c.id==='rest-grow').description,/\+6 /);
+  assert.ok(choose(run,'rest-grow'));near(getGlowCapacity(run),120);
   const later=fresh(['body-spark']),old=later.run;enterCamp(later);
   old.reserveCards=[makeSkillCard('growth-seed-common','late-grow')];
-  assert.ok(M.equipOwnedCard(old,'late-grow',1));assert.equal(choose(old,'rest-grow'),true);
+  assert.equal(M.equipOwnedCard(old,'late-grow',1),false);assert.equal(choose(old,'rest-grow'),true);
 });
 
 test('legacy card Grow migrates recorded actions once, preserving unrelated capacity and active attempts',()=>{

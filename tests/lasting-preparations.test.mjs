@@ -24,6 +24,23 @@ test('simultaneous preparations combine distinct effects and use the stronger re
  const b=new FlightBoon(e,null);assert.equal(b.lifts,3);assert.equal(b.drainScale,.75);assert.equal(b.recoveryRate,1.25);
  e.dream={mode:'record'};assert.equal(b.liftSaving(10),0);assert.equal(b.drainScale,1);assert.equal(b.recoveryRate,1);
 });
+
+test('Spark Trail restores missing fuel once while awake and shares the stronger Reserve Wick trigger',()=>{
+ for(const favors of [[],['wick']]){
+  const events=[],e={mod:{flightBoons:['spark-trail'],eventFavors:favors},flame:5/.3,maxFlame:100,flameRestored:0,setEvent:s=>events.push(s)};
+  const b=new FlightBoon(e,null);
+  e.dream={mode:'record'};assert.equal(b.tryReserve(),0);
+  e.dream=null;e.flame=6/.3;assert.equal(b.tryReserve(),0);
+  e.flame=5/.3;
+  const amount=(favors.length?9:6)/.3;
+  assert.equal(b.tryReserve(),amount);assert.equal(e.flameRestored,amount);
+  assert.match(events[0],favors.length?/Reserve Wick/:/Spark Trail/);
+  e.flame=0;assert.equal(b.tryReserve(),0);assert.equal(events.length,1);
+  assert.equal(e.condensedGlow,undefined);
+ }
+ const e={mod:{flightBoons:['spark-trail']},flame:4/.3,maxFlame:8/.3,flameRestored:0};
+ assert.equal(new FlightBoon(e,null).tryReserve(),4/.3);
+});
 test('Fallen Giant offers permanent Heartwood capacity and cannot grant it twice in the run',()=>{
  const{run:r}=setup();r.testMode=true;
  const n=M.getChoices(r)[0];n.levelId='pinewood-fallen-giant';

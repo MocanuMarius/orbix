@@ -51,7 +51,7 @@ test('an 18-Spark Cache counts as one pickup, names its real fuel and keeps gene
   game.destroy();
 });
 
-test('all ten eligible plans are deterministic, pure to inspect, and mark funded real geometry',()=>{
+test('all eligible plans are deterministic, pure to inspect, and mark funded real geometry',()=>{
   for(const id of Object.keys(ROUTE_BONUSES)){
     const game=flight(id),before=JSON.stringify(game.layout.embers);
     const p=game.planRouteObjective(id),second=flight(id).planRouteObjective(id);
@@ -68,6 +68,20 @@ test('all ten eligible plans are deterministic, pure to inspect, and mark funded
   const dream=flight(null,{dreamDuration:10});
   for(const id of Object.keys(ROUTE_BONUSES))
     for(const t of dream.planRouteObjective(id)?.targets||[]) assert.ok(t.x>=98+dream.baseSpeed*12,id);
+});
+
+test('Spark Trail recovers two missed marks, counts Collector deliveries, and never adds fuel',()=>{
+ const bare=flight(null),game=flight('spark-trail');
+ const before=game.layout.embers.map(p=>[p.id,p.x,p.y,p.kind,p.value]);
+ assert.equal(targets(game).length,5);
+ for(const index of [2,3,4])take(game,index,{deliveredByWisp:true});
+ assert.ok(game.routeObjective.complete);assert.equal(game.routeObjective.progress,3);
+ assert.deepEqual(game.layout.embers.map(p=>[p.id,p.x,p.y,p.kind,p.value]),before);
+ assert.ok(targets(game).every(t=>!t.object.generated));
+ const dream=flight('spark-trail');dream.dream={active:true,mode:'replay'};
+ for(let i=0;i<5;i++)take(dream,i);
+ assert.equal(dream.routeObjective.progress,0);
+ bare.destroy();game.destroy();dream.destroy();
 });
 
 test('collection needs distinct marked natural packets, Precision needs the body, and Dream never earns a mark or Packing credit',()=>{

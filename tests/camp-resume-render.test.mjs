@@ -130,7 +130,7 @@ test('Grow saves once, renders Rest and its map exit, then reloads and clears th
     run.flame = 10;
     let view = app(state); view.runtime.goToRun();
     const grow = M.getCardCampPreview(run).actions.find(offer => offer.key === 'grow');
-    view.runtime.takeSupport(grow.index);
+    view.runtime.takeSupport(grow.index,grow.token);
     assert.equal(run.cardGrowUses, 1); assert.equal(run.flame, grow.after.meter);
     assert.equal(getGlowCapacity(run), grow.after.maxMeter); assert.equal(run.lives, lives);
     assert.equal(run.condensedGlow, wallet); assert.equal(run.restVisits.filter(v => v.nodeId === camp.id).length, 1);
@@ -138,12 +138,12 @@ test('Grow saves once, renders Rest and its map exit, then reloads and clears th
       assert.equal(view.body.dataset.screen, 'support'); assert.match(view.main.innerHTML, /Choose one more/);
       const leave = M.getSupportChoices(run).findIndex(offer => offer.effect?.restContinue);
       view.runtime.takeSupport(leave);
-      assert.equal(run.mountedCards[2].charges, 1, 'leaving keeps Second Ember');
+      assert.equal(M.getOwnedCards(run).find(card => card.cardId === 'camp-kit').charges, 1, 'leaving keeps Second Ember');
     }
     assert.equal(view.body.dataset.screen, 'rest-prep'); assert.match(view.main.innerHTML, /Rest complete/);
     assert.match(view.main.innerHTML, /Choose next route/);
     const settled = structuredClone(resources(run));
-    view.runtime.takeSupport(grow.index);
+    view.runtime.takeSupport(grow.index,grow.token);
     assert.deepEqual(resources(run), settled, 'a stale Grow cannot award capacity twice');
     view.runtime.render('map');
     assert.match(view.main.innerHTML, /game-map-screen/); assert.ok(view.main.innerHTML.includes(`Collection · ${relicCount}`));

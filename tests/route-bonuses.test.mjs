@@ -7,6 +7,10 @@ import {
 } from '../dist/model.mjs';
 import {ROUTE_BONUSES} from '../dist/route-bonuses.mjs';
 import {getFlightClearReward} from '../dist/checkpoint-rewards.mjs';
+import {prepareRouteOffer} from '../dist/route-offers.mjs';
+import {awardRouteBonus} from '../dist/route-bonuses.mjs';
+import {getGlowCapacity} from '../dist/vitality.mjs';
+import {makeSkillCard} from '../dist/skill-cards.mjs';
 
 function firstOffer(id) {
   for (let seed=0; seed<1000; seed++) {
@@ -48,6 +52,57 @@ test('rich multi-stage hunts are reserved for flights long enough to fund their 
  for(const n of flights)n.duration=100;
  const offers=flights.flatMap(n=>getRouteBonusCandidates(run,n));
  assert.ok(offers.includes('constellation'));assert.ok(offers.includes('three-suns'));
+});
+
+test('Edgeweaver follows the equipped card build and never an unequipped reserve card',()=>{
+ const state=newState(),run=createRun(state.profile,'card-route-eligibility',1,{cards:true}),node=getChoices(run)[0];
+ const card=makeSkillCard('slip-feather','route-proximity');
+ run.reserveCards.push(card);
+ assert.ok(!getRouteBonusCandidates(run,node).includes('edgeweaver'));
+ run.reserveCards=[];run.mountedCards[0]=card;
+ assert.ok(getRunModifiers(run).proximityUnlocked);
+ assert.ok(getRouteBonusCandidates(run,node).includes('edgeweaver'));
+ run.mountedCards[0]=null;
+ assert.ok(!getRouteBonusCandidates(run,node).includes('edgeweaver'));
+});
+
+test('sighted and saved committed offers retain their ID when ranking changes',()=>{
+ const state=newState(),run=state.run=createRun(state.profile,'sighted-route-offer'),node=getChoices(run)[0];
+ const offer=prepareRouteOffer(run,node);
+ assert.ok(offer);run.passageBoons={[offer.id]:3};run.nextFlightBoon=offer.id;
+ assert.equal(prepareRouteOffer(run,node).id,offer.id);
+ assert.ok(selectNode(run,node.id));
+ const store=memory();saveState(state,store);
+ const restored=loadState(store).run;
+ assert.equal(prepareRouteOffer(restored,restored.current).id,offer.id);
+ assert.equal(restored.current.bonusId,offer.id);
+});
+
+test('sibling assignment is independent of preview order and keeps saved agreements',()=>{
+ const profile=newState().profile,a=createRun(profile,'row-independent'),b=structuredClone(a),c=structuredClone(a);
+ const row=a.map.find(row=>row.filter(n=>n.type==='flight').length===3),index=a.map.indexOf(row);
+ prepareRouteOffer(a,row[0]);prepareRouteOffer(b,b.map[index].at(-1));
+ assert.deepEqual(a.map[index].map(n=>n.bonusId),b.map[index].map(n=>n.bonusId));
+ c.map[index][0].bonusId='wayfinder';
+ prepareRouteOffer(c,c.map[index].at(-1));
+ assert.equal(c.map[index][0].bonusId,'wayfinder');
+});
+
+test('Fallen Giant fresh, memoized and saved previews match its permanent settled reward',()=>{
+ const state=newState(),run=state.run=createRun(state.profile,'heartwood-preview'),node=getChoices(run)[0];
+ node.levelId='pinewood-fallen-giant';
+ const first=prepareRouteOffer(run,node);
+ assert.equal(first.name,'Heartwood Trail');assert.equal(first.reward,'+3 maximum Sparks permanently.');
+ delete node.bonusId;
+ const cached=prepareRouteOffer(run,node);assert.deepEqual(cached,first);
+ assert.ok(selectNode(run,node.id));
+ const store=memory();saveState(state,store);
+ const saved=loadState(store).run,preview=prepareRouteOffer(saved,saved.current);
+ assert.deepEqual(preview,first);
+ const before=getGlowCapacity(saved),result={success:true,routeBonus:{id:preview.id,eligible:true,complete:true,failed:false,target:preview.target,progress:preview.target}};
+ const receipt=awardRouteBonus(saved,saved.current,{nodeId:node.id,bonusId:preview.id},result,20,0,false);
+ assert.equal(receipt.name,preview.name);assert.match(receipt.message,/\+3 maximum Sparks permanently/);
+ assert.equal(getGlowCapacity(saved),before+10);
 });
 
 test('every route bonus pays exactly its advertised clear effect and survives save once',()=>{

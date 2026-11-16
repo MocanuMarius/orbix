@@ -1,0 +1,168 @@
+{
+  "note": "Actual App and authored terrain at 900x405 CSS pixels, DPR 3. Normal player Lift inputs. Only missed inspection Sparks and equipped modifiers are staged; all latching, reeling and delivery use live gameplay.",
+  "capture": "Native screenshot crops follow player height; source pixels are unchanged. Labels are outside gameplay. Muted, 30 fps, normal world speed throughout.",
+  "sections": [
+    {
+      "videoStartSeconds": 0,
+      "seconds": 6,
+      "kind": "full opening through impact, both cases at world time 0"
+    },
+    {
+      "videoStartSeconds": 6,
+      "seconds": 1.5,
+      "kind": "contact replay, source time shifted to align impacts; no retiming",
+      "collectorSourceOffsetSeconds": 4.066666666666666
+    }
+  ],
+  "measurements": {
+    "direct": {
+      "impactWorldSeconds": 0.5833333333333335,
+      "lastBodyWidthWorldUnits": 35.08375,
+      "lastBodyWidthSeconds": 0.22506346704101,
+      "lastBodyWidthAverageWorldSpeed": 155.88380673797764,
+      "contactWorldSpeed": 154,
+      "deliveryCount": 1,
+      "attachments": []
+    },
+    "collector": {
+      "impactWorldSeconds": 4.649999999999989,
+      "lastBodyWidthWorldUnits": 35.08375,
+      "lastBodyWidthSeconds": 0.23262077078994992,
+      "lastBodyWidthAverageWorldSpeed": 150.81950713541247,
+      "contactWorldSpeed": 160.15999999999548,
+      "deliveryCount": 1,
+      "attachments": [
+        {
+          "id": "tow-proof-lower",
+          "time": 0.6500000000000004,
+          "gap": 155.36617687834536
+        }
+      ]
+    }
+  },
+  "directNominalSpeed": 154,
+  "nominalBodyWidthSeconds": 0.22781655844155846,
+  "sampling": "Measured from actual cargo/body gap, linear crossing interpolation between 30 fps captured simulation states; delivery is recorded at the exact 60 Hz production step.",
+  "runtimeErrors": [],
+  "productionCases": [
+    {
+      "name": "native-single",
+      "deliveryEvents": [
+        {
+          "id": "tow-proof-lower",
+          "time": 4.649999999999989,
+          "via": "collector",
+          "gap": 27.3076874999997,
+          "speed": 160.15999999999548
+        }
+      ]
+    },
+    {
+      "name": "native-direct",
+      "deliveryEvents": [
+        {
+          "id": "tow-proof-lower",
+          "time": 0.5833333333333335,
+          "via": "body",
+          "gap": 30.251276880620733,
+          "speed": 154
+        }
+      ]
+    },
+    {
+      "name": "native-paired",
+      "deliveryEvents": [
+        {
+          "id": "tow-proof-upper",
+          "time": 4.39999999999999,
+          "via": "collector",
+          "gap": 27.3076874999997,
+          "speed": 137.6995516375264
+        },
+        {
+          "id": "tow-proof-lower",
+          "time": 4.649999999999989,
+          "via": "collector",
+          "gap": 27.3076874999997,
+          "speed": 160.15999999999548
+        }
+      ]
+    },
+    {
+      "name": "fallback-single",
+      "deliveryEvents": [
+        {
+          "id": "tow-proof-lower",
+          "time": 4.649999999999989,
+          "via": "collector",
+          "gap": 27.3076874999997,
+          "speed": 160.15999999999548
+        }
+      ]
+    },
+    {
+      "name": "fallback-paired",
+      "deliveryEvents": [
+        {
+          "id": "tow-proof-upper",
+          "time": 4.39999999999999,
+          "via": "collector",
+          "gap": 27.3076874999997,
+          "speed": 137.6995516375264
+        },
+        {
+          "id": "tow-proof-lower",
+          "time": 4.649999999999989,
+          "via": "collector",
+          "gap": 27.3076874999997,
+          "speed": 160.15999999999548
+        }
+      ]
+    },
+    {
+      "name": "native-reduced",
+      "deliveryEvents": [
+        {
+          "id": "tow-proof-lower",
+          "time": 4.666666666666655,
+          "via": "collector",
+          "gap": 27.3076874999997,
+          "speed": 160.15999999999548
+        }
+      ]
+    }
+  ],
+  "cadenceMetrics": [
+    {
+      "hz": 30,
+      "latchSeconds": 0.6666666666666666,
+      "deliverySeconds": 4.66666666666666,
+      "reelSeconds": 3.9999999999999933,
+      "lastBodyWidthSeconds": 0.23247419504995648,
+      "directBodyWidthSeconds": 0.2278165584415584,
+      "contactWorldSpeed": 160.15999999999988,
+      "openingWorldSpeed": 5.876641891484021
+    },
+    {
+      "hz": 60,
+      "latchSeconds": 0.6666666666666671,
+      "deliverySeconds": 4.666666666666655,
+      "reelSeconds": 3.9999999999999885,
+      "lastBodyWidthSeconds": 0.2324701815962662,
+      "directBodyWidthSeconds": 0.2278165584415584,
+      "contactWorldSpeed": 160.159999999999,
+      "openingWorldSpeed": 5.876641891484017
+    },
+    {
+      "hz": 120,
+      "latchSeconds": 0.6500000000000001,
+      "deliverySeconds": 4.650000000000021,
+      "reelSeconds": 4.00000000000002,
+      "lastBodyWidthSeconds": 0.23246816802482062,
+      "directBodyWidthSeconds": 0.2278165584415584,
+      "contactWorldSpeed": 160.15999999999883,
+      "openingWorldSpeed": 5.7502691438273414
+    }
+  ],
+  "sourceReport": "work/collector-tow-proof/report.json"
+}

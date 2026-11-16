@@ -1,9 +1,9 @@
-import {getBossPreview} from './boss.mjs?v=camp-resume-1';
-import {artifactDescriptionMarkup} from './artifact-copy.mjs?v=camp-resume-1';
-import {getArtifactInfo,CONSUMABLE_ARTIFACTS,getArtifactStackPreview} from './artifact-info.mjs?v=camp-resume-1';
-import {resourceSymbol} from './game-symbols.mjs?v=camp-resume-1';
-import {artifactIcon} from './upgrade-icons.mjs?v=camp-resume-1';
-import {encounterFamilyPreview} from './encounter-families.mjs?v=camp-resume-1';
+import {getBossPreview} from './boss.mjs?v=relic-guide-1';
+import {artifactDescriptionMarkup} from './artifact-copy.mjs?v=relic-guide-1';
+import {getArtifactInfo,CONSUMABLE_ARTIFACTS,getArtifactStackPreview} from './artifact-info.mjs?v=relic-guide-1';
+import {resourceSymbol} from './game-symbols.mjs?v=relic-guide-1';
+import {artifactIcon} from './upgrade-icons.mjs?v=relic-guide-1';
+import {encounterFamilyPreview} from './encounter-families.mjs?v=relic-guide-1';
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 export const THEME_INKS=Object.freeze({sustain:'#b9d995',precision:'#a8d5e2',tempo:'#e4c286',dream:'#cbb2e6',risk:'#e4a894'});
 export function rewardThemeMarkup(source={},label='RELIC PATH'){
@@ -37,8 +37,8 @@ export function artifactSummaryMarkup(a,run,{details=false,fresh=false}={}){
 export function artifactOfferMarkup(a,run){
  return `<article class="relic-offer ${esc(a.rarity||'common')}"><button class="reward-relic" data-action="pick-reward" data-id="${esc(a.id)}" aria-label="Preview ${esc(a.name)}">${artifactIcon(a.id)}<span class="relic-rarity">${artifactRarityLabel(a)}</span><strong>${esc(a.name)}</strong>${artifactSummaryMarkup(a,run,{fresh:true})}<span class="relic-pick">${getArtifactStackPreview(run,a.id)?'ADD USES':'PREVIEW'} →</span></button></article>`;
 }
-export function artifactDetailMarkup(a,{rules,synergy='',description=a.description,closeAction='close-sheet',run}={}){
+export function artifactDetailMarkup(a,{rules,synergy='',description=a.description,closeAction='close-sheet',run,fresh=false,rewardPreview=false}={}){
  const uses=CONSUMABLE_ARTIFACTS[a.id]?(run?.artifactCharges?.[a.id]??CONSUMABLE_ARTIFACTS[a.id].charges):null;
  const flight=closeAction==='resume';
- return `<article class="artifact-inspection"><header class="relic-detail-crest ${esc(a.rarity||'common')}">${artifactIcon(a.id)}<div><small>${artifactRarityLabel(a)}</small><h2>${esc(a.name)}</h2></div></header>${artifactDescriptionMarkup(a,run)}${synergy?`<p class="artifact-combo-note">${esc(synergy)}</p>`:''}${flight?'':`<p class="artifact-salvage-note">Forge ${resourceSymbol('packed')}<b>+${Number(a.sellValue)||0}</b><small>${uses===null?'Consumes this artifact':`Consumes all ${uses} uses`} · at Rest</small></p>`}</article><button class="primary" data-action="${closeAction}">${flight?'Resume':'Back'}</button>`;
+ return `<article class="artifact-inspection"><header class="relic-detail-crest ${esc(a.rarity||'common')}">${artifactIcon(a.id)}<div><small>${artifactRarityLabel(a)}</small><h2>${esc(a.name)}</h2></div></header><div class="artifact-inspection-rules">${artifactDescriptionMarkup(a,run,{fresh})}${synergy?`<p class="artifact-combo-note">${esc(synergy)}</p>`:''}${flight||rewardPreview?'':`<p class="artifact-salvage-note">Melt ${resourceSymbol('packed')}<b>+${Number(a.sellValue)||0}</b><small>${uses===null?'Consumes this artifact':`Consumes all ${uses} uses`} · at Rest</small></p>`}</div></article><button class="primary" data-action="${closeAction}">${flight?'Resume':'Back'}</button>`;
 }

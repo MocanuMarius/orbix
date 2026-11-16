@@ -28,10 +28,8 @@ test('Rest quote leaves a fresh arrival untouched and uses the live Second Ember
   const source = run.mountedCards[0];
   run.mountedCards[0] = null;
   run.reserveCards.push(source);
-  assert.equal(M.getCardCampPreview(run).remaining, 1);
-  assert.match(render(run), /Choose one Rest action/);
-  assert.doesNotMatch(render(run), /Choose up to two/);
-  run.mountedCards[0] = source;
+  assert.equal(M.getCardCampPreview(run).remaining, 2);
+  assert.match(render(run), /Choose up to two/);
   source.charges = 0;
   assert.equal(M.getCardCampPreview(run).remaining, 1);
 });
@@ -76,7 +74,7 @@ test('full vitals and unavailable upgrades explain their limits and keep Leave r
   assert.match(html, /No actions available/);
   assert.match(html, /Hearts and meter full/);
   assert.match(html, /All 5 slots unlocked/);
-  assert.match(html, /Equip a Growth Seed to Grow/);
+  assert.match(html, /Find a Growth Seed to Grow/);
   assert.match(html, /Leave Rest →/);
   assert.ok(M.resolveSupport(run, quote.actions.find(choice => choice.effect?.restContinue).index));
   assert.equal(run.phase, 'map');

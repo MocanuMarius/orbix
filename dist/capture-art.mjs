@@ -1,11 +1,11 @@
-import {drawAbsorbingSpark} from './tidal-light.mjs?v=camp-resume-1';
-import {getPickupSpec, pickupShellRadius} from './pickups.mjs?v=camp-resume-1';
-import {drawPickup} from './pickup-art.mjs?v=camp-resume-1';
-import {drawShellArcs} from './shell-arcs.mjs?v=camp-resume-1';
-import {DEFAULT_CAPTURE_STYLE} from './capture-styles.mjs?v=camp-resume-1';
-import {COLLECTOR_RING} from './pickup-handling-cue.mjs?v=camp-resume-1';
-import {collectorTowPoint} from './collector-tow-geometry.mjs?v=camp-resume-1';
-import {lightVisibility,renderLightState} from './light-field.mjs?v=camp-resume-1';
+import {drawAbsorbingSpark} from './tidal-light.mjs?v=relic-guide-1';
+import {getPickupSpec, pickupShellRadius} from './pickups.mjs?v=relic-guide-1';
+import {drawPickup} from './pickup-art.mjs?v=relic-guide-1';
+import {drawShellArcs} from './shell-arcs.mjs?v=relic-guide-1';
+import {DEFAULT_CAPTURE_STYLE} from './capture-styles.mjs?v=relic-guide-1';
+import {COLLECTOR_RING} from './pickup-handling-cue.mjs?v=relic-guide-1';
+import {collectorTowPoint} from './collector-tow-geometry.mjs?v=relic-guide-1';
+import {lightVisibility,renderLightState} from './light-field.mjs?v=relic-guide-1';
 
 const TAU = Math.PI * 2;
 const clamp = value => Math.max(0, Math.min(1, value));

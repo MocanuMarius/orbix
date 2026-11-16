@@ -1,5 +1,7 @@
 # Menu art, readability and desktop presentation research
 
+For ongoing component and screen decisions, use the canonical [shared component design principles](../dist/ui/README.md#shared-component-design-principles). This document retains the research and review history behind that guidance.
+
 Reviewed 13 November 2026 for the Wispbound menu and desktop-viewport pass. Sources below are primary platform guidance, the original collaborative game-accessibility guidelines, and a free lesson presented by Apple's design team. No paid-course enrollment or billing pages were used.
 
 The guidance informs this pass; it does not certify the game against every accessibility criterion. The proposed visual treatment, 900 × 405 logical desktop stage and 150% desktop starting zoom are project decisions, not values prescribed by these sources or a claim about Pixel 10 hardware resolution.

@@ -4,7 +4,7 @@ import * as M from '../dist/model.mjs';
 import {WispFlight} from '../dist/flight.mjs';
 import {CARD_SYSTEM,SKILL_CARDS,makeSkillCard,getCardModifiers,getCardPackingBonus,getMountedCards,drawSkillCard,describeSkillCard} from '../dist/skill-cards.mjs';
 import {cardArt,cardRewardMarkup,cardMechanicMarkup} from '../dist/card-ui.mjs';
-import {flightRewardMarkup} from '../dist/reward-screen.mjs';
+import {flightRewardMarkup,rewardEarningsDetailMarkup} from '../dist/reward-screen.mjs';
 
 const fresh=()=>{
  const state=M.newState();state.profile.tutorialComplete=true;
@@ -126,5 +126,6 @@ test('Common starter/drop pools include Tight Packing and its clear UI receipt n
  assert.match(cardRewardMarkup(state.run),/Tight Packing \+2 Stored Sparks/);
  state.run.cardReward.source='forge';assert.doesNotMatch(cardRewardMarkup(state.run),/Tight Packing \+2 Stored Sparks/);
  state.run.lastFlight.elite=true;
- assert.match(flightRewardMarkup(state),/Tight Packing \+2/);
+ assert.match(flightRewardMarkup(state),/data-action="reward-earnings"/);
+ assert.match(rewardEarningsDetailMarkup(state.run),/<dt>Tight Packing<\/dt><dd>\+2<\/dd>/);
 });

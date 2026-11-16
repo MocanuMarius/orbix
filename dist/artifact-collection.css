@@ -1,3 +1,4 @@
+@import url('./ui/reliquary.css?v=relic-guide-1');
 /* Two boss offers, an automatic run collection, and no equipment slots. */
 .accumulating-rewards{grid-template-rows:30px minmax(0,1fr) 44px;gap:9px}
 .accumulating-rewards .artifact-pair{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;min-height:0}
@@ -237,4 +238,86 @@ html body .collection-flat .collection-selected .collection-inspection-art{
 html body .collection-flat .collection-selected .collection-inspection-art>svg,
 html body .collection-flat .collection-artifact>svg{
  background:none;box-shadow:none;filter:drop-shadow(0 2px 5px #0008);
+}
+
+/* Compare complete effects across the available width. Exceptional interactions
+   have an explicit Full rules view instead of a scroll pane inside each card. */
+html body .artifact-reward-screen.accumulating-rewards{
+ max-width:1100px;grid-template-rows:44px minmax(0,1fr) 16px;gap:8px;padding:4px 16px 8px;
+}
+html body .artifact-reward-screen.accumulating-rewards.reward-resolved{grid-template-rows:44px minmax(0,1fr) 44px}
+html body .accumulating-rewards .artifact-pair{gap:12px}
+html body .accumulating-rewards .artifact-choice{
+ display:grid;grid-template-columns:minmax(0,1fr);grid-template-rows:auto minmax(0,1fr) 44px;
+ gap:8px;padding:10px 12px;overflow:visible;
+}
+.artifact-choice-identity{display:flex;align-items:center;gap:11px;min-width:0}
+.artifact-choice-identity>div:last-child{min-width:0;display:flex;flex-direction:column;gap:2px}
+html body .artifact-choice-identity .artifact-choice-art{flex:none;align-self:center}
+html body .artifact-choice-identity .artifact-choice-art>svg{width:48px;height:48px;background:none;filter:drop-shadow(0 2px 3px #0008)}
+.artifact-choice-identity small{font:10px/1.2 var(--pixel);color:var(--relic-aura)}
+html body .artifact-choice-identity h2{margin:0;font:22px/1.1 var(--pixel);color:#fff0cc}
+html body .artifact-choice-identity .artifact-choice-lifetime{font:11px/1.2 var(--pixel);color:#becdd2}
+html body .accumulating-rewards .artifact-choice-copy{align-self:start;overflow:visible;min-height:0;display:flex;flex-direction:column;gap:5px}
+html body .accumulating-rewards .artifact-choice-copy p{margin:0!important}
+html body .accumulating-rewards .artifact-choice-copy .artifact-choice-trigger{font:15px/1.3 var(--pixel);color:#d3dfe2}
+html body .accumulating-rewards .artifact-choice-copy .artifact-choice-effect{font:18px/1.2 var(--pixel);color:#fff0cc}
+html body .accumulating-rewards .artifact-choice-effect .effect-clause{margin-top:2px}
+html body .accumulating-rewards .artifact-choice-effect .effect-clause:first-child{margin-top:0}
+html body .accumulating-rewards .artifact-choice-copy .artifact-choice-limit{font:13px/1.25 var(--pixel);color:#bdcdd0}
+.artifact-choice-actions{display:flex;align-items:stretch;gap:10px;min-width:0}
+html body .artifact-choice-actions>button{margin:0!important;min-height:44px;padding:6px 10px;font:15px/1.2 var(--pixel);white-space:normal}
+.artifact-choice-actions>.artifact-rules{flex:0 0 auto}
+.artifact-choice-actions>.primary,.artifact-choice-actions>.artifact-acquired{flex:1;min-width:0}
+html body .artifact-choice-actions>.artifact-acquired{min-height:44px;font:14px/1.2 var(--pixel);text-align:center}
+html body .accumulating-rewards .artifact-choice-instruction{font:12px/1.2 var(--pixel)}
+html body .artifact-reward-heading>h1{font:18px/1.2 var(--pixel);margin:0}
+.artifact-reward-heading>h1>small{display:block;font:11px/1.2 var(--pixel);color:#bdcdd0;margin-top:3px}
+html body button.reward-packed-earned{display:flex;gap:7px;align-items:center;min-height:44px;margin:0;padding:5px 10px;color:#fff0cc;background:#22372f;border:1px solid #738569;white-space:nowrap}
+html body button.reward-packed-earned>b{font:20px/1.1 var(--pixel)}
+html body button.reward-packed-earned>span{font:12px/1.2 var(--pixel);color:#d7dfc7}
+html body button.reward-packed-earned>.resource-symbol{width:24px;height:24px}
+
+/* The selected collection entry uses the same concise comparison copy. */
+html body .collection-flat .collection-selected{gap:9px}
+html body .collection-flat .collection-selected>header{gap:10px}
+html body .collection-flat .collection-selected h3{font-size:22px}
+html body .collection-flat .collection-selected .collection-inspection-art{padding:3px}
+html body .collection-flat .collection-selected .collection-inspection-art>svg{width:44px;height:44px}
+html body .collection-flat .collection-selected-rule{overflow:visible;min-height:0}
+html body .collection-flat .collection-selected-rule>p{font:14px/1.3 var(--pixel);margin:0 0 6px}
+html body .collection-flat .collection-selected-rule>strong{font:18px/1.25 var(--pixel)}
+html body .collection-flat .collection-selected-rule>.collection-selected-limit{font:12px/1.3 var(--pixel);margin:6px 0 0}
+html body .collection-flat .collection-selected-action{gap:10px;justify-content:space-between}
+html body .collection-flat .collection-selected-action>.artifact-rules{min-height:44px;margin:0;padding:6px 11px;font:14px/1.2 var(--pixel);flex:none}
+html body .collection-flat .collection-selected-action>.collection-melt{min-width:0;flex:1}
+html body .collection-flat .collection-selected-action>.collection-rest-hint{font-size:11px}
+html body .collection-flat .is-confirming .collection-selected-rule>p{display:none}
+html body .collection-flat .is-confirming .collection-selected-action>.artifact-rules{display:none}
+@media(orientation:landscape){html body[data-screen=victory]>#app{height:calc(100dvh - var(--menu-header,53px))!important;min-height:0!important;overflow:auto}}
+@media(orientation:landscape) and (max-height:350px){
+ html body .artifact-reward-screen.accumulating-rewards{gap:5px;padding:0 8px 5px}
+ html body .artifact-reward-screen.accumulating-rewards.reward-open{grid-template-rows:44px minmax(0,1fr) 0}
+ html body .accumulating-rewards.reward-open>.artifact-reward-actions{display:none}
+ html body .accumulating-rewards .artifact-pair{gap:8px}
+ html body .accumulating-rewards .artifact-choice{gap:6px;padding:6px 9px}
+ html body .artifact-choice-identity{gap:8px}
+ html body .artifact-choice-identity .artifact-choice-art>svg{width:38px;height:38px}
+ html body .artifact-choice-identity h2{font-size:19px;margin:0}
+ html body .artifact-choice-identity small{font-size:9px}
+ html body .artifact-choice-identity .artifact-choice-lifetime{display:none}
+ html body .accumulating-rewards .artifact-choice-copy{gap:4px}
+ html body .accumulating-rewards .artifact-choice-copy .artifact-choice-trigger{font-size:13px;line-height:1.2}
+ html body .accumulating-rewards .artifact-choice-copy .artifact-choice-effect{font-size:15px;line-height:1.2}
+ html body .accumulating-rewards .artifact-choice-copy .artifact-choice-limit{display:none}
+ html body .artifact-choice-actions>button{font-size:13px;padding:5px 8px}
+ html body .artifact-choice-actions>.artifact-acquired{font-size:12px}
+ html body .artifact-reward-heading>h1{font-size:16px}
+ html body .collection-flat .collection-selected{gap:6px}
+ html body .collection-flat .collection-selected h3{font-size:19px}
+ html body .collection-flat .collection-selected .collection-inspection-art>svg{width:36px;height:36px}
+ html body .collection-flat .collection-selected-rule>p{font-size:12px;margin-bottom:4px}
+ html body .collection-flat .collection-selected-rule>strong{font-size:15px}
+ html body .collection-flat .collection-selected-rule>.collection-selected-limit{font-size:11px;margin-top:4px}
+ html body .collection-flat .collection-selected-action>.artifact-rules{font-size:12px;padding:6px 9px}
 }

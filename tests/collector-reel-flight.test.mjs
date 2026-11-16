@@ -20,14 +20,31 @@ function tickFor(e,hz,seconds){e.tick(1000);for(let i=1;i<=Math.round(hz*seconds
 const snapshot=e=>({time:e.time,distance:e.distance,cooldown:e.wisp.cooldown,phase:e.wisp.phase,
  cargoX:e.wisp.cargoX,cargoY:e.wisp.cargoY,x:e.wisp.x,y:e.wisp.y,flame:e.flame});
 
-test('a reel advances in world seconds at .35 world rate identically across 60/120Hz paints',()=>{
+test('a reel advances in world seconds at .35 world rate identically across 30/60/120Hz paints',()=>{
  const snapshots=[];
- for(const hz of [60,120]){const {e}=flight();try{
+ for(const hz of [30,60,120]){const {e}=flight();try{
   e.blackHoles.timeScale=.35;e.blackHoles.update=()=>{};tickFor(e,hz,1);
   assert.ok(Math.abs(e.time-.35)<1e-8);assert.ok(Math.abs(e.wisp.activeReelSeconds()-3.65)<1e-8);
   snapshots.push(snapshot(e));
  }finally{e.destroy();}}
  assert.deepEqual(snapshots[1],snapshots[0]);
+ assert.deepEqual(snapshots[2],snapshots[0]);
+});
+
+test('real Ring Spring and Fast Spool spends retain cargo position and deliver once at 30/60/120Hz',()=>{
+ for(const hz of [30,60,120])for(const [id,seconds] of [['ring-spring',1],['fast-spool',3]]){
+  const {e,p}=flight([id]);try{
+   const tick=()=>{e.time+=1/hz;e.previousDistance=e.distance;e.distance+=e.baseSpeed/hz;e.wisp.update(e,1/hz);};
+   for(let i=0;i<hz/2;i++)tick();
+   const recovery=e.wisp.cooldown,before={x:e.wisp.cargoX,y:e.wisp.cargoY};
+   e.flame=e.maxFlame;e.collect({kind:'light',x:e.distance+e.player.x,y:e.player.y});
+   assert.ok(Math.abs(e.wisp.cooldown-(recovery-seconds))<1e-8,id+' spends real recovery');
+   assert.deepEqual({x:e.wisp.cargoX,y:e.wisp.cargoY},before,id+' leaves the attached position continuous');
+   for(let i=0;i<hz*5&&!p.collected;i++)tick();
+   assert.equal(p.collected,true);assert.equal(e.collectorPickups,1);assert.equal(e.wisp.phase,'ready');
+   for(let i=0;i<hz;i++)tick();assert.equal(e.collectorPickups,1);
+  }finally{e.destroy();}
+ }
 });
 
 test('paused equipment changes preserve reel progress and Ring Spring reduces only genuinely missing recovery',()=>{

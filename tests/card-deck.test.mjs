@@ -238,7 +238,7 @@ test('deck mutations require a live checkpoint and cannot change a running fligh
 
 test('forging awards each preview once and leaves both Rest actions usable without a card gate', () => {
   let state = fresh('deck:forge'), run = state.run;
-  add(run, 'camp-kit', 'forge:kit'); M.equipOwnedCard(run, 'forge:kit', 0);
+  add(run, 'camp-kit', 'forge:kit');
   run.flame = 8; run.lives = 2; run.condensedGlow = 30;
   rest(state);
   const quote = M.getCardForgePreview(run);
@@ -246,13 +246,13 @@ test('forging awards each preview once and leaves both Rest actions usable witho
   assert.equal(run.condensedGlow, 0);
   assert.equal(run.flame, 8);
   assert.equal(run.reserveCards.filter((card) => card.instanceId === quote.card.instanceId).length, 1);
-  assert.equal(run.mountedCards[0].charges, 1);
+  assert.equal(run.reserveCards.find(card => card.instanceId === 'forge:kit').charges, 1);
   state = reload(state); run = state.run;
   assert.equal(run.reserveCards.filter((card) => card.instanceId === quote.card.instanceId).length, 1);
   assert.ok(choose(run, 'rest-recover'));
-  assert.equal(run.mountedCards[0].charges, 1);
+  assert.equal(run.reserveCards.find(card => card.instanceId === 'forge:kit').charges, 1);
   assert.ok(choose(run, 'rest-slot'));
-  assert.equal(run.mountedCards[0], null);
+  assert.equal(run.reserveCards.some(card => card.instanceId === 'forge:kit'), false);
   assert.equal(run.phase, 'map');
   assert.equal(choose(run, 'rest-forge'), false);
 });

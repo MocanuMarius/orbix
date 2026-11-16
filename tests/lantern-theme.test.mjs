@@ -62,7 +62,7 @@ test('the phone sandbox opens a real map, with Dream and forecast cues and one o
  const html=flightPreviewMarkup(r,{...first,atlasForecast:'bellwind'},{available:true});
  assert.match(html,/lanterns on the roof and floor/i);
  assert.match(html,/upper Sparks/);
- assert.match(html,/Dream · 6s/);
+ assert.match(html,/Dream · 8s/);
  assert.equal(lanternEntryLesson({skipTutorial:true},state.profile,r),null);
  state.profile.onboarding.seen.push('lanterns');
  assert.equal(lanternEntryLesson({},state.profile,r),null);

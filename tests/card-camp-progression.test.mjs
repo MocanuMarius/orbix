@@ -38,7 +38,7 @@ const choose = (run, id) => M.resolveSupport(run, M.getSupportChoices(run).findI
 test('production connected-route Rest actions render saved completion and continue through their single exit', () => {
   for (const action of ['recover', 'slot', 'grow', 'continue']) {
     let state = fresh(`camp-production-${action}`), r = state.run;
-    if (action === 'grow') { r.reserveCards.push(makeSkillCard('growth-seed', 'test:growth')); assert.ok(M.equipOwnedCard(r, 'test:growth', 2)); }
+    if (action === 'grow') { r.reserveCards.push(makeSkillCard('growth-seed', 'test:growth')); }
     approach(state); const node = r.current;
     assert.ok(cardRestMarkup(r, node, M.getSupportChoices(r)).length > 0);
     assert.ok(choose(r, `rest-${action}`));
