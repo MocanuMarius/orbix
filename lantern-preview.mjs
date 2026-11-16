@@ -1,9 +1,9 @@
-import { WispFlight, circleHitsObstacle } from './flight.mjs?v=deck-flow-1';
-import { createRun, getRunModifiers } from './model.mjs?v=deck-flow-1';
-import { shutterDensityAt } from './shutter-cone.mjs?v=deck-flow-1';
-import { lanternPassageY, lanternRoute } from './lantern-layout.mjs?v=deck-flow-1';
-import { wispOrbit } from './wisp.mjs?v=deck-flow-1';
-import { stepFlashTether } from './flash-tether.mjs?v=deck-flow-1';
+import { WispFlight, circleHitsObstacle } from './flight.mjs?v=furnace-tow-1';
+import { createRun, getRunModifiers } from './model.mjs?v=furnace-tow-1';
+import { shutterDensityAt } from './shutter-cone.mjs?v=furnace-tow-1';
+import { lanternPassageY, lanternRoute } from './lantern-layout.mjs?v=furnace-tow-1';
+import { wispOrbit } from './wisp.mjs?v=furnace-tow-1';
+import { stepFlashTether } from './flash-tether.mjs?v=furnace-tow-1';
 
 const step = 1 / 60;
 

@@ -1,9 +1,10 @@
-import { getCompanionAbility } from './companion-abilities.mjs?v=deck-flow-1';
-import { pickupKind, pickupContactRadius } from './pickups.mjs?v=deck-flow-1';
-import {sparkArtScale,sparkBodyRadius,sparkMass} from './spark-size.mjs?v=deck-flow-1';
-import {collectorCanFetch,collectorCompactSeconds,compressCollectorCargo} from './collector-load.mjs?v=deck-flow-1';
-import {pickupHookAnchor} from './pickup-handling-cue.mjs?v=deck-flow-1';
-import {WISP_ART} from './companion-art.mjs?v=deck-flow-1';
+import { getCompanionAbility } from './companion-abilities.mjs?v=furnace-tow-1';
+import { pickupKind, pickupContactRadius } from './pickups.mjs?v=furnace-tow-1';
+import {sparkArtScale,sparkBodyRadius,sparkMass} from './spark-size.mjs?v=furnace-tow-1';
+import {collectorCanFetch,collectorCompactSeconds,compressCollectorCargo} from './collector-load.mjs?v=furnace-tow-1';
+import {pickupHookAnchor} from './pickup-handling-cue.mjs?v=furnace-tow-1';
+import {WISP_ART} from './companion-art.mjs?v=furnace-tow-1';
+import {collectorTowPose,collectorTowOrbit} from './collector-tow-geometry.mjs?v=furnace-tow-1';
 
 const clamp = (value, lo, hi) => Math.min(hi, Math.max(lo, value));
 export const WISP_TUNING = Object.freeze({ range: 52.5, cooldown: 10, lightRadius: 175,
@@ -119,19 +120,33 @@ export class WispCompanion {
     const home = wispHome({ ...engine.player, y });
     const blend = renderBlend ?? (time === engine.time ? 1 : clamp(engine.accumulator * 60, 0, 1));
     const recovery = this.recoveryFraction();
-    const x = this.previousX + (this.x - this.previousX) * blend;
-    const cy = this.previousY + (this.y - this.previousY) * blend;
+    let x = this.previousX + (this.x - this.previousX) * blend;
+    let cy = this.previousY + (this.y - this.previousY) * blend;
     const cargoTime = renderBlend === undefined ? time : engine.captureTime;
     const pose = enabled && this.cargo ? this.cargoPose(this.cargo, cargoTime,engine.height) : null;
     if(pose){
       pose.offsetX=this.previousCargoX+(this.cargoX-this.previousCargoX)*blend-x;
       pose.offsetY=this.previousCargoY+(this.cargoY-this.previousCargoY)*blend-cy;
-      const hook=pickupHookAnchor(this.cargo,0,0);
-      pose.hookX=hook.x;pose.hookY=hook.y;
     }
     if (pose && cargoTime < this.cargo.carriedAt) {
       pose.offsetX = this.cargo.x - engine.renderDistance - x;
       pose.offsetY = this.cargo.y - cy;
+    }
+    let tetherPose=null;
+    if(pose&&pose.age>=0){
+      const cargoX=x+pose.offsetX,cargoY=cy+pose.offsetY;
+      const packet={kind:pickupKind(this.cargo),sparkMass:pose.massTier};
+      tetherPose=collectorTowPose(packet,cargoX,cargoY,home.x,home.y,pose.scale,pose.age,engine.reducedMotion,this.collectorIndex);
+      pose.hookAngle=tetherPose.hookAngle;pose.hookX=tetherPose.hookX-cargoX;pose.hookY=tetherPose.hookY-cargoY;
+      // Move only the displayed helix onto the moving cord. Cargo coordinates,
+      // reach, recovery and delivery remain owned by updateReel above.
+      const oldHook=pickupHookAnchor(this.cargo,cargoX,cargoY);
+      const oldCord={x:home.x,y:home.y,hookX:oldHook.x,hookY:oldHook.y};
+      const oldOrbit=collectorTowOrbit(oldCord,pose.age,engine.reducedMotion,WISP_TUNING.reelTurnsPerSecond);
+      const newOrbit=collectorTowOrbit(tetherPose,pose.age,engine.reducedMotion,WISP_TUNING.reelTurnsPerSecond);
+      const attached=clamp(pose.age/.18,0,1);
+      x+=(newOrbit.x-oldOrbit.x)*attached;cy+=(newOrbit.y-oldOrbit.y)*attached;
+      pose.offsetX=cargoX-x;pose.offsetY=cargoY-cy;tetherPose.progress=this.reelProgress;
     }
     // The Spark owns its eyelet. Only a loaded tow has a short filament;
     // outbound and rejoining Collector orbs never grow an appendage.
@@ -154,9 +169,7 @@ export class WispCompanion {
       cargoKind: enabled && this.cargo ? pickupKind(this.cargo) : null,
       cargoPhase: this.cargo?.phase || 0,
       cargoPose: pose,gripPose,
-      tetherPose:pose&&pose.age>=0?{x:home.x,y:home.y,
-        hookX:x+pose.offsetX+pose.hookX,hookY:cy+pose.offsetY+pose.hookY,
-        progress:this.reelProgress}:null };
+      tetherPose };
   }
 
   beginLeg(engine, x, y, returning = false) {

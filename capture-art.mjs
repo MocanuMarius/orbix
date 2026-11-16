@@ -1,9 +1,11 @@
-import {drawAbsorbingSpark} from './tidal-light.mjs?v=deck-flow-1';
-import {getPickupSpec, pickupShellRadius} from './pickups.mjs?v=deck-flow-1';
-import {drawPickup} from './pickup-art.mjs?v=deck-flow-1';
-import {drawShellArcs} from './shell-arcs.mjs?v=deck-flow-1';
-import {DEFAULT_CAPTURE_STYLE} from './capture-styles.mjs?v=deck-flow-1';
-import {COLLECTOR_RING} from './pickup-handling-cue.mjs?v=deck-flow-1';
+import {drawAbsorbingSpark} from './tidal-light.mjs?v=furnace-tow-1';
+import {getPickupSpec, pickupShellRadius} from './pickups.mjs?v=furnace-tow-1';
+import {drawPickup} from './pickup-art.mjs?v=furnace-tow-1';
+import {drawShellArcs} from './shell-arcs.mjs?v=furnace-tow-1';
+import {DEFAULT_CAPTURE_STYLE} from './capture-styles.mjs?v=furnace-tow-1';
+import {COLLECTOR_RING} from './pickup-handling-cue.mjs?v=furnace-tow-1';
+import {collectorTowPoint} from './collector-tow-geometry.mjs?v=furnace-tow-1';
+import {lightVisibility,renderLightState} from './light-field.mjs?v=furnace-tow-1';
 
 const TAU = Math.PI * 2;
 const clamp = value => Math.max(0, Math.min(1, value));
@@ -16,19 +18,43 @@ const hazeY = new Float32Array(maxPuffSegments);
 const outer = new Float32Array(maxPuffSegments);
 const inner = new Float32Array(maxPuffSegments);
 
-export function drawCollectorGrip(ctx,state,scale=1){
+function towVisibility(state,engine,light,playerY){
+  if(!engine)return 1;
+  const tether=state.tetherPose,pose=state.cargoPose;
+  if(!tether||!pose)return 1;
+  const field=light||renderLightState(engine),y=playerY??engine.renderPlayerY??engine.player.y;
+  return Math.min(lightVisibility(engine,field,state.x+pose.offsetX,state.y+pose.offsetY,y),
+    lightVisibility(engine,field,tether.hookX,tether.hookY,y));
+}
+
+export function drawCollectorGrip(ctx,state,scale=1,{engine,light,playerY}={}){
   const tether=state.tetherPose;
   if(tether){
     // One cord joins the Spark's own eyelet to the MAIN wisp. The Collector
     // winds around it in a separate depth pass; it never owns the string.
-    const x=tether.x*scale,y=tether.y*scale,tx=tether.hookX*scale,ty=tether.hookY*scale;
-    const dx=tx-x,dy=ty-y,length=Math.max(1,Math.hypot(dx,dy));
-    if(length<.5*scale)return;
-    ctx.save();ctx.lineCap='round';ctx.beginPath();ctx.moveTo(x,y);
-    for(let i=1;i<=8;i++){const f=i/8,sag=Math.sin(Math.PI*f)*Math.min(4*scale,length*.045);
-      ctx.lineTo(x+dx*f,y+dy*f+sag);}
-    ctx.strokeStyle=COLLECTOR_RING.edge;ctx.lineWidth=2.2*scale;ctx.stroke();
-    ctx.strokeStyle=COLLECTOR_RING.color;ctx.lineWidth=.9*scale;ctx.stroke();ctx.restore();return;
+    const length=Math.hypot(tether.hookX-tether.x,tether.hookY-tether.y);
+    let visible=towVisibility(state,engine,light,playerY);
+    if(length<.5||!(visible>0))return;
+    ctx.save();ctx.lineCap='round';ctx.lineJoin='round';
+    ctx.beginPath();ctx.moveTo(tether.x*scale,tether.y*scale);
+    const point={},field=engine&&(light||renderLightState(engine)),py=playerY??engine?.renderPlayerY??engine?.player.y;
+    for(let i=1;i<=18;i++){
+      collectorTowPoint(tether,i/18,point);ctx.lineTo(point.x*scale,point.y*scale);
+      if(engine)visible=Math.min(visible,lightVisibility(engine,field,point.x,point.y,py));
+    }
+    // The bow can cross a dark shutter even when both attachments are lit.
+    // Fade to the least visible sample instead of lighting through that beam.
+    if(!(visible>0)){ctx.restore();return;}
+    const alpha=ctx.globalAlpha*visible;
+    ctx.globalAlpha=alpha*.78;ctx.strokeStyle=COLLECTOR_RING.edge;ctx.lineWidth=2.8*scale;ctx.stroke();
+    // A handful of reused strokes gives the filament a mint halo and a pale
+    // hot core at the native raster, without blur, gradients or particles.
+    ctx.globalCompositeOperation='screen';ctx.strokeStyle='#66ef99';
+    ctx.globalAlpha=alpha*.15;ctx.lineWidth=8*scale;ctx.stroke();
+    ctx.globalAlpha=alpha*.30;ctx.lineWidth=4.2*scale;ctx.stroke();
+    ctx.globalAlpha=alpha*.94;ctx.strokeStyle=COLLECTOR_RING.color;ctx.lineWidth=1.8*scale;ctx.stroke();
+    ctx.globalAlpha=alpha*.94;ctx.strokeStyle='#e2ffe9';ctx.lineWidth=.65*scale;ctx.stroke();
+    ctx.restore();return;
   }
   const grip=state.gripPose;if(!grip?.attached||!(grip.growth>0))return;
   // Under load only: a taut filament rooted in the Spark's own eyelet. The
@@ -42,14 +68,16 @@ export function drawCollectorGrip(ctx,state,scale=1){
   ctx.restore();
 }
 
-export function drawCarriedSpark(ctx,state,time,scale,quiet,style=DEFAULT_CAPTURE_STYLE) {
+export function drawCarriedSpark(ctx,state,time,scale,quiet,style=DEFAULT_CAPTURE_STYLE,visibility={}) {
   const pose=state.cargoPose;
   if(!pose)return;
+  const visible=towVisibility(state,visibility.engine,visibility.light,visibility.playerY);
+  if(!(visible>0))return;
   const x=(state.x+pose.offsetX)*scale, y=(state.y+pose.offsetY)*scale;
   const packet={kind:state.cargoKind,sparkMass:pose.massTier};
   drawPickup(ctx,x,y,{kind:state.cargoKind,time,phase:state.cargoPhase,
-    scale:pose.scale*scale,massTier:pose.massTier,reducedMotion:quiet,
-    handling:{packet,modifiers:{collectorFetchMass:3,collectorFlashFetch:true},collector:true}});
+    scale:pose.scale*scale,massTier:pose.massTier,reducedMotion:quiet,alpha:visible,
+    handling:{packet,modifiers:{collectorFetchMass:3,collectorFlashFetch:true},collector:true,hookAngle:pose.hookAngle}});
 }
 
 export function drawShellPuff(ctx,x,y,radius,age,kind,phase=0,quiet=false) {
