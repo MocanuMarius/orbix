@@ -1,0 +1,72 @@
+import assert from 'node:assert/strict';
+import fs from 'node:fs/promises';
+import http from 'node:http';
+import path from 'node:path';
+import os from 'node:os';
+import {spawn} from 'node:child_process';
+const output=path.resolve('outputs/deck-combos');await fs.mkdir(output,{recursive:true});
+const profile=await fs.mkdtemp(path.join(os.tmpdir(),'emberwing-deck-combos-'));
+const mime={'.html':'text/html','.mjs':'text/javascript','.js':'text/javascript','.css':'text/css','.svg':'image/svg+xml','.png':'image/png','.webp':'image/webp','.woff2':'font/woff2','.mp3':'audio/mpeg'};
+const server=http.createServer(async(req,res)=>{try{const url=new URL(req.url,'http://localhost'),file=path.resolve('dist','.'+url.pathname);if(!file.startsWith(path.resolve('dist')+path.sep))throw Error();const data=await fs.readFile(file);res.writeHead(200,{'Content-Type':mime[path.extname(file)]||'application/octet-stream'}).end(data);}catch{res.writeHead(404).end();}});
+await new Promise(resolve=>server.listen(0,'127.0.0.1',resolve));const base=`http://127.0.0.1:${server.address().port}`;
+const browser=spawn('C:/Program Files/Google/Chrome/Application/chrome.exe',['--headless=new','--no-first-run','--disable-gpu','--mute-audio','--no-default-browser-check','--remote-debugging-port=0',`--user-data-dir=${profile}`,'about:blank'],{windowsHide:true,stdio:'ignore'});
+const delay=ms=>new Promise(resolve=>setTimeout(resolve,ms));
+async function until(fn,label){for(let i=0;i<150;i++){try{const result=await fn();if(result)return result;}catch{}await delay(75);}throw Error(`Timed out: ${label}`);}
+let socket;const errors=[];
+try{
+ const port=await until(async()=>Number((await fs.readFile(path.join(profile,'DevToolsActivePort'),'utf8')).split('\n')[0]),'Chrome');
+ const target=(await(await fetch(`http://127.0.0.1:${port}/json/list`)).json()).find(target=>target.type==='page');
+ socket=new WebSocket(target.webSocketDebuggerUrl);await new Promise(resolve=>socket.addEventListener('open',resolve,{once:true}));
+ let serial=0;const pending=new Map();
+ socket.addEventListener('message',event=>{const message=JSON.parse(event.data);if(message.id){const task=pending.get(message.id);if(task){pending.delete(message.id);message.error?task.reject(Error(message.error.message)):task.resolve(message.result);}}else if(message.method==='Runtime.exceptionThrown')errors.push(message.params.exceptionDetails.exception?.description||message.params.exceptionDetails.text);});
+ const send=(method,params={})=>new Promise((resolve,reject)=>{const id=++serial;pending.set(id,{resolve,reject});socket.send(JSON.stringify({id,method,params}));});
+ const ev=async expression=>{const result=await send('Runtime.evaluate',{expression,awaitPromise:true,returnByValue:true});if(result.exceptionDetails)throw Error(result.exceptionDetails.exception?.description||result.exceptionDetails.text);return result.result.value;};
+ const click=async selector=>{assert.ok(await ev(`!!document.querySelector(${JSON.stringify(selector)})`),selector);await ev(`document.querySelector(${JSON.stringify(selector)}).click()`);};
+ const page=async(url,selector)=>{await send('Page.navigate',{url:base+url});await until(()=>ev(`!!document.querySelector(${JSON.stringify(selector)})`),selector);};
+ const shot=async name=>{await delay(150);const result=await send('Page.captureScreenshot',{format:'png'});await fs.writeFile(path.join(output,`${name}.png`),Buffer.from(result.data,'base64'));};
+ const viewport=async(width,height)=>send('Emulation.setDeviceMetricsOverride',{width,height,deviceScaleFactor:1,mobile:false});
+ const bounds=async(width,height)=>{
+   const result=await ev(`(()=>{const root=document.querySelector('.card-equipped-foreground'),stage=root.querySelector('.deck-equipped-stage'),panel=root.querySelector('.deck-context'),row=root.querySelector('.card-foreground-row');return [root,stage,panel,row].map(node=>{const r=node.getBoundingClientRect();return {class:node.className,x:r.x,y:r.y,right:r.right,bottom:r.bottom,width:r.width,height:r.height}})})()`);
+   result.forEach(rect=>assert.ok(rect.x>=-1&&rect.y>=-1&&rect.right<=width+1&&rect.bottom<=height+1,JSON.stringify(rect)));
+   return result;
+ };
+ await send('Runtime.enable');const fits=[];
+ for(const [width,height]of [[915,412],[900,405],[740,360],[640,320],[667,300]]){
+  await viewport(width,height);await page('/components-preview.html?family=cards&state=combos','.card-equipped-foreground');
+  assert.equal(await ev(`document.querySelectorAll('.deck-relic-shelf button').length`),3);
+  await shot(`row-${width}`);
+  await click('[data-deck-mounted-slot="0"] [data-deck-context-open="combo:rhythm-harvest"]');
+  assert.equal(await ev(`document.querySelectorAll('.deck-combo-source,.deck-combo-target').length`),2);
+  assert.ok(await ev(`document.querySelector('[data-deck-context="combo:rhythm-harvest"]').textContent.includes('+1 on crossing')`));
+  fits.push({width,height,bounds:await bounds(width,height)});await shot(`rhythm-harvest-${width}`);
+  await click('[data-deck-context="combo:rhythm-harvest"] [data-deck-context-close]');
+  await click('[data-deck-mounted-slot="2"] [data-deck-context-open="combo:ring-dawn"]');
+  assert.ok(await ev(`document.querySelector('[data-deck-context="combo:ring-dawn"]').textContent.includes('4s')`));
+  await shot(`ring-dawn-${width}`);
+ }
+ await viewport(900,405);await page('/game.html?mock=cards&scenario=combos','.card-equipped-foreground');
+ await click('[data-deck-mounted-slot="0"] [data-deck-context-open="combo:rhythm-harvest"]');
+ await click('[data-combo-lesson="rhythm-harvest"]');
+ assert.ok(await ev(`!!document.querySelector('dialog.combo-lesson[open]')`),'Try combo opens real-mechanics practice');
+ await click('dialog.combo-lesson [data-lesson="close"]');assert.ok(await ev(`!!document.querySelector('.card-equipped-foreground.deck-context-open')`),'Practice returns to connected row');
+ await click('[data-deck-context="combo:rhythm-harvest"] [data-deck-context-close]');
+ await click('[data-deck-context-open="relic:dawn-loom"]');assert.ok(await ev(`document.querySelector('[data-deck-context="relic:dawn-loom"]').textContent.includes('OWNED RELIC')`));
+ await click('[data-deck-context="relic:dawn-loom"] [data-deck-context-close]');
+ await click('[data-deck-mounted-slot="2"] .card-equipped-face');
+ await ev(`document.querySelector('.deck-related').open=true`);await click('.deck-related [data-deck-context-open="relic:overflow-coil"]');
+ assert.ok(await ev(`document.querySelector('[data-deck-context="relic:overflow-coil"]').textContent.includes('OPTIONAL · NOT OWNED')`));await shot('optional-related-relic');
+ await click('[data-deck-context="relic:overflow-coil"] [data-deck-context-close]');
+ await click('[data-deck-mounted-slot="0"] .card-equipped-face');
+ assert.equal(await ev(`!!document.querySelector('.card-equipped-foreground.deck-context-open [data-deck-context="selected"]')`),true,'Real Deck selection stays with row');
+ await click('[data-action="card-inspect"]');assert.ok(await ev(`!!document.querySelector('.card-deck-reading')`));
+ await click('[data-action="card-reading-back"]');assert.ok(await ev(`!!document.querySelector('.card-equipped-foreground')`));
+ await click('[data-action="card-open-collection"]');await click('[data-action="card-select"][data-id="sample:stored:combo:0"]');await click('[data-action="card-slot"][data-index="0"]');
+ assert.ok(await ev(`document.querySelector('.card-swap-review').textContent.includes('Needs Rhythm')`));await shot('toll-bell-needs-rhythm');
+ await click('[data-action="card-swap-back"]');await click('[data-action="card-slot"][data-index="2"]');
+ assert.ok(await ev(`document.querySelector('.card-swap-review').textContent.includes('3 evenly timed Lifts also give +2')`));await shot('toll-bell-connected');
+ await click('[data-action="card-swap-back"]');await click('[data-action="card-select"][data-id="sample:stored:combo:1"]');await click('[data-action="card-slot"][data-index="0"]');
+ assert.ok(await ev(`document.querySelector('.card-swap-review').textContent.includes('Echo → Resonant Harvest')`));await shot('echo-target');
+ await viewport(1440,900);await page('/components.html?family=cards&state=combos','#component-frame');
+ await until(()=>ev(`document.querySelector('#component-frame').contentDocument?.querySelector('.card-equipped-foreground')`),'Workshop iframe');await shot('workshop');
+ assert.deepEqual(errors,[]);await fs.writeFile(path.join(output,'report.json'),JSON.stringify({fits,errors},null,2));console.log(JSON.stringify({viewports:fits.map(({width,height})=>[width,height]),errors,output},null,2));
+}finally{socket?.close();browser.kill();server.close();const target=path.resolve(profile),tempRoot=path.resolve(os.tmpdir());if(path.dirname(target)===tempRoot&&path.basename(target).startsWith('emberwing-deck-combos-'))await fs.rm(target,{recursive:true,force:true,maxRetries:10,retryDelay:150}).catch(()=>{});}

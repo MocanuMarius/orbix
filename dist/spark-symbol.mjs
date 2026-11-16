@@ -11,10 +11,26 @@ const art={
 export function sparkImageArt(kind,x,y,size){
   const [still,motion]=art[kind];
   const box=`x="${x}" y="${y}" width="${size}" height="${size}" style="image-rendering:pixelated"`;
-  return `<image class="spark-still" ${box} href="${still}?v=relic-guide-1"/><image class="spark-motion" ${box} display="none" href="${motion}?v=relic-guide-1"/>`;
+  return `<image class="spark-still" ${box} href="${still}?v=combo-camp-1"/><image class="spark-motion" ${box} display="none" href="${motion}?v=combo-camp-1"/>`;
 }
 export function sparkSymbolArt(x=0,y=0,size=24,tier=1){
   return sparkImageArt([null,'light','cluster','cache'][tier]||'light',x,y,size);
+}
+
+// Dusk keeps a broken rose crescent and a dark diagonal cut at every scale.
+// The live pickup, glossary and Dusk Wick scene consume these same native cells.
+export const DUSK_MOTIF_PIXELS=Object.freeze([
+  [7,1,6,1,'#785267'],[4,2,11,2,'#a96f89'],[2,4,15,3,'#cc91a8'],
+  [1,7,4,6,'#b87a96'],[3,13,4,3,'#b87a96'],[6,16,8,2,'#a96f89'],
+  [13,14,4,2,'#cc91a8'],[15,12,3,2,'#a96f89'],
+  [5,4,8,2,'#f2c0cf'],[3,6,2,6,'#e4acbf'],[5,13,3,2,'#d595af'],[8,15,5,1,'#d595af'],
+  [6,6,7,8,'#272335'],[5,8,2,4,'#272335'],[8,5,4,2,'#272335'],
+  [8,8,4,5,'#080c18'],[12,6,3,2,'#080c18'],[11,7,3,3,'#080c18'],
+  [10,10,7,2,'#080c18'],[13,8,5,3,'#080c18'],[17,7,2,2,'#f1a4bb'],
+  [3,4,3,1,'#ffe0df'],[2,6,1,3,'#f2c0cf'],[9,17,3,1,'#d595af'],
+].map(Object.freeze));
+export function duskGlyphArt(x=0,y=0,size=20){
+  return `<svg x="${x}" y="${y}" width="${size}" height="${size}" viewBox="0 0 20 20" aria-hidden="true" shape-rendering="crispEdges" class="dusk-glyph">${DUSK_MOTIF_PIXELS.map(([x,y,w,h,color])=>`<rect x="${x}" y="${y}" width="${w}" height="${h}" fill="${color}"/>`).join('')}</svg>`;
 }
 
 // At 16–20px the flight sprite's fine discharges merge together. This small

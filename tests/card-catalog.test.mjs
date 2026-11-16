@@ -39,24 +39,26 @@ function reachCamp(state) {
     if(n.type==='support')assert.ok(M.resolveSupport(r,M.getSupportChoices(r,state.profile).findIndex(c=>!c.disabled),state.profile));
     else{
       assert.ok(M.beginFlightAttempt(r));assert.ok(M.markFlightAttemptStarted(r));assert.ok(M.finishFlight(r,{success:true,flame:50}));M.settleCheckpoint(state);
-      if(r.cardReward)r.cardReward.uiAcknowledged=true;
+      const draft = M.getCardDraft(r);
+      if (draft) assert.ok(M.chooseCardDraft(state, draft.id, draft.offers[0].instanceId));
+      if (r.cardReward) r.cardReward.uiAcknowledged = true;
       if(r.flightReward&&!r.flightReward.claimed)assert.ok(M.chooseFlightReward(state,r.flightReward.offers[0]));
       assert.ok(M.acknowledgeVictory(state));
     }
   }
 }
 
-test('all 81 literal definitions have supported rules, unique IDs, honest art families and complete bands', () => {
+test('all 82 literal definitions have supported rules, unique IDs, honest art families and complete bands', () => {
   const defs = Object.values(CARD_CATALOG), supportedEvents = new Set([
     '*', 'body-spark', 'wave-crossing', 'flash-pickup', 'flash-expiry', 'downbeat-lift', 'natural-overfill',
     'collector-delivery', 'collector-attach', 'flight-clear', 'rhythm-phrase', 'field-swipe', 'guard-rescue',
-  ]), physicalKinds = new Set(['proximity-range', 'capacity', 'packing', 'echo', 'chameleon', 'field', 'guide',
+  ]), physicalKinds = new Set(['luminance', 'proximity-range', 'capacity', 'packing', 'echo', 'chameleon', 'field', 'guide',
     'rhythm', 'camp-extra', 'camp-grow', 'cache-handling', 'refrain', 'watchlight', 'wave-loom', 'spillway',
     'proximity', 'springboard', 'heart-stitch', 'devourer', 'twin-orbit', 'twin-wick', 'collector-range']);
-  assert.equal(defs.length, 81);
-  assert.equal(new Set(CARD_CATALOG_IDS).size, 81);
+  assert.equal(defs.length, 82);
+  assert.equal(new Set(CARD_CATALOG_IDS).size, 82);
   assert.deepEqual(defs.reduce((totals, def) => (totals[def.rarity]++, totals), { common: 0, rare: 0, legendary: 0 }),
-    { common: 43, rare: 23, legendary: 15 });
+    { common: 44, rare: 23, legendary: 15 });
   for (const [index, def] of defs.entries()) {
     assert.deepEqual(SKILL_CARDS[def.id], def);
     assert.equal(CARD_CATALOG_IDS[index], def.id);

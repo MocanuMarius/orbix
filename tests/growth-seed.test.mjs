@@ -34,6 +34,9 @@ function clearNext(state) {
   assert.equal(JSON.stringify(run), before, 'reward previews do not advance protection');
   assert.ok(M.beginFlightAttempt(run)); assert.ok(M.markFlightAttemptStarted(run));
   assert.ok(M.finishFlight(run, { success: true, flame: 50 })); M.settleCheckpoint(state);
+  const draft = M.getCardDraft(run);
+  assert.equal(draft.offers[0].cardId, preview.cardId);
+  assert.ok(M.chooseCardDraft(state, draft.id, draft.offers[0].instanceId));
   assert.equal(run.cardReward.card.cardId, preview.cardId);
   run.cardReward.uiAcknowledged = true;
   if (run.flightReward && !run.flightReward.claimed) assert.ok(M.chooseFlightReward(state, run.flightReward.offers[0]));

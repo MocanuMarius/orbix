@@ -1,6 +1,6 @@
 // A disposable deck for phone inspection. Never reads or writes a player save.
-import { newState, createRun, getSupportChoices } from './model.mjs?v=relic-guide-1';
-import { makeSkillCard } from './skill-cards.mjs?v=relic-guide-1';
+import { newState, createRun, getSupportChoices } from './model.mjs?v=combo-camp-1';
+import { makeSkillCard } from './skill-cards.mjs?v=combo-camp-1';
 
 export function prepareCardInspectorReward(run, cardId = 'harvest-rare') {
   if (run.cardReward && !run.cardReward.uiAcknowledged) return;
@@ -30,6 +30,12 @@ export function createCardInspectorState(params = new URLSearchParams()) {
   }
   if (params.get('scenario') === 'reward') prepareCardInspectorReward(run, params.get('reward') === 'edge-reach' ? 'edge-reach' : 'harvest-rare');
   if (params.get('scenario') === 'proximity') run.reserveCards.push(makeSkillCard('edge-reach', 'sample:edge-reach'));
+  if (params.get('scenario') === 'combos') {
+    run.companions=['collector'];run.companionRole='collector';
+    run.artifacts=['dawn-loom','echo-bell','wayward-seed'];
+    run.mountedCards=['rhythm','harvest-common','ring-spring'].map((id,i)=>makeSkillCard(id,`sample:combo:${i}`));
+    run.reserveCards=['toll-bell','echo','deep-vessel','harvest-rare'].map((id,i)=>makeSkillCard(id,`sample:stored:combo:${i}`));
+  }
   if (params.get('scenario') === 'new-common') {
     run.cardSlots = 5;
     run.mountedCards = ['growth-ring', 'wind-feather', 'wick-doubler', 'fast-spool', 'body-spark'].map((id, i) => makeSkillCard(id, `sample:new-common:${i}`));

@@ -70,6 +70,8 @@ const flight = (
     }),
   );
   M.settleCheckpoint(state);
+  const draft = M.getCardDraft(run);
+  if (draft) assert.ok(M.chooseCardDraft(state, draft.id, draft.offers[0].instanceId));
 };
 const resolveRewards = (state) => {
   const run = state.run;
@@ -163,7 +165,7 @@ test("pending legacy starter choices commit safely and completed or melted start
   assert.equal(pendingWithCards.run.mountedCards[0].charges, 2);
 });
 
-test("every generated node is reachable; three optional Rest sites retain both later forks", () => {
+test("every generated node is reachable; midpoint Rest is guaranteed and the late Rest retains its fork", () => {
   for (let seed = 0; seed < 120; seed++) {
     const state = fresh(`routes-${seed}`),
       run = state.run,
@@ -184,8 +186,8 @@ test("every generated node is reachable; three optional Rest sites retain both l
       assert.notEqual(byId.get(rest.nextIds[0]).type, "support");
       for (const previous of run.map[row - 1]) {
         assert.ok(previous.nextIds.includes(rest.id));
-        assert.equal(previous.nextIds.length, 2);
-        assert.ok(previous.nextIds.some((id) => byId.get(id).kind !== "camp"));
+        assert.equal(previous.nextIds.length, row === 4 ? 1 : 2);
+        if (row === 8) assert.ok(previous.nextIds.some((id) => byId.get(id).kind !== "camp"));
       }
     }
     const mid = run.map[4].find((node) => node.kind === "camp"),
@@ -598,6 +600,7 @@ test("all three guardians and elites drop cards, final guardian records trophy w
   assert.equal(M.chooseCardReward(state, "melt"), false);
   assert.equal(M.chooseCardReward(state, "equip", 0), false);
   assert.equal(run.cardRewardedNodes.length, run.stats.flights);
+  run.cardReward.uiAcknowledged = true;
   assert.ok(M.bankRun(state));
   const restored = reload(state).run;
   assert.deepEqual(restored.finalCardTrophy, run.finalCardTrophy);

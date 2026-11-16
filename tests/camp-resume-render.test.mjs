@@ -75,6 +75,8 @@ function approach(state, { spendRelic = false } = {}) {
       assert.ok(M.beginFlightAttempt(run)); assert.ok(M.markFlightAttemptStarted(run));
       assert.ok(M.finishFlight(run, { success: true, flame: 55, collected: 4, ...(spendRelic ? { artifactCharges: { 'glow-wick': 0 } } : {}) }));
       M.settleCheckpoint(state);
+      const draft = M.getCardDraft(run);
+      if (draft) assert.ok(M.chooseCardDraft(state, draft.id, draft.offers[0].instanceId));
       if (run.cardReward) run.cardReward.uiAcknowledged = true;
       if (run.flightReward && !run.flightReward.claimed) assert.ok(M.chooseFlightReward(state, run.flightReward.offers[0]));
       assert.ok(M.acknowledgeVictory(state));
@@ -156,6 +158,8 @@ test('Grow saves once, renders Rest and its map exit, then reloads and clears th
     assert.ok(M.selectNode(run, onward[0].id)); assert.ok(M.beginFlightAttempt(run));
     assert.ok(M.markFlightAttemptStarted(run)); assert.ok(M.finishFlight(run, { success: true, flame: 45, collected: 4 }));
     M.settleCheckpoint(state);
+    const draft = M.getCardDraft(run);
+    assert.ok(M.chooseCardDraft(state, draft.id, draft.offers[0].instanceId));
     if (run.cardReward) run.cardReward.uiAcknowledged = true;
     if (run.flightReward && !run.flightReward.claimed) assert.ok(M.chooseFlightReward(state, run.flightReward.offers[0]));
     assert.ok(M.acknowledgeVictory(state));

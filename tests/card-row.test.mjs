@@ -101,10 +101,10 @@ test('First Ripple pays and cues only its first crossing while later physical cr
     const {bursts,sounds}=waveFeedback(e);e.flame=0;
     const packets=[90,200].map(x=>({kind:'light',x:e.player.x+x,y:e.player.y}));cross(e,packets);
     const trace=e.cardRowTrace,wave=e.luminanceWaves.waves[0];
-    near(e.flame,2*CARD_UNIT);assert.equal(trace.event.firstCrossing,true);
+    near(e.flame,4*CARD_UNIT);assert.equal(trace.event.firstCrossing,true);
     assert.equal(bursts.length,1);assert.equal(sounds.length,1);assert.equal(sounds[0][0],'resonate');
     e.luminanceWaves.update(.3);
-    near(e.flame,2*CARD_UNIT);assert.equal(e.cardRowTrace,trace);
+    near(e.flame,4*CARD_UNIT);assert.equal(e.cardRowTrace,trace);
     assert.equal(e.cardExecution.lastTrace.event.firstCrossing,false);assert.equal(e.cardExecution.lastTrace.sparks,0);
     assert.equal(wave.naturalCrossings,2);assert.equal(wave.seen.size,2);assert.equal(e.cardRowSequence,2);
     assert.equal(bursts.length,1);assert.equal(sounds.length,1);
@@ -223,7 +223,7 @@ test('new Common never changes the established seeded starter pool',()=>{
 });
 
 test('every declarative catalog rule executes with its exact approved event and conditions',()=>{
-  assert.equal(Object.keys(SKILL_CARDS).length,81);
+  assert.equal(Object.keys(SKILL_CARDS).length,82);
   const payer={
     'body-spark':'body-spark','wave-crossing':'harvest-common','flash-pickup':'flash-handling',
     'downbeat-lift':'downbeat','collector-delivery':'courier-tip','rhythm-phrase':'toll-bell',
@@ -266,20 +266,20 @@ test('Echo II and III spend 2/3 true repeats before original, including finite e
 test('catalog meter, pickup kind and first/later crossing conditions use native event entry state',()=>{
   const low=flight(['low-wick','dusk-wick','cluster-heart']);
   try{
-    low.flame=0;low.collect({kind:'dusk'});near(low.flame,Math.min(low.maxFlame,40+23*CARD_UNIT));
-    low.flame=34;low.collect({kind:'cluster'});near(low.flame,34+40+4*CARD_UNIT);
-    low.flame=0;low.collect({kind:'light',generated:true});assert.equal(low.cardRowTrace.sparks,4,'generated did not issue a new row');
+    low.flame=0;low.collect({kind:'dusk'});near(low.flame,Math.min(low.maxFlame,25*CARD_UNIT));
+    low.flame=34;low.collect({kind:'cluster'});near(low.flame,34+40+6*CARD_UNIT);
+    low.flame=0;low.collect({kind:'light',generated:true});assert.equal(low.cardRowTrace.sparks,6,'generated did not issue a new row');
   }finally{low.destroy();}
   const waves=flight(['first-ripple','far-shore','ripple-glass']);
   try{
     waves.flame=0;cross(waves,[90,100].map(x=>({kind:'light',x:waves.player.x+x,y:waves.player.y})));
-    near(waves.flame,(2+6)*CARD_UNIT);assert.equal(waves.cardRowTrace.event.firstCrossing,false);
+    near(waves.flame,(4+10)*CARD_UNIT);assert.equal(waves.cardRowTrace.event.firstCrossing,false);
     assert.equal(waves.layout.embers.filter(p=>p.collected).length,0);
   }finally{waves.destroy();}
   const courier=flight(['courier-tip','courier-glass','return-spring']);
   try{
     courier.flame=0;courier.wisp.cooldown=5;courier.collect({kind:'light',deliveredByWisp:true});
-    near(courier.flame,20+3*CARD_UNIT);near(courier.wisp.cooldown,5,'Return Spring acts at attachment, never after delivery');
+    near(courier.flame,20+4*CARD_UNIT);near(courier.wisp.cooldown,5,'Return Spring acts at attachment, never after delivery');
     assert.equal(courier.cardRowTrace.event.kind,CARD_ROW_EVENTS.delivery);
     courier.flame=0;courier.collect({kind:'light'});near(courier.flame,20);
   }finally{courier.destroy();}
@@ -290,7 +290,7 @@ test('Rhythm, directional Field and guard rewards pay from actual physical succe
   try{
     rhythm.wisp.cooldown=8;rhythm.flame=70;
     for(const at of [0,.6,1.2]){now=at;rhythm.time=at;assert.ok(rhythm.beginLiftInput());rhythm.endLiftInput();}
-    near(rhythm.flame,70-3*rhythm.flapCost+2*CARD_UNIT);near(rhythm.wisp.cooldown,6);
+    near(rhythm.flame,70-3*rhythm.flapCost+2*CARD_UNIT);near(rhythm.wisp.cooldown,5);
     assert.equal(rhythm.cardRowTrace.event.kind,CARD_ROW_EVENTS.rhythm);assert.equal(rhythm.luminanceWaves.waves.length,1);
   }finally{rhythm.destroy();}
   const field=flight(['field-impulse','springboard','tailwind','wave-loom','refrain'],{collectorFieldImpulse:true});
@@ -302,7 +302,7 @@ test('Rhythm, directional Field and guard rewards pay from actual physical succe
   const guard=flight(['watchlight','home-beacon','last-light','prism-lens','refrain']);
   try{
     guard.flame=0;guard.player.y=-20;guard.hit(null);assert.equal(guard.dying,false);
-    assert.equal(guard.cardRowTrace.sparks,37.5);assert.equal(guard.cardRowTrace.event.meterFraction,0);
+    assert.equal(guard.cardRowTrace.sparks,45);assert.equal(guard.cardRowTrace.event.meterFraction,0);
     assert.equal(guard.flame,guard.maxFlame);assert.equal(guard.luminanceWaves.waves.length,1);
   }finally{guard.destroy();}
 });

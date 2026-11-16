@@ -26,6 +26,8 @@ function approach(state, target = state.run.map.flat().find(node => node.kind ==
     } else {
       assert.ok(M.beginFlightAttempt(r)); assert.ok(M.markFlightAttemptStarted(r));
       assert.ok(M.finishFlight(r, { success: true, flame: 55, collected: 4 })); M.settleCheckpoint(state);
+      const draft = M.getCardDraft(r);
+      if (draft) assert.ok(M.chooseCardDraft(state, draft.id, draft.offers[0].instanceId));
       if (r.cardReward) r.cardReward.uiAcknowledged = true;
       if (r.flightReward && !r.flightReward.claimed) assert.ok(M.chooseFlightReward(state, r.flightReward.offers[0]));
       assert.ok(M.acknowledgeVictory(state));
@@ -83,7 +85,7 @@ test('rank, evolution and Forge spend only at a verified active or completed cam
   assert.equal(M.forgeOwnedCard(state), false); assert.equal(r.condensedGlow, wallet);
 });
 
-test('all three maps have three reachable optional camps and each camp has one ordinary flight exit', () => {
+test('every map guarantees a midpoint camp, keeps two optional camps and single ordinary exits', () => {
   const recipes = new Set(), mirrors = new Set();
   for (let seed = 0; seed < 80; seed++) {
     const r = fresh(`three-camps-${seed}`).run;
@@ -102,9 +104,13 @@ test('all three maps have three reachable optional camps and each camp has one o
       for (const camp of camps) {
         assert.equal(camp.nextIds.length, 1);
         assert.notEqual(byId.get(camp.nextIds[0]).type, 'support');
-        assert.ok(paths.some(path => path.includes(camp.id))); assert.ok(paths.some(path => !path.includes(camp.id)));
+        assert.ok(paths.some(path => path.includes(camp.id)));
+        if (camp.row === 4) assert.ok(paths.every(path => path.includes(camp.id)));
+        else assert.ok(paths.some(path => !path.includes(camp.id)));
       }
-      assert.ok(paths.some(path => path.length === 0), 'an ordinary route can bypass all camps');
+      assert.ok(paths.every(path => path.length >= 1), 'all legal routes reach the midpoint Rest');
+      assert.equal(r.map[4].length, 1); assert.equal(r.map[4][0].kind, 'camp');
+      assert.ok(r.map[3].every(node => node.nextIds.length === 1 && node.nextIds[0] === r.map[4][0].id));
       if (map < 2) { Object.assign(r, { phase: 'map-clear', step: r.map.length }); assert.ok(M.advanceMap(r)); }
     }
   }

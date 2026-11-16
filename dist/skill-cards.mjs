@@ -1,7 +1,7 @@
 /** Small, serializable skills-as-cards pilot. Printed Sparks use the existing .3 display scale. */
 export const CARD_SYSTEM = "cards-v1";
 export const CARD_UNIT = 10 / 3;
-import {CARD_CATALOG,CARD_DROP_WEIGHTS} from './card-catalog.mjs?v=relic-guide-1';
+import {CARD_CATALOG,CARD_DROP_WEIGHTS} from './card-catalog.mjs?v=combo-camp-1';
 const maximumGrowthAmount = Math.max(...Object.values(CARD_CATALOG)
   .filter(card => card.kind === 'camp-grow').map(card => card.amount + card.maxRank - 1));
 export const CARD_ECONOMY = Object.freeze({
@@ -175,6 +175,16 @@ export function cleanCardRun(run) {
     const receiptCard = cleanCard(run.cardReward.card, new Set());
     if (receiptCard) run.cardReward.card = receiptCard;
   }
+  if (run.cardDraft) {
+    const draft = run.cardDraft, seenOffers = new Set(),
+      offers = Array.isArray(draft.offers) ? draft.offers.map(card => cleanCard(card, seenOffers)).filter(Boolean) : [];
+    if (draft.version === 1 && draft.runId === run.id && typeof draft.id === 'string' &&
+        typeof draft.nodeId === 'string' && Number.isSafeInteger(draft.mapIndex) &&
+        offers.length === 3 && new Set(offers.map(card => card.cardId)).size === 3) {
+      draft.offers = offers;
+      draft.claimed = draft.claimed === true;
+    } else delete run.cardDraft;
+  }
   settleCardReward(run);
 }
 export function cardAmount(card) {
@@ -194,13 +204,13 @@ export function describeSkillCard(card) {
   let effect;
   switch (d.kind) {
     case "body":
-      effect = `When your wisp absorbs a Spark: +${amount} Sparks. Touch a fuel pickup already in the passage; Collector deliveries, waves and pickups created by powers do not count. The bonus cannot be packed.`;
+      effect = `When your wisp absorbs a Spark: +${amount} Sparks. Touch a fuel pickup or Dusk Spark already in the passage; Dusk drains up to 3 Sparks before card bonuses. Collector deliveries, waves and pickups created by powers do not count. The bonus cannot be packed.`;
       break;
     case "capacity":
       effect = `Your meter holds ${amount} more Sparks while equipped. Equipping this card does not refill it.`;
       break;
     case "packing":
-      effect = `For every 4 Stored Sparks naturally packed, gain ${d.packingWeight} extra. Progress carries forward; bonuses do not earn more bonuses.`;
+      effect = d.ruleBands.map(band => band.text).join(' ');
       break;
     case "echo":
       effect =
@@ -325,6 +335,7 @@ export function getCardGrowthBonus(run) {
   return isCardRun(run) ? boundedGrowth(run.cardGrowCapacity, getCardGrowthUses(run)) : 0;
 }
 const decimal = (value) => String(Math.round(value * 100) / 100);
+const packingOutcome = weight => `Packing efficiency +${25 * weight}%`;
 function effectiveCardSummary(kind, sources, cards) {
   const matching = sources.filter((entry) => entry.def.kind === kind), count = matching.length;
   const total = matching.reduce((sum, entry) => sum + cardAmount(entry.source), 0);
@@ -336,12 +347,13 @@ function effectiveCardSummary(kind, sources, cards) {
   const packingWeight=matching.reduce((sum,entry)=>sum+Math.max(1,Number(entry.def.packingWeight)||1),0);
   const summaries = {
     capacity: `+${total} maximum Sparks while equipped. Equipping does not refill the meter.`,
+    luminance: `+${total}% Luminance radius while equipped. Sources add together. Chameleon borrows this passive; Echo has no action to repeat.`,
     proximity: 'One shared terrain meter enables revealing Proximity waves at normal reach, without Collector. Extra Proximity cards keep one meter; Echo has no passive action to repeat.',
     springboard: 'One free half-Lift bounce per direct passage Spark absorbed while falling. Extra Springboards do not increase the bounce. Cannot be copied.',
     'heart-stitch': 'Each real Heart Stitch counts direct passage Sparks while a heart is missing. Three in one flight restore one heart and spend one use. Full hearts spend no use; this card cannot be copied.',
     'prism-wick': 'When a passage Flash expires, send one final wave. Each equipped or copied action pays 3 Sparks from the same three shared uses; copies and replay keep one physical final wave.',
     "proximity-range": `Proximity waves enabled. +${50 * count}% of normal reach from ${count} effective ${count === 1 ? "source" : "sources"}. Chameleon can borrow this passive; Echo has no action to repeat.`,
-    packing: `+${25 * packingWeight}% packing: every 4 Stored Sparks naturally packed earns +${packingWeight} extra. Progress carries forward; bonuses do not earn more bonuses.`,
+    packing: packingOutcome(packingWeight),
     "flash-handling": `Restore up to ${total} missing Sparks when your wisp or Collector picks up Flash. Collector makes one pickup.`,
     "camp-grow": `Grow adds +${total} maximum Sparks and refills the meter once. All cards share 3 Grow actions per journey.`,
     harvest: `+${total} Sparks when a wave crosses an uncollected fuel pickup already in the passage${matching.some((entry) => entry.def.stored) ? `; +${matching.reduce((sum, entry) => sum + (entry.def.stored || 0), 0)} Stored Sparks at the first crossing per wave` : ""}.`,
@@ -356,7 +368,7 @@ function effectiveCardSummary(kind, sources, cards) {
   if (kind === "body") {
     // A nearly spent Pocket Sparks may fund fewer executions than copy positions.
     const next = executeCardBodyPickup(createCardExecution(cards));
-    return { effectiveSources: next.executions, effectiveSummary: `Next Spark your wisp absorbs: up to +${decimal(next.bonus / CARD_UNIT)} extra Sparks. Touch a fuel pickup already in the passage. Copied cards share the original card’s uses; the bonus cannot be packed.` };
+    return { effectiveSources: next.executions, effectiveSummary: `Next Spark your wisp absorbs: up to +${decimal(next.bonus / CARD_UNIT)} extra Sparks. Touch a fuel pickup or Dusk Spark already in the passage. Dusk drains first. Copied cards share the original card’s uses; the bonus cannot be packed.` };
   }
   return { effectiveSources: count, effectiveSummary: summaries[kind] || "" };
 }
@@ -388,7 +400,7 @@ export function getMountedCards(run) {
       if (effective.def.kind === "field") printed.copyPreview = `Adds ${repeats} Field Impulse ${repeats===1?'source':'sources'} · ${decimal(.8*repeats)}s extra with a full ring · one ring spend`;
       if (effective.def.kind === "flash-handling") printed.copyPreview = `Adds +${cardAmount(effective.source)*repeats} missing Sparks per Flash · one pickup`;
       if (effective.def.kind === "camp-grow") printed.copyPreview = `Adds +${cardAmount(effective.source)*repeats} maximum Sparks per Grow · shared actions`;
-      if (effective.def.kind === "packing") printed.copyPreview = `${d.kind === "echo" ? "Repeats" : "Borrows"} +${25*(effective.def.packingWeight||1)*repeats}% packing · extras do not earn extras`;
+      if (effective.def.kind === "packing") printed.copyPreview = `${d.kind === "echo" ? "Repeats" : "Borrows"} ${packingOutcome((effective.def.packingWeight||1)*repeats)}`;
     }
     return printed;
   });
@@ -482,6 +494,44 @@ export function drawSkillCard(run, source, node = run.current, rarity = null) {
     if (ticket < 0) { d = def; break; }
   }
   return makeSkillCard(d.id, identity);
+}
+/** Three seeded alternatives, without granting ownership or advancing history.
+ * The first offer preserves the flight rarity roll and early Seed safeguard.
+ * Further offers keep their own tier roll, then sample that tier without names
+ * already on the table (including same-name evolved variants).
+ */
+export function drawSkillCardDraft(run, node = run.current) {
+  const offers = [drawSkillCard(run, 'flight', node)], names = new Set([SKILL_CARDS[offers[0].cardId].name]);
+  for (let index = 1; index < 3; index++) {
+    const source = `flight-draft:${index}`, rolled = drawSkillCard(run, source, node),
+      tier = SKILL_CARDS[rolled.cardId].rarity,
+      pool = Object.values(SKILL_CARDS).filter(def => def.rarity === tier && !def.starterOnly && !names.has(def.name)),
+      draw = random(`${run.campaignSeed || run.seed}:${run.mapIndex}:${node?.id}:draft:${index}:distinct:v1`);
+    let ticket = draw() * pool.reduce((sum, def) => sum + (def.dropWeight || 1), 0), selected = pool.at(-1);
+    for (const def of pool) { ticket -= def.dropWeight || 1; if (ticket < 0) { selected = def; break; } }
+    const card = makeSkillCard(selected.id, rolled.instanceId);
+    offers.push(card); names.add(selected.name);
+  }
+  // Offer a sustained radius choice early, without changing any rarity roll,
+  // the first slot's Growth Seed safeguard, or the established starter pool.
+  // Saved declined offers count, so the pity stops after the player saw it.
+  if (Number(run.mapIndex || 0) < 2 && !offers.some(card => SKILL_CARDS[card.cardId].kind === 'luminance')) {
+    const history = run.cardHistory || [],
+      isLens = card => SKILL_CARDS[card?.cardId]?.kind === 'luminance',
+      acquired = [...(run.mountedCards || []), ...(run.reserveCards || [])].some(isLens)
+        || history.some(event => ['drop','store','forge'].includes(event.type) && isLens(event.card)),
+      drops = history.filter(event => event.type === 'drop'),
+      seen = drops.some(event => event.offeredCardIds?.includes('lantern-lens')),
+      prior = drops.filter(event => event.mapIndex === run.mapIndex && event.nodeId !== node?.id).length,
+      chance = seen ? .2 : prior >= 2 ? 1 : prior === 1 ? (run.mapIndex === 1 ? .9 : .8) : (run.mapIndex === 1 ? .65 : .4),
+      draw = random(`${run.campaignSeed || run.seed}:${run.mapIndex}:${node?.id}:luminance-opportunity:v1`),
+      spare = [1,2].filter(index => SKILL_CARDS[offers[index].cardId].rarity === 'common');
+    if (!acquired && spare.length && draw() < chance) {
+      const index = spare[Math.floor(draw() * spare.length)];
+      offers[index] = makeSkillCard('lantern-lens', offers[index].instanceId);
+    }
+  }
+  return offers;
 }
 /** Flight-local runtime. All executions share the real source card, never recursive modifiers. */
 export function createCardExecution(snapshot) {
@@ -745,6 +795,7 @@ export function getCardModifiers(run) {
     cardDownbeat: false,
     cardRingSpring: false,
     cardWatchlight: false,
+    cardLuminancePercent: 0,
     cardWaveLoom: false,
     cardOverfillEvery: 3,
   };
@@ -753,6 +804,7 @@ export function getCardModifiers(run) {
   m.cardPackingRemainder = integer(run.cardPackingRemainder, 3);
   m.cardExecution = { cards: clone(run.mountedCards || []) };
   for (const { def: d, source } of getEffectiveCardSources(run)) {
+    if (d.kind === "luminance") m.cardLuminancePercent += cardAmount(source);
     if (d.kind === "proximity") m.cardProximityUnlocked = true;
     if (d.kind === "proximity-range") m.cardProximitySources++;
     if (d.kind === "rhythm") m.cardRhythm = true;

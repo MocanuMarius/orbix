@@ -1,19 +1,19 @@
-import {resourceSymbol} from './game-symbols.mjs?v=relic-guide-1';
-import {drawPickup, pickupArtSvg} from './pickup-art.mjs?v=relic-guide-1';
-import {getPickupSpec} from './pickups.mjs?v=relic-guide-1';
-import {drawBlackHoles} from './black-hole-art.mjs?v=relic-guide-1';
-import {blackHoleDrainRate, BLACK_HOLE_TUNING} from './black-holes.mjs?v=relic-guide-1';
-import {CAPTURE_STYLES, readCaptureStyle, saveCaptureStyle} from './capture-styles.mjs?v=relic-guide-1';
-import {drawCapture} from './capture-art.mjs?v=relic-guide-1';
-import {glowPoints, LIGHT_PACKET_TUNING} from './vitality.mjs?v=relic-guide-1';
-import {SKILLS, ARTIFACTS} from './model.mjs?v=relic-guide-1';
-import {ROUTE_BONUSES} from './route-bonuses.mjs?v=relic-guide-1';
-import {skillIcon, artifactIcon} from './upgrade-icons.mjs?v=relic-guide-1';
-import {mapStopIconMarkup} from './map-guide.mjs?v=relic-guide-1';
-import {companionArtSvg, makeWispSprite} from './companion-art.mjs?v=relic-guide-1';
-import {lifeHeartSvg} from './lives.mjs?v=relic-guide-1';
-import {bonusIcon} from './route-bonus-ui.mjs?v=relic-guide-1';
-import {menuIcon} from './menu-icons.mjs?v=relic-guide-1';
+import {resourceSymbol} from './game-symbols.mjs?v=combo-camp-1';
+import {drawPickup, pickupArtSvg} from './pickup-art.mjs?v=combo-camp-1';
+import {getPickupSpec} from './pickups.mjs?v=combo-camp-1';
+import {drawBlackHoles} from './black-hole-art.mjs?v=combo-camp-1';
+import {blackHoleDrainRate, BLACK_HOLE_TUNING} from './black-holes.mjs?v=combo-camp-1';
+import {CAPTURE_STYLES, readCaptureStyle, saveCaptureStyle} from './capture-styles.mjs?v=combo-camp-1';
+import {drawCapture} from './capture-art.mjs?v=combo-camp-1';
+import {glowPoints, LIGHT_PACKET_TUNING} from './vitality.mjs?v=combo-camp-1';
+import {SKILLS, ARTIFACTS} from './model.mjs?v=combo-camp-1';
+import {ROUTE_BONUSES} from './route-bonuses.mjs?v=combo-camp-1';
+import {skillIcon, artifactIcon} from './upgrade-icons.mjs?v=combo-camp-1';
+import {mapStopIconMarkup} from './map-guide.mjs?v=combo-camp-1';
+import {companionArtSvg, makeWispSprite} from './companion-art.mjs?v=combo-camp-1';
+import {lifeHeartSvg} from './lives.mjs?v=combo-camp-1';
+import {bonusIcon} from './route-bonus-ui.mjs?v=combo-camp-1';
+import {menuIcon} from './menu-icons.mjs?v=combo-camp-1';
 
 const preferences = matchMedia('(prefers-reduced-motion: reduce)');
 const root = document.documentElement;
@@ -28,7 +28,7 @@ for (const skill of Object.values(SKILLS)) {
   }
 }
 const card = (name, art, detail = '') => ({name, art, detail});
-const summaries = {sight:'Reveals the passage', dusk:'Fuel · dims sight', dark:'Dims sight'};
+const summaries = {sight:'Reveals the passage', dusk:'Drains up to 3 Sparks · dims Luminance 20% for 4s', dark:'Dims sight'};
 const pickup = kind => {
   const spec = getPickupSpec(kind);
   return {...card(spec.name, pickupArtSvg(kind), spec.plasma ? '+' + glowPoints(spec.fuel) + ' Sparks' : summaries[kind]), kind};
@@ -336,7 +336,7 @@ function renderGroup() {
 }
 async function openLanternPreview() {
   try {
-    const {createLanternPreview} = await import('./lantern-preview.mjs?v=relic-guide-1');
+    const {createLanternPreview} = await import('./lantern-preview.mjs?v=combo-camp-1');
     if (picker.value !== 'lantern' || lanternPreview) return;
     lanternPreview = createLanternPreview({
       host: gallery,
@@ -351,7 +351,7 @@ async function openLanternPreview() {
 }
 async function openSizesPreview(){
   try{
-    const {createSparkSizesPreview}=await import('./spark-sizes-preview.mjs?v=relic-guide-1');
+    const {createSparkSizesPreview}=await import('./spark-sizes-preview.mjs?v=combo-camp-1');
     if(picker.value!=='sizes'||sizesPreview)return;
     sizesPreview=createSparkSizesPreview({isPaused:()=>root.dataset.previewPaused==='true',
       setPaused:value=>{paused=value;syncMotion();},reducedMotion:()=>reducedMotion});
@@ -363,7 +363,7 @@ async function openSizesPreview(){
 }
 async function openFlashPreview() {
   try {
-    const {createFlashPreview} = await import('./flash-preview.mjs?v=relic-guide-1');
+    const {createFlashPreview} = await import('./flash-preview.mjs?v=combo-camp-1');
     if (picker.value !== 'flash' || flashPreview) return;
     flashPreview = createFlashPreview({
       isPaused: () => root.dataset.previewPaused === 'true',

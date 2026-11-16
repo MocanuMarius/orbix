@@ -53,10 +53,10 @@ test('all three Harvest tiers pay the dedicated meter, Legendary Stored pays onc
 
 test('temporary sources all support Harvest; generated, collected, carried, Dream and non-fuel objects cannot pay',()=>{
   const mod={cardHarvestMeter:2*CARD_UNIT,cardHarvestStoredPerWave:1};
-  const natural={x:90,y:50,kind:'dusk'};
+  const natural={x:90,y:50,kind:'light'};
   const e={running:true,alive:true,mod,flame:100,maxFlame:100,distance:0,player:{x:0,y:50},layout:{embers:[natural,
     {x:90,y:50,kind:'light',generated:true},{x:90,y:50,kind:'light',collected:true},{x:90,y:50,kind:'light',carried:true},
-    {x:90,y:50,kind:'sight'},{x:90,y:50,kind:'dark'}]}};
+    {x:90,y:50,kind:'sight'},{x:90,y:50,kind:'dark'},{x:90,y:50,kind:'dusk'}]}};
   const waves=new LuminanceWaves(e);waves.addSource({id:'flash',follow:'wisp',radius:200,duration:1.5});waves.update(.5);
   assert.equal(e.flame,100);assert.equal(e.resonanceStored,1,'Stored pays even at meter cap');assert.ok(!natural.collected);
   e.paused=true;waves.update(2);assert.equal(waves.clock,.5);e.paused=false;e.dream={phase:'recording'};

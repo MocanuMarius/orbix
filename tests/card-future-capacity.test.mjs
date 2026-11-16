@@ -26,7 +26,7 @@ function clearSelected(state,result={}){
 }
 function clearFirst(state,result={}){selectNext(state);clearSelected(state,result);}
 function acknowledge(state){
- const r=state.run;if(r.cardReward)r.cardReward.uiAcknowledged=true;
+ const r=state.run,draft=M.getCardDraft(r);if(draft)assert.ok(M.chooseCardDraft(state,draft.id,draft.offers[0].instanceId));if(r.cardReward)r.cardReward.uiAcknowledged=true;
  if(r.flightReward&&!r.flightReward.claimed){if(r.flightReward.offers.length)assert.ok(M.chooseFlightReward(state,r.flightReward.offers[0]));else r.flightReward.claimed=true;}
  assert.ok(M.acknowledgeVictory(state));
 }

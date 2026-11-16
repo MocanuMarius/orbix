@@ -177,9 +177,14 @@ test('legacy pending cards settle exactly once on reads or load and spent receip
   assert.deepEqual(ownedIds(state.run), []);
 });
 
-test('real cleared cards are stored before finish returns, never autoequip, and route without card decisions', () => {
+test('real cleared cards enter the deck only after a saved draft choice and never autoequip', () => {
   let state = fresh('automatic:flight'), run = state.run;
   finish(state);
+  const draft = M.getCardDraft(run);
+  assert.ok(draft); assert.equal(run.cardReward, undefined);
+  assert.equal(M.getOwnedCards(run).length, 0);
+  assert.equal(M.getRouteMapState(run).availableIds.length, 0);
+  assert.ok(M.chooseCardDraft(state, draft.id, draft.offers[0].instanceId));
   const id = run.cardReward.card.instanceId, wallet = run.condensedGlow;
   assert.equal(run.reserveCards.filter((card) => card.instanceId === id).length, 1);
   assert.ok(run.mountedCards.every((card) => !card));

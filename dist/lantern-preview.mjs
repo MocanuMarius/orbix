@@ -1,9 +1,9 @@
-import { WispFlight, circleHitsObstacle } from './flight.mjs?v=relic-guide-1';
-import { createRun, getRunModifiers } from './model.mjs?v=relic-guide-1';
-import { shutterDensityAt } from './shutter-cone.mjs?v=relic-guide-1';
-import { lanternPassageY, lanternRoute } from './lantern-layout.mjs?v=relic-guide-1';
-import { wispOrbit } from './wisp.mjs?v=relic-guide-1';
-import { stepFlashTether } from './flash-tether.mjs?v=relic-guide-1';
+import { WispFlight, circleHitsObstacle } from './flight.mjs?v=combo-camp-1';
+import { createRun, getRunModifiers } from './model.mjs?v=combo-camp-1';
+import { shutterDensityAt } from './shutter-cone.mjs?v=combo-camp-1';
+import { lanternPassageY, lanternRoute } from './lantern-layout.mjs?v=combo-camp-1';
+import { wispOrbit } from './wisp.mjs?v=combo-camp-1';
+import { stepFlashTether } from './flash-tether.mjs?v=combo-camp-1';
 
 const step = 1 / 60;
 

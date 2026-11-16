@@ -71,6 +71,8 @@ test('eligible overflow plus independent exit reserve is capped first; flat inco
  const flat=fresh();mount(flat.run,['tight-packing','harvest-legendary']);
  clear(flat,{flame:0,condensedGlow:0,storageBonus:100,resonanceStored:7});
  assert.equal(flat.run.lastFlight.resonanceStored,7);assert.equal(flat.run.lastFlight.cardPackingBonus,0);
+ const draft=M.getCardDraft(flat.run);assert.ok(draft);
+ assert.ok(M.chooseCardDraft(flat,draft.id,draft.offers[0].instanceId));
  const wallet=flat.run.condensedGlow;
  assert.ok(M.meltOwnedCards(flat,[flat.run.cardReward.card.instanceId]));assert.ok(flat.run.condensedGlow>wallet);
  assert.equal(flat.run.cardPackingRemainder,0);
@@ -82,7 +84,7 @@ test('genuine copies, Chameleon and Echo add packing percentage points once',()=
  const state=fresh(),run=state.run;
  mount(run,['chameleon','tight-packing','tight-packing','echo','tight-packing']);
  assert.equal(getCardModifiers(run).cardPackingSources,10);
- assert.equal(getMountedCards(run)[3].copyPreview,'Repeats +50% packing · extras do not earn extras');
+ assert.equal(getMountedCards(run)[3].copyPreview,'Repeats Packing efficiency +50%');
  clear(state,{condensedGlow:4});assert.equal(run.lastFlight.cardPackingBonus,10);
  assert.equal(SKILL_CARDS['tight-packing'].maxRank,1);
  assert.deepEqual(getCardPackingBonus(4,1),{amount:1,remainder:0});
@@ -114,15 +116,16 @@ test('Common starter/drop pools include Tight Packing and its clear UI receipt n
  }
  assert.ok(starter);assert.ok(drop);
  const state=fresh();clear(state,{condensedGlow:4});
+ const draft=M.getCardDraft(state.run);assert.ok(draft);
+ assert.ok(M.chooseCardDraft(state,draft.id,draft.offers[0].instanceId));
  const packing=describeSkillCard(makeSkillCard('tight-packing','art'));
  const art=cardArt(packing);
  assert.match(art,/data-card-art="tight-packing"/);
  assert.match(art,/<image href="\.\/assets\/cards\/skill-card-scenes-rare\.webp"/);
  assert.match(art,/aria-label="[^"]*press[^"]*"/);
  const rule=cardMechanicMarkup(packing);
- assert.match(rule.replace(/<[^>]*>/g,'').replace(/\s+/g,' '),/For every 2 Stored Sparks naturally packed\+1/);
- assert.equal((rule.match(/resource-symbol-packed/g)||[]).length,2);
- assert.doesNotMatch(rule,/resource-symbol-energy/);
+ assert.match(rule.replace(/<[^>]*>/g,'').replace(/\s+/g,' '),/Packing efficiency \+50%/);
+ assert.match(rule,/data-card-term="packing-efficiency"/);
  assert.match(cardRewardMarkup(state.run),/Tight Packing \+2 Stored Sparks/);
  state.run.cardReward.source='forge';assert.doesNotMatch(cardRewardMarkup(state.run),/Tight Packing \+2 Stored Sparks/);
  state.run.lastFlight.elite=true;

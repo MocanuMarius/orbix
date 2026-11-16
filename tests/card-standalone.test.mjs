@@ -23,12 +23,12 @@ test('Dusk Wick pays 20/30/40 only for an actual direct Dusk, with its native li
   for (const [id,amount] of [['dusk-wick',20],['dusk-wick-ii',30],['dusk-wick-iii',40]]) {
     const e=flight([id],{modifiers:{...getCardModifiers(build([id])),maxGlow:250}});
     try {
-      e.flame=0;e.collect({kind:'dusk'});near(e.flame,40+amount*CARD_UNIT);
+      e.flame=0;e.collect({kind:'dusk'});near(e.flame,amount*CARD_UNIT);
       assert.equal(e.lightPenalties.length,1);
       e.flame=0;e.collect({kind:'light',collectorOriginalKind:'dusk'});near(e.flame,20);
       e.flame=0;e.collect({kind:'dusk',generated:true});assert.equal(e.cardRowTrace.event.pickupKind,'dusk');
-      near(e.flame,2*CARD_UNIT);
-      e.dream={phase:'recording',active:true};e.flame=0;e.collect({kind:'dusk'});near(e.flame,40);
+      near(e.flame,0);
+      e.dream={phase:'recording',active:true};e.flame=0;e.collect({kind:'dusk'});near(e.flame,0);
     } finally {e.destroy();}
   }
 });

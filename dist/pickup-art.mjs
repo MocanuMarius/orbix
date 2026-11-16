@@ -1,6 +1,6 @@
-import { pickupKind, getPickupSpec, pickupDisposition, PLASMA_SHELL_RADIUS, SPARK_ART_SCALE } from './pickups.mjs?v=relic-guide-1';
-import {sparkImageArt,sparkSymbolArt} from './spark-symbol.mjs?v=relic-guide-1';
-import {drawPickupHandlingCue,pickupRingSvg} from './pickup-handling-cue.mjs?v=relic-guide-1';
+import { pickupKind, getPickupSpec, pickupDisposition, PLASMA_SHELL_RADIUS, SPARK_ART_SCALE } from './pickups.mjs?v=combo-camp-1';
+import {sparkImageArt,sparkSymbolArt,DUSK_MOTIF_PIXELS} from './spark-symbol.mjs?v=combo-camp-1';
+import {drawPickupHandlingCue,pickupRingSvg} from './pickup-handling-cue.mjs?v=combo-camp-1';
 
 const TAU = Math.PI * 2;
 const clamp = (value, low, high) => Math.max(low, Math.min(high, value));
@@ -247,12 +247,9 @@ function packetPixels(kind, { time = 0, reducedMotion = false, tiny = false, bod
     rect(-5,-4,3,1,'#ffc0a0',.9);rect(4,3,2,1,'#c76c60',.7);
   } else if (kind === 'dusk') {
     const tide = reducedMotion ? 0 : Math.sin(t*TAU/3.2);
-    halo(9, '#a56c87', .12+tide*.045);
-    disc(0, 0, 5, '#795968', .72); disc(0, 0, 4, '#d798ad', .85);
-    disc(0, 0, 2.7, '#24202d'); disc(0, 0, 1.3, '#080b14');
-    rect(-3, -3, 3, 1, '#edbdc7', .9); rect(-4, -2, 1, 3, '#c98caa', .7);
-    rect(1, 3, 2, 1, '#93667c', .8);
-    rect(Math.round(-3+tide*2),-4,2,1,'#ffdad7',.80);
+    halo(12, '#a56c87', .12+tide*.045);
+    for(const [x,y,width,height,color] of DUSK_MOTIF_PIXELS)rect(x-10,y-10,width,height,color);
+    if(tide>.35)rect(-7,-6,2,1,'#ffe0df',tide*.7);
   } else {
     halo(7, '#cabb99', .1);
     disc(0, 0, 3, '#bfaf8d', .65); disc(0, 0, 2, '#f5e6bc', .95);
