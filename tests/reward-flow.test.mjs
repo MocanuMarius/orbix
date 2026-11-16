@@ -35,7 +35,34 @@ test('reward shows two readable choices and no slot controls; claimed effect rem
  const options={artifactArt:id=>`<svg data-artifact="${id}"></svg>`};
  const before=flightRewardMarkup(s,options);assert.equal((before.match(/<article /g)||[]).length,2);assert.match(before,/Collector delivers a Spark/);assert.match(before,/Choose one/);assert.doesNotMatch(before,/data-reward-slot|Equip and replace|SPARKS RECOVERED|Packed Light/);
  assert.equal((before.match(/data-action="reward-artifact-details"/g)||[]).length,2);
- assert.ok(chooseFlightReward(s,'echo-bell'));const after=flightRewardMarkup(s,options);assert.equal((after.match(/<article /g)||[]).length,1);assert.match(after,/Active this run/);assert.match(after,/data-action="reward-artifact-details" data-id="echo-bell"/);assert.match(after,/victory-next/);
+ assert.ok(chooseFlightReward(s,'echo-bell'));const after=flightRewardMarkup(s,options);assert.equal((after.match(/<article /g)||[]).length,1);assert.match(after,/data-acquired-presentation="horizontal"/);assert.match(after,/relic acquired/);assert.match(after,/data-action="reward-artifact-details" data-id="echo-bell"/);assert.match(after,/victory-next/);
+});
+test('claimed relic presentation preserves choice, discovery and generic clear flows',()=>{
+ const s=ready(true);s.run.flightReward.offers=['echo-bell','glass-lantern'];
+ assert.doesNotMatch(flightRewardMarkup(s),/data-acquired-presentation/);
+ assert.ok(chooseFlightReward(s,'echo-bell'));
+ for(const presentation of ['pedestal','horizontal','compact'])assert.match(flightRewardMarkup(s,{acquiredPresentation:presentation}),new RegExp(`data-acquired-presentation="${presentation}"`));
+ s.run.flightReward.permanent=true;assert.doesNotMatch(flightRewardMarkup(s),/data-acquired-presentation/);
+ s.run.flightReward.permanent=false;s.run.lastFlight.elite=false;s.run.lastFlight.boss=false;s.run.flightReward.offers=[];assert.equal(flightRewardMarkup(s),'');
+ s.run.lastFlight.elite=true;s.run.flightReward={offers:[],claimed:true};assert.match(flightRewardMarkup(s),/Passage secured/);assert.doesNotMatch(flightRewardMarkup(s),/data-acquired-presentation/);
+ s.run.flightReward={offers:[],chosen:'echo-bell',claimed:false};assert.doesNotMatch(flightRewardMarkup(s),/data-acquired-presentation/);
+});
+test('claimed relic actions follow actual build availability',()=>{
+ const s=ready(true);assert.ok(chooseFlightReward(s,s.run.flightReward.offers[0]));
+ const cards=flightRewardMarkup(s,{deckAvailable:true,skillsAvailable:false,upgradeCount:4});
+ assert.match(cards,/data-action="cards">Deck/);assert.doesNotMatch(cards,/data-action="skills"|>Upgrade</);
+ const skills=flightRewardMarkup(s,{skillsAvailable:true,upgradeCount:0});assert.match(skills,/data-action="skills">Skills/);assert.doesNotMatch(skills,/>Deck</);
+ const upgrade=flightRewardMarkup(s,{skillsAvailable:true,upgradeCount:2});assert.match(upgrade,/data-action="skills">Upgrade/);
+ const locked=flightRewardMarkup(s,{skillsAvailable:false,deckAvailable:false});assert.match(locked,/acquired-no-build/);assert.doesNotMatch(locked,/data-action="skills"|data-action="cards"/);assert.match(locked,/Full rules|victory-next/);
+});
+test('claimed relic boon and receipt reflect real awards and handle no bonus',()=>{
+ const s=ready(true);assert.ok(chooseFlightReward(s,s.run.flightReward.offers[0]));
+ s.run.lastFlight={elite:true,routeBonus:{id:'wild-circuit'},cardClearReceipt:{}};
+ const empty=flightRewardMarkup(s);assert.match(empty,/acquired-no-boon/);assert.doesNotMatch(empty,/acquired-boon"|data-action="reward-earnings"|Wild Circuit/);
+ s.run.lastFlight.routeBonus={id:'wild-circuit',name:'Heartwood Trail',amount:0,message:'Heartwood Trail · +3 maximum Sparks permanently'};
+ const special=flightRewardMarkup(s);assert.match(special,/acquired-has-boon/);assert.match(special,/Heartwood Trail/);assert.match(special,/\+3 maximum Sparks permanently/);assert.doesNotMatch(special,/Companion recovery/);assert.match(special,/data-action="reward-earnings"/);
+ s.run.lastFlight.routeBonus={id:'precision',amount:8};assert.match(flightRewardMarkup(s),/Pilgrim Precision/);assert.match(flightRewardMarkup(s),/\+8 Stored Sparks/);
+ delete s.run.lastFlight.routeBonus;s.run.lastFlight.cardClearReceipt={futureCapacity:3};const growth=flightRewardMarkup(s);assert.match(growth,/data-action="reward-earnings"/);assert.match(growth,/acquired-no-boon/);
 });
 test('resume countdown keeps physics blocked for all three seconds and supports cancellation',()=>{
  let clock=0,callback,completed=0;const number={textContent:'3'},bar={style:{}},panel={querySelector:s=>s==='b'?number:bar,setAttribute(){}};

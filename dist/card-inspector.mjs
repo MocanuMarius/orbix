@@ -1,6 +1,6 @@
 // A disposable deck for phone inspection. Never reads or writes a player save.
-import { newState, createRun, getSupportChoices } from './model.mjs?v=dream-gifts-1';
-import { makeSkillCard } from './skill-cards.mjs?v=dream-gifts-1';
+import { newState, createRun, getSupportChoices } from './model.mjs?v=storm-guide-1';
+import { makeSkillCard } from './skill-cards.mjs?v=storm-guide-1';
 
 export function prepareCardInspectorReward(run, cardId = 'harvest-rare') {
   if (run.cardReward && !run.cardReward.uiAcknowledged) return;

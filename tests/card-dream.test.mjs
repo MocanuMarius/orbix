@@ -34,7 +34,9 @@ test('equipped Common Dream reaches the one Rest exit and preserves it on retry 
     assert.equal(others.length,0);assert.deepEqual(camp.nextIds,[next.id]);
     assert.ok(canDreamAt(run,next));assert.equal(dreamConfig(run,next).duration,8);
     assert.match(cardRestMarkup(run,camp,M.getSupportChoices(run)),/Enter Dream · 8s/);
-    assert.match(flightPreviewMarkup(run,next,{available:true}),/Dream · 8s/);
+    const guide=flightPreviewMarkup(run,next,{available:true});
+    assert.ok(guide.includes(`aria-label="Dream for 8 seconds at ${next.name}"`));
+    assert.ok(guide.includes(`data-action="node" data-id="${next.id}"`));
     const copy=structuredClone(run);copy.path=[];assert.equal(isCardDreamRoute(copy,next),false);
     copy.path=[camp.id];copy.lastRest.mapIndex++;assert.equal(isCardDreamRoute(copy,next),false);
     assert.ok(M.selectNode(run,next.id));assert.equal(M.getRunModifiers(run).dreamDuration,8);

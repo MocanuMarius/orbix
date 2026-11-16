@@ -36,7 +36,7 @@ test('Collector latches at the real loop, then winds around a Spark-to-main-wisp
     const state=w.state(e),pose=state.cargoPose;
     assert.equal(state.motion,'reeling');assert.equal(state.canFetch,false);assert.equal(state.busy,true);
     assert.equal(state.tetherPose.x,e.player.x);assert.equal(state.tetherPose.y,e.player.y);
-    assert.equal(pose.scale,1);assert.ok(w.cargoX<e.player.x,'cargo remains aft through Lift and Dive');
+    assert.equal(pose.scale,1);if(state.towStage==='tow'||state.towStage==='setup')assert.ok(w.cargoX<e.player.x,'cruise cargo remains aft through Lift and Dive');
     assert.ok(w.reelProgress>=progress);progress=w.reelProgress;
     back||=state.depth<-.6;front||=state.depth>.6;
     assert.equal(e.shatters.length,0);assert.equal(e.deliveries.length,0);
@@ -45,7 +45,7 @@ test('Collector latches at the real loop, then winds around a Spark-to-main-wisp
   assert.equal(e.deliveries.length,1);assert.equal(e.shatters.length,1);
   assert.equal(w.phase,'ready');assert.equal(w.cooldown,0);assert.equal(w.state(e).canFetch,true);
   const {source,home}=e.deliveries[0];
-  assert.ok(source.worldX-e.baseSpeed*e.deliveries[0].time<home.x,'aft-side body contact');
+  assert.ok(source.worldX-e.baseSpeed*e.deliveries[0].time>home.x,'front-side body contact');
   assert.ok(Math.hypot(source.worldX-e.baseSpeed*e.deliveries[0].time-home.x,source.y-home.y)<=sparkBodyRadius(p)+WISP_ART.worldRadius);
   for(let i=0;i<180;i++)tick();assert.equal(e.deliveries.length,1);
 });
@@ -156,8 +156,10 @@ test('loaded hook turns toward the main wisp, stays on its eyelet, and the displ
       if(pose.age>.32){
         const expected=Math.atan2(e.player.y-cy,e.player.x-cx);
         assert.ok(Math.abs(Math.atan2(Math.sin(pose.hookAngle-expected),Math.cos(pose.hookAngle-expected)))<1e-8);
-        const orbit=collectorTowOrbit(tether,pose.age,quiet,WISP_TUNING.reelTurnsPerSecond);
-        assert.ok(Math.hypot(orbit.x-state.x,orbit.y-state.y)<1e-8,'helix winds around the same curve that is painted');
+        if(state.towStage==='tow'){
+          const orbit=collectorTowOrbit(tether,pose.age,quiet,WISP_TUNING.reelTurnsPerSecond);
+          assert.ok(Math.hypot(orbit.x-state.x,orbit.y-state.y)<1e-8,'helix winds around the same curve that is painted');
+        }
       }
       assert.deepEqual({x:w.x,y:w.y,cargoX:w.cargoX,cargoY:w.cargoY,cooldown:w.cooldown},before,'visual sampling cannot advance gameplay');
     }

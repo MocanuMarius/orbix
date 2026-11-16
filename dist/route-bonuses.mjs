@@ -1,6 +1,6 @@
-import {getLifeCapacity} from './vitality.mjs?v=dream-gifts-1';
-import {grantPassageBoon} from './passage-preparations.mjs?v=dream-gifts-1';
-import {getCardModifiers,isCardRun} from './skill-cards.mjs?v=dream-gifts-1';
+import {getLifeCapacity} from './vitality.mjs?v=storm-guide-1';
+import {grantPassageBoon} from './passage-preparations.mjs?v=storm-guide-1';
+import {getCardModifiers,isCardRun} from './skill-cards.mjs?v=storm-guide-1';
 
 function bonus(id, name, condition, reward, target, hint='') {
   return Object.freeze({id, name, condition, reward, target, hint});

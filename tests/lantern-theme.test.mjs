@@ -61,8 +61,10 @@ test('the phone sandbox opens a real map, with Dream and forecast cues and one o
  r.skills['main-dream']=1;
  const html=flightPreviewMarkup(r,{...first,atlasForecast:'bellwind'},{available:true});
  assert.match(html,/lanterns on the roof and floor/i);
- assert.match(html,/upper Sparks/);
- assert.match(html,/Dream · 8s/);
+ const details=html.slice(html.indexOf('<summary>Details</summary>')).split('</details>')[0].replace(/<[^>]*>/g,'').replace(/\s+/g,' ');
+ assert.match(details,/Bellwind/);assert.match(details,/upper Sparks/);
+ assert.ok(html.includes(`aria-label="Dream for 8 seconds at ${first.name}"`));
+ assert.ok(html.includes(`data-action="node" data-id="${first.id}"`));
  assert.equal(lanternEntryLesson({skipTutorial:true},state.profile,r),null);
  state.profile.onboarding.seen.push('lanterns');
  assert.equal(lanternEntryLesson({},state.profile,r),null);

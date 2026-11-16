@@ -32,7 +32,7 @@ try{
   for(const [selector,copy]of [['.preview-biome-feature','release a few Sparks'],['.preview-spark-feature','Small Sparks are more common'],['.preview-route-details','51 s']]){
    await click(selector+' summary');
    assert.ok(await browser.ev(`document.querySelector(${JSON.stringify(selector)}).open`));
-   assert.match(await browser.ev(`document.querySelector(${JSON.stringify(selector)}).innerText`),new RegExp(copy));
+   assert.match((await browser.ev(`document.querySelector(${JSON.stringify(selector)}).innerText`)).replace(/\s+/g,' '),new RegExp(copy));
    assert.ok(await browser.ev(`Array.from(document.querySelectorAll('.flight-preview footer button')).every(node=>{const r=node.getBoundingClientRect();return r.y>=0&&r.bottom<=innerHeight})`),'Disclosures preserve actions');
    if(width===667&&selector==='.preview-route-details')await browser.shot(`${output}/wayfinder-details-667x300.png`);
    await click(selector+' summary');

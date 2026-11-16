@@ -6,7 +6,7 @@ import path from 'node:path';
 import assert from 'node:assert/strict';
 import {chrome,until} from './browser-probe.mjs';
 
-const root=path.resolve('dist'),out=path.resolve('work/tow-swing-release/capture');
+const root=path.resolve('dist'),out=path.resolve(process.argv.find(a=>a.startsWith('--out='))?.slice(6)||'work/tow-swing-release/capture');
 await fs.mkdir(out,{recursive:true});
 const bridge=`
 window.__swingCapture={href:location.href,get engine(){return engine},
@@ -37,6 +37,7 @@ window.__swingCapture={href:location.href,get engine(){return engine},
   const w=e.getWispState();
   return {time:e.time,y:e.player.y,playerX:e.player.x,distance:e.distance,dying:e.dying,
    carrying:!!e.wisp.cargo,cargoX:e.wisp.cargoX,cargoY:e.wisp.cargoY,gap:e.wisp.reelGap,
+   stage:e.wisp.towStage,cordAlpha:w.tetherPose?.alpha,side:e.wisp.sling?.side,
    collector:{x:w.x,y:w.y,depth:w.depth},collected:!!this.packet.collected};
  }
 };`;
@@ -53,7 +54,7 @@ const report={note:'Actual application on the authored Pinewood course. A missed
 try{
  await b.send('Emulation.setDeviceMetricsOverride',{width:900,height:405,deviceScaleFactor:2,mobile:true});
  await b.send('Page.addScriptToEvaluateOnNewDocument',{source:'localStorage.clear()'});
- const url=base+'/game.html?mock=boundary&cards=1&biome=pinewood&course=1&collectorArt=flat2&proof=tow-swing';
+ const url=base+'/game.html?mock=boundary&cards=1&biome=pinewood&course=1&proof=tow-swing';
  await b.visit(url);await until(()=>b.ev('window.__swingCapture?.href==='+JSON.stringify(url)+'&&window.__swingCapture?.engine?.pixiReady&&document.querySelector("[data-action=wake-flight]")'),'flight ready',300);
  report.initial=await b.ev('__swingCapture.prepare()');report.states=[];
  const frames=path.join(out,'frames');await fs.mkdir(frames,{recursive:true});

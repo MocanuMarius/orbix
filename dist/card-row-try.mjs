@@ -1,7 +1,7 @@
-import {previewEquippedCardRow} from './card-row-preview.mjs?v=dream-gifts-1';
-import {describeSkillCard} from './skill-cards.mjs?v=dream-gifts-1';
-import {cardArt} from './card-art.mjs?v=dream-gifts-1';
-import {resourceSymbol} from './game-symbols.mjs?v=dream-gifts-1';
+import {previewEquippedCardRow} from './card-row-preview.mjs?v=storm-guide-1';
+import {describeSkillCard} from './skill-cards.mjs?v=storm-guide-1';
+import {cardArt} from './card-art.mjs?v=storm-guide-1';
+import {resourceSymbol} from './game-symbols.mjs?v=storm-guide-1';
 
 const esc = value => String(value ?? '').replace(/[&<>"']/g, character => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[character]));
 const number = value => Number((Number(value) || 0).toFixed(3));

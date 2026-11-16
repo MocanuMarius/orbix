@@ -6,15 +6,15 @@ import {WISP_ART} from '../dist/companion-art.mjs';
 
 globalThis.requestAnimationFrame=()=>null;globalThis.cancelAnimationFrame=()=>{};
 
-function flight({paired=false,quiet=false}={}){
+function flight({paired=false,quiet=false,flash=false}={}){
  const ctx=new Proxy({globalAlpha:1},{get:(o,k)=>o[k]??=(String(k).includes('Gradient')?()=>({addColorStop(){}}):()=>{})});
  const e=new WispFlight({preflight:true,seed:'collector-swing-real-flight',duration:90,companions:['collector'],
-  reducedMotion:quiet,modifiers:{wispCooldown:.4,cardTwinOrbit:paired},
+  reducedMotion:quiet,modifiers:{wispCooldown:.4,cardTwinOrbit:paired,collectorFlashFetch:flash},
   canvas:{style:{},getContext:()=>ctx,getBoundingClientRect:()=>({width:900,height:405})}});
  e.render=()=>{};e.renderScheduledFrame=()=>{};e.notify=()=>{};
  e.layout.obstacles=[];e.layout.embers=[];e.drafts.zones=[];e.biomeDynamics.items=[];e.blackHoles.items=[];
  e.running=true;e.resumeElapsed=e.resumeRampSeconds;e.flame=e.maxFlame;
- const packets=[{id:'lower',kind:'light',x:e.distance+e.player.x-29,y:e.player.y+20}];
+ const packets=[{id:'lower',kind:flash?'sight':'light',x:e.distance+e.player.x-29,y:e.player.y+20}];
  if(paired)packets.push({id:'upper',kind:'cluster',x:e.distance+e.player.x-34,y:e.player.y-24});
  e.layout.embers=packets;e._pickupCount=-1;e._nearbyPacketsUntil=-1;
  const lifts=[],attachments=[],deliveries=[],samples=[];
@@ -52,6 +52,7 @@ test('repeated real Lifts leave Sparks swinging at their own altitude at 20/30/6
    for(const delivery of f.deliveries){
     const packet=f.packets.find(p=>p.id===delivery.id),contact=sparkBodyRadius(packet,e.height)+WISP_ART.worldRadius;
     assert.ok(Math.hypot(delivery.source.worldX-delivery.distance-delivery.player.x,delivery.y-delivery.player.y)<=contact+1e-8,'payout is at integrated body contact');
+    assert.ok(delivery.source.worldX-delivery.distance>delivery.player.x,'payout approaches from the front');
     const attached=f.attachments.find(a=>a.id===delivery.id);
     assert.ok(delivery.time-attached.time>=4-1e-8&&delivery.time-attached.time<4.4,'contact-gated arrival has a bounded recovery extension');
     assert.ok(Math.hypot(delivery.source.worldX-delivery.source.previousWorldX,delivery.source.y-delivery.source.previousY)<12,'delivery traverses a single physical step without a terminal jump');
@@ -66,5 +67,14 @@ test('reduced motion retains gravity and real contact while suppressing added sw
  const f=flight({quiet:true});try{
   paint(f.e,30,7);assert.equal(f.deliveries.length,1);assert.equal(f.e.collectorPickups,1);
   assert.ok(f.samples.some(s=>s.playerVY< -100&&s.vy>10));
+ }finally{f.e.destroy();}
+});
+
+test('a real fetched Flash uses the front release once and keeps its own reveal tether',()=>{
+ const f=flight({flash:true});try{
+  paint(f.e,60,7);assert.equal(f.deliveries.length,1);assert.ok(f.packets[0].collected);
+  const delivery=f.deliveries[0];assert.ok(delivery.source.worldX-delivery.distance>delivery.player.x);
+  assert.ok(f.e.flashTether&&f.e.sightUntil>f.e.time);
+  assert.ok(!f.e.absorptionEffects.some(effect=>effect.pickupId===f.packets[0].id),'Flash remains a reveal instead of a fuel absorption');
  }finally{f.e.destroy();}
 });

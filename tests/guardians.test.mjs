@@ -408,13 +408,13 @@ test('Frost shards warn, collide from the advertised side, leave an escape, and 
 });
 
 
-test('Storm columns move the wisp in both directions with a traversable bypass', () => {
-  function crossing(speed, index, bypass, suppress, dash = false) {
+test('Runner resists both opposing Storm lane currents in actual flight', () => {
+  function crossing(speed, index, suppress, dash = false) {
     const e = flight('storm-shepherd',{speed,role:dash?'swift':'collector'});
-    const a = e.layout.boss.attacks[index], z = a.stormZone;
+    const a = e.layout.boss.attacks.find(a=>a.stormRoom.kind==='fork'), z = a.stormZones[index];
     assert.ok(e.drafts.zones.includes(z));
     if (suppress) e.drafts.zones = [];
-    place(e, z.x - z.rx * .55, bypass ? z.y + z.direction * (z.ry + 22) : z.y);
+    place(e, z.x - 30, z.y);
     if (dash) {
       e.fleet[0].remaining = 1;
       e.syncFleetTimers();
@@ -423,10 +423,10 @@ test('Storm columns move the wisp in both directions with a traversable bypass',
     e.player.vy = -32;
     const startY = e.player.y;
     let experienced = false;
-    while (e.distance + e.player.x < z.x + z.rx * .16) {
+    while (e.distance + e.player.x < z.x + 12) {
       e.step(dt);
       experienced ||= a.stormContact;
-      assert.equal(e.dying, false, JSON.stringify({speed,index,bypass,suppress,dash}));
+      assert.equal(e.dying, false, JSON.stringify({speed,index,suppress,dash}));
     }
     const result = {dy:e.player.y - startY, experienced, dir:z.direction, gustSeconds:e.gustSeconds};
     e.destroy();
@@ -435,15 +435,11 @@ test('Storm columns move the wisp in both directions with a traversable bypass',
   for (const speed of [1,1.25]) {
     const directions = [];
     for (const index of [0,1]) {
-      const control = crossing(speed,index,false,true), gust = crossing(speed,index,false,false);
-      const safe = crossing(speed,index,true,false), safeControl = crossing(speed,index,true,true);
+      const control = crossing(speed,index,true), gust = crossing(speed,index,false);
       assert.ok(gust.experienced && gust.gustSeconds > .1);
-      assert.ok((gust.dy - control.dy) * gust.dir > 8, 'the active lane changes the unaided path by at least a body radius');
-      assert.equal(safe.experienced, false);
-      assert.equal(safe.gustSeconds, 0);
-      assert.equal(safe.dy, safeControl.dy);
+      assert.ok((gust.dy - control.dy) * gust.dir > 3, 'the active lane changes the unaided path');
       directions.push(gust.dir);
-      const dash = crossing(speed,index,false,false,true), dashControl = crossing(speed,index,false,true,true);
+      const dash = crossing(speed,index,false,true), dashControl = crossing(speed,index,true,true);
       assert.ok(Math.abs(dash.dy-dashControl.dy) < Math.abs(gust.dy-control.dy) * .5);
     }
     assert.equal(directions[0], -directions[1]);

@@ -1,6 +1,7 @@
 // One-shot, world-anchored air pockets. Reading a puff never advances it.
-import { LEVEL_LENGTH } from './level-length.mjs?v=dream-gifts-1';
-import { scenePropBounds } from './scene-props.mjs?v=dream-gifts-1';
+import { LEVEL_LENGTH } from './level-length.mjs?v=storm-guide-1';
+import { scenePropBounds } from './scene-props.mjs?v=storm-guide-1';
+import {stormZoneState} from './storm-encounter.mjs?v=storm-guide-1';
 const clamp = (n, lo, hi) => Math.min(hi, Math.max(lo, n));
 const smooth = n => { const t = clamp(n, 0, 1); return t * t * (3 - 2 * t); };
 export const DRAFT_TUNING = Object.freeze({ warning: 1.15, duration: 1.65, fade: .35,
@@ -117,7 +118,7 @@ function puffAt(zone, time) {
 export class DraftField {
   constructor(options) {
     const boss=options.layout?.boss;
-    this.zones=boss?.id==='storm-shepherd'?boss.attacks.map(attack=>attack.stormZone):createDraftZones(options);
+    this.zones=boss?.id==='storm-shepherd'?boss.stormZones:createDraftZones(options);
   }
 
   update(time, worldX, speed) {
@@ -135,7 +136,7 @@ export class DraftField {
     let warning = null;
     for (const zone of this.zones) {
       if (zone.guardian && Math.abs(worldX-zone.x)>zone.rx) continue;
-      const puff = zone.guardian ? {phase:'active',strength:1} : puffAt(zone,time);
+      const puff = zone.guardian ? stormZoneState(zone,worldX) : puffAt(zone,time);
       if (!puff) continue;
       if (puff.phase === 'gather' && worldX <= zone.x + zone.rx) warning ||= puff;
       if (puff.phase === 'gather') continue;
@@ -144,7 +145,8 @@ export class DraftField {
       const strength = puff.strength * smooth((1 - radiusSquared) / .55);
       if (strength <= 0) continue;
       const force = Math.min(DRAFT_TUNING.maximumForce, zone.force * clamp(Number(sensitivity) || 1, .5, 2)) * strength;
-      return { ...quiet, active: true, direction: zone.direction, strength, force,
+      return { ...quiet, active: true, direction: puff.direction??zone.direction, strength, force,
+        warning:!!puff.warning,warningProgress:puff.warningProgress||0,
         intensity: force / DRAFT_TUNING.storm.force, puffId: zone.id, guardian: zone.guardian===true,
         phase: puff.phase, x: zone.x, y: zone.y, rx: zone.rx, ry: zone.ry };
     }

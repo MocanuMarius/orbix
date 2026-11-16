@@ -1,7 +1,7 @@
-import {drawShutterWake,shutterLightFactor,shutterWakeAt} from './shutter-cone.mjs?v=dream-gifts-1';
-import {lanternField} from './lantern-layout.mjs?v=dream-gifts-1';
-import { LIGHT_EXTENT, lightAttenuation } from './light-attenuation.mjs?v=dream-gifts-1';
-import {luminanceWaveVisibility} from './luminance-waves.mjs?v=dream-gifts-1';
+import {drawShutterWake,shutterLightFactor,shutterWakeAt} from './shutter-cone.mjs?v=storm-guide-1';
+import {lanternField} from './lantern-layout.mjs?v=storm-guide-1';
+import { LIGHT_EXTENT, lightAttenuation } from './light-attenuation.mjs?v=storm-guide-1';
+import {luminanceWaveVisibility} from './luminance-waves.mjs?v=storm-guide-1';
 export { LIGHT_EXTENT, lightAttenuation };
 const reflectedLight = .6;
 
