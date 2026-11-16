@@ -1,4 +1,4 @@
-import {normalizeChapterPrerequisites} from './skill-chapters.mjs?v=glossary-1';
+import {normalizeChapterPrerequisites} from './skill-chapters.mjs?v=tow-swing-1';
 const groups=[
  ['main','Lift',['main-efficiency','main-lift']],
  ['main','Fourth Beat',['main-fourth-beat','main-fourth-beat-2']],

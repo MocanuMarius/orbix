@@ -1,11 +1,11 @@
-import {artifactLimitSummary,effectMarkup} from '../artifact-copy.mjs?v=glossary-1';
-import {resourceSymbol} from '../game-symbols.mjs?v=glossary-1';
-import {artifactRarityLabel} from '../replay-ui.mjs?v=glossary-1';
-import {ROUTE_BONUSES} from '../route-bonuses.mjs?v=glossary-1';
-import {bonusIcon} from '../route-bonus-ui.mjs?v=glossary-1';
-import {reliquaryNicheMarkup} from './reliquary-art.mjs?v=glossary-1';
-import {relicRulesButton} from './relic-primitives.mjs?v=glossary-1';
-import {actionButton,escapeHtml as esc} from './primitives.mjs?v=glossary-1';
+import {artifactLimitSummary,effectMarkup} from '../artifact-copy.mjs?v=tow-swing-1';
+import {resourceSymbol} from '../game-symbols.mjs?v=tow-swing-1';
+import {artifactRarityLabel} from '../replay-ui.mjs?v=tow-swing-1';
+import {ROUTE_BONUSES} from '../route-bonuses.mjs?v=tow-swing-1';
+import {bonusIcon} from '../route-bonus-ui.mjs?v=tow-swing-1';
+import {reliquaryNicheMarkup} from './reliquary-art.mjs?v=tow-swing-1';
+import {relicRulesButton} from './relic-primitives.mjs?v=tow-swing-1';
+import {actionButton,escapeHtml as esc} from './primitives.mjs?v=tow-swing-1';
 
 // An opt-in production recipe. Callers that omit acquiredPresentation retain
 // the shipped reward composition until a player-facing direction is selected.

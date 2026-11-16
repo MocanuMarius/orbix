@@ -1,13 +1,13 @@
-import {resourceCycleArt} from './resource-cycle.mjs?v=glossary-1';
-import {getCompanionAbility} from './companion-abilities.mjs?v=glossary-1';
-import {resourceSymbol} from './game-symbols.mjs?v=glossary-1';
-import {pickupArtSvg} from './pickup-art.mjs?v=glossary-1';
-import {getPickupSpec} from './pickups.mjs?v=glossary-1';
-import {mapStopIconMarkup,MAP_STOP_TYPES} from './map-guide.mjs?v=glossary-1';
-import {artifactIcon,skillIcon} from './upgrade-icons.mjs?v=glossary-1';
-import {companionArtSvg} from './companion-art.mjs?v=glossary-1';
-import {dreamEye} from './dream.mjs?v=glossary-1';
-import {lifeHeartSvg} from './lives.mjs?v=glossary-1';
+import {resourceCycleArt} from './resource-cycle.mjs?v=tow-swing-1';
+import {getCompanionAbility} from './companion-abilities.mjs?v=tow-swing-1';
+import {resourceSymbol} from './game-symbols.mjs?v=tow-swing-1';
+import {pickupArtSvg} from './pickup-art.mjs?v=tow-swing-1';
+import {getPickupSpec} from './pickups.mjs?v=tow-swing-1';
+import {mapStopIconMarkup,MAP_STOP_TYPES} from './map-guide.mjs?v=tow-swing-1';
+import {artifactIcon,skillIcon} from './upgrade-icons.mjs?v=tow-swing-1';
+import {companionArtSvg} from './companion-art.mjs?v=tow-swing-1';
+import {dreamEye} from './dream.mjs?v=tow-swing-1';
+import {lifeHeartSvg} from './lives.mjs?v=tow-swing-1';
 const item=(art,label)=>`<span class="coach-term">${art}<b>${label}</b></span>`;
 const arrow='<i class="coach-term-arrow" aria-hidden="true">→</i>';
 const meter='<span class="coach-meter" aria-hidden="true">'+Array.from({length:10},(_,i)=>`<i class="${i<7?'filled':''}"></i>`).join('')+'</span>';
@@ -20,7 +20,7 @@ export function tutorialVisualMarkup(step={}){
  if(kind==='spark-storage')return item(pickupArtSvg('cluster'),'Spark')+arrow+item(resourceSymbol('packed'),'Stored Sparks');
  if(kind?.startsWith('collector-')){
   const recovery=kind==='collector-recovery',returning=kind==='collector-return';
-  return `<figure class="collector-teaching-capture"><img src="assets/previews/collector-tether/${recovery?'reel-near.png':'reel-front.png'}" width="300" height="154" alt="Actual flight: the small green Collector latches onto a pickup and reels it along a tether to the larger white wisp." style="display:block;max-width:100%;height:auto;image-rendering:pixelated"><figcaption>${recovery?'Busy during the reel · ready on contact':returning?'Latch → reel → body contact':'Your body first · green circle marks handling'}</figcaption></figure>`;
+  return `<figure class="collector-teaching-capture"><img src="assets/previews/collector-tether/${recovery?'reel-near.png':'reel-front.png'}" width="300" height="180" alt="Actual flight: the small green Collector latches onto a pickup and reels it along a tether to the larger white wisp." style="display:block;max-width:100%;height:auto;image-rendering:pixelated"><figcaption>${recovery?'Busy during the reel · ready on contact':returning?'Latch → reel → body contact':'Your body first · green circle marks handling'}</figcaption></figure>`;
  }
  if(id.startsWith('artifact:'))return item(artifactIcon(id.split(':')[1]),'ARTIFACT · AUTOMATIC');
  if(kind==='luminance'||id.startsWith('world:luminance'))return item(skillIcon({id:'main-sight'}),'LUMINANCE');

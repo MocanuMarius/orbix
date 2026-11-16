@@ -1,10 +1,10 @@
-import { getCompanionAbility } from './companion-abilities.mjs?v=glossary-1';
-import { pickupKind, pickupContactRadius } from './pickups.mjs?v=glossary-1';
-import {sparkArtScale,sparkBodyRadius,sparkMass} from './spark-size.mjs?v=glossary-1';
-import {collectorCanFetch,collectorCompactSeconds,compressCollectorCargo} from './collector-load.mjs?v=glossary-1';
-import {pickupHookAnchor} from './pickup-handling-cue.mjs?v=glossary-1';
-import {WISP_ART} from './companion-art.mjs?v=glossary-1';
-import {collectorTowPose,collectorTowOrbit} from './collector-tow-geometry.mjs?v=glossary-1';
+import { getCompanionAbility } from './companion-abilities.mjs?v=tow-swing-1';
+import { pickupKind, pickupContactRadius } from './pickups.mjs?v=tow-swing-1';
+import {sparkArtScale,sparkBodyRadius,sparkMass} from './spark-size.mjs?v=tow-swing-1';
+import {collectorCanFetch,collectorCompactSeconds,compressCollectorCargo} from './collector-load.mjs?v=tow-swing-1';
+import {pickupHookAnchor} from './pickup-handling-cue.mjs?v=tow-swing-1';
+import {WISP_ART} from './companion-art.mjs?v=tow-swing-1';
+import {collectorTowPose,collectorTowOrbit} from './collector-tow-geometry.mjs?v=tow-swing-1';
 
 const clamp = (value, lo, hi) => Math.min(hi, Math.max(lo, value));
 export const WISP_TUNING = Object.freeze({ range: 52.5, cooldown: 10, lightRadius: 175,
@@ -45,6 +45,7 @@ export class WispCompanion {
     this.towDirection={x:1,y:0};
     this.orbitPose={x:orbit.x,y:orbit.y,depth:0};
     this.reelProgress=0;this.reelVX=0;this.reelVY=0;this.reelAnchorX=home.x;this.reelAnchorY=home.y;
+    this.reelWorldVX=0;this.reelAnchorVY=0;
     this.reelStartReach=0;this.settle=0;this.settleX=this.x;this.settleY=this.y;
   }
 
@@ -214,7 +215,7 @@ export class WispCompanion {
     this.y *= factor; this.previousY = this.y; this.vy *= factor;
     this.orbitHome.y *= factor;
     this.cargoY*=factor;this.previousCargoY=this.cargoY;
-    this.reelAnchorY*=factor;this.reelVY*=factor;this.settleY*=factor;
+    this.reelAnchorY*=factor;this.reelVY*=factor;this.reelAnchorVY*=factor;this.settleY*=factor;
     if(Number.isFinite(this.reelStartY))this.reelStartY*=factor;
     this.orbitPose.y*=factor;
     if(this.cargo&&Number.isFinite(this.reelHomeX)){
@@ -261,7 +262,11 @@ export class WispCompanion {
     target.boostedPickup=engine.isCompanionWorking?.()??((engine.abilityTime??engine.boostTime)>0);
     this.cargo=target;this.target=null;this.leg=null;this.phase='returning';
     this.cargoX=this.previousCargoX=target.x-engine.distance;this.cargoY=this.previousCargoY=target.y;
-    this.reelVX=-this.scrollSpeed;this.reelVY=0;
+    // A field Spark starts with its own momentum, never the Collector's or a
+    // Lift impulse. Horizontal momentum is stored in world coordinates.
+    this.reelWorldVX=Number(target.vx)||0;
+    this.reelVX=this.reelWorldVX-this.scrollSpeed;
+    this.reelVY=Number(target.gravityVy??target.vy)||0;this.reelAnchorVY=0;
     this.reelAnchorX=engine.distance+home.x;this.reelAnchorY=home.y;
     this.reelStartReach=this.reelGap=Math.hypot(this.cargoX-home.x,this.cargoY-home.y);
     this.reelAngleOffset=Math.atan2(Math.sin(Math.atan2(this.cargoY-home.y,this.cargoX-home.x)-Math.PI),
@@ -302,6 +307,41 @@ export class WispCompanion {
     this.reelRecoveryRate=rate;this.reelFlightSpeed=speed;
   }
 
+  advanceTowCargo(engine,home,dt,previousGap) {
+    const anchorX=engine.distance+home.x,anchorY=home.y;
+    const homeVX=(anchorX-this.reelAnchorX)/dt,homeVY=(anchorY-this.reelAnchorY)/dt;
+    const distanceBefore=engine.distance-this.scrollSpeed*dt;
+    let worldX=distanceBefore+this.cargoX,y=this.cargoY;
+    const steps=Math.max(1,Math.ceil(dt*120)),h=dt/steps;
+    const gravity=300*(Number(engine.scaleY)||1)*clamp(Number(engine.mod.gravity)||1,.8,1.2);
+    const contact=sparkBodyRadius(this.cargo,engine.height)+WISP_ART.worldRadius;
+    const rate=engine.flightBoon?.recoveryRate??1;
+    for(let i=1;i<=steps;i++){
+      const f=i/steps,seconds=Math.max(0,this.cooldown/rate+dt*(1-f));
+      const tighten=clamp(1-seconds/.85,0,1),ending=tighten*tighten*(3-2*tighten);
+      const gap=previousGap+(this.reelGap-previousGap)*f;
+      const remaining=clamp((gap-this.reelSpool.contact)/Math.max(1e-9,this.reelStartReach-this.reelSpool.contact),0,1);
+      const angle=this.reelAngleOffset*remaining;
+      const age=Math.max(0,engine.time-this.cargo.carriedAt-dt*(1-f));
+      const sway=engine.reducedMotion?0:(5*Math.sin(age*3.1+this.collectorIndex*1.73)+2*Math.sin(age*5.2+.6))*(1-ending);
+      // The spool sets a rest length; it never places the load. A soft spring,
+      // gravity and damping let the Spark lag and swing when the player Lifts.
+      // Tightening aims inside the body so the deadline ends in real contact.
+      const rest=Math.max(contact*.55,gap-contact*.35*ending);
+      const wantedX=this.reelAnchorX+(anchorX-this.reelAnchorX)*f-rest*Math.cos(angle);
+      const wantedY=this.reelAnchorY+(anchorY-this.reelAnchorY)*f-rest*Math.sin(angle)+sway;
+      const spring=20+605*ending,damping=6.8+(50-6.8)*ending;
+      this.reelAnchorVY+=(homeVY-this.reelAnchorVY)*(1-Math.exp(-12*h));
+      const targetVX=homeVX+(this.cooldown>0?this.reelCloseSpeed:0)*Math.cos(angle);
+      this.reelWorldVX+=((wantedX-worldX)*spring+(targetVX-this.reelWorldVX)*damping)*h;
+      this.reelVY+=((wantedY-y)*spring+gravity+(this.reelAnchorVY*ending-this.reelVY)*damping)*h;
+      worldX+=this.reelWorldVX*h;y+=this.reelVY*h;
+    }
+    this.reelVX=this.reelWorldVX-this.scrollSpeed;
+    this.cargoX=worldX-engine.distance;this.cargoY=y;
+    this.reelAnchorX=anchorX;this.reelAnchorY=anchorY;this.reelHomeX=home.x;
+  }
+
   updateReel(engine,home,dt) {
     const cargo=this.cargo;
     if(!cargo||!collectorCanFetch(cargo,engine.mod)||cargo.collected||!engine.layout.embers.includes(cargo)){
@@ -316,7 +356,7 @@ export class WispCompanion {
     if(!this.reelSpool||Math.abs(this.cooldown-Math.max(0,this.reelLastCooldown-dt*rate))>1e-7||
       this.cooldownMax!==this.reelLastCooldownMax||rate!==this.reelRecoveryRate||Math.abs(speed-this.reelFlightSpeed)>1e-5)
       this.startReelSpool(engine,dt);
-    const spool=this.reelSpool;spool.elapsed=Math.min(spool.seconds,spool.elapsed+dt);
+    const spool=this.reelSpool,previousGap=this.reelGap;spool.elapsed=Math.min(spool.seconds,spool.elapsed+dt);
     if(spool.elapsed<=spool.leadSeconds){
       const u=spool.elapsed/spool.leadSeconds,tail=spool.leadTravel-spool.opening*spool.leadSeconds;
       this.reelGap=spool.gap-spool.opening*spool.elapsed-tail*u**spool.power;
@@ -327,18 +367,7 @@ export class WispCompanion {
       this.reelCloseSpeed=spool.entry+acceleration*t;
     }
     this.reelLastCooldown=this.cooldown;
-    const travel=Math.max(1e-9,this.reelStartReach-spool.contact);
-    const remaining=clamp((this.reelGap-spool.contact)/travel,0,1);
-    const angleOffset=this.reelAngleOffset*remaining;
-    const beforeX=this.cargoX,beforeY=this.cargoY;
-    // Prescribe the actual target-to-body gap, rather than chasing an eased
-    // target with a spring and then braking at an aft clamp. Following Lift
-    // and Dive cannot stretch this gap or turn its accelerating finish slow.
-    this.cargoX=home.x-this.reelGap*Math.cos(angleOffset);
-    this.cargoY=home.y-this.reelGap*Math.sin(angleOffset);
-    this.reelVX=(this.cargoX-beforeX)/dt;this.reelVY=(this.cargoY-beforeY)/dt;
-    const anchorX=engine.distance+home.x;
-    this.reelAnchorX=anchorX;this.reelAnchorY=home.y;this.reelHomeX=home.x;
+    this.advanceTowCargo(engine,home,dt,previousGap);
     const contact=sparkBodyRadius(cargo,engine.height)+WISP_ART.worldRadius;
     // Corkscrew around the body-to-Spark cord: signed depth drives both passes.
     const hook=pickupHookAnchor(cargo,this.cargoX,this.cargoY);
@@ -350,9 +379,9 @@ export class WispCompanion {
     const blend=clamp(age/.18,0,1);
     this.x=this.reelStartX+(cx-this.reelStartX)*blend;this.y=this.reelStartY+(cy-this.reelStartY)*blend;this.depth=depth;
     this.vx=(this.x-this.previousX)/dt;this.vy=(this.y-this.previousY)/dt;
-    if(this.cooldown>0||age<collectorCompactSeconds(cargo))return;
-    // Finish at aft body contact. There is no return leg or ordinary cooldown.
-    this.cargoX=home.x-contact*.9;this.cargoY=home.y;
+    if(this.cooldown>0||age<collectorCompactSeconds(cargo)||Math.hypot(this.cargoX-home.x,this.cargoY-home.y)>contact)return;
+    // Pay out at the integrated contact position. A late Lift may keep the
+    // physical tow busy briefly; it cannot teleport the load or award it twice.
     const pose=this.cargoPose(cargo,engine.time,engine.height);
     const delivered=cargo;this.cargo=null;delivered.carried=false;delivered.attracted=false;
     delivered.collectorOriginalKind=pickupKind(delivered);compressCollectorCargo(delivered);delivered.deliveredByWisp=true;
