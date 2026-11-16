@@ -62,7 +62,7 @@ function renderCollection(){
   const node=sheet(relics.collectionMarkup(state,{page:local.page,selectedId:local.selectedId,confirmMeltId:local.confirmMeltId,lastMelt:local.lastMelt,canMelt:run.restReady,discovered:sample.state==='almanac'}),'collection-sheet');
   node.querySelector(local.confirmMeltId?'[data-action="cancel-artifact-melt"]':'[aria-pressed="true"]')?.focus({preventScroll:true});
 }
-function renderRewards(){document.body.dataset.screen='victory';app.innerHTML=relics.flightRewardMarkup(state,{upgradeCount:2,acquiredPresentation:sample.state});}
+function renderRewards(){document.body.dataset.screen='victory';app.innerHTML=relics.flightRewardMarkup(state,{upgradeCount:0,skillsAvailable:false,deckAvailable:true,acquiredPresentation:sample.state});}
 function renderCards(){
   if(['workshop','rest'].includes(sample.state)&&!local.restDeck){
     document.body.dataset.screen='support';
@@ -246,7 +246,7 @@ document.addEventListener('click',event=>{
   if(['card-cancel-equip','card-reading-back','card-browse-back'].includes(action)){local.equip=false;local.inspecting=false;local.cardId=null;renderCards();return;}
   if(action==='choose-ascension'){local.chosenDifficulty=Number(button.dataset.value)||1;renderMenus();return;}
   if(['continue-run','new-game','play','view-route','victory-next'].includes(action)){navigate('route','start');return;}
-  if(['skills','card-return-equipped'].includes(action)){navigate('cards','equipped');return;}
+  if(['skills','cards','card-return-equipped'].includes(action)){navigate('cards','equipped');return;}
   if(action==='artifacts'){navigate('collection','owned');return;}
   if(['practice','field-guide','tutorial','companion-unlocks'].includes(action)){navigate('dialogs','pickups');return;}
   if(action==='node'){closeDetail();navigate('hud','ready');return;}
