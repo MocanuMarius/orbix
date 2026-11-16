@@ -1,6 +1,6 @@
-import {WispFlight} from './flight.mjs?v=collector-reel-1';
-import {BIOMES,BIOME_LEVELS} from './biomes.mjs?v=collector-reel-1';
-import {getRunModifiers} from './model.mjs?v=collector-reel-1';
+import {WispFlight} from './flight.mjs?v=cards-renewal-1';
+import {BIOMES,BIOME_LEVELS} from './biomes.mjs?v=cards-renewal-1';
+import {getRunModifiers} from './model.mjs?v=cards-renewal-1';
 const canvas=document.querySelector('canvas'),select=document.querySelector('select'),slider=document.querySelector('input');
 const course=document.querySelector('#course');
 const mode=document.querySelector('#mode'),light=document.querySelector('#light'),status=document.querySelector('#status'),gate=document.querySelector('#gate');

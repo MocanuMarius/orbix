@@ -113,7 +113,7 @@ export const CARD_GUIDE_TOPICS = {
       ),
       step(
         "Growth Seed",
-        "Equip this Rare before arriving to unlock Grow: +3 maximum Sparks per original or compatible copied source, with one full refill and no hearts. At most three Grow actions per run.",
+        "Equip a Growth Seed at an open Rest to unlock Grow immediately. Each original or compatible copied source adds its printed amount: Common +3, Rare +5, Legendary +8 (improved to +9 or +10). Grow refills once without healing hearts. All Seeds share three Grow actions per run.",
         "meter",
       ),
       step(

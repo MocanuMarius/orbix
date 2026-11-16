@@ -1,9 +1,9 @@
-import { getCompanionAbility } from './companion-abilities.mjs?v=collector-reel-1';
-import { pickupKind, pickupContactRadius } from './pickups.mjs?v=collector-reel-1';
-import {sparkArtScale,sparkBodyRadius,sparkMass} from './spark-size.mjs?v=collector-reel-1';
-import {collectorCanFetch,collectorCompactSeconds,compressCollectorCargo} from './collector-load.mjs?v=collector-reel-1';
-import {pickupHookAnchor} from './pickup-handling-cue.mjs?v=collector-reel-1';
-import {WISP_ART} from './companion-art.mjs?v=collector-reel-1';
+import { getCompanionAbility } from './companion-abilities.mjs?v=cards-renewal-1';
+import { pickupKind, pickupContactRadius } from './pickups.mjs?v=cards-renewal-1';
+import {sparkArtScale,sparkBodyRadius,sparkMass} from './spark-size.mjs?v=cards-renewal-1';
+import {collectorCanFetch,collectorCompactSeconds,compressCollectorCargo} from './collector-load.mjs?v=cards-renewal-1';
+import {pickupHookAnchor} from './pickup-handling-cue.mjs?v=cards-renewal-1';
+import {WISP_ART} from './companion-art.mjs?v=cards-renewal-1';
 
 const clamp = (value, lo, hi) => Math.min(hi, Math.max(lo, value));
 export const WISP_TUNING = Object.freeze({ range: 52.5, cooldown: 10, lightRadius: 175,
@@ -28,10 +28,12 @@ export function wispOrbit(player, time = 0, index = 0, total = 1, radius = 40, o
 // A fetch owns one packet. Its recovery IS the visible reel, never a second
 // delay after delivery. Explicit Field Impulse and guard spends remain distinct.
 export class WispCompanion {
-  constructor(home) {
-    const orbit = wispOrbit(home, 0);
+  constructor(home, index = 0) {
+    this.collectorIndex=index;
+    const orbit = wispOrbit(home, 0, index, index ? 2 : 1);
     this.x = this.previousX = orbit.x; this.y = this.previousY = orbit.y;
     this.phase = 'ready'; this.target = null; this.cargo = null;
+    this.targetExtension=null;
     this.cooldown = 0; this.cooldownMax = WISP_TUNING.cooldown;
     this.vx = 0; this.vy = 0;
     this.orbitHome = {x:home.x,y:home.y};
@@ -50,7 +52,7 @@ export class WispCompanion {
   }
 
   canGuard(engine) {
-    return Boolean(engine.mod.collectorGuard && this.enabled(engine) && this.phase==='ready' &&
+    return Boolean(!this.collectorIndex && engine.mod.collectorGuard && this.enabled(engine) && this.phase==='ready' &&
       this.cooldown<=0 && !this.cargo && !this.target && !this.leg);
   }
 
@@ -139,6 +141,8 @@ export class WispCompanion {
       homeX: home.x, homeY: home.y, depth:this.depth||0, enabled, collects: enabled,
       radius: enabled ? this.range(engine) : 0, recovery: enabled ? recovery : 0,
       currentRange: enabled ? this.currentRange(engine) : 0,
+      fetchingRange: enabled ? (engine.collectorFetchRange?.(this) ?? this.currentRange(engine)) : 0,
+      collectorIndex:this.collectorIndex,
       recovering: enabled && this.cooldown > 0,
       canFetch: enabled && (this.phase === 'ready' || this.phase === 'cooldown'),
       busy:enabled&&Boolean(this.target||this.cargo||this.phase==='guard-recovery'),
@@ -213,6 +217,7 @@ export class WispCompanion {
   releaseTarget() {
     if (this.target && !this.target.collected) this.target.attracted = false;
     this.target = null;
+    this.targetExtension=null;
   }
 
   clear(engine) {
@@ -225,6 +230,9 @@ export class WispCompanion {
   }
 
   beginReel(engine,target,home) {
+    // An outbound reservation never spends a use until the pickup is attached.
+    if(this.targetExtension&&!engine.spendCollectorExtension?.(this.targetExtension))return false;
+    this.targetExtension=null;
     target.fetchedInDream=Boolean(engine.dream?.active||engine.dream?.mode==='record');
     target.carried=true;target.carriedAt=engine.time;
     target.boostedPickup=engine.isCompanionWorking?.()??((engine.abilityTime??engine.boostTime)>0);
@@ -236,7 +244,8 @@ export class WispCompanion {
     this.reelProgress=0;this.cooldownMax=this.cooldown=this.recoveryDuration(engine);
     // Start on the actual loop, then blend into the winding path without a snap.
     this.reelStartX=this.x;this.reelStartY=this.y;this.reelStartedAt=engine.time;
-    engine.onCollectorAttach?.(target);
+    engine.onCollectorAttach?.(target,this);
+    return true;
   }
 
   updateReel(engine,home,dt) {
@@ -301,12 +310,14 @@ export class WispCompanion {
     this.orbitHome.x += (home.x - this.orbitHome.x) * follow;
     this.orbitHome.y += (home.y - this.orbitHome.y) * follow;
     const fleet = engine.companions || [engine.companionRole];
+    const orbitIndex=this.collectorIndex||Math.max(0,fleet.indexOf('collector'));
+    const orbitTotal=engine.collectors?.length>1?engine.collectors.length:fleet.length;
     const orbit = wispOrbit(home, engine.reducedMotion ? engine.time*.25 : engine.time,
-      Math.max(0,fleet.indexOf('collector')),fleet.length,this.enabled(engine)?this.currentRange(engine):40,this.orbitPose);
+      orbitIndex,orbitTotal,this.enabled(engine)?this.currentRange(engine):40,this.orbitPose);
     this.depth=['ready','cooldown','orbiting'].includes(this.phase)?orbit.depth:1;
     if (firstUpdate && ['ready','cooldown','orbiting'].includes(this.phase)) {
       const before = wispOrbit(this.orbitHome, engine.reducedMotion ? (engine.time-dt)*.25 : engine.time - dt,
-        Math.max(0,fleet.indexOf('collector')),fleet.length,this.currentRange(engine));
+        orbitIndex,orbitTotal,this.currentRange(engine));
       this.previousX = before.x; this.previousY = before.y;
     }
     if (!this.enabled(engine)) {
@@ -331,7 +342,8 @@ export class WispCompanion {
       this.depth=orbit.depth;
       return;
     }
-    const reach = this.currentRange(engine), packets = engine.getNearbyPickups?.() || engine.layout.embers;
+    const normalReach=this.currentRange(engine),reach=engine.collectorFetchRange?.(this)??normalReach;
+    const packets = engine.getNearbyPickups?.() || engine.layout.embers;
     this.contacts.length = 0;
     this.contactTimes.clear();
     if (this.phase === 'ready' || this.phase === 'cooldown') {
@@ -340,7 +352,7 @@ export class WispCompanion {
         this.x=this.settleX+(this.x-this.settleX)*blend;this.y=this.settleY+(this.y-this.settleY)*blend;}
       this.vx = (this.x - this.previousX) / dt; this.vy = (this.y - this.previousY) / dt;
       {
-        let nearest = null, nearestScore = Infinity;
+        let nearest = null, nearestScore = Infinity, nearestExtension=null;
         for (const ember of packets) {
           if (!collectorCanFetch(ember,engine.mod) || ember.collected || ember.carried || ember.attracted) continue;
           const x = ember.x - engine.distance;
@@ -349,17 +361,19 @@ export class WispCompanion {
           // Leave the entire approach and body-contact window to the player.
           // Once a packet passes behind this edge, forward flight cannot touch
           // it directly; only then may the carrier rescue it within its range.
-          if (!this.passedBodyWindow(engine,ember,reach)) continue;
-          if (engine.collectorContains && !engine.collectorContains(ember)) continue;
+          if (!this.passedBodyWindow(engine,ember,normalReach)) continue;
+          if (engine.collectorContains && !engine.collectorContains(ember,this,reach)) continue;
           const distance = Math.hypot(x - home.x, ember.y - home.y) - shell;
           if(distance>reach)continue;
+          const extension=distance>normalReach?engine.collectorExtensionFor?.(this,distance):null;
+          if(distance>normalReach&&!extension)continue;
           const preference=engine.mod.collectorPreference;
           const priority=preference==='dense'?sparkMass(ember):preference==='flash'&&pickupKind(ember)==='sight'?10:0;
           const score=distance-priority*10000;
-          if (score <= nearestScore) { nearest = ember; nearestScore = score; }
+          if (score <= nearestScore) { nearest = ember; nearestScore = score; nearestExtension=extension; }
         }
         if (nearest) {
-          this.target = nearest; nearest.attracted = true; this.phase = 'outbound';
+          this.target = nearest;this.targetExtension=nearestExtension; nearest.attracted = true; this.phase = 'outbound';
           const hook=pickupHookAnchor(nearest,nearest.x-engine.distance,nearest.y);
           this.beginLeg(engine, hook.x,hook.y);
         }
@@ -372,7 +386,7 @@ export class WispCompanion {
         const hook=pickupHookAnchor(target,target.x-engine.distance,target.y);
         if (!this.leg) this.beginLeg(engine,hook.x,hook.y);
         if (this.advanceLeg(engine,hook.x,hook.y,dt)) {
-          this.beginReel(engine,target,home);
+          if(!this.beginReel(engine,target,home)){this.releaseTarget();this.returnToOrbit(engine,orbit);}
         }
       }
     } else if (this.phase === 'returning') {

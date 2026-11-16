@@ -1,11 +1,10 @@
-import {cardFace} from './card-ui.mjs?v=collector-reel-1';
-import {makeSkillCard,describeSkillCard} from './skill-cards.mjs?v=collector-reel-1';
-import {installCardTermHelp} from './card-terms.mjs?v=collector-reel-1';
+import {cardFace} from './card-ui.mjs?v=cards-renewal-1';
+import {makeSkillCard,describeSkillCard} from './skill-cards.mjs?v=cards-renewal-1';
+import {installCardTermHelp} from './card-terms.mjs?v=cards-renewal-1';
 const variants = [{name:'Current',scale:1,note:'Original illustration'},{name:'Mild',scale:.75,note:'75% resolution · nearest neighbor'},{name:'Medium',scale:.58,note:'58% resolution · nearest neighbor'}];
 const cards = ['body-spark','field-impulse','flash-handling','harvest-legendary'];
-const atlas = new Image(); atlas.src = './assets/cards/skill-card-scenes.webp';
 const load = image => image.decode();
-let selected = cards[0], screen = 'deck', screenVersion = 0;
+let selected = cards[0], screen = 'deck', cardVersion = 0, screenVersion = 0;
 function reducedCanvas(source, width, height, scale, crop = null) {
   const canvas = document.createElement('canvas');
   canvas.width = Math.max(1,Math.round(width * scale)); canvas.height = Math.max(1,Math.round(height * scale));
@@ -16,19 +15,23 @@ function reducedCanvas(source, width, height, scale, crop = null) {
   return canvas;
 }
 async function renderCards() {
+  const version = ++cardVersion;
   const card = describeSkillCard(makeSkillCard(selected,'art-preview'));
+  const atlas = new Image(); atlas.src = './assets/cards/skill-card-scenes-rare.webp';
   document.getElementById('art-card-comparison').innerHTML = variants.map(({name,note,scale})=>`<section class="art-card-variant" data-art-scale="${scale}"><h2 class="art-variant-title">${name}</h2><p class="art-variant-note">${note}</p>${cardFace(card)}</section>`).join('');
   document.querySelectorAll('[data-art-card]').forEach(button=>button.setAttribute('aria-pressed',String(button.dataset.artCard === selected)));
   await load(atlas); await document.fonts.ready;
+  if(version !== cardVersion)return;
   for(const node of document.querySelectorAll('.art-card-variant')) {
     const scale = Number(node.dataset.artScale); if(scale === 1)continue;
     const source = node.querySelector('.card-illustration>.skill-card-art'), box = source.getBoundingClientRect(), view = source.viewBox.baseVal;
     // SVG xMidYMid slice: preserve its exact centered atlas crop.
     const targetRatio = box.width / box.height, cropWidth = targetRatio >= 1 ? view.width : view.width * targetRatio, cropHeight = targetRatio >= 1 ? view.height / targetRatio : view.height;
-    const crop = [view.x+(view.width-cropWidth)/2,view.y+(view.height-cropHeight)/2,cropWidth,cropHeight];
+    const sourceScale = atlas.naturalWidth / 1252;
+    const crop = [view.x+(view.width-cropWidth)/2,view.y+(view.height-cropHeight)/2,cropWidth,cropHeight].map(value=>value*sourceScale);
     const canvas = reducedCanvas(atlas,box.width,box.height,scale,crop);
     canvas.setAttribute('role','img');canvas.setAttribute('aria-label',`${source.getAttribute('aria-label')} ${node.querySelector('h2').textContent} pixelation preview.`);
-    canvas.dataset.source = './assets/cards/skill-card-scenes.webp'; source.replaceWith(canvas);
+    canvas.dataset.source = atlas.getAttribute('src'); source.replaceWith(canvas);
   }
 }
 async function renderScreens() {

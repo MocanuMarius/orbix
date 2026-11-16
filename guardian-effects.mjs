@@ -1,6 +1,6 @@
-import {iceShardPoints,iceShardContact,sampleIceShard} from './guardian-geometry.mjs?v=collector-reel-1';
-import {getPickupSpec} from './pickups.mjs?v=collector-reel-1';
-import {installShutters,resizeShutters} from './shutter-cone.mjs?v=collector-reel-1';
+import {iceShardPoints,iceShardContact,sampleIceShard} from './guardian-geometry.mjs?v=cards-renewal-1';
+import {getPickupSpec} from './pickups.mjs?v=cards-renewal-1';
+import {installShutters,resizeShutters} from './shutter-cone.mjs?v=cards-renewal-1';
 const clamp=(value,min,max)=>Math.max(min,Math.min(max,value));
 export function prepareGuardian(layout,height,speed){
  const boss=layout.boss,s=height/620;

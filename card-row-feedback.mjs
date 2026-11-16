@@ -1,14 +1,16 @@
-import {SKILL_CARDS} from './skill-cards.mjs?v=collector-reel-1';
-import {CARD_ART_IDS} from './card-art.mjs?v=collector-reel-1';
+import {SKILL_CARDS} from './skill-cards.mjs?v=cards-renewal-1';
+import {CARD_ART_IDS} from './card-art.mjs?v=cards-renewal-1';
 const esc = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const number = value => Number((Number(value) || 0).toFixed(3));
 const capped = trace => Number.isFinite(trace?.restoredSparks) && Math.abs(trace.restoredSparks - trace.sparks) > 1e-7;
-const names = {'body-spark':'Wisp pickup','wave-crossing':'Wave crossing','flash-pickup':'Flash pickup','downbeat-lift':'Falling Lift','natural-overfill':'Spark overfill','collector-delivery':'Collector delivery','rhythm-phrase':'Rhythm phrase','field-swipe':'Field Impulse swipe','guard-rescue':'Collector save','collector-attach':'Collector attachment','expedition-victory':'Expedition complete'};
-const skipNames = {'empty-slot':'Empty slot','incompatible-neighbor':'No compatible card to the right','exhausted-source':'No uses remaining','different-event':'Does not match this event','empty-subtotal':'No earlier Sparks to multiply','needs-two-earlier-payers':'Needs two earlier Spark actions','needs-earlier-payer':'Needs an earlier Spark action','already-replayed':'Replay already used','replay-limit':'Replay already used','no-recovery':'Collector is already ready','no-earlier-payout':'No earlier payout to repeat','event-or-condition-not-met':'Event condition not met','different-event-or-passive':'Passive or a different event','no-productive-action':'No matching action to replay','empty-future-capacity':'No earlier future maximum Spark gain','no-active-reel':'Collector has no active reel'};
+const names = {'body-spark':'Wisp pickup','wave-crossing':'Wave crossing','flash-pickup':'Flash pickup','flash-expiry':'Flash expires','downbeat-lift':'Falling Lift','natural-overfill':'Spark overfill','collector-delivery':'Collector delivery','rhythm-phrase':'Rhythm phrase','field-swipe':'Field Impulse swipe','guard-rescue':'Collector save','collector-attach':'Collector attachment','expedition-victory':'Expedition complete','flight-clear':'Flight clear'};
+const skipNames = {'cruising-speed-cap':'Cruising speed already unlocked to +6%','no-carried-interest':'Fewer than 10 Stored Sparks carried into flight','empty-slot':'Empty slot','incompatible-neighbor':'No compatible card to the right','exhausted-source':'No uses remaining','different-event':'Does not match this event','empty-subtotal':'No earlier Sparks to multiply','needs-two-earlier-payers':'Needs two earlier Spark actions','needs-earlier-payer':'Needs an earlier Spark action','already-replayed':'Replay already used','replay-limit':'Replay already used','no-recovery':'Collector is already ready','no-earlier-payout':'No earlier payout to repeat','event-or-condition-not-met':'Event condition not met','different-event-or-passive':'Passive or a different event','no-productive-action':'No matching action to replay','empty-future-capacity':'No earlier future maximum Spark gain','no-active-reel':'Collector has no active reel'};
 const action = step => {
   if (!step.success) return skipNames[step.skipReason] || 'No action for this event';
   if (step.operation === 'replay-row') return 'Return to slot 1 after this pass';
-  if (step.operation === 'add-future-capacity' || step.operation === 'multiply-future-capacity') return `${number(step.futureCapacityBefore)} → ${number(step.futureCapacityAfter)} maximum Sparks for future expeditions`;
+  if (step.operation === 'add-future-capacity' || step.operation === 'multiply-future-capacity') return `${number(step.futureCapacityBefore)} → ${number(step.futureCapacityAfter)} maximum Sparks permanently`;
+  if (step.cruisingSpeed > 0) return `+${number(step.cruisingSpeed)}% cruising speed unlocked (cap +6%)`;
+  if (step.operation === 'add-stored' || step.operation === 'carried-interest') return `+${number(step.stored)} Stored Sparks`;
   if (step.reelSeconds > 0) return `${number(step.reelBefore)} → ${number(step.reelAfter)} s remaining reel`;
   if (step.recoverySeconds > 0) return `−${number(step.recoverySeconds)} s Collector recovery`;
   return `${number(step.before)} → ${number(step.after)} Sparks${step.stored ? ` · +${step.stored} Stored Spark` : ''}`;
@@ -21,9 +23,10 @@ export function cardRowSequenceMarkup(trace) {
   }).join('');
 }
 const traceTotals = trace => [
-  trace.sparks > 0 || !(trace.reelSeconds || trace.futureCapacity || trace.recoverySeconds || trace.stored) ? `+${number(trace.sparks)} Sparks${Number.isFinite(trace.restoredSparks) ? ' awarded' : ''}` : '',
+  trace.sparks > 0 || !(trace.reelSeconds || trace.futureCapacity || trace.cruisingSpeed || trace.recoverySeconds || trace.stored) ? `+${number(trace.sparks)} Sparks${Number.isFinite(trace.restoredSparks) ? ' awarded' : ''}` : '',
   trace.reelSeconds ? `−${number(trace.reelSeconds)} s remaining reel` : '',
-  trace.futureCapacity ? `+${number(trace.futureCapacity)} maximum Sparks for future expeditions` : '',
+  trace.futureCapacity ? `+${number(trace.futureCapacity)} maximum Sparks permanently` : '',
+  trace.cruisingSpeed ? `+${number(trace.cruisingSpeed)}% cruising speed unlocked (cap +6%)` : '',
   trace.stored ? `+${number(trace.stored)} Stored Sparks` : '',
   trace.recoverySeconds ? `−${number(trace.recoverySeconds)} s recovery` : '',
 ].filter(Boolean).join(' · ');

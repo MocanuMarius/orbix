@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="200" height="280" viewBox="0 0 200 280" shape-rendering="crispEdges">
+<!-- Pale ruin cornerstones joined by the narrow rails of the approved C3 frame. -->
+<path fill="#17231f" d="M0 4 4 0h192l4 4v272l-4 4H4l-4-4zM7 8v264h186V8z" fill-rule="evenodd"/>
+<path fill="#777d76" d="M12 3h176v4H12zM12 273h176v4H12zM3 17h4v246H3zM193 17h4v246h-4z"/>
+<path fill="#bdc0b3" d="M14 3h172v1H14zM3 19h1v241H3zM194 19h1v241h-1zM14 273h172v1H14z"/>
+<path fill="#49554c" d="M14 6h172v2H14zM6 24h2v235H6zM192 24h2v235h-2zM14 276h172v2H14z"/>
+<g fill="#92968b" stroke="#39433d" stroke-width="1">
+<path d="M1 5 5 1h11v21H1zM184 1h11l4 4v17h-15zM1 258h15v21H5l-4-4zM184 258h15v17l-4 4h-11z"/>
+</g>
+<g fill="#c4c4b4">
+<path d="m2 5 4-3h9v2H6L4 6v14H2zM185 2h9l3 3v2l-4-3h-8zM2 259h2v15l3 3h8v1H5l-3-3zM185 259h12v2h-10v15h-2z"/>
+</g>
+<g fill="#6d746c">
+<path d="M5 9h3v3H5zM12 6h2v6h-2zM8 18h6v2H8zM188 7h4v2h-4zM195 10h2v8h-2zM185 18h5v2h-5zM7 263h3v2H7zM12 270h2v5h-2zM4 272h2v2H4zM188 264h2v3h-2zM194 271h3v3h-3zM187 276h5v1h-5z"/>
+</g>
+<g fill="#b1b4a8">
+<path d="M29 4h3v1h-3zM63 4h2v1h-2zM111 4h4v1h-4zM155 4h2v1h-2zM4 47h1v3H4zM4 102h1v2H4zM4 171h1v4H4zM195 62h1v3h-1zM195 138h1v2h-1zM195 229h1v3h-1zM34 274h3v1h-3zM81 274h2v1h-2zM147 274h4v1h-4z"/>
+</g>
+<!-- Small moss clusters cling to the joints; the scene stays clear. -->
+<path fill="#364b26" d="M14 1h9v3h7v3h-8v4h-3V7h-5zM174 1h10v5h-4v5h-3V6h-7V3h4zM13 258h4v5h8v3h6v4h-9v4h-3v-7h-6zM169 267h7v-4h8v-5h4v9h-8v6h-4v-3h-7z"/>
+<path fill="#74823a" d="M15 1h7v3h6v2h-8v3h-1V5h-4zM175 1h7v4h-4v3h-1V4h-6V3h4zM14 260h2v4h8v3h5v1h-8v4h-1v-7h-6zM171 267h6v-3h7v-4h2v6h-8v5h-1v-3h-6z"/>
+<path fill="#a3a357" d="M17 2h3v1h-3zM24 5h3v1h-3zM176 2h4v1h-4zM16 264h3v1h-3zM23 267h3v1h-3zM181 264h3v1h-3z"/>
+</svg>

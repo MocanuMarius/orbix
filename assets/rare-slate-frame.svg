@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="200" height="280" viewBox="0 0 200 280" shape-rendering="crispEdges">
+<!-- Low slate wedge arch. Open centre keeps the card's semantic bands clear. -->
+<path fill="#17221f" d="M0 29 7 23 21 16 42 9 70 3 100 0 130 3 158 9 179 16 193 23 200 29V274l-6 6H6l-6-6zM8 34v234l5 5h174l5-5V34l-8-6-22-8-29-6-33-4-33 4-29 6-22 8z" fill-rule="evenodd"/>
+<g fill="#74747c" stroke="#30353a" stroke-width="1">
+<path d="m2 29 7-6 10-5 4 9-13 7H2z"/><path d="m20 17 21-7 4 9-20 7z"/>
+<path d="m43 9 25-5 2 9-23 5z"/><path d="m70 4 15-2 2 10-15 1z"/>
+<path d="m86 1 28 0-4 14H91z" fill="#85818a"/>
+<path d="m116 2 15 2-3 9-15-1z"/><path d="m133 4 25 5-4 9-24-5z"/>
+<path d="m160 10 21 7-5 9-20-7z"/><path d="m182 18 10 5 6 6v5h-8l-13-7z"/>
+<path d="M2 35h7v29H2zM2 66h7v31H2zM2 99h7v30H2zM2 131h7v31H2zM2 164h7v30H2zM2 196h7v31H2zM2 229h7v31H2z"/>
+<path d="M191 35h7v29h-7zM191 66h7v31h-7zM191 99h7v30h-7zM191 131h7v31h-7zM191 164h7v30h-7zM191 196h7v31h-7zM191 229h7v31h-7z"/>
+<path d="M2 262h8l5 10-8 6-5-5zM190 262h8v11l-5 5-8-6z"/>
+<path d="M10 273h29v6H8zM41 273h37v6H41zM80 273h38v6H80zM120 273h37v6h-37zM159 273h31l2 6h-33z"/>
+</g>
+<g fill="#aaa5a8">
+<path d="m3 28 14-8 1 2-14 8zM22 17l18-6v2l-17 6zM44 9l22-4 1 2-22 4zM72 4l12-1v2L72 6zM88 1h24v2H88zM117 3l13 2v2l-13-2zM134 5l22 4v2l-22-4zM161 11l18 6-1 2-17-6zM184 21l12 7v2l-13-7z"/>
+<path d="M2 36h2v25H2zM2 67h2v28H2zM2 100h2v26H2zM2 132h2v28H2zM2 165h2v26H2zM2 197h2v27H2zM2 230h2v28H2zM192 36h2v24h-2zM192 67h2v26h-2zM192 100h2v27h-2zM192 132h2v27h-2zM192 165h2v27h-2zM192 197h2v27h-2zM192 230h2v27h-2z"/>
+<path d="M11 273h26v1H11zM42 273h34v1H42zM81 273h35v1H81zM121 273h34v1h-34zM160 273h28v1h-28z"/>
+</g>
+<!-- Chips use the same small pixel clusters as the game's ruin stone. -->
+<g fill="#555a63"><path d="M6 46h2v2H6zM4 85h2v1H4zM5 118h3v2H5zM3 151h2v2H3zM6 178h2v2H6zM4 213h2v1H4zM5 248h3v2H5zM195 53h2v2h-2zM194 80h2v1h-2zM195 117h2v2h-2zM194 149h2v2h-2zM195 184h2v2h-2zM194 214h2v1h-2zM195 246h2v2h-2zM51 12h2v2h-2zM76 8h2v2h-2zM122 8h2v2h-2zM145 13h2v1h-2zM24 276h2v2h-2zM66 275h2v2h-2zM137 276h2v2h-2zM173 275h2v2h-2z"/></g>
+<!-- A single muted gold inlay identifies Rare without turning the frame gold. -->
+<path fill="#725a31" d="M96 5h8v5l-4 3-4-3z"/><path fill="#d5bd78" d="M97 5h6v4l-3 2-3-2z"/><path fill="#ead69a" d="M97 5h6v1h-6z"/>
+<!-- Thin moss sill, at the foot rather than across the illustration. -->
+<path fill="#3a512c" d="M8 269h7v-2h8v2h6v3h6v2H19v4h-3v-5H8zM166 270h6v-3h8v2h8v-2h5v6h-6v3h-4v-3h-7v2h-3v-2h-7zM61 272h7v-2h4v4h-3v4h-2v-4h-6z"/>
+<path fill="#72823b" d="M9 269h7v-2h5v2h6v2h5v1H19v3h-2v-4H9zM168 270h6v-2h5v2h8v-2h4v3h-7v2h-2v-2h-7v2h-2v-2h-5zM63 272h5v-1h3v2h-3v3h-1v-3h-4z"/>
+<path fill="#a3a153" d="M13 268h5v1h-5zM21 270h4v1h-4zM175 268h3v1h-3zM185 269h4v1h-4z"/>
+</svg>

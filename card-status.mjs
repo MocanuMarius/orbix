@@ -1,7 +1,7 @@
 /** Configuration hints only. Every numeric verdict comes from a read-only row quote. */
-import { SKILL_CARDS, CARD_ROW_EVENTS, getEffectiveCardSources, getCardRowRule, previewCardRowEvent } from './skill-cards.mjs?v=collector-reel-1';
-import { normalizeCompanionFleet } from './companion-abilities.mjs?v=collector-reel-1';
-import { skillProgress } from './skill-increments.mjs?v=collector-reel-1';
+import { SKILL_CARDS, CARD_ROW_EVENTS, getEffectiveCardSources, getCardRowRule, previewCardRowEvent } from './skill-cards.mjs?v=cards-renewal-1';
+import { normalizeCompanionFleet } from './companion-abilities.mjs?v=cards-renewal-1';
+import { skillProgress } from './skill-increments.mjs?v=cards-renewal-1';
 
 const ready = reason => ({ state: 'ready', symbol: '✓', label: 'Ready', reason, fix: 'Keep this arrangement to use it when its condition happens.' });
 const blocked = (label, reason, fix) => ({ state: 'blocked', symbol: '!', label, reason, fix });
@@ -32,6 +32,7 @@ function fixtures(context) {
   for (const pickupKind of ['light', 'dusk', 'cluster', 'cache']) add(CARD_ROW_EVENTS.body, { pickupKind });
   for (const firstCrossing of [true, false]) add(CARD_ROW_EVENTS.wave, { firstCrossing, pickupKind: 'light' });
   add(CARD_ROW_EVENTS.flash, { pickupKind: 'sight' });
+  add(CARD_ROW_EVENTS.flashExpiry, { pickupKind: 'sight' });
   add(CARD_ROW_EVENTS.lift);
   add(CARD_ROW_EVENTS.overfill, { meterFraction: 1 });
   if (context.collector) for (const pickupKind of ['light', 'cluster', ...(context.cache ? ['cache'] : [])]) {
@@ -40,6 +41,7 @@ function fixtures(context) {
     add(CARD_ROW_EVENTS.attach, { pickupKind, availableRecovery: 4, availableReel: 4, collectorReeling: true }, { guard: false, recovery: false });
   }
   add(CARD_ROW_EVENTS.victory, {}, { guard: false, recovery: false });
+  add(CARD_ROW_EVENTS.clear, {carriedStored:100}, { guard: false, recovery: false });
   if (context.rhythm) add(CARD_ROW_EVENTS.rhythm);
   if (context.field) for (const direction of ['up', 'down', 'right'])
     add(CARD_ROW_EVENTS.field, { direction, availableRecovery: 10 }, { guard: false, recovery: false });
@@ -67,7 +69,7 @@ function missingTrigger(rule, context) {
 export function getEquippedCardStatuses(run = {}, native = null) {
   const cards = (Array.isArray(run) ? run : run.mountedCards || run.cards || []).slice(0, 5);
   const base = buildContext(run, native);
-  const key = JSON.stringify([cards.map(card => card ? [card.instanceId, card.cardId, card.rank || 1, card.charges ?? null] : null), base, run.cardGrowUses || 0]);
+  const key = JSON.stringify([cards.map(card => card ? [card.instanceId, card.cardId, card.rank || 1, card.charges ?? null] : null), base, run.cardGrowUses || 0,run.cardTwinWickUnlocked===true]);
   if (key === lastKey) return lastResult;
   const sources = getEffectiveCardSources(cards);
   const has = kind => sources.some(entry => entry.def.kind === kind);
@@ -76,7 +78,7 @@ export function getEquippedCardStatuses(run = {}, native = null) {
   const receipts = fixtures(context).map(event => previewCardRowEvent(cards, event));
   const successes = new Set(), copiedUse = new Set(), replaySlots = new Set();
   for (const receipt of receipts) {
-    const replayPays = receipt.steps.some(step => step.pass === 2 && step.success && step.operation !== 'replay-row' && (step.amount > 0 || step.stored > 0 || step.recoverySeconds > 0 || step.reelSeconds > 0 || step.futureCapacity > 0));
+    const replayPays = receipt.steps.some(step => step.pass === 2 && step.success && step.operation !== 'replay-row' && (step.amount > 0 || step.stored > 0 || step.recoverySeconds > 0 || step.reelSeconds > 0 || step.futureCapacity > 0 || step.cruisingSpeed > 0));
     for (const step of receipt.steps) {
       if (step.success && step.operation !== 'replay-row') successes.add(step.slot);
       if (step.success && step.copiedBy && step.chargesAfter === 0) copiedUse.add(step.sourceInstanceId);
@@ -98,6 +100,12 @@ export function getEquippedCardStatuses(run = {}, native = null) {
       return blocked(`Cannot copy ${name(target)}`, `${name(target)} cannot be ${ownDef.kind === 'echo' ? 'repeated by Echo' : 'borrowed by Chameleon'}.`, 'Move this card directly left of a compatible card. Copying cards cannot copy each other.');
     }
     const def = source?.def || ownDef, physical = source?.source || card, kind = def.kind;
+    if (kind === 'devourer') {
+      const target=cards[slot+1];
+      if (SKILL_CARDS[target?.cardId]?.rarity !== 'rare')
+        return blocked('Needs Rare to right', 'Devourer has no Rare in the immediately adjacent right slot to consume.', 'Place a Rare directly right. A successful clear consumes it only while a heart is missing; full hearts spare it.');
+      return ready(`After a successful clear, consume ${name(target)} in slot ${slot+2} to restore 1 missing heart. Full hearts spare it. Devourers resolve left to right, after Heart Stitch; the target must still be equipped and present.`);
+    }
     const rule = getCardRowRule(def, physical);
     const missing = missingTrigger(rule, context);
     if (missing) return missing;
@@ -109,21 +117,25 @@ export function getEquippedCardStatuses(run = {}, native = null) {
     if (rule) {
       if (successes.has(slot)) return ready(copy ? `Can ${ownDef.kind === 'echo' ? 'repeat' : 'borrow'} ${name(physical)} when its condition happens. Remaining uses belong to the real card.` : 'Can contribute in this arrangement when its printed condition happens. A full meter or temporary recovery does not mean the placement is wrong.');
       if (copiedUse.has(card.instanceId)) return shared('Shared use', 'The earlier copying card can spend this card’s last available use before its own slot acts. The use still pays through the copy.');
-      if (rule.operation === 'multiply-future-capacity')
-        return blocked('Move after a vessel', 'No earlier action grants future maximum Sparks during the victory event in this pass.', 'Equip Trail Vessel before this card. Echo and Chameleon can repeat its gain.');
       if (rule.when?.lastOccupied && slot !== lastOccupied) return blocked('Must be last', 'Closing Chord only works from the rightmost occupied slot.', 'Move it after every other equipped card, with a Spark payer earlier in the row.');
       if (rule.minimumEarlierPayers >= 2) return blocked('Needs 2 payers', 'This card needs two earlier additive actions that pay Sparks during the same event and pass. Payers for different events cannot combine.', 'Move it after two actions for the same event. Echo repeats count as separate paying actions.');
       if (rule.operation === 'multiply' || rule.operation === 'add-last-payout' || rule.minimumEarlierPayers)
         return blocked('Move after payer', 'No compatible earlier action pays Sparks for this card’s event and conditions in the same pass. A recovery-only action does not pay Sparks.', 'Move it after a Spark-paying card that works on the same event, or equip that payer first.');
       return blocked('No matching effect', 'This arrangement cannot produce a useful result for this card’s matching condition.', 'Pair it with the ability named in its condition, then check the row order.');
     }
-    if (['field', 'watchlight', 'cache-handling'].includes(kind) && !context.collector)
+    if (['field', 'watchlight', 'cache-handling','twin-orbit','twin-wick','collector-range'].includes(kind) && !context.collector)
       return blocked('Needs Collector', 'This ability uses Collector and its ring.', 'Choose Collector as your companion.');
+    if(kind==='twin-orbit'&&(run.cardTwinWickUnlocked||sources.some(entry=>entry.index<slot&&entry.def.kind==='twin-orbit')))
+      return shared('Two already available','This expedition or an earlier Twin Orbit already provides a second Collector. The maximum is 2.');
+    if(kind==='twin-wick'&&(run.cardTwinWickUnlocked||has('twin-orbit')||sources.some(entry=>entry.index<slot&&entry.def.kind==='twin-wick')))
+      return shared('Use preserved','A second Collector is already available. Twin Wick keeps its use until it can unlock one for the expedition.');
+    if(kind==='collector-range'&&copy)
+      return shared('Shared reach and uses','Borrowing the same range extension adds no reach or catches. The original card supplies its shared remaining uses.');
     if (kind === 'wave-loom' && !context.field)
       return blocked('Needs Field', 'Wave Loom sends its wave after a successful Field Impulse. This build cannot make that swipe.', 'Equip Field Impulse, or use the native Collector Field Impulse skill.');
     if (kind === 'camp-grow' && run.cardGrowUses >= 3)
       return shared('Grow limit reached', 'All three Grow actions for this journey have already been used. Extra Growth Seeds share that limit.');
-    if (['guide', 'rhythm', 'cache-handling', 'wave-loom', 'watchlight'].includes(kind) && sources.some(entry => entry.index < slot && entry.def.kind === kind))
+    if (['guide', 'rhythm', 'cache-handling', 'wave-loom', 'watchlight', 'springboard', 'proximity'].includes(kind) && sources.some(entry => entry.index < slot && entry.def.kind === kind))
       return shared('Already covered', 'An earlier equipped card already provides this single shared ability. Extra copies do not add a second effect.');
     if (kind === 'spillway' && sources.some(entry => entry.def.kind === kind && (entry.def.pulseCadence < def.pulseCadence || entry.def.pulseCadence === def.pulseCadence && entry.index < slot)))
       return shared('Already covered', 'Another Spillway already provides the same or faster wave cadence. Only the strongest cadence applies.');

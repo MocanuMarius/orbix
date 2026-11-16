@@ -1,19 +1,19 @@
-import {resourceSymbol} from './game-symbols.mjs?v=collector-reel-1';
-import {drawPickup, pickupArtSvg} from './pickup-art.mjs?v=collector-reel-1';
-import {getPickupSpec} from './pickups.mjs?v=collector-reel-1';
-import {drawBlackHoles} from './black-hole-art.mjs?v=collector-reel-1';
-import {blackHoleDrainRate, BLACK_HOLE_TUNING} from './black-holes.mjs?v=collector-reel-1';
-import {CAPTURE_STYLES, readCaptureStyle, saveCaptureStyle} from './capture-styles.mjs?v=collector-reel-1';
-import {drawCapture} from './capture-art.mjs?v=collector-reel-1';
-import {glowPoints, LIGHT_PACKET_TUNING} from './vitality.mjs?v=collector-reel-1';
-import {SKILLS, ARTIFACTS} from './model.mjs?v=collector-reel-1';
-import {ROUTE_BONUSES} from './route-bonuses.mjs?v=collector-reel-1';
-import {skillIcon, artifactIcon} from './upgrade-icons.mjs?v=collector-reel-1';
-import {mapStopIconMarkup} from './map-guide.mjs?v=collector-reel-1';
-import {companionArtSvg, makeWispSprite} from './companion-art.mjs?v=collector-reel-1';
-import {lifeHeartSvg} from './lives.mjs?v=collector-reel-1';
-import {bonusIcon} from './route-bonus-ui.mjs?v=collector-reel-1';
-import {menuIcon} from './menu-icons.mjs?v=collector-reel-1';
+import {resourceSymbol} from './game-symbols.mjs?v=cards-renewal-1';
+import {drawPickup, pickupArtSvg} from './pickup-art.mjs?v=cards-renewal-1';
+import {getPickupSpec} from './pickups.mjs?v=cards-renewal-1';
+import {drawBlackHoles} from './black-hole-art.mjs?v=cards-renewal-1';
+import {blackHoleDrainRate, BLACK_HOLE_TUNING} from './black-holes.mjs?v=cards-renewal-1';
+import {CAPTURE_STYLES, readCaptureStyle, saveCaptureStyle} from './capture-styles.mjs?v=cards-renewal-1';
+import {drawCapture} from './capture-art.mjs?v=cards-renewal-1';
+import {glowPoints, LIGHT_PACKET_TUNING} from './vitality.mjs?v=cards-renewal-1';
+import {SKILLS, ARTIFACTS} from './model.mjs?v=cards-renewal-1';
+import {ROUTE_BONUSES} from './route-bonuses.mjs?v=cards-renewal-1';
+import {skillIcon, artifactIcon} from './upgrade-icons.mjs?v=cards-renewal-1';
+import {mapStopIconMarkup} from './map-guide.mjs?v=cards-renewal-1';
+import {companionArtSvg, makeWispSprite} from './companion-art.mjs?v=cards-renewal-1';
+import {lifeHeartSvg} from './lives.mjs?v=cards-renewal-1';
+import {bonusIcon} from './route-bonus-ui.mjs?v=cards-renewal-1';
+import {menuIcon} from './menu-icons.mjs?v=cards-renewal-1';
 
 const preferences = matchMedia('(prefers-reduced-motion: reduce)');
 const root = document.documentElement;
@@ -336,7 +336,7 @@ function renderGroup() {
 }
 async function openLanternPreview() {
   try {
-    const {createLanternPreview} = await import('./lantern-preview.mjs?v=collector-reel-1');
+    const {createLanternPreview} = await import('./lantern-preview.mjs?v=cards-renewal-1');
     if (picker.value !== 'lantern' || lanternPreview) return;
     lanternPreview = createLanternPreview({
       host: gallery,
@@ -351,7 +351,7 @@ async function openLanternPreview() {
 }
 async function openSizesPreview(){
   try{
-    const {createSparkSizesPreview}=await import('./spark-sizes-preview.mjs?v=collector-reel-1');
+    const {createSparkSizesPreview}=await import('./spark-sizes-preview.mjs?v=cards-renewal-1');
     if(picker.value!=='sizes'||sizesPreview)return;
     sizesPreview=createSparkSizesPreview({isPaused:()=>root.dataset.previewPaused==='true',
       setPaused:value=>{paused=value;syncMotion();},reducedMotion:()=>reducedMotion});
@@ -363,7 +363,7 @@ async function openSizesPreview(){
 }
 async function openFlashPreview() {
   try {
-    const {createFlashPreview} = await import('./flash-preview.mjs?v=collector-reel-1');
+    const {createFlashPreview} = await import('./flash-preview.mjs?v=cards-renewal-1');
     if (picker.value !== 'flash' || flashPreview) return;
     flashPreview = createFlashPreview({
       isPaused: () => root.dataset.previewPaused === 'true',

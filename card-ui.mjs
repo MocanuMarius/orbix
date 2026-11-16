@@ -1,7 +1,7 @@
-import { cardTermTextMarkup } from "./card-terms.mjs?v=collector-reel-1";
-import { getCardRuleBands } from "./card-rule-bands.mjs?v=collector-reel-1";
-import { getEquippedCardStatuses, cardStatusText } from "./card-status.mjs?v=collector-reel-1";
-import { cardArt } from "./card-art.mjs?v=collector-reel-1";
+import { cardTermTextMarkup } from "./card-terms.mjs?v=cards-renewal-1";
+import { getCardRuleBands } from "./card-rule-bands.mjs?v=cards-renewal-1";
+import { getEquippedCardStatuses, cardStatusText } from "./card-status.mjs?v=cards-renewal-1";
+import { cardArt } from "./card-art.mjs?v=cards-renewal-1";
 import {
   getMountedCards,
   getOwnedCards,
@@ -12,19 +12,20 @@ import {
   getCardCampPreview,
   canUseCardCampServices,
   getSkillWallet,
-} from "./model.mjs?v=collector-reel-1";
-import { resourceSymbol } from "./game-symbols.mjs?v=collector-reel-1";
-import { choiceScene } from "./choice-art.mjs?v=collector-reel-1";
-import { livesMarkup } from "./lives.mjs?v=collector-reel-1";
-import { getGlowCapacity, formatGlow } from "./vitality.mjs?v=collector-reel-1";
-import { mapStopIconMarkup } from "./map-guide.mjs?v=collector-reel-1";
+} from "./model.mjs?v=cards-renewal-1";
+import { resourceSymbol } from "./game-symbols.mjs?v=cards-renewal-1";
+import { choiceScene } from "./choice-art.mjs?v=cards-renewal-1";
+import { livesMarkup } from "./lives.mjs?v=cards-renewal-1";
+import { getGlowCapacity, formatGlow } from "./vitality.mjs?v=cards-renewal-1";
+import { mapStopIconMarkup } from "./map-guide.mjs?v=cards-renewal-1";
 import {
   createCardExecution,
   executeCardBodyPickup,
   describeSkillCard,
   makeSkillCard,
+  getCardGrowthUses,
   SKILL_CARDS,
-} from "./skill-cards.mjs?v=collector-reel-1";
+} from "./skill-cards.mjs?v=cards-renewal-1";
 
 const esc = (v) =>
   String(v ?? "").replace(
@@ -67,7 +68,7 @@ function flightPackingReceipt(run, reward) {
     ? ` · Tight Packing +${bonus} Stored Sparks`
     : "";
 }
-export { cardArt } from "./card-art.mjs?v=collector-reel-1";
+export { cardArt } from "./card-art.mjs?v=cards-renewal-1";
 export function effectMarkup(text) {
   return esc(text).replace(/([+−]?\d+(?:\.\d+)?%?)/g, '<b class="card-number">$1</b>');
 }
@@ -83,10 +84,14 @@ const fittedRuleText = text => text
   .replace(/^Double this pass’s earlier card Sparks\.?$/, 'Earlier card Sparks ×2')
   .replace(/^Absorb a passage Spark while Collector reels in a pickup$/, 'Touch a Spark while Collector reels')
   .replace(/^Shorten the remaining reel by up to 1s\.?$/, 'Reel up to 1 s shorter')
+  .replace(/^Shorten the remaining reel by up to (\d+)s\.?$/, 'Reel up to $1 s shorter')
   .replace(/^An amber chevron shows when your current fall makes a Lift rise back to its starting height\.?$/, 'Lift timing from your current fall')
   .replace(/^When your wisp absorbs a (?:passage )?Spark\.?$/, 'Touch a Spark')
   .replace(/^When a wave crosses an uncollected Spark\.?$/, 'Wave crosses a Spark')
-  .replace(/^First crossing of each wave\.?$/, 'First crossing each wave')
+  .replace(/^First crossing of each wave\.?$/, 'Once per wave')
+  .replace(/^While missing a heart, absorb 3 passage Sparks directly in one flight\.?$/, 'Missing a heart: touch 3 Sparks this flight')
+  .replace(/^Start or resume flight with Collector\.?$/, 'Enter flight with Collector')
+  .replace(/^Unlock a second Collector for this expedition, even after unequipping\.?$/, 'Unlock a second Collector this expedition, even unequipped')
   .replace(/^Repeat the action on the card to the right\.?$/, 'Repeat the card to the right')
   .replace(/^Borrow the ability on the card to the right\.?$/, 'Borrow the card to the right')
   .replace(/^Your meter holds (.+) more Sparks\.?$/, '+$1 maximum Sparks')
@@ -94,7 +99,8 @@ const fittedRuleText = text => text
   .replace(/^Multiply this pass’s Sparks so far by (.+)\.?$/, 'This pass’s Sparks ×$1');
 export function cardMechanicMarkup(card, { details = false, fitted = false } = {}) {
   const bands = getCardRuleBands(card, SKILL_CARDS[card?.cardId || card?.id]);
-  const main = bands.filter(({type})=>!fitted || type!=='note').map(({type, text}) => `<span class="card-rule-stripe card-rule-${type}" data-rule-type="${type}">${cardTermTextMarkup(fitted ? fittedRuleText(text) : text)}</span>`).join('');
+  const growth = (card.kind || SKILL_CARDS[card?.cardId || card?.id]?.kind) === 'camp-grow';
+  const main = bands.filter(({type})=>!fitted || type!=='note' || growth).map(({type, text}) => `<span class="card-rule-stripe card-rule-${type}" data-rule-type="${type}">${cardTermTextMarkup(fitted ? fittedRuleText(text) : text)}</span>`).join('');
   return `<span class="card-mechanics"><span class="card-mechanic-main">${main}</span></span>${details ? `<details class="card-rules"><summary>Details</summary><p>${esc(printed(card))}</p></details>` : ''}`;
 }
 const lifetime = (card) => card.charges == null ? 'While equipped' : `${amount(card.charges)} ${amount(card.charges) === 1 ? 'use' : 'uses'} left`;
@@ -121,9 +127,10 @@ export function cardFace(card, { compact = false, fitted = false, slot = null, s
   const uses = finite ? `${amount(card.charges)}/${amount(maximum)}` : '';
   const usesLabel = `${amount(card.charges)} of ${amount(maximum)} uses remaining`;
   const bands = getCardRuleBands(card, SKILL_CARDS[card.cardId || card.id]);
-  const dense = status && (bands.length >= 3 || bands.map(band => band.text).join(' ').length > 130);
+  const verbose = bands.length >= 3 || bands.map(band => band.text).join(' ').length > 130;
+  const dense = status && verbose;
   const badge = finite ? compact ? `<span class="card-use-counter" role="img" aria-label="${usesLabel}">${uses}</span>` : `<button type="button" class="card-use-counter" data-card-term="uses" aria-haspopup="dialog" aria-label="${usesLabel}: help">${uses}</button>` : '';
-  return `<article class="skill-card card-${rarity(card)} ${compact ? 'compact-card card-thumbnail' : 'card-readable'} ${fitted ? 'card-fitted' : ''} ${finite ? 'card-has-uses' : ''} ${status ? 'card-has-status' : ''} ${dense || fitted && status ? 'card-status-dense' : ''} ${bands.length >= 4 ? 'card-rules-long' : ''} ${selected ? 'card-selected' : ''}" data-card-instance="${esc(card.instanceId || '')}" data-card-help="${esc(card.cardId || card.id)}" data-card-name="${esc(cardName(card))}" data-card-description="${esc(printed(card))}" aria-label="${esc(cardName(card))}, ${esc(rarity(card))}${status ? `, ${esc(cardStatusText(status))}` : ''}"><header class="card-face-heading"><h3>${esc(cardName(card))}</h3>${compact ? '' : `<button type="button" class="card-help" data-card-term-trigger="${esc(card.cardId || card.id)}" data-card-terms="${cardTerms(card).join(' ')}" aria-haspopup="dialog" aria-label="Help with ${esc(cardName(card))}">?</button>`}</header><div class="card-illustration">${cardArt(card, { compact })}${rarityInlay(card)}</div>${compact ? '' : `<div class="card-rule-band">${cardMechanicMarkup(card,{fitted})}</div>`}${cardStatusMarkup(status, {compact, slot})}${badge}</article>`;
+  return `<article class="skill-card card-${rarity(card)} ${compact ? 'compact-card card-thumbnail' : 'card-readable'} ${fitted ? 'card-fitted' : ''} ${finite ? 'card-has-uses' : ''} ${status ? 'card-has-status' : ''} ${dense || fitted && status ? 'card-status-dense' : ''} ${verbose ? 'card-rules-dense' : ''} ${bands.length >= 4 ? 'card-rules-long' : ''} ${selected ? 'card-selected' : ''}" data-card-instance="${esc(card.instanceId || '')}" data-card-help="${esc(card.cardId || card.id)}" data-card-name="${esc(cardName(card))}" data-card-description="${esc(printed(card))}" aria-label="${esc(cardName(card))}, ${esc(rarity(card))}${status ? `, ${esc(cardStatusText(status))}` : ''}"><header class="card-face-heading"><h3>${esc(cardName(card))}</h3>${compact ? '' : `<button type="button" class="card-help" data-card-term-trigger="${esc(card.cardId || card.id)}" data-card-terms="${cardTerms(card).join(' ')}" aria-haspopup="dialog" aria-label="Help with ${esc(cardName(card))}">?</button>`}</header><div class="card-illustration">${cardArt(card, { compact })}${rarityInlay(card)}</div>${compact ? '' : `<div class="card-rule-band">${cardMechanicMarkup(card,{fitted})}</div>`}${cardStatusMarkup(status, {compact, slot})}${badge}</article>`;
 }
 export function starterCardsMarkup(run, gifts, existing) {
   const guide=describeSkillCard(makeSkillCard('lift-guide','included-starter-guide'));
@@ -216,8 +223,7 @@ export function cardRestMarkup(run, node, choices) {
     "Hearts and Sparks are already full.": "Hearts and meter full",
     "Maximum five slots": "All 5 slots unlocked",
     "One slot already added on this map": "Already added this map",
-    "Mount Growth Seed before arriving at Rest": "Equip Growth Seed before Rest",
-    "Growth Seed must remain mounted": "Equip your Growth Seed",
+    "Equip a Growth Seed to Grow": "Equip a Growth Seed to Grow",
     "Maximum growth reached (3/3)": "All 3 Grow actions used",
     "No Rest action remaining": "No actions remaining",
   }[c.disabledReason] || c.disabledReason || "");
@@ -225,7 +231,7 @@ export function cardRestMarkup(run, node, choices) {
     const grow = c.key === "grow", slot = c.key === "slot", before = c.before, after = c.after;
     const numbers = slot ? `Slots <b>${before.slots} → ${after.slots}</b>` : grow ? `Max Sparks <b>${formatGlow(before.maxMeter)} → ${formatGlow(after.maxMeter)}</b>` : `Hearts <b>${before.hearts} → ${after.hearts}</b>`;
     const detail = slot ? 'Once per map · no refill' : `Meter <b>${formatGlow(before.meter)} → ${formatGlow(after.meter)}</b>`;
-    const note = c.taken ? '' : c.disabled ? shortReason(c) : grow ? 'No healing' : '';
+    const note = c.taken ? '' : c.disabled ? shortReason(c) : grow ? `No healing · Grow used ${getCardGrowthUses(run)}/3` : '';
     return `<article class="card-camp-choice ${c.disabled ? "unavailable" : ""} ${c.taken ? 'card-camp-taken' : ''}">${choiceScene(grow ? "refillGlow" : slot ? "skills" : "hearts")}<h3>${esc(c.title)}</h3><div class="card-camp-consequence"><p>${numbers}</p><p>${detail}</p></div><p class="card-camp-note">${esc(note)}</p><button class="${c.disabled ? 'secondary' : 'primary'}" data-action="support" data-index="${c.index}" ${c.disabled ? 'disabled' : ''}>${c.taken ? '✓ Taken' : esc(c.title)}</button></article>`;
   }).join("")}</div><footer class="card-camp-footer"><p>${camp.extraAvailable && camp.remaining ? "Second Ember is spent only after your second action." : ""}</p>${leave && !leave.disabled ? `<button class="primary" data-action="support" data-index="${leave.index}">Leave Rest →</button>` : '<button class="primary" data-action="view-route">Choose next route →</button>'}</footer></div></section>`;
 }
@@ -243,10 +249,10 @@ export function cardVictoryRecap(run) {
       reward?.card ||
       run.finalCardReward?.card ||
       run.finalCardTrophy;
-  const receipt = run.cardVictoryReceipt, gain = receipt?.runId === run.id ? receipt.futureCapacity || 0 : 0;
-  const sourceName = step => receipt.sources.find(source => source.instanceId === step.sourceInstanceId)?.name || 'Card';
-  const explanation = gain ? `<details><summary>How your cards earned +${gain}</summary><ol>${receipt.steps.filter(step => step.success && step.futureCapacity > 0).map(step => `<li>Pass ${step.pass}, slot ${step.slot + 1} · ${esc(sourceName(step))}${step.copiedBy ? ` through ${esc(SKILL_CARDS[step.actingCardId]?.name || step.copiedBy)}` : ''}${step.operation === 'multiply-future-capacity' ? ` doubles ${step.futureCapacityBefore} → ${step.futureCapacityAfter}` : ` +${step.futureCapacity}`}${step.pass === 2 ? ' on the shared replay' : ''}.</li>`).join('')}</ol></details>` : '';
-  const permanent = `<div class="card-future-capacity-receipt" role="status"><strong>+${gain} maximum ${gain === 1 ? 'Spark' : 'Sparks'} for future expeditions</strong>${gain ? `<p>Your next expedition starts full at ${30 + (run.cardFutureCapacity || 0) + gain} maximum Sparks, before its starting card.</p>` : ''}${explanation}</div>`;
+  const receipts=run.cardClearReceipts||[],legacy=run.cardVictoryReceipt?.runId===run.id?run.cardVictoryReceipt.futureCapacity||0:0;
+  const gain=receipts.reduce((sum,receipt)=>sum+(receipt.futureCapacity||0),legacy),speed=receipts.reduce((sum,receipt)=>sum+(receipt.cruisingSpeed||0),0);
+  const explanation=receipts.some(receipt=>receipt.futureCapacity||receipt.cruisingSpeed)?`<details><summary>Permanent progress from flight clears</summary><ol>${receipts.filter(receipt=>receipt.futureCapacity||receipt.cruisingSpeed).map(receipt=>`<li>Map ${receipt.mapIndex+1} · ${esc(receipt.nodeId)}${receipt.futureCapacity?` · +${receipt.futureCapacity} maximum Sparks`:''}${receipt.cruisingSpeed?` · +${receipt.cruisingSpeed}% cruising speed`:''}.</li>`).join('')}</ol></details>`:'';
+  const permanent=`<div class="card-future-capacity-receipt" role="status"><strong>+${gain} maximum ${gain===1?'Spark':'Sparks'} permanently this expedition</strong>${gain?`<p>Your next expedition starts full at ${30+(run.cardFutureCapacity||0)+legacy} maximum Sparks, before its starting card.</p>`:''}${speed?`<p>+${speed}% cruising speed unlocked. Choose your speed in Settings; baseline stays available.</p>`:''}${explanation}</div>`;
   return `<section class="card-victory-recap"><header class="card-heading"><div><small>THREE GUARDIANS · RUN COMPLETE${flightPackingReceipt(run, reward)}</small><h1>The light returns</h1></div></header>${permanent}<div class="card-winning-hand"><div><h2>Your equipped cards</h2><div class="card-recap-row">${(run.winningHand || getMountedCards(run))
     .filter(Boolean)
     .map((c) => cardFace(c, { compact: true }))
