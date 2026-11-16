@@ -1,77 +1,77 @@
-import {prepareEnvironmentArt,drawNearLandscape,drawTerrainForeground,releaseTerrainForeground} from './authored-environment.mjs?v=skills-cards-2';
-import {castTerrainLight,releaseTerrainLight} from './terrain-light.mjs?v=skills-cards-2';
-import {drawTerrainEcology,drawHabitatBackdrop} from './terrain-ecology.mjs?v=skills-cards-2';
-import {drawCourseArt} from './authored-environment.mjs?v=skills-cards-2';
-import {drawTerrainBoundary,beginTerrainBoundaryFrame,endTerrainBoundaryFrame,releaseTerrainBoundaryFrame} from './terrain-boundary.mjs?v=skills-cards-2';
-import {getContactEdgePalette} from './contact-edge-palettes.mjs?v=skills-cards-2';
-import {prepareAtlasFlight,resizeAtlasFlight,ringBellwind,bellwindAcceleration,moonLightScale,drawAtlasFlight} from './atlas-flight.mjs?v=skills-cards-2';
-import {canShowFlightHint} from './flight-hint-safety.mjs?v=skills-cards-2';
-import {updateGlideRegeneration} from './glide-regeneration.mjs?v=skills-cards-2';
-import {drawGuardianPresence} from './guardian-presence.mjs?v=skills-cards-2';
-import { updateGuardian, resizeGuardian, placeGuardianFuel } from './guardian-effects.mjs?v=skills-cards-2';
-import { drawGuardianWarnings } from './guardian-art.mjs?v=skills-cards-2';
-import { drawShutters, resizeShutters } from './shutter-cone.mjs?v=skills-cards-2';
-import { inLanternRoom, installPassageLanterns, lanternField } from './lantern-layout.mjs?v=skills-cards-2';
-import {drawProximityMeter} from './proximity-meter.mjs?v=skills-cards-2';
-import {drawFourthBeat} from './fourth-beat-art.mjs?v=skills-cards-2';
-import {drawCollectorField} from './collector-field-art.mjs?v=skills-cards-2';
-import {activateFieldImpulse,fieldImpulseSpeed,fieldImpulseGravity,fieldImpulseStrength} from './collector-impulse.mjs?v=skills-cards-2';
-import {buildObjectivePlan,createFlightObjective,drawObjectiveMarks} from './flight-objectives.mjs?v=skills-cards-2';
-import {FlightProjection,LiftGuide,drawFlightProjection,drawLiftGuide} from './flight-projection.mjs?v=skills-cards-2';
-import {drawGlowSense} from './glow-sense.mjs?v=skills-cards-2';
-import {formatGlow} from './vitality.mjs?v=skills-cards-2';
-import {installRiskChains} from './risk-chains.mjs?v=skills-cards-2';
-import {installSparkField} from './spark-fields.mjs?v=skills-cards-2';
-import {drawFallWarning} from './fall-chain-art.mjs?v=skills-cards-2';
-import {EXTRA_COURSES} from './world-expansion.mjs?v=skills-cards-2';
-import {BIOME_COURSES} from './biome-courses.mjs?v=skills-cards-2';
-import {BiomeDynamics} from './biome-dynamics.mjs?v=skills-cards-2';
-import {condenseGlow,packExitReserve} from './condensed-glow.mjs?v=skills-cards-2';
-import {ensureGlowBudget,shapeExpeditionSupply,trimSurplusFuel} from './glow-budget.mjs?v=skills-cards-2';
-import {balanceSparkSupply} from './spark-supply.mjs?v=skills-cards-2';
-import {EdgingPulse} from './edging-pulse.mjs?v=skills-cards-2';
-import {SpacetimeTerrain} from './spacetime.mjs?v=skills-cards-2';
-import {isVowBodyPickup} from './contextual-events.mjs?v=skills-cards-2';
-import {FlightBoon} from './flight-boons.mjs?v=skills-cards-2';
-import {BlackHoles} from './black-holes.mjs?v=skills-cards-2';
-import {createFlightFX} from './reactive-fx.mjs?v=skills-cards-2';
-import {musicReactivity} from './music.mjs?v=skills-cards-2';
-import {LuminanceWaves,revealLuminanceWaves} from './luminance-waves.mjs?v=skills-cards-2';
-import {CardRhythm} from './card-rhythm.mjs?v=skills-cards-2';
-import {createCardExecution,executeCardBodyPickup,getCardCharges,getCardPackingBonus} from './skill-cards.mjs?v=skills-cards-2';
-import {drawWispBody,makeWispSprite,makeCompanionSprite,WISP_ART} from './companion-art.mjs?v=skills-cards-2';
-import {drawBlackHoles} from './black-hole-art.mjs?v=skills-cards-2';
-import {drawCapture, drawShellPuff, drawCarriedSpark,drawCollectorGrip} from './capture-art.mjs?v=skills-cards-2';
-import {drawShellArcs} from './shell-arcs.mjs?v=skills-cards-2';
-import {sparkBodyRadius,sparkArtScale,sparkMass} from './spark-size.mjs?v=skills-cards-2';
-import {captureMassDuration} from './tidal-light.mjs?v=skills-cards-2';
-import {readCaptureStyle} from './capture-styles.mjs?v=skills-cards-2';
+import {prepareEnvironmentArt,drawNearLandscape,drawTerrainForeground,releaseTerrainForeground} from './authored-environment.mjs?v=skills-cards-3';
+import {castTerrainLight,releaseTerrainLight} from './terrain-light.mjs?v=skills-cards-3';
+import {drawTerrainEcology,drawHabitatBackdrop} from './terrain-ecology.mjs?v=skills-cards-3';
+import {drawCourseArt} from './authored-environment.mjs?v=skills-cards-3';
+import {drawTerrainBoundary,beginTerrainBoundaryFrame,endTerrainBoundaryFrame,releaseTerrainBoundaryFrame} from './terrain-boundary.mjs?v=skills-cards-3';
+import {getContactEdgePalette} from './contact-edge-palettes.mjs?v=skills-cards-3';
+import {prepareAtlasFlight,resizeAtlasFlight,ringBellwind,bellwindAcceleration,moonLightScale,drawAtlasFlight} from './atlas-flight.mjs?v=skills-cards-3';
+import {canShowFlightHint} from './flight-hint-safety.mjs?v=skills-cards-3';
+import {updateGlideRegeneration} from './glide-regeneration.mjs?v=skills-cards-3';
+import {drawGuardianPresence} from './guardian-presence.mjs?v=skills-cards-3';
+import { updateGuardian, resizeGuardian, placeGuardianFuel } from './guardian-effects.mjs?v=skills-cards-3';
+import { drawGuardianWarnings } from './guardian-art.mjs?v=skills-cards-3';
+import { drawShutters, resizeShutters } from './shutter-cone.mjs?v=skills-cards-3';
+import { inLanternRoom, installPassageLanterns, lanternField } from './lantern-layout.mjs?v=skills-cards-3';
+import {drawProximityMeter} from './proximity-meter.mjs?v=skills-cards-3';
+import {drawFourthBeat} from './fourth-beat-art.mjs?v=skills-cards-3';
+import {drawCollectorField} from './collector-field-art.mjs?v=skills-cards-3';
+import {activateFieldImpulse,fieldImpulseSpeed,fieldImpulseGravity,fieldImpulseVelocity,fieldImpulseStrength} from './collector-impulse.mjs?v=skills-cards-3';
+import {buildObjectivePlan,createFlightObjective,drawObjectiveMarks} from './flight-objectives.mjs?v=skills-cards-3';
+import {FlightProjection,LiftGuide,drawFlightProjection,drawLiftGuide} from './flight-projection.mjs?v=skills-cards-3';
+import {drawGlowSense} from './glow-sense.mjs?v=skills-cards-3';
+import {formatGlow} from './vitality.mjs?v=skills-cards-3';
+import {installRiskChains} from './risk-chains.mjs?v=skills-cards-3';
+import {installSparkField} from './spark-fields.mjs?v=skills-cards-3';
+import {drawFallWarning} from './fall-chain-art.mjs?v=skills-cards-3';
+import {EXTRA_COURSES} from './world-expansion.mjs?v=skills-cards-3';
+import {BIOME_COURSES} from './biome-courses.mjs?v=skills-cards-3';
+import {BiomeDynamics} from './biome-dynamics.mjs?v=skills-cards-3';
+import {condenseGlow,packExitReserve} from './condensed-glow.mjs?v=skills-cards-3';
+import {ensureGlowBudget,shapeExpeditionSupply,trimSurplusFuel} from './glow-budget.mjs?v=skills-cards-3';
+import {balanceSparkSupply} from './spark-supply.mjs?v=skills-cards-3';
+import {EdgingPulse} from './edging-pulse.mjs?v=skills-cards-3';
+import {SpacetimeTerrain} from './spacetime.mjs?v=skills-cards-3';
+import {isVowBodyPickup} from './contextual-events.mjs?v=skills-cards-3';
+import {FlightBoon} from './flight-boons.mjs?v=skills-cards-3';
+import {BlackHoles} from './black-holes.mjs?v=skills-cards-3';
+import {createFlightFX} from './reactive-fx.mjs?v=skills-cards-3';
+import {musicReactivity} from './music.mjs?v=skills-cards-3';
+import {LuminanceWaves,revealLuminanceWaves} from './luminance-waves.mjs?v=skills-cards-3';
+import {CardRhythm} from './card-rhythm.mjs?v=skills-cards-3';
+import {CARD_UNIT,CARD_ROW_EVENTS,createCardExecution,resolveCardRow,hasCardRowEvent,getCardCharges,getCardPackingBonus} from './skill-cards.mjs?v=skills-cards-3';
+import {drawWispBody,makeWispSprite,makeCompanionSprite,WISP_ART} from './companion-art.mjs?v=skills-cards-3';
+import {drawBlackHoles} from './black-hole-art.mjs?v=skills-cards-3';
+import {drawCapture, drawShellPuff, drawCarriedSpark,drawCollectorGrip} from './capture-art.mjs?v=skills-cards-3';
+import {drawShellArcs} from './shell-arcs.mjs?v=skills-cards-3';
+import {sparkBodyRadius,sparkArtScale,sparkMass} from './spark-size.mjs?v=skills-cards-3';
+import {captureMassDuration} from './tidal-light.mjs?v=skills-cards-3';
+import {readCaptureStyle} from './capture-styles.mjs?v=skills-cards-3';
 /* Emberwing's self-contained canvas flight simulation and renderer. */
-import { glowPoints, FLAME_TUNING, LIGHT_PACKET_TUNING } from './vitality.mjs?v=skills-cards-2';
-import { flightEndDistance } from './flight-end.mjs?v=skills-cards-2';
-import {getExitLandmarkState,drawExitLandmark} from './exit-landmark.mjs?v=skills-cards-2';
-import { WispCompanion, wispHome } from './wisp.mjs?v=skills-cards-2';
-import { getAscentInfo } from './ascent.mjs?v=skills-cards-2';
-import { LEVEL_LENGTH, getLevelLengthScale } from './level-length.mjs?v=skills-cards-2';
-import { resolveLevelIdentity } from './level-catalog.mjs?v=skills-cards-2';
-import { DraftField, DRAFT_TUNING } from './drafts.mjs?v=skills-cards-2';
-import { normalizeCompanionRole, normalizeCompanionFleet, getCompanionAbility } from './companion-abilities.mjs?v=skills-cards-2';
-import { populateSceneProps, scenePropPolygons } from './scene-props.mjs?v=skills-cards-2';
-import { pickupKind, getPickupSpec, pickupContactRadius, canCompanionCollect, flashPowerupDuration } from './pickups.mjs?v=skills-cards-2';
-import { createFlashTether, stepFlashTether, drawFlashTether, flashLightGlow, FLASH_PULSE_INTERVAL } from './flash-tether.mjs?v=skills-cards-2';
-import { drawPickup, drawSparkSymbol } from './pickup-art.mjs?v=skills-cards-2';
-import {pickupHookAnchor} from './pickup-handling-cue.mjs?v=skills-cards-2';
-import { buildBossLayout, getBossState as bossState, drawBoss } from './boss.mjs?v=skills-cards-2';
-import { getAuthoredChallenge, finalizeFlightChallenges, installAuthoredDraftCrossings, FlightChallengeDirector } from './flight-challenges.mjs?v=skills-cards-2';
-import { installEncounterFamily } from './encounter-families.mjs?v=skills-cards-2';
-import { installFlightForks, resizeFlightForks } from './flight-forks.mjs?v=skills-cards-2';
-import { ArtifactEffects } from './artifact-effects.mjs?v=skills-cards-2';
-import {ActivationEvents} from './activation-events.mjs?v=skills-cards-2';
-import {fatalFlightPosition,drawLastGlimmer} from './last-glimmer.mjs?v=skills-cards-2';
-import { LIGHT_EXTENT,lightAttenuation,lightVisibility,createLightMaskCanvas,castFlightFlashLights,revealLanternWake,sceneRevealStrength,flashRangeStrength,pickupRevealHold,pickupRevealAt,renderLightState,lightDreamScenery,companionTerrainLight } from './light-field.mjs?v=skills-cards-2';
+import { glowPoints, FLAME_TUNING, LIGHT_PACKET_TUNING } from './vitality.mjs?v=skills-cards-3';
+import { flightEndDistance } from './flight-end.mjs?v=skills-cards-3';
+import {getExitLandmarkState,drawExitLandmark} from './exit-landmark.mjs?v=skills-cards-3';
+import { WispCompanion, wispHome } from './wisp.mjs?v=skills-cards-3';
+import { getAscentInfo } from './ascent.mjs?v=skills-cards-3';
+import { LEVEL_LENGTH, getLevelLengthScale } from './level-length.mjs?v=skills-cards-3';
+import { resolveLevelIdentity } from './level-catalog.mjs?v=skills-cards-3';
+import { DraftField, DRAFT_TUNING } from './drafts.mjs?v=skills-cards-3';
+import { normalizeCompanionRole, normalizeCompanionFleet, getCompanionAbility } from './companion-abilities.mjs?v=skills-cards-3';
+import { populateSceneProps, scenePropPolygons } from './scene-props.mjs?v=skills-cards-3';
+import { pickupKind, getPickupSpec, pickupContactRadius, canCompanionCollect, flashPowerupDuration } from './pickups.mjs?v=skills-cards-3';
+import { createFlashTether, stepFlashTether, drawFlashTether, flashLightGlow, FLASH_PULSE_INTERVAL } from './flash-tether.mjs?v=skills-cards-3';
+import { drawPickup, drawSparkSymbol } from './pickup-art.mjs?v=skills-cards-3';
+import {pickupHookAnchor} from './pickup-handling-cue.mjs?v=skills-cards-3';
+import { buildBossLayout, getBossState as bossState, drawBoss } from './boss.mjs?v=skills-cards-3';
+import { getAuthoredChallenge, finalizeFlightChallenges, installAuthoredDraftCrossings, FlightChallengeDirector } from './flight-challenges.mjs?v=skills-cards-3';
+import { installEncounterFamily } from './encounter-families.mjs?v=skills-cards-3';
+import { installFlightForks, resizeFlightForks } from './flight-forks.mjs?v=skills-cards-3';
+import { ArtifactEffects } from './artifact-effects.mjs?v=skills-cards-3';
+import {ActivationEvents} from './activation-events.mjs?v=skills-cards-3';
+import {fatalFlightPosition,drawLastGlimmer} from './last-glimmer.mjs?v=skills-cards-3';
+import { LIGHT_EXTENT,lightAttenuation,lightVisibility,createLightMaskCanvas,castFlightFlashLights,revealLanternWake,sceneRevealStrength,flashRangeStrength,pickupRevealHold,pickupRevealAt,renderLightState,lightDreamScenery,companionTerrainLight } from './light-field.mjs?v=skills-cards-3';
 import { createTutorialState, buildTutorialLayout, recordTutorialPickup,
-  updateTutorial, updateTutorialCompanion, getTutorialHint, tuneTutorialGuardian, configureTutorialScene } from './tutorial.mjs?v=skills-cards-2';
-export { FLAME_TUNING } from './vitality.mjs?v=skills-cards-2';
+  updateTutorial, updateTutorialCompanion, getTutorialHint, tuneTutorialGuardian, configureTutorialScene } from './tutorial.mjs?v=skills-cards-3';
+export { FLAME_TUNING } from './vitality.mjs?v=skills-cards-3';
 const TAU = Math.PI * 2;
 const STEP = 1 / 60;
 const FALLBACK_WISP_RADIUS = WISP_ART.worldRadius/.85;
@@ -83,7 +83,7 @@ const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
 const lerp = (a, b, t) => a + (b - a) * t;
 export const FLIGHT_TUNING = Object.freeze({ gravity: 300, flapImpulse: 205,
   forwardSpeed: 154, terminalFall: 245, pickupRadius: LIGHT_PACKET_TUNING.pickupRadius });
-export { DRAFT_TUNING } from './drafts.mjs?v=skills-cards-2';
+export { DRAFT_TUNING } from './drafts.mjs?v=skills-cards-3';
 // Retain the public tuning name for consumers; wind now has no global cycle.
 export const WIND_TUNING = DRAFT_TUNING;
 
@@ -814,7 +814,9 @@ export class WispFlight {
       boostCooldown: 1, boostDuration: 1, reward: 1, cacheFuelBonus: 0,
       warmCore: false, windSensitivity: 1, flapCost: 1, steady: false, ...options.modifiers };
     this.cardExecution=this.mod.cardExecution?.cards?.some(Boolean)?createCardExecution(this.mod.cardExecution):null;
+    this.cardChargeLedger={...getCardCharges(this.cardExecution)};
     this.cardExecutions=0;
+    this.cardRowTrace=null;this.cardRowSequence=0;this.cardWatchlightUsed=false;this.cardLastAcceptedLift=null;
     this.flightBoon = new FlightBoon(this, this.mod.flightBoon);
     this.onboardingPlan=this.mod.onboardingPlan?.enabled?{...this.mod.onboardingPlan}:null;
     // Intro difficulty belongs to the route, not tutorial memory or TEST state.
@@ -836,6 +838,7 @@ export class WispFlight {
     this.condensedGlow=0;this.condensedRemainder=clamp(Number(options.condensedRemainder)||0,0,.999999999);
     this.storageBonus=0;this.storageAwards=0;this.resonanceStored=0;
     this.cardPackingEligible=0;this.cardPackingBonus=0;
+    this.cardPackingRemainder=Math.max(0,Math.min(3,Math.floor(this.mod.cardPackingRemainder||0)));
     this.pickupOverflow=0;this.condensationFlow={amount:0,rawAmount:0,time:-Infinity,count:0,total:0};
     this.nightGardenCount=0; this.dreamCompleted=false; this.secondDawnUsed=false;
     this.flaps = 0; this.effortSpent = 0; this.flameRestored = 0; this.bodyFuelCollected = 0;this.bodyPickups=0;this.collectorPickups=0;
@@ -1003,7 +1006,7 @@ export class WispFlight {
 
   async initPixelView() {
     try {
-      const { WispFlightView } = await import('./wisp-renderer.mjs?v=skills-cards-2');
+      const { WispFlightView } = await import('./wisp-renderer.mjs?v=skills-cards-3');
       if (this.destroyed) return;
       this.pixiView = new WispFlightView(this);
       const initialized = await this.pixiView.init();
@@ -1224,6 +1227,7 @@ export class WispFlight {
   start({paused = false} = {}) {
     if (this.destroyed || this.finished || this.running) return;
     this.running = true; this.paused = paused; this.lastFrame = 0; this.nextRenderAt = null;
+    this.blackHoles.update(0);
     if (!paused) this.flightBoon.survey = false;
     this.artifactEffects.onStart();
     this.notify();
@@ -1249,8 +1253,11 @@ export class WispFlight {
         return false;
       }
     }
+    const descendingBeforeLift = this.player.vy > 0;
+    const sincePreviousLift = this.cardLastAcceptedLift === null ? -Infinity : this.time-this.cardLastAcceptedLift;
+    const cardLiftContext={meterFraction:this.flame/this.maxFlame,guardRecovering:this.wisp.phase==='guard-recovery'};
     this.cancelLeveler(true); this.levelDive = 0;
-    if(this.fieldImpulse?.direction==='up')this.fieldImpulse=null;
+    if(['up','down'].includes(this.fieldImpulse?.direction))this.fieldImpulse=null;
     // A rhythmic Lift expires first, so spend it before a stored Lift or route boon.
     const freeLift=this.dream?.freeGlow || beat.ready || this.artifactEffects.consumeLift();
     const effort = freeLift ? 0 : this.flightBoon.spendLift(this.flapCost);
@@ -1264,9 +1271,13 @@ export class WispFlight {
     if(effort>0&&this.flightBoon.awake&&this.flightBoon.extraCostLifts>0)this.flightBoon.extraCostLifts--;
     this.artifactEffects.onFlap(effort>0);
     this.flaps++; this.effortSpent += effort;
+    this.cardLastAcceptedLift=this.time;
+    if(effort>0&&descendingBeforeLift&&sincePreviousLift>=.75-1e-9){
+      this.resolveCardRowEvent(CARD_ROW_EVENTS.lift,cardLiftContext);
+    }
     this.lastFlapTime = this.time;
     this.liftGuide?.clear();
-    this.cardRhythm?.lift(beatTime);
+    this.cardRhythm?.lift(this.time,cardLiftContext);
     this.player.vy = -FLIGHT_TUNING.flapImpulse * this.scaleY * clamp(Number(this.mod.flap) || 1, .80, 1.20);
     if (this.tutorialAwaitingLift) {
       this.tutorialAwaitingLift = false;
@@ -1286,12 +1297,20 @@ export class WispFlight {
     return lifted;
   }
 
-  activateFieldImpulse(direction) { return activateFieldImpulse(this,direction); }
+  activateFieldImpulse(direction) {
+    const context={direction,meterFraction:this.flame/this.maxFlame,guardRecovering:this.wisp.phase==='guard-recovery'};
+    if(!activateFieldImpulse(this,direction))return false;
+    this.resolveCardRowEvent(CARD_ROW_EVENTS.field,context);
+    if(this.mod.cardWaveLoom&&(!this.dream||this.dream.phase==='done'))this.radiateLight({once:true,reveal:true,color:'#d9f0dc'});
+    this.notify();return true;
+  }
 
   endLiftInput(cancelled = false) {
+    const rhythmPending=cancelled&&this.cardRhythm?.phase!=='idle'&&!!this.cardRhythm;
     if(cancelled){this.fourthBeatTaps.length=0;this.cardRhythm?.clear();this.liftGuide?.clear();}
     this.liftHeld = false; this.levelExhausted = false;
     this.cancelLeveler(cancelled); this.syncFleetTimers();
+    if(rhythmPending)this.notify();
   }
 
   updateLeveler(dt) {
@@ -1343,15 +1362,82 @@ export class WispFlight {
     this.inputEpoch=(this.inputEpoch||0)+1;
     this.pointerControls?.cancel();
     this.endLiftInput(true); this.paused = true; this.lastFrame = 0; this.nextRenderAt = null;
+    this.blackHoles.stop();
     if (this.raf != null) cancelAnimationFrame(this.raf);
     this.raf = null; this.notify(); this.onPause({ fromSystem });
   }
 
+  getCardChargeLedger() {
+    for (const [id, remaining] of Object.entries(getCardCharges(this.cardExecution))) {
+      this.cardChargeLedger[id] = Math.min(this.cardChargeLedger[id] ?? remaining, remaining);
+    }
+    return { ...this.cardChargeLedger };
+  }
+
+  /** Resolve one real event synchronously. Its receipt survives pause and deck edits. */
+  resolveCardRowEvent(kind, detail = {}) {
+    if(!this.cardExecution||!this.running||this.paused||!this.alive||this.finished||this.destroyed||this.dying||this.completing
+      ||this.tutorial||(this.dream&&this.dream.phase!=='done'))return null;
+    if(!hasCardRowEvent(this.cardExecution,kind))return null;
+    const receipt=resolveCardRow(this.cardExecution,{availableRecovery:this.wisp.enabled(this)?this.wisp.cooldown:0,
+      guardRecovering:this.wisp.phase==='guard-recovery',meterFraction:this.flame/this.maxFlame,...detail,kind,id:++this.cardRowSequence});
+    const gain=Math.min(receipt.sparks*CARD_UNIT,Math.max(0,this.maxFlame-this.flame));
+    const liveReceipt=Object.freeze({...receipt,restoredSparks:gain/CARD_UNIT});
+    if(receipt.steps.some(step=>step.success&&step.operation!=='replay-row'))this.cardRowTrace=liveReceipt;
+    this.flame+=gain;this.flameRestored+=gain;
+    this.resonanceStored+=receipt.stored;
+    if(receipt.recoverySeconds>0)this.wisp.cooldown=Math.max(0,this.wisp.cooldown-receipt.recoverySeconds);
+    if(kind===CARD_ROW_EVENTS.body)this.cardExecutions+=receipt.executions;
+    return {receipt:liveReceipt,gain};
+  }
+
+  canWatchlightGuard() {
+    const w=this.wisp;
+    return !!(this.mod.cardWatchlight&&!this.cardWatchlightUsed&&w?.enabled(this)&&w.phase==='ready'
+      &&w.cooldown<=0&&!w.cargo&&!w.target&&!w.leg);
+  }
+
+  /** Replace cards in the existing paused world; timers and earned rewards stay put. */
+  reconcileCardLoadout({ modifiers, condensedGlow } = {}) {
+    if (!this.running || !this.paused || !this.alive || this.finished || this.destroyed ||
+      this.dying || this.completing || !modifiers || !Number.isFinite(condensedGlow)) return false;
+    const charges = this.getCardChargeLedger(), executions = this.cardExecution?.executions || 0;
+    const next = createCardExecution(modifiers.cardExecution);
+    for (const card of next.cards) {
+      if (!card || !Number.isFinite(card.charges)) continue;
+      card.charges = Math.min(card.charges, charges[card.instanceId] ?? card.charges);
+      this.cardChargeLedger[card.instanceId] = card.charges;
+    }
+    next.executions = executions;
+    next.eventSequence=this.cardExecution?.eventSequence||this.cardRowSequence;
+    next.lastTrace=this.cardRowTrace;
+    this.cardExecution = next.cards.some(Boolean) ? next : null;
+    this.mod = { ...this.mod, ...modifiers };
+    if(!this.mod.collectorFieldImpulse)this.fieldImpulse=null;
+    this.condensedStart = Math.max(0, Math.floor(condensedGlow));
+    this.flame = Math.min(this.flame, this.maxFlame);
+    if (this.mod.cardRhythm) this.cardRhythm ??= new CardRhythm(this);
+    else { this.cardRhythm?.destroy(); this.cardRhythm = null; }
+    this.liftGuide?.clear();
+    this._nearbyPacketsUntil = -1; this._auraUntil = -1;
+    this.notify();
+    return true;
+  }
+
+  creditCardPacking(packed) {
+    const quote = getCardPackingBonus(packed, this.mod.cardPackingSources, this.cardPackingRemainder);
+    this.cardPackingBonus += quote.amount;
+    this.cardPackingRemainder = quote.remainder;
+    return quote.amount;
+  }
+
   resume() {
     if (!this.running || !this.paused || this.finished || this.destroyed) return;
+    this.cardRhythm?.clear();
     this.flightBoon.survey = false;
     this.paused = false; this.lastFrame = 0; this.accumulator = 0; this.nextRenderAt = null;
     this.resumeElapsed = 0; this.resumeHudClock = 0;
+    this.blackHoles.update(0);
     this.raf = requestAnimationFrame(t => this.tick(t));
     this.notify();
   }
@@ -1361,6 +1447,11 @@ export class WispFlight {
   get resumeScale() {
     const progress = clamp(this.resumeElapsed / this.resumeRampSeconds, 0, 1);
     return .1 + .9 * progress;
+  }
+
+  get worldRate() {
+    if (!this.running || this.paused || this.destroyed || this.finished || !this.alive || this.dying || this.completing || this.tutorialAwaitingLift) return 0;
+    return Math.min(this.resumeScale, this.blackHoles?.timeScale ?? 1);
   }
 
   setMuted(value) {
@@ -1373,6 +1464,8 @@ export class WispFlight {
 
   destroy() {
     this.destroyed = true; this.running = false;
+    this.blackHoles?.stop();
+    this.cardRhythm?.destroy();
     this.pointerControls?.destroy();this.pointerControls=null;
     this.spacetime?.clear();
     this.projection = null;
@@ -1410,23 +1503,31 @@ export class WispFlight {
     if (resuming) this.resumeElapsed = Math.min(this.resumeRampSeconds, this.resumeElapsed + realElapsed);
     // The ramp follows wall time; a late frame can never queue more than the
     // existing six fixed physics steps. Average scale avoids an abrupt first step.
-    const scaledElapsed = elapsed * (resuming ? (previousScale + this.resumeScale) * .5 : 1);
+    const terminal = this.dying || this.completing;
+    const resumeRate = resuming ? (previousScale + this.resumeScale) * .5 : 1;
+    // Apply time dilation once, before the unchanged 1/60-world-second steps.
+    // Terminal visual settling continues after the flight/music clock stops.
+    const scaledElapsed = elapsed * (terminal ? 1 : Math.min(resumeRate, this.blackHoles.timeScale));
     if (resuming) this.resumeHudClock += realElapsed;
     const updateResumeHud = resuming && (this.resumeHudClock >= .1 || this.resumeRemaining === 0);
     if (this.tutorialAwaitingLift) {
+      this.blackHoles.stop();this.cardRhythm?.clear();
       this.accumulator = 0;
       this.renderScheduledFrame(timestamp);
       if (updateResumeHud) { this.resumeHudClock %= .1; this.notify(); }
       this.raf = requestAnimationFrame(t => this.tick(t));
       return;
     }
+    const rhythmVersion = this.cardRhythm?.version;
     this.accumulator = Math.min(this.accumulator + scaledElapsed, STEP * 6);
     while (this.accumulator >= STEP && !this.finished && !this.paused) {
       this.step(STEP); this.accumulator -= STEP;
     }
     if (this.finished || this.destroyed) return;
     this.renderScheduledFrame(timestamp);
-    if (updateResumeHud) { this.resumeHudClock %= .1; this.notify(); }
+    const updateWorldHud = Math.abs(this.worldRate - (this.lastNotifiedWorldRate ?? 1)) >= .01 || this.cardRhythm?.version !== rhythmVersion;
+    if (updateResumeHud) this.resumeHudClock %= .1;
+    if (updateWorldHud || updateResumeHud) this.notify();
     if (!this.finished && !this.destroyed && !this.paused) this.raf = requestAnimationFrame(t => this.tick(t));
   }
 
@@ -1679,6 +1780,7 @@ export class WispFlight {
     this.blackHoles.stop();
     this.deathCause=cause;this.dyingDuration=2;
     this.dying=true;this.dyingAge=0;this.tutorialAwaitingLift=false;
+    this.cardRhythm?.clear();
     for(const item of this.fleet)item.remaining=0;this.syncFleetTimers();
     this.levelDive=0;this.setEvent('The light scatters…');
     this.burst(this.player.x,this.player.y,8,'#e1d7ba');this.notify();
@@ -1749,13 +1851,17 @@ export class WispFlight {
     this.lightPenalties.push(this.time + duration);
   }
 
-  storeNaturalOverflow(packet,spec,surplus,naturalSurplus){
+  storeNaturalOverflow(packet,spec,surplus,naturalSurplus,cardContext={}){
     if(packet.generated||packet.harmful||!(spec.fuel>0)||!(surplus>0))return 0;
+    if(naturalSurplus>1e-7&&!packet.fetchedInDream){
+      this.resolveCardRowEvent(CARD_ROW_EVENTS.overfill,{...cardContext,pickupKind:packet.collectorOriginalKind||pickupKind(packet)});
+    }
     if((this.options.cardPilot||this.mod.cardPilot)&&naturalSurplus>1e-7&&!this.tutorial&&!packet.fetchedInDream
       &&(!this.dream||this.dream.phase==='done')&&this.running&&this.alive&&!this.paused&&!this.dying&&!this.completing
       &&!this.finished&&!this.destroyed&&!this.overfillWaveSeen.has(packet)){
       this.overfillWaveSeen.add(packet);this.overfillWave.charge++;
-      if(this.overfillWave.charge===this.overfillWave.every){
+      this.overfillWave.every=Math.max(1,Number(this.mod.cardOverfillEvery)||3);
+      if(this.overfillWave.charge>=this.overfillWave.every){
         this.overfillWave.charge=0;this.overfillWave.waves++;
         this.radiateLight({once:true,reveal:true,color:'#d9f0dc'});
         this.sound('luminance',{strength:.35});
@@ -1769,7 +1875,7 @@ export class WispFlight {
     const previousCardBonus=this.cardPackingBonus;
     if(!this.tutorial&&!packet.fetchedInDream&&(!this.dream||this.dream.phase==='done')){
       this.cardPackingEligible+=gain.amount;
-      this.cardPackingBonus=getCardPackingBonus(this.cardPackingEligible,this.mod.cardPackingSources,this.mod.cardPackingRemainder).amount;
+      this.creditCardPacking(gain.amount);
     }
     let bonus=0;
     if (naturalSurplus>1e-7 && spec.plasma && this.storageAwards<2 && !this.tutorial
@@ -1828,6 +1934,7 @@ export class WispFlight {
       if(this.dyingAge>=this.dyingDuration)this.finish(false);return;
     }
     this.time += dt;
+    this.cardRhythm?.advance();
     this.flightBoon.tryReserve();
     updateGlideRegeneration(this,dt);
     this.lightPenalties = this.lightPenalties.filter(until => until > this.time);
@@ -1902,7 +2009,7 @@ export class WispFlight {
     if(this.atlas?.bells){ringBellwind(this);gravity+=bellwindAcceleration(this);}
     const terminal=FLIGHT_TUNING.terminalFall*clamp(Number(this.mod.terminalFall)||1,1,1.15);
     const downwardWind=gust.guardian&&gust.direction>0?65*gust.strength*(this.boostTime>0?.28:1):0;
-    this.player.vy = clamp(this.player.vy + gravity * dt, -520 * this.scaleY,(terminal+downwardWind)*this.scaleY);
+    this.player.vy = clamp(fieldImpulseVelocity(this,this.player.vy + gravity * dt), -520 * this.scaleY,(terminal+downwardWind)*this.scaleY);
     this.player.y += this.player.vy * dt;
     if(this.flashTether && !stepFlashTether(this.flashTether,this.distance+this.player.x,this.player.y,this.time,dt)) this.flashTether=null;
     updateGuardian(this,dt,gust);
@@ -2018,6 +2125,7 @@ export class WispFlight {
 
   hit(obstacle) {
     if(!this.alive||this.finished||this.destroyed||this.dying||this.completing)return;
+    const cardGuardContext={meterFraction:this.flame/this.maxFlame,guardRecovering:this.wisp.phase==='guard-recovery'};
     this.edgingPulse.impact();
     if(this.shield.protection>0)return;
     if(obstacle)obstacle.hit=true;
@@ -2027,7 +2135,8 @@ export class WispFlight {
     const lightAegis=(this.proximityShieldRemaining||0)>0;
     const bonusOnly = rewardWard && !this.hasCompanion('protector');
     const shellReady=this.hasCompanion('protector')&&this.shield.charges>0&&this.availableGlow>=cost;
-    const lastOrbit=!lightAegis&&!rewardWard&&!shellReady&&this.wisp.canGuard(this);
+    const watchlight=this.canWatchlightGuard();
+    const lastOrbit=!lightAegis&&!rewardWard&&!shellReady&&(this.wisp.canGuard(this)||watchlight);
     if(lightAegis||bonusOnly||shellReady||lastOrbit){
       const obstacles=this.getNearbyObstacles();
       const worldX=this.distance+this.player.x,radius=this.player.radius+4;
@@ -2051,6 +2160,11 @@ export class WispFlight {
         if(lastOrbit){
           this.wisp.spendGuard(this);
           this.burst(this.player.x,safe,10,'#b9dfa0');
+          if(watchlight){
+            this.cardWatchlightUsed=true;
+            this.radiateLight({once:true,reveal:true,color:'#d9f0dc'});
+          }
+          this.resolveCardRowEvent(CARD_ROW_EVENTS.guard,cardGuardContext);
         }
         if(this.projection)this.projection.nextAt=-Infinity;
         this.cancelLeveler(true);this.levelDive=0;this._auraUntil=-1;
@@ -2058,9 +2172,9 @@ export class WispFlight {
           this.artifactEffects.onWork();
           this.artifactEffects.notice('iron-petal','passive');
         }
-        this.setEvent(lightAegis?'Light Aegis · shield spent':rewardWard?'Edgeweaver · ward spent':lastOrbit?'Last Orbit · ring spent':`Protector · shell spent, −${formatGlow(cost,this.maxFlame)} Sparks`);this.sound('shield');
-        this.activation(lightAegis?'proximity-light-shield':rewardWard?'edgeweaver':lastOrbit?'collector-last-orbit':'protector',
-          {kind:!lightAegis&&!rewardWard&&!lastOrbit?'companion':'skill',priority:10,outcome:{saved:1}});
+        this.setEvent(lightAegis?'Light Aegis · shield spent':rewardWard?'Edgeweaver · ward spent':lastOrbit?(watchlight?'Watchlight · ring spent':'Last Orbit · ring spent'):`Protector · shell spent, −${formatGlow(cost,this.maxFlame)} Sparks`);this.sound('shield');
+        this.activation(lightAegis?'proximity-light-shield':rewardWard?'edgeweaver':lastOrbit?(watchlight?'card-watchlight':'collector-last-orbit'):'protector',
+          {label:lastOrbit&&watchlight?'Watchlight':undefined,kind:!lightAegis&&!rewardWard&&!lastOrbit?'companion':'skill',priority:10,outcome:{saved:1}});
         this.notify();return;
       }
     }
@@ -2073,6 +2187,8 @@ export class WispFlight {
     if (ember.collected || !this.alive || this.finished || this.destroyed || this.dying) return;
     const kind = pickupKind(ember), spec = getPickupSpec(ember), harmful = kind === 'dark';
     const fuelBefore=this.flame,storedBefore=this.condensedTotal;
+    const cardPickupContext={pickupKind:ember.collectorOriginalKind||kind,meterFraction:fuelBefore/this.maxFlame,
+      guardRecovering:this.wisp.phase==='guard-recovery'};
     if (ember.deliveredByWisp && !canCompanionCollect(ember)) return;
     this.routeObjective?.collect(ember);
     if(ember.deliveredByWisp&&!ember.generated){this.artifactEffects.onWork();this.artifactEffects.notice('wayfinder-seed','passive');}
@@ -2110,10 +2226,12 @@ export class WispFlight {
         duration:flashPowerupDuration(this.mod),radius:this.getLightState().radius,color:'#f0f7ff',interval:FLASH_PULSE_INTERVAL,reveal:true});
       this.revealFromPickup(true,null,false);
       let restored = 0;
-      if (this.mod.collectorFlashFetch) {
-        restored = Math.min(FLAME_TUNING.emberFuel, Math.max(0, this.maxFlame - this.flame));
-        this.flame += restored;
-        this.flameRestored += restored;
+      const cardFlash=!ember.generated&&!ember.fetchedInDream?this.resolveCardRowEvent(CARD_ROW_EVENTS.flash,cardPickupContext):null;
+      if(cardFlash)restored=cardFlash.gain;
+      if (this.mod.collectorFlashFetch && (!this.cardExecution || !this.mod.cardFlashHandling)) {
+        const nativeRestored = Math.min(Math.max(FLAME_TUNING.emberFuel, Number(this.mod.cardFlashMeter) || 0), Math.max(0, this.maxFlame - this.flame));
+        restored += nativeRestored;this.flame += nativeRestored;
+        this.flameRestored += nativeRestored;
       }
       const refill = glowPoints(restored);
       this.setEvent(`${spec.name} · Passage revealed${refill ? ' · +' + refill + ' Sparks' : ''}`);
@@ -2146,7 +2264,7 @@ export class WispFlight {
     const capacityLeft=this.maxFlame-this.flame;
     let restored = Math.min(fuel, capacityLeft);
     this.flame += restored; this.flameRestored += restored;
-    const surplus=this.storeNaturalOverflow(ember,spec,Math.max(0,fuel-restored),spec.fuel-capacityLeft);
+    const surplus=this.storeNaturalOverflow(ember,spec,Math.max(0,fuel-restored),spec.fuel-capacityLeft,cardPickupContext);
     restored+=this.artifactEffects.applyConsumables(ember,spec);
     if(!ember.generated&&!spec.dim){
       if(surplus>0)this.artifactEffects.notice('echo-vessel','passive');
@@ -2157,12 +2275,9 @@ export class WispFlight {
     }
     restored+=this.artifactEffects.onFuel(ember,spec,surplus,cleansed);
     restored += this.flightBoon.fuelPickup(ember,spec);
-    if(this.cardExecution&&!ember.generated&&!ember.deliveredByWisp&&!ember.fetchedInDream&&!(this.dream&&this.dream.phase!=='done')){
-      const action=executeCardBodyPickup(this.cardExecution);
-      const bonus=Math.min(Math.max(0,action.bonus||0),Math.max(0,this.maxFlame-this.flame));
-      this.flame+=bonus;this.flameRestored+=bonus;restored+=bonus;
-      this.cardExecutions+=Number(action.executions)||0;
-      if(bonus>0)this.activation('card-body-spark',{outcome:{fuel:bonus}});
+    if(!ember.generated&&!ember.fetchedInDream&&spec.fuel>0){
+      const action=this.resolveCardRowEvent(ember.deliveredByWisp?CARD_ROW_EVENTS.delivery:CARD_ROW_EVENTS.body,cardPickupContext);
+      if(action){restored+=action.gain;if(action.gain>0)this.activation('card-body-spark',{outcome:{fuel:action.gain}});}
     }
     if (spec.dim) this.dimLight(spec.dimDuration);
     const origin = ember.deliveredByWisp ? this.getWispState() : this.player;
@@ -2243,7 +2358,9 @@ export class WispFlight {
       canFlap: this.alive && !this.finished && !this.dying && !this.completing && canAffordFlap,
       canAffordFlap, flaps: this.flaps,
       artifactEffects:artifacts,artifactProc:artifacts.proc,artifactCharges:artifacts.charges,artifactNotices:artifacts.notices,
-      cardCharges:this.cardExecution?getCardCharges(this.cardExecution):null,cardExecutions:this.cardExecutions,cardRhythm:this.cardRhythm?.state||null,
+      cardCharges:this.getCardChargeLedger(),cardExecutions:this.cardExecutions,cardRhythm:this.cardRhythm?.state||null,
+      cardRowTrace:this.cardRowTrace,cardRowSequence:this.cardRowSequence,cardWatchlightUsed:this.cardWatchlightUsed,
+      cardPackingLedger:1,cardPackingRemainder:this.cardPackingRemainder,
       overfillWave:this.options.cardPilot||this.mod.cardPilot?{...this.overfillWave}:null,
       activationEvents:this.activationEvents.snapshot(this.time),activationSequence:this.activationEvents.sequence,
       wisp: this.getWispState(),
@@ -2262,7 +2379,7 @@ export class WispFlight {
       event: this.time < this.eventUntil ? this.event : '',
       renderer: this.pixiReady ? 'pixel-canvas' : 'canvas',
       paused: this.paused, finished: this.finished, reducedMotion: this.reducedMotion,
-      resumeScale: this.resumeScale, resumeRemaining: this.resumeRemaining,
+      resumeScale: this.resumeScale, resumeRemaining: this.resumeRemaining, worldRate: this.worldRate,
       tutorialHintState: getTutorialHint(this), tutorialAwaitingLift: this.tutorialAwaitingLift,
       time: this.time, remaining: Math.max(0, (this.totalDistance - this.distance) / this.baseSpeed),
       challenge: this.challengeText, challengeComplete: this.challengeComplete() };
@@ -2271,15 +2388,16 @@ export class WispFlight {
   notify() {
     if(this.destroyed)return;
     const state=this.getState(),reaction=musicReactivity(state);
+    this.lastNotifiedWorldRate=state.worldRate;
     const nearest=this.blackHoles?.items.find(item=>item.id===state.blackHole?.nearest?.id);
     this.fx?.setState({...reaction,dream:state.dream?.mode==='record'?1:0,
-      paused:state.paused||state.finished,
+      paused:state.paused||state.finished||state.worldRate===0,
       proximity:state.edgingPulse.charge,
       proximityContact:state.edgingPulse.nearEdge&&!state.edgingPulse.active&&!state.edgingPulse.recovering
         &&!state.dying&&!state.completing&&Number.isFinite(this.edgingPulse.surface?.clearance),
       proximityRecovery:state.edgingPulse.active||state.edgingPulse.recovering,
       pan:nearest?clamp((nearest.x-this.distance-this.player.x)/(this.width*.5),-.7,.7):0,
-      transport:this.getAudioTransport?.()||{time:this.time,rate:1,bpm:88}});
+      transport:{...(this.getAudioTransport?.()||{time:this.time,bpm:88}),rate:state.worldRate}});
     this.onUpdate(state);
   }
 
@@ -2287,6 +2405,7 @@ export class WispFlight {
 
   finish(success) {
     if (this.finished || this.destroyed) return;
+    this.cardRhythm?.clear();
     this.edgingPulse.reset();
     this.luminanceWaves?.clear();
     this.blackHoles.stop();
@@ -2294,7 +2413,7 @@ export class WispFlight {
       this.completing=true;this.completionAge=0;
       this.exitPacking=packExitReserve(this.flame,{rules:this.mod.condensationRules,remainder:this.condensedRemainder});
       const previousCardBonus=this.cardPackingBonus;
-      if(!this.tutorial&&(!this.dream||this.dream.phase==='done'))this.cardPackingBonus=getCardPackingBonus(this.cardPackingEligible+this.exitPacking.amount,this.mod.cardPackingSources,this.mod.cardPackingRemainder).amount;
+      if(!this.tutorial&&(!this.dream||this.dream.phase==='done'))this.creditCardPacking(this.exitPacking.amount);
       const cardBonus=this.cardPackingBonus-previousCardBonus;
       if(cardBonus>0)this.activation('card-tight-packing',{label:'Tight Packing',outcome:{stored:cardBonus}});
       this.completionDuration=this.exitPacking.amount>0?2.25:1.5;
@@ -2309,9 +2428,9 @@ export class WispFlight {
     this.alive = Boolean(success) && this.alive;
     if (this.raf != null) cancelAnimationFrame(this.raf);
     this.raf = null;
-    const result = { success: Boolean(success) && this.alive, alive: this.alive, condensedGlow:this.condensedGlow,storageBonus:success&&this.alive?this.storageBonus:0,resonanceStored:success&&this.alive?this.resonanceStored:0,cardPackingEligible:this.cardPackingEligible,cardPackingBonus:success&&this.alive?this.cardPackingBonus:0,dreamAttempt:!!(this.dream&&this.dream.phase!=='done'),condensedRemainder:this.condensedRemainder,pickupOverflow:this.pickupOverflow,
+    const result = { success: Boolean(success) && this.alive, alive: this.alive, condensedGlow:this.condensedGlow,storageBonus:success&&this.alive?this.storageBonus:0,resonanceStored:success&&this.alive?this.resonanceStored:0,cardPackingEligible:this.cardPackingEligible,cardPackingBonus:success&&this.alive?this.cardPackingBonus:0,cardPackingLedger:1,cardPackingRemainder:this.cardPackingRemainder,dreamAttempt:!!(this.dream&&this.dream.phase!=='done'),condensedRemainder:this.condensedRemainder,pickupOverflow:this.pickupOverflow,
       boss: this.bossEncounter ? { id:this.layout.boss?.id||'hollow-warden', defeated: Boolean(success) && this.alive } : null,
-      flame: this.flame,artifactCharges:{...this.artifactEffects.charges},cardCharges:this.cardExecution?getCardCharges(this.cardExecution):null,cardExecutions:this.cardExecutions,deathPosition:!success?this.deathPosition||null:null,
+      flame: this.flame,artifactCharges:{...this.artifactEffects.charges},cardCharges:this.getCardChargeLedger(),cardExecutions:this.cardExecutions,deathPosition:!success?this.deathPosition||null:null,
       score: Math.floor(this.score), collected: this.baseEmbers, bodyFuelCollected: this.bodyFuelCollected,bodyPickups:this.bodyPickups,collectorPickups:this.collectorPickups, collisions: this.collisions,
       boosts: this.boosts,
       routeBonus:this.routeObjective?.state || null,

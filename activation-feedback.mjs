@@ -1,11 +1,11 @@
-import {ActivationFeed} from './activation-events.mjs?v=skills-cards-2';
-import {artifactIcon,skillIcon} from './upgrade-icons.mjs?v=skills-cards-2';
-import {companionArtSvg} from './companion-art.mjs?v=skills-cards-2';
-import {resourceSymbol} from './game-symbols.mjs?v=skills-cards-2';
-import {ARTIFACTS,SKILLS} from './model.mjs?v=skills-cards-2';
-import {formatGlow} from './vitality.mjs?v=skills-cards-2';
+import {ActivationFeed} from './activation-events.mjs?v=skills-cards-3';
+import {artifactIcon,skillIcon} from './upgrade-icons.mjs?v=skills-cards-3';
+import {companionArtSvg} from './companion-art.mjs?v=skills-cards-3';
+import {resourceSymbol} from './game-symbols.mjs?v=skills-cards-3';
+import {ARTIFACTS,SKILLS} from './model.mjs?v=skills-cards-3';
+import {formatGlow} from './vitality.mjs?v=skills-cards-3';
 const esc=value=>String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-const names={collector:'Collector',protector:'Protector',swift:'Runner',leveler:'Space Timer',
+const names={'card-watchlight':'Watchlight',collector:'Collector',protector:'Protector',swift:'Runner',leveler:'Space Timer',
   'main-echo-sight':'Echo Luminance','main-purifying-touch':'Purifying Touch','main-kindled-touch':'Kindled Touch',
   'proximity-awakening':'Edging Pulse','main-edging-regeneration':'Regenerative Pulse','proximity-light-shield':'Light Aegis',
   'collector-last-orbit':'Last Orbit','main-fourth-beat':'Fourth Beat','warm-core':'Warm Core','kindled-spirit':'Kindled Spirit',edgeweaver:'Edgeweaver'};

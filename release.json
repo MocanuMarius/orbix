@@ -1,7 +1,5 @@
 {
-  "version": "skills-cards-2-mode-switch-1",
-  "sourceCommit": "6df86d651c2dbf6d5d244eea0a84dbf22f7d48a4",
-  "basePublication": "37e5f323aca639d57fc3a9588f6925b34e9afbb2",
-  "publishedAt": "2026-11-16T00:40:56.278Z",
-  "change": "Restore visible Standard / Cards mode switch; keep published card gameplay and saves unchanged."
+  "version": "skills-cards-3",
+  "sourceCommit": "8f87530ff4f642fdf85175cea3c445fb7be097c5",
+  "publishedAt": "2026-11-16T01:54:40.989Z"
 }

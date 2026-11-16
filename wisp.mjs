@@ -1,10 +1,10 @@
-import { LIGHT_PACKET_TUNING } from './vitality.mjs?v=skills-cards-2';
-import { getCompanionAbility } from './companion-abilities.mjs?v=skills-cards-2';
-import { pickupKind, pickupContactRadius } from './pickups.mjs?v=skills-cards-2';
-import {sparkArtScale,sparkBodyRadius,sparkMass} from './spark-size.mjs?v=skills-cards-2';
-import {collectorCanFetch,collectorCompactSeconds,compressCollectorCargo} from './collector-load.mjs?v=skills-cards-2';
-import {pickupHookAnchor} from './pickup-handling-cue.mjs?v=skills-cards-2';
-import {WISP_ART} from './companion-art.mjs?v=skills-cards-2';
+import { LIGHT_PACKET_TUNING } from './vitality.mjs?v=skills-cards-3';
+import { getCompanionAbility } from './companion-abilities.mjs?v=skills-cards-3';
+import { pickupKind, pickupContactRadius } from './pickups.mjs?v=skills-cards-3';
+import {sparkArtScale,sparkBodyRadius,sparkMass} from './spark-size.mjs?v=skills-cards-3';
+import {collectorCanFetch,collectorCompactSeconds,compressCollectorCargo} from './collector-load.mjs?v=skills-cards-3';
+import {pickupHookAnchor} from './pickup-handling-cue.mjs?v=skills-cards-3';
+import {WISP_ART} from './companion-art.mjs?v=skills-cards-3';
 
 const clamp = (value, lo, hi) => Math.min(hi, Math.max(lo, value));
 export const WISP_TUNING = Object.freeze({ range: 52.5, cooldown: 10, lightRadius: 175,
@@ -117,17 +117,10 @@ export class WispCompanion {
       pose.offsetX = this.cargo.x - engine.renderDistance - x;
       pose.offsetY = this.cargo.y - cy;
     }
-    // Presentation only: the living grip grows toward the existing physical
-    // anchor. It never moves that anchor or changes a flight leg's duration.
-    let gripPose=null;
-    if(enabled&&this.phase==='outbound'&&this.target){
-      const anchor=pickupHookAnchor(this.target,this.target.x-(engine.renderDistance??engine.distance),this.target.y);
-      gripPose={x:anchor.x,y:anchor.y,growth:clamp((this.leg?.age||0)/.18,0,1),attached:false};
-    }else if(pose&&pose.age>=0){
-      gripPose={x:x+pose.offsetX+pose.hookX,y:cy+pose.offsetY+pose.hookY,growth:1,attached:true};
-    }else if(enabled&&this.phase==='rejoining'&&(this.leg?.age||0)<.18){
-      gripPose={x:x-this.vx*.03,y:cy-this.vy*.03,growth:1-(this.leg?.age||0)/.18,attached:false};
-    }
+    // The Spark owns its eyelet. Only a loaded tow has a short filament;
+    // outbound and rejoining Collector orbs never grow an appendage.
+    const gripPose=pose&&pose.age>=0
+      ?{x:x+pose.offsetX+pose.hookX,y:cy+pose.offsetY+pose.hookY,growth:1,attached:true}:null;
     return { x, y:cy,
       homeX: home.x, homeY: home.y, depth:this.depth||0, enabled, collects: enabled,
       radius: enabled ? this.range(engine) : 0, recovery: enabled ? recovery : 0,
@@ -326,6 +319,7 @@ export class WispCompanion {
         if (this.cargo) {
           const delivered = this.cargo; this.cargo = null; delivered.carried = false;
           const pose = this.cargoPose(delivered, engine.time,engine.height);
+          delivered.collectorOriginalKind=pickupKind(delivered);
           compressCollectorCargo(delivered);
           delivered.deliveredByWisp = true;
           const delivery={ worldX: engine.distance + this.x + pose.offsetX,

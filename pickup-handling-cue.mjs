@@ -1,10 +1,9 @@
-import {collectorCanFetch} from './collector-load.mjs?v=skills-cards-2';
-import {getPickupSpec,pickupKind} from './pickups.mjs?v=skills-cards-2';
-import {sparkBodyRadius} from './spark-size.mjs?v=skills-cards-2';
-import {drawLivingStrand,livingStrandPath} from './living-light-art.mjs?v=skills-cards-2';
+import {collectorCanFetch} from './collector-load.mjs?v=skills-cards-3';
+import {getPickupSpec,pickupKind} from './pickups.mjs?v=skills-cards-3';
+import {sparkBodyRadius} from './spark-size.mjs?v=skills-cards-3';
 
 // Capability only: range, recovery and an occupied Collector do not change the
-// curl. Body-only and harmful pickups grow no attachment.
+// circle. Body-only and harmful pickups have no attachment.
 export function pickupHandlingCue(packet,modifiers={}, {collector=false}={}){
   if(!packet||packet.collected||packet.carried)return null;
   const kind=pickupKind(packet),spec=getPickupSpec(packet);
@@ -13,27 +12,37 @@ export function pickupHandlingCue(packet,modifiers={}, {collector=false}={}){
   return collector&&collectorCanFetch(packet,modifiers)?'collector':'body';
 }
 
-// This one attachment point is shared by art, visibility and physical towing.
+// One calm open circle. At the native .615 game raster its outlined diameter
+// is 8.7 pixels and its mint rim is 1.2 pixels. It emits no light of its own.
+export const COLLECTOR_RING=Object.freeze({radius:5.3,rim:2,outline:3.6,gap:8.5,color:'#8bf5ad',edge:'#173e2e'});
+// Shared by field art, fog visibility, direct interception and loaded towing.
 export function pickupHookAnchor(packet,x=packet?.x||0,y=packet?.y||0,scale=1){
-  return {x,y:y+(sparkBodyRadius(packet)+3)*scale};
+  return {x,y:y+(sparkBodyRadius(packet)+COLLECTOR_RING.gap)*scale};
 }
-function curlPoints(packet,x,y,scale,sway=0){
-  const radius=sparkBodyRadius(packet)*scale;
-  return [{x:x+1.35*scale,y:y+radius-2.2*scale},
-    {x:x+4.6*scale+sway,y:y+radius+4.9*scale},
-    {x:x-3.4*scale+sway,y:y+radius+6.0*scale},
-    {x:x-2.1*scale,y:y+radius+1.9*scale}];
+function neckParts(packet,x,y,scale){
+  const bottom=y+sparkBodyRadius(packet)*scale,top=bottom-2.5*scale,join=bottom+.9*scale;
+  const end=pickupHookAnchor(packet,x,y,scale).y-COLLECTOR_RING.radius*scale;
+  return [[{x:x-1.6*scale,y:top},{x:x+1.6*scale,y:top},{x:x+scale,y:join},{x:x-scale,y:join}],
+    [{x:x-scale,y:join},{x:x+scale,y:join},{x:x+.6*scale,y:end},{x:x-.6*scale,y:end}]];
 }
-export function pickupCurlSvg(packet,x,y,color=getPickupSpec(packet).color){
-  return `<path data-living-attachment="collector" d="${livingStrandPath(curlPoints(packet,x,y,1),2.6)}" fill="${color}" opacity=".86"/>`;
+export function pickupRingSvg(packet,x,y,shellColor=getPickupSpec(packet).color){
+  const anchor=pickupHookAnchor(packet,x,y),ring=COLLECTOR_RING;
+  const neck=neckParts(packet,x,y,1).map((points,i)=>`<path d="M${points.map(p=>`${p.x} ${p.y}`).join('L')}Z" fill="${i?'#b8ebbf':shellColor}"/>`).join('');
+  return `<g data-living-attachment="collector">${neck}<circle cx="${anchor.x}" cy="${anchor.y}" r="${ring.radius}" fill="none" stroke="${ring.edge}" stroke-width="${ring.outline}"/><circle cx="${anchor.x}" cy="${anchor.y}" r="${ring.radius}" fill="none" stroke="${ring.color}" stroke-width="${ring.rim}"/></g>`;
 }
-export function drawPickupHandlingCue(c,x,y,packet,modifiers={}, {collector=false,scale=1,alpha=1,time=0,phase=0,reducedMotion=false,color=getPickupSpec(packet).color}={}){
+export function drawPickupHandlingCue(c,x,y,packet,modifiers={}, {collector=false,scale=1,alpha=1,shellColor=getPickupSpec(packet).color}={}){
   const id=pickupHandlingCue(packet,modifiers,{collector});
   if(id!=='collector'||!(alpha>0))return id;
-  const sway=reducedMotion?0:Math.sin(time*1.7+phase)*.25*scale;
-  // Root inside the membrane; its lower turn encloses the unchanged physical
-  // attachment. The same pickup phase, scale and alpha paint body and foot.
-  drawLivingStrand(c,curlPoints(packet,x,y,scale,sway),
-    {width:2.6*scale,color,alpha:Math.min(1,alpha)*.86});
-  return id;
+  const anchor=pickupHookAnchor(packet,x,y,scale),ring=COLLECTOR_RING;
+  c.save();c.globalAlpha*=Math.min(1,alpha);c.lineCap='round';
+  // The shell itself narrows into the eyelet. Its pale light transitions mint
+  // at the tip; no limb grows from the approaching Collector.
+  for(const [index,points] of neckParts(packet,x,y,scale).entries()){
+    c.fillStyle=index?'#b8ebbf':shellColor;c.beginPath();
+    points.forEach((p,i)=>i?c.lineTo(p.x,p.y):c.moveTo(p.x,p.y));c.closePath();c.fill();
+  }
+  const circle=()=>{c.beginPath();c.arc(anchor.x,anchor.y,ring.radius*scale,0,Math.PI*2);c.stroke();};
+  c.strokeStyle=ring.edge;c.lineWidth=ring.outline*scale;circle();
+  c.strokeStyle=ring.color;c.lineWidth=ring.rim*scale;circle();
+  c.restore();return id;
 }

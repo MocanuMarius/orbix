@@ -1,6 +1,6 @@
-import { pickupKind, getPickupSpec, pickupDisposition, PLASMA_SHELL_RADIUS, SPARK_ART_SCALE } from './pickups.mjs?v=skills-cards-2';
-import {sparkImageArt,sparkSymbolArt} from './spark-symbol.mjs?v=skills-cards-2';
-import {drawPickupHandlingCue,pickupCurlSvg} from './pickup-handling-cue.mjs?v=skills-cards-2';
+import { pickupKind, getPickupSpec, pickupDisposition, PLASMA_SHELL_RADIUS, SPARK_ART_SCALE } from './pickups.mjs?v=skills-cards-3';
+import {sparkImageArt,sparkSymbolArt} from './spark-symbol.mjs?v=skills-cards-3';
+import {drawPickupHandlingCue,pickupRingSvg} from './pickup-handling-cue.mjs?v=skills-cards-3';
 
 const TAU = Math.PI * 2;
 const clamp = (value, low, high) => Math.max(low, Math.min(high, value));
@@ -551,7 +551,7 @@ export function drawPickup(context,x,y,{kind='light',time=0,phase=0,reducedMotio
     context.globalAlpha=inherited;
     const ink=fields[getPickupSpec(id).plasma]?.rim||getPickupSpec(id).color;
     drawPickupHandlingCue(context,x,y,handling.packet||{kind:id,sparkMass:massTier},handling.modifiers,
-      {collector:handling.collector,scale:size,time,phase,reducedMotion,color:ink});
+      {collector:handling.collector,scale:size,time,phase,reducedMotion,shellColor:ink});
   }
   context.restore();
 }
@@ -564,7 +564,7 @@ export function pickupArtSvg(kind = 'light', { className = '',handling=false } =
   const id = pickupKind(kind), name = getPickupSpec(kind).name;
   const classes = String(className || '').replace(/[^a-zA-Z0-9 _-]/g, '').trim().slice(0, 120);
   const tier=getPickupSpec(id).plasma;
-  const side=tier?44:48,curl=handling?pickupCurlSvg({kind:id},side/2,side/2,fields[tier]?.rim||getPickupSpec(id).color):'';
-  if(tier)return `<svg xmlns="http://www.w3.org/2000/svg" class="${classes}" viewBox="0 0 44 44" width="36" height="36" role="img" aria-label="${name}" shape-rendering="crispEdges">${sparkSymbolArt(0,0,44,tier)}${curl}</svg>`;
-  return `<svg xmlns="http://www.w3.org/2000/svg" class="${classes}" viewBox="0 0 48 48" width="36" height="36" role="img" aria-label="${name}" shape-rendering="crispEdges">${sparkImageArt(id,0,0,48)}${curl}</svg>`;
+  const side=tier?44:48,ring=handling?pickupRingSvg({kind:id},side/2,side/2,fields[tier]?.rim||getPickupSpec(id).color):'';
+  if(tier)return `<svg xmlns="http://www.w3.org/2000/svg" class="${classes}" viewBox="0 0 44 44" width="36" height="36" role="img" aria-label="${name}" shape-rendering="crispEdges" overflow="visible">${sparkSymbolArt(0,0,44,tier)}${ring}</svg>`;
+  return `<svg xmlns="http://www.w3.org/2000/svg" class="${classes}" viewBox="0 0 48 48" width="36" height="36" role="img" aria-label="${name}" shape-rendering="crispEdges" overflow="visible">${sparkImageArt(id,0,0,48)}${ring}</svg>`;
 }

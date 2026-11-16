@@ -1,7 +1,7 @@
-import {pickupKind} from './pickups.mjs?v=skills-cards-2';
-import {sparkBodyRadius} from './spark-size.mjs?v=skills-cards-2';
-import {drawCollectorGuard} from './collector-guard-art.mjs?v=skills-cards-2';
-import {companionPalette} from './companion-art.mjs?v=skills-cards-2';
+import {pickupKind} from './pickups.mjs?v=skills-cards-3';
+import {sparkBodyRadius} from './spark-size.mjs?v=skills-cards-3';
+import {drawCollectorGuard} from './collector-guard-art.mjs?v=skills-cards-3';
+import {companionPalette} from './companion-art.mjs?v=skills-cards-3';
 
 const TAU = 2 * Math.PI;
 const green = companionPalette('collector');

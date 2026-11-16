@@ -1,10 +1,10 @@
-import {resourceSymbol} from './game-symbols.mjs?v=skills-cards-2';
-import {prepareFuelSprites} from './pickup-art.mjs?v=skills-cards-2';
+import {resourceSymbol} from './game-symbols.mjs?v=skills-cards-3';
+import {prepareFuelSprites} from './pickup-art.mjs?v=skills-cards-3';
 
 export function preloadFlightEntry(reducedMotion=false){
  if(typeof window==='undefined')return Promise.resolve();
  const quiet=reducedMotion||window.matchMedia('(prefers-reduced-motion: reduce)').matches;
- return Promise.all([import('./wisp-renderer.mjs?v=skills-cards-2'),prepareFuelSprites(document,quiet)]);
+ return Promise.all([import('./wisp-renderer.mjs?v=skills-cards-3'),prepareFuelSprites(document,quiet)]);
 }
 
 export function flightEntryMarkup(run,node,{dream=false}={}){

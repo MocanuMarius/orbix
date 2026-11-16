@@ -1,5 +1,5 @@
 // A dream records simulation inputs, never run rewards or snapshots of the world.
-import {getChoices} from './model.mjs?v=skills-cards-2';
+import {getChoices} from './model.mjs?v=skills-cards-3';
 const INPUTS=['beginLiftInput','endLiftInput','flap','activateAbility','activateFieldImpulse'];
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
 const ordered=value=>Array.isArray(value)?value.map(ordered):value&&typeof value==='object'?Object.fromEntries(Object.keys(value).sort().map(k=>[k,ordered(value[k])])):value;
@@ -7,7 +7,7 @@ export function dreamFingerprint(options={}){
   const modifiers = {...options.modifiers};
   delete modifiers.eventFavors;
   delete modifiers.flightBoon; // Waking benefits cannot change rehearsed physics.
-  return JSON.stringify(ordered({simulation:'skills-cards-2',seed:options.seed,terrain:options.terrain,elite:!!options.elite,duration:options.duration,
+  return JSON.stringify(ordered({simulation:'skills-cards-3',seed:options.seed,terrain:options.terrain,elite:!!options.elite,duration:options.duration,
     node:options.node,companions:options.companions,modifiers,flame:options.flame,condensedGlow:options.condensedGlow||0,condensedRemainder:options.condensedRemainder||0}));
 }
 export function dreamConfig(run={}){
@@ -98,6 +98,7 @@ export function attachDream(engine,{mode='record',preset,duration=engine.mod.dre
       engine.resume();return true;
     }};
   engine.dream=dream;
+  engine.cardRhythm?.clear();engine.blackHoles?.stop();
   for(const name of INPUTS){
     const original=engine[name];
     engine[name]=function(...args){
@@ -111,6 +112,7 @@ export function attachDream(engine,{mode='record',preset,duration=engine.mod.dre
   const stop=()=>{
     dream.internal=true;engine.endLiftInput(true);dream.internal=false;
     engine.paused=true;engine.lastFrame=0;engine.nextRenderAt=null;
+    engine.cardRhythm?.clear();engine.blackHoles?.stop();
     if(engine.raf!=null&&typeof cancelAnimationFrame==='function')cancelAnimationFrame(engine.raf);
     engine.raf=null;engine.render();engine.notify();
   };

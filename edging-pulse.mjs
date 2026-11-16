@@ -1,11 +1,16 @@
 // Risk-earned sight, plus bounded fuel recovery with Regenerative Pulse.
 // Neither outcome is a pickup or invokes artifact hooks.
-import { GLOW_DISPLAY_SCALE } from './vitality.mjs?v=skills-cards-2';
+import { GLOW_DISPLAY_SCALE } from './vitality.mjs?v=skills-cards-3';
 const clamp = (n, lo, hi) => Math.min(hi, Math.max(lo, n));
 const smooth = n => n * n * (3 - 2 * n);
 const EPSILON = 1e-9;
 export const EDGING_PULSE_TUNING = Object.freeze({ clearance: 48, chargeSeconds: 2,
   graceSeconds: 1.25, decayPerSecond: .08, duration: 5, recovery: 2, waves: 3 });
+/** World-space body-to-solid clearance; card sources add normal reach, never multiply each other. */
+export function getProximityClearance(modifiers = {}) {
+  const sources = Math.max(0, Math.floor(Number(modifiers.cardProximitySources) || 0));
+  return EDGING_PULSE_TUNING.clearance * (1 + .5 * sources);
+}
 export const EDGING_REGEN_TUNING = Object.freeze({ glow: 3 / GLOW_DISPLAY_SCALE, grants: 8, feedback: 1 });
 const number = (value, fallback, lo, hi) => Number.isFinite(Number(value))
   ? clamp(Number(value), lo, hi) : fallback;
@@ -116,17 +121,17 @@ export class EdgingPulse {
     if (!this.protected) {
       // Only solid terrain and props earn proximity, never open viewport edges.
       let clearance = Infinity;
-      const worldX = e.distance + e.player.x, radius = e.player.radius;
+      const worldX = e.distance + e.player.x, radius = e.player.radius, reach = getProximityClearance(e.mod);
       this.surface.x=worldX;this.surface.y=e.player.y;this.surface.clearance=Infinity;
       for (const obstacle of obstacles) {
         // Broadphase is identical to the flight collider's terrain footprint.
-        if (obstacle.destroyed || worldX + radius + EDGING_PULSE_TUNING.clearance < obstacle.x - obstacle.width
-          || worldX - radius - EDGING_PULSE_TUNING.clearance > obstacle.x + obstacle.width * 2.5) continue;
+        if (obstacle.destroyed || worldX + radius + reach < obstacle.x - obstacle.width
+          || worldX - radius - reach > obstacle.x + obstacle.width * 2.5) continue;
         clearance = Math.min(clearance, obstacleEdgeClearance(worldX, e.player.y, radius, obstacle,
-          e.time, EDGING_PULSE_TUNING.clearance, e.obstacleCenter(obstacle),this.surface));
+          e.time, reach, e.obstacleCenter(obstacle),this.surface));
       }
       if (clearance <= EPSILON) { this.impact(); return; }
-      this.nearEdge = clearance <= EDGING_PULSE_TUNING.clearance;
+      this.nearEdge = clearance <= reach + EPSILON;
     }
     const rate = number(e.mod?.edgingChargeRate, 1, .25, 4);
     const decay = number(e.mod?.edgingDecayRate, 1, 0, 4);
