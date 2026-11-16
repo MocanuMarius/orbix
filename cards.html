@@ -20,11 +20,12 @@
     <h1>Skills as cards</h1>
     <p>Build a small hand of skills, change their order and try new combinations. Play in landscape. The playtest uses its own save.</p>
     <button id="launch" type="button">Open card playtest</button>
-    <p id="status" role="status" aria-live="polite">One tap checks for the latest game, then opens the playtest menu. Choose New Game to begin.</p>
+    <p id="status" role="status" aria-live="polite">Checking for the latest game, then opening your playtest menu...</p>
     <small>The first visit downloads the game. Keep this page open while it prepares.</small>
     <a href="./">Back to Wispbound</a>
     <noscript><p>The card playtest needs JavaScript. Enable it, then reopen this page.</p></noscript>
   </main>
-  <script type="module" src="./cards-launcher.mjs?v=guide-clarity-1"></script>
+  <script type="module" src="./cards-launcher.mjs?v=collector-cards-1"></script>
+  <script>window.addEventListener('load',()=>document.querySelector('#launch').click(),{once:true});</script>
 </body>
 </html>

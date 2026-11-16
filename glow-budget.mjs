@@ -1,5 +1,5 @@
-import {getPickupSpec,pickupKind,pickupContactRadius} from './pickups.mjs?v=guide-clarity-1';
-import {sparkBodyRadius} from './spark-size.mjs?v=guide-clarity-1';
+import {getPickupSpec,pickupKind,pickupContactRadius} from './pickups.mjs?v=collector-cards-1';
+import {sparkBodyRadius} from './spark-size.mjs?v=collector-cards-1';
 
 // Roof-heavy courses used to lose half their fuel to floor-cache placement.
 // A duration floor repairs that disparity with richer lights before adding

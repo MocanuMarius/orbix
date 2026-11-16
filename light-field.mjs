@@ -1,7 +1,7 @@
-import {drawShutterWake,shutterLightFactor,shutterWakeAt} from './shutter-cone.mjs?v=guide-clarity-1';
-import {lanternField} from './lantern-layout.mjs?v=guide-clarity-1';
-import { LIGHT_EXTENT, lightAttenuation } from './light-attenuation.mjs?v=guide-clarity-1';
-import {luminanceWaveVisibility} from './luminance-waves.mjs?v=guide-clarity-1';
+import {drawShutterWake,shutterLightFactor,shutterWakeAt} from './shutter-cone.mjs?v=collector-cards-1';
+import {lanternField} from './lantern-layout.mjs?v=collector-cards-1';
+import { LIGHT_EXTENT, lightAttenuation } from './light-attenuation.mjs?v=collector-cards-1';
+import {luminanceWaveVisibility} from './luminance-waves.mjs?v=collector-cards-1';
 export { LIGHT_EXTENT, lightAttenuation };
 const reflectedLight = .6;
 

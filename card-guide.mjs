@@ -27,12 +27,12 @@ export const CARD_GUIDE_TOPICS = {
       ),
       step(
         "Recovery changes reach",
-        "Catching a pickup starts its reel and recovery together. Collector stays busy until the intact pickup touches your wisp, then is ready for another search. The pickup marks keep showing its learned handling.",
+        "Collector stays busy until the intact pickup touches your wisp. It then rebuilds charge: 6, 12 and 18 Sparks take 3⅓, 6⅔ and 10 seconds before compression and build modifiers. Its orbit shows charge. The pickup marks show learned handling.",
         "collector-recovery",
       ),
       step(
         "Field Impulse duration",
-        "Swipe up to float, down to dive, or right to speed up. With a full ring, each equipped or compatible copied Field Impulse adds 0.8 seconds: two sources last 1.6 seconds. A smaller ring scales duration and strength. Extra sources extend time at the same force, and one swipe spends the ring once. Lift ends a float or dive.",
+        "Swipe up to float, down to dive, or right to speed up. At full Collector charge, each equipped or compatible copied Field Impulse adds 0.8 seconds: two sources last 1.6 seconds. Less charge reduces duration and strength. Extra sources extend time at the same force, and one swipe spends Collector charge once. Lift ends a float or dive.",
         "collector-range",
       ),
     ],
@@ -48,7 +48,7 @@ export const CARD_GUIDE_TOPICS = {
       ),
       step(
         "Check what it can fetch",
-        "A small green circle below the pickup shows a fetchable type. Handling cards add circles to Caches and Flash. Collector reels each pickup to your moving main wisp before it absorbs; it is ready again on contact.",
+        "A small green circle below the pickup shows a fetchable type. Handling cards add circles to Caches and Flash. Collector reels each pickup to your moving main wisp before it absorbs; it then rebuilds charge before searching again.",
         "collector-range",
       ),
     ],

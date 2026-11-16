@@ -1,6 +1,8 @@
-import {getFlightClearReward} from './checkpoint-rewards.mjs?v=guide-clarity-1';
-import {landmarkArt,landmarkCategory,guardianNames} from './map-landmarks.mjs?v=guide-clarity-1';
-import {glowText} from './vitality.mjs?v=guide-clarity-1';
+import {getBiome} from './biomes.mjs?v=collector-cards-1';
+import {sparkHabitat} from './spark-fields.mjs?v=collector-cards-1';
+import {getFlightClearReward} from './checkpoint-rewards.mjs?v=collector-cards-1';
+import {landmarkArt,landmarkCategory,guardianNames} from './map-landmarks.mjs?v=collector-cards-1';
+import {glowText} from './vitality.mjs?v=collector-cards-1';
 const stop=(kind,label,name,summary)=>Object.freeze({kind,label,name,summary,icon:kind});
 export const MAP_STOP_TYPES=Object.freeze({
 flight:stop('flight','FLIGHT','Flight','Flight length sets its Stored Sparks reward; overflow adds a bonus. Ordinary flights do not drop artifacts.'),
@@ -54,4 +56,17 @@ export function mapStopIconMarkup(kindOrNode){
  const artCategory=landmarkCategory(kindOrNode),category=artCategory==='elite'?'boss':artCategory;
  const art=landmarkArt(kindOrNode).replace(/class="landmark-(\w+)"/g,(_,part)=>part==='edge'||part==='rune'?`fill="none" stroke="${colors[part]}" stroke-width="1.8"`:`fill="${colors[part]||colors.body}" stroke="none"`);
  return `<svg class="map-stop-icon map-symbol-${artCategory}" data-map-category="${category}" viewBox="-42 -39 84 78" xmlns="http://www.w3.org/2000/svg" shape-rendering="crispEdges" aria-hidden="true" focusable="false">${art}</svg>`;
+}
+
+/** Only the currently linked route is disclosed, from the same biome data as play. */
+export function mapBiomeGuideMarkup(run){
+ if(!run?.map?.length)return '';
+ const all=run.map.flat(),previous=(run.path||[]).map(id=>all.find(n=>n.id===id)).filter(n=>n&&n.row<run.step).at(-1);
+ const linked=run.map[run.step]||[],ids=previous?.nextIds;
+ const priorElite=(run.path||[]).map(id=>all.find(n=>n.id===id)).filter(n=>n&&n.row<run.step&&n.type!=='support').at(-1)?.elite===true;
+ const biomes=[...new Map(linked.filter(n=>n.type!=='support'&&(!ids||ids.includes(n.id))&&!(priorElite&&n.elite)).map(n=>getBiome(n)).filter(Boolean).map(b=>[b.id,b])).values()];
+ if(!biomes.length)return '';
+ const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+ const mixes={filament:'More small Sparks.',cluster:'More Clusters.',vault:'More Caches.',mineral:'More dense Caches.'};
+ return `<details class="map-event-guide map-biome-guide"><summary>Biomes &amp; pickups</summary>${biomes.map(b=>`<p><b>${esc(b.name)}</b> · ${esc(b.interactionHint)} ${mixes[sparkHabitat(b.id)]||''}</p>`).join('')}</details>`;
 }

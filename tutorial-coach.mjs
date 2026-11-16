@@ -1,5 +1,5 @@
-import {tutorialTarget,tutorialTextMarkup,tutorialExampleMarkup} from './tutorial-context.mjs?v=guide-clarity-1';
-import {tutorialVisualMarkup} from './tutorial-visuals.mjs?v=guide-clarity-1';
+import {tutorialTarget,tutorialTextMarkup,tutorialExampleMarkup} from './tutorial-context.mjs?v=collector-cards-1';
+import {tutorialVisualMarkup} from './tutorial-visuals.mjs?v=collector-cards-1';
 let coachId = 0;
 const clamp = (value, low, high) => Math.max(low, Math.min(high, value));
 const focusable = 'button:not(:disabled),a[href],input:not(:disabled),select:not(:disabled),textarea:not(:disabled),[tabindex]:not([tabindex="-1"])';
@@ -73,7 +73,7 @@ export function createTutorialCoach({ onNext, onBack, onSkip } = {}) {
     const width = document.documentElement.clientWidth || window.innerWidth;
     const height = window.visualViewport?.height || window.innerHeight;
     const margin = Math.min(14, width * .04), gap = 13;
-    card.style.width = `${Math.min(width >= 600 ? 820 : 600, width - margin * 2)}px`;
+    card.style.width = `${Math.min(step.contextual?460:width >= 600 ? 820 : 600, width - margin * 2)}px`;
     card.style.maxHeight = `${Math.max(100, height - margin * 2)}px`;
     const rect = visibleTarget();
     const left = rect ? clamp(rect.left, 0, width) : 0;
@@ -191,7 +191,8 @@ export function createTutorialCoach({ onNext, onBack, onSkip } = {}) {
       const info = progressInfo(step.progress);
       title.textContent = String(step.title || 'Learn the way');
       text.innerHTML = tutorialTextMarkup(step.text);
-      const art=tutorialVisualMarkup(step),example=tutorialExampleMarkup(step,document,target);visual.innerHTML=example+`<div class="coach-vocabulary">${art}</div>`;visual.hidden=!art&&!example;root.dataset.hasExample=String(!!example);root.dataset.hasVisual=String(!!art||!!example);
+      root.dataset.contextual=String(step.contextual===true);
+      const art=step.contextual?'':tutorialVisualMarkup(step),example=step.contextual?'':tutorialExampleMarkup(step,document,target);visual.innerHTML=example+`<div class="coach-vocabulary">${art}</div>`;visual.hidden=!art&&!example;root.dataset.hasExample=String(!!example);root.dataset.hasVisual=String(!!art||!!example);
       progress.textContent = info.label;
       root.dataset.single=String(!step.progress||/STEP 1 \/ 1$/.test(info.label));
       next.textContent = String(step.actionLabel || 'NEXT');

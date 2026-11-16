@@ -8,9 +8,62 @@ try {
 const appRoot = new URL('./', import.meta.url);
 const key = 'wispboundInstallation:' + appRoot.href;
 const installation = host[key] ??= { registration: null, prompt: null, installed: false };
+installation.clients ??= new Map();
 const changeEvent = key + ':change';
 function notify() { host.dispatchEvent(new host.Event(changeEvent)); }
 export function onInstallationChange(listener) { host.addEventListener(changeEvent, listener); }
+const local = ['localhost','127.0.0.1','[::1]'].includes(appRoot.hostname);
+
+// The shell and same-origin game frame share one coordinator. Only the game
+// registers a safety contract: the shell cannot decide whether a flight ended.
+export function registerUpdateClient({canReload, beforeReload}) {
+  installation.clients.set(window, {document, canReload, beforeReload});
+  updateCheckpoint();
+  return () => installation.clients.delete(window);
+}
+export function updateCheckpoint() {
+  if (installation.checkpointQueued || installation.saving) return;
+  installation.checkpointQueued = true;
+  queueMicrotask(() => {
+    installation.checkpointQueued = false;
+    applyReadyUpdate();
+  });
+}
+function safeClients() {
+  const clients = [];
+  for (const [clientWindow, client] of installation.clients) {
+    try {
+      if (clientWindow.closed || clientWindow.document !== client.document) {
+        installation.clients.delete(clientWindow);
+        continue;
+      }
+      if (!client.canReload()) return null;
+      clients.push(client);
+    } catch { return null; }
+  }
+  return clients.length ? clients : null;
+}
+function applyReadyUpdate() {
+  if (installation.reloading || host.document.hidden) return;
+  const waiting = installation.registration?.waiting;
+  if (!installation.reloadPending && !waiting) return;
+  const clients = safeClients();
+  if (!clients) return;
+  if (waiting && installation.activating !== waiting) {
+    installation.activating = waiting;
+    waiting.postMessage({type:'activate-build'});
+  }
+  if (!installation.reloadPending) return;
+  // A failed save leaves the running game intact, including its current run.
+  // A later successful checkpoint or foreground event can retry safely.
+  try {
+    installation.saving = true;
+    if (!clients.every(client => client.beforeReload() === true)) return;
+  } catch { return; }
+  finally { installation.saving = false; }
+  installation.reloading = true;
+  host.location.reload();
+}
 // A disposable flight comparison stays online and never installs a second PWA.
 const flightComparison = new URLSearchParams(location.search).get('mock') === 'boundary';
 if (!flightComparison && !installation.started && host.isSecureContext) {
@@ -26,89 +79,87 @@ if (!flightComparison && !installation.started && host.isSecureContext) {
     notify();
   });
   if ('serviceWorker' in host.navigator) {
-    let lastCheck = 0;
-    const checkForRelease = () => {
-      const registration = installation.registration;
-      const standalone = host.matchMedia('(display-mode: standalone)').matches || host.navigator.standalone;
-      if (!registration?.active || registration.waiting || !standalone || host.document.hidden
-        || !host.navigator.onLine || Date.now() - lastCheck < 15 * 60_000) return;
-      lastCheck = Date.now();
-      registration.update().catch(() => {});
-    };
+    let hadController = Boolean(host.navigator.serviceWorker.controller);
+    host.navigator.serviceWorker.addEventListener('controllerchange', () => {
+      // Claiming a first install supplies offline support without restarting
+      // the game the player has just opened.
+      if (hadController) installation.reloadPending = true;
+      hadController = Boolean(host.navigator.serviceWorker.controller);
+      notify();
+      updateCheckpoint();
+    });
     const register = () => host.navigator.serviceWorker
       .register(new URL('worker.js', appRoot), { scope: appRoot.href, updateViaCache: 'none' })
       .then(registration => {
         installation.registration = registration;
-        const watchWorker = () => registration.installing?.addEventListener('statechange', notify);
+        const changed = () => { notify(); updateCheckpoint(); };
+        const watchWorker = () => registration.installing?.addEventListener('statechange', changed);
         registration.addEventListener('updatefound', watchWorker);
         watchWorker();
         notify();
-        checkForRelease();
-        host.document.addEventListener('visibilitychange', checkForRelease);
-        host.addEventListener('pageshow', checkForRelease);
+        checkForRelease(true);
+        updateCheckpoint();
       })
       .catch(() => { /* Playing online remains available with storage disabled. */ });
     if (host.document.readyState === 'complete') register();
     else host.addEventListener('load', register, {once: true});
   }
+  const foreground = () => { checkForRelease(true); checkLocalRevision(); updateCheckpoint(); };
+  host.document.addEventListener('visibilitychange', foreground);
+  host.addEventListener('pageshow', foreground);
+  host.addEventListener('online', foreground);
+  host.setInterval(() => { checkForRelease(); updateCheckpoint(); }, 60_000);
+  if (local) {
+    checkLocalRevision();
+    host.setInterval(checkLocalRevision, 5_000);
+  }
+}
+
+async function checkForRelease(force = false) {
+  const registration = installation.registration;
+  if (!registration || host.document.hidden || !host.navigator.onLine || installation.checking
+    || (!force && Date.now() - (installation.lastCheck || 0) < 60_000)) return;
+  installation.lastCheck = Date.now();
+  installation.checking = true;
+  try { await registration.update(); }
+  catch { /* Offline or incomplete downloads keep the complete current build. */ }
+  finally { installation.checking = false; updateCheckpoint(); }
+}
+
+async function checkLocalRevision() {
+  if (!local || host.document.hidden || !host.navigator.onLine || installation.checkingLocal) return;
+  installation.checkingLocal = true;
+  try {
+    const response = await host.fetch(new URL('/__dev-revision', appRoot), {cache:'no-store'});
+    if (!response.ok) return;
+    const {revision} = await response.json();
+    if (typeof revision !== 'string' || !revision) return;
+    if (installation.localRevision && installation.localRevision !== revision) {
+      installation.reloadPending = true;
+      notify();
+    }
+    installation.localRevision = revision;
+    updateCheckpoint();
+  } catch { /* Other local servers need no revision endpoint. */ }
+  finally { installation.checkingLocal = false; }
 }
 
 export function installationState() {
   const standalone = host.matchMedia('(display-mode: standalone)').matches || host.navigator.standalone;
   const installed = Boolean(installation.installed || standalone);
   const offline = installation.registration?.active?.state === 'activated';
-  const updateReady = Boolean(installation.registration?.waiting);
+  const updateReady = Boolean(installation.registration?.waiting || installation.reloadPending);
   return { installed, offline, updateReady, canPrompt: !installed && Boolean(installation.prompt) };
 }
 
-// Registration.update() resolves before the replacement has necessarily
-// finished downloading its offline files. Activate only an installed worker.
-function waitForWorker(worker, states) {
-  return new Promise(resolve => {
-    function finish(ready) {
-      worker.removeEventListener('statechange', changed);
-      clearTimeout(timeout);
-      resolve(ready);
-    }
-    function changed() {
-      if (states.includes(worker.state)) finish(true);
-      else if (worker.state === 'redundant') finish(false);
-    }
-    const timeout = setTimeout(() => finish(false), 60_000);
-    worker.addEventListener('statechange', changed);
-    changed();
-  });
+// Optional Advanced diagnostic; normal play uses the automatic coordinator.
+export async function refreshBuild() {
+  await Promise.all([checkForRelease(true), checkLocalRevision()]);
+  updateCheckpoint();
+  if (installation.reloadPending || installation.registration?.waiting) return 'Updates automatically at the next safe checkpoint';
+  if (installation.registration?.installing) return 'Downloading the latest build automatically…';
+  return host.navigator.onLine ? 'Automatic updates are on · build is current' : 'Offline · updates resume when online';
 }
-
-export async function refreshBuild(beforeReload) {
-  const service = host.navigator.serviceWorker;
-  const registration = installation.registration ?? await service?.getRegistration(appRoot.href);
-  let next = registration?.waiting;
-  if (!next && !host.navigator.onLine) return 'Offline';
-  if (registration && !next) {
-    const active = registration.active;
-    await registration.update();
-    next = registration.waiting ?? registration.installing;
-    if (next && !await waitForWorker(next, ['installed','activating','activated'])) return 'Download incomplete';
-    if (!active && next) {
-      if (!await waitForWorker(next,['activated'])) return 'Download incomplete';
-      next = null;
-    }
-  }
-  if (next) {
-    next.postMessage({type:'activate-build'});
-    if (!await waitForWorker(next,['activated'])) return 'Update still pending';
-  } else {
-    const local = ['localhost','127.0.0.1','[::1]'].includes(appRoot.hostname);
-    if (registration && !local) return 'Build is current';
-    const response = await fetch(new URL('index.html', appRoot), {cache:'no-store'});
-    if (!response.ok) return 'Update unavailable';
-  }
-  beforeReload();
-  host.location.reload();
-  return 'Reloading…';
-}
-
 export async function requestInstall() {
   const prompt = installation.prompt;
   installation.prompt = null;

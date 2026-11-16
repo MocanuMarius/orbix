@@ -1,5 +1,5 @@
-import {pickupArtSvg} from './pickup-art.mjs?v=guide-clarity-1';
-import {ROUTE_BONUSES} from './route-bonuses.mjs?v=guide-clarity-1';
+import {pickupArtSvg} from './pickup-art.mjs?v=collector-cards-1';
+import {ROUTE_BONUSES} from './route-bonuses.mjs?v=collector-cards-1';
 const art={
  gilded:['#f2c76c','M4 6h10v2H4zm-1 4h12v2H3zm1 4h10v2H4z'],
  'three-suns':['#f6979c','M3 5h4v2h2V5h4v2h2v4h-2v2h-2v2H9v2H7v-2H5v-2H3v-2H1V7h2z'],
@@ -15,23 +15,32 @@ const art={
 };
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 export function bonusIcon(id) {
- const pair=art[id];
+ const artId=art[id]?id:ROUTE_BONUSES[id]?.boonId,pair=art[artId];
  if(!pair)return '';
- const central=id==='flash-relay'||id==='spark-trail'
-   ? pickupArtSvg(id==='flash-relay'?'sight':'light').replace('<svg ', '<svg x="-3" y="-3" ').replace('width="36" height="36"','width="22" height="22"')
+ const central=artId==='flash-relay'||artId==='spark-trail'
+   ? pickupArtSvg(artId==='flash-relay'?'sight':'light').replace('<svg ', '<svg x="-3" y="-3" ').replace('width="36" height="36"','width="22" height="22"')
    : `<path fill="#544d49" transform="translate(0 1)" d="${pair[1]}"/><path fill="${pair[0]}" fill-rule="evenodd" d="${pair[1]}"/>`;
  return `<svg class="passage-bonus-icon" viewBox="-4 -4 25 25" shape-rendering="crispEdges" aria-hidden="true"><path fill="#c5a36a" d="M-3 4v-6h6v2h-4v4zm23 8v6h-6v-2h4v-4z"/>${central}<path class="bonus-glint" fill="#fff0af" d="M-3-2h3v1h-3zm20 18h3v1h-3z"/></svg>`;
 }
 export function boonMarkup(value){
  const entries=typeof value==='string'?[[value,1]]:Object.entries(value||{});
- return entries.filter(([id,left])=>ROUTE_BONUSES[id]&&left>0).map(([id,left])=>`<span class="passage-boon">${bonusIcon(id)}<span><b>${esc(ROUTE_BONUSES[id].name)} · ${left} cleared ${left===1?'flight':'flights'} left</b> ${esc(ROUTE_BONUSES[id].reward.replaceAll('3 cleared flights','the remaining flights'))} Failures do not spend it.</span></span>`).join('');
+ return entries.filter(([id,left])=>ROUTE_BONUSES[id]&&left>0).map(([id,left])=>`<span class="passage-boon">${bonusIcon(id)}<span><b>${left} cleared ${left===1?'flight':'flights'} left</b> ${esc(ROUTE_BONUSES[id].reward.replaceAll('3 cleared flights','the remaining flights'))} Failures do not spend it.</span></span>`).join('');
+}
+export function bonusProgressText(bonus){
+ const b=ROUTE_BONUSES[bonus?.id];if(!b)return '';
+ if(bonus.failed)return '×';if(bonus.complete)return '✓';
+ if(bonus.id==='reserve-finish')return `${b.target} Sparks at exit`;
+ const progress=Math.min(b.target,Math.max(0,Number(bonus.progress)||0));
+ return bonus.unit==='s'?`${progress.toFixed(1)}/${b.target}s`:`${progress}/${b.target}`;
 }
 export function updateBonusGauge(el,bonus){
  if(!el)return;
  const b=ROUTE_BONUSES[bonus?.id];if(!b||bonus.eligible===false){el.hidden=true;return;}
- const key=[b.id,bonus.progress,bonus.target,bonus.complete,bonus.failed].join(':');
+ const key=[b.id,bonus.progress,bonus.current,bonus.target,bonus.complete,bonus.failed,bonus.waitingForExit].join(':');
  if(key===el.dataset.state&&!el.hidden)return;
  el.hidden=false;el.dataset.state=key;
- el.innerHTML=`${bonusIcon(b.id)}<b>${bonus.complete?'✓':bonus.failed?'×':Math.min(b.target,bonus.progress||0)+'/'+b.target}</b>`;
- el.setAttribute('aria-label',b.name+' · '+(bonus.failed?'missed':bonus.complete?'goal met, clear to claim':bonus.progress+' of '+b.target));
+ el.innerHTML=`${bonusIcon(b.id)}<b>${bonusProgressText(bonus)}</b>`;
+ const current=Math.min(b.target,Math.max(0,Number(bonus.progress)||0));
+ const progress=bonus.id==='reserve-finish'?`Currently ${Number(bonus.current)||0} Sparks. Checked at the exit.`:`${bonus.unit==='s'?current.toFixed(1):current} of ${b.target}${bonus.unit==='s'?' seconds':''}.`;
+ el.setAttribute('aria-label','Optional challenge. '+b.condition+' '+(bonus.failed?'Missed.':bonus.complete?'Goal met, clear to claim.':progress));
 }

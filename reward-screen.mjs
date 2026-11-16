@@ -1,10 +1,11 @@
-import {ARTIFACTS} from './model.mjs?v=guide-clarity-1';
-import {artifactDescription} from './artifact-copy.mjs?v=guide-clarity-1';
-import {resourceSymbol} from './game-symbols.mjs?v=guide-clarity-1';
-import {artifactIcon} from './upgrade-icons.mjs?v=guide-clarity-1';
-import {relicIdentityMarkup,relicRulesMarkup,relicRulesButton} from './ui/relic-primitives.mjs?v=guide-clarity-1';
-import {actionButton} from './ui/primitives.mjs?v=guide-clarity-1';
-import {acquiredRewardMarkup} from './ui/acquired-reward.mjs?v=guide-clarity-1';
+import {ARTIFACTS} from './model.mjs?v=collector-cards-1';
+import {artifactDescription} from './artifact-copy.mjs?v=collector-cards-1';
+import {resourceSymbol} from './game-symbols.mjs?v=collector-cards-1';
+import {artifactIcon} from './upgrade-icons.mjs?v=collector-cards-1';
+import {relicIdentityMarkup,relicRulesMarkup,relicRulesButton} from './ui/relic-primitives.mjs?v=collector-cards-1';
+import {actionButton} from './ui/primitives.mjs?v=collector-cards-1';
+import {acquiredRewardMarkup} from './ui/acquired-reward.mjs?v=collector-cards-1';
+import {routeBonusReceiptText} from './route-bonus-copy.mjs?v=collector-cards-1';
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 export const rewardDescription=(a,run)=>{const c=artifactDescription(a,run,{fresh:true});return [c.effect,[c.trigger,c.limit].filter(Boolean).join(' ')];};
 export function rewardEarnings(run){
@@ -19,7 +20,7 @@ export function rewardEarnings(run){
 }
 export function rewardEarningsDetailMarkup(run){
  const {rows,total}=rewardEarnings(run),f=run?.lastFlight||{};
- const notes=[f.routeBonus?.message,f.treasureWager?.message,f.vow?.message,f.chestIncome?.message||(f.chestIncome?.sources?.length?`${f.chestIncome.sources.join(' + ')} · +${f.chestIncome.amount} Stored Sparks`:null),
+ const notes=[routeBonusReceiptText(f.routeBonus),f.treasureWager?.message,f.vow?.message,f.chestIncome?.message||(f.chestIncome?.sources?.length?`${f.chestIncome.sources.join(' + ')} · +${f.chestIncome.amount} Stored Sparks`:null),
   f.cardClearReceipt?.futureCapacity?`Growth Ring · +${f.cardClearReceipt.futureCapacity} maximum Sparks permanently`:null,
   f.cardClearReceipt?.cruisingSpeed?`Wind Feather · +${f.cardClearReceipt.cruisingSpeed}% cruising speed unlocked (cap +6%)`:null].filter(Boolean);
  return `<section class="reward-earnings-detail"><header><h2>Stored Sparks earned</h2><strong>${resourceSymbol('packed')} +${total}</strong></header><dl>${rows.map(row=>`<div><dt>${esc(row.label)}</dt><dd>+${row.amount}</dd></div>`).join('')}</dl>${notes.length?`<div class="reward-earnings-context">${notes.map(note=>`<p>${esc(note)}</p>`).join('')}</div>`:''}</section><button class="primary" data-action="close-sheet">Back to rewards</button>`;
@@ -28,7 +29,7 @@ export function flightRewardMarkup(state,{artifactArt=artifactIcon,upgradeCount=
  const r=state.run,reward=r.flightReward,offers=(reward?.offers||[]).filter(id=>ARTIFACTS[id]),open=!!reward&&!reward.claimed&&offers.length>0;
  if(!reward?.permanent&&!r.lastFlight?.elite&&!r.lastFlight?.boss&&!offers.length)return '';
  const earned=rewardEarnings(r).total;
- const receiptAvailable=earned>0||['routeBonus','treasureWager','vow','chestIncome'].some(key=>r.lastFlight?.[key]?.message?.trim())||r.lastFlight?.cardClearReceipt?.futureCapacity>0||r.lastFlight?.cardClearReceipt?.cruisingSpeed>0;
+ const receiptAvailable=earned>0||!!routeBonusReceiptText(r.lastFlight?.routeBonus)||['treasureWager','vow','chestIncome'].some(key=>r.lastFlight?.[key]?.message?.trim())||r.lastFlight?.cardClearReceipt?.futureCapacity>0||r.lastFlight?.cardClearReceipt?.cruisingSpeed>0;
  const title=reward?.permanent?'Choose a relic discovery':r.lastFlight?.boss?'Guardian defeated':r.lastFlight?.elite?'Elite cleared':'Passage cleared';
  const ids=open?offers:ARTIFACTS[reward?.chosen]?[reward.chosen]:[];
  if(reward?.claimed===true&&!reward.permanent&&(r.lastFlight?.elite||r.lastFlight?.boss)&&ids.length===1&&['pedestal','horizontal','compact'].includes(acquiredPresentation)){

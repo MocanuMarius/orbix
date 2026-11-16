@@ -6,11 +6,14 @@ const cacheName = prefix + WISP_OFFLINE.release + ':' + WISP_OFFLINE.revision;
 const files = new Set(WISP_OFFLINE.files.map(file => new URL(file, scope).href));
 
 async function installRelease() {
+  const alreadyCached = (await caches.keys()).includes(cacheName);
   const cache = await caches.open(cacheName);
+  let failed = false;
   const pending = Array.from(files).values();
   // Limit simultaneous transfers while the first online game is starting.
   async function download() {
     for (const href of pending) {
+      if (failed) return;
       const url = new URL(href);
       url.searchParams.set('v', WISP_OFFLINE.release);
       const response = await fetch(url, {cache: 'reload'});
@@ -18,11 +21,19 @@ async function installRelease() {
       await cache.put(href, response);
     }
   }
-  await Promise.all(Array.from({length: 4}, download));
+  const downloads = Array.from({length: 4}, () => download().catch(error => { failed = true; throw error; }));
+  try { await Promise.all(downloads); }
+  catch (error) {
+    await Promise.allSettled(downloads);
+    // A failed download must not masquerade as the previous complete release
+    // during the next upgrade. An identical existing cache remains usable.
+    if (!alreadyCached) await caches.delete(cacheName);
+    throw error;
+  }
 }
 self.addEventListener('install', event => event.waitUntil(installRelease()));
-// Automatic updates wait until the game closes. Settings can apply a fully
-// downloaded update immediately in response to the player's refresh action.
+// The page applies a fully downloaded update automatically at a safe game
+// checkpoint. An active or paused flight keeps its current worker until then.
 self.addEventListener('message', event => {
   if (event.data?.type === 'activate-build') event.waitUntil(self.skipWaiting());
 });
@@ -45,6 +56,12 @@ async function respond(request, key, release) {
   const cache = await caches.open(name);
   const response = await cache.match(key);
   if (!response) return fetch(request);
+  // A cancelled image decode can keep Chromium's CacheStorage response stream
+  // alive across navigation and block a waiting worker from taking over. Read
+  // these small static images fully so their returned body owns its bytes.
+  if (request.destination === 'image') return new Response(await response.arrayBuffer(), {
+    status: response.status, statusText: response.statusText, headers: response.headers
+  });
   const range = request.headers.get('Range');
   if (!range || !key.endsWith('.mp3')) return response;
   const match = /^bytes=(\d+)-(\d*)$/.exec(range);

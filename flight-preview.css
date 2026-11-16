@@ -15,7 +15,7 @@ html body dialog.game-sheet.flight-preview-sheet.flight-preview-sheet[open]{box-
 .preview-optional::before{background:var(--guide-challenge);transform:scaleX(-1)}
 .preview-regular{display:flex;flex-direction:column;align-items:flex-start;justify-content:center;gap:6px}
 .preview-optional{display:flex;flex-direction:column;justify-content:center;gap:10px}
-.preview-goal-title,.preview-payout{display:flex;align-items:center;gap:9px;min-width:0}.preview-goal-title>svg{width:30px;height:30px;flex:none}.preview-goal-title>div{display:flex;align-items:baseline;flex-wrap:wrap;gap:3px 9px}.preview-goal-title strong{color:#f5e8b9;font:26px/1.05 var(--pixel)}
+.preview-goal-title,.preview-payout{display:flex;align-items:center;gap:9px;min-width:0}.preview-goal-title>svg{width:30px;height:30px;flex:none}
 .preview-payout>svg{width:36px;height:36px;flex:none}.preview-payout strong{display:flex;flex-direction:column;gap:2px;color:#c8edae;font:34px/1 var(--pixel)}.preview-payout strong>span{font-size:22px;line-height:1.1}
 html body .flight-preview button.preview-resource-help{appearance:none;display:flex;min-height:56px!important;padding:0!important;margin:0!important;border:0!important;border-image:none!important;border-radius:0!important;box-shadow:none!important;background:transparent!important;clip-path:none!important;text-align:left;cursor:help;width:max-content;max-width:100%;color:inherit;white-space:normal}
 .preview-resource-help strong>span{text-decoration:underline dotted #abc5a5;text-underline-offset:4px;text-decoration-thickness:1px}
@@ -46,7 +46,56 @@ html body :is(#app,dialog).flight-preview-sheet .flight-preview footer>button.pr
 .preview-art-night-atlas{--guide-paper:#192830;--guide-ink:#c4d0d7;--guide-reward:#355447;--guide-challenge:#3f4051}
 .preview-art-night-atlas .preview-place{flex-direction:row-reverse}.preview-art-night-atlas .preview-landmark{width:66px}.preview-art-night-atlas .preview-rewards.has-objective{grid-template-columns:minmax(0,1.2fr) minmax(0,.8fr);column-gap:28px}.preview-art-night-atlas .preview-optional{grid-column:1;grid-row:1}.preview-art-night-atlas .preview-regular{grid-column:2;grid-row:1;align-self:center}.preview-art-night-atlas .preview-regular::before{transform:scaleX(-1)}.preview-art-night-atlas .preview-optional::before{transform:none}
 @media(orientation:landscape) and (max-height:370px){
- .preview-reading{gap:5px;padding:11px 17px 5px}.preview-place{gap:10px}.preview-landmark{width:43px}.flight-preview .preview-kind,.flight-preview h3{font-size:15px!important}.flight-preview .preview-location h2{font-size:31px!important}.flight-preview p,.flight-preview .preview-clear-extra{font-size:18px!important;line-height:1.16!important}.preview-rewards{gap:14px;padding:2px 0}.preview-regular,.preview-optional{padding:7px 5px;gap:4px}.preview-goal-title{gap:6px}.preview-goal-title>svg{width:24px;height:24px}.preview-goal-title strong{font-size:23px}.preview-payout strong{font-size:29px}.preview-payout strong>span{font-size:18px}.preview-payout>svg{width:30px;height:30px}.preview-prize .preview-claim{display:inline;font-size:15px;margin-right:6px}.preview-feature,html body .flight-preview button.preview-glossary{font-size:16px}.preview-features{gap:0 14px}.preview-flight-terms{font-size:16px}.preview-chevron{width:42px;height:56px}
+ .preview-reading{gap:5px;padding:11px 17px 5px}.preview-place{gap:10px}.preview-landmark{width:43px}.flight-preview .preview-kind,.flight-preview h3{font-size:15px!important}.flight-preview .preview-location h2{font-size:31px!important}.flight-preview p,.flight-preview .preview-clear-extra{font-size:18px!important;line-height:1.16!important}.preview-rewards{gap:14px;padding:2px 0}.preview-regular,.preview-optional{padding:7px 5px;gap:4px}.preview-goal-title{gap:6px}.preview-goal-title>svg{width:24px;height:24px}.preview-payout strong{font-size:29px}.preview-payout strong>span{font-size:18px}.preview-payout>svg{width:30px;height:30px}.preview-prize .preview-claim{display:inline;font-size:15px;margin-right:6px}.preview-feature,html body .flight-preview button.preview-glossary{font-size:16px}.preview-features{gap:0 14px}.preview-flight-terms{font-size:16px}.preview-chevron{width:42px;height:56px}
  .preview-art-rootwood .preview-rewards.has-objective{grid-template-columns:minmax(0,.8fr) minmax(0,1.2fr);gap:16px;padding:2px 0}.preview-art-rootwood .preview-regular{display:flex;padding:7px 5px;gap:7px}.preview-art-rootwood .preview-payout strong{flex-direction:column;align-items:flex-start;gap:2px}.preview-art-rootwood .preview-payout strong>span{font-size:18px}.preview-art-rootwood .preview-optional{display:flex;padding:7px 5px;gap:4px}.preview-art-rootwood .preview-prize .preview-claim{display:inline}.preview-art-night-atlas .preview-landmark{width:48px}
 }
 @media(orientation:portrait){.flight-preview{grid-template-columns:minmax(0,1fr);grid-template-rows:minmax(0,1fr) 76px}.preview-reading{grid-column:1;padding:18px 20px 10px}.preview-rewards.has-objective,.preview-art-rootwood .preview-rewards.has-objective,.preview-art-night-atlas .preview-rewards.has-objective{grid-template-columns:minmax(0,1fr);gap:22px}.preview-art-night-atlas .preview-optional,.preview-art-night-atlas .preview-regular{grid-column:1;grid-row:auto}.preview-art-rootwood .preview-regular,.preview-art-rootwood .preview-optional{display:flex;align-items:flex-start}.preview-art-rootwood .preview-payout strong{flex-direction:column;align-items:flex-start}.preview-art-rootwood .preview-prize .preview-claim{display:block}.flight-preview footer{grid-row:2;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0}html body .game-sheet.flight-preview-sheet .flight-preview footer>button.preview-rail{grid-row:1;grid-column:1;padding:8px!important}html body .game-sheet.flight-preview-sheet .flight-preview footer>button.preview-advance{grid-column:2}.preview-chevron{width:30px;height:40px}}
+
+/* Approved Atlas spread, scoped to the actual route choice only. */
+html body dialog.flight-preview-sheet:has(>.preview-atlas)[open]{width:100vw!important;height:100dvh!important;box-shadow:none!important;background:#493c2b!important}
+html body .flight-preview.preview-atlas{grid-template-columns:clamp(60px,9vw,92px) minmax(0,1fr) clamp(60px,9vw,92px);--guide-paper:#d8c08c;--guide-ink:#382f20;isolation:isolate;background:#493c2b}
+.preview-atlas .preview-reading{isolation:isolate;align-items:center;padding:28px 36px 32px;gap:14px;overflow:hidden;overscroll-behavior:none;background:transparent url('assets/guide-atlas-spread.svg') center/100% 100% no-repeat;image-rendering:pixelated}
+.preview-atlas .preview-place{flex:0 0 74px;min-height:74px;justify-content:center;width:100%;gap:0}
+.preview-atlas .preview-location{display:block;flex:0 1 auto;padding:4px 14px;text-align:center}
+html body .preview-atlas .preview-location h2{color:#352d1e!important;text-shadow:none!important;text-align:center!important;font-size:36px!important;line-height:1.04!important;text-wrap:balance}
+.preview-atlas .preview-rewards{width:min(100%,660px);flex:1 1 auto;min-height:0;align-content:center;gap:36px;padding:0}
+.preview-atlas .preview-rewards.has-objective{grid-template-columns:repeat(2,minmax(0,1fr))}
+.preview-atlas :is(.preview-regular,.preview-optional){display:flex;align-self:stretch;align-items:center;justify-content:center;padding:6px 3px;gap:6px;min-width:0;text-align:center}
+.preview-atlas :is(.preview-regular,.preview-optional)::before{display:none}
+html body .preview-atlas :is(h3,p,.preview-clear-extra,.preview-prize,.preview-prize>span){color:#382f20!important;text-align:center!important;text-shadow:none!important}
+html body .preview-atlas h3{font-size:19px!important;line-height:1.15!important;color:#503b20!important;font-weight:600!important}
+html body .preview-atlas :is(p,.preview-clear-extra,.preview-prize,.preview-prize>span){font-size:22px!important;line-height:1.2!important}
+.preview-atlas .preview-goal-title{justify-content:center}
+.preview-atlas .preview-payout{justify-content:center;gap:10px}
+.preview-atlas .preview-payout>svg{width:42px;height:42px}
+.preview-atlas .preview-payout strong{align-items:center;font-size:38px;color:#304b26!important}
+.preview-atlas .preview-payout strong>span{font-size:22px;line-height:1.2}
+html body .preview-atlas button.preview-resource-help{justify-content:center;align-items:center;text-align:center;min-height:60px!important}
+html body .preview-atlas :is(.preview-resource-help strong>span,.card-term){text-decoration:none!important;background-image:linear-gradient(to right,currentColor 0 3px,transparent 3px 7px)!important;background-size:7px 3px!important;background-repeat:repeat-x!important;background-position:left bottom!important;padding-bottom:6px}
+html body .preview-atlas .card-term{color:#43582f!important}
+html body .game-sheet.flight-preview-sheet .preview-atlas footer>button.preview-rail{position:relative;isolation:isolate;overflow:hidden;background:#665137!important;color:#e8d3a0!important;padding:12px!important;box-shadow:inset -5px 0 #362e22,inset 5px 0 #8e7449!important}
+html body .game-sheet.flight-preview-sheet .preview-atlas footer>button.preview-rail::before{content:'';position:absolute;inset:0 15% 6%;background:#8b7146;box-shadow:inset 3px 0 #b39a66,inset -3px 0 #4c3e2a;clip-path:polygon(0 0,100% 0,100% 100%,50% 92%,0 100%)}
+html body .game-sheet.flight-preview-sheet .preview-atlas footer>button.preview-advance{color:#e6efb5!important}
+html body .game-sheet.flight-preview-sheet .preview-atlas footer>button.preview-advance::before{background:#46633c;box-shadow:inset 3px 0 #7e9759,inset -3px 0 #263b25}
+.preview-atlas .preview-chevron{visibility:hidden}
+.preview-atlas footer>button.preview-rail::after{content:'';position:absolute;z-index:2;width:32px;height:48px;background:currentColor;mask:url('assets/guide-atlas-chevron.svg') center/100% 100% no-repeat}
+.preview-atlas footer>button.preview-back::after{transform:scaleX(-1)}
+html body .game-sheet.flight-preview-sheet .preview-atlas footer>button.preview-unavailable{color:#a49d82!important;opacity:.55!important;cursor:not-allowed}
+html body .game-sheet.flight-preview-sheet .preview-atlas footer>button.preview-unavailable::before{background:#514c3b;box-shadow:inset 3px 0 #777154,inset -3px 0 #343526}
+html body .game-sheet.flight-preview-sheet .preview-atlas footer>button.preview-rail:hover:not(:disabled)::before{filter:brightness(1.15)}
+html body .preview-atlas p.preview-guardian-cue{flex:none;font-size:18px!important;line-height:1.15!important;margin:0!important;max-width:630px}
+@media(orientation:landscape) and (max-height:350px){
+ html body .flight-preview.preview-atlas{grid-template-columns:59px minmax(0,1fr) 59px}
+ .preview-atlas .preview-reading{padding:20px 25px 22px;gap:8px}
+ .preview-atlas .preview-place{flex-basis:54px;min-height:54px}
+ .preview-atlas .preview-location{padding:3px 5px}
+ html body .preview-atlas .preview-location h2{font-size:29px!important}
+ .preview-atlas .preview-rewards{gap:25px}
+ .preview-atlas :is(.preview-regular,.preview-optional){padding:2px 0;gap:4px}
+ html body .preview-atlas h3{font-size:18px!important}
+ html body .preview-atlas :is(p,.preview-clear-extra,.preview-prize,.preview-prize>span){font-size:18px!important;line-height:1.15!important}
+ .preview-atlas .preview-payout strong{font-size:28px}.preview-atlas .preview-payout strong>span{font-size:18px;line-height:1.15}
+ .preview-atlas .preview-payout>svg{width:28px;height:28px}
+ .preview-atlas .preview-goal-title>svg{width:22px;height:22px}
+ html body .preview-atlas p.preview-guardian-cue{font-size:15px!important}
+}

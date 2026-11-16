@@ -1,11 +1,12 @@
-import {drawAbsorbingSpark} from './tidal-light.mjs?v=guide-clarity-1';
-import {getPickupSpec, pickupShellRadius} from './pickups.mjs?v=guide-clarity-1';
-import {drawPickup} from './pickup-art.mjs?v=guide-clarity-1';
-import {drawShellArcs} from './shell-arcs.mjs?v=guide-clarity-1';
-import {DEFAULT_CAPTURE_STYLE} from './capture-styles.mjs?v=guide-clarity-1';
-import {COLLECTOR_RING} from './pickup-handling-cue.mjs?v=guide-clarity-1';
-import {collectorTowPoint} from './collector-tow-geometry.mjs?v=guide-clarity-1';
-import {lightVisibility,renderLightState} from './light-field.mjs?v=guide-clarity-1';
+import {drawCollectorVortex} from './collector-vortex.mjs?v=collector-cards-1';
+import {drawAbsorbingSpark} from './tidal-light.mjs?v=collector-cards-1';
+import {getPickupSpec, pickupShellRadius} from './pickups.mjs?v=collector-cards-1';
+import {drawPickup} from './pickup-art.mjs?v=collector-cards-1';
+import {drawShellArcs} from './shell-arcs.mjs?v=collector-cards-1';
+import {DEFAULT_CAPTURE_STYLE} from './capture-styles.mjs?v=collector-cards-1';
+import {COLLECTOR_RING} from './pickup-handling-cue.mjs?v=collector-cards-1';
+import {collectorTowPoint} from './collector-tow-geometry.mjs?v=collector-cards-1';
+import {lightVisibility,renderLightState} from './light-field.mjs?v=collector-cards-1';
 
 const TAU = Math.PI * 2;
 const clamp = value => Math.max(0, Math.min(1, value));
@@ -28,6 +29,7 @@ function towVisibility(state,engine,light,playerY){
 }
 
 export function drawCollectorGrip(ctx,state,scale=1,{engine,light,playerY}={}){
+  drawCollectorVortex(ctx,state,scale,Boolean(engine?.reducedMotion));
   const tether=state.tetherPose;
   if(tether){
     // One cord joins the Spark's own eyelet to the MAIN wisp. The Collector

@@ -1,5 +1,6 @@
-import {SKILL_CARDS, describeSkillCard} from './skill-cards.mjs?v=guide-clarity-1';
-import {CARD_ART_IDS} from './card-art.mjs?v=guide-clarity-1';
+import {SKILL_CARDS, describeSkillCard} from './skill-cards.mjs?v=collector-cards-1';
+import {resourceSymbol} from './game-symbols.mjs?v=collector-cards-1';
+import {CARD_ART_IDS} from './card-art.mjs?v=collector-cards-1';
 const esc = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const number = value => Number((Number(value) || 0).toFixed(3));
 const capped = trace => Number.isFinite(trace?.restoredSparks) && Math.abs(trace.restoredSparks - trace.sparks) > 1e-7;
@@ -57,7 +58,8 @@ export function createCardRowFeedback(root, {onInspect = () => {}} = {}) {
     svg.append(atlas);holder.append(svg);button.append(holder);return {holder,svg,id:null};
   });
   const replay=doc.createElement('span');replay.className='card-row-replay';replay.setAttribute('aria-hidden','true');replay.textContent='↶';replay.hidden=true;button.append(replay);
-  (root.querySelector('.canvas-wrap')||root).append(button);
+  const bonus=doc.createElement('span');bonus.className='card-row-bonus';button.append(bonus);
+  (root.querySelector('.flight-effect-space')||root.querySelector('.canvas-wrap')||root).append(button);
   let trace=null,sequence=-1,dialog=null;
   const close=()=>{dialog?.close();dialog?.remove();dialog=null;if(button.isConnected)button.focus({preventScroll:true});};
   button.addEventListener('click',()=>{
@@ -78,8 +80,11 @@ export function createCardRowFeedback(root, {onInspect = () => {}} = {}) {
       const requested=SKILL_CARDS[source.cardId]?.artFamily||source.cardId,id=CARD_ART_IDS.includes(requested)?requested:'body-spark';
       if(icon.id!==id){const index=CARD_ART_IDS.indexOf(id);icon.svg.setAttribute('viewBox',`${index%4*313} ${Math.floor(index/4)*313} 313 313`);icon.id=id;}
       icon.holder.dataset.traceSlot=String(source.slot);
+      if(!snapshot.reducedMotion&&typeof icon.holder.animate==='function')icon.holder.animate([{opacity:.35,filter:'brightness(.7)'},{opacity:1,filter:'brightness(1.8)',offset:.35},{opacity:1,filter:'brightness(1)'}],{duration:520,delay:i*90,easing:'ease-out'});
     }
     replay.hidden=!result.replayed;
+    bonus.innerHTML=[next.sparks>0?`+${number(Number.isFinite(next.restoredSparks)?next.restoredSparks:next.sparks)}${resourceSymbol('energy')}`:'',next.stored>0?`+${number(next.stored)}${resourceSymbol('packed')}`:'',next.recoverySeconds>0?`−${number(next.recoverySeconds)}s${resourceSymbol('clock')}`:'',next.futureCapacity>0?`+${number(next.futureCapacity)} max`:'' ].filter(Boolean).join(' ');
+    bonus.hidden=!bonus.innerHTML;
     button.setAttribute('aria-label',`Last card event: ${result.sources.map(source=>SKILL_CARDS[source.cardId]?.name||'Card').join(', ')}${result.replayed?', row replayed':''}. ${traceTotals(next)}${capped(next)?`, +${number(next.restoredSparks)} restored at the meter limit`:''}. Pause to inspect the exact receipt.`);
   }};
 }

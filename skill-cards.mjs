@@ -1,8 +1,8 @@
 /** Small, serializable skills-as-cards pilot. Printed Sparks use the existing .3 display scale. */
 export const CARD_SYSTEM = "cards-v1";
 export const CARD_UNIT = 10 / 3;
-import {CARD_CATALOG,CARD_DROP_WEIGHTS} from './card-catalog.mjs?v=guide-clarity-1';
-import {cardOfferMultiplier} from './card-offer-context.mjs?v=guide-clarity-1';
+import {CARD_CATALOG,CARD_DROP_WEIGHTS} from './card-catalog.mjs?v=collector-cards-1';
+import {cardOfferMultiplier} from './card-offer-context.mjs?v=collector-cards-1';
 const maximumGrowthAmount = Math.max(...Object.values(CARD_CATALOG)
   .filter(card => card.kind === 'camp-grow').map(card => card.amount + card.maxRank - 1));
 export const CARD_ECONOMY = Object.freeze({
@@ -269,7 +269,7 @@ export function describeSkillCard(card) {
       break;
     case "field":
       effect =
-        "Spend Collector’s ring. Swipe up to float for up to 0.8s, down to dive, or right for up to 48% more speed. Collector must be home with its ring at least ¼ full. Extra equipped or copied cards add half the base strength; one swipe spends the ring once.";
+        "Spend Collector charge. Swipe up to float, down to dive, or right to speed up. Collector must be beside you with at least ¼ charge. Each equipped or compatible copied source adds up to 0.8 seconds at full charge. Extra sources extend duration at the same force; one swipe spends charge once.";
       break;
     case "guide":
       effect =
@@ -317,7 +317,7 @@ export function describeSkillCard(card) {
       effect = "Each passage Spark overfill shortens Collector’s current recovery by 1 second, including recovery after a save. Requires missing recovery.";
       break;
     case "watchlight":
-      effect = "Once per flight, a full Collector ring catches a fatal impact while Collector is home. Bounce clear and emit one light wave, then recover for 4 normal recovery cycles. All copies share the save.";
+      effect = "Once per flight, Collector at full charge beside your wisp blocks a fatal impact. Bounce clear and send one wave, then recover for 4 normal cycles. All Watchlights share the save.";
       break;
     default:
       effect = "";
@@ -390,7 +390,7 @@ function effectiveCardSummary(kind, sources, cards) {
   if (kind === "field") {
     const multiplier = getFieldImpulseMultiplier(count);
     return { effectiveSources: count, effectiveMultiplier: multiplier,
-      effectiveSummary: `${count} effective ${count===1?'source':'sources'} · ${decimal(multiplier)}× duration: up, down or right lasts up to ${decimal(.8 * multiplier)}s with a full ring. Ring radius scales duration and native strength; right adds up to 48% speed. One swipe spends the ring once.` };
+      effectiveSummary: `${count} effective ${count===1?'source':'sources'} · ${decimal(multiplier)}× duration: up, down or right lasts up to ${decimal(.8 * multiplier)}s at full Collector charge. Collector charge scales duration and native strength; right adds up to 48% speed. One swipe spends the ring once.` };
   }
   const packingWeight=matching.reduce((sum,entry)=>sum+Math.max(1,Number(entry.def.packingWeight)||1),0);
   const summaries = {
@@ -458,7 +458,7 @@ export function getMountedCards(run) {
     }
     if (effective?.copiedBy) {
       const repeats=d.kind==='echo'?(d.repeatCount||1):1;
-      if (effective.def.kind === "field") printed.copyPreview = `Adds ${repeats} Field Impulse ${repeats===1?'source':'sources'} · ${decimal(.8*repeats)}s extra with a full ring · one ring spend`;
+      if (effective.def.kind === "field") printed.copyPreview = `Adds ${repeats} Field Impulse ${repeats===1?'source':'sources'} · ${decimal(.8*repeats)}s extra at full Collector charge · one ring spend`;
       if (effective.def.kind === "flash-handling") printed.copyPreview = `Adds +${cardAmount(effective.source)*repeats} missing Sparks per Flash · one pickup`;
       if (effective.def.kind === "camp-grow") printed.copyPreview = `Adds +${cardAmount(effective.source)*repeats} maximum Sparks per Grow · shared actions`;
       if (effective.def.kind === "packing") printed.copyPreview = `${d.kind === "echo" ? "Repeats" : "Borrows"} ${packingOutcome((effective.def.packingWeight||1)*repeats)}`;
