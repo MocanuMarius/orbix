@@ -1,8 +1,8 @@
-import { cardTermTextMarkup } from "./card-terms.mjs?v=early-play-1";
-import { getCardRuleBands } from "./card-rule-bands.mjs?v=early-play-1";
-import { getEquippedCardStatuses, cardStatusText } from "./card-status.mjs?v=early-play-1";
-import { cardArt } from "./card-art.mjs?v=early-play-1";
-import {deckRelicShelfMarkup,deckContextMarkup,deckLinkedCardFace,deckSwapComboMarkup,deckCardExplanationMarkup} from './deck-combos.mjs?v=early-play-1';
+import { cardTermTextMarkup } from "./card-terms.mjs?v=early-play-2";
+import { getCardRuleBands } from "./card-rule-bands.mjs?v=early-play-2";
+import { getEquippedCardStatuses, cardStatusText } from "./card-status.mjs?v=early-play-2";
+import { cardArt } from "./card-art.mjs?v=early-play-2";
+import {deckRelicShelfMarkup,deckContextMarkup,deckLinkedCardFace,deckSwapComboMarkup,deckCardExplanationMarkup} from './deck-combos.mjs?v=early-play-2';
 import {
   getMountedCards,
   getOwnedCards,
@@ -16,13 +16,13 @@ import {
   canUseCardCampServices,
   getSkillWallet,
   equipOwnedCard,
-} from "./model.mjs?v=early-play-1";
-import { resourceSymbol } from "./game-symbols.mjs?v=early-play-1";
-import { choiceScene } from "./choice-art.mjs?v=early-play-1";
-import { livesMarkup } from "./lives.mjs?v=early-play-1";
-import { getGlowCapacity, formatGlow } from "./vitality.mjs?v=early-play-1";
-import { mapStopIconMarkup } from "./map-guide.mjs?v=early-play-1";
-import {canDreamAt} from './dream.mjs?v=early-play-1';
+} from "./model.mjs?v=early-play-2";
+import { resourceSymbol } from "./game-symbols.mjs?v=early-play-2";
+import { choiceScene } from "./choice-art.mjs?v=early-play-2";
+import { livesMarkup } from "./lives.mjs?v=early-play-2";
+import { getGlowCapacity, formatGlow } from "./vitality.mjs?v=early-play-2";
+import { mapStopIconMarkup } from "./map-guide.mjs?v=early-play-2";
+import {canDreamAt} from './dream.mjs?v=early-play-2';
 import {
   createCardExecution,
   executeCardBodyPickup,
@@ -32,7 +32,7 @@ import {
   getCardChargeCapacity,
   isInventoryOnlyCard,
   SKILL_CARDS,
-} from "./skill-cards.mjs?v=early-play-1";
+} from "./skill-cards.mjs?v=early-play-2";
 
 const esc = (v) =>
   String(v ?? "").replace(
@@ -81,7 +81,7 @@ function flightPackingReceipt(run, reward) {
     ? ` · Tight Packing +${bonus} Stored Sparks`
     : "";
 }
-export { cardArt } from "./card-art.mjs?v=early-play-1";
+export { cardArt } from "./card-art.mjs?v=early-play-2";
 export function effectMarkup(text) {
   return esc(text).replace(/([+−]?\d+(?:\.\d+)?%?)/g, '<b class="card-number">$1</b>');
 }
