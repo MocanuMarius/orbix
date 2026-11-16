@@ -1,4 +1,4 @@
-import {CARD_SYSTEM,makeSkillCard,getCardModifiers,getMountedCards} from './skill-cards.mjs?v=collector-cards-1';
+import {CARD_SYSTEM,makeSkillCard,getCardModifiers,getMountedCards} from './skill-cards.mjs?v=starter-flow-1';
 
 export const PRACTICE_EDITION=3;
 export const isPlayablePractice=run=>run?.isTutorial===true&&run.tutorialEdition===PRACTICE_EDITION;

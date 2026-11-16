@@ -1,91 +1,91 @@
-import {isPlayablePractice,practiceCardFaces,loanPracticeCards,practicePurpose,nextPracticeLesson} from './practice-route.mjs?v=collector-cards-1';
-import {cardFace} from './card-ui.mjs?v=collector-cards-1';
-import {completedGameScore} from './game-score.mjs?v=collector-cards-1';
-import {gameResultMarkup} from './score-result.mjs?v=collector-cards-1';
-import {scorecardLink,scorecardPNG,downloadScorecard,shareScorecard} from './scorecard.mjs?v=collector-cards-1';
-import {createCardRowFeedback} from './card-row-feedback.mjs?v=collector-cards-1';
-import {createActivationFeedback} from './activation-feedback.mjs?v=collector-cards-1';
-import {createRhythmScore} from './rhythm-score.mjs?v=collector-cards-1';
-import {bindFlightPointerControls} from './flight-input.mjs?v=collector-cards-1';
-import {bindDeckDragging} from './deck-drag.mjs?v=collector-cards-1';
-import {setCollectorPreference} from './model.mjs?v=collector-cards-1';
-import {menuIcon as icon} from './menu-icons.mjs?v=collector-cards-1';
-import {installationState,installationInstructions,onInstallationChange,requestInstall,refreshBuild,registerUpdateClient,updateCheckpoint} from './pwa.mjs?v=collector-cards-1';
-import {prepareRouteOffer} from './route-offers.mjs?v=collector-cards-1';
-import {ROUTE_BONUSES} from './route-bonuses.mjs?v=collector-cards-1';
-import {updateBonusGauge,bonusProgressText} from './route-bonus-ui.mjs?v=collector-cards-1';
-import {forecastCheckpointMarkup} from './night-atlas.mjs?v=collector-cards-1';
-import {markFlightAttemptStarted,previewAtlasMap} from './model.mjs?v=collector-cards-1';
-import {getBossPreview} from './boss.mjs?v=collector-cards-1';
-import {flightPreviewMarkup} from './flight-preview.mjs?v=collector-cards-1';
-import {collectionMarkup,COLLECTION_PAGE_SIZE} from './collection-view.mjs?v=collector-cards-1';
-import {restBenefitsMarkup} from './rest-choice-view.mjs?v=collector-cards-1';
-import {treasureView} from './treasure-view.mjs?v=collector-cards-1';
-import {getFlightClearReward} from './checkpoint-rewards.mjs?v=collector-cards-1';
-import {artifactDescription} from './artifact-copy.mjs?v=collector-cards-1';
-import {showNightmare} from './nightmare.mjs?v=collector-cards-1';
-import {startResumeCountdown} from './resume-countdown.mjs?v=collector-cards-1';
-import {automaticTipsEnabled,nextOnboardingLesson,markOnboardingSeen,resetOnboarding,noteOnboardingPrompt,noteOnboardingProgress,onboardingFeatureAvailable,onboardingFlightPlan,lanternEntryLesson,giantBlackHoleEntryLesson} from './onboarding.mjs?v=collector-cards-1';
-import {flightRewardMarkup,rewardEarningsDetailMarkup} from './reward-screen.mjs?v=collector-cards-1';
-import {flightEntryMarkup,resumeGateMarkup,waitForFlightEntry,preloadFlightEntry} from './flight-entry.mjs?v=collector-cards-1';
-import {TUTORIAL_TOPICS,topicSteps} from './tutorial-curriculum.mjs?v=collector-cards-1';
-import {resourceCycleSteps} from './resource-cycle.mjs?v=collector-cards-1';
-import {tutorialVisualMarkup} from './tutorial-visuals.mjs?v=collector-cards-1';
-import {deathScreenMarkup} from './death-screen.mjs?v=collector-cards-1';
-import {createRestInspectorState,createTreasureInspectorState} from './rest-inspector.mjs?v=collector-cards-1';
-import {createLanternMapInspectorState} from './lantern-map-inspector.mjs?v=collector-cards-1';
-import {createBoundaryInspectorState,frameBoundaryInspection} from './boundary-run-inspector.mjs?v=collector-cards-1';
-import {LANTERN_THEME,LANTERN_CHAPTER} from './map-theme.mjs?v=collector-cards-1';
-import {choiceScene} from './choice-art.mjs?v=collector-cards-1';
-import {contextualFlightNotice} from './contextual-events.mjs?v=collector-cards-1';
-import {createMusic} from './music.mjs?v=collector-cards-1';
-import {resourceSymbol} from './game-symbols.mjs?v=collector-cards-1';
-import {nextArtifactNotice,artifactUseLesson} from './artifact-lessons.mjs?v=collector-cards-1';
-import {getArtifactInfo,CONSUMABLE_ARTIFACTS,EVOLVING_ARTIFACTS} from './artifact-info.mjs?v=collector-cards-1';
-import {checkpointTutorialLesson,observedFlightLesson,flightEffectLesson} from './tutorial-steps.mjs?v=collector-cards-1';
-import {ARTIFACT_ENGINE_RULES} from './artifact-effects.mjs?v=collector-cards-1';
-import {rewardThemeMarkup,encounterIntent,encounterIntentMarkup,artifactOfferMarkup,artifactDetailMarkup,artifactRarityLabel,artifactSummaryMarkup,artifactLifetimeMarkup} from './replay-ui.mjs?v=collector-cards-1';
-import {installLandscapeMode} from './landscape.mjs?v=collector-cards-1';
-import {drawLandscapeMap} from './landscape-map.mjs?v=collector-cards-1';
-import {attachDream,canDreamAt,dreamEye,prepareDreamHandoff,updateDreamIndicator,validateDreamPreset} from './dream.mjs?v=collector-cards-1';
-import {chooseFlightReward,getAvailableUpgrades,acknowledgeVictory,takeClearRewardReceipt} from './model.mjs?v=collector-cards-1';
-import {formatGlow,glowPercent,getGlowCapacity,glowText} from './vitality.mjs?v=collector-cards-1';
-import {glowGaugeMarkup,updateGlowGauge} from './glow-ui.mjs?v=collector-cards-1';
-import {edgingPulseMarkup,updateEdgingPulse} from './edging-ui.mjs?v=collector-cards-1';
-import {skillBookMarkup,skillBookChapter} from './skill-book.mjs?v=collector-cards-1';
-import {livesMarkup,lifeHeartSvg} from './lives.mjs?v=collector-cards-1';
-import {attachFlightPerformance,downloadPerformanceReport} from './flight-performance.mjs?v=collector-cards-1';
-import {getChallengePreview} from './flight-challenges.mjs?v=collector-cards-1';
-import {homeMenuMarkup,runProgressMarkup,companionLockIcon} from './run-menu.mjs?v=collector-cards-1';
-import {skillIcon,artifactIcon} from './upgrade-icons.mjs?v=collector-cards-1';
-import {TERRAINS,SKILLS,ARTIFACTS,newState,loadState,saveState,createRun,getStartingArtifact,getStartingGiftOffers,canChooseStartingGift,getStartingGiftPreview,chooseStartingGift,chooseStartingSkill,setTestOverride,grantTestCondensedGlow,getStartingCompanion,setStartingCompanion,startTutorial,leaveTutorial,shouldStartTutorial,getChoices,getRouteMapState,selectNode,beginFlightAttempt,retryFlight,finishFlight,getSupportChoices,resolveSupport,settleCheckpoint,bankRun,advanceMap,previewGlowReward,getSkillCost,getSkillPrice,getSkillWallet,getSkillLockReason,suspendRun,abandonRun,isSkillRevealed,canBuyCheckpointSkills,buyCheckpointSkill,getRunModifiers,canChangeCompanion,setCompanions,sellArtifact,canSellArtifact,getArtifactSalvageValue} from './model.mjs?v=collector-cards-1';
-import {WispFlight} from './flight.mjs?v=collector-cards-1';
-import {COMPANION_ABILITIES,getCompanionAbility,getCompanionUnlock,normalizeCompanionRole} from './companion-abilities.mjs?v=collector-cards-1';
-import {companionArtSvg} from './companion-art.mjs?v=collector-cards-1';
-import {boostControlMarkup,updateBoostControl} from './boost-control.mjs?v=collector-cards-1';
-import {campaignStrip,bossSigil,guardianRitualMarkup} from './campaign-ui.mjs?v=collector-cards-1';
-import {resolveLevelIdentity} from './level-catalog.mjs?v=collector-cards-1';
-import {levelMapGlyph,levelMapPreview} from './level-map-art.mjs?v=collector-cards-1';
-import {getAscentInfo} from './ascent.mjs?v=collector-cards-1';
-import {getRouteForecast} from './route-forecast.mjs?v=collector-cards-1';
-import {MAP_STOP_TYPES,getMapStopInfo,mapStopIconMarkup,getEventScenarios,mapBiomeGuideMarkup} from './map-guide.mjs?v=collector-cards-1';
-import {formatFlightDuration} from './level-length.mjs?v=collector-cards-1';
-import {condensedIconMarkup} from './afterglow-ui.mjs?v=collector-cards-1';
-import {pickupGuideMarkup,pickupLesson} from './pickup-guide.mjs?v=collector-cards-1';
-import {pickupArtSvg} from './pickup-art.mjs?v=collector-cards-1';
-import {createTutorialCoach} from './tutorial-coach.mjs?v=collector-cards-1';
-import {getTutorialWorldFocus,demonstratedTutorialTopics} from './tutorial.mjs?v=collector-cards-1';
-import {isInventoryOnlyCard} from './skill-cards.mjs?v=collector-cards-1';
-import {isCardRun,getCardCampPreview,getMountedCards,getOwnedCards,getCardReward,getCardDraft,chooseCardDraft,equipOwnedCard,unequipMountedCard,getCardMeltPreview,meltOwnedCards,getCardImprovePreview,improveOwnedCard,getCardForgePreview,forgeOwnedCard,canManageCards,syncCardFlightForEdit,applyCardFlightEdits,closeCardFlightEdit,commitCardCharges} from './model.mjs?v=collector-cards-1';
-import {CARD_GUIDE_TOPICS} from './card-guide.mjs?v=collector-cards-1';
-import {installComboLessons} from './combo-lesson.mjs?v=collector-cards-1';
-import {starterCardsMarkup,starterGiftConfirmationMarkup,cardDraftMarkup,cardRewardMarkup,cardSwapMarkup,cardsBenchMarkup,cardMeltSelectionMarkup,cardExchangeMarkup,cardRestMarkup,cardGrowConfirmationMarkup,cardForgeMarkup,cardVictoryRecap,cardArt,cardName} from './card-ui.mjs?v=collector-cards-1';
-import {getCardRefillPreview,refillOwnedCard,canUseCardCampServices} from './model.mjs?v=collector-cards-1';
-import {cardWorkshopMarkup,cardRefillMarkup} from './card-workshop.mjs?v=collector-cards-1';
-import {createCardInspectorState,prepareCardInspectorReward} from './card-inspector.mjs?v=collector-cards-1';
-import {installCardTermHelp} from './card-terms.mjs?v=collector-cards-1';
-import {resolveCardHelpContext} from './card-row-help.mjs?v=collector-cards-1';
-import {showTryCardRow} from './card-row-try.mjs?v=collector-cards-1';
+import {isPlayablePractice,practiceCardFaces,loanPracticeCards,practicePurpose,nextPracticeLesson} from './practice-route.mjs?v=starter-flow-1';
+import {cardFace} from './card-ui.mjs?v=starter-flow-1';
+import {completedGameScore} from './game-score.mjs?v=starter-flow-1';
+import {gameResultMarkup} from './score-result.mjs?v=starter-flow-1';
+import {scorecardLink,scorecardPNG,downloadScorecard,shareScorecard} from './scorecard.mjs?v=starter-flow-1';
+import {createCardRowFeedback} from './card-row-feedback.mjs?v=starter-flow-1';
+import {createActivationFeedback} from './activation-feedback.mjs?v=starter-flow-1';
+import {createRhythmScore} from './rhythm-score.mjs?v=starter-flow-1';
+import {bindFlightPointerControls} from './flight-input.mjs?v=starter-flow-1';
+import {bindDeckDragging} from './deck-drag.mjs?v=starter-flow-1';
+import {setCollectorPreference} from './model.mjs?v=starter-flow-1';
+import {menuIcon as icon} from './menu-icons.mjs?v=starter-flow-1';
+import {installationState,installationInstructions,onInstallationChange,requestInstall,refreshBuild,registerUpdateClient,updateCheckpoint} from './pwa.mjs?v=starter-flow-1';
+import {prepareRouteOffer} from './route-offers.mjs?v=starter-flow-1';
+import {ROUTE_BONUSES} from './route-bonuses.mjs?v=starter-flow-1';
+import {updateBonusGauge,bonusProgressText} from './route-bonus-ui.mjs?v=starter-flow-1';
+import {forecastCheckpointMarkup} from './night-atlas.mjs?v=starter-flow-1';
+import {markFlightAttemptStarted,previewAtlasMap,CAMPAIGN_MAP_NAMES} from './model.mjs?v=starter-flow-1';
+import {getBossPreview} from './boss.mjs?v=starter-flow-1';
+import {flightPreviewMarkup} from './flight-preview.mjs?v=starter-flow-1';
+import {collectionMarkup,COLLECTION_PAGE_SIZE} from './collection-view.mjs?v=starter-flow-1';
+import {restBenefitsMarkup} from './rest-choice-view.mjs?v=starter-flow-1';
+import {treasureView} from './treasure-view.mjs?v=starter-flow-1';
+import {getFlightClearReward} from './checkpoint-rewards.mjs?v=starter-flow-1';
+import {artifactDescription} from './artifact-copy.mjs?v=starter-flow-1';
+import {showNightmare} from './nightmare.mjs?v=starter-flow-1';
+import {startResumeCountdown} from './resume-countdown.mjs?v=starter-flow-1';
+import {automaticTipsEnabled,nextOnboardingLesson,markOnboardingSeen,resetOnboarding,noteOnboardingPrompt,noteOnboardingProgress,onboardingFeatureAvailable,onboardingFlightPlan,lanternEntryLesson,giantBlackHoleEntryLesson} from './onboarding.mjs?v=starter-flow-1';
+import {flightRewardMarkup,rewardEarningsDetailMarkup} from './reward-screen.mjs?v=starter-flow-1';
+import {flightEntryMarkup,resumeGateMarkup,waitForFlightEntry,preloadFlightEntry} from './flight-entry.mjs?v=starter-flow-1';
+import {TUTORIAL_TOPICS,topicSteps} from './tutorial-curriculum.mjs?v=starter-flow-1';
+import {resourceCycleSteps} from './resource-cycle.mjs?v=starter-flow-1';
+import {tutorialVisualMarkup} from './tutorial-visuals.mjs?v=starter-flow-1';
+import {deathScreenMarkup} from './death-screen.mjs?v=starter-flow-1';
+import {createRestInspectorState,createTreasureInspectorState} from './rest-inspector.mjs?v=starter-flow-1';
+import {createLanternMapInspectorState} from './lantern-map-inspector.mjs?v=starter-flow-1';
+import {createBoundaryInspectorState,frameBoundaryInspection} from './boundary-run-inspector.mjs?v=starter-flow-1';
+import {LANTERN_THEME,LANTERN_CHAPTER} from './map-theme.mjs?v=starter-flow-1';
+import {choiceScene} from './choice-art.mjs?v=starter-flow-1';
+import {contextualFlightNotice} from './contextual-events.mjs?v=starter-flow-1';
+import {createMusic} from './music.mjs?v=starter-flow-1';
+import {resourceSymbol} from './game-symbols.mjs?v=starter-flow-1';
+import {nextArtifactNotice,artifactUseLesson} from './artifact-lessons.mjs?v=starter-flow-1';
+import {getArtifactInfo,CONSUMABLE_ARTIFACTS,EVOLVING_ARTIFACTS} from './artifact-info.mjs?v=starter-flow-1';
+import {checkpointTutorialLesson,observedFlightLesson,flightEffectLesson} from './tutorial-steps.mjs?v=starter-flow-1';
+import {ARTIFACT_ENGINE_RULES} from './artifact-effects.mjs?v=starter-flow-1';
+import {rewardThemeMarkup,encounterIntent,encounterIntentMarkup,artifactOfferMarkup,artifactDetailMarkup,artifactRarityLabel,artifactSummaryMarkup,artifactLifetimeMarkup} from './replay-ui.mjs?v=starter-flow-1';
+import {installLandscapeMode} from './landscape.mjs?v=starter-flow-1';
+import {drawLandscapeMap} from './landscape-map.mjs?v=starter-flow-1';
+import {attachDream,canDreamAt,dreamEye,prepareDreamHandoff,updateDreamIndicator,validateDreamPreset} from './dream.mjs?v=starter-flow-1';
+import {chooseFlightReward,getAvailableUpgrades,acknowledgeVictory,takeClearRewardReceipt} from './model.mjs?v=starter-flow-1';
+import {formatGlow,glowPercent,getGlowCapacity,glowText} from './vitality.mjs?v=starter-flow-1';
+import {glowGaugeMarkup,updateGlowGauge} from './glow-ui.mjs?v=starter-flow-1';
+import {edgingPulseMarkup,updateEdgingPulse} from './edging-ui.mjs?v=starter-flow-1';
+import {skillBookMarkup,skillBookChapter} from './skill-book.mjs?v=starter-flow-1';
+import {livesMarkup,lifeHeartSvg} from './lives.mjs?v=starter-flow-1';
+import {attachFlightPerformance,downloadPerformanceReport} from './flight-performance.mjs?v=starter-flow-1';
+import {getChallengePreview} from './flight-challenges.mjs?v=starter-flow-1';
+import {homeMenuMarkup,runProgressMarkup,companionLockIcon} from './run-menu.mjs?v=starter-flow-1';
+import {skillIcon,artifactIcon} from './upgrade-icons.mjs?v=starter-flow-1';
+import {TERRAINS,SKILLS,ARTIFACTS,newState,loadState,saveState,createRun,getStartingArtifact,getStartingGiftOffers,canChooseStartingGift,getStartingGiftPreview,chooseStartingGift,chooseStartingSkill,setTestOverride,grantTestCondensedGlow,getStartingCompanion,setStartingCompanion,startTutorial,leaveTutorial,shouldStartTutorial,getChoices,getRouteMapState,selectNode,beginFlightAttempt,retryFlight,finishFlight,getSupportChoices,resolveSupport,settleCheckpoint,bankRun,advanceMap,previewGlowReward,getSkillCost,getSkillPrice,getSkillWallet,getSkillLockReason,suspendRun,abandonRun,isSkillRevealed,canBuyCheckpointSkills,buyCheckpointSkill,getRunModifiers,canChangeCompanion,setCompanions,sellArtifact,canSellArtifact,getArtifactSalvageValue} from './model.mjs?v=starter-flow-1';
+import {WispFlight} from './flight.mjs?v=starter-flow-1';
+import {COMPANION_ABILITIES,getCompanionAbility,getCompanionUnlock,normalizeCompanionRole} from './companion-abilities.mjs?v=starter-flow-1';
+import {companionArtSvg} from './companion-art.mjs?v=starter-flow-1';
+import {boostControlMarkup,updateBoostControl} from './boost-control.mjs?v=starter-flow-1';
+import {campaignStrip,bossSigil,guardianRitualMarkup} from './campaign-ui.mjs?v=starter-flow-1';
+import {resolveLevelIdentity} from './level-catalog.mjs?v=starter-flow-1';
+import {levelMapGlyph,levelMapPreview} from './level-map-art.mjs?v=starter-flow-1';
+import {getAscentInfo} from './ascent.mjs?v=starter-flow-1';
+import {getRouteForecast} from './route-forecast.mjs?v=starter-flow-1';
+import {MAP_STOP_TYPES,getMapStopInfo,mapStopIconMarkup,getEventScenarios,mapBiomeGuideMarkup} from './map-guide.mjs?v=starter-flow-1';
+import {formatFlightDuration} from './level-length.mjs?v=starter-flow-1';
+import {condensedIconMarkup} from './afterglow-ui.mjs?v=starter-flow-1';
+import {pickupGuideMarkup,pickupLesson} from './pickup-guide.mjs?v=starter-flow-1';
+import {pickupArtSvg} from './pickup-art.mjs?v=starter-flow-1';
+import {createTutorialCoach} from './tutorial-coach.mjs?v=starter-flow-1';
+import {getTutorialWorldFocus,demonstratedTutorialTopics} from './tutorial.mjs?v=starter-flow-1';
+import {isInventoryOnlyCard} from './skill-cards.mjs?v=starter-flow-1';
+import {isCardRun,getCardCampPreview,getMountedCards,getOwnedCards,getCardReward,getCardDraft,chooseCardDraft,equipOwnedCard,unequipMountedCard,getCardMeltPreview,meltOwnedCards,getCardImprovePreview,improveOwnedCard,getCardForgePreview,forgeOwnedCard,canManageCards,syncCardFlightForEdit,applyCardFlightEdits,closeCardFlightEdit,commitCardCharges} from './model.mjs?v=starter-flow-1';
+import {CARD_GUIDE_TOPICS} from './card-guide.mjs?v=starter-flow-1';
+import {installComboLessons} from './combo-lesson.mjs?v=starter-flow-1';
+import {starterCardsMarkup,starterGiftConfirmationMarkup,cardDraftMarkup,cardRewardMarkup,cardSwapMarkup,cardsBenchMarkup,cardMeltSelectionMarkup,cardExchangeMarkup,cardRestMarkup,cardGrowConfirmationMarkup,cardForgeMarkup,cardVictoryRecap,cardArt,cardName} from './card-ui.mjs?v=starter-flow-1';
+import {getCardRefillPreview,refillOwnedCard,canUseCardCampServices} from './model.mjs?v=starter-flow-1';
+import {cardWorkshopMarkup,cardRefillMarkup} from './card-workshop.mjs?v=starter-flow-1';
+import {createCardInspectorState,prepareCardInspectorReward} from './card-inspector.mjs?v=starter-flow-1';
+import {installCardTermHelp} from './card-terms.mjs?v=starter-flow-1';
+import {resolveCardHelpContext} from './card-row-help.mjs?v=starter-flow-1';
+import {showTryCardRow} from './card-row-try.mjs?v=starter-flow-1';
 installCardTermHelp(document,{
  resolveCardContext:button=>resolveCardHelpContext(button,state.run,{example:cardInspector,snapshot:engine?lastSnapshot:null}),
  resolveProximityContext:button=>({run:state.run,instanceId:button.closest('[data-card-instance]')?.dataset.cardInstance,example:cardInspector})
@@ -112,6 +112,8 @@ const performanceEnabled=new URLSearchParams(location.search).get('perf')==='1';
 let muted=false;try{muted=localStorage.getItem('emberwing-muted')==='true'}catch{}
 const music=createMusic();
 function switchRestInspector(enabled){if(engine){pauseFlight();suspendRun(state);}persist();const url=new URL(location.href);url.pathname=url.pathname.replace(/rest-scene\.html$/,'index.html');url.searchParams.delete('scenario');if(enabled)url.searchParams.set('mock','rest');else url.searchParams.delete('mock');if(window.parent!==window)window.parent.postMessage({type:'wisp-mock-mode',enabled},location.origin);location.assign(url.href);}
+// Developer scene switch: shown in TEST or any mock= scene, so the rest preview can always be left.
+function restPreviewAvailable(){return restInspector||!!mockScene||!!state.settings?.testOverride}
 function mockControl(){return `<button class="mock-toggle" data-action="mock-toggle" aria-pressed="${restInspector}">${mapStopIconMarkup('rest')}REST PREVIEW · ${restInspector?'ON':'OFF'}</button>`}
 function audioControls(){return `<div class="audio-controls"><button class="secondary" data-action="music" aria-pressed="${music.enabled}">${resourceSymbol('music')}MUSIC ${music.enabled?'ON':'OFF'}</button><button class="secondary" data-action="mute" aria-pressed="${!muted}">${icon(muted?'mute':'sound')}FX ${muted?'OFF':'ON'}</button></div>`}
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -183,7 +185,9 @@ function showMapEarnings(){
 }
 // Preview a real expedition without replacing a saved run. Back/reload retains the offered roll.
 const starterSeedKey=cardPilot?'orbix-next-cards-expedition':'orbix-next-expedition';
-let pendingStart=null,pendingGiftSelection=null;
+// A practice skip or completion covers the pending New Game for this session.
+let pendingStart=null,pendingGiftSelection=null,practiceSkippedForNewGame=false;
+const starterNoun=()=>cardPilot?'card':'gift';
 function draftRun(){
  const role=getStartingCompanion(state),test=state.settings.testOverride,previewKey=[role,selectedDifficulty,test].join(':');
  if(pendingStart?.previewKey===previewKey)return pendingStart.run;
@@ -229,6 +233,7 @@ function takeStartingGift(id,existing,token){
  const run=existing?state.run:pendingStart?.run;if(!run||!chooseStartingGift({run},id,token))return false;
  closeSheet();
  if(!existing){
+  practiceSkippedForNewGame=false;
   destroyFlight();
   if(state.run?.isTutorial)leaveTutorial(state);
   if(state.run&&(state.run.phase!=='ended'||state.run.victoryPending))abandonRun(state);
@@ -245,13 +250,27 @@ function takeStartingGift(id,existing,token){
 function beginNewGame(){
  closeSheet();
  if(state.run?.isTutorial)exitTutorial();
- if(shouldStartTutorial(state)&&!state.settings.testOverride){enterTutorial({forNewGame:true,difficulty:selectedDifficulty});return;}
+ if(practiceFirst()){enterTutorial({forNewGame:true,difficulty:selectedDifficulty});return;}
  showStartingGifts();
 }
+function practiceFirst(){return shouldStartTutorial(state)&&!state.settings.testOverride&&!practiceSkippedForNewGame;}
 function requestNewGame(){
  if(state.run?.phase==='ended'&&(state.run.victoryPending||getCardDraft(state.run)||state.run.cardReward?.draftId&&!state.run.cardReward.uiAcknowledged))return goToRun();
+ // Practice is never the run a new game replaces.
+ if(state.run?.isTutorial&&state.run.phase!=='ended')return showPracticeNewGame();
  if(!state.run||state.run.phase==='ended')return beginNewGame();
- pauseFlight();openSheet(`<h2>Start a new game?</h2><p class="run-pause-note">Choosing a new gift will replace this run. Its skills, artifacts and Stored Sparks reset. Permanent unlocks stay.</p><div class="run-pause-actions"><button class="secondary" data-action="close-sheet">Keep current run</button><button class="primary" data-action="confirm-new-game">Choose a new gift</button></div>`,'run-confirm-sheet');
+ const r=state.run;
+ pauseFlight();openSheet(`<h2>Start a new game?</h2><p class="run-pause-note">A new game will replace your Ascension ${r.difficulty} run (map ${Math.min(3,(Number(r.mapIndex)||0)+1)} of 3). Its skills, artifacts and Stored Sparks reset. Permanent unlocks stay.</p><div class="run-pause-actions"><button class="secondary" data-action="close-sheet">Keep current run</button><button class="primary" data-action="confirm-new-game">${practiceFirst()?'Start with First Light':`Choose a new ${starterNoun()}`}</button></div>`,'run-confirm-sheet');
+}
+function showPracticeNewGame(){
+ pauseFlight();const real=state.suspendedRun&&state.suspendedRun.phase!=='ended'&&!state.suspendedRun.banked;
+ openSheet(`<h2>You're in First Light</h2><p class="run-pause-note">This is practice with temporary loans. ${real?'Your saved run stays safe until you confirm a new game. ':''}Continue practising, or skip to your starting ${starterNoun()}.</p><div class="run-pause-actions"><button class="secondary" data-action="continue-run">Continue practice</button><button class="primary" data-action="practice-skip-to-start">Skip to starting ${starterNoun()}</button></div>`,'run-confirm-sheet');
+}
+function skipPracticeToStart(){
+ const continuation=state.run?.tutorialContinuation;
+ practiceSkippedForNewGame=true;exitTutorial();
+ if(continuation)selectedDifficulty=continuation.difficulty;
+ requestNewGame();
 }
 function exitToMenu(){closeSheet();if(state.run?.isTutorial)return exitTutorial();suspendRun(state);destroyFlight();persist();render('home')}
 function requestAbandon(){if(state.run?.isTutorial)return exitTutorial();pauseFlight();openSheet(`<h2>Abandon this run?</h2><p class="run-pause-note">Your run skills and unspent Stored Sparks are lost. Permanent unlocks stay; artifact effects reset. To continue later, use Exit to Menu instead.</p><div class="run-pause-actions"><button class="secondary" data-action="close-sheet">Keep playing</button><button class="primary" data-action="confirm-abandon">Abandon run</button></div>`,'run-confirm-sheet')}
@@ -261,8 +280,9 @@ function enterTutorial(options={}){closeSheet();if(engine){pauseFlight();suspend
 function exitTutorial({continueNewGame=false,remember=false}={}){
  const continuation=state.run?.tutorialContinuation;
  if(!leaveTutorial(state,{remember}))return;
+ if(continueNewGame&&continuation){practiceSkippedForNewGame=true;selectedDifficulty=continuation.difficulty;}
  closeSheet();destroyFlight();persist();render('home');
- if(continueNewGame&&continuation){selectedDifficulty=continuation.difficulty;showStartingGifts();}
+ if(continueNewGame&&continuation)showStartingGifts();
 }
 function skipPractice(){
  pauseFlight();
@@ -651,7 +671,7 @@ function teachEntryHazard(){
 }
 function wakeDream(){if(engine?.dream?.phase==='awakening')beginResumeCountdown()}
 
-function renderHome(){return homeMenuMarkup({profile:state.profile,run:state.run,selectedDifficulty,testOverride:state.settings.testOverride,gameMode:cardPilot?'cards':'standard'})}
+function renderHome(){return homeMenuMarkup({profile:state.profile,run:state.run,selectedDifficulty,testOverride:state.settings.testOverride,gameMode:cardPilot?'cards':'standard',practiceFirst:practiceFirst()})}
 function forecastMarkup(n){if(state.run?.isTutorial||!featureAvailable('artifacts'))return '';const f=getRouteForecast(state.run,n)||{};return `<div class="route-consequences ${!f.restReachable?'rest-scarce':''}"><div><b>${mapStopIconMarkup('rest')}${f.nextRestDistance===0?'REST HERE':f.restReachable?`${f.restGuaranteed?'REST IN':'REST OPTION'} ${f.nextRestDistance} ${f.nextRestDistance===1?'STOP':'STOPS'}`:'NO REST AHEAD'}</b><span>${n.type==='support'?(n.kind==='camp'?'RECOVER OR GROW':'A TRADE'):esc(encounterIntent(n)?.name||n.fuelPreview||'CONSERVE SPARKS')}</span></div>${rewardThemeMarkup(n)}<div class="forecast-path">${(f.nextStops||[]).slice(0,3).map(stop=>`<span title="${esc(stop.name)}">${mapStopIconMarkup(stop)}<small>${esc(getMapStopInfo(stop).label)}</small></span>`).join('<i>OR</i>')}</div></div>`}
 function renderMap(){const r=state.run;return `<section class="game-map-screen map-v2 minimal-map ${r.isTutorial?'prologue-map':''}">${tutorialCheckpoint()}${canChooseStartingGift(r)?`<button class="starter-companion" data-action="starter-gifts">Choose your starting gift</button>`:''}<button class="checkpoint-skill-button" data-action="skills">${icon('route')} ${isPlayablePractice(r)?'LOANED CARDS':isCardRun(r)?'DECK':'SKILL TREE'}</button><div class="map-atlas-frame"><div class="game-map-viewport" id="map-viewport"><svg id="journey-map" class="game-world-map" viewBox="0 0 390 ${mapHeight(r)}"></svg></div></div><div class="map-build-dock">${r.restReady?`<div class="rest-services"><button data-action="skills">${icon('route')}${isPlayablePractice(r)?'LOANED CARDS':isCardRun(r)?'DECK':'SKILL TREE'}</button>${artifactsRevealed()?`<button data-action="artifacts">${icon('star')}ARTIFACTS</button>`:''}</div>`:''}${artifactCollectionDock()}</div></section>`}
 function plannedChallengesMarkup(n){if(state.run?.isTutorial)return '';if(n.encounterFamily||n.boss)return encounterIntentMarkup(n,{optionalChallenge:true});const preview=getChallengePreview({...n,stage:n.row});return `<div class="flight-challenge-preview" aria-label="Planned terrain challenges">${preview.patterns.map(pattern=>`<span>${icon(pattern.type==='fuel-pocket'?'flame':pattern.type==='draft-crossing'?'wing':'wisp')}${esc(pattern.name)}</span>`).join('')}${n.challengeId?`<small class="optional-challenge">Optional: ${esc(n.challenge||'Clear the challenge')} · Better relic odds</small>`:''}</div>`}
@@ -695,7 +715,7 @@ function renderRestPrep(){const r=state.run,n=r.map.flat().find(x=>x.id===r.last
 
 function renderRetry(){const r=state.run;if(r.isTutorial)return `<section class="center-view compact-retry prologue-retry">${tutorialCheckpoint()}<h1>Try the passage again</h1><p>${esc(r.current?.name)}</p><p>Entrance Sparks, Stored Sparks and your build are restored. Practice retries use no hearts.</p><button class="primary" data-action="retry">Try again ${icon('arrow')}</button><button class="secondary" data-action="skip-practice">Skip practice</button></section>`;return `<section class="center-view compact-retry"><h1>Light lost</h1><div class="retry-level-label">${esc(r.current?.name)}</div><div class="retry-lives">${livesMarkup(r)}</div><button class="primary" data-action="retry">Retry this passage ${icon('arrow')}</button><button class="secondary" data-action="abandon-run">Abandon run</button></section>`}
 function renderMapClear(){const r=state.run,nextMap=previewAtlasMap(r);if(nextMap)return forecastCheckpointMarkup(nextMap);return `<section class="center-view run-summary map-clear-screen"><h1>Map ${r.mapIndex+1} cleared</h1><p>${esc(r.mapName)}</p><div class="map-clear-carry">${livesMarkup(r)}<span class="glow-label">${resourceSymbol('energy')}${formatGlow(r.flame,getGlowCapacity(r),0)} SPARKS</span></div>${fleetArt()}${artifactCollectionDock()}<p class="map-clear-note">${r.mapIndex===0?'Map 2 guardians chain gates in their final phase.':'Map 3 guardians chain gates in their last two phases.'} Your build carries over.</p><button class="primary" data-action="next-map">MAP ${r.mapIndex+2} ${icon('arrow')}</button></section>`}
-function renderResult(){if(!state.run?.isTutorial){const score=completedGameScore(state.run);if(score)return gameResultMarkup(state.run,score,{recap:isCardRun(state.run)&&state.run.success?cardVictoryRecap(state.run):''});if(state.run?.scoreAbandoned)return '<section class="center-view run-summary"><h1>Game abandoned</h1><p>Abandoned Games do not enter personal bests.</p><button class="primary" data-action="exit-menu">Main menu</button></section>';}if(isCardRun(state.run)&&state.run.success)return cardVictoryRecap(state.run);if(state.run?.success&&!state.run.isTutorial)return `<section class="center-view run-summary won-screen"><h1>You won</h1><p>Ascension ${state.run.difficulty} conquered</p><button class="secondary" data-action="artifacts">Relic almanac</button><button class="primary" data-action="exit-menu">Main menu</button></section>`;const r=state.run,drop=r.lastFlight?.artifactDrop?.collectionComplete?null:r.lastFlight?.artifactDrop;return `<section class="center-view run-summary"><h1>${r.isTutorial?(r.success?'Practice complete':'Practice ended'):r.success?'Run complete':'Run ended'}</h1><div class="result-stats"><div><strong>${Math.floor(r.securedCondensedGlow||0)}</strong><span>STORED SPARKS EARNED</span></div><div><strong>${r.stats?.flights||0}</strong><span>FLIGHTS</span></div></div>${drop?`<div class="summary-prizes">${drop?`<div class="summary-prize">${drop.duplicate?condensedIconMarkup():artifactArt(typeof drop==='string'?drop:drop.id)}<div><small>${r.testMode?'TEST REWARD':'BOSS REWARD'}</small><strong>${drop.duplicate?(drop.convertedGlow?`+${formatGlow(drop.convertedGlow)} Sparks`:'Collection complete'):esc(artifactById(typeof drop==='string'?drop:drop.id)?.name||'Artifact recovered')}</strong></div></div>`:''}</div>`:''}${r.isTutorial?'<div class="two-actions"><button class="secondary" data-action="restart-practice">Practice again</button><button class="primary" data-action="leave-practice">Back to your game</button></div>':`<p class="run-pause-note">Run skills and Stored Sparks reset. Permanent unlocks remain.</p><div class="two-actions"><button class="secondary" data-action="exit-menu">Main menu</button><button class="primary" data-action="new-game">New Game ${icon('arrow')}</button></div>`}</section>`}
+function renderResult(){if(!state.run?.isTutorial){const score=completedGameScore(state.run);if(score)return gameResultMarkup(state.run,score,{recap:isCardRun(state.run)&&state.run.success?cardVictoryRecap(state.run):''});if(state.run?.scoreAbandoned)return '<section class="center-view run-summary"><h1>Game abandoned</h1><p>Abandoned Games do not enter personal bests.</p><button class="primary" data-action="exit-menu">Main menu</button></section>';}if(isCardRun(state.run)&&state.run.success)return cardVictoryRecap(state.run);if(state.run?.success&&!state.run.isTutorial)return `<section class="center-view run-summary won-screen"><h1>You won</h1><p>Ascension ${state.run.difficulty} conquered</p><button class="secondary" data-action="artifacts">Relic almanac</button><button class="primary" data-action="exit-menu">Main menu</button></section>`;const r=state.run,drop=r.lastFlight?.artifactDrop?.collectionComplete?null:r.lastFlight?.artifactDrop;return `<section class="center-view run-summary"><h1>${r.isTutorial?(r.success?'Practice complete':'Practice ended'):r.success?'Run complete':'Run ended'}</h1><div class="result-stats"><div><strong>${Math.floor(r.securedCondensedGlow||0)}</strong><span>STORED SPARKS EARNED</span></div><div><strong>${r.stats?.flights||0}</strong><span>FLIGHTS</span></div></div>${drop?`<div class="summary-prizes">${drop?`<div class="summary-prize">${drop.duplicate?condensedIconMarkup():artifactArt(typeof drop==='string'?drop:drop.id)}<div><small>${r.testMode?'TEST REWARD':'BOSS REWARD'}</small><strong>${drop.duplicate?(drop.convertedGlow?`+${formatGlow(drop.convertedGlow)} Sparks`:'Collection complete'):esc(artifactById(typeof drop==='string'?drop:drop.id)?.name||'Artifact recovered')}</strong></div></div>`:''}</div>`:''}${r.isTutorial?(r.success&&r.tutorialContinuation?`<p class="run-pause-note">Next: choose your starting ${starterNoun()} for the real run.</p><div class="two-actions"><button class="secondary" data-action="restart-practice">Practice again</button><button class="primary" data-action="leave-practice">Choose your starting ${starterNoun()} ${icon('arrow')}</button></div>`:'<div class="two-actions"><button class="secondary" data-action="restart-practice">Practice again</button><button class="primary" data-action="leave-practice">Back to your game</button></div>'):`<p class="run-pause-note">Run skills and Stored Sparks reset. Permanent unlocks remain.</p><div class="two-actions"><button class="secondary" data-action="exit-menu">Main menu</button><button class="primary" data-action="new-game">New Game ${icon('arrow')}</button></div>`}</section>`}
 
 function closeSheet(){deckDragging.cancel();const el=document.querySelector('dialog.game-sheet');if(el){el.close();el.remove()}}
 function openSheet(content,cls=''){closeSheet();const el=document.createElement('dialog');el.className=`power-sheet game-sheet ${cls}`;el.innerHTML=content;if(el.classList.contains('card-bench-sheet')||el.classList.contains('card-forge-sheet')||el.classList.contains('card-exchange-sheet'))el.addEventListener('cancel',event=>{event.preventDefault();backCardSheet();});el.addEventListener('close',()=>{el.remove();if(el.classList.contains('card-sheet')&&!document.querySelector('dialog.card-sheet[open]'))finishDeckFlight();if(engine&&paused&&!flightLoading&&!document.querySelector('dialog[open]')&&!document.querySelector('#pause-layer')?.children.length&&!lesson)resumeFlight({waitForTap:el.classList.contains('tree-sheet')||el.classList.contains('card-sheet')});},{once:true});document.body.appendChild(el);el.showModal();el.querySelector('button')?.focus({preventScroll:true});return el}
@@ -719,13 +739,15 @@ function beginResumeCountdown(){
 }
 function wakeFlight(){if(!engine||flightLoading||!resumeArmed||lesson)return;stopCountdown();resumeArmed=false;document.querySelector('#pause-layer').innerHTML='';paused=false;if(engine.dream?.mode!=='record'&&markFlightAttemptStarted(state.run,engine))persist();if(engine.dream?.phase==='awakening')engine.dream.resume();else engine.resume();}
 
-import {getCruisingSpeed,setCruisingSpeed} from './model.mjs?v=collector-cards-1';
+import {getCruisingSpeed,setCruisingSpeed} from './model.mjs?v=starter-flow-1';
 
 let settingsPanel='main',settingsOrigin=null,guideReturnSettings=false;
 const settingsScroll={main:0,advanced:0};
 function cruisingSpeedControl(){
  if(!cardPilot)return '';
  const earned=state.profile.cardCruisingSpeed||0,selected=getCruisingSpeed(state);
+ // A Baseline-only selector offers no choice; it appears once Wind Feather earns a speed.
+ if(!earned&&!selected)return '';
  return `<div class="settings-option"><label for="cruising-speed">Cruising speed <select id="cruising-speed" data-cruising-speed aria-label="Cruising speed">${Array.from({length:earned+1},(_,value)=>`<option value="${value}" ${value===selected?'selected':''}>${value?`+${value}%`:'Baseline'}</option>`).join('')}</select></label><small>${earned?`Wind Feather unlocked up to +${earned}%. Changes apply next flight.`:'Wind Feather unlocks up to +6%. Baseline is always available.'}</small></div>`;
 }
 document.addEventListener('change',event=>{
@@ -739,7 +761,7 @@ function showSettings(panel='main',{focusAction=null,restore=false}={}){
  const replacing=rememberSettings();if(!replacing&&!restore){settingsOrigin=document.activeElement;settingsScroll.main=0;settingsScroll.advanced=0;}
  settingsPanel=panel;
  const main=`<div class="settings-grid">${audioControls()}${cruisingSpeedControl()}<button class="secondary" data-action="practice">Tutorial</button><button class="secondary" data-action="field-guide">Field Guide</button><button class="secondary" data-card-glossary>Glossary</button><button class="secondary" data-action="artifacts">Relic almanac</button><button class="secondary" data-action="settings-advanced">Advanced</button>${installationMenuButton()}</div>`;
- const advanced=`<div class="settings-grid settings-advanced-grid">${testControls({allowGrant:true,showTutorialSkip:true})}<div class="settings-option"><a class="secondary settings-link" href="${esc(modeLink(!cardPilot))}" target="_top">${cardPilot?'Legacy skills override':'Return to Cards'}</a><small>Uses a separate save. Your ${cardPilot?'Cards':'legacy'} journey stays here.</small></div><div class="settings-option">${mockControl()}<small>Developer scene · changes are not saved.</small></div><button type="button" class="secondary build-refresh" data-action="refresh-build"><span aria-live="polite">Check for updates</span></button><button class="secondary" data-action="reset-tutorial">Reset tutorial progress</button><a class="secondary settings-link" href="nature-credits.html" target="_blank" rel="noopener">Art credits</a>${performanceEnabled&&flightPerformance?'<button class="secondary" data-action="performance-report">Save performance report</button>':''}</div>`;
+ const advanced=`<div class="settings-grid settings-advanced-grid">${testControls({allowGrant:true,showTutorialSkip:true})}<div class="settings-option"><a class="secondary settings-link" href="${esc(modeLink(!cardPilot))}" target="_top">${cardPilot?'Legacy skills override':'Return to Cards'}</a><small>Uses a separate save. Your ${cardPilot?'Cards':'legacy'} journey stays here.</small></div>${restPreviewAvailable()?`<div class="settings-option">${mockControl()}<small>Developer scene · changes are not saved.</small></div>`:''}<button type="button" class="secondary build-refresh" data-action="refresh-build"><span aria-live="polite">Check for updates</span></button><button class="secondary" data-action="reset-tutorial">Reset tutorial progress</button><a class="secondary settings-link" href="nature-credits.html" target="_blank" rel="noopener">Art credits</a>${performanceEnabled&&flightPerformance?'<button class="secondary" data-action="performance-report">Save performance report</button>':''}</div>`;
  const sheet=openSheet(`<header class="settings-heading"><h2 id="settings-heading">${panel==='advanced'?'Advanced settings':'Settings'}</h2><span>${cardPilot?'Cards':'Legacy skills'}</span></header><div class="settings-body">${panel==='advanced'?advanced:main}</div><footer class="settings-footer"><button class="primary" data-action="settings-back">Back</button></footer>`,'settings-sheet');
  sheet.dataset.panel=panel;sheet.setAttribute('aria-labelledby','settings-heading');sheet.addEventListener('cancel',event=>{event.preventDefault();backSettings();});sheet.querySelector('.settings-body').scrollTop=settingsScroll[panel];if(focusAction)sheet.querySelector(`[data-action="${focusAction}"]`)?.focus({preventScroll:true});
 }
@@ -752,13 +774,16 @@ onInstallationChange(()=>{const label=document.querySelector('button.install-con
 function installationMenuButton(){
  return '<button type="button" class="secondary install-control" data-action="install-game"><svg viewBox="0 0 24 24" aria-hidden="true" fill="currentColor"><path d="M2 16h2v4h16v-4h2v6H2zM10 2h4v8h5l-7 7-7-7h5z"/></svg><span>'+installationLabel()+'</span></button>';
 }
+let installReturnSettings=false;
 async function showInstallation(){
  const status=installationState();
  if(status.canPrompt&&!status.updateReady){await requestInstall();return;}
+ installReturnSettings=rememberSettings();
  const detail=status.installed?'Wispbound is on your home screen.':installationInstructions();
  const update=status.updateReady?'A new build is ready and will open automatically at your next safe checkpoint.':status.offline?'The game is ready to play offline. Updates download automatically while online.':'Keep the game open online to finish its offline download.';
- openSheet('<h2>'+ (status.installed?'Installed game':'Install Wispbound')+'</h2><p>'+detail+'</p><p>'+update+'</p><button class="primary" data-action="menu">Back</button>','installation-sheet');
+ openSheet('<h2>'+ (status.installed?'Installed game':'Install Wispbound')+'</h2><p>'+detail+'</p><p>'+update+'</p><button class="primary" data-action="installation-back">Back</button>','installation-sheet');
 }
+function backInstallation(){if(installReturnSettings){installReturnSettings=false;showSettings('main',{focusAction:'install-game',restore:true});}else showMenu();}
 
 
 let refreshingBuild = false;
@@ -882,7 +907,7 @@ function closeCollection(){
 }
 function refreshMapDock(){const dock=document.querySelector('.map-build-dock');if(dock)dock.innerHTML=`${state.run?.restReady?'<div class="rest-services"><button data-action="skills">TRAIN</button></div>':''}${artifactCollectionDock()}`}
 function showPickupKey(){pauseFlight();openSheet(pickupGuideMarkup({cardPilot,maxGlow:getGlowCapacity(state.run||{}),modifiers:engine?.mod||getRunModifiers(state.run||{}),companions:roleFleet(),discovered:state.profile.seenPickups||[]}), 'pickup-guide-sheet')}
-function showMapKey(){const r=state.run;openSheet(`<h2>MAP GUIDE</h2><p class="map-key-total">${r?.map.length||10} STOPS PER MAP · 3 MAPS PER RUN</p><div class="route-light-key" aria-label="Route brightness key"><span class="route-key-here"><i></i>HERE · your wisp</span><span class="route-key-next"><i></i>NEXT · tap to travel</span><span class="route-key-future"><i></i>Later · tap to preview</span><span class="route-key-closed"><i></i>Dark · path closed</span></div><div class="map-key-list">${Object.values(MAP_STOP_TYPES).map(type=>`<div class="map-key-row">${mapStopIconMarkup(type.kind)}<div><h3>${type.label}</h3><p>${esc(glowText(type.summary,getGlowCapacity(r||{})))}</p></div></div>`).join('')}</div>${mapBiomeGuideMarkup(r)}<details class="map-event-guide"><summary>EVENTS & TRADES</summary>${getEventScenarios({maxGlow:getGlowCapacity(r||{})}).map(e=>`<p><b>${esc(e.name)}</b> · ${esc(e.summary)}</p>`).join('')}</details><button class="primary" data-action="close-sheet">Done</button>`,'map-key-sheet');guideScreen('map-key');}
+function showMapKey(){const r=state.run;openSheet(`<h2>MAP GUIDE</h2><p class="map-key-total">${r?.isTutorial?`${r.map.length} PRACTICE STOPS`:`${r?.map.length||10} STOPS PER MAP · ${CAMPAIGN_MAP_NAMES.length} MAPS PER RUN`}</p><div class="route-light-key" aria-label="Route brightness key"><span class="route-key-here"><i></i>HERE · your wisp</span><span class="route-key-next"><i></i>NEXT · tap to travel</span><span class="route-key-future"><i></i>Later · tap to preview</span><span class="route-key-closed"><i></i>Dark · path closed</span></div><div class="map-key-list">${Object.values(MAP_STOP_TYPES).map(type=>`<div class="map-key-row">${mapStopIconMarkup(type.kind)}<div><h3>${type.label}</h3><p>${esc(glowText(type.summary,getGlowCapacity(r||{})))}</p></div></div>`).join('')}</div>${mapBiomeGuideMarkup(r)}<details class="map-event-guide"><summary>EVENTS & TRADES</summary>${getEventScenarios({maxGlow:getGlowCapacity(r||{})}).map(e=>`<p><b>${esc(e.name)}</b> · ${esc(e.summary)}</p>`).join('')}</details><button class="primary" data-action="close-sheet">Done</button>`,'map-key-sheet');guideScreen('map-key');}
 function showCondensation(){if(isCardRun(state.run)){pauseFlight();return openSheet(`<h2>Stored Sparks</h2>${condensedIconMarkup()}<p>One run wallet: clear flights, pack surplus, or Melt a card. A Common Melt gives 10 Stored Sparks.</p><p>Open Deck anytime to equip, reorder or Melt, including during a paused flight. Improve, Evolve and Forge at Rest. Forge Rare for 30 banked Stored Sparks, or Legendary for 60 with a Rare mounted. Forge again while you can afford it. Forge uses no camp action. Lifts spend your Spark Meter.</p><button class="primary" data-action="cards">Open Deck</button><button class="secondary" data-action="close-sheet">Done</button>`,'condensation-sheet');}pauseFlight();openSheet(`<h2>Stored Sparks</h2>${condensedIconMarkup()}<p>Clear rewards provide 15–25 Stored Sparks, with more for elites. Trail Dividend adds 10 per clear. At the starting rate, 6 surplus Sparks make 1 Stored Spark, up to 20 packed per flight; melting an unwanted artifact is another way to earn more.</p><p>At the exit, remaining Sparks are packed at your current rate, separately from the overflow limit. Your vessel then recovers half its capacity; Renewal skills improve this. Failed attempts earn nothing. The final guardian ends the run. Rest refills do not create currency.</p><p>Efficient Storage raises the packing limit to 30. Later Storage skills extend it further. Prism Vessel improves conversion. Unfinished fractions carry into your next pickup. Open Skills to spend banked Stored Sparks at any time. Lifts draw only from the Spark Meter.</p><button class="primary" data-action="inspect-main-skill" data-id="main-afterglow">Storage skills</button><button class="secondary" data-action="close-sheet">Done</button>`,'condensation-sheet')}
 
 let activeFlightEntry=null;
@@ -1027,7 +1052,7 @@ function bindFlightControls(){
  if(power?.tagName==='BUTTON'){power.addEventListener('pointerdown',e=>{e.preventDefault();if(!paused&&!lesson&&engine?.dream?.phase!=='replay')engine?.activateAbility()});power.addEventListener('click',e=>{if(e.detail===0&&!paused&&!lesson&&engine?.dream?.phase!=='replay')engine?.activateAbility()})}
 }
 
-function completeFlight(result){hideLesson();hud?.activationFeedback?.destroy();hud?.rhythmScore?.destroy();hud?.cardRowFeedback?.destroy();const previous=engine;if(previous?.tutorial)result={...result,practiceTopics:demonstratedTutorialTopics(previous)};if(result.success&&previous?._pendingOnboardingLesson)state.run.pendingContextLesson=previous._pendingOnboardingLesson;engine=null;hud=null;previous?.destroy();paused=false;document.body.classList.remove('playing','dream-rehearsal');finishFlight(state.run,result);if(result.success){delete state.run.dreamPreset;settleCheckpoint(state)}persist();if(state.run?.isTutorial&&state.run.success&&state.run.tutorialContinuation){exitTutorial({continueNewGame:true});notify('First Light complete · choose your starting gift');return;}goToRun()}
+function completeFlight(result){hideLesson();hud?.activationFeedback?.destroy();hud?.rhythmScore?.destroy();hud?.cardRowFeedback?.destroy();const previous=engine;if(previous?.tutorial)result={...result,practiceTopics:demonstratedTutorialTopics(previous)};if(result.success&&previous?._pendingOnboardingLesson)state.run.pendingContextLesson=previous._pendingOnboardingLesson;engine=null;hud=null;previous?.destroy();paused=false;document.body.classList.remove('playing','dream-rehearsal');finishFlight(state.run,result);if(result.success){delete state.run.dreamPreset;settleCheckpoint(state)}persist();goToRun()}
 function finishCoachLesson(){
  if(!lesson)return;const {done,key}=lesson;
  if(key.startsWith('onboarding:'))markOnboardingSeen(state.profile,key);
@@ -1230,7 +1255,7 @@ document.addEventListener('click',e=>{
  }
 });
 
-document.addEventListener('click',e=>{const btn=e.target.closest('[data-action]');if(!btn||btn.disabled)return;const action=btn.dataset.action,id=btn.dataset.id;if(rewardAnimating&&['victory-next','skills'].includes(action))return;switch(action){case'collector-preference':if(setCollectorPreference(state.run,id)){persist();showSkills('companion');}break;case'refresh-build':refreshFromMenu(btn);break;case'install-game':showInstallation();break;case'cancel-flight-entry':cancelFlightEntry();break;case'close-collection':closeCollection();break;case'cancel-artifact-melt':collectionConfirmId=null;repaintCollection();break;case'reward-artifact-details':showRewardArtifactDetails(id);break;case'collection-artifact-details':showCollectionArtifactDetails(id);break;case'collection-artifact-rules-back':repaintCollection();break;case'reward-earnings':if(state.run)openSheet(rewardEarningsDetailMarkup(state.run),'reward-earnings-sheet');break;case'keep-flight-reward':keepFlightReward(id);break;case'wake-flight':wakeFlight();break;case'death-continue':if(state.run){state.run.deathPending=false;persist();goToRun()}break;case'practice-deck':showPracticeDeck();break;case'field-guide':if(!document.querySelector('dialog.settings-sheet'))guideReturnSettings=false;showFieldGuide();break;case'guide-back':backFieldGuide();break;case'settings':showSettings();break;case'settings-advanced':showSettings('advanced');break;case'settings-back':backSettings();break;case'guide-page':showFieldGuide(id);break;case'guide-topic':showGuideTopic(id);break;case'restart-practice':{const continuation=state.run?.tutorialContinuation;exitTutorial();enterTutorial(continuation?{forNewGame:true,difficulty:continuation.difficulty}:{});}break;case'mock-toggle':switchRestInspector(!restInspector);break;case'fullscreen':landscape.fullscreen();break;case'view-route':render('map');break;case'preview-node':previewNode(id);break;case'victory-next':if(acknowledgeVictory(state)){persist();goToRun()}break;case'dream-retry':closeSheet();destroyFlight();launch();break;case'dream-accept':acceptDream();break;case'dream-wake':wakeDream();break;case'performance-report':if(flightPerformance)downloadPerformanceReport(flightPerformance.report());break;case'book-skill':mainSkillSelection=id;showSkills(btn.dataset.chapter);break;case'book-chapter':mainSkillSelection=null;showSkills(id);break;case'book-variant':bookVariant=id==='index'?'index':'map';mainSkillSelection=null;showSkills(bookVariant==='index'?'available':'wisp');break;case'choose-start-skill':if(chooseStartingSkill(state,id)){mainSkillSelection=id;persist();render(screen);showSkills();notify('STARTING GIFT LEARNED')}break;case'grant-test-condensed':if(!engine&&grantTestCondensedGlow(state,100)){persist();refreshSettings('grant-test-condensed');notify('+100 TEST STORED SPARKS')}break;case'test-override':toggleTestOverride();break;case'skip-tutorial':state.settings.skipTutorial=!state.settings.skipTutorial;if(state.settings.skipTutorial){hideLesson();if(state.run){delete state.run.pendingContextLesson;delete state.run.pendingEffectHints;}if(engine){delete engine._pendingOnboardingLesson;delete engine._pendingArtifactNotice;delete engine._pendingWorldFocus;}}persist();if(screen==='home')render('home');refreshSettings('skip-tutorial');break;case'starting-companion':case'test-starter':if(setStartingCompanion(state,id)){persist();render('home')}break;case'starter-gifts':showStartingGifts(true);break;case'new-gift':requestStartingGift(id,false);break;case'existing-gift':requestStartingGift(id,true);break;case'confirm-starting-gift':confirmStartingGift(id,btn.dataset.existing==='true',btn.dataset.token);break;case'cancel-starting-gift':cancelStartingGift(btn.dataset.existing==='true');break;case'play':closeSheet();if(state.run&&state.run.phase!=='ended')goToRun();else requestNewGame();break;case'continue-run':closeSheet();goToRun();break;case'new-game':requestNewGame();break;case'confirm-new-game':beginNewGame();break;case'exit-menu':exitToMenu();break;case'abandon-run':requestAbandon();break;case'confirm-abandon':endRun();break;case'companion-unlocks':showUnlocks();break;case'choose-ascension':selectedDifficulty=Math.max(1,Math.min(state.settings.testOverride?Math.max(6,state.profile.difficulty||1):state.profile.difficulty||1,Number(btn.dataset.value)||1));render('home');break;case'home':exitToMenu();break;case'menu':showMenu();break;case'resume':resumeFlight();break;case'close-sheet':closeSheet();break;case'tutorial':enterTutorial();break;case'practice':enterTutorial();break;case'reset-tutorial':resetOnboarding(state.profile);state.settings.skipTutorial=false;if(state.run)delete state.run.onboardingPacing;persist();refreshSettings('reset-tutorial');notify('Tutorial reset · New Game will begin with First Light');break;case'skip-practice':skipPractice();break;case'skip-practice-once':exitTutorial({continueNewGame:true});break;case'remember-skip-practice':state.settings.skipTutorial=true;exitTutorial({continueNewGame:true,remember:true});break;case'leave-practice':exitTutorial({continueNewGame:true});break;case'music':music.setEnabled(!music.enabled);refreshSettings('music');break;case'mute':muted=!muted;localStorage.setItem('emberwing-muted',String(muted));engine?.setMuted?.(muted);refreshSettings('mute');break;case'node':closeSheet();if(commitNode(id)){persist();goToRun()}break;case'back-route':backRoute();break;case'support':takeSupport(Number(btn.dataset.index));break;case'launch':launch();break;case'retry':launch(true);break;case'end-run':requestAbandon();break;case'next-map':if(advanceMap(state.run,id)){persist();goToRun()}break;case'skills':showSkills();break;case'bond-tree':showSkills('wisp');break;case'buy-skill':learnSkill(id,btn.dataset.rank?Number(btn.dataset.rank):undefined);break;case'companions':showFleet();break;case'fleet-role':chooseFleet(id);break;case'inspect-flight-artifact':inspectArtifact(id,true);break;case'inspect-artifact':inspectArtifact(id);break;case'artifact-details-back':showArtifacts();break;case'artifacts':showArtifacts();break;case'collection-page':collectionPage=Number(btn.dataset.page)||0;collectionSelectedId=null;collectionConfirmId=null;collectionLastMelt=null;repaintCollection();break;case'sell-artifact':requestArtifactSalvage(id);break;case'confirm-artifact-forge':forgeArtifact(id);break;case'pickup-key':showPickupKey();break;case'map-key':showMapKey();break;case'map-position':drawMap();break;case'condensation-help':showCondensation();break;case'close-power':closeSheet();break}});
+document.addEventListener('click',e=>{const btn=e.target.closest('[data-action]');if(!btn||btn.disabled)return;const action=btn.dataset.action,id=btn.dataset.id;if(rewardAnimating&&['victory-next','skills'].includes(action))return;switch(action){case'collector-preference':if(setCollectorPreference(state.run,id)){persist();showSkills('companion');}break;case'refresh-build':refreshFromMenu(btn);break;case'install-game':showInstallation();break;case'installation-back':backInstallation();break;case'cancel-flight-entry':cancelFlightEntry();break;case'close-collection':closeCollection();break;case'cancel-artifact-melt':collectionConfirmId=null;repaintCollection();break;case'reward-artifact-details':showRewardArtifactDetails(id);break;case'collection-artifact-details':showCollectionArtifactDetails(id);break;case'collection-artifact-rules-back':repaintCollection();break;case'reward-earnings':if(state.run)openSheet(rewardEarningsDetailMarkup(state.run),'reward-earnings-sheet');break;case'keep-flight-reward':keepFlightReward(id);break;case'wake-flight':wakeFlight();break;case'death-continue':if(state.run){state.run.deathPending=false;persist();goToRun()}break;case'practice-deck':showPracticeDeck();break;case'field-guide':if(!document.querySelector('dialog.settings-sheet'))guideReturnSettings=false;showFieldGuide();break;case'guide-back':backFieldGuide();break;case'settings':showSettings();break;case'settings-advanced':showSettings('advanced');break;case'settings-back':backSettings();break;case'guide-page':showFieldGuide(id);break;case'guide-topic':showGuideTopic(id);break;case'restart-practice':{const continuation=state.run?.tutorialContinuation;exitTutorial();enterTutorial(continuation?{forNewGame:true,difficulty:continuation.difficulty}:{});}break;case'mock-toggle':switchRestInspector(!restInspector);break;case'fullscreen':landscape.fullscreen();break;case'view-route':render('map');break;case'preview-node':previewNode(id);break;case'victory-next':if(acknowledgeVictory(state)){persist();goToRun()}break;case'dream-retry':closeSheet();destroyFlight();launch();break;case'dream-accept':acceptDream();break;case'dream-wake':wakeDream();break;case'performance-report':if(flightPerformance)downloadPerformanceReport(flightPerformance.report());break;case'book-skill':mainSkillSelection=id;showSkills(btn.dataset.chapter);break;case'book-chapter':mainSkillSelection=null;showSkills(id);break;case'book-variant':bookVariant=id==='index'?'index':'map';mainSkillSelection=null;showSkills(bookVariant==='index'?'available':'wisp');break;case'choose-start-skill':if(chooseStartingSkill(state,id)){mainSkillSelection=id;persist();render(screen);showSkills();notify('STARTING GIFT LEARNED')}break;case'grant-test-condensed':if(!engine&&grantTestCondensedGlow(state,100)){persist();refreshSettings('grant-test-condensed');notify('+100 TEST STORED SPARKS')}break;case'test-override':toggleTestOverride();break;case'skip-tutorial':state.settings.skipTutorial=!state.settings.skipTutorial;if(state.settings.skipTutorial){hideLesson();if(state.run){delete state.run.pendingContextLesson;delete state.run.pendingEffectHints;}if(engine){delete engine._pendingOnboardingLesson;delete engine._pendingArtifactNotice;delete engine._pendingWorldFocus;}}persist();if(screen==='home')render('home');refreshSettings('skip-tutorial');break;case'starting-companion':case'test-starter':if(setStartingCompanion(state,id)){persist();render('home')}break;case'starter-gifts':showStartingGifts(true);break;case'new-gift':requestStartingGift(id,false);break;case'existing-gift':requestStartingGift(id,true);break;case'confirm-starting-gift':confirmStartingGift(id,btn.dataset.existing==='true',btn.dataset.token);break;case'cancel-starting-gift':cancelStartingGift(btn.dataset.existing==='true');break;case'play':closeSheet();if(state.run&&state.run.phase!=='ended')goToRun();else requestNewGame();break;case'continue-run':closeSheet();goToRun();break;case'new-game':requestNewGame();break;case'confirm-new-game':beginNewGame();break;case'exit-menu':exitToMenu();break;case'abandon-run':requestAbandon();break;case'confirm-abandon':endRun();break;case'companion-unlocks':showUnlocks();break;case'choose-ascension':selectedDifficulty=Math.max(1,Math.min(state.settings.testOverride?Math.max(6,state.profile.difficulty||1):state.profile.difficulty||1,Number(btn.dataset.value)||1));render('home');break;case'home':exitToMenu();break;case'menu':showMenu();break;case'resume':resumeFlight();break;case'close-sheet':closeSheet();break;case'tutorial':enterTutorial();break;case'practice':enterTutorial();break;case'reset-tutorial':resetOnboarding(state.profile);state.settings.skipTutorial=false;if(state.run)delete state.run.onboardingPacing;persist();refreshSettings('reset-tutorial');notify('Tutorial reset · New Game will begin with First Light');break;case'skip-practice':skipPractice();break;case'skip-practice-once':exitTutorial({continueNewGame:true});break;case'practice-skip-to-start':skipPracticeToStart();break;case'remember-skip-practice':state.settings.skipTutorial=true;exitTutorial({continueNewGame:true,remember:true});break;case'leave-practice':exitTutorial({continueNewGame:true});break;case'music':music.setEnabled(!music.enabled);refreshSettings('music');break;case'mute':muted=!muted;localStorage.setItem('emberwing-muted',String(muted));engine?.setMuted?.(muted);refreshSettings('mute');break;case'node':closeSheet();if(commitNode(id)){persist();goToRun()}break;case'back-route':backRoute();break;case'support':takeSupport(Number(btn.dataset.index));break;case'launch':launch();break;case'retry':launch(true);break;case'end-run':requestAbandon();break;case'next-map':if(advanceMap(state.run,id)){persist();goToRun()}break;case'skills':showSkills();break;case'bond-tree':showSkills('wisp');break;case'buy-skill':learnSkill(id,btn.dataset.rank?Number(btn.dataset.rank):undefined);break;case'companions':showFleet();break;case'fleet-role':chooseFleet(id);break;case'inspect-flight-artifact':inspectArtifact(id,true);break;case'inspect-artifact':inspectArtifact(id);break;case'artifact-details-back':showArtifacts();break;case'artifacts':showArtifacts();break;case'collection-page':collectionPage=Number(btn.dataset.page)||0;collectionSelectedId=null;collectionConfirmId=null;collectionLastMelt=null;repaintCollection();break;case'sell-artifact':requestArtifactSalvage(id);break;case'confirm-artifact-forge':forgeArtifact(id);break;case'pickup-key':showPickupKey();break;case'map-key':showMapKey();break;case'map-position':drawMap();break;case'condensation-help':showCondensation();break;case'close-power':closeSheet();break}});
 document.addEventListener('pointerdown',()=>engine?.unlockAudio(),{capture:true,passive:true});
 document.addEventListener('click',async event=>{
  const button=event.target.closest('[data-action^="score-"]');if(!button||button.disabled)return;

@@ -54,13 +54,23 @@ html body :is(#app,dialog).flight-preview-sheet .flight-preview footer>button.pr
 /* Approved Atlas spread, scoped to the actual route choice only. */
 html body dialog.flight-preview-sheet:has(>.preview-atlas)[open]{width:100vw!important;height:100dvh!important;box-shadow:none!important;background:#493c2b!important}
 html body .flight-preview.preview-atlas{grid-template-columns:clamp(60px,9vw,92px) minmax(0,1fr) clamp(60px,9vw,92px);--guide-paper:#d8c08c;--guide-ink:#382f20;isolation:isolate;background:#493c2b}
-.preview-atlas .preview-reading{isolation:isolate;align-items:center;padding:28px 36px 32px;gap:14px;overflow:hidden;overscroll-behavior:none;background:transparent url('assets/guide-atlas-spread.svg') center/100% 100% no-repeat;image-rendering:pixelated}
-.preview-atlas .preview-place{flex:0 0 74px;min-height:74px;justify-content:center;width:100%;gap:0}
-.preview-atlas .preview-location{display:block;flex:0 1 auto;padding:4px 14px;text-align:center}
+/* A real two-page book. Columns follow guide-atlas-spread.svg (360 units wide,
+   stretched over the whole reading box): outer margin 0-28, left page 28-158,
+   fold gutter 158-202 (paper curl 160-200, dark spine 174-186), right page
+   202-332, outer margin 332-360. Nothing is ever placed in the gutter column. */
+.preview-atlas .preview-reading{isolation:isolate;display:grid;grid-template-columns:minmax(0,28fr) minmax(0,130fr) minmax(0,44fr) minmax(0,130fr) minmax(0,28fr);grid-template-rows:auto minmax(0,1fr) auto;align-items:center;padding:max(16px,5.5dvh) 0 calc(12.3dvh + 6px);gap:14px 0;overflow:hidden;overscroll-behavior:none;background:transparent url('assets/guide-atlas-spread.svg') center/100% 100% no-repeat;image-rendering:pixelated}
+.preview-atlas .preview-rewards{display:contents}
+/* Left page: where you are going and what clearing it pays. */
+.preview-atlas .preview-place{grid-column:2;grid-row:1;align-self:start;min-height:74px;justify-content:center;gap:0}
+.preview-atlas .preview-location{display:block;flex:0 1 auto;min-width:0;padding:4px 0;text-align:center}
 html body .preview-atlas .preview-location h2{color:#352d1e!important;text-shadow:none!important;text-align:center!important;font-size:36px!important;line-height:1.04!important;text-wrap:balance}
-.preview-atlas .preview-rewards{width:min(100%,660px);flex:1 1 auto;min-height:0;align-content:center;gap:36px;padding:0}
-.preview-atlas .preview-rewards.has-objective{grid-template-columns:repeat(2,minmax(0,1fr))}
-.preview-atlas :is(.preview-regular,.preview-optional){display:flex;align-self:stretch;align-items:center;justify-content:center;padding:6px 3px;gap:6px;min-width:0;text-align:center}
+.preview-atlas .preview-regular{grid-column:2;grid-row:2/4}
+/* Right page: the optional challenge and the guardian's tell. Blank when neither exists. */
+.preview-atlas .preview-optional{grid-column:4;grid-row:1/-1}
+html body .preview-atlas p.preview-guardian-cue{grid-column:4;grid-row:1/-1;align-self:center}
+html body .preview-atlas .preview-rewards.has-objective~p.preview-guardian-cue{grid-row:3}
+.preview-atlas .preview-reading:has(>p.preview-guardian-cue) .preview-optional{grid-row:1/3}
+.preview-atlas :is(.preview-regular,.preview-optional){display:flex;align-self:center;align-items:center;justify-content:center;padding:6px 0;gap:6px;min-width:0;text-align:center}
 .preview-atlas :is(.preview-regular,.preview-optional)::before{display:none}
 html body .preview-atlas :is(h3,p,.preview-clear-extra,.preview-prize,.preview-prize>span){color:#382f20!important;text-align:center!important;text-shadow:none!important}
 html body .preview-atlas h3{font-size:19px!important;line-height:1.15!important;color:#503b20!important;font-weight:600!important}
@@ -83,14 +93,13 @@ html body .game-sheet.flight-preview-sheet .preview-atlas footer>button.preview-
 html body .game-sheet.flight-preview-sheet .preview-atlas footer>button.preview-unavailable{color:#a49d82!important;opacity:.55!important;cursor:not-allowed}
 html body .game-sheet.flight-preview-sheet .preview-atlas footer>button.preview-unavailable::before{background:#514c3b;box-shadow:inset 3px 0 #777154,inset -3px 0 #343526}
 html body .game-sheet.flight-preview-sheet .preview-atlas footer>button.preview-rail:hover:not(:disabled)::before{filter:brightness(1.15)}
-html body .preview-atlas p.preview-guardian-cue{flex:none;font-size:18px!important;line-height:1.15!important;margin:0!important;max-width:630px}
+html body .preview-atlas p.preview-guardian-cue{font-size:18px!important;line-height:1.15!important;margin:0!important;min-width:0}
 @media(orientation:landscape) and (max-height:350px){
  html body .flight-preview.preview-atlas{grid-template-columns:59px minmax(0,1fr) 59px}
- .preview-atlas .preview-reading{padding:20px 25px 22px;gap:8px}
- .preview-atlas .preview-place{flex-basis:54px;min-height:54px}
- .preview-atlas .preview-location{padding:3px 5px}
+ .preview-atlas .preview-reading{gap:8px 0}
+ .preview-atlas .preview-place{min-height:54px}
+ .preview-atlas .preview-location{padding:3px 0}
  html body .preview-atlas .preview-location h2{font-size:29px!important}
- .preview-atlas .preview-rewards{gap:25px}
  .preview-atlas :is(.preview-regular,.preview-optional){padding:2px 0;gap:4px}
  html body .preview-atlas h3{font-size:18px!important}
  html body .preview-atlas :is(p,.preview-clear-extra,.preview-prize,.preview-prize>span){font-size:18px!important;line-height:1.15!important}

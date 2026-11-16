@@ -1,4 +1,4 @@
-import {topicSteps} from './tutorial-curriculum.mjs?v=collector-cards-1';
+import {topicSteps} from './tutorial-curriculum.mjs?v=starter-flow-1';
 const step=(id,title,text,target)=>({id,title,text,target,allowTarget:false});
 const chapter=(id,steps,target)=>({id,steps:steps.map(s=>({...s,...(target?{target}:{}),allowTarget:false}))});
 export function checkpointTutorialLesson(screen,{run={}}={}){
@@ -7,7 +7,7 @@ export function checkpointTutorialLesson(screen,{run={}}={}){
  if(screen==='map'){
   if(run.lastAttempt?.success===false&&!seen('practice-lives'))lesson=chapter('practice-lives',topicSteps('hearts').slice(2),'#journey-map');
   else if(run.step===0)lesson=chapter('practice-route',[
-   {title:'First Light: learn at your pace',text:'This separate practice has six stops. Short lessons appear where you need them. Your real run stays safe. MENU → Field Guide replays every topic.',visual:'wisp'},
+   {title:'First Light: learn at your pace',text:'This separate practice has seven stops. Short lessons appear where you need them. Your real run stays safe. MENU → Field Guide replays every topic.',visual:'wisp'},
    topicSteps('hearts')[0],topicSteps('routes')[0]],'#journey-map');
   else if(run.lastFlight?.success&&!run.lastFlight.elite&&!run.lastFlight.boss&&!seen('practice-clear-pay'))
    lesson=chapter('practice-clear-pay',[{title:'Your reward is already saved',text:'Clearing a flight automatically banks its Stored Sparks reward plus overflow. Open Skills to spend them on upgrades. Choose your next connected stop.',visual:'clear-reward'}],'.condensed-wallet');

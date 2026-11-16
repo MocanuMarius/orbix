@@ -1,4 +1,4 @@
-@import url('./ui/acquired-reward.css?v=collector-cards-1');
+@import url('./ui/acquired-reward.css?v=starter-flow-1');
 /* A single readable offering, with the whole keep-or-melt decision in view. */
 .artifact-reward-screen{height:100%;width:100%;max-width:1000px;box-sizing:border-box;margin:auto;display:grid;grid-template-rows:auto minmax(0,1fr) 54px;gap:14px;padding:8px 16px;color:#e4dfbd;font-family:var(--pixel)}
 .artifact-reward-heading{display:flex;align-items:center;justify-content:space-between;gap:16px;min-width:0}

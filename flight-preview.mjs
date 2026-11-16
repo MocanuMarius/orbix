@@ -1,18 +1,18 @@
-import {getBiome} from './biomes.mjs?v=collector-cards-1';
-import {getBossPreview} from './boss.mjs?v=collector-cards-1';
-import {levelMapPreview} from './level-map-art.mjs?v=collector-cards-1';
-import {mapStopIconMarkup} from './map-guide.mjs?v=collector-cards-1';
-import {resourceSymbol} from './game-symbols.mjs?v=collector-cards-1';
-import {getFlightClearReward} from './checkpoint-rewards.mjs?v=collector-cards-1';
-import {availableFlightArtifacts,isCardRun} from './model.mjs?v=collector-cards-1';
-import {bonusIcon,boonMarkup} from './route-bonus-ui.mjs?v=collector-cards-1';
-import {contextualFlightNotice} from './contextual-events.mjs?v=collector-cards-1';
-import {ATLAS_FORECASTS,atlasGlyph} from './night-atlas.mjs?v=collector-cards-1';
-import {canDreamAt,dreamConfig} from './dream.mjs?v=collector-cards-1';
-import {sparkHabitat} from './spark-fields.mjs?v=collector-cards-1';
-import {lanternFlightCue} from './map-theme.mjs?v=collector-cards-1';
-import {actionButton} from './ui/primitives.mjs?v=collector-cards-1';
-import {cardTermTextMarkup} from './card-terms.mjs?v=collector-cards-1';
+import {getBiome} from './biomes.mjs?v=starter-flow-1';
+import {getBossPreview} from './boss.mjs?v=starter-flow-1';
+import {levelMapPreview} from './level-map-art.mjs?v=starter-flow-1';
+import {mapStopIconMarkup} from './map-guide.mjs?v=starter-flow-1';
+import {resourceSymbol} from './game-symbols.mjs?v=starter-flow-1';
+import {getFlightClearReward} from './checkpoint-rewards.mjs?v=starter-flow-1';
+import {availableFlightArtifacts,isCardRun} from './model.mjs?v=starter-flow-1';
+import {bonusIcon,boonMarkup} from './route-bonus-ui.mjs?v=starter-flow-1';
+import {contextualFlightNotice} from './contextual-events.mjs?v=starter-flow-1';
+import {ATLAS_FORECASTS,atlasGlyph} from './night-atlas.mjs?v=starter-flow-1';
+import {canDreamAt,dreamConfig} from './dream.mjs?v=starter-flow-1';
+import {sparkHabitat} from './spark-fields.mjs?v=starter-flow-1';
+import {lanternFlightCue} from './map-theme.mjs?v=starter-flow-1';
+import {actionButton} from './ui/primitives.mjs?v=starter-flow-1';
+import {cardTermTextMarkup} from './card-terms.mjs?v=starter-flow-1';
 
 export const TRAVEL_GUIDE_ART=Object.freeze(['waystone','rootwood','night-atlas']);
 /** One stepped sign, mirrored for the return journey. */

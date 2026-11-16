@@ -1,10 +1,10 @@
-import {menuWorldMarkup} from './menu-world.mjs?v=collector-cards-1';
-import {resourceSymbol} from './game-symbols.mjs?v=collector-cards-1';
-import {formatGlow,getGlowCapacity} from './vitality.mjs?v=collector-cards-1';
-import {livesMarkup} from './lives.mjs?v=collector-cards-1';
-import { COMPANION_ABILITIES, getCompanionUnlock } from './companion-abilities.mjs?v=collector-cards-1';
-import { companionArtSvg } from './companion-art.mjs?v=collector-cards-1';
-import { GAME_VERSION } from './build-version.mjs?v=collector-cards-1';
+import {menuWorldMarkup} from './menu-world.mjs?v=starter-flow-1';
+import {resourceSymbol} from './game-symbols.mjs?v=starter-flow-1';
+import {formatGlow,getGlowCapacity} from './vitality.mjs?v=starter-flow-1';
+import {livesMarkup} from './lives.mjs?v=starter-flow-1';
+import { COMPANION_ABILITIES, getCompanionUnlock } from './companion-abilities.mjs?v=starter-flow-1';
+import { companionArtSvg } from './companion-art.mjs?v=starter-flow-1';
+import { GAME_VERSION } from './build-version.mjs?v=starter-flow-1';
 
 const esc = value => String(value ?? '').replace(/[&<>"']/g, char =>
   ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[char]));
@@ -94,8 +94,10 @@ export function runProgressMarkup(run) {
   return `<section class="run-progress">${path}<div class="run-checkpoint"><div><b>${practice ? 'PRACTICE' : `${run.testMode?'TEST · ':''}ASCENSION ${tier(run.difficulty)}`}</b><span>${practice ? '' : `MAP ${map + 1}/3 · `}${mapCleared ? 'REFUGE REACHED' : `STOP ${stop}/${totalStops}`}</span></div><div class="run-checkpoint-resources">${livesMarkup(run,{compact:true})}<span class="front-glow" aria-label="Spark Meter: ${formatGlow(run.flame)} of ${formatGlow(getGlowCapacity(run))}">${resourceSymbol('energy')}${formatGlow(run.flame)} / ${formatGlow(getGlowCapacity(run))}</span></div></div>${run.phase === 'retry' ? `<p class="run-retry-note">RETRY WAITING · ${esc(run.current?.name || 'Same passage')}</p>` : ''}</section>`;
 }
 
-export function testStarterMarkup(){
- const choices=Object.values(COMPANION_ABILITIES).map(role=>{
+export function testStarterMarkup({testOverride=false}={}){
+ // Locked portraits appear only when a real choice exists, or in TEST.
+ const roles=Object.values(COMPANION_ABILITIES),selectable=roles.filter(role=>getCompanionUnlock(role.id).selectable);
+ const choices=(testOverride||selectable.length>1?roles:selectable).map(role=>{
    const available=getCompanionUnlock(role.id).selectable;
    const label=esc(role.name+(available?' equipped':' locked'));
    return `<button type="button" class="test-starter-option roster-choice${available?' selected':''}" data-action="starting-companion" data-id="${role.id}" aria-label="${label}" title="${label}" aria-pressed="${available}" ${available?'':'disabled'}>
@@ -109,9 +111,9 @@ export function testStarterMarkup(){
  </section>`;
 }
 
-export function homeMenuMarkup({ profile = {}, run = null, selectedDifficulty, testOverride = false, gameMode = 'cards', modeLinks = null } = {}) {
+export function homeMenuMarkup({ profile = {}, run = null, selectedDifficulty, testOverride = false, gameMode = 'cards', modeLinks = null, practiceFirst = false } = {}) {
   const maximum = testOverride ? Math.max(6,tier(profile.difficulty)) : tier(profile.difficulty), chosen = Math.min(maximum, tier(selectedDifficulty ?? maximum));
   const active = Boolean(run && (run.phase !== 'ended' || run.victoryPending || run.cardDraft && !run.cardDraft.claimed || run.cardReward?.draftId && !run.cardReward.uiAcknowledged) && !run.banked);
 
-  return `<section class="run-front-page menu-art-home">${menuWorldMarkup()}<header class="front-title"><div class="front-main-light" aria-hidden="true"></div><h1>WISPBOUND</h1><p>A LIGHT IN THE LOST WOODS</p><small class="front-version" data-game-version="${esc(GAME_VERSION)}">Version ${esc(GAME_VERSION)}</small></header>${!active&&run?.endScore?`<button class="front-last-score" data-action="score-view">Last scorecard · ${Math.max(0,Math.floor(run.endScore.earned||0))} Stored Sparks</button>`:runProgressMarkup(active ? run : null)}<div class="front-actions">${active ? `<button class="front-continue home-command primary" data-action="continue-run"><span>CONTINUE<small>${run.isTutorial ? 'Your practice route' : `MAP ${Math.min(3,(Number(run.mapIndex)||0)+1)}/3 · ${run.phase==='map-clear'?'MAP CLEARED':`STOP ${Math.min(run.map?.length||10,(Number(run.step)||0)+1)}/${run.map?.length||10}`}`}</small></span>${arrow}</button>` : ''}<div class="front-new-game"><button class="front-new-button home-command ${active ? 'secondary' : 'primary'}" data-action="new-game"><span>NEW GAME<small>Choose a starting gift</small></span>${arrow}</button><div class="front-ascension-picker${maximum===1?' is-fixed':''}" role="group" aria-label="Choose ascension for a new game"><button data-action="choose-ascension" data-value="${Math.max(1, chosen - 1)}" aria-label="Previous ascension" ${chosen <= 1 ? 'disabled' : ''}>−</button><span>ASCENSION <b>${chosen}</b><small>${testOverride ? `TEST · 1–${maximum}` : maximum > 1 ? `UNLOCKED 1–${maximum}` : 'FIRST JOURNEY'}</small></span><button data-action="choose-ascension" data-value="${Math.min(maximum, chosen + 1)}" aria-label="Next ascension" ${chosen >= maximum ? 'disabled' : ''}>+</button></div></div><button class="front-tutorial home-command secondary" data-action="tutorial"><span>TUTORIAL<small>Lessons & practice</small></span>${arrow}</button><button class="front-settings home-command secondary" data-action="settings"><span>SETTINGS<small>Sound & options</small></span>${arrow}</button></div>${testStarterMarkup()}</section>`;
+  return `<section class="run-front-page menu-art-home">${menuWorldMarkup()}<header class="front-title"><div class="front-main-light" aria-hidden="true"></div><h1>WISPBOUND</h1><p>A LIGHT IN THE LOST WOODS</p><small class="front-version" data-game-version="${esc(GAME_VERSION)}">Version ${esc(GAME_VERSION)}</small></header>${!active&&run?.endScore?`<button class="front-last-score" data-action="score-view">Last scorecard · ${Math.max(0,Math.floor(run.endScore.earned||0))} Stored Sparks</button>`:runProgressMarkup(active ? run : null)}<div class="front-actions">${active ? `<button class="front-continue home-command primary" data-action="continue-run"><span>CONTINUE<small>${run.isTutorial ? 'Your practice route' : `MAP ${Math.min(3,(Number(run.mapIndex)||0)+1)}/3 · ${run.phase==='map-clear'?'MAP CLEARED':`STOP ${Math.min(run.map?.length||10,(Number(run.step)||0)+1)}/${run.map?.length||10}`}`}</small></span>${arrow}</button>` : ''}<div class="front-new-game"><button class="front-new-button home-command ${active ? 'secondary' : 'primary'}" data-action="new-game"><span>NEW GAME<small>${practiceFirst ? 'First Light practice first' : 'Choose a starting gift'}</small></span>${arrow}</button><div class="front-ascension-picker${maximum===1?' is-fixed':''}" role="group" aria-label="Choose ascension for a new game"><button data-action="choose-ascension" data-value="${Math.max(1, chosen - 1)}" aria-label="Previous ascension" ${chosen <= 1 ? 'disabled' : ''}>−</button><span>ASCENSION <b>${chosen}</b><small>${testOverride ? `TEST · 1–${maximum}` : maximum > 1 ? `UNLOCKED 1–${maximum}` : 'FIRST JOURNEY'}</small></span><button data-action="choose-ascension" data-value="${Math.min(maximum, chosen + 1)}" aria-label="Next ascension" ${chosen >= maximum ? 'disabled' : ''}>+</button></div></div><button class="front-tutorial home-command secondary" data-action="tutorial"><span>TUTORIAL<small>Lessons & practice</small></span>${arrow}</button><button class="front-settings home-command secondary" data-action="settings"><span>SETTINGS<small>Sound & options</small></span>${arrow}</button></div>${testStarterMarkup({testOverride})}</section>`;
 }

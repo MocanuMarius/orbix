@@ -1,7 +1,7 @@
-import {artifactRarityLabel} from '../replay-ui.mjs?v=collector-cards-1';
-import {artifactLimitSummary,effectMarkup} from '../artifact-copy.mjs?v=collector-cards-1';
-import {artifactIcon} from '../upgrade-icons.mjs?v=collector-cards-1';
-import {escapeHtml as esc,actionButton} from './primitives.mjs?v=collector-cards-1';
+import {artifactRarityLabel} from '../replay-ui.mjs?v=starter-flow-1';
+import {artifactLimitSummary,effectMarkup} from '../artifact-copy.mjs?v=starter-flow-1';
+import {artifactIcon} from '../upgrade-icons.mjs?v=starter-flow-1';
+import {escapeHtml as esc,actionButton} from './primitives.mjs?v=starter-flow-1';
 
 // Two layout recipes share the same identity and rule decisions. Existing
 // production classes remain the styling API while the surfaces migrate here.
