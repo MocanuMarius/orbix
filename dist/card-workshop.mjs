@@ -1,6 +1,6 @@
-import {getOwnedCards,getCardImprovePreview,getCardRefillPreview,getCardForgePreview,canUseCardCampServices} from './model.mjs?v=storm-guide-1';
-import {cardFace,cardName} from './card-ui.mjs?v=storm-guide-1';
-import {resourceSymbol} from './game-symbols.mjs?v=storm-guide-1';
+import {getOwnedCards,getCardImprovePreview,getCardRefillPreview,getCardForgePreview,canUseCardCampServices} from './model.mjs?v=guide-clarity-1';
+import {cardFace,cardName} from './card-ui.mjs?v=guide-clarity-1';
+import {resourceSymbol} from './game-symbols.mjs?v=guide-clarity-1';
 
 const esc=value=>String(value??'').replace(/[&<>"']/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
 const wallet=run=>`<span class="card-bench-wallet">${resourceSymbol('packed')} ${Math.floor(run.condensedGlow||0)}<small>Stored Sparks</small></span>`;

@@ -1,10 +1,10 @@
-import { getCompanionAbility } from './companion-abilities.mjs?v=storm-guide-1';
-import { pickupKind, pickupContactRadius } from './pickups.mjs?v=storm-guide-1';
-import {sparkArtScale,sparkBodyRadius,sparkMass} from './spark-size.mjs?v=storm-guide-1';
-import {collectorCanFetch,collectorCompactSeconds,compressCollectorCargo} from './collector-load.mjs?v=storm-guide-1';
-import {pickupHookAnchor} from './pickup-handling-cue.mjs?v=storm-guide-1';
-import {WISP_ART} from './companion-art.mjs?v=storm-guide-1';
-import {collectorTowPose,collectorTowOrbit} from './collector-tow-geometry.mjs?v=storm-guide-1';
+import { getCompanionAbility } from './companion-abilities.mjs?v=guide-clarity-1';
+import { pickupKind, pickupContactRadius } from './pickups.mjs?v=guide-clarity-1';
+import {sparkArtScale,sparkBodyRadius,sparkMass} from './spark-size.mjs?v=guide-clarity-1';
+import {collectorCanFetch,collectorCompactSeconds,compressCollectorCargo} from './collector-load.mjs?v=guide-clarity-1';
+import {pickupHookAnchor} from './pickup-handling-cue.mjs?v=guide-clarity-1';
+import {WISP_ART} from './companion-art.mjs?v=guide-clarity-1';
+import {collectorTowPose,collectorTowOrbit} from './collector-tow-geometry.mjs?v=guide-clarity-1';
 
 const clamp = (value, lo, hi) => Math.min(hi, Math.max(lo, value));
 const smooth = value => {const u=clamp(value,0,1);return u*u*(3-2*u);};

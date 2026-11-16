@@ -1,7 +1,7 @@
 const variants=Object.freeze({
- waystone:{title:'Carved waystone',description:'Chipped stone, inset brass runes and a moss-green reward ledger.'},
- rootwood:{title:'Rooted wood',description:'Intertwined roots, fresh leaves and a warm woodland quest ledger.'},
- 'night-atlas':{title:'Illuminated night atlas',description:'Silver-blue bindings, golden stars and an indigo quest ledger.'},
+ waystone:{title:'Moss clearing',description:'Reward beside the challenge, with quiet moss and ochre ink.'},
+ rootwood:{title:'Woodland path',description:'A centered destination, clear reward above, and the challenge below. Compact screens keep both groups side by side.'},
+ 'night-atlas':{title:'Night crossing',description:'Challenge first on the left, reward on the right, in quiet twilight colors.'},
 });
 const query=new URLSearchParams(location.search),frame=document.querySelector('#guide-frame'),stage=document.querySelector('.guide-stage'),size=document.querySelector('#guide-size');
 let selected=Object.hasOwn(variants,query.get('art'))?query.get('art'):'waystone';
@@ -12,7 +12,7 @@ function fit(){
  frame.style.width=`${width}px`;frame.style.height=`${height}px`;
 }
 function update(){
- const variant=variants[selected],params=new URLSearchParams({family:'route',state:'wayfinder',guideArt:selected});
+ const variant=variants[selected],params=new URLSearchParams({family:'route',state:'wayfinder',guideArt:selected,v:'guide-clarity-1'});
  document.querySelectorAll('[data-guide]').forEach(button=>button.setAttribute('aria-pressed',String(button.dataset.guide===selected)));
  document.querySelector('#guide-title').textContent=variant.title;document.querySelector('#guide-description').textContent=variant.description;
  frame.title=`${variant.title} · Thorn Steeple Travel Guide`;frame.src=`components-preview.html?${params}`;

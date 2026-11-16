@@ -1,6 +1,6 @@
-export {collectionMarkup,collectionItemMarkup,COLLECTION_PAGE_SIZE} from '../collection-view.mjs?v=storm-guide-1';
-export {flightRewardMarkup,rewardDescription,rewardEarnings,rewardEarningsDetailMarkup} from '../reward-screen.mjs?v=storm-guide-1';
-export {artifactDetailMarkup} from '../replay-ui.mjs?v=storm-guide-1';
-export {artifactDescription,artifactDescriptionMarkup,artifactLimitSummary,effectMarkup} from '../artifact-copy.mjs?v=storm-guide-1';
-export {relicIdentityMarkup,relicRulesMarkup,relicRulesButton} from './relic-primitives.mjs?v=storm-guide-1';
-export {artifactPixelPortrait as relicPortraitMarkup} from '../artifact-pixel-art.mjs?v=storm-guide-1';
+export {collectionMarkup,collectionItemMarkup,COLLECTION_PAGE_SIZE} from '../collection-view.mjs?v=guide-clarity-1';
+export {flightRewardMarkup,rewardDescription,rewardEarnings,rewardEarningsDetailMarkup} from '../reward-screen.mjs?v=guide-clarity-1';
+export {artifactDetailMarkup} from '../replay-ui.mjs?v=guide-clarity-1';
+export {artifactDescription,artifactDescriptionMarkup,artifactLimitSummary,effectMarkup} from '../artifact-copy.mjs?v=guide-clarity-1';
+export {relicIdentityMarkup,relicRulesMarkup,relicRulesButton} from './relic-primitives.mjs?v=guide-clarity-1';
+export {artifactPixelPortrait as relicPortraitMarkup} from '../artifact-pixel-art.mjs?v=guide-clarity-1';
