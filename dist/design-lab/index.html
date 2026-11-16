@@ -14,6 +14,8 @@
  .group>b{font-size:11px;letter-spacing:.08em;color:#8ca17c;text-transform:uppercase;margin-right:2px}
  button.tab{padding:7px 12px;border:1px solid #47604a;border-radius:6px;background:#15251d;color:#cfdcc0;font:600 13px system-ui;cursor:pointer}
  button.tab[aria-pressed=true]{background:#d8c98a;border-color:#d8c98a;color:#14241a}
+ select{padding:7px 10px;border:1px solid #d8c98a;border-radius:6px;background:#15251d;color:#f3e6b9;font:600 14px system-ui}
+ .group[hidden]{display:none}
  .code{display:inline-block;padding:3px 10px;border-radius:5px;background:#d8c98a;color:#14241a;font:700 15px ui-monospace,Consolas,monospace}
  .status{font-size:12px;color:#9fb094;margin-left:8px}
  .stage{position:relative;width:100%;border:1px solid #33483a;border-radius:8px;background:#050b09;overflow:hidden}
@@ -28,6 +30,7 @@
 <h1>Design lab</h1>
 <p class="lead">Proposed looks rendered with the game's real stylesheets and icons. Nothing here is live in the game until you approve a code.</p>
 <div class="bar">
+ <div class="group"><b>Topic</b><select id="topic" aria-label="Topic"></select></div>
  <div class="group" id="variants"><b>Look</b></div>
  <div class="group" id="contexts"><b>Situation</b></div>
  <div class="group" id="sizes"><b>Screen</b></div>
@@ -38,12 +41,96 @@
 <p class="say" id="say"></p>
 <script>
 const LOOKS={
- 'v1.2-pause':{label:'v1.2-pause · proposed',status:'Proposed — not in the game yet',notes:[
+ 'v1.0-icons':{label:'v1.0-icons · Spark candidates',status:'Proposed — pick A, B or C',notes:[
+  'Today\'s Spark is drawn on a 20-pixel grid and never shown at a whole multiple, so it always looks soft.',
+  'A, B and C are drawn on one 16-pixel grid with a dark outline, and shown only at 16, 32 or 48.',
+  'A Glint: a four-point sparkle. B Charged orb: closest to the Spark you catch in flight. C Ember: a small flame.',
+  'Each is shown at three sizes on paper, and on leather beside a number, as it appears in menus.',
+  'Tell Claude e.g. "v1.0-icons B". The winner sets the grid, outline and palette for the other icons.']},
+ 'v2.5-theme':{label:'v2.5-theme · approved',status:'Approved 2026-11-16 — the skin for every menu',notes:[
+  'v2.4-theme with your colour note: Resume is moss green (go), Abandon run takes the wine red (gone).',
+  'Rule for every menu: green = the one next step, leather = go somewhere, paper slip = leave, wine = cannot be undone.']},
+ 'v2.4-theme':{label:'v2.4-theme · wine Resume',status:'Replaced by v2.5-theme',notes:[
+  'The book now rests over the game\'s own lost-woods painting, dimmed, with light pooling around the page.',
+  'Right side: the sound tab, centred in that space both ways.',
+  'Left side: your run at a glance — hearts, Spark Meter, Stored Sparks. Hidden on narrow phones, where the book shifts left.',
+  'The wisp sits above the title and lights the top of the page; buttons and text stay at full strength.']},
+ 'v2.3-theme':{label:'v2.3-theme · proposed',status:'Proposed skin — same layout, shown on the pause menu',notes:[
+  'v2.2-theme with your two notes.',
+  'The light now falls only on the page and the dark around it. Buttons and text sit above it at full strength.',
+  'Sound sits in a leather tab on the page\'s right edge, centred top to bottom, controls centred inside it.',
+  'Still next to the column, inside right-thumb reach.']},
+ 'v2.0-theme':{label:'v2.0-theme · Atlas',status:'Proposed skin — same layout, shown on the pause menu',notes:[
+  'The game\'s book: a warm paper page on leather, bookmark ribbons, ink title.',
+  'Leather tabs for entries, a wine ribbon for Resume, paper slips for leaving (red ink for Abandon).',
+  'Uses the Travel Guide\'s paper and ribbon colours, so menus and the guide become one book.',
+  'Layout, order and controls are exactly v1.5-pause.']},
+ 'v2.1-theme':{label:'v2.1-theme · Lantern',status:'Proposed skin — same layout, shown on the pause menu',notes:[
+  'Dark, lit by your wisp: the orb sits above the title with Collector beside it.',
+  'Light falls off with distance, like Luminance: Resume glows, entries farther down are dimmer.',
+  'Warm charcoal stone instead of green.',
+  'Layout, order and controls are exactly v1.5-pause.']},
+ 'v2.2-theme':{label:'v2.2-theme · Atlas by wisp-light',status:'Proposed skin — same layout, shown on the pause menu',notes:[
+  'Both ideas: the paper book, read in the dark by the wisp\'s light.',
+  'The page is brightest near the orb and falls into shadow toward the edges.',
+  'Layout, order and controls are exactly v1.5-pause.']},
+ 'v0-icons':{label:'v0-icons · inventory',status:'What ships today — evidence, not a proposal',page:'icons.html',notes:[
+  '128 icons in 13 families, each at its own size and at every size the game shows it. Scroll inside the frame.',
+  '18 different drawing grids are in use. 96 of 128 icons are shown at an uneven scale somewhere, which is what makes pixel art look soft.',
+  'The Spark: drawn on a 20-pixel grid, shown at eight sizes, never once at a whole multiple.',
+  'Next: one icon standard (one grid, whole-number sizes only) and a redrawn Spark, shown here as v1.0-icons.']},
+ 'v1.1-settings':{label:'v1.1-settings · approved',status:'Approved 2026-11-16 — queued to build',notes:[
+  'Settings holds settings only, in three named groups: Sound, Gameplay, App.',
+  'The "Cards · version" line is gone from the header; the version now sits under Updates. More room between title and groups.',
+  'Sound uses the same icon-and-bars control as the pause menu.',
+  'Tutorial, Field Guide, Glossary and Relic almanac leave Settings: they live under Help and Collection.',
+  'Back sits bottom left as a quiet plaque, the same place on every sheet. Advanced is tucked bottom right.',
+  'Speed shows only once Wind Feather has unlocked a choice. Compare with v0-settings under Earlier looks.']},
+ 'v0-settings':{label:'v0-settings · current',status:'What ships today (approximate copy)',notes:['Eight unrelated buttons in a three-column grid; Back styled as the main action.']},
+ 'v1.5-theme':{label:'v1.5-theme · Stone (current)',status:'The approved pieces in the green stone skin',notes:[
+  'Approved: plaque shapes, four stones, edge clasp, level control, title flourish, carved rule, treeline ground.',
+  'Rejected: stone grain, pointed sign ends, arrows.']},
+ 'v1.0-cardflow':{label:'v1.0-cardflow · how cards fire',status:'Proposed — not in the game yet',page:'cardflow.html',notes:[
+  'Press Next: the Trigger lights, then each card fires left to right while one Bonus counter climbs, then the Bonus flows into the Spark Meter.',
+  'After the first run, tap two cards to swap them and press Fire again. The result changes, with Before and Now side by side.',
+  'Every number comes from the game\'s real rules, for any of the six orders.',
+  'New words in use: Trigger, Bonus, + for cards that Add, × for cards that Multiply. The word "pass" is gone.',
+  'The Situation buttons do not apply to this look.']},
+ 'v1.5-pause':{label:'v1.5-pause · approved',status:'Approved 2026-11-16 — being built into the game',notes:[
+  'Grain removed: plaques are flat stone again. Clasp and Resume flourish stay.',
+  'Sound controls moved from the corner to just right of the column, beside Help and Settings, inside right-thumb reach.',
+  'Everything else as v1.4-pause.',
+  'Volume steps are new: the game only has on/off today, so approving this adds four volume levels.']},
+ 'v1.4-theme':{label:'v1.4-theme · the kit',status:'The component kit — follows what you approve',notes:[
+  'Approved: plaque shapes and the four stones.',
+  'Proposed: edge clasp, level control, title flourish, carved rule, treeline ground.',
+  'Rejected: stone grain.']},
+ 'v1.4-pause':{label:'v1.4-pause · grain, corner sound',status:'Grain rejected; sound moved in v1.5-pause',notes:[
+  'Sound is now two playful controls, top right: tap the icon to mute, tap a bar to set the volume. Music\'s bars nod in time.',
+  'Plaques have stone grain (speckle, a hairline crack, a little moss) instead of one flat colour.',
+  'A bronze clasp sits on the top and bottom edge of each main plaque; Resume also carries a flourish each side.',
+  'Layout, order and stones are unchanged from v1.3-pause.',
+  'Volume steps are new: the game only has on/off today, so approving this adds four volume levels.']},
+ 'v1.3-theme':{label:'v1.3-theme · earlier kit',status:'Replaced by v1.4-theme',notes:[
+  'Approved: plaque shapes and the four stones.',
+  'Proposed with v1.4-pause: stone grain, edge clasps, the level control.',
+  'Proposed with v1.3-pause: title flourish, carved rule, treeline ground.']},
+ 'v1.3-pause':{label:'v1.3-pause · plain toggles',status:'Liked; v1.4-pause makes sound playful and adds grain',notes:[
+  'v1.2-pause, which you called great, with your two follow-ups.',
+  'Music and FX are on the pause screen itself, top right. Tap them here to see the off state.',
+  'A little artistry: a flourish either side of the title and a quiet lost-woods treeline along the bottom.',
+  'On narrow screens the toggles shrink to icon plus On/Off; on short screens the flourish drops out.']},
+ 'v1.2-theme':{label:'v1.2-theme · earlier kit',status:'Replaced by v1.3-theme',notes:[
+  'Each piece is marked Approved or Proposed.',
+  'Approved so far: the four flat plaques, from your verdict on v1.2-pause.',
+  'Proposed: the toggle, the title flourish and the treeline ground, all from v1.3-pause.',
+  'When you accept a look, its new pieces move to Approved here and later menus are built from them.']},
+ 'v1.2-pause':{label:'v1.2-pause · flat plaques',status:'Liked; v1.3-pause adds sound and ornament',notes:[
   'Your two notes on v1.1-pause: the pointed sign end and the arrow are gone, and the lettering has room.',
   'Flat plaques with stepped corners; text sits 20px clear of every edge.',
   'The plaque is drawn once and shown at exactly twice its size, so its corners stay crisp at any width.',
   'Order and stones unchanged: gold = the one next step, basalt = go somewhere, weathered = leave, rust = cannot be undone.']},
- 'v1.1-theme':{label:'v1.1-theme · the kit',status:'Proposed — the shared menu language',notes:[
+ 'v1.1-theme':{label:'v1.1-theme · earlier kit',status:'Replaced by v1.2-theme',notes:[
   'The pieces every menu would be built from, now with flat plaques and no arrows.',
   'Four plaque roles, one title style, one context line, one carved rule.',
   'Approving this code means Settings, Help, Deck and the rest get rebuilt from these same pieces.']},
@@ -71,10 +158,14 @@ const LOOKS={
   'Skip practice floats top-right, away from Exit tutorial.',
   'Translucent backdrop lets the flight hint bleed through.']}
 };
+// Topics, newest first. Set `decided` to the approved code once the user has ruled.
+const TOPICS={settings:{label:'Settings',decided:'v1.1-settings'},icons:{label:'Icons'},cardflow:{label:'How cards fire'},pause:{label:'Pause menu',decided:'v1.5-pause'},theme:{label:'Style kit',decided:'v2.5-theme',contexts:true}};
+const topicOf=id=>id.slice(id.indexOf('-')+1);
+let earlier=false;
 const CONTEXTS={practice:'Tutorial flight',real:'Real run, in flight',map:'Real run, on map'};
 const SIZES={'900x405':[900,405],'740x333':[740,333],'667x300':[667,300],'640x320':[640,320]};
 const query=new URLSearchParams(location.search);
-let look=LOOKS[query.get('variant')]?query.get('variant'):'v1.2-pause',ctx=CONTEXTS[query.get('ctx')]?query.get('ctx'):'practice',size=SIZES[query.get('size')]?query.get('size'):'900x405';
+let look=LOOKS[query.get('variant')]?query.get('variant'):'v1.5-pause',ctx=CONTEXTS[query.get('ctx')]?query.get('ctx'):'practice',size=SIZES[query.get('size')]?query.get('size'):'900x405';
 const frame=document.querySelector('#frame'),stage=document.querySelector('#stage');
 function tabs(host,items,current,pick){
  host.querySelectorAll('button').forEach(button=>button.remove());
@@ -82,14 +173,24 @@ function tabs(host,items,current,pick){
 }
 function fit(){const [w,h]=SIZES[size],scale=Math.min(1,stage.clientWidth/w);frame.style.width=w+'px';frame.style.height=h+'px';frame.style.transform=`scale(${scale})`;stage.style.height=Math.round(h*scale)+'px';}
 function show(){
- tabs(document.querySelector('#variants'),Object.entries(LOOKS).map(([id,v])=>[id,v.label]),look,id=>{look=id;show()});
+ // One topic at a time. A decided topic shows only its approved look; history stays behind a button.
+ const topic=topicOf(look),info=TOPICS[topic],ids=Object.keys(LOOKS).filter(id=>topicOf(id)===topic);
+ const select=document.querySelector('#topic');
+ select.innerHTML=Object.entries(TOPICS).map(([id,t])=>`<option value="${id}"${id===topic?' selected':''}>${t.label}${t.decided?' · decided':''}</option>`).join('');
+ select.onchange=()=>{const next=TOPICS[select.value];earlier=false;look=next.decided||Object.keys(LOOKS).find(id=>topicOf(id)===select.value);show()};
+ const main=info.show||(info.decided?[info.decided]:[ids[0],...ids.filter(id=>id.startsWith('v0-'))]);
+ const shown=ids.filter(id=>earlier||main.includes(id)||id===look).map(id=>[id,LOOKS[id].label]);
+ if(ids.length>main.length)shown.push(['__earlier',earlier?'Hide history':'History…']);
+ tabs(document.querySelector('#variants'),shown,look,id=>{if(id==='__earlier')earlier=!earlier;else look=id;show()});
+ document.querySelector('#variants').hidden=shown.length<2;
+ document.querySelector('#contexts').hidden=!(topic==='pause'||info.contexts)||look==='v1.5-theme';
  tabs(document.querySelector('#contexts'),Object.entries(CONTEXTS),ctx,id=>{ctx=id;show()});
  tabs(document.querySelector('#sizes'),Object.keys(SIZES).map(id=>[id,id.replace('x',' × ')]),size,id=>{size=id;show()});
  document.querySelector('#code').textContent=look;
  document.querySelector('#status').textContent=LOOKS[look].status;
  document.querySelector('#notes').innerHTML=LOOKS[look].notes.map(note=>`<li>${note}</li>`).join('');
  document.querySelector('#say').innerHTML=look==='v0-pause'?'This is the current menu, shown for comparison.':`To ship this look, tell Claude: <code>${look} looks good</code>. To change it, say what to change and it comes back under the next code.`;
- frame.src=`frame.html?variant=${encodeURIComponent(look)}&ctx=${ctx}`;
+ frame.src=`${LOOKS[look].page||'frame.html'}?variant=${encodeURIComponent(look)}&ctx=${ctx}`;
  history.replaceState(null,'',`?variant=${encodeURIComponent(look)}&ctx=${ctx}&size=${size}`);
  fit();
 }

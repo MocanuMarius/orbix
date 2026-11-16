@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Icon inventory · Wispbound design lab</title>
+<link rel="icon" href="data:,">
+<script>
+// Production stylesheets, in game.html order (same list as frame.html), because some icons are styled by CSS.
+const SHEETS=['style','game','boost-control','level-map','companion','progression','orientation','map-clarity','afterglow-ui','tutorial-coach','campaign','pickup-guide','queue-ui','game-art','dream','expedition','landscape','radial-tree','replay','glow-ui','readability','game-symbols','living-icons','choice-art','rest-choices','viewport-layout','typography','death-screen','interface-composition','artifact-reward','artifact-detail','current-batch','menu-art','readability-pass','checkpoint-flow','artifact-collection','rough-ui','journey-art','treasure','ui-contrast','route-bonus','flight-preview','home-commands','home-journey-ink','companion-picker','night-atlas','installation','mobile-rim','skill-book','visual-system','activation-feedback','rhythm-score','card-ui','game-menu','home-utilities','scorecard'];
+for(const name of SHEETS)document.write(`<link rel="stylesheet" href="../${name}.css?v=guide-clarity-1">`);
+</script>
+<link rel="stylesheet" href="icons.css?v=guide-clarity-1">
+</head>
+<body class="inv">
+<header>
+<h1>Icon inventory</h1>
+<p class="lede">Every icon family the game draws, rendered by the game's own exported renderers, at native art size, 2x, 3x, and at each size the game really displays it. Evidence for the icon standard, not a redesign.</p>
+</header>
+<section class="legend" aria-label="Legend">
+<b>How to read a row</b>
+<ul>
+<li><b>Native 1x</b>: one art pixel = one CSS pixel. The native grid is the viewBox divided by the art-pixel size (1 unit for most icons; map stops use 3.5, 4 or 2.8 units; relics use 2; card art uses a 313-unit cell over an 80 px source cell).</li>
+<li><b>Displayed</b>: sizes the game shows, labelled <span class="basis">measured</span> (headless Chrome, component workshop samples and pause menu at 900×405 and 640×320), <span class="basis">derived</span> (markup size × measured route-map scale) or <span class="basis">css</span> (declared in production CSS, not measured).</li>
+<li><b>Scale</b> = displayed size ÷ native grid (meet: smaller axis, slice: larger axis). <span style="color:var(--inv-ok)">Green</span> = whole number. <span style="color:var(--inv-warn)">Amber ⚠</span> = fractional, which makes pixel art look soft or uneven.</li>
+<li><b>Colours</b> = distinct fill/stroke values in the markup (PNG/WebP art: distinct opaque raster colours). <b>Outline</b> = share of the silhouette's edge pixels that are dark (luminance &lt; 0.2), sampled on the native grid: ≥70% yes, 35–69% partial. <b>crispEdges</b> = computed <code>shape-rendering</code> on the icon in this page (attribute or production CSS).</li>
+</ul>
+</section>
+<section class="totals" id="totals" aria-live="polite">Loading renderers…</section>
+<main id="inventory"></main>
+<script type="module" src="icons.mjs?v=guide-clarity-1"></script>
+</body>
+</html>
