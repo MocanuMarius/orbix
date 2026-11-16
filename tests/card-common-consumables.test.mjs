@@ -156,7 +156,7 @@ test('old-save Commons gain finite caps once, preserve partial duplicate identit
   assert.equal(run.reserveCards.find(card=>card.instanceId==='old:prism').charges,4);
   assert.ok(!run.reserveCards.some(card=>card.instanceId==='empty:wick'));
   const body=describeSkillCard(run.mountedCards[1]),markup=cardFace(body);
-  assert.equal(body.limited,true);assert.match(body.effect,/2 shared uses/);assert.match(markup,/aria-label="2 of 5 uses remaining: help">2\/5/);
+  assert.equal(body.limited,true);assert.match(body.effect,/2 uses/);assert.doesNotMatch(body.effect,/shared uses/);assert.match(markup,/aria-label="2 of 5 uses remaining: help">2\/5/);
   assert.deepEqual(commitCardCharges(run,{'old:cluster':4,'partial:cluster':0}),['partial:cluster']);
   let data;const storage={getItem:()=>data,setItem:(_,value)=>{data=value;}};
   assert.ok(M.saveState(state,storage));const loaded=M.loadState(storage).run;

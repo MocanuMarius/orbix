@@ -1,8 +1,8 @@
-import { cardTermTextMarkup } from "./card-terms.mjs?v=rowcraft-1";
-import { getCardRuleBands } from "./card-rule-bands.mjs?v=rowcraft-1";
-import { getEquippedCardStatuses, cardStatusText } from "./card-status.mjs?v=rowcraft-1";
-import { cardArt } from "./card-art.mjs?v=rowcraft-1";
-import {deckRelicShelfMarkup,deckContextMarkup,deckLinkedCardFace,deckSwapComboMarkup,deckCardExplanationMarkup} from './deck-combos.mjs?v=rowcraft-1';
+import { cardTermTextMarkup } from "./card-terms.mjs?v=glossary-1";
+import { getCardRuleBands } from "./card-rule-bands.mjs?v=glossary-1";
+import { getEquippedCardStatuses, cardStatusText } from "./card-status.mjs?v=glossary-1";
+import { cardArt } from "./card-art.mjs?v=glossary-1";
+import {deckRelicShelfMarkup,deckContextMarkup,deckLinkedCardFace,deckSwapComboMarkup,deckCardExplanationMarkup} from './deck-combos.mjs?v=glossary-1';
 import {
   getMountedCards,
   getOwnedCards,
@@ -15,12 +15,12 @@ import {
   canUseCardCampServices,
   getSkillWallet,
   equipOwnedCard,
-} from "./model.mjs?v=rowcraft-1";
-import { resourceSymbol } from "./game-symbols.mjs?v=rowcraft-1";
-import { choiceScene } from "./choice-art.mjs?v=rowcraft-1";
-import { livesMarkup } from "./lives.mjs?v=rowcraft-1";
-import { getGlowCapacity, formatGlow } from "./vitality.mjs?v=rowcraft-1";
-import { mapStopIconMarkup } from "./map-guide.mjs?v=rowcraft-1";
+} from "./model.mjs?v=glossary-1";
+import { resourceSymbol } from "./game-symbols.mjs?v=glossary-1";
+import { choiceScene } from "./choice-art.mjs?v=glossary-1";
+import { livesMarkup } from "./lives.mjs?v=glossary-1";
+import { getGlowCapacity, formatGlow } from "./vitality.mjs?v=glossary-1";
+import { mapStopIconMarkup } from "./map-guide.mjs?v=glossary-1";
 import {
   createCardExecution,
   executeCardBodyPickup,
@@ -30,7 +30,7 @@ import {
   getCardChargeCapacity,
   isInventoryOnlyCard,
   SKILL_CARDS,
-} from "./skill-cards.mjs?v=rowcraft-1";
+} from "./skill-cards.mjs?v=glossary-1";
 
 const esc = (v) =>
   String(v ?? "").replace(
@@ -79,7 +79,7 @@ function flightPackingReceipt(run, reward) {
     ? ` · Tight Packing +${bonus} Stored Sparks`
     : "";
 }
-export { cardArt } from "./card-art.mjs?v=rowcraft-1";
+export { cardArt } from "./card-art.mjs?v=glossary-1";
 export function effectMarkup(text) {
   return esc(text).replace(/([+−]?\d+(?:\.\d+)?%?)/g, '<b class="card-number">$1</b>');
 }
@@ -121,7 +121,7 @@ const conciseRuleText = text => text
   .replace(/^Double Collector fetching reach for \d+ extra catches\.?$/, 'Double Collector reach for catches beyond normal reach.')
   .replace(/^Spend 1 use only when an eligible missed pickup beyond normal reach is caught\. Range extensions do not stack\.?$/, 'Range extensions do not stack.')
   .replace(/^Spend 1 use only beyond normal reach\. Use the shortest sufficient extension\. Your wisp gets first chance\.?$/, 'Uses the shortest sufficient extension. Your wisp gets first chance.')
-  .replace(/^\d+ shared uses\. Checks before the pickup refills it\.?$/, 'Checks before the pickup refills it.')
+  .replace(/^\d+ (?:shared )?uses\. Checks before the pickup refills it\.?$/, 'Checks before the pickup refills it.')
   .replace(/^3 shared Grow actions per journey\. Owned Seeds add together, up to \+90\.?$/, '3 shared Grow actions per Game. Seeds add together, up to +90.')
   .replace(/^1 use\. Maximum 2 Collectors\. Keeps its use while Twin Orbit already provides the second\.?$/, '2 Collectors maximum. Keeps its use if Twin Orbit supplies the second.')
   .replace(/^3 uses\. Copies share uses and keep one final wave\.?$/, 'Copies share uses and keep one final wave.')
@@ -161,7 +161,7 @@ export function cardFace(card, { compact = false, fitted = false, slot = null, s
   const verbose = bands.length >= 3 || bands.map(band => band.text).join(' ').length > 130;
   const dense = status && verbose;
   const badge = finite ? compact ? `<span class="card-use-counter" role="img" aria-label="${usesLabel}">${uses}</span>` : `<button type="button" class="card-use-counter" data-card-term="uses" aria-haspopup="dialog" aria-label="${usesLabel}: help">${uses}</button>` : '';
-  return `<article class="skill-card card-${rarity(card)} ${compact ? 'compact-card card-thumbnail' : 'card-readable'} ${fitted ? 'card-fitted' : ''} ${finite ? 'card-has-uses' : ''} ${status ? 'card-has-status' : ''} ${dense || fitted && status ? 'card-status-dense' : ''} ${verbose ? 'card-rules-dense' : ''} ${bands.length >= 4 ? 'card-rules-long' : ''} ${selected ? 'card-selected' : ''}" data-card-instance="${esc(card.instanceId || '')}" data-card-help="${esc(card.cardId || card.id)}" data-card-name="${esc(cardName(card))}" data-card-description="${esc(printed(card))}" aria-label="${esc(cardName(card))}, ${esc(rarity(card))}${status ? `, ${esc(cardStatusText(status))}` : ''}"><header class="card-face-heading"><h3>${esc(cardName(card))}</h3>${compact ? '' : `<button type="button" class="card-help" data-card-term-trigger="${esc(card.cardId || card.id)}" data-card-terms="${cardTerms(card).join(' ')}" aria-haspopup="dialog" aria-label="Help with ${esc(cardName(card))}">?</button>`}</header><div class="card-illustration">${cardArt(card, { compact })}${rarityInlay(card)}</div>${compact ? '' : `<div class="card-rule-band" role="group" tabindex="0" aria-label="Rules for ${esc(cardName(card))}; scroll for all details">${cardMechanicMarkup(card,{fitted})}</div>`}${cardStatusMarkup(status, {compact, slot})}${badge}</article>`;
+  return `<article class="skill-card card-${rarity(card)} ${compact ? 'compact-card card-thumbnail' : 'card-readable'} ${fitted ? 'card-fitted' : ''} ${finite ? 'card-has-uses' : ''} ${status ? 'card-has-status' : ''} ${dense || fitted && status ? 'card-status-dense' : ''} ${verbose ? 'card-rules-dense' : ''} ${bands.length >= 4 ? 'card-rules-long' : ''} ${selected ? 'card-selected' : ''}" data-card-instance="${esc(card.instanceId || '')}" data-card-help="${esc(card.cardId || card.id)}" data-card-rank="${card.rank || 1}"${Number.isFinite(card.charges) ? ` data-card-charges="${card.charges}"` : ''} data-card-name="${esc(cardName(card))}" data-card-description="${esc(printed(card))}" aria-label="${esc(cardName(card))}, ${esc(rarity(card))}${status ? `, ${esc(cardStatusText(status))}` : ''}"><header class="card-face-heading"><h3>${esc(cardName(card))}</h3>${compact ? '' : `<button type="button" class="card-help" data-card-term-trigger="${esc(card.cardId || card.id)}" data-card-terms="${cardTerms(card).join(' ')}" aria-haspopup="dialog" aria-label="Help with ${esc(cardName(card))}">?</button>`}</header><div class="card-illustration">${cardArt(card, { compact })}${rarityInlay(card)}</div>${compact ? '' : `<div class="card-rule-band" role="group" tabindex="0" aria-label="Rules for ${esc(cardName(card))}; scroll for all details">${cardMechanicMarkup(card,{fitted})}</div>`}${cardStatusMarkup(status, {compact, slot})}${badge}</article>`;
 }
 export function starterCardsMarkup(run, gifts, existing) {
   const guide=describeSkillCard(makeSkillCard('lift-guide','included-starter-guide'));
@@ -262,7 +262,7 @@ export function cardExchangeMarkup(card, { kind = 'melt', preview = null, index 
     const before = preview.before || card, after = preview.after;
     return `<section class="card-exchange card-improve-confirm"><header class="card-heading"><div><small>${preview.kind === 'evolution' ? 'EVOLVE' : 'IMPROVE'} · USES PRESERVED</small><h2>${esc(cardName(before))} → ${esc(cardName(after))}</h2></div>${walletMarkup(wallet)}</header><div class="card-improve-pair"><div class="card-improve-version"><small>Before · ${esc(rarity(before))} · rank ${before.rank || 1}</small><div class="card-improve-face">${cardFace(before)}</div></div><div class="card-improve-version"><small>After · ${esc(rarity(after))} · rank ${after.rank || 1}</small><div class="card-improve-face">${cardFace(after)}</div></div></div><footer class="card-dialog-actions"><button class="secondary" data-action="card-back-improve">${esc(backLabel)}</button><p class="card-improve-wallet" role="status">${preview.eligible ? `Stored Sparks ${amount(wallet)} → ${amount(wallet)-amount(preview.price)}` : esc(preview.reason || `Need ${Math.max(0,amount(preview.price)-amount(wallet))} more Stored Sparks`)}</p><button class="primary" data-action="card-confirm-improve" data-id="${esc(card.instanceId)}" data-rank="${card.rank || 1}" data-token="${esc(preview.token || '')}" ${!preview.eligible ? 'disabled' : ''}>${preview.kind === 'evolution' ? 'Evolve' : 'Improve'} · ${amount(preview.price)} →</button></footer></section>`;
   }
-  return `<section class="card-exchange ${improve ? 'card-improve-confirm' : 'card-melt-confirm'}"><header class="card-heading"><div><small>${improve ? 'IMPROVE A DECK CARD' : 'PERMANENTLY DESTROY THIS CARD'}</small><h2>${improve ? 'Improve' : 'Melt'} ${esc(cardName(card))}?</h2></div>${walletMarkup(wallet)}</header><div class="card-exchange-body">${cardFace(card)}<div class="card-exchange-result">${improve ? `<h3>${esc(cardName(preview.before || card))} → ${esc(cardName(preview.after))}</h3><small class="card-improve-tier">${esc(rarity(preview.before || card))} · rank ${card.rank || 1} → ${esc(rarity(preview.after))} · rank ${preview.after?.rank || Number(card.rank || 1) + 1}</small>${Number.isFinite(card.amount) && preview.after?.amount !== card.amount ? `<p class="card-improve-amount">Bonus +${card.amount} → +${preview.after.amount}</p>` : ''}${cardMechanicMarkup(preview.after)}<p class="card-kept-uses">Remaining uses unchanged</p><strong>−${amount(preview.price)} Stored Sparks</strong><small>${preview.eligible ? `Wallet ${amount(wallet)} → ${amount(wallet) - amount(preview.price)}` : esc(preview.reason || `Need ${Math.max(0, amount(preview.price) - amount(wallet))} more Stored Sparks`)}</small>` : `<div class="card-melt-art">${choiceScene('forge')}</div><h3>Destroy this card</h3><p>${card.charges == null ? 'Its ability ends.' : `${amount(card.charges)} remaining uses will be lost.`}</p><strong>+${amount(card.meltValue)} Stored Sparks</strong><small>Wallet ${amount(wallet)} → ${amount(wallet) + amount(card.meltValue)}</small>`}</div></div><footer class="card-dialog-actions"><button class="secondary" data-action="${improve ? 'card-back-improve' : source === 'reward' ? 'card-back-reward' : 'cards'}">${improve ? esc(backLabel) : 'Keep card'}</button><button class="primary ${improve ? '' : 'card-danger'}" data-action="${improve ? 'card-confirm-improve' : source === 'reward' ? 'card-confirm-reward-melt' : 'card-confirm-melt'}" data-id="${esc(card.instanceId)}" data-index="${index ?? ''}" data-rank="${card.rank || 1}" data-token="${esc(preview?.token || '')}" ${improve && !preview.eligible ? 'disabled' : ''}>${improve ? `${preview.kind === 'evolution' ? 'Evolve' : 'Improve'} for ${amount(preview.price)}` : `Melt card for +${amount(card.meltValue)}`} →</button></footer></section>`;
+  return `<section class="card-exchange ${improve ? 'card-improve-confirm' : 'card-melt-confirm'}"><header class="card-heading"><div><small>${improve ? 'IMPROVE A DECK CARD' : 'PERMANENTLY DESTROY THIS CARD'}</small><h2>${improve ? 'Improve' : 'Melt'} ${esc(cardName(card))}?</h2></div>${walletMarkup(wallet)}</header><div class="card-exchange-body">${cardFace(card)}<div class="card-exchange-result">${improve ? `<h3>${esc(cardName(preview.before || card))} → ${esc(cardName(preview.after))}</h3><small class="card-improve-tier">${esc(rarity(preview.before || card))} · rank ${card.rank || 1} → ${esc(rarity(preview.after))} · rank ${preview.after?.rank || Number(card.rank || 1) + 1}</small>${Number.isFinite(card.amount) && preview.after?.amount !== card.amount ? `<p class="card-improve-amount">Bonus +${card.amount} → +${preview.after.amount}</p>` : ''}${cardMechanicMarkup(preview.after)}<p class="card-kept-uses">Uses unchanged</p><strong>−${amount(preview.price)} Stored Sparks</strong><small>${preview.eligible ? `Wallet ${amount(wallet)} → ${amount(wallet) - amount(preview.price)}` : esc(preview.reason || `Need ${Math.max(0, amount(preview.price) - amount(wallet))} more Stored Sparks`)}</small>` : `<div class="card-melt-art">${choiceScene('forge')}</div><h3>Destroy this card</h3><p>${card.charges == null ? 'Its ability ends.' : `${amount(card.charges)} remaining uses will be lost.`}</p><strong>+${amount(card.meltValue)} Stored Sparks</strong><small>Wallet ${amount(wallet)} → ${amount(wallet) + amount(card.meltValue)}</small>`}</div></div><footer class="card-dialog-actions"><button class="secondary" data-action="${improve ? 'card-back-improve' : source === 'reward' ? 'card-back-reward' : 'cards'}">${improve ? esc(backLabel) : 'Keep card'}</button><button class="primary ${improve ? '' : 'card-danger'}" data-action="${improve ? 'card-confirm-improve' : source === 'reward' ? 'card-confirm-reward-melt' : 'card-confirm-melt'}" data-id="${esc(card.instanceId)}" data-index="${index ?? ''}" data-rank="${card.rank || 1}" data-token="${esc(preview?.token || '')}" ${improve && !preview.eligible ? 'disabled' : ''}>${improve ? `${preview.kind === 'evolution' ? 'Evolve' : 'Improve'} for ${amount(preview.price)}` : `Melt card for +${amount(card.meltValue)}`} →</button></footer></section>`;
 }
 export function cardGrowConfirmationMarkup(run, camp, grow) {
   return `<section class="card-exchange card-grow-confirm"><header class="card-heading"><h2>Grow at this Rest?</h2></header><div class="card-exchange-body">${choiceScene('refillGlow')}<div class="card-exchange-result"><h3>Max Sparks ${formatGlow(grow.before.maxMeter)} → ${formatGlow(grow.after.maxMeter)}</h3><p>Refill Sparks to ${formatGlow(grow.after.maxMeter)}. Hearts stay ${grow.before.hearts}/${grow.before.maxHearts}.</p><p>Uses 1 Rest action and 1 shared Grow action.</p><strong>${3 - getCardGrowthUses(run)} → ${2 - getCardGrowthUses(run)} of 3 Grow actions left</strong>${camp.used.length === 1 && camp.extraAvailable ? '<p>Spends 1 Second Ember use after Grow succeeds.</p>' : ''}</div></div><footer class="card-dialog-actions"><button class="secondary" data-action="card-cancel-grow">Cancel</button><button class="primary" data-action="card-confirm-grow" data-index="${grow.index}" data-token="${esc(grow.token)}">Confirm Grow →</button></footer></section>`;

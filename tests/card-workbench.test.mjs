@@ -141,7 +141,7 @@ test('playing-card faces print complete rules with contextual term controls and 
   assert.match(face, /viewBox="313 0 313 313"/);
   assert.match(face, /assets\/cards\/skill-card-scenes-rare\.webp/);
   assert.match(face, /card-rule-band/);
-  assert.match(plain(face), /When your wisp absorbs a Spark/);
+  assert.match(plain(face), /Your wisp touches a Spark/);
   assert.match(plain(face), /\+4 Sparks/);
   assert.match(plain(face), /1 use per pickup/);
   assert.doesNotMatch(plain(face), /:/);
@@ -173,10 +173,11 @@ test('body rewards stay together and scale with rank; only concrete terms use in
     const body = cardMechanicMarkup(describeSkillCard({...makeSkillCard('body-spark', 'rank'), rank}));
     const effect = /data-rule-type="effect">([\s\S]*?)<\/span><\/span><\/span>/.exec(body)?.[1] || body;
     assert.match(effect.replace(/<[^>]+>/g,'').replace(/\s+/g,' '), new RegExp(`\\+${amount} Sparks`));
-    assert.equal((body.match(/class="card-term-icon card-term-icon-spark"/g) || []).length, 2);
+    assert.equal((body.match(/class="card-term-icon card-term-icon-spark"/g) || []).length, 1);
+    assert.equal((body.match(/class="card-term-icon card-term-icon-meter"/g) || []).length, 1);
     assert.doesNotMatch(body, /card-term-symbol/);
     assert.match(body, /aria-label="Spark: help"/);
-    assert.match(body, /aria-label="Sparks: help"/);
+    assert.match(body, /aria-label="Spark Meter: help"/);
     assert.doesNotMatch(body, /natural|extra Sparks|card-mechanic-uses/);
   }
   const legendary = cardMechanicMarkup(describeSkillCard(makeSkillCard('harvest-legendary', 'paired')));

@@ -1,8 +1,8 @@
-import {DEFAULT_CAPTURE_STYLE} from './capture-styles.mjs?v=rowcraft-1';
-import {getPickupSpec, pickupKind, pickupShellRadius} from './pickups.mjs?v=rowcraft-1';
-import {pickupSpriteFrame} from './pickup-art.mjs?v=rowcraft-1';
-import {LIGHT_PACKET_TUNING} from './vitality.mjs?v=rowcraft-1';
-import {drawFluidCapture} from './fluid-capture.mjs?v=rowcraft-1';
+import {DEFAULT_CAPTURE_STYLE} from './capture-styles.mjs?v=glossary-1';
+import {getPickupSpec, pickupKind, pickupShellRadius} from './pickups.mjs?v=glossary-1';
+import {pickupSpriteFrame} from './pickup-art.mjs?v=glossary-1';
+import {LIGHT_PACKET_TUNING} from './vitality.mjs?v=glossary-1';
+import {drawFluidCapture} from './fluid-capture.mjs?v=glossary-1';
 
 const TAU = Math.PI * 2;
 const clamp = value => Math.max(0, Math.min(1, value));

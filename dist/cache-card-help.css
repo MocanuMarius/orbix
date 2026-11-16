@@ -1,0 +1,15 @@
+.card-term-dialog.card-cache-dialog{width:min(720px,calc(100vw - 20px))}
+.card-term-dialog .cache-help-intro{font-size:13px;margin:0 0 7px;color:#dfe7cc}
+.cache-help-views{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px}
+.cache-help-views figure{min-width:0;margin:0;padding:7px;background:#11261e;border:1px solid #607857;border-radius:3px}
+.cache-help-views figure[data-cache-focus]{border-color:#e3cf98;box-shadow:inset 0 2px #e3cf98}
+.cache-help-views figcaption{display:block;min-height:53px;color:#e2e8ce;font:12px/1.25 var(--pixel,monospace)}
+.cache-help-views figcaption strong{display:block;color:#f6e4af;font-size:16px;line-height:1.2;margin-bottom:4px}
+.cache-help-views figcaption span{display:block}
+.cache-help-scene{display:flex;align-items:center;justify-content:center;aspect-ratio:48/25;overflow:hidden;background:#07120f;border:1px solid #42634c;color:#c9d6bd;font:12px/1.2 var(--pixel,monospace)}
+.cache-help-scene canvas{display:block;width:100%;height:100%;object-fit:cover;image-rendering:pixelated}
+.card-term-dialog .cache-help-reward{margin:6px 0 2px;color:#f7e2a7;font-size:14px;line-height:1.25;font-weight:bold}
+.card-term-dialog .cache-help-state{font-size:12px;line-height:1.25;color:#d0dfbd}
+.cache-help-card{display:block;color:#bcd0b0;font:11px/1.3 var(--pixel,monospace);margin-top:5px;text-transform:none}
+@media(max-height:380px){.card-term-dialog .cache-help-intro{font-size:12px;margin-bottom:5px}.cache-help-views figure{padding:5px}.cache-help-views figcaption{min-height:34px;font-size:11px}.cache-help-views figcaption strong{font-size:15px;margin-bottom:2px}.cache-help-scene{aspect-ratio:3/1}.card-term-dialog .cache-help-reward{font-size:13px;margin-top:4px}.card-term-dialog .cache-help-state{font-size:11px}.cache-help-card{font-size:10px;margin-top:3px}}
+@media(max-width:500px){.cache-help-views{grid-template-columns:1fr}.cache-help-views figure{display:grid;grid-template-columns:minmax(118px,1fr) minmax(0,1.35fr);column-gap:9px}.cache-help-views figcaption{grid-column:1;grid-row:1;min-height:0}.cache-help-scene{grid-column:2;grid-row:1/5;aspect-ratio:48/25}.cache-help-views .cache-help-reward,.cache-help-views .cache-help-state,.cache-help-views .cache-help-card{grid-column:1}.cache-help-views .cache-help-card{font-size:10px}}

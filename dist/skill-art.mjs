@@ -1,6 +1,6 @@
-import {sparkImageArt,sparkSymbolArt} from './spark-symbol.mjs?v=rowcraft-1';
-import {condensedIconMarkup} from './afterglow-ui.mjs?v=rowcraft-1';
-import {fineTreasureObject} from './fine-treasure-art.mjs?v=rowcraft-1';
+import {sparkImageArt,sparkSymbolArt} from './spark-symbol.mjs?v=glossary-1';
+import {condensedIconMarkup} from './afterglow-ui.mjs?v=glossary-1';
+import {fineTreasureObject} from './fine-treasure-art.mjs?v=glossary-1';
 
 // Three material tones sit above a shared dark contour. Keep light and shadow
 // readable at the tree's smallest size, even with all motion switched off.

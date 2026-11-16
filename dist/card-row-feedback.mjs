@@ -1,5 +1,5 @@
-import {SKILL_CARDS} from './skill-cards.mjs?v=rowcraft-1';
-import {CARD_ART_IDS} from './card-art.mjs?v=rowcraft-1';
+import {SKILL_CARDS, describeSkillCard} from './skill-cards.mjs?v=glossary-1';
+import {CARD_ART_IDS} from './card-art.mjs?v=glossary-1';
 const esc = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const number = value => Number((Number(value) || 0).toFixed(3));
 const capped = trace => Number.isFinite(trace?.restoredSparks) && Math.abs(trace.restoredSparks - trace.sparks) > 1e-7;
@@ -30,9 +30,10 @@ const traceTotals = trace => [
   trace.stored ? `+${number(trace.stored)} Stored Sparks` : '',
   trace.recoverySeconds ? `−${number(trace.recoverySeconds)} s recovery` : '',
 ].filter(Boolean).join(' · ');
-export function cardRowTraceMarkup(trace) {
+export function cardRowTraceMarkup(trace, {cards, showUses = false} = {}) {
   if (!trace) return '<p>No matching card event yet.</p>';
-  return `<p class="card-row-total">${esc(names[trace.event?.kind] || 'Card event')} · <b>${esc(traceTotals(trace))}</b>${capped(trace) ? `<br><span>+${number(trace.restoredSparks)} Sparks restored · meter limit</span>` : ''}</p>${Array.from({length:trace.passes || 1}, (_, index) => `<section class="card-row-receipt-pass"><h3>${index ? '↶ Return to slot 1 · ' : ''}Pass ${index + 1}</h3><ol>${trace.steps.filter(step => step.pass === index + 1).map(step => `<li class="${step.success ? 'did-act' : ''}"><span class="card-row-receipt-slot">${step.slot + 1}</span><span><strong>${esc(SKILL_CARDS[step.actingCardId]?.name || 'Empty slot')}</strong>${step.copiedBy ? `<small>Copies ${esc(SKILL_CARDS[step.sourceCardId]?.name || 'the next card')}${Number.isFinite(step.repeatIndex) ? ` · attempt ${step.repeatIndex + 1}` : ''}</small>` : ''}<span>${esc(action(step))}</span></span></li>`).join('')}</ol></section>`).join('')}<p class="card-row-receipt-note">Each pass starts at 0 bonus Sparks. A replay does not collect another pickup or create another wave.</p>`;
+  const cardName = (instanceId, cardId) => describeSkillCard(cards?.find(card => card?.instanceId === instanceId))?.name || SKILL_CARDS[cardId]?.name || 'Empty slot';
+  return `<p class="card-row-total">${esc(names[trace.event?.kind] || 'Card event')} · <b>${esc(traceTotals(trace))}</b>${capped(trace) ? `<br><span>+${number(trace.restoredSparks)} Sparks restored · meter limit</span>` : ''}</p>${Array.from({length:trace.passes || 1}, (_, index) => `<section class="card-row-receipt-pass"><h3>${index ? '↶ Return to slot 1 · ' : ''}Pass ${index + 1}</h3><ol>${trace.steps.filter(step => step.pass === index + 1).map(step => `<li class="${step.success ? 'did-act' : ''}"><span class="card-row-receipt-slot">${step.slot + 1}</span><span><strong>${esc(cardName(step.actingInstanceId,step.actingCardId))}</strong>${step.copiedBy ? `<small>Copies ${esc(cardName(step.sourceInstanceId,step.sourceCardId))}${Number.isFinite(step.repeatIndex) ? ` · attempt ${step.repeatIndex + 1}` : ''}</small>` : ''}<span>${esc(action(step))}</span>${showUses && Number.isFinite(step.chargesBefore) ? `<small class="card-row-step-uses">${step.copiedBy ? 'Shared uses' : 'Uses'} · ${step.chargesBefore} → ${step.chargesAfter}</small>` : ''}</span></li>`).join('')}</ol></section>`).join('')}<p class="card-row-receipt-note">Each pass starts at 0 bonus Sparks. A replay does not collect another pickup or create another wave.</p>`;
 }
 
 /** At most five productive acting slots, with one truthful replay mark. */

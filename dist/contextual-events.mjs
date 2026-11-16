@@ -1,7 +1,7 @@
-import {activeFlightPact} from './flight-pacts.mjs?v=rowcraft-1';
-import {completeOffers,EVENT_FAVORS,hasFutureRest} from './event-choices.mjs?v=rowcraft-1';
-import {getGlowCapacity} from './vitality.mjs?v=rowcraft-1';
-import {treasureFlightNotice} from './treasure.mjs?v=rowcraft-1';
+import {activeFlightPact} from './flight-pacts.mjs?v=glossary-1';
+import {completeOffers,EVENT_FAVORS,hasFutureRest} from './event-choices.mjs?v=glossary-1';
+import {getGlowCapacity} from './vitality.mjs?v=glossary-1';
+import {treasureFlightNotice} from './treasure.mjs?v=glossary-1';
 // Event stakes are fixed when offered. They are not rolled during flight.
 const choice=(id,title,description,effect)=>({id,title,description,detail:description,effect});
 export const PILGRIM_VOW=Object.freeze({target:4,reward:8});

@@ -1,8 +1,9 @@
 // Disposable, deterministic equipped samples. No app boot, persistence or economy actions.
-import { CARD_SYSTEM, SKILL_CARDS, makeSkillCard, getMountedCards, previewCardRow } from './skill-cards.mjs?v=rowcraft-1';
-import { cardRowTraceMarkup, cardRowSequenceMarkup } from './card-row-feedback.mjs?v=rowcraft-1';
-import { cardFace } from './card-ui.mjs?v=rowcraft-1';
-import { CARD_TERMS, cardTermTextMarkup, installCardTermHelp } from './card-terms.mjs?v=rowcraft-1';
+import { CARD_SYSTEM, SKILL_CARDS, makeSkillCard, getMountedCards, previewCardRow } from './skill-cards.mjs?v=glossary-1';
+import { cardRowTraceMarkup, cardRowSequenceMarkup } from './card-row-feedback.mjs?v=glossary-1';
+import { cardFace } from './card-ui.mjs?v=glossary-1';
+import { CARD_TERMS, cardTermTextMarkup, installCardTermHelp } from './card-terms.mjs?v=glossary-1';
+import {resolveCardHelpContext} from './card-row-help.mjs?v=glossary-1';
 
 const esc = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 export const DEFAULT_COMBO_SEED = 'moonwell-15';
@@ -138,10 +139,17 @@ if (typeof document !== 'undefined') {
   };
   document.getElementById('combo-catalog-search').addEventListener('input',renderCatalog);
   document.getElementById('combo-catalog-rarity').addEventListener('change',renderCatalog);
-  installCardTermHelp(document,{resolveProximityContext:button=>{
+  const galleryContext = button => {
     const own=button.closest('[data-card-instance]');if(!own)return null;const row=button.closest('.combo-row')||button.closest('#combo-example-cards')||own;
-    const cards=[...row.querySelectorAll('[data-card-instance]')];
-    if(row===own)cards.push(own);
-    return {run:{skillSystem:CARD_SYSTEM,cardSlots:Math.max(3,cards.length),mountedCards:cards.map(face=>makeSkillCard(face.dataset.cardHelp,face.dataset.cardInstance)),reserveCards:[],skills:{},companions:['collector']},instanceId:own?.dataset.cardInstance,example:true};
-  }}); render(); renderExample(0); renderCatalog();
+    const cards=row===own?[own]:[...row.querySelectorAll('[data-card-instance]')];
+    const mountedCards=cards.map(face=>{
+      const card=makeSkillCard(face.dataset.cardHelp,face.dataset.cardInstance);
+      card.rank=Number(face.dataset.cardRank)||1;
+      if(face.dataset.cardCharges!==undefined)card.charges=Number(face.dataset.cardCharges);
+      return card;
+    });
+    const run={skillSystem:CARD_SYSTEM,cardSlots:Math.max(3,cards.length),mountedCards,reserveCards:[],skills:{},companions:['collector']};
+    return resolveCardHelpContext(button,run,{example:true,label:row===own?'Catalog card · example row':'This gallery row · preview'});
+  };
+  installCardTermHelp(document,{resolveCardContext:galleryContext,resolveProximityContext:galleryContext}); render(); renderExample(0); renderCatalog();
 }
