@@ -2,7 +2,7 @@
 // keyboard/tap path; only a deliberate pointer movement starts a drag.
 export function bindDeckDragging({ canEdit, getCard, onDrop, root = document }) {
   let drag = null, blockedClickUntil = 0;
-  const editable = sheet => sheet?.isConnected && sheet.open && sheet.querySelector('[data-deck-editable="true"]') && canEdit();
+  const editable = sheet => sheet?.isConnected && (sheet.tagName!=='DIALOG'||sheet.open) && (sheet.matches('[data-deck-editable="true"]')||sheet.querySelector('[data-deck-editable="true"]')) && canEdit();
   const stop = (suppress = false) => {
     const current = drag;
     if (!current) return;
@@ -42,7 +42,7 @@ export function bindDeckDragging({ canEdit, getCard, onDrop, root = document }) 
       drag.source.classList.add('card-drag-origin'); drag.sheet.classList.add('card-dragging');
       for (const target of drag.targets.keys()) target.classList.add('card-drop-ready');
       const ghost = root.createElement('div'); ghost.className = 'card-drag-ghost'; ghost.setAttribute('aria-hidden', 'true');
-      const portrait = drag.source.querySelector('.skill-card-art');
+      const portrait = (drag.source.closest('[data-deck-card],.card-equipped-mount')||drag.source).querySelector('.skill-card-art');
       if (portrait) ghost.appendChild(portrait.cloneNode(true));
       const label = root.createElement('strong'); label.textContent = drag.name; ghost.appendChild(label);
       const status = root.createElement('div'); status.className = 'card-drag-feedback'; status.setAttribute('role', 'status'); status.setAttribute('aria-live', 'polite');
@@ -65,7 +65,7 @@ export function bindDeckDragging({ canEdit, getCard, onDrop, root = document }) 
     if (!event.isPrimary || event.button !== 0) return;
     // A new deliberate gesture may click normally, even after a cancelled drag.
     blockedClickUntil = 0;
-    const source = event.target.closest('[data-deck-drag-id]'), sheet = source?.closest('dialog.card-bench-sheet');
+    const source = event.target.closest('[data-deck-drag-id]'), sheet = source?.closest('dialog.card-bench-sheet,[data-deck-surface="reward"]');
     if (!source || !editable(sheet)) return;
     const control = event.target.closest('[data-card-term],[data-card-term-trigger],a,summary,details,button,input,select,textarea');
     if (control && control !== source && source.contains(control)) return;

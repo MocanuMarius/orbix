@@ -1,8 +1,8 @@
-import {ARTIFACTS,getArtifactSalvageValue,canSellArtifact} from './model.mjs?v=cards-renewal-1';
-import {artifactDescription,effectMarkup} from './artifact-copy.mjs?v=cards-renewal-1';
-import {artifactIcon} from './upgrade-icons.mjs?v=cards-renewal-1';
-import {artifactRarityLabel} from './replay-ui.mjs?v=cards-renewal-1';
-import {resourceSymbol} from './game-symbols.mjs?v=cards-renewal-1';
+import {ARTIFACTS,getArtifactSalvageValue,canSellArtifact} from './model.mjs?v=deck-flow-1';
+import {artifactDescription,effectMarkup} from './artifact-copy.mjs?v=deck-flow-1';
+import {artifactIcon} from './upgrade-icons.mjs?v=deck-flow-1';
+import {artifactRarityLabel} from './replay-ui.mjs?v=deck-flow-1';
+import {resourceSymbol} from './game-symbols.mjs?v=deck-flow-1';
 
 export const COLLECTION_PAGE_SIZE=6;
 const esc=value=>String(value??'').replace(/[&<>"']/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));

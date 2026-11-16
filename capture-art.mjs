@@ -1,9 +1,9 @@
-import {drawAbsorbingSpark} from './tidal-light.mjs?v=cards-renewal-1';
-import {getPickupSpec, pickupShellRadius} from './pickups.mjs?v=cards-renewal-1';
-import {drawPickup} from './pickup-art.mjs?v=cards-renewal-1';
-import {drawShellArcs} from './shell-arcs.mjs?v=cards-renewal-1';
-import {DEFAULT_CAPTURE_STYLE} from './capture-styles.mjs?v=cards-renewal-1';
-import {COLLECTOR_RING} from './pickup-handling-cue.mjs?v=cards-renewal-1';
+import {drawAbsorbingSpark} from './tidal-light.mjs?v=deck-flow-1';
+import {getPickupSpec, pickupShellRadius} from './pickups.mjs?v=deck-flow-1';
+import {drawPickup} from './pickup-art.mjs?v=deck-flow-1';
+import {drawShellArcs} from './shell-arcs.mjs?v=deck-flow-1';
+import {DEFAULT_CAPTURE_STYLE} from './capture-styles.mjs?v=deck-flow-1';
+import {COLLECTOR_RING} from './pickup-handling-cue.mjs?v=deck-flow-1';
 
 const TAU = Math.PI * 2;
 const clamp = value => Math.max(0, Math.min(1, value));

@@ -1,2 +1,2 @@
-import {branchTreeMarkup} from './skill-tree.mjs?v=cards-renewal-1';
+import {branchTreeMarkup} from './skill-tree.mjs?v=deck-flow-1';
 export function mainWispTreeMarkup(options){return branchTreeMarkup({...options,branch:'main'});}

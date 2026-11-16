@@ -1,16 +1,16 @@
-import {getBiome} from './biomes.mjs?v=cards-renewal-1';
-import {getBossPreview} from './boss.mjs?v=cards-renewal-1';
-import {levelMapPreview} from './level-map-art.mjs?v=cards-renewal-1';
-import {mapStopIconMarkup} from './map-guide.mjs?v=cards-renewal-1';
-import {resourceSymbol} from './game-symbols.mjs?v=cards-renewal-1';
-import {getFlightClearReward} from './checkpoint-rewards.mjs?v=cards-renewal-1';
-import {availableFlightArtifacts} from './model.mjs?v=cards-renewal-1';
-import {bonusIcon,boonMarkup} from './route-bonus-ui.mjs?v=cards-renewal-1';
-import {contextualFlightNotice} from './contextual-events.mjs?v=cards-renewal-1';
-import {ATLAS_FORECASTS,atlasGlyph} from './night-atlas.mjs?v=cards-renewal-1';
-import {canDreamAt,dreamConfig} from './dream.mjs?v=cards-renewal-1';
-import {sparkHabitat} from './spark-fields.mjs?v=cards-renewal-1';
-import {lanternFlightCue} from './map-theme.mjs?v=cards-renewal-1';
+import {getBiome} from './biomes.mjs?v=deck-flow-1';
+import {getBossPreview} from './boss.mjs?v=deck-flow-1';
+import {levelMapPreview} from './level-map-art.mjs?v=deck-flow-1';
+import {mapStopIconMarkup} from './map-guide.mjs?v=deck-flow-1';
+import {resourceSymbol} from './game-symbols.mjs?v=deck-flow-1';
+import {getFlightClearReward} from './checkpoint-rewards.mjs?v=deck-flow-1';
+import {availableFlightArtifacts} from './model.mjs?v=deck-flow-1';
+import {bonusIcon,boonMarkup} from './route-bonus-ui.mjs?v=deck-flow-1';
+import {contextualFlightNotice} from './contextual-events.mjs?v=deck-flow-1';
+import {ATLAS_FORECASTS,atlasGlyph} from './night-atlas.mjs?v=deck-flow-1';
+import {canDreamAt,dreamConfig} from './dream.mjs?v=deck-flow-1';
+import {sparkHabitat} from './spark-fields.mjs?v=deck-flow-1';
+import {lanternFlightCue} from './map-theme.mjs?v=deck-flow-1';
 
 const escapeText = value => String(value ?? '').replace(/[&<>"']/g, char =>
  ({'&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;'}[char]));
