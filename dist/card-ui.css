@@ -224,7 +224,7 @@ html body.card-pilot[data-screen="card-reward"]>#app{height:100dvh!important;min
 .card-inspector{position:relative;gap:9px;justify-content:space-between}
 .card-inspector-copy{position:relative;padding-right:58px}
 .card-mechanics{display:flex;flex-direction:column;gap:6px;min-width:0;text-align:left}
-.card-mechanic-main{display:flex;flex-wrap:wrap;gap:4px 6px;align-items:center;color:#e8e6c9;font:19px/1.25 var(--pixel)}
+.card-mechanic-main{display:flex;flex-wrap:wrap;gap:4px 6px;align-items:center;color:#e8e6c9;font:calc(19px + 2px)/1.25 var(--pixel)}
 .card-mechanic-main b{font-size:1.14em;color:#ffe4a1;font-weight:600}
 .card-mechanic-icon{display:inline-flex;vertical-align:middle;align-items:center;justify-content:center;flex:none;width:24px;height:24px}
 .card-mechanic-icon>svg{width:100%!important;height:100%!important;flex:none;image-rendering:pixelated}
@@ -243,14 +243,14 @@ html body .card-starter-pair>.card-pick{display:grid;grid-template-columns:auto 
 .card-starter-pair .skill-card{flex:none;width:auto;height:100%;max-height:100%;aspect-ratio:2/3;max-width:100%}
 .card-pick-copy{display:flex;flex-direction:column;justify-content:center;gap:20px;min-width:0;text-align:left}
 .card-pick-label{min-height:44px;padding:8px;display:grid;place-items:center;font-size:16px}
-.card-starter-pair .card-mechanic-main{font-size:18px;line-height:1.2}
+.card-starter-pair .card-mechanic-main{font-size:calc(18px + 2px);line-height:1.2}
 .card-reward-body{grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);gap:25px;align-items:stretch}
 .card-reward-new{display:grid;grid-template-columns:auto minmax(0,1fr);gap:16px;align-items:center;min-height:0}
 .card-reward-new>.skill-card{height:100%;max-height:100%;width:auto;aspect-ratio:2/3}
-.card-reward-description .card-mechanic-main{font-size:18px;line-height:1.22}
+.card-reward-description .card-mechanic-main{font-size:calc(18px + 2px);line-height:1.22}
 .card-reward-description .card-mechanic-detail{font-size:13px}
 .card-reward-choice{justify-content:center}
-.card-loss-preview .card-mechanic-main{font-size:15px;line-height:1.2}
+.card-loss-preview .card-mechanic-main{font-size:calc(15px + 2px);line-height:1.2}
 .card-loss-preview .card-mechanic-detail{font-size:12px}
 .card-loss-preview .card-mechanics{gap:4px;margin:5px 0}
 .card-loss-preview .card-mechanic-icon{width:19px;height:19px}
@@ -266,7 +266,7 @@ html body .card-replace-slots .card-slot-pick{display:flex;flex-direction:row;mi
 .card-exchange-body{grid-template-columns:minmax(120px,.7fr) minmax(0,1.2fr);align-items:center;gap:25px;overflow:hidden}
 .card-exchange-body>.skill-card{width:auto;max-width:100%;height:100%;max-height:100%;aspect-ratio:2/3;justify-self:center}
 .card-exchange-result{min-height:0}
-.card-exchange-result .card-mechanic-main{font-size:19px}
+.card-exchange-result .card-mechanic-main{font-size:calc(19px + 2px)}
 .card-exchange-result .card-mechanics{margin:4px 0}
 .card-exchange-result>h3{font-size:21px}
 .card-melt-art{height:75px}
@@ -281,29 +281,29 @@ html body .card-replace-slots .card-slot-pick{display:flex;flex-direction:row;mi
  .card-slot-pick>.skill-card-art{width:22px!important;height:33px!important}
  .card-starter-pair{gap:19px}.card-starter-pair>.card-pick{gap:10px!important}
  .card-reward-body{grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:18px}.card-reward-new{gap:12px}
- .card-reward-description .card-mechanic-main{font-size:15px}.card-reward-description .card-mechanic-detail{font-size:12px}
+ .card-reward-description .card-mechanic-main{font-size:calc(15px + 2px)}.card-reward-description .card-mechanic-detail{font-size:12px}
 }
 @media(max-height:360px){
  .skill-card{padding:4px}.skill-card h3{font-size:15px}.skill-card .card-rarity{font-size:9px}
- .card-mechanic-main,.card-starter-pair .card-mechanic-main{font-size:16px;gap:3px 5px}.card-mechanic-icon{width:21px;height:21px}.card-mechanic-detail{font-size:12px;gap:4px 10px}.card-mechanics{gap:5px}
+ .card-mechanic-main,.card-starter-pair .card-mechanic-main{font-size:calc(16px + 2px);gap:3px 5px}.card-mechanic-icon{width:21px;height:21px}.card-mechanic-detail{font-size:12px;gap:4px 10px}.card-mechanics{gap:5px}
  .card-inspector-copy{padding-right:45px}.card-rules{font-size:11px}.card-inspector{gap:6px}
  .card-starter-pair{gap:20px;padding:2px 0}.card-pick-copy{gap:15px}.card-pick-label{font-size:14px}
  .card-reward-choice h2{font-size:17px}.card-reward-actions{grid-template-columns:1fr;gap:5px}.card-reward-actions>button{min-height:34px!important;font-size:13px!important}
- .card-reward-description .card-mechanic-main{font-size:15px}.card-loss-preview .card-mechanic-main{font-size:13px}.card-loss-preview .card-mechanic-detail{font-size:11px}
- .card-exchange-result .card-mechanic-main{font-size:17px}.card-exchange-result>h3{font-size:19px}.card-exchange-result>strong{font-size:21px}
+ .card-reward-description .card-mechanic-main{font-size:calc(15px + 2px)}.card-loss-preview .card-mechanic-main{font-size:calc(13px + 2px)}.card-loss-preview .card-mechanic-detail{font-size:11px}
+ .card-exchange-result .card-mechanic-main{font-size:calc(17px + 2px)}.card-exchange-result>h3{font-size:19px}.card-exchange-result>strong{font-size:21px}
 }
 @media(max-height:295px){
  html body .card-slot-row .card-slot-pick{min-height:42px!important;gap:5px}
  .card-slot-pick>.skill-card-art{width:18px!important;height:27px!important}
  .card-slot-copy strong{font-size:12px}.card-slot-number{font-size:14px}.card-slot-copy small{display:none}
- .card-bench-body{grid-template-columns:104px minmax(0,1fr);gap:14px}.card-mechanic-main,.card-starter-pair .card-mechanic-main{font-size:14px;line-height:1.18}.card-mechanic-icon{width:19px;height:19px}.card-mechanic-detail{font-size:11px;line-height:1.15}.card-mechanic-detail .card-mechanic-icon{width:15px;height:15px}.card-mechanics{gap:4px}
+ .card-bench-body{grid-template-columns:104px minmax(0,1fr);gap:14px}.card-mechanic-main,.card-starter-pair .card-mechanic-main{font-size:calc(14px + 2px);line-height:1.18}.card-mechanic-icon{width:19px;height:19px}.card-mechanic-detail{font-size:11px;line-height:1.15}.card-mechanic-detail .card-mechanic-icon{width:15px;height:15px}.card-mechanics{gap:4px}
  .skill-card h3{font-size:13px}.skill-card .card-rarity{font-size:9px}.skill-card .card-face-copy{gap:2px;padding:0 1px 1px}
  .card-inspector{gap:4px;padding:1px}.card-inspector-copy{padding-right:43px}.card-rules{font-size:10px}.card-rules summary{padding:2px 0}
  .card-starter-pair{gap:17px}.card-starter-pair>.card-pick{gap:9px!important}.card-pick-copy{gap:12px}.card-pick-label{font-size:13px}
- .card-reward-body{gap:16px;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr)}.card-reward-new{gap:10px}.card-reward-description .card-mechanic-main{font-size:14px}.card-reward-description .card-mechanic-detail{font-size:11px}
+ .card-reward-body{gap:16px;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr)}.card-reward-new{gap:10px}.card-reward-description .card-mechanic-main{font-size:calc(14px + 2px)}.card-reward-description .card-mechanic-detail{font-size:11px}
  html body .card-replace-slots .card-slot-pick{min-height:42px!important}.card-replace-slots .card-slot-pick>.skill-card-art{width:17px!important;height:26px!important}.card-replace-slots .card-slot-copy strong{font-size:10px}
- .card-reward-choice h2{font-size:15px}.card-loss-preview h3{font-size:14px}.card-loss-preview .card-mechanic-main{font-size:12px}.card-loss-preview .card-mechanic-detail{font-size:10px}.card-loss-preview .card-mechanic-icon{width:15px;height:15px}.card-loss-preview>span{font-size:10px}.card-loss-preview .card-mechanics{margin:3px 0;gap:2px}.card-loss-preview>small{font-size:10px}.card-reward-actions>button{min-height:31px!important;font-size:12px!important}
- .card-exchange-body{grid-template-columns:minmax(105px,.65fr) minmax(0,1.35fr);gap:20px}.card-exchange-result .card-mechanic-main{font-size:15px}.card-exchange-result>h3{font-size:17px}.card-exchange-result>strong{font-size:19px}.card-melt-art{display:none}
+ .card-reward-choice h2{font-size:15px}.card-loss-preview h3{font-size:14px}.card-loss-preview .card-mechanic-main{font-size:calc(12px + 2px)}.card-loss-preview .card-mechanic-detail{font-size:10px}.card-loss-preview .card-mechanic-icon{width:15px;height:15px}.card-loss-preview>span{font-size:10px}.card-loss-preview .card-mechanics{margin:3px 0;gap:2px}.card-loss-preview>small{font-size:10px}.card-reward-actions>button{min-height:31px!important;font-size:12px!important}
+ .card-exchange-body{grid-template-columns:minmax(105px,.65fr) minmax(0,1.35fr);gap:20px}.card-exchange-result .card-mechanic-main{font-size:calc(15px + 2px)}.card-exchange-result>h3{font-size:17px}.card-exchange-result>strong{font-size:19px}.card-melt-art{display:none}
  .card-exchange-tag{font-size:10px}.card-outgoing>.skill-card,.card-incoming>.skill-card{height:calc(100% - 20px)}
 }
 @media(orientation:portrait){
@@ -364,7 +364,7 @@ html body .card-deck .card-deck-pages button{width:48px;min-height:36px!importan
 .card-deck-inspection-heading h3,.card-deck-melt-summary h3{font:20px/1.15 var(--pixel);color:#f0dfb0;margin:0 0 4px}
 .card-deck-inspection-heading small{display:block;font:12px/1.2 var(--pixel);color:#a7bba1}
 .card-deck-inspector .card-inspector-copy{padding-right:46px;flex:none}
-.card-deck-inspector .card-mechanic-main{font-size:17px;line-height:1.24}
+.card-deck-inspector .card-mechanic-main{font-size:calc(17px + 2px);line-height:1.24}
 .card-deck-inspector .card-mechanic-detail{font-size:12px}
 .card-deck-inspector .card-mechanic-icon{width:21px;height:21px}
 .card-deck-inspector .card-rules{font-size:11px}
@@ -396,7 +396,7 @@ html body .card-deck-receipt .card-reward-actions>button{min-height:48px!importa
  .card-deck .card-heading{gap:7px}.card-deck .card-bench-wallet{font-size:16px}.card-deck .card-bench-wallet small{display:none}
  .card-deck-body{gap:11px;grid-template-columns:minmax(0,1.4fr) minmax(240px,1fr)}
  .card-deck-inspector{gap:7px;justify-content:center}.card-deck-inspection-heading h3{font-size:17px;margin-bottom:2px}.card-deck-inspection-heading small{font-size:10px}
- .card-deck-inspector .card-mechanic-main{font-size:15px;line-height:1.17}.card-deck-inspector .card-mechanic-detail{font-size:11px;line-height:1.15}
+ .card-deck-inspector .card-mechanic-main{font-size:calc(15px + 2px);line-height:1.17}.card-deck-inspector .card-mechanic-detail{font-size:11px;line-height:1.15}
  .card-deck-inspector .card-mechanic-icon{width:19px;height:19px}.card-deck-inspector .card-mechanics{gap:4px}
  .card-deck-pick .skill-card h3{font-size:12px}.card-deck-pick .card-face-copy{min-height:30px}
  .card-deck-collection{grid-template-rows:minmax(0,1fr) 36px;gap:2px}.card-deck-gallery{gap:5px;padding:2px}
@@ -408,7 +408,7 @@ html body .card-deck-receipt .card-reward-actions>button{min-height:48px!importa
  html body .card-deck .card-slot-row .card-slot-pick{height:44px!important;min-height:44px!important}
  .card-equipped-label{width:69px}.card-equipped-label h3{font-size:14px}.card-equipped-label small{font-size:10px}
  .card-deck .card-slot-copy small{display:none}.card-deck .card-slot-copy strong{font-size:11px}
- .card-deck-inspector{gap:5px}.card-deck-inspector .card-inspector-copy{padding-right:40px}.card-deck-inspector .card-mechanic-main{font-size:14px}.card-deck-inspector .card-mechanic-detail{font-size:10px}
+ .card-deck-inspector{gap:5px}.card-deck-inspector .card-inspector-copy{padding-right:40px}.card-deck-inspector .card-mechanic-main{font-size:calc(14px + 2px)}.card-deck-inspector .card-mechanic-detail{font-size:10px}
  .card-deck-inspection-heading h3{font-size:15px}.card-deck-inspection-heading small{font-size:10px}.card-deck-inspector .card-rules{font-size:10px}
  html body .card-deck .card-deck-actions button{font-size:12px!important;padding:4px!important}
  .card-deck-pick .skill-card h3{font-size:11px}.card-deck-pick .skill-card .card-rarity{font-size:8px}.card-deck-pick .card-face-copy{min-height:25px}
@@ -434,7 +434,7 @@ html body .card-deck-receipt .card-reward-actions>button{min-height:48px!importa
 .skill-card.card-readable .card-illustration>.skill-card-art{display:block;flex:none;width:100%!important;height:auto!important;max-width:none!important;max-height:none!important;aspect-ratio:2/3!important;object-fit:cover!important}
 .card-readable .card-rule-band{flex:none;background:#2a3d2e;border-top:1px solid #93a27e;padding:8px 9px;min-height:58px;width:100%}
 .card-readable .card-rule-band .card-mechanics{gap:5px;text-align:left}
-.card-readable .card-rule-band .card-mechanic-main{font:15px/1.2 var(--pixel);color:#f6f0d0}
+.card-readable .card-rule-band .card-mechanic-main{font:calc(15px + 2px)/1.2 var(--pixel);color:#f6f0d0}
 .card-readable .card-rule-band .card-mechanic-main b{color:#ffe3a3;font-size:1.1em}
 .card-readable .card-rule-band .card-mechanic-icon{width:20px;height:20px}
 .card-readable .card-rule-band .card-mechanic-detail{font:11px/1.2 var(--pixel);color:#ccddbd;gap:5px}
@@ -473,17 +473,17 @@ html body .card-starter-pair>.card-pick{display:flex;flex-direction:column;justi
  .card-reading-body{grid-template-columns:176px minmax(0,1fr);gap:24px;padding:1px 8px 2px}
  .card-read-controls{gap:11px}.card-read-location{font-size:12px}.card-deck-reading .card-heading>div>small{display:none}
  .card-readable .card-face-heading{padding:5px 6px 4px;min-height:31px}.card-readable .card-face-heading h3{font-size:15px}.card-readable .card-rarity{font-size:9px}
- .card-readable .card-rule-band{padding:6px 7px;min-height:52px}.card-readable .card-rule-band .card-mechanic-main{font-size:14px;line-height:1.15}.card-readable .card-rule-band .card-mechanic-detail{font-size:10px;line-height:1.15}.card-readable .card-rule-band .card-mechanic-icon{width:18px;height:18px}.card-readable .card-rule-band .card-mechanic-uses{font-size:11px}.card-readable .card-rule-band .card-mechanics{gap:4px}
+ .card-readable .card-rule-band{padding:6px 7px;min-height:52px}.card-readable .card-rule-band .card-mechanic-main{font-size:calc(14px + 2px);line-height:1.15}.card-readable .card-rule-band .card-mechanic-detail{font-size:10px;line-height:1.15}.card-readable .card-rule-band .card-mechanic-icon{width:18px;height:18px}.card-readable .card-rule-band .card-mechanic-uses{font-size:11px}.card-readable .card-rule-band .card-mechanics{gap:4px}
  .card-deck-receipt .card-reward-new>.card-readable{width:185px}.card-deck-receipt .card-reward-body{grid-template-columns:minmax(170px,.65fr) 1fr;gap:24px}
- .card-starter-pair{gap:28px}.card-starter-pair>.card-pick{max-width:185px!important;min-width:170px!important}.card-starter-pair .card-mechanic-main{font-size:14px!important}
+ .card-starter-pair{gap:28px}.card-starter-pair>.card-pick{max-width:185px!important;min-width:170px!important}.card-starter-pair .card-mechanic-main{font-size:calc(14px + 2px)!important}
  .card-forge-preview .card-exchange-body,.card-improve-confirm .card-exchange-body{grid-template-columns:170px minmax(0,1fr);gap:23px;padding-inline:8px}
 }
 @media(max-height:295px){
  .card-reading-body{grid-template-columns:174px minmax(0,1fr);gap:22px;padding:0 5px}
  .card-read-controls{gap:8px}.card-read-equipped .card-equipped-label{margin-bottom:4px}.card-deck-reading .card-read-footer{gap:5px}
  .card-readable .card-face-heading h3{font-size:14px}.card-readable .card-face-heading{min-height:29px;padding:4px 5px 3px}
- .card-readable .card-rule-band{padding:5px 6px;min-height:48px}.card-readable .card-rule-band .card-mechanic-main{font-size:13px;line-height:1.16}.card-readable .card-rule-band .card-mechanic-detail{font-size:10px;line-height:1.13}.card-readable .card-rule-band .card-mechanics{gap:3px}
- .card-starter-pair>.card-pick{max-width:174px!important;min-width:174px!important}.card-starter-pair .card-mechanic-main{font-size:13px!important}
+ .card-readable .card-rule-band{padding:5px 6px;min-height:48px}.card-readable .card-rule-band .card-mechanic-main{font-size:calc(13px + 2px);line-height:1.16}.card-readable .card-rule-band .card-mechanic-detail{font-size:10px;line-height:1.13}.card-readable .card-rule-band .card-mechanics{gap:3px}
+ .card-starter-pair>.card-pick{max-width:174px!important;min-width:174px!important}.card-starter-pair .card-mechanic-main{font-size:calc(13px + 2px)!important}
  .card-starter-pair .card-pick-label{font-size:12px}.card-readable .card-rule-band .card-mechanic-icon{width:17px;height:17px}
 }
 @media(orientation:portrait){
@@ -539,7 +539,7 @@ html body .skill-card .card-illustration{order:1;display:flex;flex:1;min-height:
 html body .skill-card .card-illustration>.skill-card-art{width:100%!important;height:100%!important;max-width:100%!important;max-height:none!important;aspect-ratio:auto!important;flex:1;display:block;object-fit:cover!important;image-rendering:auto}
 html body .skill-card .card-rule-band{order:2;min-height:0;width:100%;padding:8px 10px;background:linear-gradient(115deg,#eee2b8,#d6c99e);color:#26352b;border-top:1px solid #a9ae7c;box-shadow:inset 0 1px #fff5d0}
 html body .skill-card .card-rule-band .card-mechanics{display:flex;flex-direction:column;gap:4px;text-align:left;min-width:0}
-html body .skill-card .card-rule-band .card-mechanic-main{display:block;color:#26352b!important;font:clamp(11px,7cqw,16px)/1.2 var(--pixel)!important;overflow-wrap:normal}
+html body .skill-card .card-rule-band .card-mechanic-main{display:block;color:#26352b!important;font:calc(clamp(11px,7cqw,16px) + 2px)/1.2 var(--pixel)!important;overflow-wrap:normal}
 html body .skill-card .card-rule-band b{font-size:1em!important;color:#26352b!important;font-weight:700}
 html body .skill-card .card-mechanic-uses{display:block;font:clamp(10px,6cqw,12px)/1.1 var(--pixel);color:#46523a;white-space:normal}
 html body button.card-term{display:inline!important;appearance:none!important;position:static!important;vertical-align:baseline;min-width:0!important;min-height:0!important;width:auto!important;height:auto!important;max-height:none!important;margin:0!important;padding:0!important;background:transparent!important;border:0!important;border-radius:0!important;box-shadow:none!important;clip-path:none!important;color:inherit!important;font:inherit!important;letter-spacing:0!important;line-height:inherit!important;white-space:normal;text-align:inherit;text-transform:none;text-decoration:underline dotted;text-decoration-color:#788263;text-underline-offset:2px;cursor:help;touch-action:manipulation}
@@ -782,26 +782,26 @@ html body .skill-card.card-readable .card-rule-band .card-mechanic-uses{color:#4
 
 /* A worked ruin rim and quiet recesses replace the wireframe gallery. */
 html body dialog.game-sheet:is(.card-bench-sheet,.card-exchange-sheet,.card-forge-sheet)[open]{
- border:3px solid transparent!important;border-image-source:url('assets/menu-ruin-frame.svg?v=cards-renewal-1')!important;border-image-slice:12!important;border-image-width:10px!important;border-image-repeat:stretch!important;
+ border:3px solid transparent!important;border-image-source:url('assets/menu-ruin-frame.svg?v=deck-flow-1')!important;border-image-slice:12!important;border-image-width:10px!important;border-image-repeat:stretch!important;
  background:#182a22!important;background-image:none!important;box-shadow:0 3px 0 #040c09,4px 6px 0 #07100dbb!important;
  clip-path:polygon(9px 0,calc(100% - 10px) 0,calc(100% - 10px) 3px,calc(100% - 4px) 3px,calc(100% - 4px) 9px,100% 9px,100% calc(100% - 10px),calc(100% - 4px) calc(100% - 10px),calc(100% - 4px) calc(100% - 4px),calc(100% - 11px) calc(100% - 4px),calc(100% - 11px) 100%,10px 100%,10px calc(100% - 3px),4px calc(100% - 3px),4px calc(100% - 9px),0 calc(100% - 9px),0 9px,3px 9px,3px 3px,9px 3px)
 }
 html body .card-deck button.card-deck-pick{border-color:transparent!important;border-image:none!important;background:none!important;box-shadow:none!important}
 html body .card-deck button.card-deck-pick .skill-card{box-shadow:2px 4px 2px #06120d99!important}
-html body .card-deck button.card-deck-pick.melt-selected{border:2px solid transparent!important;border-image:url('assets/rough-available.svg?v=cards-renewal-1') 8 / 6px / 0 stretch!important;background:#3e392755!important;box-shadow:none!important}
+html body .card-deck button.card-deck-pick.melt-selected{border:2px solid transparent!important;border-image:url('assets/rough-available.svg?v=deck-flow-1') 8 / 6px / 0 stretch!important;background:#3e392755!important;box-shadow:none!important}
 html body .card-deck .card-slot-row .card-slot-pick{
- border:1px solid transparent!important;border-image:url('assets/rough-frame.svg?v=cards-renewal-1') 8 / 5px / 0 stretch!important;background:linear-gradient(180deg,#23382c,#1b2e25)!important;box-shadow:inset 0 2px 4px #09170e99!important;
+ border:1px solid transparent!important;border-image:url('assets/rough-frame.svg?v=deck-flow-1') 8 / 5px / 0 stretch!important;background:linear-gradient(180deg,#23382c,#1b2e25)!important;box-shadow:inset 0 2px 4px #09170e99!important;
  clip-path:polygon(5px 0,calc(100% - 7px) 0,calc(100% - 7px) 2px,calc(100% - 2px) 2px,calc(100% - 2px) 5px,100% 5px,100% calc(100% - 6px),calc(100% - 3px) calc(100% - 6px),calc(100% - 3px) calc(100% - 2px),calc(100% - 7px) calc(100% - 2px),calc(100% - 7px) 100%,6px 100%,6px calc(100% - 2px),2px calc(100% - 2px),2px calc(100% - 6px),0 calc(100% - 6px),0 5px,2px 5px,2px 2px,5px 2px)!important
 }
-html body .card-deck .card-slot-row .card-slot-pick:is(.selected,.card-slot-target,.card-slot-melting,.card-drop-ready,.card-drop-hover){border-image-source:url('assets/rough-available.svg?v=cards-renewal-1')!important;background:#3c3a28!important}
-.card-deck .card-deck-return{border:1px solid transparent;border-image:url('assets/rough-frame.svg?v=cards-renewal-1') 8 / 5px / 0 stretch;background:#1a2d24;border-radius:0;clip-path:polygon(6px 0,calc(100% - 8px) 0,100% 8px,100% calc(100% - 6px),calc(100% - 6px) 100%,7px 100%,0 calc(100% - 7px),0 6px)}
+html body .card-deck .card-slot-row .card-slot-pick:is(.selected,.card-slot-target,.card-slot-melting,.card-drop-ready,.card-drop-hover){border-image-source:url('assets/rough-available.svg?v=deck-flow-1')!important;background:#3c3a28!important}
+.card-deck .card-deck-return{border:1px solid transparent;border-image:url('assets/rough-frame.svg?v=deck-flow-1') 8 / 5px / 0 stretch;background:#1a2d24;border-radius:0;clip-path:polygon(6px 0,calc(100% - 8px) 0,100% 8px,100% calc(100% - 6px),calc(100% - 6px) 100%,7px 100%,0 calc(100% - 7px),0 6px)}
 .card-deck-melt-mode .card-deck-inspector{border-left:0;padding-left:13px}
 .card-batch-melt-list>div{border-color:transparent;background:none}
-.card-deck-help-panel{border:2px solid transparent;border-image:url('assets/rough-frame.svg?v=cards-renewal-1') 8 / 6px / 0 stretch;box-shadow:0 5px 0 #07130ec9;background:#1b3026}
+.card-deck-help-panel{border:2px solid transparent;border-image:url('assets/rough-frame.svg?v=deck-flow-1') 8 / 6px / 0 stretch;box-shadow:0 5px 0 #07130ec9;background:#1b3026}
 .card-forge-receipt{border-color:transparent}
-html body :is(#app,#header,dialog.game-sheet.card-sheet) :is(.card-bench,.card-exchange,.card-forge-preview) button.card-danger{border-image-source:url('assets/rough-available.svg?v=cards-renewal-1')!important;background:#4c392b!important;color:#ffe1b5!important}
-.card-deck-help>summary{border:1px solid transparent;border-image:url('assets/rough-frame.svg?v=cards-renewal-1') 8 / 5px / 0 stretch;background:#21362c;clip-path:polygon(5px 0,calc(100% - 6px) 0,100% 6px,100% calc(100% - 5px),calc(100% - 5px) 100%,5px 100%,0 calc(100% - 5px),0 5px)}
-.card-deck-help[open]>summary{border-image-source:url('assets/rough-available.svg?v=cards-renewal-1');background:#3a3c29}
+html body :is(#app,#header,dialog.game-sheet.card-sheet) :is(.card-bench,.card-exchange,.card-forge-preview) button.card-danger{border-image-source:url('assets/rough-available.svg?v=deck-flow-1')!important;background:#4c392b!important;color:#ffe1b5!important}
+.card-deck-help>summary{border:1px solid transparent;border-image:url('assets/rough-frame.svg?v=deck-flow-1') 8 / 5px / 0 stretch;background:#21362c;clip-path:polygon(5px 0,calc(100% - 6px) 0,100% 6px,100% calc(100% - 5px),calc(100% - 5px) 100%,5px 100%,0 calc(100% - 5px),0 5px)}
+.card-deck-help[open]>summary{border-image-source:url('assets/rough-available.svg?v=deck-flow-1');background:#3a3c29}
 
 html body .card-deck .card-slot-row .card-slot-pick:focus-visible,.card-deck-help>summary:focus-visible{outline-offset:-3px!important}
 
@@ -881,7 +881,7 @@ html body .card-exchange-result>.card-mechanics .card-term{background:#e5d7aa!im
 .card-mechanic-main>.card-rule-reward{display:block;margin-top:.18em}
 html body button.card-term-symbol{display:inline-block!important;vertical-align:-.22em;line-height:1!important;text-decoration:none;white-space:nowrap}
 .card-term-symbol>.card-term-icon{display:block;width:clamp(16px,1.25em,20px);height:clamp(16px,1.25em,20px);margin:0;vertical-align:0}
-html body .skill-card.card-readable:is([data-card-help="body-spark"],[data-card-help="spark-cache"]) .card-rule-band .card-mechanic-main{font-size:clamp(11px,5.8cqw,14px)!important}
+html body .skill-card.card-readable:is([data-card-help="body-spark"],[data-card-help="spark-cache"]) .card-rule-band .card-mechanic-main{font-size:calc(clamp(11px,5.8cqw,14px) + 2px)!important}
 html body .card-term-symbol:focus-visible{outline-offset:2px;border-radius:2px!important}
 .card-term-picture{margin:7px 0 9px}
 .card-term-picture img{display:block;width:100%;height:auto;max-height:140px;object-fit:contain;background:#14251f;border:1px solid #6f8265;image-rendering:pixelated}
@@ -899,12 +899,12 @@ html body .skill-card.card-thumbnail .card-use-counter{right:3px;bottom:5px;min-
 html body .skill-card.card-readable .card-rule-band{padding:0!important;background:#d4dfbe!important;color:#243c2c;box-shadow:none;border-top:1px solid #899a71}
 html body .skill-card.card-readable .card-rule-band .card-mechanics,
 html body .skill-card.card-readable .card-rule-band .card-mechanic-main{height:100%;display:flex!important;flex-direction:column;gap:0!important}
-html body .skill-card.card-readable .card-rule-band .card-mechanic-main{font:clamp(10px,6.15cqw,14px)/1.18 var(--pixel)!important;color:#243c2c!important}
+html body .skill-card.card-readable .card-rule-band .card-mechanic-main{font:calc(clamp(10px,6.15cqw,14px) + 2px)/1.18 var(--pixel)!important;color:#243c2c!important}
 .card-rule-stripe{display:block;padding:5px 8px;min-width:0;overflow-wrap:normal}
 .card-rule-condition{background:#eddb9b;color:#3d371e;border-bottom:1px solid #b9aa6b}
 .card-rule-effect{background:#d4dfbe;color:#243c2c}
 .card-rule-effect:has(+.card-rule-condition){border-bottom:1px solid #9eaf80}
-.card-rule-note{background:#d4dfbe;color:#405237;font-size:.85em;padding-top:0;padding-bottom:5px}
+.card-rule-note{background:#d4dfbe;color:#405237;font-size:calc(.85em + .3px);padding-top:0;padding-bottom:5px}
 .card-rule-stripe:last-child{flex:1}
 html body .skill-card.card-has-uses .card-rule-stripe:last-child{padding-bottom:30px}
 .card-mechanics>.card-mechanic-main>.card-rule-stripe .card-term-icon{width:1.1em;height:1.1em;min-width:13px;min-height:13px;vertical-align:-.18em}
@@ -912,7 +912,7 @@ html body .skill-card.card-has-uses .card-rule-stripe:last-child{padding-bottom:
 html body .skill-card .card-rule-stripe button.card-term{color:#254936!important}
 html body .skill-card .card-rule-condition button.card-term{color:#50401d!important}
 .card-rule-stripe .card-number{color:inherit!important}
-@media(max-height:295px){.card-rule-stripe{padding:3px 6px}.card-rule-note{padding-top:0;padding-bottom:3px}html body .skill-card.card-readable .card-rule-band .card-mechanic-main{font-size:clamp(10px,6cqw,12px)!important;line-height:1.12!important}}
+@media(max-height:295px){.card-rule-stripe{padding:3px 6px}.card-rule-note{padding-top:0;padding-bottom:3px}html body .skill-card.card-readable .card-rule-band .card-mechanic-main{font-size:calc(clamp(10px,6cqw,12px) + 2px)!important;line-height:1.12!important}}
 
 html body button.flight-card-row{position:absolute;z-index:5;left:52px;bottom:12px;display:flex;align-items:center;gap:8px;max-width:calc(100% - 190px);width:auto;min-height:34px;height:auto;margin:0;padding:4px 7px;border:1px solid #8da37a;border-radius:3px;background:#172d23e8;color:#dfe6c9;font:11px/1.15 var(--pixel);box-shadow:none;touch-action:manipulation;cursor:pointer;text-shadow:none}
 html body button.flight-card-row[hidden]{display:none}
@@ -1018,7 +1018,7 @@ html body .card-slot-row .card-slot-pick>.card-config-compact{margin-left:auto!i
 @media(max-height:295px){html body .skill-card.card-status-dense .card-rule-stripe{padding:2px 4px}}
 
 /* Shared playing-card frame: actual carved game rims, with equal art padding. */
-html body .skill-card{border-radius:0!important;border:5px solid transparent!important;border-image:url('assets/rough-frame.svg?v=cards-renewal-1') 10 / 6px / 0 stretch!important;background:#3f4843!important;box-shadow:2px 3px 0 #08130fb8!important}
+html body .skill-card{border-radius:0!important;border:5px solid transparent!important;border-image:url('assets/rough-frame.svg?v=deck-flow-1') 10 / 6px / 0 stretch!important;background:#3f4843!important;box-shadow:2px 3px 0 #08130fb8!important}
 html body .skill-card.card-common{border:0!important;border-image:none!important;background:#22352b!important;padding:calc(var(--card-height) * .03) calc(var(--card-height) * .03215) calc(var(--card-height) * .029)!important;clip-path:polygon(0 1.5%,2% 0,98% 0,100% 1.5%,100% 98.5%,98% 100%,2% 100%,0 98.5%)}
 html body .skill-card.card-common:before{content:'';position:absolute;inset:0;z-index:3;pointer-events:none;background:url('assets/common-cornerstone-frame.svg') center/100% 100% no-repeat;image-rendering:pixelated}
 html body .skill-card.card-common.card-readable{grid-template-rows:clamp(27px,calc(var(--card-height) * .14),34px) clamp(36px,calc(var(--card-height) * .7 - 94px),45%) minmax(0,1fr)!important}
@@ -1098,14 +1098,14 @@ html body button.flight-card-row{top:max(48px,env(safe-area-inset-top));bottom:a
 html body .card-reorder-grip{position:static;transform:none;padding:0;background:none;border:0;display:grid;place-items:center;font:21px/1 var(--pixel);pointer-events:auto;cursor:grab;min-width:16px;touch-action:none}
 
 @media(max-height:360px){
- html body .skill-card.card-rules-long .card-rule-band .card-mechanic-main{font-size:clamp(10px,5.5cqw,12px)!important;line-height:1.06!important}
+ html body .skill-card.card-rules-long .card-rule-band .card-mechanic-main{font-size:calc(clamp(10px,5.5cqw,12px) + 2px)!important;line-height:1.06!important}
  html body .skill-card.card-rules-long .card-rule-stripe{padding:2px 5px}
 }
 @media(max-height:295px){
  .card-equipped-foreground>.card-deck-status{position:absolute;width:1px;height:1px;clip-path:inset(50%);overflow:hidden;white-space:nowrap}
  .card-equipped-foreground{grid-template-rows:auto minmax(0,1fr);gap:4px}
  .card-foreground-row{padding-top:0;padding-bottom:3px}
- html body .skill-card.card-rules-long .card-rule-band .card-mechanic-main{font-size:10px!important;line-height:1.02!important}
+ html body .skill-card.card-rules-long .card-rule-band .card-mechanic-main{font-size:calc(10px + 2px)!important;line-height:1.02!important}
  html body .skill-card.card-rules-long .card-rule-stripe{padding:1px 4px}
  html body .skill-card.card-rules-long .card-face-heading h3{font-size:12px!important}
  html body .skill-card.card-readable.card-status-dense.card-rules-long .card-rule-stripe:last-child{padding-bottom:2px}
@@ -1115,7 +1115,7 @@ html body .card-reorder-grip{position:static;transform:none;padding:0;background
 /* Mounted cards fit essential rules; full inspection retains every note. */
 html body .skill-card.card-fitted{grid-template-rows:clamp(28px,calc(var(--card-height) * .175),38px) clamp(48px,calc(var(--card-height) * .5 - 35px),100px) minmax(0,1fr)!important}
 html body .skill-card.card-fitted .card-illustration{padding:3px}
-html body .skill-card.card-fitted .card-rule-band .card-mechanic-main{font-size:clamp(10px,5.8cqw,13px)!important;line-height:1.1!important}
+html body .skill-card.card-fitted .card-rule-band .card-mechanic-main{font-size:calc(clamp(10px,5.8cqw,13px) + 2px)!important;line-height:1.1!important}
 html body .skill-card.card-fitted .card-rule-stripe{padding:2px 5px}
 html body .skill-card.card-fitted .card-rule-stripe:last-child{padding-bottom:3px!important}
 html body .skill-card.card-fitted.card-has-uses .card-rule-stripe:last-child{padding-bottom:26px!important}
@@ -1135,9 +1135,9 @@ html body .skill-card:is(.card-common,.card-legendary).card-readable.card-has-st
 html body .skill-card.card-common .card-use-counter{right:calc(var(--card-height) * .057 + 2px);bottom:calc(var(--card-height) * .029 + 3px)}
 html body .skill-card.card-legendary .card-use-counter{right:calc(var(--card-height) * .074 + 2px);bottom:calc(var(--card-height) * .029 + 3px)}
 /* Long instructions use the existing dense fit without changing their rules. */
-html body .skill-card:is(.card-common,.card-legendary).card-readable:is(.card-status-dense,.card-rules-dense) .card-rule-band .card-mechanic-main{font-size:clamp(10px,5.8cqw,13px)!important;line-height:1.1!important}
+html body .skill-card:is(.card-common,.card-legendary).card-readable:is(.card-status-dense,.card-rules-dense) .card-rule-band .card-mechanic-main{font-size:calc(clamp(10px,5.8cqw,13px) + 2px)!important;line-height:1.1!important}
 html body .skill-card:is(.card-common,.card-legendary).card-readable:is(.card-status-dense,.card-rules-dense) .card-rule-stripe{padding:3px 5px}
-html body .skill-card.card-rare[data-card-help="devourer"] .card-rule-band .card-mechanic-main{font-size:clamp(10px,5.5cqw,12px)!important;line-height:1.06!important}
+html body .skill-card.card-rare[data-card-help="devourer"] .card-rule-band .card-mechanic-main{font-size:calc(clamp(10px,5.5cqw,12px) + 2px)!important;line-height:1.06!important}
 html body .skill-card.card-rare[data-card-help="devourer"] .card-rule-stripe{padding:2px 5px}
 html body .skill-card.card-rare[data-card-help="glide-prism"].card-has-status .card-config-status{top:calc(var(--card-height) * .082 + 3px);bottom:auto;left:calc(var(--card-height) * .03215 + 2px);min-width:29px!important;min-height:24px!important;max-width:29px!important;justify-content:center;gap:2px;padding:2px!important;font-size:10px!important;z-index:4}
 html body .skill-card.card-rare[data-card-help="glide-prism"].card-has-status .card-face-heading{padding-left:34px}
@@ -1149,14 +1149,14 @@ html body .skill-card.card-rare[data-card-help="glide-prism"].card-has-status .c
  html body .skill-card:is(.card-common,.card-legendary).card-fitted .card-face-heading{padding-top:2px;padding-bottom:2px}
  html body .skill-card:is(.card-common,.card-legendary).card-fitted .card-face-heading h3{font-size:10px!important}
  html body .skill-card:is(.card-common,.card-legendary).card-readable:is(.card-status-dense,.card-rules-dense) .card-rule-stripe{padding:1px 4px}
- html body .skill-card:is(.card-common,.card-legendary).card-readable:is(.card-status-dense,.card-rules-dense) .card-rule-band .card-mechanic-main{font-size:10px!important;line-height:1.04!important}
+ html body .skill-card:is(.card-common,.card-legendary).card-readable:is(.card-status-dense,.card-rules-dense) .card-rule-band .card-mechanic-main{font-size:calc(10px + 2px)!important;line-height:1.04!important}
  html body .skill-card.card-rare[data-card-help="devourer"] .card-rule-stripe{padding:1px 4px}
  html body .skill-card.card-rare.card-readable[data-card-help="devourer"]{grid-template-rows:clamp(27px,calc(var(--card-height) * .14),34px) 30px minmax(0,1fr)!important}
  html body .skill-card.card-legendary.card-readable[data-card-help="tight-packing-iii"]{grid-template-rows:34px 26px minmax(0,1fr)!important}
  html body .skill-card.card-legendary.card-readable:is(.card-status-dense,.card-rules-dense) .card-rule-stripe{padding-top:0;padding-bottom:0}
  html body .skill-card.card-legendary.card-readable.card-has-status .card-rule-stripe:last-child{padding-bottom:2px}
 }
-@media(max-height:295px){html body .skill-card.card-fitted .card-rule-band .card-mechanic-main{font-size:10px!important;line-height:1.06!important}html body .skill-card.card-fitted .card-rule-stripe{padding:1px 4px}}
+@media(max-height:295px){html body .skill-card.card-fitted .card-rule-band .card-mechanic-main{font-size:calc(10px + 2px)!important;line-height:1.06!important}html body .skill-card.card-fitted .card-rule-stripe{padding:1px 4px}}
 .card-term-picture video{display:block;width:100%;max-height:180px;object-fit:contain;background:#14251f;border:1px solid #6f8265;image-rendering:pixelated}
 
 html body .skill-card .card-rule-stripe{align-self:stretch;width:100%;box-sizing:border-box;text-align:left}
@@ -1167,3 +1167,140 @@ html body .skill-card .card-rule-stripe{align-self:stretch;width:100%;box-sizing
 .settings-option label:has([data-cruising-speed]){display:flex;align-items:center;justify-content:space-between;gap:12px;font:16px/1.3 var(--pixel);color:#f4e5bf}
 [data-cruising-speed]{min-height:44px;min-width:118px;padding:8px 12px;background:#15302c;color:#f4e5bf;border:1px solid #8c9b75;border-radius:4px;font:16px/1.2 var(--pixel)}
 [data-cruising-speed]:focus-visible{outline:2px solid #f3d48d;outline-offset:3px}
+
+/* Direct Deck editing: fixed slots above the one reserve scroll. */
+.card-nav-art{display:inline-block;flex:none;width:23px;height:23px;vertical-align:middle;image-rendering:pixelated}
+.card-drag-grip{display:grid;place-items:center;flex:none;width:44px;height:44px;min-width:44px;min-height:44px;color:#decf9e;background:#223b2d;border:1px solid #8a9b72;cursor:grab;touch-action:none;user-select:none}
+.card-drag-grip>svg{width:17px;height:17px;pointer-events:none}
+html body button.card-equip-positive{background:#385e35!important;border:2px solid #9fc574!important;color:#fff2bf!important}
+html body button.card-melt-action{background:#463324!important;border-color:#b18159!important;color:#f2d39d!important}
+.card-open-collection{display:flex;align-items:center;gap:5px}
+.card-move-controls>.card-drag-grip{height:34px;min-height:34px}
+.card-deck-browser{grid-template-rows:auto 54px minmax(0,1fr) 44px!important;gap:6px!important}
+.card-collection-slots{display:block!important;min-height:0;padding:0!important}
+.card-collection-slots>.card-slot-row{height:100%;gap:6px}
+.card-compact-mount{display:flex;flex:1;min-width:0;position:relative;align-items:stretch}
+html body .card-compact-mount>.card-slot-pick{min-width:0;width:100%;height:54px!important;min-height:54px!important;padding:4px 7px!important;gap:4px}
+.card-compact-mount>.card-drag-grip{position:absolute;right:0;top:0;width:28px;min-width:28px;height:54px;min-height:54px;background:#1a3027;border:0}
+.card-compact-mount:has(>.card-drag-grip)>.card-slot-pick{padding-right:29px!important}
+.card-compact-mount .card-slot-pick>.skill-card-art{display:none}
+.card-compact-mount .card-slot-copy strong{font-size:11px;line-height:1.15}
+.card-compact-mount .card-slot-copy small{font-size:10px;line-height:1.1;margin-top:2px}
+.card-compact-mount .card-config-compact{display:none!important}
+.card-compact-mount .card-slot-number{font-size:15px}
+.card-collection-slots .card-deck-return{flex:0 0 67px;min-width:67px;display:flex;flex-direction:column;gap:0;padding:3px!important;font-size:11px!important;height:54px;min-height:54px!important}
+.card-deck-return[aria-disabled=true]{opacity:.65;cursor:default}
+.card-deck-selection{display:flex;align-items:center;gap:7px;min-height:44px;min-width:0;color:#dfdfb7;font:12px/1.2 var(--pixel)}
+.card-deck-selection>span{display:flex;align-items:center;gap:5px;min-width:0;margin-right:auto}
+.card-deck-selection>span strong{color:#f1dfac}
+html body .card-deck-selection>button{min-height:44px!important;white-space:nowrap;font-size:12px!important}
+.card-deck-browser .card-deck-collection-heading{display:none!important}
+.card-deck-browser .card-deck-collection{grid-template-rows:minmax(0,1fr)!important;gap:0}
+.card-deck-browser .card-deck-gallery{gap:14px 12px;padding:3px 7px 10px}
+.card-deck-browser .card-collection-face{display:grid;justify-items:center;gap:4px;grid-template-rows:auto 44px;padding:3px}
+html body .card-deck-browser .card-collection-face>.skill-card.card-thumbnail{--card-height:clamp(110px,calc(100dvh - 185px),190px)}
+.card-reserve-selected{background:#324d30!important;outline:2px solid #b9cf84!important;outline-offset:-1px}
+.card-deck-browser .card-collection-face>.card-drag-grip{justify-self:end;width:44px;height:44px}
+.card-deck-melt-mode{grid-template-rows:auto 54px minmax(0,1fr)!important}
+.card-deck-melt-mode .card-deck-return{display:none}
+/* Reward owns the new card before any equip choice. */
+.card-reward-equip{position:relative;gap:8px!important}
+.card-reward-equip .card-reward-body{display:grid;grid-template-columns:minmax(125px,.55fr) minmax(0,1.45fr);gap:22px;min-height:0}
+.card-reward-equip .card-reward-choice{display:flex;flex-direction:column;gap:7px;justify-content:center;min-height:0}
+.card-reward-equip .card-reward-new{position:relative;container-type:size;display:flex;justify-content:center;align-items:center;min-height:0}
+.card-reward-equip .card-reward-new>.card-drag-grip{position:absolute;right:0;bottom:0;z-index:5}
+.card-reward-slot-heading h2{display:flex;align-items:center;gap:6px;font:18px/1.1 var(--pixel);margin:0 0 4px;color:#efdfb1}
+.card-reward-slot-heading small{font:11px/1.2 var(--pixel);color:#bacaa5}
+.card-reward-slots{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:5px;min-height:0}
+html body .card-reward-slots>.card-reward-slot{position:relative;display:flex;align-items:center;gap:4px;text-align:left;min-height:54px!important;padding:5px!important;border:1px solid #788864!important;background:#20382b!important;color:#dbdfbc!important;opacity:1!important}
+.card-reward-slot>svg{width:24px;height:32px;flex:none;object-fit:cover;image-rendering:pixelated}
+.card-reward-slot>b{font-size:12px;color:#eed49b}
+.card-reward-slot>span{min-width:0}
+.card-reward-slot strong{font:11px/1.1 var(--pixel);display:block;overflow-wrap:anywhere}
+.card-reward-slot small{font:10px/1.2 var(--pixel);display:block;color:#b4c59d;margin-top:3px}
+html body .card-reward-slots>.card-slot-target{border:2px solid #a8c67c!important;background:#344e2e!important;cursor:pointer}
+.card-reward-equip .card-reward-prompt{font:12px/1.2 var(--pixel);color:#d5ddb5;margin:0;min-height:15px}
+.card-reward-equip .card-reward-actions{display:flex;gap:8px;flex-wrap:nowrap}
+html body .card-reward-equip .card-reward-actions>button{min-height:44px!important;font-size:13px!important;white-space:nowrap}
+/* Full rule comparison scrolls as a pair; commit controls stay reachable. */
+.card-swap-review{grid-template-rows:auto minmax(0,1fr) 44px;gap:7px}
+.card-swap-review>.card-heading h2{font-size:20px;margin:0}
+.card-swap-review>.card-heading small{display:flex;align-items:center;gap:5px;font-size:10px}
+.card-swap-review>.card-heading .card-nav-art{width:17px;height:17px}
+.card-swap-scroll{min-height:0;overflow-y:auto;overscroll-behavior:contain;scrollbar-width:thin;scrollbar-color:#8b9e72 #16271d;padding:2px 7px 8px;touch-action:pan-y}
+.card-swap-pair{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:24px;max-width:580px;margin:auto}
+.card-swap-column{display:flex;flex-direction:column;align-items:center;gap:5px;min-width:0}
+.card-swap-column>h3{margin:0;font:14px/1.2 var(--pixel);color:#f4dea6;text-align:center}
+.card-swap-face{width:186px;height:260px;flex:none;container-type:size}
+html body .card-swap-face>.skill-card.card-readable{--card-height:260px;max-height:none!important;max-width:none!important;width:100%!important}
+html body .card-swap-face .card-rule-band .card-mechanic-main{font-size:calc(13px + 2px)!important;line-height:1.17!important}
+html body .card-swap-face .card-rule-stripe{padding:4px 7px!important}
+html body .card-swap-face .card-has-uses .card-rule-stripe:last-child{padding-bottom:31px!important}
+.card-swap-column>p{font:11px/1.2 var(--pixel);color:#cad6b3;margin:0;text-align:center}
+.card-swap-effects{max-width:580px;margin:9px auto 0;color:#bdcfa8;font:12px/1.3 var(--pixel)}
+.card-swap-effects p{margin:5px 0}.card-swap-effects strong{color:#ebd8a5}
+html body .card-swap-review .card-dialog-actions>button{min-height:44px!important;white-space:nowrap}
+@media(max-height:295px){
+ .card-deck-browser{grid-template-rows:auto 50px minmax(0,1fr) 44px!important;gap:4px!important}
+ html body .card-compact-mount>.card-slot-pick{height:50px!important;min-height:50px!important}
+ .card-compact-mount>.card-drag-grip{height:50px;min-height:50px}
+ .card-collection-slots .card-deck-return{height:50px;min-height:50px!important}
+ .card-deck-browser .card-heading .card-bench-wallet{display:none}
+ .card-deck-browser .card-heading h2{font-size:18px}
+ .card-deck-selection{font-size:11px}
+ .card-reward-equip .card-heading h1{font-size:21px}
+ .card-reward-equip .card-reward-body{grid-template-columns:137px minmax(0,1fr);gap:18px}
+ .card-reward-slot-heading h2{font-size:16px}
+ .card-reward-equip .card-reward-choice{gap:5px}
+ .card-reward-equip .card-reward-prompt{font-size:11px}
+}
+@media(orientation:portrait){.card-reward-equip .card-reward-body{grid-template-columns:1fr;grid-template-rows:270px auto;overflow-y:auto}.card-reward-equip .card-reward-new{min-height:270px}.card-reward-slots{grid-template-columns:repeat(2,minmax(0,1fr))}.card-deck-browser .card-heading .card-bench-wallet{display:none}.card-swap-pair{gap:10px}.card-swap-face{width:150px;height:210px}html body .card-swap-face>.skill-card.card-readable{--card-height:210px}.card-deck-selection>span{font-size:10px}}
+.card-deck .card-compact-mount .card-slot-pick>.skill-card-art{display:none!important}
+.card-deck .card-compact-mount .card-slot-copy strong{white-space:normal;overflow:visible;text-overflow:clip;font-size:11px;line-height:1.1}
+.card-compact-mount>.card-drag-grip{width:44px;min-width:44px}
+html body .card-compact-mount:has(>.card-drag-grip)>.card-slot-pick{padding-right:45px!important}
+.card-deck-browser .card-collection-face{display:flex;flex-direction:column;position:relative;padding:2px}
+html body .card-deck-browser .card-collection-face>.skill-card.card-thumbnail{--card-height:clamp(90px,calc(100dvh - 190px),170px)}
+.card-deck-browser .card-collection-face>.card-drag-grip{position:absolute;right:0;top:5px;z-index:3;background:#20392dee}
+.card-deck .card-compact-mount .card-slot-copy strong{font-size:10px}
+.card-reward-equip .card-reward-slots{flex:none}
+.card-reward-equip .card-reward-choice{justify-content:center;overflow:visible}
+.card-reward-equip .card-reward-slot small{line-height:1.15;font-size:10px}
+/* Comparison uses the full faces in a wider, rules-first reading proportion. */
+.card-swap-review>.card-heading{min-height:24px;gap:10px}
+.card-swap-review>.card-heading>div{display:flex;align-items:center;gap:12px;width:100%}
+.card-swap-review>.card-heading small{font-size:9px}
+.card-swap-review>.card-heading h2{font-size:18px;margin:0}
+.card-swap-pair{max-width:none;gap:20px}
+.card-swap-column{gap:4px}
+.card-swap-column>h3{font-size:12px}
+.card-swap-face{width:100%;max-width:300px;height:auto;container-type:inline-size}
+html body .card-swap-face>.skill-card.card-readable{--card-height:160px;height:auto!important;min-height:128px!important;max-height:none!important;width:100%!important;aspect-ratio:auto!important;grid-template-rows:25px 24px auto!important}
+html body .card-swap-face>.skill-card.card-rare.card-readable{padding:14px 6px 6px!important}
+html body .card-swap-face .card-face-heading{height:25px;min-height:25px;padding:3px 25px!important}
+html body .card-swap-face .card-face-heading h3{font-size:14px!important;line-height:1.1}
+html body .card-swap-face .card-illustration{height:24px;min-height:24px;padding:2px 4px}
+html body .card-swap-face .card-illustration>.skill-card-art{width:100%!important;height:100%!important;max-height:none!important;aspect-ratio:auto!important;object-fit:cover!important}
+html body .card-swap-face .card-rule-band{height:auto!important;min-height:0!important;overflow:visible!important}
+html body .card-swap-face .card-rule-band .card-mechanic-main{font-size:calc(12px + 2px)!important;line-height:1.17!important}
+html body .card-swap-face .card-rule-stripe{padding:3px 7px!important}
+html body .card-swap-face .card-rule-stripe:last-child{padding-bottom:5px!important}
+html body .card-swap-face .card-has-uses .card-rule-stripe:last-child{padding-bottom:26px!important}
+.card-swap-effects{max-width:none;font-size:11px}
+.card-swap-column>p{font-size:10px}
+@media(orientation:portrait){.card-swap-pair{gap:10px}.card-swap-review>.card-heading>div{display:block}.card-swap-face{width:100%;height:auto}html body .card-swap-face>.skill-card.card-readable{--card-height:160px}}
+html body .card-swap-face>.skill-card.card-rare:before{background-image:url('assets/rare-slate-frame-wide.svg')}
+.card-swap-column>h3 small{font:10px/1.1 var(--pixel);color:#baccab;white-space:nowrap}
+
+html body .card-swap-face>.skill-card.card-common:before{background-image:url('assets/common-cornerstone-frame-wide.svg')}
+html body .card-swap-face>.skill-card.card-legendary:before{background-image:url('assets/legendary-eclipse-frame-wide.svg')}
+
+/* Description copy gains two CSS pixels at every existing card breakpoint.
+   Notes compensate for their .85 scale so they gain the same two pixels. */
+html body .skill-card.card-readable .card-rule-band{overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain;scrollbar-width:thin;scrollbar-color:#688454 #a7ce91;touch-action:pan-y}
+html body .skill-card.card-readable .card-rule-band:focus-visible{outline:2px solid #365b32;outline-offset:-2px}
+.card-equipped-face{touch-action:pan-x pan-y}
+html body .skill-card.card-readable .card-rule-band .card-mechanic-main{flex-wrap:nowrap!important}
+@container(max-width:140px){.card-rule-stripe button.card-term:has(.card-term-icon){white-space:normal!important}.card-rule-stripe .card-rule-reward,.card-rule-stripe .card-rule-amount{white-space:normal}.card-rule-stripe{overflow-wrap:anywhere}}
+/* Compact comparison keeps the larger condition and effect above its controls. */
+@media(max-height:295px) and (orientation:landscape){.card-swap-review{gap:1px}}

@@ -1,4 +1,4 @@
-import {sparkGlyphArt} from './spark-symbol.mjs?v=cards-renewal-1';
+import {sparkGlyphArt} from './spark-symbol.mjs?v=deck-flow-1';
 
 // The case and latch identify savings even when the icon is only 16 pixels wide.
 export const formatCondensedGlow = value => String(Math.max(0, Math.floor(Number(value) || 0)));

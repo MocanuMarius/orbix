@@ -1,5 +1,5 @@
-import * as PIXI from './vendor/pixi.mjs?v=cards-renewal-1';
-import { PhoenixMotion, deformWing, deformTail } from './phoenix-motion.mjs?v=cards-renewal-1';
+import * as PIXI from './vendor/pixi.mjs?v=deck-flow-1';
+import { PhoenixMotion, deformWing, deformTail } from './phoenix-motion.mjs?v=deck-flow-1';
 
 export class PhoenixRig {
   constructor(texture) {

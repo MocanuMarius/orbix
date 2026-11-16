@@ -1,6 +1,8 @@
 # Current implementation audit — Cards default · 16 November 2026
 
-Current release: **`cards-renewal-1`**, following source `c41f031`. [Latest release verification](cards-renewal-release.md) · [Performance evidence](performance-120.md) · [Cards release notes](skills-cards-release.md) · [Current rules](skill-cards.md) · [Backlog dispositions](../BACKLOG.md).
+Current release: **`deck-flow-1`**, following source `0e3f9d6`. [Latest release verification](deck-flow-release.md) · [Performance evidence](performance-120.md) · [Cards release notes](skills-cards-release.md) · [Current rules](skill-cards.md) · [Backlog dispositions](../BACKLOG.md).
+
+The Deck follow-up keeps equipped slots visible, makes Inspect optional, reviews occupied swaps and direct reward equipping, and leaves the collection open for repeated edits. Card condition/effect/note descriptions grow by two CSS pixels; title sizes stay unchanged. [Release verification](deck-flow-release.md) records 226 focused tests, 25 touch/keyboard navigation scenarios and exact preservation of the preceding installed Cards save.
 
 This audit reconciles accepted backlog items with the current entry and production sources. Older sections below are preserved release history; their “current” wording and earlier pending items are superseded where this table or a later release says so. The accompanying performance change raises interpolated paint cadence to 120 Hz with unchanged 60 Hz physics and graphics.
 

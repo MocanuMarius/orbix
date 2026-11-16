@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { createCardInspectorState, prepareCardInspectorReward } from '../dist/card-inspector.mjs';
-import { cardsBenchMarkup, cardRewardMarkup, cardMeltSelectionMarkup, cardFace, cardMechanicMarkup } from '../dist/card-ui.mjs';
+import { cardsBenchMarkup, cardRewardMarkup, cardMeltSelectionMarkup, cardSwapMarkup, cardFace, cardMechanicMarkup } from '../dist/card-ui.mjs';
 import { moveMountedCard, improveMountedCard, meltMountedCard, equipOwnedCard, getOwnedCards, getCardReward, getMountedCards, getSupportChoices } from '../dist/model.mjs';
 import { makeSkillCard, describeSkillCard } from '../dist/skill-cards.mjs';
 import { glowGaugeMarkup } from '../dist/glow-ui.mjs';
@@ -64,11 +64,14 @@ test('Equipped foreground keeps collection behind one scrolling Deck and melting
   const collection = cardsBenchMarkup(sample, { browsing: true });
   assert.equal((collection.match(/class="card-deck-pick/g) || []).length, 6);
   assert.match(collection, /Flash Handling/);
-  assert.doesNotMatch(collection, /card-page|card-deck-pages|<div class="card-equipped"/);
+  assert.doesNotMatch(collection, /card-page|card-deck-pages/);
+  assert.match(collection, /card-collection-slots/);
+  assert.match(collection, /data-deck-drop="return"/);
+  assert.match(collection, /select a card, then tap a slot/);
   assert.match(collection, /card-collection-back/);
   assert.equal(JSON.stringify(sample), before);
   const chooser = cardsBenchMarkup(sample, { selectedId: 'sample:stored:1', inspecting: true, equip: true });
-  assert.match(chooser, /Moves to reserve/);
+  assert.match(chooser, /Echo → Deck/);
   assert.match(chooser, /card-cancel-equip/);
   const selecting = cardsBenchMarkup(sample, { meltMode: true, meltIds: ['sample:1', 'sample:stored:1'] });
   assert.match(selecting, /melt-selected/);
@@ -81,10 +84,29 @@ test('Equipped foreground keeps collection behind one scrolling Deck and melting
   assert.match(confirm, /card-cancel-melt/);
   prepareCardInspectorReward(sample.run);
   const reward = cardRewardMarkup(sample.run);
-  assert.match(reward, /Added to deck/);
+  assert.match(reward, /Added to Deck/);
   assert.match(reward, /card-reward-continue/);
-  assert.match(reward, /card-reward-deck/);
+  assert.match(reward, /card-reward-equip/);
+  assert.match(reward, /card-reward-slot/);
+  assert.match(reward, /Keep in Deck/);
   assert.doesNotMatch(reward, /replace|Melt incoming|card-equip-reward/i);
+});
+
+test('replacement review prints both complete cards, exact destinations and live risks without changing ownership', () => {
+  const sample=createCardInspectorState(), run=sample.run;
+  run.mountedCards=[makeSkillCard('twin-wick','out'),makeSkillCard('edge-reach','neighbor'),makeSkillCard('spark-cache','swap')];
+  run.mountedCards[2].charges=2;run.reserveCards=[makeSkillCard('devourer','in')];
+  const before=JSON.stringify(sample), markup=cardSwapMarkup(run,{id:'in',fromSlot:null,slot:0,expectedId:'out'});
+  assert.equal((markup.match(/card-rule-band/g)||[]).length,2);
+  assert.match(markup,/Equipped now → Deck/);assert.match(markup,/1 use left/);
+  assert.doesNotMatch(markup,/Its ability stops/);assert.match(markup,/Unlock a second Collector/);assert.match(markup,/Consume the equipped Rare card/);
+  assert.match(markup,/consume Edge Reach in slot 2/);assert.match(markup,/Full hearts spare it/);
+  assert.match(markup,/card-swap-back/);assert.match(markup,/Equip Devourer/);
+  assert.equal(JSON.stringify(sample),before,'comparison never edits or spends cards');
+  const swap=cardSwapMarkup(run,{id:'swap',fromSlot:2,slot:0,expectedId:'out'});
+  assert.match(swap,/Slot 1 → slot 3/);assert.match(swap,/Both cards stay equipped/);assert.match(swap,/2 uses left/);
+  assert.doesNotMatch(swap,/Its ability stops until equipped/);
+  assert.equal(JSON.stringify(sample),before);
 });
 
 test('disposable Rest and starter inspection use the actual production model', () => {

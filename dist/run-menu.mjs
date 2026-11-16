@@ -1,9 +1,9 @@
-import {menuWorldMarkup} from './menu-world.mjs?v=cards-renewal-1';
-import {resourceSymbol} from './game-symbols.mjs?v=cards-renewal-1';
-import {formatGlow,getGlowCapacity} from './vitality.mjs?v=cards-renewal-1';
-import {livesMarkup} from './lives.mjs?v=cards-renewal-1';
-import { COMPANION_ABILITIES, getCompanionUnlock } from './companion-abilities.mjs?v=cards-renewal-1';
-import { companionArtSvg } from './companion-art.mjs?v=cards-renewal-1';
+import {menuWorldMarkup} from './menu-world.mjs?v=deck-flow-1';
+import {resourceSymbol} from './game-symbols.mjs?v=deck-flow-1';
+import {formatGlow,getGlowCapacity} from './vitality.mjs?v=deck-flow-1';
+import {livesMarkup} from './lives.mjs?v=deck-flow-1';
+import { COMPANION_ABILITIES, getCompanionUnlock } from './companion-abilities.mjs?v=deck-flow-1';
+import { companionArtSvg } from './companion-art.mjs?v=deck-flow-1';
 
 const esc = value => String(value ?? '').replace(/[&<>"']/g, char =>
   ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[char]));

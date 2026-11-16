@@ -1,9 +1,9 @@
-import { getCompanionAbility } from './companion-abilities.mjs?v=cards-renewal-1';
-import { pickupKind, pickupContactRadius } from './pickups.mjs?v=cards-renewal-1';
-import {sparkArtScale,sparkBodyRadius,sparkMass} from './spark-size.mjs?v=cards-renewal-1';
-import {collectorCanFetch,collectorCompactSeconds,compressCollectorCargo} from './collector-load.mjs?v=cards-renewal-1';
-import {pickupHookAnchor} from './pickup-handling-cue.mjs?v=cards-renewal-1';
-import {WISP_ART} from './companion-art.mjs?v=cards-renewal-1';
+import { getCompanionAbility } from './companion-abilities.mjs?v=deck-flow-1';
+import { pickupKind, pickupContactRadius } from './pickups.mjs?v=deck-flow-1';
+import {sparkArtScale,sparkBodyRadius,sparkMass} from './spark-size.mjs?v=deck-flow-1';
+import {collectorCanFetch,collectorCompactSeconds,compressCollectorCargo} from './collector-load.mjs?v=deck-flow-1';
+import {pickupHookAnchor} from './pickup-handling-cue.mjs?v=deck-flow-1';
+import {WISP_ART} from './companion-art.mjs?v=deck-flow-1';
 
 const clamp = (value, lo, hi) => Math.min(hi, Math.max(lo, value));
 export const WISP_TUNING = Object.freeze({ range: 52.5, cooldown: 10, lightRadius: 175,

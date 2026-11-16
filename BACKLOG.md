@@ -1,10 +1,18 @@
 # Current backlog status — Cards default · 16 November 2026
 
-Current release: **`cards-renewal-1`**. [Release verification](docs/cards-renewal-release.md) · [Performance verification](docs/performance-120.md) · [Cards verification](docs/skills-cards-release.md) · [Current card rules](docs/skill-cards.md) · [Item-by-item audit](docs/backlog-current.md).
+Current release: **`deck-flow-1`**. [Release verification](docs/deck-flow-release.md) · [Performance verification](docs/performance-120.md) · [Cards verification](docs/skills-cards-release.md) · [Current card rules](docs/skill-cards.md) · [Item-by-item audit](docs/backlog-current.md).
 
 The entries below are chronological release snapshots. Their old “current” labels, checked boxes and pending notes describe those snapshots; later decisions take precedence. The current local source has 81 cards, an owned Deck editable during safely paused flight, a guaranteed meltable Lift Guide, repeatable Forge and card improvements at Rest, copy-compatible numeric Field Impulse duration and Collector’s visible reel. The original skill book stays under Settings → Advanced with a separate save. Cards and Stored Sparks reset with the expedition; earned maximum Sparks and unlocked cruising speed are the explicit permanent exceptions.
 
-## Latest requested batch — cards-renewal-1
+## Latest requested batch — deck-flow-1
+
+- [x] Keep active slots visible while browsing Deck; select a card then a slot, with optional Inspect and native touch scrolling.
+- [x] Review occupied slot transfers with both complete cards and consequences; preserve uses and exact identities on confirm, cancel, gesture cancellation and reload.
+- [x] Equip rewards directly from the receipt; keep the collection open after edits and retain explicit Back to Equipped.
+- [x] Enlarge condition, effect and note text by two CSS pixels across existing breakpoints without changing title sizes.
+- [x] Verify touch/keyboard navigation, live paused-flight edits, the actual prior installed-worker update and unchanged saved Cards data. [Release verification](docs/deck-flow-release.md).
+
+## Previous requested batch — cards-renewal-1
 
 - [x] Ship the 81-card catalog and approved Cornerstones Common, slate Rare and Eclipse Legendary frames, with complete rules at phone landscape sizes.
 - [x] Add three Growth Seed tiers, six-ticket Common draws, the second-Common safeguard and same-visit Rest equip → Grow; preserve rarity rolls and exact historical growth.
