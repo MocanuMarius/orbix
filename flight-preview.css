@@ -1,81 +1,99 @@
-/* Only the reading area can scroll. The two route actions share one fixed baseline. */
+/* Thumb actions stay visible while the central guide discloses extra rules. */
 dialog.game-sheet.flight-preview-sheet[open] {
-  box-sizing:border-box;
-  width:min(980px,calc(100vw - 24px))!important;
-  height:min(470px,calc(100dvh - 24px))!important;
-  max-width:100vw!important;
-  padding:clamp(10px,2.8vh,20px) clamp(14px,2.2vw,27px)!important;
+ box-sizing:border-box;width:min(1040px,calc(100vw - 20px))!important;
+ height:min(480px,calc(100dvh - 16px))!important;max-width:100vw!important;
+ padding:clamp(8px,2.2vh,16px) clamp(10px,1.8vw,22px)!important;
 }
 .flight-preview {
-  height:100%;min-height:0;display:grid;
-  grid-template-rows:minmax(0,1fr) auto;gap:clamp(8px,2.3vh,14px);
-  text-align:left;
+ height:100%;min-height:0;display:grid;text-align:left;
+ grid-template-columns:clamp(64px,9vw,106px) minmax(0,1fr) clamp(64px,9vw,106px);
+ grid-template-rows:minmax(0,1fr);gap:clamp(10px,1.7vw,20px);
 }
 .preview-reading {
-  display:flex;flex-direction:column;gap:clamp(8px,2.8vh,17px);
-  overflow:auto;scrollbar-width:thin;overscroll-behavior:contain;min-width:0;
+ grid-column:2;grid-row:1;min-width:0;min-height:0;display:flex;flex-direction:column;
+ gap:clamp(6px,1.8vh,11px);overflow:auto;scrollbar-width:thin;overscroll-behavior:contain;
 }
-.preview-place {
-  display:grid;grid-template-columns:clamp(53px,8.4vw,86px) minmax(0,1.05fr) minmax(0,1fr);
-  gap:clamp(10px,2vw,20px);align-items:center;
-  padding-block:3px clamp(4px,1.2vh,8px);
-}
-.preview-place .preview-landmark>svg {display:block;width:100%;height:auto;max-height:84px;image-rendering:pixelated}
+.preview-place {display:flex;align-items:center;gap:12px;flex:none;min-width:0}
+.preview-landmark {width:clamp(34px,9vh,54px);flex:none}
+.preview-place .preview-landmark>svg {display:block;width:100%;height:auto;max-height:54px;image-rendering:pixelated}
 .flight-preview .preview-kind,.flight-preview h3 {
-  color:#e1c984;font:clamp(12px,3.3vh,16px)/1.12 var(--pixel)!important;
-  letter-spacing:.04em;text-align:left!important;margin:0!important;
+ color:#d5c58d;font:clamp(12px,3.3vh,15px)/1.12 var(--pixel)!important;
+ letter-spacing:.03em;text-align:left!important;margin:0!important;
 }
 .flight-preview .preview-location h2 {
-  color:#fff0c0!important;font:clamp(21px,6.1vh,32px)/1.12 var(--pixel)!important;
-  text-align:left!important;margin:2px 0 4px!important;letter-spacing:0!important;
+ color:#fff0c0!important;font:clamp(22px,6.1vh,32px)/1.05 var(--pixel)!important;
+ text-align:left!important;margin:2px 0 0!important;letter-spacing:0!important;
 }
 .flight-preview p,.flight-preview .preview-clear-extra {
-  font:clamp(14px,3.85vh,19px)/1.32 var(--pixel)!important;
-  margin:0!important;text-align:left!important;color:#e5ebdd!important;
-  letter-spacing:0!important;
+ font:clamp(14px,3.85vh,18px)/1.22 var(--pixel)!important;
+ margin:0!important;text-align:left!important;color:#e5ebdd!important;letter-spacing:0!important;
 }
-.flight-preview .preview-meta {color:#ccdbcb!important}
-.preview-deposits{display:flex;align-items:center;gap:.3em}
-.preview-deposits svg{width:1.25em;height:1.25em;flex:none}
-.flight-preview .preview-hazard {padding-inline-start:clamp(10px,1.4vw,19px);border-inline-start:2px solid #516459;}
-.preview-weather {display:flex;align-items:center;gap:5px;color:#c2bfee;}
-.preview-weather svg {width:22px;height:22px;}
-.preview-rewards {
-  display:grid;grid-template-columns:minmax(0,1fr);gap:clamp(8px,1.5vw,18px);
-  flex:1 0 auto;
-}
-.preview-rewards.has-objective {grid-template-columns:minmax(0,.74fr) minmax(0,1.45fr);}
+.preview-rewards {display:grid;grid-template-rows:1fr;gap:clamp(6px,1.6vh,10px);flex:1 0 auto;min-height:0}
+.preview-rewards.has-objective {grid-template-rows:repeat(2,minmax(0,1fr))}
 .preview-regular,.preview-optional {
-  min-width:0;display:flex;flex-direction:column;justify-content:center;
-  padding:clamp(9px,2.8vh,19px) clamp(10px,1.8vw,22px);
-  gap:clamp(7px,2.2vh,14px);
-  border-left:3px solid #9e8f60;
-  background:linear-gradient(105deg,#242c22,#17221c);
+ min-width:0;padding:clamp(8px,2.4vh,14px) clamp(10px,1.7vw,18px);
+ border-inline-start:3px solid #788d61;background:linear-gradient(105deg,#263328,#17261e);
 }
-.preview-optional {border-color:#819d93;background:linear-gradient(105deg,#1c302e,#142327)}
-.flight-preview .preview-optional h3{color:#a7d6ca}
-.preview-goal-title,.preview-payout{display:flex;align-items:center;gap:clamp(8px,1.3vw,16px)}
-.preview-goal-title svg,.preview-payout svg{width:clamp(34px,9.3vh,52px);height:clamp(34px,9.3vh,52px);flex:none}
-.preview-goal-title strong,.preview-payout strong {
-  display:block;color:#f4eccd;font:clamp(19px,5.1vh,28px)/1.14 var(--pixel);
+.preview-regular {display:grid;grid-template-columns:minmax(0,1fr) auto;gap:6px 10px;align-content:center;align-items:center}
+.preview-regular>h3{grid-column:1/-1}
+.preview-optional {display:flex;flex-direction:column;justify-content:center;gap:clamp(4px,1.3vh,7px);border-color:#9f925e;background:linear-gradient(105deg,#2d3022,#202a21)}
+.preview-goal-title,.preview-payout{display:flex;align-items:center;gap:8px;min-width:0}
+.preview-goal-title>svg{width:25px;height:25px;flex:none}
+.preview-goal-title>div{display:flex;align-items:baseline;flex-wrap:wrap;gap:3px 10px}
+.preview-goal-title strong {color:#f4eccd;font:clamp(17px,4.8vh,23px)/1.05 var(--pixel)}
+.preview-payout>svg{width:clamp(27px,8vh,38px);height:clamp(27px,8vh,38px);flex:none}
+.preview-payout strong{color:#c0edac;font:clamp(20px,5.5vh,29px)/1.1 var(--pixel)}
+.preview-payout strong>span{font-size:.8em}
+.flight-preview .preview-clear-extra{color:#c0e2ad!important}
+.flight-preview .preview-condition{color:#f5d77c!important}
+.flight-preview p.preview-prize,.preview-prize>span{color:#b9e9a5!important}
+.preview-prize .preview-claim{font-size:.87em;margin-inline-end:5px}
+.preview-features{display:flex;align-items:start;flex-wrap:wrap;gap:0 14px;flex:none}
+.preview-feature{min-width:0;max-width:100%;font:clamp(14px,3.8vh,17px)/1.25 var(--pixel);color:#e0e8d8}
+.preview-feature summary {
+ cursor:pointer;list-style:none;min-height:44px;display:flex;align-items:center;
+ text-decoration:underline dotted #abc5a5;text-underline-offset:5px;text-decoration-thickness:2px;
 }
-.preview-payout strong>span {display:block;font-size:.83em;margin-top:2px}
-.preview-prize {display:flex;gap:7px;align-items:baseline;}
-.flight-preview p.preview-prize,.preview-prize>span {color:#c1e9ad!important}
-.flight-preview .preview-clear-extra {color:#e0d2b4!important}
-.preview-flight-terms{color:#d3dccf;font:clamp(13px,3.3vh,16px)/1.25 var(--pixel)}
-.preview-flight-terms summary{cursor:pointer;padding:5px 0;}
-.flight-preview footer {display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:clamp(8px,1.5vw,16px);align-items:stretch}
-.flight-preview footer button{width:100%;min-height:44px!important;margin:0!important;}
-.flight-preview footer.has-dream{grid-template-columns:minmax(0,.75fr) repeat(2,minmax(0,1fr))}
-.flight-preview .preview-dream{display:flex;align-items:center;justify-content:center;gap:6px;color:#eadcf5}
-.preview-dream svg{width:23px;height:20px;flex:none}
-.preview-future{align-self:center;justify-self:center;text-align:center;font:14px/1.3 var(--pixel);color:#c7d0be}
-@media (max-width:590px) {
- .preview-place {grid-template-columns:51px minmax(0,1fr);gap:3px 10px}
- .preview-place .preview-hazard {grid-column:1/-1;margin-top:3px!important;padding:0;border:0}
- .preview-rewards.has-objective{grid-template-columns:minmax(0,.7fr) minmax(0,1.3fr)}
+.preview-feature summary::-webkit-details-marker{display:none}
+.preview-feature summary:focus-visible{outline:2px solid #fff0b8;outline-offset:2px}
+.preview-feature[open]{flex-basis:100%}
+.preview-feature-copy{padding:5px 10px 10px;border-inline-start:2px solid #779b80;background:#13251f}
+.preview-feature-copy p+p{margin-top:8px!important}
+.preview-feature-copy strong{color:#f4d789}
+.preview-weather{display:inline-flex;align-items:center;gap:5px;color:#c2bfee;margin-inline-end:8px}
+.preview-weather svg{width:20px;height:20px}
+.preview-flight-terms{color:#d3dccf;font:clamp(13px,3.3vh,16px)/1.25 var(--pixel);flex:none}
+.preview-flight-terms summary{cursor:pointer;min-height:44px;display:flex;align-items:center}
+.flight-preview footer{display:contents}
+.flight-preview footer>button,.flight-preview footer>.preview-future {
+ grid-row:1;grid-column:1;align-self:stretch;width:100%;min-height:44px!important;
+ margin:clamp(12px,4.4vh,25px) 0!important;padding:10px 5px!important;
+ font:clamp(17px,5.1vh,25px)/1.12 var(--pixel)!important;letter-spacing:0;
+}
+.flight-preview footer>button:last-child,.flight-preview footer>.preview-future{grid-column:3}
+.flight-preview footer>.primary {background:linear-gradient(105deg,#c2dda2,#8ebf85)!important;color:#152c1d!important}
+.flight-preview footer>button[data-action]{height:auto!important}
+.preview-future{display:flex;align-items:center;justify-content:center;text-align:center;color:#bdcbb9;font-size:14px!important}
+@media (orientation:landscape) and (max-height:330px){
+ .flight-preview{gap:10px;grid-template-columns:64px minmax(0,1fr) 64px}
+ .preview-reading{gap:5px}
+ .flight-preview .preview-kind,.flight-preview h3{font-size:10px!important}
+ .flight-preview .preview-location h2{font-size:21px!important}
+ .preview-landmark{width:28px}
+ .flight-preview p,.flight-preview .preview-clear-extra{font-size:13px!important;line-height:1.18!important}
+ .preview-rewards{gap:5px}
+ .flight-preview :is(.preview-regular,.preview-optional){padding:5px 8px;gap:3px}
+ .preview-goal-title>svg{width:17px;height:17px}
+ .preview-goal-title strong{font-size:15px}
+ .preview-payout strong{font-size:21px}
+ .preview-payout>svg{width:28px;height:28px}
+ .preview-feature{font-size:14px}
+ .preview-features{gap:0 12px}
 }
 @media (orientation:portrait){
- .preview-rewards.has-objective{grid-template-columns:1fr}
+ .flight-preview{grid-template-columns:minmax(0,1fr);grid-template-rows:minmax(0,1fr) auto}
+ .preview-reading{grid-column:1}
+ .flight-preview footer{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+ .flight-preview footer>button,.flight-preview footer>.preview-future{grid-row:auto;grid-column:auto!important;margin:0!important;min-height:48px!important}
+ .preview-regular{grid-template-columns:1fr}.preview-regular>h3{grid-column:1}
 }

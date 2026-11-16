@@ -1,0 +1,2 @@
+export {cardFace,cardArt,cardMechanicMarkup,cardStatusMarkup,cardName,starterCardsMarkup,starterGiftConfirmationMarkup,cardRewardMarkup,cardSwapMarkup,cardsBenchMarkup,cardMeltSelectionMarkup,cardExchangeMarkup,cardRestMarkup,cardForgeMarkup,cardVictoryRecap,deckIcon,furnaceIcon} from '../card-ui.mjs?v=relic-guide-1';
+export {cardTermMarkup,cardTermTextMarkup,installCardTermHelp} from '../card-terms.mjs?v=relic-guide-1';

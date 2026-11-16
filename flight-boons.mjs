@@ -8,6 +8,7 @@ export class FlightBoon {
     this.ids=new Set([...(engine.mod?.flightBoons||[]),...(id?[id]:[])]);
     const favors=engine.mod?.eventFavors||[];
     this.reserveWick=favors.includes('wick');
+    this.trailReserve=this.ids.has('spark-trail');
     this.giftLifts=favors.includes('feather')?2:0;
     this.farLens=favors.includes('lens');this.quickChime=favors.includes('haste');
     this.extraCostLifts=favors.includes('burden')?6:0;
@@ -41,11 +42,12 @@ export class FlightBoon {
 
   tryReserve() {
     const f=this.engine;
-    if(!this.awake||!this.reserveWick||f.flame*DISPLAY_SCALE>=6)return 0;
-    this.reserveWick=false;
-    const gain=Math.min(f.maxFlame-f.flame,9/DISPLAY_SCALE);
+    if(!this.awake||(!this.reserveWick&&!this.trailReserve)||f.flame*DISPLAY_SCALE>=6)return 0;
+    const wick=this.reserveWick;
+    this.reserveWick=false;this.trailReserve=false;
+    const gain=Math.min(f.maxFlame-f.flame,(wick?9:6)/DISPLAY_SCALE);
     f.flame+=gain;f.flameRestored+=gain;
-    f.setEvent?.('Reserve Wick · +9 Sparks');
+    f.setEvent?.((wick?'Reserve Wick':'Spark Trail')+' · +'+Math.round(gain*DISPLAY_SCALE)+' Sparks');
     return gain;
   }
   get wardReady() {

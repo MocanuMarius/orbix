@@ -1,6 +1,6 @@
-import {iceShardPoints,iceShardContact,sampleIceShard} from './guardian-geometry.mjs?v=camp-resume-1';
-import {getPickupSpec} from './pickups.mjs?v=camp-resume-1';
-import {installShutters,resizeShutters} from './shutter-cone.mjs?v=camp-resume-1';
+import {iceShardPoints,iceShardContact,sampleIceShard} from './guardian-geometry.mjs?v=relic-guide-1';
+import {getPickupSpec} from './pickups.mjs?v=relic-guide-1';
+import {installShutters,resizeShutters} from './shutter-cone.mjs?v=relic-guide-1';
 const clamp=(value,min,max)=>Math.max(min,Math.min(max,value));
 export function prepareGuardian(layout,height,speed){
  const boss=layout.boss,s=height/620;

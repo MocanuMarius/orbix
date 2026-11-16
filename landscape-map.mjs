@@ -1,11 +1,12 @@
-import {atlasGlyph,ATLAS_FORECASTS} from './night-atlas.mjs?v=camp-resume-1';
-import {bonusIcon} from './route-bonus-ui.mjs?v=camp-resume-1';
-import {ROUTE_BONUSES} from './route-bonuses.mjs?v=camp-resume-1';
-import {landmarkArt,landmarkCategory,biomeGroundArt} from './map-landmarks.mjs?v=camp-resume-1';
-import {THEME_INKS} from './replay-ui.mjs?v=camp-resume-1';
-import {getRouteMapState} from './model.mjs?v=camp-resume-1';
-import {getMapStopInfo} from './map-guide.mjs?v=camp-resume-1';
-import {getGlowCapacity} from './vitality.mjs?v=camp-resume-1';
+import {atlasGlyph,ATLAS_FORECASTS} from './night-atlas.mjs?v=relic-guide-1';
+import {bonusIcon} from './route-bonus-ui.mjs?v=relic-guide-1';
+import {ROUTE_BONUSES} from './route-bonuses.mjs?v=relic-guide-1';
+import {landmarkArt,landmarkCategory,biomeGroundArt} from './map-landmarks.mjs?v=relic-guide-1';
+import {THEME_INKS} from './replay-ui.mjs?v=relic-guide-1';
+import {getRouteMapState} from './model.mjs?v=relic-guide-1';
+import {getMapStopInfo} from './map-guide.mjs?v=relic-guide-1';
+import {getGlowCapacity} from './vitality.mjs?v=relic-guide-1';
+import {actionAttributes} from './ui/primitives.mjs?v=relic-guide-1';
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const edgeKey=([a,b])=>`${a}|${b}`;
 const wisp=(x,y)=>`<g class="route-player-wisp" transform="translate(${x} ${y})"><path d="m-23 1 9-15 13-7L16-9 22 3 11 13-17 8Z" fill="url(#routeWispGlow)"/><path d="M-4-7h8v2h3v3h2v4H7v3H4v2H-4V5H-7V2H-9V-2H-7V-5H-4Z" fill="#fff8d3"/><path d="M-3-5h6v2h2v6H3v2H-3V3H-5V-3H-3Z" fill="#fffef0"/></g>`;
@@ -58,7 +59,7 @@ export function landscapeRouteView(run,{compact=false}={}){
   const weather=ATLAS_FORECASTS[n.atlasForecast];
   const environment=(weather?weather.name+'. ':'')+(n.type!=='support'&&n.biomeName?`${n.biomeName}. ${n.interactionHint||''} `:'');
   const aria=here?`You are here: ${label}, ${name}. Choose a lit next stop.`:reachable?`Next stop. Preview ${label}: ${name}. ${environment}${info.summary} ${n.rewardPreview||''} ${ROUTE_BONUSES[n.bonusId]?.name||''}`:possible?`Future stop. Preview ${label}: ${name}. ${environment}${info.summary} ${n.rewardPreview||''} ${ROUTE_BONUSES[n.bonusId]?.name||''}`:seen?`Completed: ${label}, ${name}.`:`Closed branch: ${label}, ${name}. Not reachable from your path.`;
-  nodes+=`<g class="world-map-node route-state-${routeState} ${reachable?'reachable':''} ${seen?'taken':''} ${!possible&&!seen?'unreachable':''} ${here?'current-position':''}" data-route-state="${routeState}" data-route-label="${showName?'full':showType?'type':'none'}" ${interactive?`data-action="preview-node" data-id="${esc(n.id)}" tabindex="0" role="button"`:'role="img"'} ${here?'aria-current="location"':''} aria-label="${esc(aria)}">
+  nodes+=`<g class="world-map-node route-state-${routeState} ${reachable?'reachable':''} ${seen?'taken':''} ${!possible&&!seen?'unreachable':''} ${here?'current-position':''}" data-route-state="${routeState}" data-route-label="${showName?'full':showType?'type':'none'}" ${interactive?actionAttributes('preview-node',{id:n.id,tabindex:0,role:'button'}):'role="img"'} ${here?'aria-current="location"':''} aria-label="${esc(aria)}">
    <title>${esc(aria)}</title>${interactive?`<rect class="route-node-hit" x="${p.x-(compact?82:66)}" y="${p.y-32}" width="${compact?164:132}" height="${showName?94:showType?75:64}" fill="transparent"/>`:''}
    <g class="route-node-art" aria-hidden="true">
    ${reachable||here?`<path class="route-node-halo" d="m${p.x-49} ${p.y+13} 11-26 21-16 28 3 27 18 10 26-23 20-29-2-32 1Z" fill="url(#${here?'routeHereGlow':'routeNextGlow'})"/>`:''}

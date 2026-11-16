@@ -1,10 +1,10 @@
-import { getCompanionAbility } from './companion-abilities.mjs?v=camp-resume-1';
-import { pickupKind, pickupContactRadius } from './pickups.mjs?v=camp-resume-1';
-import {sparkArtScale,sparkBodyRadius,sparkMass} from './spark-size.mjs?v=camp-resume-1';
-import {collectorCanFetch,collectorCompactSeconds,compressCollectorCargo} from './collector-load.mjs?v=camp-resume-1';
-import {pickupHookAnchor} from './pickup-handling-cue.mjs?v=camp-resume-1';
-import {WISP_ART} from './companion-art.mjs?v=camp-resume-1';
-import {collectorTowPose,collectorTowOrbit} from './collector-tow-geometry.mjs?v=camp-resume-1';
+import { getCompanionAbility } from './companion-abilities.mjs?v=relic-guide-1';
+import { pickupKind, pickupContactRadius } from './pickups.mjs?v=relic-guide-1';
+import {sparkArtScale,sparkBodyRadius,sparkMass} from './spark-size.mjs?v=relic-guide-1';
+import {collectorCanFetch,collectorCompactSeconds,compressCollectorCargo} from './collector-load.mjs?v=relic-guide-1';
+import {pickupHookAnchor} from './pickup-handling-cue.mjs?v=relic-guide-1';
+import {WISP_ART} from './companion-art.mjs?v=relic-guide-1';
+import {collectorTowPose,collectorTowOrbit} from './collector-tow-geometry.mjs?v=relic-guide-1';
 
 const clamp = (value, lo, hi) => Math.min(hi, Math.max(lo, value));
 export const WISP_TUNING = Object.freeze({ range: 52.5, cooldown: 10, lightRadius: 175,
@@ -216,6 +216,15 @@ export class WispCompanion {
     this.cargoY*=factor;this.previousCargoY=this.cargoY;
     this.reelAnchorY*=factor;this.reelVY*=factor;this.settleY*=factor;
     if(Number.isFinite(this.reelStartY))this.reelStartY*=factor;
+    this.orbitPose.y*=factor;
+    if(this.cargo&&Number.isFinite(this.reelHomeX)){
+      const oldGap=this.reelGap;
+      this.reelGap=this.reelStartReach=Math.hypot(this.cargoX-this.reelHomeX,this.cargoY-this.reelAnchorY);
+      this.reelAngleOffset=Math.atan2(Math.sin(Math.atan2(this.cargoY-this.reelAnchorY,this.cargoX-this.reelHomeX)-Math.PI),
+        Math.cos(Math.atan2(this.cargoY-this.reelAnchorY,this.cargoX-this.reelHomeX)-Math.PI));
+      this.reelCloseSpeed*=this.reelGap/Math.max(1e-9,oldGap);
+      this.reelSpool=null;
+    }
     if (this.leg) { this.leg.y *= factor; this.leg.vy *= factor; this.leg.endVY *= factor; }
     this.history.length = 0;
   }
@@ -223,6 +232,7 @@ export class WispCompanion {
   shiftX(shift){
     this.x+=shift;this.previousX+=shift;this.orbitHome.x+=shift;this.orbitPose.x+=shift;
     this.cargoX+=shift;this.previousCargoX+=shift;this.settleX+=shift;
+    if(Number.isFinite(this.reelHomeX))this.reelHomeX+=shift;
     if(Number.isFinite(this.reelStartX))this.reelStartX+=shift;
     if(this.lastDistance!==null)this.lastDistance-=shift;
   }
@@ -253,12 +263,43 @@ export class WispCompanion {
     this.cargoX=this.previousCargoX=target.x-engine.distance;this.cargoY=this.previousCargoY=target.y;
     this.reelVX=-this.scrollSpeed;this.reelVY=0;
     this.reelAnchorX=engine.distance+home.x;this.reelAnchorY=home.y;
-    this.reelStartReach=Math.max(32,Math.hypot(this.cargoX-home.x,this.cargoY-home.y));
+    this.reelStartReach=this.reelGap=Math.hypot(this.cargoX-home.x,this.cargoY-home.y);
+    this.reelAngleOffset=Math.atan2(Math.sin(Math.atan2(this.cargoY-home.y,this.cargoX-home.x)-Math.PI),
+      Math.cos(Math.atan2(this.cargoY-home.y,this.cargoX-home.x)-Math.PI));
+    this.reelHomeX=home.x;
     this.reelProgress=0;this.cooldownMax=this.cooldown=this.recoveryDuration(engine);
+    this.startReelSpool(engine);
     // Start on the actual loop, then blend into the winding path without a snap.
     this.reelStartX=this.x;this.reelStartY=this.y;this.reelStartedAt=engine.time;
     engine.onCollectorAttach?.(target,this);
     return true;
+  }
+
+  startReelSpool(engine,dt=0) {
+    const rate=engine.flightBoon?.recoveryRate??1;
+    const seconds=Math.max(dt,this.cooldown/rate+dt,1/120);
+    const contact=(sparkBodyRadius(this.cargo,engine.height)+WISP_ART.worldRadius)*.9;
+    const travel=Math.max(0,this.reelGap-contact),average=travel/seconds;
+    // Keep a visible slow creep from the outset. A live recovery reduction
+    // starts a new segment at the current gap and velocity, never at a later
+    // point on the old curve. Its remaining recovery still owns delivery.
+    let opening=dt?Math.min(Math.max(0,this.reelCloseSpeed),average*(1-1e-6)):average*.2;
+    const speed=Math.max(1,this.scrollSpeed||Number(engine.baseSpeed)||154);
+    // The last body width arrives at ordinary flight pace: a mild .92 to
+    // 1.04 speed ramp instead of reaching that pace only at the final instant.
+    // Short/fast card reductions keep their deadline by scaling this band.
+    const bandSpeed=Math.max(speed,average*2-opening,opening/.92);
+    const entry=bandSpeed*.92,terminal=bandSpeed*1.04;
+    const bandTravel=Math.min(WISP_ART.worldDiameter,travel*.5);
+    const bandSeconds=2*bandTravel/(entry+terminal),leadSeconds=Math.max(1e-9,seconds-bandSeconds);
+    const leadTravel=travel-bandTravel;
+    opening=Math.min(opening,leadTravel/leadSeconds*(1-1e-6));
+    const power=leadTravel>0?(entry-opening)*leadSeconds/Math.max(1e-9,leadTravel-opening*leadSeconds):2;
+    this.reelSpool={gap:this.reelGap,contact,travel,seconds,elapsed:0,opening,power,
+      leadSeconds,leadTravel,bandTravel,bandSeconds,entry,terminal};
+    this.reelCloseSpeed=opening;
+    this.reelLastCooldown=this.cooldown;this.reelLastCooldownMax=this.cooldownMax;
+    this.reelRecoveryRate=rate;this.reelFlightSpeed=speed;
   }
 
   updateReel(engine,home,dt) {
@@ -269,25 +310,36 @@ export class WispCompanion {
     }
     const age=Math.max(0,engine.time-cargo.carriedAt);
     // Recovery reductions can accelerate the spool; compression still finishes.
+    if(this.cooldown<1e-8)this.cooldown=0;
     this.reelProgress=Math.max(this.reelProgress,this.recoveryFraction());
-    const u=this.reelProgress,eased=u*u*(3-2*u),remaining=1-eased;
+    const rate=engine.flightBoon?.recoveryRate??1,speed=Math.max(1,this.scrollSpeed||Number(engine.baseSpeed)||154);
+    if(!this.reelSpool||Math.abs(this.cooldown-Math.max(0,this.reelLastCooldown-dt*rate))>1e-7||
+      this.cooldownMax!==this.reelLastCooldownMax||rate!==this.reelRecoveryRate||Math.abs(speed-this.reelFlightSpeed)>1e-5)
+      this.startReelSpool(engine,dt);
+    const spool=this.reelSpool;spool.elapsed=Math.min(spool.seconds,spool.elapsed+dt);
+    if(spool.elapsed<=spool.leadSeconds){
+      const u=spool.elapsed/spool.leadSeconds,tail=spool.leadTravel-spool.opening*spool.leadSeconds;
+      this.reelGap=spool.gap-spool.opening*spool.elapsed-tail*u**spool.power;
+      this.reelCloseSpeed=spool.opening+tail*spool.power/spool.leadSeconds*u**(spool.power-1);
+    }else{
+      const t=spool.elapsed-spool.leadSeconds,acceleration=(spool.terminal-spool.entry)/Math.max(1e-9,spool.bandSeconds);
+      this.reelGap=spool.contact+spool.bandTravel-spool.entry*t-.5*acceleration*t*t;
+      this.reelCloseSpeed=spool.entry+acceleration*t;
+    }
+    this.reelLastCooldown=this.cooldown;
+    const travel=Math.max(1e-9,this.reelStartReach-spool.contact);
+    const remaining=clamp((this.reelGap-spool.contact)/travel,0,1);
+    const angleOffset=this.reelAngleOffset*remaining;
+    const beforeX=this.cargoX,beforeY=this.cargoY;
+    // Prescribe the actual target-to-body gap, rather than chasing an eased
+    // target with a spring and then braking at an aft clamp. Following Lift
+    // and Dive cannot stretch this gap or turn its accelerating finish slow.
+    this.cargoX=home.x-this.reelGap*Math.cos(angleOffset);
+    this.cargoY=home.y-this.reelGap*Math.sin(angleOffset);
+    this.reelVX=(this.cargoX-beforeX)/dt;this.reelVY=(this.cargoY-beforeY)/dt;
     const anchorX=engine.distance+home.x;
-    const speedY=(home.y-this.reelAnchorY)/dt;
-    this.reelAnchorX=anchorX;this.reelAnchorY=home.y;
-    const desiredX=home.x-this.reelStartReach*remaining;
-    const desiredY=home.y-(9+Math.min(10,this.reelStartReach*.06))*remaining
-      -clamp(speedY*.06,-15,15)*remaining+(engine.reducedMotion?0:3*Math.sin(age*3.1))*remaining;
-    const damping=Math.exp(-11*dt);
-    this.reelVX=(this.reelVX+(desiredX-this.cargoX)*64*dt)*damping;
-    this.reelVY=(this.reelVY+((desiredY-this.cargoY)*64+speedY*4)*dt)*damping;
-    this.cargoX+=this.reelVX*dt;this.cargoY+=this.reelVY*dt;
+    this.reelAnchorX=anchorX;this.reelAnchorY=home.y;this.reelHomeX=home.x;
     const contact=sparkBodyRadius(cargo,engine.height)+WISP_ART.worldRadius;
-    // The load stays aft throughout a reel, even during a sudden Lift or Dive.
-    const aft=contact*(1-.10*eased);
-    this.cargoX=Math.min(this.cargoX,home.x-aft);
-    const dx=this.cargoX-home.x,dy=this.cargoY-home.y,length=Math.max(1,Math.hypot(dx,dy));
-    const limit=Math.max(contact,this.reelStartReach*remaining+contact);
-    if(length>limit){this.cargoX=home.x+dx*limit/length;this.cargoY=home.y+dy*limit/length;}
     // Corkscrew around the body-to-Spark cord: signed depth drives both passes.
     const hook=pickupHookAnchor(cargo,this.cargoX,this.cargoY);
     const cordX=hook.x-home.x,cordY=hook.y-home.y,cordLength=Math.max(1,Math.hypot(cordX,cordY));

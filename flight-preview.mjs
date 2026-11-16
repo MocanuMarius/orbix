@@ -1,30 +1,43 @@
-import {getBiome} from './biomes.mjs?v=camp-resume-1';
-import {getBossPreview} from './boss.mjs?v=camp-resume-1';
-import {levelMapPreview} from './level-map-art.mjs?v=camp-resume-1';
-import {mapStopIconMarkup} from './map-guide.mjs?v=camp-resume-1';
-import {resourceSymbol} from './game-symbols.mjs?v=camp-resume-1';
-import {getFlightClearReward} from './checkpoint-rewards.mjs?v=camp-resume-1';
-import {availableFlightArtifacts} from './model.mjs?v=camp-resume-1';
-import {bonusIcon,boonMarkup} from './route-bonus-ui.mjs?v=camp-resume-1';
-import {contextualFlightNotice} from './contextual-events.mjs?v=camp-resume-1';
-import {ATLAS_FORECASTS,atlasGlyph} from './night-atlas.mjs?v=camp-resume-1';
-import {canDreamAt,dreamConfig} from './dream.mjs?v=camp-resume-1';
-import {sparkHabitat} from './spark-fields.mjs?v=camp-resume-1';
-import {lanternFlightCue} from './map-theme.mjs?v=camp-resume-1';
+import {getBiome} from './biomes.mjs?v=relic-guide-1';
+import {getBossPreview} from './boss.mjs?v=relic-guide-1';
+import {levelMapPreview} from './level-map-art.mjs?v=relic-guide-1';
+import {mapStopIconMarkup} from './map-guide.mjs?v=relic-guide-1';
+import {resourceSymbol} from './game-symbols.mjs?v=relic-guide-1';
+import {getFlightClearReward} from './checkpoint-rewards.mjs?v=relic-guide-1';
+import {availableFlightArtifacts,isCardRun} from './model.mjs?v=relic-guide-1';
+import {bonusIcon,boonMarkup} from './route-bonus-ui.mjs?v=relic-guide-1';
+import {contextualFlightNotice} from './contextual-events.mjs?v=relic-guide-1';
+import {ATLAS_FORECASTS,atlasGlyph} from './night-atlas.mjs?v=relic-guide-1';
+import {canDreamAt,dreamConfig} from './dream.mjs?v=relic-guide-1';
+import {sparkHabitat} from './spark-fields.mjs?v=relic-guide-1';
+import {lanternFlightCue} from './map-theme.mjs?v=relic-guide-1';
+import {actionButton} from './ui/primitives.mjs?v=relic-guide-1';
 
 const escapeText = value => String(value ?? '').replace(/[&<>"']/g, char =>
  ({'&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;'}[char]));
 const sparkForecast={filament:'More gentle Sparks',cluster:'More Clusters',vault:'More Caches',mineral:'More dense Caches'};
+const biomeFeatures={crumble:'Loose masonry',thaw:'Hanging ice',pinecone:'Ripe cones',bubble:'Reed bubbles',spore:'Puffcaps',geyser:'Rising vents',sandfall:'Loose sandstone',tide:'Tidal vents',resonate:'Resonant crystals',draft:'Wind bells',seedpod:'Ripe pods',bell:'Spirit bells'};
+const sparkForecastDetails={
+ filament:'Small Sparks are more common here. They restore fuel more gently than Clusters and Caches.',
+ cluster:'Clusters are more common here. They restore more fuel than small Sparks.',
+ vault:'Caches are more common here. They restore more fuel than small Sparks and Clusters.',
+ mineral:'Dense Caches are more common here. They restore more fuel than small Sparks and Clusters.'
+};
+
+function featureDisclosure(label,copy,className=''){
+ return `<details class="preview-feature ${className}"><summary>${escapeText(label)}</summary><div class="preview-feature-copy">${copy}</div></details>`;
+}
 
 function regularReward(run,node){
  if(run.isTutorial&&node.type==='finale')return `<div class="preview-payout">${mapStopIconMarkup(node)}<strong>First Light complete</strong></div><p class="preview-clear-extra">Your practice build stays here.</p>`;
  const final=node.boss && (node.mapIndex??run.mapIndex)===2 && !run.isTutorial;
- if(final)return `<div class="preview-payout">${mapStopIconMarkup(node)}<strong>Expedition victory</strong></div>`;
+ if(final)return `<div class="preview-payout">${mapStopIconMarkup(node)}<strong>Expedition victory</strong></div>${isCardRun(run)?'<p class="preview-clear-extra">1 trophy card</p>':''}`;
  const amount=getFlightClearReward(node,run);
  const offers=availableFlightArtifacts(run,node).length;
- const artifact=offers>1?'Choose 1 of 2 artifacts':offers===1?'Gain 1 artifact':'';
+ const artifact=offers>1?'choose 1 of 2 relics':offers===1?'1 relic':'';
+ const extras=[isCardRun(run)?'1 card':'',artifact].filter(Boolean).join(' + ');
  return `<div class="preview-payout">${resourceSymbol('packed')}<strong>+${amount} <span>Stored Sparks</span></strong></div>
-  ${artifact?`<p class="preview-clear-extra">${artifact}</p>`:''}`;
+  ${extras?`<p class="preview-clear-extra">${escapeText(extras[0].toUpperCase()+extras.slice(1))}</p>`:''}`;
 }
 
 function flightTerms(run,node,available){
@@ -43,29 +56,35 @@ export function flightPreviewMarkup(run,node,{available=false,level,bonus=null}=
  const place=biome?.name||node.biomeName||level?.name;
  const kind=node.boss?'Guardian':node.elite?'Elite flight':'Flight';
  const art=node.boss?mapStopIconMarkup(node):levelMapPreview(level||node);
- const metadata=[place,Number(node.duration)>0?`${Math.round(node.duration)} s`:''].filter(Boolean).map(escapeText).join(' · ');
- const deposits=sparkForecast[sparkHabitat(biome?.id)];
+ const habitat=sparkHabitat(biome?.id),deposits=sparkForecast[habitat];
  const duration=available&&canDreamAt(run,node)?dreamConfig(run).duration:0;
- const action=available?`<button class="primary" data-action="node" data-id="${escapeText(node.id)}">${duration?`Dream · ${duration}s`:'Fly'} →</button>`
+ const action=available?actionButton(`${duration?`Dream · ${duration}s`:'Fly'} →`,{className:'primary',action:'node',id:node.id})
   :'<span class="preview-future">Follow the connected path</span>';
  const themeCue=lanternFlightCue(node);
  const cue=forecast?[themeCue,forecast.cue].filter(Boolean).join(' '):themeCue||hazard;
+ const interaction=biomeFeatures[biome?.interaction];
+ const details=[place,kind,Number(node.duration)>0?`${Math.round(node.duration)} s`:''].filter(Boolean).map(escapeText).join(' · ');
+ const routeDetails=`<p>${details}</p>${cue&&cue!==biome?.interactionHint?`<p>${forecast?`<span class="preview-weather">${atlasGlyph(forecast.id)} ${escapeText(forecast.name)}</span>`:''}${escapeText(cue)}</p>`:''}${bonus?.hint?`<p class="preview-mark-help"><strong>${escapeText(bonus.name)}</strong> · ${escapeText(bonus.hint)}</p>`:''}`;
  return `<section class="flight-preview" aria-labelledby="preview-place">
   <div class="preview-reading">
    <header class="preview-place">
     <div class="preview-landmark">${art}</div>
-    <div class="preview-location"><span class="preview-kind">${available?kind:'Future · '+kind}</span><h2 id="preview-place">${escapeText(node.name)}</h2><p class="preview-meta">${metadata}</p>${deposits?`<p class="preview-deposits">${resourceSymbol('energy')} ${deposits}</p>`:''}</div>
-    ${cue?`<p class="preview-hazard">${forecast?`<span class="preview-weather">${atlasGlyph(forecast.id)} ${escapeText(forecast.name)}</span>`:''}${escapeText(cue)}</p>`:''}
+    <div class="preview-location"><span class="preview-kind">Travel Guide${available?'':' · Future '+kind.toLowerCase()}</span><h2 id="preview-place">${escapeText(node.name)}</h2></div>
    </header>
    <div class="preview-rewards${bonus?' has-objective':''}">
     <section class="preview-regular" aria-labelledby="preview-regular"><h3 id="preview-regular">On clear</h3>${regularReward(run,node)}</section>
     ${bonus?`<section class="preview-optional" aria-labelledby="preview-optional">
-     <div class="preview-goal-title">${bonusIcon(bonus.id)}<div><h3 id="preview-optional">Optional bonus</h3><strong>${escapeText(bonus.name)}</strong></div></div>
+     <div class="preview-goal-title">${bonusIcon(bonus.id)}<div><h3 id="preview-optional">Optional challenge</h3><strong>${escapeText(bonus.name)}</strong></div></div>
      <p class="preview-condition">${escapeText(bonus.condition)}</p>
-     <p class="preview-prize"><span aria-hidden="true">✦</span>${escapeText(bonus.reward)}</p>
+     <p class="preview-prize">${bonus.id==='wayfinder'?'':'<span class="preview-claim">Then clear →</span>'}<span>${escapeText(bonus.reward)}</span></p>
     </section>`:''}
+   </div>
+   <div class="preview-features" aria-label="Tap for route details">
+    ${interaction?featureDisclosure(interaction,`<p>${escapeText(biome.interactionHint)}</p>`,'preview-biome-feature'):''}
+    ${deposits?featureDisclosure(deposits,`<p>${escapeText(sparkForecastDetails[habitat])}</p>`,'preview-spark-feature'):''}
+    ${featureDisclosure('Details',routeDetails,'preview-route-details')}
    </div>${flightTerms(run,node,available)}
   </div>
-  <footer><button class="secondary" data-action="close-sheet">Back</button>${action}</footer>
+  <footer>${actionButton('Back',{action:'close-sheet'})}${action}</footer>
  </section>`;
 }

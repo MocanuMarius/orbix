@@ -1,39 +1,39 @@
-import {collectorPreference,learnedCollectorPreferences} from './collector-preferences.mjs?v=camp-resume-1';
-import {CARD_SYSTEM,CARD_ECONOMY,SKILL_CARDS,isCardRun,makeSkillCard,cleanCardRun,settleCardReward,getCardStarterOffers,drawSkillCard,describeSkillCard,getMountedCards,getOwnedCards,getReserveCards,getCardMeltValue,getCardModifiers,getCardPackingBonus,getCardGrowthUses,getCardGrowthBonus,cleanCardFutureCapacity,createCardExecution,resolveCardRow,CARD_ROW_EVENTS,commitCardCharges,recordCardEvent} from './skill-cards.mjs?v=camp-resume-1';
-export {CARD_SYSTEM,CARD_ECONOMY,SKILL_CARDS,isCardRun,getMountedCards,getOwnedCards,getReserveCards,getCardMeltValue,commitCardCharges} from './skill-cards.mjs?v=camp-resume-1';
-import {FLIGHT_PACTS,pactOffers,activeFlightPact,pactBonus} from './flight-pacts.mjs?v=camp-resume-1';
-import {chestRewardPair} from './chest-rewards.mjs?v=camp-resume-1';
-import {STARTING_GIFTS,STARTING_SKILL_COST_LIMIT} from './starting-gifts.mjs?v=camp-resume-1';
-import {EVENT_EDITION,eventChoices,rollPrism} from './event-choices.mjs?v=camp-resume-1';
-import {GUARDIAN_RELICS} from './guardian-artifacts.mjs?v=camp-resume-1';
-import {ATLAS_FORECASTS,atlasBranches} from './night-atlas.mjs?v=camp-resume-1';
-import {getRouteBonus,awardRouteBonus} from './route-bonuses.mjs?v=camp-resume-1';
-export {getRouteBonus,getRouteBonusCandidates,nextBonusFlightNodes} from './route-bonuses.mjs?v=camp-resume-1';
-import {consolidateSkills,refundRetiredSkills} from './skill-consolidation.mjs?v=camp-resume-1';
-import {PROXIMITY_SKILLS} from './proximity-skills.mjs?v=camp-resume-1';
-import {getGuardianForMap,getBossPreview} from './boss.mjs?v=camp-resume-1';
-import {guardianMapTheme} from './map-theme.mjs?v=camp-resume-1';
-import {getFlightLengthProfile} from './level-length.mjs?v=camp-resume-1';
-import {cleanOnboarding,markOnboardingSeen} from './onboarding.mjs?v=camp-resume-1';
-import {CONDENSED_TUNING,getCondensationRules,condenseGlow,getKeptLightDividend,getFlightPackingLimit,packExitReserve} from './condensed-glow.mjs?v=camp-resume-1';
-import {CONSUMABLE_ARTIFACTS,EVOLVING_ARTIFACTS,getArtifactStackPreview} from './artifact-info.mjs?v=camp-resume-1';
-import {getFlightClearReward} from './checkpoint-rewards.mjs?v=camp-resume-1';
-export {getCondensationRules} from './condensed-glow.mjs?v=camp-resume-1';
-import {ROUTE_RECIPES,ROUTE_TOPOLOGY_VERSION,MAP_STOP_COUNT,REWARD_THEMES,nodeEconomy} from './route-recipes.mjs?v=camp-resume-1';
-import {COMPANION_ABILITIES,getCompanionUnlock,normalizeCompanionFleet} from './companion-abilities.mjs?v=camp-resume-1';
-import {MAIN_TUNING_SKILLS} from './main-tuning.mjs?v=camp-resume-1';
-import {activePassageBoons,activeEventFavors,grantEventFavor,spendPreparationClear} from './passage-preparations.mjs?v=camp-resume-1';
-import {STARTING_CONDENSED_GLOW,getGlowCapacity,getRestGlowBonus,REST_GLOW_TUNING,glowText} from './vitality.mjs?v=camp-resume-1';
-import {expandSkillSteps,skillProgress} from './skill-increments.mjs?v=camp-resume-1';
-import {MAX_ASCENSION} from './ascent.mjs?v=camp-resume-1';
-import {EXPANDED_SKILLS,applyExpandedSkills} from './skill-paths.mjs?v=camp-resume-1';
+import {collectorPreference,learnedCollectorPreferences} from './collector-preferences.mjs?v=relic-guide-1';
+import {CARD_SYSTEM,CARD_ECONOMY,SKILL_CARDS,isCardRun,isInventoryOnlyCard,getInventoryCampCards,makeSkillCard,cleanCardRun,settleCardReward,getCardStarterOffers,drawSkillCard,describeSkillCard,getMountedCards,getOwnedCards,getReserveCards,getCardMeltValue,getCardModifiers,getCardPackingBonus,getCardGrowthUses,getCardGrowthBonus,cleanCardFutureCapacity,createCardExecution,resolveCardRow,CARD_ROW_EVENTS,commitCardCharges,recordCardEvent} from './skill-cards.mjs?v=relic-guide-1';
+export {CARD_SYSTEM,CARD_ECONOMY,SKILL_CARDS,isCardRun,getMountedCards,getOwnedCards,getReserveCards,getCardMeltValue,commitCardCharges} from './skill-cards.mjs?v=relic-guide-1';
+import {FLIGHT_PACTS,pactOffers,activeFlightPact,pactBonus} from './flight-pacts.mjs?v=relic-guide-1';
+import {chestRewardPair} from './chest-rewards.mjs?v=relic-guide-1';
+import {STARTING_GIFTS,STARTING_SKILL_COST_LIMIT} from './starting-gifts.mjs?v=relic-guide-1';
+import {EVENT_EDITION,eventChoices,rollPrism} from './event-choices.mjs?v=relic-guide-1';
+import {GUARDIAN_RELICS} from './guardian-artifacts.mjs?v=relic-guide-1';
+import {ATLAS_FORECASTS,atlasBranches} from './night-atlas.mjs?v=relic-guide-1';
+import {getRouteBonus,awardRouteBonus} from './route-bonuses.mjs?v=relic-guide-1';
+export {getRouteBonus,getRouteBonusCandidates,nextBonusFlightNodes} from './route-bonuses.mjs?v=relic-guide-1';
+import {consolidateSkills,refundRetiredSkills} from './skill-consolidation.mjs?v=relic-guide-1';
+import {PROXIMITY_SKILLS} from './proximity-skills.mjs?v=relic-guide-1';
+import {getGuardianForMap,getBossPreview} from './boss.mjs?v=relic-guide-1';
+import {guardianMapTheme} from './map-theme.mjs?v=relic-guide-1';
+import {getFlightLengthProfile} from './level-length.mjs?v=relic-guide-1';
+import {cleanOnboarding,markOnboardingSeen} from './onboarding.mjs?v=relic-guide-1';
+import {CONDENSED_TUNING,getCondensationRules,condenseGlow,getKeptLightDividend,getFlightPackingLimit,packExitReserve} from './condensed-glow.mjs?v=relic-guide-1';
+import {CONSUMABLE_ARTIFACTS,EVOLVING_ARTIFACTS,getArtifactStackPreview} from './artifact-info.mjs?v=relic-guide-1';
+import {getFlightClearReward} from './checkpoint-rewards.mjs?v=relic-guide-1';
+export {getCondensationRules} from './condensed-glow.mjs?v=relic-guide-1';
+import {ROUTE_RECIPES,ROUTE_TOPOLOGY_VERSION,MAP_STOP_COUNT,REWARD_THEMES,nodeEconomy} from './route-recipes.mjs?v=relic-guide-1';
+import {COMPANION_ABILITIES,getCompanionUnlock,normalizeCompanionFleet} from './companion-abilities.mjs?v=relic-guide-1';
+import {MAIN_TUNING_SKILLS} from './main-tuning.mjs?v=relic-guide-1';
+import {activePassageBoons,activeEventFavors,grantEventFavor,spendPreparationClear} from './passage-preparations.mjs?v=relic-guide-1';
+import {STARTING_CONDENSED_GLOW,getGlowCapacity,getRestGlowBonus,REST_GLOW_TUNING,glowText} from './vitality.mjs?v=relic-guide-1';
+import {expandSkillSteps,skillProgress} from './skill-increments.mjs?v=relic-guide-1';
+import {MAX_ASCENSION} from './ascent.mjs?v=relic-guide-1';
+import {EXPANDED_SKILLS,applyExpandedSkills} from './skill-paths.mjs?v=relic-guide-1';
 /** Run-owned skills and currency; persistent ascension unlocks and boss artifacts. */
-import { FLAME_TUNING, LIFE_TUNING, getLifeCapacity } from './vitality.mjs?v=camp-resume-1';
-import { getBiomeLevelIdentity } from './level-catalog.mjs?v=camp-resume-1';
-import { BIOMES } from './biomes.mjs?v=camp-resume-1';
-import { EVENT_SCENARIOS } from './map-guide.mjs?v=camp-resume-1';
-import {contextualEventChoices,resolvePilgrimVow,ROUTE_PREPARATION} from './contextual-events.mjs?v=camp-resume-1';
-import {TREASURE_KINDS, describeTreasure, treasureChoices, treasureRank, grantTreasureGift, treasureClearDividend, LENS_SIGHT, LENS_RECOVERY, settleTreasureWager} from './treasure.mjs?v=camp-resume-1';
+import { FLAME_TUNING, LIFE_TUNING, getLifeCapacity } from './vitality.mjs?v=relic-guide-1';
+import { getBiomeLevelIdentity } from './level-catalog.mjs?v=relic-guide-1';
+import { BIOMES } from './biomes.mjs?v=relic-guide-1';
+import { EVENT_SCENARIOS } from './map-guide.mjs?v=relic-guide-1';
+import {contextualEventChoices,resolvePilgrimVow,ROUTE_PREPARATION} from './contextual-events.mjs?v=relic-guide-1';
+import {TREASURE_KINDS, describeTreasure, treasureChoices, treasureRank, grantTreasureGift, treasureClearDividend, LENS_SIGHT, LENS_RECOVERY, settleTreasureWager} from './treasure.mjs?v=relic-guide-1';
 export const SAVE_KEY='wispbound.save.condensed.v7';
 export const CAMPAIGN_MAP_NAMES=Object.freeze(['The Forgotten Verge','The Rootbound March','The Warden’s Reach']);
 export const TERRAINS=Object.freeze({ruins:{id:'ruins',name:'Sunken Ruins',color:'#cdb183',description:'Broken homes, worn arches and overgrown stone.'},canopy:{id:'canopy',name:'Luminous Canopy',color:'#94b48a',description:'Hollow trees, hanging roots and sheltered forest passages.'},storm:{id:'storm',name:'Stormglass Peaks',color:'#a8bbca',description:'Pine ridges, old mine timbers and local draft puffs.'}});
@@ -164,7 +164,7 @@ const freshSeed=()=>globalThis.crypto?.getRandomValues?Array.from(globalThis.cry
 function rng(seed){let s=2166136261;for(const c of String(seed))s=Math.imul(s^c.charCodeAt(0),16777619);return()=>{s+=0x6d2b79f5;let n=s;n=Math.imul(n^n>>>15,n|1);n^=n+Math.imul(n^n>>>7,n|61);return((n^n>>>14)>>>0)/4294967296;};}
 const shuffle=(items,random)=>{const a=[...items];for(let i=a.length-1;i>0;i--){const j=Math.floor(random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;};
 
-import {cleanCardCruisingSpeed} from './skill-cards.mjs?v=camp-resume-1';
+import {cleanCardCruisingSpeed} from './skill-cards.mjs?v=relic-guide-1';
 
 export function newState(){return{version:7,profile:{difficulty:1,cardFutureCapacity:0,cardCruisingSpeed:0,cardProgressReceipts:[],onboarding:cleanOnboarding(),ownedArtifacts:[],equippedArtifacts:[],seenArtifactLessons:[],seenPickups:[],pickupCoachSkipped:false,tutorialComplete:false,bankedRuns:[],clearedFlights:0,stats:{completedRuns:0,wins:0,flights:0,attempts:0,deaths:0}},run:null,suspendedRun:null,settings:{sound:true,reducedMotion:false,cardCruisingSpeed:null,skipTutorial:false,testOverride:false,testStarterCompanion:'collector',startingCompanion:'collector',companions:['collector'],companionRole:'collector'}};}
 /** Starter preference is validated against earned unlocks, or explicit TEST. */
@@ -447,7 +447,9 @@ export function chooseStartingGift(state,id,expectedPreviewToken){
  const gift=preview.gift;
  if(isCardRun(run)){
   const secondId=gift.cardId==='lift-guide'?getCardStarterOffers(run)[0].cardId:'lift-guide';
-  run.mountedCards[0]=makeSkillCard(gift.cardId,`${run.campaignSeed}:starter:${gift.cardId}`);
+  const firstCard=makeSkillCard(gift.cardId,`${run.campaignSeed}:starter:${gift.cardId}`);
+  if(isInventoryOnlyCard(firstCard))run.reserveCards.push(firstCard);
+  else run.mountedCards[0]=firstCard;
   run.mountedCards[1]=makeSkillCard(secondId,`${run.campaignSeed}:starter:${secondId}`);
   run.cardStarterVersion=2;run.startingGiftId=id;
   recordCardEvent(run,'starter',{cardId:gift.cardId,includedCardId:secondId});return true;
@@ -567,7 +569,7 @@ export function chooseCardReward(state, action, slotIndex = null) {
     return false;
   // Compatibility for an old pending modal. New drops are already stored.
   const index = action === "equip" ? cardDestination(run, slotIndex) : -1;
-  if (action === "equip" && index < 0) return false;
+  if (action === "equip" && (index < 0 || isInventoryOnlyCard(reward.card))) return false;
   if (!settleCardReward(run)) return false;
   if (action === "deck") return true;
   return action === "equip"
@@ -585,7 +587,7 @@ export function equipOwnedCard(run, instanceId, slotIndex, expectedSlotId) {
   settleCardReward(run);
   if (!cardCheckpoint(run) || !Number.isInteger(slotIndex) || slotIndex < 0 || slotIndex >= run.cardSlots) return false;
   const owned = findOwnedCard(run, instanceId), displaced = run.mountedCards[slotIndex];
-  if (!owned || owned.slot === slotIndex || (expectedSlotId !== undefined && expectedSlotId !== (displaced?.instanceId || null))) return false;
+  if (!owned || isInventoryOnlyCard(owned.card) || owned.slot === slotIndex || (expectedSlotId !== undefined && expectedSlotId !== (displaced?.instanceId || null))) return false;
   if (owned.slot !== null) return moveMountedCard(run, owned.slot, slotIndex);
   run.reserveCards.splice(owned.reserveIndex, 1);
   if (displaced) run.reserveCards.push(displaced);
@@ -615,7 +617,9 @@ export function moveMountedCard(run, from, to) {
     from >= run.cardSlots ||
     to >= run.cardSlots ||
     from === to ||
-    !run.mountedCards[from]
+    !run.mountedCards[from] ||
+    isInventoryOnlyCard(run.mountedCards[from]) ||
+    isInventoryOnlyCard(run.mountedCards[to])
   )
     return false;
   [run.mountedCards[from], run.mountedCards[to]] = [
@@ -730,7 +734,7 @@ export function improveOwnedCard(state, instanceId, expectedRank, expectedPrevie
 }
 function cardRestSource(run) {
   const id = run.cardRest?.extraSourceId;
-  return (run.mountedCards || []).find(
+  return getInventoryCampCards(run, 'camp-extra').find(
     (card) => card?.instanceId === id && card.charges > 0,
   );
 }
@@ -739,7 +743,7 @@ function ensureCardRest(run) {
   const key = `${run.mapIndex}:${run.current.id}`;
   if (run.cardRest?.key !== key) {
     const used = run.restVisits?.some((visit) => visit.key === key),
-      extra = (run.mountedCards || []).find(
+      extra = getInventoryCampCards(run, 'camp-extra').find(
         (card) =>
           SKILL_CARDS[card?.cardId]?.kind === "camp-extra" && card.charges > 0,
       );
@@ -865,7 +869,7 @@ function makeCardCampChoices(run) {
         growth > 0,
       getCardGrowthUses(run) >= 3
         ? "Maximum growth reached (3/3)"
-        : "Equip a Growth Seed to Grow",
+        : "Find a Growth Seed to Grow",
     ),
   );
   offers.push({
@@ -899,7 +903,8 @@ export function getCardCampPreview(run) {
     const after = key === "recover" ? { ...before, hearts: before.maxHearts, meter: before.maxMeter }
       : key === "slot" ? { ...before, slots: Math.min(5, before.slots + 1) }
         : key === "grow" ? { ...before, meter: grownMaximum, maxMeter: grownMaximum } : { ...before };
-    return { ...offer, index, key, taken: used.includes(key), before: { ...before }, after };
+    const token = key === 'grow' ? JSON.stringify([snapshot.id, rest.key, used, getCardGrowthUses(snapshot), before, after, rest.extraSourceId]) : undefined;
+    return { ...offer, index, key, taken: used.includes(key), before: { ...before }, after, ...(token ? { token } : {}) };
   });
   return { used, closed: rest.closed, completed: context.completed, node: copy(context.node), extraAvailable: extra, remaining: rest.closed ? 0 : Math.max(0, (extra ? 2 : 1) - used.length), actions };
 }
@@ -959,10 +964,12 @@ function resolveCardCamp(run, index) {
   }
   if (second) {
     source.charges--;
-    if (!source.charges)
+    if (!source.charges) {
       run.mountedCards = run.mountedCards.map((card) =>
         card?.instanceId === source.instanceId ? null : card,
       );
+      run.reserveCards = run.reserveCards.filter(card => card.instanceId !== source.instanceId);
+    }
   }
   rest.actions.push(action);
   run.restReady = true;

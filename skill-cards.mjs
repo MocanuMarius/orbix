@@ -1,7 +1,7 @@
 /** Small, serializable skills-as-cards pilot. Printed Sparks use the existing .3 display scale. */
 export const CARD_SYSTEM = "cards-v1";
 export const CARD_UNIT = 10 / 3;
-import {CARD_CATALOG,CARD_DROP_WEIGHTS} from './card-catalog.mjs?v=camp-resume-1';
+import {CARD_CATALOG,CARD_DROP_WEIGHTS} from './card-catalog.mjs?v=relic-guide-1';
 const maximumGrowthAmount = Math.max(...Object.values(CARD_CATALOG)
   .filter(card => card.kind === 'camp-grow').map(card => card.amount + card.maxRank - 1));
 export const CARD_ECONOMY = Object.freeze({
@@ -15,6 +15,16 @@ export const CARD_ECONOMY = Object.freeze({
   maxGrowPerAction: maximumGrowthAmount * 9,
 });
 export const SKILL_CARDS = CARD_CATALOG;
+/** Rest cards live in the Deck; limited flight cards still need an active slot. */
+export const isInventoryOnlyCard = card => ['camp-grow', 'camp-extra'].includes(SKILL_CARDS[card?.cardId || card?.id]?.kind || card?.kind);
+export function getInventoryCampCards(run, kind) {
+  const seen = new Set();
+  return [...(run?.mountedCards || []), ...(run?.reserveCards || [])].filter(card => {
+    const def = SKILL_CARDS[card?.cardId];
+    if (!card || !def || !isInventoryOnlyCard(card) || (kind && def.kind !== kind) || seen.has(card.instanceId) || (def.charges && !(card.charges > 0))) return false;
+    seen.add(card.instanceId); return true;
+  });
+}
 const clone = (value) => JSON.parse(JSON.stringify(value));
 const integer = (n, max = 1e9) =>
   Math.max(0, Math.min(max, Number.isFinite(n) ? Math.floor(n) : 0));
@@ -148,6 +158,12 @@ export function cleanCardRun(run) {
     ...mounted.slice(run.cardSlots),
     ...(Array.isArray(run.reserveCards) ? run.reserveCards : []),
   ].map((card) => cleanCard(card, seen)).filter(Boolean);
+  // Older saves mounted Rest cards. Return the same instances without spending uses.
+  for (const [index, card] of run.mountedCards.entries()) {
+    if (!isInventoryOnlyCard(card)) continue;
+    run.reserveCards.push(card);
+    run.mountedCards[index] = null;
+  }
   run.cardHistory = Array.isArray(run.cardHistory) ? run.cardHistory : [];
   run.cardRewardedNodes = Array.isArray(run.cardRewardedNodes)
     ? run.cardRewardedNodes
@@ -226,7 +242,7 @@ export function describeSkillCard(card) {
       break;
     case "camp-grow":
       effect =
-        `At Rest, Grow adds ${amount} maximum Sparks per equipped or copied source and refills your meter once. It does not heal hearts. All Growth Seeds share 3 Grow actions per journey.`;
+        `From your Deck at Rest, Grow adds ${amount} maximum Sparks per owned Seed and refills your meter once. It does not heal hearts. All Growth Seeds share 3 Grow actions per journey, up to +90 Sparks per action.`;
       break;
     case "prism":
       effect = "Multiply the flight Sparks already earned by earlier slots in this pass by 1.25. Stored Sparks and recovery time are unchanged.";
@@ -265,6 +281,7 @@ export function describeSkillCard(card) {
     maxRank: d.maxRank,
     meltValue: getCardMeltValue(card),
     copyable: d.copyable === true,
+    inventoryOnly: isInventoryOnlyCard(card),
     limited: Number.isFinite(card.charges),
     ...(ruleBands?{ruleBands}:{}),
     ...(d.artFamily?{artFamily:d.artFamily}:{}),
@@ -288,7 +305,7 @@ export function getEffectiveCardSources(snapshot) {
   const sources = [];
   for (const [index, card] of cards.entries()) {
     const def = SKILL_CARDS[card?.cardId];
-    if (!def || (def.charges && !(card.charges > 0))) continue;
+    if (!def || isInventoryOnlyCard(card) || (def.charges && !(card.charges > 0))) continue;
     if (def.kind === "echo" || def.kind === "chameleon") {
       const target = targetAbility(cards, index);
       if (!target || (def.kind === "echo" && (target.def.kind === "capacity" || target.def.passive))) continue;
@@ -376,7 +393,7 @@ export function getMountedCards(run) {
     return printed;
   });
 }
-/** Individual duplicate definitions remain separate; only mounted cards act. */
+/** Individual duplicates remain separate; Rest cards act directly from the Deck. */
 export function getOwnedCards(run) {
   if (!isCardRun(run)) return [];
   settleCardReward(run);
@@ -745,7 +762,6 @@ export function getCardModifiers(run) {
     if (d.kind === "twin-orbit") m.cardTwinOrbit = true;
     if (d.kind === "twin-wick") m.cardTwinWick = true;
     if (d.kind === "flash-handling") { m.cardFlashHandling = true; m.cardFlashSources++; m.cardFlashMeter += cardAmount(source) * CARD_UNIT; }
-    if (d.kind === "camp-grow") { m.cardGrowSources++; m.cardGrowAmount += cardAmount(source) * CARD_UNIT; }
     if (d.kind === "packing") m.cardPackingSources+=Math.max(1,Number(d.packingWeight)||1);
     if (d.kind === "downbeat") m.cardDownbeat = true;
     if (d.kind === "ring-spring") m.cardRingSpring = true;
@@ -759,6 +775,9 @@ export function getCardModifiers(run) {
       m.cardHarvestStoredPerWave += d.stored || 0;
     }
   }
+  const seeds = getInventoryCampCards(run, 'camp-grow');
+  m.cardGrowSources = seeds.length;
+  m.cardGrowAmount = Math.min(CARD_ECONOMY.maxGrowPerAction, seeds.reduce((total, seed) => total + cardAmount(seed), 0)) * CARD_UNIT;
   m.cardFieldMultiplier = getFieldImpulseMultiplier(m.cardFieldSources);
   return m;
 }

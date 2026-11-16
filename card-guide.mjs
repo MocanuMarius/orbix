@@ -113,12 +113,12 @@ export const CARD_GUIDE_TOPICS = {
       ),
       step(
         "Growth Seed",
-        "Equip a Growth Seed at an open Rest to unlock Grow immediately. Each original or compatible copied source adds its printed amount: Common +3, Rare +5, Legendary +8 (improved to +9 or +10). Grow refills once without healing hearts. All Seeds share three Grow actions per run.",
+        "Keep Growth Seeds in your Deck to unlock Grow at Rest. Each owned Seed adds its printed amount, up to +90 total: Common +3, Rare +5, Legendary +8 (improved to +9 or +10). Grow refills once without healing hearts. All Seeds share three Grow actions per run.",
         "meter",
       ),
       step(
         "Second Ember",
-        "This Common camp card permits a second different action at one Rest. Its one charge is spent only after the second action succeeds. Leaving after the first preserves it.",
+        "Keep this Common card in your Deck when arriving at Rest to permit a second different action. It needs no active slot. Its one charge is spent only after the second action succeeds. Leaving after the first preserves it.",
         "forge",
       ),
     ],

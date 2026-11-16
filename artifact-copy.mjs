@@ -1,8 +1,8 @@
-import {resourceSymbol} from './game-symbols.mjs?v=camp-resume-1';
-import {GUARDIAN_RELICS} from './guardian-artifacts.mjs?v=camp-resume-1';
-import {getArtifactInfo,CONSUMABLE_ARTIFACTS} from './artifact-info.mjs?v=camp-resume-1';
-import {getCompanionAbility,normalizeCompanionRole} from './companion-abilities.mjs?v=camp-resume-1';
-import {formatGlow,glowText,getGlowCapacity} from './vitality.mjs?v=camp-resume-1';
+import {resourceSymbol} from './game-symbols.mjs?v=relic-guide-1';
+import {GUARDIAN_RELICS} from './guardian-artifacts.mjs?v=relic-guide-1';
+import {getArtifactInfo,CONSUMABLE_ARTIFACTS} from './artifact-info.mjs?v=relic-guide-1';
+import {getCompanionAbility,normalizeCompanionRole} from './companion-abilities.mjs?v=relic-guide-1';
+import {formatGlow,glowText,getGlowCapacity} from './vitality.mjs?v=relic-guide-1';
 
 const esc=value=>String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const action={collector:'Collector delivers a Spark',protector:'Protector deflects a collision',swift:'Runner starts a burst',leveler:'Space Timer starts levitating'};
@@ -35,7 +35,7 @@ export function artifactDescription(a,run={}, {fresh=false}={}){
   'echo-vessel':{trigger:'Collect Sparks with a full meter.',effect:'Increase storage efficiency.',limit:'Without skills: 6 surplus Sparks become 2 Stored Sparks instead of 1. Skills add to this.'},
   'overflow-coil':{trigger:'Collect Sparks with a full meter.',effect:`Recharge ${name} faster.`,limit:'Up to 2 seconds per pickup and 12 seconds per flight. A ready companion spends none of the limit.'},
   'echo-bell':{trigger:`${companionWork}.`,effect:`Touch a Spark yourself within 8 seconds to gain +${points(mod.workFuel??8)} bonus Sparks.`,limit:'One charge at a time. Up to 5 empowered pickups per flight.'},
-  'dawn-loom':{trigger:`A pickup restores ${name}'s recovery.`,effect:'Reveal the route ahead for 1.5 seconds.',limit:'At least 4 seconds between flashes. Ordinary cooldown ticking does not trigger it.'},
+  'dawn-loom':{trigger:`When a pickup speeds up ${name} recovery.`,effect:'Reveal the route ahead for 1.5 seconds.',limit:'At least 4 seconds between flashes. Ordinary cooldown ticking does not trigger it.'},
   'sunspool':{trigger:'Pick up a Spark during a temporary reveal.',effect:'Store one free Lift.',limit:'One stored Lift. Up to 4 grants per flight, at least 4 seconds apart.'},
   'dreamcatcher':{trigger:'Collect Sparks during your saved Dream.',effect:`Recharge ${name} by 1.5 seconds per pickup.`,limit:'Requires a saved Dream opening.'},
   'second-dawn':{trigger:'Collect your first Spark after Dream playback.',effect:'Reveal the whole scene for 1.5 seconds.',limit:'Once per flight. Requires a saved Dream opening.'},
@@ -47,7 +47,7 @@ export function artifactDescription(a,run={}, {fresh=false}={}){
  const selected={...(GUARDIAN_RELICS[a.id]||entries[a.id]||{effect:convert(a.description||info.effect),trigger:convert(info.trigger),limit:convert(info.limit)})};
  if(['echo-bell','hollow-covenant'].includes(a.id)&&(run.artifacts||[]).includes('echo-bell')&&(run.artifacts||[]).includes('hollow-covenant'))selected.limit+=' Their shared pickup bonus caps at 5 Sparks.';
  const spec=CONSUMABLE_ARTIFACTS[a.id],remaining=spec?(fresh?spec.charges:run.artifactCharges?.[a.id]??spec.charges):null;
- const lifetime=spec?(remaining>0?`${remaining} automatic uses · disappears when empty`:'Used up')
+ const lifetime=spec?(remaining>0?`${remaining} automatic ${remaining===1?'use':'uses'} · disappears when empty`:'Used up')
   :a.id==='wayward-seed'?'Automatic · evolves after Map 1':info.type==='passive'?'Permanent passive':'Automatic · permanent';
  return {...selected,lifetime,type:info.type,role,sequence:[selected.trigger,selected.effect].filter(Boolean)};
 }
@@ -56,6 +56,10 @@ export function artifactDescriptionMarkup(a,run,options={}){
  const copy=artifactDescription(a,run,options);
  return `<div class="artifact-explanation">${copy.trigger?`<p class="artifact-trigger-line">${esc(copy.trigger)}</p>`:''}<p class="artifact-effect-main">${effectMarkup(copy.effect)}</p>${copy.limit?`<p class="artifact-limit-line">${esc(copy.limit)}</p>`:''}<span class="artifact-duration">${esc(copy.lifetime)}</span></div>`;
 }
+
+// The comparison surface keeps the first rule in view. Full rules always retain
+// every sentence, including unusual interactions and evolution requirements.
+export const artifactLimitSummary=copy=>String(copy.limit||'').split(/(?<=[.!?])\s+/)[0]||'';
 
 // Escape first. Meaning is conveyed with words and signs as well as color.
 export function effectMarkup(text){

@@ -61,10 +61,4 @@ html body .event-offer .boon-values:empty{display:none}
  html body .tree-sheet .tree-side .tree-inspector .tree-selection-status{margin:3px 0}
  #header .map-energy{gap:2px;font-size:13px}#header .map-energy svg{width:17px}
  html body .compact-support .event-offer{gap:5px!important}
- html body dialog.route-inspection-sheet.flight-preview-sheet[open]{padding:7px 10px!important}
- .flight-preview .preview-reading{gap:6px}
- .flight-preview .preview-place{padding-block:0;grid-template-columns:48px minmax(0,1.05fr) minmax(0,1fr)}
- .flight-preview .preview-landmark>svg{max-height:55px}
- .flight-preview :is(.preview-optional,.preview-regular){gap:5px;padding:7px 8px}
- .flight-preview footer button{height:44px!important;min-height:44px!important;padding-block:4px!important}
 }

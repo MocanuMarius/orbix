@@ -28,9 +28,9 @@ const cards = [
   { id: 'harvest-legendary', name: 'Resonant Harvest', rarity: 'legendary', kind: 'harvest', amount: 2, stored: 1, copyable: true, maxRank: 3, artFamily: 'harvest-legendary',
     ruleBands: [{ type: 'condition', text: 'When a wave crosses an uncollected Spark' }, { type: 'effect', text: '+{amount} Sparks.' }, { type: 'condition', text: 'First crossing of each wave' }, { type: 'effect', text: '+1 Stored Spark.' }] },
   { id: 'camp-kit', name: 'Second Ember', rarity: 'common', kind: 'camp-extra', amount: 0, charges: 1, copyable: false, maxRank: 1, artFamily: 'camp-kit',
-    ruleBands: [{ type: 'effect', text: 'Take 2 different actions at one Rest.' }, { type: 'note', text: 'Spend 1 use after the second succeeds.' }] },
-  { id: 'growth-seed', name: 'Growth Seed', rarity: 'rare', kind: 'camp-grow', amount: 5, copyable: true, maxRank: 1, evolvesTo: 'growth-seed-legendary', artFamily: 'growth-seed',
-    ruleBands: [{ type: 'condition', text: 'At Rest, unlock Grow' }, { type: 'effect', text: '+{amount} maximum Sparks and a full meter.' }, { type: 'note', text: '3 shared Grow actions per journey.' }] },
+    ruleBands: [{ type: 'condition', text: 'Keep in your Deck when arriving at Rest' }, { type: 'effect', text: 'Take 2 different actions.' }, { type: 'note', text: 'Spend 1 use after the second succeeds.' }] },
+  { id: 'growth-seed', name: 'Growth Seed', rarity: 'rare', kind: 'camp-grow', amount: 5, copyable: false, maxRank: 1, evolvesTo: 'growth-seed-legendary', artFamily: 'growth-seed',
+    ruleBands: [{ type: 'condition', text: 'From your Deck at Rest, unlock Grow' }, { type: 'effect', text: '+{amount} maximum Sparks and a full meter.' }, { type: 'note', text: '3 shared Grow actions per journey. Owned Seeds add together, up to +90.' }] },
   { id: 'cache-handling', name: 'Cache Handling', rarity: 'rare', kind: 'cache-handling', amount: 0, copyable: false, maxRank: 1, artFamily: 'cache-handling',
     ruleBands: [{ type: 'effect', text: 'Allows Collector to fetch Caches.' }, { type: 'condition', text: 'On Cache delivery' }, { type: 'effect', text: '+12 Sparks.' }] },
   { id: 'flash-handling', name: 'Flash Handling', rarity: 'rare', kind: 'flash-handling', amount: 6, copyable: true, maxRank: 1, artFamily: 'flash-handling',
@@ -162,10 +162,10 @@ const cards = [
     ruleBands: [{ type: 'effect', text: '+35% Collector fetching reach for {charges} extra catches.' }, { type: 'note', text: 'Spend 1 use only when an eligible missed pickup beyond normal reach is caught. Range extensions do not stack.' }] },
   { id: 'cast-line', name: 'Cast Line', rarity: 'common', kind: 'collector-range', amount: 100, rangeMultiplier: 2, charges: 2, passive: true, copyable: true, maxRank: 1, excludeStarter: true, artFamily: 'cache-handling',
     ruleBands: [{ type: 'effect', text: 'Double Collector fetching reach for {charges} extra catches.' }, { type: 'note', text: 'Spend 1 use only beyond normal reach. Use the shortest sufficient extension. Your wisp gets first chance.' }] },
-  { id: 'growth-seed-common', name: 'Growth Seed', rarity: 'common', kind: 'camp-grow', amount: 3, dropWeight: 6, copyable: true, maxRank: 1, evolvesTo: 'growth-seed', excludeStarter: true, artFamily: 'growth-seed',
-    ruleBands: [{ type: 'condition', text: 'At Rest, unlock Grow' }, { type: 'effect', text: '+{amount} maximum Sparks and a full meter.' }, { type: 'note', text: '3 shared Grow actions per journey.' }] },
-  { id: 'growth-seed-legendary', name: 'Growth Seed', rarity: 'legendary', kind: 'camp-grow', amount: 8, copyable: true, maxRank: 3, excludeStarter: true, artFamily: 'growth-seed',
-    ruleBands: [{ type: 'condition', text: 'At Rest, unlock Grow' }, { type: 'effect', text: '+{amount} maximum Sparks and a full meter.' }, { type: 'note', text: '3 shared Grow actions per journey.' }] },
+  { id: 'growth-seed-common', name: 'Growth Seed', rarity: 'common', kind: 'camp-grow', amount: 3, dropWeight: 6, copyable: false, maxRank: 1, evolvesTo: 'growth-seed', excludeStarter: true, artFamily: 'growth-seed',
+    ruleBands: [{ type: 'condition', text: 'From your Deck at Rest, unlock Grow' }, { type: 'effect', text: '+{amount} maximum Sparks and a full meter.' }, { type: 'note', text: '3 shared Grow actions per journey. Owned Seeds add together, up to +90.' }] },
+  { id: 'growth-seed-legendary', name: 'Growth Seed', rarity: 'legendary', kind: 'camp-grow', amount: 8, copyable: false, maxRank: 3, excludeStarter: true, artFamily: 'growth-seed',
+    ruleBands: [{ type: 'condition', text: 'From your Deck at Rest, unlock Grow' }, { type: 'effect', text: '+{amount} maximum Sparks and a full meter.' }, { type: 'note', text: '3 shared Grow actions per journey. Owned Seeds add together, up to +90.' }] },
 ];
 
 const freeze = value => {

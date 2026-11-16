@@ -1,8 +1,8 @@
-import {ROUTE_BONUSES} from './route-bonuses.mjs?v=camp-resume-1';
-import {blackHoleDrainRate} from './black-holes.mjs?v=camp-resume-1';
-import {flashPowerupDuration, pickupKind} from './pickups.mjs?v=camp-resume-1';
-import {GLOW_DISPLAY_SCALE} from './vitality.mjs?v=camp-resume-1';
-import {sparkMass} from './spark-size.mjs?v=camp-resume-1';
+import {ROUTE_BONUSES} from './route-bonuses.mjs?v=relic-guide-1';
+import {blackHoleDrainRate} from './black-holes.mjs?v=relic-guide-1';
+import {flashPowerupDuration, pickupKind} from './pickups.mjs?v=relic-guide-1';
+import {GLOW_DISPLAY_SCALE} from './vitality.mjs?v=relic-guide-1';
+import {sparkMass} from './spark-size.mjs?v=relic-guide-1';
 
 const fuelKinds = new Set(['light', 'cluster', 'cache']);
 const helpfulFamilies = new Set(['lift', 'reveal', 'bloom']);
@@ -242,7 +242,7 @@ export function buildObjectivePlan(e,id) {
     } else {
       const suns=id==='three-suns';
       const candidates=suns?sparks.filter(p=>sparkMass(p)===3):sparks;
-      targets=spread(candidates,suns?3:6,speed*1.65)?.map(p=>mark(p));
+      targets=spread(candidates,suns?3:id==='spark-trail'?5:6,speed*1.65)?.map(p=>mark(p));
     }
   }
   return targets?{id,targets,hole,guide}:null;
