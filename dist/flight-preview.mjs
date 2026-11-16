@@ -1,16 +1,16 @@
-import {getBiome} from './biomes.mjs?v=furnace-tow-1';
-import {getBossPreview} from './boss.mjs?v=furnace-tow-1';
-import {levelMapPreview} from './level-map-art.mjs?v=furnace-tow-1';
-import {mapStopIconMarkup} from './map-guide.mjs?v=furnace-tow-1';
-import {resourceSymbol} from './game-symbols.mjs?v=furnace-tow-1';
-import {getFlightClearReward} from './checkpoint-rewards.mjs?v=furnace-tow-1';
-import {availableFlightArtifacts} from './model.mjs?v=furnace-tow-1';
-import {bonusIcon,boonMarkup} from './route-bonus-ui.mjs?v=furnace-tow-1';
-import {contextualFlightNotice} from './contextual-events.mjs?v=furnace-tow-1';
-import {ATLAS_FORECASTS,atlasGlyph} from './night-atlas.mjs?v=furnace-tow-1';
-import {canDreamAt,dreamConfig} from './dream.mjs?v=furnace-tow-1';
-import {sparkHabitat} from './spark-fields.mjs?v=furnace-tow-1';
-import {lanternFlightCue} from './map-theme.mjs?v=furnace-tow-1';
+import {getBiome} from './biomes.mjs?v=camp-resume-1';
+import {getBossPreview} from './boss.mjs?v=camp-resume-1';
+import {levelMapPreview} from './level-map-art.mjs?v=camp-resume-1';
+import {mapStopIconMarkup} from './map-guide.mjs?v=camp-resume-1';
+import {resourceSymbol} from './game-symbols.mjs?v=camp-resume-1';
+import {getFlightClearReward} from './checkpoint-rewards.mjs?v=camp-resume-1';
+import {availableFlightArtifacts} from './model.mjs?v=camp-resume-1';
+import {bonusIcon,boonMarkup} from './route-bonus-ui.mjs?v=camp-resume-1';
+import {contextualFlightNotice} from './contextual-events.mjs?v=camp-resume-1';
+import {ATLAS_FORECASTS,atlasGlyph} from './night-atlas.mjs?v=camp-resume-1';
+import {canDreamAt,dreamConfig} from './dream.mjs?v=camp-resume-1';
+import {sparkHabitat} from './spark-fields.mjs?v=camp-resume-1';
+import {lanternFlightCue} from './map-theme.mjs?v=camp-resume-1';
 
 const escapeText = value => String(value ?? '').replace(/[&<>"']/g, char =>
  ({'&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;'}[char]));

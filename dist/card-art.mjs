@@ -1,4 +1,4 @@
-import {SKILL_CARDS} from './skill-cards.mjs?v=furnace-tow-1';
+import {SKILL_CARDS} from './skill-cards.mjs?v=camp-resume-1';
 /** Sixteen original scenes share one locally cached, square-cell atlas.
  * Order matches the 4×4 asset; each SVG clips exactly one 313px cell. */
 const esc = v => String(v ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));

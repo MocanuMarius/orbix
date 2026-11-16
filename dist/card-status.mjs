@@ -1,7 +1,7 @@
 /** Configuration hints only. Every numeric verdict comes from a read-only row quote. */
-import { SKILL_CARDS, CARD_ROW_EVENTS, getEffectiveCardSources, getCardRowRule, previewCardRowEvent } from './skill-cards.mjs?v=furnace-tow-1';
-import { normalizeCompanionFleet } from './companion-abilities.mjs?v=furnace-tow-1';
-import { skillProgress } from './skill-increments.mjs?v=furnace-tow-1';
+import { SKILL_CARDS, CARD_ROW_EVENTS, getEffectiveCardSources, getCardRowRule, previewCardRowEvent } from './skill-cards.mjs?v=camp-resume-1';
+import { normalizeCompanionFleet } from './companion-abilities.mjs?v=camp-resume-1';
+import { skillProgress } from './skill-increments.mjs?v=camp-resume-1';
 
 const ready = reason => ({ state: 'ready', symbol: '✓', label: 'Ready', reason, fix: 'Keep this arrangement to use it when its condition happens.' });
 const blocked = (label, reason, fix) => ({ state: 'blocked', symbol: '!', label, reason, fix });

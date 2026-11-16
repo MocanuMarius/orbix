@@ -1,11 +1,11 @@
-import {drawFluidCapture, FLUID_STYLES} from './fluid-capture.mjs?v=furnace-tow-1';
-import {drawPickup} from './pickup-art.mjs?v=furnace-tow-1';
-import {drawShellPuff} from './capture-art.mjs?v=furnace-tow-1';
-import {drawShellArcs} from './shell-arcs.mjs?v=furnace-tow-1';
-import {sparkArtScale, sparkBodyRadius} from './spark-size.mjs?v=furnace-tow-1';
-import {makeWispSprite} from './companion-art.mjs?v=furnace-tow-1';
-import {createDepthScenery, drawDepthScenery} from './depth-scenery.mjs?v=furnace-tow-1';
-import {biomePalette} from './biome-art.mjs?v=furnace-tow-1';
+import {drawFluidCapture, FLUID_STYLES} from './fluid-capture.mjs?v=camp-resume-1';
+import {drawPickup} from './pickup-art.mjs?v=camp-resume-1';
+import {drawShellPuff} from './capture-art.mjs?v=camp-resume-1';
+import {drawShellArcs} from './shell-arcs.mjs?v=camp-resume-1';
+import {sparkArtScale, sparkBodyRadius} from './spark-size.mjs?v=camp-resume-1';
+import {makeWispSprite} from './companion-art.mjs?v=camp-resume-1';
+import {createDepthScenery, drawDepthScenery} from './depth-scenery.mjs?v=camp-resume-1';
+import {biomePalette} from './biome-art.mjs?v=camp-resume-1';
 
 const canvas = document.querySelector('#scene');
 const ctx = canvas.getContext('2d');

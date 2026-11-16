@@ -1,0 +1,9 @@
+# Camp and Continue rendering repair — 16 November 2026
+
+Release **camp-resume-1**. [Play with refreshed assets](https://mocanumarius.github.io/orbix/?v=camp-resume-1) · [Update an installed game](https://mocanumarius.github.io/orbix/cards.html?v=camp-resume-1).
+
+An exhausted Glow Wick or Flash Stone occupies a null relic position in the live run. The map's collection dock passed that position into the relic portrait renderer, which threw before replacing the previous screen. Continue could therefore leave the title menu beneath an active-run header. Leaving a completed Grow receipt for the route could fail for the same reason. The dock now displays and counts only valid relic IDs. Relic positions, charges, and the saved run are unchanged.
+
+The previous public release reproduces both failures in real Chrome. The candidate passes five real-touch browser fixtures at 740×333: Continue with an exhausted relic and surviving neighbor, ordinary Grow, Grow with one Second Ember action remaining through reload, no available Rest actions, and Grow with an exhausted relic followed by the next route. Run identity, growth count, hearts, wallet, and equipped cards survive; replayed Grow cannot apply twice. Actual previous furnace-tow-1 service worker and cached launcher/workbench upgrade checks preserve the entire Cards save and byte-identical legacy save, including prior growth and the completed camp. The prepared offline 81-card catalog also loads.
+
+Validation: **242/242 focused tests**, **473 JavaScript syntax checks**, and **427 offline roots** retained. The package revision is **4ba9170af373**. Publication overlays canonical committed game bytes onto the existing Pages tree and preserves unrelated public assets. Verification uses mobile emulation rather than a physical Pixel 10.
