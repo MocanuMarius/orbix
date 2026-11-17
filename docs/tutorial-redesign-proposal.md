@@ -50,3 +50,22 @@ Glossary, Field Guide replay, Skip once, Remember & skip, Reset tutorial, and pr
 ## Non-goals
 
 No change to practice isolation (`isTutorial`, `practiceCardRun`), save schema, Edition gating for existing saves (Edition 3 runs finish as Edition 3), economy, or art style. No global pixelation or framework additions.
+
+## Edition 4 brief — decided by the user, 17 November 2026
+
+The user's instruction: the tutorial must be "spread thinner", use "real life courses, not just some episodes", let the player "meet and learn all concepts gradually, including card arrangements, black holes, and main mechanics like luminance, proximity, shield from companion", in "an order that makes sense… first we learn movement, then we learn energy", with "some spread between lessons so it's not a constant barrage of info boxes… those levels need to be constructed accordingly… around 5 minutes in total".
+
+Requirements:
+- **Length:** about five minutes of play in total.
+- **Real courses:** each stop is a real, authored course in a real location (different biomes), built so the thing being taught appears where the lesson needs it. Not isolated test rooms.
+- **Order, simple to complex** (one idea at a time):
+  1. Movement: Lift and glide.
+  2. Energy: Sparks, the Spark Meter, what a Lift costs.
+  3. Collector: what it is and what it looks like first, then fetching and delivery.
+  4. Light: Luminance (how far you see), Flash, then Proximity (skim an edge to send a Pulse).
+  5. Cards: arranging the Chain (order, Triggers, Play) at a camp, then a flight that uses it.
+  6. Danger: Black Holes, hearts and retry, and the companion's shield (Collector saving you).
+  7. A short finish that puts it together, then the real starting card.
+- **Pacing rules** (hard): every lesson happens with the game stopped; one concept per lesson, two short sentences at most, then practice of exactly that; no more than two lesson stops in a flight; at least about twelve seconds of free flying between stops; nothing is explained before the player has seen it; nothing taught earlier is repeated.
+- **Course construction:** quiet opening seconds in every course; the taught element placed alone, with room to try it twice; difficulty rises only after the lesson; each course ends with a short stretch using what was just learned.
+- Keep: practice isolation and loaned cards, Skip once / Remember & skip, the explicit "Practice complete → choose your starting card" step, glossary access, existing saves finishing their own edition.

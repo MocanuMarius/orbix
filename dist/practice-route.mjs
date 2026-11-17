@@ -14,7 +14,7 @@ export function practiceModifiers(run){
 }
 export function practicePurpose(run){
  const node=run?.map?.[run.step]?.[0]||run?.current;
- return ({glide:'Lift · collect · glide',proximity:'Skim rock · catch Flash',rhythm:'Three even Lifts → wave → Harvest',
+ return ({glide:'Lift · collect · glide',proximity:'Skim rock · catch Flash',rhythm:'Three even Lifts → Pulse → Harvest',
   'black-hole':'Keep your distance · restore light',guardian:'Read the warning · reach the waylight',
   treasure:'Borrow cards for the next passage',camp:'Recover · prepare a card combination'})[node?.tutorialLesson||node?.kind]||'Reach the next waylight';
 }
@@ -44,9 +44,9 @@ export function nextPracticeLesson(engine,run,snapshot={}){
   add('pulse',t>7&&(snapshot.edgingPulse?.active||engine.edgingPulse?.triggerCount>0),'You earned a Surface Pulse','Your close flight filled Proximity. The pulse reveals terrain; keep a safe gap from the rock.','.edging-pulse-gauge');
  }
  if(kind==='rhythm'){
-  add('rhythm',t>1.4,'Three Lifts make a Rhythm','Tap three evenly spaced Lifts. The third sends a revealing wave. Follow the beat marks.','#flap-btn');
-  add('wave',engine.cardRhythm?.waves>0,'Rhythm sent a wave','Watch the bright ring cross a Spark you have not collected. Your borrowed Harvest card rewards that crossing.',null,{x:engine.player.x,y:engine.player.y,radius:38});
-  add('harvest',state.harvestPaid===true,'Harvest paid for the crossing','The wave restored Sparks. The pickup remains for you to collect. Rhythm creates the wave; Harvest rewards its crossing.','.glow-side-gauge');
+  add('rhythm',t>1.4,'Three Lifts make a Rhythm','Tap three evenly spaced Lifts. The third sends a revealing Pulse. Follow the beat marks.','#flap-btn');
+  add('wave',engine.cardRhythm?.waves>0,'Rhythm sent a Pulse','Watch the bright ring cross a Spark you have not collected. Your borrowed Harvest card rewards that crossing.',null,{x:engine.player.x,y:engine.player.y,radius:38});
+  add('harvest',state.harvestPaid===true,'Harvest paid for the crossing','The Pulse restored Sparks. The pickup remains for you to collect. Rhythm creates the Pulse; Harvest rewards its crossing.','.glow-side-gauge');
  }
  if(kind==='black-hole'){
   const hole=engine.blackHoles?.items?.[0],x=hole?hole.x-engine.distance:Infinity;

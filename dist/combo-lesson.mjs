@@ -84,7 +84,7 @@ function cardPairMarkup(){return getMountedCards(lessonCards()).filter(Boolean).
 
 export function comboLessonMarkup(){return `<header class="combo-lesson-heading"><div><small>FIRST LIGHT · CARD PRACTICE</small><h2 id="combo-lesson-title">Rhythm + Resonant Harvest</h2></div><div class="combo-lesson-pace" role="group" aria-label="Practice pace"><button type="button" data-lesson="guided" aria-pressed="true">Guided</button><button type="button" data-lesson="free" aria-pressed="false">Free pace</button></div><button type="button" data-lesson="close" aria-label="Back from card practice">Back</button></header>
   <div class="combo-lesson-body"><section class="combo-lesson-stage" aria-label="Safe flight practice"><canvas aria-label="Your wisp and one uncollected Spark"></canvas><span class="combo-lesson-stage-note">Safe stage · no scrolling</span><div class="combo-lesson-label" data-spark-label>Uncollected Spark</div><div class="combo-lesson-payout" hidden>+1 Spark</div><span class="combo-lesson-meter" aria-label="Practice Spark Meter">Sparks <b>18</b><small>/ 30</small></span><div class="combo-lesson-beats" aria-label="Rhythm Lift progress"><i>1</i><i>2</i><i>3</i></div></section>
-  <section class="combo-lesson-teaching"><div class="combo-lesson-pair">${cardPairMarkup()}</div><div class="combo-lesson-copy" role="status" aria-live="polite"><small data-lesson-step>1 / 3 · MAKE A WAVE</small><h3 data-lesson-title>Three Lifts, one wave</h3><p data-lesson-copy>Tap Lift each time it lights up. Three evenly spaced Lifts send one wave.</p></div><p class="combo-lesson-pace-note">Guided: the scene waits at each beat. A Lift costs 3 practice Sparks.</p></section></div>
+  <section class="combo-lesson-teaching"><div class="combo-lesson-pair">${cardPairMarkup()}</div><div class="combo-lesson-copy" role="status" aria-live="polite"><small data-lesson-step>1 / 3 · MAKE A PULSE</small><h3 data-lesson-title>Three Lifts, one Pulse</h3><p data-lesson-copy>Tap Lift each time it lights up. Three evenly spaced Lifts send one Pulse.</p></div><p class="combo-lesson-pace-note">Guided: the scene waits at each beat. A Lift costs 3 practice Sparks.</p></section></div>
   <footer class="combo-lesson-actions"><button type="button" data-lesson="skip">Skip lesson</button><span data-lesson-cue>Ready when you are</span><button type="button" class="combo-lesson-lift" data-lesson="lift">Lift 1</button><button type="button" data-lesson="replay" hidden>Replay</button><button type="button" data-lesson="done" hidden>Continue</button></footer>`;}
 
 /** A modal preserves the existing app sheet and its exact return position. */
@@ -115,17 +115,17 @@ export function openComboLesson({document:doc=globalThis.document,onClose=()=>{}
     if(e){label.style.left=`${(controller.target.x-e.distance)/e.width*100}%`;label.style.top=`${controller.target.y/e.height*100}%`;}
     if(done){
       text('[data-lesson-step]','3 / 3 · HARVEST REWARDS THE CROSSING');
-      text('[data-lesson-title]','The wave earned +1 Spark');
+      text('[data-lesson-title]','The Pulse earned +1 Spark');
       text('[data-lesson-copy]','Harvest rewarded the crossing. The Spark stays to collect. Either card order works, even with other cards between them.');
-      text('[data-lesson-cue]','3 Lifts → 1 wave → +1 Spark');
+      text('[data-lesson-cue]','3 Lifts → 1 Pulse → +1 Spark');
       query('[data-lesson-card="1"]').dataset.activated='true';
     }else if(miss){
       text('[data-lesson-step]','TRY AGAIN AT YOUR PACE');text('[data-lesson-title]','Keep the same gap between Lifts');
       text('[data-lesson-copy]','Rhythm needs three successful, evenly spaced Lifts. Replay to refill practice Sparks, or switch to Guided so the scene waits for you.');
       text('[data-lesson-cue]','Replay for another try');
     }else if(wave){
-      text('[data-lesson-step]','2 / 3 · WATCH THE CROSSING');text('[data-lesson-title]','Rhythm sent one wave');
-      text('[data-lesson-copy]','Follow the bright ring to the uncollected Spark. Resonant Harvest rewards the wave when it reaches that pickup.');text('[data-lesson-cue]','Watch the ring cross the Spark');
+      text('[data-lesson-step]','2 / 3 · WATCH THE CROSSING');text('[data-lesson-title]','Rhythm sent one Pulse');
+      text('[data-lesson-copy]','Follow the bright ring to the uncollected Spark. Resonant Harvest rewards the Pulse when it reaches that pickup.');text('[data-lesson-cue]','Watch the ring cross the Spark');
       query('[data-lesson-card="0"]').dataset.activated='true';
     }else{
       const cue=mode==='guided'?(state.ready?'Tap Lift when ready':'Glide · the next beat is coming'):state.lifts===2?'Catch the third beat at the same pace':state.lifts===1?'Tap Lift again to set the pace':'Tap three evenly spaced Lifts';
@@ -138,8 +138,8 @@ export function openComboLesson({document:doc=globalThis.document,onClose=()=>{}
   const start=nextMode=>{
     mode=nextMode;controller?.destroy();revision='';last=0;
     for(const card of dialog.querySelectorAll('.combo-lesson-card'))delete card.dataset.activated;
-    text('[data-lesson-step]','1 / 3 · MAKE A WAVE');text('[data-lesson-title]','Three Lifts, one wave');
-    text('[data-lesson-copy]','Tap Lift each time it lights up. Three evenly spaced Lifts send one wave.');
+    text('[data-lesson-step]','1 / 3 · MAKE A PULSE');text('[data-lesson-title]','Three Lifts, one Pulse');
+    text('[data-lesson-copy]','Tap Lift each time it lights up. Three evenly spaced Lifts send one Pulse.');
     text('.combo-lesson-pace-note',mode==='guided'?'Guided: the scene waits at each beat. A Lift costs 3 practice Sparks.':'Free pace: tap three Lifts with matching gaps. Replay refills practice Sparks.');
     query('[data-lesson=guided]').setAttribute('aria-pressed',String(mode==='guided'));query('[data-lesson=free]').setAttribute('aria-pressed',String(mode==='free'));
     controller=createComboLessonController({canvas,mode,onChange:update});update(controller.state);controller.render();

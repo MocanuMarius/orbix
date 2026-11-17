@@ -23,7 +23,7 @@ export function activationPresentation(event){
   if(outcome.usedLift)bits.push(`<span>FREE${resourceSymbol('up')}</span>`);
   if(outcome.bounce)bits.push(`<span>FREE ½${resourceSymbol('up')}</span>`);
   if(outcome.hearts>0)bits.push(`<span>+${outcome.hearts}${lifeHeartSvg()}</span>`);
-  if(outcome.waves>0)bits.push(`<span>+${outcome.waves} ${outcome.waves===1?'wave':'waves'}</span>`);
+  if(outcome.waves>0)bits.push(`<span>+${outcome.waves} ${outcome.waves===1?'Pulse':'Pulses'}</span>`);
   if(outcome.reveal>0)bits.push(`<span>${Number(outcome.reveal.toFixed(1))}s${skillIcon({name:'Luminance'})}</span>`);
   if(outcome.duration>0)bits.push(`<span>${Number(outcome.duration.toFixed(1))}s</span>`);
   if(['up','down','right'].includes(outcome.direction))bits.push(`<span>${{up:'↑',down:'↓',right:'→'}[outcome.direction]}</span>`);

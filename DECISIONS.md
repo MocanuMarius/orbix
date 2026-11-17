@@ -2,6 +2,14 @@
 
 Updated 13 November 2026. Wispbound is the working title. This log records the confirmed direction and subsequent implementation choices. All ten recommended alignment choices were accepted in chat.
 
+## Blocked cards in the Deck · 17 November 2026
+
+A player comparing cards should be able to see which ones can activate in the current flight. When all of a card's effects are blocked, turn its artwork and frame gray and show a short reason on inspection. Keep the name, rules and controls legible. Players can still inspect, move and replace the card.
+
+When only one effect is blocked, keep some color and identify the affected effect. During The Closed Eye, Lantern Lens loses its entire benefit. Climb still gives free Lifts and sends a pulse that can trigger Resonant Harvest, even though that pulse cannot reveal terrain. Harvest still functions and keeps its usual appearance. A card waiting for its normal trigger also keeps its usual appearance.
+
+Carry these states into the incoming Deck's equipped row, reserve and card reader using the new card artwork and layout. Derive each state from the current pact, equipped order and effective card ability, including copied abilities. Refresh it when the pact ends or the player rearranges the row. Avoid saving a visual flag on a card instance.
+
 ## Planned combinations and clearer teaching — 13 November 2026
 
 Artifact offers and details now describe a trigger sequence and a piece to seek: overflow → companion recovery → Dawn Loom light → Sunspool free Lift. Edging Pulse intentionally qualifies as temporary light for Sunspool. Shared trigger budgets remain: five direct-fuel empowerments, four free Lifts, twelve recovery seconds per fleet member, and cooldown-limited light; generated effects cannot create a recursive pickup/currency loop. See the dedicated combination report for tested scope and assumptions.

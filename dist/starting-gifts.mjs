@@ -7,7 +7,7 @@ export const STARTING_GIFTS=Object.freeze([
   skill('main-sight','Luminance','Your light reaches farther. Opens the Luminance skill paths.'),
   skill('main-speed','Momentum','Fly 8% faster. Shorter crossings demand quicker reactions.'),
   skill('collector-attunement','Search Spark','Collector range +12%. Opens its skill branches.'),
-  skill('main-resonant-harvest','Resonant Harvest','Temporary light waves restore 1 Spark when they touch an uncollected Spark.'),
+  skill('main-resonant-harvest','Resonant Harvest','Temporary Pulses restore 1 Spark when they touch an uncollected Spark.'),
   relic('gift-spark-lens','Spark Lens','Your light reaches a little farther.','ember-lens'),
   relic('gift-silver-feather','Silver Feather','Lift impulse is 6% stronger.','silver-feather'),
   relic('gift-wayfinder-seed','Wayfinder Seed','Collector searches 15% farther.','wayfinder-seed'),

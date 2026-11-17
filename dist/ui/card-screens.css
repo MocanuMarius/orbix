@@ -1,0 +1,486 @@
+/* Chain and Deck screens, v2.3-deck (approved 2026-11-17). Moved from the design-lab preview
+   (dist/design-lab/deck.css, sections v2.0 to v2.3) and built on the production kit (dist/ui/waystone.css).
+   Art paths are relative to this file (dist/ui/). The screen root carries .dk .dk2 .dk21 .dk22 .dk23 so the
+   approved rules apply unchanged; lab-only pieces (shuffle button, tile-line table) are left out. */
+
+/* Host: the sheet is a full-screen <dialog>, like the pause menu and Settings. */
+html body dialog.power-sheet.game-sheet.card-deck-sheet.card-deck-sheet,html body dialog.power-sheet.game-sheet.card-deck-sheet.card-deck-sheet[open]{position:fixed!important;outline:0!important;box-sizing:border-box!important;inset:0!important;width:100%!important;max-width:none!important;height:100%!important;max-height:none!important;margin:0!important;padding:0!important;border:0!important;border-image:none!important;border-radius:0!important;background:transparent!important;box-shadow:none!important;overflow:hidden!important;transform:none!important}
+html body dialog.power-sheet.game-sheet.card-deck-sheet.card-deck-sheet[open]{display:block!important}
+html body dialog.game-sheet.card-deck-sheet::backdrop{background:#0c0907}
+#dk-root.dk{--ink:#2a2118;--ink-soft:#6b5335;--rule:#8a6d44;--moss:#536430;--paper:#e6d19c;--slip:#f1e0b0;
+ position:absolute;inset:0;z-index:1;display:block;padding:0;overflow:hidden;background:#0c0907;color:var(--ink);text-align:left}
+#dk-root.wb-ground.dk .wb-world{filter:brightness(.42) saturate(.8)}
+#dk-root.wb-ground.dk .wb-page.dk-sheet{top:4px;bottom:4px;left:6px;right:6px;width:auto;color:var(--ink)}
+#dk-root .dk-sheet>:not(.wb-pagelight){position:relative;z-index:1}
+/* The kit's plaques are display:grid!important; hidden controls must still vanish. */
+#dk-root.dk.dk2 [hidden]{display:none!important}
+/* Shared sheet styles (card-ui.css, game.css) reach headings and paragraphs inside dialogs; the preview had none. */
+#dk-root :where(h1,h2,h3,p,small):where(:not(.skill-card *)){margin:0;text-align:inherit;letter-spacing:inherit;text-shadow:none;background:none;color:inherit;font-size:inherit;line-height:inherit;-webkit-text-fill-color:currentColor}
+#dk-root.dk.dk21 .dk21-thead{font:400 11px/12px var(--pixel,monospace)!important;letter-spacing:1px!important;text-transform:uppercase;color:var(--ink-soft)!important}
+#dk-root.dk.dk21 .dk21-group{font:400 13px/16px var(--pixel,monospace)!important;letter-spacing:1px!important;color:var(--ink)!important}
+/* Kind marks on faces and tiles: + Adds, × Multiplies, repeat (from the preview's mark colours). */
+#dk-root .dk-mark-add{background:#d8c98a;color:#14241a}
+#dk-root .dk-mark-mul{background:#9cc3d8;color:#0f1d26}
+#dk-root .dk-mark-repeat{background:#c4a3cd;color:#22142a}
+#dk-root .dk-sr{position:absolute!important;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
+#dk-root.dk2{--endl:104px;--endr:136px;--eye:34px;--plate:36px;--ga:14px;--gb:14px;--swap:44px;--card-max:168px;--cell:10px;
+ --tile-min:240px;--tile-h:82px;--art:50px}
+#dk-root.dk2,#dk-root.dk2 *{font-variant-ligatures:none!important;font-feature-settings:"liga" 0,"clig" 0,"dlig" 0!important}
+#dk-root.dk2 .dc-r-common{--rb:#b1b4a8;--rd:#6d746c;--rt:#17231f;--trim:#6d746c}
+#dk-root.dk2 .dc-r-rare{--rb:#42768f;--rd:#31546f;--rt:#fff6d8;--trim:#d5bd78}
+#dk-root.dk2 .dc-r-legendary{--rb:#716a7d;--rd:#4c4858;--rt:#fff6ff;--trim:#e0b1ed}
+#dk-root.dk.dk2 .wb-page.dk-sheet{display:grid;grid-template-columns:minmax(0,1fr);grid-template-rows:44px minmax(0,1fr);gap:8px;align-content:stretch;align-items:stretch;padding:0 12px}
+#dk-root.dk2 .wb-page::after{z-index:30;height:56px;background-size:24px 56px,24px 44px}
+#dk-root.dk2.wb-t3 .wb-sign::before,#dk-root.dk2.wb-t3 .wb-sign::after{display:none}
+#dk-root.dk.dk2.wb-t2 .wb-sign .wb-sign-text>b{font-size:15px;line-height:15px}
+#dk-root.dk2 [hidden]{display:none!important}
+/* Production sheets style every button; the page's own controls start from bare paper. */
+#dk-root.dk.dk2 .dk2-btn{margin:0;padding:0;border:0;border-radius:0;background:none;box-shadow:none;min-width:0;min-height:0;filter:none;opacity:1;font:inherit;color:inherit;text-transform:none;letter-spacing:normal;text-shadow:none;transform:none;cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+#dk-root.dk.dk2 .dk2-btn:focus-visible{outline:3px solid var(--ink);outline-offset:2px}
+
+/* Header: Done (same place on every sheet) · Row | Deck · one context line · wallet, clear of the ribbons. */
+#dk-root .dk2-head{display:grid;grid-template-columns:auto auto minmax(0,1fr) auto;align-items:center;gap:12px;min-width:0;padding-right:62px}
+#dk-root.dk.wb-t2 .dk2-done{width:auto;min-width:88px;height:44px;padding:0 12px!important}
+#dk-root .dk2-tabs{display:flex}
+#dk-root.dk.dk2 .dk2-tab{display:grid;place-items:center;height:44px;min-width:92px;padding:0 14px;box-sizing:border-box;border:2px solid var(--rule);background:#ead7a6;color:var(--ink-soft);font:400 15px/1 var(--pixel,monospace);letter-spacing:1px;text-transform:uppercase}
+#dk-root.dk.dk2 .dk2-tab+.dk2-tab{border-left:0}
+#dk-root.dk.dk2 .dk2-tab[aria-selected="true"]{background:#5a4632;border-color:#2a1d12;color:#f6ebcc;text-shadow:1px 1px #2a1d12;box-shadow:inset 0 0 0 2px #7a6146}
+#dk-root .dk2-context{display:flex;align-items:center;gap:10px;min-width:0}
+#dk-root .dk2-note{margin:0;min-width:0;font:400 12px/14px var(--pixel,monospace);color:var(--ink-soft);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+#dk-root .dk2-note:empty{display:none}
+#dk-root .dk2-note-done{color:#3d4a22}
+#dk-root .dk2-note-warn{color:#6b3d10}
+#dk-root .dk2-note-receipt{color:var(--ink);padding:3px 8px;border:2px solid var(--rule);background:var(--slip)}
+#dk-root .dk2-note-mode{font-size:14px;line-height:16px;color:var(--ink);padding:4px 8px;border:2px solid var(--moss);background:#e3e1ad}
+#dk-root.dk.wb-t2 .dk2-cancel{flex:none;width:auto;min-width:92px;height:44px;padding:0 12px!important}
+#dk-root .dk2-wallet{margin:0!important}
+/* While a card is being placed, the context line needs the room; the wallet does not change then. */
+#dk-root.dk2[data-mode="place"] .dk2-wallet{display:none}
+
+#dk-root .dk2-panel{position:relative;min-height:0;min-width:0}
+
+/* ── Row tab: the track ─────────────────────────────────────────────────────── */
+#dk-root .dk2-stage{position:relative;height:100%;display:grid;grid-template-columns:var(--endl) repeat(var(--n,4),minmax(0,1fr)) var(--endr);
+ grid-template-rows:var(--eye) var(--card,120px) var(--plate) var(--ga) 0 var(--gb) var(--swap);align-content:center;-webkit-user-select:none;user-select:none}
+#dk-root .dk2-stations{display:contents}
+#dk-root .dk2-track{position:absolute;height:6px;box-sizing:border-box;border-top:2px solid #3b2d20;border-bottom:2px solid #f3e3b3;background:#8a6d44;pointer-events:none}
+#dk-root .dk2-anchor{grid-row:5;position:relative;width:0;height:0;justify-self:center}
+#dk-root .dk2-notch>i{position:absolute;left:-5px;top:-5px;width:10px;height:10px;box-sizing:border-box;background:#5a4632;border:2px solid #2a1d12;box-shadow:inset 2px 2px #a58c57}
+#dk-root .dk2-start{grid-column:1}
+#dk-root .dk2-orb{position:absolute;left:-16px;top:-16px;width:32px;height:32px;image-rendering:pixelated;filter:drop-shadow(0 0 6px #fff6d8)}
+#dk-root .dk2-start-label{position:absolute;top:22px;left:calc(var(--endl) / -2 + 4px);width:calc(var(--endl) - 8px);text-align:center;font:400 12px/14px var(--pixel,monospace);color:var(--ink)}
+#dk-root .dk2-meter{grid-column:-2/-1;justify-self:start;margin-left:22px}
+#dk-root .dk2-gauge{position:absolute;left:-7px;top:calc((10 * (var(--cell) + 2px) - 2px) / -2);font-size:0;line-height:0}
+#dk-root.dk2 .dk2-gauge .glow-side-gauge.glow-gauge-v3{position:relative;display:block;left:auto;bottom:auto;top:auto;transform:none;width:14px;height:calc(var(--glow-units,10) * (var(--cell) + 2px) - 2px);max-height:none;margin:0;padding:0!important;border:0!important;box-sizing:content-box}
+#dk-root.dk2 .dk2-gauge .glow-gauge-v3 #flame-meter{width:14px;height:100%;background:#33261a;box-shadow:0 0 0 2px #2a1d12}
+#dk-root.dk2 .dk2-gauge .glow-side-gauge.glow-gauge-v3 #flame-fill{gap:2px}
+#dk-root.dk2 .dk2-gauge .glow-gauge-v3 .glow-unit{width:14px;height:var(--cell);flex:0 0 var(--cell);background:#4a3828;box-shadow:none}
+#dk-root.dk2 .dk2-gauge .glow-gauge-v3 .glow-unit.lit{background:#d8c98a;box-shadow:inset 2px 0 #a58c57}
+#dk-root.dk2 .dk2-gauge .glow-gauge-v3 .glow-unit.lit.dk2-gain{background:#e6c77c;box-shadow:inset 2px 0 #b98f4a}
+#dk-root.dk2 .dk2-gauge .meter-spark-cap{display:none}
+#dk-root .dk2-meter-label{position:absolute;left:-7px;bottom:calc((10 * (var(--cell) + 2px) - 2px) / 2 + 8px);white-space:nowrap;font:400 11px/1 var(--pixel,monospace);letter-spacing:1px;text-transform:uppercase;color:var(--ink-soft)}
+#dk-root .dk2-meter-info{position:absolute;left:18px;top:-20px;display:grid;gap:4px;justify-items:start;white-space:nowrap}
+#dk-root .dk2-meter-info>b{font:400 16px/18px var(--pixel,monospace);color:var(--ink)}
+#dk-root .dk2-meter-info>small{font:400 14px/16px var(--pixel,monospace);color:#3d4a22}
+#dk-root .dk2-meter-info>small:empty{display:none}
+/* Play sits above the Trigger, where the Spark starts; the bottom row is only the Swap buttons. */
+#dk-root.dk.wb-t2 .dk2-play{grid-row:2;grid-column:1;align-self:end;justify-self:center;width:calc(var(--endl) - 12px);height:44px;margin-bottom:4px;padding:0 6px!important}
+#dk-root.dk2.wb-go .dk2-play{background:#536430 padding-box!important}
+#dk-root .dk2-result{grid-row:7;grid-column:-2/-1;align-self:center;justify-self:start;margin:0 0 0 40px;display:grid;font:400 13px/14px var(--pixel,monospace);color:var(--ink-soft);white-space:nowrap}
+#dk-root .dk2-result>b{font-weight:400;font-size:20px;line-height:22px;color:var(--ink)}
+
+/* A station: eye above, the game's compact face, the plate; the notch on the track; Swap at the bottom. */
+#dk-root .dk2-station{grid-row:1/4;display:grid;grid-template-rows:var(--eye) var(--card) var(--plate);justify-items:center;min-width:0}
+#dk-root .dk2-eyerow{position:relative;width:100%;height:var(--eye)}
+#dk-root.dk.dk2 .dk2-station .dk2-eye{position:absolute;z-index:2;left:50%;top:-4px;width:52px;height:44px;margin-left:-26px;display:grid;place-items:center}
+#dk-root .dk2-eye svg{display:block;width:32px;height:16px;image-rendering:pixelated}
+#dk-root.dk.dk2 .dk2-card{position:relative;display:block;height:var(--card);transition:transform .15s steps(2,end);touch-action:none}
+#dk-root .dk2-card>.skill-card{pointer-events:none}
+#dk-root .dk2-card>.skill-card.card-thumbnail{--card-height:var(--card);display:flex!important;flex-direction:column!important}
+#dk-root .dk2-card .card-thumbnail .card-illustration{flex:1 1 0;min-height:0;width:100%;display:flex;align-items:center;justify-content:center}
+#dk-root .dk2-card .card-thumbnail .card-face-heading{padding:3px 2px!important}
+#dk-root .dk2-card .card-thumbnail .card-face-heading h3{font-size:11px!important;line-height:12px!important;letter-spacing:0!important}
+#dk-root .dk2-card .card-thumbnail .card-rarity{display:none!important}
+#dk-root .dk2-card .skill-card.card-thumbnail .card-use-counter{z-index:6;right:6px!important;left:auto!important;top:6px!important;bottom:auto!important;transform:none!important;min-width:28px!important;height:16px!important;min-height:16px!important;padding:0 3px!important;font-size:11px!important;line-height:14px!important;box-sizing:border-box}
+#dk-root.dk.dk2 .dk2-card:focus-visible{outline:3px solid var(--ink);outline-offset:3px}
+#dk-root .dk2-mark{position:absolute;z-index:7;top:5px;left:5px;display:grid;place-items:center;width:20px;height:20px;box-sizing:border-box;border:2px solid #2a1d12;font:400 16px/1 var(--pixel,monospace);pointer-events:none}
+#dk-root .dk2-mark>svg{width:12px;height:12px}
+#dk-root .dk2-mark:empty{display:none}
+/* An empty place: a dashed outline the size of a card. */
+#dk-root .dk2-addskin{display:grid;place-items:center;align-content:center;gap:6px;width:round(down,calc(var(--card) * 5 / 7),2px);height:var(--card);box-sizing:border-box;border:2px dashed var(--rule);background:#ead7a6;color:var(--ink-soft);padding:6px}
+#dk-root .dk2-addskin>svg{width:16px;height:16px}
+#dk-root .dk2-addskin>b{font:400 12px/14px var(--pixel,monospace);font-weight:400;text-align:center}
+/* The plate: what this card does here. Leather when it acts; grey with a warning when it will not. */
+#dk-root .dk2-plate{align-self:center;display:flex;align-items:center;justify-content:center;gap:4px;min-width:52px;max-width:calc(100% - 6px);height:calc(var(--plate) - 4px);padding:0 8px;box-sizing:border-box;border:6px solid transparent;border-image:url('../assets/ui/waystone/plaque-leather.svg') 6 fill / 6px stretch;color:#f6ebcc;text-shadow:1px 1px #2a1d12;text-align:center}
+#dk-root .dk2-plate>b{font:400 16px/18px var(--pixel,monospace);font-weight:400;white-space:nowrap}
+#dk-root .dk2-plate-passive>b{font-size:12px;line-height:14px}
+#dk-root .dk2-plate-idle{border:2px solid #6f6a5d;border-image:none;background:#cdc6b0;color:#3f3b30;text-shadow:none;padding:2px 6px;height:auto;min-height:calc(var(--plate) - 4px)}
+#dk-root .dk2-station{container-type:inline-size}
+#dk-root .dk2-plate .pl-short{display:none}
+#dk-root .dk2-next{display:block;width:8px;height:10px}#dk-root .dk2-next>svg{display:block}
+@container (max-width:118px){
+ #dk-root .dk2-plate .pl-long{display:none}
+ #dk-root .dk2-plate b.pl-short{display:inline}
+ #dk-root .dk2-plate i.pl-short{display:block}
+}
+#dk-root .dk2-plate-idle>b{font-size:12px;line-height:13px;white-space:normal}
+#dk-root .dk2-plate-empty{visibility:hidden}
+#dk-root .dk2-warn{flex:none;display:block;width:12px;height:12px}
+#dk-root .dk2-warn>svg{display:block;width:12px;height:12px}
+#dk-root .dk2-k-idle .dk2-card>.skill-card{filter:saturate(.55)}
+#dk-root .dk2-k-idle .dk2-mark{background:#c4bea9!important;color:#4a4538!important;border-color:#5f5a4d}
+#dk-root.dk.wb-t2 .dk2-swap{grid-row:7;align-self:center;justify-self:center;width:min(96px,calc(100% - 8px));min-width:64px;height:44px;padding:0 4px!important}
+#dk-root.dk.dk2.wb-t2 .dk2-swap .wb-sign-text>b{font-size:13px;line-height:13px}
+/* Firing (Play), placing, dragging. */
+#dk-root .dk2-firing .dk2-card{transform:translateY(-4px)}
+#dk-root .dk2-firing .dk2-card>.skill-card{box-shadow:0 0 0 2px #2a1d12,0 0 12px 3px #e6a83c99!important}
+#dk-root .dk2-firing .dk2-plate{box-shadow:0 0 0 2px #fff6d8,0 0 10px #f3d98a}
+#dk-root .dk2-placing .dk2-card>.skill-card,#dk-root .dk2-station.dk2-drop .dk2-card>.skill-card{box-shadow:0 0 0 2px #2a1d12,0 0 0 4px var(--moss)!important}
+#dk-root .dk2-placing .dk2-addskin,#dk-root .dk2-station.dk2-drop .dk2-addskin{border-color:var(--moss);background:#dfe0a8;color:#2f3a16}
+#dk-root .dk2-puthere{position:absolute;z-index:8;left:50%;top:50%;transform:translate(-50%,-50%);padding:4px 7px;background:var(--moss);border:2px solid #2a1d12;color:#fff6d8;font:400 12px/14px var(--pixel,monospace);white-space:nowrap;pointer-events:none}
+#dk-root .dk2-dragmode .dk2-station:not(.dk2-drop) .dk2-card:not(.dk2-dragging)>.skill-card{opacity:.85}
+#dk-root.dk.dk2 .dk2-card.dk2-dragging{z-index:9;transition:none;opacity:.94}
+/* The Spark that rides the track, with the running Bonus above it. */
+#dk-root .dk2-spark{position:absolute;left:0;top:0;z-index:5;width:0;height:0;pointer-events:none}
+#dk-root .dk2-spark.dk2-moving{transition:transform .5s cubic-bezier(.4,0,.3,1)}
+#dk-root .dk2-spark>img{display:block;image-rendering:pixelated;filter:drop-shadow(0 0 4px #fff1c5)}
+/* The running Bonus rides beside the Spark, on the track, so it never covers a card or plate. */
+#dk-root .dk2-tag{position:absolute;left:12px;top:-9px;height:18px;padding:0 6px;box-sizing:border-box;font:400 12px/14px var(--pixel,monospace);color:#fff6d8;white-space:nowrap;background:#3b2d20;border:2px solid #b98f4a}
+#dk-root .dk2-notag .dk2-tag{display:none}
+#dk-root .dk2-spark.dk2-poured>img,#dk-root .dk2-spark.dk2-poured>.dk2-tag{opacity:0;transition:opacity .4s .3s}
+
+/* ── Deck tab: every card ───────────────────────────────────────────────────── */
+#dk-root .dk2-deckpanel{display:grid;grid-template-rows:44px minmax(0,1fr);gap:6px}
+#dk-root .dk2-bar{display:flex;align-items:center;gap:8px;min-width:0}
+#dk-root .dk2-chips{display:flex;gap:6px;min-width:0}
+#dk-root.dk.dk2 .dk2-chip{display:inline-flex;align-items:center;gap:6px;height:44px;min-width:44px;padding:0 10px;box-sizing:border-box;border:2px solid var(--rule);background:var(--slip);box-shadow:0 2px 0 #c4a56b;color:var(--ink);font:400 13px/1 var(--pixel,monospace);white-space:nowrap}
+#dk-root.dk.dk2 .dk2-chip:not([data-filter="all"])::before{content:'';flex:none;width:10px;height:10px;background:var(--rb);border:2px solid var(--rd)}
+#dk-root .dk2-chip>b{font-weight:400;min-width:12px;padding:2px 4px;background:#2a211820;text-align:center}
+#dk-root.dk.dk2 .dk2-chip[aria-pressed="true"]{background:var(--ink);border-color:#2a1d12;color:#fff6d8;box-shadow:none}
+#dk-root .dk2-chip[aria-pressed="true"]>b{background:#fff6d82e}
+#dk-root.dk.dk2 .dk2-sort{margin-left:auto;display:inline-flex;align-items:center;gap:8px;height:44px;padding:0 12px;box-sizing:border-box;border:2px solid var(--rule);background:transparent;color:var(--ink);font:400 13px/1 var(--pixel,monospace);white-space:nowrap}
+#dk-root .dk2-sort>small{font:400 11px/1 var(--pixel,monospace);letter-spacing:1px;text-transform:uppercase;color:var(--ink-soft)}
+#dk-root .dk2-sort>b{font-weight:400}
+#dk-root .dk2-banner{flex:1 1 auto;min-width:0;margin:0;display:flex;align-items:baseline;gap:12px;padding:0 12px;height:44px;box-sizing:border-box;align-items:center;border:2px solid var(--moss);background:#e3e1ad}
+#dk-root .dk2-banner>b{font:400 15px/18px var(--pixel,monospace);font-weight:400;color:var(--ink);white-space:nowrap}
+#dk-root .dk2-banner>span{font:400 12px/14px var(--pixel,monospace);color:var(--ink-soft);min-width:0}
+#dk-root .dk2-grid{min-height:0;overflow-y:auto;overflow-x:hidden;display:grid;grid-template-columns:repeat(auto-fill,minmax(var(--tile-min),1fr));grid-auto-rows:var(--tile-h);gap:8px;align-content:start;padding:2px 6px 4px 2px;scrollbar-width:thin;scrollbar-color:#8a6d44 #0000;overscroll-behavior:contain}
+#dk-root .dk2-none{margin:0;padding:12px 4px;font:400 13px/16px var(--pixel,monospace);color:var(--ink-soft)}
+/* A tile: rarity band with the word (and Row / Rest tag) · art with kind mark and Uses · name · bold effect line · the eye. */
+#dk-root .dk2-tile{position:relative;min-width:0}
+#dk-root.dk.dk2 .dk2-tilemain{display:flex;flex-direction:column;width:100%;height:100%;box-sizing:border-box;border:2px solid var(--rd);background:var(--slip);box-shadow:0 2px 0 #0003;color:var(--ink);text-align:left;overflow:hidden;touch-action:pan-y}
+#dk-root .dk2-band{flex:none;display:flex;align-items:center;gap:6px;height:18px;padding:0 6px;box-sizing:border-box;background:var(--rb);color:var(--rt);border-bottom:2px solid var(--trim)}
+#dk-root .dk2-band>b{font:400 11px/1 var(--pixel,monospace);font-weight:400;letter-spacing:1px;text-transform:uppercase}
+#dk-root .dk2-tag2{margin-left:auto;padding:1px 5px 0;font:400 11px/12px var(--pixel,monospace);font-style:normal;color:var(--ink);background:#fff6d8;border:1px solid #2a1d12}
+#dk-root .dk2-tag-rest{background:#6b5335;color:#fff6d8}
+#dk-root .dk2-body{flex:1 1 auto;min-height:0;display:flex;align-items:center;gap:8px;padding:0 50px 0 6px}
+#dk-root .dk2-art{position:relative;flex:none;width:var(--art);height:var(--art);box-sizing:border-box;border:2px solid #2a1d12;background:#14241e}
+#dk-root .dk2-art>svg{display:block;width:100%!important;height:100%!important;image-rendering:pixelated}
+#dk-root .dk2-art>.dk2-mark{top:-4px;left:-4px;width:18px;height:18px;font-size:14px}
+#dk-root .dk2-art>.dk2-mark>svg{width:12px;height:12px}
+#dk-root .dk2-uses{position:absolute;right:-4px;bottom:-4px;height:14px;padding:0 3px;box-sizing:border-box;border:1px solid #2a1d12;background:var(--slip);font:400 11px/12px var(--pixel,monospace);color:#2a1d12}
+#dk-root .dk2-text{display:grid;gap:3px;min-width:0}
+#dk-root .dk2-name{font:400 13px/15px var(--pixel,monospace);font-weight:400;color:var(--ink-soft)}
+#dk-root .dk2-effect{font:400 15px/16px var(--pixel,monospace);font-weight:400;color:#1f160d;letter-spacing:.3px}
+#dk-root .dk2-sub{font:400 11px/13px var(--pixel,monospace);color:var(--ink-soft)}
+#dk-root.dk.dk2 .dk2-tileeye{position:absolute;z-index:2;right:2px;top:20px;bottom:2px;width:46px;display:grid;place-items:center}
+#dk-root .dk2-tile .dk2-tileeye::before{content:'';position:absolute;left:0;top:8px;bottom:8px;border-left:2px dotted #c4a56b}
+#dk-root .dk2-dim .dk2-tilemain{opacity:.55}
+#dk-root .dk2-placing~.dk2-swap,#dk-root .dk2-placing .dk2-swap{visibility:hidden}
+#dk-root.dk.dk2 .dk2-choice .dk2-tilemain:hover{box-shadow:0 0 0 2px var(--moss)}
+#dk-root .dk2-dim .dk2-tilemain,#dk-root .dk2-here .dk2-tilemain{cursor:default}
+
+/* ── The card overlay: real full face, rarity word, one plain line, actions. Covers the page. ── */
+#dk-root.dk2 .dk-sheet>.dk2-read{position:absolute;inset:0;z-index:20;display:grid;place-items:center;background:#e3d09b;cursor:default}
+#dk-root .dk2-dialog{display:flex;align-items:center;justify-content:center;gap:24px;max-width:100%;padding:0 16px;box-sizing:border-box}
+#dk-root .dk2-face{flex:none;display:grid;place-items:center}
+#dk-root .dk2-face>.skill-card{--card-height:var(--face,320px);pointer-events:none}
+/* The rules take the room they need; the art gives way (never the text). */
+#dk-root.dk.dk2 .dk2-face .skill-card.card-readable.card-readable.card-readable{grid-template-rows:auto minmax(40px,1fr) auto!important}
+#dk-root.dk.dk2 .dk2-face .skill-card .card-rule-band{overflow:visible!important}
+#dk-root.dk2 .dk2-face .skill-card .card-rule-stripe,#dk-root.dk2 .dk2-face .skill-card .card-rule-stripe *{font-size:14px!important;line-height:17px!important}
+#dk-root.dk2 .dk2-face .skill-card .card-face-heading h3{font-size:16px!important;line-height:18px!important}
+#dk-root .dk2-face :is(.card-term-icon-spark,.card-term-icon-meter){display:inline-block;width:16px!important;height:16px!important;vertical-align:-3px}
+#dk-root .dk2-face :is(.card-term-icon-spark,.card-term-icon-meter)>.dc-spark{display:block;width:16px;height:16px}
+#dk-root .dk2-face .card-use-counter{pointer-events:none}
+#dk-root .dk2-info{display:grid;gap:12px;justify-items:start;align-content:center;min-width:0;width:min(320px,42vw)}
+#dk-root .dk2-rar{margin:0;padding:4px 10px;background:var(--rb);color:var(--rt);border:2px solid var(--rd);box-shadow:inset 0 -2px 0 var(--trim);font:400 14px/16px var(--pixel,monospace);letter-spacing:1px;text-transform:uppercase}
+#dk-root .dk2-here{margin:0;display:flex;gap:8px;align-items:flex-start;font:400 16px/21px var(--pixel,monospace);color:var(--ink)}
+#dk-root .dk2-here-idle{padding:6px 10px;border:2px solid #6f6a5d;background:#cdc6b0;color:#3f3b30}
+#dk-root .dk2-here-idle .dk2-warn{margin-top:4px}
+#dk-root .dk2-worth{margin:0;font:400 13px/16px var(--pixel,monospace);color:var(--ink-soft)}
+#dk-root .dk2-worth>b,#dk-root .dk2-confirm>b{font-weight:400;color:#7a4f1c}
+#dk-root .dk2-confirm{margin:0;padding:6px 10px;border:2px solid var(--rule);background:var(--slip);font:400 14px/18px var(--pixel,monospace);color:var(--ink)}
+#dk-root .dk2-acts{display:flex;gap:10px;flex-wrap:wrap}
+#dk-root.dk.wb-t2 .dk2-acts .wb-sign{width:auto;min-width:128px;height:46px;padding:0 14px!important}
+#dk-root.dk.wb-t2 .dk2-close{width:auto;min-width:128px;height:46px;padding:0 14px!important}
+#dk-root.dk2.wb-go .dk2-acts .wb-sign-primary{background:#536430 padding-box!important}
+
+/* Short frames (740×333, 667×300, 640×320): the face shrinks first, then the gaps; text stays at 11px or more. */
+@media(max-height:380px){
+ #dk-root.dk2{--endl:88px;--endr:116px;--eye:28px;--plate:26px;--ga:8px;--gb:10px;--swap:44px;--cell:6px;--tile-h:72px;--art:42px;--tile-min:200px}
+ #dk-root .dk2-tag{font-size:11px;line-height:14px;padding:0 4px}
+ #dk-root .dk2-plate-word>b{font-size:12px;line-height:13px;white-space:normal}
+ #dk-root.dk.dk2 .wb-page.dk-sheet{top:2px;bottom:2px;gap:6px;padding:0 10px}
+ #dk-root .dk2-head{gap:8px}
+ #dk-root .dk2-note{font-size:11px;line-height:12px;-webkit-line-clamp:3}
+ #dk-root .dk2-note-receipt{padding:2px 6px}
+ #dk-root .dk2-note-mode{font-size:12px;line-height:13px;padding:2px 6px}
+ #dk-root.dk.dk2 .dk2-tab{min-width:80px;padding:0 10px;font-size:14px}
+ #dk-root.dk.wb-t2 .dk2-done{min-width:76px}
+ #dk-root .dk2-plate>b{font-size:15px}
+ #dk-root .dk2-plate-idle>b,#dk-root .dk2-plate-passive>b{font-size:11px;line-height:12px}
+ #dk-root .dk2-meter-info>b{font-size:14px;line-height:16px}
+ #dk-root .dk2-meter-info>small{font-size:13px}
+ #dk-root .dk2-meter-info{top:-17px}
+ #dk-root .dk2-result>b{font-size:17px;line-height:18px}
+ #dk-root .dk2-result{font-size:12px;line-height:13px;margin-left:36px}
+ #dk-root .dk2-start-label{font-size:11px;line-height:12px;top:20px}
+ #dk-root .dk2-deckpanel{gap:6px}
+ #dk-root.dk.dk2 .dk2-chip{padding:0 8px;gap:5px;font-size:12px}
+ #dk-root .dk2-band{height:16px}
+ #dk-root .dk2-body{gap:6px;padding-left:5px}
+ #dk-root .dk2-name{font-size:12px;line-height:13px}
+ #dk-root .dk2-effect{font-size:13px;line-height:14px;letter-spacing:0}
+ #dk-root.dk.dk2 .dk2-tileeye{top:18px}
+ #dk-root .dk2-dialog{gap:18px}
+ #dk-root .dk2-info{gap:8px;width:min(300px,46vw)}
+ #dk-root .dk2-here{font-size:14px;line-height:18px}
+ #dk-root.dk2 .dk2-face .skill-card .card-rule-stripe,#dk-root.dk2 .dk2-face .skill-card .card-rule-stripe *{font-size:12px!important;line-height:15px!important}
+ #dk-root.dk2 .dk2-face .skill-card .card-face-heading h3{font-size:14px!important;line-height:16px!important}
+ #dk-root.dk.wb-t2 .dk2-acts .wb-sign,#dk-root.dk.wb-t2 .dk2-close{height:44px;min-width:112px}
+ #dk-root .dk2-confirm{font-size:12px;line-height:15px;padding:4px 8px}
+ #dk-root .dk2-worth{font-size:12px;line-height:14px}
+}
+@media(max-width:700px){
+ #dk-root.dk2{--endl:80px;--endr:104px;--tile-min:180px;--art:36px}
+}
+@media(max-width:660px){
+ #dk-root .dk2-wallet>small{display:none}
+ #dk-root .dk2-wallet{padding-right:8px!important}
+}
+@media(prefers-reduced-motion:reduce){
+ #dk-root .dk2-spark.dk2-moving{transition:none}
+ #dk-root.dk.dk2 .dk2-card,#dk-root .dk2-spark.dk2-poured>img,#dk-root .dk2-spark.dk2-poured>.dk2-tag{transition:none}
+ #dk-root .dk2-firing .dk2-card{transform:none}
+}
+#dk-root.dk21{--eye:44px;--endl:112px;--tile-h:84px;--eye-top:29px;--art:48px}
+#dk-root.dk21 .dk2-head{grid-template-columns:auto auto minmax(0,1fr)}
+#dk-root.dk.dk21 .dk2-chip:not([data-filter="all"])::before{display:none}
+#dk-root .dk21-gem{display:block;flex:none;width:8px;height:8px}
+#dk-root .dk21-ticon{display:block;flex:none;image-rendering:pixelated}
+
+/* The eye: a leather plaque with the pixel eye, same size everywhere, 48×44 tap area, pressed when held or open. */
+#dk-root.dk.dk21 .dk21-eye{display:grid;place-items:center;width:48px;height:44px}
+#dk-root .dk21-eyebody{display:grid;place-items:center;width:48px;height:36px;box-sizing:border-box;border:6px solid transparent;border-image:url('../assets/ui/waystone/plaque-leather.svg') 6 fill / 6px stretch;filter:drop-shadow(0 2px 0 #2a1d1266);transition:transform .08s steps(1,end)}
+#dk-root .dk21-eyebody>svg{display:block;width:32px;height:16px}
+@media(hover:hover){#dk-root.dk.dk21 .dk21-eye:hover .dk21-eyebody{filter:drop-shadow(0 2px 0 #2a1d1266) brightness(1.15)}}
+#dk-root.dk.dk21 .dk21-eye:active .dk21-eyebody,#dk-root.dk.dk21 .dk21-eye[aria-expanded="true"] .dk21-eyebody{transform:translateY(2px);filter:brightness(.9)}
+#dk-root.dk.dk21 .dk21-eye:focus-visible{outline:3px solid var(--ink);outline-offset:0}
+#dk-root.dk.dk21 .dk2-station .dk21-eye{position:absolute;z-index:2;left:50%;top:calc(var(--eye) / 2 - 22px);margin-left:-24px}
+
+/* Chain tab: Trigger list and Play in the left column, above where the Spark starts. */
+#dk-root .dk21-left{grid-row:1/4;grid-column:1;align-self:end;display:flex;flex-direction:column;gap:4px;min-width:0;padding:0 4px 6px 0}
+#dk-root .dk21-thead{margin:0;font:400 11px/12px var(--pixel,monospace);letter-spacing:1px;text-transform:uppercase;color:var(--ink-soft)}
+#dk-root .dk21-chips{display:flex;flex-direction:column;gap:4px}
+#dk-root.dk.dk21 .dk21-chip{display:flex;align-items:center;gap:6px;min-height:44px;padding:0 6px;box-sizing:border-box;border:2px solid var(--rule);background:#ead7a6;color:var(--ink-soft);font:400 12px/13px var(--pixel,monospace);text-align:left}
+#dk-root.dk.dk21 .dk21-chip[aria-checked="true"]{border:4px solid transparent;border-image:var(--fr-plate) 4 fill / 4px stretch;padding:0 4px;color:var(--ink);box-shadow:0 0 0 2px var(--moss)}
+#dk-root .dk21-none{margin:0;font:400 11px/13px var(--pixel,monospace);color:var(--ink-soft)}
+#dk-root.dk.wb-t2 .dk21-play{grid-row:auto;grid-column:auto;align-self:stretch;width:auto;margin:2px 0 0}
+#dk-root .dk21-origin{position:absolute;left:-16px;top:-16px;width:32px;height:32px}
+#dk-root .dk21-origin>svg,#dk-root .dk21-origin>img{display:block;width:32px;height:32px;image-rendering:pixelated}
+#dk-root.dk21 .dk2-start-label{top:20px}
+/* Plates: small framed paper tablets; a changed worth shows the base struck through and the real worth in moss. */
+#dk-root.dk21 .dk21-plate{border:4px solid transparent;border-image:var(--fr-plate) 4 fill / 4px stretch;background:none;color:var(--ink);text-shadow:none;padding:0 6px;gap:6px;height:calc(var(--plate) - 2px)}
+#dk-root.dk21 .dk21-plate>b{color:#2a1d12}
+#dk-root.dk21 .dk21-plate.dk2-plate-idle{border-image-source:var(--fr-idle);height:auto;min-height:calc(var(--plate) - 2px);padding:1px 4px}
+#dk-root .dk21-base{font:400 13px/16px var(--pixel,monospace);color:#6b5335;text-decoration:line-through;text-decoration-thickness:1px;text-decoration-color:#2a1d12}
+#dk-root.dk21 .dk21-plate>b.dk21-eff{font-size:17px;color:#3d5a1a;text-shadow:1px 0 #3d5a1a;letter-spacing:1px}
+#dk-root .dk21-plate-changed{min-width:72px}
+
+/* Deck tab: groups, crafted tiles, Rest cards set apart, scroll hint. */
+#dk-root .dk21-gridwrap{position:relative;min-height:0;display:grid}
+#dk-root.dk21 .dk21-grid{grid-auto-rows:auto;row-gap:8px;padding-bottom:14px}
+#dk-root .dk21-group{grid-column:1/-1;display:flex;align-items:center;gap:10px;margin:6px 0 0;font:400 13px/16px var(--pixel,monospace);font-weight:400;letter-spacing:1px;text-transform:uppercase;color:var(--ink)}
+#dk-root .dk21-group:first-child{margin-top:2px}
+#dk-root .dk21-group>span{flex:none}
+#dk-root .dk21-rule{position:relative;flex:1 1 auto;height:2px;margin-right:6px;background:#8a6d44}
+#dk-root .dk21-rule::before,#dk-root .dk21-rule::after{content:'';position:absolute;top:-3px;width:8px;height:8px;background:#8a6d44;clip-path:polygon(50% 0,100% 50%,50% 100%,0 50%)}
+#dk-root .dk21-rule::before{left:-4px}#dk-root .dk21-rule::after{right:-6px}
+#dk-root .dk2-picking .dk21-group-rest{color:var(--ink-soft)}
+#dk-root .dk2-picking .dk21-group-rest .dk21-rule{background:repeating-linear-gradient(90deg,#8a6d44 0 4px,transparent 4px 8px)}
+#dk-root .dk21-groupnote{grid-column:1/-1;margin:-4px 0 0;font:400 12px/14px var(--pixel,monospace);color:var(--ink-soft)}
+#dk-root.dk21 .dk21-tile{height:var(--tile-h);filter:drop-shadow(0 2px 0 #2a1d1240)}
+#dk-root.dk.dk21 .dk21-tilemain{border:4px solid transparent;border-image:var(--fr) 4 fill / 4px stretch;background:none;box-shadow:none;overflow:visible;padding:0}
+#dk-root .dk21-top{flex:none;display:flex;align-items:center;gap:6px;height:20px;padding:2px 2px 0}
+#dk-root .dk21-top>:nth-child(2){margin-left:auto}
+#dk-root .dk21-rtab{display:inline-flex;align-items:center;gap:4px;height:16px;padding:0 12px 0 4px;background:var(--rb);color:var(--rt);clip-path:polygon(0 0,100% 0,calc(100% - 6px) 50%,100% 100%,0 100%)}
+#dk-root .dk21-rtab>b{font:400 11px/12px var(--pixel,monospace);font-weight:400;letter-spacing:1px;text-transform:uppercase}
+#dk-root .dk21-when{display:inline-flex;align-items:center;gap:3px;color:var(--ink-soft)}
+#dk-root .dk21-when>small{font:400 11px/12px var(--pixel,monospace)}
+#dk-root .dk21-slot,#dk-root .dk21-resttag{display:inline-flex;align-items:center;gap:3px;height:16px;padding:0 6px 0 10px;clip-path:polygon(6px 0,100% 0,100% 100%,6px 100%,0 50%)}
+#dk-root .dk21-slot{background:var(--moss);color:#fff6d8}
+#dk-root .dk21-resttag{background:#6b5335;color:#fff6d8;padding-left:8px}
+#dk-root .dk21-slot>b,#dk-root .dk21-resttag>b{font:400 11px/12px var(--pixel,monospace);font-weight:400;letter-spacing:.5px}
+#dk-root .dk21-fire{display:block;width:16px;height:16px}
+#dk-root .dk21-body{gap:8px;padding:0 52px 0 2px}
+#dk-root.dk21 .dk21-art{width:var(--art);height:var(--art);border:2px solid #2a1d12;box-shadow:0 0 0 1px #fffbe8,0 0 0 2px #c4a56b}
+#dk-root .dk21-rest .dk21-art>svg{filter:saturate(.55)}
+#dk-root .dk21-rest .dk2-name{color:#6b5335}
+#dk-root .dk21-rest .dk2-effect{color:#4a3828}
+#dk-root.dk.dk21 .dk21-tile>.dk21-eye{position:absolute;z-index:2;right:6px;top:var(--eye-top)}
+#dk-root.dk21 .dk21-tile>.dk21-eye::before{content:'';position:absolute;left:-4px;top:4px;bottom:4px;border-left:2px dotted #c4a56b}
+#dk-root.dk21 .dk2-dim .dk21-tilemain{opacity:.5}
+#dk-root.dk21 .dk21-here .dk21-tilemain{opacity:.6}
+#dk-root .dk21-gridwrap::after{content:'';position:absolute;left:0;right:10px;bottom:0;height:30px;background:linear-gradient(#e6d19c00,#e6d19ce6 70%);pointer-events:none;opacity:0;transition:opacity .2s}
+#dk-root .dk21-more{position:absolute;left:50%;bottom:2px;z-index:2;width:16px;height:16px;margin-left:-8px;opacity:0;pointer-events:none;transition:opacity .2s}
+#dk-root .dk21-more>svg{display:block}
+#dk-root .dk21-hasmore::after,#dk-root .dk21-hasmore .dk21-more{opacity:1}
+/* Overlay additions. */
+#dk-root.dk21 .dk2-rar{display:inline-flex;align-items:center;gap:6px}
+#dk-root .dk21-on{margin:0;display:flex;align-items:center;gap:6px;font:400 15px/18px var(--pixel,monospace);color:var(--ink)}
+#dk-root .dk21-on>small{font:400 11px/12px var(--pixel,monospace);letter-spacing:1px;text-transform:uppercase;color:var(--ink-soft)}
+#dk-root .dk21-on>b{font-weight:400}
+
+@media(max-height:380px){
+ #dk-root.dk21{--eye:40px;--tile-h:76px;--eye-top:25px;--art:40px}
+ #dk-root .dk21-left{gap:3px;padding-bottom:4px}
+ #dk-root .dk21-chips{flex-direction:row;flex-wrap:wrap;gap:4px}
+ #dk-root.dk.dk21 .dk21-chip{position:relative;width:44px;height:44px;padding:0;justify-content:center}
+ #dk-root.dk.dk21 .dk21-chip[aria-checked="true"]{padding:0}
+ #dk-root.dk.dk21 .dk21-chip>span{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+ #dk-root .dk21-base{font-size:12px;line-height:14px}
+ #dk-root.dk21 .dk21-plate>b.dk21-eff{font-size:15px;letter-spacing:0}
+ #dk-root.dk21 .dk21-plate{gap:4px;padding:0 4px}
+ #dk-root .dk21-plate-changed{min-width:60px}
+ #dk-root .dk21-when>small{display:none}
+ #dk-root .dk21-group{font-size:12px;line-height:14px;margin-top:4px}
+ #dk-root .dk21-groupnote{font-size:11px;line-height:13px}
+ #dk-root .dk21-on{font-size:13px;line-height:16px}
+}
+@media(max-width:700px){#dk-root.dk21{--endl:96px}}
+@container (max-width:92px){#dk-root.dk21 .dk2-plate i.pl-short{display:none}}
+#dk-root.dk23 .dk23-track2{z-index:0}
+#dk-root.dk23 .dk2-track{z-index:0}
+#dk-root .dk23-resting{visibility:hidden}
+#dk-root.dk23 .dk22-eq{top:-6px}
+#dk-root .dk23-passes{position:absolute;z-index:4;left:calc(var(--medal) / -2 + 10px);width:var(--medal);bottom:calc(var(--medal) / 2 + 4px);text-align:center;font:400 12px/14px var(--pixel,monospace);color:#6b5335;white-space:nowrap}
+#dk-root .dk23-passes:empty{display:none}
+#dk-root .dk23-passes:not(:empty)::after{content:' ='}
+/* Waits for [icon] Trigger: calm paper, no warning mark. */
+#dk-root.dk23 .dk21-plate.dk2-plate-waits,#dk-root.dk23 .dk21-plate.dk2-plate-spent{border-image-source:var(--fr-plate);height:auto;min-height:calc(var(--plate) - 2px);padding:1px 6px;color:var(--ink-soft)}
+#dk-root .dk23-waits{display:grid;justify-items:center;gap:0}
+#dk-root .dk23-waits>small{font:400 11px/12px var(--pixel,monospace);color:var(--ink-soft)}
+#dk-root .dk23-wline{display:inline-flex;align-items:center;gap:4px}
+#dk-root .dk23-wline>b{font:400 12px/14px var(--pixel,monospace);font-weight:400;color:var(--ink)}
+#dk-root.dk23 .dk2-plate-waits .pl-short,#dk-root.dk23 .dk2-plate-spent .pl-short{display:none}
+#dk-root.dk23 .dk2-plate-spent>b{font:400 12px/14px var(--pixel,monospace);color:var(--ink-soft)}
+#dk-root .dk23-m2{display:inline-grid;justify-items:center;line-height:1}
+#dk-root .dk23-m2>b{font:400 16px/16px var(--pixel,monospace);font-weight:400}
+#dk-root .dk23-m2>small{font:400 11px/11px var(--pixel,monospace);color:var(--ink-soft)}
+#dk-root.dk23 .dk2-plate-act:has(.dk23-m2){height:auto;min-height:calc(var(--plate) - 2px)}
+@container (max-width:118px){
+ #dk-root.dk23 .dk2-plate-waits .pl-long,#dk-root.dk23 .dk2-plate-spent .pl-long{display:none}
+ #dk-root.dk23 .dk2-plate-waits b.pl-short,#dk-root.dk23 .dk2-plate-spent b.pl-short{display:inline}
+}
+/* The "?" for the shown Trigger, on short screens only. */
+#dk-root.dk.dk23 .dk23-help{display:none}
+/* Deck tiles: the Trigger is shown, not tapped (the opened card has the keyword). */
+#dk-root .dk23-when{display:flex;align-items:center;gap:4px;margin-top:2px;font:400 11px/12px var(--pixel,monospace);color:var(--ink-soft);white-space:nowrap;overflow:hidden}
+#dk-root .dk23-when>span{overflow:hidden;text-overflow:ellipsis}
+@media(max-height:380px){
+ #dk-root.dk.dk23 .dk23-help{display:grid;place-items:center;width:44px;height:44px;border:2px dotted #6b5335;color:var(--ink);font:400 16px/1 var(--pixel,monospace)}
+ #dk-root .dk23-passes{font-size:11px;line-height:12px}
+ #dk-root.dk23 .dk21-plate.dk2-plate-waits{padding:0 4px}
+}
+#dk-root.dk22 .dk2-plate-idle .pl-short{display:none}
+@container (max-width:118px){#dk-root.dk22 .dk2-plate-idle b.pl-long{display:none}#dk-root.dk22 .dk2-plate-idle b.pl-short{display:inline}}
+@media(prefers-reduced-motion:reduce){#dk-root .dk21-eyebody{transition:none}#dk-root.dk.dk21 .dk21-eye:active .dk21-eyebody{transform:none}}
+#dk-root.dk22{--endr:84px;--medw:112px;--medal:72px}
+#dk-root.dk22 .dk2-stage{grid-template-columns:var(--endl) repeat(var(--n,4),minmax(0,1fr)) var(--medw) var(--endr)}
+#dk-root.dk22 .dk2-result{display:none}
+#dk-root.dk22 .dk2-meter{margin-left:18px}
+#dk-root.dk22 .dk2-meter-label{white-space:normal;width:60px;line-height:12px}
+/* The result: "=" then a gold-rimmed pixel medallion on the track, the end of the sum. */
+#dk-root .dk22-sum{grid-row:5;grid-column:-3/-2;position:relative;width:0;height:0;justify-self:center}
+#dk-root .dk22-eq{position:absolute;left:calc(var(--medal) / -2 - 12px);top:-6px;width:16px;height:12px;box-sizing:border-box;border-top:4px solid #2a1d12;border-bottom:4px solid #2a1d12}
+#dk-root .dk22-medal{position:absolute;z-index:4;left:calc(var(--medal) / -2 + 10px);top:calc(var(--medal) / -2);width:var(--medal);height:var(--medal);display:grid;place-content:center;justify-items:center;gap:0;background:no-repeat center/100% 100%;image-rendering:pixelated;filter:drop-shadow(0 2px 0 #2a1d1259);color:#2a1d12;text-align:center}
+#dk-root .dk22-medal>b{font:400 24px/26px var(--pixel,monospace);font-weight:400;letter-spacing:0}
+#dk-root .dk22-medal.dk22-long>b{font-size:18px;line-height:20px}
+#dk-root .dk22-medal>small{font:400 11px/12px var(--pixel,monospace);color:#6b5335}
+/* Crossed figure: same size as the new one, a stepped two-pixel diagonal over a readable old figure. */
+#dk-root .dk22-old{position:relative;display:inline-block;font:400 17px/20px var(--pixel,monospace);color:#6b4b26;padding:0 1px}
+#dk-root .dk22-old::after{content:'';position:absolute;inset:0;background:var(--slash) no-repeat 0 0;pointer-events:none}
+#dk-root.dk22 .dk21-plate>b.dk22-new{font:400 17px/20px var(--pixel,monospace);color:#3d5a1a;letter-spacing:0;text-shadow:none}
+#dk-root.dk22 .dk21-plate-changed{min-width:0}
+/* Triggers: keyword lines. The underlined word opens the glossary; the rest of the line chooses what the track shows. */
+#dk-root.dk22 .dk21-chips{gap:0}
+#dk-root .dk22-trow{position:relative;display:flex;align-items:center;min-height:44px;padding-left:14px}
+#dk-root.dk.dk22 .dk22-tsel{position:absolute;inset:0;width:100%;height:100%;display:flex;align-items:center;padding-left:2px}
+#dk-root.dk.dk22 .dk22-tsel:hover{background:#e3cf9a}
+#dk-root .dk22-dot{display:block;width:8px;height:8px;background:transparent;border:2px solid #c4a56b;box-sizing:border-box}
+#dk-root .dk22-on .dk22-dot{background:var(--moss);border-color:#2a1d12;clip-path:polygon(0 0,100% 50%,0 100%);border:0;width:8px;height:10px}
+#dk-root.dk.dk22 .dk22-term{position:relative;z-index:1;display:inline-flex;align-items:center;justify-content:center;gap:5px;min-height:44px;min-width:44px;padding:0 2px;color:var(--ink);font:400 13px/16px var(--pixel,monospace)}
+#dk-root .dk22-word{border-bottom:2px dotted #6b5335;padding-bottom:1px}
+#dk-root.dk.dk22 .dk22-term:hover .dk22-word{border-bottom-style:solid}
+#dk-root .dk22-on .dk22-word{color:#2a1d12}
+#dk-root.dk22 .dk2-start-label{top:16px;width:auto;left:auto;transform:translateX(-50%);white-space:nowrap}
+#dk-root.dk22 .dk2-start-label .dk22-term{min-height:44px;font-size:12px}
+#dk-root.dk.dk22 .dk22-term-origin{margin-top:-12px}
+#dk-root.dk22 .dk21-on .dk22-term{min-height:44px;font-size:15px}
+/* Glossary panel. */
+#dk-root.dk22 .dk-sheet>.dk22-glosshost{position:absolute;inset:0;z-index:40;display:grid;place-items:center;background:#2a1d1240}
+#dk-root .dk22-gpanel{display:grid;gap:10px;width:min(420px,calc(100% - 32px));box-sizing:border-box;padding:16px 18px;border:4px solid transparent;border-image:var(--fr-plate) 4 fill / 4px stretch;filter:drop-shadow(0 3px 0 #2a1d1259);color:var(--ink)}
+#dk-root .dk22-ghead{display:flex;align-items:center;gap:12px}
+#dk-root .dk22-ghead small{display:block;font:400 11px/12px var(--pixel,monospace);letter-spacing:1px;text-transform:uppercase;color:var(--ink-soft)}
+#dk-root .dk22-ghead h2{margin:0;font:400 22px/26px var(--pixel,monospace);color:var(--ink)}
+#dk-root .dk22-gtext{margin:0;font:400 15px/20px var(--pixel,monospace)}
+#dk-root .dk22-gchain{margin:0;font:400 13px/17px var(--pixel,monospace);color:#3d4a22}
+#dk-root .dk22-gshown{margin:0;align-self:center;font:400 12px/14px var(--pixel,monospace);color:var(--ink-soft)}
+/* Deck tiles: one line each for name and effect, cut with an ellipsis if it still does not fit; the Trigger keyword
+   sits on the third line, outside the tile button so it can be tapped on its own. */
+#dk-root.dk22 .dk2-name,#dk-root.dk22 .dk2-effect,#dk-root.dk22 .dk2-sub{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+#dk-root.dk22 .dk2-text{align-self:flex-start;padding-top:4px;min-width:0;overflow:hidden}
+#dk-root.dk22 .dk21-body{align-items:flex-start;padding-top:2px}
+#dk-root.dk22 .dk2-effect{font-size:14px;line-height:16px;letter-spacing:0}
+#dk-root.dk.dk22 .dk22-term-tile{position:absolute;z-index:2;left:calc(4px + 2px + var(--art) + 8px);bottom:0;min-height:0;height:44px;align-items:flex-end;padding-bottom:6px;font-size:11px;line-height:12px;color:var(--ink-soft)}
+#dk-root .dk22-term-tile .dk22-word{border-bottom-width:1px}
+#dk-root.dk22 .dk21-tile{--art:40px}
+@media(max-height:380px){
+ #dk-root.dk22{--medw:92px;--medal:60px;--endr:72px;--tile-min:260px;--tile-h:84px;--eye-top:29px}
+ #dk-root.dk22 .dk2-text{padding-top:2px}
+ #dk-root .dk22-medal>b{font-size:20px;line-height:22px}
+ #dk-root .dk22-medal.dk22-long>b{font-size:15px;line-height:18px}
+ #dk-root .dk22-eq{left:calc(var(--medal) / -2 - 10px);width:14px;height:10px;top:-5px;border-width:3px 0}
+ #dk-root .dk22-old,#dk-root.dk22 .dk21-plate>b.dk22-new{font-size:15px;line-height:18px}
+ /* Short screens: Trigger keywords as 44×44 icons (the shown one marked); choosing happens in the glossary panel. */
+ #dk-root.dk22 .dk21-chips{flex-direction:row;flex-wrap:wrap;gap:4px}
+ #dk-root .dk22-trow{padding:0;width:44px;height:44px;justify-content:center}
+ #dk-root.dk.dk22 .dk22-tsel{display:none}
+ #dk-root.dk.dk22 .dk22-trow .dk22-term{width:44px;height:44px;justify-content:center;padding:0}
+ #dk-root .dk22-trow .dk22-word{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+ #dk-root .dk22-trow .dk22-term svg{border-bottom:2px dotted #6b5335;padding-bottom:2px}
+ #dk-root .dk22-on .dk22-dot{position:absolute;display:block;top:2px;right:2px;width:6px;height:6px;clip-path:none;background:var(--moss)}
+ #dk-root .dk22-trow:not(.dk22-on) .dk22-dot{display:none}
+ #dk-root .dk22-trow .dk22-dot{z-index:2}
+ #dk-root.dk22 .dk2-effect{font-size:13px;line-height:15px}
+ #dk-root .dk22-gpanel{gap:6px;padding:10px 14px}
+ #dk-root .dk22-gtext{font-size:13px;line-height:17px}
+ #dk-root .dk22-ghead h2{font-size:18px;line-height:22px}
+ #dk-root .dk22-gchain{font-size:12px;line-height:15px}
+ #dk-root.dk.dk22 .dk22-term-tile{padding-bottom:4px}
+}
+/* Game additions (not in the preview): the quiet Workshop entry on the Deck tab at Rest, and loaned cards. */
+#dk-root.dk.wb-t2 .dk2-workshop{flex:none;width:auto;min-width:112px;height:44px;padding:0 12px!important}
+#dk-root .dk2-loan{margin:0;font:400 12px/14px var(--pixel,monospace);color:var(--ink-soft)}
+/* Production kit rules are scoped "html body .wb-ground …"; restate the preview's choices at that weight. */
+#dk-root.wb-ground.dk{text-align:left}
+#dk-root.wb-ground.dk.dk2 .wb-page::after{z-index:30;height:56px;background-size:24px 56px,24px 44px}
+/* Game fix (preview overflowed here): in a narrow slot (5 slots on a 640-667px screen) a Boost with a second Encore
+   multiplier ("×2 · ×3 Encore") drops the word Encore and the spaces, so the plate stays inside its slot.
+   The opened card still says "×2 on the first firing, ×3 on the Encore". */
+@container (max-width:92px){
+ #dk-root.dk23 .dk23-m2>small{display:none}
+ #dk-root.dk23 .dk2-plate:has(.dk23-m2){gap:1px;padding:0 3px;letter-spacing:0}
+ #dk-root.dk23 .dk23-m2>b{font-size:14px;letter-spacing:-1px}
+}

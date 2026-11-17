@@ -46,6 +46,12 @@ const LOOKS={
   'Shape: a Trigger chip (Collect, Wave, Always on…), then one short line saying what it does, number first.',
   'Filter at the top: All / Flagged / by rarity. 24 cards are flagged "Needs a decision".',
   'Crescendo is shown as decided: "Double the chain\'s Sparks".']},
+ 'v2.3-deck':{label:'v2.3-deck · proposed',status:'Proposed — not in the game yet',page:'deck.html',notes:[
+  'Fixes from your test: the track line no longer fights the equals sign; the sparkle only appears while Play runs.',
+  'Encore is visible: a small "5 + 5 =" above the medallion. Try &chain=Pocket Sparks,Prism Lens,Refrain in the address.',
+  'A card that waits for another Trigger says "Waits for Delivery" calmly; "No effect here" is only for real misplacement.',
+  '"Wave" is now "Pulse". Results are whole Sparks.',
+  'The 56 shortened tile lines are listed at &tab=tilelines for you to skim.']},
  'v2.2-deck':{label:'v2.2-deck · proposed',status:'Proposed — not in the game yet',page:'deck.html',notes:[
   'Plates read as a sum: a card shows what it adds at its own slot. Echo then Pocket Sparks: +4 crossed diagonally, then +8.',
   'The result sits in a round medallion after an equals sign at the end of the chain.',
@@ -221,14 +227,14 @@ const LOOKS={
 // Topics, newest first. Set `decided` to the approved code once the user has ruled.
 // Pruned 2026-11-17 at the user's request: only work still open, plus the style kit, is listed. Decided or retired looks
 // (pause, settings, icons, card wording, how cards fire, earlier decks) are recorded in docs/design-versions.md.
-const KEEP=['v2.2-deck','v2.5-theme'];for(const id of Object.keys(LOOKS))if(!KEEP.includes(id))delete LOOKS[id];
+const KEEP=['v2.3-deck','v2.5-theme'];for(const id of Object.keys(LOOKS))if(!KEEP.includes(id))delete LOOKS[id];
 const TOPICS={deck:{label:'Chain & Deck'},theme:{label:'Style kit',decided:'v2.5-theme',contexts:true}};
 const topicOf=id=>id.slice(id.indexOf('-')+1);
 let earlier=false;
 const CONTEXTS={practice:'Tutorial flight',real:'Real run, in flight',map:'Real run, on map'};
 const SIZES={'900x405':[900,405],'740x333':[740,333],'667x300':[667,300],'640x320':[640,320]};
 const query=new URLSearchParams(location.search);
-let look=LOOKS[query.get('variant')]?query.get('variant'):'v2.2-deck',ctx=CONTEXTS[query.get('ctx')]?query.get('ctx'):'practice',size=SIZES[query.get('size')]?query.get('size'):'900x405';
+let look=LOOKS[query.get('variant')]?query.get('variant'):'v2.3-deck',ctx=CONTEXTS[query.get('ctx')]?query.get('ctx'):'practice',size=SIZES[query.get('size')]?query.get('size'):'900x405';
 const frame=document.querySelector('#frame'),stage=document.querySelector('#stage');
 function tabs(host,items,current,pick){
  host.querySelectorAll('button').forEach(button=>button.remove());

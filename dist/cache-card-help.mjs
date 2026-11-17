@@ -10,7 +10,7 @@ const views = ['touch','deliver','cross'];
 const captions = {
   touch: ['Touch', 'Your wisp touches the Cache.', '+18 Sparks', 'Cache absorbed'],
   deliver: ['Deliver', 'Collector reels it to your wisp.', '+12 Sparks on arrival', 'Needs Cache Handling'],
-  cross: ['Cross', 'A wave passes over the Cache.', '', 'Cache remains'],
+  cross: ['Cross', 'A Pulse passes over the Cache.', '', 'Cache remains'],
 };
 
 function exampleCard(card) {
@@ -43,7 +43,7 @@ function still(doc, engine, packet, event) {
   output.setAttribute('aria-label',{
     touch:'Actual flight: the large white wisp meets the dense white Cache.',
     deliver:'Actual flight: the small green Collector reels the intact Cache behind the larger white wisp.',
-    cross:'Actual flight: a pale wave crosses the uncollected Cache, which stays in the passage.',
+    cross:'Actual flight: a pale Pulse crosses the uncollected Cache, which stays in the passage.',
   }[event]);
   return output;
 }

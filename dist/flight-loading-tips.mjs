@@ -17,9 +17,9 @@ export function flightLoadingTipById(id,run){
  if(id==='lift-guide')return {id,title:'Listen for the higher note',context:equipped(run,'lift-guide')?'Lift Guide equipped':'With Lift Guide equipped',
   text:'Follow the amber chevron or, with music on, listen for two notes. Lift on the higher one.',
   note:'This keeps a level path in still air. Lift sooner to clear rock.'};
- if(id==='rhythm-wave')return {id,title:'Three even Lifts send a wave',context:equipped(run,'rhythm')?'Rhythm equipped':'With Rhythm equipped',
-  text:'Three successful, evenly spaced Lifts send a wave. Choose a pace that fits the passage.',
-  note:equipped(run,'harvest-common')||equipped(run,'harvest-rare')||equipped(run,'harvest-legendary')?'Your Resonant Harvest adds Sparks when the wave crosses an uncollected Spark. Pick it up afterward.':'With Resonant Harvest equipped too, crossing an uncollected Spark adds Sparks. Pick it up afterward.'};
+ if(id==='rhythm-wave')return {id,title:'Three even Lifts send a Pulse',context:equipped(run,'rhythm')?'Rhythm equipped':'With Rhythm equipped',
+  text:'Three successful, evenly spaced Lifts send a Pulse. Choose a pace that fits the passage.',
+  note:equipped(run,'harvest-common')||equipped(run,'harvest-rare')||equipped(run,'harvest-legendary')?'Your Resonant Harvest adds Sparks when the Pulse crosses an uncollected Spark. Pick it up afterward.':'With Resonant Harvest equipped too, crossing an uncollected Spark adds Sparks. Pick it up afterward.'};
  return {id:'balanced-lift',title:'Lift, rise, then glide',context:'Flying efficiently',
   text:'In still air, let your wisp fall back to its takeoff height before lifting again. This keeps a level path and saves Sparks.',
   note:'Leave room to rise. Lift sooner to clear rock.'};

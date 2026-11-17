@@ -1984,7 +1984,7 @@ export class WispFlight {
         this.radiateLight({once:true,reveal:true,source:'card-overfill',sourceKind:'card',color:'#d9f0dc'});
         this.sound('luminance',{strength:.35});
         this.activation('card-overfill',{label:'Overfill',outcome:{wave:1}});
-        this.setEvent('Overfill · Luminance wave');
+        this.setEvent('Overfill · Pulse');
       }
     }
     const gain=condenseGlow(surplus,{rules:this.mod.condensationRules,wallet:this.condensedTotal,remainder:this.condensedRemainder,limit:this.mod.packingLimit??20,packed:this.condensedGlow});

@@ -1,5 +1,5 @@
 import {FIRST_LIGHT_COMBO,firstLightComboLesson,armFirstLightCombo,firstLightComboQuiet,createFirstLightComboFeedback} from './first-light-combo.mjs?v=guide-clarity-1';
-import {isPlayablePractice,practiceCardFaces,loanPracticeCards,practicePurpose,nextPracticeLesson} from './practice-route.mjs?v=guide-clarity-1';
+import {isPlayablePractice,practiceCardFaces,practiceCardRun,loanPracticeCards,practicePurpose,nextPracticeLesson} from './practice-route.mjs?v=guide-clarity-1';
 import {cardFace} from './card-ui.mjs?v=guide-clarity-1';
 import {completedGameScore} from './game-score.mjs?v=guide-clarity-1';
 import {gameResultMarkup} from './score-result.mjs?v=guide-clarity-1';
@@ -90,7 +90,8 @@ import {cardWorkshopMarkup,cardRefillMarkup} from './card-workshop.mjs?v=guide-c
 import {createCardInspectorState,prepareCardInspectorReward} from './card-inspector.mjs?v=guide-clarity-1';
 import {installCardTermHelp} from './card-terms.mjs?v=guide-clarity-1';
 import {resolveCardHelpContext} from './card-row-help.mjs?v=guide-clarity-1';
-import {showTryCardRow} from './card-row-try.mjs?v=guide-clarity-1';
+// v2.3-deck: the Chain and Deck screens. Play on the Chain tab replaces the old Try row (card-row-try.mjs).
+import {createDeckView,deckScreenMarkup,mountDeckScreen} from './ui/deck-screen.mjs?v=guide-clarity-1';
 installCardTermHelp(document,{
  resolveCardContext:button=>resolveCardHelpContext(button,state.run,{example:cardInspector,snapshot:engine?lastSnapshot:null}),
  resolveProximityContext:button=>({run:state.run,instanceId:button.closest('[data-card-instance]')?.dataset.cardInstance,example:cardInspector})
@@ -339,7 +340,11 @@ function tutorialCheckpoint(){const r=state.run;return r?.isTutorial?`<div class
 function practiceCardsMarkup(run){return `<div class="practice-card-row">${practiceCardFaces(run).map((card,slot)=>cardFace(card,{slot,fitted:true})).join('')}</div>`;}
 function showPracticeDeck(){
  if(!isPlayablePractice(state.run))return;pauseFlight();
- openSheet(`<header class="practice-deck-heading"><div><small>FIRST LIGHT · TEMPORARY LOANS</small><h2>Your practice cards</h2></div><button class="secondary" data-action="close-sheet">Back</button></header>${practiceCardsMarkup(state.run)}<p class="practice-card-note">These cards work in this practice route. Your main game’s cards and uses stay saved separately.</p>`,'practice-deck-sheet');
+ // Loaned cards use the same Chain and Deck screens, read-only: they cannot be moved or melted.
+ if(!document.querySelector('dialog.practice-deck-sheet[open]'))Object.assign(deckView,createDeckView());
+ const run=practiceCardRun(state.run),opts={locked:true,loaned:true,paused:!!engine,reducedMotion:state.settings.reducedMotion};
+ const el=openSheet(deckScreenMarkup(run,deckView,opts),'practice-deck-sheet card-deck-sheet');
+ mountDeckScreen(el,{run,view:deckView,opts,actions:{done:()=>{Object.assign(deckView,createDeckView());closeSheet();}}});
 }
 function renderPracticeSupport(r,n){
  const preview=structuredClone(r),camp=n.kind==='camp';loanPracticeCards(preview,camp?['rhythm','harvest-common']:['slip-feather']);
@@ -355,7 +360,8 @@ let cardRewardEquipping=false,cardRewardNotice='',cardSwapPending=null;
 let cardSelectedId=null,cardInspecting=false,cardBrowsing=false,cardDeckScroll=0,cardMeltScroll=0,cardEquipMode=false,cardTargetSlot=null,cardMeltMode=false,cardMeltIds=new Set(),cardMeltToken=null,cardDeckNotice='',cardFlightEditing=false,cardForgeRarity='rare',cardForgeNotice='';
 // These contexts belong to the open menu only. No temporary choice enters a save.
 let cardView='deck',cardDeckOrigin='game',cardReaderOrigin='equipped',cardMeltOrigin=null,cardMeltSingle=false,cardForgeOrigin=null,cardLastForged=null;
-let cardWorkshopOrigin=false;
+let cardWorkshopOrigin=false,cardWorkshopFromDeck=false;
+const deckView=createDeckView();
 const deckDragging=bindDeckDragging({
  canEdit:()=>!flightLoading&&!cardMeltMode&&!cardSwapPending&&canEditDeck(),
  getCard:id=>getOwnedCards(state.run).find(c=>c.instanceId===id),
@@ -385,7 +391,7 @@ function finishDeckFlight(){
  if(cardFlightEditing){if(engine)closeCardFlightEdit(state.run,engine);cardFlightEditing=false;}
 }
 function resetDeckChoices(){
- cardWorkshopOrigin=false;
+ cardWorkshopOrigin=false;cardWorkshopFromDeck=false;Object.assign(deckView,createDeckView());
  cardSwapPending=null;cardSelectedId=null;cardInspecting=false;cardEquipMode=false;cardTargetSlot=null;cardMeltMode=false;cardMeltIds.clear();cardMeltToken=null;cardMeltOrigin=null;cardMeltSingle=false;cardReaderOrigin='equipped';cardDeckNotice='';cardForgeNotice='';cardForgeOrigin=null;cardLastForged=null;cardBrowsing=false;cardDeckScroll=0;cardMeltScroll=0;cardView='deck';
 }
 function beginDeckSession(){
@@ -452,9 +458,25 @@ function showCards(){
  const owned=getOwnedCards(state.run);if(!owned.some(c=>c.instanceId===cardSelectedId)){cardSelectedId=null;cardInspecting=false;cardEquipMode=false;}
 
  const liveIds=new Set(owned.map(c=>c.instanceId));cardMeltIds=new Set([...cardMeltIds].filter(id=>liveIds.has(id)));
- openSheet(cardsBenchMarkup(state,{selectedId:cardSelectedId,browsing:cardBrowsing,inspecting:cardInspecting,locked:!canManageCards(state.run),paused:!!engine,demo:cardInspector,equip:cardEquipMode,targetSlot:cardTargetSlot,readerBack:cardReaderOrigin==='forge'?'Forge':cardReaderOrigin==='equipped'?'Equipped':'Deck',meltMode:cardMeltMode,meltIds:[...cardMeltIds],notice:cardDeckNotice}),'card-sheet card-bench-sheet');
+ const opts={locked:!canManageCards(state.run),paused:!!engine,workshop:canUseCardCampServices(state.run),reducedMotion:state.settings.reducedMotion};
+ const el=openSheet(deckScreenMarkup(state.run,deckView,opts),'card-sheet card-deck-sheet');
+ mountDeckScreen(el,{run:state.run,view:deckView,opts,actions:deckScreenActions});
  const gallery=document.querySelector('.card-deck-browser .card-deck-gallery');if(gallery)gallery.scrollTop=cardDeckScroll;
  const meltGallery=document.querySelector('.card-deck-melt-mode .card-deck-gallery');if(meltGallery)meltGallery.scrollTop=cardMeltScroll;
+}
+// Real changes from the Chain and Deck screens: each goes through the model's own transaction, then the sheet reopens.
+const deckScreenActions={
+ done:()=>doneDeck(),
+ transfer:(id,slot,expectedId)=>{if(canEditDeck())requestCardTransfer(id,slot,expectedId);else showCards();},
+ takeOut:(slot,id)=>{if(canEditDeck()&&unequipMountedCard(state.run,slot,id))repaintDeck();else showCards();},
+ meltQuote:id=>{if(!canEditDeck())return {eligible:false};const preview=getCardMeltPreview(state.run,[id]);return {eligible:!!preview.eligible,reason:preview.reason,amount:Math.floor(preview.amount||0),token:preview.token,wallet:Math.floor(getSkillWallet(state).condensedGlow||0)};},
+ meltConfirm:(id,token)=>{if(canEditDeck()&&token&&meltOwnedCards(state,[id],token))repaintDeck();else{deckView.note='This card changed. Open it again to Melt.';deckView.noteTone='dk2-note-warn';showCards();}},
+ workshop:()=>{if(!canUseCardCampServices(state.run))return;cardWorkshopFromDeck=true;showCardWorkshop();},
+ back:to=>{if(to==='forge'){cardReaderOrigin='equipped';previewCardForge();}else showCards();},
+};
+function backDeckWorkshop(){
+ if(!cardWorkshopFromDeck)return doneDeck();
+ cardWorkshopFromDeck=false;cardWorkshopOrigin=false;deckView.tab='deck';deckView.focus={tab:'deck'};showCards();
 }
 function selectDeckCard(id){
  const selected=getOwnedCards(state.run).find(c=>c.instanceId===id);if(!selected)return;
@@ -494,7 +516,7 @@ function backDeckReader(){
 function acknowledgeCardReceipt(openDeck=false,id=null){
  if(engine||!state.run?.cardReward)return;
  cardRewardEquipping=false;cardRewardNotice='';state.run.cardReward.uiAcknowledged=true;persist();closeSheet();goToRun();
- if(openDeck){beginDeckSession();cardBrowsing=true;cardReaderOrigin='deck';cardSelectedId=id||state.run.cardReward.card?.instanceId;const card=getOwnedCards(state.run).find(c=>c.instanceId===cardSelectedId);cardInspecting=isInventoryOnlyCard(card);cardEquipMode=!cardInspecting;showCards();}
+ if(openDeck){beginDeckSession();cardBrowsing=true;cardReaderOrigin='deck';cardSelectedId=id||state.run.cardReward.card?.instanceId;deckView.tab='deck';deckView.reading=getOwnedCards(state.run).some(c=>c.instanceId===cardSelectedId)?cardSelectedId:null;showCards();}
 }
 // A drag redraw during touchend can make Chromium omit the following click.
 // Only a fresh stationary release on the same action or slot commits a choice.
@@ -608,7 +630,7 @@ function backCardForge(){
 }
 function viewForgedCard(id){
  if(!cardLastForged||id!==cardLastForged.instanceId||!getOwnedCards(state.run).some(c=>c.instanceId===id))return;
- cardReaderOrigin='forge';cardSelectedId=id;cardInspecting=true;cardEquipMode=false;cardDeckNotice='';showCards();
+ cardReaderOrigin='forge';cardSelectedId=id;cardEquipMode=false;cardDeckNotice='';deckView.tab='deck';deckView.pick=null;deckView.placing=null;deckView.reading=id;deckView.readingReturn='forge';showCards();
 }
 function confirmCardForge(rarity,token){
  const preview=getCardForgePreview(state.run,rarity);
@@ -624,7 +646,7 @@ function backCardSheet(){
  if(help){help.open=false;help.querySelector('summary')?.focus({preventScroll:true});return;}
  if(cardView==='swap-confirm'){cancelCardTransfer();return;}
  if(cardView==='melt-confirm'){if(cardMeltSingle)cancelDeckMelt();else{cardMeltToken=null;showCards();}return;}
- if(cardView==='workshop'){doneDeck();return;}
+ if(cardView==='workshop'){backDeckWorkshop();return;}
  if(cardView==='refill'||cardView==='improve'&&cardWorkshopOrigin){showCardWorkshop();return;}
  if(cardView==='improve'){showCards();return;}
  if(cardView==='forge'){backCardForge();return;}
@@ -1296,11 +1318,6 @@ document.addEventListener('click',e=>{
  switch(action){
   case 'cards':openDeck();break;
   case 'card-select':selectDeckCard(button.dataset.id);break;
-  case 'card-try-row':{
-   const charges=engine?lastSnapshot?.cardCharges:null;
-   const run={...state.run,mountedCards:(state.run?.mountedCards||[]).map(card=>card?{...card,...(Number.isFinite(charges?.[card.instanceId])?{charges:Math.min(card.charges??Infinity,charges[card.instanceId])}:{})}:null)};
-   showTryCardRow({run,opener:button,reducedMotion:state.settings.reducedMotion});break;
-  }
   case 'card-reading-back':backDeckReader();break;
   case 'card-open-collection':cardBrowsing=true;cardDeckNotice='';showCards();break;
   case 'card-collection-back':cardBrowsing=false;if(!getOwnedCards(state.run).find(c=>c.instanceId===cardSelectedId)?.mounted)cardSelectedId=null;cardEquipMode=false;cardTargetSlot=null;cardDeckNotice='';showCards();break;
@@ -1346,7 +1363,7 @@ document.addEventListener('click',e=>{
   case 'card-cancel-grow':closeSheet();break;
   case 'card-confirm-improve':if(canEditDeck()&&improveOwnedCard(state,button.dataset.id,Number(button.dataset.rank),button.dataset.token)){if(cardWorkshopOrigin){saveDeckEdits();showCardWorkshop('Card improved · remaining uses preserved.');}else repaintDeck();notify('Card improved · uses preserved');}break;
   case 'card-workshop':showCardWorkshop();break;
-  case 'card-workshop-back':doneDeck();break;
+  case 'card-workshop-back':backDeckWorkshop();break;
   case 'card-workshop-improve':cardWorkshopOrigin=true;previewCardImprove(button.dataset.id);break;
   case 'card-workshop-refill':previewCardRefill(button.dataset.id);break;
   case 'card-confirm-refill':confirmCardRefill(button.dataset.id,button.dataset.token);break;

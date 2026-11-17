@@ -371,3 +371,10 @@ The implementation and simulation goal is complete; physical phone feedback rema
 - **Curses / bad cards.** Cards you can be given that do nasty things while in your deck, and that cost Stored Sparks (or something dearer) to remove. Wanted for the decision space they open: take a risk for a reward, carry a burden, pay to be rid of it.
 - **More oaths and events like The Closed Eye** (brave deep darkness for triple packing). The user calls that one "unique and really, really nice" and wants more choices of that kind: oaths you take, events, rewards with a real cost.
 - Not designed yet. Bring concrete proposals (in the design lab, with codes) when the card screens and the Boost rules have landed.
+
+## Performance on phones (user, 2026-11-17)
+
+- "On phone the game starts being slow at certain points… we should optimize it really good and stress test it."
+- Step 1 (started 2026-11-17): read-only profiling and a repeatable stress harness under `scripts/perf/`, results in `outputs/perf/report.md` (all biomes, heavy moments, synthetic stress, ten-minute session, comparison with release `85b57c38`).
+- Step 2: apply the safe fixes; show before/after for any fix that changes how the game looks. Step 3: a performance check about once a day, not on every release (user, 2026-11-17).
+- User, 2026-11-17: Pixel 10, Chrome browser. Fine at game start, slow "after a few levels, so maybe memory leak". The profiling worker investigates accumulation across consecutive flights first (heap, canvases, listeners, render loops). A real-device trace is still missing.

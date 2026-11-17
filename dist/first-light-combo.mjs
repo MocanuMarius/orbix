@@ -13,7 +13,7 @@ export function firstLightComboLesson(engine,run){
  // required by the caller; neither input nor the world is moved for the lesson.
  if(engine.player.y<engine.height*.38||engine.player.y>engine.height*.74||engine.player.vy<0)return null;
  return {id:FIRST_LIGHT_COMBO,title:'Two borrowed cards work together',
-  text:'Three evenly spaced Lifts send a wave. Let it cross the higher Spark: Common Resonant Harvest restores +1 without collecting it. The lower Spark is ordinary fuel. These cards are temporary.',
+  text:'Three evenly spaced Lifts send a Pulse. Let it cross the higher Spark: Common Resonant Harvest restores +1 without collecting it. The lower Spark is ordinary fuel. These cards are temporary.',
   target:'.first-light-combo',contextual:true,actionLabel:'Try it',skipLabel:false};
 }
 
