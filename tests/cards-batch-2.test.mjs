@@ -48,13 +48,13 @@ test("Collector's Ledger: +1 per Delivery, +1 more after every 10 Deliveries, co
   assert.equal(getCardTallies(gone)['c0'], undefined);
 });
 
-test('Old Friend: +1 Spark per cleared flight it has stayed in the Chain, on any Trigger, none when unmounted', () => {
+test('Old Friend: +1 Spark per cleared flight it has stayed in the Chain, on a Collect only, none when unmounted', () => {
   const runtime = createCardExecution(row(['old-friend', null, null]));
   assert.equal(send(runtime, 'collect').sparks, 0, 'a new friend pays nothing');
   send(runtime, 'clear'); send(runtime, 'clear'); send(runtime, 'clear');
   assert.equal(runtime.cards[0].tally, 3);
   assert.equal(send(runtime, 'collect').sparks, 3);
-  assert.equal(send(runtime, 'delivery').sparks, 3, 'Any Trigger: a Delivery pays too');
+  assert.equal(send(runtime, 'delivery').sparks, 0, 'a Delivery is not a Collect: it pays nothing');
   const gone = createCardExecution(row([null, null, null]));
   send(gone, 'clear');
   assert.equal(send(gone, 'collect').sparks, 0);

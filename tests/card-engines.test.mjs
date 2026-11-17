@@ -142,11 +142,12 @@ test('Boosts multiply each card-made gain to their left, rounded up; Stored Spar
     assert.deepEqual(hits(engine, 'gain').map(g => g.amount), [gain, gain], ids.join(','));
   }
   assert.equal(engineBoostAt(row(['spark-chime', 'closing-chord', 'body-spark']), 0).multiplier, 1, 'Closing Chord only as the last card');
-  // Overflow Bell keeps 2 of a spill; a Crescendo to its right doubles the gain that spills, not what is kept.
+  // Overflow Bell keeps 2 of a spill; a Crescendo to its right doubles the gain that spills, but Stored Sparks come only from the printed
+  // gain: Close Call's 1 fits the meter, so the Boost's extra Spark is all that spills and nothing is kept.
   const {engine, host, at} = rig(['close-call', 'metronome', 'body-spark', 'overflow-bell', 'crescendo'], {start: 9, max: 10});
   at('skim', 0);
   assert.equal(hits(engine, 'gain')[0].amount, 2, 'Close Call +1 doubled');
-  assert.ok(hits(engine, 'keep').every(k => k.amount <= 2)); assert.equal(host.storedTotal, 1, 'kept 1 spilled Spark (2 asked, 1 fitted)');
+  assert.ok(hits(engine, 'keep').every(k => k.amount <= 2)); assert.equal(host.storedTotal, 0, 'nothing kept: the spilled Spark was made by the Boost (2 asked, 1 fitted)');
 });
 
 test('the two worked engines reproduce the demo’s numbers', () => {

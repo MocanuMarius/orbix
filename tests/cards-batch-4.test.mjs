@@ -23,7 +23,7 @@ test('the batch is in the catalog, unreleased and never offered; the live Chamel
   }
   assert.equal(SKILL_CARDS['chameleon-two'].name, 'Chameleon');
   assert.equal(SKILL_CARDS['chameleon-two'].trigger, 'next');
-  assert.equal(SKILL_CARDS['chameleon-two'].ruleBands[1].text, 'Fires the card to its right on any Trigger');
+  assert.equal(SKILL_CARDS['chameleon-two'].ruleBands[1].text, 'Fires the card to its right on any Trigger (not growth cards)');
   assert.match(SKILL_CARDS['chameleon-two'].help, /replace the old Chameleon/);
   assert.equal(SKILL_CARDS.whetstone.rarity, 'rare'); assert.equal(SKILL_CARDS.whetstone.trigger, 'engine-skim');
   const old = SKILL_CARDS.chameleon;

@@ -16,7 +16,7 @@ export const CARD_TILE_LINES = Object.freeze({
   'return-spring': 'Reels in 0.5 s sooner', 'spillway-ii': 'Each Overfill: a Pulse',
   'growth-seed': '+5 max, full meter', 'growth-seed-common': '+3 max, full meter', 'growth-seed-legendary': '+8 max, full meter',
   'camp-kit': '2 Rest actions', 'echo-iii': 'Repeats next ×3', 'echo-ii': 'Repeats next twice',
-  'ripple-glass': 'Doubles all before', 'glide-prism': 'Doubles all before', 'courier-glass': 'Doubles all before',
+  'ripple-glass': 'Doubles all before', 'glide-prism': 'Lift: ×2 all before', 'courier-glass': 'Doubles all before',
   'clear-prism': 'Doubles all before', 'wick-doubler': 'Doubles all before', 'crescendo': 'Doubles all before',
   'diving-bell': 'Final Pulse, +3 Sparks', 'counterweight': 'Ready 0.75 s sooner', 'haul-winch': 'Next reel 3 s sooner',
   'fast-spool': 'Reels in 3 s sooner', 'rhythm': '3 even Lifts: a Pulse', 'glass-spool': 'Ready 0.5 s sooner',
@@ -27,7 +27,7 @@ export const CARD_TILE_LINES = Object.freeze({
   'second-wind': 'Save: all fire 5 s', 'undertow': 'Falling Lift: Collect',
   'closing-chord': 'Last: all before ×2.5', 'ring-spring': 'Ready 1 s sooner', 'ring-spring-ii': 'Ready 2 s sooner',
   'pacesetter': 'Ready 3 s sooner', 'mending-moss': 'Ready 3 s sooner', 'flash-thread': 'Ready 3 s sooner',
-  'slip-feather': 'A revealing Pulse', 'edge-reach': 'Pulse; reach +50%', 'double-lift': '2nd Lift is free',
+  'chameleon-two': 'Next: any, not growth', 'slip-feather': 'A revealing Pulse', 'edge-reach': 'Pulse; reach +50%', 'double-lift': '2nd Lift is free',
 });
 
 /** The line a Deck tile shows: the tile form when the card has one, else its real effect line. */

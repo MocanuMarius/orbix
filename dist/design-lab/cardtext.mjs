@@ -79,7 +79,7 @@ export const CARD_TEXT = [
     keep: {t: 'Next card', x: 'Repeats the next card twice', u: 'Not × or always-on cards'}, simple: {t: 'Next card', x: 'Repeats the next card twice'}},
   {id: 'dusk-wick-ii', t: 'Collect', c: 'Dusk Spark', x: '+30 Sparks'},
   {id: 'ripple-glass', t: 'Wave', c: 'its 2nd Spark onward', x: 'Double the chain\'s Sparks', b: 'Double every reward before it'},
-  {id: 'glide-prism', t: 'Falling Lift', x: 'Double the chain\'s Sparks', b: 'Double every reward before it'},
+  {id: 'glide-prism', t: 'Lift', x: 'Double the chain\'s Sparks', b: 'Double every reward before it'},
   {id: 'flash-bank', t: 'Flash', c: 'meter ⅓ or less', x: '+8 Sparks', n: '"Checks before the pickup refills it" dropped (see Low Wick).'},
   {id: 'spillway', t: 'Always on', x: 'Every 2nd Overfill sends out a wave', f: 'D6'},
   {id: 'tight-packing-ii', t: 'Always on', x: '+75% Stored Sparks from packing'},

@@ -137,7 +137,8 @@ export class LuminanceWaves {
               if(orderedCards){
                 const action=e.resolveCardRowEvent('wave-crossing',{firstCrossing,pickupKind:kind,
                   meterFraction,guardRecovering:e.wisp?.phase==='guard-recovery',
-                  waveId:wave.id,pulseSource:wave.source,pulseSourceKind:wave.sourceKind});
+                  waveId:wave.id,pulseSource:wave.source,pulseSourceKind:wave.sourceKind,
+                  ...(Number.isInteger(wave.fromSlot)?{fromSlot:wave.fromSlot}:{})});
                 cardAction=!!action?.receipt.steps.some(step=>step.success&&['add-sparks','add-last-payout'].includes(step.operation));
               }else{
                 cardAction=cardMeter>0||(!wave.storedPaid&&cardStored>0);

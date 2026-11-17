@@ -133,3 +133,13 @@ What each hidden card adds to the best hand that holds it (value, best order wit
 
 - `scripts/balance/chain-sweep.mjs` (the harness). Run `node scripts/balance/chain-sweep.mjs`; `--quick` shrinks the searches; `--only=order,pairs,runs,hidden`; `--probe=card-a,card-b` shows one chain; `--slowscan` times every pair.
 - `outputs/balance/chain-sweep-order.json/.md` (sweep 1, every permutation), `-pairs` (sweep 2, live cards), `-pairs-unreleased` (sweep 4, all cards), `-runs` (sweep 3, 8-flight runs of 15 builds), `-hidden`, `-fun`, `-guard`, `-cards` (every card alone and its best partner), `-all.json` (everything).
+
+## Fixed (2026-11-17)
+
+Tests: `tests/chain-sweep-fixes.test.mjs`.
+
+- **Glide Prism** (owner decision, Rare, live): "Lift: double every reward before it." It now hears a Lift while falling and a Lift on the beat (Toll Bell, Pacesetter, and any card on a Kindled slot on a falling Lift); it still ignores every other Trigger, only reaches cards before it, and never multiplies Stored Sparks or permanent gains. Low Ember (Lift under a quarter) pays no Sparks, so the Prism has nothing of it to double. Row field `alsoEvents` in `card-catalog.mjs`, read by `resolveCardRow` and `hasCardRowEvent`.
+- **Spill Jar and Boosts**: Stored Sparks kept from a spill (Spill Jar, Overflow Bell) come from the Boost-free amount only. The meter takes the Boost-free Sparks first, so a spill that only a Boost made keeps nothing. Receipts carry `sparksUnboosted`; the engine reads it (`CardEngine.baseSpill`) for player Collects, Long Fuse repeats and card gains.
+- **Vanguard and Old Friend** now fire on a Collect only (their proposals say "Any" without naming a Trigger; the common adder convention applies). Chip and condition read "Collect".
+- **Chameleon (new)** skips growth cards (Growth Ring, any permanent-gain or tally card, anything at Finish): text "...on any Trigger (not growth cards)". `isGrowthEffectCard` in `skill-cards.mjs`.
+- **Card-sent Pulses are real Pulses.** Every Pulse a card sends (First Catch, Close Call, Ember Bell, Low Ember, a Timer's return, and the Bell Inscription) makes a real light ring from the wisp when a card to its right hears Pulses. The ring is tagged with the sender's Slot, so on crossing an uncollected Spark only Pulse cards to the right pay (Resonant Harvest, First Ripple, Far Shore, Ripple Glass and the rest); the sender and cards to its left do not, and Sparks and Overfills that crossing makes are heard only to the right of the sender, so a Pulse cannot loop back to its Bell. A Timer's return (Slot -1) reaches the whole Chain. No ring is made when nobody to the right hears it. It needs a real uncollected Spark to pay: no Spark, no payout.

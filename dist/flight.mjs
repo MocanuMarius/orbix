@@ -1540,9 +1540,10 @@ export class WispFlight {
     if(this.cardEngine&&!engine){
       // Engine cards hear the Chain's Sparks on a Trigger from flying (whole Chain); Long Fuse repeats this firing.
       if(receipt.steps.some(step=>step.success))this.cardEngineLastFiring={kind,detail:{...detail}};
-      if(gain>0)raiseFlightEngine(this,'gain',{amount:gain/CARD_UNIT});
+      const origin=Number.isInteger(detail.fromSlot)&&detail.fromSlot>=0?{fromSlot:detail.fromSlot}:{};
+      if(gain>0)raiseFlightEngine(this,'gain',{amount:gain/CARD_UNIT,...origin});
       const spill=receipt.sparks-gain/CARD_UNIT;
-      if(spill>1e-9)raiseFlightEngine(this,'overfill',{spill});
+      if(spill>1e-9)raiseFlightEngine(this,'overfill',{spill,...origin});
     }
     return {receipt:liveReceipt,gain};
   }
