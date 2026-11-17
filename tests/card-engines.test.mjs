@@ -18,7 +18,7 @@ const row = ids => ids.map((id, i) => id ? makeSkillCard(id, `e${i}`) : null);
 const CHIME = ['first-catch', 'spark-chime', 'ember-bell', 'slow-wick'];
 const MILL = ['close-call', 'metronome', 'body-spark', 'overflow-bell'];
 // Batch 1 position cards (tests/cards-batch-1.test.mjs) are unreleased too but are ordinary Chain cards, not engine cards.
-const BATCH_1 = ['keystone', 'vanguard', 'bookends', 'empty-chair', 'ladder', 'twin-flame', 'spill-jar'];
+const BATCH_1 = ['keystone', 'vanguard', 'bookends', 'empty-chair', 'ladder', 'twin-flame', 'spill-jar', 'scar-tissue', 'collectors-ledger', 'old-friend']; // batch 1 and batch 2 (cards-batch-2.test.mjs)
 const UNRELEASED = Object.values(SKILL_CARDS).filter(def => def.unreleased && !BATCH_1.includes(def.id)).map(def => def.id);
 const near = (a, b, eps = 1e-6, msg) => assert.ok(Math.abs(a - b) < eps, msg || `${a} != ${b}`);
 /** A pure engine on an uncapped (or given) meter, driven by hand. */

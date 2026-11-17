@@ -162,6 +162,8 @@ function cleanCard(card, seen) {
     // A Devour card's running total (Black Hole, Dream), written only once it has eaten something.
     ...(def.kind === 'black-hole' && integer(card.eaten) ? { eaten: integer(card.eaten), eatenGrowth: integer(card.eatenGrowth) } : {}),
     ...(def.kind === 'dream' && integer(card.eaten) ? { eaten: integer(card.eaten), eatenGrowth: Math.min(DREAM_MAX_BONUS_SECONDS, Math.max(0, Math.round(Number(card.eatenGrowth) * 2) / 2 || 0)) } : {}),
+    // Scar Tissue, Collector's Ledger, Old Friend: what the card has counted (batch 2).
+    ...(def.tallyEvent && integer(card.tally) ? { tally: integer(card.tally) } : {}),
     ...(def.edition && integer(card.edition) ? { edition: integer(card.edition) } : {}),
   };
 }
@@ -879,7 +881,7 @@ export function getCardRowRule(def, card) {
 export function hasCardRowEvent(runtime, kind) {
   return getEffectiveCardSources(runtime).some(({def,source}) => {
     const row=getCardRowRule(def,source);
-    return row && (row.event===kind || (row.event==='*' && row.operation==='add-sparks'));
+    return def.tallyEvent === kind || (row && (row.event===kind || (row.event==='*' && row.operation==='add-sparks')));
   });
 }
 export function matchesRowCondition(when = {}, event, pass, slot, lastOccupied) {
@@ -908,6 +910,9 @@ export function positionAmount(rule, cards, slot, amount) {
   if (rule.firstSlotAmount !== undefined && slot === 0) amount = Number(rule.firstSlotAmount) || 0;
   if (rule.perEmptySlot) amount = rule.perEmptySlot * cards.filter(card => !card).length;
   if (rule.perCardLeft) amount = rule.perCardLeft * cards.slice(0, slot).filter(Boolean).length;
+  const tally = integer(cards[slot]?.tally);
+  if (rule.perTally) amount = rule.perTally * tally;
+  if (rule.growEvery) amount += Math.floor(tally / rule.growEvery);
   return amount;
 }
 /** Keystone: a card next to one fires twice. */
@@ -1191,6 +1196,8 @@ export function resolveCardRow(runtime, event = {}) {
     card.boostedBy = [...new Set(card.boostedBy)];
     for (const rewardKind of CARD_REWARD_KINDS) card.boostedByKind[rewardKind] = [...new Set(card.boostedByKind[rewardKind])];
   }
+  // Counting cards (batch 2) count the event once it is resolved, so a payout never includes its own event.
+  for (const card of cards) if (card && SKILL_CARDS[card.cardId]?.tallyEvent === kind) card.tally = integer(card.tally) + 1;
   receipt.cards = ledgerCards;
   runtime.executions = (runtime.executions || 0) + receipt.executions;
   receipt.charges = getCardCharges(runtime);
@@ -1206,6 +1213,23 @@ export const previewCardRowEvent = previewCardRow;
 export function executeCardBodyPickup(runtime) {
   const receipt = resolveCardRow(runtime, { kind: CARD_ROW_EVENTS.body });
   return { bonus: receipt.sparks * CARD_UNIT, executions: receipt.executions, charges: receipt.charges, trace: receipt };
+}
+/** The count a counting card shows on its face, like Black Hole's "Devoured N": '' for any other card. */
+export function cardTallyLine(card) {
+  const def = SKILL_CARDS[card?.cardId || card?.id];
+  if (!def?.tallyEvent) return '';
+  const n = integer(card.tally);
+  if (def.kind === 'scar-tissue') return `Saves ${n} · +${n} per Collect`;
+  if (def.kind === 'collectors-ledger') return `Deliveries ${n} · +${1 + Math.floor(n / 10)} now`;
+  if (def.kind === 'old-friend') return `Flights ${n} · +${n} now`;
+  return '';
+}
+/** What each counting card has counted so far, by instance (flight results carry it back to the run). */
+export const getCardTallies = runtime => Object.fromEntries((runtime?.cards || []).filter(card => card && integer(card.tally)).map(card => [card.instanceId, integer(card.tally)]));
+/** Write counts back onto the mounted run cards. Counts only grow, and only cards still in the Chain keep one. */
+export function commitCardTallies(run, tallies) {
+  if (!isCardRun(run) || !tallies) return;
+  for (const card of run.mountedCards || []) if (card && SKILL_CARDS[card.cardId]?.tallyEvent && integer(tallies[card.instanceId]) > integer(card.tally)) card.tally = integer(tallies[card.instanceId]);
 }
 export function commitCardCharges(run, charges) {
   if (!isCardRun(run) || !charges) return [];

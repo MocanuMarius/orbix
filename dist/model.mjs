@@ -1,7 +1,7 @@
 import {PRACTICE_EDITION,LEGACY_PRACTICE_EDITION,isPlayablePractice,isPracticeCourseRun,loanPracticeCards,practiceModifiers,preparePracticeStop} from './practice-route.mjs?v=guide-clarity-1';
 import {PRACTICE_STOPS,practiceLessonTopics} from './practice-course.mjs?v=guide-clarity-1';
 import {prepareScoreLedger,awardScoreStores,awardSettledScoreStores,freezeCompletedGameScore,recordCompletedGameScore} from './game-score.mjs?v=guide-clarity-1';
-import {getCardChargeCapacity,getCardFeederCapacity,getEmberFeederTargets,consumeCardUseDoublers} from './skill-cards.mjs?v=guide-clarity-1';
+import {commitCardTallies,getCardTallies,getCardChargeCapacity,getCardFeederCapacity,getEmberFeederTargets,consumeCardUseDoublers} from './skill-cards.mjs?v=guide-clarity-1';
 import {consumeBlackHoles} from './card-black-hole.mjs?v=guide-clarity-1';
 import {CARD_UNIT as ENGINE_CARD_UNIT} from './skill-cards.mjs?v=guide-clarity-1';
 import {collectorPreference,learnedCollectorPreferences} from './collector-preferences.mjs?v=guide-clarity-1';
@@ -528,6 +528,7 @@ const cardCheckpoint = canManageCards;
 export function syncCardFlightForEdit(run, engine) {
   if (!pausedCardFlight(run, engine) || run.banked || run.lives <= 0) return false;
   commitCardCharges(run, engine.getCardChargeLedger());
+  commitCardTallies(run, getCardTallies(engine.cardExecution));
   run.flame = Math.min(engine.flame, getGlowCapacity(run));
   liveCardEdits.set(run, engine);
   return true;
@@ -1341,6 +1342,7 @@ export function finishFlight(run,result){
  const n=run.current,attempt=run.attemptEntry;
  if(isCardRun(run)&&!run.isTutorial&&!result.dreamAttempt&&count(result.cardHeartsRestored)>0)
   run.lives=Math.min(getLifeCapacity(run),Math.max(run.lives,finite(attempt?.practiceLives,run.lives)+count(result.cardHeartsRestored)));
+ commitCardTallies(run,result.cardTallies);
  const consumedCards=[...(attempt?.cardUseDoublings||[]).map(grant=>grant.sourceInstanceId),...(attempt?.cardBlackHoleMeals||[]).map(meal=>meal.victimInstanceId),...commitCardCharges(run,result.cardCharges)];
  if (isCardRun(run)) {
   recordCardEvent(run, 'attempt', {
@@ -1486,7 +1488,7 @@ export function finishFlight(run,result){
    run.cardClearReceipts.push(receipt);run.lastFlight.cardClearReceipt=receipt;
    if(receipt.stored){queue(run,receipt.stored,'card-clear');run.condensedEarned+=receipt.stored;}
    run.cardFutureCapacity=cleanCardFutureCapacity(run.cardFutureCapacity)+receipt.futureCapacity;
-   consumedCards.push(...commitCardCharges(run,row.charges));
+   consumedCards.push(...commitCardCharges(run,row.charges));commitCardTallies(run,getCardTallies(runtime));
    recordCardEvent(run,'flight-clear',{stored:receipt.stored,futureCapacity:receipt.futureCapacity,cruisingSpeed:receipt.cruisingSpeed,charges:row.charges});
   }
   const rewardKey = `${run.mapIndex}:${n.id}`;

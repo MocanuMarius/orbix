@@ -97,7 +97,7 @@ test('every numeric catalog rule produces its declared effect on a matching exec
   };
   for (const def of Object.values(CARD_CATALOG)) {
     const card = makeSkillCard(def.id, `row:${def.id}`), rule = getCardRowRule(def, card);
-    if (!rule) continue;
+    if (!rule || def.tallyEvent) continue; // counting cards pay from their own count: tests/cards-batch-2.test.mjs
     const kind = rule.event === '*' ? 'body-spark' : rule.event,
       event = { kind, firstCrossing: rule.when?.firstCrossing ?? true,
         pickupKind: rule.when?.pickupKind || 'light', meterFraction: 0.1,

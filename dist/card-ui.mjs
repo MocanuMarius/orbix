@@ -39,6 +39,7 @@ import {
   getCardFeederCapacity,
   isInventoryOnlyCard,
   SKILL_CARDS,
+  cardTallyLine,
 } from "./skill-cards.mjs?v=guide-clarity-1";
 
 const esc = (v) =>
@@ -211,7 +212,7 @@ function faceBadges(card, compact) {
   const def = SKILL_CARDS[card.cardId || card.id] || {};
   const chip = getCardTrigger(card, def);
   const tally = isDevourCard(card) ? devourTally(card) : null, dreamTally = def.kind === 'dream';
-  return `<span class="card-tbadge-row">${chipBadge(chip, { cls: 'card-tbadge' })}</span>${rarityPips(rarity(card))}${tally && (!compact || tally.eaten) ? `<span class="card-bh-tally"><b>Devoured ${tally.eaten}</b> · ${dreamTally ? `Dream ${8 + tally.growth} s` : `+${tally.growth}${compact ? '' : ' max Sparks'}`}</span>` : ''}`;
+  return `<span class="card-tbadge-row">${chipBadge(chip, { cls: 'card-tbadge' })}</span>${rarityPips(rarity(card))}${cardTallyLine(card) ? `<span class="card-bh-tally"><b>${cardTallyLine(card)}</b></span>` : ''}${tally && (!compact || tally.eaten) ? `<span class="card-bh-tally"><b>Devoured ${tally.eaten}</b> · ${dreamTally ? `Dream ${8 + tally.growth} s` : `+${tally.growth}${compact ? '' : ' max Sparks'}`}</span>` : ''}`;
 }
 export function cardFace(card, { compact = false, fitted = false, slot = null, selected = false, status = null, sightWarning = '', availability = null } = {}) {
   if (!card) return `<article class="skill-card empty-card"><div class="card-empty-art">+</div><h3>Empty slot${slot === null ? '' : ` ${slot + 1}`}</h3></article>`;

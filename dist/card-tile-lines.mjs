@@ -3,7 +3,7 @@
 // to fit. Same meaning, approved vocabulary, about 22 characters at most. The full line is always on the
 // opened card. Moved from the design lab's TILE_SHORT table (56 cards) with the Pulse wording applied.
 import {getCardRuleBands} from './card-rule-bands.mjs?v=guide-clarity-1';
-import {SKILL_CARDS, describeSkillCard} from './skill-cards.mjs?v=guide-clarity-1';
+import {SKILL_CARDS, describeSkillCard, cardTallyLine} from './skill-cards.mjs?v=guide-clarity-1';
 
 export const CARD_TILE_LINES = Object.freeze({
   'climb': 'Lifts 2 and 3 free', 'watchlight': 'Collector saves you', 'springboard': 'Collect: free bounce',
@@ -32,6 +32,7 @@ export const CARD_TILE_LINES = Object.freeze({
 /** The line a Deck tile shows: the tile form when the card has one, else its real effect line. */
 export function cardTileLine(card) {
   const id = card?.cardId || card?.id;
+  if (cardTallyLine(card)) return cardTallyLine(card);
   if (CARD_TILE_LINES[id]) return CARD_TILE_LINES[id];
   const def = SKILL_CARDS[id];
   const effect = def ? getCardRuleBands(card, def).find(band => band.type === 'effect')?.text : '';

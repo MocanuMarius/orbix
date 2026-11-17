@@ -230,7 +230,7 @@ test('every declarative catalog rule executes with its exact approved event and 
     'downbeat-lift':'downbeat','collector-delivery':'courier-tip','rhythm-phrase':'toll-bell',
     'field-swipe':'springboard','guard-rescue':'home-beacon','flight-clear':'growth-ring',
   };
-  for(const def of Object.values(SKILL_CARDS).filter(d=>d.row)){
+  for(const def of Object.values(SKILL_CARDS).filter(d=>d.row&&!d.tallyEvent)){ // counting cards: tests/cards-batch-2.test.mjs
     const kind=def.row.event==='*'?CARD_ROW_EVENTS.body:def.row.event;
     const rows=[];
     if(['multiply','add-last-payout','multiply-future-capacity'].includes(def.row.operation)||def.row.minimumEarlierPayers||def.row.perCardLeft){

@@ -42,7 +42,7 @@ import {musicReactivity} from './music.mjs?v=guide-clarity-1';
 import {liftGuideAudioPhase} from './lift-guide-audio.mjs?v=guide-clarity-1';
 import {LuminanceWaves,revealLuminanceWaves} from './luminance-waves.mjs?v=guide-clarity-1';
 import {CardRhythm} from './card-rhythm.mjs?v=guide-clarity-1';
-import {CARD_UNIT,CARD_ROW_EVENTS,createCardExecution,resolveCardRow,hasCardRowEvent,getCardCharges,getCardPackingBonus,getEffectiveCardSources,getCardBoostFactors} from './skill-cards.mjs?v=guide-clarity-1';
+import {CARD_UNIT,CARD_ROW_EVENTS,createCardExecution,resolveCardRow,hasCardRowEvent,getCardCharges,getCardTallies,getCardPackingBonus,getEffectiveCardSources,getCardBoostFactors} from './skill-cards.mjs?v=guide-clarity-1';
 import {drawWispBody,makeWispSprite,makeCompanionSprite,WISP_ART} from './companion-art.mjs?v=guide-clarity-1';
 import {drawBlackHoles} from './black-hole-art.mjs?v=guide-clarity-1';
 import {drawCapture, drawShellPuff, drawCarriedSpark,drawCollectorGrip} from './capture-art.mjs?v=guide-clarity-1';
@@ -1502,6 +1502,10 @@ export class WispFlight {
       card.charges = Math.min(card.charges, charges[card.instanceId] ?? card.charges);
       this.cardChargeLedger[card.instanceId] = card.charges;
     }
+    for (const card of next.cards) { // counts only grow, so a rebuilt row never loses what the flight has counted
+      const was = this.cardExecution?.cards?.find(old => old?.instanceId === card?.instanceId)?.tally;
+      if (card && Number(was) > (Number(card.tally) || 0)) card.tally = Math.floor(was);
+    }
     next.executions = executions;
     next.eventSequence=this.cardExecution?.eventSequence||this.cardRowSequence;
     next.lastTrace=this.cardRowTrace;
@@ -2564,7 +2568,7 @@ export class WispFlight {
       canFlap: this.alive && !this.finished && !this.dying && !this.completing && canAffordFlap,
       canAffordFlap, flaps: this.flaps,
       artifactEffects:artifacts,artifactProc:artifacts.proc,artifactCharges:artifacts.charges,artifactNotices:artifacts.notices,
-      cardCharges:this.getCardChargeLedger(),cardExecutions:this.cardExecutions,cardRhythm:this.cardRhythm?.state||null,
+      cardCharges:this.getCardChargeLedger(),cardTallies:getCardTallies(this.cardExecution),cardExecutions:this.cardExecutions,cardRhythm:this.cardRhythm?.state||null,
       cardRowTrace:this.cardRowTrace,cardRowSequence:this.cardRowSequence,cardWatchlightUsed:this.cardWatchlightUsed,
       cardPackingLedger:1,cardPackingRemainder:this.cardPackingRemainder,
       ...(this.cardEngine?{cardEngine:{...this.cardEngine.state,stored:this.cardEngineStored,pack:this.cardPack}}:{}),
@@ -2645,7 +2649,7 @@ export class WispFlight {
       ...(this.cardEngine?{cardEngineTurns:this.cardEngine.turn,cardEngineStored:success&&this.alive?this.cardEngineStored:0,cardPack:success&&this.alive&&this.cardPack?{...this.cardPack}:null}:{}),
       lives:this.lives,cardHeartsRestored:this.cardHeartsRestored,
       artifactActivations: {...this.artifactEffects.activationCounts},
-      flame: this.flame,artifactCharges:{...this.artifactEffects.charges},cardCharges:this.getCardChargeLedger(),cardExecutions:this.cardExecutions,deathPosition:!success?this.deathPosition||null:null,
+      flame: this.flame,artifactCharges:{...this.artifactEffects.charges},cardCharges:this.getCardChargeLedger(),cardTallies:getCardTallies(this.cardExecution),cardExecutions:this.cardExecutions,deathPosition:!success?this.deathPosition||null:null,
       score: Math.floor(this.score), collected: this.baseEmbers, bodyFuelCollected: this.bodyFuelCollected,bodyPickups:this.bodyPickups,collectorPickups:this.collectorPickups, collisions: this.collisions,
       boosts: this.boosts,
       routeBonus:this.routeObjective?.state || null,

@@ -279,6 +279,17 @@ const cards = [
     engine: { family: 'maker', hears: ['overfill'], does: ['keep'], keepShare: 0.5 },
     help: 'Kept Sparks become Stored Sparks, so no Boost changes them. Half is rounded down. A Spark you collect that overfills keeps nothing more: its spill already packs.',
     ruleBands: [{ type: 'condition', text: 'Overfill', trigger: 'overfill' }, { type: 'effect', text: 'Half of every spilled Spark becomes a Stored Spark' }] },
+  // Batch 2 (docs/card-proposals.md sections 6 and 7). Unreleased, no picture yet. What a card counts is its `tally`,
+  // stored on the card instance and gone when the card leaves the Chain (tallyEvent counts; perTally / growEvery pay).
+  { id: 'scar-tissue', name: 'Scar Tissue', rarity: 'common', kind: 'scar-tissue', unreleased: true, amount: 0, copyable: false, maxRank: 1, excludeStarter: true, artFamily: 'camp-kit', tallyEvent: 'guard-rescue', row: { event: 'body-spark', operation: 'add-sparks', amount: 0, perTally: 1 }, trigger: 'collect',
+    help: 'Counts the Saves while it is in your Chain. The count is on the card and goes with it.',
+    ruleBands: [{ type: 'condition', text: 'Collect', trigger: 'collect' }, { type: 'effect', text: '+1 Spark for each Save this run' }] },
+  { id: 'collectors-ledger', name: 'Collector’s Ledger', rarity: 'rare', kind: 'collectors-ledger', unreleased: true, amount: 1, copyable: false, maxRank: 1, excludeStarter: true, artFamily: 'cache-handling', tallyEvent: 'collector-delivery', row: { event: 'collector-delivery', operation: 'add-sparks', amount: 1, growEvery: 10 }, trigger: 'delivery',
+    help: 'Counts the Deliveries while it is in your Chain. The count is on the card and goes with it.',
+    ruleBands: [{ type: 'condition', text: 'Delivery', trigger: 'delivery' }, { type: 'effect', text: '+1 Spark. Grows by +1 after every 10 Deliveries this run' }] },
+  { id: 'old-friend', name: 'Old Friend', rarity: 'common', kind: 'old-friend', unreleased: true, amount: 0, copyable: false, maxRank: 1, excludeStarter: true, artFamily: 'rhythm', tallyEvent: 'flight-clear', row: { event: '*', operation: 'add-sparks', amount: 0, perTally: 1 }, trigger: 'any',
+    help: 'Counts each flight you clear with it in your Chain. The count is on the card, so Melting or swapping it out loses the count.',
+    ruleBands: [{ type: 'condition', text: 'Any Trigger', trigger: 'any' }, { type: 'effect', text: '+1 Spark for each flight this card has stayed in your Chain' }] },
 ];
 
 const freeze = value => {
