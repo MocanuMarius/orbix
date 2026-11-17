@@ -174,7 +174,11 @@ export function settleCardReward(run) {
 }
 export function cleanCardRun(run) {
   if (!isCardRun(run)) return;
-  run.cardTwinWickUnlocked = run.cardTwinWickUnlocked === true;
+  // Old saves: Twin Wick once unlocked a run-wide second Collector. Trade the flag for a full card.
+  if ('cardTwinWickUnlocked' in run) {
+    delete run.cardTwinWickUnlocked;
+    for (const card of [...(run.mountedCards || []), ...(run.reserveCards || [])]) if (card?.cardId === 'twin-wick') card.charges = 4;
+  }
   run.cardFutureCapacity = cleanCardFutureCapacity(run.cardFutureCapacity);
   // Written only by a Black Hole meal, so saves without one stay byte-identical.
   if (run.cardBlackHoleGrowth !== undefined) run.cardBlackHoleGrowth = cleanCardFutureCapacity(run.cardBlackHoleGrowth);
@@ -534,7 +538,7 @@ function effectiveCardSummary(kind, sources, cards) {
     dream: "After a committed Rest, or before an Elite or Guardian: rehearse 8 seconds in full light with free Lifts. Wake at the opening’s end, paused. Extra cards keep one 8-second Dream; copying cards cannot copy it.",
     "cache-handling": "Collector can fetch Caches. A delivered Cache gives 12 Sparks. Extra cards keep that same delivery.",
     "twin-orbit": "Two Collectors fetch and reel independently while equipped. Maximum 2; only the first keeps fatal-impact saves.",
-    "twin-wick": "One use unlocks a second Collector for this journey. At most 2; it keeps its use while Twin Orbit already gives the second.",
+    "twin-wick": "4 uses. Each flight with this mounted spends one: fly with 2 Collectors. At most 2; no use is spent while Twin Orbit already gives the second.",
     "collector-range": "Only extra catches beyond normal reach spend a use. The shortest sufficient extension pays once; copies share uses and extensions do not stack.",
     "camp-extra": "Take 2 different Rest actions at one Rest. The second one spends 1 use from one Second Ember.",
   };
@@ -1218,7 +1222,6 @@ export function getCardModifiers(run) {
     cardCacheHandling: false,
     cardTwinOrbit: false,
     cardTwinWick: false,
-    cardTwinWickUnlocked: false,
     cardFlashHandling: false,
     cardFlashSources: 0,
     cardFlashMeter: 0,
@@ -1237,7 +1240,6 @@ export function getCardModifiers(run) {
   m.dreamDuration = 0;
   m.dreamWake = 3;
   m.dreamSight = false;
-  m.cardTwinWickUnlocked = run.cardTwinWickUnlocked === true;
   m.cardPackingRemainder = integer(run.cardPackingRemainder, 3);
   m.cardExecution = { cards: clone(run.mountedCards || []) };
   // Always-on bonuses are strengthened by Boosts to their right (Boost rules, details A–F).

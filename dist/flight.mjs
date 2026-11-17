@@ -915,7 +915,7 @@ export class WispFlight {
     this.distanceOrigin=98-this.player.x;this.distance=this.distanceOrigin;
     this.wisp = new WispCompanion(wispHome(this.player, this.time));
     this.collectors=[this.wisp];
-    this.cardTwinWickUnlocked=this.mod.cardTwinWickUnlocked===true;
+    this.twinWickSource=null;this.twinWickLastUse=false;
     this.syncCollectors();
     this.previousPlayerY = this.player.y; this.previousDistance = this.distance;
     this.visualBank = 0; this.wingPhase = 0;
@@ -1508,7 +1508,6 @@ export class WispFlight {
     this.cardExecution = next.cards.some(Boolean) ? next : null;
     syncFlightEngine(this);
     this.mod = { ...this.mod, ...modifiers };
-    this.cardTwinWickUnlocked ||= modifiers.cardTwinWickUnlocked===true;
     this.syncCollectors();
     if(!this.mod.collectorFieldImpulse)this.fieldImpulse=null;
     this.condensedStart = Math.max(0, Math.floor(condensedGlow));
@@ -1668,15 +1667,20 @@ export class WispFlight {
 
   syncCollectors(activate = false) {
     if(!this.collectors)return;
-    const source=this.cardExecution?.cards.find(card=>card?.cardId==='twin-wick'&&card.charges>0);
+    const cards=this.cardExecution?.cards||[];
+    const source=cards.find(card=>card?.cardId==='twin-wick'&&card.charges>0);
     const waking=!this.tutorial&&!this.options.practice&&!this.options.preview&&(!this.dream||this.dream.phase==='done');
     if(activate&&waking&&this.running&&!this.paused&&this.hasCompanion('collector')&&
-      !this.mod.cardTwinOrbit&&!this.cardTwinWickUnlocked&&source){
-      source.charges--;this.cardTwinWickUnlocked=true;
+      !this.mod.cardTwinOrbit&&!this.twinWickSource&&source){
+      // One use per flight: spend it now and remember which mounted card pays for the 2nd Collector.
+      source.charges--;this.twinWickSource=source.instanceId;this.twinWickLastUse=source.charges===0;
       this.getCardChargeLedger();
       this.activation('card-twin-wick',{label:'Twin Wick',outcome:{collectors:2}});
     }
-    const count=this.hasCompanion('collector')&&(this.mod.cardTwinOrbit||this.cardTwinWickUnlocked||source)?2:1;
+    // The effect lives on the card: it ends if the spending Twin Wick is no longer mounted.
+    // The final use is exhausted (and the card removed from the Chain) at once, yet still covers this whole flight.
+    if(this.twinWickSource&&!this.twinWickLastUse&&!cards.some(card=>card?.instanceId===this.twinWickSource))this.twinWickSource=null;
+    const count=this.hasCompanion('collector')&&(this.mod.cardTwinOrbit||this.twinWickSource||source)?2:1;
     while(this.collectors.length>count)this.collectors.pop().clear(this);
     while(this.collectors.length<count)this.collectors.push(new WispCompanion(wispHome(this.player),this.collectors.length));
   }
@@ -2560,7 +2564,7 @@ export class WispFlight {
       canFlap: this.alive && !this.finished && !this.dying && !this.completing && canAffordFlap,
       canAffordFlap, flaps: this.flaps,
       artifactEffects:artifacts,artifactProc:artifacts.proc,artifactCharges:artifacts.charges,artifactNotices:artifacts.notices,
-      cardCharges:this.getCardChargeLedger(),cardTwinWickUnlocked:this.cardTwinWickUnlocked,cardExecutions:this.cardExecutions,cardRhythm:this.cardRhythm?.state||null,
+      cardCharges:this.getCardChargeLedger(),cardExecutions:this.cardExecutions,cardRhythm:this.cardRhythm?.state||null,
       cardRowTrace:this.cardRowTrace,cardRowSequence:this.cardRowSequence,cardWatchlightUsed:this.cardWatchlightUsed,
       cardPackingLedger:1,cardPackingRemainder:this.cardPackingRemainder,
       ...(this.cardEngine?{cardEngine:{...this.cardEngine.state,stored:this.cardEngineStored,pack:this.cardPack}}:{}),
@@ -2641,7 +2645,7 @@ export class WispFlight {
       ...(this.cardEngine?{cardEngineTurns:this.cardEngine.turn,cardEngineStored:success&&this.alive?this.cardEngineStored:0,cardPack:success&&this.alive&&this.cardPack?{...this.cardPack}:null}:{}),
       lives:this.lives,cardHeartsRestored:this.cardHeartsRestored,
       artifactActivations: {...this.artifactEffects.activationCounts},
-      flame: this.flame,artifactCharges:{...this.artifactEffects.charges},cardCharges:this.getCardChargeLedger(),cardTwinWickUnlocked:this.cardTwinWickUnlocked,cardExecutions:this.cardExecutions,deathPosition:!success?this.deathPosition||null:null,
+      flame: this.flame,artifactCharges:{...this.artifactEffects.charges},cardCharges:this.getCardChargeLedger(),cardExecutions:this.cardExecutions,deathPosition:!success?this.deathPosition||null:null,
       score: Math.floor(this.score), collected: this.baseEmbers, bodyFuelCollected: this.bodyFuelCollected,bodyPickups:this.bodyPickups,collectorPickups:this.collectorPickups, collisions: this.collisions,
       boosts: this.boosts,
       routeBonus:this.routeObjective?.state || null,

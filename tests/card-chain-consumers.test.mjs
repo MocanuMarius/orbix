@@ -131,7 +131,7 @@ test('expanded use ceilings persist through normalization and eligible paid refi
   assert.equal(M.refillOwnedCard(state,'chain:1',quote.token),false);
   const restored=reload(state).run;assert.equal(restored.mountedCards[1].charges,12);
   assert.equal(getCardChargeCapacity(restored.mountedCards[1]),12);
-  run.reserveCards.push({...makeSkillCard('twin-wick','one-use'),charges:2,chargeCapacity:2});
+  run.reserveCards.push({...makeSkillCard('camp-kit','one-use'),charges:2,chargeCapacity:2});
   assert.equal(M.getCardRefillPreview(run,'one-use').supported,false,'doubling cannot make a one-shot refillable');
 });
 

@@ -49,44 +49,80 @@ test('removing Twin Orbit releases only the secondary load; its guard never dupl
  }finally{e.destroy();}
 });
 
-test('Twin Wick unlocks once in real flight and persists through loadout changes and save/reload',()=>{
+test('Twin Wick has 4 uses; each real flight spends one and only that flight has 2 Collectors',()=>{
  const e=flight(['twin-wick']);try{
-  assert.equal(charge(e,0),1);assert.equal(e.cardTwinWickUnlocked,false);e.syncCollectors(true);
-  assert.equal(charge(e,0),0);assert.equal(e.cardTwinWickUnlocked,true);
-  const run={skillSystem:CARD_SYSTEM,cardSlots:3,mountedCards:cards(['twin-wick']),reserveCards:[],cardTwinWickUnlocked:e.getState().cardTwinWickUnlocked};
-  M.commitCardCharges(run,e.getCardChargeLedger());assert.equal(run.mountedCards[0],null);
-  cleanCardRun(run);const loaded=JSON.parse(JSON.stringify(run));cleanCardRun(loaded);
-  assert.equal(getCardModifiers(loaded).cardTwinWickUnlocked,true);
-  e.paused=true;assert.ok(e.reconcileCardLoadout({modifiers:getCardModifiers(loaded),condensedGlow:0}));assert.equal(e.collectors.length,2);
-  const next=flight([],{modifiers:getCardModifiers(loaded)});try{assert.equal(next.collectors.length,2);}finally{next.destroy();}
-  const fresh=M.createRun(M.newState().profile,'fresh-after-wick',1,{cards:true});assert.equal(!!getCardModifiers(fresh).cardTwinWickUnlocked,false);
+  assert.equal(charge(e,0),4);e.syncCollectors(true);
+  assert.equal(charge(e,0),3);assert.equal(e.collectors.length,2);
+  for(let i=0;i<5;i++)e.syncCollectors(true);assert.equal(charge(e,0),3,'one use per flight');
+  const run={skillSystem:CARD_SYSTEM,cardSlots:3,mountedCards:cards(['twin-wick']),reserveCards:[]};
+  M.commitCardCharges(run,e.getCardChargeLedger());assert.equal(run.mountedCards[0].charges,3);
+  assert.equal('cardTwinWickUnlocked' in getCardModifiers(run),false);
+  const next=flight([],{modifiers:getCardModifiers({skillSystem:CARD_SYSTEM,mountedCards:[]})});try{assert.equal(next.collectors.length,1);}finally{next.destroy();}
+  const second=flight(['twin-wick']);try{second.cardExecution.cards[0].charges=3;second.syncCollectors(true);assert.equal(charge(second,0),2);assert.equal(second.collectors.length,2);}finally{second.destroy();}
  }finally{e.destroy();}
 });
 
-test('Wick preserves redundant uses and never spends during pause, preview, practice or Dream',()=>{
+test('Twin Wick effect ends when the spending card leaves the Chain',()=>{
+ const e=flight(['twin-wick']);try{
+  e.syncCollectors(true);assert.equal(e.collectors.length,2);
+  e.paused=true;assert.ok(e.reconcileCardLoadout({modifiers:getCardModifiers({skillSystem:CARD_SYSTEM,mountedCards:[]}),condensedGlow:0}));
+  assert.equal(e.collectors.length,1);
+ }finally{e.destroy();}
+});
+
+test('the 4th Twin Wick use keeps 2 Collectors for the whole flight, even after the card is committed away',()=>{
+ const state=M.newState();state.profile.tutorialComplete=true;state.run=M.createRun(state.profile,'wick-last-use',1,{cards:true});
+ const run=state.run;const wick=makeSkillCard('twin-wick','last-wick');wick.charges=1;run.mountedCards[0]=wick;
+ const node=M.getChoices(run).find(n=>n.type!=='support');assert.ok(M.selectNode(run,node.id));assert.ok(M.beginFlightAttempt(run));assert.ok(M.markFlightAttemptStarted(run));
+ const e=flight([],{seed:`${run.seed}-${node.id}`,modifiers:M.getRunModifiers(run)});try{
+  e.syncCollectors(true);assert.equal(e.getCardChargeLedger()['last-wick'],0);assert.equal(e.collectors.length,2);
+  e.paused=true;assert.ok(M.syncCardFlightForEdit(run,e));assert.equal(run.mountedCards[0],null,'card spent and gone from the Chain');
+  for(let i=0;i<5;i++){e.syncCollectors(true);assert.equal(e.collectors.length,2);}
+  assert.ok(M.closeCardFlightEdit(run,e));e.paused=false;
+  for(let i=0;i<5;i++)tick(e);assert.equal(e.collectors.length,2);
+  let result;e.onFinish=v=>{result=v;};e.finish(false);assert.ok(result);assert.ok(M.finishFlight(run,result));assert.equal(run.mountedCards[0],null);
+ }finally{e.destroy();}
+});
+
+test('a Twin Wick with 0 uses does nothing, and an unmounted one never applies',()=>{
+ const e=flight(['twin-wick']);try{
+  e.cardExecution.cards[0].charges=0;e.syncCollectors(true);assert.equal(e.collectors.length,1);assert.equal(charge(e,0),0);
+ }finally{e.destroy();}
+ const none=flight([]);try{none.syncCollectors(true);assert.equal(none.collectors.length,1);}finally{none.destroy();}
+});
+
+test('old saves: the run-wide Twin Wick flag is dropped and a mounted Wick is refilled to 4 uses',()=>{
+ const wick=makeSkillCard('twin-wick','old-wick');wick.charges=1;
+ const run={skillSystem:CARD_SYSTEM,cardSlots:3,mountedCards:[wick],reserveCards:[],cardTwinWickUnlocked:true};
+ cleanCardRun(run);assert.equal('cardTwinWickUnlocked' in run,false);assert.equal(run.mountedCards[0].charges,4);
+ const gone={skillSystem:CARD_SYSTEM,cardSlots:3,mountedCards:[],reserveCards:[],cardTwinWickUnlocked:true};
+ cleanCardRun(gone);assert.equal('cardTwinWickUnlocked' in gone,false);
+ const fresh=M.createRun(M.newState().profile,'fresh-after-wick',1,{cards:true});assert.equal('cardTwinWickUnlocked' in fresh,false);
+});
+
+test('Wick preserves uses while Twin Orbit is mounted and never spends during pause, preview, practice or Dream',()=>{
  const redundant=flight(['twin-orbit','twin-wick']);try{
-  redundant.syncCollectors(true);assert.equal(charge(redundant,1),1);assert.equal(redundant.cardTwinWickUnlocked,false);
+  redundant.syncCollectors(true);assert.equal(charge(redundant,1),4);assert.equal(redundant.collectors.length,2);
  }finally{redundant.destroy();}
  for(const mode of ['paused','preview','practice','dream','preflight']){
   const e=flight(['twin-wick'],{[mode]:true});try{
    if(mode==='paused')e.paused=true;if(mode==='dream')e.dream={phase:'recording'};if(mode==='preflight')e.running=false;
-   e.syncCollectors(true);assert.equal(charge(e,0),1,mode);assert.equal(e.cardTwinWickUnlocked,false,mode);
+   e.syncCollectors(true);assert.equal(charge(e,0),4,mode);
   }finally{e.destroy();}
  }
 });
 
-test('the real finish, pause and retry save paths retain a spent Wick unlock without restoring the card',()=>{
+test('the real finish and pause paths keep a spent Wick use and the run stores no run-wide flag',()=>{
  const state=M.newState();state.profile.tutorialComplete=true;state.run=M.createRun(state.profile,'wick-attempt-save',1,{cards:true});
  const run=state.run;run.mountedCards[0]=makeSkillCard('twin-wick','actual-wick');
  const node=M.getChoices(run).find(n=>n.type!=='support');assert.ok(M.selectNode(run,node.id));assert.ok(M.beginFlightAttempt(run));assert.ok(M.markFlightAttemptStarted(run));
  const e=flight([],{seed:`${run.seed}-${node.id}`,modifiers:M.getRunModifiers(run)});try{
-  e.syncCollectors(true);assert.equal(e.getCardChargeLedger()['actual-wick'],0);e.paused=true;
-  assert.ok(M.syncCardFlightForEdit(run,e));assert.equal(run.cardTwinWickUnlocked,true);assert.equal(run.mountedCards[0],null);
+  e.syncCollectors(true);assert.equal(e.getCardChargeLedger()['actual-wick'],3);e.paused=true;
+  assert.ok(M.syncCardFlightForEdit(run,e));assert.equal(run.mountedCards[0].charges,3);assert.equal('cardTwinWickUnlocked' in run,false);
   let data;const storage={getItem:()=>data,setItem:(_,value)=>{data=value;}};assert.ok(M.saveState(state,storage));
-  const loaded=M.loadState(storage);assert.equal(loaded.run.cardTwinWickUnlocked,true);assert.equal(loaded.run.mountedCards[0],null);
+  const loaded=M.loadState(storage);assert.equal(loaded.run.mountedCards[0].charges,3);
   e.paused=false;let result;e.onFinish=value=>{result=value;};e.finish(false);assert.ok(result);
-  assert.ok(M.finishFlight(run,result));assert.equal(run.cardTwinWickUnlocked,true);assert.equal(run.mountedCards[0],null);
-  assert.ok(M.selectNode(run,node.id));assert.ok(M.beginFlightAttempt(run));assert.equal(M.getRunModifiers(run).cardTwinWickUnlocked,true);
+  assert.ok(M.finishFlight(run,result));assert.equal(run.mountedCards[0].charges,3);assert.equal('cardTwinWickUnlocked' in run,false);
  }finally{e.destroy();}
 });
 
@@ -122,5 +158,5 @@ test('Collector card status explains missing Collector and the shared maximum',(
  const run={skillSystem:CARD_SYSTEM,companions:['protector'],mountedCards:cards(['twin-orbit','twin-wick','long-spool'])};
  assert.deepEqual(getEquippedCardStatuses(run).map(s=>s.state),['blocked','blocked','blocked']);
  run.companions=['collector'];assert.equal(getEquippedCardStatuses(run)[1].state,'shared');
- run.cardTwinWickUnlocked=true;assert.equal(getEquippedCardStatuses(run)[0].state,'shared');
+ run.mountedCards=cards(['twin-orbit','twin-orbit']);assert.equal(getEquippedCardStatuses(run)[1].state,'shared');
 });

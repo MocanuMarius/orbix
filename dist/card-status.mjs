@@ -82,7 +82,7 @@ export function getEquippedCardStatuses(run = {}, native = null) {
   const base = buildContext(run, native);
   // The 100-Spark meter ceiling: capacity from every source, before the cap.
   const rawCapacity = Array.isArray(run) ? 0 : getRawGlowCapacity(run);
-  const key = JSON.stringify([cards.map(card => card ? [card.instanceId, card.cardId, card.rank || 1, card.charges ?? null, card.chargeCapacity ?? null, card.fedCapacity ?? 0] : null), base, run.cardGrowUses || 0,run.cardTwinWickUnlocked===true, Math.round(rawCapacity * 1000)]);
+  const key = JSON.stringify([cards.map(card => card ? [card.instanceId, card.cardId, card.rank || 1, card.charges ?? null, card.chargeCapacity ?? null, card.fedCapacity ?? 0] : null), base, run.cardGrowUses || 0, Math.round(rawCapacity * 1000)]);
   if (key === lastKey) return lastResult;
   const sources = getEffectiveCardSources(cards);
   const has = kind => sources.some(entry => entry.def.kind === kind);
@@ -159,10 +159,10 @@ export function getEquippedCardStatuses(run = {}, native = null) {
     }
     if (['field', 'watchlight', 'cache-handling','twin-orbit','twin-wick','collector-range'].includes(kind) && !context.collector)
       return blocked('Needs Collector', 'This card uses Collector and its charge.', 'Choose Collector as your companion.', 'needs-collector');
-    if(kind==='twin-orbit'&&(run.cardTwinWickUnlocked||sources.some(entry=>entry.index<slot&&entry.def.kind==='twin-orbit')))
-      return shared('Second Collector already here','This journey or another Twin Orbit already gives you a second Collector. The most is 2.','two-collectors');
-    if(kind==='twin-wick'&&(run.cardTwinWickUnlocked||has('twin-orbit')||sources.some(entry=>entry.index<slot&&entry.def.kind==='twin-wick')))
-      return shared('Keeps its use for now','A second Collector is already here. Twin Wick keeps its use until it can unlock one for this journey.','use-kept');
+    if(kind==='twin-orbit'&&sources.some(entry=>entry.index<slot&&entry.def.kind==='twin-orbit'))
+      return shared('Second Collector already here','Another Twin Orbit already gives you a second Collector. The most is 2.','two-collectors');
+    if(kind==='twin-wick'&&(has('twin-orbit')||sources.some(entry=>entry.index<slot&&entry.def.kind==='twin-wick')))
+      return shared('Keeps its use for now','A second Collector is already here. Twin Wick keeps its uses until it is needed.','use-kept');
     if(kind==='collector-range'&&copy)
       return shared('Reach already covered','Copying the same reach card adds no reach or catches. The real card keeps its uses.','reach-covered');
     if (kind === 'camp-grow' && run.cardGrowUses >= 3)

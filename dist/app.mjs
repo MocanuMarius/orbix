@@ -1169,9 +1169,8 @@ function updateFlight(s){lastSnapshot=s;music.setFlight(s);hud?.activationFeedba
   if(hearts)hearts.outerHTML=livesMarkup(run);
  }
  if(isCardRun(run)&&!s.dream?.active&&s.cardCharges){
-  const unlocked=s.cardTwinWickUnlocked===true&&!run.cardTwinWickUnlocked;
   const changed=run.mountedCards.some(card=>card&&Number.isFinite(card.charges)&&Number.isFinite(s.cardCharges[card.instanceId])&&s.cardCharges[card.instanceId]<card.charges);
-  if(changed||unlocked||healed){run.cardTwinWickUnlocked ||= unlocked;commitCardCharges(run,s.cardCharges);persist();}
+  if(changed||healed){commitCardCharges(run,s.cardCharges);persist();}
  }
  updateGameSpeed(s);
  for(const [id,remaining] of Object.entries(s.artifactCharges||{})){

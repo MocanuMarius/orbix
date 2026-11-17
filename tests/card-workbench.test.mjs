@@ -107,9 +107,9 @@ test('replacement review prints both complete cards, exact destinations and live
   run.mountedCards[2].charges=2;run.reserveCards=[makeSkillCard('devourer','in')];
   const before=JSON.stringify(sample), markup=cardSwapMarkup(run,{id:'in',fromSlot:null,slot:0,expectedId:'out'});
   assert.equal((markup.match(/card-rule-band/g)||[]).length,2);
-  assert.match(markup,/Equipped now → Deck/);assert.match(markup,/1 use left/);
+  assert.match(markup,/Equipped now → Deck/);assert.match(markup,/4 uses left/);
   // Approved plain wording (v1.0-cardtext) and plain status instructions.
-  assert.doesNotMatch(markup,/Its ability stops/);assert.match(markup,/Unlocks a 2nd Collector/);assert.match(markup,/Eats the next Rare card/);
+  assert.doesNotMatch(markup,/Its ability stops/);assert.match(markup,/Fly with 2 Collectors/);assert.match(markup,/Eats the next Rare card/);
   assert.match(markup,/eats Edge Reach in Slot 2/);assert.match(markup,/Full hearts keep it/);
   assert.match(markup,/card-swap-back/);assert.match(markup,/Equip Devourer/);
   assert.equal(JSON.stringify(sample),before,'comparison never edits or spends cards');
