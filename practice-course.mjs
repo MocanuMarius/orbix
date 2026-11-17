@@ -3,9 +3,9 @@
 // exit). These hooks only calm it and place the one taught element where the
 // lesson needs it. Lessons are returned as paused coach steps; this module
 // never pauses, draws text or grants anything outside practice.
-import {obstacleEdgeClearance} from './edging-pulse.mjs?v=clips-1';
-import {formatGlow} from './vitality.mjs?v=clips-1';
-import {FLASH_BASE_DURATION} from './pickups.mjs?v=clips-1';
+import {obstacleEdgeClearance} from './edging-pulse.mjs?v=pulse-2';
+import {formatGlow} from './vitality.mjs?v=pulse-2';
+import {FLASH_BASE_DURATION} from './pickups.mjs?v=pulse-2';
 
 const clamp=(n,lo,hi)=>Math.max(lo,Math.min(hi,n));
 /** Free flight before the first in-flight stop, and between stops (simulated seconds). */
@@ -241,6 +241,12 @@ export function practiceCollectorResting(engine){
 }
 
 const onScreen=(engine,x,margin=30)=>{const sx=x-engine.distance;return sx>engine.player.x+30&&sx<engine.width-margin;};
+/** A lesson may point at a world object only when the player can actually see it: on screen with margin and inside the lit radius. */
+export const litForPlayer=(engine,p,margin=30)=>{
+ if(!p||!onScreen(engine,p.x,margin)||!(p.y>=0&&p.y<=engine.height))return false;
+ const radius=Number(engine.getLightState?.()?.radius);
+ return !Number.isFinite(radius)||Math.hypot(p.x-engine.distance-engine.player.x,p.y-engine.player.y)<=radius;
+};
 /** Per-step staging and trigger bookkeeping (no text, no pause). */
 export function updatePracticeCourse(engine,dt){
  const state=engine?.tutorial,plan=state?.plan;if(!state?.course||!plan||!(dt>0))return;
@@ -261,9 +267,9 @@ export function updatePracticeCourse(engine,dt){
   if(!placed)p.stagedSide=null;
  }
  for(const p of engine.layout.embers)if(p.stagedMiss&&(p.attracted||p.carried))p.stagedDone=true;
- if(plan.lesson==='course-lift'&&t>=PRACTICE_STOP_SPACING&&plan.lessonSparks?.some(p=>!p.collected&&onScreen(engine,p.x)))mark('practice:sparks');
+ if(plan.lesson==='course-lift'&&t>=PRACTICE_STOP_SPACING&&plan.lessonSparks?.some(p=>!p.collected&&litForPlayer(engine,p)))mark('practice:sparks');
  if(plan.lesson==='course-collector'&&t>=PRACTICE_STOP_SPACING&&['outbound','returning','reeling'].includes(wisp?.phase)&&cargo)mark('practice:collector-fetch');
- if(plan.lesson==='course-light'&&t>=PRACTICE_STOP_SPACING&&plan.flashes?.[0]&&!plan.flashes[0].collected&&onScreen(engine,plan.flashes[0].x))mark('practice:flash');
+ if(plan.lesson==='course-light'&&t>=PRACTICE_STOP_SPACING&&plan.flashes?.[0]&&!plan.flashes[0].collected&&litForPlayer(engine,plan.flashes[0]))mark('practice:flash');
  if(plan.lesson==='course-edge'&&t>=PRACTICE_STOP_SPACING&&plan.lanes?.[0]?.some(p=>!p.collected&&onScreen(engine,p.x,60)))mark('practice:proximity');
  if(plan.lesson==='course-chain'&&t>=PRACTICE_STOP_SPACING&&plan.holes?.[0]&&onScreen(engine,plan.holes[0].x,40))mark('practice:black-hole');
  if(plan.lesson==='course-finale'){
@@ -279,6 +285,8 @@ export function updatePracticeCourse(engine,dt){
  }
 }
 
+// Black holes are drawn hazards (own glow), not darkness-hidden pickups, so they keep the on-screen test.
+const POINTS_AT_WORLD=new Set(['practice:sparks','practice:flash']);
 /** The in-flight lesson that may stop the flight now, or null. Spacing is enforced here. */
 export function practiceCourseLesson(engine,run={}){
  const state=engine?.tutorial;if(!state?.course||engine.tutorialAwaitingLift||run?.guideSkipped)return null;
@@ -287,7 +295,10 @@ export function practiceCourseLesson(engine,run={}){
  const stop=stopFor(state.lesson);if(!stop)return null;
  for(const id of stop.flight||[]){
   if(run?.guideSeen?.[id]||state.ready?.[id]===undefined)continue;
-  return practiceLessonStep(id,{engine,point:lessonPoint(engine,id)});
+  const point=lessonPoint(engine,id);
+  // A lesson that points at a world object waits until that object is lit and on screen.
+  if(!point&&POINTS_AT_WORLD.has(id))continue;
+  return practiceLessonStep(id,{engine,point});
  }
  return null;
 }
@@ -299,7 +310,7 @@ export function pendingCourseLesson(engine,run={}){
 }
 function lessonPoint(engine,id){
  const plan=engine.tutorial.plan||{},sx=x=>x-engine.distance;
- const first=list=>list?.find(p=>!p.collected&&sx(p.x)>engine.player.x&&sx(p.x)<engine.width-12);
+ const first=list=>list?.find(p=>!p.collected&&litForPlayer(engine,p,12));
  if(id==='practice:sparks'){const p=first(plan.lessonSparks);return p?{x:sx(p.x),y:p.y,radius:22}:null;}
  if(id==='practice:flash'){const p=first(plan.flashes);return p?{x:sx(p.x),y:p.y,radius:24}:null;}
  if(id==='practice:black-hole'){const h=plan.holes?.find(h=>sx(h.x)>0&&sx(h.x)<engine.width);return h?{x:sx(h.x),y:h.y,radius:34}:null;}

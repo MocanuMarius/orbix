@@ -5,8 +5,8 @@
 //   spent card    dim hollow outline;  empty slot  faint hollow outline
 //   Inscription   2 px bar under the shape (dashed = temporary); flashes white when the Inscription itself acts
 // This file is the pure part (no DOM): slot colours, the firing marks the flight raises, and the state machine the view reads.
-import {SKILL_CARDS} from './skill-cards.mjs?v=clips-1';
-import {getInscription} from './inscriptions.mjs?v=clips-1';
+import {SKILL_CARDS} from './skill-cards.mjs?v=pulse-2';
+import {getInscription} from './inscriptions.mjs?v=pulse-2';
 
 export const STRIP = Object.freeze({flashMs: 450, reducedFlashMs: 200, doubleMs: 560, idleMs: 3000, fadeMs: 600, idleOpacity: 0.12, maxMarks: 32});
 export const STRIP_COLORS = Object.freeze({
@@ -34,12 +34,15 @@ export function chainView(runtime) {
   return Object.freeze({slots: Object.freeze(slots)});
 }
 
+const credit0 = step => Number.isInteger(step.creditSlot) ? step.creditSlot : step.slot;
 /** The marks one resolved row event raises, from its receipt: {slot, kind: fire | boost | bar, double}. */
 export function collectReceiptFires(receipt, inscriptions) {
   const marks = [], kind = receipt?.event?.kind;
   for (const step of receipt?.steps || []) {
     if (!step.success) continue;
     if (step.operation === 'inscription') { marks.push({slot: step.slot, kind: 'bar'}); continue; }
+    if (step.mirrored) marks.push({slot: credit0(step), kind: 'bar'});
+    for (const s of step.lodestoneSlots || []) marks.push({slot: s, kind: 'bar'});
     marks.push({slot: step.slot, kind: step.operation === 'multiply' ? 'boost' : 'fire', double: step.repeatIndex > 0 || step.pass > 1});
     const credit = Number.isInteger(step.creditSlot) ? step.creditSlot : step.slot, id = inscriptions?.[credit]?.id;
     if (id && (id === 'twin-mark' && step.repeatIndex > 0 || id === 'gilded' || getInscription(id)?.also === kind)) marks.push({slot: credit, kind: 'bar'});
@@ -49,6 +52,10 @@ export function collectReceiptFires(receipt, inscriptions) {
 
 /** The marks the card engine's own log entries raise (Timers, Pulses, Flares, Boost-style hits, Long Fuse). */
 const ENGINE_FIRES = new Set(['fired', 'hit', 'pulse', 'real-pulse', 'turn', 'flash', 'homing', 'whet', 'keep', 'tithe', 'fuse', 'world-pulse', 'gain']);
+/** Bar flashes the card engine's log raises: a Lodestone beside a card that gained Sparks. */
+export function engineBars(entry) {
+  return entry?.k === 'gain' && entry.lodestoneSlots?.length ? entry.lodestoneSlots.map(slot => ({slot, kind: 'bar'})) : null;
+}
 export function engineFire(entry) {
   if (!entry || !ENGINE_FIRES.has(entry.k) || !Number.isInteger(entry.slot) || entry.slot < 0) return null;
   return {slot: entry.slot, kind: 'fire', double: entry.k === 'hit' && entry.times > 1};

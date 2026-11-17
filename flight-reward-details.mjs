@@ -1,12 +1,12 @@
-import {ARTIFACTS,SKILLS,SKILL_CARDS} from './model.mjs?v=clips-1';
-import {cardFace} from './card-ui.mjs?v=clips-1';
-import {cardTermMarkup,cardTermTextMarkup} from './card-terms.mjs?v=clips-1';
-import {artifactDescriptionMarkup} from './artifact-copy.mjs?v=clips-1';
-import {artifactIcon} from './upgrade-icons.mjs?v=clips-1';
-import {EVENT_SCENARIOS,mapStopIconMarkup} from './map-guide.mjs?v=clips-1';
-import {FLIGHT_PACTS} from './flight-pacts.mjs?v=clips-1';
-import {ROUTE_BONUSES} from './route-bonuses.mjs?v=clips-1';
-import {describeTreasure} from './treasure.mjs?v=clips-1';
+import {ARTIFACTS,SKILLS,SKILL_CARDS} from './model.mjs?v=pulse-2';
+import {cardFace} from './card-ui.mjs?v=pulse-2';
+import {cardTermMarkup,cardTermTextMarkup} from './card-terms.mjs?v=pulse-2';
+import {artifactDescriptionMarkup} from './artifact-copy.mjs?v=pulse-2';
+import {artifactIcon} from './upgrade-icons.mjs?v=pulse-2';
+import {EVENT_SCENARIOS,mapStopIconMarkup} from './map-guide.mjs?v=pulse-2';
+import {FLIGHT_PACTS} from './flight-pacts.mjs?v=pulse-2';
+import {ROUTE_BONUSES} from './route-bonuses.mjs?v=pulse-2';
+import {describeTreasure} from './treasure.mjs?v=pulse-2';
 
 const esc=value=>String(value??'').replace(/[&<>"']/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
 const paragraph=text=>text?`<p>${cardTermTextMarkup(text)}</p>`:'';

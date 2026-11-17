@@ -18,7 +18,7 @@
 // - Events only move right and each Timer holds at most one pending wait, so one instant always terminates; a hard
 //   safety counter still stops the engine (and warns once) if that is ever exceeded.
 import {SKILL_CARDS, CARD_ECONOMY, cardAmount, getCardRowRule, hasCardRowEvent, matchesRowCondition, matchesRowShape, isInventoryOnlyCard,
-  createCardExecution, resolveCardRow, getCardChargeCapacity} from './skill-cards.mjs?v=clips-1';
+  createCardExecution, resolveCardRow, getCardChargeCapacity} from './skill-cards.mjs?v=pulse-2';
 
 export const ENGINE_LIMITS = Object.freeze({ deliveriesPerInstant: 400, timersPerAdvance: 5000, logEntries: 5000, turnLog: 5000 });
 /** Player-made Triggers the engine cards listen to (not CARD_ROW_EVENTS: the ordinary walker never sees them). */
@@ -296,7 +296,8 @@ export class CardEngine {
     this.asked += amount; this.sparks += real;
     this.gainsByTurn.set(this.turn, (this.gainsByTurn.get(this.turn) || 0) + amount);
     if (this.inPack) { this.pack.sparks += real; this.pack.asked += amount; }
-    this.record({ k: 'gain', slot, amount, real: round6(real), spill, boost: multiplier });
+    const lodes = [slot - 1, slot + 1].filter(k => this.runtime?.inscriptions?.[k]?.id === 'lodestone');
+    this.record({ k: 'gain', slot, amount, real: round6(real), spill, boost: multiplier, ...(lodes.length ? { lodestoneSlots: lodes } : {}) });
     if (real > EPS) this.queue.push({ type: 'gain', from: slot, mask, turn: this.turn, amount: real });
     const heard = spill > EPS && this.overfillHeardRightOf(slot);
     if (heard) this.queue.push({ type: 'overfill', from: slot, mask, turn: this.turn, spill, spillBase: Math.max(0, Math.min(spill, Math.ceil(Math.max(0, Number(base) || 0) - EPS) - real)) });

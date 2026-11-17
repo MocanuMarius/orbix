@@ -172,6 +172,8 @@ export function offerInscriptions(run, random = Math.random, count = 3) {
 // Rule helpers shared by the row walker, the engine and the flight. `source` is a run or a card execution.
 export const hollowBonus = (source, slot, occupied) => occupied ? 0 : (slotInscription(source, slot)?.id === 'hollow' ? INSCRIPTIONS.hollow.bonus : 0);
 /** +1 Spark per Lodestone on a neighbouring slot (left or right). */
+/** The neighbouring slots that carry a Lodestone (for the in-flight strip's bar flash). */
+export const lodestoneSlots = (source, slot) => [slot - 1, slot + 1].filter(s => slotInscriptionId(source, s) === 'lodestone');
 export const lodestoneBonus = (source, slot) => [slot - 1, slot + 1].reduce((sum, s) => sum + (slotInscriptionId(source, s) === 'lodestone' ? INSCRIPTIONS.lodestone.bonus : 0), 0);
 export const capacityBonusSparks = source => countInscription(source, 'hearth') * INSCRIPTIONS.hearth.capacity;
 export const emberBedStored = (source, cards) => { const beds = countInscription(source, 'ember-bed'); if (!beds) return 0; const empty = (cards || []).filter(card => !card).length; return beds * (INSCRIPTIONS['ember-bed'].stored + empty); };

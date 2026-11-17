@@ -1,8 +1,8 @@
-import {ROUTE_BONUSES} from './route-bonuses.mjs?v=clips-1';
-import {blackHoleDrainRate} from './black-holes.mjs?v=clips-1';
-import {flashPowerupDuration, pickupKind} from './pickups.mjs?v=clips-1';
-import {GLOW_DISPLAY_SCALE} from './vitality.mjs?v=clips-1';
-import {sparkMass} from './spark-size.mjs?v=clips-1';
+import {ROUTE_BONUSES} from './route-bonuses.mjs?v=pulse-2';
+import {blackHoleDrainRate} from './black-holes.mjs?v=pulse-2';
+import {flashPowerupDuration, pickupKind} from './pickups.mjs?v=pulse-2';
+import {GLOW_DISPLAY_SCALE} from './vitality.mjs?v=pulse-2';
+import {sparkMass} from './spark-size.mjs?v=pulse-2';
 
 const fuelKinds = new Set(['light', 'cluster', 'cache']);
 const helpfulFamilies = new Set(['lift', 'reveal', 'bloom']);
