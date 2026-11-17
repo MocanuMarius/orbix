@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Departure screen · Design lab</title>
+<!-- Like deck.html: paths resolve from dist/, because the card art uses paths relative to it. -->
+<base href="../">
+<link rel="icon" href="assets/favicon.svg">
+<link rel="stylesheet" href="ui/waystone.css">
+<link rel="stylesheet" href="design-lab/depart.css?v=1">
+</head>
+<body>
+<img class="dpg-world" src="assets/moonwell-title.webp" alt="" draggable="false">
+<div class="dpg-shade" aria-hidden="true"></div>
+<main class="dpg">
+ <header class="dpg-head">
+  <h1>Departure screen <span class="dpg-code">v1.0-depart</span></h1>
+  <p>Three looks for the paused panel before every flight. Every look has fixed slots for picture, headline, sentence and buttons, so nothing moves when the tip changes. Press <b>Next tip</b> and watch.</p>
+  <fieldset class="dpg-runs"><legend>Sample run</legend>
+   <label><input type="radio" name="run" value="rhythm" checked> Rhythm Chain, Frostbound Reach</label>
+   <label><input type="radio" name="run" value="beginner"> Beginner, Moonlit Ruins, flight 1</label>
+  </fieldset>
+  <nav class="dpg-nav" aria-label="Sections"><a href="design-lab/depart.html#vA">A Field note</a><a href="design-lab/depart.html#vB">B Lantern card</a><a href="design-lab/depart.html#vC">C Your Chain</a><a href="design-lab/depart.html#picker">Tips and picker</a><a href="design-lab/depart.html#audit">Layout check</a></nav>
+ </header>
+ <div id="dp-main"></div>
+ <section class="dpv dpv-audit" id="audit"><h2>Layout check</h2><p>Measuring...</p></section>
+</main>
+<script type="module" src="design-lab/depart.mjs"></script>
+</body>
+</html>
