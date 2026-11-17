@@ -1,13 +1,13 @@
 /** Contextual card vocabulary. Native modal dialogs keep help above the Deck. */
-import { resourceSymbol } from './game-symbols.mjs?v=flash-1';
-import {lifeHeartSvg} from './lives.mjs?v=flash-1';
-import {duskGlyphArt} from './spark-symbol.mjs?v=flash-1';
-import {getGlowCapacity,formatGlow} from './vitality.mjs?v=flash-1';
-import {glowGaugeUnits} from './glow-ui.mjs?v=flash-1';
-import {getRunModifiers} from './model.mjs?v=flash-1';
-import {cardAmount,makeSkillCard,SKILL_CARDS} from './skill-cards.mjs?v=flash-1';
-import {cardRowTermHelpMarkup} from './card-row-help.mjs?v=flash-1';
-import {dreamEye} from './dream.mjs?v=flash-1';
+import { resourceSymbol } from './game-symbols.mjs?v=words-1';
+import {lifeHeartSvg} from './lives.mjs?v=words-1';
+import {duskGlyphArt} from './spark-symbol.mjs?v=words-1';
+import {getGlowCapacity,formatGlow} from './vitality.mjs?v=words-1';
+import {glowGaugeUnits} from './glow-ui.mjs?v=words-1';
+import {getRunModifiers} from './model.mjs?v=words-1';
+import {cardAmount,makeSkillCard,SKILL_CARDS} from './skill-cards.mjs?v=words-1';
+import {cardRowTermHelpMarkup} from './card-row-help.mjs?v=words-1';
+import {dreamEye} from './dream.mjs?v=words-1';
 const esc = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 export const CARD_TERMS = Object.freeze({
   round: ['Round', 'One flight through a passage, ending in clear rewards or a lost heart.'],
@@ -25,7 +25,7 @@ export const CARD_TERMS = Object.freeze({
   wave: ['Pulse', 'An expanding ring of light. Its edge lights the passage as it travels. As a Trigger: a Pulse crosses a Spark you have not collected, or a card to its left sends a Pulse.'],
   collector: ['Collector', 'The small green light that catches a missed pickup and reels it to your wisp.'],
   ring: ['Collector charge', 'The visible orbit around your wisp shows Collector charge: a full orbit means maximum reach.'],
-  flash: ['Flash', 'A white triangular pickup that briefly lights the passage. As a Trigger: you or Collector pick up a Flash, or a Flash’s light runs out.'],
+  flash: ['Flash', 'A white triangle. For a few seconds it sends a Pulse every 2 seconds and lights your surroundings as if your Luminance were very high. Some cards react when you Collect one or when it ends.'],
   cache: ['Cache', 'A dense pickup worth 18 Sparks on your touch or 12 on a Cache Handling delivery.'],
   rest: ['Rest', 'A checkpoint where you choose an action and can improve your Deck. At Rest cards work from there and never go in the chain.'],
   uses: ['Uses', 'A limited card spends one use when its effect succeeds and leaves your Deck at zero.'],
@@ -86,14 +86,14 @@ const CARD_TERM_DETAILS = Object.freeze({
   "proximity": "Skim near solid terrain for 2 seconds to send a revealing Pulse. The reveal lasts 5 seconds, then recovers for 2 seconds. Proximity enables normal reach while equipped, without Collector. Edge Reach also enables this and adds 50% of normal reach per equipped or Chameleon-borrowed source. Echo cannot repeat a passive ability. Brief gaps keep progress for 1.25 seconds; contact, protection and Dream never charge it.",
   "collector": "The small green light beside your main wisp. It catches a missed pickup and reels the intact pickup back to your moving wisp. Sparks arrive on contact. It stays busy during the reel, then rebuilds charge before its next search. Cache Handling and Flash Handling let it fetch those pickups too.",
   "ring": "Collector’s search reach. Its orbit shows the available reach. After each delivery Collector rebuilds charge before its next search. Base recovery is 3⅓ seconds for a 6-Spark pickup, 6⅔ for a 12-Spark pickup, and 10 for an 18-Spark pickup, before compression and build modifiers. Flash uses the 10-second base.",
-  "flash": "The triangular pickup that briefly lights your surroundings. Flash Handling lets Collector fetch it. Each Flash Handling in your chain, or copy of one, also gives +6 Sparks when either of you picks one up (the Flash Trigger), so a Boost to its right strengthens it.",
+  "flash": "The white triangle. For a few seconds it sends a Pulse every 2 seconds and lights your surroundings as if your Luminance were very high. Some cards react when you Collect one or when it ends. Flash Handling lets Collector fetch it. Each Flash Handling in your chain, or copy of one, also gives +6 Sparks when either of you picks one up (Collect a Flash), so a Boost to its right strengthens it.",
   "copy": "Echo repeats the action on the card to its right. Higher Echo tiers repeat it more times, as printed. Chameleon borrows its ability. They share that card’s uses. Echo cannot repeat Deep Vessel or Edge Reach, because passive abilities have no action. Neither can copy Echo, Chameleon, Lift Guide, Rhythm, Cache Handling or Rest cards.",
   "packing": "Convert spare passage Sparks into Stored Sparks during a Round and from the spare meter at its successful exit. Tight Packing adds extras to the Stored Sparks this conversion normally makes. Open Stored Sparks from packing for examples and exclusions.",
   "packing-efficiency": "Adds extra Stored Sparks to the amount ordinary packing makes from spare passage Sparks. +50% means 2 ordinarily made → 3 total; +75% means 4 → 7 total; +100% means 1 → 2 total. Cards in your chain, Echo repeats and Chameleon copies add their percentages: two +50% sources give +100%. A Boost to the right of a packing card multiplies its percentage (+50% ×2 = +100%), up to +900% in all. Fractions carry between cleared Rounds, and whole extras pay as they are earned. With Rare and no earlier fraction, making 1, 2, 3, then 4 ordinary Stored Sparks earns 0, 1, 2, then 3 extras in total. With Common, making 1 this Round and 1 next Round earns 1 extra overall. A failed Round keeps the fraction saved before that attempt and banks none of that attempt’s new packing. Rewards, card payouts, Melt and the extra Stored Sparks do not earn packing extras. Generated or Dream pickups and bonus fuel from cards do not count.",
   "grow": "Keep Growth Seeds in your Deck to unlock Grow at Rest. Each owned Seed adds its printed amount to your maximum Sparks, up to +90 total: Common +3, Rare +5, Legendary +8 (improved to +9 or +10). Grow refills the meter once and does not heal hearts. All Seeds share 3 Grow actions per journey. No active slot is needed; copying cards cannot copy Rest cards.",
   "pass": "Your chain fires only when a card in it has that Trigger, such as Collect when your wisp touches a Spark. The cards then fire left to right, from Slot 1. A card works only if its Trigger and condition match; empty Slots, always-on cards and cards with other Triggers wait. The Sparks start at zero each time: + cards add Sparks, and a Boost (× card) multiplies the Sparks and Collector time of every card to its left; Stored Sparks and forever gains always stay at their printed amount. Echo repeats the next card in its own Slot and spends that card’s uses. With Refrain, the chain fires once more from Slot 1 for the same Trigger, an Encore. Uses spent stay spent, so the Encore can give less or nothing, and it makes no extra pickup or Pulse. Card Sparks fill only the room left in your meter after the pickup’s own fuel.",
   slot: "Order matters only where a card says so: Boosts reach cards to their left, Echo and Chameleon copy the next card, Kindling Bead needs a + card before it, and Closing Chord must be the last card. You start with 3 Slots and Rest can add up to 5.",
-  trigger: "The Triggers are Collect, Lift, Pulse, Flash, Delivery, Overfill, Save, Finish and Skim. Boost cards work with all of them; Passive cards and At Rest cards do not wait for one. One touch can be two Triggers: a Spark that overfills your meter is Overfill, then Collect.",
+  trigger: "The Triggers are Collect, Lift, Pulse, Delivery, Overfill, Save, Finish and Skim. Boost cards work with all of them; Passive cards and At Rest cards do not wait for one. One touch can be two Triggers: a Spark that overfills your meter is Overfill, then Collect.",
   boost: "Boosts sit to the right of the cards they strengthen. Several Boosts multiply together (×1.25 then ×2 is ×2.5). Each firing’s Sparks are rounded down to a whole number at the end (2.5 becomes 2); Collector time keeps its decimals. They also strengthen always-on cards to their left (+20% Luminance ×2 = +40%), except Boosts that have their own Trigger or limited uses. Boosts never multiply Stored Sparks rewards or gains that last beyond the journey, such as Growth Ring and Wind Feather. Caps still apply: the meter stops at 100 Sparks, and boosted time never brings Collector below half a second.",
   engine: "Events made by a card travel to the right only. A card never answers an event it made itself in the same Turn. An engine stops when a card cannot do its job, for example on a full meter; as Lift spends Sparks, the next event can start it again. Without a Timer a chain runs once.",
   timer: "Slow Wick waits 3 s, then sends a Pulse back to Slot 1. Metronome, once an event reaches it, fires the card to its right every 3 s while that card can act. Long Fuse waits 5 s, then fires your last Trigger again. Heartbeat halves every wait.",
@@ -175,7 +175,7 @@ const CARD_NOTES = Object.freeze({
   'harvest-common': 'The Pulse must cross an uncollected fuel pickup already in the passage. Pickups created by powers do not count. This refills your meter without collecting the Spark or adding packing rewards.',
   'harvest-rare': 'The Pulse must cross an uncollected fuel pickup already in the passage. Pickups created by powers do not count. This refills your meter without collecting the Spark or adding packing rewards.',
   'harvest-legendary': 'The Pulse must cross an uncollected fuel pickup already in the passage. Pickups created by powers do not count. The meter refill does not collect it or add packing rewards. The extra Stored Spark is awarded once per Pulse, at its first crossing, even if the meter is full.',
-  'flash-handling': 'Either your wisp or Collector picking up Flash is the Flash Trigger: each Flash Handling in your chain, or copy of one, gives +6 Sparks, and a Boost to its right strengthens it. Collector makes one pickup; the meter cannot go above its maximum.',
+  'flash-handling': 'Either your wisp or Collector picking up Flash is Collect a Flash: each Flash Handling in your chain, or copy of one, gives +6 Sparks, and a Boost to its right strengthens it. Collector makes one pickup; the meter cannot go above its maximum.',
   'growth-seed-common': 'Keep in your Deck to unlock Grow at Rest. Each owned Seed adds its printed maximum Sparks, up to +90 total. All Growth Seeds share 3 Grow actions per journey. Each action refills the meter once, without healing hearts. At Rest, Evolve Common to Rare for 25 Stored Sparks, then Rare to Legendary for 150.',
   'growth-seed': 'Keep in your Deck to unlock Grow at Rest. Each owned Seed adds its printed maximum Sparks, up to +90 total. All Growth Seeds share 3 Grow actions per journey. Each action refills the meter once, without healing hearts. At Rest, Evolve Rare to Legendary for 150 Stored Sparks.',
   'growth-seed-legendary': 'Keep in your Deck to unlock Grow at Rest. Each owned Seed adds its printed maximum Sparks, up to +90 total: +8 at rank 1, +9 at rank 2 and +10 at rank 3. All Growth Seeds share 3 Grow actions per journey. Each action refills the meter once, without healing hearts.',
@@ -196,7 +196,7 @@ const CARD_NOTES = Object.freeze({
 // Explanatory pictures are captures of the running game, never replacement art.
 const termPictures = Object.freeze({
   spark: {src:'./assets/help/spark-flight.png', alt:'A bright Spark suspended in the passage, captured from the running game.', caption:'A Spark in the passage. Touch it with your wisp to absorb it.'},
-  flash: {src:'./assets/help/flash-flight.png', alt:'The white triangular Flash pickup in the passage, captured from the running game.', caption:'Flash is the white triangle. It briefly lights your surroundings.'},
+  flash: {src:'./assets/help/flash-flight.png', alt:'The white triangular Flash pickup in the passage, captured from the running game.', caption:'Flash is the white triangle. It sends a Pulse every 2 seconds and lights like very high Luminance.'},
   wisp: {src:'./assets/help/wisp-flight.png', alt:'The main white wisp flying in the passage, captured from the running game.', caption:'Your main wisp is the larger white light.'},
   wave: {src:'./assets/help/wave-flight.png', alt:'An actual revealing Pulse spreading through the passage.', caption:'A Pulse reveals the passage as it spreads outward.'},
   proximity: {src:'./assets/help/wave-flight.png', alt:'The revealing Pulse used by Proximity, rendered in the passage.', caption:'Skimming terrain can send this revealing Pulse. The live example below shows the required distance.'},
@@ -283,7 +283,7 @@ const relatedTerms = Object.freeze({
   'take-off':['trigger'],
 });
 /** Glossary keys that are Triggers: their entries link to the Trigger collection (dist/ui/trigger-book.mjs). */
-export const TRIGGER_TERM_KEYS = Object.freeze(['collect','falling-lift','wave','flash','delivery','overfill','save','clear','engine-skim','always-on','boost','next','trigger','engine-gain']);
+export const TRIGGER_TERM_KEYS = Object.freeze(['collect','falling-lift','wave','delivery','overfill','save','clear','engine-skim','always-on','boost','next','trigger','engine-gain']);
 const bookButton = () => `<button type="button" class="card-term-book" data-trigger-book>${'All Triggers'}</button>`;
 function termDetailsMarkup(key) {
   const details=CARD_TERM_DETAILS[key], related=relatedTerms[key] || [];
@@ -339,7 +339,7 @@ export function installCardTermHelp(doc = document, {resolveProximityContext,res
     const heading = `card-glossary-heading-${++serial}`, dialog = doc.createElement('dialog');
     dialog.className = 'card-term-dialog card-glossary-dialog wb-dlg';
     dialog.setAttribute('aria-labelledby',heading);
-    const groups = [['Journey',['round','map','game']],['Flying & fuel',['wisp','spark','meter','dusk','cluster','heart','lift','luminance','wave','rhythm','proximity','packing','packing-efficiency','stored']],['Collector',['collector','ring','flash','cache','watchlight']],['Your cards',['pass','slot','trigger','boost','encore','always-on','next','copy','uses','shared','rest','grow','devour']],['Triggers',['collect','falling-lift','wave','flash','delivery','overfill','save','clear','engine-skim']],['Engines',['engine','turn','timer','engine-gain','timers','take-off']]];
+    const groups = [['Journey',['round','map','game']],['Flying & fuel',['wisp','spark','meter','dusk','cluster','heart','lift','luminance','wave','rhythm','proximity','packing','packing-efficiency','stored']],['Collector',['collector','ring','flash','cache','watchlight']],['Your cards',['pass','slot','trigger','boost','encore','always-on','next','copy','uses','shared','rest','grow','devour']],['Triggers',['collect','falling-lift','wave','delivery','overfill','save','clear','engine-skim']],['Engines',['engine','turn','timer','engine-gain','timers','take-off']]];
     dialog.innerHTML = `<header><h2 id="${heading}">Glossary</h2><button type="button" data-card-term-close aria-label="Close glossary">×</button></header><div class="card-term-content card-glossary-list">${groups.map(([title,keys])=>`<section><h3>${esc(title)}</h3><div>${keys.map(key=>cardTermMarkup(key,CARD_TERMS[key][0])).join('')}${title==='Triggers'?bookButton():''}</div></section>`).join('')}</div><footer><button type="button" data-card-term-close>Back</button></footer>`;
     mount(dialog,button,resolveCardContext?.(button)||resolveProximityContext?.(button)||{});
   }
@@ -388,7 +388,7 @@ export function installCardTermHelp(doc = document, {resolveProximityContext,res
       dialog.classList.add('card-cache-dialog');
       const host=button.dataset.cardTerm?dialog.querySelector('[data-card-term-example]'):doc.createElement('div');
       if(!button.dataset.cardTerm){host.className='cache-card-example';dialog.querySelector('[data-card-help-rules]').append(host);}
-      import('./cache-card-help.mjs?v=flash-1').then(({mountCacheCardHelp})=>{
+      import('./cache-card-help.mjs?v=words-1').then(({mountCacheCardHelp})=>{
         if(layers.includes(layer))appendDisposer(mountCacheCardHelp(host,{focus:cardKind==='harvest'?'cross':cardKind==='cache-handling'?'deliver':'touch',harvestCard:cardKind==='harvest'?cardContext.card:undefined}));
       });
     }
@@ -399,7 +399,7 @@ export function installCardTermHelp(doc = document, {resolveProximityContext,res
         const host=doc.createElement('section');host.className='proximity-card-help';
         const example=dialog.querySelector('[data-card-term-example="proximity"]');
         if(example)example.replaceChildren(host);else dialog.querySelector('.card-term-content').prepend(host);
-        import('./proximity-card-help.mjs?v=flash-1').then(({mountProximityCardHelp})=>{
+        import('./proximity-card-help.mjs?v=words-1').then(({mountProximityCardHelp})=>{
           if(layers.includes(layer))appendDisposer(mountProximityCardHelp(host,previewContext));
         });
       }

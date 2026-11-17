@@ -7,22 +7,22 @@
 // This module draws and handles everything that does not change the save. Every real change (equip, swap,
 // take out, Melt, Workshop) goes through the `actions` the app passes in, which call the model's own
 // transactions and then reopen the sheet; the view state object survives that reopen.
-import {CARD_SYSTEM, getMountedCards, describeSkillCard, getCardChargeCapacity} from '../skill-cards.mjs?v=flash-1';
-import {getOwnedCards} from '../model.mjs?v=flash-1';
-import {cardFace, cardArt, getCardFaceAvailability} from '../card-ui.mjs?v=flash-1';
-import {getEquippedCardStatuses} from '../card-status.mjs?v=flash-1';
-import {glowGaugeMarkup, glowGaugeUnits} from '../glow-ui.mjs?v=flash-1';
-import {cardTileLine, SPARK_ICON_SRC, WISP_ORB_SRC} from '../card-tile-lines.mjs?v=flash-1';
+import {CARD_SYSTEM, getMountedCards, describeSkillCard, getCardChargeCapacity} from '../skill-cards.mjs?v=words-1';
+import {getOwnedCards} from '../model.mjs?v=words-1';
+import {cardFace, cardArt, getCardFaceAvailability} from '../card-ui.mjs?v=words-1';
+import {getEquippedCardStatuses} from '../card-status.mjs?v=words-1';
+import {glowGaugeMarkup, glowGaugeUnits} from '../glow-ui.mjs?v=words-1';
+import {cardTileLine, SPARK_ICON_SRC, WISP_ORB_SRC} from '../card-tile-lines.mjs?v=words-1';
 import {resolveChain, slotInfo, hereLine, plateWords, whenOf, markOf, TRIGGER_BY, triggerName, RARITY_WORD, rarityOf, nameOf, shortName, isRest, num, METER_MAX, START_FLAME,
-  chipOf, triggerBook, enginePlate, holeTally} from './chain-model.mjs?v=flash-1';
-import {triggerIcon, pixelArt, CHEVRON, gem, EYE, WARN, PLUS, NEXT, FIRE, medalUrl, frameVars, chipBadge, chipIcon, rarityPips} from './trigger-icons.mjs?v=flash-1';
-import {CARD_TRIGGERS} from '../card-rule-bands.mjs?v=flash-1';
+  chipOf, triggerBook, enginePlate, holeTally} from './chain-model.mjs?v=words-1';
+import {triggerIcon, pixelArt, CHEVRON, gem, EYE, WARN, PLUS, NEXT, FIRE, medalUrl, frameVars, chipBadge, chipIcon, rarityPips} from './trigger-icons.mjs?v=words-1';
+import {CARD_TRIGGERS} from '../card-rule-bands.mjs?v=words-1';
 import {triggerLabel, triggerTermKey} from '../card-trigger-labels.mjs';
-import {CARD_TERMS} from '../card-terms.mjs?v=flash-1';
-import {SKILL_CARDS} from '../skill-cards.mjs?v=flash-1';
-import {isDevourCard} from '../card-black-hole.mjs?v=flash-1';
-import {simulateEngineChain, engineStarts} from '../card-engine.mjs?v=flash-1';
-import {GLOW_DISPLAY_SCALE} from '../vitality.mjs?v=flash-1';
+import {CARD_TERMS} from '../card-terms.mjs?v=words-1';
+import {SKILL_CARDS} from '../skill-cards.mjs?v=words-1';
+import {isDevourCard} from '../card-black-hole.mjs?v=words-1';
+import {simulateEngineChain, engineStarts} from '../card-engine.mjs?v=words-1';
+import {GLOW_DISPLAY_SCALE} from '../vitality.mjs?v=words-1';
 
 const esc = v => String(v ?? '').replace(/[&<>"']/g, c => ({'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'}[c]));
 const SPARK_SRC = SPARK_ICON_SRC;
@@ -62,7 +62,7 @@ function termBtn(kind, {icon = true, cls = '', glossary = true} = {}) {
   const help = glossary && term ? `data-card-term="${esc(term)}" aria-haspopup="dialog" aria-label="${esc(triggerName(kind))}: what it means"` : `aria-label="${esc(triggerName(kind))}"`;
   return `<button type="button" class="dk2-btn dk22-term ${cls}" data-term="${esc(kind)}" ${help}>${icon ? triggerIcon(kind, 16) : ''}<span class="dk22-word">${esc(triggerName(kind))}</span></button>`;
 }
-/** A Trigger chip as a glossary keyword (chips that are not a flight event too: Card Pulse, Pack, Always on...). */
+/** A Trigger chip as a glossary keyword (chips that are not a flight event too: Card Pulse, Pack, Passive...). */
 
 /** The spoken chip: "Trigger: Collect. ", "Role: Boost. ", or nothing when the card shows no chip. */
 const chipWord = chip => chip?.label ? `${chip.kind === 'role' ? 'Role' : 'Trigger'}: ${chip.label}. ` : '';

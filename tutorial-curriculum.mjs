@@ -14,7 +14,7 @@ export const TUTORIAL_TOPICS={
   s('Sparks and sight','Sparks pay for Lift. Luminance reveals the route around your wisp.','luminance'),
   s('See farther','Open the Luminance chapter. Luminance widens your light. Spark Sense lets you sense nearby pickups through fog. Long Flash extends the white triangle’s light from 8 to 24 seconds.','pickup:sight')]},
  utilities:{name:'Flash & hazards',visual:'pickup:sight',steps:[
-  s('Flash Powerup','Catch the white triangle. It follows on a thread, lighting the passage with each pulse. The puff means its light has run out.','pickup:sight'),
+  s('Flash Powerup','Catch the white triangle. It follows on a thread, sends a Pulse every 2 seconds and lights your surroundings as if your Luminance were very high. The puff means its light has run out.','pickup:sight'),
   s('Dusk Spark','The split rose crescent drains up to 3 Sparks and dims Luminance by 20% for 4 seconds. Dusk Wick pays its bonus after the drain. Only body contact collects it.','pickup:dusk'),
   s('Dark Spark','A Dark Spark dims your view for up to eight seconds. Collecting a fuel Spark clears one dimming effect. Collector leaves the red Spark alone.','pickup:dark')]},
  lanterns:{name:'Darkness Lanterns',visual:'lantern-icon',steps:[

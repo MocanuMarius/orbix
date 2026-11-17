@@ -22,7 +22,7 @@ export const CARD_GUIDE_TOPICS = {
       ),
       step(
         "Handling cards",
-        "Put Cache Handling in your chain to fetch Caches, or Flash Handling to fetch white triangles. A Cache delivery restores 12 Sparks. Flash Handling also gives +6 Sparks on each Flash pickup (its Trigger is Flash), and a Boost to its right strengthens that.",
+        "Put Cache Handling in your chain to fetch Caches, or Flash Handling to fetch white triangles. A Cache delivery restores 12 Sparks. Flash Handling also gives +6 Sparks on each Flash pickup (Collect a Flash), and a Boost to its right strengthens that.",
         "collector-return",
       ),
       step(
