@@ -323,7 +323,7 @@ export function installCardTermHelp(doc = document, {resolveProximityContext,res
   function openGlossary(button) {
     hideHover(); while (layers.length) close();
     const heading = `card-glossary-heading-${++serial}`, dialog = doc.createElement('dialog');
-    dialog.className = 'card-term-dialog card-glossary-dialog';
+    dialog.className = 'card-term-dialog card-glossary-dialog wb-dlg';
     dialog.setAttribute('aria-labelledby',heading);
     const groups = [['Journey',['round','map','game']],['Flying & fuel',['wisp','spark','meter','dusk','cluster','heart','lift','luminance','wave','rhythm','proximity','packing','packing-efficiency','stored']],['Collector',['collector','ring','flash','cache','watchlight']],['Your cards',['pass','slot','trigger','boost','encore','always-on','any-trigger','next','copy','uses','shared','rest','grow']],['Triggers',['collect','delivery','latch','wave','flash','flash-ends','falling-lift','overfill','rhythm','swipe','save','clear']]];
     dialog.innerHTML = `<header><h2 id="${heading}">Glossary</h2><button type="button" data-card-term-close aria-label="Close glossary">×</button></header><div class="card-term-content card-glossary-list">${groups.map(([title,keys])=>`<section><h3>${esc(title)}</h3><div>${keys.map(key=>cardTermMarkup(key,CARD_TERMS[key][0])).join('')}</div></section>`).join('')}</div><footer><button type="button" data-card-term-close>Back</button></footer>`;
@@ -340,7 +340,7 @@ export function installCardTermHelp(doc = document, {resolveProximityContext,res
     if (current() && !current().dialog.contains(button)) while (layers.length) close();
     if (button.hasAttribute('data-card-status-help')) {
       const heading = `card-status-heading-${++serial}`, dialog = doc.createElement('dialog');
-      dialog.className = 'card-term-dialog card-status-dialog';
+      dialog.className = 'card-term-dialog card-status-dialog wb-dlg';
       dialog.setAttribute('aria-labelledby', heading);
       dialog.innerHTML = `<header><h2 id="${heading}">${esc(button.dataset.cardStatusTitle || 'Card readiness')}</h2><button type="button" data-card-term-close aria-label="Close status help">×</button></header><div class="card-term-content"><p>${esc(button.dataset.cardStatusDescription)}</p><p class="card-status-fix">${esc(button.dataset.cardStatusFix)}</p><p class="card-status-meaning">Ready means a card can work in this build when its condition happens. It does not mean its effect is active all the time.</p></div><footer><button type="button" data-card-term-close>Back</button></footer>`;
       mount(dialog, button); return;
@@ -356,7 +356,7 @@ export function installCardTermHelp(doc = document, {resolveProximityContext,res
     const title = button.dataset.cardTerm ? CARD_TERMS[items[0]][0] : button.dataset.cardTermTitle || `${context?.dataset.cardName || 'Card'} · help`;
     const note = !button.dataset.cardTerm && (context && CARD_NOTES[context.dataset.cardHelp] || description);
     const heading = `card-term-heading-${++serial}`, dialog = doc.createElement('dialog');
-    dialog.className = 'card-term-dialog';
+    dialog.className = 'card-term-dialog wb-dlg';
     dialog.setAttribute('aria-labelledby', heading);
     const content = button.dataset.cardTerm
       ? items.map(key => `<section data-card-term-section="${esc(key)}"><p class="card-term-definition">${cardTermTextMarkup(CARD_TERMS[key][1],{exclude:[key]})}</p><div data-card-term-example="${esc(key)}">${cardTermExampleMarkup(key,cardContext)}</div>${termDetailsMarkup(key)}</section>`).join('')

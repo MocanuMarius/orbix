@@ -71,5 +71,5 @@ export function forecastCheckpointMarkup(nextMap) {
       <span class="atlas-sites"><b>Passages</b> ${passages.map(esc).join(' · ')}</span>
     </button>`;
   });
-  return `<section class="atlas-checkpoint"><header><h1>Choose Map 2’s forecast</h1><p>Both reach ${esc(guardian?.name || 'the guardian')}.</p></header><div class="atlas-choices">${choices.join('')}</div><footer><button class="secondary atlas-clear-choice" data-action="next-map" data-id="clear">Fly under clear skies →</button></footer></section>`;
+  return `<section class="atlas-checkpoint"><header><h1>Choose Map 2’s forecast</h1><p>Both reach ${esc(guardian?.name || 'the guardian')}.</p></header><div class="atlas-choices">${choices.join('')}</div><footer><button class="secondary atlas-clear-choice" data-action="next-map" data-id="clear">Fly under clear skies</button></footer></section>`;
 }

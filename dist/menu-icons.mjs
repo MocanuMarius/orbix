@@ -23,6 +23,7 @@ const carvings = {
   route: ['M2 7h5v-3h7v2h7v14h-7v-2H7v3H2z','M4 8h4V6h4v10H8v2H4zm11 0h4v10h-4z','M6 14h3v-3h6V9h2v3h-6v3H6z'],
   cards: ['M1 5h4v14h11v3H3zM6 2h15v17H6z','M8 4h11v13H8z','M13 6h2v2h2v3h-2v2h-2v-2h-2V8h2z'],
   arrow: ['M2 10h11V5h3v3h3v2h3v4h-3v2h-3v3h-3v-5H2z','M3 10h11V7h2v3h3v2H3z','M3 10h7v1H3z'],
+  back: ['M21 9h-3V6h-3v3H2v6h13v3h3v-3h3z','M20 10h-3V7h-1v3H3v4h13v3h1v-3h3z','M20 10h-3v1h3zm-5 0H3v1h12z'],
   star: ['M10 2h4v4h2v2h6v4h-3v3h-2v6h-4v-3h-3v3H6v-7H3v-3H1V8h7V6h2z','M11 5h2v4h6v2h-4v5h-2v-3h-2v2H8v-5H5V9h6z','M10 9h3v2h-3z'],
   check: ['M2 11h4v3h3v2h2v-3h3v-3h3V6h4v6h-2v2h-3v3h-2v3H8v-2H5v-3H2z','M3 11h2v3h4v2h3v-3h3v-3h3V7h2v4h-2v2h-3v3h-3v2H9v-1H6v-3H3z','M17 9h2v2h-2z'],
   tune: ['M2 4h20v4H2zm0 6h20v4H2zm0 6h20v4H2z','M7 2h5v7H7zm7 6h5v7h-5zm-9 6h5v7H5z','M8 3h2v2H8zm7 6h2v2h-2zM6 15h2v2H6z'],

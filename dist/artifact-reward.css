@@ -16,12 +16,12 @@ html body .rw-screen .artifact-choice-identity .artifact-choice-art{display:bloc
 html body .rw-screen .artifact-choice-identity .artifact-choice-art>svg{display:block;width:48px;height:48px;background:none;filter:drop-shadow(0 2px 2px #0005)}
 html body .rw-screen .artifact-choice-identity small{font:400 11px/13px var(--pixel,monospace);letter-spacing:1.5px;text-transform:uppercase;color:var(--relic-aura)}
 html body .rw-screen .artifact-choice-identity h2{margin:0!important;font:400 21px/23px var(--pixel,monospace)!important;letter-spacing:1px;text-transform:uppercase;color:#2a2118!important;text-shadow:none!important;text-align:left}
-html body .rw-screen .artifact-choice-identity .artifact-choice-lifetime{font:400 12px/14px var(--pixel,monospace);color:#6b5335}
+html body .rw-screen .artifact-choice-identity .artifact-choice-lifetime{font:400 12px/14px var(--pixel,monospace);color:#5a4632}
 html body .rw-screen .artifact-choice-copy{display:flex;flex-direction:column;gap:5px;min-width:0;min-height:0;align-self:start;max-height:100%;overflow:auto;overscroll-behavior:contain;scrollbar-width:thin}
 html body .rw-screen .artifact-choice-copy p{margin:0!important}
-html body .rw-screen .artifact-choice-copy .artifact-choice-trigger{font:400 14px/17px var(--pixel,monospace);color:#6b5335}
+html body .rw-screen .artifact-choice-copy .artifact-choice-trigger{font:400 14px/17px var(--pixel,monospace);color:#5a4632}
 html body .rw-screen .artifact-choice-copy .artifact-choice-effect{font:400 17px/21px var(--pixel,monospace);color:#2a2118}
-html body .rw-screen .artifact-choice-copy .artifact-choice-limit{font:400 12px/15px var(--pixel,monospace);color:#6b5335}
+html body .rw-screen .artifact-choice-copy .artifact-choice-limit{font:400 12px/15px var(--pixel,monospace);color:#5a4632}
 html body .rw-screen .effect-clause{display:block;margin-top:2px}
 html body .rw-screen .effect-clause:first-child{margin-top:0}
 html body .rw-screen .effect-benefit{color:#2f5a1f!important}
@@ -32,14 +32,14 @@ html body .rw-screen .artifact-choice-actions>.wb-sign{flex:none;width:auto;min-
 html body .rw-screen .artifact-choice-actions>.wb-sign-primary{flex:1;min-width:130px}
 html body .rw-screen .artifact-acquired{flex:1;display:flex;align-items:center;justify-content:flex-end;min-height:44px;margin:0;padding:0;border:0;background:none;font:400 14px/17px var(--pixel,monospace);color:#3d4a22;text-align:right}
 html body .rw-screen .artifact-reward-actions{display:flex;align-items:center;justify-content:flex-end;gap:10px;min-width:0;min-height:0}
-html body .rw-screen .artifact-choice-instruction{margin-right:auto;font:400 12px/15px var(--pixel,monospace);color:#6b5335}
+html body .rw-screen .artifact-choice-instruction{margin-right:auto;font:400 12px/15px var(--pixel,monospace);color:#5a4632}
 html body .rw-screen .artifact-reward-actions>.wb-sign{flex:none;width:auto;min-width:128px;height:46px;padding:0 14px!important}
 html body .rw-screen .artifact-reward-actions>.wb-sign>.resource-symbol{width:20px;height:20px;margin-right:6px;vertical-align:middle}
 html body .rw-screen .artifact-reward-actions>.wb-sign:has(>.resource-symbol){display:flex!important;align-items:center;justify-content:center}
 html body .rw-screen .flight-clear-summary{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;text-align:center}
 html body .rw-screen .flight-clear-summary>.resource-symbol{width:64px;height:64px}
 html body .rw-screen .flight-clear-summary strong{font:400 22px/26px var(--pixel,monospace);letter-spacing:1px;text-transform:uppercase;color:#2a2118}
-html body .rw-screen .flight-clear-summary>span{max-width:430px;font:400 14px/18px var(--pixel,monospace);color:#6b5335}
+html body .rw-screen .flight-clear-summary>span{max-width:430px;font:400 14px/18px var(--pixel,monospace);color:#5a4632}
 /* The earned chip: a leather plaque in the header. */
 html body .rw-screen .reward-packed-earned.wb-sign{display:flex!important;flex:none;align-items:center;gap:6px;width:auto;min-width:0;height:44px;padding:0 10px!important;white-space:nowrap}
 html body .rw-screen .reward-packed-earned>.resource-symbol{width:20px;height:20px}

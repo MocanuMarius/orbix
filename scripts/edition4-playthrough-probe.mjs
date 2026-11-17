@@ -51,7 +51,7 @@ const INSTRUMENT=`(async()=>{
     if(target?.skimLane&&ahead)ty+=Math.sign(ahead.mid-ty)*4;
     if(ahead)ty=Math.min(Math.max(ty,ahead.top+12),ahead.bottom-12);
     if(near)ty=Math.min(Math.max(ty,near.top+16),near.bottom-16);
-    if(e.player.y>ty+4&&e.player.vy>-70&&e.time-lastLift>.26){e.beginLiftInput();e.endLiftInput();lastLift=e.time;}
+    if(e.player.y>ty+4&&e.player.vy>-20&&e.time-lastLift>.3){e.beginLiftInput();e.endLiftInput();lastLift=e.time;}
    }
   }
   const key=coach?coach.id+'|'+coach.title:null;
