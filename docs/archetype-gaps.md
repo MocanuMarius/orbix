@@ -120,7 +120,7 @@ Ratings: **thin** = fewer than 4 live cards or a missing half. **playable** = bo
 | Finish and Stored | Tight Packing I to III, Deep Vessel | Growth Ring, Wind Feather, Wayfarer's Purse, Nest Egg | No Sparks payoff, no Rare or Legendary Finish card live | **playable** as a long game. 4 live Finish cards, all permanent or Stored. Harvest Home, Last Round, Full Satchel, Tithe are unreleased |
 | Overfill | None. Overfill just happens | Ring Spring I and II, which only save Collector time | A Sparks payoff, a Common, an enabler | **thin**. 2 live Overfill cards, no Sparks. Spillway sends a Pulse but is a Passive. Spill Jar, Overflow Bell, Gilded Rim are unreleased |
 | Save and survival | Watchlight, Heart Stitch, Mending Moss | Home Beacon, Last Light | Rare payoff, cross-link, any way to cause or chain a Save | **thin**. 2 live Save cards, fires once per flight. Best chain 100 per flight. Second Wind and Scar Tissue are unreleased |
-| Flash | None live. Flash Tinder (unreleased) makes a Flash from a Collect | Flash Handling, Clear Prism, Flash Thread, Flash Bank, Prism Wick | A pickup that appears. See section 4 | **thin in practice**. 5 live cards, but the pickup shows up about 0.09 times per flight (measured) |
+| Flash | None live. Flash Tinder (unreleased) makes a Flash from a Collect | Flash Handling, Clear Prism, Flash Thread, Flash Bank, Prism Wick | A pickup that appears. See section 4 | **thin in practice**. 5 live cards, but the pickup shows up about 0.19 times per flight, 3 times rarer than before the landform courses (measured) |
 | Skim | Proximity, Edge Reach (both only send Pulses) | None live. Close Call (unreleased) | Everything | **thin**. 0 live Skim cards. The Proximity meter has no payoff of its own |
 | Timers engine | None live | None live | All of it is unreleased | **not in the game**. 10 unreleased cards (Metronome, Heartbeat, Third Beat, Momentum, Wave Loom, Ember Bell, Spark Chime, Slow Wick, Long Fuse, Last Round). Engine sweep: top chains make about 8 Sparks per 10 s from the engine alone; all 20 of the best chains are "unlosable" (the meter never empties in the model) |
 | Devour growth | Devourer, Ember Feeder | None. Hearts or max Sparks only | A Spark payoff on the card that eats; the Devour keyword (`card-proposals.md` section 11) is unbuilt; Black Hole is unreleased | **thin**. 2 live cards, no link to any other build |
@@ -171,21 +171,21 @@ Ratings: **thin** = fewer than 4 live cards or a missing half. **playable** = bo
 
 **From the code.** `buildFlightLayout` in `dist/flight.mjs` (around line 723) rolls once per flight: 58% for one Flash pickup ("sight-niche", Collect lane, between 32% and 58% of the way along). The first ordinary flight (row 0) never gets one. Other Flash sources are rare: a "passage-flash" in the hardest lantern room (`dist/lantern-layout.mjs`), a "crossfire-flash" in one guardian fight, and the route objective "flash-relay". Flash Tinder (unreleased) makes a 1 s Flash from a Collect. One pickup lights the scene for 8 s and pulses every 2 s.
 
-**From a seeded sample of the real builder.** I built about 8,700 real layouts (10,800 tried) (rows 0 to 7, three length bands, normal and elite, all levels, default landform courses) and counted Flash pickups. About 19% of the attempted builds threw an error for some level and seed combinations and are not counted, so treat the numbers as close, not exact.
+**From a seeded sample of the real builder.** I built 10,080 real layouts (120 seeds per cell: rows 0 to 7, three length bands, normal and elite, all 63 levels, with the integer difficulty the game uses) and counted Flash pickups. No build threw an error. The old layouts (`landforms:false`, the `?courses=1` path) were sampled the same way.
 
 | Slice | Flash pickups per flight (measured) |
 | --- | --- |
-| Row 0 (first flight) | 0.00 |
-| Normal, rows 1 to 7 | 0.09 (about one in 11 flights) |
-| Elite, rows 1 to 7 | 0.13 |
-| Short (45 to 70 s) | 0.06 |
-| Standard (80 to 110 s) | 0.12 normal, 0.25 elite |
-| Endurance (120 to 150 s) | 0.10 normal, 0.07 elite |
-| Rows 1 / 2 / 3 / 4 / 5 / 6 / 7 | 0.07 / 0.08 / 0.09 / 0.10 / 0.05 / 0.13 / 0.14 |
+| Row 0 (first flight), old and new | 0.00 |
+| Normal, rows 1 to 7, **new landform courses** | 0.19 (about one in 5 flights) |
+| Normal, rows 1 to 7, **old authored courses** | 0.56 (the 58% roll almost always lands) |
+| Elite, rows 1 to 7, new / old | 0.21 / 0.56 |
+| Short / Standard / Endurance, new, normal | 0.17 / 0.21 / 0.19 (elite: 0.17 / 0.30 / 0.17) |
+| Short / Standard / Endurance, old | 0.56 / 0.56 / 0.56 |
+| Landform conversion effect | Flash pickups are about 3 times rarer (0.19 against 0.56, a 66% drop) |
 
-Length and row make no clear difference (the roll is one try per flight). The 58% roll mostly fails because the landform courses leave few safe places for the lane. The guardian and lantern extras did not show up in the sample at all.
+Length makes no clear difference (one roll per flight). The landform conversion made Flash rarer because the lane needs a wide, clear stretch and the landform courses leave fewer of them. The guardian and lantern extras did not show up in the sample at all.
 
-**What it means.** A run has about 21 flights, so a run sees about 2 Flash pickups. Each gives two Flash events (pickup, then light-out). The simulation assumes 3 Flash firings and 3 "Flash ends" per 30 s. For a 95 s flight that is about 9 of each, against a real 0.12 and 0.12. **The Flash cards fire about 80 times less often than the balance simulation assumes.** Every Flash number in `cards-unreleased.md` is a fiction. Flash Handling's 81% share of the Flash chains means nothing for the real game.
+**What it means.** A run has about 21 flights, so a run sees about 4 Flash pickups (about 11 under the old courses). Each gives two Flash events (pickup, then light-out). The simulation assumes 3 Flash firings and 3 "Flash ends" per 30 s. For a 95 s flight that is about 9 of each, against a real 0.2 and 0.2. **The Flash cards fire about 45 times less often than the balance simulation assumes.** Every Flash number in `cards-unreleased.md` is a fiction. Flash Handling's 81% share of the Flash chains means nothing for the real game.
 
 ### The six Flash cards today
 
@@ -221,7 +221,7 @@ Taking the pickup sends one strong Pulse. The Flash trigger is removed (9 trigge
 
 - **Richer:** Keeps the white triangle as a thing to chase and a scouting tool. All six cards keep their words. Each Flash gives two events, pickup and light-out, so 2 pickups per flight is 4 events.
 - **Lost:** Darkness. Each Flash lights the scene for 8 s. Two Flashes per flight lights about 16 s of a 95 s flight. At the simulation's 3 per 30 s, the game would be lit for 80% of the time, which kills the dark lanes and Dark Sparks. So N must stay low.
-- **Cards to reword:** 0. Numbers change: at about 0.02 firings per second (2 per 95 s) against the simulation's 0.1, Flash numbers should be roughly 3 to 5 times higher to match peers (for example Flash Handling +6 becomes about +20, Flash Thread 3 s becomes 6 to 9 s). This is a buff, not a nerf.
+- **Cards to reword:** 0. Numbers change: at about 0.04 events per second with N = 2 (4 per 95 s; about 0.4 per 95 s today) against the simulation's 0.1, Flash numbers should be roughly 3 to 5 times higher to match peers (for example Flash Handling +6 becomes about +20, Flash Thread 3 s becomes 6 to 9 s). This is a buff, not a nerf.
 - **Risk:** Low to medium. One layout rule: place N pickups spread along the flight (for example at one third and two thirds), and keep the existing roll as an extra. Changes the feel of the darkness design. Needs a pass on the layouts that have few safe lanes.
 
 ### Option (c): Flash becomes something the player can cause
