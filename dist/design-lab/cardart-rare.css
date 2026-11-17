@@ -1,0 +1,35 @@
+/* v1.0-cardart-B Rare and Legendary sheet. Builds on cardart.css (paper page, frames, Deck tile mock). */
+.ca-count{font:400 13px/1.3 var(--pixel);color:var(--ink)}
+.cr-nav{position:sticky;top:0;z-index:2;display:flex;flex-wrap:nowrap;overflow-x:auto;scrollbar-width:thin;gap:4px 6px;margin:0 -4px 6px;padding:6px 4px;background:var(--paper);border-bottom:2px solid var(--rule)}
+.cr-nav a{flex:none;display:inline-flex;align-items:center;gap:4px;min-height:32px;padding:4px 10px;border:2px solid #2a1d12;background:#e3d09b;color:#2a1d12;font:400 13px/1 var(--pixel);text-decoration:none}
+.cr-nav a small{color:var(--ink-soft);font-size:11px}
+.cr-fam{scroll-margin-top:56px}
+.cr-fam>h2 small{font-size:12px;color:var(--ink-soft);margin-left:6px}
+.cr-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(330px,1fr));gap:10px}
+.cr-cell{display:grid;grid-template-columns:minmax(0,1fr);grid-template-areas:'figs' 'info' 'tile';gap:8px 12px;padding:8px;border:2px solid var(--rule);background:#e3d09b;box-shadow:0 2px 0 #b89d62;min-width:0}
+.cr-cell.ca-r-legendary{background:#e6d5a6;border-color:#4c4858}
+.cr-figs{grid-area:figs;display:flex;gap:8px;align-items:flex-end}
+.cr-info{grid-area:info;min-width:0}
+.cr-info h3{font:400 15px/1.2 var(--pixel);color:#2a1d12}
+.cr-id{display:block;font:400 11px/1.2 var(--pixel)!important;color:var(--ink-soft)}
+.cr-idea{font:400 12px/1.3 var(--pixel);color:var(--ink-soft)}
+.cr-idea b{font-weight:400;color:var(--wine);text-transform:uppercase;letter-spacing:1px;font-size:11px;margin-right:4px}
+.cr-line{display:flex;flex-wrap:wrap;align-items:center;gap:2px 4px;font:400 11px/1.3 var(--pixel);color:var(--ink-soft)}
+.cr-step{display:inline-flex;align-items:center;gap:3px;padding:1px 4px;border:1px solid #b89d62}
+.cr-step>svg{display:block;width:8px;height:8px}
+.cr-here{border-color:#2a1d12;background:#f1e0b0;color:#2a1d12}
+.cr-arrow{color:var(--ink-soft)}
+.cr-solo{font-style:normal}
+.cr-tile{grid-area:tile}
+.cr-tile .ca-tile{max-width:100%}
+.cr-figs{overflow-x:auto}
+/* Contact sheet (?view=contact): every picture at 3x and 1x, name only. */
+.cr-contact .cr-grid{grid-template-columns:repeat(auto-fill,minmax(216px,1fr));gap:8px}
+.cr-ccell{display:flex;flex-direction:column;align-items:center;gap:4px;padding:6px 4px;border:2px solid var(--rule);background:#e3d09b}
+.cr-ccell.ca-r-legendary{border-color:#4c4858;background:#e6d5a6}
+.cr-ccell .cr-pair{display:flex;align-items:flex-end;gap:6px}
+.cr-ccell h3{font:400 12px/1.2 var(--pixel);color:#2a1d12;text-align:center}
+.cr-ccell .ca-rar{font-size:10px}
+@media (max-width:960px){
+ .cr-grid{grid-template-columns:repeat(auto-fill,minmax(min(100%,330px),1fr))}
+}

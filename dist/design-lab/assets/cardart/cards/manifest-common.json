@@ -1,0 +1,396 @@
+{
+  "body-spark": {
+    "file": "body-spark.svg",
+    "family": "Collect",
+    "idea": "Two Sparks drop into the wisp over grass",
+    "line": [
+      "body-spark"
+    ]
+  },
+  "spark-cache": {
+    "file": "spark-cache.svg",
+    "family": "Collect",
+    "idea": "Stitched pouch of Sparks, one flies to wisp",
+    "line": [
+      "spark-cache"
+    ]
+  },
+  "dusk-wick": {
+    "file": "dusk-wick.svg",
+    "family": "Collect",
+    "idea": "Wisp takes rose Dusk crescent, gold bursts out",
+    "line": [
+      "dusk-wick",
+      "dusk-wick-ii",
+      "dusk-wick-iii"
+    ]
+  },
+  "cluster-heart": {
+    "file": "cluster-heart.svg",
+    "family": "Collect",
+    "idea": "A bound bunch of Sparks streams into wisp",
+    "line": [
+      "cluster-heart"
+    ]
+  },
+  "low-wick": {
+    "file": "low-wick.svg",
+    "family": "Collect",
+    "idea": "Nearly empty meter, a Spark streaks into wisp",
+    "line": [
+      "low-wick"
+    ]
+  },
+  "wick-doubler": {
+    "file": "wick-doubler.svg",
+    "family": "Collect",
+    "idea": "One Spark enters candle flame, two come out",
+    "line": [
+      "wick-doubler"
+    ]
+  },
+  "glass-spool": {
+    "file": "glass-spool.svg",
+    "family": "Collect",
+    "idea": "Spark drops into hourglass, Collector waits beside it",
+    "line": [
+      "glass-spool"
+    ]
+  },
+  "mending-moss": {
+    "file": "mending-moss.svg",
+    "family": "Collect",
+    "idea": "Dimmed Collector mends on moss, Spark comes in",
+    "line": [
+      "mending-moss"
+    ]
+  },
+  "fast-spool": {
+    "file": "fast-spool.svg",
+    "family": "Collect",
+    "idea": "A spinning spool reels the Collector in fast",
+    "line": [
+      "fast-spool"
+    ]
+  },
+  "courier-tip": {
+    "file": "courier-tip.svg",
+    "family": "Delivery",
+    "idea": "Collector rushes in with a Spark, tips pop",
+    "line": [
+      "courier-tip",
+      "courier-tip-iii"
+    ]
+  },
+  "courier-glass": {
+    "file": "courier-glass.svg",
+    "family": "Delivery",
+    "idea": "Collector delivers into a lens showing two Sparks",
+    "line": [
+      "courier-glass"
+    ]
+  },
+  "crate-lining": {
+    "file": "crate-lining.svg",
+    "family": "Delivery",
+    "idea": "Collector tows a lined crate of Sparks home",
+    "line": [
+      "crate-lining"
+    ]
+  },
+  "return-spring": {
+    "file": "return-spring.svg",
+    "family": "Latch",
+    "idea": "Collector latches a Spark on a coiled spring",
+    "line": [
+      "return-spring"
+    ]
+  },
+  "haul-winch": {
+    "file": "haul-winch.svg",
+    "family": "Latch",
+    "idea": "Cranked winch hauls a hooked Cluster down fast",
+    "line": [
+      "haul-winch"
+    ]
+  },
+  "harvest-common": {
+    "file": "harvest-common.svg",
+    "family": "Pulse",
+    "idea": "Golden sheaf on the field sends one ring",
+    "line": [
+      "harvest-common",
+      "harvest-rare",
+      "harvest-legendary"
+    ]
+  },
+  "first-ripple": {
+    "file": "first-ripple.svg",
+    "family": "Pulse",
+    "idea": "Fresh ring lights the nearest Spark, others wait",
+    "line": [
+      "first-ripple"
+    ]
+  },
+  "far-shore": {
+    "file": "far-shore.svg",
+    "family": "Pulse",
+    "idea": "Wide ring passes spent Spark, lights far shore",
+    "line": [
+      "far-shore"
+    ]
+  },
+  "clear-prism": {
+    "file": "clear-prism.svg",
+    "family": "Flash",
+    "idea": "Flash beam enters prism, leaves as two Sparks",
+    "line": [
+      "clear-prism"
+    ]
+  },
+  "flash-thread": {
+    "file": "flash-thread.svg",
+    "family": "Flash",
+    "idea": "Flash triangle threads Collector back, hourglass running out",
+    "line": [
+      "flash-thread"
+    ]
+  },
+  "diving-bell": {
+    "file": "diving-bell.svg",
+    "family": "Flash ends",
+    "idea": "Spent grey Flash triangle sends one last ring",
+    "line": [
+      "diving-bell"
+    ]
+  },
+  "toll-bell": {
+    "file": "toll-bell.svg",
+    "family": "Rhythm",
+    "idea": "Bell rings under three evenly spaced beat Sparks",
+    "line": [
+      "toll-bell"
+    ]
+  },
+  "pacesetter": {
+    "file": "pacesetter.svg",
+    "family": "Rhythm",
+    "idea": "Collector dashes over three evenly spaced beat posts",
+    "line": [
+      "pacesetter"
+    ]
+  },
+  "downbeat": {
+    "file": "downbeat.svg",
+    "family": "Falling Lift",
+    "idea": "Wisp falls, then Lifts back up; Sparks pay",
+    "line": [
+      "downbeat",
+      "downbeat-iii"
+    ]
+  },
+  "counterweight": {
+    "file": "counterweight.svg",
+    "family": "Falling Lift",
+    "idea": "Dropping brass weight hoists the Collector up fast",
+    "line": [
+      "counterweight"
+    ]
+  },
+  "double-lift": {
+    "file": "double-lift.svg",
+    "family": "Lift",
+    "idea": "Wisp rises under two stacked chevrons, second free",
+    "line": [
+      "double-lift",
+      "climb"
+    ]
+  },
+  "home-beacon": {
+    "file": "home-beacon.svg",
+    "family": "Save",
+    "idea": "Save heart burns atop a beacon post, Sparks",
+    "line": [
+      "home-beacon"
+    ]
+  },
+  "growth-ring": {
+    "file": "growth-ring.svg",
+    "family": "Clear",
+    "idea": "Cut stump shows year rings, newest one gold",
+    "line": [
+      "growth-ring"
+    ]
+  },
+  "wind-feather": {
+    "file": "wind-feather.svg",
+    "family": "Clear",
+    "idea": "Pale feather rides wind streaks past the flag",
+    "line": [
+      "wind-feather"
+    ]
+  },
+  "wayfarers-purse": {
+    "file": "wayfarers-purse.svg",
+    "family": "Clear",
+    "idea": "Drawstring purse of Stored Sparks beside the flag",
+    "line": [
+      "wayfarers-purse"
+    ]
+  },
+  "nest-egg": {
+    "file": "nest-egg.svg",
+    "family": "Clear",
+    "idea": "Woven nest of pale eggs, one gold egg",
+    "line": [
+      "nest-egg"
+    ]
+  },
+  "camp-kit": {
+    "file": "camp-kit.svg",
+    "family": "Rest",
+    "idea": "Rest campfire kindles a second small ember beside",
+    "line": [
+      "camp-kit"
+    ]
+  },
+  "growth-seed-common": {
+    "file": "growth-seed-common.svg",
+    "family": "Rest",
+    "idea": "Seed sprouting on soil beside the Rest campfire",
+    "line": [
+      "growth-seed-common",
+      "growth-seed",
+      "growth-seed-legendary"
+    ]
+  },
+  "prism-lens": {
+    "file": "prism-lens.svg",
+    "family": "Any Trigger",
+    "idea": "Faceted lens casts light over cards before it",
+    "line": [
+      "prism-lens",
+      "prism-lens-ii"
+    ]
+  },
+  "kindling-bead": {
+    "file": "kindling-bead.svg",
+    "family": "Any Trigger",
+    "idea": "Ember bead lights on a string after Spark",
+    "line": [
+      "kindling-bead",
+      "kindling-bead-ii",
+      "kindling-bead-iii"
+    ]
+  },
+  "echo": {
+    "file": "echo.svg",
+    "family": "Next card",
+    "idea": "Sound rings reach a card, echo copy behind",
+    "line": [
+      "echo",
+      "echo-ii",
+      "echo-iii"
+    ]
+  },
+  "deep-vessel": {
+    "file": "deep-vessel.svg",
+    "family": "Always on",
+    "idea": "Spark Meter grows taller, new top segments empty",
+    "line": [
+      "deep-vessel"
+    ]
+  },
+  "tight-packing": {
+    "file": "tight-packing.svg",
+    "family": "Always on",
+    "idea": "Glass jar crammed with Sparks, cord tied tight",
+    "line": [
+      "tight-packing",
+      "tight-packing-ii",
+      "tight-packing-iii"
+    ]
+  },
+  "lift-guide": {
+    "file": "lift-guide.svg",
+    "family": "Always on",
+    "idea": "Gold arrow marks where the wisp should Lift",
+    "line": [
+      "lift-guide"
+    ]
+  },
+  "lantern-lens": {
+    "file": "lantern-lens.svg",
+    "family": "Always on",
+    "idea": "Lantern lens throws its light ring wider out",
+    "line": [
+      "lantern-lens"
+    ]
+  },
+  "slip-feather": {
+    "file": "slip-feather.svg",
+    "family": "Always on",
+    "idea": "Wisp skims ground, sparks crackle, revealing ring spreads",
+    "line": [
+      "slip-feather",
+      "edge-reach"
+    ]
+  },
+  "tailwind": {
+    "file": "tailwind.svg",
+    "family": "Always on",
+    "idea": "Needle stitches a heart; three Sparks count Collects",
+    "line": [
+      "tailwind"
+    ]
+  },
+  "springboard": {
+    "file": "springboard.svg",
+    "family": "Always on",
+    "idea": "After a Spark, wisp bounces off sprung plank",
+    "line": [
+      "springboard"
+    ]
+  },
+  "use-doubler": {
+    "file": "use-doubler.svg",
+    "family": "Always on",
+    "idea": "Three use pips on a card become six",
+    "line": [
+      "use-doubler"
+    ]
+  },
+  "twin-wick": {
+    "file": "twin-wick.svg",
+    "family": "Always on",
+    "idea": "The wisp with two Collectors sharing one orbit",
+    "line": [
+      "twin-wick",
+      "twin-orbit"
+    ]
+  },
+  "long-spool": {
+    "file": "long-spool.svg",
+    "family": "Always on",
+    "idea": "Collector line runs past its usual reach ring",
+    "line": [
+      "long-spool"
+    ]
+  },
+  "cast-line": {
+    "file": "cast-line.svg",
+    "family": "Always on",
+    "idea": "Rod casts the Collector far to a Spark",
+    "line": [
+      "cast-line"
+    ]
+  },
+  "dream": {
+    "file": "dream.svg",
+    "family": "Always on",
+    "idea": "Wisp sleeps in a pale moon, gold path",
+    "line": [
+      "dream"
+    ]
+  }
+}

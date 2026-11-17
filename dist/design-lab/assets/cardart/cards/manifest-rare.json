@@ -1,0 +1,376 @@
+{
+  "growth-seed": {
+    "file": "growth-seed.svg",
+    "rarity": "rare",
+    "family": "Rest & Save",
+    "idea": "Sprout by campfire outgrows the stake notch",
+    "line": [
+      "growth-seed-common",
+      "growth-seed",
+      "growth-seed-legendary"
+    ]
+  },
+  "rhythm": {
+    "file": "rhythm.svg",
+    "rarity": "rare",
+    "family": "Pulse",
+    "idea": "Metronome on night hill, three even Spark beats",
+    "line": [
+      "rhythm"
+    ]
+  },
+  "harvest-legendary": {
+    "file": "harvest-legendary.svg",
+    "rarity": "legendary",
+    "family": "Pulse",
+    "idea": "Struck sheaf in glowing field rings Sparks outward",
+    "line": [
+      "harvest-common",
+      "harvest-rare",
+      "harvest-legendary"
+    ]
+  },
+  "last-light": {
+    "file": "last-light.svg",
+    "rarity": "legendary",
+    "family": "Rest & Save",
+    "idea": "Small flame held in the Save heart",
+    "line": [
+      "last-light"
+    ]
+  },
+  "crescendo": {
+    "file": "crescendo.svg",
+    "rarity": "rare",
+    "family": "Boost",
+    "idea": "Opening hairpin: one small Spark grows into two",
+    "line": [
+      "crescendo"
+    ]
+  },
+  "prism-lens-ii": {
+    "file": "prism-lens-ii.svg",
+    "rarity": "legendary",
+    "family": "Boost",
+    "idea": "Glass prism splits one Spark into three Sparks",
+    "line": [
+      "prism-lens",
+      "prism-lens-ii"
+    ]
+  },
+  "closing-chord": {
+    "file": "closing-chord.svg",
+    "rarity": "rare",
+    "family": "Boost",
+    "idea": "Row of bells; the last, biggest bell rings",
+    "line": [
+      "closing-chord"
+    ]
+  },
+  "second-sun": {
+    "file": "second-sun.svg",
+    "rarity": "legendary",
+    "family": "Boost",
+    "idea": "Two suns rise together over a shining field",
+    "line": [
+      "second-sun"
+    ]
+  },
+  "ripple-glass": {
+    "file": "ripple-glass.svg",
+    "rarity": "rare",
+    "family": "Boost",
+    "idea": "Magnifying glass over Pulse rings doubles the Spark",
+    "line": [
+      "ripple-glass"
+    ]
+  },
+  "glide-prism": {
+    "file": "glide-prism.svg",
+    "rarity": "rare",
+    "family": "Boost",
+    "idea": "Falling-Lift dip passes through crystal, Sparks doubled",
+    "line": [
+      "glide-prism"
+    ]
+  },
+  "kindling-bead-ii": {
+    "file": "kindling-bead-ii.svg",
+    "rarity": "rare",
+    "family": "Boost",
+    "idea": "Gold bead kindles next bead; it pops two Sparks",
+    "line": [
+      "kindling-bead",
+      "kindling-bead-ii",
+      "kindling-bead-iii"
+    ]
+  },
+  "kindling-bead-iii": {
+    "file": "kindling-bead-iii.svg",
+    "rarity": "legendary",
+    "family": "Boost",
+    "idea": "Kindled bead flares big in glow, four Sparks",
+    "line": [
+      "kindling-bead",
+      "kindling-bead-ii",
+      "kindling-bead-iii"
+    ]
+  },
+  "echo-ii": {
+    "file": "echo-ii.svg",
+    "rarity": "rare",
+    "family": "Repeat",
+    "idea": "Bright Spark followed by two fading echo copies",
+    "line": [
+      "echo",
+      "echo-ii",
+      "echo-iii"
+    ]
+  },
+  "echo-iii": {
+    "file": "echo-iii.svg",
+    "rarity": "legendary",
+    "family": "Repeat",
+    "idea": "Bright Spark followed by three fading echo copies",
+    "line": [
+      "echo",
+      "echo-ii",
+      "echo-iii"
+    ]
+  },
+  "refrain": {
+    "file": "refrain.svg",
+    "rarity": "legendary",
+    "family": "Repeat",
+    "idea": "Looping arrow carries the Spark round once more",
+    "line": [
+      "refrain"
+    ]
+  },
+  "chameleon": {
+    "file": "chameleon.svg",
+    "rarity": "rare",
+    "family": "Repeat",
+    "idea": "Chameleon on branch turning Spark-gold toward a Spark",
+    "line": [
+      "chameleon"
+    ]
+  },
+  "mirror-grain": {
+    "file": "mirror-grain.svg",
+    "rarity": "rare",
+    "family": "Repeat",
+    "idea": "Hand mirror reflects a Spark, giving it again",
+    "line": [
+      "mirror-grain"
+    ]
+  },
+  "dusk-wick-ii": {
+    "file": "dusk-wick-ii.svg",
+    "rarity": "rare",
+    "family": "Collect",
+    "idea": "Candle flame feeds on a dark Dusk Spark",
+    "line": [
+      "dusk-wick",
+      "dusk-wick-ii",
+      "dusk-wick-iii"
+    ]
+  },
+  "dusk-wick-iii": {
+    "file": "dusk-wick-iii.svg",
+    "rarity": "legendary",
+    "family": "Collect",
+    "idea": "Tall candle blazes on Dusk Spark, glowing, many Sparks",
+    "line": [
+      "dusk-wick",
+      "dusk-wick-ii",
+      "dusk-wick-iii"
+    ]
+  },
+  "tight-packing-ii": {
+    "file": "tight-packing-ii.svg",
+    "rarity": "rare",
+    "family": "Stored",
+    "idea": "Glass jar crammed with three Sparks, lid bulging",
+    "line": [
+      "tight-packing",
+      "tight-packing-ii",
+      "tight-packing-iii"
+    ]
+  },
+  "tight-packing-iii": {
+    "file": "tight-packing-iii.svg",
+    "rarity": "legendary",
+    "family": "Stored",
+    "idea": "Big jar bursting with Sparks, lid strapped, glowing",
+    "line": [
+      "tight-packing",
+      "tight-packing-ii",
+      "tight-packing-iii"
+    ]
+  },
+  "courier-tip-iii": {
+    "file": "courier-tip-iii.svg",
+    "rarity": "legendary",
+    "family": "Collector",
+    "idea": "Collector delivers a Spark, five tip Sparks fanning",
+    "line": [
+      "courier-tip",
+      "courier-tip-iii"
+    ]
+  },
+  "cache-handling": {
+    "file": "cache-handling.svg",
+    "rarity": "rare",
+    "family": "Collector",
+    "idea": "Collector carries a Spark chest home on a line",
+    "line": [
+      "cache-handling"
+    ]
+  },
+  "twin-orbit": {
+    "file": "twin-orbit.svg",
+    "rarity": "rare",
+    "family": "Collector",
+    "idea": "Two Collectors orbit the wisp on one ring",
+    "line": [
+      "twin-orbit"
+    ]
+  },
+  "watchlight": {
+    "file": "watchlight.svg",
+    "rarity": "rare",
+    "family": "Collector",
+    "idea": "Collector cushions the falling wisp above sharp rocks",
+    "line": [
+      "watchlight"
+    ]
+  },
+  "ring-spring": {
+    "file": "ring-spring.svg",
+    "rarity": "rare",
+    "family": "Overfill",
+    "idea": "Spilling meter beside a spring launching the Collector",
+    "line": [
+      "ring-spring",
+      "ring-spring-ii"
+    ]
+  },
+  "ring-spring-ii": {
+    "file": "ring-spring-ii.svg",
+    "rarity": "legendary",
+    "family": "Overfill",
+    "idea": "Spilling meter, double spring flings Collector high, glowing",
+    "line": [
+      "ring-spring",
+      "ring-spring-ii"
+    ]
+  },
+  "flash-handling": {
+    "file": "flash-handling.svg",
+    "rarity": "rare",
+    "family": "Flash",
+    "idea": "Collector carries a lightning Flash, light bursting out",
+    "line": [
+      "flash-handling"
+    ]
+  },
+  "flash-bank": {
+    "file": "flash-bank.svg",
+    "rarity": "rare",
+    "family": "Flash",
+    "idea": "Lightning Flash strikes a nearly empty Spark meter",
+    "line": [
+      "flash-bank"
+    ]
+  },
+  "harvest-rare": {
+    "file": "harvest-rare.svg",
+    "rarity": "rare",
+    "family": "Pulse",
+    "idea": "Golden sheaf in moonlit field, Pulse ring passing",
+    "line": [
+      "harvest-common",
+      "harvest-rare",
+      "harvest-legendary"
+    ]
+  },
+  "spillway": {
+    "file": "spillway.svg",
+    "rarity": "rare",
+    "family": "Overfill",
+    "idea": "Meter spills into a pool; one ripple rings out",
+    "line": [
+      "spillway",
+      "spillway-ii"
+    ]
+  },
+  "spillway-ii": {
+    "file": "spillway-ii.svg",
+    "rarity": "legendary",
+    "family": "Overfill",
+    "idea": "Meter spills into a glowing pool; three ripples",
+    "line": [
+      "spillway",
+      "spillway-ii"
+    ]
+  },
+  "edge-reach": {
+    "file": "edge-reach.svg",
+    "rarity": "rare",
+    "family": "Pulse",
+    "idea": "Wisp skims the ground; a wide Pulse reaches far",
+    "line": [
+      "edge-reach"
+    ]
+  },
+  "climb": {
+    "file": "climb.svg",
+    "rarity": "rare",
+    "family": "Lift",
+    "idea": "Wisp rises three steps; a Pulse at the top",
+    "line": [
+      "double-lift",
+      "climb"
+    ]
+  },
+  "downbeat-iii": {
+    "file": "downbeat-iii.svg",
+    "rarity": "legendary",
+    "family": "Lift",
+    "idea": "Wisp falls, Lifts at bottom, five Sparks burst",
+    "line": [
+      "downbeat",
+      "downbeat-iii"
+    ]
+  },
+  "growth-seed-legendary": {
+    "file": "growth-seed-legendary.svg",
+    "rarity": "legendary",
+    "family": "Rest & Save",
+    "idea": "Tall sapling by campfire towers past stake, glowing",
+    "line": [
+      "growth-seed-common",
+      "growth-seed",
+      "growth-seed-legendary"
+    ]
+  },
+  "devourer": {
+    "file": "devourer.svg",
+    "rarity": "rare",
+    "family": "Eater",
+    "idea": "Jaws bite a Rare card; a heart rises",
+    "line": [
+      "devourer"
+    ]
+  },
+  "ember-feeder": {
+    "file": "ember-feeder.svg",
+    "rarity": "rare",
+    "family": "Eater",
+    "idea": "Stove eats two cards; the meter grows a notch",
+    "line": [
+      "ember-feeder"
+    ]
+  }
+}
