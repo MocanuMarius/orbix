@@ -3,6 +3,7 @@ import {WispFlight} from '../dist/flight.mjs';
 import {attachDream,prepareDreamHandoff,validateDreamPreset} from '../dist/dream.mjs';
 import {beginFlightAttempt,createRun,getRunModifiers,newState} from '../dist/model.mjs';
 import {onboardingFlightPlan} from '../dist/onboarding.mjs';
+import {writeTemporary} from '../dist/temporary-inscriptions.mjs';
 globalThis.requestAnimationFrame=()=>1;globalThis.cancelAnimationFrame=()=>{};
 const ctx=new Proxy({},{get:(o,k)=>o[k]??(String(k).includes('Gradient')?()=>({addColorStop(){}}):()=>{}),set:(o,k,v)=>(o[k]=v,true)});
 const canvas={style:{},getContext:()=>ctx,getBoundingClientRect:()=>({width:390,height:620})};
@@ -56,7 +57,7 @@ for(const kind of ['normal','elite','finale']){
   const profile=newState().profile,run=createRun(profile,1);
   const node=run.map.flat().find(n=>n.kind===kind);
   run.current=node;run.phase='briefing';run.skills={'main-dream':1,'main-dream-deep':1};
-  run.eventFavors=['lens'];run.nextFlightBoon='flash-relay';
+  run.mountedCards=[null,null];writeTemporary(run,0,'star-chart');writeTemporary(run,1,'dawnlight'); // Star Chart and Dawnlight on the Chain
   const scene=()=>{
     const engine=new WispFlight({
       canvas:{...canvas,getBoundingClientRect:()=>({width:900,height:405})},

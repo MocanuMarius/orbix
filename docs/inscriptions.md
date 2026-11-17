@@ -118,3 +118,64 @@ Source codes: **B** = Boss or Elite reward (boss relic). **E** = Elite reward. C
 | cache-cup | Cache Cup | Caches restore 2 extra Sparks. | none (passive) | E |
 | path-prism | Path Prism | Luminance +12; double in crystal caves. | none (passive) | E |
 | dawn-thread | Dawn Thread | Echo Luminance lasts 1 s longer. Needs that learned perk. | none (passive) | E |
+
+## Events and objectives: temporary Inscriptions
+
+Rule: **nothing that lasts beyond the moment floats loose in the run; every lasting effect lives in the Chain.** Event stops, optional objectives (`dist/route-bonuses.mjs`) and oaths no longer write `passageBoons`, `favorClears`, `eventFavors`, `nextFlightBoon`, `nextFlightPact`, `pilgrimVow` or `treasurePact: 'wager'`. They write a TEMPORARY Inscription on a slot. Code: catalogue in `dist/inscriptions.mjs` (`TEMPORARY_INSCRIPTIONS`, not in the Scribe's 18), run helpers in `dist/temporary-inscriptions.mjs`, slot screen `temporaryWriteMarkup` in `dist/reward-screen.mjs`, brand and inspector in `dist/inscription-ui.mjs`. Tests: `tests/temporary-inscriptions.test.mjs`.
+
+### Inventory
+
+Class: IMMEDIATE (happens once) / LASTING (more than one flight or the whole run) / NEITHER (flagged, left unchanged).
+
+| Source | Outcome | Lasts / stored (before) | Class |
+| --- | --- | --- | --- |
+| Events, treasure, Rest | Refuel (spring, lantern, warm coal), Relight a heart, Stored Sparks purses, Sell a living coal, Prism faces (22 Stored Sparks / meter refill / +3 capacity), Unweave refund, Recast fittings, Hollow Vessel seed (+3 max Sparks), Rest recover / grow / Forge / card | once; run fields (flame, lives, wallet, capacity) | IMMEDIATE (10 outcomes) |
+| Objectives | Gilded Passage, Pilgrim Precision (Stored Sparks), Three Suns (heart), Heartwood Trail (+3 max Sparks) | once | IMMEDIATE (4) |
+| Objectives (11) | Wild Circuit and Draft contact; Flare Relay; Long Glide and Marked Lifts; Edgeweaver; Night Sail; Wayfinder; Rising Constellation; Spark Trail and Exit reserve | 3 cleared flights; `run.passageBoons`, `nextFlightBoon` | LASTING, converted (8 Inscriptions) |
+| Events, chests | Reserve Wick, Hollow Feather, Star Chart, Companion Chime (Ash Spring, shrines, archive, sanctuary, workshop, Prism, chests) | 3 cleared flights; `favorClears`, `eventFavors` | LASTING, converted (4) |
+| Event 8 | Lead Seal (first six Lifts cost 1 more) | next attempt; `eventFavors` | LASTING, converted (1) |
+| Events 1, 7, 8 | Night's Ledger, The Closed Eye, The Silent Orbit | next attempt, spent by a fall; `nextFlightPact` | LASTING, converted (3 oaths) |
+| Event 2 | Pilgrim's Vow | first attempt; `pilgrimVow` | LASTING, converted (oath) |
+| Wager chest | Sealed Purse | next attempt; `treasurePact` | LASTING, converted (oath) |
+| Event 4 | Marked Passage (drafts -30% or +35 light on one named exit, closes the other fork, reopens after a fall) | first attempt; `routePreparation` | NEITHER: it changes the map. Left unchanged. Suggestion: make it a stop-page choice that reveals the exit instead of a lasting effect |
+| Chests | Far Lens, Quick Lens, Mending Wick, Toll Stamp, Lamplighter's Seal (`treasureGifts`) | the whole run, no count | NEITHER: no duration to count. Left unchanged. Suggestion: permanent Inscriptions the chest writes on a slot |
+| Dead flags | `nextFlightBurden`, `nextFlightBlessing`, `treasurePact` `sight` / `recharge` | nothing grants them | NEITHER: dead code, left unchanged |
+
+Counts: 14 immediate, 18 lasting (all converted), 8 neither.
+
+### The 18 temporary Inscriptions
+
+| Name | Effect | Lasts | Replaces |
+| --- | --- | --- | --- |
+| Quick Recall | Companion recovery 20% faster. | 3 flights | Wild Circuit, Draft contact |
+| Dawnlight | +25% opening Luminance for the first 15 seconds. | 3 | Flare Relay |
+| Glidepath | Save up to 9 Sparks on your first 3 Lifts each flight. | 3 | Long Glide, Marked Lifts |
+| Edgeward | One collision ward per flight. | 3 | Edgeweaver |
+| Nightveil | Black Holes drain 25% fewer Sparks. | 3 | Night Sail |
+| Wayglass | Preview the opening 2.5 seconds before takeoff. | 3 | Wayfinder |
+| Risen Star | First 3 fuel pickups each flight restore +2 missing Sparks. | 3 | Rising Constellation |
+| Mending | Below 6 Sparks, restore up to 6 missing Sparks once per flight. | 3 | Spark Trail, Exit reserve |
+| Reserve Wick | Below 6 Sparks, restore 9 once per flight. | 3 | Reserve Wick |
+| Hollow Feather | First two paid Lifts free each flight. | 3 | Hollow Feather |
+| Star Chart | See 35% farther. | 3 | Star Chart |
+| Companion Chime | Companion cooldown 20% shorter. | 3 | Companion Chime, shrine blessing |
+| Lead Seal | First six paid Lifts cost 1 extra Spark. | 1 (ends when the flight begins) | Lead Seal |
+| Night's Ledger, The Closed Eye, The Silent Orbit | The old pact penalties and clear-only bonus. | until fulfilled | Flight Pacts |
+| Pilgrim's Vow | Clear a flight with 4 body Spark pickups for 8 Stored Sparks. | until fulfilled | Pilgrim's Vow |
+| Sealed Purse | Clear a flight holding 12 Sparks for Stored Sparks. | until fulfilled | wager |
+
+### How they work
+
+- **Entry.** `{id, temporary: true, flightsLeft: N | until: 'fulfilled', covers: {id} | null}` in `run.slotInscriptions[slot]`. The engine modifiers (`flightBoons`, `eventFavors`, pact) are read from the Chain (`dist/passage-preparations.mjs`), so the flight rules and numbers are unchanged.
+- **Earning.** The award sets `run.pendingTemporary`; the router (`goToRun`) opens the slot screen, the same screen style as the Scribe. Nothing else can proceed (`selectNode`, `beginFlightAttempt`, `resolveSupport`, `acknowledgeVictory` refuse) until it is written. Tests and scripts may call `writePendingTemporary(run)` without a slot (first bare slot).
+- **Covering.** Over a permanent Inscription it covers it: the permanent one is suspended (no rule sees it) and comes back by itself when the temporary one ends. The screen asks first and says so. Over another temporary one it replaces it (confirm) and keeps whatever that one covered. A Scribe write under a temporary one lands beneath it. Earning the same temporary Inscription again moves it and refreshes its count; effects never stack.
+- **Counting.** A cleared flight spends one flight of each that was on the Chain when the flight began; a fall or an interrupted flight spends none. At zero it ends. Lead Seal ends when the flight starts (an unstarted gate gives it back).
+- **Oaths** stay until a cleared flight fulfils them (a fall leaves them in place; the Vow stays open with fewer than 4 body pickups, the Purse with fewer than 12 Sparks). This differs from the old "one attempt consumes it, falls included".
+- **Display.** The brand uses the Inscription's glyph in a dashed ring (accent `#a4561f`) with a pixel counter of flights left at the top-right of the brand; an oath wears a small open ring. The inspector says "Temporary: N flights left" or "Oath: stays until fulfilled" on the dark Inscription panel, with the covered Inscription small and grey. Menus only.
+- **Stop pages and offers** use one line, `temporaryLine(id)`: "Temporary Inscription: Mending — below 6 Sparks, restore up to 6 missing Sparks once per flight. 3 flights." Event stops list the Inscriptions they can give (`EVENT_SCENARIOS[i].gives`). Test: offer text, stop page and award are the same line.
+- **Old saves.** `migrateLooseEffects` (run on load and when an attempt begins) moves loose effects onto the first slot without a temporary Inscription (covering if needed) with their remaining count; with no slot they are dropped. A run with no Chain (legacy non-card runs) drops them.
+- Dev: `?scenario=temp-write&temp=mending` shows the slot screen; `slots=0:gilded,0:mending~2,1:closed-eye` writes them. Captures: `node scripts/inscription-ui-proof.mjs sheet temp`.
+
+### Chests
+
+A chest on a card run keeps its own two finds (some of which already give Stored Sparks; that base is unchanged) and then offers ONE more choice on its own screen, with two large options: **Stored Sparks: +N** (20 on map 1, 30 on map 2, 40 on map 3; no flight-clear scale exists for a support stop), taken at once, or **A surprise card**, a free Forge (Forge ceremony, skippable, one fade under reduced motion). The card goes to the deck (reserve) by the claim path won cards use (NEW badge, auto-mounted only when nothing is mounted), live pool, the ordinary stop reward odds, no Stored Sparks spent. One or the other, never both. The stop page says "Choose: +N Stored Sparks or 1 surprise card". Code: `queueChestChoice`, `chooseChestReward`, `grantChestCard` in `dist/model.mjs` (`run.pendingChest` blocks the map like `pendingTemporary`), `chestChoiceMarkup` in `dist/treasure-view.mjs`. Tests: `tests/chest-forge.test.mjs`.

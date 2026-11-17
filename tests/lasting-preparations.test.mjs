@@ -1,23 +1,26 @@
 import test from 'node:test';import assert from 'node:assert/strict';
 import * as M from '../dist/model.mjs';
-import {grantPassageBoon,grantEventFavor,activePassageBoons,activeEventFavors,spendPreparationClear} from '../dist/passage-preparations.mjs';
+import {activePassageBoons,activeEventFavors,spendPreparationClear} from '../dist/passage-preparations.mjs';
+import {writeTemporary,temporaryEntries} from '../dist/temporary-inscriptions.mjs';
 import {getRouteBonus,awardRouteBonus} from '../dist/route-bonuses.mjs';
 import {getGlowCapacity} from '../dist/vitality.mjs';
 import {FlightBoon} from '../dist/flight-boons.mjs';
-const setup=()=>{const s=M.newState();s.run=M.createRun(s.profile,'lasting-prep');return s;};
+// Lasting preparations live on the Chain as temporary Inscriptions (docs/inscriptions.md). These runs are plain map runs given a three-slot Chain.
+const setup=()=>{const s=M.newState();s.run=M.createRun(s.profile,'lasting-prep');s.run.mountedCards=[null,null,null];return s;};
+const left=(r,id)=>temporaryEntries(r).find(e=>e.id===id)?.flightsLeft;
 test('earned preparations survive failed attempts, expire after three clears, and refresh without stacking',()=>{
- const s=setup(),r=s.run;grantPassageBoon(r,'long-glide');grantEventFavor(r,'feather');
+ const s=setup(),r=s.run;writeTemporary(r,0,'glidepath');writeTemporary(r,1,'hollow-feather');
  M.selectNode(r,M.getChoices(r)[0].id);M.beginFlightAttempt(r);M.markFlightAttemptStarted(r);
  assert.deepEqual(r.attemptEntry.flightBoons,['long-glide']);assert.deepEqual(r.attemptEntry.eventFavors,['feather']);
- assert.ok(M.finishFlight(r,{success:false}));assert.equal(r.passageBoons['long-glide'],3);assert.equal(r.favorClears.feather,3);
+ assert.ok(M.finishFlight(r,{success:false}));assert.equal(left(r,'glidepath'),3);assert.equal(left(r,'hollow-feather'),3);
  M.selectNode(r,M.getChoices(r)[0].id);M.beginFlightAttempt(r);M.markFlightAttemptStarted(r);
- assert.ok(M.finishFlight(r,{success:true,flame:60}));assert.equal(r.passageBoons['long-glide'],2);assert.equal(r.favorClears.feather,2);
- assert.equal(M.finishFlight(r,{success:true}),false);assert.equal(r.favorClears.feather,2);
- const memory=new Map(),store={getItem:k=>memory.get(k),setItem:(k,v)=>memory.set(k,v)};M.saveState(s,store);
- const loaded=M.loadState(store).run;assert.equal(loaded.passageBoons['long-glide'],2);assert.equal(loaded.favorClears.feather,2);
- const entry={flightBoons:['long-glide'],eventFavors:['feather']};spendPreparationClear(r,entry);assert.equal(r.favorClears.feather,1);
+ assert.ok(M.finishFlight(r,{success:true,flame:60}));assert.equal(left(r,'glidepath'),2);assert.equal(left(r,'hollow-feather'),2);
+ assert.equal(M.finishFlight(r,{success:true}),false);assert.equal(left(r,'hollow-feather'),2);
+ const entry={flightBoons:['long-glide'],eventFavors:['feather']};spendPreparationClear(r,entry);assert.equal(left(r,'hollow-feather'),1);
  spendPreparationClear(r,entry);assert.deepEqual(activePassageBoons(r),[]);assert.deepEqual(activeEventFavors(r),[]);
- grantPassageBoon(r,'long-glide');grantPassageBoon(r,'long-glide');assert.equal(r.passageBoons['long-glide'],3);
+ assert.deepEqual(r.slotInscriptions,[null,null,null],'spent ones leave the slots bare');
+ writeTemporary(r,0,'glidepath');writeTemporary(r,2,'glidepath');assert.equal(left(r,'glidepath'),3);
+ assert.deepEqual(temporaryEntries(r).map(e=>e.slot),[2],'earning it again moves it and refreshes the count; it never stacks');
 });
 test('simultaneous preparations combine distinct effects and use the stronger recovery multiplier',()=>{
  const e={mod:{flightBoons:['long-glide','wild-circuit','night-sail'],eventFavors:['haste']},time:0};

@@ -1,5 +1,6 @@
 import {newState,createRun,ARTIFACTS,getChoices,selectNode,beginFlightAttempt,markFlightAttemptStarted,finishFlight,settleCheckpoint} from '../model.mjs?v=guide-clarity-1';
 import {makeSkillCard} from '../skill-cards.mjs?v=guide-clarity-1';
+import {temporaryLine} from '../temporary-inscriptions.mjs?v=guide-clarity-1';
 import {prepareRouteOffer} from '../route-offers.mjs?v=guide-clarity-1';
 
 /** Preview-only data. Never load/persist a player save or start a flight. */
@@ -30,9 +31,8 @@ export function createComponentFixture(family,variant){
     if(variant==='clear')run.flightReward={offers:[],claimed:true};
     if(family==='rewards'&&['pedestal','horizontal','compact'].includes(variant)){
       run.artifacts.push('dawn-loom');
-      run.lastFlight={elite:true,success:true,completionBonus:12,pickupCondensedGlow:3,routeBonus:{id:'wild-circuit',amount:0,message:'Companion recovery 20% faster for 3 cleared flights.'}};
+      run.lastFlight={elite:true,success:true,completionBonus:12,pickupCondensedGlow:3,routeBonus:{id:'wild-circuit',amount:0,message:temporaryLine('quick-recall',3)}};
       run.flightReward={offers:['dawn-loom','echo-vessel'],claimed:true,chosen:'dawn-loom'};
-      run.passageBoons={'wild-circuit':3};
     }
   }
   if(family==='cards'&&variant==='empty'){run.mountedCards=[null,null,null];run.reserveCards=[];}

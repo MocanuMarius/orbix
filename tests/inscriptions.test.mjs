@@ -7,7 +7,7 @@ import {WispFlight} from '../dist/flight.mjs';
 import {makeSkillCard, createCardExecution, resolveCardRow, getCardModifiers, CARD_UNIT} from '../dist/skill-cards.mjs';
 import {CardEngine} from '../dist/card-engine.mjs';
 import {stepFlightInscriptions} from '../dist/card-engine-flight.mjs';
-import {INSCRIPTIONS, INSCRIPTION_IDS, cleanSlotInscriptions, writeInscription, offerInscriptions, getInscription} from '../dist/inscriptions.mjs';
+import {INSCRIPTIONS, INSCRIPTION_IDS, TEMPORARY_IDS, cleanSlotInscriptions, writeInscription, offerInscriptions, getInscription} from '../dist/inscriptions.mjs';
 import {applyInscriptionSlots} from '../dist/card-inspector.mjs';
 import {getGlowCapacity} from '../dist/vitality.mjs';
 
@@ -240,9 +240,10 @@ test('glyphs: every Inscription has its own 16x16 brand mark, as a file and inli
   const fs = await import('node:fs');
   const {inscriptionGlyph, INSCRIPTION_GLYPH_IDS, inscriptionGlyphPath} = await import('../dist/inscription-glyphs.mjs');
   const {GLYPHS, validate} = await import('../scripts/build-inscription-glyphs.mjs');
-  assert.deepEqual([...INSCRIPTION_GLYPH_IDS].sort(), [...INSCRIPTION_IDS].sort());
+  const ALL_IDS = [...INSCRIPTION_IDS, ...TEMPORARY_IDS];
+  assert.deepEqual([...INSCRIPTION_GLYPH_IDS].sort(), [...ALL_IDS].sort());
   assert.deepEqual(validate(), []);
-  const files = INSCRIPTION_IDS.map(id => {
+  const files = ALL_IDS.map(id => {
     const file = new URL(`../dist/${inscriptionGlyphPath(id)}`, import.meta.url);
     assert.ok(fs.existsSync(file), `${id} has a glyph file`);
     const text = fs.readFileSync(file, 'utf8');

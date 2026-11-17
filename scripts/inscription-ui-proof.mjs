@@ -76,7 +76,7 @@ const overflow = root => ev(`(()=>{const out=[];const W=innerWidth,H=innerHeight
 
 try {
   if (sets.includes('sheet')) {
-    await size(1240, 420, false);
+    await size(1240, 760, false);
     await go('/__glyph-sheet.html', 'body[data-ready]');
     await shot('glyphs');
   }
@@ -107,6 +107,19 @@ try {
     await click('.scribe-screen .scribe-slot[data-slot="1"]');
     await delay(200);
     await shot('scribe-confirm-915x412');
+  }
+  if (sets.includes('temp')) {
+    await size(915, 412);
+    await go('/game.html?cards=1&mock=cards&chain=rhythm,echo,-,body-spark&reserve=lift-guide,proximity&slots=0:gilded,0:mending~2,1:closed-eye,2:hollow,3:chime~1', '#dk-root .dk2-station');
+    await shot('temp-chain-915x412');
+    console.log('temp brands', await ev(`[...document.querySelectorAll('.dk2-ins-brand')].map(b=>[b.dataset.insId,b.getBoundingClientRect().width,b.querySelector('.dk2-ins-count')?.textContent||(b.querySelector('.dk2-ins-oath')?'oath':'')])`));
+    await go('/game.html?cards=1&mock=cards&scenario=temp-write&temp=mending&chain=harvest-rare,collectors-ledger,-,body-spark,tight-packing-iii&slots=1:gilded,2:bell', '.temporary-write');
+    await shot('temp-slots-915x412');
+    console.log('temp slots overflow', await overflow('.temporary-write'));
+    await click('.temporary-write .scribe-slot[data-slot="1"]');
+    await delay(200);
+    await shot('temp-confirm-915x412');
+    console.log('temp confirm overflow', await overflow('.temporary-write'));
   }
   if (sets.includes('review')) {
     const imgs = process.argv.find(a => a.startsWith('--img='))?.slice(6) || 'glyphs,chain-915x412';

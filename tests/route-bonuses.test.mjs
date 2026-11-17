@@ -11,11 +11,13 @@ import {prepareRouteOffer} from '../dist/route-offers.mjs';
 import {awardRouteBonus} from '../dist/route-bonuses.mjs';
 import {getGlowCapacity} from '../dist/vitality.mjs';
 import {makeSkillCard} from '../dist/skill-cards.mjs';
+import {writeTemporary,writePendingTemporary,temporaryEntries} from '../dist/temporary-inscriptions.mjs';
 
 function firstOffer(id) {
   for (let seed=0; seed<1000; seed++) {
     const state = newState(), run = state.run = createRun(state.profile, String(seed));
     run.testMode=true;
+    run.mountedCards=[null,null,null]; // a Chain: lasting rewards are temporary Inscriptions written on a slot
     run.lives=2;
     run.skills['proximity-awakening']=1;
     for (const node of getChoices(run)) {
@@ -117,13 +119,16 @@ test('every route bonus pays exactly its advertised clear effect and survives sa
     const earned=clearPay+19+3+currency; // 60 internal reserve packs to 3 Stored Sparks.
     assert.equal(run.condensedGlow,funds+earned);
     assert.equal(run.lives,hearts+Number(id==='three-suns'));
-    assert.equal(run.nextFlightBoon, ['three-suns','precision','gilded'].includes(id)?undefined:ROUTE_BONUSES[id].boonId||id);
+    // A lasting reward is pending until the player writes it on a slot (the next screen); nothing floats loose in the run.
+    assert.equal(run.pendingTemporary?.id, ROUTE_BONUSES[id].temporary);
+    assert.equal(run.passageBoons, undefined);assert.equal(run.nextFlightBoon, undefined);
+    assert.equal(claimed.message, ROUTE_BONUSES[id].temporary?ROUTE_BONUSES[id].reward:claimed.message);
     assert.equal(finishFlight(run,cleared(id)),false);
     const store=memory();
     saveState(state,store);
     const saved=loadState(store);
     assert.equal(saved.run.condensedGlow,run.condensedGlow);
-    assert.equal(saved.run.nextFlightBoon,run.nextFlightBoon);
+    assert.deepEqual(saved.run.pendingTemporary,run.pendingTemporary);
     const receipt=takeClearRewardReceipt(saved.run);
     assert.equal(receipt.amount,earned);
     assert.ok(receipt.notes.includes(claimed.message));
@@ -141,7 +146,7 @@ test('a missed, ineligible, conflicting, or failed objective never mints its rew
     assert.equal(run.lastFlight.challengeComplete,false);
   }
   const {run}=firstOffer('gilded');
-  run.treasurePact='wager';
+  writeTemporary(run,0,'sealed-purse');run.attemptEntry.oaths=['sealed-purse']; // as if carried into the flight
   finishFlight(run,cleared('gilded'));
   assert.equal(run.lastFlight.routeBonus,null);
   const {run:dead}=firstOffer('three-suns'),wallet=dead.condensedGlow;
@@ -151,20 +156,19 @@ test('a missed, ineligible, conflicting, or failed objective never mints its rew
   assert.equal(dead.routeBonusClaims,undefined);
 });
 
-test('an interrupted loading gate restores the pending boon, an already flown attempt spends it',()=>{
+test('a temporary boon stays on its slot through an interrupted gate and a started attempt; only a cleared flight spends it',()=>{
   for(const started of [false,true]){
     const state=newState(),run=state.run=createRun(state.profile,'boon-lifetime');
-    run.nextFlightBoon='long-glide';
+    run.mountedCards=[null,null];writeTemporary(run,1,'glidepath');
     assert.equal(getRunModifiers(run).flightBoon,null);
+    assert.deepEqual(getRunModifiers(run).flightBoons,['long-glide']);
     selectNode(run,getChoices(run)[0].id);
     beginFlightAttempt(run);
-    assert.equal(getRunModifiers(run).flightBoon,'long-glide');
-    assert.equal(run.nextFlightBoon,undefined);
+    assert.deepEqual(getRunModifiers(run).flightBoons,['long-glide']);
+    assert.deepEqual(run.attemptEntry.flightBoons,['long-glide']);
     if(started)assert.ok(markFlightAttemptStarted(run));
-    const store=memory();saveState(state,store);
-    assert.equal(loadState(store).run.nextFlightBoon,started?undefined:'long-glide');
     suspendRun(state);
-    assert.equal(run.nextFlightBoon,started?undefined:'long-glide');
+    assert.equal(run.slotInscriptions[1].flightsLeft,3,'a gate that never opened or a started attempt spends nothing');
   }
 });
 
@@ -173,7 +177,7 @@ test('a failed attempt spends its boon even when the player returns to choose an
   run.attemptEntry.flightBoon='wild-circuit';
   markFlightAttemptStarted(run);
   finishFlight(run, {success:false});
-  assert.equal(run.nextFlightBoon,undefined);
+  assert.equal(run.nextFlightBoon,undefined);assert.equal(run.pendingTemporary,undefined);
   const store=memory();saveState(state,store);
   assert.equal(loadState(store).run.nextFlightBoon,undefined);
 });
@@ -185,7 +189,7 @@ test('cash and heart offers are capped by map, state and outstanding contracts',
     const offers=sites.map(n=>getRouteBonusCandidates(run,n));
     assert.equal(offers.filter(o=>o.includes('gilded')||o.includes('precision')).length,1);
     assert.equal(offers.filter(o=>o.includes('three-suns')).length,1);
-    run.lives=3;run.treasurePact='wager';
+    run.lives=3;run.mountedCards=[null];writeTemporary(run,0,'sealed-purse');
     assert.ok(sites.every(n=>getRouteBonusCandidates(run,n).every(id=>!['gilded','precision','three-suns','edgeweaver'].includes(id))));
   }
 });

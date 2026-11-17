@@ -1,7 +1,8 @@
 // A disposable deck for phone inspection. Never reads or writes a player save.
 import { newState, createRun, advanceMap, getSupportChoices, getChoices, selectNode, beginFlightAttempt, markFlightAttemptStarted, finishFlight, settleCheckpoint } from './model.mjs?v=guide-clarity-1';
 import { makeSkillCard } from './skill-cards.mjs?v=guide-clarity-1';
-import { cleanSlotInscriptions, writeInscription, INSCRIPTIONS } from './inscriptions.mjs?v=guide-clarity-1';
+import { cleanSlotInscriptions, writeInscription, INSCRIPTIONS, getTemporary } from './inscriptions.mjs?v=guide-clarity-1';
+import { writeTemporary, queueTemporary } from './temporary-inscriptions.mjs?v=guide-clarity-1';
 
 export function prepareCardInspectorReward(run, cardId = 'harvest-rare') {
   if (run.cardReward && !run.cardReward.uiAcknowledged) return;
@@ -37,7 +38,7 @@ function prepareLateGamePack(state) {
   run.artifactCharges = { 'glow-wick': 3, 'flash-stone': 2 };
   run.treasureGifts = { vessel: 1, wick: 1, toll: 1, seal: 1 };
   run.treasureCapacity = 10;
-  run.nextFlightPact = 'night-ledger';
+  writeTemporary(run, 1, 'night-ledger');
 
   // Follow actual connected map sites to a late ordinary round. This keeps the
   // draft, challenge, chapter and route identities consistent with a real run.
@@ -111,9 +112,9 @@ export function createCardInspectorState(params = new URLSearchParams()) {
   if (params.get('scenario') === 'reward') prepareCardInspectorReward(run, params.get('reward') === 'edge-reach' ? 'edge-reach' : 'harvest-rare');
   if (params.get('scenario') === 'proximity') run.reserveCards.push(makeSkillCard('edge-reach', 'sample:edge-reach'));
   if (params.get('scenario') === 'closed-eye') {
-    run.nextFlightPact = 'blind-pilgrim';
     run.mountedCards = ['lantern-lens', 'climb', 'harvest-common'].map((id, slot) =>
       makeSkillCard(id, 'sample:closed-eye:' + slot));
+    writeTemporary(run, 0, 'closed-eye');
   }
   if (params.get('scenario') === 'combos') {
     run.companions=['collector'];run.companionRole='collector';
@@ -175,6 +176,8 @@ export function createCardInspectorState(params = new URLSearchParams()) {
   if (params.get('new')) run.unseenCardIds = [...run.reserveCards, run.mountedCards.find(Boolean)].filter(Boolean).map(c => c.instanceId);
   // Dev only: ?mock=cards&scenario=scribe opens the Scribe after an Elite (offers=id,id,id; pick=id jumps to the slot step).
   if (params.get('scenario') === 'scribe') openMockScribe(run, params.get('offers'));
+  // ?scenario=temp-write&temp=mending: the slot screen for a temporary Inscription just earned (an event or an objective).
+  if (params.get('scenario') === 'temp-write') queueTemporary(run, params.get('temp') || 'mending', {source: 'route-bonus', label: 'Spark Trail'});
   return state;
 }
 
@@ -188,12 +191,14 @@ export function openMockScribe(run, offers) {
   run.victoryPending = true;
   return run.flightReward;
 }
-/** `0:gilded,2:hollow` → Inscriptions on those slots; unknown ids and slots are ignored. */
+/** `0:gilded,2:hollow` → Inscriptions on those slots; unknown ids and slots are ignored. A temporary one may carry its flights: `1:mending~2`. */
 export function applyInscriptionSlots(run, text) {
   cleanSlotInscriptions(run);
   for (const part of String(text || '').split(',')) {
-    const [index, id] = part.split(':');
-    writeInscription(run, Number(index), (id || '').trim());
+    const [index, idText] = part.split(':');
+    const [id, flights] = (idText || '').trim().split('~');
+    if (getTemporary(id)) writeTemporary(run, Number(index), id, {flights: flights ? Number(flights) : undefined});
+    else writeInscription(run, Number(index), id);
   }
   return run.slotInscriptions;
 }

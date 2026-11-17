@@ -13,7 +13,7 @@ export function prepareRouteOffer(run,node,{profile={},width=900,height=405}={})
  if(candidates.includes(node.bonusId))return getRouteBonus(run,node);
  if(node.bonusId===null&&(run.current?.id===node.id||run.path?.includes(node.id)))return null;
  const plan=onboardingFlightPlan(profile,run),mods=getRunModifiers({...run,current:node});
- mods.flightBoon=run.attemptActive?run.attemptEntry?.flightBoon??null:run.nextFlightBoon??null;
+ mods.flightBoon=run.attemptActive?run.attemptEntry?.flightBoon??null:null;
  const key=JSON.stringify([run.seed,node.atlasForecast,width,height,plan,mods,candidates]);
  const cached=memo.get(node);
  if(cached?.key===key){node.bonusId=cached.id;return getRouteBonus(run,node);}

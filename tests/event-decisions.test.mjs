@@ -6,6 +6,7 @@ import {
   grantGlowPickup, previewGlowReward, resolveSupport, saveState, selectNode, settleCheckpoint, suspendRun
 } from '../dist/model.mjs';
 import {EVENT_SCENARIOS, getEventScenarios} from '../dist/map-guide.mjs';
+import {writePendingTemporary, temporaryEntries, hasTemporary, writeTemporary} from '../dist/temporary-inscriptions.mjs';
 import {getRouteForecast} from '../dist/route-forecast.mjs';
 import {getGlowCapacity, getLifeCapacity, glowPoints} from '../dist/vitality.mjs';
 import {WispFlight} from '../dist/flight.mjs';
@@ -55,6 +56,7 @@ function visit(index, {late=false, low=false, hurt=false}={}) {
   const fixture = (late ? sites.late : sites.ordinary).get(index);
   assert.ok(fixture, EVENT_SCENARIOS[index].name);
   const state = newState(), run = state.run = structuredClone(fixture);
+  run.mountedCards = [null, null, null]; // a Chain to write temporary Inscriptions on (these fixtures are ordinary-map runs)
   run.flame = low ? 10 : getGlowCapacity(run); // Three displayed Energy.
   run.lives = getLifeCapacity(run) - Number(hurt);
   return state;
@@ -64,13 +66,14 @@ function claim(state,id) {
   const index=offers.findIndex(c=>c.id===id);
   assert.notEqual(index,-1,id);
   assert.ok(resolveSupport(run,index,state.profile),id);
+  if(run.pendingTemporary)assert.ok(writePendingTemporary(run)); // the player picks the slot on its own screen; here the first open one
   settleCheckpoint(state);
   return offers[index];
 }
 function resourceState(run,late=false) {
   return {
     energy:run.flame, lives:run.lives, wallet:late?null:run.condensedGlow,
-    skills:run.skills, favors:run.eventFavors||[], vow:run.pilgrimVow||null,
+    skills:run.skills, favors:temporaryEntries(run).map(e=>e.id), vow:hasTemporary(run,'pilgrim-vow'),
     preparation:run.routePreparation?.nodeId||null
   };
 }
@@ -143,7 +146,7 @@ test('12 generated encounters supply two usable, distinct decisions in all 192 r
         }
         assert.ok(r.condensedGlow>=wallet,label);
         const outcome=JSON.stringify(resourceState(r,late));
-        assert.notEqual(outcome,initial,label+' ineffective '+offer.id);
+        assert.ok(outcome!==initial||offer.id==='pact:leave',label+' ineffective '+offer.id); // leaving a pact is the one honest no-op
         // A real die can match the sure reward this seed. The advertised gamble still has different possible outcomes.
         actual.add(offer.effect.dice?'one seeded roll':outcome);
         const after=structuredClone(r);
@@ -162,7 +165,7 @@ test('fuel refills cannot be packed, trades pay exact costs, and conversion prev
   assert.equal(refill.run.flame,getGlowCapacity(refill.run));
   assert.equal(refill.run.condensedGlow,funds);
   assert.equal(getSupportChoices(visit(1,{low:true}).run).some(c=>c.effect.flame<0),false);
-  const sale=visit(1);
+  const sale=visit(1);writeTemporary(sale.run,2,'night-ledger');
   const original=sale.run.flame;
   claim(sale,'bargain');
   assert.equal(glowPoints(original-sale.run.flame),6);
@@ -183,7 +186,7 @@ test('fuel refills cannot be packed, trades pay exact costs, and conversion prev
   }
   const guide=getEventScenarios();
   assert.match(guide[0].detail,/below 6/i);
-  assert.match(guide[1].detail,/at least 3 Sparks/i);
+  assert.match(guide[1].detail,/Oath Inscription: Night’s Ledger — fly with 55% Luminance/);
 });
 
 test('workshop refunds actual paid ranks while preserving the starting gift and unrelated training',()=>{
@@ -219,7 +222,9 @@ test('all six Prism faces are reproducible after reload, with a fixed seed and e
       assert.deepEqual(restored.run.lastEvent,run.lastEvent);
       assert.equal(restored.run.condensedGlow,run.condensedGlow);
       const favor=face<=2?'wick':face<=4?'feather':late?'lens':null;
-      assert.deepEqual(run.eventFavors||[],favor?[favor]:[]);
+      const temp={wick:'reserve-wick',feather:'hollow-feather',lens:'star-chart'}[favor];
+      assert.deepEqual(temporaryEntries(run).map(e=>e.id),favor?[temp]:[],'the prize is a temporary Inscription on the Chain');
+      assert.equal(run.eventFavors,undefined);
       assert.equal(run.condensedGlow-wallet,favor?0:22);
     }
     assert.equal(faces[i].size,6);
@@ -234,9 +239,12 @@ test('the Vow pays only for a successful attempt with four body pickups and neve
     const wallet=r.condensedGlow;
     assert.ok(finishFlight(r,{success,flame:60,collected:12,bodyFuelCollected}));
     settleCheckpoint(state);
+    // An oath is settled by a cleared flight only: a fall leaves it and shows no receipt; four body pickups keep it, fewer leave it open.
     const receipt=success?r.lastFlight.vow:r.lastAttempt.vow;
-    assert.equal(receipt.reward,payout);
-    assert.equal(r.condensedGlow-wallet,(r.lastFlight?.completionBonus||0)+payout);
+    if(success)assert.equal(receipt.reward,payout);else assert.equal(receipt,undefined);
+    const packed=(r.lastFlight?.pickupCondensedGlow||0)+(r.lastFlight?.exitPacking?.amount||0);
+    assert.equal(r.condensedGlow-wallet,success?(r.lastFlight?.completionBonus||0)+packed+payout:0);
+    assert.equal(hasTemporary(r,'pilgrim-vow'),!(success&&bodyFuelCollected>=4));
     assert.equal(r.pilgrimVow,undefined);
     assert.equal(finishFlight(r,{success,bodyFuelCollected}),false);
   }
@@ -250,11 +258,11 @@ test('a started interruption spends the Vow or route preparation, reopens the ex
     claim(state,choice.id);
     nextFlight(state);
     assert.ok(suspendRun(state));
-    assert.ok(r.pilgrimVow||r.routePreparation);
+    assert.ok(hasTemporary(r,'pilgrim-vow')||r.routePreparation);
     assert.ok(beginFlightAttempt(r));
     markFlightAttemptStarted(r);
     assert.ok(suspendRun(state));
-    assert.equal(r.pilgrimVow,undefined);
+    assert.equal(hasTemporary(r,'pilgrim-vow'),index===2,'an oath survives an interrupted flight; a marked passage is spent');
     assert.equal(r.routePreparation,undefined);
     assert.deepEqual(source.nextIds,exits);
   }
@@ -301,10 +309,11 @@ function flight(run) {
 }
 test('positive preparations survive failed flights; the one-attempt lead penalty is spent on a started attempt',()=>{
   for (const [event,choice,favor] of [[0,'reserve-wick','wick'],[0,'hollow-feather','feather'],[7,'star-chart','lens'],[3,'companion-chime','haste'],[8,'bargain-burden','burden']]) {
-    const state=visit(event); claim(state,choice); const node=nextFlight(state),r=state.run;
+    const state=visit(event); if([1,7,8].includes(event))writeTemporary(state.run,2,'night-ledger'); // a pact already held: the stop offers its plain choices
+    claim(state,choice); const node=nextFlight(state),r=state.run;
     assert.deepEqual(getRunModifiers(r).eventFavors,[favor]);
     assert.ok(suspendRun(state));
-    assert.deepEqual(r.eventFavors,[favor]);
+    assert.deepEqual(getRunModifiers(r).eventFavors,[favor],'a gate that never opened keeps it on the Chain');
     assert.ok(beginFlightAttempt(r));
     assert.ok(markFlightAttemptStarted(r));
     const suspended=structuredClone(state);
@@ -317,7 +326,7 @@ test('positive preparations survive failed flights; the one-attempt lead penalty
   }
 });
 test('the real flight engine enforces wick threshold, paid Lift counts, sight radius and recovery speed',()=>{
-  function engine(index,id) {const state=visit(index);claim(state,id);nextFlight(state);return flight(state.run);}
+  function engine(index,id) {const state=visit(index);if([1,7,8].includes(index))writeTemporary(state.run,2,'night-ledger');claim(state,id);nextFlight(state);return flight(state.run);}
   const wick=engine(0,'reserve-wick');
   wick.flame=6/.3;wick.step(1/60);
   assert.equal(wick.flightBoon.reserveWick,true);

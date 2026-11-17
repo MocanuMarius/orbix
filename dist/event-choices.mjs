@@ -1,14 +1,16 @@
 import {getGlowCapacity,getLifeCapacity} from './vitality.mjs?v=guide-clarity-1';
 import {getCompanionAbility} from './companion-abilities.mjs?v=guide-clarity-1';
+import {temporaryLine} from './temporary-inscriptions.mjs?v=guide-clarity-1';
+import {activeEventFavors} from './passage-preparations.mjs?v=guide-clarity-1';
 
 // Values in descriptions are player-facing. Effects use the existing simulation units.
 export const EVENT_EDITION=3;
 export const EVENT_FAVORS=Object.freeze({
- wick:{title:'Reserve Wick',text:'Below 6 Sparks, restore 9 Sparks once per flight, for 3 cleared flights.'},
- feather:{title:'Hollow Feather',text:'Your first two paid Lifts are free in each of 3 cleared flights.'},
- lens:{title:'Star Chart',text:'See 35% farther for 3 cleared flights.'},
- haste:{title:'Companion Chime',text:'Companion cooldown is 20% shorter for 3 cleared flights.'},
- burden:{title:'Lead Seal',text:'Your first six paid Lifts cost 1 extra Spark next attempt.'}
+ wick:{title:'Reserve Wick',text:temporaryLine('reserve-wick')},
+ feather:{title:'Hollow Feather',text:temporaryLine('hollow-feather')},
+ lens:{title:'Star Chart',text:temporaryLine('star-chart')},
+ haste:{title:'Companion Chime',text:temporaryLine('chime')},
+ burden:{title:'Lead Seal',text:temporaryLine('lead-seal')}
 });
 const pick=(id,title,description,art,effect)=>({id,title,description,detail:description,art,effect,displayUnits:true});
 const favor=(id,title,key,art)=>pick(id,title,EVENT_FAVORS[key].text,art,{eventFavor:key});
@@ -27,7 +29,7 @@ export const hasFutureRest=run=>{
  if(n.kind==='camp')return true;for(const next of n.nextIds||[])pending.push([next,n.type==='support'?wasElite:!!n.elite]);}return false;
 };
 export function completeOffers(list,run){
- const already=new Set(run.eventFavors||[]);
+ const already=new Set(activeEventFavors(run));
  const seen=new Set();
  const choices=[...list,...[reserve(),feather(),lens(),tempo(run)]].filter(c=>{
   if(c.effect.eventFavor&&already.has(c.effect.eventFavor)||seen.has(c.id)||c.effect.eventFavor&&seen.has(c.effect.eventFavor))return false;
@@ -48,7 +50,7 @@ export function eventChoices(run,{refunds=[]}={}){
  case 5: list=[cache('archive-packed','Copy the star ledger',16),injured?heart():reserve()];break;
  case 6: list=[cache('dice-safe','Pocket the sure thing',10),pick('dice-roll','Cast the prism','Equal odds: a Reserve Wick, a Hollow Feather, or 22 Stored Sparks. One roll.','dice',{dice:true})];break;
  case 7: list=[room>=30?refuel(room,'lantern-fuel','Drink the pale lantern'):reserve(),lens()];break;
- case 8: list=[training?pick('bargain-burden','Carry the lead seal','Gain the purse. The first six paid Lifts next attempt each cost 1 extra Spark.','trade',{packedReward:20,eventFavor:'burden'}):tempo(run),feather()];break;
+ case 8: list=[training?pick('bargain-burden','Carry the lead seal','Gain the purse. '+EVENT_FAVORS.burden.text,'trade',{packedReward:20,eventFavor:'burden'}):tempo(run),feather()];break;
  case 9: list=[injured?heart():room>=20?refuel(room):feather(),tempo(run)];break;
  case 10: {
   const best=refunds.filter(x=>x.refund>0).sort((a,b)=>b.refund-a.refund)[0];
@@ -67,7 +69,7 @@ export function rollPrism(run,face,field=false){
  const key=face<=2?'wick':face<=4?'feather':field?'lens':null;
  if(!key)return {packed:22,message:'+22 Stored Sparks.'};
  // If an earlier stop already granted this preparation, make the roll useful.
- const result=[key,...['wick','feather','lens','haste']].find(f=>!run.eventFavors?.includes(f));
+ const held=activeEventFavors(run),result=[key,...['wick','feather','lens','haste']].find(f=>!held.includes(f));
  if(!result)return run.flame<getGlowCapacity(run)?{energy:true,message:'The prism fills your Spark Meter.'}:{capacity:10,message:'+3 Spark capacity. Your meter is full.'};
  return {favor:result,message:EVENT_FAVORS[result].title+' · '+EVENT_FAVORS[result].text};
 }

@@ -1,7 +1,7 @@
-import {activeFlightPact} from './flight-pacts.mjs?v=guide-clarity-1';
 import {completeOffers,EVENT_FAVORS,hasFutureRest} from './event-choices.mjs?v=guide-clarity-1';
 import {getGlowCapacity} from './vitality.mjs?v=guide-clarity-1';
 import {treasureFlightNotice} from './treasure.mjs?v=guide-clarity-1';
+import {temporaryLine,temporaryEntries,hasTemporary} from './temporary-inscriptions.mjs?v=guide-clarity-1';
 // Event stakes are fixed when offered. They are not rolled during flight.
 const choice=(id,title,description,effect)=>({id,title,description,detail:description,effect});
 export const PILGRIM_VOW=Object.freeze({target:4,reward:8});
@@ -15,8 +15,8 @@ export function contextualEventChoices(run,nextFlights){
   if(node?.eventIndex===2){
     const bodyNote=run.companions?.includes('collector')?' Collector deliveries do not count.':'';
     return completeOffers([
-      ...(late?[feather()]:nextFlights.length&&!run.pilgrimVow?[choice('pilgrim-vow','Keep the Pilgrim’s Vow',
-        `Clear your next attempt with ${PILGRIM_VOW.target} body Spark pickups to earn ${PILGRIM_VOW.reward} Stored Sparks.${bodyNote} Dream pickups do not count. Fail or fall short: no extra penalty.`,
+      ...(late?[feather()]:nextFlights.length&&!hasTemporary(run,'pilgrim-vow')?[choice('pilgrim-vow','Keep the Pilgrim’s Vow',
+        `${temporaryLine('pilgrim-vow')}${bodyNote} Dream pickups do not count. Falling short costs nothing; the oath stays.`,
         {pilgrimVow:{...PILGRIM_VOW,sourceNodeId:node.id,mapIndex:run.mapIndex}})]:[]),
       room>=20?{...choice('pilgrim-offering','Drink the offering','Restore 6 Sparks.',{flame:20}),displayUnits:true,art:'energy'}:wick()
     ],run);
@@ -42,14 +42,11 @@ export function isVowBodyPickup(engine,packet,spec){
     &&(!engine.dream||engine.dream.phase==='done');
 }
 
-export function contextualFlightNotice(run,node=run.current){
+export function contextualFlightNotice(run,node=run.current,{temporaries=true}={}){
   if(!node||node.type==='support')return '';
-  const pact=activeFlightPact(run);
-  const lines=(run.eventFavors||[]).map(id=>EVENT_FAVORS[id]).filter(Boolean).map(f=>f.title+' · '+f.text);
-  if(pact)lines.push(pact.name+' · '+pact.description);
+  const lines=temporaries?temporaryEntries(run).map(e=>temporaryLine(e.id,e.flightsLeft)):[];
   const treasure=treasureFlightNotice(run.treasurePact,run);
   if(treasure)lines.push(treasure);
-  if(run.pilgrimVow)lines.push(`PILGRIM VOW · Clear with ${run.pilgrimVow.target} body Spark pickups → ${run.pilgrimVow.reward} Stored Sparks · First attempt`);
   if(run.routePreparation?.nodeId===node.id)lines.push(run.routePreparation.kind==='wind'
     ?'MARKED PASSAGE · Drafts −30% · First attempt'
     :'MARKED PASSAGE · Luminance +35 · First attempt');
@@ -57,10 +54,10 @@ export function contextualFlightNotice(run,node=run.current){
 }
 
 export function resolvePilgrimVow(vow,result){
-  if(!vow)return null;
+  if(!vow||result.success!==true)return null;
   const collected=Math.max(0,Math.floor(Number(result.bodyFuelCollected)||0));
-  const completed=result.success===true&&collected>=PILGRIM_VOW.target;
+  const completed=collected>=PILGRIM_VOW.target;
   return {completed,collected,target:PILGRIM_VOW.target,reward:completed?PILGRIM_VOW.reward:0,
     message:completed?`Vow kept · +${PILGRIM_VOW.reward} Stored Sparks`
-      :result.success?`Vow ended · ${Math.min(collected,PILGRIM_VOW.target)}/${PILGRIM_VOW.target} body pickups. No penalty.`:'Vow ended with this attempt. No extra penalty.'};
+      :`Vow still open · ${Math.min(collected,PILGRIM_VOW.target)}/${PILGRIM_VOW.target} body pickups. It stays until you keep it.`};
 }

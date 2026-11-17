@@ -1,4 +1,6 @@
 import {FLIGHT_PACTS} from './flight-pacts.mjs?v=guide-clarity-1';
+import {temporaryLine,durationWords} from './temporary-inscriptions.mjs?v=guide-clarity-1';
+import {getTemporary} from './inscriptions.mjs?v=guide-clarity-1';
 import {getBiome} from './biomes.mjs?v=guide-clarity-1';
 import {sparkHabitat} from './spark-fields.mjs?v=guide-clarity-1';
 import {getFlightClearReward} from './checkpoint-rewards.mjs?v=guide-clarity-1';
@@ -15,20 +17,23 @@ rest:stop('rest','REST','Rest','Recover missing hearts or Grow Spark capacity. B
 encounter:stop('encounter','ENCOUNTER','Encounter','A promise, route preparation or bargain. Preview the stakes before choosing.'),
 boss:stop('boss','ELITE / GUARDIAN','Creature','Small creature: elite. Large head: guardian. Both offer three Inscriptions; choose one to write on your Chain.'),
 });
+// The temporary Inscriptions each event can give (docs/inscriptions.md, "Events and objectives"). The stop page names them; the offers draw from them.
+const EVENT_GIVES={0:['hollow-feather','reserve-wick'],1:['night-ledger','star-chart','reserve-wick'],2:['pilgrim-vow','hollow-feather','reserve-wick'],3:['chime','hollow-feather'],4:['reserve-wick'],5:['star-chart','reserve-wick'],6:['reserve-wick','hollow-feather','star-chart'],7:['closed-eye','reserve-wick','star-chart'],8:['silent-orbit','chime','lead-seal','hollow-feather'],9:['hollow-feather','chime'],10:['star-chart','hollow-feather'],11:['chime','star-chart']};
+function eventRewardLine(index){const ids=EVENT_GIVES[index]||[];const words=ids.map(id=>`${getTemporary(id).until?'Oath':'Temporary'} Inscription: ${getTemporary(id).name} (${durationWords(id).toLowerCase()})`);return 'Sparks or Stored Sparks, or '+words.join(' · ');}
 export const EVENT_SCENARIOS=Object.freeze([
-{id:'ash-spring',index:0,name:'Ash Spring',summary:'Bottle a reserve or take immediate flight support.',detail:'An empty meter makes a refill attractive. With a full Spark Meter the spring offers free Lifts instead. A Reserve Wick waits for Sparks to fall below 6.'},
-{id:'cinder-bargain',index:1,name:'Night’s Ledger',summary:'Reduced Luminance for double packing, or leave freely.',detail:'Next attempt: 55% Luminance. On clear, double packing from that flight, up to 20 extra Stored Sparks. No bonus on failure.'},
-{id:'pilgrim-vow',index:2,name:'Pilgrim’s Vow',summary:'Promise four body Spark pickups next attempt, or take light.',detail:'Clear the next attempt with four natural body Spark pickups to earn 8 Stored Sparks. Collector deliveries and Dreams do not count. Missing the vow has no extra penalty. Beyond the last Rest, take a flight preparation instead.'},
-{id:'weathered-shrine',index:3,name:'Weathered Shrine',summary:'Prepare faster companion recovery or two free Lifts.',detail:'Both preparations are automatic and last for 3 cleared flights. Failures do not spend them.'},
+{id:'ash-spring',index:0,name:'Ash Spring',summary:'Bottle a reserve or take immediate flight support.',detail:'An empty meter makes a refill attractive. With a full Spark Meter the spring offers the Hollow Feather instead. Either lasting gift is a temporary Inscription you write on a slot of your Chain; the Reserve Wick waits for Sparks to fall below 6.'},
+{id:'cinder-bargain',index:1,name:'Night’s Ledger',summary:'Reduced Luminance for double packing, or leave freely.',detail:FLIGHT_PACTS['night-ledger'].description+' A fall does not break it.'},
+{id:'pilgrim-vow',index:2,name:'Pilgrim’s Vow',summary:'Promise four body Spark pickups, or take light.',detail:temporaryLine('pilgrim-vow')+' Collector deliveries and Dreams do not count. Falling short costs nothing; the oath stays. Beyond the last Rest, take a flight preparation instead.'},
+{id:'weathered-shrine',index:3,name:'Weathered Shrine',summary:'Write faster companion recovery or two free Lifts on your Chain.',detail:'Both are temporary Inscriptions: you choose the slot, they last 3 cleared flights, and failures do not spend them. A permanent Inscription they cover returns afterwards.'},
 {id:'surveyors-cairn',index:4,name:'Surveyor’s Cairn',summary:'Prepare one reachable passage, or take light and keep your fork open.',detail:'Mark a linked exit for gentler drafts or more Luminance on its first attempt. Where the path forks, marking one exit commits the route. With a full Spark Meter, you can take a Reserve Wick instead. Falling spends the preparation and reopens a fork.'},
 {id:'ember-archive',index:5,name:'The Sparks Archive',summary:'Copy the ledger or spend its light to protect the run.',detail:'A missing heart can be restored. With full hearts, carry a Reserve Wick instead. Near the last guardian, a Star Chart can reveal the route ahead.'},
 {id:'ember-dice',index:6,name:'Prism Dice',summary:'Choose a guaranteed reward or cast the prism once.',detail:'Each pair of faces has an equal chance. Check the three outcomes before rolling.'},
 {id:'lost-lanterns',index:7,name:'The Closed Eye',summary:'Brave deep darkness for triple packing, or leave freely.',detail:FLIGHT_PACTS['blind-pilgrim'].description},
-{id:'wisp-bargain',index:8,name:'The Silent Orbit',summary:'Shorten Collector reach for double packing, or leave freely.',detail:'Next attempt: Collector reach −45%. On clear, double packing from that flight, up to 20 extra Stored Sparks. Body pickups keep full value.'},
+{id:'wisp-bargain',index:8,name:'The Silent Orbit',summary:'Shorten Collector reach for double packing, or leave freely.',detail:FLIGHT_PACTS['silent-orbit'].description+' Body pickups keep full value.'},
 {id:'sanctuary',index:9,name:'Quiet Sanctuary',summary:'Restore a missing heart or prepare the companion.',detail:'At full hearts, the sanctuary offers fuel or free Lifts instead.'},
 {id:'workshop',index:10,name:'Lantern Workshop',summary:'Unweave a paid branch or glide with free Lifts.',detail:'If there is no useful refund, the workshop offers a Star Chart instead.'},
 {id:'companion-shrine',index:11,name:'Companion Shrine',summary:'Tune your companion or salvage its tuning fork.',detail:'Choose faster companion recovery or Stored Sparks for skills.'},
-].map(Object.freeze));
+].map(entry=>Object.freeze({...entry,gives:Object.freeze([...(EVENT_GIVES[entry.index]||[])]),reward:eventRewardLine(entry.index)})));
 export function getEventScenarios(){return EVENT_SCENARIOS.map(entry=>({...entry}));}
 function kindOf(value){
  if(typeof value==='string'){
