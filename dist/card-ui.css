@@ -1774,3 +1774,17 @@ html body dialog.wb-dlg .card-term-related::before{color:#5a4632;font-size:11px}
 html body dialog.wb-dlg .ins-legend-list :is(li,span,b){color:#2a2118!important}
 html body dialog.wb-dlg .card-term-example:not(#k):not(#k) :is(figcaption,p,span,small,strong,b,li,div){color:#f6ebcc!important}
 html body dialog.wb-dlg .card-term-example:not(#k):not(#k) button.card-term,html body dialog.wb-dlg:not(.card-glossary-dialog) .card-term-definition:not(#k) button.card-term{color:#f2dfad!important}
+
+/* In-flight Chain strip (2026-11-18): solid card silhouettes, top centre, colour is the only channel. Whole pixels, no gradients, no text. */
+html body button.flight-card-row.chain-strip{position:absolute;inset:auto;top:max(50px,env(safe-area-inset-top));left:50%;bottom:auto;transform:translateX(-50%);display:flex;align-items:flex-start;justify-content:center;gap:3px;width:auto;max-width:none;min-height:0;height:auto;margin:0;padding:4px;border:0;border-radius:0;background:transparent;box-shadow:none;z-index:4;order:0;opacity:1;transition-property:opacity;transition-timing-function:linear;transition-duration:0ms}
+html body button.flight-card-row.chain-strip[hidden]{display:none}
+.chain-strip .chain-cell{display:flex;flex-direction:column;gap:2px;width:20px;flex:none}
+.chain-strip .chain-shape{display:block;box-sizing:border-box;width:20px;height:28px;background:var(--tone,#5d7a58)}
+.chain-strip .chain-shape.chain-empty,.chain-strip .chain-shape.chain-spent{background:transparent;box-shadow:inset 0 0 0 2px var(--tone)}
+.chain-strip .chain-shape.chain-lit{background:#fff}
+.chain-strip .chain-bar{display:block;height:0;border-top:2px solid #f0c86a}
+.chain-strip .chain-bar-none{visibility:hidden}
+.chain-strip .chain-bar-temp{border-top-style:dashed}
+.chain-strip .chain-bar.chain-lit{border-top-color:#fff}
+.flight-fps{position:absolute;z-index:3;left:max(106px,calc(env(safe-area-inset-left) + 96px));top:28px;font:10px/1 var(--pixel);color:#9fb39a;opacity:.55;pointer-events:none;text-shadow:1px 1px 0 #140e09}
+.flight-fps[hidden]{display:none}

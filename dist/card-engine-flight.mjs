@@ -6,6 +6,7 @@
 // Dream rehearsal, the clear/death animations, or a tutorial without practice cards.
 import {CARD_UNIT} from './skill-cards.mjs?v=guide-clarity-1';
 import {CardEngine, hasEngineCards} from './card-engine.mjs?v=guide-clarity-1';
+import {appendFires, engineFire} from './chain-strip.mjs?v=guide-clarity-1';
 import {createFlashTether, FLASH_PULSE_INTERVAL} from './flash-tether.mjs?v=guide-clarity-1';
 
 const live = e => !!(e.cardEngine && e.cardExecution && e.running && !e.paused && e.alive && !e.finished && !e.destroyed
@@ -75,6 +76,7 @@ function flightHost(e) {
     // Cues (no reading in flight): the strip in card-row-feedback.mjs pulses on a new Turn and dims on a stop; these
     // counters are cheap and change only on engine events.
     onEvent: entry => {
+      const mark = engineFire(entry); if (mark) appendFires(e, [mark]);
       if (entry.k === 'turn') e.cardEngineCue = {...(e.cardEngineCue || {}), turn: (e.cardEngineCue?.turn || 0) + 1};
       else if (entry.k === 'stop') e.cardEngineCue = {...(e.cardEngineCue || {}), stops: (e.cardEngineCue?.stops || 0) + 1};
     },
@@ -128,6 +130,7 @@ export function stepFlightInscriptions(e) {
   const wave = e.radiateLight?.({once: true, reveal: true, source: 'inscription-bell', sourceKind: 'card', color: '#d9f0dc'});
   // The Bell's Pulse flows right like any card's: only Pulse cards to the right of the leftmost Bell hear it.
   if (wave && typeof wave === 'object') wave.fromSlot = ins.findIndex(entry => entry?.id === 'bell');
+  appendFires(e, ins.flatMap((entry, slot) => entry?.id === 'bell' ? [{slot, kind: 'bar'}] : []));
 }
 
 /** A Flare picked up in flight (a natural Flare: its end is heard by the whole Chain). */

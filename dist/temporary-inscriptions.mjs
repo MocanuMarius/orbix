@@ -4,7 +4,7 @@
 //   {id, temporary: true, until: 'fulfilled', covers: {id}|null}  an oath: stays until a cleared flight fulfils it
 // `covers` is the permanent Inscription the temporary one hides. It is suspended (no rule sees it) and returns when this one ends.
 // A temporary Inscription written over another temporary one replaces it and keeps whatever that one covered.
-import {getTemporary, TEMPORARY_INSCRIPTIONS, TEMPORARY_BY_BOON, TEMPORARY_BY_FAVOR, cleanSlotInscriptions, permanentOnSlot} from './inscriptions.mjs?v=guide-clarity-1';
+import {getTemporary, getPermanentInscription, writeInscription, TEMPORARY_INSCRIPTIONS, TEMPORARY_BY_BOON, TEMPORARY_BY_FAVOR, cleanSlotInscriptions, permanentOnSlot, migrateChestGifts} from './inscriptions.mjs?v=guide-clarity-1';
 
 const lower = text => /^Black Holes/.test(text) ? text : text.charAt(0).toLowerCase() + text.slice(1);
 const flightsWord = n => `${n} ${n === 1 ? 'flight' : 'flights'}`;
@@ -38,6 +38,7 @@ export const activeOathIds = run => temporaryEntries(run).filter(e => e.def.oath
 const slotsOf = run => cleanSlotInscriptions(run);
 /** What writing `id` on `slot` would do. needsConfirm when it covers a permanent Inscription or replaces a temporary one. */
 export function previewTemporaryWrite(run, id, slot) {
+  if (getPermanentInscription(id)) return previewPermanentWrite(run, id, slot);
   const def = getTemporary(id);
   if (!def || !run || !Number.isInteger(slot) || slot < 0 || slot >= slotsOf(run).length) return null;
   const here = run.slotInscriptions[slot];
@@ -45,6 +46,13 @@ export function previewTemporaryWrite(run, id, slot) {
   const covers = permanentOnSlot(run, slot);
   const movesFrom = temporaryEntries(run).find(e => e.id === id && e.slot !== slot)?.slot ?? null;
   return {id, slot, covers, replacesTemporary, movesFrom, needsConfirm: !!(covers || replacesTemporary)};
+}
+/** The same slot screen also writes a PERMANENT chest gift (Far Lens ...): it replaces a permanent Inscription on the slot (confirm), and under a
+ * temporary one it is written beneath it. Nothing else changes. */
+function previewPermanentWrite(run, id, slot) {
+  if (!run || !Number.isInteger(slot) || slot < 0 || slot >= slotsOf(run).length) return null;
+  const replaces = permanentOnSlot(run, slot);
+  return {id, slot, permanent: true, replaces: replaces === id ? null : replaces, covers: null, replacesTemporary: null, movesFrom: null, beneath: run.slotInscriptions[slot]?.temporary ? run.slotInscriptions[slot].id : null, needsConfirm: !!replaces && replaces !== id};
 }
 /** Write a temporary Inscription. The same one elsewhere moves here (earning it again refreshes its count). Returns the preview, or false. */
 export function writeTemporary(run, slot, id, {flights} = {}) {
@@ -86,6 +94,14 @@ export function firstOpenSlot(run) {
 }
 /** Earn a temporary Inscription: the player writes it on a slot of their choice (run.pendingTemporary, resolved on its own screen).
  * Nothing is pending afterwards. Returns false when there is no slot to write on (a run without a Chain drops the effect). */
+/** Earn a PERMANENT chest-gift Inscription: the player writes it on a slot on the same screen as a temporary one. False when the run has no
+ * Chain (the gift is dropped) or the Inscription is already written. */
+export function queueInscriptionWrite(run, id, {source = 'chest', label = ''} = {}) {
+  if (!getPermanentInscription(id) || !slotsOf(run).length || (run.slotInscriptions || []).some((entry, slot) => permanentOnSlot(run, slot) === id)) return false;
+  if (run.pendingTemporary) writePendingTemporary(run, undefined, {confirm: true});
+  run.pendingTemporary = {id, permanent: true, flights: null, source, label};
+  return true;
+}
 export function queueTemporary(run, id, {flights, source = 'event', label = ''} = {}) {
   if (!getTemporary(id) || !slotsOf(run).length) return false;
   if (run.pendingTemporary) writePendingTemporary(run, undefined, {confirm: true});
@@ -97,10 +113,11 @@ export const previewPendingTemporary = (run, slot) => run?.pendingTemporary ? pr
 export function writePendingTemporary(run, slot, {confirm = false} = {}) {
   const pending = run?.pendingTemporary;
   if (!pending) return false;
-  if (slot === undefined) { slot = firstOpenSlot(run); confirm = true; }
+  if (slot === undefined) { slot = pending.permanent ? Math.max(0, slotsOf(run).findIndex((entry, i) => !permanentOnSlot(run, i))) : firstOpenSlot(run); confirm = true; }
   const preview = previewTemporaryWrite(run, pending.id, slot);
   if (!preview || preview.needsConfirm && !confirm) return false;
-  writeTemporary(run, slot, pending.id, {flights: pending.flights});
+  if (pending.permanent) writeInscription(run, slot, pending.id);
+  else writeTemporary(run, slot, pending.id, {flights: pending.flights});
   run.lastTemporaryWrite = {...preview, flights: pending.flights, source: pending.source};
   delete run.pendingTemporary;
   return preview;
@@ -111,6 +128,7 @@ const OLD_FIELDS = ['passageBoons', 'favorClears', 'eventFavors', 'nextFlightBoo
  * needed) with their remaining count. No slot: dropped. Unrelated fields (routePreparation, treasure gifts) stay. Returns what moved. */
 export function migrateLooseEffects(run) {
   if (!run || typeof run !== 'object') return [];
+  migrateChestGifts(run);
   const had = OLD_FIELDS.some(key => key in run) || run.treasurePact === 'wager';
   if (!had) return [];
   const found = [];

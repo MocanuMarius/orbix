@@ -138,10 +138,10 @@ Class: IMMEDIATE (happens once) / LASTING (more than one flight or the whole run
 | Event 2 | Pilgrim's Vow | first attempt; `pilgrimVow` | LASTING, converted (oath) |
 | Wager chest | Sealed Purse | next attempt; `treasurePact` | LASTING, converted (oath) |
 | Event 4 | Marked Passage (drafts -30% or +35 light on one named exit, closes the other fork, reopens after a fall) | first attempt; `routePreparation` | NEITHER: it changes the map. Left unchanged. Suggestion: make it a stop-page choice that reveals the exit instead of a lasting effect |
-| Chests | Far Lens, Quick Lens, Mending Wick, Toll Stamp, Lamplighter's Seal (`treasureGifts`) | the whole run, no count | NEITHER: no duration to count. Left unchanged. Suggestion: permanent Inscriptions the chest writes on a slot |
+| Chests | Far Lens, Quick Lens, Mending Wick, Toll Stamp, Lamplighter's Seal (`treasureGifts`) | the whole run, no count | LASTING, converted to PERMANENT Inscriptions (see "Chest gifts") |
 | Dead flags | `nextFlightBurden`, `nextFlightBlessing`, `treasurePact` `sight` / `recharge` | nothing grants them | NEITHER: dead code, left unchanged |
 
-Counts: 14 immediate, 18 lasting (all converted), 8 neither.
+Counts: 14 immediate, 23 lasting (all converted), 7 neither.
 
 ### The 18 temporary Inscriptions
 
@@ -179,3 +179,11 @@ Counts: 14 immediate, 18 lasting (all converted), 8 neither.
 ### Chests
 
 A chest on a card run keeps its own two finds (some of which already give Stored Sparks; that base is unchanged) and then offers ONE more choice on its own screen, with two large options: **Stored Sparks: +N** (20 on map 1, 30 on map 2, 40 on map 3; no flight-clear scale exists for a support stop), taken at once, or **A surprise card**, a free Forge (Forge ceremony, skippable, one fade under reduced motion). The card goes to the deck (reserve) by the claim path won cards use (NEW badge, auto-mounted only when nothing is mounted), live pool, the ordinary stop reward odds, no Stored Sparks spent. One or the other, never both. The stop page says "Choose: +N Stored Sparks or 1 surprise card". Code: `queueChestChoice`, `chooseChestReward`, `grantChestCard` in `dist/model.mjs` (`run.pendingChest` blocks the map like `pendingTemporary`), `chestChoiceMarkup` in `dist/treasure-view.mjs`. Tests: `tests/chest-forge.test.mjs`.
+
+### Order after a guardian: Scribe first, temporary second
+
+A guardian clear on map 1 or 2 can owe both: the Scribe's permanent Inscription (choose 1 of 3, then a slot) and, when its optional objective was fulfilled, a temporary one (`run.pendingTemporary`). The router (`goToRun` in `dist/app.mjs`) shows the Scribe first and the temporary slot screen after it is written. Before 2026-11-18 the temporary screen came first and looked like the Scribe, and a Scribe pick written on the same slot afterwards sat beneath the temporary one (it only looked temporary). The Scribe screens are headed "The Scribe — permanent Inscription" and carry the note "A second choice follows" while one is owed; the temporary screen is headed "Temporary Inscription", states its source ("Objective reward: lasts 3 flights") and shows the chosen glyph in the dashed ring. A Scribe pick is always a plain `{id}` entry. Map 3's guardian owes neither. Tests: `tests/boss-chest-inscriptions.test.mjs`.
+
+### Chest gifts: five more permanent Inscriptions
+
+Far Lens (luminance reaches 15% farther), Quick Lens (companion recharge takes 15% less time), Mending Wick (recover 3 extra Sparks after each clear), Toll Stamp (each clear with 3 body pickups: +3 Stored Sparks), Lamplighter's Seal (each clear holding 12 Sparks: +3 Stored Sparks; the Sealed Purse oath still pays 24, or 36 with the Seal in force). Catalogue entries in `INSCRIPTIONS` flagged `chest: true` (standalone, own brand glyphs): they are NOT in `INSCRIPTION_IDS` (the Scribe's 18) and otherwise behave like any permanent Inscription (inspector, glossary, covering rule, replace-confirm). `grantTreasureGift` queues the write (`queueInscriptionWrite`, `run.pendingTemporary` with `permanent: true`, same slot screen, headed "Chest find — permanent Inscription"); the Seal is queued when the Sealed Purse is fulfilled. Effects read the Chain (`treasureRank` = written and not covered). Chest find text: "Inscription: <name> — <effect>" (`giftLine`). Old saves: `migrateChestGifts` moves the loose `treasureGifts` keys to the first slot with no permanent Inscription (none: slot 1, replacing; no slots: dropped); only `vessel` stays loose. NOTE: in normal runs a chest offers `chestRewardPair` (skills, hearts, Stored Sparks, glass seed), not `treasureChoices`; `treasureChoices` (where these finds are offered) is reached only by the tutorial, so the gifts are not currently obtainable in a normal run until they are added to `CHEST_REWARDS`.

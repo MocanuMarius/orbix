@@ -28,6 +28,7 @@ import {EXTRA_COURSES} from './world-expansion.mjs?v=guide-clarity-1';
 import {BIOME_COURSES} from './biome-courses.mjs?v=guide-clarity-1';
 import {BiomeDynamics} from './biome-dynamics.mjs?v=guide-clarity-1';
 import {condenseGlow,packExitReserve} from './condensed-glow.mjs?v=guide-clarity-1';
+import {chainView,collectReceiptFires,appendFires,emptyMarks} from './chain-strip.mjs?v=guide-clarity-1';
 import {syncFlightEngine,raiseFlightEngine,stepFlightEngine,stepFlightInscriptions,noteFlightFlash,packFlightEngine} from './card-engine-flight.mjs?v=guide-clarity-1';
 import {ensureGlowBudget,shapeExpeditionSupply,trimSurplusFuel} from './glow-budget.mjs?v=guide-clarity-1';
 import {balanceSparkSupply} from './spark-supply.mjs?v=guide-clarity-1';
@@ -858,7 +859,7 @@ export class WispFlight {
     this.cardExecution=(this.mod.cardExecution?.cards?.some(Boolean)||this.mod.cardExecution?.inscriptions?.some(Boolean))?createCardExecution(this.mod.cardExecution):null;
     this.cardChargeLedger={...getCardCharges(this.cardExecution)};
     this.cardExecutions=0;
-    this.cardRowTrace=null;this.cardRowSequence=0;this.cardReelCredit=0;this.cardWatchlightUsed=false;this.cardLastAcceptedLift=null;
+    this.cardRowTrace=null;this.cardRowSequence=0;this.cardFires=emptyMarks();this.cardFireSeq=0;this.cardFireListener=null;this.cardChain=chainView(this.cardExecution);this.cardReelCredit=0;this.cardWatchlightUsed=false;this.cardLastAcceptedLift=null;
     // Engine cards (card-engine-flight.mjs): built only when the Chain holds one.
     this.cardEngine=null;this.cardEngineStored=0;this.cardEngineFlash=null;this.cardEngineLastFiring=null;this.cardPack=null;this.cardEngineLuminance=0;syncFlightEngine(this);
     this.flightBoon = new FlightBoon(this, this.mod.flightBoon);
@@ -1516,6 +1517,7 @@ export class WispFlight {
     const receipt=resolveCardRow(this.cardExecution,{meterFraction:this.flame/this.maxFlame,...detail,...(wind?{secondWind:true}:{}),
       availableRecovery:w.enabled(this)?w.cooldown:0,availableReel:w.activeReelSeconds(),collectorReeling:w.activeReelSeconds()>0,
       guardRecovering:w.phase==='guard-recovery',kind,id:++this.cardRowSequence});
+    appendFires(this,collectReceiptFires(receipt,this.cardExecution.inscriptions));
     const gain=Math.min(receipt.sparks*CARD_UNIT,Math.max(0,this.maxFlame-this.flame));
     const liveReceipt=Object.freeze({...receipt,restoredSparks:gain/CARD_UNIT});
     if(receipt.steps.some(step=>step.success&&step.operation!=='replay-row'))this.cardRowTrace=liveReceipt;
@@ -1577,6 +1579,7 @@ export class WispFlight {
     next.eventSequence=this.cardExecution?.eventSequence||this.cardRowSequence;
     next.lastTrace=this.cardRowTrace;
     this.cardExecution = (next.cards.some(Boolean)||next.inscriptions?.some(Boolean)) ? next : null;
+    this.cardChain = chainView(this.cardExecution);
     syncFlightEngine(this);
     this.mod = { ...this.mod, ...modifiers };
     this.syncCollectors();
@@ -2653,7 +2656,7 @@ export class WispFlight {
       canAffordFlap, flaps: this.flaps,
       artifactEffects:artifacts,artifactProc:artifacts.proc,artifactCharges:artifacts.charges,artifactNotices:artifacts.notices,
       cardCharges:this.getCardChargeLedger(),cardTallies:getCardTallies(this.cardExecution),cardExecutions:this.cardExecutions,cardRhythm:this.cardRhythm?.state||null,
-      cardRowTrace:this.cardRowTrace,cardRowSequence:this.cardRowSequence,cardWatchlightUsed:this.cardWatchlightUsed,
+      cardRowTrace:this.cardRowTrace,cardRowSequence:this.cardRowSequence,cardChain:this.cardChain,cardFires:this.cardFires,cardWatchlightUsed:this.cardWatchlightUsed,
       cardPackingLedger:1,cardPackingRemainder:this.cardPackingRemainder,
       ...(this.cardEngine?{cardEngine:{...this.cardEngine.state,stored:this.cardEngineStored,pack:this.cardPack}}:{}),
       overfillWave:this.options.cardPilot||this.mod.cardPilot?{...this.overfillWave}:null,

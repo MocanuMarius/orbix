@@ -30,12 +30,12 @@ test('exact paused receipts keep future capacity and reel time separate from Spa
  assert.equal(reel.reelSeconds,3);const reelHtml=cardRowTraceMarkup(reel);assert.match(reelHtml,/4 → 1 s remaining reel/);assert.doesNotMatch(reelHtml,/\+0 Sparks/);
 });
 
-test('silent row checks leave retained HUD portraits untouched',()=>{
+test('silent snapshots leave the retained Chain strip untouched',()=>{
  let writes=0;
- const node=()=>({dataset:{},append(){},addEventListener(){},remove(){},setAttribute(){writes++;}});
- const doc={createElement:node,createElementNS:node};
+ const node=()=>({dataset:{},children:[],style:new Proxy({},{set(){writes++;return true;}}),classList:{add(){writes++;},remove(){writes++;}},append(){},addEventListener(){},remove(){},setAttribute(){writes++;},setProperty(){writes++;},animate(){writes++;}});
+ const doc={createElement:node};
  const root={ownerDocument:doc,querySelector:()=>null,append(){}};
- const hud=createCardRowFeedback(root),trace=resolveCardRow(row(['body-spark']),{kind:CARD_ROW_EVENTS.body});
+ const hud=createCardRowFeedback(root,{now:()=>1000}),trace=resolveCardRow(row(['body-spark']),{kind:CARD_ROW_EVENTS.body});
  hud.update({cardRowTrace:trace,cardRowSequence:1});const before=writes;
  hud.update({cardRowTrace:trace,cardRowSequence:2});assert.equal(writes,before);
  hud.destroy();

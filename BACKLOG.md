@@ -4,7 +4,17 @@ Current release: **`furnace-tow-1`**. [Release verification](docs/furnace-tow-re
 
 The entries below are chronological release snapshots. Their old “current” labels, checked boxes and pending notes describe those snapshots; later decisions take precedence. The current local source has 81 cards, an owned Deck editable during safely paused flight, a guaranteed meltable Lift Guide, repeatable Forge and card improvements at Rest, copy-compatible numeric Field Impulse duration and Collector’s visible reel. The original skill book stays under Settings → Advanced with a separate save. Cards and Stored Sparks reset with the expedition; earned maximum Sparks and unlocked cruising speed are the explicit permanent exceptions.
 
-## Requested 17 November 2026 — Packing as a Chain event
+## Owner's priorities, 18 November 2026 (these override the older entries below)
+
+- **Dropped:** Packing as a Chain event ("we don't need packing as chain anymore"). Do not build the section below.
+- **Stands:** the Collector's cord moving like a real string (see its section; lab variations first).
+- **Stands:** new cards for the thin builds (Finish, Overfill, Save, Skim); see `docs/archetype-gaps.md` and `docs/chain-sweep.md`.
+- **Stands, later:** the big world map (one atlas map, biome territories, three boss gates, territory traits, special roads, the Dusk front, sight tied to Luminance); see `docs/overnight-plan.md`.
+- **Lowest priority:** redesign of bad cards, bad events, boons and Dusk.
+- **Owner cannot open previews for now (said 18 November):** anything that needs them to look at a preview before deciding takes LOWER priority than work that needs no preview: the Collector cord variations, the Inscription marker alternatives, role-chip styles, the run-summary Chain section, atlas map art. Do not build lab pages meanwhile. Text-only decisions (card rules, numbers, yes/no) are fine to ask.
+- Standing rule: items that need no decision are picked up and built continuously; items that need one are put to the owner one case at a time (memory `work-backlog-continuously`). The live queue is in `docs/overnight-plan.md`.
+
+## DROPPED 18 November 2026 — Packing as a Chain event (kept for history)
 
 User's words: "packing should also be a chain event and echo and the likes should react to it."
 

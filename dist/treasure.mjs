@@ -1,7 +1,8 @@
 import {glowPoints, getGlowCapacity,getLifeCapacity} from './vitality.mjs?v=guide-clarity-1';
 import {getCompanionAbility} from './companion-abilities.mjs?v=guide-clarity-1';
 import {activeEventFavors} from './passage-preparations.mjs?v=guide-clarity-1';
-import {hasTemporary,temporaryLine} from './temporary-inscriptions.mjs?v=guide-clarity-1';
+import {hasTemporary,temporaryLine,queueInscriptionWrite} from './temporary-inscriptions.mjs?v=guide-clarity-1';
+import {INSCRIPTIONS,ownsInscription,hasActiveInscription} from './inscriptions.mjs?v=guide-clarity-1';
 
 export const TREASURE_KINDS = Object.freeze(['vessel', 'lens', 'tithe', 'wager']);
 export const LENS_SIGHT = 1.15;
@@ -12,11 +13,21 @@ const BODY_TARGET = 3;
 const DIVIDEND = 3;
 const limits = Object.freeze({vessel:2, farLens:1, quickLens:1, wick:1, toll:1, seal:1});
 
+// Five of the finds are PERMANENT Inscriptions the player writes on a Chain slot (docs/inscriptions.md, "Chest gifts"); nothing of them is kept loose
+// in run.treasureGifts any more (old saves are moved by migrateChestGifts). Only the Hollow Vessel still counts in treasureGifts.
+const GIFT_INSCRIPTION=Object.freeze({farLens:'far-lens',quickLens:'quick-lens',wick:'mending-wick',toll:'toll-stamp',seal:'lamplighter-seal'});
+const heldGift=(run,id)=>ownsInscription(run,GIFT_INSCRIPTION[id]);
+/** "Inscription: Far Lens — Luminance reaches 15% farther." The one line the chest's find and the stop page use. */
+export const giftLine=id=>{const i=INSCRIPTIONS[GIFT_INSCRIPTION[id]];return `Inscription: ${i.name} — ${i.text.charAt(0).toLowerCase()}${i.text.slice(1)}`;};
+
+/** 0 or 1 for a gift Inscription that is written AND in force (a temporary Inscription covering its slot suspends it); the Vessel's rank otherwise. */
 export function treasureRank(run,id){
+  if(GIFT_INSCRIPTION[id])return hasActiveInscription(run,GIFT_INSCRIPTION[id])?1:0;
   return Math.max(0,Math.min(limits[id]||0,Math.floor(Number(run?.treasureGifts?.[id])||0)));
 }
 
 export function grantTreasureGift(run,id){
+  if(GIFT_INSCRIPTION[id])return queueInscriptionWrite(run,GIFT_INSCRIPTION[id],{source:'chest'});
   if(!Object.hasOwn(limits,id)||treasureRank(run,id)>=limits[id])return false;
   run.treasureGifts??={};
   run.treasureGifts[id]=treasureRank(run,id)+1;
@@ -80,23 +91,23 @@ export function treasureChoices(kind, run) {
       const companion = getCompanionAbility(run.companions?.[0] || run.companionRole);
       const action = {collector:'search radius', protector:'shield', swift:'dash', leveler:'levitation'}[companion.id];
       return [
-        !treasureRank(run,'farLens')
-          ?offer('lens-sight', 'Fit the far lens', 'Luminance reaches 15% farther permanently.', 'sight', {treasureGift:'farLens'})
+        !heldGift(run,'farLens')
+          ?offer('lens-sight', 'Fit the far lens', giftLine('farLens'), 'sight', {treasureGift:'farLens'})
           :purse('lens-sell','Sell the duplicate lens',20),
-        !treasureRank(run,'quickLens')
-          ?offer('lens-companion', 'Fit the quick lens', `${companion.name}’s ${action} recharges in 15% less time permanently.`, 'companion', {treasureGift:'quickLens'})
-          :treasureRank(run,'farLens')?repairs:purse('lens-sell','Sell the duplicate lens',20)
+        !heldGift(run,'quickLens')
+          ?offer('lens-companion', 'Fit the quick lens', giftLine('quickLens'), 'companion', {treasureGift:'quickLens'})
+          :heldGift(run,'farLens')?repairs:purse('lens-sell','Sell the duplicate lens',20)
       ];
     }
     case 'tithe': {
       const before = glowPoints(run.flame);
       const gain = glowPoints(Math.min(getGlowCapacity(run),run.flame+20))-before;
       return [
-        !treasureRank(run,'wick')
-          ?offer('tithe-supplies','Take the mending wick',`Recover 3 extra Sparks after each clear this run.${gain?' Restore '+gain+'.':''}`,'energy',{treasureGift:'wick',flame:20})
+        !heldGift(run,'wick')
+          ?offer('tithe-supplies','Take the mending wick',`${giftLine('wick')}.${gain?' Restore '+gain+' now.':''}`,'energy',{treasureGift:'wick',flame:20})
           :repairs,
-        !treasureRank(run,'toll')
-          ?offer('tithe-pay','Buy the toll stamp',`Pay 6 Sparks. Bank ${DIVIDEND} Stored Sparks on each clear with ${BODY_TARGET} body pickups this run.`,'packed',{flame:-20,treasureGift:'toll'},
+        !heldGift(run,'toll')
+          ?offer('tithe-pay','Buy the toll stamp',`Pay 6 Sparks. ${giftLine('toll')}.`,'packed',{flame:-20,treasureGift:'toll'},
             before<9?'Requires 9 Sparks.':'')
           :purse('tithe-coin','Empty the coin drawer',20)
       ];
@@ -106,7 +117,7 @@ export function treasureChoices(kind, run) {
       hasTemporary(run,'sealed-purse')?repairs:offer('wager-carry','Carry the sealed purse',
         treasureRank(run,'seal')
           ?`Oath Inscription: Sealed Purse — clear a flight holding ${WAGER_TARGET} Sparks to win 36 Stored Sparks. Stays until fulfilled.`
-          :`Oath Inscription: Sealed Purse — clear a flight holding ${WAGER_TARGET} Sparks to win ${WAGER_REWARD} Stored Sparks, then earn +${DIVIDEND} on later clears holding ${WAGER_TARGET}. Stays until fulfilled.`,
+          :`Oath Inscription: Sealed Purse — clear a flight holding ${WAGER_TARGET} Sparks to win ${WAGER_REWARD} Stored Sparks and a slot for the ${giftLine('seal')}. Stays until fulfilled.`,
         'wager',{treasurePact:'wager'})
     ];
     default: return [];
@@ -124,8 +135,8 @@ export function settleTreasureWager(result,run) {
   if(!result.success)return null;
   const remaining = glowPoints(result.flame);
   const completed = result.success && remaining >= WAGER_TARGET;
-  const owned=treasureRank(run,'seal'),amount=owned?36:WAGER_REWARD;
-  return {completed, reward:completed ? amount : 0, gift:completed&&!owned?'seal':null,
-    message:completed ? `Seal opened · +${amount} Stored Sparks${owned?'':' · +3 on later clears holding 12 Sparks'}`
+  const amount=treasureRank(run,'seal')?36:WAGER_REWARD,held=heldGift(run,'seal');
+  return {completed, reward:completed ? amount : 0, gift:completed&&!held?'seal':null,
+    message:completed ? `Seal opened · +${amount} Stored Sparks${held?'':' · +3 on later clears holding 12 Sparks'}`
       : `Seal still closed · finished with ${remaining}/${WAGER_TARGET} Sparks. It stays until you open it.`};
 }
