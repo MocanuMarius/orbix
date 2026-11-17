@@ -30,11 +30,6 @@ export const CARD_GUIDE_TOPICS = {
         "Collector stays busy until the intact pickup touches your wisp. It then rebuilds charge: 6, 12 and 18 Sparks take 3⅓, 6⅔ and 10 seconds before compression and build modifiers. Its orbit shows charge. The pickup marks show learned handling.",
         "collector-recovery",
       ),
-      step(
-        "Field Impulse duration",
-        "Swipe up to float, down to dive, or right to speed up. At full Collector charge, each Field Impulse in your chain, or copy of one, adds 0.8 seconds: two last 1.6 seconds. Less charge means a shorter, weaker swipe. Extra copies add time at the same force, and one swipe spends Collector charge once. Lift ends a float or dive.",
-        "collector-range",
-      ),
     ],
   },
   companions: {
@@ -143,7 +138,7 @@ export const CARD_GUIDE_TOPICS = {
       ),
       step(
         "Lift Guide",
-        "Loaned during First Light’s Lift lesson. The amber chevron marks a good time to Lift. With music on, listen for two notes. Tap on the higher note to keep a level path in still air. Watch the terrain for times to Lift earlier.",
+        "Your starting Chain holds Lift Guide. The amber chevron marks a good time to Lift. With music on, listen for two notes. Tap on the higher note to keep a level path in still air. Watch the terrain for times to Lift earlier.",
         "lift",
       ),
       step(

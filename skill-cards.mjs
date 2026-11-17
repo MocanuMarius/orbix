@@ -1,9 +1,9 @@
 /** Small, serializable skills-as-cards pilot. Printed Sparks use the existing .3 display scale. */
 export const CARD_SYSTEM = "cards-v1";
 export const CARD_UNIT = 10 / 3;
-import {CARD_CATALOG,CARD_DROP_WEIGHTS} from './card-catalog.mjs?v=chain-deck-1';
-import {cardOfferMultiplier} from './card-offer-context.mjs?v=chain-deck-1';
-import {interpolateCardText,getCardTrigger,cardRuleSentence} from './card-rule-bands.mjs?v=chain-deck-1';
+import {CARD_CATALOG,CARD_DROP_WEIGHTS} from './card-catalog.mjs?v=reskin-1';
+import {cardOfferMultiplier} from './card-offer-context.mjs?v=reskin-1';
+import {interpolateCardText,getCardTrigger,cardRuleSentence} from './card-rule-bands.mjs?v=reskin-1';
 const maximumGrowthAmount = Math.max(...Object.values(CARD_CATALOG)
   .filter(card => card.kind === 'camp-grow').map(card => card.amount + card.maxRank - 1));
 export const CARD_ECONOMY = Object.freeze({
@@ -23,6 +23,8 @@ export const CARD_ECONOMY = Object.freeze({
   maxGrowPerAction: maximumGrowthAmount * 9,
 });
 export const SKILL_CARDS = CARD_CATALOG;
+/** Every pool a player can draw from (starters, rewards, Rest, Forge, drafts) uses this, never the raw catalog. */
+export const LIVE_CARDS = Object.freeze(Object.values(SKILL_CARDS).filter(d => !d.retired));
 /** Rest cards live in the Deck; limited flight cards still need an active slot. */
 export const isInventoryOnlyCard = card => ['camp-grow', 'camp-extra'].includes(SKILL_CARDS[card?.cardId || card?.id]?.kind || card?.kind);
 export function getInventoryCampCards(run, kind) {
@@ -247,6 +249,40 @@ export function cleanCardRun(run) {
     } else delete run.cardDraft;
   }
   settleCardReward(run);
+  retireHeldCards(run);
+}
+/** Retired cards (catalog flag retired: true) are taken out of a loaded run and paid as a melt would
+ * pay: the card's own getCardMeltValue, once per card instance, into the same Stored Sparks fields
+ * as melting. Idempotent: once the copies are gone nothing is paid again. An unclaimed draft that
+ * offers one swaps it for the first live card of its rarity that the draft does not already show. */
+function retireHeldCards(run) {
+  const paid = new Set();
+  let amount = 0;
+  const take = card => {
+    if (!card || !SKILL_CARDS[card.cardId]?.retired) return card;
+    const key = String(card.instanceId);
+    if (!paid.has(key)) { paid.add(key); amount += getCardMeltValue(card); }
+    return null;
+  };
+  run.mountedCards = run.mountedCards.map(take);
+  run.reserveCards = run.reserveCards.filter(card => take(card));
+  const entry = run.attemptEntry;
+  if (Array.isArray(entry?.mountedCards)) entry.mountedCards = entry.mountedCards.map(take);
+  if (amount > 0) {
+    run.condensedGlow = integer(run.condensedGlow) + amount;
+    run.securedCondensedGlow = integer(run.securedCondensedGlow) + amount;
+    run.condensedEarned = integer(run.condensedEarned) + amount;
+    if (entry && Number.isFinite(entry.condensedGlow)) entry.condensedGlow += amount;
+  }
+  const offers = run.cardDraft?.offers;
+  if (Array.isArray(offers) && offers.some(card => SKILL_CARDS[card.cardId]?.retired)) {
+    run.cardDraft.offers = offers.map(card => {
+      if (!SKILL_CARDS[card.cardId]?.retired) return card;
+      const rarity = SKILL_CARDS[card.cardId].rarity,
+        swap = LIVE_CARDS.find(def => def.rarity === rarity && !def.starterOnly && !offers.some(other => other.cardId === def.id));
+      return swap ? makeSkillCard(swap.id, card.instanceId) : card;
+    });
+  }
 }
 export function cardAmount(card) {
   const def = SKILL_CARDS[card?.cardId];
@@ -480,7 +516,7 @@ function effectiveCardSummary(kind, sources, cards) {
       : "Double Lift: within 1 second, the second successful manual Lift is free. Extra cards keep one pair.",
     dream: "After a committed Rest, or before an Elite or Guardian: rehearse 8 seconds in full light with free Lifts. Wake at the opening’s end, paused. Extra cards keep one 8-second Dream; copying cards cannot copy it.",
     "cache-handling": "Collector can fetch Caches. A delivered Cache gives 12 Sparks. Extra cards keep that same delivery.",
-    "twin-orbit": "Two Collectors fetch and reel independently while equipped. Maximum 2; the first keeps Field Impulse and saves.",
+    "twin-orbit": "Two Collectors fetch and reel independently while equipped. Maximum 2; only the first keeps fatal-impact saves.",
     "twin-wick": "One use unlocks a second Collector for this journey. At most 2; it keeps its use while Twin Orbit already gives the second.",
     "collector-range": "Only extra catches beyond normal reach spend a use. The shortest sufficient extension pays once; copies share uses and extensions do not stack.",
     "camp-extra": "Take 2 different Rest actions at one Rest. The second one spends 1 use from one Second Ember.",
@@ -576,7 +612,7 @@ export function getCardPackingBonus(packed, sources = 0, remainder = 0) {
   return { amount: Math.floor(quarters / 4), remainder: quarters % 4 };
 }
 export const CARD_STARTER_RARE_CHANCE = .20;
-const starterCommonIds = ['body-spark', 'spark-cache', 'deep-vessel', 'tight-packing', 'field-impulse', 'harvest-common', 'dream'];
+const starterCommonIds = ['body-spark', 'spark-cache', 'deep-vessel', 'tight-packing', 'harvest-common', 'dream'];
 const starterRareIds = ['rhythm', 'cache-handling', 'flash-handling'];
 export function getCardStarterOffers(run, { legacy = false } = {}) {
   const oldPair = legacy || isCardRun(run) && run.cardStarterVersion !== 3,
@@ -591,7 +627,7 @@ export function getCardStarterOffers(run, { legacy = false } = {}) {
   let pool;
   if (oldPair) {
     // Keep unpicked v1/v2 saves and already-open legacy confirmations stable.
-    pool = shuffle(Object.values(SKILL_CARDS).filter(d => d.rarity === 'common' && !d.excludeStarter && (legacy || d.id !== 'lift-guide')));
+    pool = shuffle(LIVE_CARDS.filter(d => d.rarity === 'common' && !d.excludeStarter && (legacy || d.id !== 'lift-guide')));
     const soloKinds = ['body', 'capacity', 'guide', 'field'];
     if (!pool.slice(0, 2).some(d => soloKinds.includes(d.kind))) {
       const index = pool.findIndex(d => soloKinds.includes(d.kind));
@@ -599,7 +635,7 @@ export function getCardStarterOffers(run, { legacy = false } = {}) {
     }
     pool = pool.slice(0, 2);
   } else if (Array.isArray(run.cardStarterOfferIds) && run.cardStarterOfferIds.length === 3 &&
-      new Set(run.cardStarterOfferIds).size === 3 && run.cardStarterOfferIds.every(id => SKILL_CARDS[id] && id !== 'lift-guide')) {
+      new Set(run.cardStarterOfferIds).size === 3 && run.cardStarterOfferIds.every(id => SKILL_CARDS[id] && !SKILL_CARDS[id].retired && id !== 'lift-guide')) {
     pool = run.cardStarterOfferIds.map(id => SKILL_CARDS[id]);
   } else {
     pool = shuffle(starterCommonIds.map(id => SKILL_CARDS[id]).filter(Boolean));
@@ -638,7 +674,7 @@ export function drawSkillCard(run, source, node = run.current, rarity = null) {
   if (source === 'flight' && !rarity) {
     const earned = run.cardReward?.card?.instanceId === identity ? run.cardReward.card
       : (run.cardHistory || []).find(event => event.type === 'drop' && event.card?.instanceId === identity)?.card;
-    if (earned && SKILL_CARDS[earned.cardId]) return {
+    if (earned && SKILL_CARDS[earned.cardId] && !SKILL_CARDS[earned.cardId].retired) return {
       instanceId: earned.instanceId, cardId: earned.cardId, rank: earned.rank || 1,
       ...(Number.isFinite(earned.charges) ? { charges: earned.charges } : {}),
     };
@@ -656,7 +692,7 @@ export function drawSkillCard(run, source, node = run.current, rarity = null) {
     // neither previews, Forge nor later melting can restart the safeguard.
     if (!acquiredGrowth && commonFlightDrops >= 1) return makeSkillCard('growth-seed-common', identity);
   }
-  const pool = Object.values(SKILL_CARDS).filter(
+  const pool = LIVE_CARDS.filter(
       (d) => d.rarity === tier && !d.starterOnly,
     );
   const weight = def => (def.dropWeight || 1) * (rarity && source.startsWith('forge:v2:')
@@ -676,7 +712,7 @@ export const CARD_FORGE_RARITIES = Object.freeze(["common", "rare", "legendary"]
  * cards), weighted as Forge always was, and it skips cards already owned unless every
  * card of that rarity is owned. Nothing here changes the run. */
 export function drawForgeCard(run, rarity, count = 0) {
-  const pool = Object.values(SKILL_CARDS).filter(def => def.rarity === rarity && !def.starterOnly);
+  const pool = LIVE_CARDS.filter(def => def.rarity === rarity && !def.starterOnly);
   if (!run || !pool.length) return null;
   const identity = `${run.campaignSeed || run.seed}:forge:v3:${rarity}:${integer(count)}`, draw = random(identity);
   const weight = def => (def.dropWeight || 1) * cardOfferMultiplier({def, rule: getCardRowRule(def, {cardId: def.id, rank: 1})}, [], {mode: 'forge'});
@@ -707,7 +743,7 @@ export function drawSkillCardDraft(run, node = run.current) {
   for (let index = 1; index < 3; index++) {
     const source = `flight-draft:${index}`, rolled = drawSkillCard(run, source, node),
       tier = SKILL_CARDS[rolled.cardId].rarity,
-      pool = Object.values(SKILL_CARDS).filter(def => def.rarity === tier && !def.starterOnly && !names.has(def.name)),
+      pool = LIVE_CARDS.filter(def => def.rarity === tier && !def.starterOnly && !names.has(def.name)),
       draw = random(`${run.campaignSeed || run.seed}:${run.mapIndex}:${node?.id}:draft:${index}:distinct:v1`),
       weight = def => (def.dropWeight || 1) * (index === contextSlot
         ? cardOfferMultiplier({def,rule:getCardRowRule(def,{cardId:def.id,rank:1})}, owned, {slots:run.cardSlots || 3}) : 1);

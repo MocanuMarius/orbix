@@ -1,9 +1,9 @@
 // Disposable, deterministic equipped samples. No app boot, persistence or economy actions.
-import { CARD_SYSTEM, SKILL_CARDS, makeSkillCard, getMountedCards, previewCardRow } from './skill-cards.mjs?v=chain-deck-1';
-import { cardRowTraceMarkup, cardRowSequenceMarkup } from './card-row-feedback.mjs?v=chain-deck-1';
-import { cardFace } from './card-ui.mjs?v=chain-deck-1';
-import { CARD_TERMS, cardTermTextMarkup, installCardTermHelp } from './card-terms.mjs?v=chain-deck-1';
-import {resolveCardHelpContext} from './card-row-help.mjs?v=chain-deck-1';
+import { CARD_SYSTEM, SKILL_CARDS, makeSkillCard, getMountedCards, previewCardRow } from './skill-cards.mjs?v=reskin-1';
+import { cardRowTraceMarkup, cardRowSequenceMarkup } from './card-row-feedback.mjs?v=reskin-1';
+import { cardFace } from './card-ui.mjs?v=reskin-1';
+import { CARD_TERMS, cardTermTextMarkup, installCardTermHelp } from './card-terms.mjs?v=reskin-1';
+import {resolveCardHelpContext} from './card-row-help.mjs?v=reskin-1';
 
 const esc = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 export const DEFAULT_COMBO_SEED = 'moonwell-15';
@@ -27,7 +27,7 @@ function shuffled(values, random) {
   return result;
 }
 export function createComboSample(seed = DEFAULT_COMBO_SEED) {
-  const random = seededRandom(seed), catalog = Object.keys(SKILL_CARDS);
+  const random = seededRandom(seed), catalog = Object.keys(SKILL_CARDS).filter(id => !SKILL_CARDS[id].retired);
   // One shuffled catalog guarantees coverage; the remaining draws stay independent.
   let pool = catalog.length <= 45 ? [...catalog, ...Array.from({length:45 - catalog.length}, () => catalog[Math.floor(random() * catalog.length)])] : shuffled(catalog, random).slice(0,45);
   do { pool = shuffled(pool, random); }

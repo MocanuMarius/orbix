@@ -1,7 +1,7 @@
-import {artifactRarityLabel} from '../replay-ui.mjs?v=chain-deck-1';
-import {artifactLimitSummary,effectMarkup} from '../artifact-copy.mjs?v=chain-deck-1';
-import {artifactIcon} from '../upgrade-icons.mjs?v=chain-deck-1';
-import {escapeHtml as esc,actionButton} from './primitives.mjs?v=chain-deck-1';
+import {artifactRarityLabel} from '../replay-ui.mjs?v=reskin-1';
+import {artifactLimitSummary,effectMarkup} from '../artifact-copy.mjs?v=reskin-1';
+import {artifactIcon} from '../upgrade-icons.mjs?v=reskin-1';
+import {escapeHtml as esc,actionButton} from './primitives.mjs?v=reskin-1';
 
 // Two layout recipes share the same identity and rule decisions. Existing
 // production classes remain the styling API while the surfaces migrate here.
@@ -20,6 +20,8 @@ export function relicRulesMarkup(copy,{context='reward'}={}) {
   return `<div class="${collection?'collection-selected-rule':'artifact-choice-copy'}">${trigger}${effect}${limit}</div>`;
 }
 
-export function relicRulesButton(artifact,{action='reward-artifact-details'}={}) {
-  return actionButton('Full rules',{className:'secondary artifact-rules',action,id:artifact.id,ariaLabel:`Full rules for ${artifact.name}`});
+// sign:true draws the kit's leather plaque (a button that opens something); the default keeps the plain
+// production button for screens not yet reskinned.
+export function relicRulesButton(artifact,{action='reward-artifact-details',sign=false}={}) {
+  return actionButton('Full rules',{className:sign?'wb-sign wb-sign-standard artifact-rules':'secondary artifact-rules',action,id:artifact.id,ariaLabel:`Full rules for ${artifact.name}`,labelMarkup:sign?'<span class="wb-sign-text"><b>Full rules</b></span>':undefined});
 }

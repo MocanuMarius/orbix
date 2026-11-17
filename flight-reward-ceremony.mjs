@@ -1,13 +1,13 @@
-import {ARTIFACTS,SKILL_CARDS,getCardDraft} from './model.mjs?v=chain-deck-1';
-import {cardDraftMarkup,cardDraftOffersMarkup} from './card-ui.mjs?v=chain-deck-1';
-import {rewardEarnings} from './reward-screen.mjs?v=chain-deck-1';
-import {resourceSymbol} from './game-symbols.mjs?v=chain-deck-1';
-import {routeBonusReceiptText} from './route-bonus-copy.mjs?v=chain-deck-1';
-import {ROUTE_BONUSES} from './route-bonuses.mjs?v=chain-deck-1';
-import {FLIGHT_PACTS} from './flight-pacts.mjs?v=chain-deck-1';
-import {sealedPackMarkup} from './flight-reward-pack-art.mjs?v=chain-deck-1';
-import {artifactIcon} from './upgrade-icons.mjs?v=chain-deck-1';
-import {flightRewardReceiptDetail,FLIGHT_REWARD_SOURCE_DETAILS} from './flight-reward-details.mjs?v=chain-deck-1';
+import {ARTIFACTS,SKILL_CARDS,getCardDraft} from './model.mjs?v=reskin-1';
+import {cardDraftMarkup,cardDraftOffersMarkup} from './card-ui.mjs?v=reskin-1';
+import {rewardEarnings} from './reward-screen.mjs?v=reskin-1';
+import {resourceSymbol} from './game-symbols.mjs?v=reskin-1';
+import {routeBonusReceiptText} from './route-bonus-copy.mjs?v=reskin-1';
+import {ROUTE_BONUSES} from './route-bonuses.mjs?v=reskin-1';
+import {FLIGHT_PACTS} from './flight-pacts.mjs?v=reskin-1';
+import {sealedPackMarkup} from './flight-reward-pack-art.mjs?v=reskin-1';
+import {artifactIcon} from './upgrade-icons.mjs?v=reskin-1';
+import {flightRewardReceiptDetail,FLIGHT_REWARD_SOURCE_DETAILS} from './flight-reward-details.mjs?v=reskin-1';
 export {flightRewardReceiptDetail};
 
 const esc=value=>String(value??'').replace(/[&<>"']/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
@@ -80,7 +80,7 @@ export function flightRewardCeremonyMarkup(run){
  const income=`<article class="flight-reward-income flight-reward-receipt"><div class="flight-reward-summary"><span class="flight-reward-total-label">Earned this flight</span><strong class="flight-reward-income-total" aria-label="Stored Sparks earned">${resourceSymbol('packed')} +<b data-ceremony-income>0</b></strong><span class="flight-reward-bank-status" role="status" data-ceremony-bank-status>Counting Stored Sparks…</span></div><div class="flight-reward-ledger ${context?'has-secondary':'single-column'}">${scrollColumn('flight-reward-ledger-primary','Stored Spark sources',`<section class="flight-reward-clear"><h2>Stored Spark sources</h2><div class="flight-reward-income-rows">${rows||'<span>No clear income</span>'}</div>${bonus}</section>`)}${context?scrollColumn('flight-reward-ledger-secondary','Recorded flight effects',context):''}</div></article>`;
  const pack=`<div class="flight-reward-pack-context"><p class="flight-reward-bank-status">${receipt.total?`${resourceSymbol('packed')} +${receipt.total} Stored Sparks banked`:'Clear complete'} ✓</p><button type="button" class="flight-reward-pack" data-action="flight-reward-open-pack" data-draft-id="${esc(draft.id)}" aria-label="Open card pack. Reveal three cards, then choose one."><span class="flight-reward-pack-art">${sealedPackMarkup()}</span></button></div>`;
  const fan=stage==='cards'?cardDraftOffersMarkup(draft,{className:'flight-reward-fan'}):'';
- return `<section class="flight-reward-ceremony card-reward-screen ${stage==='cards'?'card-draft-screen':''}" data-stage="${stage}" data-ceremony-draft-id="${esc(draft.id)}"><header class="flight-reward-heading"><div><small>${esc(title)}</small><h1>${stage==='cards'?'Choose 1 card':stage==='pack'?'Your card reward':'Flight rewards'}</h1></div><div class="flight-reward-wallet" aria-label="Wallet: ${receipt.wallet} Stored Sparks">${resourceSymbol('packed')}<b data-ceremony-wallet>${receipt.wallet}</b><small>Stored Sparks</small></div></header><div class="flight-reward-stage" data-stage="${stage}">${stage==='income'?income:stage==='pack'?pack:`<p class="flight-reward-choice-note">Keep one. The other two are left behind.</p>${fan||''}`}</div><footer class="flight-reward-actions">${stage==='income'?`<button type="button" class="flight-reward-receipt-continue" data-action="flight-reward-continue" aria-label="Continue to card pack">Continue →</button>`:'<button class="secondary" data-action="cards">Deck</button><button class="secondary" data-action="menu">Menu</button>'}</footer></section>`;
+ return `<section class="flight-reward-ceremony card-reward-screen ${stage==='cards'?'card-draft-screen':''}" data-stage="${stage}" data-ceremony-draft-id="${esc(draft.id)}"><header class="flight-reward-heading"><div><small>${esc(title)}</small><h1>${stage==='cards'?'Choose 1 card':stage==='pack'?'Your card reward':'Flight rewards'}</h1></div><div class="flight-reward-wallet" aria-label="Wallet: ${receipt.wallet} Stored Sparks">${resourceSymbol('packed')}<b data-ceremony-wallet>${receipt.wallet}</b><small>Stored Sparks</small></div></header><div class="flight-reward-stage" data-stage="${stage}">${stage==='income'?income:stage==='pack'?pack:`<p class="flight-reward-choice-note">Keep one. The other two are left behind.</p>${fan||''}`}</div><footer class="flight-reward-actions">${stage==='income'?`<button type="button" class="flight-reward-receipt-continue" data-action="flight-reward-continue" aria-label="Continue to card pack">Continue</button>`:'<button class="secondary" data-action="cards">Deck</button><button class="secondary" data-action="menu">Menu</button>'}</footer></section>`;
 }
 
 /** Cancellable one-shot feedback. Only a deliberate press advances the receipt. */
@@ -151,7 +151,7 @@ export function mountReceiptInspector(root,run) {
   panel.dataset.kind=detail.kind;
   panel.setAttribute('aria-label',detail.title);
   if(!pinned)panel.setAttribute('role','region');
-  panel.innerHTML=(pinned?'<button type="button" class="receipt-detail-close" aria-label="Close details">×</button>':'')+
+  panel.innerHTML=(pinned?'<button type="button" class="receipt-detail-close" aria-label="Close details">Close</button>':'')+
    '<h2 class="receipt-detail-title">'+esc(detail.title)+'</h2><div class="receipt-detail-body">'+detail.markup+'</div>';
   root.appendChild(panel);
   if(pinned){

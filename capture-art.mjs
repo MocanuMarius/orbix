@@ -1,12 +1,12 @@
-import {drawCollectorVortex} from './collector-vortex.mjs?v=chain-deck-1';
-import {drawAbsorbingSpark} from './tidal-light.mjs?v=chain-deck-1';
-import {getPickupSpec, pickupShellRadius} from './pickups.mjs?v=chain-deck-1';
-import {drawPickup} from './pickup-art.mjs?v=chain-deck-1';
-import {drawShellArcs} from './shell-arcs.mjs?v=chain-deck-1';
-import {DEFAULT_CAPTURE_STYLE} from './capture-styles.mjs?v=chain-deck-1';
-import {COLLECTOR_RING} from './pickup-handling-cue.mjs?v=chain-deck-1';
-import {collectorTowPoint} from './collector-tow-geometry.mjs?v=chain-deck-1';
-import {lightVisibility,renderLightState} from './light-field.mjs?v=chain-deck-1';
+import {drawCollectorVortex} from './collector-vortex.mjs?v=reskin-1';
+import {drawAbsorbingSpark} from './tidal-light.mjs?v=reskin-1';
+import {getPickupSpec, pickupShellRadius} from './pickups.mjs?v=reskin-1';
+import {drawPickup} from './pickup-art.mjs?v=reskin-1';
+import {drawShellArcs} from './shell-arcs.mjs?v=reskin-1';
+import {DEFAULT_CAPTURE_STYLE} from './capture-styles.mjs?v=reskin-1';
+import {COLLECTOR_RING} from './pickup-handling-cue.mjs?v=reskin-1';
+import {collectorTowPoint} from './collector-tow-geometry.mjs?v=reskin-1';
+import {lightVisibility,renderLightState} from './light-field.mjs?v=reskin-1';
 
 const TAU = Math.PI * 2;
 const clamp = value => Math.max(0, Math.min(1, value));

@@ -1,6 +1,6 @@
 // Risk-earned sight, plus bounded fuel recovery with Regenerative Pulse.
 // Neither outcome is a pickup or invokes artifact hooks.
-import { GLOW_DISPLAY_SCALE } from './vitality.mjs?v=chain-deck-1';
+import { GLOW_DISPLAY_SCALE } from './vitality.mjs?v=reskin-1';
 const clamp = (n, lo, hi) => Math.min(hi, Math.max(lo, n));
 const smooth = n => n * n * (3 - 2 * n);
 const EPSILON = 1e-9;
@@ -8,7 +8,6 @@ export const EDGING_PULSE_TUNING = Object.freeze({ clearance: 48, chargeSeconds:
   graceSeconds: 1.25, decayPerSecond: .08, duration: 5, recovery: 2, waves: 3 });
 /** World-space body-to-solid clearance; card sources add normal reach, never multiply each other. */
 export function getProximityClearance(modifiers = {}) {
-  // Boosted Edge Reach counts as a fractional source (+50% x1.25 = +62.5%).
   // Boosted Edge Reach counts as a fractional source (+50% x1.25 = +62.5%). No ceiling (designer, 2026-11-17).
   const sources = Math.max(0, Number(modifiers.cardProximitySources) || 0);
   return EDGING_PULSE_TUNING.clearance * (1 + .5 * sources);

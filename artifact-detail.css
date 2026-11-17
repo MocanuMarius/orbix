@@ -1,103 +1,99 @@
-/* Artifact rules read as one small explanation, with the condition before the benefit. */
-.artifact-explanation{display:flex;flex-direction:column;align-items:flex-start;gap:9px;min-width:0;text-align:left;font-family:var(--pixel)}
+/* Relic full rules · v2.5-theme. One paper page over the dimmed woods (the kit's page art, named directly
+   because this stylesheet sits outside dist/ui/). Back is the paper slip at the top left, as on the Deck;
+   in flight the way forward (Resume) is moss. The markup comes from replay-ui.mjs and is unchanged:
+   <dialog><article.artifact-inspection><header.relic-detail-crest/><div.artifact-inspection-rules/></article><button.primary/></dialog>.
+   The article is flattened so the crest sits under Back and the rules fill the right column. */
+.artifact-explanation{display:flex;flex-direction:column;align-items:flex-start;gap:7px;min-width:0;text-align:left;font-family:var(--pixel)}
 .artifact-explanation>p{margin:0;max-width:720px;overflow-wrap:break-word}
-.artifact-explanation>.artifact-trigger-line{font:15px/1.4 var(--pixel);color:#bacdac}
-.artifact-explanation>.artifact-effect-main{font:20px/1.4 var(--pixel);color:#eee8c6}
-.artifact-explanation>.artifact-limit-line{font:14px/1.45 var(--pixel);color:#b7c6a8}
-.artifact-duration{font:12px/1.35 var(--pixel);color:#9eaf91}
-.artifact-sheet .artifact-explanation{gap:7px}.artifact-sheet .artifact-explanation>.artifact-effect-main{font-size:17px;line-height:1.35}.artifact-sheet .artifact-explanation>.artifact-trigger-line{font-size:14px}.artifact-sheet .artifact-explanation>.artifact-limit-line{font-size:12px;line-height:1.4}
-dialog.game-sheet.artifact-details-sheet:modal{display:flex;flex-direction:column;width:min(860px,calc(100vw - 24px));max-width:none;height:auto;max-height:calc(100dvh - 24px);padding:16px 22px!important;overflow:hidden;gap:14px;text-align:left;box-sizing:border-box}
-.artifact-inspection{display:flex;flex-direction:column;gap:15px;min-height:0;overflow:auto;scrollbar-width:thin;padding:0 4px 0 0}
-.artifact-inspection>.relic-detail-crest{display:flex;justify-content:flex-start;align-items:center;gap:15px;margin:0}
-.artifact-inspection>.relic-detail-crest>svg{width:72px;height:72px;flex:none;filter:none}
-.artifact-inspection>.relic-detail-crest h2{margin:5px 0 0;font:26px/1.2 var(--pixel);color:#efe8c5}
-.artifact-inspection>.relic-detail-crest small{font:12px/1.25 var(--pixel);color:#a7ba9a}
-.artifact-inspection>.relic-detail-crest.rare small{color:#b2d6a6}.artifact-inspection>.relic-detail-crest.boss small{color:#ceb1eb}
-.artifact-inspection>.artifact-combo-note{margin:0;color:#c7bc99;font:13px/1.4 var(--pixel)}
-.artifact-inspection>.artifact-salvage-note{display:flex;align-items:center;gap:7px;flex-wrap:wrap;margin:0;padding-top:10px;border-top:1px solid #73815e55;color:#c9b88e;font:13px/1.35 var(--pixel)}
-.artifact-salvage-note>.resource-symbol{width:24px;height:24px;flex:none}.artifact-salvage-note>small{font:12px/1.3 var(--pixel);color:#a6b494}
-dialog.artifact-details-sheet>.primary{align-self:flex-end;flex:none;min-height:44px;min-width:180px;margin:0;font:17px/1.2 var(--pixel)}
-@media(orientation:landscape) and (max-height:350px){
- dialog.game-sheet.artifact-details-sheet:modal{padding:8px 14px!important;gap:8px;max-height:calc(100dvh - 16px)}
- .artifact-inspection{gap:9px}.artifact-inspection>.relic-detail-crest{gap:12px}.artifact-inspection>.relic-detail-crest>svg{width:42px;height:42px}.artifact-inspection>.relic-detail-crest h2{font-size:21px;margin:3px 0 0}.artifact-inspection>.relic-detail-crest small{font-size:11px}
- .artifact-explanation{gap:6px}.artifact-explanation>.artifact-trigger-line{font-size:13px;line-height:1.3}.artifact-explanation>.artifact-effect-main{font-size:17px;line-height:1.3}.artifact-explanation>.artifact-limit-line{font-size:12px;line-height:1.35}.artifact-duration{font-size:11px}
- .artifact-sheet .artifact-explanation>.artifact-trigger-line{font-size:13px}.artifact-sheet .artifact-explanation>.artifact-effect-main{font-size:16px}.artifact-sheet .artifact-explanation>.artifact-limit-line{font-size:12px}
- .artifact-inspection>.artifact-combo-note{font-size:12px}.artifact-inspection>.artifact-salvage-note{padding-top:5px;font-size:12px}.artifact-salvage-note>small{font-size:11px}.artifact-salvage-note>.resource-symbol{width:21px;height:21px}
- dialog.artifact-details-sheet>.primary{font-size:15px;min-height:44px}
-}
-
-/* An artifact's color lives in its portrait. Rules read on neutral shadow. */
-html body dialog.artifact-details-sheet{background-color:#0b171b}
-html body .artifact-inspection>.relic-detail-crest>svg{background-color:#050e13;box-shadow:3px 3px 0 #02070b;filter:none}
-html body .artifact-inspection>.relic-detail-crest h2{color:#fff0cc;text-shadow:1px 1px #02070b}
-html body .artifact-inspection>.relic-detail-crest small{color:#cad7dd}
-html body .artifact-inspection>.relic-detail-crest.rare small{color:#bce8be}
-html body .artifact-inspection>.relic-detail-crest.boss small{color:#e3cbff}
-html body .artifact-explanation>.artifact-trigger-line{color:#d4e0e4}
-html body .artifact-explanation>.artifact-effect-main{color:#fff0cd}
-html body .artifact-explanation>.artifact-limit-line{color:#c9d4da}
+.artifact-duration{font:12px/1.35 var(--pixel)}
+/* Generic ink for any other reader of artifact rules (the kit sheet below sets its own). */
+html body .artifact-explanation>.artifact-trigger-line{font:15px/1.4 var(--pixel);color:#d4e0e4}
+html body .artifact-explanation>.artifact-effect-main{font:20px/1.4 var(--pixel);color:#fff0cd}
+html body .artifact-explanation>.artifact-limit-line{font:14px/1.45 var(--pixel);color:#c9d4da}
 html body .artifact-duration{color:#b9c9d1}
-html body .artifact-inspection>.artifact-combo-note{color:#ebd5ac}
-html body .artifact-inspection>.artifact-salvage-note{color:#e2cea8;border-color:#6c7e83}
-html body .artifact-salvage-note>small{color:#c2d0d7}
-
-/* Full rules are a single reading surface; the identity sits beside the rules
-   on a phone in landscape so Back and every use limit fit without inner scroll. */
-html body dialog.game-sheet.artifact-details-sheet:modal{
- width:min(960px,calc(100vw - 24px));padding:18px 22px!important;gap:14px;
- overflow-y:auto;overflow-x:hidden;justify-content:space-between;
+html body dialog:is(.artifact-details-sheet,.artifact-sheet):not(#kit):has(>.artifact-inspection>.relic-detail-crest):modal{
+ --ink:#2a2118;--ink-soft:#6b5335;--rule:#8a6d44;
+ position:fixed!important;inset:0!important;margin:auto!important;box-sizing:border-box;display:grid!important;
+ grid-template-columns:minmax(150px,.6fr) minmax(0,1.7fr);grid-template-rows:auto minmax(0,1fr);gap:10px 26px;
+ width:min(870px,calc(100vw - 16px))!important;max-width:none!important;height:fit-content!important;max-height:calc(100dvh - 10px)!important;
+ padding:2px 12px 6px!important;overflow:visible!important;text-align:left;color:var(--ink);
+ border:12px solid transparent!important;border-image:url('assets/ui/waystone/plaque-page.svg') 6 fill / 12px stretch!important;border-radius:0!important;
+ background:transparent!important;box-shadow:none!important;image-rendering:pixelated;
 }
-html body .artifact-details-sheet .artifact-inspection{display:grid;grid-template-columns:minmax(155px,.6fr) minmax(0,1.7fr);gap:26px;overflow:visible;padding:0;flex:none}
-html body .artifact-details-sheet .artifact-inspection>.relic-detail-crest{flex-direction:column;align-items:flex-start;justify-content:flex-start;gap:12px}
-html body .artifact-details-sheet .artifact-inspection>.relic-detail-crest>svg{width:78px;height:78px;background:none;box-shadow:none;filter:drop-shadow(0 2px 4px #0008)}
-html body .artifact-details-sheet .artifact-inspection>.relic-detail-crest h2{font:27px/1.15 var(--pixel);margin:6px 0 0;text-align:left}
-.artifact-inspection-rules{min-width:0;display:flex;flex-direction:column;gap:12px}
-html body .artifact-details-sheet .artifact-explanation{gap:10px}
-html body .artifact-details-sheet .artifact-explanation>.artifact-effect-main{font:22px/1.35 var(--pixel)}
-html body .artifact-details-sheet .artifact-explanation>.artifact-trigger-line{font:16px/1.35 var(--pixel)}
-html body .artifact-details-sheet .artifact-explanation>.artifact-limit-line{font:15px/1.4 var(--pixel)}
-html body .artifact-details-sheet .artifact-duration{font:12px/1.3 var(--pixel)}
-.artifact-inspection-rules>.artifact-combo-note{font:13px/1.35 var(--pixel);color:#ebd5ac;margin:0}
-.artifact-inspection-rules>.artifact-salvage-note{display:flex;align-items:center;flex-wrap:wrap;gap:7px;font:13px/1.3 var(--pixel);color:#e2cea8;border-top:1px solid #6c7e83;padding-top:9px;margin:0}
-html body dialog.artifact-details-sheet>.primary{position:sticky;bottom:0;min-height:44px;width:180px!important;max-width:100%;margin:0 0 0 auto;background-color:#314634;z-index:1}
+html body dialog:is(.artifact-details-sheet,.artifact-sheet):not(#kit):has(>.artifact-inspection>.relic-detail-crest)::backdrop{background:linear-gradient(#0c090794,#0c090794),url('assets/moonwell-title.webp') center 49%/cover no-repeat;image-rendering:pixelated}
+/* Two bookmark ribbons hang from the page's top right, as on every kit page. */
+html body dialog:is(.artifact-details-sheet,.artifact-sheet):not(#kit):has(>.artifact-inspection>.relic-detail-crest)::after{content:'';position:absolute;top:-12px;right:14px;width:52px;height:56px;background:url('assets/ui/waystone/ribbon-wine.svg') left top/24px 56px no-repeat,url('assets/ui/waystone/ribbon-olive.svg') right top/24px 44px no-repeat;image-rendering:pixelated;pointer-events:none}
+html body dialog:is(.artifact-details-sheet,.artifact-sheet):not(#kit):has(>.artifact-inspection>.relic-detail-crest) .artifact-inspection{display:contents}
+html body dialog:is(.artifact-details-sheet,.artifact-sheet):not(#kit):has(>.artifact-inspection>.relic-detail-crest)>button.primary{
+ grid-column:1;grid-row:1;justify-self:start;position:static;display:grid;place-items:center;box-sizing:border-box;
+ width:auto!important;min-width:88px;height:44px!important;min-height:44px!important;margin:0!important;padding:0 12px!important;
+ border:12px solid transparent!important;border-image:url('assets/ui/waystone/plaque-slip.svg') 6 / 12px stretch!important;border-radius:0!important;clip-path:none!important;box-shadow:none!important;
+ background:#e0c98f padding-box!important;image-rendering:pixelated;color:#3b2d20!important;-webkit-text-fill-color:currentColor!important;
+ font:400 15px/15px var(--pixel,monospace)!important;letter-spacing:1px;text-transform:uppercase;text-shadow:none!important;cursor:pointer;touch-action:manipulation;
+}
+html body dialog:is(.artifact-details-sheet,.artifact-sheet):not(#kit):has(>.artifact-inspection>.relic-detail-crest)>button.primary[data-action=resume]{border-image-source:url('assets/ui/waystone/plaque-moss.svg')!important;background:#536430 padding-box!important;color:#fff6d8!important;text-shadow:1px 2px #1c230f!important}
+html body dialog:is(.artifact-details-sheet,.artifact-sheet):not(#kit):has(>.artifact-inspection>.relic-detail-crest)>button.primary:focus-visible{outline:3px solid #2a2118;outline-offset:2px}
+html body dialog:is(.artifact-details-sheet,.artifact-sheet):not(#kit):has(>.artifact-inspection>.relic-detail-crest)>button.primary:active{transform:translateY(2px)}
+/* Crest: portrait and name under Back. */
+html body dialog:is(.artifact-details-sheet,.artifact-sheet):not(#kit):has(>.artifact-inspection>.relic-detail-crest) .relic-detail-crest{grid-column:1;grid-row:2;display:flex;flex-direction:column;align-items:flex-start;justify-content:flex-start;gap:8px;margin:0;min-width:0}
+html body dialog:is(.artifact-details-sheet,.artifact-sheet):not(#kit):has(>.artifact-inspection>.relic-detail-crest) .relic-detail-crest>svg{width:72px;height:72px;flex:none;background:none;box-shadow:none;filter:drop-shadow(0 2px 3px #0006)}
+html body dialog:is(.artifact-details-sheet,.artifact-sheet):not(#kit):has(>.artifact-inspection>.relic-detail-crest) .relic-detail-crest small{display:block;font:400 11px/13px var(--pixel,monospace);letter-spacing:1.5px;text-transform:uppercase;color:var(--ink-soft)}
+html body dialog:is(.artifact-details-sheet,.artifact-sheet):not(#kit):has(>.artifact-inspection>.relic-detail-crest) .relic-detail-crest.rare small{color:#31546f}
+html body dialog:is(.artifact-details-sheet,.artifact-sheet):not(#kit):has(>.artifact-inspection>.relic-detail-crest) .relic-detail-crest.boss small{color:#4c4858}
+html body dialog:is(.artifact-details-sheet,.artifact-sheet):not(#kit):has(>.artifact-inspection>.relic-detail-crest) .relic-detail-crest h2{margin:3px 0 0!important;font:400 23px/25px var(--pixel,monospace)!important;letter-spacing:1px;text-transform:uppercase;color:var(--ink)!important;text-shadow:none!important;text-align:left}
+/* Rules: condition, benefit, limit, duration, then Melt value, on the right. */
+html body dialog:is(.artifact-details-sheet,.artifact-sheet):not(#kit):has(>.artifact-inspection>.relic-detail-crest) .artifact-inspection-rules{grid-column:2;grid-row:1/3;display:flex;flex-direction:column;gap:10px;min-width:0;min-height:0;overflow:auto;overscroll-behavior:contain;scrollbar-width:thin;padding:4px 50px 0 0}
+html body dialog:is(.artifact-details-sheet,.artifact-sheet):not(#kit):has(>.artifact-inspection>.relic-detail-crest) .artifact-explanation{gap:8px}
+html body dialog:is(.artifact-details-sheet,.artifact-sheet):not(#kit):has(>.artifact-inspection>.relic-detail-crest) .artifact-explanation>.artifact-trigger-line{font:400 15px/19px var(--pixel,monospace);color:var(--ink-soft)}
+html body dialog:is(.artifact-details-sheet,.artifact-sheet):not(#kit):has(>.artifact-inspection>.relic-detail-crest) .artifact-explanation>.artifact-effect-main{font:400 21px/27px var(--pixel,monospace);color:var(--ink)}
+html body dialog:is(.artifact-details-sheet,.artifact-sheet):not(#kit):has(>.artifact-inspection>.relic-detail-crest) .artifact-explanation>.artifact-limit-line{font:400 14px/18px var(--pixel,monospace);color:var(--ink-soft)}
+html body dialog:is(.artifact-details-sheet,.artifact-sheet):not(#kit):has(>.artifact-inspection>.relic-detail-crest) .artifact-duration{font:400 12px/15px var(--pixel,monospace);color:var(--ink-soft)}
+html body dialog:is(.artifact-details-sheet,.artifact-sheet):not(#kit):has(>.artifact-inspection>.relic-detail-crest) .effect-clause{display:block;margin-top:2px}
+html body dialog:is(.artifact-details-sheet,.artifact-sheet):not(#kit):has(>.artifact-inspection>.relic-detail-crest) .effect-benefit{color:#2f5a1f!important}
+html body dialog:is(.artifact-details-sheet,.artifact-sheet):not(#kit):has(>.artifact-inspection>.relic-detail-crest) .effect-cost{color:#8a2a20!important}
+html body dialog:is(.artifact-details-sheet,.artifact-sheet):not(#kit):has(>.artifact-inspection>.relic-detail-crest) .artifact-inspection-rules>.artifact-combo-note{margin:0;font:400 13px/17px var(--pixel,monospace);color:#6b3d10}
+html body dialog:is(.artifact-details-sheet,.artifact-sheet):not(#kit):has(>.artifact-inspection>.relic-detail-crest) .artifact-inspection-rules>.artifact-salvage-note{display:flex;align-items:center;flex-wrap:wrap;gap:6px;margin:0;padding-top:8px;border-top:2px solid var(--rule);font:400 13px/16px var(--pixel,monospace);color:var(--ink)}
+html body dialog:is(.artifact-details-sheet,.artifact-sheet):not(#kit):has(>.artifact-inspection>.relic-detail-crest) .artifact-salvage-note>.resource-symbol{width:22px;height:22px;flex:none}
+html body dialog:is(.artifact-details-sheet,.artifact-sheet):not(#kit):has(>.artifact-inspection>.relic-detail-crest) .artifact-salvage-note>small{font:400 12px/15px var(--pixel,monospace);color:var(--ink-soft)!important}
 @media(orientation:landscape) and (max-height:350px){
- html body dialog.game-sheet.artifact-details-sheet:modal{padding:12px 16px!important;gap:10px;max-height:calc(100dvh - 16px)}
- html body .artifact-details-sheet .artifact-inspection{grid-template-columns:150px minmax(0,1fr);gap:20px}
- html body .artifact-details-sheet .artifact-inspection>.relic-detail-crest{gap:8px}
- html body .artifact-details-sheet .artifact-inspection>.relic-detail-crest>svg{width:58px;height:58px}
- html body .artifact-details-sheet .artifact-inspection>.relic-detail-crest h2{font-size:23px}
- html body .artifact-details-sheet .artifact-explanation{gap:7px}
- html body .artifact-details-sheet .artifact-explanation>.artifact-trigger-line{font-size:14px;line-height:1.3}
- html body .artifact-details-sheet .artifact-explanation>.artifact-effect-main{font-size:19px;line-height:1.3}
- html body .artifact-details-sheet .artifact-explanation>.artifact-limit-line{font-size:13px;line-height:1.35}
- html body .artifact-details-sheet .artifact-duration{font-size:11px}
- .artifact-inspection-rules{gap:8px}
- .artifact-inspection-rules>.artifact-salvage-note{font-size:12px;padding-top:6px}
-}
-@media(orientation:portrait){
- html body .artifact-details-sheet .artifact-inspection{grid-template-columns:1fr;gap:15px}
- html body .artifact-details-sheet .artifact-inspection>.relic-detail-crest{flex-direction:row;align-items:center}
+ html body dialog:is(.artifact-details-sheet,.artifact-sheet):not(#kit):has(>.artifact-inspection>.relic-detail-crest):modal{grid-template-columns:150px minmax(0,1fr);gap:6px 20px;padding:0 12px 4px!important}
+ html body dialog:is(.artifact-details-sheet,.artifact-sheet):not(#kit):has(>.artifact-inspection>.relic-detail-crest) .relic-detail-crest{gap:4px}
+ html body dialog:is(.artifact-details-sheet,.artifact-sheet):not(#kit):has(>.artifact-inspection>.relic-detail-crest) .relic-detail-crest>svg{width:56px;height:56px}
+ html body dialog:is(.artifact-details-sheet,.artifact-sheet):not(#kit):has(>.artifact-inspection>.relic-detail-crest) .relic-detail-crest h2{font-size:19px!important;line-height:21px!important}
+ html body dialog:is(.artifact-details-sheet,.artifact-sheet):not(#kit):has(>.artifact-inspection>.relic-detail-crest) .artifact-inspection-rules{gap:6px}
+ html body dialog:is(.artifact-details-sheet,.artifact-sheet):not(#kit):has(>.artifact-inspection>.relic-detail-crest) .artifact-explanation{gap:5px}
+ html body dialog:is(.artifact-details-sheet,.artifact-sheet):not(#kit):has(>.artifact-inspection>.relic-detail-crest) .artifact-explanation>.artifact-trigger-line{font-size:13px;line-height:16px}
+ html body dialog:is(.artifact-details-sheet,.artifact-sheet):not(#kit):has(>.artifact-inspection>.relic-detail-crest) .artifact-explanation>.artifact-effect-main{font-size:18px;line-height:22px}
+ html body dialog:is(.artifact-details-sheet,.artifact-sheet):not(#kit):has(>.artifact-inspection>.relic-detail-crest) .artifact-explanation>.artifact-limit-line{font-size:12px;line-height:15px}
+ html body dialog:is(.artifact-details-sheet,.artifact-sheet):not(#kit):has(>.artifact-inspection>.relic-detail-crest) .artifact-duration{font-size:11px}
+ html body dialog:is(.artifact-details-sheet,.artifact-sheet):not(#kit):has(>.artifact-inspection>.relic-detail-crest) .artifact-inspection-rules>.artifact-combo-note{font-size:12px;line-height:15px}
+ html body dialog:is(.artifact-details-sheet,.artifact-sheet):not(#kit):has(>.artifact-inspection>.relic-detail-crest) .artifact-inspection-rules>.artifact-salvage-note{padding-top:5px;font-size:12px}
+ html body dialog:is(.artifact-details-sheet,.artifact-sheet):not(#kit):has(>.artifact-inspection>.relic-detail-crest) .artifact-salvage-note>small{font-size:11px}
 }
 
-html body dialog.reward-earnings-sheet:modal{width:min(800px,calc(100vw - 24px));max-height:calc(100dvh - 24px);padding:18px 22px!important;overflow:auto;display:flex;flex-direction:column;gap:14px;text-align:left}
-.reward-earnings-detail{min-width:0;flex:none}
-.reward-earnings-detail>header{display:flex;justify-content:space-between;gap:14px;align-items:center;margin-bottom:14px}
-.reward-earnings-detail h2{font:23px/1.2 var(--pixel);margin:0}
-.reward-earnings-detail>header>strong{display:flex;align-items:center;gap:6px;font:22px/1.2 var(--pixel);color:#fff0cc;white-space:nowrap}
-.reward-earnings-detail>header .resource-symbol{width:26px;height:26px}
-.reward-earnings-detail dl{display:grid;grid-template-columns:1fr 1fr;gap:8px 22px;margin:0}
-.reward-earnings-detail dl:has(>div:nth-child(9)){grid-template-columns:repeat(3,minmax(0,1fr))}
-.reward-earnings-detail dl>div{display:flex;justify-content:space-between;gap:10px;font:15px/1.3 var(--pixel);color:#d7e1d0;border-bottom:1px solid #63776166;padding-bottom:5px}
-.reward-earnings-detail dd{margin:0;color:#fff0cc}
-.reward-earnings-context{margin-top:12px;display:grid;grid-template-columns:1fr 1fr;gap:5px 22px}
-.reward-earnings-context p{font:12px/1.3 var(--pixel);color:#c2d1c0;margin:0}
-html body dialog.reward-earnings-sheet>.primary{position:sticky;bottom:0;min-height:44px;width:180px!important;max-width:100%;margin:0 0 0 auto;flex:none;font:15px/1.2 var(--pixel);background-color:#314634}
+/* Stored Sparks earned (breakdown) · v2.5-theme: the same paper page as the relic rules. Back to rewards is the
+   paper slip at the top left; the markup (reward-screen.mjs) wraps everything in a kit ground. */
+html body dialog.reward-earnings-sheet:modal{position:fixed!important;inset:0!important;margin:auto!important;box-sizing:border-box;display:block!important;width:min(800px,calc(100vw - 16px))!important;max-width:none!important;height:fit-content!important;max-height:calc(100dvh - 10px)!important;padding:2px 12px 6px!important;overflow:visible!important;text-align:left;color:#2a2118;border:12px solid transparent!important;border-image:url('assets/ui/waystone/plaque-page.svg') 6 fill / 12px stretch!important;border-radius:0!important;background:transparent!important;box-shadow:none!important;image-rendering:pixelated}
+html body dialog.reward-earnings-sheet::backdrop{background:linear-gradient(#0c090794,#0c090794),url('assets/moonwell-title.webp') center 49%/cover no-repeat;image-rendering:pixelated}
+html body dialog.reward-earnings-sheet::after{content:'';position:absolute;top:-12px;right:14px;width:52px;height:56px;background:url('assets/ui/waystone/ribbon-wine.svg') left top/24px 56px no-repeat,url('assets/ui/waystone/ribbon-olive.svg') right top/24px 44px no-repeat;image-rendering:pixelated;pointer-events:none}
+html body dialog.reward-earnings-sheet .re-root{display:grid;gap:8px;overflow:auto;max-height:calc(100dvh - 44px);padding:0 0 2px}
+html body dialog.reward-earnings-sheet .re-root>.reward-earnings-back{justify-self:start;width:auto;min-width:88px;height:44px;margin:0;padding:0 14px!important}
+html body dialog.reward-earnings-sheet .reward-earnings-detail{min-width:0;padding-right:56px}
+html body dialog.reward-earnings-sheet .reward-earnings-detail>header{display:flex;justify-content:space-between;align-items:center;gap:14px;margin:0 0 10px;padding-bottom:6px;border-bottom:2px solid #8a6d44}
+html body dialog.reward-earnings-sheet .reward-earnings-detail .wb-title{font-size:22px!important;line-height:24px!important}
+html body dialog.reward-earnings-sheet .reward-earnings-detail>header>strong{display:flex;align-items:center;gap:6px;font:400 22px/24px var(--pixel,monospace);color:#2a2118;white-space:nowrap}
+html body dialog.reward-earnings-sheet .reward-earnings-detail>header .resource-symbol{width:26px;height:26px}
+html body dialog.reward-earnings-sheet .reward-earnings-detail dl{display:grid;grid-template-columns:1fr 1fr;gap:0 22px;margin:0}
+html body dialog.reward-earnings-sheet .reward-earnings-detail dl:has(>div:nth-child(9)){grid-template-columns:repeat(3,minmax(0,1fr))}
+html body dialog.reward-earnings-sheet .reward-earnings-detail dl>div{display:flex;justify-content:space-between;gap:10px;font:400 15px/19px var(--pixel,monospace);color:#2a2118;border-bottom:1px solid #b4976180;padding:6px 0}
+html body dialog.reward-earnings-sheet .reward-earnings-detail dd{margin:0;color:#2a2118}
+html body dialog.reward-earnings-sheet .reward-earnings-context{margin-top:10px;display:grid;grid-template-columns:1fr 1fr;gap:5px 22px}
+html body dialog.reward-earnings-sheet .reward-earnings-context p{margin:0;font:400 12px/15px var(--pixel,monospace);color:#6b5335}
 @media(max-height:350px){
- html body dialog.reward-earnings-sheet:modal{padding:12px 16px!important;gap:10px}
- .reward-earnings-detail>header{margin-bottom:6px}
- .reward-earnings-detail h2{font-size:20px}
- .reward-earnings-detail dl{gap:4px 20px}
- .reward-earnings-detail dl>div{font-size:13px;padding-bottom:3px}
- .reward-earnings-context{gap:4px 20px;margin-top:5px}
- .reward-earnings-context p{font-size:11px}
+ html body dialog.reward-earnings-sheet:modal{padding:0 12px 4px!important}
+ html body dialog.reward-earnings-sheet .re-root{gap:4px}
+ html body dialog.reward-earnings-sheet .reward-earnings-detail>header{margin-bottom:4px;padding-bottom:3px}
+ html body dialog.reward-earnings-sheet .reward-earnings-detail .wb-title{font-size:19px!important;line-height:21px!important}
+ html body dialog.reward-earnings-sheet .reward-earnings-detail dl>div{font-size:14px;padding:3px 0}
+ html body dialog.reward-earnings-sheet .reward-earnings-context{margin-top:5px;gap:3px 20px}
 }

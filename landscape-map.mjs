@@ -1,12 +1,12 @@
-import {atlasGlyph,ATLAS_FORECASTS} from './night-atlas.mjs?v=chain-deck-1';
-import {bonusIcon} from './route-bonus-ui.mjs?v=chain-deck-1';
-import {getRouteBonus} from './route-bonuses.mjs?v=chain-deck-1';
-import {landmarkArt,landmarkCategory,biomeGroundArt} from './map-landmarks.mjs?v=chain-deck-1';
-import {THEME_INKS} from './replay-ui.mjs?v=chain-deck-1';
-import {getRouteMapState} from './model.mjs?v=chain-deck-1';
-import {getMapStopInfo} from './map-guide.mjs?v=chain-deck-1';
-import {getGlowCapacity} from './vitality.mjs?v=chain-deck-1';
-import {actionAttributes} from './ui/primitives.mjs?v=chain-deck-1';
+import {atlasGlyph,ATLAS_FORECASTS} from './night-atlas.mjs?v=reskin-1';
+import {bonusIcon} from './route-bonus-ui.mjs?v=reskin-1';
+import {getRouteBonus} from './route-bonuses.mjs?v=reskin-1';
+import {landmarkArt,landmarkCategory,biomeGroundArt} from './map-landmarks.mjs?v=reskin-1';
+import {THEME_INKS} from './replay-ui.mjs?v=reskin-1';
+import {getRouteMapState} from './model.mjs?v=reskin-1';
+import {getMapStopInfo} from './map-guide.mjs?v=reskin-1';
+import {getGlowCapacity} from './vitality.mjs?v=reskin-1';
+import {actionAttributes} from './ui/primitives.mjs?v=reskin-1';
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const edgeKey=([a,b])=>`${a}|${b}`;
 const wisp=(x,y)=>`<g class="route-player-wisp" transform="translate(${x} ${y})"><path d="m-23 1 9-15 13-7L16-9 22 3 11 13-17 8Z" fill="url(#routeWispGlow)"/><path d="M-4-7h8v2h3v3h2v4H7v3H4v2H-4V5H-7V2H-9V-2H-7V-5H-4Z" fill="#fff8d3"/><path d="M-3-5h6v2h2v6H3v2H-3V3H-5V-3H-3Z" fill="#fffef0"/></g>`;
@@ -77,7 +77,7 @@ export function landscapeRouteView(run,{compact=false}={}){
   </g>`;
  }
  const atStart=currentId==='start',start=`<g class="route-start ${atStart?'current-position':''}" role="img" ${atStart?'aria-current="location"':''} aria-label="${atStart?'You are here at the start. Choose a lit next stop.':'Start of the completed route.'}">${atStart?wisp(42,152):'<path d="m34 153 7-3 8 2-3 3-9 1Z" fill="#8c9074"/>'}<text class="route-state-caption ${atStart?'route-here-caption':''}" x="42" y="${atStart?124:177}" text-anchor="middle">${atStart?'HERE':'START'}</text></g>`;
- const markup=`<defs><linearGradient id="routeSky" x2="1" y2="1"><stop stop-color="#0c191d"/><stop offset="1" stop-color="#0b1718"/></linearGradient><radialGradient id="routeNextGlow"><stop stop-color="#e0d39b" stop-opacity=".4"/><stop offset=".55" stop-color="#d2d39a" stop-opacity=".14"/><stop offset="1" stop-color="#d2d39a" stop-opacity="0"/></radialGradient><radialGradient id="routeHereGlow"><stop stop-color="#f3ce80" stop-opacity=".4"/><stop offset="1" stop-color="#f3ce80" stop-opacity="0"/></radialGradient><radialGradient id="routeWispGlow"><stop stop-color="#fff5c9" stop-opacity=".8"/><stop offset="1" stop-color="#fff5c9" stop-opacity="0"/></radialGradient></defs><rect width="${width}" height="${height}" fill="url(#routeSky)"/>${Array.from({length:8},(_,i)=>`<path d="M0 ${35+i*40} Q${width*.25} ${i*20} ${width*.5} ${35+i*40} T${width} ${35+i*40}" fill="none" stroke="#8da286" opacity=".045"/>`).join('')}<g class="route-biome-layer" aria-hidden="true">${groundLayer}</g>${paths}${nodes}${start}`;
+ const markup=`<defs><linearGradient id="routeSky" x2="1" y2="1"><stop stop-color="#1d150e"/><stop offset="1" stop-color="#150f0a"/></linearGradient><radialGradient id="routeNextGlow"><stop stop-color="#e0d39b" stop-opacity=".4"/><stop offset=".55" stop-color="#d2d39a" stop-opacity=".14"/><stop offset="1" stop-color="#d2d39a" stop-opacity="0"/></radialGradient><radialGradient id="routeHereGlow"><stop stop-color="#f3ce80" stop-opacity=".4"/><stop offset="1" stop-color="#f3ce80" stop-opacity="0"/></radialGradient><radialGradient id="routeWispGlow"><stop stop-color="#fff5c9" stop-opacity=".8"/><stop offset="1" stop-color="#fff5c9" stop-opacity="0"/></radialGradient></defs><rect width="${width}" height="${height}" fill="url(#routeSky)"/>${Array.from({length:8},(_,i)=>`<path d="M0 ${35+i*40} Q${width*.25} ${i*20} ${width*.5} ${35+i*40} T${width} ${35+i*40}" fill="none" stroke="#c9ad74" opacity=".05"/>`).join('')}<g class="route-biome-layer" aria-hidden="true">${groundLayer}</g>${paths}${nodes}${start}`;
  return{markup,width,height,currentId,currentX:pos.get(currentId)?.x||42,nextX:pos.get(state.availableIds[0])?.x??null};
 }
 export function drawLandscapeMap(svg,viewport,run){

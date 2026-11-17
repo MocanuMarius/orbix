@@ -1,11 +1,14 @@
-import {isPlayablePractice,loanPracticeCards,practiceModifiers} from './practice-route.mjs?v=chain-deck-1';
-import {makeSkillCard} from './skill-cards.mjs?v=chain-deck-1';
-import {cardArt} from './card-art.mjs?v=chain-deck-1';
+// Edition 3 only. First Light Edition 4 teaches cards at its camp (stop 5) and no longer
+// lends this pair on the first flight; this module stays so an unfinished Edition 3
+// practice save finishes as it began. It can be deleted once those saves are gone.
+import {isPlayablePractice,loanPracticeCards,practiceModifiers} from './practice-route.mjs?v=reskin-1';
+import {makeSkillCard} from './skill-cards.mjs?v=reskin-1';
+import {cardArt} from './card-art.mjs?v=reskin-1';
 
 export const FIRST_LIGHT_COMBO='practice:early-combo';
 export const FIRST_LIGHT_COMBO_GAP=1.35;
 const clamp=(n,a,b)=>Math.max(a,Math.min(b,n));
-const eligible=(engine,run)=>isPlayablePractice(run)&&engine?.tutorial?.lesson==='glide';
+const eligible=(engine,run)=>isPlayablePractice(run)&&run.tutorialEdition===3&&engine?.tutorial?.lesson==='glide';
 export function firstLightComboLesson(engine,run){
  if(!eligible(engine,run)||run.guideSkipped||run.guideSeen?.[FIRST_LIGHT_COMBO]
    ||engine.flaps<1||!engine.tutorial.directPickups||!run.guideSeen?.['practice:sparks'])return null;

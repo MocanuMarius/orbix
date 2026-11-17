@@ -5,22 +5,22 @@ html body .flight-reward-ceremony.card-reward-screen{
  position:relative;isolation:isolate;display:grid;grid-template-rows:50px minmax(0,1fr) 44px;
  width:calc(100% - 8px);height:calc(100% - 8px);min-height:0;min-width:0;gap:8px!important;margin:4px;
  box-sizing:border-box;padding:3px max(14px,env(safe-area-inset-right)) 3px max(14px,env(safe-area-inset-left));
- border:12px solid transparent;border-image:var(--wb-page,url('assets/ui/waystone/plaque-page.svg')) 6 fill / 12px stretch;
+ border:12px solid transparent;border-image:url('assets/ui/waystone/plaque-page.svg') 6 fill / 12px stretch;
  color:var(--wb-title,#2a2118);background:none;text-align:left;overflow:hidden;
 }
 .flight-reward-ceremony::before{display:none}
-.flight-reward-ceremony::after{content:'';position:absolute;top:-12px;right:8px;width:52px;height:64px;background:var(--wb-ribbon-a,url('assets/ui/waystone/ribbon-wine.svg')) left top/24px 64px no-repeat,var(--wb-ribbon-b,url('assets/ui/waystone/ribbon-olive.svg')) right top/24px 48px no-repeat;image-rendering:pixelated;pointer-events:none}
+.flight-reward-ceremony::after{content:'';position:absolute;top:-12px;right:8px;width:52px;height:64px;background:url('assets/ui/waystone/ribbon-wine.svg') left top/24px 64px no-repeat,url('assets/ui/waystone/ribbon-olive.svg') right top/24px 48px no-repeat;image-rendering:pixelated;pointer-events:none}
 .flight-reward-ceremony .flight-reward-heading{position:relative;display:flex;align-items:center;justify-content:space-between;gap:18px;min-width:0;min-height:0;padding-right:64px;padding-bottom:8px}
 .flight-reward-ceremony .flight-reward-heading::after{content:'';position:absolute;left:0;right:0;bottom:0;height:2px;background:linear-gradient(90deg,transparent 0 4px,var(--wb-rule,#8a6d44) 4px calc(50% - 5px),transparent calc(50% - 5px) calc(50% - 2px),var(--wb-rule-centre,#7a2f2a) calc(50% - 2px) calc(50% + 2px),transparent calc(50% + 2px) calc(50% + 5px),var(--wb-rule,#8a6d44) calc(50% + 5px) calc(100% - 4px),transparent calc(100% - 4px))}
 .flight-reward-heading>div:first-child{min-width:0}
 .flight-reward-heading small{display:block;font:11px/1.15 var(--pixel,monospace);color:var(--wb-context,#6b5335);letter-spacing:1px;text-transform:uppercase}
 .flight-reward-heading h1{display:flex;align-items:center;gap:12px;margin:3px 0 0;font:25px/1.08 var(--pixel,monospace);color:var(--wb-title,#2a2118);text-shadow:none;overflow-wrap:break-word;letter-spacing:1px;text-transform:uppercase}
-.flight-reward-heading h1::before,.flight-reward-heading h1::after{content:'';display:block;flex:none;width:64px;height:16px;background:var(--wb-flourish,url('assets/ui/waystone/flourish.svg')) center/64px 16px no-repeat;filter:var(--wb-flourish-filter,sepia(1) saturate(1.4) brightness(.5));image-rendering:pixelated}
+.flight-reward-heading h1::before,.flight-reward-heading h1::after{content:'';display:block;flex:none;width:64px;height:16px;background:url('assets/ui/waystone/flourish.svg') center/64px 16px no-repeat;filter:var(--wb-flourish-filter,sepia(1) saturate(1.4) brightness(.5));image-rendering:pixelated}
 .flight-reward-heading h1::after{transform:scaleX(-1)}
-.flight-reward-wallet{position:relative;display:grid;grid-template-columns:28px auto;grid-template-rows:20px 11px;align-items:center;column-gap:7px;flex:none;padding:0 8px;border:10px solid transparent;border-image:var(--wb-tab,url('assets/ui/waystone/plaque-leather.svg')) 6 fill / 10px stretch;box-sizing:content-box;min-width:103px;color:var(--wb-ink,#f6ebcc);text-shadow:var(--wb-ink-shadow,1px 2px #2a1d12)}
+.flight-reward-wallet{position:relative;display:grid;grid-template-columns:28px auto;grid-template-rows:20px 11px;align-items:center;column-gap:7px;flex:none;padding:0 8px;border:10px solid transparent;border-image:url('assets/ui/waystone/plaque-leather.svg') 6 fill / 10px stretch;box-sizing:content-box;min-width:103px;color:var(--wb-ink,#f6ebcc);text-shadow:var(--wb-ink-shadow,1px 2px #2a1d12)}
 .flight-reward-wallet>.resource-symbol{grid-row:1/3;width:28px;height:28px;image-rendering:pixelated}
 .flight-reward-wallet>b{font:21px/1 var(--pixel,monospace);font-variant-numeric:tabular-nums;white-space:nowrap}
-.flight-reward-wallet>small{font:10px/1 var(--pixel,monospace);letter-spacing:0;color:var(--wb-ink-sub,#e2d0a6);text-transform:none;white-space:nowrap}
+.flight-reward-wallet>small{font:11px/1 var(--pixel,monospace);letter-spacing:0;color:var(--wb-ink-sub,#e2d0a6);text-transform:none;white-space:nowrap}
 .is-banking .flight-reward-wallet{animation:flight-reward-wallet-receive .8s steps(8,end) both}
 .is-banked .flight-reward-wallet{filter:brightness(1.08)}
 .flight-reward-ceremony .flight-reward-stage{position:relative;display:flex;align-items:center;justify-content:center;gap:16px;min-width:0;min-height:0;width:100%;height:100%}
@@ -45,7 +45,7 @@ html body .flight-reward-ceremony .flight-reward-income{
 .flight-reward-scroll-region:focus-visible{outline:2px solid #536430;outline-offset:-2px}
 .flight-reward-income-total{display:flex;align-items:center;gap:6px;min-width:0;margin:0;padding:0;color:var(--wb-title,#2a2118);font:26px/1 var(--pixel,monospace);font-variant-numeric:tabular-nums;white-space:nowrap}
 .flight-reward-income-total>.resource-symbol{width:40px;height:40px;flex:none;image-rendering:pixelated}
-.flight-reward-income-total>[data-ceremony-income]{font:36px/1 var(--pixel,monospace);font-weight:400}
+.flight-reward-income-total>[data-ceremony-income]{font:36px/1.1 var(--pixel,monospace);font-weight:400}
 .flight-reward-income-rows{display:grid;gap:0;min-width:0;margin:0;padding:0;font:15px/1.35 var(--pixel,monospace);color:var(--wb-title,#2a2118)}
 .flight-reward-income-rows>span{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:10px;min-width:0;min-height:34px;padding:7px 0;box-sizing:border-box;border-bottom:1px solid #b4976180}
 .flight-reward-income-rows>span>span{min-width:0;overflow-wrap:anywhere}
@@ -71,7 +71,7 @@ html body .flight-reward-ceremony button.flight-reward-detail-trigger::before,ht
 html body .flight-reward-ceremony button.flight-reward-detail-trigger:focus-visible{outline:2px solid #536430!important;outline-offset:-2px}
 html body .flight-reward-ceremony button.flight-reward-detail-trigger:active{background:#b4976126!important}
 @media(hover:hover){html body .flight-reward-ceremony button.flight-reward-detail-trigger:hover{background:#b4976126!important}}
-html body .flight-reward-ceremony button.flight-reward-receipt-continue{position:relative;display:flex;justify-content:center;align-items:center;min-height:44px!important;min-width:44px!important;height:44px!important;margin:0 0 0 auto!important;box-sizing:border-box;padding:0 14px!important;border:12px solid transparent!important;border-image:var(--wb-plaque-primary,url('assets/ui/waystone/plaque-moss.svg')) 6 / 12px stretch!important;border-radius:0!important;clip-path:none!important;background:var(--wb-fill-primary,#536430) padding-box!important;box-shadow:none!important;cursor:pointer;touch-action:manipulation;color:var(--wb-ink-primary,#fff6d8)!important;-webkit-text-fill-color:currentColor!important;font:14px/1.1 var(--pixel,monospace);text-align:center;text-shadow:var(--wb-ink-primary-shadow,1px 2px #1c230f)}
+html body .flight-reward-ceremony button.flight-reward-receipt-continue{position:relative;display:flex;justify-content:center;align-items:center;min-height:44px!important;min-width:44px!important;height:44px!important;margin:0 0 0 auto!important;box-sizing:border-box;padding:0 14px!important;border:12px solid transparent!important;border-image:url('assets/ui/waystone/plaque-moss.svg') 6 / 12px stretch!important;border-radius:0!important;clip-path:none!important;background:var(--wb-fill-primary,#536430) padding-box!important;box-shadow:none!important;cursor:pointer;touch-action:manipulation;color:var(--wb-ink-primary,#fff6d8)!important;-webkit-text-fill-color:currentColor!important;font:14px/1.1 var(--pixel,monospace);text-align:center;text-shadow:var(--wb-ink-primary-shadow,1px 2px #1c230f)}
 .bonus-counted .flight-reward-bonus{animation:flight-reward-bonus-land .55s steps(8,end) both}
 .flight-reward-bank-status{min-height:18px;margin:0;font:13px/1.2 var(--pixel,monospace);color:#465127;text-align:center}
 .flight-reward-bank-sprite{position:fixed;z-index:150;pointer-events:none;display:grid;place-items:center;width:48px;height:48px;filter:drop-shadow(0 3px 0 #08110f);will-change:transform,opacity}
@@ -110,7 +110,7 @@ html body .flight-reward-ceremony button.flight-reward-pack:active .flight-rewar
 .flight-reward-scroll-cue[hidden]{display:none}
 .flight-reward-ledger-secondary>.flight-reward-scroll-cue{left:24px}
 .flight-reward-step{display:flex;align-items:center;margin-right:auto;color:var(--wb-context,#6b5335);font:12px/1.2 var(--pixel,monospace)}
-html body .flight-reward-ceremony .flight-reward-actions>button:not(.flight-reward-receipt-continue){flex:0 1 auto;min-width:100px;min-height:44px!important;height:44px!important;margin:0!important;padding:0 12px!important;border:12px solid transparent!important;border-image:var(--wb-plaque-quiet,url('assets/ui/waystone/plaque-slip.svg')) 6 / 12px stretch!important;border-radius:0!important;clip-path:none!important;background:var(--wb-fill-quiet,#e0c98f) padding-box!important;color:var(--wb-ink-quiet,#3b2d20)!important;font:15px/1 var(--pixel,monospace);box-shadow:none!important;text-shadow:none!important}
+html body .flight-reward-ceremony .flight-reward-actions>button:not(.flight-reward-receipt-continue):not(#k){background-image:none!important;flex:0 1 auto;min-width:100px;min-height:44px!important;height:44px!important;margin:0!important;padding:0 12px!important;border:12px solid transparent!important;border-image:url('assets/ui/waystone/plaque-slip.svg') 6 / 12px stretch!important;border-radius:0!important;clip-path:none!important;background:var(--wb-fill-quiet,#e0c98f) padding-box!important;color:var(--wb-ink-quiet,#3b2d20)!important;font:15px/1 var(--pixel,monospace);box-shadow:none!important;text-shadow:none!important}
 html body .flight-reward-ceremony .flight-reward-actions>button:focus-visible{outline:2px solid var(--wb-title,#2a2118)!important;outline-offset:2px}
 @keyframes flight-reward-wallet-receive{0%,100%{filter:none}45%{filter:brightness(1.45)}65%{transform:translateY(-2px)}}
 @keyframes flight-reward-bonus-land{0%{opacity:.4;transform:translateY(5px)}60%{transform:translateY(-2px)}100%{opacity:1;transform:translateY(0)}}
@@ -122,8 +122,8 @@ html body .flight-reward-ceremony .flight-reward-actions>button:focus-visible{ou
 @keyframes flight-reward-card-fan{from{opacity:0;transform:translate(var(--fan-x),18px) rotate(var(--fan-angle)) scale(.88)}to{opacity:1;transform:none}}
 @media(max-height:360px) and (orientation:landscape){
  html body .flight-reward-ceremony.card-reward-screen{grid-template-rows:40px minmax(0,1fr) 44px;padding-block:0;gap:4px!important;margin:2px;width:calc(100% - 4px);height:calc(100% - 4px);padding-inline:10px}
- .flight-reward-ceremony::after{height:48px;background-size:24px 48px,24px 36px}.flight-reward-ceremony .flight-reward-heading{padding-bottom:2px}.flight-reward-heading h1{font-size:21px}.flight-reward-heading small{font-size:10px}
- .flight-reward-wallet{grid-template-rows:17px 10px;min-width:95px;padding:0 7px;border-width:6px;border-image-width:6px;column-gap:5px}.flight-reward-wallet>b{font-size:18px}.flight-reward-wallet>small{font-size:9px}.flight-reward-wallet>.resource-symbol{width:26px;height:26px}
+ .flight-reward-ceremony::after{height:48px;background-size:24px 48px,24px 36px}.flight-reward-ceremony .flight-reward-heading{padding-bottom:2px}.flight-reward-heading h1{font-size:21px}.flight-reward-heading small{font-size:11px}
+ .flight-reward-wallet{grid-template-rows:17px 11px;min-width:95px;padding:0 7px;border-width:6px;border-image-width:6px;column-gap:5px}.flight-reward-wallet>b{font-size:18px}.flight-reward-wallet>small{font-size:11px}.flight-reward-wallet>.resource-symbol{width:26px;height:26px}
  .flight-reward-heading h1{gap:8px}.flight-reward-heading h1::after{display:none}
  html body .flight-reward-ceremony .flight-reward-income{gap:4px}
  .flight-reward-summary{min-height:42px;padding-inline:8px;column-gap:10px}.flight-reward-total-label{font-size:11px}.flight-reward-summary .flight-reward-bank-status{font-size:11px}
@@ -135,21 +135,22 @@ html body .flight-reward-ceremony .flight-reward-actions>button:focus-visible{ou
  .flight-reward-ledger-secondary>.flight-reward-scroll-cue{left:16px}
  .flight-reward-pack-context{grid-template-rows:18px minmax(0,1fr);gap:0;width:min(390px,80%)}.flight-reward-pack-context .flight-reward-bank-status{font-size:12px}.flight-reward-pack-art{max-height:180px}
  .flight-reward-ceremony .flight-reward-fan.card-draft-offers{gap:14px}.flight-reward-ceremony .flight-reward-fan .card-draft-option{gap:4px}
- html body .flight-reward-ceremony .flight-reward-actions>button:not(.flight-reward-receipt-continue){font-size:13px;min-width:88px;padding-inline:8px!important}
+ html body .flight-reward-ceremony .flight-reward-actions>button:not(.flight-reward-receipt-continue):not(#k){background-image:none!important;font-size:13px;min-width:88px;padding-inline:8px!important}
 }
 @media(orientation:portrait){
- html body .flight-reward-ceremony.card-reward-screen{grid-template-rows:58px minmax(0,1fr) 44px;padding-inline:4px}.flight-reward-ceremony .flight-reward-heading{gap:8px;padding-right:0}.flight-reward-ceremony::after{display:none}.flight-reward-heading h1{font-size:19px}.flight-reward-wallet{min-width:75px;padding-inline:3px;column-gap:2px;border-width:6px;border-image-width:6px}.flight-reward-wallet>b{font-size:18px}.flight-reward-wallet>small{font-size:9px}
+ html body .flight-reward-ceremony.card-reward-screen{grid-template-rows:58px minmax(0,1fr) 44px;padding-inline:4px}.flight-reward-ceremony .flight-reward-heading{gap:8px;padding-right:0}.flight-reward-ceremony::after{display:none}.flight-reward-heading h1{font-size:19px}.flight-reward-wallet{min-width:75px;padding-inline:3px;column-gap:2px;border-width:6px;border-image-width:6px}.flight-reward-wallet>b{font-size:18px}.flight-reward-wallet>small{font-size:11px}
  .flight-reward-heading h1::before,.flight-reward-heading h1::after{display:none}
  html body .flight-reward-ceremony .flight-reward-income{gap:8px}
  .flight-reward-summary{grid-template-columns:minmax(0,1fr) auto;gap:4px 8px;padding:6px}.flight-reward-summary .flight-reward-bank-status{grid-column:1/-1;justify-self:start;text-align:left}.flight-reward-total-label{font-size:11px}
  .flight-reward-ledger.has-secondary{grid-template-columns:minmax(0,1fr);grid-template-rows:minmax(0,1fr) minmax(0,1fr);gap:12px}.flight-reward-ledger-secondary{grid-column:1;padding:0;border:0}.flight-reward-ledger-secondary>.flight-reward-scroll-cue{left:0}.flight-reward-income-total>.resource-symbol{width:32px;height:32px}.flight-reward-income-total>[data-ceremony-income]{font-size:30px}
- .flight-reward-ceremony .flight-reward-actions{gap:5px}html body .flight-reward-ceremony .flight-reward-actions>button:not(.flight-reward-receipt-continue){min-width:54px!important;padding-inline:2px!important;font-size:12px}html body .flight-reward-ceremony button.flight-reward-receipt-continue{padding-inline:4px!important;font-size:11px}
+ .flight-reward-ceremony .flight-reward-actions{gap:5px}html body .flight-reward-ceremony .flight-reward-actions>button:not(.flight-reward-receipt-continue):not(#k){background-image:none!important;min-width:54px!important;padding-inline:2px!important;font-size:12px}html body .flight-reward-ceremony button.flight-reward-receipt-continue{padding-inline:4px!important;font-size:11px}
  .flight-reward-pack-context{width:100%}.flight-reward-ceremony .flight-reward-fan.card-draft-offers{width:100%;grid-template-columns:1fr;grid-auto-rows:350px;overflow-y:auto;overscroll-behavior:contain}.flight-reward-fan .card-draft-option{max-width:260px;width:100%;justify-self:center}
 }
 @media(prefers-reduced-motion:reduce){.flight-reward-ceremony *,.flight-reward-bank-sprite{animation:none!important;transition:none!important}.flight-reward-bank-sprite{display:none}.flight-reward-revealing .flight-reward-fan .card-draft-option{opacity:1;transform:none}.flight-reward-opening .flight-reward-pack-art{opacity:1;transform:none}}
 html[data-reduced-motion=true] .flight-reward-ceremony *,html[data-reduced-motion=true] .flight-reward-bank-sprite{animation:none!important;transition:none!important}
 html[data-reduced-motion=true] .flight-reward-bank-sprite{display:none}
-html body .flight-reward-ceremony button.flight-reward-receipt-continue::before{content:'';display:block!important;position:absolute;top:-12px;left:50%;width:28px;height:12px;margin-left:-14px;background:var(--wb-clasp,url('assets/ui/waystone/clasp.svg')) center/28px 12px no-repeat;image-rendering:pixelated;pointer-events:none;clip-path:none!important;transform:none!important}
+/* No edge clasp: Continue matches the other moss plaques, which carry none on these sheets. */
+html body .flight-reward-ceremony button.flight-reward-receipt-continue::before{display:none!important}
 html body .flight-reward-ceremony button.flight-reward-receipt-continue::after{display:none!important}
 html body .flight-reward-ceremony button.flight-reward-receipt-continue:focus-visible{outline:2px solid #2a2118!important;outline-offset:2px}
 html body .flight-reward-ceremony button.flight-reward-receipt-continue:active{transform:translateY(2px);filter:brightness(.95)}
@@ -220,3 +221,26 @@ html body .receipt-detail-body .flight-reward-detail-terms button.card-term{
  dialog.receipt-inspector[data-kind=cards]:has(.flight-reward-detail-card:only-child) .receipt-detail-body>p,
  dialog.receipt-inspector[data-kind=cards]:has(.flight-reward-detail-card:only-child) .flight-reward-detail-terms{grid-column:2}
 }
+
+/* v2.5-theme tidy: art is named directly above (the kit's art variables break under /orbix/); roles below.
+   Choose (pick one card) is the one way forward: moss. Deck opens something: leather. Menu leaves: paper slip. */
+html body .flight-reward-ceremony .flight-reward-fan .card-draft-option>button[data-action="card-draft-pick"]:not(#k){box-sizing:border-box;width:100%;min-height:44px!important;height:auto!important;margin:0!important;padding:0 10px!important;border:12px solid transparent!important;border-image:url('assets/ui/waystone/plaque-moss.svg') 6 / 12px stretch!important;border-radius:0!important;clip-path:none!important;background:#536430 padding-box!important;background-image:none!important;box-shadow:none!important;color:#fff6d8!important;-webkit-text-fill-color:currentColor!important;font:400 14px/1.15 var(--pixel,monospace)!important;letter-spacing:.5px;text-shadow:1px 2px #1c230f!important;text-align:center;cursor:pointer;touch-action:manipulation;image-rendering:pixelated}
+html body .flight-reward-ceremony .flight-reward-fan .card-draft-option>button[data-action="card-draft-pick"]:not(#k)::before,html body .flight-reward-ceremony .flight-reward-fan .card-draft-option>button[data-action="card-draft-pick"]:not(#k)::after{display:none!important}
+html body .flight-reward-ceremony .flight-reward-fan .card-draft-option>button[data-action="card-draft-pick"]:not(#k):focus-visible{outline:3px solid #2a2118!important;outline-offset:2px}
+html body .flight-reward-ceremony .flight-reward-fan .card-draft-option>button[data-action="card-draft-pick"]:not(#k):active{transform:translateY(2px);filter:brightness(.95)}
+@media(hover:hover){html body .flight-reward-ceremony .flight-reward-fan .card-draft-option>button[data-action="card-draft-pick"]:not(#k):hover{filter:brightness(1.12)}}
+html body .flight-reward-ceremony .flight-reward-actions>button[data-action="cards"]:not(#k){border-image-source:url('assets/ui/waystone/plaque-leather.svg')!important;background:#5a4632 padding-box!important;color:#f6ebcc!important;-webkit-text-fill-color:currentColor!important;text-shadow:1px 2px #2a1d12!important}
+html body .flight-reward-ceremony .flight-reward-actions>button{letter-spacing:1px;text-transform:uppercase}
+/* The source inspector: the same paper as the page, ink text, a paper-slip Close at the top left. */
+.receipt-inspector{color:#2a2118;background:#e8d49c;border:2px solid #8a6d44;border-radius:0;box-shadow:0 4px 0 #0006}
+dialog.receipt-inspector::backdrop{background:#0c0907d9}
+html body .receipt-inspector button.receipt-detail-close:not(#k){position:sticky;top:0;float:left;z-index:2;display:grid;place-items:center;box-sizing:border-box;width:auto;min-width:88px;height:44px!important;min-height:44px!important;margin:0 12px 6px 0!important;padding:0 12px!important;border:12px solid transparent!important;border-image:url('assets/ui/waystone/plaque-slip.svg') 6 / 12px stretch!important;border-radius:0!important;clip-path:none!important;box-shadow:none!important;background:#e0c98f padding-box!important;background-image:none!important;color:#3b2d20!important;-webkit-text-fill-color:currentColor!important;font:400 15px/15px var(--pixel,monospace)!important;letter-spacing:1px;text-transform:uppercase;text-shadow:none!important;image-rendering:pixelated;cursor:pointer;touch-action:manipulation}
+html body .receipt-inspector button.receipt-detail-close:focus-visible{outline:3px solid #2a2118!important;outline-offset:2px}
+.receipt-inspector .receipt-detail-title,.receipt-detail-body h2,.receipt-detail-body h3{color:#2a2118}
+.receipt-inspector .receipt-detail-title{margin:0 0 8px;font-size:19px;letter-spacing:1px;text-transform:uppercase}
+.receipt-detail-body{color:#2a2118}
+html body .receipt-detail-body button.card-term:not(.skill-card *){color:#2a2118!important;-webkit-text-fill-color:currentColor!important}
+html body .receipt-detail-body .flight-reward-detail-terms button.card-term{color:#2a2118!important;background:#efdcab!important;border:2px solid #8a6d44!important;padding:6px 8px!important;min-height:44px!important;box-sizing:border-box}
+.receipt-detail-body .effect-benefit{color:#2f5a1f!important}.receipt-detail-body .effect-cost{color:#8a2a20!important}
+html body .receipt-detail-body .artifact-explanation>.artifact-trigger-line,html body .receipt-detail-body .artifact-explanation>.artifact-limit-line,html body .receipt-detail-body .artifact-duration{color:#6b5335}
+html body .receipt-detail-body .artifact-explanation>.artifact-effect-main{color:#2a2118}

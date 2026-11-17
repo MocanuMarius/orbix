@@ -375,3 +375,53 @@ dialog.power-sheet.map-key-sheet {
   .world-map-node:not(.route-state-next,.route-state-current,.reachable,:focus-visible) .landmark-motion,
   [data-reduced-motion="true"] .landmark-motion{animation:none!important}
 }
+
+/* ── Book skin (v2.5-theme) for the map screen chrome ────────────────────────────────────────────
+   Warm leather grounds, kit plaques with stepped corners, cream and ink lettering. The map artwork
+   (landmarks, trails) is unchanged. Paths name the art files directly (this sheet is outside dist/ui/).
+   Roles: leather = go somewhere (Deck, Menu), paper slip = leave (back). Sizes and hit areas are untouched. */
+html body[data-screen=map]{background:#120c08!important;box-shadow:0 0 0 1px #8a6d44,0 0 0 8px #1a120c!important}
+html body[data-screen=map] .ambient{display:none}
+html body[data-screen=map] #header{background:#1f1610!important;border-bottom:1px solid #8a6d44!important;box-shadow:0 2px 0 #140e09;position:relative;z-index:3}
+html body[data-screen=map] #header :is(.game-round,.saved-wallet-bank,.game-menu-trigger):not(.home-command):not(.book-perk){box-sizing:border-box;border:6px solid transparent!important;border-image:url('assets/ui/waystone/plaque-leather.svg') 6 fill / 6px stretch!important;border-radius:0!important;background:none!important;background-image:none!important;box-shadow:none!important;clip-path:none!important;image-rendering:pixelated;color:#f6ebcc!important;text-shadow:1px 2px #2a1d12!important;cursor:pointer}
+html body[data-screen=map] #header .game-round:not(.home-command):not(.book-perk){padding:0;display:grid;place-items:center;color:#3b2d20!important;text-shadow:none!important;border-image-source:url('assets/ui/waystone/plaque-slip.svg')!important}
+html body[data-screen=map] #header .game-round:not(.home-command):not(.book-perk)>svg{width:24px;height:24px}
+html body[data-screen=map] #header .route-heading,html body[data-screen=map] #header .route-heading>span{color:#e2d0a6!important;text-shadow:1px 2px #140e09}
+html body[data-screen=map] #header .route-heading>b{color:#f6ebcc!important;text-shadow:1px 2px #140e09}
+html body[data-screen=map] #header .map-energy,html body[data-screen=map] #header .map-energy>b{color:#f6ebcc!important;text-shadow:1px 2px #140e09}
+html body[data-screen=map] #header .map-energy>b>i{color:#e2d0a6;font-style:normal}
+html body[data-screen=map] #header .saved-wallet-bank:after{color:#e2d0a6!important}
+html body[data-screen=map] #header :is(.game-round,.saved-wallet-bank,.game-menu-trigger):not(.home-command):not(.book-perk):focus-visible{outline:2px solid #fff1af!important;outline-offset:2px}
+@media(hover:hover){html body[data-screen=map] #header :is(.game-round,.saved-wallet-bank,.game-menu-trigger):not(.home-command):not(.book-perk):hover{filter:brightness(1.14)}}
+html body[data-screen=map] #header :is(.game-round,.saved-wallet-bank,.game-menu-trigger):not(.home-command):not(.book-perk):active{transform:translateY(2px);filter:brightness(.95)}
+/* The map page: warm ground and a leather frame drawn over the map's edge (no layout change). */
+html body[data-screen=map] .game-map-screen,html body[data-screen=map] .minimal-map{background:#17100b!important}
+html body[data-screen=map] .map-atlas-frame{background:#17100b!important}
+html body[data-screen=map] .game-map-viewport{border-image:none!important;scrollbar-color:#8a6d44 #1f1610}
+html body[data-screen=map] .map-atlas-frame::after{content:'';position:absolute;inset:0;z-index:5;border:12px solid transparent;border-image:url('assets/ui/waystone/plaque-leather.svg') 6 / 12px stretch;image-rendering:pixelated;pointer-events:none}
+/* Stop names and captions: cream with a warm ink edge instead of sage with green-black. */
+html body .game-map-screen .landscape-route :is(.map-node-name,.map-node-detail,.map-node-type,.route-state-caption){stroke:#1a120c}
+html body .game-map-screen .landscape-route .world-map-node .map-node-name{fill:#e2d0a6}
+html body .game-map-screen .landscape-route .world-map-node:not(.reachable) .map-node-name{fill:#c9b78d}
+html body .game-map-screen .landscape-route .route-state-next .map-node-name,html body .game-map-screen .landscape-route .world-map-node.reachable .map-node-name{fill:#f6ebcc!important}
+html body .game-map-screen .landscape-route .world-map-node .map-node-type{fill:#d8c08a}
+html body .game-map-screen .landscape-route .route-state-next .map-node-type,html body .game-map-screen .landscape-route .world-map-node.reachable .map-node-type{fill:#e6c77c!important}
+html body .game-map-screen .landscape-route .route-state-caption{fill:#e2d0a6}
+html body .game-map-screen .landscape-route .route-here-caption{fill:#fff1af}
+/* Bottom dock (hidden in landscape; kept in the same skin if it is ever shown). */
+.map-build-dock{background:#1f1610;border-top:1px solid #8a6d44}
+.minimal-map .map-build-dock{border-top:2px solid #8a6d44}
+.map-build-dock .mini-card,.minimal-map .map-build-dock .mini-card{background:#33261a;border-color:#8a6d44}
+.minimal-map .map-build-dock .mini-card.empty b{color:#8a6d44}
+/* Header icon carvings were drawn for dark stone; recolour them for leather (cream) and the paper slip (ink). */
+html body[data-screen=map] #header .game-menu-trigger>svg>path:first-child{fill:#a58c57}
+html body[data-screen=map] #header .game-menu-trigger>svg>path:nth-child(2){fill:#f6ebcc}
+html body[data-screen=map] #header .game-menu-trigger>svg>.carving-light{fill:#fff6d8}
+html body[data-screen=map] #header .game-round>svg>path:first-child{fill:#8a6d44}
+html body[data-screen=map] #header .game-round>svg>path:nth-child(2){fill:#3b2d20}
+html body[data-screen=map] #header .game-round>svg>.carving-light{fill:#3b2d20}
+/* The kit plaque border is 6px (it was 1px): trim the padding so the chip keeps its old width and nothing beside it moves. */
+html body[data-screen=map] #header .saved-wallet-bank:not(.home-command):not(.book-perk){padding-inline:4px!important}
+@media(orientation:landscape) and (max-width:740px){html body[data-screen=map] #header .saved-wallet-bank:not(.home-command):not(.book-perk){padding-inline:0!important}}
+/* The Deck chip keeps a dark well inside its leather rim, so the number and the small label read as clearly as before. */
+html body[data-screen=map] #header .saved-wallet-bank:not(.home-command):not(.book-perk){border-image:url('assets/ui/waystone/plaque-leather.svg') 6 / 6px stretch!important;background:#2a1d12 !important}

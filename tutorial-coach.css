@@ -306,7 +306,7 @@ html body :is(#app,#header,dialog) .field-guide-heading>:is(button,a):not([data-
 }
 html body :is(#app,#header,dialog) .field-guide-heading>a.guide-phone-link{
  color:var(--ui-text,#f4edcf)!important;text-decoration:none!important;
- border-image-source:url('assets/rough-frame.svg?v=chain-deck-1')!important;border-image-slice:8!important;border-image-width:5px!important;border-image-repeat:stretch!important
+ border-image-source:url('assets/rough-frame.svg?v=reskin-1')!important;border-image-slice:8!important;border-image-width:5px!important;border-image-repeat:stretch!important
 }
 /* Longer labels break once, into two balanced lines, never three. */
 html body :is(#app,#header,dialog) .field-guide-heading>.guide-practice{min-width:calc(5.8em + 24px)!important}
@@ -317,3 +317,42 @@ html body :is(#app,#header,dialog) .field-guide-heading>[data-action="guide-back
  html body :is(#app,#header,dialog) .field-guide-heading>h2{font-size:16px!important}
  html body :is(#app,#header,dialog) .field-guide-heading>:is(button,a):not([data-action="guide-back"]){padding:0 6px!important;font-size:12px!important;line-height:1.1!important}
 }
+
+/* First Light Edition 4: glossary links on a lesson card (open the card glossary). */
+.tutorial-coach-terms{display:flex;flex-wrap:wrap;align-items:center;gap:4px 6px;margin:-2px 0 8px!important;font-size:12px}
+.tutorial-coach-terms[hidden]{display:none}
+.tutorial-coach-terms-label{font:11px/1.2 var(--pixel,inherit);letter-spacing:.4px;color:#a7bd9f}
+.tutorial-coach-term{min-height:28px;padding:2px 8px;border:1px solid #6f8a72;border-radius:5px;background:#132820;color:#e4f0d2;font:inherit;text-decoration:underline dotted;text-underline-offset:3px;cursor:pointer}
+.tutorial-coach-term:focus-visible{outline:2px solid #f0ffce;outline-offset:2px}
+@media(orientation:landscape) and (max-height:350px){.tutorial-coach-terms{margin-bottom:6px!important}.tutorial-coach-term{min-height:26px;padding:1px 6px;font-size:11px}}
+
+/* ── Book skin (v2.5-theme): the paused coach card and flight overlays ───────────────────────────
+   The coach only appears while the simulation is stopped, so it can be a paper card with ink text:
+   moss for the one next step (Got it), paper slips for stepping back or skipping. Sizes, positions
+   and hit areas come from the script and the rules above and are untouched. Art paths are named
+   directly (this sheet is outside dist/ui/). */
+html body .tutorial-coach .tutorial-coach-shade,html body .tutorial-coach[data-has-target=true] .tutorial-coach-spotlight{--coach-dim:#0d0805d6}
+html body .tutorial-coach .tutorial-coach-shade{background:#0d0805d6}
+html body .tutorial-coach .tutorial-coach-spotlight{box-shadow:0 0 0 200vmax #0d0805d6,inset 0 0 0 1px #fff1af40}
+html body .tutorial-coach .coach-pointer path{stroke:#fff1af;filter:drop-shadow(1px 2px 0 #140e09)}
+html body .tutorial-coach .tutorial-coach-card.tutorial-coach-card{border:2px solid transparent!important;border-image:url('assets/ui/waystone/plaque-page.svg') 6 fill / 12px stretch!important;border-radius:0!important;background:#e4d09b!important;background-image:none!important;box-shadow:0 6px 0 #0005!important;color:#2a2118;image-rendering:pixelated}
+html body .tutorial-coach .tutorial-coach-card>h2,html body .tutorial-coach .tutorial-coach-card h2{color:#2a2118!important;text-shadow:none!important}
+html body .tutorial-coach .tutorial-coach-card p,html body .tutorial-coach .tutorial-coach-card>p{color:#2a2118!important;text-shadow:none!important}
+html body .tutorial-coach .tutorial-coach-progress,html body .tutorial-coach .tutorial-coach-terms-label{color:#6b5335!important;text-shadow:none!important}
+html body .tutorial-coach .coach-term b{color:#2a2118}
+html body .tutorial-coach .coach-term-arrow{color:#6b5335}
+html body .tutorial-coach .tutorial-coach-term{position:relative;border:1px solid #8a6d44;box-shadow:inset 0 0 0 1px #8a6d44;border-radius:0;background:#f1e2b4;color:#3b2d20;text-decoration-color:#8a6d44}
+html body .tutorial-coach .tutorial-coach-term::after{content:'';position:absolute;inset:-8px -4px}
+html body .tutorial-coach .tutorial-coach-term:focus-visible{outline:2px solid #2a2118}
+html body :is(#app,#header,dialog,.tutorial-coach) .tutorial-coach-actions>button:not(.home-command):not(.book-perk):not([hidden]){border:6px solid transparent!important;border-image:url('assets/ui/waystone/plaque-slip.svg') 6 fill / 6px stretch!important;border-radius:0!important;background:#e0c98f padding-box!important;background-image:none!important;box-shadow:none!important;clip-path:none!important;padding:0 4px!important;image-rendering:pixelated;color:#3b2d20!important;text-shadow:none!important}
+html body :is(#app,#header,dialog,.tutorial-coach) .tutorial-coach-actions>.tutorial-coach-next:not(.home-command):not(.book-perk):not([hidden]){border-image-source:url('assets/ui/waystone/plaque-moss.svg')!important;background:#536430 padding-box!important;color:#fff6d8!important;text-shadow:1px 2px #1c230f!important}
+html body :is(#app,#header,dialog,.tutorial-coach) .tutorial-coach-actions>button:focus-visible{outline:2px solid #2a2118!important;outline-offset:2px}
+html body :is(#app,#header,dialog,.tutorial-coach) .tutorial-coach-actions>button:disabled{opacity:.45}
+@media(hover:hover){html body .tutorial-coach .tutorial-coach-actions>button:not(:disabled):hover{filter:brightness(1.1)}}
+/* Game speed readout (shown while time is slowed): a leather plate with cream lettering. */
+html body .game-speed-overlay{color:#f6ebcc;text-shadow:1px 2px #140e09;filter:none;padding:8px 18px 10px;box-sizing:border-box;border:6px solid transparent;border-image:url('assets/ui/waystone/plaque-leather.svg') 6 fill / 6px stretch;image-rendering:pixelated}
+html body .game-speed-overlay>i{background:#33261a;border:1px solid #8a6d44}
+/* Practice hint card in flight (visible only while it is the one thing on screen). */
+html body .prologue-flight .tutorial-flight-hint{background:#33261af2;border:1px solid #8a6d44;box-shadow:0 2px 0 #140e09;color:#f6ebcc}
+/* Inline terms keep the card's own text colour on every coach theme (light parchment cards included). */
+.tutorial-coach .tutorial-coach-card p .coach-inline-term{color:inherit}

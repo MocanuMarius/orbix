@@ -1,13 +1,13 @@
 /** Contextual card vocabulary. Native modal dialogs keep help above the Deck. */
-import { resourceSymbol } from './game-symbols.mjs?v=chain-deck-1';
-import {lifeHeartSvg} from './lives.mjs?v=chain-deck-1';
-import {duskGlyphArt} from './spark-symbol.mjs?v=chain-deck-1';
-import {getGlowCapacity,formatGlow} from './vitality.mjs?v=chain-deck-1';
-import {glowGaugeUnits} from './glow-ui.mjs?v=chain-deck-1';
-import {getRunModifiers} from './model.mjs?v=chain-deck-1';
-import {cardAmount,makeSkillCard,SKILL_CARDS} from './skill-cards.mjs?v=chain-deck-1';
-import {cardRowTermHelpMarkup} from './card-row-help.mjs?v=chain-deck-1';
-import {dreamEye} from './dream.mjs?v=chain-deck-1';
+import { resourceSymbol } from './game-symbols.mjs?v=reskin-1';
+import {lifeHeartSvg} from './lives.mjs?v=reskin-1';
+import {duskGlyphArt} from './spark-symbol.mjs?v=reskin-1';
+import {getGlowCapacity,formatGlow} from './vitality.mjs?v=reskin-1';
+import {glowGaugeUnits} from './glow-ui.mjs?v=reskin-1';
+import {getRunModifiers} from './model.mjs?v=reskin-1';
+import {cardAmount,makeSkillCard,SKILL_CARDS} from './skill-cards.mjs?v=reskin-1';
+import {cardRowTermHelpMarkup} from './card-row-help.mjs?v=reskin-1';
+import {dreamEye} from './dream.mjs?v=reskin-1';
 const esc = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 export const CARD_TERMS = Object.freeze({
   round: ['Round', 'One flight through a passage, ending in clear rewards or a lost heart.'],
@@ -24,8 +24,7 @@ export const CARD_TERMS = Object.freeze({
   proximity: ['Proximity', 'Skim near solid terrain for 2 seconds to send a revealing Pulse.'],
   wave: ['Pulse', 'An expanding ring of light. Its edge lights the passage as it travels. As a Trigger: a Pulse crosses a Spark you have not collected.'],
   collector: ['Collector', 'The small green light that catches a missed pickup and reels it to your wisp.'],
-  ring: ['Collector charge', 'The visible orbit around your wisp shows Collector charge: a full orbit means maximum reach and full Field Impulse strength.'],
-  impulse: ['Field Impulse', 'With Collector beside your wisp at ¼ charge or more, swipe to spend its charge on a float, dive or speed burst.'],
+  ring: ['Collector charge', 'The visible orbit around your wisp shows Collector charge: a full orbit means maximum reach.'],
   flash: ['Flash', 'A white triangular pickup that briefly lights the passage.'],
   cache: ['Cache', 'A dense pickup worth 18 Sparks on your touch or 12 on a Cache Handling delivery.'],
   rest: ['Rest', 'A checkpoint where you choose an action and can improve your Deck. At Rest cards work from there and never go in the chain.'],
@@ -55,7 +54,7 @@ export const CARD_TERMS = Object.freeze({
   'flash-ends': ['Flash ends', 'Trigger: a Flash’s light runs out.'],
   save: ['Save', 'Trigger: Watchlight or Last Orbit stops a fatal crash.'],
   clear: ['Clear', 'Trigger: you clear a flight.'],
-  swipe: ['Swipe', 'Trigger: a Field Impulse swipe succeeds.'],
+  swipe: ['Swipe', 'Trigger: a swipe succeeds. No card in this build makes one.'],
 });
 
 const CARD_TERM_DETAILS = Object.freeze({
@@ -82,8 +81,7 @@ const CARD_TERM_DETAILS = Object.freeze({
   "heart": "Each heart is one remaining attempt. A failed flight costs one heart. Heart Stitch restores a missing heart after three direct passage Spark pickups in one flight; it spends a use only when healing succeeds. Devourer can restore one after a clear by consuming the adjacent Rare. Full hearts spend no healing use or Rare target.",
   "proximity": "Skim near solid terrain for 2 seconds to send a revealing Pulse. The reveal lasts 5 seconds, then recovers for 2 seconds. Proximity enables normal reach while equipped, without Collector. Edge Reach also enables this and adds 50% of normal reach per equipped or Chameleon-borrowed source. Echo cannot repeat a passive ability. Brief gaps keep progress for 1.25 seconds; contact, protection and Dream never charge it.",
   "collector": "The small green light beside your main wisp. It catches a missed pickup and reels the intact pickup back to your moving wisp. Sparks arrive on contact. It stays busy during the reel, then rebuilds charge before its next search. Cache Handling and Flash Handling let it fetch those pickups too.",
-  "ring": "Collector’s search reach and Field Impulse energy. Its orbit shows the available reach. After each delivery Collector rebuilds charge before its next search. Base recovery is 3⅓ seconds for a 6-Spark pickup, 6⅔ for a 12-Spark pickup, and 10 for an 18-Spark pickup, before compression and build modifiers. Flash and Field Impulse use the 10-second base. A fuller ring makes Field Impulse stronger and longer.",
-  "impulse": "Spend Collector’s ring with a swipe: up to float, down to dive, or right to speed up. Collector must be beside your wisp (not fetching), with at least ¼ charge. Duration is 0.8 seconds × current ring radius / full radius × effective sources, for every direction. Two equipped Field Impulses, or Chameleon immediately left of Field Impulse, last twice as long at the same ring fullness. Extra sources extend duration; force stays at native ring-scaled strength. Up to 9 sources give 7.2 seconds at full Collector charge. One swipe spends the ring once. Lift ends an active float or dive.",
+  "ring": "Collector’s search reach. Its orbit shows the available reach. After each delivery Collector rebuilds charge before its next search. Base recovery is 3⅓ seconds for a 6-Spark pickup, 6⅔ for a 12-Spark pickup, and 10 for an 18-Spark pickup, before compression and build modifiers. Flash uses the 10-second base.",
   "flash": "The triangular pickup that briefly lights your surroundings. Flash Handling lets Collector fetch it. Each Flash Handling in your chain, or copy of one, also gives +6 Sparks when either of you picks one up (the Flash Trigger), so a Boost to its right strengthens it.",
   "copy": "Echo repeats the action on the card to its right. Higher Echo tiers repeat it more times, as printed. Chameleon borrows its ability. They share that card’s uses. Echo cannot repeat Deep Vessel or Edge Reach, because passive abilities have no action. Neither can copy Echo, Chameleon, Lift Guide, Rhythm, Cache Handling or Rest cards.",
   "packing": "Convert spare passage Sparks into Stored Sparks during a Round and from the spare meter at its successful exit. Tight Packing adds extras to the Stored Sparks this conversion normally makes. Open Stored Sparks from packing for examples and exclusions.",
@@ -118,7 +116,7 @@ const keywords = [
   ['Packing efficiency|Stored Sparks from packing', 'packing-efficiency'], ['Any Trigger', 'any-trigger'], ['Triggers?', 'trigger'], ['Always on', 'always-on'], ['Encore', 'encore'],
   ['Falling Lift', 'falling-lift'], ['Flash ends', 'flash-ends'], ['Collect', 'collect'], ['Delivery', 'delivery'], ['Latch', 'latch'], ['Overfill', 'overfill'],
   ['Dusk(?: Sparks?)?', 'dusk'], ['Luminance', 'luminance'],
-  ['Proximity(?: waves?)?', 'proximity'], ['Stored Sparks?', 'stored'], ['hearts?', 'heart'], ['Field Impulse', 'impulse'], ['(?:Light )?pulses?|waves?', 'wave'],
+  ['Proximity(?: waves?)?', 'proximity'], ['Stored Sparks?', 'stored'], ['hearts?', 'heart'], ['(?:Light )?pulses?|waves?', 'wave'],
   ['Watchlight', 'watchlight'], ['Dream', 'dream'], ['Rhythm(?: phrase)?', 'rhythm'], ['Clusters?', 'cluster'], ['Collector charge|full charge|¼ charge|charge|ring', 'ring'], ['Collector', 'collector'], ['Flash(?: Powerups?)?', 'flash'], ['Caches?', 'cache'],
   ['Spark Meter|meter', 'meter'], ['Sparks?', 'spark'], ['wisps?', 'wisp'], ['Lifts?', 'lift'], ['Rest', 'rest'], ['Grow', 'grow'],
   ['Shared uses|Share its (?:remaining )?uses|Copies share uses', 'shared'], ['remaining (?:uses|charges)|uses?', 'uses'], ['pack(?:ing|ed|s)?', 'packing'], ['next card|next slot|card to the right', 'next'],
@@ -169,7 +167,6 @@ const CARD_NOTES = Object.freeze({
   'harvest-common': 'The Pulse must cross an uncollected fuel pickup already in the passage. Pickups created by powers do not count. This refills your meter without collecting the Spark or adding packing rewards.',
   'harvest-rare': 'The Pulse must cross an uncollected fuel pickup already in the passage. Pickups created by powers do not count. This refills your meter without collecting the Spark or adding packing rewards.',
   'harvest-legendary': 'The Pulse must cross an uncollected fuel pickup already in the passage. Pickups created by powers do not count. The meter refill does not collect it or add packing rewards. The extra Stored Spark is awarded once per Pulse, at its first crossing, even if the meter is full.',
-  'field-impulse': 'Collector must be beside your wisp, not fetching, with at least ¼ charge. More charge increases force and duration. Each equipped or compatible copied source adds up to 0.8 seconds at full charge, at the same force. One swipe spends Collector charge once. Lift ends a float or dive.',
   'flash-handling': 'Either your wisp or Collector picking up Flash is the Flash Trigger: each Flash Handling in your chain, or copy of one, gives +6 Sparks, and a Boost to its right strengthens it. Collector makes one pickup; the meter cannot go above its maximum.',
   'growth-seed-common': 'Keep in your Deck to unlock Grow at Rest. Each owned Seed adds its printed maximum Sparks, up to +90 total. All Growth Seeds share 3 Grow actions per journey. Each action refills the meter once, without healing hearts. At Rest, Evolve Common to Rare for 25 Stored Sparks, then Rare to Legendary for 150.',
   'growth-seed': 'Keep in your Deck to unlock Grow at Rest. Each owned Seed adds its printed maximum Sparks, up to +90 total. All Growth Seeds share 3 Grow actions per journey. Each action refills the meter once, without healing hearts. At Rest, Evolve Rare to Legendary for 150 Stored Sparks.',
@@ -178,7 +175,7 @@ const CARD_NOTES = Object.freeze({
   'tight-packing-ii': CARD_TERMS['packing-efficiency'][1],
   'tight-packing-iii': CARD_TERMS['packing-efficiency'][1],
   'cache-handling': 'Extra Cache Handling cards keep one 12-Spark delivery. Your wisp can always touch a Cache for 18 Sparks, plus any pickup card bonus.',
-  'twin-orbit': 'While equipped, a second Collector catches and reels independently. Each pickup belongs to one Collector. Two is the maximum. Removing the card releases its second Collector’s current load, unless Twin Wick already unlocked that Collector for the expedition. The first Collector keeps Field Impulse and fatal-impact saves.',
+  'twin-orbit': 'While equipped, a second Collector catches and reels independently. Each pickup belongs to one Collector. Two is the maximum. Removing the card releases its second Collector’s current load, unless Twin Wick already unlocked that Collector for the expedition. The first Collector keeps fatal-impact saves.',
   'twin-wick': 'Its single use unlocks a second Collector when you start or resume a real flight with Collector selected. The unlock lasts for this expedition, including retries and removing the card. Preview, practice and Dream do not spend it. If Twin Orbit already supplies the second Collector, the use stays available.',
   'long-spool': 'For five extra catches, Collector can reach 35% beyond its current normal range. A use is spent only when an eligible missed pickup beyond normal reach is actually attached. Your wisp gets the whole approach and contact window. Long Spool and Cast Line do not stack; the shortest sufficient extension spends one use. Copies share the original uses.',
   'cast-line': 'For two extra catches, Collector can reach twice its current normal range. Only successful attachments beyond normal reach spend a use. Long Spool pays first if its shorter extension can reach the pickup. Neither extension changes which pickup types Collector can carry or takes the player’s first chance to touch them.',
@@ -227,8 +224,7 @@ const termExamples = Object.freeze({
   dusk:'At 2 Sparks, touch Dusk: your meter drains to 0 before any Dusk Wick bonus pays.',
   luminance:'Equip Lantern Lens to reveal terrain farther from your wisp.',
   heart:'With 2 hearts, a failed Round leaves 1 heart for another attempt.',
-  ring:'Full Collector charge gives the longest Field Impulse; ¼ charge gives a shorter one.',
-  impulse:'Swipe up at full Collector charge and one Field Impulse source: float for up to 0.8 seconds.',
+  ring:'A full orbit means Collector can search at its widest reach.',
   rest:'Choose Recover to heal and refill, or Add slot to make room for another equipped card.',
   uses:'A card at 2 uses succeeds once: 2 → 1 use; its last successful action removes it.',
   shared:'Echo beside Pocket Sparks repeats its bonus and spends another Pocket Sparks use.',
@@ -268,12 +264,12 @@ const relatedTerms = Object.freeze({
   'packing-efficiency':['packing','stored','copy','boost'], packing:['stored','meter','packing-efficiency'],
   dusk:['spark','luminance','collector'], luminance:['wisp','dusk','flash','wave'],
   spark:['meter','dusk','cluster','cache','wisp'], meter:['spark','lift','stored','packing'], lift:['meter','rhythm'],
-  stored:['meter','packing','rest'], cache:['spark','meter','collector','wave'], impulse:['collector','ring','lift'], proximity:['wave','collector'],
+  stored:['meter','packing','rest'], cache:['spark','meter','collector','wave'], proximity:['wave','collector'],
   uses:['shared','copy'], shared:['uses','copy','next'], next:['copy','shared'],
   copy:['next','uses','shared'], grow:['rest','game','meter'], heart:['round','watchlight'], pass:['trigger','slot','boost','encore','copy'],
   trigger:['collect','wave','delivery','any-trigger','pass'], boost:['pass','always-on','slot'], encore:['pass','uses'], slot:['pass','next'],
   'always-on':['boost','pass'], 'any-trigger':['trigger','pass'], collect:['trigger','spark','wisp'], delivery:['trigger','collector'], latch:['trigger','collector'],
-  overfill:['trigger','meter','stored'], 'falling-lift':['trigger','lift'], 'flash-ends':['trigger','flash'], save:['trigger','watchlight'], clear:['trigger','round'], swipe:['trigger','impulse'],
+  overfill:['trigger','meter','stored'], 'falling-lift':['trigger','lift'], 'flash-ends':['trigger','flash'], save:['trigger','watchlight'], clear:['trigger','round'], swipe:['trigger'],
 });
 function termDetailsMarkup(key) {
   const details=CARD_TERM_DETAILS[key], related=relatedTerms[key] || [];
@@ -329,7 +325,7 @@ export function installCardTermHelp(doc = document, {resolveProximityContext,res
     const heading = `card-glossary-heading-${++serial}`, dialog = doc.createElement('dialog');
     dialog.className = 'card-term-dialog card-glossary-dialog';
     dialog.setAttribute('aria-labelledby',heading);
-    const groups = [['Journey',['round','map','game']],['Flying & fuel',['wisp','spark','meter','dusk','cluster','heart','lift','luminance','wave','rhythm','proximity','packing','packing-efficiency','stored']],['Collector',['collector','ring','impulse','flash','cache','watchlight']],['Your cards',['pass','slot','trigger','boost','encore','always-on','any-trigger','next','copy','uses','shared','rest','grow']],['Triggers',['collect','delivery','latch','wave','flash','flash-ends','falling-lift','overfill','rhythm','swipe','save','clear']]];
+    const groups = [['Journey',['round','map','game']],['Flying & fuel',['wisp','spark','meter','dusk','cluster','heart','lift','luminance','wave','rhythm','proximity','packing','packing-efficiency','stored']],['Collector',['collector','ring','flash','cache','watchlight']],['Your cards',['pass','slot','trigger','boost','encore','always-on','any-trigger','next','copy','uses','shared','rest','grow']],['Triggers',['collect','delivery','latch','wave','flash','flash-ends','falling-lift','overfill','rhythm','swipe','save','clear']]];
     dialog.innerHTML = `<header><h2 id="${heading}">Glossary</h2><button type="button" data-card-term-close aria-label="Close glossary">×</button></header><div class="card-term-content card-glossary-list">${groups.map(([title,keys])=>`<section><h3>${esc(title)}</h3><div>${keys.map(key=>cardTermMarkup(key,CARD_TERMS[key][0])).join('')}</div></section>`).join('')}</div><footer><button type="button" data-card-term-close>Back</button></footer>`;
     mount(dialog,button,resolveCardContext?.(button)||resolveProximityContext?.(button)||{});
   }
@@ -378,7 +374,7 @@ export function installCardTermHelp(doc = document, {resolveProximityContext,res
       dialog.classList.add('card-cache-dialog');
       const host=button.dataset.cardTerm?dialog.querySelector('[data-card-term-example]'):doc.createElement('div');
       if(!button.dataset.cardTerm){host.className='cache-card-example';dialog.querySelector('[data-card-help-rules]').append(host);}
-      import('./cache-card-help.mjs?v=chain-deck-1').then(({mountCacheCardHelp})=>{
+      import('./cache-card-help.mjs?v=reskin-1').then(({mountCacheCardHelp})=>{
         if(layers.includes(layer))appendDisposer(mountCacheCardHelp(host,{focus:cardKind==='harvest'?'cross':cardKind==='cache-handling'?'deliver':'touch',harvestCard:cardKind==='harvest'?cardContext.card:undefined}));
       });
     }
@@ -389,7 +385,7 @@ export function installCardTermHelp(doc = document, {resolveProximityContext,res
         const host=doc.createElement('section');host.className='proximity-card-help';
         const example=dialog.querySelector('[data-card-term-example="proximity"]');
         if(example)example.replaceChildren(host);else dialog.querySelector('.card-term-content').prepend(host);
-        import('./proximity-card-help.mjs?v=chain-deck-1').then(({mountProximityCardHelp})=>{
+        import('./proximity-card-help.mjs?v=reskin-1').then(({mountProximityCardHelp})=>{
           if(layers.includes(layer))appendDisposer(mountProximityCardHelp(host,previewContext));
         });
       }

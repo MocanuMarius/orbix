@@ -1,28 +1,59 @@
-import {CARD_SYSTEM,makeSkillCard,getCardModifiers,getMountedCards} from './skill-cards.mjs?v=chain-deck-1';
+import {CARD_SYSTEM,makeSkillCard,getCardModifiers,getMountedCards} from './skill-cards.mjs?v=reskin-1';
+import {practiceCourseLesson,PRACTICE_CHAIN_CARDS} from './practice-course.mjs?v=reskin-1';
 
-export const PRACTICE_EDITION=3;
-export const isPlayablePractice=run=>run?.isTutorial===true&&run.tutorialEdition===PRACTICE_EDITION;
-export const practiceCardRun=run=>({...run,isTutorial:false,skillSystem:CARD_SYSTEM,cardSlots:3,
+// Edition 4 (17 November 2026): seven stops through real courses, one idea per
+// paused lesson. A saved Edition 3 practice in progress finishes as Edition 3.
+export const PRACTICE_EDITION=4;
+export const LEGACY_PRACTICE_EDITION=3;
+export const isPlayablePractice=run=>run?.isTutorial===true&&(run.tutorialEdition===PRACTICE_EDITION||run.tutorialEdition===LEGACY_PRACTICE_EDITION);
+export const isPracticeCourseRun=run=>run?.isTutorial===true&&run.tutorialEdition===PRACTICE_EDITION;
+export const isLegacyPracticeRun=run=>run?.isTutorial===true&&run.tutorialEdition===LEGACY_PRACTICE_EDITION;
+export const practiceCardRun=run=>({...run,isTutorial:false,skillSystem:CARD_SYSTEM,cardSlots:Math.max(3,(run?.practiceCards||[]).length),
  mountedCards:run?.practiceCards||[],reserveCards:[]});
 export const practiceCardFaces=run=>getMountedCards(practiceCardRun(run)).filter(Boolean);
 export function loanPracticeCards(run,ids){
  if(!isPlayablePractice(run))return;
  run.practiceCards=ids.map(id=>makeSkillCard(id,`${run.id}:practice:${id}`));
 }
+/** The camp lesson's one real change: trade two loaned cards' Slots. Loans are never melted or kept. */
+export function reorderPracticeCards(run,uid,slot,expectedUid=null){
+ if(!isPracticeCourseRun(run)||!Array.isArray(run.practiceCards))return false;
+ const cards=run.practiceCards,from=cards.findIndex(card=>card?.instanceId===uid);
+ if(from<0||!Number.isInteger(slot)||slot<0||slot>=cards.length||from===slot)return false;
+ if(expectedUid!==null&&(cards[slot]?.instanceId||null)!==expectedUid)return false;
+ [cards[from],cards[slot]]=[cards[slot],cards[from]];
+ run.practiceChainArranged=true;
+ return true;
+}
+/** Edition 4: the camp node lends the Chain lesson's cards when the player arrives. */
+export function preparePracticeStop(run,node){
+ if(!isPracticeCourseRun(run)||!node?.practiceChain||run.practiceCards?.length)return false;
+ loanPracticeCards(run,PRACTICE_CHAIN_CARDS);return true;
+}
 export function practiceModifiers(run){
- return isPlayablePractice(run)?{...getCardModifiers(practiceCardRun(run)),practiceCards:true}:{};
+ if(!isPlayablePractice(run))return {};
+ const node=run.current||run.map?.[run.step]?.[0],extra={};
+ if(isPracticeCourseRun(run)){
+  // Practice abilities, not cards: the camp Chain keeps three cards whose order matters.
+  if(node?.practiceProximity)extra.proximityUnlocked=true;
+  if(node?.practiceShield)extra.collectorGuard=true;
+ }
+ return {...getCardModifiers(practiceCardRun(run)),practiceCards:true,...extra};
 }
 export function practicePurpose(run){
  const node=run?.map?.[run.step]?.[0]||run?.current;
  return ({glide:'Lift · collect · glide',proximity:'Skim rock · catch Flash',rhythm:'Three even Lifts → Pulse → Harvest',
   'black-hole':'Keep your distance · restore light',guardian:'Read the warning · reach the waylight',
-  treasure:'Borrow cards for the next passage',camp:'Recover · prepare a card combination'})[node?.tutorialLesson||node?.kind]||'Reach the next waylight';
+  treasure:'Borrow cards for the next passage',camp:isPracticeCourseRun(run)?'Arrange your Chain':'Recover · prepare a card combination',
+  'course-lift':'Lift · glide · Sparks','course-collector':'Meet Collector','course-light':'Luminance · Flash',
+  'course-edge':'Skim the rock · Pulse','course-chain':'Your Chain · Black Holes','course-finale':'Hearts · Collector’s shield'})[node?.tutorialLesson||node?.kind]||'Reach the next waylight';
 }
 
 // Return one short observation of the live world. The app gates it on the same
 // collision projection and quiet input interval as every contextual flight hint.
 export function nextPracticeLesson(engine,run,snapshot={}){
  if(!isPlayablePractice(run)||!engine?.tutorial||engine.tutorialAwaitingLift||run.guideSkipped)return null;
+ if(engine.tutorial.course)return isPracticeCourseRun(run)?practiceCourseLesson(engine,run):null;
  const t=engine.time,state=engine.tutorial,seen=run.guideSeen||{},kind=state.lesson;
  const candidates=[],add=(id,when,title,text,target,point)=>{
   if(when&&!seen[`practice:${id}`])candidates.push({id:`practice:${id}`,title,text,target,point,contextual:true,actionLabel:'Try it',skipLabel:'Continue'});
