@@ -108,7 +108,7 @@ export const SKILLS=Object.freeze(consolidateSkills(Object.fromEntries(Object.en
  'swift-mastery':skill('swift-mastery','Deep Spark','swift',75,1,'swift-attunement','Surge recharges 0.75 seconds sooner. Adds to your first Spark.'),
  'afterglow-vessel':skill('afterglow-vessel','Fine Facets','afterglow',36,2,'main-afterglow','Overflow conversion gains 5 percentage points and the packing limit rises by 5 per rank.'),
  'afterglow-retention':{...skill('afterglow-retention','Prismatic Yield','afterglow',40,2,'afterglow-vessel','Overflow conversion gains another 5 percentage points and the packing limit rises by 5 per rank.'),choiceGroup:'condensation-style',excludes:['afterglow-anchor']},
- 'afterglow-anchor':{...skill('afterglow-anchor','Kept Light','afterglow',30,2,'main-afterglow','Clear a flight to earn 5% of the Stored Sparks you carried in (up to 5). Rank two earns 10% (up to 10). Round down to whole Stored Sparks. The final guardian pays no interest.'),choiceGroup:'condensation-style',excludes:['afterglow-retention']},
+ 'afterglow-anchor':{...skill('afterglow-anchor','Kept Light','afterglow',30,2,'main-afterglow','Clear a flight to earn 5% of the Stored Sparks you carried in (up to 5). Rank two earns 10% (up to 10). Rounded up to whole Stored Sparks. The final guardian pays no interest.'),choiceGroup:'condensation-style',excludes:['afterglow-retention']},
  'packing-hand-seal':{...skill('packing-hand-seal','Hand Seal','afterglow',20,1,'main-afterglow','The first two fuel Sparks you touch directly that overfill your meter each earn 1 extra Stored Spark on clear.'),choiceGroup:'storage-pickups',excludes:['packing-deep-cache']},
  'packing-deep-cache':{...skill('packing-deep-cache','Deep Cache','afterglow',35,1,'main-afterglow','Body-collect a dense Cache Spark above your meter limit. The first two each earn 2 extra Stored Sparks on clear. Collector loads are compacted Clusters.'),choiceGroup:'storage-pickups',excludes:['packing-hand-seal']},
 })).filter(([id])=>!id.startsWith('main-artifact-slot-')))));
@@ -262,7 +262,7 @@ function cleanRunCompanion(run){
  if(run.skills)delete run.skills['main-bond'];
  if(run.skillPaid)delete run.skillPaid['main-bond'];
 }
-function validRun(r){if(!r||typeof r.id!=='string'||typeof r.seed!=='string'||!PHASES.has(r.phase))return false;const rows=r.isTutorial?r.map?.length:MAP_STOP_COUNT;if(r.isTutorial&&![3,6,7].includes(rows))return false;if(!Array.isArray(r.map)||r.map.length!==rows||!Number.isInteger(r.step)||r.step<0||r.step>rows)return false;if(r.step===rows&&!['map-clear','ended'].includes(r.phase))return false;const all=r.map.flat();if(r.map.some((row,i)=>!Array.isArray(row)||!row.length||row.length>3||row.some(n=>!n||n.row!==i||typeof n.id!=='string'||!TERRAINS[n.terrain]||!['flight','support','finale'].includes(n.type))))return false;if(new Set(all.map(n=>n.id)).size!==all.length)return false;for(const n of all)if(!Array.isArray(n.nextIds)||n.nextIds.length>3||n.row<rows-1&&!n.nextIds.length||n.nextIds.some(id=>!r.map[n.row+1]?.some(next=>next.id===id)))return false;return Array.isArray(r.path)&&Array.isArray(r.companions)&&Number.isFinite(r.lives)&&Number.isFinite(r.flame);}
+function validRun(r){if(!r||typeof r.id!=='string'||typeof r.seed!=='string'||!PHASES.has(r.phase))return false;const rows=r.map?.length;if(r.isTutorial?![3,6,7].includes(rows):![MAP_STOP_COUNT,OLD_CARD_MAP_ROWS,...CARD_MAP_ROW_COUNTS].includes(rows))return false;if(!Array.isArray(r.map)||r.map.length!==rows||!Number.isInteger(r.step)||r.step<0||r.step>rows)return false;if(r.step===rows&&!['map-clear','ended'].includes(r.phase))return false;const all=r.map.flat();if(r.map.some((row,i)=>!Array.isArray(row)||!row.length||row.length>3||row.some(n=>!n||n.row!==i||typeof n.id!=='string'||!TERRAINS[n.terrain]||!['flight','support','finale'].includes(n.type))))return false;if(new Set(all.map(n=>n.id)).size!==all.length)return false;for(const n of all)if(!Array.isArray(n.nextIds)||n.nextIds.length>3||n.row<rows-1&&!n.nextIds.length||n.nextIds.some(id=>!r.map[n.row+1]?.some(next=>next.id===id)))return false;return Array.isArray(r.path)&&Array.isArray(r.companions)&&Number.isFinite(r.lives)&&Number.isFinite(r.flame);}
 function restoreChapterTheme(run) {
  if(run.isTutorial)return;
  const guardian=run.map.at(-1).find(node=>node.boss);
@@ -352,13 +352,35 @@ function dealRouteEvents(recipe,deck,seed){
  const remaining=deck.filter(id=>id!==featured&&id!==cairn);
  return sites.map((_,i)=>i===featuredSeat?featured:remaining.shift());
 }
-const CARD_ROUTE_RECIPES=Object.freeze([
- {id:'card-lantern-forks',name:'Ember Camps',rows:['FFF','FEF','TVR','FFF',' R ',' F ','E V','F F','R T',' B '],edges:[['01','12','2'],['0','12','2'],['01','1','2'],['1','1','1'],['','1',''],['','02',''],['0','','2'],['02','','02'],['1','','1']],extraFlightRows:[1,3,5,7]},
- {id:'card-moon-forks',name:'Moon Camps',rows:['FFF','FEF','RVT','FFF',' R ',' F ','V E','F F','F R',' B '],edges:[['0','01','12'],['0','12','2'],['0','1','12'],['1','1','1'],['','1',''],['','02',''],['0','','2'],['02','','02'],['1','','1']],extraFlightRows:[1,3,5,7]},
+// Card-run maps (docs/inscriptions.md, "Map layout"). Row codes: F flight, E elite, R Rest, T treasure, V event, S Scribe stop, B guardian.
+// Every Rest and Scribe sits alone on its row, and every row before it funnels all lanes into that one node (edge strings ['1','','1'] or
+// ['1','1','1']), so no path can miss it. The extra Rest in row 2 is on a side lane: a path through the other two lanes never sees it.
+// A Rest, Scribe, treasure or event is always entered from flights and leaves into flights (or the guardian), as before.
+const CARD_TOPOLOGY='rests-scribes-1';
+const cardRecipe=(id,name,rows,edges)=>({id,name,rows,edges,extraFlightRows:rows.flatMap((r,i)=>r==='FFF'?[i]:[]),topology:CARD_TOPOLOGY});
+// Maps 1 and 2: 15 rows. Rests on rows 4, 10 and 13; Scribe stop on row 8; the guardian on row 14 awards the second Scribe.
+const MID_ROWS=Object.freeze([
+ cardRecipe('card-lantern-forks-v2','Ember Camps',['FFF','FEF','TVR','FFF',' R ',' F ','V T','F F',' S ','E F',' R ',' F ','F F',' R ',' B '],
+  [['01','12','2'],['0','12','2'],['01','1','2'],['1','1','1'],['','1',''],['','02',''],['0','','2'],['1','','1'],['','02',''],['1','','1'],['','1',''],['','02',''],['1','','1'],['','1','']]),
+ cardRecipe('card-moon-forks-v2','Moon Camps',['FFF','FEF','RVT','FFF',' R ',' F ','T V','F F',' S ','F E',' R ',' F ','F F',' R ',' B '],
+  [['0','01','12'],['0','12','2'],['0','1','12'],['1','1','1'],['','1',''],['','02',''],['0','','2'],['1','','1'],['','02',''],['1','','1'],['','1',''],['','02',''],['1','','1'],['','1','']]),
 ]);
-function makeMap(seed,mapIndex,difficulty,cards=false){
+// Map 3: 17 rows. Rests on rows 4, 9 and 15; Scribe stops on rows 6 and 11 (a third and two thirds of the way); its guardian awards nothing.
+const FINAL_ROWS=Object.freeze([
+ cardRecipe('card-lantern-forks-final','Ember Camps',['FFF','FEF','TVR','FFF',' R ',' F ',' S ','F F','E F',' R ',' F ',' S ','F F','V T','F F',' R ',' B '],
+  [['01','12','2'],['0','12','2'],['01','1','2'],['1','1','1'],['','1',''],['','1',''],['','02',''],['0','','2'],['1','','1'],['','1',''],['','1',''],['','02',''],['0','','2'],['0','','2'],['1','','1'],['','1','']]),
+ cardRecipe('card-moon-forks-final','Moon Camps',['FFF','FEF','RVT','FFF',' R ',' F ',' S ','F F','F E',' R ',' F ',' S ','F F','T V','F F',' R ',' B '],
+  [['0','01','12'],['0','12','2'],['0','1','12'],['1','1','1'],['','1',''],['','1',''],['','02',''],['0','','2'],['1','','1'],['','1',''],['','1',''],['','02',''],['0','','2'],['0','','2'],['1','','1'],['','1','']]),
+]);
+export const CARD_ROUTE_RECIPES=Object.freeze([...MID_ROWS,...FINAL_ROWS]);
+export const CARD_MAP_ROW_COUNTS=Object.freeze([...new Set(CARD_ROUTE_RECIPES.map(r=>r.rows.length))]);
+/** Card-run maps of the older layout (10 rows, one Rest guaranteed, no Scribe stop). Only ever seen in saves made before rests-scribes-1. */
+export const OLD_CARD_MAP_ROWS=10;
+export const MAP_COUNT=3,SCRIBES_PER_MAP=2;
+const cardRecipesFor=mapIndex=>mapIndex>=MAP_COUNT-1?FINAL_ROWS:MID_ROWS;
+export function makeMap(seed,mapIndex,difficulty,cards=false){
  const guardianId=getGuardianForMap(seed.split('|tier:')[0],mapIndex).id,mapTheme=guardianMapTheme(guardianId);
- const random=rng(`${seed}:routes:v2`),recipes=cards?CARD_ROUTE_RECIPES:ROUTE_RECIPES,recipe=recipes[Math.floor(random()*recipes.length)],mirror=random()<.5,locationCounts={};
+ const random=rng(`${seed}:routes:v2`),recipes=cards?cardRecipesFor(mapIndex):ROUTE_RECIPES,recipe=recipes[Math.floor(random()*recipes.length)],mirror=random()<.5,locationCounts={};
  const events=dealRouteEvents(recipe,shuffle(EVENT_SCENARIOS.map(e=>e.index),random),seed),themes=shuffle(Object.keys(REWARD_THEMES),random);let eventCursor=0;
  const chests=treasureDeck(seed,mapIndex);let chestCursor=0;
  // A separate seeded deck prevents reward themes from forcing the same world.
@@ -368,7 +390,7 @@ function makeMap(seed,mapIndex,difficulty,cards=false){
  const drawBiome=()=>{if(biomeCursor===biomeDeck.length){biomeDeck=shuffle(BIOMES,biomeRandom);biomeCursor=0;if(biomeDeck[0].id===lastBiome)[biomeDeck[0],biomeDeck[1]]=[biomeDeck[1],biomeDeck[0]];}const b=biomeDeck[biomeCursor++];lastBiome=b.id;return b;};
  const rows=recipe.rows.map((rowCode,row)=>[...rowCode].flatMap((code,c)=>{
   if(code===' ')return[];
-  const camp=code==='R',treasure=code==='T',support='RTV'.includes(code),finale=code==='B',boss=finale,elite=code==='E';
+  const camp=code==='R',treasure=code==='T',scribe=code==='S',support='RTVS'.includes(code),finale=code==='B',boss=finale,elite=code==='E';
   const rewardTheme=themes[(row+c*2+mapIndex)%themes.length],theme=REWARD_THEMES[rewardTheme];
   const routeStyle=elite?'gauntlet':rewardTheme==='sustain'?'refuge':rewardTheme==='precision'?'cavern':random()<.45?'refuge':random()<.6?'cavern':'gauntlet',profile=ROUTE_PROFILES[routeStyle];
   const encounterFamily=support||finale?null:rewardTheme==='risk'?'seed-orchard':rewardTheme==='tempo'?'draft-staircase':rewardTheme==='precision'?'stillwater-tunnel':['stillwater-tunnel','draft-staircase','seed-orchard'][Math.floor(random()*3)];
@@ -377,20 +399,20 @@ function makeMap(seed,mapIndex,difficulty,cards=false){
   const location=getBiomeLevelIdentity(biome.id,`${seed}:map:${mapIndex}`,support?0:(locationCounts[biome.id]=(locationCounts[biome.id]||0)+1)-1);
   const bossId=boss?guardianId:null,bossName=boss?getBossPreview(bossId).name:'';
   const eventIndex=events[eventCursor%events.length];if(code==='V')eventCursor++;
-  const kind=camp?'camp':treasure?'treasure':support?'event':finale?'finale':elite?'elite':'normal';
-  const challengeId=routeStyle==='refuge'?'wisps':routeStyle==='cavern'?'clean':'boosts',target=challengeId==='wisps'?(4+Math.floor(row/2))*3:challengeId==='boosts'?6:0;
+  const kind=camp?'camp':treasure?'treasure':scribe?'scribe':support?'event':finale?'finale':elite?'elite':'normal';
+  const challengeId=routeStyle==='refuge'?'wisps':routeStyle==='cavern'?'clean':'boosts',target=challengeId==='wisps'?(4+Math.floor(Math.round(row*9/(recipe.rows.length-1))/2))*3:challengeId==='boosts'?6:0;
   const encounterStage=Math.round(row/(recipe.rows.length-1)*6);
   const n={id:`m${mapIndex}-${row}-${c}`,row,encounterStage,extraFlight:recipe.extraFlightRows.includes(row),lane:mirror?2-c:c,routeLane:c,mapIndex,difficulty,type:support?'support':finale?'finale':'flight',kind,elite,boss,bossId,terrain,biomeId:biome.id,biomeName:biome.name,biomeInteraction:biome.interaction,interactionHint:biome.interactionHint,nextIds:[],routeStyle,...profile,
-   routeTopology:ROUTE_TOPOLOGY_VERSION,recipeId:recipe.id,recipeName:recipe.name,mapTheme,rewardTheme,rewardThemeLabel:theme.label,encounterFamily,encounterPreview,
-   name:camp?'Glowwell Rest':support?EVENT_SCENARIOS[eventIndex].name:boss?bossName:location.name,locationName:boss?bossName:location.name,levelId:location.id,setpiecePreview:location.signature,
+   routeTopology:recipe.topology||ROUTE_TOPOLOGY_VERSION,recipeId:recipe.id,recipeName:recipe.name,mapTheme,rewardTheme,rewardThemeLabel:theme.label,encounterFamily,encounterPreview,
+   name:camp?'Glowwell Rest':scribe?'The Scribe':support&&!scribe?EVENT_SCENARIOS[eventIndex].name:boss?bossName:location.name,locationName:boss?bossName:location.name,levelId:location.id,setpiecePreview:location.signature,
    duration:support?0:(finale?55:Math.round((row===0?34:38+row*2)*profile.durationScale))*3,flightLengthScale:support?1:3,challengeId:support?'':challengeId,challengeTarget:support?0:target,challenge:support?'':challengeId==='wisps'?`Collect ${target} Sparks`:challengeId==='boosts'?`Use companion tools ${target} times`:'Finish without a hit',eventIndex:code==='V'?eventIndex:null,
-   fuelPreview:camp?'Recover, rekindle hearts, or gather light':support?EVENT_SCENARIOS[eventIndex].summary:profile.fuelPreview,
-   riskPreview:camp?'Recover or grow, then train skills':support?'Preview stakes before committing':`${encounterPreview} · ${profile.riskPreview}`,
-   commitment:camp?'One known flight follows this Rest':support?'A choice changes your next flight':elite?'Hard flight · Inscription choice':'Follow the visible route to prepare your build',
-   description:camp?'Recover hearts or grow Spark capacity, then prepare for the next flight.':support?EVENT_SCENARIOS[eventIndex].detail:biome.description};
+   fuelPreview:camp?'Recover, rekindle hearts, or gather light':scribe?SCRIBE_STOP_SUMMARY:support?EVENT_SCENARIOS[eventIndex].summary:profile.fuelPreview,
+   riskPreview:camp?'Recover or grow, then train skills':scribe?'No flight: nothing is at risk':support?'Preview stakes before committing':`${encounterPreview} · ${profile.riskPreview}`,
+   commitment:camp?'One known flight follows this Rest':scribe?'Write one Inscription, then return to the map':support?'A choice changes your next flight':elite?'Hard flight · Inscription choice':'Follow the visible route to prepare your build',
+   description:camp?'Recover hearts or grow Spark capacity, then prepare for the next flight.':scribe?SCRIBE_STOP_SUMMARY:support?EVENT_SCENARIOS[eventIndex].detail:biome.description};
   if(!support)Object.assign(n,getFlightLengthProfile({seed:seed+':'+n.id,mapIndex,row:encounterStage,elite,boss}));
   const economy=nodeEconomy(n);n.challengeBonus=0;n.clearReward=getFlightClearReward(n);n.glowReward=economy.salvageGlow;
-  n.rewardPreview=boss?(mapIndex===2?'Expedition victory':'Choose 1 of 2 artifacts'):elite?'Choose 1 of 2 artifacts':camp?'Recover or Grow':support?'Sparks or Stored Sparks':getFlightClearReward(n)+' Stored Sparks + overflow';
+  n.rewardPreview=boss?(mapIndex===2?'Expedition victory':'Choose 1 of 2 artifacts'):elite?'Choose 1 of 2 artifacts':camp?'Recover or Grow':scribe?SCRIBE_STOP_REWARD:support?'Sparks or Stored Sparks':getFlightClearReward(n)+' Stored Sparks + overflow';
   n.reward=n.rewardPreview;
   if(treasure)Object.assign(n,describeTreasure(chests[chestCursor++]));
   return[n];
@@ -1195,7 +1217,7 @@ export function getRouteMapState(run){
  for(const n of frontier){if(lastElite&&n.elite)continue;addEdge(currentId,n.id);visit(n,lastElite);}
  return{currentId,selectedId:selected?.id||null,availableIds,reachableIds:[...reachableIds],completedIds,pathEdges,reachableEdges};
 }
-export function selectNode(run,nodeId){if(run?.victoryPending||run?.flightReward&&!run.flightReward.claimed||!cardRewardResolved(run))return false;const n=getChoices(run).find(n=>n.id===nodeId);if(!n)return false;if(n.type!=='support'&&!run.isTutorial)n.bonusId=getRouteBonus(run,n)?.id??null;run.path=run.path.filter(id=>nodes(run).some(p=>p.id===id&&p.row<run.step));run.path.push(n.id);if(n.type!=='support')n.flightNumber=run.path.map(id=>nodes(run).find(p=>p.id===id)).filter(p=>p.type!=='support').length;run.current=n;run.lastEvent=null;run.phase=n.type==='support'?'support':'briefing';if(isCardRun(run)&&n.kind==='camp')ensureCardRest(run);preparePracticeStop(run,n);return true;}
+export function selectNode(run,nodeId){if(run?.victoryPending||run?.flightReward&&!run.flightReward.claimed||!cardRewardResolved(run))return false;const n=getChoices(run).find(n=>n.id===nodeId);if(!n)return false;if(n.type!=='support'&&!run.isTutorial)n.bonusId=getRouteBonus(run,n)?.id??null;run.path=run.path.filter(id=>nodes(run).some(p=>p.id===id&&p.row<run.step));run.path.push(n.id);if(n.type!=='support')n.flightNumber=run.path.map(id=>nodes(run).find(p=>p.id===id)).filter(p=>p.type!=='support').length;run.current=n;run.lastEvent=null;run.phase=n.type==='support'?'support':'briefing';if(isCardRun(run)&&n.kind==='camp')ensureCardRest(run);if(n.kind==='scribe'){if(isCardRun(run))ensureScribeStop(run);else{run.path.pop();run.current=null;run.phase='map';return false;}}preparePracticeStop(run,n);return true;}
 function nextStop(run){run.step++;run.current=null;run.phase=run.step>=run.map.length?'ended':'map';}
 function reattempt(run){return run.phase==='briefing'&&run.current&&run.lastAttempt?.nodeId===run.current.id&&run.lastAttempt.success!==true;}
 function canPrepareAtCheckpoint(run){const starter=run?.mapIndex===0&&run?.step===0&&run?.phase==='map'&&!run.path?.length;return!!run&&(run.testMode===true||run.restReady===true||starter)&&!run.attemptActive&&!run.banked&&run.lives>0&&['support','map','briefing'].includes(run.phase)&&!reattempt(run);}
@@ -1311,12 +1333,37 @@ export function availableFlightArtifacts(run,node){
 /** The course name the map stop page uses (e.g. "Bell Garden"), for the flight just ended; '' when unknown. */
 export function lastCourseName(run){const id=run?.lastFlight?.nodeId||run?.lastAttempt?.nodeId;const flat=(run?.map||[]).flat?.()||[];return String(flat.find(n=>n?.id===id)?.name||run?.lastAttempt?.nodeName||run?.current?.name||'');}
 export const SCRIBE_OFFER_COUNT=3;
-/** A run offers at most this many Scribes in total (a full run has 2: the maps 1 and 2 guardians). */
-export const SCRIBE_MAX_PER_RUN=7;
+/** Every map offers exactly two Scribes, so a run offers at most this many: 2 per map (3 maps = 6). Maps 1 and 2: a Scribe stop and the guardian; map 3: two Scribe stops (its guardian ends the run). */
+export const SCRIBE_MAX_PER_RUN=SCRIBES_PER_MAP*MAP_COUNT;
+export const SCRIBE_STOP_SUMMARY='Scribe — choose an Inscription for a slot of your Chain.';
+export const SCRIBE_STOP_REWARD=`1 Inscription (choose 1 of ${SCRIBE_OFFER_COUNT})`;
 /** What a cleared flight at `node` hands out beyond the Stored Sparks: 'inscription' (the Scribe) or null. The map preview and makeFlightReward both ask this one question. */
 export function flightRewardKind(run,node){
- if(!node||!node.boss||(node.mapIndex??run.mapIndex)===2&&!run.isTutorial||!isCardRun(run)||(Number(run.scribesOffered)||0)>=SCRIBE_MAX_PER_RUN)return null;
+ if(!node||!isCardRun(run)||(Number(run.scribesOffered)||0)>=SCRIBE_MAX_PER_RUN)return null;
+ if(node.kind==='scribe')return 'inscription';
+ if(!node.boss||(node.mapIndex??run.mapIndex)===2&&!run.isTutorial)return null;
  return 'inscription';
+}
+/** Entering a Scribe stop opens its choice at once: three Inscriptions (the same seeded draw on every visit), no flight. Safe to call again on a reload. */
+export function ensureScribeStop(run){
+ const n=run?.current;
+ if(!run||run.phase!=='support'||n?.kind!=='scribe'||!isCardRun(run))return null;
+ if(run.flightReward?.nodeId===n.id)return run.flightReward;
+ cleanSlotInscriptions(run);
+ run.scribesOffered=(Number(run.scribesOffered)||0)+1;
+ const offers=offerInscriptions(run,rng(`${run.seed}:${n.id}:scribe`),SCRIBE_OFFER_COUNT);
+ return run.flightReward={kind:'inscription',nodeId:n.id,source:'stop',sourceName:'The Scribe',offers,permanent:false,claimed:!offers.length,rewardTheme:n.rewardTheme};
+}
+/** Back out of a Scribe stop before writing anything: the visit does not count. Called by the map's Back button. */
+export function cancelScribeStop(run){
+ const r=run?.flightReward;
+ if(!run||run.current?.kind!=='scribe'||!r||r.claimed||r.nodeId!==run.current.id)return false;
+ run.flightReward=null;run.scribesOffered=Math.max(0,(Number(run.scribesOffered)||0)-1);return true;
+}
+/** Leave a Scribe stop after writing: back to the map, next row. */
+export function leaveScribe(run){
+ if(!run||run.phase!=='support'||run.current?.kind!=='scribe'||!run.flightReward?.claimed||run.flightReward.nodeId!==run.current.id)return false;
+ run.flightReward=null;nextStop(run);return true;
 }
 // The Scribe (docs/inscriptions.md): only a map’s Boss flight offers three Inscriptions, then a slot to write one on.
 function makeFlightReward(run,source='flight'){
@@ -1670,6 +1717,7 @@ function inRefundBranch(id,root,seen=new Set()){
 }
 function rawSupportChoices(run,profile=null){
  if(run?.phase!=='support')return[];const n=run.current;
+ if(n.kind==='scribe')return[];
  if(n.kind==='camp'){
   if(isPracticeCourseRun(run))return [choice('practice-chain-ready','Fly with your Chain','Refill your Spark Meter and take the loaned Chain, in the order you set, into the next passage.',{flame:100})];
   if(isPlayablePractice(run))return [choice('practice-recover','Recover & borrow a combination','Restore missing hearts and all Sparks. Borrow Rhythm and Resonant Harvest for the next passage.',{lives:Math.max(0,getLifeCapacity(run)-run.lives),flame:100,rest:'recover',practiceCombo:true})];

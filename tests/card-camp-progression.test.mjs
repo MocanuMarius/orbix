@@ -85,14 +85,14 @@ test('rank, evolution and Forge spend only at a verified active or completed cam
   assert.equal(M.forgeOwnedCard(state), false); assert.equal(r.condensedGlow, wallet);
 });
 
-test('every map guarantees a midpoint camp, keeps two optional camps and single ordinary exits', () => {
+test('every map guarantees three camps, keeps one optional camp and single ordinary exits (full layout checks: tests/map-layout.test.mjs)', () => {
   const recipes = new Set(), mirrors = new Set();
   for (let seed = 0; seed < 80; seed++) {
     const r = fresh(`three-camps-${seed}`).run;
     for (let map = 0; map < 3; map++) {
       const all = r.map.flat(), camps = all.filter(node => node.kind === 'camp'), byId = new Map(all.map(node => [node.id, node]));
       recipes.add(all[0].recipeId); mirrors.add(all[0].lane === all[0].routeLane);
-      assert.equal(r.map.length, 10); assert.equal(camps.length, 3);
+      assert.equal(r.map.length, map === 2 ? 17 : 15); assert.equal(camps.length, 4);
       const seen = new Set(); const paths = [];
       function visit(node, taken = [], elite = false) {
         if (elite && node.elite) return;
@@ -101,20 +101,21 @@ test('every map guarantees a midpoint camp, keeps two optional camps and single 
         for (const id of node.nextIds) visit(byId.get(id), next, node.type === 'support' ? elite : node.elite);
       }
       r.map[0].forEach(node => visit(node)); assert.equal(seen.size, all.length);
+      let guaranteed = 0;
       for (const camp of camps) {
         assert.equal(camp.nextIds.length, 1);
         assert.notEqual(byId.get(camp.nextIds[0]).type, 'support');
         assert.ok(paths.some(path => path.includes(camp.id)));
-        if (camp.row === 4) assert.ok(paths.every(path => path.includes(camp.id)));
+        if (paths.every(path => path.includes(camp.id))) guaranteed++;
         else assert.ok(paths.some(path => !path.includes(camp.id)));
       }
-      assert.ok(paths.every(path => path.length >= 1), 'all legal routes reach the midpoint Rest');
+      assert.equal(guaranteed, 3); assert.ok(paths.every(path => path.length >= 3), 'all legal routes pass three Rests');
       assert.equal(r.map[4].length, 1); assert.equal(r.map[4][0].kind, 'camp');
       assert.ok(r.map[3].every(node => node.nextIds.length === 1 && node.nextIds[0] === r.map[4][0].id));
       if (map < 2) { Object.assign(r, { phase: 'map-clear', step: r.map.length }); assert.ok(M.advanceMap(r)); }
     }
   }
-  assert.equal(recipes.size, 2); assert.equal(mirrors.size, 2);
+  assert.equal(recipes.size, 4); assert.equal(mirrors.size, 2);
 });
 
 test('starting preview leaves offers and ownership untouched, and confirmation tokens cannot cross runs or regrant Guide', () => {

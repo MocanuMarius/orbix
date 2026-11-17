@@ -9,7 +9,7 @@ Status: built. Artifacts are retired for players; Inscriptions replace them. Cod
 - It stays on the slot when cards are moved, swapped, melted, sold, devoured or taken out. The card that leaves loses the effect; the next card placed there gets it.
 - Repeat and Boost cards treat a card as it behaves in its slot: Echo repeats the modified firing, and a Boost multiplies Sparks an Inscription adds. Boosts never multiply Stored Sparks or permanent gains.
 - Writing on an inscribed slot replaces it, after a confirm on the Scribe screen.
-- Global rules hold: Spark Meter cap 100, Sparks round down per firing, events flow right, only Timers return to the first slot. Nothing is readable in flight: the slot brand, the inspector and the Scribe are menu screens only (Bell sends a real light Pulse, a non-reading cue).
+- Global rules hold: Spark Meter cap 100, Sparks round up per firing, events flow right, only Timers return to the first slot. Nothing is readable in flight: the slot brand, the inspector and the Scribe are menu screens only (Bell sends a real light Pulse, a non-reading cue).
 - No charges: none of the 18 needs a stored count. Whetted gives its extra use inside the flight only, so it is free and never kept.
 
 ## The 18 Inscriptions
@@ -43,11 +43,19 @@ Where the rules live: the row walker (`resolveCardRow` in `dist/skill-cards.mjs`
 
 Only a map’s Guardian (boss) flight on a card run (the old artifact reward, `makeFlightReward` in `dist/model.mjs`) now offers the Scribe: 1) **Choose an Inscription**: three offers, none already written on a slot unless fewer than three others remain; 2) **Choose a slot**: any slot, each showing its card and what it already carries; 3) over an existing Inscription, a **Replace this Inscription?** confirm. Back returns one step; cancelling the slot step returns to the three choices. All on the menu reward screen. Ordinary flights, the tutorial and legacy non-card runs offer nothing. Scripts and tests may call `chooseFlightReward(state, id)` without a slot: it takes the first bare slot (else the last, replacing).
 
+### Two Scribes per map, and the map layout (`rests-scribes-1`)
+
+Every card-run map offers exactly **two** Scribes (a run: 6). Maps 1 and 2: one **Scribe stop** about the middle of the map plus the Guardian's reward. Map 3: **two Scribe stops**, at about a third and two thirds; its Guardian ends the run and awards none. A Scribe stop is a non-flight stop like Rest (node `kind: 'scribe'`, `type: 'support'`): entering it opens the Scribe at once (`ensureScribeStop` draws three Inscriptions from the node's seed, so re-entry shows the same three), you write one, and `leaveScribe` returns to the map. Backing out before writing (`cancelScribeStop`) does not count the visit. Stop page: "Scribe — choose an Inscription for a slot of your Chain." (reward line "1 Inscription (choose 1 of 3)"). Map icon: the Whetted brand from `inscriptionGlyph()` (a nib resting on a slab), no new art.
+
+Layout guarantees (recipes `MID_ROWS` and `FINAL_ROWS` in `dist/model.mjs`): maps 1 and 2 have 15 rows (was 10), map 3 has 17. Every Rest and every Scribe stop sits **alone on its row**, and the row before it funnels every lane into it, so no path can skip one. Every path passes 3 Rests (rows 4, 10, 13 on maps 1-2; rows 4, 9, 15 on map 3), never in consecutive rows. A fourth Rest sits on a side lane of row 2: take it or skip it. Elites, treasures and events stay at 2 each; ordinary flights rise from 11 to 15 (map 3: 17) because rows were added instead of flights removed. Supports are still entered from flights and leave into flights. Tutorial and legacy (non-card) maps are unchanged. Tests: `tests/map-layout.test.mjs`.
+
+Old saves: a saved map keeps its nodes as generated. New-layout nodes carry `routeTopology: 'rests-scribes-1'`; old card maps carry `'longer-journeys-2'`, 10 rows and no Scribe stop (their Guardian still awards its Scribe). `validRun` accepts 10, 15 and 17 rows. Only maps generated after the update (the next map of an old run) use the new layout.
+
 Dev: `?mock=cards&chain=...&slots=0:gilded,2:hollow` writes Inscriptions on a mock run (`applyInscriptionSlots` in `dist/card-inspector.mjs`).
 
 ## What happened to artifacts
 
-- Not awarded: Elite rewards (they give their card only), the last map’s Guardian (it ends the expedition), anything past 7 Scribes in one run (`SCRIBE_MAX_PER_RUN`; a full run has 3 Guardians, so 2 Scribes), chest relics (Chest finds keep only skills, hearts and Stored Sparks) and legacy starting gifts no longer grant them.
+- Not awarded: Elite rewards (they give their card only), the last map’s Guardian (it ends the expedition), anything past 6 Scribes in one run (`SCRIBE_MAX_PER_RUN` = 2 per map x 3 maps), chest relics (Chest finds keep only skills, hearts and Stored Sparks) and legacy starting gifts no longer grant them.
 - Not applied: `getRunModifiers` ignores `run.artifacts`; a loaded run drops `run.artifacts` and `run.artifactCharges` (no conversion). Companion-tuning and perk-bound artifacts vanish with the rest.
 - Run screens: the Rest "Collection" button is gone; the map collection dock only draws for a held artifact, so it no longer appears. Left alone: the meta Collection and Relic almanac pages, `ARTIFACTS` data, artifact art and copy modules.
 - Tutorial (First Light): lessons are not rewritten and the tutorial awards no artifact. Texts that still mention artifacts, to reword next: `dist/tutorial-curriculum.mjs` (the rewards and artifacts topics, "A reward for every clear", "Flight and elite routes", "Three maps make a run"), `dist/onboarding.mjs` ("Choose one artifact"), `dist/map-guide.mjs` (elite and guardian stop lines), `dist/card-guide.mjs` (the relics line), `dist/artifact-lessons.mjs`.

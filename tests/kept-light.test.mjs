@@ -24,8 +24,8 @@ function reload(state){
 }
 const clear=(run,extra={})=>finishFlight(run,{success:true,flame:50,condensedGlow:0,...extra});
 
-test('whole dividend floors and caps by rank; held funds no longer improve pickup conversion',()=>{
- for(const [wallet,rank,expected] of [[60,0,0],[19,1,0],[20,1,1],[59,1,2],[60,1,3],[99,2,9],[100,1,5],[100,2,10],[99999,2,10]]){
+test('whole dividend rounds up and caps by rank; held funds no longer improve pickup conversion',()=>{
+ for(const [wallet,rank,expected] of [[60,0,0],[19,1,1],[20,1,1],[59,1,3],[60,1,3],[99,2,10],[100,1,5],[100,2,10],[99999,2,10]]){
   assert.equal(getKeptLightDividend(wallet,rank),expected);
  }
  const rules=getCondensationRules({'main-afterglow':1,'afterglow-anchor':2});

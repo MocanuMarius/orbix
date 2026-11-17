@@ -63,6 +63,7 @@ test('an unsettled clear settles on load, and every subsequent real clear accumu
  let flights=1;
  for(let visit=0;visit<80&&state.run.phase!=='ended';visit++){
   selectNext(state);
+  if(state.run.phase==='support'&&state.run.current?.kind==='scribe'){assert.ok(M.chooseFlightReward(state,state.run.flightReward.offers[0]));assert.ok(M.leaveScribe(state.run));continue;}
   if(state.run.phase==='support'){
    const choices=M.getSupportChoices(state.run,state.profile),index=choices.findIndex(c=>!c.disabled&&(c.id==='rest-continue'||c.effect?.rest==='recover'||c.effect?.restContinue));
    assert.ok(M.resolveSupport(state.run,index>=0?index:choices.findIndex(c=>!c.disabled),state.profile));continue;

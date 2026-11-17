@@ -30,8 +30,8 @@ const rankId=(id,rank)=>rank===1?id:id+'@'+rank;
 const lockMark=resourceSymbol('lock');
 const rankEffects={
  'afterglow-anchor':[
-  'On a clear, earn 5% of the Stored Sparks you carried into the flight, rounded down. Earn up to 5. The final guardian pays no interest.',
-  'Double your clear dividend to 10% of the Stored Sparks you carried into the flight, rounded down. Earn up to 10. The final guardian pays no interest.'
+  'On a clear, earn 5% of the Stored Sparks you carried into the flight, rounded up. Earn up to 5. The final guardian pays no interest.',
+  'Double your clear dividend to 10% of the Stored Sparks you carried into the flight, rounded up. Earn up to 10. The final guardian pays no interest.'
  ],
  'afterglow-vessel':['Conversion +5 percentage points. Packing limit +5 Stored Sparks.','Conversion +5 more percentage points. Packing limit +5 more Stored Sparks.'],
  'afterglow-retention':['Conversion +5 percentage points. Packing limit +5 Stored Sparks.','Conversion +5 more percentage points. Packing limit +5 more Stored Sparks.']

@@ -170,13 +170,13 @@ test("pending legacy starter choices commit safely and completed or melted start
   assert.equal(pendingWithCards.run.mountedCards[0].charges, 2);
 });
 
-test("every generated node is reachable; midpoint Rest is guaranteed and the late Rest retains its fork", () => {
+test("every generated node is reachable; three Rests are guaranteed, a fourth is optional (map shape: tests/map-layout.test.mjs)", () => {
   for (let seed = 0; seed < 120; seed++) {
     const state = fresh(`routes-${seed}`),
       run = state.run,
       byId = new Map(run.map.flat().map((node) => [node.id, node]));
-    assert.equal(run.map.length, 10);
-    assert.equal(run.map.flat().filter(node => node.kind === "camp").length, 3);
+    assert.equal(run.map.length, 15);
+    assert.equal(run.map.flat().filter(node => node.kind === "camp").length, 4);
     const reachable = new Set(run.map[0].map((node) => node.id));
     for (const row of run.map)
       for (const node of row) {
@@ -184,19 +184,18 @@ test("every generated node is reachable; midpoint Rest is guaranteed and the lat
         assert.ok(node.nextIds.length <= 2);
         for (const id of node.nextIds) reachable.add(id);
       }
-    for (const row of [4, 8]) {
+    for (const row of [4, 10, 13]) {
       const rest = run.map[row].find((node) => node.kind === "camp");
       assert.ok(rest);
       assert.equal(rest.nextIds.length, 1);
       assert.notEqual(byId.get(rest.nextIds[0]).type, "support");
       for (const previous of run.map[row - 1]) {
         assert.ok(previous.nextIds.includes(rest.id));
-        assert.equal(previous.nextIds.length, row === 4 ? 1 : 2);
-        if (row === 8) assert.ok(previous.nextIds.some((id) => byId.get(id).kind !== "camp"));
+        assert.equal(previous.nextIds.length, row === 4 || previous.nextIds.length === 1 ? 1 : 2);
       }
     }
     const mid = run.map[4].find((node) => node.kind === "camp"),
-      late = run.map[8].find((node) => node.kind === "camp"),
+      late = run.map[13].find((node) => node.kind === "camp"),
       seen = new Set(),
       queue = [...mid.nextIds];
     while (queue.length) {
@@ -558,9 +557,9 @@ test("Second Ember arrival eligibility and slot limits persist while Grow uses t
   assert.equal(run.cardSlots, 4);
   assert.equal(run.flame, 20);
   assert.equal(run.phase, "map");
-  const late = run.map[8].find((n) => n.kind === "camp");
+  const late = run.map[13].find((n) => n.kind === "camp");
   run.current = late;
-  run.step = 8;
+  run.step = 13;
   run.path.push(late.id);
   run.phase = "support";
   const choices = M.getSupportChoices(run);
@@ -586,6 +585,7 @@ test("all three guardians and elites drop cards, final guardian records trophy w
         choices[0];
     if (node.type === "support") {
       assert.ok(M.selectNode(run, node.id));
+      if (node.kind === "scribe") { assert.ok(M.chooseFlightReward(state, run.flightReward.offers[0])); assert.ok(M.leaveScribe(run)); continue; }
       const offers = M.getSupportChoices(run);
       const leave = offers.findIndex(
         (c) => !c.disabled && c.effect.restContinue,
