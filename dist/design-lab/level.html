@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Levels · Design lab</title>
+<!-- The game's modules and art use paths relative to dist/. -->
+<base href="../">
+<link rel="icon" href="assets/favicon.svg">
+<style>
+ :root{color-scheme:dark;font-family:system-ui,sans-serif;background:#0a1210;color:#dfe6cf}
+ body{margin:0;padding:14px 16px 40px;max-width:1880px;margin-inline:auto}
+ h1{font-size:18px;margin:0 0 2px}
+ h2{font-size:16px;margin:26px 0 4px;display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+ h3{font-size:14px;margin:14px 0 6px;color:#cfdcc0;display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+ .lead{margin:0 0 10px;color:#9fb094;font-size:13px;max-width:900px}
+ .code{display:inline-block;padding:3px 10px;border-radius:5px;background:#d8c98a;color:#14241a;font:700 15px ui-monospace,Consolas,monospace}
+ .bar{display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center;margin:8px 0 4px;font-size:13px}
+ button,a.play{padding:7px 12px;border:1px solid #47604a;border-radius:6px;background:#15251d;color:#cfdcc0;font:600 13px system-ui;cursor:pointer;text-decoration:none;display:inline-block}
+ button[aria-pressed=true]{background:#d8c98a;border-color:#d8c98a;color:#14241a}
+ a.play{border-color:#d8c98a;color:#f3e6b9}
+ input[type=range]{width:min(320px,60vw)}
+ .grid{display:grid;grid-template-columns:repeat(2,minmax(0,900px));gap:10px}
+ figure{margin:0}
+ figcaption{font-size:12px;color:#9fb094;margin:0 0 3px;letter-spacing:.04em;text-transform:uppercase}
+ figcaption b{color:#e6dcae}
+ canvas.view{display:block;width:100%;aspect-ratio:900/405;image-rendering:pixelated;background:#050b09;border:1px solid #33483a;border-radius:6px}
+ .host{position:absolute;left:-12000px;top:0;width:900px;height:405px;overflow:hidden}
+ .host canvas{width:900px;height:405px;display:block}
+ .notes{font-size:13px;color:#b9c6aa;max-width:900px;padding-left:18px;margin:6px 0 0}
+ @media (max-width:1300px){.grid{grid-template-columns:minmax(0,1fr)}}
+</style>
+</head>
+<body>
+<h1>Levels: ice and forest as real places <span class="code">v1.0-level</span></h1>
+<p class="lead">Each pair is the real flight renderer, paused. Left: today (scenery off). Right: <b>v1.0-level</b> (scenery 2). Top row fully lit, bottom row in normal flight darkness with the wisp's light. Collision, courses, hazards and pickups are unchanged; the new art is decoration only. In the game it stays off unless the URL has <code>&amp;scenery=2</code>.</p>
+<div class="bar">
+ <label>Position <input id="at" type="range" min="2" max="94" value="30"></label>
+ <button id="pan" aria-pressed="false">Pan</button>
+ <button id="still" aria-pressed="false">Freeze time</button>
+ <span id="status">Loading…</span>
+</div>
+<div id="sections"></div>
+<div id="hosts" aria-hidden="true"></div>
+<script type="module" src="design-lab/level.mjs?v=1"></script>
+</body>
+</html>
