@@ -1,12 +1,12 @@
-import {drawCollectorVortex} from './collector-vortex.mjs?v=temp-3';
-import {drawAbsorbingSpark} from './tidal-light.mjs?v=temp-3';
-import {getPickupSpec, pickupShellRadius} from './pickups.mjs?v=temp-3';
-import {drawPickup} from './pickup-art.mjs?v=temp-3';
-import {drawShellArcs} from './shell-arcs.mjs?v=temp-3';
-import {DEFAULT_CAPTURE_STYLE} from './capture-styles.mjs?v=temp-3';
-import {COLLECTOR_RING} from './pickup-handling-cue.mjs?v=temp-3';
-import {collectorTowPoint} from './collector-tow-geometry.mjs?v=temp-3';
-import {lightVisibility,renderLightState} from './light-field.mjs?v=temp-3';
+import {drawCollectorVortex} from './collector-vortex.mjs?v=rest-2';
+import {drawAbsorbingSpark} from './tidal-light.mjs?v=rest-2';
+import {getPickupSpec, pickupShellRadius} from './pickups.mjs?v=rest-2';
+import {drawPickup} from './pickup-art.mjs?v=rest-2';
+import {drawShellArcs} from './shell-arcs.mjs?v=rest-2';
+import {DEFAULT_CAPTURE_STYLE} from './capture-styles.mjs?v=rest-2';
+import {COLLECTOR_RING} from './pickup-handling-cue.mjs?v=rest-2';
+import {collectorTowPoint} from './collector-tow-geometry.mjs?v=rest-2';
+import {lightVisibility,renderLightState} from './light-field.mjs?v=rest-2';
 
 const TAU = Math.PI * 2;
 const clamp = value => Math.max(0, Math.min(1, value));

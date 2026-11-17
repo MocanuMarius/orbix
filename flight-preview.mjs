@@ -1,19 +1,19 @@
-import {getBiome} from './biomes.mjs?v=temp-3';
-import {getBossPreview} from './boss.mjs?v=temp-3';
-import {levelMapPreview} from './level-map-art.mjs?v=temp-3';
-import {mapStopIconMarkup} from './map-guide.mjs?v=temp-3';
-import {resourceSymbol} from './game-symbols.mjs?v=temp-3';
-import {getFlightClearReward} from './checkpoint-rewards.mjs?v=temp-3';
-import {flightRewardKind,SCRIBE_OFFER_COUNT,isCardRun} from './model.mjs?v=temp-3';
-import {bonusIcon,boonMarkup} from './route-bonus-ui.mjs?v=temp-3';
-import {temporaryEffectsMarkup} from './inscription-ui.mjs?v=temp-3';
-import {contextualFlightNotice} from './contextual-events.mjs?v=temp-3';
-import {ATLAS_FORECASTS,atlasGlyph} from './night-atlas.mjs?v=temp-3';
-import {canDreamAt,dreamConfig} from './dream.mjs?v=temp-3';
-import {sparkHabitat} from './spark-fields.mjs?v=temp-3';
-import {lanternFlightCue} from './map-theme.mjs?v=temp-3';
-import {actionButton} from './ui/primitives.mjs?v=temp-3';
-import {cardTermTextMarkup} from './card-terms.mjs?v=temp-3';
+import {getBiome} from './biomes.mjs?v=rest-2';
+import {getBossPreview} from './boss.mjs?v=rest-2';
+import {levelMapPreview} from './level-map-art.mjs?v=rest-2';
+import {mapStopIconMarkup} from './map-guide.mjs?v=rest-2';
+import {resourceSymbol} from './game-symbols.mjs?v=rest-2';
+import {getFlightClearReward} from './checkpoint-rewards.mjs?v=rest-2';
+import {flightRewardKind,SCRIBE_OFFER_COUNT,isCardRun} from './model.mjs?v=rest-2';
+import {bonusIcon,boonMarkup} from './route-bonus-ui.mjs?v=rest-2';
+import {temporaryEffectsMarkup} from './inscription-ui.mjs?v=rest-2';
+import {contextualFlightNotice} from './contextual-events.mjs?v=rest-2';
+import {ATLAS_FORECASTS,atlasGlyph} from './night-atlas.mjs?v=rest-2';
+import {canDreamAt,dreamConfig} from './dream.mjs?v=rest-2';
+import {sparkHabitat} from './spark-fields.mjs?v=rest-2';
+import {lanternFlightCue} from './map-theme.mjs?v=rest-2';
+import {actionButton} from './ui/primitives.mjs?v=rest-2';
+import {cardTermTextMarkup} from './card-terms.mjs?v=rest-2';
 
 export const TRAVEL_GUIDE_ART=Object.freeze(['waystone','rootwood','night-atlas']);
 /** One stepped sign, mirrored for the return journey. */

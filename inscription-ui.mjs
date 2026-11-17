@@ -5,10 +5,10 @@
 // pixels, no gradients (styles: dist/ui/card-screens.css, "Inscriptions").
 // A TEMPORARY Inscription (events and objectives, dist/temporary-inscriptions.mjs) wears a dashed ring in the accent colour and a pixel
 // counter of flights left on the frame; an oath wears an open ring that closes when it is fulfilled. What it covers shows small and grey.
-import {getInscription} from './inscriptions.mjs?v=temp-3';
-import {inscriptionGlyph} from './inscription-glyphs.mjs?v=temp-3';
-import {cardTermTextMarkup, cardTermMarkup} from './card-terms.mjs?v=temp-3';
-import {temporaryStatus, temporaryEntries, temporaryLine} from './temporary-inscriptions.mjs?v=temp-3';
+import {getInscription} from './inscriptions.mjs?v=rest-2';
+import {inscriptionGlyph} from './inscription-glyphs.mjs?v=rest-2';
+import {cardTermTextMarkup, cardTermMarkup} from './card-terms.mjs?v=rest-2';
+import {temporaryStatus, temporaryEntries, temporaryLine} from './temporary-inscriptions.mjs?v=rest-2';
 export {inscriptionGlyph};
 const esc = v => String(v ?? '').replace(/[&<>"']/g, c => ({'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'}[c]));
 

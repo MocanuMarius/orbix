@@ -1,8 +1,8 @@
-import {getLifeCapacity} from './vitality.mjs?v=temp-3';
-import {activePassageBoons} from './passage-preparations.mjs?v=temp-3';
-import {queueTemporary,temporaryLine,hasTemporary} from './temporary-inscriptions.mjs?v=temp-3';
-import {TEMPORARY_BY_BOON} from './inscriptions.mjs?v=temp-3';
-import {getCardModifiers,isCardRun} from './skill-cards.mjs?v=temp-3';
+import {getLifeCapacity} from './vitality.mjs?v=rest-2';
+import {activePassageBoons} from './passage-preparations.mjs?v=rest-2';
+import {queueTemporary,temporaryLine,hasTemporary} from './temporary-inscriptions.mjs?v=rest-2';
+import {TEMPORARY_BY_BOON} from './inscriptions.mjs?v=rest-2';
+import {getCardModifiers,isCardRun} from './skill-cards.mjs?v=rest-2';
 
 function bonus(id, name, condition, reward, target, hint='', boonId=null) {
   // Lasting rewards are temporary Inscriptions (docs/inscriptions.md): the reward line is the Inscription's own line, so the offer and the award say the same.

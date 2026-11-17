@@ -1,9 +1,19 @@
 /* Forge option on the Rest screen, Rest result views, and the Forge ceremony. Kit palette, square pixels, no blur. */
-html body .card-rest-screen .card-camp-choices:has(>.card-camp-forge):not(#k){grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+/* One tidy row: four identical cards; if they cannot fit, the row scrolls sideways and the cards keep their shape. */
+html body .card-rest-screen .card-camp-choices:not(.card-camp-results):not(#k):not(#j){display:grid;grid-template-columns:none;grid-auto-flow:column;grid-auto-columns:minmax(148px,1fr);align-items:stretch;gap:8px;overflow-x:auto;overflow-y:hidden;min-height:0}
+html body .card-rest-screen .card-camp-choice.rest-opt:not(#k):not(#j){display:flex;flex-direction:column;align-items:stretch;justify-content:flex-start;gap:5px;padding:7px!important;min-width:0;height:auto;text-align:center}
+html body .card-rest-screen .rest-opt>h3:not(#k){display:flex;align-items:center;justify-content:center;gap:6px;margin:0;min-width:0;font-size:16px;line-height:32px;white-space:nowrap}
+.card-rest-screen .rest-opt>h3 svg{flex:none;width:32px;height:32px}
+.card-rest-screen .rest-opt>h3>span{min-width:0;overflow:hidden;text-overflow:clip}
+html body .card-rest-screen .rest-opt .card-camp-consequence{display:grid;gap:2px;align-content:start;min-height:30px}
+html body .card-rest-screen .rest-opt p:not(#k){font-size:12px;line-height:14px;margin:0;letter-spacing:0}
+html body .card-rest-screen .rest-opt .card-camp-note:not(#k){flex:1 1 auto;min-height:20px;display:flex;align-items:center;justify-content:center;font-size:11px;line-height:13px;margin:0}
+html body .card-rest-screen .rest-opt>button:not(#k){margin:0;width:100%;min-height:40px;flex:none}
+html body .card-rest-screen .rest-opt.unavailable:not(#k){opacity:.7}
 html body .card-rest-screen .card-camp-forge:not(#k){border:2px solid #d8c98a!important;background:#2a3a2a!important}
 html body .card-rest-screen .card-camp-forge.forge-needs:not(#k){border-style:dashed!important}
-.card-camp-forge .card-camp-note{display:grid;gap:2px;justify-items:center}
-.card-camp-forge .card-camp-note small{font:11px/1.2 var(--pixel,monospace);color:#a5b89a}
+html body .card-rest-screen .card-camp-footer:not(#k){display:flex;align-items:center;justify-content:space-between;gap:10px;flex:none}
+html body .card-rest-screen .card-camp-footer>button:not(#k){min-height:44px;flex:none}
 .card-forge-hint{display:inline-block;padding:2px 6px;border:2px solid #7a8f6b;background:#1b2c22;color:#efe0b4;font:12px/1.2 var(--pixel,monospace)}
 .card-forge-hint.ready{border-color:#f0c86a;background:#f0c86a;color:#2a1d12}
 html body .card-rest-done .card-camp-choices.card-camp-results:not(#k){grid-template-columns:repeat(auto-fit,minmax(150px,230px));justify-content:center;align-content:center}
@@ -53,3 +63,14 @@ html body .forge-ceremony .forge-caption:not(#k){margin:0;min-height:20px;font:1
 @keyframes forge-fade{from{opacity:0}to{opacity:1}}
 @media (prefers-reduced-motion:reduce){.forge-ceremony *{animation-duration:1ms!important}}
 html[data-reduced-motion=true] .forge-ceremony *{animation-duration:1ms!important}
+
+/* Short phones (about 333 px high): trim spacing and the second result line so the cards fit without clipping. */
+@media (max-height:360px){
+ html body .card-rest-screen .card-camp-choices:not(.card-camp-results):not(#k):not(#j){scrollbar-width:thin;gap:6px}
+ html body .card-rest-screen .card-camp-choice.rest-opt:not(#k):not(#j){gap:2px;padding:4px 6px!important}
+ html body .card-rest-screen .rest-opt .card-camp-consequence{min-height:0}
+ html body .card-rest-screen .rest-opt:not(.card-camp-forge) .card-camp-consequence>p:nth-child(2){display:none}
+ html body .card-rest-screen .rest-opt p:not(#k){font-size:11px;line-height:13px}
+ html body .card-rest-screen .rest-opt .card-camp-note:not(#k){min-height:0;font-size:10px;line-height:11px}
+ html body .card-rest-screen .rest-opt>button:not(#k){min-height:36px}
+}

@@ -1,6 +1,6 @@
-import {LOCATION_CHALLENGE_NAMES} from './world-expansion.mjs?v=temp-3';
-import { createDraftZones, DRAFT_TUNING } from './drafts.mjs?v=temp-3';
-import { getEncounterFamily, familyChallengeCells } from './encounter-families.mjs?v=temp-3';
+import {LOCATION_CHALLENGE_NAMES} from './world-expansion.mjs?v=rest-2';
+import { createDraftZones, DRAFT_TUNING } from './drafts.mjs?v=rest-2';
+import { getEncounterFamily, familyChallengeCells } from './encounter-families.mjs?v=rest-2';
 
 const clamp = (value, low, high) => Math.max(low, Math.min(high, value));
 const NAMES = Object.freeze({

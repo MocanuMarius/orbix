@@ -1,16 +1,16 @@
 /** Contextual card vocabulary. Native modal dialogs keep help above the Deck. */
-import { resourceSymbol } from './game-symbols.mjs?v=temp-3';
-import {lifeHeartSvg} from './lives.mjs?v=temp-3';
-import {duskGlyphArt} from './spark-symbol.mjs?v=temp-3';
-import {getGlowCapacity,formatGlow} from './vitality.mjs?v=temp-3';
-import {glowGaugeUnits} from './glow-ui.mjs?v=temp-3';
-import {getRunModifiers} from './model.mjs?v=temp-3';
-import {cardAmount,makeSkillCard,SKILL_CARDS} from './skill-cards.mjs?v=temp-3';
-import {cardRowTermHelpMarkup} from './card-row-help.mjs?v=temp-3';
-import {dreamEye} from './dream.mjs?v=temp-3';
-import {FLASH_BASE_DURATION} from './pickups.mjs?v=temp-3';
-import {INSCRIPTIONS} from './inscriptions.mjs?v=temp-3';
-import {inscriptionGlyph} from './inscription-glyphs.mjs?v=temp-3';
+import { resourceSymbol } from './game-symbols.mjs?v=rest-2';
+import {lifeHeartSvg} from './lives.mjs?v=rest-2';
+import {duskGlyphArt} from './spark-symbol.mjs?v=rest-2';
+import {getGlowCapacity,formatGlow} from './vitality.mjs?v=rest-2';
+import {glowGaugeUnits} from './glow-ui.mjs?v=rest-2';
+import {getRunModifiers} from './model.mjs?v=rest-2';
+import {cardAmount,makeSkillCard,SKILL_CARDS} from './skill-cards.mjs?v=rest-2';
+import {cardRowTermHelpMarkup} from './card-row-help.mjs?v=rest-2';
+import {dreamEye} from './dream.mjs?v=rest-2';
+import {FLASH_BASE_DURATION} from './pickups.mjs?v=rest-2';
+import {INSCRIPTIONS} from './inscriptions.mjs?v=rest-2';
+import {inscriptionGlyph} from './inscription-glyphs.mjs?v=rest-2';
 const esc = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 export const CARD_TERMS = Object.freeze({
   inscription: ['Inscription', 'An effect written on a Chain slot, not on a card. It stays on the slot when cards move, swap or leave. Some change the card on that slot; some work on any slot, even an empty one. Get one from the Scribe after an Elite or Guardian. One per slot; writing again replaces it.'],
@@ -395,7 +395,7 @@ export function installCardTermHelp(doc = document, {resolveProximityContext,res
       dialog.classList.add('card-cache-dialog');
       const host=button.dataset.cardTerm?dialog.querySelector('[data-card-term-example]'):doc.createElement('div');
       if(!button.dataset.cardTerm){host.className='cache-card-example';dialog.querySelector('[data-card-help-rules]').append(host);}
-      import('./cache-card-help.mjs?v=temp-3').then(({mountCacheCardHelp})=>{
+      import('./cache-card-help.mjs?v=rest-2').then(({mountCacheCardHelp})=>{
         if(layers.includes(layer))appendDisposer(mountCacheCardHelp(host,{focus:cardKind==='harvest'?'cross':cardKind==='cache-handling'?'deliver':'touch',harvestCard:cardKind==='harvest'?cardContext.card:undefined}));
       });
     }
@@ -406,7 +406,7 @@ export function installCardTermHelp(doc = document, {resolveProximityContext,res
         const host=doc.createElement('section');host.className='proximity-card-help';
         const example=dialog.querySelector('[data-card-term-example="proximity"]');
         if(example)example.replaceChildren(host);else dialog.querySelector('.card-term-content').prepend(host);
-        import('./proximity-card-help.mjs?v=temp-3').then(({mountProximityCardHelp})=>{
+        import('./proximity-card-help.mjs?v=rest-2').then(({mountProximityCardHelp})=>{
           if(layers.includes(layer))appendDisposer(mountProximityCardHelp(host,previewContext));
         });
       }

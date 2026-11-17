@@ -1,12 +1,12 @@
-import { cardTermTextMarkup } from "./card-terms.mjs?v=temp-3";
-import { uiIcon } from "./ui-icons.mjs?v=temp-3";
-import { getCardRuleBands, getCardTrigger } from "./card-rule-bands.mjs?v=temp-3";
-import { chipBadge, rarityPips } from "./ui/trigger-icons.mjs?v=temp-3";
-import { devourTally, isDevourCard } from "./card-black-hole.mjs?v=temp-3";
-import { getEquippedCardStatuses, cardStatusText } from "./card-status.mjs?v=temp-3";
-import { activeFlightPact } from './flight-pacts.mjs?v=temp-3';
-import { cardArt } from "./card-art.mjs?v=temp-3";
-import {deckRelicShelfMarkup,deckContextMarkup,deckLinkedCardFace,deckSwapComboMarkup,deckCardExplanationMarkup} from './deck-combos.mjs?v=temp-3';
+import { cardTermTextMarkup } from "./card-terms.mjs?v=rest-2";
+import { uiIcon } from "./ui-icons.mjs?v=rest-2";
+import { getCardRuleBands, getCardTrigger } from "./card-rule-bands.mjs?v=rest-2";
+import { chipBadge, rarityPips } from "./ui/trigger-icons.mjs?v=rest-2";
+import { devourTally, isDevourCard } from "./card-black-hole.mjs?v=rest-2";
+import { getEquippedCardStatuses, cardStatusText } from "./card-status.mjs?v=rest-2";
+import { activeFlightPact } from './flight-pacts.mjs?v=rest-2';
+import { cardArt } from "./card-art.mjs?v=rest-2";
+import {deckRelicShelfMarkup,deckContextMarkup,deckLinkedCardFace,deckSwapComboMarkup,deckCardExplanationMarkup} from './deck-combos.mjs?v=rest-2';
 import {
   getMountedCards,
   getOwnedCards,
@@ -21,13 +21,13 @@ import {
   canUseCardCampServices,
   getSkillWallet,
   equipOwnedCard,
-} from "./model.mjs?v=temp-3";
-import { resourceSymbol } from "./game-symbols.mjs?v=temp-3";
-import { choiceScene } from "./choice-art.mjs?v=temp-3";
-import { livesMarkup } from "./lives.mjs?v=temp-3";
-import { getGlowCapacity, formatGlow } from "./vitality.mjs?v=temp-3";
-import { mapStopIconMarkup } from "./map-guide.mjs?v=temp-3";
-import {canDreamAt, dreamConfig} from './dream.mjs?v=temp-3';
+} from "./model.mjs?v=rest-2";
+import { resourceSymbol } from "./game-symbols.mjs?v=rest-2";
+import { choiceScene } from "./choice-art.mjs?v=rest-2";
+import { livesMarkup } from "./lives.mjs?v=rest-2";
+import { getGlowCapacity, formatGlow } from "./vitality.mjs?v=rest-2";
+import { mapStopIconMarkup } from "./map-guide.mjs?v=rest-2";
+import {canDreamAt, dreamConfig} from './dream.mjs?v=rest-2';
 import {
   getEffectiveCardSources,
   createCardExecution,
@@ -40,7 +40,7 @@ import {
   isInventoryOnlyCard,
   SKILL_CARDS,
   cardTallyLine,
-} from "./skill-cards.mjs?v=temp-3";
+} from "./skill-cards.mjs?v=rest-2";
 
 const esc = (v) =>
   String(v ?? "").replace(
@@ -89,7 +89,7 @@ function flightPackingReceipt(run, reward) {
     ? ` · Tight Packing +${bonus} Stored Sparks`
     : "";
 }
-export { cardArt } from "./card-art.mjs?v=temp-3";
+export { cardArt } from "./card-art.mjs?v=rest-2";
 export function effectMarkup(text) {
   return esc(text).replace(/([+−]?\d+(?:\.\d+)?%?)/g, '<b class="card-number">$1</b>');
 }
@@ -365,18 +365,23 @@ export function forgeOption(run) {
     cheapest = pool.reduce((a, b) => (b.price < a.price ? b : a)), wallet = amount(run.condensedGlow);
   return { ready: possible.length > 0, possible: possible.length, rarity: cheapest.rarity, price: amount(cheapest.price), wallet, need: Math.max(0, amount(cheapest.price) - wallet) };
 }
+/** All Rest option cards share one structure: icon + one-line title, two result lines, one status line, button at the bottom. */
+function restOptionMarkup({ cls = '', icon, title, lines = [], status = '', button }) {
+  return `<article class="card-camp-choice rest-opt ${cls}"><h3 class="rest-action-icon">${uiIcon(icon, {size: 32})}<span>${esc(title)}</span></h3><div class="card-camp-consequence">${lines.map(l => `<p>${l}</p>`).join('')}</div><p class="card-camp-note">${status}</p>${button}</article>`;
+}
 function forgeOptionMarkup(run) {
   if (!canUseCardCampServices(run)) return '';
   const f = forgeOption(run), name = f.rarity[0].toUpperCase() + f.rarity.slice(1);
-  const hint = f.ready ? `<span class="card-forge-hint ready">Ready · ${f.possible} possible</span>` : `<span class="card-forge-hint">Needs ${f.price} Stored Sparks</span>`;
-  const line = f.ready ? `You have <b>${f.wallet}</b> · from ${f.price}` : `You have <b>${f.wallet}</b> · Melt for more`;
-  return `<article class="card-camp-choice card-camp-forge ${f.ready ? 'forge-ready' : 'forge-needs'}">${choiceScene('forge')}<h3 class="rest-action-icon">${uiIcon('rest-forge', {size: 32})}<span>Forge</span></h3><div class="card-camp-consequence"><p>Pay Stored Sparks for a surprise card.</p><p>${line}</p></div><p class="card-camp-note">${hint}</p><button class="${f.ready ? 'primary' : 'secondary'}" data-action="card-workshop-forge" data-rarity="${f.rarity}" aria-label="Forge a surprise ${name} card from ${f.price} Stored Sparks${f.ready ? '' : '; not enough yet, open to see prices'}">${f.ready ? 'Forge' : 'See Forge'}</button></article>`;
+  const status = f.ready ? `<span class="card-forge-hint ready">Ready · ${f.possible} possible</span>` : `<span class="card-forge-hint">Needs ${f.price} Stored Sparks</span>`;
+  return restOptionMarkup({ cls: `card-camp-forge ${f.ready ? 'forge-ready' : 'forge-needs'}`, icon: 'rest-forge', title: 'Forge',
+    lines: [`Surprise card`, `From <b>${f.price}</b> · you have <b>${f.wallet}</b>`], status,
+    button: `<button class="${f.ready ? 'primary' : 'secondary'}" data-action="card-workshop-forge" data-rarity="${f.rarity}" aria-label="Forge a surprise ${name} card from ${f.price} Stored Sparks${f.ready ? '' : '; not enough yet, open to see prices or Melt a card for more'}">${f.ready ? 'Forge' : 'See Forge'}</button>` });
 }
 export function cardRestMarkup(run, node, choices) {
   const camp = getCardCampPreview(run);
   if (!camp) return '';
   node = camp.node;
-  const rail = `<aside class="card-rest-rail">${mapStopIconMarkup(node)}<small>REST · MAP ${run.mapIndex + 1}/3</small><h1>${esc(node.name)}</h1><div class="card-rest-vitals">${livesMarkup(run)}<span>${resourceSymbol("glow")}${formatGlow(run.flame)}/${formatGlow(getGlowCapacity(run))}</span></div><div class="card-rest-deck-links"><button class="secondary" data-action="cards">Deck</button><button class="secondary" data-action="card-workshop">Workshop</button></div><small>Workshop: Improve · Refill<br>${resourceSymbol('packed')} ${Math.floor(run.condensedGlow||0)} Stored Sparks · no Rest action</small></aside>`;
+  const rail = `<aside class="card-rest-rail">${mapStopIconMarkup(node)}<small>REST · MAP ${run.mapIndex + 1}/3</small><h1>${esc(node.name)}</h1><div class="card-rest-vitals">${livesMarkup(run)}<span>${resourceSymbol("glow")}${formatGlow(run.flame)}/${formatGlow(getGlowCapacity(run))}</span></div><div class="card-rest-deck-links"><button class="secondary" data-action="cards">Deck</button><button class="secondary" data-action="card-workshop">Workshop</button></div><small>Workshop: Improve · Refill<br>${resourceSymbol('packed')} ${Math.floor(run.condensedGlow||0)} Stored Sparks</small></aside>`;
   if (camp.completed) {
     const last = run.lastRest || {}, next = getChoices(run)[0], dream = canDreamAt(run, next);
     const chosen = camp.used.map(key => ({ key, ...REST_COPY[key] })).filter(item => item.title);
@@ -402,7 +407,8 @@ export function cardRestMarkup(run, node, choices) {
     const numbers = taken ? restResultLine(c.key, lastResult, run.lastRest || {}) : slot ? `Slots <b>${before.slots} → ${after.slots}</b>` : grow ? `Max Sparks <b>${formatGlow(before.maxMeter)} → ${formatGlow(after.maxMeter)}</b>` : `Hearts <b>${before.hearts} → ${after.hearts}</b>`;
     const detail = taken ? 'Done at this Rest' : slot ? 'Once per map · no refill' : `Meter <b>${formatGlow(before.meter)} → ${formatGlow(after.meter)}</b>`;
     const note = c.taken ? '' : c.disabled ? shortReason(c) : grow ? `No healing · Grow used ${getCardGrowthUses(run)}/3` : '';
-    return `<article class="card-camp-choice ${c.disabled ? "unavailable" : ""} ${c.taken ? 'card-camp-taken' : ''}">${choiceScene(grow ? "refillGlow" : slot ? "skills" : "hearts")}<h3 class="rest-action-icon">${uiIcon(grow ? 'rest-grow' : slot ? 'rest-add-slot' : 'rest-recover', {size: 32})}<span>${esc(c.title)}</span></h3><div class="card-camp-consequence"><p>${numbers}</p><p>${detail}</p></div><p class="card-camp-note">${esc(note)}</p><button class="${c.disabled || camp.used.length ? 'secondary' : 'primary'}" data-action="support" data-index="${c.index}" ${c.disabled ? 'disabled' : ''}>${c.taken ? '✓ Taken' : esc(c.title)}</button></article>`;
+    return restOptionMarkup({ cls: `${c.disabled ? 'unavailable' : ''} ${c.taken ? 'card-camp-taken' : ''}`, icon: grow ? 'rest-grow' : slot ? 'rest-add-slot' : 'rest-recover', title: c.title, lines: [numbers, detail], status: esc(note),
+      button: `<button class="${c.disabled || camp.used.length ? 'secondary' : 'primary'}" data-action="support" data-index="${c.index}" ${c.disabled ? 'disabled' : ''}>${c.taken ? '✓ Taken' : esc(c.title)}</button>` });
   }).join("")}${forgeOptionMarkup(run)}</div><footer class="card-camp-footer"><p>${camp.extraAvailable && camp.remaining ? "Second Ember is spent only after your second action. " : ""}Forge uses no Rest action.</p>${leave && !leave.disabled ? `<button class="primary" data-action="support" data-index="${leave.index}">Leave Rest${camp.used.length ? ' · keep this choice' : ''}</button>` : '<button class="primary" data-action="view-route">Choose next route</button>'}</footer></div></section>`;
 }
 export function cardForgeMarkup(run, preview, { notice = '', paused = false, backLabel = 'Deck', lastForged = null } = {}) {

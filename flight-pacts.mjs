@@ -1,4 +1,4 @@
-import {temporaryLine,activePactId} from './temporary-inscriptions.mjs?v=temp-3';
+import {temporaryLine,activePactId} from './temporary-inscriptions.mjs?v=rest-2';
 // Optional, visible oaths: an Oath Inscription on a Chain slot (dist/inscriptions.mjs) that stays until a cleared flight fulfils it.
 // Their bonus is paid by the model on a clear; it never recursively packs.
 export const FLIGHT_PACTS=Object.freeze({

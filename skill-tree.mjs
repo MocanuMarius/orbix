@@ -1,6 +1,6 @@
-import {SKILLS} from './model.mjs?v=temp-3';
-import {treeHeader,treeCanvas,treeDetail} from './living-tree.mjs?v=temp-3';
-import {safeTreeSelection} from './skill-tree-state.mjs?v=temp-3';
+import {SKILLS} from './model.mjs?v=rest-2';
+import {treeHeader,treeCanvas,treeDetail} from './living-tree.mjs?v=rest-2';
+import {safeTreeSelection} from './skill-tree-state.mjs?v=rest-2';
 export function branchTreeMarkup({run,wallet,branch,canBuy,selected}){
  const skills=Object.values(SKILLS).filter(s=>!s.retired&&s.treeTab===branch&&(branch!=='companion'||s.branch===run.companions[0]));
  const skill=safeTreeSelection(skills,selected,{run,wallet,canBuy});

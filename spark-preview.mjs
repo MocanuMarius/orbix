@@ -1,19 +1,19 @@
-import {resourceSymbol} from './game-symbols.mjs?v=temp-3';
-import {drawPickup, pickupArtSvg} from './pickup-art.mjs?v=temp-3';
-import {getPickupSpec} from './pickups.mjs?v=temp-3';
-import {drawBlackHoles} from './black-hole-art.mjs?v=temp-3';
-import {blackHoleDrainRate, BLACK_HOLE_TUNING} from './black-holes.mjs?v=temp-3';
-import {CAPTURE_STYLES, readCaptureStyle, saveCaptureStyle} from './capture-styles.mjs?v=temp-3';
-import {drawCapture} from './capture-art.mjs?v=temp-3';
-import {glowPoints, LIGHT_PACKET_TUNING} from './vitality.mjs?v=temp-3';
-import {SKILLS, ARTIFACTS} from './model.mjs?v=temp-3';
-import {ROUTE_BONUSES} from './route-bonuses.mjs?v=temp-3';
-import {skillIcon, artifactIcon} from './upgrade-icons.mjs?v=temp-3';
-import {mapStopIconMarkup} from './map-guide.mjs?v=temp-3';
-import {companionArtSvg, makeWispSprite} from './companion-art.mjs?v=temp-3';
-import {lifeHeartSvg} from './lives.mjs?v=temp-3';
-import {bonusIcon} from './route-bonus-ui.mjs?v=temp-3';
-import {menuIcon} from './menu-icons.mjs?v=temp-3';
+import {resourceSymbol} from './game-symbols.mjs?v=rest-2';
+import {drawPickup, pickupArtSvg} from './pickup-art.mjs?v=rest-2';
+import {getPickupSpec} from './pickups.mjs?v=rest-2';
+import {drawBlackHoles} from './black-hole-art.mjs?v=rest-2';
+import {blackHoleDrainRate, BLACK_HOLE_TUNING} from './black-holes.mjs?v=rest-2';
+import {CAPTURE_STYLES, readCaptureStyle, saveCaptureStyle} from './capture-styles.mjs?v=rest-2';
+import {drawCapture} from './capture-art.mjs?v=rest-2';
+import {glowPoints, LIGHT_PACKET_TUNING} from './vitality.mjs?v=rest-2';
+import {SKILLS, ARTIFACTS} from './model.mjs?v=rest-2';
+import {ROUTE_BONUSES} from './route-bonuses.mjs?v=rest-2';
+import {skillIcon, artifactIcon} from './upgrade-icons.mjs?v=rest-2';
+import {mapStopIconMarkup} from './map-guide.mjs?v=rest-2';
+import {companionArtSvg, makeWispSprite} from './companion-art.mjs?v=rest-2';
+import {lifeHeartSvg} from './lives.mjs?v=rest-2';
+import {bonusIcon} from './route-bonus-ui.mjs?v=rest-2';
+import {menuIcon} from './menu-icons.mjs?v=rest-2';
 
 const preferences = matchMedia('(prefers-reduced-motion: reduce)');
 const root = document.documentElement;
@@ -336,7 +336,7 @@ function renderGroup() {
 }
 async function openLanternPreview() {
   try {
-    const {createLanternPreview} = await import('./lantern-preview.mjs?v=temp-3');
+    const {createLanternPreview} = await import('./lantern-preview.mjs?v=rest-2');
     if (picker.value !== 'lantern' || lanternPreview) return;
     lanternPreview = createLanternPreview({
       host: gallery,
@@ -351,7 +351,7 @@ async function openLanternPreview() {
 }
 async function openSizesPreview(){
   try{
-    const {createSparkSizesPreview}=await import('./spark-sizes-preview.mjs?v=temp-3');
+    const {createSparkSizesPreview}=await import('./spark-sizes-preview.mjs?v=rest-2');
     if(picker.value!=='sizes'||sizesPreview)return;
     sizesPreview=createSparkSizesPreview({isPaused:()=>root.dataset.previewPaused==='true',
       setPaused:value=>{paused=value;syncMotion();},reducedMotion:()=>reducedMotion});
@@ -363,7 +363,7 @@ async function openSizesPreview(){
 }
 async function openFlashPreview() {
   try {
-    const {createFlashPreview} = await import('./flash-preview.mjs?v=temp-3');
+    const {createFlashPreview} = await import('./flash-preview.mjs?v=rest-2');
     if (picker.value !== 'flash' || flashPreview) return;
     flashPreview = createFlashPreview({
       isPaused: () => root.dataset.previewPaused === 'true',

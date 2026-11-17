@@ -1,4 +1,4 @@
-import {scorecardDataURL} from './scorecard.mjs?v=temp-3';
+import {scorecardDataURL} from './scorecard.mjs?v=rest-2';
 const esc=value=>String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 export function gameResultMarkup(run,score,{recap=''}={}){
  const c=score.comparison,ranked=score.complete&&c;

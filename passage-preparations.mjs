@@ -1,6 +1,6 @@
 // Lasting preparations now live on the Chain as temporary Inscriptions (dist/temporary-inscriptions.mjs, docs/inscriptions.md).
 // This file keeps the read side the flight rules use: which boon ids and event favor keys are active, and the spend on a cleared flight.
-import {activeBoonIds,activeFavorKeys,spendTemporaryFlights,idsFromEntry} from './temporary-inscriptions.mjs?v=temp-3';
+import {activeBoonIds,activeFavorKeys,spendTemporaryFlights,idsFromEntry} from './temporary-inscriptions.mjs?v=rest-2';
 export const PREPARATION_CLEARS=3;
 export const activePassageBoons=run=>activeBoonIds(run);
 export const activeEventFavors=run=>activeFavorKeys(run);
