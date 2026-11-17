@@ -36,7 +36,8 @@ test('every recipe passes the plausibility and fairness validator across seeds a
 });
 
 test('the validator rejects recipes that break the rules', () => {
-  const base = { id: 'bad', name: 'Bad', ground: 'soil', start: 560, intro: [['plain', { len: 500, level: 540 }]], rest: [['hills', { len: 900, level: 530, amp: 30 }]], outro: [['plain', { len: 500, level: 650 }]] };
+  const base = { id: 'bad', name: 'Bad', ground: 'soil', start: 560, undressed: true,   // raw recipes: the dressing pass would hide what is being tested
+    intro: [['plain', { len: 500, level: 540 }]], rest: [['hills', { len: 900, level: 530, amp: 30 }]], outro: [['plain', { len: 500, level: 650 }]] };
   const rules = recipe => Object.keys(L.validateCourse(L.composeCourse({ ...base, ...recipe }, { seed: 3, extent: 6000, windows: 1 })).errorCounts);
   const lowCave = rules({ challenge: [[['plain', { len: 600 }]]], rest: [['cave', { len: 1400, gap: 120, level: 520 }]] });
   assert.ok(lowCave.includes('ceiling-trim') || lowCave.includes('min-gap'), 'a cave too low to fly');
@@ -86,12 +87,14 @@ test('landform obstacles carry material tags and ordinary course data', () => {
   }
 });
 
-test('open-sky courses have no ceiling at all; caves and gorges do', () => {
-  for (const id of ['desert-dune-trough', 'desert-obelisk-walk', 'desert-oasis-arch', 'pinewood-timber-run', 'pinewood-bark-switchback']) {
-    const level = BIOME_LEVELS.find(l => l.id === id), out = layout(level, 2);
-    assert.ok(out.obstacles.filter(o => o.courseGeneration === 2).every(o => o.topShape === null), id);
-    assert.equal(out.landformCourse.metrics.openSkyShare, 1, id);
+test('open-sky courses keep their sky: little ceiling, hanging features only; caves and gorges have real cave tops', () => {
+  const share = id => { const out = layout(BIOME_LEVELS.find(l => l.id === id), 2); return out.landformCourse.metrics.openSkyShare; };
+  for (const id of ['desert-dune-trough', 'pinewood-timber-run', 'thorn-thicket-run', 'moonruins-courtyard']) {
+    assert.ok(L.LANDFORM_RECIPES[id].type === 'open-sky', id);
+    assert.ok(share(id) >= .6 && share(id) < 1, `${id}: open sky share ${share(id)}`);
   }
+  // Courses that are no longer tagged open-sky carry cave tops and overhangs.
+  for (const id of ['desert-obelisk-walk', 'pinewood-bark-switchback', 'desert-oasis-arch']) assert.ok(share(id) <= .85, `${id}: ${share(id)}`);
   const cave = layout(BIOME_LEVELS.find(l => l.id === 'pinewood-high-boughs'), 2);
   assert.ok(cave.obstacles.some(o => o.topShape && o.ceilingLandform === 'cave'));
 });

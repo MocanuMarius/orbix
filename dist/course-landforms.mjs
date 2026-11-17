@@ -28,6 +28,10 @@ export function courseGeneration() { return globalThis[OVERRIDE] ?? URL_GENERATI
 /** Test and pilot tooling only; the game reads the URL once. Pass null to clear. */
 export function overrideCourseGeneration(value) { globalThis[OVERRIDE] = value == null ? undefined : Number(value) === 1 ? 1 : 2; }
 
+const DRESSING = Symbol.for('orbix.courseDressing');
+/** Tooling only: false skips the dressing pass (the recipes alone), to measure what it adds. Pass null to clear. */
+export function overrideCourseDressing(value) { globalThis[DRESSING] = value == null ? undefined : !!value; }
+
 export const FRAME = 620;
 export const DX = 6;
 const TAU = Math.PI * 2;
@@ -216,7 +220,7 @@ const PIECES = {
   },
   basin(f, i0, i1, ctx, p) {
     // A low wide dip; the flat middle is a water line.
-    const n = i1 - i0, depth = p.depth ?? 70, bank = Math.max(p.bank ?? 240, depth / .42), level = ctx.level;
+    const n = i1 - i0, depth = p.depth ?? 70, bank = Math.max(p.bank ?? 170, depth / .42), level = ctx.level;
     const waterY = level + depth;
     for (let i = i0; i < i1; i++) {
       const u = (i - i0) * DX, L = n * DX;
@@ -328,7 +332,7 @@ const PIECES = {
     const count = p.count ?? 3, sizes = p.size ?? [50, 90];
     const slots = Array.from({ length: count }, (_, k) => L * (k + .5 + (rng() - .5) * .5) / count);
     for (const c of slots) {
-      const h = lerp(sizes[0], sizes[1], rng()), w = h * (1.7 + rng() * .8);
+      const h = Math.max(DRESS.minFeature, lerp(sizes[0], sizes[1], rng())), w = h * (1.7 + rng() * .8);   // never smaller than something to steer around
       const body = rockBody(rng, w, h, { lean: rng() - .5 });
       const ic = i0 + Math.round(c / DX), base = f.soft[clamp(ic, i0, i1 - 1)];
       for (let i = Math.max(i0, ic - Math.ceil(w / DX)); i < Math.min(i1, ic + Math.ceil(w / DX)); i++) {
@@ -363,7 +367,7 @@ const PIECES = {
     // A fallen giant lying along the ground: straight trunk, root plate.
     const to = p.level ?? ctx.level, n = i1 - i0, L = n * DX;
     for (let i = i0; i < i1; i++) f.soft[i] = ramp(ctx.level, to, (i - i0) / n);
-    const len = Math.min(L * .7, p.len ?? 420), h = p.h ?? 46, a = L * .18, b = a + len;
+    const len = Math.min(L * .7, p.len ?? 420), h = Math.max(DRESS.minFeature + 6, p.h ?? 46), a = L * .18, b = a + len;
     const ya = f.soft[i0 + Math.round(a / DX)], yb = f.soft[i0 + Math.round(b / DX)];
     for (let i = i0; i < i1; i++) {
       const u = (i - i0) * DX; if (u < a - h * .9 || u > b + h * .4) continue;
@@ -412,9 +416,12 @@ const PIECES = {
     // Mouth faces as fractions of the drop from beyond the frame to the roof.
     const face = () => [[-.01, 0], [.2, .16 + rng() * .14], [.4, .4 + rng() * .14], [.58, .6 + rng() * .12], [.76, .82 + rng() * .08], [.9, .94], [1.01, 1]];
     const mouthL = face(), mouthR = face();
+    // Chambers: the roof lifts 70-95 units for a stretch, so the passage narrows and widens along its length.
+    const chambers = []; for (let c = mouth + 120 + rng() * 120; c < L - mouth - 160; c += 380 + rng() * 170) chambers.push({ c, w: 150 + rng() * 80, up: 70 + rng() * 25 });
     f.ceilSpecs.push({ i0, i1, label: p.label || 'cave', material: p.material || 'rock', fn(floorSm, i) {
       const u = (i - i0) * DX, edge = Math.min(u, L - u);
-      const roof = floorSm - gap - (p.vary ?? 46) * .5 + polyline(verts, u);
+      let roof = floorSm - gap - (p.vary ?? 46) * .5 + polyline(verts, u);
+      for (const h of chambers) { const d = Math.abs(u - h.c) / h.w; if (d < 1) roof -= h.up * (.5 + .5 * Math.cos(Math.PI * d)); }
       if (edge < mouth) {
         // A faceted face: steep upper rock, a broken brow over the entry.
         const side = u < L / 2 ? mouthL : mouthR;
@@ -435,13 +442,13 @@ const PIECES = {
     // A natural bridge or arch whose deck lies beyond the frame top: its
     // underside springs low at both ends and rises to a crown.
     const n = i1 - i0, L = n * DX, level = p.level ?? ctx.level, span = Math.min(L * .8, p.span ?? 420);
-    const clear = (p.clear ?? 240) + 28, rise = p.rise ?? 70, a = (L - span) / 2;
+    const clear = (p.clear ?? 240) + 14, rise = p.rise ?? 70, a = (L - span) / 2;
     for (let i = i0; i < i1; i++) f.soft[i] = ramp(ctx.level, level, (i - i0) / Math.min(n, 60)) - (p.swell ?? 12) * Math.sin(Math.PI * (i - i0) / n) ** 2;
-    f.ceilSpecs.push({ i0: i0 + Math.floor(a / DX) - 20, i1: i0 + Math.ceil((a + span) / DX) + 20, label: p.label || 'arch', material: p.material || 'rock', fn(floorSm, i) {
+    f.ceilSpecs.push({ i0: i0 + Math.floor(a / DX) - 40, i1: i0 + Math.ceil((a + span) / DX) + 40, label: p.label || 'arch', material: p.material || 'rock', fn(floorSm, i) {
       const u = (i - i0) * DX - a, t = u / span;
       const spring = floorSm - clear;
       // Beyond each springer the abutment curves up and away out of frame.
-      if (t < 0 || t > 1) { const d = clamp((t < 0 ? -u : u - span) / 110, 0, 1); return spring - (spring + 80) * d ** 1.7; }
+      if (t < 0 || t > 1) { const d = clamp((t < 0 ? -u : u - span) / 230, 0, 1); return spring - (spring + 80) * d ** 1.35; }
       return spring - rise * Math.sin(Math.PI * t) ** .8 - 3 * Math.sin(u / 23) - 6 * Math.sin(Math.PI * t * 3 + 1) * Math.sin(Math.PI * t);
     } });
     return level;
@@ -475,13 +482,20 @@ const PIECES = {
 export const LANDFORM_KINDS = Object.freeze(Object.keys(PIECES));
 
 // ------------------------------------------------------------ finishing ----
+const KERNELS = new Map();
+function kernel(sigmaSamples) {
+  const key = Math.round(sigmaSamples * 1000);
+  let k = KERNELS.get(key);
+  if (!k) { const r = Math.ceil(sigmaSamples * 2.5), w = new Float64Array(2 * r + 1); for (let q = -r; q <= r; q++) w[q + r] = Math.exp(-(q * q) / (2 * sigmaSamples * sigmaSamples)); k = { r, w }; KERNELS.set(key, k); }
+  return k;
+}
 function gaussian(values, sigmaAt, mask) {
   const out = Float64Array.from(values), n = values.length;
   for (let i = 0; i < n; i++) {
     if (!mask(i)) continue;
     const s = sigmaAt(i) / DX; if (!(s > .3)) continue;
-    const r = Math.ceil(s * 2.5); let sum = 0, w = 0;
-    for (let k = -r; k <= r; k++) { const j = i + k; if (j < 0 || j >= n || !Number.isFinite(values[j])) continue; const g = Math.exp(-(k * k) / (2 * s * s)); sum += values[j] * g; w += g; }
+    const { r, w: weights } = kernel(s); let sum = 0, w = 0;
+    for (let q = -r; q <= r; q++) { const j = i + q; if (j < 0 || j >= n || !Number.isFinite(values[j])) continue; const g = weights[q + r]; sum += values[j] * g; w += g; }
     if (w) out[i] = sum / w;
   }
   return out;
@@ -564,7 +578,7 @@ function finishCeiling(f, floor, seed) {
   for (let i = 0; i < n; i++) if (mat[i] === 'canopy') ceil[i] = soft[i];
   // Anything above the frame top is the overhead's unseen support.
   for (let i = 0; i < n; i++) if (Number.isFinite(ceil[i]) && ceil[i] < -2) { ceil[i] = NaN; mat[i] = null; label[i] = null; off[i] = true; }
-  return { ceil, mat, label, off };
+  return { ceil, mat, label, off, broad };
 }
 
 // --------------------------------------------------------------- pacing ----
@@ -597,6 +611,224 @@ export function paceRecipe(recipe, { extent, windows, rng, start = -260 }) {
   return placed;
 }
 
+// ------------------------------------------------------------- dressing ----
+// Challenge floor (v2.2-challenge): recipes give the course its landforms; the
+// dressing pass then makes sure the flight line always has something to steer
+// around: it measures the finished profile, finds stretches with nothing to
+// steer around (a "dead" stretch), and fills them with rock outcrops standing in
+// the ground and overhangs hanging from the mountain, tree or glacier above the
+// frame. Ceiling coverage per biome, two squeezes per course and the length of a
+// dead stretch are set here. Measured against the old layouts by
+// scripts/course-design/challenge.mjs.
+export const DRESS = Object.freeze({
+  minFeature: 64,                       // the smallest outcrop, log or wall a recipe may place
+  prominence: 45,                       // a floor bump / ceiling drop this big (units) is something to steer around
+  deadSeconds: { challenge: 2.1, intro: 2.8, rest: 2.8, outro: 2.9 },   // longest stretch without one, before row pressure
+  squeezeGap: 226,                      // floor-to-ceiling gap of a squeeze at row pressure 1 (scaled by the row)
+  squeezeMin: 2, squeezeBelow: 255,      // a run of 120+ units under this gap is a squeeze
+                         // squeezes in every course
+  skyCover: .08, cover: .2,            // ceiling share: the one open-sky course per biome / every other course
+  biomeCover: { moonruins: .19, frost: .18, pinewood: .42, marsh: .22, fungal: .23, basalt: .25, desert: .22, coral: .22, crystal: .3, cloud: .05, thorn: .24, cemetery: .17 },
+  overMaterial: { frost: 'ice', fungal: 'canopy', thorn: 'canopy', marsh: 'canopy', pinewood: 'canopy' },
+  overLabel: { frost: 'glacier overhang', fungal: 'cap bough', thorn: 'briar bough', marsh: 'willow bough', pinewood: 'pine bough' },
+  rockMaterial: { frost: 'ice' },
+});
+
+/** Indices of things to steer around in a finished profile: floor bumps, floor
+ * steps, ceiling drops (a cave mouth counts) and pinches between floor and
+ * ceiling. `ceil` is NaN where there is none; `floor` >= FRAME-6 where absent. */
+export function steerFeatures(floor, ceil, prom = DRESS.prominence) {
+  const n = floor.length, W = Math.round(150 / DX), out = [];
+  // Sliding-window extremes: roll(a, lo, hi, max)[i] = max/min of a over [i+lo, i+hi] (clipped).
+  const roll = (a, lo, hi, isMax) => {
+    const res = new Float64Array(n), dq = []; let head = 0, next = 0;
+    for (let i = 0; i < n; i++) {
+      const to = Math.min(n - 1, i + hi), from = Math.max(0, i + lo);
+      while (next <= to) { while (dq.length > head && (isMax ? a[dq[dq.length - 1]] <= a[next] : a[dq[dq.length - 1]] >= a[next])) dq.pop(); dq.push(next++); }
+      while (dq[head] < from) head++;
+      res[i] = a[dq[head]];
+    }
+    return res;
+  };
+  const cv = Float64Array.from(ceil, v => Number.isFinite(v) ? v : 0), gap = Float64Array.from(floor, (f, i) => f - cv[i]);
+  const fMaxL = roll(floor, -W, 0, true), fMaxR = roll(floor, 0, W, true), fMinB = roll(floor, -W, W, false);
+  const cMaxB = roll(cv, -W, W, true), cMinL = roll(cv, -W, 0, false), cMinR = roll(cv, 0, W, false);
+  const gMinB = roll(gap, -W, W, false), gMaxL = roll(gap, -W, 0, true), gMaxR = roll(gap, 0, W, true);
+  for (let i = 0; i < n; i++) {
+    const f = floor[i], ahead = Math.min(n - 1, i + W), back = Math.max(0, i - W);
+    if (f < FRAME - 6) {
+      if (f <= fMinB[i] + .01 && Math.min(fMaxL[i], fMaxR[i]) - f >= prom) { out.push(i); continue; }
+      if (Math.abs(floor[ahead] - f) >= prom + 15 && Math.abs(floor[ahead] - floor[back]) >= prom + 15 && i % 8 === 0) { out.push(i); continue; }
+    }
+    if (cv[i] >= cMaxB[i] - .01 && cv[i] - Math.max(cMinL[i], cMinR[i]) >= prom) { out.push(i); continue; }
+    if (i % 8 === 0) {
+      const up = Math.abs(cv[ahead] - cv[i]), down = Math.abs(cv[i] - cv[back]), span = Math.abs(cv[ahead] - cv[back]);
+      if (span >= prom + 15 && up + down >= prom + 15 && span > .6 * (up + down)) { out.push(i); continue; }
+    }
+    if (gap[i] < 300 && gap[i] <= gMinB[i] + .01 && Math.min(gMaxL[i], gMaxR[i]) - gap[i] >= prom + 10) out.push(i);
+  }
+  const merged = [];
+  for (const i of out) if (!merged.length || i - merged.at(-1) > Math.round(100 / DX)) merged.push(i);
+  return merged;
+}
+
+/** Challenge facts of a composed course (playable part: after the start, before the exit landing). */
+export function courseChallenge(course, { from = 300, tail = 760 } = {}) {
+  const { xs, floor, ceil, piece, placed } = course, n = xs.length;
+  const i0 = Math.max(0, Math.round((from - xs[0]) / DX)), i1 = Math.min(n - 1, Math.round((xs[n - 1] - tail - xs[0]) / DX));
+  const flo = floor.slice(i0, i1 + 1), cei = ceil.slice(i0, i1 + 1), m = flo.length;
+  let ceilN = 0, play = 0, run = 0, squeezes = 0, gapMin = Infinity;
+  for (let i = 0; i < m; i++) {
+    if (flo[i] >= FRAME - 6) continue; play++;
+    if (Number.isFinite(cei[i])) { ceilN++; gapMin = Math.min(gapMin, flo[i] - cei[i]); }
+    if (Number.isFinite(cei[i]) && flo[i] - cei[i] < DRESS.squeezeBelow && cei[i] > 40) run += DX; else { if (run >= 120) squeezes++; run = 0; }
+  }
+  if (run >= 120) squeezes++;
+  const marks = [0, ...steerFeatures(flo, cei), m - 1], dead = [];
+  for (let k = 1; k < marks.length; k++) {
+    const mid = i0 + ((marks[k] + marks[k - 1]) >> 1);
+    dead.push({ seconds: (marks[k] - marks[k - 1]) * DX / FLIGHT_FACTS.speed, x: xs[mid], role: placed[piece[mid]]?.role || 'rest' });
+  }
+  const longest = pred => Math.max(0, ...dead.filter(pred).map(d => d.seconds));
+  return { ceilShare: play ? ceilN / play : 0, squeezes, gapMin: Number.isFinite(gapMin) ? gapMin : null, features: marks.length - 2,
+    featuresPer10: (marks.length - 2) / (m * DX / FLIGHT_FACTS.speed) * 10, longestDead: longest(() => true), longestDeadActive: longest(d => d.role !== 'rest'), dead };
+}
+
+function cloneField(f) {
+  const g = Object.create(Field.prototype); Object.assign(g, f);
+  g.soft = Float64Array.from(f.soft); g.rock = Float64Array.from(f.rock); g.water = Float64Array.from(f.water);
+  return g;
+}
+function trialFinish(f, seed) {
+  const g = cloneField(f), ground = finishGround(g, seed), over = finishCeiling(g, ground.floor, seed);
+  return { floor: ground.floor, ceil: over.ceil, broad: over.broad };
+}
+
+function dress(f, placed, recipe, seed, hardGapScale, rng) {
+  const sky = recipe.type === 'open-sky', roleAt = i => placed[f.piece[clamp(i, 0, f.n - 1)]]?.role || 'rest';
+  const pressure = clamp((1 - hardGapScale) / .12, 0, 1.6);   // 0 on the gentle rows, 1 at row 7, beyond that on later maps
+  const target = sky ? DRESS.skyCover : Math.max(DRESS.cover, (DRESS.biomeCover[recipe.biome] ?? .2) + .02);
+  const squeezeGap = Math.max(RULES.minGapHard + 8, DRESS.squeezeGap * (1 - .55 * (1 - hardGapScale)));
+  const overMat = DRESS.overMaterial[recipe.biome] || 'rock';
+  const rockMat = recipe.rockMaterial || DRESS.rockMaterial[recipe.biome] || 'rock';
+  const iLo = f.index(640), iHi = f.index(f.x(f.n - 1) - 760), occupied = [];
+  const free = (a, b, pad = 20) => !occupied.some(([p, q]) => a < q + pad && b > p - pad);
+  const face = () => [[-.01, 0], [.2, .14 + rng() * .12], [.4, .38 + rng() * .12], [.6, .6 + rng() * .1], [.78, .82 + rng() * .08], [.9, .94], [1.01, 1]];
+  let trial = trialFinish(f, seed), addedOver = 0, lastOver = false;
+  const rangeOf = (arr, a, b) => { let lo = Infinity, hi = -Infinity; for (let i = Math.max(0, a); i <= Math.min(f.n - 1, b); i++) { lo = Math.min(lo, arr[i]); hi = Math.max(hi, arr[i]); } return [lo, hi]; };
+  const ceilMax = (a, b) => { let m = -Infinity; for (let i = Math.max(0, a); i <= Math.min(f.n - 1, b); i++) if (Number.isFinite(trial.ceil[i])) m = Math.max(m, trial.ceil[i]); return m; };
+  const noCeil = (a, b) => { for (let i = Math.max(0, a); i <= Math.min(f.n - 1, b); i++) if (Number.isFinite(trial.ceil[i])) return false; return true; };
+
+  const overhang = (pc, squeeze, loose = false) => {
+    const role = roleAt(pc), minRole = role === 'challenge' ? RULES.minGapHard : RULES.minGap;
+    const slope = squeeze ? .85 : 1.15, gap = squeeze ? Math.max(squeezeGap - 16, role === 'challenge' ? minRole + 2 : 232) : Math.max((role === 'challenge' ? (300 + rng() * 50) * (1 - .07 * pressure) : 385 + rng() * 50), minRole + 20);
+    const flat = squeeze ? 150 + rng() * 150 : 40 + rng() * 130;
+    // The roof follows the landmass (broad floor) at a set gap; its footprint depends on how high it hangs.
+    const at = i => trial.broad[clamp(i, 0, f.n - 1)];
+    let yr = at(pc) - gap, m = Math.max(120, (yr + 60) / slope), total = 2 * m + flat;
+    let a = Math.round(pc - total / 2 / DX), b = Math.round(pc + total / 2 / DX);
+    const [lo, hi] = rangeOf(trial.floor, a, b);
+    yr = at(pc) - gap; m = Math.max(120, (yr + 60) / slope); total = 2 * m + flat;
+    a = Math.round(pc - total / 2 / DX); b = Math.round(pc + total / 2 / DX);
+    // A squeeze is on level ground with a level approach: never over a mesa top, a cliff or a stair.
+    if (squeeze) { const [l2, h2] = rangeOf(trial.floor, a - 60, b + 20); if (h2 - l2 > (loose ? 200 : 100)) return false; }
+    const margin = squeeze ? clamp((hi - lo) * .22, 0, 34) : clamp((hi - lo) * .4, 16, 90);
+    if (at(pc) - gap - margin < 60 || hi - lo > (squeeze ? (loose ? 190 : 150) : 240) || a < f.index(1500) || b > iHi || hi >= FRAME - 20) return false;
+    for (let i = a; i <= b; i++) if (at(i) - gap - margin < 20) return false;
+    // Calm stretches (intro, rest, outro): an overhang keeps clear of other features, so it is never an S-bend.
+    const calm = role !== 'challenge' && !squeeze;
+    if (!free(a, b, calm ? 18 : 12) || (!squeeze && !noCeil(a - (calm ? 20 : 12), b + (calm ? 20 : 12)))) return false;
+    if (calm) for (let i = a - 18; i <= b + 18; i++) if (Number.isFinite(f.rock[clamp(i, 0, f.n - 1)])) return false;
+    for (let i = a; i <= b; i++) if (f.groundMat[i] === 'water' && !squeeze) return false;
+    const mouthL = face(), mouthR = face(), wob = valueNoise(`${seed}:over:${a}`), L = (b - a) * DX, mid = pc;
+    f.ceilSpecs.push({ i0: a - 2, i1: b + 2, label: DRESS.overLabel[recipe.biome] || (squeeze ? 'low overhang' : 'overhang'), material: overMat, piece: f.piece[pc], dressed: true,
+      fn(floorSm, i) {
+        const u = (i - a) * DX, mw = Math.min(m, L / 2), edge = Math.min(u, L - u);
+        if (u < -DX || u > L + DX) return NaN;
+        const roof = floorSm - gap - margin - 14 * (.5 + .5 * wob(u, 140)) - 5 * wob(u + 400, 40);
+        if (edge < mw) return lerp(-60, roof, polyline(u < L / 2 ? mouthL : mouthR, edge / mw));
+        return roof;
+      } });
+    void mid;
+    occupied.push([a, b]); addedOver += b - a; lastOver = true;
+    return true;
+  };
+  const boulder = (pc, shrink = 1) => {
+    const role = roleAt(pc), big = role === 'challenge';
+    const h = (big ? 105 + rng() * 55 : 74 + rng() * 38) * (sky ? 1.08 : 1) * (1 + .2 * pressure) * shrink, w = h * (1.75 + rng() * .7);
+    const half = Math.ceil(w / DX) + 3, a = pc - half, b = pc + half;
+    if (a < iLo || b > iHi) return false;
+    const [lo, hi] = rangeOf(trial.floor, a, b);
+    const [plo, phi] = rangeOf(trial.floor, a - 8, b + 8), base = f.soft[pc], H = Math.round(FLIGHT_FACTS.horizon * FLIGHT_FACTS.speed / DX);
+    let steep = 0; for (let i = a - 8; i < b + 8; i++) steep = Math.max(steep, Math.abs(f.soft[clamp(i + 1, 0, f.n - 1)] - f.soft[clamp(i, 0, f.n - 1)]) / DX);   // the ground's own slope, not a neighbour's rock face
+    if (hi - lo > 110 || phi - plo > 140 || steep > .62 || hi >= FRAME - 8 || !free(a, b, role === 'challenge' ? 10 : 12)) return false;
+    if (role !== 'challenge' && !noCeil(a - 20, b + 20)) return false;
+    if (lo - h - ceilMax(a - 12, b + 12) < (big ? RULES.minGapHard : RULES.minGap) + 30) return false;
+    // Fair to the fixed rules: open air above the crest, a climbable lead-in, and no contact with other rock.
+    if (lo - h < 262 || trial.floor[Math.max(0, pc - H)] - (base - h) > 205) return false;
+    for (let i = a - 6; i <= b + 6; i++) if (Number.isFinite(f.rock[i])) return false;
+    const wet = f.groundMat[pc] === 'water'; for (let i = a - 3; i <= b + 3; i++) if ((f.groundMat[clamp(i, 0, f.n - 1)] === 'water') !== wet) return false;
+    const body = rockBody(rng, w, h, { lean: rng() - .5 });
+    for (let i = a; i <= b; i++) { const v = polyline(body, (i - pc) * DX); if (Number.isFinite(v)) f.setRock(i, f.soft[i] + (v - 0), rockMat); }
+    occupied.push([a, b]); lastOver = false;
+    return true;
+  };
+  // A knoll: a rounded swell of the soft ground (soil, sand, snow, scree), 500 units wide and 85-100 high. Forgiving to fly,
+  // and enough to steer around; the calm stretches use these where challenge stretches use rock outcrops.
+  const knoll = pc => {
+    const role = roleAt(pc), h = 84 + rng() * 18, half = Math.round((235 + rng() * 40) / DX), a = pc - half - 2, b = pc + half + 2;
+    if (a < iLo || b > iHi || !free(a, b, 8)) return false;
+    const [lo, hi] = rangeOf(trial.floor, a, b);
+    let steep = 0; for (let i = a - 6; i < b + 6; i++) steep = Math.max(steep, Math.abs(trial.floor[clamp(i + 1, 0, f.n - 1)] - trial.floor[clamp(i, 0, f.n - 1)]) / DX);
+    if (hi - lo > 90 || steep > .4 || hi >= FRAME - 40 || lo - h < 270) return false;
+    for (let i = a - 6; i <= b + 6; i++) { const q = clamp(i, 0, f.n - 1); if (Number.isFinite(f.rock[q]) || f.groundMat[q] === 'water' || !MATERIALS[f.groundMat[q]]?.soft) return false; }
+    if (lo - h - ceilMax(a - 20, b + 20) < (role === 'challenge' ? RULES.minGapHard : RULES.minGap) + 90) return false;
+    for (let i = pc - half; i <= pc + half; i++) f.soft[i] -= h * smooth(1 - Math.abs(i - pc) / half);
+    occupied.push([a, b]); lastOver = false;
+    return true;
+  };
+  const coverNow = () => { let c = 0, t = 0; for (let i = iLo; i <= iHi; i++) { t++; if (Number.isFinite(trial.ceil[i])) c++; } return t ? c / t : 0; };
+
+  // 1. Squeezes: at least two low passages, in the challenge windows.
+  const squeezeCount = () => { let run = 0, n = 0; for (let i = iLo; i <= iHi; i++) { const t = Number.isFinite(trial.ceil[i]) && trial.floor[i] - trial.ceil[i] < DRESS.squeezeBelow && trial.ceil[i] > 40; if (t) run += DX; else { if (run >= 120) n++; run = 0; } } return n + (run >= 120 ? 1 : 0); };
+  const windows = [];
+  for (const p of placed) if (p.role === 'challenge') { const w = windows.at(-1); if (w && w.phrase === p.phrase) w.i1 = f.index(p.x1); else windows.push({ phrase: p.phrase, i0: f.index(p.x0), i1: f.index(p.x1) }); }
+  const spots = [];
+  for (const w of windows) { const len = w.i1 - w.i0; if (windows.length >= DRESS.squeezeMin) spots.push(w.i0 + len * .5); else spots.push(w.i0 + len * .28, w.i0 + len * .72); }
+  let need = DRESS.squeezeMin - squeezeCount();
+  for (const c of spots) {
+    if (need <= 0) break;
+    for (const off of [0, -30, 30, -60, 60, -90, 90, -130, 130]) if (overhang(Math.round(c + off), true)) { need--; trial = trialFinish(f, seed); break; }
+  }
+  // Where the windows hold no level ground, a squeeze goes wherever the ground allows, challenge stretches first.
+  if (need > 0) {
+    const scan = []; for (let c = f.index(1700); c < iHi - 40; c += 14) if (roleAt(c) === 'challenge') scan.push(c);
+    scan.sort((x, y) => (roleAt(x) === 'challenge' ? 0 : 1) - (roleAt(y) === 'challenge' ? 0 : 1) || Math.abs(x - (iLo + iHi) / 2) - Math.abs(y - (iLo + iHi) / 2));
+    for (const c of scan) { if (need <= 0) break; if (overhang(c, true)) { need--; trial = trialFinish(f, seed); } }
+    for (const c of scan) { if (need <= 0) break; if (overhang(c, true, true)) { need--; trial = trialFinish(f, seed); } }
+  }
+  // 2. Fill dead stretches (up to six passes).
+  for (let pass = 0; pass < 6; pass++) {
+    trial = trialFinish(f, seed);
+    const marks = [iLo, ...steerFeatures(trial.floor, trial.ceil).filter(i => i > iLo && i < iHi), iHi];
+    let added = 0;
+    for (let k = 1; k < marks.length; k++) {
+      const a = marks[k - 1], b = marks[k], role = roleAt((a + b) >> 1);
+      const limit = DRESS.deadSeconds[role] * (role === 'challenge' || role === 'rest' ? 1 - .08 * pressure : 1) * FLIGHT_FACTS.speed / DX;
+      if (b - a <= limit) continue;
+      const count = Math.ceil((b - a) / (limit * .86)) - 1;
+      for (let j = 1; j <= count; j++) {
+        const pc = Math.round(a + (b - a) * j / (count + 1));
+        const tryOver = !lastOver && coverNow() + addedOver / Math.max(1, iHi - iLo) < target;
+        let ok = false;
+        for (const off of [0, -14, 14, -28, 28, -45, 45, -70, 70, -100, 100]) { ok = tryOver ? overhang(pc + off, false) || boulder(pc + off) || boulder(pc + off, .82) || boulder(pc + off, .7) : (roleAt(pc) !== 'challenge' && knoll(pc + off)) || boulder(pc + off) || boulder(pc + off, .82) || boulder(pc + off, .7) || (!sky && overhang(pc + off, false)); if (ok) break; }
+        if (ok) added++;
+      }
+    }
+    if (!added) break;
+  }
+}
+
 // --------------------------------------------------------------- compose ---
 /** Compose the full course profile. Deterministic for (recipe, seed, options). */
 export function composeCourse(recipe, { seed = 1, extent = 13500, windows = 2, hardGapScale = 1 } = {}) {
@@ -623,6 +855,10 @@ export function composeCourse(recipe, { seed = 1, extent = 13500, windows = 2, h
     piece.i0 = i0; piece.i1 = i1; piece.levelOut = level;
   });
   for (let i = 0; i < f.n; i++) if (!Number.isFinite(f.soft[i])) f.soft[i] = level;
+  // The ground stays on screen until the exit landing: a drop never takes it below the frame bottom (nothing left to steer around).
+  for (let i = 0; i < f.n; i++) if (placed[f.piece[i]]?.role !== 'outro' && f.soft[i] > 590) f.soft[i] = 590 - 6 * Math.log1p((f.soft[i] - 590) / 6);
+  for (let i = 0; i < f.n; i++) if (Number.isFinite(f.water[i]) && placed[f.piece[i]]?.role !== 'outro') f.water[i] = Math.min(f.water[i], 588);
+  if (!recipe.undressed && globalThis[DRESSING] !== false) dress(f, placed, recipe, `${seed}:${recipe.id}`, hardGapScale, landformRandom(`${seed}:${recipe.id}:dress`));
   const ground = finishGround(f, `${seed}:${recipe.id}`);
   const overhead = finishCeiling(f, ground.floor, `${seed}:${recipe.id}`);
   // Hard guarantee: an overhead never closes below the minimum gap; this is
@@ -775,6 +1011,8 @@ export function courseObstacles(course, validation, { height = FRAME, identity =
     if (useCeil && fMin - cMax >= 24) { center = (fMin + cMax) / 2; gap = fMin - cMax; }
     else if (useCeil) { center = lineSum / (b - a + 1); gap = 24; }
     else { center = clamp(lineSum / (b - a + 1), 40, fMin - 40); gap = 2 * (fMin - center); }
+    // Like the authored cells, a challenge slice reports its opening scaled by the row's hardGapScale (the polygons are re-anchored, so the geometry is unchanged).
+    if (hard) gap = Math.max(24, gap * (ascent.hardGapScale ?? 1));
     const bottomAnchor = center + gap / 2, topAnchor = center - gap / 2;
     const surface = [], roof = [], mats = [], roofMats = [];
     for (let i = b; i >= a; i--) {
@@ -825,7 +1063,7 @@ export function courseLanePickups(course, validation, obstacles, { height = FRAM
     const owner = obstacles.find(o => x >= o.x - o.width * .8 && x <= o.x + o.width * 2.45);
     // Climb repayment is part of the landform, so the supply trimmers keep it
     // (challengeLandmark is the shared "authored, do not trim" marker).
-    const keep = feature === 'landform-climb' || feature === 'landform-summit' ? { challengeLandmark: feature } : {};
+    const keep = feature === 'landform-climb' || feature === 'landform-summit' || feature === 'landform-squeeze' ? { challengeLandmark: feature } : {};
     out.push({ id: `lane-${out.length}`, kind: 'light', x, y: y * s, value, feature, ...keep, fuel: true, anchor: owner?.id ?? null, pocket: false,
       laneRole: placed[piece[i]]?.role || 'rest', collected: false, attracted: false, phase: rng() * TAU });
   };
@@ -841,6 +1079,15 @@ export function courseLanePickups(course, validation, obstacles, { height = FRAM
       const x = p.x0 + (p.x1 - p.x0) * (k + .5) / extra;
       if (x > start && x < Math.min(end, xs.at(-1) - 700) && !out.some(q => Math.abs(q.x - x) < 150)) add(x, 1, 'landform-climb');
     }
+  }
+  // A squeeze is lit through the middle of its opening: a light before the mouth and one at the narrowest point, so the eye (and the hand)
+  // goes under the roof rather than along the cruise line, which is where a low roof hangs.
+  for (let i = 0; i < xs.length;) {
+    const tight = k => Number.isFinite(ceil[k]) && floor[k] - ceil[k] < DRESS.squeezeBelow && ceil[k] > 40;
+    if (!tight(i)) { i++; continue; }
+    let j = i, narrow = i; while (j < xs.length && tight(j)) { if (floor[j] - ceil[j] < floor[narrow] - ceil[narrow]) narrow = j; j++; }
+    if (j - i >= 20) for (const x of [xs[i] - 90, xs[narrow]]) if (x > start && x < Math.min(end, xs.at(-1) - 700) && !out.some(q => Math.abs(q.x - x) < 110)) add(x, 1, 'landform-squeeze');
+    i = j;
   }
   out.sort((a, b) => a.x - b.x);
   // A long climb is repaid at its top: a rich light where the ground levels out.
@@ -884,8 +1131,8 @@ const HAND_RECIPES = Object.freeze({
     summary: 'Open sky over dunes: skim long windward ramps, drop off slip faces, then hop a flat-topped mesa.',
     intro: [['plain', { len: 520, level: 545 }], ['dunes', { len: 1300, level: 530, amp: 52, wave: 560 }]],
     challenge: [
-      [['dunes', { len: 600, level: 505, amp: 60, wave: 520 }], ['mesa', { len: 900, h: 180, label: 'mesa' }], ['dunes', { len: 500, level: 520, amp: 46 }]],
-      [['mesa', { len: 640, h: 140, label: 'butte' }], ['dunes', { len: 520, level: 515, amp: 56 }], ['mesa', { len: 1000, h: 190, label: 'mesa' }]],
+      [['dunes', { len: 600, level: 505, amp: 60, wave: 520 }], ['mesa', { len: 900, h: 135, label: 'mesa' }], ['dunes', { len: 500, level: 520, amp: 46 }]],
+      [['mesa', { len: 640, h: 115, label: 'butte' }], ['dunes', { len: 520, level: 515, amp: 56 }], ['mesa', { len: 1000, h: 140, label: 'mesa' }]],
     ],
     rest: [['dunes', { len: 1200, level: 535, amp: 48, wave: 600 }], ['plain', { len: 520, level: 548 }], ['dunes', { len: 1000, level: 525, amp: 56, wave: 500 }]],
     outro: [['dunes', { len: 700, level: 560, amp: 30 }], ['plain', { len: 520, level: 650 }]],
@@ -902,7 +1149,7 @@ const HAND_RECIPES = Object.freeze({
     outro: [['plain', { len: 520, level: 560 }], ['plain', { len: 520, level: 650 }]],
   },
   'desert-obelisk-walk': {
-    id: 'v2-hoodoo-field', biome: 'desert', type: 'open-sky', name: 'The Hoodoo Field', ground: 'sand', start: 560,
+    id: 'v2-hoodoo-field', biome: 'desert', type: 'hoodoos', name: 'The Hoodoo Field', ground: 'sand', start: 560,
     summary: 'Hard dark sandstone boulders and hoodoos stand out of soft sand; hop each one, glide between.',
     intro: [['plain', { len: 520, level: 545 }], ['outcrops', { len: 900, count: 2, size: [40, 70], level: 535 }]],
     challenge: [
@@ -936,12 +1183,12 @@ const HAND_RECIPES = Object.freeze({
     outro: [['hills', { len: 700, level: 560, amp: 26 }], ['plain', { len: 520, level: 650 }]],
   },
   'pinewood-bark-switchback': {
-    id: 'v2-crag-ridge', biome: 'pinewood', type: 'open-sky', name: 'The Crag Ridge', ground: 'soil', start: 565,
+    id: 'v2-crag-ridge', biome: 'pinewood', type: 'ridge', name: 'The Crag Ridge', ground: 'soil', start: 565,
     summary: 'The forest floor climbs into a rugged mountain patch; hop along a crest of small rock teeth with the open sky close above.',
     intro: [['plain', { len: 520, level: 550 }], ['hills', { len: 1000, level: 525, amp: 44, wave: 720 }]],
     challenge: [
-      [['rugged', { len: 2000, band: 352, amp: 34, to: 500, material: 'scree', label: 'rugged mountain' }], ['hills', { len: 600, level: 520, amp: 36 }]],
-      [['climb', { len: 800, to: 430, label: 'forest climb' }], ['rugged', { len: 1700, band: 348, amp: 32, to: 510, material: 'scree', label: 'rugged mountain' }]],
+      [['rugged', { len: 2000, band: 374, amp: 34, to: 500, material: 'scree', label: 'rugged mountain' }], ['hills', { len: 600, level: 520, amp: 36 }]],
+      [['climb', { len: 800, to: 430, label: 'forest climb' }], ['rugged', { len: 1700, band: 370, amp: 32, to: 510, material: 'scree', label: 'rugged mountain' }]],
     ],
     rest: [['hills', { len: 1200, level: 535, amp: 48, wave: 760 }], ['terraces', { len: 900, steps: 2, to: 545, label: 'eroded terraces' }], ['plain', { len: 520, level: 550 }]],
     outro: [['hills', { len: 700, level: 565, amp: 24 }], ['plain', { len: 520, level: 650 }]],
@@ -1033,7 +1280,7 @@ const TABLE_RECIPES = Object.freeze({
   'frost-iceberg-field': recipe('v2-iceberg-field', 'frost', 'open-sky', 'The Drifting Icebergs', 'snow', 540,
     'Open sky over a frozen bay: weave between broad icebergs standing in dark water.',
     [pl(535), bs(900, 34, 'frozen bay')],
-    [[st(1200, 2, 110, 54, 'iceberg', 'ice'), hl(500, 520, 30), st(1100, 2, 100, 50, 'iceberg', 'ice')],
+    [[st(1100, 2, 110, 54, 'iceberg', 'ice'), hl(1100, 520, 30), st(1000, 2, 100, 50, 'iceberg', 'ice')],
      [oc(900, 3, [60, 100], 515, 'ice'), bs(800, 40, 'open lead'), st(1100, 2, 105, 54, 'iceberg', 'ice')]],
     [hl(1000, 535, 34, 780), bs(800, 30, 'open lead'), pl(540)]),
   'frost-thaw-vault': recipe('v2-thaw-vault', 'frost', 'ice-cave', 'The Thawing Vault', 'snow', 555,
@@ -1171,8 +1418,8 @@ const TABLE_RECIPES = Object.freeze({
   'crystal-wedge-run': recipe('v2-wedge-run', 'crystal', 'wedges', 'The Wedge Run', 'scree', 480,
     'A fractured shelf of wedge-shaped rock: drop down rock faces and cross a dark mesa.',
     [pl(475), hl(900, 465, 24, 700)],
-    [[cf(560, 90, 'fault scarp'), ms(800, 150, 'wedge mesa'), cf(520, 70, 'fault scarp')],
-     [ms(700, 130, 'wedge butte'), pl(500, 380), cf(560, 80, 'fault scarp'), tr(800, 2, 540, 'wedge steps', 'rock')]],
+    [[cf(560, 90, 'fault scarp'), pl(555, 700), ms(800, 150, 'wedge mesa'), cf(520, 70, 'fault scarp')],
+     [ms(700, 130, 'wedge butte'), pl(500, 760), cf(560, 80, 'fault scarp'), tr(800, 2, 540, 'wedge steps', 'rock')]],
     [hl(1100, 490, 28, 720), pl(495), oc(700, 1, [34, 50], 490)],
     [hl(520, 560, 12, 520), pl(650)]),
   'crystal-chime-stair': recipe('v2-chime-stair', 'crystal', 'stair', 'The Chime Stair', 'scree', 565,
@@ -1186,8 +1433,8 @@ const TABLE_RECIPES = Object.freeze({
   'cloud-sky-islands': recipe('v2-island-steps', 'cloud', 'islands', 'The Sky Islands', 'soil', 540,
     'Stand-in for floating islands: flat-topped grassy mesas with rock edges, hop from island to island.',
     [pl(535), hl(900, 525, 30, 700)],
-    [[ms(800, 150, 'island'), pl(520, 360), ms(800, 170, 'island'), cf(520, 70, 'island edge')],
-     [oc(900, 2, [60, 100], 515), ms(700, 130, 'island'), hl(600, 520, 30), ms(800, 160, 'island')]],
+    [[ms(700, 150, 'island'), pl(520, 1150), ms(700, 170, 'island'), cf(520, 70, 'island edge')],
+     [oc(900, 2, [60, 100], 515), ms(600, 130, 'island'), hl(1100, 520, 30), ms(700, 160, 'island')]],
     [hl(1000, 535, 30, 740), pl(540), oc(700, 1, [30, 50], 540)]),
   'cloud-broken-span': recipe('v2-broken-span', 'cloud', 'arches', 'The Broken Span', 'soil', 525,
     'Passes beneath the broken spans of a sky bridge, with rock edges to drop over.',
@@ -1294,7 +1541,7 @@ export function buildLandformCourse({ levelId, seed = 1, height = FRAME, duratio
     errors: validation.errors, metrics: validation.metrics, profile: courseProfile(course, validation) } };
 }
 
-/** Open-air spots for a Flash pickup along a landform profile: well clear of floor and
+/** Open-air spots for a Flare pickup along a landform profile: well clear of floor and
  * ceiling over a window as wide as the clearance, on level ground (no cliff or blind
  * drop within the window) and near the validated flight line so it is reachable and
  * seen from the approach. Returns { x, y } in world units at `height`, best first. */

@@ -15,6 +15,7 @@ const { simulate, buildCase } = await import('../balance-current-flight.mjs');
 const { BIOME_LEVELS } = await import('../../dist/biomes.mjs');
 const L = await import('../../dist/course-landforms.mjs');
 
+if (args.undressed) L.overrideCourseDressing(false);
 const seeds = Number(args.seeds || 5), rows = String(args.rows || '0,3').split(',').map(Number);
 const styles = String(args.styles || 'human150,human250').split(','), gens = String(args.gens || '1,2').split(',').map(Number);
 const levels = args.levels ? String(args.levels).split(',') : Object.keys(L.LANDFORM_RECIPES);
@@ -41,12 +42,14 @@ for (const levelId of levels) {
     try { record = simulate(config); } finally { L.overrideCourseGeneration(null); }
     const layout = engine.layout, s = engine.height / 620;
     const deathX = record.success ? null : record.distance + engine.player.x;
+    const prof = layout.landformCourse?.profile, pi = prof && deathX !== null ? Math.max(0, Math.min(prof.floor.length - 1, Math.round((deathX - prof.x0) / prof.dx))) : -1;
+    const terrainAtDeath = pi >= 0 ? { floor: prof.floor[pi], ceil: prof.ceil[pi], ahead: [1, 2, 3].map(k => [prof.floor[Math.min(prof.floor.length - 1, pi + k * 25)], prof.ceil[Math.min(prof.floor.length - 1, pi + k * 25)]]) } : null;
     const hits = record.hitLog.map(h => { const o = layout.obstacles.find(o => o.id === h.obstacle); return { t: h.time, where: o ? labelAt(layout, o.x + o.width * .8) : 'boundary', saved: h.saved }; });
     rowsOut.push({ levelId, gen, recipe: gen === 2 ? L.LANDFORM_RECIPES[levelId]?.id : null, stage, style, seedIndex, duration: config.duration,
       success: record.success, progress: record.progress, time: record.time, lifts: record.flaps, liftInputs: record.liftInputs,
       startFuel: record.startFuel, endFuel: record.endFuel, minFuel: record.minFuel, fuelRestored: record.fuelRestored, effortSpent: record.effortSpent,
       flapCost: record.flapCost, maxAvailableFuel: record.maxAvailableFuel, pickups: record.direct + record.collector, fatalCause: record.fatalCause,
-      lowFuelAtDeath: record.lowFuelAtDeath, deathAt: deathX === null ? null : { x: Math.round(deathX), where: labelAt(layout, deathX), y: Math.round(engine.player.y / s) }, hits,
+      lowFuelAtDeath: record.lowFuelAtDeath, terrainAtDeath, deathAt: deathX === null ? null : { x: Math.round(deathX), where: labelAt(layout, deathX), y: Math.round(engine.player.y / s) }, hits,
       valid: layout.landformCourse?.valid ?? null });
     if (rowsOut.length % 10 === 0) console.log(JSON.stringify({ done: rowsOut.length, seconds: Math.round((Date.now() - started) / 1000) }));
   }
