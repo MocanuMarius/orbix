@@ -1,10 +1,10 @@
 /** Small, serializable skills-as-cards pilot. Printed Sparks use the existing .3 display scale. */
-import {getInscription, slotInscriptionId, hollowBonus, lodestoneBonus, emberBedStored, cleanSlotInscriptions, countInscription} from "./inscriptions.mjs?v=rest-1";
+import {getInscription, slotInscriptionId, hollowBonus, lodestoneBonus, emberBedStored, cleanSlotInscriptions, countInscription} from "./inscriptions.mjs?v=pulse-1";
 export const CARD_SYSTEM = "cards-v1";
 export const CARD_UNIT = 10 / 3;
-import {CARD_CATALOG,CARD_DROP_WEIGHTS} from './card-catalog.mjs?v=rest-1';
-import {cardOfferMultiplier} from './card-offer-context.mjs?v=rest-1';
-import {interpolateCardText,getCardTrigger,cardRuleSentence} from './card-rule-bands.mjs?v=rest-1';
+import {CARD_CATALOG,CARD_DROP_WEIGHTS} from './card-catalog.mjs?v=pulse-1';
+import {cardOfferMultiplier} from './card-offer-context.mjs?v=pulse-1';
+import {interpolateCardText,getCardTrigger,cardRuleSentence} from './card-rule-bands.mjs?v=pulse-1';
 const maximumGrowthAmount = Math.max(...Object.values(CARD_CATALOG)
   .filter(card => card.kind === 'camp-grow').map(card => card.amount + card.maxRank - 1));
 export const CARD_ECONOMY = Object.freeze({
@@ -890,12 +890,18 @@ export function getCardRowRule(def, card) {
   };
   return rules[def?.kind] || null;
 }
+/** A card whose effect is a permanent gain, a Finish or Rest moment growth, or a tally: Chameleon (two) never fires it, because
+ * firing it on every Trigger would multiply what must happen once. */
+export function isGrowthEffectCard(def, rule = getCardRowRule(def, def)) {
+  return !!def?.tallyEvent || ['add-future-capacity', 'add-cruising-speed'].includes(rule?.operation)
+    || [CARD_ROW_EVENTS.clear, CARD_ROW_EVENTS.victory].includes(rule?.event);
+}
 export function hasCardRowEvent(runtime, kind) {
   if (runtime?.inscriptions && inscriptionHearsEvent(runtime, kind)) return true;
   return getEffectiveCardSources(runtime).some(({def,source,index}) => {
     const row=getCardRowRule(def,source);
-    if (def.kind === 'chameleon-two') { const nextCard = (runtime.cards || runtime.mountedCards || [])[index + 1], next = SKILL_CARDS[nextCard?.cardId]; return !!(next && getCardRowRule(next, nextCard) && !next.engine && next.copyable && ![CARD_ROW_EVENTS.victory, CARD_ROW_EVENTS.clear, CARD_ROW_EVENTS.attach].includes(kind)); }
-    return def.tallyEvent === kind || (row && (row.event===kind || (row.event==='*' && row.operation==='add-sparks')));
+    if (def.kind === 'chameleon-two') { const nextCard = (runtime.cards || runtime.mountedCards || [])[index + 1], next = SKILL_CARDS[nextCard?.cardId]; return !!(next && getCardRowRule(next, nextCard) && !next.engine && next.copyable && !isGrowthEffectCard(next, getCardRowRule(next, nextCard)) && ![CARD_ROW_EVENTS.victory, CARD_ROW_EVENTS.clear, CARD_ROW_EVENTS.attach].includes(kind)); }
+    return def.tallyEvent === kind || (row && (row.event===kind || row.alsoEvents?.includes(kind) || (row.event==='*' && row.operation==='add-sparks')));
   });
 }
 /** Inscriptions that make a slot answer an event: "also fires on ..." (card here) and Hollow's Collect (empty slot). */
@@ -1027,7 +1033,7 @@ export function resolveCardRow(runtime, event = {}) {
     availableReel: Math.max(0,Number(event.availableReel)||0),
     availableRecovery: Math.max(0,Number(event.availableRecovery)||0), carriedStored: integer(event.carriedStored),
     cruisingSpeedRoom:event.cruisingSpeedRoom==null?6:cleanCardCruisingSpeed(event.cruisingSpeedRoom) }, passes: 0, slotVisits: 0, sparks: 0, stored: 0,
-    futureCapacity: 0, cruisingSpeed: 0, recoverySeconds: 0, reelSeconds: 0, nextReelSeconds: 0, executions: 0, payerActions: 0, steps: [], charges: {}, cards: [], sparksExact: 0, firings: [] };
+    futureCapacity: 0, cruisingSpeed: 0, recoverySeconds: 0, reelSeconds: 0, nextReelSeconds: 0, executions: 0, payerActions: 0, steps: [], charges: {}, cards: [], sparksExact: 0, sparksUnboosted: 0, firings: [] };
   if (!runtime || !rowEventKinds.has(kind) || event.eligible === false) {
     receipt.charges = getCardCharges(runtime);return freezeReceipt(receipt);
   }
@@ -1113,7 +1119,7 @@ export function resolveCardRow(runtime, event = {}) {
         if (hollow > 0) { standalone.sparks += hollow; step.amount += hollow; step.skipReason = null; step.operation = "inscription"; step.success = true; receipt.executions++; }
         continue;
       }
-      if (!def || (copy && (!def.copyable || (ownDef.kind === "echo" && (def.kind === "capacity" || def.passive)) || (ownDef.kind === "chameleon-two" && def.engine)))) {
+      if (!def || (copy && (!def.copyable || (ownDef.kind === "echo" && (def.kind === "capacity" || def.passive)) || (ownDef.kind === "chameleon-two" && (def.engine || isGrowthEffectCard(def, getCardRowRule(def, target)))))) ) {
         step.skipReason = "incompatible-neighbor";continue;
       }
       if (!source || (def.charges && !(source.charges > 0))) {
@@ -1122,7 +1128,7 @@ export function resolveCardRow(runtime, event = {}) {
       const rule = getCardRowRule(def, source);
       const pay = (rewardKind, value, cap) => {
         if (rewardKind === "sparks") lastSparkSlot = creditSlot;
-        entries.push({ pass, slot: creditSlot, kind: rewardKind, value, ...(cap === undefined ? {} : { cap }) });
+        entries.push({ pass, slot: creditSlot, kind: rewardKind, value, base: value, ...(cap === undefined ? {} : { cap }) });
         step[STEP_REWARD_FIELD[rewardKind]] += value;
       };
       const succeed = () => {
@@ -1139,7 +1145,7 @@ export function resolveCardRow(runtime, event = {}) {
       const insId = slotInscriptionId(runtime, creditSlot), insDef = getInscription(insId);
       const alsoHeard = !!rule && rule.operation !== "multiply" && !!insDef?.also && insDef.also === kind;
       const mirrored = !!rule && rule.operation !== "multiply" && insId === "mirror" && firedSlots.has(creditSlot - 1);
-      if (rule && (rule.event === kind || wildcard || alsoHeard || mirrored) && matchesRowCondition(rule.when,event,pass,slot,lastOccupied) && matchesRowShape(rule.when,topology,slot)) {
+      if (rule && (rule.event === kind || rule.alsoEvents?.includes(kind) || wildcard || alsoHeard || mirrored) && matchesRowCondition(rule.when,event,pass,slot,lastOccupied) && matchesRowShape(rule.when,topology,slot)) {
       const operation = rule.operation;
       const amount = Math.max(0,positionAmount(rule,topology,slot,Number(pass === 2 && rule.replayAmount !== undefined ? rule.replayAmount : rule.amount) || 0));
       const payout = operation === "add-last-payout" ? lastPayout : amount;
@@ -1228,6 +1234,8 @@ export function resolveCardRow(runtime, event = {}) {
         const cut = Math.min(entry.value, total("sparks", pass) - whole); entry.value -= cut; if (total("sparks", pass) - whole <= 1e-9) break;
       }
     for (const entry of entries) if (entry.pass === pass && entry.kind === "sparks") entry.value = Math.round(entry.value * 1e6) / 1e6;
+    // What the same firing gives with no Boost (rounded up once): Spill Jar keeps from this, never from the Boosted amount.
+    receipt.sparksUnboosted += Math.max(0, Math.ceil(entries.filter(entry => entry.pass === pass && entry.kind === "sparks").reduce((sum, entry) => sum + entry.base, 0) - 1e-9));
     receipt.firings.push({ pass, sparksExact: exact, sparks: whole });
     receipt.sparksExact += exact;
     // A Refrain by itself cannot schedule a meaningless second walk.
@@ -1247,7 +1255,7 @@ export function resolveCardRow(runtime, event = {}) {
     for (const rewardKind of CARD_REWARD_KINDS) card.boostedByKind[rewardKind] = [...new Set(card.boostedByKind[rewardKind])];
   }
   // Standalone Inscriptions on empty slots (Hollow, Ember Bed) have no card to credit: they join the totals here.
-  receipt.sparks += standalone.sparks;receipt.sparksExact += standalone.sparks;receipt.stored += standalone.stored;
+  receipt.sparks += standalone.sparks;receipt.sparksExact += standalone.sparks;receipt.sparksUnboosted += standalone.sparks;receipt.stored += standalone.stored;
   receipt.brimful = [...brimfulSlots].reduce((sum, slot) => sum + (ledgerCards[slot]?.effective.sparks || 0), 0);
   // Counting cards (batch 2) count the event once it is resolved, so a payout never includes its own event.
   for (let slot = 0; slot < cards.length; slot++) if (cards[slot] && SKILL_CARDS[cards[slot].cardId]?.tallyEvent === kind && !(fromSlot >= 0 && slot <= fromSlot)) cards[slot].tally = integer(cards[slot].tally) + 1;

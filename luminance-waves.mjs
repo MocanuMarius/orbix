@@ -1,5 +1,5 @@
-import {GLOW_DISPLAY_SCALE} from './vitality.mjs?v=rest-1';
-import {pickupKind,pickupShellRadius,isFuelPickup} from './pickups.mjs?v=rest-1';
+import {GLOW_DISPLAY_SCALE} from './vitality.mjs?v=pulse-1';
+import {pickupKind,pickupShellRadius,isFuelPickup} from './pickups.mjs?v=pulse-1';
 
 export const LUMINANCE_WAVE_TUNING=Object.freeze({speed:360,interval:1,maximumWaves:48,maximumSources:16});
 const finite=(value,fallback)=>Number.isFinite(Number(value))?Number(value):fallback;
@@ -137,7 +137,8 @@ export class LuminanceWaves {
               if(orderedCards){
                 const action=e.resolveCardRowEvent('wave-crossing',{firstCrossing,pickupKind:kind,
                   meterFraction,guardRecovering:e.wisp?.phase==='guard-recovery',
-                  waveId:wave.id,pulseSource:wave.source,pulseSourceKind:wave.sourceKind});
+                  waveId:wave.id,pulseSource:wave.source,pulseSourceKind:wave.sourceKind,
+                  ...(Number.isInteger(wave.fromSlot)?{fromSlot:wave.fromSlot}:{})});
                 cardAction=!!action?.receipt.steps.some(step=>step.success&&['add-sparks','add-last-payout'].includes(step.operation));
               }else{
                 cardAction=cardMeter>0||(!wave.storedPaid&&cardStored>0);

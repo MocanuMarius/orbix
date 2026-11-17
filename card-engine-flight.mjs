@@ -4,9 +4,9 @@
 // for a Lift, or the tab is hidden (the flight pauses itself then), and which advances by the fixed simulation step,
 // so a given seed and input give the same engine log. Eligibility mirrors resolveCardRowEvent: no engine during a
 // Dream rehearsal, the clear/death animations, or a tutorial without practice cards.
-import {CARD_UNIT} from './skill-cards.mjs?v=rest-1';
-import {CardEngine, hasEngineCards} from './card-engine.mjs?v=rest-1';
-import {createFlashTether, FLASH_PULSE_INTERVAL} from './flash-tether.mjs?v=rest-1';
+import {CARD_UNIT} from './skill-cards.mjs?v=pulse-1';
+import {CardEngine, hasEngineCards} from './card-engine.mjs?v=pulse-1';
+import {createFlashTether, FLASH_PULSE_INTERVAL} from './flash-tether.mjs?v=pulse-1';
 
 const live = e => !!(e.cardEngine && e.cardExecution && e.running && !e.paused && e.alive && !e.finished && !e.destroyed
   && !e.dying && !e.completing && !(e.tutorial && !e.mod?.practiceCards) && !(e.dream && e.dream.phase !== 'done'));
@@ -64,6 +64,14 @@ function flightHost(e) {
       e.radiateLight?.({once: true, reveal: true, source: 'card-wave-loom', sourceKind: 'card', color: '#d9f0dc'});
       return true;
     },
+    // A Pulse sent by a card: a real light ring from the wisp, tagged with the sender's Slot so only Pulse cards to its right hear it
+    // cross a Spark (dist/luminance-waves.mjs passes the Slot on as the event's fromSlot). Slot -1 is a Timer's return: the whole Chain.
+    cardPulse: slot => {
+      if (e.dream && e.dream.phase !== 'done') return false;
+      const wave = e.radiateLight?.({once: true, reveal: true, source: 'card-pulse', sourceKind: 'card', color: '#d9f0dc'});
+      if (wave && typeof wave === 'object') wave.fromSlot = slot;
+      return true;
+    },
     // Cues (no reading in flight): the strip in card-row-feedback.mjs pulses on a new Turn and dims on a stop; these
     // counters are cheap and change only on engine events.
     onEvent: entry => {
@@ -117,7 +125,9 @@ export function stepFlightInscriptions(e) {
   if (!(e.inscriptionBellAt >= 0)) e.inscriptionBellAt = e.time + 6;
   if (e.time + 1e-9 < e.inscriptionBellAt) return;
   e.inscriptionBellAt = e.time + 6;
-  e.radiateLight?.({once: true, reveal: true, source: 'inscription-bell', sourceKind: 'card', color: '#d9f0dc'});
+  const wave = e.radiateLight?.({once: true, reveal: true, source: 'inscription-bell', sourceKind: 'card', color: '#d9f0dc'});
+  // The Bell's Pulse flows right like any card's: only Pulse cards to the right of the leftmost Bell hear it.
+  if (wave && typeof wave === 'object') wave.fromSlot = ins.findIndex(entry => entry?.id === 'bell');
 }
 
 /** A Flare picked up in flight (a natural Flare: its end is heard by the whole Chain). */

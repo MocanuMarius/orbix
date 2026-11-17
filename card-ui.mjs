@@ -1,12 +1,12 @@
-import { cardTermTextMarkup } from "./card-terms.mjs?v=rest-1";
-import { uiIcon } from "./ui-icons.mjs?v=rest-1";
-import { getCardRuleBands, getCardTrigger } from "./card-rule-bands.mjs?v=rest-1";
-import { chipBadge, rarityPips } from "./ui/trigger-icons.mjs?v=rest-1";
-import { devourTally, isDevourCard } from "./card-black-hole.mjs?v=rest-1";
-import { getEquippedCardStatuses, cardStatusText } from "./card-status.mjs?v=rest-1";
-import { activeFlightPact } from './flight-pacts.mjs?v=rest-1';
-import { cardArt } from "./card-art.mjs?v=rest-1";
-import {deckRelicShelfMarkup,deckContextMarkup,deckLinkedCardFace,deckSwapComboMarkup,deckCardExplanationMarkup} from './deck-combos.mjs?v=rest-1';
+import { cardTermTextMarkup } from "./card-terms.mjs?v=pulse-1";
+import { uiIcon } from "./ui-icons.mjs?v=pulse-1";
+import { getCardRuleBands, getCardTrigger } from "./card-rule-bands.mjs?v=pulse-1";
+import { chipBadge, rarityPips } from "./ui/trigger-icons.mjs?v=pulse-1";
+import { devourTally, isDevourCard } from "./card-black-hole.mjs?v=pulse-1";
+import { getEquippedCardStatuses, cardStatusText } from "./card-status.mjs?v=pulse-1";
+import { activeFlightPact } from './flight-pacts.mjs?v=pulse-1';
+import { cardArt } from "./card-art.mjs?v=pulse-1";
+import {deckRelicShelfMarkup,deckContextMarkup,deckLinkedCardFace,deckSwapComboMarkup,deckCardExplanationMarkup} from './deck-combos.mjs?v=pulse-1';
 import {
   getMountedCards,
   getOwnedCards,
@@ -21,13 +21,13 @@ import {
   canUseCardCampServices,
   getSkillWallet,
   equipOwnedCard,
-} from "./model.mjs?v=rest-1";
-import { resourceSymbol } from "./game-symbols.mjs?v=rest-1";
-import { choiceScene } from "./choice-art.mjs?v=rest-1";
-import { livesMarkup } from "./lives.mjs?v=rest-1";
-import { getGlowCapacity, formatGlow } from "./vitality.mjs?v=rest-1";
-import { mapStopIconMarkup } from "./map-guide.mjs?v=rest-1";
-import {canDreamAt, dreamConfig} from './dream.mjs?v=rest-1';
+} from "./model.mjs?v=pulse-1";
+import { resourceSymbol } from "./game-symbols.mjs?v=pulse-1";
+import { choiceScene } from "./choice-art.mjs?v=pulse-1";
+import { livesMarkup } from "./lives.mjs?v=pulse-1";
+import { getGlowCapacity, formatGlow } from "./vitality.mjs?v=pulse-1";
+import { mapStopIconMarkup } from "./map-guide.mjs?v=pulse-1";
+import {canDreamAt, dreamConfig} from './dream.mjs?v=pulse-1';
 import {
   getEffectiveCardSources,
   createCardExecution,
@@ -40,7 +40,7 @@ import {
   isInventoryOnlyCard,
   SKILL_CARDS,
   cardTallyLine,
-} from "./skill-cards.mjs?v=rest-1";
+} from "./skill-cards.mjs?v=pulse-1";
 
 const esc = (v) =>
   String(v ?? "").replace(
@@ -89,7 +89,7 @@ function flightPackingReceipt(run, reward) {
     ? ` · Tight Packing +${bonus} Stored Sparks`
     : "";
 }
-export { cardArt } from "./card-art.mjs?v=rest-1";
+export { cardArt } from "./card-art.mjs?v=pulse-1";
 export function effectMarkup(text) {
   return esc(text).replace(/([+−]?\d+(?:\.\d+)?%?)/g, '<b class="card-number">$1</b>');
 }

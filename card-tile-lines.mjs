@@ -2,8 +2,8 @@
 // tile where the card's own effect line (card-rule-bands.mjs › getCardRuleBands, type "effect") is too long
 // to fit. Same meaning, approved vocabulary, about 22 characters at most. The full line is always on the
 // opened card. Moved from the design lab's TILE_SHORT table (56 cards) with the Pulse wording applied.
-import {getCardRuleBands} from './card-rule-bands.mjs?v=rest-1';
-import {SKILL_CARDS, describeSkillCard, cardTallyLine} from './skill-cards.mjs?v=rest-1';
+import {getCardRuleBands} from './card-rule-bands.mjs?v=pulse-1';
+import {SKILL_CARDS, describeSkillCard, cardTallyLine} from './skill-cards.mjs?v=pulse-1';
 
 export const CARD_TILE_LINES = Object.freeze({
   'climb': 'Lifts 2 and 3 free', 'watchlight': 'Collector saves you', 'springboard': 'Collect: free bounce',
@@ -16,7 +16,7 @@ export const CARD_TILE_LINES = Object.freeze({
   'return-spring': 'Reels in 0.5 s sooner', 'spillway-ii': 'Each Overfill: a Pulse',
   'growth-seed': '+5 max, full meter', 'growth-seed-common': '+3 max, full meter', 'growth-seed-legendary': '+8 max, full meter',
   'camp-kit': '2 Rest actions', 'echo-iii': 'Repeats next ×3', 'echo-ii': 'Repeats next twice',
-  'ripple-glass': 'Doubles all before', 'glide-prism': 'Doubles all before', 'courier-glass': 'Doubles all before',
+  'ripple-glass': 'Doubles all before', 'glide-prism': 'Lift: ×2 all before', 'courier-glass': 'Doubles all before',
   'clear-prism': 'Doubles all before', 'wick-doubler': 'Doubles all before', 'crescendo': 'Doubles all before',
   'diving-bell': 'Final Pulse, +3 Sparks', 'counterweight': 'Ready 0.75 s sooner', 'haul-winch': 'Next reel 3 s sooner',
   'fast-spool': 'Reels in 3 s sooner', 'rhythm': '3 even Lifts: a Pulse', 'glass-spool': 'Ready 0.5 s sooner',
@@ -27,7 +27,7 @@ export const CARD_TILE_LINES = Object.freeze({
   'second-wind': 'Save: all fire 5 s', 'undertow': 'Falling Lift: Collect',
   'closing-chord': 'Last: all before ×2.5', 'ring-spring': 'Ready 1 s sooner', 'ring-spring-ii': 'Ready 2 s sooner',
   'pacesetter': 'Ready 3 s sooner', 'mending-moss': 'Ready 3 s sooner', 'flash-thread': 'Ready 3 s sooner',
-  'slip-feather': 'A revealing Pulse', 'edge-reach': 'Pulse; reach +50%', 'double-lift': '2nd Lift is free',
+  'chameleon-two': 'Next: any, not growth', 'slip-feather': 'A revealing Pulse', 'edge-reach': 'Pulse; reach +50%', 'double-lift': '2nd Lift is free',
 });
 
 /** The line a Deck tile shows: the tile form when the card has one, else its real effect line. */

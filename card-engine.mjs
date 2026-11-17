@@ -17,8 +17,8 @@
 //   no Overfill hearer, a Metronome whose next card cannot act, a Long Fuse with nothing to repeat.
 // - Events only move right and each Timer holds at most one pending wait, so one instant always terminates; a hard
 //   safety counter still stops the engine (and warns once) if that is ever exceeded.
-import {SKILL_CARDS, CARD_ECONOMY, cardAmount, getCardRowRule, matchesRowCondition, matchesRowShape, isInventoryOnlyCard,
-  createCardExecution, resolveCardRow, getCardChargeCapacity} from './skill-cards.mjs?v=rest-1';
+import {SKILL_CARDS, CARD_ECONOMY, cardAmount, getCardRowRule, hasCardRowEvent, matchesRowCondition, matchesRowShape, isInventoryOnlyCard,
+  createCardExecution, resolveCardRow, getCardChargeCapacity} from './skill-cards.mjs?v=pulse-1';
 
 export const ENGINE_LIMITS = Object.freeze({ deliveriesPerInstant: 400, timersPerAdvance: 5000, logEntries: 5000, turnLog: 5000 });
 /** Player-made Triggers the engine cards listen to (not CARD_ROW_EVENTS: the ordinary walker never sees them). */
@@ -137,8 +137,10 @@ export class CardEngine {
     this.advance(now);
     if (type === ENGINE_TRIGGERS.pack) return this.runPack(detail);
     this.record({ k: 'trigger', type });
-    this.queue.push({ type, from: -1, mask: 0, turn: this.turn, detail, player: true,
-      ...(detail.spill !== undefined ? { spill: Number(detail.spill) || 0 } : {}), natural: !!detail.natural });
+    // A Trigger caused by a card-sent Pulse (detail.fromSlot) flows right from that sender, so a Pulse can never come back to its sender.
+    const origin = Number.isInteger(detail.fromSlot) && detail.fromSlot >= 0 ? detail.fromSlot : -1;
+    this.queue.push({ type, from: origin, mask: origin >= 0 ? 1 << origin : 0, turn: this.turn, detail, player: true,
+      ...(detail.spill !== undefined ? { spill: Number(detail.spill) || 0, spillBase: this.baseSpill(Number(detail.spill) || 0, detail.spillBase) } : {}), natural: !!detail.natural });
     this.flush();
     return this;
   }
@@ -150,6 +152,14 @@ export class CardEngine {
     this.queue.push({ type: 'flash-end', from: slot, mask: 1 << slot, turn: this.turn });
     this.flush();
     return this;
+  }
+  /** The part of a spill that no Boost made (Spill Jar and Ember Bell keep from this: Stored Sparks are never Boosted). `given` is
+   * a known unboosted spill; otherwise it is read from the walker's last receipt (the firing this spill came from). */
+  baseSpill(spill, given) {
+    if (Number.isFinite(given)) return Math.max(0, Math.min(spill, given));
+    const last = this.runtime?.lastTrace, unboosted = Number(last?.sparksUnboosted), sparks = Number(last?.sparks);
+    if (!(unboosted >= 0) || !(sparks >= spill - EPS) || unboosted >= sparks - EPS) return spill;
+    return Math.max(0, Math.min(spill, unboosted - (sparks - spill)));
   }
   flush() {
     let n = 0;
@@ -173,10 +183,23 @@ export class CardEngine {
   }
   sendPulse(from, mask, extra = {}) {
     const to = this.pulseTarget(from, mask);
+    this.realPulse(from);
     if (to < 0) { this.record({ k: 'pulse-unheard', slot: from }); return false; }
     this.record({ k: 'pulse', slot: from, to, ...extra });
     this.queue.push({ type: 'pulse', to, from, mask, turn: this.turn });
     return true;
+  }
+  /** A Pulse sent by a card is a REAL Pulse (2026-11-17): the world gets a light ring that cards to the RIGHT of the sender hear when it
+   * crosses a Spark you have not taken, exactly like a Flare's Pulse. It never re-fires the sender or the cards to its left (the host
+   * tags the ring with the sender's Slot). Made only when such a card exists, and never while packing (the flight is over). */
+  realPulse(from) {
+    if (this.inPack || typeof this.host.cardPulse !== 'function' || !this.pulseHeardByCardsRightOf(from)) return;
+    this.record({ k: 'real-pulse', slot: from });
+    this.host.cardPulse(from);
+  }
+  pulseHeardByCardsRightOf(from) {
+    const rt = this.runtime || {}, keep = list => Array.isArray(list) ? list.map((item, j) => j > from ? item : null) : list;
+    return hasCardRowEvent({ ...rt, cards: keep(rt.cards || []), ...(rt.inscriptions ? { inscriptions: keep(rt.inscriptions) } : {}) }, 'wave-crossing');
   }
   overfillHeardRightOf(slot) { return this.cards.some((card, j) => j > slot && hears(engineSpec(card), 'overfill')); }
   echoRepeats(slot) {
@@ -227,7 +250,7 @@ export class CardEngine {
       if (what === 'gain') this.gain(j, cardAmount(card) + (this.runtime?.inscriptions?.[j]?.id === 'gilded' ? 2 : 0) + [j - 1, j + 1].filter(k => this.runtime?.inscriptions?.[k]?.id === 'lodestone').length, mask);
       else if (what === 'pulse') {
         if (spec.keep && ev?.type === 'overfill' && !ev.natural) {
-          const keep = Math.floor(Math.min(spec.keep, Number(ev.spill) || 0) + EPS);
+          const keep = Math.floor(Math.min(spec.keep, Number(ev.spillBase ?? ev.spill) || 0) + EPS);
           if (keep > 0) { this.host.store?.(keep, j); this.stored += keep; if (this.inPack) this.pack.stored += keep; this.record({ k: 'keep', slot: j, amount: keep }); }
         }
         if (spec.lastTurn) { if (this.pulseTarget(j, mask) >= 0) { this.beginTurn(j); this.pack.turns++; } }
@@ -235,7 +258,7 @@ export class CardEngine {
       } else if (what === 'keep') {
         // Spill Jar: half of the spill (rounded up) becomes Stored Sparks. A collected pickup's own spill already packs.
         if (ev?.type === 'overfill' && !ev.natural) {
-          const keep = Math.max(0, Math.ceil((Number(ev.spill) || 0) * (Number(spec.keepShare) || 0.5) - EPS));
+          const keep = Math.max(0, Math.ceil((Number(ev.spillBase ?? ev.spill) || 0) * (Number(spec.keepShare) || 0.5) - EPS));
           if (keep > 0) { this.host.store?.(keep, j); this.stored += keep; if (this.inPack) this.pack.stored += keep; this.record({ k: 'keep', slot: j, amount: keep }); }
         }
       } else if (what === 'tithe') {
@@ -276,7 +299,7 @@ export class CardEngine {
     this.record({ k: 'gain', slot, amount, real: round6(real), spill, boost: multiplier });
     if (real > EPS) this.queue.push({ type: 'gain', from: slot, mask, turn: this.turn, amount: real });
     const heard = spill > EPS && this.overfillHeardRightOf(slot);
-    if (heard) this.queue.push({ type: 'overfill', from: slot, mask, turn: this.turn, spill });
+    if (heard) this.queue.push({ type: 'overfill', from: slot, mask, turn: this.turn, spill, spillBase: Math.max(0, Math.min(spill, Math.ceil(Math.max(0, Number(base) || 0) - EPS) - real)) });
     if (real <= EPS && !heard) this.stop('meter-full', slot);
     return { real, spill };
   }
@@ -319,7 +342,7 @@ export class CardEngine {
         this.record({ k: 'fuse', slot: tm.slot, amount: r.asked, real: round6(real), spill: round6(spill) });
         // The repeat is a whole-Chain firing from the first Slot, so its Sparks are heard across the Chain.
         if (real > EPS) this.queue.push({ type: 'gain', from: -1, mask: self, turn: this.turn, amount: real });
-        if (spill > EPS && this.overfillHeardRightOf(-1)) this.queue.push({ type: 'overfill', from: -1, mask: self, turn: this.turn, spill });
+        if (spill > EPS && this.overfillHeardRightOf(-1)) this.queue.push({ type: 'overfill', from: -1, mask: self, turn: this.turn, spill, spillBase: this.baseSpill(spill) });
       }
     } else if (tm.kind === 'tick') {
       const next = tm.slot + 1;
