@@ -1,13 +1,13 @@
 /** Contextual card vocabulary. Native modal dialogs keep help above the Deck. */
-import { resourceSymbol } from './game-symbols.mjs?v=reskin-1';
-import {lifeHeartSvg} from './lives.mjs?v=reskin-1';
-import {duskGlyphArt} from './spark-symbol.mjs?v=reskin-1';
-import {getGlowCapacity,formatGlow} from './vitality.mjs?v=reskin-1';
-import {glowGaugeUnits} from './glow-ui.mjs?v=reskin-1';
-import {getRunModifiers} from './model.mjs?v=reskin-1';
-import {cardAmount,makeSkillCard,SKILL_CARDS} from './skill-cards.mjs?v=reskin-1';
-import {cardRowTermHelpMarkup} from './card-row-help.mjs?v=reskin-1';
-import {dreamEye} from './dream.mjs?v=reskin-1';
+import { resourceSymbol } from './game-symbols.mjs?v=reskin-2';
+import {lifeHeartSvg} from './lives.mjs?v=reskin-2';
+import {duskGlyphArt} from './spark-symbol.mjs?v=reskin-2';
+import {getGlowCapacity,formatGlow} from './vitality.mjs?v=reskin-2';
+import {glowGaugeUnits} from './glow-ui.mjs?v=reskin-2';
+import {getRunModifiers} from './model.mjs?v=reskin-2';
+import {cardAmount,makeSkillCard,SKILL_CARDS} from './skill-cards.mjs?v=reskin-2';
+import {cardRowTermHelpMarkup} from './card-row-help.mjs?v=reskin-2';
+import {dreamEye} from './dream.mjs?v=reskin-2';
 const esc = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 export const CARD_TERMS = Object.freeze({
   round: ['Round', 'One flight through a passage, ending in clear rewards or a lost heart.'],
@@ -323,7 +323,7 @@ export function installCardTermHelp(doc = document, {resolveProximityContext,res
   function openGlossary(button) {
     hideHover(); while (layers.length) close();
     const heading = `card-glossary-heading-${++serial}`, dialog = doc.createElement('dialog');
-    dialog.className = 'card-term-dialog card-glossary-dialog';
+    dialog.className = 'card-term-dialog card-glossary-dialog wb-dlg';
     dialog.setAttribute('aria-labelledby',heading);
     const groups = [['Journey',['round','map','game']],['Flying & fuel',['wisp','spark','meter','dusk','cluster','heart','lift','luminance','wave','rhythm','proximity','packing','packing-efficiency','stored']],['Collector',['collector','ring','flash','cache','watchlight']],['Your cards',['pass','slot','trigger','boost','encore','always-on','any-trigger','next','copy','uses','shared','rest','grow']],['Triggers',['collect','delivery','latch','wave','flash','flash-ends','falling-lift','overfill','rhythm','swipe','save','clear']]];
     dialog.innerHTML = `<header><h2 id="${heading}">Glossary</h2><button type="button" data-card-term-close aria-label="Close glossary">×</button></header><div class="card-term-content card-glossary-list">${groups.map(([title,keys])=>`<section><h3>${esc(title)}</h3><div>${keys.map(key=>cardTermMarkup(key,CARD_TERMS[key][0])).join('')}</div></section>`).join('')}</div><footer><button type="button" data-card-term-close>Back</button></footer>`;
@@ -340,7 +340,7 @@ export function installCardTermHelp(doc = document, {resolveProximityContext,res
     if (current() && !current().dialog.contains(button)) while (layers.length) close();
     if (button.hasAttribute('data-card-status-help')) {
       const heading = `card-status-heading-${++serial}`, dialog = doc.createElement('dialog');
-      dialog.className = 'card-term-dialog card-status-dialog';
+      dialog.className = 'card-term-dialog card-status-dialog wb-dlg';
       dialog.setAttribute('aria-labelledby', heading);
       dialog.innerHTML = `<header><h2 id="${heading}">${esc(button.dataset.cardStatusTitle || 'Card readiness')}</h2><button type="button" data-card-term-close aria-label="Close status help">×</button></header><div class="card-term-content"><p>${esc(button.dataset.cardStatusDescription)}</p><p class="card-status-fix">${esc(button.dataset.cardStatusFix)}</p><p class="card-status-meaning">Ready means a card can work in this build when its condition happens. It does not mean its effect is active all the time.</p></div><footer><button type="button" data-card-term-close>Back</button></footer>`;
       mount(dialog, button); return;
@@ -356,7 +356,7 @@ export function installCardTermHelp(doc = document, {resolveProximityContext,res
     const title = button.dataset.cardTerm ? CARD_TERMS[items[0]][0] : button.dataset.cardTermTitle || `${context?.dataset.cardName || 'Card'} · help`;
     const note = !button.dataset.cardTerm && (context && CARD_NOTES[context.dataset.cardHelp] || description);
     const heading = `card-term-heading-${++serial}`, dialog = doc.createElement('dialog');
-    dialog.className = 'card-term-dialog';
+    dialog.className = 'card-term-dialog wb-dlg';
     dialog.setAttribute('aria-labelledby', heading);
     const content = button.dataset.cardTerm
       ? items.map(key => `<section data-card-term-section="${esc(key)}"><p class="card-term-definition">${cardTermTextMarkup(CARD_TERMS[key][1],{exclude:[key]})}</p><div data-card-term-example="${esc(key)}">${cardTermExampleMarkup(key,cardContext)}</div>${termDetailsMarkup(key)}</section>`).join('')
@@ -374,7 +374,7 @@ export function installCardTermHelp(doc = document, {resolveProximityContext,res
       dialog.classList.add('card-cache-dialog');
       const host=button.dataset.cardTerm?dialog.querySelector('[data-card-term-example]'):doc.createElement('div');
       if(!button.dataset.cardTerm){host.className='cache-card-example';dialog.querySelector('[data-card-help-rules]').append(host);}
-      import('./cache-card-help.mjs?v=reskin-1').then(({mountCacheCardHelp})=>{
+      import('./cache-card-help.mjs?v=reskin-2').then(({mountCacheCardHelp})=>{
         if(layers.includes(layer))appendDisposer(mountCacheCardHelp(host,{focus:cardKind==='harvest'?'cross':cardKind==='cache-handling'?'deliver':'touch',harvestCard:cardKind==='harvest'?cardContext.card:undefined}));
       });
     }
@@ -385,7 +385,7 @@ export function installCardTermHelp(doc = document, {resolveProximityContext,res
         const host=doc.createElement('section');host.className='proximity-card-help';
         const example=dialog.querySelector('[data-card-term-example="proximity"]');
         if(example)example.replaceChildren(host);else dialog.querySelector('.card-term-content').prepend(host);
-        import('./proximity-card-help.mjs?v=reskin-1').then(({mountProximityCardHelp})=>{
+        import('./proximity-card-help.mjs?v=reskin-2').then(({mountProximityCardHelp})=>{
           if(layers.includes(layer))appendDisposer(mountProximityCardHelp(host,previewContext));
         });
       }

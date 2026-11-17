@@ -3,7 +3,7 @@ body:not(.playing){grid-template-columns:minmax(0,1fr)}
 /* One header, one decision surface. This layer replaces the old stacked HUD. */
 #header .game-top-left,#header .header-end{display:flex;align-items:center;gap:18px;min-width:0}
 #header .back-icon{display:grid;place-items:center;padding:0;width:44px;height:44px;min-height:44px;box-sizing:border-box;flex:none;line-height:1}
-#header .back-icon>.ico{width:24px;height:24px;margin:0;display:block;transform:rotate(180deg)}
+#header .back-icon>.ico{width:24px;height:24px;margin:0;display:block}
 #header .route-heading{display:flex;align-items:center;gap:22px;font:14px/1.2 var(--pixel);color:#becbad;white-space:nowrap}
 #header .route-heading b{font:inherit;color:#e8e4bb}
 #header .header-end>.ascension-lives .life-heart{width:17px;height:16px}

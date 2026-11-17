@@ -28,7 +28,7 @@ html body dialog:is(.artifact-details-sheet,.artifact-sheet):not(#kit):has(>.art
  grid-column:1;grid-row:1;justify-self:start;position:static;display:grid;place-items:center;box-sizing:border-box;
  width:auto!important;min-width:88px;height:44px!important;min-height:44px!important;margin:0!important;padding:0 12px!important;
  border:12px solid transparent!important;border-image:url('assets/ui/waystone/plaque-slip.svg') 6 / 12px stretch!important;border-radius:0!important;clip-path:none!important;box-shadow:none!important;
- background:#e0c98f padding-box!important;image-rendering:pixelated;color:#3b2d20!important;-webkit-text-fill-color:currentColor!important;
+ background:#e4d09b padding-box!important;image-rendering:pixelated;color:#3b2d20!important;-webkit-text-fill-color:currentColor!important;
  font:400 15px/15px var(--pixel,monospace)!important;letter-spacing:1px;text-transform:uppercase;text-shadow:none!important;cursor:pointer;touch-action:manipulation;
 }
 html body dialog:is(.artifact-details-sheet,.artifact-sheet):not(#kit):has(>.artifact-inspection>.relic-detail-crest)>button.primary[data-action=resume]{border-image-source:url('assets/ui/waystone/plaque-moss.svg')!important;background:#536430 padding-box!important;color:#fff6d8!important;text-shadow:1px 2px #1c230f!important}
@@ -88,7 +88,7 @@ html body dialog.reward-earnings-sheet .reward-earnings-detail dl:has(>div:nth-c
 html body dialog.reward-earnings-sheet .reward-earnings-detail dl>div{display:flex;justify-content:space-between;gap:10px;font:400 15px/19px var(--pixel,monospace);color:#2a2118;border-bottom:1px solid #b4976180;padding:6px 0}
 html body dialog.reward-earnings-sheet .reward-earnings-detail dd{margin:0;color:#2a2118}
 html body dialog.reward-earnings-sheet .reward-earnings-context{margin-top:10px;display:grid;grid-template-columns:1fr 1fr;gap:5px 22px}
-html body dialog.reward-earnings-sheet .reward-earnings-context p{margin:0;font:400 12px/15px var(--pixel,monospace);color:#6b5335}
+html body dialog.reward-earnings-sheet .reward-earnings-context p{margin:0;font:400 12px/15px var(--pixel,monospace);color:#5a4632}
 @media(max-height:350px){
  html body dialog.reward-earnings-sheet:modal{padding:0 12px 4px!important}
  html body dialog.reward-earnings-sheet .re-root{gap:4px}

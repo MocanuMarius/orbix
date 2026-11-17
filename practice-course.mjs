@@ -3,8 +3,8 @@
 // exit). These hooks only calm it and place the one taught element where the
 // lesson needs it. Lessons are returned as paused coach steps; this module
 // never pauses, draws text or grants anything outside practice.
-import {obstacleEdgeClearance} from './edging-pulse.mjs?v=reskin-1';
-import {formatGlow} from './vitality.mjs?v=reskin-1';
+import {obstacleEdgeClearance} from './edging-pulse.mjs?v=reskin-2';
+import {formatGlow} from './vitality.mjs?v=reskin-2';
 
 const clamp=(n,lo,hi)=>Math.max(lo,Math.min(hi,n));
 /** Free flight before the first in-flight stop, and between stops (simulated seconds). */
@@ -185,7 +185,7 @@ export function shapePracticeCourse(engine){
   sparkLine(engine,20,25,.6,{wave:1.4});
  }else if(lesson==='course-collector'){
   calm(engine,at(19),{before:.62,after:.5});
-  sparkLine(engine,3.5,10.5,.9);
+  sparkLine(engine,3.5,11.6,.7);
   plan.collectorWakeX=at(12.2);
   for(const t of [14.2,17.4,20.6]){const x=at(t),b=freeBand(engine,x);if(b)spark(engine,x,b.mid,'course-miss',{stagedMiss:true});}
   sparkLine(engine,15.6,16.6,.5);sparkLine(engine,18.8,19.6,.4);

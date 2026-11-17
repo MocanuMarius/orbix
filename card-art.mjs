@@ -1,5 +1,5 @@
-import {SKILL_CARDS} from './skill-cards.mjs?v=reskin-1';
-import {duskCardArt} from './dusk-card-art.mjs?v=reskin-1';
+import {SKILL_CARDS} from './skill-cards.mjs?v=reskin-2';
+import {duskCardArt} from './dusk-card-art.mjs?v=reskin-2';
 /** Sixteen original scenes share one locally cached, square-cell atlas.
  * Order matches the 4×4 asset; each SVG clips exactly one 313px cell. */
 const esc = v => String(v ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));

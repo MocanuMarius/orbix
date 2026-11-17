@@ -1,5 +1,5 @@
-import {drawWispBody} from './companion-art.mjs?v=reskin-1';
-import {sparkImageArt} from './spark-symbol.mjs?v=reskin-1';
+import {drawWispBody} from './companion-art.mjs?v=reskin-2';
+import {sparkImageArt} from './spark-symbol.mjs?v=reskin-2';
 
 export const FLIGHT_LOADING_TIP_IDS=Object.freeze(['balanced-lift','lift-guide','rhythm-wave']);
 const STORAGE_KEY='emberwing.flight-loading-tips.v1';

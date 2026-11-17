@@ -1,9 +1,9 @@
-import { WispFlight, circleHitsObstacle } from './flight.mjs?v=reskin-1';
-import { createRun, getRunModifiers } from './model.mjs?v=reskin-1';
-import { shutterDensityAt } from './shutter-cone.mjs?v=reskin-1';
-import { lanternPassageY, lanternRoute } from './lantern-layout.mjs?v=reskin-1';
-import { wispOrbit } from './wisp.mjs?v=reskin-1';
-import { stepFlashTether } from './flash-tether.mjs?v=reskin-1';
+import { WispFlight, circleHitsObstacle } from './flight.mjs?v=reskin-2';
+import { createRun, getRunModifiers } from './model.mjs?v=reskin-2';
+import { shutterDensityAt } from './shutter-cone.mjs?v=reskin-2';
+import { lanternPassageY, lanternRoute } from './lantern-layout.mjs?v=reskin-2';
+import { wispOrbit } from './wisp.mjs?v=reskin-2';
+import { stepFlashTether } from './flash-tether.mjs?v=reskin-2';
 
 const step = 1 / 60;
 
@@ -35,7 +35,7 @@ export function createLanternPreview({host, isPaused, play, reducedMotion}) {
           <button type="button" data-light="flash" aria-label="Flash Powerup with base Luminance" aria-pressed="false">△ Flash</button>
         </div>
       </div>
-      <button type="button" data-flight>Fly passage →</button>
+      <button type="button" data-flight>Fly passage</button>
     </div>
     <div class="lantern-playback">
       <button type="button" data-watch aria-label="Pause the fly-through">Ⅱ</button>

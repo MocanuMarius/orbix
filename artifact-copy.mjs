@@ -1,8 +1,8 @@
-import {resourceSymbol} from './game-symbols.mjs?v=reskin-1';
-import {GUARDIAN_RELICS} from './guardian-artifacts.mjs?v=reskin-1';
-import {getArtifactInfo,CONSUMABLE_ARTIFACTS} from './artifact-info.mjs?v=reskin-1';
-import {getCompanionAbility,normalizeCompanionRole} from './companion-abilities.mjs?v=reskin-1';
-import {formatGlow,glowText,getGlowCapacity} from './vitality.mjs?v=reskin-1';
+import {resourceSymbol} from './game-symbols.mjs?v=reskin-2';
+import {GUARDIAN_RELICS} from './guardian-artifacts.mjs?v=reskin-2';
+import {getArtifactInfo,CONSUMABLE_ARTIFACTS} from './artifact-info.mjs?v=reskin-2';
+import {getCompanionAbility,normalizeCompanionRole} from './companion-abilities.mjs?v=reskin-2';
+import {formatGlow,glowText,getGlowCapacity} from './vitality.mjs?v=reskin-2';
 
 const esc=value=>String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const action={collector:'Collector delivers a Spark',protector:'Protector deflects a collision',swift:'Runner starts a burst',leveler:'Space Timer starts levitating'};
