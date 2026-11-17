@@ -37,6 +37,7 @@ Claude is the primary agent for this project from 2026-11-16. Codex / ChatGPT re
 - **Never require reading during active play.** The player cannot read and fly at the same time. Any text meant to be read — hints, lessons, instructions — appears only while the simulation is fully stopped, and play resumes only through an explicit player action (the existing countdown/ramp). In-flight channels are limited to non-reading cues: icons, arrows, color, sound. Confirmed by the user on 2026-11-16.
 - Reuse one coherent Spark motif from the actual game, with a distinct symbol for stored containers.
 - Apply established design principles and relevant lessons from comparable games such as Slay the Spire and Balatro for layout, build readability, and choices, while retaining Emberwing's own aesthetic.
+- **A card's effect lives on the card.** An effect exists only while its card is mounted in the Chain. A card with uses never gets depleted and leaves a lasting effect behind; a use lasts one flight. Whatever a card builds up (growth, counters) is stored on that card, shown on its face, and leaves with it. Decided by the user on 17 November 2026.
 - Favor meaningful tradeoffs and accessible human play. Account for reaction time and limited sight when balancing, and avoid needless complexity.
 
 ## User preferences
