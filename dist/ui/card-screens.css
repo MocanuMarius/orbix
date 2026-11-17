@@ -642,3 +642,10 @@ html body dialog.wb-dlg.bh-confirm .bh-confirm-acts>button{min-width:120px;min-h
 /* The Filter menu opens over the tiles below the header */
 html body #dk-root .dk2-head:not(#k){z-index:40}
 #dk-root .dk2-filtermenu{width:max-content;min-width:176px}
+/* Inscription rule text always sits on the kit's dark plaque colour with light text (about 12:1) */
+#dk-root .dk2-note-ins{position:absolute;left:12px;right:74px;top:calc(100% + 8px);z-index:45;display:block;padding:8px 10px;box-sizing:border-box;border:2px solid #2a1d12;background:#2a2118;color:#f6ebcc;font:400 13px/16px var(--pixel,monospace);box-shadow:0 4px 0 #2a1d1255;-webkit-line-clamp:unset;overflow:visible}
+#dk-root .dk2-inscription{background:#2a2118;color:#f6ebcc;border-color:#6b5335}
+#dk-root .dk2-inscription .ins-glyph{color:#f6ebcc}
+#dk-root .dk2-inscription small{color:#d8c89a}
+#dk-root .dk2-inscription .card-term,#dk-root .dk2-inscription button{color:#f2dfad}
+html body #dk-root :is(.dk2-inscription,.dk2-note-ins) :is(.card-term,.card-term *,button){color:#f2dfad!important}

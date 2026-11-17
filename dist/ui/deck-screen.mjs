@@ -648,6 +648,7 @@ export function mountDeckScreen(host, {run, view, opts = {}, actions = {}}) {
     if (tab === 'chain') view.pick = null;
     if (tab === 'deck') view.placing = null;
     if (view.tab === 'deck') flushSeen();
+    if (view.noteTone === 'dk2-note-ins') {view.note = '';view.noteTone = '';}
     view.menu = false;view.tab = tab;renderAll();
     if (focus) $(`dk2-tab-${tab}`)?.focus({preventScroll: true});
   }
@@ -773,7 +774,7 @@ export function mountDeckScreen(host, {run, view, opts = {}, actions = {}}) {
     const bookCard = t.closest('.tb-card');
     if (bookCard) {openCard(d.byUid(bookCard.dataset.uid), bookCard);return;}
     const insButton = t.closest('[data-ins-slot]');
-    if (insButton && !view.placing) {const slot = Number(insButton.dataset.insSlot);say(inscriptionLine(slot, slotInscriptionId(d.run, slot)), 'dk2-note-done');renderAll();return;}
+    if (insButton && !view.placing) {const slot = Number(insButton.dataset.insSlot);say(inscriptionLine(slot, slotInscriptionId(d.run, slot)), 'dk2-note-ins');renderAll();return;}
     if (t.closest('#dk2-done')) {actions.done?.();return;}
     if (t.closest('#dk2-placecancel')) {cancelPlacing();return;}
     if (t.closest('#dk2-pickcancel')) {cancelPick();return;}
@@ -786,7 +787,7 @@ export function mountDeckScreen(host, {run, view, opts = {}, actions = {}}) {
       view.menu = false;renderAll();
       if (toggle) {$('dk2-filter')?.focus({preventScroll: true});return;}
     }
-    if (t.closest('#dk2-filter')) {view.menu = true;renderAll();root.querySelector('#dk2-filtermenu [aria-checked="true"]')?.focus({preventScroll: true});return;}
+    if (t.closest('#dk2-filter')) {if (view.noteTone === 'dk2-note-ins') {view.note = '';view.noteTone = '';}view.menu = true;renderAll();root.querySelector('#dk2-filtermenu [aria-checked="true"]')?.focus({preventScroll: true});return;}
     const filter = t.closest('[data-filter]');
     if (filter) {view.filter = filter.dataset.filter;view.menu = false;renderAll();$('dk2-filter')?.focus({preventScroll: true});announce(`${view.filter === 'all' ? 'All cards' : RARITY_WORD[view.filter]}: ${countOf(d, view.filter)}.`);return;}
     if (filter) {view.filter = filter.dataset.filter;renderAll();root.querySelector(`[data-filter="${view.filter}"]`)?.focus({preventScroll: true});announce(`${view.filter === 'all' ? 'All cards' : RARITY_WORD[view.filter]}: ${countOf(d, view.filter)}.`);return;}

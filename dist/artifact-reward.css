@@ -110,3 +110,8 @@ html body .rw-screen .reward-packed-earned>span{font:400 11px/1 var(--pixel,mono
  .scribe-screen .scribe-choice p,.scribe-screen .scribe-chosen p{font-size:13px;line-height:15px}
  .scribe-screen .scribe-slot{padding:5px 4px;gap:3px}
 }
+/* Inscription rule text on the kit's dark plaque colour, light text (about 12:1), padded, wrapping */
+.scribe-screen .scribe-choice p,.scribe-screen .scribe-chosen p,.scribe-screen .scribe-confirm p{align-self:stretch;padding:6px 8px;box-sizing:border-box;background:#2a2118;color:#f6ebcc;border:2px solid #6b5335;text-align:left;overflow-wrap:anywhere}
+.scribe-screen .scribe-confirm p{align-self:center;text-align:center;padding:8px 12px}
+.scribe-screen .scribe-choice p .card-term,.scribe-screen .scribe-chosen p .card-term,.scribe-screen .scribe-confirm p .card-term,.scribe-screen .scribe-choice p button,.scribe-screen .scribe-chosen p button,.scribe-screen .scribe-confirm p button{color:#f2dfad}
+html body .scribe-screen :is(.scribe-choice,.scribe-chosen,.scribe-confirm) p :is(.card-term,.card-term *,button){color:#f2dfad!important;text-shadow:none}
