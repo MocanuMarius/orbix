@@ -71,7 +71,7 @@
     "file": "second-sun.svg",
     "rarity": "legendary",
     "family": "Boost",
-    "idea": "Two suns rise together over a shining field",
+    "idea": "Two equal suns side by side, field shines twice",
     "line": [
       "second-sun"
     ]
@@ -80,7 +80,7 @@
     "file": "ripple-glass.svg",
     "rarity": "rare",
     "family": "Boost",
-    "idea": "Magnifying glass over Pulse rings doubles the Spark",
+    "idea": "Pulse ring passes; the glass doubles the next Spark",
     "line": [
       "ripple-glass"
     ]
@@ -89,7 +89,7 @@
     "file": "glide-prism.svg",
     "rarity": "rare",
     "family": "Boost",
-    "idea": "Falling-Lift dip passes through crystal, Sparks doubled",
+    "idea": "Falling-Lift dip rises through prism, two Sparks out",
     "line": [
       "glide-prism"
     ]
@@ -98,7 +98,7 @@
     "file": "kindling-bead-ii.svg",
     "rarity": "rare",
     "family": "Boost",
-    "idea": "Gold bead kindles next bead; it pops two Sparks",
+    "idea": "Spark on cord kindles ember bead: two Sparks",
     "line": [
       "kindling-bead",
       "kindling-bead-ii",
@@ -120,7 +120,7 @@
     "file": "echo-ii.svg",
     "rarity": "rare",
     "family": "Repeat",
-    "idea": "Bright Spark followed by two fading echo copies",
+    "idea": "Bright Spark followed by two hollow fading copies",
     "line": [
       "echo",
       "echo-ii",
@@ -131,7 +131,7 @@
     "file": "echo-iii.svg",
     "rarity": "legendary",
     "family": "Repeat",
-    "idea": "Bright Spark followed by three fading echo copies",
+    "idea": "Bright Spark followed by three hollow fading copies",
     "line": [
       "echo",
       "echo-ii",
@@ -151,7 +151,7 @@
     "file": "chameleon.svg",
     "rarity": "rare",
     "family": "Repeat",
-    "idea": "Chameleon on branch turning Spark-gold toward a Spark",
+    "idea": "Chameleon card takes on the next card's face",
     "line": [
       "chameleon"
     ]
@@ -160,7 +160,7 @@
     "file": "mirror-grain.svg",
     "rarity": "rare",
     "family": "Repeat",
-    "idea": "Hand mirror reflects a Spark, giving it again",
+    "idea": "Hand mirror reflects a Spark as a hollow copy",
     "line": [
       "mirror-grain"
     ]
@@ -250,7 +250,7 @@
     "file": "ring-spring.svg",
     "rarity": "rare",
     "family": "Overfill",
-    "idea": "Spilling meter beside a spring launching the Collector",
+    "idea": "Spilling meter, hourglass short, spring flings the Collector",
     "line": [
       "ring-spring",
       "ring-spring-ii"
@@ -260,10 +260,30 @@
     "file": "ring-spring-ii.svg",
     "rarity": "legendary",
     "family": "Overfill",
-    "idea": "Spilling meter, double spring flings Collector high, glowing",
+    "idea": "Spilling meter, hourglass, double spring flings Collector high",
     "line": [
       "ring-spring",
       "ring-spring-ii"
+    ]
+  },
+  "spillway": {
+    "file": "spillway.svg",
+    "rarity": "rare",
+    "family": "Overfill",
+    "idea": "Meter spills; second drop rings out a Pulse",
+    "line": [
+      "spillway",
+      "spillway-ii"
+    ]
+  },
+  "spillway-ii": {
+    "file": "spillway-ii.svg",
+    "rarity": "legendary",
+    "family": "Overfill",
+    "idea": "Meter spills; every drop rings out a Pulse",
+    "line": [
+      "spillway",
+      "spillway-ii"
     ]
   },
   "flash-handling": {
@@ -279,7 +299,7 @@
     "file": "flash-bank.svg",
     "rarity": "rare",
     "family": "Flash",
-    "idea": "Lightning Flash strikes a nearly empty Spark meter",
+    "idea": "Flash bolt strikes a nearly empty Spark Meter",
     "line": [
       "flash-bank"
     ]
@@ -295,31 +315,11 @@
       "harvest-legendary"
     ]
   },
-  "spillway": {
-    "file": "spillway.svg",
-    "rarity": "rare",
-    "family": "Overfill",
-    "idea": "Meter spills into a pool; one ripple rings out",
-    "line": [
-      "spillway",
-      "spillway-ii"
-    ]
-  },
-  "spillway-ii": {
-    "file": "spillway-ii.svg",
-    "rarity": "legendary",
-    "family": "Overfill",
-    "idea": "Meter spills into a glowing pool; three ripples",
-    "line": [
-      "spillway",
-      "spillway-ii"
-    ]
-  },
   "edge-reach": {
     "file": "edge-reach.svg",
     "rarity": "rare",
     "family": "Pulse",
-    "idea": "Wisp skims the ground; a wide Pulse reaches far",
+    "idea": "Wisp skims the ground; Pulse reaches past old ring",
     "line": [
       "edge-reach"
     ]
@@ -328,7 +328,7 @@
     "file": "climb.svg",
     "rarity": "rare",
     "family": "Lift",
-    "idea": "Wisp rises three steps; a Pulse at the top",
+    "idea": "Wisp rides three chevrons; a Pulse at the top",
     "line": [
       "double-lift",
       "climb"
@@ -337,8 +337,8 @@
   "downbeat-iii": {
     "file": "downbeat-iii.svg",
     "rarity": "legendary",
-    "family": "Lift",
-    "idea": "Wisp falls, Lifts at bottom, five Sparks burst",
+    "family": "Falling Lift",
+    "idea": "Wisp falls, Lifts at the dip, five Sparks burst",
     "line": [
       "downbeat",
       "downbeat-iii"
@@ -359,7 +359,7 @@
     "file": "devourer.svg",
     "rarity": "rare",
     "family": "Eater",
-    "idea": "Jaws bite a Rare card; a heart rises",
+    "idea": "Wine jaws clamp a Rare card; a heart rises",
     "line": [
       "devourer"
     ]

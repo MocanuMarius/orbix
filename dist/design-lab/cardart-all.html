@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Card art full set · Design lab</title>
+<base href="../">
+<link rel="icon" href="assets/favicon.svg">
+<link rel="stylesheet" href="design-lab/cardart.css">
+<link rel="stylesheet" href="design-lab/cardart-all.css">
+</head>
+<body class="ca">
+<header class="ca-head">
+ <p class="ca-kicker">Design lab · contact sheet</p>
+ <h1>Card art <code class="ca-code">v1.0-cardart-B · full set</code></h1>
+ <p class="ca-lede">Every card, live and new, in the approved Vignette direction: grouped by Trigger family, then by evolution line, laid out Common › Rare › Legendary so the growth is visible. Each picture at 1x (Deck tile) and 2x (opened card). Common: flat. Rare: far hills and the moon. Legendary: stepped glow and a gold key-line.</p>
+ <p class="ca-count" id="ax-count"></p>
+ <div class="ax-tools">
+  <label class="ax-toggle"><input type="checkbox" id="ax-tiles"> Show in Deck tile</label>
+  <a class="ax-view" id="ax-lines" href="design-lab/cardart-all.html?view=lines">Evolution lines only</a>
+  <a class="ax-view" id="ax-everything" href="design-lab/cardart-all.html">Whole set</a>
+ </div>
+</header>
+<nav class="ax-nav" id="ax-nav" aria-label="Trigger families"></nav>
+<main id="ax-main"></main>
+<script type="module" src="design-lab/cardart-all.mjs"></script>
+</body>
+</html>

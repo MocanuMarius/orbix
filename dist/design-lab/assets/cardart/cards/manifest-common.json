@@ -18,7 +18,7 @@
   "dusk-wick": {
     "file": "dusk-wick.svg",
     "family": "Collect",
-    "idea": "Wisp takes rose Dusk crescent, gold bursts out",
+    "idea": "Candle flame feeds on a dark Dusk Spark",
     "line": [
       "dusk-wick",
       "dusk-wick-ii",
@@ -36,7 +36,7 @@
   "low-wick": {
     "file": "low-wick.svg",
     "family": "Collect",
-    "idea": "Nearly empty meter, a Spark streaks into wisp",
+    "idea": "Nearly empty Spark Meter; a Spark reaches the wisp",
     "line": [
       "low-wick"
     ]
@@ -44,7 +44,7 @@
   "wick-doubler": {
     "file": "wick-doubler.svg",
     "family": "Collect",
-    "idea": "One Spark enters candle flame, two come out",
+    "idea": "Wisp's Spark passes through glass, comes out twice",
     "line": [
       "wick-doubler"
     ]
@@ -52,7 +52,7 @@
   "glass-spool": {
     "file": "glass-spool.svg",
     "family": "Collect",
-    "idea": "Spark drops into hourglass, Collector waits beside it",
+    "idea": "Spark drops in, hourglass runs out, Collector off",
     "line": [
       "glass-spool"
     ]
@@ -60,7 +60,7 @@
   "mending-moss": {
     "file": "mending-moss.svg",
     "family": "Collect",
-    "idea": "Dimmed Collector mends on moss, Spark comes in",
+    "idea": "Dim Collector on moss, Spark in, hourglass short",
     "line": [
       "mending-moss"
     ]
@@ -85,7 +85,7 @@
   "courier-glass": {
     "file": "courier-glass.svg",
     "family": "Delivery",
-    "idea": "Collector delivers into a lens showing two Sparks",
+    "idea": "Collector delivers into the glass showing two Sparks",
     "line": [
       "courier-glass"
     ]
@@ -93,7 +93,7 @@
   "crate-lining": {
     "file": "crate-lining.svg",
     "family": "Delivery",
-    "idea": "Collector tows a lined crate of Sparks home",
+    "idea": "Collector delivers to the Cache chest, Sparks inside",
     "line": [
       "crate-lining"
     ]
@@ -101,7 +101,7 @@
   "return-spring": {
     "file": "return-spring.svg",
     "family": "Latch",
-    "idea": "Collector latches a Spark on a coiled spring",
+    "idea": "Collector hooks a Spark; coiled spring snaps back",
     "line": [
       "return-spring"
     ]
@@ -109,7 +109,7 @@
   "haul-winch": {
     "file": "haul-winch.svg",
     "family": "Latch",
-    "idea": "Cranked winch hauls a hooked Cluster down fast",
+    "idea": "Cranked winch reels a hooked Cluster in fast",
     "line": [
       "haul-winch"
     ]
@@ -127,7 +127,7 @@
   "first-ripple": {
     "file": "first-ripple.svg",
     "family": "Pulse",
-    "idea": "Fresh ring lights the nearest Spark, others wait",
+    "idea": "Fresh ring lights the first Spark, others dim",
     "line": [
       "first-ripple"
     ]
@@ -135,7 +135,7 @@
   "far-shore": {
     "file": "far-shore.svg",
     "family": "Pulse",
-    "idea": "Wide ring passes spent Spark, lights far shore",
+    "idea": "Wide ring crosses water; near spent, far lit",
     "line": [
       "far-shore"
     ]
@@ -143,7 +143,7 @@
   "clear-prism": {
     "file": "clear-prism.svg",
     "family": "Flash",
-    "idea": "Flash beam enters prism, leaves as two Sparks",
+    "idea": "Flash bolt strikes a prism, two Sparks out",
     "line": [
       "clear-prism"
     ]
@@ -151,7 +151,7 @@
   "flash-thread": {
     "file": "flash-thread.svg",
     "family": "Flash",
-    "idea": "Flash triangle threads Collector back, hourglass running out",
+    "idea": "Flash bolt runs the hourglass out; Collector off",
     "line": [
       "flash-thread"
     ]
@@ -159,7 +159,7 @@
   "diving-bell": {
     "file": "diving-bell.svg",
     "family": "Flash ends",
-    "idea": "Spent grey Flash triangle sends one last ring",
+    "idea": "Spent broken Flash bolt sends one last ring",
     "line": [
       "diving-bell"
     ]
@@ -175,7 +175,7 @@
   "pacesetter": {
     "file": "pacesetter.svg",
     "family": "Rhythm",
-    "idea": "Collector dashes over three evenly spaced beat posts",
+    "idea": "Three beats run hourglass out; Collector dashes off",
     "line": [
       "pacesetter"
     ]
@@ -183,7 +183,7 @@
   "downbeat": {
     "file": "downbeat.svg",
     "family": "Falling Lift",
-    "idea": "Wisp falls, then Lifts back up; Sparks pay",
+    "idea": "Wisp falls, Lifts at the dip; Sparks pay",
     "line": [
       "downbeat",
       "downbeat-iii"
@@ -192,7 +192,7 @@
   "counterweight": {
     "file": "counterweight.svg",
     "family": "Falling Lift",
-    "idea": "Dropping brass weight hoists the Collector up fast",
+    "idea": "Falling Lift dip runs hourglass out; Collector off",
     "line": [
       "counterweight"
     ]
@@ -200,7 +200,7 @@
   "double-lift": {
     "file": "double-lift.svg",
     "family": "Lift",
-    "idea": "Wisp rises under two stacked chevrons, second free",
+    "idea": "Wisp rides two stacked chevrons, upper one free",
     "line": [
       "double-lift",
       "climb"
@@ -233,7 +233,7 @@
   "wayfarers-purse": {
     "file": "wayfarers-purse.svg",
     "family": "Clear",
-    "idea": "Drawstring purse of Stored Sparks beside the flag",
+    "idea": "At the flag, Sparks drop into the jar",
     "line": [
       "wayfarers-purse"
     ]
@@ -241,7 +241,7 @@
   "nest-egg": {
     "file": "nest-egg.svg",
     "family": "Clear",
-    "idea": "Woven nest of pale eggs, one gold egg",
+    "idea": "Stored jar in a nest lays a gold egg",
     "line": [
       "nest-egg"
     ]
@@ -257,7 +257,7 @@
   "growth-seed-common": {
     "file": "growth-seed-common.svg",
     "family": "Rest",
-    "idea": "Seed sprouting on soil beside the Rest campfire",
+    "idea": "Campfire, sprouting seed and the stake's gold notch",
     "line": [
       "growth-seed-common",
       "growth-seed",
@@ -267,7 +267,7 @@
   "prism-lens": {
     "file": "prism-lens.svg",
     "family": "Any Trigger",
-    "idea": "Faceted lens casts light over cards before it",
+    "idea": "Prism: one Spark goes in, two come out",
     "line": [
       "prism-lens",
       "prism-lens-ii"
@@ -276,7 +276,7 @@
   "kindling-bead": {
     "file": "kindling-bead.svg",
     "family": "Any Trigger",
-    "idea": "Ember bead lights on a string after Spark",
+    "idea": "Spark on cord kindles ember bead: one Spark",
     "line": [
       "kindling-bead",
       "kindling-bead-ii",
@@ -286,7 +286,7 @@
   "echo": {
     "file": "echo.svg",
     "family": "Next card",
-    "idea": "Sound rings reach a card, echo copy behind",
+    "idea": "Bright Spark followed by one fainter copy",
     "line": [
       "echo",
       "echo-ii",
@@ -304,7 +304,7 @@
   "tight-packing": {
     "file": "tight-packing.svg",
     "family": "Always on",
-    "idea": "Glass jar crammed with Sparks, cord tied tight",
+    "idea": "Stored Sparks packed into the glass jar",
     "line": [
       "tight-packing",
       "tight-packing-ii",
@@ -372,7 +372,7 @@
   "long-spool": {
     "file": "long-spool.svg",
     "family": "Always on",
-    "idea": "Collector line runs past its usual reach ring",
+    "idea": "Spool line runs past the old reach ring",
     "line": [
       "long-spool"
     ]
