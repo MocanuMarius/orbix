@@ -1,6 +1,6 @@
-import {newState,createRun,ARTIFACTS,getChoices,selectNode,beginFlightAttempt,markFlightAttemptStarted,finishFlight,settleCheckpoint} from '../model.mjs?v=reskin-2';
-import {makeSkillCard} from '../skill-cards.mjs?v=reskin-2';
-import {prepareRouteOffer} from '../route-offers.mjs?v=reskin-2';
+import {newState,createRun,ARTIFACTS,getChoices,selectNode,beginFlightAttempt,markFlightAttemptStarted,finishFlight,settleCheckpoint} from '../model.mjs?v=reskin-3';
+import {makeSkillCard} from '../skill-cards.mjs?v=reskin-3';
+import {prepareRouteOffer} from '../route-offers.mjs?v=reskin-3';
 
 /** Preview-only data. Never load/persist a player save or start a flight. */
 export function createComponentFixture(family,variant){
@@ -11,7 +11,7 @@ export function createComponentFixture(family,variant){
   run.artifacts=['wayward-seed','glow-wick','flash-stone','echo-bell','hollow-covenant','sunheart-engine','cache-cup','reed-charm','moon-glass'].filter(id=>ARTIFACTS[id]);
   run.artifactCharges={'glow-wick':1,'flash-stone':2};
   run.mountedCards=['echo','body-spark','spark-cache'].map((id,i)=>makeSkillCard(id,`sample-mounted-${i}`));
-  run.reserveCards=['deep-vessel','tight-packing','chameleon','field-impulse','rhythm','harvest-legendary'].map((id,i)=>makeSkillCard(id,`sample-reserve-${i}`));
+  run.reserveCards=['deep-vessel','tight-packing','chameleon','body-spark','rhythm','harvest-legendary'].map((id,i)=>makeSkillCard(id,`sample-reserve-${i}`));
   run.condensedGlow=75;
   if(family==='route'&&variant==='wayfinder'){
     // A naturally generated first stop: no replacement level or forced quest.
@@ -59,7 +59,7 @@ export function createComponentFixture(family,variant){
     const card=makeSkillCard(variant==='rewardSeed'?'growth-seed-common':variant==='rewardLong'?'devourer':'twin-wick','sample-reward');
     run.cardReward={id:'sample-reward-receipt',source:'flight',claimed:true,card,uiAcknowledged:false};
     run.reserveCards.push(card);
-    if(variant==='rewardLong')run.mountedCards=['field-impulse','long-spool','cast-line'].map((id,i)=>makeSkillCard(id,`sample-mounted-${i}`));
+    if(variant==='rewardLong')run.mountedCards=['body-spark','long-spool','cast-line'].map((id,i)=>makeSkillCard(id,`sample-mounted-${i}`));
     if(variant==='rewardFive'){
       run.cardSlots=5;
       run.mountedCards.push(makeSkillCard('twin-wick','sample-mounted-3'),null);

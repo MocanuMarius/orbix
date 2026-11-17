@@ -7,13 +7,13 @@
 // LEFT did to it (an Echo repeating it). Later Boosts and the Encore keep their own plates. Honesty rule: the
 // plates read left to right (+ adds, × multiplies the running figure, Encore repeats the line, each firing
 // rounded down to whole Sparks) must give the resolver's total; when they do not, plates show plain figures.
-import {SKILL_CARDS, CARD_UNIT, getCardRowRule, hasCardRowEvent, previewCardRow, isInventoryOnlyCard, describeSkillCard} from '../skill-cards.mjs?v=reskin-2';
-import {getGlowCapacity, glowPoints, GLOW_DISPLAY_SCALE} from '../vitality.mjs?v=reskin-2';
-import {CARD_TRIGGERS} from '../card-rule-bands.mjs?v=reskin-2';
+import {SKILL_CARDS, CARD_UNIT, getCardRowRule, hasCardRowEvent, previewCardRow, isInventoryOnlyCard, describeSkillCard} from '../skill-cards.mjs?v=reskin-3';
+import {getGlowCapacity, glowPoints, GLOW_DISPLAY_SCALE} from '../vitality.mjs?v=reskin-3';
+import {CARD_TRIGGERS} from '../card-rule-bands.mjs?v=reskin-3';
 
 /** The Triggers in the designer's order, with the game's names and glossary keys (card-terms.mjs). */
 export const TRIGGERS = Object.freeze([
-  ...['collect', 'delivery', 'latch', 'wave', 'flash', 'flash-ends', 'falling-lift', 'overfill', 'rhythm', 'swipe', 'save', 'clear']
+  ...['collect', 'delivery', 'latch', 'wave', 'flash', 'flash-ends', 'falling-lift', 'overfill', 'rhythm', 'save', 'clear']
     .map(id => CARD_TRIGGERS[id]).filter(Boolean)
     .map(t => Object.freeze({kind: t.event, name: t.label, term: t.id, meaning: t.meaning})),
   // Victory is the engine's thirteenth Trigger; no card listens to it by name and it has no glossary entry.

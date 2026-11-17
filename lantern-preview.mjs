@@ -1,9 +1,9 @@
-import { WispFlight, circleHitsObstacle } from './flight.mjs?v=reskin-2';
-import { createRun, getRunModifiers } from './model.mjs?v=reskin-2';
-import { shutterDensityAt } from './shutter-cone.mjs?v=reskin-2';
-import { lanternPassageY, lanternRoute } from './lantern-layout.mjs?v=reskin-2';
-import { wispOrbit } from './wisp.mjs?v=reskin-2';
-import { stepFlashTether } from './flash-tether.mjs?v=reskin-2';
+import { WispFlight, circleHitsObstacle } from './flight.mjs?v=reskin-3';
+import { createRun, getRunModifiers } from './model.mjs?v=reskin-3';
+import { shutterDensityAt } from './shutter-cone.mjs?v=reskin-3';
+import { lanternPassageY, lanternRoute } from './lantern-layout.mjs?v=reskin-3';
+import { wispOrbit } from './wisp.mjs?v=reskin-3';
+import { stepFlashTether } from './flash-tether.mjs?v=reskin-3';
 
 const step = 1 / 60;
 

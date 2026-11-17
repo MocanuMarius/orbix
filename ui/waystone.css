@@ -90,8 +90,12 @@ html body .wb-ground .wb-sign::after{display:none}
 html body .wb-ground .wb-split{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
 html body .wb-ground .wb-split>.wb-sign:not(.wb-sign-quiet,.wb-sign-danger){column-gap:10px;padding:0 4px!important}
 html body .wb-ground .wb-split>.wb-sign:not(.wb-sign-quiet,.wb-sign-danger) .wb-sign-text>b{font-size:15px;line-height:15px;letter-spacing:.5px}
-html body .wb-ground .wb-sign:focus-visible{outline:2px solid var(--wb-focus)!important;outline-offset:2px;filter:brightness(1.15)}
-@media(hover:hover){html body .wb-ground .wb-sign:hover{filter:brightness(1.14)}}
+html body .wb-ground .wb-sign:focus-visible{outline:2px solid var(--wb-focus)!important;outline-offset:2px;filter:none}
+/* Plaques with an edge clasp draw their focus ring as a frame 2px clear of the plaque, broken where the clasp sits, so the ring never crosses the ornament. */
+html body .wb-ground :is(.wb-sign-primary,.wb-sign-standard):focus-visible{outline:none!important}
+html body .wb-ground :is(.wb-sign-primary,.wb-sign-standard):focus-visible::after{display:block;content:'';position:absolute;inset:-16px;border:2px solid var(--wb-focus);box-sizing:border-box;pointer-events:none;clip-path:polygon(0 0,calc(50% - 22px) 0,calc(50% - 22px) 20px,calc(50% + 22px) 20px,calc(50% + 22px) 0,100% 0,100% 100%,0 100%)}
+html body .wb-ground .wb-sign-primary .wb-sign-text>small{color:#f4e8c6;text-shadow:var(--wb-ink-primary-shadow)}
+@media(hover:hover){html body .wb-ground .wb-sign:hover{filter:brightness(1.14)}html body .wb-ground .wb-sign-primary:hover{filter:none}}
 html body .wb-ground .wb-sign:active{transform:translateY(2px);filter:brightness(.95)}
 html body .wb-ground .wb-sign:disabled{cursor:default;filter:saturate(.5) brightness(.85)}
 
@@ -162,6 +166,8 @@ html body .wb-ground .wb-stat-hearts>svg{width:32px;height:28px}
    used in flight (#pause-layer) and on the map (inside a <dialog>). */
 html body .wb-pause .wb-pause-col{display:grid;grid-template-columns:minmax(0,1fr);gap:5px;width:100%;margin:0}
 html body .wb-pause .wb-page .wb-sign:not(.wb-sign-quiet,.wb-sign-danger){height:50px}
+/* The primary plaque needs a taller fill so its subtitle stays on the moss, not on the cream frame. */
+html body .wb-pause .wb-page .wb-sign.wb-sign-primary{height:56px}
 /* Optional-challenge reminder: under the sound tab in the right side area (the page has no free
    height). The summary's hit area reaches 44px through a transparent extension. */
 html body .wb-pause .pause-bonus-rule{max-width:calc(100% - 16px);margin:14px 0 0;font:400 11px/15px var(--pixel,monospace);letter-spacing:.5px;color:var(--wb-copy);text-align:center;text-shadow:var(--wb-ink-shadow)}

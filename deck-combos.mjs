@@ -1,10 +1,10 @@
 /** Small, read-only explanations for the actual chain. */
-import {SKILL_CARDS, getMountedCards, getEffectiveCardSources, getCardRowRule, previewCardRowEvent, CARD_ROW_EVENTS, getUseDoublerTarget, getEmberFeederTargets, getCardFeederCapacity, getAlwaysOnCardBoosts} from './skill-cards.mjs?v=reskin-2';
-import {getCardRuleBands} from './card-rule-bands.mjs?v=reskin-2';
-import {getEquippedCardStatuses} from './card-status.mjs?v=reskin-2';
-import {ARTIFACTS} from './model.mjs?v=reskin-2';
-import {artifactDescription} from './artifact-copy.mjs?v=reskin-2';
-import {artifactPixelPortrait} from './artifact-pixel-art.mjs?v=reskin-2';
+import {SKILL_CARDS, getMountedCards, getEffectiveCardSources, getCardRowRule, previewCardRowEvent, CARD_ROW_EVENTS, getUseDoublerTarget, getEmberFeederTargets, getCardFeederCapacity, getAlwaysOnCardBoosts} from './skill-cards.mjs?v=reskin-3';
+import {getCardRuleBands} from './card-rule-bands.mjs?v=reskin-3';
+import {getEquippedCardStatuses} from './card-status.mjs?v=reskin-3';
+import {ARTIFACTS} from './model.mjs?v=reskin-3';
+import {artifactDescription} from './artifact-copy.mjs?v=reskin-3';
+import {artifactPixelPortrait} from './artifact-pixel-art.mjs?v=reskin-3';
 
 const esc=value=>String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const number=value=>Number(Number(value||0).toFixed(3));
@@ -20,7 +20,6 @@ const eventNames={
   [CARD_ROW_EVENTS.overfill]:'Overfill · a Spark brings more than your meter can hold',
   [CARD_ROW_EVENTS.delivery]:'Delivery · Collector brings you a pickup',
   [CARD_ROW_EVENTS.rhythm]:'Rhythm · 3 even Lifts complete',
-  [CARD_ROW_EVENTS.field]:'Swipe · a Field Impulse swipe succeeds',
   [CARD_ROW_EVENTS.guard]:'Save · Collector stops a fatal crash',
   [CARD_ROW_EVENTS.clear]:'Clear · you clear a flight',
   [CARD_ROW_EVENTS.victory]:'You defeat the third guardian',

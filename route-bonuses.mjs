@@ -1,6 +1,6 @@
-import {getLifeCapacity} from './vitality.mjs?v=reskin-2';
-import {grantPassageBoon} from './passage-preparations.mjs?v=reskin-2';
-import {getCardModifiers,isCardRun} from './skill-cards.mjs?v=reskin-2';
+import {getLifeCapacity} from './vitality.mjs?v=reskin-3';
+import {grantPassageBoon} from './passage-preparations.mjs?v=reskin-3';
+import {getCardModifiers,isCardRun} from './skill-cards.mjs?v=reskin-3';
 
 function bonus(id, name, condition, reward, target, hint='', boonId=null) {
   return Object.freeze({id, name, condition, reward, target, hint, ...(boonId?{boonId}:{})});

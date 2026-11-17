@@ -1,6 +1,6 @@
-import {WispFlight} from './flight.mjs?v=reskin-2';
-import {BIOMES,BIOME_LEVELS} from './biomes.mjs?v=reskin-2';
-import {getRunModifiers} from './model.mjs?v=reskin-2';
+import {WispFlight} from './flight.mjs?v=reskin-3';
+import {BIOMES,BIOME_LEVELS} from './biomes.mjs?v=reskin-3';
+import {getRunModifiers} from './model.mjs?v=reskin-3';
 const canvas=document.querySelector('canvas'),select=document.querySelector('select'),slider=document.querySelector('input');
 const course=document.querySelector('#course');
 const mode=document.querySelector('#mode'),light=document.querySelector('#light'),status=document.querySelector('#status'),gate=document.querySelector('#gate');

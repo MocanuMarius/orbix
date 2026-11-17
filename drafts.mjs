@@ -1,7 +1,7 @@
 // One-shot, world-anchored air pockets. Reading a puff never advances it.
-import { LEVEL_LENGTH } from './level-length.mjs?v=reskin-2';
-import { scenePropBounds } from './scene-props.mjs?v=reskin-2';
-import {stormZoneState} from './storm-encounter.mjs?v=reskin-2';
+import { LEVEL_LENGTH } from './level-length.mjs?v=reskin-3';
+import { scenePropBounds } from './scene-props.mjs?v=reskin-3';
+import {stormZoneState} from './storm-encounter.mjs?v=reskin-3';
 const clamp = (n, lo, hi) => Math.min(hi, Math.max(lo, n));
 const smooth = n => { const t = clamp(n, 0, 1); return t * t * (3 - 2 * t); };
 export const DRAFT_TUNING = Object.freeze({ warning: 1.15, duration: 1.65, fade: .35,

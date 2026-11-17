@@ -1,9 +1,9 @@
 // Disposable, deterministic equipped samples. No app boot, persistence or economy actions.
-import { CARD_SYSTEM, SKILL_CARDS, makeSkillCard, getMountedCards, previewCardRow } from './skill-cards.mjs?v=reskin-2';
-import { cardRowTraceMarkup, cardRowSequenceMarkup } from './card-row-feedback.mjs?v=reskin-2';
-import { cardFace } from './card-ui.mjs?v=reskin-2';
-import { CARD_TERMS, cardTermTextMarkup, installCardTermHelp } from './card-terms.mjs?v=reskin-2';
-import {resolveCardHelpContext} from './card-row-help.mjs?v=reskin-2';
+import { CARD_SYSTEM, SKILL_CARDS, makeSkillCard, getMountedCards, previewCardRow } from './skill-cards.mjs?v=reskin-3';
+import { cardRowTraceMarkup, cardRowSequenceMarkup } from './card-row-feedback.mjs?v=reskin-3';
+import { cardFace } from './card-ui.mjs?v=reskin-3';
+import { CARD_TERMS, cardTermTextMarkup, installCardTermHelp } from './card-terms.mjs?v=reskin-3';
+import {resolveCardHelpContext} from './card-row-help.mjs?v=reskin-3';
 
 const esc = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 export const DEFAULT_COMBO_SEED = 'moonwell-15';
@@ -74,9 +74,6 @@ export const COMBO_EVENT_PRESETS = Object.freeze([
   ['collector-cluster','Collector delivers a Cluster',{kind:'collector-delivery',pickupKind:'cluster'}],
   ['collector-cache','Collector delivers a Cache',{kind:'collector-delivery',pickupKind:'cache'}],
   ['rhythm','Successful Rhythm phrase',{kind:'rhythm-phrase'}],
-  ['field-up','Field Impulse · up',{kind:'field-swipe',direction:'up'}],
-  ['field-down','Field Impulse · down',{kind:'field-swipe',direction:'down'}],
-  ['field-right','Field Impulse · right',{kind:'field-swipe',direction:'right'}],
   ['guard','Collector saves you',{kind:'guard-rescue'}],
   ['guard-low','Collector saves you · ¼ meter',{kind:'guard-rescue',meterFraction:.25}],
 ]);
