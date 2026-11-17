@@ -28,6 +28,8 @@ The 5-hour limit resets at **09:30 local** (07:30 UTC). At 06:05 it stood at 66%
 
 **Written 2026-11-17 08:25, usage 87%, reset 09:30.** Nothing is running; no worker is paused; the tree is clean (only untracked studies and captures). Live: `reskin-2` (`ade3103c`). After the reset, start in this order:
 
+**Update 09:40, usage 92%: PAUSED.** Nothing running, tree clean, all pushed (`13ca5e66`). Step 1 below is DONE (art, icon, level, balance audits; see Status log). After the reset start at: (a) Opus showcases in the design lab: `v1.0-cardart` (6 cards from `outputs/art-audit/cards.md`), `v1.0-level` (Frostbound Reach and Oldgrowth Pines, levers 1 and 2 from `outputs/level-audit/levels.md`); (b) Sonnet: `v2.0-icons` sheet redraw (menu carvings, hearts, map icons) and reskin leftovers (step 3); (c) coordinator: biome proposal, `v1.0-engine` card list with Pack Trigger and Black Hole (BACKLOG.md top), using `docs/card-balance-2.md`; (d) goals 5, 7, 9; performance last.
+
 1. Read-only audits together (Sonnet): card art (goal 11 step 1), level rendering per location (goal 12 step 1), icon sheet (goal 15 step 1), card balance simulation and summary (goal 14, analysis only, no game changes).
 2. Coordinator: biome proposal (goal 13) once the level audit is back.
 3. Reskin leftovers (Sonnet, small): title treatment on Rest/Collection/Forge/Deck, the scorecard image (canvas, cold green), pause primary button focus look (subtitle hard to read when focused), `dist/ui/gallery-fixtures.mjs` still equips Field Impulse, `swipe` Trigger left in `dist/ui/chain-model.mjs:16` and `card-terms.mjs`, screenshots never taken of result/reward/Rest headers after `v2.6`.
