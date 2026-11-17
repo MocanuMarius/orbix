@@ -1,0 +1,117 @@
+/* v1.0-inscribe · design lab only. Marks A (wax seal), B (engraved band), C (rune border) for an Inscription.
+   Builds on cardart.css and cardboard.css (card faces, tiles and Chain slots are the game's own).
+   Every mark is drawn on whole pixels: crisp SVG rects or 1-4 px blocks. Paths are relative to this file. */
+html,body{margin:0;background:#0c0907;color:#f6ebcc}
+body.insb{padding:10px 12px 60px;font:400 15px/1.4 var(--pixel);background:#0c0907;color:#f6ebcc}
+*{box-sizing:border-box}
+.ib{max-width:960px;margin:0 auto}
+.ib h1,.ib h2,.ib h3,.ib h4,.ib p{margin:0}
+.ib-head{display:grid;gap:8px;padding:6px 0 10px}
+.ib-head h1{font:400 22px/28px var(--pixel);text-shadow:2px 2px #2a1d12}
+.ib-head p{max-width:760px;color:#e2d0a6;line-height:22px}
+.ib-head code,.ib-note code{color:#f0c86a}
+.ib-code{display:inline-block;margin-left:6px;padding:2px 8px;border:2px solid #2a1d12;background:#e6c77c;color:#2a1d12;font:400 13px/16px var(--pixel);text-shadow:none;vertical-align:2px}
+.ib-pick{display:flex;flex-wrap:wrap;gap:4px 18px;border:0;padding:0}
+.ib-pick legend{float:left;margin-right:14px;color:#e2d0a6;line-height:44px}
+.ib-pick label{display:inline-flex;align-items:center;gap:8px;min-height:44px;cursor:pointer}
+.ib-pick input{width:20px;height:20px;accent-color:#7d9a45}
+.ib-nav{display:flex;flex-wrap:wrap;gap:4px 8px}
+.ib-nav a{display:inline-flex;align-items:center;min-height:44px;padding:0 12px;border:2px solid var(--rule);background:#e2cf9f;color:var(--ink-soft);text-decoration:none}
+.ib-sec{margin:26px 0 0;overflow-x:auto;padding-bottom:6px}
+.ib-sec h2{font:400 20px/26px var(--pixel);margin-bottom:4px}
+.ib-note{max-width:760px;color:#e2d0a6;line-height:22px;margin-bottom:8px}
+
+/* The phone frame: Pixel 10 landscape */
+.ib-frame{position:relative;width:915px;height:412px;margin:0 0 14px;padding:12px 14px;border:4px solid #4a3828;background:#1b2a22;box-shadow:inset 0 0 0 2px #2a1d12;overflow:hidden;color:#f6ebcc}
+.ib-grp h3{font:400 13px/16px var(--pixel);color:#e2d0a6;letter-spacing:1px;text-transform:uppercase;margin-bottom:6px}
+.ib-row1{display:flex;gap:22px;align-items:flex-start;margin-bottom:8px}
+.ib-faces{display:flex;gap:10px}
+.ib-face{position:relative;width:136px}
+.ib-face .ca-fart{position:relative}
+.ib-face .ca-fart>img{display:block;width:96px;height:96px;image-rendering:pixelated}
+.ib-strip{padding:6px 4px 6px 4px;overflow:visible}
+.ib-cap{margin-top:8px;max-width:360px;font-size:13px;line-height:16px;color:#e2d0a6}
+.ib-tiles{display:flex;gap:12px}
+.ib-tile{position:relative}
+.ib-tile .ca-effect{font-size:14px;line-height:16px}
+.ib-art{position:relative}
+.ib-mart{position:relative}
+
+/* Show only the chosen mark */
+.mkA,.mkB,.mkC{display:none}
+[data-mk="A"] .mkA{display:block}
+[data-mk="B"] .mkB{display:flex}
+[data-mk="C"] .mkC{display:block}
+[data-mk="C"] .ib-chipglyph{display:inline-grid}
+
+/* A: wax seal, over the top right corner, outside every text area */
+.ib-seal{position:absolute;z-index:5;width:26px;height:26px;line-height:0;filter:drop-shadow(0 2px 0 #2a1d1280);pointer-events:none}
+.ib-seal svg{display:block;width:26px;height:26px}
+.ib-seal-face{top:-9px;right:-9px}
+.ib-seal-mount{top:-9px;right:-9px}
+.ib-seal-tile{top:-9px;right:-9px}
+
+/* B: engraved band across the bottom of the picture */
+.ib-band{position:absolute;z-index:3;left:0;right:0;bottom:0;align-items:center;justify-content:center;gap:4px;background:#2a1d12;border-top:2px solid #f0c86a;pointer-events:none}
+.ib-band-face{height:20px;gap:6px}
+.ib-band-mount,.ib-band-tile{height:13px;gap:3px}
+.ib-band s{display:block;height:2px;background:#f0c86a;flex:1 1 0;max-width:34px;min-width:4px;margin:0 3px}
+.ib-band-mount s,.ib-band-tile s{max-width:12px;min-width:3px;margin:0 2px}
+.ib-band svg{display:block;flex:none}
+
+/* C: rune border just inside the frame, corner studs, glyph beside the Trigger chip */
+.ib-rune{position:absolute;z-index:4;inset:0;border:2px solid #4fc4b0;box-shadow:inset 0 0 0 1px #1d5a52,0 0 6px #4fc4b0aa;pointer-events:none}
+.ib-rune s{position:absolute;width:4px;height:4px;background:#d6fff4;box-shadow:0 0 0 1px #1d5a52}
+.ib-rune s:nth-child(1){left:-2px;top:-2px}.ib-rune s:nth-child(2){right:-2px;top:-2px}
+.ib-rune s:nth-child(3){left:-2px;bottom:-2px}.ib-rune s:nth-child(4){right:-2px;bottom:-2px}
+.ib-chipglyph{place-items:center;width:15px;height:15px;margin-left:2px;border:1px solid #2a1d12;background:#14241e;line-height:0;flex:none}
+.ib-chipglyph svg{display:block;width:9px;height:9px}
+.ib-corner{position:absolute;z-index:5;top:2px;right:2px;display:none;place-items:center;width:15px;height:15px;border:1px solid #2a1d12;background:#14241e;line-height:0}
+[data-mk="C"] .ib-corner{display:grid}
+.ib-corner svg{display:block;width:9px;height:9px}
+.ca-tilemain{position:relative}
+
+/* Inspect and Scribe frames */
+.ib-inspect{display:flex;gap:22px;align-items:flex-start;padding:2px 4px}
+.ib-big .ib-face{width:190px}
+.ib-big .cb-face .ca-fart{width:152px;height:152px}
+.ib-big .cb-face .ca-fart>img{width:144px;height:144px}
+.ib-panel{flex:1 1 auto;display:grid;gap:10px;min-width:0}
+.ib-block{padding:8px 12px 10px;border:3px solid #6b5335;background:#e8d6a4;color:#2a1d12;display:grid;gap:6px}
+.ib-block h4{display:flex;align-items:center;gap:8px;font:400 13px/16px var(--pixel);letter-spacing:1px;text-transform:uppercase;color:#5a4632}
+.ib-block p{font:400 16px/20px var(--pixel);color:#1f160d}
+.ib-block .ib-small,.ib-small{font:400 13px/16px var(--pixel);color:#5a4632}
+.ib-panel>.ib-small{color:#e2d0a6}
+.ib-block-ins{border-color:#2f8f80;background:#dfe8c8;box-shadow:inset 0 0 0 2px #4fc4b055}
+.ib-line{display:flex;flex-wrap:wrap;gap:6px}
+.ib-kw{display:inline-flex;align-items:center;gap:4px;min-height:24px;padding:2px 8px 2px 4px;border:2px solid #6b5335;background:#f1e0b0;color:#2a1d12;font:400 13px/1 var(--pixel);text-decoration:underline dotted #8a6d44;text-underline-offset:3px}
+.ib-kw svg{display:block;width:16px;height:16px}
+.ib-kw b{font-weight:400}
+.ib-kw-quiet{background:transparent;border-color:transparent;text-decoration:none;color:#5a4632}
+.ib-gbox{display:inline-grid;place-items:center;padding:4px;border:2px solid #2a1d12;background:#14241e;line-height:0}
+.ib-gbox svg{display:block}
+.ib-btn{min-height:44px;padding:0 18px;border:3px solid #2a1d12;background:#e8d6a4;color:#2a1d12;font:400 15px/1 var(--pixel);cursor:pointer}
+.ib-btn-go{background:#7d9a45;color:#14200c}
+.ib-btn-off{background:#8a8470;color:#4a4636;cursor:default}
+.ib-actions{display:flex;gap:10px;justify-content:flex-end}
+.ib-scribe{display:flex;flex-direction:column;gap:10px}
+.ib-bar{display:flex;align-items:baseline;gap:12px;padding:0 0 8px;border-bottom:3px solid #4a3828}
+.ib-bar b{font:400 20px/24px var(--pixel)}
+.ib-step{padding:2px 8px;background:#e6c77c;color:#2a1d12;font:400 13px/16px var(--pixel)}
+.ib-sub{color:#e2d0a6;font-size:14px}
+.ib-foot{margin-top:auto}
+.ib-opts{display:flex;gap:12px}
+.ib-opt{flex:1 1 0;display:grid;justify-items:start;gap:8px;padding:12px;border:3px solid #6b5335;background:#e8d6a4;color:#2a1d12;min-height:230px;align-content:start}
+.ib-opt p{font:400 16px/20px var(--pixel)}
+.ib-opt small{font:400 13px/16px var(--pixel);color:#5a4632}
+.ib-oname{font:400 18px/22px var(--pixel)}
+.ib-sel{border-color:#f0c86a;box-shadow:0 0 0 3px #f0c86a,0 0 0 5px #2a1d12}
+.ib-gbig{padding:8px}
+.ib-picks{display:flex;gap:22px;align-items:flex-start}
+.ib-pickrow{display:flex;gap:8px}
+.ib-ok,.ib-no{position:relative;display:grid;justify-items:center;gap:4px}
+.ib-ok .cb-mt{box-shadow:0 0 0 3px #f0c86a,0 0 0 5px #2a1d12}
+.ib-tick{position:absolute;right:-2px;top:-8px;z-index:6;display:grid;place-items:center;width:20px;height:20px;border:2px solid #2a1d12;background:#536430;line-height:0}
+.ib-no .cb-mt{opacity:.45}
+.ib-why{font:400 12px/14px var(--pixel);color:#e2d0a6}
+.ib-hint{font-size:14px;line-height:18px;color:#e2d0a6;max-width:700px}

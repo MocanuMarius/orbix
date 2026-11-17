@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Inscriptions · Design lab</title>
+<link rel="icon" href="../assets/favicon.svg">
+<link rel="stylesheet" href="cardart.css">
+<link rel="stylesheet" href="cardboard.css?v=1">
+<link rel="stylesheet" href="inscribe.css?v=1">
+</head>
+<body class="insb">
+<main class="ib">
+ <header class="ib-head">
+  <h1>Inscriptions <span class="ib-code">v1.0-inscribe</span></h1>
+  <p>Artifacts become effects written on a card. A mark on the card shows it in the Chain. Three marks to choose from, shown on a Common, a Rare and a Legendary card, in the Chain row and in the deck tile. Every frame is 915 × 412, the Pixel 10 in landscape. Rules and the full inventory: <code>docs/inscriptions.md</code>.</p>
+  <fieldset class="ib-pick"><legend>Mark used in the Inspect and Scribe frames</legend>
+   <label><input type="radio" name="mk" value="A"> A Wax seal</label>
+   <label><input type="radio" name="mk" value="B" checked> B Engraved band</label>
+   <label><input type="radio" name="mk" value="C"> C Rune border</label>
+  </fieldset>
+  <nav class="ib-nav" aria-label="Sections"><a href="#vA">A Wax seal</a><a href="#vB">B Engraved band</a><a href="#vC">C Rune border</a><a href="#inspect">Inspect</a><a href="#scribe">Scribe stop</a></nav>
+ </header>
+ <div id="ib-root"></div>
+</main>
+<script type="module" src="inscribe.mjs?v=1"></script>
+</body>
+</html>
