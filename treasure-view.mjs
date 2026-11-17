@@ -1,10 +1,10 @@
-import {companionArtSvg} from './companion-art.mjs?v=deck-2';
-import {resourceSymbol} from './game-symbols.mjs?v=deck-2';
-import {lifeHeartSvg} from './lives.mjs?v=deck-2';
-import {getTreasureChoices,getTreasureKind,SKILLS} from './model.mjs?v=deck-2';
-import {treasureArt} from './treasure-art.mjs?v=deck-2';
-import {skillIcon,artifactIcon} from './upgrade-icons.mjs?v=deck-2';
-import {formatGlow,getGlowCapacity} from './vitality.mjs?v=deck-2';
+import {companionArtSvg} from './companion-art.mjs?v=panels-1';
+import {resourceSymbol} from './game-symbols.mjs?v=panels-1';
+import {lifeHeartSvg} from './lives.mjs?v=panels-1';
+import {getTreasureChoices,getTreasureKind,SKILLS} from './model.mjs?v=panels-1';
+import {treasureArt} from './treasure-art.mjs?v=panels-1';
+import {skillIcon,artifactIcon} from './upgrade-icons.mjs?v=panels-1';
+import {formatGlow,getGlowCapacity} from './vitality.mjs?v=panels-1';
 
 const esc=value=>String(value??'').replace(/[&<>"']/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
 

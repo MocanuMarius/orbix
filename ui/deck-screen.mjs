@@ -7,25 +7,25 @@
 // This module draws and handles everything that does not change the save. Every real change (equip, swap,
 // take out, Melt, Workshop) goes through the `actions` the app passes in, which call the model's own
 // transactions and then reopen the sheet; the view state object survives that reopen.
-import {CARD_SYSTEM, getMountedCards, describeSkillCard, getCardChargeCapacity} from '../skill-cards.mjs?v=deck-2';
-import {getOwnedCards, getUnseenCardIds} from '../model.mjs?v=deck-2';
-import {uiIcon} from '../ui-icons.mjs?v=deck-2';
-import {cardFace, cardArt, getCardFaceAvailability} from '../card-ui.mjs?v=deck-2';
-import {getEquippedCardStatuses} from '../card-status.mjs?v=deck-2';
-import {glowGaugeMarkup, glowGaugeUnits} from '../glow-ui.mjs?v=deck-2';
-import {cardTileLine, SPARK_ICON_SRC, WISP_ORB_SRC} from '../card-tile-lines.mjs?v=deck-2';
+import {CARD_SYSTEM, getMountedCards, describeSkillCard, getCardChargeCapacity} from '../skill-cards.mjs?v=panels-1';
+import {getOwnedCards, getUnseenCardIds} from '../model.mjs?v=panels-1';
+import {uiIcon} from '../ui-icons.mjs?v=panels-1';
+import {cardFace, cardArt, getCardFaceAvailability} from '../card-ui.mjs?v=panels-1';
+import {getEquippedCardStatuses} from '../card-status.mjs?v=panels-1';
+import {glowGaugeMarkup, glowGaugeUnits} from '../glow-ui.mjs?v=panels-1';
+import {cardTileLine, SPARK_ICON_SRC, WISP_ORB_SRC} from '../card-tile-lines.mjs?v=panels-1';
 import {resolveChain, slotInfo, hereLine, plateWords, whenOf, markOf, TRIGGER_BY, triggerName, RARITY_WORD, rarityOf, nameOf, shortName, isRest, num, METER_MAX, START_FLAME,
-  chipOf, triggerBook, enginePlate, holeTally} from './chain-model.mjs?v=deck-2';
-import {triggerIcon, pixelArt, CHEVRON, gem, EYE, WARN, PLUS, NEXT, FIRE, medalUrl, frameVars, chipBadge, chipIcon, rarityPips} from './trigger-icons.mjs?v=deck-2';
-import {CARD_TRIGGERS} from '../card-rule-bands.mjs?v=deck-2';
+  chipOf, triggerBook, enginePlate, holeTally} from './chain-model.mjs?v=panels-1';
+import {triggerIcon, pixelArt, CHEVRON, gem, EYE, WARN, PLUS, NEXT, FIRE, medalUrl, frameVars, chipBadge, chipIcon, rarityPips} from './trigger-icons.mjs?v=panels-1';
+import {CARD_TRIGGERS} from '../card-rule-bands.mjs?v=panels-1';
 import {triggerLabel, triggerTermKey} from '../card-trigger-labels.mjs';
-import {CARD_TERMS} from '../card-terms.mjs?v=deck-2';
-import {SKILL_CARDS} from '../skill-cards.mjs?v=deck-2';
-import {isDevourCard} from '../card-black-hole.mjs?v=deck-2';
-import {simulateEngineChain, engineStarts} from '../card-engine.mjs?v=deck-2';
-import {GLOW_DISPLAY_SCALE} from '../vitality.mjs?v=deck-2';
-import {slotInscriptionId, slotInscriptionList} from '../inscriptions.mjs?v=deck-2';
-import {inscriptionBrand, inscriptionFrame, inscriptionBlock, inscriptionLine} from '../inscription-ui.mjs?v=deck-2';
+import {CARD_TERMS} from '../card-terms.mjs?v=panels-1';
+import {SKILL_CARDS} from '../skill-cards.mjs?v=panels-1';
+import {isDevourCard} from '../card-black-hole.mjs?v=panels-1';
+import {simulateEngineChain, engineStarts} from '../card-engine.mjs?v=panels-1';
+import {GLOW_DISPLAY_SCALE} from '../vitality.mjs?v=panels-1';
+import {slotInscriptionId, slotInscriptionList} from '../inscriptions.mjs?v=panels-1';
+import {inscriptionBrand, inscriptionFrame, inscriptionBlock, inscriptionLine} from '../inscription-ui.mjs?v=panels-1';
 
 const esc = v => String(v ?? '').replace(/[&<>"']/g, c => ({'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'}[c]));
 const SPARK_SRC = SPARK_ICON_SRC;
@@ -648,6 +648,7 @@ export function mountDeckScreen(host, {run, view, opts = {}, actions = {}}) {
     if (tab === 'chain') view.pick = null;
     if (tab === 'deck') view.placing = null;
     if (view.tab === 'deck') flushSeen();
+    if (view.noteTone === 'dk2-note-ins') {view.note = '';view.noteTone = '';}
     view.menu = false;view.tab = tab;renderAll();
     if (focus) $(`dk2-tab-${tab}`)?.focus({preventScroll: true});
   }
@@ -773,7 +774,7 @@ export function mountDeckScreen(host, {run, view, opts = {}, actions = {}}) {
     const bookCard = t.closest('.tb-card');
     if (bookCard) {openCard(d.byUid(bookCard.dataset.uid), bookCard);return;}
     const insButton = t.closest('[data-ins-slot]');
-    if (insButton && !view.placing) {const slot = Number(insButton.dataset.insSlot);say(inscriptionLine(slot, slotInscriptionId(d.run, slot)), 'dk2-note-done');renderAll();return;}
+    if (insButton && !view.placing) {const slot = Number(insButton.dataset.insSlot);say(inscriptionLine(slot, slotInscriptionId(d.run, slot)), 'dk2-note-ins');renderAll();return;}
     if (t.closest('#dk2-done')) {actions.done?.();return;}
     if (t.closest('#dk2-placecancel')) {cancelPlacing();return;}
     if (t.closest('#dk2-pickcancel')) {cancelPick();return;}
@@ -786,7 +787,7 @@ export function mountDeckScreen(host, {run, view, opts = {}, actions = {}}) {
       view.menu = false;renderAll();
       if (toggle) {$('dk2-filter')?.focus({preventScroll: true});return;}
     }
-    if (t.closest('#dk2-filter')) {view.menu = true;renderAll();root.querySelector('#dk2-filtermenu [aria-checked="true"]')?.focus({preventScroll: true});return;}
+    if (t.closest('#dk2-filter')) {if (view.noteTone === 'dk2-note-ins') {view.note = '';view.noteTone = '';}view.menu = true;renderAll();root.querySelector('#dk2-filtermenu [aria-checked="true"]')?.focus({preventScroll: true});return;}
     const filter = t.closest('[data-filter]');
     if (filter) {view.filter = filter.dataset.filter;view.menu = false;renderAll();$('dk2-filter')?.focus({preventScroll: true});announce(`${view.filter === 'all' ? 'All cards' : RARITY_WORD[view.filter]}: ${countOf(d, view.filter)}.`);return;}
     if (filter) {view.filter = filter.dataset.filter;renderAll();root.querySelector(`[data-filter="${view.filter}"]`)?.focus({preventScroll: true});announce(`${view.filter === 'all' ? 'All cards' : RARITY_WORD[view.filter]}: ${countOf(d, view.filter)}.`);return;}
