@@ -1,28 +1,28 @@
-import {resourceSymbol} from './game-symbols.mjs?v=perf-1';
-import {prepareFuelSprites} from './pickup-art.mjs?v=perf-1';
-import {selectFlightLoadingTip,renderFlightLoadingTip} from './flight-loading-tips.mjs?v=perf-1';
+import {prepareFuelSprites} from './pickup-art.mjs?v=icons-1';
+import {selectFlightLoadingTip,renderFlightLoadingTip} from './flight-loading-tips.mjs?v=icons-1';
 
 export function preloadFlightEntry(reducedMotion=false){
  if(typeof window==='undefined')return Promise.resolve();
  const quiet=reducedMotion||window.matchMedia('(prefers-reduced-motion: reduce)').matches;
- return Promise.all([import('./wisp-renderer.mjs?v=perf-1'),prepareFuelSprites(document,quiet)]);
+ return Promise.all([import('./wisp-renderer.mjs?v=icons-1'),prepareFuelSprites(document,quiet)]);
 }
 
-export function flightEntryMarkup(run,node,{dream=false,showTips=true}={}){
- const tip=selectFlightLoadingTip({run,node,dream,showTips});
- return `<section class="flight-entry" aria-label="Preparing flight"><div class="entry-content"><header class="entry-heading"><span class="entry-loading-wisp" aria-hidden="true">${resourceSymbol('glow')}</span><strong data-entry-status role="status">${dream?'Preparing Dream':'Preparing passage'}</strong></header>${renderFlightLoadingTip(tip)}<div class="entry-loading" aria-label="Loading scene"><i></i></div><span class="entry-safe-note" data-entry-note>Starts paused · take your time</span><footer class="entry-actions"><button class="entry-cancel" data-action="cancel-flight-entry" data-dream="${dream}">Back</button><button class="primary entry-depart" data-action="wake-flight" disabled>Preparing…</button></footer></div></section>`;
+// The approved "Field note" page (v1.0-depart-A). Back and the depart plaque have one fixed size in both states
+// ("Preparing…" and "Tap to depart"), so readiness changes only their text. The status line is for screen readers.
+export function flightEntryMarkup(run,node,{dream=false,showTips=true,profile=null,storage,rand}={}){
+ const selection=selectFlightLoadingTip({run,node,dream,profile,showTips,storage,rand});
+ return `<section class="flight-entry" aria-label="Preparing flight"><div class="entry-leaf"><span class="entry-sr" data-entry-status role="status">${dream?'Preparing Dream':'Preparing passage'}</span>${renderFlightLoadingTip(selection)}<div class="entry-rule" aria-hidden="true"><i></i></div><footer class="entry-foot"><button type="button" class="entry-cancel" data-action="cancel-flight-entry" data-dream="${dream}"><b>Back</b></button><button type="button" class="primary entry-depart" data-action="wake-flight" disabled><b>Preparing…</b></button></footer></div></section>`;
 }
 
-// Keep the same lesson visible after readiness. A pointer pressed during loading
+// Keep the same page visible after readiness. A pointer pressed during loading
 // cannot become the departure click just because its button became enabled.
 export function prepareFlightDeparture(element){
- const button=element.querySelector('.entry-depart');
+ const button=element.querySelector('.entry-depart'),label=button.querySelector?.('b')||button;
  let pointer=null;
  element.dataset.ready='true';
  element.setAttribute('aria-label','Flight ready');
  element.querySelector('[data-entry-status]').textContent='Ready to depart';
- element.querySelector('[data-entry-note]').textContent='Tap again in flight to Lift.';
- button.textContent='Tap to depart';button.disabled=false;
+ label.textContent='Tap to depart';button.disabled=false;
  button.addEventListener('pointerdown',event=>{
   pointer=event.isPrimary!==false&&(event.button===undefined||event.button===0)?event.pointerId:null;
  });

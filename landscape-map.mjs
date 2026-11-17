@@ -1,17 +1,19 @@
-import {atlasGlyph,ATLAS_FORECASTS} from './night-atlas.mjs?v=perf-1';
-import {bonusIcon} from './route-bonus-ui.mjs?v=perf-1';
-import {getRouteBonus} from './route-bonuses.mjs?v=perf-1';
-import {landmarkArt,landmarkCategory,biomeGroundArt} from './map-landmarks.mjs?v=perf-1';
-import {THEME_INKS} from './replay-ui.mjs?v=perf-1';
-import {getRouteMapState} from './model.mjs?v=perf-1';
-import {getMapStopInfo} from './map-guide.mjs?v=perf-1';
-import {getGlowCapacity} from './vitality.mjs?v=perf-1';
-import {actionAttributes} from './ui/primitives.mjs?v=perf-1';
+import {atlasGlyph,ATLAS_FORECASTS} from './night-atlas.mjs?v=icons-1';
+import {bonusIcon} from './route-bonus-ui.mjs?v=icons-1';
+import {getRouteBonus} from './route-bonuses.mjs?v=icons-1';
+import {landmarkCategory,biomeGroundArt} from './map-landmarks.mjs?v=icons-1';
+import {mapStopIconMarkup} from './map-guide.mjs?v=icons-1';
+import {THEME_INKS} from './replay-ui.mjs?v=icons-1';
+import {getRouteMapState} from './model.mjs?v=icons-1';
+import {getMapStopInfo} from './map-guide.mjs?v=icons-1';
+import {getGlowCapacity} from './vitality.mjs?v=icons-1';
+import {actionAttributes} from './ui/primitives.mjs?v=icons-1';
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const edgeKey=([a,b])=>`${a}|${b}`;
 const wisp=(x,y)=>`<g class="route-player-wisp" transform="translate(${x} ${y})"><path d="m-23 1 9-15 13-7L16-9 22 3 11 13-17 8Z" fill="url(#routeWispGlow)"/><path d="M-4-7h8v2h3v3h2v4H7v3H4v2H-4V5H-7V2H-9V-2H-7V-5H-4Z" fill="#fff8d3"/><path d="M-3-5h6v2h2v6H3v2H-3V3H-5V-3H-3Z" fill="#fffef0"/></g>`;
 const splitName=(name,compact=false)=>{if(compact)return[name.length>18?name.slice(0,17).trimEnd()+'…':name];const lines=[''];for(const word of name.split(' ')){const i=lines.length-1;if((lines[i]+' '+word).length>19&&i<1)lines.push(word);else lines[i]+=(lines[i]?' ':'')+word;}return lines;};
-const landmark=(n,x,y)=>{const kind=landmarkCategory(n);return `<g class="route-landmark landmark-${kind}" data-landmark-family="${kind==='elite'?'boss':kind}" ${n.boss?`data-guardian="${esc(n.bossId||'hollow-warden')}"`:''} transform="translate(${x} ${y})" shape-rendering="crispEdges">${landmarkArt(n)}</g>`;};
+// Stop icon: the approved 24-grid art at exactly 48 screen pixels (scale = screen pixels per map unit, measured when the map is drawn).
+const landmark=(n,x,y,scale=1)=>{const kind=landmarkCategory(n),units=48/Math.max(.1,scale),icon=mapStopIconMarkup(n,{size:48}).replace(/ width="48" height="48" style="[^"]*"/,` x="${-units/2}" y="${-units/2}" width="${units}" height="${units}"`);return `<g class="route-landmark landmark-${kind}" data-landmark-family="${kind==='elite'?'boss':kind}" ${n.boss?`data-guardian="${esc(n.bossId||'hollow-warden')}"`:''} transform="translate(${x} ${y})" shape-rendering="crispEdges">${icon}</g>`;};
 const ground=(n,x,y)=>{const biome=biomeGroundArt(n);return `<g class="route-biome-ground biome-${esc(biome.id)}" transform="translate(${x} ${y})" aria-hidden="true"><path class="biome-bed" d="m-71 27 17-9 22 4 18-4 26 3 25-2 21 12-18 6-24-2-25 3-28-5-20 1Z"/>${biome.art}</g>`;};
 
 // Quiet irregular darkness separates the artwork from the trail without
@@ -30,7 +32,7 @@ const labelShadow=(x,y,half,height)=>`<g class="route-copy-shadow" transform="tr
 </g>`;
 
 /** One model-owned reachability snapshot drives both brightness and permissions. */
-export function landscapeRouteView(run,{compact=false}={}){
+export function landscapeRouteView(run,{compact=false,scale=1}={}){
  const spacing=compact?186:166,width=run.map.length*spacing+140,height=320,all=run.map.flat(),byId=new Map(all.map(n=>[n.id,n])),state=getRouteMapState(run);
  const available=new Set(state.availableIds),future=new Set(state.reachableIds),completed=new Set(state.completedIds),takenEdges=new Set(state.pathEdges.map(edgeKey)),futureEdges=new Set(state.reachableEdges.map(edgeKey));
  const currentId=state.currentId||'start',pos=new Map([['start',{x:42,y:152}]]);
@@ -64,7 +66,7 @@ export function landscapeRouteView(run,{compact=false}={}){
    <title>${esc(aria)}</title>${interactive?`<rect class="route-node-hit" x="${p.x-(compact?82:66)}" y="${p.y-32}" width="${compact?164:132}" height="${showName?94:showType?75:64}" fill="transparent"/>`:''}
    <g class="route-node-art" aria-hidden="true">
    ${reachable||here?`<path class="route-node-halo" d="m${p.x-49} ${p.y+13} 11-26 21-16 28 3 27 18 10 26-23 20-29-2-32 1Z" fill="url(#${here?'routeHereGlow':'routeNextGlow'})"/>`:''}
-   ${routeState!=='closed'?`${artShadow(p.x,p.y,n.row+(n.lane||0))}${landmark(n,p.x,p.y)}`:`<path class="route-closed-ground" d="m${p.x-29} ${p.y+22} 12-4 13 3 13-2 12 5-15 3-17-2-11 1Z"/><path class="route-closed-mark" d="m${p.x-10} ${p.y+8} 20 18m-20 0 20-18"/>`}
+   ${routeState!=='closed'?`${artShadow(p.x,p.y,n.row+(n.lane||0))}${landmark(n,p.x,p.y,scale)}`:`<path class="route-closed-ground" d="m${p.x-29} ${p.y+22} 12-4 13 3 13-2 12 5-15 3-17-2-11 1Z"/><path class="route-closed-mark" d="m${p.x-10} ${p.y+8} 20 18m-20 0 20-18"/>`}
    ${weather&&routeState!=='closed'?`<g transform="translate(${p.x-42} ${p.y-35})" pointer-events="none">${atlasGlyph(weather.id).replace('<svg ','<svg width="26" height="26" ')}</g>`:''}
    ${reachable&&n.bonusId?`<g transform="translate(${p.x+26} ${p.y-32})" pointer-events="none">${bonusIcon(n.bonusId).replace('<svg ','<svg width="24" height="24" ')}</g>`:''}
    ${reachable?`<path class="route-next-light" d="m${p.x-30} ${p.y+25} 10 2 6-1m19 1 10-2 7 1" fill="none" stroke="#fff0b6" stroke-width="1.5"/>`:''}
@@ -81,6 +83,8 @@ export function landscapeRouteView(run,{compact=false}={}){
  return{markup,width,height,currentId,currentX:pos.get(currentId)?.x||42,nextX:pos.get(state.availableIds[0])?.x??null};
 }
 export function drawLandscapeMap(svg,viewport,run){
- const compact=!!viewport&&viewport.clientHeight<260,view=landscapeRouteView(run,{compact});svg.classList.add('landscape-route');svg.setAttribute('viewBox',`0 0 ${view.width} ${view.height}`);svg.setAttribute('data-current-node',view.currentId);svg.setAttribute('aria-label','Expedition route. HERE marks your position. Bright chevrons mark the next stops. Tap a reachable stop to preview before committing. Muted future stops can be previewed; crossed empty branches are closed.');svg.innerHTML=view.markup;
+ const compact=!!viewport&&viewport.clientHeight<260;let view=landscapeRouteView(run,{compact});svg.classList.add('landscape-route');svg.setAttribute('viewBox',`0 0 ${view.width} ${view.height}`);svg.setAttribute('data-current-node',view.currentId);svg.setAttribute('aria-label','Expedition route. HERE marks your position. Bright chevrons mark the next stops. Tap a reachable stop to preview before committing. Muted future stops can be previewed; crossed empty branches are closed.');svg.innerHTML=view.markup;
+ // Stop icons are sized in screen pixels (48), so draw once to learn the screen scale of the map, then draw again with it.
+ {const ctm=svg.getScreenCTM?.(),drawn=ctm&&ctm.a>0?ctm.a:svg.getBoundingClientRect().height/view.height;if(drawn>0){view=landscapeRouteView(run,{compact,scale:Math.max(.4,drawn)});svg.innerHTML=view.markup;}}
  if(viewport){const scale=Math.max(.4,svg.getBoundingClientRect().height/view.height);svg.style.setProperty('--route-label-size',`${Math.max(11,Math.min(18,11/scale))}px`);svg.style.setProperty('--route-type-size',`${Math.max(10,Math.min(15,9/scale))}px`);viewport.scrollTop=0;viewport.scrollLeft=Math.max(0,view.currentX*scale-Math.min(120,viewport.clientWidth*.17));}
 }

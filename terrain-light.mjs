@@ -1,8 +1,14 @@
-import {LIGHT_EXTENT,lightAttenuation} from './light-attenuation.mjs?v=perf-1';
+import {LIGHT_EXTENT,lightAttenuation} from './light-attenuation.mjs?v=icons-1';
 
 // Rendering only: rock consumes 4.5 units of Luminance reach for each unit
 // travelled. Gameplay visibility, encounters and collection use their own law.
 export const SOLID_LIGHT_COST=4.5;
+// Rock is a fixed thickness of material, not a fraction of the light: a bigger
+// Luminance radius (cards, Flash sight, the finish reveal) must not shine
+// deeper into or through a wall. Above this baseline radius the cost per unit
+// of rock grows with the radius, so the lit depth stays the baseline's.
+// At or below it nothing changes. (v1.1-level, owner request 2026-11-17.)
+export const SOLID_LIGHT_REFERENCE=145;
 export const TERRAIN_LIGHT_LIMITS=Object.freeze({rays:96,pixels:128,masks:8,cellMasks:8,sourceStep:12,motionHz:12});
 const states=new WeakMap(),maskImages=new WeakMap(),TAU=Math.PI*2,EPS=1e-7;
 const cross=(ax,ay,bx,by)=>ax*by-ay*bx;
@@ -32,11 +38,12 @@ export function solidRayIntervals(polygons,x,y,dx,dy,reach){
 export function solidDistanceAt(spans,distance){
  let solid=0;for(const [a,b]of spans){if(a>=distance)break;solid+=Math.max(0,Math.min(distance,b)-a);}return solid;
 }
-export function materialLightDistance(distance,solidDistance){return Math.max(0,distance)+(SOLID_LIGHT_COST-1)*Math.max(0,solidDistance);}
+export const solidLightScale=radius=>Math.max(1,(Number(radius)||0)/SOLID_LIGHT_REFERENCE);
+export function materialLightDistance(distance,solidDistance,radius=0){return Math.max(0,distance)+(SOLID_LIGHT_COST-1)*solidLightScale(radius)*Math.max(0,solidDistance);}
 export function materialLightAt(polygons,source,target,radius){
  const dx=target.x-source.x,dy=target.y-source.y,d=Math.hypot(dx,dy);if(!d)return 1;
  const solid=solidDistanceAt(solidRayIntervals(polygons,source.x,source.y,dx/d,dy/d,d),d);
- return lightAttenuation((materialLightDistance(d,solid)/radius)**2);
+ return lightAttenuation((materialLightDistance(d,solid,radius)/radius)**2);
 }
 function checksum(points){let h=2166136261;for(const point of points)for(const v of point){h=Math.imul(h^(Math.round(v*1024)|0),16777619);}return h>>>0;}
 // A shape's checksum is walked once per 12 Hz light tick instead of every
@@ -84,13 +91,13 @@ function polarSamples(){
  polar=Array.from({length:size*size},(_,i)=>{const dx=(i%size+.5-size/2)/(size/2),dy=(Math.floor(i/size)+.5-size/2)/(size/2),angle=(Math.atan2(dy,dx)+TAU)%TAU*rays/TAU;
   return {r:Math.hypot(dx,dy),a:Math.floor(angle),mix:angle%1};});return polar;
 }
-function cellMask(document,state,bank,sx,sy,radius){
+function cellMask(document,state,bank,sx,sy,radius,legacy=false){
  radius=Math.max(1,Math.round(radius/2)*2);
  const {rays,pixels}=TERRAIN_LIGHT_LIMITS,reach=radius*LIGHT_EXTENT;
  // A moving floor on the far side of the viewport cannot change this light.
  // Bounds are baked with geometry, avoiding a vertex walk for every source.
  const relevant=state.polygons.filter(p=>sx+reach>=p.minX&&sx-reach<=p.maxX&&sy+reach>=p.minY&&sy-reach<=p.maxY);
- const key=`${sx}:${sy}:${radius}:${relevant.map(p=>p.key).join('|')}`;
+ const key=`${sx}:${sy}:${radius}${legacy?':legacy':''}:${relevant.map(p=>p.key).join('|')}`;
  if(bank.cells.has(key)){const saved=bank.cells.get(key);bank.cells.delete(key);bank.cells.set(key,saved);return saved;}
  const nearby=relevant.map(p=>p.points);
  if(!nearby.length){rememberCell(bank,key,null);return null;}
@@ -104,7 +111,7 @@ function cellMask(document,state,bank,sx,sy,radius){
  let image=maskImages.get(document);if(!image){image=c.createImageData(pixels,pixels);maskImages.set(document,image);}
  for(let i=0;i<samples.length;i++){
   const {r,a,mix}=samples[i];if(r>=1)continue;
-  const d=r*reach,sa=solidDistanceAt(paths[a],d),sb=solidDistanceAt(paths[(a+1)%rays],d),effective=materialLightDistance(d,sa+(sb-sa)*mix);
+  const d=r*reach,sa=solidDistanceAt(paths[a],d),sb=solidDistanceAt(paths[(a+1)%rays],d),effective=materialLightDistance(d,sa+(sb-sa)*mix,legacy?0:radius);
   const offset=i*4;image.data[offset]=image.data[offset+1]=image.data[offset+2]=255;image.data[offset+3]=Math.round(lightAttenuation((effective/radius)**2)*255);
  }
  c.putImageData(image,0,0);state.builds++;rememberCell(bank,key,canvas);
@@ -135,11 +142,11 @@ function blendMasks(document,bank,slot,samples,clearMask){
  for(const sample of samples)if(sample.weight>0){c.globalAlpha=sample.weight;c.drawImage(sample.canvas||clearMask,0,0,size,size);}
  c.globalAlpha=1;c.globalCompositeOperation='source-over';return canvas;
 }
-function spatialMask(document,state,bank,x,y,radius,clearMask,slot){
+function spatialMask(document,state,bank,x,y,radius,clearMask,slot,legacy=false){
  const step=TERRAIN_LIGHT_LIMITS.sourceStep,sx=Math.floor(x/step)*step,sy=Math.floor(y/step)*step,fx=(x-sx)/step,fy=(y-sy)/step;
  const samples=[];
  for(let yy=0;yy<2;yy++)for(let xx=0;xx<2;xx++){
-  const weight=(xx?fx:1-fx)*(yy?fy:1-fy);if(weight>EPS)samples.push({weight,canvas:cellMask(document,state,bank,sx+xx*step,sy+yy*step,radius)});
+  const weight=(xx?fx:1-fx)*(yy?fy:1-fy);if(weight>EPS)samples.push({weight,canvas:cellMask(document,state,bank,sx+xx*step,sy+yy*step,radius,legacy)});
  }
  if(samples.length===1)return samples[0].canvas||clearMask;
  return blendMasks(document,bank,slot,samples,clearMask);
@@ -151,14 +158,15 @@ export function castTerrainLight(context,clearMask,engine,{x,y,radius,alpha=1,sc
  let mask=clearMask;
  if(document){
   const tick=Math.floor(time*TERRAIN_LIGHT_LIMITS.motionHz),start=tick/TERRAIN_LIGHT_LIMITS.motionHz;
-  const state=sceneFor(engine,distance,start),before=state.builds,bank=bankFor(state,channel);
-  mask=spatialMask(document,state,bank,distance+x,y,radius,clearMask,0);
+  // The design lab's "before" column (option legacyLook) shows the old rock law.
+  const state=sceneFor(engine,distance,start),before=state.builds,bank=bankFor(state,channel),legacy=engine.options?.legacyLook===true;
+  mask=spatialMask(document,state,bank,distance+x,y,radius,clearMask,0,legacy);
   // Moving banks are raycast only at 12 Hz, then their light fields interpolate
   // through the same interval. Static rock never acquires a clock animation.
   const mix=time*TERRAIN_LIGHT_LIMITS.motionHz-tick;
   if(state.moving&&mix>EPS){
    const next=sceneFor(engine,distance,(tick+1)/TERRAIN_LIGHT_LIMITS.motionHz);
-   const future=spatialMask(document,next,bank,distance+x,y,radius,clearMask,1);
+   const future=spatialMask(document,next,bank,distance+x,y,radius,clearMask,1,legacy);
    mask=blendMasks(document,bank,2,[{canvas:mask,weight:1-mix},{canvas:future,weight:mix}],clearMask);
   }
   if(state.builds===before)state.hits++;

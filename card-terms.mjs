@@ -1,13 +1,13 @@
 /** Contextual card vocabulary. Native modal dialogs keep help above the Deck. */
-import { resourceSymbol } from './game-symbols.mjs?v=perf-1';
-import {lifeHeartSvg} from './lives.mjs?v=perf-1';
-import {duskGlyphArt} from './spark-symbol.mjs?v=perf-1';
-import {getGlowCapacity,formatGlow} from './vitality.mjs?v=perf-1';
-import {glowGaugeUnits} from './glow-ui.mjs?v=perf-1';
-import {getRunModifiers} from './model.mjs?v=perf-1';
-import {cardAmount,makeSkillCard,SKILL_CARDS} from './skill-cards.mjs?v=perf-1';
-import {cardRowTermHelpMarkup} from './card-row-help.mjs?v=perf-1';
-import {dreamEye} from './dream.mjs?v=perf-1';
+import { resourceSymbol } from './game-symbols.mjs?v=icons-1';
+import {lifeHeartSvg} from './lives.mjs?v=icons-1';
+import {duskGlyphArt} from './spark-symbol.mjs?v=icons-1';
+import {getGlowCapacity,formatGlow} from './vitality.mjs?v=icons-1';
+import {glowGaugeUnits} from './glow-ui.mjs?v=icons-1';
+import {getRunModifiers} from './model.mjs?v=icons-1';
+import {cardAmount,makeSkillCard,SKILL_CARDS} from './skill-cards.mjs?v=icons-1';
+import {cardRowTermHelpMarkup} from './card-row-help.mjs?v=icons-1';
+import {dreamEye} from './dream.mjs?v=icons-1';
 const esc = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 export const CARD_TERMS = Object.freeze({
   round: ['Round', 'One flight through a passage, ending in clear rewards or a lost heart.'],
@@ -54,6 +54,18 @@ export const CARD_TERMS = Object.freeze({
   'flash-ends': ['Flash ends', 'Trigger: a Flash’s light runs out.'],
   save: ['Save', 'Trigger: Watchlight or Last Orbit stops a fatal crash.'],
   clear: ['Clear', 'Trigger: you clear a flight.'],
+  engine: ['Engine', 'A chain that keeps itself going: one card’s event fires a card to its right, and a Timer sends it back to Slot 1.'],
+  turn: ['Turn', 'One trip round an engine: a Timer sends its event back to Slot 1, or a Metronome ticks.'],
+  timer: ['Timer', 'A card that waits, then acts: Slow Wick, Metronome or Long Fuse. An engine needs one to keep turning.'],
+  'engine-pulse': ['Card Pulse', 'Trigger: a card to its left sends a Pulse. Only the next card that waits for a Pulse hears it.'],
+  'engine-gain': ['On gain', 'Trigger: a card to its left, or your Collect, gives Sparks.'],
+  'engine-any': ['Any event', 'Trigger: any card event to its left, such as a Pulse, Sparks given, an Overfill or a Flash.'],
+  'engine-skim': ['Skim', 'Trigger: you fly close to terrain until Proximity fills.'],
+  'engine-lift': ['Low Lift', 'Trigger: you Lift while your meter is under a quarter.'],
+  'engine-turn': ['Each Turn', 'Trigger: an engine in your chain goes round once.'],
+  timers: ['Timers', 'The card changes every Timer card in your chain.'],
+  pack: ['Pack', 'Trigger: you clear a flight and your spare Sparks are packed into Stored Sparks. Pack cards fire just before.'],
+  'take-off': ['Take-off', 'Trigger: you start a flight.'],
 });
 
 const CARD_TERM_DETAILS = Object.freeze({
@@ -90,6 +102,8 @@ const CARD_TERM_DETAILS = Object.freeze({
   slot: "Order matters only where a card says so: Boosts reach cards to their left, Echo and Chameleon copy the next card, Kindling Bead needs a + card before it, and Closing Chord must be the last card. You start with 3 Slots and Rest can add up to 5.",
   trigger: "The Triggers are Collect, Delivery, Latch, Pulse, Flash, Flash ends, Falling Lift, Overfill, Rhythm, Save and Clear. Any Trigger cards work with all of them; always-on and At Rest cards do not wait for one. One touch can be two Triggers: a Spark that overfills your meter is Overfill, then Collect.",
   boost: "Boosts sit to the right of the cards they strengthen. Several Boosts multiply together (×1.25 then ×2 is ×2.5). Each firing’s Sparks are rounded down to a whole number at the end (2.5 becomes 2); Collector time keeps its decimals. They also strengthen always-on cards to their left (+20% Luminance ×2 = +40%), except Boosts that have their own Trigger or limited uses. Boosts never multiply Stored Sparks rewards or gains that last beyond the journey, such as Growth Ring and Wind Feather. Caps still apply: the meter stops at 100 Sparks, and boosted time never brings Collector below half a second.",
+  engine: "Events made by a card travel to the right only. A card never answers an event it made itself in the same Turn. An engine stops when a card cannot do its job, for example on a full meter; as Lift spends Sparks, the next event can start it again. Without a Timer a chain runs once.",
+  timer: "Slow Wick waits 3 s, then sends a Pulse back to Slot 1. Metronome, once an event reaches it, fires the card to its right every 3 s while that card can act. Long Fuse waits 5 s, then fires your last Trigger again. Heartbeat halves every wait.",
   encore: "All Refrains share one Encore per Trigger. It happens only if something worked the first time. The Sparks start at zero again, uses spent stay spent, and a first-crossing Stored Spark comes only once. Second Sun multiplies by more in an Encore.",
 });
 
@@ -112,7 +126,9 @@ export function cardTermMarkup(key, label = CARD_TERMS[key]?.[0] || key, {icon =
 
 // Runtime descriptions use the same vocabulary without maintaining a second rules renderer.
 const keywords = [
-  ['Packing efficiency|Stored Sparks from packing', 'packing-efficiency'], ['Any Trigger', 'any-trigger'], ['Triggers?', 'trigger'], ['Always on', 'always-on'], ['Encore', 'encore'],
+  ['Packing efficiency|Stored Sparks from packing', 'packing-efficiency'], ['Card Pulse', 'engine-pulse'], ['On gain', 'engine-gain'], ['Any event', 'engine-any'],
+  ['Low Lift', 'engine-lift'], ['Take-off', 'take-off'], ['Each Turn', 'engine-turn'], ['Timers', 'timers'], ['Pack', 'pack'], ['Skim', 'engine-skim'],
+  ['Turns?', 'turn'], ['engines?', 'engine'], ['Timer', 'timer'], ['Any Trigger', 'any-trigger'], ['Triggers?', 'trigger'], ['Always on', 'always-on'], ['Encore', 'encore'],
   ['Falling Lift', 'falling-lift'], ['Flash ends', 'flash-ends'], ['Collect', 'collect'], ['Delivery', 'delivery'], ['Latch', 'latch'], ['Overfill', 'overfill'],
   ['Dusk(?: Sparks?)?', 'dusk'], ['Luminance', 'luminance'],
   ['Proximity(?: waves?)?', 'proximity'], ['Stored Sparks?', 'stored'], ['hearts?', 'heart'], ['(?:Light )?pulses?|waves?', 'wave'],
@@ -269,7 +285,14 @@ const relatedTerms = Object.freeze({
   trigger:['collect','wave','delivery','any-trigger','pass'], boost:['pass','always-on','slot'], encore:['pass','uses'], slot:['pass','next'],
   'always-on':['boost','pass'], 'any-trigger':['trigger','pass'], collect:['trigger','spark','wisp'], delivery:['trigger','collector'], latch:['trigger','collector'],
   overfill:['trigger','meter','stored'], 'falling-lift':['trigger','lift'], 'flash-ends':['trigger','flash'], save:['trigger','watchlight'], clear:['trigger','round'],
+  engine:['turn','timer','engine-pulse','pass'], turn:['engine','timer'], timer:['engine','turn','timers'], 'engine-pulse':['engine','wave'], 'engine-gain':['engine','meter'],
+  'engine-any':['engine','timer'], 'engine-skim':['trigger','proximity'], 'engine-lift':['trigger','lift','meter'], 'engine-turn':['engine','turn'], timers:['timer','engine'],
+  pack:['trigger','packing','stored'], 'take-off':['trigger'],
 });
+/** Glossary keys that are Triggers: their entries link to the Trigger collection (dist/ui/trigger-book.mjs). */
+export const TRIGGER_TERM_KEYS = Object.freeze(['collect','delivery','latch','wave','flash','flash-ends','falling-lift','overfill','rhythm','save','clear','any-trigger','always-on','next','rest','trigger',
+  'engine-pulse','engine-gain','engine-any','engine-skim','engine-lift','engine-turn','timers','pack','take-off']);
+const bookButton = () => `<button type="button" class="card-term-book" data-trigger-book>${'All Triggers'}</button>`;
 function termDetailsMarkup(key) {
   const details=CARD_TERM_DETAILS[key], related=relatedTerms[key] || [];
   return `${details ? `<details class="card-term-extra"><summary>${key === 'packing-efficiency' ? 'Rounding, copies and exclusions' : 'More details'}</summary><p>${cardTermTextMarkup(details,{exclude:[key]})}</p></details>` : ''}${related.length ? `<nav class="card-term-related" aria-label="Related terms">${related.map(key=>cardTermMarkup(key)).join('')}</nav>` : ''}`;
@@ -324,8 +347,8 @@ export function installCardTermHelp(doc = document, {resolveProximityContext,res
     const heading = `card-glossary-heading-${++serial}`, dialog = doc.createElement('dialog');
     dialog.className = 'card-term-dialog card-glossary-dialog wb-dlg';
     dialog.setAttribute('aria-labelledby',heading);
-    const groups = [['Journey',['round','map','game']],['Flying & fuel',['wisp','spark','meter','dusk','cluster','heart','lift','luminance','wave','rhythm','proximity','packing','packing-efficiency','stored']],['Collector',['collector','ring','flash','cache','watchlight']],['Your cards',['pass','slot','trigger','boost','encore','always-on','any-trigger','next','copy','uses','shared','rest','grow']],['Triggers',['collect','delivery','latch','wave','flash','flash-ends','falling-lift','overfill','rhythm','save','clear']]];
-    dialog.innerHTML = `<header><h2 id="${heading}">Glossary</h2><button type="button" data-card-term-close aria-label="Close glossary">×</button></header><div class="card-term-content card-glossary-list">${groups.map(([title,keys])=>`<section><h3>${esc(title)}</h3><div>${keys.map(key=>cardTermMarkup(key,CARD_TERMS[key][0])).join('')}</div></section>`).join('')}</div><footer><button type="button" data-card-term-close>Back</button></footer>`;
+    const groups = [['Journey',['round','map','game']],['Flying & fuel',['wisp','spark','meter','dusk','cluster','heart','lift','luminance','wave','rhythm','proximity','packing','packing-efficiency','stored']],['Collector',['collector','ring','flash','cache','watchlight']],['Your cards',['pass','slot','trigger','boost','encore','always-on','any-trigger','next','copy','uses','shared','rest','grow']],['Triggers',['collect','delivery','latch','wave','flash','flash-ends','falling-lift','overfill','rhythm','save','clear']],['Engines',['engine','turn','timer','engine-pulse','engine-gain','engine-any','engine-skim','engine-lift','engine-turn','timers','pack','take-off']]];
+    dialog.innerHTML = `<header><h2 id="${heading}">Glossary</h2><button type="button" data-card-term-close aria-label="Close glossary">×</button></header><div class="card-term-content card-glossary-list">${groups.map(([title,keys])=>`<section><h3>${esc(title)}</h3><div>${keys.map(key=>cardTermMarkup(key,CARD_TERMS[key][0])).join('')}${title==='Triggers'?bookButton():''}</div></section>`).join('')}</div><footer><button type="button" data-card-term-close>Back</button></footer>`;
     mount(dialog,button,resolveCardContext?.(button)||resolveProximityContext?.(button)||{});
   }
   function open(button) {
@@ -358,7 +381,7 @@ export function installCardTermHelp(doc = document, {resolveProximityContext,res
     dialog.className = 'card-term-dialog wb-dlg';
     dialog.setAttribute('aria-labelledby', heading);
     const content = button.dataset.cardTerm
-      ? items.map(key => `<section data-card-term-section="${esc(key)}"><p class="card-term-definition">${cardTermTextMarkup(CARD_TERMS[key][1],{exclude:[key]})}</p><div data-card-term-example="${esc(key)}">${cardTermExampleMarkup(key,cardContext)}</div>${termDetailsMarkup(key)}</section>`).join('')
+      ? items.map(key => `<section data-card-term-section="${esc(key)}"><p class="card-term-definition">${cardTermTextMarkup(CARD_TERMS[key][1],{exclude:[key]})}</p><div data-card-term-example="${esc(key)}">${cardTermExampleMarkup(key,cardContext)}</div>${termDetailsMarkup(key)}${TRIGGER_TERM_KEYS.includes(key)?bookButton():''}</section>`).join('')
       : `<section data-card-help-rules><p>${cardTermTextMarkup(description)}</p></section>${note && note !== description ? `<details class="card-term-extra"><summary>Card details</summary><p>${cardTermTextMarkup(note)}</p></details>` : ''}${items.length ? `<nav class="card-term-related" aria-label="Card keywords">${items.map(key=>cardTermMarkup(key)).join('')}</nav>` : ''}`;
     dialog.innerHTML = `<header><h2 id="${heading}">${button.dataset.cardTerm ? cardTermIcon(items[0]) : ''}${esc(title)}</h2><button type="button" data-card-term-close aria-label="Close card help">×</button></header><div class="card-term-content">${content}</div><footer><button type="button" data-card-term-close>Back</button></footer>`;
     const layer = mount(dialog,opener,cardContext); layer.termKey = button.dataset.cardTerm || null;
@@ -373,7 +396,7 @@ export function installCardTermHelp(doc = document, {resolveProximityContext,res
       dialog.classList.add('card-cache-dialog');
       const host=button.dataset.cardTerm?dialog.querySelector('[data-card-term-example]'):doc.createElement('div');
       if(!button.dataset.cardTerm){host.className='cache-card-example';dialog.querySelector('[data-card-help-rules]').append(host);}
-      import('./cache-card-help.mjs?v=perf-1').then(({mountCacheCardHelp})=>{
+      import('./cache-card-help.mjs?v=icons-1').then(({mountCacheCardHelp})=>{
         if(layers.includes(layer))appendDisposer(mountCacheCardHelp(host,{focus:cardKind==='harvest'?'cross':cardKind==='cache-handling'?'deliver':'touch',harvestCard:cardKind==='harvest'?cardContext.card:undefined}));
       });
     }
@@ -384,13 +407,18 @@ export function installCardTermHelp(doc = document, {resolveProximityContext,res
         const host=doc.createElement('section');host.className='proximity-card-help';
         const example=dialog.querySelector('[data-card-term-example="proximity"]');
         if(example)example.replaceChildren(host);else dialog.querySelector('.card-term-content').prepend(host);
-        import('./proximity-card-help.mjs?v=perf-1').then(({mountProximityCardHelp})=>{
+        import('./proximity-card-help.mjs?v=icons-1').then(({mountProximityCardHelp})=>{
           if(layers.includes(layer))appendDisposer(mountProximityCardHelp(host,previewContext));
         });
       }
     }
   }
   doc.addEventListener('click', event => {
+    // "All Triggers": close every help layer, then the Deck screen (or the app) opens the Trigger collection.
+    if (event.target.closest?.('[data-trigger-book]') && event.target.closest('.card-term-dialog')) {
+      event.preventDefault(); event.stopImmediatePropagation(); hideHover(); while (layers.length) close();
+      doc.dispatchEvent(new CustomEvent('trigger-book', {bubbles: true})); return;
+    }
     const button = event.target.closest?.('[data-card-term],[data-card-term-trigger],[data-card-glossary],[data-card-status-help]');
     if (!button || button.disabled) return;
     event.preventDefault(); event.stopImmediatePropagation();

@@ -1,9 +1,12 @@
-import { cardTermTextMarkup } from "./card-terms.mjs?v=perf-1";
-import { getCardRuleBands } from "./card-rule-bands.mjs?v=perf-1";
-import { getEquippedCardStatuses, cardStatusText } from "./card-status.mjs?v=perf-1";
-import { activeFlightPact } from './flight-pacts.mjs?v=perf-1';
-import { cardArt } from "./card-art.mjs?v=perf-1";
-import {deckRelicShelfMarkup,deckContextMarkup,deckLinkedCardFace,deckSwapComboMarkup,deckCardExplanationMarkup} from './deck-combos.mjs?v=perf-1';
+import { cardTermTextMarkup } from "./card-terms.mjs?v=icons-1";
+import { uiIcon } from "./ui-icons.mjs?v=icons-1";
+import { getCardRuleBands, getCardTrigger } from "./card-rule-bands.mjs?v=icons-1";
+import { chipBadge, rarityPips } from "./ui/trigger-icons.mjs?v=icons-1";
+import { blackHoleTally } from "./card-black-hole.mjs?v=icons-1";
+import { getEquippedCardStatuses, cardStatusText } from "./card-status.mjs?v=icons-1";
+import { activeFlightPact } from './flight-pacts.mjs?v=icons-1';
+import { cardArt } from "./card-art.mjs?v=icons-1";
+import {deckRelicShelfMarkup,deckContextMarkup,deckLinkedCardFace,deckSwapComboMarkup,deckCardExplanationMarkup} from './deck-combos.mjs?v=icons-1';
 import {
   getMountedCards,
   getOwnedCards,
@@ -18,13 +21,13 @@ import {
   canUseCardCampServices,
   getSkillWallet,
   equipOwnedCard,
-} from "./model.mjs?v=perf-1";
-import { resourceSymbol } from "./game-symbols.mjs?v=perf-1";
-import { choiceScene } from "./choice-art.mjs?v=perf-1";
-import { livesMarkup } from "./lives.mjs?v=perf-1";
-import { getGlowCapacity, formatGlow } from "./vitality.mjs?v=perf-1";
-import { mapStopIconMarkup } from "./map-guide.mjs?v=perf-1";
-import {canDreamAt} from './dream.mjs?v=perf-1';
+} from "./model.mjs?v=icons-1";
+import { resourceSymbol } from "./game-symbols.mjs?v=icons-1";
+import { choiceScene } from "./choice-art.mjs?v=icons-1";
+import { livesMarkup } from "./lives.mjs?v=icons-1";
+import { getGlowCapacity, formatGlow } from "./vitality.mjs?v=icons-1";
+import { mapStopIconMarkup } from "./map-guide.mjs?v=icons-1";
+import {canDreamAt} from './dream.mjs?v=icons-1';
 import {
   getEffectiveCardSources,
   createCardExecution,
@@ -36,7 +39,7 @@ import {
   getCardFeederCapacity,
   isInventoryOnlyCard,
   SKILL_CARDS,
-} from "./skill-cards.mjs?v=perf-1";
+} from "./skill-cards.mjs?v=icons-1";
 
 const esc = (v) =>
   String(v ?? "").replace(
@@ -85,7 +88,7 @@ function flightPackingReceipt(run, reward) {
     ? ` · Tight Packing +${bonus} Stored Sparks`
     : "";
 }
-export { cardArt } from "./card-art.mjs?v=perf-1";
+export { cardArt } from "./card-art.mjs?v=icons-1";
 export function effectMarkup(text) {
   return esc(text).replace(/([+−]?\d+(?:\.\d+)?%?)/g, '<b class="card-number">$1</b>');
 }
@@ -202,6 +205,14 @@ export function getCardFaceAvailability(run, card, status = null) {
   }
   return { state, reason: state !== 'active' ? presentedStatus?.reason || sightWarning : '', sightWarning, status: presentedStatus };
 }
+/** The Trigger badge (read first, top left of the picture), the rarity gems (bottom right; 1, 2 or 3, no words)
+ * and, for Black Hole, its running total. Same on every face: Deck, Chain, rewards, Forge, Workshop, drafts. */
+function faceBadges(card, compact) {
+  const def = SKILL_CARDS[card.cardId || card.id] || {};
+  const chip = getCardTrigger(card, def);
+  const tally = def.kind === 'black-hole' ? blackHoleTally(card) : null;
+  return `<span class="card-tbadge-row">${chipBadge(chip, { cls: 'card-tbadge' })}</span>${rarityPips(rarity(card))}${tally && (!compact || tally.eaten) ? `<span class="card-bh-tally"><b>Eaten ${tally.eaten}</b> · +${tally.growth}${compact ? '' : ' max Sparks'}</span>` : ''}`;
+}
 export function cardFace(card, { compact = false, fitted = false, slot = null, selected = false, status = null, sightWarning = '', availability = null } = {}) {
   if (!card) return `<article class="skill-card empty-card"><div class="card-empty-art">+</div><h3>Empty slot${slot === null ? '' : ` ${slot + 1}`}</h3></article>`;
   status = availability?.status || status;
@@ -216,7 +227,7 @@ export function cardFace(card, { compact = false, fitted = false, slot = null, s
   const verbose = bands.length >= 3 || bands.map(band => band.text).join(' ').length > 130;
   const dense = status && verbose;
   const badge = finite ? compact ? `<span class="card-use-counter" role="img" aria-label="${usesLabel}">${uses}</span>` : `<button type="button" class="card-use-counter" data-card-term="uses" aria-haspopup="dialog" aria-label="${usesLabel}: help">${uses}</button>` : '';
-  return `<article class="skill-card card-${rarity(card)} card-effect-${effectState} ${compact ? 'compact-card card-thumbnail' : 'card-readable'} ${fitted ? 'card-fitted' : ''} ${finite ? 'card-has-uses' : ''} ${status ? 'card-has-status' : ''} ${dense || fitted && status ? 'card-status-dense' : ''} ${verbose ? 'card-rules-dense' : ''} ${bands.length >= 4 ? 'card-rules-long' : ''} ${selected ? 'card-selected' : ''}" data-card-effect-state="${effectState}" data-card-instance="${esc(card.instanceId || '')}" data-card-help="${esc(card.cardId || card.id)}" data-card-rank="${card.rank || 1}"${Number.isFinite(card.charges) ? ` data-card-charges="${card.charges}"` : ''} data-card-name="${esc(cardName(card))}" data-card-description="${esc(printed(card))}" aria-label="${esc(cardName(card))}, ${esc(rarity(card))}${status ? `, ${esc(cardStatusText(status))}` : ''}${effectReason && effectReason !== status?.reason ? `, ${esc(effectReason)}` : ''}"><header class="card-face-heading"><h3>${esc(cardName(card))}</h3>${compact ? '' : `<button type="button" class="card-help" data-card-term-trigger="${esc(card.cardId || card.id)}" data-card-terms="${cardTerms(card).join(' ')}" aria-haspopup="dialog" aria-label="Help with ${esc(cardName(card))}">?</button>`}</header><div class="card-illustration">${cardArt(card, { compact })}${rarityInlay(card)}${sightWarning ? `<span class="card-sight-warning" role="img" title="${esc(sightWarning)}" aria-label="${esc(sightWarning)}">${effectState === 'partial' ? '≈' : '×'} <small>${effectState === 'partial' ? 'Light blocked' : 'Sight blocked'}</small></span>` : ''}</div>${compact ? '' : `<div class="card-rule-band" role="group" tabindex="0" aria-label="Rules for ${esc(cardName(card))}; scroll for all details">${cardMechanicMarkup(card,{fitted})}</div>`}${cardStatusMarkup(status, {compact, slot})}${badge}</article>`;
+  return `<article class="skill-card card-${rarity(card)} card-effect-${effectState} ${compact ? 'compact-card card-thumbnail' : 'card-readable'} ${fitted ? 'card-fitted' : ''} ${finite ? 'card-has-uses' : ''} ${status ? 'card-has-status' : ''} ${dense || fitted && status ? 'card-status-dense' : ''} ${verbose ? 'card-rules-dense' : ''} ${bands.length >= 4 ? 'card-rules-long' : ''} ${selected ? 'card-selected' : ''}" data-card-effect-state="${effectState}" data-card-instance="${esc(card.instanceId || '')}" data-card-help="${esc(card.cardId || card.id)}" data-card-rank="${card.rank || 1}"${Number.isFinite(card.charges) ? ` data-card-charges="${card.charges}"` : ''} data-card-name="${esc(cardName(card))}" data-card-description="${esc(printed(card))}" aria-label="${esc(cardName(card))}, ${esc(rarity(card))}${status ? `, ${esc(cardStatusText(status))}` : ''}${effectReason && effectReason !== status?.reason ? `, ${esc(effectReason)}` : ''}"><header class="card-face-heading"><h3>${esc(cardName(card))}</h3>${compact ? '' : `<button type="button" class="card-help" data-card-term-trigger="${esc(card.cardId || card.id)}" data-card-terms="${cardTerms(card).join(' ')}" aria-haspopup="dialog" aria-label="Help with ${esc(cardName(card))}">?</button>`}</header><div class="card-illustration">${cardArt(card, { compact })}${rarityInlay(card)}${faceBadges(card, compact)}${sightWarning ? `<span class="card-sight-warning" role="img" title="${esc(sightWarning)}" aria-label="${esc(sightWarning)}">${effectState === 'partial' ? '≈' : '×'} <small>${effectState === 'partial' ? 'Light blocked' : 'Sight blocked'}</small></span>` : ''}</div>${compact ? '' : `<div class="card-rule-band" role="group" tabindex="0" aria-label="Rules for ${esc(cardName(card))}; scroll for all details">${cardMechanicMarkup(card,{fitted})}</div>`}${cardStatusMarkup(status, {compact, slot})}${badge}</article>`;
 }
 export function starterCardsMarkup(run, gifts, existing) {
   const guide=describeSkillCard(makeSkillCard('lift-guide','included-starter-guide'));
@@ -362,7 +373,7 @@ export function cardRestMarkup(run, node, choices) {
     const numbers = slot ? `Slots <b>${before.slots} → ${after.slots}</b>` : grow ? `Max Sparks <b>${formatGlow(before.maxMeter)} → ${formatGlow(after.maxMeter)}</b>` : `Hearts <b>${before.hearts} → ${after.hearts}</b>`;
     const detail = slot ? 'Once per map · no refill' : `Meter <b>${formatGlow(before.meter)} → ${formatGlow(after.meter)}</b>`;
     const note = c.taken ? '' : c.disabled ? shortReason(c) : grow ? `No healing · Grow used ${getCardGrowthUses(run)}/3` : '';
-    return `<article class="card-camp-choice ${c.disabled ? "unavailable" : ""} ${c.taken ? 'card-camp-taken' : ''}">${choiceScene(grow ? "refillGlow" : slot ? "skills" : "hearts")}<h3>${esc(c.title)}</h3><div class="card-camp-consequence"><p>${numbers}</p><p>${detail}</p></div><p class="card-camp-note">${esc(note)}</p><button class="${c.disabled ? 'secondary' : 'primary'}" data-action="support" data-index="${c.index}" ${c.disabled ? 'disabled' : ''}>${c.taken ? '✓ Taken' : esc(c.title)}</button></article>`;
+    return `<article class="card-camp-choice ${c.disabled ? "unavailable" : ""} ${c.taken ? 'card-camp-taken' : ''}">${choiceScene(grow ? "refillGlow" : slot ? "skills" : "hearts")}<h3 class="rest-action-icon">${uiIcon(grow ? 'rest-grow' : slot ? 'rest-add-slot' : 'rest-recover', {size: 32})}<span>${esc(c.title)}</span></h3><div class="card-camp-consequence"><p>${numbers}</p><p>${detail}</p></div><p class="card-camp-note">${esc(note)}</p><button class="${c.disabled ? 'secondary' : 'primary'}" data-action="support" data-index="${c.index}" ${c.disabled ? 'disabled' : ''}>${c.taken ? '✓ Taken' : esc(c.title)}</button></article>`;
   }).join("")}</div><footer class="card-camp-footer"><p>${camp.extraAvailable && camp.remaining ? "Second Ember is spent only after your second action." : ""}</p>${leave && !leave.disabled ? `<button class="primary" data-action="support" data-index="${leave.index}">Leave Rest</button>` : '<button class="primary" data-action="view-route">Choose next route</button>'}</footer></div></section>`;
 }
 export function cardForgeMarkup(run, preview, { notice = '', paused = false, backLabel = 'Deck', lastForged = null } = {}) {

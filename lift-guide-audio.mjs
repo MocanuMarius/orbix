@@ -8,8 +8,45 @@ export function liftGuideAudioPhase(s){
  return Number.isFinite(cue.targetIn)&&cue.targetIn<=0?'target':cue.phase;
 }
 
-export function createLiftGuideAudio({AudioContextClass=globalThis.AudioContext||globalThis.webkitAudioContext}={}){
- let ctx,master,unlocked=false,disposed=false,phase='',flaps,rate=1,gain=1,targetTail=false,earnedTail=false;
+// The Lift cue (guide-clarity-2, 17 November 2026). The owner found the old
+// pair too intrusive: bare sines at 880 Hz and 1175 Hz, peaks .06 and .095,
+// right in the effects' 1-3 kHz band. Now: rounded triangles through a gentle
+// low-pass, about 7 dB quieter, 12 ms attacks, a rising fifth no longer than
+// 120 ms, a ±1.5% pitch drift between repeats, at most one cue per 250 ms and
+// quieter when the same cue repeats within a second. The cue is pitched to
+// the music: the preparation is the fifth of the current key and the target
+// rises root to fifth, so it sounds like part of the song (D when the music
+// does not report a key, which is the reference score's key).
+export const LIFT_CUE_KEY=2;
+/** Frequency factor that moves the D-based cue to key pitch class `key` (nearest: -5 to +6 semitones). */
+export const liftCueTranspose=key=>Number.isFinite(key)?2**((((Math.round(key)-LIFT_CUE_KEY)%12+17)%12-5)/12):1;
+export const LIFT_CUE_MIN_GAP=.25,LIFT_CUE_WOBBLE=.015,LIFT_CUE_REPEAT_SCALE=.6;
+export const LIFT_CUE={
+ // [frequency Hz, start s, peak, attack s, length s]
+ new:{soon:[[880,0,.03,.012,.11]],target:[[587.33,0,.03,.01,.085],[880,.045,.034,.012,.075]],type:'triangle',lowpass:1500},
+ old:{soon:[[880,0,.06,.008,.105],[1760,0,.011,.008,.105]],target:[[1174.659,0,.095,.008,.17],[2349.318,0,.011,.008,.17]],type:'sine',lowpass:0},
+};
+/** Build one cue on `ctx` into `destination`; returns its voices ({source,envelope,nodes,pitch}). Also used by the lab and the proof. */
+export function playLiftCue(ctx,destination,{kind='target',version='new',at=ctx.currentTime,rate=1,wobble=1,scale=1,key}={}){
+ const spec=LIFT_CUE[version],stretch=1/Math.max(.1,rate),out=[];
+ if(version==='new')wobble*=liftCueTranspose(key);
+ for(const [frequency,start,peak,attack,length] of spec[kind]){
+  const source=ctx.createOscillator(),envelope=ctx.createGain(),t=at+start*stretch,nodes=[source,envelope];
+  source.type=spec.type;source.frequency.setValueAtTime(frequency*wobble*rate,t);
+  envelope.gain.setValueAtTime(0,t);envelope.gain.linearRampToValueAtTime(peak*scale,t+attack);
+  envelope.gain.exponentialRampToValueAtTime(.0001,t+length*stretch);
+  if(spec.lowpass){const lp=ctx.createBiquadFilter?.();if(lp){lp.type='lowpass';lp.frequency.value=spec.lowpass;lp.Q.value=.5;source.connect(lp);lp.connect(envelope);nodes.push(lp);}else source.connect(envelope);}
+  else source.connect(envelope);
+  envelope.connect(destination);
+  source.start(t);source.stop(t+length*stretch+.015);
+  out.push({source,envelope,nodes,pitch:frequency*wobble});
+ }
+ return out;
+}
+
+export function createLiftGuideAudio({AudioContextClass=globalThis.AudioContext||globalThis.webkitAudioContext,random=Math.random}={}){
+ let ctx,master,unlocked=false,disposed=false,phase='',flaps,rate=1,gain=1,targetTail=false,earnedTail=false,lastToneAt=-Infinity,key=LIFT_CUE_KEY;
+ const lastKindAt={};
  const voices=new Set();
  function silence(hard=false){
   if(!ctx)return;
@@ -38,25 +75,24 @@ export function createLiftGuideAudio({AudioContextClass=globalThis.AudioContext|
  }
  function tone(target){
   if(!ctx||ctx.state!=='running')return;
-  // A clean, dry wooden/glass pair sits above the warm score. The preparatory
-  // A leads to D at the centre of the balanced-height window, not its early edge.
-  silence();targetTail=target;master.gain.setValueAtTime(gain,ctx.currentTime);
-  const pitch=target?1174.659:880,duration=(target?.17:.105)/Math.max(.1,rate),at=ctx.currentTime;
-  for(const [multiple,amplitude]of [[1,target?.095:.06],[2,.011]]){
-   const source=ctx.createOscillator(),envelope=ctx.createGain();
-   source.type='sine';source.frequency.setValueAtTime(pitch*multiple*rate,at);
-   envelope.gain.setValueAtTime(0,at);envelope.gain.linearRampToValueAtTime(amplitude,at+.008);
-   envelope.gain.exponentialRampToValueAtTime(.0001,at+duration);
-   source.connect(envelope);envelope.connect(master);
-   let ended=false;
-   const voice={source,envelope,pitch:pitch*multiple,end(){if(ended)return;ended=true;voices.delete(voice);try{source.stop();}catch{}source.disconnect();envelope.disconnect();}};
-   voices.add(voice);source.onended=()=>voice.end();source.start(at);source.stop(at+duration+.015);
+  // The preparatory fifth leads to a soft rising fifth (root to fifth) at the
+  // centre of the balanced-height window. Rate-limited, and quieter when repeated.
+  const at=ctx.currentTime,kind=target?'target':'soon';
+  if(at-lastToneAt<LIFT_CUE_MIN_GAP)return;
+  const repeated=at-(lastKindAt[kind]??-Infinity)<1;
+  lastToneAt=at;lastKindAt[kind]=at;
+  silence();targetTail=target;master.gain.setValueAtTime(gain,at);
+  const wobble=1+(Math.max(0,Math.min(1,random()))*2-1)*LIFT_CUE_WOBBLE;
+  for(const voice of playLiftCue(ctx,master,{kind,at,rate,wobble,key,scale:repeated?LIFT_CUE_REPEAT_SCALE:1})){
+   voice.end=()=>{if(voice.ended)return;voice.ended=true;voices.delete(voice);try{voice.source.stop();}catch{}for(const n of voice.nodes)n.disconnect();};
+   voices.add(voice);voice.source.onended=()=>voice.end();
   }
  }
  return {
   unlock,
-  update(s,{enabled=true,gain:level=1,hidden=false}={}){
+  update(s,{enabled=true,gain:level=1,hidden=false,transport}={}){
    if(disposed)return;
+   key=Number.isFinite(transport?.key)?transport.key:LIFT_CUE_KEY;
    const next=liftGuideAudioPhase(s),lifted=flaps!==undefined&&s?.flaps!==flaps;
    const previous=phase,acceptedTarget=lifted&&phase==='target'&&targetTail;
    phase=next;flaps=s?.flaps;rate=Math.max(.1,unit(s?.worldRate));gain=unit(level);

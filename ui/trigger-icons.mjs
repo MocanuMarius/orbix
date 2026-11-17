@@ -30,11 +30,49 @@ export const TRIGGER_ART = {
   'flight-clear': pad16([BLANK, '...OO...........', '...OBOOOOOO.....', '...OBOMmMMMO....', '...OBOmMMMMMO...', '...OBOMMMMMO....', '...OBOOOOOO.....', '...OBO..........', '...OBO..........', '...OBO..........', '...OBO..........', '...OBO..........', '...OBO..........', '..OBBBO.........', '..OOOOO.........']),
   'expedition-victory': pad16([BLANK, BLANK, BLANK, BLANK, '..O....O....O...', '.OGO..OGO..OGO..', '.OGGOOGWGOOGGO..', '.OGGGGGGGGGGGO..', '.OGWGGGGGGGGDO..', '.OGGGGGGGGGGDO..', '.OOOOOOOOOOOOO..']),
 };
+// Trigger chips that are not a single flight event (v1.0-engine Phase 2, and the badges for Always on, Any Trigger,
+// Next card): same 16 grid, outline, light from the top left. The Pulse a card sends keeps the Pulse blue.
+const dialRows = Array.from({length: 16}, (_, y) => Array.from({length: 16}, (_, x) => {
+  const r = Math.hypot(x - 7.5, y - 7.5);
+  if (r > 7.5) return '.';
+  if (r > 6.3) return 'O';
+  if (r > 5.4) return (x + y) % 4 === 0 && r > 5.6 ? 'D' : 'G';
+  if ((x === 7 || x === 8) && y >= 3 && y <= 8) return 'O';
+  if ((y === 7 || y === 8) && x >= 8 && x <= 11) return 'O';
+  return 'Y';
+}).join(''));
+Object.assign(TRIGGER_ART, {
+  // Card Pulse: a card sending Pulse rings to its right.
+  'engine-pulse': pad16([BLANK, BLANK, BLANK, '.OOOOOO.........', '.OYYYYO....SS...', '.OYGGYO......S..', '.OGWWGO..SS...S.', '.OGWWGO....S..S.', '.OYGGYO....S..S.', '.OYYYYO..SS...S.', '.OYYYYO......S..', '.OOOOOO....SS...']),
+  // On gain: a Spark with a moss plus.
+  'engine-gain': pad16([BLANK, '.....OO.........', '....OGGO........', '...OGWWGO.......', '..OGWWGGDO......', '.OGWGGGGDDO.....', '.OGGGGGGDDO.....', '..OGGGGDDO......', '...OGGDDO.OOOO..', '....ODDO..OMMO..', '.....OO.OOOMMOOO', '........OMMMMMMO', '........OMMMMMMO', '........OOOMMOOO', '..........OMMO..', '..........OOOO..']),
+  // Any event: a card with three dots (any card event to its left).
+  'engine-any': pad16([BLANK, BLANK, BLANK, '.OOOOOO.........', '.OYYYYO.........', '.OYGGYO.........', '.OGWWGO.........', '.OGWWGO.DD.DD.DD', '.OYGGYO.DD.DD.DD', '.OYYYYO.........', '.OYYYYO.........', '.OOOOOO.........']),
+  // Skim: the wisp low over terrain, Proximity glints between.
+  'engine-skim': pad16([BLANK, BLANK, BLANK, '.........OOOO...', '........OYWWYO..', '..LLL...OWWWYO..', '.LLL....OYWYYO..', '..LLL...OYYYCO..', '.........OOOO...', BLANK, '.......G..G..G..', BLANK, 'OOOOOOOOOOOOOOOO', 'mmmmmmmmmmmmmmmm', 'MmMMmMMMmMMMmMMm', 'MMMMMMMMMMMMMMMM']),
+  // Low Lift: a Lift over a meter with only its bottom segment lit.
+  'engine-lift': pad16([BLANK, '.......OO.......', '......OGGO......', '.....OGWGGO.....', '....OGGOOGGO....', '...OGGO..OGGO...', '...OOO....OOO...', BLANK, '.....OOOOOO.....', '.....OLLLLO.....', '.....OOOOOO.....', '.....OLLLLO.....', '.....OOOOOO.....', '.....OGGGDO.....', '.....OOOOOO.....']),
+  // Pack: the satchel the meter's spare Sparks go into.
+  pack: pad16([BLANK, BLANK, BLANK, '....OOOOOOOO....', '....OPPWGPPO....', '....OPPPPPPO....', '..OOOOOOOOOOOO..', '..OBBBBBBBBBBO..', '..OBBBBGGBBBBO..', '..OBBBBOOBBBBO..', '..OBBBBBBBBBBO..', '..OBBBBBBBBBBO..', '..OBBBBBBBBBBO..', '..OOOOOOOOOOOO..']),
+  // Take-off: the wisp leaving a split ledge.
+  'take-off': pad16([BLANK, '......OOOO......', '.....OYWWYO.....', '.....OWWWYO.....', '.....OYWYCO.....', '......OOOO......', BLANK, '......G..G......', BLANK, '.......GG.......', '......G..G......', BLANK, 'OOOOOO....OOOOOO', 'BBBBBO....OBBBBB', 'BBBBBO....OBBBBB', 'LLLLLO....OLLLLL']),
+  // Each Turn: the closed track with a Spark on it.
+  'engine-turn': pad16([BLANK, '.....O..........', '....OGO.........', '..OOGWGOOOOOOO..', '..OBOGOBBBBBBO..', '..OBOOOOOOOOBO..', '..OBO......OBO..', '..OBO......OBO..', '..OBO......OBO..', '..OBO......OBO..', '..OBOOOOOOOOBO..', '..OBBBBBBBBBBO..', '..OOOOOOOOOOOO..']),
+  // Timers: a dial.
+  timers: dialRows,
+  // Always on: a steady lamp.
+  'always-on': pad16([BLANK, '.......DD.......', '..D....DD....D..', '...D........D...', '......OOOO......', '.....OGGGGO.....', '....OGWWGGDO....', 'DD..OGWGGGDO..DD', 'DD..OGGGGGDO..DD', '....OGGGGDDO....', '.....ODDDDO.....', '......OOOO......', '...D........D...', '..D....DD....D..', '.......DD.......']),
+  // Any Trigger: four Sparks round a centre.
+  any: pad16(['.......O........', '......OGO.......', '.....OGWGO......', '......OGO.......', '.......O........', '..O.........O...', '.OGO.......OGO..', 'OGWGO..D..OGWGO.', '.OGO.......OGO..', '..O.........O...', '.......O........', '......OGO.......', '.....OGWGO......', '......OGO.......', '.......O........']),
+  // Next card: the card to its right is the one that counts.
+  next: pad16([BLANK, BLANK, BLANK, '.OOOOO...OOOOOO.', '.OKKKO...OYYYYO.', '.OKKKO...OYGGYO.', '.OKKKO...OGWWGO.', '.OKKKO.DDOGWWGO.', '.OKKKO.DDOYGGYO.', '.OKKKO...OYYYYO.', '.OKKKO...OYYYYO.', '.OOOOO...OOOOOO.']),
+});
 export const CAMPFIRE = pad16([BLANK, BLANK, '.......O........', '......OEO.......', '......OEEO......', '.....OEGEO......', '.....OEGGEO.....', '....OEGWGEO.....', '....OEGWWGEO....', '....OEGGWGEO....', '...OOOEGGEOOO...', '..OBBOOOOOOBBO..', '.OBBBBBBBBBBBBO.', '..OOBBOOOOBBOO..', '....OO....OO....']);
 export const CHEVRON = pad16([BLANK, BLANK, BLANK, BLANK, BLANK, '..OO........OO..', '..OBO......OBO..', '...OBO....OBO...', '....OBO..OBO....', '.....OBOOBO.....', '......OBBO......', '.......OO.......']);
 const GEM_ROWS = ['...OO...', '..OHAO..', '.OHAAAO.', 'OHAAAAZO', 'OAAAAZZO', '.OAAZZO.', '..OAZO..', '...OO...'];
 const GEM_PAL = {common: {A: '#d8dacd', Z: '#8d9187', H: '#ffffff'}, rare: {A: '#6fa3bd', Z: '#31546f', H: '#f0d68a'}, legendary: {A: '#b9a6d6', Z: '#5b4f73', H: '#f3d6f7'}};
 export const gem = r => pixelArt(GEM_ROWS, {size: 8, pal: {O: '#2a1d12', ...GEM_PAL[r]}, cls: 'dk21-gem'});
+import {triggerArtKey} from '../card-rule-bands.mjs?v=icons-1';
 // 9-slice frames: 12×12, stepped 2-pixel corners, outline · rim · one-pixel bevel (light top/left, dark bottom/right) · fill.
 export function frameUrl({outline = '#2a1d12', rim, light, dark, fill}) {
   const paths = {};
@@ -66,18 +104,31 @@ export function medalUrl(D) {
   const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${D}" height="${D}" viewBox="0 0 ${D} ${D}" shape-rendering="crispEdges">${Object.entries(paths).map(([c, p]) => `<path fill="${c}" d="${p.join('')}"/>`).join('')}</svg>`;
   return (medalCache[D] = `url("data:image/svg+xml,${encodeURIComponent(svg)}")`);
 }
+TRIGGER_ART.rest = CAMPFIRE;
 export const triggerIcon = (kind, size = 16) => TRIGGER_ART[kind] ? pixelArt(TRIGGER_ART[kind], {size, cls: 'dk21-ticon'}) : '';
+/** A Trigger chip's icon (chip ids from card-rule-bands.mjs › CARD_TRIGGERS), 16 or 32 px. */
+export const chipIcon = (id, size = 16) => triggerIcon(triggerArtKey(id), size);
+const escB = v => String(v ?? '').replace(/[&<>"']/g, c => ({'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'}[c]));
+/** The Trigger badge every card shows first (face, Deck tile, Chain tile): the chip's icon in a paper well and its
+ * name on leather. Same place and colours everywhere; `mini` keeps the icon only (the name stays for readers). */
+export function chipBadge(chip, {cls = '', mini = false} = {}) {
+  const label = chip?.label || 'Always on';
+  return `<span class="tbadge${mini ? ' tbadge-mini' : ''}${cls ? ` ${cls}` : ''}" data-chip="${escB(chip?.id || 'always-on')}"><i class="tbadge-i" aria-hidden="true">${chipIcon(chip?.id || 'always-on', 16)}</i><b class="tbadge-n${mini ? ' tbadge-sr' : ''}">${escB(label)}</b></span>`;
+}
+/** Rarity without words: 1, 2 or 3 small gems (Common, Rare, Legendary), for players who cannot rely on colour. */
+export const rarityPips = r => `<span class="rpips rpips-${r}" aria-hidden="true">${Array.from({length: r === 'legendary' ? 3 : r === 'rare' ? 2 : 1}, () => gem(r)).join('')}</span>`;
 // The 9-slice tile frames by rarity and state (set as --fr-* on the screen root).
 export const FRAME_COLOURS = {
-    common: {rim: '#9a9d90', light: '#fffbe8', dark: '#d2b97f', fill: '#f1e0b0'},
-    rare: {rim: '#42768f', light: '#f0d68a', dark: '#c79f52', fill: '#f1e0b0'},
-    legendary: {rim: '#716a7d', light: '#f3d6f7', dark: '#cfae86', fill: '#f1e0b0'},
+    // Rarity by colour (owner, 17 Nov): rim and a tinted ground per rarity; Legendary keeps a gold key-line.
+    common: {rim: '#8d9187', light: '#fbf8ea', dark: '#c4bfa8', fill: '#ebe6d0'},
+    rare: {rim: '#42768f', light: '#d9ebf2', dark: '#7fa6b8', fill: '#d2e1e4'},
+    legendary: {rim: '#5b4f73', light: '#f0c86a', dark: '#b98f4a', fill: '#e3d6ec'},
     rest: {outline: '#6b5335', rim: '#b9a47a', light: '#efe2bc', dark: '#cbb58a', fill: '#e6d3a3'},
     plate: {rim: '#8a6d44', light: '#fffbe8', dark: '#d2b97f', fill: '#f1e0b0'},
     idle: {outline: '#5f5a4d', rim: '#8f897a', light: '#ddd6c2', dark: '#b3ab95', fill: '#cdc6b0'},
     // Cards in the chain: moss outline and a faint moss-washed paper, so the group reads as placed.
-    chainCommon: {outline: '#3d4a22', rim: '#9a9d90', light: '#fbf8e2', dark: '#c9b980', fill: '#e9e4b6'},
-    chainRare: {outline: '#3d4a22', rim: '#42768f', light: '#f0d68a', dark: '#c0a058', fill: '#e9e4b6'},
-    chainLegendary: {outline: '#3d4a22', rim: '#716a7d', light: '#f3d6f7', dark: '#c9ab84', fill: '#e9e4b6'},
+    chainCommon: {outline: '#3d4a22', rim: '#8d9187', light: '#fbf8ea', dark: '#c4bfa8', fill: '#ebe6d0'},
+    chainRare: {outline: '#3d4a22', rim: '#42768f', light: '#d9ebf2', dark: '#7fa6b8', fill: '#d2e1e4'},
+    chainLegendary: {outline: '#3d4a22', rim: '#5b4f73', light: '#f0c86a', dark: '#b98f4a', fill: '#e3d6ec'},
 };
 export const frameVars = () => Object.entries(FRAME_COLOURS).map(([k, v]) => `--fr-${k}:${frameUrl(v)}`).join(';');

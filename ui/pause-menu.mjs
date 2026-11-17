@@ -1,10 +1,10 @@
 /** Pause menu (v1.5-pause) and Settings (v1.1-settings) in the v2.5-theme Atlas composition. Pure markup; styles in ui/waystone.css.
  * The data-action names are the ones the game's delegated click handler already dispatches. */
-import {escapeHtml as esc} from './primitives.mjs?v=perf-1';
-import {menuIcon as icon} from '../menu-icons.mjs?v=perf-1';
-import {resourceSymbol} from '../game-symbols.mjs?v=perf-1';
-import {clampLevel,LEVEL_STEPS} from '../sound-level.mjs?v=perf-1';
-import {lifeHeartSvg} from '../lives.mjs?v=perf-1';
+import {escapeHtml as esc} from './primitives.mjs?v=icons-1';
+import {menuIcon as icon} from '../menu-icons.mjs?v=icons-1';
+import {resourceSymbol} from '../game-symbols.mjs?v=icons-1';
+import {clampLevel,LEVEL_STEPS} from '../sound-level.mjs?v=icons-1';
+import {lifeHeartSvg} from '../lives.mjs?v=icons-1';
 
 /** One Waystone plaque. role = primary | standard | quiet | danger. Quiet and rust plaques carry no art or subtitle. */
 export function waystoneSign(role,title,{action,sub='',art='',attrs=''}={}){
@@ -69,8 +69,8 @@ export function titleMarkup(title){
  */
 export function pauseMenuMarkup({practice=false,flight=true,onMap=false,context='',heading='Paused',deckLabel='Deck',showDeck=true,showCollection=false,status=null,bonusReminder='',music={level:3},fx={level:3},mock=false}={}){
  const deckSub={'loaned cards':'Your practice build',deck:'Cards',skills:'Upgrades'}[String(deckLabel).toLowerCase()]||'';
- const deck=showDeck?waystoneSign('standard',deckLabel,{action:'skills',sub:deckSub,art:icon('route')}):'';
- const collection=showCollection?waystoneSign('standard','Collection',{action:'artifacts',sub:'Relics',art:icon('star')}):'';
+ const deck=showDeck?waystoneSign('standard',deckLabel,{action:'skills',sub:deckSub,art:icon('deck')}):'';
+ const collection=showCollection?waystoneSign('standard','Collection',{action:'artifacts',sub:'Relics',art:icon('collection')}):'';
  const build=deck&&collection?`<div class="wb-split">${deck}${collection}</div>`:deck||collection;
  const resume=flight?waystoneSign('primary','Resume flight',{action:'resume',sub:'Back to the passage'}):waystoneSign('primary','Back to map',{action:'close-sheet',sub:'Back to the route'});
  const leave=practice

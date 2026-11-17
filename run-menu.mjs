@@ -1,11 +1,11 @@
-import {menuWorldMarkup} from './menu-world.mjs?v=perf-1';
-import {resourceSymbol} from './game-symbols.mjs?v=perf-1';
-import {formatGlow,getGlowCapacity} from './vitality.mjs?v=perf-1';
-import {livesMarkup} from './lives.mjs?v=perf-1';
-import { COMPANION_ABILITIES, getCompanionUnlock } from './companion-abilities.mjs?v=perf-1';
-import { companionArtSvg } from './companion-art.mjs?v=perf-1';
-import { GAME_VERSION } from './build-version.mjs?v=perf-1';
-import { menuIcon } from './menu-icons.mjs?v=perf-1';
+import {menuWorldMarkup} from './menu-world.mjs?v=icons-1';
+import {resourceSymbol} from './game-symbols.mjs?v=icons-1';
+import {formatGlow,getGlowCapacity} from './vitality.mjs?v=icons-1';
+import {livesMarkup} from './lives.mjs?v=icons-1';
+import { COMPANION_ABILITIES, getCompanionUnlock } from './companion-abilities.mjs?v=icons-1';
+import { companionArtSvg } from './companion-art.mjs?v=icons-1';
+import { GAME_VERSION } from './build-version.mjs?v=icons-1';
+import { menuIcon } from './menu-icons.mjs?v=icons-1';
 
 const esc = value => String(value ?? '').replace(/[&<>"']/g, char =>
   ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[char]));
@@ -120,9 +120,9 @@ export function homeMenuMarkup({ profile = {}, run = null, selectedDifficulty, t
     : `<div class="home-journey wb-tabbox">${runProgressMarkup(active ? run : null)}</div>`;
   const ascension = `<div class="home-ascension${maximum===1?' is-fixed':''}" role="group" aria-label="Choose ascension for a new game"><button type="button" class="home-ascension-step" data-action="choose-ascension" data-value="${Math.max(1, chosen - 1)}" aria-label="Previous ascension" ${chosen <= 1 ? 'disabled' : ''}>−</button><span class="home-ascension-label">ASCENSION <b>${chosen}</b><small>${testOverride ? `TEST · 1–${maximum}` : maximum > 1 ? `UNLOCKED 1–${maximum}` : 'FIRST JOURNEY'}</small></span><button type="button" class="home-ascension-step" data-action="choose-ascension" data-value="${Math.min(maximum, chosen + 1)}" aria-label="Next ascension" ${chosen >= maximum ? 'disabled' : ''}>+</button></div>`;
   const menu = (active ? homeSign('primary','continue-run','CONTINUE',continueSub,{cls:'front-continue'}) : '')
-    + homeSign(active ? 'standard' : 'primary','new-game','NEW GAME',practiceFirst ? 'First Light practice first' : 'Choose a starting gift',{cls:'front-new-button',art:active?'wing':''})
+    + homeSign(active ? 'standard' : 'primary','new-game','NEW GAME',practiceFirst ? 'First Light practice first' : 'Choose a starting gift',{cls:'front-new-button',art:active?'new-game':''})
     + ascension
-    + homeSign('standard','tutorial','TUTORIAL','Lessons & practice',{cls:'front-tutorial',art:'info'})
+    + homeSign('standard','tutorial','TUTORIAL','Lessons & practice',{cls:'front-tutorial',art:'tutorial'})
     + homeSign('standard','settings','SETTINGS','Sound & options',{cls:'front-settings',art:'tune'});
   // DOM order is focus order: the page's menu first, then the tabs on the painting.
   return `<section class="menu-art-home wb-ground${active?' has-continue':''}">${menuWorldMarkup()}<div class="wb-shade home-shade" aria-hidden="true"></div><div class="wb-page home-page"><div class="wb-pagelight" aria-hidden="true"></div><header class="wb-head home-head"><div class="wb-title-row"><i class="wb-flourish" aria-hidden="true"></i><h1 class="wb-title">WISPBOUND</h1><i class="wb-flourish wb-flip" aria-hidden="true"></i></div><p class="wb-context home-tagline">A LIGHT IN THE LOST WOODS</p></header><nav class="home-menu" aria-label="Main menu">${menu}</nav><small class="front-version" data-game-version="${esc(GAME_VERSION)}">Version ${esc(GAME_VERSION)}</small></div><div class="home-tabs">${journey}${testStarterMarkup({testOverride})}</div></section>`;

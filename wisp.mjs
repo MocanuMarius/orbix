@@ -1,11 +1,11 @@
-import { getCompanionAbility } from './companion-abilities.mjs?v=perf-1';
-import { pickupKind, pickupContactRadius, getPickupSpec } from './pickups.mjs?v=perf-1';
-import {sparkArtScale,sparkBodyRadius,sparkMass} from './spark-size.mjs?v=perf-1';
-import {collectorCanFetch,collectorCompactSeconds,compressCollectorCargo} from './collector-load.mjs?v=perf-1';
-import {pickupHookAnchor} from './pickup-handling-cue.mjs?v=perf-1';
-import {WISP_ART} from './companion-art.mjs?v=perf-1';
-import {collectorTowPose,collectorTowOrbit} from './collector-tow-geometry.mjs?v=perf-1';
-import {COLLECTOR_VORTEX,vortexProgress,vortexScale,vortexCargoPoint,createVortexTrail,recordVortexTrail} from './collector-vortex.mjs?v=perf-1';
+import { getCompanionAbility } from './companion-abilities.mjs?v=icons-1';
+import { pickupKind, pickupContactRadius, getPickupSpec } from './pickups.mjs?v=icons-1';
+import {sparkArtScale,sparkBodyRadius,sparkMass} from './spark-size.mjs?v=icons-1';
+import {collectorCanFetch,collectorCompactSeconds,compressCollectorCargo} from './collector-load.mjs?v=icons-1';
+import {pickupHookAnchor} from './pickup-handling-cue.mjs?v=icons-1';
+import {WISP_ART} from './companion-art.mjs?v=icons-1';
+import {collectorTowPose,collectorTowOrbit} from './collector-tow-geometry.mjs?v=icons-1';
+import {COLLECTOR_VORTEX,vortexProgress,vortexScale,vortexCargoPoint,createVortexTrail,recordVortexTrail} from './collector-vortex.mjs?v=icons-1';
 
 const clamp = (value, lo, hi) => Math.min(hi, Math.max(lo, value));
 const smooth = value => {const u=clamp(value,0,1);return u*u*(3-2*u);};
@@ -447,6 +447,10 @@ export class WispCompanion {
         this.x=this.settleX+(this.x-this.settleX)*blend;this.y=this.settleY+(this.y-this.settleY)*blend;}
       this.vx = (this.x - this.previousX) / dt; this.vy = (this.y - this.previousY) / dt;
       {
+        // Homing Thread (engine card): one search, right after a Delivery, may take the nearest Spark in reach even
+        // before it passes the wisp. The fetch, reel and recovery are the normal ones; the request lapses in 0.25 s.
+        const homing=this.homingFetch!=null&&engine.time-this.homingFetch<=.25;
+        if(this.homingFetch!=null&&!homing)this.homingFetch=null;
         let nearest = null, nearestScore = Infinity, nearestExtension=null;
         for (const ember of packets) {
           if (!collectorCanFetch(ember,engine.mod) || ember.collected || ember.carried || ember.attracted) continue;
@@ -456,7 +460,7 @@ export class WispCompanion {
           // Leave the entire approach and body-contact window to the player.
           // Once a packet passes behind this edge, forward flight cannot touch
           // it directly; only then may the carrier rescue it within its range.
-          if (!this.passedBodyWindow(engine,ember,normalReach)) continue;
+          if (!homing && !this.passedBodyWindow(engine,ember,normalReach)) continue;
           if (engine.collectorContains && !engine.collectorContains(ember,this,reach)) continue;
           const distance = Math.hypot(x - home.x, ember.y - home.y) - shell;
           if(distance>reach)continue;
@@ -468,6 +472,7 @@ export class WispCompanion {
           if (score <= nearestScore) { nearest = ember; nearestScore = score; nearestExtension=extension; }
         }
         if (nearest) {
+          if(homing)this.homingFetch=null;
           this.target = nearest;this.targetExtension=nearestExtension; nearest.attracted = true; this.phase = 'outbound';
           const hook=pickupHookAnchor(nearest,nearest.x-engine.distance,nearest.y);
           this.beginLeg(engine, hook.x,hook.y);

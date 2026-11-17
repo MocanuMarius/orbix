@@ -1,8 +1,8 @@
 /** Configuration hints only. Every numeric verdict comes from a read-only row quote. */
-import { SKILL_CARDS, CARD_ROW_EVENTS, CARD_UNIT, getEffectiveCardSources, getCardRowRule, previewCardRowEvent, getUseDoublerTarget, getEmberFeederTargets, getCardFeederCapacity, getAlwaysOnCardBoosts } from './skill-cards.mjs?v=perf-1';
-import { getRawGlowCapacity, GLOW_CAPACITY_LIMIT_UNITS } from './vitality.mjs?v=perf-1';
-import { normalizeCompanionFleet } from './companion-abilities.mjs?v=perf-1';
-import { skillProgress } from './skill-increments.mjs?v=perf-1';
+import { SKILL_CARDS, CARD_ROW_EVENTS, CARD_UNIT, getEffectiveCardSources, getCardRowRule, previewCardRowEvent, getUseDoublerTarget, getEmberFeederTargets, getCardFeederCapacity, getAlwaysOnCardBoosts } from './skill-cards.mjs?v=icons-1';
+import { getRawGlowCapacity, GLOW_CAPACITY_LIMIT_UNITS } from './vitality.mjs?v=icons-1';
+import { normalizeCompanionFleet } from './companion-abilities.mjs?v=icons-1';
+import { skillProgress } from './skill-increments.mjs?v=icons-1';
 
 /** Labels are plain instructions (docs/card-teaching-plan.md §3); `code` is stable for code. */
 const ready = reason => ({ state: 'ready', symbol: '✓', label: 'Ready', code: 'ready', reason, fix: 'Keep this order to use it when its Trigger happens.' });
@@ -165,8 +165,6 @@ export function getEquippedCardStatuses(run = {}, native = null) {
       return shared('Keeps its use for now','A second Collector is already here. Twin Wick keeps its use until it can unlock one for this journey.','use-kept');
     if(kind==='collector-range'&&copy)
       return shared('Reach already covered','Copying the same reach card adds no reach or catches. The real card keeps its uses.','reach-covered');
-    if (kind === 'wave-loom' && !context.field)
-      return blocked('Needs Field Impulse', 'Wave Loom sends its Pulse after a Field Impulse swipe, and this build cannot swipe.', 'Learn the Collector Field Impulse skill.', 'needs-field');
     if (kind === 'camp-grow' && run.cardGrowUses >= 3)
       return shared('Grow limit reached', 'All 3 Grows for this journey are used. Every Growth Seed shares that limit.', 'grow-limit');
     if (['guide', 'rhythm', 'dream', 'cache-handling', 'wave-loom', 'watchlight', 'springboard', 'proximity'].includes(kind) && sources.some(entry => entry.index < slot && entry.def.kind === kind))

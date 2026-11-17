@@ -7,9 +7,11 @@
 // LEFT did to it (an Echo repeating it). Later Boosts and the Encore keep their own plates. Honesty rule: the
 // plates read left to right (+ adds, × multiplies the running figure, Encore repeats the line, each firing
 // rounded down to whole Sparks) must give the resolver's total; when they do not, plates show plain figures.
-import {SKILL_CARDS, CARD_UNIT, getCardRowRule, hasCardRowEvent, previewCardRow, isInventoryOnlyCard, describeSkillCard} from '../skill-cards.mjs?v=perf-1';
-import {getGlowCapacity, glowPoints, GLOW_DISPLAY_SCALE} from '../vitality.mjs?v=perf-1';
-import {CARD_TRIGGERS} from '../card-rule-bands.mjs?v=perf-1';
+import {SKILL_CARDS, CARD_UNIT, getCardRowRule, hasCardRowEvent, previewCardRow, isInventoryOnlyCard, describeSkillCard, cardAmount} from '../skill-cards.mjs?v=icons-1';
+import {getGlowCapacity, glowPoints, GLOW_DISPLAY_SCALE} from '../vitality.mjs?v=icons-1';
+import {CARD_TRIGGERS, getCardTrigger} from '../card-rule-bands.mjs?v=icons-1';
+import {hasEngineCards, engineMetrics, findEngineLoop, engineStarts} from '../card-engine.mjs?v=icons-1';
+import {previewBlackHoleMeals, blackHoleTally} from '../card-black-hole.mjs?v=icons-1';
 
 /** The Triggers in the designer's order, with the game's names and glossary keys (card-terms.mjs). */
 export const TRIGGERS = Object.freeze([
@@ -174,8 +176,101 @@ export function resolveChain(row, wanted = null) {
   ctx.encore = ctx.infos.some(x => x.role === 'encore');
   ctx.passes = ctx.encore && (ctx.attr?.passTotals || []).length > 1 ? ctx.attr.passTotals.map(num) : [];
   ctx.linesum = plateSum(ctx, !ctx.plain);
+  // Engine Chains only (unreleased cards): extra fields, computed by the flight's own engine rules (card-engine.mjs).
+  if (hasEngineCards(cards)) ctx.engine = engineStats(cards);
+  const meals = previewBlackHoleMeals(cards);
+  if (meals.length) ctx.blackHole = meals;
   return ctx;
 }
+
+/** For an engine Chain: Sparks per Turn and Turns per 10 s (the medallion), the loop, and "runs once" (no Timer).
+ * The same CardEngine the flight runs, on an uncapped meter started once at t = 0; null numbers when it never turns. */
+export function engineStats(row) {
+  const cards = (row || []).map(c => c || null), loop = findEngineLoop(cards), m = engineMetrics(cards);
+  // The flying that starts it, as Trigger chips (the track's origin when no ordinary Trigger fires the chain).
+  const starts = engineStarts(cards).map(e => ({collect: 'collect', skim: 'engine-skim', lift: 'engine-lift', 'flash-end': 'flash-ends'})[e.kind]).filter(Boolean);
+  return {runsOnce: loop.runsOnce, timers: loop.timers, returns: loop.returns, entry: loop.entry, heartbeat: loop.heartbeat,
+    sparksPerTurn: m.sparksPerTurn, turnsPer10s: m.turnsPer10s, starts};
+}
+
+// ── Trigger chips: the badge every card shows first, and the Trigger collection (v1.0-engine Phase 2) ─────────
+/** The chip a card carries ({id, label, condition}), from its catalog Trigger (card-rule-bands.mjs). */
+export const chipOf = c => getCardTrigger(c || {}, SKILL_CARDS[c?.cardId || c?.id] || {});
+/** How often each Trigger fires in a flight, in words, from the firing model of scripts/balance/simulate.mjs
+ * (Collect 10, Pulse 6, Falling Lift 8 per 30 s flight: often; Delivery 4, Latch 3, Flash 3, Flash ends 3, Rhythm 4,
+ * Overfill 2, skims 2 to 3, low Lifts a few: a few times; Save, Clear, Pack, Take-off: once). */
+export const TRIGGER_BOOK = Object.freeze([
+  ['collect', 'You touch a Spark with your wisp.', 'often'],
+  ['delivery', 'Collector brings you a pickup.', 'a few times'],
+  ['latch', 'Collector grabs a pickup you missed.', 'a few times'],
+  ['wave', 'A Pulse crosses a Spark you have not taken.', 'often'],
+  ['flash', 'You or Collector pick up a Flash.', 'a few times'],
+  ['flash-ends', 'A Flash’s light runs out.', 'a few times'],
+  ['falling-lift', 'You Lift while falling.', 'often'],
+  ['overfill', 'A Spark brings more than your meter holds.', 'a few times'],
+  ['rhythm', 'You Lift 3 times at an even pace.', 'a few times'],
+  ['engine-skim', 'You fly close to terrain until Proximity fills.', 'a few times'],
+  ['engine-lift', 'You Lift with your meter under a quarter.', 'a few times'],
+  ['save', 'Collector stops a crash that would end the flight.', 'once'],
+  ['take-off', 'You start a flight.', 'once'],
+  ['clear', 'You clear a flight.', 'once'],
+  ['pack', 'You clear a flight; spare Sparks are packed.', 'once'],
+  ['engine-pulse', 'A card to its left sends a Pulse.', 'each Turn'],
+  ['engine-gain', 'A card to its left gives Sparks.', 'each Turn'],
+  ['engine-any', 'Any card event reaches it.', 'each Turn'],
+  ['engine-turn', 'Your engine goes round once.', 'each Turn'],
+  ['timers', 'It changes the Timers in your chain.', 'always'],
+  ['any', 'It fires with whatever Trigger fires your chain.', 'with every Trigger'],
+  ['next', 'It fires when the card to its right fires.', 'with that card'],
+  ['always-on', 'It works the whole time it is in your chain.', 'always'],
+  ['rest', 'You use it from your Deck at Rest.', 'at Rest'],
+].map(([id, does, often]) => Object.freeze({id, label: CARD_TRIGGERS[id].label, does, often, term: id === 'any' ? 'any-trigger' : id === 'wave' ? 'wave' : id})));
+/** The Trigger collection for one run: every Trigger, with the player's own cards that use it (a tile per card
+ * kind, with a count). `owned` false rows read "No card yet". */
+export function triggerBook(run) {
+  const owned = [...(run?.mountedCards || []), ...(run?.reserveCards || [])].filter(Boolean);
+  return TRIGGER_BOOK.map(entry => {
+    const kinds = new Map();
+    for (const card of owned) {
+      if (chipOf(card).id !== entry.id) continue;
+      const k = kinds.get(card.cardId) || {cardId: card.cardId, card, count: 0, inChain: false};
+      k.count++; if ((run?.mountedCards || []).includes(card)) {k.inChain = true;k.card = card;}
+      kinds.set(card.cardId, k);
+    }
+    const cards = [...kinds.values()].sort((a, b) => Number(b.inChain) - Number(a.inChain) || nameOf(a.card).localeCompare(nameOf(b.card)));
+    return {...entry, cards, owned: cards.length > 0};
+  });
+}
+
+// ── Engine plates (wording for engine cards on the Chain tab) ───────────────────────────────────────────────────
+const secs = v => `${num(v)} s`;
+/** What an engine card's plate says in this Chain: {long, short}. Null for a card without engine rules. */
+export function enginePlate(row, slot) {
+  const c = row[slot], def = SKILL_CARDS[c?.cardId], spec = def?.engine;
+  if (!spec) return null;
+  const scale = row.some(x => SKILL_CARDS[x?.cardId]?.engine?.timerScale) ? .5 : 1;
+  const amount = cardAmount(c), sparks = `+${num(amount)} Spark${amount === 1 ? '' : 's'}`;
+  if (spec.timer === 'wick' || spec.timer === 'fuse') return {long: `Waits ${secs(spec.wait * scale)}`, short: `Waits ${secs(spec.wait * scale)}`};
+  if (spec.timer === 'metronome') return {long: `Fires the next card every ${secs(spec.wait * scale)}`, short: `Every ${secs(spec.wait * scale)}`};
+  if (spec.timerScale) return {long: 'Timers wait half as long', short: 'Waits ×½'};
+  if (spec.governor === 'third-beat') return {long: 'Every 3rd Turn ×2', short: '3rd Turn ×2'};
+  if (spec.governor === 'momentum') return {long: `+${num(amount)}% light after 5 Turns`, short: `+${num(amount)}% light`};
+  if (spec.governor === 'wave-loom') return {long: 'A light Pulse each Turn', short: 'Light Pulse'};
+  if (spec.family === 'pack') {
+    if (spec.does?.includes('gain')) return {long: `${sparks} at Pack`, short: `+${num(amount)} at Pack`};
+    if (spec.does?.includes('fire-collect')) return {long: 'Fires Collect cards', short: 'Fires Collect'};
+    return {long: 'One last Turn', short: 'Last Turn'};
+  }
+  const d = spec.does || [];
+  if (d.includes('homing')) return {long: 'Collector fetches again', short: 'Fetches again'};
+  if (d.includes('flash')) return {long: 'Starts a short Flash', short: 'A Flash'};
+  if (d.includes('gain') && d.includes('pulse')) return {long: `Sends a Pulse, +${num(amount)}`, short: `Pulse, +${num(amount)}`};
+  if (d.includes('gain')) return {long: `${sparks} each Turn`, short: `+${num(amount)} a Turn`};
+  if (d.includes('pulse')) return {long: spec.keep ? `Sends a Pulse, keeps ${num(spec.keep)}` : 'Sends a Pulse', short: 'Sends a Pulse'};
+  return null;
+}
+/** Black Hole's take-off plate and its running total (card-black-hole.mjs). */
+export const holeTally = c => blackHoleTally(c);
 
 /** One plain line about a card in its place (the opened card). */
 export function hereLine(ctx, c) {

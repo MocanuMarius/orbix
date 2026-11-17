@@ -1,6 +1,6 @@
-import {sparkImageArt,sparkSymbolArt} from './spark-symbol.mjs?v=perf-1';
-import {condensedIconMarkup} from './afterglow-ui.mjs?v=perf-1';
-import {fineTreasureObject} from './fine-treasure-art.mjs?v=perf-1';
+import {sparkImageArt,sparkSymbolArt} from './spark-symbol.mjs?v=icons-1';
+import {uiIcon} from './ui-icons.mjs?v=icons-1';
+import {fineTreasureObject} from './fine-treasure-art.mjs?v=icons-1';
 
 // Three material tones sit above a shared dark contour. Keep light and shadow
 // readable at the tree's smallest size, even with all motion switched off.
@@ -141,7 +141,7 @@ function scale(c){
   +g('skill-ripple',p('M2 18h7v3h3v2H5v-2H2zm20 3h3v-3h5v3h-2v2h-6z',c[1]))+shine(16,5,c[3]);
 }
 function box(){
- return condensedIconMarkup().replace('<svg ','<svg x="2" y="2" width="28" height="28" ');
+ return uiIcon('stored',{size:16}).replace(/ width="16" height="16" style="[^"]*"/,' x="8" y="8" width="16" height="16"').replace('class="ui-icon" data-ui-icon','class="stored-portrait" data-nested-icon');
 }
 function ghost(c){
  return p('M10 3h12v2h4v4h2v13h-3v6h-3v-4h-4v6h-3v-5h-4v3H8v-6H5V10h2V6h3z',ink)

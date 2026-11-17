@@ -1,6 +1,6 @@
 // A disposable deck for phone inspection. Never reads or writes a player save.
-import { newState, createRun, advanceMap, getSupportChoices, getChoices, selectNode, beginFlightAttempt, markFlightAttemptStarted, finishFlight, settleCheckpoint } from './model.mjs?v=perf-1';
-import { makeSkillCard } from './skill-cards.mjs?v=perf-1';
+import { newState, createRun, advanceMap, getSupportChoices, getChoices, selectNode, beginFlightAttempt, markFlightAttemptStarted, finishFlight, settleCheckpoint } from './model.mjs?v=icons-1';
+import { makeSkillCard } from './skill-cards.mjs?v=icons-1';
 
 export function prepareCardInspectorReward(run, cardId = 'harvest-rare') {
   if (run.cardReward && !run.cardReward.uiAcknowledged) return;
@@ -78,7 +78,8 @@ export function createCardInspectorState(params = new URLSearchParams()) {
   }
   run.condensedGlow = 90;
   if (params.get('scenario') === 'departure') {
-    run.mountedCards = ['lift-guide', 'rhythm', 'harvest-common'].map((id, index) => makeSkillCard(id, `sample:departure:${index}`));
+    run.mountedCards = (params.get('chain') || 'lift-guide,rhythm,harvest-common').split(',').slice(0, 5).map((id, index) => makeSkillCard(id.trim(), `sample:departure:${index}`));
+    run.cardSlots = Math.max(3, run.mountedCards.length);
     selectNode(run, getChoices(run).find(node => node.type === 'flight').id);
     return state;
   }
@@ -94,7 +95,9 @@ export function createCardInspectorState(params = new URLSearchParams()) {
     run.artifactCharges = { 'flash-stone': 2 };
     beginFlightAttempt(run);
     markFlightAttemptStarted(run);
-    finishFlight(run, { success:true, flame:50, collected:6,
+    // ?engine=1: the engine lines of the ceremony (Pack cards, Kept by your engine) with sample amounts.
+    const engineLines = params.get('engine') === '1' ? { cardPack: { sparks: 6, asked: 6, stored: 2, turns: 1 }, cardEngineStored: 2 } : {};
+    finishFlight(run, { success:true, flame:50, collected:6, ...engineLines,
       artifactCharges:{'flash-stone':1}, artifactActivations:{'flash-stone':1},
       routeBonus:{id:'gilded', eligible:true, complete:true, target:4, progress:4} });
     settleCheckpoint(state);
@@ -142,6 +145,22 @@ export function createCardInspectorState(params = new URLSearchParams()) {
     run.path = [node.id];
     run.phase = 'support';
     getSupportChoices(run, state.profile);
+  }
+  // Dev only: unreleased engine cards in a Chain (default: the Chime loop). ?mock=engine, or
+  // ?mock=cards&scenario=engine&chain=id,id,... A mock run like ?mock=cards: nothing is saved.
+  if (params.get('scenario') === 'engine' || params.get('mock') === 'engine') {
+    const ids = (params.get('chain') || 'first-catch,spark-chime,ember-bell,slow-wick').split(',').slice(0, 5);
+    run.cardSlots = 5;
+    run.companions = ['collector']; run.companionRole = 'collector';
+    run.mountedCards = Array.from({ length: 5 }, (_, i) => ids[i] && ids[i] !== '-' ? makeSkillCard(ids[i].trim(), `sample:engine:${i}`) : null);
+    run.reserveCards = (params.get('reserve') || 'metronome,heartbeat,crescendo,close-call,body-spark,overflow-bell,full-satchel,last-round,harvest-home,black-hole,echo,homing-thread,momentum,wave-loom,third-beat,long-fuse,low-ember,flash-tinder,afterglow')
+      .split(',').map((id, i) => makeSkillCard(id.trim(), `sample:stored:engine:${i}`)).filter(Boolean);
+  } else if (params.get('chain')) {
+    // Dev only (captures): any Chain and reserve, ?mock=cards&chain=id,-,id&reserve=id,id
+    const ids = params.get('chain').split(',').slice(0, 5);
+    run.cardSlots = Math.max(3, ids.length);
+    run.mountedCards = ids.map((id, i) => id && id !== '-' ? makeSkillCard(id.trim(), `sample:chain:${i}`) : null);
+    if (params.get('reserve')) run.reserveCards = params.get('reserve').split(',').map((id, i) => makeSkillCard(id.trim(), `sample:stored:chain:${i}`)).filter(Boolean);
   }
   if (params.get('scenario') === 'starter') {
     delete run.startingGiftId;

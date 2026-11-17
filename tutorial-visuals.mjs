@@ -1,13 +1,16 @@
-import {resourceCycleArt} from './resource-cycle.mjs?v=perf-1';
-import {getCompanionAbility} from './companion-abilities.mjs?v=perf-1';
-import {resourceSymbol} from './game-symbols.mjs?v=perf-1';
-import {pickupArtSvg} from './pickup-art.mjs?v=perf-1';
-import {getPickupSpec} from './pickups.mjs?v=perf-1';
-import {mapStopIconMarkup,MAP_STOP_TYPES} from './map-guide.mjs?v=perf-1';
-import {artifactIcon,skillIcon} from './upgrade-icons.mjs?v=perf-1';
-import {companionArtSvg} from './companion-art.mjs?v=perf-1';
-import {dreamEye} from './dream.mjs?v=perf-1';
-import {lifeHeartSvg} from './lives.mjs?v=perf-1';
+import {resourceCycleArt} from './resource-cycle.mjs?v=icons-1';
+import {getCompanionAbility} from './companion-abilities.mjs?v=icons-1';
+import {resourceSymbol} from './game-symbols.mjs?v=icons-1';
+import {pickupArtSvg} from './pickup-art.mjs?v=icons-1';
+import {getPickupSpec} from './pickups.mjs?v=icons-1';
+import {mapStopIconMarkup,MAP_STOP_TYPES} from './map-guide.mjs?v=icons-1';
+import {artifactIcon,skillIcon} from './upgrade-icons.mjs?v=icons-1';
+import {companionArtSvg} from './companion-art.mjs?v=icons-1';
+import {dreamEye} from './dream.mjs?v=icons-1';
+import {lifeHeartSvg} from './lives.mjs?v=icons-1';
+import {uiIcon} from './ui-icons.mjs?v=icons-1';
+// Teaching cues name a Spark or the Long Flash with the approved icons; other pickups keep their in-flight sprite.
+const pickupCue=type=>type==='light'?uiIcon('spark',{size:32}):type==='sight'?uiIcon('long-flash',{size:32}):pickupArtSvg(type);
 const item=(art,label)=>`<span class="coach-term">${art}<b>${label}</b></span>`;
 const arrow='<i class="coach-term-arrow" aria-hidden="true">→</i>';
 const meter='<span class="coach-meter" aria-hidden="true">'+Array.from({length:10},(_,i)=>`<i class="${i<7?'filled':''}"></i>`).join('')+'</span>';
@@ -37,8 +40,8 @@ export function tutorialVisualMarkup(step={}){
  if(kind==='skill-states')return '<span class="coach-skill-key"><b>✓ Owned</b><b>Can learn</b><b>Save more</b><b>'+resourceSymbol('lock')+' Needs prerequisite</b></span>';
  if(kind?.startsWith('site:'))return item(mapStopIconMarkup(kind.slice(5)),kind.slice(5).toUpperCase());
  if(kind==='sites-support')return item(mapStopIconMarkup('encounter'),'ENCOUNTER')+item(mapStopIconMarkup('treasure'),'TREASURE');
- if(kind?.startsWith('pickup:')){const type=step.pickup||kind.slice(7);return item(pickupArtSvg(type),getPickupSpec(type).name);}
- if(kind==='spark'||id.startsWith('world:light-packet'))return item(pickupArtSvg('light'),'SPARK')+arrow+item(meter,'SPARK METER');
+ if(kind?.startsWith('pickup:')){const type=step.pickup||kind.slice(7);return item(pickupCue(type),getPickupSpec(type).name);}
+ if(kind==='spark'||id.startsWith('world:light-packet'))return item(pickupCue('light'),'SPARK')+arrow+item(meter,'SPARK METER');
  if(kind==='clear-reward')return item(mapStopIconMarkup('flight'),'CLEAR FLIGHT')+arrow+item(resourceSymbol('packed'),'+20 STORED SPARKS');
  if(kind==='packed')return item(resourceSymbol('glow'),'FULL METER')+arrow+item(resourceSymbol('packed'),'BONUS STORED SPARKS');
  if(kind==='lift')return item(resourceSymbol('up'),'LIFT')+item(resourceSymbol('glow'),'SPENDS SPARKS');
