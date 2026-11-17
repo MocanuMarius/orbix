@@ -1,6 +1,6 @@
-import {newState,createRun,ARTIFACTS,getChoices,selectNode,beginFlightAttempt,markFlightAttemptStarted,finishFlight,settleCheckpoint} from '../model.mjs?v=courses-1';
-import {makeSkillCard} from '../skill-cards.mjs?v=courses-1';
-import {prepareRouteOffer} from '../route-offers.mjs?v=courses-1';
+import {newState,createRun,ARTIFACTS,getChoices,selectNode,beginFlightAttempt,markFlightAttemptStarted,finishFlight,settleCheckpoint} from '../model.mjs?v=cards-hidden-2';
+import {makeSkillCard} from '../skill-cards.mjs?v=cards-hidden-2';
+import {prepareRouteOffer} from '../route-offers.mjs?v=cards-hidden-2';
 
 /** Preview-only data. Never load/persist a player save or start a flight. */
 export function createComponentFixture(family,variant){
@@ -15,8 +15,9 @@ export function createComponentFixture(family,variant){
   run.condensedGlow=75;
   if(family==='route'&&variant==='wayfinder'){
     // A naturally generated first stop: no replacement level or forced quest.
-    const node=run.map[0].find(item=>item.levelId==='thorn-thorn-steeple');
-    if(!node||prepareRouteOffer(run,node,{profile:state.profile,width:900,height:405})?.id!=='wayfinder')throw Error('Thorn Steeple gate fixture changed.');
+    // Offers follow the course layout, so look the Wayfinder stop up instead of naming a level.
+    const node=run.map[0].find(item=>prepareRouteOffer(run,item,{profile:state.profile,width:900,height:405})?.id==='wayfinder');
+    if(!node)throw Error('Wayfinder gate fixture changed.');
   }
   if(family==='collection'){
     run.restReady=['rest','confirm'].includes(variant);

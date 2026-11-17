@@ -1,12 +1,12 @@
-import { cardTermTextMarkup } from "./card-terms.mjs?v=courses-1";
-import { uiIcon } from "./ui-icons.mjs?v=courses-1";
-import { getCardRuleBands, getCardTrigger } from "./card-rule-bands.mjs?v=courses-1";
-import { chipBadge, rarityPips } from "./ui/trigger-icons.mjs?v=courses-1";
-import { devourTally, isDevourCard } from "./card-black-hole.mjs?v=courses-1";
-import { getEquippedCardStatuses, cardStatusText } from "./card-status.mjs?v=courses-1";
-import { activeFlightPact } from './flight-pacts.mjs?v=courses-1';
-import { cardArt } from "./card-art.mjs?v=courses-1";
-import {deckRelicShelfMarkup,deckContextMarkup,deckLinkedCardFace,deckSwapComboMarkup,deckCardExplanationMarkup} from './deck-combos.mjs?v=courses-1';
+import { cardTermTextMarkup } from "./card-terms.mjs?v=cards-hidden-2";
+import { uiIcon } from "./ui-icons.mjs?v=cards-hidden-2";
+import { getCardRuleBands, getCardTrigger } from "./card-rule-bands.mjs?v=cards-hidden-2";
+import { chipBadge, rarityPips } from "./ui/trigger-icons.mjs?v=cards-hidden-2";
+import { devourTally, isDevourCard } from "./card-black-hole.mjs?v=cards-hidden-2";
+import { getEquippedCardStatuses, cardStatusText } from "./card-status.mjs?v=cards-hidden-2";
+import { activeFlightPact } from './flight-pacts.mjs?v=cards-hidden-2';
+import { cardArt } from "./card-art.mjs?v=cards-hidden-2";
+import {deckRelicShelfMarkup,deckContextMarkup,deckLinkedCardFace,deckSwapComboMarkup,deckCardExplanationMarkup} from './deck-combos.mjs?v=cards-hidden-2';
 import {
   getMountedCards,
   getOwnedCards,
@@ -21,13 +21,13 @@ import {
   canUseCardCampServices,
   getSkillWallet,
   equipOwnedCard,
-} from "./model.mjs?v=courses-1";
-import { resourceSymbol } from "./game-symbols.mjs?v=courses-1";
-import { choiceScene } from "./choice-art.mjs?v=courses-1";
-import { livesMarkup } from "./lives.mjs?v=courses-1";
-import { getGlowCapacity, formatGlow } from "./vitality.mjs?v=courses-1";
-import { mapStopIconMarkup } from "./map-guide.mjs?v=courses-1";
-import {canDreamAt, dreamConfig} from './dream.mjs?v=courses-1';
+} from "./model.mjs?v=cards-hidden-2";
+import { resourceSymbol } from "./game-symbols.mjs?v=cards-hidden-2";
+import { choiceScene } from "./choice-art.mjs?v=cards-hidden-2";
+import { livesMarkup } from "./lives.mjs?v=cards-hidden-2";
+import { getGlowCapacity, formatGlow } from "./vitality.mjs?v=cards-hidden-2";
+import { mapStopIconMarkup } from "./map-guide.mjs?v=cards-hidden-2";
+import {canDreamAt, dreamConfig} from './dream.mjs?v=cards-hidden-2';
 import {
   getEffectiveCardSources,
   createCardExecution,
@@ -39,7 +39,8 @@ import {
   getCardFeederCapacity,
   isInventoryOnlyCard,
   SKILL_CARDS,
-} from "./skill-cards.mjs?v=courses-1";
+  cardTallyLine,
+} from "./skill-cards.mjs?v=cards-hidden-2";
 
 const esc = (v) =>
   String(v ?? "").replace(
@@ -88,7 +89,7 @@ function flightPackingReceipt(run, reward) {
     ? ` · Tight Packing +${bonus} Stored Sparks`
     : "";
 }
-export { cardArt } from "./card-art.mjs?v=courses-1";
+export { cardArt } from "./card-art.mjs?v=cards-hidden-2";
 export function effectMarkup(text) {
   return esc(text).replace(/([+−]?\d+(?:\.\d+)?%?)/g, '<b class="card-number">$1</b>');
 }
@@ -211,7 +212,7 @@ function faceBadges(card, compact) {
   const def = SKILL_CARDS[card.cardId || card.id] || {};
   const chip = getCardTrigger(card, def);
   const tally = isDevourCard(card) ? devourTally(card) : null, dreamTally = def.kind === 'dream';
-  return `<span class="card-tbadge-row">${chipBadge(chip, { cls: 'card-tbadge' })}</span>${rarityPips(rarity(card))}${tally && (!compact || tally.eaten) ? `<span class="card-bh-tally"><b>Devoured ${tally.eaten}</b> · ${dreamTally ? `Dream ${8 + tally.growth} s` : `+${tally.growth}${compact ? '' : ' max Sparks'}`}</span>` : ''}`;
+  return `<span class="card-tbadge-row">${chipBadge(chip, { cls: 'card-tbadge' })}</span>${rarityPips(rarity(card))}${cardTallyLine(card) ? `<span class="card-bh-tally"><b>${cardTallyLine(card)}</b></span>` : ''}${tally && (!compact || tally.eaten) ? `<span class="card-bh-tally"><b>Devoured ${tally.eaten}</b> · ${dreamTally ? `Dream ${8 + tally.growth} s` : `+${tally.growth}${compact ? '' : ' max Sparks'}`}</span>` : ''}`;
 }
 export function cardFace(card, { compact = false, fitted = false, slot = null, selected = false, status = null, sightWarning = '', availability = null } = {}) {
   if (!card) return `<article class="skill-card empty-card"><div class="card-empty-art">+</div><h3>Empty slot${slot === null ? '' : ` ${slot + 1}`}</h3></article>`;

@@ -17,8 +17,8 @@
 //   no Overfill hearer, a Metronome whose next card cannot act, a Long Fuse with nothing to repeat.
 // - Events only move right and each Timer holds at most one pending wait, so one instant always terminates; a hard
 //   safety counter still stops the engine (and warns once) if that is ever exceeded.
-import {SKILL_CARDS, CARD_ECONOMY, cardAmount, getCardRowRule, matchesRowCondition, isInventoryOnlyCard,
-  createCardExecution, resolveCardRow} from './skill-cards.mjs?v=courses-1';
+import {SKILL_CARDS, CARD_ECONOMY, cardAmount, getCardRowRule, matchesRowCondition, matchesRowShape, isInventoryOnlyCard,
+  createCardExecution, resolveCardRow} from './skill-cards.mjs?v=cards-hidden-2';
 
 export const ENGINE_LIMITS = Object.freeze({ deliveriesPerInstant: 400, timersPerAdvance: 5000, logEntries: 5000, turnLog: 5000 });
 /** Player-made Triggers the engine cards listen to (not CARD_ROW_EVENTS: the ordinary walker never sees them). */
@@ -53,6 +53,7 @@ export function engineBoostAt(cards, slot, pass = 1) {
     const card = row[j], def = defOf(card), rule = def && getCardRowRule(def, card);
     if (!rule || rule.event !== '*' || rule.operation !== 'multiply' || def.charges) continue;
     if (rule.when?.lastOccupied && j !== last) continue;
+    if (!matchesRowShape(rule.when, row, j)) continue;
     const amount = Number(pass === 2 && rule.replayAmount !== undefined ? rule.replayAmount : rule.amount) || 1;
     if (amount > 1) { multiplier *= amount; by.push(j); }
   }
@@ -231,6 +232,15 @@ export class CardEngine {
         }
         if (spec.lastTurn) { if (this.pulseTarget(j, mask) >= 0) { this.beginTurn(j); this.pack.turns++; } }
         this.sendPulse(j, mask);
+      } else if (what === 'keep') {
+        // Spill Jar: half of the spill (rounded down) becomes Stored Sparks. A collected pickup's own spill already packs.
+        if (ev?.type === 'overfill' && !ev.natural) {
+          const keep = Math.floor((Number(ev.spill) || 0) * (Number(spec.keepShare) || 0.5) + EPS);
+          if (keep > 0) { this.host.store?.(keep, j); this.stored += keep; if (this.inPack) this.pack.stored += keep; this.record({ k: 'keep', slot: j, amount: keep }); }
+        }
+      } else if (what === 'tithe') {
+        // Tithe (batch 3): at Pack, pay Stored Sparks for +1 max Sparks. The host decides if the Stored Sparks are there; the count is on the card.
+        if (this.inPack && this.host.tithe?.(Number(spec.cost) || 5, j)) { card.tally = (Math.floor(Number(card.tally)) || 0) + 1; this.record({ k: 'tithe', slot: j }); }
       } else if (what === 'flash') {
         const started = this.inPack ? false : !!this.host.startFlash?.(Number(spec.seconds) || 1, j);
         this.record({ k: started ? 'flash' : 'flash-refused', slot: j });

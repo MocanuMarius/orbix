@@ -4,9 +4,9 @@
 // for a Lift, or the tab is hidden (the flight pauses itself then), and which advances by the fixed simulation step,
 // so a given seed and input give the same engine log. Eligibility mirrors resolveCardRowEvent: no engine during a
 // Dream rehearsal, the clear/death animations, or a tutorial without practice cards.
-import {CARD_UNIT} from './skill-cards.mjs?v=courses-1';
-import {CardEngine, hasEngineCards} from './card-engine.mjs?v=courses-1';
-import {createFlashTether, FLASH_PULSE_INTERVAL} from './flash-tether.mjs?v=courses-1';
+import {CARD_UNIT} from './skill-cards.mjs?v=cards-hidden-2';
+import {CardEngine, hasEngineCards} from './card-engine.mjs?v=cards-hidden-2';
+import {createFlashTether, FLASH_PULSE_INTERVAL} from './flash-tether.mjs?v=cards-hidden-2';
 
 const live = e => !!(e.cardEngine && e.cardExecution && e.running && !e.paused && e.alive && !e.finished && !e.destroyed
   && !e.dying && !e.completing && !(e.tutorial && !e.mod?.practiceCards) && !(e.dream && e.dream.phase !== 'done'));
@@ -21,6 +21,11 @@ function flightHost(e) {
       return g / CARD_UNIT;
     },
     store: n => { e.cardEngineStored = (e.cardEngineStored || 0) + n; },
+    // Tithe: Stored Sparks the run held when the flight began pay for it, only in a real flight (never a tutorial or a Dream).
+    tithe: cost => {
+      if (e.tutorial || e.dream || (e.condensedStart || 0) - (e.cardTithePaid || 0) < cost) return false;
+      e.cardTithePaid = (e.cardTithePaid || 0) + cost; return true;
+    },
     canFlash: () => !(e.time < e.sightUntil),
     startFlash: (seconds, slot) => {
       if (e.time < e.sightUntil) return false;

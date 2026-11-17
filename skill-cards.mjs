@@ -1,9 +1,9 @@
 /** Small, serializable skills-as-cards pilot. Printed Sparks use the existing .3 display scale. */
 export const CARD_SYSTEM = "cards-v1";
 export const CARD_UNIT = 10 / 3;
-import {CARD_CATALOG,CARD_DROP_WEIGHTS} from './card-catalog.mjs?v=courses-1';
-import {cardOfferMultiplier} from './card-offer-context.mjs?v=courses-1';
-import {interpolateCardText,getCardTrigger,cardRuleSentence} from './card-rule-bands.mjs?v=courses-1';
+import {CARD_CATALOG,CARD_DROP_WEIGHTS} from './card-catalog.mjs?v=cards-hidden-2';
+import {cardOfferMultiplier} from './card-offer-context.mjs?v=cards-hidden-2';
+import {interpolateCardText,getCardTrigger,cardRuleSentence} from './card-rule-bands.mjs?v=cards-hidden-2';
 const maximumGrowthAmount = Math.max(...Object.values(CARD_CATALOG)
   .filter(card => card.kind === 'camp-grow').map(card => card.amount + card.maxRank - 1));
 export const CARD_ECONOMY = Object.freeze({
@@ -62,6 +62,13 @@ export function getCardBlackHoleBonus(run) {
   if (!isCardRun(run)) return 0;
   let total = 0;
   for (const card of run.mountedCards || []) if (SKILL_CARDS[card?.cardId]?.kind === 'black-hole') total += cleanCardFutureCapacity(Math.floor(Number(card.eatenGrowth)));
+  return total * CARD_UNIT;
+}
+/** Gilded Rim and Tithe (batch 3): +1 max Sparks per count, stored on each card, counted only while it is mounted. 0 without them. */
+export function getCardTallyCapacity(run) {
+  if (!isCardRun(run)) return 0;
+  let total = 0;
+  for (const card of run.mountedCards || []) if (['gilded-rim', 'tithe'].includes(SKILL_CARDS[card?.cardId]?.kind)) total += cleanCardFutureCapacity(integer(card.tally));
   return total * CARD_UNIT;
 }
 /** Dream's Devour growth in seconds (0 to 32), from the best mounted Dream (extra Dreams keep one). */
@@ -162,6 +169,8 @@ function cleanCard(card, seen) {
     // A Devour card's running total (Black Hole, Dream), written only once it has eaten something.
     ...(def.kind === 'black-hole' && integer(card.eaten) ? { eaten: integer(card.eaten), eatenGrowth: integer(card.eatenGrowth) } : {}),
     ...(def.kind === 'dream' && integer(card.eaten) ? { eaten: integer(card.eaten), eatenGrowth: Math.min(DREAM_MAX_BONUS_SECONDS, Math.max(0, Math.round(Number(card.eatenGrowth) * 2) / 2 || 0)) } : {}),
+    // Scar Tissue, Collector's Ledger, Old Friend: what the card has counted (batch 2).
+    ...((def.tallyEvent || def.tallied) && integer(card.tally) ? { tally: integer(card.tally) } : {}),
     ...(def.edition && integer(card.edition) ? { edition: integer(card.edition) } : {}),
   };
 }
@@ -879,7 +888,7 @@ export function getCardRowRule(def, card) {
 export function hasCardRowEvent(runtime, kind) {
   return getEffectiveCardSources(runtime).some(({def,source}) => {
     const row=getCardRowRule(def,source);
-    return row && (row.event===kind || (row.event==='*' && row.operation==='add-sparks'));
+    return def.tallyEvent === kind || (row && (row.event===kind || (row.event==='*' && row.operation==='add-sparks')));
   });
 }
 export function matchesRowCondition(when = {}, event, pass, slot, lastOccupied) {
@@ -893,6 +902,28 @@ export function matchesRowCondition(when = {}, event, pass, slot, lastOccupied) 
   if (when.pass !== undefined && pass !== when.pass) return false;
   return true;
 }
+/** Position rules (docs/card-proposals.md section 1, batch 1): `when.exactlyEarlier` (Twin Flame) and `when.endsShareTrigger`
+ * (Bookends: the first and last OTHER cards wait for the same Trigger, at least two of them) read the Chain's shape. */
+export function matchesRowShape(when = {}, cards = [], slot = 0) {
+  if (when.exactlyEarlier !== undefined && cards.slice(0, slot).filter(Boolean).length !== when.exactlyEarlier) return false;
+  if (when.endsShareTrigger) {
+    const others = cards.filter((card, index) => card && index !== slot);
+    if (others.length < 2 || SKILL_CARDS[others[0].cardId]?.trigger !== SKILL_CARDS[others[others.length - 1].cardId]?.trigger) return false;
+  }
+  return true;
+}
+/** Amount of a position adder: Vanguard (`firstSlotAmount`), Empty Chair (`perEmptySlot`), Ladder (`perCardLeft`). */
+export function positionAmount(rule, cards, slot, amount) {
+  if (rule.firstSlotAmount !== undefined && slot === 0) amount = Number(rule.firstSlotAmount) || 0;
+  if (rule.perEmptySlot) amount = rule.perEmptySlot * cards.filter(card => !card).length;
+  if (rule.perCardLeft) amount = rule.perCardLeft * cards.slice(0, slot).filter(Boolean).length;
+  const tally = integer(cards[slot]?.tally);
+  if (rule.perTally) amount = rule.perTally * tally;
+  if (rule.growEvery) amount += Math.floor(tally / rule.growEvery);
+  return amount;
+}
+/** Keystone: a card next to one fires twice. */
+export const isNextToKeystone = (cards, slot) => [cards[slot - 1], cards[slot + 1]].some(card => SKILL_CARDS[card?.cardId]?.kind === 'keystone');
 const freezeReceipt = (receipt) => {
   for (const step of receipt.steps) Object.freeze(step);
   Object.freeze(receipt.steps);Object.freeze(receipt.event);Object.freeze(receipt.charges);
@@ -964,6 +995,10 @@ function baseRewards(def, card, rule, event) {
  */
 export function resolveCardRow(runtime, event = {}) {
   const kind = event.kind || event.type;
+  // Batch 3: `fromSlot` (Undertow, Tributary) lets only the cards to the right of that Slot hear a card-made event; `secondWind` makes
+  // every rule hear every Trigger. Both are only ever set by the flight while the matching card is mounted.
+  const fromSlot = Number.isInteger(event.fromSlot) ? event.fromSlot : -1;
+  const windOn = event.secondWind === true && (runtime?.cards || []).some(card => SKILL_CARDS[card?.cardId]?.kind === 'second-wind');
   const sequence = (runtime?.eventSequence || 0) + 1;
   if (runtime) runtime.eventSequence = sequence;
   const receipt = { event: { id: event.id ?? sequence, sequence, kind,
@@ -1032,6 +1067,7 @@ export function resolveCardRow(runtime, event = {}) {
     let payers = 0, lastPayout = 0, lastSparkSlot = null;
     receipt.passes = pass;
     for (let slot = 0; slot < topology.length; slot++) {
+      if (slot <= fromSlot) continue;
       const acting = topology[slot], ownDef = SKILL_CARDS[acting?.cardId];
       const copy = ownDef?.kind === "echo" || ownDef?.kind === "chameleon";
       const target = copy ? topology[slot + 1] : acting;
@@ -1039,7 +1075,7 @@ export function resolveCardRow(runtime, event = {}) {
       const source = live.get(target?.instanceId);
       const creditSlot = copy ? slot + 1 : slot;
       receipt.slotVisits++;
-      const repeats = copy && ownDef.kind === "echo" ? Math.max(1,integer(ownDef.repeatCount || 1,CARD_ROW_LIMITS.repeats)) : 1;
+      const repeats = (copy && ownDef.kind === "echo" ? Math.max(1,integer(ownDef.repeatCount || 1,CARD_ROW_LIMITS.repeats)) : 1) * (isNextToKeystone(topology, slot) ? 2 : 1);
       for (let repeatIndex = 0; repeatIndex < repeats; repeatIndex++) {
       const subtotal = total("sparks", pass), futureSubtotal = total("futureCapacity", pass);
       const step = { eventId: receipt.event.id, eventKind: kind, pass, slot, repeatIndex, creditSlot,
@@ -1071,12 +1107,12 @@ export function resolveCardRow(runtime, event = {}) {
         receipt.executions++;productive = true;step.success = true;
         if (ledgerCards[creditSlot]) ledgerCards[creditSlot].fired++;
       };
-      const wildcard = rule?.event === "*" && (rule.operation === "multiply"
+      const wildcard = (rule?.event === "*" || (windOn && rule)) && (rule.operation === "multiply"
         ? kind !== CARD_ROW_EVENTS.victory
         : ![CARD_ROW_EVENTS.victory,CARD_ROW_EVENTS.clear,CARD_ROW_EVENTS.attach].includes(kind));
-      if (rule && (rule.event === kind || wildcard) && matchesRowCondition(rule.when,event,pass,slot,lastOccupied)) {
+      if (rule && (rule.event === kind || wildcard) && matchesRowCondition(rule.when,event,pass,slot,lastOccupied) && matchesRowShape(rule.when,topology,slot)) {
       const operation = rule.operation;
-      const amount = Math.max(0,Number(pass === 2 && rule.replayAmount !== undefined ? rule.replayAmount : rule.amount) || 0);
+      const amount = Math.max(0,positionAmount(rule,topology,slot,Number(pass === 2 && rule.replayAmount !== undefined ? rule.replayAmount : rule.amount) || 0));
       const payout = operation === "add-last-payout" ? lastPayout : amount;
       if ((operation === "add-sparks" || operation === "add-last-payout") && payout > 0 && payers >= (Number(rule.minimumEarlierPayers)||0)) {
         step.operation = operation;succeed();
@@ -1172,6 +1208,8 @@ export function resolveCardRow(runtime, event = {}) {
     card.boostedBy = [...new Set(card.boostedBy)];
     for (const rewardKind of CARD_REWARD_KINDS) card.boostedByKind[rewardKind] = [...new Set(card.boostedByKind[rewardKind])];
   }
+  // Counting cards (batch 2) count the event once it is resolved, so a payout never includes its own event.
+  for (let slot = 0; slot < cards.length; slot++) if (cards[slot] && SKILL_CARDS[cards[slot].cardId]?.tallyEvent === kind && !(fromSlot >= 0 && slot <= fromSlot)) cards[slot].tally = integer(cards[slot].tally) + 1;
   receipt.cards = ledgerCards;
   runtime.executions = (runtime.executions || 0) + receipt.executions;
   receipt.charges = getCardCharges(runtime);
@@ -1187,6 +1225,26 @@ export const previewCardRowEvent = previewCardRow;
 export function executeCardBodyPickup(runtime) {
   const receipt = resolveCardRow(runtime, { kind: CARD_ROW_EVENTS.body });
   return { bonus: receipt.sparks * CARD_UNIT, executions: receipt.executions, charges: receipt.charges, trace: receipt };
+}
+/** The count a counting card shows on its face, like Black Hole's "Devoured N": '' for any other card. */
+export function cardTallyLine(card) {
+  const def = SKILL_CARDS[card?.cardId || card?.id];
+  if (!def?.tallyEvent && !def?.tallied) return '';
+  const n = integer(card.tally);
+  if (def.kind === 'scar-tissue') return `Saves ${n} · +${n} per Collect`;
+  if (def.kind === 'collectors-ledger') return `Deliveries ${n} · +${1 + Math.floor(n / 10)} now`;
+  if (def.kind === 'old-friend') return `Flights ${n} · +${n} now`;
+  if (def.kind === 'gilded-rim') return `Overfills ${n} · +${n} max Sparks`;
+  if (def.kind === 'tithe') return `Tithes ${n} · +${n} max Sparks`;
+  if (def.kind === 'tributary') return `Collects ${n} · Delivery in ${3 - n % 3}`;
+  return '';
+}
+/** What each counting card has counted so far, by instance (flight results carry it back to the run). */
+export const getCardTallies = runtime => Object.fromEntries((runtime?.cards || []).filter(card => card && integer(card.tally)).map(card => [card.instanceId, integer(card.tally)]));
+/** Write counts back onto the mounted run cards. Counts only grow, and only cards still in the Chain keep one. */
+export function commitCardTallies(run, tallies) {
+  if (!isCardRun(run) || !tallies) return;
+  for (const card of run.mountedCards || []) if (card && (SKILL_CARDS[card.cardId]?.tallyEvent || SKILL_CARDS[card.cardId]?.tallied) && integer(tallies[card.instanceId]) > integer(card.tally)) card.tally = integer(tallies[card.instanceId]);
 }
 export function commitCardCharges(run, charges) {
   if (!isCardRun(run) || !charges) return [];

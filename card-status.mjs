@@ -1,8 +1,8 @@
 /** Configuration hints only. Every numeric verdict comes from a read-only row quote. */
-import { SKILL_CARDS, CARD_ROW_EVENTS, CARD_UNIT, getEffectiveCardSources, getCardRowRule, previewCardRowEvent, getUseDoublerTarget, getEmberFeederTargets, getCardFeederCapacity, getAlwaysOnCardBoosts } from './skill-cards.mjs?v=courses-1';
-import { getRawGlowCapacity, GLOW_CAPACITY_LIMIT_UNITS } from './vitality.mjs?v=courses-1';
-import { normalizeCompanionFleet } from './companion-abilities.mjs?v=courses-1';
-import { skillProgress } from './skill-increments.mjs?v=courses-1';
+import { SKILL_CARDS, CARD_ROW_EVENTS, CARD_UNIT, getEffectiveCardSources, getCardRowRule, previewCardRowEvent, getUseDoublerTarget, getEmberFeederTargets, getCardFeederCapacity, getAlwaysOnCardBoosts } from './skill-cards.mjs?v=cards-hidden-2';
+import { getRawGlowCapacity, GLOW_CAPACITY_LIMIT_UNITS } from './vitality.mjs?v=cards-hidden-2';
+import { normalizeCompanionFleet } from './companion-abilities.mjs?v=cards-hidden-2';
+import { skillProgress } from './skill-increments.mjs?v=cards-hidden-2';
 
 /** Labels are plain instructions (docs/card-teaching-plan.md §3); `code` is stable for code. */
 const ready = reason => ({ state: 'ready', symbol: '✓', label: 'Ready', code: 'ready', reason, fix: 'Keep this order to use it when its Trigger happens.' });
@@ -139,6 +139,7 @@ export function getEquippedCardStatuses(run = {}, native = null) {
     if (rule?.operation === 'add-future-capacity' && maxed) return max100();
     const missing = getCardRowTriggerIssue(rule, context);
     if (missing) return missing;
+    if (kind === 'keystone') return cards[slot - 1] || cards[slot + 1] ? ready('The cards on both sides of it fire twice when their Trigger happens. Their uses go each time.') : blocked('Needs a neighbour', 'Keystone makes the cards on its left and right fire twice, and both Slots next to it are empty.', 'Put a card in the Slot beside it.', 'no-neighbour');
     if (kind === 'refrain') {
       if (replaySlots.has(slot)) return ready('Some Trigger in this chain gives more in an Encore. All Refrains share one Encore.');
       if (replaySlots.size) return shared('Only one Encore fires', 'Another Refrain already gives this chain its one Encore per Trigger. More Refrains add nothing.', 'one-encore');

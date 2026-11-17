@@ -1,4 +1,4 @@
-import {COMPONENT_SAMPLES,resolveSample} from './gallery-catalog.mjs?v=courses-1';
+import {COMPONENT_SAMPLES,resolveSample} from './gallery-catalog.mjs?v=cards-hidden-2';
 const form=document.querySelector('#gallery-controls'),familySelect=form.elements.family,stateSelect=form.elements.state;
 const frame=document.querySelector('#component-frame'),stage=document.querySelector('.gallery-workspace'),size=document.querySelector('#preview-size');
 const status=document.querySelector('#gallery-status'),direct=document.querySelector('#direct-preview'),query=new URLSearchParams(location.search);

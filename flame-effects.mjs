@@ -1,4 +1,4 @@
-import * as PIXI from './vendor/pixi.mjs?v=courses-1';
+import * as PIXI from './vendor/pixi.mjs?v=cards-hidden-2';
 
 const TAU = Math.PI * 2;
 const clamp = (n, low, high) => Math.max(low, Math.min(high, n));
