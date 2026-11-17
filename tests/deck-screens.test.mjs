@@ -130,7 +130,7 @@ test('tile lines: the 54 approved short forms live next to the card text and fit
 
 test('every named Trigger has a glossary entry; the screens are wired into the game', () => {
   for (const t of TRIGGERS.filter(t => t.term)) assert.ok(CARD_TERMS[t.term], `${t.name} → ${t.term}`);
-  assert.equal(CARD_TERMS.swipe[0], 'Swipe');
+  assert.equal(CARD_TERMS.swipe, undefined, 'Swipe is retired with the cards that made one');
   const app = readFileSync(new URL('../dist/app.mjs', import.meta.url), 'utf8');
   assert.match(app, /deckScreenMarkup\(state\.run,deckView,opts\)/);
   assert.match(app, /deckScreenMarkup\(run,deckView,opts\)/, 'practice uses the same screens');

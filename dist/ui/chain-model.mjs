@@ -13,7 +13,7 @@ import {CARD_TRIGGERS} from '../card-rule-bands.mjs?v=guide-clarity-1';
 
 /** The Triggers in the designer's order, with the game's names and glossary keys (card-terms.mjs). */
 export const TRIGGERS = Object.freeze([
-  ...['collect', 'delivery', 'latch', 'wave', 'flash', 'flash-ends', 'falling-lift', 'overfill', 'rhythm', 'swipe', 'save', 'clear']
+  ...['collect', 'delivery', 'latch', 'wave', 'flash', 'flash-ends', 'falling-lift', 'overfill', 'rhythm', 'save', 'clear']
     .map(id => CARD_TRIGGERS[id]).filter(Boolean)
     .map(t => Object.freeze({kind: t.event, name: t.label, term: t.id, meaning: t.meaning})),
   // Victory is the engine's thirteenth Trigger; no card listens to it by name and it has no glossary entry.

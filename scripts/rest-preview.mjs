@@ -145,7 +145,7 @@ if(['death','last-heart'].includes(scenario)){
 if(scenario==='guide')showFieldGuide();
 if(scenario==='onboarding'){destroyFlight();state=newState();state.settings.skipTutorial=new URLSearchParams(location.search).has('skip');state.run=createRun(state.profile,'first-lights');goToRun();}
 if(scenario==='first-death'){state.profile.onboarding={version:1,seen:[],stage:0};mockRun.deathPending=true;mockRun.lives=2;render('death');}
-if(scenario==='result'){mockRun.phase='ended';mockRun.success=new URLSearchParams(location.search).get('outcome')==='win';mockRun.lives=mockRun.success?2:0;if(mockRun.success)mockRun.lastFlight={artifactDrop:{id:'sunheart-engine',duplicate:false}};render('result');}
+if(scenario==='result'){mockRun.phase='ended';mockRun.success=new URLSearchParams(location.search).get('outcome')==='win';mockRun.lives=mockRun.success?2:0;if(mockRun.success)mockRun.lastFlight={artifactDrop:{id:'sunheart-engine',duplicate:false}};const q=new URLSearchParams(location.search);if(q.has('score')){mockRun.bossDefeated=mockRun.success;mockRun.lastAttempt={livesRemaining:0};if(!q.has('partial'))mockRun.scoreLedger={v:1,earned:mockRun.success?1234:87,complete:true};}if(q.has('abandoned'))mockRun.scoreAbandoned=true;if(q.has('practice'))mockRun.isTutorial=true;render('result');}
 if(['tutorial-route','tutorial-flight','tutorial-camp','tutorial-prep','tutorial-hazards'].includes(scenario)){
  closeSheet();hideLesson();destroyFlight();state=newState();startTutorial(state);const practice=state.run;
  if(['tutorial-camp','tutorial-prep'].includes(scenario)){

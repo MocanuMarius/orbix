@@ -152,7 +152,7 @@ html body .card-camp-choices .card-camp-choice{display:flex;flex-direction:colum
 .card-pilot-entry{display:flex;flex-direction:column;align-items:center;gap:7px;margin-top:9px}
 .card-pilot-link{display:inline-flex;align-items:center;justify-content:center;min-height:36px;padding:5px 10px;color:#bdcbb0;font:12px var(--pixel);text-decoration:none;border:1px solid #6b7b5b;background:#192d24}
 .card-pilot-notice{font:11px/1.3 var(--pixel);color:#cbbf96;margin:0;text-align:center}
-body.card-pilot .saved-wallet-bank:after{content:'CARDS';font:10px var(--pixel);color:#e5d9aa;display:block;margin-left:4px}
+body.card-pilot .saved-wallet-bank:after{content:'CARDS';font:11px var(--pixel);color:#e5d9aa;display:block;margin-left:4px}
 @media(max-height:360px){
  html body dialog.game-sheet.card-sheet[open]{height:calc(100dvh - 12px)!important;padding:8px 11px!important}
  .card-bench{gap:7px}.card-starter,.card-exchange,.card-forge-preview,.card-reward-screen{gap:7px}

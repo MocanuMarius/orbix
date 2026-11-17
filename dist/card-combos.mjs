@@ -74,9 +74,6 @@ export const COMBO_EVENT_PRESETS = Object.freeze([
   ['collector-cluster','Collector delivers a Cluster',{kind:'collector-delivery',pickupKind:'cluster'}],
   ['collector-cache','Collector delivers a Cache',{kind:'collector-delivery',pickupKind:'cache'}],
   ['rhythm','Successful Rhythm phrase',{kind:'rhythm-phrase'}],
-  ['field-up','Field Impulse · up',{kind:'field-swipe',direction:'up'}],
-  ['field-down','Field Impulse · down',{kind:'field-swipe',direction:'down'}],
-  ['field-right','Field Impulse · right',{kind:'field-swipe',direction:'right'}],
   ['guard','Collector saves you',{kind:'guard-rescue'}],
   ['guard-low','Collector saves you · ¼ meter',{kind:'guard-rescue',meterFraction:.25}],
 ]);

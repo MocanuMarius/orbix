@@ -36,7 +36,8 @@ html body[data-screen=home] #app .menu-art-home .front-version{display:block;fle
 html body[data-screen=home] #app .menu-art-home .home-menu .wb-sign{height:54px;border-image:url('assets/ui/waystone/plaque-leather.svg') 6 / 12px stretch!important;box-shadow:none!important;clip-path:none!important;outline-offset:2px;transition:none!important;font-size:16px!important;letter-spacing:0;line-height:1.6;min-height:44px!important}
 html body[data-screen=home] #app .menu-art-home .home-menu .wb-sign-primary{border-image-source:url('assets/ui/waystone/plaque-moss.svg')!important;background:var(--wb-fill-primary) padding-box!important}
 html body[data-screen=home] #app .menu-art-home .home-menu .wb-sign-standard{background:var(--wb-fill-standard) padding-box!important}
-html body[data-screen=home] #app .menu-art-home .home-menu .wb-sign:focus-visible{outline:2px solid var(--wb-focus)!important;filter:brightness(1.15)}
+html body[data-screen=home] #app .menu-art-home .home-menu .wb-sign:focus-visible{outline:2px solid var(--wb-focus)!important;filter:none}
+html body[data-screen=home] #app .menu-art-home .home-menu .wb-sign-primary:focus-visible{outline:none!important}
 html body[data-screen=home] #app .menu-art-home .home-menu .wb-sign:not(:disabled):active{transform:translateY(2px)!important}
 /* The flourishes on the moss plaque need a page at least 376px wide to stay clear of the lettering. */
 @media(min-width:860px){

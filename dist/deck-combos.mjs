@@ -20,7 +20,6 @@ const eventNames={
   [CARD_ROW_EVENTS.overfill]:'Overfill · a Spark brings more than your meter can hold',
   [CARD_ROW_EVENTS.delivery]:'Delivery · Collector brings you a pickup',
   [CARD_ROW_EVENTS.rhythm]:'Rhythm · 3 even Lifts complete',
-  [CARD_ROW_EVENTS.field]:'Swipe · a Field Impulse swipe succeeds',
   [CARD_ROW_EVENTS.guard]:'Save · Collector stops a fatal crash',
   [CARD_ROW_EVENTS.clear]:'Clear · you clear a flight',
   [CARD_ROW_EVENTS.victory]:'You defeat the third guardian',

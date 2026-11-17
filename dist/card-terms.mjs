@@ -54,7 +54,6 @@ export const CARD_TERMS = Object.freeze({
   'flash-ends': ['Flash ends', 'Trigger: a Flash’s light runs out.'],
   save: ['Save', 'Trigger: Watchlight or Last Orbit stops a fatal crash.'],
   clear: ['Clear', 'Trigger: you clear a flight.'],
-  swipe: ['Swipe', 'Trigger: a swipe succeeds. No card in this build makes one.'],
 });
 
 const CARD_TERM_DETAILS = Object.freeze({
@@ -269,7 +268,7 @@ const relatedTerms = Object.freeze({
   copy:['next','uses','shared'], grow:['rest','game','meter'], heart:['round','watchlight'], pass:['trigger','slot','boost','encore','copy'],
   trigger:['collect','wave','delivery','any-trigger','pass'], boost:['pass','always-on','slot'], encore:['pass','uses'], slot:['pass','next'],
   'always-on':['boost','pass'], 'any-trigger':['trigger','pass'], collect:['trigger','spark','wisp'], delivery:['trigger','collector'], latch:['trigger','collector'],
-  overfill:['trigger','meter','stored'], 'falling-lift':['trigger','lift'], 'flash-ends':['trigger','flash'], save:['trigger','watchlight'], clear:['trigger','round'], swipe:['trigger'],
+  overfill:['trigger','meter','stored'], 'falling-lift':['trigger','lift'], 'flash-ends':['trigger','flash'], save:['trigger','watchlight'], clear:['trigger','round'],
 });
 function termDetailsMarkup(key) {
   const details=CARD_TERM_DETAILS[key], related=relatedTerms[key] || [];
@@ -325,7 +324,7 @@ export function installCardTermHelp(doc = document, {resolveProximityContext,res
     const heading = `card-glossary-heading-${++serial}`, dialog = doc.createElement('dialog');
     dialog.className = 'card-term-dialog card-glossary-dialog wb-dlg';
     dialog.setAttribute('aria-labelledby',heading);
-    const groups = [['Journey',['round','map','game']],['Flying & fuel',['wisp','spark','meter','dusk','cluster','heart','lift','luminance','wave','rhythm','proximity','packing','packing-efficiency','stored']],['Collector',['collector','ring','flash','cache','watchlight']],['Your cards',['pass','slot','trigger','boost','encore','always-on','any-trigger','next','copy','uses','shared','rest','grow']],['Triggers',['collect','delivery','latch','wave','flash','flash-ends','falling-lift','overfill','rhythm','swipe','save','clear']]];
+    const groups = [['Journey',['round','map','game']],['Flying & fuel',['wisp','spark','meter','dusk','cluster','heart','lift','luminance','wave','rhythm','proximity','packing','packing-efficiency','stored']],['Collector',['collector','ring','flash','cache','watchlight']],['Your cards',['pass','slot','trigger','boost','encore','always-on','any-trigger','next','copy','uses','shared','rest','grow']],['Triggers',['collect','delivery','latch','wave','flash','flash-ends','falling-lift','overfill','rhythm','save','clear']]];
     dialog.innerHTML = `<header><h2 id="${heading}">Glossary</h2><button type="button" data-card-term-close aria-label="Close glossary">×</button></header><div class="card-term-content card-glossary-list">${groups.map(([title,keys])=>`<section><h3>${esc(title)}</h3><div>${keys.map(key=>cardTermMarkup(key,CARD_TERMS[key][0])).join('')}</div></section>`).join('')}</div><footer><button type="button" data-card-term-close>Back</button></footer>`;
     mount(dialog,button,resolveCardContext?.(button)||resolveProximityContext?.(button)||{});
   }
