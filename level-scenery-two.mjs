@@ -67,7 +67,7 @@ export const SCENERY_TWO_BIOMES = Object.freeze(['moonruins', 'frost', 'pinewood
 // Biomes whose v1.2 look is finished and has been checked in flight light.
 // The rest keep the original look until they are; every listed look is
 // complete in LOOKS, this list only decides what ships on by default.
-export const SCENERY_TWO_ON = Object.freeze(['frost', 'pinewood']);
+export const SCENERY_TWO_ON = Object.freeze(['moonruins', 'frost', 'pinewood', 'marsh', 'fungal', 'basalt', 'desert', 'coral', 'crystal', 'cloud', 'thorn', 'cemetery']);
 const URL_SCENERY = (() => { try { return new URLSearchParams(globalThis.location?.search || '').get('scenery'); } catch { return null; } })();
 // Counters let tests prove the off path never reaches decoration code.
 export const sceneryTwoStats = { created: 0, materials: 0, growth: 0, materialMs: 0, growthMs: 0 };
@@ -253,7 +253,7 @@ export const SCENERY_TWO_PALETTES = Object.freeze({
 const LOOKS = {
   moonruins: {
     body: { kind: 'soil', ink: 'ground', lumps: 110, stones: 5, roots: 3 }, rock: { kind: 'masonry', ink: 'rock' },
-    steep: .95, d2: 10, level: .55, soil: 4,
+    rest: 0.3, steep: .95, d2: 10, level: .55, soil: 4,
     lip: { kind: 'drygrass', min: 1, max: 3, slopeMax: 1.2, mark: 'grass' }, under: { depth: 3, dotP: .12, drop: 2 },
     boulders: { kind: 'block', density: .6, big: .45, gap: [44, 120], blocky: true, proud: 2 },
     embeds: [{ kind: 'column', n: .35, depth: [0, 1] }, { kind: 'block', n: .8, depth: [4, 14] }, { kind: 'bone', n: .3, depth: [6, 18] }, { kind: 'root', n: .4, depth: [2, 6] }],
@@ -290,7 +290,7 @@ const LOOKS = {
   },
   marsh: {
     body: { kind: 'soil', ink: 'ground', lumps: 140, stones: 3, roots: 9, glints: 0 }, rock: { kind: 'plates', ink: 'rock', cols: 4, rows: 4, ys: 2.2, bubbles: true, glints: true, fractures: 0 },
-    steep: 1.15, d2: 9, level: .6, soil: 4,
+    rest: 0.25, steep: 1.15, d2: 9, level: .6, soil: 4,
     lip: { kind: 'wetmoss', min: 2, max: 3, slopeMax: 1.3, mark: 'sheen' }, under: { depth: 4, dotP: .25, drop: 3 },
     boulders: { kind: 'boulder', density: .3, big: .25, gap: [70, 170], proud: 1 },
     embeds: [{ kind: 'log', n: .25, depth: [0, 1] }, { kind: 'root', n: 1, depth: [2, 8] }, { kind: 'stone', n: .3, depth: [5, 12] }],
@@ -302,7 +302,7 @@ const LOOKS = {
   },
   fungal: {
     body: { kind: 'soil', ink: 'ground', lumps: 110, stones: 4, roots: 2, threads: 7 }, rock: { kind: 'plates', ink: 'rock', cols: 3, rows: 3, ys: 1.4, fractures: 2 },
-    steep: 1.1, d2: 12, level: .5, soil: 4,
+    rest: 0.3, steep: 1.1, d2: 12, level: .5, soil: 4,
     lip: { kind: 'loam', min: 2, max: 3, slopeMax: 1.3, mark: 'speck' }, under: { depth: 3, dotP: .2, drop: 2 },
     boulders: { kind: 'boulder', density: .4, big: .35, gap: [60, 150], proud: 1 },
     embeds: [{ kind: 'mycelium', n: 1.4, depth: [2, 12] }, { kind: 'stone', n: .3, depth: [6, 16] }],
@@ -338,7 +338,7 @@ const LOOKS = {
   },
   coral: {
     body: { kind: 'porous', ink: 'ground' }, rock: { kind: 'plates', ink: 'rock', cols: 3, rows: 3, ys: 1.2, bubbles: true, fractures: 1 },
-    steep: 1.1, d2: 12, level: .45, soil: 3,
+    rest: 0.3, steep: 1.1, d2: 12, level: .45, soil: 3,
     lip: { kind: 'crust', min: 1, max: 3, slopeMax: 1.4, mark: 'barnacle' }, under: { depth: 3, dotP: .35, drop: 1 },
     boulders: { kind: 'coralhead', density: .45, big: .35, gap: [56, 140], proud: 1, vesicles: true },
     embeds: [{ kind: 'shell', n: 1.1, depth: [3, 16] }, { kind: 'bone', n: .3, depth: [6, 18] }],
@@ -362,7 +362,7 @@ const LOOKS = {
   },
   cloud: {
     body: { kind: 'soil', ink: 'ground', lumps: 100, stones: 8, roots: 4 }, rock: { kind: 'plates', ink: 'rock', cols: 3, rows: 3, ys: 1.3, fractures: 2, glints: true },
-    steep: 1.05, d2: 8, level: .35, soil: 3, roofRock: .75,
+    rest: 0.3, steep: 1.05, d2: 8, level: .35, soil: 3, roofRock: .75,
     lip: { kind: 'grass', min: 2, max: 3, slopeMax: 1.3, mark: 'grass' }, under: { depth: 3, dotP: .2, drop: 2 },
     boulders: { kind: 'boulder', density: .4, big: .35, gap: [60, 150], proud: 1 },
     embeds: [{ kind: 'stone', n: .8, depth: [4, 14] }, { kind: 'root', n: .5, depth: [1, 5] }],
@@ -374,19 +374,19 @@ const LOOKS = {
   },
   thorn: {
     body: { kind: 'soil', ink: 'ground', lumps: 110, stones: 4, roots: 14 }, rock: { kind: 'plates', ink: 'rock', cols: 3, rows: 3, ys: 1.3, fractures: 2 },
-    steep: 1.1, d2: 13, level: .5, soil: 3,
+    rest: 0.35, steep: 1.1, d2: 13, level: .5, soil: 3,
     lip: { kind: 'darkmoss', min: 1, max: 3, slopeMax: 1.3, mark: 'speck' }, under: { depth: 4, dotP: .2, drop: 2 },
     boulders: { kind: 'boulder', density: .3, big: .3, gap: [70, 170], proud: 1 },
     embeds: [{ kind: 'rib', n: .35, depth: [0, 2] }, { kind: 'root', n: 1, depth: [2, 10] }],
     cracks: { kind: 'roots', per: 60 },
     growth: {
-      floor: [{ kind: 'briar', p: .3, slope: 1.2, free: 10, frac: .3, max: 9, gap: 4 }, { kind: 'blossom', p: .03, slope: 1, free: 10, frac: .3, max: 5 }],
+      floor: [{ kind: 'briar', p: .24, slope: 1.2, free: 10, frac: .3, max: 9, gap: 4 }, { kind: 'blossom', p: .03, slope: 1, free: 10, frac: .3, max: 5 }],
       roof: [{ kind: 'briarHang', p: .32, free: 10, frac: .3, max: 12, step: [3, 6] }, { kind: 'root', p: .2, free: 8, frac: .25, max: 10 }],
     },
   },
   cemetery: {
     body: { kind: 'soil', ink: 'ground', lumps: 120, stones: 10, roots: 4 }, rock: { kind: 'plates', ink: 'rock', cols: 3, rows: 3, ys: 1.4, fractures: 2 },
-    steep: 1.1, d2: 14, level: .5, soil: 4,
+    rest: 0.3, steep: 1.1, d2: 14, level: .5, soil: 4,
     lip: { kind: 'grass', min: 1, max: 3, slopeMax: 1.3, mark: 'grass' }, under: { depth: 3, dotP: .15, drop: 3 },
     boulders: { kind: 'boulder', density: .35, big: .25, gap: [60, 160], proud: 1 },
     embeds: [{ kind: 'stone', n: 1, depth: [3, 12] }, { kind: 'bone', n: .35, depth: [8, 20] }, { kind: 'root', n: .5, depth: [2, 6] }],
@@ -1405,6 +1405,8 @@ class LevelSceneryTwo {
       let rule = null;
       for (let i = 0, acc = 0; i < rules.length; i++) { acc += rules[i].p; if (r < acc) { rule = rules[i]; break; } }
       const tag = tagAt?.(x);
+      // Rest stretches: plain ground between patches so the detail reads.
+      if (rule && !top && look.rest && hash(x >> 5, 17, seed) < look.rest) rule = null;
       if (!rule || slope > (rule.slope ?? 9) || slope < (rule.minSlope ?? 0) || rule.gap && x - lastTall <= rule.gap
         || rule.water && tag !== 'water' || !rule.water && tag === 'water' && rule.kind !== 'reed' && rule.kind !== 'cattail'
         || tag && HARD.has(tag) && SCENERY_FIT_LAWS.plants.includes(rule.kind)) { x += step; continue; }

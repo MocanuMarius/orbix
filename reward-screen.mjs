@@ -1,11 +1,11 @@
-import {ARTIFACTS} from './model.mjs?v=icons-1';
-import {artifactDescription} from './artifact-copy.mjs?v=icons-1';
-import {resourceSymbol} from './game-symbols.mjs?v=icons-1';
-import {artifactIcon} from './upgrade-icons.mjs?v=icons-1';
-import {relicIdentityMarkup,relicRulesMarkup,relicRulesButton} from './ui/relic-primitives.mjs?v=icons-1';
-import {actionButton} from './ui/primitives.mjs?v=icons-1';
-import {acquiredRewardMarkup} from './ui/acquired-reward.mjs?v=icons-1';
-import {routeBonusReceiptText} from './route-bonus-copy.mjs?v=icons-1';
+import {ARTIFACTS} from './model.mjs?v=biomes-1';
+import {artifactDescription} from './artifact-copy.mjs?v=biomes-1';
+import {resourceSymbol} from './game-symbols.mjs?v=biomes-1';
+import {artifactIcon} from './upgrade-icons.mjs?v=biomes-1';
+import {relicIdentityMarkup,relicRulesMarkup,relicRulesButton} from './ui/relic-primitives.mjs?v=biomes-1';
+import {actionButton} from './ui/primitives.mjs?v=biomes-1';
+import {acquiredRewardMarkup} from './ui/acquired-reward.mjs?v=biomes-1';
+import {routeBonusReceiptText} from './route-bonus-copy.mjs?v=biomes-1';
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 export const rewardDescription=(a,run)=>{const c=artifactDescription(a,run,{fresh:true});return [c.effect,[c.trigger,c.limit].filter(Boolean).join(' ')];};
 export function rewardEarnings(run){

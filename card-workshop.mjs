@@ -1,8 +1,8 @@
-import {getOwnedCards,getCardImprovePreview,getCardRefillPreview,getCardForgePreview,canUseCardCampServices} from './model.mjs?v=icons-1';
-import {cardFace,cardName} from './card-ui.mjs?v=icons-1';
-import {resourceSymbol} from './game-symbols.mjs?v=icons-1';
-import {uiIcon} from './ui-icons.mjs?v=icons-1';
-import {CARD_FORGE_RARITIES} from './skill-cards.mjs?v=icons-1';
+import {getOwnedCards,getCardImprovePreview,getCardRefillPreview,getCardForgePreview,canUseCardCampServices} from './model.mjs?v=biomes-1';
+import {cardFace,cardName} from './card-ui.mjs?v=biomes-1';
+import {resourceSymbol} from './game-symbols.mjs?v=biomes-1';
+import {uiIcon} from './ui-icons.mjs?v=biomes-1';
+import {CARD_FORGE_RARITIES} from './skill-cards.mjs?v=biomes-1';
 
 const esc=value=>String(value??'').replace(/[&<>"']/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
 const wallet=run=>`<span class="card-bench-wallet">${resourceSymbol('packed')} ${Math.floor(run.condensedGlow||0)}<small>Stored Sparks</small></span>`;

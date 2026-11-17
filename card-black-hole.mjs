@@ -6,7 +6,7 @@
 // run.cardHistory. Practice and tutorial runs are not card runs, so Black Hole is inert there; it never eats a loaned
 // practice card in any case. Resolved left to right with the Use Doubler at real flight entry (model.mjs ›
 // markFlightAttemptStarted), never by a preview, a Dream rehearsal or a retry of the same attempt.
-import {SKILL_CARDS, CARD_ECONOMY, isCardRun, describeSkillCard, recordCardEvent, cleanCardFutureCapacity} from './skill-cards.mjs?v=icons-1';
+import {SKILL_CARDS, CARD_ECONOMY, isCardRun, describeSkillCard, recordCardEvent, cleanCardFutureCapacity} from './skill-cards.mjs?v=biomes-1';
 
 export const BLACK_HOLE_GROWTH = Object.freeze({ common: 1, rare: 2, legendary: 3 });
 const isBlackHole = card => SKILL_CARDS[card?.cardId]?.kind === 'black-hole';

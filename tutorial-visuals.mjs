@@ -1,14 +1,14 @@
-import {resourceCycleArt} from './resource-cycle.mjs?v=icons-1';
-import {getCompanionAbility} from './companion-abilities.mjs?v=icons-1';
-import {resourceSymbol} from './game-symbols.mjs?v=icons-1';
-import {pickupArtSvg} from './pickup-art.mjs?v=icons-1';
-import {getPickupSpec} from './pickups.mjs?v=icons-1';
-import {mapStopIconMarkup,MAP_STOP_TYPES} from './map-guide.mjs?v=icons-1';
-import {artifactIcon,skillIcon} from './upgrade-icons.mjs?v=icons-1';
-import {companionArtSvg} from './companion-art.mjs?v=icons-1';
-import {dreamEye} from './dream.mjs?v=icons-1';
-import {lifeHeartSvg} from './lives.mjs?v=icons-1';
-import {uiIcon} from './ui-icons.mjs?v=icons-1';
+import {resourceCycleArt} from './resource-cycle.mjs?v=biomes-1';
+import {getCompanionAbility} from './companion-abilities.mjs?v=biomes-1';
+import {resourceSymbol} from './game-symbols.mjs?v=biomes-1';
+import {pickupArtSvg} from './pickup-art.mjs?v=biomes-1';
+import {getPickupSpec} from './pickups.mjs?v=biomes-1';
+import {mapStopIconMarkup,MAP_STOP_TYPES} from './map-guide.mjs?v=biomes-1';
+import {artifactIcon,skillIcon} from './upgrade-icons.mjs?v=biomes-1';
+import {companionArtSvg} from './companion-art.mjs?v=biomes-1';
+import {dreamEye} from './dream.mjs?v=biomes-1';
+import {lifeHeartSvg} from './lives.mjs?v=biomes-1';
+import {uiIcon} from './ui-icons.mjs?v=biomes-1';
 // Teaching cues name a Spark or the Long Flash with the approved icons; other pickups keep their in-flight sprite.
 const pickupCue=type=>type==='light'?uiIcon('spark',{size:32}):type==='sight'?uiIcon('long-flash',{size:32}):pickupArtSvg(type);
 const item=(art,label)=>`<span class="coach-term">${art}<b>${label}</b></span>`;
