@@ -1,17 +1,17 @@
-import {ARTIFACTS} from './model.mjs?v=biomes-1';
-import {artifactDescription} from './artifact-copy.mjs?v=biomes-1';
-import {resourceSymbol} from './game-symbols.mjs?v=biomes-1';
-import {artifactIcon} from './upgrade-icons.mjs?v=biomes-1';
-import {relicIdentityMarkup,relicRulesMarkup,relicRulesButton} from './ui/relic-primitives.mjs?v=biomes-1';
-import {actionButton} from './ui/primitives.mjs?v=biomes-1';
-import {acquiredRewardMarkup} from './ui/acquired-reward.mjs?v=biomes-1';
-import {routeBonusReceiptText} from './route-bonus-copy.mjs?v=biomes-1';
+import {ARTIFACTS} from './model.mjs?v=clack-1';
+import {artifactDescription} from './artifact-copy.mjs?v=clack-1';
+import {resourceSymbol} from './game-symbols.mjs?v=clack-1';
+import {artifactIcon} from './upgrade-icons.mjs?v=clack-1';
+import {relicIdentityMarkup,relicRulesMarkup,relicRulesButton} from './ui/relic-primitives.mjs?v=clack-1';
+import {actionButton} from './ui/primitives.mjs?v=clack-1';
+import {acquiredRewardMarkup} from './ui/acquired-reward.mjs?v=clack-1';
+import {routeBonusReceiptText} from './route-bonus-copy.mjs?v=clack-1';
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 export const rewardDescription=(a,run)=>{const c=artifactDescription(a,run,{fresh:true});return [c.effect,[c.trigger,c.limit].filter(Boolean).join(' ')];};
 export function rewardEarnings(run){
  const f=run?.lastFlight||{},rows=[
   // Pack cards' share of the exit packing gets its own line; the two still add up to the packing (engine cards only).
-  ['Clear reward',f.completionBonus],['Overflow',f.pickupCondensedGlow],['Exit packing',(f.exitPacking?.amount||0)-(f.cardPack?.stored||0)],
+  ['Clear reward',f.completionBonus],['Overflow',f.pickupCondensedGlow],['Takeaway packing',(f.exitPacking?.amount||0)-(f.cardPack?.stored||0)],
   ['Pack cards',f.cardPack?.stored],['Engine cards',f.cardEngineStored],
   ['Pact',f.pactBonus],['Seal',f.treasureWager?.reward],['Vow',f.vow?.reward],
   ['Route bonus',f.routeBonus?.amount],['Chest gifts',f.chestIncome?.amount],
