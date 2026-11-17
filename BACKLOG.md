@@ -58,6 +58,14 @@ Every turn can spawn a Pulse and feedback. Engines must not add per-frame cost o
 
 Coordinator writes a card list: 4 makers, 3 Timers, 3 starters, 2 governors, with one worked 4-card engine and one 5-card engine, shown on the Chain screen in the design lab (`v1.0-engine`). User approves by code; then engine rules (Opus: touches card firing order and timing), then cards (Sonnet).
 
+## Noted 17 November 2026 — bad cards, bad events and Dusk, for a later redesign
+
+The owner's words: "bad card idea, like the small dusk… it should cap temporarily the Spark Meter, so that it like halves it… or maybe we need some other type of bad boon for this… keep this in mind for later when we're going to want to redesign the bad cards / events / dusks."
+
+- Idea to keep: a small Dusk (the bad pickup) or a bad card that temporarily caps the Spark Meter, for example halves it for a while, instead of whatever it does today.
+- Open: what other kinds of "bad boon" fit (a temporary limit rather than a flat loss); how long "temporarily" is (seconds, the rest of the flight, until the next Rest); how it is shown without reading during play (the meter's top half greyed or locked).
+- Belongs with the earlier notes on curses and oaths ("more like the Closed Eye") and the oaths and chosen curses in `docs/card-proposals.md` section 9. Do not design or build until the owner opens the redesign of bad cards, events and Dusk.
+
 ## Requested 17 November 2026 — new card: Black Hole
 
 User's words: "one of the cards should be Black Hole… It should destroy the card to the right of it during a run, and after it destroys it, it upgrades itself. And this would give you maximum Spark. So a common card would give you 1, rare 2, and a legendary plus 3 max permanently… registered under the card's stats, under the Black Hole's stats."
