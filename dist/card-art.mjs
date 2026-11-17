@@ -1,4 +1,5 @@
 import {SKILL_CARDS} from './skill-cards.mjs?v=guide-clarity-1';
+import {CARD_ART_FILES} from './card-art-files.mjs?v=guide-clarity-1';
 import {duskCardArt} from './dusk-card-art.mjs?v=guide-clarity-1';
 /** Sixteen original scenes share one locally cached, square-cell atlas.
  * Order matches the 4×4 asset; each SVG clips exactly one 313px cell. */
@@ -23,6 +24,12 @@ const ART = Object.freeze({
 });
 export const CARD_ART_IDS = Object.freeze([...Object.keys(ART),'dusk-wick']);
 export function cardArt(card = {}, {compact = false, size = null} = {}) {
+  // Approved 48x48 pixel pictures (one per card id) win; everything else keeps the older art below.
+  const own = String(card.cardId || card.id || '');
+  if(Object.hasOwn(CARD_ART_FILES, own)) {
+    const rarity = esc(card.rarity || 'common'), name = esc(card.name || own);
+    return `<svg xmlns="http://www.w3.org/2000/svg" class="skill-card-art skill-card-illustration card-art-${esc(own)}${compact ? ' card-art-compact' : ''}" data-card-art="${esc(own)}" data-card-picture="1" data-card-rarity="${rarity}" data-art-size="${compact || size === 'compact' ? 'compact' : 'full'}" viewBox="0 0 48 48" width="96" height="96" preserveAspectRatio="xMidYMid slice" focusable="false" role="img" aria-label="${name}"><image href="./${CARD_ART_FILES[own]}" x="0" y="0" width="48" height="48" preserveAspectRatio="none" style="image-rendering:pixelated"/></svg>`;
+  }
   if((card.artFamily || SKILL_CARDS[String(card.cardId || card.id || '')]?.artFamily)==='dusk-wick')return duskCardArt({compact,size,rarity:card.rarity||'common'});
   const requested = String(card.cardId || card.id || ''), family = card.artFamily || SKILL_CARDS[requested]?.artFamily || requested, id = Object.hasOwn(ART, family) ? family : 'body-spark';
   // All three approved ruin frames share Rare's established coarse pixel grain.

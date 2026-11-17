@@ -94,6 +94,5 @@ test('all 48 early courses add visible bypassable Dusk without taking a single f
 test('Dusk card art and glossary glyph share the native warning motif',()=>{
   const glyph=duskGlyphArt(),card=cardArt(makeSkillCard('dusk-wick','art'));
   assert.ok(DUSK_MOTIF_PIXELS.length>15);assert.match(glyph,/class="dusk-glyph"/);
-  assert.match(card,/class="dusk-glyph"/);assert.match(card,/data-card-art="dusk-wick"/);
-  assert.match(card,/#080c18/);assert.match(card,/rose Dusk crescent/);
+  assert.match(card,/data-card-art="dusk-wick"/);assert.match(card,/assets\/cards\/art\/dusk-wick\.svg/);
 });

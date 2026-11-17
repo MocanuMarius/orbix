@@ -121,8 +121,8 @@ test('Common starter/drop pools include Tight Packing and its clear UI receipt n
  const packing=describeSkillCard(makeSkillCard('tight-packing','art'));
  const art=cardArt(packing);
  assert.match(art,/data-card-art="tight-packing"/);
- assert.match(art,/<image href="\.\/assets\/cards\/skill-card-scenes-rare\.webp"/);
- assert.match(art,/aria-label="[^"]*press[^"]*"/);
+ assert.match(art,/<image href="\.\/assets\/cards\/art\/tight-packing\.svg"/);
+ assert.match(art,/aria-label="Tight Packing"/);
  const rule=cardMechanicMarkup(packing);
  // Approved plain wording (v1.0-cardtext): "Packing efficiency" became "Stored Sparks from packing".
  assert.match(rule.replace(/<[^>]*>/g,'').replace(/\s+/g,' '),/\+50% Stored Sparks from packing/);

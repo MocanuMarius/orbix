@@ -290,3 +290,33 @@ test('the curated starter pool excludes advanced cards and tiered packing surviv
     cardPackingEligible: 4, cardPackingLedger: 1, cardPackingBonus: 36, cardPackingRemainder: 0 }));
   assert.equal(run.lastFlight.cardPackingBonus, 36, 'valid live tiered bonus is not clipped to five base cards');
 });
+
+test('every live card has an approved picture or is listed as falling back', async () => {
+  const {LIVE_CARDS} = await import('../dist/skill-cards.mjs');
+  const {CARD_ART_FILES} = await import('../dist/card-art-files.mjs');
+  const {cardArt} = await import('../dist/card-art.mjs');
+  const {existsSync} = await import('node:fs');
+  const FALLBACK = [];
+  for (const def of LIVE_CARDS) {
+    if (FALLBACK.includes(def.id)) continue;
+    assert.ok(CARD_ART_FILES[def.id], `${def.id}: picture listed`);
+    assert.ok(existsSync(new URL('../dist/' + CARD_ART_FILES[def.id], import.meta.url)), `${def.id}: picture file exists`);
+    assert.match(cardArt({cardId: def.id}), /data-card-picture="1"/);
+  }
+  assert.match(cardArt({cardId: 'no-such-card'}), /data-card-art="body-spark"/);
+});
+
+test('every live card has an approved picture or is listed as falling back', async () => {
+  const {LIVE_CARDS} = await import('../dist/skill-cards.mjs');
+  const {CARD_ART_FILES} = await import('../dist/card-art-files.mjs');
+  const {cardArt} = await import('../dist/card-art.mjs');
+  const {existsSync} = await import('node:fs');
+  const FALLBACK = [];
+  for (const def of LIVE_CARDS) {
+    if (FALLBACK.includes(def.id)) continue;
+    assert.ok(CARD_ART_FILES[def.id], `${def.id}: picture listed`);
+    assert.ok(existsSync(new URL('../dist/' + CARD_ART_FILES[def.id], import.meta.url)), `${def.id}: picture file exists`);
+    assert.match(cardArt({cardId: def.id}), /data-card-picture="1"/);
+  }
+  assert.match(cardArt({cardId: 'no-such-card'}), /data-card-art="body-spark"/);
+});
