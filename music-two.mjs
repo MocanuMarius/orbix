@@ -1,18 +1,19 @@
 // v1.0-music: the music rotation. Same public surface as createMusic in
-// music.mjs, so the game can switch with `?music=2` and nothing else changes.
+// music.mjs, so the game switches (default on, `?music=1` for the original) and nothing else changes.
 // - Five-plus pieces rotate in shuffled order with no immediate repeat; the
 //   next one starts under the end of the current one and they cross over 8 s.
 // - Three intensity levels per piece (calm, flowing, urgent) follow the game
 //   state; changes land on a bar line and fade over 1-3 s.
 // - Screen changes never restart the music. Pause ducks it; a hidden tab
 //   suspends the audio clock; resume continues exactly where it was.
-import {createLevelStore,levelGain} from './sound-level.mjs?v=devour-2';
-import {createLiftGuideAudio} from './lift-guide-audio.mjs?v=devour-2';
-import {PIECES,pieceById,createRotation,intensityFor,settleIntensity,compilePiece,MUSIC_TWO_CODE,LIFT_PERIOD,LIFT_BPM} from './music-score.mjs?v=music-two-2';
+import {createLevelStore,levelGain} from './sound-level.mjs?v=lofi-1';
+import {createLiftGuideAudio} from './lift-guide-audio.mjs?v=lofi-1';
+import {PIECES,pieceById,createRotation,intensityFor,settleIntensity,compilePiece,ROTATION,MUSIC_TWO_CODE,LIFT_PERIOD,LIFT_BPM} from './music-score.mjs?v=music-two-2';
 import {createSynth,createScorePlayer,createStemPlayer} from './music-synth.mjs?v=music-two-2';
 
 export {MUSIC_TWO_CODE,LIFT_PERIOD,LIFT_BPM};
-export const OVERLAP=8,LOOKAHEAD=1.2,TICK_MS=250;
+// Longer look-ahead and fewer ticks: the same notes, scheduled in fewer, larger batches (less per-tick work).
+export const OVERLAP=8,LOOKAHEAD=2,TICK_MS=400;
 // Overall level at the default setting: calibrated to the reference score's loudness (see the proof).
 export const MUSIC_TRIM=.5;
 /** Phase sync: nudges stop once the Lift beat is within this many seconds of the guide's grid. */
@@ -22,7 +23,7 @@ const unit=n=>Math.max(0,Math.min(1,Number(n)||0));
 const sceneFromFlight=s=>s.dream?.mode==='record'?'dream':s.dying?'loss':s.completing?'clear':s.paused?'pause':s.boss?'boss':'flight';
 
 export function createMusicTwo({storage=globalThis.localStorage,document=globalThis.document,AudioContextClass=globalThis.AudioContext||globalThis.webkitAudioContext,AudioClass=globalThis.Audio,
- schedule=globalThis.setInterval,cancel=globalThis.clearInterval,createGuide=createLiftGuideAudio,random=Math.random,pieces=PIECES,now=()=>globalThis.performance?.now?.()??Date.now(),listen=true,autoStart=true}={}){
+ schedule=globalThis.setInterval,cancel=globalThis.clearInterval,createGuide=createLiftGuideAudio,random=Math.random,pieces=ROTATION,now=()=>globalThis.performance?.now?.()??Date.now(),listen=true,autoStart=true}={}){
  const key='wispbound-music-enabled';
  const volume=createLevelStore({storage,levelKey:'wispbound-music-level',lastKey:'wispbound-music-last',legacyOff:()=>storage?.getItem?.(key)==='false',onWrite:level=>storage?.setItem?.(key,String(level>0))});
  const rotation=createRotation(pieces.map(p=>p.id),random);

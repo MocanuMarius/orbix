@@ -14,10 +14,10 @@
 //   low-hearts                  one heart left          first-flights   flights 1 to 3 of the run
 //   collector                   the Collector companion is along   empty-slot   the Chain has a free Slot
 //   has-stored-sparks           Stored Sparks in the wallet        after-death  the last flight was lost
-import {CARD_CATALOG} from './card-catalog.mjs?v=devour-2';
-import {getBiome} from './biomes.mjs?v=devour-2';
-import {isCardRun,isInventoryOnlyCard} from './skill-cards.mjs?v=devour-2';
-import {onboardingFlightPlan} from './onboarding.mjs?v=devour-2';
+import {CARD_CATALOG} from './card-catalog.mjs?v=lofi-1';
+import {getBiome} from './biomes.mjs?v=lofi-1';
+import {isCardRun,isInventoryOnlyCard} from './skill-cards.mjs?v=lofi-1';
+import {onboardingFlightPlan} from './onboarding.mjs?v=lofi-1';
 
 export const TIPS = Object.freeze([
  // ── General: fine in any run ──────────────────────────────────────────────────────────────

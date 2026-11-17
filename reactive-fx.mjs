@@ -40,7 +40,7 @@ export function createFlightFX({AudioContextClass}={}) {
   }
   function chord() {
     const t=state.transport||{};
-    // The v1.0-music rotation (?music=2) reports its own chord; the original score does not.
+    // The v1.0-music rotation (default; ?music=1 is the original) reports its own chord; the original score does not.
     if(Array.isArray(t.chord)&&t.chord.length>=5)return t.chord;
     const bar=Math.floor(Math.max(0,Number(t.time)||0)*(Number(t.bpm)||88)/240)%160;
     return CHORDS[SECTIONS[Math.floor(bar/16)][Math.floor((bar%16)/2)]];

@@ -1,14 +1,14 @@
 // Original, synchronized seven-minute lo-fi stems. Gains and a shared varispeed
 // transport respond to flight without audio graph allocation or simulation changes.
-import {createLevelStore,levelGain} from './sound-level.mjs?v=devour-2';
-import {createLiftGuideAudio} from './lift-guide-audio.mjs?v=devour-2';
+import {createLevelStore,levelGain} from './sound-level.mjs?v=lofi-1';
+import {createLiftGuideAudio} from './lift-guide-audio.mjs?v=lofi-1';
 const TRACKS=['./assets/audio/lantern-drift.mp3','./assets/audio/lantern-pulse.mp3','./assets/audio/lantern-storm.mp3'];
 const unit=n=>Math.max(0,Math.min(1,Number(n)||0));
-// v1.1-music (the lo-fi rotation) is OFF by default: `?music=2`, read once
-// when this module loads. With the flag off nothing below changes and the new
-// modules are never fetched.
+// The lo-fi rotation is ON by default. `?music=1` (read once when this module loads)
+// keeps the original three-stem score; then the rotation modules are never fetched.
 const URL_MUSIC=(()=>{try{return new URLSearchParams(globalThis.location?.search||'').get('music');}catch{return null;}})();
-export const musicVersion=()=>Number(URL_MUSIC)===2?2:1;
+export const musicVersionFor=value=>Number(value)===1?1:2;
+export const musicVersion=()=>musicVersionFor(URL_MUSIC);
 export function musicReactivity(s){
  const flying=!s.paused&&!s.dying&&!s.completing&&s.dream?.mode!=='record';
  if(!flying)return {hole:0,pulse:0};
@@ -31,7 +31,7 @@ export function musicMix(mode='menu',danger=0){
  // identity, while heavier percussion remains reserved for actual pressure.
  return [.25,.19,0];
 }
-export function createMusic(options={}){return musicVersion()===2?createDeferredMusicTwo(options):createMusicOne(options);}
+export function createMusic(options={}){return (options.version??musicVersion())===2?createDeferredMusicTwo(options):createMusicOne(options);}
 // The rotation loads on demand; calls made before it arrives are replayed.
 function createDeferredMusicTwo(options){
  let engine=null,destroyed=false,gestured=false;const calls=[];

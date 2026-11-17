@@ -1,10 +1,10 @@
-import {FLIGHT_PACTS} from './flight-pacts.mjs?v=devour-2';
-import {getBiome} from './biomes.mjs?v=devour-2';
-import {sparkHabitat} from './spark-fields.mjs?v=devour-2';
-import {getFlightClearReward} from './checkpoint-rewards.mjs?v=devour-2';
-import {landmarkCategory,guardianNames} from './map-landmarks.mjs?v=devour-2';
-import {uiIcon} from './ui-icons.mjs?v=devour-2';
-import {glowText} from './vitality.mjs?v=devour-2';
+import {FLIGHT_PACTS} from './flight-pacts.mjs?v=lofi-1';
+import {getBiome} from './biomes.mjs?v=lofi-1';
+import {sparkHabitat} from './spark-fields.mjs?v=lofi-1';
+import {getFlightClearReward} from './checkpoint-rewards.mjs?v=lofi-1';
+import {landmarkCategory,guardianNames} from './map-landmarks.mjs?v=lofi-1';
+import {uiIcon} from './ui-icons.mjs?v=lofi-1';
+import {glowText} from './vitality.mjs?v=lofi-1';
 const stop=(kind,label,name,summary)=>Object.freeze({kind,label,name,summary,icon:kind});
 export const MAP_STOP_TYPES=Object.freeze({
 flight:stop('flight','FLIGHT','Flight','Flight length sets its Stored Sparks reward; overflow adds a bonus. Ordinary flights do not drop artifacts.'),

@@ -1,7 +1,7 @@
-import {drawShutterWake,shutterLightFactor,shutterWakeAt} from './shutter-cone.mjs?v=devour-2';
-import {lanternField} from './lantern-layout.mjs?v=devour-2';
-import { LIGHT_EXTENT, lightAttenuation } from './light-attenuation.mjs?v=devour-2';
-import {luminanceWaveVisibility} from './luminance-waves.mjs?v=devour-2';
+import {drawShutterWake,shutterLightFactor,shutterWakeAt} from './shutter-cone.mjs?v=lofi-1';
+import {lanternField} from './lantern-layout.mjs?v=lofi-1';
+import { LIGHT_EXTENT, lightAttenuation } from './light-attenuation.mjs?v=lofi-1';
+import {luminanceWaveVisibility} from './luminance-waves.mjs?v=lofi-1';
 export { LIGHT_EXTENT, lightAttenuation };
 const reflectedLight = .6;
 

@@ -1,11 +1,11 @@
-import {biomePalette,drawBiomeBackground} from './biome-art.mjs?v=devour-2';
-import {createDepthScenery,drawDepthScenery} from './depth-scenery.mjs?v=devour-2';
-import {LIGHT_EXTENT,lightAttenuation,createLightMaskCanvas,castFlashPropLight,sceneRevealStrength,flashRangeStrength,pickupRevealAt,pickupRevealHold} from './light-field.mjs?v=devour-2';
-import {LIGHT_PACKET_TUNING} from './vitality.mjs?v=devour-2';
-import {makeWispSprite} from './companion-art.mjs?v=devour-2';
-import {drawPickup} from './pickup-art.mjs?v=devour-2';
-import {flashPowerupDuration,getPickupSpec} from './pickups.mjs?v=devour-2';
-import {createFlashTether,stepFlashTether,drawFlashTether,flashLightPulse,FLASH_PUFF_DURATION} from './flash-tether.mjs?v=devour-2';
+import {biomePalette,drawBiomeBackground} from './biome-art.mjs?v=lofi-1';
+import {createDepthScenery,drawDepthScenery} from './depth-scenery.mjs?v=lofi-1';
+import {LIGHT_EXTENT,lightAttenuation,createLightMaskCanvas,castFlashPropLight,sceneRevealStrength,flashRangeStrength,pickupRevealAt,pickupRevealHold} from './light-field.mjs?v=lofi-1';
+import {LIGHT_PACKET_TUNING} from './vitality.mjs?v=lofi-1';
+import {makeWispSprite} from './companion-art.mjs?v=lofi-1';
+import {drawPickup} from './pickup-art.mjs?v=lofi-1';
+import {flashPowerupDuration,getPickupSpec} from './pickups.mjs?v=lofi-1';
+import {createFlashTether,stepFlashTether,drawFlashTether,flashLightPulse,FLASH_PUFF_DURATION} from './flash-tether.mjs?v=lofi-1';
 
 const WIDTH = 360, HEIGHT = 144;
 const playerX = 121, speed = 110, contact = 1.4, step = 1/120;

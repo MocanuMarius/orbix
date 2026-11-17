@@ -1,12 +1,12 @@
-import {createMusic} from './music.mjs?v=devour-2';
+import {createMusic} from './music.mjs?v=lofi-1';
 
-import {createFlightFX} from './reactive-fx.mjs?v=devour-2';
+import {createFlightFX} from './reactive-fx.mjs?v=lofi-1';
 
-import {LuminanceWaves} from './luminance-waves.mjs?v=devour-2';
+import {LuminanceWaves} from './luminance-waves.mjs?v=lofi-1';
 
 // Deliberately isolated: the audition never reads or writes a saved game.
 
-const music=createMusic({storage:{getItem:()=> 'false',setItem(){}},document});
+const music=createMusic({storage:{getItem:()=> 'false',setItem(){}},document,version:1});
 
 const fx=createFlightFX();fx.setMuted(true);
 

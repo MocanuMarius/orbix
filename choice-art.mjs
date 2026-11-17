@@ -1,4 +1,4 @@
-import {artifactIcon} from './upgrade-icons.mjs?v=devour-2';
+import {artifactIcon} from './upgrade-icons.mjs?v=lofi-1';
 
 // Original, small world illustrations. Pixel light is layered geometry rather
 // than SVG blur; motion is bounded CSS, never another animation-frame loop.
