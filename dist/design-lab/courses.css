@@ -1,0 +1,54 @@
+/* v2.0-courses · design-lab only. Paper sheets on the dark lab background, pixel type. */
+@font-face{font-family:Pixelify;src:url(../assets/fonts/pixelify-sans.ttf) format('truetype');font-display:swap}
+:root{--ink:#2a2118;--ink-soft:#5a4632;--rule:#6b5335;--paper:#dcc693;--slip:#e8d6a4;--wine:#7a2f2a;--good:#3f6b2f;--warn:#8a5a14;--pixel:Pixelify,'Courier New',monospace}
+*{box-sizing:border-box}
+html,body{margin:0;background:#0c0907;color:var(--ink);font:400 13px/1.35 var(--pixel)}
+h1,h2,h3,p{margin:0}
+.cl{max-width:1240px;margin:0 auto;padding:8px 16px 32px}
+.cl-head{color:#f6ebcc;padding:6px 0 10px}
+.cl-head h1{font:400 20px/26px var(--pixel);text-shadow:2px 2px #2a1d12}
+.cl-code{display:inline-block;margin-left:6px;padding:2px 8px;border:2px solid #2a1d12;background:#e6c77c;color:#2a1d12;font:400 13px/16px var(--pixel);vertical-align:2px}
+.cl-lead{max-width:880px;margin-top:6px;color:#e8dcb8}
+.cl-lead code{color:#f6ebcc}
+.cl-nav{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.cl-nav a{display:inline-flex;align-items:center;min-height:44px;padding:0 14px;border:2px solid var(--rule);background:#e2cf9f;color:var(--ink);text-decoration:none}
+.cl-nav a:focus-visible{outline:3px solid #f6ebcc;outline-offset:2px}
+.cl-sheet{margin-top:14px;padding:12px 14px 14px;border:3px solid #2a1d12;background:var(--paper);box-shadow:inset 0 0 0 2px #e8d7a6}
+.cl-sheet h2{font:400 17px/22px var(--pixel);margin-bottom:4px}
+.cl-note{color:var(--ink-soft);max-width:900px;margin-bottom:8px}
+.cl-legend{display:flex;flex-wrap:wrap;gap:4px 12px;margin:4px 0 10px}
+.cl-legend span{display:inline-flex;align-items:center;gap:5px}
+.cl-legend i{display:inline-block;width:14px;height:14px;border:1px solid #2a1d12}
+.cl-course{margin-top:14px;padding-top:10px;border-top:2px dashed #b89c64}
+.cl-course h3{font:400 16px/20px var(--pixel);display:flex;flex-wrap:wrap;align-items:center;gap:6px 10px}
+.cl-type{padding:1px 6px;border:1px solid var(--rule);background:var(--slip);font-size:12px}
+.cl-does{margin:3px 0 6px;max-width:900px}
+.cl-row{display:grid;grid-template-columns:minmax(0,1fr);gap:6px}
+.cl-strip{position:relative}
+.cl-strip figcaption{font-size:12px;color:var(--ink-soft);margin-bottom:2px}
+.cl-scroll{overflow-x:auto;border:2px solid #2a1d12;background:#0d1420;-webkit-overflow-scrolling:touch}
+.cl-scroll canvas{display:block;image-rendering:pixelated}
+.cl-stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:6px;margin-top:6px}
+.cl-card{padding:6px 8px;border:2px solid var(--rule);background:var(--slip)}
+.cl-card b{font-weight:400;color:var(--ink)}
+.cl-card .good{color:var(--good)}
+.cl-card .warn{color:var(--warn)}
+.cl-card ul{margin:2px 0 0;padding-left:16px}
+.cl-play{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
+.cl-play a{display:inline-flex;align-items:center;min-height:44px;padding:0 14px;border:2px solid #2a1d12;background:#536430;color:#f6ebcc;text-decoration:none;text-shadow:1px 1px #2a1d12}
+.cl-play a.old{background:#e2cf9f;color:var(--ink);text-shadow:none;border-color:var(--rule)}
+.cl-play a:focus-visible{outline:3px solid var(--ink);outline-offset:2px}
+.cl-key{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:8px}
+.cl-key figure{margin:0;padding:6px;border:2px solid var(--rule);background:var(--slip)}
+.cl-key canvas{display:block;width:100%;height:auto;image-rendering:pixelated;border:1px solid #2a1d12;background:#0d1420}
+.cl-key figcaption{margin-top:4px;font-size:12px}
+.cl-key figcaption b{font-weight:400;display:block;font-size:13px}
+.cl-plan-wrap{overflow-x:auto}
+.cl-plan{border-collapse:collapse;width:100%;min-width:760px;font-size:12px}
+.cl-plan th,.cl-plan td{border:1px solid #a88b55;padding:4px 6px;vertical-align:top;text-align:left}
+.cl-plan th{background:#cdb77f;font-weight:400}
+.cl-plan td.built{background:#c9d6a2}
+.cl-plan td b{font-weight:400;display:block}
+.cl-plan td span{color:var(--ink-soft)}
+.cl-status{color:#e8dcb8;margin-top:10px}
+@media (max-width:640px){.cl{padding:6px 16px 24px}.cl-head h1{font-size:17px}}

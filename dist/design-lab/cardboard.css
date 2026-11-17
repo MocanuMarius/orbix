@@ -228,3 +228,18 @@ body.cb{padding-bottom:70px}
 @media (prefers-reduced-motion:reduce){.cb-mt,.cb-medal,.cb-fr,.cb-toast{transition:none}}
 .dc-r-oath{--rb:#d9b25a;--rd:#8a6d44;--rt:#2a1d12;--trim:#8a6d44}
 .dc-r-curse{--rb:#b8574a;--rd:#7a2f2a;--rt:#fff6ee;--trim:#7a2f2a}
+
+/* The eye on a tile opens the whole card. */
+.cb-eye{cursor:pointer;pointer-events:auto;border:0;font:inherit;color:inherit;min-width:44px;min-height:44px}
+.cb-eye:focus-visible{outline:3px solid #2a1d12;outline-offset:2px}
+.cb-inspect{border:3px solid #4a3828;background:#dcc693;color:#2a2118;padding:0;max-width:min(760px,94vw);max-height:92vh;overflow:auto;box-shadow:6px 8px 0 #0006}
+.cb-inspect::backdrop{background:#140e09b3}
+.cb-ins-body{display:flex;gap:18px;padding:18px;flex-wrap:wrap;align-items:flex-start}
+.cb-ins-faces{display:flex;gap:14px;flex-wrap:wrap}
+.cb-ins-text{flex:1 1 260px;min-width:240px}
+.cb-ins-text h3{margin:0 0 6px;font-size:20px;line-height:1.2}
+.cb-ins-meta{margin:0 0 10px;font-size:12px;display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.cb-ins-row{margin:0 0 10px;font-size:14px;line-height:1.45;display:grid;gap:2px}
+.cb-ins-row b{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:#5a4632}
+.cb-ins-actions{margin-top:14px}
+.cb-inspect-close{min-width:120px;min-height:46px;border:2px solid #4a3828;background:#e4d09b;color:#2a2118;font:inherit;font-size:14px;cursor:pointer}

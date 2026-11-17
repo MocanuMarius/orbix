@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Course landforms · Design lab</title>
+<link rel="icon" href="../assets/favicon.svg">
+<link rel="stylesheet" href="courses.css?v=1">
+</head>
+<body>
+<main class="cl">
+ <header class="cl-head">
+  <h1>Course landforms <span class="cl-code">v2.0-courses</span></h1>
+  <p class="cl-lead">Courses built from geography instead of floating blocks: one continuous ground line, rock that sits in soft soil, no ceiling unless something holds it up. Each strip is a whole course at true scale (left to right, wrapped). Off in the game unless the URL has <code>?courses=2</code>.</p>
+  <nav class="cl-nav" aria-label="Sections"><a href="#courses">8 new courses</a><a href="#key">Landform key</a><a href="#plan">12 biomes × 4</a></nav>
+ </header>
+
+ <section id="courses" class="cl-sheet" aria-label="Prototype courses">
+  <h2>Eight prototype courses</h2>
+  <p class="cl-note" id="pilot-note"></p>
+  <div class="cl-legend" id="legend"></div>
+  <div id="course-list"></div>
+ </section>
+
+ <section id="key" class="cl-sheet" aria-label="Landform key">
+  <h2>Landform key</h2>
+  <p class="cl-note">Soft ground (soil, sand, snow, scree) is rounded and never steeper than its angle of repose. Rock and ice keep hard edges. Overheads only where something holds them: a cave's mountain, tree boughs, an ice shelf, an arch whose deck is above the frame.</p>
+  <div class="cl-key" id="key-grid"></div>
+ </section>
+
+ <section id="plan" class="cl-sheet" aria-label="Layout plan">
+  <h2>Plan: 12 biomes × 4 layouts</h2>
+  <p class="cl-note">One landform layout per existing course slot, 48 in all. Eight are built (marked). Recipes read left to right.</p>
+  <div class="cl-plan-wrap"><table class="cl-plan" id="plan-table"></table></div>
+ </section>
+ <p class="cl-status" id="status" role="status" aria-live="polite">Building courses…</p>
+</main>
+<script type="module" src="courses.mjs?v=1"></script>
+</body>
+</html>

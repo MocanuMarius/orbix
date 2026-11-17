@@ -246,7 +246,7 @@ function faceHtml(f) {
 function tileHtml(f) {
   return `<div class="ca-tile cb-tile dc-r-${f.rarity}" style="--fr:var(--fr-${f.rarity})"><div class="ca-tilemain"><span class="ca-top"><span class="ca-rtab">${gemFor(f.rarity)}<b>${RWORD[f.rarity]}</b></span></span>
    <span class="ca-body"><span class="ca-art ca-art-new">${f.art}</span><span class="ca-text"><b class="ca-name">${esc(f.name)}</b><b class="ca-effect">${esc(f.tile)}</b>${whenLine(f.trigger)}</span></span></div>
-   <span class="ca-eye" aria-hidden="true"><span class="ca-eyebody">${EYE}</span></span></div>`;
+   <span role="button" tabindex="0" class="ca-eye cb-eye" aria-label="Read the whole card: ${esc(f.name)}"><span class="ca-eyebody">${EYE}</span></span></div>`;
 }
 const proposedFace = card => ({name: card.name, rarity: card.rarity, trigger: card.trigger, text: card.text, tile: card.tile, art: artHtml(card), sketch: true});
 function currentFace(card) {
@@ -505,9 +505,35 @@ function build() {
   $('#cb-legend-new').innerHTML = Object.values(TRIGGERS).filter(t => t.isNew).map(t => `<span class="cb-chip cb-newchip">${chipIcon(t.icon, 16)}<b>${esc(t.name)}</b></span>`).join('');
   refreshAllCards();
 }
+// The eye opens the whole card: large face, the full rule, what its Trigger means, and why it is proposed.
+function inspectCard(id) {
+  const card = CARD_BY_ID[id]; if (!card) return;
+  let dlg = $('#cb-inspect');
+  if (!dlg) { dlg = document.createElement('dialog'); dlg.id = 'cb-inspect'; dlg.className = 'cb-inspect'; document.body.appendChild(dlg); }
+  const t = TRIGGERS[card.trigger] || {name: card.trigger};
+  const cur = card.kind === 'rework' && card.replaces ? currentFace(card) : null;
+  const row = (label, value) => value ? `<p class="cb-ins-row"><b>${esc(label)}</b><span>${esc(value)}</span></p>` : '';
+  dlg.innerHTML = `<div class="cb-ins-body">
+    <div class="cb-ins-faces">${cur ? `<div><p class="cb-vlabel">Today</p>${faceHtml(cur)}</div>` : ''}<div>${cur ? '<p class="cb-vlabel">Proposed</p>' : ''}${faceHtml(proposedFace(card))}</div></div>
+    <div class="cb-ins-text">
+      <h3>${esc(card.name)}</h3>
+      <p class="cb-ins-meta">${esc(KINDWORD[card.kind] || '')} · ${esc(RWORD[card.rarity] || card.rarity)} · ${triggerChip(card.trigger)}</p>
+      ${row('What it does', card.text)}
+      ${row('On the small tile', card.tile)}
+      ${row('When it fires', t.say || t.help || ('Trigger: ' + t.name))}
+      ${cur ? row('Today', cur.text) : ''}
+      ${row('Line', card.tiers)}
+      ${row('Why', card.why)}
+      <div class="cb-ins-actions"><button type="button" class="cb-inspect-close">Close</button></div>
+    </div></div>`;
+  if (!dlg.open) dlg.showModal();
+}
 function wire() {
   document.addEventListener('click', e => {
     const t = e.target;
+    const eye = t.closest('.cb-eye');
+    if (eye) { e.preventDefault(); e.stopPropagation(); const id = eye.closest('[data-id]')?.dataset.id || eye.closest('[data-open]')?.dataset.open; if (id) inspectCard(id); return; }
+    if (t.closest('.cb-inspect-close') || t === $('#cb-inspect')) { $('#cb-inspect')?.close(); return; }
     const btn = t.closest('.cb-btn[data-act]');
     if (btn) { const card = btn.closest('.cb-card'), id = card.dataset.id, act = btn.dataset.act;
       if (act === 'change') { const note = $('.cb-note', card), open = !note.hidden;
@@ -529,6 +555,7 @@ function wire() {
     if (t.closest('#cb-collapse')) { $$('.cb-fam').forEach(d => { d.open = false; }); return; }
   });
   document.addEventListener('input', e => { const ta = e.target.closest?.('.cb-note textarea'); if (ta) setDecision(ta.closest('.cb-card').dataset.id, 'change', ta.value); });
+  document.addEventListener('keydown', e => { const eye = e.target.closest?.('.cb-eye'); if (eye && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); e.stopPropagation(); eye.click(); } }, true);
   document.addEventListener('keydown', e => { const f = e.target.closest?.('.cb-faces'); if (f && (e.key === 'Enter' || e.key === ' ') && e.target === f) { e.preventDefault(); toggle(f.closest('.cb-card').dataset.id, 'approve'); } });
 }
 build(); wire();
