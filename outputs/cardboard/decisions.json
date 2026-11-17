@@ -1,0 +1,272 @@
+{
+ "keystone": {
+  "decision": "approve",
+  "note": "",
+  "at": 1794923708871
+ },
+ "tributary": {
+  "decision": "approve",
+  "note": "",
+  "at": 1794924034315
+ },
+ "spill-jar": {
+  "decision": "approve",
+  "note": "",
+  "at": 1794923739265
+ },
+ "glide-song": {
+  "decision": "approve",
+  "note": "",
+  "at": 1794923754230
+ },
+ "dark-lantern": {
+  "decision": "approve",
+  "note": "Set by the coordinator: the owner denied the old version at 15:56, then said the revised Collector version is great.",
+  "at": 1794924576069
+ },
+ "twin-flame": {
+  "decision": "approve",
+  "note": "",
+  "at": 1794924037027
+ },
+ "oath-of-silence": {
+  "decision": "approve",
+  "note": "",
+  "at": 1794923902346
+ },
+ "vanguard": {
+  "decision": "approve",
+  "note": "",
+  "at": 1794923959931
+ },
+ "bookends": {
+  "decision": "approve",
+  "note": "",
+  "at": 1794924002033
+ },
+ "empty-chair": {
+  "decision": "approve",
+  "note": "",
+  "at": 1794924020025
+ },
+ "ladder": {
+  "decision": "approve",
+  "note": "",
+  "at": 1794924025134
+ },
+ "storm-glass": {
+  "decision": "change",
+  "note": "what is a flash",
+  "at": 1794924065643
+ },
+ "undertow": {
+  "decision": "approve",
+  "note": "",
+  "at": 1794924102109
+ },
+ "chameleon-rework": {
+  "decision": "approve",
+  "note": "",
+  "at": 1794924136187
+ },
+ "weathervane": {
+  "decision": "approve",
+  "note": "",
+  "at": 1794924184374
+ },
+ "brimming": {
+  "decision": "change",
+  "note": "Meter stays full only for a brieft time..but what dose luminance +2 mean ? it should be a huge boost.. +2 doesnt sound that big.. or i may be wrong.. if it's big then card is fine.",
+  "at": 1794924231785
+ },
+ "pressure-valve": {
+  "decision": "approve",
+  "note": "",
+  "at": 1794924245241
+ },
+ "gilded-rim": {
+  "decision": "approve",
+  "note": "",
+  "at": 1794924259141
+ },
+ "ring-spring-rework": {
+  "decision": "approve",
+  "note": "",
+  "at": 1794924272966
+ },
+ "thread-the-needle": {
+  "decision": "approve",
+  "note": "",
+  "at": 1794924288232
+ },
+ "held-breath": {
+  "decision": "approve",
+  "note": "",
+  "at": 1794924297760
+ },
+ "clean-line": {
+  "decision": "approve",
+  "note": "",
+  "at": 1794924312213
+ },
+ "daredevil": {
+  "decision": "approve",
+  "note": "",
+  "at": 1794924327298
+ },
+ "spacetime": {
+  "decision": "approve",
+  "note": "",
+  "at": 1794924533214
+ },
+ "moth": {
+  "decision": "approve",
+  "note": "",
+  "at": 1794924547469
+ },
+ "long-shadow": {
+  "decision": "approve",
+  "note": "",
+  "at": 1794924547469
+ },
+ "candle-clock": {
+  "decision": "approve",
+  "note": "",
+  "at": 1794924547469
+ },
+ "eclipse": {
+  "decision": "approve",
+  "note": "",
+  "at": 1794924547469
+ },
+ "second-wind": {
+  "decision": "approve",
+  "note": "",
+  "at": 1794924548057
+ },
+ "scar-tissue": {
+  "decision": "approve",
+  "note": "",
+  "at": 1794924548057
+ },
+ "glass-heart": {
+  "decision": "approve",
+  "note": "",
+  "at": 1794924548057
+ },
+ "vigil": {
+  "decision": "approve",
+  "note": "",
+  "at": 1794924548057
+ },
+ "collectors-ledger": {
+  "decision": "approve",
+  "note": "",
+  "at": 1794924548443
+ },
+ "old-friend": {
+  "decision": "approve",
+  "note": "",
+  "at": 1794924548443
+ },
+ "heirloom": {
+  "decision": "approve",
+  "note": "",
+  "at": 1794924548443
+ },
+ "apprentice": {
+  "decision": "approve",
+  "note": "",
+  "at": 1794924548443
+ },
+ "tithe": {
+  "decision": "approve",
+  "note": "",
+  "at": 1794924548777
+ },
+ "smiths-mark": {
+  "decision": "approve",
+  "note": "",
+  "at": 1794924548777
+ },
+ "magpie": {
+  "decision": "approve",
+  "note": "",
+  "at": 1794924548777
+ },
+ "kindling-bead-rework": {
+  "decision": "approve",
+  "note": "",
+  "at": 1794924548777
+ },
+ "oath-of-the-low-road": {
+  "decision": "approve",
+  "note": "",
+  "at": 1794924549046
+ },
+ "oath-of-hunger": {
+  "decision": "approve",
+  "note": "",
+  "at": 1794924549046
+ },
+ "borrowed-light": {
+  "decision": "approve",
+  "note": "",
+  "at": 1794924549046
+ },
+ "heavy-purse": {
+  "decision": "approve",
+  "note": "",
+  "at": 1794924549046
+ },
+ "first-ripple-rework": {
+  "decision": "approve",
+  "note": "",
+  "at": 1794924549411
+ },
+ "wick-doubler-rework": {
+  "decision": "approve",
+  "note": "",
+  "at": 1794924549411
+ },
+ "mirror-grain-rework": {
+  "decision": "approve",
+  "note": "",
+  "at": 1794924549411
+ },
+ "second-sun-rework": {
+  "decision": "approve",
+  "note": "",
+  "at": 1794924549411
+ },
+ "resonant-harvest-rework": {
+  "decision": "approve",
+  "note": "",
+  "at": 1794924549411
+ },
+ "prism-lens-rework": {
+  "decision": "approve",
+  "note": "",
+  "at": 1794924549411
+ },
+ "wave-loom-rework": {
+  "decision": "approve",
+  "note": "",
+  "at": 1794924549411
+ },
+ "devourer-rework": {
+  "decision": "approve",
+  "note": "",
+  "at": 1794924549411
+ },
+ "ember-feeder-rework": {
+  "decision": "approve",
+  "note": "",
+  "at": 1794924549411
+ },
+ "black-hole-rework": {
+  "decision": "approve",
+  "note": "",
+  "at": 1794924549411
+ }
+}

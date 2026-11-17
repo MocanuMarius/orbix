@@ -36,7 +36,7 @@ What the numbers say is missing (`docs/card-balance-2.md`): every Trigger is won
 | Card | Rarity | Trigger | Text | Why it is fun |
 | --- | --- | --- | --- | --- |
 | **Tributary** | Rare | Collect | Every 3rd Collect also fires your Delivery cards. | Collect is frequent, Delivery is strong: joins them |
-| **Storm Glass** | Rare | Flash | A Flash also fires your Pulse cards once. | Flash fires 3 times a flight: gives Pulse builds a burst |
+| **Storm Glass** | Rare | Flash | Taking a Flash pickup also fires your Pulse cards once. (A Flash is the triangle pickup that lights the whole scene for a few seconds.) | Flash fires 3 times a flight: gives Pulse builds a burst |
 | **Undertow** | Common | Falling Lift | A Falling Lift counts as a Collect for the next card. | Makes Collect adders work without pickups |
 | **Chameleon** (rework) | Rare | Any | Fires the card to its right on ANY Trigger. | Today it is a worse Echo. This gives it a job nobody else has |
 | **Weathervane** | Legendary | Any | Your most common Trigger also fires on your rarest. | Reads the Chain and rewards a deliberate split |
@@ -46,7 +46,7 @@ What the numbers say is missing (`docs/card-balance-2.md`): every Trigger is won
 | Card | Rarity | Trigger | Text | Why it is fun |
 | --- | --- | --- | --- | --- |
 | **Spill Jar** | Common | Overfill | Half of every spilled Spark becomes a Stored Spark. | Every saturated Chain now banks its extra |
-| **Brimming** | Rare | Always on | While the meter is full: Luminance +2. | A reason to stay full instead of spending |
+| **Brimming** | Rare | Passive | While the meter is full: your light reaches twice as far (Luminance +100%; Lantern Lens, a Common, gives +20% all the time). | The meter is full only briefly, so the reward is big. A reason to stay full instead of spending. Revised after the owner's note |
 | **Pressure Valve** | Rare | Overfill | Spilled Sparks carry into your next flight's meter. | Chains a good flight into the next one |
 | **Gilded Rim** | Legendary | Overfill | Each Overfill: +1 max Sparks (this run). | The patient version of Black Hole |
 | **Ring Spring** (add) | Rare | Overfill | Also: +3 Sparks after Collector returns. | Gives the Overfill line a Spark payoff |
