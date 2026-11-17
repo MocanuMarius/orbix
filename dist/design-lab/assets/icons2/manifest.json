@@ -200,13 +200,26 @@
  {
   "id": "abandon",
   "group": "Menu and controls",
-  "name": "abandon (broken wisp)",
+  "name": "abandon (snuffed candle)",
   "grid": 16,
   "sizes": [
    16,
    32
   ],
-  "note": "cold, split disc; must not read as close"
+  "note": "redrawn: a snuffed candle (dark wick, curl of smoke, wax drip); the light is out, and no cross, so it cannot read as close",
+  "flag": "redrawn"
+ },
+ {
+  "id": "abandon-old",
+  "group": "Menu and controls",
+  "name": "abandon (broken wisp) (old)",
+  "grid": 16,
+  "sizes": [
+   16,
+   32
+  ],
+  "note": "cold, split disc; must not read as close",
+  "flag": "old"
  },
  {
   "id": "heart-full-a",
@@ -326,7 +339,21 @@
    32,
    48
   ],
-  "note": ""
+  "note": "redrawn: pale dashed frame with a dark outline between dashes and a gold plus; reads on paper, leather and dark",
+  "flag": "redrawn"
+ },
+ {
+  "id": "slot-old",
+  "group": "Status",
+  "name": "slot (empty card slot) (old)",
+  "grid": 16,
+  "sizes": [
+   16,
+   32,
+   48
+  ],
+  "note": "",
+  "flag": "old"
  },
  {
   "id": "locked",
@@ -367,26 +394,54 @@
  {
   "id": "stop-elite",
   "group": "Map stops",
-  "name": "elite (wolf)",
+  "name": "elite (horned mask)",
   "grid": 24,
   "sizes": [
    24,
    48,
    72
   ],
-  "note": ""
+  "note": "redrawn: a wine mask with cream horns and gold slit eyes; narrower and lighter than the boss",
+  "flag": "redrawn"
+ },
+ {
+  "id": "stop-elite-old",
+  "group": "Map stops",
+  "name": "elite (wolf) (old)",
+  "grid": 24,
+  "sizes": [
+   24,
+   48,
+   72
+  ],
+  "note": "",
+  "flag": "old"
  },
  {
   "id": "stop-boss",
   "group": "Map stops",
-  "name": "boss / guardian (horned crown)",
+  "name": "boss / guardian (crowned, horned)",
   "grid": 24,
   "sizes": [
    24,
    48,
    72
   ],
-  "note": ""
+  "note": "redrawn: the largest silhouette on the map, a crowned and horned guardian in cold blue with red eyes",
+  "flag": "redrawn"
+ },
+ {
+  "id": "stop-boss-old",
+  "group": "Map stops",
+  "name": "boss / guardian (horned crown) (old)",
+  "grid": 24,
+  "sizes": [
+   24,
+   48,
+   72
+  ],
+  "note": "",
+  "flag": "old"
  },
  {
   "id": "stop-encounter",
@@ -517,24 +572,51 @@
  {
   "id": "rest-melt",
   "group": "Rest actions",
-  "name": "melt (card into gold)",
+  "name": "melt (card into crucible)",
   "grid": 16,
   "sizes": [
    16,
    32
   ],
-  "note": ""
+  "note": "redrawn: the card runs gold at its lower edge and drips into a small crucible",
+  "flag": "redrawn"
+ },
+ {
+  "id": "rest-melt-old",
+  "group": "Rest actions",
+  "name": "melt (card into gold) (old)",
+  "grid": 16,
+  "sizes": [
+   16,
+   32
+  ],
+  "note": "",
+  "flag": "old"
  },
  {
   "id": "long-flash",
   "group": "Long Flash",
-  "name": "Long Flash / sight",
+  "name": "Long Flash / far sight (spyglass)",
   "grid": 16,
   "sizes": [
    16,
    32,
    48
   ],
-  "note": "a Spark-gold eye; replaces the flat white triangle"
+  "note": "redrawn: a spyglass, so it no longer shares the inspect eye",
+  "flag": "redrawn"
+ },
+ {
+  "id": "long-flash-old",
+  "group": "Long Flash",
+  "name": "Long Flash / sight (old)",
+  "grid": 16,
+  "sizes": [
+   16,
+   32,
+   48
+  ],
+  "note": "a Spark-gold eye; replaces the flat white triangle",
+  "flag": "old"
  }
 ]

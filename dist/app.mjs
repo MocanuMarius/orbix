@@ -35,7 +35,6 @@ import {TUTORIAL_TOPICS,topicSteps} from './tutorial-curriculum.mjs?v=guide-clar
 import {resourceCycleSteps} from './resource-cycle.mjs?v=guide-clarity-1';
 import {tutorialVisualMarkup} from './tutorial-visuals.mjs?v=guide-clarity-1';
 import {deathScreenMarkup} from './death-screen.mjs?v=guide-clarity-1';
-import {createRestInspectorState,createTreasureInspectorState} from './rest-inspector.mjs?v=guide-clarity-1';
 import {createLanternMapInspectorState} from './lantern-map-inspector.mjs?v=guide-clarity-1';
 import {createBoundaryInspectorState,frameBoundaryInspection} from './boundary-run-inspector.mjs?v=guide-clarity-1';
 import {LANTERN_THEME,LANTERN_CHAPTER} from './map-theme.mjs?v=guide-clarity-1';
@@ -106,7 +105,7 @@ const cardPilot=mockScene==='cards'||(modeQuery.get('cards')!=='0'&&modeQuery.ge
 // Keep the existing cards namespace, including practice and its suspended run.
 const gameStorage={getItem:key=>localStorage.getItem(cardPilot?`cards-pilot:${key}`:key),setItem:(key,value)=>localStorage.setItem(cardPilot?`cards-pilot:${key}`:key,value),removeItem:key=>localStorage.removeItem(cardPilot?`cards-pilot:${key}`:key)};
 const restInspector=mockScene==='rest',treasureInspector=mockScene==='treasure',lanternInspector=mockScene==='lantern-map',boundaryInspector=mockScene==='boundary',cardInspector=mockScene==='cards',mockMode=restInspector||lanternInspector||treasureInspector||boundaryInspector||cardInspector;
-let state;if(cardInspector)state=createCardInspectorState(new URLSearchParams(location.search));else if(boundaryInspector)state=createBoundaryInspectorState(new URLSearchParams(location.search));else if(restInspector)state=createRestInspectorState(new URLSearchParams(location.search));else if(treasureInspector)state=createTreasureInspectorState(new URLSearchParams(location.search).get('treasure')||'vessel');else if(lanternInspector)state=createLanternMapInspectorState();else try{state=loadState(gameStorage)}catch{state=newState()}
+let state;if(cardInspector)state=createCardInspectorState(new URLSearchParams(location.search));else if(boundaryInspector)state=createBoundaryInspectorState(new URLSearchParams(location.search));else if(restInspector)state=(await import('./rest-inspector.mjs?v=guide-clarity-1')).createRestInspectorState(new URLSearchParams(location.search));else if(treasureInspector)state=(await import('./rest-inspector.mjs?v=guide-clarity-1')).createTreasureInspectorState(new URLSearchParams(location.search).get('treasure')||'vessel');else if(lanternInspector)state=createLanternMapInspectorState();else try{state=loadState(gameStorage)}catch{state=newState()}
 document.body.classList.toggle('card-pilot',cardPilot);
 if(state.run?.isTutorial)state.run.cardPilot=cardPilot;
 let boundaryEdgeStyle=new URLSearchParams(location.search).get('edge')||(new URLSearchParams(location.search).has('spacetime')?'spectral':'moon'),boundaryReveal=false;

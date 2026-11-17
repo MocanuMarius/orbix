@@ -305,33 +305,58 @@ function tile(c, layer, offset, W, y = 0) {
 const TILE_W = 128, TILE_H = 96;
 function bakeFrostTile(document, seed, p) {
   const g = p.ground, { canvas, c } = makeCanvas(document, TILE_W, TILE_H);
-  rect(c, 0, 0, TILE_W, TILE_H, g.seam);
-  // Packed ice slabs: irregular courses, wide slabs, low-contrast seams.
-  for (let y = 0, row = 0; y < TILE_H; row++) {
-    let rh = 10 + Math.floor(hash(row, 1, seed) * 9);
-    if (TILE_H - (y + rh) < 10) rh = TILE_H - y;
-    for (let x = Math.floor(hash(row, 2, seed) * 30), k = 0, start = x; x < start + TILE_W; k++) {
-      const bw = Math.min(16 + Math.floor(hash(row, k, seed + 7) * 26), start + TILE_W - x), v = hash(row, k, seed + 11), ink = g.blocks[v < .4 ? 0 : v < .8 ? 1 : 2];
-      wrapped(TILE_W, x % TILE_W, bw, xx => {
-        rect(c, xx + 1, y + 1, bw - 1, rh - 1, ink);
-        if (v > .55) rect(c, xx + 1, y + 1, bw - 2, 1, g.blockLit);
-        if (v > .3 && v < .75) {
-          // A pair of diagonal glints reads as polished ice.
-          const gx = xx + 3 + Math.floor(hash(row, k, seed + 13) * Math.max(1, bw - 10)), gy = y + 3 + Math.floor(hash(row, k, seed + 17) * Math.max(1, rh - 8));
-          line(c, gx, gy + 4, gx + 4, gy, g.glint); line(c, gx + 3, gy + 5, gx + 5, gy + 3, g.glint);
-        }
-        for (let b = 0; b < 2; b++) if (hash(row, k * 3 + b, seed + 19) > .6) rect(c, xx + 2 + Math.floor(hash(row, k + b, seed + 23) * Math.max(1, bw - 4)), y + 2 + Math.floor(hash(k, row + b, seed + 29) * Math.max(1, rh - 4)), 1, 1, g.bubble);
-      });
-      x += bw;
-    }
-    y += rh;
+  // Packed ice: a few large irregular plates, wider than tall, split by angled seams that
+  // fade in and out so no seam is a straight course. Plates are the nearest of nine
+  // jittered seeds (wrapping, so the tile repeats); seams sit where two plates are about
+  // equally near. Every colour comes from the existing ground palette.
+  const COLS = 3, ROWS = 3, cw = TILE_W / COLS, rh = TILE_H / ROWS, YS = 1.5, N = COLS * ROWS;
+  const sx = [], sy = [], tone = [], lit = [];
+  for (let r = 0; r < ROWS; r++) for (let k = 0; k < COLS; k++) {
+    sx.push((k + .5) * cw + (hash(r, k, seed + 3) - .5) * cw * .85 + (r % 2 ? cw * .3 : 0));
+    sy.push((r + .5) * rh + (hash(k, r, seed + 5) - .5) * rh * .8);
+    const v = hash(r, k, seed + 11); tone.push(v < .4 ? 0 : v < .8 ? 1 : 2); lit.push(hash(r, k, seed + 13) > .45);
   }
-  // Buried fractures crossing several slabs.
+  const rgb = hex => (0xFF000000 | parseInt(hex.slice(5, 7), 16) << 16 | parseInt(hex.slice(3, 5), 16) << 8 | parseInt(hex.slice(1, 3), 16)) >>> 0;
+  const col = { seam: rgb(g.seam), blocks: g.blocks.map(rgb), lit: rgb(g.blockLit), glint: rgb(g.glint), bubble: rgb(g.bubble), vein: rgb(g.face) };
+  const id = new Uint8Array(TILE_W * TILE_H), seam = new Uint8Array(TILE_W * TILE_H);
+  for (let y = 0; y < TILE_H; y++) for (let x = 0; x < TILE_W; x++) {
+    let best = 1e9, second = 1e9, bi = 0, si = 0;
+    for (let i = 0; i < N; i++) {
+      let dx = Math.abs(x + .5 - sx[i]), dy = Math.abs(y + .5 - sy[i]);
+      dx = Math.min(dx, TILE_W - dx); dy = Math.min(dy, TILE_H - dy);
+      const d = dx * dx + dy * dy * YS * YS;
+      if (d < best) { second = best; si = bi; best = d; bi = i; } else if (d < second) { second = d; si = i; }
+    }
+    const at = y * TILE_W + x; id[at] = bi;
+    if (Math.sqrt(second) - Math.sqrt(best) < 1.9) {
+      const pair = Math.min(bi, si) * 16 + Math.max(bi, si);
+      seam[at] = hash(pair, (x + 2 * y) >> 4, seed + 31) > .32 ? 1 : 0;
+    }
+  }
+  const img = c.createImageData(TILE_W, TILE_H), px = new Uint32Array(img.data.buffer);
+  for (let y = 0; y < TILE_H; y++) for (let x = 0; x < TILE_W; x++) {
+    const at = y * TILE_W + x, i = id[at];
+    px[at] = seam[at] ? col.seam : (lit[i] && seam[((y + TILE_H - 1) % TILE_H) * TILE_W + x]) ? col.lit : col.blocks[tone[i]];
+  }
+  // Details stay inside their own plate: pale veins, a glint pair, trapped bubbles.
+  const put = (x, y, ink, i) => { x = ((Math.round(x) % TILE_W) + TILE_W) % TILE_W; y = ((Math.round(y) % TILE_H) + TILE_H) % TILE_H; const at = y * TILE_W + x; if (id[at] === i && !seam[at]) px[at] = ink; };
+  for (let i = 0; i < N; i++) {
+    const h = k => hash(i, k, seed + 41);
+    if (h(1) > .35) { const x0 = sx[i] - 8 + h(2) * 10, y0 = sy[i] - 5 + h(3) * 8, len = 4 + Math.floor(h(4) * 7), dir = h(5) > .5 ? 1 : -1;
+      for (let k = 0; k < len; k++) put(x0 + k * 1.4, y0 + dir * k * .55, col.vein, i); }
+    if (h(6) > .45) { const gx = sx[i] + (h(7) - .5) * 18, gy = sy[i] + (h(8) - .5) * 8;
+      for (let k = 0; k < 4; k++) { put(gx + k, gy - k * .8, col.glint, i); if (k > 0) put(gx + k + 3, gy - k * .8 + 3, col.glint, i); } }
+    const bubbles = Math.floor(h(9) * 4);
+    for (let b = 0; b < bubbles; b++) { const bx = sx[i] + (h(10 + b) - .5) * 26, by = sy[i] + (h(20 + b) - .5) * 14; put(bx, by, col.bubble, i); if (b === 0 && h(30) > .5) put(bx + 1, by, col.bubble, i); }
+  }
+  c.putImageData(img, 0, 0);
+  // Buried fractures: angled runs of uneven length that cross plates.
   for (let i = 0; i < 4; i++) {
-    let x = hash(i, 41, seed) * TILE_W, y = 8 + hash(i, 42, seed) * (TILE_H - 40);
-    for (let k = 0; k < 4; k++) {
-      const nx = x + (hash(i, k + 43, seed) - .5) * 16, ny = y + 4 + hash(i, k + 47, seed) * 6;
-      wrapped(TILE_W, x, 20, xx => { line(c, xx + 1, y, xx + 1 + nx - x, ny, g.crackLit); line(c, xx, y, xx + nx - x, ny, g.crack); });
+    let x = hash(i, 41, seed) * TILE_W, y = 6 + hash(i, 42, seed) * (TILE_H - 44);
+    const len = 1 + Math.floor(hash(i, 44, seed) * 4), dir = hash(i, 45, seed) > .5 ? 1 : -1;
+    for (let k = 0; k < len; k++) {
+      const nx = x + dir * (4 + hash(i, k + 43, seed) * 12), ny = y + 2 + hash(i, k + 47, seed) * 6;
+      wrapped(TILE_W, x, 20, xx => line(c, xx, y, xx + nx - x, ny, g.crack));
       x = nx; y = ny;
     }
   }

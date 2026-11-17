@@ -10,10 +10,10 @@ export const CARDS = {
   'close-call': card('close-call', 'Close Call', 'rare', 'starter', {hears: ['skim'], plate: 'Skim: Pulse and +1 Spark'}),
   'low-ember': card('low-ember', 'Low Ember', 'rare', 'starter'),
   'spark-chime': card('spark-chime', 'Spark Chime', 'common', 'maker', {hears: ['pulse'], plate: 'Pulse: +1 Spark'}),
-  'ember-echo': card('ember-echo', 'Ember Echo', 'common', 'maker', {hears: ['gain'], oncePerTurn: true, plate: 'Gain: send a Pulse, once a Turn'}),
+  'ember-bell': card('ember-bell', 'Ember Bell', 'common', 'maker', {hears: ['gain'], oncePerTurn: true, plate: 'Gain: send a Pulse, once a Turn'}),
   'overflow-bell': card('overflow-bell', 'Overflow Bell', 'rare', 'maker', {hears: ['overfill'], plate: 'Overfill: Pulse, keep 2'}),
-  'slow-wick': card('slow-wick', 'Slow Wick', 'common', 'timer', {hears: ['pulse'], timer: true, wait: 3, plate: 'Waits 3 s, then a Pulse'}),
-  'metronome': card('metronome', 'Metronome', 'rare', 'timer', {hears: ['pulse'], timer: true, wait: 2, plate: 'Every 2 s: fire next card'}),
+  'slow-wick': card('slow-wick', 'Slow Wick', 'common', 'timer', {hears: ['pulse'], timer: true, returns: true, wait: 3, plate: 'Waits 3 s, then a Pulse'}),
+  'metronome': card('metronome', 'Metronome', 'rare', 'timer', {hears: ['pulse'], timer: true, wait: 1.5, plate: 'Every 1.5 s: fire next card'}),
   'heartbeat': card('heartbeat', 'Heartbeat', 'legendary', 'timer', {plate: 'Timers wait half as long', passive: true}),
   'body-spark': card('body-spark', 'Body Spark +2', 'common', 'maker', {plate: 'Collect: +2 Sparks'}),
   'crescendo': card('crescendo', 'Crescendo', 'rare', 'boost', {boost: 2, passive: true, plate: 'Each Turn gives x2'}),
@@ -23,47 +23,34 @@ export const CARDS = {
   'black-hole': card('black-hole', 'Black Hole', 'rare', 'blackhole', {passive: true, plate: 'Eats the card to its right'}),
 };
 const EMITS = {
-  'first-catch': ['pulse'], 'close-call': ['pulse', 'gain', 'overfill'], 'spark-chime': ['gain', 'overfill'], 'ember-echo': ['pulse'],
+  'first-catch': ['pulse'], 'close-call': ['pulse', 'gain', 'overfill'], 'spark-chime': ['gain', 'overfill'], 'ember-bell': ['pulse'],
   'overflow-bell': ['pulse'], 'slow-wick': ['pulse'], 'metronome': ['next'], 'body-spark': ['gain', 'overfill'], 'last-round': ['pulse'],
 };
 
-/** Rule 2. Reads the circle off the cards: who can feed whom, which cards sit in a loop, and whether a Timer is among them. */
+/** Rulings 1 and 2. Events flow to the right only. Only a Timer that sends its event back (Slow Wick) closes a circle, by returning to the first Slot.
+ *  A Chain with no Timer runs once. `entry` is the card that hears a Pulse sent to the first Slot. */
 export function findCircle(ids) {
-  const n = ids.length, cs = ids.map(id => id && CARDS[id]);
-  const nearest = from => {for (let k = 1; k < n; k++) {const j = (from + k) % n; if (cs[j]?.hears.includes('pulse')) return j;} return -1;};
-  const edges = cs.map((c, i) => {
-    const out = new Set();
-    for (const e of c ? EMITS[c.id] || [] : []) {
-      if (e === 'pulse') {const j = nearest(i); if (j >= 0) out.add(j);}
-      else if (e === 'next') {if (cs[i + 1]) out.add(i + 1);}
-      else cs.forEach((d, j) => {if (j !== i && d?.hears.includes(e)) out.add(j);});
-    }
-    return [...out];
-  });
-  const reach = i => {const seen = new Set(), st = [...edges[i]]; while (st.length) {const j = st.pop(); if (seen.has(j)) continue; seen.add(j); st.push(...edges[j]);} return seen;};
-  const nodes = cs.map((_, i) => i).filter(i => cs[i] && reach(i).has(i));
-  if (!nodes.length) return null;
-  const entry = Math.min(...nodes);
-  const back = nodes.filter(i => edges[i].includes(entry));
-  const closer = back.length ? Math.max(...back) : Math.max(...nodes);
-  const timers = nodes.filter(i => cs[i].timer);
-  return {nodes, entry, closer, timers, needsWait: !timers.length};
+  const cs = ids.map(id => id && CARDS[id]);
+  const timers = cs.map((c, i) => c?.timer ? i : -1).filter(i => i >= 0);
+  const back = timers.find(i => cs[i].returns);
+  return {timers, back: back ?? -1, entry: cs.findIndex(c => c?.hears.includes('pulse')), runsOnce: !timers.length};
 }
 
 /** The clock model. Events are instant; only Timers take time. Returns a trace the screen plays back. */
 export function simulate(scene, {uncapped = false, horizon = 30} = {}) {
   const ids = scene.ids(), n = ids.length, cs = ids.map(id => id && CARDS[id]);
-  const circle = findCircle(ids), entry = circle ? circle.entry : -1;
+  const circle = findCircle(ids);
   const hb = cs.some(c => c?.id === 'heartbeat') ? 0.5 : 1;
   let t = 0, meter = uncapped ? 0 : scene.meter.start;
   const max = uncapped ? 1e9 : scene.meter.max;
-  let turn = 0, stored = 0, stopped = null, armed = false, caught = false;
-  const steps = [], q = [], timers = [], made = new Set(), fired = new Set(), turnLog = [], gainBy = {};
+  let turn = 0, stored = 0, stopped = null, armed = false, caught = false, idle = -1, back = false;
+  const steps = [], q = [], timers = [], made = new Set(), turnLog = [], gainBy = {};
   const nm = i => cs[i].name;
   const push = s => steps.push({t, turn, meter, ...s});
   const boostAt = i => cs.reduce((m, c, j) => c?.boost && j > i ? m * c.boost : m, 1);
   const beginTurn = () => {turn++; made.clear(); turnLog.push(t); push({k:'turn'});};
-  const nearest = from => {for (let k = 1; k < n; k++) {const j = (from + k + n) % n; if (j !== from && cs[j]?.hears.includes('pulse')) return j;} return -1;};
+  // Ruling 2: a Pulse is heard by the next card to its right that waits for a Pulse.
+  const nearest = from => {for (let j = from + 1; j < n; j++) if (cs[j]?.hears.includes('pulse')) return j; return -1;};
   const pulse = from => {
     const j = nearest(from);
     if (j < 0) push({k: 'note', slot: from, log: `${nm(from)} sends a Pulse, but no card hears it.`});
@@ -78,17 +65,12 @@ export function simulate(scene, {uncapped = false, horizon = 30} = {}) {
     return {a, real, spill};
   };
   const stop = why => {if (!stopped) stopped = why;};
-  const hit = (slot, from, plate, log, extra = {}) => push({k: 'hit', slot, from, plate, log, ...extra});
+  const hit = (slot, from, plate, log, extra = {}) => push({k: 'hit', slot, from, plate, log, back, ...extra});
 
   function answer(j, ev) {
     const c = cs[j];
     if (c.oncePerTurn && made.has(j)) return;
-    if (fired.has(j) && !c.timer) {
-      push({k: 'block', slot: j, from: ev.from, log: `The Pulse comes back to ${nm(j)}, but nothing in the circle waits, so it stops here. One pass only.`});
-      return;
-    }
-    fired.add(j);
-    const from = ev.from;
+    const from = ev.from; back = !!ev.back;
     switch (c.id) {
       case 'first-catch':
         if (caught) return; caught = true;
@@ -98,23 +80,23 @@ export function simulate(scene, {uncapped = false, horizon = 30} = {}) {
         hit(j, from, '+1 Spark, Pulse', `${nm(j)} hears the skim: +1 Spark and a Pulse.`, {gain: g.real}); pulse(j); break;
       }
       case 'spark-chime': {
-        if (j === entry) beginTurn();
+        if (turn === 0) beginTurn();
         const g = gain(j, 1);
         if (g.real <= 1e-9 && !overfillHeard) {hit(j, from, 'Meter full', `Meter full. ${nm(j)} has nothing to do, so the engine stops.`); stop('Meter full: the engine stops and the track dims.'); break;}
         hit(j, from, `+${fmt(g.a)} Spark${g.a === 1 ? '' : 's'}`, `${nm(j)} hears the Pulse: +${fmt(g.a)} Spark${g.a === 1 ? '' : 's'}.`, {gain: g.real}); break;
       }
-      case 'ember-echo':
+      case 'ember-bell':
         made.add(j); hit(j, from, 'Pulse sent', `${nm(j)} hears the Spark and sends a Pulse.`); pulse(j); break;
       case 'slow-wick': {
         const w = c.wait * hb;
-        hit(j, from, `Waiting ${fmt(w)} s`, `${nm(j)} starts to wait ${fmt(w)} s.`, {wait: {slot: j, from: t, to: t + w, secs: w}});
+        hit(j, from, `Waiting ${fw(w)} s`, `${nm(j)} starts to wait ${fw(w)} s.`, {wait: {slot: j, from: t, to: t + w, secs: w}});
         timers.push({at: t + w, type: 'wick', slot: j, pri: 1}); break;
       }
       case 'metronome': {
         const w = c.wait * hb;
         if (armed) {hit(j, from, 'Keeps ticking', `${nm(j)} hears the Pulse and keeps ticking.`); return;}
         armed = true;
-        hit(j, from, `Armed: every ${fmt(w)} s`, `${nm(j)} hears the Pulse and starts ticking every ${fmt(w)} s.`, {wait: {slot: j, from: t, to: t + w, secs: w}});
+        hit(j, from, `Armed: every ${fw(w)} s`, `${nm(j)} hears the Pulse and starts ticking every ${fw(w)} s.`, {wait: {slot: j, from: t, to: t + w, secs: w}});
         timers.push({at: t + w, type: 'tick', slot: j, pri: 1}); break;
       }
       case 'overflow-bell': {
@@ -127,8 +109,9 @@ export function simulate(scene, {uncapped = false, horizon = 30} = {}) {
   function deliver(ev) {
     if (ev.type === 'pulse') return answer(ev.slot, ev);
     const event = ev.type;
-    for (let j = 0; j < n && !stopped; j++) {
-      if (!cs[j] || j === ev.from || !cs[j].hears.includes(event)) continue;
+    // Ruling 1: events flow to the right only.
+    for (let j = ev.from + 1; j < n && !stopped; j++) {
+      if (!cs[j] || !cs[j].hears.includes(event)) continue;
       answer(j, ev);
     }
   }
@@ -140,27 +123,37 @@ export function simulate(scene, {uncapped = false, horizon = 30} = {}) {
   push({k: 'start', log: scene.startLog});
   flush();
   while (!stopped) {
-    const live = timers.some(x => x.type !== 'drain');
+    const live = timers.some(x => x.type !== 'drain') || (idle >= 0 && scene.drain && !uncapped);
     if (!live) {stop(scene.endLog || 'Nothing is left to answer, so the Chain stops.'); break;}
     timers.sort((a, b) => a.at - b.at || a.pri - b.pri);
     const nx = timers.shift();
     if (nx.at > horizon) {t = horizon; stop('Demo ends here. The engine would keep turning.'); break;}
-    t = nx.at; fired.clear();
+    t = nx.at;
     if (nx.type === 'drain') {
       meter = Math.max(0, meter - 1); push({k: 'drain'}); timers.push({at: t + 1, type: 'drain', slot: -1, pri: 0});
+      // The burn stands in for Lift (ruling 6): a Metronome that stopped on a full meter restarts when the meter falls.
+      if (idle >= 0 && meter < max - 1e-9) {
+        const m = idle, w = cs[m].wait * hb; idle = -1; armed = true; back = false;
+        hit(m, -1, `Ticking again: ${fw(w)} s`, `The meter fell, so ${nm(m)} starts ticking again every ${fw(w)} s.`, {wait: {slot: m, from: t, to: t + w, secs: w}});
+        timers.push({at: t + w, type: 'tick', slot: m, pri: 1});
+      }
       continue;
     }
     if (nx.type === 'wick') {
-      hit(nx.slot, nx.slot, 'Pulse sent', `${fmt(cs[nx.slot].wait * hb)} s are up. ${nm(nx.slot)} sends a Pulse back round the circle.`, {fromTimer: true});
-      pulse(nx.slot);
+      // Rulings 1 and 8: only a Timer sends its event back to the first Slot, and that starts a new Turn.
+      beginTurn(); back = false;
+      hit(nx.slot, nx.slot, 'Pulse sent', `${fw(cs[nx.slot].wait * hb)} s are up. ${nm(nx.slot)} sends a Pulse back to the first Slot.`, {fromTimer: true});
+      const first = nearest(-1);
+      if (first < 0) push({k: 'note', slot: nx.slot, log: `${nm(nx.slot)} sends a Pulse to the first Slot, but no card hears it.`});
+      else q.push({type: 'pulse', slot: first, from: nx.slot, back: true});
     } else if (nx.type === 'tick') {
       if (meter >= max - 1e-9) {
-        armed = false;
+        armed = false; back = false;
         hit(nx.slot, nx.slot, 'Meter full', `${nm(nx.slot)} finds the meter full and stops ticking.`);
-        if (!q.length) stop('Meter full: the engine stops and the track dims.');
+        if (scene.drain && !uncapped) idle = nx.slot; else if (!q.length) stop('Meter full: the engine stops and the track dims.');
         continue;
       }
-      beginTurn();
+      beginTurn(); back = false;
       hit(nx.slot, nx.slot, 'Tick: fire next', `${nm(nx.slot)} ticks and fires ${nm(nx.slot + 1)} once.`);
       const nj = nx.slot + 1, g = gain(nj, 2);
       const spillTxt = g.spill > 1e-9 ? ` ${fmt(g.spill)} spills over.` : '';
@@ -173,6 +166,7 @@ export function simulate(scene, {uncapped = false, horizon = 30} = {}) {
   return {steps, circle, stored, turnLog, gainBy, hb};
 }
 const fmt = v => Number.isInteger(v) ? String(v) : String(Math.round(v * 10) / 10);
+const fw = v => String(Math.round(v * 100) / 100);
 
 /** Sparks per Turn and Turns per 10 s, measured on an uncapped 60 s run (no meter limit, no drain). */
 export function metrics(scene) {
@@ -214,19 +208,19 @@ export function simulatePack(scene) {
 }
 
 // ── Part 2 · scenes ──────────────────────────────────────────────────────────
-const S = {heartbeat: true, speed: 3, victim: 'common', packOrder: 'satchel', eaten: 0, bonus: 0};
+const S = {heartbeat: true, speed: 3, victim: 'common', packOrder: 'echo', eaten: 0, bonus: 0};
 export const SCENES = [
   {id: 'chime', tab: '1 Chime loop', title: 'Chime loop', engine: true, start: 'collect-first', icon: 'body-spark', origin: 'First Collect',
-   meter: {start: 6, max: 12}, ids: () => ['first-catch', 'spark-chime', 'ember-echo', 'slow-wick'],
+   meter: {start: 6, max: 12}, ids: () => ['first-catch', 'spark-chime', 'ember-bell', 'slow-wick'],
    startLog: 'A first Collect enters at the left. First Catch hears it.', hint: 'Press Play. A first Collect starts a circle that turns itself.'},
   {id: 'nowait', tab: '2 No wait', title: 'Chime loop without Slow Wick', engine: true, start: 'collect-first', icon: 'body-spark', origin: 'First Collect',
-   meter: {start: 6, max: 12}, ids: () => ['first-catch', 'spark-chime', 'ember-echo'], endLog: 'The circle has no wait, so it ran once only.',
-   startLog: 'A first Collect enters at the left. First Catch hears it.', hint: 'Same loop with no Timer: the circle is marked "Needs a wait" and Play runs it once.'},
+   meter: {start: 6, max: 12}, ids: () => ['first-catch', 'spark-chime', 'ember-bell'], endLog: 'No Timer, so the Chain ran once. Add a Timer to keep it turning.',
+   startLog: 'A first Collect enters at the left. First Catch hears it.', hint: 'Same loop with no Timer: the plate reads "Runs once" and Play runs it once.'},
   {id: 'mill', tab: '3 Overflow', title: 'Overflow mill', engine: true, start: 'skim', icon: 'field-swipe', origin: 'Skim', drain: true, horizon: 18,
    meter: {start: 11, max: 12}, ids: () => ['close-call', 'metronome', 'body-spark', 'overflow-bell', S.heartbeat ? 'heartbeat' : null],
    startLog: 'You skim an obstacle. Close Call hears it. The meter also burns down 1 Spark a second.', hint: 'A near-full meter that keeps overfilling. Toggle Heartbeat to halve or restore the tempo.'},
   {id: 'crescendo', tab: '4 Crescendo', title: 'Chime loop + Crescendo', engine: true, start: 'collect-first', icon: 'body-spark', origin: 'First Collect',
-   meter: {start: 6, max: 12}, ids: () => ['first-catch', 'spark-chime', 'ember-echo', 'slow-wick', 'crescendo'],
+   meter: {start: 6, max: 12}, ids: () => ['first-catch', 'spark-chime', 'ember-bell', 'slow-wick', 'crescendo'],
    startLog: 'A first Collect enters at the left. First Catch hears it.', hint: 'The same engine with a Boost at the end: each Turn now gives 2.'},
   {id: 'pack', tab: '5 Pack', title: 'Pack', pack: true, start: 'pack', icon: 'flight-clear', origin: 'Pack',
    meter: {start: 14, max: 20}, stored: 8,
@@ -267,7 +261,7 @@ function tileHTML(c, extra = '') {
 }
 function medalRows(sc) {
   if (sc.engine) {
-    const m = model.circle && !model.circle.needsWait ? metrics(sc) : null;
+    const m = model.circle && !model.circle.runsOnce ? metrics(sc) : null;
     return m ? [[fmt(m.sparks), 'Sparks per Turn'], [fmt(m.per10), 'Turns per 10 s']] : [['--', 'Sparks per Turn'], ['--', 'Turns per 10 s']];
   }
   if (sc.pack) return [['+0', 'Gained before pack'], [String(sc.stored), 'Stored Sparks']];
@@ -302,7 +296,7 @@ function buildStage() {
    <svg class="en-wires" id="wires" aria-hidden="true"></svg>
    <div class="en-dial" id="dial" hidden><i class="en-dial-ring" id="dial-ring"></i><b id="dial-n"></b></div>
    <div class="en-dialtag" id="dialtag" hidden></div>
-   <div class="en-needs" id="needs" hidden><span class="en-warn">${WARN}</span><b>Needs a wait</b></div>
+   <div class="en-needs" id="needs" hidden><span class="en-warn">${WARN}</span><b>Runs once. Add a Timer to keep it turning.</b></div>
    <img class="en-token" id="token" src="${SPARK}" width="20" height="20" alt="" hidden>
    ${sc.hole ? '<div class="en-confirm" id="confirm" hidden role="alertdialog" aria-labelledby="confirm-t"><p id="confirm-t"></p><div class="en-confirm-b"><button type="button" class="en-sign slip" id="confirm-no"><b>Cancel</b></button><button type="button" class="en-sign wine" id="confirm-yes"><b>Fly</b></button></div></div>' : ''}`;
   setMeter(sc.meter.start, sc.meter.max, sc.pack ? sc.stored : null);
@@ -350,25 +344,31 @@ function layoutWires() {
   const c = geo.circle;
   $('dial').hidden = true; $('dialtag').hidden = true; $('needs').hidden = true;
   if (c) {
-    const yB = railY + 32, xa = geo.xs[c.entry], xb = geo.xs[c.closer], bad = c.needsWait;
-    geo.ret = {yB, xa, xb};
-    const d = `M${xb} ${railY} V${yB} H${xa} V${railY}`;
-    h += `<path class="w-base${bad ? ' bad' : ''}" d="${d}"/><path class="w-top${bad ? ' bad' : ''}" d="${d}"/>`;
-    [xa, xb].forEach(x => {h += `<rect class="w-corner${bad ? ' bad' : ''}" x="${x - 5}" y="${yB - 5}" width="10" height="10"/>`;});
-    if (bad) {
-      const m = $('needs'); m.hidden = false; m.style.left = (xa + xb) / 2 + 'px'; m.style.top = yB + 'px';
-    } else if (c.timers.length) {
-      const ts = c.timers[0], dx = geo.xs[ts], dl = $('dial'); dl.hidden = false; dl.style.left = dx + 'px'; dl.style.top = yB + 'px';
-      const tg = $('dialtag'); tg.hidden = false; tg.style.left = (xa + xb) / 2 + 'px'; tg.style.top = yB + 'px';
+    const yB = railY + 32;
+    if (c.runsOnce) {
+      // No Timer: nothing returns, so there is no track. The plate says so under the row.
+      const m = $('needs'); m.hidden = false; m.style.left = (geo.xs[0] + geo.xs[geo.xs.length - 1]) / 2 + 'px'; m.style.top = yB + 'px';
+    } else {
+      const ts = c.back >= 0 ? c.back : c.timers[0], dx = geo.xs[ts], dl = $('dial'), tg = $('dialtag');
+      if (c.back >= 0) {
+        // Only the Timer sends its event back: the return track runs from the Timer to the first Slot.
+        const xa = geo.xs[0], xb = dx, d = `M${xb} ${railY} V${yB} H${xa} V${railY}`;
+        geo.ret = {yB, xa, xb};
+        h += `<path class="w-base" d="${d}"/><path class="w-top" d="${d}"/>`;
+        [xa, xb].forEach(x => {h += `<rect class="w-corner" x="${x - 5}" y="${yB - 5}" width="10" height="10"/>`;});
+        tg.style.left = (xa + xb) / 2 + 'px';
+      } else tg.style.left = dx + 112 + 'px';
+      dl.hidden = false; dl.style.left = dx + 'px'; dl.style.top = yB + 'px';
+      tg.hidden = false; tg.style.top = yB + 'px';
       geo.dial = {slot: ts}; updateDialTag();
     }
   }
   svg.innerHTML = h;
 }
 function updateDialTag() {
-  const sc = scene(), c = geo?.circle; if (!c || !c.timers.length) return;
-  const cd = CARDS[sc.ids()[c.timers[0]]], hb = sc.ids().includes('heartbeat') ? 0.5 : 1, w = cd.wait * hb;
-  $('dialtag').innerHTML = `<b>${cd.name}</b> waits ${fmt(w)} s<small>shown as ${fmt(w / S.speed)} s (${S.speed}x)</small>`;
+  const sc = scene(), c = geo?.circle; if (!c || c.runsOnce) return;
+  const cd = CARDS[sc.ids()[c.back >= 0 ? c.back : c.timers[0]]], hb = sc.ids().includes('heartbeat') ? 0.5 : 1, w = cd.wait * hb;
+  $('dialtag').innerHTML = `<b>${cd.name}</b> waits ${fw(w)} s<small>shown as ${fw(w / S.speed)} s (${S.speed}x)</small>`;
 }
 
 // playback
@@ -383,7 +383,7 @@ function moveToken(from, to, ms, via) {
   const tk = $('token'); if (!geo || !tk) return Promise.resolve();
   const P = i => i === -1 || i === undefined ? {x: geo.orb.x, y: geo.railY} : {x: geo.xs[i], y: geo.railY};
   const pts = [P(from)];
-  if (via && geo.ret) {const yB = geo.ret.yB; pts.push({x: P(from).x, y: yB}, {x: P(to).x, y: yB});}
+  if (via && geo.ret) {const yB = geo.ret.yB, x0 = geo.xs[0]; pts.push({x: P(from).x, y: yB}, {x: x0, y: yB}, {x: x0, y: geo.railY});}
   pts.push(P(to));
   const len = pts.slice(1).reduce((s, p, i) => s + Math.abs(p.x - pts[i].x) + Math.abs(p.y - pts[i].y), 0) || 1;
   let acc = 0; const frames = pts.map((p, i) => {if (i) acc += Math.abs(p.x - pts[i - 1].x) + Math.abs(p.y - pts[i - 1].y); return {offset: acc / len, transform: `translate(${p.x - 10}px,${p.y - 10}px)`};});
@@ -461,7 +461,7 @@ async function play() {
       break;
     }
     if (s.k === 'hit') {
-      await moveToken(s.from, s.slot, stepMs() * 0.55, s.from > s.slot && s.from !== s.slot);
+      await moveToken(s.from, s.slot, stepMs() * 0.55, !!s.back && s.from !== s.slot);
       stageEl.querySelectorAll('.en-slot.lit').forEach(e => e.classList.remove('lit'));
       light(s.slot, true);
       const pl = $('plate-' + s.slot); if (pl) {pl.firstElementChild.textContent = s.plate; pl.classList.add('done');}
@@ -538,13 +538,13 @@ window.addEventListener('resize', () => {if (!running) layoutWires(); else {layo
 // card table and rules
 const TABLE = [
   ['Spark Chime', 'Common', 'Maker', 'Pulse', 'Gain 1 Spark'],
-  ['Ember Echo', 'Common', 'Maker', 'Gain Sparks (any source)', 'Send a Pulse. Once per turn'],
+  ['Ember Bell', 'Common', 'Maker', 'Gain Sparks (any source)', 'Send a Pulse. Once per turn'],
   ['Flash Tinder', 'Rare', 'Maker', 'Collect', 'Start a short Flash (1 s)'],
   ['Homing Thread', 'Rare', 'Maker', 'Delivery', 'Collector fetches again at once (uses charge)'],
   ['Overflow Bell', 'Rare', 'Maker', 'Overfill', 'Send a Pulse and keep 2 of the spilled Sparks'],
   ['Afterglow', 'Common', 'Maker', 'Flash ends', 'Gain 2 Sparks'],
   ['Slow Wick', 'Common', 'Timer', 'Lit by any card to its left', '3 s later: send a Pulse'],
-  ['Metronome', 'Rare', 'Timer', 'While the meter is not full', 'Every 2 s: fire the card to its right once'],
+  ['Metronome', 'Rare', 'Timer', 'While the meter is not full', 'Every 1.5 s: fire the card to its right once'],
   ['Long Fuse', 'Rare', 'Timer', 'A Pulse', '5 s later: repeat the whole Chain\'s last firing'],
   ['Heartbeat', 'Legendary', 'Timer', 'Always on', 'Timers in this Chain wait half as long'],
   ['First Catch', 'Common', 'Starter', 'First Collect of a flight', 'Send a Pulse'],

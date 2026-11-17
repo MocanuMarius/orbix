@@ -14,18 +14,18 @@ Words for the glossary: **Engine** (a Chain that feeds itself), **Turn** (one tr
 
 ## Rulings after the demo (17 November, coordinator)
 
-Building the lab demo (`/design-lab/engine.html`) showed where the rules above were loose. These rulings settle them; where they differ from the text above, they win. The demo follows rulings 2 to 9; ruling 1 is a cleaner form of what the demo does and needs a small demo update before the engine is built.
+Building the lab demo (`/design-lab/engine.html`) showed where the rules above were loose. These rulings settle them; where they differ from the text above, they win. The demo follows rulings 1 to 10 (updated after the rulings: events flow right only, Ember Bell, the Pack order and the 1.5 s Metronome).
 
-1. **Events flow to the right. Only a Timer sends its event back to the first Slot.** A card's event is heard by cards to its right, in order. Nothing travels left on its own. So a circle can only close through a Timer, which makes rule 2 automatic: a Chain without a Timer simply runs once, and the Chain screen says "Runs once. Add a Timer to keep it turning." (The demo's "nearest hearer to the right, wrapping round" is replaced by this.)
+1. **Events flow to the right. Only a Timer sends its event back to the first Slot.** A card's event is heard by cards to its right, in order. Nothing travels left on its own. So a circle can only close through a Timer, which makes rule 2 automatic: a Chain without a Timer simply runs once, and the Chain screen says "Runs once. Add a Timer to keep it turning." (The demo's earlier "nearest hearer to the right, wrapping round" is gone; the return track is drawn from the Timer.)
 2. **A Pulse made by a card is heard by the next card to its right that waits for a Pulse**, not by every such card. Spark gains and Overfill are heard by all cards to the right that wait for them.
 3. **Slow Wick's Trigger is Pulse**: "3 s after a Pulse reaches it: send a Pulse to the first Slot."
-4. **Metronome is armed by any event reaching it**, then fires the card to its right every 2 s while that card can act; it stops when that card cannot (meter full) and is re-armed by the next event.
+4. **Metronome is armed by any event reaching it**, then fires the card to its right every 1.5 s while that card can act; it stops when that card cannot (meter full) and is re-armed by the next event.
 5. **Overflow Bell**: "Overfill → send a Pulse; up to 2 spilled Sparks become Stored Sparks." (Kept Sparks leave the meter economy, so no Boost touches them.)
 6. **Engines live off the meter falling.** In a real flight Lift spends Sparks, so the meter drops by itself and "stop when full" engines restart on the next event. The demo fakes this with a 1 Spark per second burn.
 7. **Boosts in an engine** multiply each Spark gain made by cards to their left, every Turn. (Same as today: a Boost strengthens every card to its left.)
 8. **A Turn** is counted each time an event arrives at the first Slot from a Timer.
 9. **Echo and Ember Echo are different cards.** Rename the maker to **Ember Bell** to avoid the clash. In the Pack example the order is Echo, Full Satchel, Last Round (Echo repeats the card to its right).
-10. **Numbers from the demo's model:** Chime loop 1 Spark per Turn, a Turn every 3 s (11 Sparks in a 30 s flight from the first pickup); with Crescendo 2 per Turn; Overflow mill 2 per Turn, 5 Turns per 10 s, 10 with Heartbeat. Note: without Heartbeat the mill never overfills at a 1 per second burn, so its Bell is idle: Body Spark +3 or a faster Metronome (1.5 s) would fix the example.
+10. **Numbers from the demo's model:** Chime loop 1 Spark per Turn, a Turn every 3 s (11 Sparks in a 30 s flight from the first pickup); with Crescendo 2 per Turn; Overflow mill 2 per Turn, 6.7 Turns per 10 s with the Metronome at 1.5 s, 13.3 with Heartbeat. At 1.5 s the mill out-gains the 1 per second burn, so its Bell fires without Heartbeat too (it did not at 2 s).
 
 ## New Trigger: Pack
 
@@ -43,7 +43,7 @@ Format: **Name** (rarity) · Trigger → what it does. One input, one output, so
 | Card | Trigger → effect |
 | --- | --- |
 | **Spark Chime** (Common) | Pulse → gain 1 Spark |
-| **Ember Echo** (Common) | Gain Sparks (any source) → send a Pulse. Once per turn |
+| **Ember Bell** (Common) | Gain Sparks (any source) → send a Pulse. Once per turn |
 | **Flash Tinder** (Rare) | Collect → start a short Flash (1 s) |
 | **Homing Thread** (Rare) | Delivery → Collector fetches again at once (uses charge) |
 | **Overflow Bell** (Rare) | Overfill → send a Pulse and keep 2 of the spilled Sparks |
@@ -54,7 +54,7 @@ Format: **Name** (rarity) · Trigger → what it does. One input, one output, so
 | Card | Effect |
 | --- | --- |
 | **Slow Wick** (Common) | 3 s after it is lit by any card to its left: send a Pulse |
-| **Metronome** (Rare) | Every 2 s while the meter is not full: fire the card to its right once |
+| **Metronome** (Rare) | Every 1.5 s while the meter is not full: fire the card to its right once |
 | **Long Fuse** (Rare) | 5 s after a Pulse: repeat the whole Chain's last firing |
 | **Heartbeat** (Legendary) | Timers in this Chain wait half as long |
 
@@ -93,24 +93,24 @@ Format: **Name** (rarity) · Trigger → what it does. One input, one output, so
 
 ## Two worked engines
 
-**Four cards: "Chime loop"** · First Catch → Spark Chime → Ember Echo → Slow Wick
+**Four cards: "Chime loop"** · First Catch → Spark Chime → Ember Bell → Slow Wick
 1. First Collect of the flight: First Catch sends a Pulse.
 2. Pulse: Spark Chime gives 1 Spark.
-3. Gaining a Spark: Ember Echo sends a Pulse, which lights Slow Wick.
+3. Gaining a Spark: Ember Bell sends a Pulse, which lights Slow Wick.
 4. Three seconds later Slow Wick sends a Pulse: back to step 2.
-Result: +1 Spark every 3 s from the first pickup until the meter is full. About 9 Sparks in a 30 s flight, hands free. Add Crescendo at the end and each Turn gives 2.
+Result: +1 Spark every 3 s from the first pickup until the meter is full. About 11 Sparks in a 30 s flight, hands free. Add Crescendo at the end and each Turn gives 2.
 
 **Five cards: "Overflow mill"** · Close Call → Metronome → Body Spark +2 → Overflow Bell → Heartbeat
 1. A skim starts it: Pulse and 1 Spark.
-2. Metronome fires Body Spark +2 every 2 s (every 1 s with Heartbeat) while the meter is not full.
+2. Metronome fires Body Spark +2 every 1.5 s (every 0.75 s with Heartbeat) while the meter is not full.
 3. When the meter overfills, Overflow Bell sends a Pulse and keeps 2 of the spill, which re-arms the loop instead of ending it.
 Result: a build that wants a small meter kept near full, the opposite of the Black Hole build that wants a huge one. Two archetypes from the same pieces.
 
 ## How it is shown (no reading while flying)
 
-- **Chain screen:** Play runs the engine in slow motion. A circle is drawn as a closed track under the cards with the Timer as a small dial. The medallion shows two numbers: Sparks per Turn, and Turns per 10 s. A circle with no Timer shows "Needs a wait".
+- **Chain screen:** Play runs the engine in slow motion. A circle is drawn as a closed track under the cards with the Timer as a small dial. The medallion shows two numbers: Sparks per Turn, and Turns per 10 s. A Chain with no Timer runs once and its plate reads "Runs once. Add a Timer to keep it turning."
 - **In flight:** no text. The card strip pulses in the engine's tempo; a Timer shows a filling ring; a stopped engine dims. A soft tick per Turn.
-- **Teaching:** one Rest lesson with three loaned cards (First Catch, Spark Chime with Ember Echo, Slow Wick) to arrange into a circle and watch turn.
+- **Teaching:** one Rest lesson with three loaned cards (First Catch, Spark Chime with Ember Bell, Slow Wick) to arrange into a circle and watch turn.
 
 ## Balance approach
 

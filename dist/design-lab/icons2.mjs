@@ -37,7 +37,7 @@ for (const group of groups) {
   html += `<section><h2>${group} <span class="count">${list.length}</span></h2><div class="cells">`;
   for (const m of list) {
     const sizes = [m.grid, m.grid * 2, m.grid * 3], cc = current(m.id);
-    html += `<article class="cell"><h3>${m.name}</h3><div class="cols"><span>Current</span><span>${sizes[0]}</span><span>${sizes[1]}</span><span>${sizes[2]}</span></div>`;
+    html += `<article class="cell ${m.flag || ''}"><h3>${m.name}${m.flag ? ` <em class="tag ${m.flag}">${m.flag}</em>` : ''}</h3><div class="cols"><span>Current</span><span>${sizes[0]}</span><span>${sizes[1]}</span><span>${sizes[2]}</span></div>`;
     for (const [g] of grounds) html += `<div class="row ${g}"><span class="c0">${g === 'paper' ? cc.replaceAll('class="cur"', 'class="cur"') : cc}</span>${sizes.map(s => `<span>${IMG(m.id, s)}</span>`).join('')}</div>`;
     html += `<p class="meta">${m.id}${m.note ? ' · ' + m.note : ''} · show at ${m.sizes.join(' or ')}</p></article>`;
   }

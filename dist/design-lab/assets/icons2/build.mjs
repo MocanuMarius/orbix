@@ -34,7 +34,9 @@ const T = n => {
 };
 
 const I = {}, META = {};
-const def = (id, group, name, grid, fn, sizes, note = '') => {I[id] = {fn, grid}; META[id] = {id, group, name, grid, sizes, note};};
+const def = (id, group, name, grid, fn, sizes, note = '', flag = '') => {I[id] = {fn, grid}; META[id] = {id, group, name, grid, sizes, note, ...(flag ? {flag} : {})};};
+// Second-pass redraws keep the first drawing as an `-old` cell, so the sheet shows both.
+const H = (c, y0, rows) => {rows.forEach((r, j) => [...r].forEach((ch, i) => {if (ch !== '.') {c.px(i, y0 + j, ch); c.px(c.n - 1 - i, y0 + j, ch);}})); return c;};
 
 // ---------- Menu and controls ----------
 def('back-a', 'Menu and controls', 'back (a) block arrow', 16, () => T(16).rows(2, [
@@ -62,7 +64,11 @@ def('map', 'Menu and controls', 'map (folded chart)', 16, () => {const c = T(16)
 def('tutorial', 'Menu and controls', 'tutorial (lantern)', 16, () => T(16).rows(1, ['.....BBBBBB.....', '.....B....B.....']).rect(4, 3, 8, 1, 'B').rect(3, 4, 10, 1, 'B')
   .rect(3, 5, 10, 7, 'B').rect(5, 5, 6, 7, 'F').rect(7, 7, 2, 3, 'W').rect(3, 12, 10, 1, 'B').rect(4, 13, 8, 1, 'B'), [16, 32]);
 def('new-game', 'Menu and controls', 'new game (quill)', 16, () => {const c = T(16).rows(1, ['............FF..', '..........FFFFF.', '.........FFFFFF.', '........FFFFFF..', '.......FFFFFF...', '......FFFFFF....', '.....FFFFFF.....', '....FFFFFF......', '...FFFFF........']); [[12, 2], [11, 3], [10, 4], [9, 5], [8, 6], [7, 7], [6, 8], [5, 9], [4, 10], [3, 11], [2, 12], [1, 13]].forEach(([x, y]) => c.px(x, y, 'b')); c.px(1, 14, 'O'); return c;}, [16, 32]);
-def('abandon', 'Menu and controls', 'abandon (broken wisp)', 16, () => {const c = T(16), d = T(16).ell(8, 8, 6, 6, 'S'); for (let y = 0; y < 16; y++) for (let x = 0; x < 16; x++) if (d.g[y][x] === 'S') {if (x + y < 15) c.px(x - 1, y - 1, 'S'); else c.px(x + 1, y + 1, 'S');} c.px(3, 3, 'W').px(3, 4, 'W').px(4, 3, 'W').px(12, 12, 'G').px(11, 13, 'D'); return c;}, [16, 32], 'cold, split disc; must not read as close');
+def('abandon', 'Menu and controls', 'abandon (snuffed candle)', 16, () => T(16).rows(1, [
+  '.......SS.......', '......SS........', '.......SS.......', '......SS........', '........O.......',
+  '.....CCCCCC.....', '.....CCCCCC.....', '.....CcCCCC.....', '.....CcCCCC.....', '.....CCCCCC.....', '.....CCCCCC.....', '.....CCCCCC.....',
+  '...BBBBBBBBBB...', '....BBBBBBBB....']), [16, 32], 'redrawn: a snuffed candle (dark wick, curl of smoke, wax drip); the light is out, and no cross, so it cannot read as close');
+def('abandon-old', 'Menu and controls', 'abandon (broken wisp)', 16, () => {const c = T(16), d = T(16).ell(8, 8, 6, 6, 'S'); for (let y = 0; y < 16; y++) for (let x = 0; x < 16; x++) if (d.g[y][x] === 'S') {if (x + y < 15) c.px(x - 1, y - 1, 'S'); else c.px(x + 1, y + 1, 'S');} c.px(3, 3, 'W').px(3, 4, 'W').px(4, 3, 'W').px(12, 12, 'G').px(11, 13, 'D'); return c;}, [16, 32], 'cold, split disc; must not read as close');
 
 // ---------- Status ----------
 const heartA = (c, x0 = 0, y0 = 0, f = 'R') => c.rows(2 + y0, ['..RRRRR..RRRRR..', '.RRRRRRRRRRRRRR.', '.RRRRRRRRRRRRRR.', '.RRRRRRRRRRRRRR.', '.RRRRRRRRRRRRRR.', '..RRRRRRRRRRRR..', '...RRRRRRRRRR...', '....RRRRRRRR....', '.....RRRRRR.....', '......RRRR......', '.......RR.......'].map(r => r.replaceAll('R', f)), x0);
@@ -77,17 +83,29 @@ def('stored-b', 'Status', 'Stored Sparks (b) jar', 16, () => T(16).rect(5, 1, 6,
 def('meter-cap', 'Status', 'Spark Meter cap', 16, () => T(16).rect(1, 5, 14, 6, 'L').rect(2, 6, 8, 4, 'F').rect(12, 2, 2, 12, 'R').px(12, 2, 'W'), [16, 32, 48]);
 def('luminance', 'Status', 'Luminance (light radius)', 16, () => {const c = T(16); for (let y = 0; y < 16; y++) for (let x = 0; x < 16; x++) {const dx = x + .5 - 8, dy = y + .5 - 8, r = Math.hypot(dx, dy), a = Math.atan2(dy, dx), s = Math.floor((a + Math.PI) / (Math.PI / 6)); if (r >= 5.4 && r <= 7.2) c.px(x, y, 'F');} c.ell(8, 8, 2.8, 2.8, 'F').rect(7, 7, 2, 2, 'W'); return c;}, [16, 32, 48]);
 def('collector', 'Status', 'Collector (orb and ring)', 16, () => {const c = T(16), ring = []; for (let y = 0; y < 16; y++) for (let x = 0; x < 16; x++) {const dx = (x + .5 - 8) / 7.2, dy = (y + .5 - 8) / 3.4, k = dx * dx + dy * dy; if (k <= 1 && k >= .5) {c.px(x, y, 'F'); if (y >= 8) ring.push([x, y]);}} c.ell(8, 8, 4, 4, 'S'); ring.forEach(([x, y]) => c.px(x, y, 'F')); c.px(6, 6, 'W').px(7, 6, 'W').px(6, 7, 'W'); return c;}, [16, 32, 48]);
-def('slot', 'Status', 'slot (empty card slot)', 16, () => {const c = T(16).rect(3, 1, 10, 14, 'L'); for (let x = 4; x <= 11; x++) for (let y = 2; y <= 13; y++) if (((x === 4 || x === 11) && y % 2 === 0 || (y === 2 || y === 13) && x % 2 === 0)) c.px(x, y, 'c'); return c;}, [16, 32, 48]);
+def('slot', 'Status', 'slot (empty card slot)', 16, () => {const c = T(16), X0 = 3, X1 = 12, Y0 = 1, Y1 = 14, ring = [];
+  for (let x = X0; x <= X1; x++) ring.push([x, Y0]); for (let y = Y0 + 1; y <= Y1; y++) ring.push([X1, y]); for (let x = X1 - 1; x >= X0; x--) ring.push([x, Y1]); for (let y = Y1 - 1; y > Y0; y--) ring.push([X0, y]);
+  ring.forEach(([x, y], i) => {const corner = (x === X0 || x === X1) && (y === Y0 || y === Y1); if (i % 4 < 2 || corner) c.px(x, y, 'C');});
+  return c.rect(7, 5, 2, 6, 'F').rect(5, 7, 6, 2, 'F').px(7, 5, 'W');}, [16, 32, 48], 'redrawn: pale dashed frame with a dark outline between dashes and a gold plus; reads on paper, leather and dark');
+def('slot-old', 'Status', 'slot (empty card slot)', 16, () => {const c = T(16).rect(3, 1, 10, 14, 'L'); for (let x = 4; x <= 11; x++) for (let y = 2; y <= 13; y++) if (((x === 4 || x === 11) && y % 2 === 0 || (y === 2 || y === 13) && x % 2 === 0)) c.px(x, y, 'c'); return c;}, [16, 32, 48]);
 def('locked', 'Status', 'locked', 16, () => T(16).rows(1, ['.....CCCCCC.....', '....CCCCCCCC....', '....CC....CC....', '....CC....CC....', '....CC....CC....', '....CC....CC....']).rect(2, 7, 12, 7, 'F').rect(7, 9, 2, 2, 'O').rect(7, 11, 2, 2, 'O'), [16, 32, 48]);
 
 // ---------- Map stops (24 grid) ----------
 def('stop-flight-a', 'Map stops', 'flight (a) wisp and trail', 24, () => {const c = T(24); for (let x = 2; x <= 15; x++) {const cy = 12 + 1.6 * Math.sin((x - 2) / 2.3), t = 1 + (x - 2) / 13 * 4.5; for (let y = 0; y < 24; y++) if (Math.abs(y + .5 - cy) <= t / 2) c.px(x, y, 'C');}
   c.ell(17.5, 11.5, 4.8, 4.8, 'F').rect(16, 9, 3, 3, 'W'); [[4, 5], [3, 5], [5, 5], [4, 4], [4, 6], [9, 19], [8, 19], [10, 19], [9, 18], [9, 20]].forEach(([x, y]) => c.px(x, y, 'G')); return c;}, [24, 48, 72], 'a course: wisp pulling a ribbon of light');
 def('stop-flight-b', 'Map stops', 'flight (b) wing', 24, () => T(24).cap(5, 18, 18, 16, 2.6, 'N').cap(5, 18, 20, 10, 2.6, 'C').cap(5, 18, 19, 5, 2.6, 'N').ell(5.5, 18, 3.4, 3, 'F'), [24, 48, 72], 'three-feather wing');
-def('stop-elite', 'Map stops', 'elite (wolf)', 24, () => {const c = T(24); [[2, 2, 3], [3, 2, 4], [4, 2, 5], [5, 2, 7]].forEach(([y, l, r]) => c.sym(y, l, r, 'R')); for (let y = 6; y <= 11; y++) c.sym(y, 2, 11, 'R');
+def('stop-elite', 'Map stops', 'elite (horned mask)', 24, () => H(T(24), 3, [
+  '...CC.......', '..CCC.......', '..CCC.......', '.CCCC.......', '.CCCC.RRRRRR', '.CCCCRRRRRRR', '..CCCRRRRRRR', '...CCRRRRRRR',
+  '....RRRRRRRR', '....RROORRRR', '....RRRROORR', '....RGGGGRRR', '....RRGGRRRR', '.....RRRRRRR', '.....RRRRROO', '......ROOOOO',
+  '......RWOWOW', '.......RWRWR', '........RRRR', '.........RRR']), [24, 48, 72], 'redrawn: a wine mask with cream horns and gold slit eyes; narrower and lighter than the boss');
+def('stop-elite-old', 'Map stops', 'elite (wolf)', 24, () => {const c = T(24); [[2, 2, 3], [3, 2, 4], [4, 2, 5], [5, 2, 7]].forEach(([y, l, r]) => c.sym(y, l, r, 'R')); for (let y = 6; y <= 11; y++) c.sym(y, 2, 11, 'R');
   [[12, 3], [13, 5], [14, 7], [15, 8], [16, 8], [17, 9], [18, 9]].forEach(([y, l]) => c.sym(y, l, 11, 'R'));
   c.sym(5, 2, 2, 'r'); c.rect(4, 8, 5, 2, 'G').rect(15, 8, 5, 2, 'G').rect(4, 7, 5, 1, 'O').rect(15, 7, 5, 1, 'O').px(8, 8, 'O').px(8, 9, 'O').px(15, 8, 'O').px(15, 9, 'O').rect(10, 15, 4, 2, 'O').rect(9, 19, 1, 2, 'W').rect(14, 19, 1, 2, 'W'); return c;}, [24, 48, 72]);
-def('stop-boss', 'Map stops', 'boss / guardian (horned crown)', 24, () => {const c = T(24); c.sym(9, 5, 11, 'S'); for (let y = 10; y <= 16; y++) c.sym(y, 4, 11, 'S'); [[17, 5], [18, 6], [19, 7], [20, 8], [21, 9]].forEach(([y, l]) => c.sym(y, l, 11, 'S'));
+def('stop-boss', 'Map stops', 'boss / guardian (crowned, horned)', 24, () => H(T(24), 1, [
+  '.CC........F', '.CC........F', '.CCC.FF.FF.F', '.CCC.FF.FF.F', '..CCFFFFFFFF', '..CCFFFFFFFr',
+  '..CSSSSSSSSS', '..CSSSSSSSSS', '...SOOOSSSSS', '...SSSOOOSSS', '...SrrrrrrSS', '...SSrWrrSSS', '...SSSrrSSSS',
+  '...SSSSSSSOO', '...SSSSSSSOO', '....SOOOOOOO', '....SWOWOWOW', '.....SWOWOWO', '......SSSSSS', '.......SSSSS']), [24, 48, 72], 'redrawn: the largest silhouette on the map, a crowned and horned guardian in cold blue with red eyes');
+def('stop-boss-old', 'Map stops', 'boss / guardian (horned crown)', 24, () => {const c = T(24); c.sym(9, 5, 11, 'S'); for (let y = 10; y <= 16; y++) c.sym(y, 4, 11, 'S'); [[17, 5], [18, 6], [19, 7], [20, 8], [21, 9]].forEach(([y, l]) => c.sym(y, l, 11, 'S'));
   c.rect(4, 7, 16, 3, 'F').rect(5, 4, 3, 3, 'F').rect(10, 3, 4, 4, 'F').rect(16, 4, 3, 3, 'F');
   [[4, 8, 2, 5.5], [2, 5.5, 3.5, 3]].forEach(([x0, y0, x1, y1]) => {c.cap(x0, y0, x1, y1, 1.6, 'C'); c.cap(23 - x0, y0, 23 - x1, y1, 1.6, 'C');});
   c.rect(6, 12, 4, 3, 'O').rect(14, 12, 4, 3, 'O').rect(7, 13, 2, 1, 'G').rect(15, 13, 2, 1, 'G').rect(11, 15, 2, 2, 'O').rect(8, 19, 8, 1, 'O').rect(9, 18, 1, 1, 'W').rect(14, 18, 1, 1, 'W'); return c;}, [24, 48, 72]);
@@ -106,10 +124,18 @@ def('rest-grow', 'Rest actions', 'grow (sprout)', 16, () => T(16).ell(8, 13, 6.5
 def('rest-improve', 'Rest actions', 'improve (arrow up)', 16, () => I['back-a'].fn().rot(), [16, 32]);
 def('rest-refill', 'Rest actions', 'refill (goblet)', 16, () => {const c = T(16).rect(7, 1, 2, 3, 'F').rect(3, 5, 10, 3, 'C').rect(4, 8, 8, 1, 'C').rect(5, 9, 6, 1, 'C').rect(6, 10, 4, 1, 'C').rect(7, 11, 2, 2, 'C').rect(4, 13, 8, 2, 'C'); return c.rect(4, 6, 8, 2, 'F');}, [16, 32]);
 def('rest-forge', 'Rest actions', 'forge (hammer)', 16, () => T(16).cap(3, 13, 10.5, 6.5, 1.1, 'B').cap(9, 3.5, 12.5, 7.5, 2.1, 'S').rect(2, 5, 1, 1, 'G').rect(4, 3, 1, 1, 'G').rect(2, 2, 1, 1, 'G'), [16, 32]);
-def('rest-melt', 'Rest actions', 'melt (card into gold)', 16, () => T(16).rect(3, 1, 10, 7, 'C').rect(5, 3, 4, 1, 'b').rect(5, 5, 6, 1, 'b').rect(3, 6, 10, 2, 'F').rect(4, 8, 2, 5, 'F').rect(8, 8, 2, 3, 'F').rect(11, 8, 2, 4, 'F').rect(8, 12, 2, 2, 'F'), [16, 32]);
+def('rest-melt', 'Rest actions', 'melt (card into crucible)', 16, () => T(16).rows(1, [
+  '....CCCCCCCC....', '....CCbbbbCC....', '....CCCCCCCC....', '....CCbbCCCC....', '....FFFFFFFF....',
+  '.....F..FF.F....', '.....F..FF......', '........GG......', '................',
+  '..SSSSSSSSSSSS..', '...SGGGGGGGGS...', '...SSSSSSSSSS...', '....SSSSSSSS....', '.....SSSSSS.....']), [16, 32], 'redrawn: the card runs gold at its lower edge and drips into a small crucible');
+def('rest-melt-old', 'Rest actions', 'melt (card into gold)', 16, () => T(16).rect(3, 1, 10, 7, 'C').rect(5, 3, 4, 1, 'b').rect(5, 5, 6, 1, 'b').rect(3, 6, 10, 2, 'F').rect(4, 8, 2, 5, 'F').rect(8, 8, 2, 3, 'F').rect(11, 8, 2, 4, 'F').rect(8, 12, 2, 2, 'F'), [16, 32]);
 
 // ---------- Long Flash ----------
-def('long-flash', 'Long Flash', 'Long Flash / sight', 16, () => T(16).rows(4, ['.....CCCCCC.....', '...CCCCCCCCCC...', '.CCCCCCCCCCCCCC.', '.CCCCCCCCCCCCCC.', '.CCCCCCCCCCCCCC.', '.CCCCCCCCCCCCCC.', '...CCCCCCCCCC...', '.....CCCCCC.....']).ell(8, 8, 3, 3, 'F').rect(7, 7, 2, 2, 'O').px(6, 6, 'W'), [16, 32, 48], 'a Spark-gold eye; replaces the flat white triangle');
+def('long-flash', 'Long Flash', 'Long Flash / far sight (spyglass)', 16, () => T(16).cap(2.5, 13.5, 5, 11, 1.4, 'N').cap(5.5, 10.5, 8.5, 7.5, 2.0, 'F').cap(8.5, 7.5, 11.5, 4.5, 2.6, 'C').cap(12, 4, 12.5, 3.5, 1.5, 'S').px(12, 3, 'W').px(13, 4, 'W'), [16, 32, 48], 'redrawn: a spyglass, so it no longer shares the inspect eye');
+def('long-flash-old', 'Long Flash', 'Long Flash / sight', 16, () => T(16).rows(4, ['.....CCCCCC.....', '...CCCCCCCCCC...', '.CCCCCCCCCCCCCC.', '.CCCCCCCCCCCCCC.', '.CCCCCCCCCCCCCC.', '.CCCCCCCCCCCCCC.', '...CCCCCCCCCC...', '.....CCCCCC.....']).ell(8, 8, 3, 3, 'F').rect(7, 7, 2, 2, 'O').px(6, 6, 'W'), [16, 32, 48], 'a Spark-gold eye; replaces the flat white triangle');
+
+for (const id of Object.keys(META)) if (id.endsWith('-old')) {META[id].flag = 'old'; META[id].name += ' (old)';}
+for (const id of ['abandon', 'slot', 'stop-elite', 'stop-boss', 'rest-melt', 'long-flash']) META[id].flag = 'redrawn';
 
 // ---------- Write ----------
 function finish(c) {
