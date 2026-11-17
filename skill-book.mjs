@@ -1,14 +1,14 @@
-import {SKILLS,getRunModifiers} from './model.mjs?v=roundup-1';
-import {collectorPreferenceMarkup} from './collector-preferences.mjs?v=roundup-1';
-import {formatLuminance} from './luminance-units.mjs?v=roundup-1';
-import {WISP_ART} from './companion-art.mjs?v=roundup-1';
-import {skillTreeState,skillTreeStatus} from './skill-tree-state.mjs?v=roundup-1';
-import {getCompanionAbility} from './companion-abilities.mjs?v=roundup-1';
-import {skillIcon} from './upgrade-icons.mjs?v=roundup-1';
-import {resourceSymbol} from './game-symbols.mjs?v=roundup-1';
-import {glowText,getGlowCapacity} from './vitality.mjs?v=roundup-1';
-import {skillBookChapter} from './skill-chapters.mjs?v=roundup-1';
-export {skillBookChapter} from './skill-chapters.mjs?v=roundup-1';
+import {SKILLS,getRunModifiers} from './model.mjs?v=maps-1';
+import {collectorPreferenceMarkup} from './collector-preferences.mjs?v=maps-1';
+import {formatLuminance} from './luminance-units.mjs?v=maps-1';
+import {WISP_ART} from './companion-art.mjs?v=maps-1';
+import {skillTreeState,skillTreeStatus} from './skill-tree-state.mjs?v=maps-1';
+import {getCompanionAbility} from './companion-abilities.mjs?v=maps-1';
+import {skillIcon} from './upgrade-icons.mjs?v=maps-1';
+import {resourceSymbol} from './game-symbols.mjs?v=maps-1';
+import {glowText,getGlowCapacity} from './vitality.mjs?v=maps-1';
+import {skillBookChapter} from './skill-chapters.mjs?v=maps-1';
+export {skillBookChapter} from './skill-chapters.mjs?v=maps-1';
 
 const chapters=[
  ['wisp','Flight','main-efficiency'],['luminance','Luminance','main-sight'],
@@ -30,8 +30,8 @@ const rankId=(id,rank)=>rank===1?id:id+'@'+rank;
 const lockMark=resourceSymbol('lock');
 const rankEffects={
  'afterglow-anchor':[
-  'On a clear, earn 5% of the Stored Sparks you carried into the flight, rounded down. Earn up to 5. The final guardian pays no interest.',
-  'Double your clear dividend to 10% of the Stored Sparks you carried into the flight, rounded down. Earn up to 10. The final guardian pays no interest.'
+  'On a clear, earn 5% of the Stored Sparks you carried into the flight, rounded up. Earn up to 5. The final guardian pays no interest.',
+  'Double your clear dividend to 10% of the Stored Sparks you carried into the flight, rounded up. Earn up to 10. The final guardian pays no interest.'
  ],
  'afterglow-vessel':['Conversion +5 percentage points. Packing limit +5 Stored Sparks.','Conversion +5 more percentage points. Packing limit +5 more Stored Sparks.'],
  'afterglow-retention':['Conversion +5 percentage points. Packing limit +5 Stored Sparks.','Conversion +5 more percentage points. Packing limit +5 more Stored Sparks.']

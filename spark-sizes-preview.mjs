@@ -1,13 +1,13 @@
-import {drawPickup} from './pickup-art.mjs?v=roundup-1';
-import {drawCapture} from './capture-art.mjs?v=roundup-1';
-import {captureMassDuration} from './tidal-light.mjs?v=roundup-1';
-import {SPARK_TIERS,sparkArtScale,sparkBodyRadius} from './spark-size.mjs?v=roundup-1';
-import {getPickupSpec,pickupContactRadius} from './pickups.mjs?v=roundup-1';
-import {makeWispSprite} from './companion-art.mjs?v=roundup-1';
-import {biomePalette} from './biome-art.mjs?v=roundup-1';
-import {createDepthScenery,drawDepthScenery} from './depth-scenery.mjs?v=roundup-1';
-import {LIGHT_PACKET_TUNING,getGlowCapacity,glowPoints,GLOW_DISPLAY_SCALE} from './vitality.mjs?v=roundup-1';
-import {condenseGlow,getCondensationRules} from './condensed-glow.mjs?v=roundup-1';
+import {drawPickup} from './pickup-art.mjs?v=maps-1';
+import {drawCapture} from './capture-art.mjs?v=maps-1';
+import {captureMassDuration} from './tidal-light.mjs?v=maps-1';
+import {SPARK_TIERS,sparkArtScale,sparkBodyRadius} from './spark-size.mjs?v=maps-1';
+import {getPickupSpec,pickupContactRadius} from './pickups.mjs?v=maps-1';
+import {makeWispSprite} from './companion-art.mjs?v=maps-1';
+import {biomePalette} from './biome-art.mjs?v=maps-1';
+import {createDepthScenery,drawDepthScenery} from './depth-scenery.mjs?v=maps-1';
+import {LIGHT_PACKET_TUNING,getGlowCapacity,glowPoints,GLOW_DISPLAY_SCALE} from './vitality.mjs?v=maps-1';
+import {condenseGlow,getCondensationRules} from './condensed-glow.mjs?v=maps-1';
 
 // The phone renderer uses 240 raster pixels per 390 world units. Keep the
 // wisp sprite in the same raster scale while the pickups use world dimensions.

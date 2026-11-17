@@ -1,16 +1,16 @@
-import {ARTIFACTS,lastCourseName} from './model.mjs?v=roundup-1';
-import {artifactDescription} from './artifact-copy.mjs?v=roundup-1';
-import {resourceSymbol} from './game-symbols.mjs?v=roundup-1';
-import {artifactIcon} from './upgrade-icons.mjs?v=roundup-1';
-import {relicIdentityMarkup,relicRulesMarkup,relicRulesButton} from './ui/relic-primitives.mjs?v=roundup-1';
-import {actionButton} from './ui/primitives.mjs?v=roundup-1';
-import {acquiredRewardMarkup} from './ui/acquired-reward.mjs?v=roundup-1';
-import {routeBonusReceiptText} from './route-bonus-copy.mjs?v=roundup-1';
-import {getInscription,slotInscriptionId} from './inscriptions.mjs?v=roundup-1';
-import {inscriptionGlyph,INSCRIPTION_KIND_WORDS} from './inscription-ui.mjs?v=roundup-1';
-import {cardArt} from './card-art.mjs?v=roundup-1';
-import {cardTermTextMarkup} from './card-terms.mjs?v=roundup-1';
-import {SKILL_CARDS} from './skill-cards.mjs?v=roundup-1';
+import {ARTIFACTS,lastCourseName} from './model.mjs?v=maps-1';
+import {artifactDescription} from './artifact-copy.mjs?v=maps-1';
+import {resourceSymbol} from './game-symbols.mjs?v=maps-1';
+import {artifactIcon} from './upgrade-icons.mjs?v=maps-1';
+import {relicIdentityMarkup,relicRulesMarkup,relicRulesButton} from './ui/relic-primitives.mjs?v=maps-1';
+import {actionButton} from './ui/primitives.mjs?v=maps-1';
+import {acquiredRewardMarkup} from './ui/acquired-reward.mjs?v=maps-1';
+import {routeBonusReceiptText} from './route-bonus-copy.mjs?v=maps-1';
+import {getInscription,slotInscriptionId} from './inscriptions.mjs?v=maps-1';
+import {inscriptionGlyph,INSCRIPTION_KIND_WORDS} from './inscription-ui.mjs?v=maps-1';
+import {cardArt} from './card-art.mjs?v=maps-1';
+import {cardTermTextMarkup} from './card-terms.mjs?v=maps-1';
+import {SKILL_CARDS} from './skill-cards.mjs?v=maps-1';
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 export const rewardDescription=(a,run)=>{const c=artifactDescription(a,run,{fresh:true});return [c.effect,[c.trigger,c.limit].filter(Boolean).join(' ')];};
 export function rewardEarnings(run){
@@ -43,14 +43,15 @@ function scribeSlot(r,n,i){
  const warn=!card&&i.kind==='card'?'<span class="scribe-slot-warn">Needs a card here to do anything</span>':'';
  return `<button type="button" class="scribe-slot${cur?' scribe-slot-inscribed':''}${card?'':' scribe-slot-empty'}" data-action="scribe-slot" data-slot="${n}" aria-label="Slot ${n+1}, ${card?esc(name):'empty'}${cur?`. Replaces ${esc(cur.name)}`:'. No Inscription'}${warn?'. Needs a card here to do anything':''}"><b class="scribe-slot-n">Slot ${n+1}</b>${pic}<span class="scribe-slot-name">${card?esc(name):'Empty slot'}</span>${what}${warn}</button>`;
 }
-export function scribeMarkup(state,{scribe={},upgradeCount=0,skillsAvailable=false,deckAvailable=true,receiptAvailable=false,earned=0,title='Elite cleared'}={}){
+export function scribeMarkup(state,{scribe={},upgradeCount=0,skillsAvailable=false,deckAvailable=true,receiptAvailable=false,earned=0,title='Elite cleared',stop=false}={}){
+ // stop: the Scribe stop on the map. No flight came before it, so no course name, and it leaves for the map.
  const r=state.run,reward=r.flightReward,open=!reward.claimed,picked=open&&reward.offers.includes(scribe.id)?scribe.id:null;
- const head=(small,h)=>`<header class="artifact-reward-heading wbf-head"><div class="wbf-titles"><small class="wb-context">${esc(small)}${lastCourseName(r)?` · <span class="flight-course-name">${esc(lastCourseName(r))}</span>`:''}</small><h1 class="wb-title">${esc(h)}</h1></div>${receiptAvailable?`<button type="button" class="wb-sign wb-sign-standard reward-packed-earned" data-action="reward-earnings" aria-label="${earned} Stored Sparks earned. View breakdown.">${resourceSymbol('packed')}<b>+${earned}</b><span>Earned · Details</span></button>`:''}</header>`;
+ const head=(small,h)=>`<header class="artifact-reward-heading wbf-head"><div class="wbf-titles"><small class="wb-context">${esc(small)}${!stop&&lastCourseName(r)?` · <span class="flight-course-name">${esc(lastCourseName(r))}</span>`:''}</small><h1 class="wb-title">${esc(h)}</h1></div>${receiptAvailable?`<button type="button" class="wb-sign wb-sign-standard reward-packed-earned" data-action="reward-earnings" aria-label="${earned} Stored Sparks earned. View breakdown.">${resourceSymbol('packed')}<b>+${earned}</b><span>Earned · Details</span></button>`:''}</header>`;
  const shell=(inner,foot)=>`<section class="artifact-reward-screen accumulating-rewards scribe-screen rw-screen wb-reskin wb-ground wb-inline wb-framed ${open?'reward-open':'reward-resolved'}">${inner}<footer class="artifact-reward-actions">${foot}</footer></section>`;
  if(!open){
   const i=getInscription(reward.chosen);
   return shell(head('The Scribe',title)+`<div class="scribe-written" role="status">${i?insCard(reward.chosen,false):''}<p class="scribe-result">Written on slot ${(reward.slot??0)+1}${reward.replaced?`, replacing ${esc(getInscription(reward.replaced)?.name||'the old one')}`:''}.</p></div>`,
-   `${deckAvailable?'<button type="button" class="wb-sign wb-sign-standard" data-action="cards"><span>Deck</span></button>':''}<button type="button" class="wb-sign wb-sign-primary" data-action="victory-next">Continue</button>`);
+   `${deckAvailable?'<button type="button" class="wb-sign wb-sign-standard" data-action="cards"><span>Deck</span></button>':''}<button type="button" class="wb-sign wb-sign-primary" data-action="${stop?'leave-scribe':'victory-next'}">${stop?'Back to map':'Continue'}</button>`);
  }
  if(!picked)return shell(head(`The Scribe · ${title}`,'Choose an Inscription')+`<div class="scribe-offers" aria-label="Choose an Inscription">${reward.offers.map(id=>insCard(id,true)).join('')}</div>`,`<span class="artifact-choice-instruction">Next: choose the slot to write it on</span>`);
  const i=getInscription(picked),slots=Array.from({length:r.cardSlots||0},(_,n)=>n);

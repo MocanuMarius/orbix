@@ -9,11 +9,11 @@ export const KEPT_LIGHT_MAX_PRINCIPAL=100;
 export function getFlightPackingLimit(skills={}){
  return 20+(skills['main-afterglow']?10:0)+5*rank(skills,'afterglow-vessel',2)+5*rank(skills,'afterglow-retention',2);
 }
-/** Quote once at departure. Each rank pays 5% on the first 100 banked Stored Sparks. */
+/** Quote once at departure. Each rank pays 5% on the first 100 banked Stored Sparks, rounded up. */
 export function getKeptLightDividend(balance,level){
  const principal=clamp(Math.floor(finite(balance)),0,KEPT_LIGHT_MAX_PRINCIPAL);
  const ranks=clamp(Math.floor(finite(level)),0,2);
- return Math.floor(principal*ranks/20);
+ return Math.max(0,Math.ceil(principal*ranks/20-1e-9));
 }
 export function getCondensationRules(skills={}){
  const advanced=rank(skills,'main-afterglow',1)>0;

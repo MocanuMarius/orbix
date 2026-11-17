@@ -1,14 +1,16 @@
-import {FLIGHT_PACTS} from './flight-pacts.mjs?v=roundup-1';
-import {getBiome} from './biomes.mjs?v=roundup-1';
-import {sparkHabitat} from './spark-fields.mjs?v=roundup-1';
-import {getFlightClearReward} from './checkpoint-rewards.mjs?v=roundup-1';
-import {landmarkCategory,guardianNames} from './map-landmarks.mjs?v=roundup-1';
-import {uiIcon} from './ui-icons.mjs?v=roundup-1';
-import {glowText} from './vitality.mjs?v=roundup-1';
+import {FLIGHT_PACTS} from './flight-pacts.mjs?v=maps-1';
+import {getBiome} from './biomes.mjs?v=maps-1';
+import {sparkHabitat} from './spark-fields.mjs?v=maps-1';
+import {getFlightClearReward} from './checkpoint-rewards.mjs?v=maps-1';
+import {landmarkCategory,guardianNames} from './map-landmarks.mjs?v=maps-1';
+import {uiIcon} from './ui-icons.mjs?v=maps-1';
+import {inscriptionGlyph} from './inscription-glyphs.mjs?v=maps-1';
+import {glowText} from './vitality.mjs?v=maps-1';
 const stop=(kind,label,name,summary)=>Object.freeze({kind,label,name,summary,icon:kind});
 export const MAP_STOP_TYPES=Object.freeze({
 flight:stop('flight','FLIGHT','Flight','Flight length sets its Stored Sparks reward; overflow adds a bonus. Ordinary flights do not offer an Inscription.'),
 treasure:stop('treasure','TREASURE','Treasure','Inspect a chest to see its two offers. Taking one leaves the other behind.'),
+scribe:stop('scribe','SCRIBE','The Scribe','Scribe — choose an Inscription for a slot of your Chain.'),
 rest:stop('rest','REST','Rest','Recover missing hearts or Grow Spark capacity. Both refill Sparks.'),
 encounter:stop('encounter','ENCOUNTER','Encounter','A promise, route preparation or bargain. Preview the stakes before choosing.'),
 boss:stop('boss','ELITE / GUARDIAN','Creature','Small creature: elite. Large head: guardian. Both offer three Inscriptions; choose one to write on your Chain.'),
@@ -30,7 +32,7 @@ export const EVENT_SCENARIOS=Object.freeze([
 export function getEventScenarios(){return EVENT_SCENARIOS.map(entry=>({...entry}));}
 function kindOf(value){
  if(typeof value==='string'){
-  if(value==='camp')return'rest';if(value==='treasure')return'treasure';if(value==='elite')return'flight';
+  if(value==='camp')return'rest';if(value==='treasure')return'treasure';if(value==='scribe')return'scribe';if(value==='elite')return'flight';
   if(value==='shrine'||value==='event'||value==='support')return'encounter';
   if(value==='finale'||value==='exit')return'flight';
   return Object.hasOwn(MAP_STOP_TYPES,value)?value:'flight';
@@ -38,6 +40,7 @@ function kindOf(value){
  const n=value||{};
  if(n.boss||n.kind==='boss'||n.type==='boss')return'boss';
  if(n.kind==='treasure')return'treasure';
+ if(n.kind==='scribe')return'scribe';
  if(n.kind==='camp'||n.kind==='rest'||n.type==='camp')return'rest';
  if(n.kind==='shrine'||n.kind==='event'||n.type==='support')return'encounter';
  return 'flight';
@@ -49,6 +52,7 @@ export function getMapStopInfo(node={},maxGlow=100){
  const event=kind==='encounter'&&node.kind!=='shrine'&&Number.isInteger(node.eventIndex)?getEventScenarios({...node,maxGlow})[node.eventIndex]:null;
  const exit=kind==='flight'&&(node.type==='finale'||node.kind==='finale'),guardian=guardianNames[node.bossId]||node.name||'Guardian';
  if(kind==='treasure')return {...base,name:node.name||base.name,summary:node.rewardPreview||base.summary,detail:node.description||base.summary,eventIndex:null,scenarioId:null};
+ if(kind==='scribe')return {...base,detail:base.summary,eventIndex:null,scenarioId:null};
  const summary=kind==='boss'?(node.mapIndex>=2?`Pass ${guardian} and complete the Ascension.`:`Pass ${guardian} and choose one of three Inscriptions.`):elite?`Face an elite creature for ${getFlightClearReward(node)} Stored Sparks and a choice of three Inscriptions.`:event?.summary||(node.kind==='shrine'?'Choose faster companion recovery or two free Lifts, for 3 cleared flights.':exit?`Clear this passage for ${getFlightClearReward(node)} Stored Sparks and continue to the next map.`:base.summary);
  const detail=kind==='boss'?(node.mapIndex>=2?'Reach the waylight to complete the Ascension.':`A guardian ends this map: ${getFlightClearReward(node)} Stored Sparks and one of three Inscriptions to write on your Chain.`):elite?'Choose one of three Inscriptions and write it on a slot of your Chain.':event?.detail||summary;
  return{...base,label:kind==='boss'?'GUARDIAN':elite?'ELITE':exit?'EXIT':base.label,name:kind==='boss'?guardian:event?.name||(node.type==='support'?node.name:node.locationName||node.name)||base.name,summary:event?summary:glowText(summary,maxGlow),detail:event?detail:glowText(detail,maxGlow),eventIndex:event?.index??null,scenarioId:event?.id||null};
@@ -59,6 +63,8 @@ export const MAP_STOP_ICON_NAMES=Object.freeze([...Object.values(STOP_ICON),'sto
 /** Map stop icon (24-grid art): 48 px by default, ask for 24, 72, 96... through size. The Lantern Workshop encounter has its own icon. */
 export function mapStopIconMarkup(kindOrNode,{size=48}={}){
  const artCategory=landmarkCategory(kindOrNode),category=artCategory==='elite'?'boss':artCategory;
+ // The Scribe stop borrows the Whetted brand (a nib resting on a slab) from the Inscription family; no new art.
+ if(artCategory==='scribe'){const px=Math.max(1,Math.round(size/16))*16;return inscriptionGlyph('whetted',{size:px,className:'map-stop-icon map-symbol-scribe'}).replace(' viewBox=',` style="--ui-size:${px}px;color:#f6ebcc" data-map-category="scribe" viewBox=`);}
  const workshop=artCategory==='encounter'&&typeof kindOrNode==='object'&&(kindOrNode?.scenarioId==='workshop'||kindOrNode?.eventIndex===10);
  const name=workshop?'stop-workshop':STOP_ICON[artCategory]||'stop-flight';
  return uiIcon(name,{size,className:`map-stop-icon map-symbol-${artCategory}`}).replace('<svg ',`<svg data-map-category="${category}" `);
