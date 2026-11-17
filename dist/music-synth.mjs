@@ -5,7 +5,7 @@
 // even the drums are pitched (a kick is a sine with a fast pitch drop, the rim
 // a short wooden tok, the "hat" a soft high tick). No ScriptProcessor and no
 // convolution: the room is four damped feedback delays.
-import {compilePiece} from './music-score.mjs?v=music-two-2';
+import {compilePiece,LIFT_BPM} from './music-score.mjs?v=music-two-2';
 
 const hz=m=>440*2**((m-69)/12);
 // partials: [waveform, ratio, amplitude, decay scale]. env 'piano': attack, natural decay, release at note-off.
@@ -186,6 +186,9 @@ export function createStemPlayer(synth,piece,{at,startSec,segment=piece.segments
  const {ctx}=synth,barSec=60/piece.bpm*piece.beatsPerBar,segStart=segment[0]*barSec,segEnd=segment[1]*barSec;
  const files=['lantern-drift','lantern-pulse','lantern-storm'].map(n=>new URL(`./assets/audio/${n}.mp3`,base).href);
  const nodes=[],out=synth.gain(0);out.connect(synth.master);nodes.push(out);
+ // The reference is 88 BPM; the synthesized pieces are LIFT_BPM. Playing it 0.23% slower (pitch follows, about 4 cents)
+ // puts the stems on the same grid. The transport reports this effective rate.
+ const speed=LIFT_BPM/piece.bpm;rate*=speed;
  let playerLevel=level,currentRate=rate,disposed=false,failed=false,ending=false,suspended=false,stopAt=Infinity;
  const mixFor=l=>piece.stemMix[l].map(v=>v*trim);
  const elements=files.map((src,i)=>{
@@ -211,7 +214,7 @@ export function createStemPlayer(synth,piece,{at,startSec,segment=piece.segments
    const into=((time()-segStart)%barSec+barSec)%barSec,t=ctx.currentTime+(barSec-into)/Math.max(.1,currentRate);
    elements.forEach(({g},i)=>{g.gain.cancelScheduledValues(t);g.gain.setTargetAtTime(mixFor(next)[i],t,.7);});
   },
-  setRate(next){if(disposed||Math.abs(next-currentRate)<.01)return;currentRate=next;for(const {el} of elements)el.playbackRate=next;},
+  setRate(next){next*=speed;if(disposed||Math.abs(next-currentRate)<.01)return;currentRate=next;for(const {el} of elements)el.playbackRate=next;},
   nudge(){return 0;},
   beatAt(t){return (time()+(t-ctx.currentTime)*currentRate)*piece.bpm/60;},
   ctxAt(b){return ctx.currentTime+(b*60/piece.bpm-time())/currentRate;},

@@ -7,7 +7,7 @@ import {createMusic} from '../music.mjs?v=guide-clarity-1';
 import {playLiftCue,LIFT_CUE_WOBBLE} from '../lift-guide-audio.mjs?v=guide-clarity-1';
 
 const memory=()=>{const m=new Map();return {getItem:k=>m.has(k)?m.get(k):null,setItem:(k,v)=>m.set(k,String(v))};};
-const music=createMusicTwo({storage:memory(),listen:false,autoStart:false});
+const music=createMusicTwo({storage:memory(),listen:false,autoStart:false,pieces:PIECES});
 let legacy=null,cueCtx=null,abReturn=null,showBeats=false,lastLift=-1,flashUntil=0;
 const $=s=>document.querySelector(s),rows=$('#rows'),status=$('#status'),flash=$('#flash');
 const LEVELS=[['Calm',0],['Flow',1],['Urgent',2]],names=['Calm','Flow','Urgent'];
@@ -28,7 +28,7 @@ rows.innerHTML=PIECES.map(p=>`<li class="mu-row${p.reference?' ref':''}" data-pi
   </div></li>`).join('');
 
 function stopLegacy(){if(legacy){legacy.setEnabled(false);legacy.destroy();legacy=null;}$('#current').setAttribute('aria-pressed','false');}
-function startLegacy(){music.stopAll();legacy=createMusic({storage:memory()});legacy.setLevel(3);legacy.setScene(level===2?'boss':level===1?'flight':'menu',level===2?1:0);$('#current').setAttribute('aria-pressed','true');}
+function startLegacy(){music.stopAll();legacy=createMusic({storage:memory(),version:1});legacy.setLevel(3);legacy.setScene(level===2?'boss':level===1?'flight':'menu',level===2?1:0);$('#current').setAttribute('aria-pressed','true');}
 function syncButtons(){
  for(const b of document.querySelectorAll('[data-level]'))b.setAttribute('aria-pressed',String(Number(b.dataset.level)===level));
  for(const b of document.querySelectorAll('[data-ab]'))b.setAttribute('aria-pressed',String(!!legacy&&abReturn===b.dataset.ab));

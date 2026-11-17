@@ -156,6 +156,10 @@ export const PIECES=[
 for(const p of PIECES)if(!p.stems)p.bpm=LIFT_BPM*(p.beatUnit===3?3:1);
 export const PIECE_IDS=PIECES.map(p=>p.id);
 export const pieceById=id=>PIECES.find(p=>p.id===id);
+// The default rotation: the reference plus two siblings. Old Pines and Paper Lanterns keep their
+// scores (the lab plays all four) but are not scheduled in the game for now.
+export const ROTATION_IDS=['lantern','moss','ferry'];
+export const ROTATION=ROTATION_IDS.map(pieceById);
 
 // --------------------------------------------------------------- utilities
 export function prng(seed){let s=0;for(const c of String(seed))s=(s*31+c.charCodeAt(0))>>>0;s||=1;return ()=>{s^=s<<13;s>>>=0;s^=s>>17;s^=s<<5;s>>>=0;return s/4294967296;};}

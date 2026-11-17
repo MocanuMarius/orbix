@@ -9,7 +9,7 @@ test('world-rate tape slowdown stays shared, pulses lift melodic layers and scen
  const events={},players=[];let tick;
  const document={hidden:false,addEventListener:(key,fn)=>events[key]=fn,removeEventListener(){}};
  class Audio{constructor(){this.currentTime=12;this.paused=true;players.push(this);}play(){this.paused=false;}pause(){this.paused=true;}addEventListener(){}}
- const music=createMusic({document,AudioClass:Audio,storage:{getItem(){},setItem(){}},schedule:fn=>{tick=fn;return 1;},cancel(){}});
+ const music=createMusic({version:1,document,AudioClass:Audio,storage:{getItem(){},setItem(){}},schedule:fn=>{tick=fn;return 1;},cancel(){}});
  events.pointerdown({});
  const near={worldRate:.35,flame:100,blackHole:{nearest:{distance:20},rate:100}};
  music.setFlight(near);tick();assert.equal(players[0].playbackRate,.35);
@@ -33,7 +33,7 @@ test('three streamed layers ease their gains, mute completely, respect visibilit
  const events={},players=[];let tick,cleared=0;
  const document={hidden:false,addEventListener:(key,fn)=>events[key]=fn,removeEventListener:(key)=>delete events[key]};
  class Audio{constructor(src){this.src=src;this.paused=true;this.volume=0;this.currentTime=0;players.push(this);}play(){this.paused=false;return Promise.resolve();}pause(){this.paused=true;}addEventListener(){}}
- const music=createMusic({document,AudioClass:Audio,storage:{getItem:()=>null,setItem(){}},schedule:fn=>{tick=fn;return 1;},cancel:()=>cleared++});
+ const music=createMusic({version:1,document,AudioClass:Audio,storage:{getItem:()=>null,setItem(){}},schedule:fn=>{tick=fn;return 1;},cancel:()=>cleared++});
  assert.equal(players.length,0);events.pointerdown({});assert.equal(players.length,3);
  music.setFlight({boss:{phase:3},flame:10,maxFlame:100});assert.equal(music.mode,'boss');
  tick();assert.ok(players.every(p=>p.volume>0&&p.volume<.04));for(let i=0;i<200;i++)tick();
@@ -46,7 +46,7 @@ test('important effects duck every music stem gently, release slowly and preserv
  const events={},players=[];let tick,plays=0;
  const document={hidden:false,addEventListener:(key,fn)=>events[key]=fn,removeEventListener(){}};
  class Audio{constructor(){this.currentTime=24;this.paused=true;players.push(this);}play(){plays++;this.paused=false;}pause(){this.paused=true;}addEventListener(){}}
- const music=createMusic({document,AudioClass:Audio,storage:{getItem(){},setItem(){}},schedule:fn=>{tick=fn;return 1;},cancel(){}});
+ const music=createMusic({version:1,document,AudioClass:Audio,storage:{getItem(){},setItem(){}},schedule:fn=>{tick=fn;return 1;},cancel(){}});
  events.pointerdown({});music.setFlight({boss:{phase:3},flame:100});for(let i=0;i<200;i++)tick();
  const normal=players.map(p=>p.volume),transport=music.getTransport();
  music.setFlight({boss:{phase:3},flame:100,audioFocus:1});tick();
@@ -73,7 +73,7 @@ test('world transport freezes at zero, resumes the same phase and never assigns 
   pause(){this.paused=true;}
   addEventListener(){}
  }
- const music=createMusic({document,AudioClass:Audio,storage:{getItem(){},setItem(){}},schedule:fn=>{tick=fn;return 1;},cancel(){}});
+ const music=createMusic({version:1,document,AudioClass:Audio,storage:{getItem(){},setItem(){}},schedule:fn=>{tick=fn;return 1;},cancel(){}});
  const advance=seconds=>{for(const p of players)if(!p.paused)p.currentTime+=seconds*p.playbackRate;};
  events.pointerdown({});advance(1);
  music.setFlight({worldRate:.35,flame:100});advance(2);
@@ -103,7 +103,7 @@ test('saved music-off remains silent through world-rate and visibility changes',
  const events={},players=[];
  const document={hidden:false,addEventListener:(key,fn)=>events[key]=fn,removeEventListener(){}};
  class Audio{constructor(){this.paused=true;players.push(this);}play(){this.paused=false;}pause(){this.paused=true;}addEventListener(){}}
- const music=createMusic({document,AudioClass:Audio,storage:{getItem:()=> 'false',setItem(){}},schedule:()=>1,cancel(){}});
+ const music=createMusic({version:1,document,AudioClass:Audio,storage:{getItem:()=> 'false',setItem(){}},schedule:()=>1,cancel(){}});
  events.pointerdown({});music.setFlight({worldRate:.35});music.setFlight({worldRate:0});music.setFlight({worldRate:1});
  document.hidden=true;events.visibilitychange();document.hidden=false;events.visibilitychange();music.setScene('menu');
  assert.equal(music.enabled,false);assert.equal(players.length,0);
@@ -115,7 +115,7 @@ test('guide shares music level and lifecycle without adding or moving streamed s
  const document={hidden:false,addEventListener:(key,fn)=>events[key]=fn,removeEventListener(){}};
  class Audio{constructor(){this.currentTime=12;this.paused=true;players.push(this);}play(){this.paused=false;}pause(){this.paused=true;}addEventListener(){}}
  const guide={unlock(){unlocks++;},update(s,options){updates.push({s,options});},stop(){stops++;},destroy(){disposals++;}};
- const music=createMusic({document,AudioClass:Audio,createGuide:()=>guide,storage:{getItem:()=> 'false',setItem(){}},schedule:()=>1,cancel(){}});
+ const music=createMusic({version:1,document,AudioClass:Audio,createGuide:()=>guide,storage:{getItem:()=> 'false',setItem(){}},schedule:()=>1,cancel(){}});
  events.pointerdown({});assert.equal(unlocks,0,'saved off must not open a guide audio context');
  music.setLevel(2);assert.equal(unlocks,1);assert.equal(players.length,3);
  const snapshot={worldRate:.35,flame:100,liftGuide:{phase:'soon',targetIn:.2}};
@@ -140,7 +140,7 @@ test('deferred media play cannot restart a stopped world or a destroyed player',
   pause(){this.paused=true;}
   addEventListener(name,fn){this.events[name]=fn;}
  }
- const music=createMusic({document,AudioClass:Audio,storage:{getItem(){},setItem(){}},schedule:()=>1,cancel(){}});
+ const music=createMusic({version:1,document,AudioClass:Audio,storage:{getItem(){},setItem(){}},schedule:()=>1,cancel(){}});
  events.pointerdown({});music.setFlight({worldRate:0,paused:true});
  for(const request of requests.splice(0))request();await Promise.resolve();
  assert.ok(players.every(p=>p.paused));

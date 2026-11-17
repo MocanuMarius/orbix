@@ -4,7 +4,7 @@ import {createMusic} from './music.mjs?v=guide-clarity-1';
 import {LiftGuide} from './flight-projection.mjs?v=guide-clarity-1';
 import {FLIGHT_TUNING} from './flight.mjs?v=guide-clarity-1';
 
-const music = createMusic({storage:{getItem:()=>null,setItem(){}}});
+const music = createMusic({storage:{getItem:()=>null,setItem(){}},version:1});
 const guide = new LiftGuide(FLIGHT_TUNING);
 const buttons = [...document.querySelectorAll('#guide,[data-scene]')];
 const sample = document.querySelector('#sample');

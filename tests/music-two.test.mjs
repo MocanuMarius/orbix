@@ -1,9 +1,9 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {PIECES,compilePiece,createRotation,intensityFor,settleIntensity,noteDensity,prng,CALM,FLOWING,URGENT,LIFT_PERIOD,LIFT_BPM,FLIGHT_TUNING_LIFT} from '../dist/music-score.mjs';
+import {PIECES,ROTATION,compilePiece,createRotation,intensityFor,settleIntensity,noteDensity,prng,CALM,FLOWING,URGENT,LIFT_PERIOD,LIFT_BPM,FLIGHT_TUNING_LIFT} from '../dist/music-score.mjs';
 import {FLIGHT_TUNING} from '../dist/flight.mjs';
 import {createMusicTwo,OVERLAP} from '../dist/music-two.mjs';
-import {createMusic,musicVersion} from '../dist/music.mjs';
+import {createMusic,musicVersion,musicVersionFor} from '../dist/music.mjs';
 
 const synthPieces=PIECES.filter(p=>!p.stems);
 
@@ -82,12 +82,23 @@ test('a phase nudge moves the beat by at most 6% over two bars and never touches
  h.music.destroy();
 });
 
-test('flag off: the game keeps the original music',()=>{
- assert.equal(musicVersion(),1);
+test('default rotation is exactly Lantern Hours, Moss and Water, Night Ferry; ?music=1 is the original',()=>{
+ assert.deepEqual(ROTATION.map(p=>p.title),['Lantern Hours','Moss and Water','Night Ferry']);
+ assert.equal(PIECES.length,5,'Old Pines and Paper Lanterns keep their scores');
+ const h={music:createMusicTwo({document:{hidden:false,addEventListener(){},removeEventListener(){}},AudioContextClass:fakeAudio().Context,storage:{getItem:()=>null,setItem(){}},schedule:()=>1,cancel(){},createGuide:()=>({unlock(){},update(){},stop(){},destroy(){}})})};
+ const seen=new Set(),r=createRotation(ROTATION.map(p=>p.id),prng('d'));for(let i=0;i<9;i++)seen.add(r.next());
+ assert.deepEqual([...seen].sort(),['ferry','lantern','moss']);
+ assert.ok(['ferry','lantern','moss'].includes(h.music.info().next),'the engine rotation draws from the three');
+ h.music.destroy();
+ assert.equal(musicVersion(),2,'no flag: the rotation');assert.equal(musicVersionFor(null),2);assert.equal(musicVersionFor('2'),2);assert.equal(musicVersionFor('1'),1);
+});
+
+test('?music=1: the game keeps the original music',()=>{
+ assert.equal(musicVersionFor('1'),1);
  const events={},players=[];
  const document={hidden:false,addEventListener:(k,fn)=>events[k]=fn,removeEventListener(){}};
  class Audio{constructor(){this.paused=true;players.push(this);}play(){this.paused=false;}pause(){this.paused=true;}addEventListener(){}}
- const music=createMusic({document,AudioClass:Audio,storage:{getItem(){},setItem(){}},schedule:()=>1,cancel(){}});
+ const music=createMusic({version:1,document,AudioClass:Audio,storage:{getItem(){},setItem(){}},schedule:()=>1,cancel(){}});
  events.pointerdown({});assert.equal(players.length,3,'the three original stems');assert.equal(music.version,undefined);music.destroy();
 });
 

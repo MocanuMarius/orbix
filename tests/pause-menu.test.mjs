@@ -141,7 +141,7 @@ test('music levels: setEnabled stays compatible and the level scales gain', () =
   let tick;const players=[];
   class FakeAudio{constructor(){this.volume=0;this.paused=true;players.push(this)}play(){this.paused=false;return Promise.resolve()}pause(){this.paused=true}addEventListener(){}}
   const storage=memory({'wispbound-music-enabled':'false'});
-  const music=createMusic({storage,document:doc,AudioClass:FakeAudio,schedule:f=>{tick=f;return 1},cancel(){}});
+  const music=createMusic({version:1,storage,document:doc,AudioClass:FakeAudio,schedule:f=>{tick=f;return 1},cancel(){}});
   assert.equal(music.level,0,'legacy off maps to level 0');assert.equal(music.enabled,false);
   music.setEnabled(true);assert.equal(music.level,3);assert.equal(storage.getItem('wispbound-music-enabled'),'true');
   for(let i=0;i<400;i++)tick();

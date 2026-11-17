@@ -6,7 +6,7 @@ import {LuminanceWaves} from './luminance-waves.mjs?v=guide-clarity-1';
 
 // Deliberately isolated: the audition never reads or writes a saved game.
 
-const music=createMusic({storage:{getItem:()=> 'false',setItem(){}},document});
+const music=createMusic({storage:{getItem:()=> 'false',setItem(){}},document,version:1});
 
 const fx=createFlightFX();fx.setMuted(true);
 
