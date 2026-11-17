@@ -1,10 +1,10 @@
 /** Small, serializable skills-as-cards pilot. Printed Sparks use the existing .3 display scale. */
-import {getInscription, slotInscriptionId, hollowBonus, lodestoneBonus, emberBedStored, cleanSlotInscriptions, countInscription} from "./inscriptions.mjs?v=pulse-1";
+import {getInscription, slotInscriptionId, hollowBonus, lodestoneBonus, emberBedStored, cleanSlotInscriptions, countInscription} from "./inscriptions.mjs?v=kindled-1";
 export const CARD_SYSTEM = "cards-v1";
 export const CARD_UNIT = 10 / 3;
-import {CARD_CATALOG,CARD_DROP_WEIGHTS} from './card-catalog.mjs?v=pulse-1';
-import {cardOfferMultiplier} from './card-offer-context.mjs?v=pulse-1';
-import {interpolateCardText,getCardTrigger,cardRuleSentence} from './card-rule-bands.mjs?v=pulse-1';
+import {CARD_CATALOG,CARD_DROP_WEIGHTS} from './card-catalog.mjs?v=kindled-1';
+import {cardOfferMultiplier} from './card-offer-context.mjs?v=kindled-1';
+import {interpolateCardText,getCardTrigger,cardRuleSentence} from './card-rule-bands.mjs?v=kindled-1';
 const maximumGrowthAmount = Math.max(...Object.values(CARD_CATALOG)
   .filter(card => card.kind === 'camp-grow').map(card => card.amount + card.maxRank - 1));
 export const CARD_ECONOMY = Object.freeze({
@@ -845,7 +845,7 @@ export function getCardCharges(runtime) {
 export const CARD_ROW_EVENTS = Object.freeze({
   body: "body-spark", wave: "wave-crossing", flash: "flash-pickup",
   flashExpiry: "flash-expiry",
-  lift: "downbeat-lift", overfill: "natural-overfill",
+  lift: "downbeat-lift", plainLift: "plain-lift", overfill: "natural-overfill",
   delivery: "collector-delivery", rhythm: "rhythm-phrase", field: "field-swipe", guard: "guard-rescue",
   victory: "expedition-victory",
   clear: "flight-clear",
@@ -876,6 +876,8 @@ function apportion(weights, total, whole) {
   return floors;
 }
 const rowEventKinds = new Set(Object.values(CARD_ROW_EVENTS));
+/** Kindled ("also fires on a Lift") hears every Lift: a falling Lift and a plain one (a Lift that is not falling, or comes under 0.75 s after the last). */
+const inscriptionHears = (ins, kind) => !!ins && (ins.also === kind || (ins.id === 'kindled' && kind === CARD_ROW_EVENTS.plainLift));
 export function getCardRowRule(def, card) {
   if (def?.row) return { ...def.row, amount: def.rankStep ? cardAmount(card) : def.row.amount ?? cardAmount(card) };
   const amount = cardAmount(card);
@@ -909,7 +911,7 @@ function inscriptionHearsEvent(runtime, kind) {
   const cards = runtime.cards || [];
   return runtime.inscriptions.some((entry, slot) => { const ins = getInscription(entry?.id);
     if (!ins) return false;
-    if (ins.also === kind) return !!cards[slot];
+    if (inscriptionHears(ins, kind)) return !!cards[slot];
     return ins.id === 'hollow' && kind === CARD_ROW_EVENTS.body && !cards[slot];
   });
 }
@@ -1143,7 +1145,7 @@ export function resolveCardRow(runtime, event = {}) {
         ? kind !== CARD_ROW_EVENTS.victory
         : ![CARD_ROW_EVENTS.victory,CARD_ROW_EVENTS.clear,CARD_ROW_EVENTS.attach].includes(kind));
       const insId = slotInscriptionId(runtime, creditSlot), insDef = getInscription(insId);
-      const alsoHeard = !!rule && rule.operation !== "multiply" && !!insDef?.also && insDef.also === kind;
+      const alsoHeard = !!rule && rule.operation !== "multiply" && inscriptionHears(insDef, kind);
       const mirrored = !!rule && rule.operation !== "multiply" && insId === "mirror" && firedSlots.has(creditSlot - 1);
       if (rule && (rule.event === kind || rule.alsoEvents?.includes(kind) || wildcard || alsoHeard || mirrored) && matchesRowCondition(rule.when,event,pass,slot,lastOccupied) && matchesRowShape(rule.when,topology,slot)) {
       const operation = rule.operation;

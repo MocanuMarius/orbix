@@ -1,6 +1,6 @@
 // The pictures on the paused "Ready to depart" field note (v1.0-depart-A). Each is generated from whole-pixel runs on a
 // 48x48 grid and returned as inline SVG, so a tip change never waits on an image file.
-import {BIOMES} from './biomes.mjs?v=pulse-1';
+import {BIOMES} from './biomes.mjs?v=kindled-1';
 
 // ── Pixel art ──────────────────────────────────────────────────────────────────────────────
 const N = 48;
