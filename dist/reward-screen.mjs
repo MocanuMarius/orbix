@@ -11,7 +11,7 @@ export const rewardDescription=(a,run)=>{const c=artifactDescription(a,run,{fres
 export function rewardEarnings(run){
  const f=run?.lastFlight||{},rows=[
   // Pack cards' share of the exit packing gets its own line; the two still add up to the packing (engine cards only).
-  ['Clear reward',f.completionBonus],['Overflow',f.pickupCondensedGlow],['Exit packing',(f.exitPacking?.amount||0)-(f.cardPack?.stored||0)],
+  ['Clear reward',f.completionBonus],['Overflow',f.pickupCondensedGlow],['Takeaway packing',(f.exitPacking?.amount||0)-(f.cardPack?.stored||0)],
   ['Pack cards',f.cardPack?.stored],['Engine cards',f.cardEngineStored],
   ['Pact',f.pactBonus],['Seal',f.treasureWager?.reward],['Vow',f.vow?.reward],
   ['Route bonus',f.routeBonus?.amount],['Chest gifts',f.chestIncome?.amount],

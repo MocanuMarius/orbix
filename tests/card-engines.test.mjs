@@ -354,7 +354,7 @@ test('Pack in flight fires before packing and the ceremony lines still add up', 
   assert.ok(f.cardPack.stored >= 1); assert.equal(f.cardEngineStored, 3);
   const {rows, total} = rewardEarnings(run);
   assert.equal(rows.reduce((s, r) => s + r.amount, 0), total);
-  assert.equal(rows.find(r => r.label === 'Exit packing').amount + f.cardPack.stored, f.exitPacking.amount, 'Pack share split out of the packing');
+  assert.equal(rows.find(r => r.label === 'Takeaway packing').amount + f.cardPack.stored, f.exitPacking.amount, 'Pack share split out of the packing');
   assert.equal(rows.find(r => r.label === 'Engine cards').amount, 3);
 });
 
