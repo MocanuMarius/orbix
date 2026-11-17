@@ -22,8 +22,8 @@ test('the display layer has 8 Triggers and 3 roles', () => {
 });
 
 test('every card maps to a Trigger, a role or no chip, and no old label is on any face', () => {
-  const old = [/Always on/i, /Falling Lift/, /(?<!When a )Flash ends/, /Each Turn/, /\bLatch\b/, /Card Pulse/, /Low Lift/, /Any Trigger/, /Flight end/];
-  const oldHeads = ['Always on', 'Falling Lift', 'Flash ends', 'Each Turn', 'Wave', 'Next', 'Any', 'Next card', 'Any Trigger', 'Clear', 'Rhythm', 'Pack', 'Take-off'];
+  const old = [/Always on/i, /Falling Lift/, /(?<!When a )Flare ends/, /Each Turn/, /\bLatch\b/, /Card Pulse/, /Low Lift/, /Any Trigger/, /Flight end/];
+  const oldHeads = ['Always on', 'Falling Lift', 'Flare ends', 'Each Turn', 'Wave', 'Next', 'Any', 'Next card', 'Any Trigger', 'Clear', 'Rhythm', 'Pack', 'Take-off'];
   for (const def of Object.values(SKILL_CARDS)) {
     const card = makeSkillCard(def.id, 'tl'), chip = getCardTrigger(card, def);
     if (!chip.label) assert.ok(NO_CHIP_IDS.includes(chip.id) || !def.trigger, `${def.id}: no chip only for the timing cards`);
@@ -41,14 +41,14 @@ test('behaviour is unchanged: every card keeps its internal trigger key', () => 
   assert.deepEqual(now, was);
 });
 
-test('Flash is an object, not a Trigger: Collect a Flash is a Collect chip, a Flash ending has no chip', () => {
+test('Flare is an object, not a Trigger: Collect a Flare is a Collect chip, a Flare ending has no chip', () => {
   assert.equal(triggerDisplay('flash').label, 'Collect');
   assert.equal(triggerDisplay('flash').group, 'collect');
   assert.equal(triggerDisplay('flash-ends').label, '');
-  assert.ok(!TRIGGER_BOOK.some(t => t.label === 'Flash'));
+  assert.ok(!TRIGGER_BOOK.some(t => t.label === 'Flare'));
   const flashEnds = makeSkillCard('diving-bell', 'fe');
-  assert.match(getCardRuleBands(flashEnds, SKILL_CARDS['diving-bell'])[0].text, /^When a Flash ends/);
-  assert.match(getCardRuleBands(makeSkillCard('flash-handling', 'fh'), SKILL_CARDS['flash-handling'])[0].text, /^Collect a Flash/);
+  assert.match(getCardRuleBands(flashEnds, SKILL_CARDS['diving-bell'])[0].text, /^When a Flare ends/);
+  assert.match(getCardRuleBands(makeSkillCard('flash-handling', 'fh'), SKILL_CARDS['flash-handling'])[0].text, /^Collect a Flare/);
   assert.match(CARD_TERMS.trigger[1], /Passive, Boost or Repeat/);
   assert.match(CARD_TERMS.flash[1], /Pulse every 2 seconds/);
 });
@@ -56,7 +56,7 @@ test('Flash is an object, not a Trigger: Collect a Flash is a Collect chip, a Fl
 test('no help string, glossary line, tile line or depart tip uses an old Trigger word', async () => {
   const {TIPS} = await import('../dist/depart-tips.mjs');
   const {TERM_LONG} = await import('../dist/card-terms.mjs').then(m => ({TERM_LONG: m.CARD_TERMS_LONG || {}}));
-  const old = [/Always on/, /Any Trigger/, /Falling Lift/, /(?<!When a )Flash ends/, /Flight end/, /Each Turn/, /Flash Trigger/];
+  const old = [/Always on/, /Any Trigger/, /Falling Lift/, /(?<!When a )Flare ends/, /Flight end/, /Each Turn/, /Flare Trigger/];
   const strings = [...TIPS.flatMap(t => [t.headline, t.text]), ...Object.values(CARD_TERMS).map(t => t[1]),
     ...Object.values(TERM_LONG), ...Object.values(SKILL_CARDS).map(d => d.help || '')];
   for (const def of Object.values(SKILL_CARDS)) {

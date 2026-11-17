@@ -14,8 +14,8 @@ const contextButton=(key,label,extra='')=>`<button type="button" class="deck-con
 const eventNames={
   [CARD_ROW_EVENTS.body]:'Collect · your wisp touches a Spark',
   [CARD_ROW_EVENTS.wave]:'Pulse · a Pulse crosses a Spark you have not collected',
-  [CARD_ROW_EVENTS.flash]:'Flash · you or Collector pick up Flash',
-  [CARD_ROW_EVENTS.flashExpiry]:'Flash · a Flash’s light runs out',
+  [CARD_ROW_EVENTS.flash]:'Flare · you or Collector pick up Flare',
+  [CARD_ROW_EVENTS.flashExpiry]:'Flare · a Flare’s light runs out',
   [CARD_ROW_EVENTS.lift]:'Lift · a paid Lift while falling, at least 0.75 s after your last Lift',
   [CARD_ROW_EVENTS.overfill]:'Overfill · a Spark brings more than your meter can hold',
   [CARD_ROW_EVENTS.delivery]:'Delivery · Collector brings you a pickup',

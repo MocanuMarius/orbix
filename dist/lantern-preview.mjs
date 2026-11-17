@@ -32,7 +32,7 @@ export function createLanternPreview({host, isPaused, play, reducedMotion}) {
         <div>
           <button type="button" data-light="base" aria-pressed="true">Base</button>
           <button type="button" data-light="max" aria-pressed="false">Max</button>
-          <button type="button" data-light="flash" aria-label="Flash Powerup with base Luminance" aria-pressed="false">△ Flash</button>
+          <button type="button" data-light="flash" aria-label="Flare Powerup with base Luminance" aria-pressed="false">△ Flare</button>
         </div>
       </div>
       <button type="button" data-flight>Fly passage</button>

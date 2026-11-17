@@ -74,7 +74,7 @@ test('courses are the real levels, calmed: no terrace rooms, drafts, biome actor
 test('the taught element sits where its lesson needs it, alone, with room to try it twice',()=>{
  const s=practice();
  const light=flightAt(s,2);try{const f=light.tutorial.plan.flashes;assert.equal(f.length,2);assert.ok(f.every(p=>p.kind==='sight'));
-  assert.ok(f[1].x-f[0].x>light.baseSpeed*5,'second Flash several seconds later');}finally{light.destroy();}
+  assert.ok(f[1].x-f[0].x>light.baseSpeed*5,'second Flare several seconds later');}finally{light.destroy();}
  const chain=flightAt(s,5);try{
   const holes=chain.blackHoles.items;assert.equal(holes.length,2);
   for(const hole of holes){assert.ok(Math.abs(hole.bypass.y-hole.y)>=chain.height*.42,'wide bypass');

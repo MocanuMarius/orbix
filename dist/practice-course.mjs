@@ -40,7 +40,7 @@ export const PRACTICE_LESSONS=Object.freeze({
  'practice:meet-collector':{topic:'collector',title:'Meet Collector',text:'The green light circling you is Collector, your companion. It flies wherever you fly.',terms:['collector']},
  'practice:collector-fetch':{topic:'collector-recovery',title:'Collector fetches',text:'Collector catches Sparks you miss and reels them back. They count when they reach you.',terms:['collector']},
  'practice:luminance':{topic:'luminance',title:'Luminance',text:'The glow around your wisp is Luminance. It shows how far you can see.',terms:['luminance']},
- 'practice:flash':{topic:'special-sparks',title:'Flash',text:'This white triangle is a Flash. Catch it to light the way for a few seconds.',terms:['flash']},
+ 'practice:flash':{topic:'special-sparks',title:'Flare',text:'This white triangle is a Flare. Catch it to light the way for a few seconds.',terms:['flash']},
  'practice:proximity':{topic:'edging',title:'Proximity',text:'Skim close to rock without touching it to fill this meter. Full, it sends a Pulse that lights the way.',target:'.edging-pulse-gauge',terms:['proximity','wave']},
  'practice:chain':{topic:null,title:'Your Chain',text:'These loaned cards are your Chain. When a card’s Trigger happens, the cards fire from left to right.',target:'.practice-stop-cards',terms:['trigger','collect','delivery']},
  'practice:boost':{topic:null,title:'Crescendo',text:'Crescendo doubles the cards to its left, so in Slot 1 it does nothing. Drag it to Slot 3, then press Play.',target:'.dk2-station[data-slot="0"]',terms:['boost','slot']},

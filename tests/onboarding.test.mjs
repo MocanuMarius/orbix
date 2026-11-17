@@ -111,7 +111,7 @@ test('the first map teaches rewards and Rest when encountered, not at the openin
  assert.match(companion.steps[0].text,/Collector fetches missed Small and Cluster Sparks inside its green boundary/);
 });
 
-test('artifact onboarding waits for a choice, ordinary income stays quiet, and final victory teaches progression',()=>{
+test('Scribe onboarding waits for a choice, ordinary income stays quiet, and final victory teaches progression',()=>{
  const normal=fresh();normal.run.lastFlight={success:true,completionBonus:20};normal.run.stats.flights=1;
  assert.equal(nextOnboardingLesson('victory',{...normal,now:1000}),null,'ordinary clears have no reward page lesson');
  assert.equal(nextOnboardingLesson('map',{...normal,now:1000}).topic,'routes');
@@ -119,7 +119,7 @@ test('artifact onboarding waits for a choice, ordinary income stays quiet, and f
  assert.equal(nextOnboardingLesson('map',{...normal,now:1000}),null);
  const elite=fresh();elite.run.flightReward={offers:['echo-bell','glow-wick'],claimed:false};
  const lesson=nextOnboardingLesson('victory',{...elite,now:1000});
- assert.equal(lesson.topic,'artifacts');assert.match(lesson.steps[0].text,/two artifacts/);assert.doesNotMatch(lesson.steps[0].text,/slot|replace|melt/i);
+ assert.equal(lesson.topic,'artifacts');assert.match(lesson.steps[0].text,/three Inscriptions/);assert.doesNotMatch(lesson.steps[0].text,/artifact|relic|melt/i);
  const completed=fresh();Object.assign(completed.run,{mapIndex:2,phase:'ended',success:true,bossDefeated:true,flightReward:null,lastFlight:{success:true,boss:true}});
  assert.equal(nextOnboardingLesson('victory',{...completed,now:1000}),null,'the final guardian has no artifact choice to explain');
  const final=nextOnboardingLesson('result',{...completed,now:1000});

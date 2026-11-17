@@ -9,7 +9,7 @@ import {companionArtSvg} from './companion-art.mjs?v=guide-clarity-1';
 import {dreamEye} from './dream.mjs?v=guide-clarity-1';
 import {lifeHeartSvg} from './lives.mjs?v=guide-clarity-1';
 import {uiIcon} from './ui-icons.mjs?v=guide-clarity-1';
-// Teaching cues name a Spark or the Long Flash with the approved icons; other pickups keep their in-flight sprite.
+// Teaching cues name a Spark or the Long Flare with the approved icons; other pickups keep their in-flight sprite.
 const pickupCue=type=>type==='light'?uiIcon('spark',{size:32}):type==='sight'?uiIcon('long-flash',{size:32}):pickupArtSvg(type);
 const item=(art,label)=>`<span class="coach-term">${art}<b>${label}</b></span>`;
 const arrow='<i class="coach-term-arrow" aria-hidden="true">→</i>';

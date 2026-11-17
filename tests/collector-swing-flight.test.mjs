@@ -70,11 +70,11 @@ test('reduced motion retains gravity and real contact while suppressing added sw
  }finally{f.e.destroy();}
 });
 
-test('a real fetched Flash uses the front release once and keeps its own reveal tether',()=>{
+test('a real fetched Flare uses the front release once and keeps its own reveal tether',()=>{
  const f=flight({flash:true});try{
   paint(f.e,60,7);assert.equal(f.deliveries.length,1);assert.ok(f.packets[0].collected);
   const delivery=f.deliveries[0];assert.ok(delivery.source.worldX-delivery.distance>delivery.player.x);
   assert.ok(f.e.flashTether&&f.e.sightUntil>f.e.time);
-  assert.ok(!f.e.absorptionEffects.some(effect=>effect.pickupId===f.packets[0].id),'Flash remains a reveal instead of a fuel absorption');
+  assert.ok(!f.e.absorptionEffects.some(effect=>effect.pickupId===f.packets[0].id),'Flare remains a reveal instead of a fuel absorption');
  }finally{f.e.destroy();}
 });

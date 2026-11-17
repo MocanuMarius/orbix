@@ -11,7 +11,7 @@ export const ROUTE_BONUSES = Object.freeze({
   'three-suns': bonus('three-suns', 'Three Suns', 'Collect all 3 marked Spark Caches.', 'Restore 1 missing heart.', 3),
   precision: bonus('precision', 'Pilgrim Precision', 'Touch 4 of 6 marked Sparks with your main wisp.', '+8 Stored Sparks.', 4),
   'wild-circuit': bonus('wild-circuit', 'Wild Circuit', 'Activate 2 marked terrain objects.', 'Companion recovery 20% faster for 3 cleared flights.', 2),
-  'flash-relay': bonus('flash-relay', 'Flash Relay', 'Catch the marked Flash, then 2 of 3 marked Sparks before it fades.', '+25% opening Luminance for 15s, for 3 cleared flights.', 2),
+  'flash-relay': bonus('flash-relay', 'Flare Relay', 'Catch the marked Flare, then 2 of 3 marked Sparks before it fades.', '+25% opening Luminance for 15s, for 3 cleared flights.', 2),
   'long-glide': bonus('long-glide', 'Long Glide', 'Lift at the blue chevron. Glide through both marks without Lifting for 2s.', 'Save up to 9 Sparks on your first 3 Lifts per flight, for 3 cleared flights.', 2),
   edgeweaver: bonus('edgeweaver', 'Edgeweaver', 'Trigger Proximity in both marked sections.', 'One collision ward per flight, for 3 cleared flights.', 2),
   'night-sail': bonus('night-sail', 'Night Sail', 'Collect both bypass Sparks. Lose at most 3 Sparks to the marked Black Hole.', 'Black Holes drain 25% fewer Sparks for 3 cleared flights.', 2),

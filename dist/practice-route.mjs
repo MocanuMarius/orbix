@@ -42,10 +42,10 @@ export function practiceModifiers(run){
 }
 export function practicePurpose(run){
  const node=run?.map?.[run.step]?.[0]||run?.current;
- return ({glide:'Lift · collect · glide',proximity:'Skim rock · catch Flash',rhythm:'Three even Lifts → Pulse → Harvest',
+ return ({glide:'Lift · collect · glide',proximity:'Skim rock · catch Flare',rhythm:'Three even Lifts → Pulse → Harvest',
   'black-hole':'Keep your distance · restore light',guardian:'Read the warning · reach the waylight',
   treasure:'Borrow cards for the next passage',camp:isPracticeCourseRun(run)?'Arrange your Chain':'Recover · prepare a card combination',
-  'course-lift':'Lift · glide · Sparks','course-collector':'Meet Collector','course-light':'Luminance · Flash',
+  'course-lift':'Lift · glide · Sparks','course-collector':'Meet Collector','course-light':'Luminance · Flare',
   'course-edge':'Skim the rock · Pulse','course-chain':'Your Chain · Black Holes','course-finale':'Hearts · Collector’s shield'})[node?.tutorialLesson||node?.kind]||'Reach the next waylight';
 }
 
@@ -71,7 +71,7 @@ export function nextPracticeLesson(engine,run,snapshot={}){
  if(kind==='proximity'){
   add('proximity',t>1.4,'Your borrowed Proximity card','Fly close to solid rock without touching it. Close flight charges a pulse that reveals the passage.','.edging-pulse-gauge');
   const flash=packet(p=>p.kind==='sight');
-  add('flash',!!flash,'Catch the white Flash triangle','Touch this triangle. Its tethered pulses widen your light for eight seconds.',null,point(flash));
+  add('flash',!!flash,'Catch the white Flare triangle','Touch this triangle. Its tethered pulses widen your light for eight seconds.',null,point(flash));
   add('pulse',t>7&&(snapshot.edgingPulse?.active||engine.edgingPulse?.triggerCount>0),'You earned a Surface Pulse','Your close flight filled Proximity. The pulse reveals terrain; keep a safe gap from the rock.','.edging-pulse-gauge');
  }
  if(kind==='rhythm'){
@@ -83,7 +83,7 @@ export function nextPracticeLesson(engine,run,snapshot={}){
   const hole=engine.blackHoles?.items?.[0],x=hole?hole.x-engine.distance:Infinity;
   add('black-hole',x>engine.player.x&&x<engine.width-20,'Give the Black Hole space','The black core drains Sparks nearby. Fly along the lower Spark route to reduce its pull.',null,hole?{x,y:hole.y,radius:30}:null);
   const flash=packet(p=>p.kind==='sight');
-  add('dark-flash',!!flash,'Flash helps you see the bypass','Catch the white triangle to light the passage. Its light fades; leave room around the dark core.',null,point(flash));
+  add('dark-flash',!!flash,'Flare helps you see the bypass','Catch the white triangle to light the passage. Its light fades; leave room around the dark core.',null,point(flash));
   const dark=packet(p=>p.kind==='dark');
   add('dark-spark',!!dark,'A red ring warns of a cost','This Dark Spark dims your Luminance. Collector leaves it alone. Collect a fuel Spark to clear one dimming effect.',null,point(dark));
  }

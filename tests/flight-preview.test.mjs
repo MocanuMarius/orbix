@@ -1,13 +1,13 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {newState,createRun,ARTIFACTS} from '../dist/model.mjs';
+import {newState,createRun,getChoices,selectNode,beginFlightAttempt,finishFlight} from '../dist/model.mjs';
 import {flightPreviewMarkup} from '../dist/flight-preview.mjs';
 import {ROUTE_BONUSES} from '../dist/route-bonuses.mjs';
 import {getFlightClearReward} from '../dist/checkpoint-rewards.mjs';
 const visibleText=html=>html.replace(/<[^>]*>/g,'').replace(/\s+/g,' ').trim();
 
-function sample(){
- const state=newState(),run=createRun(state.profile,'preview-coral',1);
+function sample(cardRun){
+ const cards=cardRun===true,state=newState(),run=createRun(state.profile,'preview-coral',1,cards?{cards:true}:{});
  const node=run.map.flat().find(n=>n.type==='flight');
  const render=(change={},opts={})=>flightPreviewMarkup(run,{...node,...change},{available:true,level:node, ...opts});
  return {run,node,render};
@@ -29,23 +29,38 @@ test('preview shows earned pay and the optional condition separately, with claim
  assert.doesNotMatch(visibleText(html.split('<footer>')[1]),/Back|Fly|→/);
 });
 
-test('artifact copy follows available offers, and the last guardian previews the expedition victory',()=>{
- const {run,render}=sample();
- assert.match(render({elite:true}),/Choose 1 of 2 relics/);
- run.artifacts=Object.keys(ARTIFACTS).filter(id=>id!=='echo-bell');
- assert.match(render({elite:true}),/1 relic/);
- run.artifacts.push('echo-bell');
- assert.doesNotMatch(render({elite:true}),/relics?|Optional/);
+test('Elite and Boss stops promise the Scribe, ordinary stops promise nothing extra, and the last guardian previews the expedition victory',()=>{
+ const {run,render}=sample(true);
+ assert.match(render({elite:true}),/1 Inscription \(choose 1 of 3\)/);
+ assert.doesNotMatch(render({elite:true}),/relic|artifact/i);
+ assert.doesNotMatch(render({}),/Inscription|relic/i);
  const last=render({boss:true,mapIndex:2});
  assert.match(last,/Expedition victory/);
- assert.doesNotMatch(last,/Stored Sparks|Optional|Choose 1/);
+ assert.doesNotMatch(last,/Stored Sparks|Optional|Choose 1|Inscription/);
+});
+
+test('the reward line of every stop type agrees with what finishFlight really awards',()=>{
+ for(const cards of [true,false]){
+  for(const type of ['regular','elite','boss']){
+   const s=newState(),run=createRun(s.profile,`agree-${cards}-${type}`,1,cards?{cards:true}:{});
+   const node=getChoices(run)[0];
+   if(type==='elite')node.elite=true;
+   if(type==='boss'){node.boss=true;node.elite=false;}
+   const text=visibleText(flightPreviewMarkup(run,node,{available:true,level:node}));
+   assert.ok(selectNode(run,node.id)&&beginFlightAttempt(run)&&finishFlight(run,{success:true,flame:70,collected:12}),type);
+   const awards=run.flightReward?.kind==='inscription';
+   assert.equal(/1 Inscription \(choose 1 of 3\)/.test(text),awards,`${type} cards=${cards}: ${text}`);
+   if(awards)assert.equal(run.flightReward.offers.length,3);
+   assert.doesNotMatch(text,/relic|artifact/i,type);
+  }
+ }
 });
 
 test('card runs promise the guaranteed card without drawing it, including the final trophy',()=>{
  const state=newState(),run=createRun(state.profile,'card-preview',1,{cards:true});
  const node=run.map.flat().find(n=>n.type==='flight'),before=JSON.stringify(run);
  assert.match(flightPreviewMarkup(run,node),/1 card/);
- assert.match(flightPreviewMarkup(run,{...node,elite:true}),/1 card \+ choose 1 of 2 relics/);
+ assert.match(flightPreviewMarkup(run,{...node,elite:true}),/1 card \+ 1 Inscription \(choose 1 of 3\)/);
  const final=flightPreviewMarkup(run,{...node,boss:true,mapIndex:2});
  assert.match(final,/Expedition victory/);assert.match(final,/1 trophy card/);
  assert.equal(JSON.stringify(run),before);

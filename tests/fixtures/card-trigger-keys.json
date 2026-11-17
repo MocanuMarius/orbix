@@ -49,8 +49,8 @@
  "home-beacon": "save",
  "mending-moss": "collect",
  "last-light": "save",
- "return-spring": "latch",
- "haul-winch": "latch",
+ "return-spring": "always-on",
+ "haul-winch": "delivery",
  "crate-lining": "delivery",
  "glass-spool": "collect",
  "clear-prism": "flash",
@@ -87,7 +87,7 @@
  "climb": null,
  "wave-loom": "engine-turn",
  "spark-chime": "engine-pulse",
- "ember-bell": "engine-gain",
+ "ember-bell": "overfill",
  "flash-tinder": "collect",
  "homing-thread": "delivery",
  "overflow-bell": "overfill",
@@ -119,5 +119,7 @@
  "second-wind": "save",
  "undertow": "falling-lift",
  "tributary": "collect",
- "tithe": "pack"
+ "tithe": "pack",
+ "chameleon-two": "next",
+ "whetstone": "engine-skim"
 }

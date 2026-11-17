@@ -22,7 +22,7 @@ export const ARTIFACT_ENGINE_RULES=Object.freeze({
   'glow-wick':Object.freeze({name:'Spark Wick',color:'#edce8e',
     trigger:'Collect a natural Spark.',effect:'Restore up to 10 extra Sparks.',
     limits:'3 automatic uses. Consumed when empty. Bonus fuel cannot become Stored Sparks.'}),
-  'flash-stone':Object.freeze({name:'Flash Stone',color:'#c8c5f2',
+  'flash-stone':Object.freeze({name:'Flare Stone',color:'#c8c5f2',
     trigger:'Collect a natural Spark.',effect:'Reveal the whole scene for 1.5s, then fade.',
     limits:'2 automatic uses. Consumed when empty. Extra light does not stack.'}),
 });

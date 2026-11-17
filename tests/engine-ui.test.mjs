@@ -17,7 +17,7 @@ const run = (chain, reserve = []) => ({skillSystem: CARD_SYSTEM, cardSlots: Math
 
 test('the engine Trigger chips have plain names, icons and glossary entries', () => {
   // What the player sees (card-trigger-labels.mjs): '' means no chip. The internal CARD_TRIGGERS names are unchanged.
-  const names = {'engine-pulse': 'Pulse', 'engine-gain': 'On gain', 'engine-any': '', 'engine-skim': 'Skim', 'engine-lift': 'Lift',
+  const names = {'engine-pulse': 'Pulse', 'engine-any': '', 'engine-skim': 'Skim', 'engine-lift': 'Lift',
     'engine-turn': '', timers: '', pack: 'Finish', 'take-off': ''};
   for (const [id, label] of Object.entries(names)) {
     assert.ok(CARD_TRIGGERS[id], id);
@@ -30,7 +30,7 @@ test('the engine Trigger chips have plain names, icons and glossary entries', ()
   // Every engine card shows its own Trigger, never "Always on".
   for (const def of Object.values(SKILL_CARDS).filter(d => d.engine || d.kind === 'black-hole')) {
     const chip = getCardTrigger(def);
-    assert.notEqual(chip.id, 'always-on', def.id); assert.ok(CARD_TRIGGERS[chip.id], def.id);
+    assert.notEqual(chip.id, 'always-on', def.id); assert.notEqual(chip.id, 'engine-gain', `${def.id}: no card shows the retired On gain chip`); assert.ok(CARD_TRIGGERS[chip.id], def.id);
   }
   // Icons are whole-pixel: 16 or 32, never fractional.
   assert.match(chipIcon('pack', 16), /width="16" height="16"/); assert.match(chipIcon('pack', 32), /width="32" height="32"/);
@@ -66,7 +66,7 @@ test('the Trigger collection lists every Trigger with what you do, how often, an
     assert.ok(CARD_TERMS[t.term], `${t.id}: glossary term ${t.term}`);
   }
   // Every Trigger a live or engine card carries is in the collection.
-  for (const def of [...LIVE_CARDS, ...Object.values(SKILL_CARDS).filter(d => d.unreleased)]) { const chip = getCardTrigger(def); assert.ok(!chip.label || chip.label === 'On gain' || TRIGGER_BOOK.some(t => t.group === chip.group), def.id); }
+  for (const def of [...LIVE_CARDS, ...Object.values(SKILL_CARDS).filter(d => d.unreleased)]) { const chip = getCardTrigger(def); assert.ok(!chip.label || TRIGGER_BOOK.some(t => t.group === chip.group), def.id); }
   const book = triggerBook(run(['body-spark', 'spark-cache', null], ['body-spark', 'deep-vessel']));
   const collect = book.find(t => t.id === 'collect');
   assert.equal(collect.owned, true);
@@ -81,16 +81,16 @@ test('the Trigger collection lists every Trigger with what you do, how often, an
 });
 
 test('engine Chains: engine wording on plates, the two-number medallion, the dial, and "Runs once" without a Timer', () => {
-  const chime = ['first-catch', 'spark-chime', 'ember-bell', 'slow-wick'];
+  const chime = ['first-catch', 'metronome', 'spark-chime'];
   const words = chime.map((id, i) => enginePlate(row(chime), i).long);
-  assert.deepEqual(words, ['Sends a Pulse', '+1 Spark each Turn', 'Sends a Pulse', 'Waits 3 s']);
+  assert.deepEqual(words, ['Sends a Pulse', 'Fires the next card every 3 s', '+1 Spark each Turn']);
   assert.equal(enginePlate(row(['close-call', 'metronome', 'body-spark']), 1).long, 'Fires the next card every 3 s');
   assert.equal(enginePlate(row(['close-call', 'metronome', 'body-spark', 'heartbeat']), 1).long, 'Fires the next card every 1.5 s');
   const html = deckScreenMarkup(run([...chime, null]), createDeckView());
   assert.match(html, /dk-medal2/); assert.match(html, /<b id="dk22-num">1<\/b><small>per Turn<\/small>/); assert.match(html, /<b>3\.3<\/b><small>Turns per 10&nbsp;s<\/small>/);
   assert.match(html, /class="dk-dial"[^>]*><i class="dk-dial-ring"><\/i><b>3 s<\/b>/);
   assert.match(html, /dk-ret dk-ret-b/, 'the return path is drawn');
-  const once = deckScreenMarkup(run(['first-catch', 'spark-chime', 'ember-bell']), createDeckView());
+  const once = deckScreenMarkup(run(['first-catch', 'spark-chime']), createDeckView());
   assert.match(once, /Runs once\. Add a Timer to keep it turning\./); assert.doesNotMatch(once, /dk-ret-b/);
   // An ordinary Chain is untouched: no engine row, no two-number medallion.
   const plain = deckScreenMarkup(run(['echo', 'body-spark', 'deep-vessel']), createDeckView());
@@ -113,7 +113,7 @@ test('the Chain tab medallion equals the flight engine for the same Chain (Turns
   const {WispFlight} = await import('../dist/flight.mjs');
   const {syncFlightEngine, raiseFlightEngine, stepFlightEngine} = await import('../dist/card-engine-flight.mjs');
   const {engineStats} = await import('../dist/ui/chain-model.mjs');
-  for (const ids of [['first-catch', 'spark-chime', 'ember-bell', 'slow-wick'], ['first-catch', 'spark-chime', 'ember-bell', 'slow-wick', 'crescendo'], ['first-catch', 'spark-chime', 'ember-bell', 'slow-wick', 'heartbeat']]) {
+  for (const ids of [['first-catch', 'metronome', 'spark-chime'], ['first-catch', 'metronome', 'spark-chime', 'crescendo'], ['first-catch', 'metronome', 'spark-chime', 'heartbeat']]) {
     const preview = engineStats(row(ids));
     const e = new WispFlight({canvas: {getContext: () => ({setTransform() {}}), getBoundingClientRect: () => ({width: 900, height: 430})}, preflight: true, seed: 'medal-proof', cardPilot: true,
       modifiers: {cardPilot: true, cardExecution: {cards: row(ids)}}});

@@ -126,7 +126,7 @@ test('Rhythm activates one real wave; moving Echo across Harvest changes crossin
   assert.match(getMountedCards(run)[0].copyPreview,/Repeats/);
 });
 
-test('Flash magnitude restores meter once per actual body/carrier pickup and never packs surplus',()=>{
+test('Flare magnitude restores meter once per actual body/carrier pickup and never packs surplus',()=>{
   const layouts=[['flash-handling'],['flash-handling','flash-handling'],['echo','flash-handling','chameleon','flash-handling']];
   for(const ids of layouts)for(const delivered of [false,true]){
     const run=fresh(ids).run,mod=getCardModifiers(run),sources=ids.length;

@@ -120,7 +120,7 @@ test('collection needs distinct marked natural packets, Precision needs the body
   assert.ok(suns.routeObjective.complete);
 });
 
-test('Flash Relay marks a single Flash Powerup and accepts Sparks throughout its light',()=>{
+test('Flare Relay marks a single Flare Powerup and accepts Sparks throughout its light',()=>{
   const game=flight('flash-relay');
   const natural=targets(game)[0].object;
   const fuelBefore=game.layout.embers.filter(p=>getPickupSpec(p).fuel>0).length;

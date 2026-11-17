@@ -17,7 +17,7 @@ const rings=c=>c.strokes.filter(p=>p.ink===COLLECTOR_RING.color&&p.points.some(p
 const make=(modifiers={},companions=['collector'])=>new WispFlight({canvas:{getContext:()=>({setTransform(){}}),getBoundingClientRect:()=>({width:900,height:430})},
   preflight:true,seed:'handling-cue',companions,modifiers});
 
-test('handling shapes track actual equipped Collector capability, with Cache and Flash learned separately',()=>{
+test('handling shapes track actual equipped Collector capability, with Cache and Flare learned separately',()=>{
   const capability={collector:true};
   for(const kind of ['light','cluster'])assert.equal(pickupHandlingCue({kind},{},capability),'collector');
   for(const kind of ['cache','sight'])assert.equal(pickupHandlingCue({kind},{},capability),'body');

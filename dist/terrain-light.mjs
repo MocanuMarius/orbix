@@ -4,7 +4,7 @@ import {LIGHT_EXTENT,lightAttenuation} from './light-attenuation.mjs?v=guide-cla
 // travelled. Gameplay visibility, encounters and collection use their own law.
 export const SOLID_LIGHT_COST=4.5;
 // Rock is a fixed thickness of material, not a fraction of the light: a bigger
-// Luminance radius (cards, Flash sight, the finish reveal) must not shine
+// Luminance radius (cards, Flare sight, the finish reveal) must not shine
 // deeper into or through a wall. Above this baseline radius the cost per unit
 // of rock grows with the radius, so the lit depth stays the baseline's.
 // At or below it nothing changes. (v1.1-level, owner request 2026-11-17.)

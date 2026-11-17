@@ -174,9 +174,9 @@ const MACRO_COURSES = Object.freeze({
     rest: [[.52,294,172,355,'both','vault'],[.48,318,164,375,'floor','ridge']] },
 });
 
-/** Fewest Flash pickups a landform flight carries after row 0; raise to guarantee more. */
+/** Fewest Flare pickups a landform flight carries after row 0; raise to guarantee more. */
 export const FLASH_MIN_PER_FLIGHT = 1;
-/** Clearance (px at 620 height) a placed Flash keeps from any terrain; the old authored courses never went under 103. */
+/** Clearance (px at 620 height) a placed Flare keeps from any terrain; the old authored courses never went under 103. */
 export const FLASH_TERRAIN_CLEARANCE = 100;
 
 export function circleHitsPolygon(x, y, radius, polygon) {
@@ -727,11 +727,11 @@ export function buildFlightLayout({ seed = 1, terrain = 'ruins', elite = false,
     // A separate, swept-clear lane gives players scouting light before the next approach.
     const flashRng = seededRandom(`${seed}:${identity.id}:flash-powerup`);
     const flashRolled = flashRng() < .58;
-    // Landform courses guarantee a floor of Flash pickups on every flight after the first row.
+    // Landform courses guarantee a floor of Flare pickups on every flight after the first row.
     const flashMinimum = landform && stage >= 1 && !gentleOpening ? FLASH_MIN_PER_FLIGHT : 0;
     const flashCount = introductoryDark ? 0 : Math.max(flashMinimum, flashRolled ? 1 : 0);
     const flashes = [];
-    // Open air only: Flash keeps this much clear of terrain on every side.
+    // Open air only: Flare keeps this much clear of terrain on every side.
     const flashClear = FLASH_TERRAIN_CLEARANCE * scale;
     const flashSiteOk = (x, y) => {
       if (x < Math.min(1000, duration * speed * .25) || x > duration * speed - 650 || hardNear(x)) return false;
@@ -858,7 +858,7 @@ export class WispFlight {
     this.cardExecution=(this.mod.cardExecution?.cards?.some(Boolean)||this.mod.cardExecution?.inscriptions?.some(Boolean))?createCardExecution(this.mod.cardExecution):null;
     this.cardChargeLedger={...getCardCharges(this.cardExecution)};
     this.cardExecutions=0;
-    this.cardRowTrace=null;this.cardRowSequence=0;this.cardWatchlightUsed=false;this.cardLastAcceptedLift=null;
+    this.cardRowTrace=null;this.cardRowSequence=0;this.cardReelCredit=0;this.cardWatchlightUsed=false;this.cardLastAcceptedLift=null;
     // Engine cards (card-engine-flight.mjs): built only when the Chain holds one.
     this.cardEngine=null;this.cardEngineStored=0;this.cardEngineFlash=null;this.cardEngineLastFiring=null;this.cardPack=null;this.cardEngineLuminance=0;syncFlightEngine(this);
     this.flightBoon = new FlightBoon(this, this.mod.flightBoon);
@@ -1472,6 +1472,11 @@ export class WispFlight {
   /** Resolve one real event synchronously. Its receipt survives pause and deck edits. */
   onCollectorAttach(packet, collector = this.wisp) {
     if (!packet || packet.generated || packet.fetchedInDream || packet.harmful || !(getPickupSpec(packet).fuel > 0)) return null;
+    // A banked reel credit (Haul Winch) shortens this new reel once, never below 0.5 s (the Collector floor), and is then spent.
+    if (this.cardReelCredit > 0) {
+      const credit = this.cardReelCredit; this.cardReelCredit = 0;
+      collector.shortenReel(Math.min(credit, Math.max(0, collector.activeReelSeconds() - 0.5)));
+    }
     return this.resolveCardRowEvent(CARD_ROW_EVENTS.attach, {pickupKind:pickupKind(packet)},collector);
   }
 
@@ -1529,6 +1534,8 @@ export class WispFlight {
         this.artifactEffects.onRecharge(granted);
     }
     if(receipt.reelSeconds>0)w.shortenReel(receipt.reelSeconds);
+    // Haul Winch: seconds banked by a Delivery come off the NEXT reel (see onCollectorAttach).
+    if(receipt.nextReelSeconds>0)this.cardReelCredit=(this.cardReelCredit||0)+receipt.nextReelSeconds;
     if(kind===CARD_ROW_EVENTS.body)this.cardExecutions+=receipt.executions;
     if(this.cardEngine&&!engine){
       // Engine cards hear the Chain's Sparks on a Trigger from flying (whole Chain); Long Fuse repeats this firing.
@@ -1881,7 +1888,7 @@ export class WispFlight {
     return !(this.mod.closedEye && sourceKind==='card');
   }
 
-  /** Total Luminance percent a reader sees (cards, Momentum, and a running Flash). */
+  /** Total Luminance percent a reader sees (cards, Momentum, and a running Flare). */
   getLuminancePercent() {
     const {baseRadius,sightBonus}=this.getLightState();
     const nominal=Number(this.mod.lightRadius)||LIGHT_PACKET_TUNING.baseRadius;
@@ -1889,13 +1896,13 @@ export class WispFlight {
   }
 
   getLightState() {
-    // Luminance is one additive percent: cards + Momentum (capped as before at 180) plus a Flash's temporary bonus.
-    // The Flash bonus is read live from the Flash's own timer, so it ends on the frame the Flash (and its Pulses) end.
+    // Luminance is one additive percent: cards + Momentum (capped as before at 180) plus a Flare's temporary bonus.
+    // The Flare bonus is read live from the Flare's own timer, so it ends on the frame the Flare (and its Pulses) end.
     const flashStrength=flashRangeStrength(Math.max(0,(this.sightUntil||0)-this.time));
     const flashLuminance=FLASH_LUMINANCE_BONUS*flashStrength;
     const lightRadius=Number(this.mod.lightRadius)||LIGHT_PACKET_TUNING.baseRadius;
-    // Closed Eye blocks card light only; a Flash adds the same pixels it always did. The Flash percent is of the
-    // nominal base radius (145 px), so skills and relics that grow the radius do not also stretch the Flash.
+    // Closed Eye blocks card light only; a Flare adds the same pixels it always did. The Flare percent is of the
+    // nominal base radius (145 px), so skills and relics that grow the radius do not also stretch the Flare.
     const cardLuminance=this.mod.closedEye?0:clamp((Number(this.mod.cardLuminancePercent)||0)+(Number(this.cardEngineLuminance)||0),0,180);
     const boon=this.mod.closedEye?1:this.flightBoon.luminanceScale;
     const baseRadius = lightRadius * (1+cardLuminance/100) * boon;
@@ -2847,7 +2854,7 @@ export class WispFlight {
     if(!light.rehearsing)drawLiftGuide(c,this,{playerY:this.renderPlayerY});
     c.restore();
     if (this.flash > 0) { c.fillStyle = `rgba(255,196,149,${this.flash * .36})`; c.fillRect(0, 0, W, H); }
-    // Keep the nearest plane in front of the complete world, including Flash,
+    // Keep the nearest plane in front of the complete world, including Flare,
     // with the same camera shake that was applied to its backing terrain.
     c.save();
     if (this.shake > 0) c.translate(Math.sin(this.time * 77) * this.shake, Math.cos(this.time * 63) * this.shake * .5);

@@ -60,7 +60,7 @@ export function createFlashPreview({isPaused,setPaused,reducedMotion}) {
   scene.className='flash-scene';
   const field=canvas(WIDTH,HEIGHT);
   field.setAttribute('role','img');
-  field.setAttribute('aria-label','A white Flash Powerup trails the wisp, reveals the ruins in waves and dissolves.');
+  field.setAttribute('aria-label','A white Flare Powerup trails the wisp, reveals the ruins in waves and dissolves.');
   const playback=document.createElement('div');
   playback.className='flash-playback';
   const replay=document.createElement('button');
@@ -68,13 +68,13 @@ export function createFlashPreview({isPaused,setPaused,reducedMotion}) {
   const label=document.createElement('label');
   label.className='timeline';
   const slider=document.createElement('input');
-  slider.type='range'; slider.min=0; slider.step=.01; slider.setAttribute('aria-label','Flash Powerup timeline');
+  slider.type='range'; slider.min=0; slider.step=.01; slider.setAttribute('aria-label','Flare Powerup timeline');
   const flashSpec=getPickupSpec('sight');
   const mode=document.createElement('select');
-  mode.setAttribute('aria-label','Flash duration in the preview');
+  mode.setAttribute('aria-label','Flare duration in the preview');
   const durations=[flashPowerupDuration(),flashPowerupDuration({longFlash:true})];
   mode.add(new Option('Base · '+durations[0]+'s','base'));
-  mode.add(new Option('Long Flash · '+durations[1]+'s','long'));
+  mode.add(new Option('Long Flare · '+durations[1]+'s','long'));
   mode.value=new URLSearchParams(location.search).get('flash')==='long'?'long':'base';
   let duration=durations[mode.selectedIndex];
   let end=contact+duration+FLASH_PUFF_DURATION+.55;

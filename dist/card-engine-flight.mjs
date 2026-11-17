@@ -21,6 +21,8 @@ function flightHost(e) {
       return g / CARD_UNIT;
     },
     store: n => { e.cardEngineStored = (e.cardEngineStored || 0) + n; },
+    // Whetstone: a regained use is written to the flight's use ledger, which otherwise only ever falls.
+    regained: card => { if (e.cardChargeLedger) e.cardChargeLedger[card.instanceId] = card.charges; },
     // Tithe: Stored Sparks the run held when the flight began pay for it, only in a real flight (never a tutorial or a Dream).
     tithe: cost => {
       if (e.tutorial || e.dream || (e.condensedStart || 0) - (e.cardTithePaid || 0) < cost) return false;
@@ -95,7 +97,7 @@ export function raiseFlightEngine(e, kind, detail = {}) {
   return e.cardEngine.raise(kind, detail, e.time);
 }
 
-/** Each simulation step: due Timers, the end of a Flash, a filled Proximity meter (a skim). */
+/** Each simulation step: due Timers, the end of a Flare, a filled Proximity meter (a skim). */
 export function stepFlightEngine(e, skimsBefore = null) {
   if (!live(e)) return;
   e.cardEngine.advance(e.time);
@@ -118,7 +120,7 @@ export function stepFlightInscriptions(e) {
   e.radiateLight?.({once: true, reveal: true, source: 'inscription-bell', sourceKind: 'card', color: '#d9f0dc'});
 }
 
-/** A Flash picked up in flight (a natural Flash: its end is heard by the whole Chain). */
+/** A Flare picked up in flight (a natural Flare: its end is heard by the whole Chain). */
 export function noteFlightFlash(e) { if (e.cardEngine) e.cardEngineFlash = {slot: -1}; }
 
 /** The Pack Trigger, once, at the start of a successful clear and before the meter is packed. */

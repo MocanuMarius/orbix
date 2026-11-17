@@ -120,15 +120,15 @@ test('large Spark frames sample the screen grid and reuse bounded canvases acros
   assert.ok(surfaces.size<=16,'fuel and dark atlases each retain at most eight large surfaces');
 });
 
-test('the Flash Powerup uses the same white triangle and halo in the field and menus', async () => {
+test('the Flare Powerup uses the same white triangle and halo in the field and menus', async () => {
   const {ctx}=atlasFixture();
   const [still,motion]=await Promise.all(images(pickupArtSvg('sight')).map(decodeAsset));
   drawPickup(ctx,0,0,{kind:'sight',time:0,reducedMotion:true});
-  assertSameFrame(ctx.last,still,0,'quiet Flash');
+  assertSameFrame(ctx.last,still,0,'quiet Flare');
   let time=0;
   for(const [i,frame] of motion.frames.entries()) {
     drawPickup(ctx,0,0,{kind:'sight',time:time+frame.delay/2});
-    assertSameFrame(ctx.last,motion,i,'moving Flash '+i);
+    assertSameFrame(ctx.last,motion,i,'moving Flare '+i);
     let brightest=0, haloPixels=0;
     for(let p=0;p<frame.rgba.length;p+=4) {
       const [r,g,b,a]=frame.rgba.subarray(p,p+4);

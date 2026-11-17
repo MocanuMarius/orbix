@@ -22,7 +22,7 @@ Status: built. Artifacts are retired for players; Inscriptions replace them. Cod
 | Kindled | card | The card here also fires on a Lift. | extra Trigger: Lift |
 | Courier | card | The card here also fires on a Delivery. | extra Trigger: Delivery |
 | Wellspring | card | The card here also fires on an Overfill. | extra Trigger: Overfill |
-| Flare | card | The card here also fires on a Flash. | extra Trigger: Flash |
+| Sunlit | card | The card here also fires when you Collect a Flare. | extra Trigger: Flare |
 | Mirror | card | The card here fires whenever the card to its left fires. | follows the left neighbour |
 | Brimful | card | Sparks the card here gains above the Meter become Stored Sparks. | spill becomes Stored Sparks, not boosted again |
 | Whetted | card | The card here gets 1 extra use each flight. | +1 use per flight, never kept |

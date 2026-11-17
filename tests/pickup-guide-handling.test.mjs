@@ -2,7 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { pickupGuideMarkup, pickupLesson } from "../dist/pickup-guide.mjs";
 
-test("pickup key identifies base and separately learned Cache and Flash handling", () => {
+test("pickup key identifies base and separately learned Cache and Flare handling", () => {
   const row = (markup, kind) =>
     new RegExp(
       `<article[^>]+data-pickup-kind="${kind}"[\\s\\S]*?</article>`,
@@ -16,11 +16,11 @@ test("pickup key identifies base and separately learned Cache and Flash handling
   );
   assert.match(
     row(baseline, "sight"),
-    /Touch with your wisp · needs Flash Handling/,
+    /Touch with your wisp · needs Flare Handling/,
   );
   const cache = pickupGuideMarkup({ modifiers: { collectorFetchMass: 3 } });
   assert.match(row(cache, "cache"), /Collector can fetch/);
-  assert.match(row(cache, "sight"), /needs Flash Handling/);
+  assert.match(row(cache, "sight"), /needs Flare Handling/);
   const flash = pickupGuideMarkup({ modifiers: { collectorFlashFetch: true } });
   assert.match(row(flash, "cache"), /needs Cache Handling/);
   assert.match(row(flash, "sight"), /Collector can fetch/);
@@ -40,7 +40,7 @@ test("first-contact lessons use actual packet mass and mounted handling without 
   );
   assert.match(
     pickupLesson("sight", { modifiers: { collectorFlashFetch: false } }).text,
-    /Touch with your main wisp.*Flash Handling/,
+    /Touch with your main wisp.*Flare Handling/,
   );
   assert.match(
     pickupLesson("sight", { modifiers: { collectorFlashFetch: true } }).text,

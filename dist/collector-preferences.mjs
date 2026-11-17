@@ -1,7 +1,7 @@
 export const COLLECTOR_PREFERENCES=Object.freeze([
  {id:'nearest',label:'Nearest',skill:null},
  {id:'dense',label:'Dense first',skill:'collector-target-dense'},
- {id:'flash',label:'Flash first',skill:'collector-target-flash'},
+ {id:'flash',label:'Flare first',skill:'collector-target-flash'},
 ]);
 export function learnedCollectorPreferences(run){return COLLECTOR_PREFERENCES.filter(p=>!p.skill||run.skills?.[p.skill]>0);}
 export function collectorPreference(run){return learnedCollectorPreferences(run).find(p=>p.id===run.collectorPreference)?.id||'nearest';}

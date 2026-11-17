@@ -347,7 +347,7 @@ test("all three Harvest tiers stack and each Legendary contributes only a per-wa
   assert.equal(modifiers.resonantHarvest, 0);
 });
 
-test("Rare Cache and Flash Handling grant all mounted capabilities without permanently learning skills", () => {
+test("Rare Cache and Flare Handling grant all mounted capabilities without permanently learning skills", () => {
   const state = fresh("handling"),
     run = state.run;
   const cache = { kind: "cache", sparkMass: 3 },

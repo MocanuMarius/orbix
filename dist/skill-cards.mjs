@@ -363,6 +363,9 @@ export function describeSkillCard(card) {
       effect =
         "Borrow the ability on the card to the right. Share its uses. Cannot borrow another copying card.";
       break;
+    case "chameleon-two":
+      effect = "Fires the card to its right on any Trigger. Spends its uses. Cannot fire engine or copying cards.";
+      break;
     case "field":
       effect =
         "Spend Collector charge. Swipe up to float, down to dive, or right to speed up. Collector must be beside you with at least ¼ charge. Each Field Impulse in your chain, or copy of one, adds up to 0.8 seconds at full charge. Extra copies extend the time at the same force; one swipe spends charge once.";
@@ -392,7 +395,7 @@ export function describeSkillCard(card) {
       break;
     case "flash-handling":
       effect =
-        "Collect a Flash: +6 Sparks for each Flash Handling in your chain (or copy of one) when either of you picks up Flash, and Collector can fetch Flash. Your wisp can always touch Flash directly.";
+        "Collect a Flare: +6 Sparks for each Flare Handling in your chain (or copy of one) when either of you picks up Flare, and Collector can fetch Flare. Your wisp can always touch Flare directly.";
       break;
     case "camp-extra":
       effect =
@@ -549,10 +552,10 @@ function effectiveCardSummary(kind, sources, cards) {
     proximity: 'One shared terrain meter sends revealing Proximity Pulses at normal reach, without Collector. Extra Proximity cards share that meter; Echo cannot repeat it.',
     springboard: 'One free half-Lift bounce per direct passage Spark absorbed while falling. Extra Springboards do not increase the bounce. Cannot be copied.',
     'heart-stitch': 'Each real Heart Stitch counts direct passage Sparks while a heart is missing. Three in one flight restore one heart and spend one use. Full hearts spend no use; this card cannot be copied.',
-    'prism-wick': 'When a Flash’s light runs out, send one final Pulse. Each copy gives +3 Sparks from the same three uses; copies and Encores keep one final Pulse.',
+    'prism-wick': 'When a Flare’s light runs out, send one final Pulse. Each copy gives +3 Sparks from the same three uses; copies and Encores keep one final Pulse.',
     "proximity-range": `Proximity Pulses on. +${decimal(reach)}% of normal reach from ${count} ${count === 1 ? "card" : "cards"}. Chameleon can copy it; Echo cannot.`,
     packing: packingOutcome(packingWeight),
-    "flash-handling": `Collect a Flash: +${total} Sparks when your wisp or Collector picks up Flash. Collector makes one pickup.`,
+    "flash-handling": `Collect a Flare: +${total} Sparks when your wisp or Collector picks up Flare. Collector makes one pickup.`,
     "camp-grow": `Grow adds +${total} max Sparks and refills the meter once. All Growth Seeds share 3 Grows per journey.`,
     harvest: `+${total} Sparks when a Pulse crosses an uncollected fuel pickup already in the passage${matching.some((entry) => entry.def.stored) ? `; +${matching.reduce((sum, entry) => sum + (entry.def.stored || 0), 0)} Stored Sparks at the first crossing per Pulse` : ""}.`,
     guide: "One amber arrow shows when to Lift, even with extra copies.",
@@ -617,7 +620,7 @@ export function getMountedCards(run) {
     if (effective?.copiedBy) {
       const repeats=d.kind==='echo'?(d.repeatCount||1):1;
       if (effective.def.kind === "field") printed.copyPreview = `Adds ${repeats} Field Impulse ${repeats===1?'source':'sources'} · ${decimal(.8*repeats)}s extra at full Collector charge · one ring spend`;
-      if (effective.def.kind === "flash-handling") printed.copyPreview = `Adds +${cardAmount(effective.source)*repeats} missing Sparks per Flash · one pickup`;
+      if (effective.def.kind === "flash-handling") printed.copyPreview = `Adds +${cardAmount(effective.source)*repeats} missing Sparks per Flare · one pickup`;
       if (effective.def.kind === "camp-grow") printed.copyPreview = `Adds +${cardAmount(effective.source)*repeats} maximum Sparks per Grow · shared actions`;
       if (effective.def.kind === "packing") printed.copyPreview = `${d.kind === "echo" ? "Repeats" : "Borrows"} ${packingOutcome((effective.def.packingWeight||1)*repeats)}`;
     }
@@ -851,14 +854,14 @@ export const CARD_ROW_EVENTS = Object.freeze({
 /** collectorFloor: seconds added by a Boost never bring Collector recovery or reel time below this. */
 export const CARD_ROW_LIMITS = Object.freeze({ slots: 5, passes: 2, repeats: 3, slotVisits: 10, traceSteps: 40, collectorFloor: 0.5 });
 /** Every reward kind a chain can pay, in the order a Boost strengthens them. */
-export const CARD_REWARD_KINDS = Object.freeze(["sparks", "stored", "futureCapacity", "cruisingSpeed", "reelSeconds", "recoverySeconds"]);
+export const CARD_REWARD_KINDS = Object.freeze(["sparks", "stored", "futureCapacity", "cruisingSpeed", "reelSeconds", "recoverySeconds", "nextReelSeconds"]);
 /** What a Boost strengthens: Sparks and Collector time. Never Stored Sparks or permanent gains. */
-export const CARD_BOOSTED_REWARDS = Object.freeze(["sparks", "reelSeconds", "recoverySeconds"]);
+export const CARD_BOOSTED_REWARDS = Object.freeze(["sparks", "reelSeconds", "recoverySeconds", "nextReelSeconds"]);
 /** Stored Sparks, permanent max Sparks and speed percentage points are whole units. */
 const WHOLE_REWARDS = new Set(["stored", "futureCapacity", "cruisingSpeed"]);
 const STEP_REWARD_FIELD = Object.freeze({ sparks: "amount", stored: "stored", futureCapacity: "futureCapacity",
-  cruisingSpeed: "cruisingSpeed", reelSeconds: "reelSeconds", recoverySeconds: "recoverySeconds" });
-const zeroRewards = () => ({ sparks: 0, stored: 0, futureCapacity: 0, cruisingSpeed: 0, recoverySeconds: 0, reelSeconds: 0 });
+  cruisingSpeed: "cruisingSpeed", reelSeconds: "reelSeconds", recoverySeconds: "recoverySeconds", nextReelSeconds: "nextReelSeconds" });
+const zeroRewards = () => ({ sparks: 0, stored: 0, futureCapacity: 0, cruisingSpeed: 0, recoverySeconds: 0, reelSeconds: 0, nextReelSeconds: 0 });
 /** Split `total` in proportion to `weights`. Fractional rewards split exactly; whole
  * rewards split into whole units by largest remainder (ties go to the leftmost). */
 function apportion(weights, total, whole) {
@@ -889,8 +892,9 @@ export function getCardRowRule(def, card) {
 }
 export function hasCardRowEvent(runtime, kind) {
   if (runtime?.inscriptions && inscriptionHearsEvent(runtime, kind)) return true;
-  return getEffectiveCardSources(runtime).some(({def,source}) => {
+  return getEffectiveCardSources(runtime).some(({def,source,index}) => {
     const row=getCardRowRule(def,source);
+    if (def.kind === 'chameleon-two') { const nextCard = (runtime.cards || runtime.mountedCards || [])[index + 1], next = SKILL_CARDS[nextCard?.cardId]; return !!(next && getCardRowRule(next, nextCard) && !next.engine && next.copyable && ![CARD_ROW_EVENTS.victory, CARD_ROW_EVENTS.clear, CARD_ROW_EVENTS.attach].includes(kind)); }
     return def.tallyEvent === kind || (row && (row.event===kind || (row.event==='*' && row.operation==='add-sparks')));
   });
 }
@@ -953,7 +957,7 @@ const freezeReceipt = (receipt) => {
 /** The base reward of one firing of a card's own rule, before repeats, Encore and Boosts. */
 function baseRewards(def, card, rule, event) {
   const base = zeroRewards();
-  if (!rule || def?.kind === "echo" || def?.kind === "chameleon") return base;
+  if (!rule || def?.kind === "echo" || def?.kind === "chameleon" || def?.kind === "chameleon-two") return base;
   const amount = Math.max(0, Number(rule.amount) || 0);
   if (rule.operation === "add-sparks") base.sparks = amount;
   if (rule.storedFirstCrossing) base.stored = Math.max(0, Number(rule.storedFirstCrossing) || 0);
@@ -963,6 +967,7 @@ function baseRewards(def, card, rule, event) {
   if (rule.operation === "add-future-capacity") base.futureCapacity = cleanCardFutureCapacity(amount);
   if (rule.operation === "shorten-recovery") base.recoverySeconds = amount;
   if (rule.operation === "shorten-reel") base.reelSeconds = amount;
+  if (rule.operation === "bank-reel") base.nextReelSeconds = amount;
   return base;
 }
 /** The numeric chain is the same for flight and preview. Units here are printed Sparks.
@@ -1022,7 +1027,7 @@ export function resolveCardRow(runtime, event = {}) {
     availableReel: Math.max(0,Number(event.availableReel)||0),
     availableRecovery: Math.max(0,Number(event.availableRecovery)||0), carriedStored: integer(event.carriedStored),
     cruisingSpeedRoom:event.cruisingSpeedRoom==null?6:cleanCardCruisingSpeed(event.cruisingSpeedRoom) }, passes: 0, slotVisits: 0, sparks: 0, stored: 0,
-    futureCapacity: 0, cruisingSpeed: 0, recoverySeconds: 0, reelSeconds: 0, executions: 0, payerActions: 0, steps: [], charges: {}, cards: [], sparksExact: 0, firings: [] };
+    futureCapacity: 0, cruisingSpeed: 0, recoverySeconds: 0, reelSeconds: 0, nextReelSeconds: 0, executions: 0, payerActions: 0, steps: [], charges: {}, cards: [], sparksExact: 0, firings: [] };
   if (!runtime || !rowEventKinds.has(kind) || event.eligible === false) {
     receipt.charges = getCardCharges(runtime);return freezeReceipt(receipt);
   }
@@ -1082,7 +1087,7 @@ export function resolveCardRow(runtime, event = {}) {
     for (let slot = 0; slot < topology.length; slot++) {
       if (slot <= fromSlot) continue;
       const acting = topology[slot], ownDef = SKILL_CARDS[acting?.cardId];
-      const copy = ownDef?.kind === "echo" || ownDef?.kind === "chameleon";
+      const copy = ownDef?.kind === "echo" || ownDef?.kind === "chameleon" || ownDef?.kind === "chameleon-two";
       const target = copy ? topology[slot + 1] : acting;
       const def = SKILL_CARDS[target?.cardId];
       const source = live.get(target?.instanceId);
@@ -1097,7 +1102,7 @@ export function resolveCardRow(runtime, event = {}) {
         copiedBy: copy ? ownDef.kind : null, operation: "skip", before: subtotal, after: subtotal,
         amount: 0, stored: 0, recoverySeconds: 0, recoveryBefore: recoveryLeft(), recoveryAfter: recoveryLeft(),
         futureCapacity: 0, futureCapacityBefore: futureSubtotal, futureCapacityAfter: futureSubtotal, cruisingSpeed: 0,
-        reelSeconds: 0, reelBefore: reelLeft(), reelAfter: reelLeft(),
+        reelSeconds: 0, nextReelSeconds: 0, reelBefore: reelLeft(), reelAfter: reelLeft(),
         chargesBefore: Number.isFinite(source?.charges)?source.charges:null,
         chargesAfter: Number.isFinite(source?.charges)?source.charges:null,
         success: false, skipReason: null };
@@ -1108,7 +1113,7 @@ export function resolveCardRow(runtime, event = {}) {
         if (hollow > 0) { standalone.sparks += hollow; step.amount += hollow; step.skipReason = null; step.operation = "inscription"; step.success = true; receipt.executions++; }
         continue;
       }
-      if (!def || (copy && (!def.copyable || (ownDef.kind === "echo" && (def.kind === "capacity" || def.passive))))) {
+      if (!def || (copy && (!def.copyable || (ownDef.kind === "echo" && (def.kind === "capacity" || def.passive)) || (ownDef.kind === "chameleon-two" && def.engine)))) {
         step.skipReason = "incompatible-neighbor";continue;
       }
       if (!source || (def.charges && !(source.charges > 0))) {
@@ -1126,7 +1131,9 @@ export function resolveCardRow(runtime, event = {}) {
         if (ledgerCards[creditSlot]) ledgerCards[creditSlot].fired++;
         firedSlots.add(creditSlot);if (insId === "brimful") brimfulSlots.add(creditSlot);
       };
-      const wildcard = (rule?.event === "*" || (windOn && rule)) && (rule.operation === "multiply"
+      // Chameleon (two) makes the card to its right answer ANY Trigger; like Second Wind it never answers Finish, victory or a Collector grab.
+      const anyTrigger = windOn || ownDef?.kind === "chameleon-two";
+      const wildcard = (rule?.event === "*" || (anyTrigger && rule)) && (rule.operation === "multiply"
         ? kind !== CARD_ROW_EVENTS.victory
         : ![CARD_ROW_EVENTS.victory,CARD_ROW_EVENTS.clear,CARD_ROW_EVENTS.attach].includes(kind));
       const insId = slotInscriptionId(runtime, creditSlot), insDef = getInscription(insId);
@@ -1181,6 +1188,11 @@ export function resolveCardRow(runtime, event = {}) {
         const seconds = Math.min(amount, budget("reelSeconds"));
         if (seconds > 0) { succeed();pay("reelSeconds", seconds); }
         else step.skipReason = "no-active-reel";
+      } else if (operation === "bank-reel") {
+        // Haul Winch: the seconds are banked on the flight and taken off the NEXT reel (no active reel needed). A Boost to its right strengthens them like any reel time.
+        step.operation = operation;
+        if (amount > 0) { succeed();pay("nextReelSeconds", amount); }
+        else step.skipReason = "no-reel-credit";
       } else if (operation === "shorten-recovery") {
         step.operation = operation;
         const seconds = Math.min(amount, budget("recoverySeconds"));

@@ -13,7 +13,7 @@ function flight(modifiers={}){
 }
 const flash=g=>g.collect({kind:'sight',x:g.distance+g.player.x,y:g.player.y});
 
-test('plain Flash reaches as far as the old +120 px sight bonus',()=>{
+test('plain Flare reaches as far as the old +120 px sight bonus',()=>{
   const g=flight();const before=g.getLightState().radius;
   flash(g);g.time=4;
   const ls=g.getLightState();
@@ -23,7 +23,7 @@ test('plain Flash reaches as far as the old +120 px sight bonus',()=>{
   g.destroy();
 });
 
-test('card and Momentum Luminance stack additively with the Flash and return after it',()=>{
+test('card and Momentum Luminance stack additively with the Flare and return after it',()=>{
   const g=flight();g.mod.cardLuminancePercent=20;g.cardEngineLuminance=20;
   const normal=g.getLightState().radius;
   assert.ok(Math.abs(normal-BASE*1.4)<.01);
@@ -36,7 +36,7 @@ test('card and Momentum Luminance stack additively with the Flash and return aft
   g.destroy();
 });
 
-test('Pulses and the Luminance bonus share one duration, Long Flash lengthens both',()=>{
+test('Pulses and the Luminance bonus share one duration, Long Flare lengthens both',()=>{
   for(const longFlash of [false,true]){
     const g=flight({longFlash});flash(g);
     const n=flashPowerupDuration(g.mod);
@@ -47,13 +47,13 @@ test('Pulses and the Luminance bonus share one duration, Long Flash lengthens bo
     assert.equal(src.interval,FLASH_PULSE_INTERVAL);
     assert.ok(Math.abs(src.remaining-n)<1e-6,'Pulse source lasts the same time');
     g.time=n-.5;assert.ok(g.getLightState().sightBonus>0);
-    g.time=n;assert.equal(g.getLightState().sightBonus,0,'bonus ends on the frame the Flash ends');
+    g.time=n;assert.equal(g.getLightState().sightBonus,0,'bonus ends on the frame the Flare ends');
     g.destroy();
   }
-  assert.equal(FLASH_BASE_DURATION/FLASH_PULSE_INTERVAL,4,'a base Flash sends 4 Pulses (every 2 s over 8 s)');
+  assert.equal(FLASH_BASE_DURATION/FLASH_PULSE_INTERVAL,4,'a base Flare sends 4 Pulses (every 2 s over 8 s)');
 });
 
-test('Closed Eye still blocks card light but not the Flash; Dusk dimming still applies to it',()=>{
+test('Closed Eye still blocks card light but not the Flare; Dusk dimming still applies to it',()=>{
   const g=flight({closedEye:true,lightRadius:BASE*.38,cardLuminancePercent:50});
   const before=g.getLightState().radius;
   flash(g);g.time=4;
@@ -63,7 +63,7 @@ test('Closed Eye still blocks card light but not the Flash; Dusk dimming still a
   g.destroy();
 });
 
-test('crystal and artifact reveal (sightUntil of artifactEffects) is not a Flash Luminance',()=>{
+test('crystal and artifact reveal (sightUntil of artifactEffects) is not a Flare Luminance',()=>{
   const g=flight();const before=g.getLightState();
   g.artifactEffects.sightUntil=g.time+2;g.artifactEffects.sightStartedAt=g.time-.5;
   const ls=g.getLightState();

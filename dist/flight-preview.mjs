@@ -4,7 +4,7 @@ import {levelMapPreview} from './level-map-art.mjs?v=guide-clarity-1';
 import {mapStopIconMarkup} from './map-guide.mjs?v=guide-clarity-1';
 import {resourceSymbol} from './game-symbols.mjs?v=guide-clarity-1';
 import {getFlightClearReward} from './checkpoint-rewards.mjs?v=guide-clarity-1';
-import {availableFlightArtifacts,isCardRun} from './model.mjs?v=guide-clarity-1';
+import {flightRewardKind,SCRIBE_OFFER_COUNT,isCardRun} from './model.mjs?v=guide-clarity-1';
 import {bonusIcon,boonMarkup} from './route-bonus-ui.mjs?v=guide-clarity-1';
 import {contextualFlightNotice} from './contextual-events.mjs?v=guide-clarity-1';
 import {ATLAS_FORECASTS,atlasGlyph} from './night-atlas.mjs?v=guide-clarity-1';
@@ -40,8 +40,7 @@ function regularReward(run,node){
  const final=node.boss && (node.mapIndex??run.mapIndex)===2 && !run.isTutorial;
  if(final)return `<div class="preview-payout">${mapStopIconMarkup(node)}<strong>Expedition victory</strong></div>${isCardRun(run)?'<p class="preview-clear-extra">1 trophy card</p>':''}`;
  const amount=getFlightClearReward(node,run);
- const offers=availableFlightArtifacts(run,node).length;
- const artifact=offers>1?'choose 1 of 2 relics':offers===1?'1 relic':'';
+ const artifact=flightRewardKind(run,node)==='inscription'?`1 Inscription (choose 1 of ${SCRIBE_OFFER_COUNT})`:'';
  const extras=[isCardRun(run)?'1 card':'',artifact].filter(Boolean).join(' + ');
  return `<button type="button" class="preview-payout preview-resource-help" data-card-term="stored" aria-haspopup="dialog" aria-label="+${amount} Stored Sparks: help">${resourceSymbol('packed')}<strong>+${amount} <span>Stored Sparks</span></strong></button>
   ${extras?`<p class="preview-clear-extra">${escapeText(extras[0].toUpperCase()+extras.slice(1))}</p>`:''}`;

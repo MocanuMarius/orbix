@@ -1,5 +1,5 @@
 // Physical card effects listen to real world events; row replay never creates
-// another pickup, bounce, heart-collection mark or final Flash Pulse.
+// another pickup, bounce, heart-collection mark or final Flare Pulse.
 import {getEffectiveCardSources,CARD_ROW_EVENTS} from './skill-cards.mjs?v=guide-clarity-1';
 
 const eligible = e => !!(e.cardExecution && e.running && !e.paused && e.alive && !e.finished &&

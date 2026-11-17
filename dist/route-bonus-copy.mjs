@@ -1,6 +1,6 @@
 // Display compatibility for notes already formatted into older saves.
 // Only known challenge prefixes are removed; unrelated reward names stay intact.
-const legacyNames=Object.freeze(['Gilded Passage','Three Suns','Pilgrim Precision','Wild Circuit','Flash Relay','Long Glide','Edgeweaver','Night Sail','Wayfinder','Spark Trail','Rising Constellation','Heartwood Trail']);
+const legacyNames=Object.freeze(['Gilded Passage','Three Suns','Pilgrim Precision','Wild Circuit','Flare Relay','Long Glide','Edgeweaver','Night Sail','Wayfinder','Spark Trail','Rising Constellation','Heartwood Trail']);
 export function routeBonusNoteText(value){
  const text=String(value??'').trim();
  for(const name of legacyNames){

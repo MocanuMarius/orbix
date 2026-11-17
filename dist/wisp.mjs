@@ -54,7 +54,7 @@ export class WispCompanion {
 
   recoveryDuration(engine, packet) {
     // Read the natural packet before Cache handling compresses its payload.
-    // Flash, Field Impulse and guard spends retain the full base recovery.
+    // Flare, Field Impulse and guard spends retain the full base recovery.
     const fuel = packet ? getPickupSpec(packet).fuel : 0;
     const base = fuel > 0 ? WISP_TUNING.cooldown * fuel / getPickupSpec('cache').fuel : WISP_TUNING.cooldown;
     return base * clamp(Number(engine.mod.wispCooldown) || 1, .4, 1.5) * (engine.mod.treasureRecoveryScale || 1);

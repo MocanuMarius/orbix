@@ -94,12 +94,12 @@ export const SKILLS=Object.freeze(consolidateSkills(Object.fromEntries(Object.en
  'collector-attunement':skill('collector-attunement','Search Spark','collector',35,1,null,'Collector range +12%.'),
  'collector-field-impulse':{id:'collector-field-impulse',name:'Field Impulse',branch:'collector',cost:80,maxRank:1,requires:'collector-attunement',icon:'swift',shortEffect:'Swipe to spend the ring',description:'Swipe anywhere in the playfield: up to briefly levitate, down to dive, or right to surge. Power scales with the recovering Collector ring. Needs 25% recovery and Collector at home. Resets the ring like a fetch. Tap the playfield to Lift on release; the Lift control responds immediately.'},
  'collector-fetch-large':skill('collector-fetch-large','Cache Handling','collector',50,1,'collector-attunement','Collector can fetch dense Cache Sparks. Deliveries give 12 Sparks and fully recharge the search ring.'),
- 'collector-fetch-flash':skill('collector-fetch-flash','Flash Handling','collector',30,1,'collector-attunement','Collector can fetch missed Flash Powerups. Every Flash you or Collector picks up also restores up to 6 missing Sparks.'),
+ 'collector-fetch-flash':skill('collector-fetch-flash','Flare Handling','collector',30,1,'collector-attunement','Collector can fetch missed Flare Powerups. Every Flare you or Collector picks up also restores up to 6 missing Sparks.'),
  'collector-mastery':skill('collector-mastery','Deep Spark','collector',75,1,'collector-attunement','Collector range +12%. Adds to your first Spark.'),
  'collector-last-orbit':{id:'collector-last-orbit',name:'Last Orbit',branch:'collector',cost:95,maxRank:1,requires:null,treeGroup:'collector-guard',description:'A full Collector ring catches a fatal impact while your companion is home. You bounce clear. Fetching shuts down for four normal recovery cycles.',consequence:'Save a heart · 4× recovery'},
  'collector-guard-repair':skill('collector-guard-repair','Kindled Guard','collector',55,1,'collector-last-orbit','Direct body fuel pickups shorten Last Orbit recovery by 2 seconds. Dream pickups do not repair it.'),
  'collector-target-dense':skill('collector-target-dense','Dense Priority','collector',20,1,'collector-fetch-large','Unlock Dense first targeting. Prefer the richest eligible Spark; change learned preferences at checkpoints.'),
- 'collector-target-flash':skill('collector-target-flash','Flash Priority','collector',20,1,'collector-fetch-flash','Unlock Flash first targeting. Prefer an eligible Flash Powerup; change learned preferences at checkpoints.'),
+ 'collector-target-flash':skill('collector-target-flash','Flare Priority','collector',20,1,'collector-fetch-flash','Unlock Flare first targeting. Prefer an eligible Flare Powerup; change learned preferences at checkpoints.'),
  'protector-attunement':skill('protector-attunement','Ward Spark','protector',35,1,null,'Shell costs 2 less Sparks.'),
  'protector-mastery':skill('protector-mastery','Deep Spark','protector',75,1,'protector-attunement','Shell costs 2 less Sparks. Adds to your first Spark.'),
  'leveler-attunement':skill('leveler-attunement','Balance Spark','leveler',35,1,null,'Space Timer holds 0.35 seconds longer.'),
@@ -124,7 +124,7 @@ export const ARTIFACTS=Object.freeze({
  'hearth-bloom':{...artifact('hearth-bloom','Hearth Bloom','Every third consecutive body Spark pickup restores 10 Sparks. Five activations per flight. Bonus fuel cannot become Stored Sparks.','fuel',{}),rarity:'rare',sellValue:35,tags:Object.freeze(['precision','sustain'])},
  'lantern-bloom':{...artifact('lantern-bloom','Lantern Bloom','Every third consecutive body Spark pickup reveals the scene for 1.5s. Five activations per flight.','radiance',{}),rarity:'rare',sellValue:35,tags:Object.freeze(['precision','dream'])},
  'glow-wick':artifact('glow-wick','Spark Wick','Natural Spark pickups restore up to 10 extra Sparks. Three automatic uses. Consumed when empty. Bonus fuel cannot become Stored Sparks.','flame',{}),
- 'flash-stone':artifact('flash-stone','Flash Stone','Natural Spark pickups reveal the scene for 1.5s. Two automatic uses. Consumed when empty.','sun',{}),
+ 'flash-stone':artifact('flash-stone','Flare Stone','Natural Spark pickups reveal the scene for 1.5s. Two automatic uses. Consumed when empty.','sun',{}),
  'sunheart-engine':artifact('sunheart-engine','Sunheart Engine','Natural fuel gives 8 extra Sparks. Overflow fuel recharges your companion and casts 2s of forward light. Recovery caps: 2s per pickup, 12s per flight.','sunheart',{cacheFuelBonus:8,overflowRecharge:.12,rechargeSight:2}),
  'dream-sovereign':artifact('dream-sovereign','Dream Sovereign','Dream pickups restore 2.5s of companion recovery. Your first waking fuel reveals the scene. Fuel gathered in extra light stores a free Lift, up to four per flight. Light radius +35.','dream-crown',{dreamRecharge:2.5,secondDawn:1,litLift:1,lightRadius:35}),
  'hollow-covenant':artifact('hollow-covenant','Hollow Covenant','Lift costs one fewer Spark (minimum one). Companion work primes a direct Spark pickup for +12 Sparks, up to five times per flight. Skim a Dark Spark for 6 Sparks, up to five seeds.','hollow-crown',{workFuel:12,nightGarden:6,flapCost:.90}),
@@ -158,7 +158,7 @@ export const ARTIFACTS=Object.freeze({
 export const ROUTE_PROFILES=Object.freeze({
  refuge:{routeStyle:'refuge',passage:'open',fuelCadence:2,fuelBonus:0,flameDrain:1,routeReward:1,durationScale:1,fuelPreview:'More frequent Sparks',riskPreview:'Open passages · deliberate edge packets'},
  cavern:{routeStyle:'cavern',passage:'cavern',fuelCadence:3,fuelBonus:0,flameDrain:1,routeReward:1.25,durationScale:.8,fuelPreview:'Spaced Sparks · narrower passages',riskPreview:'Shorter cave · tighter passage'},
- gauntlet:{routeStyle:'gauntlet',passage:'gauntlet',fuelCadence:4,fuelBonus:0,flameDrain:1,routeReward:1.45,durationScale:.9,fuelPreview:'Lean fuel · richer relic rewards',riskPreview:'Reward detour · demanding landforms'},
+ gauntlet:{routeStyle:'gauntlet',passage:'gauntlet',fuelCadence:4,fuelBonus:0,flameDrain:1,routeReward:1.45,durationScale:.9,fuelPreview:'Lean fuel · richer Stored Sparks',riskPreview:'Reward detour · demanding landforms'},
 });
 const ROLES=Object.keys(COMPANION_ABILITIES);
 const PHASES=new Set(['map','briefing','support','retry','map-clear','ended']);
@@ -313,7 +313,7 @@ export function getTreasureKind(run,node=run?.current){
  return treasureDeck(run.seed,run.mapIndex)[Math.max(0,index)%TREASURE_KINDS.length];
 }
 export function getTreasureChoices(run,node=run?.current){
- if(isPlayablePractice(run)&&node.practiceLoan)return [{title:'Borrow Proximity',icon:'sight',description:'A real card loan: skim solid terrain to earn a revealing pulse. Catch the white Flash triangle along the way.',displayUnits:true,effect:{practiceLoan:true}}];
+ if(isPlayablePractice(run)&&node.practiceLoan)return [{title:'Borrow Proximity',icon:'sight',description:'A real card loan: skim solid terrain to earn a revealing pulse. Catch the white Flare triangle along the way.',displayUnits:true,effect:{practiceLoan:true}}];
  if(run.isTutorial&&node.practiceLoan)return [{title:'Borrow Proximity · rank 1',skillId:'proximity-awakening',icon:'sight',description:'Fly near solid terrain to charge a revealing Surface Pulse. This rank-one skill loan stays in practice.',displayUnits:true,effect:{practiceLoan:true}}];
  if(run.isTutorial)return treasureChoices(getTreasureKind(run,node),run);
  return chestRewardPair(run,(run.campaignSeed||run.seed)+':'+run.mapIndex+':'+node.id,{
@@ -386,7 +386,7 @@ function makeMap(seed,mapIndex,difficulty,cards=false){
    duration:support?0:(finale?55:Math.round((row===0?34:38+row*2)*profile.durationScale))*3,flightLengthScale:support?1:3,challengeId:support?'':challengeId,challengeTarget:support?0:target,challenge:support?'':challengeId==='wisps'?`Collect ${target} Sparks`:challengeId==='boosts'?`Use companion tools ${target} times`:'Finish without a hit',eventIndex:code==='V'?eventIndex:null,
    fuelPreview:camp?'Recover, rekindle hearts, or gather light':support?EVENT_SCENARIOS[eventIndex].summary:profile.fuelPreview,
    riskPreview:camp?'Recover or grow, then train skills':support?'Preview stakes before committing':`${encounterPreview} · ${profile.riskPreview}`,
-   commitment:camp?'One known flight follows this Rest':support?'A choice changes your next flight':elite?'Hard flight · rare relic choice':'Follow the visible route to prepare your build',
+   commitment:camp?'One known flight follows this Rest':support?'A choice changes your next flight':elite?'Hard flight · Inscription choice':'Follow the visible route to prepare your build',
    description:camp?'Recover hearts or grow Spark capacity, then prepare for the next flight.':support?EVENT_SCENARIOS[eventIndex].detail:biome.description};
   if(!support)Object.assign(n,getFlightLengthProfile({seed:seed+':'+n.id,mapIndex,row:encounterStage,elite,boss}));
   const economy=nodeEconomy(n);n.challengeBonus=0;n.clearReward=getFlightClearReward(n);n.glowReward=economy.salvageGlow;
@@ -1268,12 +1268,18 @@ export function availableFlightArtifacts(run,node){
  const pool=(node.boss?[...BOSS_ARTIFACTS]:Object.keys(ARTIFACTS)).filter(id=>!held.has(id)&&artifactFitsRun(run,id));
  const unseen=pool.filter(id=>!seen.has(id));return unseen.length>=2?unseen:pool;
 }
+export const SCRIBE_OFFER_COUNT=3;
+/** What a cleared flight at `node` hands out beyond the Stored Sparks: 'inscription' (the Scribe) or null. The map preview and makeFlightReward both ask this one question. */
+export function flightRewardKind(run,node){
+ if(!node||!node.elite&&!node.boss||node.boss&&(node.mapIndex??run.mapIndex)===2&&!run.isTutorial||!isCardRun(run))return null;
+ return 'inscription';
+}
 // The Scribe (docs/inscriptions.md): every Elite and Boss flight offers three Inscriptions, then a slot to write one on.
 function makeFlightReward(run,source='flight'){
  const n=run.current;
- if(!n.elite&&!n.boss||n.boss&&run.mapIndex===2&&!run.isTutorial||!isCardRun(run))return null;
+ if(flightRewardKind(run,n)!=='inscription')return null;
  cleanSlotInscriptions(run);
- const offers=offerInscriptions(run,rng(`${run.seed}:${n.id}:scribe`));
+ const offers=offerInscriptions(run,rng(`${run.seed}:${n.id}:scribe`),SCRIBE_OFFER_COUNT);
  return {kind:'inscription',nodeId:n.id,source,sourceName:'The Scribe',offers,permanent:false,claimed:!offers.length,rewardTheme:n.rewardTheme};
 }
 export function getFlightRewardMeltValue(reward){

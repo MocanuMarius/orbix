@@ -60,7 +60,7 @@ test('intensity follows what the game already knows',()=>{
  assert.equal(intensityFor('flight',{...base,flame:10}).level,URGENT,'low Sparks');
  assert.equal(intensityFor('flight',{...base,blackHole:{rate:0,nearest:{distance:120}}}).level,URGENT,'black hole near');
  assert.equal(intensityFor('flight',{...base,blackHole:{rate:0,nearest:{distance:400}}}).level,FLOWING,'black hole far');
- assert.equal(intensityFor('flight',{...base,boostActive:true}).level,URGENT,'Flash');
+ assert.equal(intensityFor('flight',{...base,boostActive:true}).level,URGENT,'Flare');
  for(const s of [{paused:true},{dying:true},{completing:true},{dream:{mode:'record'}}])assert.equal(intensityFor('flight',{...base,...s}).level,CALM);
  // Rises at once, falls only after six seconds of asking for less.
  let st=settleIntensity(null,FLOWING,0);st=settleIntensity(st,URGENT,1);assert.equal(st.level,URGENT);

@@ -23,7 +23,7 @@ function crossings(e){
   return e.cardRowTrace.event;
 }
 
-test('Flash, active sight, map contacts and explicit relic flashes all dispatch the same crossing row',()=>{
+test('Flare, active sight, map contacts and explicit relic flashes all dispatch the same crossing row',()=>{
   for(const kind of ['flash','seer','bubble','resonate','flash-stone','dawn-loom']){
     const e=flight(['harvest-common'],{mainSeer:kind==='seer',rechargeSight:kind==='dawn-loom'?1.5:0,artifactIds:[kind]});
     try{
@@ -129,7 +129,7 @@ test('a long tick resolves completed periodic fronts before retiring their visua
   assert.equal(run([.75]),3);
 });
 
-test('replacing a Flash restarts its local two-second beat; upgrades preserve the live beat',()=>{
+test('replacing a Flare restarts its local two-second beat; upgrades preserve the live beat',()=>{
   const e=flight([]),emitted=[],emit=e.luminanceWaves.emit.bind(e.luminanceWaves);
   e.luminanceWaves.emit=settings=>{const wave=emit(settings);emitted.push(wave);return wave;};
   const advance=dt=>{e.time+=dt;e.luminanceWaves.update(dt);};

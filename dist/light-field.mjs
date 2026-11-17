@@ -47,7 +47,7 @@ export function createLightMaskCanvas(document){
   c.putImageData(image,0,0);return canvas;
 }
 
-// A loose Flash prism lights nearby rock as it comes into view. Use the
+// A loose Flare prism lights nearby rock as it comes into view. Use the
 // existing fog mask so its white core and the scenery share a soft falloff.
 export function castFlashPropLight(ctx,mask,x,y,scale,visibility,time=0,reducedMotion=false){
   if(visibility<=0)return;

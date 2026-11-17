@@ -14,8 +14,8 @@ const CHIP = {'Collect':'collect','Delivery':'delivery','Latch':'latch','Wave':'
   'Overfill':'overfill','Rhythm':'rhythm','Save':'save','Clear':'clear','Any Trigger':'any','Next card':'next','Always on':'always-on','At Rest':'rest'};
 // One word for the ring of light (designer, 2026-11-17): the design-lab data still says "Wave".
 // Trigger labels were simplified (dist/card-trigger-labels.mjs); the lab table keeps the old words.
-const HEAD = {'Flash':'Collect a Flash','Latch':'When your Collector grabs a Spark','Flash ends':'When a Flash ends','Falling Lift':'Lift while falling','Rhythm':'Lift on the beat','Clear':'Finish','Any Trigger':'Boost','Next card':'Repeat','Always on':'Passive'};
-const chipLabel = t => triggerDisplay(CHIP[t]).label, headOf = (t, c) => t === 'Latch' && c === 'Cluster' ? 'When your Collector grabs a Cluster' : (HEAD[t] || t) + (c ? ` · ${c}` : '');
+const HEAD = {'Flash':'Collect a Flare','Latch':'When your Collector grabs a Spark','Flash ends':'When a Flare ends','Falling Lift':'Lift while falling','Rhythm':'Lift on the beat','Clear':'Finish','Any Trigger':'Boost','Next card':'Repeat','Always on':'Passive'};
+const chipLabel = t => triggerDisplay(CHIP[t]).label, headOf = (t, c) => t === 'Delivery' && c === 'Cluster' ? 'Deliver a Cluster' : (HEAD[t] || t) + (c ? ` · ${c}` : '');
 const pulse = text => text && text.replace(/\b[Ww]aves?\b/g, word => word.endsWith('s') ? 'Pulses' : 'Pulse');
 const BOOST_TEXT = {'prism-lens':'Every card before it ×1.25','prism-lens-ii':'Every card before it ×3','crescendo':'Double every card before it',
   'closing-chord':'Every card before it ×2.5','second-sun':'Every card before it ×2, ×3 in an Encore'};
@@ -33,7 +33,7 @@ test('all 85 approved cards carry their Trigger chip as data and the approved pl
     assert.equal(bands[0].type, 'condition');assert.equal(bands[0].text, headOf(pulse(entry.t), entry.c), entry.id);
     assert.equal(bands[0].trigger, CHIP[entry.t]);
     const what = bands.find(band => band.type === 'effect').text;
-    assert.equal(what, BOOST_TEXT[entry.id] || pulse(entry.b || entry.x), `${entry.id} what line`);
+    assert.equal(what, BOOST_TEXT[entry.id] || pulse(entry.b || entry.x).replace(/Flash/g, "Flare"), `${entry.id} what line`);
     const tag = bands.find(band => band.type === 'note')?.text;
     if (entry.u) assert.equal(tag, entry.u, `${entry.id} tag`); else assert.equal(tag, undefined, entry.id);
     assert.ok(bands.length <= 3, entry.id);

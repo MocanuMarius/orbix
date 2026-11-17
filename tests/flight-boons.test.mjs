@@ -66,7 +66,7 @@ test('Wild Circuit accelerates each equipped role after the dream opening',()=>{
   near(protector.shield.recovery,4.88);
 });
 
-test('Flash Relay and Night Sail use time-limited light or actual simulated hole drain',()=>{
+test('Flare Relay and Night Sail use time-limited light or actual simulated hole drain',()=>{
   const flight=engine('flash-relay','collector',{lightRadius:180});
   near(flight.getLightState().baseRadius,225);
   flight.time=15;near(flight.getLightState().baseRadius,180);

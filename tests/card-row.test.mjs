@@ -132,7 +132,7 @@ test('live capped receipts preserve raw arithmetic and retain a meaningful full-
   }finally{e.destroy();}
 });
 
-test('body and Flash replay numeric gain without new collection, overflow, waves or Dream rewards',()=>{
+test('body and Flare replay numeric gain without new collection, overflow, waves or Dream rewards',()=>{
   const e=flight(['body-spark','prism-lens','refrain']);
   try{
     e.flame=0;e.collect({kind:'light'});near(e.flame,20+4*CARD_UNIT); // whole Sparks: each firing rounds down (2026-11-17)

@@ -37,7 +37,7 @@ function stepAt(engine, worldX, y) {
   engine.step(dt);
 }
 
-test('Hollow Sun route flights use paired lanterns and an accessible Flash without starting a guardian fight',()=>{
+test('Hollow Sun route flights use paired lanterns and an accessible Flare without starting a guardian fight',()=>{
   const canvas={style:{},getContext:()=>({setTransform(){}}),getBoundingClientRect:()=>({width:900,height:405})};
   for(const [row,elite,count] of [[0,false,1],[3,false,2],[5,false,3],[3,true,3]]){
     const e=new WispFlight({canvas,preflight:true,node:{row,mapTheme:'darkness-lanterns'},
@@ -213,7 +213,7 @@ test('map depth adds linked opposite gates with reachable lanes and time to chan
   }
 });
 
-test('lantern darkness fades with distance, layers in crossfire and opens locally for Luminance and Flash',()=>{
+test('lantern darkness fades with distance, layers in crossfire and opens locally for Luminance and Flare',()=>{
   const e=flight('hollow-sun'),boss=e.layout.boss,s=boss.shutters[0];
   const y=s.y-s.side*s.depth*.55,x=s.x+s.shift*.55;
   const fullReveal={...e.getLightState(),edgingReveal:1};
@@ -257,7 +257,7 @@ test('lantern darkness fades with distance, layers in crossfire and opens locall
   e.time+=3;
   const flash=sight();
   assert.ok(max>base+.10,`max Luminance ${max} vs base ${base}`);
-  assert.ok(flash>base+.10&&flash>.18,`Flash ${flash} vs base ${base}`);
+  assert.ok(flash>base+.10&&flash>.18,`Flare ${flash} vs base ${base}`);
   const fuel=e.flame;
   for(let i=0;i<80;i++)stepAt(e,x,y);
   assert.equal(e.flame,fuel);

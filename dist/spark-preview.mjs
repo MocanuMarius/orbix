@@ -282,7 +282,7 @@ function renderGroup() {
   root.dataset.lantern = String(lantern);
   scale.hidden = flash||sizes||lantern;
   gallery.setAttribute('aria-label',comparison ? 'Compare absorption styles for your next flight' : 'Icon artwork');
-  document.querySelector('h1').textContent = comparison ? 'Spark absorption' : sizes?'Spark strengths':flash ? 'Flash Powerup' : lantern ? 'Darkness Lantern' : 'Icon preview';
+  document.querySelector('h1').textContent = comparison ? 'Spark absorption' : sizes?'Spark strengths':flash ? 'Flare Powerup' : lantern ? 'Darkness Lantern' : 'Icon preview';
   document.querySelector('#comparison-controls').hidden = !comparison;
   styleNote.hidden = !comparison;
   const fragment = document.createDocumentFragment();
@@ -298,7 +298,7 @@ function renderGroup() {
       const link = document.createElement('a');
       link.href = '#flash';
       link.className = 'pickup-demo';
-      link.setAttribute('aria-label','Watch the Flash Powerup in flight');
+      link.setAttribute('aria-label','Watch the Flare Powerup in flight');
       link.append(...art.childNodes);
       art.append(link);
       art.removeAttribute('aria-hidden');

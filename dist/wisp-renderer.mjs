@@ -887,8 +887,8 @@ export class WispFlightView {
     }
     const completion = e.completionProgress || 0;
     const fogAlpha = (1 - completion * completion * (3 - 2 * completion)) * (1 - sceneRevealStrength(light));
-    // Scene-wide reveals (Flash pickup, Edging, tether, the finish) and the
-    // reveals that ignore rock (Luminance rings, Flash prisms, lantern wake)
+    // Scene-wide reveals (Flare pickup, Edging, tether, the finish) and the
+    // reveals that ignore rock (Luminance rings, Flare prisms, lantern wake)
     // would light terrain interiors as if nothing blocked them. Where any of
     // them is active, solid rock is re-darkened behind its exposed face.
     const unblocked = !legacy && (e.luminanceWaves?.revealCount > 0 || lanternField(e.layout)?.shutters?.length > 0 || this.flashPropsInView(e));
@@ -904,7 +904,7 @@ export class WispFlightView {
       f.globalCompositeOperation = 'source-over'; f.globalAlpha = SOLID_SHADE_MAX; f.drawImage(shade, 0, 0); f.globalAlpha = 1; f.globalCompositeOperation = 'destination-out';
     }
     // Baseline light is circular. Forward scouting is earned through skills,
-    // the Flash Powerup and artifacts. These casts are ray-traced through rock.
+    // the Flare Powerup and artifacts. These casts are ray-traced through rock.
     castTerrainLight(f,mask,e,{x:playerX/s,y:playerY/s,radius:this.lightRadius,alpha:this.lightIntensity,scale:s,channel:'main'});
     const forward = light.forwardLight || e.forwardLight;
     if (forward?.active && forward.radius > 0) {

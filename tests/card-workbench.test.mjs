@@ -63,7 +63,7 @@ test('Equipped foreground keeps collection behind one scrolling Deck and melting
   assert.doesNotMatch(bench, /1\/3/);
   const collection = cardsBenchMarkup(sample, { browsing: true });
   assert.equal((collection.match(/class="card-deck-pick/g) || []).length, 6);
-  assert.match(collection, /Flash Handling/);
+  assert.match(collection, /Flare Handling/);
   assert.doesNotMatch(collection, /card-page|card-deck-pages/);
   assert.match(collection, /card-collection-slots/);
   assert.match(collection, /data-deck-drop="return"/);

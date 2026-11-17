@@ -12,7 +12,7 @@ const run=skills=>({companions:['collector'],skills});
 const all={'collector-fetch-large':1};
 const make=skills=>new WispFlight({canvas,seed:'collector-size-unlocks',preflight:true,companions:['collector'],modifiers:M.getRunModifiers(run(skills))});
 
-test('Small and Cluster start available, larger loads unlock together, Flash separately',()=>{
+test('Small and Cluster start available, larger loads unlock together, Flare separately',()=>{
  const s=M.newState();s.run=M.createRun(s.profile,'load-purchases');s.run.condensedGlow=10000;
  const allowed=()=>[1,2,3].filter(m=>collectorCanFetch({kind:'cache',sparkMass:m},M.getRunModifiers(s.run)));
  assert.deepEqual(allowed(),[1,2]);assert.equal(M.buyCheckpointSkill(s,'collector-fetch-large'),false);
@@ -61,7 +61,7 @@ test('body Cache keeps 18 Sparks while a delivered Cache compacts to 12',()=>{
  assert.equal(glowPoints(carried.pickupOverflow),12);assert.equal(carried.condensedGlow,2);carried.destroy();
 });
 
-test('Flash Handling restores missing fuel once on body or carrier contact, without packing surplus',()=>{
+test('Flare Handling restores missing fuel once on body or carrier contact, without packing surplus',()=>{
  for(const [trained,delivered,start,expected] of [[true,false,0,6],[true,true,0,6],[true,false,95,30],[false,false,0,0]]){
   const flight=make(trained?{'collector-fetch-flash':1}:{});
   flight.flame=start;

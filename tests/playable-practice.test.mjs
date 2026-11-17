@@ -56,7 +56,7 @@ test('practice failures restore the entrance indefinitely and never spend real c
  }
 });
 
-test('Flash is a real collectible in the Luminance course and the finish',()=>{
+test('Flare is a real collectible in the Luminance course and the finish',()=>{
  const state=newState();startTutorial(state);
  for(const row of [2,6]){
   state.run.current=state.run.map[row][0];

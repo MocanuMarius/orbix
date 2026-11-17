@@ -15,7 +15,10 @@ import {getGlowCapacity, GLOW_CAPACITY_LIMIT_UNITS} from '../dist/vitality.mjs';
 import {rewardEarnings} from '../dist/reward-screen.mjs';
 
 const row = ids => ids.map((id, i) => id ? makeSkillCard(id, `e${i}`) : null);
-const CHIME = ['first-catch', 'spark-chime', 'ember-bell', 'slow-wick'];
+// The demo engine: First Catch (Collect -> Pulse), a Metronome that fires the next card every 3 s, a Spark Chime (+1 per Turn).
+const CHIME = ['first-catch', 'metronome', 'spark-chime'];
+// The Wick version: one Turn only (nothing loops it), used where the Slow Wick's own rules are tested.
+const WICK = ['first-catch', 'slow-wick', 'spark-chime'];
 const MILL = ['close-call', 'metronome', 'body-spark', 'overflow-bell'];
 // Batch 1 position cards (tests/cards-batch-1.test.mjs) are unreleased too but are ordinary Chain cards, not engine cards.
 const BATCH_1 = ['keystone', 'vanguard', 'bookends', 'empty-chair', 'ladder', 'twin-flame', 'spill-jar', 'scar-tissue', 'collectors-ledger', 'old-friend', 'gilded-rim', 'second-wind', 'undertow', 'tributary', 'tithe']; // batches 1 to 3 (cards-batch-N.test.mjs)
@@ -38,7 +41,7 @@ const flightWith = (ids, extra = {}) => {
 // ── catalog ─────────────────────────────────────────────────────────────────────────────────────────────────────
 test('the engine cards are in the catalog, unreleased, readable and drawn with existing art', () => {
   assert.deepEqual(UNRELEASED, ['wave-loom', 'spark-chime', 'ember-bell', 'flash-tinder', 'homing-thread', 'overflow-bell', 'afterglow', 'slow-wick', 'metronome',
-    'long-fuse', 'heartbeat', 'first-catch', 'close-call', 'low-ember', 'third-beat', 'momentum', 'full-satchel', 'last-round', 'harvest-home', 'black-hole']);
+    'long-fuse', 'heartbeat', 'first-catch', 'close-call', 'low-ember', 'third-beat', 'momentum', 'full-satchel', 'last-round', 'harvest-home', 'black-hole', 'chameleon-two', 'whetstone']);
   for (const id of UNRELEASED) {
     const def = SKILL_CARDS[id], card = describeSkillCard(makeSkillCard(id, `x:${id}`));
     assert.equal(def.unreleased, true); assert.equal(def.excludeStarter, true);
@@ -78,20 +81,47 @@ test('a card-made Pulse reaches only the next card to its right that waits for a
 });
 
 test('card-made Spark gains reach every waiting card to the right, never to the left', () => {
-  const right = rig(['first-catch', 'spark-chime', 'ember-bell', 'ember-bell']);
+  // The Metronome is the one card that hears a Spark gain.
+  const right = rig(['first-catch', 'spark-chime', 'metronome', 'metronome']);
   right.at('collect', 0);
-  assert.deepEqual(hits(right.engine, 'hit').filter(h => h.type === 'gain').map(h => h.slot), [2, 3]);
-  const left = rig(['ember-bell', 'first-catch', 'spark-chime']);
+  assert.deepEqual(hits(right.engine, 'armed').map(h => h.slot), [2, 3], 'both Metronomes heard the Chime’s gain');
+  const left = rig(['metronome', 'first-catch', 'spark-chime']);
   left.at('collect', 0);
-  assert.equal(hits(left.engine, 'hit').filter(h => h.slot === 0).length, 0, 'events never flow left');
+  assert.equal(hits(left.engine, 'armed').length, 0, 'events never flow left');
 });
 
-test('a player-made Trigger is heard by the whole Chain: the Chain’s Collect Sparks reach an Ember Bell on its left', () => {
-  const {engine, at} = rig(['ember-bell', 'body-spark', 'slow-wick']);
+test('a player-made Trigger is heard by the whole Chain: the Chain’s Collect Sparks, spilling on a full meter, reach an Ember Bell on its left', () => {
+  const {engine, at} = rig(['ember-bell', 'body-spark', 'slow-wick'], {start: 3, max: 3});
   at('collect', 0);
-  assert.deepEqual(hits(engine, 'hit').map(h => [h.slot, h.type]), [[0, 'gain']]);
+  assert.deepEqual(hits(engine, 'hit').map(h => [h.slot, h.type]), [[0, 'overfill']]);
   assert.deepEqual(hits(engine, 'lit').map(h => h.slot), [2]);
   assert.equal(engine.timers.length, 1, 'the Bell lit the Wick');
+});
+
+test('Ember Bell hears an Overfill and sends a Pulse: no once-per-Turn, no loop, events flow right', () => {
+  const spec = SKILL_CARDS['ember-bell'].engine;
+  assert.deepEqual(spec.hears, ['overfill']); assert.deepEqual(spec.does, ['pulse']); assert.equal(spec.oncePerTurn, undefined, 'it answers every Overfill');
+  assert.equal(SKILL_CARDS['ember-bell'].trigger, 'overfill');
+  // Two Collects in the same Turn on a full meter spill twice: the Bell sends a Pulse each time (the Spark Chime to its right hears both).
+  const {engine, at} = rig(['body-spark', 'ember-bell', 'spark-chime'], {start: 3, max: 3});
+  at('collect', 0); at('collect', 0);
+  assert.equal(hits(engine, 'hit').filter(h => h.slot === 1 && h.type === 'overfill').length, 2, 'both Overfills heard in one Turn');
+  assert.equal(hits(engine, 'pulse').filter(p => p.slot === 1).length, 2, 'one Pulse per Overfill');
+  assert.equal(hits(engine, 'hit').filter(h => h.slot === 2 && h.type === 'pulse').length, 2);
+  // No loop: the Chime's own spill is an Overfill made to the Bell's right, so a Pulse the Bell sends never re-fires the same Bell.
+  const loop = rig(['body-spark', 'ember-bell', 'spark-chime', 'ember-bell'], {start: 3, max: 3});
+  loop.at('collect', 0);
+  assert.equal(hits(loop.engine, 'hit').filter(h => h.slot === 1).length, 1, 'the first Bell fired once');
+  assert.equal(hits(loop.engine, 'hit').filter(h => h.slot === 3 && h.type === 'overfill' && h.from === 2).length, 1, 'the second Bell heard the Chime’s spill');
+  assert.equal(hits(loop.engine, 'pulse').filter(p => p.slot === 1).length, 1);
+  // Events flow right only: a Bell to the left of the spill never hears it.
+  const left = rig(['ember-bell', 'close-call', 'spark-chime'], {start: 3, max: 3});
+  left.at('skim', 0);
+  assert.equal(hits(left.engine, 'gain').filter(g => g.slot === 2 && g.spill > 0).length, 1, 'the Chime did spill');
+  assert.equal(hits(left.engine, 'hit').filter(h => h.slot === 0).length, 0, 'a Bell on the left does not hear it');
+  const right = rig(['close-call', 'spark-chime', 'ember-bell'], {start: 3, max: 3});
+  right.at('skim', 0);
+  assert.equal(hits(right.engine, 'hit').filter(h => h.slot === 2 && h.type === 'overfill' && h.from === 1).length, 1, 'the Chime’s spill reaches a Bell on the right');
 });
 
 test('a Timer returns its Pulse to the first Slot but never to itself', () => {
@@ -108,7 +138,7 @@ test('a Timer returns its Pulse to the first Slot but never to itself', () => {
 test('Boosts multiply each card-made gain to their left, rounded down; Stored Sparks are never boosted', () => {
   for (const [ids, gain] of [[[...CHIME, 'prism-lens'], 1], [[...CHIME, 'crescendo'], 2], [['crescendo', ...CHIME], 1], [[...CHIME, 'prism-lens-ii'], 3]]) {
     const {engine, at} = rig(ids);
-    at('collect', 0); engine.advance(3.01);
+    at('collect', 0); engine.advance(6.01);
     assert.deepEqual(hits(engine, 'gain').map(g => g.amount), [gain, gain], ids.join(','));
   }
   assert.equal(engineBoostAt(row(['spark-chime', 'closing-chord', 'body-spark']), 0).multiplier, 1, 'Closing Chord only as the last card');
@@ -130,24 +160,25 @@ test('the two worked engines reproduce the demo’s numbers', () => {
   // A Turn every 3 s from the first pickup: Turns at 3, 6, 9 ... s.
   const run = simulateEngineChain(row(CHIME), {horizon: 30, events: [{t: 0, kind: 'collect'}]});
   assert.deepEqual(run.turnLog, [3, 6, 9, 12, 15, 18, 21, 24, 27, 30]);
-  assert.equal(run.sparks, 11, '11 Sparks in a 30 s flight from the first pickup');
+  assert.equal(run.sparks, 10, '10 Sparks in a 30 s flight: one per Turn, the first Turn after the first 3 s');
 });
 
 test('a Chain with no Timer runs once', () => {
-  const run = simulateEngineChain(row(['first-catch', 'spark-chime', 'ember-bell']), {horizon: 60, events: [{t: 0, kind: 'collect'}]});
+  const run = simulateEngineChain(row(['first-catch', 'spark-chime']), {horizon: 60, events: [{t: 0, kind: 'collect'}]});
   assert.equal(run.turns, 0); assert.equal(run.sparks, 1); assert.equal(run.running, false);
-  assert.equal(findEngineLoop(row(['first-catch', 'spark-chime', 'ember-bell'])).runsOnce, true);
-  assert.equal(engineMetrics(row(['first-catch', 'spark-chime', 'ember-bell'])).turnsPer10s, null);
+  assert.equal(findEngineLoop(row(['first-catch', 'spark-chime'])).runsOnce, true);
+  assert.equal(engineMetrics(row(['first-catch', 'spark-chime'])).turnsPer10s, null);
 });
 
 // ── Timers, stopping (rulings 3, 4, 6) ──────────────────────────────────────────────────────────────────────────
 test('Slow Wick waits 3 s, Heartbeat halves every Timer, and a burning Wick ignores further Pulses', () => {
-  const plain = rig(CHIME); plain.at('collect', 0);
+  const plain = rig(['close-call', 'slow-wick', 'spark-chime']); plain.at('skim', 0);
   assert.equal(plain.engine.timers[0].at, 3);
-  plain.at('collect', 1); assert.equal(plain.engine.timers.length, 1, 'no second loop');
-  const fast = rig([...CHIME, 'heartbeat']); fast.at('collect', 0);
+  plain.at('skim', 1); assert.equal(plain.engine.timers.length, 1, 'a burning Wick ignores the second Pulse: no second loop');
+  assert.equal(hits(plain.engine, 'already-waiting').length, 1);
+  const fast = rig([...WICK, 'heartbeat']); fast.at('collect', 0);
   assert.equal(fast.engine.timers[0].at, 1.5);
-  const two = rig([...CHIME.slice(0, 3), 'slow-wick', 'heartbeat']); two.at('collect', 0);
+  const two = rig([...WICK, 'heartbeat', 'heartbeat']); two.at('collect', 0);
   assert.equal(two.engine.timers[0].wait, 1.5, 'two Heartbeats would not halve it again');
 });
 
@@ -218,7 +249,7 @@ test('Wave Loom is back as an engine card: one real light Pulse each Turn', () =
   host.runtime = runtime; host.worldPulse = slot => { pulses.push(slot); return true; };
   const engine = new CardEngine(runtime, host);
   playerEvent(engine, host, 'collect', {}, 0); engine.advance(9.01);
-  assert.equal(engine.turns, 3); assert.deepEqual(pulses, [4, 4, 4], 'one Pulse per Turn');
+  assert.equal(engine.turns, 3); assert.deepEqual(pulses, [3, 3, 3], 'one Pulse per Turn');
   // In flight the Pulse is the world's own revealing Pulse (the kind Pulse cards hear).
   const e = flightWith([...CHIME, 'wave-loom']); const sent = [];
   e.flame = 0; e.radiateLight = options => sent.push(options); syncFlightEngine(e);
@@ -227,7 +258,7 @@ test('Wave Loom is back as an engine card: one real light Pulse each Turn', () =
 });
 
 test('Long Fuse repeats the Chain’s last firing 5 s after a Pulse, spending real uses', () => {
-  const {engine, host, runtime, at} = rig(['spark-cache', 'ember-bell', 'long-fuse']);
+  const {engine, host, runtime, at} = rig(['spark-cache', 'first-catch', 'long-fuse']);
   at('collect', 0);
   assert.equal(host.meter, 4); assert.equal(runtime.cards[0].charges, 5);
   engine.advance(5);
@@ -239,8 +270,11 @@ test('Long Fuse repeats the Chain’s last firing 5 s after a Pulse, spending re
 test('an engine stops when the meter is full and no card hears the Overfill', () => {
   const {engine, host, at} = rig(CHIME, {start: 2, max: 3});
   at('collect', 0); engine.advance(30);
-  assert.equal(host.meter, 3); assert.equal(engine.lastStop.reason, 'meter-full'); assert.equal(engine.timers.length, 0);
-  assert.equal(engine.turns, 1, 'no turn limit: it stopped because Spark Chime could not do its job');
+  assert.equal(host.meter, 3); assert.equal(engine.lastStop.reason, 'cannot-act'); assert.equal(engine.timers.length, 0);
+  assert.equal(engine.turns, 1, 'no turn limit: at the next 3 s the Spark Chime could not act, so the Metronome stopped');
+  // A Wick version has no Metronome to stop it: the meter-full Chime is what ends the engine.
+  const wick = rig(WICK, {start: 3, max: 3}); wick.at('collect', 0); wick.engine.advance(30);
+  assert.equal(wick.engine.lastStop.reason, 'meter-full'); assert.equal(wick.engine.timers.length, 0);
 });
 
 test('starters: First Catch once per flight, Low Ember under a quarter once per 6 s, Close Call on a skim', () => {
@@ -254,9 +288,9 @@ test('starters: First Catch once per flight, Low Ember under a quarter once per 
   assert.equal(close.host.meter, 2);
 });
 
-test('Flash Tinder starts a 1 s Flash; its end is heard by Afterglow to the right', () => {
+test('Flare Tinder starts a 1 s Flare; its end is heard by Afterglow to the right', () => {
   const run = simulateEngineChain(row(['flash-tinder', 'afterglow']), {horizon: 5, events: [{t: 0, kind: 'collect'}, {t: .5, kind: 'collect'}]});
-  assert.equal(run.sparks, 2, 'one Flash at a time; Afterglow +2 when it ends');
+  assert.equal(run.sparks, 2, 'one Flare at a time; Afterglow +2 when it ends');
   assert.deepEqual(run.log.filter(e => e.k === 'gain').map(e => e.t), [1]);
   const left = simulateEngineChain(row(['afterglow', 'flash-tinder']), {horizon: 5, events: [{t: 0, kind: 'collect'}]});
   assert.equal(left.sparks, 0, 'card-made events flow right only');
@@ -264,7 +298,7 @@ test('Flash Tinder starts a 1 s Flash; its end is heard by Afterglow to the righ
 
 test('Third Beat doubles card-made gains in every third Turn', () => {
   const run = simulateEngineChain(row([...CHIME, 'third-beat']), {horizon: 9, events: [{t: 0, kind: 'collect'}]});
-  assert.deepEqual([...run.gainsByTurn.entries()], [[0, 1], [1, 1], [2, 1], [3, 2]]);
+  assert.deepEqual([...run.gainsByTurn.entries()], [[1, 1], [2, 1], [3, 2]]);
 });
 
 test('determinism: the same Chain and inputs give the same event log', () => {
@@ -291,7 +325,7 @@ test('in flight the engine runs on the simulation clock: a Collect starts it and
   try {
     assert.ok(e.cardEngine); e.flame = 30;
     e.collect({kind: 'light', x: e.distance + e.player.x, y: e.player.y});
-    assert.equal(e.cardEngine.timers.length, 1, 'First Catch → Chime → Bell lit the Wick');
+    assert.equal(e.cardEngine.timers.length, 1, 'First Catch’s Pulse lit the Metronome');
     const meter = e.flame;
     e.pause(); const t = e.time;
     e.step(5); stepFlightEngine(e);
@@ -331,8 +365,8 @@ test('Pack: Full Satchel adds before packing; Echo repeats it; a Boost strengthe
   assert.equal(previewPack(row(['full-satchel', 'crescendo'])).sparks, 6);
   assert.equal(previewPack(row(['full-satchel', 'refrain'])).sparks, 6, 'a Refrain plays the Pack line once more');
   assert.equal(previewPack(row(['full-satchel']), {start: 9, max: 10}).sparks, 1, 'the meter cap applies');
-  const last = previewPack(row(['last-round', 'spark-chime', 'ember-bell', 'slow-wick']));
-  assert.equal(last.sparks, 1); assert.equal(last.turns, 1, 'one last Turn; the Wick cannot wait');
+  const last = previewPack(row(['last-round', 'spark-chime', 'metronome']));
+  assert.equal(last.sparks, 1); assert.equal(last.turns, 1, 'one last Turn; the Metronome cannot wait');
   assert.ok(last.log.some(entry => entry.k === 'no-time'));
   assert.equal(previewPack(row(['harvest-home', 'body-spark', 'dusk-wick', 'prism-lens'])).sparks, 2, 'every Collect card once, a plain Spark');
   assert.equal(previewPack(row(['body-spark', 'spark-chime'])).sparks, 0, 'no Pack card: nothing');

@@ -30,8 +30,8 @@ test('every tip is short, well formed and names only real, released things',()=>
    else assert.ok(FLAGS.has(key),`${tip.id}: context ${key}`);
   }
   assert.ok(art(tipIcon(tip)).startsWith('<svg'),`${tip.id} has a picture`);
-  // "Black Hole" is also the name of an unreleased card; the tip means the hazard of that name.
-  for(const card of hidden.filter(c=>c.id!=='black-hole'))assert.ok(!(tip.headline+' '+tip.text).includes(card.name),`${tip.id} names ${card.name}`);
+  // "Chameleon (two)" shares the live Chameleon's name until it replaces it. "Black Hole" is also the name of an unreleased card; the tip means the hazard of that name.
+  for(const card of hidden.filter(c=>c.id!=='black-hole'&&c.id!=='chameleon-two'))assert.ok(!(tip.headline+' '+tip.text).includes(card.name),`${tip.id} names ${card.name}`);
  }
  assert.ok(hidden.length>=2,'the catalog still marks retired cards, so the check above is live');
 });

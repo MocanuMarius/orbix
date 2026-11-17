@@ -198,7 +198,7 @@ export function engineStats(row) {
 /** The chip a card carries ({id, label, condition}), from its catalog Trigger (card-rule-bands.mjs). */
 export const chipOf = c => getCardTrigger(c || {}, SKILL_CARDS[c?.cardId || c?.id] || {});
 /** How often each Trigger fires in a flight, in words, from the firing model of scripts/balance/simulate.mjs
- * (Collect 10, Pulse 6, Lift while falling 8 per 30 s flight: often; Delivery 4, Latch 3, Flash 3 (now under Collect), a Flash ending 3, Rhythm 4,
+ * (Collect 10, Pulse 6, Lift while falling 8 per 30 s flight: often; Delivery 4, Latch 3, Flare 3 (now under Collect), a Flare ending 3, Rhythm 4,
  * Overfill 2, skims 2 to 3, low Lifts a few: a few times; Save, Finish, Pack, Take-off: once). */
 export const TRIGGER_BOOK = Object.freeze(DISPLAY_GROUPS.map(g => Object.freeze({id: g.id, group: g.group, label: g.label, kind: g.kind,
   does: g.does, often: g.often, term: GROUP_TERM[g.group]})));
@@ -240,7 +240,7 @@ export function enginePlate(row, slot) {
   }
   const d = spec.does || [];
   if (d.includes('homing')) return {long: 'Collector fetches again', short: 'Fetches again'};
-  if (d.includes('flash')) return {long: 'Starts a Flash (Pulse every 2 s, very high Luminance)', short: 'A Flash'};
+  if (d.includes('flash')) return {long: 'Starts a Flare (Pulse every 2 s, very high Luminance)', short: 'A Flare'};
   if (d.includes('gain') && d.includes('pulse')) return {long: `Sends a Pulse, +${num(amount)}`, short: `Pulse, +${num(amount)}`};
   if (d.includes('gain')) return {long: `${sparks} each Turn`, short: `+${num(amount)} a Turn`};
   if (d.includes('pulse')) return {long: spec.keep ? `Sends a Pulse, keeps ${num(spec.keep)}` : 'Sends a Pulse', short: 'Sends a Pulse'};

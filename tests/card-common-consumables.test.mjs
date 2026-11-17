@@ -62,19 +62,28 @@ test('Fast Spool spends only successful 3-second uses and excludes generated or 
   }finally{e.destroy();}
 });
 
-test('Return Spring and Haul Winch act once at real attachment before one genuine delivery, with bounded copies and replay',()=>{
-  const e=flight(['echo','haul-winch','refrain','courier-tip','kindling-bead']);try{
-    const p=missed(e,'cluster'),recovery=e.wisp.recoveryDuration(e,p);until(e,()=>!!e.wisp.cargo);
-    const trace=e.cardRowTrace;assert.equal(trace.event.kind,CARD_ROW_EVENTS.attach);near(trace.reelSeconds,recovery);
-    assert.equal(trace.sparks,0);assert.equal(trace.futureCapacity,0);assert.equal(e.flame,0,'attachment is not a fuel pickup');
-    const spentUses=Math.ceil(recovery/3);
-    assert.equal(trace.steps.filter(step=>step.success&&step.operation==='shorten-reel').length,spentUses);
-    assert.equal(charges(e,1),SKILL_CARDS['haul-winch'].charges-spentUses,'only copies that shorten actual reel time spend a use');
-    assert.equal(e.bodyPickups,0);assert.equal(e.collectorPickups,0);
-    until(e,()=>p.collected);assert.equal(e.collectorPickups,1);assert.equal(e.bodyPickups,0);near(e.flame,40+6*CARD_UNIT);
-    assert.equal(e.cardRowTrace.event.kind,CARD_ROW_EVENTS.delivery);assert.equal(e.wisp.cooldown,0);
-    for(let i=0;i<180;i++)tick(e);assert.equal(e.collectorPickups,1);
+test('Haul Winch banks a Cluster Delivery on the flight; the next real reel is that much sooner, once',()=>{
+  const e=flight(['haul-winch']);try{
+    const p=missed(e,'cluster');until(e,()=>!!e.wisp.cargo);
+    assert.equal(e.cardRowTrace,null,'attachment is no longer a Haul Winch event');assert.equal(e.cardReelCredit,0);
+    until(e,()=>p.collected);
+    assert.equal(e.cardRowTrace.event.kind,CARD_ROW_EVENTS.delivery);near(e.cardRowTrace.nextReelSeconds,3);
+    assert.equal(charges(e,0),SKILL_CARDS['haul-winch'].charges-1,'one use is spent when it applies');near(e.cardReelCredit,3);
+    const q={id:'second-missed',kind:'light',x:e.distance+e.player.x-40,y:e.player.y+10};e.layout.embers=[q];
+    const full=e.wisp.recoveryDuration(e,q);until(e,()=>!!e.wisp.cargo);
+    near(e.wisp.activeReelSeconds(),full-Math.min(3,Math.max(0,full-.5)),'next reel shortened by the credit, never below 0.5 s');near(e.cardReelCredit,0);
   }finally{e.destroy();}
+  const other=flight(['haul-winch']);try{
+    other.collect({kind:'light'});assert.equal(other.cardReelCredit,0,'only a Cluster Delivery banks');
+  }finally{other.destroy();}
+  const repeatRt=createCardExecution(['echo','haul-winch'].map((id,i)=>makeSkillCard(id,`hw:${i}`)));
+  const echoed=resolveCardRow(repeatRt,{kind:CARD_ROW_EVENTS.delivery,pickupKind:'cluster'});
+  near(echoed.nextReelSeconds,6);assert.equal(repeatRt.cards[1].charges,SKILL_CARDS['haul-winch'].charges-2,'Echo repeats it and spends a use per copy');
+  const boosted=resolveCardRow(createCardExecution(['haul-winch','crescendo'].map((id,i)=>makeSkillCard(id,`hb:${i}`))),{kind:CARD_ROW_EVENTS.delivery,pickupKind:'cluster'});
+  near(boosted.nextReelSeconds,6);
+});
+
+test('Return Spring is Passive: every real grab reels in 0.5 s sooner',()=>{
   const spring=flight(['return-spring']);try{
     const p=missed(spring),recovery=spring.wisp.recoveryDuration(spring,p);until(spring,()=>!!spring.wisp.cargo);near(spring.cardRowTrace.reelSeconds,.5);near(spring.wisp.activeReelSeconds(),Math.max(0,recovery-.5));
   }finally{spring.destroy();}
@@ -119,8 +128,7 @@ test('direct and wave Common charges spend on matching successful actions and sh
 test('limited recovery cards keep uses when ready, clamp short recovery and cannot replay spent time',()=>{
   for(const [id,event] of [['pacesetter',{kind:CARD_ROW_EVENTS.rhythm}],
     ['mending-moss',{kind:CARD_ROW_EVENTS.body,guardRecovering:true}],
-    ['flash-thread',{kind:CARD_ROW_EVENTS.flash}],
-    ['haul-winch',{kind:CARD_ROW_EVENTS.attach,pickupKind:'cluster'}]]){
+    ['flash-thread',{kind:CARD_ROW_EVENTS.flash}]]){
     const runtime=createCardExecution(['echo-iii',id,'refrain'].map((cardId,i)=>makeSkillCard(cardId,`time:${i}`))),cap=runtime.cards[1].charges;
     resolveCardRow(runtime,event);assert.equal(runtime.cards[1].charges,cap,id);
     const receipt=resolveCardRow(runtime,{...event,availableRecovery:.25,availableReel:.25});
@@ -130,7 +138,7 @@ test('limited recovery cards keep uses when ready, clamp short recovery and cann
   }
 });
 
-test('finite multipliers require an earlier payer and successful Flash, Cache and guard events retain their real sources',()=>{
+test('finite multipliers require an earlier payer and successful Flare, Cache and guard events retain their real sources',()=>{
   for(const [id,payer,kind] of [['courier-glass','courier-tip',CARD_ROW_EVENTS.delivery],['clear-prism','flash-handling',CARD_ROW_EVENTS.flash]]){
     const empty=createCardExecution([makeSkillCard(id,'multiplier')]),cap=empty.cards[0].charges;
     resolveCardRow(empty,{kind});assert.equal(empty.cards[0].charges,cap,'no earlier card Sparks means no use');

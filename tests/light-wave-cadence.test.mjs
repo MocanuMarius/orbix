@@ -17,7 +17,7 @@ function flight(modifiers={},options={}){
 const near=(a,b)=>assert.ok(Math.abs(a-b)<1e-7,`${a} != ${b}`);
 const pickup=(e,settings={})=>{const p={kind:'light',x:e.distance+e.player.x,y:e.player.y,...settings};e.collect(p);return p;};
 
-test('a real Flash pickup emits exactly once every two seconds at 30, 60 and 120 steps per second',()=>{
+test('a real Flare pickup emits exactly once every two seconds at 30, 60 and 120 steps per second',()=>{
  for(const fps of [30,60,120])for(const longFlash of [false,true]){
   const {e,emitted,step}=flight({longFlash,resonantHarvest:3,cardHarvestStoredPerWave:1});
   pickup(e,{kind:'sight'});const end=e.flashTether.expires;
@@ -31,7 +31,7 @@ test('a real Flash pickup emits exactly once every two seconds at 30, 60 and 120
  }
 });
 
-test('Long Flash added mid-effect preserves the next beat, and rereading upgrade state never duplicates fronts',()=>{
+test('Long Flare added mid-effect preserves the next beat, and rereading upgrade state never duplicates fronts',()=>{
  const {e,emitted,step}=flight();pickup(e,{kind:'sight'});
  for(let i=0;i<180;i++)step(1/60);
  e.applySkillUpgrade({longFlash:true},40);e.applySkillUpgrade({lightRadius:155},40);
@@ -50,7 +50,7 @@ test('one Proximity activation creates one reveal front through its entire activ
  assert.equal(emitted.length,1);assert.equal(e.luminanceWaves.sources.size,0);e.destroy();
 });
 
-test('Flash has steady ambient fill between fronts while its icon retains the two-second local beat',()=>{
+test('Flare has steady ambient fill between fronts while its icon retains the two-second local beat',()=>{
  const {e}=flight();pickup(e,{kind:'sight'});
  const samples=[2.2,2.8,3.2,3.8].map(time=>{e.time=time;return e.getLightState().tetherReveal;});
  assert.ok(samples.every(value=>value===samples[0]&&value>0));e.time=e.flashTether.expires;assert.equal(e.getLightState().tetherReveal,0);e.destroy();

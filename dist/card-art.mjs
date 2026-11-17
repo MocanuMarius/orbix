@@ -20,7 +20,7 @@ const ART = Object.freeze({
   'camp-kit': {description:'Two warm hearths burn side by side beneath falling snow and red winter berries.'},
   'growth-seed': {description:'A glowing red seed opens into a young luminous sprout among moss and mushrooms.'},
   'cache-handling': {description:'A small mint Collector tethers a bright cubic Cache across a mossy ruin ledge.'},
-  'flash-handling': {description:'A small mint Collector tethers a brilliant triangular Flash over misty ruins.'},
+  'flash-handling': {description:'A small mint Collector tethers a brilliant triangular Flare over misty ruins.'},
 });
 export const CARD_ART_IDS = Object.freeze([...Object.keys(ART),'dusk-wick']);
 export function cardArt(card = {}, {compact = false, size = null} = {}) {

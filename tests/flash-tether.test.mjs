@@ -33,7 +33,7 @@ function render(tether,time,distance=0){
   return points;
 }
 
-test('Flash follows the wisp with a bounded spring and renders between simulation steps',()=>{
+test('Flare follows the wisp with a bounded spring and renders between simulation steps',()=>{
   const t=makeTether(false);
   assert.deepEqual([t.x,t.y],[110,200]);
   stepFlashTether(t,115,203,2+step,step);
@@ -46,7 +46,7 @@ test('Flash follows the wisp with a bounded spring and renders between simulatio
   assert.ok(Math.hypot(t.x-210,t.y-95)<=50+1e-8);
 });
 
-test('reduced motion steadies the Flash and expiration leaves a world-anchored fading puff',()=>{
+test('reduced motion steadies the Flare and expiration leaves a world-anchored fading puff',()=>{
   const full=makeTether(false), quiet=makeTether(true);
   assert.ok(flashLightPulse(full,2)>flashLightPulse(full,2.925));
   assert.equal(flashLightPulse(quiet,2),flashLightPulse(quiet,2.925));
@@ -74,7 +74,7 @@ function flight(modifiers={}){
 }
 const economy = g => [g.flame,g.flameRestored,g.bodyFuelCollected,g.condensedTotal,g.condensedRemainder,g.absorptionEffects.length];
 
-test('Long Flash branches from Luminance, costs Stored Sparks once, and lasts 24 seconds after reload',()=>{
+test('Long Flare branches from Luminance, costs Stored Sparks once, and lasts 24 seconds after reload',()=>{
   const state=newState();
   const run=state.run=createRun(state.profile,'long-flash');
   run.condensedGlow=250;
@@ -82,7 +82,7 @@ test('Long Flash branches from Luminance, costs Stored Sparks once, and lasts 24
   assert.equal(skill.treeTab,'main');
   assert.equal(skill.requires,'main-sight');
   assert.equal(skill.retired,false);
-  assert.match(skillIcon(skill),/data-skill-art="Long Flash"/);
+  assert.match(skillIcon(skill),/data-skill-art="Long Flare"/);
   assert.equal(skillTreeState({wallet:run},skill).state,'preview');
   assert.equal(buyCheckpointSkill(state,id),false);
   assert.ok(buyCheckpointSkill(state,'main-sight'));
@@ -114,7 +114,7 @@ test('Long Flash branches from Luminance, costs Stored Sparks once, and lasts 24
   g.destroy();
 });
 
-test('buying Long Flash while a marked Flash is active extends its light and relay once; an expired Flash stays expired',()=>{
+test('buying Long Flare while a marked Flare is active extends its light and relay once; an expired Flare stays expired',()=>{
   for(const pickupAge of [3,8]){
     const g=flight();
     const mark={x:250,y:150,type:'spark',flash:true};
@@ -135,7 +135,7 @@ test('buying Long Flash while a marked Flash is active extends its light and rel
   }
 });
 
-test('body contact and Collector delivery attach the Flash at contact and award only its reveal',()=>{
+test('body contact and Collector delivery attach the Flare at contact and award only its reveal',()=>{
   for(const delivery of ['body','collector']){
     const g=flight(delivery==='collector'?{collectorFlashFetch:true}:{});
     const item={kind:'sight',id:'flash-test',x:g.distance+g.player.x+2,y:g.player.y};
@@ -156,7 +156,7 @@ test('body contact and Collector delivery attach the Flash at contact and award 
       item.y-=35;
       g.wisp.target=item;
       g.wisp.phase='outbound';
-      // Flash uses the normal ten-second Collector return budget.
+      // Flare uses the normal ten-second Collector return budget.
       for(let i=0; i<900&&!item.collected; i++){
         g.time+=step;
         g.previousDistance=g.distance;

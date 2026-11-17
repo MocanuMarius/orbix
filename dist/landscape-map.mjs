@@ -71,7 +71,7 @@ export function landscapeRouteView(run,{compact=false,scale=1}={}){
    ${reachable&&n.bonusId?`<g transform="translate(${p.x+26} ${p.y-32})" pointer-events="none">${bonusIcon(n.bonusId).replace('<svg ','<svg width="24" height="24" ')}</g>`:''}
    ${reachable?`<path class="route-next-light" d="m${p.x-30} ${p.y+25} 10 2 6-1m19 1 10-2 7 1" fill="none" stroke="#fff0b6" stroke-width="1.5"/>`:''}
    ${seen&&!here?`<path class="route-completed-mark" d="m${p.x-5} ${p.y+21} 4 4 7-8" fill="none" stroke="#e4c78e" stroke-width="2"/>`:''}
-   ${themeInk&&routeState!=='closed'?`<path class="route-theme-pip" d="m${p.x+30} ${p.y+10} 2-6 3 4-1 7-4 1Z" fill="${themeInk}"><title>${esc(n.rewardThemeLabel||n.rewardTheme)} relics</title></path>`:''}
+   ${themeInk&&routeState!=='closed'?`<path class="route-theme-pip" d="m${p.x+30} ${p.y+10} 2-6 3 4-1 7-4 1Z" fill="${themeInk}"><title>${esc(n.rewardThemeLabel||n.rewardTheme)}</title></path>`:''}
    </g>
    ${showType?`${labelShadow(p.x,p.y+27,labelHalf,labelHeight)}<text class="map-node-type" x="${p.x}" y="${p.y+36}" text-anchor="middle">${esc(label)}</text>`:''}
    ${showName?`<text class="map-node-name" x="${p.x}" y="${p.y+49}" text-anchor="middle">${splitName(name,true).map((line,i)=>`<tspan x="${p.x}" dy="${i?12:0}">${esc(line)}</tspan>`).join('')}</text>`:''}

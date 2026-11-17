@@ -64,7 +64,7 @@ test('Common Proximity works at normal terrain reach without Collector and Rare 
   } finally {e.destroy();}
 });
 
-test('Prism Wick spends its three shared uses at Flash expiry and sends only one final physical wave',()=>{
+test('Prism Wick spends its three shared uses at Flare expiry and sends only one final physical wave',()=>{
   const e=flight(['echo-iii','diving-bell','refrain']);
   try {
     e.flame=0;e.collect({kind:'sight'});assert.equal(e.getCardChargeLedger()['standalone:1'],3);

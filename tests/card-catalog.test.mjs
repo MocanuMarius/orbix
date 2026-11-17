@@ -76,7 +76,7 @@ test('all 86 literal definitions have supported rules, unique IDs, honest art fa
     if (!rule) assert.ok(physicalKinds.has(def.kind), `${def.id}: supported passive or physical kind`);
     else {
       assert.ok(supportedEvents.has(rule.event), `${def.id}: event`);
-      assert.ok(['add-sparks', 'shorten-recovery', 'shorten-reel', 'multiply', 'add-last-payout', 'add-future-capacity', 'multiply-future-capacity', 'add-stored', 'carried-interest', 'add-cruising-speed'].includes(rule.operation));
+      assert.ok(['add-sparks', 'shorten-recovery', 'shorten-reel', 'multiply', 'add-last-payout', 'add-future-capacity', 'multiply-future-capacity', 'add-stored', 'carried-interest', 'add-cruising-speed', 'bank-reel'].includes(rule.operation));
       assert.ok(Number.isFinite(rule.amount));
       if (['multiply', 'add-last-payout', 'multiply-future-capacity'].includes(rule.operation)) assert.equal(def.copyable, false);
     }
