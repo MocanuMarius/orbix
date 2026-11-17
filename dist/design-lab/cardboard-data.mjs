@@ -196,9 +196,9 @@ export const CARDS = [
       say: 'Skim the terrain and the ground ahead is pressed down into a dent you can fly through. It springs back once you have passed.'}),
 
   // 5. Light and dark
-  K('dark-lantern', 'Dark Lantern', 'light', 'rare', 'collect', 'Sparks picked up outside your light: ×3.', 'Pickups in the dark: ×3',
+  K('dark-lantern', 'Dark Lantern', 'light', 'rare', 'delivery', 'Sparks your Collector brings from outside your light: ×3.', 'Collector, from the dark: ×3',
     'Rewards reaching into the dark; low Luminance becomes a choice.', 'new',
-    {kind: 'chain', trigger: 'collect', labels: ['Pickup inside your light', 'Pickup outside your light'], a: [c(BS), c(PC), c('dark-lantern', {when: false})], b: [c(BS), c(PC), c('dark-lantern', {star: 1})],
+    {kind: 'chain', trigger: 'delivery', labels: ['Collector fetched it inside your light', 'Collector fetched it from the dark'], a: [c(BS), c(PC), c('dark-lantern', {when: false})], b: [c(BS), c(PC), c('dark-lantern', {star: 1})],
       say: 'A Spark grabbed out in the dark triples everything before Dark Lantern: {a} becomes {b}.'}),
   K('moth', 'Moth', 'light', 'common', 'flash', 'Each Flash pulls nearby Sparks to you.', 'Flash pulls Sparks in',
     'Flash builds stop needing the Collector.', 'new',
@@ -236,7 +236,7 @@ export const CARDS = [
       facts: [['Max hearts', '3', '4 (once per map)']], say: 'Come in at full hearts and you earn a heart for good. It works once per map, so it is a goal, not a farm.'}),
 
   // 7. Scaling
-  K('collectors-ledger', 'Collector\'s Ledger', 'scaling', 'rare', 'delivery', '+1 Spark, and +1 more for every 10 Deliveries this run.', '+1, +1 per 10 Deliveries',
+  K('collectors-ledger', 'Collector\'s Ledger', 'scaling', 'rare', 'delivery', 'Each Delivery: +1 Spark. Grows by +1 after every 10 Deliveries this run.', '+1 now, grows each 10',
     'Starts small; a reason to keep it from map 1.', 'new',
     {kind: 'chain', trigger: 'delivery', labels: ['Without the Ledger', 'With the Ledger (25th Delivery)'], a: [c(CT), E], b: [c(CT), c('collectors-ledger', {star: 1})],
       say: 'It pays +1, plus +1 for each full ten Deliveries so far: 25 Deliveries is +1 and +2 more, +3. {a} becomes {b}.'}),

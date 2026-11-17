@@ -66,7 +66,7 @@ What the numbers say is missing (`docs/card-balance-2.md`): every Trigger is won
 
 | Card | Rarity | Trigger | Text | Why it is fun |
 | --- | --- | --- | --- | --- |
-| **Dark Lantern** | Rare | Collect | Sparks picked up outside your light: ×3. | Rewards reaching into the dark; low Luminance becomes a choice |
+| **Dark Lantern** | Rare | Delivery | Sparks your Collector brings from outside your light: ×3. | You never touch a Spark in the dark yourself (your own light is on it by then), but Collector can reach past your light. Makes low Luminance plus long Collector reach a build. Revised 17 November after the owner's question |
 | **Moth** | Common | Flash | Each Flash pulls nearby Sparks to you. | Flash builds stop needing the Collector |
 | **Long Shadow** | Rare | Flash ends | When a Flash ends: +1 Spark per second it lasted. | A second Flash ends card; wants long Flashes |
 | **Candle Clock** | Common | Always on | Luminance +1 for each 10 Sparks in the meter. | Light you can see grow as you collect |
@@ -85,7 +85,7 @@ What the numbers say is missing (`docs/card-balance-2.md`): every Trigger is won
 
 | Card | Rarity | Trigger | Text | Why it is fun |
 | --- | --- | --- | --- | --- |
-| **Collector's Ledger** | Rare | Delivery | +1 Spark, and +1 more for every 10 Deliveries this run. | Starts small; a reason to keep it from map 1 |
+| **Collector's Ledger** | Rare | Delivery | Each Delivery: +1 Spark. Grows by +1 after every 10 Deliveries this run. | A plain Delivery card whose number climbs all run (the card shows its current value, for example "+3 now"). No timer, nothing continuous: it fires once per Delivery like Courier Tip |
 | **Old Friend** | Common | Any | +1 Spark for each flight this card has stayed in your Chain. | Rewards commitment; hurts to Melt |
 | **Heirloom** | Legendary | Clear | Winning with this card: start your next run with one extra Common. | The one card that reaches across runs |
 | **Apprentice** | Common | Rest | At each Rest: the card to its right gains +1 for good. | Slow, steady Improve without Stored Sparks |
