@@ -1,0 +1,397 @@
+// Source of the 18 Inscription brand marks (docs/inscriptions.md). Each is drawn here on a 16×16 pixel grid ('#' = ink) in a bold
+// brand / petroglyph style: thick strokes, one flat colour, mostly symmetric, readable as a silhouette at 16, 32 and 48 px.
+// Run: node scripts/build-inscription-glyphs.mjs        Check only: node scripts/build-inscription-glyphs.mjs --check
+// Writes dist/assets/ui/inscriptions/<id>.svg (currentColor) and the root module dist/inscription-glyphs.mjs, which inlines the
+// same pixels as horizontal runs plus a 1-pixel "edge" layer (the glyph grown by one pixel) used when the mark is burned into a
+// slot frame. Modules under dist/ui/ import glyphs from the root module, never asset paths of their own.
+import fs from 'node:fs';
+import path from 'node:path';
+import {fileURLToPath} from 'node:url';
+const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
+const svgDir = path.join(root, 'dist/assets/ui/inscriptions');
+const target = path.join(root, 'dist/inscription-glyphs.mjs');
+
+export const GLYPHS = {
+  // ── Changes the card in its slot ──
+  'twin-mark': [ // Roman two: two I-beams side by side
+    '................',
+    '.#####....#####.',
+    '.#####....#####.',
+    '..###......###..',
+    '..###......###..',
+    '..###......###..',
+    '..###......###..',
+    '..###......###..',
+    '..###......###..',
+    '..###......###..',
+    '..###......###..',
+    '..###......###..',
+    '..###......###..',
+    '.#####....#####.',
+    '.#####....#####.',
+    '................'],
+  gilded: [ // a cash coin with a square hole
+    '.....######.....',
+    '...##########...',
+    '..############..',
+    '.##############.',
+    '.##############.',
+    '################',
+    '######....######',
+    '######....######',
+    '######....######',
+    '######....######',
+    '################',
+    '.##############.',
+    '.##############.',
+    '..############..',
+    '...##########...',
+    '.....######.....'],
+  resonant: [ // a dot ringing out in two pairs of arcs
+    '................',
+    '..##........##..',
+    '.##..........##.',
+    '.##..........##.',
+    '##...##..##...##',
+    '##..##....##..##',
+    '##.##..##..##.##',
+    '##.##.####.##.##',
+    '##.##.####.##.##',
+    '##.##..##..##.##',
+    '##..##....##..##',
+    '##...##..##...##',
+    '.##..........##.',
+    '.##..........##.',
+    '..##........##..',
+    '................'],
+  kindled: [ // a three-lobed flame around an inner tongue
+    '.......##.......',
+    '......####......',
+    '......####......',
+    '.#...######...#.',
+    '.##..######..##.',
+    '.###.######.###.',
+    '.######..######.',
+    '.#####....#####.',
+    '.#####.##.#####.',
+    '..####.##.####..',
+    '..####....####..',
+    '...##########...',
+    '....########....',
+    '......####......',
+    '................',
+    '................'],
+  courier: [ // a cord with a ring at each end: carried from one hand to the other
+    '.####...........',
+    '######..........',
+    '##..##..........',
+    '##..##..........',
+    '#######.........',
+    '.#######........',
+    '.....###........',
+    '......###.......',
+    '.......###......',
+    '........###.....',
+    '........#######.',
+    '.........#######',
+    '..........##..##',
+    '..........##..##',
+    '..........######',
+    '...........####.'],
+  wellspring: [ // a drop rising out of a bowl
+    '.......##.......',
+    '......####......',
+    '.....######.....',
+    '....########....',
+    '....########....',
+    '....########....',
+    '.....######.....',
+    '......####......',
+    '................',
+    '##............##',
+    '##............##',
+    '.###........###.',
+    '..############..',
+    '....########....',
+    '................',
+    '................'],
+  flare: [ // Sunlit: a rayed disc
+    '.......##.......',
+    '.......##.......',
+    '..##...##...##..',
+    '...##......##...',
+    '......####......',
+    '.....######.....',
+    '....########....',
+    '###.########.###',
+    '###.########.###',
+    '....########....',
+    '.....######.....',
+    '......####......',
+    '...##......##...',
+    '..##...##...##..',
+    '.......##.......',
+    '.......##.......'],
+  mirror: [ // a solid mound and its hollow reflection across a line
+    '................',
+    '......####......',
+    '....########....',
+    '...##########...',
+    '..############..',
+    '..############..',
+    '................',
+    '################',
+    '################',
+    '................',
+    '..############..',
+    '..##........##..',
+    '...##......##...',
+    '....###..###....',
+    '......####......',
+    '................'],
+  brimful: [ // a goblet filled above its rim
+    '................',
+    '.....######.....',
+    '...##########...',
+    '................',
+    '.##############.',
+    '.##############.',
+    '..############..',
+    '...##########...',
+    '.....######.....',
+    '......####......',
+    '.......##.......',
+    '.......##.......',
+    '.......##.......',
+    '....########....',
+    '....########....',
+    '................'],
+  whetted: [ // a blade drawn across a whetstone
+    '...........###..',
+    '..........###...',
+    '.........###....',
+    '........###.....',
+    '.......###......',
+    '......###.......',
+    '.....###........',
+    '....###.........',
+    '...###..........',
+    '................',
+    '..############..',
+    '.##############.',
+    '.##############.',
+    '.##############.',
+    '..############..',
+    '................'],
+  // ── Works on its own ──
+  hollow: [ // four corners of an empty frame
+    '................',
+    '.####......####.',
+    '.####......####.',
+    '.##..........##.',
+    '.##..........##.',
+    '................',
+    '................',
+    '................',
+    '................',
+    '................',
+    '................',
+    '.##..........##.',
+    '.##..........##.',
+    '.####......####.',
+    '.####......####.',
+    '................'],
+  hearth: [ // a kiln with embers in its mouth
+    '................',
+    '.....######.....',
+    '...##########...',
+    '..############..',
+    '.######..######.',
+    '.#####....#####.',
+    '#####......#####',
+    '#####......#####',
+    '#####......#####',
+    '#####......#####',
+    '#####..##..#####',
+    '#####.####.#####',
+    '#####.####.#####',
+    '################',
+    '################',
+    '................'],
+  lantern: [ // a light in a cage, hung from a ring
+    '......####......',
+    '.....##..##.....',
+    '.....##..##.....',
+    '...##########...',
+    '...##########...',
+    '...##......##...',
+    '...##.####.##...',
+    '...##.####.##...',
+    '...##.####.##...',
+    '...##.####.##...',
+    '...##......##...',
+    '...##########...',
+    '...##########...',
+    '.....######.....',
+    '................',
+    '................'],
+  'long-cord': [ // a shepherd's crook: a long line with a hook
+    '......#####.....',
+    '.....#######....',
+    '....###...###...',
+    '....##.....##...',
+    '....##.....##...',
+    '....##....###...',
+    '....##...###....',
+    '....##..........',
+    '....##..........',
+    '....##..........',
+    '....##..........',
+    '....##..........',
+    '....##..........',
+    '....##..........',
+    '...####.........',
+    '...####.........'],
+  bell: [
+    '.......##.......',
+    '......####......',
+    '.....######.....',
+    '....########....',
+    '....########....',
+    '....########....',
+    '...##########...',
+    '...##########...',
+    '..############..',
+    '.##############.',
+    '################',
+    '################',
+    '................',
+    '......####......',
+    '.......##.......',
+    '................'],
+  lodestone: [ // a horseshoe magnet with painted poles, two sparks drawn to it
+    '.##..........##.',
+    '.##..........##.',
+    '................',
+    '####........####',
+    '####........####',
+    '................',
+    '####........####',
+    '####........####',
+    '####........####',
+    '.####......####.',
+    '.#####....#####.',
+    '..############..',
+    '...##########...',
+    '.....######.....',
+    '................',
+    '................'],
+  'ember-bed': [ // coals heaped on a bed
+    '................',
+    '.......##.......',
+    '......####......',
+    '......####......',
+    '................',
+    '....##....##....',
+    '...####..####...',
+    '...####..####...',
+    '................',
+    '..##...##...##..',
+    '.####.####.####.',
+    '.####.####.####.',
+    '################',
+    '################',
+    '................',
+    '................'],
+  cinder: [ // one ember, split by a crack
+    '................',
+    '......####......',
+    '.....##.###.....',
+    '....####.###....',
+    '...#####.####...',
+    '..#####.######..',
+    '.######.#######.',
+    '#######.########',
+    '########.#######',
+    '.#######.######.',
+    '..######.#####..',
+    '...####.#####...',
+    '....###.####....',
+    '.....######.....',
+    '......####......',
+    '................'],
+};
+
+const N = 16;
+const cells = rows => { const out = new Set(); rows.forEach((row, y) => [...row].forEach((c, x) => { if (c === '#') out.add(`${x},${y}`); })); return out; };
+/** Horizontal runs of a cell set as an SVG path (each run one rect). */
+function runs(set) {
+  const byRow = new Map();
+  for (const key of set) { const [x, y] = key.split(',').map(Number); (byRow.get(y) || byRow.set(y, []).get(y)).push(x); }
+  let d = '';
+  for (const y of [...byRow.keys()].sort((a, b) => a - b)) {
+    const xs = byRow.get(y).sort((a, b) => a - b);
+    for (let i = 0; i < xs.length;) { let j = i; while (j + 1 < xs.length && xs[j + 1] === xs[j] + 1) j++; d += `M${xs[i]} ${y}h${j - i + 1}v1h-${j - i + 1}z`; i = j + 1; }
+  }
+  return d;
+}
+/** The glyph grown by one pixel (8 neighbours) minus the glyph: the lighter edge of a burned brand. Grid -1..16. */
+function edge(set) {
+  const out = new Set();
+  for (const key of set) { const [x, y] = key.split(',').map(Number); for (let dy = -1; dy <= 1; dy++) for (let dx = -1; dx <= 1; dx++) { const k = `${x + dx},${y + dy}`; if (!set.has(k)) out.add(k); } }
+  return out;
+}
+
+export function validate() {
+  const problems = [];
+  const seen = new Map();
+  for (const [id, rows] of Object.entries(GLYPHS)) {
+    if (rows.length !== N || rows.some(r => r.length !== N || /[^#.]/.test(r))) problems.push(`${id}: not a 16×16 grid of # and .`);
+    const key = rows.join('');
+    if (seen.has(key)) problems.push(`${id}: same drawing as ${seen.get(key)}`);
+    seen.set(key, id);
+  }
+  return problems;
+}
+
+export function buildSvg(id) {
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" shape-rendering="crispEdges"><path fill="currentColor" d="${runs(cells(GLYPHS[id]))}"/></svg>\n`;
+}
+
+export function buildModule() {
+  const entries = Object.entries(GLYPHS).map(([id, rows]) => { const set = cells(rows); return `  '${id}': ['${runs(set)}', '${runs(edge(set))}']`; });
+  return `// GENERATED by scripts/build-inscription-glyphs.mjs (the drawings live there). Do not edit by hand.
+// One brand mark per Inscription on a 16×16 pixel grid, single flat colour (currentColor). Shown only at whole multiples of 16;
+// a burned brand (brand: true) adds a 1-pixel lighter edge around the mark, so its grid is 18 (-1..16) and its size a multiple of 18.
+const GLYPHS = {
+${entries.join(',\n')}
+};
+export const INSCRIPTION_GLYPH_IDS = Object.freeze(Object.keys(GLYPHS));
+/** Asset path of a glyph's SVG file (relative to this module's folder, dist/). */
+export const inscriptionGlyphPath = id => GLYPHS[id] ? \`assets/ui/inscriptions/\${id}.svg\` : '';
+/** Inline SVG of an Inscription's brand mark. size: whole multiple of 16 (or 18 with brand). brand: add the lighter burned edge. */
+export function inscriptionGlyph(id, {size, className = '', brand = false} = {}) {
+  const glyph = GLYPHS[id];
+  if (!glyph) return '';
+  const grid = brand ? 18 : 16, px = Math.max(1, Math.round((size || grid) / grid)) * grid;
+  const box = brand ? '-1 -1 18 18' : '0 0 16 16';
+  return \`<svg class="ins-glyph\${brand ? ' ins-brand' : ''}\${className ? ' ' + className : ''}" data-ins-glyph="\${id}" width="\${px}" height="\${px}" viewBox="\${box}" shape-rendering="crispEdges" aria-hidden="true" focusable="false">\${brand ? \`<path class="ins-brand-edge" d="\${glyph[1]}"/>\` : ''}<path class="ins-glyph-ink" fill="currentColor" d="\${glyph[0]}"/></svg>\`;
+}
+`;
+}
+
+if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
+  const problems = validate();
+  if (problems.length) { console.error(problems.join('\n')); process.exit(1); }
+  const next = buildModule();
+  const files = Object.keys(GLYPHS).map(id => [path.join(svgDir, `${id}.svg`), buildSvg(id)]);
+  if (process.argv.includes('--check')) {
+    const stale = [[target, next], ...files].filter(([file, text]) => !fs.existsSync(file) || fs.readFileSync(file, 'utf8') !== text);
+    if (stale.length) { console.error('Inscription glyphs are out of date: run node scripts/build-inscription-glyphs.mjs'); process.exit(1); }
+  } else {
+    fs.mkdirSync(svgDir, {recursive: true});
+    for (const [file, text] of files) fs.writeFileSync(file, text);
+    fs.writeFileSync(target, next);
+    console.log('wrote', files.length, 'SVGs and dist/inscription-glyphs.mjs', next.length, 'bytes');
+  }
+}

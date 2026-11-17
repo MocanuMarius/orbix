@@ -601,21 +601,23 @@ html body dialog.wb-dlg.bh-confirm .bh-confirm-acts{display:flex;justify-content
 html body dialog.wb-dlg.bh-confirm .bh-confirm-acts>button{min-width:120px;min-height:46px;font:400 15px/1 var(--pixel,monospace)}
 #dk-root .dk2-card .card-face-heading h3.dk-name-cut{white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important;max-width:100%;display:block}
 
-/* ── Inscriptions (docs/inscriptions.md): an engraved plaque on a slot's lower edge and an etched line inside its frame.
-   Kit colours and fonts only, whole pixels, crisp edges, no gradients. Menu screens only. ───────────────────────────── */
+/* ── Inscriptions (docs/inscriptions.md): each slot's Inscription is a brand mark burned into the top-left corner of the slot
+   frame (beside the eye, above the card: never over the picture, name, trigger chip or the label under the card), plus an
+   etched line inside the frame. Scorched ink with a 1-pixel lighter edge. Kit colours, whole pixels, no gradients. Menus only. */
 #dk-root .dk2-inscribed{position:relative;--ins:var(--rule)}
 #dk-root .dk2-inscribed:has(.dk2-ins-standalone){--ins:var(--moss)}
 #dk-root .dk2-ins-frame{position:absolute;z-index:1;left:3px;right:3px;top:var(--eye);height:var(--card);box-sizing:border-box;border:2px solid var(--ins);pointer-events:none}
-#dk-root .dk2-ins{position:absolute;z-index:3;left:0;right:0;margin:0 auto;bottom:calc(var(--plate) - 9px);width:max-content;max-width:calc(100% - 10px);height:20px;box-sizing:border-box;display:flex;align-items:center;gap:4px;padding:0 6px;border:2px solid var(--ins);background:var(--slip);color:var(--ink);font:400 11px/16px var(--pixel,monospace);letter-spacing:1px;white-space:nowrap;cursor:pointer;touch-action:manipulation;image-rendering:pixelated}
-#dk-root .dk2-ins>b{font:inherit;font-weight:400;overflow:hidden;text-overflow:clip}
-#dk-root .dk2-ins .ins-glyph{flex:none;width:14px;height:14px;color:var(--ins)}
-#dk-root .dk2-ins:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
-@container (max-width:92px){#dk-root .dk2-ins .ins-glyph{display:none}#dk-root .dk2-ins{padding:0 4px}}
+#dk-root .dk2-ins-brand{position:absolute;z-index:3;left:3px;top:0;width:min(44px,calc(50% - 26px));height:var(--eye);margin:0;padding:0;border:0;background:none;display:flex;align-items:flex-end;justify-content:flex-start;cursor:pointer;color:var(--ink);-webkit-tap-highlight-color:transparent}
+#dk-root .dk2-ins-brand .ins-brand{display:block;flex:none;width:36px;height:36px;image-rendering:pixelated}
+#dk-root .dk2-empty .dk2-ins-brand{left:0;right:0;top:calc(var(--eye) + 10px);width:44px;height:44px;margin:0 auto;align-items:center;justify-content:center}
+#dk-root .dk2-ins-brand .ins-brand-edge{fill:var(--slip)}
+#dk-root .dk2-ins-brand:hover .ins-brand-edge{fill:#fff1c5}
+#dk-root .dk2-ins-brand:focus-visible{outline:2px solid var(--ink);outline-offset:1px}
+@container (max-width:127px){#dk-root .dk2-station:not(.dk2-empty) .dk2-ins-brand .ins-brand{width:18px;height:18px}}
 #dk-root .dk2-inscription{margin:6px 0;padding:6px 8px;box-sizing:border-box;border:2px solid var(--rule);background:var(--slip);color:var(--ink)}
 #dk-root .dk2-inscription-standalone{border-color:var(--moss)}
 #dk-root .dk2-inscription h3{display:flex;align-items:center;flex-wrap:wrap;gap:6px;margin:0 0 2px;font:400 13px/16px var(--pixel,monospace);letter-spacing:1px}
 #dk-root .dk2-inscription h3 b{font-weight:400}
-#dk-root .dk2-inscription .ins-glyph{flex:none;color:var(--rule)}
-#dk-root .dk2-inscription-standalone .ins-glyph{color:var(--moss)}
+#dk-root .dk2-inscription .ins-glyph{flex:none;color:var(--ink)}
 #dk-root .dk2-inscription p{margin:0 0 2px;font:400 13px/16px var(--pixel,monospace)}
 #dk-root .dk2-inscription small{font:400 11px/13px var(--pixel,monospace);color:var(--ink-soft)}

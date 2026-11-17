@@ -65,22 +65,48 @@ html body .rw-screen .reward-packed-earned>span{font:400 11px/1 var(--pixel,mono
  html body .rw-screen .flight-clear-summary strong{font-size:18px;line-height:20px}
 }
 
-/* ── The Scribe: choose an Inscription, then a slot (docs/inscriptions.md). Menu screens only. Kit colours, whole pixels. ── */
-.scribe-screen .scribe-offers,.scribe-screen .scribe-pick{display:flex;gap:12px;align-items:stretch;justify-content:center;padding:0 16px;box-sizing:border-box;min-height:0}
-.scribe-screen .scribe-choice{flex:1 1 0;min-width:0;max-width:280px;display:flex;flex-direction:column;gap:4px;padding:10px 12px;box-sizing:border-box;border:2px solid #6b5335;background:#e8d6a4;color:#2a2118}
+/* ── The Scribe: choose an Inscription, then a slot (docs/inscriptions.md). Menu screens only. Kit colours, whole pixels.
+   Each Inscription shows its own brand mark (dist/inscription-glyphs.mjs) at 48 px. Slot choices fill the panel's height. ── */
+.scribe-screen .scribe-offers,.scribe-screen .scribe-pick{display:flex;gap:12px;align-items:stretch;justify-content:center;padding:0 12px;box-sizing:border-box;min-height:0;height:100%}
+.scribe-screen .scribe-choice,.scribe-screen .scribe-chosen{flex:1 1 0;min-width:0;max-width:280px;display:flex;flex-direction:column;align-items:center;gap:4px;padding:8px 12px;box-sizing:border-box;border:2px solid #6b5335;background:#e8d6a4;color:#2a2118;text-align:center;overflow:auto}
 .scribe-screen .scribe-standalone{border-color:#536430}
-.scribe-screen .scribe-choice h2{display:flex;align-items:center;gap:6px;margin:0;font:400 18px/22px var(--pixel,monospace);letter-spacing:1px}
-.scribe-screen .scribe-choice h2 .ins-glyph{flex:none;color:#6b5335}
-.scribe-screen .scribe-standalone h2 .ins-glyph{color:#536430}
-.scribe-screen .scribe-choice small{font:400 11px/13px var(--pixel,monospace);color:#5a4632}
-.scribe-screen .scribe-choice p{margin:0;flex:1;font:400 14px/17px var(--pixel,monospace)}
-.scribe-screen .scribe-choice .wb-sign{align-self:stretch;min-height:44px}
-.scribe-screen .scribe-pick .scribe-choice{flex:0 0 230px}
-.scribe-screen .scribe-slots{flex:1;display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:8px;align-content:start}
-.scribe-screen .scribe-slot{display:flex;flex-direction:column;align-items:flex-start;gap:2px;min-height:64px;padding:6px 8px;text-align:left}
-.scribe-screen .scribe-slot b{font:400 15px/17px var(--pixel,monospace)}
-.scribe-screen .scribe-slot span{font:400 13px/15px var(--pixel,monospace)}
-.scribe-screen .scribe-slot small{font:400 11px/13px var(--pixel,monospace)}
-.scribe-screen .scribe-slot-inscribed small{color:#2a2118}
+.scribe-screen .scribe-mark{display:block;flex:none;line-height:0;color:#2a2118}
+.scribe-screen .scribe-mark .ins-glyph{display:block;image-rendering:pixelated}
+.scribe-screen .scribe-choice h2,.scribe-screen .scribe-chosen h2{margin:0;font:400 18px/22px var(--pixel,monospace);letter-spacing:1px;overflow-wrap:anywhere}
+.scribe-screen .scribe-kind{font:400 12px/14px var(--pixel,monospace);color:#5a4632}
+.scribe-screen .scribe-choice p,.scribe-screen .scribe-chosen p{margin:0;flex:1 0 auto;font:400 14px/17px var(--pixel,monospace);overflow-wrap:anywhere}
+.scribe-screen .scribe-choice .wb-sign,.scribe-screen .scribe-chosen .wb-sign{align-self:stretch;flex:none;min-height:44px}
+.scribe-screen .scribe-chosen{flex:0 0 196px}
+.scribe-screen .scribe-chosen p{flex:0 1 auto}
+.scribe-screen .scribe-chosen .scribe-back{margin-top:auto}
+.scribe-screen .scribe-slots{flex:1 1 0;min-width:0;display:grid;grid-auto-flow:column;grid-auto-columns:minmax(112px,1fr);gap:8px;overflow-x:auto;overscroll-behavior-x:contain;scroll-snap-type:x proximity}
+.scribe-screen .scribe-slot{display:flex;flex-direction:column;align-items:center;justify-content:flex-start;gap:4px;min-width:0;min-height:0;height:100%;margin:0;padding:8px 6px;box-sizing:border-box;border:2px solid #6b5335;background:#e8d6a4;color:#2a2118;text-align:center;font:400 13px/15px var(--pixel,monospace);cursor:pointer;scroll-snap-align:start;overflow:hidden}
+.scribe-screen .scribe-slot:hover,.scribe-screen .scribe-slot:focus-visible{background:#f3e5bb;outline:2px solid #2a2118;outline-offset:-6px}
+.scribe-screen .scribe-slot:active{background:#dcc693}
+.scribe-screen .scribe-slot-inscribed{border-color:#2a2118}
+.scribe-screen .scribe-slot-empty{background:#dcc693}
+.scribe-screen .scribe-slot-n{flex:none;font:400 15px/17px var(--pixel,monospace);letter-spacing:1px}
+.scribe-screen .scribe-slot-pic{flex:none;display:block;width:48px;height:48px;line-height:0;border:2px solid #6b5335;background:#cdbb88}
+.scribe-screen .scribe-slot-pic>svg{display:block;width:48px;height:48px;image-rendering:pixelated}
+.scribe-screen .scribe-slot-pic-empty{border-style:dashed;background:none}
+.scribe-screen .scribe-slot-name{flex:none;max-width:100%;overflow-wrap:anywhere;hyphens:auto}
+.scribe-screen .scribe-slot-ins{flex:none;display:flex;align-items:center;justify-content:center;gap:4px;max-width:100%;margin-top:auto;padding-top:4px;border-top:2px solid #b49a68;font:400 12px/14px var(--pixel,monospace);color:#2a2118;text-align:left}
+.scribe-screen .scribe-slot-ins>span{min-width:0;overflow-wrap:anywhere}
+.scribe-screen .scribe-slot-ins .ins-glyph{flex:none;width:16px;height:16px}
+.scribe-screen .scribe-slot-none{color:#5a4632}
+.scribe-screen .scribe-slot-warn{flex:none;max-width:100%;padding:2px 4px;box-sizing:border-box;border:2px solid #7a2f2a;font:400 11px/13px var(--pixel,monospace);color:#7a2f2a;overflow-wrap:anywhere}
+.scribe-screen .scribe-slot-warn{order:9}
 .scribe-screen .scribe-confirm,.scribe-screen .scribe-written{padding:0 16px;display:flex;flex-direction:column;gap:8px;align-items:center}
+.scribe-screen .scribe-swap{display:flex;gap:28px;align-items:flex-end}
+.scribe-screen .scribe-swap>span{display:flex;flex-direction:column;align-items:center;gap:4px;font:400 13px/15px var(--pixel,monospace)}
+.scribe-screen .scribe-swap>span:first-child{opacity:.55}
+.scribe-screen .scribe-swap b{font-weight:400}
 .scribe-screen .scribe-confirm p,.scribe-screen .scribe-result{margin:0;font:400 15px/19px var(--pixel,monospace);max-width:520px;text-align:center}
+.scribe-screen>.artifact-reward-actions:empty{display:none}
+@media(orientation:landscape) and (max-height:350px){
+ .scribe-screen .scribe-choice,.scribe-screen .scribe-chosen{padding:6px 8px;gap:3px}
+ .scribe-screen .scribe-chosen{flex-basis:168px}
+ .scribe-screen .scribe-mark .ins-glyph{width:32px;height:32px}
+ .scribe-screen .scribe-choice p,.scribe-screen .scribe-chosen p{font-size:13px;line-height:15px}
+ .scribe-screen .scribe-slot{padding:5px 4px;gap:3px}
+}

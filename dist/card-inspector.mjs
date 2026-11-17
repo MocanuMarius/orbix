@@ -1,7 +1,7 @@
 // A disposable deck for phone inspection. Never reads or writes a player save.
 import { newState, createRun, advanceMap, getSupportChoices, getChoices, selectNode, beginFlightAttempt, markFlightAttemptStarted, finishFlight, settleCheckpoint } from './model.mjs?v=guide-clarity-1';
 import { makeSkillCard } from './skill-cards.mjs?v=guide-clarity-1';
-import { cleanSlotInscriptions, writeInscription } from './inscriptions.mjs?v=guide-clarity-1';
+import { cleanSlotInscriptions, writeInscription, INSCRIPTIONS } from './inscriptions.mjs?v=guide-clarity-1';
 
 export function prepareCardInspectorReward(run, cardId = 'harvest-rare') {
   if (run.cardReward && !run.cardReward.uiAcknowledged) return;
@@ -171,9 +171,21 @@ export function createCardInspectorState(params = new URLSearchParams()) {
   }
   // Dev only: ?mock=cards&chain=...&slots=0:gilded,2:hollow writes Inscriptions on slots (nothing is saved).
   if (params.get('slots')) applyInscriptionSlots(run, params.get('slots'));
+  // Dev only: ?mock=cards&scenario=scribe opens the Scribe after an Elite (offers=id,id,id; pick=id jumps to the slot step).
+  if (params.get('scenario') === 'scribe') openMockScribe(run, params.get('offers'));
   return state;
 }
 
+/** The Scribe reward of an Elite flight, offering the given Inscriptions (default: one of each kind and a third). */
+export function openMockScribe(run, offers) {
+  const ids = String(offers || 'resonant,hollow,gilded').split(',').map(id => id.trim()).filter(id => INSCRIPTIONS[id]).slice(0, 3);
+  if (run.cardReward) run.cardReward.uiAcknowledged = true;
+  delete run.cardDraft;
+  run.lastFlight = {...(run.lastFlight || {}), elite: true};
+  run.flightReward = {kind: 'inscription', nodeId: 'mock-scribe', source: 'flight', sourceName: 'The Scribe', offers: ids, permanent: false, claimed: !ids.length};
+  run.victoryPending = true;
+  return run.flightReward;
+}
 /** `0:gilded,2:hollow` → Inscriptions on those slots; unknown ids and slots are ignored. */
 export function applyInscriptionSlots(run, text) {
   cleanSlotInscriptions(run);

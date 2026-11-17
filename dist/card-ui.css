@@ -1810,3 +1810,9 @@ html body button.flight-card-row.card-row-stopped{filter:saturate(.3) brightness
 @media(prefers-reduced-motion:reduce){.card-row-ring{transition:none}}
 .flight-reward-chip{display:inline-grid;place-items:center;width:20px;height:20px;margin-right:4px;vertical-align:middle;background:#f3e6b9;border:2px solid #2a1d12;box-sizing:border-box}
 .flight-reward-chip>svg{display:block;width:16px;height:16px;image-rendering:pixelated}
+/* Glossary: every Inscription with its brand mark (dist/inscription-glyphs.mjs). Whole pixels, kit ink. */
+.ins-legend-list{list-style:none;margin:6px 0 0;padding:0;display:grid;gap:6px}
+.ins-legend-list>li{display:flex;align-items:center;gap:8px;font-size:13px;line-height:16px}
+.ins-legend-list>li>.ins-glyph{flex:none;color:#f1dfa7;image-rendering:pixelated}
+.ins-legend-list>li>span{min-width:0;overflow-wrap:anywhere}
+.ins-legend-list b{font-weight:400;color:#f1dfa7}

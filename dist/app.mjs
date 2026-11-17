@@ -1475,7 +1475,7 @@ if(boundaryInspector)window.addEventListener('message',event=>{
  if(event.data?.type==='wisp-boundary-scene'&&event.data.action==='restart'){boundaryReveal=false;destroyFlight();state=createBoundaryInspectorState(new URLSearchParams(location.search));goToRun();}
 });
 
-if(cardInspector){const scenario=new URLSearchParams(location.search).get('scenario');if(['rest','dream','dream-rest','pack','departure'].includes(scenario))goToRun();else{render('map');if(scenario==='starter')showStartingGifts(true);else showCards();}}
+if(cardInspector){const scenario=new URLSearchParams(location.search).get('scenario');if(scenario==='scribe'){const pick=new URLSearchParams(location.search).get('pick');if(pick&&state.run.flightReward?.offers?.includes(pick))scribe={id:pick,slot:null};goToRun();}else if(['rest','dream','dream-rest','pack','departure'].includes(scenario))goToRun();else{render('map');if(scenario==='starter')showStartingGifts(true);else showCards();}}
 else if(mockMode)goToRun();
 else if(new URLSearchParams(location.search).get('tutorial')==='1'){
  const url=new URL(location.href);url.searchParams.delete('tutorial');history.replaceState(null,'',url);

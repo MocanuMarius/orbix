@@ -222,30 +222,91 @@ test('Scribe: three offers without duplicates of written ones, then slot, replac
 
 test('getInscription ignores junk', () => { assert.equal(getInscription('nope'), null); assert.equal(getInscription(null), null); });
 
-test('screens: plaque, etched frame, inspector block with glossary words, and the three Scribe steps', async () => {
-  const {inscriptionPlaque, inscriptionFrame, inscriptionBlock, inscriptionGlyph} = await import('../dist/inscription-ui.mjs');
+test('Chain tab: an inscribed slot, empty or not, carries its brand and etched frame; no text plaque; the inspector shows the block', async () => {
+  const {deckScreenMarkup, createDeckView} = await import('../dist/ui/deck-screen.mjs');
+  const run = cardState('chain-ui', ['body-spark', null, null]).run;
+  writeInscription(run, 0, 'gilded'); writeInscription(run, 1, 'hollow');
+  const html = deckScreenMarkup(run, createDeckView(), {});
+  assert.equal((html.match(/class="dk2-ins-brand /g) || []).length, 2);
+  assert.match(html, /data-ins-glyph="gilded"/); assert.match(html, /data-ins-glyph="hollow"/);
+  assert.equal((html.match(/dk2-ins-frame /g) || []).length, 2);
+  assert.match(html, /dk2-empty dk2-inscribed/, 'the empty slot is still clearly inscribed');
+  assert.doesNotMatch(html, /class="dk2-ins dk2-ins-/, 'the old text plaque is gone');
+  assert.doesNotMatch(deckScreenMarkup(cardState('chain-ui-none', ['body-spark', null, null]).run, createDeckView(), {}), /data-ins-slot=/);
+  const view = createDeckView(); view.reading = run.mountedCards[0].instanceId;
+  assert.match(deckScreenMarkup(run, view, {}), /Inscription: <b>Gilded<\/b>/);
+});
+test('glyphs: every Inscription has its own 16x16 brand mark, as a file and inline, and no two are alike', async () => {
+  const fs = await import('node:fs');
+  const {inscriptionGlyph, INSCRIPTION_GLYPH_IDS, inscriptionGlyphPath} = await import('../dist/inscription-glyphs.mjs');
+  const {GLYPHS, validate} = await import('../scripts/build-inscription-glyphs.mjs');
+  assert.deepEqual([...INSCRIPTION_GLYPH_IDS].sort(), [...INSCRIPTION_IDS].sort());
+  assert.deepEqual(validate(), []);
+  const files = INSCRIPTION_IDS.map(id => {
+    const file = new URL(`../dist/${inscriptionGlyphPath(id)}`, import.meta.url);
+    assert.ok(fs.existsSync(file), `${id} has a glyph file`);
+    const text = fs.readFileSync(file, 'utf8');
+    assert.match(text, /viewBox="0 0 16 16"/); assert.match(text, /fill="currentColor"/);
+    return text.replace(/^[\s\S]*? d="/, '');
+  });
+  assert.equal(new Set(files).size, files.length, 'glyph files are pairwise different');
+  // Pairwise different by enough pixels to read apart (symmetric difference of the 16x16 grids).
+  const ids = Object.keys(GLYPHS), px = id => GLYPHS[id].join('');
+  for (let a = 0; a < ids.length; a++) for (let b = a + 1; b < ids.length; b++) {
+    const diff = [...px(ids[a])].filter((c, i) => c !== px(ids[b])[i]).length;
+    assert.ok(diff >= 24, `${ids[a]} and ${ids[b]} differ by only ${diff} pixels`);
+  }
+  assert.match(inscriptionGlyph('bell', {size: 48}), /width="48"[^>]*viewBox="0 0 16 16"/);
+  assert.match(inscriptionGlyph('bell', {size: 40}), /width="48"/, 'whole multiples only');
+  assert.match(inscriptionGlyph('bell', {size: 36, brand: true}), /width="36"[^>]*viewBox="-1 -1 18 18"[\s\S]*ins-brand-edge/);
+  assert.equal(inscriptionGlyph('nope'), '');
+});
+test('screens: brand, etched frame, inspector block with glossary words, and the three Scribe steps', async () => {
+  const {inscriptionBrand, inscriptionFrame, inscriptionBlock, inscriptionGlyph} = await import('../dist/inscription-ui.mjs');
   const {flightRewardMarkup} = await import('../dist/reward-screen.mjs');
   const {CARD_TERMS} = await import('../dist/card-terms.mjs');
   assert.ok(CARD_TERMS.inscription, 'glossary term');
-  assert.match(inscriptionPlaque(2, 'kindled'), /data-ins-slot="2"[\s\S]*Kindled/);
-  assert.match(inscriptionPlaque(0, 'hollow'), /dk2-ins-standalone/);
-  assert.equal(inscriptionPlaque(0, 'nope'), '');
+  assert.match(inscriptionBrand(2, 'kindled'), /data-ins-slot="2"[\s\S]*Kindled[\s\S]*data-ins-glyph="kindled"/);
+  assert.match(inscriptionBrand(0, 'hollow'), /dk2-ins-standalone/);
+  assert.equal(inscriptionBrand(0, 'nope'), '');
   assert.match(inscriptionFrame('gilded'), /dk2-ins-frame-card/);
-  assert.notEqual(inscriptionGlyph('card'), inscriptionGlyph('standalone'), 'one glyph per family');
+  assert.notEqual(inscriptionGlyph('gilded'), inscriptionGlyph('hollow'), 'one glyph per Inscription');
   const block = inscriptionBlock(1, 'kindled');
   assert.match(block, /Inscription: <b>Kindled<\/b>/); assert.match(block, /data-card-term="lift"/, 'trigger words link to the glossary');
-  const state = cardState('screens', ['body-spark', null, null]), run = state.run;
+  assert.match(block, /data-ins-glyph="kindled"/);
+  const state = cardState('screens', ['harvest-rare', null, null]), run = state.run;
   writeInscription(run, 1, 'mirror');
   run.lastFlight = {elite: true};
   run.flightReward = {kind: 'inscription', nodeId: 'n', offers: ['gilded', 'hollow', 'bell'], claimed: false};
   const one = flightRewardMarkup(state, {scribe: {}});
   assert.equal((one.match(/data-action="scribe-pick"/g) || []).length, 3); assert.match(one, /Choose an Inscription/);
+  for (const id of ['gilded', 'hollow', 'bell']) assert.match(one, new RegExp(`data-ins-glyph="${id}" width="48"`));
+  assert.match(one, /Changes the card in its slot/); assert.match(one, /Works on its own, even on an empty slot/);
   const two = flightRewardMarkup(state, {scribe: {id: 'hollow', slot: null}});
-  assert.equal((two.match(/data-action="scribe-slot"/g) || []).length, 3); assert.match(two, /Replaces Mirror/); assert.match(two, /data-action="scribe-back"/);
+  assert.equal((two.match(/data-action="scribe-slot"/g) || []).length, 3); assert.match(two, /Replaces: Mirror/); assert.match(two, /data-action="scribe-back"/);
+  assert.match(two, /<h1 class="wb-title">Choose a slot<\/h1>/); assert.match(two, /No Inscription/); assert.match(two, /Empty slot/);
+  assert.doesNotMatch(two, /bare/i, 'no "Bare"');
+  assert.match(two, /<span class="scribe-slot-name">Resonant Harvest<\/span>/, 'card names sit in their own wrapping element');
+  assert.match(two, /data-card-art="harvest-rare"/, 'the mounted card picture');
+  assert.doesNotMatch(two, /Needs a card here/, 'a standalone Inscription needs no card');
+  const twoCard = flightRewardMarkup(state, {scribe: {id: 'gilded', slot: null}});
+  assert.equal((twoCard.match(/<span class="scribe-slot-warn">Needs a card here to do anything/g) || []).length, 2, 'a card-changing Inscription warns on each empty slot');
   const three = flightRewardMarkup(state, {scribe: {id: 'hollow', slot: 1}});
   assert.match(three, /Replace this Inscription\?/); assert.match(three, /data-action="scribe-confirm"/); assert.match(three, /data-action="scribe-slot-back"/);
   assert.ok(M.chooseFlightReward(state, 'hollow', 0));
   assert.match(flightRewardMarkup(state, {scribe: {}}), /Written on slot 1/);
+});
+test('the long-name wrapper is styled to wrap inside its slot box, and slot choices fill the height', async () => {
+  const fs = await import('node:fs');
+  const css = fs.readFileSync(new URL('../dist/artifact-reward.css', import.meta.url), 'utf8');
+  assert.match(css, /\.scribe-slot-name\{[^}]*overflow-wrap:anywhere/);
+  assert.match(css, /\.scribe-slot\{[^}]*height:100%/);
+});
+test('dev scene: ?mock=cards&scenario=scribe opens the Scribe', async () => {
+  const {openMockScribe} = await import('../dist/card-inspector.mjs');
+  const run = cardState('mock-scribe', ['body-spark', null, null]).run;
+  const reward = openMockScribe(run, 'bell,nope,gilded');
+  assert.deepEqual(reward.offers, ['bell', 'gilded']); assert.equal(run.victoryPending, true); assert.equal(reward.kind, 'inscription');
 });
 
 test('a Scribe is offered only on card runs; elite and guardian flights otherwise award nothing', () => {
