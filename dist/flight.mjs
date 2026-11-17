@@ -1031,6 +1031,7 @@ export class WispFlight {
       if (this.destroyed) { this.pixiView.destroy(); return; }
       this.pixiReady = initialized !== false && this.pixiView.ready !== false;
       this.pixiView.resize();
+      this.sizeEngineCanvas();
       this.render(); this.notify();
     } catch (error) {
       this.rendererError = error?.message || 'Pixel renderer unavailable';
@@ -1169,7 +1170,7 @@ export class WispFlight {
     const gaugeClearance=gaugeRight>0?(gaugeRight+32)*width/cssWidth:0;
     const playerScreenX=landscape?Math.min(width*.38,Math.max(190,gaugeClearance)):98;
     const pixelWidth = Math.round(cssWidth * pixelRatio), pixelHeight = Math.round(cssHeight * pixelRatio);
-    if (this._canvasSized && this.canvas.width === pixelWidth && this.canvas.height === pixelHeight
+    if (this._canvasSized && this._backingWidth === pixelWidth && this._backingHeight === pixelHeight
       && this.width === width && this.height === height && this.pixelRatio === pixelRatio&&this.playerScreenX===playerScreenX) return;
     // Mobile address bars can move by a few pixels while flying. Keep one
     // committed world/backing size through those height-only changes; the
@@ -1199,9 +1200,8 @@ export class WispFlight {
     this._nearbyPacketsUntil = -1;
     if(this.projection)this.projection.nextAt=-Infinity;
     this.pixelRatio = pixelRatio;
-    this.canvas.width = pixelWidth;
-    this.canvas.height = pixelHeight;
-    this.ctx.setTransform(this.canvas.width / this.width, 0, 0, this.canvas.height / this.height, 0, 0);
+    this._backingWidth = pixelWidth; this._backingHeight = pixelHeight;
+    this.sizeEngineCanvas(true);
     if (this.player && oldHeight !== this.height) {
       const factor = this.height / oldHeight;
       this.player.y *= factor; this.player.vy *= factor;
@@ -1250,6 +1250,30 @@ export class WispFlight {
     }
     if (this.player && (!this.running || this.paused)) this.render();
     this.pixiView?.resize();
+  }
+
+  // Once the pixel renderer draws its own canvas, this canvas only carries
+  // layout and pointer input (at opacity 0) and its bitmap is never drawn, so
+  // it is kept at 1x1. The fallback renderer gets the full backing size back
+  // whenever it runs. If the host lets the bitmap size decide the element's
+  // CSS size, shrinking would move the layout: then the full size is kept.
+  sizeEngineCanvas(resized = false) {
+    const full = !(this.pixiReady && this.pixiView) || this._engineCanvasKeepsSize;
+    if (full) {
+      // A resize always reassigned (and so cleared) the bitmap; keep that.
+      if (!resized && this.canvas.width === this._backingWidth && this.canvas.height === this._backingHeight) return;
+      this.canvas.width = this._backingWidth; this.canvas.height = this._backingHeight;
+    } else {
+      if (this.canvas.width === 1 && this.canvas.height === 1) return;
+      const before = this.canvas.getBoundingClientRect();
+      this.canvas.width = 1; this.canvas.height = 1;
+      const after = this.canvas.getBoundingClientRect();
+      if (after.width !== before.width || after.height !== before.height) {
+        this._engineCanvasKeepsSize = true;
+        this.canvas.width = this._backingWidth; this.canvas.height = this._backingHeight;
+      }
+    }
+    this.ctx.setTransform(this.canvas.width / this.width, 0, 0, this.canvas.height / this.height, 0, 0);
   }
 
   start({paused = false} = {}) {
@@ -2643,6 +2667,7 @@ export class WispFlight {
     this.captureTime = Math.max(0, this.time - (1 - blend) * STEP);
     this.visualTime = this.time + blend * STEP;
     if (this.pixiReady && this.pixiView) { this.pixiView.render(this); return; }
+    if (this.canvas.width !== this._backingWidth || this.canvas.height !== this._backingHeight) this.sizeEngineCanvas();
     const c = this.ctx, W = this.width, H = this.height;
     beginTerrainBoundaryFrame(this,this.visualTime,this.renderDistance);
     try {

@@ -731,7 +731,9 @@ function dreamFinished(result){
 function acceptDream(){
  if(!dreamReady||engine?.dream?.mode!=='record')return;
  const preset=dreamReady.preset;
- const source=document.querySelector('#flight-canvas');
+ // The pixel renderer's canvas is the one on screen; #flight-canvas is only
+ // drawn by the fallback renderer (and is 1x1 while the pixel renderer runs).
+ const source=document.querySelector('.canvas-wrap .pixel-flight-canvas')||document.querySelector('#flight-canvas');
  const memory=document.createElement('canvas');
  memory.width=source.width;memory.height=source.height;
  memory.getContext('2d').drawImage(source,0,0);
@@ -1284,7 +1286,17 @@ function worldLesson(){if(isPlayablePractice(state.run))return practiceWorldLess
 function mapLabelLines(value,max=14){const words=String(value||'').split(/\s+/),lines=[];let line='';for(const word of words){if((line+' '+word).trim().length>max&&line){lines.push(line);line=word}else line=(line+' '+word).trim()}if(line)lines.push(line);return lines.slice(0,2).map(v=>v.length>max?v.slice(0,max-1)+'…':v)}
 function mapPositionMarker(x,y,label){return `<g class="map-position-marker map-orb-marker" transform="translate(${x},${y})"><circle r="12" fill="#dce8d1" opacity=".25"/><circle r="6" fill="#f2f0d5"/><text y="24" text-anchor="middle">${label}</text></g>`}
 
+// While the map waits for a choice, pre-render the pickup sprite atlas and load
+// the pixel renderer in idle time, so the next flight's entry does less work.
+// preloadFlightEntry caches per document; repeated calls are cheap.
+let flightWarmupScheduled=false;
+function warmFlightWhenIdle(){
+ if(flightWarmupScheduled||typeof window==='undefined')return;flightWarmupScheduled=true;
+ const warm=()=>{flightWarmupScheduled=false;if(screen==='map'&&!engine)void preloadFlightEntry(state.settings.reducedMotion).catch(()=>{});};
+ if(typeof window.requestIdleCallback==='function')window.requestIdleCallback(warm,{timeout:3000});else setTimeout(warm,1000);
+}
 function drawMap(){
+  warmFlightWhenIdle();
   if(window.matchMedia('(orientation: landscape)').matches){for(const n of getChoices(state.run))if(n.type!=='support')prepareOffer(state.run,n);drawLandscapeMap(document.querySelector('#journey-map'),document.querySelector('#map-viewport'),state.run);return;}
   const r=state.run,height=mapHeight(r),origin=height-57,svg=document.querySelector('#journey-map');if(!svg)return;
   const routeState=getRouteMapState(r),choices=getChoices(r),available=new Set(routeState.availableIds),visited=new Set(routeState.completedIds),positions={},byId=new Map(r.map.flat().map(n=>[n.id,n]));

@@ -1,0 +1,26 @@
+{
+ "day": "2026-11-17",
+ "root": "dist",
+ "metrics": {
+  "session.flights": 6,
+  "session.heapGrowthMBPerFlight": 0.49,
+  "session.canvasMPxAfterLast": 13.3,
+  "session.nodesAfterLast": 1665,
+  "session.rafLoopsBetweenFlights": 0,
+  "reference.firstTickP95": 13,
+  "reference.lastTickP95": 12.5,
+  "reference.lastFrameP95": 12.6,
+  "chain.frameP95": 37.5,
+  "chain.tickP95": 29.8,
+  "chain.over33": 47,
+  "chain.heapAllocMBps": 4.28,
+  "pickups10.frameP95": 37.5,
+  "pickups10.tickP95": 30.9,
+  "pickups10.over33": 52,
+  "pickups10.heapAllocMBps": 4.34,
+  "collector.frameP95": 37.5,
+  "collector.tickP95": 30.8,
+  "collector.over33": 52,
+  "collector.heapAllocMBps": 4.31
+ }
+}

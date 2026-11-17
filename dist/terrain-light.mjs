@@ -4,7 +4,7 @@ import {LIGHT_EXTENT,lightAttenuation} from './light-attenuation.mjs?v=guide-cla
 // travelled. Gameplay visibility, encounters and collection use their own law.
 export const SOLID_LIGHT_COST=4.5;
 export const TERRAIN_LIGHT_LIMITS=Object.freeze({rays:96,pixels:128,masks:8,cellMasks:8,sourceStep:12,motionHz:12});
-const states=new WeakMap(),TAU=Math.PI*2,EPS=1e-7;
+const states=new WeakMap(),maskImages=new WeakMap(),TAU=Math.PI*2,EPS=1e-7;
 const cross=(ax,ay,bx,by)=>ax*by-ay*bx;
 const inside=(points,x,y)=>{let hit=false;for(let i=0,j=points.length-1;i<points.length;j=i++){
  const a=points[i],b=points[j];if((a[1]>y)!==(b[1]>y)&&x<(b[0]-a[0])*(y-a[1])/(b[1]-a[1])+a[0])hit=!hit;
@@ -39,6 +39,18 @@ export function materialLightAt(polygons,source,target,radius){
  return lightAttenuation((materialLightDistance(d,solid)/radius)**2);
 }
 function checksum(points){let h=2166136261;for(const point of points)for(const v of point){h=Math.imul(h^(Math.round(v*1024)|0),16777619);}return h>>>0;}
+// A shape's checksum is walked once per 12 Hz light tick instead of every
+// frame. In-place point edits are still seen at the next tick; the game's only
+// in-place edits (WispFlight.resize and the spacetime resizeY it calls) change
+// the engine height, which invalidates the memo at once. Two slots serve the
+// current and next tick that moving terrain samples in the same frame.
+const checksums=new WeakMap();
+function shapeChecksum(points,height,time){
+ let saved=checksums.get(points);
+ if(saved?.height===height){if(saved.t0===time)return saved.s0;if(saved.t1===time)return saved.s1;}
+ else{saved={height,t0:NaN,s0:0,t1:NaN,s1:0};checksums.set(points,saved);}
+ const sum=checksum(points);saved.t1=saved.t0;saved.s1=saved.s0;saved.t0=time;saved.s0=sum;return sum;
+}
 function sceneFor(engine,distance,time){
  let state=states.get(engine);if(!state){state={objects:new WeakMap(),masks:new Map(),builds:0,hits:0};states.set(engine,state);}
  const stamp=`${distance}:${time}:${engine.width}:${engine.height}:${engine.spacetime?.revision||0}`;
@@ -53,12 +65,13 @@ function sceneFor(engine,distance,time){
   if(o.topShape)parts.push({points:o.topShape,anchor:center-o.gap/2});
   if(o.bottomShape)parts.push({points:o.bottomShape,anchor:center+o.gap/2});
   for(const prop of o.sceneProps||[])for(const part of prop.parts||[])if(part.polygon)parts.push({points:part.polygon,anchor:center+(prop.side===-1?-1:1)*o.gap/2});
-  const key=`${o.x}:${center}:${o.gap}:${parts.map(p=>`${p.anchor},${checksum(p.points)}`).join(';')}`;
+  for(const p of parts)p.sum=shapeChecksum(p.points,engine.height,time);
+  const key=`${o.x}:${center}:${o.gap}:${parts.map(p=>`${p.anchor},${p.sum}`).join(';')}`;
   let saved=state.objects.get(o);
   if(saved?.key!==key){saved={key,polygons:parts.map(p=>{
    const points=p.points.map(([x,y])=>[o.x+x,p.anchor+y]);let minX=Infinity,minY=Infinity,maxX=-Infinity,maxY=-Infinity;
    for(const [x,y]of points){minX=Math.min(minX,x);minY=Math.min(minY,y);maxX=Math.max(maxX,x);maxY=Math.max(maxY,y);}
-   return{points,key:`${o.x}:${p.anchor}:${checksum(p.points)}`,minX,minY,maxX,maxY};
+   return{points,key:`${o.x}:${p.anchor}:${p.sum}`,minX,minY,maxX,maxY};
   })};state.objects.set(o,saved);}
   polygons.push(...saved.polygons);keys.push(key);
  }
@@ -84,7 +97,11 @@ function cellMask(document,state,bank,sx,sy,radius){
  const paths=Array.from({length:rays},(_,i)=>{const a=i*TAU/rays;return solidRayIntervals(nearby,sx,sy,Math.cos(a),Math.sin(a),reach);});
  if(paths.every(path=>!path.length)){rememberCell(bank,key,null);return null;}
  const canvas=document.createElement('canvas');canvas.width=canvas.height=pixels;
- const c=canvas.getContext('2d'),image=c.createImageData(pixels,pixels),samples=polarSamples();
+ // One ImageData per document serves every mask: the loop writes all four channels of each
+ // pixel with r<1 on every build and never touches pixels with r>=1, which
+ // therefore stay at their initial zero. No earlier mask can show through.
+ const c=canvas.getContext('2d'),samples=polarSamples();
+ let image=maskImages.get(document);if(!image){image=c.createImageData(pixels,pixels);maskImages.set(document,image);}
  for(let i=0;i<samples.length;i++){
   const {r,a,mix}=samples[i];if(r>=1)continue;
   const d=r*reach,sa=solidDistanceAt(paths[a],d),sb=solidDistanceAt(paths[(a+1)%rays],d),effective=materialLightDistance(d,sa+(sb-sa)*mix);
@@ -93,6 +110,9 @@ function cellMask(document,state,bank,sx,sy,radius){
  c.putImageData(image,0,0);state.builds++;rememberCell(bank,key,canvas);
  return canvas;
 }
+// Evicted masks are not reused: in Chrome, refilling a 128x128 mask canvas that
+// was already drawn changed the composited light by 1-25 levels (measured,
+// November 2026), so each new mask gets a fresh canvas as before.
 function rememberCell(bank,key,canvas){
  bank.cells.set(key,canvas);
  while(bank.cells.size>TERRAIN_LIGHT_LIMITS.cellMasks){const first=bank.cells.keys().next().value,old=bank.cells.get(first);if(old)old.width=old.height=1;bank.cells.delete(first);}

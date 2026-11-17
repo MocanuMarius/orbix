@@ -22,21 +22,46 @@ export const biomePalette = identity => PALETTES[idOf(identity)] || {};
 const n = (x,seed=0) => {let v=Math.imul((x|0)^seed,1597334677);v=Math.imul(v^v>>>13,1274126177);return((v^v>>>16)>>>0)/4294967296;};
 const seedOf = text => {let h=2166136261;for(const ch of String(text))h=Math.imul(h^ch.charCodeAt(0),16777619);return h>>>0;};
 
-export function drawBiomeBackground(c,{identity,width:W,height:H,distance=0,palette:p},h){
- const biome=idOf(identity);if(!biome)return false;
- const variant=(identity.variant||0)%4,seed=seedOf(identity.id),scroll=distance*.025;
+// Two parallax layers of repeating elements, each `span` pixels apart. The
+// renderer may bake each layer into a strip (drawBiomeBackgroundStrip) and
+// scroll it; both paths place elements with this one function.
+export const BIOME_BACKGROUND_SPANS=Object.freeze([151,112]);
+export const hasBiomeBackground=identity=>!!idOf(identity);
+export function biomeBackgroundPlacement(layer,distance,W){
+ const scroll=distance*.025,span=BIOME_BACKGROUND_SPANS[layer],offset=scroll*(layer?1.12:.49),first=Math.floor(offset/span),xs=[];
+ for(let i=-1;i<W/span+1;i++)xs.push(Math.round(i*span-offset%span));
+ return {span,first,xs};
+}
+export function drawBiomeBackground(c,options,h){
+ const paint=backgroundPainter(c,options,h);if(!paint)return false;
+ c.save();c.globalAlpha=.74;
+ // Both layers use the same slow cached parallax as the existing scenery.
+ for(let layer=0;layer<2;layer++){
+  const {first,xs}=biomeBackgroundPlacement(layer,options.distance||0,options.width);
+  for(let k=0;k<xs.length;k++)paint(layer,first-1+k,xs[k]);
+ }
+ c.restore();return true;
+}
+// One layer's elements first-1 .. first-2+count, element k drawn at originX+(k-1)*span.
+export function drawBiomeBackgroundStrip(c,options,h,{layer,first,count,originX}){
+ const paint=backgroundPainter(c,options,h);if(!paint)return false;
+ const span=BIOME_BACKGROUND_SPANS[layer];
+ c.save();c.globalAlpha=.74;
+ for(let k=0;k<count;k++)paint(layer,first-1+k,originX+(k-1)*span);
+ c.restore();return true;
+}
+function backgroundPainter(c,{identity,height:H,palette:p},h){
+ const biome=idOf(identity);if(!biome)return null;
+ const variant=(identity.variant||0)%4,seed=seedOf(identity.id);
  const box=(x,y,w,hh,ink)=>{c.fillStyle=ink;c.fillRect(Math.round(x),Math.round(y),Math.round(w),Math.round(hh));};
  const poly=(points,ink)=>{c.fillStyle=ink;h.polygon(c,points.map(([x,y])=>[Math.round(x),Math.round(y)]));c.fill();};
  const line=(x,y,xx,yy,ink,width=1)=>h.line(c,x,y,xx,yy,ink,width);
  const pine=(x,y,hh,w,ink)=>poly(pineCrown(x,y,w,hh),ink);
  const root=(x,y,hh,ink,willow=false)=>{line(x,y,x+3,y-hh*.5,ink,3);line(x+3,y-hh*.5,x-2,y-hh,ink,3);for(let k=-1;k<=1;k+=2){line(x+1,y-hh*.6,x+k*17,y-hh*.85,ink,2);line(x+k*17,y-hh*.85,x+k*24,y-hh*.67,ink,2);if(willow)for(let t=0;t<4;t++)line(x+k*(12+t*4),y-hh*.82,x+k*(14+t*4),y-hh*(.28+t*.08),ink);}};
  const stone=(x,y,hh,w,ink)=>poly([[x-w,y],[x-w*.75,y-hh*.7],[x-w*.2,y-hh],[x+w*.62,y-hh*.89],[x+w,y]],ink);
- c.save();c.globalAlpha=.74;
- // Both layers use the same slow cached parallax as the existing scenery.
- for(let layer=0;layer<2;layer++){
-  const span=layer?112:151,offset=scroll*(layer?1.12:.49),first=Math.floor(offset/span),ink=layer?p.middle:p.far;
-  for(let i=-1;i<W/span+1;i++){
-   const index=first+i,x=Math.round(i*span-offset%span),j=n(index,seed),y=H*(layer?.96:.79),hh=H*(.25+j*.24),v=(index+variant+40)%4;
+ return (layer,index,x)=>{
+   const span=BIOME_BACKGROUND_SPANS[layer],ink=layer?p.middle:p.far;
+   const j=n(index,seed),y=H*(layer?.96:.79),hh=H*(.25+j*.24),v=(index+variant+40)%4;
    if(biome==='moonruins'){
     const base=y-(v===1?13:0);box(x-8,base,span+10,H-base+8,ink);
     for(let pier=0;pier<4;pier++){const px=x+pier*29;box(px,base-hh*.66,6,hh*.66,ink);box(px-2,base-hh*.69,10,3,ink);if((pier+v)%4!==2){line(px+5,base-hh*.61,px+14,base-hh*.82,ink,3);line(px+14,base-hh*.82,px+29,base-hh*.61,ink,3);}}
@@ -87,9 +112,7 @@ export function drawBiomeBackground(c,{identity,width:W,height:H,distance=0,pale
     for(let grave=0;grave<5;grave++){const gx=x+grave*24,gh=10+(grave+v)%3*6;box(gx,y-gh,6,gh+7,ink);if((grave+v)%2)box(gx-4,y-gh+5,14,3,ink);else poly([[gx-1,y-gh+2],[gx+3,y-gh-2],[gx+7,y-gh+2]],ink);}
     if(v===1||v===3){box(x+40,y-hh*.9,29,hh*.9,ink);poly([[x+34,y-hh*.88],[x+54,y-hh*1.2],[x+75,y-hh*.88]],ink);box(x+54,y-hh*1.38,2,9,ink);box(x+50,y-hh*1.32,10,2,ink);if(layer)box(x+51,y-hh*.57,7,hh*.57,p.far);}
    }
-  }
- }
- c.restore();return true;
+ };
 }
 
 // Relief is clipped to the real collision polygon by the caller. Larger strata,

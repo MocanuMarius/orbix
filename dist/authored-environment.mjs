@@ -50,8 +50,14 @@ export function prepareEnvironmentArt(document){
   return state.ready;
 }
 function stateFor(context){return documents.get(context.canvas?.ownerDocument);}
+// One biome uses at most about 13 tinted variants; each new biome adds more.
+// Least recently used variants leave the cache beyond this cap. Their canvases
+// are not shrunk: a cached landscape or tableau may still draw from them.
+export const TINTED_VARIANT_LIMIT=24;
+export function tintedVariantCount(document){return documents.get(document)?.variants.size||0;}
 function tinted(document,state,key,tone){
-  const id=key+tone;if(state.variants.has(id))return state.variants.get(id);
+  const id=key+tone;
+  if(state.variants.has(id)){const hit=state.variants.get(id);state.variants.delete(id);state.variants.set(id,hit);return hit;}
   const image=state.images.get(key);if(!image)return null;
   const surface=document.createElement('canvas');surface.width=image.width;surface.height=image.height;
   const c=surface.getContext('2d',{willReadFrequently:true});c.drawImage(image,0,0);
@@ -67,7 +73,9 @@ function tinted(document,state,key,tone){
   c.globalCompositeOperation='source-atop';c.globalAlpha=.19;c.fillStyle=tone;c.fillRect(0,0,surface.width,surface.height);
   // Suppress the source pack's brighter hues while retaining its pixel shading.
   c.globalAlpha=.30;c.fillStyle='#0d1b25';c.fillRect(0,0,surface.width,surface.height);
-  state.variants.set(id,surface);return surface;
+  state.variants.set(id,surface);
+  while(state.variants.size>TINTED_VARIANT_LIMIT)state.variants.delete(state.variants.keys().next().value);
+  return surface;
 }
 export function drawAuthoredBackdrop(context,engine,{scale=1,distance=engine.renderDistance??engine.distance}={}){
   const state=stateFor(context),profile=profiles[biomeOf(engine)];

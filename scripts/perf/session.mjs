@@ -19,6 +19,7 @@ const srv=await startServer(A.root||'dist');const b=await launch({headed:!!A.hea
 await b.send('Page.addScriptToEvaluateOnNewDocument',{source:TRACK});
 await b.send('HeapProfiler.enable');await b.send('DOMDebugger.getEventListeners').catch(()=>{});
 await emulatePhone(b,{throttle});
+const consoleErrors=[];b.rawSocket.addEventListener('message',ev=>{const m=JSON.parse(ev.data);if(m.method==='Runtime.consoleAPICalled'&&(m.params.type==='error'||m.params.type==='assert'))consoleErrors.push(m.params.args.map(a=>a.value??a.description).join(' ').slice(0,200));if(m.method==='Log.entryAdded'&&m.params.entry.level==='error')consoleErrors.push('[log] '+m.params.entry.text.slice(0,120)+' '+(m.params.entry.url||''));});await b.send('Log.enable').catch(()=>{});
 const visible=`[...document.querySelectorAll("[data-action]")].filter(e=>{const r=e.getBoundingClientRect();return r.width>0&&r.height>0&&!e.disabled}).map(e=>({a:e.dataset.action,id:e.dataset.id||'',t:e.textContent.trim().replace(/\\s+/g,' ').slice(0,40),state:e.dataset.routeState||''}))`;
 const acts=()=>b.ev(visible);
 const dismiss=async()=>{const p=await b.ev(`(()=>{const e=[...document.querySelectorAll('button,[role=button]')].find(e=>{const r=e.getBoundingClientRect();return r.width>0&&r.height>0&&!e.disabled&&/^(got it|ok|okay|yes|continue|start|begin|understood|next|done|take|claim|keep|collect|onward|depart|tap to depart|rest|open)$/i.test(e.textContent.trim())&&!['menu','settings'].includes(e.dataset.action)});if(!e)return null;e.click();return {t:e.textContent.trim()}})()`);if(!p)return false;return p.t};
@@ -121,5 +122,6 @@ try{
  // Final accounting.
  await fs.writeFile(path.join(out,'session.json'),JSON.stringify({label,throttle,ref,flags:{hidden:!!A.hidden,pause:!!A.pause},wallMinutes:+((Date.now()-t0)/60000).toFixed(1),flights,steps},null,1));
  log('DONE flights',flightNo);
+ log('page exceptions',JSON.stringify(b.errors.slice(0,10)),'console errors',JSON.stringify(consoleErrors.slice(0,10)));
 }catch(e){log('FAILED',e.stack);await b.shot(path.join(out,'failed.png')).catch(()=>{});await fs.writeFile(path.join(out,'session.json'),JSON.stringify({label,throttle,failed:e.message,flights,steps},null,1));}
 finally{await b.close();srv.close();}

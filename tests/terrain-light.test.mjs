@@ -34,7 +34,7 @@ test('overlapping terrain and authored props consume light once as one solid uni
  assert.deepEqual(throughOrigin,[[0,30]]);
 });
 function fixture(obstacles=[]){
- const document={createElement(){const canvas={ownerDocument:document,width:0,height:0};const context={globalAlpha:1,createImageData:(w,h)=>({data:new Uint8ClampedArray(w*h*4)}),putImageData(image){canvas.pixels=image.data;},clearRect(){canvas.values=new Float64Array(canvas.width*canvas.height*4);canvas.pixels=new Uint8ClampedArray(canvas.values.length);},drawImage(source){if(!source.pixels)return;for(let i=0;i<source.pixels.length;i++){canvas.values[i]+=source.pixels[i]*this.globalAlpha;canvas.pixels[i]=Math.round(canvas.values[i]);}}};canvas.getContext=()=>context;return canvas;}};
+ const document={createElement(){const canvas={ownerDocument:document,width:0,height:0};const context={globalAlpha:1,createImageData:(w,h)=>({data:new Uint8ClampedArray(w*h*4)}),putImageData(image){canvas.pixels=Uint8ClampedArray.from(image.data);},clearRect(){canvas.values=new Float64Array(canvas.width*canvas.height*4);canvas.pixels=new Uint8ClampedArray(canvas.values.length);},drawImage(source){if(!source.pixels)return;for(let i=0;i<source.pixels.length;i++){canvas.values[i]+=source.pixels[i]*this.globalAlpha;canvas.pixels[i]=Math.round(canvas.values[i]);}}};canvas.getContext=()=>context;return canvas;}};
  const draws=[],engine={width:390,height:430,distance:0,time:0,layout:{obstacles},canvas:{ownerDocument:document}};
  const context={canvas:{ownerDocument:document},globalAlpha:1,drawImage:(...args)=>draws.push(args)};
  return {engine,context,draws};
@@ -100,4 +100,21 @@ test('camera translation reuses lattice corners instead of raycasting a full mas
  const {engine,context}=fixture([{x:0,width:600,center:250,gap:0,motion:0,phase:0,bottomShape:rectangle(-100,0,1000,1000)}]);
  for(let i=0;i<60;i++)castTerrainLight(context,{},engine,{x:100,y:200,radius:145,distance:i*154/60,time:i/60});
  assert.ok(terrainLightStats(engine).builds<=32);assert.ok(terrainLightStats(engine).canvases<=TERRAIN_LIGHT_LIMITS.cellMasks+3);releaseTerrainLight(engine);
+});
+
+test('after many mask builds share one ImageData, every mask has exactly the pixels of a fresh build',()=>{
+ const obstacle={x:0,width:600,center:200,gap:0,motion:0,phase:0,bottomShape:rectangle(-100,0,1400,1000)};
+ const sweep=fixture([obstacle]),fresh=fixture([obstacle]);
+ const render=(f,x)=>{f.engine.time=0;castTerrainLight(f.context,{},f.engine,{x,y:200,radius:145});return f.draws.at(-1)[0];};
+ // Source steps of one lattice cell build and evict many masks in one bank.
+ const xs=Array.from({length:40},(_,i)=>36+i*TERRAIN_LIGHT_LIMITS.sourceStep);
+ for(const x of xs)render(sweep,x);
+ const builds=terrainLightStats(sweep.engine).builds;
+ assert.ok(builds>TERRAIN_LIGHT_LIMITS.cellMasks*2);
+ // Every lattice-aligned source shows exactly one mask; it must match a build in a fresh engine.
+ for(const x of [xs[39],xs[30]]){
+  const mask=render(sweep,x);assert.equal(mask.width,TERRAIN_LIGHT_LIMITS.pixels);
+  assert.deepEqual(Uint8ClampedArray.from(mask.pixels),Uint8ClampedArray.from(render(fresh,x).pixels));
+ }
+ releaseTerrainLight(sweep.engine);releaseTerrainLight(fresh.engine);
 });
