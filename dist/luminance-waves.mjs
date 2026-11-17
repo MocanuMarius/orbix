@@ -1,8 +1,13 @@
 import {GLOW_DISPLAY_SCALE} from './vitality.mjs?v=guide-clarity-1';
 import {pickupKind,pickupShellRadius,isFuelPickup} from './pickups.mjs?v=guide-clarity-1';
 
-export const LUMINANCE_WAVE_TUNING=Object.freeze({speed:360,interval:1,maximumWaves:48,maximumSources:16});
+export const LUMINANCE_WAVE_TUNING=Object.freeze({speed:640,interval:1,maximumWaves:48,maximumSources:16});
 const finite=(value,fallback)=>Number.isFinite(Number(value))?Number(value):fallback;
+// Pulses that card effects hear (a Flare, a card or Inscription sending one) outrun the wisp and reach about the visible
+// width ahead of it, so a ring meets Sparks before the player or the Collector takes them. Other light stays as asked.
+const PULSE_SOURCE_KINDS=new Set(['pickup','card']);
+// Reach = the far corner of the screen ahead of the wisp (visible width ahead, full height), never a Spark beyond the screen.
+export function pulseReach(engine){return Math.max(240,Math.hypot(finite(engine?.width,390)-finite(engine?.player?.x,0),finite(engine?.height,620)));}
 const clamp=(value,lo=0,hi=1)=>Math.max(lo,Math.min(hi,value));
 const REVEAL_BANDS=Object.freeze([[64,.18],[44,.26],[22,.42]]);
 
@@ -42,7 +47,7 @@ export class LuminanceWaves {
   emit({x=0,y=0,radius=145,color='#d9f0dc',reveal=true,source='pulse',sourceKind='ability'}={}){
     reveal=!!reveal&&this.engine.pulseRevealsAllowed?.({source,sourceKind})!==false;
     if(this.waves.length>=LUMINANCE_WAVE_TUNING.maximumWaves&&this.waves.shift().reveal)this.revealCount--;
-    const wave={id:++this.serial,x,y,maximum:Math.max(0,finite(radius,145)),radius:0,previous:0,age:0,emittedAt:finite(this.engine.time,this.clock),color,reveal,source,sourceKind,seen:new Set(),storedPaid:false,naturalCrossings:0};
+    const wave={id:++this.serial,x,y,maximum:PULSE_SOURCE_KINDS.has(sourceKind)?pulseReach(this.engine):Math.max(0,finite(radius,145)),radius:0,previous:0,age:0,emittedAt:finite(this.engine.time,this.clock),color,reveal,source,sourceKind,seen:new Set(),storedPaid:false,naturalCrossings:0};
     this.waves.push(wave);if(reveal)this.revealCount++;return wave;
   }
   removeSource(id){this.sources.delete(id);}
@@ -82,7 +87,7 @@ export class LuminanceWaves {
           const wave=this.emit({x:previousOrigin.x+(origin.x-previousOrigin.x)*mix,
             y:previousOrigin.y+(origin.y-previousOrigin.y)*mix,radius:source.radius,color:source.color,
             reveal:source.reveal,source:source.source,sourceKind:source.sourceKind});
-          wave.radius=Math.min(source.radius,age*LUMINANCE_WAVE_TUNING.speed);wave.age=age;wave.emittedAt=finite(e.time,this.clock)-age;
+          wave.radius=Math.min(wave.maximum,age*LUMINANCE_WAVE_TUNING.speed);wave.age=age;wave.emittedAt=finite(e.time,this.clock)-age;
         }
         source.next+=source.interval;
       }

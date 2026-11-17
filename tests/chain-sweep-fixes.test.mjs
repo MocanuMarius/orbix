@@ -145,7 +145,7 @@ test('the Bell Inscription tags its Pulse with its Slot', () => {
 });
 
 test('real flight: First Catch before Resonant Harvest sends a real Pulse that Harvest hears; Harvest before First Catch does not', () => {
-  const right = [0, 1].map(seedIndex => fly({ids: ['first-catch', 'harvest-common'], seedIndex}));
+  const right = [0, 1, 2, 3, 4, 5].map(seedIndex => fly({ids: ['first-catch', 'harvest-common'], seedIndex}));
   assert.ok(sum(right, f => f.log.pulseBySource['card-pulse'] || 0) >= 1, 'a real light Pulse was sent');
   assert.ok(sum(right, f => f.log.slots[1]?.fired || 0) >= 1, 'Harvest to its right fired on it');
   assert.equal(sum(right, f => f.log.slots[0]?.fired || 0), 0);

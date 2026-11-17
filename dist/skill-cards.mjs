@@ -1,5 +1,5 @@
 /** Small, serializable skills-as-cards pilot. Printed Sparks use the existing .3 display scale. */
-import {getInscription, slotInscriptionId, hollowBonus, lodestoneBonus, emberBedStored, cleanSlotInscriptions, countInscription} from "./inscriptions.mjs?v=guide-clarity-1";
+import {getInscription, slotInscriptionId, hollowBonus, lodestoneBonus, lodestoneSlots, emberBedStored, cleanSlotInscriptions, countInscription} from "./inscriptions.mjs?v=guide-clarity-1";
 export const CARD_SYSTEM = "cards-v1";
 export const CARD_UNIT = 10 / 3;
 import {CARD_CATALOG,CARD_DROP_WEIGHTS} from './card-catalog.mjs?v=guide-clarity-1';
@@ -1149,6 +1149,8 @@ export function resolveCardRow(runtime, event = {}) {
       const mirrored = !!rule && rule.operation !== "multiply" && insId === "mirror" && firedSlots.has(creditSlot - 1);
       if (rule && (rule.event === kind || rule.alsoEvents?.includes(kind) || wildcard || alsoHeard || mirrored) && matchesRowCondition(rule.when,event,pass,slot,lastOccupied) && matchesRowShape(rule.when,topology,slot)) {
       const operation = rule.operation;
+      // Mirror: the card fired only because its left neighbour did (the strip flashes the Mirror's bar).
+      if (mirrored && !(rule.event === kind || rule.alsoEvents?.includes(kind) || wildcard || alsoHeard)) step.mirrored = true;
       const amount = Math.max(0,positionAmount(rule,topology,slot,Number(pass === 2 && rule.replayAmount !== undefined ? rule.replayAmount : rule.amount) || 0));
       const payout = operation === "add-last-payout" ? lastPayout : amount;
       if ((operation === "add-sparks" || operation === "add-last-payout") && payout > 0 && payers >= (Number(rule.minimumEarlierPayers)||0)) {
@@ -1157,6 +1159,8 @@ export function resolveCardRow(runtime, event = {}) {
         // Inscriptions: Gilded (+2 each firing on this slot) and Lodestone on a neighbouring slot (+1 each). Boosts to the right see them.
         const extra = (insDef?.id === "gilded" ? insDef.bonus : 0) + lodestoneBonus(runtime, creditSlot);
         if (extra > 0) pay("sparks", extra);
+        const lodes = lodestoneSlots(runtime, creditSlot);
+        if (lodes.length) step.lodestoneSlots = lodes;
         if (pass === 1 && event.firstCrossing && rule.storedFirstCrossing) {
           const stored = Math.max(0,Number(rule.storedFirstCrossing)||0);
           if (stored > 0) pay("stored", stored);

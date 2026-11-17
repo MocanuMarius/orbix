@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {LuminanceWaves,drawLuminanceWaves,luminanceWaveFade,luminanceWaveVisibility,revealLuminanceWaves} from '../dist/luminance-waves.mjs';
+import {LuminanceWaves,LUMINANCE_WAVE_TUNING,drawLuminanceWaves,luminanceWaveFade,luminanceWaveVisibility,revealLuminanceWaves} from '../dist/luminance-waves.mjs';
 import {lightVisibility} from '../dist/light-field.mjs';
 
 const near=(actual,expected)=>assert.ok(Math.abs(actual-expected)<1e-9,`${actual} != ${expected}`);
@@ -31,15 +31,15 @@ test('Pulse lights only a passing band and leaves steady sight unchanged afterwa
   const light={radius:50,intensity:1},before=JSON.stringify(light);
   const wave=e.luminanceWaves.emit({x:200,y:120,radius:500,reveal:true});
   e.luminanceWaves.update(.5);
-  assert.equal(wave.radius,180);
-  assert.ok(lightVisibility(e,light,180,120)>.6);
+  const R=.5*LUMINANCE_WAVE_TUNING.speed;assert.equal(wave.radius,R);
+  assert.ok(lightVisibility(e,light,R,120)>.6);
   assert.equal(luminanceWaveVisibility(e.luminanceWaves,200,120),0,'no full disk reveal behind the front');
-  assert.equal(lightVisibility(e,light,260,120),0,'terrain ahead remains dark');
+  assert.equal(lightVisibility(e,light,R+200,120),0,'terrain ahead remains dark');
   e.luminanceWaves.update(.5);
-  assert.equal(lightVisibility(e,light,180,120),0,'passed terrain returns to baseline');
+  assert.equal(lightVisibility(e,light,R,120),0,'passed terrain returns to baseline');
   e.luminanceWaves.update(.5);
   assert.equal(e.luminanceWaves.waves.length,0);
-  assert.equal(lightVisibility(e,light,180,120),0);
+  assert.equal(lightVisibility(e,light,R,120),0);
   assert.equal(JSON.stringify(light),before);
 });
 

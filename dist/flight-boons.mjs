@@ -47,6 +47,7 @@ export class FlightBoon {
     this.reserveWick=false;this.trailReserve=false;
     const gain=Math.min(f.maxFlame-f.flame,(wick?9:6)/DISPLAY_SCALE);
     f.flame+=gain;f.flameRestored+=gain;
+    f.inscriptionActed?.(wick?'reserve-wick':'mending');
     f.setEvent?.((wick?'Reserve Wick · ':'')+'+'+Math.round(gain*DISPLAY_SCALE)+' Sparks');
     return gain;
   }
@@ -59,10 +60,10 @@ export class FlightBoon {
   }
 
   spendLift(cost) {
-    if(this.awake&&this.giftLifts){this.giftLifts--;return 0;}
+    if(this.awake&&this.giftLifts){this.giftLifts--;this.engine.inscriptionActed?.('hollow-feather');return 0;}
     const saving = this.liftSaving(cost);
     if (saving > 0) {
-      this.lifts--;
+      this.lifts--;this.engine.inscriptionActed?.('glidepath');
       this.liftBudget = Math.max(0, this.liftBudget - saving);
     }
     return cost - saving;
@@ -70,7 +71,7 @@ export class FlightBoon {
 
   fuelPickup(packet, spec) {
     if (!this.pickups || !this.awake || packet.generated || spec.dim || !(spec.fuel > 0)) return 0;
-    this.pickups--;
+    this.pickups--;this.engine.inscriptionActed?.('risen-star');
     const flight = this.engine;
     const restored = Math.min(2 / DISPLAY_SCALE, flight.maxFlame - flight.flame);
     flight.flame += restored;

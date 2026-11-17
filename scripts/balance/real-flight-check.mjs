@@ -50,7 +50,7 @@ export function instrument(e, log = {}) {
   Object.assign(log, { pulses: 0, pulseBySource: {}, events: {}, slots: {}, firings: [], activations: [], traces: 0,
     occurred: { body: {}, delivery: {}, lifts: 0, fallingLifts: 0, flares: 0, hitsSaved: 0 }, paid: 0, pulseTargets: 0 });
   const wave = e.luminanceWaves, emit = wave.emit.bind(wave);
-  wave.emit = o => { log.pulses++; log.pulseTargets = (log.pulseTargets || 0) + e.layout.embers.filter(p => !p.collected && !p.carried && !p.generated && P.isFuelPickup(p) && Math.hypot(p.x - o.x, p.y - o.y) <= o.radius && p.x - e.distance > -50 && p.x - e.distance < e.width).length; const k = o?.source || '?'; log.pulseBySource[k] = (log.pulseBySource[k] || 0) + 1; return emit(o); };
+  wave.emit = o => { log.pulses++; const w = emit(o), reach = w.maximum; log.pulseTargets = (log.pulseTargets || 0) + e.layout.embers.filter(p => !p.collected && !p.carried && !p.generated && P.isFuelPickup(p) && Math.hypot(p.x - o.x, p.y - o.y) <= reach && p.x - e.distance > -50 - 154 * reach / 640 && p.x - e.distance < e.width + 154 * reach / 640).length; const k = o?.source || '?'; log.pulseBySource[k] = (log.pulseBySource[k] || 0) + 1; return w; };
   const res = e.resolveCardRowEvent.bind(e);
   e.resolveCardRowEvent = (kind, ctx, ...r) => {
     const a = res(kind, ctx, ...r); const rc = a?.receipt;

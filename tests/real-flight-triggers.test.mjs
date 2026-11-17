@@ -134,10 +134,13 @@ test('Finish: Growth Ring and Wayfarer Purse pay at the real clear', () => {
 });
 
 test('Passive: Lantern Lens and Deep Vessel change the real flight at once', () => {
-  const base = fly({ ids: [null], duration: 20 }).log.engine, lens = fly({ ids: ['lantern-lens'], duration: 20 }).log.engine, vessel = fly({ ids: ['deep-vessel'], duration: 20 }).log.engine;
-  assert.ok(Math.abs(lens.getLuminancePercent() - base.getLuminancePercent() - 20) < 1e-6);
-  assert.ok(vessel.maxFlame > base.maxFlame);
-  note('Passive', 'Lantern Lens, Deep Vessel', 'every flight', '-', `+20% Luminance, meter ${(vessel.maxFlame / base.maxFlame * 100 - 100).toFixed(1)}% larger`, 'works');
+  // Courses guarantee a Flare, and a Flare raises Luminance while it lasts, so sample Luminance at a moment no Flare is active.
+  const quiet = ids => { let lum = null; const r = fly({ ids, duration: 20, hook: e => { const step = e.step.bind(e); e.step = dt => { const out = step(dt); if (lum === null && e.time >= 1 && !(e.time < e.sightUntil) && !e.flashTether) lum = e.getLuminancePercent(); return out; }; } }); return { lum, engine: r.log.engine }; };
+  const base = quiet([null]), lens = quiet(['lantern-lens']), vessel = quiet(['deep-vessel']);
+  assert.ok(base.lum !== null && lens.lum !== null, 'a Flare-free moment was sampled');
+  assert.ok(Math.abs(lens.lum - base.lum - 20) < 1e-6);
+  assert.ok(vessel.engine.maxFlame > base.engine.maxFlame);
+  note('Passive', 'Lantern Lens, Deep Vessel', 'every flight', '-', `+20% Luminance, meter ${(vessel.engine.maxFlame / base.engine.maxFlame * 100 - 100).toFixed(1)}% larger`, 'works');
 });
 
 test('Boost and Repeat roles; order matters (Echo, Boost, Twin Mark, Gilded, Mirror)', () => {

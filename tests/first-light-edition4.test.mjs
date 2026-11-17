@@ -166,6 +166,7 @@ test('in-flight lessons go through the production pause, then resume only on the
  const s=practice(),r=s.run,e=flightAt(s,2);
  try{
   e.running=true;e.tutorialAwaitingLift=false;e.time=13;e.tutorial.ready={'practice:flash':12.5};e.canShowContextHint=()=>true;
+  {const f=e.tutorial.plan.flashes[0];f.collected=false;f.x=e.distance+e.player.x+100;f.y=e.player.y;}// the Flare is lit and on screen
   const step=nextPracticeLesson(e,r);assert.equal(step.id,'practice:flash');assert.equal(step.actionLabel,'Continue');assert.equal(step.skipLabel,false);
   const source=readFileSync(new URL('../dist/app.mjs',import.meta.url),'utf8'),from=source.indexOf('function worldFocusTarget('),to=source.indexOf('function worldLesson()',from),calls=[];
   const ctx=createContext({state:{run:r,settings:{}},engine:e,paused:false,lesson:null,lastSnapshot:{},document:{querySelector:()=>null},
@@ -180,6 +181,19 @@ test('in-flight lessons go through the production pause, then resume only on the
   e.practiceCoachAt=-Infinity;e.time=11.9;assert.equal(practiceCourseLesson(e,r),null,'never before 12 s');
   assert.ok(source.includes("setText(hud.event,isPracticeCourseRun(run)?'':flightCue(s))"),'no event banner text over a running practice flight');
   assert.equal(getTutorialHint(e),null,'the engine offers no hint text to queue');assert.equal(notePracticeHint(e,r,getTutorialHint(e)),false);
+ }finally{e.destroy();}
+});
+
+test('a lesson that points at a world object waits until the object is lit and on screen',()=>{
+ const s=practice(),r=s.run,e=flightAt(s,2);
+ try{
+  r.guideSeen={};e.paused=false;e.practiceCoachAt=-Infinity;e.time=13;e.running=true;e.tutorialAwaitingLift=false;e.tutorial.ready={'practice:flash':12.5};
+  const f=e.tutorial.plan.flashes[0],radius=e.getLightState().radius,px=e.distance+e.player.x;f.collected=false;f.y=e.player.y;
+  f.x=px+radius+60;assert.ok(f.x-e.distance<e.width-30,'on screen but outside the lit radius');
+  assert.equal(practiceCourseLesson(e,r),null,'a Flare in the dark is not pointed at');
+  f.x=px+radius*.5;const step=practiceCourseLesson(e,r);
+  assert.equal(step?.id,'practice:flash');assert.ok(step.point||step.target||step,'lit Flare: the lesson fires');
+  f.x=e.distance+e.width+40;assert.equal(practiceCourseLesson(e,r),null,'off screen: still waiting');
  }finally{e.destroy();}
 });
 

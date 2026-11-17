@@ -2149,6 +2149,12 @@ export class WispFlight {
     return pickupRevealAt(this.time,this.pickupRevealStartedAt,this.pickupRevealHoldUntil,this.pickupRevealFrom,this.reducedMotion);
   }
 
+  /** A temporary Inscription acted (Mending, Hollow Feather...): the Chain strip flashes the bar of the slot that carries it. */
+  inscriptionActed(id){
+    const slot=this.cardExecution?.inscriptions?.findIndex(entry=>entry?.id===id)??-1;
+    if(slot>=0)appendFires(this,[{slot,kind:'bar'}]);
+  }
+
   radiateLight({id='reveal',x=this.distance+this.player.x,y=this.player.y,
     radius=Math.hypot(this.width,this.height),duration=1.5,color='#c5ecff',follow=null,interval=1,reveal=true,once=false,
     source=id,sourceKind='ability'}={}) {

@@ -6,7 +6,7 @@
 // Dream rehearsal, the clear/death animations, or a tutorial without practice cards.
 import {CARD_UNIT} from './skill-cards.mjs?v=guide-clarity-1';
 import {CardEngine, hasEngineCards} from './card-engine.mjs?v=guide-clarity-1';
-import {appendFires, engineFire} from './chain-strip.mjs?v=guide-clarity-1';
+import {appendFires, engineFire, engineBars} from './chain-strip.mjs?v=guide-clarity-1';
 import {createFlashTether, FLASH_PULSE_INTERVAL} from './flash-tether.mjs?v=guide-clarity-1';
 
 const live = e => !!(e.cardEngine && e.cardExecution && e.running && !e.paused && e.alive && !e.finished && !e.destroyed
@@ -77,6 +77,7 @@ function flightHost(e) {
     // counters are cheap and change only on engine events.
     onEvent: entry => {
       const mark = engineFire(entry); if (mark) appendFires(e, [mark]);
+      const bars = engineBars(entry); if (bars) appendFires(e, bars);
       if (entry.k === 'turn') e.cardEngineCue = {...(e.cardEngineCue || {}), turn: (e.cardEngineCue?.turn || 0) + 1};
       else if (entry.k === 'stop') e.cardEngineCue = {...(e.cardEngineCue || {}), stops: (e.cardEngineCue?.stops || 0) + 1};
     },

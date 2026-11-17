@@ -296,7 +296,8 @@ export class CardEngine {
     this.asked += amount; this.sparks += real;
     this.gainsByTurn.set(this.turn, (this.gainsByTurn.get(this.turn) || 0) + amount);
     if (this.inPack) { this.pack.sparks += real; this.pack.asked += amount; }
-    this.record({ k: 'gain', slot, amount, real: round6(real), spill, boost: multiplier });
+    const lodes = [slot - 1, slot + 1].filter(k => this.runtime?.inscriptions?.[k]?.id === 'lodestone');
+    this.record({ k: 'gain', slot, amount, real: round6(real), spill, boost: multiplier, ...(lodes.length ? { lodestoneSlots: lodes } : {}) });
     if (real > EPS) this.queue.push({ type: 'gain', from: slot, mask, turn: this.turn, amount: real });
     const heard = spill > EPS && this.overfillHeardRightOf(slot);
     if (heard) this.queue.push({ type: 'overfill', from: slot, mask, turn: this.turn, spill, spillBase: Math.max(0, Math.min(spill, Math.ceil(Math.max(0, Number(base) || 0) - EPS) - real)) });

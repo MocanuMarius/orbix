@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {SKILL_CARDS, resolveCardRow, createCardExecution, CARD_ROW_EVENTS} from '../dist/skill-cards.mjs';
-import {STRIP, STRIP_COLORS, baseColor, chainView, collectReceiptFires, engineFire, appendFires, createChainStrip} from '../dist/chain-strip.mjs';
+import {STRIP, STRIP_COLORS, baseColor, chainView, collectReceiptFires, engineFire, engineBars, appendFires, createChainStrip} from '../dist/chain-strip.mjs';
 import {createFpsMeter, createFpsCounter, loadShowFps, saveShowFps, FPS_KEY} from '../dist/fps-counter.mjs';
 import {createCardRowFeedback} from '../dist/card-row-feedback.mjs';
 
@@ -145,4 +145,35 @@ test('Show FPS defaults on, persists, and off sticks', () => {
   saveShowFps(false, storage); assert.equal(store.get(FPS_KEY), 'off'); assert.equal(loadShowFps(storage), false);
   saveShowFps(true, storage); assert.equal(loadShowFps(storage), true);
   assert.equal(loadShowFps({getItem() { throw new Error('blocked'); }}), true, 'blocked storage keeps the default');
+});
+
+test('Mirror and Lodestone flash their own bar (receipt marks)', () => {
+  const lift = defs.find(d => d.id === 'downbeat');
+  const mirror = createCardExecution({cards: ['body-spark', 'downbeat'].map((id, i) => ({cardId: id, instanceId: `m${i}`})), inscriptions: [null, {id: 'mirror'}]});
+  const marks = collectReceiptFires(resolveCardRow(mirror, {kind: CARD_ROW_EVENTS.body}), mirror.inscriptions);
+  assert.ok(lift, 'a Lift card exists to be mirrored');
+  assert.ok(marks.some(m => m.slot === 1 && m.kind === 'fire'), 'the mirrored card fires');
+  assert.ok(marks.some(m => m.slot === 1 && m.kind === 'bar'), 'Mirror flashes the bar of the slot that carries it');
+  const lode = createCardExecution({cards: ['body-spark', 'crescendo'].map((id, i) => ({cardId: id, instanceId: `l${i}`})), inscriptions: [null, {id: 'lodestone'}]});
+  const lm = collectReceiptFires(resolveCardRow(lode, {kind: CARD_ROW_EVENTS.body}), lode.inscriptions);
+  assert.ok(lm.some(m => m.slot === 1 && m.kind === 'bar'), 'Lodestone flashes when its neighbour gains the +1');
+  assert.ok(!lm.some(m => m.slot === 0 && m.kind === 'bar'), 'only the Lodestone slot flashes');
+  assert.deepEqual(engineBars({k: 'gain', slot: 0, lodestoneSlots: [1]}), [{slot: 1, kind: 'bar'}], 'engine cards report it too');
+  assert.equal(engineBars({k: 'gain', slot: 0}), null);
+});
+
+test('temporary Inscriptions flash their bar when the effect triggers', async () => {
+  const {FlightBoon} = await import('../dist/flight-boons.mjs');
+  const {WispFlight} = await import('../dist/flight.mjs');
+  const acted = [], host = {cardExecution: {inscriptions: [null, {id: 'mending', temporary: true}, {id: 'hollow-feather', temporary: true}]}};
+  const engine = Object.assign(host, {flame: 0, maxFlame: 100, flameRestored: 0, setEvent() {}, mod: {flightBoons: ['spark-trail'], eventFavors: ['feather']},
+    inscriptionActed: id => acted.push(id)});
+  const boon = new FlightBoon(engine, null);
+  assert.ok(boon.tryReserve() > 0); assert.deepEqual(acted, ['mending']);
+  assert.equal(boon.spendLift(10), 0); assert.deepEqual(acted, ['mending', 'hollow-feather']);
+  // The flight turns the report into a bar mark on the slot carrying that Inscription.
+  const e = {cardExecution: host.cardExecution, cardFires: []};
+  WispFlight.prototype.inscriptionActed.call(e, 'hollow-feather');
+  WispFlight.prototype.inscriptionActed.call(e, 'not-carried');
+  assert.deepEqual(e.cardFires.map(m => [m.slot, m.kind]), [[2, 'bar']]);
 });
