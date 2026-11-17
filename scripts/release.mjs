@@ -380,6 +380,8 @@ function classifySaveDiff(before, after) {
     // dist/onboarding.mjs noteOnboardingProgress only ever raises the stage (max 4) as an experienced
     // profile continues a run. It gates first-run hints only. Reviewed 2026-11-16 for early-play-1.
     else if (d.path === 'profile.onboarding.stage' && Number.isInteger(d.before) && Number.isInteger(d.after) && d.after > d.before && d.after <= 4) allowed.push({...d, reason: 'onboarding progress note (stage only rises, hints only)'});
+    // twin-wick-1 (2026-11-17): Twin Wick's run-wide unlock is gone (a card's effect lives on the card).
+    else if (d.path === 'run.cardTwinWickUnlocked' && d.after === undefined) allowed.push({...d, reason: 'run-wide Twin Wick flag removed'});
     // card-rules-1 (2026-11-17): Forge counts crafts per rarity in the run. Old runs gain the tally at zero.
     else if (d.path === 'run.cardForgeTally' && d.before === undefined && d.after && Object.values(d.after).every(n => n === 0)) allowed.push({...d, reason: 'new Forge tally, starts at zero'});
     else unexpected.push(d);
