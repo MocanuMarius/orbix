@@ -1,4 +1,4 @@
-import {newState,createRun,chooseStartingGift} from './model.mjs?v=words-1';
+import {newState,createRun,chooseStartingGift} from './model.mjs?v=flash-2';
 
 export function createLanternMapInspectorState() {
  const state=newState();

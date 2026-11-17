@@ -1,18 +1,18 @@
-import {getBiome} from './biomes.mjs?v=words-1';
-import {getBossPreview} from './boss.mjs?v=words-1';
-import {levelMapPreview} from './level-map-art.mjs?v=words-1';
-import {mapStopIconMarkup} from './map-guide.mjs?v=words-1';
-import {resourceSymbol} from './game-symbols.mjs?v=words-1';
-import {getFlightClearReward} from './checkpoint-rewards.mjs?v=words-1';
-import {availableFlightArtifacts,isCardRun} from './model.mjs?v=words-1';
-import {bonusIcon,boonMarkup} from './route-bonus-ui.mjs?v=words-1';
-import {contextualFlightNotice} from './contextual-events.mjs?v=words-1';
-import {ATLAS_FORECASTS,atlasGlyph} from './night-atlas.mjs?v=words-1';
-import {canDreamAt,dreamConfig} from './dream.mjs?v=words-1';
-import {sparkHabitat} from './spark-fields.mjs?v=words-1';
-import {lanternFlightCue} from './map-theme.mjs?v=words-1';
-import {actionButton} from './ui/primitives.mjs?v=words-1';
-import {cardTermTextMarkup} from './card-terms.mjs?v=words-1';
+import {getBiome} from './biomes.mjs?v=flash-2';
+import {getBossPreview} from './boss.mjs?v=flash-2';
+import {levelMapPreview} from './level-map-art.mjs?v=flash-2';
+import {mapStopIconMarkup} from './map-guide.mjs?v=flash-2';
+import {resourceSymbol} from './game-symbols.mjs?v=flash-2';
+import {getFlightClearReward} from './checkpoint-rewards.mjs?v=flash-2';
+import {availableFlightArtifacts,isCardRun} from './model.mjs?v=flash-2';
+import {bonusIcon,boonMarkup} from './route-bonus-ui.mjs?v=flash-2';
+import {contextualFlightNotice} from './contextual-events.mjs?v=flash-2';
+import {ATLAS_FORECASTS,atlasGlyph} from './night-atlas.mjs?v=flash-2';
+import {canDreamAt,dreamConfig} from './dream.mjs?v=flash-2';
+import {sparkHabitat} from './spark-fields.mjs?v=flash-2';
+import {lanternFlightCue} from './map-theme.mjs?v=flash-2';
+import {actionButton} from './ui/primitives.mjs?v=flash-2';
+import {cardTermTextMarkup} from './card-terms.mjs?v=flash-2';
 
 export const TRAVEL_GUIDE_ART=Object.freeze(['waystone','rootwood','night-atlas']);
 /** One stepped sign, mirrored for the return journey. */

@@ -1,11 +1,11 @@
-import {biomePalette,drawBiomeBackground} from './biome-art.mjs?v=words-1';
-import {createDepthScenery,drawDepthScenery} from './depth-scenery.mjs?v=words-1';
-import {LIGHT_EXTENT,lightAttenuation,createLightMaskCanvas,castFlashPropLight,sceneRevealStrength,flashRangeStrength,pickupRevealAt,pickupRevealHold} from './light-field.mjs?v=words-1';
-import {LIGHT_PACKET_TUNING} from './vitality.mjs?v=words-1';
-import {makeWispSprite} from './companion-art.mjs?v=words-1';
-import {drawPickup} from './pickup-art.mjs?v=words-1';
-import {flashPowerupDuration,getPickupSpec} from './pickups.mjs?v=words-1';
-import {createFlashTether,stepFlashTether,drawFlashTether,flashLightPulse,FLASH_PUFF_DURATION} from './flash-tether.mjs?v=words-1';
+import {biomePalette,drawBiomeBackground} from './biome-art.mjs?v=flash-2';
+import {createDepthScenery,drawDepthScenery} from './depth-scenery.mjs?v=flash-2';
+import {LIGHT_EXTENT,lightAttenuation,createLightMaskCanvas,castFlashPropLight,sceneRevealStrength,flashRangeStrength,pickupRevealAt,pickupRevealHold} from './light-field.mjs?v=flash-2';
+import {LIGHT_PACKET_TUNING} from './vitality.mjs?v=flash-2';
+import {makeWispSprite} from './companion-art.mjs?v=flash-2';
+import {drawPickup} from './pickup-art.mjs?v=flash-2';
+import {flashPowerupDuration,getPickupSpec} from './pickups.mjs?v=flash-2';
+import {createFlashTether,stepFlashTether,drawFlashTether,flashLightPulse,FLASH_PUFF_DURATION} from './flash-tether.mjs?v=flash-2';
 
 const WIDTH = 360, HEIGHT = 144;
 const playerX = 121, speed = 110, contact = 1.4, step = 1/120;
@@ -118,7 +118,7 @@ export function createFlashPreview({isPaused,setPaused,reducedMotion}) {
     shade.fillStyle='#000'; shade.fillRect(0,0,WIDTH,HEIGHT);
     shade.globalCompositeOperation='destination-out';
     const mapScale=WIDTH/880;
-    const reach=(LIGHT_PACKET_TUNING.baseRadius+flashSpec.sightBonus*strength)*mapScale*LIGHT_EXTENT;
+    const reach=(LIGHT_PACKET_TUNING.baseRadius+flashSpec.luminanceBonus/100*LIGHT_PACKET_TUNING.baseRadius*strength)*mapScale*LIGHT_EXTENT;
     shade.drawImage(light,playerX-reach,y-reach,2*reach,2*reach);
     if(strength>0){
       const ahead=playerX+160*mapScale, forwardReach=230*mapScale*LIGHT_EXTENT;

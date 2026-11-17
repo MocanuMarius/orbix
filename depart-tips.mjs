@@ -14,10 +14,11 @@
 //   low-hearts                  one heart left          first-flights   flights 1 to 3 of the run
 //   collector                   the Collector companion is along   empty-slot   the Chain has a free Slot
 //   has-stored-sparks           Stored Sparks in the wallet        after-death  the last flight was lost
-import {CARD_CATALOG} from './card-catalog.mjs?v=words-1';
-import {getBiome} from './biomes.mjs?v=words-1';
-import {isCardRun,isInventoryOnlyCard} from './skill-cards.mjs?v=words-1';
-import {onboardingFlightPlan} from './onboarding.mjs?v=words-1';
+import {CARD_CATALOG} from './card-catalog.mjs?v=flash-2';
+import {getBiome} from './biomes.mjs?v=flash-2';
+import {FLASH_BASE_DURATION} from './pickups.mjs?v=flash-2';
+import {isCardRun,isInventoryOnlyCard} from './skill-cards.mjs?v=flash-2';
+import {onboardingFlightPlan} from './onboarding.mjs?v=flash-2';
 
 export const TIPS = Object.freeze([
  // ── General: fine in any run ──────────────────────────────────────────────────────────────
@@ -27,7 +28,7 @@ export const TIPS = Object.freeze([
  {id:'chain-order',context:'always',icon:'chain',headline:'Your Chain fires in order',text:'When a Trigger happens, your cards fire left to right.'},
  {id:'read-trigger',context:'always',icon:'chain',headline:'Read the Trigger first',text:'Each card shows its Trigger first: what makes it fire, like Collect or Pulse.'},
  {id:'luminance',context:'always',icon:'lantern',headline:'Luminance is your light',text:'Luminance is the radius of light around your wisp. It reveals nearby passage.'},
- {id:'flash-light',context:'always',icon:'flash',headline:'Flash lights the way',text:'A Flash sends a Pulse every 2 seconds and lights like very high Luminance.'},
+ {id:'flash-light',context:'always',icon:'flash',headline:'Flash lights the way',text:`Flash: for ${FLASH_BASE_DURATION} seconds, a Pulse every 2 seconds and very high Luminance.`},
  {id:'dusk-drain',context:'always',icon:'dusk',headline:'Rose crescents drain',text:'A Dusk Spark drains up to 3 Sparks and dims your light for 4 seconds.'},
  {id:'spare-fuel',context:'always',icon:'jar',headline:'Spare fuel is saved',text:'Extra meter fuel is packed into Stored Sparks, during a Round and after a clear.'},
  {id:'rest-checkpoint',context:'always',icon:'camp',headline:'Rest is a checkpoint',text:'At Rest you choose an action and can improve your Deck.'},

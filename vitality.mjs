@@ -1,5 +1,5 @@
-import {CONDENSED_TUNING} from './condensed-glow.mjs?v=words-1';
-import {getCardCapacityBonus,getCardGrowthBonus,getCardFutureCapacityBonus,getCardBlackHoleBonus,getCardTallyCapacity} from './skill-cards.mjs?v=words-1';
+import {CONDENSED_TUNING} from './condensed-glow.mjs?v=flash-2';
+import {getCardCapacityBonus,getCardGrowthBonus,getCardFutureCapacityBonus,getCardBlackHoleBonus,getCardTallyCapacity} from './skill-cards.mjs?v=flash-2';
 // Shared flight Sparks and expedition rules. Overflow is Stored Sparks.
 export const FLAME_TUNING = Object.freeze({ maximum: 100, starting: 100, flapCost: 10,
   emberFuel: 20, heartFuel: 60, generatedFuel: 6, checkpointMinimum: 0, warmCorePickups: 4 });

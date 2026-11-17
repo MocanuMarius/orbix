@@ -1,9 +1,14 @@
-import {WISP_ART} from './companion-art.mjs?v=words-1';
-import {FLAME_TUNING,LIGHT_PACKET_TUNING,glowPoints} from './vitality.mjs?v=words-1';
-import {SPARK_TIERS,sparkBodyRadius,sparkMass} from './spark-size.mjs?v=words-1';
+import {WISP_ART} from './companion-art.mjs?v=flash-2';
+import {FLAME_TUNING,LIGHT_PACKET_TUNING,glowPoints} from './vitality.mjs?v=flash-2';
+import {SPARK_TIERS,sparkBodyRadius,sparkMass} from './spark-size.mjs?v=flash-2';
 
-const FLASH_POWERUP = {sightBonus:120, sightDuration:8};
-const type=(id,name,color,radius,contactRadius,description,extra={})=>Object.freeze({id,name,color,radius,contactRadius:contactRadius*.8,description,fuel:0,sightBonus:0,sightDuration:0,dim:0,dimDuration:0,manualOnly:false,...extra});
+// A Flash is two things for one shared duration: a Pulse every 2 s (FLASH_PULSE_INTERVAL) and a temporary,
+// very high Luminance. The bonus is real Luminance percent (adds to card and Momentum Luminance in
+// flight.mjs getLightState). 82.8% of the 145 px base radius = the old +120 px, so a plain Flash reaches as before.
+export const FLASH_LUMINANCE_BONUS = 82.8;
+const FLASH_POWERUP = {luminanceBonus:FLASH_LUMINANCE_BONUS, sightDuration:8};
+export const FLASH_BASE_DURATION = FLASH_POWERUP.sightDuration;
+const type=(id,name,color,radius,contactRadius,description,extra={})=>Object.freeze({id,name,color,radius,contactRadius:contactRadius*.8,description,fuel:0,luminanceBonus:0,sightDuration:0,dim:0,dimDuration:0,manualOnly:false,...extra});
 export const PICKUP_TYPES=Object.freeze({
   light:type('light','Spark','#f6edda',3,26,'Fine warm-white arcs. Restores 6 Sparks before bonuses.',{fuel:FLAME_TUNING.emberFuel,plasma:1}),
   cache:type('cache','Spark Cache','#f4f7ff',6,30,'Dense white plasma. Restores 18 Sparks before bonuses.',{fuel:FLAME_TUNING.heartFuel,plasma:3}),
@@ -16,7 +21,7 @@ export function flashPowerupDuration(modifiers = {}) {
   return FLASH_POWERUP.sightDuration * (modifiers.longFlash ? 3 : 1);
 }
 export function flashPowerupDescription(modifiers = {}) {
-  return `The white triangle trails behind your wisp. For ${flashPowerupDuration(modifiers)} seconds it sends a Pulse every 2 seconds and lights your surroundings as if your Luminance were very high.`;
+  return `The white triangle trails behind your wisp. For ${flashPowerupDuration(modifiers)} seconds it sends a Pulse every 2 seconds and raises your Luminance very high.`;
 }
 export function pickupKind(packet={}){
   if(typeof packet==='string')return Object.hasOwn(PICKUP_TYPES,packet)?packet:'light';
