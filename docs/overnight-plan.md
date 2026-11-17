@@ -32,6 +32,15 @@ The 5-hour limit resets at **09:30 local** (07:30 UTC). At 06:05 it stood at 66%
 
 Wake-ups in this session: the hourly self-check (minute 41, shifted; expires 24 November: renew before then) and a one-shot at 19:36 today. If both are lost (app closed), any new session starts from this note.
 
+**Owner's answers, pasted in chat at about 16:30 (also in `decisions.json`). These ARE approvals:**
+- Music: Moss and Water KEEP; Night Ferry KEEP; Paper Lanterns DROP; Old Pines CHANGE (no note given: ask what; earlier words were that it lacked rhythm); kick on every Lift = helpful; slow the reference track 0.22%; **turn the lo-fi rotation ON** (rotation = Lantern Hours reference + Moss and Water + Night Ferry, Old Pines once changed). Trim scheduler cost (0.75 → under 0.5 ms per second) before or with turning it on.
+- Lift cue: "Quieter, and the note shouldn't be this sharp… more like a clack than a ding": make it a short soft wooden clack (low-mid, very short, little pitch), quieter still; keep rate limit and FX level.
+- Courses: GO, convert all 48; floating rock: do it; the high-ground cue: "nothing else needs to be done" (leave as is: keep high ground at the fair height, no new cue).
+- Edge light good. Biomes yes (already live). Card art: ACCEPT ALL 104, B for every rarity → build into the game.
+- Yes: one unseen card per draft; Spacetime as a Rare; Wave Loom as an engine card; Black Hole growth for the run, name kept; Metronome 3 s OK; keep all three card-eaters; Twin Flame kept.
+- Pixel 10: smooth. Paper tone: good.
+- Not answered: Trigger compression ("do it" not said), Storm Glass and Brimming rewordings.
+
 After the reset, in this order:
 1. Read the owner's answers: `outputs/cardboard/decisions.json` (`d-…` ids = decisions board, the choice is in the note as `choice=<option>`; other ids = card proposals: 52 approved; Storm Glass and Brimming were reworded and wait for a tap). Act only on what is answered; unanswered items keep waiting (the "My pick" defaults are NOT approvals).
 2. Approved card proposals (`docs/card-proposals.md`): numbers from `scripts/balance/simulate.mjs`, pictures in `v1.0-cardart-B` (kit `dist/design-lab/assets/cardart/kit.mjs`), build in batches by family, `unreleased` until tested. Opus for cards that change firing, position or oath rules; Sonnet for plain adders.

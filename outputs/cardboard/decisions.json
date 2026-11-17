@@ -268,5 +268,130 @@
   "decision": "approve",
   "note": "",
   "at": 1794924549411
+ },
+ "d-music-moss": {
+  "decision": "approve",
+  "note": "choice=keep; ",
+  "at": 1794924869817
+ },
+ "d-music-pines": {
+  "decision": "change",
+  "note": "choice=change; ",
+  "at": 1794924883258
+ },
+ "d-music-ferry": {
+  "decision": "approve",
+  "note": "choice=keep; ",
+  "at": 1794924894875
+ },
+ "d-music-lanterns": {
+  "decision": "deny",
+  "note": "choice=drop; ",
+  "at": 1794924909986
+ },
+ "d-music-kick": {
+  "decision": "approve",
+  "note": "choice=helpful; ",
+  "at": 1794924973523
+ },
+ "d-music-reference": {
+  "decision": "approve",
+  "note": "choice=slow-0-22; ",
+  "at": 1794924974457
+ },
+ "d-music-on": {
+  "decision": "change",
+  "note": "choice=yes; ",
+  "at": 1794924981752
+ },
+ "d-lift-cue": {
+  "decision": "change",
+  "note": "choice=; Quieter and note shouldnt be this sharper.. more like a clack than a ding please\n",
+  "at": 1794925019517
+ },
+ "d-courses-direction": {
+  "decision": "approve",
+  "note": "choice=go; ",
+  "at": 1794925033643
+ },
+ "d-courses-squeeze": {
+  "decision": "change",
+  "note": "choice=; nothing else needs to be done..also..",
+  "at": 1794925123606
+ },
+ "d-courses-floating": {
+  "decision": "approve",
+  "note": "choice=do-it; ",
+  "at": 1794925134548
+ },
+ "d-level-edge": {
+  "decision": "approve",
+  "note": "choice=good; ",
+  "at": 1794925138520
+ },
+ "d-level-biomes": {
+  "decision": "approve",
+  "note": "choice=yes; ",
+  "at": 1794925142019
+ },
+ "d-cardart": {
+  "decision": "change",
+  "note": "choice=accept-all; ",
+  "at": 1794925147714
+ },
+ "d-cardart-rarity": {
+  "decision": "approve",
+  "note": "choice=all-b; ",
+  "at": 1794925154962
+ },
+ "d-unseen-cards": {
+  "decision": "approve",
+  "note": "choice=yes; ",
+  "at": 1794925174883
+ },
+ "d-spacetime": {
+  "decision": "approve",
+  "note": "choice=yes; ",
+  "at": 1794925180296
+ },
+ "d-wave-loom": {
+  "decision": "approve",
+  "note": "choice=engine-card; ",
+  "at": 1794925182984
+ },
+ "d-black-hole-scope": {
+  "decision": "approve",
+  "note": "choice=run; ",
+  "at": 1794925185047
+ },
+ "d-black-hole-name": {
+  "decision": "approve",
+  "note": "choice=keep; ",
+  "at": 1794925187502
+ },
+ "d-metronome": {
+  "decision": "approve",
+  "note": "choice=ok; ",
+  "at": 1794925191280
+ },
+ "d-card-eaters": {
+  "decision": "approve",
+  "note": "choice=keep-three; ",
+  "at": 1794925193162
+ },
+ "d-twin-flame": {
+  "decision": "approve",
+  "note": "choice=keep; ",
+  "at": 1794925194525
+ },
+ "d-test-paper": {
+  "decision": "approve",
+  "note": "choice=good; ",
+  "at": 1794925203772
+ },
+ "d-test-perf": {
+  "decision": "approve",
+  "note": "choice=smooth; ",
+  "at": 1794925205635
  }
 }
