@@ -1,15 +1,16 @@
-import {ARTIFACTS} from './model.mjs?v=flare-1';
-import {artifactDescription} from './artifact-copy.mjs?v=flare-1';
-import {resourceSymbol} from './game-symbols.mjs?v=flare-1';
-import {artifactIcon} from './upgrade-icons.mjs?v=flare-1';
-import {relicIdentityMarkup,relicRulesMarkup,relicRulesButton} from './ui/relic-primitives.mjs?v=flare-1';
-import {actionButton} from './ui/primitives.mjs?v=flare-1';
-import {acquiredRewardMarkup} from './ui/acquired-reward.mjs?v=flare-1';
-import {routeBonusReceiptText} from './route-bonus-copy.mjs?v=flare-1';
-import {getInscription,INSCRIPTION_FAMILIES,slotInscriptionId} from './inscriptions.mjs?v=flare-1';
-import {inscriptionGlyph} from './inscription-ui.mjs?v=flare-1';
-import {cardTermTextMarkup} from './card-terms.mjs?v=flare-1';
-import {SKILL_CARDS} from './skill-cards.mjs?v=flare-1';
+import {ARTIFACTS} from './model.mjs?v=brands-1';
+import {artifactDescription} from './artifact-copy.mjs?v=brands-1';
+import {resourceSymbol} from './game-symbols.mjs?v=brands-1';
+import {artifactIcon} from './upgrade-icons.mjs?v=brands-1';
+import {relicIdentityMarkup,relicRulesMarkup,relicRulesButton} from './ui/relic-primitives.mjs?v=brands-1';
+import {actionButton} from './ui/primitives.mjs?v=brands-1';
+import {acquiredRewardMarkup} from './ui/acquired-reward.mjs?v=brands-1';
+import {routeBonusReceiptText} from './route-bonus-copy.mjs?v=brands-1';
+import {getInscription,slotInscriptionId} from './inscriptions.mjs?v=brands-1';
+import {inscriptionGlyph,INSCRIPTION_KIND_WORDS} from './inscription-ui.mjs?v=brands-1';
+import {cardArt} from './card-art.mjs?v=brands-1';
+import {cardTermTextMarkup} from './card-terms.mjs?v=brands-1';
+import {SKILL_CARDS} from './skill-cards.mjs?v=brands-1';
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 export const rewardDescription=(a,run)=>{const c=artifactDescription(a,run,{fresh:true});return [c.effect,[c.trigger,c.limit].filter(Boolean).join(' ')];};
 export function rewardEarnings(run){
@@ -33,7 +34,15 @@ export function rewardEarningsDetailMarkup(run){
 }
 // The Scribe (docs/inscriptions.md): 1 choose an Inscription, 2 choose a slot, 3 (only over an existing Inscription) confirm.
 // Cancelling the slot step returns to the three choices. Menu screens only: nothing here is shown in flight.
-const insCard=(id,open,extra='')=>{const i=getInscription(id);return `<article class="scribe-choice scribe-${i.kind}" data-scribe-offer="${id}"><h2>${inscriptionGlyph(i.kind)}<span>${esc(i.name)}</span></h2><small>${esc(INSCRIPTION_FAMILIES[i.kind])} · ${i.kind==='card'?'changes the card on its slot':'works on any slot, even an empty one'}</small><p>${cardTermTextMarkup(i.text)}</p>${open?actionButton('Choose',{className:'wb-sign wb-sign-primary',action:'scribe-pick',id,ariaLabel:`Choose ${i.name}`}):''}${extra}</article>`;};
+const insCard=(id,open)=>{const i=getInscription(id);return `<article class="scribe-choice scribe-${i.kind}" data-scribe-offer="${id}"><span class="scribe-mark">${inscriptionGlyph(id,{size:48})}</span><h2>${esc(i.name)}</h2><small class="scribe-kind">${esc(INSCRIPTION_KIND_WORDS[i.kind])}</small><p>${cardTermTextMarkup(i.text)}</p>${open?actionButton('Choose',{className:'wb-sign wb-sign-primary',action:'scribe-pick',id,ariaLabel:`Choose ${i.name}`}):''}</article>`;};
+/** One slot choice: Slot N, the mounted card (picture and wrapped name) or "Empty slot", and what is written there now. */
+function scribeSlot(r,n,i){
+ const card=r.mountedCards?.[n],def=card?SKILL_CARDS[card.cardId]:null,name=card?def?.name||'Card':'',cur=getInscription(slotInscriptionId(r,n));
+ const pic=card?`<span class="scribe-slot-pic">${cardArt({cardId:card.cardId,rarity:card.rarity||def?.rarity,name},{compact:true})}</span>`:'<span class="scribe-slot-pic scribe-slot-pic-empty" aria-hidden="true"></span>';
+ const what=cur?`<span class="scribe-slot-ins">${inscriptionGlyph(cur.id,{size:16})}<span>Replaces: ${esc(cur.name)}</span></span>`:'<span class="scribe-slot-ins scribe-slot-none"><span>No Inscription</span></span>';
+ const warn=!card&&i.kind==='card'?'<span class="scribe-slot-warn">Needs a card here to do anything</span>':'';
+ return `<button type="button" class="scribe-slot${cur?' scribe-slot-inscribed':''}${card?'':' scribe-slot-empty'}" data-action="scribe-slot" data-slot="${n}" aria-label="Slot ${n+1}, ${card?esc(name):'empty'}${cur?`. Replaces ${esc(cur.name)}`:'. No Inscription'}${warn?'. Needs a card here to do anything':''}"><b class="scribe-slot-n">Slot ${n+1}</b>${pic}<span class="scribe-slot-name">${card?esc(name):'Empty slot'}</span>${what}${warn}</button>`;
+}
 export function scribeMarkup(state,{scribe={},upgradeCount=0,skillsAvailable=false,deckAvailable=true,receiptAvailable=false,earned=0,title='Elite cleared'}={}){
  const r=state.run,reward=r.flightReward,open=!reward.claimed,picked=open&&reward.offers.includes(scribe.id)?scribe.id:null;
  const head=(small,h)=>`<header class="artifact-reward-heading wbf-head"><div class="wbf-titles"><small class="wb-context">${esc(small)}</small><h1 class="wb-title">${esc(h)}</h1></div>${receiptAvailable?`<button type="button" class="wb-sign wb-sign-standard reward-packed-earned" data-action="reward-earnings" aria-label="${earned} Stored Sparks earned. View breakdown.">${resourceSymbol('packed')}<b>+${earned}</b><span>Earned · Details</span></button>`:''}</header>`;
@@ -43,17 +52,14 @@ export function scribeMarkup(state,{scribe={},upgradeCount=0,skillsAvailable=fal
   return shell(head('The Scribe',title)+`<div class="scribe-written" role="status">${i?insCard(reward.chosen,false):''}<p class="scribe-result">Written on slot ${(reward.slot??0)+1}${reward.replaced?`, replacing ${esc(getInscription(reward.replaced)?.name||'the old one')}`:''}.</p></div>`,
    `${deckAvailable?'<button type="button" class="wb-sign wb-sign-standard" data-action="cards"><span>Deck</span></button>':''}<button type="button" class="wb-sign wb-sign-primary" data-action="victory-next">Continue</button>`);
  }
- if(!picked)return shell(head('Choose one',title==='Elite cleared'?'Choose an Inscription':'Choose an Inscription')+`<div class="scribe-offers" aria-label="Choose an Inscription">${reward.offers.map(id=>insCard(id,true)).join('')}</div>`,`<span class="artifact-choice-instruction">Next: choose the slot to write it on</span>`);
+ if(!picked)return shell(head(`The Scribe · ${title}`,'Choose an Inscription')+`<div class="scribe-offers" aria-label="Choose an Inscription">${reward.offers.map(id=>insCard(id,true)).join('')}</div>`,`<span class="artifact-choice-instruction">Next: choose the slot to write it on</span>`);
  const i=getInscription(picked),slots=Array.from({length:r.cardSlots||0},(_,n)=>n);
  if(Number.isInteger(scribe.slot)&&slotInscriptionId(r,scribe.slot)){
   const old=getInscription(slotInscriptionId(r,scribe.slot));
-  return shell(head('Confirm','Replace this Inscription?')+`<div class="scribe-confirm"><p>Slot ${scribe.slot+1} already carries <b>${esc(old.name)}</b>: ${esc(old.text)}</p><p>Writing <b>${esc(i.name)}</b> there erases it. This cannot be undone.</p></div>`,
+  return shell(head('The Scribe','Replace this Inscription?')+`<div class="scribe-confirm"><div class="scribe-swap" aria-hidden="true"><span>${inscriptionGlyph(old.id,{size:48})}<b>${esc(old.name)}</b></span><span>${inscriptionGlyph(i.id,{size:48})}<b>${esc(i.name)}</b></span></div><p>Slot ${scribe.slot+1} already carries <b>${esc(old.name)}</b>: ${esc(old.text)}</p><p>Writing <b>${esc(i.name)}</b> there erases it. This cannot be undone.</p></div>`,
    `<button type="button" class="wb-sign wb-sign-quiet" data-action="scribe-slot-back"><span>Back</span></button><button type="button" class="wb-sign wb-sign-primary" data-action="scribe-confirm" aria-label="Replace ${esc(old.name)} with ${esc(i.name)} on slot ${scribe.slot+1}"><span>Replace</span></button>`);
  }
- return shell(head('Choose a slot','Where should it be written?')+`<div class="scribe-pick">${insCard(picked,false)}<div class="scribe-slots" role="group" aria-label="Chain slots">${slots.map(n=>{
-   const card=r.mountedCards?.[n],name=card?SKILL_CARDS[card.cardId]?.name||'Card':'Empty slot',cur=getInscription(slotInscriptionId(r,n));
-   return `<button type="button" class="wb-sign wb-sign-standard scribe-slot${cur?' scribe-slot-inscribed':''}" data-action="scribe-slot" data-slot="${n}" aria-label="Slot ${n+1}, ${esc(name)}${cur?`, carries ${esc(cur.name)}, will be replaced`:''}"><b>Slot ${n+1}</b><span>${esc(name)}</span>${cur?`<small>Replaces ${esc(cur.name)}</small>`:'<small>Bare</small>'}</button>`;}).join('')}</div></div>`,
-  `<button type="button" class="wb-sign wb-sign-quiet" data-action="scribe-back"><span>Back</span></button>`);
+ return shell(head('The Scribe','Choose a slot')+`<div class="scribe-pick"><aside class="scribe-chosen scribe-${i.kind}" aria-label="Chosen Inscription"><span class="scribe-mark">${inscriptionGlyph(i.id,{size:48})}</span><h2>${esc(i.name)}</h2><p>${cardTermTextMarkup(i.text)}</p><small class="scribe-kind">${esc(INSCRIPTION_KIND_WORDS[i.kind])}</small><button type="button" class="wb-sign wb-sign-quiet scribe-back" data-action="scribe-back"><span>Back</span></button></aside><div class="scribe-slots" role="group" aria-label="Chain slots" style="--slots:${slots.length}">${slots.map(n=>scribeSlot(r,n,i)).join('')}</div></div>`,'');
 }
 export function flightRewardMarkup(state,{artifactArt=artifactIcon,upgradeCount=0,skillsAvailable=true,deckAvailable=false,acquiredPresentation='horizontal',scribe=null}={}){
  if(state.run?.flightReward?.kind==='inscription'){
@@ -65,7 +71,7 @@ export function flightRewardMarkup(state,{artifactArt=artifactIcon,upgradeCount=
  if(!reward?.permanent&&!r.lastFlight?.elite&&!r.lastFlight?.boss&&!offers.length)return '';
  const earned=rewardEarnings(r).total;
  const receiptAvailable=earned>0||!!routeBonusReceiptText(r.lastFlight?.routeBonus)||['treasureWager','vow','chestIncome'].some(key=>r.lastFlight?.[key]?.message?.trim())||r.lastFlight?.cardClearReceipt?.futureCapacity>0||r.lastFlight?.cardClearReceipt?.cruisingSpeed>0;
- const title=reward?.permanent?'Choose a relic discovery':r.lastFlight?.boss?'Guardian defeated':r.lastFlight?.elite?'Elite cleared':'Passage cleared';
+ const title=reward?.permanent?'Choose an Inscription':r.lastFlight?.boss?'Guardian defeated':r.lastFlight?.elite?'Elite cleared':'Passage cleared';
  const ids=open?offers:ARTIFACTS[reward?.chosen]?[reward.chosen]:[];
  if(reward?.claimed===true&&!reward.permanent&&(r.lastFlight?.elite||r.lastFlight?.boss)&&ids.length===1&&['pedestal','horizontal','compact'].includes(acquiredPresentation)){
   const artifact=ARTIFACTS[ids[0]],copy=artifactDescription(artifact,r);

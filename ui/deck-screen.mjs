@@ -7,24 +7,24 @@
 // This module draws and handles everything that does not change the save. Every real change (equip, swap,
 // take out, Melt, Workshop) goes through the `actions` the app passes in, which call the model's own
 // transactions and then reopen the sheet; the view state object survives that reopen.
-import {CARD_SYSTEM, getMountedCards, describeSkillCard, getCardChargeCapacity} from '../skill-cards.mjs?v=flare-1';
-import {getOwnedCards} from '../model.mjs?v=flare-1';
-import {cardFace, cardArt, getCardFaceAvailability} from '../card-ui.mjs?v=flare-1';
-import {getEquippedCardStatuses} from '../card-status.mjs?v=flare-1';
-import {glowGaugeMarkup, glowGaugeUnits} from '../glow-ui.mjs?v=flare-1';
-import {cardTileLine, SPARK_ICON_SRC, WISP_ORB_SRC} from '../card-tile-lines.mjs?v=flare-1';
+import {CARD_SYSTEM, getMountedCards, describeSkillCard, getCardChargeCapacity} from '../skill-cards.mjs?v=brands-1';
+import {getOwnedCards} from '../model.mjs?v=brands-1';
+import {cardFace, cardArt, getCardFaceAvailability} from '../card-ui.mjs?v=brands-1';
+import {getEquippedCardStatuses} from '../card-status.mjs?v=brands-1';
+import {glowGaugeMarkup, glowGaugeUnits} from '../glow-ui.mjs?v=brands-1';
+import {cardTileLine, SPARK_ICON_SRC, WISP_ORB_SRC} from '../card-tile-lines.mjs?v=brands-1';
 import {resolveChain, slotInfo, hereLine, plateWords, whenOf, markOf, TRIGGER_BY, triggerName, RARITY_WORD, rarityOf, nameOf, shortName, isRest, num, METER_MAX, START_FLAME,
-  chipOf, triggerBook, enginePlate, holeTally} from './chain-model.mjs?v=flare-1';
-import {triggerIcon, pixelArt, CHEVRON, gem, EYE, WARN, PLUS, NEXT, FIRE, medalUrl, frameVars, chipBadge, chipIcon, rarityPips} from './trigger-icons.mjs?v=flare-1';
-import {CARD_TRIGGERS} from '../card-rule-bands.mjs?v=flare-1';
+  chipOf, triggerBook, enginePlate, holeTally} from './chain-model.mjs?v=brands-1';
+import {triggerIcon, pixelArt, CHEVRON, gem, EYE, WARN, PLUS, NEXT, FIRE, medalUrl, frameVars, chipBadge, chipIcon, rarityPips} from './trigger-icons.mjs?v=brands-1';
+import {CARD_TRIGGERS} from '../card-rule-bands.mjs?v=brands-1';
 import {triggerLabel, triggerTermKey} from '../card-trigger-labels.mjs';
-import {CARD_TERMS} from '../card-terms.mjs?v=flare-1';
-import {SKILL_CARDS} from '../skill-cards.mjs?v=flare-1';
-import {isDevourCard} from '../card-black-hole.mjs?v=flare-1';
-import {simulateEngineChain, engineStarts} from '../card-engine.mjs?v=flare-1';
-import {GLOW_DISPLAY_SCALE} from '../vitality.mjs?v=flare-1';
-import {slotInscriptionId} from '../inscriptions.mjs?v=flare-1';
-import {inscriptionPlaque, inscriptionFrame, inscriptionBlock, inscriptionLine} from '../inscription-ui.mjs?v=flare-1';
+import {CARD_TERMS} from '../card-terms.mjs?v=brands-1';
+import {SKILL_CARDS} from '../skill-cards.mjs?v=brands-1';
+import {isDevourCard} from '../card-black-hole.mjs?v=brands-1';
+import {simulateEngineChain, engineStarts} from '../card-engine.mjs?v=brands-1';
+import {GLOW_DISPLAY_SCALE} from '../vitality.mjs?v=brands-1';
+import {slotInscriptionId} from '../inscriptions.mjs?v=brands-1';
+import {inscriptionBrand, inscriptionFrame, inscriptionBlock, inscriptionLine} from '../inscription-ui.mjs?v=brands-1';
 
 const esc = v => String(v ?? '').replace(/[&<>"']/g, c => ({'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'}[c]));
 const SPARK_SRC = SPARK_ICON_SRC;
@@ -110,7 +110,7 @@ function stationsHTML(d, view, opts) {
     const info = chain.infos[i], col = `grid-column:${i + 2}`, lit = placing ? ' dk2-lit' : '';
     const notch = `<div class="dk2-anchor dk2-notch" style="${col}" aria-hidden="true"><i></i></div>`;
     const swap = editable ? `<button type="button" class="wb-sign wb-sign-quiet dk2-swap dk21-swap" data-slot="${i}" style="${col}" aria-label="${c ? `Swap ${esc(nameOf(c))} in slot ${i + 1} for another card` : `Add a card to slot ${i + 1}`}"><span class="wb-sign-text"><b>${c ? 'Swap' : 'Add'}</b></span></button>` : '';
-    const insId = slotInscriptionId(d.run, i), insMark = insId ? inscriptionFrame(insId) + inscriptionPlaque(i, insId) : '', insClass = insId ? ' dk2-inscribed' : '';
+    const insId = slotInscriptionId(d.run, i), insMark = insId ? inscriptionFrame(insId) + inscriptionBrand(i, insId) : '', insClass = insId ? ' dk2-inscribed' : '';
     if (!c) {
       return `<div class="dk2-station dk2-empty${insClass}${lit}" data-slot="${i}" style="${col}"><span class="dk2-eyerow"></span>
         <button type="button" class="dk2-btn dk2-card dk2-addcard" data-slot="${i}" ${editable ? '' : 'aria-disabled="true"'} aria-label="${placing ? `Put ${esc(nameOf(placing))} in slot ${i + 1}` : editable ? `Slot ${i + 1} is empty. Add a card` : `Slot ${i + 1} is empty`}"><span class="dk2-addskin">${PLUS}<b>${placing ? 'Put here' : editable ? 'Add a card' : 'Empty slot'}</b></span></button>
