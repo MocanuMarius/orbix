@@ -277,8 +277,25 @@ function classifySaveDiff(before, after) {
   if (before === after) return {identical: true, allowed: [], unexpected: []};
   if (before == null || after == null) return {identical: false, allowed: [], unexpected: [{path: '<save>', before: before == null ? null : 'present', after: after == null ? null : 'present'}]};
   const b = JSON.parse(before), a = JSON.parse(after), p = b.profile || {};
-  const history = (p.stats?.completedRuns > 0) || (p.clearedFlights > 0) || (p.bankedRuns?.length > 0);
   const allowed = [], unexpected = [];
+  // reskin-1 (2026-11-17, owner decision): Field Impulse and Wave Loom are retired. On load every held
+  // copy leaves the run and is paid at its melt value (dist/skill-cards.mjs retireHeldCards). Apply
+  // exactly that to the old save, then compare: anything beyond it still fails.
+  const RETIRED = {'field-impulse': 10, 'wave-loom': 40}, idOf = c => c && (typeof c === 'string' ? c : (c.cardId ?? c.id));
+  if (b.run) {
+    let paid = 0; const run = b.run;
+    const strip = r => {
+      if (Array.isArray(r?.reserveCards)) r.reserveCards = r.reserveCards.filter(c => !(idOf(c) in RETIRED && (r === run ? (paid += RETIRED[idOf(c)]) : 1)));
+      if (Array.isArray(r?.mountedCards)) r.mountedCards = r.mountedCards.map(c => idOf(c) in RETIRED ? ((r === run ? (paid += RETIRED[idOf(c)]) : 0), null) : c);
+    };
+    strip(run); strip(run.attemptEntry);
+    if (paid) {
+      for (const k of ['condensedGlow', 'securedCondensedGlow', 'condensedEarned']) run[k] = (run[k] || 0) + paid;
+      if (run.attemptEntry && 'condensedGlow' in run.attemptEntry) run.attemptEntry.condensedGlow += paid;
+      allowed.push({path: 'run', before: 'held retired cards', after: `removed, paid ${paid} Stored Sparks`, reason: 'retired cards leave the run at melt value'});
+    }
+  }
+  const history = (p.stats?.completedRuns > 0) || (p.clearedFlights > 0) || (p.bankedRuns?.length > 0);
   for (const d of diffJson(b, a)) {
     if (d.path === 'profile.tutorialEvidenceChecked' && d.before !== true && d.after === true) allowed.push({...d, reason: 'one-time tutorial evidence marker'});
     else if (d.path === 'profile.tutorialComplete' && d.before === false && d.after === true && history && p.tutorialEvidenceChecked !== true) allowed.push({...d, reason: 'profile with play history skips the First Light gate'});
