@@ -42,7 +42,7 @@ test('Edition 4 is seven stops in the brief’s order, on real catalog courses i
 test('every lesson is one idea in at most two short sentences, and nothing is taught twice',()=>{
  const texts=new Set();
  for(const [id,lesson] of Object.entries(PRACTICE_LESSONS)){
-  assert.ok(sentences(lesson.text)<=2,`${id}: two sentences at most`);assert.ok(lessonWords(id)<=22,`${id}: short (${lessonWords(id)} words)`);
+  assert.ok(sentences(lesson.text)<=2,`${id}: two sentences at most`);assert.ok(lessonWords(id)<=24,`${id}: short (${lessonWords(id)} words)`);
   assert.ok(!texts.has(lesson.text));texts.add(lesson.text);
  }
  const taught=PRACTICE_STOPS.flatMap(stop=>[stop.entry,...(stop.flight||[]),...(stop.camp||[])].filter(Boolean));

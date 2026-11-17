@@ -1765,3 +1765,12 @@ html body button.flight-card-row.card-row-stopped{filter:saturate(.3) brightness
 .ins-legend-list>li>.ins-glyph{flex:none;color:#f1dfa7;image-rendering:pixelated}
 .ins-legend-list>li>span{min-width:0;overflow-wrap:anywhere}
 .ins-legend-list b{font-weight:400;color:#f1dfa7}
+/* Glossary dialogs on the parchment kit: inline links in the kit's dark link green; the Example block is a dark panel with the kit's light text. */
+html body dialog.wb-dlg button.card-term:not(#k):not(#k){background:#314a35!important;color:#f2dfad!important}
+html body dialog.wb-dlg .card-term-example{background:#2a2118;border-color:#6b5335}
+html body dialog.wb-dlg .card-term-example :is(figcaption,p,span,small,strong,b,li,div){color:#f6ebcc!important}
+html body dialog.wb-dlg .card-term-example button.card-term{color:#f2dfad!important}
+html body dialog.wb-dlg .card-term-related::before{color:#5a4632;font-size:11px}
+html body dialog.wb-dlg .ins-legend-list :is(li,span,b){color:#2a2118!important}
+html body dialog.wb-dlg .card-term-example:not(#k):not(#k) :is(figcaption,p,span,small,strong,b,li,div){color:#f6ebcc!important}
+html body dialog.wb-dlg .card-term-example:not(#k):not(#k) button.card-term,html body dialog.wb-dlg:not(.card-glossary-dialog) .card-term-definition:not(#k) button.card-term{color:#f2dfad!important}
