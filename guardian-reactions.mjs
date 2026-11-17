@@ -1,6 +1,6 @@
-import {GUARDIAN_RELICS} from './guardian-artifacts.mjs?v=early-play-2';
-import {GLOW_DISPLAY_SCALE} from './vitality.mjs?v=early-play-2';
-import {sparkMass} from './spark-size.mjs?v=early-play-2';
+import {GUARDIAN_RELICS} from './guardian-artifacts.mjs?v=card-rules-1';
+import {GLOW_DISPLAY_SCALE} from './vitality.mjs?v=card-rules-1';
+import {sparkMass} from './spark-size.mjs?v=card-rules-1';
 
 // All counters belong to one attempt. No reaction dispatches a second pickup.
 export class GuardianReactions {
@@ -47,7 +47,7 @@ export class GuardianReactions {
     if(this.pendingChalice){this.proc('threefold-chalice',2,()=>this.restore(9));this.pendingChalice=false;}
     if(this.paid%5===0)this.proc('restless-feather',3,()=>e.quickenCompanionRecovery(null,4));
     if(e.blackHoles?.active&&e.blackHoles.rate>0)this.proc('undertow-pearl',2,()=>{
-      this.restore(6);e.revealFromPickup(true);return true;
+      this.restore(6);e.revealFromPickup(true,{id:'undertow-pearl',sourceKind:'relic',follow:'wisp'});return true;
     },5);
     if(e.time>=15)this.proc('pilgrims-clock',3,()=>this.restore(6),15);
   }
@@ -59,7 +59,7 @@ export class GuardianReactions {
     if(!spec.plasma)return 0;
     let restored=0;
     if(body&&this.held.has('galespun-spindle')&&e.gustState().active)this.proc('galespun-spindle',3,()=>this.storeLift('galespun-spindle'));
-    if(body&&e.player.vy>0)this.proc('moonwake-lens',3,()=>{e.revealFromPickup(true);return true;},6);
+    if(body&&e.player.vy>0)this.proc('moonwake-lens',3,()=>{e.revealFromPickup(true,{id:'moonwake-lens',sourceKind:'relic',follow:'wisp'});return true;},6);
     if(body&&e.player.vy<0)this.proc('ascent-chime',4,()=>e.quickenCompanionRecovery(null,3));
     if(this.held.has('threefold-chalice')&&!this.pendingChalice){
       const mass=sparkMass(packet);
@@ -79,7 +79,7 @@ export class GuardianReactions {
       const bonus=this.proc('stillwater-bell',3,()=>this.restore(6));
       if(bonus){this.lastCoastLift=e.lastFlapTime;restored+=bonus;}
     }
-    if(cleansed)this.proc('eclipse-mirror',3,()=>{restored+=this.restore(6);e.revealFromPickup(true);return true;});
+    if(cleansed)this.proc('eclipse-mirror',3,()=>{restored+=this.restore(6);e.revealFromPickup(true,{id:'eclipse-mirror',sourceKind:'relic',follow:'wisp'});return true;});
     if(this.held.has('beacon-chain')){
       this.beacon=this.beacon.filter(at=>e.time-at<=5);this.beacon.push(e.time);
       if(this.beacon.length===3){

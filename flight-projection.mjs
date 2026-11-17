@@ -1,8 +1,8 @@
-import {bellwindAcceleration} from './atlas-flight.mjs?v=early-play-2';
-import {DraftField,DRAFT_TUNING} from './drafts.mjs?v=early-play-2';
-import {lightVisibility} from './light-field.mjs?v=early-play-2';
-import {isFuelPickup,pickupContactRadius} from './pickups.mjs?v=early-play-2';
-import {obstacleEdgeClearance} from './edging-pulse.mjs?v=early-play-2';
+import {bellwindAcceleration} from './atlas-flight.mjs?v=card-rules-1';
+import {DraftField,DRAFT_TUNING} from './drafts.mjs?v=card-rules-1';
+import {lightVisibility} from './light-field.mjs?v=card-rules-1';
+import {isFuelPickup,pickupContactRadius} from './pickups.mjs?v=card-rules-1';
+import {obstacleEdgeClearance} from './edging-pulse.mjs?v=card-rules-1';
 const clamp=(n,a,b)=>Math.max(a,Math.min(b,n)),DT=1/60;
 export const PROJECTION_HORIZONS=Object.freeze([0,.7,1.2,1.8]);
 
@@ -23,11 +23,11 @@ function affordTaps(e,taps,now) {
   let fuel=e.availableGlow, storedLifts=e.artifactEffects.freeLiftCount??Number(e.artifactEffects.freeLift);
   for(const delay of taps){
     const at=now+tapDelay(e,delay), beat=e.fourthBeatAt(at,beatTaps);
-    if(beat.ready) {beatTaps.length=0; continue;}
+    if(beat.ready) {e.recordRapidLift(beat,at,beatTaps); continue;}
     if(storedLifts>0)storedLifts--;
     else fuel-=boon.spendLift(e.flapCost);
     if(fuel < -1e-7)return false;
-    if(beat.rank)beatTaps.push(at);
+    e.recordRapidLift(beat,at,beatTaps);
   }
   return true;
 }
@@ -45,7 +45,7 @@ export class FlightProjection {
     if(e.fieldImpulse?.until>e.time){this.result=null;this.route=null;this.routeAt=0;return null;}
     const rank=clamp(Math.floor(e.mod.driftSense||0),0,3);
     if(!rank||!e.alive||e.dying||e.completing||e.finished||e.destroyed||e.tutorialAwaitingLift)return null;
-    const beatCount=e.mod.fourthBeatRank ? e.fourthBeat.count : 0;
+    const beatCount=e.fourthBeat.count;
     const changed=this.lastFlap!==e.lastFlapTime||this.lastPower!==e.abilityStartedAt||this.lastHeld!==e.liftHeld||this.lastHeight!==e.height||this.lastRank!==rank||this.lastBeatCount!==beatCount;
     if(!this.result||changed||e.time>=this.nextAt){
       this.lastFlap=e.lastFlapTime;this.lastPower=e.abilityStartedAt;this.lastHeld=e.liftHeld;this.lastHeight=e.height;this.lastRank=rank;this.lastBeatCount=beatCount;
@@ -146,7 +146,7 @@ export class FlightProjection {
 export const LIFT_GUIDE_TUNING=Object.freeze({lead:.22,window:.2});
 
 // A single candidate pays the cost it would really have at that future input,
-// including the expiry of a Fourth Beat and any stored free Lift or route boon.
+// including rapid Lift expiry and any stored free Lift or route boon.
 export function projectedLiftCost(e,delay=0){
   const at=e.fourthBeatNow()+tapDelay(e,delay),beat=e.fourthBeatAt(at,e.fourthBeatTaps.slice());
   if(e.dream?.freeGlow||beat.ready||e.artifactEffects?.freeLift)return 0;
@@ -174,7 +174,7 @@ export class LiftGuide {
       target=Math.min(impulse,terminal),until=(target-e.player.vy)/gravity,
       half=LIFT_GUIDE_TUNING.window/2,opensIn=Math.max(0,until-half);
     this.state=opensIn<=LIFT_GUIDE_TUNING.lead
-      ?{phase:until>half?'soon':'open',opensIn,cost,late:until < -half}:null;
+      ?{phase:until>half?'soon':'open',opensIn,targetIn:until,cost,late:until < -half}:null;
     return this.state;
   }
 }

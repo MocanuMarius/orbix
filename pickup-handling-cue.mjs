@@ -1,6 +1,6 @@
-import {collectorCanFetch} from './collector-load.mjs?v=early-play-2';
-import {getPickupSpec,pickupKind} from './pickups.mjs?v=early-play-2';
-import {sparkBodyRadius} from './spark-size.mjs?v=early-play-2';
+import {collectorCanFetch} from './collector-load.mjs?v=card-rules-1';
+import {getPickupSpec,pickupKind} from './pickups.mjs?v=card-rules-1';
+import {sparkBodyRadius} from './spark-size.mjs?v=card-rules-1';
 
 // Capability only: range, recovery and an occupied Collector do not change the
 // circle. Body-only and harmful pickups have no attachment.

@@ -17,7 +17,7 @@ export const CHEST_REWARDS=Object.freeze([
  relic('medicine','Emergency supplies','Three automatic fuel boosts and two automatic revealing flashes. Refill uses at Rest.',['glow-wick','flash-stone']),
  skill('dream','The dream journal','Learn Dream: rehearse each opening for 8 seconds.','main-dream'),
  skill('glide','The breathing stone','Learn Glide Regeneration. Recover while falling without Lift.','main-glide-regen'),
- skill('rhythm','The fourth note','Learn Fourth Beat. Your fourth quick Lift is free.','main-fourth-beat'),
+ skill('rhythm','A rising note','Learn Double Lift. Your second quick Lift is free.','main-fourth-beat'),
  skill('vessel','A living vessel','Learn Spark Vessel: +6 maximum Sparks. Fill the new space.','main-reservoir'),
  skill('cargo','The carrier seal','Collector can retrieve dense Caches. Each delivery refills its search ring.','collector-fetch-large'),
  skill('flash','The white invitation','Collector can fetch Flash triangles. All Flash pickups restore up to 6 missing Sparks.','collector-fetch-flash'),

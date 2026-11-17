@@ -1,6 +1,6 @@
-import {sparkImageArt,sparkSymbolArt} from './spark-symbol.mjs?v=early-play-2';
-import {condensedIconMarkup} from './afterglow-ui.mjs?v=early-play-2';
-import {fineTreasureObject} from './fine-treasure-art.mjs?v=early-play-2';
+import {sparkImageArt,sparkSymbolArt} from './spark-symbol.mjs?v=card-rules-1';
+import {condensedIconMarkup} from './afterglow-ui.mjs?v=card-rules-1';
+import {fineTreasureObject} from './fine-treasure-art.mjs?v=card-rules-1';
 
 // Three material tones sit above a shared dark contour. Keep light and shadow
 // readable at the tree's smallest size, even with all motion switched off.
@@ -153,7 +153,7 @@ function ghost(c){
 const bodies={eye,feather,wing,heart,vessel,seed,crystal,crescent,tunefork,metronome,shield,orbit,trajectory,edgebank,hourdial,hourglass,banner,scale,box,ghost,
  dive:c=>feather(c,true),fuel:()=>sparkSymbolArt(2,2,28),flash:()=>sparkImageArt('sight',0,0,32)};
 const recipes={
- 'Lift':['feather','copper'],'Fourth Beat':['metronome','copper'],'Luminance':['eye','jade'],'Momentum':['wing','amber'],'Spark Vessel':['vessel','jade'],
+ 'Lift':['feather','copper'],'Double Lift':['metronome','copper'],'Climb':['metronome','copper'],'Luminance':['eye','jade'],'Momentum':['wing','amber'],'Spark Vessel':['vessel','jade'],
  'Last Glimmer':['ghost','silver'],
  'Long Flash':['flash','silver','time'],'Vitality':['heart','rose'],'Glide Regeneration':['seed','jade'],'Trajectory Guide':['trajectory','silver'],'Spark Sense':['tunefork','jade'],
  'Storage':['box','copper'],'Prismatic Yield':['crystal','lilac'],'Kept Light':['box','copper','seal'],'Dream':['crescent','lilac'],

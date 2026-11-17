@@ -1,9 +1,9 @@
-import {GAME_VIEWPORT,DISPLAY_ZOOMS,DEFAULT_DISPLAY_ZOOM,normalizeDisplayZoom,displayMode,fitGameViewport,gameDocumentUrl} from './display-layout.mjs?v=early-play-2';
+import {GAME_VIEWPORT,DISPLAY_ZOOMS,DEFAULT_DISPLAY_ZOOM,normalizeDisplayZoom,displayMode,fitGameViewport,gameDocumentUrl} from './display-layout.mjs?v=card-rules-1';
 const query=new URLSearchParams(location.search),storageKey='wispbound-display-zoom';
 const mode=displayMode({requested:query.get('display'),embedded:window.parent!==window,
  coarse:matchMedia('(pointer: coarse)').matches,hover:matchMedia('(hover: hover)').matches,
  screenWidth:screen.width||innerWidth,screenHeight:screen.height||innerHeight});
-if(mode==='native')location.replace(gameDocumentUrl(location.href).href);
+if(mode==='native')location.replace(gameDocumentUrl(location.href,{native:true}).href);
 else bootDesktop();
 function bootDesktop(){
  document.body.className='desktop-host';
@@ -16,7 +16,7 @@ function bootDesktop(){
  select.value=String(zoom);
  const pause=()=>frame.contentWindow?.postMessage({type:'wisp-host-pause'},location.origin);
  const fit=()=>{
-  const bounds=stage.getBoundingClientRect(),inset=innerWidth<600?8:18;
+  const bounds=stage.getBoundingClientRect(),inset=24;
   layout=fitGameViewport({width:Math.max(0,bounds.width-inset*2),height:Math.max(0,bounds.height-inset*2),zoom});
   phone.style.width=`${layout.width}px`;phone.style.height=`${layout.height}px`;
   frame.style.transform=`scale(${layout.scale})`;

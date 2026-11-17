@@ -7,6 +7,14 @@ const sheets={
  raven:['assets/nature/wild-raven.png',32,32,7,10,33],
  butterfly:['assets/nature/wild-butterfly.png',16,32,3,8,25],
 };
+// Source coordinates describe the visible contact pixels, not transparent frame
+// padding. In particular the resting raven's feet end at row 25 of a 32px cell.
+const footAnchors={deer:[42,52],fox:[28,36],rabbit:[18,26],raven:[14,25]};
+const footingSpans={deer:[-24,24],fox:[-19,19],rabbit:[-13,27],frog:[-12,22],hare:[-13,40],lizard:[-14,15]};
+export function habitatFooting(kind,facing=1){
+ const span=footingSpans[kind];if(!span)return null;
+ return facing<0?[-span[1],-span[0]]:[...span];
+}
 const documents=new WeakMap();
 export function prepareWildlife(document){
  if(documents.has(document))return documents.get(document).ready;
@@ -28,6 +36,8 @@ export function drawHabitatAnimal(c,site,{x,y,time=0,reducedMotion=false,alpha=1
  if(['frog','hare','lizard','moth'].includes(site.kind)){
   const phase=time+(site.phase||0),breathe=reducedMotion?0:Math.sin(phase*1.7)>.7?1:0;
   c.save();c.globalAlpha*=alpha;const baseAlpha=c.globalAlpha;c.translate(Math.round(x),Math.round(y));c.scale(site.facing||1,1);
+  // Procedural feet, like sprite feet, terminate immediately above the ledge.
+  if(site.kind!=='moth')c.translate(0,site.kind==='lizard'?-2:-1);
   const box=(xx,yy,w,h,ink)=>{c.fillStyle=ink;c.fillRect(xx,yy,w,h);};
   if(site.kind==='frog'){
    // The frog stays on its damp ledge. Ripples are drawn in its shallow pool,
@@ -82,7 +92,7 @@ export function drawHabitatAnimal(c,site,{x,y,time=0,reducedMotion=false,alpha=1
   if(!reducedMotion&&flutter){dx=Math.sin(phase*.83)*9;dy=-5-Math.abs(Math.sin(phase*.57))*13;}
  }
  const cols=Math.floor(image.width/fw),sx=frame%cols*fw,sy=Math.floor(frame/cols)*fh;
- const w=fw*height/fh;
+ const w=fw*height/fh,foot=footAnchors[site.kind]||[fw/2,fh-2*fh/height];
  c.save();c.globalAlpha*=alpha*(1-cover);c.imageSmoothingEnabled=false;c.translate(Math.round(x+dx),Math.round(y+dy));
- c.scale(site.facing||1,1);c.drawImage(image,sx,sy,fw,fh,Math.round(-w/2),-height+2,Math.round(w),height);c.restore();
+ c.scale(site.facing||1,1);c.drawImage(image,sx,sy,fw,fh,-Math.round(foot[0]*w/fw),-Math.round(foot[1]*height/fh),Math.round(w),height);c.restore();
 }

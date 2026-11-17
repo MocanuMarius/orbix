@@ -1,16 +1,16 @@
-import {ActivationFeed} from './activation-events.mjs?v=early-play-2';
-import {artifactIcon,skillIcon} from './upgrade-icons.mjs?v=early-play-2';
-import {companionArtSvg} from './companion-art.mjs?v=early-play-2';
-import {resourceSymbol} from './game-symbols.mjs?v=early-play-2';
-import {ARTIFACTS,SKILLS} from './model.mjs?v=early-play-2';
-import {formatGlow} from './vitality.mjs?v=early-play-2';
-import {lifeHeartSvg} from './lives.mjs?v=early-play-2';
+import {ActivationFeed} from './activation-events.mjs?v=card-rules-1';
+import {artifactIcon,skillIcon} from './upgrade-icons.mjs?v=card-rules-1';
+import {companionArtSvg} from './companion-art.mjs?v=card-rules-1';
+import {resourceSymbol} from './game-symbols.mjs?v=card-rules-1';
+import {ARTIFACTS,SKILLS} from './model.mjs?v=card-rules-1';
+import {formatGlow} from './vitality.mjs?v=card-rules-1';
+import {lifeHeartSvg} from './lives.mjs?v=card-rules-1';
 const esc=value=>String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const names={'card-watchlight':'Watchlight',collector:'Collector',protector:'Protector',swift:'Runner',leveler:'Space Timer',
   'main-echo-sight':'Echo Luminance','main-purifying-touch':'Purifying Touch','main-kindled-touch':'Kindled Touch',
   'proximity-awakening':'Edging Pulse','main-edging-regeneration':'Regenerative Pulse','proximity-light-shield':'Light Aegis',
-  'collector-last-orbit':'Last Orbit','main-fourth-beat':'Fourth Beat','warm-core':'Warm Core','kindled-spirit':'Kindled Spirit',edgeweaver:'Collision ward'};
-const portraitNames={'proximity-awakening':'Proximity','main-edging-regeneration':'Regenerative Pulse','proximity-light-shield':'Light Aegis','collector-last-orbit':'Last Orbit','main-fourth-beat':'Fourth Beat'};
+  'collector-last-orbit':'Last Orbit','main-fourth-beat':'Double Lift','main-fourth-beat-2':'Climb','warm-core':'Warm Core','kindled-spirit':'Kindled Spirit',edgeweaver:'Collision ward'};
+const portraitNames={'proximity-awakening':'Proximity','main-edging-regeneration':'Regenerative Pulse','proximity-light-shield':'Light Aegis','collector-last-orbit':'Last Orbit','main-fourth-beat':'Double Lift','main-fourth-beat-2':'Climb'};
 export function activationPresentation(event){
   const name=ARTIFACTS[event.source]?.name||names[event.source]||SKILLS[event.source]?.name||event.label||'Activated';
   const icon=event.kind==='artifact'?artifactIcon(event.source):event.kind==='companion'?companionArtSvg(event.source)

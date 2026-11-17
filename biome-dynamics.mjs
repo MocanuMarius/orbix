@@ -1,8 +1,8 @@
-import { DRAFT_TUNING } from './drafts.mjs?v=early-play-2';
-import { scenePropBounds } from './scene-props.mjs?v=early-play-2';
-import { formatGlow } from './vitality.mjs?v=early-play-2';
-import { lightVisibility } from './light-field.mjs?v=early-play-2';
-import { inLanternRoom } from './lantern-layout.mjs?v=early-play-2';
+import { DRAFT_TUNING } from './drafts.mjs?v=card-rules-1';
+import { scenePropBounds } from './scene-props.mjs?v=card-rules-1';
+import { formatGlow } from './vitality.mjs?v=card-rules-1';
+import { lightVisibility } from './light-field.mjs?v=card-rules-1';
+import { inLanternRoom } from './lantern-layout.mjs?v=card-rules-1';
 
 // Small, deterministic actors attached to existing terrain. Static mountain
 // meshes never change, and each actor is used once: no repeatable currency farm.
@@ -199,7 +199,7 @@ export class BiomeDynamics {
         e.player.vy = Math.min(e.player.vy, -136 * sy);
         if (e.projection) e.projection.nextAt = -Infinity;
         e.setEvent?.(item.kind === 'spore' ? 'Puffcap · free lift' : 'Reed bubble · free lift');
-        e.radiateLight?.({id:item.id,x:item.x,y:item.y,radius:200,duration:1.5,color:item.color});
+        e.radiateLight?.({id:item.id,source:item.kind,sourceKind:'map',x:item.x,y:item.y,radius:200,duration:1.5,color:item.color});
         environmentSound(e,item,item.kind==='spore'?'spore':'bubble');
       } else if (item.family === 'reveal') {
         e.revealFromPickup?.(true,item); e.setEvent?.(item.kind === 'bell' ? 'Grave bell · path revealed' : 'Crystal resonance · path revealed');

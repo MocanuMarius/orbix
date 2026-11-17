@@ -1,4 +1,4 @@
-import {lifeHeartSvg,livesMarkup} from './lives.mjs?v=early-play-2';
+import {lifeHeartSvg,livesMarkup} from './lives.mjs?v=card-rules-1';
 export function deathScreenMarkup(run){
  const left=Math.max(0,Math.floor(run.lives||0)),before=left+1;
  const wager=run.lastAttempt?.treasureWager;

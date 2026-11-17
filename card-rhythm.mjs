@@ -41,7 +41,7 @@ export class CardRhythm {
       if(now<window.opensAt-EPSILON||now>window.closesAt+EPSILON){this.miss(now);return false;}
       this.taps.length=0;this.phase='caught';this.notes=3;this.endsAt=now+RHYTHM_TUNING.caughtSeconds;this.version++;this.waves++;
       const e=this.engine;
-      e.luminanceWaves?.emit({x:e.distance+e.player.x,y:e.player.y,radius:Math.hypot(e.width,e.height),color:'#d7efdc',reveal:true});
+      e.luminanceWaves?.emit({x:e.distance+e.player.x,y:e.player.y,radius:Math.hypot(e.width,e.height),color:'#d7efdc',reveal:true,source:'card-rhythm',sourceKind:'card'});
       e.resolveCardRowEvent?.('rhythm-phrase',cardContext);
       e.burst?.(e.player.x,e.player.y,9,'#d9f6ce');
       e.sound?.('luminance',{strength:.65});

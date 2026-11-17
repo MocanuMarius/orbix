@@ -1,6 +1,6 @@
-import {isPlayablePractice,loanPracticeCards,practiceModifiers} from './practice-route.mjs?v=early-play-2';
-import {makeSkillCard} from './skill-cards.mjs?v=early-play-2';
-import {cardArt} from './card-art.mjs?v=early-play-2';
+import {isPlayablePractice,loanPracticeCards,practiceModifiers} from './practice-route.mjs?v=card-rules-1';
+import {makeSkillCard} from './skill-cards.mjs?v=card-rules-1';
+import {cardArt} from './card-art.mjs?v=card-rules-1';
 
 export const FIRST_LIGHT_COMBO='practice:early-combo';
 export const FIRST_LIGHT_COMBO_GAP=1.35;

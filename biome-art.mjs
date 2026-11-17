@@ -1,5 +1,5 @@
-import {drawAuthoredMaterial} from './authored-environment.mjs?v=early-play-2';
-import {pineCrown} from './pixel-contour.mjs?v=early-play-2';
+import {drawAuthoredMaterial} from './authored-environment.mjs?v=card-rules-1';
+import {pineCrown} from './pixel-contour.mjs?v=card-rules-1';
 // Original pixel scenery. Backdrops and solid materials are rasterized by the
 // existing renderer caches; only a few matte weather pixels animate each frame.
 // Nothing here emits light or draws outside the simulation's solid silhouettes.

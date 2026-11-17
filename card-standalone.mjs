@@ -1,6 +1,6 @@
 // Physical card effects listen to real world events; row replay never creates
-// another pickup, bounce, heart-collection mark or final Flash wave.
-import {getEffectiveCardSources,CARD_ROW_EVENTS} from './skill-cards.mjs?v=early-play-2';
+// another pickup, bounce, heart-collection mark or final Flash Pulse.
+import {getEffectiveCardSources,CARD_ROW_EVENTS} from './skill-cards.mjs?v=card-rules-1';
 
 const eligible = e => !!(e.cardExecution && e.running && !e.paused && e.alive && !e.finished &&
   !e.destroyed && !e.dying && !e.completing && !e.tutorial && (!e.dream || e.dream.phase === 'done'));
@@ -39,7 +39,8 @@ export function updatePrismWick(e) {
   if (!eligible(e) || !getEffectiveCardSources(e.cardExecution).some(({def}) => def.kind === 'prism-wick')) return;
   const result = e.resolveCardRowEvent(CARD_ROW_EVENTS.flashExpiry,{pickupKind:'sight'});
   if (!result?.receipt.steps.some(step => step.success && step.sourceCardId === 'diving-bell')) return;
-  e.radiateLight({once:true,reveal:true,color:'#f0f7ff'});
+  e.radiateLight({once:true,reveal:true,source:'card-prism-wick',sourceKind:'card',
+    x:e.flashTether?.x??e.distance+e.player.x,y:e.flashTether?.y??e.player.y,color:'#f0f7ff'});
   e.activation('card-prism-wick',{label:'Prism Wick',outcome:{fuel:result.gain,waves:1}});
-  e.setEvent('Prism Wick · final wave');
+  e.setEvent('Prism Wick · final Pulse');
 }

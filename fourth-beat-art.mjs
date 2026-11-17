@@ -1,7 +1,7 @@
 // Short dashes follow the upper left edge of the wisp. The last tap before
 // a free Lift turns the entire group into little upward chevrons.
 export function drawFourthBeat(ctx, engine, x, y, bodyScale=1) {
-  if (!engine.mod?.fourthBeatRank || engine.dying || engine.completing) return;
+  if (!(engine.mod?.fourthBeatRank || engine.mod?.cardRapidLiftRank) || engine.dying || engine.completing) return;
   const beat = engine.fourthBeat;
   if (!beat?.count) return;
   const marks = beat.needed - 1;

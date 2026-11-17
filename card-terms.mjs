@@ -1,80 +1,98 @@
 /** Contextual card vocabulary. Native modal dialogs keep help above the Deck. */
-import { resourceSymbol } from './game-symbols.mjs?v=early-play-2';
-import {lifeHeartSvg} from './lives.mjs?v=early-play-2';
-import {duskGlyphArt} from './spark-symbol.mjs?v=early-play-2';
-import {getGlowCapacity,formatGlow} from './vitality.mjs?v=early-play-2';
-import {glowGaugeUnits} from './glow-ui.mjs?v=early-play-2';
-import {getRunModifiers} from './model.mjs?v=early-play-2';
-import {cardAmount,makeSkillCard,SKILL_CARDS} from './skill-cards.mjs?v=early-play-2';
-import {cardRowTermHelpMarkup} from './card-row-help.mjs?v=early-play-2';
-import {dreamEye} from './dream.mjs?v=early-play-2';
+import { resourceSymbol } from './game-symbols.mjs?v=card-rules-1';
+import {lifeHeartSvg} from './lives.mjs?v=card-rules-1';
+import {duskGlyphArt} from './spark-symbol.mjs?v=card-rules-1';
+import {getGlowCapacity,formatGlow} from './vitality.mjs?v=card-rules-1';
+import {glowGaugeUnits} from './glow-ui.mjs?v=card-rules-1';
+import {getRunModifiers} from './model.mjs?v=card-rules-1';
+import {cardAmount,makeSkillCard,SKILL_CARDS} from './skill-cards.mjs?v=card-rules-1';
+import {cardRowTermHelpMarkup} from './card-row-help.mjs?v=card-rules-1';
+import {dreamEye} from './dream.mjs?v=card-rules-1';
 const esc = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 export const CARD_TERMS = Object.freeze({
   round: ['Round', 'One flight through a passage, ending in clear rewards or a lost heart.'],
   map: ['Map', 'A route of Rounds and Rest stops, ending at a Guardian.'],
   game: ['Game', 'One journey through 3 Maps, ending at the final Guardian or when you run out of hearts.'],
   spark: ['Spark', 'A pickup in the passage that your wisp can touch or Collector can deliver.'],
-  meter: ['Spark Meter', 'The segmented bar of fuel your wisp spends to Lift.'],
+  meter: ['Spark Meter', 'The segmented bar of fuel your wisp spends to Lift. It never holds more than 100 Sparks.'],
   dusk: ['Dusk Spark', 'A rose crescent pickup that drains up to 3 Sparks and dims Luminance for 4 seconds when touched.'],
   luminance: ['Luminance', 'The radius of light around your wisp that reveals nearby passage.'],
   heart: ['Heart', 'One remaining attempt at a Round.'],
   stored: ['Stored Sparks', 'The boxed savings you spend on cards at Rest.'],
   wisp: ['Wisp', 'The larger flying light you control and use to touch pickups yourself.'],
   lift: ['Lift', 'Tap or press Lift to rise, spending fuel from your Spark Meter.'],
-  proximity: ['Proximity', 'Skim near solid terrain for 2 seconds to send a revealing wave.'],
-  wave: ['Wave', 'A pulse of light that spreads outward and reveals the passage.'],
+  proximity: ['Proximity', 'Skim near solid terrain for 2 seconds to send a revealing Pulse.'],
+  wave: ['Pulse', 'An expanding ring of light. Its edge lights the passage as it travels. As a Trigger: a Pulse crosses a Spark you have not collected.'],
   collector: ['Collector', 'The small green light that catches a missed pickup and reels it to your wisp.'],
   ring: ['Collector charge', 'The visible orbit around your wisp shows Collector charge: a full orbit means maximum reach and full Field Impulse strength.'],
   impulse: ['Field Impulse', 'With Collector beside your wisp at ¼ charge or more, swipe to spend its charge on a float, dive or speed burst.'],
   flash: ['Flash', 'A white triangular pickup that briefly lights the passage.'],
   cache: ['Cache', 'A dense pickup worth 18 Sparks on your touch or 12 on a Cache Handling delivery.'],
-  rest: ['Rest', 'A checkpoint where you choose an action and can improve your Deck.'],
+  rest: ['Rest', 'A checkpoint where you choose an action and can improve your Deck. At Rest cards work from there and never go in the chain.'],
   uses: ['Uses', 'A limited card spends one use when its effect succeeds and leaves your Deck at zero.'],
   shared: ['Shared uses', 'Echo and Chameleon spend uses from the actual card they copy.'],
-  next: ['Card to the right', 'The equipped slot immediately to this card’s right.'],
-  copy: ['Copying cards', 'Echo repeats the action on the card to the right; Chameleon borrows its ability.'],
+  next: ['Next card', 'The card in the Slot directly to this card’s right. Echo and Chameleon fire when it fires.'],
+  copy: ['Copying cards', 'Echo repeats the next card; Chameleon acts as the next card.'],
   packing: ['Packing', 'Convert spare passage fuel into Stored Sparks during a Round and after a successful clear.'],
-  'packing-efficiency': ['Packing efficiency', 'Add a percentage of extra Stored Sparks to ordinary Packing.'],
+  'packing-efficiency': ['Stored Sparks from packing', 'Tight Packing adds a percentage of extra Stored Sparks to ordinary Packing.'],
   grow: ['Grow', 'At Rest, owned Growth Seeds add maximum Sparks and refill your Spark Meter.'],
   cluster: ['Cluster', 'A group of Sparks that counts as one pickup.'],
-  rhythm: ['Rhythm', 'Perform 3 successful Lifts at an even pace to send one wave.'],
+  rhythm: ['Rhythm', 'Perform 3 successful Lifts at an even pace to send one Pulse.'],
   dream: ['Dream', 'Equip Dream to rehearse 8 seconds after Rest or before an Elite or Guardian, in full light with free Lifts.'],
-  watchlight: ['Watchlight', 'With Collector beside you at full charge, block one fatal impact per flight and send a wave.'],
-  pass: ['Row pass', 'A matching event starts a left-to-right check of your equipped row.'],
+  watchlight: ['Watchlight', 'With Collector beside you at full charge, block one fatal impact per flight and send a Pulse.'],
+  pass: ['Chain', 'Your cards in Slots 1 to 5. When a Trigger happens, they fire left to right.'],
+  slot: ['Slot', 'One place in your chain, numbered 1 to 5 from the left. Rest can give you more Slots.'],
+  trigger: ['Trigger', 'What makes your chain fire, such as Collect, Pulse or Delivery. Each card shows its Trigger first.'],
+  boost: ['Boost', 'A × card. It multiplies the Sparks and Collector time of every card to its left. Never Stored Sparks or forever gains.'],
+  encore: ['Encore', 'Refrain fires the chain once more for the same Trigger, from Slot 1.'],
+  'always-on': ['Always on', 'The card works all the time while it is in your chain. A Boost to its right still strengthens its bonus.'],
+  'any-trigger': ['Any Trigger', 'The card works with whatever Trigger fires the chain.'],
+  collect: ['Collect', 'Trigger: your wisp touches a Spark, Cluster, Cache or Dusk Spark.'],
+  delivery: ['Delivery', 'Trigger: Collector brings you a pickup.'],
+  latch: ['Latch', 'Trigger: Collector grabs a missed pickup.'],
+  overfill: ['Overfill', 'Trigger: a Spark brings more than your meter can hold.'],
+  'falling-lift': ['Falling Lift', 'Trigger: a paid Lift while falling, at least 0.75 s after your last Lift.'],
+  'flash-ends': ['Flash ends', 'Trigger: a Flash’s light runs out.'],
+  save: ['Save', 'Trigger: Watchlight or Last Orbit stops a fatal crash.'],
+  clear: ['Clear', 'Trigger: you clear a flight.'],
 });
 
 const CARD_TERM_DETAILS = Object.freeze({
   round: 'Clear a Round to earn its rewards and choose your next stop. A failed attempt costs one heart; you can retry while hearts remain.',
   map: 'Effects that last for this Map end when you move to the next Map. A full Game contains 3 Maps.',
   game: 'A new Game starts a fresh journey and Deck. Effects that last for this Game remain through its Maps.',
-  spark: 'Touching a natural Spark, Cluster or Cache refills the meter. A direct touch can trigger Body Spark and Pocket Sparks. Collector deliveries and a wave crossing the pickup are different events. Dusk Sparks drain fuel before eligible card bonuses pay. Pickups created by powers do not trigger these direct-pickup bonuses.',
-  meter: 'Touch passage pickups or gain bonus Sparks from cards to refill this bar. Maximum Sparks means the bar’s capacity. Equipping a capacity card does not refill it. Overflow can be packed into Stored Sparks, but card-created bonus fuel cannot be packed. The Lift cost shown here uses the paused flight when available; otherwise it uses your current build or the labelled base example.',
+  spark: 'Touching a natural Spark, Cluster or Cache refills the meter. That touch is the Collect Trigger, which fires cards such as Body Spark and Pocket Sparks. A Collector delivery (Delivery) and a Pulse crossing the pickup (Pulse) are different Triggers. Dusk Sparks drain fuel before card Sparks arrive. Pickups created by powers do not Collect.',
+  meter: 'Touch passage pickups or gain Sparks from cards to refill this bar. Maximum Sparks means the bar’s capacity, which never goes above 100 Sparks: a card that would add more says Max 100 reached. A capacity card does not refill it. Overflow can be packed into Stored Sparks, but Sparks made by cards cannot be packed. The Lift cost shown here uses the paused flight when available; otherwise it uses your current build or the labelled base example.',
   stored: 'Earn Stored Sparks by clearing flights, packing spare fuel or melting cards. Spend them at Rest to Forge, improve or Evolve cards. These services use no Rest action.',
-  wisp: 'A direct touch means your wisp meets the pickup itself. A Collector delivery or a wave passing over the pickup is a different event.',
+  wisp: 'A direct touch means your wisp meets the pickup itself. A Collector delivery or a Pulse passing over the pickup is a different event.',
   lift: 'You choose when to Lift, even with Lift Guide equipped. A successful Lift spends the next cost shown by the flight controls; effects can temporarily change that cost.',
   dusk: 'Touching Dusk dims Luminance by 20% for 4 seconds. Collector leaves it alone. Dusk Wick pays its bonus after the drain.',
   luminance: 'Dusk and Dark Sparks briefly reduce your light radius. Lantern Lens increases it while equipped.',
-  wave: 'Rhythm sends a wave after 3 successful Lifts at an even pace. Resonant Harvest rewards a wave for crossing an uncollected fuel pickup already in the passage.',
-  cache: 'Cache Handling unlocks Collector delivery. Extra Cache Handling cards keep one 12-Spark delivery. Direct touch and wave crossing can trigger different cards; crossing leaves the Cache in place.',
-  rest: 'Recover heals and refills your meter. Add slot gives an empty equipped slot. Growth Seed adds Grow. Open Deck to Forge or improve cards.',
+  wave: 'Flash triangles, terrain, relics and cards can all send a Pulse. When its edge crosses an uncollected Spark, Resonant Harvest pays once. The Spark stays in place and another Pulse can cross it again.',
+  cache: 'Cache Handling unlocks Collector delivery. Extra Cache Handling cards keep one 12-Spark delivery. Direct touch and Pulse crossing can trigger different cards; crossing leaves the Cache in place.',
+  rest: 'Recover heals and refills your meter. Add slot gives an empty Slot in your chain. Growth Seed adds Grow. Open the Workshop to Forge a surprise card, improve or refill cards.',
   uses: 'Pocket Sparks spends 1 use per successful direct pickup bonus. Second Ember spends its use only after your second different Rest action succeeds. An unsuccessful condition spends no use.',
   shared: 'A repeat or borrowed effect spends a use from its copied card when it succeeds. Copying adds no new uses. Independent equipped cards keep their own uses.',
-  next: 'Empty slots and cards that cannot be copied give no copied effect. Changing card order changes what Echo and Chameleon target.',
+  next: 'An empty Slot or a card that cannot be copied gives nothing to copy. Changing the order changes what Echo and Chameleon copy.',
   cluster: 'Your wisp can touch a Cluster and Collector can fetch it. Pickup bonuses check the Cluster once, rather than checking every bright core.',
-  rhythm: 'All 3 Lifts must succeed and be evenly spaced. You perform them yourself. Extra Rhythm cards still send only one wave.',
+  rhythm: 'All 3 Lifts must succeed and be evenly spaced. You perform them yourself. Extra Rhythm cards still send only one Pulse.',
   dream: 'With Dream equipped, your next flight directly after a visited Rest, or an Elite or Guardian, starts with an 8-second golden rehearsal. Ordinary flights elsewhere start normally. Go back to sleep to practise again, or Wake up at the end of the chosen opening with its pickups and free Lifts. Waking starts paused; resume builds slowly back to full speed and does not Lift. Rehearsing spends no heart, card uses or saved Sparks and grants no run rewards. Extra Dream cards keep one 8-second opening. Echo and Chameleon cannot copy it.',
   watchlight: 'Watchlight is a once-per-flight shield against a fatal impact. Collector must be beside your wisp at full charge. After the save it cannot fetch for 4 normal recovery cycles. Mending Moss shortens only this recovery when your wisp directly touches a Spark.',
   "heart": "Each heart is one remaining attempt. A failed flight costs one heart. Heart Stitch restores a missing heart after three direct passage Spark pickups in one flight; it spends a use only when healing succeeds. Devourer can restore one after a clear by consuming the adjacent Rare. Full hearts spend no healing use or Rare target.",
-  "proximity": "Skim near solid terrain for 2 seconds to send a revealing wave. The reveal lasts 5 seconds, then recovers for 2 seconds. Proximity enables normal reach while equipped, without Collector. Edge Reach also enables this and adds 50% of normal reach per equipped or Chameleon-borrowed source. Echo cannot repeat a passive ability. Brief gaps keep progress for 1.25 seconds; contact, protection and Dream never charge it.",
+  "proximity": "Skim near solid terrain for 2 seconds to send a revealing Pulse. The reveal lasts 5 seconds, then recovers for 2 seconds. Proximity enables normal reach while equipped, without Collector. Edge Reach also enables this and adds 50% of normal reach per equipped or Chameleon-borrowed source. Echo cannot repeat a passive ability. Brief gaps keep progress for 1.25 seconds; contact, protection and Dream never charge it.",
   "collector": "The small green light beside your main wisp. It catches a missed pickup and reels the intact pickup back to your moving wisp. Sparks arrive on contact. It stays busy during the reel, then rebuilds charge before its next search. Cache Handling and Flash Handling let it fetch those pickups too.",
   "ring": "Collector’s search reach and Field Impulse energy. Its orbit shows the available reach. After each delivery Collector rebuilds charge before its next search. Base recovery is 3⅓ seconds for a 6-Spark pickup, 6⅔ for a 12-Spark pickup, and 10 for an 18-Spark pickup, before compression and build modifiers. Flash and Field Impulse use the 10-second base. A fuller ring makes Field Impulse stronger and longer.",
   "impulse": "Spend Collector’s ring with a swipe: up to float, down to dive, or right to speed up. Collector must be beside your wisp (not fetching), with at least ¼ charge. Duration is 0.8 seconds × current ring radius / full radius × effective sources, for every direction. Two equipped Field Impulses, or Chameleon immediately left of Field Impulse, last twice as long at the same ring fullness. Extra sources extend duration; force stays at native ring-scaled strength. Up to 9 sources give 7.2 seconds at full Collector charge. One swipe spends the ring once. Lift ends an active float or dive.",
-  "flash": "The triangular pickup that briefly lights your surroundings. Flash Handling lets Collector fetch it. Each equipped or copied Flash Handling also restores up to 6 missing Sparks when either of you picks one up.",
+  "flash": "The triangular pickup that briefly lights your surroundings. Flash Handling lets Collector fetch it. Each Flash Handling in your chain, or copy of one, also gives +6 Sparks when either of you picks one up (the Flash Trigger), so a Boost to its right strengthens it.",
   "copy": "Echo repeats the action on the card to its right. Higher Echo tiers repeat it more times, as printed. Chameleon borrows its ability. They share that card’s uses. Echo cannot repeat Deep Vessel or Edge Reach, because passive abilities have no action. Neither can copy Echo, Chameleon, Lift Guide, Rhythm, Cache Handling or Rest cards.",
-  "packing": "Convert spare passage Sparks into Stored Sparks during a Round and from the spare meter at its successful exit. Packing efficiency adds extras to the Stored Sparks this conversion normally makes. Open Packing efficiency for examples and exclusions.",
-  "packing-efficiency": "Adds extra Stored Sparks to the amount ordinary packing makes from spare passage Sparks. +50% means 2 ordinarily made → 3 total; +75% means 4 → 7 total; +100% means 1 → 2 total. Equipped cards, Echo repeats and Chameleon copies add their percentages: two +50% sources give +100%. Prism and the row’s Spark multipliers multiply bonus flight Sparks only, so they do not multiply packing efficiency or Stored Sparks. Fractions carry between cleared Rounds, and whole extras pay as they are earned. With Rare and no earlier fraction, making 1, 2, 3, then 4 ordinary Stored Sparks earns 0, 1, 2, then 3 extras in total. With Common, making 1 this Round and 1 next Round earns 1 extra overall. A failed Round keeps the fraction saved before that attempt and banks none of that attempt’s new packing. Rewards, card payouts, Melt and the extra Stored Sparks do not earn packing extras. Generated or Dream pickups and bonus fuel from cards do not count.",
+  "packing": "Convert spare passage Sparks into Stored Sparks during a Round and from the spare meter at its successful exit. Tight Packing adds extras to the Stored Sparks this conversion normally makes. Open Stored Sparks from packing for examples and exclusions.",
+  "packing-efficiency": "Adds extra Stored Sparks to the amount ordinary packing makes from spare passage Sparks. +50% means 2 ordinarily made → 3 total; +75% means 4 → 7 total; +100% means 1 → 2 total. Cards in your chain, Echo repeats and Chameleon copies add their percentages: two +50% sources give +100%. A Boost to the right of a packing card multiplies its percentage (+50% ×2 = +100%), up to +900% in all. Fractions carry between cleared Rounds, and whole extras pay as they are earned. With Rare and no earlier fraction, making 1, 2, 3, then 4 ordinary Stored Sparks earns 0, 1, 2, then 3 extras in total. With Common, making 1 this Round and 1 next Round earns 1 extra overall. A failed Round keeps the fraction saved before that attempt and banks none of that attempt’s new packing. Rewards, card payouts, Melt and the extra Stored Sparks do not earn packing extras. Generated or Dream pickups and bonus fuel from cards do not count.",
   "grow": "Keep Growth Seeds in your Deck to unlock Grow at Rest. Each owned Seed adds its printed amount to your maximum Sparks, up to +90 total: Common +3, Rare +5, Legendary +8 (improved to +9 or +10). Grow refills the meter once and does not heal hearts. All Seeds share 3 Grow actions per journey. No active slot is needed; copying cards cannot copy Rest cards.",
-  "pass": "An event starts a pass when an equipped card listens for it: your wisp touches a passage Spark, a wave crosses a pickup, Collector delivers one, or another printed condition happens. Check slots from left to right. A card acts only if its own condition matches; empty slots, passives and other events are skipped. Echo’s printed repeats happen within its slot and spend the real right-hand card’s uses. Each pass starts at zero bonus Sparks, so additions and multipliers affect that pass’s bonus only. After an event earns a bonus, Refrain finishes pass 1 and checks the row once more from slot 1 for the same event. All Refrains share this second pass. Spent uses and saved recovery time stay spent, so the second pass can pay less or nothing. It creates no extra physical pickup or wave. Use Try row in your Deck to step through your actual equipped cards.",
+  "pass": "Your chain fires only when a card in it has that Trigger, such as Collect when your wisp touches a Spark. The cards then fire left to right, from Slot 1. A card works only if its Trigger and condition match; empty Slots, always-on cards and cards with other Triggers wait. The Sparks start at zero each time: + cards add Sparks, and a Boost (× card) multiplies the Sparks and Collector time of every card to its left; Stored Sparks and forever gains always stay at their printed amount. Echo repeats the next card in its own Slot and spends that card’s uses. With Refrain, the chain fires once more from Slot 1 for the same Trigger, an Encore. Uses spent stay spent, so the Encore can give less or nothing, and it makes no extra pickup or Pulse. Card Sparks fill only the room left in your meter after the pickup’s own fuel.",
+  slot: "Order matters only where a card says so: Boosts reach cards to their left, Echo and Chameleon copy the next card, Kindling Bead needs a + card before it, and Closing Chord must be the last card. You start with 3 Slots and Rest can add up to 5.",
+  trigger: "The Triggers are Collect, Delivery, Latch, Pulse, Flash, Flash ends, Falling Lift, Overfill, Rhythm, Save and Clear. Any Trigger cards work with all of them; always-on and At Rest cards do not wait for one. One touch can be two Triggers: a Spark that overfills your meter is Overfill, then Collect.",
+  boost: "Boosts sit to the right of the cards they strengthen. Several Boosts multiply together (×1.25 then ×2 is ×2.5). Each firing’s Sparks are rounded down to a whole number at the end (2.5 becomes 2); Collector time keeps its decimals. They also strengthen always-on cards to their left (+20% Luminance ×2 = +40%), except Boosts that have their own Trigger or limited uses. Boosts never multiply Stored Sparks rewards or gains that last beyond the journey, such as Growth Ring and Wind Feather. Caps still apply: the meter stops at 100 Sparks, and boosted time never brings Collector below half a second.",
+  encore: "All Refrains share one Encore per Trigger. It happens only if something worked the first time. The Sparks start at zero again, uses spent stay spent, and a first-crossing Stored Spark comes only once. Second Sun multiplies by more in an Encore.",
 });
 
 /** The same game artwork and keyword ink appear on cards and in their glossary. */
@@ -96,12 +114,14 @@ export function cardTermMarkup(key, label = CARD_TERMS[key]?.[0] || key, {icon =
 
 // Runtime descriptions use the same vocabulary without maintaining a second rules renderer.
 const keywords = [
-  ['Packing efficiency', 'packing-efficiency'], ['Dusk(?: Sparks?)?', 'dusk'], ['Luminance', 'luminance'],
-  ['Proximity(?: waves?)?', 'proximity'], ['Stored Sparks?', 'stored'], ['hearts?', 'heart'], ['Field Impulse', 'impulse'], ['waves?', 'wave'],
-  ['Watchlight', 'watchlight'], ['Dream', 'dream'], ['Rhythm(?: phrase)?', 'rhythm'], ['Clusters?', 'cluster'], ['Collector charge|full charge|¼ charge|ring', 'ring'], ['Collector', 'collector'], ['Flash(?: Powerups?)?', 'flash'], ['Caches?', 'cache'],
+  ['Packing efficiency|Stored Sparks from packing', 'packing-efficiency'], ['Any Trigger', 'any-trigger'], ['Triggers?', 'trigger'], ['Always on', 'always-on'], ['Encore', 'encore'],
+  ['Falling Lift', 'falling-lift'], ['Flash ends', 'flash-ends'], ['Collect', 'collect'], ['Delivery', 'delivery'], ['Latch', 'latch'], ['Overfill', 'overfill'],
+  ['Dusk(?: Sparks?)?', 'dusk'], ['Luminance', 'luminance'],
+  ['Proximity(?: waves?)?', 'proximity'], ['Stored Sparks?', 'stored'], ['hearts?', 'heart'], ['Field Impulse', 'impulse'], ['(?:Light )?pulses?|waves?', 'wave'],
+  ['Watchlight', 'watchlight'], ['Dream', 'dream'], ['Rhythm(?: phrase)?', 'rhythm'], ['Clusters?', 'cluster'], ['Collector charge|full charge|¼ charge|charge|ring', 'ring'], ['Collector', 'collector'], ['Flash(?: Powerups?)?', 'flash'], ['Caches?', 'cache'],
   ['Spark Meter|meter', 'meter'], ['Sparks?', 'spark'], ['wisps?', 'wisp'], ['Lifts?', 'lift'], ['Rest', 'rest'], ['Grow', 'grow'],
-  ['Shared uses|Share its (?:remaining )?uses|Copies share uses', 'shared'], ['remaining (?:uses|charges)|uses?', 'uses'], ['pack(?:ing|ed|s)?', 'packing'], ['next slot|card to the right', 'next'],
-  ["pass(?:’s|'s)?", 'pass'], ['Repeat|Borrow', 'copy'],
+  ['Shared uses|Share its (?:remaining )?uses|Copies share uses', 'shared'], ['remaining (?:uses|charges)|uses?', 'uses'], ['pack(?:ing|ed|s)?', 'packing'], ['next card|next slot|card to the right', 'next'],
+  ["chain(?:’s|'s)?", 'pass'], ['Slots?', 'slot'], ['Repeats?|Borrow|Acts as', 'copy'],
   ['Rounds?', 'round'], ['Maps?', 'map'], ['Game', 'game'],
 ];
 const keywordPattern = new RegExp(`\\b(${keywords.map(([pattern]) => pattern).join('|')})\\b`, 'gi');
@@ -134,24 +154,24 @@ export function cardTermTextMarkup(value, {exclude = [], sparkContext} = {}) {
 
 const CARD_NOTES = Object.freeze({
   dream: CARD_TERM_DETAILS.dream,
-  'use-doubler': 'When an actual flight starts, Use Doubler consumes itself to double the remaining uses of the real consumable immediately to its right. The added uses and expanded ceiling belong to that exact card through swaps, saves and eligible paid refills. An empty slot, a spent card, a lasting card or another Use Doubler keeps the card unspent. Opening a preview, Dream, pausing, resuming and reloading never repeat a grant. Echo, Chameleon and replay cannot copy it.',
-  'ember-feeder': 'After a successful real flight, Ember Feeder consumes the first two occupied cards anywhere to its right together, skipping empty slots. Both cards must still be present; fewer than two consumes neither. Each meal adds one maximum Spark to that specific Ember Feeder while equipped. Stored growth survives swaps and saves, but removing, melting or consuming the Feeder removes its capacity bonus. Equipping never refills the meter. Heart Stitch heals first; physical consumers then resolve left to right before clear rewards. Failed flights, Dream, copying and replay never feed it.',
-  'devourer': 'After a successful clear, Devourer can consume the actual Rare card immediately to its right to restore one missing heart. That Rare must have been equipped for the flight and remain present. Full hearts and failed flights spare it. Heart Stitch heals first; Devourers then resolve from left to right. The target disappears, while Devourer remains. Echo, Chameleon and row replay cannot copy this physical action.',
+  'use-doubler': 'When an actual flight starts, Use Doubler consumes itself to double the remaining uses of the real card directly to its right. The added uses and expanded ceiling belong to that exact card through swaps, saves and eligible paid refills. An empty Slot, a spent card, a lasting card or another Use Doubler keeps the card unspent. Opening a preview, Dream, pausing, resuming and reloading never repeat a grant. Echo, Chameleon and an Encore cannot copy it.',
+  'ember-feeder': 'After a successful real flight, Ember Feeder consumes the first two occupied cards anywhere to its right together, skipping empty slots. Both cards must still be present; fewer than two consumes neither. Each meal adds one maximum Spark to that specific Ember Feeder while equipped. Stored growth survives swaps and saves, but removing, melting or consuming the Feeder removes its capacity bonus. Equipping never refills the meter. Heart Stitch heals first; physical consumers then resolve left to right before clear rewards. Failed flights, Dream, copies and Encores never feed it.',
+  'devourer': 'After a successful clear, Devourer can consume the actual Rare card immediately to its right to restore one missing heart. That Rare must have been equipped for the flight and remain present. Full hearts and failed flights spare it. Heart Stitch heals first; Devourers then resolve from left to right. The target disappears, while Devourer remains. Echo, Chameleon and an Encore cannot copy it.',
   'slip-feather': 'Proximity enables terrain charging at normal reach without Collector or another skill. Skim near real solid terrain for 2 seconds; open sky and touching terrain never charge it. Extra Proximity cards share one meter. Edge Reach is the Rare version with additional reach. Removing every Proximity and Edge Reach source turns it off unless you learned the native skill.',
-  'springboard': 'Touch a natural fuel pickup while descending to bounce upward at half your ordinary Lift impulse. Generated pickups, Collector deliveries, Flash and wave crossings do not trigger it. The bounce costs no Sparks and never counts as a manual Lift, Downbeat or Rhythm tap. Springboard cannot be copied; extra equipped copies keep one bounce.',
-  'diving-bell': 'When the current passage Flash expires, Prism Wick sends one final revealing wave and pays 3 bonus Sparks. A new Flash refreshes the timer. Generated and Dream Flash do not qualify. Echo and Chameleon share its three uses; numeric replay can repeat the Spark payout, while the physical expiry always sends one final wave.',
+  'springboard': 'Touch a natural fuel pickup while descending to bounce upward at half your ordinary Lift impulse. Generated pickups, Collector deliveries, Flash and Pulse crossings do not trigger it. The bounce costs no Sparks and never counts as a manual Lift, Downbeat or Rhythm tap. Springboard cannot be copied; extra equipped copies keep one bounce.',
+  'diving-bell': 'When the current passage Flash expires, Prism Wick sends one final revealing Pulse and pays 3 bonus Sparks. A new Flash refreshes the timer. Generated and Dream Flash do not qualify. Echo and Chameleon share its three uses; an Encore can repeat its +3 Sparks, while the expiry always sends one final Pulse.',
   'tailwind': 'While a heart is missing, each direct natural fuel pickup advances Heart Stitch. Three in the same flight restore one heart and spend one of its two uses. Full hearts, Collector deliveries, generated pickups, Flash and Dream do not advance it. Progress resets between flights. Earned healing and spent uses survive a failed attempt. This card cannot be copied.',
-  'edge-reach': 'Edge Reach enables the existing proximity wave, independently of Collector’s ring. Normal reach is about 2.6 wisp widths; one source reaches 3.9 and two reach 5.1. Sources add 50% of normal reach, rather than multiplying each other. Removing every source turns proximity off unless you learned the native skill. Equipping never sends a wave or refills its charge.',
-  'body-spark': 'This bonus works when your wisp touches a passage Spark, Cluster, Cache or Dusk Spark. Dusk drains fuel before paying the card bonus. Collector deliveries, wave crossings and pickups created by powers do not trigger it. The extra Sparks cannot be packed.',
-  'spark-cache': 'Touch a passage Spark, Cluster, Cache or Dusk Spark to gain the bonus and spend 1 use. Dusk drains fuel before paying the card bonus. Collector deliveries, wave crossings and pickups created by powers do not trigger it. The extra Sparks cannot be packed.',
-  'deep-vessel': 'Your maximum is higher while this card is equipped. Removing it lowers the maximum again. Equipping it does not refill the meter.',
-  'harvest-common': 'The wave must cross an uncollected fuel pickup already in the passage. Pickups created by powers do not count. This refills your meter without collecting the Spark or adding packing rewards.',
-  'harvest-rare': 'The wave must cross an uncollected fuel pickup already in the passage. Pickups created by powers do not count. This refills your meter without collecting the Spark or adding packing rewards.',
-  'harvest-legendary': 'The wave must cross an uncollected fuel pickup already in the passage. Pickups created by powers do not count. The meter refill does not collect it or add packing rewards. The extra Stored Spark is awarded once per wave, at its first crossing, even if the meter is full.',
+  'edge-reach': 'Edge Reach enables the existing proximity Pulse, independently of Collector’s ring. Normal reach is about 2.6 wisp widths; one source reaches 3.9 and two reach 5.1. Sources add 50% of normal reach, rather than multiplying each other. Removing every source turns proximity off unless you learned the native skill. Equipping never sends a Pulse or refills its charge.',
+  'body-spark': 'This bonus works when your wisp touches a passage Spark, Cluster, Cache or Dusk Spark. Dusk drains fuel before paying the card bonus. Collector deliveries, Pulse crossings and pickups created by powers do not trigger it. The extra Sparks cannot be packed.',
+  'spark-cache': 'Touch a passage Spark, Cluster, Cache or Dusk Spark to gain the bonus and spend 1 use. Dusk drains fuel before paying the card bonus. Collector deliveries, Pulse crossings and pickups created by powers do not trigger it. The extra Sparks cannot be packed.',
+  'deep-vessel': 'Your maximum is higher while this card is in your chain, and a Boost to its right multiplies the extra. Removing it lowers the maximum again. It does not refill the meter, and the meter never holds more than 100.',
+  'harvest-common': 'The Pulse must cross an uncollected fuel pickup already in the passage. Pickups created by powers do not count. This refills your meter without collecting the Spark or adding packing rewards.',
+  'harvest-rare': 'The Pulse must cross an uncollected fuel pickup already in the passage. Pickups created by powers do not count. This refills your meter without collecting the Spark or adding packing rewards.',
+  'harvest-legendary': 'The Pulse must cross an uncollected fuel pickup already in the passage. Pickups created by powers do not count. The meter refill does not collect it or add packing rewards. The extra Stored Spark is awarded once per Pulse, at its first crossing, even if the meter is full.',
   'field-impulse': 'Collector must be beside your wisp, not fetching, with at least ¼ charge. More charge increases force and duration. Each equipped or compatible copied source adds up to 0.8 seconds at full charge, at the same force. One swipe spends Collector charge once. Lift ends a float or dive.',
-  'flash-handling': 'Either your wisp or Collector picking up Flash restores up to 6 missing Sparks per equipped or copied Flash Handling. Extra copies add more refill. Collector makes one pickup; the meter cannot go above its maximum.',
-  'growth-seed-common': 'Keep in your Deck to unlock Grow at Rest. Each owned Seed adds its printed maximum Sparks, up to +90 total. All Growth Seeds share 3 Grow actions per journey. Each action refills the meter once, without healing hearts. At Rest, Evolve Common to Rare for 25 Stored Sparks, then Rare to Legendary for 40.',
-  'growth-seed': 'Keep in your Deck to unlock Grow at Rest. Each owned Seed adds its printed maximum Sparks, up to +90 total. All Growth Seeds share 3 Grow actions per journey. Each action refills the meter once, without healing hearts. At Rest, Evolve Rare to Legendary for 40 Stored Sparks.',
+  'flash-handling': 'Either your wisp or Collector picking up Flash is the Flash Trigger: each Flash Handling in your chain, or copy of one, gives +6 Sparks, and a Boost to its right strengthens it. Collector makes one pickup; the meter cannot go above its maximum.',
+  'growth-seed-common': 'Keep in your Deck to unlock Grow at Rest. Each owned Seed adds its printed maximum Sparks, up to +90 total. All Growth Seeds share 3 Grow actions per journey. Each action refills the meter once, without healing hearts. At Rest, Evolve Common to Rare for 25 Stored Sparks, then Rare to Legendary for 150.',
+  'growth-seed': 'Keep in your Deck to unlock Grow at Rest. Each owned Seed adds its printed maximum Sparks, up to +90 total. All Growth Seeds share 3 Grow actions per journey. Each action refills the meter once, without healing hearts. At Rest, Evolve Rare to Legendary for 150 Stored Sparks.',
   'growth-seed-legendary': 'Keep in your Deck to unlock Grow at Rest. Each owned Seed adds its printed maximum Sparks, up to +90 total: +8 at rank 1, +9 at rank 2 and +10 at rank 3. All Growth Seeds share 3 Grow actions per journey. Each action refills the meter once, without healing hearts.',
   'tight-packing': CARD_TERMS['packing-efficiency'][1],
   'tight-packing-ii': CARD_TERMS['packing-efficiency'][1],
@@ -162,7 +182,7 @@ const CARD_NOTES = Object.freeze({
   'long-spool': 'For five extra catches, Collector can reach 35% beyond its current normal range. A use is spent only when an eligible missed pickup beyond normal reach is actually attached. Your wisp gets the whole approach and contact window. Long Spool and Cast Line do not stack; the shortest sufficient extension spends one use. Copies share the original uses.',
   'cast-line': 'For two extra catches, Collector can reach twice its current normal range. Only successful attachments beyond normal reach spend a use. Long Spool pays first if its shorter extension can reach the pickup. Neither extension changes which pickup types Collector can carry or takes the player’s first chance to touch them.',
   'fast-spool': 'Touching a natural passage Spark while a Collector reels shortens one active reel by up to 3 seconds. The longest active reel is chosen. Each successful action spends one of this card’s three uses. Copies spend this card’s uses too. No use is spent when there is no remaining reel time.',
-  rhythm: 'All 3 Lifts must succeed and be evenly spaced. You perform them yourself. Extra Rhythm cards still send one wave.',
+  rhythm: 'All 3 Lifts must succeed and be evenly spaced. You perform them yourself. Extra Rhythm cards still send one Pulse.',
   'camp-kit': 'Keep in your Deck when arriving at Rest to choose 2 different actions. No active slot is needed. Spend the use only after the second action succeeds. Extra Second Ember cards do not add a third action or spend another use.',
   'lift-guide': 'The amber chevron uses your current fall and Lift impulse. It opens when a Lift can rise back to its starting height, as from level flight. It does not judge terrain; choose when to tap. Extra copies keep one chevron.',
 });
@@ -172,8 +192,8 @@ const termPictures = Object.freeze({
   spark: {src:'./assets/help/spark-flight.png', alt:'A bright Spark suspended in the passage, captured from the running game.', caption:'A Spark in the passage. Touch it with your wisp to absorb it.'},
   flash: {src:'./assets/help/flash-flight.png', alt:'The white triangular Flash pickup in the passage, captured from the running game.', caption:'Flash is the white triangle. It briefly lights your surroundings.'},
   wisp: {src:'./assets/help/wisp-flight.png', alt:'The main white wisp flying in the passage, captured from the running game.', caption:'Your main wisp is the larger white light.'},
-  wave: {src:'./assets/help/wave-flight.png', alt:'An actual revealing wave spreading through the passage.', caption:'A wave reveals the passage as it spreads outward.'},
-  proximity: {src:'./assets/help/wave-flight.png', alt:'The revealing wave used by Proximity, rendered in the passage.', caption:'Skimming terrain can send this revealing wave. The live example below shows the required distance.'},
+  wave: {src:'./assets/help/wave-flight.png', alt:'An actual revealing Pulse spreading through the passage.', caption:'A Pulse reveals the passage as it spreads outward.'},
+  proximity: {src:'./assets/help/wave-flight.png', alt:'The revealing Pulse used by Proximity, rendered in the passage.', caption:'Skimming terrain can send this revealing Pulse. The live example below shows the required distance.'},
   collector: {src:'./assets/previews/collector-tether/reel-front.png', video:'./assets/previews/collector-tether/reel.mp4', alt:'The small green Collector tows a swinging Spark through seven Lifts, then delivers it to the larger white wisp.', caption:'Actual flight: the trailing Spark swings as you Lift. Collector reels it in; Sparks arrive on contact.'},
 });
 function termPictureMarkup(key) {
@@ -211,15 +231,19 @@ const termExamples = Object.freeze({
   rest:'Choose Recover to heal and refill, or Add slot to make room for another equipped card.',
   uses:'A card at 2 uses succeeds once: 2 → 1 use; its last successful action removes it.',
   shared:'Echo beside Pocket Sparks repeats its bonus and spends another Pocket Sparks use.',
-  next:'Slot 2 copies slot 3; an empty slot 3 gives it no copied effect.',
-  copy:'Echo → Body Spark repeats Body Spark’s bonus when the direct pickup event happens.',
+  next:'Echo in Slot 2 copies the card in Slot 3; an empty Slot 3 gives it nothing to copy.',
+  copy:'Echo then Body Spark: each Collect gives Body Spark’s +2 twice.',
   packing:'Spare passage fuel becomes boxed Stored Sparks that you keep after a clear.',
-  'packing-efficiency':'+50% efficiency turns 2 ordinary Stored Sparks into 3 total.',
+  'packing-efficiency':'+50% turns 2 ordinary Stored Sparks into 3 total.',
   grow:'One Rare Growth Seed adds +5 maximum Sparks and refills the meter when you choose Grow.',
   cluster:'Touch one Cluster with Body Spark equipped: its pickup bonus happens once.',
-  rhythm:'Three evenly spaced successful Lift taps send one revealing wave.',
+  rhythm:'Three evenly spaced successful Lift taps send one revealing Pulse.',
   watchlight:'With Collector beside you at full charge, a fatal impact spends the shield and starts a longer recovery.',
-  pass:'Body Spark adds +2, then Prism multiplies that pass’s bonus to 2.5 Sparks.',
+  pass:'Pocket Sparks gives +4, then Prism Lens to its right makes it 5 Sparks.',
+  boost:'Body Spark, Prism Lens, Crescendo: +2 ×1.25 ×2 = 5 Sparks on each Collect.',
+  encore:'Pocket Sparks, Prism Lens, Refrain: each Collect gives 5 Sparks, then 5 more in the Encore.',
+  slot:'Move Prism Lens from Slot 1 to Slot 3 and it strengthens the two cards before it.',
+  'always-on':'Lantern Lens then Crescendo: +20% Luminance becomes +40%.',
 });
 export function cardTermExampleMarkup(key, context = {}) {
   if(key==='meter'||key==='lift')return meterExampleMarkup(context);
@@ -240,12 +264,15 @@ export function cardTermExampleMarkup(key, context = {}) {
 }
 
 const relatedTerms = Object.freeze({
-  'packing-efficiency':['packing','stored','copy','pass'], packing:['stored','meter','packing-efficiency'],
+  'packing-efficiency':['packing','stored','copy','boost'], packing:['stored','meter','packing-efficiency'],
   dusk:['spark','luminance','collector'], luminance:['wisp','dusk','flash','wave'],
   spark:['meter','dusk','cluster','cache','wisp'], meter:['spark','lift','stored','packing'], lift:['meter','rhythm'],
   stored:['meter','packing','rest'], cache:['spark','meter','collector','wave'], impulse:['collector','ring','lift'], proximity:['wave','collector'],
   uses:['shared','copy'], shared:['uses','copy','next'], next:['copy','shared'],
-  copy:['next','uses','shared'], grow:['rest','game','meter'], heart:['round','watchlight'], pass:['copy','meter'],
+  copy:['next','uses','shared'], grow:['rest','game','meter'], heart:['round','watchlight'], pass:['trigger','slot','boost','encore','copy'],
+  trigger:['collect','wave','delivery','any-trigger','pass'], boost:['pass','always-on','slot'], encore:['pass','uses'], slot:['pass','next'],
+  'always-on':['boost','pass'], 'any-trigger':['trigger','pass'], collect:['trigger','spark','wisp'], delivery:['trigger','collector'], latch:['trigger','collector'],
+  overfill:['trigger','meter','stored'], 'falling-lift':['trigger','lift'], 'flash-ends':['trigger','flash'], save:['trigger','watchlight'], clear:['trigger','round'],
 });
 function termDetailsMarkup(key) {
   const details=CARD_TERM_DETAILS[key], related=relatedTerms[key] || [];
@@ -301,7 +328,7 @@ export function installCardTermHelp(doc = document, {resolveProximityContext,res
     const heading = `card-glossary-heading-${++serial}`, dialog = doc.createElement('dialog');
     dialog.className = 'card-term-dialog card-glossary-dialog';
     dialog.setAttribute('aria-labelledby',heading);
-    const groups = [['Journey',['round','map','game']],['Flying & fuel',['wisp','spark','meter','dusk','cluster','heart','lift','luminance','wave','rhythm','proximity','packing','packing-efficiency','stored']],['Collector',['collector','ring','impulse','flash','cache','watchlight']],['Your cards',['pass','next','copy','uses','shared','rest','grow']]];
+    const groups = [['Journey',['round','map','game']],['Flying & fuel',['wisp','spark','meter','dusk','cluster','heart','lift','luminance','wave','rhythm','proximity','packing','packing-efficiency','stored']],['Collector',['collector','ring','impulse','flash','cache','watchlight']],['Your cards',['pass','slot','trigger','boost','encore','always-on','any-trigger','next','copy','uses','shared','rest','grow']],['Triggers',['collect','delivery','latch','wave','flash','flash-ends','falling-lift','overfill','rhythm','save','clear']]];
     dialog.innerHTML = `<header><h2 id="${heading}">Glossary</h2><button type="button" data-card-term-close aria-label="Close glossary">×</button></header><div class="card-term-content card-glossary-list">${groups.map(([title,keys])=>`<section><h3>${esc(title)}</h3><div>${keys.map(key=>cardTermMarkup(key,CARD_TERMS[key][0])).join('')}</div></section>`).join('')}</div><footer><button type="button" data-card-term-close>Back</button></footer>`;
     mount(dialog,button,resolveCardContext?.(button)||resolveProximityContext?.(button)||{});
   }
@@ -350,7 +377,7 @@ export function installCardTermHelp(doc = document, {resolveProximityContext,res
       dialog.classList.add('card-cache-dialog');
       const host=button.dataset.cardTerm?dialog.querySelector('[data-card-term-example]'):doc.createElement('div');
       if(!button.dataset.cardTerm){host.className='cache-card-example';dialog.querySelector('[data-card-help-rules]').append(host);}
-      import('./cache-card-help.mjs?v=early-play-2').then(({mountCacheCardHelp})=>{
+      import('./cache-card-help.mjs?v=card-rules-1').then(({mountCacheCardHelp})=>{
         if(layers.includes(layer))appendDisposer(mountCacheCardHelp(host,{focus:cardKind==='harvest'?'cross':cardKind==='cache-handling'?'deliver':'touch',harvestCard:cardKind==='harvest'?cardContext.card:undefined}));
       });
     }
@@ -361,7 +388,7 @@ export function installCardTermHelp(doc = document, {resolveProximityContext,res
         const host=doc.createElement('section');host.className='proximity-card-help';
         const example=dialog.querySelector('[data-card-term-example="proximity"]');
         if(example)example.replaceChildren(host);else dialog.querySelector('.card-term-content').prepend(host);
-        import('./proximity-card-help.mjs?v=early-play-2').then(({mountProximityCardHelp})=>{
+        import('./proximity-card-help.mjs?v=card-rules-1').then(({mountProximityCardHelp})=>{
           if(layers.includes(layer))appendDisposer(mountProximityCardHelp(host,previewContext));
         });
       }

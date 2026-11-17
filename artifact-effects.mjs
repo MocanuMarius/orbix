@@ -1,7 +1,7 @@
 // Shared triggers make artifacts combine with skills, pickups and every base
 // companion. Effects never manufacture another pickup or dispatch a fuel event.
-import {CONSUMABLE_ARTIFACTS,EVOLVING_ARTIFACTS} from './artifact-info.mjs?v=early-play-2';
-import {GuardianReactions} from './guardian-reactions.mjs?v=early-play-2';
+import {CONSUMABLE_ARTIFACTS,EVOLVING_ARTIFACTS} from './artifact-info.mjs?v=card-rules-1';
+import {GuardianReactions} from './guardian-reactions.mjs?v=card-rules-1';
 const clamp=(value,min,max)=>Math.max(min,Math.min(max,value));
 export const ARTIFACT_ENGINE_RULES=Object.freeze({
   'wayward-seed':Object.freeze({name:'Wayward Seed',color:'#c6dc99',trigger:'Three consecutive body Spark pickups.',effect:'Restore up to 3.34 Sparks.',limits:'Five activations per flight. Collector deliveries break the chain.'}),
@@ -35,6 +35,7 @@ export class ArtifactEffects {
     this.sightStartedAt=-Infinity;this.sightUntil=0;this.sightReadyAt=0;
     this.storedLift=null;this.liftGrants=0;this.liftReadyAt=0;this.lastProc=null;
     this.procCounts={'overflow-coil':0,'echo-bell':0,'dawn-loom':0,sunspool:0};
+    this.activationCounts = {};
     this.mounted=new Set(engine.mod.artifactIds||[]);
     this.guardian=new GuardianReactions(this);
     this.seedId=[...EVOLVING_ARTIFACTS].reverse().find(id=>this.mounted.has(id))||null;
@@ -64,6 +65,7 @@ export class ArtifactEffects {
   }
   activate(id,outcome={},detail={}){
     if(!this.mounted.has(id))return;
+    this.activationCounts[id] = (this.activationCounts[id] || 0) + 1;
     this.engine.activation?.(id,{kind:'artifact',outcome,...detail});
   }
   useCharge(id,outcome={}){
@@ -86,7 +88,7 @@ export class ArtifactEffects {
       const bonus=wickBonus;
       restored+=bonus;e.flame+=bonus;e.flameRestored+=bonus;
     }
-    if(this.useCharge('flash-stone',{reveal:1.5}))e.revealFromPickup(true);
+    if(this.useCharge('flash-stone',{reveal:1.5}))e.revealFromPickup(true,{id:'flash-stone',sourceKind:'relic',follow:'wisp'});
     return restored;
   }
   applySeed(packet){
@@ -95,7 +97,7 @@ export class ArtifactEffects {
     if(++this.seedCharge<3)return 0;
     this.seedCharge=0;this.seedProcs++;
     const e=this.engine;
-    if(this.seedId==='lantern-bloom'){this.cue(this.seedId,'triggered',{reveal:1.5});e.revealFromPickup(true);return 0;}
+    if(this.seedId==='lantern-bloom'){this.cue(this.seedId,'triggered',{reveal:1.5});e.revealFromPickup(true,{id:this.seedId,sourceKind:'relic',follow:'wisp'});return 0;}
     // This restoration occurs after natural overflow accounting and dispatches
     // no fuel event: a charge cannot create currency or charge itself again.
     const bonus=Math.min(this.seedId==='hearth-bloom'?10:10/3,Math.max(0,e.maxFlame-e.flame));
@@ -138,6 +140,8 @@ export class ArtifactEffects {
     if(seconds<=0||!this.enabled('dawn-loom')||e.time<this.sightReadyAt)return;
     if(this.sightUntil<=e.time)this.sightStartedAt=e.time;
     this.sightUntil=Math.max(this.sightUntil,e.time+clamp(Number(e.mod.rechargeSight)||1.5,.5,3));
+    e.radiateLight?.({once:true,source:'dawn-loom',sourceKind:'relic',reveal:true,
+      radius:Math.max(e.getLightState?.().radius||145,Number(e.mod.seerRadius)||230)});
     this.sightReadyAt=e.time+4;this.cue('dawn-loom','triggered',{reveal:this.sightUntil-e.time});
   }
   get temporarilyLit(){
