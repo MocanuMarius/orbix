@@ -1,2 +1,2 @@
-export {getCardFaceAvailability,cardFace,cardArt,cardMechanicMarkup,cardStatusMarkup,cardName,starterCardsMarkup,starterGiftConfirmationMarkup,cardDraftMarkup,cardRewardMarkup,cardSwapMarkup,cardsBenchMarkup,cardMeltSelectionMarkup,cardExchangeMarkup,cardRestMarkup,cardForgeMarkup,cardVictoryRecap,deckIcon,furnaceIcon} from '../card-ui.mjs?v=courses-2';
-export {cardTermMarkup,cardTermTextMarkup,installCardTermHelp} from '../card-terms.mjs?v=courses-2';
+export {getCardFaceAvailability,cardFace,cardArt,cardMechanicMarkup,cardStatusMarkup,cardName,starterCardsMarkup,starterGiftConfirmationMarkup,cardDraftMarkup,cardRewardMarkup,cardSwapMarkup,cardsBenchMarkup,cardMeltSelectionMarkup,cardExchangeMarkup,cardRestMarkup,cardForgeMarkup,cardVictoryRecap,deckIcon,furnaceIcon} from '../card-ui.mjs?v=temp-3';
+export {cardTermMarkup,cardTermTextMarkup,installCardTermHelp} from '../card-terms.mjs?v=temp-3';

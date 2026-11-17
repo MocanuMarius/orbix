@@ -1,5 +1,5 @@
-import {normalizeCompanionFleet} from './companion-abilities.mjs?v=courses-2';
-import {skillProgress} from './skill-increments.mjs?v=courses-2';
+import {normalizeCompanionFleet} from './companion-abilities.mjs?v=temp-3';
+import {skillProgress} from './skill-increments.mjs?v=temp-3';
 // Named, one-time specialisations. Each pair is exclusive permanently.
 const paths=[];
 function fork(branch,parent,a,b){

@@ -1,6 +1,6 @@
-import {SKILL_CARDS, describeSkillCard} from './skill-cards.mjs?v=courses-2';
-import {resourceSymbol} from './game-symbols.mjs?v=courses-2';
-import {CARD_ART_IDS} from './card-art.mjs?v=courses-2';
+import {SKILL_CARDS, describeSkillCard} from './skill-cards.mjs?v=temp-3';
+import {resourceSymbol} from './game-symbols.mjs?v=temp-3';
+import {CARD_ART_IDS} from './card-art.mjs?v=temp-3';
 const esc = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const number = value => Number((Number(value) || 0).toFixed(3));
 const capped = trace => Number.isFinite(trace?.restoredSparks) && Math.abs(trace.restoredSparks - trace.sparks) > 1e-7;

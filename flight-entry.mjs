@@ -1,10 +1,10 @@
-import {prepareFuelSprites} from './pickup-art.mjs?v=courses-2';
-import {selectFlightLoadingTip,renderFlightLoadingTip} from './flight-loading-tips.mjs?v=courses-2';
+import {prepareFuelSprites} from './pickup-art.mjs?v=temp-3';
+import {selectFlightLoadingTip,renderFlightLoadingTip} from './flight-loading-tips.mjs?v=temp-3';
 
 export function preloadFlightEntry(reducedMotion=false){
  if(typeof window==='undefined')return Promise.resolve();
  const quiet=reducedMotion||window.matchMedia('(prefers-reduced-motion: reduce)').matches;
- return Promise.all([import('./wisp-renderer.mjs?v=courses-2'),prepareFuelSprites(document,quiet)]);
+ return Promise.all([import('./wisp-renderer.mjs?v=temp-3'),prepareFuelSprites(document,quiet)]);
 }
 
 // The approved "Field note" page (v1.0-depart-A). Back and the depart plaque have one fixed size in both states

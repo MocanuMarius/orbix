@@ -1,16 +1,17 @@
-import {ARTIFACTS,lastCourseName} from './model.mjs?v=courses-2';
-import {artifactDescription} from './artifact-copy.mjs?v=courses-2';
-import {resourceSymbol} from './game-symbols.mjs?v=courses-2';
-import {artifactIcon} from './upgrade-icons.mjs?v=courses-2';
-import {relicIdentityMarkup,relicRulesMarkup,relicRulesButton} from './ui/relic-primitives.mjs?v=courses-2';
-import {actionButton} from './ui/primitives.mjs?v=courses-2';
-import {acquiredRewardMarkup} from './ui/acquired-reward.mjs?v=courses-2';
-import {routeBonusReceiptText} from './route-bonus-copy.mjs?v=courses-2';
-import {getInscription,slotInscriptionId} from './inscriptions.mjs?v=courses-2';
-import {inscriptionGlyph,INSCRIPTION_KIND_WORDS} from './inscription-ui.mjs?v=courses-2';
-import {cardArt} from './card-art.mjs?v=courses-2';
-import {cardTermTextMarkup} from './card-terms.mjs?v=courses-2';
-import {SKILL_CARDS} from './skill-cards.mjs?v=courses-2';
+import {ARTIFACTS,lastCourseName} from './model.mjs?v=temp-3';
+import {artifactDescription} from './artifact-copy.mjs?v=temp-3';
+import {resourceSymbol} from './game-symbols.mjs?v=temp-3';
+import {artifactIcon} from './upgrade-icons.mjs?v=temp-3';
+import {relicIdentityMarkup,relicRulesMarkup,relicRulesButton} from './ui/relic-primitives.mjs?v=temp-3';
+import {actionButton} from './ui/primitives.mjs?v=temp-3';
+import {acquiredRewardMarkup} from './ui/acquired-reward.mjs?v=temp-3';
+import {routeBonusReceiptText} from './route-bonus-copy.mjs?v=temp-3';
+import {getInscription,slotInscriptionId,slotEntry} from './inscriptions.mjs?v=temp-3';
+import {previewPendingTemporary,temporaryLine} from './temporary-inscriptions.mjs?v=temp-3';
+import {inscriptionGlyph,INSCRIPTION_KIND_WORDS} from './inscription-ui.mjs?v=temp-3';
+import {cardArt} from './card-art.mjs?v=temp-3';
+import {cardTermTextMarkup} from './card-terms.mjs?v=temp-3';
+import {SKILL_CARDS} from './skill-cards.mjs?v=temp-3';
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 export const rewardDescription=(a,run)=>{const c=artifactDescription(a,run,{fresh:true});return [c.effect,[c.trigger,c.limit].filter(Boolean).join(' ')];};
 export function rewardEarnings(run){
@@ -85,4 +86,35 @@ export function flightRewardMarkup(state,{artifactArt=artifactIcon,upgradeCount=
  return `<article class="artifact-choice ${a.rarity}" data-reward-artifact="${id}">${relicIdentityMarkup(a,copy,{artifactArt,lifetime:reward.permanent?(r.testMode?'TEST preview':'Permanent discovery'):copy.lifetime})}${relicRulesMarkup(copy)}<footer class="artifact-choice-actions">${relicRulesButton(a,{sign:true})}${open?actionButton(reward.permanent?'Discover':'Take artifact',{className:'wb-sign wb-sign-primary',action:'keep-flight-reward',id,ariaLabel:`${reward.permanent?'Discover':'Take'} ${a.name}`}):`<span class="artifact-acquired" role="status">✓ ${reward.permanent?'Unlocked for future runs':copy.type==='consumable'?'Ready · '+copy.lifetime.split(' · ')[0]:'Active this run'}</span>`}</footer></article>`;
  }).join('')}</div>`:`<div class="flight-clear-summary">${resourceSymbol('packed')}<strong>${reward?.permanent?'Collection complete':'Passage secured'}</strong><span>${reward?.permanent?'All guardian unlocks discovered.':deckAvailable?'Review your Deck before you go on.':'Open Skills to spend your Stored Sparks.'}</span></div>`}
  <footer class="artifact-reward-actions">${open?`<span class="artifact-choice-instruction">${reward.permanent?(r.testMode?'Preview in TEST':'Saved to your Collection'):'Works automatically'}</span>`:`${(skillsAvailable||deckAvailable)&&!reward?.permanent?`<button type="button" class="wb-sign wb-sign-standard ${!deckAvailable&&upgradeCount?'upgrade-ready':''}" data-action="${deckAvailable?'cards':'skills'}">${deckAvailable?'':resourceSymbol('packed')}<span>${deckAvailable?'Deck':upgradeCount?'Upgrade':'Plan skills'}</span></button>`:''}<button type="button" class="wb-sign wb-sign-primary" data-action="victory-next">Continue</button>`}</footer></section>`;
+}
+
+// Temporary Inscriptions (docs/inscriptions.md, "Events and objectives"): earned from an event or an optional objective, the player picks the
+// slot on this screen (run.pendingTemporary). Choose a slot; over a permanent Inscription it COVERS it (confirm, the old one comes back);
+// over another temporary one it replaces it (confirm). Menu screen only.
+function tempSlot(r,n,i){
+ const card=r.mountedCards?.[n],def=card?SKILL_CARDS[card.cardId]:null,name=card?def?.name||'Card':'',entry=slotEntry(r,n),cur=entry?getInscription(entry.id):null;
+ const under=entry?.temporary&&entry.covers?.id?getInscription(entry.covers.id):null;
+ const pic=card?`<span class="scribe-slot-pic">${cardArt({cardId:card.cardId,rarity:card.rarity||def?.rarity,name},{compact:true})}</span>`:'<span class="scribe-slot-pic scribe-slot-pic-empty" aria-hidden="true"></span>';
+ const words=!cur?'No Inscription':cur.temporary?`Replaces: ${cur.name}${cur.until?'':` (${entry.flightsLeft} left)`}${under?`, still covering ${under.name}`:''}`:`Covers: ${cur.name} (comes back)`;
+ const what=cur?`<span class="scribe-slot-ins scribe-slot-covers">${inscriptionGlyph(cur.id,{size:16})}<span>${esc(words)}</span></span>`:'<span class="scribe-slot-ins scribe-slot-none"><span>No Inscription</span></span>';
+ return `<button type="button" class="scribe-slot${cur?' scribe-slot-inscribed':''}${card?'':' scribe-slot-empty'}" data-action="temp-slot" data-slot="${n}" aria-label="Slot ${n+1}, ${card?esc(name):'empty'}. ${esc(words)}"><b class="scribe-slot-n">Slot ${n+1}</b>${pic}<span class="scribe-slot-name">${card?esc(name):'Empty slot'}</span>${what}</button>`;
+}
+export function temporaryWriteMarkup(state,{slot=null}={}){
+ const r=state.run,p=r?.pendingTemporary,i=p?getInscription(p.id):null;
+ if(!i)return '';
+ const slots=Array.from({length:r.cardSlots||0},(_,n)=>n),oath=!!i.until,kind=oath?'Oath Inscription':'Temporary Inscription';
+ const head=h=>`<header class="artifact-reward-heading wbf-head"><div class="wbf-titles"><small class="wb-context">${kind}${p.label?` · ${esc(p.label)}`:''}</small><h1 class="wb-title">${esc(h)}</h1></div></header>`;
+ const shell=(inner,foot)=>`<section class="artifact-reward-screen accumulating-rewards scribe-screen rw-screen wb-reskin wb-ground wb-inline wb-framed reward-open temporary-write">${inner}<footer class="artifact-reward-actions">${foot}</footer></section>`;
+ const when=oath?'Stays until fulfilled':`${p.flights} ${p.flights===1?'flight':'flights'}`;
+ const chosen=`<aside class="scribe-chosen scribe-temporary" aria-label="Chosen Inscription"><span class="scribe-mark">${inscriptionGlyph(i.id,{size:48})}</span><h2>${esc(i.name)}</h2><p>${cardTermTextMarkup(i.text)}</p><small class="scribe-kind">${esc(when)}. ${esc(INSCRIPTION_KIND_WORDS.temporary)}</small></aside>`;
+ const pv=Number.isInteger(slot)?previewPendingTemporary(r,slot):null;
+ if(pv?.needsConfirm){
+  const old=getInscription(pv.replacesTemporary||pv.covers),covers=!pv.replacesTemporary;
+  const body=covers
+   ?`<p>Slot ${slot+1} carries <b>${esc(old.name)}</b>: ${esc(old.text)}</p><p><b>${esc(i.name)}</b> covers it. <b>${esc(old.name)}</b> stops working, then comes back by itself when ${esc(i.name)} ends (${esc(when.toLowerCase())}).</p>`
+   :`<p>Slot ${slot+1} carries <b>${esc(old.name)}</b>, a temporary Inscription.</p><p>Writing <b>${esc(i.name)}</b> there replaces it. ${pv.covers?`The permanent Inscription beneath it, <b>${esc(getInscription(pv.covers).name)}</b>, stays covered until ${esc(i.name)} ends.`:''}</p>`;
+  return shell(head(covers?'Cover this Inscription?':'Replace this Inscription?')+`<div class="scribe-confirm"><div class="scribe-swap" aria-hidden="true"><span>${inscriptionGlyph(old.id,{size:48})}<b>${esc(old.name)}</b></span><span>${inscriptionGlyph(i.id,{size:48})}<b>${esc(i.name)}</b></span></div>${body}</div>`,
+   `<button type="button" class="wb-sign wb-sign-quiet" data-action="temp-slot-back"><span>Back</span></button><button type="button" class="wb-sign wb-sign-primary" data-action="temp-confirm" aria-label="${covers?'Cover':'Replace'} ${esc(old.name)} with ${esc(i.name)} on slot ${slot+1}"><span>${covers?'Cover':'Replace'}</span></button>`);
+ }
+ return shell(head('Choose a slot')+`<div class="scribe-pick">${chosen}<div class="scribe-slots" role="group" aria-label="Chain slots" style="--slots:${slots.length}">${slots.map(n=>tempSlot(r,n,i)).join('')}</div></div>`,`<span class="artifact-choice-instruction">${esc(temporaryLine(i.id,p.flights))}</span>`);
 }

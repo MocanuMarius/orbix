@@ -1,7 +1,7 @@
-import {previewEquippedCardRow} from './card-row-preview.mjs?v=courses-2';
-import {describeSkillCard} from './skill-cards.mjs?v=courses-2';
-import {cardArt} from './card-art.mjs?v=courses-2';
-import {resourceSymbol} from './game-symbols.mjs?v=courses-2';
+import {previewEquippedCardRow} from './card-row-preview.mjs?v=temp-3';
+import {describeSkillCard} from './skill-cards.mjs?v=temp-3';
+import {cardArt} from './card-art.mjs?v=temp-3';
+import {resourceSymbol} from './game-symbols.mjs?v=temp-3';
 
 const esc = value => String(value ?? '').replace(/[&<>"']/g, character => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[character]));
 const number = value => Number((Number(value) || 0).toFixed(3));

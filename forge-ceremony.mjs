@@ -1,5 +1,5 @@
-import {cardFace} from './card-ui.mjs?v=courses-2';
-import {resourceSymbol} from './game-symbols.mjs?v=courses-2';
+import {cardFace} from './card-ui.mjs?v=temp-3';
+import {resourceSymbol} from './game-symbols.mjs?v=temp-3';
 
 const esc=value=>String(value??'').replace(/[&<>"']/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
 
@@ -31,7 +31,7 @@ const EMBERS=[[-86,-70],[-58,-96],[-24,-110],[12,-104],[46,-92],[80,-66],[-100,-
 export function forgeCeremonyMarkup(card,{price=0,reduced=false}={}){
  const chip=side=>`<span class="forge-chip forge-chip-${side}" aria-hidden="true">${resourceSymbol('packed')}</span>`;
  const embers=EMBERS.map(([x,y],i)=>`<i style="--x:${x}px;--y:${y}px;--d:${(i%4)*18}ms"></i>`).join('');
- return `<section class="forge-ceremony ${reduced?'forge-reduced':''}" data-phase="${reduced?'fade':'gather'}"><div class="forge-ceremony-stage" role="button" tabindex="0" data-action="forge-ceremony-skip" aria-label="Forging ${esc(card.name||'a card')}. Tap to skip."><span class="forge-anvil-line" aria-hidden="true"></span><span class="forge-mystery" aria-hidden="true"><strong>?</strong></span>${chip('left')}${chip('right')}<span class="forge-embers" aria-hidden="true">${embers}</span><span class="forge-face card-forge-card">${cardFace(card)}</span></div><p class="forge-caption" role="status">Forged: ${esc(card.name||'Card')} · −${Math.floor(price)} Stored Sparks</p></section>`;
+ return `<section class="forge-ceremony ${reduced?'forge-reduced':''}" data-phase="${reduced?'fade':'gather'}"><div class="forge-ceremony-stage" role="button" tabindex="0" data-action="forge-ceremony-skip" aria-label="Forging ${esc(card.name||'a card')}. Tap to skip."><span class="forge-anvil-line" aria-hidden="true"></span><span class="forge-mystery" aria-hidden="true"><strong>?</strong></span>${chip('left')}${chip('right')}<span class="forge-embers" aria-hidden="true">${embers}</span><span class="forge-face card-forge-card">${cardFace(card)}</span></div><p class="forge-caption" role="status">Forged: ${esc(card.name||'Card')} · ${price>0?`−${Math.floor(price)} Stored Sparks`:'free from the chest'}</p></section>`;
 }
 
 /** Mounts the ceremony in `root`, drives it with timers, and calls onDone exactly once. Returns a handle with skip(). */

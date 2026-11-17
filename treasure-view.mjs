@@ -1,10 +1,11 @@
-import {companionArtSvg} from './companion-art.mjs?v=courses-2';
-import {resourceSymbol} from './game-symbols.mjs?v=courses-2';
-import {lifeHeartSvg} from './lives.mjs?v=courses-2';
-import {getTreasureChoices,getTreasureKind,SKILLS} from './model.mjs?v=courses-2';
-import {treasureArt} from './treasure-art.mjs?v=courses-2';
-import {skillIcon,artifactIcon} from './upgrade-icons.mjs?v=courses-2';
-import {formatGlow,getGlowCapacity} from './vitality.mjs?v=courses-2';
+import {companionArtSvg} from './companion-art.mjs?v=temp-3';
+import {resourceSymbol} from './game-symbols.mjs?v=temp-3';
+import {lifeHeartSvg} from './lives.mjs?v=temp-3';
+import {getTreasureChoices,getTreasureKind,SKILLS,isCardRun} from './model.mjs?v=temp-3';
+import {CHEST_CARD_LINE,chestChoiceLine} from './treasure.mjs?v=temp-3';
+import {treasureArt} from './treasure-art.mjs?v=temp-3';
+import {skillIcon,artifactIcon} from './upgrade-icons.mjs?v=temp-3';
+import {formatGlow,getGlowCapacity} from './vitality.mjs?v=temp-3';
 
 const esc=value=>String(value??'').replace(/[&<>"']/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
 
@@ -28,6 +29,15 @@ function treasureChoice(offer,index,run,preview){
  return `<button class="treasure-offer" data-action="support" data-index="${index}" ${offer.disabled?'disabled':''}>${body}<span class="treasure-pick-arrow" aria-hidden="true">${offer.disabled?'':'›'}</span></button>`;
 }
 
+/** The chest's second choice, one simple screen: +N Stored Sparks now, or a free surprise card. One or the other. */
+export function chestChoiceMarkup(run){
+ const p=run?.pendingChest;if(!p)return '';
+ return `<section class="treasure-room chest-choice" aria-label="Chest: choose one"><aside class="treasure-place"><div class="treasure-name"><small>CHOOSE ONE</small><h2>The chest holds two gifts</h2></div></aside>
+ <div class="treasure-offers support-offers">
+  <button class="treasure-offer chest-option" data-action="chest-choice" data-id="sparks"><span class="treasure-choice-icon" aria-hidden="true">${resourceSymbol('packed')}</span><span class="treasure-choice-copy"><strong>Stored Sparks: +${p.sparks}</strong><span>Taken now. Spend them on skills.</span></span><span class="treasure-pick-arrow" aria-hidden="true">›</span></button>
+  <button class="treasure-offer chest-option" data-action="chest-choice" data-id="card"><span class="treasure-choice-icon" aria-hidden="true">${skillIcon({id:'main-drift'})}</span><span class="treasure-choice-copy"><strong>A surprise card</strong><span>Forged free, then added to your deck.</span></span><span class="treasure-pick-arrow" aria-hidden="true">›</span></button>
+ </div><p class="treasure-card-note" role="note"><b>One or the other.</b> <span>The other gift stays in the chest.</span></p></section>`;
+}
 export function treasureView(run,node,{preview=false,available=false,practiceTools=''}={}){
  const offers=getTreasureChoices(run,node),kind=getTreasureKind(run,node);
  const heading=node.practiceLoan?'PRACTICE LOAN':preview?(available?'REACHABLE CHEST':'CHEST AHEAD'):'CHOOSE ONE';
@@ -35,6 +45,7 @@ export function treasureView(run,node,{preview=false,available=false,practiceToo
  <aside class="treasure-place">${treasureArt(kind)}
  <div class="treasure-name"><small>${heading}</small><h2>${esc(node.name)}</h2></div>
  <span class="treasure-energy" aria-label="Current Sparks: ${formatGlow(run.flame)} of ${formatGlow(getGlowCapacity(run))}">${resourceSymbol('energy')} <b>${formatGlow(run.flame)}<small> / ${formatGlow(getGlowCapacity(run))}</small></b></span></aside>
+ ${isCardRun(run)&&!node.practiceLoan?`<p class="treasure-card-note" role="note"><b>${esc(chestChoiceLine(run.mapIndex))}</b> <span>${preview?'After you take a find, the chest offers this choice.':'Pick one: both are free.'}</span></p>`:''}
  <div class="treasure-offers ${preview?'':'support-offers'}">${offers.map((offer,i)=>treasureChoice(offer,i,run,preview)).join('')}</div>
  ${preview?`<footer class="treasure-route-actions"><button class="secondary" data-action="close-sheet">Back</button>${available?`<button class="primary" data-action="node" data-id="${esc(node.id)}">Visit chest</button>`:''}</footer>`:practiceTools}</section>`;
 }

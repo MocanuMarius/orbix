@@ -30,9 +30,45 @@ export const INSCRIPTIONS = Object.freeze(Object.fromEntries([
 ].map(item => [item.id, item])));
 
 export const INSCRIPTION_IDS = Object.freeze(Object.keys(INSCRIPTIONS));
+
+// TEMPORARY Inscriptions (docs/inscriptions.md, "Events and objectives"): effects earned from events and optional objectives. They are
+// written on a slot like any Inscription, but they are not in the Scribe's list (INSCRIPTION_IDS stays the 18 permanent ones).
+//   flights N       lasts N cleared flights (a fall never spends one); at zero it ends and the permanent Inscription it covered returns.
+//   until 'fulfilled'  an OATH: stays until its condition is met by a cleared flight.
+// boon / favor name the flight-engine modifier it drives (dist/flight-boons.mjs); oath names the settlement rule.
+const tdef = (id, name, text, extra = {}) => Object.freeze({id, name, kind: 'temporary', temporary: true, text, glyph: id, ...extra});
+export const TEMPORARY_FLIGHTS = 3;
+export const TEMPORARY_INSCRIPTIONS = Object.freeze(Object.fromEntries([
+  tdef('quick-recall', 'Quick Recall', 'Companion recovery 20% faster.', {boon: 'wild-circuit', flights: 3}),
+  tdef('dawnlight', 'Dawnlight', '+25% opening Luminance for the first 15 seconds of each flight.', {boon: 'flash-relay', flights: 3}),
+  tdef('glidepath', 'Glidepath', 'Save up to 9 Sparks on your first 3 Lifts each flight.', {boon: 'long-glide', flights: 3}),
+  tdef('edgeward', 'Edgeward', 'One collision ward per flight.', {boon: 'edgeweaver', flights: 3}),
+  tdef('nightveil', 'Nightveil', 'Black Holes drain 25% fewer Sparks.', {boon: 'night-sail', flights: 3}),
+  tdef('wayglass', 'Wayglass', 'Preview the opening 2.5 seconds before takeoff.', {boon: 'wayfinder', flights: 3}),
+  tdef('risen-star', 'Risen Star', 'The first 3 fuel pickups each flight restore +2 missing Sparks.', {boon: 'constellation', flights: 3}),
+  tdef('mending', 'Mending', 'Below 6 Sparks, restore up to 6 missing Sparks once per flight.', {boon: 'spark-trail', flights: 3}),
+  tdef('reserve-wick', 'Reserve Wick', 'Below 6 Sparks, restore 9 Sparks once per flight.', {favor: 'wick', flights: 3}),
+  tdef('hollow-feather', 'Hollow Feather', 'Your first two paid Lifts are free in each flight.', {favor: 'feather', flights: 3}),
+  tdef('star-chart', 'Star Chart', 'See 35% farther.', {favor: 'lens', flights: 3}),
+  tdef('chime', 'Companion Chime', 'Companion cooldown is 20% shorter.', {favor: 'haste', flights: 3}),
+  tdef('lead-seal', 'Lead Seal', 'Your first six paid Lifts cost 1 extra Spark.', {favor: 'burden', flights: 1, endsOnStart: true}),
+  // Oaths: until fulfilled by a cleared flight.
+  tdef('night-ledger', 'Night’s Ledger', 'Fly with 55% Luminance. Clear a flight to double the Stored Sparks packed there, up to +20.', {oath: 'pact', pact: 'night-ledger', until: 'fulfilled'}),
+  tdef('closed-eye', 'The Closed Eye', 'Sight stays at 38% of starting Luminance and card light is blocked; Flares and passage lights still work. Clear a flight to triple every Stored Spark packed there.', {oath: 'pact', pact: 'blind-pilgrim', until: 'fulfilled'}),
+  tdef('silent-orbit', 'The Silent Orbit', 'Collector reach −45%. Clear a flight to double the Stored Sparks packed there, up to +20.', {oath: 'pact', pact: 'silent-orbit', until: 'fulfilled'}),
+  tdef('pilgrim-vow', 'Pilgrim’s Vow', 'Clear a flight with 4 body Spark pickups for 8 Stored Sparks.', {oath: 'vow', until: 'fulfilled'}),
+  tdef('sealed-purse', 'Sealed Purse', 'Clear a flight holding 12 Sparks for Stored Sparks.', {oath: 'seal', until: 'fulfilled'}),
+].map(item => [item.id, item])));
+export const TEMPORARY_IDS = Object.freeze(Object.keys(TEMPORARY_INSCRIPTIONS));
+export const TEMPORARY_BY_BOON = Object.freeze(Object.fromEntries(Object.values(TEMPORARY_INSCRIPTIONS).filter(t => t.boon).map(t => [t.boon, t.id])));
+export const TEMPORARY_BY_FAVOR = Object.freeze(Object.fromEntries(Object.values(TEMPORARY_INSCRIPTIONS).filter(t => t.favor).map(t => [t.favor, t.id])));
+export const getTemporary = id => (typeof id === 'string' && Object.hasOwn(TEMPORARY_INSCRIPTIONS, id)) ? TEMPORARY_INSCRIPTIONS[id] : null;
 /** Glyph family: a chisel mark for card-modifying, a rune ring for standalone. */
-export const INSCRIPTION_FAMILIES = Object.freeze({card: 'Chisel', standalone: 'Rune'});
-export const getInscription = id => (typeof id === 'string' && Object.hasOwn(INSCRIPTIONS, id)) ? INSCRIPTIONS[id] : null;
+export const INSCRIPTION_FAMILIES = Object.freeze({card: 'Chisel', standalone: 'Rune', temporary: 'Ring'});
+/** Any Inscription: one of the 18 permanent ones or a temporary one. */
+export const getInscription = id => (typeof id === 'string' && Object.hasOwn(INSCRIPTIONS, id)) ? INSCRIPTIONS[id] : getTemporary(id);
+/** The permanent Inscription only (what the rules engine acts on). */
+export const getPermanentInscription = id => (typeof id === 'string' && Object.hasOwn(INSCRIPTIONS, id)) ? INSCRIPTIONS[id] : null;
 
 /** Source of slot Inscriptions: a run (`slotInscriptions`) or a card execution (`inscriptions`). */
 const listOf = source => source?.inscriptions || source?.slotInscriptions || null;
@@ -42,28 +78,47 @@ export const slotInscription = (source, slot) => getInscription(slotInscriptionI
 export const slotsWith = (source, id) => (listOf(source) || []).map((entry, slot) => entry?.id === id ? slot : -1).filter(slot => slot >= 0);
 export const countInscription = (source, id) => slotsWith(source, id).length;
 
-/** Keep `run.slotInscriptions` aligned with `run.mountedCards`: same length, every entry null or `{id}`. */
+const cleanPermanent = entry => getPermanentInscription(entry?.id) ? {id: entry.id} : null;
+/** One slot entry, sanitised. Permanent: `{id}`. Temporary: `{id, temporary: true, flightsLeft | until: 'fulfilled', covers: {id} | null}`;
+ * `covers` is the permanent Inscription it hides (suspended) until the temporary one ends. A spent or unknown temporary one is gone. */
+export function cleanSlotEntry(entry) {
+  if (!entry || typeof entry !== 'object') return null;
+  const temp = getTemporary(entry.id);
+  if (!temp) return entry.temporary ? cleanPermanent(entry.covers) : cleanPermanent(entry);
+  const covers = cleanPermanent(entry.covers);
+  if (temp.until) return {id: temp.id, temporary: true, until: temp.until, covers};
+  const left = Math.min(9, Math.floor(Number(entry.flightsLeft ?? temp.flights)));
+  return left > 0 ? {id: temp.id, temporary: true, flightsLeft: left, covers} : covers;
+}
+/** Keep `run.slotInscriptions` aligned with `run.mountedCards`: same length, every entry null, `{id}` or a temporary entry. */
 export function cleanSlotInscriptions(run) {
   if (!run || typeof run !== 'object') return [];
   const slots = Array.isArray(run.mountedCards) ? run.mountedCards.length : Math.max(0, Number(run.cardSlots) || 0);
   const old = Array.isArray(run.slotInscriptions) ? run.slotInscriptions : [];
-  run.slotInscriptions = Array.from({length: slots}, (_, i) => getInscription(old[i]?.id) ? {id: old[i].id} : null);
+  run.slotInscriptions = Array.from({length: slots}, (_, i) => cleanSlotEntry(old[i]));
   return run.slotInscriptions;
 }
+/** The permanent Inscription of a slot even when a temporary one covers it (the one the rules engine would use without the cover). */
+export const permanentOnSlot = (source, slot) => { const entry = listOf(source)?.[slot]; return entry?.temporary ? (cleanPermanent(entry.covers)?.id || null) : (cleanPermanent(entry)?.id || null); };
+/** The temporary entry on a slot (or null). */
+export const temporaryOnSlot = (source, slot) => { const entry = listOf(source)?.[slot]; return entry?.temporary && getTemporary(entry.id) ? entry : null; };
 
-/** Write (or replace) the Inscription on a slot. Returns the replaced id (or null), or false when refused. */
+/** Write (or replace) the permanent Inscription on a slot. Returns the replaced id (or null), or false when refused.
+ * Under a temporary Inscription it is written beneath it (the temporary one keeps showing and hands it back when it ends). */
 export function writeInscription(run, slot, id) {
-  if (!run || !getInscription(id) || !Number.isInteger(slot) || slot < 0) return false;
+  if (!run || !getPermanentInscription(id) || !Number.isInteger(slot) || slot < 0) return false;
   const list = cleanSlotInscriptions(run);
   if (slot >= list.length) return false;
-  const replaced = list[slot]?.id || null;
+  const here = list[slot];
+  if (here?.temporary) { const replaced = here.covers?.id || null; list[slot] = {...here, covers: {id}}; return replaced; }
+  const replaced = here?.id || null;
   list[slot] = {id};
   return replaced;
 }
 export function clearInscription(run, slot) {
   const list = cleanSlotInscriptions(run);
   if (!Number.isInteger(slot) || slot < 0 || slot >= list.length) return false;
-  list[slot] = null;
+  list[slot] = list[slot]?.temporary ? {...list[slot], covers: null} : null;
   return true;
 }
 
@@ -85,12 +140,16 @@ export const lodestoneBonus = (source, slot) => [slot - 1, slot + 1].reduce((sum
 export const capacityBonusSparks = source => countInscription(source, 'hearth') * INSCRIPTIONS.hearth.capacity;
 export const emberBedStored = (source, cards) => { const beds = countInscription(source, 'ember-bed'); if (!beds) return 0; const empty = (cards || []).filter(card => !card).length; return beds * (INSCRIPTIONS['ember-bed'].stored + empty); };
 
-/** The slot Inscriptions of a run, aligned to `cards` ([{id}|null]), or null when no slot carries one. */
+/** The slot Inscriptions of a run, aligned to `cards` ([{id}|null]), or null when no slot carries one. Temporary Inscriptions act
+ * through the run modifiers, not the row walker, and they suspend what they cover: their slots read as bare here. */
 export function slotInscriptionList(run, cards = run?.mountedCards || []) {
   const src = run?.slotInscriptions;
-  if (!Array.isArray(src) || !src.some(entry => entry?.id)) return null;
-  return Array.from({length: cards.length}, (_, i) => src[i]?.id ? {id: src[i].id} : null);
+  const rule = entry => entry?.id && !entry.temporary && getPermanentInscription(entry.id) ? {id: entry.id} : null;
+  if (!Array.isArray(src) || !src.some(rule)) return null;
+  return Array.from({length: cards.length}, (_, i) => rule(src[i]));
 }
+/** The raw entry on a slot ({id}, a temporary entry, or null). */
+export const slotEntry = (source, slot) => { const entry = listOf(source)?.[slot]; return entry && getInscription(entry.id) ? entry : null; };
 /** What the read-only previews hand to previewCardRow / hasCardRowEvent: the cards alone (as before), or cards + the run's Inscriptions, exactly as a flight builds its execution. */
 export function rowSnapshot(run, cards = run?.mountedCards || []) {
   const inscriptions = slotInscriptionList(run, cards);

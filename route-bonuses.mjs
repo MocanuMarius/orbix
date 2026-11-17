@@ -1,9 +1,13 @@
-import {getLifeCapacity} from './vitality.mjs?v=courses-2';
-import {grantPassageBoon} from './passage-preparations.mjs?v=courses-2';
-import {getCardModifiers,isCardRun} from './skill-cards.mjs?v=courses-2';
+import {getLifeCapacity} from './vitality.mjs?v=temp-3';
+import {activePassageBoons} from './passage-preparations.mjs?v=temp-3';
+import {queueTemporary,temporaryLine,hasTemporary} from './temporary-inscriptions.mjs?v=temp-3';
+import {TEMPORARY_BY_BOON} from './inscriptions.mjs?v=temp-3';
+import {getCardModifiers,isCardRun} from './skill-cards.mjs?v=temp-3';
 
 function bonus(id, name, condition, reward, target, hint='', boonId=null) {
-  return Object.freeze({id, name, condition, reward, target, hint, ...(boonId?{boonId}:{})});
+  // Lasting rewards are temporary Inscriptions (docs/inscriptions.md): the reward line is the Inscription's own line, so the offer and the award say the same.
+  const temporary = TEMPORARY_BY_BOON[boonId || id];
+  return Object.freeze({id, name, condition, reward: temporary ? temporaryLine(temporary) : reward, target, hint, ...(boonId?{boonId}:{}), ...(temporary?{temporary}:{})});
 }
 
 export const ROUTE_BONUSES = Object.freeze({
@@ -91,7 +95,7 @@ export function getRouteBonusCandidates(run, node) {
   const purse = flights[hash(run.seed + ':bonus-purse') % flights.length];
   const currencyId = hash(run.campaignSeed + ':gilded-map') % 3 === run.mapIndex ? 'gilded' : 'precision';
   const ids = [];
-  if (node.id === purse?.id && !run.pilgrimVow && run.treasurePact !== 'wager' && !alreadyAwarded(run, currencyId)) ids.push(currencyId);
+  if (node.id === purse?.id && !hasTemporary(run, 'pilgrim-vow') && !hasTemporary(run, 'sealed-purse') && !alreadyAwarded(run, currencyId)) ids.push(currencyId);
   const heartSites = flights.filter(site => site.id !== purse?.id&&(!Number.isFinite(site.duration)||site.duration>=75));
   const heart = heartSites[hash(run.seed + ':bonus-heart') % heartSites.length];
   if (node.id === heart?.id && run.lives < getLifeCapacity(run) && !alreadyAwarded(run, 'three-suns')) ids.push('three-suns');
@@ -102,7 +106,7 @@ export function getRouteBonusCandidates(run, node) {
     .filter(site=>site&&site.row<node.row&&site.bonusId).slice(-3).map(site=>site.bonusId);
   const preference=id=>{
     const effect=ROUTE_BONUSES[id]?.boonId||id;
-    return (run.passageBoons?.[effect]>0||run.nextFlightBoon===effect?3:0)
+    return (activePassageBoons(run).includes(effect)?3:0)
       +prior.reduce((cost,p,index)=>cost+(routeBonusFamily(p)===routeBonusFamily(id)?(index===prior.length-1?4:2):0)+(p===id?2:0),0);
   };
   return ids.concat([...order.slice(offset), ...order.slice(0,offset)]
@@ -147,7 +151,7 @@ export function awardRouteBonus(run, node, attempt, result, clearPay, pickupPack
     run.lives++;
     message = 'One heart restored.';
   } else {
-    grantPassageBoon(run,definition.boonId||id);
+    queueTemporary(run,definition.temporary,{source:'route-bonus',label:definition.name,flights:3});
     message = definition.reward;
   }
   (run.routeBonusClaims ??= {})[node.id] = {id, mapIndex:run.mapIndex};

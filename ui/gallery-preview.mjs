@@ -1,13 +1,13 @@
-import {relics,cards,route,menus,hud,art,dialogs,actionButton,escapeHtml as esc} from './index.mjs?v=courses-2';
-import {resolveSample} from './gallery-catalog.mjs?v=courses-2';
-import {createComponentFixture} from './gallery-fixtures.mjs?v=courses-2';
-import {ARTIFACTS,getChoices,getOwnedCards,getMountedCards,getCardReward,getCardDraft,chooseCardDraft,getCardMeltPreview,meltOwnedCards,getArtifactSalvageValue,sellArtifact,chooseFlightReward,equipOwnedCard,unequipMountedCard,moveMountedCard} from '../model.mjs?v=courses-2';
-import {bindDeckDragging} from '../deck-drag.mjs?v=courses-2';
-import {ROUTE_BONUSES} from '../route-bonuses.mjs?v=courses-2';
-import {prepareRouteOffer} from '../route-offers.mjs?v=courses-2';
-import {installComboLessons} from '../combo-lesson.mjs?v=courses-2';
-import {cardWorkshopMarkup,cardRefillMarkup} from '../card-workshop.mjs?v=courses-2';
-import {getCardImprovePreview,improveOwnedCard,getCardRefillPreview,refillOwnedCard,getCardForgePreview,forgeOwnedCard,getSupportChoices,resolveSupport} from '../model.mjs?v=courses-2';
+import {relics,cards,route,menus,hud,art,dialogs,actionButton,escapeHtml as esc} from './index.mjs?v=temp-3';
+import {resolveSample} from './gallery-catalog.mjs?v=temp-3';
+import {createComponentFixture} from './gallery-fixtures.mjs?v=temp-3';
+import {ARTIFACTS,getChoices,getOwnedCards,getMountedCards,getCardReward,getCardDraft,chooseCardDraft,getCardMeltPreview,meltOwnedCards,getArtifactSalvageValue,sellArtifact,chooseFlightReward,equipOwnedCard,unequipMountedCard,moveMountedCard} from '../model.mjs?v=temp-3';
+import {bindDeckDragging} from '../deck-drag.mjs?v=temp-3';
+import {ROUTE_BONUSES} from '../route-bonuses.mjs?v=temp-3';
+import {prepareRouteOffer} from '../route-offers.mjs?v=temp-3';
+import {installComboLessons} from '../combo-lesson.mjs?v=temp-3';
+import {cardWorkshopMarkup,cardRefillMarkup} from '../card-workshop.mjs?v=temp-3';
+import {getCardImprovePreview,improveOwnedCard,getCardRefillPreview,refillOwnedCard,getCardForgePreview,forgeOwnedCard,getSupportChoices,resolveSupport} from '../model.mjs?v=temp-3';
 installComboLessons();
 
 const query=new URLSearchParams(location.search),sample=resolveSample(query.get('family'),query.get('state'));

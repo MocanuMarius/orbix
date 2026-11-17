@@ -1,6 +1,6 @@
-import { pickupKind, getPickupSpec, pickupDisposition, PLASMA_SHELL_RADIUS, SPARK_ART_SCALE } from './pickups.mjs?v=courses-2';
-import {sparkImageArt,sparkSymbolArt,DUSK_MOTIF_PIXELS} from './spark-symbol.mjs?v=courses-2';
-import {drawPickupHandlingCue,pickupRingSvg} from './pickup-handling-cue.mjs?v=courses-2';
+import { pickupKind, getPickupSpec, pickupDisposition, PLASMA_SHELL_RADIUS, SPARK_ART_SCALE } from './pickups.mjs?v=temp-3';
+import {sparkImageArt,sparkSymbolArt,DUSK_MOTIF_PIXELS} from './spark-symbol.mjs?v=temp-3';
+import {drawPickupHandlingCue,pickupRingSvg} from './pickup-handling-cue.mjs?v=temp-3';
 
 const TAU = Math.PI * 2;
 const clamp = (value, low, high) => Math.max(low, Math.min(high, value));

@@ -1,16 +1,11 @@
+// Lasting preparations now live on the Chain as temporary Inscriptions (dist/temporary-inscriptions.mjs, docs/inscriptions.md).
+// This file keeps the read side the flight rules use: which boon ids and event favor keys are active, and the spend on a cleared flight.
+import {activeBoonIds,activeFavorKeys,spendTemporaryFlights,idsFromEntry} from './temporary-inscriptions.mjs?v=temp-3';
 export const PREPARATION_CLEARS=3;
-const active=record=>Object.entries(record||{}).filter(([,n])=>Number(n)>0).map(([id])=>id);
-export const activePassageBoons=run=>[...new Set([...active(run.passageBoons),...(run.nextFlightBoon?[run.nextFlightBoon]:[])])];
-export const activeEventFavors=run=>[...new Set([...active(run.favorClears),...(run.eventFavors||[])])];
-export function grantPassageBoon(run,id){(run.passageBoons??={})[id]=PREPARATION_CLEARS;run.nextFlightBoon=id;}
-export function grantEventFavor(run,id){
- run.eventFavors=[...new Set([...(run.eventFavors||[]),id])];
- if(id!=='burden')(run.favorClears??={})[id]=PREPARATION_CLEARS;
-}
-// A failed or interrupted attempt never spends a successful-flight reward.
-// Re-earning the same effect refreshes its window; magnitudes never stack.
+export const activePassageBoons=run=>activeBoonIds(run);
+export const activeEventFavors=run=>activeFavorKeys(run);
+// A failed or interrupted attempt never spends a successful-flight reward. Earning the same effect again moves it and refreshes its count;
+// magnitudes never stack. `attempt` is the entry snapshot taken when the flight began.
 export function spendPreparationClear(run,attempt){
- for(const[key,ids]of [['passageBoons',attempt?.flightBoons||[]],['favorClears',attempt?.eventFavors||[]]]){
-  for(const id of ids)if(run[key]?.[id]>0){if(--run[key][id]===0)delete run[key][id];}
- }
+ return spendTemporaryFlights(run,idsFromEntry(attempt));
 }

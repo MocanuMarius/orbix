@@ -1,4 +1,4 @@
-import {GAME_VERSION} from './build-version.mjs?v=courses-2';
+import {GAME_VERSION} from './build-version.mjs?v=temp-3';
 
 // This book is deliberately separate from the replaceable campaign save.
 export const SCORE_BOOK_KEY='wispbound-scorebook-v1';
