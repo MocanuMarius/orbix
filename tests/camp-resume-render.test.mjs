@@ -46,6 +46,7 @@ function app(state) {
     block('goToRun', 'showMapEarnings'),
     block('takeSupport', 'prepareOffer'),
     block('renderSupport', 'renderRestPrep'),
+    'function renderTemporaryWrite(){return "";}', // the temporary-Inscription write screen is not exercised here
   ];
   assert.ok(functions.every(Boolean));
   runInContext(functions.join('\n'), runtime);
