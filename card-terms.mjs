@@ -1,13 +1,13 @@
 /** Contextual card vocabulary. Native modal dialogs keep help above the Deck. */
-import { resourceSymbol } from './game-symbols.mjs?v=lofi-1';
-import {lifeHeartSvg} from './lives.mjs?v=lofi-1';
-import {duskGlyphArt} from './spark-symbol.mjs?v=lofi-1';
-import {getGlowCapacity,formatGlow} from './vitality.mjs?v=lofi-1';
-import {glowGaugeUnits} from './glow-ui.mjs?v=lofi-1';
-import {getRunModifiers} from './model.mjs?v=lofi-1';
-import {cardAmount,makeSkillCard,SKILL_CARDS} from './skill-cards.mjs?v=lofi-1';
-import {cardRowTermHelpMarkup} from './card-row-help.mjs?v=lofi-1';
-import {dreamEye} from './dream.mjs?v=lofi-1';
+import { resourceSymbol } from './game-symbols.mjs?v=cardart-1';
+import {lifeHeartSvg} from './lives.mjs?v=cardart-1';
+import {duskGlyphArt} from './spark-symbol.mjs?v=cardart-1';
+import {getGlowCapacity,formatGlow} from './vitality.mjs?v=cardart-1';
+import {glowGaugeUnits} from './glow-ui.mjs?v=cardart-1';
+import {getRunModifiers} from './model.mjs?v=cardart-1';
+import {cardAmount,makeSkillCard,SKILL_CARDS} from './skill-cards.mjs?v=cardart-1';
+import {cardRowTermHelpMarkup} from './card-row-help.mjs?v=cardart-1';
+import {dreamEye} from './dream.mjs?v=cardart-1';
 const esc = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 export const CARD_TERMS = Object.freeze({
   round: ['Round', 'One flight through a passage, ending in clear rewards or a lost heart.'],
@@ -397,7 +397,7 @@ export function installCardTermHelp(doc = document, {resolveProximityContext,res
       dialog.classList.add('card-cache-dialog');
       const host=button.dataset.cardTerm?dialog.querySelector('[data-card-term-example]'):doc.createElement('div');
       if(!button.dataset.cardTerm){host.className='cache-card-example';dialog.querySelector('[data-card-help-rules]').append(host);}
-      import('./cache-card-help.mjs?v=lofi-1').then(({mountCacheCardHelp})=>{
+      import('./cache-card-help.mjs?v=cardart-1').then(({mountCacheCardHelp})=>{
         if(layers.includes(layer))appendDisposer(mountCacheCardHelp(host,{focus:cardKind==='harvest'?'cross':cardKind==='cache-handling'?'deliver':'touch',harvestCard:cardKind==='harvest'?cardContext.card:undefined}));
       });
     }
@@ -408,7 +408,7 @@ export function installCardTermHelp(doc = document, {resolveProximityContext,res
         const host=doc.createElement('section');host.className='proximity-card-help';
         const example=dialog.querySelector('[data-card-term-example="proximity"]');
         if(example)example.replaceChildren(host);else dialog.querySelector('.card-term-content').prepend(host);
-        import('./proximity-card-help.mjs?v=lofi-1').then(({mountProximityCardHelp})=>{
+        import('./proximity-card-help.mjs?v=cardart-1').then(({mountProximityCardHelp})=>{
           if(layers.includes(layer))appendDisposer(mountProximityCardHelp(host,previewContext));
         });
       }

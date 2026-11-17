@@ -1,14 +1,14 @@
-import {SKILLS,getRunModifiers} from './model.mjs?v=lofi-1';
-import {collectorPreferenceMarkup} from './collector-preferences.mjs?v=lofi-1';
-import {formatLuminance} from './luminance-units.mjs?v=lofi-1';
-import {WISP_ART} from './companion-art.mjs?v=lofi-1';
-import {skillTreeState,skillTreeStatus} from './skill-tree-state.mjs?v=lofi-1';
-import {getCompanionAbility} from './companion-abilities.mjs?v=lofi-1';
-import {skillIcon} from './upgrade-icons.mjs?v=lofi-1';
-import {resourceSymbol} from './game-symbols.mjs?v=lofi-1';
-import {glowText,getGlowCapacity} from './vitality.mjs?v=lofi-1';
-import {skillBookChapter} from './skill-chapters.mjs?v=lofi-1';
-export {skillBookChapter} from './skill-chapters.mjs?v=lofi-1';
+import {SKILLS,getRunModifiers} from './model.mjs?v=cardart-1';
+import {collectorPreferenceMarkup} from './collector-preferences.mjs?v=cardart-1';
+import {formatLuminance} from './luminance-units.mjs?v=cardart-1';
+import {WISP_ART} from './companion-art.mjs?v=cardart-1';
+import {skillTreeState,skillTreeStatus} from './skill-tree-state.mjs?v=cardart-1';
+import {getCompanionAbility} from './companion-abilities.mjs?v=cardart-1';
+import {skillIcon} from './upgrade-icons.mjs?v=cardart-1';
+import {resourceSymbol} from './game-symbols.mjs?v=cardart-1';
+import {glowText,getGlowCapacity} from './vitality.mjs?v=cardart-1';
+import {skillBookChapter} from './skill-chapters.mjs?v=cardart-1';
+export {skillBookChapter} from './skill-chapters.mjs?v=cardart-1';
 
 const chapters=[
  ['wisp','Flight','main-efficiency'],['luminance','Luminance','main-sight'],

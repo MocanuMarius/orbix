@@ -1,12 +1,12 @@
-import {ARTIFACTS,SKILLS,SKILL_CARDS} from './model.mjs?v=lofi-1';
-import {cardFace} from './card-ui.mjs?v=lofi-1';
-import {cardTermMarkup,cardTermTextMarkup} from './card-terms.mjs?v=lofi-1';
-import {artifactDescriptionMarkup} from './artifact-copy.mjs?v=lofi-1';
-import {artifactIcon} from './upgrade-icons.mjs?v=lofi-1';
-import {EVENT_SCENARIOS,mapStopIconMarkup} from './map-guide.mjs?v=lofi-1';
-import {FLIGHT_PACTS} from './flight-pacts.mjs?v=lofi-1';
-import {ROUTE_BONUSES} from './route-bonuses.mjs?v=lofi-1';
-import {describeTreasure} from './treasure.mjs?v=lofi-1';
+import {ARTIFACTS,SKILLS,SKILL_CARDS} from './model.mjs?v=cardart-1';
+import {cardFace} from './card-ui.mjs?v=cardart-1';
+import {cardTermMarkup,cardTermTextMarkup} from './card-terms.mjs?v=cardart-1';
+import {artifactDescriptionMarkup} from './artifact-copy.mjs?v=cardart-1';
+import {artifactIcon} from './upgrade-icons.mjs?v=cardart-1';
+import {EVENT_SCENARIOS,mapStopIconMarkup} from './map-guide.mjs?v=cardart-1';
+import {FLIGHT_PACTS} from './flight-pacts.mjs?v=cardart-1';
+import {ROUTE_BONUSES} from './route-bonuses.mjs?v=cardart-1';
+import {describeTreasure} from './treasure.mjs?v=cardart-1';
 
 const esc=value=>String(value??'').replace(/[&<>"']/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
 const paragraph=text=>text?`<p>${cardTermTextMarkup(text)}</p>`:'';

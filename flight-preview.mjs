@@ -1,18 +1,18 @@
-import {getBiome} from './biomes.mjs?v=lofi-1';
-import {getBossPreview} from './boss.mjs?v=lofi-1';
-import {levelMapPreview} from './level-map-art.mjs?v=lofi-1';
-import {mapStopIconMarkup} from './map-guide.mjs?v=lofi-1';
-import {resourceSymbol} from './game-symbols.mjs?v=lofi-1';
-import {getFlightClearReward} from './checkpoint-rewards.mjs?v=lofi-1';
-import {availableFlightArtifacts,isCardRun} from './model.mjs?v=lofi-1';
-import {bonusIcon,boonMarkup} from './route-bonus-ui.mjs?v=lofi-1';
-import {contextualFlightNotice} from './contextual-events.mjs?v=lofi-1';
-import {ATLAS_FORECASTS,atlasGlyph} from './night-atlas.mjs?v=lofi-1';
-import {canDreamAt,dreamConfig} from './dream.mjs?v=lofi-1';
-import {sparkHabitat} from './spark-fields.mjs?v=lofi-1';
-import {lanternFlightCue} from './map-theme.mjs?v=lofi-1';
-import {actionButton} from './ui/primitives.mjs?v=lofi-1';
-import {cardTermTextMarkup} from './card-terms.mjs?v=lofi-1';
+import {getBiome} from './biomes.mjs?v=cardart-1';
+import {getBossPreview} from './boss.mjs?v=cardart-1';
+import {levelMapPreview} from './level-map-art.mjs?v=cardart-1';
+import {mapStopIconMarkup} from './map-guide.mjs?v=cardart-1';
+import {resourceSymbol} from './game-symbols.mjs?v=cardart-1';
+import {getFlightClearReward} from './checkpoint-rewards.mjs?v=cardart-1';
+import {availableFlightArtifacts,isCardRun} from './model.mjs?v=cardart-1';
+import {bonusIcon,boonMarkup} from './route-bonus-ui.mjs?v=cardart-1';
+import {contextualFlightNotice} from './contextual-events.mjs?v=cardart-1';
+import {ATLAS_FORECASTS,atlasGlyph} from './night-atlas.mjs?v=cardart-1';
+import {canDreamAt,dreamConfig} from './dream.mjs?v=cardart-1';
+import {sparkHabitat} from './spark-fields.mjs?v=cardart-1';
+import {lanternFlightCue} from './map-theme.mjs?v=cardart-1';
+import {actionButton} from './ui/primitives.mjs?v=cardart-1';
+import {cardTermTextMarkup} from './card-terms.mjs?v=cardart-1';
 
 export const TRAVEL_GUIDE_ART=Object.freeze(['waystone','rootwood','night-atlas']);
 /** One stepped sign, mirrored for the return journey. */
