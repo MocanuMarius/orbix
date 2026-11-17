@@ -380,6 +380,10 @@ function classifySaveDiff(before, after) {
     // dist/onboarding.mjs noteOnboardingProgress only ever raises the stage (max 4) as an experienced
     // profile continues a run. It gates first-run hints only. Reviewed 2026-11-16 for early-play-1.
     else if (d.path === 'profile.onboarding.stage' && Number.isInteger(d.before) && Number.isInteger(d.after) && d.after > d.before && d.after <= 4) allowed.push({...d, reason: 'onboarding progress note (stage only rises, hints only)'});
+    // inscribe-1 (2026-11-18): artifacts are gone for players (owner: no conversion needed); a loaded run drops
+    // them and gains an empty Inscription per Chain slot.
+    else if (/^run\.(artifacts\.\d+|artifactCharges\.[a-z-]+)$/.test(d.path) && d.after === undefined) allowed.push({...d, reason: 'artifacts retired, replaced by slot Inscriptions'});
+    else if (d.path === 'run.slotInscriptions' && d.before === undefined && Array.isArray(d.after) && d.after.every(x => x === null)) allowed.push({...d, reason: 'new empty slot Inscriptions'});
     // twin-wick-1 (2026-11-17): Twin Wick's run-wide unlock is gone (a card's effect lives on the card).
     else if (d.path === 'run.cardTwinWickUnlocked' && d.after === undefined) allowed.push({...d, reason: 'run-wide Twin Wick flag removed'});
     // card-rules-1 (2026-11-17): Forge counts crafts per rarity in the run. Old runs gain the tally at zero.
