@@ -4,6 +4,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {SKILL_CARDS, makeSkillCard, LIVE_CARDS, CARD_SYSTEM} from '../dist/skill-cards.mjs';
 import {CARD_TRIGGERS, getCardTrigger, triggerArtKey} from '../dist/card-rule-bands.mjs';
+import {triggerDisplay, triggerTermKey} from '../dist/card-trigger-labels.mjs';
 import {CARD_TERMS, TRIGGER_TERM_KEYS} from '../dist/card-terms.mjs';
 import {TRIGGER_ART, chipBadge, chipIcon, rarityPips} from '../dist/ui/trigger-icons.mjs';
 import {TRIGGER_BOOK, triggerBook, chipOf, enginePlate, resolveChain} from '../dist/ui/chain-model.mjs';
@@ -15,15 +16,16 @@ const run = (chain, reserve = []) => ({skillSystem: CARD_SYSTEM, cardSlots: Math
   reserveCards: reserve.map((id, i) => makeSkillCard(id, `r${i}`)), condensedGlow: 0});
 
 test('the engine Trigger chips have plain names, icons and glossary entries', () => {
-  const names = {'engine-pulse': 'Card Pulse', 'engine-gain': 'On gain', 'engine-any': 'Any event', 'engine-skim': 'Skim', 'engine-lift': 'Low Lift',
-    'engine-turn': 'Each Turn', timers: 'Timers', pack: 'Pack', 'take-off': 'Take-off'};
+  // What the player sees (card-trigger-labels.mjs): '' means no chip. The internal CARD_TRIGGERS names are unchanged.
+  const names = {'engine-pulse': 'Pulse', 'engine-gain': 'On gain', 'engine-any': '', 'engine-skim': 'Skim', 'engine-lift': 'Lift',
+    'engine-turn': '', timers: '', pack: 'Finish', 'take-off': ''};
   for (const [id, label] of Object.entries(names)) {
-    assert.equal(CARD_TRIGGERS[id]?.label, label, id);
+    assert.ok(CARD_TRIGGERS[id], id);
+    assert.equal(triggerDisplay(id).label, label, id);
     assert.ok(TRIGGER_ART[triggerArtKey(id)]?.length === 16, `${id}: a 16-grid icon`);
-    assert.ok(CARD_TERMS[id], `${id}: glossary entry`);
-    assert.ok(TRIGGER_TERM_KEYS.includes(id), `${id}: links to the Trigger collection`);
+    if (label) { const term = triggerTermKey(id); assert.ok(CARD_TERMS[term], `${id}: glossary entry ${term}`); assert.ok(TRIGGER_TERM_KEYS.includes(term), `${id}: links to the Trigger collection`); }
   }
-  for (const term of ['engine', 'turn', 'timer', 'pack']) assert.ok(CARD_TERMS[term], `glossary: ${term}`);
+  for (const term of ['engine', 'turn', 'timer']) assert.ok(CARD_TERMS[term], `glossary: ${term}`);
   for (const id of ['always-on', 'any', 'next', 'rest']) assert.ok(TRIGGER_ART[triggerArtKey(id)], `${id}: its own badge icon`);
   // Every engine card shows its own Trigger, never "Always on".
   for (const def of Object.values(SKILL_CARDS).filter(d => d.engine || d.kind === 'black-hole')) {
@@ -35,11 +37,11 @@ test('the engine Trigger chips have plain names, icons and glossary entries', ()
 });
 
 test('every card face, Deck tile and Chain tile leads with the Trigger badge; rarity is gems, not a word', () => {
-  for (const id of ['body-spark', 'crescendo', 'echo-iii', 'slow-wick', 'growth-seed', 'deep-vessel']) {
+  for (const id of ['body-spark', 'crescendo', 'echo-iii', 'slow-wick', 'growth-seed', 'deep-vessel', 'black-hole']) {
     const card = makeSkillCard(id, `f:${id}`), chip = chipOf(card);
     for (const compact of [true, false]) {
       const face = cardFace(card, {compact});
-      assert.match(face, new RegExp(`class="tbadge card-tbadge" data-chip="${chip.id}"`), `${id} badge`);
+      if (chip.label) assert.match(face, new RegExp(`class="tbadge card-tbadge" data-chip="${chip.id}"`), `${id} badge`); else assert.doesNotMatch(face, /class="tbadge card-tbadge"/, `${id}: no chip, the text says the timing`);
       assert.ok(face.indexOf('tbadge') < face.indexOf('card-rule-band') || compact, `${id}: the badge comes before the rules`);
       const gems = (rarityPips(SKILL_CARDS[id].rarity).match(/<svg/g) || []).length;
       assert.equal(gems, {common: 1, rare: 2, legendary: 3}[SKILL_CARDS[id].rarity], `${id}: 1, 2 or 3 gems`);
@@ -49,8 +51,8 @@ test('every card face, Deck tile and Chain tile leads with the Trigger badge; ra
   const view = createDeckView(); view.tab = 'deck';
   const html = deckScreenMarkup(run(['echo', 'body-spark', 'deep-vessel'], ['crescendo', 'prism-lens-ii', 'camp-kit']), view);
   assert.doesNotMatch(html, /dk21-rtab/, 'no rarity word strip on tiles');
-  assert.equal((html.match(/class="tbadge dk-tbadge"/g) || []).length, 6, 'every tile has its badge');
-  assert.match(html, /aria-label="Crescendo\. Rare\. Trigger: Any Trigger\./, 'the rarity word stays in the accessible name');
+  assert.equal((html.match(/class="tbadge dk-tbadge"/g) || []).length, 5, 'every tile has its badge, except the Rest card (no chip: its text says At Rest)');
+  assert.match(html, /aria-label="Crescendo\. Rare\. Role: Boost./, 'the rarity word stays in the accessible name');
   assert.match(html, /data-filter="rare"/, 'filtering by rarity still works');
   assert.match(chipBadge({id: 'collect', label: 'Collect'}), /<b class="tbadge-n">Collect<\/b>/);
 });
@@ -64,13 +66,14 @@ test('the Trigger collection lists every Trigger with what you do, how often, an
     assert.ok(CARD_TERMS[t.term], `${t.id}: glossary term ${t.term}`);
   }
   // Every Trigger a live or engine card carries is in the collection.
-  for (const def of [...LIVE_CARDS, ...Object.values(SKILL_CARDS).filter(d => d.unreleased)]) assert.ok(ids.includes(getCardTrigger(def).id), def.id);
+  for (const def of [...LIVE_CARDS, ...Object.values(SKILL_CARDS).filter(d => d.unreleased)]) { const chip = getCardTrigger(def); assert.ok(!chip.label || chip.label === 'On gain' || TRIGGER_BOOK.some(t => t.group === chip.group), def.id); }
   const book = triggerBook(run(['body-spark', 'spark-cache', null], ['body-spark', 'deep-vessel']));
   const collect = book.find(t => t.id === 'collect');
   assert.equal(collect.owned, true);
   assert.deepEqual(collect.cards.map(k => [k.cardId, k.count, k.inChain]), [['body-spark', 2, true], ['spark-cache', 1, true]]);
   assert.equal(book.find(t => t.id === 'always-on').cards[0].cardId, 'deep-vessel');
-  assert.equal(book.find(t => t.id === 'pack').owned, false, 'no card yet');
+  assert.equal(book.find(t => t.id === 'save').owned, false, 'no card yet');
+  assert.equal(book.length, 12, 'the 9 Triggers and 3 roles');
   const html = deckScreenMarkup(run(['body-spark'], ['deep-vessel']), Object.assign(createDeckView(), {tab: 'triggers'}));
   assert.match(html, /id="dk2-tab-triggers"[^>]*aria-selected="true"/);
   assert.match(html, /No card yet/); assert.match(html, /class="dk2-btn tb-card dc-r-common tb-inchain" data-uid="u0"/);

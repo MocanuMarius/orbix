@@ -8,9 +8,9 @@ const count = value => Math.max(0, Math.floor(Number(value) || 0));
 // Trigger names (docs/card-teaching-plan.md §1).
 const labels = {
   [CARD_ROW_EVENTS.body]:'Collect', [CARD_ROW_EVENTS.wave]:'Pulse', [CARD_ROW_EVENTS.flash]:'Flash',
-  [CARD_ROW_EVENTS.flashExpiry]:'Flash ends', [CARD_ROW_EVENTS.lift]:'Falling Lift', [CARD_ROW_EVENTS.overfill]:'Overfill',
-  [CARD_ROW_EVENTS.delivery]:'Delivery', [CARD_ROW_EVENTS.attach]:'Latch', [CARD_ROW_EVENTS.rhythm]:'Rhythm',
-  [CARD_ROW_EVENTS.field]:'Swipe', [CARD_ROW_EVENTS.guard]:'Save', [CARD_ROW_EVENTS.clear]:'Clear',
+  [CARD_ROW_EVENTS.flashExpiry]:'Flash', [CARD_ROW_EVENTS.lift]:'Lift', [CARD_ROW_EVENTS.overfill]:'Overfill',
+  [CARD_ROW_EVENTS.delivery]:'Delivery', [CARD_ROW_EVENTS.attach]:'Delivery', [CARD_ROW_EVENTS.rhythm]:'Lift',
+  [CARD_ROW_EVENTS.field]:'Swipe', [CARD_ROW_EVENTS.guard]:'Save', [CARD_ROW_EVENTS.clear]:'Finish',
   [CARD_ROW_EVENTS.victory]:'Third Guardian defeated',
 };
 const zeroTotals = () => ({sparks:0, stored:0, futureCapacity:0, cruisingSpeed:0, recoverySeconds:0, reelSeconds:0});

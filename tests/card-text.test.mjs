@@ -4,6 +4,7 @@ import assert from 'node:assert/strict';
 import {CARD_TEXT} from '../dist/design-lab/cardtext.mjs';
 import {SKILL_CARDS, makeSkillCard, describeSkillCard, CARD_SYSTEM} from '../dist/skill-cards.mjs';
 import {getCardRuleBands, getCardTrigger, CARD_TRIGGERS} from '../dist/card-rule-bands.mjs';
+import {triggerDisplay} from '../dist/card-trigger-labels.mjs';
 import {CARD_TERMS} from '../dist/card-terms.mjs';
 import {CARD_GUIDE_TOPICS} from '../dist/card-guide.mjs';
 import {getEquippedCardStatuses} from '../dist/card-status.mjs';
@@ -12,6 +13,9 @@ const BANNED = [/\bpass(?:es|’s|'s)?\b/i, /\bpayers?\b/i, /\breplay/i, /matchi
 const CHIP = {'Collect':'collect','Delivery':'delivery','Latch':'latch','Wave':'wave','Flash':'flash','Flash ends':'flash-ends','Falling Lift':'falling-lift',
   'Overfill':'overfill','Rhythm':'rhythm','Save':'save','Clear':'clear','Any Trigger':'any','Next card':'next','Always on':'always-on','At Rest':'rest'};
 // One word for the ring of light (designer, 2026-11-17): the design-lab data still says "Wave".
+// Trigger labels were simplified (dist/card-trigger-labels.mjs); the lab table keeps the old words.
+const HEAD = {'Latch':'When your Collector grabs a Spark','Flash ends':'When a Flash ends','Falling Lift':'Lift while falling','Rhythm':'Lift on the beat','Clear':'Finish','Any Trigger':'Boost','Next card':'Repeat','Always on':'Passive'};
+const chipLabel = t => triggerDisplay(CHIP[t]).label, headOf = (t, c) => t === 'Latch' && c === 'Cluster' ? 'When your Collector grabs a Cluster' : (HEAD[t] || t) + (c ? ` · ${c}` : '');
 const pulse = text => text && text.replace(/\b[Ww]aves?\b/g, word => word.endsWith('s') ? 'Pulses' : 'Pulse');
 const BOOST_TEXT = {'prism-lens':'Every card before it ×1.25','prism-lens-ii':'Every card before it ×3','crescendo':'Double every card before it',
   'closing-chord':'Every card before it ×2.5','second-sun':'Every card before it ×2, ×3 in an Encore'};
@@ -23,10 +27,10 @@ test('all 85 approved cards carry their Trigger chip as data and the approved pl
     const def = SKILL_CARDS[entry.id], card = describeSkillCard(makeSkillCard(entry.id, `text:${entry.id}`));
     assert.ok(def, entry.id);
     assert.equal(def.trigger, CHIP[entry.t], `${entry.id} trigger id`);
-    assert.deepEqual(getCardTrigger(def), {id: CHIP[entry.t], label: CARD_TRIGGERS[CHIP[entry.t]].label, condition: entry.c || ''}, entry.id);
-    assert.equal(card.trigger.label, pulse(entry.t), `${entry.id} described trigger`);
+    assert.deepEqual({id: getCardTrigger(def).id, label: getCardTrigger(def).label, condition: getCardTrigger(def).condition}, {id: CHIP[entry.t], label: chipLabel(entry.t), condition: entry.c || ''}, entry.id);
+    assert.equal(card.trigger.label, chipLabel(entry.t), `${entry.id} described trigger`);
     const bands = getCardRuleBands(card, def);
-    assert.equal(bands[0].type, 'condition');assert.equal(bands[0].text, entry.c ? `${pulse(entry.t)} · ${entry.c}` : pulse(entry.t), entry.id);
+    assert.equal(bands[0].type, 'condition');assert.equal(bands[0].text, headOf(pulse(entry.t), entry.c), entry.id);
     assert.equal(bands[0].trigger, CHIP[entry.t]);
     const what = bands.find(band => band.type === 'effect').text;
     assert.equal(what, BOOST_TEXT[entry.id] || pulse(entry.b || entry.x), `${entry.id} what line`);
@@ -52,7 +56,7 @@ test('no card face uses pass, payer, replay, matching event or the other dropped
 });
 
 test('glossary and Field Guide use Chain, Slots, Triggers and Encore, and drop the stale lines', () => {
-  for (const key of ['pass', 'slot', 'trigger', 'boost', 'encore', 'always-on', 'any-trigger', 'collect', 'delivery', 'latch', 'overfill', 'falling-lift', 'flash-ends', 'save', 'clear'])
+  for (const key of ['pass', 'slot', 'trigger', 'boost', 'encore', 'always-on', 'next', 'collect', 'delivery', 'overfill', 'falling-lift', 'save', 'clear'])
     assert.ok(CARD_TERMS[key], key);
   assert.equal(CARD_TERMS.pass[0], 'Chain');
   for (const [title, text] of Object.values(CARD_TERMS)) for (const word of [/\bpass(?:es)?\b/i, /\bpayers?\b/i, /\breplay/i, /matching event/i])

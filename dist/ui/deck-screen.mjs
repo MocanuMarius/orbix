@@ -17,6 +17,7 @@ import {resolveChain, slotInfo, hereLine, plateWords, whenOf, markOf, TRIGGER_BY
   chipOf, triggerBook, enginePlate, holeTally} from './chain-model.mjs?v=guide-clarity-1';
 import {triggerIcon, pixelArt, CHEVRON, gem, EYE, WARN, PLUS, NEXT, FIRE, medalUrl, frameVars, chipBadge, chipIcon, rarityPips} from './trigger-icons.mjs?v=guide-clarity-1';
 import {CARD_TRIGGERS} from '../card-rule-bands.mjs?v=guide-clarity-1';
+import {triggerLabel, triggerTermKey} from '../card-trigger-labels.mjs';
 import {CARD_TERMS} from '../card-terms.mjs?v=guide-clarity-1';
 import {SKILL_CARDS} from '../skill-cards.mjs?v=guide-clarity-1';
 import {isDevourCard} from '../card-black-hole.mjs?v=guide-clarity-1';
@@ -62,9 +63,11 @@ function termBtn(kind, {icon = true, cls = '', glossary = true} = {}) {
   return `<button type="button" class="dk2-btn dk22-term ${cls}" data-term="${esc(kind)}" ${help}>${icon ? triggerIcon(kind, 16) : ''}<span class="dk22-word">${esc(triggerName(kind))}</span></button>`;
 }
 /** A Trigger chip as a glossary keyword (chips that are not a flight event too: Card Pulse, Pack, Always on...). */
-const chipTerm = id => id === 'any' ? 'any-trigger' : id;
+
+/** The spoken chip: "Trigger: Collect. ", "Role: Boost. ", or nothing when the card shows no chip. */
+const chipWord = chip => chip?.label ? `${chip.kind === 'role' ? 'Role' : 'Trigger'}: ${chip.label}. ` : '';
 function chipTermBtn(id, {icon = true, cls = '', size = 16} = {}) {
-  const label = CARD_TRIGGERS[id]?.label || id, term = chipTerm(id);
+  const label = triggerLabel(id, CARD_TRIGGERS[id]?.label || id), term = triggerTermKey(id);
   const help = CARD_TERMS[term] ? `data-card-term="${esc(term)}" aria-haspopup="dialog" aria-label="${esc(label)}: what it means"` : `aria-label="${esc(label)}"`;
   return `<button type="button" class="dk2-btn dk22-term ${cls}" data-chip="${esc(id)}" ${help}>${icon ? chipIcon(id, size) : ''}<span class="dk22-word">${esc(label)}</span></button>`;
 }
@@ -119,7 +122,7 @@ function stationsHTML(d, view, opts) {
     const special = meal ? {cls: 'dk-plate-wine', long: 'Eaten at take-off', short: 'Eaten'} : hole ? (holeMeal ? {cls: 'dk-plate-hole', long: 'Eats the next card', short: 'Eats next'} : {cls: 'dk-plate-hole', long: 'Nothing to eat', short: 'Nothing'}) : eng ? {cls: 'dk-plate-eng', ...eng} : null;
     const words = special ? special.long : plateWords(info);
     const label = placing ? `Put ${nameOf(placing)} in slot ${i + 1}. ${nameOf(c)} goes back to the Deck`
-      : `Slot ${i + 1}: ${nameOf(c)}, ${RARITY_WORD[rarityOf(c)]}. Trigger: ${chipOf(c).label}. ${special ? words : `On ${triggerName(chain.trigger)}: ${words}`}.${availability.state !== 'active' && availability.reason ? ` ${availability.reason}` : ''}${editable ? ' Drag to trade slots, or open it' : ' Open it to read'}`;
+      : `Slot ${i + 1}: ${nameOf(c)}, ${RARITY_WORD[rarityOf(c)]}. ${chipWord(chipOf(c))}${special ? words : `On ${triggerName(chain.trigger)}: ${words}`}.${availability.state !== 'active' && availability.reason ? ` ${availability.reason}` : ''}${editable ? ' Drag to trade slots, or open it' : ' Open it to read'}`;
     const face = cardFace(printed[i], {compact: true, ...(availability.state !== 'active' ? {availability} : {})});
     const timer = opts.engineView && (i === opts.engineView.from) ? dialHTML(c, chain.row) : '';
     const plate = special ? `<span class="dk2-plate dk21-plate dk2-plate-word ${special.cls}" aria-hidden="true"><b class="pl-long">${esc(special.long)}</b><b class="pl-short">${esc(special.short)}</b></span>`
@@ -207,7 +210,7 @@ function tileHTML(d, view, c) {
   const r = rarityOf(c), mark = markOf(c), at = d.slotOf(c), rest = isRest(c), u = usesOf(c), chip = chipOf(c);
   const tally = isDevourCard(c) ? holeTally(c) : null;
   const effect = tally?.eaten ? `Devoured ${tally.eaten} · ${SKILL_CARDS[c.cardId]?.kind === 'dream' ? `Dream ${8 + tally.growth} s` : `+${tally.growth} max Sparks`}` : cardTileLine(c);
-  let label = `${nameOf(c)}. ${RARITY_WORD[r]}. Trigger: ${chip.label}. ${effect}.${at >= 0 ? ` In your chain, slot ${at + 1}.` : rest ? ' Rest card.' : ' Not in your chain.'}${u ? ` Uses ${u.now} of ${u.max}.` : ''}`;
+  let label = `${nameOf(c)}. ${RARITY_WORD[r]}. ${chipWord(chip)}${effect}.${at >= 0 ? ` In your chain, slot ${at + 1}.` : rest ? ' Rest card.' : ' Not in your chain.'}${u ? ` Uses ${u.now} of ${u.max}.` : ''}`;
   let cls = '', sub = '', disabled = false;
   if (view.pick !== null) {
     const p = view.pick, here = d.row[p];
@@ -290,7 +293,7 @@ function readerHTML(d, view, opts) {
     <div class="dk2-info">
      <h2 class="dk-sr" id="dk2-read-name">${esc(nameOf(c))}</h2>
      <p class="dk2-rar dc-r-${r}">${gem(r)}<span>${RARITY_WORD[r]}</span></p>
-     <p class="dk21-on"><small>Trigger</small>${chipTermBtn(chipOf(c).id)}</p>
+     ${chipOf(c).label ? `<p class="dk21-on"><small>${chipOf(c).kind === 'role' ? 'Role' : 'Trigger'}</small>${chipTermBtn(chipOf(c).id)}</p>` : ''}
      <p class="dk2-here${idle ? ' dk2-here-idle' : ''}">${idle ? `<i class="dk2-warn">${WARN}</i>` : ''}<span>${esc(hereLine(d.chain, c))}</span></p>
      ${acts}
      <button type="button" class="wb-sign wb-sign-quiet dk2-close" id="dk2-close" aria-label="Close ${esc(nameOf(c))}"><span class="wb-sign-text"><b>Close</b></span></button>

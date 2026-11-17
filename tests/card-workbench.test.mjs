@@ -139,8 +139,8 @@ test('only a card-pilot meter has two quiet overfill ticks', () => {
 test('playing-card faces print complete rules with contextual term controls and clipped atlas art', () => {
   const body = describeSkillCard(makeSkillCard('spark-cache', 'portrait:body'));
   const face = cardFace(body), plain = markup => markup.replace(/<[^>]+>/g, '').replace(/\s+/g, ' ');
-  assert.match(face, /viewBox="313 0 313 313"/);
-  assert.match(face, /assets\/cards\/skill-card-scenes-rare\.webp/);
+  assert.match(face, /data-card-art="spark-cache"[^>]*viewBox="0 0 48 48"/);
+  assert.match(face, /data-card-picture="1"/);
   assert.match(face, /card-rule-band/);
   // Approved plain wording (v1.0-cardtext): Trigger chip, one short line, a small uses tag.
   assert.match(plain(face), /Collect/);
@@ -161,11 +161,11 @@ test('playing-card faces print complete rules with contextual term controls and 
   assert.match(mechanics, /<summary>Details<\/summary>/);
   const swipe = cardMechanicMarkup(describeSkillCard(makeSkillCard('field-impulse', 'portrait:swipe')));
   const echo = cardMechanicMarkup(describeSkillCard(makeSkillCard('echo', 'portrait:echo')));
-  assert.match(plain(swipe), /Always on · Collector home, ¼ charge/);
+  assert.match(plain(swipe), /Passive · Collector home, ¼ charge/);
   assert.match(plain(swipe), /Swipe: float, dive or speed up, 0\.8 s/);
   assert.match(swipe, /data-card-term="collector"/);
   assert.match(swipe, /data-card-term="ring"/);
-  assert.match(plain(echo), /Next card/);assert.match(plain(echo), /Repeats the next card/);
+  assert.match(plain(echo), /Repeat/);assert.match(plain(echo), /Repeats the next card/);
   assert.match(echo, /data-card-term="copy"/);
   assert.match(echo, /data-card-terms|data-card-term="next"/);
 });
@@ -184,7 +184,7 @@ test('body rewards stay together and scale with rank; only concrete terms use in
   }
   const legendary = cardMechanicMarkup(describeSkillCard(makeSkillCard('harvest-legendary', 'paired')));
   assert.deepEqual([...legendary.matchAll(/data-rule-type="([^"]+)"/g)].map(match=>match[1]), ['condition','effect']);
-  assert.match(cardMechanicMarkup(describeSkillCard(makeSkillCard('deep-vessel', 'passive'))).replace(/<[^>]+>/g,''), /Always on/);
+  assert.match(cardMechanicMarkup(describeSkillCard(makeSkillCard('deep-vessel', 'passive'))).replace(/<[^>]+>/g,''), /Passive/);
   const terms = readFileSync(new URL('../dist/card-terms.mjs', import.meta.url), 'utf8');
   assert.match(terms, /collector-tether\/reel-front\.png/);
   assert.match(terms, /collector-tether\/reel\.mp4/);

@@ -15,15 +15,15 @@ const eventNames={
   [CARD_ROW_EVENTS.body]:'Collect · your wisp touches a Spark',
   [CARD_ROW_EVENTS.wave]:'Pulse · a Pulse crosses a Spark you have not collected',
   [CARD_ROW_EVENTS.flash]:'Flash · you or Collector pick up Flash',
-  [CARD_ROW_EVENTS.flashExpiry]:'Flash ends · a Flash’s light runs out',
-  [CARD_ROW_EVENTS.lift]:'Falling Lift · a paid Lift while falling, at least 0.75 s after your last Lift',
+  [CARD_ROW_EVENTS.flashExpiry]:'Flash · a Flash’s light runs out',
+  [CARD_ROW_EVENTS.lift]:'Lift · a paid Lift while falling, at least 0.75 s after your last Lift',
   [CARD_ROW_EVENTS.overfill]:'Overfill · a Spark brings more than your meter can hold',
   [CARD_ROW_EVENTS.delivery]:'Delivery · Collector brings you a pickup',
-  [CARD_ROW_EVENTS.rhythm]:'Rhythm · 3 even Lifts complete',
+  [CARD_ROW_EVENTS.rhythm]:'Lift · 3 even Lifts on the beat complete',
   [CARD_ROW_EVENTS.guard]:'Save · Collector stops a fatal crash',
-  [CARD_ROW_EVENTS.clear]:'Clear · you clear a flight',
+  [CARD_ROW_EVENTS.clear]:'Finish · you clear a flight',
   [CARD_ROW_EVENTS.victory]:'You defeat the third guardian',
-  [CARD_ROW_EVENTS.attach]:'Latch · Collector grabs a missed pickup',
+  [CARD_ROW_EVENTS.attach]:'Delivery · Collector grabs a Spark',
 };
 const stepResult=steps=>{
   const sum=key=>number(steps.reduce((total,step)=>total+(step[key]||0),0)),parts=[];
