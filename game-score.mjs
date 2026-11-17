@@ -1,4 +1,4 @@
-import {GAME_VERSION} from './build-version.mjs?v=card-rules-1';
+import {GAME_VERSION} from './build-version.mjs?v=chain-deck-1';
 
 // This book is deliberately separate from the replaceable campaign save.
 export const SCORE_BOOK_KEY='wispbound-scorebook-v1';

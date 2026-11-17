@@ -1,16 +1,16 @@
 /** Three stills from an isolated flight: the same natural Cache, three events. */
-import {WispFlight} from './flight.mjs?v=card-rules-1';
-import {cardAmount, getCardModifiers, makeSkillCard, SKILL_CARDS} from './skill-cards.mjs?v=card-rules-1';
-import {getPickupSpec, pickupKind} from './pickups.mjs?v=card-rules-1';
-import {glowPoints} from './vitality.mjs?v=card-rules-1';
-import {wispHome} from './wisp.mjs?v=card-rules-1';
+import {WispFlight} from './flight.mjs?v=chain-deck-1';
+import {cardAmount, getCardModifiers, makeSkillCard, SKILL_CARDS} from './skill-cards.mjs?v=chain-deck-1';
+import {getPickupSpec, pickupKind} from './pickups.mjs?v=chain-deck-1';
+import {glowPoints} from './vitality.mjs?v=chain-deck-1';
+import {wispHome} from './wisp.mjs?v=chain-deck-1';
 
 const esc = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const views = ['touch','deliver','cross'];
 const captions = {
   touch: ['Touch', 'Your wisp touches the Cache.', '+18 Sparks', 'Cache absorbed'],
   deliver: ['Deliver', 'Collector reels it to your wisp.', '+12 Sparks on arrival', 'Needs Cache Handling'],
-  cross: ['Cross', 'A wave passes over the Cache.', '', 'Cache remains'],
+  cross: ['Cross', 'A Pulse passes over the Cache.', '', 'Cache remains'],
 };
 
 function exampleCard(card) {
@@ -22,7 +22,7 @@ function exampleCard(card) {
 function loadStyles(doc) {
   if(doc.querySelector('link[data-cache-help-styles]'))return;
   const link=doc.createElement('link');
-  link.rel='stylesheet';link.href=new URL('./cache-card-help.css?v=card-rules-1',import.meta.url).href;
+  link.rel='stylesheet';link.href=new URL('./cache-card-help.css?v=chain-deck-1',import.meta.url).href;
   link.dataset.cacheHelpStyles='';doc.head.append(link);
 }
 
@@ -43,7 +43,7 @@ function still(doc, engine, packet, event) {
   output.setAttribute('aria-label',{
     touch:'Actual flight: the large white wisp meets the dense white Cache.',
     deliver:'Actual flight: the small green Collector reels the intact Cache behind the larger white wisp.',
-    cross:'Actual flight: a pale wave crosses the uncollected Cache, which stays in the passage.',
+    cross:'Actual flight: a pale Pulse crosses the uncollected Cache, which stays in the passage.',
   }[event]);
   return output;
 }

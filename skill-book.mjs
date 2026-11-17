@@ -1,14 +1,14 @@
-import {SKILLS,getRunModifiers} from './model.mjs?v=card-rules-1';
-import {collectorPreferenceMarkup} from './collector-preferences.mjs?v=card-rules-1';
-import {formatLuminance} from './luminance-units.mjs?v=card-rules-1';
-import {WISP_ART} from './companion-art.mjs?v=card-rules-1';
-import {skillTreeState,skillTreeStatus} from './skill-tree-state.mjs?v=card-rules-1';
-import {getCompanionAbility} from './companion-abilities.mjs?v=card-rules-1';
-import {skillIcon} from './upgrade-icons.mjs?v=card-rules-1';
-import {resourceSymbol} from './game-symbols.mjs?v=card-rules-1';
-import {glowText,getGlowCapacity} from './vitality.mjs?v=card-rules-1';
-import {skillBookChapter} from './skill-chapters.mjs?v=card-rules-1';
-export {skillBookChapter} from './skill-chapters.mjs?v=card-rules-1';
+import {SKILLS,getRunModifiers} from './model.mjs?v=chain-deck-1';
+import {collectorPreferenceMarkup} from './collector-preferences.mjs?v=chain-deck-1';
+import {formatLuminance} from './luminance-units.mjs?v=chain-deck-1';
+import {WISP_ART} from './companion-art.mjs?v=chain-deck-1';
+import {skillTreeState,skillTreeStatus} from './skill-tree-state.mjs?v=chain-deck-1';
+import {getCompanionAbility} from './companion-abilities.mjs?v=chain-deck-1';
+import {skillIcon} from './upgrade-icons.mjs?v=chain-deck-1';
+import {resourceSymbol} from './game-symbols.mjs?v=chain-deck-1';
+import {glowText,getGlowCapacity} from './vitality.mjs?v=chain-deck-1';
+import {skillBookChapter} from './skill-chapters.mjs?v=chain-deck-1';
+export {skillBookChapter} from './skill-chapters.mjs?v=chain-deck-1';
 
 const chapters=[
  ['wisp','Flight','main-efficiency'],['luminance','Luminance','main-sight'],

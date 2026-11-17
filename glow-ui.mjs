@@ -1,6 +1,6 @@
-import {getGlowCapacity,GLOW_DISPLAY_SCALE} from './vitality.mjs?v=card-rules-1';
-import {resourceSymbol} from './game-symbols.mjs?v=card-rules-1';
-import {sparkSymbolArt} from './spark-symbol.mjs?v=card-rules-1';
+import {getGlowCapacity,GLOW_DISPLAY_SCALE} from './vitality.mjs?v=chain-deck-1';
+import {resourceSymbol} from './game-symbols.mjs?v=chain-deck-1';
+import {sparkSymbolArt} from './spark-symbol.mjs?v=chain-deck-1';
 const clamp=v=>Math.max(0,Math.min(1,v));
 // A cell represents one paid Lift, even during a temporary free-Lift effect.
 export function glowGaugeUnits(flame,maximum=100,liftCost=10){
@@ -144,7 +144,7 @@ function updatePacking(gauge,s) {
 export function updateGlowGauge(gauge,s){
  if(!gauge)return;
  const overfill=Math.max(0,Math.min(2,Number(s.overfillWave?.charge)||0));
- if(gauge._overfill!==overfill){gauge._overfill=overfill;const ticks=gauge.querySelector('.spark-overfill-ticks');if(ticks){ticks.dataset.charge=String(overfill);ticks.title=`${overfill} of 3 overfills toward a Luminance wave`;}}
+ if(gauge._overfill!==overfill){gauge._overfill=overfill;const ticks=gauge.querySelector('.spark-overfill-ticks');if(ticks){ticks.dataset.charge=String(overfill);ticks.title=`${overfill} of 3 overfills toward a Pulse`;}}
  const draining=(s.blackHole?.rate||0)>0;if(gauge._draining!==draining){gauge._draining=draining;gauge.classList.toggle('black-hole-drain',draining);}
  const refs=gauge._glowRefs||(gauge._glowRefs={fill:gauge.querySelector('#flame-fill'),meter:gauge.querySelector('#flame-meter')});
  const state=glowGaugeUnits(s.flame,s.maxFlame,s.paidFlapCost||s.flapCost||10),ratio=clamp((Number(s.flame)||0)/(s.maxFlame||100));

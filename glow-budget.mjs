@@ -1,5 +1,5 @@
-import {getPickupSpec,pickupKind,pickupContactRadius} from './pickups.mjs?v=card-rules-1';
-import {sparkBodyRadius} from './spark-size.mjs?v=card-rules-1';
+import {getPickupSpec,pickupKind,pickupContactRadius} from './pickups.mjs?v=chain-deck-1';
+import {sparkBodyRadius} from './spark-size.mjs?v=chain-deck-1';
 
 // Roof-heavy courses used to lose half their fuel to floor-cache placement.
 // A duration floor repairs that disparity with richer lights before adding

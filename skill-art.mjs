@@ -1,6 +1,6 @@
-import {sparkImageArt,sparkSymbolArt} from './spark-symbol.mjs?v=card-rules-1';
-import {condensedIconMarkup} from './afterglow-ui.mjs?v=card-rules-1';
-import {fineTreasureObject} from './fine-treasure-art.mjs?v=card-rules-1';
+import {sparkImageArt,sparkSymbolArt} from './spark-symbol.mjs?v=chain-deck-1';
+import {condensedIconMarkup} from './afterglow-ui.mjs?v=chain-deck-1';
+import {fineTreasureObject} from './fine-treasure-art.mjs?v=chain-deck-1';
 
 // Three material tones sit above a shared dark contour. Keep light and shadow
 // readable at the tree's smallest size, even with all motion switched off.

@@ -1,18 +1,18 @@
-import {getBiome} from './biomes.mjs?v=card-rules-1';
-import {getBossPreview} from './boss.mjs?v=card-rules-1';
-import {levelMapPreview} from './level-map-art.mjs?v=card-rules-1';
-import {mapStopIconMarkup} from './map-guide.mjs?v=card-rules-1';
-import {resourceSymbol} from './game-symbols.mjs?v=card-rules-1';
-import {getFlightClearReward} from './checkpoint-rewards.mjs?v=card-rules-1';
-import {availableFlightArtifacts,isCardRun} from './model.mjs?v=card-rules-1';
-import {bonusIcon,boonMarkup} from './route-bonus-ui.mjs?v=card-rules-1';
-import {contextualFlightNotice} from './contextual-events.mjs?v=card-rules-1';
-import {ATLAS_FORECASTS,atlasGlyph} from './night-atlas.mjs?v=card-rules-1';
-import {canDreamAt,dreamConfig} from './dream.mjs?v=card-rules-1';
-import {sparkHabitat} from './spark-fields.mjs?v=card-rules-1';
-import {lanternFlightCue} from './map-theme.mjs?v=card-rules-1';
-import {actionButton} from './ui/primitives.mjs?v=card-rules-1';
-import {cardTermTextMarkup} from './card-terms.mjs?v=card-rules-1';
+import {getBiome} from './biomes.mjs?v=chain-deck-1';
+import {getBossPreview} from './boss.mjs?v=chain-deck-1';
+import {levelMapPreview} from './level-map-art.mjs?v=chain-deck-1';
+import {mapStopIconMarkup} from './map-guide.mjs?v=chain-deck-1';
+import {resourceSymbol} from './game-symbols.mjs?v=chain-deck-1';
+import {getFlightClearReward} from './checkpoint-rewards.mjs?v=chain-deck-1';
+import {availableFlightArtifacts,isCardRun} from './model.mjs?v=chain-deck-1';
+import {bonusIcon,boonMarkup} from './route-bonus-ui.mjs?v=chain-deck-1';
+import {contextualFlightNotice} from './contextual-events.mjs?v=chain-deck-1';
+import {ATLAS_FORECASTS,atlasGlyph} from './night-atlas.mjs?v=chain-deck-1';
+import {canDreamAt,dreamConfig} from './dream.mjs?v=chain-deck-1';
+import {sparkHabitat} from './spark-fields.mjs?v=chain-deck-1';
+import {lanternFlightCue} from './map-theme.mjs?v=chain-deck-1';
+import {actionButton} from './ui/primitives.mjs?v=chain-deck-1';
+import {cardTermTextMarkup} from './card-terms.mjs?v=chain-deck-1';
 
 export const TRAVEL_GUIDE_ART=Object.freeze(['waystone','rootwood','night-atlas']);
 /** One stepped sign, mirrored for the return journey. */

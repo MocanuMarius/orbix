@@ -1,12 +1,12 @@
-import {ARTIFACTS,SKILLS,SKILL_CARDS} from './model.mjs?v=card-rules-1';
-import {cardFace} from './card-ui.mjs?v=card-rules-1';
-import {cardTermMarkup,cardTermTextMarkup} from './card-terms.mjs?v=card-rules-1';
-import {artifactDescriptionMarkup} from './artifact-copy.mjs?v=card-rules-1';
-import {artifactIcon} from './upgrade-icons.mjs?v=card-rules-1';
-import {EVENT_SCENARIOS,mapStopIconMarkup} from './map-guide.mjs?v=card-rules-1';
-import {FLIGHT_PACTS} from './flight-pacts.mjs?v=card-rules-1';
-import {ROUTE_BONUSES} from './route-bonuses.mjs?v=card-rules-1';
-import {describeTreasure} from './treasure.mjs?v=card-rules-1';
+import {ARTIFACTS,SKILLS,SKILL_CARDS} from './model.mjs?v=chain-deck-1';
+import {cardFace} from './card-ui.mjs?v=chain-deck-1';
+import {cardTermMarkup,cardTermTextMarkup} from './card-terms.mjs?v=chain-deck-1';
+import {artifactDescriptionMarkup} from './artifact-copy.mjs?v=chain-deck-1';
+import {artifactIcon} from './upgrade-icons.mjs?v=chain-deck-1';
+import {EVENT_SCENARIOS,mapStopIconMarkup} from './map-guide.mjs?v=chain-deck-1';
+import {FLIGHT_PACTS} from './flight-pacts.mjs?v=chain-deck-1';
+import {ROUTE_BONUSES} from './route-bonuses.mjs?v=chain-deck-1';
+import {describeTreasure} from './treasure.mjs?v=chain-deck-1';
 
 const esc=value=>String(value??'').replace(/[&<>"']/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
 const paragraph=text=>text?`<p>${cardTermTextMarkup(text)}</p>`:'';

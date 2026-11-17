@@ -46,7 +46,7 @@ export class CardRhythm {
       e.burst?.(e.player.x,e.player.y,9,'#d9f6ce');
       e.sound?.('luminance',{strength:.65});
       e.activation?.('card-rhythm',{outcome:{wave:1}});
-      e.setEvent?.('Rhythm · Luminance wave');
+      e.setEvent?.('Rhythm · Pulse');
       return true;
     }
     this.advance(now);

@@ -1,2 +1,2 @@
 // Public scenery entry point. Plates are prepared once per course.
-export {createNearLandscape,drawNearLandscapePlates} from './habitat-compositions.mjs?v=card-rules-1';
+export {createNearLandscape,drawNearLandscapePlates} from './habitat-compositions.mjs?v=chain-deck-1';

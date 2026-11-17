@@ -1,9 +1,9 @@
-import { cardTermTextMarkup } from "./card-terms.mjs?v=card-rules-1";
-import { getCardRuleBands } from "./card-rule-bands.mjs?v=card-rules-1";
-import { getEquippedCardStatuses, cardStatusText } from "./card-status.mjs?v=card-rules-1";
-import { activeFlightPact } from './flight-pacts.mjs?v=card-rules-1';
-import { cardArt } from "./card-art.mjs?v=card-rules-1";
-import {deckRelicShelfMarkup,deckContextMarkup,deckLinkedCardFace,deckSwapComboMarkup,deckCardExplanationMarkup} from './deck-combos.mjs?v=card-rules-1';
+import { cardTermTextMarkup } from "./card-terms.mjs?v=chain-deck-1";
+import { getCardRuleBands } from "./card-rule-bands.mjs?v=chain-deck-1";
+import { getEquippedCardStatuses, cardStatusText } from "./card-status.mjs?v=chain-deck-1";
+import { activeFlightPact } from './flight-pacts.mjs?v=chain-deck-1';
+import { cardArt } from "./card-art.mjs?v=chain-deck-1";
+import {deckRelicShelfMarkup,deckContextMarkup,deckLinkedCardFace,deckSwapComboMarkup,deckCardExplanationMarkup} from './deck-combos.mjs?v=chain-deck-1';
 import {
   getMountedCards,
   getOwnedCards,
@@ -18,13 +18,13 @@ import {
   canUseCardCampServices,
   getSkillWallet,
   equipOwnedCard,
-} from "./model.mjs?v=card-rules-1";
-import { resourceSymbol } from "./game-symbols.mjs?v=card-rules-1";
-import { choiceScene } from "./choice-art.mjs?v=card-rules-1";
-import { livesMarkup } from "./lives.mjs?v=card-rules-1";
-import { getGlowCapacity, formatGlow } from "./vitality.mjs?v=card-rules-1";
-import { mapStopIconMarkup } from "./map-guide.mjs?v=card-rules-1";
-import {canDreamAt} from './dream.mjs?v=card-rules-1';
+} from "./model.mjs?v=chain-deck-1";
+import { resourceSymbol } from "./game-symbols.mjs?v=chain-deck-1";
+import { choiceScene } from "./choice-art.mjs?v=chain-deck-1";
+import { livesMarkup } from "./lives.mjs?v=chain-deck-1";
+import { getGlowCapacity, formatGlow } from "./vitality.mjs?v=chain-deck-1";
+import { mapStopIconMarkup } from "./map-guide.mjs?v=chain-deck-1";
+import {canDreamAt} from './dream.mjs?v=chain-deck-1';
 import {
   getEffectiveCardSources,
   createCardExecution,
@@ -36,7 +36,7 @@ import {
   getCardFeederCapacity,
   isInventoryOnlyCard,
   SKILL_CARDS,
-} from "./skill-cards.mjs?v=card-rules-1";
+} from "./skill-cards.mjs?v=chain-deck-1";
 
 const esc = (v) =>
   String(v ?? "").replace(
@@ -85,7 +85,7 @@ function flightPackingReceipt(run, reward) {
     ? ` · Tight Packing +${bonus} Stored Sparks`
     : "";
 }
-export { cardArt } from "./card-art.mjs?v=card-rules-1";
+export { cardArt } from "./card-art.mjs?v=chain-deck-1";
 export function effectMarkup(text) {
   return esc(text).replace(/([+−]?\d+(?:\.\d+)?%?)/g, '<b class="card-number">$1</b>');
 }
@@ -104,8 +104,8 @@ const fittedRuleText = text => text
   .replace(/^Shorten the remaining reel by up to (\d+)s\.?$/, 'Reel up to $1 s shorter')
   .replace(/^An amber chevron shows when your current fall makes a Lift rise back to its starting height\.?$/, 'Lift timing from your current fall')
   .replace(/^When your wisp absorbs a (?:passage )?Spark\.?$/, 'Touch a Spark')
-  .replace(/^When a wave crosses an uncollected Spark\.?$/, 'Wave crosses a Spark')
-  .replace(/^First crossing of each wave\.?$/, 'Once per wave')
+  .replace(/^When a wave crosses an uncollected Spark\.?$/, 'Pulse crosses a Spark')
+  .replace(/^First crossing of each wave\.?$/, 'Once per Pulse')
   .replace(/^While missing a heart, absorb 3 passage Sparks directly in one flight\.?$/, 'Missing a heart: touch 3 Sparks this flight')
   .replace(/^Start or resume flight with Collector\.?$/, 'Enter flight with Collector')
   .replace(/^Unlock a second Collector for this expedition, even after unequipping\.?$/, 'Unlock a second Collector this expedition, even unequipped')
@@ -118,7 +118,7 @@ const fittedRuleText = text => text
 // button and linked Help carry repeated use accounting and longer exceptions.
 const conciseRuleText = text => text
   .replace(/^Once per flight, with Collector beside you at full charge$/, 'Collector beside you at full charge')
-  .replace(/^Catch a fatal impact and send one wave\.$/, 'Once per flight: block a fatal hit and send a wave.')
+  .replace(/^Catch a fatal impact and send one wave\.$/, 'Once per flight: block a fatal hit and send a Pulse.')
   .replace(/^Collector then needs 4 recovery cycles before fetching again\.$/, 'Then recover for 4 cycles before fetching.')
   .replace(/^Paid Lift while falling, at least 0.75s after the last Lift$/, 'Paid falling Lift · at least 0.75s apart')
   .replace(/^An amber chevron shows when your current fall makes a Lift rise back to its starting height\.?$/, 'Amber chevron shows when a Lift can recover your height.')
@@ -134,7 +134,7 @@ const conciseRuleText = text => text
   .replace(/^\d+ (?:shared )?uses\. Checks before the pickup refills it\.?$/, 'Checks before the pickup refills it.')
   .replace(/^3 shared Grow actions per journey\. Owned Seeds add together, up to \+90\.?$/, '3 shared Grow actions per Game. Seeds add together, up to +90.')
   .replace(/^1 use\. Maximum 2 Collectors\. Keeps its use while Twin Orbit already provides the second\.?$/, '2 Collectors maximum. Keeps its use if Twin Orbit supplies the second.')
-  .replace(/^3 uses\. Copies share uses and keep one final wave\.?$/, 'Copies share uses and keep one final wave.')
+  .replace(/^3 uses\. Copies share uses and keep one final wave\.?$/, 'Copies share uses and keep one final Pulse.')
   .replace(/^2 successful uses\. Collector deliveries do not count\.?$/, 'Collector deliveries do not count.');
 const redundantFaceNote = (text, card) => Number.isFinite(card.charges) && /^\d+ (?:shared )?uses\. Spend 1 (?:per successful action|only when time is saved|only when this adds Sparks)\.?$/.test(text)
   || /^This bonus cannot earn packing bonuses\.?$/.test(text);

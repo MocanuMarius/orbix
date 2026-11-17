@@ -1,7 +1,7 @@
-import {artifactRarityLabel} from '../replay-ui.mjs?v=card-rules-1';
-import {artifactLimitSummary,effectMarkup} from '../artifact-copy.mjs?v=card-rules-1';
-import {artifactIcon} from '../upgrade-icons.mjs?v=card-rules-1';
-import {escapeHtml as esc,actionButton} from './primitives.mjs?v=card-rules-1';
+import {artifactRarityLabel} from '../replay-ui.mjs?v=chain-deck-1';
+import {artifactLimitSummary,effectMarkup} from '../artifact-copy.mjs?v=chain-deck-1';
+import {artifactIcon} from '../upgrade-icons.mjs?v=chain-deck-1';
+import {escapeHtml as esc,actionButton} from './primitives.mjs?v=chain-deck-1';
 
 // Two layout recipes share the same identity and rule decisions. Existing
 // production classes remain the styling API while the surfaces migrate here.

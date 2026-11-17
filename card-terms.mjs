@@ -1,13 +1,13 @@
 /** Contextual card vocabulary. Native modal dialogs keep help above the Deck. */
-import { resourceSymbol } from './game-symbols.mjs?v=card-rules-1';
-import {lifeHeartSvg} from './lives.mjs?v=card-rules-1';
-import {duskGlyphArt} from './spark-symbol.mjs?v=card-rules-1';
-import {getGlowCapacity,formatGlow} from './vitality.mjs?v=card-rules-1';
-import {glowGaugeUnits} from './glow-ui.mjs?v=card-rules-1';
-import {getRunModifiers} from './model.mjs?v=card-rules-1';
-import {cardAmount,makeSkillCard,SKILL_CARDS} from './skill-cards.mjs?v=card-rules-1';
-import {cardRowTermHelpMarkup} from './card-row-help.mjs?v=card-rules-1';
-import {dreamEye} from './dream.mjs?v=card-rules-1';
+import { resourceSymbol } from './game-symbols.mjs?v=chain-deck-1';
+import {lifeHeartSvg} from './lives.mjs?v=chain-deck-1';
+import {duskGlyphArt} from './spark-symbol.mjs?v=chain-deck-1';
+import {getGlowCapacity,formatGlow} from './vitality.mjs?v=chain-deck-1';
+import {glowGaugeUnits} from './glow-ui.mjs?v=chain-deck-1';
+import {getRunModifiers} from './model.mjs?v=chain-deck-1';
+import {cardAmount,makeSkillCard,SKILL_CARDS} from './skill-cards.mjs?v=chain-deck-1';
+import {cardRowTermHelpMarkup} from './card-row-help.mjs?v=chain-deck-1';
+import {dreamEye} from './dream.mjs?v=chain-deck-1';
 const esc = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 export const CARD_TERMS = Object.freeze({
   round: ['Round', 'One flight through a passage, ending in clear rewards or a lost heart.'],
@@ -55,6 +55,7 @@ export const CARD_TERMS = Object.freeze({
   'flash-ends': ['Flash ends', 'Trigger: a Flash’s light runs out.'],
   save: ['Save', 'Trigger: Watchlight or Last Orbit stops a fatal crash.'],
   clear: ['Clear', 'Trigger: you clear a flight.'],
+  swipe: ['Swipe', 'Trigger: a Field Impulse swipe succeeds.'],
 });
 
 const CARD_TERM_DETAILS = Object.freeze({
@@ -272,7 +273,7 @@ const relatedTerms = Object.freeze({
   copy:['next','uses','shared'], grow:['rest','game','meter'], heart:['round','watchlight'], pass:['trigger','slot','boost','encore','copy'],
   trigger:['collect','wave','delivery','any-trigger','pass'], boost:['pass','always-on','slot'], encore:['pass','uses'], slot:['pass','next'],
   'always-on':['boost','pass'], 'any-trigger':['trigger','pass'], collect:['trigger','spark','wisp'], delivery:['trigger','collector'], latch:['trigger','collector'],
-  overfill:['trigger','meter','stored'], 'falling-lift':['trigger','lift'], 'flash-ends':['trigger','flash'], save:['trigger','watchlight'], clear:['trigger','round'],
+  overfill:['trigger','meter','stored'], 'falling-lift':['trigger','lift'], 'flash-ends':['trigger','flash'], save:['trigger','watchlight'], clear:['trigger','round'], swipe:['trigger','impulse'],
 });
 function termDetailsMarkup(key) {
   const details=CARD_TERM_DETAILS[key], related=relatedTerms[key] || [];
@@ -328,7 +329,7 @@ export function installCardTermHelp(doc = document, {resolveProximityContext,res
     const heading = `card-glossary-heading-${++serial}`, dialog = doc.createElement('dialog');
     dialog.className = 'card-term-dialog card-glossary-dialog';
     dialog.setAttribute('aria-labelledby',heading);
-    const groups = [['Journey',['round','map','game']],['Flying & fuel',['wisp','spark','meter','dusk','cluster','heart','lift','luminance','wave','rhythm','proximity','packing','packing-efficiency','stored']],['Collector',['collector','ring','impulse','flash','cache','watchlight']],['Your cards',['pass','slot','trigger','boost','encore','always-on','any-trigger','next','copy','uses','shared','rest','grow']],['Triggers',['collect','delivery','latch','wave','flash','flash-ends','falling-lift','overfill','rhythm','save','clear']]];
+    const groups = [['Journey',['round','map','game']],['Flying & fuel',['wisp','spark','meter','dusk','cluster','heart','lift','luminance','wave','rhythm','proximity','packing','packing-efficiency','stored']],['Collector',['collector','ring','impulse','flash','cache','watchlight']],['Your cards',['pass','slot','trigger','boost','encore','always-on','any-trigger','next','copy','uses','shared','rest','grow']],['Triggers',['collect','delivery','latch','wave','flash','flash-ends','falling-lift','overfill','rhythm','swipe','save','clear']]];
     dialog.innerHTML = `<header><h2 id="${heading}">Glossary</h2><button type="button" data-card-term-close aria-label="Close glossary">×</button></header><div class="card-term-content card-glossary-list">${groups.map(([title,keys])=>`<section><h3>${esc(title)}</h3><div>${keys.map(key=>cardTermMarkup(key,CARD_TERMS[key][0])).join('')}</div></section>`).join('')}</div><footer><button type="button" data-card-term-close>Back</button></footer>`;
     mount(dialog,button,resolveCardContext?.(button)||resolveProximityContext?.(button)||{});
   }
@@ -377,7 +378,7 @@ export function installCardTermHelp(doc = document, {resolveProximityContext,res
       dialog.classList.add('card-cache-dialog');
       const host=button.dataset.cardTerm?dialog.querySelector('[data-card-term-example]'):doc.createElement('div');
       if(!button.dataset.cardTerm){host.className='cache-card-example';dialog.querySelector('[data-card-help-rules]').append(host);}
-      import('./cache-card-help.mjs?v=card-rules-1').then(({mountCacheCardHelp})=>{
+      import('./cache-card-help.mjs?v=chain-deck-1').then(({mountCacheCardHelp})=>{
         if(layers.includes(layer))appendDisposer(mountCacheCardHelp(host,{focus:cardKind==='harvest'?'cross':cardKind==='cache-handling'?'deliver':'touch',harvestCard:cardKind==='harvest'?cardContext.card:undefined}));
       });
     }
@@ -388,7 +389,7 @@ export function installCardTermHelp(doc = document, {resolveProximityContext,res
         const host=doc.createElement('section');host.className='proximity-card-help';
         const example=dialog.querySelector('[data-card-term-example="proximity"]');
         if(example)example.replaceChildren(host);else dialog.querySelector('.card-term-content').prepend(host);
-        import('./proximity-card-help.mjs?v=card-rules-1').then(({mountProximityCardHelp})=>{
+        import('./proximity-card-help.mjs?v=chain-deck-1').then(({mountProximityCardHelp})=>{
           if(layers.includes(layer))appendDisposer(mountProximityCardHelp(host,previewContext));
         });
       }

@@ -1,9 +1,9 @@
 // Disposable, deterministic equipped samples. No app boot, persistence or economy actions.
-import { CARD_SYSTEM, SKILL_CARDS, makeSkillCard, getMountedCards, previewCardRow } from './skill-cards.mjs?v=card-rules-1';
-import { cardRowTraceMarkup, cardRowSequenceMarkup } from './card-row-feedback.mjs?v=card-rules-1';
-import { cardFace } from './card-ui.mjs?v=card-rules-1';
-import { CARD_TERMS, cardTermTextMarkup, installCardTermHelp } from './card-terms.mjs?v=card-rules-1';
-import {resolveCardHelpContext} from './card-row-help.mjs?v=card-rules-1';
+import { CARD_SYSTEM, SKILL_CARDS, makeSkillCard, getMountedCards, previewCardRow } from './skill-cards.mjs?v=chain-deck-1';
+import { cardRowTraceMarkup, cardRowSequenceMarkup } from './card-row-feedback.mjs?v=chain-deck-1';
+import { cardFace } from './card-ui.mjs?v=chain-deck-1';
+import { CARD_TERMS, cardTermTextMarkup, installCardTermHelp } from './card-terms.mjs?v=chain-deck-1';
+import {resolveCardHelpContext} from './card-row-help.mjs?v=chain-deck-1';
 
 const esc = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 export const DEFAULT_COMBO_SEED = 'moonwell-15';
@@ -57,8 +57,8 @@ function outcomesMarkup(cards) {
   return '<p class="combo-contribution-note">Base contributions before row multipliers and replay. Try an event above for its final result.</p>' + copies.join('') + [...combined].map(([summary, sources]) => `<section><h3>${sources.length > 1 ? 'Combined across slots' : 'In slot'} ${sources.map(({slot}) => slot + 1).join(' + ')}<small class="combo-source-cards">${sources.map(({card}) => esc(card.name)).join(' + ')}</small></h3><p>${cardTermTextMarkup(summary)}</p></section>`).join('');
 }
 export const COMBO_EVENT_PRESETS = Object.freeze([
-  ['wave-first','Wave · first Spark crossing',{kind:'wave-crossing',firstCrossing:true}],
-  ['wave-later','Wave · later Spark crossing',{kind:'wave-crossing',firstCrossing:false}],
+  ['wave-first','Pulse · first Spark crossing',{kind:'wave-crossing',firstCrossing:true}],
+  ['wave-later','Pulse · later Spark crossing',{kind:'wave-crossing',firstCrossing:false}],
   ['body-light','Wisp absorbs a Spark',{kind:'body-spark',pickupKind:'light'}],
   ['body-cluster','Wisp absorbs a Cluster',{kind:'body-spark',pickupKind:'cluster'}],
   ['body-cache','Wisp absorbs a Cache',{kind:'body-spark',pickupKind:'cache'}],
@@ -124,7 +124,7 @@ if (typeof document !== 'undefined') {
   const renderExample = index => {
     const example = examples[index], run = exampleRun(example), trace = receipt(run);
     document.getElementById('combo-example-cards').innerHTML = getMountedCards(run).map((card,slot)=>`<div class="combo-slot"><div class="combo-slot-label">Slot ${slot + 1}</div>${cardFace(card)}</div>`).join('');
-    document.getElementById('combo-example-result').innerHTML = `<strong>One wave crossing · +${trace.sparks} Sparks</strong><span class="card-row-sequences">${cardRowSequenceMarkup(trace)}</span>`;
+    document.getElementById('combo-example-result').innerHTML = `<strong>One Pulse crossing · +${trace.sparks} Sparks</strong><span class="card-row-sequences">${cardRowSequenceMarkup(trace)}</span>`;
     document.getElementById('combo-example-trace').innerHTML = cardRowTraceMarkup(trace);
     document.querySelectorAll('[data-combo-example]').forEach(button=>button.setAttribute('aria-pressed',String(Number(button.dataset.comboExample)===index)));
   };

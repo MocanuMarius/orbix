@@ -1,8 +1,8 @@
-import {ROUTE_BONUSES} from './route-bonuses.mjs?v=card-rules-1';
-import {blackHoleDrainRate} from './black-holes.mjs?v=card-rules-1';
-import {flashPowerupDuration, pickupKind} from './pickups.mjs?v=card-rules-1';
-import {GLOW_DISPLAY_SCALE} from './vitality.mjs?v=card-rules-1';
-import {sparkMass} from './spark-size.mjs?v=card-rules-1';
+import {ROUTE_BONUSES} from './route-bonuses.mjs?v=chain-deck-1';
+import {blackHoleDrainRate} from './black-holes.mjs?v=chain-deck-1';
+import {flashPowerupDuration, pickupKind} from './pickups.mjs?v=chain-deck-1';
+import {GLOW_DISPLAY_SCALE} from './vitality.mjs?v=chain-deck-1';
+import {sparkMass} from './spark-size.mjs?v=chain-deck-1';
 
 const fuelKinds = new Set(['light', 'cluster', 'cache']);
 const helpfulFamilies = new Set(['lift', 'reveal', 'bloom']);

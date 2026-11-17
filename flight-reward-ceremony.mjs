@@ -1,13 +1,13 @@
-import {ARTIFACTS,SKILL_CARDS,getCardDraft} from './model.mjs?v=card-rules-1';
-import {cardDraftMarkup,cardDraftOffersMarkup} from './card-ui.mjs?v=card-rules-1';
-import {rewardEarnings} from './reward-screen.mjs?v=card-rules-1';
-import {resourceSymbol} from './game-symbols.mjs?v=card-rules-1';
-import {routeBonusReceiptText} from './route-bonus-copy.mjs?v=card-rules-1';
-import {ROUTE_BONUSES} from './route-bonuses.mjs?v=card-rules-1';
-import {FLIGHT_PACTS} from './flight-pacts.mjs?v=card-rules-1';
-import {sealedPackMarkup} from './flight-reward-pack-art.mjs?v=card-rules-1';
-import {artifactIcon} from './upgrade-icons.mjs?v=card-rules-1';
-import {flightRewardReceiptDetail,FLIGHT_REWARD_SOURCE_DETAILS} from './flight-reward-details.mjs?v=card-rules-1';
+import {ARTIFACTS,SKILL_CARDS,getCardDraft} from './model.mjs?v=chain-deck-1';
+import {cardDraftMarkup,cardDraftOffersMarkup} from './card-ui.mjs?v=chain-deck-1';
+import {rewardEarnings} from './reward-screen.mjs?v=chain-deck-1';
+import {resourceSymbol} from './game-symbols.mjs?v=chain-deck-1';
+import {routeBonusReceiptText} from './route-bonus-copy.mjs?v=chain-deck-1';
+import {ROUTE_BONUSES} from './route-bonuses.mjs?v=chain-deck-1';
+import {FLIGHT_PACTS} from './flight-pacts.mjs?v=chain-deck-1';
+import {sealedPackMarkup} from './flight-reward-pack-art.mjs?v=chain-deck-1';
+import {artifactIcon} from './upgrade-icons.mjs?v=chain-deck-1';
+import {flightRewardReceiptDetail,FLIGHT_REWARD_SOURCE_DETAILS} from './flight-reward-details.mjs?v=chain-deck-1';
 export {flightRewardReceiptDetail};
 
 const esc=value=>String(value??'').replace(/[&<>"']/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));

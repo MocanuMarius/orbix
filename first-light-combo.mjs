@@ -1,6 +1,6 @@
-import {isPlayablePractice,loanPracticeCards,practiceModifiers} from './practice-route.mjs?v=card-rules-1';
-import {makeSkillCard} from './skill-cards.mjs?v=card-rules-1';
-import {cardArt} from './card-art.mjs?v=card-rules-1';
+import {isPlayablePractice,loanPracticeCards,practiceModifiers} from './practice-route.mjs?v=chain-deck-1';
+import {makeSkillCard} from './skill-cards.mjs?v=chain-deck-1';
+import {cardArt} from './card-art.mjs?v=chain-deck-1';
 
 export const FIRST_LIGHT_COMBO='practice:early-combo';
 export const FIRST_LIGHT_COMBO_GAP=1.35;
@@ -13,7 +13,7 @@ export function firstLightComboLesson(engine,run){
  // required by the caller; neither input nor the world is moved for the lesson.
  if(engine.player.y<engine.height*.38||engine.player.y>engine.height*.74||engine.player.vy<0)return null;
  return {id:FIRST_LIGHT_COMBO,title:'Two borrowed cards work together',
-  text:'Three evenly spaced Lifts send a wave. Let it cross the higher Spark: Common Resonant Harvest restores +1 without collecting it. The lower Spark is ordinary fuel. These cards are temporary.',
+  text:'Three evenly spaced Lifts send a Pulse. Let it cross the higher Spark: Common Resonant Harvest restores +1 without collecting it. The lower Spark is ordinary fuel. These cards are temporary.',
   target:'.first-light-combo',contextual:true,actionLabel:'Try it',skipLabel:false};
 }
 
