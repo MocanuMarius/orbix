@@ -24,13 +24,15 @@ The 5-hour limit resets at **09:30 local** (07:30 UTC). At 06:05 it stood at 66%
 - **Resume:** a one-shot reminder in this session fires at about 09:37. On it: read this file, check usage reset, resume paused workers (same workers, by message, so they keep their context), then continue the goals in order. If the reminder finds work still running, do nothing.
 - The reminder lives only in this session and fires only while the app is open and the session idle. If it is lost, the first step of any new session is this file.
 
-- **Standing, every window (user, 17 November 06:55):** "you can keep scheduling these jobs to start yourself up and stop just before the quota is reached… not just the next time". An hourly self-check in this session (minute 41, expires after 7 days: renew it before 24 November) applies the same rules each window: pause at 92%, restart after each reset, never duplicate a running worker.
+- **Standing, every window (user, 17 November 06:55):** "you can keep scheduling these jobs to start yourself up and stop just before the quota is reached… not just the next time".
+- **No hourly checks; one wake-up per reset (user, 17 November 19:30).** The hourly self-check is deleted. Instead two one-shot wake-ups are always armed: 6 minutes after the next 5-hour reset, and 6 minutes after the one after that (so a wake-up that fires while the limit is still hit does not break the chain). **The first action of every wake-up and every resume is `get_usage` + `CronList`, then arm the missing ones** (`resetsAt` gives the time; windows are 5 hours). They are session-only: they need the app open and this session alive.
+- **Thrifty mode (user, 17 November):** usage matters more than speed. One worker at a time, Sonnet by default, Haiku for checklist chores, Opus only after a Sonnet failure on core logic. Tight briefs (exact files, checks, report under 150 words). Coordinator reads no large files and writes short replies. Text checks over screenshots, targeted tests over the full suite. Start a fresh session (or compact) at task boundaries; this file is the state.
 
 ### Pause note
 
 **Written 2026-11-17 about 16:25, usage about 91%, reset at 19:30 local.** Nothing is running, no worker is paused, the tree is clean and pushed. Live: `biomes-1` (`a4d1820f`). (Earlier pause notes are superseded by this one.)
 
-Wake-ups in this session: the hourly self-check (minute 41, shifted; expires 24 November: renew before then) and a one-shot at 19:36 today. If both are lost (app closed), any new session starts from this note.
+Wake-ups in this session (from 19:35 on 17 November): one-shots at 00:36 and 05:36 on 18 November, each re-arming the next two. If they are lost (app closed), any new session starts from this note.
 
 **Owner's answers, pasted in chat at about 16:30 (also in `decisions.json`). These ARE approvals:**
 - Music: Moss and Water KEEP; Night Ferry KEEP; Paper Lanterns DROP; Old Pines CHANGE (no note given: ask what; earlier words were that it lacked rhythm); kick on every Lift = helpful; slow the reference track 0.22%; **turn the lo-fi rotation ON** (rotation = Lantern Hours reference + Moss and Water + Night Ferry, Old Pines once changed). Trim scheduler cost (0.75 → under 0.5 ms per second) before or with turning it on.

@@ -23,7 +23,8 @@ export const liftCueTranspose=key=>Number.isFinite(key)?2**((((Math.round(key)-L
 export const LIFT_CUE_MIN_GAP=.25,LIFT_CUE_WOBBLE=.015,LIFT_CUE_REPEAT_SCALE=.6;
 export const LIFT_CUE={
  // [frequency Hz, start s, peak, attack s, length s]
- new:{soon:[[880,0,.03,.012,.11]],target:[[587.33,0,.03,.01,.085],[880,.045,.034,.012,.075]],type:'triangle',lowpass:1500},
+ // Soft wooden clack (owner, 17 November 2026: quieter, more a clack than a ding): ~35 ms bodies at 400-600 Hz, 2 ms attacks, fast decay, low-passed at 2.5 kHz, peaks about 38% below the previous cue.
+ new:{soon:[[400,0,.019,.002,.04]],target:[[400,0,.019,.002,.035],[600,.016,.021,.002,.034]],type:'triangle',lowpass:2500},
  old:{soon:[[880,0,.06,.008,.105],[1760,0,.011,.008,.105]],target:[[1174.659,0,.095,.008,.17],[2349.318,0,.011,.008,.17]],type:'sine',lowpass:0},
 };
 /** Build one cue on `ctx` into `destination`; returns its voices ({source,envelope,nodes,pitch}). Also used by the lab and the proof. */

@@ -80,11 +80,11 @@ test('the new cue is softer, rounder and shorter than the old one',()=>{
  for(const kind of ['soon','target']){
   const dB=20*Math.log10(peak(LIFT_CUE.new[kind])/peak(LIFT_CUE.old[kind]));
   assert.ok(dB<=-5,`${kind} at least 5 dB below the old peak per voice (${dB.toFixed(1)} dB)`);
-  assert.ok(end(LIFT_CUE.new[kind])<=.12,`${kind} no longer than 120 ms`);
-  assert.ok(LIFT_CUE.new[kind].every(n=>n[3]>=.005&&n[3]<=.015),'5-15 ms attacks');
-  assert.ok(LIFT_CUE.new[kind].every(n=>n[0]>=500&&n[0]<=1500),'energy in 500-1500 Hz');
+  assert.ok(end(LIFT_CUE.new[kind])<=.05,`${kind} no longer than 50 ms`);
+  assert.ok(LIFT_CUE.new[kind].every(n=>n[3]>=.001&&n[3]<=.002),'1-2 ms attacks');
+  assert.ok(LIFT_CUE.new[kind].every(n=>n[0]>=350&&n[0]<=600),'wooden body in 350-600 Hz');
  }
- assert.equal(LIFT_CUE.new.type,'triangle');assert.ok(LIFT_CUE.new.lowpass>0&&LIFT_CUE.new.lowpass<=2000);
+ assert.equal(LIFT_CUE.new.type,'triangle');assert.ok(LIFT_CUE.new.lowpass>0&&LIFT_CUE.new.lowpass<=3000);
 });
 
 test('real flight snapshots deliver useful preparation and balanced target once over repeated manual cycles',()=>{
