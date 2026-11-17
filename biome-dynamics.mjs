@@ -1,8 +1,8 @@
-import { DRAFT_TUNING } from './drafts.mjs?v=twin-wick-1';
-import { scenePropBounds } from './scene-props.mjs?v=twin-wick-1';
-import { formatGlow } from './vitality.mjs?v=twin-wick-1';
-import { lightVisibility } from './light-field.mjs?v=twin-wick-1';
-import { inLanternRoom } from './lantern-layout.mjs?v=twin-wick-1';
+import { DRAFT_TUNING } from './drafts.mjs?v=devour-2';
+import { scenePropBounds } from './scene-props.mjs?v=devour-2';
+import { formatGlow } from './vitality.mjs?v=devour-2';
+import { lightVisibility } from './light-field.mjs?v=devour-2';
+import { inLanternRoom } from './lantern-layout.mjs?v=devour-2';
 
 // Small, deterministic actors attached to existing terrain. Static mountain
 // meshes never change, and each actor is used once: no repeatable currency farm.

@@ -2,15 +2,15 @@
 // tile where the card's own effect line (card-rule-bands.mjs › getCardRuleBands, type "effect") is too long
 // to fit. Same meaning, approved vocabulary, about 22 characters at most. The full line is always on the
 // opened card. Moved from the design lab's TILE_SHORT table (56 cards) with the Pulse wording applied.
-import {getCardRuleBands} from './card-rule-bands.mjs?v=twin-wick-1';
-import {SKILL_CARDS, describeSkillCard} from './skill-cards.mjs?v=twin-wick-1';
+import {getCardRuleBands} from './card-rule-bands.mjs?v=devour-2';
+import {SKILL_CARDS, describeSkillCard} from './skill-cards.mjs?v=devour-2';
 
 export const CARD_TILE_LINES = Object.freeze({
   'climb': 'Lifts 2 and 3 free', 'watchlight': 'Collector saves you', 'springboard': 'Collect: free bounce',
   'lift-guide': 'Shows when to Lift', 'cache-handling': 'Fetches Caches: +12', 'second-sun': '×2 before, ×3 Encore',
   'twin-wick': '2nd Collector this flight', 'harvest-legendary': '+2 Sparks, +1 Stored',
   'nest-egg': '+1 Stored per 10', 'flash-handling': '+6; fetches Flash',
-  'dream': 'Practise first 8 s', 'spillway': '2nd Overfill: a Pulse', 'mirror-grain': 'Adds last + again',
+  'dream': 'Devour: practise longer', 'spillway': '2nd Overfill: a Pulse', 'mirror-grain': 'Adds last + again',
   'ember-feeder': 'Eats 2: +1 max Spark', 'refrain': 'Encore: fires again', 'devourer': 'Eats a Rare: +1 heart',
   'tight-packing': '+50% from packing', 'tight-packing-ii': '+75% from packing', 'tight-packing-iii': '+100% from packing',
   'return-spring': 'Reels in 0.5 s sooner', 'spillway-ii': 'Each Overfill: a Pulse',

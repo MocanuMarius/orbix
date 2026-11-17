@@ -1,4 +1,4 @@
-import {drawAtlasGuardian} from './atlas-flight.mjs?v=twin-wick-1';
+import {drawAtlasGuardian} from './atlas-flight.mjs?v=devour-2';
 // World-anchored background figure. Never a collider or screen-following HUD.
 export function guardianPresenceState(engine,distance=engine.distance){
  const boss=engine.layout?.boss,exit=engine.layout?.exitLandmark;

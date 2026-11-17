@@ -1,13 +1,13 @@
-import {relics,cards,route,menus,hud,art,dialogs,actionButton,escapeHtml as esc} from './index.mjs?v=twin-wick-1';
-import {resolveSample} from './gallery-catalog.mjs?v=twin-wick-1';
-import {createComponentFixture} from './gallery-fixtures.mjs?v=twin-wick-1';
-import {ARTIFACTS,getChoices,getOwnedCards,getMountedCards,getCardReward,getCardDraft,chooseCardDraft,getCardMeltPreview,meltOwnedCards,getArtifactSalvageValue,sellArtifact,chooseFlightReward,equipOwnedCard,unequipMountedCard,moveMountedCard} from '../model.mjs?v=twin-wick-1';
-import {bindDeckDragging} from '../deck-drag.mjs?v=twin-wick-1';
-import {ROUTE_BONUSES} from '../route-bonuses.mjs?v=twin-wick-1';
-import {prepareRouteOffer} from '../route-offers.mjs?v=twin-wick-1';
-import {installComboLessons} from '../combo-lesson.mjs?v=twin-wick-1';
-import {cardWorkshopMarkup,cardRefillMarkup} from '../card-workshop.mjs?v=twin-wick-1';
-import {getCardImprovePreview,improveOwnedCard,getCardRefillPreview,refillOwnedCard,getCardForgePreview,forgeOwnedCard,getSupportChoices,resolveSupport} from '../model.mjs?v=twin-wick-1';
+import {relics,cards,route,menus,hud,art,dialogs,actionButton,escapeHtml as esc} from './index.mjs?v=devour-2';
+import {resolveSample} from './gallery-catalog.mjs?v=devour-2';
+import {createComponentFixture} from './gallery-fixtures.mjs?v=devour-2';
+import {ARTIFACTS,getChoices,getOwnedCards,getMountedCards,getCardReward,getCardDraft,chooseCardDraft,getCardMeltPreview,meltOwnedCards,getArtifactSalvageValue,sellArtifact,chooseFlightReward,equipOwnedCard,unequipMountedCard,moveMountedCard} from '../model.mjs?v=devour-2';
+import {bindDeckDragging} from '../deck-drag.mjs?v=devour-2';
+import {ROUTE_BONUSES} from '../route-bonuses.mjs?v=devour-2';
+import {prepareRouteOffer} from '../route-offers.mjs?v=devour-2';
+import {installComboLessons} from '../combo-lesson.mjs?v=devour-2';
+import {cardWorkshopMarkup,cardRefillMarkup} from '../card-workshop.mjs?v=devour-2';
+import {getCardImprovePreview,improveOwnedCard,getCardRefillPreview,refillOwnedCard,getCardForgePreview,forgeOwnedCard,getSupportChoices,resolveSupport} from '../model.mjs?v=devour-2';
 installComboLessons();
 
 const query=new URLSearchParams(location.search),sample=resolveSample(query.get('family'),query.get('state'));

@@ -1,12 +1,12 @@
-import { cardTermTextMarkup } from "./card-terms.mjs?v=twin-wick-1";
-import { uiIcon } from "./ui-icons.mjs?v=twin-wick-1";
-import { getCardRuleBands, getCardTrigger } from "./card-rule-bands.mjs?v=twin-wick-1";
-import { chipBadge, rarityPips } from "./ui/trigger-icons.mjs?v=twin-wick-1";
-import { blackHoleTally } from "./card-black-hole.mjs?v=twin-wick-1";
-import { getEquippedCardStatuses, cardStatusText } from "./card-status.mjs?v=twin-wick-1";
-import { activeFlightPact } from './flight-pacts.mjs?v=twin-wick-1';
-import { cardArt } from "./card-art.mjs?v=twin-wick-1";
-import {deckRelicShelfMarkup,deckContextMarkup,deckLinkedCardFace,deckSwapComboMarkup,deckCardExplanationMarkup} from './deck-combos.mjs?v=twin-wick-1';
+import { cardTermTextMarkup } from "./card-terms.mjs?v=devour-2";
+import { uiIcon } from "./ui-icons.mjs?v=devour-2";
+import { getCardRuleBands, getCardTrigger } from "./card-rule-bands.mjs?v=devour-2";
+import { chipBadge, rarityPips } from "./ui/trigger-icons.mjs?v=devour-2";
+import { devourTally, isDevourCard } from "./card-black-hole.mjs?v=devour-2";
+import { getEquippedCardStatuses, cardStatusText } from "./card-status.mjs?v=devour-2";
+import { activeFlightPact } from './flight-pacts.mjs?v=devour-2';
+import { cardArt } from "./card-art.mjs?v=devour-2";
+import {deckRelicShelfMarkup,deckContextMarkup,deckLinkedCardFace,deckSwapComboMarkup,deckCardExplanationMarkup} from './deck-combos.mjs?v=devour-2';
 import {
   getMountedCards,
   getOwnedCards,
@@ -21,13 +21,13 @@ import {
   canUseCardCampServices,
   getSkillWallet,
   equipOwnedCard,
-} from "./model.mjs?v=twin-wick-1";
-import { resourceSymbol } from "./game-symbols.mjs?v=twin-wick-1";
-import { choiceScene } from "./choice-art.mjs?v=twin-wick-1";
-import { livesMarkup } from "./lives.mjs?v=twin-wick-1";
-import { getGlowCapacity, formatGlow } from "./vitality.mjs?v=twin-wick-1";
-import { mapStopIconMarkup } from "./map-guide.mjs?v=twin-wick-1";
-import {canDreamAt} from './dream.mjs?v=twin-wick-1';
+} from "./model.mjs?v=devour-2";
+import { resourceSymbol } from "./game-symbols.mjs?v=devour-2";
+import { choiceScene } from "./choice-art.mjs?v=devour-2";
+import { livesMarkup } from "./lives.mjs?v=devour-2";
+import { getGlowCapacity, formatGlow } from "./vitality.mjs?v=devour-2";
+import { mapStopIconMarkup } from "./map-guide.mjs?v=devour-2";
+import {canDreamAt, dreamConfig} from './dream.mjs?v=devour-2';
 import {
   getEffectiveCardSources,
   createCardExecution,
@@ -39,7 +39,7 @@ import {
   getCardFeederCapacity,
   isInventoryOnlyCard,
   SKILL_CARDS,
-} from "./skill-cards.mjs?v=twin-wick-1";
+} from "./skill-cards.mjs?v=devour-2";
 
 const esc = (v) =>
   String(v ?? "").replace(
@@ -88,7 +88,7 @@ function flightPackingReceipt(run, reward) {
     ? ` · Tight Packing +${bonus} Stored Sparks`
     : "";
 }
-export { cardArt } from "./card-art.mjs?v=twin-wick-1";
+export { cardArt } from "./card-art.mjs?v=devour-2";
 export function effectMarkup(text) {
   return esc(text).replace(/([+−]?\d+(?:\.\d+)?%?)/g, '<b class="card-number">$1</b>');
 }
@@ -210,8 +210,8 @@ export function getCardFaceAvailability(run, card, status = null) {
 function faceBadges(card, compact) {
   const def = SKILL_CARDS[card.cardId || card.id] || {};
   const chip = getCardTrigger(card, def);
-  const tally = def.kind === 'black-hole' ? blackHoleTally(card) : null;
-  return `<span class="card-tbadge-row">${chipBadge(chip, { cls: 'card-tbadge' })}</span>${rarityPips(rarity(card))}${tally && (!compact || tally.eaten) ? `<span class="card-bh-tally"><b>Eaten ${tally.eaten}</b> · +${tally.growth}${compact ? '' : ' max Sparks'}</span>` : ''}`;
+  const tally = isDevourCard(card) ? devourTally(card) : null, dreamTally = def.kind === 'dream';
+  return `<span class="card-tbadge-row">${chipBadge(chip, { cls: 'card-tbadge' })}</span>${rarityPips(rarity(card))}${tally && (!compact || tally.eaten) ? `<span class="card-bh-tally"><b>Devoured ${tally.eaten}</b> · ${dreamTally ? `Dream ${8 + tally.growth} s` : `+${tally.growth}${compact ? '' : ' max Sparks'}`}</span>` : ''}`;
 }
 export function cardFace(card, { compact = false, fitted = false, slot = null, selected = false, status = null, sightWarning = '', availability = null } = {}) {
   if (!card) return `<article class="skill-card empty-card"><div class="card-empty-art">+</div><h3>Empty slot${slot === null ? '' : ` ${slot + 1}`}</h3></article>`;
@@ -354,7 +354,7 @@ export function cardRestMarkup(run, node, choices) {
         : key === 'slot' ? `${run.cardSlots} equipped slots unlocked` : 'Maximum Sparks increased · meter refilled';
       return `<article class="card-camp-choice card-camp-taken">${choiceScene(key === 'slot' ? 'skills' : key === 'grow' ? 'refillGlow' : 'hearts')}<h3>✓ ${names[key] || esc(key)}</h3><p class="card-camp-consequence">${detail}</p></article>`;
     }).join('') : '<p>You left without taking a Rest action.</p>';
-    return `<section class="card-rest-screen">${rail}<div class="card-camp-main"><header class="card-heading"><div><h2>Rest complete</h2><p>Prepare your Deck, then ${dream ? 'enter Dream' : 'choose the next route'}.</p></div></header><div class="card-camp-choices">${receipt}</div><footer class="card-camp-footer"><p>${dream ? `Next · ${esc(next.name)} · 8s full-light Dream` : 'Your choices are saved.'}</p><button class="primary" data-action="${dream ? 'node' : 'view-route'}"${dream ? ` data-id="${esc(next.id)}"` : ''}>${dream ? 'Enter Dream · 8s' : 'Choose next route'}</button></footer></div></section>`;
+    return `<section class="card-rest-screen">${rail}<div class="card-camp-main"><header class="card-heading"><div><h2>Rest complete</h2><p>Prepare your Deck, then ${dream ? 'enter Dream' : 'choose the next route'}.</p></div></header><div class="card-camp-choices">${receipt}</div><footer class="card-camp-footer"><p>${dream ? `Next · ${esc(next.name)} · ${dreamConfig(run, next).duration}s full-light Dream` : 'Your choices are saved.'}</p><button class="primary" data-action="${dream ? 'node' : 'view-route'}"${dream ? ` data-id="${esc(next.id)}"` : ''}>${dream ? `Enter Dream · ${dreamConfig(run, next).duration}s` : 'Choose next route'}</button></footer></div></section>`;
   }
   const actions = camp.actions.filter(c => c.key), leave = camp.actions.find(c => c.effect?.restContinue);
   const available = actions.filter(c => !c.disabled), exclusive = camp.remaining === 1 && available.length > 1;

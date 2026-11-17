@@ -1,8 +1,8 @@
 // An audition of repeated level flight in still air. Both the guide calculation
 // and its instrument are the ones the game uses.
-import {createMusic} from './music.mjs?v=twin-wick-1';
-import {LiftGuide} from './flight-projection.mjs?v=twin-wick-1';
-import {FLIGHT_TUNING} from './flight.mjs?v=twin-wick-1';
+import {createMusic} from './music.mjs?v=devour-2';
+import {LiftGuide} from './flight-projection.mjs?v=devour-2';
+import {FLIGHT_TUNING} from './flight.mjs?v=devour-2';
 
 const music = createMusic({storage:{getItem:()=>null,setItem(){}}});
 const guide = new LiftGuide(FLIGHT_TUNING);

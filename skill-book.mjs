@@ -1,14 +1,14 @@
-import {SKILLS,getRunModifiers} from './model.mjs?v=twin-wick-1';
-import {collectorPreferenceMarkup} from './collector-preferences.mjs?v=twin-wick-1';
-import {formatLuminance} from './luminance-units.mjs?v=twin-wick-1';
-import {WISP_ART} from './companion-art.mjs?v=twin-wick-1';
-import {skillTreeState,skillTreeStatus} from './skill-tree-state.mjs?v=twin-wick-1';
-import {getCompanionAbility} from './companion-abilities.mjs?v=twin-wick-1';
-import {skillIcon} from './upgrade-icons.mjs?v=twin-wick-1';
-import {resourceSymbol} from './game-symbols.mjs?v=twin-wick-1';
-import {glowText,getGlowCapacity} from './vitality.mjs?v=twin-wick-1';
-import {skillBookChapter} from './skill-chapters.mjs?v=twin-wick-1';
-export {skillBookChapter} from './skill-chapters.mjs?v=twin-wick-1';
+import {SKILLS,getRunModifiers} from './model.mjs?v=devour-2';
+import {collectorPreferenceMarkup} from './collector-preferences.mjs?v=devour-2';
+import {formatLuminance} from './luminance-units.mjs?v=devour-2';
+import {WISP_ART} from './companion-art.mjs?v=devour-2';
+import {skillTreeState,skillTreeStatus} from './skill-tree-state.mjs?v=devour-2';
+import {getCompanionAbility} from './companion-abilities.mjs?v=devour-2';
+import {skillIcon} from './upgrade-icons.mjs?v=devour-2';
+import {resourceSymbol} from './game-symbols.mjs?v=devour-2';
+import {glowText,getGlowCapacity} from './vitality.mjs?v=devour-2';
+import {skillBookChapter} from './skill-chapters.mjs?v=devour-2';
+export {skillBookChapter} from './skill-chapters.mjs?v=devour-2';
 
 const chapters=[
  ['wisp','Flight','main-efficiency'],['luminance','Luminance','main-sight'],

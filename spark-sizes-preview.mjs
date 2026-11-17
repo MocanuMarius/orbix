@@ -1,13 +1,13 @@
-import {drawPickup} from './pickup-art.mjs?v=twin-wick-1';
-import {drawCapture} from './capture-art.mjs?v=twin-wick-1';
-import {captureMassDuration} from './tidal-light.mjs?v=twin-wick-1';
-import {SPARK_TIERS,sparkArtScale,sparkBodyRadius} from './spark-size.mjs?v=twin-wick-1';
-import {getPickupSpec,pickupContactRadius} from './pickups.mjs?v=twin-wick-1';
-import {makeWispSprite} from './companion-art.mjs?v=twin-wick-1';
-import {biomePalette} from './biome-art.mjs?v=twin-wick-1';
-import {createDepthScenery,drawDepthScenery} from './depth-scenery.mjs?v=twin-wick-1';
-import {LIGHT_PACKET_TUNING,getGlowCapacity,glowPoints,GLOW_DISPLAY_SCALE} from './vitality.mjs?v=twin-wick-1';
-import {condenseGlow,getCondensationRules} from './condensed-glow.mjs?v=twin-wick-1';
+import {drawPickup} from './pickup-art.mjs?v=devour-2';
+import {drawCapture} from './capture-art.mjs?v=devour-2';
+import {captureMassDuration} from './tidal-light.mjs?v=devour-2';
+import {SPARK_TIERS,sparkArtScale,sparkBodyRadius} from './spark-size.mjs?v=devour-2';
+import {getPickupSpec,pickupContactRadius} from './pickups.mjs?v=devour-2';
+import {makeWispSprite} from './companion-art.mjs?v=devour-2';
+import {biomePalette} from './biome-art.mjs?v=devour-2';
+import {createDepthScenery,drawDepthScenery} from './depth-scenery.mjs?v=devour-2';
+import {LIGHT_PACKET_TUNING,getGlowCapacity,glowPoints,GLOW_DISPLAY_SCALE} from './vitality.mjs?v=devour-2';
+import {condenseGlow,getCondensationRules} from './condensed-glow.mjs?v=devour-2';
 
 // The phone renderer uses 240 raster pixels per 390 world units. Keep the
 // wisp sprite in the same raster scale while the pickups use world dimensions.
