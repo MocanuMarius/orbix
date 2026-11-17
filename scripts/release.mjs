@@ -384,6 +384,8 @@ function classifySaveDiff(before, after) {
     // them and gains an empty Inscription per Chain slot.
     else if (/^run\.(artifacts\.\d+|artifactCharges\.[a-z-]+)$/.test(d.path) && d.after === undefined) allowed.push({...d, reason: 'artifacts retired, replaced by slot Inscriptions'});
     else if (d.path === 'run.slotInscriptions' && d.before === undefined && Array.isArray(d.after) && d.after.every(x => x === null)) allowed.push({...d, reason: 'new empty slot Inscriptions'});
+    // deck-1 (2026-11-18): NEW badge. Old runs gain an empty list of unseen cards (nothing is new).
+    else if (d.path === 'run.unseenCardIds' && d.before === undefined && Array.isArray(d.after) && d.after.length === 0) allowed.push({...d, reason: 'new empty unseen-cards list'});
     // twin-wick-1 (2026-11-17): Twin Wick's run-wide unlock is gone (a card's effect lives on the card).
     else if (d.path === 'run.cardTwinWickUnlocked' && d.after === undefined) allowed.push({...d, reason: 'run-wide Twin Wick flag removed'});
     // card-rules-1 (2026-11-17): Forge counts crafts per rarity in the run. Old runs gain the tally at zero.
