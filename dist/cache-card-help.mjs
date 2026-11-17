@@ -93,7 +93,7 @@ async function captureViews(doc, card, isDisposed) {
         results[event]={canvas:image,sparks:glowPoints(engine.flame),remains:!packet.collected};
       } else {
         engine.luminanceWaves.emit({x:engine.distance+engine.player.x,y:engine.player.y,radius:190,reveal:true});
-        engine.time+=80/360;engine.luminanceWaves.update(80/360);
+        engine.time+=80/640;engine.luminanceWaves.update(80/640);
         results[event]={canvas:still(doc,engine,packet,event),sparks:glowPoints(engine.flame),remains:!packet.collected};
       }
     }
