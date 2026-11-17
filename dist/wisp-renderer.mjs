@@ -40,7 +40,7 @@ import {drawFlightForks,drawFlightForkBackdrops} from './flight-forks.mjs?v=guid
 import {drawFallWarning} from './fall-chain-art.mjs?v=guide-clarity-1';
 import {castTerrainLight,releaseTerrainLight,prepareTerrainLight} from './terrain-light.mjs?v=guide-clarity-1';
 import {lanternField} from './lantern-layout.mjs?v=guide-clarity-1';
-// v1.1-level ground and growth (frost, pinewood). On by default; null with ?scenery=1 or {scenery:1}.
+// v1.2-level ground, boulders and growth (all twelve biomes). On by default; null with ?scenery=1 or {scenery:1}.
 import {createLevelSceneryTwo} from './level-scenery-two.mjs?v=guide-clarity-1';
 
 const TAU = Math.PI * 2;
