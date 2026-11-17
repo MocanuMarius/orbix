@@ -1,5 +1,5 @@
-import {uiIcon} from './ui-icons.mjs?v=brands-1';
-import {sparkGlyphArt} from './spark-symbol.mjs?v=brands-1';
+import {uiIcon} from './ui-icons.mjs?v=deck-2';
+import {sparkGlyphArt} from './spark-symbol.mjs?v=deck-2';
 // Small shared pixel silhouettes. Conditions retain words; basic resources do not.
 const shapes={
  up:'<path d="M7 2h2v2h2v2h2v2h-3v6H6V8H3V6h2V4h2z"/>',

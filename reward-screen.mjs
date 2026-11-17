@@ -1,16 +1,16 @@
-import {ARTIFACTS} from './model.mjs?v=brands-1';
-import {artifactDescription} from './artifact-copy.mjs?v=brands-1';
-import {resourceSymbol} from './game-symbols.mjs?v=brands-1';
-import {artifactIcon} from './upgrade-icons.mjs?v=brands-1';
-import {relicIdentityMarkup,relicRulesMarkup,relicRulesButton} from './ui/relic-primitives.mjs?v=brands-1';
-import {actionButton} from './ui/primitives.mjs?v=brands-1';
-import {acquiredRewardMarkup} from './ui/acquired-reward.mjs?v=brands-1';
-import {routeBonusReceiptText} from './route-bonus-copy.mjs?v=brands-1';
-import {getInscription,slotInscriptionId} from './inscriptions.mjs?v=brands-1';
-import {inscriptionGlyph,INSCRIPTION_KIND_WORDS} from './inscription-ui.mjs?v=brands-1';
-import {cardArt} from './card-art.mjs?v=brands-1';
-import {cardTermTextMarkup} from './card-terms.mjs?v=brands-1';
-import {SKILL_CARDS} from './skill-cards.mjs?v=brands-1';
+import {ARTIFACTS,lastCourseName} from './model.mjs?v=deck-2';
+import {artifactDescription} from './artifact-copy.mjs?v=deck-2';
+import {resourceSymbol} from './game-symbols.mjs?v=deck-2';
+import {artifactIcon} from './upgrade-icons.mjs?v=deck-2';
+import {relicIdentityMarkup,relicRulesMarkup,relicRulesButton} from './ui/relic-primitives.mjs?v=deck-2';
+import {actionButton} from './ui/primitives.mjs?v=deck-2';
+import {acquiredRewardMarkup} from './ui/acquired-reward.mjs?v=deck-2';
+import {routeBonusReceiptText} from './route-bonus-copy.mjs?v=deck-2';
+import {getInscription,slotInscriptionId} from './inscriptions.mjs?v=deck-2';
+import {inscriptionGlyph,INSCRIPTION_KIND_WORDS} from './inscription-ui.mjs?v=deck-2';
+import {cardArt} from './card-art.mjs?v=deck-2';
+import {cardTermTextMarkup} from './card-terms.mjs?v=deck-2';
+import {SKILL_CARDS} from './skill-cards.mjs?v=deck-2';
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 export const rewardDescription=(a,run)=>{const c=artifactDescription(a,run,{fresh:true});return [c.effect,[c.trigger,c.limit].filter(Boolean).join(' ')];};
 export function rewardEarnings(run){
@@ -45,7 +45,7 @@ function scribeSlot(r,n,i){
 }
 export function scribeMarkup(state,{scribe={},upgradeCount=0,skillsAvailable=false,deckAvailable=true,receiptAvailable=false,earned=0,title='Elite cleared'}={}){
  const r=state.run,reward=r.flightReward,open=!reward.claimed,picked=open&&reward.offers.includes(scribe.id)?scribe.id:null;
- const head=(small,h)=>`<header class="artifact-reward-heading wbf-head"><div class="wbf-titles"><small class="wb-context">${esc(small)}</small><h1 class="wb-title">${esc(h)}</h1></div>${receiptAvailable?`<button type="button" class="wb-sign wb-sign-standard reward-packed-earned" data-action="reward-earnings" aria-label="${earned} Stored Sparks earned. View breakdown.">${resourceSymbol('packed')}<b>+${earned}</b><span>Earned · Details</span></button>`:''}</header>`;
+ const head=(small,h)=>`<header class="artifact-reward-heading wbf-head"><div class="wbf-titles"><small class="wb-context">${esc(small)}${lastCourseName(r)?` · <span class="flight-course-name">${esc(lastCourseName(r))}</span>`:''}</small><h1 class="wb-title">${esc(h)}</h1></div>${receiptAvailable?`<button type="button" class="wb-sign wb-sign-standard reward-packed-earned" data-action="reward-earnings" aria-label="${earned} Stored Sparks earned. View breakdown.">${resourceSymbol('packed')}<b>+${earned}</b><span>Earned · Details</span></button>`:''}</header>`;
  const shell=(inner,foot)=>`<section class="artifact-reward-screen accumulating-rewards scribe-screen rw-screen wb-reskin wb-ground wb-inline wb-framed ${open?'reward-open':'reward-resolved'}">${inner}<footer class="artifact-reward-actions">${foot}</footer></section>`;
  if(!open){
   const i=getInscription(reward.chosen);
@@ -78,7 +78,7 @@ export function flightRewardMarkup(state,{artifactArt=artifactIcon,upgradeCount=
   return acquiredRewardMarkup({artifact,copy,run:r,title,earned,receiptAvailable,presentation:acquiredPresentation,artifactArt,skillsAvailable,deckAvailable,upgradeCount});
  }
  return `<section class="artifact-reward-screen accumulating-rewards rw-screen wb-reskin wb-ground wb-inline wb-framed ${open?'reward-open':'reward-resolved'} ${ids.length?'has-artifacts':'clear-only'}">
- <header class="artifact-reward-heading wbf-head"><div class="wbf-titles">${open?'<small class="wb-context">Choose one</small>':''}<h1 class="wb-title">${esc(title)}</h1></div>${receiptAvailable?`<button type="button" class="wb-sign wb-sign-standard reward-packed-earned" data-action="reward-earnings" aria-label="${earned} Stored Sparks earned. View breakdown.">${resourceSymbol('packed')}<b>+${earned}</b><span>Earned · Details</span></button>`:''}</header>
+ <header class="artifact-reward-heading wbf-head"><div class="wbf-titles">${open?'<small class="wb-context">Choose one</small>':''}<h1 class="wb-title">${esc(title)}</h1>${lastCourseName(r)?`<small class="wb-context flight-course-name">${esc(lastCourseName(r))}</small>`:''}</div>${receiptAvailable?`<button type="button" class="wb-sign wb-sign-standard reward-packed-earned" data-action="reward-earnings" aria-label="${earned} Stored Sparks earned. View breakdown.">${resourceSymbol('packed')}<b>+${earned}</b><span>Earned · Details</span></button>`:''}</header>
  ${ids.length?`<div class="artifact-pair ${ids.length===1?'artifact-pair-resolved':''}" aria-label="${open?'Choose one artifact':'Acquired artifact'}">${ids.map(id=>{
  const a=ARTIFACTS[id],copy=artifactDescription(a,r,{fresh:open});
  return `<article class="artifact-choice ${a.rarity}" data-reward-artifact="${id}">${relicIdentityMarkup(a,copy,{artifactArt,lifetime:reward.permanent?(r.testMode?'TEST preview':'Permanent discovery'):copy.lifetime})}${relicRulesMarkup(copy)}<footer class="artifact-choice-actions">${relicRulesButton(a,{sign:true})}${open?actionButton(reward.permanent?'Discover':'Take artifact',{className:'wb-sign wb-sign-primary',action:'keep-flight-reward',id,ariaLabel:`${reward.permanent?'Discover':'Take'} ${a.name}`}):`<span class="artifact-acquired" role="status">✓ ${reward.permanent?'Unlocked for future runs':copy.type==='consumable'?'Ready · '+copy.lifetime.split(' · ')[0]:'Active this run'}</span>`}</footer></article>`;

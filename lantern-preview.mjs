@@ -1,9 +1,9 @@
-import { WispFlight, circleHitsObstacle } from './flight.mjs?v=brands-1';
-import { createRun, getRunModifiers } from './model.mjs?v=brands-1';
-import { shutterDensityAt } from './shutter-cone.mjs?v=brands-1';
-import { lanternPassageY, lanternRoute } from './lantern-layout.mjs?v=brands-1';
-import { wispOrbit } from './wisp.mjs?v=brands-1';
-import { stepFlashTether } from './flash-tether.mjs?v=brands-1';
+import { WispFlight, circleHitsObstacle } from './flight.mjs?v=deck-2';
+import { createRun, getRunModifiers } from './model.mjs?v=deck-2';
+import { shutterDensityAt } from './shutter-cone.mjs?v=deck-2';
+import { lanternPassageY, lanternRoute } from './lantern-layout.mjs?v=deck-2';
+import { wispOrbit } from './wisp.mjs?v=deck-2';
+import { stepFlashTether } from './flash-tether.mjs?v=deck-2';
 
 const step = 1 / 60;
 

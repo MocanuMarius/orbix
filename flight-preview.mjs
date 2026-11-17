@@ -1,18 +1,18 @@
-import {getBiome} from './biomes.mjs?v=brands-1';
-import {getBossPreview} from './boss.mjs?v=brands-1';
-import {levelMapPreview} from './level-map-art.mjs?v=brands-1';
-import {mapStopIconMarkup} from './map-guide.mjs?v=brands-1';
-import {resourceSymbol} from './game-symbols.mjs?v=brands-1';
-import {getFlightClearReward} from './checkpoint-rewards.mjs?v=brands-1';
-import {flightRewardKind,SCRIBE_OFFER_COUNT,isCardRun} from './model.mjs?v=brands-1';
-import {bonusIcon,boonMarkup} from './route-bonus-ui.mjs?v=brands-1';
-import {contextualFlightNotice} from './contextual-events.mjs?v=brands-1';
-import {ATLAS_FORECASTS,atlasGlyph} from './night-atlas.mjs?v=brands-1';
-import {canDreamAt,dreamConfig} from './dream.mjs?v=brands-1';
-import {sparkHabitat} from './spark-fields.mjs?v=brands-1';
-import {lanternFlightCue} from './map-theme.mjs?v=brands-1';
-import {actionButton} from './ui/primitives.mjs?v=brands-1';
-import {cardTermTextMarkup} from './card-terms.mjs?v=brands-1';
+import {getBiome} from './biomes.mjs?v=deck-2';
+import {getBossPreview} from './boss.mjs?v=deck-2';
+import {levelMapPreview} from './level-map-art.mjs?v=deck-2';
+import {mapStopIconMarkup} from './map-guide.mjs?v=deck-2';
+import {resourceSymbol} from './game-symbols.mjs?v=deck-2';
+import {getFlightClearReward} from './checkpoint-rewards.mjs?v=deck-2';
+import {flightRewardKind,SCRIBE_OFFER_COUNT,isCardRun} from './model.mjs?v=deck-2';
+import {bonusIcon,boonMarkup} from './route-bonus-ui.mjs?v=deck-2';
+import {contextualFlightNotice} from './contextual-events.mjs?v=deck-2';
+import {ATLAS_FORECASTS,atlasGlyph} from './night-atlas.mjs?v=deck-2';
+import {canDreamAt,dreamConfig} from './dream.mjs?v=deck-2';
+import {sparkHabitat} from './spark-fields.mjs?v=deck-2';
+import {lanternFlightCue} from './map-theme.mjs?v=deck-2';
+import {actionButton} from './ui/primitives.mjs?v=deck-2';
+import {cardTermTextMarkup} from './card-terms.mjs?v=deck-2';
 
 export const TRAVEL_GUIDE_ART=Object.freeze(['waystone','rootwood','night-atlas']);
 /** One stepped sign, mirrored for the return journey. */

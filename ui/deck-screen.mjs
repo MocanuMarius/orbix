@@ -7,35 +7,37 @@
 // This module draws and handles everything that does not change the save. Every real change (equip, swap,
 // take out, Melt, Workshop) goes through the `actions` the app passes in, which call the model's own
 // transactions and then reopen the sheet; the view state object survives that reopen.
-import {CARD_SYSTEM, getMountedCards, describeSkillCard, getCardChargeCapacity} from '../skill-cards.mjs?v=brands-1';
-import {getOwnedCards} from '../model.mjs?v=brands-1';
-import {cardFace, cardArt, getCardFaceAvailability} from '../card-ui.mjs?v=brands-1';
-import {getEquippedCardStatuses} from '../card-status.mjs?v=brands-1';
-import {glowGaugeMarkup, glowGaugeUnits} from '../glow-ui.mjs?v=brands-1';
-import {cardTileLine, SPARK_ICON_SRC, WISP_ORB_SRC} from '../card-tile-lines.mjs?v=brands-1';
+import {CARD_SYSTEM, getMountedCards, describeSkillCard, getCardChargeCapacity} from '../skill-cards.mjs?v=deck-2';
+import {getOwnedCards, getUnseenCardIds} from '../model.mjs?v=deck-2';
+import {uiIcon} from '../ui-icons.mjs?v=deck-2';
+import {cardFace, cardArt, getCardFaceAvailability} from '../card-ui.mjs?v=deck-2';
+import {getEquippedCardStatuses} from '../card-status.mjs?v=deck-2';
+import {glowGaugeMarkup, glowGaugeUnits} from '../glow-ui.mjs?v=deck-2';
+import {cardTileLine, SPARK_ICON_SRC, WISP_ORB_SRC} from '../card-tile-lines.mjs?v=deck-2';
 import {resolveChain, slotInfo, hereLine, plateWords, whenOf, markOf, TRIGGER_BY, triggerName, RARITY_WORD, rarityOf, nameOf, shortName, isRest, num, METER_MAX, START_FLAME,
-  chipOf, triggerBook, enginePlate, holeTally} from './chain-model.mjs?v=brands-1';
-import {triggerIcon, pixelArt, CHEVRON, gem, EYE, WARN, PLUS, NEXT, FIRE, medalUrl, frameVars, chipBadge, chipIcon, rarityPips} from './trigger-icons.mjs?v=brands-1';
-import {CARD_TRIGGERS} from '../card-rule-bands.mjs?v=brands-1';
+  chipOf, triggerBook, enginePlate, holeTally} from './chain-model.mjs?v=deck-2';
+import {triggerIcon, pixelArt, CHEVRON, gem, EYE, WARN, PLUS, NEXT, FIRE, medalUrl, frameVars, chipBadge, chipIcon, rarityPips} from './trigger-icons.mjs?v=deck-2';
+import {CARD_TRIGGERS} from '../card-rule-bands.mjs?v=deck-2';
 import {triggerLabel, triggerTermKey} from '../card-trigger-labels.mjs';
-import {CARD_TERMS} from '../card-terms.mjs?v=brands-1';
-import {SKILL_CARDS} from '../skill-cards.mjs?v=brands-1';
-import {isDevourCard} from '../card-black-hole.mjs?v=brands-1';
-import {simulateEngineChain, engineStarts} from '../card-engine.mjs?v=brands-1';
-import {GLOW_DISPLAY_SCALE} from '../vitality.mjs?v=brands-1';
-import {slotInscriptionId} from '../inscriptions.mjs?v=brands-1';
-import {inscriptionBrand, inscriptionFrame, inscriptionBlock, inscriptionLine} from '../inscription-ui.mjs?v=brands-1';
+import {CARD_TERMS} from '../card-terms.mjs?v=deck-2';
+import {SKILL_CARDS} from '../skill-cards.mjs?v=deck-2';
+import {isDevourCard} from '../card-black-hole.mjs?v=deck-2';
+import {simulateEngineChain, engineStarts} from '../card-engine.mjs?v=deck-2';
+import {GLOW_DISPLAY_SCALE} from '../vitality.mjs?v=deck-2';
+import {slotInscriptionId, slotInscriptionList} from '../inscriptions.mjs?v=deck-2';
+import {inscriptionBrand, inscriptionFrame, inscriptionBlock, inscriptionLine} from '../inscription-ui.mjs?v=deck-2';
 
 const esc = v => String(v ?? '').replace(/[&<>"']/g, c => ({'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'}[c]));
 const SPARK_SRC = SPARK_ICON_SRC;
 const SPARK_IMG = `<img class="dc-spark" src="${SPARK_SRC}" width="16" height="16" alt="" draggable="false">`;
 const SHORT_QUERY = '(max-height:380px)';
+const NEW_BADGE = '<b class="dk2-new" data-new>NEW</b>';
 const RANK = {legendary: 0, rare: 1, common: 2};
 
 /** The screen's own state. It belongs to the open Deck only; nothing here enters a save. */
 export function createDeckView() {
   return {tab: 'chain', pick: null, placing: null, filter: 'all', sort: 'rarity', trigger: null, reading: null, readingReturn: null,
-    melting: null, note: '', noteTone: '', scroll: 0, focus: null, announce: '', bookFrom: 'chain'};
+    melting: null, note: '', noteTone: '', scroll: 0, focus: null, announce: '', bookFrom: 'chain', menu: false, shown: []};
 }
 
 // ── Data ─────────────────────────────────────────────────────────────────────
@@ -47,11 +49,12 @@ function deckData(run, view) {
   const raw = [...row.filter(Boolean), ...(run?.reserveCards || [])];
   const byUid = uid => raw.find(c => c?.instanceId === uid) || null;
   const ownedOf = uid => owned.find(c => c.instanceId === uid) || null;
-  const chain = resolveChain(row, view.trigger);
+  const chain = resolveChain(row, view.trigger, slotInscriptionList(run, row));
   view.trigger = chain.trigger;
   let statuses = [];
   try {statuses = getEquippedCardStatuses(run);} catch {statuses = [];}
-  return {run, row, printed, owned, raw, byUid, ownedOf, chain, statuses, slotOf: c => row.indexOf(c), reserve: (run?.reserveCards || []).filter(Boolean)};
+  const unseen = new Set(getUnseenCardIds(run).filter(id => raw.some(c => c?.instanceId === id)));
+  return {run, row, printed, owned, raw, unseen, byUid, ownedOf, chain, statuses, slotOf: c => row.indexOf(c), reserve: (run?.reserveCards || []).filter(Boolean)};
 }
 const usesOf = c => Number.isFinite(c?.charges) ? {now: c.charges, max: getCardChargeCapacity(c)} : null;
 const shortScreen = () => typeof matchMedia === 'function' && matchMedia(SHORT_QUERY).matches;
@@ -131,7 +134,7 @@ function stationsHTML(d, view, opts) {
     const plate = special ? `<span class="dk2-plate dk21-plate dk2-plate-word ${special.cls}" aria-hidden="true"><b class="pl-long">${esc(special.long)}</b><b class="pl-short">${esc(special.short)}</b></span>`
       : `<span class="dk2-plate dk21-plate dk2-plate-${info.kind}${info.role === 'add' || info.role === 'mul' ? '' : ' dk2-plate-word'}${info.changed ? ' dk21-plate-changed' : ''}" aria-hidden="true">${plateHTML(info)}</span>`;
     return `<div class="dk2-station dk2-k-${special ? 'eng' : info.kind}${meal ? ' dk-eaten' : ''}${insClass}${lit}" data-slot="${i}" style="${col}">
-      <span class="dk2-eyerow">${eyeBtn(`data-slot="${i}"`, `Read ${nameOf(c)}`)}</span>
+      <span class="dk2-eyerow">${d.unseen.has(c.instanceId) ? NEW_BADGE : ''}${eyeBtn(`data-slot="${i}"`, `Read ${nameOf(c)}`)}</span>
       <button type="button" class="dk2-btn dk2-card" data-slot="${i}" aria-label="${esc(label)}">${mark && ['add', 'mul', 'repeat'].includes(mark.cls) ? `<span class="dk2-mark dk-mark-${mark.cls}" aria-hidden="true">${mark.glyph}</span>` : ''}${face}${timer}${placing ? '<span class="dk2-puthere" aria-hidden="true">Put here</span>' : ''}</button>
       ${plate}${insMark}</div>${notch}${swap}`;
   }).join('');
@@ -223,9 +226,9 @@ function tileHTML(d, view, c) {
     else {cls = ' dk2-choice';label = `Put ${nameOf(c)} in slot ${p + 1}${here ? `. ${nameOf(here)} goes back to the Deck` : ''}`;}
   }
   const frame = rest ? 'rest' : at >= 0 ? `chain${RARITY_WORD[r]}` : r;
-  return `<div class="dk2-tile dk21-tile dc-r-${r}${rest ? ' dk21-rest' : ''}${at >= 0 ? ' dk21-inchain' : ''}${cls}" data-uid="${esc(c.instanceId)}" style="--fr:var(--fr-${frame})">
+  return `<div class="dk2-tile dk21-tile dc-r-${r}${d.unseen.has(c.instanceId) ? ' dk2-isnew' : ''}${rest ? ' dk21-rest' : ''}${at >= 0 ? ' dk21-inchain' : ''}${cls}" data-uid="${esc(c.instanceId)}" style="--fr:var(--fr-${frame})">
     <button type="button" class="dk2-btn dk2-tilemain dk21-tilemain" data-uid="${esc(c.instanceId)}" aria-label="${esc(label)}" ${disabled ? 'aria-disabled="true"' : ''}>
-     <span class="dk21-top">${chipBadge(chip, {cls: 'dk-tbadge'})}<span class="dk-topr">${rarityPips(r)}${at >= 0 ? `<span class="dk21-slot"><b>Slot ${at + 1}</b></span>` : ''}</span></span>
+     <span class="dk21-top">${chipBadge(chip, {cls: 'dk-tbadge'})}<span class="dk-topr">${d.unseen.has(c.instanceId) ? NEW_BADGE : ''}${rarityPips(r)}${at >= 0 ? `<span class="dk21-slot"><b>Slot ${at + 1}</b></span>` : ''}</span></span>
      <span class="dk2-body dk21-body"><span class="dk2-art dk21-art">${cardArt(c, {compact: true})}${mark && !rest && ['add', 'mul', 'repeat'].includes(mark.cls) ? `<span class="dk2-mark dk-mark-${mark.cls}" aria-hidden="true">${mark.glyph}</span>` : ''}${u ? `<span class="dk2-uses" aria-hidden="true">${u.now}/${u.max}</span>` : ''}</span>
       <span class="dk2-text"><b class="dk2-name">${esc(nameOf(c))}</b>${sub ? `<small class="dk2-sub">${esc(sub)}</small>` : `<b class="dk2-effect">${esc(effect)}</b>`}</span></span>
     </button>
@@ -238,8 +241,7 @@ function barHTML(d, view, opts) {
     return `<p class="dk2-banner" id="dk2-banner"><b>Choose a card for slot ${view.pick + 1}</b><span>${here ? `${esc(shortName(here))} goes back to the Deck` : 'This slot is empty'}</span></p>
       <button type="button" class="wb-sign wb-sign-quiet dk2-cancel" id="dk2-pickcancel"><span class="wb-sign-text"><b>Cancel</b></span></button>`;
   }
-  return `<div class="dk2-chips" role="group" aria-label="Show by rarity">${['all', 'common', 'rare', 'legendary'].map(f => `<button type="button" class="dk2-btn dk2-chip ${f !== 'all' ? 'dc-r-' + f : ''}" data-filter="${f}" aria-pressed="${view.filter === f}" aria-label="${f === 'all' ? 'All cards' : RARITY_WORD[f]}: ${countOf(d, f)}">${f === 'all' ? '' : gem(f)}<span>${f === 'all' ? 'All' : RARITY_WORD[f]}</span><b>${countOf(d, f)}</b></button>`).join('')}</div>
-    <button type="button" class="dk2-btn dk2-sort" id="dk2-sort" aria-label="Sort by ${view.sort}. Press to sort by ${view.sort === 'rarity' ? 'name' : 'rarity'}"><small>Sort</small><b>${view.sort === 'rarity' ? 'Rarity' : 'Name'}</b></button>
+  return `<button type="button" class="dk2-btn dk2-sort" id="dk2-sort" aria-label="Sort by ${view.sort}. Press to sort by ${view.sort === 'rarity' ? 'name' : 'rarity'}"><small>Sort</small><b>${view.sort === 'rarity' ? 'Rarity' : 'Name'}</b></button>
     ${opts.workshop ? '<button type="button" class="wb-sign wb-sign-quiet dk2-workshop" id="dk2-workshop" aria-label="Workshop: Improve, Evolve, Refill and Forge at this Rest"><span class="wb-sign-text"><b>Workshop</b></span></button>' : ''}`;
 }
 function gridHTML(d, view) {
@@ -305,16 +307,25 @@ function readerHTML(d, view, opts) {
 }
 
 // ── The sheet ────────────────────────────────────────────────────────────────
+const FILTERS = ['all', 'common', 'rare', 'legendary'];
+const filterWord = f => f === 'all' ? 'All' : RARITY_WORD[f];
+/** One Filter button in the top bar (Deck tab only) that opens a small menu; the menu choices are the old rarity chips. */
+function filterHTML(d, view) {
+  if (view.tab !== 'deck' || view.pick !== null || view.placing) return '';
+  const on = view.filter !== 'all';
+  return `<div class="dk2-filter" id="dk2-filterwrap"><button type="button" class="dk2-btn dk2-filterbtn${on ? ' dk2-filter-on' : ''}" id="dk2-filter" aria-haspopup="menu" aria-expanded="${view.menu}" aria-controls="dk2-filtermenu" aria-label="Filter cards: ${filterWord(view.filter)}${on ? ' (filter on)' : ''}"><span>Filter</span>${on ? `<small>${esc(filterWord(view.filter))}</small><i class="dk2-dot" aria-hidden="true"></i>` : ''}</button>${view.menu ? `<div class="dk2-filtermenu" id="dk2-filtermenu" role="menu" aria-label="Show by rarity">${FILTERS.map(f => `<button type="button" role="menuitemradio" aria-checked="${view.filter === f}" class="dk2-btn dk2-fitem ${f !== 'all' ? 'dc-r-' + f : ''}" data-filter="${f}">${f === 'all' ? '' : gem(f)}<span>${filterWord(f)}</span><b>${countOf(d, f)}</b></button>`).join('')}${on ? '<button type="button" role="menuitem" class="dk2-btn dk2-fitem dk2-fclear" data-filter="all" data-clear><span>Clear</span></button>' : ''}</div>` : ''}</div>`;
+}
 function headHTML(d, view, opts) {
   const placing = view.placing ? d.byUid(view.placing) : null;
   const note = placing ? `Choose a slot for ${shortName(placing)}` : view.note;
   return `<button type="button" class="wb-sign wb-sign-quiet dk2-done" id="dk2-done"><span class="wb-sign-text"><b>Done</b></span></button>
    <div class="dk2-tabs" role="tablist" aria-label="${opts.loaned ? 'Loaned cards' : 'Deck screens'}">
     <button type="button" class="dk2-btn dk2-tab" role="tab" id="dk2-tab-chain" aria-controls="dk2-rowpanel" data-tab="chain" aria-selected="${view.tab === 'chain'}" tabindex="${view.tab === 'chain' ? 0 : -1}"><span>Chain</span></button>
-    <button type="button" class="dk2-btn dk2-tab" role="tab" id="dk2-tab-deck" aria-controls="dk2-deckpanel" data-tab="deck" aria-selected="${view.tab === 'deck'}" tabindex="${view.tab === 'deck' ? 0 : -1}"><span>Deck</span></button>
+    <button type="button" class="dk2-btn dk2-tab" role="tab" id="dk2-tab-deck" aria-controls="dk2-deckpanel" data-tab="deck" aria-selected="${view.tab === 'deck'}" tabindex="${view.tab === 'deck' ? 0 : -1}"${d.unseen.size ? ' aria-label="Deck, new cards"' : ''}><span>Deck</span>${d.unseen.size ? '<i class="dk2-dot dk2-tabdot" aria-hidden="true"></i>' : ''}</button>
     <button type="button" class="dk2-btn dk2-tab dk-tab-book" role="tab" id="dk2-tab-triggers" aria-controls="dk2-bookpanel" data-tab="triggers" aria-selected="${view.tab === 'triggers'}" tabindex="${view.tab === 'triggers' ? 0 : -1}"><span>Triggers</span></button>
    </div>
    <div class="dk2-context" id="dk2-context"><p class="dk2-note ${placing ? 'dk2-note-mode' : esc(view.noteTone)}" id="dk2-note">${esc(note || (opts.loaned ? 'Loaned cards for practice' : opts.paused ? 'Flight paused' : ''))}</p>
+    ${filterHTML(d, view)}
     <button type="button" class="wb-sign wb-sign-quiet dk2-cancel" id="dk2-placecancel" ${placing ? `aria-label="Cancel: keep ${esc(nameOf(placing))} where it is"` : 'hidden'}><span class="wb-sign-text"><b>Cancel</b></span></button></div>`;
 }
 /** The whole sheet for one run. opts: {locked, loaned, paused, workshop}. */
@@ -364,6 +375,7 @@ export function mountDeckScreen(host, {run, view, opts = {}, actions = {}}) {
     afterRender();
   }
   function afterRender() {
+    if (view.tab === 'deck' && !view.reading) {for (const n of root.querySelectorAll('#dk2-grid .dk2-isnew')) if (!view.shown.includes(n.dataset.uid)) view.shown.push(n.dataset.uid);}
     root.querySelectorAll('.dk2-stations .skill-card, #dk2-grid .skill-card').forEach(node => {node.setAttribute('aria-hidden', 'true');node.querySelectorAll('[role="img"]:not(.card-sight-warning)').forEach(el => el.removeAttribute('role'));});
     root.querySelectorAll('#dk2-grid svg[role="img"]').forEach(svg => {svg.removeAttribute('role');svg.setAttribute('aria-hidden', 'true');});
     // The opened card: the real full face, read-only; the approved Spark icon (16px grid) replaces the old symbol.
@@ -627,17 +639,21 @@ export function mountDeckScreen(host, {run, view, opts = {}, actions = {}}) {
   }
 
   // ── Moves ───────────────────────────────────────────────────────────────────
+  // NEW badges: tiles shown in the Deck tab count as seen once the player leaves it; a tap, read or move clears one at once.
+  function flushSeen() {const ids = view.shown;view.shown = [];if (ids.length) actions.seen?.(ids);}
+  function seeNow(uid) {if (uid && d.unseen.has(uid)) {view.shown = view.shown.filter(id => id !== uid);actions.seen?.([uid]);d = deckData(run, view);}}
   function showTab(tab, {focus = true, from = null} = {}) {
     if (tab === view.tab) return;
     if (tab === 'triggers') {view.bookFrom = from || view.tab;view.pick = null;view.placing = null;}
     if (tab === 'chain') view.pick = null;
     if (tab === 'deck') view.placing = null;
-    view.tab = tab;renderAll();
+    if (view.tab === 'deck') flushSeen();
+    view.menu = false;view.tab = tab;renderAll();
     if (focus) $(`dk2-tab-${tab}`)?.focus({preventScroll: true});
   }
   // Every real change goes to the app, which reopens the sheet; this view state is kept for that reopen.
   function commit(uid, slot, text) {
-    const expected = d.row[slot]?.instanceId || null;
+    const expected = d.row[slot]?.instanceId || null;seeNow(uid);
     view.pick = null;view.placing = null;view.tab = 'chain';view.reading = null;view.melting = null;
     say(text, 'dk2-note-done');view.focus = {slot};view.announce = text;
     actions.transfer?.(uid, slot, expected);
@@ -691,7 +707,7 @@ export function mountDeckScreen(host, {run, view, opts = {}, actions = {}}) {
   const openerKey = el => el?.classList?.contains('tb-card') ? `.tb-card[data-uid="${CSS.escape(el.dataset.uid)}"]` : el?.dataset?.slot !== undefined && el.closest('.dk2-station') ?`[data-slot="${el.dataset.slot}"].${el.classList.contains('dk21-eye') ? 'dk21-eye' : 'dk2-card'}` : el?.dataset?.uid ? `.${el.classList.contains('dk21-eye') ? 'dk21-eye' : 'dk2-tilemain'}[data-uid="${CSS.escape(el.dataset.uid)}"]` : null;
   function openCard(c, from) {
     if (!c || view.reading) return;
-    view.reading = c.instanceId;view.melting = null;opener = openerKey(from);
+    seeNow(c.instanceId);view.reading = c.instanceId;view.melting = null;opener = openerKey(from);
     renderAll();
     $('dk2-close')?.focus({preventScroll: true});
     const w = whenOf(c);
@@ -765,7 +781,14 @@ export function mountDeckScreen(host, {run, view, opts = {}, actions = {}}) {
     if (t.closest('#dk2-play')) {if (view.placing) cancelPlacing();play();return;}
     const sel = t.closest('.dk22-tsel');
     if (sel) {setTrigger(sel.dataset.trigger);return;}
+    if (view.menu && !t.closest('#dk2-filtermenu')) {
+      const toggle = t.closest('#dk2-filter');
+      view.menu = false;renderAll();
+      if (toggle) {$('dk2-filter')?.focus({preventScroll: true});return;}
+    }
+    if (t.closest('#dk2-filter')) {view.menu = true;renderAll();root.querySelector('#dk2-filtermenu [aria-checked="true"]')?.focus({preventScroll: true});return;}
     const filter = t.closest('[data-filter]');
+    if (filter) {view.filter = filter.dataset.filter;view.menu = false;renderAll();$('dk2-filter')?.focus({preventScroll: true});announce(`${view.filter === 'all' ? 'All cards' : RARITY_WORD[view.filter]}: ${countOf(d, view.filter)}.`);return;}
     if (filter) {view.filter = filter.dataset.filter;renderAll();root.querySelector(`[data-filter="${view.filter}"]`)?.focus({preventScroll: true});announce(`${view.filter === 'all' ? 'All cards' : RARITY_WORD[view.filter]}: ${countOf(d, view.filter)}.`);return;}
     if (t.closest('#dk2-sort')) {view.sort = view.sort === 'rarity' ? 'name' : 'rarity';renderAll();$('dk2-sort')?.focus({preventScroll: true});announce(`Sorted by ${view.sort}.`);return;}
     const eye = t.closest('.dk21-eye');
@@ -786,6 +809,7 @@ export function mountDeckScreen(host, {run, view, opts = {}, actions = {}}) {
   // Escape steps back one layer: Melt question, opened card, pick or place mode, then the whole sheet.
   // Handled on keydown so the browser's dialog close request (which may skip a repeated cancel) never runs.
   const stepBack = () => {
+    if (view.menu) {view.menu = false;renderAll();$('dk2-filter')?.focus({preventScroll: true});return;}
     if (view.reading) {if (view.melting) keepCard(); else closeCard();return;}
     if (view.pick !== null) {cancelPick();return;}
     if (view.placing) {cancelPlacing();return;}
@@ -867,6 +891,7 @@ export function mountDeckScreen(host, {run, view, opts = {}, actions = {}}) {
   document.addEventListener('trigger-book', onBook);
   host.addEventListener('close', () => {
     document.removeEventListener('trigger-book', onBook);
+    if (view.tab === 'deck') flushSeen();
     stopPlay();resize.disconnect();short?.removeEventListener?.('change', onShort);
     window.removeEventListener('pointermove', onMove);window.removeEventListener('pointerup', endDrag);window.removeEventListener('pointercancel', endDrag);
   }, {once: true});

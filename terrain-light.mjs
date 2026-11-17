@@ -1,4 +1,4 @@
-import {LIGHT_EXTENT,lightAttenuation} from './light-attenuation.mjs?v=brands-1';
+import {LIGHT_EXTENT,lightAttenuation} from './light-attenuation.mjs?v=deck-2';
 
 // Rendering only: rock consumes 4.5 units of Luminance reach for each unit
 // travelled. Gameplay visibility, encounters and collection use their own law.

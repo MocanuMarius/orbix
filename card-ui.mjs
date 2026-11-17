@@ -1,12 +1,12 @@
-import { cardTermTextMarkup } from "./card-terms.mjs?v=brands-1";
-import { uiIcon } from "./ui-icons.mjs?v=brands-1";
-import { getCardRuleBands, getCardTrigger } from "./card-rule-bands.mjs?v=brands-1";
-import { chipBadge, rarityPips } from "./ui/trigger-icons.mjs?v=brands-1";
-import { devourTally, isDevourCard } from "./card-black-hole.mjs?v=brands-1";
-import { getEquippedCardStatuses, cardStatusText } from "./card-status.mjs?v=brands-1";
-import { activeFlightPact } from './flight-pacts.mjs?v=brands-1';
-import { cardArt } from "./card-art.mjs?v=brands-1";
-import {deckRelicShelfMarkup,deckContextMarkup,deckLinkedCardFace,deckSwapComboMarkup,deckCardExplanationMarkup} from './deck-combos.mjs?v=brands-1';
+import { cardTermTextMarkup } from "./card-terms.mjs?v=deck-2";
+import { uiIcon } from "./ui-icons.mjs?v=deck-2";
+import { getCardRuleBands, getCardTrigger } from "./card-rule-bands.mjs?v=deck-2";
+import { chipBadge, rarityPips } from "./ui/trigger-icons.mjs?v=deck-2";
+import { devourTally, isDevourCard } from "./card-black-hole.mjs?v=deck-2";
+import { getEquippedCardStatuses, cardStatusText } from "./card-status.mjs?v=deck-2";
+import { activeFlightPact } from './flight-pacts.mjs?v=deck-2';
+import { cardArt } from "./card-art.mjs?v=deck-2";
+import {deckRelicShelfMarkup,deckContextMarkup,deckLinkedCardFace,deckSwapComboMarkup,deckCardExplanationMarkup} from './deck-combos.mjs?v=deck-2';
 import {
   getMountedCards,
   getOwnedCards,
@@ -21,13 +21,13 @@ import {
   canUseCardCampServices,
   getSkillWallet,
   equipOwnedCard,
-} from "./model.mjs?v=brands-1";
-import { resourceSymbol } from "./game-symbols.mjs?v=brands-1";
-import { choiceScene } from "./choice-art.mjs?v=brands-1";
-import { livesMarkup } from "./lives.mjs?v=brands-1";
-import { getGlowCapacity, formatGlow } from "./vitality.mjs?v=brands-1";
-import { mapStopIconMarkup } from "./map-guide.mjs?v=brands-1";
-import {canDreamAt, dreamConfig} from './dream.mjs?v=brands-1';
+} from "./model.mjs?v=deck-2";
+import { resourceSymbol } from "./game-symbols.mjs?v=deck-2";
+import { choiceScene } from "./choice-art.mjs?v=deck-2";
+import { livesMarkup } from "./lives.mjs?v=deck-2";
+import { getGlowCapacity, formatGlow } from "./vitality.mjs?v=deck-2";
+import { mapStopIconMarkup } from "./map-guide.mjs?v=deck-2";
+import {canDreamAt, dreamConfig} from './dream.mjs?v=deck-2';
 import {
   getEffectiveCardSources,
   createCardExecution,
@@ -40,7 +40,7 @@ import {
   isInventoryOnlyCard,
   SKILL_CARDS,
   cardTallyLine,
-} from "./skill-cards.mjs?v=brands-1";
+} from "./skill-cards.mjs?v=deck-2";
 
 const esc = (v) =>
   String(v ?? "").replace(
@@ -89,7 +89,7 @@ function flightPackingReceipt(run, reward) {
     ? ` · Tight Packing +${bonus} Stored Sparks`
     : "";
 }
-export { cardArt } from "./card-art.mjs?v=brands-1";
+export { cardArt } from "./card-art.mjs?v=deck-2";
 export function effectMarkup(text) {
   return esc(text).replace(/([+−]?\d+(?:\.\d+)?%?)/g, '<b class="card-number">$1</b>');
 }
@@ -252,19 +252,18 @@ export function cardDraftOffersMarkup(draft,{className=''}={}) {
   if (!draft?.offers?.length) return '';
   return `<div class="card-draft-offers${className?` ${esc(className)}`:''}" role="group" aria-label="Choose one of three cards">${draft.offers.map(card => `<div class="card-draft-option"><div class="card-draft-face">${cardFace(card)}</div><button class="primary" data-action="card-draft-pick" data-draft-id="${esc(draft.id)}" data-id="${esc(card.instanceId)}" aria-label="Choose ${esc(cardName(card))}, ${esc(rarity(card))}">Choose ${esc(cardName(card))}</button></div>`).join('')}</div>`;
 }
-export function cardRewardMarkup(run, { equipping = false, notice = '' } = {}) {
+export function cardRewardMarkup(run, { equipping = false, notice = '', forceReceipt = false } = {}) {
   const reward = getCardReward(run), card = reward?.card;
   if (!card) return '';
   if (reward.trophy) return `<section class="card-reward-screen card-draft-trophy"><header class="card-heading"><div><small>FINAL GUARDIAN · GAME COMPLETE</small><h1>Your chosen card</h1></div></header><div class="card-reward-body"><div class="card-reward-new">${cardFace(card)}</div><div class="card-reward-choice"><h2>Added to your collection</h2><p>Your winning cards are recorded as they were when the Round ended.</p><button class="primary" data-action="card-reward-continue">Continue</button></div></div></section>`;
   const owned = getOwnedCards(run).find(c => c.instanceId === card.instanceId), slots = getMountedCards(run), statuses = getEquippedCardStatuses(run).map((status,i)=>getCardFaceAvailability(run,slots[i],status).status);
   const equipped = !!owned?.mounted;
-  if (isInventoryOnlyCard(card)) {
-    const availability = card.kind === 'camp-grow' ? `${3 - getCardGrowthUses(run)}/3 shared Grow actions remaining this journey.` : 'Its use is spent only after your second different Rest action succeeds.';
-    return `<section data-deck-surface="reward" data-deck-editable="false" class="card-reward-screen card-deck-receipt card-reward-inventory"><header class="card-heading"><div><small>${reward.source === 'forge' ? 'FORGED CARD' : 'FLIGHT REWARD'}${flightPackingReceipt(run, reward)}</small><h1>New card</h1></div><button class="secondary" data-action="menu">Menu</button></header><div class="card-reward-body"><div class="card-reward-new">${cardFace(owned || card)}</div><div class="card-reward-choice">${flightCardChangesMarkup(run)}<h2>${deckIcon()} In your Deck</h2><p>Available at Rest directly from your Deck.</p><p>${availability}</p><div class="card-reward-actions"><button class="primary" data-action="card-reward-continue">Add to collection</button>${owned ? `<button class="secondary card-danger card-melt-action" data-action="card-preview-reward-melt" ${!getCardMeltPreview(run, [card.instanceId]).eligible ? 'disabled' : ''}>${furnaceIcon()} Melt…</button>` : ''}</div></div></div></section>`;
+  if (isInventoryOnlyCard(card) || forceReceipt) {
+    const availability = !isInventoryOnlyCard(card) ? 'Equip it any time from the Deck.' : card.kind === 'camp-grow' ? `${3 - getCardGrowthUses(run)}/3 shared Grow actions remaining this journey.` : 'Its use is spent only after your second different Rest action succeeds.';
+    return `<section data-deck-surface="reward" data-deck-editable="false" class="card-reward-screen card-deck-receipt card-reward-inventory"><header class="card-heading"><div><small>${reward.source === 'forge' ? 'FORGED CARD' : 'FLIGHT REWARD'}${flightPackingReceipt(run, reward)}</small><h1>New card</h1></div><button class="secondary" data-action="menu">Menu</button></header><div class="card-reward-body"><div class="card-reward-new">${cardFace(owned || card)}</div><div class="card-reward-choice">${flightCardChangesMarkup(run)}<h2>${deckIcon()} In your Deck</h2>${isInventoryOnlyCard(card) ? '<p>Available at Rest directly from your Deck.</p>' : ''}<p>${availability}</p><div class="card-reward-actions"><button class="primary" data-action="card-reward-continue">Add to collection</button>${owned ? `<button class="secondary card-danger card-melt-action" data-action="card-preview-reward-melt" ${!getCardMeltPreview(run, [card.instanceId]).eligible ? 'disabled' : ''}>${furnaceIcon()} Melt…</button>` : ''}</div></div></div></section>`;
   }
-  const targetable = equipping && !!owned, outgoingDestination = equipped ? `slot ${owned.slot + 1}` : 'Deck';
-  const incomingFace = cardFace(owned || card,{availability:getCardFaceAvailability(run,owned || card)}).replace('<div class="card-illustration">', `<div class="card-illustration" ${owned ? `data-deck-drag-id="${esc(owned.instanceId)}"` : ''}>`);
-  return `<section data-deck-surface="reward" data-deck-editable="${!!owned}" class="card-reward-screen card-deck-receipt card-reward-equip ${targetable ? 'card-reward-targeting' : ''}"><header class="card-heading"><div><small>${reward.source === 'forge' ? 'FORGED CARD' : 'FLIGHT REWARD'}${flightPackingReceipt(run, reward)}</small><h1>${equipped ? 'Card equipped' : reward.source === 'forge' ? 'Card forged' : 'Flight complete'}</h1></div><button class="secondary" data-action="menu">Menu</button></header><div class="card-reward-body"><div class="card-reward-incoming"><h2 class="card-reward-group-heading">New card</h2><div class="card-reward-new" data-deck-card>${incomingFace}</div></div><div class="card-reward-choice"><h2 class="card-reward-group-heading">Equipped</h2>${flightCardChangesMarkup(run)}<div class="card-reward-slots" role="group" aria-label="Your equipped cards" data-slot-count="${slots.length}">${slots.map((c,i)=>{const active=targetable&&c?.instanceId!==card.instanceId;return `<div class="card-reward-slot ${active ? 'card-slot-target' : ''}" role="${active ? 'button' : 'group'}" tabindex="${active ? '0' : '-1'}" data-action="card-reward-slot" data-index="${i}" data-deck-drop="slot" data-deck-slot-id="${esc(c?.instanceId || '')}" data-deck-slot-name="${esc(c ? cardName(c) : '')}" aria-label="${active ? `Equip ${esc(cardName(card))} in ` : ''}slot ${i+1}: ${c ? esc(cardName(c)) : 'empty'}${active && c ? `. ${esc(cardName(c))} returns to ${outgoingDestination} with its uses.` : ''}"><span class="card-reward-slot-rail"><b>${i+1}</b><span>${c && statuses[i]?.state!=='ready' ? cardStatusMarkup(statuses[i]) : !c ? 'Empty slot' : ''}</span></span><div class="card-reward-mounted-face">${cardFace(c,{slot:i,availability:getCardFaceAvailability(run,c,statuses[i])})}</div></div>`;}).join('')}</div></div></div><footer class="card-reward-footer"><p class="card-reward-prompt" role="status">${esc(notice || (targetable ? `Choose a slot · outgoing card returns to ${outgoingDestination}` : ''))}</p><div class="card-reward-actions">${equipping ? '<button class="secondary" data-action="card-reward-cancel">Cancel</button>' : `<button class="primary" data-action="card-reward-continue">${equipped ? 'Continue →' : 'Add to collection'}</button>${owned ? `<button class="secondary card-equip-positive" data-action="card-reward-equip">${deckIcon('slot')} ${equipped ? 'Move' : 'Equip'}</button><button class="secondary card-danger card-melt-action" data-action="card-preview-reward-melt" ${!getCardMeltPreview(run, [card.instanceId]).eligible ? 'disabled' : ''}>${furnaceIcon()} Melt…</button>` : ''}`}</div></footer></section>`;
+  // A won card is taken straight into the Deck (claimDraftedCard in model.mjs); there is no equip step to draw.
+  return cardRewardMarkup(run, {equipping: false, notice, forceReceipt: true});
 }
 // Kept as a harmless compatibility export for older inspector links.
 export function cardReplacementMarkup() { return ''; }

@@ -7,12 +7,12 @@
 // LEFT did to it (an Echo repeating it). Later Boosts and the Encore keep their own plates. Honesty rule: the
 // plates read left to right (+ adds, × multiplies the running figure, Encore repeats the line, each firing
 // rounded down to whole Sparks) must give the resolver's total; when they do not, plates show plain figures.
-import {SKILL_CARDS, CARD_UNIT, getCardRowRule, hasCardRowEvent, previewCardRow, isInventoryOnlyCard, describeSkillCard, cardAmount} from '../skill-cards.mjs?v=brands-1';
-import {getGlowCapacity, glowPoints, GLOW_DISPLAY_SCALE} from '../vitality.mjs?v=brands-1';
-import {CARD_TRIGGERS, getCardTrigger} from '../card-rule-bands.mjs?v=brands-1';
+import {SKILL_CARDS, CARD_UNIT, getCardRowRule, hasCardRowEvent, previewCardRow, isInventoryOnlyCard, describeSkillCard, cardAmount} from '../skill-cards.mjs?v=deck-2';
+import {getGlowCapacity, glowPoints, GLOW_DISPLAY_SCALE} from '../vitality.mjs?v=deck-2';
+import {CARD_TRIGGERS, getCardTrigger} from '../card-rule-bands.mjs?v=deck-2';
 import {DISPLAY_GROUPS, GROUP_TERM} from '../card-trigger-labels.mjs';
-import {hasEngineCards, engineMetrics, findEngineLoop, engineStarts} from '../card-engine.mjs?v=brands-1';
-import {previewBlackHoleMeals, devourTally} from '../card-black-hole.mjs?v=brands-1';
+import {hasEngineCards, engineMetrics, findEngineLoop, engineStarts} from '../card-engine.mjs?v=deck-2';
+import {previewBlackHoleMeals, devourTally} from '../card-black-hole.mjs?v=deck-2';
 
 /** The Triggers in the designer's order, with the game's names and glossary keys (card-terms.mjs). */
 export const TRIGGERS = Object.freeze([
@@ -63,15 +63,16 @@ export const START_SPARKS = 6;
 export const START_FLAME = START_SPARKS / GLOW_DISPLAY_SCALE;
 const eventFor = kind => Object.freeze({kind, pickupKind: 'light', meterFraction: START_FLAME / METER_MAX});
 
-export function solveTrigger(row, kind) {
-  const listens = hasCardRowEvent(row, kind);
+export function solveTrigger(row, kind, inscriptions = null) {
+  const snap = inscriptions?.some(Boolean) ? {cards: row, inscriptions} : row;
+  const listens = hasCardRowEvent(snap, kind);
   const ev = eventFor(kind);
-  const receipt = previewCardRow({cards: row}, listens ? ev : {...ev, eligible: false});
+  const receipt = previewCardRow(inscriptions?.some(Boolean) ? {cards: row, inscriptions} : {cards: row}, listens ? ev : {...ev, eligible: false});
   const gainFlame = Math.min(receipt.sparks * CARD_UNIT, Math.max(0, METER_MAX - START_FLAME));
   return {kind, listens, receipt, steps: receipt.steps, sparks: receipt.sparks, gainFlame, gain: glowPoints(gainFlame)};
 }
 /** A Trigger fires this chain when a card listens to it AND the resolver, run with it, has a card that acts. */
-export const triggersFor = row => TRIGGERS.filter(t => hasCardRowEvent(row, t.kind) && solveTrigger(row, t.kind).steps.some(st => st.success));
+export const triggersFor = (row, inscriptions = null) => TRIGGERS.filter(t => hasCardRowEvent(inscriptions?.some(Boolean) ? {cards: row, inscriptions} : row, t.kind) && solveTrigger(row, t.kind, inscriptions).steps.some(st => st.success));
 
 /** Plates: each card's own contribution in the first firing, with only earlier repeats added to it. */
 export function leftAttribute(row, sol) {
@@ -165,11 +166,12 @@ export function plateSum(ctx, useEff) {
 }
 
 /** Everything the Chain tab needs for one row and one wanted Trigger. */
-export function resolveChain(row, wanted = null) {
+/** inscriptions: the run's slot Inscriptions aligned to the row ([{id}|null]); the numbers then match a real flight. */
+export function resolveChain(row, wanted = null, inscriptions = null) {
   const cards = (row || []).map(c => c || null);
-  const trigs = triggersFor(cards);
+  const trigs = triggersFor(cards, inscriptions);
   const trigger = trigs.some(t => t.kind === wanted) ? wanted : trigs[0]?.kind || 'body-spark';
-  const sol = solveTrigger(cards, trigger);
+  const sol = solveTrigger(cards, trigger, inscriptions);
   const ctx = {row: cards, sol, attr: null, plain: false, trigger, trigs};
   ctx.attr = leftAttribute(cards, sol);
   if (!ctx.attr || Math.abs(plateSum(ctx, true) - Math.round(sol.sparks * 100) / 100) > .011) ctx.plain = true;

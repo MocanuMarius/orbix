@@ -84,3 +84,15 @@ export const hollowBonus = (source, slot, occupied) => occupied ? 0 : (slotInscr
 export const lodestoneBonus = (source, slot) => [slot - 1, slot + 1].reduce((sum, s) => sum + (slotInscriptionId(source, s) === 'lodestone' ? INSCRIPTIONS.lodestone.bonus : 0), 0);
 export const capacityBonusSparks = source => countInscription(source, 'hearth') * INSCRIPTIONS.hearth.capacity;
 export const emberBedStored = (source, cards) => { const beds = countInscription(source, 'ember-bed'); if (!beds) return 0; const empty = (cards || []).filter(card => !card).length; return beds * (INSCRIPTIONS['ember-bed'].stored + empty); };
+
+/** The slot Inscriptions of a run, aligned to `cards` ([{id}|null]), or null when no slot carries one. */
+export function slotInscriptionList(run, cards = run?.mountedCards || []) {
+  const src = run?.slotInscriptions;
+  if (!Array.isArray(src) || !src.some(entry => entry?.id)) return null;
+  return Array.from({length: cards.length}, (_, i) => src[i]?.id ? {id: src[i].id} : null);
+}
+/** What the read-only previews hand to previewCardRow / hasCardRowEvent: the cards alone (as before), or cards + the run's Inscriptions, exactly as a flight builds its execution. */
+export function rowSnapshot(run, cards = run?.mountedCards || []) {
+  const inscriptions = slotInscriptionList(run, cards);
+  return inscriptions ? {cards, inscriptions} : cards;
+}

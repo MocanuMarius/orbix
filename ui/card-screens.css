@@ -621,3 +621,24 @@ html body dialog.wb-dlg.bh-confirm .bh-confirm-acts>button{min-width:120px;min-h
 #dk-root .dk2-inscription .ins-glyph{flex:none;color:var(--ink)}
 #dk-root .dk2-inscription p{margin:0 0 2px;font:400 13px/16px var(--pixel,monospace)}
 #dk-root .dk2-inscription small{font:400 11px/13px var(--pixel,monospace);color:var(--ink-soft)}
+
+/* NEW badge (unseen cards) and the Filter button + menu in the top bar */
+#dk-root .dk2-new{display:inline-flex;align-items:center;height:14px;padding:0 4px;box-sizing:border-box;background:var(--moss);color:#fff6d8;border:1px solid #2a1d12;font:400 10px/1 var(--pixel,monospace);letter-spacing:1px;white-space:nowrap;flex:none}
+#dk-root .dk2-eyerow>.dk2-new{position:absolute;left:2px;top:50%;transform:translateY(-50%);z-index:3;pointer-events:none}
+#dk-root .dk2-tab{position:relative}
+#dk-root .dk2-dot{display:block;width:8px;height:8px;background:var(--moss);border:2px solid #fff6d8;box-shadow:0 0 0 1px #2a1d12;flex:none}
+#dk-root .dk2-tabdot{position:absolute;top:4px;right:5px}
+#dk-root .dk2-filter{position:relative;margin-left:auto;flex:none}
+#dk-root.dk.dk2 .dk2-filterbtn{display:inline-flex;align-items:center;gap:6px;height:44px;min-width:44px;padding:0 12px;box-sizing:border-box;border:2px solid var(--rule);background:var(--slip);box-shadow:0 2px 0 #b89d62;color:var(--ink);font:400 13px/1 var(--pixel,monospace);white-space:nowrap}
+#dk-root .dk2-filterbtn>small{font:400 11px/1 var(--pixel,monospace);color:var(--ink-soft)}
+#dk-root.dk.dk2 .dk2-filter-on,#dk-root.dk.dk2 .dk2-filterbtn[aria-expanded="true"]{background:var(--ink);border-color:#2a1d12;color:#fff6d8;box-shadow:none}
+#dk-root .dk2-filter-on>small{color:#e8d6a4}
+#dk-root .dk2-filtermenu{position:absolute;right:0;top:calc(100% + 4px);z-index:30;display:grid;gap:4px;min-width:170px;padding:6px;box-sizing:border-box;border:2px solid #2a1d12;background:var(--paper);box-shadow:0 4px 0 #2a1d1255}
+#dk-root.dk.dk2 .dk2-fitem{display:flex;align-items:center;gap:8px;height:44px;padding:0 10px;box-sizing:border-box;border:2px solid var(--rule);background:var(--slip);color:var(--ink);font:400 13px/1 var(--pixel,monospace);text-align:left}
+#dk-root .dk2-fitem>span{flex:1}
+#dk-root .dk2-fitem>b{font-weight:400;padding:2px 4px;background:#2a211820}
+#dk-root .dk2-fitem[aria-checked="true"]{background:var(--ink);color:#fff6d8;border-color:#2a1d12}
+#dk-root .dk2-fclear{justify-content:center;background:transparent}
+/* The Filter menu opens over the tiles below the header */
+html body #dk-root .dk2-head:not(#k){z-index:40}
+#dk-root .dk2-filtermenu{width:max-content;min-width:176px}

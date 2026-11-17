@@ -1,7 +1,7 @@
 // A disposable deck for phone inspection. Never reads or writes a player save.
-import { newState, createRun, advanceMap, getSupportChoices, getChoices, selectNode, beginFlightAttempt, markFlightAttemptStarted, finishFlight, settleCheckpoint } from './model.mjs?v=brands-1';
-import { makeSkillCard } from './skill-cards.mjs?v=brands-1';
-import { cleanSlotInscriptions, writeInscription, INSCRIPTIONS } from './inscriptions.mjs?v=brands-1';
+import { newState, createRun, advanceMap, getSupportChoices, getChoices, selectNode, beginFlightAttempt, markFlightAttemptStarted, finishFlight, settleCheckpoint } from './model.mjs?v=deck-2';
+import { makeSkillCard } from './skill-cards.mjs?v=deck-2';
+import { cleanSlotInscriptions, writeInscription, INSCRIPTIONS } from './inscriptions.mjs?v=deck-2';
 
 export function prepareCardInspectorReward(run, cardId = 'harvest-rare') {
   if (run.cardReward && !run.cardReward.uiAcknowledged) return;
@@ -171,6 +171,8 @@ export function createCardInspectorState(params = new URLSearchParams()) {
   }
   // Dev only: ?mock=cards&chain=...&slots=0:gilded,2:hollow writes Inscriptions on slots (nothing is saved).
   if (params.get('slots')) applyInscriptionSlots(run, params.get('slots'));
+  // Dev only: ?new=1 marks every reserve card and the first mounted card as unseen (shows the NEW badges; nothing is saved).
+  if (params.get('new')) run.unseenCardIds = [...run.reserveCards, run.mountedCards.find(Boolean)].filter(Boolean).map(c => c.instanceId);
   // Dev only: ?mock=cards&scenario=scribe opens the Scribe after an Elite (offers=id,id,id; pick=id jumps to the slot step).
   if (params.get('scenario') === 'scribe') openMockScribe(run, params.get('offers'));
   return state;

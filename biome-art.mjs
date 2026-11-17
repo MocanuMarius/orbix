@@ -1,5 +1,5 @@
-import {drawAuthoredMaterial} from './authored-environment.mjs?v=brands-1';
-import {pineCrown} from './pixel-contour.mjs?v=brands-1';
+import {drawAuthoredMaterial} from './authored-environment.mjs?v=deck-2';
+import {pineCrown} from './pixel-contour.mjs?v=deck-2';
 // Original pixel scenery. Backdrops and solid materials are rasterized by the
 // existing renderer caches; only a few matte weather pixels animate each frame.
 // Nothing here emits light or draws outside the simulation's solid silhouettes.

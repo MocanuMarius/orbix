@@ -1,10 +1,11 @@
 /** Small, read-only explanations for the actual chain. */
-import {SKILL_CARDS, getMountedCards, getEffectiveCardSources, getCardRowRule, previewCardRowEvent, CARD_ROW_EVENTS, getUseDoublerTarget, getEmberFeederTargets, getCardFeederCapacity, getAlwaysOnCardBoosts} from './skill-cards.mjs?v=brands-1';
-import {getCardRuleBands} from './card-rule-bands.mjs?v=brands-1';
-import {getEquippedCardStatuses} from './card-status.mjs?v=brands-1';
-import {ARTIFACTS} from './model.mjs?v=brands-1';
-import {artifactDescription} from './artifact-copy.mjs?v=brands-1';
-import {artifactPixelPortrait} from './artifact-pixel-art.mjs?v=brands-1';
+import {SKILL_CARDS, getMountedCards, getEffectiveCardSources, getCardRowRule, previewCardRowEvent, CARD_ROW_EVENTS, getUseDoublerTarget, getEmberFeederTargets, getCardFeederCapacity, getAlwaysOnCardBoosts} from './skill-cards.mjs?v=deck-2';
+import {rowSnapshot} from './inscriptions.mjs?v=deck-2';
+import {getCardRuleBands} from './card-rule-bands.mjs?v=deck-2';
+import {getEquippedCardStatuses} from './card-status.mjs?v=deck-2';
+import {ARTIFACTS} from './model.mjs?v=deck-2';
+import {artifactDescription} from './artifact-copy.mjs?v=deck-2';
+import {artifactPixelPortrait} from './artifact-pixel-art.mjs?v=deck-2';
 
 const esc=value=>String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const number=value=>Number(Number(value||0).toFixed(3));
@@ -70,13 +71,13 @@ export function getDeckCardExplanation(run,card){
     const kinds=rule.event==='*'?Object.values(CARD_ROW_EVENTS):[rule.event];
     for(const kind of kinds){
       const event={kind,firstCrossing:true,pickupKind:when.pickupKind||'light',meterFraction:when.meterAtMost??.2,direction:when.direction||'up',guardRecovering:!!when.guardRecovering,collectorReeling:!!when.collectorReeling,availableRecovery:10,availableReel:when.collectorReeling?10:0,carriedStored:Math.floor(run.carriedCondensedGlow||run.condensedGlow||0)};
-      const trace=previewCardRowEvent(run.mountedCards,event),steps=trace.steps.filter(step=>step.slot===card.slot&&step.success&&step.operation!=='replay-row');
+      const trace=previewCardRowEvent(rowSnapshot(run,run.mountedCards),event),steps=trace.steps.filter(step=>step.slot===card.slot&&step.success&&step.operation!=='replay-row');
       if(steps.length){example={trace,steps,event};break;}
     }
   }else if(card.kind==='refrain'&&status?.state==='ready'){
     for(const kind of Object.values(CARD_ROW_EVENTS)){
       const event={kind,firstCrossing:true,pickupKind:'light',meterFraction:.2,direction:'up',availableRecovery:10,availableReel:10,collectorReeling:true,carriedStored:Math.floor(run.condensedGlow||0)};
-      const trace=previewCardRowEvent(run.mountedCards,event);
+      const trace=previewCardRowEvent(rowSnapshot(run,run.mountedCards),event);
       if(trace.steps.some(step=>step.pass===2&&step.success&&step.operation!=='replay-row'&&getEquippedCardStatuses(run)[step.slot]?.state!=='blocked')){example={trace,steps:[],event};break;}
     }
   }
@@ -108,7 +109,7 @@ export function getDeckComboLinks(run={}) {
   const find=kind=>eligible(kind).find(source=>SKILL_CARDS[cards[source.index]?.cardId]?.kind===kind)||eligible(kind)[0];
   const rhythm=find('rhythm'),harvest=find('harvest'),ring=find('ring-spring'),links=[];
   if(rhythm&&harvest){
-    const trace=previewCardRowEvent(run.mountedCards,{kind:CARD_ROW_EVENTS.wave,firstCrossing:true,pickupKind:'light',availableRecovery:0});
+    const trace=previewCardRowEvent(rowSnapshot(run,run.mountedCards),{kind:CARD_ROW_EVENTS.wave,firstCrossing:true,pickupKind:'light',availableRecovery:0});
     const step=trace.steps.find(step=>step.sourceInstanceId===harvest.source.instanceId&&step.success);
     links.push({id:'rhythm-harvest',name:'Rhythm → Harvest',sourceSlot:rhythm.index,targetSlot:harvest.index,
       sourceText:'Send out one Pulse',targetText:'Pulse crosses a Spark',result:`+${number(step?.amount)} on crossing`,
@@ -116,7 +117,7 @@ export function getDeckComboLinks(run={}) {
       note:'Either slot order works. A Pulse must reach a Spark; making the Pulse alone gives no Harvest payout.'});
   }
   if(ring&&(run.artifacts||[]).includes('dawn-loom')){
-    const trace=previewCardRowEvent(run.mountedCards,{kind:CARD_ROW_EVENTS.overfill,availableRecovery:10,meterFraction:1});
+    const trace=previewCardRowEvent(rowSnapshot(run,run.mountedCards),{kind:CARD_ROW_EVENTS.overfill,availableRecovery:10,meterFraction:1});
     const step=trace.steps.find(step=>step.slot===ring.index&&step.success);
     links.push({id:'ring-dawn',name:'Ring Spring → Dawn Loom',sourceSlot:ring.index,targetArtifact:'dawn-loom',
       sourceText:'Shorten recovery',targetText:'Recovery actually shortened',result:`−${number(step?.recoverySeconds)}s → light ahead`,
@@ -168,7 +169,7 @@ export function deckSwapComboMarkup(before,after,incoming){
   for(const link of beforeLinks)if(!afterLinks.some(next=>next.id===link.id))lines.push(`<p class="deck-swap-warning"><strong>Breaks ${esc(link.name)}.</strong> ${link.id==='rhythm-harvest'?'This row loses its Rhythm-to-Harvest connection.':'Dawn Loom no longer has a Ring Spring trigger in this row.'}</p>`);
   const placedSlot=next.findIndex(card=>card?.instanceId===incoming?.instanceId),placed=next[placedSlot];
   if(placed?.kind==='toll-bell'){
-    const status=statuses[placedSlot],trace=previewCardRowEvent(after.mountedCards,{kind:CARD_ROW_EVENTS.rhythm});
+    const status=statuses[placedSlot],trace=previewCardRowEvent(rowSnapshot(after,after.mountedCards),{kind:CARD_ROW_EVENTS.rhythm});
     const step=trace.steps.find(step=>step.slot===placedSlot&&step.success);
     lines.push(`<p class="${status?.state==='blocked'?'deck-swap-warning':'deck-swap-gain'}"><strong>${esc(status?.label)}.</strong> ${status?.state==='blocked'?esc(status.reason):`3 evenly timed Lifts also give +${number(step?.amount)} Sparks from Toll Bell.`}</p>`);
   }

@@ -244,3 +244,8 @@ html body .receipt-detail-body .flight-reward-detail-terms button.card-term{colo
 .receipt-detail-body .effect-benefit{color:#2f5a1f!important}.receipt-detail-body .effect-cost{color:#8a2a20!important}
 html body .receipt-detail-body .artifact-explanation>.artifact-trigger-line,html body .receipt-detail-body .artifact-explanation>.artifact-limit-line,html body .receipt-detail-body .artifact-duration{color:#5a4632}
 html body .receipt-detail-body .artifact-explanation>.artifact-effect-main{color:#2a2118}
+/* Tapping the pack disables it for the opening animation; the global button:disabled fade (opacity .45) and the
+   focus box must not flash over the pack, only the seal-break animation plays. */
+html body .flight-reward-ceremony button.flight-reward-pack:disabled{opacity:1!important;filter:none!important;cursor:default}
+html body .flight-reward-ceremony button.flight-reward-pack:focus:not(:focus-visible){outline:none!important;filter:none!important}
+html body .flight-reward-ceremony.flight-reward-opening button.flight-reward-pack .flight-reward-pack-art{filter:drop-shadow(0 5px 0 #725a3044)}
