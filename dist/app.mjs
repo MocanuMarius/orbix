@@ -90,7 +90,7 @@ import {cardWorkshopMarkup,cardRefillMarkup} from './card-workshop.mjs?v=guide-c
 import {createCardInspectorState,prepareCardInspectorReward} from './card-inspector.mjs?v=guide-clarity-1';
 import {installCardTermHelp} from './card-terms.mjs?v=guide-clarity-1';
 import {resolveCardHelpContext} from './card-row-help.mjs?v=guide-clarity-1';
-// v2.3-deck: the Chain and Deck screens. Play on the Chain tab replaces the old Try row (card-row-try.mjs).
+// v2.3-deck: the Chain and Deck screens. Play on the Chain tab replaces the old Try row.
 import {createDeckView,deckScreenMarkup,mountDeckScreen} from './ui/deck-screen.mjs?v=guide-clarity-1';
 installCardTermHelp(document,{
  resolveCardContext:button=>resolveCardHelpContext(button,state.run,{example:cardInspector,snapshot:engine?lastSnapshot:null}),
