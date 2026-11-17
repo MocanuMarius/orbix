@@ -386,6 +386,9 @@ function classifySaveDiff(before, after) {
     else if (d.path === 'run.slotInscriptions' && d.before === undefined && Array.isArray(d.after) && d.after.every(x => x === null)) allowed.push({...d, reason: 'new empty slot Inscriptions'});
     // deck-1 (2026-11-18): NEW badge. Old runs gain an empty list of unseen cards (nothing is new).
     else if (d.path === 'run.unseenCardIds' && d.before === undefined && Array.isArray(d.after) && d.after.length === 0) allowed.push({...d, reason: 'new empty unseen-cards list'});
+    // temp-2 (2026-11-18): chests now end with a choice (Stored Sparks or a surprise card); the stop texts of
+    // chests on an already generated map gain that sentence. Text only.
+    else if (/^run\.map\.\d+\.\d+\.(fuelPreview|commitment|rewardPreview|reward)$/.test(d.path) && typeof d.before === 'string' && typeof d.after === 'string' && d.after.startsWith(d.before) && / Then choose: \+\d+ Stored Sparks or 1 surprise card\.$/.test(d.after)) allowed.push({...d, reason: 'chest stop text gains the new choice'});
     // twin-wick-1 (2026-11-17): Twin Wick's run-wide unlock is gone (a card's effect lives on the card).
     else if (d.path === 'run.cardTwinWickUnlocked' && d.after === undefined) allowed.push({...d, reason: 'run-wide Twin Wick flag removed'});
     // card-rules-1 (2026-11-17): Forge counts crafts per rarity in the run. Old runs gain the tally at zero.
