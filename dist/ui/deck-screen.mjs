@@ -12,12 +12,12 @@ import {getOwnedCards} from '../model.mjs?v=guide-clarity-1';
 import {cardFace, cardArt, getCardFaceAvailability} from '../card-ui.mjs?v=guide-clarity-1';
 import {getEquippedCardStatuses} from '../card-status.mjs?v=guide-clarity-1';
 import {glowGaugeMarkup, glowGaugeUnits} from '../glow-ui.mjs?v=guide-clarity-1';
-import {cardTileLine} from '../card-tile-lines.mjs?v=guide-clarity-1';
+import {cardTileLine, SPARK_ICON_SRC, WISP_ORB_SRC} from '../card-tile-lines.mjs?v=guide-clarity-1';
 import {resolveChain, slotInfo, hereLine, plateWords, whenOf, markOf, TRIGGER_BY, triggerName, RARITY_WORD, rarityOf, nameOf, shortName, isRest, num, METER_MAX, START_FLAME} from './chain-model.mjs?v=guide-clarity-1';
 import {triggerIcon, pixelArt, CHEVRON, gem, EYE, WARN, PLUS, NEXT, FIRE, medalUrl, frameVars} from './trigger-icons.mjs?v=guide-clarity-1';
 
 const esc = v => String(v ?? '').replace(/[&<>"']/g, c => ({'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'}[c]));
-const SPARK_SRC = 'assets/ui/spark.svg';
+const SPARK_SRC = SPARK_ICON_SRC;
 const SPARK_IMG = `<img class="dc-spark" src="${SPARK_SRC}" width="16" height="16" alt="" draggable="false">`;
 const SHORT_QUERY = '(max-height:380px)';
 const RANK = {legendary: 0, rare: 1, common: 2};
@@ -117,7 +117,7 @@ function chainPanelHTML(d, view, opts) {
     <div class="dk2-track" id="dk2-track" aria-hidden="true"></div>
     <div class="dk21-left" id="dk21-left"><h2 class="dk21-thead" id="dk21-thead">Triggers</h2><div class="dk21-chips" id="dk21-chips" role="radiogroup" aria-labelledby="dk21-thead">${chipsHTML(d)}</div>
      <button type="button" class="wb-sign wb-sign-primary dk2-play dk21-play" id="dk2-play" aria-pressed="false" aria-label="${esc(`Play ${tr.name}: watch a Spark pass through your chain. Result: ${sol.sparks > 0 ? `+${num(sol.sparks)}` : 'no'} Bonus`)}"><span class="wb-sign-text"><b>Play</b></span></button></div>
-    <div class="dk2-anchor dk2-start dk21-start" aria-hidden="${has ? 'false' : 'true'}"><span class="dk21-origin" id="dk21-origin">${has ? triggerIcon(chain.trigger, 32) : '<img src="assets/ui/waystone/orb-wisp.svg" width="32" height="32" alt="">'}</span><span class="dk2-start-label" id="dk21-origin-name">${has ? termBtn(chain.trigger, {icon: false, cls: 'dk22-term-origin'}) : 'No Trigger'}</span></div>
+    <div class="dk2-anchor dk2-start dk21-start" aria-hidden="${has ? 'false' : 'true'}"><span class="dk21-origin" id="dk21-origin">${has ? triggerIcon(chain.trigger, 32) : '<img src="${WISP_ORB_SRC}" width="32" height="32" alt="">'}</span><span class="dk2-start-label" id="dk21-origin-name">${has ? termBtn(chain.trigger, {icon: false, cls: 'dk22-term-origin'}) : 'No Trigger'}</span></div>
     <div class="dk2-stations" id="dk2-stations">${stationsHTML(d, view, opts)}</div>
     <div class="dk22-sum" id="dk22-sum" role="img" aria-label="${esc(sumLabel)}"><i class="dk22-eq" aria-hidden="true"></i><small class="dk23-passes" id="dk23-passes" aria-hidden="true">${esc(passes)}</small><span class="dk22-medal${text.length > 3 ? ' dk22-long' : ''}" id="dk22-medal"><b id="dk22-num">${esc(text)}</b><small>Sparks</small></span></div>
     <div class="dk2-track dk23-track2" id="dk23-track2" aria-hidden="true"></div>

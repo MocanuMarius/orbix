@@ -35,3 +35,9 @@ export function cardTileLine(card) {
   const effect = def ? getCardRuleBands(card, def).find(band => band.type === 'effect')?.text : '';
   return String(effect || describeSkillCard(card)?.effect || '').replace(/\.$/, '');
 }
+
+// The approved Spark icon. The path lives in this root-level module on purpose: the page resolves it
+// against game.html and the offline list resolves it against the module that names it, and only a
+// module in dist/ makes those two agree.
+export const SPARK_ICON_SRC = 'assets/ui/spark.svg';
+export const WISP_ORB_SRC = 'assets/ui/waystone/orb-wisp.svg';
