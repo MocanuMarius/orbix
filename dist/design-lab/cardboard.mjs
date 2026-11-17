@@ -348,9 +348,33 @@ const D = {};
 try { const raw = JSON.parse(localStorage.getItem(KEY) || '{}'); if (raw && typeof raw === 'object') for (const [id, e] of Object.entries(raw)) if (CARD_BY_ID[id] && e && typeof e === 'object') D[id] = {decision: ['approve', 'deny', 'change'].includes(e.decision) ? e.decision : null, note: String(e.note || ''), at: Number(e.at) || 0}; } catch {}
 window.__cardboardDecisions = D;
 function persist() {
-  for (const id of Object.keys(D)) if (!D[id].decision && !D[id].note) delete D[id];
+  // Cleared entries are kept (decision null, with their time) so a cleared choice also reaches other devices.
+  for (const id of Object.keys(D)) if (!D[id].decision && !D[id].note && !D[id].at) delete D[id];
   try { localStorage.setItem(KEY, JSON.stringify(D)); } catch {}
+  pushShared();
 }
+// Shared copy on the dev server, so a phone and the computer see the same decisions.
+// The dev server keeps one JSON file; the newest change per card wins. Without the server the page still works.
+let sharedTimer = 0;
+function pushShared() {
+  clearTimeout(sharedTimer);
+  sharedTimer = setTimeout(() => { fetch('/__cardboard', {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(D)}).then(r => r.ok ? r.json() : null).then(mergeShared).catch(() => {}); }, 250);
+}
+function mergeShared(remote) {
+  if (!remote || typeof remote !== 'object') return;
+  const changed = [];
+  for (const [id, e] of Object.entries(remote)) {
+    if (!CARD_BY_ID[id] || !e || typeof e !== 'object') continue;
+    const at = Number(e.at) || 0;
+    if (at > (D[id]?.at || 0)) { D[id] = {decision: ['approve', 'deny', 'change'].includes(e.decision) ? e.decision : null, note: String(e.note || ''), at}; changed.push(id); }
+  }
+  if (!changed.length) return;
+  try { localStorage.setItem(KEY, JSON.stringify(D)); } catch {}
+  try { changed.forEach(id => refreshCard(id)); refreshBar(); } catch {}
+}
+function pullShared() { fetch('/__cardboard', {cache: 'no-store'}).then(r => r.ok ? r.json() : null).then(remote => { mergeShared(remote); if (Object.keys(D).length) pushShared(); }).catch(() => {}); }
+setTimeout(pullShared, 400);
+setInterval(() => { if (!document.hidden) fetch('/__cardboard', {cache: 'no-store'}).then(r => r.ok ? r.json() : null).then(mergeShared).catch(() => {}); }, 8000);
 const decisionOf = id => D[id]?.decision || null;
 function setDecision(id, decision, note) {
   const e = D[id] || (D[id] = {decision: null, note: '', at: 0});
