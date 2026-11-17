@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Engine cards · Design lab</title>
+<link rel="icon" href="../assets/favicon.svg">
+<link rel="stylesheet" href="engine.css?v=1">
+</head>
+<body>
+<img class="en-world" src="../assets/moonwell-title.webp" alt="" draggable="false">
+<div class="en-shade" aria-hidden="true"></div>
+<main class="en">
+ <header class="en-head">
+  <h1>Engine cards <span class="en-code">v1.0-engine</span></h1>
+  <nav class="en-scenes" aria-label="Scene">
+   <button type="button" data-scene="0" aria-selected="true">1 Chime loop</button>
+   <button type="button" data-scene="1" aria-selected="false">2 No wait</button>
+   <button type="button" data-scene="2" aria-selected="false">3 Overflow</button>
+   <button type="button" data-scene="3" aria-selected="false">4 Crescendo</button>
+   <button type="button" data-scene="4" aria-selected="false">5 Pack</button>
+   <button type="button" data-scene="5" aria-selected="false">6 Black Hole</button>
+  </nav>
+ </header>
+
+ <section class="en-sheet" aria-label="Chain">
+  <div class="en-stage" id="stage"></div>
+  <div class="en-bar">
+   <button type="button" class="en-btn" id="pause">Pause</button>
+   <button type="button" class="en-btn" id="reset">Reset</button>
+   <div class="en-speed" role="group" aria-label="Speed"><button type="button" class="en-btn" data-speed="1" aria-pressed="false">1x</button><button type="button" class="en-btn" data-speed="3" aria-pressed="true">3x</button></div>
+   <div class="en-toggles" id="toggles"></div>
+   <span class="en-clock" id="clock">t = 0.0 s</span>
+  </div>
+  <p class="en-log" id="log" role="status" aria-live="polite"></p>
+ </section>
+
+ <section class="en-extra">
+  <h2>Three rules</h2>
+  <ol class="en-rules">
+   <li><b>One card answers another.</b> A card may answer an event another card made; cards waiting for it fire left to right.</li>
+   <li><b>A circle needs a wait.</b> A circle must hold a Timer, or it is marked "Needs a wait" and runs once only. A card never answers its own event in the same turn.</li>
+   <li><b>An engine stops when a card cannot do its job.</b> Meter full, no Collector charge, nothing in reach. No turn limit; the meter stays capped at 100.</li>
+  </ol>
+  <h2>The 18 proposed cards, and the Black Hole</h2>
+  <div class="en-tablewrap"><table class="en-table">
+   <thead><tr><th scope="col">Card</th><th scope="col">Rarity</th><th scope="col">Kind</th><th scope="col">Trigger</th><th scope="col">Effect</th></tr></thead>
+   <tbody id="rows"></tbody>
+  </table></div>
+  <p class="en-foot">Source: docs/engine-cards.md. Numbers are first guesses. Nothing here is in the game.</p>
+ </section>
+</main>
+<script type="module" src="engine.mjs"></script>
+</body>
+</html>

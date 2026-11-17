@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Icon set v2.0-icons · Wispbound design lab</title>
+<link rel="icon" href="data:,">
+<link rel="stylesheet" href="icons2.css">
+</head>
+<body class="i2">
+<header>
+<h1>Icon set <code class="code">v2.0-icons</code></h1>
+<p class="lede">A full redraw in the Spark's language, proposed for approval by code. Nothing in the game changes. Each cell shows the game's current icon (rendered by the real module, at its real size) next to the new one at whole multiples, on paper, leather and the dark flight ground.</p>
+</header>
+<section class="language" aria-label="The language">
+<h2>The language <span class="count">from spark.svg and trigger-icons.mjs</span></h2>
+<div class="lang">
+<ul>
+<li><b>Grid.</b> 16 x 16 pixels. Map stops use 24 x 24 and are shown larger. Whole-pixel rects only, <code>shape-rendering="crispEdges"</code>, no gradients, filters or bitmaps.</li>
+<li><b>Outline.</b> One dark warm pixel, <code>#2a1d12</code>, on every silhouette. Light from the top left: a pale rim on the lit edges, a darker rim on the shaded edges, plus a 1 px white highlight.</li>
+<li><b>Shape.</b> Blunt and stepped. Tips are two pixels wide, never needle points.</li>
+<li><b>Sizes.</b> Only 16, 32, 48 (map stops 24, 48, 72). Never fractional.</li>
+</ul>
+<div class="swatches" aria-label="Palette">
+<span style="--c:#d39a3a">Spark gold<i>#d39a3a</i></span><span style="--c:#f0c86a">Spark gold<i>#f0c86a</i></span><span style="--c:#f6ebcc" class="lt">Cream<i>#f6ebcc</i></span><span style="--c:#536430">Moss<i>#536430</i></span><span style="--c:#7a2f2a">Wine<i>#7a2f2a</i></span><span style="--c:#5a4632">Leather<i>#5a4632</i></span><span style="--c:#42768f">Night blue-green<i>#42768f</i></span><span style="--c:#2a1d12">Outline<i>#2a1d12</i></span>
+</div>
+<p class="fine">Each tone also has a pale lit rim and a darker shaded rim of the same hue, so a body is three steps, never more.</p>
+</div>
+<div class="ref"><span class="paper"><img class="px" src="../assets/ui/spark.svg" width="32" height="32" alt=""></span><span class="leather"><img class="px" src="../assets/ui/spark.svg" width="32" height="32" alt=""></span><span class="flight"><img class="px" src="../assets/ui/spark.svg" width="32" height="32" alt=""></span><em>The approved Spark, v1.1-icons A1</em></div>
+</section>
+<main id="sheet"></main>
+<section><h2>In place <span class="count">static mocks at the sizes the game would use</span></h2><div id="place"></div></section>
+<script type="module" src="icons2.mjs"></script>
+</body>
+</html>

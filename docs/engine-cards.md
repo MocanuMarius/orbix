@@ -12,6 +12,21 @@ Findings this leans on (`docs/card-balance-2.md`): the same Boost core (Echo III
 
 Words for the glossary: **Engine** (a Chain that feeds itself), **Turn** (one trip round the circle), **Timer** (a card that waits, then acts).
 
+## Rulings after the demo (17 November, coordinator)
+
+Building the lab demo (`/design-lab/engine.html`) showed where the rules above were loose. These rulings settle them; where they differ from the text above, they win. The demo follows rulings 2 to 9; ruling 1 is a cleaner form of what the demo does and needs a small demo update before the engine is built.
+
+1. **Events flow to the right. Only a Timer sends its event back to the first Slot.** A card's event is heard by cards to its right, in order. Nothing travels left on its own. So a circle can only close through a Timer, which makes rule 2 automatic: a Chain without a Timer simply runs once, and the Chain screen says "Runs once. Add a Timer to keep it turning." (The demo's "nearest hearer to the right, wrapping round" is replaced by this.)
+2. **A Pulse made by a card is heard by the next card to its right that waits for a Pulse**, not by every such card. Spark gains and Overfill are heard by all cards to the right that wait for them.
+3. **Slow Wick's Trigger is Pulse**: "3 s after a Pulse reaches it: send a Pulse to the first Slot."
+4. **Metronome is armed by any event reaching it**, then fires the card to its right every 2 s while that card can act; it stops when that card cannot (meter full) and is re-armed by the next event.
+5. **Overflow Bell**: "Overfill → send a Pulse; up to 2 spilled Sparks become Stored Sparks." (Kept Sparks leave the meter economy, so no Boost touches them.)
+6. **Engines live off the meter falling.** In a real flight Lift spends Sparks, so the meter drops by itself and "stop when full" engines restart on the next event. The demo fakes this with a 1 Spark per second burn.
+7. **Boosts in an engine** multiply each Spark gain made by cards to their left, every Turn. (Same as today: a Boost strengthens every card to its left.)
+8. **A Turn** is counted each time an event arrives at the first Slot from a Timer.
+9. **Echo and Ember Echo are different cards.** Rename the maker to **Ember Bell** to avoid the clash. In the Pack example the order is Echo, Full Satchel, Last Round (Echo repeats the card to its right).
+10. **Numbers from the demo's model:** Chime loop 1 Spark per Turn, a Turn every 3 s (11 Sparks in a 30 s flight from the first pickup); with Crescendo 2 per Turn; Overflow mill 2 per Turn, 5 Turns per 10 s, 10 with Heartbeat. Note: without Heartbeat the mill never overfills at a 1 per second burn, so its Bell is idle: Body Spark +3 or a faster Metronome (1.5 s) would fix the example.
+
 ## New Trigger: Pack
 
 - Fires once at the end of a flight, when the meter's Sparks are packed into Stored Sparks.

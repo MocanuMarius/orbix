@@ -1,0 +1,540 @@
+[
+ {
+  "id": "back-a",
+  "group": "Menu and controls",
+  "name": "back (a) block arrow",
+  "grid": 16,
+  "sizes": [
+   16,
+   32
+  ],
+  "note": "blunt two-pixel tip"
+ },
+ {
+  "id": "back-b",
+  "group": "Menu and controls",
+  "name": "back (b) chunky chevron",
+  "grid": 16,
+  "sizes": [
+   16,
+   32
+  ],
+  "note": "two-pixel flat apex"
+ },
+ {
+  "id": "menu",
+  "group": "Menu and controls",
+  "name": "menu (2x2 tiles)",
+  "grid": 16,
+  "sizes": [
+   16,
+   32
+  ],
+  "note": ""
+ },
+ {
+  "id": "settings",
+  "group": "Menu and controls",
+  "name": "settings (tune)",
+  "grid": 16,
+  "sizes": [
+   16,
+   32
+  ],
+  "note": ""
+ },
+ {
+  "id": "pause",
+  "group": "Menu and controls",
+  "name": "pause",
+  "grid": 16,
+  "sizes": [
+   16,
+   32
+  ],
+  "note": ""
+ },
+ {
+  "id": "play",
+  "group": "Menu and controls",
+  "name": "play / resume",
+  "grid": 16,
+  "sizes": [
+   16,
+   32
+  ],
+  "note": ""
+ },
+ {
+  "id": "info",
+  "group": "Menu and controls",
+  "name": "info / help",
+  "grid": 16,
+  "sizes": [
+   16,
+   32
+  ],
+  "note": ""
+ },
+ {
+  "id": "glossary",
+  "group": "Menu and controls",
+  "name": "glossary (open book)",
+  "grid": 16,
+  "sizes": [
+   16,
+   32
+  ],
+  "note": ""
+ },
+ {
+  "id": "sound",
+  "group": "Menu and controls",
+  "name": "sound on",
+  "grid": 16,
+  "sizes": [
+   16,
+   32
+  ],
+  "note": ""
+ },
+ {
+  "id": "mute",
+  "group": "Menu and controls",
+  "name": "sound off / mute",
+  "grid": 16,
+  "sizes": [
+   16,
+   32
+  ],
+  "note": ""
+ },
+ {
+  "id": "music",
+  "group": "Menu and controls",
+  "name": "music",
+  "grid": 16,
+  "sizes": [
+   16,
+   32
+  ],
+  "note": ""
+ },
+ {
+  "id": "check",
+  "group": "Menu and controls",
+  "name": "check",
+  "grid": 16,
+  "sizes": [
+   16,
+   32
+  ],
+  "note": ""
+ },
+ {
+  "id": "close",
+  "group": "Menu and controls",
+  "name": "close (x)",
+  "grid": 16,
+  "sizes": [
+   16,
+   32
+  ],
+  "note": ""
+ },
+ {
+  "id": "deck",
+  "group": "Menu and controls",
+  "name": "deck (card stack)",
+  "grid": 16,
+  "sizes": [
+   16,
+   32
+  ],
+  "note": ""
+ },
+ {
+  "id": "collection",
+  "group": "Menu and controls",
+  "name": "collection (reliquary shelf)",
+  "grid": 16,
+  "sizes": [
+   16,
+   32
+  ],
+  "note": ""
+ },
+ {
+  "id": "map",
+  "group": "Menu and controls",
+  "name": "map (folded chart)",
+  "grid": 16,
+  "sizes": [
+   16,
+   32
+  ],
+  "note": ""
+ },
+ {
+  "id": "tutorial",
+  "group": "Menu and controls",
+  "name": "tutorial (lantern)",
+  "grid": 16,
+  "sizes": [
+   16,
+   32
+  ],
+  "note": ""
+ },
+ {
+  "id": "new-game",
+  "group": "Menu and controls",
+  "name": "new game (quill)",
+  "grid": 16,
+  "sizes": [
+   16,
+   32
+  ],
+  "note": ""
+ },
+ {
+  "id": "abandon",
+  "group": "Menu and controls",
+  "name": "abandon (broken wisp)",
+  "grid": 16,
+  "sizes": [
+   16,
+   32
+  ],
+  "note": "cold, split disc; must not read as close"
+ },
+ {
+  "id": "heart-full-a",
+  "group": "Status",
+  "name": "heart full (a) round",
+  "grid": 16,
+  "sizes": [
+   16,
+   32,
+   48
+  ],
+  "note": ""
+ },
+ {
+  "id": "heart-full-b",
+  "group": "Status",
+  "name": "heart full (b) compact",
+  "grid": 16,
+  "sizes": [
+   16,
+   32,
+   48
+  ],
+  "note": ""
+ },
+ {
+  "id": "heart-empty",
+  "group": "Status",
+  "name": "heart empty",
+  "grid": 16,
+  "sizes": [
+   16,
+   32,
+   48
+  ],
+  "note": ""
+ },
+ {
+  "id": "heart-shield",
+  "group": "Status",
+  "name": "heart shielded",
+  "grid": 16,
+  "sizes": [
+   16,
+   32,
+   48
+  ],
+  "note": ""
+ },
+ {
+  "id": "stored-a",
+  "group": "Status",
+  "name": "Stored Sparks (a) chest",
+  "grid": 16,
+  "sizes": [
+   16,
+   32,
+   48
+  ],
+  "note": "chest: also the map treasure stop, so a/b trade distinctness"
+ },
+ {
+  "id": "stored-b",
+  "group": "Status",
+  "name": "Stored Sparks (b) jar",
+  "grid": 16,
+  "sizes": [
+   16,
+   32,
+   48
+  ],
+  "note": "glass jar holding a Spark"
+ },
+ {
+  "id": "meter-cap",
+  "group": "Status",
+  "name": "Spark Meter cap",
+  "grid": 16,
+  "sizes": [
+   16,
+   32,
+   48
+  ],
+  "note": ""
+ },
+ {
+  "id": "luminance",
+  "group": "Status",
+  "name": "Luminance (light radius)",
+  "grid": 16,
+  "sizes": [
+   16,
+   32,
+   48
+  ],
+  "note": ""
+ },
+ {
+  "id": "collector",
+  "group": "Status",
+  "name": "Collector (orb and ring)",
+  "grid": 16,
+  "sizes": [
+   16,
+   32,
+   48
+  ],
+  "note": ""
+ },
+ {
+  "id": "slot",
+  "group": "Status",
+  "name": "slot (empty card slot)",
+  "grid": 16,
+  "sizes": [
+   16,
+   32,
+   48
+  ],
+  "note": ""
+ },
+ {
+  "id": "locked",
+  "group": "Status",
+  "name": "locked",
+  "grid": 16,
+  "sizes": [
+   16,
+   32,
+   48
+  ],
+  "note": ""
+ },
+ {
+  "id": "stop-flight-a",
+  "group": "Map stops",
+  "name": "flight (a) wisp and trail",
+  "grid": 24,
+  "sizes": [
+   24,
+   48,
+   72
+  ],
+  "note": "a course: wisp pulling a ribbon of light"
+ },
+ {
+  "id": "stop-flight-b",
+  "group": "Map stops",
+  "name": "flight (b) wing",
+  "grid": 24,
+  "sizes": [
+   24,
+   48,
+   72
+  ],
+  "note": "three-feather wing"
+ },
+ {
+  "id": "stop-elite",
+  "group": "Map stops",
+  "name": "elite (wolf)",
+  "grid": 24,
+  "sizes": [
+   24,
+   48,
+   72
+  ],
+  "note": ""
+ },
+ {
+  "id": "stop-boss",
+  "group": "Map stops",
+  "name": "boss / guardian (horned crown)",
+  "grid": 24,
+  "sizes": [
+   24,
+   48,
+   72
+  ],
+  "note": ""
+ },
+ {
+  "id": "stop-encounter",
+  "group": "Map stops",
+  "name": "encounter / event (hooded figure)",
+  "grid": 24,
+  "sizes": [
+   24,
+   48,
+   72
+  ],
+  "note": ""
+ },
+ {
+  "id": "stop-rest",
+  "group": "Map stops",
+  "name": "rest (campfire)",
+  "grid": 24,
+  "sizes": [
+   24,
+   48,
+   72
+  ],
+  "note": ""
+ },
+ {
+  "id": "stop-chest",
+  "group": "Map stops",
+  "name": "chest / treasure",
+  "grid": 24,
+  "sizes": [
+   24,
+   48,
+   72
+  ],
+  "note": ""
+ },
+ {
+  "id": "stop-workshop",
+  "group": "Map stops",
+  "name": "workshop / forge (anvil)",
+  "grid": 24,
+  "sizes": [
+   24,
+   48,
+   72
+  ],
+  "note": ""
+ },
+ {
+  "id": "stop-unknown",
+  "group": "Map stops",
+  "name": "unknown (?)",
+  "grid": 24,
+  "sizes": [
+   24,
+   48,
+   72
+  ],
+  "note": ""
+ },
+ {
+  "id": "rest-recover",
+  "group": "Rest actions",
+  "name": "recover (heart +)",
+  "grid": 16,
+  "sizes": [
+   16,
+   32
+  ],
+  "note": ""
+ },
+ {
+  "id": "rest-add-slot",
+  "group": "Rest actions",
+  "name": "add slot (slot +)",
+  "grid": 16,
+  "sizes": [
+   16,
+   32
+  ],
+  "note": ""
+ },
+ {
+  "id": "rest-grow",
+  "group": "Rest actions",
+  "name": "grow (sprout)",
+  "grid": 16,
+  "sizes": [
+   16,
+   32
+  ],
+  "note": ""
+ },
+ {
+  "id": "rest-improve",
+  "group": "Rest actions",
+  "name": "improve (arrow up)",
+  "grid": 16,
+  "sizes": [
+   16,
+   32
+  ],
+  "note": ""
+ },
+ {
+  "id": "rest-refill",
+  "group": "Rest actions",
+  "name": "refill (goblet)",
+  "grid": 16,
+  "sizes": [
+   16,
+   32
+  ],
+  "note": ""
+ },
+ {
+  "id": "rest-forge",
+  "group": "Rest actions",
+  "name": "forge (hammer)",
+  "grid": 16,
+  "sizes": [
+   16,
+   32
+  ],
+  "note": ""
+ },
+ {
+  "id": "rest-melt",
+  "group": "Rest actions",
+  "name": "melt (card into gold)",
+  "grid": 16,
+  "sizes": [
+   16,
+   32
+  ],
+  "note": ""
+ },
+ {
+  "id": "long-flash",
+  "group": "Long Flash",
+  "name": "Long Flash / sight",
+  "grid": 16,
+  "sizes": [
+   16,
+   32,
+   48
+  ],
+  "note": "a Spark-gold eye; replaces the flat white triangle"
+ }
+]

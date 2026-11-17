@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Card art · Design lab</title>
+<!-- The game's modules and the current atlas use paths relative to dist/, so the page resolves from there. -->
+<base href="../">
+<link rel="icon" href="assets/favicon.svg">
+<link rel="stylesheet" href="design-lab/cardart.css">
+</head>
+<body class="ca">
+<header class="ca-head">
+ <p class="ca-kicker">Design lab · proposal</p>
+ <h1>Card art <code class="ca-code">v1.0-cardart</code></h1>
+ <p class="ca-lede">Six cards redrawn as real pixel art on one 48×48 grid, in two directions, next to the art the game uses today. Approve by code: <code class="ca-code">v1.0-cardart-A</code> (Emblem) or <code class="ca-code">v1.0-cardart-B</code> (Vignette). Nothing in the game changes.</p>
+</header>
+
+<section class="ca-block ca-dirs" aria-label="The two directions">
+ <div><h2><code class="ca-code">v1.0-cardart-A</code> Emblem</h2><p>One bold subject centred on a flat night ground. Icon-like, the most readable at 48 px.</p></div>
+ <div><h2><code class="ca-code">v1.0-cardart-B</code> Vignette</h2><p>A small scene with ground, horizon and light, still one clear subject. More atmosphere, a little less punch at 48 px.</p></div>
+</section>
+
+<section class="ca-block" aria-labelledby="ca-pal-h">
+ <h2 id="ca-pal-h">Palette · 17 colours, shared by every picture</h2>
+ <p>Book kit browns, paper and wine, the Spark golds from <code>spark.svg</code>, moss, and a night blue-green family that is also the Collector's mint. Outline is always <code>#2a1d12</code>.</p>
+ <ul class="ca-pal" id="ca-pal"></ul>
+</section>
+
+<section aria-labelledby="ca-cmp-h">
+ <h2 class="ca-sec" id="ca-cmp-h">Compare <code class="ca-code">v1.0-cardart</code></h2>
+ <p class="ca-note">Current art: the game's own renderer, at the Deck tile size (44 px inside the 48 px window) and the largest opened size (a 2:3 crop up to 110×165). New art: 1x (Deck and Chain tiles), 2x (opened card), 3x (reward). Rows scroll sideways on a phone.</p>
+ <div id="ca-rows"></div>
+</section>
+
+<section aria-labelledby="ca-in-h">
+ <h2 class="ca-sec" id="ca-in-h">In place</h2>
+ <p class="ca-note">The three looks in a mock of the Deck tile (art at 1x) and the opened card (art at 2x), on the page paper. Note: today's tile window is 48 px outside and 44 px inside; the new art needs 48 px inside (52 outside), drawn here that way.</p>
+ <div id="ca-inplace"></div>
+</section>
+
+<section class="ca-block ca-rules" aria-labelledby="ca-rules-h">
+ <h2 id="ca-rules-h">Rules for the other 79 cards</h2>
+ <dl>
+  <dt>Grid</dt><dd>48×48 pixels per picture, authored as SVG of whole-pixel squares with <code>shape-rendering="crispEdges"</code>. Shown only at 48, 96 or 144 px (1x, 2x, 3x) with <code>image-rendering: pixelated</code>. No painted sources, no gradients, blur, filters or bitmaps.</dd>
+  <dt>Palette</dt><dd>The 17 colours above and nothing else. Flat fills; light comes from stepped bands of a lighter palette colour, never a blend.</dd>
+  <dt>Outline</dt><dd>Every subject has a 1 px <code>#2a1d12</code> outline. Light from the top left: a 1 px pale highlight on the top-left edge, the darker shade on the bottom right, as in the Spark icon.</dd>
+  <dt>Readability</dt><dd>One subject that says what the card does, about 60 to 70% of the picture. Nothing smaller than 3 px carries meaning. Check every picture at 1x on the paper before it ships.</dd>
+  <dt>Motifs</dt><dd>Reuse the game's own: the Spark (the approved star, at 16, 11 or 7 px), the wisp (pale orb), the Collector (mint orb), the campfire for Rest, the heart for Save, lanterns, seeds, bells. The same thing is always drawn the same way.</dd>
+  <dt>Rarity changes the picture</dt><dd><b>Common</b>: the subject on a plain ground, flat, no light source. <b>Rare</b>: adds a second depth layer behind the subject (a backdrop disc in A, far hills in B) and a light source (a lit rim, the moon, a campfire). <b>Legendary</b>: a richer scene, a stepped glow behind the subject and a 1 px gold key-line inside the frame.</dd>
+  <dt>One picture per card</dt><dd>No sharing between different cards. An evolved card (II, III) reuses its base picture and adds detail; when it changes rarity, it takes that rarity's layer, light and key-line.</dd>
+ </dl>
+</section>
+<script type="module" src="design-lab/cardart.mjs"></script>
+</body>
+</html>
