@@ -1,18 +1,18 @@
-import {getBiome} from './biomes.mjs?v=clack-1';
-import {getBossPreview} from './boss.mjs?v=clack-1';
-import {levelMapPreview} from './level-map-art.mjs?v=clack-1';
-import {mapStopIconMarkup} from './map-guide.mjs?v=clack-1';
-import {resourceSymbol} from './game-symbols.mjs?v=clack-1';
-import {getFlightClearReward} from './checkpoint-rewards.mjs?v=clack-1';
-import {availableFlightArtifacts,isCardRun} from './model.mjs?v=clack-1';
-import {bonusIcon,boonMarkup} from './route-bonus-ui.mjs?v=clack-1';
-import {contextualFlightNotice} from './contextual-events.mjs?v=clack-1';
-import {ATLAS_FORECASTS,atlasGlyph} from './night-atlas.mjs?v=clack-1';
-import {canDreamAt,dreamConfig} from './dream.mjs?v=clack-1';
-import {sparkHabitat} from './spark-fields.mjs?v=clack-1';
-import {lanternFlightCue} from './map-theme.mjs?v=clack-1';
-import {actionButton} from './ui/primitives.mjs?v=clack-1';
-import {cardTermTextMarkup} from './card-terms.mjs?v=clack-1';
+import {getBiome} from './biomes.mjs?v=twin-wick-1';
+import {getBossPreview} from './boss.mjs?v=twin-wick-1';
+import {levelMapPreview} from './level-map-art.mjs?v=twin-wick-1';
+import {mapStopIconMarkup} from './map-guide.mjs?v=twin-wick-1';
+import {resourceSymbol} from './game-symbols.mjs?v=twin-wick-1';
+import {getFlightClearReward} from './checkpoint-rewards.mjs?v=twin-wick-1';
+import {availableFlightArtifacts,isCardRun} from './model.mjs?v=twin-wick-1';
+import {bonusIcon,boonMarkup} from './route-bonus-ui.mjs?v=twin-wick-1';
+import {contextualFlightNotice} from './contextual-events.mjs?v=twin-wick-1';
+import {ATLAS_FORECASTS,atlasGlyph} from './night-atlas.mjs?v=twin-wick-1';
+import {canDreamAt,dreamConfig} from './dream.mjs?v=twin-wick-1';
+import {sparkHabitat} from './spark-fields.mjs?v=twin-wick-1';
+import {lanternFlightCue} from './map-theme.mjs?v=twin-wick-1';
+import {actionButton} from './ui/primitives.mjs?v=twin-wick-1';
+import {cardTermTextMarkup} from './card-terms.mjs?v=twin-wick-1';
 
 export const TRAVEL_GUIDE_ART=Object.freeze(['waystone','rootwood','night-atlas']);
 /** One stepped sign, mirrored for the return journey. */

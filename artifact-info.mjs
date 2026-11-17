@@ -1,4 +1,4 @@
-import {GUARDIAN_RELICS} from './guardian-artifacts.mjs?v=clack-1';
+import {GUARDIAN_RELICS} from './guardian-artifacts.mjs?v=twin-wick-1';
 // Lifetime is separate from rarity: a rare relic is not a consumable by default.
 export const CONSUMABLE_ARTIFACTS=Object.freeze({
   'glow-wick':Object.freeze({charges:3,maxCharges:3}),

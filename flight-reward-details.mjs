@@ -1,12 +1,12 @@
-import {ARTIFACTS,SKILLS,SKILL_CARDS} from './model.mjs?v=clack-1';
-import {cardFace} from './card-ui.mjs?v=clack-1';
-import {cardTermMarkup,cardTermTextMarkup} from './card-terms.mjs?v=clack-1';
-import {artifactDescriptionMarkup} from './artifact-copy.mjs?v=clack-1';
-import {artifactIcon} from './upgrade-icons.mjs?v=clack-1';
-import {EVENT_SCENARIOS,mapStopIconMarkup} from './map-guide.mjs?v=clack-1';
-import {FLIGHT_PACTS} from './flight-pacts.mjs?v=clack-1';
-import {ROUTE_BONUSES} from './route-bonuses.mjs?v=clack-1';
-import {describeTreasure} from './treasure.mjs?v=clack-1';
+import {ARTIFACTS,SKILLS,SKILL_CARDS} from './model.mjs?v=twin-wick-1';
+import {cardFace} from './card-ui.mjs?v=twin-wick-1';
+import {cardTermMarkup,cardTermTextMarkup} from './card-terms.mjs?v=twin-wick-1';
+import {artifactDescriptionMarkup} from './artifact-copy.mjs?v=twin-wick-1';
+import {artifactIcon} from './upgrade-icons.mjs?v=twin-wick-1';
+import {EVENT_SCENARIOS,mapStopIconMarkup} from './map-guide.mjs?v=twin-wick-1';
+import {FLIGHT_PACTS} from './flight-pacts.mjs?v=twin-wick-1';
+import {ROUTE_BONUSES} from './route-bonuses.mjs?v=twin-wick-1';
+import {describeTreasure} from './treasure.mjs?v=twin-wick-1';
 
 const esc=value=>String(value??'').replace(/[&<>"']/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
 const paragraph=text=>text?`<p>${cardTermTextMarkup(text)}</p>`:'';

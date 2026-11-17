@@ -1,4 +1,4 @@
-import {mapStopIconMarkup} from './map-guide.mjs?v=clack-1';
+import {mapStopIconMarkup} from './map-guide.mjs?v=twin-wick-1';
 const number = (n,min=0) => Math.max(min,Math.floor(Number(n)||0));
 export function campaignStrip(run,profile={}) {
   if(run?.isTutorial)return '';

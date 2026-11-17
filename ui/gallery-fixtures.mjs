@@ -1,6 +1,6 @@
-import {newState,createRun,ARTIFACTS,getChoices,selectNode,beginFlightAttempt,markFlightAttemptStarted,finishFlight,settleCheckpoint} from '../model.mjs?v=clack-1';
-import {makeSkillCard} from '../skill-cards.mjs?v=clack-1';
-import {prepareRouteOffer} from '../route-offers.mjs?v=clack-1';
+import {newState,createRun,ARTIFACTS,getChoices,selectNode,beginFlightAttempt,markFlightAttemptStarted,finishFlight,settleCheckpoint} from '../model.mjs?v=twin-wick-1';
+import {makeSkillCard} from '../skill-cards.mjs?v=twin-wick-1';
+import {prepareRouteOffer} from '../route-offers.mjs?v=twin-wick-1';
 
 /** Preview-only data. Never load/persist a player save or start a flight. */
 export function createComponentFixture(family,variant){

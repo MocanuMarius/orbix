@@ -1,13 +1,13 @@
 /** Contextual card vocabulary. Native modal dialogs keep help above the Deck. */
-import { resourceSymbol } from './game-symbols.mjs?v=clack-1';
-import {lifeHeartSvg} from './lives.mjs?v=clack-1';
-import {duskGlyphArt} from './spark-symbol.mjs?v=clack-1';
-import {getGlowCapacity,formatGlow} from './vitality.mjs?v=clack-1';
-import {glowGaugeUnits} from './glow-ui.mjs?v=clack-1';
-import {getRunModifiers} from './model.mjs?v=clack-1';
-import {cardAmount,makeSkillCard,SKILL_CARDS} from './skill-cards.mjs?v=clack-1';
-import {cardRowTermHelpMarkup} from './card-row-help.mjs?v=clack-1';
-import {dreamEye} from './dream.mjs?v=clack-1';
+import { resourceSymbol } from './game-symbols.mjs?v=twin-wick-1';
+import {lifeHeartSvg} from './lives.mjs?v=twin-wick-1';
+import {duskGlyphArt} from './spark-symbol.mjs?v=twin-wick-1';
+import {getGlowCapacity,formatGlow} from './vitality.mjs?v=twin-wick-1';
+import {glowGaugeUnits} from './glow-ui.mjs?v=twin-wick-1';
+import {getRunModifiers} from './model.mjs?v=twin-wick-1';
+import {cardAmount,makeSkillCard,SKILL_CARDS} from './skill-cards.mjs?v=twin-wick-1';
+import {cardRowTermHelpMarkup} from './card-row-help.mjs?v=twin-wick-1';
+import {dreamEye} from './dream.mjs?v=twin-wick-1';
 const esc = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 export const CARD_TERMS = Object.freeze({
   round: ['Round', 'One flight through a passage, ending in clear rewards or a lost heart.'],
@@ -190,8 +190,8 @@ const CARD_NOTES = Object.freeze({
   'tight-packing-ii': CARD_TERMS['packing-efficiency'][1],
   'tight-packing-iii': CARD_TERMS['packing-efficiency'][1],
   'cache-handling': 'Extra Cache Handling cards keep one 12-Spark delivery. Your wisp can always touch a Cache for 18 Sparks, plus any pickup card bonus.',
-  'twin-orbit': 'While equipped, a second Collector catches and reels independently. Each pickup belongs to one Collector. Two is the maximum. Removing the card releases its second Collector’s current load, unless Twin Wick already unlocked that Collector for the expedition. The first Collector keeps fatal-impact saves.',
-  'twin-wick': 'Its single use unlocks a second Collector when you start or resume a real flight with Collector selected. The unlock lasts for this expedition, including retries and removing the card. Preview, practice and Dream do not spend it. If Twin Orbit already supplies the second Collector, the use stays available.',
+  'twin-orbit': 'While equipped, a second Collector catches and reels independently. Each pickup belongs to one Collector. Two is the maximum. Removing the card releases its second Collector’s current load. The first Collector keeps fatal-impact saves.',
+  'twin-wick': '4 uses. Each real flight with this mounted spends one: fly with 2 Collectors. Preview, practice and Dream do not spend one. Nothing is spent while Twin Orbit already supplies the second Collector. At 0 uses it does nothing.',
   'long-spool': 'For five extra catches, Collector can reach 35% beyond its current normal range. A use is spent only when an eligible missed pickup beyond normal reach is actually attached. Your wisp gets the whole approach and contact window. Long Spool and Cast Line do not stack; the shortest sufficient extension spends one use. Copies share the original uses.',
   'cast-line': 'For two extra catches, Collector can reach twice its current normal range. Only successful attachments beyond normal reach spend a use. Long Spool pays first if its shorter extension can reach the pickup. Neither extension changes which pickup types Collector can carry or takes the player’s first chance to touch them.',
   'fast-spool': 'Touching a natural passage Spark while a Collector reels shortens one active reel by up to 3 seconds. The longest active reel is chosen. Each successful action spends one of this card’s three uses. Copies spend this card’s uses too. No use is spent when there is no remaining reel time.',
@@ -396,7 +396,7 @@ export function installCardTermHelp(doc = document, {resolveProximityContext,res
       dialog.classList.add('card-cache-dialog');
       const host=button.dataset.cardTerm?dialog.querySelector('[data-card-term-example]'):doc.createElement('div');
       if(!button.dataset.cardTerm){host.className='cache-card-example';dialog.querySelector('[data-card-help-rules]').append(host);}
-      import('./cache-card-help.mjs?v=clack-1').then(({mountCacheCardHelp})=>{
+      import('./cache-card-help.mjs?v=twin-wick-1').then(({mountCacheCardHelp})=>{
         if(layers.includes(layer))appendDisposer(mountCacheCardHelp(host,{focus:cardKind==='harvest'?'cross':cardKind==='cache-handling'?'deliver':'touch',harvestCard:cardKind==='harvest'?cardContext.card:undefined}));
       });
     }
@@ -407,7 +407,7 @@ export function installCardTermHelp(doc = document, {resolveProximityContext,res
         const host=doc.createElement('section');host.className='proximity-card-help';
         const example=dialog.querySelector('[data-card-term-example="proximity"]');
         if(example)example.replaceChildren(host);else dialog.querySelector('.card-term-content').prepend(host);
-        import('./proximity-card-help.mjs?v=clack-1').then(({mountProximityCardHelp})=>{
+        import('./proximity-card-help.mjs?v=twin-wick-1').then(({mountProximityCardHelp})=>{
           if(layers.includes(layer))appendDisposer(mountProximityCardHelp(host,previewContext));
         });
       }

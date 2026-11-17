@@ -1,13 +1,13 @@
-import {relics,cards,route,menus,hud,art,dialogs,actionButton,escapeHtml as esc} from './index.mjs?v=clack-1';
-import {resolveSample} from './gallery-catalog.mjs?v=clack-1';
-import {createComponentFixture} from './gallery-fixtures.mjs?v=clack-1';
-import {ARTIFACTS,getChoices,getOwnedCards,getMountedCards,getCardReward,getCardDraft,chooseCardDraft,getCardMeltPreview,meltOwnedCards,getArtifactSalvageValue,sellArtifact,chooseFlightReward,equipOwnedCard,unequipMountedCard,moveMountedCard} from '../model.mjs?v=clack-1';
-import {bindDeckDragging} from '../deck-drag.mjs?v=clack-1';
-import {ROUTE_BONUSES} from '../route-bonuses.mjs?v=clack-1';
-import {prepareRouteOffer} from '../route-offers.mjs?v=clack-1';
-import {installComboLessons} from '../combo-lesson.mjs?v=clack-1';
-import {cardWorkshopMarkup,cardRefillMarkup} from '../card-workshop.mjs?v=clack-1';
-import {getCardImprovePreview,improveOwnedCard,getCardRefillPreview,refillOwnedCard,getCardForgePreview,forgeOwnedCard,getSupportChoices,resolveSupport} from '../model.mjs?v=clack-1';
+import {relics,cards,route,menus,hud,art,dialogs,actionButton,escapeHtml as esc} from './index.mjs?v=twin-wick-1';
+import {resolveSample} from './gallery-catalog.mjs?v=twin-wick-1';
+import {createComponentFixture} from './gallery-fixtures.mjs?v=twin-wick-1';
+import {ARTIFACTS,getChoices,getOwnedCards,getMountedCards,getCardReward,getCardDraft,chooseCardDraft,getCardMeltPreview,meltOwnedCards,getArtifactSalvageValue,sellArtifact,chooseFlightReward,equipOwnedCard,unequipMountedCard,moveMountedCard} from '../model.mjs?v=twin-wick-1';
+import {bindDeckDragging} from '../deck-drag.mjs?v=twin-wick-1';
+import {ROUTE_BONUSES} from '../route-bonuses.mjs?v=twin-wick-1';
+import {prepareRouteOffer} from '../route-offers.mjs?v=twin-wick-1';
+import {installComboLessons} from '../combo-lesson.mjs?v=twin-wick-1';
+import {cardWorkshopMarkup,cardRefillMarkup} from '../card-workshop.mjs?v=twin-wick-1';
+import {getCardImprovePreview,improveOwnedCard,getCardRefillPreview,refillOwnedCard,getCardForgePreview,forgeOwnedCard,getSupportChoices,resolveSupport} from '../model.mjs?v=twin-wick-1';
 installComboLessons();
 
 const query=new URLSearchParams(location.search),sample=resolveSample(query.get('family'),query.get('state'));

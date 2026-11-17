@@ -1,7 +1,7 @@
 // Original, synchronized seven-minute lo-fi stems. Gains and a shared varispeed
 // transport respond to flight without audio graph allocation or simulation changes.
-import {createLevelStore,levelGain} from './sound-level.mjs?v=clack-1';
-import {createLiftGuideAudio} from './lift-guide-audio.mjs?v=clack-1';
+import {createLevelStore,levelGain} from './sound-level.mjs?v=twin-wick-1';
+import {createLiftGuideAudio} from './lift-guide-audio.mjs?v=twin-wick-1';
 const TRACKS=['./assets/audio/lantern-drift.mp3','./assets/audio/lantern-pulse.mp3','./assets/audio/lantern-storm.mp3'];
 const unit=n=>Math.max(0,Math.min(1,Number(n)||0));
 // v1.1-music (the lo-fi rotation) is OFF by default: `?music=2`, read once

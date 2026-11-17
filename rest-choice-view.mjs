@@ -1,12 +1,12 @@
-import {getGlowCapacity,getLifeCapacity,formatGlow} from './vitality.mjs?v=clack-1';
-import {livesMarkup} from './lives.mjs?v=clack-1';
-import {resourceSymbol} from './game-symbols.mjs?v=clack-1';
-import {choiceScene} from './choice-art.mjs?v=clack-1';
-import {mapStopIconMarkup} from './map-guide.mjs?v=clack-1';
-import {uiIcon} from './ui-icons.mjs?v=clack-1';
-import {canDreamAt} from './dream.mjs?v=clack-1';
-import {skillIcon,artifactIcon} from './upgrade-icons.mjs?v=clack-1';
-import {companionArtSvg} from './companion-art.mjs?v=clack-1';
+import {getGlowCapacity,getLifeCapacity,formatGlow} from './vitality.mjs?v=twin-wick-1';
+import {livesMarkup} from './lives.mjs?v=twin-wick-1';
+import {resourceSymbol} from './game-symbols.mjs?v=twin-wick-1';
+import {choiceScene} from './choice-art.mjs?v=twin-wick-1';
+import {mapStopIconMarkup} from './map-guide.mjs?v=twin-wick-1';
+import {uiIcon} from './ui-icons.mjs?v=twin-wick-1';
+import {canDreamAt} from './dream.mjs?v=twin-wick-1';
+import {skillIcon,artifactIcon} from './upgrade-icons.mjs?v=twin-wick-1';
+import {companionArtSvg} from './companion-art.mjs?v=twin-wick-1';
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 export function restBenefitsMarkup(run,node,choices=[],{nextNode=null}={}){
  const capacity=getGlowCapacity(run),fullHearts={...run,lives:getLifeCapacity(run)},resolved=run.restReady===true,skipped=resolved&&run.lastRest?.boon==='skip';

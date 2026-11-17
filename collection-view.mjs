@@ -1,9 +1,9 @@
-import {ARTIFACTS,getArtifactSalvageValue,canSellArtifact} from './model.mjs?v=clack-1';
-import {artifactDescription} from './artifact-copy.mjs?v=clack-1';
-import {artifactIcon} from './upgrade-icons.mjs?v=clack-1';
-import {resourceSymbol} from './game-symbols.mjs?v=clack-1';
-import {reliquaryBackdropMarkup,reliquaryNicheMarkup} from './ui/reliquary-art.mjs?v=clack-1';
-import {relicIdentityMarkup,relicRulesMarkup,relicRulesButton} from './ui/relic-primitives.mjs?v=clack-1';
+import {ARTIFACTS,getArtifactSalvageValue,canSellArtifact} from './model.mjs?v=twin-wick-1';
+import {artifactDescription} from './artifact-copy.mjs?v=twin-wick-1';
+import {artifactIcon} from './upgrade-icons.mjs?v=twin-wick-1';
+import {resourceSymbol} from './game-symbols.mjs?v=twin-wick-1';
+import {reliquaryBackdropMarkup,reliquaryNicheMarkup} from './ui/reliquary-art.mjs?v=twin-wick-1';
+import {relicIdentityMarkup,relicRulesMarkup,relicRulesButton} from './ui/relic-primitives.mjs?v=twin-wick-1';
 
 export const COLLECTION_PAGE_SIZE=6;
 const esc=value=>String(value??'').replace(/[&<>"']/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
