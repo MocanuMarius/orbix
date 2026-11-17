@@ -1,4 +1,4 @@
-import {companionArtSvg} from './companion-art.mjs?v=kindled-1';
+import {companionArtSvg} from './companion-art.mjs?v=courses-2';
 const variants=['current','flat2','flat3'],videos=[...document.querySelectorAll('#movies video,.detail-stage video')];
 const pauseButton=document.querySelector('#play-pause');
 const names={current:'Previous · Shaded',flat2:'Current · Flat A',flat3:'B · Soft edge'};

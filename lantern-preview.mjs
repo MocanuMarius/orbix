@@ -1,9 +1,9 @@
-import { WispFlight, circleHitsObstacle } from './flight.mjs?v=kindled-1';
-import { createRun, getRunModifiers } from './model.mjs?v=kindled-1';
-import { shutterDensityAt } from './shutter-cone.mjs?v=kindled-1';
-import { lanternPassageY, lanternRoute } from './lantern-layout.mjs?v=kindled-1';
-import { wispOrbit } from './wisp.mjs?v=kindled-1';
-import { stepFlashTether } from './flash-tether.mjs?v=kindled-1';
+import { WispFlight, circleHitsObstacle } from './flight.mjs?v=courses-2';
+import { createRun, getRunModifiers } from './model.mjs?v=courses-2';
+import { shutterDensityAt } from './shutter-cone.mjs?v=courses-2';
+import { lanternPassageY, lanternRoute } from './lantern-layout.mjs?v=courses-2';
+import { wispOrbit } from './wisp.mjs?v=courses-2';
+import { stepFlashTether } from './flash-tether.mjs?v=courses-2';
 
 const step = 1 / 60;
 

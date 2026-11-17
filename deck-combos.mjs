@@ -1,11 +1,11 @@
 /** Small, read-only explanations for the actual chain. */
-import {SKILL_CARDS, getMountedCards, getEffectiveCardSources, getCardRowRule, previewCardRowEvent, CARD_ROW_EVENTS, getUseDoublerTarget, getEmberFeederTargets, getCardFeederCapacity, getAlwaysOnCardBoosts} from './skill-cards.mjs?v=kindled-1';
-import {rowSnapshot} from './inscriptions.mjs?v=kindled-1';
-import {getCardRuleBands} from './card-rule-bands.mjs?v=kindled-1';
-import {getEquippedCardStatuses} from './card-status.mjs?v=kindled-1';
-import {ARTIFACTS} from './model.mjs?v=kindled-1';
-import {artifactDescription} from './artifact-copy.mjs?v=kindled-1';
-import {artifactPixelPortrait} from './artifact-pixel-art.mjs?v=kindled-1';
+import {SKILL_CARDS, getMountedCards, getEffectiveCardSources, getCardRowRule, previewCardRowEvent, CARD_ROW_EVENTS, getUseDoublerTarget, getEmberFeederTargets, getCardFeederCapacity, getAlwaysOnCardBoosts} from './skill-cards.mjs?v=courses-2';
+import {rowSnapshot} from './inscriptions.mjs?v=courses-2';
+import {getCardRuleBands} from './card-rule-bands.mjs?v=courses-2';
+import {getEquippedCardStatuses} from './card-status.mjs?v=courses-2';
+import {ARTIFACTS} from './model.mjs?v=courses-2';
+import {artifactDescription} from './artifact-copy.mjs?v=courses-2';
+import {artifactPixelPortrait} from './artifact-pixel-art.mjs?v=courses-2';
 
 const esc=value=>String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const number=value=>Number(Number(value||0).toFixed(3));

@@ -1,5 +1,5 @@
-import {selectDepartureTip,tipIcon} from './depart-tips.mjs?v=kindled-1';
-import {art} from './depart-art.mjs?v=kindled-1';
+import {selectDepartureTip,tipIcon} from './depart-tips.mjs?v=courses-2';
+import {art} from './depart-art.mjs?v=courses-2';
 
 // The paused "Ready to depart" field note (look v1.0-depart-A). Tips, picker and history live in depart-tips.mjs,
 // the pictures in depart-art.mjs. Every slot has a fixed size in flight-loading-tips.css, so a different tip,
