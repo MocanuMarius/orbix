@@ -1,6 +1,5 @@
-import {SKILL_CARDS, describeSkillCard} from './skill-cards.mjs?v=readable-1';
-import {resourceSymbol} from './game-symbols.mjs?v=readable-1';
-import {CARD_ART_IDS} from './card-art.mjs?v=readable-1';
+import {SKILL_CARDS, describeSkillCard} from './skill-cards.mjs?v=strip-2';
+import {createChainStrip, baseColor, STRIP, STRIP_COLORS} from './chain-strip.mjs?v=strip-2';
 const esc = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const number = value => Number((Number(value) || 0).toFixed(3));
 const capped = trace => Number.isFinite(trace?.restoredSparks) && Math.abs(trace.restoredSparks - trace.sparks) > 1e-7;
@@ -49,61 +48,73 @@ export function productiveCardSources(trace) {
   return {sources,replayed:sources.length>0 && productive.some(step=>step.pass>1) && trace.steps.some(step=>step.success && step.operation==='replay-row')};
 }
 
-/** Retain the engine receipt. The five portrait nodes are allocated once, and
- * idle snapshots do no DOM work. Exact numbers live in the paused receipt. */
-export function createCardRowFeedback(root, {onInspect = () => {}} = {}) {
-  if (!root) return {update(){},destroy(){}};
-  const doc=root.ownerDocument, ns='http://www.w3.org/2000/svg', button=doc.createElement('button');
-  button.type='button';button.className='flight-card-row';button.hidden=true;
-  button.setAttribute('aria-haspopup','dialog');
-  const icons=Array.from({length:5},()=>{
-    const holder=doc.createElement('span');holder.className='card-row-source';holder.hidden=true;holder.setAttribute('aria-hidden','true');
-    const svg=doc.createElementNS(ns,'svg');svg.setAttribute('preserveAspectRatio','xMidYMid slice');svg.setAttribute('focusable','false');
-    const atlas=doc.createElementNS(ns,'image');atlas.setAttribute('href','./assets/cards/skill-card-scenes.webp');atlas.setAttribute('width','1252');atlas.setAttribute('height','1252');
-    svg.append(atlas);holder.append(svg);button.append(holder);return {holder,svg,id:null};
+/** The in-flight Chain strip (view). One tiny fixed set of nodes, built when the Chain changes; a flash is one Web Animation on
+ * one node, the idle fade one opacity change. No text, no pictures: the exact receipt lives in the paused dialog (tap the strip). */
+export function createCardRowFeedback(root, {onInspect = () => {}, reducedMotion = false, now = () => globalThis.performance?.now?.() ?? Date.now()} = {}) {
+  if (!root) return {update(){},destroy(){},attach(){}};
+  const doc = root.ownerDocument, button = doc.createElement('button'), strip = createChainStrip({reducedMotion});
+  button.type = 'button'; button.className = 'flight-card-row chain-strip'; button.hidden = true;
+  button.setAttribute('aria-haspopup', 'dialog'); button.setAttribute('aria-label', 'Card chain. Pause to inspect your chain.');
+  root.append(button);
+  const nodes = []; // {cell, shape, bar, fireSerial, barSerial}
+  let trace = null, sequence = -1, dialog = null, shownVersion = -1, shownFaded = null;
+  const close = () => { dialog?.close(); dialog?.remove(); dialog = null; if (button.isConnected) button.focus({preventScroll: true}); };
+  button.addEventListener('click', () => {
+    if (!trace) return;
+    onInspect(); dialog?.remove(); dialog = doc.createElement('dialog'); dialog.className = 'card-term-dialog card-row-dialog'; dialog.setAttribute('aria-label', 'Last card event');
+    dialog.innerHTML = `<header><h2>Last card event</h2><button type="button" aria-label="Close card event">×</button></header><div class="card-term-content">${cardRowTraceMarkup(trace)}</div><footer><button type="button">Back to pause</button></footer>`;
+    dialog.querySelectorAll('button').forEach(node => node.addEventListener('click', close)); dialog.addEventListener('cancel', event => { event.preventDefault(); close(); });
+    doc.body.append(dialog); dialog.showModal(); dialog.querySelector('button').focus();
   });
-  const replay=doc.createElement('span');replay.className='card-row-replay';replay.setAttribute('aria-hidden','true');replay.textContent='↶';replay.hidden=true;button.append(replay);
-  const bonus=doc.createElement('span');bonus.className='card-row-bonus';button.append(bonus);
-  // Engine cue (v1.0-engine): no words, no numbers. A Timer ring that fills, one pulse of the strip per Turn, and the
-  // strip dims when the engine has stopped. Built once; updated on a new Turn and at most 10 times a second.
-  const cue=doc.createElement('span');cue.className='card-row-engine';cue.hidden=true;cue.setAttribute('aria-hidden','true');
-  const ring=doc.createElement('i');ring.className='card-row-ring';cue.append(ring);if(button.prepend)button.prepend(cue);else button.append(cue);
-  let turns=0,ringAt=0,ringK=-1,stopped=false;
-  (root.querySelector('.flight-effect-space')||root.querySelector('.canvas-wrap')||root).append(button);
-  let trace=null,sequence=-1,dialog=null;
-  const close=()=>{dialog?.close();dialog?.remove();dialog=null;if(button.isConnected)button.focus({preventScroll:true});};
-  button.addEventListener('click',()=>{
-    if(!trace)return;
-    onInspect();dialog?.remove();dialog=doc.createElement('dialog');dialog.className='card-term-dialog card-row-dialog';dialog.setAttribute('aria-label','Last card event');
-    dialog.innerHTML=`<header><h2>Last card event</h2><button type="button" aria-label="Close card event">×</button></header><div class="card-term-content">${cardRowTraceMarkup(trace)}</div><footer><button type="button">Back to pause</button></footer>`;
-    dialog.querySelectorAll('button').forEach(node=>node.addEventListener('click',close));dialog.addEventListener('cancel',event=>{event.preventDefault();close();});
-    doc.body.append(dialog);dialog.showModal();dialog.querySelector('button').focus();
-  });
-  const engineCue=snapshot=>{
-    const eng=snapshot?.cardEngine;if(!eng)return;
-    if(cue.hidden&&(eng.turns>0||eng.running)){cue.hidden=false;button.hidden=false;if(!trace)button.setAttribute('aria-label','Card engine. Pause to inspect your chain.');}
-    if(eng.turns!==turns){const more=eng.turns>turns;turns=eng.turns;if(more&&!snapshot.reducedMotion&&typeof button.animate==='function')button.animate([{filter:'brightness(1)'},{filter:'brightness(1.9)',offset:.3},{filter:'brightness(1)'}],{duration:420,easing:'ease-out'});}
-    const now=snapshot.time??0;
-    if(Math.abs(now-ringAt)>=.1||now<ringAt){ringAt=now;const k=Math.round((eng.timers?.[0]?.progress??0)*36)*10;if(k!==ringK){ringK=k;ring.style.setProperty('--k',`${k}deg`);}}
-    const off=!eng.running&&eng.stops>0;if(off!==stopped){stopped=off;button.classList.toggle('card-row-stopped',off);}
+  const reduced = () => strip.reducedMotion || !!globalThis.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches;
+  const animate = (node, frames, ms) => {
+    if (reduced() || typeof node.animate !== 'function') { node.classList.add('chain-lit'); setTimeout(() => node.classList.remove('chain-lit'), STRIP.reducedFlashMs); return; }
+    node.animate(frames, {duration: ms, easing: 'ease-out'});
   };
-  return {destroy(){dialog?.remove();button.remove();},update(snapshot){
-    engineCue(snapshot);
-    const next=snapshot?.cardRowTrace,nextSequence=Number(snapshot?.cardRowSequence);
-    if(!next?.steps?.length||next===trace||nextSequence===sequence)return;
-    sequence=nextSequence;
-    const result=productiveCardSources(next);if(!result.sources.length)return;
-    trace=next;button.hidden=false;
-    for(let i=0;i<icons.length;i++){
-      const icon=icons[i],source=result.sources[i];icon.holder.hidden=!source;if(!source)continue;
-      const requested=SKILL_CARDS[source.cardId]?.artFamily||source.cardId,id=CARD_ART_IDS.includes(requested)?requested:'body-spark';
-      if(icon.id!==id){const index=CARD_ART_IDS.indexOf(id);icon.svg.setAttribute('viewBox',`${index%4*313} ${Math.floor(index/4)*313} 313 313`);icon.id=id;}
-      icon.holder.dataset.traceSlot=String(source.slot);
-      if(!snapshot.reducedMotion&&typeof icon.holder.animate==='function')icon.holder.animate([{opacity:.35,filter:'brightness(.7)'},{opacity:1,filter:'brightness(1.8)',offset:.35},{opacity:1,filter:'brightness(1)'}],{duration:520,delay:i*90,easing:'ease-out'});
+  function paint() {
+    // Structure and base colours: only when the Chain, a slot's state or its Inscription changed.
+    while (nodes.length < strip.slots.length) {
+      const cell = doc.createElement('span'), shape = doc.createElement('i'), bar = doc.createElement('b');
+      cell.className = 'chain-cell'; shape.className = 'chain-shape'; bar.className = 'chain-bar';
+      cell.setAttribute('aria-hidden', 'true'); cell.append(shape, bar); button.append(cell);
+      nodes.push({cell, shape, bar, fireSerial: 0, barSerial: 0});
     }
-    replay.hidden=!result.replayed;
-    bonus.innerHTML=[next.sparks>0?`+${number(Number.isFinite(next.restoredSparks)?next.restoredSparks:next.sparks)}${resourceSymbol('energy')}`:'',next.stored>0?`+${number(next.stored)}${resourceSymbol('packed')}`:'',next.recoverySeconds>0?`−${number(next.recoverySeconds)}s${resourceSymbol('clock')}`:'',next.futureCapacity>0?`+${number(next.futureCapacity)} max`:'' ].filter(Boolean).join(' ');
-    bonus.hidden=!bonus.innerHTML;
-    button.setAttribute('aria-label',`Last card event: ${result.sources.map(source=>SKILL_CARDS[source.cardId]?.name||'Card').join(', ')}${result.replayed?', with an Encore':''}. ${traceTotals(next)}${capped(next)?`, +${number(next.restoredSparks)} restored at the meter limit`:''}. Pause to inspect the exact receipt.`);
-  }};
+    while (nodes.length > strip.slots.length) nodes.pop().cell.remove();
+    strip.slots.forEach((slot, i) => {
+      const node = nodes[i];
+      node.shape.className = `chain-shape chain-${slot.state}`; node.shape.style.setProperty('--tone', baseColor(slot));
+      node.bar.className = `chain-bar chain-bar-${slot.bar}`;
+    });
+    button.hidden = !strip.visible;
+  }
+  function flashes() {
+    const slots = strip.slots;
+    for (let i = 0; i < slots.length; i++) {
+      const slot = slots[i], node = nodes[i];
+      if (!node) continue;
+      if (slot.fireSerial !== node.fireSerial) {
+        node.fireSerial = slot.fireSerial;
+        const tone = baseColor(slot), w = STRIP_COLORS.white;
+        animate(node.shape, slot.double ? [{backgroundColor: w}, {backgroundColor: tone, offset: .17}, {backgroundColor: w, offset: .22}, {backgroundColor: tone}] : [{backgroundColor: w}, {backgroundColor: tone}], slot.double ? STRIP.doubleMs : STRIP.flashMs);
+      }
+      if (slot.barSerial !== node.barSerial) {
+        node.barSerial = slot.barSerial;
+        animate(node.bar, [{borderTopColor: STRIP_COLORS.white}, {borderTopColor: STRIP_COLORS.bar}], STRIP.flashMs);
+      }
+    }
+  }
+  function fade() {
+    if (strip.faded === shownFaded) return;
+    shownFaded = strip.faded;
+    button.style.transitionDuration = !shownFaded || reduced() ? '0ms' : `${STRIP.fadeMs}ms`;
+    button.style.opacity = shownFaded ? String(STRIP.idleOpacity) : '1';
+  }
+  const listener = marks => { if (strip.fire(marks, now())) { flashes(); fade(); } };
+  return {strip, destroy() { dialog?.remove(); button.remove(); }, attach(engine) { if (engine) engine.cardFireListener = listener; },
+    update(snapshot) {
+      if (strip.sync(snapshot, now()) || strip.version !== shownVersion) { shownVersion = strip.version; paint(); }
+      flashes(); fade();
+      const next = snapshot?.cardRowTrace, nextSequence = Number(snapshot?.cardRowSequence);
+      if (next?.steps?.length && next !== trace && nextSequence !== sequence) { sequence = nextSequence; trace = next; }
+    }};
 }

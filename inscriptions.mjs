@@ -27,9 +27,20 @@ export const INSCRIPTIONS = Object.freeze(Object.fromEntries([
   def('lodestone', 'Lodestone', 'standalone', 'Cards on both sides of this slot give +1 Spark each firing.', {glyph: 'lode', bonus: 1}),
   def('ember-bed', 'Ember Bed', 'standalone', 'Finish: +3 Stored Sparks, +1 more per empty slot.', {glyph: 'bed', stored: 3}),
   def('cinder', 'Cinder', 'standalone', 'Lift costs 1 less Spark.', {glyph: 'cinder'}),
+  // Chest gifts: permanent like the 18 above, but only a chest writes them (never the Scribe's offer). They were run-long finds
+  // stored loose in the run (run.treasureGifts); the numbers are unchanged. All standalone: they work on any slot.
+  def('far-lens', 'Far Lens', 'standalone', 'Luminance reaches 15% farther.', {glyph: 'far-lens', chest: true, gift: 'farLens', sight: 1.15}),
+  def('quick-lens', 'Quick Lens', 'standalone', 'Companion recharge takes 15% less time.', {glyph: 'quick-lens', chest: true, gift: 'quickLens', recovery: 0.85}),
+  def('mending-wick', 'Mending Wick', 'standalone', 'Recover 3 extra Sparks after each clear.', {glyph: 'mending-wick', chest: true, gift: 'wick', recoverPoints: 10}),
+  def('toll-stamp', 'Toll Stamp', 'standalone', 'Each clear with 3 body pickups: +3 Stored Sparks.', {glyph: 'toll-stamp', chest: true, gift: 'toll', bodyPickups: 3, stored: 3}),
+  def('lamplighter-seal', 'Lamplighter’s Seal', 'standalone', 'Each clear holding 12 Sparks: +3 Stored Sparks.', {glyph: 'lamplighter-seal', chest: true, gift: 'seal', holding: 12, stored: 3}),
 ].map(item => [item.id, item])));
 
-export const INSCRIPTION_IDS = Object.freeze(Object.keys(INSCRIPTIONS));
+/** The Scribe's list: the 18 permanent Inscriptions (chest gifts are not in it). */
+export const INSCRIPTION_IDS = Object.freeze(Object.keys(INSCRIPTIONS).filter(id => !INSCRIPTIONS[id].chest));
+/** Chest-only permanent Inscriptions, by id, and by the old run.treasureGifts key (for old saves). */
+export const CHEST_INSCRIPTION_IDS = Object.freeze(Object.keys(INSCRIPTIONS).filter(id => INSCRIPTIONS[id].chest));
+export const CHEST_INSCRIPTION_BY_GIFT = Object.freeze(Object.fromEntries(CHEST_INSCRIPTION_IDS.map(id => [INSCRIPTIONS[id].gift, id])));
 
 // TEMPORARY Inscriptions (docs/inscriptions.md, "Events and objectives"): effects earned from events and optional objectives. They are
 // written on a slot like any Inscription, but they are not in the Scribe's list (INSCRIPTION_IDS stays the 18 permanent ones).
@@ -65,7 +76,7 @@ export const TEMPORARY_BY_FAVOR = Object.freeze(Object.fromEntries(Object.values
 export const getTemporary = id => (typeof id === 'string' && Object.hasOwn(TEMPORARY_INSCRIPTIONS, id)) ? TEMPORARY_INSCRIPTIONS[id] : null;
 /** Glyph family: a chisel mark for card-modifying, a rune ring for standalone. */
 export const INSCRIPTION_FAMILIES = Object.freeze({card: 'Chisel', standalone: 'Rune', temporary: 'Ring'});
-/** Any Inscription: one of the 18 permanent ones or a temporary one. */
+/** Any Inscription: a permanent one (the Scribe's 18 or a chest gift) or a temporary one. */
 export const getInscription = id => (typeof id === 'string' && Object.hasOwn(INSCRIPTIONS, id)) ? INSCRIPTIONS[id] : getTemporary(id);
 /** The permanent Inscription only (what the rules engine acts on). */
 export const getPermanentInscription = id => (typeof id === 'string' && Object.hasOwn(INSCRIPTIONS, id)) ? INSCRIPTIONS[id] : null;
@@ -120,6 +131,31 @@ export function clearInscription(run, slot) {
   if (!Number.isInteger(slot) || slot < 0 || slot >= list.length) return false;
   list[slot] = list[slot]?.temporary ? {...list[slot], covers: null} : null;
   return true;
+}
+
+/** A permanent Inscription is written on some slot (even one a temporary Inscription covers): a chest does not offer it twice. */
+export const ownsInscription = (run, id) => (run?.slotInscriptions || []).some((entry, slot) => permanentOnSlot(run, slot) === id);
+/** Written and in force (not covered by a temporary Inscription): the rules engine and the run modifiers read this. */
+export const hasActiveInscription = (run, id) => (run?.slotInscriptions || []).some(entry => entry && !entry.temporary && entry.id === id);
+
+/** Old saves: the five chest gifts (run.treasureGifts farLens, quickLens, wick, toll, seal) move onto the first slot with no permanent
+ * Inscription (none bare: the first slot, replacing; no slots: dropped). Nothing stays in the old fields. Returns [{id, slot}] moved. */
+export function migrateChestGifts(run) {
+  const gifts = run?.treasureGifts;
+  if (!gifts || typeof gifts !== 'object') return [];
+  const found = Object.entries(CHEST_INSCRIPTION_BY_GIFT).filter(([key]) => Number(gifts[key]) > 0).map(([, id]) => id);
+  for (const key of Object.keys(CHEST_INSCRIPTION_BY_GIFT)) delete gifts[key];
+  if (!found.length) return [];
+  const moved = [];
+  for (const id of found) {
+    const list = cleanSlotInscriptions(run);
+    if (!list.length || ownsInscription(run, id)) continue;
+    let slot = list.findIndex((entry, i) => !permanentOnSlot(run, i));
+    if (slot < 0) slot = 0;
+    writeInscription(run, slot, id);
+    moved.push({id, slot});
+  }
+  return moved;
 }
 
 /** Deterministic pick: `random` is any () => [0,1) function. Three offers, never one already written on a slot unless fewer

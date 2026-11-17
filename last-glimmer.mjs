@@ -1,4 +1,4 @@
-import {lightVisibility} from './light-field.mjs?v=readable-1';
+import {lightVisibility} from './light-field.mjs?v=strip-2';
 const clamp=(value,min,max)=>Math.max(min,Math.min(max,value));
 export function fatalFlightPosition(engine){
   if(engine.tutorial||engine.dream?.mode==='record'||engine.dream?.active||engine.dream?.phase==='replay')return null;

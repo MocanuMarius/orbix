@@ -1,4 +1,4 @@
-@import url('./ui/acquired-reward.css?v=readable-1');
+@import url('./ui/acquired-reward.css?v=strip-2');
 /* Relic reward screens · v2.5-theme (kit: ui/waystone.css; shared page and header pieces: artifact-collection.css).
    One paper page (the kit's page art, named directly because this stylesheet is outside dist/ui/), the earned
    chip as a leather plaque, Full rules leather, Take artifact and Continue moss. Offers are plain paper panels,
@@ -118,3 +118,9 @@ html body .scribe-screen :is(.scribe-choice,.scribe-chosen,.scribe-confirm) p :i
 .scribe-screen .scribe-temporary{border-color:#a4561f;border-style:dashed}
 .scribe-screen .scribe-slot-covers{color:#a4561f}
 .scribe-screen .scribe-swap>span:first-child{opacity:1}
+/* Temporary Inscription slot screen: the chosen glyph wears the dashed accent ring of a temporary brand; the Scribe note says a second choice follows. */
+.scribe-screen .scribe-mark-temp{padding:6px;border:3px dashed #a4561f;border-radius:50%}
+.scribe-screen .scribe-mark-temp b{display:block}
+.scribe-screen .scribe-source{font:400 13px/16px var(--pixel,monospace);color:#6b3410;overflow-wrap:anywhere}
+.scribe-screen .scribe-source b{font-weight:700}
+.scribe-screen .scribe-second-note{margin:0 0 6px;text-align:center;font:400 14px/17px var(--pixel,monospace);color:#6b3410}
