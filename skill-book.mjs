@@ -1,14 +1,14 @@
-import {SKILLS,getRunModifiers} from './model.mjs?v=flash-2';
-import {collectorPreferenceMarkup} from './collector-preferences.mjs?v=flash-2';
-import {formatLuminance} from './luminance-units.mjs?v=flash-2';
-import {WISP_ART} from './companion-art.mjs?v=flash-2';
-import {skillTreeState,skillTreeStatus} from './skill-tree-state.mjs?v=flash-2';
-import {getCompanionAbility} from './companion-abilities.mjs?v=flash-2';
-import {skillIcon} from './upgrade-icons.mjs?v=flash-2';
-import {resourceSymbol} from './game-symbols.mjs?v=flash-2';
-import {glowText,getGlowCapacity} from './vitality.mjs?v=flash-2';
-import {skillBookChapter} from './skill-chapters.mjs?v=flash-2';
-export {skillBookChapter} from './skill-chapters.mjs?v=flash-2';
+import {SKILLS,getRunModifiers} from './model.mjs?v=inscribe-2';
+import {collectorPreferenceMarkup} from './collector-preferences.mjs?v=inscribe-2';
+import {formatLuminance} from './luminance-units.mjs?v=inscribe-2';
+import {WISP_ART} from './companion-art.mjs?v=inscribe-2';
+import {skillTreeState,skillTreeStatus} from './skill-tree-state.mjs?v=inscribe-2';
+import {getCompanionAbility} from './companion-abilities.mjs?v=inscribe-2';
+import {skillIcon} from './upgrade-icons.mjs?v=inscribe-2';
+import {resourceSymbol} from './game-symbols.mjs?v=inscribe-2';
+import {glowText,getGlowCapacity} from './vitality.mjs?v=inscribe-2';
+import {skillBookChapter} from './skill-chapters.mjs?v=inscribe-2';
+export {skillBookChapter} from './skill-chapters.mjs?v=inscribe-2';
 
 const chapters=[
  ['wisp','Flight','main-efficiency'],['luminance','Luminance','main-sight'],

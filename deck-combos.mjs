@@ -1,10 +1,10 @@
 /** Small, read-only explanations for the actual chain. */
-import {SKILL_CARDS, getMountedCards, getEffectiveCardSources, getCardRowRule, previewCardRowEvent, CARD_ROW_EVENTS, getUseDoublerTarget, getEmberFeederTargets, getCardFeederCapacity, getAlwaysOnCardBoosts} from './skill-cards.mjs?v=flash-2';
-import {getCardRuleBands} from './card-rule-bands.mjs?v=flash-2';
-import {getEquippedCardStatuses} from './card-status.mjs?v=flash-2';
-import {ARTIFACTS} from './model.mjs?v=flash-2';
-import {artifactDescription} from './artifact-copy.mjs?v=flash-2';
-import {artifactPixelPortrait} from './artifact-pixel-art.mjs?v=flash-2';
+import {SKILL_CARDS, getMountedCards, getEffectiveCardSources, getCardRowRule, previewCardRowEvent, CARD_ROW_EVENTS, getUseDoublerTarget, getEmberFeederTargets, getCardFeederCapacity, getAlwaysOnCardBoosts} from './skill-cards.mjs?v=inscribe-2';
+import {getCardRuleBands} from './card-rule-bands.mjs?v=inscribe-2';
+import {getEquippedCardStatuses} from './card-status.mjs?v=inscribe-2';
+import {ARTIFACTS} from './model.mjs?v=inscribe-2';
+import {artifactDescription} from './artifact-copy.mjs?v=inscribe-2';
+import {artifactPixelPortrait} from './artifact-pixel-art.mjs?v=inscribe-2';
 
 const esc=value=>String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const number=value=>Number(Number(value||0).toFixed(3));

@@ -1,4 +1,4 @@
-@import url('./ui/acquired-reward.css?v=flash-2');
+@import url('./ui/acquired-reward.css?v=inscribe-2');
 /* Relic reward screens · v2.5-theme (kit: ui/waystone.css; shared page and header pieces: artifact-collection.css).
    One paper page (the kit's page art, named directly because this stylesheet is outside dist/ui/), the earned
    chip as a leather plaque, Full rules leather, Take artifact and Continue moss. Offers are plain paper panels,
@@ -64,3 +64,23 @@ html body .rw-screen .reward-packed-earned>span{font:400 11px/1 var(--pixel,mono
  html body .rw-screen .flight-clear-summary>.resource-symbol{width:40px;height:40px}
  html body .rw-screen .flight-clear-summary strong{font-size:18px;line-height:20px}
 }
+
+/* ── The Scribe: choose an Inscription, then a slot (docs/inscriptions.md). Menu screens only. Kit colours, whole pixels. ── */
+.scribe-screen .scribe-offers,.scribe-screen .scribe-pick{display:flex;gap:12px;align-items:stretch;justify-content:center;padding:0 16px;box-sizing:border-box;min-height:0}
+.scribe-screen .scribe-choice{flex:1 1 0;min-width:0;max-width:280px;display:flex;flex-direction:column;gap:4px;padding:10px 12px;box-sizing:border-box;border:2px solid #6b5335;background:#e8d6a4;color:#2a2118}
+.scribe-screen .scribe-standalone{border-color:#536430}
+.scribe-screen .scribe-choice h2{display:flex;align-items:center;gap:6px;margin:0;font:400 18px/22px var(--pixel,monospace);letter-spacing:1px}
+.scribe-screen .scribe-choice h2 .ins-glyph{flex:none;color:#6b5335}
+.scribe-screen .scribe-standalone h2 .ins-glyph{color:#536430}
+.scribe-screen .scribe-choice small{font:400 11px/13px var(--pixel,monospace);color:#5a4632}
+.scribe-screen .scribe-choice p{margin:0;flex:1;font:400 14px/17px var(--pixel,monospace)}
+.scribe-screen .scribe-choice .wb-sign{align-self:stretch;min-height:44px}
+.scribe-screen .scribe-pick .scribe-choice{flex:0 0 230px}
+.scribe-screen .scribe-slots{flex:1;display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:8px;align-content:start}
+.scribe-screen .scribe-slot{display:flex;flex-direction:column;align-items:flex-start;gap:2px;min-height:64px;padding:6px 8px;text-align:left}
+.scribe-screen .scribe-slot b{font:400 15px/17px var(--pixel,monospace)}
+.scribe-screen .scribe-slot span{font:400 13px/15px var(--pixel,monospace)}
+.scribe-screen .scribe-slot small{font:400 11px/13px var(--pixel,monospace)}
+.scribe-screen .scribe-slot-inscribed small{color:#2a2118}
+.scribe-screen .scribe-confirm,.scribe-screen .scribe-written{padding:0 16px;display:flex;flex-direction:column;gap:8px;align-items:center}
+.scribe-screen .scribe-confirm p,.scribe-screen .scribe-result{margin:0;font:400 15px/19px var(--pixel,monospace);max-width:520px;text-align:center}

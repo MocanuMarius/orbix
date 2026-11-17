@@ -4,9 +4,9 @@
 // for a Lift, or the tab is hidden (the flight pauses itself then), and which advances by the fixed simulation step,
 // so a given seed and input give the same engine log. Eligibility mirrors resolveCardRowEvent: no engine during a
 // Dream rehearsal, the clear/death animations, or a tutorial without practice cards.
-import {CARD_UNIT} from './skill-cards.mjs?v=flash-2';
-import {CardEngine, hasEngineCards} from './card-engine.mjs?v=flash-2';
-import {createFlashTether, FLASH_PULSE_INTERVAL} from './flash-tether.mjs?v=flash-2';
+import {CARD_UNIT} from './skill-cards.mjs?v=inscribe-2';
+import {CardEngine, hasEngineCards} from './card-engine.mjs?v=inscribe-2';
+import {createFlashTether, FLASH_PULSE_INTERVAL} from './flash-tether.mjs?v=inscribe-2';
 
 const live = e => !!(e.cardEngine && e.cardExecution && e.running && !e.paused && e.alive && !e.finished && !e.destroyed
   && !e.dying && !e.completing && !(e.tutorial && !e.mod?.practiceCards) && !(e.dream && e.dream.phase !== 'done'));
@@ -104,6 +104,18 @@ export function stepFlightEngine(e, skimsBefore = null) {
     e.cardEngine.flashEnded(slot, e.time);
   }
   if (skimsBefore !== null && (e.edgingPulse?.triggerCount || 0) > skimsBefore) e.cardEngine.raise('skim', {}, e.time);
+}
+
+/** Bell (Inscription): a real light Pulse every 6 s of flight time, however many Bells. Runs only while the world is live. */
+export function stepFlightInscriptions(e) {
+  const ins = e.cardExecution?.inscriptions;
+  if (!ins || !ins.some(entry => entry?.id === 'bell')) return;
+  const live2 = e.running && !e.paused && e.alive && !e.finished && !e.destroyed && !e.dying && !e.completing && !e.tutorial && !(e.dream && e.dream.phase !== 'done');
+  if (!live2) return;
+  if (!(e.inscriptionBellAt >= 0)) e.inscriptionBellAt = e.time + 6;
+  if (e.time + 1e-9 < e.inscriptionBellAt) return;
+  e.inscriptionBellAt = e.time + 6;
+  e.radiateLight?.({once: true, reveal: true, source: 'inscription-bell', sourceKind: 'card', color: '#d9f0dc'});
 }
 
 /** A Flash picked up in flight (a natural Flash: its end is heard by the whole Chain). */

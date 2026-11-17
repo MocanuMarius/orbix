@@ -14,11 +14,11 @@
 //   low-hearts                  one heart left          first-flights   flights 1 to 3 of the run
 //   collector                   the Collector companion is along   empty-slot   the Chain has a free Slot
 //   has-stored-sparks           Stored Sparks in the wallet        after-death  the last flight was lost
-import {CARD_CATALOG} from './card-catalog.mjs?v=flash-2';
-import {getBiome} from './biomes.mjs?v=flash-2';
-import {FLASH_BASE_DURATION} from './pickups.mjs?v=flash-2';
-import {isCardRun,isInventoryOnlyCard} from './skill-cards.mjs?v=flash-2';
-import {onboardingFlightPlan} from './onboarding.mjs?v=flash-2';
+import {CARD_CATALOG} from './card-catalog.mjs?v=inscribe-2';
+import {getBiome} from './biomes.mjs?v=inscribe-2';
+import {FLASH_BASE_DURATION} from './pickups.mjs?v=inscribe-2';
+import {isCardRun,isInventoryOnlyCard} from './skill-cards.mjs?v=inscribe-2';
+import {onboardingFlightPlan} from './onboarding.mjs?v=inscribe-2';
 
 export const TIPS = Object.freeze([
  // ── General: fine in any run ──────────────────────────────────────────────────────────────

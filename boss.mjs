@@ -1,5 +1,5 @@
-import { prepareGuardian } from './guardian-effects.mjs?v=flash-2';
-import {stormRoomAt} from './storm-encounter.mjs?v=flash-2';
+import { prepareGuardian } from './guardian-effects.mjs?v=inscribe-2';
+import {stormRoomAt} from './storm-encounter.mjs?v=inscribe-2';
 // The Hollow Warden is a survival encounter: read its hands, keep your Sparks,
 // and reach the waylight. Every solid hand uses the ordinary terrain pipeline.
 const TAU = Math.PI * 2;

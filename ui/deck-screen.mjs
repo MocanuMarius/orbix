@@ -7,22 +7,24 @@
 // This module draws and handles everything that does not change the save. Every real change (equip, swap,
 // take out, Melt, Workshop) goes through the `actions` the app passes in, which call the model's own
 // transactions and then reopen the sheet; the view state object survives that reopen.
-import {CARD_SYSTEM, getMountedCards, describeSkillCard, getCardChargeCapacity} from '../skill-cards.mjs?v=flash-2';
-import {getOwnedCards} from '../model.mjs?v=flash-2';
-import {cardFace, cardArt, getCardFaceAvailability} from '../card-ui.mjs?v=flash-2';
-import {getEquippedCardStatuses} from '../card-status.mjs?v=flash-2';
-import {glowGaugeMarkup, glowGaugeUnits} from '../glow-ui.mjs?v=flash-2';
-import {cardTileLine, SPARK_ICON_SRC, WISP_ORB_SRC} from '../card-tile-lines.mjs?v=flash-2';
+import {CARD_SYSTEM, getMountedCards, describeSkillCard, getCardChargeCapacity} from '../skill-cards.mjs?v=inscribe-2';
+import {getOwnedCards} from '../model.mjs?v=inscribe-2';
+import {cardFace, cardArt, getCardFaceAvailability} from '../card-ui.mjs?v=inscribe-2';
+import {getEquippedCardStatuses} from '../card-status.mjs?v=inscribe-2';
+import {glowGaugeMarkup, glowGaugeUnits} from '../glow-ui.mjs?v=inscribe-2';
+import {cardTileLine, SPARK_ICON_SRC, WISP_ORB_SRC} from '../card-tile-lines.mjs?v=inscribe-2';
 import {resolveChain, slotInfo, hereLine, plateWords, whenOf, markOf, TRIGGER_BY, triggerName, RARITY_WORD, rarityOf, nameOf, shortName, isRest, num, METER_MAX, START_FLAME,
-  chipOf, triggerBook, enginePlate, holeTally} from './chain-model.mjs?v=flash-2';
-import {triggerIcon, pixelArt, CHEVRON, gem, EYE, WARN, PLUS, NEXT, FIRE, medalUrl, frameVars, chipBadge, chipIcon, rarityPips} from './trigger-icons.mjs?v=flash-2';
-import {CARD_TRIGGERS} from '../card-rule-bands.mjs?v=flash-2';
+  chipOf, triggerBook, enginePlate, holeTally} from './chain-model.mjs?v=inscribe-2';
+import {triggerIcon, pixelArt, CHEVRON, gem, EYE, WARN, PLUS, NEXT, FIRE, medalUrl, frameVars, chipBadge, chipIcon, rarityPips} from './trigger-icons.mjs?v=inscribe-2';
+import {CARD_TRIGGERS} from '../card-rule-bands.mjs?v=inscribe-2';
 import {triggerLabel, triggerTermKey} from '../card-trigger-labels.mjs';
-import {CARD_TERMS} from '../card-terms.mjs?v=flash-2';
-import {SKILL_CARDS} from '../skill-cards.mjs?v=flash-2';
-import {isDevourCard} from '../card-black-hole.mjs?v=flash-2';
-import {simulateEngineChain, engineStarts} from '../card-engine.mjs?v=flash-2';
-import {GLOW_DISPLAY_SCALE} from '../vitality.mjs?v=flash-2';
+import {CARD_TERMS} from '../card-terms.mjs?v=inscribe-2';
+import {SKILL_CARDS} from '../skill-cards.mjs?v=inscribe-2';
+import {isDevourCard} from '../card-black-hole.mjs?v=inscribe-2';
+import {simulateEngineChain, engineStarts} from '../card-engine.mjs?v=inscribe-2';
+import {GLOW_DISPLAY_SCALE} from '../vitality.mjs?v=inscribe-2';
+import {slotInscriptionId} from '../inscriptions.mjs?v=inscribe-2';
+import {inscriptionPlaque, inscriptionFrame, inscriptionBlock, inscriptionLine} from '../inscription-ui.mjs?v=inscribe-2';
 
 const esc = v => String(v ?? '').replace(/[&<>"']/g, c => ({'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'}[c]));
 const SPARK_SRC = SPARK_ICON_SRC;
@@ -108,10 +110,11 @@ function stationsHTML(d, view, opts) {
     const info = chain.infos[i], col = `grid-column:${i + 2}`, lit = placing ? ' dk2-lit' : '';
     const notch = `<div class="dk2-anchor dk2-notch" style="${col}" aria-hidden="true"><i></i></div>`;
     const swap = editable ? `<button type="button" class="wb-sign wb-sign-quiet dk2-swap dk21-swap" data-slot="${i}" style="${col}" aria-label="${c ? `Swap ${esc(nameOf(c))} in slot ${i + 1} for another card` : `Add a card to slot ${i + 1}`}"><span class="wb-sign-text"><b>${c ? 'Swap' : 'Add'}</b></span></button>` : '';
+    const insId = slotInscriptionId(d.run, i), insMark = insId ? inscriptionFrame(insId) + inscriptionPlaque(i, insId) : '', insClass = insId ? ' dk2-inscribed' : '';
     if (!c) {
-      return `<div class="dk2-station dk2-empty${lit}" data-slot="${i}" style="${col}"><span class="dk2-eyerow"></span>
+      return `<div class="dk2-station dk2-empty${insClass}${lit}" data-slot="${i}" style="${col}"><span class="dk2-eyerow"></span>
         <button type="button" class="dk2-btn dk2-card dk2-addcard" data-slot="${i}" ${editable ? '' : 'aria-disabled="true"'} aria-label="${placing ? `Put ${esc(nameOf(placing))} in slot ${i + 1}` : editable ? `Slot ${i + 1} is empty. Add a card` : `Slot ${i + 1} is empty`}"><span class="dk2-addskin">${PLUS}<b>${placing ? 'Put here' : editable ? 'Add a card' : 'Empty slot'}</b></span></button>
-        <span class="dk2-plate dk2-plate-empty" aria-hidden="true"></span></div>${notch}${swap}`;
+        <span class="dk2-plate dk2-plate-empty" aria-hidden="true"></span>${insMark}</div>${notch}${swap}`;
     }
     const mark = markOf(c);
     const availability = getCardFaceAvailability(d.run, printed[i], d.statuses[i]);
@@ -127,10 +130,10 @@ function stationsHTML(d, view, opts) {
     const timer = opts.engineView && (i === opts.engineView.from) ? dialHTML(c, chain.row) : '';
     const plate = special ? `<span class="dk2-plate dk21-plate dk2-plate-word ${special.cls}" aria-hidden="true"><b class="pl-long">${esc(special.long)}</b><b class="pl-short">${esc(special.short)}</b></span>`
       : `<span class="dk2-plate dk21-plate dk2-plate-${info.kind}${info.role === 'add' || info.role === 'mul' ? '' : ' dk2-plate-word'}${info.changed ? ' dk21-plate-changed' : ''}" aria-hidden="true">${plateHTML(info)}</span>`;
-    return `<div class="dk2-station dk2-k-${special ? 'eng' : info.kind}${meal ? ' dk-eaten' : ''}${lit}" data-slot="${i}" style="${col}">
+    return `<div class="dk2-station dk2-k-${special ? 'eng' : info.kind}${meal ? ' dk-eaten' : ''}${insClass}${lit}" data-slot="${i}" style="${col}">
       <span class="dk2-eyerow">${eyeBtn(`data-slot="${i}"`, `Read ${nameOf(c)}`)}</span>
       <button type="button" class="dk2-btn dk2-card" data-slot="${i}" aria-label="${esc(label)}">${mark && ['add', 'mul', 'repeat'].includes(mark.cls) ? `<span class="dk2-mark dk-mark-${mark.cls}" aria-hidden="true">${mark.glyph}</span>` : ''}${face}${timer}${placing ? '<span class="dk2-puthere" aria-hidden="true">Put here</span>' : ''}</button>
-      ${plate}</div>${notch}${swap}`;
+      ${plate}${insMark}</div>${notch}${swap}`;
   }).join('');
 }
 function chipsHTML(d, ev = null) {
@@ -295,6 +298,7 @@ function readerHTML(d, view, opts) {
      <p class="dk2-rar dc-r-${r}">${gem(r)}<span>${RARITY_WORD[r]}</span></p>
      ${chipOf(c).label ? `<p class="dk21-on"><small>${chipOf(c).kind === 'role' ? 'Role' : 'Trigger'}</small>${chipTermBtn(chipOf(c).id)}</p>` : ''}
      <p class="dk2-here${idle ? ' dk2-here-idle' : ''}">${idle ? `<i class="dk2-warn">${WARN}</i>` : ''}<span>${esc(hereLine(d.chain, c))}</span></p>
+     ${at >= 0 && slotInscriptionId(d.run, at) ? inscriptionBlock(at, slotInscriptionId(d.run, at)) : ''}
      ${acts}
      <button type="button" class="wb-sign wb-sign-quiet dk2-close" id="dk2-close" aria-label="Close ${esc(nameOf(c))}"><span class="wb-sign-text"><b>Close</b></span></button>
     </div></div></div>`;
@@ -752,6 +756,8 @@ export function mountDeckScreen(host, {run, view, opts = {}, actions = {}}) {
     if (t.closest('#tb-back')) {if (view.bookFrom === 'outside') actions.done?.(); else showTab(view.bookFrom === 'deck' ? 'deck' : 'chain');return;}
     const bookCard = t.closest('.tb-card');
     if (bookCard) {openCard(d.byUid(bookCard.dataset.uid), bookCard);return;}
+    const insButton = t.closest('[data-ins-slot]');
+    if (insButton && !view.placing) {const slot = Number(insButton.dataset.insSlot);say(inscriptionLine(slot, slotInscriptionId(d.run, slot)), 'dk2-note-done');renderAll();return;}
     if (t.closest('#dk2-done')) {actions.done?.();return;}
     if (t.closest('#dk2-placecancel')) {cancelPlacing();return;}
     if (t.closest('#dk2-pickcancel')) {cancelPick();return;}

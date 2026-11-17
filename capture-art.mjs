@@ -1,12 +1,12 @@
-import {drawCollectorVortex} from './collector-vortex.mjs?v=flash-2';
-import {drawAbsorbingSpark} from './tidal-light.mjs?v=flash-2';
-import {getPickupSpec, pickupShellRadius} from './pickups.mjs?v=flash-2';
-import {drawPickup} from './pickup-art.mjs?v=flash-2';
-import {drawShellArcs} from './shell-arcs.mjs?v=flash-2';
-import {DEFAULT_CAPTURE_STYLE} from './capture-styles.mjs?v=flash-2';
-import {COLLECTOR_RING} from './pickup-handling-cue.mjs?v=flash-2';
-import {collectorTowPoint} from './collector-tow-geometry.mjs?v=flash-2';
-import {lightVisibility,renderLightState} from './light-field.mjs?v=flash-2';
+import {drawCollectorVortex} from './collector-vortex.mjs?v=inscribe-2';
+import {drawAbsorbingSpark} from './tidal-light.mjs?v=inscribe-2';
+import {getPickupSpec, pickupShellRadius} from './pickups.mjs?v=inscribe-2';
+import {drawPickup} from './pickup-art.mjs?v=inscribe-2';
+import {drawShellArcs} from './shell-arcs.mjs?v=inscribe-2';
+import {DEFAULT_CAPTURE_STYLE} from './capture-styles.mjs?v=inscribe-2';
+import {COLLECTOR_RING} from './pickup-handling-cue.mjs?v=inscribe-2';
+import {collectorTowPoint} from './collector-tow-geometry.mjs?v=inscribe-2';
+import {lightVisibility,renderLightState} from './light-field.mjs?v=inscribe-2';
 
 const TAU = Math.PI * 2;
 const clamp = value => Math.max(0, Math.min(1, value));

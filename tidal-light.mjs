@@ -1,8 +1,8 @@
-import {DEFAULT_CAPTURE_STYLE} from './capture-styles.mjs?v=flash-2';
-import {getPickupSpec, pickupKind, pickupShellRadius} from './pickups.mjs?v=flash-2';
-import {pickupSpriteFrame} from './pickup-art.mjs?v=flash-2';
-import {LIGHT_PACKET_TUNING} from './vitality.mjs?v=flash-2';
-import {drawFluidCapture} from './fluid-capture.mjs?v=flash-2';
+import {DEFAULT_CAPTURE_STYLE} from './capture-styles.mjs?v=inscribe-2';
+import {getPickupSpec, pickupKind, pickupShellRadius} from './pickups.mjs?v=inscribe-2';
+import {pickupSpriteFrame} from './pickup-art.mjs?v=inscribe-2';
+import {LIGHT_PACKET_TUNING} from './vitality.mjs?v=inscribe-2';
+import {drawFluidCapture} from './fluid-capture.mjs?v=inscribe-2';
 
 const TAU = Math.PI * 2;
 const clamp = value => Math.max(0, Math.min(1, value));

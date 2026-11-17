@@ -18,7 +18,7 @@
 // - Events only move right and each Timer holds at most one pending wait, so one instant always terminates; a hard
 //   safety counter still stops the engine (and warns once) if that is ever exceeded.
 import {SKILL_CARDS, CARD_ECONOMY, cardAmount, getCardRowRule, matchesRowCondition, matchesRowShape, isInventoryOnlyCard,
-  createCardExecution, resolveCardRow} from './skill-cards.mjs?v=flash-2';
+  createCardExecution, resolveCardRow} from './skill-cards.mjs?v=inscribe-2';
 
 export const ENGINE_LIMITS = Object.freeze({ deliveriesPerInstant: 400, timersPerAdvance: 5000, logEntries: 5000, turnLog: 5000 });
 /** Player-made Triggers the engine cards listen to (not CARD_ROW_EVENTS: the ordinary walker never sees them). */
@@ -215,7 +215,7 @@ export class CardEngine {
     if (spec.cooldown) this.lowEmberAt.set(id, this.t);
     if (spec.oncePerTurn) this.bellTurn.set(id, this.turn);
     // The mask names the card that made an event (its direct maker), so that card never answers it this Turn.
-    const times = 1 + this.echoRepeats(j), mask = 1 << j;
+    const times = (1 + this.echoRepeats(j)) * (this.cards[j] && this.runtime?.inscriptions?.[j]?.id === 'twin-mark' ? 2 : 1), mask = 1 << j;
     this.record({ k: 'hit', slot: j, type: ev.type, from: ev.from, times });
     if (spec.family === 'pack') this.pack.acts++;
     for (let r = 0; r < times; r++) this.act(j, ev, mask);
@@ -224,7 +224,7 @@ export class CardEngine {
   act(j, ev, mask) {
     const card = this.cards[j], spec = engineSpec(card);
     for (const what of spec.does || []) {
-      if (what === 'gain') this.gain(j, cardAmount(card), mask);
+      if (what === 'gain') this.gain(j, cardAmount(card) + (this.runtime?.inscriptions?.[j]?.id === 'gilded' ? 2 : 0) + [j - 1, j + 1].filter(k => this.runtime?.inscriptions?.[k]?.id === 'lodestone').length, mask);
       else if (what === 'pulse') {
         if (spec.keep && ev?.type === 'overfill' && !ev.natural) {
           const keep = Math.floor(Math.min(spec.keep, Number(ev.spill) || 0) + EPS);

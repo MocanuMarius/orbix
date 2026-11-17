@@ -1,16 +1,17 @@
 /** Contextual card vocabulary. Native modal dialogs keep help above the Deck. */
-import { resourceSymbol } from './game-symbols.mjs?v=flash-2';
-import {lifeHeartSvg} from './lives.mjs?v=flash-2';
-import {duskGlyphArt} from './spark-symbol.mjs?v=flash-2';
-import {getGlowCapacity,formatGlow} from './vitality.mjs?v=flash-2';
-import {glowGaugeUnits} from './glow-ui.mjs?v=flash-2';
-import {getRunModifiers} from './model.mjs?v=flash-2';
-import {cardAmount,makeSkillCard,SKILL_CARDS} from './skill-cards.mjs?v=flash-2';
-import {cardRowTermHelpMarkup} from './card-row-help.mjs?v=flash-2';
-import {dreamEye} from './dream.mjs?v=flash-2';
-import {FLASH_BASE_DURATION} from './pickups.mjs?v=flash-2';
+import { resourceSymbol } from './game-symbols.mjs?v=inscribe-2';
+import {lifeHeartSvg} from './lives.mjs?v=inscribe-2';
+import {duskGlyphArt} from './spark-symbol.mjs?v=inscribe-2';
+import {getGlowCapacity,formatGlow} from './vitality.mjs?v=inscribe-2';
+import {glowGaugeUnits} from './glow-ui.mjs?v=inscribe-2';
+import {getRunModifiers} from './model.mjs?v=inscribe-2';
+import {cardAmount,makeSkillCard,SKILL_CARDS} from './skill-cards.mjs?v=inscribe-2';
+import {cardRowTermHelpMarkup} from './card-row-help.mjs?v=inscribe-2';
+import {dreamEye} from './dream.mjs?v=inscribe-2';
+import {FLASH_BASE_DURATION} from './pickups.mjs?v=inscribe-2';
 const esc = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 export const CARD_TERMS = Object.freeze({
+  inscription: ['Inscription', 'An effect written on a Chain slot, not on a card. It stays on the slot when cards move, swap or leave. Some change the card on that slot; some work on any slot, even an empty one. Get one from the Scribe after an Elite or Guardian. One per slot; writing again replaces it.'],
   round: ['Round', 'One flight through a passage, ending in clear rewards or a lost heart.'],
   map: ['Map', 'A route of Rounds and Rest stops, ending at a Guardian.'],
   game: ['Game', 'One journey through 3 Maps, ending at the final Guardian or when you run out of hearts.'],
@@ -129,7 +130,7 @@ const keywords = [
   ['Watchlight', 'watchlight'], ['Devour(?:s|ed)?', 'devour'], ['Dream', 'dream'], ['Rhythm(?: phrase)?', 'rhythm'], ['Clusters?', 'cluster'], ['Collector charge|full charge|¼ charge|charge|ring', 'ring'], ['Collector', 'collector'], ['Flash(?: Powerups?)?', 'flash'], ['Caches?', 'cache'],
   ['Spark Meter|meter', 'meter'], ['Sparks?', 'spark'], ['wisps?', 'wisp'], ['Lifts?', 'lift'], ['Rest', 'rest'], ['Grow', 'grow'],
   ['Shared uses|Share its (?:remaining )?uses|Copies share uses', 'shared'], ['remaining (?:uses|charges)|uses?', 'uses'], ['pack(?:ing|ed|s)?', 'packing'], ['next card|next slot|card to the right', 'next'],
-  ["chain(?:’s|'s)?", 'pass'], ['Slots?', 'slot'], ['Repeats?|Borrow|Acts as', 'copy'],
+  ["chain(?:’s|'s)?", 'pass'], ['Inscriptions?', 'inscription'], ['Slots?', 'slot'], ['Repeats?|Borrow|Acts as', 'copy'],
   ['Rounds?', 'round'], ['Maps?', 'map'], ['Game', 'game'],
 ];
 const keywordPattern = new RegExp(`\\b(${keywords.map(([pattern]) => pattern).join('|')})\\b`, 'gi');
@@ -389,7 +390,7 @@ export function installCardTermHelp(doc = document, {resolveProximityContext,res
       dialog.classList.add('card-cache-dialog');
       const host=button.dataset.cardTerm?dialog.querySelector('[data-card-term-example]'):doc.createElement('div');
       if(!button.dataset.cardTerm){host.className='cache-card-example';dialog.querySelector('[data-card-help-rules]').append(host);}
-      import('./cache-card-help.mjs?v=flash-2').then(({mountCacheCardHelp})=>{
+      import('./cache-card-help.mjs?v=inscribe-2').then(({mountCacheCardHelp})=>{
         if(layers.includes(layer))appendDisposer(mountCacheCardHelp(host,{focus:cardKind==='harvest'?'cross':cardKind==='cache-handling'?'deliver':'touch',harvestCard:cardKind==='harvest'?cardContext.card:undefined}));
       });
     }
@@ -400,7 +401,7 @@ export function installCardTermHelp(doc = document, {resolveProximityContext,res
         const host=doc.createElement('section');host.className='proximity-card-help';
         const example=dialog.querySelector('[data-card-term-example="proximity"]');
         if(example)example.replaceChildren(host);else dialog.querySelector('.card-term-content').prepend(host);
-        import('./proximity-card-help.mjs?v=flash-2').then(({mountProximityCardHelp})=>{
+        import('./proximity-card-help.mjs?v=inscribe-2').then(({mountProximityCardHelp})=>{
           if(layers.includes(layer))appendDisposer(mountProximityCardHelp(host,previewContext));
         });
       }
