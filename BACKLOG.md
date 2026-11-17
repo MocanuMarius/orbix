@@ -4,6 +4,67 @@ Current release: **`furnace-tow-1`**. [Release verification](docs/furnace-tow-re
 
 The entries below are chronological release snapshots. Their old “current” labels, checked boxes and pending notes describe those snapshots; later decisions take precedence. The current local source has 81 cards, an owned Deck editable during safely paused flight, a guaranteed meltable Lift Guide, repeatable Forge and card improvements at Rest, copy-compatible numeric Field Impulse duration and Collector’s visible reel. The original skill book stays under Settings → Advanced with a separate save. Cards and Stored Sparks reset with the expedition; earned maximum Sparks and unlocked cruising speed are the explicit permanent exceptions.
 
+## Requested 17 November 2026 — Packing as a Chain event
+
+User's words: "packing should also be a chain event and echo and the likes should react to it."
+
+- Packing (Sparks packed into Stored Sparks at the end of a flight) becomes a Trigger, named and shown like Collect, Delivery and Pulse, with its own icon and glossary entry.
+- Echo and similar cards (repeaters, Boosts, Rhythm-style counters) react to it the same way they react to other Triggers.
+- To settle when designing: one event per pack or one per flight; the kept rule that Boosts never multiply Stored Sparks or permanent gains (so what a repeated Pack may and may not double); which existing cards move to the Pack Trigger; how the reward ceremony shows the Chain firing. Belongs with the balance summary (`docs/overnight-plan.md` goal 14); propose before building.
+
+# Engines: Chains that keep themselves going — 17 November 2026
+
+**The user's idea, in their words (condensed):** "things chaining together doing a self-sustaining cycle… we have the light wave [Pulse] on this chain, and another [card] that reacts to pings [Pulses]… once something pings, you gain something… After you receive a Spark from any source, it pings once… something that would start a cycle from different triggers, but would necessitate special cards that… have wait timers. So like, wait a second and then do this… 2 seconds apart, it would just do a ping and then fill you up your energy… an automatic chain of things by using different triggers that trigger themselves in a way from the same 4 cards or 5 cards… difficult to balance, but immensely satisfying to find Lego pieces like that… this is going to be really fun to design cards that work this way."
+
+## What it is
+
+Today a Chain fires once per Trigger, left to right, and stops. An **engine** is a Chain whose cards produce the Triggers other cards in it wait for, so one start keeps it turning: Pulse → gain Sparks → gaining Sparks sends a Pulse → … The player's job is to find pieces that close the circle and then keep it fed while flying.
+
+## The Lego pieces (card families to design)
+
+1. **Makers**: turn one Trigger into another event. "On Pulse: gain 1 Spark." "On gaining a Spark from any source: send a Pulse." "On Collect: start a Flash." "On Delivery: Collector fetches again." Each maker names exactly one input and one output so players can read a circle off the cards.
+2. **Timers** (the piece the user asked for): "Wait 2 s, then send a Pulse." "Every 3 s while your Spark Meter is not full: gain 1 Spark." "1 s after a Pulse: Pulse again." A timer is what makes a loop legal: no circle may close without at least one wait in it, so an engine has a tempo instead of firing forever in one frame.
+3. **Starters**: give the first push from something the player does in flight: first Collect of a flight, a skim (Proximity), a Lift at low Sparks, passing a Black Hole. Different starters make different archetypes.
+4. **Governors** (optional pieces, not penalties): change the tempo or shape. "Timers to the left run twice as fast." "Every third turn of the engine is doubled." "While the engine has turned 5 times without a break: Luminance +1." Boost cards already multiply to the left; here they speed or fatten a turn.
+5. **Payoffs**: what the engine is for: Sparks, Luminance, shield charges from Collector, Stored Sparks at Pack (see "Packing as a Chain event"), growth for cards like Black Hole.
+
+## Rules the engine needs (to settle in design, in this order)
+
+- **A loop must contain a wait.** The Chain screen checks the circle when the player arranges it; a circle with no Timer shows "Needs a wait" on the plate (the existing "No effect here" language), rather than being silently capped. This is a rule of the Lego set, not a nerf.
+- **What stops an engine:** it stops when a card's condition fails (Spark Meter full for a "gain" maker, no Collector charge, nothing to fetch). Stopping conditions come from the fiction of each card, not from a turn limit. The Spark Meter cap of 100 stays; an engine that overfills feeds Overfill cards, which is another closing piece.
+- **Whole Sparks, round down per firing** (kept rule) and **Boosts never multiply Stored Sparks or permanent gains** (kept rule).
+- **One Trigger, many listeners:** decide the order when two cards wait for the same event (left to right, as now).
+- **Self-reference:** can a card hear its own output? Default no: a card never reacts to an event it produced in the same turn; the circle must pass through another card or a Timer.
+
+## Showing it without reading during play
+
+- On the Chain screen: Play runs the engine in slow motion; a loop is drawn as a closed track with the Timer as a small dial on it; the medallion shows "per turn" and "turns per 10 s" instead of one total.
+- In flight: no text. The existing card feedback strip pulses in the engine's tempo; a Timer card shows a filling ring; a stalled engine dims. Sound: a soft tick per turn that speeds up with the tempo.
+- Glossary: Engine, Timer, Turn, with a short clip each.
+
+## Teaching
+
+One later tutorial stop or a Rest lesson: three loaned cards (a starter, a maker, a Timer) that the player arranges into a circle and watches turn.
+
+## Balance approach
+
+The user accepts that this is hard to balance and wants the discovery to be the fun ("no caps… broken combos"). So: tempo is the dial (wait lengths), not ceilings. Measure with the simulation from the balance summary: Sparks per 10 s for every legal circle of 3, 4 and 5 cards; flag only engines that make the flight trivially unlosable, and fix those by lengthening a wait, never by a cap.
+
+## Performance note
+
+Every turn can spawn a Pulse and feedback. Engines must not add per-frame cost on a phone: Pulses pooled, feedback coalesced when tempo is fast. Check with the performance harness before shipping.
+
+## First step when this is picked up
+
+Coordinator writes a card list: 4 makers, 3 Timers, 3 starters, 2 governors, with one worked 4-card engine and one 5-card engine, shown on the Chain screen in the design lab (`v1.0-engine`). User approves by code; then engine rules (Opus: touches card firing order and timing), then cards (Sonnet).
+
+## Requested 17 November 2026 — new card: Black Hole
+
+User's words: "one of the cards should be Black Hole… It should destroy the card to the right of it during a run, and after it destroys it, it upgrades itself. And this would give you maximum Spark. So a common card would give you 1, rare 2, and a legendary plus 3 max permanently… registered under the card's stats, under the Black Hole's stats."
+
+- Card id `black-hole`. Effect: destroys the card in the Slot to its right; the Black Hole then grows: +1 max Sparks for a Common eaten, +2 for a Rare, +3 for a Legendary. The gain is permanent and is counted on the Black Hole card itself (its face shows the running total, for example "Eaten 4 · +7 max Sparks").
+- To settle when designing (propose, then build): when it fires (once per flight at the start, at Rest, or on a Trigger); whether "permanent" means for the run or across runs (the existing Growth Seed / max Sparks rules and the Spark Meter cap of 100 apply); what happens with nothing to its right or an empty Slot; whether it can eat a loaned, retired or Stored-Sparks card; rarity and price of the Black Hole itself; whether Boosts to its right change the gain (kept rule: Boosts never multiply permanent gains); the plate text on the Chain screen ("Eats the next card" with a clear warning before Play, since a card is lost for good). Name clash: Black Holes are also a flight hazard taught in the tutorial; keep one glossary entry clear about both, or name the card differently if it confuses.
+
 ## Latest requested batch — furnace-tow-1
 
 - [x] Offer Add to collection, Equip and directly reviewed Melt on earned card receipts; preserve exact identity, uses, separate relics and safe cancellation.

@@ -59,6 +59,10 @@ User's words, condensed: much of the card art "needs rework because it was done 
 
    **Correction from the user (07:00), overrides the above where they differ:** always-picks are not a problem in themselves; strength should be archetype- or context-dependent. "You shouldn't introduce arbitrary bad effects… don't overcomplicate things. Just signal it out to me, and do a summary that I will revise much later." So: no added costs or drawbacks to strong cards; do not implement balance changes unasked. Deliverable is the analysis and a short summary (`docs/card-balance-2.md`): which cards are weak, which are strong everywhere rather than in an archetype, which archetypes exist or are missing, simple suggestions. The user reviews later; nothing changes in the game before that.
 
+   **Added 17 November 08:30 (user):** "packing should also be a chain event and echo and the likes should react to it." Recorded in `BACKLOG.md` (top section). Include a concrete proposal for a Pack Trigger in the balance summary; build only after the user agrees.
+
+16. **Engines: self-sustaining Chains with Timer cards** (user, 08:40, "add a huge chapter"): full chapter at the top of `BACKLOG.md` ("Engines: Chains that keep themselves going"). Also there: the Black Hole card and Packing as a Chain event. First step: card list and two worked engines shown in the lab as `v1.0-engine`; user approves by code before any engine rule is built.
+
 Order: 11 step 1 and 12 step 1 can run together (read-only). Showcases next. All three need the user's eye by code; they are not covered by the standing reskin approval.
 
 ## Status log
