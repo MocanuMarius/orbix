@@ -53,7 +53,7 @@ test('every card face, Deck tile and Chain tile leads with the Trigger badge; ra
   assert.doesNotMatch(html, /dk21-rtab/, 'no rarity word strip on tiles');
   assert.equal((html.match(/class="tbadge dk-tbadge"/g) || []).length, 5, 'every tile has its badge, except the Rest card (no chip: its text says At Rest)');
   assert.match(html, /aria-label="Crescendo\. Rare\. Role: Boost./, 'the rarity word stays in the accessible name');
-  assert.match(html, /data-filter="rare"/, 'filtering by rarity still works');
+  assert.match(html, /id="dk2-filter"/, 'filtering by rarity lives behind the Filter button');
   assert.match(chipBadge({id: 'collect', label: 'Collect'}), /<b class="tbadge-n">Collect<\/b>/);
 });
 

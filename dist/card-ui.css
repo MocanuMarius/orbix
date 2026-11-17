@@ -1225,11 +1225,6 @@ html body .card-deck-browser .card-collection-face>.skill-card.card-thumbnail{--
 .card-deck-melt-mode{grid-template-rows:auto 54px minmax(0,1fr)!important}
 .card-deck-melt-mode .card-deck-return{display:none}
 /* Reward owns the new card before any equip choice. */
-.card-reward-equip{position:relative;gap:8px!important}
-.card-reward-equip .card-reward-body{display:grid;grid-template-columns:minmax(125px,.55fr) minmax(0,1.45fr);gap:22px;min-height:0}
-.card-reward-equip .card-reward-choice{display:flex;flex-direction:column;gap:7px;justify-content:center;min-height:0}
-.card-reward-equip .card-reward-new{position:relative;container-type:size;display:flex;justify-content:center;align-items:center;min-height:0}
-.card-reward-equip .card-reward-new>.card-drag-grip{position:absolute;right:0;bottom:0;z-index:5}
 .card-reward-slot-heading h2{display:flex;align-items:center;gap:6px;font:18px/1.1 var(--pixel);margin:0 0 4px;color:#efdfb1}
 .card-reward-slot-heading small{font:11px/1.2 var(--pixel);color:#bacaa5}
 .card-reward-slots{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:5px;min-height:0}
@@ -1240,9 +1235,6 @@ html body .card-reward-slots>.card-reward-slot{position:relative;display:flex;al
 .card-reward-slot strong{font:11px/1.1 var(--pixel);display:block;overflow-wrap:anywhere}
 .card-reward-slot small{font:10px/1.2 var(--pixel);display:block;color:#b4c59d;margin-top:3px}
 html body .card-reward-slots>.card-slot-target{border:2px solid #a8c67c!important;background:#344e2e!important;cursor:pointer}
-.card-reward-equip .card-reward-prompt{font:12px/1.2 var(--pixel);color:#d5ddb5;margin:0;min-height:15px}
-.card-reward-equip .card-reward-actions{display:flex;gap:8px;flex-wrap:nowrap}
-html body .card-reward-equip .card-reward-actions>button{min-height:44px!important;font-size:13px!important;white-space:nowrap}
 /* Full rule comparison scrolls as a pair; commit controls stay reachable. */
 .card-swap-review{grid-template-rows:auto minmax(0,1fr) 44px;gap:7px}
 .card-swap-review>.card-heading h2{font-size:20px;margin:0}
@@ -1269,11 +1261,7 @@ html body .card-swap-review .card-dialog-actions>button{min-height:44px!importan
  .card-deck-browser .card-heading .card-bench-wallet{display:none}
  .card-deck-browser .card-heading h2{font-size:18px}
  .card-deck-selection{font-size:11px}
- .card-reward-equip .card-heading h1{font-size:21px}
- .card-reward-equip .card-reward-body{grid-template-columns:137px minmax(0,1fr);gap:18px}
  .card-reward-slot-heading h2{font-size:16px}
- .card-reward-equip .card-reward-choice{gap:5px}
- .card-reward-equip .card-reward-prompt{font-size:11px}
 }
 @media(orientation:portrait){.card-reward-equip .card-reward-body{grid-template-columns:1fr;grid-template-rows:270px auto;overflow-y:auto}.card-reward-equip .card-reward-new{min-height:270px}.card-reward-slots{grid-template-columns:repeat(2,minmax(0,1fr))}.card-deck-browser .card-heading .card-bench-wallet{display:none}.card-swap-pair{gap:10px}.card-swap-face{width:150px;height:210px}html body .card-swap-face>.skill-card.card-readable{--card-height:210px}.card-deck-selection>span{font-size:10px}}
 .card-deck .card-compact-mount .card-slot-pick>.skill-card-art{display:none!important}
@@ -1284,9 +1272,6 @@ html body .card-compact-mount:has(>.card-drag-grip)>.card-slot-pick{padding-righ
 html body .card-deck-browser .card-collection-face>.skill-card.card-thumbnail{--card-height:clamp(90px,calc(100dvh - 190px),170px)}
 .card-deck-browser .card-collection-face>.card-drag-grip{position:absolute;right:0;top:5px;z-index:3;background:#20392dee}
 .card-deck .card-compact-mount .card-slot-copy strong{font-size:10px}
-.card-reward-equip .card-reward-slots{flex:none}
-.card-reward-equip .card-reward-choice{justify-content:center;overflow:visible}
-.card-reward-equip .card-reward-slot small{line-height:1.15;font-size:10px}
 /* Comparison uses the full faces in a wider, rules-first reading proportion. */
 .card-swap-review>.card-heading{min-height:24px;gap:10px}
 .card-swap-review>.card-heading>div{display:flex;align-items:center;gap:12px;width:100%}
@@ -1333,30 +1318,18 @@ html body :is(#app,#header,dialog.game-sheet.card-sheet) :is(.card-bench,.card-e
 html body dialog.game-sheet.card-exchange-sheet[open] .card-melt-confirm .card-dialog-actions>button{min-height:44px!important}
 .card-melt-payout{display:flex;align-items:center;gap:7px}
 .card-melt-payout>.resource-symbol{width:25px;height:25px;flex:none}
-.card-reward-equip .card-reward-actions>[data-action="card-reward-continue"]{flex:1}
 @media(max-height:295px) and (orientation:landscape){
- html body .card-reward-equip .card-reward-actions>button{font-size:12px!important;padding:5px 7px!important}
  .card-reward-actions .card-furnace-icon{width:19px;height:19px}
 }
 
 /* Reward comparison uses the same portrait faces as Deck. The mounted rail
    scrolls only after three slots, preserving readable cards as the row grows. */
-html body .card-reward-equip{height:100%;min-height:0;grid-template-rows:42px minmax(0,1fr) 44px;gap:7px!important;padding:8px max(14px,env(safe-area-inset-right)) 9px max(14px,env(safe-area-inset-left));overflow:hidden}
-.card-reward-equip>.card-heading{min-height:0}
-.card-reward-equip>.card-heading h1{font-size:21px;margin:0}
-.card-reward-equip>.card-heading small{font-size:10px}
-html body .card-reward-equip>.card-heading>button{min-height:44px!important}
-html body .card-reward-equip .card-reward-body{grid-template-columns:minmax(0,1fr) minmax(0,3fr);grid-template-rows:minmax(0,1fr);gap:24px;align-items:stretch;overflow:hidden}
 .card-reward-incoming{display:grid;grid-template-rows:minmax(0,1fr);gap:0;min-height:0;min-width:0}
-html body .card-reward-equip .card-reward-new{container-type:size;display:flex;align-items:center;justify-content:center;width:100%;height:100%;min-height:0;max-height:none;overflow:visible}
-html body .card-reward-equip .card-reward-new>.skill-card{--card-height:min(100cqh,calc(100cqw * 7 / 5),350px)}
 .card-reward-new .card-illustration[data-deck-drag-id]{touch-action:none;cursor:grab}
-html body .card-reward-equip .card-reward-choice{position:relative;display:grid;grid-template-columns:minmax(0,1fr);grid-template-rows:minmax(0,1fr);gap:0;min-height:0;overflow:hidden;align-content:stretch;justify-content:stretch}
 .card-reward-slot-heading{display:flex;align-items:center;gap:12px;min-width:0;border-bottom:1px solid #6f82604d}
 .card-reward-slot-heading h2{font-size:14px!important;margin:0;white-space:nowrap}
 .card-reward-slot-heading .card-nav-art{width:17px;height:17px}
 .card-reward-slot-heading small{font-size:10px;white-space:nowrap;color:#d6dcb5;overflow:hidden;text-overflow:ellipsis}
-html body .card-reward-equip .card-reward-slots{container-type:size;display:flex;align-items:stretch;justify-content:flex-start;gap:9px;min-height:0;min-width:0;width:100%;height:100%;overflow-x:auto;overflow-y:hidden;padding:0 2px 5px;scrollbar-width:thin;scrollbar-color:#90a36d #16271d;overscroll-behavior:contain;touch-action:pan-x}
 html body .card-reward-slots>.card-reward-slot{container-type:size;position:relative;display:grid;grid-template-rows:19px minmax(0,1fr);align-items:stretch;flex:0 0 calc((100cqw - 22px)/3);height:100%;min-height:0!important;min-width:0;padding:0!important;border:0!important;background:transparent!important;opacity:1!important;color:#cad7b8;cursor:default}
 .card-reward-slot-rail{display:flex;align-items:center;justify-content:center;gap:7px;min-width:0;font:10px/1 var(--pixel);color:#aebd9e}
 .card-reward-slot-rail>b{font:13px/1 var(--pixel);color:#e6d19c}
@@ -1365,14 +1338,6 @@ html body .card-reward-slots>.card-reward-slot{container-type:size;position:rela
 html body .card-reward-slot-rail .card-config-status{position:static!important;inset:auto!important;min-height:18px!important;max-height:18px!important;min-width:0!important;max-width:none!important;padding:1px 3px!important;font-size:9px!important}
 .card-reward-mounted-face{container-type:size;min-width:0;min-height:0;height:100%;display:flex;align-items:center;justify-content:center}
 html body .card-reward-mounted-face>.skill-card{--card-height:min(100cqh,calc(100cqw * 7 / 5),350px)}
-html body .card-reward-equip .skill-card.card-readable{grid-template-rows:clamp(27px,calc(var(--card-height) * .12),34px) clamp(30px,calc(var(--card-height) * .6 - 96px),100px) minmax(0,1fr)!important}
-html body .card-reward-equip .skill-card.card-readable .card-rule-stripe{padding:3px 6px}
-html body .card-reward-equip .skill-card.card-readable .card-rule-note{padding-top:1px;padding-bottom:3px}
-html body .card-reward-equip .skill-card{--reward-top-inset:calc(var(--card-height) * .064286)}
-html body .card-reward-equip .skill-card.card-rare{--reward-top-inset:calc(var(--card-height) * .064286)}
-html body .card-reward-equip .skill-card.card-legendary{--reward-top-inset:calc(var(--card-height) * .064286)}
-html body .card-reward-equip .skill-card.card-has-uses .card-rule-stripe:last-child{padding-bottom:3px}
-html body .card-reward-equip .skill-card .card-use-counter{top:calc(var(--reward-top-inset) + clamp(27px,calc(var(--card-height) * .12),34px) + 4px);bottom:auto;right:calc(var(--card-height) * .04 + 3px);z-index:4}
 html body .card-reward-slots>.card-slot-target{border:0!important;background:transparent!important;cursor:pointer}
 .card-reward-slot.card-slot-target .card-reward-slot-rail{color:#f4e7b8;background:#425733}
 .card-reward-slot.card-slot-target .card-reward-mounted-face{outline:1px solid #c0ce8a;outline-offset:-1px;background:#2c4028}
@@ -1381,10 +1346,6 @@ html body .card-reward-slots>.card-slot-target{border:0!important;background:tra
 .card-reward-slot .empty-card{display:flex;align-items:center;justify-content:center;border:2px dashed #7f956c!important;background:#1b3026!important;padding:8px!important}
 .card-reward-slot .empty-card h3{font:14px/1.2 var(--pixel);text-align:center}
 .card-reward-footer{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:16px;min-width:0;min-height:0}
-.card-reward-equip .card-reward-prompt{font:11px/1.15 var(--pixel);color:#ccdab5;margin:0;min-height:0}
-html body .card-reward-equip .card-reward-actions{display:flex;flex-wrap:nowrap;gap:8px;min-height:44px;margin:0}
-html body .card-reward-equip .card-reward-actions>button{flex:none;min-height:44px!important;font-size:13px!important;padding:5px 12px!important;white-space:nowrap}
-html body .card-reward-equip .card-reward-actions>[data-action=card-reward-continue]{flex:none}
 @media(max-height:360px) and (orientation:landscape){html body .card-reward-equip{grid-template-rows:36px minmax(0,1fr) 44px;padding-block:4px;gap:5px!important}.card-reward-equip>.card-heading h1{font-size:19px}.card-reward-equip>.card-heading small{font-size:9px}html body .card-reward-equip .card-reward-body{gap:17px}.card-reward-footer{gap:8px}html body .card-reward-equip .card-reward-actions>button{font-size:12px!important;padding-inline:9px!important}}
 @media(max-height:300px) and (orientation:landscape){.card-reward-slot-rail{font-size:9px}}
 @media(orientation:portrait){html body .card-reward-equip{grid-template-rows:44px minmax(0,1fr) auto;height:100dvh}html body .card-reward-equip .card-reward-body{grid-template-columns:1fr;grid-template-rows:300px 300px;overflow-y:auto;gap:18px}.card-reward-footer{grid-template-columns:1fr;gap:6px}.card-reward-footer .card-reward-prompt:empty{display:none}html body .card-reward-equip .card-reward-actions{justify-content:center}.card-reward-slot-heading small{font-size:9px}.card-reward-slots>.card-reward-slot{flex-basis:160px!important}}
@@ -1515,7 +1476,6 @@ html body .deck-equipped-stage .card-equipped-mount .card-equipped-face>.skill-c
 .card-flight-changes{font:11px/1.35 var(--pixel);color:#d4dfc2;flex:none}
 .card-flight-changes>summary{min-height:36px;display:flex;align-items:center;cursor:pointer;color:#f0dfad}
 .card-flight-changes p{margin:0 0 7px}
-html body .card-reward-equip .card-reward-choice:has(>.card-flight-changes){grid-template-rows:auto minmax(0,1fr);gap:6px;overflow:hidden}
 .card-reward-choice>.card-flight-changes{max-height:110px;overflow-y:auto;overscroll-behavior:contain}
 .deck-selected-links .deck-context-link{margin:0 0 6px;width:100%}
 .deck-context-panel .deck-context-close{flex:none}
@@ -1670,14 +1630,8 @@ html body .skill-card.card-rare .card-illustration{background:#193748;border-col
 html body .card-rare .card-rarity{color:#c2ebff!important}
 html body .skill-card-art[data-card-rarity="rare"]{border-color:#81b6d4!important}
 /* Incoming and equipped cards are separate groups; all four faces stay visible. */
-html body .card-reward-equip .card-reward-body{gap:26px;overflow:visible}
 .card-reward-incoming{position:relative;padding:18px 5px 0;background:#34463055;box-shadow:inset 0 0 0 1px #9aaa7b66}
 .card-reward-incoming::before{content:'New card';position:absolute;inset:2px 0 auto;text-align:center;color:#f0db9e;font:12px/1.1 var(--pixel)}
-html body .card-reward-equip .card-reward-choice{padding:18px 5px 0;background:#1a302744;box-shadow:inset 0 0 0 1px #65837266;overflow:visible}
-.card-reward-equip .card-reward-choice::before{content:'Equipped';position:absolute;inset:2px 0 auto;text-align:center;color:#c6d6c2;font:12px/1.1 var(--pixel)}
-.card-reward-equip .card-reward-choice::after{content:'';position:absolute;left:-14px;top:6px;bottom:6px;border-left:2px solid #9aaa7b77;pointer-events:none}
-html body .card-reward-equip .card-reward-slots{padding-bottom:2px}
-html body .card-reward-equip .card-reward-choice:has(>.card-flight-changes){padding-top:18px}
 @media(max-height:360px) and (orientation:landscape){html body .card-reward-equip .card-reward-body{gap:20px}.card-reward-equip .card-reward-choice::after{left:-11px}.card-reward-incoming,html body .card-reward-equip .card-reward-choice{padding-inline:3px}}
 /* Collector's former Power badge is reserved for compact event receipts. */
 .flight-effect-space{position:relative;display:flex;flex-direction:column;justify-content:flex-end;align-items:flex-end;gap:5px;width:216px;height:72px;pointer-events:none;margin-bottom:7px}
@@ -1691,13 +1645,9 @@ html body .flight-effect-space button.flight-card-row{position:relative;inset:au
 @media(max-height:360px) and (orientation:landscape){html body .card-reward-equip .skill-card.card-readable{grid-template-rows:clamp(27px,calc(var(--card-height) * .12),34px) clamp(16px,calc(var(--card-height) * .6 - 108px),86px) minmax(0,1fr)!important}}
 
 @media(max-width:700px) and (orientation:landscape){
- html body .card-reward-equip .skill-card.card-readable .card-rule-band .card-mechanic-main{font-size:12px!important;line-height:1.1!important}
- html body .card-reward-equip .skill-card.card-readable .card-rule-stripe{padding:2px 4px}
 }
 
 /* The equipped label shares its rail with slot numbers, keeping compact cards tall. */
-html body .card-reward-equip .card-reward-choice{padding-top:0}
-.card-reward-equip .card-reward-choice::before{inset:3px auto auto 7px;text-align:left;width:max-content;font-size:10px}
 
 html body .flight-effect-space button.flight-card-row{min-height:44px;height:44px}
 .flight-effect-space{height:80px}
@@ -1708,7 +1658,6 @@ html body .flight-effect-space button.flight-card-row{min-height:44px;height:44p
 
 .card-reward-incoming::before,.card-reward-equip .card-reward-choice::before{content:none}
 .card-reward-incoming>.card-reward-group-heading{position:absolute;inset:2px 0 auto;font:12px/1.1 var(--pixel)!important;text-align:center;color:#f0db9e;margin:0}
-.card-reward-equip .card-reward-choice>.card-reward-group-heading{position:absolute;inset:3px auto auto 7px;font:10px/1.1 var(--pixel)!important;text-align:left;color:#c6d6c2;margin:0;width:max-content;z-index:1}
 
 /* Frame keep-out. The carved corner blocks and their moss belong to the frame
    (200x280 art units), so readable content stops at the corners' inner edge:

@@ -11,7 +11,7 @@ export function preloadFlightEntry(reducedMotion=false){
 // ("Preparing…" and "Tap to depart"), so readiness changes only their text. The status line is for screen readers.
 export function flightEntryMarkup(run,node,{dream=false,showTips=true,profile=null,storage,rand}={}){
  const selection=selectFlightLoadingTip({run,node,dream,profile,showTips,storage,rand});
- return `<section class="flight-entry" aria-label="Preparing flight"><div class="entry-leaf"><span class="entry-sr" data-entry-status role="status">${dream?'Preparing Dream':'Preparing passage'}</span>${renderFlightLoadingTip(selection)}<div class="entry-rule" aria-hidden="true"><i></i></div><footer class="entry-foot"><button type="button" class="entry-cancel" data-action="cancel-flight-entry" data-dream="${dream}"><b>Back</b></button><button type="button" class="primary entry-depart" data-action="wake-flight" disabled><b>Preparing…</b></button></footer></div></section>`;
+ return `<section class="flight-entry" aria-label="Preparing flight"><div class="entry-leaf"><span class="entry-sr" data-entry-status role="status">${dream?'Preparing Dream':'Preparing passage'}</span>${renderFlightLoadingTip(selection,node?.name||'')}<div class="entry-rule" aria-hidden="true"><i></i></div><footer class="entry-foot"><button type="button" class="entry-cancel" data-action="cancel-flight-entry" data-dream="${dream}"><b>Back</b></button><button type="button" class="primary entry-depart" data-action="wake-flight" disabled><b>Preparing…</b></button></footer></div></section>`;
 }
 
 // Keep the same page visible after readiness. A pointer pressed during loading

@@ -171,6 +171,8 @@ export function createCardInspectorState(params = new URLSearchParams()) {
   }
   // Dev only: ?mock=cards&chain=...&slots=0:gilded,2:hollow writes Inscriptions on slots (nothing is saved).
   if (params.get('slots')) applyInscriptionSlots(run, params.get('slots'));
+  // Dev only: ?new=1 marks every reserve card and the first mounted card as unseen (shows the NEW badges; nothing is saved).
+  if (params.get('new')) run.unseenCardIds = [...run.reserveCards, run.mountedCards.find(Boolean)].filter(Boolean).map(c => c.instanceId);
   // Dev only: ?mock=cards&scenario=scribe opens the Scribe after an Elite (offers=id,id,id; pick=id jumps to the slot step).
   if (params.get('scenario') === 'scribe') openMockScribe(run, params.get('offers'));
   return state;

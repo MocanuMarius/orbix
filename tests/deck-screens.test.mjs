@@ -98,7 +98,7 @@ test('the Deck tab groups every owned card, filters, and keeps Rest cards out of
   const view = {...createDeckView(), tab: 'deck'};
   const html = deckScreenMarkup(run, view, {workshop: true});
   assert.match(html, /In your chain/);assert.match(html, /Not in chain/);assert.match(html, /Rest cards/);
-  assert.match(html, /data-filter="legendary"/);assert.match(html, /id="dk2-sort"/);assert.match(html, /id="dk2-workshop"/);
+  assert.match(html, /id="dk2-filter"[^>]*aria-haspopup="menu"/);assert.doesNotMatch(html, /data-filter=/, 'the chips left the body');assert.match(html, /id="dk2-sort"/);assert.match(html, /id="dk2-workshop"/);
   assert.doesNotMatch(deckScreenMarkup(run, view, {workshop: false}), /id="dk2-workshop"/);
   const pick = deckScreenMarkup(run, {...view, pick: 0}, {});
   assert.match(pick, /Choose a card for slot 1/);

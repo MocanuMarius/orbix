@@ -89,8 +89,7 @@ test('Equipped foreground keeps collection behind one scrolling Deck and melting
   const reward = cardRewardMarkup(sample.run);
   assert.match(reward, /New card/);
   assert.match(reward, /card-reward-continue/);
-  assert.match(reward, /card-reward-equip/);
-  assert.match(reward, /card-reward-slot/);
+  assert.doesNotMatch(reward, /card-reward-equip|card-reward-slot/, 'no equip step after winning a card');
   assert.match(reward, /class="primary" data-action="card-reward-continue">Add to collection/);
   assert.match(reward, /card-preview-reward-melt/);
   assert.match(reward, /card-furnace-icon/);

@@ -292,7 +292,7 @@ test('screens: brand, etched frame, inspector block with glossary words, and the
   const twoCard = flightRewardMarkup(state, {scribe: {id: 'gilded', slot: null}});
   assert.equal((twoCard.match(/<span class="scribe-slot-warn">Needs a card here to do anything/g) || []).length, 2, 'a card-changing Inscription warns on each empty slot');
   const three = flightRewardMarkup(state, {scribe: {id: 'hollow', slot: 1}});
-  assert.match(three, /Replace this Inscription\?/); assert.match(three, /data-action="scribe-confirm"/); assert.match(three, /data-action="scribe-slot-back"/);
+  assert.match(three, /Replace this Inscription\?/); assert.match(three, /Mirror/); assert.match(three, /Hollow/, 'the confirm names both the old and the new Inscription'); assert.match(three, /data-action="scribe-confirm"/); assert.match(three, /data-action="scribe-slot-back"/);
   assert.ok(M.chooseFlightReward(state, 'hollow', 0));
   assert.match(flightRewardMarkup(state, {scribe: {}}), /Written on slot 1/);
 });
@@ -307,6 +307,15 @@ test('dev scene: ?mock=cards&scenario=scribe opens the Scribe', async () => {
   const run = cardState('mock-scribe', ['body-spark', null, null]).run;
   const reward = openMockScribe(run, 'bell,nope,gilded');
   assert.deepEqual(reward.offers, ['bell', 'gilded']); assert.equal(run.victoryPending, true); assert.equal(reward.kind, 'inscription');
+});
+
+test('only a map guardian offers the Scribe, never an Elite, and a run offers at most 7', () => {
+  const run = cardState('scribe-source', ['body-spark', null, null]).run;
+  assert.equal(M.flightRewardKind(run, {elite: true, mapIndex: 0}), null);
+  assert.equal(M.flightRewardKind(run, {boss: true, mapIndex: 0}), 'inscription');
+  assert.equal(M.flightRewardKind(run, {boss: true, mapIndex: 2}), null, 'the last guardian ends the expedition');
+  run.scribesOffered = M.SCRIBE_MAX_PER_RUN;
+  assert.equal(M.flightRewardKind(run, {boss: true, mapIndex: 0}), null);
 });
 
 test('a Scribe is offered only on card runs; elite and guardian flights otherwise award nothing', () => {

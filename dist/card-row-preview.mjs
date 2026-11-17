@@ -1,5 +1,6 @@
 /** Try row is a quote of the equipped row, never a flight or a reward settlement. */
 import {CARD_ROW_EVENTS, SKILL_CARDS, describeSkillCard, previewCardRowEvent, hasCardRowEvent, cleanCardCruisingSpeed} from './skill-cards.mjs?v=guide-clarity-1';
+import {rowSnapshot} from './inscriptions.mjs?v=guide-clarity-1';
 import {getCardRowCards, getCardRowSource, describeCardRowScenario} from './card-row-help.mjs?v=guide-clarity-1';
 import {getCardRowTriggerContext, getCardRowTriggerIssue} from './card-status.mjs?v=guide-clarity-1';
 
@@ -132,16 +133,16 @@ function stepReason(step, cards, event) {
 
 /** The native receipt owns all numbers and visits; presentation only adds words and snapshots. */
 export function previewEquippedCardRow(run = {}, eventIdOrOption = null) {
-  const cards = getCardRowCards(run).map(card => card ? {...card} : null), options = getCardRowPreviewEvents(run);
+  const cards = getCardRowCards(run).map(card => card ? {...card} : null), snap = rowSnapshot(run, cards), options = getCardRowPreviewEvents(run);
   const requested = typeof eventIdOrOption === 'string' ? eventIdOrOption : eventIdOrOption?.id;
-  const listens = option => option.available && (option.event.kind === CARD_ROW_EVENTS.clear || hasCardRowEvent(cards,option.event.kind));
+  const listens = option => option.available && (option.event.kind === CARD_ROW_EVENTS.clear || hasCardRowEvent(snap,option.event.kind));
   const option = options.find(item => item.id === requested)
-    || options.find(item => listens(item) && previewCardRowEvent(cards,item.event).executions > 0)
+    || options.find(item => listens(item) && previewCardRowEvent(snap,item.event).executions > 0)
     || options.find(item => item.available) || options[0];
   const event = option.event, available = option.available;
   // Flights gate the walker on listeners. Clear settlement walks even a nonpaying row.
-  const started = available && (event.kind === CARD_ROW_EVENTS.clear || hasCardRowEvent(cards,event.kind));
-  const trace = previewCardRowEvent(cards,started ? event : {...event,eligible:false});
+  const started = available && (event.kind === CARD_ROW_EVENTS.clear || hasCardRowEvent(snap,event.kind));
+  const trace = previewCardRowEvent(snap,started ? event : {...event,eligible:false});
   const chargesBefore = Object.fromEntries(cards.filter(card => Number.isFinite(card?.charges)).map(card => [card.instanceId,card.charges]));
   let charges = {...chargesBefore}, totals = zeroTotals(), pass = 0;
   const frames = [], steps = [];

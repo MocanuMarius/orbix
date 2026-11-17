@@ -1,5 +1,6 @@
 /** Configuration hints only. Every numeric verdict comes from a read-only row quote. */
 import { SKILL_CARDS, CARD_ROW_EVENTS, CARD_UNIT, getEffectiveCardSources, getCardRowRule, previewCardRowEvent, getUseDoublerTarget, getEmberFeederTargets, getCardFeederCapacity, getAlwaysOnCardBoosts } from './skill-cards.mjs?v=guide-clarity-1';
+import { rowSnapshot, slotInscriptionList } from './inscriptions.mjs?v=guide-clarity-1';
 import { getRawGlowCapacity, GLOW_CAPACITY_LIMIT_UNITS } from './vitality.mjs?v=guide-clarity-1';
 import { normalizeCompanionFleet } from './companion-abilities.mjs?v=guide-clarity-1';
 import { skillProgress } from './skill-increments.mjs?v=guide-clarity-1';
@@ -82,12 +83,13 @@ export function getEquippedCardStatuses(run = {}, native = null) {
   const base = buildContext(run, native);
   // The 100-Spark meter ceiling: capacity from every source, before the cap.
   const rawCapacity = Array.isArray(run) ? 0 : getRawGlowCapacity(run);
-  const key = JSON.stringify([cards.map(card => card ? [card.instanceId, card.cardId, card.rank || 1, card.charges ?? null, card.chargeCapacity ?? null, card.fedCapacity ?? 0] : null), base, run.cardGrowUses || 0, Math.round(rawCapacity * 1000)]);
+  const insList = Array.isArray(run) ? null : slotInscriptionList(run, cards), snap = insList ? rowSnapshot(run, cards) : cards;
+  const key = JSON.stringify([insList, cards.map(card => card ? [card.instanceId, card.cardId, card.rank || 1, card.charges ?? null, card.chargeCapacity ?? null, card.fedCapacity ?? 0] : null), base, run.cardGrowUses || 0, Math.round(rawCapacity * 1000)]);
   if (key === lastKey) return lastResult;
   const sources = getEffectiveCardSources(cards);
   const has = kind => sources.some(entry => entry.def.kind === kind);
   const context = getCardRowTriggerContext(run, native);
-  const receipts = fixtures(context).map(event => previewCardRowEvent(cards, event));
+  const receipts = fixtures(context).map(event => previewCardRowEvent(snap, event));
   const successes = new Set(), copiedUse = new Set(), replaySlots = new Set();
   for (const receipt of receipts) {
     const replayPays = receipt.steps.some(step => step.pass === 2 && step.success && step.operation !== 'replay-row' && (step.amount > 0 || step.stored > 0 || step.recoverySeconds > 0 || step.reelSeconds > 0 || step.futureCapacity > 0 || step.cruisingSpeed > 0));

@@ -81,7 +81,8 @@ import {pickupGuideMarkup,pickupLesson} from './pickup-guide.mjs?v=guide-clarity
 import {createTutorialCoach} from './tutorial-coach.mjs?v=guide-clarity-1';
 import {getTutorialWorldFocus,demonstratedTutorialTopics,tutorialEntryLesson,notePracticeHint,hasPracticeHint,takePracticeHint,carryPracticeHints,takeCarriedPracticeHint,deferPracticeLesson,FIRST_FLIGHT_STOPS} from './tutorial.mjs?v=guide-clarity-1';
 import {isInventoryOnlyCard} from './skill-cards.mjs?v=guide-clarity-1';
-import {isCardRun,getCardCampPreview,getMountedCards,getOwnedCards,getCardReward,getCardDraft,chooseCardDraft,equipOwnedCard,unequipMountedCard,getCardMeltPreview,meltOwnedCards,getCardImprovePreview,improveOwnedCard,getCardForgePreview,forgeOwnedCard,canManageCards,syncCardFlightForEdit,applyCardFlightEdits,closeCardFlightEdit,commitCardCharges} from './model.mjs?v=guide-clarity-1';
+import {markCardsSeen} from './model.mjs?v=guide-clarity-1';
+import {isCardRun,getCardCampPreview,getMountedCards,getOwnedCards,getCardReward,getCardDraft,claimDraftedCard,equipOwnedCard,unequipMountedCard,getCardMeltPreview,meltOwnedCards,getCardImprovePreview,improveOwnedCard,getCardForgePreview,forgeOwnedCard,canManageCards,syncCardFlightForEdit,applyCardFlightEdits,closeCardFlightEdit,commitCardCharges} from './model.mjs?v=guide-clarity-1';
 import {CARD_GUIDE_TOPICS} from './card-guide.mjs?v=guide-clarity-1';
 import {installComboLessons} from './combo-lesson.mjs?v=guide-clarity-1';
 import {starterCardsMarkup,starterGiftConfirmationMarkup,cardDraftMarkup,cardRewardMarkup,cardSwapMarkup,cardsBenchMarkup,cardMeltSelectionMarkup,cardExchangeMarkup,cardRestMarkup,cardGrowConfirmationMarkup,cardForgeMarkup,cardVictoryRecap,cardArt,cardName} from './card-ui.mjs?v=guide-clarity-1';
@@ -1408,10 +1409,7 @@ document.addEventListener('click',e=>{
   case 'card-swap-confirm':commitCardTransfer();break;
   case 'flight-reward-continue':finishCardDraftIncome();break;
   case 'flight-reward-open-pack':openCardDraftPack(button);break;
-  case 'card-draft-pick':if(screen==='card-draft'&&(!hasFlightRewardCeremony(state.run)||flightRewardCeremonyStage(state.run)==='cards'&&performance.now()>=ceremonyPickReadyAt)&&chooseCardDraft(state,button.dataset.draftId,button.dataset.id)){cardRewardEquipping=false;cardRewardNotice='';persist();goToRun();}break;
-  case 'card-reward-equip':if(getCardReward(state.run)?.trophy||isInventoryOnlyCard(getCardReward(state.run)?.card))break;cardRewardEquipping=true;cardRewardNotice='';render('card-reward');break;
-  case 'card-reward-cancel':cardRewardEquipping=false;render('card-reward');break;
-  case 'card-reward-slot':if(cardRewardEquipping){const reward=getCardReward(state.run);requestCardTransfer(reward.card.instanceId,index,button.dataset.deckSlotId||null,'reward');}break;
+  case 'card-draft-pick':if(screen==='card-draft'&&(!hasFlightRewardCeremony(state.run)||flightRewardCeremonyStage(state.run)==='cards'&&performance.now()>=ceremonyPickReadyAt)&&claimDraftedCard(state,button.dataset.draftId,button.dataset.id)){cardRewardEquipping=false;cardRewardNotice='';persist();goToRun();}break;
   case 'card-reward-continue':acknowledgeCardReceipt();break;
   case 'card-preview-reward-melt':beginRewardMelt();break;
   case 'card-reward-deck':acknowledgeCardReceipt(true,button.dataset.id);break;
