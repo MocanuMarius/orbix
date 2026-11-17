@@ -14,11 +14,11 @@
 //   low-hearts                  one heart left          first-flights   flights 1 to 3 of the run
 //   collector                   the Collector companion is along   empty-slot   the Chain has a free Slot
 //   has-stored-sparks           Stored Sparks in the wallet        after-death  the last flight was lost
-import {CARD_CATALOG} from './card-catalog.mjs?v=inscribe-2';
-import {getBiome} from './biomes.mjs?v=inscribe-2';
-import {FLASH_BASE_DURATION} from './pickups.mjs?v=inscribe-2';
-import {isCardRun,isInventoryOnlyCard} from './skill-cards.mjs?v=inscribe-2';
-import {onboardingFlightPlan} from './onboarding.mjs?v=inscribe-2';
+import {CARD_CATALOG} from './card-catalog.mjs?v=flare-1';
+import {getBiome} from './biomes.mjs?v=flare-1';
+import {FLASH_BASE_DURATION} from './pickups.mjs?v=flare-1';
+import {isCardRun,isInventoryOnlyCard} from './skill-cards.mjs?v=flare-1';
+import {onboardingFlightPlan} from './onboarding.mjs?v=flare-1';
 
 export const TIPS = Object.freeze([
  // ── General: fine in any run ──────────────────────────────────────────────────────────────
@@ -28,7 +28,7 @@ export const TIPS = Object.freeze([
  {id:'chain-order',context:'always',icon:'chain',headline:'Your Chain fires in order',text:'When a Trigger happens, your cards fire left to right.'},
  {id:'read-trigger',context:'always',icon:'chain',headline:'Read the Trigger first',text:'Each card shows its Trigger first: what makes it fire, like Collect or Pulse.'},
  {id:'luminance',context:'always',icon:'lantern',headline:'Luminance is your light',text:'Luminance is the radius of light around your wisp. It reveals nearby passage.'},
- {id:'flash-light',context:'always',icon:'flash',headline:'Flash lights the way',text:`Flash: for ${FLASH_BASE_DURATION} seconds, a Pulse every 2 seconds and very high Luminance.`},
+ {id:'flash-light',context:'always',icon:'flash',headline:'Flare lights the way',text:`Flare: for ${FLASH_BASE_DURATION} seconds, a Pulse every 2 seconds and very high Luminance.`},
  {id:'dusk-drain',context:'always',icon:'dusk',headline:'Rose crescents drain',text:'A Dusk Spark drains up to 3 Sparks and dims your light for 4 seconds.'},
  {id:'spare-fuel',context:'always',icon:'jar',headline:'Spare fuel is saved',text:'Extra meter fuel is packed into Stored Sparks, during a Round and after a clear.'},
  {id:'rest-checkpoint',context:'always',icon:'camp',headline:'Rest is a checkpoint',text:'At Rest you choose an action and can improve your Deck.'},
@@ -57,7 +57,7 @@ export const TIPS = Object.freeze([
  {id:'pulse-uncollected',context:'trigger:pulse',icon:'pulse',headline:'Cross, then collect',text:'A Pulse crossing an uncollected Spark fires Pulse cards. The Spark stays; pick it up.'},
  {id:'overfill-two',context:'trigger:overfill',icon:'spark',headline:'One touch, two Triggers',text:'A Spark that overfills your meter fires Overfill first, then Collect.'},
  {id:'falling-lift',context:'trigger:falling-lift',icon:'wisp',headline:'Wait, fall, then Lift',text:'Lift while falling: a paid Lift, at least 0.75 s after your last.'},
- {id:'flash-trigger',context:'trigger:flash',icon:'flash',headline:'Collect a Flash',text:'Collecting a Flash triangle fires your Flash cards as well as lighting the passage.'},
+ {id:'flash-trigger',context:'trigger:flash',icon:'flash',headline:'Collect a Flare',text:'Collecting a Flare triangle fires your Flare cards as well as lighting the passage.'},
  // The Rhythm Trigger only fires from the Rhythm card's three even Lifts, so the card is part of the context.
  {id:'rhythm-trigger',context:'trigger:rhythm&card:rhythm',icon:'beat',headline:'Lift on the beat',text:'Cards that say Lift on the beat fire each time your three even Lifts complete.'},
  // ── Place-specific: biome hints from biomes.mjs, kept to its own wording ──────────────────
@@ -154,7 +154,7 @@ export function pickTip(run, history = [], rand = Math.random, {recent = 8, cont
 
 // Plain words for the small context line ("For your Rhythm").
 const cardName = id => CARD_CATALOG[id]?.name || id;
-const TRIG_NAME = {collect: 'Collect', delivery: 'Delivery', pulse: 'Pulse', flash: 'Flash', overfill: 'Overfill', rhythm: 'Lift', 'falling-lift': 'Lift'};
+const TRIG_NAME = {collect: 'Collect', delivery: 'Delivery', pulse: 'Pulse', flash: 'Flare', overfill: 'Overfill', rhythm: 'Lift', 'falling-lift': 'Lift'};
 export function whyLabel(tip, run) {
   const f = runFacts(run), parts = tip.context.split('&'), first = parts.find(p => p !== 'always' && p !== 'collector') || parts[0];
   const [key, value = ''] = first.split(':');

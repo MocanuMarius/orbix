@@ -1,13 +1,13 @@
-import {atlasGlyph,ATLAS_FORECASTS} from './night-atlas.mjs?v=inscribe-2';
-import {bonusIcon} from './route-bonus-ui.mjs?v=inscribe-2';
-import {getRouteBonus} from './route-bonuses.mjs?v=inscribe-2';
-import {landmarkCategory,biomeGroundArt} from './map-landmarks.mjs?v=inscribe-2';
-import {mapStopIconMarkup} from './map-guide.mjs?v=inscribe-2';
-import {THEME_INKS} from './replay-ui.mjs?v=inscribe-2';
-import {getRouteMapState} from './model.mjs?v=inscribe-2';
-import {getMapStopInfo} from './map-guide.mjs?v=inscribe-2';
-import {getGlowCapacity} from './vitality.mjs?v=inscribe-2';
-import {actionAttributes} from './ui/primitives.mjs?v=inscribe-2';
+import {atlasGlyph,ATLAS_FORECASTS} from './night-atlas.mjs?v=flare-1';
+import {bonusIcon} from './route-bonus-ui.mjs?v=flare-1';
+import {getRouteBonus} from './route-bonuses.mjs?v=flare-1';
+import {landmarkCategory,biomeGroundArt} from './map-landmarks.mjs?v=flare-1';
+import {mapStopIconMarkup} from './map-guide.mjs?v=flare-1';
+import {THEME_INKS} from './replay-ui.mjs?v=flare-1';
+import {getRouteMapState} from './model.mjs?v=flare-1';
+import {getMapStopInfo} from './map-guide.mjs?v=flare-1';
+import {getGlowCapacity} from './vitality.mjs?v=flare-1';
+import {actionAttributes} from './ui/primitives.mjs?v=flare-1';
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const edgeKey=([a,b])=>`${a}|${b}`;
 const wisp=(x,y)=>`<g class="route-player-wisp" transform="translate(${x} ${y})"><path d="m-23 1 9-15 13-7L16-9 22 3 11 13-17 8Z" fill="url(#routeWispGlow)"/><path d="M-4-7h8v2h3v3h2v4H7v3H4v2H-4V5H-7V2H-9V-2H-7V-5H-4Z" fill="#fff8d3"/><path d="M-3-5h6v2h2v6H3v2H-3V3H-5V-3H-3Z" fill="#fffef0"/></g>`;
@@ -71,7 +71,7 @@ export function landscapeRouteView(run,{compact=false,scale=1}={}){
    ${reachable&&n.bonusId?`<g transform="translate(${p.x+26} ${p.y-32})" pointer-events="none">${bonusIcon(n.bonusId).replace('<svg ','<svg width="24" height="24" ')}</g>`:''}
    ${reachable?`<path class="route-next-light" d="m${p.x-30} ${p.y+25} 10 2 6-1m19 1 10-2 7 1" fill="none" stroke="#fff0b6" stroke-width="1.5"/>`:''}
    ${seen&&!here?`<path class="route-completed-mark" d="m${p.x-5} ${p.y+21} 4 4 7-8" fill="none" stroke="#e4c78e" stroke-width="2"/>`:''}
-   ${themeInk&&routeState!=='closed'?`<path class="route-theme-pip" d="m${p.x+30} ${p.y+10} 2-6 3 4-1 7-4 1Z" fill="${themeInk}"><title>${esc(n.rewardThemeLabel||n.rewardTheme)} relics</title></path>`:''}
+   ${themeInk&&routeState!=='closed'?`<path class="route-theme-pip" d="m${p.x+30} ${p.y+10} 2-6 3 4-1 7-4 1Z" fill="${themeInk}"><title>${esc(n.rewardThemeLabel||n.rewardTheme)}</title></path>`:''}
    </g>
    ${showType?`${labelShadow(p.x,p.y+27,labelHalf,labelHeight)}<text class="map-node-type" x="${p.x}" y="${p.y+36}" text-anchor="middle">${esc(label)}</text>`:''}
    ${showName?`<text class="map-node-name" x="${p.x}" y="${p.y+49}" text-anchor="middle">${splitName(name,true).map((line,i)=>`<tspan x="${p.x}" dy="${i?12:0}">${esc(line)}</tspan>`).join('')}</text>`:''}

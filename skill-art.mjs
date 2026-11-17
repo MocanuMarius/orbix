@@ -1,6 +1,6 @@
-import {sparkImageArt,sparkSymbolArt} from './spark-symbol.mjs?v=inscribe-2';
-import {uiIcon} from './ui-icons.mjs?v=inscribe-2';
-import {fineTreasureObject} from './fine-treasure-art.mjs?v=inscribe-2';
+import {sparkImageArt,sparkSymbolArt} from './spark-symbol.mjs?v=flare-1';
+import {uiIcon} from './ui-icons.mjs?v=flare-1';
+import {fineTreasureObject} from './fine-treasure-art.mjs?v=flare-1';
 
 // Three material tones sit above a shared dark contour. Keep light and shadow
 // readable at the tree's smallest size, even with all motion switched off.
@@ -155,7 +155,7 @@ const bodies={eye,feather,wing,heart,vessel,seed,crystal,crescent,tunefork,metro
 const recipes={
  'Lift':['feather','copper'],'Double Lift':['metronome','copper'],'Climb':['metronome','copper'],'Luminance':['eye','jade'],'Momentum':['wing','amber'],'Spark Vessel':['vessel','jade'],
  'Last Glimmer':['ghost','silver'],
- 'Long Flash':['flash','silver','time'],'Vitality':['heart','rose'],'Glide Regeneration':['seed','jade'],'Trajectory Guide':['trajectory','silver'],'Spark Sense':['tunefork','jade'],
+ 'Long Flare':['flash','silver','time'],'Vitality':['heart','rose'],'Glide Regeneration':['seed','jade'],'Trajectory Guide':['trajectory','silver'],'Spark Sense':['tunefork','jade'],
  'Storage':['box','copper'],'Prismatic Yield':['crystal','lilac'],'Kept Light':['box','copper','seal'],'Dream':['crescent','lilac'],
  'Hand Seal':['box','jade','leaf'],'Deep Cache':['crystal','amber','spark'],
  'Proximity':['edgebank','blue'],'Lasting Pulse':['edgebank','blue','time'],'Regenerative Pulse':['edgebank','jade','seed'],'Light Aegis':['shield','lilac','star'],
@@ -191,8 +191,8 @@ const aliases={
  duration:'Longer Level',level:'Still Point',dive:'Falling Release',wind:'Wind Lance',swift:'Momentum',fuel:'Search Spark'
 };
 const byId={
- 'collector-fetch-large':'Spark Vessel','collector-fetch-flash':'Long Flash',
- 'main-long-flash':'Long Flash',
+ 'collector-fetch-large':'Spark Vessel','collector-fetch-flash':'Long Flare',
+ 'main-long-flash':'Long Flare',
  'main-resonant-harvest':'Luminance','main-resonant-purification':'Luminance','main-resonant-bounty':'Luminance',
  'main-sight':'Luminance','main-horizon':'Luminance','main-edging-attunement':'Proximity','main-reservoir':'Spark Vessel',
  'main-dream':'Dream','main-speed':'Momentum','main-lift':'Lift','main-efficiency':'Lift','main-glide-regen':'Glide Regeneration',

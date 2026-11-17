@@ -1,7 +1,7 @@
 // Shared triggers make artifacts combine with skills, pickups and every base
 // companion. Effects never manufacture another pickup or dispatch a fuel event.
-import {CONSUMABLE_ARTIFACTS,EVOLVING_ARTIFACTS} from './artifact-info.mjs?v=inscribe-2';
-import {GuardianReactions} from './guardian-reactions.mjs?v=inscribe-2';
+import {CONSUMABLE_ARTIFACTS,EVOLVING_ARTIFACTS} from './artifact-info.mjs?v=flare-1';
+import {GuardianReactions} from './guardian-reactions.mjs?v=flare-1';
 const clamp=(value,min,max)=>Math.max(min,Math.min(max,value));
 export const ARTIFACT_ENGINE_RULES=Object.freeze({
   'wayward-seed':Object.freeze({name:'Wayward Seed',color:'#c6dc99',trigger:'Three consecutive body Spark pickups.',effect:'Restore up to 3.34 Sparks.',limits:'Five activations per flight. Collector deliveries break the chain.'}),
@@ -22,7 +22,7 @@ export const ARTIFACT_ENGINE_RULES=Object.freeze({
   'glow-wick':Object.freeze({name:'Spark Wick',color:'#edce8e',
     trigger:'Collect a natural Spark.',effect:'Restore up to 10 extra Sparks.',
     limits:'3 automatic uses. Consumed when empty. Bonus fuel cannot become Stored Sparks.'}),
-  'flash-stone':Object.freeze({name:'Flash Stone',color:'#c8c5f2',
+  'flash-stone':Object.freeze({name:'Flare Stone',color:'#c8c5f2',
     trigger:'Collect a natural Spark.',effect:'Reveal the whole scene for 1.5s, then fade.',
     limits:'2 automatic uses. Consumed when empty. Extra light does not stack.'}),
 });

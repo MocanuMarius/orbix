@@ -1,9 +1,9 @@
-import {normalizeChapterPrerequisites} from './skill-chapters.mjs?v=inscribe-2';
+import {normalizeChapterPrerequisites} from './skill-chapters.mjs?v=flare-1';
 const groups=[
  ['main','Lift',['main-efficiency','main-lift']],
  ['main','Double Lift',['main-fourth-beat','main-fourth-beat-2']],
  ['main','Luminance',['main-sight','main-horizon']],
- ['main','Long Flash',['main-long-flash']],
+ ['main','Long Flare',['main-long-flash']],
  ['main','Resonant Harvest',['main-resonant-harvest']],
  ['main','Resonant Purification',['main-resonant-purification']],
  ['main','Resonant Bounty',['main-resonant-bounty']],

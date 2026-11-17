@@ -1,8 +1,8 @@
 // Inscription markup (menu screens only, never in flight). One engraved plaque on the lower edge of an inscribed slot,
 // one thin etched line inside the slot frame, and the "Inscription" block of the card inspector. Kit colours and fonts, whole
 // pixels, no gradients (styles: dist/ui/card-screens.css, "Inscriptions").
-import {getInscription, INSCRIPTION_FAMILIES} from './inscriptions.mjs?v=inscribe-2';
-import {cardTermTextMarkup, cardTermMarkup} from './card-terms.mjs?v=inscribe-2';
+import {getInscription, INSCRIPTION_FAMILIES} from './inscriptions.mjs?v=flare-1';
+import {cardTermTextMarkup, cardTermMarkup} from './card-terms.mjs?v=flare-1';
 const esc = v => String(v ?? '').replace(/[&<>"']/g, c => ({'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'}[c]));
 
 // Two 7×7 pixel glyphs on a whole-pixel grid: a chisel mark (card-modifying) and a rune ring (standalone).

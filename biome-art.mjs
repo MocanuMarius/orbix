@@ -1,5 +1,5 @@
-import {drawAuthoredMaterial} from './authored-environment.mjs?v=inscribe-2';
-import {pineCrown} from './pixel-contour.mjs?v=inscribe-2';
+import {drawAuthoredMaterial} from './authored-environment.mjs?v=flare-1';
+import {pineCrown} from './pixel-contour.mjs?v=flare-1';
 // Original pixel scenery. Backdrops and solid materials are rasterized by the
 // existing renderer caches; only a few matte weather pixels animate each frame.
 // Nothing here emits light or draws outside the simulation's solid silhouettes.

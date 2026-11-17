@@ -1,7 +1,7 @@
-import {drawShutterWake,shutterLightFactor,shutterWakeAt} from './shutter-cone.mjs?v=inscribe-2';
-import {lanternField} from './lantern-layout.mjs?v=inscribe-2';
-import { LIGHT_EXTENT, lightAttenuation } from './light-attenuation.mjs?v=inscribe-2';
-import {luminanceWaveVisibility} from './luminance-waves.mjs?v=inscribe-2';
+import {drawShutterWake,shutterLightFactor,shutterWakeAt} from './shutter-cone.mjs?v=flare-1';
+import {lanternField} from './lantern-layout.mjs?v=flare-1';
+import { LIGHT_EXTENT, lightAttenuation } from './light-attenuation.mjs?v=flare-1';
+import {luminanceWaveVisibility} from './luminance-waves.mjs?v=flare-1';
 export { LIGHT_EXTENT, lightAttenuation };
 const reflectedLight = .6;
 
@@ -47,7 +47,7 @@ export function createLightMaskCanvas(document){
   c.putImageData(image,0,0);return canvas;
 }
 
-// A loose Flash prism lights nearby rock as it comes into view. Use the
+// A loose Flare prism lights nearby rock as it comes into view. Use the
 // existing fog mask so its white core and the scenery share a soft falloff.
 export function castFlashPropLight(ctx,mask,x,y,scale,visibility,time=0,reducedMotion=false){
   if(visibility<=0)return;

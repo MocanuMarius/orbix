@@ -1,18 +1,18 @@
-import {getBiome} from './biomes.mjs?v=inscribe-2';
-import {getBossPreview} from './boss.mjs?v=inscribe-2';
-import {levelMapPreview} from './level-map-art.mjs?v=inscribe-2';
-import {mapStopIconMarkup} from './map-guide.mjs?v=inscribe-2';
-import {resourceSymbol} from './game-symbols.mjs?v=inscribe-2';
-import {getFlightClearReward} from './checkpoint-rewards.mjs?v=inscribe-2';
-import {availableFlightArtifacts,isCardRun} from './model.mjs?v=inscribe-2';
-import {bonusIcon,boonMarkup} from './route-bonus-ui.mjs?v=inscribe-2';
-import {contextualFlightNotice} from './contextual-events.mjs?v=inscribe-2';
-import {ATLAS_FORECASTS,atlasGlyph} from './night-atlas.mjs?v=inscribe-2';
-import {canDreamAt,dreamConfig} from './dream.mjs?v=inscribe-2';
-import {sparkHabitat} from './spark-fields.mjs?v=inscribe-2';
-import {lanternFlightCue} from './map-theme.mjs?v=inscribe-2';
-import {actionButton} from './ui/primitives.mjs?v=inscribe-2';
-import {cardTermTextMarkup} from './card-terms.mjs?v=inscribe-2';
+import {getBiome} from './biomes.mjs?v=flare-1';
+import {getBossPreview} from './boss.mjs?v=flare-1';
+import {levelMapPreview} from './level-map-art.mjs?v=flare-1';
+import {mapStopIconMarkup} from './map-guide.mjs?v=flare-1';
+import {resourceSymbol} from './game-symbols.mjs?v=flare-1';
+import {getFlightClearReward} from './checkpoint-rewards.mjs?v=flare-1';
+import {flightRewardKind,SCRIBE_OFFER_COUNT,isCardRun} from './model.mjs?v=flare-1';
+import {bonusIcon,boonMarkup} from './route-bonus-ui.mjs?v=flare-1';
+import {contextualFlightNotice} from './contextual-events.mjs?v=flare-1';
+import {ATLAS_FORECASTS,atlasGlyph} from './night-atlas.mjs?v=flare-1';
+import {canDreamAt,dreamConfig} from './dream.mjs?v=flare-1';
+import {sparkHabitat} from './spark-fields.mjs?v=flare-1';
+import {lanternFlightCue} from './map-theme.mjs?v=flare-1';
+import {actionButton} from './ui/primitives.mjs?v=flare-1';
+import {cardTermTextMarkup} from './card-terms.mjs?v=flare-1';
 
 export const TRAVEL_GUIDE_ART=Object.freeze(['waystone','rootwood','night-atlas']);
 /** One stepped sign, mirrored for the return journey. */
@@ -40,8 +40,7 @@ function regularReward(run,node){
  const final=node.boss && (node.mapIndex??run.mapIndex)===2 && !run.isTutorial;
  if(final)return `<div class="preview-payout">${mapStopIconMarkup(node)}<strong>Expedition victory</strong></div>${isCardRun(run)?'<p class="preview-clear-extra">1 trophy card</p>':''}`;
  const amount=getFlightClearReward(node,run);
- const offers=availableFlightArtifacts(run,node).length;
- const artifact=offers>1?'choose 1 of 2 relics':offers===1?'1 relic':'';
+ const artifact=flightRewardKind(run,node)==='inscription'?`1 Inscription (choose 1 of ${SCRIBE_OFFER_COUNT})`:'';
  const extras=[isCardRun(run)?'1 card':'',artifact].filter(Boolean).join(' + ');
  return `<button type="button" class="preview-payout preview-resource-help" data-card-term="stored" aria-haspopup="dialog" aria-label="+${amount} Stored Sparks: help">${resourceSymbol('packed')}<strong>+${amount} <span>Stored Sparks</span></strong></button>
   ${extras?`<p class="preview-clear-extra">${escapeText(extras[0].toUpperCase()+extras.slice(1))}</p>`:''}`;

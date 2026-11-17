@@ -4,7 +4,7 @@
  * An empty label means "no chip": the card's own text says its timing ("At Rest", "At take-off", "Every 3 s"). */
 export const DISPLAY_GROUPS = Object.freeze([
   // [group, label, kind, representative internal id (its icon and glossary link), plain meaning, how often]
-  ['collect', 'Collect', 'trigger', 'collect', 'You touch a Spark with your wisp, or you or Collector pick up a Flash.', 'often'],
+  ['collect', 'Collect', 'trigger', 'collect', 'You touch a Spark with your wisp, or you or Collector pick up a Flare.', 'often'],
   ['lift', 'Lift', 'trigger', 'falling-lift', 'You Lift while falling, on the beat, or with your meter under a quarter.', 'often'],
   ['pulse', 'Pulse', 'trigger', 'wave', 'A Pulse crosses a Spark you have not taken, or a card to its left sends a Pulse.', 'often'],
   ['delivery', 'Delivery', 'trigger', 'delivery', 'Collector brings you a pickup, or grabs a Spark.', 'a few times'],
@@ -16,20 +16,17 @@ export const DISPLAY_GROUPS = Object.freeze([
   ['boost', 'Boost', 'role', 'any', 'It fires with whatever Trigger fires your chain.', 'with every Trigger'],
   ['repeat', 'Repeat', 'role', 'next', 'It fires when the card to its right fires.', 'with that card'],
 ].map(([group, label, kind, id, does, often]) => Object.freeze({group, label, kind, id, does, often})));
-/** Temporary: this card will be reworked later, so its present label stays. */
-const TEMPORARY = Object.freeze({'engine-gain': 'On gain'});
 const ALIAS = {collect: 'collect', 'falling-lift': 'lift', 'engine-lift': 'lift', rhythm: 'lift', wave: 'pulse', 'engine-pulse': 'pulse',
-  flash: 'collect', delivery: 'delivery', latch: 'delivery', overfill: 'overfill', save: 'save', 'engine-skim': 'skim',
+  flash: 'collect', delivery: 'delivery', overfill: 'overfill', save: 'save', 'engine-skim': 'skim',
   clear: 'finish', pack: 'finish', 'always-on': 'passive', any: 'boost', next: 'repeat'};
-/** Internal ids that show no chip. `flash-ends` reads "When a Flash ends:" in the card's own text. */
+/** Internal ids that show no chip. `flash-ends` reads "When a Flare ends:" in the card's own text. */
 export const NO_CHIP_IDS = Object.freeze(['rest', 'flash-ends', 'take-off', 'engine-any', 'timers', 'engine-turn']);
 /** Glossary entry (card-terms.mjs) each display group links to. */
 export const GROUP_TERM = Object.freeze({collect: 'collect', lift: 'falling-lift', pulse: 'wave', delivery: 'delivery',
-  overfill: 'overfill', save: 'save', finish: 'clear', skim: 'engine-skim', passive: 'always-on', boost: 'boost', repeat: 'next', 'on-gain': 'engine-gain'});
+  overfill: 'overfill', save: 'save', finish: 'clear', skim: 'engine-skim', passive: 'always-on', boost: 'boost', repeat: 'next'});
 const byGroup = Object.fromEntries(DISPLAY_GROUPS.map(g => [g.group, g]));
 /** {group, label, kind} for an internal Trigger id; null when the id is not shown by this layer (caller keeps its own label). */
 export function triggerDisplay(id) {
-  if (TEMPORARY[id]) return {group: 'on-gain', label: TEMPORARY[id], kind: 'trigger'};
   if (NO_CHIP_IDS.includes(id)) return {group: null, label: '', kind: 'none'};
   const g = byGroup[ALIAS[id]];
   return g ? {group: g.group, label: g.label, kind: g.kind} : null;

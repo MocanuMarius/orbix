@@ -1,9 +1,9 @@
-import { WispFlight, circleHitsObstacle } from './flight.mjs?v=inscribe-2';
-import { createRun, getRunModifiers } from './model.mjs?v=inscribe-2';
-import { shutterDensityAt } from './shutter-cone.mjs?v=inscribe-2';
-import { lanternPassageY, lanternRoute } from './lantern-layout.mjs?v=inscribe-2';
-import { wispOrbit } from './wisp.mjs?v=inscribe-2';
-import { stepFlashTether } from './flash-tether.mjs?v=inscribe-2';
+import { WispFlight, circleHitsObstacle } from './flight.mjs?v=flare-1';
+import { createRun, getRunModifiers } from './model.mjs?v=flare-1';
+import { shutterDensityAt } from './shutter-cone.mjs?v=flare-1';
+import { lanternPassageY, lanternRoute } from './lantern-layout.mjs?v=flare-1';
+import { wispOrbit } from './wisp.mjs?v=flare-1';
+import { stepFlashTether } from './flash-tether.mjs?v=flare-1';
 
 const step = 1 / 60;
 
@@ -32,7 +32,7 @@ export function createLanternPreview({host, isPaused, play, reducedMotion}) {
         <div>
           <button type="button" data-light="base" aria-pressed="true">Base</button>
           <button type="button" data-light="max" aria-pressed="false">Max</button>
-          <button type="button" data-light="flash" aria-label="Flash Powerup with base Luminance" aria-pressed="false">△ Flash</button>
+          <button type="button" data-light="flash" aria-label="Flare Powerup with base Luminance" aria-pressed="false">△ Flare</button>
         </div>
       </div>
       <button type="button" data-flight>Fly passage</button>

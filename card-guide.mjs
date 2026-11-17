@@ -22,7 +22,7 @@ export const CARD_GUIDE_TOPICS = {
       ),
       step(
         "Handling cards",
-        "Put Cache Handling in your chain to fetch Caches, or Flash Handling to fetch white triangles. A Cache delivery restores 12 Sparks. Flash Handling also gives +6 Sparks on each Flash pickup (Collect a Flash), and a Boost to its right strengthens that.",
+        "Put Cache Handling in your chain to fetch Caches, or Flare Handling to fetch white triangles. A Cache delivery restores 12 Sparks. Flare Handling also gives +6 Sparks on each Flare pickup (Collect a Flare), and a Boost to its right strengthens that.",
         "collector-return",
       ),
       step(
@@ -43,7 +43,7 @@ export const CARD_GUIDE_TOPICS = {
       ),
       step(
         "Check what it can fetch",
-        "A small green circle below the pickup shows a fetchable type. Handling cards add circles to Caches and Flash. Collector reels each pickup to your moving main wisp before it absorbs; it then rebuilds charge before searching again.",
+        "A small green circle below the pickup shows a fetchable type. Handling cards add circles to Caches and Flare. Collector reels each pickup to your moving main wisp before it absorbs; it then rebuilds charge before searching again.",
         "collector-range",
       ),
     ],
@@ -91,7 +91,7 @@ export const CARD_GUIDE_TOPICS = {
     steps: [
       step(
         "One card per flight",
-        "Every first real flight clear adds one card to your Deck. Keep duplicates and equip cards whenever you choose. Elite and guardian relics stay separate and passive.",
+        "Every first real flight clear adds one card to your Deck. Keep duplicates and equip cards whenever you choose. Elite and guardian victories also let you write an Inscription on a slot of your Chain.",
         "clear-reward",
       ),
       step(

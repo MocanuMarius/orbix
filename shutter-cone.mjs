@@ -1,7 +1,7 @@
-export { installShutters } from './lantern-layout.mjs?v=inscribe-2';
-import { lanternField } from './lantern-layout.mjs?v=inscribe-2';
-import { LIGHT_PACKET_TUNING } from './vitality.mjs?v=inscribe-2';
-import { lightAttenuation } from './light-attenuation.mjs?v=inscribe-2';
+export { installShutters } from './lantern-layout.mjs?v=flare-1';
+import { lanternField } from './lantern-layout.mjs?v=flare-1';
+import { LIGHT_PACKET_TUNING } from './vitality.mjs?v=flare-1';
+import { lightAttenuation } from './light-attenuation.mjs?v=flare-1';
 
 const clamp01 = value => Math.max(0, Math.min(1, value));
 const smooth = value => value * value * (3 - 2 * value);
@@ -67,7 +67,7 @@ function lightReach(light) {
   const luminance = light.baseRadius ?? baseline;
   const flash = light.sightBonus || 0;
   const available = clamp01((light.radius ?? luminance) / (light.revealedRadius || (luminance + flash)));
-  // World units. A full Flash also reaches past five visible wisp radii on
+  // World units. A full Flare also reaches past five visible wisp radii on
   // the landscape renderer, including while crossing two active beams.
   return Math.max(16, 48 + 1.52 * (luminance - baseline) + .97 * flash) * available;
 }

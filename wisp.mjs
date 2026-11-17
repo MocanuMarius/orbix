@@ -1,11 +1,11 @@
-import { getCompanionAbility } from './companion-abilities.mjs?v=inscribe-2';
-import { pickupKind, pickupContactRadius, getPickupSpec } from './pickups.mjs?v=inscribe-2';
-import {sparkArtScale,sparkBodyRadius,sparkMass} from './spark-size.mjs?v=inscribe-2';
-import {collectorCanFetch,collectorCompactSeconds,compressCollectorCargo} from './collector-load.mjs?v=inscribe-2';
-import {pickupHookAnchor} from './pickup-handling-cue.mjs?v=inscribe-2';
-import {WISP_ART} from './companion-art.mjs?v=inscribe-2';
-import {collectorTowPose,collectorTowOrbit} from './collector-tow-geometry.mjs?v=inscribe-2';
-import {COLLECTOR_VORTEX,vortexProgress,vortexScale,vortexCargoPoint,createVortexTrail,recordVortexTrail} from './collector-vortex.mjs?v=inscribe-2';
+import { getCompanionAbility } from './companion-abilities.mjs?v=flare-1';
+import { pickupKind, pickupContactRadius, getPickupSpec } from './pickups.mjs?v=flare-1';
+import {sparkArtScale,sparkBodyRadius,sparkMass} from './spark-size.mjs?v=flare-1';
+import {collectorCanFetch,collectorCompactSeconds,compressCollectorCargo} from './collector-load.mjs?v=flare-1';
+import {pickupHookAnchor} from './pickup-handling-cue.mjs?v=flare-1';
+import {WISP_ART} from './companion-art.mjs?v=flare-1';
+import {collectorTowPose,collectorTowOrbit} from './collector-tow-geometry.mjs?v=flare-1';
+import {COLLECTOR_VORTEX,vortexProgress,vortexScale,vortexCargoPoint,createVortexTrail,recordVortexTrail} from './collector-vortex.mjs?v=flare-1';
 
 const clamp = (value, lo, hi) => Math.min(hi, Math.max(lo, value));
 const smooth = value => {const u=clamp(value,0,1);return u*u*(3-2*u);};
@@ -54,7 +54,7 @@ export class WispCompanion {
 
   recoveryDuration(engine, packet) {
     // Read the natural packet before Cache handling compresses its payload.
-    // Flash, Field Impulse and guard spends retain the full base recovery.
+    // Flare, Field Impulse and guard spends retain the full base recovery.
     const fuel = packet ? getPickupSpec(packet).fuel : 0;
     const base = fuel > 0 ? WISP_TUNING.cooldown * fuel / getPickupSpec('cache').fuel : WISP_TUNING.cooldown;
     return base * clamp(Number(engine.mod.wispCooldown) || 1, .4, 1.5) * (engine.mod.treasureRecoveryScale || 1);

@@ -1,8 +1,8 @@
-import {getCompanionAbility} from './companion-abilities.mjs?v=inscribe-2';
-import {pickupHandlingCue} from './pickup-handling-cue.mjs?v=inscribe-2';
-import {lightVisibility} from './light-field.mjs?v=inscribe-2';
-import {formatGlow} from './vitality.mjs?v=inscribe-2';
-import {isCourseLesson,shapePracticeCourse,updatePracticeCourse,practiceCollectorResting,practiceCourseEntryLesson,pendingCourseLesson} from './practice-course.mjs?v=inscribe-2';
+import {getCompanionAbility} from './companion-abilities.mjs?v=flare-1';
+import {pickupHandlingCue} from './pickup-handling-cue.mjs?v=flare-1';
+import {lightVisibility} from './light-field.mjs?v=flare-1';
+import {formatGlow} from './vitality.mjs?v=flare-1';
+import {isCourseLesson,shapePracticeCourse,updatePracticeCourse,practiceCollectorResting,practiceCourseEntryLesson,pendingCourseLesson} from './practice-course.mjs?v=flare-1';
 // Practice is an authored flight using the same controls, fuel and colliders.
 // This module contains guidance and lesson scenery; it never grants rewards.
 const clamp = (n, lo, hi) => Math.min(hi, Math.max(lo, n));
@@ -345,7 +345,7 @@ export function getTutorialWorldFocus(engine, seenIds = null) {
   const light = packets.filter(({ packet }) => !packet.harmful && packet.kind !== 'dark')
     .sort((a, b) => Math.abs(a.x - engine.player.x) - Math.abs(b.x - engine.player.x))[0];
   if (light) candidates.push(focus('light-packet', 'Refill the Spark Meter',
-    hasCollector ? (pickupHandlingCue(light.packet,engine.mod,{collector:true})==='collector'?'The small green circle below this pickup lets Collector fetch it after you pass, then reel it to your main wisp. Touching it yourself refills immediately.':'Touch it yourself. Cache Handling or Flash Handling adds the green circle for Collector.')
+    hasCollector ? (pickupHandlingCue(light.packet,engine.mod,{collector:true})==='collector'?'The small green circle below this pickup lets Collector fetch it after you pass, then reel it to your main wisp. Touching it yourself refills immediately.':'Touch it yourself. Cache Handling or Flare Handling adds the green circle for Collector.')
       : 'Touch this bright packet yourself to refill Sparks. Your selected companion does not fetch.', light.x, light.packet.y, 20));
   for (const puff of engine.getDraftPuffs?.() || []) candidates.push(focus('draft', 'Local draft puff',
     'Only these curls push you. Fly above or below their boundary.',

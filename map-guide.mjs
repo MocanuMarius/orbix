@@ -1,17 +1,17 @@
-import {FLIGHT_PACTS} from './flight-pacts.mjs?v=inscribe-2';
-import {getBiome} from './biomes.mjs?v=inscribe-2';
-import {sparkHabitat} from './spark-fields.mjs?v=inscribe-2';
-import {getFlightClearReward} from './checkpoint-rewards.mjs?v=inscribe-2';
-import {landmarkCategory,guardianNames} from './map-landmarks.mjs?v=inscribe-2';
-import {uiIcon} from './ui-icons.mjs?v=inscribe-2';
-import {glowText} from './vitality.mjs?v=inscribe-2';
+import {FLIGHT_PACTS} from './flight-pacts.mjs?v=flare-1';
+import {getBiome} from './biomes.mjs?v=flare-1';
+import {sparkHabitat} from './spark-fields.mjs?v=flare-1';
+import {getFlightClearReward} from './checkpoint-rewards.mjs?v=flare-1';
+import {landmarkCategory,guardianNames} from './map-landmarks.mjs?v=flare-1';
+import {uiIcon} from './ui-icons.mjs?v=flare-1';
+import {glowText} from './vitality.mjs?v=flare-1';
 const stop=(kind,label,name,summary)=>Object.freeze({kind,label,name,summary,icon:kind});
 export const MAP_STOP_TYPES=Object.freeze({
-flight:stop('flight','FLIGHT','Flight','Flight length sets its Stored Sparks reward; overflow adds a bonus. Ordinary flights do not drop artifacts.'),
+flight:stop('flight','FLIGHT','Flight','Flight length sets its Stored Sparks reward; overflow adds a bonus. Ordinary flights do not offer an Inscription.'),
 treasure:stop('treasure','TREASURE','Treasure','Inspect a chest to see its two offers. Taking one leaves the other behind.'),
 rest:stop('rest','REST','Rest','Recover missing hearts or Grow Spark capacity. Both refill Sparks.'),
 encounter:stop('encounter','ENCOUNTER','Encounter','A promise, route preparation or bargain. Preview the stakes before choosing.'),
-boss:stop('boss','ELITE / GUARDIAN','Creature','Small creature: elite. Large head: guardian. Both offer two artifacts; choose one for your build.'),
+boss:stop('boss','ELITE / GUARDIAN','Creature','Small creature: elite. Large head: guardian. Both offer three Inscriptions; choose one to write on your Chain.'),
 });
 export const EVENT_SCENARIOS=Object.freeze([
 {id:'ash-spring',index:0,name:'Ash Spring',summary:'Bottle a reserve or take immediate flight support.',detail:'An empty meter makes a refill attractive. With a full Spark Meter the spring offers free Lifts instead. A Reserve Wick waits for Sparks to fall below 6.'},
@@ -49,8 +49,8 @@ export function getMapStopInfo(node={},maxGlow=100){
  const event=kind==='encounter'&&node.kind!=='shrine'&&Number.isInteger(node.eventIndex)?getEventScenarios({...node,maxGlow})[node.eventIndex]:null;
  const exit=kind==='flight'&&(node.type==='finale'||node.kind==='finale'),guardian=guardianNames[node.bossId]||node.name||'Guardian';
  if(kind==='treasure')return {...base,name:node.name||base.name,summary:node.rewardPreview||base.summary,detail:node.description||base.summary,eventIndex:null,scenarioId:null};
- const summary=kind==='boss'?(node.mapIndex>=2?`Pass ${guardian} and complete the Ascension.`:`Pass ${guardian} and choose one of two artifacts.`):elite?`Face an elite creature for ${getFlightClearReward(node)} Stored Sparks and two artifact choices.`:event?.summary||(node.kind==='shrine'?'Choose faster companion recovery or two free Lifts, for 3 cleared flights.':exit?`Clear this passage for ${getFlightClearReward(node)} Stored Sparks and continue to the next map.`:base.summary);
- const detail=kind==='boss'?(node.mapIndex>=2?'Reach the waylight to complete the Ascension.':`A guardian ends this map: ${getFlightClearReward(node)} Stored Sparks and one of two run artifacts.`):elite?'Choose one automatic artifact. Both offers retire from this run; melting is available later at Rest.':event?.detail||summary;
+ const summary=kind==='boss'?(node.mapIndex>=2?`Pass ${guardian} and complete the Ascension.`:`Pass ${guardian} and choose one of three Inscriptions.`):elite?`Face an elite creature for ${getFlightClearReward(node)} Stored Sparks and a choice of three Inscriptions.`:event?.summary||(node.kind==='shrine'?'Choose faster companion recovery or two free Lifts, for 3 cleared flights.':exit?`Clear this passage for ${getFlightClearReward(node)} Stored Sparks and continue to the next map.`:base.summary);
+ const detail=kind==='boss'?(node.mapIndex>=2?'Reach the waylight to complete the Ascension.':`A guardian ends this map: ${getFlightClearReward(node)} Stored Sparks and one of three Inscriptions to write on your Chain.`):elite?'Choose one of three Inscriptions and write it on a slot of your Chain.':event?.detail||summary;
  return{...base,label:kind==='boss'?'GUARDIAN':elite?'ELITE':exit?'EXIT':base.label,name:kind==='boss'?guardian:event?.name||(node.type==='support'?node.name:node.locationName||node.name)||base.name,summary:event?summary:glowText(summary,maxGlow),detail:event?detail:glowText(detail,maxGlow),eventIndex:event?.index??null,scenarioId:event?.id||null};
 }
 // Stop icons are the approved v2.0-icons set (ui-icons.mjs). Elite and Guardian share the boss family but keep their own drawings.

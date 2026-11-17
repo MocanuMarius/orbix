@@ -14,7 +14,7 @@ export const INSCRIPTIONS = Object.freeze(Object.fromEntries([
   def('kindled', 'Kindled', 'card', 'The card here also fires on a Lift.', {glyph: 'lift', also: 'downbeat-lift'}),
   def('courier', 'Courier', 'card', 'The card here also fires on a Delivery.', {glyph: 'give', also: 'collector-delivery'}),
   def('wellspring', 'Wellspring', 'card', 'The card here also fires on an Overfill.', {glyph: 'well', also: 'natural-overfill'}),
-  def('flare', 'Flare', 'card', 'The card here also fires on a Flash.', {glyph: 'flash', also: 'flash-pickup'}),
+  def('flare', 'Sunlit', 'card', 'The card here also fires when you Collect a Flare.', {glyph: 'flash', also: 'flash-pickup'}),
   def('mirror', 'Mirror', 'card', 'The card here fires whenever the card to its left fires.', {glyph: 'mirror'}),
   def('brimful', 'Brimful', 'card', 'Sparks the card here gains above the Meter become Stored Sparks.', {glyph: 'brim'}),
   def('whetted', 'Whetted', 'card', 'The card here gets 1 extra use each flight.', {glyph: 'whet'}),

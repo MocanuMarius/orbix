@@ -2,14 +2,14 @@
 // tile where the card's own effect line (card-rule-bands.mjs › getCardRuleBands, type "effect") is too long
 // to fit. Same meaning, approved vocabulary, about 22 characters at most. The full line is always on the
 // opened card. Moved from the design lab's TILE_SHORT table (56 cards) with the Pulse wording applied.
-import {getCardRuleBands} from './card-rule-bands.mjs?v=inscribe-2';
-import {SKILL_CARDS, describeSkillCard, cardTallyLine} from './skill-cards.mjs?v=inscribe-2';
+import {getCardRuleBands} from './card-rule-bands.mjs?v=flare-1';
+import {SKILL_CARDS, describeSkillCard, cardTallyLine} from './skill-cards.mjs?v=flare-1';
 
 export const CARD_TILE_LINES = Object.freeze({
   'climb': 'Lifts 2 and 3 free', 'watchlight': 'Collector saves you', 'springboard': 'Collect: free bounce',
   'lift-guide': 'Shows when to Lift', 'cache-handling': 'Fetches Caches: +12', 'second-sun': '×2 before, ×3 Encore',
   'twin-wick': '2nd Collector this flight', 'harvest-legendary': '+2 Sparks, +1 Stored',
-  'nest-egg': '+1 Stored per 10', 'flash-handling': '+6; fetches Flash',
+  'nest-egg': '+1 Stored per 10', 'flash-handling': '+6; fetches Flare',
   'dream': 'Devour: practise longer', 'spillway': '2nd Overfill: a Pulse', 'mirror-grain': 'Adds last + again',
   'ember-feeder': 'Eats 2: +1 max Spark', 'refrain': 'Encore: fires again', 'devourer': 'Eats a Rare: +1 heart',
   'tight-packing': '+50% from packing', 'tight-packing-ii': '+75% from packing', 'tight-packing-iii': '+100% from packing',
@@ -18,7 +18,7 @@ export const CARD_TILE_LINES = Object.freeze({
   'camp-kit': '2 Rest actions', 'echo-iii': 'Repeats next ×3', 'echo-ii': 'Repeats next twice',
   'ripple-glass': 'Doubles all before', 'glide-prism': 'Doubles all before', 'courier-glass': 'Doubles all before',
   'clear-prism': 'Doubles all before', 'wick-doubler': 'Doubles all before', 'crescendo': 'Doubles all before',
-  'diving-bell': 'Final Pulse, +3 Sparks', 'counterweight': 'Ready 0.75 s sooner', 'haul-winch': 'Reels in 3 s sooner',
+  'diving-bell': 'Final Pulse, +3 Sparks', 'counterweight': 'Ready 0.75 s sooner', 'haul-winch': 'Next reel 3 s sooner',
   'fast-spool': 'Reels in 3 s sooner', 'rhythm': '3 even Lifts: a Pulse', 'glass-spool': 'Ready 0.5 s sooner',
   'use-doubler': 'Next card: 2× uses', 'tailwind': '3rd Collect: +1 heart', 'wind-feather': '+1% speed (max 6%)',
   'twin-orbit': '2nd Collector fetches', 'prism-lens': 'All before ×1.25', 'prism-lens-ii': 'All before ×3',

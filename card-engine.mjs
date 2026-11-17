@@ -5,7 +5,7 @@
 // always give the same event log.
 //
 // The rules, as built:
-// - Player-made Triggers (a Collect, a skim, a Lift, a Flash ending, Sparks the Chain gives on a Trigger from your
+// - Player-made Triggers (a Collect, a skim, a Lift, a Flare ending, Sparks the Chain gives on a Trigger from your
 //   flying, an Overfill, Pack) are heard by the whole Chain, left to right, as today.
 // - Events made by a card flow to the RIGHT only (ruling 1). A card-made Pulse goes to the next card to its right
 //   that waits for a Pulse (ruling 2); card-made Spark gains and Overfills go to every card to its right that waits.
@@ -18,7 +18,7 @@
 // - Events only move right and each Timer holds at most one pending wait, so one instant always terminates; a hard
 //   safety counter still stops the engine (and warns once) if that is ever exceeded.
 import {SKILL_CARDS, CARD_ECONOMY, cardAmount, getCardRowRule, matchesRowCondition, matchesRowShape, isInventoryOnlyCard,
-  createCardExecution, resolveCardRow} from './skill-cards.mjs?v=inscribe-2';
+  createCardExecution, resolveCardRow, getCardChargeCapacity} from './skill-cards.mjs?v=flare-1';
 
 export const ENGINE_LIMITS = Object.freeze({ deliveriesPerInstant: 400, timersPerAdvance: 5000, logEntries: 5000, turnLog: 5000 });
 /** Player-made Triggers the engine cards listen to (not CARD_ROW_EVENTS: the ordinary walker never sees them). */
@@ -65,7 +65,7 @@ const round6 = v => Math.round(v * 1e6) / 1e6;
 /** The engine runtime. `runtime` is the flight's card execution ({cards}); uses spent here are spent on those
  * real cards. `host` applies effects to the world (all amounts in printed Sparks):
  *   room() → meter room left; meterFraction() → 0..1; gain(n, slot) → Sparks actually added;
- *   store(n, slot) → Stored Sparks; startFlash(seconds, slot) → true if a Flash started; canFlash();
+ *   store(n, slot) → Stored Sparks; startFlash(seconds, slot) → true if a Flare started; canFlash();
  *   shortenRecovery(seconds) → seconds granted; recoveryLeft(); repeatLastFiring(slot) → {asked, real, spill} | null;
  *   homingFetch(slot) → true if a Collector with charge was sent for the nearest Spark in reach (Homing Thread);
  *   setLuminance(percent) for Momentum (0 ends it); worldPulse(slot) → a real light Pulse in the world (Wave Loom);
@@ -142,7 +142,7 @@ export class CardEngine {
     this.flush();
     return this;
   }
-  /** A Flash started by a card (Flash Tinder at `slot`) has ended: heard by cards to its right. */
+  /** A Flare started by a card (Flare Tinder at `slot`) has ended: heard by cards to its right. */
   flashEnded(slot, now = this.t) {
     if (!(slot >= 0)) return this.raise(ENGINE_TRIGGERS.flashEnd, {}, now);
     this.advance(now);
@@ -248,6 +248,12 @@ export class CardEngine {
       } else if (what === 'homing') {
         const sent = this.inPack ? false : !!this.host.homingFetch?.(j);
         this.record({ k: sent ? 'homing' : 'homing-refused', slot: j });
+      } else if (what === 'whet') {
+        // Whetstone: the card to its right regains one use, never above its ceiling; nothing for a card without uses. Makes no event, so it cannot loop.
+        const target = this.cards[j + 1], ceiling = getCardChargeCapacity(target);
+        if (target && defOf(target)?.charges > 0 && Number.isFinite(target.charges) && target.charges < ceiling) {
+          target.charges++; this.host.regained?.(target, j + 1); this.record({ k: 'whet', slot: j, target: j + 1 });
+        } else this.record({ k: 'whet-none', slot: j });
       } else if (what === 'fire-collect') {
         this.cards.forEach((other, k) => {
           const def = defOf(other), rule = def && getCardRowRule(def, other);
@@ -482,7 +488,7 @@ export function simulateEngineChain(cards, { horizon = 60, events = [], meter = 
 }
 
 /** The player events that start a Chain in the preview: one of each Trigger from flying that a card in it hears,
- * at t = 0 (a Collect, a skim, a Lift on a low meter, a Flash ending). */
+ * at t = 0 (a Collect, a skim, a Lift on a low meter, a Flare ending). */
 export function engineStarts(cards) {
   const row = slotCards(cards), specs = row.map(engineSpec), out = [];
   const listens = type => specs.some(s => hears(s, type));

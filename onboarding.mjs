@@ -1,6 +1,6 @@
-import {flashPowerupDuration} from './pickups.mjs?v=inscribe-2';
-import {resourceCycleSteps} from './resource-cycle.mjs?v=inscribe-2';
-import {LANTERN_THEME} from './map-theme.mjs?v=inscribe-2';
+import {flashPowerupDuration} from './pickups.mjs?v=flare-1';
+import {resourceCycleSteps} from './resource-cycle.mjs?v=flare-1';
+import {LANTERN_THEME} from './map-theme.mjs?v=flare-1';
 // Normal-run onboarding is profile-owned. Prompts are contextual, one short
 // card at a time; the run owns only pacing so a new game keeps learned topics.
 export const ONBOARDING_VERSION=1;
@@ -93,7 +93,7 @@ export function lanternEntryLesson(settings, profile, run) {
  if(!automaticTipsEnabled(settings,run)||run?.isTutorial||!node||node.type==='support')return null;
  if(node.mapTheme!==LANTERN_THEME&&node.bossId!=='hollow-sun')return null;
  if(cleanOnboarding(profile?.onboarding).seen.includes('lanterns'))return null;
- return card('lanterns','Darkness Lanterns','Two lanterns cross their beams. Block a beam to cast a wedge of light behind you. Luminance widens your view. Catch the white Flash triangle to see through the crossing.','lantern-wedge');
+ return card('lanterns','Darkness Lanterns','Two lanterns cross their beams. Block a beam to cast a wedge of light behind you. Luminance widens your view. Catch the white Flare triangle to see through the crossing.','lantern-wedge');
 }
 
 export function giantBlackHoleEntryLesson(settings,profile,run,hole){
@@ -110,14 +110,14 @@ export function nextOnboardingLesson(view,{profile,run,modifiers,flight,snapshot
  const firstMap=integer(run.mapIndex)===0,completed=flights(run),role=run.companions?.[0]||run.companionRole||'collector';
  if(view==='death'&&newTopic('hearts'))return card('hearts','One heart, one attempt','A collision spends one heart. With hearts left, choose your path again. Rest can refill hearts. At zero hearts, this run ends.','life-loss','.death-heart-scene');
  if(view==='briefing'&&newTopic('lift'))return {id:'onboarding:lift',topic:'lift',onboarding:true,steps:resourceCycleSteps(run,modifiers)};
- if(view==='victory'&&newTopic('artifacts')&&run.flightReward?.offers?.length&&!run.flightReward.claimed&&run.flightReward.kind!=='inscription')return card('artifacts','Choose one artifact',run.flightReward.permanent?'Choose one artifact to unlock in future guardian rewards. New runs still begin without artifacts.':'Elite and guardian victories offer two artifacts. Choose one: its effect works automatically alongside the others permanently.','artifact','.artifact-reward-screen');
  if(view==='skills'&&newTopic('skills'))return card('skills','One small upgrade','Tap Stored Sparks to open Skills any time. Gold skills are affordable. Blue skills are yours. Opening Skills pauses flight.','skill-states','.book-spread');
  if(view==='support'&&run.current?.kind==='camp'&&newTopic('rest'))return card('rest','Recover or Grow','Recover restores missing hearts. Grow adds 3 Spark capacity permanently. Both refill Sparks.','rest','.rest-benefit-cards');
  if(view==='support'&&run.current?.kind!=='camp'&&newTopic('events'))return run.current?.kind==='treasure'?card('events','Choose one treasure','Each chest has a specialty. Read both offers, then take one. On the map, tap a chest to inspect its stakes before choosing your path.','site:treasure','.support-offers'):card('events','An encounter','Read what you gain and what you give up. Choose one outcome.','sites-support','.support-offers');
- if(view==='companions'&&newTopic('companions'))return card('companions','Your Collector','Collector fetches missed Sparks and Clusters within its orbit. Its skill chapter unlocks Caches, Flash, range and recovery.','companion:'+role,'.companion-roles');
+ if(view==='companions'&&newTopic('companions'))return card('companions','Your Collector','Collector fetches missed Sparks and Clusters within its orbit. Its skill chapter unlocks Caches, Flare, range and recovery.','companion:'+role,'.companion-roles');
  if(view==='dream'&&newTopic('dream'))return card('dream','Rehearse the opening','Practise in golden light with free Lifts. Wake where you finished, with your pickups. Tap once to continue.','dream');
  if(view==='map'&&completed>0&&newTopic('routes'))return card('routes','Choose a connected path','Bright stops are reachable next. A fork commits your route. Campfire means Rest; chest means treasure. Tap a later stop to preview it before planning ahead.','sites','#journey-map');
- if((view==='map-clear'||view==='result'||view==='briefing'&&run.current?.type==='finale')&&newTopic('progression'))return card('progression','Three maps make a run','Your hearts, Sparks, skills and artifacts continue into the next map. Clear all three maps and the final guardian to unlock the next Ascension.','site:boss');
+ if(view==='victory'&&newTopic('artifacts')&&run.flightReward?.offers?.length&&!run.flightReward.claimed)return card('artifacts','Choose an Inscription','Elite and guardian victories offer three Inscriptions. Choose one, then the slot of your Chain to write it on.','artifact','.artifact-reward-screen');
+ if((view==='map-clear'||view==='result'||view==='briefing'&&run.current?.type==='finale')&&newTopic('progression'))return card('progression','Three maps make a run','Your hearts, Sparks, skills and Inscriptions continue into the next map. Clear all three maps and the final guardian to unlock the next Ascension.','site:boss');
  if(view!=='flight'||flight?.dying||flight?.completing||flight?.dream?.active||snapshot.dying||snapshot.completing)return null;
  const time=Number(flight?.time)||0;
  if(firstMap&&completed===0&&time>=18&&newTopic('luminance'))return card('luminance','This reach is Luminance','Luminance is how far your wisp lights the passage. Farther terrain fades into darkness. Open the Luminance chapter in Skills to see farther.','luminance','.canvas-wrap');
@@ -131,7 +131,7 @@ export function nextOnboardingLesson(view,{profile,run,modifiers,flight,snapshot
  if(newTopic('edging')&&(snapshot.edgingPulse?.charge>.05||snapshot.edgingPulse?.active))return card('edging','Proximity is now unlocked','Your purchased Proximity skill rewards skimming solid terrain without touching it. The small meter near your wisp charges; when full, a fading pulse reveals the scene.','edge','.canvas-wrap');
  const pickup=flight?.getNearbyPickup?.(new Set(profile?.seenPickups||[]));
  if(pickup&&['dark','dusk'].includes(pickup.kind)&&newTopic('bad-sparks'))return card('bad-sparks','Red rings warn of a cost','Dark Sparks reduce Luminance. Dusk Sparks drain up to 3 Sparks and dim Luminance by 20% for 4 seconds. Dusk Wick pays after that drain. Collector leaves them alone; choose whether to touch them.','pickup:'+pickup.kind,'.canvas-wrap');
- if(pickup?.kind==='sight'&&newTopic('special-sparks'))return card('special-sparks','Flash Powerup',`Catch the white triangle. It trails behind your wisp, sends a Pulse every 2 seconds and raises your Luminance very high, for ${flashPowerupDuration(flight?.mod)} seconds.`,'pickup:sight','.canvas-wrap');
+ if(pickup?.kind==='sight'&&newTopic('special-sparks'))return card('special-sparks','Flare Powerup',`Catch the white triangle. It trails behind your wisp, sends a Pulse every 2 seconds and raises your Luminance very high, for ${flashPowerupDuration(flight?.mod)} seconds.`,'pickup:sight','.canvas-wrap');
  const draft=flight?.gustState?.();
  if(completed>=1&&newTopic('drafts')&&(Math.abs(snapshot.gust||0)>.1||draft?.strength>.05||draft?.active||draft?.warning))return card('drafts','Local drafts push you','These curls show where the wind pushes. Leave room to drift, or time a Lift against the current.','draft','.canvas-wrap');
  return null;

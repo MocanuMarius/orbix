@@ -1,15 +1,15 @@
-import {ARTIFACTS} from './model.mjs?v=inscribe-2';
-import {artifactDescription} from './artifact-copy.mjs?v=inscribe-2';
-import {resourceSymbol} from './game-symbols.mjs?v=inscribe-2';
-import {artifactIcon} from './upgrade-icons.mjs?v=inscribe-2';
-import {relicIdentityMarkup,relicRulesMarkup,relicRulesButton} from './ui/relic-primitives.mjs?v=inscribe-2';
-import {actionButton} from './ui/primitives.mjs?v=inscribe-2';
-import {acquiredRewardMarkup} from './ui/acquired-reward.mjs?v=inscribe-2';
-import {routeBonusReceiptText} from './route-bonus-copy.mjs?v=inscribe-2';
-import {getInscription,INSCRIPTION_FAMILIES,slotInscriptionId} from './inscriptions.mjs?v=inscribe-2';
-import {inscriptionGlyph} from './inscription-ui.mjs?v=inscribe-2';
-import {cardTermTextMarkup} from './card-terms.mjs?v=inscribe-2';
-import {SKILL_CARDS} from './skill-cards.mjs?v=inscribe-2';
+import {ARTIFACTS} from './model.mjs?v=flare-1';
+import {artifactDescription} from './artifact-copy.mjs?v=flare-1';
+import {resourceSymbol} from './game-symbols.mjs?v=flare-1';
+import {artifactIcon} from './upgrade-icons.mjs?v=flare-1';
+import {relicIdentityMarkup,relicRulesMarkup,relicRulesButton} from './ui/relic-primitives.mjs?v=flare-1';
+import {actionButton} from './ui/primitives.mjs?v=flare-1';
+import {acquiredRewardMarkup} from './ui/acquired-reward.mjs?v=flare-1';
+import {routeBonusReceiptText} from './route-bonus-copy.mjs?v=flare-1';
+import {getInscription,INSCRIPTION_FAMILIES,slotInscriptionId} from './inscriptions.mjs?v=flare-1';
+import {inscriptionGlyph} from './inscription-ui.mjs?v=flare-1';
+import {cardTermTextMarkup} from './card-terms.mjs?v=flare-1';
+import {SKILL_CARDS} from './skill-cards.mjs?v=flare-1';
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 export const rewardDescription=(a,run)=>{const c=artifactDescription(a,run,{fresh:true});return [c.effect,[c.trigger,c.limit].filter(Boolean).join(' ')];};
 export function rewardEarnings(run){

@@ -1,7 +1,7 @@
 /** Read-only glossary examples use the same ordered walker as a real flight. */
-import {CARD_SYSTEM, CARD_ROW_EVENTS, SKILL_CARDS, makeSkillCard, describeSkillCard, getCardRowRule, previewCardRow} from './skill-cards.mjs?v=inscribe-2';
-import {cardRowTraceMarkup, cardRowSequenceMarkup} from './card-row-feedback.mjs?v=inscribe-2';
-import {getEquippedCardStatuses} from './card-status.mjs?v=inscribe-2';
+import {CARD_SYSTEM, CARD_ROW_EVENTS, SKILL_CARDS, makeSkillCard, describeSkillCard, getCardRowRule, previewCardRow} from './skill-cards.mjs?v=flare-1';
+import {cardRowTraceMarkup, cardRowSequenceMarkup} from './card-row-feedback.mjs?v=flare-1';
+import {getEquippedCardStatuses} from './card-status.mjs?v=flare-1';
 
 const esc = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const rowTerms = new Set(['uses','shared','copy','repeat','pass']);
@@ -108,7 +108,7 @@ function selectedNote(context, cards) {
 }
 
 export function describeCardRowScenario(event, trace) {
-  const events = {[CARD_ROW_EVENTS.body]:'your wisp touches a pickup', [CARD_ROW_EVENTS.wave]:'a Pulse crosses an uncollected pickup', [CARD_ROW_EVENTS.flash]:'your wisp or Collector picks up Flash', [CARD_ROW_EVENTS.flashExpiry]:'a passage Flash expires', [CARD_ROW_EVENTS.lift]:'a Lift succeeds', [CARD_ROW_EVENTS.overfill]:'a passage Spark overfills the meter', [CARD_ROW_EVENTS.delivery]:'Collector delivers a pickup', [CARD_ROW_EVENTS.rhythm]:'3 evenly timed successful Lifts complete Rhythm', [CARD_ROW_EVENTS.field]:'a Field Impulse swipe succeeds', [CARD_ROW_EVENTS.guard]:'Collector saves a fatal impact', [CARD_ROW_EVENTS.clear]:'you clear a flight', [CARD_ROW_EVENTS.victory]:'you defeat the third Guardian', [CARD_ROW_EVENTS.attach]:'Collector attaches to a pickup'};
+  const events = {[CARD_ROW_EVENTS.body]:'your wisp touches a pickup', [CARD_ROW_EVENTS.wave]:'a Pulse crosses an uncollected pickup', [CARD_ROW_EVENTS.flash]:'your wisp or Collector picks up Flare', [CARD_ROW_EVENTS.flashExpiry]:'a passage Flare expires', [CARD_ROW_EVENTS.lift]:'a Lift succeeds', [CARD_ROW_EVENTS.overfill]:'a passage Spark overfills the meter', [CARD_ROW_EVENTS.delivery]:'Collector delivers a pickup', [CARD_ROW_EVENTS.rhythm]:'3 evenly timed successful Lifts complete Rhythm', [CARD_ROW_EVENTS.field]:'a Field Impulse swipe succeeds', [CARD_ROW_EVENTS.guard]:'Collector saves a fatal impact', [CARD_ROW_EVENTS.clear]:'you clear a flight', [CARD_ROW_EVENTS.victory]:'you defeat the third Guardian', [CARD_ROW_EVENTS.attach]:'Collector attaches to a pickup'};
   const parts = [events[event.kind] || 'one Trigger'];
   if (event.kind === CARD_ROW_EVENTS.body || event.kind === CARD_ROW_EVENTS.delivery || event.kind === CARD_ROW_EVENTS.wave) parts.push(`pickup: ${event.pickupKind === 'light' ? 'passage Spark' : event.pickupKind}`);
   if (event.kind === CARD_ROW_EVENTS.wave) parts.push(event.firstCrossing ? 'first crossing of this Pulse' : 'later crossing');

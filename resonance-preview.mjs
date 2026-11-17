@@ -1,8 +1,8 @@
-import {createMusic} from './music.mjs?v=inscribe-2';
+import {createMusic} from './music.mjs?v=flare-1';
 
-import {createFlightFX} from './reactive-fx.mjs?v=inscribe-2';
+import {createFlightFX} from './reactive-fx.mjs?v=flare-1';
 
-import {LuminanceWaves} from './luminance-waves.mjs?v=inscribe-2';
+import {LuminanceWaves} from './luminance-waves.mjs?v=flare-1';
 
 // Deliberately isolated: the audition never reads or writes a saved game.
 
@@ -123,7 +123,7 @@ for(const [id,value] of [['normal',false],['dream',true]])$('#'+id).addEventList
 
 $('#blackhole').addEventListener('click',()=>{dream=false;hole=1;$('#hole').value='100';$('#hole-value').textContent='At the edge';$('#normal').setAttribute('aria-pressed','false');$('#dream').setAttribute('aria-pressed','false');apply();report('Black hole · slowed tape and a low gravitational hush.');});
 
-$('#flash').addEventListener('click',()=>{flash=1;source('flash');sound('flash',{strength:1});report('Flash · a quick, high shimmer.');});
+$('#flash').addEventListener('click',()=>{flash=1;source('flash');sound('flash',{strength:1});report('Flare · a quick, high shimmer.');});
 
 async function sound(kind,options={}){const epoch=audioEpoch;if(enabled&&!fxReady&&fxUnlock)await fxUnlock;if(enabled&&epoch===audioEpoch&&fxReady&&!document.hidden)fx.play(kind,options);apply();}
 

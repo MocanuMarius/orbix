@@ -18,7 +18,7 @@ export const STARTING_GIFTS=Object.freeze([
   relic('gift-cache-cup','Cache Cup','Caches restore 2 extra Sparks.','cache-cup'),
   relic('gift-path-prism','Path Prism','A small Luminance increase; twice the benefit in crystal caves.','path-prism'),
   relic('gift-spark-wick','Spark Wick','Three automatic pickups restore extra fuel. Full Sparks preserve a use.','glow-wick'),
-  relic('gift-flash-stone','Flash Stone','Two automatic pickups briefly reveal the scene.','flash-stone'),
+  relic('gift-flash-stone','Flare Stone','Two automatic pickups briefly reveal the scene.','flash-stone'),
   relic('gift-echo-bell','Echo Bell','Collector work primes your next body pickup for extra fuel within 8 seconds. Up to 5 times per flight.','echo-bell'),
   relic('gift-overflow-coil','Overflow Coil','Overflow speeds Collector recovery, up to 2 seconds per pickup and 12 seconds per flight.','overflow-coil'),
   relic('gift-night-gardener','Night Gardener','Skim past a Dark Spark without touching it to recover up to 6 missing Sparks. Up to 5 times per flight.','night-gardener'),
