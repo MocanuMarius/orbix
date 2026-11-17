@@ -7,6 +7,9 @@ import {getPickupSpec} from '../dist/pickups.mjs';
 import {sparkMass} from '../dist/spark-size.mjs';
 import {createFlightObjective} from '../dist/flight-objectives.mjs';
 import {DRAFT_TUNING} from '../dist/drafts.mjs';
+import {overrideCourseGeneration} from '../dist/course-landforms.mjs';
+// The glide test flies exactly 132 frames and then requires the Wisp to be alive; on landform layouts terrain may follow the glide, so it is pinned to the old authored layouts.
+const authored=fn=>()=>{overrideCourseGeneration(1);try{return fn();}finally{overrideCourseGeneration(null);}};
 
 const fixtureSeeds=new Map();
 function flight(id, modifiers={},spare=false) {
@@ -169,7 +172,7 @@ test('Constellation recovers a missed first mark, ignores completed layers, and 
   assert.ok(skipped.routeObjective.failed);
 });
 
-test('the predicted two-second glide succeeds in actual fixed-step flight; lifting between its pickups breaks it',()=>{
+test('the predicted two-second glide succeeds in actual fixed-step flight; lifting between its pickups breaks it',authored(()=>{
   const game=flight('long-glide'), start=game.routeObjective.guide[0];
   visit(game,start.x,start.y);
   game.time=(start.x-98)/game.baseSpeed;
@@ -182,7 +185,7 @@ test('the predicted two-second glide succeeds in actual fixed-step flight; lifti
   cancelled.flap();
   cancelled.routeObjective.update();
   assert.ok(cancelled.routeObjective.failed);
-});
+}));
 
 test('real terrain actors, two different Proximity zones and flight through gates credit only their own marks',()=>{
   const wild=flight('wild-circuit');
