@@ -1119,7 +1119,7 @@ function resolveCardCamp(run, index) {
     return true;
   }
   const action = effect.rest,
-    before = { lives: run.lives, flame: run.flame },
+    before = { lives: run.lives, flame: run.flame, slots: run.cardSlots, capacity: getGlowCapacity(run) },
     second = rest.actions.length === 1,
     source = second ? cardRestSource(run) : null;
   if (second && !source) return false;
@@ -1164,6 +1164,13 @@ function resolveCardCamp(run, index) {
       (run.lastRest?.nodeId === run.current.id
         ? run.lastRest.sparksRestored
         : 0) + Math.max(0, run.flame - before.flame),
+    results: {
+      ...(run.lastRest?.nodeId === run.current.id ? run.lastRest.results : null),
+      [action]: {
+        hearts: [before.lives, run.lives], meter: [before.flame, run.flame],
+        slots: [before.slots, run.cardSlots], maxMeter: [before.capacity, getGlowCapacity(run)],
+      },
+    },
   };
   let visit = run.restVisits.find((v) => v.key === rest.key);
   if (!visit) {

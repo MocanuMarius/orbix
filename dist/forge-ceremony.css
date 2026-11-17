@@ -1,0 +1,55 @@
+/* Forge option on the Rest screen, Rest result views, and the Forge ceremony. Kit palette, square pixels, no blur. */
+html body .card-rest-screen .card-camp-choices:has(>.card-camp-forge):not(#k){grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+html body .card-rest-screen .card-camp-forge:not(#k){border:2px solid #d8c98a!important;background:#2a3a2a!important}
+html body .card-rest-screen .card-camp-forge.forge-needs:not(#k){border-style:dashed!important}
+.card-camp-forge .card-camp-note{display:grid;gap:2px;justify-items:center}
+.card-camp-forge .card-camp-note small{font:11px/1.2 var(--pixel,monospace);color:#a5b89a}
+.card-forge-hint{display:inline-block;padding:2px 6px;border:2px solid #7a8f6b;background:#1b2c22;color:#efe0b4;font:12px/1.2 var(--pixel,monospace)}
+.card-forge-hint.ready{border-color:#f0c86a;background:#f0c86a;color:#2a1d12}
+html body .card-rest-done .card-camp-choices.card-camp-results:not(#k){grid-template-columns:repeat(auto-fit,minmax(150px,230px));justify-content:center;align-content:center}
+.card-rest-done .card-camp-result{font:16px/1.25 var(--pixel,monospace);color:#e6ddb4;margin:0}
+.card-rest-done .card-camp-result b{color:#f3dfac;white-space:nowrap}
+.card-rest-done .card-camp-main>.card-heading small{font:12px var(--pixel,monospace);color:#a3b79c}
+.card-camp-footer>button{flex:none}
+
+.forge-ceremony{--fh:min(300px,68vh);height:100%;display:grid;grid-template-rows:minmax(0,1fr) auto;place-items:center;gap:6px;padding:8px;background:#e6d4a2;color:#2a2118}
+.forge-ceremony .forge-ceremony-stage{position:relative;width:100%;height:100%;min-height:0;display:grid;place-items:center;cursor:pointer;overflow:hidden;outline-offset:-4px}
+.forge-stage-box,.forge-ceremony-stage>*{grid-area:1/1}
+.forge-ceremony .forge-face{height:var(--fh);width:calc(var(--fh)*5/7);opacity:0}
+.forge-ceremony .forge-mystery{width:calc(var(--fh)*5/7);height:var(--fh);display:grid;place-items:center;border:4px solid #7a8f6b;background:#243b2d;color:#efe0b4}
+.forge-ceremony .forge-mystery strong{font:400 56px/1 var(--pixel,monospace)}
+.forge-ceremony .forge-chip{display:grid;place-items:center;width:48px;height:48px;z-index:2}
+.forge-ceremony .forge-chip svg{width:48px;height:48px}
+.forge-ceremony .forge-chip-left{transform:translateX(-190px)}
+.forge-ceremony .forge-chip-right{transform:translateX(190px)}
+.forge-ceremony .forge-embers{position:relative;width:0;height:0;z-index:3}
+.forge-ceremony .forge-embers i{position:absolute;left:-3px;top:-3px;width:6px;height:6px;background:#d39a3a;opacity:0}
+.forge-ceremony .forge-embers i:nth-child(3n+2){background:#b8574a}
+.forge-ceremony .forge-embers i:nth-child(3n){background:#f0c86a;outline:2px solid #7a2f2a}
+html body .forge-ceremony .forge-caption:not(#k){margin:0;min-height:20px;font:15px/1.2 var(--pixel,monospace);color:#2a2118;text-align:center}
+.forge-ceremony .forge-caption{visibility:hidden}
+
+/* gather: the two Sparks slide in from either side, in whole-pixel steps */
+.forge-ceremony[data-phase=gather] .forge-chip-left,.forge-ceremony[data-phase=gather] .forge-chip-right{animation:forge-gather 450ms steps(9) both}
+.forge-ceremony[data-phase=gather] .forge-chip-right{animation-name:forge-gather-r}
+@keyframes forge-gather{from{transform:translateX(-190px)}to{transform:translateX(-24px)}}
+@keyframes forge-gather-r{from{transform:translateX(190px)}to{transform:translateX(24px)}}
+/* strike: the card jolts, the Sparks are spent, embers burst */
+.forge-ceremony[data-phase=strike] .forge-chip,.forge-ceremony[data-phase=reveal] .forge-chip{opacity:0}
+.forge-ceremony[data-phase=strike] .forge-mystery{animation:forge-strike 250ms steps(5) both}
+@keyframes forge-strike{0%{transform:translate(0,0)}20%{transform:translate(0,6px)}40%{transform:translate(-4px,0)}60%{transform:translate(4px,-2px)}80%{transform:translate(-2px,0)}100%{transform:translate(0,0)}}
+.forge-ceremony[data-phase=strike] .forge-embers i,.forge-ceremony[data-phase=reveal] .forge-embers i{animation:forge-ember 650ms steps(9) var(--d) both}
+@keyframes forge-ember{0%{opacity:1;transform:translate(0,0)}70%{opacity:1}100%{opacity:0;transform:translate(var(--x),calc(var(--y) + 56px))}}
+/* reveal: the real card appears and is held */
+.forge-ceremony[data-phase=reveal] .forge-mystery{visibility:hidden}
+.forge-ceremony[data-phase=reveal] .forge-face{animation:forge-reveal 300ms steps(4) both;opacity:1}
+.forge-ceremony[data-phase=reveal] .forge-caption{visibility:visible}
+@keyframes forge-reveal{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:translateY(0)}}
+
+/* reduced motion: one cross-fade, no movement or embers */
+.forge-ceremony.forge-reduced .forge-mystery,.forge-ceremony.forge-reduced .forge-chip,.forge-ceremony.forge-reduced .forge-embers{display:none}
+.forge-ceremony.forge-reduced .forge-face{animation:forge-fade 260ms linear both;opacity:1}
+.forge-ceremony.forge-reduced .forge-caption{visibility:visible}
+@keyframes forge-fade{from{opacity:0}to{opacity:1}}
+@media (prefers-reduced-motion:reduce){.forge-ceremony *{animation-duration:1ms!important}}
+html[data-reduced-motion=true] .forge-ceremony *{animation-duration:1ms!important}

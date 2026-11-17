@@ -31,6 +31,7 @@ import {automaticTipsEnabled,nextOnboardingLesson,markOnboardingSeen,resetOnboar
 import {flightRewardMarkup,rewardEarningsDetailMarkup,scribeMarkup} from './reward-screen.mjs?v=guide-clarity-1';
 import {stopPreviewMarkup} from './stop-preview.mjs?v=guide-clarity-1';
 import {ensureScribeStop,leaveScribe,cancelScribeStop} from './model.mjs?v=guide-clarity-1';
+import {runForgeCeremony} from './forge-ceremony.mjs?v=guide-clarity-1';
 import {hasFlightRewardCeremony,flightRewardCeremonyStage,advanceFlightRewardCeremony,flightRewardCeremonyMarkup,mountFlightRewardCeremony,mountReceiptInspector} from './flight-reward-ceremony.mjs?v=guide-clarity-1';
 import {flightEntryMarkup,prepareFlightDeparture,resumeGateMarkup,waitForFlightEntry,preloadFlightEntry} from './flight-entry.mjs?v=guide-clarity-1';
 import {TUTORIAL_TOPICS,topicSteps} from './tutorial-curriculum.mjs?v=guide-clarity-1';
@@ -641,7 +642,9 @@ function openCardForge(rarity){
  }
  previewCardForge(rarity);
 }
+let forgeCeremony=null;
 function backCardForge(){
+ if(forgeCeremony){forgeCeremony.cancel();forgeCeremony=null;}
  const origin=cardForgeOrigin;cardForgeNotice='';cardLastForged=null;cardForgeOrigin=null;cardInspecting=false;cardSelectedId=null;
  if(origin?.surface==='workshop')showCardWorkshop();else if(origin?.surface==='rest')doneDeck();else restoreDeckSurface(origin);
 }
@@ -654,9 +657,13 @@ function confirmCardForge(rarity,token){
  const forged=canEditDeck()&&forgeOwnedCard(state,rarity,token);
  if(!forged){cardForgeNotice='This price changed. Check the Forge again before paying.';previewCardForge(rarity);return;}
  // Forge v3 reveals the surprise card only after payment.
- saveDeckEdits();cardLastForged={instanceId:forged.instanceId,name:cardName(forged)};
+ saveDeckEdits();cardLastForged={instanceId:forged.instanceId,name:cardName(forged),card:forged,price:preview.price,rarity};
  cardForgeNotice=`Revealed: ${cardLastForged.name} added to reserve · ${preview.price} Stored Sparks spent.`;
- previewCardForge(rarity);
+ const sheet=document.querySelector('dialog.card-forge-sheet[open]');
+ if(!sheet){previewCardForge(rarity);return;}
+ // Source Sparks slide in, strike, reveal; a tap or reduced motion goes straight to the result view.
+ const reduced=!!(state.settings.reducedMotion||globalThis.matchMedia?.('(prefers-reduced-motion: reduce)').matches);
+ forgeCeremony=runForgeCeremony(sheet,{...forged,name:cardLastForged.name},{price:preview.price,reduced,onDone:()=>{forgeCeremony=null;if(cardView==='forge'&&cardLastForged?.instanceId===forged.instanceId)previewCardForge(rarity);}});
 }
 function backCardSheet(){
  const help=document.querySelector('dialog.card-bench-sheet[open] .card-deck-help[open]');
@@ -666,6 +673,7 @@ function backCardSheet(){
  if(cardView==='workshop'){backDeckWorkshop();return;}
  if(cardView==='refill'||cardView==='improve'&&cardWorkshopOrigin){showCardWorkshop();return;}
  if(cardView==='improve'){showCards();return;}
+ if(forgeCeremony){forgeCeremony.skip();return;}
  if(cardView==='forge'){backCardForge();return;}
  if(cardMeltMode){cancelDeckMelt();return;}
  if(cardTargetSlot!==null||cardEquipMode){cardTargetSlot=null;cardEquipMode=false;if(!cardInspecting)cardSelectedId=null;showCards();return;}
@@ -1427,6 +1435,7 @@ document.addEventListener('click',e=>{
   case 'card-preview-forge':openCardForge(button.dataset.rarity);break;
   case 'card-confirm-forge':confirmCardForge(button.dataset.rarity,button.dataset.token);break;
   case 'card-forge-back':backCardForge();break;
+  case 'card-forge-again':if(cardLastForged)cardLastForged.card=null;previewCardForge(button.dataset.rarity);break;
   case 'card-forge-view':viewForgedCard(button.dataset.id);break;
  }
 });
