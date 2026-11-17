@@ -58,6 +58,16 @@ Every turn can spawn a Pulse and feedback. Engines must not add per-frame cost o
 
 Coordinator writes a card list: 4 makers, 3 Timers, 3 starters, 2 governors, with one worked 4-card engine and one 5-card engine, shown on the Chain screen in the design lab (`v1.0-engine`). User approves by code; then engine rules (Opus: touches card firing order and timing), then cards (Sonnet).
 
+## Noted 17 November 2026 — Collector's cord should move like a real string (iterate later)
+
+The owner's words: "I want the cords for Collector to be better suited to physics laws, meaning to look and behave more like a string than have these random unconnected wavy movements… those should be intuitive. I expect a standing wave or whatever to pass through it when I press jump, and then it comes back down, but I think that's just too slow… I would have expected some whip movements or something… we should iterate on that specific movement of the whip, and the whip should drive the Spark location anyway, as if it doesn't have any weight. But we'll iterate on that later."
+
+- Today: the cord between the wisp and Collector (and the towed pickup) wobbles with waves that are not tied to anything the player does.
+- Wanted: a cord that behaves like a string under tension. A Lift sends a visible travelling wave down the cord from the wisp end; it reaches the far end and settles. The current feel is too slow: aim for a quick whip (a fast crack along the cord, short settle) rather than a lazy standing wave.
+- The whip drives the towed Spark: the pickup at the end of the cord follows the cord's end as if it had no weight (the cord leads, the Spark is flicked along), rather than the Spark dragging the cord.
+- Approach when picked up: a small verlet/rope model (fixed segment lengths, tension, light damping) driven by the wisp's motion and Lift impulse, with the wave speed and damping as the two dials to iterate on; purely visual unless the owner wants the whip to affect gameplay; must stay cheap on the phone (few segments, no per-frame allocations). There are existing studies under `dist/assets/previews/collector-motion-studies/` and `collector-tow/` to look at first.
+- Show as lab variations (`v1.0-cord-A/B/C`: slow string, quick whip, whip with snap) before changing the game. The owner said this is for later.
+
 ## Noted 17 November 2026 — bad cards, bad events and Dusk, for a later redesign
 
 The owner's words: "bad card idea, like the small dusk… it should cap temporarily the Spark Meter, so that it like halves it… or maybe we need some other type of bad boon for this… keep this in mind for later when we're going to want to redesign the bad cards / events / dusks."
