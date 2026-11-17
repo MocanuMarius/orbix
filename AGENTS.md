@@ -38,6 +38,7 @@ Claude is the primary agent for this project from 2026-11-16. Codex / ChatGPT re
 - Reuse one coherent Spark motif from the actual game, with a distinct symbol for stored containers.
 - Apply established design principles and relevant lessons from comparable games such as Slay the Spire and Balatro for layout, build readability, and choices, while retaining Emberwing's own aesthetic.
 - **A card's effect lives on the card.** An effect exists only while its card is mounted in the Chain. A card with uses never gets depleted and leaves a lasting effect behind; a use lasts one flight. Whatever a card builds up (growth, counters) is stored on that card, shown on its face, and leaves with it. Decided by the user on 17 November 2026.
+- **Inscriptions live on Chain slots.** Artifacts are becoming Inscriptions written on a slot of the Chain, at most one per slot: some change the card sitting in that slot, some work on their own even when the slot is empty. So every effect lives in the Chain, on a card or on a slot, never loose in the run. Approved by the user on 17 November 2026; spec in `docs/inscriptions.md`.
 - Favor meaningful tradeoffs and accessible human play. Account for reaction time and limited sight when balancing, and avoid needless complexity.
 
 ## User preferences

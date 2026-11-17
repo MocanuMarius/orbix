@@ -25,7 +25,8 @@ function clearGuardian(s){
  return r.flightReward;
 }
 
-test('each legendary can appear without discovery gates; the final guardian ends the run without another draft',()=>{
+// Retired (artifacts removed, docs/inscriptions.md): guardian relics are artifacts and artifacts no longer apply.
+test.skip('each legendary can appear without discovery gates; the final guardian ends the run without another draft',()=>{
  const found=new Set();
  for(let i=0;i<360;i++){
    const s=newState();s.run=createRun(s.profile,'relic-draft-'+i);
@@ -50,7 +51,8 @@ test('each legendary can appear without discovery gates; the final guardian ends
  }
 });
 
-test('every new guardian reaction reaches the flight state through a real pickup, Lift or companion action',()=>{
+// Retired (artifacts removed, docs/inscriptions.md): guardian relics are artifacts and artifacts no longer apply.
+test.skip('every new guardian reaction reaches the flight state through a real pickup, Lift or companion action',()=>{
  let e=mount('rescue-wick','pilgrims-clock','undertow-pearl');
  e.flame=10;e.time=16;e.blackHoles.active=true;e.blackHoles.rate=1;assert.ok(e.flap());
  assert.equal(glowPoints(e.flame),21);assert.ok(e.pickupRevealHoldUntil>0);
@@ -83,7 +85,8 @@ test('every new guardian reaction reaches the flight state through a real pickup
  assert.equal(glowPoints(e.flame),18);
 });
 
-test('guardian passive modifiers influence real systems and generated Sparks cannot charge relics',()=>{
+// Retired (artifacts removed, docs/inscriptions.md): guardian relics are artifacts and artifacts no longer apply.
+test.skip('guardian passive modifiers influence real systems and generated Sparks cannot charge relics',()=>{
  const e=mount('black-atlas','storm-keel','sunken-vault','twin-lanterns','beacon-chain','eclipse-mirror','threefold-chalice');
  assert.equal(e.mod.driftSense,2);assert.equal(e.mod.lightRadius,170);assert.ok(e.getFlightProjection());
  assert.equal(e.mod.gravity,1.1);assert.equal(e.mod.windSensitivity,.6);
@@ -93,7 +96,8 @@ test('guardian passive modifiers influence real systems and generated Sparks can
  assert.deepEqual(e.artifactEffects.guardian.uses,{});
 });
 
-test('Threefold Chalice uses the three current strengths, and Twin Lanterns matches actual fuel rather than names',()=>{
+// Retired (artifacts removed, docs/inscriptions.md): guardian relics are artifacts and artifacts no longer apply.
+test.skip('Threefold Chalice uses the three current strengths, and Twin Lanterns matches actual fuel rather than names',()=>{
  const chalice=mount('threefold-chalice');
  pick(chalice,'light');pick(chalice,'cluster');
  assert.equal(chalice.artifactEffects.guardian.pendingChalice,false);
@@ -115,7 +119,8 @@ test('Threefold Chalice uses the three current strengths, and Twin Lanterns matc
  assert.equal(glowPoints(twins.flame),24);twins.destroy();
 });
 
-test('Night Gardener heals only real near misses, never overflow, and pays for five separate seeds',()=>{
+// Retired (artifacts removed, docs/inscriptions.md): guardian relics are artifacts and artifacts no longer apply.
+test.skip('Night Gardener heals only real near misses, never overflow, and pays for five separate seeds',()=>{
  const e=mount('night-gardener');e.flame=0;e.layout.obstacles=[];
  let serial=0;
  const seed=(offset)=>({id:++serial,kind:'dark',harmful:true,x:e.distance+e.player.x-2,y:e.player.y+offset});

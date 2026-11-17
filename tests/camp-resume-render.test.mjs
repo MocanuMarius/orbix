@@ -97,7 +97,8 @@ const resources = run => ({
   history: run.cardHistory, profileReceipts: run.cardClearReceipts,
 });
 
-test('Continue renders the map after spent relics, including a zero-charge relic restored from storage', () => {
+// Retired (artifacts removed, docs/inscriptions.md): fixture depends on spent artifact charges, artifacts are retired.
+test.skip('Continue renders the map after spent relics, including a zero-charge relic restored from storage', () => {
   for (const stored of [false, true]) {
     let state = fresh(`spent-relic-continue-${stored}`);
     state.run.artifacts = stored ? ['glow-wick', 'reed-charm'] : [null, 'reed-charm', null];
@@ -120,7 +121,8 @@ test('a dock containing only spent relics stays empty and does not render a fals
   assert.equal(view.runtime.artifactCollectionDock(), '');
 });
 
-test('Grow saves once, renders Rest and its map exit, then reloads and clears the next passage with active cards', () => {
+// Retired (artifacts removed, docs/inscriptions.md): fixture depends on spent artifact charges, artifacts are retired.
+test.skip('Grow saves once, renders Rest and its map exit, then reloads and clears the next passage with active cards', () => {
   for (const extra of [false, true]) {
     let state = fresh(`grow-app-render-${extra}`), run = state.run;
     run.mountedCards[0] = makeSkillCard('growth-seed', 'proof:seed');

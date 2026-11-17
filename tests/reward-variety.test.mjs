@@ -7,7 +7,8 @@ import {getFlightClearReward} from '../dist/checkpoint-rewards.mjs';
 import {getGlowCapacity} from '../dist/vitality.mjs';
 
 const game=seed=>{const s=M.newState();s.run=M.createRun(s.profile,seed);return s;};
-test('20 starting gifts offer exactly two stable choices, and every gift can be received once',()=>{
+// Retired (artifacts removed, docs/inscriptions.md): starting-gift and chest relics are artifacts, no longer awarded.
+test.skip('20 starting gifts offer exactly two stable choices, and every gift can be received once',()=>{
  assert.equal(STARTING_GIFTS.length,20);assert.equal(new Set(STARTING_GIFTS.map(g=>g.id)).size,20);
  const seen=new Set();
  for(let i=0;i<250;i++){
@@ -30,7 +31,8 @@ test('20 starting gifts offer exactly two stable choices, and every gift can be 
  assert.equal(seen.size,20);
 });
 
-test('chest catalogue has 30 working finds and cycles unseen offers before repeating',()=>{
+// Retired (artifacts removed, docs/inscriptions.md): starting-gift and chest relics are artifacts, no longer awarded.
+test.skip('chest catalogue has 30 working finds and cycles unseen offers before repeating',()=>{
  assert.equal(CHEST_REWARDS.length,30);assert.equal(new Set(CHEST_REWARDS.map(g=>g.id)).size,30);
  for(const reward of CHEST_REWARDS){
   if(reward.skillId)assert.ok(M.SKILLS[reward.skillId],reward.id);
@@ -45,7 +47,8 @@ test('chest catalogue has 30 working finds and cycles unseen offers before repea
  assert.equal(new Set(r.chestRewardHistory).size,30);
 });
 
-test('each chest effect resolves through real support flow and persists in the run',()=>{
+// Retired (artifacts removed, docs/inscriptions.md): starting-gift and chest relics are artifacts, no longer awarded.
+test.skip('each chest effect resolves through real support flow and persists in the run',()=>{
  const applied=new Set();
  for(let i=0;i<300&&applied.size<30;i++){
   for(const pick of [0,1]){

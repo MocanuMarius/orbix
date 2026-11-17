@@ -42,7 +42,8 @@ test('swap preview explains Toll Bell losing its trigger and Echo gaining its im
   assert.match(deckSwapComboMarkup(run,after,echo),/Echo → Resonant Harvest/);
 });
 
-test('real Ring Spring overfill lights Dawn Loom only after positive recovery, respecting its cooldown',()=>{
+// Retired (artifacts removed, docs/inscriptions.md): Dawn Loom is an artifact and artifacts no longer apply.
+test.skip('real Ring Spring overfill lights Dawn Loom only after positive recovery, respecting its cooldown',()=>{
   const engine=flight(['ring-spring',null,null]);
   const callbacks=[],original=engine.artifactEffects.onRecharge.bind(engine.artifactEffects);
   engine.artifactEffects.onRecharge=seconds=>{callbacks.push(seconds);original(seconds);};

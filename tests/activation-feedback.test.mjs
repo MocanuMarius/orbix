@@ -37,7 +37,8 @@ test('rapid repeats add real outcomes, distinct overlaps survive and rescues tak
  assert.deepEqual(feed.update({...state(),time:4}),[]);
 });
 
-test('repeated real relic procs are independent of once-only teaching notices and passive stats stay quiet',()=>{
+// Retired (artifacts removed, docs/inscriptions.md): relic activation tested artifact effects, which no longer apply.
+test.skip('repeated real relic procs are independent of once-only teaching notices and passive stats stay quiet',()=>{
  const e=flight(['glow-wick','silver-feather','quiet-cinder']);
  e.flame=0;pick(e);e.time=.2;e.flame=0;pick(e);
  const procs=e.getState().activationEvents.filter(event=>event.source==='glow-wick');
@@ -47,7 +48,8 @@ test('repeated real relic procs are independent of once-only teaching notices an
  e.destroy();
 });
 
-test('simultaneous source relics, Collector delivery, actual rescue and practice ability emit real receipts',()=>{
+// Retired (artifacts removed, docs/inscriptions.md): relic activation tested artifact effects, which no longer apply.
+test.skip('simultaneous source relics, Collector delivery, actual rescue and practice ability emit real receipts',()=>{
  const e=flight(['sunheart-engine','overflow-coil','dawn-loom','sunspool']);e.wisp.cooldown=5;pick(e,{kind:'cache'});
  let events=e.getState().activationEvents;assert.ok(events.some(event=>event.source==='sunheart-engine'&&event.outcome.recovery>0));
  assert.ok(events.some(event=>event.source==='overflow-coil'&&event.outcome.recovery>0));assert.ok(events.some(event=>event.source==='dawn-loom'&&event.outcome.reveal>0));

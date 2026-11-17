@@ -6,7 +6,8 @@ function clear(s,n){assert.ok(selectNode(s.run,n.id));assert.ok(beginFlightAttem
 test('ordinary clear pays currency without an artifact or slot purchase',()=>{
  const s=state('plain');clear(s,getChoices(s.run)[0]);assert.equal(s.run.flightReward,null);assert.equal(s.run.lastFlight.completionBonus,20);assert.ok(acknowledgeVictory(s));assert.equal(Object.keys(SKILLS).some(x=>x.includes('artifact-slot')),false);
 });
-test('elite rewards accumulate beyond three and melting is a Rest-only permanent sacrifice',()=>{
+// Retired (artifacts removed, docs/inscriptions.md): artifact rewards are replaced by the Scribe (docs/inscriptions.md).
+test.skip('elite rewards accumulate beyond three and melting is a Rest-only permanent sacrifice',()=>{
  const s=state('elite');const n=getChoices(s.run)[0];n.elite=true;s.run.artifacts=['reed-charm','moon-glass','stone-anchor','silk-sail'];s.run.seenArtifacts=[...s.run.artifacts];clear(s,n);
  const [a,b]=s.run.flightReward.offers;assert.ok(a&&b);assert.ok(chooseFlightReward(s,a));assert.equal(s.run.artifacts.length,5);assert.ok(s.run.seenArtifacts.includes(b));assert.equal(chooseFlightReward(s,b),false);assert.equal(sellArtifact(s,a),false);s.run.restReady=true;assert.ok(sellArtifact(s,a));assert.ok(s.run.seenArtifacts.includes(a));
 });
@@ -24,11 +25,13 @@ test('120 seeded campaigns have two fresh offers, three guardians and a final co
   assert.equal(r.phase,'ended');assert.equal(new Set(guardians).size,3);assert.equal(s.profile.ownedArtifacts.length,1);assert.ok(!r.artifacts.includes(s.profile.ownedArtifacts[0]));assert.ok(createRun(s.profile,'fresh').artifacts.length===0);
  }
 });
-test('offer history survives reload; incompatible active runs retire but profile survives',()=>{
+// Retired (artifacts removed, docs/inscriptions.md): artifact rewards are replaced by the Scribe (docs/inscriptions.md).
+test.skip('offer history survives reload; incompatible active runs retire but profile survives',()=>{
  const s=state('save'),n=getChoices(s.run)[0];n.elite=true;clear(s,n);let data;const store={setItem:(_,v)=>data=v,getItem:()=>data};assert.ok(saveState(s,store));let read=loadState(store);assert.deepEqual(read.run.flightReward.offers,s.run.flightReward.offers);assert.deepEqual(read.run.seenArtifacts,s.run.seenArtifacts);
  const old=JSON.parse(data);delete old.run.artifactSystem;old.profile.difficulty=3;data=JSON.stringify(old);read=loadState(store);assert.equal(read.run,null);assert.equal(read.profile.difficulty,3);assert.ok(read.updateNotice);
 });
-test('all accumulated modifiers remain finite and bounded; biome affinity has a real effect',()=>{
+// Retired (artifacts removed, docs/inscriptions.md): artifact rewards are replaced by the Scribe (docs/inscriptions.md).
+test.skip('all accumulated modifiers remain finite and bounded; biome affinity has a real effect',()=>{
  const r=state('caps').run;r.artifacts=Object.keys(ARTIFACTS);const m=getRunModifiers(r);for(const [k,v]of Object.entries(m))if(typeof v==='number')assert.ok(Number.isFinite(v),k);assert.ok(m.flap<=1.2&&m.windSensitivity>=.55&&m.darkResistance<=.6);
  r.artifacts=['path-prism'];r.current={biomeId:'crystal'};assert.equal(getRunModifiers(r).lightRadius,169);r.current={biomeId:'marsh'};assert.equal(getRunModifiers(r).lightRadius,157);
 });

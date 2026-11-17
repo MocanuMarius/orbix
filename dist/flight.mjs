@@ -28,7 +28,7 @@ import {EXTRA_COURSES} from './world-expansion.mjs?v=guide-clarity-1';
 import {BIOME_COURSES} from './biome-courses.mjs?v=guide-clarity-1';
 import {BiomeDynamics} from './biome-dynamics.mjs?v=guide-clarity-1';
 import {condenseGlow,packExitReserve} from './condensed-glow.mjs?v=guide-clarity-1';
-import {syncFlightEngine,raiseFlightEngine,stepFlightEngine,noteFlightFlash,packFlightEngine} from './card-engine-flight.mjs?v=guide-clarity-1';
+import {syncFlightEngine,raiseFlightEngine,stepFlightEngine,stepFlightInscriptions,noteFlightFlash,packFlightEngine} from './card-engine-flight.mjs?v=guide-clarity-1';
 import {ensureGlowBudget,shapeExpeditionSupply,trimSurplusFuel} from './glow-budget.mjs?v=guide-clarity-1';
 import {balanceSparkSupply} from './spark-supply.mjs?v=guide-clarity-1';
 import {installDuskSparks} from './dusk-sparks.mjs?v=guide-clarity-1';
@@ -855,7 +855,7 @@ export class WispFlight {
     this.mod = { gravity: 1, flap: 1, speed: 1, attract: 1,
       boostCooldown: 1, boostDuration: 1, reward: 1, cacheFuelBonus: 0,
       warmCore: false, windSensitivity: 1, flapCost: 1, steady: false, ...options.modifiers };
-    this.cardExecution=this.mod.cardExecution?.cards?.some(Boolean)?createCardExecution(this.mod.cardExecution):null;
+    this.cardExecution=(this.mod.cardExecution?.cards?.some(Boolean)||this.mod.cardExecution?.inscriptions?.some(Boolean))?createCardExecution(this.mod.cardExecution):null;
     this.cardChargeLedger={...getCardCharges(this.cardExecution)};
     this.cardExecutions=0;
     this.cardRowTrace=null;this.cardRowSequence=0;this.cardWatchlightUsed=false;this.cardLastAcceptedLift=null;
@@ -1515,6 +1515,8 @@ export class WispFlight {
     const liveReceipt=Object.freeze({...receipt,restoredSparks:gain/CARD_UNIT});
     if(receipt.steps.some(step=>step.success&&step.operation!=='replay-row'))this.cardRowTrace=liveReceipt;
     this.flame+=gain;this.flameRestored+=gain;
+    // Brimful: Sparks a Brimful card gained above the Meter become Stored Sparks (never boosted again).
+    if(receipt.brimful>0){const over=Math.floor(Math.min(receipt.brimful,Math.max(0,receipt.sparks-gain/CARD_UNIT))+1e-9);if(over>0)this.resonanceStored+=over;}
     if(this.tutorial&&this.mod.practiceCards&&kind==='wave-crossing'&&gain>0)this.tutorial.harvestPaid=true;
     this.resonanceStored+=receipt.stored;
     if(receipt.recoverySeconds>0){
@@ -1566,7 +1568,7 @@ export class WispFlight {
     next.executions = executions;
     next.eventSequence=this.cardExecution?.eventSequence||this.cardRowSequence;
     next.lastTrace=this.cardRowTrace;
-    this.cardExecution = next.cards.some(Boolean) ? next : null;
+    this.cardExecution = (next.cards.some(Boolean)||next.inscriptions?.some(Boolean)) ? next : null;
     syncFlightEngine(this);
     this.mod = { ...this.mod, ...modifiers };
     this.syncCollectors();
@@ -2268,6 +2270,7 @@ export class WispFlight {
     const engineSkims=this.cardEngine?this.edgingPulse.triggerCount:null;
     this.edgingPulse.update(dt, nearbyObstacles);
     if(this.cardEngine)stepFlightEngine(this,engineSkims);
+    stepFlightInscriptions(this);
     // Sense and passive sight widen steady light; they do not secretly emit
     // harvesting fronts. Explicit relic flashes enter through revealFromPickup.
     this.luminanceWaves.update(dt);

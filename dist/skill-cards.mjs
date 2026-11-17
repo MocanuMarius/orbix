@@ -1,4 +1,5 @@
 /** Small, serializable skills-as-cards pilot. Printed Sparks use the existing .3 display scale. */
+import {getInscription, slotInscriptionId, hollowBonus, lodestoneBonus, emberBedStored, cleanSlotInscriptions, countInscription} from "./inscriptions.mjs?v=guide-clarity-1";
 export const CARD_SYSTEM = "cards-v1";
 export const CARD_UNIT = 10 / 3;
 import {CARD_CATALOG,CARD_DROP_WEIGHTS} from './card-catalog.mjs?v=guide-clarity-1';
@@ -826,6 +827,7 @@ export function createCardExecution(snapshot) {
         ? snapshot
         : snapshot?.cards || snapshot?.mountedCards || [],
     ),
+    ...(Array.isArray(snapshot?.inscriptions) ? { inscriptions: clone(snapshot.inscriptions) } : {}),
     executions: 0,
     eventSequence: 0,
   };
@@ -886,9 +888,19 @@ export function getCardRowRule(def, card) {
   return rules[def?.kind] || null;
 }
 export function hasCardRowEvent(runtime, kind) {
+  if (runtime?.inscriptions && inscriptionHearsEvent(runtime, kind)) return true;
   return getEffectiveCardSources(runtime).some(({def,source}) => {
     const row=getCardRowRule(def,source);
     return def.tallyEvent === kind || (row && (row.event===kind || (row.event==='*' && row.operation==='add-sparks')));
+  });
+}
+/** Inscriptions that make a slot answer an event: "also fires on ..." (card here) and Hollow's Collect (empty slot). */
+function inscriptionHearsEvent(runtime, kind) {
+  const cards = runtime.cards || [];
+  return runtime.inscriptions.some((entry, slot) => { const ins = getInscription(entry?.id);
+    if (!ins) return false;
+    if (ins.also === kind) return !!cards[slot];
+    return ins.id === 'hollow' && kind === CARD_ROW_EVENTS.body && !cards[slot];
   });
 }
 export function matchesRowCondition(when = {}, event, pass, slot, lastOccupied) {
@@ -1062,6 +1074,7 @@ export function resolveCardRow(runtime, event = {}) {
     }
     return { increase, boosted: [...boosted].sort((a, b) => a - b), byKind, any: Object.values(increase).some(value => value > 0) };
   };
+  const firedSlots = new Set(), brimfulSlots = new Set(), standalone = { sparks: 0, stored: 0 };
   let replayRequested = false, productive = false;
   for (let pass = 1; pass <= (replayRequested && productive ? 2 : 1); pass++) {
     let payers = 0, lastPayout = 0, lastSparkSlot = null;
@@ -1075,7 +1088,7 @@ export function resolveCardRow(runtime, event = {}) {
       const source = live.get(target?.instanceId);
       const creditSlot = copy ? slot + 1 : slot;
       receipt.slotVisits++;
-      const repeats = (copy && ownDef.kind === "echo" ? Math.max(1,integer(ownDef.repeatCount || 1,CARD_ROW_LIMITS.repeats)) : 1) * (isNextToKeystone(topology, slot) ? 2 : 1);
+      const repeats = (copy && ownDef.kind === "echo" ? Math.max(1,integer(ownDef.repeatCount || 1,CARD_ROW_LIMITS.repeats)) : 1) * (isNextToKeystone(topology, slot) ? 2 : 1) * (slotInscriptionId(runtime, creditSlot) === "twin-mark" ? 2 : 1);
       for (let repeatIndex = 0; repeatIndex < repeats; repeatIndex++) {
       const subtotal = total("sparks", pass), futureSubtotal = total("futureCapacity", pass);
       const step = { eventId: receipt.event.id, eventKind: kind, pass, slot, repeatIndex, creditSlot,
@@ -1089,7 +1102,12 @@ export function resolveCardRow(runtime, event = {}) {
         chargesAfter: Number.isFinite(source?.charges)?source.charges:null,
         success: false, skipReason: null };
       receipt.steps.push(step);
-      if (!ownDef) { step.skipReason = "empty-slot";continue; }
+      if (!ownDef) {
+        step.skipReason = "empty-slot";
+        const hollow = kind === CARD_ROW_EVENTS.body ? hollowBonus(runtime, slot, false) : 0;
+        if (hollow > 0) { standalone.sparks += hollow; step.amount += hollow; step.skipReason = null; step.operation = "inscription"; step.success = true; receipt.executions++; }
+        continue;
+      }
       if (!def || (copy && (!def.copyable || (ownDef.kind === "echo" && (def.kind === "capacity" || def.passive))))) {
         step.skipReason = "incompatible-neighbor";continue;
       }
@@ -1106,17 +1124,24 @@ export function resolveCardRow(runtime, event = {}) {
         if (def.charges) source.charges--;
         receipt.executions++;productive = true;step.success = true;
         if (ledgerCards[creditSlot]) ledgerCards[creditSlot].fired++;
+        firedSlots.add(creditSlot);if (insId === "brimful") brimfulSlots.add(creditSlot);
       };
       const wildcard = (rule?.event === "*" || (windOn && rule)) && (rule.operation === "multiply"
         ? kind !== CARD_ROW_EVENTS.victory
         : ![CARD_ROW_EVENTS.victory,CARD_ROW_EVENTS.clear,CARD_ROW_EVENTS.attach].includes(kind));
-      if (rule && (rule.event === kind || wildcard) && matchesRowCondition(rule.when,event,pass,slot,lastOccupied) && matchesRowShape(rule.when,topology,slot)) {
+      const insId = slotInscriptionId(runtime, creditSlot), insDef = getInscription(insId);
+      const alsoHeard = !!rule && rule.operation !== "multiply" && !!insDef?.also && insDef.also === kind;
+      const mirrored = !!rule && rule.operation !== "multiply" && insId === "mirror" && firedSlots.has(creditSlot - 1);
+      if (rule && (rule.event === kind || wildcard || alsoHeard || mirrored) && matchesRowCondition(rule.when,event,pass,slot,lastOccupied) && matchesRowShape(rule.when,topology,slot)) {
       const operation = rule.operation;
       const amount = Math.max(0,positionAmount(rule,topology,slot,Number(pass === 2 && rule.replayAmount !== undefined ? rule.replayAmount : rule.amount) || 0));
       const payout = operation === "add-last-payout" ? lastPayout : amount;
       if ((operation === "add-sparks" || operation === "add-last-payout") && payout > 0 && payers >= (Number(rule.minimumEarlierPayers)||0)) {
         step.operation = operation;succeed();
         pay("sparks", payout);lastPayout = payout;payers++;receipt.payerActions++;
+        // Inscriptions: Gilded (+2 each firing on this slot) and Lodestone on a neighbouring slot (+1 each). Boosts to the right see them.
+        const extra = (insDef?.id === "gilded" ? insDef.bonus : 0) + lodestoneBonus(runtime, creditSlot);
+        if (extra > 0) pay("sparks", extra);
         if (pass === 1 && event.firstCrossing && rule.storedFirstCrossing) {
           const stored = Math.max(0,Number(rule.storedFirstCrossing)||0);
           if (stored > 0) pay("stored", stored);
@@ -1174,6 +1199,7 @@ export function resolveCardRow(runtime, event = {}) {
       step.chargesAfter = Number.isFinite(source?.charges)?source.charges:null;
       }
     }
+    if (pass === 1 && kind === CARD_ROW_EVENTS.clear) standalone.stored += emberBedStored(runtime, topology);
     // Whole Sparks (2026-11-17): each firing's Spark total rounds DOWN once, at its end.
     // The rounding loss comes off the last card that changed that total, so the per-card
     // effective amounts still add up; the unrounded figures stay in sparksExact.
@@ -1208,6 +1234,9 @@ export function resolveCardRow(runtime, event = {}) {
     card.boostedBy = [...new Set(card.boostedBy)];
     for (const rewardKind of CARD_REWARD_KINDS) card.boostedByKind[rewardKind] = [...new Set(card.boostedByKind[rewardKind])];
   }
+  // Standalone Inscriptions on empty slots (Hollow, Ember Bed) have no card to credit: they join the totals here.
+  receipt.sparks += standalone.sparks;receipt.sparksExact += standalone.sparks;receipt.stored += standalone.stored;
+  receipt.brimful = [...brimfulSlots].reduce((sum, slot) => sum + (ledgerCards[slot]?.effective.sparks || 0), 0);
   // Counting cards (batch 2) count the event once it is resolved, so a payout never includes its own event.
   for (let slot = 0; slot < cards.length; slot++) if (cards[slot] && SKILL_CARDS[cards[slot].cardId]?.tallyEvent === kind && !(fromSlot >= 0 && slot <= fromSlot)) cards[slot].tally = integer(cards[slot].tally) + 1;
   receipt.cards = ledgerCards;
@@ -1314,7 +1343,10 @@ export function getCardModifiers(run) {
   m.dreamWake = 3;
   m.dreamSight = false;
   m.cardPackingRemainder = integer(run.cardPackingRemainder, 3);
-  m.cardExecution = { cards: clone(run.mountedCards || []) };
+  m.cardExecution = { cards: clone(run.mountedCards || []), inscriptions: clone(cleanSlotInscriptions({ mountedCards: run.mountedCards || [], slotInscriptions: run.slotInscriptions })) };
+  // Whetted: the card here starts every flight with 1 extra use (the flight's ledger only ever lowers a card's uses, so it is free and never kept).
+  m.cardExecution.cards.forEach((card, slot) => { if (card && Number.isFinite(card.charges) && slotInscriptionId(m.cardExecution, slot) === "whetted") card.charges = Math.min(getCardChargeCapacity(card) + 1, integer(card.charges) + 1); });
+  m.cardLuminancePercent += countInscription(m.cardExecution, "lantern") * (getInscription("lantern").percent || 0);
   // Always-on bonuses are strengthened by Boosts to their right (Boost rules, details A–F).
   const boost = getCardBoostFactors(run);
   for (const { def: d, source, index } of getEffectiveCardSources(run)) {

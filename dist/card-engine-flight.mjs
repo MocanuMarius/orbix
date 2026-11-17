@@ -106,6 +106,18 @@ export function stepFlightEngine(e, skimsBefore = null) {
   if (skimsBefore !== null && (e.edgingPulse?.triggerCount || 0) > skimsBefore) e.cardEngine.raise('skim', {}, e.time);
 }
 
+/** Bell (Inscription): a real light Pulse every 6 s of flight time, however many Bells. Runs only while the world is live. */
+export function stepFlightInscriptions(e) {
+  const ins = e.cardExecution?.inscriptions;
+  if (!ins || !ins.some(entry => entry?.id === 'bell')) return;
+  const live2 = e.running && !e.paused && e.alive && !e.finished && !e.destroyed && !e.dying && !e.completing && !e.tutorial && !(e.dream && e.dream.phase !== 'done');
+  if (!live2) return;
+  if (!(e.inscriptionBellAt >= 0)) e.inscriptionBellAt = e.time + 6;
+  if (e.time + 1e-9 < e.inscriptionBellAt) return;
+  e.inscriptionBellAt = e.time + 6;
+  e.radiateLight?.({once: true, reveal: true, source: 'inscription-bell', sourceKind: 'card', color: '#d9f0dc'});
+}
+
 /** A Flash picked up in flight (a natural Flash: its end is heard by the whole Chain). */
 export function noteFlightFlash(e) { if (e.cardEngine) e.cardEngineFlash = {slot: -1}; }
 

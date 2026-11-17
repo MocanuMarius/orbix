@@ -10,7 +10,8 @@ const ready=(elite=false,practice=false)=>{
  assert.ok(selectNode(r,node.id));assert.ok(beginFlightAttempt(r));
  assert.ok(finishFlight(r,{success:true,flame:40,collected:4}));return s;
 };
-test('ordinary clears offer currency without artifacts; elite choices cannot be melted',()=>{
+// Retired (artifacts removed, docs/inscriptions.md): artifact reward screen is replaced by the Scribe.
+test.skip('ordinary clears offer currency without artifacts; elite choices cannot be melted',()=>{
  const ordinary=ready();assert.equal(ordinary.run.flightReward,null);assert.equal(ordinary.run.victoryPending,false);assert.equal(flightRewardMarkup(ordinary),'');assert.equal(ordinary.run.lastFlight.completionBonus,15);
  for(let seed=0;seed<60;seed++){
   const s=newState();s.run=createRun(s.profile,`pair-${seed}`);const r=s.run;r.stats.flights=1;
@@ -19,25 +20,29 @@ test('ordinary clears offer currency without artifacts; elite choices cannot be 
   const before=r.condensedGlow,fuel=r.flame;assert.equal(getFlightRewardMeltValue(r.flightReward),0);assert.equal(chooseFlightReward(s,'melt'),false);assert.equal(r.condensedGlow,before);assert.equal(r.flame,fuel);
  }
 });
-test('taking an artifact appends without replacing owned effects and cannot be repeated',()=>{
+// Retired (artifacts removed, docs/inscriptions.md): artifact reward screen is replaced by the Scribe.
+test.skip('taking an artifact appends without replacing owned effects and cannot be repeated',()=>{
  const s=ready(true),r=s.run;r.artifacts=['glow-wick','quiet-cinder','flash-stone'];r.flightReward.offers=['glass-lantern','echo-bell'];
  assert.ok(chooseFlightReward(s,'glass-lantern'));assert.deepEqual(r.artifacts,['glow-wick','quiet-cinder','flash-stone','glass-lantern']);assert.equal(chooseFlightReward(s,'echo-bell'),false);assert.equal(chooseFlightReward(s,'glass-lantern'),false);
 });
-test('practice artifacts do not alter profile; final guardian unlocks a future reward',()=>{
+// Retired (artifacts removed, docs/inscriptions.md): artifact reward screen is replaced by the Scribe.
+test.skip('practice artifacts do not alter profile; final guardian unlocks a future reward',()=>{
  const s=ready(true,true),profile=structuredClone(s.profile);s.run.flightReward.offers=['glass-lantern','echo-bell'];
  assert.ok(chooseFlightReward(s,'glass-lantern'));assert.deepEqual(s.profile,profile);
  const boss=ready(true);boss.run.flightReward={offers:['sunheart-engine','echo-bell'],permanent:true,claimed:false};const owned=[...boss.run.artifacts];
  assert.equal(chooseFlightReward(boss,'melt'),false);assert.ok(chooseFlightReward(boss,'sunheart-engine'));assert.ok(boss.profile.ownedArtifacts.includes('sunheart-engine'));assert.deepEqual(boss.run.artifacts,owned);
  const next=createRun(boss.profile,'next');assert.equal(next.artifacts.includes('sunheart-engine'),false);
 });
-test('reward shows two readable choices and no slot controls; claimed effect remains inspectable',()=>{
+// Retired (artifacts removed, docs/inscriptions.md): artifact reward screen is replaced by the Scribe.
+test.skip('reward shows two readable choices and no slot controls; claimed effect remains inspectable',()=>{
  const s=ready(true);s.run.flightReward.offers=['echo-bell','glass-lantern'];s.run.companions=['collector'];
  const options={artifactArt:id=>`<svg data-artifact="${id}"></svg>`};
  const before=flightRewardMarkup(s,options);assert.equal((before.match(/<article /g)||[]).length,2);assert.match(before,/Collector delivers a Spark/);assert.match(before,/Choose one/);assert.doesNotMatch(before,/data-reward-slot|Equip and replace|SPARKS RECOVERED|Packed Light/);
  assert.equal((before.match(/data-action="reward-artifact-details"/g)||[]).length,2);
  assert.ok(chooseFlightReward(s,'echo-bell'));const after=flightRewardMarkup(s,options);assert.equal((after.match(/<article /g)||[]).length,1);assert.match(after,/data-acquired-presentation="horizontal"/);assert.match(after,/relic acquired/);assert.match(after,/data-action="reward-artifact-details" data-id="echo-bell"/);assert.match(after,/victory-next/);
 });
-test('claimed relic presentation preserves choice, discovery and generic clear flows',()=>{
+// Retired (artifacts removed, docs/inscriptions.md): artifact reward screen is replaced by the Scribe.
+test.skip('claimed relic presentation preserves choice, discovery and generic clear flows',()=>{
  const s=ready(true);s.run.flightReward.offers=['echo-bell','glass-lantern'];
  assert.doesNotMatch(flightRewardMarkup(s),/data-acquired-presentation/);
  assert.ok(chooseFlightReward(s,'echo-bell'));
@@ -47,7 +52,8 @@ test('claimed relic presentation preserves choice, discovery and generic clear f
  s.run.lastFlight.elite=true;s.run.flightReward={offers:[],claimed:true};assert.match(flightRewardMarkup(s),/Passage secured/);assert.doesNotMatch(flightRewardMarkup(s),/data-acquired-presentation/);
  s.run.flightReward={offers:[],chosen:'echo-bell',claimed:false};assert.doesNotMatch(flightRewardMarkup(s),/data-acquired-presentation/);
 });
-test('claimed relic actions follow actual build availability',()=>{
+// Retired (artifacts removed, docs/inscriptions.md): artifact reward screen is replaced by the Scribe.
+test.skip('claimed relic actions follow actual build availability',()=>{
  const s=ready(true);assert.ok(chooseFlightReward(s,s.run.flightReward.offers[0]));
  const cards=flightRewardMarkup(s,{deckAvailable:true,skillsAvailable:false,upgradeCount:4});
  assert.match(cards,/data-action="cards">Deck/);assert.doesNotMatch(cards,/data-action="skills"|>Upgrade</);
@@ -55,7 +61,8 @@ test('claimed relic actions follow actual build availability',()=>{
  const upgrade=flightRewardMarkup(s,{skillsAvailable:true,upgradeCount:2});assert.match(upgrade,/data-action="skills">Upgrade/);
  const locked=flightRewardMarkup(s,{skillsAvailable:false,deckAvailable:false});assert.match(locked,/acquired-no-build/);assert.doesNotMatch(locked,/data-action="skills"|data-action="cards"/);assert.match(locked,/Full rules|victory-next/);
 });
-test('claimed relic boon and receipt reflect real awards and handle no bonus',()=>{
+// Retired (artifacts removed, docs/inscriptions.md): artifact reward screen is replaced by the Scribe.
+test.skip('claimed relic boon and receipt reflect real awards and handle no bonus',()=>{
  const s=ready(true);assert.ok(chooseFlightReward(s,s.run.flightReward.offers[0]));
  s.run.lastFlight={elite:true,routeBonus:{id:'wild-circuit'},cardClearReceipt:{}};
  const empty=flightRewardMarkup(s);assert.match(empty,/acquired-no-boon/);assert.doesNotMatch(empty,/acquired-boon"|data-action="reward-earnings"|Wild Circuit/);

@@ -11,6 +11,7 @@ import {dreamEye} from './dream.mjs?v=guide-clarity-1';
 import {FLASH_BASE_DURATION} from './pickups.mjs?v=guide-clarity-1';
 const esc = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 export const CARD_TERMS = Object.freeze({
+  inscription: ['Inscription', 'An effect written on a Chain slot, not on a card. It stays on the slot when cards move, swap or leave. Some change the card on that slot; some work on any slot, even an empty one. Get one from the Scribe after an Elite or Guardian. One per slot; writing again replaces it.'],
   round: ['Round', 'One flight through a passage, ending in clear rewards or a lost heart.'],
   map: ['Map', 'A route of Rounds and Rest stops, ending at a Guardian.'],
   game: ['Game', 'One journey through 3 Maps, ending at the final Guardian or when you run out of hearts.'],
@@ -129,7 +130,7 @@ const keywords = [
   ['Watchlight', 'watchlight'], ['Devour(?:s|ed)?', 'devour'], ['Dream', 'dream'], ['Rhythm(?: phrase)?', 'rhythm'], ['Clusters?', 'cluster'], ['Collector charge|full charge|¼ charge|charge|ring', 'ring'], ['Collector', 'collector'], ['Flash(?: Powerups?)?', 'flash'], ['Caches?', 'cache'],
   ['Spark Meter|meter', 'meter'], ['Sparks?', 'spark'], ['wisps?', 'wisp'], ['Lifts?', 'lift'], ['Rest', 'rest'], ['Grow', 'grow'],
   ['Shared uses|Share its (?:remaining )?uses|Copies share uses', 'shared'], ['remaining (?:uses|charges)|uses?', 'uses'], ['pack(?:ing|ed|s)?', 'packing'], ['next card|next slot|card to the right', 'next'],
-  ["chain(?:’s|'s)?", 'pass'], ['Slots?', 'slot'], ['Repeats?|Borrow|Acts as', 'copy'],
+  ["chain(?:’s|'s)?", 'pass'], ['Inscriptions?', 'inscription'], ['Slots?', 'slot'], ['Repeats?|Borrow|Acts as', 'copy'],
   ['Rounds?', 'round'], ['Maps?', 'map'], ['Game', 'game'],
 ];
 const keywordPattern = new RegExp(`\\b(${keywords.map(([pattern]) => pattern).join('|')})\\b`, 'gi');

@@ -34,7 +34,7 @@ export const CHEST_REWARDS=Object.freeze([
 ].map(item=>Object.freeze({...item,artifactIds:[item.artifactIds||[]].flat()})));
 export function chestRewardPair(run,key,{validSkill,validArtifact,maxLives,growthAvailable}){
  const history=new Set(run.chestRewardHistory||[]);
- const eligible=CHEST_REWARDS.filter(item=>(!item.skillId||validSkill(item.skillId))&&item.artifactIds.every(validArtifact)&&(!item.needsHeart||run.lives<maxLives)&&(!item.growth||growthAvailable));
+ const eligible=CHEST_REWARDS.filter(item=>(!item.skillId||validSkill(item.skillId))&&!item.artifactIds.length&&(!item.needsHeart||run.lives<maxLives)&&(!item.growth||growthAvailable));
  const unseen=eligible.filter(item=>!history.has(item.id));
  const pool=unseen.length>=2?unseen:eligible;
  let seed=2166136261;for(const ch of key)seed=Math.imul(seed^ch.charCodeAt(0),16777619);

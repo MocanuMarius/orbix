@@ -1,6 +1,7 @@
 // A disposable deck for phone inspection. Never reads or writes a player save.
 import { newState, createRun, advanceMap, getSupportChoices, getChoices, selectNode, beginFlightAttempt, markFlightAttemptStarted, finishFlight, settleCheckpoint } from './model.mjs?v=guide-clarity-1';
 import { makeSkillCard } from './skill-cards.mjs?v=guide-clarity-1';
+import { cleanSlotInscriptions, writeInscription } from './inscriptions.mjs?v=guide-clarity-1';
 
 export function prepareCardInspectorReward(run, cardId = 'harvest-rare') {
   if (run.cardReward && !run.cardReward.uiAcknowledged) return;
@@ -168,5 +169,17 @@ export function createCardInspectorState(params = new URLSearchParams()) {
     run.reserveCards = [];
     delete run.cardReward;
   }
+  // Dev only: ?mock=cards&chain=...&slots=0:gilded,2:hollow writes Inscriptions on slots (nothing is saved).
+  if (params.get('slots')) applyInscriptionSlots(run, params.get('slots'));
   return state;
+}
+
+/** `0:gilded,2:hollow` → Inscriptions on those slots; unknown ids and slots are ignored. */
+export function applyInscriptionSlots(run, text) {
+  cleanSlotInscriptions(run);
+  for (const part of String(text || '').split(',')) {
+    const [index, id] = part.split(':');
+    writeInscription(run, Number(index), (id || '').trim());
+  }
+  return run.slotInscriptions;
 }

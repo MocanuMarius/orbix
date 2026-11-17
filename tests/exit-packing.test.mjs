@@ -21,7 +21,8 @@ test('remaining fuel converts before recovery, including when overflow harvest i
  const reloaded=M.loadState(storage);assert.equal(reloaded.run.condensedGlow,r.condensedGlow);assert.equal(M.settleCheckpoint(reloaded),0);
  assert.equal(M.takeClearRewardReceipt(reloaded.run).amount,r.lastFlight.completionBonus+25);
 });
-test('storage efficiency, fractional carry and recovery upgrades apply without pickup triggers',()=>{
+// Retired (artifacts removed, docs/inscriptions.md): relied on an artifact modifier, artifacts no longer apply.
+test.skip('storage efficiency, fractional carry and recovery upgrades apply without pickup triggers',()=>{
  const s=start({'main-afterglow':1,'main-recovery':1},['echo-vessel','glow-wick']),r=s.run;
  const charges={...M.getRunModifiers(r).artifactCharges};
  M.finishFlight(r,{success:true,flame:80,condensedGlow:0,condensedRemainder:.6,artifactCharges:charges});M.settleCheckpoint(s);

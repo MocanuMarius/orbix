@@ -47,7 +47,7 @@ test('exhausted Rest offers a no-grant Continue and preserves preparation, selle
  assert.equal(r.lifeRestClaimed,false);assert.equal(r.lastRest.boon,'skip');assert.equal(r.lastRest.heartsRestored,0);assert.equal(r.lastRest.sparksRestored,0);
  assert.equal(r.restVisits.filter(v=>v.nodeId===camp.id).length,1);assert.equal(M.resolveSupport(r,2,s.profile),false,'double tap cannot complete twice');
  const route=M.getChoices(r);assert.equal(route.length,1);assert.ok(camp.nextIds.includes(route[0].id));assert.ok(canDreamAt(r,route[0]));
- const prepared=view(s);assert.match(prepared,/Ready to continue/);assert.match(prepared,/data-action="skills"/);assert.match(prepared,/data-action="artifacts"/);assert.match(prepared,/Enter Dream/);
+ const prepared=view(s);assert.match(prepared,/Ready to continue/);assert.match(prepared,/data-action="skills"/);assert.doesNotMatch(prepared,/data-action="artifacts"/,"Rest no longer shows an artifact Collection (artifacts retired, docs/inscriptions.md)");assert.match(prepared,/Enter Dream/);
  assert.doesNotMatch(prepared,/Hearts restored|Sparks refilled|Capacity grown|✓ CHOSEN/);
  assert.ok(M.canBuyCheckpointSkills(s));assert.ok(M.canSellArtifact(s,'glow-wick'));assert.ok(M.sellArtifact(s,'glow-wick'));assert.equal(M.sellArtifact(s,'glow-wick'),false);
  s=reload(s);assert.equal(s.run.lastRest.boon,'skip');assert.match(view(s),/Ready to continue/);assert.equal(M.getChoices(s.run).length,1);
