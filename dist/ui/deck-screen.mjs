@@ -62,7 +62,7 @@ function termBtn(kind, {icon = true, cls = '', glossary = true} = {}) {
   const help = glossary && term ? `data-card-term="${esc(term)}" aria-haspopup="dialog" aria-label="${esc(triggerName(kind))}: what it means"` : `aria-label="${esc(triggerName(kind))}"`;
   return `<button type="button" class="dk2-btn dk22-term ${cls}" data-term="${esc(kind)}" ${help}>${icon ? triggerIcon(kind, 16) : ''}<span class="dk22-word">${esc(triggerName(kind))}</span></button>`;
 }
-/** A Trigger chip as a glossary keyword (chips that are not a flight event too: Card Pulse, Pack, Always on...). */
+/** A Trigger chip as a glossary keyword (chips that are not a flight event too: Card Pulse, Pack, Passive...). */
 
 /** The spoken chip: "Trigger: Collect. ", "Role: Boost. ", or nothing when the card shows no chip. */
 const chipWord = chip => chip?.label ? `${chip.kind === 'role' ? 'Role' : 'Trigger'}: ${chip.label}. ` : '';

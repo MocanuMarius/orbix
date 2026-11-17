@@ -53,7 +53,7 @@ export function whenOf(c) {
   if (rule?.event && TRIGGER_BY[rule.event]) return {kind: rule.event, text: TRIGGER_BY[rule.event].name};
   if (rule?.event === '*') return {text: 'Boost'};
   if (def?.kind === 'echo' || def?.kind === 'chameleon') return {text: 'Same as the card it repeats'};
-  if (def?.kind === 'refrain') return {text: 'Any Trigger, after a Bonus'};
+  if (def?.kind === 'refrain') return {text: 'Boost, after a Bonus'};
   return {text: 'Passive'};
 }
 
@@ -198,8 +198,8 @@ export function engineStats(row) {
 /** The chip a card carries ({id, label, condition}), from its catalog Trigger (card-rule-bands.mjs). */
 export const chipOf = c => getCardTrigger(c || {}, SKILL_CARDS[c?.cardId || c?.id] || {});
 /** How often each Trigger fires in a flight, in words, from the firing model of scripts/balance/simulate.mjs
- * (Collect 10, Pulse 6, Falling Lift 8 per 30 s flight: often; Delivery 4, Latch 3, Flash 3, Flash ends 3, Rhythm 4,
- * Overfill 2, skims 2 to 3, low Lifts a few: a few times; Save, Clear, Pack, Take-off: once). */
+ * (Collect 10, Pulse 6, Lift while falling 8 per 30 s flight: often; Delivery 4, Latch 3, Flash 3 (now under Collect), a Flash ending 3, Rhythm 4,
+ * Overfill 2, skims 2 to 3, low Lifts a few: a few times; Save, Finish, Pack, Take-off: once). */
 export const TRIGGER_BOOK = Object.freeze(DISPLAY_GROUPS.map(g => Object.freeze({id: g.id, group: g.group, label: g.label, kind: g.kind,
   does: g.does, often: g.often, term: GROUP_TERM[g.group]})));
 /** The Trigger collection for one run: every Trigger, with the player's own cards that use it (a tile per card

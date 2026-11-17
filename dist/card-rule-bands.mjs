@@ -14,17 +14,17 @@ export const CARD_TRIGGERS = Object.freeze({
   delivery: Object.freeze({id: 'delivery', label: 'Delivery', event: 'collector-delivery', meaning: 'Collector brings you a pickup.'}),
   latch: Object.freeze({id: 'latch', label: 'Latch', event: 'collector-attach', meaning: 'Collector grabs a missed pickup.'}),
   wave: Object.freeze({id: 'wave', label: 'Pulse', event: 'wave-crossing', meaning: 'A Pulse crosses a Spark you have not collected.'}),
-  flash: Object.freeze({id: 'flash', label: 'Flash', event: 'flash-pickup', meaning: 'You or Collector pick up Flash.'}),
-  'flash-ends': Object.freeze({id: 'flash-ends', label: 'Flash ends', event: 'flash-expiry', meaning: 'A Flash’s light runs out.'}),
-  'falling-lift': Object.freeze({id: 'falling-lift', label: 'Falling Lift', event: 'downbeat-lift', meaning: 'A paid Lift while falling, at least 0.75 s after your last Lift.'}),
+  flash: Object.freeze({id: 'flash', label: 'Collect', event: 'flash-pickup', meaning: 'Collect a Flash: you or Collector pick one up.'}),
+  'flash-ends': Object.freeze({id: 'flash-ends', label: 'When a Flash ends', event: 'flash-expiry', meaning: 'A Flash’s light runs out.'}),
+  'falling-lift': Object.freeze({id: 'falling-lift', label: 'Lift while falling', event: 'downbeat-lift', meaning: 'A paid Lift while falling, at least 0.75 s after your last Lift.'}),
   overfill: Object.freeze({id: 'overfill', label: 'Overfill', event: 'natural-overfill', meaning: 'A Spark brings more than your meter can hold.'}),
   rhythm: Object.freeze({id: 'rhythm', label: 'Rhythm', event: 'rhythm-phrase', meaning: 'Rhythm’s 3 even Lifts complete.'}),
   swipe: Object.freeze({id: 'swipe', label: 'Swipe', event: 'field-swipe', meaning: 'A Field Impulse swipe succeeds.'}),
   save: Object.freeze({id: 'save', label: 'Save', event: 'guard-rescue', meaning: 'Watchlight or Last Orbit stops a fatal crash.'}),
-  clear: Object.freeze({id: 'clear', label: 'Clear', event: 'flight-clear', meaning: 'You clear a flight.'}),
-  any: Object.freeze({id: 'any', label: 'Any Trigger', event: null, meaning: 'The card works with whatever Trigger fires the chain.'}),
-  next: Object.freeze({id: 'next', label: 'Next card', event: null, meaning: 'The card fires when the card to its right fires.'}),
-  'always-on': Object.freeze({id: 'always-on', label: 'Always on', event: null, meaning: 'The card works outside the chain, so order does not fire it. Boosts to its right still strengthen its bonus.'}),
+  clear: Object.freeze({id: 'clear', label: 'Finish', event: 'flight-clear', meaning: 'You clear a flight.'}),
+  any: Object.freeze({id: 'any', label: 'Boost', event: null, meaning: 'The card works with whatever Trigger fires the chain.'}),
+  next: Object.freeze({id: 'next', label: 'Repeat', event: null, meaning: 'The card fires when the card to its right fires.'}),
+  'always-on': Object.freeze({id: 'always-on', label: 'Passive', event: null, meaning: 'The card works outside the chain, so order does not fire it. Boosts to its right still strengthen its bonus.'}),
   rest: Object.freeze({id: 'rest', label: 'At Rest', event: null, meaning: 'A Rest card: it works from the Deck at Rest and never goes in the chain.'}),
   // Engine chips (v1.0-engine, docs/engine-cards.md). Heard through dist/card-engine.mjs, not the chain walker.
   'engine-pulse': Object.freeze({id: 'engine-pulse', label: 'Card Pulse', event: null, engine: true, meaning: 'A card to its left sends a Pulse.'}),
@@ -32,7 +32,7 @@ export const CARD_TRIGGERS = Object.freeze({
   'engine-any': Object.freeze({id: 'engine-any', label: 'Any event', event: null, engine: true, meaning: 'Any card event to its left: a Pulse, Sparks given, an Overfill or a Flash.'}),
   'engine-skim': Object.freeze({id: 'engine-skim', label: 'Skim', event: null, engine: true, meaning: 'You fly close to terrain until Proximity fills.'}),
   'engine-lift': Object.freeze({id: 'engine-lift', label: 'Low Lift', event: null, engine: true, meaning: 'You Lift while your meter is under a quarter.'}),
-  'engine-turn': Object.freeze({id: 'engine-turn', label: 'Each Turn', event: null, engine: true, meaning: 'An engine in your chain goes round once.'}),
+  'engine-turn': Object.freeze({id: 'engine-turn', label: 'Each time the engine goes round', event: null, engine: true, meaning: 'An engine in your chain goes round once.'}),
   timers: Object.freeze({id: 'timers', label: 'Timers', event: null, engine: true, meaning: 'It changes every Timer card in your chain.'}),
   pack: Object.freeze({id: 'pack', label: 'Pack', event: null, engine: true, meaning: 'You clear a flight and your spare Sparks are packed.'}),
   'take-off': Object.freeze({id: 'take-off', label: 'Take-off', event: null, engine: true, meaning: 'You start a flight.'}),
@@ -42,7 +42,7 @@ export const triggerArtKey = id => CARD_TRIGGERS[id]?.event || ({swipe: 'field-s
 const triggerForEvent = Object.freeze(Object.fromEntries(Object.values(CARD_TRIGGERS).filter(t => t.event).map(t => [t.event, t.id])));
 
 /** The chip a card shows: {id, label, condition}. Cards without catalog data fall back to
- * their row event (or "Always on" for cards outside the chain). */
+ * their row event (or "Passive" for cards outside the chain). */
 export function getCardTrigger(card = {}, definition = {}) {
   const values = {...definition, ...card};
   const bands = values.ruleBands || [];
@@ -70,7 +70,7 @@ const legacy = {
   'camp-extra': () => [condition('At Rest', 'rest'), effect('Take 2 different Rest actions'), note('1 use')],
   'camp-grow': (card, def) => [condition('At Rest · Grow', 'rest'), effect(`+${card.amount ?? def.amount ?? 3} max Sparks and a full meter`), note('3 Grows per journey')],
   'cache-handling': () => [condition('Passive', 'always-on'), effect('Collector fetches Caches: +12 Sparks each')],
-  'flash-handling': () => [condition('Flash', 'flash'), effect('+6 Sparks; Collector can fetch Flash')],
+  'flash-handling': () => [condition('Collect a Flash', 'flash'), effect('+6 Sparks; Collector can fetch Flash')],
   prism: card => [condition('Boost', 'any'), effect(`Every card before it ×${card.amount || 1.25}`)],
   crescendo: () => [condition('Boost', 'any'), effect('Double every card before it')],
   refrain: () => [condition('Boost', 'any'), effect('Encore: the chain fires once more')],

@@ -349,7 +349,7 @@ export function describeSkillCard(card) {
       effect = `Collect: +${amount} Sparks each time your wisp touches a Spark, Cluster, Cache or Dusk Spark already in the passage. Dusk drains up to 3 Sparks first. Collector deliveries, Pulses and pickups made by powers are not Collect. Card Sparks cannot be packed.`;
       break;
     case "capacity":
-      effect = `Always on: your meter holds ${amount} more Sparks while this card is in your chain. It does not refill the meter. Boosts to its right strengthen it; the meter never holds more than 100.`;
+      effect = `Passive: your meter holds ${amount} more Sparks while this card is in your chain. It does not refill the meter. Boosts to its right strengthen it; the meter never holds more than 100.`;
       break;
     case "packing":
       effect = "";
@@ -391,7 +391,7 @@ export function describeSkillCard(card) {
       break;
     case "flash-handling":
       effect =
-        "Flash: +6 Sparks for each Flash Handling in your chain (or copy of one) when either of you picks up Flash, and Collector can fetch Flash. Your wisp can always touch Flash directly.";
+        "Collect a Flash: +6 Sparks for each Flash Handling in your chain (or copy of one) when either of you picks up Flash, and Collector can fetch Flash. Your wisp can always touch Flash directly.";
       break;
     case "camp-extra":
       effect =
@@ -402,13 +402,13 @@ export function describeSkillCard(card) {
         `At Rest: Grow adds +${amount} max Sparks for this Growth Seed (each one you own adds its amount, up to +90 per Grow) and refills your meter once. It does not heal hearts. All Growth Seeds share 3 Grows per journey, and the meter never holds more than 100.`;
       break;
     case "prism":
-      effect = `Any Trigger: every card to its left gives ×${amount} Sparks and Collector time (never Stored Sparks or forever gains). Always-on cards to its left get ×${amount} on their bonus too.`;
+      effect = `Boost: every card to its left gives ×${amount} Sparks and Collector time (never Stored Sparks or forever gains). Passive cards to its left get ×${amount} on their bonus too.`;
       break;
     case "crescendo":
-      effect = "Any Trigger: doubles the Sparks and Collector time of every card to its left (never Stored Sparks or forever gains). Always-on cards to its left get double their bonus too.";
+      effect = "Boost: doubles the Sparks and Collector time of every card to its left (never Stored Sparks or forever gains). Passive cards to its left get double their bonus too.";
       break;
     case "refrain":
-      effect = "Any Trigger: Encore. After your chain fires and something worked, it fires once more from Slot 1 for the same Trigger. One Encore per Trigger, however many Refrains. Uses spent stay spent. No extra pickup or Pulse; a first-crossing Stored Spark comes only once.";
+      effect = "Boost: Encore. After your chain fires and something worked, it fires once more from Slot 1 for the same Trigger. One Encore per Trigger, however many Refrains. Uses spent stay spent. No extra pickup or Pulse; a first-crossing Stored Spark comes only once.";
       break;
     case "downbeat":
       effect = "Gain 2 flight Sparks when a paid manual Lift succeeds while descending, at least 0.75 seconds after the previous successful Lift. The first, free and Dream Lifts do not count.";
@@ -551,7 +551,7 @@ function effectiveCardSummary(kind, sources, cards) {
     'prism-wick': 'When a Flash’s light runs out, send one final Pulse. Each copy gives +3 Sparks from the same three uses; copies and Encores keep one final Pulse.',
     "proximity-range": `Proximity Pulses on. +${decimal(reach)}% of normal reach from ${count} ${count === 1 ? "card" : "cards"}. Chameleon can copy it; Echo cannot.`,
     packing: packingOutcome(packingWeight),
-    "flash-handling": `Flash: +${total} Sparks when your wisp or Collector picks up Flash. Collector makes one pickup.`,
+    "flash-handling": `Collect a Flash: +${total} Sparks when your wisp or Collector picks up Flash. Collector makes one pickup.`,
     "camp-grow": `Grow adds +${total} max Sparks and refills the meter once. All Growth Seeds share 3 Grows per journey.`,
     harvest: `+${total} Sparks when a Pulse crosses an uncollected fuel pickup already in the passage${matching.some((entry) => entry.def.stored) ? `; +${matching.reduce((sum, entry) => sum + (entry.def.stored || 0), 0)} Stored Sparks at the first crossing per Pulse` : ""}.`,
     guide: "One amber arrow shows when to Lift, even with extra copies.",

@@ -27,7 +27,7 @@ export const TIPS = Object.freeze([
  {id:'chain-order',context:'always',icon:'chain',headline:'Your Chain fires in order',text:'When a Trigger happens, your cards fire left to right.'},
  {id:'read-trigger',context:'always',icon:'chain',headline:'Read the Trigger first',text:'Each card shows its Trigger first: what makes it fire, like Collect or Pulse.'},
  {id:'luminance',context:'always',icon:'lantern',headline:'Luminance is your light',text:'Luminance is the radius of light around your wisp. It reveals nearby passage.'},
- {id:'flash-light',context:'always',icon:'flash',headline:'Flash lights the way',text:'A Flash is a triangular pickup that briefly lights your surroundings.'},
+ {id:'flash-light',context:'always',icon:'flash',headline:'Flash lights the way',text:'A Flash sends a Pulse every 2 seconds and lights like very high Luminance.'},
  {id:'dusk-drain',context:'always',icon:'dusk',headline:'Rose crescents drain',text:'A Dusk Spark drains up to 3 Sparks and dims your light for 4 seconds.'},
  {id:'spare-fuel',context:'always',icon:'jar',headline:'Spare fuel is saved',text:'Extra meter fuel is packed into Stored Sparks, during a Round and after a clear.'},
  {id:'rest-checkpoint',context:'always',icon:'camp',headline:'Rest is a checkpoint',text:'At Rest you choose an action and can improve your Deck.'},
@@ -56,7 +56,7 @@ export const TIPS = Object.freeze([
  {id:'pulse-uncollected',context:'trigger:pulse',icon:'pulse',headline:'Cross, then collect',text:'A Pulse crossing an uncollected Spark fires Pulse cards. The Spark stays; pick it up.'},
  {id:'overfill-two',context:'trigger:overfill',icon:'spark',headline:'One touch, two Triggers',text:'A Spark that overfills your meter fires Overfill first, then Collect.'},
  {id:'falling-lift',context:'trigger:falling-lift',icon:'wisp',headline:'Wait, fall, then Lift',text:'Lift while falling: a paid Lift, at least 0.75 s after your last.'},
- {id:'flash-trigger',context:'trigger:flash',icon:'flash',headline:'Flash is a Trigger too',text:'Touching a Flash triangle fires your Flash cards as well as lighting the passage.'},
+ {id:'flash-trigger',context:'trigger:flash',icon:'flash',headline:'Collect a Flash',text:'Collecting a Flash triangle fires your Flash cards as well as lighting the passage.'},
  // The Rhythm Trigger only fires from the Rhythm card's three even Lifts, so the card is part of the context.
  {id:'rhythm-trigger',context:'trigger:rhythm&card:rhythm',icon:'beat',headline:'Lift on the beat',text:'Cards that say Lift on the beat fire each time your three even Lifts complete.'},
  // ── Place-specific: biome hints from biomes.mjs, kept to its own wording ──────────────────

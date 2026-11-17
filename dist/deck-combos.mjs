@@ -87,7 +87,7 @@ export function getDeckCardExplanation(run,card){
     summary=`+${number(base)}${unit.startsWith('%')?'':' '}${unit} → +${number(boosted)}${unit.startsWith('%')?'':' '}${unit}, boosted by ${by}. ${summary}`;}
   if(card.kind==='use-doubler'){const target=getUseDoublerTarget(run.mountedCards,card.slot);if(target)summary=`On real flight entry: consume Use Doubler. ${SKILL_CARDS[target.cardId].name} (slot ${card.slot+2}) keeps ${target.charges} → ${target.charges*2} uses. No effect in preview or Dream.`;}
   if(card.kind==='ember-feeder'){const targets=getEmberFeederTargets(run.mountedCards,card.slot),growth=getCardFeederCapacity(card);if(targets.length)summary=`After clear: permanently destroy ${targets.map(({card:target,slot})=>`${SKILL_CARDS[target.cardId].name} (slot ${slot+1})`).join(' + ')}. This Feeder: +${growth} → +${growth+1} maximum Sparks while equipped. No refill.`;}
-  return {status,usesPass:!!rule||card.kind==='refrain',trigger:rule&&rule.event!=='*'?eventNames[rule.event]:printedBands.find(band=>band.type==='condition')?.text||'Always on',requirements,placement,ordered:!!ordered||rule?.operation==='multiply',example,summary,boosts};
+  return {status,usesPass:!!rule||card.kind==='refrain',trigger:rule&&rule.event!=='*'?eventNames[rule.event]:printedBands.find(band=>band.type==='condition')?.text||'Passive',requirements,placement,ordered:!!ordered||rule?.operation==='multiply',example,summary,boosts};
 }
 
 export function deckCardExplanationMarkup(run,card,{status:presentedStatus=null}={}){

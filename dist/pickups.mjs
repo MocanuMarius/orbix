@@ -16,7 +16,7 @@ export function flashPowerupDuration(modifiers = {}) {
   return FLASH_POWERUP.sightDuration * (modifiers.longFlash ? 3 : 1);
 }
 export function flashPowerupDescription(modifiers = {}) {
-  return `The white triangle trails behind your wisp. It reveals the passage, then pulses with up to ${FLASH_POWERUP.sightBonus} extra Luminance for ${flashPowerupDuration(modifiers)} seconds.`;
+  return `The white triangle trails behind your wisp. For ${flashPowerupDuration(modifiers)} seconds it sends a Pulse every 2 seconds and lights your surroundings as if your Luminance were very high.`;
 }
 export function pickupKind(packet={}){
   if(typeof packet==='string')return Object.hasOwn(PICKUP_TYPES,packet)?packet:'light';
