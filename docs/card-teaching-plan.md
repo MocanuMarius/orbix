@@ -24,6 +24,12 @@ The brief confirms it: no lesson or Field Guide topic teaches order, running tot
 | equipped, mounted, active slot | **In your row** | one word for where a card must be to fire |
 | Deck, reserve, collection (for cards) | **Deck** = all your cards; **Row** = the ones that fire; **Reserve** = the rest | Collection stays for relics only |
 
+**Update 2026-11-17 (user):** the ordered cards are called the **Chain** (not "Row"), and its positions are **Slots** ("Slot 1"). Deck = all your cards; Chain = the ones that fire; Rest cards never go in the Chain. A card's plate shows what it really contributes after other cards act on it: base figure struck through, effective figure in green (Echo then Pocket Sparks: ~~+4~~ **+8**).
+
+**Trigger names (user, 2026-11-17):** every Trigger has one short name and one icon. The wisp touching a Spark is **Collect**. The rest (coordinator's names, to be confirmed with the icons in `v2.1-deck`): Delivery, Latch, Pulse, Flash, Flash ends, Falling Lift, Overfill, Rhythm, Swipe, Save, Clear. The Chain screen lists the Triggers that fire the current chain above Play, and the list switches which Trigger the track shows.
+
+**Pulse, not Pulse (user, 2026-11-17):** the ring of light is called a **Pulse** everywhere the player reads it; the Trigger is "Pulse". **Whole Sparks:** chain results round down to whole Sparks, once per firing. Encore still fires the chain again from zero.
+
 Every one of these gets a glossary entry, and status labels open the glossary rather than a separate dialog.
 
 ### 2. One explainer, used everywhere (`v1.0-cardflow`)

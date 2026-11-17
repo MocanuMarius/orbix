@@ -323,7 +323,7 @@ test('Tight Packing is earned prospectively across live enter/leave edits and ke
 
 test('a successful purchased flight keeps pending earnings and credits its exit with the current packing loadout exactly once', () => {
   const state = fresh('live-paid-clear'), run = state.run;
-  run.condensedGlow = 30; run.cardPackingRemainder = 3;
+  run.condensedGlow = 40; run.cardPackingRemainder = 3; // the first Rare forge costs 40 (Forge v3)
   add(run, 'tight-packing', 'packing', 0);
   camp(run);
   assert.ok(M.forgeOwnedCard(state, 'rare', M.getCardForgePreview(run).token));

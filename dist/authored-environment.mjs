@@ -108,11 +108,11 @@ export function prepareNearLandscape(document,engine){
   const variant=engine.levelIdentity?.variant||0,key=biome+':'+variant;
   if(state.nearLandscapes.has(key))return state.nearLandscapes.get(key);
   const texture=tinted(document,state,profile.texture,profile.tone);
-  const wet=['moonruins','pinewood','marsh','thorn','cemetery','cloud'].includes(biome);
-  const barren=['frost','basalt','crystal','fungal'].includes(biome);
-  const image=barren?null:tinted(document,state,wet?'swampProps':profile.plant,profile.tone);
-  const plants=!image?[]:wet?[[8,3,39,39],[124,4,48,37]].map(rect=>({image,rect})):
-    [{image,rect:[0,0,image.width,image.height]}];
+  const wet=['moonruins','pinewood','marsh','thorn','cemetery'].includes(biome);
+  // Near exposed, mineral, cave and reef cover is authored in the habitat
+  // composition. A forest shrub remains a forest shrub after recoloring.
+  const image=wet?tinted(document,state,'swampProps',profile.tone):null;
+  const plants=image?[[8,3,39,39],[124,4,48,37]].map(rect=>({image,rect})):[];
   const plates=createNearLandscape(document,{biome,texture,patch:profile.patch,plants,variant});
   // Three course sets are enough for a map; bound retained canvas memory when
   // inspecting many biomes or playing multiple expeditions in the same tab.
@@ -125,7 +125,7 @@ export function drawNearLandscape(c,e,{scale=1,distance=e.renderDistance??e.dist
 }
 export function drawAuthoredPlant(context,engine,{x,y,sign,push,seed}){
   const state=stateFor(context),profile=profiles[biomeOf(engine)];if(!state||!profile)return false;
-  if(['frost','basalt','crystal','fungal','coral'].includes(biomeOf(engine)))return false;
+  if(['frost','basalt','crystal','fungal','coral','cloud'].includes(biomeOf(engine)))return false;
   // Forest and marsh props are deliberately placed in clusters with open gaps.
   if(seed%5===0)return false;
   const image=tinted(context.canvas.ownerDocument,state,profile.plant,profile.tone);if(!image)return false;

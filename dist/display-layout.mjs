@@ -1,13 +1,13 @@
 // A logical game viewport, not a claim about a phone's hardware pixel count.
 export const GAME_VIEWPORT=Object.freeze({width:900,height:405});
 export const DISPLAY_ZOOMS=Object.freeze([75,100,125,150,175,200]);
-export const DEFAULT_DISPLAY_ZOOM=150;
+export const DEFAULT_DISPLAY_ZOOM=100;
 export function normalizeDisplayZoom(value){
  if(value==='fit')return 'fit';
  const number=Number(value);return DISPLAY_ZOOMS.includes(number)?number:DEFAULT_DISPLAY_ZOOM;
 }
-export function displayMode({requested,embedded=false,coarse=false,hover=true,screenWidth=1280,screenHeight=720}={}){
- if(embedded||requested==='native')return 'native';
+export function displayMode({requested,coarse=false,hover=true,screenWidth=1280,screenHeight=720}={}){
+ if(requested==='native')return 'native';
  if(requested==='desktop')return 'desktop';
  return coarse&&!hover&&Math.min(screenWidth,screenHeight)<700?'native':'desktop';
 }
@@ -19,9 +19,19 @@ export function fitGameViewport({width,height,zoom=DEFAULT_DISPLAY_ZOOM}={}){
  return {width:GAME_VIEWPORT.width*scale,height:GAME_VIEWPORT.height*scale,scale,
   preferred:requested,effective:Math.round(scale*100),clamped:requested!=='fit'&&scale<target-.005};
 }
-export function gameDocumentUrl(href,{hosted=false}={}){
+export function gameDocumentUrl(href,{hosted=false,native=false}={}){
  const source=new URL(href),game=new URL('./game.html',source);game.search=source.search;game.hash=source.hash;
  for(const key of ['display','zoom'])game.searchParams.delete(key);
+ if(native)game.searchParams.set('display','native');
  if(hosted)game.searchParams.set('hosted','1');else game.searchParams.delete('hosted');
  return game;
+}
+export function desktopDocumentUrl(href){
+ const source=new URL(href),host=new URL('./index.html',source);host.search=source.search;host.hash=source.hash;
+ host.searchParams.delete('hosted');
+ return host;
+}
+export function gameNeedsDesktopHost({hosted=false,embedded=false,...display}={}){
+ // The host and design labs intentionally embed the engine directly.
+ return !hosted&&!embedded&&displayMode(display)==='desktop';
 }

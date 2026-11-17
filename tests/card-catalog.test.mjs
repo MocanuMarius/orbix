@@ -48,17 +48,17 @@ function reachCamp(state) {
   }
 }
 
-test('all 85 literal definitions have supported rules, unique IDs, honest art families and complete bands', () => {
+test('all 87 literal definitions have supported rules, unique IDs, honest art families and complete bands', () => {
   const defs = Object.values(CARD_CATALOG), supportedEvents = new Set([
     '*', 'body-spark', 'wave-crossing', 'flash-pickup', 'flash-expiry', 'downbeat-lift', 'natural-overfill',
     'collector-delivery', 'collector-attach', 'flight-clear', 'rhythm-phrase', 'field-swipe', 'guard-rescue',
   ]), physicalKinds = new Set(['dream', 'luminance', 'proximity-range', 'capacity', 'packing', 'echo', 'chameleon', 'field', 'guide',
-    'rhythm', 'camp-extra', 'camp-grow', 'cache-handling', 'refrain', 'watchlight', 'wave-loom', 'spillway',
+    'rhythm', 'rapid-lift', 'camp-extra', 'camp-grow', 'cache-handling', 'refrain', 'watchlight', 'wave-loom', 'spillway',
     'proximity', 'springboard', 'heart-stitch', 'devourer', 'use-doubler', 'ember-feeder', 'twin-orbit', 'twin-wick', 'collector-range']);
-  assert.equal(defs.length, 85);
-  assert.equal(new Set(CARD_CATALOG_IDS).size, 85);
+  assert.equal(defs.length, 87);
+  assert.equal(new Set(CARD_CATALOG_IDS).size, 87);
   assert.deepEqual(defs.reduce((totals, def) => (totals[def.rarity]++, totals), { common: 0, rare: 0, legendary: 0 }),
-    { common: 46, rare: 24, legendary: 15 });
+    { common: 48, rare: 24, legendary: 15 });
   for (const [index, def] of defs.entries()) {
     assert.deepEqual(SKILL_CARDS[def.id], def);
     assert.equal(CARD_CATALOG_IDS[index], def.id);
@@ -67,7 +67,8 @@ test('all 85 literal definitions have supported rules, unique IDs, honest art fa
     assert.ok(Number.isInteger(def.maxRank) && def.maxRank > 0);
     assert.ok(CARD_ART_IDS.includes(def.artFamily), `${def.id}: existing art scene`);
     assert.ok(def.ruleBands.length > 0);
-    assert.ok(def.ruleBands.every(band => ['condition', 'effect', 'note'].includes(band.type) && band.text && !band.text.includes(':')));
+    // Approved plain wording (v1.0-cardtext) uses colons inside a line ("Encore: the chain fires once more"); a band never ends on one.
+    assert.ok(def.ruleBands.every(band => ['condition', 'effect', 'note'].includes(band.type) && band.text && !/:\s*$/.test(band.text)));
     const card = makeSkillCard(def.id, `catalog:${def.id}`), described = describeSkillCard(card), rule = getCardRowRule(def, card);
     assert.ok(described.effect, `${def.id}: readable description`);
     if (!rule) assert.ok(physicalKinds.has(def.kind), `${def.id}: supported passive or physical kind`);
@@ -125,7 +126,7 @@ test('old rank improvements precede family evolution, retaining instance, rank a
   assert.equal(M.getCardImprovePreview(run, 'finite').reason, 'Maximum rank');
   for (const rank of [1, 2]) assert.ok(M.improveOwnedCard(state, 'harvest', rank, M.getCardImprovePreview(run, 'harvest').token));
   for (const [from, to, price, amount] of [
-    ['harvest-common', 'harvest-rare', 25, 4], ['harvest-rare', 'harvest-legendary', 40, 4],
+    ['harvest-common', 'harvest-rare', 25, 4], ['harvest-rare', 'harvest-legendary', 150, 4], // Evolve into Legendary costs 150 (2026-11-17)
   ]) {
     const quote = M.getCardImprovePreview(run, 'harvest');
     assert.equal(quote.kind, 'evolution');
@@ -153,7 +154,7 @@ test('all evolution families use exact tier costs and independent, stale-safe du
       duplicate = add(run, definition.id, 'other', { rank: definition.maxRank }),
       otherBefore = structuredClone(duplicate);
     const quote = M.getCardImprovePreview(run, 'chosen'),
-      price = quote.after.rarity === 'rare' ? 25 : 40;
+      price = quote.after.rarity === 'rare' ? 25 : 150; // Evolve into Legendary = first Legendary forge (2026-11-17)
     assert.equal(quote.price, price);
     run.condensedGlow = price - 1;
     const before = structuredClone(run);

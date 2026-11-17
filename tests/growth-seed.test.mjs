@@ -54,14 +54,15 @@ test('Growth family prints its real tier/rank values and evolves through existin
   ]) {
     const card = describeSkillCard({ ...makeSkillCard(id, `print:${id}:${rank}`), rank });
     assert.equal(card.amount, amount);
-    assert.match(card.effect, new RegExp(`(?:adds |\\+)${amount} maximum Sparks`));
-    assert.ok(getCardRuleBands(card).some(band => band.text.includes(`+${amount} maximum Sparks`)));
+    // Approved plain wording (v1.0-cardtext): "max Sparks".
+    assert.match(card.effect, new RegExp(`\\+${amount} max Sparks`));
+    assert.ok(getCardRuleBands(card).some(band => band.text.includes(`+${amount} max Sparks`)));
   }
   assert.equal(M.improveOwnedCard(state, seed.instanceId), false, 'evolution stays camp-only');
   enterCamp(run);
   for (const [id, rank, amount, price, kind] of [
     ['growth-seed', 1, 5, 25, 'evolution'],
-    ['growth-seed-legendary', 1, 8, 40, 'evolution'],
+    ['growth-seed-legendary', 1, 8, 150, 'evolution'], // Evolve into Legendary: 150 (2026-11-17)
     ['growth-seed-legendary', 2, 9, 40, 'rank'],
     ['growth-seed-legendary', 3, 10, 80, 'rank'],
   ]) {
@@ -95,7 +96,8 @@ test('each Growth amount, owned Seeds and the +90 ceiling survive exact previews
     for (let i = 0; i < 3; i++) {
       const quote = enterCamp(run, i), grow = quote.actions.find(action => action.key === 'grow');
       assert.equal(grow.disabled, false); near(getCardModifiers(run).cardGrowAmount, amount * CARD_UNIT);
-      assert.equal(formatGlow(grow.after.maxMeter - grow.before.maxMeter), String(amount));
+      // The Spark Meter stops at 100 printed Sparks (cap decided 2026-11-16): a +90 Grow fits only 70.
+      assert.equal(formatGlow(grow.after.maxMeter - grow.before.maxMeter), String(Math.min(amount, 100 - Number(formatGlow(grow.before.maxMeter)))));
       assert.ok(M.resolveSupport(run, grow.index));
       near(getGlowCapacity(run), grow.after.maxMeter); near(run.flame, grow.after.maxMeter);
       near(run.cardGrowCapacity, (i + 1) * amount * CARD_UNIT); assert.equal(run.lives, 2);

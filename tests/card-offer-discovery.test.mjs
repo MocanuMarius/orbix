@@ -19,9 +19,11 @@ test('bounded context weights reward real owned partners and respect row and cop
   assert.equal(multiplier('echo',['growth-seed-common']),1.5);
   assert.equal(multiplier('kindling-bead'),1.5,'another declined alternative cannot supply a payer');
   assert.equal(multiplier('kindling-bead',['body-spark']),4);
-  assert.equal(multiplier('crescendo',['body-spark']),1.5,'needs two real earlier payers');
-  assert.equal(multiplier('crescendo',['body-spark','downbeat']),1.5,'different events never pay the same pass');
-  assert.equal(multiplier('crescendo',['cluster-heart','dusk-wick']),1.5,'mutually exclusive pickups never pay the same pass');
+  // Crescendo no longer needs two earlier cards (designer, 2026-11-17): one real payer is enough.
+  assert.equal(multiplier('crescendo'),1.5,'another declined alternative cannot supply a payer');
+  assert.equal(multiplier('crescendo',['body-spark']),4);
+  assert.equal(multiplier('crescendo',['body-spark','downbeat']),4);
+  assert.equal(multiplier('crescendo',['cluster-heart','dusk-wick']),4);
   assert.equal(multiplier('crescendo',['body-spark','spark-cache']),4);
   assert.equal(multiplier('body-spark',['wick-doubler']),2,'an owned multiplier can find a new payer');
   assert.equal(multiplier('use-doubler',['spark-cache']),4);

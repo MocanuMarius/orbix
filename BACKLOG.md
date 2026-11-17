@@ -365,3 +365,9 @@ Evidence, exact counts and limitations: `docs/spark-supply-release.md`. This rel
 - [x] Pass 80 focused checks, 1,296 layout inventory cases and 4,949 flight scenarios. Check all 48 courses and all twenty starting gifts; retain raw hashes and limitations in the evidence report.
 
 The implementation and simulation goal is complete; physical phone feedback remains a future calibration step rather than a claim of measured human win rates. See `docs/spark-progression-release.md` and `docs/spark-balance-evidence.json`. This supersedes the preceding open balance-tuning item.
+
+## Design ideas to return to (user, 2026-11-17)
+
+- **Curses / bad cards.** Cards you can be given that do nasty things while in your deck, and that cost Stored Sparks (or something dearer) to remove. Wanted for the decision space they open: take a risk for a reward, carry a burden, pay to be rid of it.
+- **More oaths and events like The Closed Eye** (brave deep darkness for triple packing). The user calls that one "unique and really, really nice" and wants more choices of that kind: oaths you take, events, rewards with a real cost.
+- Not designed yet. Bring concrete proposals (in the design lab, with codes) when the card screens and the Boost rules have landed.

@@ -108,8 +108,9 @@ test('replacement review prints both complete cards, exact destinations and live
   const before=JSON.stringify(sample), markup=cardSwapMarkup(run,{id:'in',fromSlot:null,slot:0,expectedId:'out'});
   assert.equal((markup.match(/card-rule-band/g)||[]).length,2);
   assert.match(markup,/Equipped now → Deck/);assert.match(markup,/1 use left/);
-  assert.doesNotMatch(markup,/Its ability stops/);assert.match(markup,/Unlock a second Collector/);assert.match(markup,/Consume the equipped Rare card/);
-  assert.match(markup,/consume Edge Reach in slot 2/);assert.match(markup,/Full hearts spare it/);
+  // Approved plain wording (v1.0-cardtext) and plain status instructions.
+  assert.doesNotMatch(markup,/Its ability stops/);assert.match(markup,/Unlocks a 2nd Collector/);assert.match(markup,/Eats the next Rare card/);
+  assert.match(markup,/eats Edge Reach in Slot 2/);assert.match(markup,/Full hearts keep it/);
   assert.match(markup,/card-swap-back/);assert.match(markup,/Equip Devourer/);
   assert.equal(JSON.stringify(sample),before,'comparison never edits or spends cards');
   const swap=cardSwapMarkup(run,{id:'swap',fromSlot:2,slot:0,expectedId:'out'});
@@ -141,12 +142,13 @@ test('playing-card faces print complete rules with contextual term controls and 
   assert.match(face, /viewBox="313 0 313 313"/);
   assert.match(face, /assets\/cards\/skill-card-scenes-rare\.webp/);
   assert.match(face, /card-rule-band/);
-  assert.match(plain(face), /Your wisp touches a Spark/);
+  // Approved plain wording (v1.0-cardtext): Trigger chip, one short line, a small uses tag.
+  assert.match(plain(face), /Collect/);
   assert.match(plain(face), /\+4 Sparks/);
-  assert.match(plain(face), /1 use per pickup/);
+  assert.match(plain(face), /6 uses/);
   assert.doesNotMatch(plain(face), /:/);
   assert.deepEqual([...face.matchAll(/data-rule-type="([^"]+)"/g)].map(match=>match[1]), ['condition','effect','note']);
-  assert.match(face, /data-card-term="spark"/);
+  assert.match(face, /data-card-term="collect"/);
   assert.match(face, /data-card-term-trigger="spark-cache"/);
   assert.match(face, /aria-label="Pocket Sparks, common"/);
   assert.doesNotMatch(face, /class="card-rarity"/);
@@ -159,11 +161,11 @@ test('playing-card faces print complete rules with contextual term controls and 
   assert.match(mechanics, /<summary>Details<\/summary>/);
   const swipe = cardMechanicMarkup(describeSkillCard(makeSkillCard('field-impulse', 'portrait:swipe')));
   const echo = cardMechanicMarkup(describeSkillCard(makeSkillCard('echo', 'portrait:echo')));
-  assert.match(plain(swipe), /Collector is beside you with at least ¼ charge/);
-  assert.match(plain(swipe), /Spend Collector charge\. Swipe up to float, down to dive, or right to speed up/);
+  assert.match(plain(swipe), /Always on · Collector home, ¼ charge/);
+  assert.match(plain(swipe), /Swipe: float, dive or speed up, 0\.8 s/);
   assert.match(swipe, /data-card-term="collector"/);
   assert.match(swipe, /data-card-term="ring"/);
-  assert.match(plain(echo), /Repeat the action on the card to the right\./);
+  assert.match(plain(echo), /Next card/);assert.match(plain(echo), /Repeats the next card/);
   assert.match(echo, /data-card-term="copy"/);
   assert.match(echo, /data-card-terms|data-card-term="next"/);
 });
@@ -173,16 +175,16 @@ test('body rewards stay together and scale with rank; only concrete terms use in
     const body = cardMechanicMarkup(describeSkillCard({...makeSkillCard('body-spark', 'rank'), rank}));
     const effect = /data-rule-type="effect">([\s\S]*?)<\/span><\/span><\/span>/.exec(body)?.[1] || body;
     assert.match(effect.replace(/<[^>]+>/g,'').replace(/\s+/g,' '), new RegExp(`\\+${amount} Sparks`));
-    assert.equal((body.match(/class="card-term-icon card-term-icon-spark"/g) || []).length, 1);
+    // The Collect chip names the touch; the green Sparks link to the meter they refill.
     assert.equal((body.match(/class="card-term-icon card-term-icon-meter"/g) || []).length, 1);
     assert.doesNotMatch(body, /card-term-symbol/);
-    assert.match(body, /aria-label="Spark: help"/);
+    assert.match(body, /data-card-term="collect"/);
     assert.match(body, /aria-label="Spark Meter: help"/);
     assert.doesNotMatch(body, /natural|extra Sparks|card-mechanic-uses/);
   }
   const legendary = cardMechanicMarkup(describeSkillCard(makeSkillCard('harvest-legendary', 'paired')));
-  assert.deepEqual([...legendary.matchAll(/data-rule-type="([^"]+)"/g)].map(match=>match[1]), ['condition','effect','condition','effect']);
-  assert.doesNotMatch(cardMechanicMarkup(describeSkillCard(makeSkillCard('deep-vessel', 'passive'))), /data-rule-type="condition"/);
+  assert.deepEqual([...legendary.matchAll(/data-rule-type="([^"]+)"/g)].map(match=>match[1]), ['condition','effect']);
+  assert.match(cardMechanicMarkup(describeSkillCard(makeSkillCard('deep-vessel', 'passive'))).replace(/<[^>]+>/g,''), /Always on/);
   const terms = readFileSync(new URL('../dist/card-terms.mjs', import.meta.url), 'utf8');
   assert.match(terms, /collector-tether\/reel-front\.png/);
   assert.match(terms, /collector-tether\/reel\.mp4/);

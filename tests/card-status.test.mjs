@@ -11,7 +11,7 @@ const states = run => getEquippedCardStatuses(run).map(s=>s?.state || null);
 test('copy readiness resolves immediate real neighbor, passive compatibility and changed order',()=>{
   assert.deepEqual(states(build(['chameleon',null,'body-spark'])),['blocked',null,'ready']);
   assert.equal(getEquippedCardStatuses(build(['chameleon','prism-lens']))[0].state,'blocked');
-  assert.equal(getEquippedCardStatuses(build(['chameleon','prism-lens']))[0].label,'Cannot copy Prism Lens');
+  assert.equal(getEquippedCardStatuses(build(['chameleon','prism-lens']))[0].label,"Can't copy the card to its right");
   assert.deepEqual(states(build(['chameleon','deep-vessel'])),['ready','ready']);
   assert.deepEqual(states(build(['echo','edge-reach'])),['blocked','ready']);
   assert.deepEqual(states(build(['echo','chameleon','body-spark'])),['blocked','ready','ready']);
@@ -26,11 +26,13 @@ test('ordering quotes combine actual predicates and only same-event Spark payers
   assert.equal(states(build(['body-spark','clear-prism']))[1],'blocked');
   assert.equal(states(build(['first-ripple','ripple-glass']))[1],'blocked');
   assert.equal(states(build(['far-shore','ripple-glass']))[1],'ready');
-  assert.equal(states(build(['dusk-wick','cluster-heart','crescendo']))[2],'blocked');
+  // Crescendo doubles whenever something is to its left (no two-payer requirement since 2026-11-17).
+  assert.equal(states(build(['dusk-wick','cluster-heart','crescendo']))[2],'ready');
+  assert.equal(states(build(['crescendo','body-spark']))[0],'blocked');
   assert.equal(states(build(['dusk-wick','low-wick','crescendo']))[2],'ready');
   assert.equal(states(build(['echo','harvest-common','crescendo']))[2],'ready');
   assert.equal(states(build(['body-spark','closing-chord',null]))[1],'ready');
-  assert.equal(getEquippedCardStatuses(build(['body-spark','closing-chord','deep-vessel']))[1].label,'Must be last');
+  assert.equal(getEquippedCardStatuses(build(['body-spark','closing-chord','deep-vessel']))[1].label,'Move to the last slot');
 });
 
 test('trigger availability respects native abilities, baseline events and Collector loadout',()=>{
@@ -51,7 +53,7 @@ test('trigger availability respects native abilities, baseline events and Collec
 test('shared last uses and productive replay are accurate without mutating the build',()=>{
   const run=build(['echo-iii','spark-cache','refrain']);run.mountedCards[1].charges=1;
   const before=JSON.stringify(run),status=getEquippedCardStatuses(run);
-  assert.equal(status[0].state,'ready');assert.equal(status[1].label,'Shared use');assert.equal(status[2].state,'blocked');
+  assert.equal(status[0].state,'ready');assert.equal(status[1].label,'Its copy may use the last use');assert.equal(status[2].state,'blocked');
   assert.equal(JSON.stringify(run),before);
   run.mountedCards[1].charges=5;assert.equal(states(run)[2],'ready');
   assert.deepEqual(states(build(['body-spark','refrain','refrain'])),['ready','ready','shared']);

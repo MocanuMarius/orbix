@@ -41,7 +41,36 @@
 <p class="say" id="say"></p>
 <script>
 const LOOKS={
- 'v1.0-deck':{label:'v1.0-deck · proposed',status:'Proposed — not in the game yet',page:'deck.html',notes:[
+ 'v1.0-cardtext':{label:'v1.0-cardtext · proposed',status:'Proposed wording — the game\'s card text is unchanged',page:'cardtext.html',notes:[
+  'All 85 cards: today\'s text struck through, the proposed plain text below it. Scroll inside the frame.',
+  'Shape: a Trigger chip (Collect, Wave, Always on…), then one short line saying what it does, number first.',
+  'Filter at the top: All / Flagged / by rarity. 24 cards are flagged "Needs a decision".',
+  'Crescendo is shown as decided: "Double the chain\'s Sparks".']},
+ 'v2.2-deck':{label:'v2.2-deck · proposed',status:'Proposed — not in the game yet',page:'deck.html',notes:[
+  'Plates read as a sum: a card shows what it adds at its own slot. Echo then Pocket Sparks: +4 crossed diagonally, then +8.',
+  'The result sits in a round medallion after an equals sign at the end of the chain.',
+  'Triggers are underlined keywords: tap one to read what it means. Tap the rest of its line to show that Trigger on the chain.',
+  'Default example uses three Triggers. "Lab · Shuffle example" (top corner) shows other real combinations.',
+  'Deck tab: no overflowing text. Add &deck=all to see every card.']},
+ 'v2.1-deck':{label:'v2.1-deck · proposed',status:'Proposed — not in the game yet',page:'deck.html',notes:[
+  'Tabs are now Chain | Deck; positions are Slots.',
+  'Chain: "Triggers" list above Play (tap a chip to see the chain for that Trigger). Plates show real worth: base struck through, boosted figure in green.',
+  'Eyes are leather buttons. Swap is a paper slip.',
+  'Deck: grouped In your chain / Not in chain / Rest cards. Rest cards look different and cannot be placed. Scroll hint at the bottom.',
+  'Stored Sparks box removed. Add &chain=mixed to the address to see two Triggers; &slots=5 for a full chain.']},
+ 'v2.0-deck':{label:'v2.0-deck · earlier',status:'Refined into v2.1-deck',page:'deck.html',notes:[
+  'Two tabs at the top: Row (order, and how it fires) and Deck (everything you own).',
+  'Row: the Spark track with your real cards. Eye above a card opens it. Swap under a card opens the Deck to choose a replacement. Drag to reorder. Play to watch it fire.',
+  'Deck: one full-width grid of all cards with rarity word, effect line and a "Row 2" tag. Chips filter by rarity; sort by rarity or name.',
+  'The eye on a Deck card opens it, with Put in row… and Melt… inside.',
+  'No side panel, no text shown twice. Add &slots=5 for a full row.']},
+ 'v1.1-deck':{label:'v1.1-deck · rejected',status:'Rejected: doubled text, ordering and overview mixed',page:'deck.html',notes:[
+  'Every card now says how rare it is (word + colour), when it fires and what it does.',
+  'Tap any card: the panel on the right shows the full real card, what it does in plain words, and Move / Melt.',
+  'Reserve is a grid with rarity chips (All, Common, Rare, Legendary) that filter it. No wide strip.',
+  'Known weak spot: the Reserve grid shows only about one row at a time on short screens.',
+  'To see a full row of five, add &slots=5 to the address.']},
+ 'v1.0-deck':{label:'v1.0-deck · rejected',status:'Rejected: rarity unreadable, no inspect, wide Reserve strip',page:'deck.html',notes:[
   'One Deck screen instead of two screens and a side panel. Row on top (fires left to right), Reserve below.',
   'Tap a card to pick it up; every place it can go lights up; tap a place. Dragging works too.',
   'Under the row: the real result, e.g. "Catch a Spark: +10 Bonus". Move Prism Lens to the front and it reads +8.',
@@ -101,11 +130,11 @@ const LOOKS={
  'v1.5-theme':{label:'v1.5-theme · Stone (current)',status:'The approved pieces in the green stone skin',notes:[
   'Approved: plaque shapes, four stones, edge clasp, level control, title flourish, carved rule, treeline ground.',
   'Rejected: stone grain, pointed sign ends, arrows.']},
- 'v2.1-cardflow':{label:'v2.1-cardflow · not ready',status:'NOT READY — the frame shows an old look until the worker finishes building it',page:'cardflow.html',notes:[
-  'v2.0 format, no title. An eye above each card opens the full card so you can read it.',
-  'Corner marks are back: + Adds, × Multiplies, repeat.',
-  'A card that will do nothing in this order says "No effect here" before you play, and the Spark passes straight through it.',
-  'Move a card and the warnings update at once.']},
+ 'v2.1-cardflow':{label:'v2.1-cardflow · proposed',status:'Proposed — not in the game yet',page:'cardflow.html',notes:[
+  'v2.0 format, no title. Tap the eye above a card (or the card) to open it and read it.',
+  'Corner marks: + Adds, × Multiplies.',
+  'Press Next through to the end, then drag Crescendo to the front: its plate says "No effect here" before you play, and the Spark flies over it.',
+  'Read = eye or tap. Move = drag, or the small Move handle that appears after the first run.']},
  'v2.0-cardflow':{label:'v2.0-cardflow · liked',status:'Format liked; v2.1 adds the eye and drops the title',page:'cardflow.html',notes:[
   'One thing moves: a Spark travels the track, left to right, through your cards and into the meter.',
   'Each card has a plain plate: +2, +4, ×2. The number rides on the Spark: 0, 2, 6, 12.',
@@ -190,13 +219,16 @@ const LOOKS={
   'Translucent backdrop lets the flight hint bleed through.']}
 };
 // Topics, newest first. Set `decided` to the approved code once the user has ruled.
-const TOPICS={deck:{label:'Deck'},settings:{label:'Settings',decided:'v1.1-settings'},icons:{label:'Icons'},cardflow:{label:'How cards fire'},pause:{label:'Pause menu',decided:'v2.5-pause'},theme:{label:'Style kit',decided:'v2.5-theme',contexts:true}};
+// Pruned 2026-11-17 at the user's request: only work still open, plus the style kit, is listed. Decided or retired looks
+// (pause, settings, icons, card wording, how cards fire, earlier decks) are recorded in docs/design-versions.md.
+const KEEP=['v2.2-deck','v2.5-theme'];for(const id of Object.keys(LOOKS))if(!KEEP.includes(id))delete LOOKS[id];
+const TOPICS={deck:{label:'Chain & Deck'},theme:{label:'Style kit',decided:'v2.5-theme',contexts:true}};
 const topicOf=id=>id.slice(id.indexOf('-')+1);
 let earlier=false;
 const CONTEXTS={practice:'Tutorial flight',real:'Real run, in flight',map:'Real run, on map'};
 const SIZES={'900x405':[900,405],'740x333':[740,333],'667x300':[667,300],'640x320':[640,320]};
 const query=new URLSearchParams(location.search);
-let look=LOOKS[query.get('variant')]?query.get('variant'):'v1.5-pause',ctx=CONTEXTS[query.get('ctx')]?query.get('ctx'):'practice',size=SIZES[query.get('size')]?query.get('size'):'900x405';
+let look=LOOKS[query.get('variant')]?query.get('variant'):'v2.2-deck',ctx=CONTEXTS[query.get('ctx')]?query.get('ctx'):'practice',size=SIZES[query.get('size')]?query.get('size'):'900x405';
 const frame=document.querySelector('#frame'),stage=document.querySelector('#stage');
 function tabs(host,items,current,pick){
  host.querySelectorAll('button').forEach(button=>button.remove());

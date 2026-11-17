@@ -1,0 +1,472 @@
+/* v1.0-cardflow · design-lab only. The stage that teaches how equipped cards fire.
+   Kit pieces (plaques, title, context, ground) come from variants.css; this file lays out the stage. */
+.cf-page .flight-device{background:#0a1715}
+.cf{--cf-card:168px;--cf-gap:8px;--cf-gold:#f3d98a;--cf-ink:#e9e7ce;--cf-quiet:#9db08c;--cf-cell:12px;
+ position:fixed;inset:0;z-index:1;display:grid;grid-template-rows:auto minmax(0,1fr) auto auto;gap:6px;padding:10px 20px 10px;box-sizing:border-box;overflow:hidden;color:var(--cf-ink)}
+
+/* Header: title and context on the left, the before/now lesson on the right. */
+.cf-head{display:flex;align-items:center;justify-content:space-between;gap:16px;min-width:0}
+.cf-titles{display:flex;align-items:baseline;gap:14px;min-width:0}
+.cf .wb-title{font-size:26px;line-height:1.15;white-space:nowrap}
+.cf .wb-context{white-space:nowrap}
+.cf-result{margin:0;display:none;align-items:center;gap:8px;padding:6px 12px;border:2px solid #4f6249;background:#12221d;font:400 15px/1 var(--pixel,monospace);color:#dce6d4;white-space:nowrap}
+.cf-result.cf-result-on{display:flex}
+.cf-result b{font-weight:400;color:var(--cf-gold)}
+.cf-result i{font-style:normal;color:#6f8366}
+.cf-result.cf-less{border-color:#9a6a58}.cf-result.cf-less span:last-child b{color:#f0a990}
+.cf-result.cf-more{border-color:#b8a560}
+.cf-result-hint{font-size:13px;color:var(--cf-gold);border-style:dashed;border-color:#7f8e5c}
+
+/* Stage: Trigger · row · Spark Meter. */
+.cf-stage{display:grid;grid-template-columns:minmax(84px,112px) auto minmax(72px,104px);justify-content:center;align-items:center;column-gap:22px;min-height:0}
+.cf-trigger{display:grid;justify-items:center;gap:6px;padding:8px 6px;border:2px solid #34483a;background:#0f1f1b;text-align:center;transition:border-color .2s,background .2s}
+.cf-trigger-tag,.cf-meter-tag{font:400 11px/1 var(--pixel,monospace);letter-spacing:1.5px;text-transform:uppercase;color:var(--cf-quiet)}
+.cf-spark{display:block;width:88px;height:88px;image-rendering:pixelated;opacity:.55;transition:opacity .2s}
+.cf-trigger-text{font:400 14px/1.15 var(--pixel,monospace);color:#cfd8bf}
+.cf-trigger.cf-lit{border-color:var(--cf-gold);background:#1d2a1c;box-shadow:0 0 0 2px #0a1715,0 0 18px #f3d98a44}
+.cf-trigger.cf-lit .cf-spark,.cf-trigger.cf-was-lit .cf-spark{opacity:1}
+.cf-trigger.cf-lit .cf-trigger-text{color:#fff1c5}
+.cf-trigger.cf-lit .cf-trigger-tag{color:var(--cf-gold)}
+.cf-trigger.cf-lit .cf-spark{animation:cf-glint 1.2s steps(6,end) infinite}
+@keyframes cf-glint{50%{filter:brightness(1.35)}}
+
+.cf-rowwrap{display:grid;justify-items:center;gap:8px;min-width:0}
+.cf-row{display:flex;align-items:flex-end;gap:6px;padding-top:22px}
+.cf-arrow{flex:none;align-self:center;color:#7f8e5c;margin-top:-6px}
+.cf-slot{position:relative;flex:none;touch-action:none;-webkit-user-select:none;user-select:none;transition:transform .18s steps(3,end),filter .18s,opacity .18s;outline:none}
+.cf-slot>.skill-card{pointer-events:none}
+html body .cf-slot>.skill-card.card-thumbnail{--card-height:var(--cf-card);display:flex!important;flex-direction:column!important;border:2px solid #a7b18a!important;background:#263d2c!important;transition:border-color .18s,box-shadow .18s}
+html body .cf-slot .card-thumbnail .card-illustration{flex:1 1 0;min-height:0;width:100%;display:flex;align-items:center;justify-content:center}
+html body .cf-slot .card-thumbnail .card-face-heading{padding:3px 4px}
+html body .cf-slot .skill-card.card-thumbnail.card-has-uses .card-face-heading{padding-right:4px}
+html body .cf-slot .skill-card.card-thumbnail .card-use-counter{z-index:6;right:7px!important;left:auto;top:7px;bottom:auto!important;transform:none;min-width:30px!important;font-size:12px!important;line-height:14px!important;border:1px solid #b8a560!important}
+html body .cf-slot .card-thumbnail .card-face-heading h3{font-size:12px;line-height:1.1}
+.cf-slot-no{position:absolute;left:50%;bottom:calc(100% + 2px);transform:translateX(-50%);font:400 11px/1 var(--pixel,monospace);color:#6f8366;pointer-events:none}
+/* The mark: what the card does. */
+.cf-mark{position:absolute;z-index:3;top:-9px;left:-9px;display:grid;place-items:center;width:24px;height:24px;box-sizing:border-box;border:2px solid #0a1715;font:400 20px/1 var(--pixel,monospace);pointer-events:none}
+.cf-mark-add{background:#d8c98a;color:#14241a}
+.cf-mark-mul{background:#9cc3d8;color:#0f1d26}
+.cf-mark-repeat{background:#c4a3cd;color:#22142a}
+.cf-mark-repeat>svg{width:12px;height:12px}
+/* Pop: the card's own +4 or ×1.25. */
+.cf-pop{position:absolute;z-index:4;left:50%;bottom:calc(100% + 2px);transform:translateX(-50%);padding:2px 6px;font:400 17px/1 var(--pixel,monospace);white-space:nowrap;opacity:0;pointer-events:none;text-shadow:1px 2px #041015}
+.cf-pop-on{opacity:1}
+.cf-pop-add{color:var(--cf-gold);background:#1d2a1c;border:2px solid #b8a560}
+.cf-pop-mul{color:#cfe8f4;background:#14222a;border:2px solid #6f9bb3}
+.cf-pop-skip{color:#b9c6a8;background:#13201c;border:2px dashed #5d6f57;font-size:14px}
+.cf-pop-anim{animation:cf-pop .36s steps(4,end)}
+@keyframes cf-pop{from{transform:translate(-50%,8px);opacity:0}to{transform:translate(-50%,0);opacity:1}}
+/* States: firing lifts and glows, fired stays lit, skipped dims. */
+.cf-slot.cf-firing{transform:translateY(-8px);z-index:2}
+html body .cf-slot.cf-firing>.skill-card{border-color:#ffe39c!important;box-shadow:0 0 0 2px #0a1715,0 0 16px 2px #f3d98a88!important}
+html body .cf-slot.cf-fired>.skill-card{border-color:#d8c98a!important;box-shadow:0 0 0 2px #0a1715,0 0 8px #f3d98a44!important}
+.cf-slot.cf-source{filter:brightness(1.12)}
+html body .cf-slot.cf-source>.skill-card{border-color:#c4a3cd!important;border-style:dashed!important}
+.cf-slot.cf-skipped{opacity:.6}
+html body .cf-slot.cf-skipped>.skill-card{border-style:dashed!important;border-color:#6f8366!important}
+.cf-slot.cf-skipped.cf-firing{opacity:.85}
+/* Practice: cards can be tapped or dragged to swap. */
+.cf-swappable .cf-slot{cursor:pointer}
+.cf-swappable .cf-slot:focus-visible{outline:2px solid #fff1af;outline-offset:4px}
+.cf-slot.cf-picked{transform:translateY(-8px)}
+html body .cf-slot.cf-picked>.skill-card{border-color:#fff1af!important;border-style:solid!important;box-shadow:0 0 0 2px #0a1715,0 0 0 4px #fff1af!important}
+.cf-slot.cf-dragging{z-index:5;transition:none;opacity:.92;cursor:grabbing}
+html body .cf-slot.cf-drop>.skill-card{border-color:#fff1af!important;border-style:dashed!important}
+
+/* The one Bonus counter under the row. */
+.cf-bonus{display:flex;align-items:baseline;gap:10px;min-width:150px;justify-content:center;padding:5px 14px;border:2px solid #4f6249;background:#12221d}
+.cf-bonus>span{font:400 13px/1 var(--pixel,monospace);letter-spacing:1.5px;text-transform:uppercase;color:var(--cf-quiet)}
+.cf-bonus>b{display:inline-block;min-width:2ch;font:400 24px/1.15 var(--pixel,monospace);color:#f1eddb;text-align:center}
+.cf-bonus>small{font:400 12px/1 var(--pixel,monospace);color:var(--cf-quiet);white-space:nowrap}
+.cf-bonus.cf-bonus-live{border-color:#b8a560}.cf-bonus.cf-bonus-live>b{color:var(--cf-gold)}
+.cf-bonus.cf-bonus-spent{border-style:dashed;opacity:.75}
+
+/* The Spark Meter: the game's own gauge markup, drawn at 2× on whole pixels. */
+.cf-meter{display:grid;justify-items:center;gap:5px;padding:8px 6px;border:2px solid #34483a;background:#0f1f1b;text-align:center}
+.cf-meter-gauge{position:relative;padding-top:22px}
+.cf .cf-meter-gauge .glow-side-gauge.glow-gauge-v3{position:relative;left:auto;bottom:auto;top:auto;transform:none;width:14px;height:calc(var(--glow-units,10) * (var(--cf-cell) + 2px) - 2px);max-height:none;margin:0 auto}
+.cf .cf-meter-gauge .glow-gauge-v3 #flame-meter{width:14px;height:100%}
+.cf .cf-meter-gauge .glow-side-gauge.glow-gauge-v3 #flame-fill{gap:2px}
+.cf .cf-meter-gauge .glow-gauge-v3 .glow-unit{width:14px;height:var(--cf-cell);flex:0 0 var(--cf-cell);box-shadow:none}
+.cf .cf-meter-gauge .glow-gauge-v3 .glow-unit.lit{box-shadow:inset 2px 0 #9bad93}
+.cf .cf-meter-gauge .glow-gauge-v3 .glow-unit.cf-room{background:#1b2b25;box-shadow:inset 0 0 0 1px #34463d}
+.cf .cf-meter-gauge .glow-gauge-v3 .glow-unit.cf-room-bonus{box-shadow:inset 0 0 0 1px #b8a560}
+.cf .cf-meter-gauge .glow-gauge-v3 .glow-unit.lit.cf-gain{background:var(--cf-gold);box-shadow:inset 2px 0 #b8a560}
+.cf .cf-meter-gauge .meter-spark-cap{width:20px;height:20px;bottom:calc(100% + 0px)}
+.cf-meter-value{font:400 16px/1 var(--pixel,monospace);color:#f1eddb}
+.cf-meter-gain{font:400 12px/1 var(--pixel,monospace);color:var(--cf-quiet);white-space:nowrap}
+.cf-meter.cf-meter-on{border-color:var(--cf-gold);box-shadow:0 0 14px #f3d98a33}
+.cf-meter.cf-meter-on .cf-meter-gain{color:var(--cf-gold)}
+.cf-fly{position:fixed;left:0;top:0;z-index:20;width:44px;height:44px;image-rendering:pixelated;pointer-events:none}
+
+/* One caption, announced politely. */
+.cf-caption{margin:0;min-height:18px;font:400 16px/1.15 var(--pixel,monospace);text-align:center;color:#f1eddb;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding:0 8px}
+
+/* Controls: Waystone plaques. */
+.cf-controls{display:grid;grid-template-columns:repeat(3,minmax(0,190px));justify-content:center;align-items:center;gap:12px}
+.cf .cf-controls .wb-sign{height:50px}
+.cf .cf-controls .wb-sign-quiet{height:46px}
+.cf .cf-controls .wb-sign-text>b{font-size:16px;line-height:16px}
+.cf .cf-controls .wb-sign:disabled{opacity:.42;cursor:default;filter:saturate(.6)}
+.cf .cf-controls .wb-sign:disabled:active{transform:none}
+
+/* Short frames (740×333, 667×300, 640×320): compact everything, keep whole-pixel art. */
+@media(max-height:380px){
+ .cf{--cf-card:126px;--cf-cell:10px;gap:4px;padding:6px 16px 6px}
+ .cf .wb-title{font-size:20px}
+ .cf .wb-context{font-size:10px}
+ .cf-result{padding:4px 10px;font-size:13px}
+ .cf-result-hint{font-size:12px}
+ .cf-stage{column-gap:16px}
+ .cf-spark{width:44px;height:44px}
+ .cf-trigger{padding:6px 5px;gap:5px}
+ .cf-trigger-text{font-size:12px}
+ .cf-row{padding-top:20px}
+ .cf-pop{font-size:15px;padding:1px 5px}
+ .cf-pop-skip{font-size:12px}
+ .cf-slot.cf-firing,.cf-slot.cf-picked{transform:translateY(-6px)}
+ .cf-bonus{padding:3px 12px;min-width:130px}
+ .cf-bonus>b{font-size:20px}
+ .cf-meter{padding:6px 5px;gap:4px}
+ .cf-meter-gauge{padding-top:20px}
+ .cf-caption{font-size:14px;min-height:16px}
+ .cf .cf-controls .wb-sign,.cf .cf-controls .wb-sign-quiet{height:44px}
+ .cf .cf-controls .wb-sign-text>b{font-size:15px;line-height:15px}
+ .cf-controls{grid-template-columns:repeat(3,minmax(0,170px))}
+}
+@media(max-height:310px){
+ .cf{--cf-card:119px;--cf-cell:9px}
+ .cf-titles{gap:10px}
+ .cf-row{padding-top:18px}
+}
+@media(max-width:700px){
+ .cf-stage{grid-template-columns:minmax(76px,96px) auto minmax(64px,84px);column-gap:12px}
+ .cf .wb-context{display:none}
+}
+
+@media(prefers-reduced-motion:reduce){
+ .cf-slot,.cf-trigger,.cf-spark,html body .cf-slot>.skill-card{transition:none!important}
+ .cf-trigger.cf-lit .cf-spark,.cf-pop-anim{animation:none}
+ /* No movement: firing and picked cards keep their place and show state by glow and border alone. */
+ .cf-slot.cf-firing,.cf-slot.cf-picked{transform:none}
+ html body .cf-slot.cf-firing>.skill-card{box-shadow:0 0 0 2px #0a1715,0 0 0 5px #ffe39c!important}
+}
+
+/* ── v1.1-cardflow · the approved Atlas skin (v2.5-theme) ─────────────────────
+   The woods painting fills the frame; one wide paper page holds the stage; ink on paper;
+   Trigger, Bonus and Spark Meter are leather tab boxes; Next is the moss plaque. Card faces untouched. */
+.cf.cf-v11{display:block;padding:0;gap:0;background:#0c0907;--pw:calc(100% - 12px);--px:6px}
+.cf-v11 .wb-world{filter:brightness(.42) saturate(.8)}
+.cf.cf-v11 .wb-page.cf-sheet{top:4px;bottom:4px;left:6px;right:6px;width:auto;display:grid;grid-template-rows:auto minmax(0,1fr) auto auto;align-items:stretch;justify-content:stretch;gap:6px;padding:2px 14px 4px;color:#2a2118}
+/* The ribbons hang in the top-right corner; the header keeps clear of them. */
+.cf-v11 .wb-page.cf-sheet::after{right:18px}
+.cf-v11 .cf-head{position:relative;z-index:1;padding-right:76px}
+.cf-v11 .cf-stage,.cf-v11 .cf-caption,.cf-v11 .cf-controls{position:relative;z-index:1}
+.cf-v11 .wb-title{color:#2a2118!important;text-shadow:none}
+.cf-v11 .wb-context{color:#6b5335}
+.cf-v11 .cf-result{border:2px solid #8a6d44;background:#efdcaa;color:#2a2118}
+.cf-v11 .cf-result b{color:#7a4f1c}
+.cf-v11 .cf-result i{color:#8a6d44}
+.cf-v11 .cf-result.cf-less{border-color:#8a2f22}.cf-v11 .cf-result.cf-less span:last-child b{color:#8a2f22}
+.cf-v11 .cf-result.cf-more{border-color:#536430}.cf-v11 .cf-result.cf-more span:last-child b{color:#3d4a22}
+.cf-v11 .cf-result-hint{border-style:dashed;color:#3d4a22}
+.cf-v11 .cf-caption{color:#2a2118}
+.cf-v11 .cf-arrow{color:#8a6d44}
+.cf-v11 .cf-slot-no{color:#6b5335}
+
+/* Leather tab boxes: the border image is the frame; text sits well inside it. */
+.cf-v11 .wb-tabbox{box-shadow:0 3px 0 #0005;color:#f6ebcc;background:none}
+.cf-v11 .cf-trigger.wb-tabbox{padding:2px 6px;gap:5px;border-width:12px;transition:filter .2s}
+.cf-v11 .cf-trigger-tag,.cf-v11 .cf-meter-tag{color:#e2d0a6}
+.cf-v11 .cf-trigger-text{color:#f6ebcc}
+.cf-v11 .cf-trigger.cf-lit{border-color:transparent;background:none;box-shadow:0 3px 0 #0005,0 0 0 2px #e6c77c}
+.cf-v11 .cf-trigger.cf-lit .cf-trigger-text{color:#fff6d8}
+.cf-v11 .cf-trigger.cf-lit .cf-trigger-tag{color:#e6c77c}
+.cf-v11 .cf-bonus.wb-tabbox{display:flex;align-items:baseline;justify-items:initial;padding:0 10px;min-width:150px;border-width:12px}
+.cf-v11 .cf-bonus>span{color:#e2d0a6}
+.cf-v11 .cf-bonus>b{color:#f6ebcc}
+.cf-v11 .cf-bonus>small{color:#e2d0a6}
+.cf-v11 .cf-bonus.cf-bonus-live{border-color:transparent;box-shadow:0 3px 0 #0005,0 0 0 2px #e6c77c}
+.cf-v11 .cf-bonus.cf-bonus-live>b{color:#ffe39c}
+.cf-v11 .cf-bonus.cf-bonus-spent{border-style:solid;opacity:1}
+.cf-v11 .cf-bonus.cf-bonus-spent>b{color:#c9b58a}
+.cf-v11 .cf-meter.wb-tabbox{display:grid;grid-template-columns:auto auto;align-items:center;justify-items:start;column-gap:10px;padding:0 6px;border-width:12px}
+.cf-v11 .cf-meter.cf-meter-on{border-color:transparent;box-shadow:0 3px 0 #0005,0 0 0 2px #e6c77c}
+.cf-meter-info{display:grid;justify-items:start;gap:6px;text-align:left}
+.cf-v11 .cf-meter-value{color:#f6ebcc}
+.cf-v11 .cf-meter-gain{color:#e2d0a6}
+.cf-v11 .cf-meter.cf-meter-on .cf-meter-gain{color:#ffe39c}
+.cf-meter-lost{font:400 12px/1 var(--pixel,monospace);color:#ffb59c;white-space:nowrap}
+.cf-meter-lost[hidden]{display:none}
+.cf-v11 .cf-meter-gauge .glow-gauge-v3 .glow-unit.cf-room{background:#33261a;box-shadow:inset 0 0 0 1px #4a3828}
+.cf-v11 .cf-meter-gauge .glow-gauge-v3 .glow-unit.cf-room-bonus{box-shadow:inset 0 0 0 2px #e6c77c}
+.cf-v11 .cf-meter-gauge .glow-gauge-v3 .glow-unit.lit.cf-pickup{background:#fff6d8;box-shadow:inset 2px 0 #d8c08a}
+.cf-v11 .cf-meter-gauge .glow-gauge-v3 .glow-unit.lit.cf-gain{background:#e6c77c;box-shadow:inset 2px 0 #b98f4a}
+
+/* Pops and marks on paper: dark tags with a clear edge, so the number never sits on a glow. */
+.cf-v11 .cf-pop-add{color:#ffe39c;background:#3b2d20;border-color:#b98f4a}
+.cf-v11 .cf-pop-mul{color:#e3f1f8;background:#1f2d35;border-color:#6f9bb3}
+.cf-v11 .cf-pop-skip{color:#3b2d20;background:#e6d19c;border-color:#8a6d44}
+.cf-v11 .cf-mark{border-color:#2a1d12}
+/* Card states on paper: firing glows warm, fired keeps a gold edge, skipped dims. */
+html body .cf-v11 .cf-slot.cf-firing>.skill-card{border-color:#ffe39c!important;box-shadow:0 0 0 2px #2a1d12,0 0 14px 3px #e6a83c99!important}
+html body .cf-v11 .cf-slot.cf-fired>.skill-card{border-color:#e6c77c!important;box-shadow:0 0 0 2px #2a1d12,0 0 0 4px #e6c77c!important}
+html body .cf-v11 .cf-slot.cf-picked>.skill-card{border-color:#fff6d8!important;box-shadow:0 0 0 2px #2a1d12,0 0 0 4px #536430!important}
+/* While a card is picked, the other slots read as places it can go. */
+html body .cf-v11 .cf-slot.cf-target>.skill-card{border-style:dashed!important;border-color:#536430!important}
+.cf-v11 .cf-slot.cf-target::after{content:'Move here';position:absolute;z-index:4;left:50%;top:50%;transform:translate(-50%,-50%);padding:3px 6px;background:#536430;border:2px solid #2a1d12;color:#fff6d8;font:400 12px/1 var(--pixel,monospace);white-space:nowrap;pointer-events:none}
+
+/* Controls on the page: leather tabs either side of the moss primary. */
+.cf-v11 .cf-controls{gap:14px}
+.cf.cf-v11 .cf-controls .wb-sign{height:50px}
+.cf-v11 .cf-controls .wb-sign:disabled{opacity:.5}
+
+@media(max-height:380px){
+ .cf.cf-v11 .wb-page.cf-sheet{top:2px;bottom:2px;gap:3px;padding:0 12px 2px}
+ .cf-v11 .wb-page.cf-sheet::after{height:56px;background-size:24px 56px,24px 44px}
+ .cf.cf-v11{--cf-card:112px;--cf-cell:8px}
+ .cf.cf-v11 .cf-controls .wb-sign{height:44px}
+ .cf-v11 .cf-row{padding-top:18px}
+ .cf-v11 .cf-trigger.wb-tabbox{padding:0 4px;gap:3px}
+ .cf-v11 .cf-meter.wb-tabbox{column-gap:8px;padding:0 4px}
+ .cf-v11 .cf-meter-gauge{padding-top:18px}
+ .cf-v11 .cf-meter .meter-spark-cap{width:16px;height:16px}
+ .cf-meter-info{gap:4px}
+ .cf-v11 .cf-bonus.wb-tabbox{padding:0 8px;min-width:130px}
+ .cf-v11 .cf-bonus>b{font-size:18px}
+ .cf-v11 .cf-caption{font-size:13px}
+}
+@media(max-height:310px){.cf.cf-v11{--cf-card:105px;--cf-cell:7px}}
+@media(max-width:700px){
+ .cf-v11 .cf-stage{grid-template-columns:minmax(80px,100px) auto auto;column-gap:10px}
+ .cf-v11 .cf-meter-tag{white-space:normal;max-width:56px}
+}
+@media(prefers-reduced-motion:reduce){html body .cf-v11 .cf-slot.cf-firing>.skill-card{box-shadow:0 0 0 2px #2a1d12,0 0 0 5px #ffe39c!important}}
+/* The meter box sizes to its gauge and numbers; Next is wide enough that its flourishes clear the word. */
+.cf-v11 .cf-stage{grid-template-columns:minmax(84px,112px) auto auto}
+.cf-v11 .cf-controls{grid-template-columns:minmax(0,190px) minmax(0,270px) minmax(0,190px)}
+@media(max-height:380px){
+ .cf-v11 .cf-controls{grid-template-columns:repeat(3,minmax(0,180px))}
+ /* Too narrow for the flourishes beside the word: the plain moss plaque. */
+ .cf-v11.wb-go .cf-controls .wb-sign-primary{background:#536430 padding-box!important}
+}
+/* A disabled plaque keeps its own material (production button:disabled fills would show through). */
+html body .cf-v11 .cf-controls .wb-sign-standard:disabled{background:#5a4632 padding-box!important}
+html body .cf-v11.wb-go .cf-controls .wb-sign-primary:disabled{background:url('assets/flourish.svg') left 4px center/64px 16px no-repeat padding-box,url('assets/flourish-flip.svg') right 4px center/64px 16px no-repeat padding-box,#536430 padding-box!important}
+@media(max-height:380px){html body .cf-v11.wb-go .cf-controls .wb-sign-primary:disabled{background:#536430 padding-box!important}}
+
+/* ── v2.0-cardflow · one Spark travels a track through the cards ─────────────
+   Same Atlas page as v1.1. One grid; the track line is a zero-height row, so the orb, the notches,
+   the gauge and the Spark are all centred on it. Each station is one column: card over plate. */
+.cf.cf-v20{--c2-card:132px;--c2-plate:40px;--c2-above:28px;--c2-below:30px;--c2-endl:112px;--c2-endr:150px;--cf-cell:10px}
+.cf-v20 .cf2-head{position:relative;z-index:1;display:flex;align-items:baseline;gap:14px;padding-right:76px;min-width:0}
+.cf-v20 .cf2-head .wb-title{font-size:24px;line-height:1.15;white-space:nowrap}
+.cf-v20 .cf2-head .wb-context{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0;letter-spacing:1px}
+.cf2-stage{position:relative;z-index:1;display:grid;align-content:center;grid-template-columns:var(--c2-endl) repeat(3,minmax(0,1fr)) var(--c2-endr);
+ grid-template-rows:var(--c2-card) var(--c2-plate) var(--c2-above) 0 var(--c2-below);min-height:0;cursor:pointer;-webkit-user-select:none;user-select:none}
+.cf2-stations-host{display:contents}
+/* The track: a carved groove, dark above and lit below, from the orb to the gauge. */
+.cf2-track{position:absolute;height:6px;box-sizing:border-box;border-top:2px solid #3b2d20;border-bottom:2px solid #f3e3b3;background:#8a6d44;pointer-events:none}
+.cf2-anchor{grid-row:4;position:relative;height:0;justify-self:center;width:0}
+.cf2-notch>i{position:absolute;left:-5px;top:-5px;width:10px;height:10px;box-sizing:border-box;background:#5a4632;border:2px solid #2a1d12;box-shadow:inset 2px 2px #a58c57}
+.cf2-start{grid-column:1}
+.cf2-orb{position:absolute;left:-16px;top:-16px;width:32px;height:32px;image-rendering:pixelated;filter:drop-shadow(0 0 6px #fff6d8)}
+.cf2-start-label{position:absolute;bottom:26px;left:50%;transform:translateX(-50%);width:calc(var(--c2-endl) - 8px);text-align:center;font:400 13px/1.15 var(--pixel,monospace);color:#2a2118}
+/* The meter column: the gauge is the anchor; its numbers sit to its right, its name above. */
+.cf2-meter{grid-column:5;justify-self:start;margin-left:24px}
+.cf2-gauge{position:absolute;left:-7px;top:0;transform:translateY(-50%);padding-top:0!important}
+.cf-v20 .cf2-gauge .glow-side-gauge.glow-gauge-v3{position:relative;left:auto;bottom:auto;top:auto;transform:none;width:14px;height:calc(var(--glow-units,10) * (var(--cf-cell) + 2px) - 2px);max-height:none;margin:0}
+.cf-v20 .cf2-gauge .glow-gauge-v3 #flame-meter{width:14px;height:100%;background:#33261a;box-shadow:0 0 0 2px #2a1d12}
+.cf-v20 .cf2-gauge .glow-side-gauge.glow-gauge-v3 #flame-fill{gap:2px}
+.cf-v20 .cf2-gauge .glow-gauge-v3 .glow-unit{width:14px;height:var(--cf-cell);flex:0 0 var(--cf-cell);background:#4a3828;box-shadow:none}
+.cf-v20 .cf2-gauge .glow-gauge-v3 .glow-unit.lit{background:#d8c98a;box-shadow:inset 2px 0 #a58c57}
+.cf-v20 .cf2-gauge .glow-gauge-v3 .glow-unit.lit.cf-gain{background:#e6c77c;box-shadow:inset 2px 0 #b98f4a}
+.cf-v20 .cf2-gauge .meter-spark-cap{display:none}
+.cf2-meter-label{position:absolute;left:-7px;bottom:calc((var(--cf-cell) + 2px) * 5 + 8px);white-space:nowrap;font:400 12px/1 var(--pixel,monospace);letter-spacing:1px;text-transform:uppercase;color:#6b5335}
+.cf2-meter-info{position:absolute;left:18px;top:0;transform:translateY(-50%);display:grid;gap:5px;justify-items:start;white-space:nowrap}
+.cf2-meter-info>b{font:400 17px/1.1 var(--pixel,monospace);color:#2a2118}
+.cf2-meter-info>small{font:400 15px/1.1 var(--pixel,monospace);color:#5f4a1c}
+.cf2-meter-info>small:empty{display:none}
+.cf2-meter.cf2-meter-on #cf2-meter-gain{color:#3d4a22}
+.cf2-compare{font-size:13px!important;line-height:1.25!important;color:#2a2118!important;padding:3px 6px;border:2px solid #8a6d44;background:#efdcaa}
+.cf2-compare.cf-less{border-color:#8a2f22}.cf2-compare.cf-more{border-color:#536430}
+/* Stations: card over plate on one centre line. */
+.cf2-station{grid-row:1/3;display:grid;grid-template-rows:var(--c2-card) var(--c2-plate);justify-items:center;align-items:end;min-width:0;outline:none}
+.cf2-card{position:relative;transition:transform .2s steps(3,end)}
+.cf2-card>.skill-card{pointer-events:none}
+html body .cf2-card>.skill-card.card-thumbnail{--card-height:var(--c2-card);display:flex!important;flex-direction:column!important;border:2px solid #a7b18a!important;background:#263d2c!important}
+html body .cf2-card .card-thumbnail .card-illustration{flex:1 1 0;min-height:0;width:100%;display:flex;align-items:center;justify-content:center}
+html body .cf2-card .card-thumbnail .card-face-heading{padding:3px 4px}
+html body .cf2-card .card-thumbnail .card-face-heading h3{font-size:12px;line-height:1.1}
+html body .cf2-card .skill-card.card-thumbnail.card-has-uses .card-face-heading{padding-right:4px}
+html body .cf2-card .skill-card.card-thumbnail .card-use-counter{z-index:6;right:6px!important;left:auto;top:6px;bottom:auto!important;transform:none;font-size:11px!important}
+/* The plate: what the card does, in plain numbers, on leather. A 6px slice at 1x keeps its corners crisp. */
+.cf2-plate{align-self:center;display:grid;place-items:center;box-sizing:border-box;min-width:52px;max-width:calc(100% - 8px);height:calc(var(--c2-plate) - 8px);padding:0 8px;border:6px solid transparent;border-image:url('assets/plaque-leather.svg') 6 fill / 6px stretch;color:#f6ebcc;text-shadow:1px 1px #2a1d12;text-align:center}
+.cf2-plate>b{font:400 18px/1 var(--pixel,monospace);white-space:nowrap}
+.cf2-plate.cf2-plate-reason>b{font-size:11px;line-height:12px;white-space:normal}
+.cf2-plate.cf2-plate-reason{border-image-source:url('assets/plaque-slip.svg');color:#3b2d20;text-shadow:none}
+.cf2-station.cf2-done .cf2-plate{box-shadow:0 0 0 2px #e6c77c}
+.cf2-station.cf2-current .cf2-card{transform:translateY(-4px)}
+html body .cf2-station.cf2-current .cf2-card>.skill-card{border-color:#ffe39c!important;box-shadow:0 0 0 2px #2a1d12,0 0 12px 3px #e6a83c99!important}
+html body .cf2-station.cf2-done:not(.cf2-current) .cf2-card>.skill-card{border-color:#e6c77c!important}
+html body .cf2-station.cf2-skipped .cf2-card>.skill-card{opacity:.6}
+.cf2-plate.cf2-flash{animation:cf2-flash .6s steps(3,end)}
+@keyframes cf2-flash{0%,60%{box-shadow:0 0 0 3px #fff6d8,0 0 12px #f3d98a}100%{box-shadow:0 0 0 2px #e6c77c}}
+/* Practice: tap a card, then where it goes. */
+.cf2-practice .cf2-station{cursor:pointer}
+.cf2-practice .cf2-station:focus-visible{outline:2px solid #536430;outline-offset:3px}
+html body .cf2-station.cf2-picked .cf2-card>.skill-card{border-color:#fff6d8!important;box-shadow:0 0 0 2px #2a1d12,0 0 0 4px #536430!important}
+.cf2-station.cf2-picked .cf2-card{transform:translateY(-4px)}
+html body .cf2-station.cf2-target .cf2-card>.skill-card,html body .cf2-station.cf2-drop .cf2-card>.skill-card{border-style:dashed!important;border-color:#536430!important}
+.cf2-station.cf2-target .cf2-card::after{content:"Move here";position:absolute;z-index:4;left:50%;top:50%;transform:translate(-50%,-50%);padding:3px 6px;background:#536430;border:2px solid #2a1d12;color:#fff6d8;font:400 12px/1 var(--pixel,monospace);white-space:nowrap;pointer-events:none}
+.cf2-card.cf2-dragging{z-index:5;transition:none;opacity:.92}
+/* The Spark: spark-a.svg at 16, 32 or 48 only; its Bonus tag rides under it. */
+.cf2-spark{position:absolute;left:0;top:0;z-index:3;width:0;height:0;pointer-events:none}
+.cf2-spark.cf2-moving{transition:transform .5s cubic-bezier(.4,0,.3,1)}
+.cf2-spark>img{display:block;image-rendering:pixelated;filter:drop-shadow(0 0 4px #fff1c5)}
+.cf2-tag{position:absolute;left:-40px;width:80px;text-align:center;font:400 13px/1 var(--pixel,monospace);color:#fff6d8;white-space:nowrap}
+.cf2-tag::before{content:"";position:absolute;z-index:-1;left:50%;top:-3px;bottom:-3px;width:calc(100% - 8px);transform:translateX(-50%);background:#3b2d20;border:2px solid #b98f4a}
+.cf2-spark.cf2-poured>img,.cf2-spark.cf2-poured>.cf2-tag{opacity:0;transition:opacity .4s .35s}
+/* Caption and step dots. */
+.cf2-captionbox{position:relative;z-index:1;display:grid;justify-items:center;gap:4px}
+.cf2-caption{margin:0;font:400 17px/1.15 var(--pixel,monospace);color:#2a2118;white-space:nowrap;text-align:center}
+.cf2-dots{display:flex;gap:8px}
+.cf2-dots>i{width:8px;height:8px;box-sizing:border-box;border:2px solid #8a6d44;background:transparent}
+.cf2-dots>i.on{background:#8a6d44}.cf2-dots>i.now{background:#536430;border-color:#2a1d12}
+.cf2-controls{position:relative;z-index:1;display:grid;grid-template-columns:minmax(0,170px) minmax(0,260px) minmax(0,170px);justify-content:center;gap:14px}
+.cf.cf-v20 .cf2-controls .wb-sign{height:50px}
+.cf-v20 .cf2-controls .wb-sign-text>b{font-size:16px;line-height:16px}
+.cf-v20 .cf2-controls .wb-sign:disabled{opacity:.5;cursor:default}
+html body .cf-v20 .cf2-controls .wb-sign-standard:disabled{background:#5a4632 padding-box!important}
+html body .cf-v20.wb-go .cf2-controls .wb-sign-primary:disabled{background:url("assets/flourish.svg") left 4px center/64px 16px no-repeat padding-box,url("assets/flourish-flip.svg") right 4px center/64px 16px no-repeat padding-box,#536430 padding-box!important}
+@media(max-height:380px){
+ .cf.cf-v20{--c2-card:88px;--c2-plate:36px;--c2-above:26px;--c2-below:28px;--c2-endl:96px;--c2-endr:120px;--cf-cell:6px}
+ .cf-v20 .cf2-head .wb-title{font-size:19px}
+ .cf-v20 .cf2-head .wb-context{font-size:10px}
+ .cf2-start-label{font-size:11px;bottom:22px}
+ .cf2-meter{margin-left:16px}
+ .cf2-meter-label{font-size:10px}
+ .cf2-meter-info>b{font-size:14px}.cf2-meter-info>small{font-size:13px}
+ .cf2-compare{font-size:11px!important}
+ .cf2-plate>b{font-size:15px}
+ .cf2-plate.cf2-plate-reason>b{font-size:10px;line-height:11px}
+ html body .cf2-card .card-thumbnail .card-face-heading h3{font-size:10px}
+ html body .cf2-card .skill-card.card-thumbnail .card-use-counter{font-size:9px!important;min-width:22px!important;min-height:14px!important;right:4px!important;top:4px}
+ .cf2-caption{font-size:14px}
+ .cf2-dots>i{width:6px;height:6px}
+ .cf.cf-v20 .cf2-controls .wb-sign{height:44px}
+ .cf-v20 .cf2-controls .wb-sign-text>b{font-size:15px;line-height:15px}
+ .cf2-controls{grid-template-columns:repeat(3,minmax(0,170px))}
+ html body .cf-v20.wb-go .cf2-controls .wb-sign-primary,html body .cf-v20.wb-go .cf2-controls .wb-sign-primary:disabled{background:#536430 padding-box!important}
+}
+
+@media(max-width:700px){.cf.cf-v20{--c2-endl:88px;--c2-endr:112px}.cf-v20 .cf2-head .wb-context{display:none}}
+@media(prefers-reduced-motion:reduce){
+ .cf2-spark.cf2-moving{transition:none}
+ .cf2-card,.cf2-spark.cf2-poured>img,.cf2-spark.cf2-poured>.cf2-tag{transition:none}
+ .cf2-plate.cf2-flash{animation:none}
+ .cf2-station.cf2-current .cf2-card,.cf2-station.cf2-picked .cf2-card{transform:none}
+ html body .cf2-station.cf2-current .cf2-card>.skill-card{box-shadow:0 0 0 2px #2a1d12,0 0 0 5px #ffe39c!important}
+}
+/* v2.0 fit-and-finish: room under the track for the Bonus tag, crisp line boxes, gauge box with no stray line height. */
+.cf.cf-v20{--c2-card:124px;--c2-below:46px}
+.cf2-plate>b{line-height:1.2}
+.cf2-tag{line-height:1.25}
+.cf2-gauge{font-size:0;line-height:0}
+.cf-v20 .cf2-gauge .glow-side-gauge.glow-gauge-v3{display:block}
+.cf-v20 .cf2-head{height:30px;align-items:center}
+.cf2-spark.cf2-poured>.cf2-tag{visibility:hidden;transition:opacity .4s .35s,visibility 0s .75s}
+html body .cf2-card .card-thumbnail .card-face-heading{padding:3px 1px}
+@media(max-height:380px){
+ .cf.cf-v20{--c2-card:88px;--c2-plate:30px;--c2-above:24px;--c2-below:44px}
+ .cf-v20 .cf2-head{height:24px}
+ .cf2-captionbox{display:flex;justify-content:center;align-items:center;gap:12px}
+}
+@media(max-height:325px){.cf.cf-v20{--c2-card:80px}}
+@media(prefers-reduced-motion:reduce){.cf2-spark.cf2-poured>.cf2-tag{transition:none}}
+/* The production gauge carries side and bottom padding for the flight HUD; the lab gauge is exactly its cells. */
+html body .cf-v20 .cf2-gauge .glow-side-gauge.glow-gauge-v3{padding:0!important;border:0!important;box-sizing:content-box;width:14px}
+.cf2-gauge{transform:none;top:calc((10 * (var(--cf-cell) + 2px) - 2px) / -2)}
+.cf2-tag{left:-36px;width:72px;padding:3px 0;box-sizing:border-box;background:#3b2d20;border:2px solid #b98f4a}
+.cf2-tag::before{display:none}
+@media(max-height:380px){.cf.cf-v20{--c2-above:20px}}
+@media(max-height:325px){html body .cf2-card .card-thumbnail .card-face-heading h3{font-size:9px}}
+.cf2-tag{padding:1px 0}
+.cf.cf-v20{--c2-below:50px}
+@media(max-height:380px){.cf.cf-v20{--c2-below:48px}}
+@media(max-height:310px){.cf.cf-v20{--c2-card:78px;--c2-plate:28px}.cf-v20 .cf2-head{height:22px}}
+/* A reason may take two short lines; its plate grows around them rather than letting a word spill out. */
+.cf2-plate.cf2-plate-reason{height:auto;min-height:calc(var(--c2-plate) - 8px);padding:2px 6px;max-width:calc(100% - 4px)}
+/* The picked card must read clearly even after it has fired. */
+html body .cf2-practice .cf2-station.cf2-picked .cf2-card>.skill-card{border-color:#fff6d8!important;border-style:solid!important;box-shadow:0 0 0 2px #2a1d12,0 0 0 5px #536430!important}
+/* Plates are exactly tall enough for their numbers inside the 6px leather edge; a reason is a paper slip with a 2px ink edge. */
+.cf2-plate{height:calc(var(--c2-plate) - 2px);padding:0 8px}
+.cf2-plate.cf2-plate-reason{border:2px solid #8a6d44;border-image:none;background:#e6d19c;height:auto;min-height:0;padding:2px 6px;max-width:calc(100% - 4px)}
+.cf2-plate.cf2-plate-reason>b{font-size:11px;line-height:12px}
+@media(max-height:380px){.cf.cf-v20{--c2-plate:32px}.cf2-plate.cf2-plate-reason>b{font-size:10px;line-height:11px}}
+@media(max-height:310px){.cf.cf-v20{--c2-card:78px;--c2-plate:32px;--c2-above:22px;--c2-below:46px}}
+@media(max-height:310px){.cf-v20 .cf2-head{height:20px}.cf-v20 .cf2-head .wb-title{font-size:18px;line-height:1.1}}
+
+/* ── v2.1-cardflow · v2.0 with no title, an eye on every card, kind marks and "No effect here" ───────
+   Same page, track and plates as v2.0. The freed header height goes to a row for the eye above each card. */
+.cf.cf-v21{--c3-eye:30px;--c3-eyew:48px;--c3-eyeh:24px;--c2-card:126px;--c2-plate:36px;--c2-above:28px;--c2-below:51px}
+.cf.cf-v11.cf-v21 .wb-page.cf-sheet{grid-template-rows:minmax(0,1fr) auto auto}
+.cf-v21 .cf2-stage{grid-template-rows:var(--c3-eye) var(--c2-card) var(--c2-plate) var(--c2-above) 0 var(--c2-below)}
+.cf-v21 .cf2-anchor{grid-row:5}
+.cf-v21 .cf2-station{grid-row:1/4;grid-template-rows:var(--c3-eye) var(--c2-card) var(--c2-plate)}
+/* Eye row: warning on the left, the eye on the card's centre line, the Move handle on the right. */
+.cf3-eyewrap{position:relative;width:0;height:var(--c3-eye);justify-self:center;align-self:stretch}
+.cf3-eye,.cf3-move,.cf3-eye:active,.cf3-move:active{position:absolute;top:calc(50% - 22px);margin:0;padding:0;border:0;border-radius:0;background:none;box-shadow:none;box-sizing:border-box;height:44px;min-height:44px;display:grid;place-items:center;cursor:pointer;touch-action:manipulation;transform:none;outline:none}
+.cf3-close:active{transform:none;box-shadow:none}
+.cf3-eye{left:0;width:max(44px,var(--c3-eyew));min-width:44px;margin-left:calc(max(44px,var(--c3-eyew)) / -2)}
+.cf3-eye svg{display:block;width:var(--c3-eyew);height:var(--c3-eyeh);image-rendering:pixelated}
+.cf3-eye:focus-visible,.cf3-move:focus-visible{outline:2px solid #536430;outline-offset:-2px}
+.cf3-move[hidden]{display:none}
+.cf3-move{left:calc(max(44px,var(--c3-eyew)) / 2 + 2px);width:44px;min-width:44px}
+.cf3-move-skin{display:grid;place-items:center;box-sizing:border-box;width:36px;height:calc(var(--c3-eye) - 2px);min-height:22px;border:6px solid transparent;border-image:url('assets/plaque-leather.svg') 6 fill / 6px stretch;color:#f6ebcc}
+.cf3-move-skin svg{display:block;width:16px;height:16px;margin:-6px}
+.cf3-move[aria-pressed="true"] .cf3-move-skin{box-shadow:0 0 0 2px #fff6d8,0 0 0 4px #536430}
+.cf3-warn{position:absolute;top:0;display:none;right:calc(max(44px,var(--c3-eyew)) / 2 + 2px);width:24px;height:24px}
+.cf3-idle .cf3-warn{display:block}
+.cf3-warn svg{display:block;width:24px;height:24px}
+/* The card: kind mark in the top-left corner (the art area; names sit at the bottom), whole pixels. */
+.cf3-mark{top:4px;left:4px;z-index:7}
+.cf-v21 .cf2-card{z-index:0}
+/* A card that will not act: plate and mark grey, plus the warning; the card itself stays at full strength. */
+.cf3-idle .cf3-mark{background:#c4bea9;color:#4a4538;border-color:#5f5a4d}
+.cf2-plate.cf3-plate-idle{border:2px solid #6f6a5d;border-image:none;background:#cdc6b0;color:#3f3b30;text-shadow:none;height:auto;min-height:0;padding:3px 6px;max-width:calc(100% - 4px)}
+.cf2-plate.cf3-plate-idle>b{font-size:12px;line-height:13px;white-space:normal;color:#3f3b30}
+html body .cf-v21 .cf2-station.cf2-skipped .cf2-card>.skill-card{opacity:1}
+/* Nothing stands in for the title: the paper page gives the stage the whole height. */
+/* Reading a card: an opaque paper sheet over the page (no shade over text), the real face and a few plain words. */
+.cf3-read{position:absolute;inset:0;z-index:20;display:grid;place-items:center;background:#e3d09b;cursor:default}
+.cf3-panel{display:flex;align-items:center;justify-content:center;gap:22px;max-width:100%;min-width:0;box-sizing:border-box;padding:0 14px}
+.cf3-face{flex:none;display:grid;place-items:center}
+html body .cf3-face>.skill-card{--card-height:min(340px,calc(100vh - 66px))}
+.cf3-face .card-help{display:none!important}
+.cf3-face .card-use-counter{pointer-events:none}
+.cf3-info{display:grid;gap:10px;justify-items:start;align-content:center;min-width:0;width:min(300px,42vw);color:#2a1d12}
+.cf3-name{margin:0;font:400 24px/1.2 var(--pixel,monospace);color:#2a1d12;letter-spacing:0}
+.cf3-rarity{margin:0;padding:3px 8px;border:2px solid #8a6d44;background:#efdcaa;font:400 15px/1.1 var(--pixel,monospace);color:#2a1d12}
+.cf3-here{margin:0;font:400 17px/1.25 var(--pixel,monospace);color:#2a1d12;overflow-wrap:normal}
+.cf3-here-idle{padding:6px 8px;border:2px solid #6f6a5d;background:#cdc6b0;color:#3f3b30}
+.cf3-close{display:grid;place-items:center;box-sizing:border-box;min-width:132px;height:46px;padding:0 14px;border:6px solid transparent;border-image:url('assets/plaque-slip.svg') 6 fill / 6px stretch;background:none;color:#2a1d12;font:400 17px/1 var(--pixel,monospace);cursor:pointer;touch-action:manipulation}
+.cf3-close>b{font-weight:400;line-height:1.25}
+.cf3-close:focus-visible{outline:3px solid #536430;outline-offset:2px}
+/* Unknown variants: a plain note on the page. */
+.cf-nope .wb-page.cf-sheet{display:grid;place-items:center}
+.cf-nope-text{position:relative;z-index:1;margin:0;font:400 26px/1.2 var(--pixel,monospace);color:#2a1d12;text-align:center}
+
+@media(max-height:380px){
+ .cf.cf-v21{--c3-eye:22px;--c3-eyew:32px;--c3-eyeh:16px;--c2-card:112px;--c2-plate:32px;--c2-above:22px;--c2-below:48px}
+ .cf3-mark{width:20px;height:20px;font-size:16px}
+ .cf3-mark.cf-mark-repeat>svg{width:12px;height:12px}
+ .cf3-name{font-size:20px}
+ .cf3-here{font-size:15px}
+ .cf3-panel{gap:16px}
+ .cf3-info{gap:8px;width:min(280px,44vw)}
+ .cf2-plate.cf3-plate-idle>b{font-size:11px;line-height:12px}
+ html body .cf3-face>.skill-card{--card-height:min(340px,calc(100vh - 54px))}
+}
+@media(max-height:325px){.cf.cf-v21{--c2-card:98px;--c2-plate:30px;--c2-above:22px;--c2-below:46px}}
+@media(max-height:310px){.cf.cf-v21{--c2-card:84px}}

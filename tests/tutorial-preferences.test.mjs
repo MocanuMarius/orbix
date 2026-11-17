@@ -25,11 +25,12 @@ test('automatic lessons can be disabled while explicit practice remains a learni
  assert.equal(automaticTipsEnabled({skipTutorial:true},{isTutorial:true}),true);
 });
 
-test('loading is compact and contains no repeated briefing or automatic trivia',()=>{
+test('each departure begins paused with its own disabled start action until the scene is ready',()=>{
  const run={flame:100,mapIndex:0,lives:3,skills:{},stats:{flights:0},artifacts:[]};
  for(const node of [{name:'First flight'},{name:'Storm Shepherd',boss:true,bossId:'storm-shepherd'}]){
   const markup=flightEntryMarkup(run,node);
-  assert.doesNotMatch(markup,/class="entry-tip"|entry-resources|entry-artifacts|<h1>/);
+  assert.match(markup,/<button[^>]+data-action="wake-flight"[^>]*disabled/);
+  assert.doesNotMatch(markup,/entry-resources|entry-artifacts/);
   assert.match(markup,/Preparing passage/);assert.match(markup,/Starts paused/);
   assert.match(markup,/cancel-flight-entry/);
  }

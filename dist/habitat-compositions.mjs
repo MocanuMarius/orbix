@@ -1,4 +1,4 @@
-import {drawHabitatAnimal} from './habitat-wildlife.mjs?v=guide-clarity-1';
+import {drawHabitatAnimal,habitatFooting} from './habitat-wildlife.mjs?v=guide-clarity-1';
 // Whole, authored vignettes replace interchangeable mounds and evenly spaced
 // plants. Coordinates describe geology, exposed rock and sheltered soil pockets.
 const noise=n=>{let h=Math.imul(n|0,1597334677);h=Math.imul(h^(h>>>13),1274126177);return((h^(h>>>16))>>>0)/4294967296;};
@@ -47,8 +47,8 @@ const scenes={
   [['talus',-27,139,258,43,[],'scree','hare'],['fractured',288,120,267,52,[],'ice']]],
  desert:[
   [['terrace',-38,128,299,42,[.75],'rubble'],['stack',359,108,186,65,[],'scree']],
-  [['talus',-12,145,227,32,[.65],null,'rabbit'],['terrace',288,117,266,52,[.25],'pillar']],
-  [['stack',-40,109,235,68,[],null],['bank',269,159,280,28,[.22,.76],'rubble','rabbit']]],
+  [['talus',-12,145,227,32,[.65],null,'lizard'],['terrace',288,117,266,52,[.25],'pillar']],
+  [['stack',-40,109,235,68,[],null],['bank',269,159,280,28,[.22,.76],'rubble','lizard']]],
  basalt:[
   [['stack',-35,111,266,66,[],'columns'],['talus',324,139,227,43,[],'scree','lizard']],
   [['fractured',11,127,217,51,[],'columns','lizard'],['terrace',291,141,263,36,[],'scree']],
@@ -58,19 +58,64 @@ const scenes={
   [['terrace',17,147,207,32,[.72],'crystals'],['talus',288,131,265,47,[.7],'scree','lizard']],
   [['stack',-41,115,239,62,[],'crystals'],['shelf',269,151,284,28,[.3,.74],'crystals']]],
  fungal:[
-  [['rootbank',-32,135,275,42,[.22,.28,.72],'mushrooms','butterfly'],['stack',335,113,215,63,[.3],'mushrooms']],
+  [['rootbank',-32,135,275,42,[.22,.28,.72],'mushrooms','moth'],['stack',335,113,215,63,[.3],'mushrooms']],
   [['terrace',19,141,216,36,[.25,.33],'mushrooms'],['rootbank',294,129,259,43,[.22,.68,.75],'roots']],
-  [['stack',-40,115,233,62,[.28],'mushrooms'],['bank',274,151,279,27,[.22,.3,.75],'mushrooms','butterfly']]],
+  [['stack',-40,115,233,62,[.28],'mushrooms'],['bank',274,151,279,27,[.22,.3,.75],'mushrooms','moth']]],
  coral:[
   [['shelf',-30,143,271,33,[.2,.27,.72],'coral','fish'],['stack',335,119,214,59,[.29],'coral']],
   [['terrace',18,137,212,41,[.25,.74],'coral'],['bank',289,152,267,29,[.22,.3,.76],'coral','fish']],
   [['stack',-40,117,236,61,[.28],'coral','fish'],['fractured',277,139,279,41,[.23,.73],'coral']]],
  cloud:[
-  [['shelf',-28,119,261,35,[.22,.29,.73],'roots','rabbit'],['terrace',337,137,211,32,[.28],'rubble']],
+  [['shelf',-28,119,261,35,[.22,.29,.73],'roots','raven'],['terrace',337,137,211,32,[.28],'rubble']],
   [['talus',18,129,209,39,[.69],'roots'],['shelf',294,117,260,34,[.27,.73],'pillar','raven']],
-  [['terrace',-34,141,239,32,[.3],'rubble'],['shelf',277,123,279,33,[.24,.32,.73],'roots','rabbit']]],
+  [['terrace',-34,141,239,32,[.3],'rubble'],['shelf',277,123,279,33,[.24,.32,.73],'roots','raven']]],
 };
 function at(crest,u){for(let i=1;i<crest.length;i++)if(u<=crest[i][0]){const a=crest[i-1],b=crest[i];return a[1]+(b[1]-a[1])*(u-a[0])/(b[0]-a[0]);}return crest.at(-1)[1];}
+// Low native cover stays tied to its soil pocket. Forest sheet cutouts belong
+// only to wooded/wet banks; regrading their colors cannot turn them into reef
+// plants, cave lichen or exposed alpine turf.
+function groundCover(biome,x,y,inks,{poly,line,box},seed){
+ if(biome==='desert'||biome==='cloud'){
+  const dry=biome==='desert',height=dry?9:5;
+  for(let j=-2;j<=2;j++)line([[x+j*2,y+1],[x+j*3+(dry?-2:4),y-height+Math.abs(j)*2]],inks[j%2?2:3]);
+  box(x-6,y+1,14,2,inks[1]);
+ }else if(biome==='crystal'||biome==='basalt'){
+  // Mineral crust and low lichen never read as a free-standing green shrub.
+  for(let j=0;j<4;j++)box(x-7+j*4,y-1-j%2,3,2,inks[j%2+1]);
+ }else if(biome==='fungal'){
+  line([[x-8,y+1],[x-2,y-1],[x+5,y+1],[x+9,y-1]],inks[2]);
+  for(let j=0;j<3;j++){
+   const xx=x+(j-1)*7,h=5+noise(seed+j*19)*5;
+   line([[xx,y+1],[xx,y-h]],inks[2]);
+   poly([[xx-4,y-h+1],[xx-2,y-h-2],[xx+2,y-h-2],[xx+4,y-h+1]],inks[j%2+2]);
+  }
+ }else if(biome==='coral'){
+  for(let j=-1;j<=1;j++){
+   const xx=x+j*5,h=10+noise(seed+j*29)*9;
+   line([[xx,y+1],[xx+3,y-h*.45],[xx+1,y-h]],inks[j?2:3],2);
+   line([[xx+2,y-h*.4],[xx-4,y-h*.7]],inks[2]);
+  }
+ }else if(biome==='frost')line([[x-9,y],[x-4,y-2],[x+7,y-1],[x+10,y]],inks[3],2);
+}
+function groundedCrest(profile,x,y,w,h,kind,anchorX,facing){
+ const span=habitatFooting(kind,facing);if(!span)return profile;
+ // Flatten only a small resting/excursion ledge, with shoulders joining the
+ // existing landform. This is baked geology: every foot shares real support.
+ const left=(Math.floor(anchorX+span[0])-x)/w,right=(Math.ceil(anchorX+span[1])-x)/w,
+  shoulder=12/w,a=Math.max(0,left-shoulder),b=Math.min(1,right+shoulder),
+  level=(Math.floor(y+Math.min(at(profile,left),at(profile,right),...profile.filter(([u])=>u>left&&u<right).map(([,v])=>v))*h)-y)/h;
+ const surface=u=>u<a||u>b?at(profile,u):u<left?at(profile,a)+(level-at(profile,a))*(u-a)/(left-a):u<=right?level:level+(at(profile,b)-level)*(u-right)/(b-right);
+ return [...new Set([...profile.map(([u])=>u),a,left,right,b])].sort((a,b)=>a-b).map(u=>[u,surface(u)]);
+}
+function ravenPerch(feature,x,y,inks,{poly,line}){
+ // These points come from the feature silhouettes below. A narrow cap gives
+ // both feet a visible common perch, including the arch's offset crown.
+ const offset={arch:[28,-71],pillar:[-5,-48],graves:[-5,-24],log:[20,-20],roots:[-3,-36],stump:[-3,-36]}[feature];
+ if(!offset)return null;
+ const px=Math.round(x+offset[0]),py=Math.round(y+offset[1]);
+ poly([[px-5,py],[px+5,py],[px+6,py+4],[px-5,py+4]],inks[1]);line([[px-5,py],[px+5,py]],inks[2]);
+ return {x:px,y:py};
+}
 function featureArt(kind,x,y,inks,{poly,line,box},seed){
  if(['log','stump','roots'].includes(kind)){
   if(kind==='log'){
@@ -129,7 +174,9 @@ export function createNearLandscape(document,{biome,texture,patch,plants=[],vari
    const poly=(points,ink)=>{c.fillStyle=ink;c.beginPath();points.forEach(([x,y],i)=>i?c.lineTo(Math.round(x),Math.round(y)):c.moveTo(Math.round(x),Math.round(y)));c.closePath();c.fill();};
    const line=(points,ink,w=1)=>{c.strokeStyle=ink;c.lineWidth=w;c.beginPath();points.forEach(([x,y],i)=>i?c.lineTo(Math.round(x),Math.round(y)):c.moveTo(Math.round(x),Math.round(y)));c.stroke();};
    for(const [index,spec]of plans[(tile+variant+depth)%plans.length].entries()){
-    const [kind,px,py,w,h,clusters,feature,life]=spec,s=seed+index*227,x=px+(variant%2?9:-4),y=py+(depth?7:0)+(variant>1?5:0),profile=crests[kind];
+    const [kind,px,py,w,h,clusters,feature,life]=spec,s=seed+index*227,x=px+(variant%2?9:-4),y=py+(depth?7:0)+(variant>1?5:0),facing=index?-1:1;
+    const fu=feature==='arch'?.4:feature==='log'?.39:.5,u=life==='raven'?fu:life==='rabbit'?fu-.09:life==='frog'?.73:life==='lizard'?.62:.34,
+     ax=Math.round(x+w*u),profile=depth===1&&life?groundedCrest(crests[kind],x,y,w,h,life,ax,facing):crests[kind];
     const crest=profile.map(([u,v])=>[x+u*w,y+v*h]),floating=biome==='cloud',base=floating?y+85:canvas.height+20;
     const shape=[...crest,...(floating?[[x+w*.83,base-22],[x+w*.6,base-9],[x+w*.51,base+10],[x+w*.32,base-8],[x+w*.09,base-23]]:[[x+w*1.18,base],[x-w*.18,base]])];
     poly(shape,inks[0]);c.save();c.beginPath();shape.forEach(([xx,yy],j)=>j?c.lineTo(xx,yy):c.moveTo(xx,yy));c.closePath();c.clip();
@@ -159,17 +206,18 @@ export function createNearLandscape(document,{biome,texture,patch,plants=[],vari
     for(const u of clusters){
      const cy=y+at(profile,u)*h,xx=x+u*w;
      for(let j=0;j<3;j++){
-      const plant=plants[(j+tile+index)%plants.length],dx=(j-1)*9;
+      const wooded=['pinewood','marsh','thorn','moonruins','cemetery'].includes(biome),plant=wooded?plants[(j+tile+index)%plants.length]:null,dx=(j-1)*9;
       if(plant){const [sx,sy,sw,sh]=plant.rect,ph=19+noise(s+j*79+u*197)*15;c.globalAlpha=.86;c.drawImage(plant.image,sx,sy,sw,sh,Math.round(xx+dx-sw*ph/sh/2),Math.round(cy-ph+3),Math.round(sw*ph/sh),Math.round(ph));c.globalAlpha=1;}
       box(xx+dx-4,cy+2,9,2,inks[1]);
      }
+     groundCover(biome,xx,cy,inks,{poly,line,box},s+Math.round(u*197));
     }
-    const fu=feature==='arch'?.4:feature==='log'?.39:.5,fx=x+w*fu,fy=y+at(profile,fu)*h;
+    const fx=x+w*fu,fy=y+at(profile,fu)*h;
     featureArt(feature,fx,fy,inks,{poly,line,box},s);
     if(life&&depth===1){
-     const u=life==='raven'?fu:life==='rabbit'?fu-.09:life==='frog'?.73:life==='lizard'?.62:.34,ax=x+w*u,ay=y+at(profile,u)*h;
-     canvas.habitatSites.push({kind:life,x:life==='raven'?fx:ax,y:life==='raven'?fy-(feature==='arch'?66:feature==='graves'?24:0):ay,
-      travelRise:life==='hare'?(at(profile,Math.min(1,u+25/w))-at(profile,u))*h:0,phase:s*.019,facing:index?-1:1});
+     const perch=life==='raven'?ravenPerch(feature,fx,fy,inks,{poly,line}):null;
+     canvas.habitatSites.push({kind:life,x:perch?.x??ax,y:perch?.y??Math.round(y+at(profile,(ax-x)/w)*h),
+      travelRise:0,phase:s*.019,facing});
     }
    }
    tiles.push(canvas);
@@ -183,9 +231,12 @@ export function drawNearLandscapePlates(c,plates,{width,height,distance,scale=1,
  for(let depth=0;depth<plates.length;depth++){
   const p=plates[depth],span=p.tiles[0].width,scroll=distance*p.speed,first=Math.floor(scroll/span)-1,last=Math.ceil((scroll+width)/span);c.globalAlpha=p.alpha;
   for(let i=first;i<=last;i++){
-   const tile=p.tiles[Math.floor(noise(i*313+variant*71+depth*191)*p.tiles.length)],x=Math.round((i*span-scroll)*scale)/scale,y=height-232+p.yOffset;
-   c.drawImage(tile,x,y);
-   for(const site of tile.habitatSites){if(x+site.x< -45||x+site.x>width+45)continue;drawHabitatAnimal(c,site,{x:x+site.x,y:y+site.y,time,reducedMotion});}
+   const tile=p.tiles[Math.floor(noise(i*313+variant*71+depth*191)*p.tiles.length)],x=Math.round((i*span-scroll)*scale)/scale,y=Math.round((height-232+p.yOffset)*scale)/scale;
+   // Share one raster-snapped tile transform. Rounding world-space animals
+   // separately lets their feet drift against their plate at fractional scale.
+   c.save();c.translate(x,y);c.drawImage(tile,0,0);
+   for(const site of tile.habitatSites){if(x+site.x< -45||x+site.x>width+45)continue;drawHabitatAnimal(c,site,{x:site.x,y:site.y,time,reducedMotion});}
+   c.restore();
   }
  }
  c.restore();

@@ -38,9 +38,10 @@ import {FlightBoon} from './flight-boons.mjs?v=guide-clarity-1';
 import {BlackHoles} from './black-holes.mjs?v=guide-clarity-1';
 import {createFlightFX} from './reactive-fx.mjs?v=guide-clarity-1';
 import {musicReactivity} from './music.mjs?v=guide-clarity-1';
+import {liftGuideAudioPhase} from './lift-guide-audio.mjs?v=guide-clarity-1';
 import {LuminanceWaves,revealLuminanceWaves} from './luminance-waves.mjs?v=guide-clarity-1';
 import {CardRhythm} from './card-rhythm.mjs?v=guide-clarity-1';
-import {CARD_UNIT,CARD_ROW_EVENTS,createCardExecution,resolveCardRow,hasCardRowEvent,getCardCharges,getCardPackingBonus,getEffectiveCardSources} from './skill-cards.mjs?v=guide-clarity-1';
+import {CARD_UNIT,CARD_ROW_EVENTS,createCardExecution,resolveCardRow,hasCardRowEvent,getCardCharges,getCardPackingBonus,getEffectiveCardSources,getCardBoostFactors} from './skill-cards.mjs?v=guide-clarity-1';
 import {drawWispBody,makeWispSprite,makeCompanionSprite,WISP_ART} from './companion-art.mjs?v=guide-clarity-1';
 import {drawBlackHoles} from './black-hole-art.mjs?v=guide-clarity-1';
 import {drawCapture, drawShellPuff, drawCarriedSpark,drawCollectorGrip} from './capture-art.mjs?v=guide-clarity-1';
@@ -1040,7 +1041,7 @@ export class WispFlight {
     const role=this.companionRole;
     const duration=this.roleDuration(role);
     const cooldown=this.roleCooldown(role);
-    const previousBeatRank=this.mod.fourthBeatRank;
+    const previousBeatRank=this.fourthBeat.rank;
     const previousFlashDuration=flashPowerupDuration(this.mod);
     Object.assign(this.mod,modifiers);
     if(this.mod.spacetime&&!this.spacetime)this.spacetime=new SpacetimeTerrain(this);
@@ -1052,9 +1053,9 @@ export class WispFlight {
         this.routeObjective.flashUntil+=extraFlashTime;
       }
     }
-    if(this.flashTether&&this.time<this.sightUntil)this.radiateLight({id:'flash',follow:'flash',
+    if(this.flashTether&&this.time<this.sightUntil)this.radiateLight({id:'flash',sourceKind:'pickup',follow:'flash',
       duration:this.sightUntil-this.time,radius:this.getLightState().radius,color:'#f0f7ff',interval:FLASH_PULSE_INTERVAL,reveal:true});
-    if(previousBeatRank!==this.mod.fourthBeatRank)this.fourthBeatTaps.length=0;
+    if(previousBeatRank!==this.fourthBeat.rank)this.fourthBeatTaps.length=0;
     this.options.modifiers={...this.options.modifiers,...modifiers};
     this.condensedStart=bankedSparks;
     this.flame=Math.min(this.flame,this.maxFlame);
@@ -1118,10 +1119,18 @@ export class WispFlight {
   fourthBeatNow() { return performance.now() / 1000; }
 
   fourthBeatAt(now,taps=this.fourthBeatTaps) {
-    const rank=clamp(Math.trunc(this.mod.fourthBeatRank)||0,0,2);
-    const needed=rank===2?3:rank===1?4:0;
-    while(taps.length && now-taps[0]>1) taps.shift();
-    return {rank,needed,count:taps.length,ready:needed>0 && taps.length===needed-1};
+    const rank=clamp(Math.max(Math.trunc(this.mod.fourthBeatRank)||0,Math.trunc(this.mod.cardRapidLiftRank)||0),0,2);
+    const needed=rank===2?3:rank===1?2:0;
+    // Keep the phrase anchored to its first Lift: a free second Lift cannot
+    // become a fresh anchor and extend Climb into an endless free chain.
+    if(taps.length && now-taps[0]>1)taps.length=0;
+    return {rank,needed,count:taps.length,ready:needed>0 && taps.length>0,pulseReady:rank===2 && taps.length===2};
+  }
+
+  recordRapidLift(beat,at,taps=this.fourthBeatTaps) {
+    if(!beat.rank)return;
+    if(beat.count===beat.needed-1)taps.length=0;
+    else taps.push(at);
   }
 
   get fourthBeat() { return this.fourthBeatAt(this.fourthBeatNow()); }
@@ -1130,7 +1139,7 @@ export class WispFlight {
     if (this.dream?.freeGlow || beatReady || this.artifactEffects.freeLift) return 0;
     return this.flapCost - this.flightBoon.liftSaving(this.flapCost);
   }
-  get nextLiftCost() { return this.liftCostForBeat(this.mod.fourthBeatRank && this.fourthBeat.ready); }
+  get nextLiftCost() { return this.liftCostForBeat(this.fourthBeat.ready); }
   get wingRate() { return this.boostTime > 0 ? 9 : this.availableGlow + 1e-7 < this.nextLiftCost ? .45 : 5.8; }
 
   loadImage(url, property) {
@@ -1274,13 +1283,13 @@ export class WispFlight {
     const cardLiftContext={meterFraction:this.flame/this.maxFlame,guardRecovering:this.wisp.phase==='guard-recovery'};
     this.cancelLeveler(true); this.levelDive = 0;
     if(['up','down'].includes(this.fieldImpulse?.direction))this.fieldImpulse=null;
-    // A rhythmic Lift expires first, so spend it before a stored Lift or route boon.
+    // A quick free Lift expires first, so spend it before a stored Lift or route boon.
     const freeLift=this.dream?.freeGlow || beat.ready || this.artifactEffects.consumeLift();
     const effort = freeLift ? 0 : this.flightBoon.spendLift(this.flapCost);
-    if(beat.ready&&!this.dream?.freeGlow)this.activation('main-fourth-beat',{outcome:{usedLift:true}});
+    if(beat.ready&&!this.dream?.freeGlow)this.activation(beat.rank===2?'main-fourth-beat-2':'main-fourth-beat',{outcome:{usedLift:true}});
     if(beat.rank && !this.dream?.freeGlow) {
-      if(beat.ready) this.fourthBeatTaps.length=0;
-      else this.fourthBeatTaps.push(beatTime);
+      this.recordRapidLift(beat,beatTime);
+      if(beat.pulseReady)this.radiateLight({once:true,reveal:true,source:'card-climb',sourceKind:'card',color:'#d9f0dc'});
     }
     this.spendGlow(effort);
     if(effort>0&&this.burdenLiftsRemaining>0)this.burdenLiftsRemaining--;
@@ -1318,7 +1327,7 @@ export class WispFlight {
     const context={direction,meterFraction:this.flame/this.maxFlame,guardRecovering:this.wisp.phase==='guard-recovery'};
     if(!activateFieldImpulse(this,direction))return false;
     this.resolveCardRowEvent(CARD_ROW_EVENTS.field,context);
-    if(this.mod.cardWaveLoom&&(!this.dream||this.dream.phase==='done'))this.radiateLight({once:true,reveal:true,color:'#d9f0dc'});
+    if(this.mod.cardWaveLoom&&(!this.dream||this.dream.phase==='done'))this.radiateLight({once:true,reveal:true,source:'card-wave-loom',sourceKind:'card',color:'#d9f0dc'});
     this.notify();return true;
   }
 
@@ -1628,11 +1637,12 @@ export class WispFlight {
   }
 
   collectorRangeSources(collector) {
-    const unique=new Map();
-    for(const {def,source} of getEffectiveCardSources(this.cardExecution||[])){
+    const unique=new Map(),boost=getCardBoostFactors(this.cardExecution||[]);
+    for(const {def,source,index} of getEffectiveCardSources(this.cardExecution||[])){
       if(def.kind!=='collector-range'||unique.has(source.instanceId))continue;
       const reserved=this.collectors.filter(item=>item!==collector&&item.targetExtension?.instanceId===source.instanceId).length;
-      if(source.charges>reserved)unique.set(source.instanceId,{instanceId:source.instanceId,multiplier:def.rangeMultiplier});
+      // A Boost to the card's right multiplies only the extra reach (+35% x2 = +70%).
+      if(source.charges>reserved)unique.set(source.instanceId,{instanceId:source.instanceId,multiplier:1+(def.rangeMultiplier-1)*(boost[index]?.multiplier||1)});
     }
     return [...unique.values()].sort((a,b)=>a.multiplier-b.multiplier);
   }
@@ -1755,9 +1765,13 @@ export class WispFlight {
     return this.liftGuide.read(this,{loan});
   }
 
+  pulseRevealsAllowed({sourceKind}) {
+    return !(this.mod.closedEye && sourceKind==='card');
+  }
+
   getLightState() {
-    const lensScale=1+clamp(Number(this.mod.cardLuminancePercent)||0,0,180)/100;
-    const baseRadius = (Number(this.mod.lightRadius) || LIGHT_PACKET_TUNING.baseRadius) * lensScale * this.flightBoon.luminanceScale;
+    const lensScale=this.mod.closedEye?1:1+clamp(Number(this.mod.cardLuminancePercent)||0,0,180)/100;
+    const baseRadius = (Number(this.mod.lightRadius) || LIGHT_PACKET_TUNING.baseRadius) * lensScale * (this.mod.closedEye ? 1 : this.flightBoon.luminanceScale);
     const reduction=clamp(this.lightDimming*(1-clamp(this.mod.darkResistance||0,0,.6)),0,1-LIGHT_PACKET_TUNING.minimumLight);
     const flashSpec=getPickupSpec('sight');
     const sightRemaining=Math.max(0,(this.sightUntil||0)-this.time);
@@ -1787,7 +1801,7 @@ export class WispFlight {
 
     return {baseRadius,revealedRadius,revealBonus:0,pickupReveal:this.pickupRevealStrength*dyingFade,
       tetherReveal:flashLightGlow(this.flashTether,this.time)*.08*dyingFade,
-      edgingReveal:this.edgingPulse.strength,caveReduction,caveActive:caveReduction>.005,
+      edgingReveal:this.mod.closedEye&&this.edgingPulse.sourceKind==='card'?0:this.edgingPulse.strength,caveReduction,caveActive:caveReduction>.005,
       radius,forwardRadius:radius,verticalRadius:radius,rearRadius:radius,
       intensity:(1-reduction*.65)*dyingFade,dimmed:reduction>.005,sightBonus,sightRemaining,
       forwardLight,forward:forwardLight,landmarkLight,stacks:this.lightPenalties.length,
@@ -1800,7 +1814,7 @@ export class WispFlight {
     this.mainSeerStartedAt=this.time;
     this.mainSeerUntil=this.time+clamp(Number(this.mod.seerDuration)||2,.5,8);
     this.mainSeerReadyAt=this.time+clamp(Number(this.mod.seerRecovery)||8,2,30);
-    this.radiateLight({id:'seer',duration:this.mainSeerUntil-this.time,
+    this.radiateLight({id:'seer',source:'main-seer',sourceKind:'ability',duration:this.mainSeerUntil-this.time,
       radius:(Number(this.mod.lightRadius)||LIGHT_PACKET_TUNING.baseRadius)+120,follow:'wisp'});
     this.artifactEffects.notice('dawn-thread','passive');
     this.activation('main-echo-sight',{outcome:{reveal:this.mainSeerUntil-this.time}});
@@ -1967,7 +1981,7 @@ export class WispFlight {
       this.overfillWave.every=Math.max(1,Number(this.mod.cardOverfillEvery)||3);
       if(this.overfillWave.charge>=this.overfillWave.every){
         this.overfillWave.charge=0;this.overfillWave.waves++;
-        this.radiateLight({once:true,reveal:true,color:'#d9f0dc'});
+        this.radiateLight({once:true,reveal:true,source:'card-overfill',sourceKind:'card',color:'#d9f0dc'});
         this.sound('luminance',{strength:.35});
         this.activation('card-overfill',{label:'Overfill',outcome:{wave:1}});
         this.setEvent('Overfill · Luminance wave');
@@ -1999,9 +2013,10 @@ export class WispFlight {
   }
 
   radiateLight({id='reveal',x=this.distance+this.player.x,y=this.player.y,
-    radius=Math.hypot(this.width,this.height),duration=1.5,color='#c5ecff',follow=null,interval=1,reveal=false,once=false}={}) {
-    if(once)return this.luminanceWaves?.emit({x,y,radius,color,reveal});
-    return this.luminanceWaves?.addSource({id,x,y,radius,duration,color,follow,interval,reveal});
+    radius=Math.hypot(this.width,this.height),duration=1.5,color='#c5ecff',follow=null,interval=1,reveal=true,once=false,
+    source=id,sourceKind='ability'}={}) {
+    if(once)return this.luminanceWaves?.emit({x,y,radius,color,reveal,source,sourceKind});
+    return this.luminanceWaves?.addSource({id,x,y,radius,duration,color,follow,interval,reveal,source,sourceKind});
   }
 
   revealFromPickup(force=false,source=null,emitWave=true) {
@@ -2010,8 +2025,9 @@ export class WispFlight {
     this.pickupRevealFrom=from;this.pickupRevealStartedAt=this.time;
     // Refresh from current illumination; never blink dark or stack exposure.
     this.pickupRevealHoldUntil=pickupRevealHold(this.time,from,this.reducedMotion);
-    if(emitWave)this.radiateLight(source?{id:source.id,x:source.x,y:source.y,color:source.color,duration:1.5}
-      :{id:'pickup-reveal',follow:'wisp',duration:1.5});
+    if(emitWave)this.radiateLight(source?{id:source.id,x:source.x,y:source.y,color:source.color,duration:1.5,
+      follow:source.follow??null,source:source.source??source.id,sourceKind:source.sourceKind??'map'}
+      :{id:'pickup-reveal',sourceKind:'pickup',follow:'wisp',duration:1.5});
   }
 
   step(dt) {
@@ -2126,10 +2142,8 @@ export class WispFlight {
     const nearbyObstacles = this.getNearbyObstacles();
     this.spacetime?.update(dt,nearbyObstacles);
     this.edgingPulse.update(dt, nearbyObstacles);
-    if(this.artifactEffects.sightUntil>this.time){
-      this.radiateLight({id:'artifact-sight',follow:'wisp',duration:.2,
-        radius:Math.max(this.getLightState().radius,Number(this.mod.seerRadius)||230)});
-    }else this.luminanceWaves.removeSource('artifact-sight');
+    // Sense and passive sight widen steady light; they do not secretly emit
+    // harvesting fronts. Explicit relic flashes enter through revealFromPickup.
     this.luminanceWaves.update(dt);
     this.routeObjective?.update(dt,gust);
     const breathingBank = Math.sin(this.wingPhase * TAU / 6) * .012;
@@ -2229,7 +2243,12 @@ export class WispFlight {
       if (p.life <= 0) this.particles.splice(i, 1);
     }
     this.updateClock += dt;
-    if (this.updateClock >= .10) { this.updateClock = 0; if(this.resumeRemaining===0)this.notify(); }
+    // The HUD can stay at 10 Hz, but the audible Guide must share the actual
+    // physics boundary of the chevron and its balanced-height target.
+    const guidePhase=liftGuideAudioPhase({liftGuide:this.getLiftGuide(),worldRate:this.worldRate});
+    if (guidePhase!==this.lastNotifiedGuidePhase || this.updateClock >= .10) {
+      this.updateClock = 0; if(this.resumeRemaining===0)this.notify();
+    }
     if (!this.finished && !this.dying && !this.completing && this.distance >= this.totalDistance) this.finish(true);
   }
 
@@ -2272,7 +2291,7 @@ export class WispFlight {
           this.burst(this.player.x,safe,10,'#b9dfa0');
           if(watchlight){
             this.cardWatchlightUsed=true;
-            this.radiateLight({once:true,reveal:true,color:'#d9f0dc'});
+            this.radiateLight({once:true,reveal:true,source:'card-watchlight',sourceKind:'card',color:'#d9f0dc'});
           }
           this.resolveCardRowEvent(CARD_ROW_EVENTS.guard,cardGuardContext);
         }
@@ -2356,8 +2375,11 @@ export class WispFlight {
         duration:flashPowerupDuration(this.mod),initialScale:delivery?.scale??1,phase:ember.phase,reducedMotion:this.reducedMotion});
       this.sightUntil=this.flashTether.expires;
       this.cardFlashExpiryPending=!ember.generated&&!ember.fetchedInDream&&(!this.dream||this.dream.phase==='done');
+      // A replacement prism starts a new local beat; upgrading a live prism
+      // still upserts its source without restarting that beat.
+      this.luminanceWaves.removeSource('flash');
       this.radiateLight({id:'flash',x:this.flashTether.x,y:this.flashTether.y,follow:'flash',
-        duration:flashPowerupDuration(this.mod),radius:this.getLightState().radius,color:'#f0f7ff',interval:FLASH_PULSE_INTERVAL,reveal:true});
+        sourceKind:'pickup',duration:flashPowerupDuration(this.mod),radius:this.getLightState().radius,color:'#f0f7ff',interval:FLASH_PULSE_INTERVAL,reveal:true});
       this.revealFromPickup(true,null,false);
       let restored = 0;
       const cardFlash=!ember.generated&&!ember.fetchedInDream?this.resolveCardRowEvent(CARD_ROW_EVENTS.flash,cardPickupContext):null;
@@ -2383,7 +2405,7 @@ export class WispFlight {
         const restored=this.quickenCompanionRecovery(null,clamp(Number(this.mod.dreamRecharge)||0,0,4));
         if(restored>0){this.artifactEffects.notice('dreamcatcher');this.artifactEffects.notice('dream-sovereign');for(const id of ['dreamcatcher','dream-sovereign'])this.artifactEffects.activate(id,{recovery:restored});}
       }
-      if(!spec.dim&&this.mod.secondDawn&&this.dreamCompleted&&!this.secondDawnUsed){this.secondDawnUsed=true;this.revealFromPickup(true);this.artifactEffects.notice('second-dawn');this.artifactEffects.notice('dream-sovereign');for(const id of ['second-dawn','dream-sovereign'])this.artifactEffects.activate(id,{reveal:1.5});}
+      if(!spec.dim&&this.mod.secondDawn&&this.dreamCompleted&&!this.secondDawnUsed){this.secondDawnUsed=true;this.revealFromPickup(true,{id:'second-dawn',sourceKind:'relic',follow:'wisp'});this.artifactEffects.notice('second-dawn');this.artifactEffects.notice('dream-sovereign');for(const id of ['second-dawn','dream-sovereign'])this.artifactEffects.activate(id,{reveal:1.5});}
     }
     const cleansed = !ember.generated && this.lightPenalties.length > 0;
     if (cleansed) this.lightPenalties.pop();
@@ -2497,6 +2519,7 @@ export class WispFlight {
       completing:this.completing,completionProgress:this.completionProgress,collectorAura:this.getCollectorAuraState(),dying:this.dying,dyingProgress:this.dyingProgress,deathCause:this.deathCause,
       light: this.getLightState(),edgingPulse:this.edgingPulse.state,luminanceWaves:this.luminanceWaves.getState(),
       audioFocus:this.fx?.getFocus?.()||0,
+      liftGuide:this.getLiftGuide(),
       blackHole:this.blackHoles.state,
       mainTraits:{seer:!!this.mod.mainSeer,seerRemaining:Math.max(0,this.mainSeerUntil-this.time),seerCooldown:Math.max(0,this.mainSeerReadyAt-this.time),kindler:!!this.mod.mainKindler,kindlerPulse:this.kindlerPulse,purifyCooldown:this.purifyCooldown},
       collected: this.baseEmbers, boostCooldown: this.cooldown,
@@ -2518,6 +2541,7 @@ export class WispFlight {
     if(this.destroyed)return;
     const state=this.getState(),reaction=musicReactivity(state);
     this.lastNotifiedWorldRate=state.worldRate;
+    this.lastNotifiedGuidePhase=liftGuideAudioPhase(state);
     const nearest=this.blackHoles?.items.find(item=>item.id===state.blackHole?.nearest?.id);
     this.fx?.setState({...reaction,dream:state.dream?.mode==='record'?1:0,
       paused:state.paused||state.finished||state.worldRate===0,
@@ -2561,6 +2585,7 @@ export class WispFlight {
     const result = { success: Boolean(success) && this.alive, alive: this.alive, condensedGlow:this.condensedGlow,storageBonus:success&&this.alive?this.storageBonus:0,resonanceStored:success&&this.alive?this.resonanceStored:0,cardPackingEligible:this.cardPackingEligible,cardPackingBonus:success&&this.alive?this.cardPackingBonus:0,cardPackingLedger:1,cardPackingRemainder:this.cardPackingRemainder,dreamAttempt:!!(this.dream&&this.dream.phase!=='done'),condensedRemainder:this.condensedRemainder,pickupOverflow:this.pickupOverflow,
       boss: this.bossEncounter ? { id:this.layout.boss?.id||'hollow-warden', defeated: Boolean(success) && this.alive } : null,
       lives:this.lives,cardHeartsRestored:this.cardHeartsRestored,
+      artifactActivations: {...this.artifactEffects.activationCounts},
       flame: this.flame,artifactCharges:{...this.artifactEffects.charges},cardCharges:this.getCardChargeLedger(),cardTwinWickUnlocked:this.cardTwinWickUnlocked,cardExecutions:this.cardExecutions,deathPosition:!success?this.deathPosition||null:null,
       score: Math.floor(this.score), collected: this.baseEmbers, bodyFuelCollected: this.bodyFuelCollected,bodyPickups:this.bodyPickups,collectorPickups:this.collectorPickups, collisions: this.collisions,
       boosts: this.boosts,

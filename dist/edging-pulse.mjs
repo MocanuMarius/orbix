@@ -8,7 +8,9 @@ export const EDGING_PULSE_TUNING = Object.freeze({ clearance: 48, chargeSeconds:
   graceSeconds: 1.25, decayPerSecond: .08, duration: 5, recovery: 2, waves: 3 });
 /** World-space body-to-solid clearance; card sources add normal reach, never multiply each other. */
 export function getProximityClearance(modifiers = {}) {
-  const sources = Math.max(0, Math.floor(Number(modifiers.cardProximitySources) || 0));
+  // Boosted Edge Reach counts as a fractional source (+50% x1.25 = +62.5%).
+  // Boosted Edge Reach counts as a fractional source (+50% x1.25 = +62.5%). No ceiling (designer, 2026-11-17).
+  const sources = Math.max(0, Number(modifiers.cardProximitySources) || 0);
   return EDGING_PULSE_TUNING.clearance * (1 + .5 * sources);
 }
 export const EDGING_REGEN_TUNING = Object.freeze({ glow: 3 / GLOW_DISPLAY_SCALE, grants: 8, feedback: 1 });
@@ -169,10 +171,11 @@ export class EdgingPulse {
       e.activation?.(this.regenerative?'main-edging-regeneration':'proximity-awakening',
         {outcome:{reveal:this.duration,...(this.regenerative&&(!this.exhausted||this.regenGain>0)?{fuel:this.regenGain}: {})}});
       this.remaining = this.duration;this.burstOrigin.x=e.distance+e.player.x;this.burstOrigin.y=e.player.y;
-      e.radiateLight?.({id:'proximity',once:true,
+      this.sourceKind=e.mod?.cardProximityUnlocked||e.mod?.cardProximitySources>0?'card':'ability';
+      e.radiateLight?.({id:'proximity',sourceKind:this.sourceKind,once:true,
         radius:Math.hypot(e.width,e.height),color:'#bce9ff',reveal:true});
       e.sound?.('pulse');
-      if(!this.regenerative||this.exhausted)e.setEvent?.('Edging Pulse · the way is revealed');
+      if(!this.regenerative||this.exhausted)e.setEvent?.(e.mod?.closedEye&&this.sourceKind==='card'?'Proximity pulse':'Edging Pulse · the way is revealed');
     }
   }
 }

@@ -359,7 +359,7 @@ test("Rare Cache and Flash Handling grant all mounted capabilities without perma
   assert.deepEqual(run.skills, {});
   assert.equal(SKILL_CARDS["cache-handling"].rarity, "rare");
   assert.match(M.getMountedCards(run)[0].effect, /delivered Cache gives 12 Sparks/);
-  assert.match(M.getMountedCards(run)[1].effect, /up to 6 missing Sparks/);
+  assert.match(M.getMountedCards(run)[1].effect, /\+6 Sparks/);
   M.meltMountedCard(state, 0);
   M.meltMountedCard(state, 1);
   assert.equal(collectorCanFetch(cache, M.getRunModifiers(run)), false);
@@ -370,11 +370,12 @@ test("Rare Cache and Flash Handling grant all mounted capabilities without perma
   assert.equal(collectorCanFetch(flash, M.getRunModifiers(run)), true);
 });
 
-test("three Common Melts fund the exact 30-Spark Rare and no refill accompanies forging", () => {
+// Forge v3 (2026-11-17): the first Rare forge costs 40, so four Common Melts fund it exactly.
+test("four Common Melts fund the exact 40-Spark Rare and no refill accompanies forging", () => {
   const state = fresh("three-melts"),
     run = state.run;
   run.condensedGlow = 0;
-  for (let index = 0; index < 3; index++) {
+  for (let index = 0; index < 4; index++) {
     run.cardReward = {
       id: `melt-${index}`,
       card: makeSkillCard("body-spark", `melt-${index}`),
@@ -437,47 +438,52 @@ test("Forge stores its card without spending either Rest action", () => {
   assert.deepEqual(run.lastRest.actions, ["recover", "slot"]);
 });
 
-test("forge previews exact seeded cards for both tiers and spends only wallet without refill", () => {
+// Forge v3: the quote names the price and rarity, never the card; payment reveals it.
+test("forge quotes hidden seeded cards for every tier and spends only wallet without refill", () => {
   let state = fresh(),
     run = state.run;
   mount(run, ["rhythm"]);
-  run.condensedGlow = 100;
+  run.condensedGlow = 200;
   run.flame = 33;
   run.lives = 2;
   camp(state);
   const rare = M.getCardForgePreview(run),
     legendary = M.getCardForgePreview(run, "legendary");
-  assert.equal(rare.price, 30);
+  assert.equal(rare.price, 40);
   assert.equal(rare.card.rarity, "rare");
-  assert.equal(legendary.price, 60);
+  assert.equal(rare.card.cardId, null);
+  assert.equal(legendary.price, 150);
   assert.equal(legendary.card.rarity, "legendary");
   assert.ok(legendary.eligible);
+  assert.equal(M.getCardForgePreview(run, "common").price, 15);
   state = reload(state);
   run = state.run;
   assert.deepEqual(M.getCardForgePreview(run), rare);
-  assert.ok(M.forgeOwnedCard(state, "rare", rare.token));
-  assert.equal(run.condensedGlow, 70);
+  const revealed = M.forgeOwnedCard(state, "rare", rare.token);
+  assert.equal(revealed.rarity, "rare");
+  assert.equal(run.condensedGlow, 160);
   assert.equal(run.flame, 33);
   assert.equal(run.lives, 2);
   assert.equal(run.cardSlots, 3);
   assert.equal(run.lastCardForged.instanceId, rare.card.instanceId);
-  assert.equal(run.lastCardForged.cardId, rare.card.cardId);
+  assert.equal(run.lastCardForged.cardId, revealed.cardId);
   assert.equal(run.phase, "support");
   assert.equal(M.forgeOwnedCard(state, "rare", rare.token), false);
   assert.deepEqual(run.cardRest.actions, []);
-  assert.equal(reload(state).run.condensedGlow, 70);
+  assert.equal(reload(state).run.condensedGlow, 160);
 });
 
-test("Legendary forging is locked until a Rare is mounted; insufficient wallet changes nothing", () => {
+// Forge v3 dropped the "Rare mounted" gate for Legendary: the price is the gate.
+test("Legendary forging needs no Rare card; insufficient wallet changes nothing", () => {
   const state = fresh(),
     run = state.run;
-  run.condensedGlow = 29;
+  run.condensedGlow = 39;
   camp(state);
-  assert.match(M.getCardForgePreview(run, "legendary").reason, /Mount a Rare/);
+  assert.equal(M.getCardForgePreview(run, "legendary").reason, "Not enough Stored Sparks");
   const before = structuredClone(run);
   assert.equal(M.forgeOwnedCard(state, "rare", M.getCardForgePreview(run).token), false);
   assert.deepEqual(run, before);
-  run.condensedGlow = 30;
+  run.condensedGlow = 40;
   assert.ok(M.forgeOwnedCard(state, "rare", M.getCardForgePreview(run).token));
   assert.equal(run.condensedGlow, 0);
 });
@@ -506,7 +512,7 @@ test("second distinct camp action spends one real charge only on successful seco
   assert.deepEqual(run.lastRest.actions, ["grow"]);
   assert.ok(choose(run, "rest-slot"));
   assert.equal(run.mountedCards[0], null);
-  assert.equal(run.condensedGlow, 30);
+  assert.equal(run.condensedGlow, 20, "60 − the 40-Spark Rare forge (Forge v3)");
   assert.deepEqual(run.lastRest.actions, ["grow", "slot"]);
   assert.equal(run.restVisits.length, 1);
   assert.equal(run.phase, "map");

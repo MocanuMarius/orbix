@@ -3,13 +3,20 @@ export const CARD_SYSTEM = "cards-v1";
 export const CARD_UNIT = 10 / 3;
 import {CARD_CATALOG,CARD_DROP_WEIGHTS} from './card-catalog.mjs?v=guide-clarity-1';
 import {cardOfferMultiplier} from './card-offer-context.mjs?v=guide-clarity-1';
+import {interpolateCardText,getCardTrigger,cardRuleSentence} from './card-rule-bands.mjs?v=guide-clarity-1';
 const maximumGrowthAmount = Math.max(...Object.values(CARD_CATALOG)
   .filter(card => card.kind === 'camp-grow').map(card => card.amount + card.maxRank - 1));
 export const CARD_ECONOMY = Object.freeze({
   melt: { common: 10, rare: 20, legendary: 40 },
-  forge: { rare: 30, legendary: 60 },
+  // Forge (approved 2026-11-17): first price per rarity; each forge of that rarity at the
+  // same Rest multiplies the next price by forgeGrowth (rounded up); a new Rest starts over.
+  // The forged card stays hidden until paid.
+  forge: { common: 15, rare: 40, legendary: 150 },
+  forgeGrowth: 1.5,
   improve: { common: 15, rare: 25, legendary: 40 },
-  evolve: { rare: 25, legendary: 40 },
+  // Evolving into a Legendary costs the first Legendary forge (2026-11-17), so a Common
+  // Prism Lens is no cheap road to Prism Lens II.
+  evolve: { rare: 25, legendary: 150 },
   maxSlots: 5,
   maxEffectiveSources: 9,
   maxPackingWeight: 36,
@@ -218,6 +225,13 @@ export function cleanCardRun(run) {
   run.cardSlotMaps = Array.isArray(run.cardSlotMaps) ? run.cardSlotMaps : [];
   run.cardPackingRemainder = integer(run.cardPackingRemainder, 3);
   run.cardForgeCounts = Object.fromEntries(["rare", "legendary"].map((rarity) => [rarity, integer(run.cardForgeCounts?.[rarity])]));
+  // Forges paid this run, per rarity: it seeds the surprise card. Older runs start at zero.
+  run.cardForgeTally = Object.fromEntries(CARD_FORGE_RARITIES.map(rarity => [rarity, integer(run.cardForgeTally?.[rarity])]));
+  // Per-Rest price counts (×1.5 per forge at that Rest); older saves keep theirs.
+  if (run.cardForgePricing && typeof run.cardForgePricing.key === 'string') {
+    run.cardForgePricing = { key: run.cardForgePricing.key,
+      counts: Object.fromEntries(CARD_FORGE_RARITIES.map(rarity => [rarity, integer(run.cardForgePricing.counts?.[rarity])])) };
+  } else delete run.cardForgePricing;
   if (run.cardReward?.card) {
     const receiptCard = cleanCard(run.cardReward.card, new Set());
     if (receiptCard) run.cardReward.card = receiptCard;
@@ -251,13 +265,13 @@ export function describeSkillCard(card) {
   let effect;
   switch (d.kind) {
     case "body":
-      effect = `Your wisp touches a Spark: +${amount} Sparks. Touch a fuel pickup or Dusk Spark already in the passage; Dusk drains up to 3 Sparks before card bonuses. Collector deliveries, waves and pickups created by powers do not count. The bonus cannot be packed.`;
+      effect = `Collect: +${amount} Sparks each time your wisp touches a Spark, Cluster, Cache or Dusk Spark already in the passage. Dusk drains up to 3 Sparks first. Collector deliveries, Pulses and pickups made by powers are not Collect. Card Sparks cannot be packed.`;
       break;
     case "capacity":
-      effect = `Your meter holds ${amount} more Sparks while equipped. Equipping this card does not refill it.`;
+      effect = `Always on: your meter holds ${amount} more Sparks while this card is in your chain. It does not refill the meter. Boosts to its right strengthen it; the meter never holds more than 100.`;
       break;
     case "packing":
-      effect = d.ruleBands.map(band => band.text).join(' ');
+      effect = "";
       break;
     case "echo":
       effect =
@@ -269,7 +283,7 @@ export function describeSkillCard(card) {
       break;
     case "field":
       effect =
-        "Spend Collector charge. Swipe up to float, down to dive, or right to speed up. Collector must be beside you with at least ¼ charge. Each equipped or compatible copied source adds up to 0.8 seconds at full charge. Extra sources extend duration at the same force; one swipe spends charge once.";
+        "Spend Collector charge. Swipe up to float, down to dive, or right to speed up. Collector must be beside you with at least ¼ charge. Each Field Impulse in your chain, or copy of one, adds up to 0.8 seconds at full charge. Extra copies extend the time at the same force; one swipe spends charge once.";
       break;
     case "guide":
       effect =
@@ -277,10 +291,15 @@ export function describeSkillCard(card) {
       break;
     case "rhythm":
       effect =
-        "Lift 3 times at an even pace to send out a wave that reveals the passage. All 3 Lifts must succeed. Extra copies still send one wave.";
+        "Lift 3 times at an even pace to send out a Pulse that reveals the passage. All 3 Lifts must succeed. Extra copies still send one Pulse.";
+      break;
+    case "rapid-lift":
+      effect = d.rapidRank === 2
+        ? "Lift 3 times within 1 second. The second and third successful manual Lifts are free; the third sends one shared light pulse. Dream and automatic bounces do not count. Extra cards keep one trio."
+        : "Lift twice within 1 second. The second successful manual Lift is free. Dream and automatic bounces do not count. Extra cards keep one pair. Evolves into Climb.";
       break;
     case "harvest":
-      effect = `When a wave crosses an uncollected Spark: +${amount} Sparks. It must be a fuel pickup already in the passage. This refills the meter without collecting the pickup.`;
+      effect = `When a Pulse crosses an uncollected Spark: +${amount} Sparks. It must be a fuel pickup already in the passage. This refills the meter without collecting the pickup.`;
       if (d.stored)
         effect +=
           " First crossing per wave: +1 Stored Spark, even if the meter is full.";
@@ -291,7 +310,7 @@ export function describeSkillCard(card) {
       break;
     case "flash-handling":
       effect =
-        "Collector can fetch Flash. When either of you picks one up, restore up to 6 missing Sparks per equipped or copied Flash Handling. Your wisp can always touch Flash directly.";
+        "Flash: +6 Sparks for each Flash Handling in your chain (or copy of one) when either of you picks up Flash, and Collector can fetch Flash. Your wisp can always touch Flash directly.";
       break;
     case "camp-extra":
       effect =
@@ -299,16 +318,16 @@ export function describeSkillCard(card) {
       break;
     case "camp-grow":
       effect =
-        `From your Deck at Rest, Grow adds ${amount} maximum Sparks per owned Seed and refills your meter once. It does not heal hearts. All Growth Seeds share 3 Grow actions per journey, up to +90 Sparks per action.`;
+        `At Rest: Grow adds +${amount} max Sparks for this Growth Seed (each one you own adds its amount, up to +90 per Grow) and refills your meter once. It does not heal hearts. All Growth Seeds share 3 Grows per journey, and the meter never holds more than 100.`;
       break;
     case "prism":
-      effect = "Multiply the flight Sparks already earned by earlier slots in this pass by 1.25. Stored Sparks and recovery time are unchanged.";
+      effect = `Any Trigger: every card to its left gives ×${amount} Sparks and Collector time (never Stored Sparks or forever gains). Always-on cards to its left get ×${amount} on their bonus too.`;
       break;
     case "crescendo":
-      effect = "If at least 2 earlier slot actions paid Sparks in this pass, double this pass’s flight Sparks so far. Copied actions count; multipliers do not.";
+      effect = "Any Trigger: doubles the Sparks and Collector time of every card to its left (never Stored Sparks or forever gains). Always-on cards to its left get double their bonus too.";
       break;
     case "refrain":
-      effect = "When a card event earns a bonus, finish this left-to-right pass, then check the equipped row once more from slot 1 for the same event. All Refrains share one replay. Spent uses stay spent. No extra physical pickup or wave; first-crossing Stored Sparks pay only in pass 1.";
+      effect = "Any Trigger: Encore. After your chain fires and something worked, it fires once more from Slot 1 for the same Trigger. One Encore per Trigger, however many Refrains. Uses spent stay spent. No extra pickup or Pulse; a first-crossing Stored Spark comes only once.";
       break;
     case "downbeat":
       effect = "Gain 2 flight Sparks when a paid manual Lift succeeds while descending, at least 0.75 seconds after the previous successful Lift. The first, free and Dream Lifts do not count.";
@@ -317,14 +336,15 @@ export function describeSkillCard(card) {
       effect = "Each passage Spark overfill shortens Collector’s current recovery by 1 second, including recovery after a save. Requires missing recovery.";
       break;
     case "watchlight":
-      effect = "Once per flight, Collector at full charge beside your wisp blocks a fatal impact. Bounce clear and send one wave, then recover for 4 normal cycles. All Watchlights share the save.";
+      effect = "Once per flight, Collector at full charge beside your wisp blocks a fatal impact. Bounce clear and send one Pulse, then recover for 4 normal cycles. All Watchlights share the save.";
       break;
     default:
       effect = "";
   }
-  const interpolate=(text)=>String(text).replace(/\{(amount|charges|name|fedCapacity)\}/g,(_,key)=>key==='amount'?amount:key==='charges'?(card.charges??d.charges??''):key==='fedCapacity'?getCardFeederCapacity(card):d.name);
+  const interpolate=(text)=>interpolateCardText(text,{...d,...card,amount,charges:card.charges??d.charges??'',fedCapacity:getCardFeederCapacity(card),name:d.name});
   const ruleBands=Array.isArray(d.ruleBands)?d.ruleBands.map((band)=>({...band,text:interpolate(band.text)})):undefined;
-  if((!effect||d.excludeStarter)&&ruleBands)effect=ruleBands.map((band)=>band.text).join(' ');
+  // The face is short; the description adds the fine print the face leaves to the inspector.
+  if((!effect||d.excludeStarter)&&ruleBands)effect=cardRuleSentence(ruleBands)+(d.help?` ${d.help}`:'');
   return {
     ...clone(card),
     id: d.id,
@@ -342,6 +362,8 @@ export function describeSkillCard(card) {
     limited: Number.isFinite(card.charges),
     ...(d.kind === 'ember-feeder' ? { fedCapacity: getCardFeederCapacity(card) } : {}),
     ...(ruleBands?{ruleBands}:{}),
+    trigger: getCardTrigger(card, d),
+    ...(d.help?{help:d.help}:{}),
     ...(d.artFamily?{artFamily:d.artFamily}:{}),
     ...(d.evolvesTo?{evolvesTo:d.evolvesTo}:{}),
     ...(d.repeatCount?{repeatCount:d.repeatCount}:{}),
@@ -374,6 +396,49 @@ export function getEffectiveCardSources(snapshot) {
   }
   return sources;
 }
+/** Boosts that also strengthen always-on cards (Boost rules, details A and B): wildcard
+ * multipliers with no Trigger of their own and no limited Uses, marked `boostsAlwaysOn`
+ * in the catalog (Prism Lens, Prism Lens II, Crescendo, Closing Chord as the last card).
+ * Returns, per slot, the product of every such Boost to its right and the Boosts used. */
+export function getCardBoostFactors(snapshot) {
+  const cards = (Array.isArray(snapshot) ? snapshot : snapshot?.cards || snapshot?.mountedCards || []).slice(0, CARD_ECONOMY.maxSlots);
+  const lastOccupied = cards.findLastIndex(Boolean);
+  const boosts = cards.map((card, slot) => {
+    const def = SKILL_CARDS[card?.cardId], rule = def?.row;
+    if (!def?.boostsAlwaysOn || rule?.operation !== 'multiply' || def.charges || isInventoryOnlyCard(card)) return null;
+    if (rule.when?.lastOccupied && slot !== lastOccupied) return null;
+    const multiplier = Math.max(1, Number(rule.amount) || 1);
+    return multiplier > 1 ? { slot, instanceId: card.instanceId, cardId: card.cardId, name: def.name, multiplier } : null;
+  });
+  return cards.map((_, slot) => {
+    const boostedBy = boosts.filter(boost => boost && boost.slot > slot);
+    return { multiplier: boostedBy.reduce((product, boost) => product * boost.multiplier, 1), boostedBy };
+  });
+}
+/** Always-on cards with a numeric bonus part. A Boost multiplies the bonus part only
+ * (detail D: +20% ×2 = +40%; flat amounts ×N). An Encore never re-applies them (detail E). */
+const ALWAYS_ON_BONUS = Object.freeze({
+  capacity: { unit: 'max Sparks', base: source => cardAmount(source) },
+  'ember-feeder': { unit: 'max Sparks', base: source => getCardFeederCapacity(source) },
+  luminance: { unit: '% Luminance', base: source => cardAmount(source) },
+  'proximity-range': { unit: '% Pulse reach', base: (source, def) => Number(def.amount) || 50 },
+  'collector-range': { unit: '% Collector reach', base: (source, def) => Math.round(((Number(def.rangeMultiplier) || 1) - 1) * 100) },
+  packing: { unit: '% Stored Sparks from packing', base: (source, def) => 25 * Math.max(1, Number(def.packingWeight) || 1) },
+});
+/** Detail G: base and boosted bonus of each always-on source, and the Boosts behind it.
+ * A copy (Chameleon borrow, Echo repeat of Tight Packing) is boosted from its own slot. */
+export function getAlwaysOnCardBoosts(snapshot) {
+  const factors = getCardBoostFactors(snapshot);
+  return getEffectiveCardSources(snapshot).filter(entry => ALWAYS_ON_BONUS[entry.def.kind]).map(entry => {
+    const spec = ALWAYS_ON_BONUS[entry.def.kind], base = spec.base(entry.source, entry.def),
+      factor = factors[entry.index] || { multiplier: 1, boostedBy: [] };
+    return { slot: entry.index, instanceId: entry.card.instanceId, cardId: entry.card.cardId,
+      sourceInstanceId: entry.source.instanceId, sourceCardId: entry.source.cardId, kind: entry.def.kind,
+      copiedBy: entry.copiedBy, repeatIndex: entry.repeatIndex ?? 0, base, boosted: base * factor.multiplier,
+      multiplier: factor.multiplier, unit: spec.unit,
+      boostedBy: factor.boostedBy.map(({ slot, cardId, name, multiplier }) => ({ slot, cardId, name, multiplier })) };
+  });
+}
 export const getFieldImpulseMultiplier = (sources = 0) =>
   integer(sources, CARD_ECONOMY.maxEffectiveSources);
 export function getCardGrowthUses(run) {
@@ -383,46 +448,52 @@ export function getCardGrowthBonus(run) {
   return isCardRun(run) ? boundedGrowth(run.cardGrowCapacity, getCardGrowthUses(run)) : 0;
 }
 const decimal = (value) => String(Math.round(value * 100) / 100);
-const packingOutcome = weight => `Packing efficiency +${25 * weight}%`;
+const packingOutcome = weight => `+${decimal(25 * weight)}% Stored Sparks from packing`;
 function effectiveCardSummary(kind, sources, cards) {
   const matching = sources.filter((entry) => entry.def.kind === kind), count = matching.length;
-  const total = matching.reduce((sum, entry) => sum + cardAmount(entry.source), 0);
+  // Always-on totals include Boosts to the right of each source (Boost rules, detail G).
+  const boosts = getAlwaysOnCardBoosts(cards), boostOf = entry => boosts.find(b => b.slot === entry.index && b.sourceInstanceId === entry.source.instanceId && b.repeatIndex === (entry.repeatIndex ?? 0));
+  const total = decimal(matching.reduce((sum, entry) => sum + (boostOf(entry)?.boosted ?? cardAmount(entry.source)), 0));
   if (kind === "field") {
     const multiplier = getFieldImpulseMultiplier(count);
     return { effectiveSources: count, effectiveMultiplier: multiplier,
       effectiveSummary: `${count} effective ${count===1?'source':'sources'} · ${decimal(multiplier)}× duration: up, down or right lasts up to ${decimal(.8 * multiplier)}s at full Collector charge. Collector charge scales duration and native strength; right adds up to 48% speed. One swipe spends the ring once.` };
   }
-  const packingWeight=matching.reduce((sum,entry)=>sum+Math.max(1,Number(entry.def.packingWeight)||1),0);
+  const packingWeight=matching.reduce((sum,entry)=>sum+Math.max(1,Number(entry.def.packingWeight)||1)*(boostOf(entry)?.multiplier||1),0),
+    reach=matching.reduce((sum,entry)=>sum+50*(boostOf(entry)?.multiplier||1),0);
   const summaries = {
-    capacity: `+${total} maximum Sparks while equipped. Equipping does not refill the meter.`,
-    luminance: `+${total}% Luminance radius while equipped. Sources add together. Chameleon borrows this passive; Echo has no action to repeat.`,
-    proximity: 'One shared terrain meter enables revealing Proximity waves at normal reach, without Collector. Extra Proximity cards keep one meter; Echo has no passive action to repeat.',
+    capacity: `+${total} max Sparks while in your chain. It does not refill the meter, and the meter never holds more than 100.`,
+    luminance: `+${total}% Luminance while in your chain. Copies add together; Chameleon can copy it, Echo cannot.`,
+    proximity: 'One shared terrain meter sends revealing Proximity Pulses at normal reach, without Collector. Extra Proximity cards share that meter; Echo cannot repeat it.',
     springboard: 'One free half-Lift bounce per direct passage Spark absorbed while falling. Extra Springboards do not increase the bounce. Cannot be copied.',
     'heart-stitch': 'Each real Heart Stitch counts direct passage Sparks while a heart is missing. Three in one flight restore one heart and spend one use. Full hearts spend no use; this card cannot be copied.',
-    'prism-wick': 'When a passage Flash expires, send one final wave. Each equipped or copied action pays 3 Sparks from the same three shared uses; copies and replay keep one physical final wave.',
-    "proximity-range": `Proximity waves enabled. +${50 * count}% of normal reach from ${count} effective ${count === 1 ? "source" : "sources"}. Chameleon can borrow this passive; Echo has no action to repeat.`,
+    'prism-wick': 'When a Flash’s light runs out, send one final Pulse. Each copy gives +3 Sparks from the same three uses; copies and Encores keep one final Pulse.',
+    "proximity-range": `Proximity Pulses on. +${decimal(reach)}% of normal reach from ${count} ${count === 1 ? "card" : "cards"}. Chameleon can copy it; Echo cannot.`,
     packing: packingOutcome(packingWeight),
-    "flash-handling": `Restore up to ${total} missing Sparks when your wisp or Collector picks up Flash. Collector makes one pickup.`,
-    "camp-grow": `Grow adds +${total} maximum Sparks and refills the meter once. All cards share 3 Grow actions per journey.`,
-    harvest: `+${total} Sparks when a wave crosses an uncollected fuel pickup already in the passage${matching.some((entry) => entry.def.stored) ? `; +${matching.reduce((sum, entry) => sum + (entry.def.stored || 0), 0)} Stored Sparks at the first crossing per wave` : ""}.`,
+    "flash-handling": `Flash: +${total} Sparks when your wisp or Collector picks up Flash. Collector makes one pickup.`,
+    "camp-grow": `Grow adds +${total} max Sparks and refills the meter once. All Growth Seeds share 3 Grows per journey.`,
+    harvest: `+${total} Sparks when a Pulse crosses an uncollected fuel pickup already in the passage${matching.some((entry) => entry.def.stored) ? `; +${matching.reduce((sum, entry) => sum + (entry.def.stored || 0), 0)} Stored Sparks at the first crossing per Pulse` : ""}.`,
     guide: "One amber arrow shows when to Lift, even with extra copies.",
-    rhythm: "3 successful Lifts at an even pace send one wave, even with extra copies.",
+    rhythm: "3 successful Lifts at an even pace send one Pulse, even with extra copies.",
+    "rapid-lift": matching.some(entry => entry.def.rapidRank === 2)
+      ? "Climb: within 1 second, the second and third successful manual Lifts are free. The third sends one shared light pulse; extra cards keep one trio."
+      : "Double Lift: within 1 second, the second successful manual Lift is free. Extra cards keep one pair.",
     dream: "After a committed Rest, or before an Elite or Guardian: rehearse 8 seconds in full light with free Lifts. Wake at the opening’s end, paused. Extra cards keep one 8-second Dream; copying cards cannot copy it.",
     "cache-handling": "Collector can fetch Caches. A delivered Cache gives 12 Sparks. Extra cards keep that same delivery.",
     "twin-orbit": "Two Collectors fetch and reel independently while equipped. Maximum 2; the first keeps Field Impulse and saves.",
-    "twin-wick": "One use unlocks a second Collector for this expedition, even after unequipping. Maximum 2; redundant Twin Orbit does not spend this use.",
+    "twin-wick": "One use unlocks a second Collector for this journey. At most 2; it keeps its use while Twin Orbit already gives the second.",
     "collector-range": "Only extra catches beyond normal reach spend a use. The shortest sufficient extension pays once; copies share uses and extensions do not stack.",
-    "camp-extra": "Take 2 different actions at one Rest. The second successful action spends 1 use from one Second Ember.",
+    "camp-extra": "Take 2 different Rest actions at one Rest. The second one spends 1 use from one Second Ember.",
   };
   if (kind === "body") {
     // A nearly spent Pocket Sparks may fund fewer executions than copy positions.
     const next = executeCardBodyPickup(createCardExecution(cards));
-    return { effectiveSources: next.executions, effectiveSummary: `Next Spark your wisp absorbs: up to +${decimal(next.bonus / CARD_UNIT)} extra Sparks. Touch a fuel pickup or Dusk Spark already in the passage. Dusk drains first. Copied cards share the original card’s uses; the bonus cannot be packed.` };
+    return { effectiveSources: next.executions, effectiveSummary: `Next Collect: up to +${decimal(next.bonus / CARD_UNIT)} Sparks from your chain. Touch a Spark or Dusk Spark already in the passage; Dusk drains first. Copies share the real card’s uses; card Sparks cannot be packed.` };
   }
   return { effectiveSources: count, effectiveSummary: summaries[kind] || "" };
 }
 export function getMountedCards(run) {
-  const sources = getEffectiveCardSources(run);
+  const sources = getEffectiveCardSources(run), alwaysOn = getAlwaysOnCardBoosts(run);
   return (run?.mountedCards || []).map((card, index) => {
     const printed = describeSkillCard(card);
     if (!printed) return null;
@@ -438,6 +509,11 @@ export function getMountedCards(run) {
           : "No card to the right";
     const effective = sources.find((entry) => entry.index === index);
     if (effective) Object.assign(printed, effectiveCardSummary(effective.def.kind, sources, run.mountedCards));
+    // Detail G: base and boosted always-on bonus, and the Boosts behind it.
+    const boosted = alwaysOn.filter(entry => entry.slot === index);
+    if (boosted.length) printed.alwaysOnBoost = { kind: boosted[0].kind, unit: boosted[0].unit,
+      base: boosted.reduce((sum, entry) => sum + entry.base, 0), boosted: boosted.reduce((sum, entry) => sum + entry.boosted, 0),
+      multiplier: boosted[0].multiplier, boostedBy: boosted[0].boostedBy };
     if (d.kind === 'devourer') {
       const neighbor=run.mountedCards[index+1],neighborDef=SKILL_CARDS[neighbor?.cardId];
       printed.effectiveSummary=neighborDef?.rarity==='rare'
@@ -485,13 +561,17 @@ export function getReserveCards(run) {
 }
 export function getCardCapacityBonus(run) {
   if (!isCardRun(run)) return 0;
-  return getEffectiveCardSources(run).filter(({ def }) => def.kind === "capacity")
-    .reduce((sum, { source }) => sum + cardAmount(source) * CARD_UNIT, 0)
-    + (run.mountedCards || []).reduce((sum, card) => sum + getCardFeederCapacity(card) * CARD_UNIT, 0);
+  // Boosted always-on capacity (Deep Vessel, Ember Feeder's stored growth); the
+  // 100-Spark ceiling is applied once, in vitality.mjs › getGlowCapacity.
+  return getAlwaysOnCardBoosts(run).filter(({ kind }) => kind === "capacity" || kind === "ember-feeder")
+    .reduce((sum, { boosted }) => sum + boosted * CARD_UNIT, 0);
 }
-/** Integer quarters preserve earned fractions without multiplying wallet grants. */
+/** Integer quarters preserve earned fractions without multiplying wallet grants.
+ * Boosted packing weights may be fractional (Tight Packing ×1.25 = 2.5 quarters per
+ * Spark); the total weight stays capped at maxPackingWeight and quarters round down. */
 export function getCardPackingBonus(packed, sources = 0, remainder = 0) {
-  const quarters = integer(packed) * integer(sources, CARD_ECONOMY.maxPackingWeight)
+  const weight = Math.max(0, Math.min(CARD_ECONOMY.maxPackingWeight, Number.isFinite(Number(sources)) ? Number(sources) : 0));
+  const quarters = Math.floor(integer(packed) * weight + 1e-9)
     + integer(remainder, 3);
   return { amount: Math.floor(quarters / 4), remainder: quarters % 4 };
 }
@@ -589,6 +669,27 @@ export function drawSkillCard(run, source, node = run.current, rarity = null) {
   }
   return makeSkillCard(d.id, identity);
 }
+export const CARD_FORGE_RARITIES = Object.freeze(["common", "rare", "legendary"]);
+/** Forge v3: the one hidden card the next forge of `rarity` gives, seeded by the run and
+ * how many cards of that rarity it has forged, so reload, Back or another quote cannot
+ * reroll it. The pool is the reward drafts' pool for that rarity (never starter-only
+ * cards), weighted as Forge always was, and it skips cards already owned unless every
+ * card of that rarity is owned. Nothing here changes the run. */
+export function drawForgeCard(run, rarity, count = 0) {
+  const pool = Object.values(SKILL_CARDS).filter(def => def.rarity === rarity && !def.starterOnly);
+  if (!run || !pool.length) return null;
+  const identity = `${run.campaignSeed || run.seed}:forge:v3:${rarity}:${integer(count)}`, draw = random(identity);
+  const weight = def => (def.dropWeight || 1) * cardOfferMultiplier({def, rule: getCardRowRule(def, {cardId: def.id, rank: 1})}, [], {mode: 'forge'});
+  // Seeded weighted order without replacement (keys u^(1/w)); the first unowned card wins.
+  const order = pool.map((def, index) => ({ def, index, key: Math.pow(Math.max(draw(), 1e-12), 1 / weight(def)) }))
+    .sort((a, b) => b.key - a.key || a.index - b.index);
+  const held = [...(run.mountedCards || []), ...(run.reserveCards || [])].filter(card => card && SKILL_CARDS[card.cardId]);
+  const owned = new Set(held.map(card => card.cardId)), ids = new Set(held.map(card => String(card.instanceId)));
+  const chosen = (order.find(entry => !owned.has(entry.def.id)) || order[0]).def;
+  let instanceId = identity;
+  for (let suffix = 2; ids.has(instanceId); suffix++) instanceId = `${identity}:${suffix}`;
+  return makeSkillCard(chosen.id, instanceId);
+}
 /** Three seeded alternatives, without granting ownership or advancing history.
  * The first offer preserves the flight rarity roll and early Seed safeguard.
  * Further offers keep their own tier roll, then sample that tier without names
@@ -664,7 +765,30 @@ export const CARD_ROW_EVENTS = Object.freeze({
   clear: "flight-clear",
   attach: "collector-attach",
 });
-export const CARD_ROW_LIMITS = Object.freeze({ slots: 5, passes: 2, repeats: 3, slotVisits: 10, traceSteps: 40 });
+/** collectorFloor: seconds added by a Boost never bring Collector recovery or reel time below this. */
+export const CARD_ROW_LIMITS = Object.freeze({ slots: 5, passes: 2, repeats: 3, slotVisits: 10, traceSteps: 40, collectorFloor: 0.5 });
+/** Every reward kind a chain can pay, in the order a Boost strengthens them. */
+export const CARD_REWARD_KINDS = Object.freeze(["sparks", "stored", "futureCapacity", "cruisingSpeed", "reelSeconds", "recoverySeconds"]);
+/** What a Boost strengthens: Sparks and Collector time. Never Stored Sparks or permanent gains. */
+export const CARD_BOOSTED_REWARDS = Object.freeze(["sparks", "reelSeconds", "recoverySeconds"]);
+/** Stored Sparks, permanent max Sparks and speed percentage points are whole units. */
+const WHOLE_REWARDS = new Set(["stored", "futureCapacity", "cruisingSpeed"]);
+const STEP_REWARD_FIELD = Object.freeze({ sparks: "amount", stored: "stored", futureCapacity: "futureCapacity",
+  cruisingSpeed: "cruisingSpeed", reelSeconds: "reelSeconds", recoverySeconds: "recoverySeconds" });
+const zeroRewards = () => ({ sparks: 0, stored: 0, futureCapacity: 0, cruisingSpeed: 0, recoverySeconds: 0, reelSeconds: 0 });
+/** Split `total` in proportion to `weights`. Fractional rewards split exactly; whole
+ * rewards split into whole units by largest remainder (ties go to the leftmost). */
+function apportion(weights, total, whole) {
+  const sum = weights.reduce((a, b) => a + b, 0);
+  if (!(sum > 0) || !(total > 0)) return weights.map(() => 0);
+  const exact = weights.map(weight => weight * total / sum);
+  if (!whole) return exact;
+  const floors = exact.map(value => Math.floor(value + 1e-9));
+  let left = Math.round(total) - floors.reduce((a, b) => a + b, 0);
+  const order = exact.map((value, index) => [value - floors[index], index]).sort((a, b) => b[0] - a[0] || a[1] - b[1]);
+  for (const [, index] of order) { if (left <= 0) break; floors[index]++; left--; }
+  return floors;
+}
 const rowEventKinds = new Set(Object.values(CARD_ROW_EVENTS));
 export function getCardRowRule(def, card) {
   if (def?.row) return { ...def.row, amount: def.rankStep ? cardAmount(card) : def.row.amount ?? cardAmount(card) };
@@ -676,7 +800,7 @@ export function getCardRowRule(def, card) {
     downbeat: { event: CARD_ROW_EVENTS.lift, operation: "add-sparks", amount },
     "ring-spring": { event: CARD_ROW_EVENTS.overfill, operation: "shorten-recovery", amount },
     prism: { event: "*", operation: "multiply", amount },
-    crescendo: { event: "*", operation: "multiply", amount, minimumEarlierPayers: 2 },
+    crescendo: { event: "*", operation: "multiply", amount },
   };
   return rules[def?.kind] || null;
 }
@@ -700,11 +824,71 @@ function matchesRowCondition(when = {}, event, pass, slot, lastOccupied) {
 const freezeReceipt = (receipt) => {
   for (const step of receipt.steps) Object.freeze(step);
   Object.freeze(receipt.steps);Object.freeze(receipt.event);Object.freeze(receipt.charges);
+  if (Array.isArray(receipt.cards)) {
+    for (const card of receipt.cards) if (card) {
+      Object.freeze(card.base);Object.freeze(card.effective);Object.freeze(card.boostedBy);
+      if (card.boostedByKind) { for (const list of Object.values(card.boostedByKind)) Object.freeze(list); Object.freeze(card.boostedByKind); }
+      Object.freeze(card);
+    }
+    Object.freeze(receipt.cards);
+  }
+  if (Array.isArray(receipt.firings)) { for (const firing of receipt.firings) Object.freeze(firing); Object.freeze(receipt.firings); }
   return Object.freeze(receipt);
 };
-/** The numeric row is the same for flight and preview. Units here are printed Sparks.
+/** The base reward of one firing of a card's own rule, before repeats, Encore and Boosts. */
+function baseRewards(def, card, rule, event) {
+  const base = zeroRewards();
+  if (!rule || def?.kind === "echo" || def?.kind === "chameleon") return base;
+  const amount = Math.max(0, Number(rule.amount) || 0);
+  if (rule.operation === "add-sparks") base.sparks = amount;
+  if (rule.storedFirstCrossing) base.stored = Math.max(0, Number(rule.storedFirstCrossing) || 0);
+  if (rule.operation === "add-stored") base.stored = amount;
+  if (rule.operation === "carried-interest") base.stored = Math.min(10, Math.floor(integer(event.carriedStored) / 10)) * amount;
+  if (rule.operation === "add-cruising-speed") base.cruisingSpeed = amount;
+  if (rule.operation === "add-future-capacity") base.futureCapacity = cleanCardFutureCapacity(amount);
+  if (rule.operation === "shorten-recovery") base.recoverySeconds = amount;
+  if (rule.operation === "shorten-reel") base.reelSeconds = amount;
+  return base;
+}
+/** The numeric chain is the same for flight and preview. Units here are printed Sparks.
  * Topology is fixed for this event; every action reads and spends its real source.
- * Physical actions (waves, collection, ring spend, rescue) never enter this walker.
+ * Physical actions (Pulses, collection, ring spend, rescue) never enter this walker.
+ *
+ * Boost rules (docs/boost-rules.md, approved 2026-11-17, point 3 revised the same day).
+ * A `multiply` card (a Boost) strengthens the Sparks and the Collector time saved by every
+ * card to its LEFT in the same firing (pass): CARD_BOOSTED_REWARDS. It NEVER strengthens
+ * Stored Sparks rewards or permanent gains (max Sparks forever, cruising speed): those pay
+ * their base amount per firing whatever Boosts are in the chain (Echo repeats and the
+ * Encore are firings, not Boosts, and still count). Several Boosts multiply together. The
+ * seconds a Boost adds never bring Collector recovery or reel time below
+ * CARD_ROW_LIMITS.collectorFloor (a card's own unboosted saving is limited only by the
+ * time left, as before). The whole-unit rounding below is kept for any whole reward that
+ * a future rule lets a Boost touch; today none does. Wildcard
+ * Boosts act on every Trigger, including Clear and Latch (where only time savings can
+ * grow); wildcard + cards still skip
+ * Clear, Latch and victory. A Boost succeeds (and spends a use) only when it raises
+ * something. Always-on cards are boosted outside this walker: see getAlwaysOnCardBoosts.
+ *
+ * Receipt fields (all earlier fields keep their meaning):
+ * - sparks, stored, futureCapacity, cruisingSpeed, recoverySeconds, reelSeconds: totals.
+ *   Each total equals the sum of `cards[*].effective[kind]` exactly.
+ * - cards[slot] (null for an empty slot): { slot, instanceId, cardId,
+ *   base: one firing of this card's own printed reward, per kind (zero for copy cards
+ *   and Boosts), effective: what this card really contributed after repeats (Echo,
+ *   Chameleon and Encore firings are credited to the real card they copy) and Boosts,
+ *   per kind, fired: successful firings credited to this card, multiplier: the Boost's
+ *   own factor in pass 1 (Boost cards only), boostedBy: slots of the Boosts that raised
+ *   this card's rewards, boostedByKind: the same per reward kind (always empty for stored,
+ *   futureCapacity and cruisingSpeed, which Boosts never touch) }.
+ * - Whole Sparks: each firing's Spark total rounds DOWN at its end. `sparks` and every
+ *   cards[*].effective.sparks are whole-number results (the loss comes off the last card
+ *   that changed the total); `sparksExact` (receipt and per card) keeps the unrounded value,
+ *   and firings[] lists {pass, sparksExact, sparks} per firing. Steps keep exact amounts,
+ *   so they sum to sparksExact. Collector seconds keep their decimals.
+ * - steps[*].creditSlot: the slot whose card is credited with this step's reward.
+ * - For a multiply step, amount/stored/futureCapacity/cruisingSpeed/recoverySeconds/
+ *   reelSeconds hold the INCREASE it gave, so the steps of a receipt also sum to its
+ *   totals, and steps[*].boosted lists the slots it raised.
  */
 export function resolveCardRow(runtime, event = {}) {
   const kind = event.kind || event.type;
@@ -712,12 +896,14 @@ export function resolveCardRow(runtime, event = {}) {
   if (runtime) runtime.eventSequence = sequence;
   const receipt = { event: { id: event.id ?? sequence, sequence, kind,
     firstCrossing: !!event.firstCrossing, pickupKind: event.pickupKind ?? null,
+    ...(kind===CARD_ROW_EVENTS.wave?{waveId:event.waveId??null,
+      pulseSource:event.pulseSource??null,pulseSourceKind:event.pulseSourceKind??null}:{}),
     meterFraction: event.meterFraction ?? null, direction: event.direction ?? null,
     guardRecovering: !!event.guardRecovering, collectorReeling: !!event.collectorReeling,
     availableReel: Math.max(0,Number(event.availableReel)||0),
     availableRecovery: Math.max(0,Number(event.availableRecovery)||0), carriedStored: integer(event.carriedStored),
     cruisingSpeedRoom:event.cruisingSpeedRoom==null?6:cleanCardCruisingSpeed(event.cruisingSpeedRoom) }, passes: 0, slotVisits: 0, sparks: 0, stored: 0,
-    futureCapacity: 0, cruisingSpeed: 0, recoverySeconds: 0, reelSeconds: 0, executions: 0, payerActions: 0, steps: [], charges: {} };
+    futureCapacity: 0, cruisingSpeed: 0, recoverySeconds: 0, reelSeconds: 0, executions: 0, payerActions: 0, steps: [], charges: {}, cards: [], sparksExact: 0, firings: [] };
   if (!runtime || !rowEventKinds.has(kind) || event.eligible === false) {
     receipt.charges = getCardCharges(runtime);return freezeReceipt(receipt);
   }
@@ -725,12 +911,53 @@ export function resolveCardRow(runtime, event = {}) {
   const topology = cards.map((card) => card ? { ...card } : null);
   const live = new Map(cards.filter(Boolean).map((card) => [card.instanceId, card]));
   const lastOccupied = topology.findLastIndex((card) => !!card);
-  let recoveryLeft = Math.max(0, Number(event.availableRecovery) || 0);
-  let cruisingSpeedRoom=receipt.event.cruisingSpeedRoom;
-  let reelLeft = Math.max(0, Number(event.availableReel) || 0);
+  const floor = CARD_ROW_LIMITS.collectorFloor;
+  const ledgerCards = topology.map((card, slot) => {
+    const def = SKILL_CARDS[card?.cardId];
+    if (!def) return null;
+    const rule = getCardRowRule(def, card);
+    return { slot, instanceId: card.instanceId, cardId: card.cardId, base: baseRewards(def, card, rule, receipt.event),
+      effective: zeroRewards(), fired: 0, ...(rule?.operation === "multiply" ? { multiplier: Number(rule.amount) || 1 } : {}), boostedBy: [],
+      boostedByKind: Object.fromEntries(CARD_REWARD_KINDS.map(rewardKind => [rewardKind, []])) };
+  });
+  // Every reward paid in this event, one entry per paying firing: {pass, slot, kind, value, cap}.
+  const entries = [];
+  const total = (rewardKind, pass = null) => entries.reduce((sum, entry) =>
+    entry.kind === rewardKind && (pass === null || entry.pass === pass) ? sum + entry.value : sum, 0);
+  const recoveryLeft = () => Math.max(0, receipt.event.availableRecovery - total("recoverySeconds") - total("reelSeconds"));
+  const reelLeft = () => Math.max(0, Math.min(receipt.event.availableReel - total("reelSeconds"), recoveryLeft()));
+  // Detail C: seconds a Boost adds never bring Collector below `floor`; a card's own
+  // printed saving keeps today's rule (limited only by the time left).
+  const budget = (rewardKind, boosting = false) => rewardKind === "recoverySeconds" ? Math.max(0, recoveryLeft() - (boosting ? floor : 0))
+    : rewardKind === "reelSeconds" ? Math.max(0, reelLeft() - (boosting ? floor : 0))
+    : rewardKind === "cruisingSpeed" ? Math.max(0, receipt.event.cruisingSpeedRoom - total("cruisingSpeed")) : Infinity;
+  /** One Boost: raise every earlier entry of this pass by `multiplier`, within caps and budgets. */
+  const applyBoost = (pass, multiplier, kinds) => {
+    const increase = zeroRewards(), boosted = new Set(), byKind = [];
+    for (const rewardKind of kinds) {
+      const own = entries.filter(entry => entry.pass === pass && entry.kind === rewardKind && entry.value > 0);
+      if (!own.length) continue;
+      const targets = own.map(entry => Math.min(entry.cap ?? Infinity, entry.value * multiplier));
+      const desired = own.map((entry, index) => Math.max(0, targets[index] - entry.value));
+      const wanted = desired.reduce((a, b) => a + b, 0);
+      if (!(wanted > 0)) continue;
+      const whole = WHOLE_REWARDS.has(rewardKind);
+      const before = own.reduce((sum, entry) => sum + entry.value, 0);
+      let allowed = whole ? Math.max(0, Math.round(before + wanted) - before) : wanted;
+      allowed = Math.min(allowed, budget(rewardKind, true));
+      if (whole) allowed = Math.floor(allowed + 1e-9);
+      if (!(allowed > 0)) continue;
+      const shares = !whole && allowed === wanted ? null : apportion(desired, allowed, whole);
+      own.forEach((entry, index) => {
+        const next = shares ? entry.value + shares[index] : targets[index];
+        if (next > entry.value) { increase[rewardKind] += next - entry.value; entry.value = next; boosted.add(entry.slot); byKind.push([entry.slot, rewardKind]); }
+      });
+    }
+    return { increase, boosted: [...boosted].sort((a, b) => a - b), byKind, any: Object.values(increase).some(value => value > 0) };
+  };
   let replayRequested = false, productive = false;
   for (let pass = 1; pass <= (replayRequested && productive ? 2 : 1); pass++) {
-    let subtotal = 0, futureSubtotal = 0, payers = 0, lastPayout = 0;
+    let payers = 0, lastPayout = 0, lastSparkSlot = null;
     receipt.passes = pass;
     for (let slot = 0; slot < topology.length; slot++) {
       const acting = topology[slot], ownDef = SKILL_CARDS[acting?.cardId];
@@ -738,16 +965,18 @@ export function resolveCardRow(runtime, event = {}) {
       const target = copy ? topology[slot + 1] : acting;
       const def = SKILL_CARDS[target?.cardId];
       const source = live.get(target?.instanceId);
+      const creditSlot = copy ? slot + 1 : slot;
       receipt.slotVisits++;
       const repeats = copy && ownDef.kind === "echo" ? Math.max(1,integer(ownDef.repeatCount || 1,CARD_ROW_LIMITS.repeats)) : 1;
       for (let repeatIndex = 0; repeatIndex < repeats; repeatIndex++) {
-      const step = { eventId: receipt.event.id, eventKind: kind, pass, slot, repeatIndex,
+      const subtotal = total("sparks", pass), futureSubtotal = total("futureCapacity", pass);
+      const step = { eventId: receipt.event.id, eventKind: kind, pass, slot, repeatIndex, creditSlot,
         actingInstanceId: acting?.instanceId ?? null, actingCardId: acting?.cardId ?? null,
         sourceInstanceId: source?.instanceId ?? null, sourceCardId: source?.cardId ?? null,
         copiedBy: copy ? ownDef.kind : null, operation: "skip", before: subtotal, after: subtotal,
-        amount: 0, stored: 0, recoverySeconds: 0, recoveryBefore: recoveryLeft, recoveryAfter: recoveryLeft,
+        amount: 0, stored: 0, recoverySeconds: 0, recoveryBefore: recoveryLeft(), recoveryAfter: recoveryLeft(),
         futureCapacity: 0, futureCapacityBefore: futureSubtotal, futureCapacityAfter: futureSubtotal, cruisingSpeed: 0,
-        reelSeconds: 0, reelBefore: reelLeft, reelAfter: reelLeft,
+        reelSeconds: 0, reelBefore: reelLeft(), reelAfter: reelLeft(),
         chargesBefore: Number.isFinite(source?.charges)?source.charges:null,
         chargesAfter: Number.isFinite(source?.charges)?source.charges:null,
         success: false, skipReason: null };
@@ -760,73 +989,101 @@ export function resolveCardRow(runtime, event = {}) {
         step.skipReason = "exhausted-source";continue;
       }
       const rule = getCardRowRule(def, source);
-      if (rule && (rule.event === kind || rule.event === "*" && ![CARD_ROW_EVENTS.victory,CARD_ROW_EVENTS.clear,CARD_ROW_EVENTS.attach].includes(kind)) && matchesRowCondition(rule.when,event,pass,slot,lastOccupied)) {
+      const pay = (rewardKind, value, cap) => {
+        if (rewardKind === "sparks") lastSparkSlot = creditSlot;
+        entries.push({ pass, slot: creditSlot, kind: rewardKind, value, ...(cap === undefined ? {} : { cap }) });
+        step[STEP_REWARD_FIELD[rewardKind]] += value;
+      };
+      const succeed = () => {
+        if (def.charges) source.charges--;
+        receipt.executions++;productive = true;step.success = true;
+        if (ledgerCards[creditSlot]) ledgerCards[creditSlot].fired++;
+      };
+      const wildcard = rule?.event === "*" && (rule.operation === "multiply"
+        ? kind !== CARD_ROW_EVENTS.victory
+        : ![CARD_ROW_EVENTS.victory,CARD_ROW_EVENTS.clear,CARD_ROW_EVENTS.attach].includes(kind));
+      if (rule && (rule.event === kind || wildcard) && matchesRowCondition(rule.when,event,pass,slot,lastOccupied)) {
       const operation = rule.operation;
       const amount = Math.max(0,Number(pass === 2 && rule.replayAmount !== undefined ? rule.replayAmount : rule.amount) || 0);
       const payout = operation === "add-last-payout" ? lastPayout : amount;
       if ((operation === "add-sparks" || operation === "add-last-payout") && payout > 0 && payers >= (Number(rule.minimumEarlierPayers)||0)) {
-        if (def.charges) source.charges--;
-        subtotal += payout;lastPayout = payout;payers++;receipt.payerActions++;receipt.executions++;productive = true;
-        step.operation = operation;step.amount = payout;step.success = true;
+        step.operation = operation;succeed();
+        pay("sparks", payout);lastPayout = payout;payers++;receipt.payerActions++;
         if (pass === 1 && event.firstCrossing && rule.storedFirstCrossing) {
-          step.stored = Math.max(0,Number(rule.storedFirstCrossing)||0);receipt.stored += step.stored;
+          const stored = Math.max(0,Number(rule.storedFirstCrossing)||0);
+          if (stored > 0) pay("stored", stored);
         }
-      } else if (operation === "multiply") {
-        step.operation = "multiply";step.multiplier = amount;
-        if (subtotal > 0 && amount > 1 && payers >= (Number(rule.minimumEarlierPayers)||0)) {
-          if (def.charges) source.charges--;
-          subtotal *= amount;step.amount = subtotal - step.before;step.success = true;
-          receipt.executions++;productive = true;
-        } else step.skipReason = subtotal <= 0 ? "empty-subtotal" : "needs-two-earlier-payers";
-      } else if (operation === "add-future-capacity" || operation === "multiply-future-capacity") {
+      } else if (operation === "multiply" || operation === "multiply-future-capacity") {
+        step.operation = operation;step.multiplier = amount;
+        // Never Stored Sparks or permanent gains, so the legacy future-capacity multiplier boosts nothing.
+        const boost = amount > 1 ? applyBoost(pass, amount, operation === "multiply" ? CARD_BOOSTED_REWARDS : []) : null;
+        if (boost?.any) {
+          succeed();
+          for (const rewardKind of CARD_REWARD_KINDS) step[STEP_REWARD_FIELD[rewardKind]] = boost.increase[rewardKind];
+          step.boosted = boost.boosted;
+          for (const boostedSlot of boost.boosted) ledgerCards[boostedSlot]?.boostedBy.push(slot);
+          for (const [boostedSlot, rewardKind] of boost.byKind) {
+            ledgerCards[boostedSlot]?.boostedByKind[rewardKind].push(slot);
+            if (rewardKind === "sparks") lastSparkSlot = Math.max(lastSparkSlot ?? -1, boostedSlot);
+          }
+        } else step.skipReason = operation === "multiply-future-capacity" ? "empty-future-capacity"
+          : entries.some(entry => entry.pass === pass && entry.value > 0 && CARD_BOOSTED_REWARDS.includes(entry.kind)) ? "boost-capped"
+          : entries.some(entry => entry.pass === pass && entry.value > 0) ? "not-boostable" : "empty-subtotal";
+      } else if (operation === "add-future-capacity") {
         step.operation = operation;
-        const increase = operation === "add-future-capacity" ? cleanCardFutureCapacity(amount) : futureSubtotal * Math.max(0, cleanCardFutureCapacity(amount) - 1);
-        if (increase > 0) {
-          if (def.charges) source.charges--;
-          futureSubtotal += increase;step.futureCapacity = increase;step.success = true;
-          receipt.executions++;productive = true;
-        } else step.skipReason = "empty-future-capacity";
+        const increase = cleanCardFutureCapacity(amount);
+        if (increase > 0) { succeed();pay("futureCapacity", increase); }
+        else step.skipReason = "empty-future-capacity";
       } else if (operation === "add-stored" || operation === "carried-interest" || operation === "add-cruising-speed") {
         step.operation = operation;
         const gain = operation === "carried-interest" ? Math.min(10, Math.floor(integer(event.carriedStored) / 10)) * amount
-          : operation === "add-cruising-speed" ? Math.min(amount,cruisingSpeedRoom) : amount;
+          : operation === "add-cruising-speed" ? Math.min(amount, budget("cruisingSpeed")) : amount;
         if (gain > 0) {
-          if (def.charges) source.charges--;
-          if (operation === "add-cruising-speed") { step.cruisingSpeed = gain;receipt.cruisingSpeed += gain;cruisingSpeedRoom-=gain; }
-          else { step.stored = gain;receipt.stored += gain; }
-          receipt.executions++;productive = true;step.success = true;
+          succeed();
+          if (operation === "add-cruising-speed") pay("cruisingSpeed", gain);
+          else pay("stored", gain, operation === "carried-interest" ? 10 * amount : undefined);
         } else step.skipReason = operation === "add-cruising-speed" ? "cruising-speed-cap" : "no-carried-interest";
       } else if (operation === "shorten-reel") {
-        step.operation = operation;step.reelSeconds = Math.min(amount, reelLeft, recoveryLeft);
-        if (step.reelSeconds > 0) {
-          if (def.charges) source.charges--;
-          reelLeft -= step.reelSeconds;recoveryLeft -= step.reelSeconds;receipt.reelSeconds += step.reelSeconds;
-          receipt.executions++;productive = true;step.success = true;
-        } else step.skipReason = "no-active-reel";
+        step.operation = operation;
+        const seconds = Math.min(amount, budget("reelSeconds"));
+        if (seconds > 0) { succeed();pay("reelSeconds", seconds); }
+        else step.skipReason = "no-active-reel";
       } else if (operation === "shorten-recovery") {
         step.operation = operation;
-        step.recoverySeconds = Math.min(amount, recoveryLeft);
-        if (step.recoverySeconds > 0) {
-          if (def.charges) source.charges--;
-          recoveryLeft -= step.recoverySeconds;receipt.recoverySeconds += step.recoverySeconds;
-          reelLeft = Math.min(reelLeft, recoveryLeft);
-          receipt.executions++;productive = true;step.success = true;
-        } else step.skipReason = "no-recovery";
+        const seconds = Math.min(amount, budget("recoverySeconds"));
+        if (seconds > 0) { succeed();pay("recoverySeconds", seconds); }
+        else step.skipReason = "no-recovery";
       } else step.skipReason = operation === "add-last-payout" ? "no-earlier-payout" : operation === "add-sparks" ? "needs-earlier-payer" : "unsupported-operation";
       } else if (def.kind === "refrain") {
         step.operation = "replay-row";
         if (pass === 1 && !replayRequested) { replayRequested = true;step.success = true; }
         else step.skipReason = "replay-limit";
       } else step.skipReason = rule ? "event-or-condition-not-met" : "different-event-or-passive";
-      step.after = subtotal;
-      step.futureCapacityAfter = futureSubtotal;
-      step.reelAfter = reelLeft;
-      step.recoveryAfter = recoveryLeft;
+      step.after = total("sparks", pass);
+      step.futureCapacityAfter = total("futureCapacity", pass);
+      step.reelAfter = reelLeft();
+      step.recoveryAfter = recoveryLeft();
       step.chargesAfter = Number.isFinite(source?.charges)?source.charges:null;
       }
     }
-    receipt.sparks += subtotal;
-    receipt.futureCapacity += futureSubtotal;
+    // Whole Sparks (2026-11-17): each firing's Spark total rounds DOWN once, at its end.
+    // The rounding loss comes off the last card that changed that total, so the per-card
+    // effective amounts still add up; the unrounded figures stay in sparksExact.
+    const exact = total("sparks", pass), whole = Math.floor(exact + 1e-9), loss = exact - whole;
+    for (const entry of entries) if (entry.pass === pass && entry.kind === "sparks" && ledgerCards[entry.slot])
+      ledgerCards[entry.slot].sparksExact = (ledgerCards[entry.slot].sparksExact || 0) + entry.value;
+    if (loss > 1e-9 && lastSparkSlot !== null) {
+      const own = entries.filter(entry => entry.pass === pass && entry.kind === "sparks" && entry.slot === lastSparkSlot)
+        .sort((a, b) => b.value - a.value)[0];
+      if (own) own.value -= loss;
+    }
+    if (loss > 1e-9 && Math.abs(total("sparks", pass) - whole) > 1e-9) // safety: never leave a fraction behind
+      for (const entry of entries.filter(entry => entry.pass === pass && entry.kind === "sparks").reverse()) {
+        const cut = Math.min(entry.value, total("sparks", pass) - whole); entry.value -= cut; if (total("sparks", pass) - whole <= 1e-9) break;
+      }
+    for (const entry of entries) if (entry.pass === pass && entry.kind === "sparks") entry.value = Math.round(entry.value * 1e6) / 1e6;
+    receipt.firings.push({ pass, sparksExact: exact, sparks: whole });
+    receipt.sparksExact += exact;
     // A Refrain by itself cannot schedule a meaningless second walk.
     if (pass === 1 && !productive) for (const step of receipt.steps) {
       if (step.operation === "replay-row" && step.success) {
@@ -834,6 +1091,16 @@ export function resolveCardRow(runtime, event = {}) {
       }
     }
   }
+  for (const entry of entries) if (ledgerCards[entry.slot]) ledgerCards[entry.slot].effective[entry.kind] += entry.value;
+  // Totals are the sum of the per-card effective amounts, so the two always agree exactly.
+  for (const rewardKind of CARD_REWARD_KINDS)
+    receipt[rewardKind] = ledgerCards.reduce((sum, card) => sum + (card ? card.effective[rewardKind] : 0), 0);
+  for (const card of ledgerCards) if (card) {
+    card.sparksExact = card.sparksExact || 0;
+    card.boostedBy = [...new Set(card.boostedBy)];
+    for (const rewardKind of CARD_REWARD_KINDS) card.boostedByKind[rewardKind] = [...new Set(card.boostedByKind[rewardKind])];
+  }
+  receipt.cards = ledgerCards;
   runtime.executions = (runtime.executions || 0) + receipt.executions;
   receipt.charges = getCardCharges(runtime);
   const result = freezeReceipt(receipt);runtime.lastTrace = result;return result;
@@ -879,6 +1146,7 @@ export function isCardDreamRoute(run, node = run?.current) {
 }
 export function getCardModifiers(run) {
   const m = {
+    cardRapidLiftRank: 0,
     cardProximitySources: 0,
     cardProximityUnlocked: false,
     cardRhythm: false,
@@ -919,11 +1187,16 @@ export function getCardModifiers(run) {
   m.cardTwinWickUnlocked = run.cardTwinWickUnlocked === true;
   m.cardPackingRemainder = integer(run.cardPackingRemainder, 3);
   m.cardExecution = { cards: clone(run.mountedCards || []) };
-  for (const { def: d, source } of getEffectiveCardSources(run)) {
-    if (d.kind === "luminance") m.cardLuminancePercent += cardAmount(source);
+  // Always-on bonuses are strengthened by Boosts to their right (Boost rules, details A–F).
+  const boost = getCardBoostFactors(run);
+  for (const { def: d, source, index } of getEffectiveCardSources(run)) {
+    const factor = boost[index]?.multiplier || 1;
+    if (d.kind === "luminance") m.cardLuminancePercent += cardAmount(source) * factor;
     if (d.kind === "proximity") m.cardProximityUnlocked = true;
-    if (d.kind === "proximity-range") m.cardProximitySources++;
+    // One source adds 50% of normal reach; a boosted source counts as `factor` sources.
+    if (d.kind === "proximity-range") m.cardProximitySources += factor;
     if (d.kind === "rhythm") m.cardRhythm = true;
+    if (d.kind === "rapid-lift") m.cardRapidLiftRank = Math.max(m.cardRapidLiftRank, d.rapidRank || 1);
     if (d.kind === "dream") m.cardDream = true;
     if (d.kind === "guide") m.cardLiftGuide = true;
     if (d.kind === "field") { m.cardFieldImpulse = true; m.cardFieldSources++; }
@@ -931,7 +1204,7 @@ export function getCardModifiers(run) {
     if (d.kind === "twin-orbit") m.cardTwinOrbit = true;
     if (d.kind === "twin-wick") m.cardTwinWick = true;
     if (d.kind === "flash-handling") { m.cardFlashHandling = true; m.cardFlashSources++; m.cardFlashMeter += cardAmount(source) * CARD_UNIT; }
-    if (d.kind === "packing") m.cardPackingSources+=Math.max(1,Number(d.packingWeight)||1);
+    if (d.kind === "packing") m.cardPackingSources += Math.max(1,Number(d.packingWeight)||1) * factor;
     if (d.kind === "downbeat") m.cardDownbeat = true;
     if (d.kind === "ring-spring") m.cardRingSpring = true;
     if (d.kind === "watchlight") m.cardWatchlight = true;

@@ -2,7 +2,7 @@ import {PRACTICE_EDITION,isPlayablePractice,loanPracticeCards,practiceModifiers}
 import {prepareScoreLedger,awardScoreStores,awardSettledScoreStores,freezeCompletedGameScore,recordCompletedGameScore} from './game-score.mjs?v=guide-clarity-1';
 import {getCardChargeCapacity,getCardFeederCapacity,getEmberFeederTargets,consumeCardUseDoublers} from './skill-cards.mjs?v=guide-clarity-1';
 import {collectorPreference,learnedCollectorPreferences} from './collector-preferences.mjs?v=guide-clarity-1';
-import {CARD_SYSTEM,CARD_ECONOMY,SKILL_CARDS,isCardRun,isInventoryOnlyCard,getInventoryCampCards,makeSkillCard,cleanCardRun,settleCardReward,getCardStarterOffers,drawSkillCard,drawSkillCardDraft,describeSkillCard,getMountedCards,getOwnedCards,getReserveCards,getCardMeltValue,getCardModifiers,getCardPackingBonus,getCardGrowthUses,getCardGrowthBonus,cleanCardFutureCapacity,createCardExecution,resolveCardRow,CARD_ROW_EVENTS,commitCardCharges,recordCardEvent} from './skill-cards.mjs?v=guide-clarity-1';
+import {CARD_SYSTEM,CARD_ECONOMY,SKILL_CARDS,isCardRun,isInventoryOnlyCard,getInventoryCampCards,makeSkillCard,cleanCardRun,settleCardReward,getCardStarterOffers,drawSkillCard,drawSkillCardDraft,describeSkillCard,getMountedCards,getOwnedCards,getReserveCards,getCardMeltValue,getCardModifiers,getCardPackingBonus,getCardGrowthUses,getCardGrowthBonus,cleanCardFutureCapacity,createCardExecution,resolveCardRow,CARD_ROW_EVENTS,commitCardCharges,recordCardEvent,drawForgeCard,CARD_FORGE_RARITIES} from './skill-cards.mjs?v=guide-clarity-1';
 export {CARD_SYSTEM,CARD_ECONOMY,SKILL_CARDS,isCardRun,getMountedCards,getOwnedCards,getReserveCards,getCardMeltValue,commitCardCharges} from './skill-cards.mjs?v=guide-clarity-1';
 import {FLIGHT_PACTS,pactOffers,activeFlightPact,pactBonus} from './flight-pacts.mjs?v=guide-clarity-1';
 import {chestRewardPair} from './chest-rewards.mjs?v=guide-clarity-1';
@@ -26,12 +26,12 @@ import {ROUTE_RECIPES,ROUTE_TOPOLOGY_VERSION,MAP_STOP_COUNT,REWARD_THEMES,nodeEc
 import {COMPANION_ABILITIES,getCompanionUnlock,normalizeCompanionFleet} from './companion-abilities.mjs?v=guide-clarity-1';
 import {MAIN_TUNING_SKILLS} from './main-tuning.mjs?v=guide-clarity-1';
 import {activePassageBoons,activeEventFavors,grantEventFavor,spendPreparationClear} from './passage-preparations.mjs?v=guide-clarity-1';
-import {STARTING_CONDENSED_GLOW,getGlowCapacity,getRestGlowBonus,REST_GLOW_TUNING,glowText} from './vitality.mjs?v=guide-clarity-1';
+import {STARTING_CONDENSED_GLOW,getGlowCapacity,getRestGlowBonus,REST_GLOW_TUNING,glowText,GLOW_CAPACITY_LIMIT_UNITS} from './vitality.mjs?v=guide-clarity-1';
 import {expandSkillSteps,skillProgress} from './skill-increments.mjs?v=guide-clarity-1';
 import {MAX_ASCENSION} from './ascent.mjs?v=guide-clarity-1';
 import {EXPANDED_SKILLS,applyExpandedSkills} from './skill-paths.mjs?v=guide-clarity-1';
 /** Run-owned skills and currency; persistent ascension unlocks and boss artifacts. */
-import { FLAME_TUNING, LIFE_TUNING, getLifeCapacity } from './vitality.mjs?v=guide-clarity-1';
+import { LIGHT_PACKET_TUNING, FLAME_TUNING, LIFE_TUNING, getLifeCapacity } from './vitality.mjs?v=guide-clarity-1';
 import { getBiomeLevelIdentity } from './level-catalog.mjs?v=guide-clarity-1';
 import { BIOMES } from './biomes.mjs?v=guide-clarity-1';
 import { EVENT_SCENARIOS } from './map-guide.mjs?v=guide-clarity-1';
@@ -714,7 +714,7 @@ export function getCardImprovePreview(run, index) {
       : null,
     after = nextCard ? describeSkillCard(nextCard) : before,
     price = kind === "evolution"
-      ? (CARD_ECONOMY.evolve || { rare: 25, legendary: 40 })[nextDefinition.rarity]
+      ? CARD_ECONOMY.evolve[nextDefinition.rarity]
       : definition ? CARD_ECONOMY.improve[definition.rarity] * card.rank : 0,
     slot = card ? (run?.mountedCards || []).findIndex((owned) => owned?.instanceId === card.instanceId) : -1;
   const reason = !before
@@ -829,55 +829,72 @@ function ensureCardRest(run) {
   }
   return run.cardRest;
 }
+/** Forge (approved 2026-11-17). Common, Rare and Legendary start at CARD_ECONOMY.forge; each
+ * successful forge of a rarity at the same Rest multiplies its next price by 1.5 (rounded up
+ * at checkout), and the next Rest starts again at the first price, as Forge v2 did. The
+ * surprise card is seeded by the run-wide count of that rarity (cardForgeTally), so a new
+ * Rest never repeats an earlier result and reload or Back never rerolls one. */
+function cardForgePricing(run, rarity) {
+  const context = getCardCampContext(run),
+    key = context ? `${run.mapIndex}:${context.node.id}` : null,
+    craftCount = key && run.cardForgePricing?.key === key ? count(run.cardForgePricing.counts?.[rarity]) : 0;
+  return { key, craftCount };
+}
+const cardForgeCount = (run, rarity) => count(run?.cardForgeTally?.[rarity]);
+const forgePriceAt = (rarity, crafts) => Math.ceil(CARD_ECONOMY.forge[rarity] * CARD_ECONOMY.forgeGrowth ** crafts);
+export function getCardForgePrice(run, rarity = "rare") {
+  if (!CARD_FORGE_RARITIES.includes(rarity)) return 0;
+  return forgePriceAt(rarity, cardForgePricing(run, rarity).craftCount);
+}
+/** The quote names the price, never the card: the result is a surprise until it is paid.
+ * `card` is a placeholder with the forged card's future instance id and no card id. */
 export function getCardForgePreview(run, rarity = "rare") {
-  const valid = ["rare", "legendary"].includes(rarity),
-    price = valid ? CARD_ECONOMY.forge[rarity] : 0;
-  let sequence = count(run?.cardForgeCounts?.[rarity]), card = null;
-  if (valid && isCardRun(run)) {
-    const occupied = new Set([
-      ...(run.mountedCards || []), ...(run.reserveCards || []),
-      ...(run.cardHistory || []).filter((event) => event.type === "forge").map((event) => event.card),
-    ].filter(Boolean).map((owned) => owned.instanceId));
-    do {
-      card = drawSkillCard({ campaignSeed: run.campaignSeed, seed: run.seed, mapIndex: 0 }, `forge:v2:${rarity}:${sequence}`, null, rarity);
-      if (!occupied.has(card.instanceId)) break;
-      sequence++;
-    } while (true);
-  }
-  const hasRare = (run?.mountedCards || []).some(
-    (card) => SKILL_CARDS[card?.cardId]?.rarity === "rare",
-  );
+  const valid = CARD_FORGE_RARITIES.includes(rarity),
+    pricing = cardForgePricing(run, rarity),
+    forged = valid ? cardForgeCount(run, rarity) : 0,
+    price = valid ? getCardForgePrice(run, rarity) : 0,
+    hidden = valid && isCardRun(run) ? drawForgeCard(run, rarity, forged) : null,
+    label = valid ? rarity[0].toUpperCase() + rarity.slice(1) : '';
   const reason =
     !canUseCardCampServices(run)
       ? "Forge is available at Rest"
       : !valid
-        ? "No tier above Legendary"
-        : rarity === "legendary" && !hasRare
-          ? "Mount a Rare card to forge Legendary"
-          : (run.condensedGlow || 0) < price
-            ? "Not enough Stored Sparks"
-            : null;
+        ? "Choose Common, Rare or Legendary"
+        : (run.condensedGlow || 0) < price
+          ? "Not enough Stored Sparks"
+          : null;
   return {
-    card: describeSkillCard(card),
+    card: hidden ? { hidden: true, instanceId: hidden.instanceId, cardId: null, name: `Surprise ${label} card`, rarity, rarityLabel: label } : null,
+    hidden: true,
     price,
     rarity,
     actionCost: 0,
-    sequence,
-    token: JSON.stringify([run?.id || null, rarity, sequence, card?.instanceId || null, price]),
+    sequence: forged,
+    forged,
+    restKey: pricing.key,
+    craftCount: pricing.craftCount,
+    nextPrice: valid ? forgePriceAt(rarity, pricing.craftCount + 1) : 0,
+    token: JSON.stringify([run?.id || null, pricing.key, rarity, forged, pricing.craftCount, hidden?.instanceId || null, price]),
     eligible: !reason,
     reason,
   };
 }
+/** Pays, then reveals: returns the forged card (truthy) or false. Uses no Rest action. */
 export function forgeOwnedCard(state, rarity = "rare", expectedPreviewToken) {
   const run = state?.run, preview = getCardForgePreview(run, rarity);
   if (!preview.eligible || (expectedPreviewToken !== undefined && expectedPreviewToken !== preview.token)) return false;
+  const card = drawForgeCard(run, rarity, preview.forged);
+  if (!card || card.instanceId !== preview.card?.instanceId) return false;
   run.condensedGlow -= preview.price;
   preserveCardWallet(run);
-  (run.cardForgeCounts ??= {})[rarity] = preview.sequence + 1;
-  (run.reserveCards ??= []).push(makeSkillCard(preview.card.cardId, preview.card.instanceId));
-  run.lastCardForged = copy(preview.card);
-  recordCardEvent(run, "forge", { price: preview.price, card: preview.card });
-  return true;
+  (run.cardForgeTally ??= { common: 0, rare: 0, legendary: 0 })[rarity] = preview.forged + 1;
+  if (run.cardForgePricing?.key !== preview.restKey) run.cardForgePricing = { key: preview.restKey, counts: { common: 0, rare: 0, legendary: 0 } };
+  (run.cardForgePricing.counts ??= {})[rarity] = preview.craftCount + 1;
+  (run.reserveCards ??= []).push(card);
+  const revealed = describeSkillCard(card);
+  run.lastCardForged = copy(revealed);
+  recordCardEvent(run, "forge", { price: preview.price, rarity, card: revealed });
+  return revealed;
 }
 function makeCardCampChoices(run) {
   const rest = ensureCardRest(run),
@@ -934,7 +951,10 @@ function makeCardCampChoices(run) {
     option(
       "rest-grow",
       "Grow",
-      `Increase maximum Sparks by +${Math.round(growth * .3)} and fully refill once. Hearts stay as they are. ${getCardGrowthUses(run)}/3 shared Grow actions used.`,
+      // The 100-Spark meter ceiling: quote only the growth that still fits.
+      Math.min(growth, Math.max(0, GLOW_CAPACITY_LIMIT_UNITS - getGlowCapacity(run))) > 1e-9
+        ? `Increase maximum Sparks by +${Math.round(Math.min(growth, GLOW_CAPACITY_LIMIT_UNITS - getGlowCapacity(run)) * .3)} and fully refill once. Hearts stay as they are. ${getCardGrowthUses(run)}/3 shared Grow actions used.`
+        : `Max 100 reached: no more maximum Sparks. Fully refill once. Hearts stay as they are. ${getCardGrowthUses(run)}/3 shared Grow actions used.`,
       "grow",
       getCardModifiers(run).cardGrowSources > 0 &&
         growth > 0,
@@ -1373,6 +1393,11 @@ export function finishFlight(run,result){
  run.condensedRemainder=exitPacking.remainder;
  run.condensedEarned=count(run.condensedEarned)+pickupCondensedGlow+exitPacking.amount+cardPackingBonus+completionBonus+(routeBonus?.amount||0);
  run.lastFlight={success:true,nodeId:n.id,mapIndex:run.mapIndex,difficulty:run.difficulty,flightNumber:n.flightNumber,terrain:n.terrain,elite:n.elite,boss:n.boss===true,completionBonus,pickupCondensedGlow,routeBonus,challengeBonus:0,challengeComplete,securedCondensedGlow:0,collected:count(result.collected),flame:remaining,pickupOverflow:Math.max(0,finite(result.pickupOverflow)),consumedArtifacts,recovery:{amount,rate,before:remaining,after:run.flame,overflow:0,stored:0}};
+ run.lastFlight.artifactActivations = Object.fromEntries(
+   Object.entries(result.artifactActivations || {})
+     .filter(([id, uses]) => Object.hasOwn(ARTIFACTS, id) && count(uses) > 0)
+     .map(([id, uses]) => [id, count(uses)])
+ );
  if(keptLightDividend){
   queue(run,keptLightDividend,'kept-light');
   run.condensedEarned+=keptLightDividend;
@@ -1425,7 +1450,8 @@ export function finishFlight(run,result){
   if(!result.dreamAttempt&&!run.cardClearReceipts.some(receipt=>receipt.key===clearKey)){
    const hand=getMountedCards(run).filter(Boolean),runtime=createCardExecution(run.mountedCards);
    const row=resolveCardRow(runtime,{kind:CARD_ROW_EVENTS.clear,carriedStored:count(attempt?.cardCarriedStored??attempt?.condensedGlow),cruisingSpeedRoom:6-cleanCardCruisingSpeed(run.cardCruisingSpeedUnlocked)});
-   const sources=Object.freeze(hand.map(card=>Object.freeze({instanceId:card.instanceId,cardId:card.cardId,name:card.name,charges:card.charges??null})));
+   const sources=Object.freeze(hand.map(card=>Object.freeze({instanceId:card.instanceId,cardId:card.cardId,name:card.name,rank:card.rank||1,charges:card.charges??null,
+    ...(Number.isFinite(card.chargeCapacity)?{chargeCapacity:card.chargeCapacity}:{}),...(Number.isFinite(card.fedCapacity)?{fedCapacity:card.fedCapacity}:{})})));
    const receipt=Object.freeze({...row,version:2,key:clearKey,runId:run.id,nodeId:n.id,mapIndex:run.mapIndex,sources,
     futureCapacity:run.testMode?0:row.futureCapacity,cruisingSpeed:run.testMode?0:Math.min(row.cruisingSpeed,6-cleanCardCruisingSpeed(run.cardCruisingSpeedUnlocked))});
    run.cardCruisingSpeedUnlocked=cleanCardCruisingSpeed(run.cardCruisingSpeedUnlocked+receipt.cruisingSpeed);
@@ -1778,11 +1804,16 @@ export function getRunModifiers(run={}){const rank=skillProgress,companion=norma
   m.flightBoon=run.attemptActive?run.attemptEntry?.flightBoon??null:null;
   m.flightBoons=run.attemptActive?run.attemptEntry?.flightBoons||[]:activePassageBoons(run);
   const pact=activeFlightPact(run);
-  if(pact?.sight)m.lightRadius*=pact.sight;
+  if(pact?.id==='blind-pilgrim')m.closedEye=true;
+  else if(pact?.sight)m.lightRadius*=pact.sight;
   if(pact?.reach)m.attract*=pact.reach;
   if(isCardRun(run))m.speed+=cleanCardCruisingSpeed(run.attemptActive?run.cardCruisingSpeed:run.cardCruisingSpeedNext??run.cardCruisingSpeed)/100;
   Object.assign(m,getCardModifiers(run),practiceModifiers(run));
   if(m.cardProximityUnlocked||m.cardProximitySources>0)m.proximityUnlocked=true;
+  if(m.closedEye){
+    m.lightRadius=LIGHT_PACKET_TUNING.baseRadius*pact.sight;
+    m.cardLuminancePercent=0;
+  }
   if(m.cardFieldImpulse)m.collectorFieldImpulse=true;
   if(m.cardCacheHandling)m.collectorFetchMass=Math.max(3,m.collectorFetchMass);
   if(m.cardFlashHandling)m.collectorFlashFetch=true;

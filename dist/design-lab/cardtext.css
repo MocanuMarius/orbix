@@ -1,0 +1,77 @@
+/* v1.0-cardtext · design-lab only. The approved v2.5-theme page (variants.css) holding a
+   scrollable list of every card: today's text struck through, the proposed text beneath. */
+.ct-page .flight-device{background:#0c0907}
+.ct{--ink:#2a2118;--ink-soft:#6b5335;--rule:#8a6d44;--moss:#536430;--paper:#e6d19c;--slip:#f1e0b0;--wine:#7a2f2a;
+ position:fixed;inset:0;z-index:1;display:block;padding:0;overflow:hidden;background:#0c0907;--pw:calc(100% - 12px);--px:6px;color:var(--ink)}
+.ct,.ct *{font-variant-ligatures:none!important;font-feature-settings:"liga" 0,"clig" 0,"dlig" 0!important}
+.ct .wb-world{filter:brightness(.42) saturate(.8)}
+.ct .wb-page.ct-sheet{top:4px;bottom:4px;left:6px;right:6px;width:auto;display:grid;grid-template-rows:auto minmax(0,1fr);align-items:stretch;justify-content:stretch;gap:4px;padding:2px 6px 4px;color:var(--ink)}
+.ct-sheet>:not(.wb-pagelight){position:relative;z-index:1}
+
+/* Header: fixed. Title left, filters right; the ribbons in the corner stay clear. */
+.ct-head{display:flex;align-items:center;gap:12px;min-width:0;padding:0 64px 2px 4px;border-bottom:2px solid var(--rule)}
+.ct-titles{min-width:0;flex:1 1 auto}
+.ct .wb-title{font-size:24px;line-height:26px;color:var(--ink)!important;text-shadow:none}
+.ct-sub{margin:2px 0 0;font:400 11px/13px var(--pixel,monospace);color:var(--ink-soft);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ct-filters{flex:none;display:flex;flex-wrap:wrap;justify-content:flex-end;gap:4px;max-width:62%}
+html body .ct .ct-filters button{display:inline-flex;align-items:center;gap:4px;min-height:32px!important;height:32px;margin:0!important;padding:0 8px!important;border:2px solid var(--rule)!important;border-radius:0!important;background:var(--slip)!important;box-shadow:0 2px 0 #c4a56b!important;color:var(--ink)!important;-webkit-text-fill-color:currentColor!important;font:400 12px/1 var(--pixel,monospace)!important;letter-spacing:.3px;text-transform:none;cursor:pointer;filter:none!important;opacity:1!important}
+html body .ct .ct-filters button>small{font-size:11px;color:var(--ink-soft)}
+html body .ct .ct-filters button[aria-pressed=true]{background:var(--moss)!important;border-color:#2a1d12!important;color:#fff6d8!important;box-shadow:0 2px 0 #2a1d12!important}
+html body .ct .ct-filters button[aria-pressed=true]>small{color:#e2e6c0}
+html body .ct .ct-filters button:focus-visible{outline:2px solid var(--ink)!important;outline-offset:2px}
+
+/* List: the only part that scrolls. Cards flow in columns when the page is wide. */
+.ct-list{min-height:0;overflow-y:auto;overflow-x:hidden;padding:4px 6px 10px 4px;overscroll-behavior:contain;scrollbar-width:thin;scrollbar-color:#8a6d44 #0000;outline:none}
+.ct-list:focus-visible{box-shadow:inset 0 0 0 2px var(--ink)}
+.ct-group{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:6px;margin:0 0 8px}
+.ct-group[hidden],.ct-card[hidden]{display:none!important}
+.ct-group-title{grid-column:1/-1;margin:2px 0 0;font:400 14px/16px var(--pixel,monospace);letter-spacing:1.5px;text-transform:uppercase;color:var(--ink)}
+.ct-group-title>small{font-size:11px;color:var(--ink-soft);letter-spacing:.5px}
+.ct-card{display:grid;grid-template-columns:44px minmax(0,1fr);gap:8px;align-items:start;padding:6px 8px;box-sizing:border-box;border:2px solid var(--rule);background:#f1e0b0cc;box-shadow:0 2px 0 #c4a56b}
+.ct-card[data-flagged="1"]{border-color:#b9772c}
+.ct-art{width:44px;height:44px;border:2px solid #2a1d12;box-sizing:border-box;background:#14241e;overflow:hidden}
+.ct-art>svg{display:block;width:40px!important;height:40px!important}
+.ct-body{min-width:0}
+.ct-name{display:flex;flex-wrap:wrap;align-items:baseline;gap:2px 6px;margin:0;font:400 14px/16px var(--pixel,monospace);color:var(--ink)}
+.ct-rarity{font-size:11px;letter-spacing:.8px;text-transform:uppercase}
+.ct-r-common{color:#5d5446}.ct-r-rare{color:#2f5a78}.ct-r-legendary{color:#8a4f12}
+.ct-tag{margin-left:auto;padding:1px 5px;background:#b9772c;color:#fff6d8;font-size:11px;line-height:13px;letter-spacing:.3px}
+.ct-tag-decided{background:var(--moss)}
+.ct-today{margin:2px 0 3px;font:400 11px/13px var(--pixel,monospace);color:#8a7656}
+.ct-today>s{text-decoration-thickness:1px;text-decoration-color:#8a7656aa}
+
+/* Proposed text: Trigger chip + condition, then the WHAT line large. */
+.ct-prop{display:grid;gap:3px}
+.ct-when{display:flex;flex-wrap:wrap;align-items:center;gap:3px 6px;margin:0;font:400 12px/14px var(--pixel,monospace);color:var(--ink)}
+.ct-chip{display:inline-block;padding:1px 6px;border:2px solid #2a1d12;background:#d8c98a;color:#14241a;font:400 11px/13px var(--pixel,monospace);letter-spacing:.5px;text-transform:uppercase;white-space:nowrap}
+.ct-chip-always{background:#fff6d8}
+.ct-chip-rest{background:#c9d39a}
+.ct-chip-any{background:#9cc3d8;color:#0f1d26}
+.ct-cond{color:var(--ink)}
+.ct-what{margin:0;font:400 17px/19px var(--pixel,monospace);color:var(--ink)}
+.ct-uses{display:inline-block;margin-left:2px;padding:0 4px;border:1px solid var(--rule);background:#fff6d8;font-size:11px;line-height:14px;color:var(--ink-soft);vertical-align:2px;white-space:nowrap}
+.ct-dec{margin:4px 0 0;font:400 11px/13px var(--pixel,monospace);color:#7a4f1c}
+.ct-dec>b{font-weight:400;padding:0 3px;background:#7a4f1c;color:#fff6d8}
+.ct-dec>span{display:block;color:var(--ink-soft)}
+.ct-both{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:6px;margin-top:4px}
+.ct-both>div{min-width:0;padding:4px 5px;border:1px dashed var(--rule);background:#fff6d855}
+.ct-both small{display:block;margin-bottom:2px;font:400 11px/12px var(--pixel,monospace);color:var(--ink-soft)}
+.ct-prop-small .ct-what{font-size:13px;line-height:15px}
+.ct-both .ct-uses{white-space:normal}
+.ct-prop-was{opacity:.7}
+.ct-boost{margin:4px 0 0;font:400 11px/13px var(--pixel,monospace);color:#2f5a78}
+.ct-boost>b{font-weight:400}
+
+@media(max-height:340px){
+ .ct-head{gap:8px}
+ .ct .wb-title{font-size:20px;line-height:22px}
+ html body .ct .ct-filters button{min-height:28px!important;height:28px;padding:0 6px!important}
+ .ct-what{font-size:15px;line-height:17px}
+}
+@media(max-width:760px){
+ .ct-sub{display:none}
+ .ct-head{padding-right:56px}
+ .ct-filters{max-width:none;flex-wrap:nowrap;gap:3px}
+ html body .ct .ct-filters button{padding:0 5px!important;font-size:11px!important}
+ html body .ct .ct-filters button>small{display:none}
+}

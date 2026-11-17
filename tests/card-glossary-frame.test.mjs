@@ -62,7 +62,8 @@ test('concise faces retain live values and leave accounting restrictions in actu
   const purse=cardFace(describeSkillCard(makeSkillCard('wayfarers-purse','purse')));
   assert.match(purse,/data-card-description="[^"]*This bonus cannot earn packing bonuses/);
   assert.doesNotMatch(purse.match(/<div class="card-rule-band"[\s\S]*$/)[0],/This bonus cannot earn packing bonuses/);
-  const devourer=cardFace(describeSkillCard(makeSkillCard('devourer','devourer'))).replace(/<[^>]+>/g,'');
-  assert.match(devourer,/Consume the Rare card to the right to restore 1 heart/);
-  assert.match(devourer,/Full hearts keep both cards. Cannot be copied or replayed/);
+  // Approved plain wording (v1.0-cardtext): the face says what; the fine print stays in Help.
+  const devourerFace=cardFace(describeSkillCard(makeSkillCard('devourer','devourer'))),devourer=devourerFace.replace(/<[^>]+>/g,'');
+  assert.match(devourer,/Eats the next Rare card: \+1 heart/);
+  assert.match(devourerFace,/data-card-description="[^"]*Full hearts keep both cards/);
 });

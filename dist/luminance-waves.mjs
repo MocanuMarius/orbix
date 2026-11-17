@@ -6,6 +6,15 @@ const finite=(value,fallback)=>Number.isFinite(Number(value))?Number(value):fall
 const clamp=(value,lo=0,hi=1)=>Math.max(lo,Math.min(hi,value));
 const REVEAL_BANDS=Object.freeze([[64,.18],[44,.26],[22,.42]]);
 
+// Contact is the expanding boundary reaching the visible pickup shell, never
+// membership in the illuminated disc. Return its entry radius for event order.
+export function luminanceWaveCrossing(wave,packet){
+  const rim=pickupShellRadius(packet),distance=Math.hypot(packet.x-wave.x,packet.y-wave.y);
+  const entry=Math.max(0,distance-rim);
+  return entry<=wave.maximum&&entry<=wave.radius&&distance+rim>=wave.previous
+    ?Math.max(wave.previous,entry):null;
+}
+
 /** Temporary reveal fronts; harvesting never collects ordinary Sparks or invokes pickup hooks. */
 export class LuminanceWaves {
   constructor(engine){this.engine=engine;this.sources=new Map();this.waves=[];this.revealCount=0;this.clock=0;this.lastCue=-Infinity;this.serial=0;}
@@ -14,7 +23,7 @@ export class LuminanceWaves {
     let source=this.sources.get(id);
     if(!source){
       if(this.sources.size>=LUMINANCE_WAVE_TUNING.maximumSources)this.sources.delete(this.sources.keys().next().value);
-      source={id,x:0,y:0,radius:145,remaining:Infinity,next:0,interval:LUMINANCE_WAVE_TUNING.interval,color:'#d9f0dc',follow:null,reveal:false};
+      source={id,x:0,y:0,radius:145,remaining:Infinity,next:0,interval:LUMINANCE_WAVE_TUNING.interval,color:'#d9f0dc',follow:null,reveal:true,source:id,sourceKind:'ability'};
       this.sources.set(id,source);
     }
     source.x=finite(settings.x,source.x);source.y=finite(settings.y,source.y);
@@ -24,13 +33,16 @@ export class LuminanceWaves {
     if(Object.hasOwn(settings,'follow'))source.follow=settings.follow;
     if(Object.hasOwn(settings,'interval'))source.interval=Math.max(1/60,finite(settings.interval,LUMINANCE_WAVE_TUNING.interval));
     if(Object.hasOwn(settings,'reveal'))source.reveal=!!settings.reveal;
+    if(settings.source)source.source=settings.source;
+    if(settings.sourceKind)source.sourceKind=settings.sourceKind;
     return source;
   }
   activate(settings){return this.addSource(settings);}
   // One event, one front. Rhythm must not create a periodic reveal source.
-  emit({x=0,y=0,radius=145,color='#d9f0dc',reveal=false}={}){
+  emit({x=0,y=0,radius=145,color='#d9f0dc',reveal=true,source='pulse',sourceKind='ability'}={}){
+    reveal=!!reveal&&this.engine.pulseRevealsAllowed?.({source,sourceKind})!==false;
     if(this.waves.length>=LUMINANCE_WAVE_TUNING.maximumWaves&&this.waves.shift().reveal)this.revealCount--;
-    const wave={id:++this.serial,x,y,maximum:Math.max(0,finite(radius,145)),radius:0,previous:0,age:0,emittedAt:finite(this.engine.time,this.clock),color,reveal,seen:new Set(),storedPaid:false,naturalCrossings:0};
+    const wave={id:++this.serial,x,y,maximum:Math.max(0,finite(radius,145)),radius:0,previous:0,age:0,emittedAt:finite(this.engine.time,this.clock),color,reveal,source,sourceKind,seen:new Set(),storedPaid:false,naturalCrossings:0};
     this.waves.push(wave);if(reveal)this.revealCount++;return wave;
   }
   removeSource(id){this.sources.delete(id);}
@@ -47,21 +59,29 @@ export class LuminanceWaves {
     // Existing fronts stay anchored at emission, even when their light source moves.
     for(const wave of this.waves){wave.previous=wave.radius;wave.radius=Math.min(wave.maximum,wave.radius+dt*LUMINANCE_WAVE_TUNING.speed);wave.age+=dt;}
     for(const [id,source] of this.sources){
-      let origin=source,activeFor=Math.min(dt,source.remaining);
-      if(source.follow==='wisp')origin={x:(e.distance||0)+(e.player?.x||0),y:e.player?.y||0};
+      let origin=source,previousOrigin=source,activeFor=Math.min(dt,source.remaining);
+      if(source.follow==='wisp'){
+        origin={x:(e.distance||0)+(e.player?.x||0),y:e.player?.y||0};
+        previousOrigin={x:finite(e.previousDistance,e.distance||0)+(e.player?.x||0),y:finite(e.previousPlayerY,origin.y)};
+      }
       else if(source.follow==='flash'){
         if(!e.flashTether){this.sources.delete(id);continue;}
         activeFor=Math.min(activeFor,Math.max(0,e.flashTether.expires-(e.time-dt)));
         if(!(activeFor>0)){this.sources.delete(id);continue;}
         origin=e.flashTether;
+        previousOrigin={x:finite(origin.px,origin.x),y:finite(origin.py,origin.y)};
       }
-      // At most the bounded visible history is needed after an unusually long tick.
-      const earliest=Math.max(0,dt-source.radius/LUMINANCE_WAVE_TUNING.speed);
+      // A completed front still owns real swept contacts in this tick. Retain
+      // bounded catch-up emissions, resolve them, then retire their visuals.
+      const earliest=Math.max(0,activeFor-source.interval*LUMINANCE_WAVE_TUNING.maximumWaves);
       if(source.next<earliest-1e-9)source.next+=Math.ceil((earliest-source.next)/source.interval)*source.interval;
       while(source.next<activeFor-1e-9 || (source.next===0&&activeFor>0)){
         if(source.radius>0){
           const age=dt-source.next;
-          const wave=this.emit({x:origin.x,y:origin.y,radius:source.radius,color:source.color,reveal:source.reveal});
+          const mix=clamp(source.next/dt);
+          const wave=this.emit({x:previousOrigin.x+(origin.x-previousOrigin.x)*mix,
+            y:previousOrigin.y+(origin.y-previousOrigin.y)*mix,radius:source.radius,color:source.color,
+            reveal:source.reveal,source:source.source,sourceKind:source.sourceKind});
           wave.radius=Math.min(source.radius,age*LUMINANCE_WAVE_TUNING.speed);wave.age=age;wave.emittedAt=finite(e.time,this.clock)-age;
         }
         source.next+=source.interval;
@@ -74,6 +94,7 @@ export class LuminanceWaves {
     const orderedCards=!!(e.cardExecution&&typeof e.resolveCardRowEvent==='function');
     if(!this.dreaming){
       let hit=false;
+      const crossings=[];
       for(const wave of this.waves){
         for(const packet of e.getNearbyPickups?.()||e.layout?.embers||[]){
           if(packet.collected||packet.carried||packet.generated||packet.fetchedInDream||wave.seen.has(packet))continue;
@@ -89,8 +110,17 @@ export class LuminanceWaves {
           if(screenX < -rim || (Number.isFinite(e.width)&&screenX>e.width+rim)
             || packet.y < -rim || (Number.isFinite(e.height)&&packet.y>e.height+rim))continue;
           if(Math.abs(packet.x-wave.x)>wave.radius+rim||Math.abs(packet.y-wave.y)>wave.radius+rim)continue;
-          const distance=Math.hypot(packet.x-wave.x,packet.y-wave.y);
-          if(distance-rim>wave.radius||distance+rim<wave.previous||distance-rim>wave.maximum)continue;
+          const crossing=luminanceWaveCrossing(wave,packet);
+          if(crossing===null)continue;
+          crossings.push({wave,packet,kind,bookFuel,naturalFuel,cardFuel,screenX,
+            at:wave.emittedAt+crossing/LUMINANCE_WAVE_TUNING.speed});
+        }
+      }
+      // A large physics step must produce the same First Ripple / Far Shore
+      // sequence as several small steps, independent of layout array order.
+      crossings.sort((a,b)=>a.at-b.at||a.wave.id-b.wave.id);
+      for(const {wave,packet,kind,bookFuel,naturalFuel,cardFuel,screenX} of crossings){
+          if(packet.collected||wave.seen.has(packet))continue;
           wave.seen.add(packet);
           const firstCrossing=naturalFuel&&wave.naturalCrossings===0;
           if(naturalFuel)wave.naturalCrossings++;
@@ -106,7 +136,8 @@ export class LuminanceWaves {
             if(cardFuel){
               if(orderedCards){
                 const action=e.resolveCardRowEvent('wave-crossing',{firstCrossing,pickupKind:kind,
-                  meterFraction,guardRecovering:e.wisp?.phase==='guard-recovery'});
+                  meterFraction,guardRecovering:e.wisp?.phase==='guard-recovery',
+                  waveId:wave.id,pulseSource:wave.source,pulseSourceKind:wave.sourceKind});
                 cardAction=!!action?.receipt.steps.some(step=>step.success&&['add-sparks','add-last-payout'].includes(step.operation));
               }else{
                 cardAction=cardMeter>0||(!wave.storedPaid&&cardStored>0);
@@ -117,7 +148,6 @@ export class LuminanceWaves {
             if(cardAction&&packet.feature==='first-light-combo-wave')packet.harvestFlashUntil=e.time+.55;
             if(bookFuel||cardAction){hit=true;e.burst?.(screenX,packet.y,3,'#c6ecf2');}
           }
-        }
       }
       if(hit&&this.clock-this.lastCue>=.3){this.lastCue=this.clock;e.sound?.('resonate',{strength:.45});}
     }
@@ -126,14 +156,19 @@ export class LuminanceWaves {
   draw(c,view={}){drawLuminanceWaves(c,view,this);}
 }
 
-// Event fronts and Flash's periodic fronts reveal the terrain as they pass.
-// Their steady source light remains independent of this moving band.
+// The ring and its temporary light use the same simulation radius and fade.
+// Steady source light remains independent of this moving band.
+export function luminanceWaveFade(wave){
+  if(!(wave?.maximum>0)||!(wave.radius>0))return 0;
+  return clamp(wave.age/.12)*clamp((wave.maximum-wave.radius)/(wave.maximum*.22));
+}
 export function luminanceWaveVisibility(manager,x,y){
   let dark=1;
   for(const wave of manager?.waves||[]){
     if(!wave.reveal||wave.radius<=0)continue;
     const offset=Math.abs(Math.hypot(x-wave.x,y-wave.y)-wave.radius);
-    const fade=clamp(wave.age/.12)*clamp((wave.maximum-wave.radius)/64);
+    if(offset>=REVEAL_BANDS[0][0])continue;
+    const fade=luminanceWaveFade(wave);
     for(const [width,alpha]of REVEAL_BANDS)if(offset<width)dark*=1-fade*alpha;
   }
   return 1-dark;
@@ -143,7 +178,8 @@ export function revealLuminanceWaves(c,engine,{distance=engine.renderDistance??e
   c.save();c.globalCompositeOperation='destination-out';
   for(const wave of engine.luminanceWaves.waves){
     if(!wave.reveal||wave.radius<=0)continue;
-    const fade=clamp(wave.age/.12)*clamp((wave.maximum-wave.radius)/64);
+    const fade=luminanceWaveFade(wave);
+    if(fade<=0)continue;
     for(const [width,alpha]of REVEAL_BANDS){
       c.globalAlpha=fade*alpha;c.lineWidth=width*2*scale;
       c.beginPath();c.arc((wave.x-distance)*scale,wave.y*scale,wave.radius*scale,0,Math.PI*2);c.stroke();
@@ -157,8 +193,7 @@ export function drawLuminanceWaves(c,{distance=0,scale=1}={},manager) {
   c.save();
   const baseAlpha=c.globalAlpha;
   for(const wave of manager.waves){
-    const progress=wave.radius/wave.maximum;
-    const fade=clamp(wave.age/.12)*clamp((1-progress)/.22);
+    const fade=luminanceWaveFade(wave);
     if(fade<=0||wave.radius<=0)continue;
     const x=(wave.x-distance)*scale,y=wave.y*scale,r=wave.radius*scale;
     c.strokeStyle=wave.color;c.beginPath();c.arc(x,y,r,0,Math.PI*2);

@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import {createRun,newState,buyCheckpointSkill,saveState,loadState,getRunModifiers} from '../dist/model.mjs';
 import {WispFlight,FLIGHT_TUNING,circleHitsObstacle} from '../dist/flight.mjs';
 import {FlightProjection} from '../dist/flight-projection.mjs';
+import {projectedLiftCost} from '../dist/flight-projection.mjs';
 
 function flight(modifiers,role='collector') {
   const engine=new WispFlight({
@@ -21,7 +22,7 @@ function flight(modifiers,role='collector') {
   return {engine,tap,setTime:at=>{seconds=at;}};
 }
 
-test('both purchased Beat ranks survive a reload and pay for a Lift at zero Sparks',()=>{
+test('legacy skill identities survive reload and provide Double Lift or Climb at zero Sparks',()=>{
   const state=newState();
   state.run=createRun(state.profile,'buy-beat');
   state.run.condensedGlow=500;
@@ -29,11 +30,11 @@ test('both purchased Beat ranks survive a reload and pay for a Lift at zero Spar
   assert.ok(buyCheckpointSkill(state,'main-efficiency'));
   const data=new Map();
   const storage={setItem:(key,value)=>data.set(key,value),getItem:key=>data.get(key)};
-  for(const [id,needed] of [['main-fourth-beat',4],['main-fourth-beat-2',3]]) {
+  for(const [id,needed] of [['main-fourth-beat',2],['main-fourth-beat-2',3]]) {
     assert.ok(buyCheckpointSkill(state,id));
     assert.ok(saveState(state,storage));
     const {engine,tap}=flight(getRunModifiers(loadState(storage).run));
-    engine.flame=(needed-1)*engine.flapCost;
+    engine.flame=engine.flapCost;
     for(let i=0;i<needed-1;i++)assert.ok(tap(i*.25));
     assert.ok(engine.flame<1e-7);
     const impulse=engine.player.vy;
@@ -47,11 +48,11 @@ test('both purchased Beat ranks survive a reload and pay for a Lift at zero Spar
   }
 });
 
-test('late taps retain recent beats, while a Space Timer hover or an interrupted input clears them',()=>{
+test('a Space Timer hover or an interrupted input clears the rapid Lift phrase',()=>{
   const {engine,tap,setTime}=flight({fourthBeatRank:1},'leveler');
-  for(const t of [0,.7,.8,1.01])assert.ok(tap(t));
+  assert.ok(tap(0));
   assert.ok(engine.fourthBeat.ready);
-  assert.ok(tap(1.4));
+  assert.ok(tap(.7));
   assert.equal(engine.fourthBeat.count,0);
   assert.ok(tap(1.5));
   setTime(1.7);
@@ -73,10 +74,11 @@ test('a ready Beat spends before stored free Lifts and route boons, and Dream ne
   engine.dream=null;
   assert.equal(engine.fourthBeat.count,0);
   assert.ok(tap(.3));
-  assert.ok(tap(.4));
   engine.flame=0;
   engine.artifactEffects.freeLift=true;
   engine.flightBoon.giftLifts=1;
+  assert.ok(tap(.4));
+  assert.equal(engine.fourthBeat.count,2,'free second Lift preserves the third opportunity');
   assert.ok(tap(.5));
   assert.ok(engine.artifactEffects.freeLift);
   assert.equal(engine.flightBoon.giftLifts,1);
@@ -87,7 +89,7 @@ test('a ready Beat spends before stored free Lifts and route boons, and Dream ne
 
 test('the guide can show a free Lift now and rejects a route that would use it after expiry',()=>{
   const {engine,tap,setTime}=flight({fourthBeatRank:1,driftSense:3,lightRadius:400});
-  for(const t of [0,.08,.19])assert.ok(tap(t));
+  assert.ok(tap(0));
   engine.layout.obstacles=[];
   engine.layout.boss=null;
   engine.biomeDynamics=null;
@@ -100,9 +102,11 @@ test('the guide can show a free Lift now and rejects a route that would use it a
   engine.layout.embers=[{kind:'light',x:delayed.x,y:delayed.y}];
   assert.ok(guide.findRoute(engine));
   setTime(.95);
-  assert.ok(guide.read(engine).lift);
+  assert.equal(projectedLiftCost(engine),0);
+  assert.ok(Object.hasOwn(guide.read(engine),'liftContact'));
   assert.equal(guide.findRoute(engine),null);
-  assert.deepEqual(engine.fourthBeatTaps,[0,.08,.19]);
+  assert.deepEqual(engine.fourthBeatTaps,[0]);
   setTime(1.01);
-  assert.equal(guide.read(engine).lift,undefined);
+  engine.time+=.1;
+  assert.equal(guide.read(engine).liftContact,undefined);
 });

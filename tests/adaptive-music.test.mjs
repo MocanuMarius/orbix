@@ -110,6 +110,27 @@ test('saved music-off remains silent through world-rate and visibility changes',
  music.setEnabled(true);assert.equal(players.length,3);assert.ok(players.every(p=>!p.paused));music.destroy();
 });
 
+test('guide shares music level and lifecycle without adding or moving streamed stems',()=>{
+ const events={},players=[],updates=[];let unlocks=0,stops=0,disposals=0;
+ const document={hidden:false,addEventListener:(key,fn)=>events[key]=fn,removeEventListener(){}};
+ class Audio{constructor(){this.currentTime=12;this.paused=true;players.push(this);}play(){this.paused=false;}pause(){this.paused=true;}addEventListener(){}}
+ const guide={unlock(){unlocks++;},update(s,options){updates.push({s,options});},stop(){stops++;},destroy(){disposals++;}};
+ const music=createMusic({document,AudioClass:Audio,createGuide:()=>guide,storage:{getItem:()=> 'false',setItem(){}},schedule:()=>1,cancel(){}});
+ events.pointerdown({});assert.equal(unlocks,0,'saved off must not open a guide audio context');
+ music.setLevel(2);assert.equal(unlocks,1);assert.equal(players.length,3);
+ const snapshot={worldRate:.35,flame:100,liftGuide:{phase:'soon',targetIn:.2}};
+ music.setFlight(snapshot);const update=updates.at(-1);
+ assert.equal(update.s,snapshot);assert.equal(update.options.enabled,true);
+ assert.ok(update.options.gain>0&&update.options.gain<1);assert.equal(update.options.hidden,false);
+ assert.deepEqual(update.options.transport,{time:12,rate:.35,bpm:88});
+ let before=stops;music.setScene('menu');assert.ok(stops>before);
+ music.setFlight(snapshot);before=stops;document.hidden=true;events.visibilitychange();assert.ok(stops>before);
+ music.setFlight(snapshot);assert.equal(updates.at(-1).options.hidden,true);
+ before=stops;music.setEnabled(false);assert.ok(stops>before);
+ music.setFlight(snapshot);assert.equal(updates.at(-1).options.enabled,false);
+ music.destroy();assert.equal(disposals,1);assert.equal(players.length,3);
+});
+
 test('deferred media play cannot restart a stopped world or a destroyed player',async()=>{
  const events={},players=[],requests=[];
  const document={hidden:false,addEventListener:(key,fn)=>events[key]=fn,removeEventListener(){}};

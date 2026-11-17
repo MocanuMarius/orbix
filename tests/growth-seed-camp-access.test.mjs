@@ -85,7 +85,8 @@ test('owned tiers and ranks add their exact amounts while equipped copying cards
     cards.forEach(([id, rank], index) => addSeed(run, `late-${index}`, id, rank));
     run.lives = 1; run.flame = 10;
     const quote = grow(run); assert.equal(quote.disabled, false);
-    assert.equal(formatGlow(quote.after.maxMeter - quote.before.maxMeter), String(amount));
+    // The Spark Meter stops at 100 printed Sparks (cap decided 2026-11-16): a +90 Grow fits only 70.
+    assert.equal(formatGlow(quote.after.maxMeter - quote.before.maxMeter), String(Math.min(amount, 100 - Number(formatGlow(quote.before.maxMeter)))));
     assert.ok(commit(run)); near(run.cardGrowCapacity, amount * CARD_UNIT);
     near(run.flame, quote.after.maxMeter); near(getGlowCapacity(run), quote.after.maxMeter);
     assert.equal(run.lives, 1); assert.equal(run.cardGrowUses, 1);

@@ -132,7 +132,7 @@ test('Flash magnitude restores meter once per actual body/carrier pickup and nev
     const run=fresh(ids).run,mod=getCardModifiers(run),sources=ids.length;
     run.reserveCards=[makeSkillCard('flash-handling','inactive-flash')];
     assert.equal(mod.cardFlashSources,sources);near(mod.cardFlashMeter,6*sources*CARD_UNIT);
-    assert.match(getMountedCards(run).find(c=>c.kind==='flash-handling').effectiveSummary,new RegExp(`${6*sources} missing`));
+    assert.match(getMountedCards(run).find(c=>c.kind==='flash-handling').effectiveSummary,new RegExp(`\\+${6*sources} Sparks`)); // plain wording (v1.0-cardtext)
     const e=flight(run);
     try{
       e.flame=0;let radiations=0;const radiate=e.radiateLight.bind(e);
@@ -194,7 +194,7 @@ test('body, finite uses and passive capacity share one nonrecursive source resol
   run.mountedCards[1].charges=1;run.reserveCards=[makeSkillCard('deep-vessel','reserve-cap')];
   const described=getMountedCards(run);assert.match(described[1].effectiveSummary,/\+4 (?:extra )?Sparks/);
   const action=executeCardBodyPickup(createCardExecution(run));near(action.bonus,4*CARD_UNIT);assert.equal(action.executions,1);
-  near(getGlowCapacity(run),130);assert.match(described[3].effectiveSummary,/\+9 maximum/);
+  near(getGlowCapacity(run),130);assert.match(described[3].effectiveSummary,/\+9 max Sparks/);
   run.mountedCards[2]=makeSkillCard('echo','echo-passive');near(getGlowCapacity(run),120);
   assert.match(getMountedCards(run)[2].copyPreview,/Deep Vessel has no action to repeat/);
 });

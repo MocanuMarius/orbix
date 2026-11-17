@@ -2,7 +2,7 @@
 // Their bonus is paid by the model on a clear; it never recursively packs.
 export const FLIGHT_PACTS=Object.freeze({
  'night-ledger':Object.freeze({id:'night-ledger',name:'Night’s Ledger',sight:.55,multiplier:2,bonusLimit:20,description:'Next attempt: 55% Luminance. Clear it to double the Stored Sparks packed there, up to +20 extra. Clear pay stays unchanged.'}),
- 'blind-pilgrim':Object.freeze({id:'blind-pilgrim',name:'The Closed Eye',sight:.38,multiplier:3,bonusLimit:40,description:'Next attempt: 38% Luminance. Clear it to triple the Stored Sparks packed there, up to +40 extra. Flash Powerups can help you see.'}),
+ 'blind-pilgrim':Object.freeze({id:'blind-pilgrim',name:'The Closed Eye',sight:.38,multiplier:3,bonusLimit:Infinity,description:'Next flight: sight stays at 38% of starting Luminance. Card light is blocked. Flash triangles and lights in the passage still work. Clear the flight to triple every Stored Spark packed there. The full bonus counts toward your score.'}),
  'silent-orbit':Object.freeze({id:'silent-orbit',name:'The Silent Orbit',reach:.55,multiplier:2,bonusLimit:20,description:'Next attempt: Collector reach −45%. Clear it to double the Stored Sparks packed there, up to +20 extra. Body pickups keep their full value.'}),
 });
 export function pactOffers(run){

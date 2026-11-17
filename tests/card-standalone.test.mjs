@@ -134,6 +134,6 @@ test('Devourer Deck preview names its actual adjacent Rare and explains sparing 
   assert.match(getMountedCards(run)[0].effectiveSummary,/full hearts it is spared/);
   assert.equal(getEquippedCardStatuses(run)[0].state,'ready');
   run.mountedCards=[makeSkillCard('devourer','d'),makeSkillCard('body-spark','c')];
-  assert.equal(getEquippedCardStatuses(run)[0].label,'Needs Rare to right');
+  assert.equal(getEquippedCardStatuses(run)[0].label,'Needs a Rare card to its right');
   assert.match(getMountedCards(run)[0].effectiveSummary,/No Rare target/);
 });

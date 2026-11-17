@@ -244,7 +244,7 @@ test('deck mutations require a live checkpoint and cannot change a running fligh
 test('forging awards each preview once and leaves both Rest actions usable without a card gate', () => {
   let state = fresh('deck:forge'), run = state.run;
   add(run, 'camp-kit', 'forge:kit');
-  run.flame = 8; run.lives = 2; run.condensedGlow = 30;
+  run.flame = 8; run.lives = 2; run.condensedGlow = 40; // first Rare forge: 40 (Forge v3)
   rest(state);
   const quote = M.getCardForgePreview(run);
   assert.ok(M.forgeOwnedCard(state, 'rare', quote.token));

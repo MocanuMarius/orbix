@@ -6,6 +6,8 @@ import {MAP_STOP_COUNT} from '../dist/route-recipes.mjs';
 import {getFlightPackingLimit} from '../dist/condensed-glow.mjs';
 import {FLIGHT_PACTS,pactOffers} from '../dist/flight-pacts.mjs';
 import {getFlightClearReward} from '../dist/checkpoint-rewards.mjs';
+import {LIGHT_PACKET_TUNING} from '../dist/vitality.mjs';
+import {rewardEarnings,rewardEarningsDetailMarkup} from '../dist/reward-screen.mjs';
 const game=seed=>{const s=M.newState();s.run=M.createRun(s.profile,seed);return s;};
 
 test('every ten-stop route crosses three additional flights and Rests retain one dreamable exit',()=>{
@@ -46,13 +48,15 @@ function visitPact(index){
  const event={...r.map[0][0],type:'support',kind:'event',eventIndex:index,nextIds:[next.id]};r.map[0]=[event];
  assert.ok(M.selectNode(r,event.id));return s;
 }
-test('pacts apply one declared penalty and one bounded clear-only bonus, with no stacking or replay income',()=>{
+test('pacts apply one declared penalty and their clear-only bonus, with no stacking or replay income',()=>{
  for(const index of [1,7,8])for(const success of [true,false]){
   const s=visitPact(index),r=s.run,offers=M.getSupportChoices(r),id=offers[0].effect.flightPact,pact=FLIGHT_PACTS[id];
   assert.equal(offers.length,2);assert.ok(M.resolveSupport(r,0));assert.equal(r.nextFlightPact,id);
   assert.equal(pactOffers({...r,current:{eventIndex:index}}),null);
+  if(id==='blind-pilgrim')r.skills['main-sight']=1;
   const baseline=M.getRunModifiers({...r,nextFlightPact:null}),mod=M.getRunModifiers(r);
-  if(pact.sight)assert.equal(mod.lightRadius,baseline.lightRadius*pact.sight);
+  if(pact.sight)assert.equal(mod.lightRadius,id==='blind-pilgrim'?LIGHT_PACKET_TUNING.baseRadius*pact.sight:baseline.lightRadius*pact.sight);
+  if(id==='blind-pilgrim'){assert.equal(mod.closedEye,true);assert.equal(mod.cardLuminancePercent,0);}
   if(pact.reach)assert.equal(mod.attract,baseline.attract*pact.reach);
   assert.ok(M.selectNode(r,M.getChoices(r)[0].id));const clear=getFlightClearReward(r.current,r),wallet=r.condensedGlow;
   assert.ok(M.beginFlightAttempt(r));assert.equal(r.nextFlightPact,undefined);assert.equal(r.attemptEntry.flightPact,id);
@@ -62,6 +66,27 @@ test('pacts apply one declared penalty and one bounded clear-only bonus, with no
   if(success)assert.equal(r.lastFlight.pactBonus,Math.min(pact.bonusLimit,13*(pact.multiplier-1)));
  }
  const s=visitPact(1);assert.ok(M.resolveSupport(s.run,1));assert.equal(s.run.nextFlightPact,undefined);
+});
+
+test('Closed Eye triples all genuine base packing above the old bonus cap, while preserving the ordinary overflow limit',()=>{
+ const s=visitPact(7),r=s.run;
+ r.skills={'main-afterglow':1,'afterglow-vessel':2,'afterglow-retention':2};
+ assert.ok(M.resolveSupport(r,0));assert.ok(M.selectNode(r,M.getChoices(r)[0].id));
+ const wallet=r.condensedGlow,clear=getFlightClearReward(r.current,r);assert.ok(M.beginFlightAttempt(r));
+ assert.ok(M.finishFlight(r,{success:true,flame:100,condensedGlow:999}));
+ const f=r.lastFlight,packed=f.pickupCondensedGlow+f.exitPacking.amount;
+ assert.equal(f.pickupCondensedGlow,50,'contract does not uncap ordinary overflow packing');
+ assert.ok(packed>20);assert.equal(f.pactBonus,packed*2);assert.ok(f.pactBonus>40);
+ assert.equal((r.pendingRewards.length?r.pendingRewards:r.lastCheckpointReward.rewards).find(reward=>reward.kind==='flight-pact').amount,packed*2);
+ assert.equal(f.completionBonus,clear,'clear pay remains separate');
+ M.settleCheckpoint(s);
+ const earned=f.completionBonus+packed*3;
+ assert.equal(r.condensedGlow,wallet+earned);assert.equal(f.securedCondensedGlow,earned);
+ assert.equal(rewardEarnings(r).rows.find(row=>row.label==='Pact').amount,packed*2);
+ assert.equal(rewardEarnings(r).total,earned);
+ assert.ok(rewardEarningsDetailMarkup(r).includes(`<dd>+${packed*2}</dd>`));
+ const balance=r.condensedGlow;assert.equal(M.finishFlight(r,{success:true,condensedGlow:999}),false);
+ M.settleCheckpoint(s);assert.equal(r.condensedGlow,balance);
 });
 
 test('a fresh profile can receive legendary relics without discovery, ascension or skill gates',()=>{

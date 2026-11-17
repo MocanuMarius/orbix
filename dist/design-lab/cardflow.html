@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>How your cards fire · Design lab</title>
+<!-- The game's own modules and art use paths relative to dist/, so the page resolves from there. -->
+<base href="../">
+<link rel="icon" href="assets/favicon.svg">
+<script>
+// Production stylesheets, in game.html order (same list as frame.html), so the cards are judged in the real cascade.
+const SHEETS=['style','game','boost-control','level-map','companion','progression','orientation','map-clarity','afterglow-ui','tutorial-coach','campaign','pickup-guide','queue-ui','game-art','dream','expedition','landscape','radial-tree','replay','glow-ui','readability','game-symbols','living-icons','choice-art','rest-choices','viewport-layout','typography','death-screen','interface-composition','artifact-reward','artifact-detail','current-batch','menu-art','readability-pass','checkpoint-flow','artifact-collection','rough-ui','journey-art','treasure','ui-contrast','route-bonus','flight-preview','home-commands','home-journey-ink','companion-picker','night-atlas','installation','mobile-rim','skill-book','visual-system','activation-feedback','rhythm-score','card-ui','game-menu','home-utilities','scorecard'];
+for(const name of SHEETS)document.write(`<link rel="stylesheet" href="${name}.css?v=guide-clarity-1">`);
+</script>
+<link rel="stylesheet" href="design-lab/variants.css">
+<link rel="stylesheet" href="design-lab/cardflow.css">
+</head>
+<body class="card-pilot cf-page">
+<main id="app"><section class="flight-shell"><div class="flight-device">
+ <div class="cf wb-ground wb-t2" id="cardflow">
+  <header class="cf-head">
+   <div class="cf-titles"><h1 class="wb-title">How your cards fire</h1><span class="wb-context">Your cards fire left to right</span></div>
+   <p class="cf-result" id="cf-result" aria-live="polite"></p>
+  </header>
+  <section class="cf-stage" aria-label="Card firing demonstration">
+   <div class="cf-trigger" id="cf-trigger">
+    <span class="cf-trigger-tag">Trigger</span>
+    <img class="cf-spark" src="assets/plasma-spark.png?v=guide-clarity-1" width="44" height="44" alt="">
+    <b class="cf-trigger-text">You catch a Spark</b>
+   </div>
+   <div class="cf-rowwrap">
+    <div class="cf-row" id="cf-row" role="group" aria-label="Your row, slots 1 to 3"></div>
+    <div class="cf-bonus" id="cf-bonus"><span>Bonus</span><b id="cf-bonus-value">0</b><small id="cf-bonus-delta"></small></div>
+   </div>
+   <div class="cf-meter" id="cf-meter">
+    <span class="cf-meter-tag">Spark Meter</span>
+    <div class="cf-meter-gauge" id="cf-gauge"></div>
+    <b class="cf-meter-value" id="cf-meter-value"></b>
+    <small class="cf-meter-gain" id="cf-meter-gain"></small>
+   </div>
+  </section>
+  <p class="cf-caption" id="cf-caption" role="status" aria-live="polite"></p>
+  <nav class="cf-controls" aria-label="Step controls">
+   <button type="button" class="wb-sign wb-sign-quiet" id="cf-back"><span class="wb-sign-text"><b>Back a step</b></span></button>
+   <button type="button" class="wb-sign wb-sign-primary" id="cf-next"><span class="wb-sign-text"><b>Next</b></span></button>
+   <button type="button" class="wb-sign wb-sign-standard" id="cf-again"><span class="wb-sign-text"><b>Fire again</b></span></button>
+  </nav>
+ </div>
+</div></section></main>
+<script type="module" src="design-lab/cardflow.mjs"></script>
+</body>
+</html>

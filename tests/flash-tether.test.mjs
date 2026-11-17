@@ -156,7 +156,8 @@ test('body contact and Collector delivery attach the Flash at contact and award 
       item.y-=35;
       g.wisp.target=item;
       g.wisp.phase='outbound';
-      for(let i=0; i<150&&!item.collected; i++){
+      // Flash uses the normal ten-second Collector return budget.
+      for(let i=0; i<900&&!item.collected; i++){
         g.time+=step;
         g.previousDistance=g.distance;
         g.distance+=140*step;

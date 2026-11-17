@@ -84,7 +84,7 @@ test('genuine copies, Chameleon and Echo add packing percentage points once',()=
  const state=fresh(),run=state.run;
  mount(run,['chameleon','tight-packing','tight-packing','echo','tight-packing']);
  assert.equal(getCardModifiers(run).cardPackingSources,10);
- assert.equal(getMountedCards(run)[3].copyPreview,'Repeats Packing efficiency +50%');
+ assert.equal(getMountedCards(run)[3].copyPreview,'Repeats +50% Stored Sparks from packing');
  clear(state,{condensedGlow:4});assert.equal(run.lastFlight.cardPackingBonus,10);
  assert.equal(SKILL_CARDS['tight-packing'].maxRank,1);
  assert.deepEqual(getCardPackingBonus(4,1),{amount:1,remainder:0});
@@ -124,7 +124,8 @@ test('Common starter/drop pools include Tight Packing and its clear UI receipt n
  assert.match(art,/<image href="\.\/assets\/cards\/skill-card-scenes-rare\.webp"/);
  assert.match(art,/aria-label="[^"]*press[^"]*"/);
  const rule=cardMechanicMarkup(packing);
- assert.match(rule.replace(/<[^>]*>/g,'').replace(/\s+/g,' '),/Packing efficiency \+50%/);
+ // Approved plain wording (v1.0-cardtext): "Packing efficiency" became "Stored Sparks from packing".
+ assert.match(rule.replace(/<[^>]*>/g,'').replace(/\s+/g,' '),/\+50% Stored Sparks from packing/);
  assert.match(rule,/data-card-term="packing-efficiency"/);
  assert.match(cardRewardMarkup(state.run),/Tight Packing \+2 Stored Sparks/);
  state.run.cardReward.source='forge';assert.doesNotMatch(cardRewardMarkup(state.run),/Tight Packing \+2 Stored Sparks/);

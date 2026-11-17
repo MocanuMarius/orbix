@@ -30,7 +30,7 @@ function app(state) {
     renderBriefing: () => '', renderRetry: () => '', deathScreenMarkup: () => '',
     renderMapClear: () => '', renderResult: () => '', renderVictory: () => '',
     drawMap: () => { calls.maps++; }, requestAnimationFrame() {},
-    guideScreen() {}, closeSheet() {}, practiceFirst: () => false, showMapEarnings() {}, updateCheckpoint() {},
+    guideScreen() {}, closeSheet() {}, practiceFirst: () => false, ceremonyCleanup: null, ceremonyOpening: null, clearTimeout() {}, setTimeout() { return 0; }, showMapEarnings() {}, updateCheckpoint() {},
     tutorialCheckpoint: () => '', icon: () => '<svg></svg>', mapHeight: () => 1000,
     featureAvailable: () => true, landscape: { isPortrait: () => false },
     notify: notice => calls.notices.push(notice),

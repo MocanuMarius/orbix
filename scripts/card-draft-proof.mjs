@@ -11,6 +11,7 @@ await fs.mkdir(output, {recursive: true});
 const root = path.resolve('dist'), mime = {'.html':'text/html', '.mjs':'text/javascript', '.js':'text/javascript', '.css':'text/css', '.svg':'image/svg+xml', '.png':'image/png', '.webp':'image/webp', '.woff2':'font/woff2', '.mp3':'audio/mpeg', '.mp4':'video/mp4'};
 const server = http.createServer(async (req, res) => {
   if (new URL(req.url, 'http://localhost').pathname === '/favicon.ico') { res.writeHead(204).end(); return; }
+  if (new URL(req.url, 'http://localhost').pathname === '/__dev-revision') { res.writeHead(200, {'Content-Type':'text/plain'}).end('card-draft-proof-stable'); return; }
   try {
     const file = path.resolve(root, '.' + new URL(req.url, 'http://localhost').pathname);
     if (!file.startsWith(root + path.sep)) throw Error('Outside dist');
@@ -56,6 +57,12 @@ async function reload() {
   await b.visit(base + '/game.html?cards=1');
   await until(() => ev("!!document.querySelector('[data-action=continue-run]')"), 'saved game Continue', 120);
   await tap('[data-action=continue-run]');
+  if (await ev("!!document.querySelector('.flight-reward-ceremony')")) {
+    if (await ev("!!document.querySelector('[data-action=flight-reward-continue]')")) await tap('[data-action=flight-reward-continue]');
+    if (await ev("!!document.querySelector('[data-action=flight-reward-open-pack]')")) await tap('[data-action=flight-reward-open-pack]');
+    await until(() => ev("document.querySelector('.flight-reward-ceremony')?.dataset.stage==='cards'"), 'explicitly opened draft', 100);
+    await delay(500); // The opening gesture cannot also choose a newly revealed card.
+  }
 }
 try {
   const layouts = [];

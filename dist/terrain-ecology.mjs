@@ -89,7 +89,7 @@ function surfaceSites(shape) {
   const sample=x=>{
     for(let i=1;i<points.length;i++){
       const a=points[i-1],b=points[i];
-      if(x>=a[0]&&x<=b[0]){const slope=(b[1]-a[1])/(b[0]-a[0]||1);return {y:a[1]+(x-a[0])*slope,slope};}
+      if(x>=a[0]&&x<=b[0]){const slope=(b[1]-a[1])/(b[0]-a[0]||1);return {y:a[1]+(x-a[0])*slope,slope,room:Math.min(x-a[0],b[0]-x)};}
     }
     return null;
   };
@@ -108,7 +108,7 @@ function surfaceSites(shape) {
           const dx=(j-(count-1)/2)*10;
           const root=sample(x+dx);
           if(root&&Math.abs(root.slope)<.55)
-            sites.push({x:x+dx,y:root.y,slope:root.slope,seed:seed+j*53,cluster:j});
+            sites.push({x:x+dx,y:root.y,slope:root.slope,room:root.room,seed:seed+j*53,cluster:j});
         }
         if(!sites.length||sites.at(-1).seed<seed)sites.push({x,y,slope,seed,cluster:0});
       }
@@ -129,22 +129,23 @@ function stroke(c,points,ink,width=1){
   }
   c.strokeStyle=ink;c.lineWidth=width;c.stroke();
 }
-function tuft(c,h,x,y,sign,seed,time,push,reduced){
+function tuft(c,h,x,y,sign,seed,time,push,reduced,slope){
   const flutter=reduced?0:Math.sin(time*1.6+seed)*1.3;
   const mushroom=h.plant==='mushroom';
   const count=mushroom?3:h.plant==='lichen'?3:5;
   for(let i=0;i<count;i++){
     const size=6+noise(seed+i*33)*16,root=x+(i-count/2)*3;
+    const rootY=y+(root-x)*slope+sign;
     const bend=flutter+push*(.5+i*.22)+(i-count/2)*1.2;
-    const tipX=root+bend,tipY=y-sign*size;
-    stroke(c,[[root,y],[root+bend*.2,y-sign*size*.45],[tipX,tipY]],i%2?h.leaf:h.shade);
+    const tipX=root+bend,tipY=rootY-sign*size;
+    stroke(c,[[root,rootY],[root+bend*.2,rootY-sign*size*.45],[tipX,tipY]],i%2?h.leaf:h.shade);
     if(mushroom){
       c.fillStyle=h.leaf;c.fillRect(Math.round(tipX-4),Math.round(tipY),8,2);
       c.fillRect(Math.round(tipX-2),Math.round(tipY-2*sign),4,2);
       c.fillStyle=h.flower;c.fillRect(Math.round(tipX-2),Math.round(tipY),1,1);
     }else if(h.plant==='fern'||h.plant==='fan'){
       for(let k=1;k<=3;k++){
-        const t=k/4,xx=root+bend*t,yy=y-sign*size*t,spread=(1-t)*5;
+        const t=k/4,xx=root+bend*t,yy=rootY-sign*size*t,spread=(1-t)*5;
         stroke(c,[[xx-spread,yy-sign*2],[xx,yy],[xx+spread,yy-sign*3]],h.leaf);
         c.fillStyle=h.leaf;
         c.beginPath();c.moveTo(xx,yy);c.lineTo(xx-spread-2,yy-sign*4);
@@ -153,13 +154,13 @@ function tuft(c,h,x,y,sign,seed,time,push,reduced){
     }else if(h.plant==='reed'){
       c.fillStyle=h.flower;c.fillRect(Math.round(tipX-1),Math.round(tipY-4*sign),2,5);
     }else if(h.plant==='lichen'){
-      stroke(c,[[root-3,y-sign*3],[root,y-sign*6],[root+4,y-sign*4]],h.leaf);
+      stroke(c,[[root-3,rootY-sign*3],[root,rootY-sign*6],[root+4,rootY-sign*4]],h.leaf);
     }else if(i===1&&noise(seed)>.6){
       c.fillStyle=h.flower;c.fillRect(Math.round(tipX-1),Math.round(tipY),3,1);
     }
   }
 }
-function animal(c,h,x,y,seed,time,reaction,reduced){
+function animal(c,h,x,y,seed,time,reaction,reduced,slope){
   const flutter=reduced?0:Math.sin(time*4+seed);
   const fly=h.animal==='firefly',wing=h.animal==='moth';
   const xx=x+(reduced?0:Math.sin(time*.7+seed)*8)+reaction*3;
@@ -172,11 +173,9 @@ function animal(c,h,x,y,seed,time,reaction,reduced){
     c.fillStyle=h.flower;c.globalAlpha=.55;
     c.fillRect(Math.round(xx-2),Math.round(yy-flutter),2,1+Math.round(Math.abs(flutter)));
     c.fillRect(Math.round(xx+1),Math.round(yy+flutter),2,1);c.globalAlpha=1;
-  }else if(h.animal==='fish'){
-    c.globalAlpha=.5;c.fillStyle=h.leaf;c.fillRect(Math.round(xx-3),Math.round(yy-1),6,2);
-    c.fillRect(Math.round(xx-5),Math.round(yy-1-flutter),2,2);c.globalAlpha=1;
   }else if(h.animal==='beetle'){
-    c.fillStyle=h.shade;c.fillRect(Math.round(x+flutter*2),Math.round(y-2),3,2);
+    const crawl=reduced?0:Math.sin(time*.8+seed)*3;
+    c.fillStyle=h.shade;c.fillRect(Math.round(x+crawl),Math.round(y+crawl*slope)-1,3,2);
   }else{
     c.fillStyle=h.flower;c.globalAlpha=.35;c.fillRect(Math.round(xx),Math.round(yy),1,1);c.globalAlpha=1;
   }
@@ -219,22 +218,34 @@ export function drawTerrainEcology(c,e,{scale=1,distance=e.renderDistance??e.dis
           const rooted=['fern','reed','grass'].includes(h.plant);
           if(rooted)for(let j=0;j<3;j++){
             const xx=x+(j-1)*4,drop=8+noise(seed+j*41)*13;
-            stroke(c,[[xx,y-2],[xx+1,y+drop*.5],[xx-2+push*.12,y+drop]],h.shade,1);
+            stroke(c,[[xx,y+(xx-x)*site.slope-2],[xx+1,y+drop*.5],[xx-2+push*.12,y+drop]],h.shade,1);
           }else{
             stroke(c,[[x-4,y-2],[x,y+2],[x+4,y-1]],h.leaf,1);
           }
-        }else if(!drawAuthoredPlant(c,e,{x,y,sign,push,seed}))tuft(c,h,x,y,sign,seed,time,push,e.reducedMotion);
+        }else if(!drawAuthoredPlant(c,e,{x,y,sign,push,seed}))tuft(c,h,x,y,sign,seed,time,push,e.reducedMotion,site.slope);
         c.globalAlpha=1;
         // Shallow reflective pockets stay inset behind the solid lip. They
         // suggest wet rock and pools without adding a second collision edge.
-        if(!top&&h.water&&Math.abs(site.slope)<.18&&noise(seed)>.42){
-          const width=18+noise(seed+5)*18;
-          stroke(c,[[x-width/2,y+5],[x+width/2,y+5]],'#45656a',3);
-          const reflection=e.reducedMotion?0:Math.sin(time*1.5+seed)*2;
-          stroke(c,[[x-width*.25+reflection,y+5],[x+width*.3+reflection,y+5]],'#92aba5',1);
-          if(near>.1)stroke(c,[[x-3-near*8,y+7],[x+3+near*8,y+7]],'#819c98',1);
+        if(!top&&site.cluster===0&&h.water&&Math.abs(site.slope)<.18&&noise(seed)>.42){
+          // Fit the whole waterline inside a single gentle face. A shoal
+          // seen in section sits under this line, inside the bank.
+          const halfWidth=Math.min(site.room||0,9+noise(seed+5)*9);
+          if(halfWidth>=7){
+            const waterY=Math.round(y+2+halfWidth*Math.abs(site.slope));
+            const hasFish=h.animal==='fish'&&halfWidth>=10;
+            if(hasFish){
+              c.fillStyle='#344c56';c.fillRect(Math.round(x-halfWidth+2),waterY,Math.round(halfWidth*2-4),6);
+              const drift=e.reducedMotion?0:Math.sin(time*.9+seed)*3;
+              c.fillStyle=h.leaf;c.fillRect(Math.round(x+drift)-2,waterY+3,4,1);
+              c.fillRect(Math.round(x+drift)-3,waterY+2,1,1);
+            }
+            stroke(c,[[x-halfWidth,waterY],[x+halfWidth,waterY]],'#45656a',2);
+            const reflection=e.reducedMotion?0:Math.sin(time*1.5+seed)*2;
+            stroke(c,[[x-halfWidth*.45+reflection,waterY],[x+halfWidth*.5+reflection,waterY]],'#92aba5',1);
+          }
         }
-        if(!top&&site.cluster===0&&noise(seed+7)>.66)animal(c,h,x,y,seed,time,push,e.reducedMotion);
+        if(!top&&site.cluster===0&&h.animal!=='fish'&&noise(seed+7)>.66)
+          animal(c,h,x,y,seed,time,push,e.reducedMotion,site.slope);
       }
     }
   }

@@ -1,4 +1,4 @@
-"""Original Wispbound warm lo-fi score; no third-party samples or melodies.
+"""Original Wispbound mystical lo-fi score; no third-party samples or melodies.
 
 Offline composition: 160 arranged bars at 88 BPM, three synchronized stems.
 Use --bars 32 --output work/lofi-sketch for a shorter production sketch.
@@ -52,8 +52,23 @@ SECTIONS = [
 ]
 MELODIES = [
     [(0.5,2),(1.75,1),(3.25,0)], [(0.75,3),(2.5,2)],
-    [(0.25,1),(1.5,2),(3,3)], [(1,2),(2.75,0)],
-    [(0.5,0),(2.25,1),(3.5,2)],
+    [(0.25,1),(1.5,2),(2.25,3),(3.5,2)], [(1,2),(2.75,0)],
+    [(0.5,0),(2.25,1),(3.5,2)], [(0.25,3),(1,2),(1.75,1)],
+]
+# Written contrasts, rather than extra volume, give the seven-minute score an
+# arc. Double-time is a 176 subdivision over the same 88 BPM guide transport.
+# Half-time sections deliberately remove events and let the harmony breathe.
+ARRANGEMENTS = [
+    {'feel':'walking','energy':.78,'color':'glass'},
+    {'feel':'double','energy':1.04,'color':'felt'},
+    {'feel':'walking','energy':.92,'color':'glass'},
+    {'feel':'half','energy':.57,'color':'felt'},
+    {'feel':'double','energy':1.08,'color':'glass'},
+    {'feel':'walking','energy':.90,'color':'felt'},
+    {'feel':'double','energy':1.03,'color':'glass'},
+    {'feel':'half','energy':.61,'color':'glass'},
+    {'feel':'double','energy':1.07,'color':'felt'},
+    {'feel':'walking','energy':.81,'color':'glass'},
 ]
 
 def smooth_noise(rng, duration, low, high):
@@ -78,6 +93,13 @@ def voice(midi, duration, kind, velocity, seed):
     elif kind == 'bass':
         signal = np.sin(phase)+.31*np.sin(2*phase)+.12*np.sin(3*phase)
         envelope = np.minimum(t/.009,1)*np.exp(-t/1.2)*release
+    elif kind == 'glass':
+        # Soft struck crystal/wood color: brief, rounded, and occasional. The
+        # independent lift guide stays above this register and owns its cues.
+        signal = (np.sin(phase)*np.exp(-t/1.05)
+                  +.14*np.sin(2.003*phase)*np.exp(-t/.38)
+                  +.035*np.sin(3.98*phase)*np.exp(-t/.15))
+        envelope = np.minimum(t/.009,1)*release
     elif kind == 'felt':
         signal = (np.sin(phase)*np.exp(-t/1.8)
                   +.23*np.sin(2*phase+.04)*np.exp(-t/.85)
@@ -113,9 +135,11 @@ def drum_bank(rng):
         banks['rim'].append(((np.sin(2*np.pi*920*t)+.45*np.sin(2*np.pi*1623*t))*np.exp(-t*92)*np.minimum(t/.001,1)).astype(np.float32))
     return banks
 
-metrics = {'bpm':BPM,'bars':BARS,'durationSeconds':LENGTH,'sampleRate':SR,'sections':[s[0] for s in SECTIONS],'stems':{}}
+metrics = {'bpm':BPM,'bars':BARS,'durationSeconds':LENGTH,'sampleRate':SR,
+           'sections':[{'name':name,'startSeconds':round(i*16*BAR,3),**ARRANGEMENTS[i]} for i,(name,_) in enumerate(SECTIONS)],'stems':{}}
 for stem, filename in enumerate(['lantern-drift','lantern-pulse','lantern-storm']):
     rng = np.random.default_rng(251115+stem*191)
+    event_counts = [0]*BARS
     mix = np.zeros((int(LENGTH*SR),2),np.float32)
     drums = drum_bank(rng)
     def add(at, signal, pan=0):
@@ -127,71 +151,88 @@ for stem, filename in enumerate(['lantern-drift','lantern-pulse','lantern-storm'
         mix[start:start+n,0] += signal[:n]*np.sqrt((1-pan)/2)
         mix[start:start+n,1] += signal[:n]*np.sqrt((1+pan)/2)
     def note(at, midi, duration, volume, kind='rhodes', pan=0):
+        event_counts[min(BARS-1,max(0,int(at/BAR)))]+=1
         add(at,voice(midi,duration,kind,volume,rng.uniform(0,6)),pan)
     def hit(at, kind, volume, pan=0):
+        event_counts[min(BARS-1,max(0,int(at/BAR)))]+=1
         add(at,drums[kind][rng.integers(0,8)]*volume,pan)
     def human(beat, late=0):
         return beat*BEAT+late+rng.uniform(-.007,.007)
     for bar in range(BARS):
         section, within = divmod(bar,16)
         _, progression = SECTIONS[section%len(SECTIONS)]
+        arrangement = ARRANGEMENTS[section%len(ARRANGEMENTS)]
+        feel, energy = arrangement['feel'], arrangement['energy']
         root, chord = CHORDS[progression[within//2]]
         at = bar*BAR
-        breath = within == 15 and section%3!=2
+        # Every four-bar sentence has an answer and a rest; large transitions
+        # pare back an entire bar, so the next entrance has somewhere to go.
+        breath = within==15 or (feel=='half' and within%8==7)
+        phrase = within%4
         if stem==0:
             if bar%2==0:
                 # Strummed chord order changes between sections, with silence
                 # and softer responses inside each two-bar phrase.
                 order = list(reversed(chord)) if section%4==2 else chord
                 for j,midi in enumerate(order):
-                    note(at+.012+j*.021,midi,BAR*2+.35,.103*rng.uniform(.88,1.09),'rhodes',(j-1.5)*.19)
+                    note(at+.012+j*.021,midi,BAR*2+.35,.097*rng.uniform(.88,1.09)*( .88 if feel=='half' else 1),'rhodes',(j-1.5)*.19)
                 if section%3!=1:
                     for midi,pan in [(chord[0],-.45),(chord[2],.45)]:
                         note(at,midi,BAR*2+.6,.016,'pad',pan)
-            elif not breath and within%4==1:
+            elif not breath and phrase==1 and feel!='half':
                 for j in [0,2,3]:
                     note(at+human(2.63)+j*.018,chord[j],1.7,.035,'rhodes',(j-1.5)*.17)
-            if within%4 in (0,2) and (section>0 or within>3) and not breath:
+            if phrase in (0,2) and (section>0 or within>3) and not breath:
                 motif=MELODIES[(section+within//4)%len(MELODIES)]
                 for beat,k in motif:
-                    if within%8==6 and k==2:continue
-                    note(at+human(beat,.018),chord[k]+(12 if section%4==2 else 0),1.9,.044*rng.uniform(.85,1.12),'felt',rng.uniform(-.28,.28))
+                    if phrase==2 and (k==2 or feel=='half'):continue
+                    note(at+human(beat,.018),chord[k]+(12 if section%4==2 else 0),1.45,.053*rng.uniform(.85,1.12),arrangement['color'],rng.uniform(-.28,.28))
+            # An occasional short reply links phrases; never a constant arp.
+            if feel=='double' and phrase==1 and within<14:
+                for beat,k in [(2.5,2),(3.25,1)]:
+                    note(at+human(beat,.01),chord[k],.8,.038,'glass',.32)
         elif stem==1:
-            patterns = [[0,1.5,2.5,3.5],[0,.75,2,2.75],[0,1.75,2.5],[0,1.5,2.75,3.5]]
-            kickbeats = [0] if breath else patterns[(section+bar//4)%len(patterns)]
+            patterns = [[0,1.5,2.5],[0,.75,2,2.75],[0,1.75,2.5],[0,1.5,2.75,3.5]]
+            kickbeats = [0] if breath else ([0,2.75] if feel=='half' else patterns[(section+within//4)%len(patterns)])
             for beat in kickbeats:
-                hit(at+human(beat),'kick',.52 if beat==0 else .33*rng.uniform(.85,1.1))
-            bassbeats = [0] if breath else ([0,1.5,2.5,3.5] if within%4<2 else [0,1.75,3.25])
+                hit(at+human(beat),'kick',(.57 if beat==0 else .37*rng.uniform(.85,1.1))*energy)
+            bassbeats = [0] if breath else ([0,2.5] if feel=='half' else ([0,1.5,2.75] if phrase<2 else [0,1.75,3.25]))
             for i,beat in enumerate(bassbeats):
-                bass=root+(12 if i==2 and section%3==1 else 0)
-                note(at+human(beat,.012),bass,1.15 if i==0 else .67,.24 if i==0 else .17,'bass')
+                bass=root+(7 if i==2 and phrase==3 else 12 if i==2 and section%3==1 else 0)
+                note(at+human(beat,.012),bass,1.35 if i==0 else .63,(.25 if i==0 else .17)*(.9+energy*.1),'bass')
             if not breath:
-                for beat in [1,3]:
-                    hit(at+human(beat,.023),'snare',.30*rng.uniform(.9,1.06),.055)
+                for beat in ([2] if feel=='half' else [1,3]):
+                    hit(at+human(beat,.023),'snare',.34*rng.uniform(.9,1.06)*energy,.055)
                     if section%3==1:hit(at+human(beat+.035,.025),'rim',.029,-.08)
-                for step in range(8):
-                    if (within+step)%11==0:continue
-                    swing=.09*BEAT if step%2 else 0
-                    hit(at+human(step*.5,swing),'hat',(.075 if step%2 else .046)*rng.uniform(.75,1.15),-.3)
-                    if section%3==2 and step%2:
-                        hit(at+human(step*.5+.03,swing),'shaker',.043,.37)
-                if within%8==7:
-                    hit(at+human(3.68,.019),'snare',.058,-.15)
-                    hit(at+human(3.86,.026),'rim',.032,.23)
+                steps = 16 if feel=='double' else 4 if feel=='half' else 8
+                for step in range(steps):
+                    # Sixteenths enter in short clusters with holes. They make
+                    # motion faster without smearing cues or doubling the bass.
+                    if feel=='double' and (step+within)%5==0:continue
+                    if feel=='half' and (step+within)%4==3:continue
+                    beat=step*4/steps
+                    swing=(.055 if feel=='double' else .09)*BEAT if step%2 else 0
+                    volume=(.046 if step%2 else .069) if feel=='double' else (.075 if step%2 else .046)
+                    hit(at+human(beat,swing),'shaker' if feel=='double' and step%4==3 else 'hat',volume*rng.uniform(.75,1.15)*energy,.3 if step%4==3 else -.3)
+                if phrase==3 and feel!='half':
+                    for beat,volume,kind in [(2.75,.055,'rim'),(3.5,.072,'snare'),(3.82,.048,'snare')]:
+                        hit(at+human(beat,.019),kind,volume,-.15 if beat<3 else .2)
+                elif phrase==1 and feel=='double':
+                    hit(at+human(2.75,.017),'rim',.05,.22)
             if within==15:
                 hit(at+3.45*BEAT,'shaker',.045,.15)
         else:
             # Extra guardian energy stays in the warm mid/low range. It adds
             # weight and ghost notes rather than shrill, urgent synth loops.
-            if within%8 not in (6,7):
-                for beat in [.5,2.25]:
-                    hit(at+human(beat,.014),'tom',.17,-.23 if beat<2 else .23)
-                for beat in [.75,2.75,3.5]:
+            if within%8 not in (6,7) and not breath:
+                for beat in ([2.25] if feel=='half' else [.5,2.25]):
+                    hit(at+human(beat,.014),'tom',.17*energy,-.23 if beat<2 else .23)
+                for beat in ([2.75] if feel=='half' else [.75,2.75,3.5]):
                     note(at+human(beat,.008),root+12,.7,.10,'bass',-.1 if beat<2 else .1)
-                if bar%2==1:
+                if phrase==1 and feel!='half':
                     for j,k in enumerate([2,1,3]):
                         note(at+human(.75+j*.95),chord[k],1.1,.049,'felt',(j-1)*.28)
-            if within%4==3:
+            if phrase==3 and not breath and feel!='half':
                 for beat,volume in [(2.75,.055),(3.4,.043),(3.75,.061)]:
                     hit(at+human(beat,.024),'snare',volume,rng.uniform(-.3,.3))
         if (bar+1)%32==0:
@@ -230,17 +271,17 @@ for stem, filename in enumerate(['lantern-drift','lantern-pulse','lantern-storm'
                     '-af','highpass=f=28,lowpass=f=5200,alimiter=limit=0.89:level=false',
                     '-codec:a','libmp3lame','-b:a','96k','-metadata','title=Wispbound - '+filename,
                     '-metadata','artist=Wispbound original score',str(OUT/(filename+'.mp3'))],check=True)
-    metrics['stems'][filename]={'peakBeforeEncoding':float(np.max(np.abs(mix))),'rmsBeforeEncoding':float(np.sqrt(np.mean(mix**2))),'bytes':(OUT/(filename+'.mp3')).stat().st_size}
+    metrics['stems'][filename]={'peakBeforeEncoding':float(np.max(np.abs(mix))),'rmsBeforeEncoding':float(np.sqrt(np.mean(mix**2))),'bytes':(OUT/(filename+'.mp3')).stat().st_size,'eventsPerSection':[sum(event_counts[i:i+16]) for i in range(0,BARS,16)]}
     print(filename,'rendered',round(LENGTH,2),'seconds',metrics['stems'][filename],flush=True)
     del mix
 # A short, independently playable audition of the normal flight mix.
-preview_start=min(16*BAR,LENGTH*.25)
-preview_length=min(45,LENGTH-preview_start)
+preview_start=min(12*BAR,LENGTH*.25)
+preview_length=min(60,LENGTH-preview_start)
 command=[encoder,'-y','-hide_banner','-loglevel','error']
 for filename in ['lantern-drift','lantern-pulse','lantern-storm']:
     command+=['-ss',str(preview_start),'-i',str(OUT/(filename+'.mp3'))]
 command+=['-filter_complex',f"[0:a][1:a][2:a]amix=inputs=3:weights='0.27 0.28 0.04':normalize=0,atrim=duration={preview_length},loudnorm=I=-19:TP=-1.5:LRA=9,afade=t=in:d=0.35,afade=t=out:st={preview_length-1.5}:d=1.5",'-t',str(preview_length),'-codec:a','libmp3lame','-b:a','128k',str(OUT/'lantern-hours-preview.mp3')]
 subprocess.run(command,check=True)
-(OUT/'README.txt').write_text('Original Wispbound adaptive lo-fi score. No third-party samples, recordings or melodies.\nComposed offline by scripts/compose-adaptive-music.py.\n88 BPM, 160 arranged bars (7m16s): warm electric piano, soft felt-key melodies, rootless jazz voicings, rounded bass, a firmer swung kick/snare groove and a quiet diffuse room.\nTen harmonic sections and written breathing spaces vary the arrangement. Three equal-length stems stream as MP3s; scene changes adjust volume without synthesizing or allocating an audio graph during gameplay.\n',encoding='utf-8')
+(OUT/'README.txt').write_text('Original Wispbound adaptive mystical lo-fi score. No third-party samples, recordings or melodies.\nComposed offline by scripts/compose-adaptive-music.py.\n88 BPM, '+str(BARS)+' arranged bars ('+str(round(LENGTH,2))+' seconds): warm electric piano, felt-key calls and soft struck-crystal replies, rootless jazz harmony, rounded bass and a swung kick/snare groove.\nTen harmonic sections alternate walking, 176-subdivision double-time motion and sparse half-time breathing spaces. Four-bar call/response phrases leave rests; fills anticipate transitions. Three equal-length stems stream as MP3s; scene changes adjust volume without synthesizing the score during gameplay. The lift guide remains a separate instrument on the shared transport.\n',encoding='utf-8')
 (SCRATCH/'render-metrics.json').write_text(json.dumps(metrics,indent=2),encoding='utf-8')
 print('All synchronized lo-fi stems complete.',flush=True)

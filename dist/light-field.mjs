@@ -106,8 +106,10 @@ export function lightVisibility(engine,light,x,y,playerY=engine.player.y,include
     dark*=1-lightAttenuation((lx*lx+ly*ly)/(landmark.radius*landmark.radius))*(landmark.intensity??1);
   }
   const boss=lanternField(engine.layout);
-  const wave=engine.luminanceWaves?.revealCount?luminanceWaveVisibility(engine.luminanceWaves,engine.distance+x,y):0;
-  const ambient=Math.max(1-dark*(1-sceneRevealStrength(light)),wave);
+  const wave=engine.luminanceWaves?.revealCount?luminanceWaveVisibility(engine.luminanceWaves,(engine.renderDistance??engine.distance??0)+x,y):0;
+  // Match the fog mask's destination-out light: the passing boundary removes
+  // a fraction of the darkness left by steady light, then fades away entirely.
+  const ambient=1-dark*(1-sceneRevealStrength(light))*(1-wave);
   if (!boss?.shutters?.length) return ambient;
   const worldX=engine.distance+x, playerX=engine.distance+engine.player.x;
   const wake=shutterWakeAt(boss,worldX,y,playerX,playerY,engine.player.radius,light);

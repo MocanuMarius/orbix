@@ -23,7 +23,7 @@ test('shared-use help executes the real rank and nearly exhausted source without
   assert.match(markup,/2 → 1/);
   assert.match(markup,/1 → 0/);
   assert.match(markup,/No uses remaining/);
-  assert.match(markup,/Your current row/);
+  assert.match(markup,/Your current chain/);
 });
 
 test('pass help keeps current empty slots, order, rank, and independent pass subtotals', () => {
@@ -45,7 +45,7 @@ test('Uses and Repeat label a teaching row when a selected passive has no matchi
     const preview = getCardRowHelpExample(key,current);
     assert.equal(preview.fallback,true);
     const markup = cardRowTermHelpMarkup(key,current);
-    assert.match(markup,/Example row · 2 shared uses/);
+    assert.match(markup,/Example chain · 2 shared uses/);
     assert.match(markup,/Slot 1 · Deep Vessel/);
     assert.match(markup,/This card has no limited uses/);
   }

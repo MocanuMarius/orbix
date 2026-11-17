@@ -25,9 +25,20 @@ export function getRestGlowBonus(run={}) {
  const value=Number(run.restGlowCapacity);
  return Number.isFinite(value)?Math.min(REST_GLOW_TUNING.capacityLimit,Math.max(0,Math.floor(value/REST_GLOW_TUNING.capacityStep)*REST_GLOW_TUNING.capacityStep)):0;
 }
-export function getGlowCapacity(run={}) {
+/** Hard ceiling of the Spark Meter, in printed Sparks (designer, 2026-11-16).
+ * Internal fuel units are printed ÷ GLOW_DISPLAY_SCALE, so the internal ceiling is 1000/3. */
+export const GLOW_CAPACITY_LIMIT=100;
+export const GLOW_CAPACITY_LIMIT_UNITS=1000/3;
+/** Every capacity source added together, before the 100-Spark ceiling. */
+export function getRawGlowCapacity(run={}) {
  return 100+10*['main-light-step','main-thrifty-rise','main-low-lift'].filter(id=>run.skills?.[id]>0).length+getRestGlowBonus(run)+(run.skills?.['main-reservoir']>0?20:0)+(run.skills?.['main-vast-vessel']>0?20:0)+(run.treasureCapacity||0)+getCardCapacityBonus(run)+getCardGrowthBonus(run)+getCardFutureCapacityBonus(run);
 }
+/** Total capacity never exceeds 100 printed Sparks, whatever the source. */
+export function getGlowCapacity(run={}) {
+ return Math.min(GLOW_CAPACITY_LIMIT_UNITS,getRawGlowCapacity(run));
+}
+/** True when the meter is at its 100-Spark ceiling, so more capacity adds nothing. */
+export const isGlowCapacityMaxed=(run={})=>getRawGlowCapacity(run)>=GLOW_CAPACITY_LIMIT_UNITS-1e-9;
 export function glowPercent(amount,capacity=100){return (Number(amount)||0)/Math.max(1,Number(capacity)||100)*100;}
 // Keep fine simulation precision for incremental skills, but one player-facing
 // point is always the same amount of light. Capacity upgrades never redefine it.

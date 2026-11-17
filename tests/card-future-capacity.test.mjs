@@ -35,6 +35,7 @@ function reload(state){let data;const storage={getItem:()=>data,setItem:(_,v)=>{
 test('Growth Ring uses flight clears, integer permanent units, copies and one shared replay',()=>{
  for(const [ids,gain]of [[['growth-ring'],1],[['echo','growth-ring'],2],[['chameleon','growth-ring'],2],
   [['echo-iii','growth-ring'],4],[['growth-ring','refrain'],2],[['echo-iii','growth-ring','refrain'],8],
+  // Boosts never multiply permanent gains (point 3 revised 2026-11-17).
   [['growth-ring','prism-lens','kindling-bead','mirror-grain','second-sun'],1]]){
   const runtime=createCardExecution(row(ids)),before=JSON.stringify(runtime),preview=previewCardRow(runtime,{kind:CARD_ROW_EVENTS.clear});
   assert.equal(JSON.stringify(runtime),before);const receipt=resolveCardRow(runtime,{kind:CARD_ROW_EVENTS.clear});

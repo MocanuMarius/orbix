@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Card text · Design lab</title>
+<!-- The game's own modules and art use paths relative to dist/, so the page resolves from there. -->
+<base href="../">
+<link rel="icon" href="assets/favicon.svg">
+<script>
+// Production stylesheets, in game.html order (same list as deck.html), so the page sits in the real cascade.
+const SHEETS=['style','game','boost-control','level-map','companion','progression','orientation','map-clarity','afterglow-ui','tutorial-coach','campaign','pickup-guide','queue-ui','game-art','dream','expedition','landscape','radial-tree','replay','glow-ui','readability','game-symbols','living-icons','choice-art','rest-choices','viewport-layout','typography','death-screen','interface-composition','artifact-reward','artifact-detail','current-batch','menu-art','readability-pass','checkpoint-flow','artifact-collection','rough-ui','journey-art','treasure','ui-contrast','route-bonus','flight-preview','home-commands','home-journey-ink','companion-picker','night-atlas','installation','mobile-rim','skill-book','visual-system','activation-feedback','rhythm-score','card-ui','game-menu','home-utilities','scorecard'];
+for(const name of SHEETS)document.write(`<link rel="stylesheet" href="${name}.css?v=guide-clarity-1">`);
+</script>
+<link rel="stylesheet" href="design-lab/variants.css">
+<link rel="stylesheet" href="design-lab/cardtext.css">
+</head>
+<body class="card-pilot ct-page">
+<main id="app"><section class="flight-shell"><div class="flight-device">
+ <!-- v2.5-theme kit, as in deck.html: dimmed woods, one wide paper page, ink on paper. -->
+ <div class="ct wb-ground wb-t2 wb-t3 wb-flat wb-atlas wb-a2 wb-go" id="cardtext">
+  <img class="wb-world" src="assets/moonwell-title.webp?v=guide-clarity-1" alt="" draggable="false">
+  <div class="wb-shade2" aria-hidden="true"></div>
+  <div class="wb-page ct-sheet">
+   <div class="wb-pagelight" aria-hidden="true"></div>
+   <header class="ct-head">
+    <div class="ct-titles">
+     <h1 class="wb-title">Card text</h1>
+     <p class="ct-sub">Proposal · today's text struck out, new text below · <span id="ct-shown"></span></p>
+    </div>
+    <div class="ct-filters" role="group" aria-label="Show cards">
+     <button type="button" data-filter="all" aria-pressed="true">All <small></small></button>
+     <button type="button" data-filter="flagged" aria-pressed="false">Flagged <small></small></button>
+     <button type="button" data-filter="common" aria-pressed="false">Common <small></small></button>
+     <button type="button" data-filter="rare" aria-pressed="false">Rare <small></small></button>
+     <button type="button" data-filter="legendary" aria-pressed="false">Legendary <small></small></button>
+    </div>
+   </header>
+   <div class="ct-list" id="ct-list" tabindex="0" aria-label="All cards"></div>
+  </div>
+ </div>
+</div></section></main>
+<script type="module" src="design-lab/cardtext.mjs"></script>
+</body>
+</html>

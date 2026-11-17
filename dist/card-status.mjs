@@ -1,11 +1,13 @@
 /** Configuration hints only. Every numeric verdict comes from a read-only row quote. */
-import { SKILL_CARDS, CARD_ROW_EVENTS, getEffectiveCardSources, getCardRowRule, previewCardRowEvent, getUseDoublerTarget, getEmberFeederTargets, getCardFeederCapacity } from './skill-cards.mjs?v=guide-clarity-1';
+import { SKILL_CARDS, CARD_ROW_EVENTS, CARD_UNIT, getEffectiveCardSources, getCardRowRule, previewCardRowEvent, getUseDoublerTarget, getEmberFeederTargets, getCardFeederCapacity, getAlwaysOnCardBoosts } from './skill-cards.mjs?v=guide-clarity-1';
+import { getRawGlowCapacity, GLOW_CAPACITY_LIMIT_UNITS } from './vitality.mjs?v=guide-clarity-1';
 import { normalizeCompanionFleet } from './companion-abilities.mjs?v=guide-clarity-1';
 import { skillProgress } from './skill-increments.mjs?v=guide-clarity-1';
 
-const ready = reason => ({ state: 'ready', symbol: '✓', label: 'Ready', reason, fix: 'Keep this arrangement to use it when its condition happens.' });
-const blocked = (label, reason, fix) => ({ state: 'blocked', symbol: '!', label, reason, fix });
-const shared = (label, reason) => ({ state: 'shared', symbol: '≈', label, reason, fix: 'You can keep it equipped or move it to reserve to make room.' });
+/** Labels are plain instructions (docs/card-teaching-plan.md §3); `code` is stable for code. */
+const ready = reason => ({ state: 'ready', symbol: '✓', label: 'Ready', code: 'ready', reason, fix: 'Keep this order to use it when its Trigger happens.' });
+const blocked = (label, reason, fix, code) => ({ state: 'blocked', symbol: '!', label, code, reason, fix });
+const shared = (label, reason, code) => ({ state: 'shared', symbol: '≈', label, code, reason, fix: 'You can keep it in your chain or move it to the reserve to make room.' });
 const name = card => SKILL_CARDS[card?.cardId]?.name || 'this card';
 let lastKey = null, lastResult = null;
 
@@ -51,17 +53,17 @@ function fixtures(context) {
 
 export function getCardRowTriggerIssue(rule, context) {
   if (rule?.event === CARD_ROW_EVENTS.rhythm && !context.rhythm)
-    return blocked('Needs Rhythm', 'This card needs a completed Rhythm phrase. This build cannot produce that event.', 'Equip Rhythm anywhere in the row.');
+    return blocked('Needs Rhythm in the chain', 'Its Trigger is Rhythm: 3 even Lifts with the Rhythm card. Nothing in this chain makes that happen.', 'Put Rhythm anywhere in your chain.', 'needs-rhythm');
   if (rule?.event === CARD_ROW_EVENTS.field && !context.field)
-    return blocked('Needs Field', 'This card needs a successful Field Impulse. This build has no available Field ability.', 'Equip Field Impulse, or use the native Collector Field Impulse skill.');
+    return blocked('Needs Field Impulse', 'It needs a Field Impulse swipe, and this build cannot swipe.', 'Put Field Impulse in your chain, or learn the Collector Field Impulse skill.', 'needs-field');
   if ((rule?.event === CARD_ROW_EVENTS.guard || rule?.when?.guardRecovering) && !context.guard)
-    return blocked('Needs a save', 'This card needs a Collector save or the recovery after one. This build cannot produce that condition.', 'Equip Watchlight, or use the native Collector Last Orbit skill.');
+    return blocked('Needs Watchlight or Last Orbit', 'Its Trigger is Save, or the recovery after a save. This build cannot make a save.', 'Put Watchlight in your chain, or learn the Collector Last Orbit skill.', 'needs-save');
   if (rule?.event === CARD_ROW_EVENTS.delivery && !context.collector)
-    return blocked('Needs Collector', 'This card needs a natural fuel delivery by Collector.', 'Choose Collector as your companion.');
+    return blocked('Needs Collector', 'Its Trigger is Delivery: Collector bringing you a pickup.', 'Choose Collector as your companion.', 'needs-collector');
   if (rule?.event === CARD_ROW_EVENTS.delivery && rule.when?.pickupKind === 'cache' && !context.cache)
-    return blocked('Needs Cache fetch', 'Collector cannot deliver a Cache in this build. Touching it yourself is a different event.', 'Equip Cache Handling, or use the native Collector Cache Handling skill.');
+    return blocked('Needs Cache Handling', 'Collector cannot bring you a Cache in this build. Touching one yourself is a different Trigger (Collect).', 'Put Cache Handling in your chain, or learn the Collector Cache Handling skill.', 'needs-cache');
   if (['shorten-recovery', 'shorten-reel'].includes(rule?.operation) && !context.collector)
-    return blocked('Needs Collector', 'This card shortens Collector’s recovery, so it needs Collector in the active build.', 'Choose Collector as your companion.');
+    return blocked('Needs Collector', 'This card makes Collector ready sooner, so it needs Collector.', 'Choose Collector as your companion.', 'needs-collector');
   return null;
 }
 
@@ -78,7 +80,9 @@ export function getCardRowTriggerContext(run = {}, native = null) {
 export function getEquippedCardStatuses(run = {}, native = null) {
   const cards = (Array.isArray(run) ? run : run.mountedCards || run.cards || []).slice(0, 5);
   const base = buildContext(run, native);
-  const key = JSON.stringify([cards.map(card => card ? [card.instanceId, card.cardId, card.rank || 1, card.charges ?? null, card.chargeCapacity ?? null, card.fedCapacity ?? 0] : null), base, run.cardGrowUses || 0,run.cardTwinWickUnlocked===true]);
+  // The 100-Spark meter ceiling: capacity from every source, before the cap.
+  const rawCapacity = Array.isArray(run) ? 0 : getRawGlowCapacity(run);
+  const key = JSON.stringify([cards.map(card => card ? [card.instanceId, card.cardId, card.rank || 1, card.charges ?? null, card.chargeCapacity ?? null, card.fedCapacity ?? 0] : null), base, run.cardGrowUses || 0,run.cardTwinWickUnlocked===true, Math.round(rawCapacity * 1000)]);
   if (key === lastKey) return lastResult;
   const sources = getEffectiveCardSources(cards);
   const has = kind => sources.some(entry => entry.def.kind === kind);
@@ -94,6 +98,11 @@ export function getEquippedCardStatuses(run = {}, native = null) {
     }
   }
   const lastOccupied = cards.findLastIndex(Boolean);
+  const alwaysOn = getAlwaysOnCardBoosts(cards);
+  const maxed = rawCapacity >= GLOW_CAPACITY_LIMIT_UNITS - 1e-9;
+  const capacityFull = slot => rawCapacity - alwaysOn.filter(entry => entry.slot === slot && ['capacity', 'ember-feeder'].includes(entry.kind))
+    .reduce((sum, entry) => sum + entry.boosted * CARD_UNIT, 0) >= GLOW_CAPACITY_LIMIT_UNITS - 1e-9;
+  const max100 = () => shared('Max 100 reached', 'Your Spark Meter is at its 100-Spark ceiling, so this card adds no more max Sparks.', 'max-100');
   const results = cards.map((card, slot) => {
     if (!card) return null;
     const ownDef = SKILL_CARDS[card.cardId];
@@ -102,62 +111,69 @@ export function getEquippedCardStatuses(run = {}, native = null) {
     const source = sources.find(entry => entry.index === slot);
     if (copy && !source) {
       const target = cards[slot + 1], targetDef = SKILL_CARDS[target?.cardId];
-      if (!target) return blocked('No target', 'There is no card in the slot immediately to the right.', 'Move this card directly left of a compatible card, with no empty slot between them.');
+      if (!target) return blocked('Put a card to its right', 'The Slot directly to its right is empty, so there is nothing to copy.', 'Put a card it can copy in the next Slot, with no empty Slot between them.', 'no-target');
       if (ownDef.kind === 'echo' && targetDef?.kind !== 'dream' && (targetDef?.kind === 'capacity' || targetDef?.passive))
-        return blocked('No action to copy', `${name(target)} is passive. Echo needs a triggered action to repeat.`, 'Move Echo directly left of a compatible action card. Chameleon can borrow this passive.');
-      return blocked(`Cannot copy ${name(target)}`, `${name(target)} cannot be ${ownDef.kind === 'echo' ? 'repeated by Echo' : 'borrowed by Chameleon'}.`, 'Move this card directly left of a compatible card. Copying cards cannot copy each other.');
+        return blocked("Can't repeat the card to its right", `${name(target)} is always on, so it never fires for Echo to repeat.`, 'Put a card with a Trigger directly to its right. Chameleon can copy always-on cards.', 'cannot-repeat');
+      return blocked(ownDef.kind === 'echo' ? "Can't repeat the card to its right" : "Can't copy the card to its right", `${name(target)} cannot be ${ownDef.kind === 'echo' ? 'repeated by Echo' : 'copied by Chameleon'}.`, 'Put a card it can copy directly to its right. Copy cards cannot copy each other or × cards.', 'cannot-copy');
     }
     const def = source?.def || ownDef, physical = source?.source || card, kind = def.kind;
     if (kind === 'use-doubler') {
       const target = getUseDoublerTarget(cards, slot);
-      if (!target) return blocked('Needs consumable right', 'The immediately adjacent right slot has no live consumable eligible for doubling.', 'Place a card with remaining uses directly right. Use Doubler cannot target another Use Doubler. It stays unspent without a valid target.');
-      return ready(`At real flight entry, consume Use Doubler and double ${name(target)} in slot ${slot + 2} from ${target.charges} to ${target.charges * 2} remaining uses. Preview, Dream and later resumes do not trigger another doubling.`);
+      if (!target) return blocked('Needs a card with uses to its right', 'The next Slot has no card with uses left to double.', 'Put a card with uses directly to its right; not another Use Doubler. It keeps its own use until then.', 'needs-uses-right');
+      return ready(`When a real flight starts, Use Doubler is spent and ${name(target)} in Slot ${slot + 2} goes from ${target.charges} to ${target.charges * 2} uses. Previews, Dream and resuming never double again.`);
     }
+    if (kind === 'ember-feeder' && capacityFull(slot)) return max100();
     if (kind === 'ember-feeder') {
       const targets = getEmberFeederTargets(cards, slot), growth = getCardFeederCapacity(card);
-      if (!targets.length) return blocked('Needs 2 cards right', `This Ember Feeder keeps +${growth} maximum Sparks while equipped, but cannot feed without two occupied cards to its right.`, 'Place two cards anywhere to its right. A successful flight consumes both together; fewer than two consumes neither.');
-      return ready(`After a successful flight, permanently consume ${targets.map(({card: target, slot: targetSlot}) => `${name(target)} in slot ${targetSlot + 1}`).join(' and ')} together. This Ember Feeder grows from +${growth} to +${growth + 1} maximum Sparks while equipped. Physical consumers resolve left to right; no refill, copying or replay.`);
+      if (!targets.length) return blocked('Needs two cards to its right', `This Ember Feeder keeps +${growth} max Sparks while it is in your chain, but it eats only when two cards sit to its right.`, 'Put two cards anywhere to its right. A clear eats both; fewer than two eats neither.', 'needs-two-right');
+      return ready(`After a clear, it eats ${targets.map(({card: target, slot: targetSlot}) => `${name(target)} in Slot ${targetSlot + 1}`).join(' and ')} for good, and grows from +${growth} to +${growth + 1} max Sparks. No refill; copies and Encores never feed it.`);
     }
     if (kind === 'devourer') {
       const target=cards[slot+1];
       if (SKILL_CARDS[target?.cardId]?.rarity !== 'rare')
-        return blocked('Needs Rare to right', 'Devourer has no Rare in the immediately adjacent right slot to consume.', 'Place a Rare directly right. A successful clear consumes it only while a heart is missing; full hearts spare it.');
-      return ready(`After a successful clear, consume ${name(target)} in slot ${slot+2} to restore 1 missing heart. Full hearts spare it. Devourers resolve left to right, after Heart Stitch; the target must still be equipped and present.`);
+        return blocked('Needs a Rare card to its right', 'Devourer has no Rare card in the next Slot to eat.', 'Put a Rare card directly to its right. A clear eats it only while a heart is missing; full hearts keep it.', 'needs-rare-right');
+      return ready(`After a clear with a heart missing, it eats ${name(target)} in Slot ${slot+2} for +1 heart. Full hearts keep it. Devourers act left to right, after Heart Stitch.`);
     }
+    if (kind === 'capacity' && capacityFull(slot)) return max100();
     const rule = getCardRowRule(def, physical);
+    if (rule?.operation === 'add-future-capacity' && maxed) return max100();
     const missing = getCardRowTriggerIssue(rule, context);
     if (missing) return missing;
     if (kind === 'refrain') {
-      if (replaySlots.has(slot)) return ready('This row has a matching event whose second pass can pay an additional bonus. All Refrains share one replay.');
-      if (replaySlots.size) return shared('Shared replay', 'An earlier Refrain already requests the same single replay. Extra Refrains do not add another pass.');
-      return blocked('No replay payoff', 'This arrangement has no matching event that gains a bonus from the second pass. A last remaining use spent in the first pass cannot pay again.', 'Equip a repeatable triggered payoff, or preserve enough shared uses for the replay.');
+      if (replaySlots.has(slot)) return ready('Some Trigger in this chain gives more in an Encore. All Refrains share one Encore.');
+      if (replaySlots.size) return shared('Only one Encore fires', 'Another Refrain already gives this chain its one Encore per Trigger. More Refrains add nothing.', 'one-encore');
+      return blocked('Nothing to fire again', 'No card in this chain gives anything more in an Encore. A card whose last use goes the first time cannot fire again.', 'Add a card with a Trigger, or keep enough uses for the Encore.', 'no-encore');
     }
     if (rule) {
-      if (successes.has(slot)) return ready(copy ? `Can ${ownDef.kind === 'echo' ? 'repeat' : 'borrow'} ${name(physical)} when its condition happens. Remaining uses belong to the real card.` : 'Can contribute in this arrangement when its printed condition happens. A full meter or temporary recovery does not mean the placement is wrong.');
-      if (copiedUse.has(card.instanceId)) return shared('Shared use', 'The earlier copying card can spend this card’s last available use before its own slot acts. The use still pays through the copy.');
-      if (rule.when?.lastOccupied && slot !== lastOccupied) return blocked('Must be last', 'Closing Chord only works from the rightmost occupied slot.', 'Move it after every other equipped card, with a Spark payer earlier in the row.');
-      if (rule.minimumEarlierPayers >= 2) return blocked('Needs 2 payers', 'This card needs two earlier additive actions that pay Sparks during the same event and pass. Payers for different events cannot combine.', 'Move it after two actions for the same event. Echo repeats count as separate paying actions.');
-      if (rule.operation === 'multiply' || rule.operation === 'add-last-payout' || rule.minimumEarlierPayers)
-        return blocked('Move after payer', 'No compatible earlier action pays Sparks for this card’s event and conditions in the same pass. A recovery-only action does not pay Sparks.', 'Move it after a Spark-paying card that works on the same event, or equip that payer first.');
-      return blocked('No matching effect', 'This arrangement cannot produce a useful result for this card’s matching condition.', 'Pair it with the ability named in its condition, then check the row order.');
+      // A Boost with no Trigger of its own also strengthens always-on cards to its left.
+      if (rule.operation === 'multiply' && !successes.has(slot) && alwaysOn.some(entry => entry.boostedBy.some(boost => boost.slot === slot)))
+        return ready('Strengthens the always-on cards to its left, all the time, and the rewards of cards to its left when they fire.');
+      if (successes.has(slot)) return ready(copy ? `${ownDef.kind === 'echo' ? 'Repeats' : 'Acts as'} ${name(physical)} when its Trigger happens. The uses belong to the real card.` : 'Works in this chain when its Trigger happens. A full meter or a ready Collector at the moment does not mean the order is wrong.');
+      if (copiedUse.has(card.instanceId)) return shared('Its copy may use the last use', 'The copy card to its left can spend this card’s last use before it fires itself. That use still counts, through the copy.', 'shared-use');
+      if (rule.when?.lastOccupied && slot !== lastOccupied) return blocked('Move to the last slot', 'Closing Chord works only as the last card in your chain.', 'Move it after every other card in your chain, with a card that gives something before it.', 'must-be-last');
+      if (rule.operation === 'multiply')
+        return blocked('Needs a card before it', 'No card to its left gives Sparks or saves Collector time on the same Trigger, so there is nothing to multiply. Boosts never multiply Stored Sparks or forever gains.', 'Put a card that gives Sparks or saves Collector time, with the same Trigger, to its left; or an always-on card it can boost.', 'needs-card-before');
+      if (rule.operation === 'add-last-payout' || rule.minimumEarlierPayers)
+        return blocked('Needs a + card before it', 'No + card to its left adds Sparks on the same Trigger. A card that only saves Collector time is not a + card.', 'Put a + card with the same Trigger to its left.', 'needs-plus-before');
+      return blocked("Can't fire in this chain", 'Nothing in this chain makes its Trigger or condition happen.', 'Pair it with the card or skill named in its Trigger, then check the order.', 'no-effect');
     }
     if (['field', 'watchlight', 'cache-handling','twin-orbit','twin-wick','collector-range'].includes(kind) && !context.collector)
-      return blocked('Needs Collector', 'This ability uses Collector and its ring.', 'Choose Collector as your companion.');
+      return blocked('Needs Collector', 'This card uses Collector and its charge.', 'Choose Collector as your companion.', 'needs-collector');
     if(kind==='twin-orbit'&&(run.cardTwinWickUnlocked||sources.some(entry=>entry.index<slot&&entry.def.kind==='twin-orbit')))
-      return shared('Two already available','This expedition or an earlier Twin Orbit already provides a second Collector. The maximum is 2.');
+      return shared('Second Collector already here','This journey or another Twin Orbit already gives you a second Collector. The most is 2.','two-collectors');
     if(kind==='twin-wick'&&(run.cardTwinWickUnlocked||has('twin-orbit')||sources.some(entry=>entry.index<slot&&entry.def.kind==='twin-wick')))
-      return shared('Use preserved','A second Collector is already available. Twin Wick keeps its use until it can unlock one for the expedition.');
+      return shared('Keeps its use for now','A second Collector is already here. Twin Wick keeps its use until it can unlock one for this journey.','use-kept');
     if(kind==='collector-range'&&copy)
-      return shared('Shared reach and uses','Borrowing the same range extension adds no reach or catches. The original card supplies its shared remaining uses.');
+      return shared('Reach already covered','Copying the same reach card adds no reach or catches. The real card keeps its uses.','reach-covered');
     if (kind === 'wave-loom' && !context.field)
-      return blocked('Needs Field', 'Wave Loom sends its wave after a successful Field Impulse. This build cannot make that swipe.', 'Equip Field Impulse, or use the native Collector Field Impulse skill.');
+      return blocked('Needs Field Impulse', 'Wave Loom sends its Pulse after a Field Impulse swipe, and this build cannot swipe.', 'Put Field Impulse in your chain, or learn the Collector Field Impulse skill.', 'needs-field');
     if (kind === 'camp-grow' && run.cardGrowUses >= 3)
-      return shared('Grow limit reached', 'All three Grow actions for this journey have already been used. Extra Growth Seeds share that limit.');
+      return shared('Grow limit reached', 'All 3 Grows for this journey are used. Every Growth Seed shares that limit.', 'grow-limit');
     if (['guide', 'rhythm', 'dream', 'cache-handling', 'wave-loom', 'watchlight', 'springboard', 'proximity'].includes(kind) && sources.some(entry => entry.index < slot && entry.def.kind === kind))
-      return shared('Already covered', 'An earlier equipped card already provides this single shared ability. Extra copies do not add a second effect.');
+      return shared('Already covered', 'A card to its left already gives this ability, and extra copies do not add a second one.', 'covered');
     if (kind === 'spillway' && sources.some(entry => entry.def.kind === kind && (entry.def.pulseCadence < def.pulseCadence || entry.def.pulseCadence === def.pulseCadence && entry.index < slot)))
-      return shared('Already covered', 'Another Spillway already provides the same or faster wave cadence. Only the strongest cadence applies.');
-    return ready(copy ? `Can borrow ${name(physical)} in this arrangement. Its printed conditions and shared uses still apply.` : 'This ability can work in this build when its printed condition happens. Ready describes the arrangement, not a promise that it is active right now.');
+      return shared('Already covered', 'Another Spillway already sends Pulses as often or more often. Only the fastest counts.', 'covered');
+    return ready(copy ? `Acts as ${name(physical)} in this chain. Its conditions and uses still apply.` : 'Works in this build when its condition happens. Ready describes the order, not that it is active right now.');
   });
   lastKey = key;
   lastResult = Object.freeze(results.map(status => status ? Object.freeze(status) : null));

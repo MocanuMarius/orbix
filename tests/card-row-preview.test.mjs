@@ -14,7 +14,7 @@ test('Try row quotes exact equipped cards, empties, rank and shared uses without
   assert.deepEqual(preview.trace,previewCardRowEvent(run.mountedCards,preview.event));
   assert.equal(preview.cards[2],null);assert.equal(preview.cards[1].rank,3);
   assert.deepEqual(preview.steps.filter(step => step.slot === 0 && step.pass === 1).map(step => [step.step.chargesBefore,step.step.chargesAfter]),[[2,1],[1,0],[0,0]]);
-  assert.equal(preview.trace.passes,2);assert.equal(preview.trace.sparks,21);
+  assert.equal(preview.trace.passes,2);assert.equal(preview.trace.sparks,30,'12 Sparks ×2.5 Closing Chord (ladder 2026-11-17)');
   assert.equal(preview.chargesBefore['try:1'],2);assert.equal(preview.chargesAfter['try:1'],0);
   assert.deepEqual(run,before);
 });
@@ -34,7 +34,7 @@ test('empty, passive-only and Refrain-only rows never invent a listener or repla
   for (const ids of [[null,null,null],['deep-vessel','lift-guide',null],['refrain','prism-lens',null]]) {
     const run = row(ids), p = previewEquippedCardRow(run);
     assert.deepEqual(p.cards,run.mountedCards);assert.equal(p.trace.passes,0);assert.equal(p.frames.length,0);
-    assert.equal(p.started,false);assert.match(p.noPayReason,/no row pass starts/i);
+    assert.equal(p.started,false);assert.match(p.noPayReason,/chain does not fire/i); // plain wording (v1.0-words)
   }
 });
 
@@ -43,7 +43,7 @@ test('a listened-for but unmatched event walks and skips instead of silently bec
   const p = previewEquippedCardRow(run,later.id);
   assert.equal(p.started,true);assert.equal(p.passes,1);assert.equal(p.trace.sparks,0);
   assert.equal(p.steps[2].skipReason,'empty-slot');assert.equal(p.steps[1].skipReason,'no-productive-action');
-  assert.match(p.steps[0].reason,/first crossing/);assert.match(p.noPayReason,/no matching action/);
+  assert.match(p.steps[0].reason,/first crossing/);assert.match(p.noPayReason,/no card gave anything/);
 });
 
 test('event availability shares real ability predicates and cannot manufacture Rhythm or Collector', () => {
@@ -100,8 +100,8 @@ test('nonrow physical consumers and passives never execute or consume in the pre
 test('default chooses a productive real scenario while an explicit no-pay choice stays selected', () => {
   const run = row(['harvest-common','prism-lens','refrain']);
   const p = previewEquippedCardRow(run);
-  assert.equal(p.event.kind,CARD_ROW_EVENTS.wave);assert.equal(p.trace.sparks,2.5);
+  assert.equal(p.event.kind,CARD_ROW_EVENTS.wave);assert.equal(p.trace.sparks,2); // whole Sparks: each firing rounds down (2026-11-17)
   const explicit = previewEquippedCardRow(run,option(run,CARD_ROW_EVENTS.body).id);
   assert.equal(explicit.event.kind,CARD_ROW_EVENTS.body);assert.equal(explicit.passes,0);
-  assert.match(explicit.noPayReason,/no row pass starts/);
+  assert.match(explicit.noPayReason,/chain does not fire/);
 });

@@ -9,6 +9,7 @@ export function drawProximityEnergy(c,e,{scale=1}={}){
  const px=v=>Math.round(v*scale),size=Math.max(1,Math.round(2*scale));
  c.save();
  if(active){
+  if(e.mod?.closedEye && p.sourceKind==='card'){c.restore();return;}
   const elapsed=Math.max(0,p.duration-p.remaining),strength=p.strength;
   // Existing lighting removes fog; this wash gives the newly visible terrain
   // a blue cast without washing out collision edges or drawing over HTML HUD.

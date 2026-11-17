@@ -1,5 +1,5 @@
-/** Small, read-only explanations for the actual equipped row. */
-import {SKILL_CARDS, getMountedCards, getEffectiveCardSources, getCardRowRule, previewCardRowEvent, CARD_ROW_EVENTS, getUseDoublerTarget, getEmberFeederTargets, getCardFeederCapacity} from './skill-cards.mjs?v=guide-clarity-1';
+/** Small, read-only explanations for the actual chain. */
+import {SKILL_CARDS, getMountedCards, getEffectiveCardSources, getCardRowRule, previewCardRowEvent, CARD_ROW_EVENTS, getUseDoublerTarget, getEmberFeederTargets, getCardFeederCapacity, getAlwaysOnCardBoosts} from './skill-cards.mjs?v=guide-clarity-1';
 import {getCardRuleBands} from './card-rule-bands.mjs?v=guide-clarity-1';
 import {getEquippedCardStatuses} from './card-status.mjs?v=guide-clarity-1';
 import {ARTIFACTS} from './model.mjs?v=guide-clarity-1';
@@ -10,24 +10,25 @@ const esc=value=>String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;
 const number=value=>Number(Number(value||0).toFixed(3));
 const contextButton=(key,label,extra='')=>`<button type="button" class="deck-context-link" data-deck-context-open="${esc(key)}" ${extra}>${esc(label)} <span aria-hidden="true">↗</span></button>`;
 
+// Trigger name, then what happens (docs/card-teaching-plan.md §1).
 const eventNames={
-  [CARD_ROW_EVENTS.body]:'Your wisp touches a passage Spark',
-  [CARD_ROW_EVENTS.wave]:'A wave crosses an uncollected passage Spark',
-  [CARD_ROW_EVENTS.flash]:'You or Collector picks up Flash',
-  [CARD_ROW_EVENTS.flashExpiry]:'A passage Flash expires',
-  [CARD_ROW_EVENTS.lift]:'A paid manual Lift succeeds while descending, at least 0.75s after the previous successful Lift',
-  [CARD_ROW_EVENTS.overfill]:'A passage Spark overfills your meter',
-  [CARD_ROW_EVENTS.delivery]:'Collector delivers a Spark',
-  [CARD_ROW_EVENTS.rhythm]:'Rhythm completes 3 evenly timed successful Lifts',
-  [CARD_ROW_EVENTS.field]:'A Field Impulse swipe succeeds',
-  [CARD_ROW_EVENTS.guard]:'Collector saves a fatal impact',
-  [CARD_ROW_EVENTS.clear]:'You successfully clear a flight',
+  [CARD_ROW_EVENTS.body]:'Collect · your wisp touches a Spark',
+  [CARD_ROW_EVENTS.wave]:'Pulse · a Pulse crosses a Spark you have not collected',
+  [CARD_ROW_EVENTS.flash]:'Flash · you or Collector pick up Flash',
+  [CARD_ROW_EVENTS.flashExpiry]:'Flash ends · a Flash’s light runs out',
+  [CARD_ROW_EVENTS.lift]:'Falling Lift · a paid Lift while falling, at least 0.75 s after your last Lift',
+  [CARD_ROW_EVENTS.overfill]:'Overfill · a Spark brings more than your meter can hold',
+  [CARD_ROW_EVENTS.delivery]:'Delivery · Collector brings you a pickup',
+  [CARD_ROW_EVENTS.rhythm]:'Rhythm · 3 even Lifts complete',
+  [CARD_ROW_EVENTS.field]:'Swipe · a Field Impulse swipe succeeds',
+  [CARD_ROW_EVENTS.guard]:'Save · Collector stops a fatal crash',
+  [CARD_ROW_EVENTS.clear]:'Clear · you clear a flight',
   [CARD_ROW_EVENTS.victory]:'You defeat the third guardian',
-  [CARD_ROW_EVENTS.attach]:'Collector attaches to a pickup',
+  [CARD_ROW_EVENTS.attach]:'Latch · Collector grabs a missed pickup',
 };
 const stepResult=steps=>{
   const sum=key=>number(steps.reduce((total,step)=>total+(step[key]||0),0)),parts=[];
-  if(sum('amount'))parts.push(`+${sum('amount')} bonus Sparks`);
+  if(sum('amount'))parts.push(`+${sum('amount')} Sparks`);
   if(sum('stored'))parts.push(`+${sum('stored')} Stored Sparks`);
   if(sum('futureCapacity'))parts.push(`+${sum('futureCapacity')} future maximum Sparks`);
   if(sum('cruisingSpeed'))parts.push(`+${sum('cruisingSpeed')}% cruising speed`);
@@ -47,22 +48,24 @@ export function getDeckCardExplanation(run,card){
   const when=rule?.when||{};
   if(when.pickupKind)requirements.push(`${when.pickupKind==='light'?'Spark':when.pickupKind==='cache'?'Cache':when.pickupKind==='cluster'?'cluster':when.pickupKind} pickup`);
   if(when.meterAtMost!==undefined)requirements.push(`meter at or below ${number(when.meterAtMost*100)}% before pickup`);
-  if(when.firstCrossing)requirements.push('first crossing of this wave');
+  if(when.firstCrossing)requirements.push('first crossing of this Pulse');
   if(when.direction)requirements.push(`${when.direction} swipe`);
   if(when.guardRecovering)requirements.push('Collector is recovering after a save');
   if(when.collectorReeling)requirements.push('Collector is actively reeling a pickup');
   if(['shorten-recovery','shorten-reel'].includes(rule?.operation))requirements.push('Collector still has time left to shorten');
-  if(when.pass)requirements.push(`pass ${when.pass} only`);
+  if(when.pass)requirements.push(when.pass===2?'in an Encore only':'first firing only');
   if(when.lastOccupied)requirements.push('rightmost occupied slot');
-  if(rule?.minimumEarlierPayers)requirements.push(`${rule.minimumEarlierPayers} earlier Spark-paying ${rule.minimumEarlierPayers===1?'action':'actions'} in this same event and pass`);
+  if(rule?.minimumEarlierPayers)requirements.push(`${rule.minimumEarlierPayers===1?'a + card':`${rule.minimumEarlierPayers} + cards`} before it, on the same Trigger`);
+  if(rule?.operation==='multiply')requirements.push('a card to its left that gives something on the same Trigger');
   const ordered=['multiply','add-last-payout','multiply-future-capacity'].includes(rule?.operation)||rule?.minimumEarlierPayers||when.lastOccupied;
   const placement=['echo','chameleon','use-doubler'].includes(card.kind)
-    ? `Immediate right: slot ${card.slot+2} · ${cards[card.slot+1]?.name||'empty or outside the row'}. No empty gap is allowed.`
+    ? `Next card: Slot ${card.slot+2} · ${cards[card.slot+1]?.name||'empty or outside the chain'}. No empty Slot between them.`
     : card.kind==='ember-feeder' ? 'Targets the first two occupied cards to its right, skipping empty slots. Their destruction happens only after a successful clear.'
-    : card.kind==='devourer' ? `Immediate right: slot ${card.slot+2} · ${cards[card.slot+1]?.name||'empty or outside the row'}. A successful clear can permanently consume that Rare card to heal.`
-    : card.kind==='refrain' ? 'Refrain may sit anywhere. It requests one second pass for the same event; all Refrains share that replay.'
-    : ordered ? 'Order matters: only earlier slots in the same event and pass can supply this card. Every pass starts a fresh subtotal.'
-    : 'No required left/right order for this condition. It can trigger from this slot when its event happens.';
+    : card.kind==='devourer' ? `Next card: Slot ${card.slot+2} · ${cards[card.slot+1]?.name||'empty or outside the chain'}. A clear with a heart missing eats that Rare card to heal.`
+    : card.kind==='refrain' ? 'Refrain can sit anywhere. It gives one Encore for the same Trigger; all Refrains share it.'
+    : rule?.operation==='multiply' ? 'Order matters: it strengthens only the cards to its left, so put it to their right. Each firing starts at 0 Sparks.'
+    : ordered ? 'Order matters: only the cards to its left, on the same Trigger, can feed it. Each firing starts at 0 Sparks.'
+    : 'Its place does not matter for its own Trigger. A Boost to its right still strengthens it.';
   let example=null;
   if(rule&&status?.state!=='blocked'){
     const kinds=rule.event==='*'?Object.values(CARD_ROW_EVENTS):[rule.event];
@@ -79,17 +82,24 @@ export function getDeckCardExplanation(run,card){
     }
   }
   let summary=card.effectiveSummary||card.copyPreview||printedBands.filter(band=>band.type==='effect').map(band=>band.text).join(' ');
+  // Detail G: a boosted always-on card says what it really gives, and which card boosts it.
+  const boosts=getAlwaysOnCardBoosts(run.mountedCards||[]).filter(entry=>entry.slot===card.slot&&entry.multiplier>1);
+  if(boosts.length){const base=boosts.reduce((s,e)=>s+e.base,0),boosted=boosts.reduce((s,e)=>s+e.boosted,0),unit=boosts[0].unit,by=[...new Set(boosts.flatMap(e=>e.boostedBy.map(b=>b.name)))].join(' and ');
+    summary=`+${number(base)}${unit.startsWith('%')?'':' '}${unit} → +${number(boosted)}${unit.startsWith('%')?'':' '}${unit}, boosted by ${by}. ${summary}`;}
   if(card.kind==='use-doubler'){const target=getUseDoublerTarget(run.mountedCards,card.slot);if(target)summary=`On real flight entry: consume Use Doubler. ${SKILL_CARDS[target.cardId].name} (slot ${card.slot+2}) keeps ${target.charges} → ${target.charges*2} uses. No effect in preview or Dream.`;}
   if(card.kind==='ember-feeder'){const targets=getEmberFeederTargets(run.mountedCards,card.slot),growth=getCardFeederCapacity(card);if(targets.length)summary=`After clear: permanently destroy ${targets.map(({card:target,slot})=>`${SKILL_CARDS[target.cardId].name} (slot ${slot+1})`).join(' + ')}. This Feeder: +${growth} → +${growth+1} maximum Sparks while equipped. No refill.`;}
-  return {status,usesPass:!!rule||card.kind==='refrain',trigger:rule&&rule.event!=='*'?eventNames[rule.event]:printedBands.find(band=>band.type==='condition')?.text||'While equipped',requirements,placement,ordered:!!ordered,example,summary};
+  return {status,usesPass:!!rule||card.kind==='refrain',trigger:rule&&rule.event!=='*'?eventNames[rule.event]:printedBands.find(band=>band.type==='condition')?.text||'Always on',requirements,placement,ordered:!!ordered||rule?.operation==='multiply',example,summary,boosts};
 }
 
-export function deckCardExplanationMarkup(run,card){
+export function deckCardExplanationMarkup(run,card,{status:presentedStatus=null}={}){
   const info=getDeckCardExplanation(run,card);if(!info)return '';
-  const {status,example}=info;
+  const {example}=info,status=presentedStatus||info.status;
   const blocked=status?.state==='blocked';
-  const sample=example?`<details class="deck-card-example"><summary>Example · ${esc(eventNames[example.event.kind]||info.trigger)}</summary><p class="deck-context-note">Preview from your current cards and remaining uses${example.trace.recoverySeconds||example.trace.reelSeconds?' · assumes 10s left to shorten':''}. This is the card bonus, before meter limits.</p>${example.trace.passes>1?[1,2].map(pass=>`<p><strong>Pass ${pass}</strong> · ${esc(card.kind==='refrain'?stepResult(example.trace.steps.filter(step=>step.pass===pass&&step.success&&step.operation!=='replay-row')):stepResult(example.steps.filter(step=>step.pass===pass)))}</p>`).join(''):`<p><strong>${esc(card.name)}</strong> · ${esc(stepResult(example.steps))}</p>`}<p class="deck-context-note">Whole row: +${number(example.trace.sparks)} bonus Sparks${example.trace.stored?` · +${number(example.trace.stored)} Stored Sparks`:''}${example.trace.futureCapacity?` · +${number(example.trace.futureCapacity)} future maximum Sparks`:''}. ${example.trace.passes} ${example.trace.passes===1?'pass':'passes'}.</p>${example.steps.some(step=>Number.isFinite(step.chargesBefore))?`<p>Shared uses · ${esc(SKILL_CARDS[example.steps[0].sourceCardId]?.name||card.name)}: ${example.steps[0].chargesBefore} → ${example.steps.at(-1).chargesAfter}</p>`:''}</details>`:'';
-  return `<div class="deck-live-explanation"><p class="deck-card-verdict deck-verdict-${esc(status?.state||'ready')}"><strong>${esc(status?.label||'Equipped')}</strong>${blocked?` · ${esc(status.reason)} ${esc(status.fix)}`:status?.state==='shared'?` · ${esc(status.reason)}`:''}</p>${info.summary?`<p class="deck-live-result">${esc(info.summary)}</p>`:''}<p><strong>When</strong> · ${esc(info.trigger).replace(/^When /,'')}</p>${info.requirements.length?`<details class="deck-card-requirements"><summary>Requirements · ${info.requirements.length}</summary><ul>${info.requirements.map(requirement=>`<li>${esc(requirement)}</li>`).join('')}</ul></details>`:''}${sample}<details class="deck-card-placement"><summary>Placement${info.ordered?' · order matters':''}</summary><p>${esc(info.placement)}</p></details><details class="deck-pass-help"><summary>${info.usesPass?'What is a pass?':'Passes · this effect works outside them'}</summary>${!info.usesPass?`<p>${esc(card.name)} does not repeat in row passes. Its own timing, targets and shared limits still apply.</p>`:''}<p>One pass checks the equipped slots once, from left to right, for one event. Only cards matching that event and their conditions act. Spark bonuses build a subtotal within that pass.</p><p>A productive event with Refrain checks the row once more from slot 1. The new pass starts at zero; both passes’ bonuses add together. Copies and replay spend the real target’s shared remaining uses. They do not create an extra pickup or physical wave.</p></details></div>`;
+  const own=example?.trace.cards?.[card.slot],keys=[['sparks','Sparks'],['stored','Stored Sparks'],['futureCapacity','max Sparks forever'],['cruisingSpeed','% speed'],['recoverySeconds','s recovery saved'],['reelSeconds','s reel saved']];
+  // The card's own figure after repeats and Boosts (base struck through when different).
+  const plate=own?keys.filter(([key])=>own.effective[key]||own.base[key]).map(([key,unit])=>`${own.base[key]!==own.effective[key]?`<s>+${number(own.base[key])}</s> `:''}+${number(own.effective[key])}${unit.startsWith('%')||unit.startsWith('s ')?'':' '}${unit}`).join(' · '):'';
+  const sample=example?`<details class="deck-card-example"><summary>Example · ${esc(eventNames[example.event.kind]||info.trigger)}</summary><p class="deck-context-note">Preview from your current cards and remaining uses${example.trace.recoverySeconds||example.trace.reelSeconds?' · assumes 10 s left to shorten':''}. Card Sparks are shown before the meter limit.</p>${plate?`<p><strong>${esc(card.name)} gives</strong> · ${plate}</p>`:''}${example.trace.passes>1?[1,2].map(pass=>`<p><strong>${pass===1?'First firing':'Encore'}</strong> · ${esc(card.kind==='refrain'?stepResult(example.trace.steps.filter(step=>step.pass===pass&&step.success&&step.operation!=='replay-row')):stepResult(example.steps.filter(step=>step.pass===pass)))}</p>`).join(''):`<p><strong>${esc(card.name)}</strong> · ${esc(stepResult(example.steps))}</p>`}<p class="deck-context-note">Whole chain: +${number(example.trace.sparks)} Sparks${example.trace.stored?` · +${number(example.trace.stored)} Stored Sparks`:''}${example.trace.futureCapacity?` · +${number(example.trace.futureCapacity)} max Sparks forever`:''}${example.trace.passes>1?' · with an Encore':''}.</p>${example.steps.some(step=>Number.isFinite(step.chargesBefore))?`<p>Uses · ${esc(SKILL_CARDS[example.steps[0].sourceCardId]?.name||card.name)}: ${example.steps[0].chargesBefore} → ${example.steps.at(-1).chargesAfter}</p>`:''}</details>`:'';
+  return `<div class="deck-live-explanation"><p class="deck-card-verdict deck-verdict-${esc(status?.state||'ready')}"><strong>${esc(status?.label||'Equipped')}</strong>${blocked?` · ${esc(status.reason)} ${esc(status.fix)}`:['shared','partial'].includes(status?.state)?` · ${esc(status.reason)}`:''}</p>${info.summary?`<p class="deck-live-result">${esc(info.summary)}</p>`:''}<p><strong>When</strong> · ${esc(info.trigger).replace(/^When /,'')}</p>${info.requirements.length?`<details class="deck-card-requirements"><summary>Requirements · ${info.requirements.length}</summary><ul>${info.requirements.map(requirement=>`<li>${esc(requirement)}</li>`).join('')}</ul></details>`:''}${sample}<details class="deck-card-placement"><summary>Placement${info.ordered?' · order matters':''}</summary><p>${esc(info.placement)}</p></details><details class="deck-pass-help"><summary>${info.usesPass?'How does the chain fire?':'Always on · it does not fire'}</summary>${!info.usesPass?`<p>${esc(card.name)} works all the time while it is in your chain, so it never fires and an Encore does not repeat it. A Boost to its right still strengthens its bonus.</p>`:''}<p>When a Trigger happens, the cards with that Trigger fire from Slot 1 to the right. + cards add Sparks; a Boost multiplies every card to its left.</p><p>With Refrain, the chain fires once more for the same Trigger: an Encore, starting at 0 Sparks. Copies and Encores spend the real card’s uses and make no extra pickup or Pulse.</p></details></div>`;
 }
 
 export function getDeckComboLinks(run={}) {
@@ -102,9 +112,9 @@ export function getDeckComboLinks(run={}) {
     const trace=previewCardRowEvent(run.mountedCards,{kind:CARD_ROW_EVENTS.wave,firstCrossing:true,pickupKind:'light',availableRecovery:0});
     const step=trace.steps.find(step=>step.sourceInstanceId===harvest.source.instanceId&&step.success);
     links.push({id:'rhythm-harvest',name:'Rhythm → Harvest',sourceSlot:rhythm.index,targetSlot:harvest.index,
-      sourceText:'Send out one wave',targetText:'Wave crosses a Spark',result:`+${number(step?.amount)} on crossing`,
-      explanation:'3 evenly timed Lifts start the wave. Harvest leaves the crossed pickup in place.',
-      note:'Either slot order works. A wave must reach a Spark; making the wave alone gives no Harvest payout.'});
+      sourceText:'Send out one Pulse',targetText:'Pulse crosses a Spark',result:`+${number(step?.amount)} on crossing`,
+      explanation:'3 evenly timed Lifts start the Pulse. Harvest leaves the crossed pickup in place.',
+      note:'Either slot order works. A Pulse must reach a Spark; making the Pulse alone gives no Harvest payout.'});
   }
   if(ring&&(run.artifacts||[]).includes('dawn-loom')){
     const trace=previewCardRowEvent(run.mountedCards,{kind:CARD_ROW_EVENTS.overfill,availableRecovery:10,meterFraction:1});
@@ -135,11 +145,11 @@ function relicPanel(run,id,links){
   return `<section class="deck-context-panel" data-deck-context="relic:${esc(id)}" hidden><small>${owned?'OWNED RELIC':'OPTIONAL · NOT OWNED'}</small><header>${artifactPixelPortrait(id)}<h3>${esc(artifact.name)}</h3></header><p>${esc(copy.trigger)}</p><strong>${esc(copy.effect)}</strong><p class="deck-context-note">${esc(copy.limit)}</p>${link?contextButton(`combo:${link.id}`,link.name):''}${id==='dawn-loom'&&!link?'<p class="deck-context-note">Ring Spring can supply this trigger when a passage Spark overfills your meter during Collector recovery.</p>':''}<button type="button" class="deck-context-close" data-deck-context-close>Close explanation</button></section>`;
 }
 
-export function deckContextMarkup(run,{card=null,locked=false,moving=false}={}){
+export function deckContextMarkup(run,{card=null,locked=false,moving=false,cardStatus=null}={}){
   const cards=getMountedCards(run),statuses=getEquippedCardStatuses(run),links=getDeckComboLinks(run);
   const relevant=card?links.filter(link=>link.sourceSlot===card.slot||link.targetSlot===card.slot):[];
-  const status=card?.mounted?statuses[card.slot]:null;
-  const selected=card?.mounted?`<section class="deck-context-panel" data-deck-context="selected"><header class="deck-selected-title"><small>SLOT ${card.slot+1} · YOUR CURRENT ARRANGEMENT</small><h3>${esc(card.name)}</h3></header><div class="deck-selected-body">${deckCardExplanationMarkup(run,card)}${relevant.length?`<details class="deck-selected-links"><summary>Connected effects · ${relevant.length}</summary>${relevant.map(link=>contextButton(`combo:${link.id}`,link.name)).join('')}</details>`:''}${relatedMarkup(run,card)}<button type="button" class="deck-context-close" data-action="card-cancel-equip">Clear selection</button></div><div class="deck-selected-actions"><button class="secondary" data-action="card-inspect" data-id="${esc(card.instanceId)}">Inspect & improve</button><button class="secondary" data-action="card-return-selected" ${locked?'disabled':''}>To Deck</button></div></section>`:'';
+  const status=cardStatus||(card?.mounted?statuses[card.slot]:null);
+  const selected=card?.mounted?`<section class="deck-context-panel" data-deck-context="selected"><header class="deck-selected-title"><small>SLOT ${card.slot+1} · YOUR CURRENT ARRANGEMENT</small><h3>${esc(card.name)}</h3></header><div class="deck-selected-body">${deckCardExplanationMarkup(run,card,{status})}${relevant.length?`<details class="deck-selected-links"><summary>Connected effects · ${relevant.length}</summary>${relevant.map(link=>contextButton(`combo:${link.id}`,link.name)).join('')}</details>`:''}${relatedMarkup(run,card)}<button type="button" class="deck-context-close" data-action="card-cancel-equip">Clear selection</button></div><div class="deck-selected-actions"><button class="secondary" data-action="card-inspect" data-id="${esc(card.instanceId)}">Inspect & improve</button><button class="secondary" data-action="card-return-selected" ${locked?'disabled':''}>To Deck</button></div></section>`:'';
   const combos=links.map(link=>`<section class="deck-context-panel" data-deck-context="combo:${link.id}" data-combo-source-slot="${link.sourceSlot}" ${link.targetSlot!=null?`data-combo-target-slot="${link.targetSlot}"`:''} ${link.targetArtifact?`data-combo-target-relic="${link.targetArtifact}"`:''} hidden><small>CONNECTED IN THIS BUILD</small><h3>${esc(link.name)}</h3><div class="deck-combo-chain"><span class="deck-combo-action">${esc(link.sourceText)}</span><span aria-hidden="true">↓</span><span class="deck-combo-condition">${esc(link.targetText)}</span><strong>${esc(link.result)}</strong></div><p>${esc(link.explanation)}</p>${link.id==='rhythm-harvest'?'<button type="button" class="secondary" data-combo-lesson="rhythm-harvest">Try combo</button>':''}<p class="deck-context-note">${esc(link.note)}</p><button type="button" class="deck-context-close" data-deck-context-close>Close explanation</button></section>`).join('');
   const ids=[...new Set([...(run.artifacts||[]),...(cards.some(card=>card?.kind==='ring-spring')?['dawn-loom','overflow-coil']:[])])];
   return `<aside class="deck-context" aria-label="Selected card and linked effects">${selected}${combos}${ids.map(id=>relicPanel(run,id,links)).join('')}</aside>`;

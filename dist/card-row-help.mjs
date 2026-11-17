@@ -32,7 +32,7 @@ export function resolveCardHelpContext(button, run, {example = false, label, sna
 const fixture = () => {
   const cards = ['echo','spark-cache','refrain'].map((id,slot) => makeSkillCard(id, `glossary:${slot}`));
   cards[1].charges = 2;
-  return {run:{skillSystem:CARD_SYSTEM, cardSlots:3, mountedCards:cards}, card:cards[0], slot:0, instanceId:cards[0].instanceId, example:true, label:'Example row · 2 shared uses'};
+  return {run:{skillSystem:CARD_SYSTEM, cardSlots:3, mountedCards:cards}, card:cards[0], slot:0, instanceId:cards[0].instanceId, example:true, label:'Example chain · 2 shared uses'};
 };
 
 export function getCardRowSource(cards, slot) {
@@ -44,7 +44,7 @@ export function getCardRowSource(cards, slot) {
 }
 const sourceFor = getCardRowSource;
 
-const unavailableTrigger = status => status?.state === 'blocked' && ['Needs Rhythm','Needs Field','Needs a save','Needs Collector','Needs Cache fetch'].includes(status.label);
+const unavailableTrigger = status => status?.state === 'blocked' && ['needs-rhythm','needs-field','needs-save','needs-collector','needs-cache'].includes(status.code);
 function eventCandidates(cards, run, preferredSlot, statuses) {
   const orderedSlots = [...new Set([preferredSlot, ...cards.map((_,slot) => slot)])].filter(Number.isInteger);
   const events = [];
@@ -99,7 +99,7 @@ function selectedNote(context, cards) {
   const card = context.card;
   if (!card) return '';
   const def = SKILL_CARDS[card.cardId];
-  const location = context.slot == null ? 'Outside this equipped row' : `Slot ${context.slot + 1}`;
+  const location = context.slot == null ? 'Not in this chain' : `Slot ${context.slot + 1}`;
   if (isCopy(card)) {
     const target = cards[context.slot + 1], source = context.slot == null ? null : sourceFor(cards,context.slot);
     return `${location} · ${name(card)}. ${source ? `${def.kind === 'echo' ? `Repeats ${def.repeatCount || 1} ${def.repeatCount > 1 ? 'times' : 'time'}` : 'Borrows'} ${name(target)} in slot ${context.slot + 2}${Number.isFinite(target.charges) ? `, sharing its ${target.charges} remaining ${target.charges === 1 ? 'use' : 'uses'}` : ''}.` : 'No compatible triggered action immediately to its right.'}`;
@@ -108,10 +108,10 @@ function selectedNote(context, cards) {
 }
 
 export function describeCardRowScenario(event, trace) {
-  const events = {[CARD_ROW_EVENTS.body]:'your wisp touches a pickup', [CARD_ROW_EVENTS.wave]:'a wave crosses an uncollected pickup', [CARD_ROW_EVENTS.flash]:'your wisp or Collector picks up Flash', [CARD_ROW_EVENTS.flashExpiry]:'a passage Flash expires', [CARD_ROW_EVENTS.lift]:'a Lift succeeds', [CARD_ROW_EVENTS.overfill]:'a passage Spark overfills the meter', [CARD_ROW_EVENTS.delivery]:'Collector delivers a pickup', [CARD_ROW_EVENTS.rhythm]:'3 evenly timed successful Lifts complete Rhythm', [CARD_ROW_EVENTS.field]:'a Field Impulse swipe succeeds', [CARD_ROW_EVENTS.guard]:'Collector saves a fatal impact', [CARD_ROW_EVENTS.clear]:'you clear a flight', [CARD_ROW_EVENTS.victory]:'you defeat the third Guardian', [CARD_ROW_EVENTS.attach]:'Collector attaches to a pickup'};
-  const parts = [events[event.kind] || 'one matching event'];
+  const events = {[CARD_ROW_EVENTS.body]:'your wisp touches a pickup', [CARD_ROW_EVENTS.wave]:'a Pulse crosses an uncollected pickup', [CARD_ROW_EVENTS.flash]:'your wisp or Collector picks up Flash', [CARD_ROW_EVENTS.flashExpiry]:'a passage Flash expires', [CARD_ROW_EVENTS.lift]:'a Lift succeeds', [CARD_ROW_EVENTS.overfill]:'a passage Spark overfills the meter', [CARD_ROW_EVENTS.delivery]:'Collector delivers a pickup', [CARD_ROW_EVENTS.rhythm]:'3 evenly timed successful Lifts complete Rhythm', [CARD_ROW_EVENTS.field]:'a Field Impulse swipe succeeds', [CARD_ROW_EVENTS.guard]:'Collector saves a fatal impact', [CARD_ROW_EVENTS.clear]:'you clear a flight', [CARD_ROW_EVENTS.victory]:'you defeat the third Guardian', [CARD_ROW_EVENTS.attach]:'Collector attaches to a pickup'};
+  const parts = [events[event.kind] || 'one Trigger'];
   if (event.kind === CARD_ROW_EVENTS.body || event.kind === CARD_ROW_EVENTS.delivery || event.kind === CARD_ROW_EVENTS.wave) parts.push(`pickup: ${event.pickupKind === 'light' ? 'passage Spark' : event.pickupKind}`);
-  if (event.kind === CARD_ROW_EVENTS.wave) parts.push(event.firstCrossing ? 'first crossing of this wave' : 'later crossing');
+  if (event.kind === CARD_ROW_EVENTS.wave) parts.push(event.firstCrossing ? 'first crossing of this Pulse' : 'later crossing');
   if (trace.steps.some(step => getCardRowRule(SKILL_CARDS[step.sourceCardId], {cardId:step.sourceCardId})?.when?.meterAtMost !== undefined)) parts.push(`meter at ${Math.round(event.meterFraction * 100)}% before the event`);
   if (event.guardRecovering) parts.push('Collector recovering after a save');
   if (event.collectorReeling) parts.push(`Collector reeling, with ${event.availableReel}s left`);
@@ -128,9 +128,9 @@ export function cardRowTermHelpMarkup(key, context) {
   const example = getCardRowHelpExample(key,context);
   if (!example) return '';
   const {cards, trace, event, original, fallback, selectedStatus} = example;
-  const title = fallback ? example.context.label : original.label || (original.example ? 'Example row · preview' : 'Your current row · preview');
+  const title = fallback ? example.context.label : original.label || (original.example ? 'Example chain · preview' : 'Your current chain · preview');
   const selected = selectedNote(original, rowFor(original.run));
-  const missing = ['copy','repeat'].includes(key) ? 'This row has no available triggered copy action.' : key === 'shared' ? 'This row has no available action sharing a limited card’s uses.' : key === 'uses' ? 'This row has no available triggered limited card.' : 'This row has no available triggered card action.';
-  const explanation = fallback ? `${original.run ? missing + ' ' : ''}The labeled example below uses Echo, Pocket Sparks and Refrain.` : 'Uses this row’s actual order, ranks and remaining uses.';
-  return `<section class="card-row-help" data-card-row-help="${esc(key)}"><h3>${esc(title)}</h3>${selected ? `<p class="card-row-help-selected">${esc(selected)}</p>` : ''}${selectedStatus?.state === 'blocked' ? `<p class="card-row-help-context"><strong>${esc(selectedStatus.label)}</strong> · ${esc(selectedStatus.reason)} ${esc(selectedStatus.fix)}</p>` : ''}<p class="card-row-help-context">${esc(explanation)}</p><ol class="card-help-current-row" aria-label="${fallback || original.example ? 'Example' : 'Current'} cards from left to right">${cards.map((card,slot) => `<li${original.instanceId && card?.instanceId === original.instanceId ? ' class="is-selected"' : ''}><b>Slot ${slot + 1}</b><span>${esc(name(card))}</span><small>${card ? Number.isFinite(card.charges) ? `${card.charges} uses` : 'No use limit' : 'Empty'}</small></li>`).join('')}</ol><p class="card-row-help-context">Scenario · ${esc(assumptions(event,trace))}. Card bonuses below are before Spark Meter limits.</p><div class="card-row-sequences">${cardRowSequenceMarkup(trace)}</div><details class="card-row-help-receipt" open><summary>Follow slots left to right</summary>${cardRowTraceMarkup(trace,{cards,showUses:true})}</details><p class="card-row-help-context">Preview only · your cards and uses stay unchanged.</p></section>`;
+  const missing = ['copy','repeat'].includes(key) ? 'This chain has no copy card that can fire.' : key === 'shared' ? 'This chain has no copy card sharing a limited card’s uses.' : key === 'uses' ? 'This chain has no limited card that can fire.' : 'This chain has no card that can fire.';
+  const explanation = fallback ? `${original.run ? missing + ' ' : ''}The labeled example below uses Echo, Pocket Sparks and Refrain.` : 'Uses this chain’s actual order, ranks and remaining uses.';
+  return `<section class="card-row-help" data-card-row-help="${esc(key)}"><h3>${esc(title)}</h3>${selected ? `<p class="card-row-help-selected">${esc(selected)}</p>` : ''}${selectedStatus?.state === 'blocked' ? `<p class="card-row-help-context"><strong>${esc(selectedStatus.label)}</strong> · ${esc(selectedStatus.reason)} ${esc(selectedStatus.fix)}</p>` : ''}<p class="card-row-help-context">${esc(explanation)}</p><ol class="card-help-current-row" aria-label="${fallback || original.example ? 'Example' : 'Current'} cards from left to right">${cards.map((card,slot) => `<li${original.instanceId && card?.instanceId === original.instanceId ? ' class="is-selected"' : ''}><b>Slot ${slot + 1}</b><span>${esc(name(card))}</span><small>${card ? Number.isFinite(card.charges) ? `${card.charges} uses` : 'No use limit' : 'Empty'}</small></li>`).join('')}</ol><p class="card-row-help-context">Scenario · ${esc(assumptions(event,trace))}. Card Sparks below are before the Spark Meter limit.</p><div class="card-row-sequences">${cardRowSequenceMarkup(trace)}</div><details class="card-row-help-receipt" open><summary>Follow slots left to right</summary>${cardRowTraceMarkup(trace,{cards,showUses:true})}</details><p class="card-row-help-context">Preview only · your cards and uses stay unchanged.</p></section>`;
 }

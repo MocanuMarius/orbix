@@ -9,8 +9,8 @@ const esc=value=>String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;
 const names={'card-watchlight':'Watchlight',collector:'Collector',protector:'Protector',swift:'Runner',leveler:'Space Timer',
   'main-echo-sight':'Echo Luminance','main-purifying-touch':'Purifying Touch','main-kindled-touch':'Kindled Touch',
   'proximity-awakening':'Edging Pulse','main-edging-regeneration':'Regenerative Pulse','proximity-light-shield':'Light Aegis',
-  'collector-last-orbit':'Last Orbit','main-fourth-beat':'Fourth Beat','warm-core':'Warm Core','kindled-spirit':'Kindled Spirit',edgeweaver:'Collision ward'};
-const portraitNames={'proximity-awakening':'Proximity','main-edging-regeneration':'Regenerative Pulse','proximity-light-shield':'Light Aegis','collector-last-orbit':'Last Orbit','main-fourth-beat':'Fourth Beat'};
+  'collector-last-orbit':'Last Orbit','main-fourth-beat':'Double Lift','main-fourth-beat-2':'Climb','warm-core':'Warm Core','kindled-spirit':'Kindled Spirit',edgeweaver:'Collision ward'};
+const portraitNames={'proximity-awakening':'Proximity','main-edging-regeneration':'Regenerative Pulse','proximity-light-shield':'Light Aegis','collector-last-orbit':'Last Orbit','main-fourth-beat':'Double Lift','main-fourth-beat-2':'Climb'};
 export function activationPresentation(event){
   const name=ARTIFACTS[event.source]?.name||names[event.source]||SKILLS[event.source]?.name||event.label||'Activated';
   const icon=event.kind==='artifact'?artifactIcon(event.source):event.kind==='companion'?companionArtSvg(event.source)

@@ -201,9 +201,10 @@ test('neither new physical action is copyable or replayable; statuses name exact
   const before=structuredClone(state.run.mountedCards),runtime=createCardExecution(before);
   resolveCardRow(runtime,{kind:'flight-clear'});assert.deepEqual(runtime.cards,before);
   const printed=getMountedCards(state.run),status=getEquippedCardStatuses(state.run);
-  assert.equal(status[0].state,'blocked');assert.match(status[1].reason,/Pocket Sparks in slot 3 and Refrain in slot 4/);
-  assert.match(printed[1].effect,/Stored growth \+0 maximum Sparks/);assert.match(printed[1].effectiveSummary,/permanently consume/);
+  // Plain status instructions and the approved face wording (v1.0-cardtext).
+  assert.equal(status[0].state,'blocked');assert.match(status[1].reason,/Pocket Sparks in Slot 3 and Refrain in Slot 4/);
+  assert.match(printed[1].effect,/Eats the next 2 cards/);assert.match(printed[1].effectiveSummary,/Stored growth \+0 maximum Sparks/);assert.match(printed[1].effectiveSummary,/permanently consume/);
   const doubler=fresh(['echo','use-doubler','spark-cache']),dstatus=getEquippedCardStatuses(doubler.run);
-  assert.equal(dstatus[0].state,'blocked');assert.match(dstatus[1].reason,/Pocket Sparks in slot 3 from 6 to 12/);
+  assert.equal(dstatus[0].state,'blocked');assert.match(dstatus[1].reason,/Pocket Sparks in Slot 3 goes from 6 to 12/);
   assert.match(getMountedCards(doubler.run)[1].effectiveSummary,/6 → 12 remaining uses/);
 });

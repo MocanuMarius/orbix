@@ -1753,3 +1753,28 @@ html body .skill-card.card-readable.card-rare.card-status-dense .card-config-sta
  html body .skill-card.card-readable.card-has-uses:is(.card-reward-equip .skill-card){--frame-foot:max(calc(var(--frame-h) * .0786 + 2px),calc(var(--frame-h) * .029 + 27px))}
  html body .skill-card.card-readable.card-has-uses:is(.card-reward-equip .skill-card) .card-use-counter{top:auto;bottom:calc(var(--frame-h) * .029 + 2px);right:calc(var(--frame-moss) + 2px)}
 }
+
+.card-illustration:has(.card-sight-warning){position:relative}
+.card-sight-warning{position:absolute;bottom:3px;left:3px;z-index:2;display:flex;align-items:center;justify-content:center;gap:3px;max-width:calc(100% - 6px);box-sizing:border-box;padding:2px 4px;background:#301c20;color:#ffb49b;border:1px solid #e79c82;font-weight:bold;line-height:1;white-space:nowrap}
+.card-sight-warning small{font:inherit;font-size:10px}
+.card-thumbnail .card-sight-warning small{display:none}
+/* Equipped art also carries the slot/status at left and finite uses at right.
+   Keep the blocked-light mark in the clear space between those two badges. */
+html body .skill-card.card-fitted .card-sight-warning{left:50%;transform:translateX(-50%);width:18px;height:18px;padding:0;font-size:17px;line-height:1}
+html body .skill-card.card-fitted .card-sight-warning small{display:none}
+
+/* Availability is separate from selection and interactivity. Full suppression
+   grays the frame; partial suppression mutes only the art, retaining the frame
+   and rule colors for the useful effects. Text and controls keep full opacity. */
+html body .skill-card.card-effect-blocked{filter:grayscale(1)}
+html body .skill-card.card-effect-blocked .card-illustration>.skill-card-art,
+html body .card-slot-pick.card-effect-blocked>.skill-card-art{filter:grayscale(1) brightness(.72)!important}
+html body .skill-card.card-effect-partial .card-illustration>.skill-card-art,
+html body .card-slot-pick.card-effect-partial>.skill-card-art{filter:grayscale(.6) brightness(.88)!important}
+html body .card-slot-pick.card-effect-blocked{background:#303732!important;border-color:#88928b!important}
+html body .card-slot-pick.card-effect-blocked .card-slot-copy{filter:grayscale(1)}
+
+/* A useful card with suppressed light carries a contextual amber status. */
+html body .card-config-partial{--status-bg:#604523;--status-ink:#fff0bb;--status-edge:#d3ae65}
+.card-read-config-partial strong{color:#f1d399}
+.deck-verdict-partial{color:#f4d18d;background:#463d24;padding:7px;border-left:3px solid #d9b469}

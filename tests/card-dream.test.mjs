@@ -58,7 +58,7 @@ test('Elite and Guardian eligibility is explicit, equip dependent, nonstacking a
     assert.ok(canDreamAt(run,node),kind);assert.equal(M.getRunModifiers(run).dreamDuration,8);
     run.mountedCards[2]=makeSkillCard('dream','extra-dream');
     assert.equal(M.getRunModifiers(run).dreamDuration,8);
-    assert.match(getEquippedCardStatuses(run)[2].reason,/single shared ability/);
+    assert.match(getEquippedCardStatuses(run)[2].reason,/already gives this ability/);
     run.reserveCards=[run.mountedCards[0],run.mountedCards[2]];run.mountedCards[0]=run.mountedCards[2]=null;
     assert.equal(canDreamAt(run,node),false,'Reserve alone does not enable Dream');
     run.skills['main-dream']=1;assert.equal(canDreamAt(run,node),false,'Card mode does not depend on hidden legacy skills');
