@@ -128,6 +128,21 @@ Curses take a Slot in the Deck (not the Chain) until lifted at a Rest; each show
 | Wave Loom (retired) | Needed the removed swipe | Returns as an engine card: "Each Turn of an engine: send a Pulse" |
 | Devourer, Ember Feeder, Black Hole | Three card-eaters that overlap | Keep all three but make them differ: Devourer eats for hearts, Ember Feeder for a bigger meter now, Black Hole grows for the whole run |
 
+## 11. Keyword: Devour (the owner's design, 17 November 2026)
+
+The owner's words: "Some cards, like the Dream card, should have a devour mechanic where they destroy a card to the right of a certain rarity, and they get permanently upgraded up to a cap, like 40 seconds maybe. Destroying a Common should be +0.5 s, Rare +1 s and Legendary +3 s… maybe this mechanic needs a special keyword 'Devour', to be reused with Black Hole and so on."
+
+**Devour** (keyword, with a glossary entry and its own icon): at take-off, this card destroys the card in the Slot to its right and grows. The growth is stored on the card, shown on its face, and leaves with the card (rule: a card's effect lives on the card). Nothing to its right: nothing happens. Never in practice; never a loaned card. The Chain screen marks the victim "Devoured at take-off" and asks once before the flight.
+
+| Card | Devour gives (Common / Rare / Legendary eaten) | Cap | Face shows |
+| --- | --- | --- | --- |
+| **Dream** | Dream time +0.5 s / +1 s / +3 s | 40 s | "Devoured 5 · Dream 14.5 s" |
+| **Black Hole** | Max Sparks +1 / +2 / +3 | meter cap 100 | "Devoured 4 · +7 max Sparks" |
+| **Devourer** (rework) | to settle: hearts | to settle | — |
+| **Ember Feeder** (rework) | to settle: a bigger meter now | to settle | — |
+
+To settle when building: which rarities each Devour card may eat ("of a certain rarity": for example Dream eats any rarity, or only Commons unless improved); whether one Devour card can eat another; Dream's base time today and what a 40 s Dream means for the run; whether Devourer and Ember Feeder become plain Devour cards with different rewards or one of them retires.
+
 ## How these fit together (builds that would exist)
 
 - **Skim build:** Proximity + Spacetime + Thread the Needle + Daredevil + Close Call (engine starter).
