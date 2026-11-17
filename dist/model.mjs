@@ -463,6 +463,8 @@ export function chooseStartingGift(state,id,expectedPreviewToken){
   if(isInventoryOnlyCard(firstCard))run.reserveCards.push(firstCard);
   else run.mountedCards[0]=firstCard;
   run.mountedCards[1]=makeSkillCard(secondId,`${run.campaignSeed}:starter:${secondId}`);
+  // Dream devours the card to its right at take-off, so the game never builds a Chain with a card there: Dream goes last.
+  if(SKILL_CARDS[run.mountedCards[0]?.cardId]?.kind==='dream'&&run.mountedCards[1])[run.mountedCards[0],run.mountedCards[1]]=[run.mountedCards[1],run.mountedCards[0]];
   run.cardStarterVersion=Math.max(2,run.cardStarterVersion||0);run.startingGiftId=id;
   recordCardEvent(run,'starter',{cardId:gift.cardId,includedCardId:secondId});return true;
  }
@@ -612,9 +614,11 @@ export function chooseCardReward(state, action, slotIndex = null) {
   if (action === "equip" && (index < 0 || isInventoryOnlyCard(reward.card))) return false;
   if (!settleCardReward(run)) return false;
   if (action === "deck") return true;
-  return action === "equip"
-    ? equipOwnedCard(run, reward.card.instanceId, index)
-    : meltOwnedCards(state, [reward.card.instanceId]);
+  if (action !== "equip") return meltOwnedCards(state, [reward.card.instanceId]);
+  if (!equipOwnedCard(run, reward.card.instanceId, index)) return false;
+  // Auto-mounted (no slot chosen) into the Slot right of a Dream: put the new card on Dream's left instead.
+  if (slotIndex == null && index > 0 && SKILL_CARDS[run.mountedCards[index - 1]?.cardId]?.kind === 'dream' && SKILL_CARDS[reward.card.cardId]?.kind !== 'dream') moveMountedCard(run, index - 1, index);
+  return true;
 }
 function findOwnedCard(run, instanceId) {
   if (typeof instanceId !== "string") return null;

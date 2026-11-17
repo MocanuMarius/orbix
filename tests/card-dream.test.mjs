@@ -5,7 +5,7 @@ import {getCardModifiers,isCardDreamRoute,makeSkillCard,describeSkillCard,getMou
 import {attachDream,canDreamAt,dreamConfig,prepareDreamHandoff,validateDreamPreset} from '../dist/dream.mjs';
 import {WispFlight} from '../dist/flight.mjs';
 import {renderLightState} from '../dist/light-field.mjs';
-import {cardRestMarkup} from '../dist/card-ui.mjs';
+import {cardRestMarkup,cardFace} from '../dist/card-ui.mjs';
 import {flightPreviewMarkup} from '../dist/flight-preview.mjs';
 import {createCardInspectorState} from '../dist/card-inspector.mjs';
 import {getEquippedCardStatuses} from '../dist/card-status.mjs';
@@ -135,4 +135,74 @@ test('real card Dream repeats freely, hands off the chosen eight seconds silentl
   assert.equal(validateDreamPreset(chosen.result.preset,changed),false,'A changed loadout must rehearse new inputs for its new build');
   assert.equal(attachDream(changed,{mode:'replay',preset:chosen.result.preset}),null);
   first.scene.destroy();chosen.scene.destroy();real.destroy();changed.destroy();
+});
+
+// ── Devour (docs/card-proposals.md section 11) ─────────────────────────────────────────────────────────────────
+import {previewBlackHoleMeals,consumeBlackHoles} from '../dist/card-black-hole.mjs';
+import {cleanCardRun} from '../dist/skill-cards.mjs';
+function devourRun(ids,seed='dream-devour') {
+  const state=M.newState(),run=state.run=M.createRun(state.profile,seed,1,{cards:true});
+  run.mountedCards=ids.map((id,i)=>id?makeSkillCard(id,`${seed}:${i}`):null);
+  run.reserveCards=[];
+  return run;
+}
+// A Dream only rehearses on the single route out of a visited Rest, so measure the duration there.
+const dreamSeconds=run=>{
+  run=structuredClone(run);visitRest(run);const [next]=M.getChoices(run);
+  return dreamConfig(run,next).duration;
+};
+
+test('Dream devours the card to its right: +0.5 s Common, +1 s Rare, +3 s Legendary, stored on Dream',()=>{
+  for(const [victim,seconds] of [['body-spark',0.5],['crescendo',1],['refrain',3]]) {
+    const run=devourRun(['dream',victim,'lift-guide'],`dream-eat-${victim}`);
+    assert.deepEqual(previewBlackHoleMeals(run.mountedCards).map(m=>[m.holeName,m.slot,m.growth]),[['Dream',1,seconds]]);
+    const meals=consumeBlackHoles(run);
+    assert.equal(meals.length,1);assert.equal(run.mountedCards[1],null);
+    assert.deepEqual([run.mountedCards[0].eaten,run.mountedCards[0].eatenGrowth],[1,seconds]);
+    assert.equal(run.cardBlackHoleGrowth,undefined);
+    assert.equal(M.getRunModifiers(structuredClone(run)).dreamDuration,0,'only on a Dream route');
+    assert.equal(dreamSeconds(run),8+seconds);
+  }
+});
+
+test('Dream devour is capped at 40 s and a full Dream eats nothing',()=>{
+  const run=devourRun(['dream','refrain','lift-guide']);
+  run.mountedCards[0].eatenGrowth=31;
+  const [meal]=previewBlackHoleMeals(run.mountedCards);
+  assert.equal(meal.growth,1,'trimmed to the room left');
+  consumeBlackHoles(run);
+  assert.equal(run.mountedCards[0].eatenGrowth,32);assert.equal(dreamSeconds(run),40);
+  run.mountedCards[1]=makeSkillCard('body-spark','dream-cap:extra');
+  assert.deepEqual(previewBlackHoleMeals(run.mountedCards),[]);
+  assert.deepEqual(consumeBlackHoles(run),[]);assert.equal(run.mountedCards[1].cardId,'body-spark');
+  run.mountedCards[0].eatenGrowth=500;assert.equal(dreamSeconds(run),40,'never beyond 40 s');
+});
+
+test('Dream with nothing to its right (empty or last Slot) or a loaned card devours nothing',()=>{
+  assert.deepEqual(previewBlackHoleMeals(devourRun(['dream',null,'body-spark']).mountedCards),[]);
+  assert.deepEqual(previewBlackHoleMeals(devourRun(['body-spark','dream']).mountedCards),[]);
+  const run=devourRun(['dream','body-spark']);run.mountedCards[1].instanceId='run:practice:body-spark';
+  assert.deepEqual(consumeBlackHoles(run),[]);
+  const tutorial=devourRun(['dream','body-spark']);tutorial.isTutorial=true;
+  assert.deepEqual(consumeBlackHoles(tutorial),[]);
+});
+
+test('Dream time lives on the card: unmounting or melting it removes the time, old saves stay at 8 s',()=>{
+  const run=devourRun(['dream','refrain','lift-guide']);
+  consumeBlackHoles(run);
+  const dream=run.mountedCards[0];
+  assert.equal(dreamSeconds(run),11);
+  run.mountedCards[0]=null;run.reserveCards.push(dream);
+  assert.equal(M.getRunModifiers(run).cardDream,false);
+  run.mountedCards[0]=makeSkillCard('dream','dream-fresh');
+  assert.equal(dreamSeconds(run),8,'a different Dream has no growth; the melted one took it with it');
+  const old=devourRun(['dream','spark-cache']);cleanCardRun(old);
+  assert.equal(old.mountedCards[0].eatenGrowth,undefined);assert.equal(dreamSeconds(old),8);
+  assert.equal(JSON.stringify(old.mountedCards[0]).includes('eaten'),false,'untouched saves stay byte-identical');
+});
+
+test('Dream face and glossary name Devour',()=>{
+  const dream={...makeSkillCard('dream','face'),eaten:5,eatenGrowth:6.5};
+  assert.match(cardFace(dream),/<b>Devoured 5<\/b> · Dream 14\.5 s/);
+  assert.ok(CARD_TERMS.devour);assert.match(CARD_TERMS.dream[1],/Devour/);
 });

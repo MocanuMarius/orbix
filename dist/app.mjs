@@ -816,7 +816,7 @@ function resumeFlight({waitForTap=false}={}){
  beginResumeCountdown();
 }
 function beginResumeCountdown(){
- if(!engine||flightLoading||lesson)return;stopCountdown();resumeArmed=false;paused=true;
+ if(!engine||flightLoading||lesson)return;if(askBlackHole(()=>beginResumeCountdown()))return;stopCountdown();resumeArmed=false;paused=true;
  const scene=engine,layer=document.querySelector('#pause-layer');if(!layer)return;
  const resumeScene=()=>{
   cancelCountdown=null;if(engine!==scene)return;paused=false;if(scene.dream?.mode!=='record'&&markFlightAttemptStarted(state.run,scene))persist();
@@ -859,9 +859,9 @@ function wakeFlight(event,confirmed=false){if(!engine||flightLoading||!resumeArm
 function askBlackHole(proceed){
  const r=state.run;if(!r?.mountedCards?.some?.(Boolean))return false;if(!isCardRun(r)||r.isTutorial||isPlayablePractice(r)||engine?.options?.practice||engine?.options?.preview||engine?.dream?.mode==='record'||r.attemptEntry?.started)return false;
  const meals=previewBlackHoleMeals(r.mountedCards||[]);if(!meals.length)return false;
- const names=meals.map(m=>m.victimName).join(' and '),dialog=document.createElement('dialog');
+ const names=meals.map(m=>`${m.holeName} will destroy ${m.victimName}`).join('. '),dialog=document.createElement('dialog');
  dialog.className='wb-dlg bh-confirm';dialog.setAttribute('aria-labelledby','bh-confirm-q');
- dialog.innerHTML=`<p class="bh-confirm-q" id="bh-confirm-q">Black Hole will destroy ${esc(names)}. Fly?</p><p class="bh-confirm-sub">${meals.length>1?'These cards are':'The card is'} lost for good.</p><footer class="bh-confirm-acts"><button type="button" class="secondary" data-bh="cancel">Cancel</button><button type="button" class="danger" data-bh="fly">Fly</button></footer>`;
+ dialog.innerHTML=`<p class="bh-confirm-q" id="bh-confirm-q">${esc(names)}. Fly?</p><p class="bh-confirm-sub">${meals.length>1?'These cards are':'The card is'} lost for good.</p><footer class="bh-confirm-acts"><button type="button" class="secondary" data-bh="cancel">Cancel</button><button type="button" class="danger" data-bh="fly">Fly</button></footer>`;
  const done=fly=>{dialog.close();dialog.remove();if(fly)proceed();else cancelFlightEntry();};
  dialog.addEventListener('click',e=>{const b=e.target.closest('[data-bh]');if(!b)return;e.preventDefault();e.stopPropagation();done(b.dataset.bh==='fly');});
  dialog.addEventListener('cancel',e=>{e.preventDefault();done(false);});

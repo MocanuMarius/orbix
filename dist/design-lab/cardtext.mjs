@@ -53,7 +53,7 @@ export const CARD_TEXT = [
   {id: 'use-doubler', t: 'Always on', c: 'flight start', x: 'Doubles the next card\'s uses', u: '1 use', n: 'Dropped "Needs a live target / not another Use Doubler / Preview and Dream spend nothing"; status chips already say "Needs consumable right".'},
   {id: 'wick-doubler', t: 'Collect', x: 'Double the chain\'s Sparks', u: '3 uses', b: 'Double every reward before it'},
   {id: 'fast-spool', t: 'Collect', c: 'while Collector reels in', x: 'Collector reels in 3 s sooner', u: '3 uses'},
-  {id: 'twin-wick', t: 'Always on', c: 'flight start with Collector', x: 'Unlocks a 2nd Collector for this journey', u: '1 use', f: 'D6', n: '"even after unequipping" is what "for this journey" means.'},
+  {id: 'twin-wick', t: 'Always on', c: 'flight start with Collector', x: 'Fly with 2 Collectors', u: '4 uses', f: 'D6', n: 'One use per flight; the effect lives on the card.'},
   {id: 'long-spool', t: 'Always on', x: '+35% Collector reach', u: '5 uses', f: 'D6', n: 'A use is spent only on a catch beyond normal reach (normal use rule).'},
   {id: 'cast-line', t: 'Always on', x: '+100% Collector reach', u: '2 uses', f: 'D6', n: '"Double" written as +100% so it is not read as a × card.'},
   {id: 'growth-seed-common', t: 'At Rest', c: 'Grow', x: '+3 max Sparks and a full meter', u: '3 Grows per journey', f: 'D8',

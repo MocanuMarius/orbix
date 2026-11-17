@@ -101,9 +101,9 @@ test('Black Hole: its victim reads "Eaten at take-off" in wine, its own plate sa
   assert.match(html, /dk-plate-wine" aria-hidden="true"><b class="pl-long">Eaten at take-off<\/b>/);
   assert.match(html, /Eats the next card/);
   const fed = {...makeSkillCard('black-hole', 'bh'), eaten: 2, eatenGrowth: 5};
-  assert.match(cardFace(fed), /<b>Eaten 2<\/b> · \+5 max Sparks/);
-  assert.match(cardFace(fed, {compact: true}), /<b>Eaten 2<\/b> · \+5/);
-  assert.doesNotMatch(cardFace(makeSkillCard('black-hole', 'bh0'), {compact: true}), /Eaten 0/, 'no empty total on a small tile');
+  assert.match(cardFace(fed), /<b>Devoured 2<\/b> · \+5 max Sparks/);
+  assert.match(cardFace(fed, {compact: true}), /<b>Devoured 2<\/b> · \+5/);
+  assert.doesNotMatch(cardFace(makeSkillCard('black-hole', 'bh0'), {compact: true}), /Devoured 0/, 'no empty total on a small tile');
 });
 
 test('the Chain tab medallion equals the flight engine for the same Chain (Turns and Sparks per Turn)', async () => {

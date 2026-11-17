@@ -19,6 +19,7 @@ import {triggerIcon, pixelArt, CHEVRON, gem, EYE, WARN, PLUS, NEXT, FIRE, medalU
 import {CARD_TRIGGERS} from '../card-rule-bands.mjs?v=guide-clarity-1';
 import {CARD_TERMS} from '../card-terms.mjs?v=guide-clarity-1';
 import {SKILL_CARDS} from '../skill-cards.mjs?v=guide-clarity-1';
+import {isDevourCard} from '../card-black-hole.mjs?v=guide-clarity-1';
 import {simulateEngineChain, engineStarts} from '../card-engine.mjs?v=guide-clarity-1';
 import {GLOW_DISPLAY_SCALE} from '../vitality.mjs?v=guide-clarity-1';
 
@@ -112,7 +113,7 @@ function stationsHTML(d, view, opts) {
     const mark = markOf(c);
     const availability = getCardFaceAvailability(d.run, printed[i], d.statuses[i]);
     // Engine wording, Black Hole's meal and its victim replace the ordinary plate (chain-model.mjs › enginePlate).
-    const meal = chain.blackHole?.find(m => m.slot === i), hole = SKILL_CARDS[c.cardId]?.kind === 'black-hole';
+    const meal = chain.blackHole?.find(m => m.slot === i), hole = isDevourCard(c);
     const holeMeal = hole ? chain.blackHole?.find(m => m.holeSlot === i) : null;
     const eng = !meal && !hole && chain.engine ? enginePlate(chain.row, i) : null;
     const special = meal ? {cls: 'dk-plate-wine', long: 'Eaten at take-off', short: 'Eaten'} : hole ? (holeMeal ? {cls: 'dk-plate-hole', long: 'Eats the next card', short: 'Eats next'} : {cls: 'dk-plate-hole', long: 'Nothing to eat', short: 'Nothing'}) : eng ? {cls: 'dk-plate-eng', ...eng} : null;
@@ -204,8 +205,8 @@ function groups(d, view) {
 }
 function tileHTML(d, view, c) {
   const r = rarityOf(c), mark = markOf(c), at = d.slotOf(c), rest = isRest(c), u = usesOf(c), chip = chipOf(c);
-  const tally = SKILL_CARDS[c.cardId]?.kind === 'black-hole' ? holeTally(c) : null;
-  const effect = tally?.eaten ? `Eaten ${tally.eaten} · +${tally.growth} max Sparks` : cardTileLine(c);
+  const tally = isDevourCard(c) ? holeTally(c) : null;
+  const effect = tally?.eaten ? `Devoured ${tally.eaten} · ${SKILL_CARDS[c.cardId]?.kind === 'dream' ? `Dream ${8 + tally.growth} s` : `+${tally.growth} max Sparks`}` : cardTileLine(c);
   let label = `${nameOf(c)}. ${RARITY_WORD[r]}. Trigger: ${chip.label}. ${effect}.${at >= 0 ? ` In your chain, slot ${at + 1}.` : rest ? ' Rest card.' : ' Not in your chain.'}${u ? ` Uses ${u.now} of ${u.max}.` : ''}`;
   let cls = '', sub = '', disabled = false;
   if (view.pick !== null) {

@@ -57,9 +57,19 @@ export const cleanCardCruisingSpeed = value => integer(value, 6);
 export function getCardFutureCapacityBonus(run) {
   return isCardRun(run) ? cleanCardFutureCapacity(run.cardFutureCapacity) * CARD_UNIT : 0;
 }
-/** Black Hole growth for the rest of the run (printed max Sparks, whole). Absent on every run that never fed one. */
+/** Black Hole growth (printed max Sparks, whole): stored on each Black Hole card, counted only while it is mounted. */
 export function getCardBlackHoleBonus(run) {
-  return isCardRun(run) ? cleanCardFutureCapacity(run.cardBlackHoleGrowth) * CARD_UNIT : 0;
+  if (!isCardRun(run)) return 0;
+  let total = 0;
+  for (const card of run.mountedCards || []) if (SKILL_CARDS[card?.cardId]?.kind === 'black-hole') total += cleanCardFutureCapacity(Math.floor(Number(card.eatenGrowth)));
+  return total * CARD_UNIT;
+}
+/** Dream's Devour growth in seconds (0 to 32), from the best mounted Dream (extra Dreams keep one). */
+export const DREAM_BASE_SECONDS = 8, DREAM_MAX_BONUS_SECONDS = 32;
+export function getCardDreamBonus(run) {
+  let best = 0;
+  for (const card of run?.mountedCards || []) if (SKILL_CARDS[card?.cardId]?.kind === 'dream') best = Math.max(best, Number(card.eatenGrowth) || 0);
+  return Math.min(DREAM_MAX_BONUS_SECONDS, Math.max(0, best));
 }
 function random(seed) {
   let s = 2166136261;
@@ -149,8 +159,9 @@ function cleanCard(card, seen) {
     ...(charges === null ? {} : { charges }),
     ...(def.charges && getCardChargeCapacity(card) > def.charges ? { chargeCapacity: getCardChargeCapacity(card) } : {}),
     ...(def.kind === 'ember-feeder' && getCardFeederCapacity(card) ? { fedCapacity: getCardFeederCapacity(card) } : {}),
-    // Black Hole's running total, written only once it has eaten something.
+    // A Devour card's running total (Black Hole, Dream), written only once it has eaten something.
     ...(def.kind === 'black-hole' && integer(card.eaten) ? { eaten: integer(card.eaten), eatenGrowth: integer(card.eatenGrowth) } : {}),
+    ...(def.kind === 'dream' && integer(card.eaten) ? { eaten: integer(card.eaten), eatenGrowth: Math.min(DREAM_MAX_BONUS_SECONDS, Math.max(0, Math.round(Number(card.eatenGrowth) * 2) / 2 || 0)) } : {}),
     ...(def.edition && integer(card.edition) ? { edition: integer(card.edition) } : {}),
   };
 }
@@ -180,8 +191,12 @@ export function cleanCardRun(run) {
     for (const card of [...(run.mountedCards || []), ...(run.reserveCards || [])]) if (card?.cardId === 'twin-wick') card.charges = 4;
   }
   run.cardFutureCapacity = cleanCardFutureCapacity(run.cardFutureCapacity);
-  // Written only by a Black Hole meal, so saves without one stay byte-identical.
-  if (run.cardBlackHoleGrowth !== undefined) run.cardBlackHoleGrowth = cleanCardFutureCapacity(run.cardBlackHoleGrowth);
+  // Old saves: Black Hole growth was run-wide. It now lives on a mounted Black Hole (the first one), else it is dropped.
+  if ('cardBlackHoleGrowth' in run) {
+    const old = cleanCardFutureCapacity(run.cardBlackHoleGrowth), hole = (run.mountedCards || []).find(card => SKILL_CARDS[card?.cardId]?.kind === 'black-hole');
+    if (hole && old > (Number(hole.eatenGrowth) || 0)) { hole.eatenGrowth = old; hole.eaten = Math.max(1, Math.floor(Number(hole.eaten)) || 0); }
+    delete run.cardBlackHoleGrowth;
+  }
   run.cardCruisingSpeed = cleanCardCruisingSpeed(run.cardCruisingSpeed);
   run.cardCruisingSpeedUnlocked = cleanCardCruisingSpeed(run.cardCruisingSpeedUnlocked ?? run.cardCruisingSpeed);
   run.cardClearReceipts = (Array.isArray(run.cardClearReceipts) ? run.cardClearReceipts : []).filter(receipt =>
@@ -535,7 +550,7 @@ function effectiveCardSummary(kind, sources, cards) {
     "rapid-lift": matching.some(entry => entry.def.rapidRank === 2)
       ? "Climb: within 1 second, the second and third successful manual Lifts are free. The third sends one shared light pulse; extra cards keep one trio."
       : "Double Lift: within 1 second, the second successful manual Lift is free. Extra cards keep one pair.",
-    dream: "After a committed Rest, or before an Elite or Guardian: rehearse 8 seconds in full light with free Lifts. Wake at the opening’s end, paused. Extra cards keep one 8-second Dream; copying cards cannot copy it.",
+    dream: "After a committed Rest, or before an Elite or Guardian: rehearse 8 seconds in full light with free Lifts. Wake at the opening’s end, paused. Devour: at take-off it destroys the card to its right and grows by 0.5 s for a Common, 1 s for a Rare, 3 s for a Legendary, up to 40 s in all. Extra cards keep the longest Dream; copying cards cannot copy it.",
     "cache-handling": "Collector can fetch Caches. A delivered Cache gives 12 Sparks. Extra cards keep that same delivery.",
     "twin-orbit": "Two Collectors fetch and reel independently while equipped. Maximum 2; only the first keeps fatal-impact saves.",
     "twin-wick": "4 uses. Each flight with this mounted spends one: fly with 2 Collectors. At most 2; no use is spent while Twin Orbit already gives the second.",
@@ -1275,7 +1290,7 @@ export function getCardModifiers(run) {
   m.cardGrowSources = seeds.length;
   m.cardGrowAmount = Math.min(CARD_ECONOMY.maxGrowPerAction, seeds.reduce((total, seed) => total + cardAmount(seed), 0)) * CARD_UNIT;
   m.cardFieldMultiplier = getFieldImpulseMultiplier(m.cardFieldSources);
-  if (m.cardDream && isCardDreamRoute(run)) m.dreamDuration = 8;
+  if (m.cardDream && isCardDreamRoute(run)) m.dreamDuration = DREAM_BASE_SECONDS + getCardDreamBonus(run);
   return m;
 }
 export function recordCardEvent(run, type, detail = {}) {

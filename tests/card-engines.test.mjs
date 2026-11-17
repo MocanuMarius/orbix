@@ -377,7 +377,7 @@ test('Black Hole eats the card to its right at take-off: +1 Common, +2 Rare, +3 
     assert.ok(takeOff(run));
     assert.equal(run.mountedCards[1], null); assert.ok(!run.reserveCards.some(c => c.cardId === victim), 'not returned to the reserve');
     assert.deepEqual([run.mountedCards[0].eaten, run.mountedCards[0].eatenGrowth], [1, growth]);
-    assert.equal(run.cardBlackHoleGrowth, growth);
+    assert.equal(run.cardBlackHoleGrowth, undefined, 'growth is stored on the card, not the run');
     near(getGlowCapacity(run) - before, growth * CARD_UNIT);
     assert.equal(run.cardHistory.filter(e => e.type === 'black-hole').length, 1);
     assert.equal(BLACK_HOLE_GROWTH[SKILL_CARDS[victim].rarity], growth);
@@ -392,7 +392,7 @@ test('Black Hole: an empty right Slot, the last Slot or a loaned card is safe; p
   const tutorial = {skillSystem: CARD_SYSTEM, isTutorial: true, mountedCards: row(['black-hole', 'body-spark'])};
   assert.deepEqual(consumeBlackHoles(tutorial), []); assert.equal(tutorial.mountedCards[1].cardId, 'body-spark');
   const state = cardState('hole-boost', ['black-hole', 'body-spark', 'crescendo']);
-  takeOff(state.run); assert.equal(state.run.cardBlackHoleGrowth, 1);
+  takeOff(state.run); assert.equal(state.run.mountedCards[0].eatenGrowth, 1);
 });
 
 test('Black Hole growth respects the 100-Spark ceiling and survives a save and load mid-map', () => {
@@ -400,11 +400,34 @@ test('Black Hole growth respects the 100-Spark ceiling and survives a save and l
   takeOff(run);
   let text; assert.ok(M.saveState(state, {setItem: (_, value) => { text = value; }}));
   const loaded = M.loadState({getItem: () => text, setItem() {}}).run;
-  assert.equal(loaded.cardBlackHoleGrowth, 3);
+  assert.equal(loaded.cardBlackHoleGrowth, undefined);
   assert.deepEqual([loaded.mountedCards[0].eaten, loaded.mountedCards[0].eatenGrowth], [1, 3]);
   near(getGlowCapacity(loaded), getGlowCapacity(run));
-  loaded.cardBlackHoleGrowth = 500;
+  loaded.mountedCards[0].eatenGrowth = 500;
   assert.equal(getGlowCapacity(loaded), GLOW_CAPACITY_LIMIT_UNITS);
+});
+
+test('Black Hole growth counts only while mounted: unmounting drops it, remounting restores it, melting loses it, old run-wide growth moves onto a mounted hole', () => {
+  const state = cardState('hole-mounted', ['black-hole', 'echo-iii', 'deep-vessel']), run = state.run;
+  const base = getGlowCapacity(run);
+  takeOff(run);
+  near(getGlowCapacity(run) - base, 3 * CARD_UNIT);
+  const hole = run.mountedCards[0];
+  run.mountedCards[0] = null; run.reserveCards.push(hole);
+  near(getGlowCapacity(run), base, 1e-6, 'a Black Hole in the reserve adds nothing');
+  assert.equal(hole.eatenGrowth, 3, 'the instance keeps its tally');
+  run.mountedCards[0] = hole; run.reserveCards = run.reserveCards.filter(c => c !== hole);
+  near(getGlowCapacity(run) - base, 3 * CARD_UNIT);
+  run.mountedCards[0] = null; // melted or sold: the instance is gone, and so is the growth
+  near(getGlowCapacity(run), base);
+  // Old save: run-wide growth moves onto the mounted hole, or is dropped when none is mounted.
+  const old = cardState('hole-old', ['black-hole', 'body-spark', 'deep-vessel']).run, oldBase = getGlowCapacity(old);
+  old.cardBlackHoleGrowth = 4; cleanCardRun(old);
+  assert.equal(old.cardBlackHoleGrowth, undefined); assert.equal(old.mountedCards[0].eatenGrowth, 4);
+  near(getGlowCapacity(old) - oldBase, 4 * CARD_UNIT);
+  const none = cardState('hole-none', ['body-spark', 'deep-vessel']).run, noneBase = getGlowCapacity(none);
+  none.cardBlackHoleGrowth = 4; cleanCardRun(none);
+  assert.equal(none.cardBlackHoleGrowth, undefined); near(getGlowCapacity(none), noneBase);
 });
 
 // ── saves ───────────────────────────────────────────────────────────────────────────────────────────────────────

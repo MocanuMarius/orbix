@@ -10,7 +10,7 @@ export const CARD_TILE_LINES = Object.freeze({
   'lift-guide': 'Shows when to Lift', 'cache-handling': 'Fetches Caches: +12', 'second-sun': '×2 before, ×3 Encore',
   'twin-wick': '2nd Collector this flight', 'harvest-legendary': '+2 Sparks, +1 Stored',
   'nest-egg': '+1 Stored per 10', 'flash-handling': '+6; fetches Flash',
-  'dream': 'Practise first 8 s', 'spillway': '2nd Overfill: a Pulse', 'mirror-grain': 'Adds last + again',
+  'dream': 'Devour: practise longer', 'spillway': '2nd Overfill: a Pulse', 'mirror-grain': 'Adds last + again',
   'ember-feeder': 'Eats 2: +1 max Spark', 'refrain': 'Encore: fires again', 'devourer': 'Eats a Rare: +1 heart',
   'tight-packing': '+50% from packing', 'tight-packing-ii': '+75% from packing', 'tight-packing-iii': '+100% from packing',
   'return-spring': 'Reels in 0.5 s sooner', 'spillway-ii': 'Each Overfill: a Pulse',

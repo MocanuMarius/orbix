@@ -11,7 +11,7 @@ import {SKILL_CARDS, CARD_UNIT, getCardRowRule, hasCardRowEvent, previewCardRow,
 import {getGlowCapacity, glowPoints, GLOW_DISPLAY_SCALE} from '../vitality.mjs?v=guide-clarity-1';
 import {CARD_TRIGGERS, getCardTrigger} from '../card-rule-bands.mjs?v=guide-clarity-1';
 import {hasEngineCards, engineMetrics, findEngineLoop, engineStarts} from '../card-engine.mjs?v=guide-clarity-1';
-import {previewBlackHoleMeals, blackHoleTally} from '../card-black-hole.mjs?v=guide-clarity-1';
+import {previewBlackHoleMeals, devourTally} from '../card-black-hole.mjs?v=guide-clarity-1';
 
 /** The Triggers in the designer's order, with the game's names and glossary keys (card-terms.mjs). */
 export const TRIGGERS = Object.freeze([
@@ -270,7 +270,7 @@ export function enginePlate(row, slot) {
   return null;
 }
 /** Black Hole's take-off plate and its running total (card-black-hole.mjs). */
-export const holeTally = c => blackHoleTally(c);
+export const holeTally = c => devourTally(c);
 
 /** One plain line about a card in its place (the opened card). */
 export function hereLine(ctx, c) {

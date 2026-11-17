@@ -21,12 +21,14 @@ function clear(state, node = M.getChoices(state.run).find(node => node.type !== 
   return M.getCardDraft(state.run);
 }
 const owned = run => M.getOwnedCards(run).map(card => card.instanceId).sort();
+const rightOfDream = run => run.mountedCards.some((card, i) => card && run.mountedCards[i - 1] && SKILL_CARDS[run.mountedCards[i - 1].cardId].kind === 'dream');
 
 test('ordinary, elite and guardian clears save three distinct offers without granting them', () => {
   for (const tier of ['normal', 'elite', 'boss']) {
     let state = fresh(`draft:${tier}`), run = state.run;
     const node = M.getChoices(run).find(node => node.type !== 'support');
     if (tier !== 'normal') node[tier] = true;
+    assert.equal(rightOfDream(run), false, 'the starter Chain never puts a card to the right of Dream');
     const before = owned(run), draft = clear(state, node), wallet = run.condensedGlow;
     assert.equal(draft.offers.length, 3);
     assert.equal(new Set(draft.offers.map(card => card.cardId)).size, 3);
@@ -145,4 +147,14 @@ test('a failed attempt has no draft and draft markup uses the shared full portra
   assert.equal((markup.match(/class="skill-card /g) || []).length, 3);
   assert.equal((markup.match(/data-action="card-draft-pick"/g) || []).length, 3);
   assert.match(markup, /Keep one\. The other two are left behind/);
+});
+
+test('a Dream starter gift goes last in the starter Chain, so take-off devours nothing', () => {
+  const state = M.newState(); state.profile.tutorialComplete = true;
+  state.run = M.createRun(state.profile, 'dream-starter', 1, {cards: true});
+  const offer = M.getStartingGiftOffers(state.run).find(gift => gift.cardId === 'dream');
+  if (!offer) return; // this seed does not offer Dream
+  assert.ok(M.chooseStartingGift(state, offer.id));
+  assert.equal(rightOfDream(state.run), false);
+  assert.deepEqual(state.run.mountedCards.filter(Boolean).map(c => c.cardId).sort(), ['dream', 'lift-guide']);
 });
