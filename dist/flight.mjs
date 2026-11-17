@@ -62,7 +62,7 @@ import { resolveLevelIdentity } from './level-catalog.mjs?v=guide-clarity-1';
 import { DraftField, DRAFT_TUNING } from './drafts.mjs?v=guide-clarity-1';
 import { normalizeCompanionRole, normalizeCompanionFleet, getCompanionAbility } from './companion-abilities.mjs?v=guide-clarity-1';
 import { populateSceneProps, scenePropPolygons } from './scene-props.mjs?v=guide-clarity-1';
-import { buildLandformCourse } from './course-landforms.mjs?v=guide-clarity-1';
+import { buildLandformCourse, landformFlashSites } from './course-landforms.mjs?v=guide-clarity-1';
 import { pickupKind, getPickupSpec, pickupContactRadius, canCompanionCollect, flashPowerupDuration } from './pickups.mjs?v=guide-clarity-1';
 import { createFlashTether, stepFlashTether, drawFlashTether, flashLightGlow, FLASH_PULSE_INTERVAL } from './flash-tether.mjs?v=guide-clarity-1';
 import { drawPickup, drawSparkSymbol } from './pickup-art.mjs?v=guide-clarity-1';
@@ -173,6 +173,11 @@ const MACRO_COURSES = Object.freeze({
     hard: [[.50,154,146,285,'both','tooth'],[.47,128,120,285,'both','tooth'],[.53,136,136,325,'both','tooth']],
     rest: [[.52,294,172,355,'both','vault'],[.48,318,164,375,'floor','ridge']] },
 });
+
+/** Fewest Flash pickups a landform flight carries after row 0; raise to guarantee more. */
+export const FLASH_MIN_PER_FLIGHT = 1;
+/** Clearance (px at 620 height) a placed Flash keeps from any terrain; the old authored courses never went under 103. */
+export const FLASH_TERRAIN_CLEARANCE = 100;
 
 export function circleHitsPolygon(x, y, radius, polygon) {
   let inside = false;
@@ -721,14 +726,40 @@ export function buildFlightLayout({ seed = 1, terrain = 'ruins', elite = false,
     }
     // A separate, swept-clear lane gives players scouting light before the next approach.
     const flashRng = seededRandom(`${seed}:${identity.id}:flash-powerup`);
-    if (!introductoryDark && flashRng() < .58) {
-      const targetX = duration * speed * (.32 + .26 * flashRng());
+    const flashRolled = flashRng() < .58;
+    // Landform courses guarantee a floor of Flash pickups on every flight after the first row.
+    const flashMinimum = landform && stage >= 1 && !gentleOpening ? FLASH_MIN_PER_FLIGHT : 0;
+    const flashCount = introductoryDark ? 0 : Math.max(flashMinimum, flashRolled ? 1 : 0);
+    const flashes = [];
+    // Open air only: Flash keeps this much clear of terrain on every side.
+    const flashClear = FLASH_TERRAIN_CLEARANCE * scale;
+    const flashSiteOk = (x, y) => {
+      if (x < Math.min(1000, duration * speed * .25) || x > duration * speed - 650 || hardNear(x)) return false;
+      if (lanternEncounter && inLanternRoom({ lanternEncounter }, x, 70)) return false;
+      if (selected.some(other => Math.abs(other.x - x) < speed * 1.25)) return false;
+      if (flashes.some(other => Math.abs(other.x - x) < 480)) return false;
+      if (embers.some(ember => Math.hypot(ember.x - x, ember.y - y) < 100 * scale)) return false;
+      return obstacles.every(other => x + flashClear < other.x - other.width * .8 || x - flashClear > other.x + other.width * 2.45
+        || [-1, 1].every(sign => obstaclePolygons({ ...other, motion: 0, center: other.center + sign * Math.abs(other.motion || 0) })
+          .every(polygon => !circleHitsPolygon(x, y, flashClear, polygon))));
+    };
+    for (let k = 0; k < flashCount; k++) {
+      const targetX = duration * speed * ((.32 + .26 * flashRng() + k / flashCount) % 1);
       let site;
       for (const candidate of candidates) {
         if (selected.some(other => Math.abs(other.x - candidate.x) < speed * 1.25)) continue;
+        if (flashes.some(other => Math.abs(other.x - candidate.x) < 480)) continue;
         if (!site || Math.abs(candidate.x-targetX) < Math.abs(site.x-targetX)) site = candidate;
       }
-      if (site) embers.push({...site,id:'flash-powerup',kind:'sight',value:0,fuel:false,
+      // Landform ground leaves few wide-open side lanes, so search the terrain profile itself for open air.
+      if (!site && landform) {
+        const found = landformFlashSites(landform.meta.profile, { height, clearance: FLASH_TERRAIN_CLEARANCE })
+          .filter(candidate => flashSiteOk(candidate.x, candidate.y));
+        for (const candidate of found) if (!site || Math.abs(candidate.x-targetX) < Math.abs(site.x-targetX)) site = candidate;
+      }
+      if (!site) continue;
+      flashes.push(site);
+      embers.push({...site,id:k?`flash-powerup-${k}`:'flash-powerup',kind:'sight',value:0,fuel:false,
         feature:'sight-niche',collected:false,attracted:false,phase:flashRng()*TAU});
     }
   }
