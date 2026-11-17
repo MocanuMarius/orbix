@@ -104,7 +104,7 @@ test('Long Flash branches from Luminance, costs Stored Sparks once, and lasts 24
   pick();
   assert.equal(g.flashTether.expires,24);
   g.time=10;
-  assert.equal(g.getLightState().sightBonus,120);
+  assert.ok(Math.abs(g.getLightState().sightBonus-120)<3);
   assert.ok(g.getLightState().tetherReveal>0);
   pick();
   assert.equal(g.flashTether.expires,34,'a second pickup refreshes the duration');

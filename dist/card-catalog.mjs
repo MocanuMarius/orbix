@@ -197,7 +197,7 @@ const cards = [
     ruleBands: [{ type: 'condition', text: 'On gain', trigger: 'engine-gain' }, { type: 'effect', text: 'Sends a Pulse' }, { type: 'note', text: 'Once per Turn' }] },
   { id: 'flash-tinder', name: 'Flash Tinder', rarity: 'rare', kind: 'flash-tinder', unreleased: true, amount: 1, copyable: true, maxRank: 1, excludeStarter: true, artFamily: 'flash-handling', trigger: 'collect',
     engine: { family: 'maker', hears: ['collect'], does: ['flash'], seconds: 1 },
-    ruleBands: [{ type: 'condition', text: 'Collect', trigger: 'collect' }, { type: 'effect', text: 'Starts a short Flash, 1 s' }] },
+    ruleBands: [{ type: 'condition', text: 'Collect', trigger: 'collect' }, { type: 'effect', text: 'Starts a 1 s Flash: Pulse every 2 s, very high Luminance' }] },
   { id: 'homing-thread', name: 'Homing Thread', rarity: 'rare', kind: 'homing-thread', unreleased: true, amount: 0, copyable: true, maxRank: 1, excludeStarter: true, artFamily: 'cache-handling', trigger: 'delivery',
     engine: { family: 'maker', hears: ['delivery'], does: ['homing'] },
     help: 'A normal fetch: its reel uses Collector charge as usual. It may take a Spark still ahead of you. Nothing in reach, or no charge: nothing happens.',

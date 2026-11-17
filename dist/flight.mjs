@@ -63,7 +63,7 @@ import { DraftField, DRAFT_TUNING } from './drafts.mjs?v=guide-clarity-1';
 import { normalizeCompanionRole, normalizeCompanionFleet, getCompanionAbility } from './companion-abilities.mjs?v=guide-clarity-1';
 import { populateSceneProps, scenePropPolygons } from './scene-props.mjs?v=guide-clarity-1';
 import { buildLandformCourse, landformFlashSites } from './course-landforms.mjs?v=guide-clarity-1';
-import { pickupKind, getPickupSpec, pickupContactRadius, canCompanionCollect, flashPowerupDuration } from './pickups.mjs?v=guide-clarity-1';
+import { pickupKind, getPickupSpec, pickupContactRadius, canCompanionCollect, flashPowerupDuration, FLASH_LUMINANCE_BONUS } from './pickups.mjs?v=guide-clarity-1';
 import { createFlashTether, stepFlashTether, drawFlashTether, flashLightGlow, FLASH_PULSE_INTERVAL } from './flash-tether.mjs?v=guide-clarity-1';
 import { drawPickup, drawSparkSymbol } from './pickup-art.mjs?v=guide-clarity-1';
 import {pickupHookAnchor} from './pickup-handling-cue.mjs?v=guide-clarity-1';
@@ -1879,14 +1879,27 @@ export class WispFlight {
     return !(this.mod.closedEye && sourceKind==='card');
   }
 
+  /** Total Luminance percent a reader sees (cards, Momentum, and a running Flash). */
+  getLuminancePercent() {
+    const {baseRadius,sightBonus}=this.getLightState();
+    const nominal=Number(this.mod.lightRadius)||LIGHT_PACKET_TUNING.baseRadius;
+    return (baseRadius+sightBonus)/nominal*100-100;
+  }
+
   getLightState() {
-    const lensScale=this.mod.closedEye?1:1+clamp((Number(this.mod.cardLuminancePercent)||0)+(Number(this.cardEngineLuminance)||0),0,180)/100;
-    const baseRadius = (Number(this.mod.lightRadius) || LIGHT_PACKET_TUNING.baseRadius) * lensScale * (this.mod.closedEye ? 1 : this.flightBoon.luminanceScale);
+    // Luminance is one additive percent: cards + Momentum (capped as before at 180) plus a Flash's temporary bonus.
+    // The Flash bonus is read live from the Flash's own timer, so it ends on the frame the Flash (and its Pulses) end.
+    const flashStrength=flashRangeStrength(Math.max(0,(this.sightUntil||0)-this.time));
+    const flashLuminance=FLASH_LUMINANCE_BONUS*flashStrength;
+    const lightRadius=Number(this.mod.lightRadius)||LIGHT_PACKET_TUNING.baseRadius;
+    // Closed Eye blocks card light only; a Flash adds the same pixels it always did. The Flash percent is of the
+    // nominal base radius (145 px), so skills and relics that grow the radius do not also stretch the Flash.
+    const cardLuminance=this.mod.closedEye?0:clamp((Number(this.mod.cardLuminancePercent)||0)+(Number(this.cardEngineLuminance)||0),0,180);
+    const boon=this.mod.closedEye?1:this.flightBoon.luminanceScale;
+    const baseRadius = lightRadius * (1+cardLuminance/100) * boon;
+    const sightBonus = LIGHT_PACKET_TUNING.baseRadius * flashLuminance/100;
     const reduction=clamp(this.lightDimming*(1-clamp(this.mod.darkResistance||0,0,.6)),0,1-LIGHT_PACKET_TUNING.minimumLight);
-    const flashSpec=getPickupSpec('sight');
     const sightRemaining=Math.max(0,(this.sightUntil||0)-this.time);
-    const flashStrength=flashRangeStrength(sightRemaining);
-    const sightBonus=flashSpec.sightBonus*flashStrength;
     const dream=this.dream;
     // Thaw hazards react to simulated light, even while the rehearsal view
     // shows the entire scene. Use the same radius for recording and playback.

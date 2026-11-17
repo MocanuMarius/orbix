@@ -118,7 +118,7 @@ export function createFlashPreview({isPaused,setPaused,reducedMotion}) {
     shade.fillStyle='#000'; shade.fillRect(0,0,WIDTH,HEIGHT);
     shade.globalCompositeOperation='destination-out';
     const mapScale=WIDTH/880;
-    const reach=(LIGHT_PACKET_TUNING.baseRadius+flashSpec.sightBonus*strength)*mapScale*LIGHT_EXTENT;
+    const reach=(LIGHT_PACKET_TUNING.baseRadius+flashSpec.luminanceBonus/100*LIGHT_PACKET_TUNING.baseRadius*strength)*mapScale*LIGHT_EXTENT;
     shade.drawImage(light,playerX-reach,y-reach,2*reach,2*reach);
     if(strength>0){
       const ahead=playerX+160*mapScale, forwardReach=230*mapScale*LIGHT_EXTENT;

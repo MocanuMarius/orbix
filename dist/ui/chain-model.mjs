@@ -240,7 +240,7 @@ export function enginePlate(row, slot) {
   }
   const d = spec.does || [];
   if (d.includes('homing')) return {long: 'Collector fetches again', short: 'Fetches again'};
-  if (d.includes('flash')) return {long: 'Starts a short Flash', short: 'A Flash'};
+  if (d.includes('flash')) return {long: 'Starts a Flash (Pulse every 2 s, very high Luminance)', short: 'A Flash'};
   if (d.includes('gain') && d.includes('pulse')) return {long: `Sends a Pulse, +${num(amount)}`, short: `Pulse, +${num(amount)}`};
   if (d.includes('gain')) return {long: `${sparks} each Turn`, short: `+${num(amount)} a Turn`};
   if (d.includes('pulse')) return {long: spec.keep ? `Sends a Pulse, keeps ${num(spec.keep)}` : 'Sends a Pulse', short: 'Sends a Pulse'};
