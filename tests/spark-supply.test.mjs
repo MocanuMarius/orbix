@@ -6,6 +6,9 @@ import {getPickupSpec} from '../dist/pickups.mjs';
 import {getRunModifiers} from '../dist/model.mjs';
 import {sparkMass} from '../dist/spark-size.mjs';
 import {sparkDemand} from '../dist/spark-supply.mjs';
+import {overrideCourseGeneration} from '../dist/course-landforms.mjs';
+// These tests are about the old authored cells and encounter families, which the landform courses do not use yet (docs/course-design.md section 7).
+const authored=fn=>()=>{overrideCourseGeneration(1);try{return fn();}finally{overrideCourseGeneration(null);}};
 const canvas={getContext:()=>({setTransform(){}}),getBoundingClientRect:()=>({width:915,height:412})};
 const total=e=>e.layout.embers.reduce((n,p)=>n+(!p.generated&&!p.harmful?getPickupSpec(p).fuel:0),0);
 const flight=(level,difficulty,duration,extra={})=>new WispFlight({canvas,preflight:true,seed:'supply-contract:'+level.id,terrain:level.terrain,duration,
@@ -96,7 +99,7 @@ test('later chapter pressure changes real authored apertures, while preserving t
  assert.ok(averages[1]<averages[0]);assert.ok(averages[2]<averages[1]);
 });
 
-test('ordinary progressed courses deliver their encounter patterns through the flight, not just the opening',()=>{
+test('ordinary progressed courses deliver their encounter patterns through the flight, not just the opening', authored(()=>{
  for(const level of BIOME_LEVELS)for(const mapIndex of [1,2])for(const stage of [0,5]){
   const layout=buildFlightLayout({seed:'paced:'+level.id,levelId:level.id,terrain:level.terrain,
    duration:140,height:620,speed:154,lengthScale:1,mapIndex,stage,difficulty:1});
@@ -105,9 +108,9 @@ test('ordinary progressed courses deliver their encounter patterns through the f
   assert.ok(authored.at(-1).end>last.x*.6,level.id);
   assert.ok(authored.every(s=>s.warningStart<s.start&&s.end>s.start),level.id);
  }
-});
+}));
 
-test('a normal-length flight actually builds the family advertised on its route',()=>{
+test('a normal-length flight actually builds the family advertised on its route', authored(()=>{
  for(const encounterFamily of ['stillwater-tunnel','draft-staircase','seed-orchard']){
   const layout=buildFlightLayout({seed:'family-pacing',duration:140,lengthScale:1,mapIndex:1,stage:3,
    encounterFamily,terrain:'canopy'});
@@ -115,4 +118,4 @@ test('a normal-length flight actually builds the family advertised on its route'
   assert.ok(authored.length>=2,encounterFamily);
   assert.ok(authored.every(s=>s.authoredChallenge.family===encounterFamily),encounterFamily);
  }
-});
+}));

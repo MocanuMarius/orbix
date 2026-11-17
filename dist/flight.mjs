@@ -436,7 +436,7 @@ function carveCachePocket(obstacle, side, first, rich, height) {
 export function buildFlightLayout({ seed = 1, terrain = 'ruins', elite = false,
   duration = 38, speed = 154, height = 620, passage = 'open', fuelCadence = 3,
   levelId, stage = 0, difficulty = 1, mapIndex = 0, lengthScale = 1, encounterFamily = null, gentleOpening = false,
-  fallPhysics,allowFall=true,mapTheme=null } = {}) {
+  fallPhysics,allowFall=true,mapTheme=null,landforms=true } = {}) {
   const ascent = getAscentInfo({ row: stage, difficulty,mapIndex });
   const legCount = lengthScale === LEVEL_LENGTH.multiplier ? LEVEL_LENGTH.multiplier : 1;
   const identity = resolveLevelIdentity(levelId, terrain, seed);
@@ -515,8 +515,8 @@ export function buildFlightLayout({ seed = 1, terrain = 'ruins', elite = false,
   };
   const requestedWindows = Math.max(ascent.requestedHardWindows, elite ? 2 : 1);
   const starterPacing = mapIndex === 0 && stage <= 2 && !elite;
-  // ?courses=2 only: a landform recipe replaces this slot's authored cells.
-  const landform = buildLandformCourse({ levelId: identity.id, seed, height, duration, speed, identity, ascent,
+  // a landform recipe (the default; ?courses=1 opts out) replaces this slot's authored cells.
+  const landform = !landforms ? null : buildLandformCourse({ levelId: identity.id, seed, height, duration, speed, identity, ascent,
     legs, requestedWindows, legCount, elite, rng });
   if (landform) { obstacles.push(...landform.obstacles); sections.push(...landform.sections); embers.push(...landform.embers); index = obstacles.length; }
   else if (legCount === 1 && starterPacing) {
@@ -936,7 +936,7 @@ export class WispFlight {
           lift:FLIGHT_TUNING.flapImpulse*this.scaleY*clamp(Number(this.mod.flap)||1,.8,1.2),
           terminal:FLIGHT_TUNING.terminalFall*this.scaleY*clamp(Number(this.mod.terminalFall)||1,1,1.15)},
         levelId: this.levelIdentity.id, stage: this.ascentInfo.row,
-        difficulty: this.ascentInfo.difficulty, mapIndex:Number(route.mapIndex)||0, lengthScale: this.lengthScale,encounterFamily:this.onboardingPlan?.gentleOpening||practiceCourse?null:route.encounterFamily,gentleOpening:!!this.onboardingPlan?.gentleOpening||practiceCourse });
+        difficulty: this.ascentInfo.difficulty, mapIndex:Number(route.mapIndex)||0, lengthScale: this.lengthScale,encounterFamily:this.onboardingPlan?.gentleOpening||practiceCourse?null:route.encounterFamily,gentleOpening:!!this.onboardingPlan?.gentleOpening||practiceCourse,landforms:!practiceCourse });
     if(this.tutorial?.lesson==='guardian')tuneTutorialGuardian(this.layout,this.height);
     this.totalDistance = flightEndDistance(this.layout, this.player.x, this.totalDistance,{height:this.height});
     this.layout.embers = this.layout.embers.filter(packet => packet.x <= this.totalDistance + this.player.x - 24);

@@ -1,4 +1,4 @@
-// Landform course generator (v2.0-courses), behind the `?courses=2` switch.
+// Landform course generator (v2.1-courses-all): the default for all 48 biome courses; `?courses=1` gives the old authored cells.
 //
 // A course is composed from a short recipe: a seeded sequence of landform
 // pieces (hills, dunes, mesas, cliffs, outcrops, caves, arches...). The pieces
@@ -18,14 +18,15 @@
 // docs/course-design.md.
 
 const URL_COURSES = (() => { try { return new URLSearchParams(globalThis.location?.search || '').get('courses'); } catch { return null; } })();
-const URL_GENERATION = Number(URL_COURSES) === 2 ? 2 : 1;
+// Landform courses are the default for everyone; ?courses=1 brings back the old authored cells.
+const URL_GENERATION = Number(URL_COURSES) === 1 ? 1 : 2;
 // Tooling override lives on globalThis so every module instance (the game
 // imports this file with a cache-busting query) sees the same value.
 const OVERRIDE = Symbol.for('orbix.courseGeneration');
-/** 1 = authored cell courses (default), 2 = landform courses for the recipes below. */
+/** 2 = landform courses (default), 1 = the old authored cell courses (?courses=1). */
 export function courseGeneration() { return globalThis[OVERRIDE] ?? URL_GENERATION; }
 /** Test and pilot tooling only; the game reads the URL once. Pass null to clear. */
-export function overrideCourseGeneration(value) { globalThis[OVERRIDE] = value == null ? undefined : Number(value) === 2 ? 2 : 1; }
+export function overrideCourseGeneration(value) { globalThis[OVERRIDE] = value == null ? undefined : Number(value) === 1 ? 1 : 2; }
 
 export const FRAME = 620;
 export const DX = 6;
@@ -348,12 +349,12 @@ const PIECES = {
     const count = p.count ?? 2;
     for (let k = 0; k < count; k++) {
       const c = bank + (L - 2 * bank) * (k + .5) / count + (rng() - .5) * 60;
-      const h = (p.h ?? 150) * (.7 + rng() * .45), w = Math.max(h * .55, 70);
+      const h = (p.h ?? 150) * (.7 + rng() * .45), w = Math.max(h * 1.0, 80);
       const verts = [[-w / 2, 30], [-w * .42, -h * .55], [-w * .3, -h * .93], [-w * .05, -h], [w * .22, -h * .96], [w * .36, -h * .6], [w / 2, 30]];
       const ic = i0 + Math.round(c / DX);
       for (let i = ic - Math.ceil(w / DX); i <= ic + Math.ceil(w / DX); i++) {
         if (i < i0 || i >= i1) continue;
-        const v = polyline(verts, (i - ic) * DX); if (Number.isFinite(v)) f.setRock(i, waterY + v, 'rock');
+        const v = polyline(verts, (i - ic) * DX); if (Number.isFinite(v)) f.setRock(i, waterY + v, p.material || 'rock');
       }
     }
     return ctx.level;
@@ -434,8 +435,8 @@ const PIECES = {
     // A natural bridge or arch whose deck lies beyond the frame top: its
     // underside springs low at both ends and rises to a crown.
     const n = i1 - i0, L = n * DX, level = p.level ?? ctx.level, span = Math.min(L * .8, p.span ?? 420);
-    const clear = p.clear ?? 240, rise = p.rise ?? 70, a = (L - span) / 2;
-    for (let i = i0; i < i1; i++) f.soft[i] = ramp(ctx.level, level, (i - i0) / Math.min(n, 60));
+    const clear = (p.clear ?? 240) + 28, rise = p.rise ?? 70, a = (L - span) / 2;
+    for (let i = i0; i < i1; i++) f.soft[i] = ramp(ctx.level, level, (i - i0) / Math.min(n, 60)) - (p.swell ?? 12) * Math.sin(Math.PI * (i - i0) / n) ** 2;
     f.ceilSpecs.push({ i0: i0 + Math.floor(a / DX) - 20, i1: i0 + Math.ceil((a + span) / DX) + 20, label: p.label || 'arch', material: p.material || 'rock', fn(floorSm, i) {
       const u = (i - i0) * DX - a, t = u / span;
       const spring = floorSm - clear;
@@ -460,7 +461,7 @@ const PIECES = {
   shelf(f, i0, i1, ctx, p, rng) {
     // Hanging ice shelves: flat, slightly tilted undersides with short icicles.
     const n = i1 - i0, L = n * DX, level = p.level ?? ctx.level;
-    for (let i = i0; i < i1; i++) f.soft[i] = ramp(ctx.level, level, (i - i0) / Math.min(n, 60));
+    for (let i = i0; i < i1; i++) f.soft[i] = ramp(ctx.level, level, (i - i0) / Math.min(n, 60)) - (p.swell ?? 12) * Math.sin(Math.PI * (i - i0) / n) ** 2;
     const depth = p.depth ?? 130, tilt = (rng() - .5) * .08;
     f.ceilSpecs.push({ i0, i1, label: p.label || 'ice shelf', material: 'ice', absolute: true, fn(floorSm, i) {
       const u = (i - i0) * DX, edge = Math.min(u, L - u);
@@ -591,7 +592,7 @@ export function paceRecipe(recipe, { extent, windows, rng, start = -260 }) {
   while (rest.length && x + phraseLen([rest[restCursor % rest.length]]) <= end - outroLen) { put(rest[restCursor % rest.length], 'rest', 'rest-tail'); restCursor++; }
   // Stretch or add the final rest piece to meet the outro exactly.
   const gapLeft = end - outroLen - x;
-  if (gapLeft > 0) put(['plain', { len: gapLeft }], 'rest', 'rest-tail', gapLeft);
+  if (gapLeft > 0) put(gapLeft > 260 ? ['hills', { len: gapLeft, amp: 12, wave: 600 }] : ['plain', { len: gapLeft }], 'rest', 'rest-tail', gapLeft);
   for (const piece of recipe.outro) put(piece, 'outro', 'outro');
   return placed;
 }
@@ -873,9 +874,10 @@ export function courseSections(course, obstacles, { identity = {}, ascent = {}, 
 }
 
 // ---------------------------------------------------------------- recipes --
-// Eight prototype courses. Each replaces the geometry of one existing course
-// slot (same identity, scenery and biome rule) only while ?courses=2 is on.
-export const LANDFORM_RECIPES = Object.freeze({
+// Each recipe replaces the geometry of one existing course slot (same identity,
+// scenery and biome rule) unless ?courses=1 is set. The first eight are hand-tuned
+// prototypes; the other forty follow below.
+const HAND_RECIPES = Object.freeze({
   // ---- Glasswind Dunes (desert): sand, sandstone mesas, arches, open sky.
   'desert-dune-trough': {
     id: 'v2-dune-sea', biome: 'desert', type: 'open-sky', name: 'The Dune Sea', ground: 'sand', start: 560,
@@ -907,7 +909,7 @@ export const LANDFORM_RECIPES = Object.freeze({
       [['outcrops', { len: 1100, count: 3, size: [70, 120], level: 520 }], ['dunes', { len: 500, level: 520, amp: 40 }], ['outcrops', { len: 900, count: 2, size: [90, 130], level: 515 }]],
       [['outcrops', { len: 900, count: 3, size: [70, 130], level: 500 }], ['mesa', { len: 620, h: 175, label: 'butte' }], ['outcrops', { len: 700, count: 2, size: [80, 120], level: 520 }]],
     ],
-    rest: [['dunes', { len: 1000, level: 535, amp: 46 }], ['outcrops', { len: 900, count: 2, size: [30, 55], level: 540 }], ['plain', { len: 500, level: 545 }]],
+    rest: [['dunes', { len: 1000, level: 535, amp: 46 }], ['outcrops', { len: 900, count: 2, size: [30, 55], level: 540 }], ['hills', { len: 500, level: 545, amp: 16 }]],
     outro: [['plain', { len: 520, level: 560 }], ['plain', { len: 520, level: 650 }]],
   },
   'desert-oasis-arch': {
@@ -953,7 +955,7 @@ export const LANDFORM_RECIPES = Object.freeze({
       [['log', { len: 800, h: 48, level: 470, label: 'fallen giant' }], ['cliff', { len: 560, h: 76, dir: 'down', label: 'valley side' }], ['arch', { len: 760, clear: 245, rise: 60, span: 440, label: 'natural bridge' }], ['climb', { len: 900, to: 480, label: 'valley side' }], ['outcrops', { len: 800, count: 2, size: [60, 100], level: 475 }]],
     ],
     rest: [['hills', { len: 1100, level: 480, amp: 44, wave: 760 }], ['basin', { len: 800, depth: 30, water: true, label: 'pond' }], ['plain', { len: 500, level: 485 }]],
-    outro: [['plain', { len: 620, level: 560 }], ['plain', { len: 520, level: 650 }]],
+    outro: [['hills', { len: 620, level: 560, amp: 12, wave: 520 }], ['plain', { len: 520, level: 650 }]],
   },
   'pinewood-high-boughs': {
     id: 'v2-root-cave', biome: 'pinewood', type: 'cave', name: 'The Root Cave', ground: 'soil', start: 555,
@@ -967,6 +969,300 @@ export const LANDFORM_RECIPES = Object.freeze({
     outro: [['plain', { len: 520, level: 560 }], ['plain', { len: 520, level: 650 }]],
   },
 });
+
+// ---- The other forty courses (v2.1-courses-all). Same recipe vocabulary as
+// the eight above, written with short piece builders. Each course keeps its
+// biome's materials (soil/sand/snow/scree ground, rock only where the biome
+// has stone, ice only in frost, water only where the biome has it) and a
+// layout shape no sibling in the biome repeats (tests/course-landforms-all).
+const pl = (level, len = 520) => ['plain', { len, level }];
+const hl = (len, level, amp, wave) => ['hills', { len, level, amp, ...(wave ? { wave } : {}) }];
+const dn = (len, level, amp, wave) => ['dunes', { len, level, amp, ...(wave ? { wave } : {}) }];
+const tr = (len, steps, to, label, material) => ['terraces', { len, steps, to, label, ...(material ? { material } : {}) }];
+const bs = (len, depth, label, water = true) => ['basin', { len, depth, water, label }];
+const ms = (len, h, label, material) => ['mesa', { len, h, label, ...(material ? { material } : {}) }];
+const cf = (len, h, label, steep) => ['cliff', { len, h, dir: 'down', label, ...(steep ? { steep } : {}) }];
+const hg = (len, band, to, label, extra = {}) => ['highland', { len, band, climb: 560, fall: 620, to, undulate: 12, label, ...extra }];
+const rg = (len, band, to, label, amp = 30, material = 'scree') => ['rugged', { len, band, amp, to, material, label }];
+const oc = (len, count, size, level, material) => ['outcrops', { len, count, size, level, ...(material ? { material } : {}) }];
+const st = (len, count, h, depth, label, material) => ['stacks', { len, count, h, depth, label, ...(material ? { material } : {}) }];
+const lg = (len, h, level, label) => ['log', { len, h, level, label }];
+const rn = (len, w, h, label, at) => ['ruin', { len, w, h, label, ...(at ? { at } : {}) }];
+const cv = (len, gap, stal, level, label, material) => ['cave', { len, gap, stal, level, label, ...(material ? { material } : {}) }];
+const ar = (len, clear, rise, span, label, material) => ['arch', { len, clear, rise, span, label, ...(material ? { material } : {}) }];
+const cn = (len, depth, level, label) => ['canopy', { len, depth, level, label }];
+const sh = (len, depth, level, label) => ['shelf', { len, depth, level, label }];
+const cl = (len, to, label) => ['climb', { len, to, label }];
+const recipe = (id, biome, type, name, ground, start, summary, intro, challenge, rest, outro = [hl(520, 560, 12, 520), pl(650)]) =>
+  ({ id, biome, type, name, ground, start, summary, intro, challenge, rest, outro });
+
+const TABLE_RECIPES = Object.freeze({
+  // ---- Moonruins (soil, masonry): aqueduct arches, stair, open courtyard, drowned chapel.
+  'moonruins-low-aqueduct': recipe('v2-aqueduct-arches', 'moonruins', 'arches', 'The Low Aqueduct', 'soil', 555,
+    'Fly under the arches of a broken aqueduct that strides across low grassy ground.',
+    [pl(545), hl(1000, 530, 34, 760)],
+    [[ar(760, 245, 60, 470, 'aqueduct arch', 'ruin'), hl(520, 520, 30), ar(700, 240, 55, 420, 'aqueduct arch', 'ruin')],
+     [rn(700, 150, 90, 'fallen pier'), ar(760, 245, 66, 470, 'aqueduct arch', 'ruin'), rn(600, 130, 70, 'broken pier', .4)]],
+    [hl(1200, 535, 40, 800), pl(540), rn(700, 120, 60, 'wall stub')]),
+  'moonruins-bell-stair': recipe('v2-bell-stair', 'moonruins', 'stair', 'The Broken Bell Stair', 'soil', 565,
+    'Worn terraces of an old bell tower stair: climb the steps, glide down the far side.',
+    [pl(555), hl(900, 540, 30, 700)],
+    [[tr(1000, 3, 440, 'worn stair'), pl(450, 400), cf(520, 70, 'tumbled wall')],
+     [cl(800, 450, 'ramp of rubble'), rn(600, 140, 80, 'bell base', .6), hl(800, 500, 40)]],
+    [hl(1100, 535, 36, 740), tr(900, 2, 520, 'low steps'), pl(540)]),
+  'moonruins-courtyard': recipe('v2-courtyard-walls', 'moonruins', 'open-sky', 'The Roofless Courtyard', 'soil', 550,
+    'Open sky over a courtyard of wall stubs and fallen blocks: hop each wall, glide the lawn between.',
+    [pl(545), oc(900, 2, [36, 60], 535)],
+    [[rn(700, 130, 80, 'wall'), pl(520, 400), rn(700, 120, 100, 'tall wall', .45), hl(600, 520, 30)],
+     [oc(1000, 3, [50, 90], 515), rn(600, 140, 90, 'gatehouse'), pl(525, 400)]],
+    [hl(1000, 535, 32, 780), rn(700, 110, 55, 'low wall'), pl(540)]),
+  'moonruins-moon-chapel': recipe('v2-drowned-chapel', 'moonruins', 'flooded', 'The Drowned Moon Chapel', 'soil', 540,
+    'A chapel half under still water: cross the flooded nave, pass under the broken vault, climb out.',
+    [pl(535), bs(900, 34, 'flooded nave')],
+    [[bs(800, 40, 'flooded nave'), ar(760, 245, 60, 440, 'broken vault', 'ruin'), cl(800, 490, 'chapel steps')],
+     [rn(640, 140, 80, 'chancel wall'), bs(900, 36, 'moonlit pool'), tr(800, 2, 500, 'altar steps'), rn(600, 120, 70, 'pillar base')]],
+    [hl(1000, 535, 32, 760), bs(800, 28, 'rain pool'), pl(540)]),
+
+  // ---- Frost (snow ground, glacial ice, rock erratics).
+  'frost-glacier-gate': recipe('v2-glacier-gate', 'frost', 'ice-gate', 'The Glacier Gate', 'snow', 555,
+    'Rolling snowfield with two ice gateways; slip under the hanging glacier shelves.',
+    [pl(545), hl(1000, 530, 36, 800)],
+    [[sh(800, 135, 520, 'glacier shelf'), hl(500, 520, 30), ar(720, 245, 60, 440, 'ice gateway', 'ice')],
+     [ar(700, 245, 55, 420, 'ice gateway', 'ice'), pl(520, 400), sh(900, 140, 515, 'glacier shelf')]],
+    [hl(1200, 535, 40, 820), pl(545), oc(700, 1, [34, 50], 540)]),
+  'frost-iceberg-field': recipe('v2-iceberg-field', 'frost', 'open-sky', 'The Drifting Icebergs', 'snow', 540,
+    'Open sky over a frozen bay: weave between broad icebergs standing in dark water.',
+    [pl(535), bs(900, 34, 'frozen bay')],
+    [[st(1200, 2, 110, 54, 'iceberg', 'ice'), hl(500, 520, 30), st(1100, 2, 100, 50, 'iceberg', 'ice')],
+     [oc(900, 3, [60, 100], 515, 'ice'), bs(800, 40, 'open lead'), st(1100, 2, 105, 54, 'iceberg', 'ice')]],
+    [hl(1000, 535, 34, 780), bs(800, 30, 'open lead'), pl(540)]),
+  'frost-thaw-vault': recipe('v2-thaw-vault', 'frost', 'ice-cave', 'The Thawing Vault', 'snow', 555,
+    'Through a glacier tongue: a meltwater cave with ice drips over snow-drifted floor.',
+    [pl(545), hl(900, 535, 30, 760)],
+    [[cv(2200, 225, 34, 520, 'ice cave', 'ice')],
+     [sh(800, 130, 525, 'ice lip'), cv(1800, 215, 30, 515, 'ice cave', 'ice')]],
+    [hl(1200, 535, 40, 820), pl(540), oc(700, 1, [30, 46], 540)]),
+  'frost-frozen-falls': recipe('v2-frozen-falls', 'frost', 'falls', 'The Frozen Falls', 'snow', 470,
+    'A frozen cascade: drop down icy rock steps in the headwall, then glide the snowy valley.',
+    [pl(465), hl(900, 455, 28, 700)],
+    [[cf(560, 80, 'icefall step'), pl(540, 360), tr(900, 2, 520, 'frozen steps', 'rock'), cf(520, 70, 'icefall step')],
+     [tr(800, 3, 430, 'frozen steps', 'rock'), sh(800, 135, 440, 'ice curtain'), cf(560, 80, 'icefall step')]],
+    [hl(1100, 480, 36, 760), bs(800, 26, 'frozen pool', false), pl(485)],
+    [hl(520, 560, 12, 520), pl(650)]),
+
+  // ---- Marsh (soil, peat, water).
+  'marsh-reed-channel': recipe('v2-reed-channels', 'marsh', 'open-sky', 'The Reed Channel', 'soil', 550,
+    'Open sky over flat wet ground: skim across still channels and low reed banks.',
+    [pl(545), bs(900, 30, 'reed channel')],
+    [[bs(900, 38, 'channel'), pl(530, 380), bs(800, 40, 'channel'), hl(600, 525, 24)],
+     [hl(800, 520, 34, 640), bs(1000, 42, 'wide channel'), pl(535, 400)]],
+    [hl(1000, 540, 26, 700), bs(800, 28, 'pool'), pl(545)]),
+  'marsh-willow-veil': recipe('v2-willow-veil', 'marsh', 'canopy', 'The Willow Veil', 'soil', 555,
+    'Pass beneath hanging willow boughs, over low peat hummocks and still pools.',
+    [pl(545), cn(1000, 100, 535, 'willow boughs')],
+    [[cn(1000, 140, 530, 'willow boughs'), bs(800, 34, 'black pool'), cn(900, 130, 530, 'willow boughs')],
+     [hl(700, 520, 30, 620), cn(1200, 150, 525, 'willow veil')]],
+    [hl(1000, 540, 28, 700), cn(800, 90, 540, 'low boughs'), pl(545)]),
+  'marsh-sunken-walk': recipe('v2-sunken-boardwalk', 'marsh', 'timber', 'The Sunken Boardwalk', 'soil', 555,
+    'A rotten boardwalk and sunk timber across the mire: hop the logs, cross the pools.',
+    [pl(545), lg(900, 40, 540, 'sunk log')],
+    [[lg(900, 52, 525, 'sunk timber'), bs(700, 36, 'mire pool'), lg(900, 56, 525, 'sunk timber'), pl(530, 400)],
+     [bs(900, 40, 'mire pool'), lg(800, 48, 530, 'sunk timber'), hl(700, 520, 30), lg(800, 52, 525, 'sunk timber')]],
+    [hl(1000, 540, 26, 720), lg(700, 36, 545, 'old sleeper'), pl(545)]),
+  'marsh-mire-bells': recipe('v2-mire-bells', 'marsh', 'canopy', 'The Mire Bells', 'soil', 550,
+    'Hummocks and bog bells under a low hanging cover; each rise is a short Lift.',
+    [pl(545), hl(1000, 530, 40, 560)],
+    [[hl(900, 505, 50, 520), cn(1000, 120, 520, 'sagging boughs'), hl(700, 520, 40, 560)],
+     [cn(900, 110, 530, 'sagging boughs'), lg(700, 44, 520, 'bog log'), hl(900, 510, 46, 540)]],
+    [hl(1100, 535, 34, 600), pl(540), cn(700, 80, 540, 'low boughs')]),
+
+  // ---- Fungal (loam, mycelium).
+  'fungal-cap-canopy': recipe('v2-cap-canopy', 'fungal', 'canopy', 'The Cap Canopy', 'soil', 555,
+    'Beneath great mushroom caps: rounded canopies hang over loamy rises.',
+    [pl(545), cn(1000, 110, 535, 'mushroom caps')],
+    [[cn(1000, 150, 525, 'giant caps'), hl(600, 515, 36, 620), cn(900, 140, 525, 'giant caps')],
+     [hl(800, 510, 44, 600), cn(1200, 150, 520, 'giant caps')]],
+    [hl(1000, 540, 30, 680), cn(800, 90, 540, 'small caps'), pl(545)]),
+  'fungal-spore-stair': recipe('v2-spore-stair', 'fungal', 'stair', 'The Spore Stair', 'soil', 565,
+    'Layered shelf fungi form a stair up through the loam; spores drift in the glades between.',
+    [pl(555), hl(900, 540, 32, 700)],
+    [[tr(1000, 3, 450, 'shelf stair'), cn(900, 100, 460, 'cap roof'), hl(700, 520, 32)],
+     [cl(900, 460, 'loam slope'), tr(800, 2, 430, 'shelf stair'), cf(520, 70, 'spore ledge')]],
+    [hl(1100, 535, 34, 720), tr(800, 2, 520, 'low shelves'), pl(540)]),
+  'fungal-gilled-arch': recipe('v2-gilled-arch', 'fungal', 'arches', 'The Gilled Arch', 'soil', 555,
+    'Thread through great gilled arches, with loam rises between them.',
+    [pl(545), hl(1000, 535, 34, 720)],
+    [[ar(760, 245, 62, 460, 'gilled arch', 'canopy'), hl(520, 520, 34), ar(700, 240, 56, 420, 'gilled arch', 'canopy')],
+     [hl(700, 510, 40, 600), ar(800, 250, 70, 480, 'gilled arch', 'canopy'), pl(525, 400), ar(700, 245, 60, 420, 'gilled arch', 'canopy')]],
+    [hl(1000, 540, 30, 700), pl(545), oc(700, 1, [30, 50], 540)]),
+  'fungal-mycelium-run': recipe('v2-mycelium-run', 'fungal', 'open-sky', 'The Mycelium Run', 'soil', 550,
+    'Open loam glades webbed with mycelium: low rises, a fallen trunk, soft dips.',
+    [pl(545), hl(1000, 530, 36, 640)],
+    [[hl(800, 510, 52, 560), lg(800, 48, 520, 'fallen trunk'), bs(700, 28, 'spore pool', false), hl(700, 520, 36)],
+     [bs(800, 30, 'spore pool', false), hl(900, 500, 54, 600), lg(700, 44, 515, 'fallen trunk')]],
+    [hl(1100, 535, 34, 680), pl(540), bs(700, 24, 'dip', false)]),
+
+  // ---- Basalt (scree, columns, cinder).
+  'basalt-column-stair': recipe('v2-column-stair', 'basalt', 'stair', 'The Column Stair', 'scree', 565,
+    'Hexagonal column tops step up the hillside; leap tread to tread, then glide off.',
+    [pl(555), hl(900, 540, 26, 700)],
+    [[tr(1000, 3, 440, 'column stair', 'rock'), pl(450, 400), cf(560, 80, 'column edge')],
+     [tr(900, 2, 470, 'column stair', 'rock'), hl(700, 500, 36), tr(900, 3, 420, 'column stair', 'rock')]],
+    [hl(1100, 535, 30, 720), tr(700, 2, 520, 'low columns', 'rock'), pl(540)]),
+  'basalt-smoke-flue': recipe('v2-smoke-flue', 'basalt', 'cave', 'The Smoke Flue', 'scree', 555,
+    'A lava tube through the cinder cone: stalactites of cooled lava drip from the flue roof.',
+    [pl(545), hl(900, 535, 26, 700)],
+    [[cv(2200, 225, 30, 520, 'lava tube'), hl(500, 520, 26)],
+     [cv(1700, 215, 28, 515, 'lava tube'), oc(800, 2, [50, 80], 515)]],
+    [hl(1100, 535, 28, 720), pl(540), oc(700, 1, [34, 54], 540)]),
+  'basalt-lava-lip': recipe('v2-cinder-spillway', 'basalt', 'falls', 'The Cinder Spillway', 'scree', 480,
+    'An old lava spillway: drop down rock lips and glide the cinder channel below.',
+    [pl(475), hl(900, 465, 26, 700)],
+    [[cf(560, 90, 'spillway lip'), pl(555, 420), cf(520, 70, 'spillway lip'), bs(700, 24, 'cinder channel', false)],
+     [oc(900, 2, [50, 90], 465), cf(560, 80, 'spillway lip'), hl(800, 540, 30), cf(520, 60, 'spillway lip')]],
+    [hl(1100, 490, 30, 720), bs(700, 22, 'cinder channel', false), pl(495)],
+    [hl(520, 560, 12, 520), pl(650)]),
+  'basalt-scoria-crown': recipe('v2-scoria-crown', 'basalt', 'open-sky', 'The Scoria Crown', 'scree', 570,
+    'The cone climbs under open sky to a crown of dark scoria teeth; hop the rim, then drop away.',
+    [pl(560), hl(1000, 545, 28, 720)],
+    [[cl(1000, 440, 'cinder slope'), rg(1800, 360, 500, 'scoria crown', 28)],
+     [rg(1700, 366, 510, 'scoria crown', 30), hl(600, 520, 30), cf(520, 70, 'crater lip')]],
+    [hl(1100, 540, 30, 720), pl(545), oc(700, 1, [34, 50], 540)]),
+
+  // ---- Coral (sand, coral rock, tide pools).
+  'coral-reef-pass': recipe('v2-reef-pass', 'coral', 'open-sky', 'The Reef Pass', 'sand', 550,
+    'Open water above a reef flat: hop porous coral heads standing out of the sand.',
+    [pl(545), dn(900, 535, 34, 600)],
+    [[oc(1000, 3, [60, 110], 520), dn(500, 520, 36), oc(900, 2, [80, 120], 515)],
+     [oc(900, 3, [60, 120], 505), bs(700, 36, 'tide pool'), oc(800, 2, [70, 110], 520)]],
+    [dn(1000, 540, 34, 640), oc(800, 2, [30, 50], 540), pl(545)]),
+  'coral-tidal-gully': recipe('v2-tidal-gully', 'coral', 'gully', 'The Tidal Gully', 'sand', 520,
+    'A tidal cut through the reef: drop to the gully, weave sea stacks in the water, climb out.',
+    [pl(515), dn(900, 505, 30, 600)],
+    [[pl(515, 400), cf(560, 80, 'reef edge', 1.2), st(1100, 2, 120, 54, 'sea stack'), cl(900, 500, 'gully bank')],
+     [bs(900, 40, 'tidal pool'), st(1000, 2, 110, 50, 'sea stack'), pl(520, 400), cf(560, 70, 'reef edge', 1.2), pl(540, 400)]],
+    [dn(1000, 520, 34, 640), bs(800, 28, 'tide pool'), pl(525)]),
+  'coral-wreck-canopy': recipe('v2-wreck-hull', 'coral', 'wreck', 'The Wreck Canopy', 'sand', 555,
+    'A sunken ship lies across the sand; fly over the keel and under its fallen mast and hull arches.',
+    [pl(545), dn(900, 535, 30, 600)],
+    [[lg(900, 56, 525, 'ship keel'), ar(760, 245, 60, 440, 'hull ribs', 'rock'), lg(800, 48, 525, 'broken mast')],
+     [ar(700, 245, 55, 420, 'hull ribs', 'rock'), dn(600, 515, 36), lg(900, 54, 520, 'ship keel')]],
+    [dn(1000, 540, 32, 640), oc(700, 1, [34, 50], 540), pl(545)]),
+  'coral-coral-lattice': recipe('v2-coral-lattice', 'coral', 'arches', 'The Coral Lattice', 'sand', 555,
+    'A lattice of coral arches rising from the sand, with heads of rock between.',
+    [pl(545), oc(900, 2, [36, 56], 535)],
+    [[ar(740, 245, 60, 440, 'coral arch', 'rock'), oc(700, 2, [50, 80], 520), ar(700, 240, 56, 410, 'coral arch', 'rock')],
+     [tr(800, 2, 480, 'coral terraces', 'rock'), ar(760, 245, 66, 450, 'coral arch', 'rock'), tr(700, 2, 530, 'coral terraces', 'rock')]],
+    [dn(1000, 540, 30, 640), pl(545), oc(800, 2, [30, 46], 540)]),
+
+  // ---- Crystal (dark rock and scree, mirror pools, veined caves).
+  'crystal-prism-teeth': recipe('v2-prism-teeth', 'crystal', 'ridge', 'The Prism Teeth', 'scree', 565,
+    'A scree slope climbs into a ridge of crystal teeth under open sky; hop the crest.',
+    [pl(555), hl(1000, 540, 26, 720)],
+    [[rg(2000, 376, 510, 'prism ridge', 26), hl(600, 520, 30)],
+     [cl(800, 440, 'scree slope'), rg(1700, 374, 515, 'prism ridge', 26)]],
+    [hl(1100, 540, 28, 720), tr(800, 2, 525, 'low ledges', 'rock'), pl(545)]),
+  'crystal-mirror-well': recipe('v2-mirror-well', 'crystal', 'basin', 'The Mirror Well', 'scree', 545,
+    'Dark pools like mirrors between crystal outcrops; hop the stones, pass the dripping vault.',
+    [pl(540), bs(900, 30, 'mirror pool')],
+    [[oc(900, 2, [60, 100], 520), bs(800, 38, 'mirror pool'), cv(1500, 225, 30, 520, 'crystal vault')],
+     [bs(800, 40, 'mirror pool'), oc(1000, 3, [60, 110], 510), pl(525, 360)]],
+    [hl(1000, 535, 28, 720), bs(700, 26, 'small pool'), pl(540)]),
+  'crystal-wedge-run': recipe('v2-wedge-run', 'crystal', 'wedges', 'The Wedge Run', 'scree', 480,
+    'A fractured shelf of wedge-shaped rock: drop down rock faces and cross a dark mesa.',
+    [pl(475), hl(900, 465, 24, 700)],
+    [[cf(560, 90, 'fault scarp'), ms(800, 150, 'wedge mesa'), cf(520, 70, 'fault scarp')],
+     [ms(700, 130, 'wedge butte'), pl(500, 380), cf(560, 80, 'fault scarp'), tr(800, 2, 540, 'wedge steps', 'rock')]],
+    [hl(1100, 490, 28, 720), pl(495), oc(700, 1, [34, 50], 490)],
+    [hl(520, 560, 12, 520), pl(650)]),
+  'crystal-chime-stair': recipe('v2-chime-stair', 'crystal', 'stair', 'The Chime Stair', 'scree', 565,
+    'Rock steps ring up toward a crystal grotto; climb the stair, then pass through the cave.',
+    [pl(555), hl(900, 540, 24, 700)],
+    [[tr(1000, 3, 450, 'chime steps', 'rock'), cv(1500, 225, 28, 450, 'crystal grotto')],
+     [cl(800, 450, 'scree ramp'), tr(800, 2, 430, 'chime steps', 'rock'), cf(520, 70, 'grotto lip')]],
+    [hl(1100, 535, 28, 720), tr(700, 2, 520, 'low steps', 'rock'), pl(540)]),
+
+  // ---- Cloud (grassy soil, grey rock). Sky Islands want floating rock: nearest landforms used.
+  'cloud-sky-islands': recipe('v2-island-steps', 'cloud', 'islands', 'The Sky Islands', 'soil', 540,
+    'Stand-in for floating islands: flat-topped grassy mesas with rock edges, hop from island to island.',
+    [pl(535), hl(900, 525, 30, 700)],
+    [[ms(800, 150, 'island'), pl(520, 360), ms(800, 170, 'island'), cf(520, 70, 'island edge')],
+     [oc(900, 2, [60, 100], 515), ms(700, 130, 'island'), hl(600, 520, 30), ms(800, 160, 'island')]],
+    [hl(1000, 535, 30, 740), pl(540), oc(700, 1, [30, 50], 540)]),
+  'cloud-broken-span': recipe('v2-broken-span', 'cloud', 'arches', 'The Broken Span', 'soil', 525,
+    'Passes beneath the broken spans of a sky bridge, with rock edges to drop over.',
+    [pl(520), hl(900, 510, 28, 700)],
+    [[ar(760, 245, 62, 460, 'broken span', 'rock'), cf(560, 80, 'bridge footing'), ar(700, 245, 56, 420, 'broken span', 'rock')],
+     [cf(560, 70, 'bridge footing'), pl(540, 360), ar(800, 250, 70, 480, 'broken span', 'rock'), hl(600, 520, 28)]],
+    [hl(1000, 530, 30, 740), pl(535), oc(700, 1, [30, 46], 530)]),
+  'cloud-wind-stair': recipe('v2-wind-stair', 'cloud', 'stair', 'The Wind Stair', 'soil', 570,
+    'A long stair of grassy ledges climbs the wind; each ledge is one short Lift, then a long glide.',
+    [pl(560), hl(900, 545, 28, 700)],
+    [[tr(1100, 4, 420, 'wind ledges'), hg(1300, 370, 480, 'high ledge', { climb: 460 })],
+     [cl(900, 450, 'grassy ramp'), tr(900, 2, 420, 'wind ledges'), cf(520, 80, 'ledge drop')]],
+    [hl(1100, 540, 30, 740), tr(800, 2, 520, 'low ledges'), pl(545)]),
+  'cloud-cloud-vault': recipe('v2-cloud-vault', 'cloud', 'cave', 'The Cloud Vault', 'soil', 555,
+    'Through the rooted underside of a great island: a vault of grey rock with dangling stones.',
+    [pl(545), hl(900, 535, 28, 700)],
+    [[cv(2000, 225, 30, 525, 'island vault'), hl(500, 520, 28)],
+     [hl(700, 515, 34, 640), cv(1700, 220, 28, 520, 'island vault')]],
+    [hl(1100, 535, 30, 740), pl(540), oc(700, 1, [30, 50], 540)]),
+
+  // ---- Thorn (dark soil, briar, stone ribs).
+  'thorn-briar-tunnel': recipe('v2-briar-tunnel', 'thorn', 'canopy', 'The Briar Tunnel', 'soil', 555,
+    'A tunnel of arching briar over root-bound earth: stay low, weave the root rises.',
+    [pl(545), cn(1000, 100, 535, 'briar arches')],
+    [[cn(1100, 150, 525, 'briar tunnel'), hl(600, 515, 36, 600), cn(900, 140, 525, 'briar tunnel')],
+     [hl(700, 510, 42, 560), cn(1300, 150, 520, 'briar tunnel')]],
+    [hl(1000, 540, 30, 680), cn(800, 90, 540, 'low briars'), pl(545)]),
+  'thorn-seedpod-roof': recipe('v2-seedpod-roof', 'thorn', 'canopy', 'The Seedpod Roof', 'soil', 535,
+    'Heavy pods hang from a roof that sinks lower as you go; dip beneath each cluster.',
+    [pl(530), hl(900, 520, 30, 700)],
+    [[cn(900, 120, 530, 'seedpods'), lg(700, 44, 525, 'root bar'), cn(1000, 160, 530, 'heavy pods')],
+     [cn(800, 130, 525, 'seedpods'), hl(700, 505, 40, 600), cn(1000, 160, 530, 'heavy pods')]],
+    [hl(1000, 535, 28, 700), pl(540), cn(700, 80, 540, 'light pods')]),
+  'thorn-thicket-run': recipe('v2-thicket-run', 'thorn', 'open-sky', 'The Thicket Run', 'soil', 550,
+    'Open sky over broken low hedges and stone ribs: short hops over each, light-filled glades between.',
+    [pl(545), hl(1000, 530, 36, 640)],
+    [[lg(700, 44, 520, 'hedge bank'), hl(700, 515, 40, 560), oc(900, 2, [40, 70], 515), lg(700, 48, 520, 'hedge bank')],
+     [oc(1000, 3, [50, 90], 510), lg(700, 44, 520, 'hedge bank'), hl(800, 500, 50, 600)]],
+    [hl(1100, 535, 32, 680), pl(540), oc(700, 1, [30, 46], 540)]),
+  'thorn-thorn-steeple': recipe('v2-thorn-steeple', 'thorn', 'climb', 'The Thorn Steeple', 'soil', 570,
+    'Twisted root steps climb to a high steeple of earth under open sky; a short squeeze, then a long fall to the exit.',
+    [pl(560), hl(900, 545, 28, 700)],
+    [[tr(1000, 3, 450, 'root steps'), hg(1500, 366, 500, 'steeple crest')],
+     [cl(900, 440, 'root ramp'), hg(1400, 370, 510, 'steeple crest', { climb: 480 }), cf(520, 70, 'root drop')]],
+    [hl(1100, 540, 30, 700), tr(700, 2, 525, 'low roots'), pl(545)]),
+
+  // ---- Cemetery (dark soil, grass, leaning stones).
+  'cemetery-grave-road': recipe('v2-grave-road', 'cemetery', 'rising-road', 'The Grave Road', 'soil', 565,
+    'An open road of grave mounds that climbs slowly; markers and old walls stand beside the track.',
+    [pl(555), hl(1000, 540, 30, 640)],
+    [[hl(900, 510, 44, 560), rn(600, 80, 70, 'grave marker', .4), cl(900, 460, 'rising road'), rn(600, 120, 80, 'mausoleum wall')],
+     [cl(800, 470, 'rising road'), hl(900, 480, 48, 600), rn(600, 90, 60, 'grave marker')]],
+    [hl(1000, 535, 32, 700), pl(540), rn(600, 80, 50, 'low marker')]),
+  'cemetery-crypt-pass': recipe('v2-crypt-pass', 'cemetery', 'arches', 'The Crypt Pass', 'soil', 555,
+    'Low crypt lintels span the path: pass under each stone lintel, with soft mounds between.',
+    [pl(545), hl(900, 535, 30, 700)],
+    [[ar(740, 245, 55, 430, 'crypt lintel', 'ruin'), hl(500, 520, 30), ar(720, 240, 50, 400, 'crypt lintel', 'ruin'), rn(600, 110, 70, 'tomb')],
+     [rn(600, 130, 80, 'tomb'), ar(760, 245, 60, 450, 'crypt lintel', 'ruin'), tr(800, 2, 500, 'crypt steps')]],
+    [hl(1000, 535, 32, 700), rn(600, 90, 55, 'low tomb'), pl(540)]),
+  'cemetery-bell-garden': recipe('v2-bell-garden', 'cemetery', 'garden', 'The Bell Garden', 'soil', 550,
+    'A garden of mounds and old yews: root-hung bells low overhead, walls to hop.',
+    [pl(545), hl(1000, 530, 36, 620)],
+    [[cn(900, 110, 525, 'yew boughs'), rn(600, 120, 80, 'garden wall'), hl(800, 515, 38, 600), cn(900, 120, 525, 'yew boughs')],
+     [hl(800, 505, 46, 560), cn(1100, 130, 520, 'yew boughs'), rn(600, 100, 70, 'garden wall')]],
+    [hl(1000, 535, 30, 680), cn(700, 80, 540, 'low yew'), pl(545)]),
+  'cemetery-sepulchre-stair': recipe('v2-sepulchre-stair', 'cemetery', 'descent', 'The Sepulchre Stair', 'soil', 470,
+    'A burial hillside descends in stone shelves: step down tomb by tomb to the valley floor.',
+    [pl(465), hl(900, 455, 26, 700)],
+    [[tr(1000, 3, 540, 'burial shelves'), cf(560, 70, 'terrace edge'), rn(600, 110, 70, 'tomb')],
+     [rn(600, 120, 80, 'tomb'), tr(900, 2, 520, 'burial shelves'), cf(520, 60, 'terrace edge'), hl(600, 540, 30)]],
+    [hl(1100, 480, 32, 700), pl(485), rn(600, 80, 50, 'low marker')],
+    [hl(520, 560, 12, 520), pl(650)]),
+});
+
+export const LANDFORM_RECIPES = Object.freeze({ ...HAND_RECIPES, ...TABLE_RECIPES });
 
 /** Compact per-sample profile (620 units) for scenery, labs and probes:
  * ground/rock/ceiling heights, materials, landform labels and roles. */

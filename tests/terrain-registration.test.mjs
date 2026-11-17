@@ -2,6 +2,9 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 import {WispFlightView} from '../dist/wisp-renderer.mjs';
 import {buildFlightLayout} from '../dist/flight.mjs';
+import {overrideCourseGeneration} from '../dist/course-landforms.mjs';
+// These tests are about the old authored cells and encounter families, which the landform courses do not use yet (docs/course-design.md section 7).
+const authored=fn=>()=>{overrideCourseGeneration(1);try{return fn();}finally{overrideCourseGeneration(null);}};
 
 test('static foreground surfaces keep their pixel registration throughout a camera sweep',()=>{
  const objects=[31.29,56.72].map((x,i)=>({x,width:50,center:110.8+i*.85,gap:80,phase:0,motion:0,bottomShape:[[0,0]]}));
@@ -21,7 +24,7 @@ test('static foreground surfaces keep their pixel registration throughout a came
  }
 });
 
-test('ordinary terrain shoulders meet the offscreen closing face without exposed vertical cuts',()=>{
+test('ordinary terrain shoulders meet the offscreen closing face without exposed vertical cuts', authored(()=>{
  for(const terrain of ['ruins','canopy','storm']){
   const layout=buildFlightLayout({terrain,height:430,seed:'shoulder-sweep',duration:70});
   for(const obstacle of layout.obstacles){
@@ -36,7 +39,7 @@ test('ordinary terrain shoulders meet the offscreen closing face without exposed
    }
   }
  }
-});
+}));
 test('terrain baking is bounded to the playfield including the complete sway envelope',()=>{
  const context=new Proxy({},{get:()=>()=>{}});
  const view={scale:.63,identity:{id:'moonruins-bell-stair',scene:'moonruins'},buffer:{height:271},terrainCache:new Map(),

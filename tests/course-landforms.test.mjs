@@ -27,7 +27,7 @@ test('a recipe and seed always give the same course; a new seed gives a new one'
     fingerprint(layout(level, 2).obstacles.map(o => [o.x, o.center, o.gap, o.bottomShape])));
 });
 
-test('all eight prototype recipes pass the plausibility and fairness validator across seeds and rows', () => {
+test('every recipe passes the plausibility and fairness validator across seeds and rows', () => {
   for (const id of Object.keys(L.LANDFORM_RECIPES)) for (const seed of [1, 2, 3, 4, 5]) for (const hardGapScale of [1, .91, .88]) {
     const course = compose(id, seed, { hardGapScale, windows: hardGapScale < 1 ? 3 : 2 });
     const result = L.validateCourse(course);
@@ -96,20 +96,20 @@ test('open-sky courses have no ceiling at all; caves and gorges do', () => {
   assert.ok(cave.obstacles.some(o => o.topShape && o.ceilingLandform === 'cave'));
 });
 
-test('with the switch off every existing course is the authored course, untouched', () => {
-  assert.equal(L.courseGeneration(), 1, 'no ?courses=2 in Node: off by default');
-  assert.equal(L.landformRecipeFor('desert-dune-trough'), null);
-  assert.equal(L.buildLandformCourse({ levelId: 'desert-dune-trough' }), null);
-  for (const level of BIOME_LEVELS) {
-    const plain = buildFlightLayout({ seed: 'landform-test', terrain: level.terrain, levelId: level.id, duration: 90, speed: 154, height: 620, stage: 2, difficulty: 1 });
-    const forcedOff = layout(level, 1);
-    assert.equal(plain.landformCourse, undefined, level.id);
-    assert.ok(plain.obstacles.every(o => o.courseGeneration === undefined), level.id);
-    const shape = l => l.obstacles.map(o => [o.x, o.center, o.gap, o.width, o.topShape, o.bottomShape, o.sceneProps?.length || 0]);
-    assert.equal(fingerprint(shape(plain)), fingerprint(shape(forcedOff)), level.id);
-    assert.equal(fingerprint(plain.embers.map(p => [p.id, p.x, p.y])), fingerprint(forcedOff.embers.map(p => [p.id, p.x, p.y])), level.id);
-  }
-  // Courses without a recipe ignore the switch entirely.
-  const marsh = BIOME_LEVELS.find(l => l.id === 'marsh-reed-channel');
-  assert.equal(fingerprint(layout(marsh, 2).obstacles.map(o => [o.x, o.bottomShape])), fingerprint(layout(marsh, 1).obstacles.map(o => [o.x, o.bottomShape])));
+test('with ?courses=1 (override 1) every course is the old authored course, untouched', () => {
+  assert.equal(L.courseGeneration(), 2, 'landform courses are the default');
+  L.overrideCourseGeneration(1);
+  try {
+    assert.equal(L.courseGeneration(), 1);
+    assert.equal(L.landformRecipeFor('desert-dune-trough'), null);
+    assert.equal(L.buildLandformCourse({ levelId: 'desert-dune-trough' }), null);
+    for (const level of BIOME_LEVELS) {
+      const old = buildFlightLayout({ seed: 'landform-test', terrain: level.terrain, levelId: level.id, duration: 90, speed: 154, height: 620, stage: 2, difficulty: 1 });
+      assert.equal(old.landformCourse, undefined, level.id);
+      assert.ok(old.obstacles.every(o => o.courseGeneration === undefined), level.id);
+    }
+  } finally { L.overrideCourseGeneration(null); }
+  assert.equal(L.courseGeneration(), 2);
+  // Ids without a recipe (tutorial, unknown) ignore the switch entirely.
+  assert.equal(L.buildLandformCourse({ levelId: 'practice-first-light' }), null);
 });

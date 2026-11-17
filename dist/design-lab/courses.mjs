@@ -107,7 +107,7 @@ function courses() {
           el('div', {}, `Least room: ${h.room} units at ${h.roomAt} (one Lift rises 70).`),
           el('div', {}, `Steepest rise ahead: ${h.leadSlack} s to spare after a 0.25 s reaction, at ${h.leadAt}.`),
           el('div', {}, h.gap ? `Lowest overhead gap ${h.gap}; ` : 'No overhead; ', h.band ? `open sky above ground at least ${h.band}.` : ''))),
-      el('div', { className: 'cl-play' }, el('a', { href: `${play}&courses=2` }, 'Play new course'), el('a', { className: 'old', href: play }, 'Play existing'))));
+      el('div', { className: 'cl-play' }, el('a', { href: `${play}&courses=2` }, 'Play new course'), el('a', { className: 'old', href: `${play}&courses=1` }, 'Play existing'))));
   }
 }
 

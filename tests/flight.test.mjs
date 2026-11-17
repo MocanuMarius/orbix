@@ -1,6 +1,9 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { PhoenixFlight, buildFlightLayout, FLIGHT_PATTERNS, obstaclePolygons, circleHitsPolygon, FLIGHT_TUNING, FLAME_TUNING } from '../dist/flight.mjs';
+import {overrideCourseGeneration} from '../dist/course-landforms.mjs';
+// These tests are about the old authored cells and encounter families, which the landform courses do not use yet (docs/course-design.md section 7).
+const authored=fn=>()=>{overrideCourseGeneration(1);try{return fn();}finally{overrideCourseGeneration(null);}};
 
 function makeFlight(options = {}) {
   const gradient = { addColorStop() {} };
@@ -80,7 +83,7 @@ test('each seeded terrain supplies sparse fuel before a depleted checkpoint rese
   }
 });
 
-test('all twelve authored motifs generate deterministic, bounded playable openings', () => {
+test('all twelve authored motifs generate deterministic, bounded playable openings', authored(()=> {
   assert.equal(Object.values(FLIGHT_PATTERNS).flat().length, 12);
   for (const terrain of ['ruins', 'canopy', 'storm']) {
     for (let seed = 0; seed < 40; seed++) {
@@ -97,7 +100,7 @@ test('all twelve authored motifs generate deterministic, bounded playable openin
       }
     }
   }
-});
+}));
 
 test('pickup card triggers are finite and reward multiplier applies exactly once', () => {
   const flight = makeFlight({ cards: ['kindled-spirit', 'warm-heart', 'golden-wake'],

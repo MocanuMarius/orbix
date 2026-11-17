@@ -1,6 +1,6 @@
 # Course design: landforms (v2.0-courses)
 
-Status: prototype behind `?courses=2`. Off by default; with the switch off every course, seed and save is unchanged (432 layouts compared byte for byte against the code before this change: 48 courses × rows 0/3/5 × 60/90/140 s).
+Status: all 48 biome courses use landform recipes by default (v2.1-courses-all, owner-approved 2026-11-17). `?courses=1` brings back the authored cells; practice and First Light courses (`landforms:false`) and ids without a recipe stay authored. Check with `node scripts/course-design/validate-all.mjs` (tests/course-landforms-all.test.mjs). Authored encounter families are not placed on landform courses yet; Sky Islands uses flat-topped mesas until floating rock exists. Original prototype note: with the switch off every course, seed and save was unchanged (432 layouts compared byte for byte against the code before this change: 48 courses × rows 0/3/5 × 60/90/140 s).
 
 ## 1. How courses worked before this change, and where the odd edges come from
 
