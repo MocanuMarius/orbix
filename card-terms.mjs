@@ -1,16 +1,16 @@
 /** Contextual card vocabulary. Native modal dialogs keep help above the Deck. */
-import { resourceSymbol } from './game-symbols.mjs?v=panels-1';
-import {lifeHeartSvg} from './lives.mjs?v=panels-1';
-import {duskGlyphArt} from './spark-symbol.mjs?v=panels-1';
-import {getGlowCapacity,formatGlow} from './vitality.mjs?v=panels-1';
-import {glowGaugeUnits} from './glow-ui.mjs?v=panels-1';
-import {getRunModifiers} from './model.mjs?v=panels-1';
-import {cardAmount,makeSkillCard,SKILL_CARDS} from './skill-cards.mjs?v=panels-1';
-import {cardRowTermHelpMarkup} from './card-row-help.mjs?v=panels-1';
-import {dreamEye} from './dream.mjs?v=panels-1';
-import {FLASH_BASE_DURATION} from './pickups.mjs?v=panels-1';
-import {INSCRIPTIONS} from './inscriptions.mjs?v=panels-1';
-import {inscriptionGlyph} from './inscription-glyphs.mjs?v=panels-1';
+import { resourceSymbol } from './game-symbols.mjs?v=roundup-1';
+import {lifeHeartSvg} from './lives.mjs?v=roundup-1';
+import {duskGlyphArt} from './spark-symbol.mjs?v=roundup-1';
+import {getGlowCapacity,formatGlow} from './vitality.mjs?v=roundup-1';
+import {glowGaugeUnits} from './glow-ui.mjs?v=roundup-1';
+import {getRunModifiers} from './model.mjs?v=roundup-1';
+import {cardAmount,makeSkillCard,SKILL_CARDS} from './skill-cards.mjs?v=roundup-1';
+import {cardRowTermHelpMarkup} from './card-row-help.mjs?v=roundup-1';
+import {dreamEye} from './dream.mjs?v=roundup-1';
+import {FLASH_BASE_DURATION} from './pickups.mjs?v=roundup-1';
+import {INSCRIPTIONS} from './inscriptions.mjs?v=roundup-1';
+import {inscriptionGlyph} from './inscription-glyphs.mjs?v=roundup-1';
 const esc = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 export const CARD_TERMS = Object.freeze({
   inscription: ['Inscription', 'An effect written on a Chain slot, not on a card. It stays on the slot when cards move, swap or leave. Some change the card on that slot; some work on any slot, even an empty one. Get one from the Scribe after an Elite or Guardian. One per slot; writing again replaces it.'],
@@ -97,7 +97,7 @@ const CARD_TERM_DETAILS = Object.freeze({
   "pass": "Your chain fires only when a card in it has that Trigger, such as Collect when your wisp touches a Spark. The cards then fire left to right, from Slot 1. A card works only if its Trigger and condition match; empty Slots, always-on cards and cards with other Triggers wait. The Sparks start at zero each time: + cards add Sparks, and a Boost (× card) multiplies the Sparks and Collector time of every card to its left; Stored Sparks and forever gains always stay at their printed amount. Echo repeats the next card in its own Slot and spends that card’s uses. With Refrain, the chain fires once more from Slot 1 for the same Trigger, an Encore. Uses spent stay spent, so the Encore can give less or nothing, and it makes no extra pickup or Pulse. Card Sparks fill only the room left in your meter after the pickup’s own fuel.",
   slot: "Order matters only where a card says so: Boosts reach cards to their left, Echo and Chameleon copy the next card, Kindling Bead needs a + card before it, and Closing Chord must be the last card. You start with 3 Slots and Rest can add up to 5.",
   trigger: "The Triggers are Collect, Lift, Pulse, Delivery, Overfill, Save, Finish and Skim. Boost cards work with all of them; Passive cards and At Rest cards do not wait for one. One touch can be two Triggers: a Spark that overfills your meter is Overfill, then Collect.",
-  boost: "Boosts sit to the right of the cards they strengthen. Several Boosts multiply together (×1.25 then ×2 is ×2.5). Each firing’s Sparks are rounded down to a whole number at the end (2.5 becomes 2); Collector time keeps its decimals. They also strengthen always-on cards to their left (+20% Luminance ×2 = +40%), except Boosts that have their own Trigger or limited uses. Boosts never multiply Stored Sparks rewards or gains that last beyond the journey, such as Growth Ring and Wind Feather. Caps still apply: the meter stops at 100 Sparks, and boosted time never brings Collector below half a second.",
+  boost: "Boosts sit to the right of the cards they strengthen. Several Boosts multiply together (×1.25 then ×2 is ×2.5). Fractions round up: each firing’s Sparks are rounded up to a whole number at the end (2.5 becomes 3); Collector time keeps its decimals. They also strengthen always-on cards to their left (+20% Luminance ×2 = +40%), except Boosts that have their own Trigger or limited uses. Boosts never multiply Stored Sparks rewards or gains that last beyond the journey, such as Growth Ring and Wind Feather. Caps still apply: the meter stops at 100 Sparks, and boosted time never brings Collector below half a second.",
   engine: "Events made by a card travel to the right only. A card never answers an event it made itself in the same Turn. An engine stops when a card cannot do its job, for example on a full meter; as Lift spends Sparks, the next event can start it again. Without a Timer a chain runs once.",
   timer: "Slow Wick waits 3 s, then sends a Pulse back to Slot 1. Metronome, once an event reaches it, fires the card to its right every 3 s while that card can act. Long Fuse waits 5 s, then fires your last Trigger again. Heartbeat halves every wait.",
   encore: "All Refrains share one Encore per Trigger. It happens only if something worked the first time. The Sparks start at zero again, uses spent stay spent, and a first-crossing Stored Spark comes only once. Second Sun multiplies by more in an Encore.",
@@ -395,7 +395,7 @@ export function installCardTermHelp(doc = document, {resolveProximityContext,res
       dialog.classList.add('card-cache-dialog');
       const host=button.dataset.cardTerm?dialog.querySelector('[data-card-term-example]'):doc.createElement('div');
       if(!button.dataset.cardTerm){host.className='cache-card-example';dialog.querySelector('[data-card-help-rules]').append(host);}
-      import('./cache-card-help.mjs?v=panels-1').then(({mountCacheCardHelp})=>{
+      import('./cache-card-help.mjs?v=roundup-1').then(({mountCacheCardHelp})=>{
         if(layers.includes(layer))appendDisposer(mountCacheCardHelp(host,{focus:cardKind==='harvest'?'cross':cardKind==='cache-handling'?'deliver':'touch',harvestCard:cardKind==='harvest'?cardContext.card:undefined}));
       });
     }
@@ -406,7 +406,7 @@ export function installCardTermHelp(doc = document, {resolveProximityContext,res
         const host=doc.createElement('section');host.className='proximity-card-help';
         const example=dialog.querySelector('[data-card-term-example="proximity"]');
         if(example)example.replaceChildren(host);else dialog.querySelector('.card-term-content').prepend(host);
-        import('./proximity-card-help.mjs?v=panels-1').then(({mountProximityCardHelp})=>{
+        import('./proximity-card-help.mjs?v=roundup-1').then(({mountProximityCardHelp})=>{
           if(layers.includes(layer))appendDisposer(mountProximityCardHelp(host,previewContext));
         });
       }

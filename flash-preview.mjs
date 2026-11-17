@@ -1,11 +1,11 @@
-import {biomePalette,drawBiomeBackground} from './biome-art.mjs?v=panels-1';
-import {createDepthScenery,drawDepthScenery} from './depth-scenery.mjs?v=panels-1';
-import {LIGHT_EXTENT,lightAttenuation,createLightMaskCanvas,castFlashPropLight,sceneRevealStrength,flashRangeStrength,pickupRevealAt,pickupRevealHold} from './light-field.mjs?v=panels-1';
-import {LIGHT_PACKET_TUNING} from './vitality.mjs?v=panels-1';
-import {makeWispSprite} from './companion-art.mjs?v=panels-1';
-import {drawPickup} from './pickup-art.mjs?v=panels-1';
-import {flashPowerupDuration,getPickupSpec} from './pickups.mjs?v=panels-1';
-import {createFlashTether,stepFlashTether,drawFlashTether,flashLightPulse,FLASH_PUFF_DURATION} from './flash-tether.mjs?v=panels-1';
+import {biomePalette,drawBiomeBackground} from './biome-art.mjs?v=roundup-1';
+import {createDepthScenery,drawDepthScenery} from './depth-scenery.mjs?v=roundup-1';
+import {LIGHT_EXTENT,lightAttenuation,createLightMaskCanvas,castFlashPropLight,sceneRevealStrength,flashRangeStrength,pickupRevealAt,pickupRevealHold} from './light-field.mjs?v=roundup-1';
+import {LIGHT_PACKET_TUNING} from './vitality.mjs?v=roundup-1';
+import {makeWispSprite} from './companion-art.mjs?v=roundup-1';
+import {drawPickup} from './pickup-art.mjs?v=roundup-1';
+import {flashPowerupDuration,getPickupSpec} from './pickups.mjs?v=roundup-1';
+import {createFlashTether,stepFlashTether,drawFlashTether,flashLightPulse,FLASH_PUFF_DURATION} from './flash-tether.mjs?v=roundup-1';
 
 const WIDTH = 360, HEIGHT = 144;
 const playerX = 121, speed = 110, contact = 1.4, step = 1/120;

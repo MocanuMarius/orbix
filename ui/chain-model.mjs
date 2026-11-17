@@ -6,17 +6,17 @@
 // The plate rule: a card's plate shows what it contributes AT ITS OWN SLOT, counting only what cards to its
 // LEFT did to it (an Echo repeating it). Later Boosts and the Encore keep their own plates. Honesty rule: the
 // plates read left to right (+ adds, × multiplies the running figure, Encore repeats the line, each firing
-// rounded down to whole Sparks) must give the resolver's total; when they do not, plates show plain figures.
-import {SKILL_CARDS, CARD_UNIT, getCardRowRule, hasCardRowEvent, previewCardRow, isInventoryOnlyCard, describeSkillCard, cardAmount} from '../skill-cards.mjs?v=panels-1';
-import {getGlowCapacity, glowPoints, GLOW_DISPLAY_SCALE} from '../vitality.mjs?v=panels-1';
-import {CARD_TRIGGERS, getCardTrigger} from '../card-rule-bands.mjs?v=panels-1';
+// rounded up to whole Sparks) must give the resolver's total; when they do not, plates show plain figures.
+import {SKILL_CARDS, CARD_UNIT, getCardRowRule, hasCardRowEvent, previewCardRow, isInventoryOnlyCard, describeSkillCard, cardAmount} from '../skill-cards.mjs?v=roundup-1';
+import {getGlowCapacity, glowPoints, GLOW_DISPLAY_SCALE} from '../vitality.mjs?v=roundup-1';
+import {CARD_TRIGGERS, getCardTrigger} from '../card-rule-bands.mjs?v=roundup-1';
 import {DISPLAY_GROUPS, GROUP_TERM} from '../card-trigger-labels.mjs';
-import {hasEngineCards, engineMetrics, findEngineLoop, engineStarts} from '../card-engine.mjs?v=panels-1';
-import {previewBlackHoleMeals, devourTally} from '../card-black-hole.mjs?v=panels-1';
+import {hasEngineCards, engineMetrics, findEngineLoop, engineStarts} from '../card-engine.mjs?v=roundup-1';
+import {previewBlackHoleMeals, devourTally} from '../card-black-hole.mjs?v=roundup-1';
 
 /** The Triggers in the designer's order, with the game's names and glossary keys (card-terms.mjs). */
 export const TRIGGERS = Object.freeze([
-  ...['collect', 'delivery', 'latch', 'wave', 'flash', 'flash-ends', 'falling-lift', 'overfill', 'rhythm', 'save', 'clear']
+  ...['collect', 'delivery', 'wave', 'flash', 'falling-lift', 'overfill', 'rhythm', 'save', 'clear']
     .map(id => CARD_TRIGGERS[id]).filter(Boolean)
     .map(t => Object.freeze({kind: t.event, name: t.label, term: t.id, meaning: t.meaning})),
   // Victory is the engine's thirteenth Trigger; no card listens to it by name and it has no glossary entry.
@@ -147,7 +147,7 @@ export function slotInfo(ctx, slot, {plain} = {}) {
   return {kind: 'act', role: 'add', base, eff, changed, plate: `+${num(base)}`, step: ok, mods: attr?.mods.get(slot) || []};
 }
 
-/** The sum as the plates show it, read left to right. Each firing rounds down to whole Sparks, as the resolver does. */
+/** The sum as the plates show it, read left to right. Each firing rounds up to whole Sparks, as the resolver does. */
 export function plateSum(ctx, useEff) {
   const infos = ctx.row.map((c, i) => slotInfo(ctx, i, {plain: !useEff}));
   const encore = infos.some(x => x.role === 'encore');
@@ -160,7 +160,7 @@ export function plateSum(ctx, useEff) {
       else if (info.role === 'repeat-paid') r += Number(num(info.paid.amount));
       else if (info.role === 'mul') r *= p === 2 && info.m2 ? info.m2 : info.step.multiplier;
     }
-    total += ctx.sol?.receipt && 'sparksExact' in ctx.sol.receipt ? Math.floor(r + 1e-9) : r;
+    total += ctx.sol?.receipt && 'sparksExact' in ctx.sol.receipt ? Math.ceil(r - 1e-9) : r;
   }
   return Math.round(total * 100) / 100;
 }

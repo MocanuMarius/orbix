@@ -3,8 +3,8 @@
 // exit). These hooks only calm it and place the one taught element where the
 // lesson needs it. Lessons are returned as paused coach steps; this module
 // never pauses, draws text or grants anything outside practice.
-import {obstacleEdgeClearance} from './edging-pulse.mjs?v=panels-1';
-import {formatGlow} from './vitality.mjs?v=panels-1';
+import {obstacleEdgeClearance} from './edging-pulse.mjs?v=roundup-1';
+import {formatGlow} from './vitality.mjs?v=roundup-1';
 
 const clamp=(n,lo,hi)=>Math.max(lo,Math.min(hi,n));
 /** Free flight before the first in-flight stop, and between stops (simulated seconds). */
