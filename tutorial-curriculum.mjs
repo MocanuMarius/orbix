@@ -45,7 +45,7 @@ export const TUTORIAL_TOPICS={
   s('Choose its loads','Collector starts with Sparks and Clusters. Cache Handling unlocks Caches; Flare Handling unlocks white triangles. A small green circle appears below each newly fetchable type when handling is learned. Caches arrive as 12-Spark Clusters.','collector-return'),
   s('Build your Collector','Open the Collector chapter in Skills to change its reach or recovery. Last Orbit lets a fully ready Collector catch a fatal impact.','collector-range')]},
  packed:{name:'Stored Sparks',visual:'clear-reward',steps:[
-  s('A reward for every clear','Ordinary flights earn 15–25 Stored Sparks for run skills. Elite and guardian victories also offer three Inscriptions: choose one. The third guardian ends the run with victory.','clear-reward'),
+  s('A reward for every clear','Every flight earns Stored Sparks and a card to choose from three. The guardians of maps 1 and 2 also offer three Inscriptions: choose one. The third guardian ends the run with victory.','clear-reward'),
   s('Overflow is a bonus','When a pickup overfills Sparks, the surplus becomes extra Stored Sparks. Clear the flight to keep them. Rest refills do not create Stored Sparks.','packed'),
   s('Your skill book','Browse the chapters to see where a perk leads. Can learn shows every upgrade you can afford, including skills for your chosen companion.','skills'),
   s('Glide Regeneration','Find it in Flight. Stop pressing Lift and fall unassisted to recover Sparks after a delay. Hovering, boosting, dreams and pauses do not regenerate Sparks.','meter'),
@@ -57,11 +57,11 @@ export const TUTORIAL_TOPICS={
   s('Commit to your build','Following a prerequisite chain keeps its next upgrades cheaper. Specializing leaves fewer Stored Sparks for other paths. Some forks close their alternative permanently.','skills')]},
  rewards:{name:'Flight rewards',visual:'artifact',steps:[
   s('Clear the passage','Reaching the waylight completes a flight. Before the final guardian, earn a length-based Stored Sparks reward plus pickup overflow. Some Sparks recover for the next flight. A bonus challenge is optional.','clear-reward'),
-  s('Choose one Inscription','Elite and guardian victories offer three Inscriptions from the Scribe. Choose one, then pick the slot of your Chain to write it on. Ordinary flights reward Stored Sparks, without an Inscription.','artifact'),
+  s('Choose one Inscription','Guardian victories on maps 1 and 2 offer three Inscriptions from the Scribe. Choose one, then pick the slot of your Chain to write it on. Elite and ordinary flights give Stored Sparks and a card, without an Inscription.','artifact'),
   s('Upgrade any time','Tap the Stored Sparks box to open Skills. Flight pauses while you choose. New overflow becomes spendable when you clear the flight.','skills')]},
  artifacts:{name:'Inscriptions',visual:'artifact',steps:[
   s('What an Inscription is','An Inscription is written on a slot of your Chain. It changes the card in that slot, or works on its own.','artifact'),
-  s('Choose at the Scribe','After an elite or guardian victory, pick one of three Inscriptions, then the slot to write it on. A slot holds one Inscription; writing a new one replaces the old.','artifact'),
+  s('Choose at the Scribe','After a guardian victory, pick one of three Inscriptions, then the slot to write it on. A slot holds one Inscription; writing a new one asks you to confirm and replaces the old.','artifact'),
   s('Build a combination','Place each Inscription where it helps: some change the card in their slot, others work on an empty slot. Check the plaque on the slot before you choose.','artifact')]},
  rest:{name:'Rest',visual:'rest',steps:[
   s('Recover or Grow','Recover restores every missing heart. Grow adds 3 Spark capacity permanently, up to three times. Both completely refill Sparks. Choose once at each Rest.','rest'),
@@ -73,7 +73,7 @@ export const TUTORIAL_TOPICS={
   s('Wake safely','The passage returns to ordinary light and waits. Tap once to resume, then tap again to Lift.','pause')]},
  routes:{name:'Paths & stops',visual:'route',steps:[
   s('Follow connected paths','Bright nodes are reachable. Dim nodes are not. Choosing a fork commits your route; you cannot jump to any stop on the map.','route'),
-  s('Flight and elite routes','Passage markers mean ordinary Flight. Creature portraits mark harder Elite routes with a choice of three Inscriptions. Inspect the biome and length before committing.','site:flight'),
+  s('Flight and elite routes','Passage markers mean ordinary Flight. Creature portraits mark harder Elite routes. Inspect the biome and length before committing.','site:flight'),
   s('Rest','The campfire marks Rest. Choose Recover for missing hearts or Grow for a larger Spark Meter. Both refill your meter.','site:rest'),
   s('Encounter and treasure','The encounter symbol offers a trade or event. The chest offers treasure. Check gains, costs and chances before choosing.','sites-support'),
   s('Guardian','A large guardian portrait marks the end of each map. Survive its warned patterns and reach the finish. Three different guardians stand between you and a completed run.','site:boss')]},

@@ -1,4 +1,4 @@
-import {sparkGlyphArt} from './spark-symbol.mjs?v=rest-2';
+import {sparkGlyphArt} from './spark-symbol.mjs?v=readable-1';
 
 // The reward is a small fan of playing cards, with the Atlas kit's paper,
 // leather and moss materials. Integer cells keep the ornament legible on touch.

@@ -1,5 +1,5 @@
-import {cardFace} from './card-ui.mjs?v=rest-2';
-import {resourceSymbol} from './game-symbols.mjs?v=rest-2';
+import {cardFace} from './card-ui.mjs?v=readable-1';
+import {resourceSymbol} from './game-symbols.mjs?v=readable-1';
 
 const esc=value=>String(value??'').replace(/[&<>"']/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
 

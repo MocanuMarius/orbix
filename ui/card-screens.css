@@ -666,3 +666,6 @@ html body #dk-root :is(.dk2-inscription,.dk2-note-ins) :is(.card-term,.card-term
 #dk-root .dk2-inscription .dk2-ins-covered{display:flex;align-items:center;gap:6px;margin:2px 0;color:#a89a78;font:400 11px/13px var(--pixel,monospace)}
 #dk-root .dk2-inscription .dk2-ins-covered .ins-glyph{color:#a89a78;opacity:.7}
 .passage-temporary .ins-glyph{flex:none;color:#2a2118}
+/* Small labels on the parchment use the kit's full ink (the soft ink is under 4.5:1 at 11px on the shaded parchment) */
+#dk-root .dk21-thead,#dk-root.dk.dk21 .dk21-thead,#dk-root .dk2-meter-label,#dk-root .dk2-sort>small{color:var(--ink)!important}
+#dk-root .tb-row.tb-none{opacity:1}

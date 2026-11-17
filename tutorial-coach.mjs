@@ -1,6 +1,6 @@
-import {tutorialTarget,tutorialTextMarkup,tutorialExampleMarkup} from './tutorial-context.mjs?v=rest-2';
-import {tutorialVisualMarkup} from './tutorial-visuals.mjs?v=rest-2';
-import {CARD_TERMS} from './card-terms.mjs?v=rest-2';
+import {tutorialTarget,tutorialTextMarkup,tutorialExampleMarkup} from './tutorial-context.mjs?v=readable-1';
+import {tutorialVisualMarkup} from './tutorial-visuals.mjs?v=readable-1';
+import {CARD_TERMS} from './card-terms.mjs?v=readable-1';
 const escText=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 /** Glossary links for a lesson: the same keyword buttons the cards use (card-terms.mjs opens them). */
 export function coachTermsMarkup(terms=[]){
@@ -124,7 +124,7 @@ export function createTutorialCoach({ onNext, onBack, onSkip } = {}) {
     const box=card.getBoundingClientRect(),tx=(left+right)/2,ty=(top+bottom)/2;
     pointer.hidden=!hasTarget||(tx>=box.left&&tx<=box.right&&ty>=box.top&&ty<=box.bottom);
     pointer.style.display=pointer.hidden?'none':'block';
-    if(!pointer.hidden){const ax=clamp(tx,box.left+8,box.right-8),ay=clamp(ty,box.top+8,box.bottom-8),angle=Math.atan2(ty-ay,tx-ax),tipX=tx-Math.cos(angle)*10,tipY=ty-Math.sin(angle)*10;pointerPath.setAttribute('d',`M${ax} ${ay} L${tipX} ${tipY} M${tipX-9*Math.cos(angle-.5)} ${tipY-9*Math.sin(angle-.5)} L${tipX} ${tipY} L${tipX-9*Math.cos(angle+.5)} ${tipY-9*Math.sin(angle+.5)}`);}
+    if(!pointer.hidden){const ax=clamp(tx,box.left+8,box.right-8),ay=clamp(ty,box.top+8,box.bottom-8),angle=Math.atan2(ty-ay,tx-ax),tipX=tx-Math.cos(angle)*10,tipY=ty-Math.sin(angle)*10;pointerPath.setAttribute('d',`M${ax} ${ay} L${tipX} ${tipY} M${tipX-5*Math.sin(angle)} ${tipY+5*Math.cos(angle)} L${tipX+5*Math.sin(angle)} ${tipY-5*Math.cos(angle)}`);}
   };
   const schedule = () => {
     if (step && !destroyed && frame == null) frame = window.requestAnimationFrame(position);
