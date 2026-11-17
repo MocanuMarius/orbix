@@ -69,8 +69,8 @@ export function titleMarkup(title){
  */
 export function pauseMenuMarkup({practice=false,flight=true,onMap=false,context='',heading='Paused',deckLabel='Deck',showDeck=true,showCollection=false,status=null,bonusReminder='',music={level:3},fx={level:3},mock=false}={}){
  const deckSub={'loaned cards':'Your practice build',deck:'Cards',skills:'Upgrades'}[String(deckLabel).toLowerCase()]||'';
- const deck=showDeck?waystoneSign('standard',deckLabel,{action:'skills',sub:deckSub,art:icon('route')}):'';
- const collection=showCollection?waystoneSign('standard','Collection',{action:'artifacts',sub:'Relics',art:icon('star')}):'';
+ const deck=showDeck?waystoneSign('standard',deckLabel,{action:'skills',sub:deckSub,art:icon('deck')}):'';
+ const collection=showCollection?waystoneSign('standard','Collection',{action:'artifacts',sub:'Relics',art:icon('collection')}):'';
  const build=deck&&collection?`<div class="wb-split">${deck}${collection}</div>`:deck||collection;
  const resume=flight?waystoneSign('primary','Resume flight',{action:'resume',sub:'Back to the passage'}):waystoneSign('primary','Back to map',{action:'close-sheet',sub:'Back to the route'});
  const leave=practice

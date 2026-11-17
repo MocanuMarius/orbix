@@ -23,8 +23,15 @@ export const CARD_ECONOMY = Object.freeze({
   maxGrowPerAction: maximumGrowthAmount * 9,
 });
 export const SKILL_CARDS = CARD_CATALOG;
-/** Every pool a player can draw from (starters, rewards, Rest, Forge, drafts) uses this, never the raw catalog. */
-export const LIVE_CARDS = Object.freeze(Object.values(SKILL_CARDS).filter(d => !d.retired));
+/** Every pool a player can draw from (starters, rewards, Rest, Forge, drafts) uses this, never the raw catalog.
+ * Unreleased cards (catalog flag unreleased: true, the engine cards of docs/engine-cards.md) are left out exactly
+ * like retired ones, but a run that holds one (tests, the card inspector's engine scenario) keeps and uses it. */
+export const LIVE_CARDS = Object.freeze(Object.values(SKILL_CARDS).filter(d => !d.retired && !d.unreleased));
+/** Not offered anywhere: retired or not yet released. */
+export const isUnofferedCard = id => !SKILL_CARDS[id] || SKILL_CARDS[id].retired === true || SKILL_CARDS[id].unreleased === true;
+/** A held copy that is retired: the whole card, or an old copy of a card that came back with new rules
+ * (`retiredBefore`: copies without that `edition` are the old card, paid out on load). */
+export const isRetiredCopy = card => { const def = SKILL_CARDS[card?.cardId]; return !!def && (def.retired === true || Number.isFinite(def.retiredBefore) && !(Number(card.edition) >= def.retiredBefore)); };
 /** Rest cards live in the Deck; limited flight cards still need an active slot. */
 export const isInventoryOnlyCard = card => ['camp-grow', 'camp-extra'].includes(SKILL_CARDS[card?.cardId || card?.id]?.kind || card?.kind);
 export function getInventoryCampCards(run, kind) {
@@ -50,6 +57,10 @@ export const cleanCardCruisingSpeed = value => integer(value, 6);
 export function getCardFutureCapacityBonus(run) {
   return isCardRun(run) ? cleanCardFutureCapacity(run.cardFutureCapacity) * CARD_UNIT : 0;
 }
+/** Black Hole growth for the rest of the run (printed max Sparks, whole). Absent on every run that never fed one. */
+export function getCardBlackHoleBonus(run) {
+  return isCardRun(run) ? cleanCardFutureCapacity(run.cardBlackHoleGrowth) * CARD_UNIT : 0;
+}
 function random(seed) {
   let s = 2166136261;
   for (const c of String(seed)) s = Math.imul(s ^ c.charCodeAt(0), 16777619);
@@ -69,6 +80,7 @@ export function makeSkillCard(cardId, instanceId) {
         cardId,
         rank: 1,
         ...(def.charges ? { charges: def.charges } : {}),
+        ...(def.edition ? { edition: def.edition } : {}),
       }
     : null;
 }
@@ -137,6 +149,9 @@ function cleanCard(card, seen) {
     ...(charges === null ? {} : { charges }),
     ...(def.charges && getCardChargeCapacity(card) > def.charges ? { chargeCapacity: getCardChargeCapacity(card) } : {}),
     ...(def.kind === 'ember-feeder' && getCardFeederCapacity(card) ? { fedCapacity: getCardFeederCapacity(card) } : {}),
+    // Black Hole's running total, written only once it has eaten something.
+    ...(def.kind === 'black-hole' && integer(card.eaten) ? { eaten: integer(card.eaten), eatenGrowth: integer(card.eatenGrowth) } : {}),
+    ...(def.edition && integer(card.edition) ? { edition: integer(card.edition) } : {}),
   };
 }
 /** Rewards are receipts. The actual card enters the reserve before progression. */
@@ -161,6 +176,8 @@ export function cleanCardRun(run) {
   if (!isCardRun(run)) return;
   run.cardTwinWickUnlocked = run.cardTwinWickUnlocked === true;
   run.cardFutureCapacity = cleanCardFutureCapacity(run.cardFutureCapacity);
+  // Written only by a Black Hole meal, so saves without one stay byte-identical.
+  if (run.cardBlackHoleGrowth !== undefined) run.cardBlackHoleGrowth = cleanCardFutureCapacity(run.cardBlackHoleGrowth);
   run.cardCruisingSpeed = cleanCardCruisingSpeed(run.cardCruisingSpeed);
   run.cardCruisingSpeedUnlocked = cleanCardCruisingSpeed(run.cardCruisingSpeedUnlocked ?? run.cardCruisingSpeed);
   run.cardClearReceipts = (Array.isArray(run.cardClearReceipts) ? run.cardClearReceipts : []).filter(receipt =>
@@ -259,7 +276,7 @@ function retireHeldCards(run) {
   const paid = new Set();
   let amount = 0;
   const take = card => {
-    if (!card || !SKILL_CARDS[card.cardId]?.retired) return card;
+    if (!card || !isRetiredCopy(card)) return card;
     const key = String(card.instanceId);
     if (!paid.has(key)) { paid.add(key); amount += getCardMeltValue(card); }
     return null;
@@ -275,9 +292,9 @@ function retireHeldCards(run) {
     if (entry && Number.isFinite(entry.condensedGlow)) entry.condensedGlow += amount;
   }
   const offers = run.cardDraft?.offers;
-  if (Array.isArray(offers) && offers.some(card => SKILL_CARDS[card.cardId]?.retired)) {
+  if (Array.isArray(offers) && offers.some(isRetiredCopy)) {
     run.cardDraft.offers = offers.map(card => {
-      if (!SKILL_CARDS[card.cardId]?.retired) return card;
+      if (!isRetiredCopy(card)) return card;
       const rarity = SKILL_CARDS[card.cardId].rarity,
         swap = LIVE_CARDS.find(def => def.rarity === rarity && !def.starterOnly && !offers.some(other => other.cardId === def.id));
       return swap ? makeSkillCard(swap.id, card.instanceId) : card;
@@ -635,7 +652,7 @@ export function getCardStarterOffers(run, { legacy = false } = {}) {
     }
     pool = pool.slice(0, 2);
   } else if (Array.isArray(run.cardStarterOfferIds) && run.cardStarterOfferIds.length === 3 &&
-      new Set(run.cardStarterOfferIds).size === 3 && run.cardStarterOfferIds.every(id => SKILL_CARDS[id] && !SKILL_CARDS[id].retired && id !== 'lift-guide')) {
+      new Set(run.cardStarterOfferIds).size === 3 && run.cardStarterOfferIds.every(id => !isUnofferedCard(id) && id !== 'lift-guide')) {
     pool = run.cardStarterOfferIds.map(id => SKILL_CARDS[id]);
   } else {
     pool = shuffle(starterCommonIds.map(id => SKILL_CARDS[id]).filter(Boolean));
@@ -674,7 +691,7 @@ export function drawSkillCard(run, source, node = run.current, rarity = null) {
   if (source === 'flight' && !rarity) {
     const earned = run.cardReward?.card?.instanceId === identity ? run.cardReward.card
       : (run.cardHistory || []).find(event => event.type === 'drop' && event.card?.instanceId === identity)?.card;
-    if (earned && SKILL_CARDS[earned.cardId] && !SKILL_CARDS[earned.cardId].retired) return {
+    if (earned && !isUnofferedCard(earned.cardId)) return {
       instanceId: earned.instanceId, cardId: earned.cardId, rank: earned.rank || 1,
       ...(Number.isFinite(earned.charges) ? { charges: earned.charges } : {}),
     };
@@ -846,7 +863,7 @@ export function hasCardRowEvent(runtime, kind) {
     return row && (row.event===kind || (row.event==='*' && row.operation==='add-sparks'));
   });
 }
-function matchesRowCondition(when = {}, event, pass, slot, lastOccupied) {
+export function matchesRowCondition(when = {}, event, pass, slot, lastOccupied) {
   if (when.pickupKind !== undefined && event.pickupKind !== when.pickupKind) return false;
   if (when.meterAtMost !== undefined && !(Number.isFinite(event.meterFraction) && event.meterFraction <= when.meterAtMost + 1e-9)) return false;
   if (when.firstCrossing !== undefined && !!event.firstCrossing !== when.firstCrossing) return false;
@@ -1244,7 +1261,6 @@ export function getCardModifiers(run) {
     if (d.kind === "downbeat") m.cardDownbeat = true;
     if (d.kind === "ring-spring") m.cardRingSpring = true;
     if (d.kind === "watchlight") m.cardWatchlight = true;
-    if (d.kind === "wave-loom") m.cardWaveLoom = true;
     if (d.kind === "spillway") m.cardOverfillEvery=Math.min(m.cardOverfillEvery,Math.max(1,Number(d.pulseCadence)||3));
     if (d.kind === "body" && !d.charges)
       m.cardBodyBonus += cardAmount(source) * CARD_UNIT;

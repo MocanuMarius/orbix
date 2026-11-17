@@ -2,6 +2,8 @@ import {PRACTICE_EDITION,LEGACY_PRACTICE_EDITION,isPlayablePractice,isPracticeCo
 import {PRACTICE_STOPS,practiceLessonTopics} from './practice-course.mjs?v=guide-clarity-1';
 import {prepareScoreLedger,awardScoreStores,awardSettledScoreStores,freezeCompletedGameScore,recordCompletedGameScore} from './game-score.mjs?v=guide-clarity-1';
 import {getCardChargeCapacity,getCardFeederCapacity,getEmberFeederTargets,consumeCardUseDoublers} from './skill-cards.mjs?v=guide-clarity-1';
+import {consumeBlackHoles} from './card-black-hole.mjs?v=guide-clarity-1';
+import {CARD_UNIT as ENGINE_CARD_UNIT} from './skill-cards.mjs?v=guide-clarity-1';
 import {collectorPreference,learnedCollectorPreferences} from './collector-preferences.mjs?v=guide-clarity-1';
 import {CARD_SYSTEM,CARD_ECONOMY,SKILL_CARDS,isCardRun,isInventoryOnlyCard,getInventoryCampCards,makeSkillCard,cleanCardRun,settleCardReward,getCardStarterOffers,drawSkillCard,drawSkillCardDraft,describeSkillCard,getMountedCards,getOwnedCards,getReserveCards,getCardMeltValue,getCardModifiers,getCardPackingBonus,getCardGrowthUses,getCardGrowthBonus,cleanCardFutureCapacity,createCardExecution,resolveCardRow,CARD_ROW_EVENTS,commitCardCharges,recordCardEvent,drawForgeCard,CARD_FORGE_RARITIES} from './skill-cards.mjs?v=guide-clarity-1';
 export {CARD_SYSTEM,CARD_ECONOMY,SKILL_CARDS,isCardRun,getMountedCards,getOwnedCards,getReserveCards,getCardMeltValue,commitCardCharges} from './skill-cards.mjs?v=guide-clarity-1';
@@ -1186,8 +1188,11 @@ export function markFlightAttemptStarted(run, engine = null) {
  run.attemptEntry.started = true;
  if (isCardRun(run)) {
   const grants = consumeCardUseDoublers(run);
-  if (grants.length) {
-   run.attemptEntry.cardUseDoublings = grants;
+  // Black Hole (unreleased engine card) eats the card to its right at the same real entry, after the Use Doublers.
+  const meals = consumeBlackHoles(run);
+  if (meals.length) run.attemptEntry.cardBlackHoleMeals = meals;
+  if (grants.length || meals.length) {
+   if (grants.length) run.attemptEntry.cardUseDoublings = grants;
    run.attemptEntry.mountedCards = copy(run.mountedCards);
    if (engine) engine.reconcileCardLoadout({ modifiers: getRunModifiers(run), condensedGlow: run.condensedGlow, flightEntry: true });
   }
@@ -1334,7 +1339,7 @@ export function finishFlight(run,result){
  if(isCardRun(run)&&!run.isTutorial&&!result.dreamAttempt&&count(result.cardHeartsRestored)>0)
   run.lives=Math.min(getLifeCapacity(run),Math.max(run.lives,finite(attempt?.practiceLives,run.lives)+count(result.cardHeartsRestored)));
  if(isCardRun(run)&&!result.dreamAttempt)run.cardTwinWickUnlocked ||= result.cardTwinWickUnlocked===true;
- const consumedCards=[...(attempt?.cardUseDoublings||[]).map(grant=>grant.sourceInstanceId),...commitCardCharges(run,result.cardCharges)];
+ const consumedCards=[...(attempt?.cardUseDoublings||[]).map(grant=>grant.sourceInstanceId),...(attempt?.cardBlackHoleMeals||[]).map(meal=>meal.victimInstanceId),...commitCardCharges(run,result.cardCharges)];
  if (isCardRun(run)) {
   recordCardEvent(run, 'attempt', {
    success: result.success,
@@ -1382,6 +1387,12 @@ export function finishFlight(run,result){
  const pickupCondensedGlow=count(result.condensedGlow,getFlightPackingLimit(run.skills)),completionBonus=getFlightClearReward(n,run);
  const exitPacking=packExitReserve(remaining,{rules:getRunModifiers(run).condensationRules,
   remainder:finite(result.condensedRemainder,run.condensedRemainder)});
+ // Pack Trigger (engine cards): its Sparks went into the meter before packing, so exitPacking already holds them;
+ // cardPack.stored is the part of exitPacking they made, shown as its own ceremony line. Absent without Pack cards.
+ const packSparks=isCardRun(run)&&!result.dreamAttempt?Math.max(0,finite(result.cardPack?.sparks)):0;
+ const cardPack=packSparks>0?{sparks:Math.round(packSparks*1e6)/1e6,stored:Math.max(0,exitPacking.amount-packExitReserve(Math.max(0,remaining-packSparks*ENGINE_CARD_UNIT),{rules:getRunModifiers(run).condensationRules,
+  remainder:finite(result.condensedRemainder,run.condensedRemainder)}).amount)}:null;
+ const cardEngineStored=isCardRun(run)&&!run.isTutorial&&!result.dreamAttempt?count(result.cardEngineStored):0;
  const packingModifiers=getCardModifiers({...run,mountedCards:attempt?.mountedCards||run.mountedCards});
  const cardPackingEligible=!result.dreamAttempt?count(result.cardPackingEligible??pickupCondensedGlow,pickupCondensedGlow)+exitPacking.amount:0;
  const packingQuote=getCardPackingBonus(cardPackingEligible,packingModifiers.cardPackingSources,attempt?.cardPackingRemainder??run.cardPackingRemainder);
@@ -1435,6 +1446,9 @@ export function finishFlight(run,result){
   }
  }
  run.lastFlight.exitPacking=exitPacking;
+ if(cardPack)run.lastFlight.cardPack=cardPack;
+ if(cardEngineStored){queue(run,cardEngineStored,'card-engine');run.condensedEarned+=cardEngineStored;run.lastFlight.cardEngineStored=cardEngineStored;}
+ if(attempt?.cardBlackHoleMeals?.length)run.lastFlight.cardBlackHoleMeals=copy(attempt.cardBlackHoleMeals);
  if(devourerSacrifices.length){run.lastFlight.devourerSacrifices=devourerSacrifices;consumedCards.push(...devourerSacrifices.map(sacrifice=>sacrifice.targetInstanceId));}
  if(emberFeederSacrifices.length){run.lastFlight.emberFeederSacrifices=emberFeederSacrifices;consumedCards.push(...emberFeederSacrifices.flatMap(sacrifice=>sacrifice.targets.map(target=>target.instanceId)));}
  if(attempt?.cardUseDoublings?.length)run.lastFlight.cardUseDoublings=copy(attempt.cardUseDoublings);
@@ -1527,7 +1541,7 @@ function settleRunRewards(r){
  const amount=count(r.pendingCondensedGlow),earned=r.pendingRewards.reduce((sum,reward)=>sum+(reward.kind==='respec'?0:count(reward.amount)),0);
  awardSettledScoreStores(r,r.pendingRewards,amount);
  r.condensedGlow=count(r.condensedGlow)+amount;r.securedCondensedGlow+=Math.min(amount,earned);
- for(const reward of r.pendingRewards)if(['flight','flight-clear','exit-packing','card-packing','card-clear','route-bonus','kept-light','storage-bonus','resonance','flight-pact','pilgrim-vow','treasure-wager','chest-dividend'].includes(reward.kind)&&r.lastFlight?.nodeId===reward.nodeId)r.lastFlight.securedCondensedGlow+=reward.amount;
+ for(const reward of r.pendingRewards)if(['flight','flight-clear','exit-packing','card-packing','card-clear','card-engine','route-bonus','kept-light','storage-bonus','resonance','flight-pact','pilgrim-vow','treasure-wager','chest-dividend'].includes(reward.kind)&&r.lastFlight?.nodeId===reward.nodeId)r.lastFlight.securedCondensedGlow+=reward.amount;
  if(amount)r.lastCheckpointReward={amount,rewards:copy(r.pendingRewards)};
  r.pendingCondensedGlow=0;r.pendingRewards=[];
  return amount;
@@ -1540,7 +1554,7 @@ export function settleCheckpoint(state){
 function flightClearReceipt(run){
  const flight=run.lastFlight;
  return {nodeId:flight.nodeId,mapIndex:flight.mapIndex,
-  amount:count(flight.completionBonus)+count(flight.pickupCondensedGlow)+count(flight.exitPacking?.amount)+count(flight.cardPackingBonus)+count(flight.pactBonus)+count(flight.vow?.reward)+count(flight.treasureWager?.reward)+count(flight.routeBonus?.amount)+count(flight.chestIncome?.amount)+count(flight.keptLightDividend)+count(flight.storageBonus)+count(flight.resonanceStored)+count(flight.cardClearReceipt?.stored),
+  amount:count(flight.completionBonus)+count(flight.pickupCondensedGlow)+count(flight.exitPacking?.amount)+count(flight.cardPackingBonus)+count(flight.pactBonus)+count(flight.vow?.reward)+count(flight.treasureWager?.reward)+count(flight.routeBonus?.amount)+count(flight.chestIncome?.amount)+count(flight.keptLightDividend)+count(flight.storageBonus)+count(flight.resonanceStored)+count(flight.cardClearReceipt?.stored)+count(flight.cardEngineStored),
   cardPackingBonus:count(flight.cardPackingBonus),
   storageBonus:count(flight.storageBonus),
   resonanceStored:count(flight.resonanceStored),

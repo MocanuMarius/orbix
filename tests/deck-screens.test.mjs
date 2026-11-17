@@ -68,7 +68,7 @@ test('3, 4 and 5 slots, and a seeded sweep of random chains, all keep the plates
   honest(chain(['echo', 'spark-cache', 'kindling-bead', 'prism-lens', 'crescendo']), '5 slots');
   let a = 7;
   const rnd = () => {a = (a + 0x6D2B79F5) >>> 0;let t = a;t = Math.imul(t ^ (t >>> 15), t | 1);t ^= t + Math.imul(t ^ (t >>> 7), t | 61);return ((t ^ (t >>> 14)) >>> 0) / 4294967296;};
-  const pool = Object.keys(SKILL_CARDS).filter(id => !isInventoryOnlyCard(makeSkillCard(id, 'probe')));
+  const pool = Object.keys(SKILL_CARDS).filter(id => !SKILL_CARDS[id].unreleased && !isInventoryOnlyCard(makeSkillCard(id, 'probe')));
   let checked = 0;
   for (let n = 0; n < 240; n++) {
     const slots = 3 + (n % 3), ids = [];

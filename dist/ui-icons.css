@@ -1,0 +1,71 @@
+/* v2.0-icons sizing and grounds. Every approved icon (ui-icons.mjs, class .ui-icon) is drawn on a whole pixel grid
+   (16, or 24 for map stops) and must be shown at a whole multiple of it, so its size comes from --ui-size only.
+   The call site sets --ui-size inline (uiIcon size); the contexts below replace it where one icon is shown at several sizes.
+   This sheet loads last. Older width/height rules written for the previous carvings, hearts and map symbols no longer reach these icons. */
+/* Layered important declarations beat every unlayered important rule, whatever its specificity, so older width/height rules (some use !important and ids) cannot resize an approved icon. */
+@layer ui-icons{
+ html body svg.ui-icon[style*="--ui-size"]{width:var(--ui-size)!important;height:var(--ui-size)!important;flex:none!important;min-width:0!important;min-height:0!important;max-width:none!important;max-height:none!important;filter:none!important}
+}
+html body svg.ui-icon[style*="--ui-size"]{flex:none;vertical-align:middle;image-rendering:pixelated}
+svg.ui-icon.ui-flip{transform:scaleX(-1)}
+
+/* Header: back and menu icons sit in 44 px buttons; the Stored Sparks jar in the 36 px wallet slot. */
+html body #header .back-icon>.ui-icon,html body #header .game-menu-trigger>.ui-icon{--ui-size:32px!important}
+html body #header .condensed-wallet .wallet-currency-icon .ui-icon{--ui-size:32px!important}
+html body #header .header-end>.ascension-lives .ui-icon{--ui-size:16px!important}
+/* Flight HUD: hearts, Stored Sparks jar and the menu button. */
+html body .flight-hud .flight-run-status .life-heart{--ui-size:32px!important}
+html body .flight-hud>.flight-condensed-counter>.condensed-icon,html body .flight-condensed-counter>.condensed-icon{--ui-size:32px!important}
+html body .flight-menu-slot>.game-menu-trigger>.ui-icon{--ui-size:32px!important}
+/* Waystone plaques (pause, settings), run status tab and level controls. */
+html body .wb-ground .wb-sign{grid-template-columns:32px minmax(0,1fr)}
+html body .wb-ground .wb-sign-art,html body .wb-ground .wb-sign-art>.ui-icon{width:32px;height:32px}
+html body .wb-ground .wb-sign-art>.ui-icon{--ui-size:32px!important;display:block}
+html body .wb-ground .wb-stat-hearts>.ui-icon{--ui-size:32px!important}
+html body .wb-ground .wb-stat>.ui-icon.resource-symbol-packed{--ui-size:32px!important;margin:0 -6px}
+html body .wb-ground .wb-level-icon>.ui-icon{--ui-size:32px!important}
+html body .wb-ground .wb-toggle[aria-pressed=false] .wb-sign-art{opacity:.45}
+/* Text-sized contexts: 16 px beside words. */
+html body :is(.primary,.secondary,.rest-route-link,.rest-rules summary,.map-position-button,.map-key-button,.reward-currency,.map-clear-carry,.passage-actions .enter-passage)>.ui-icon.ico{--ui-size:16px!important}
+html body .afterglow-readout>.ui-icon{--ui-size:16px!important}
+html body .rest-hub-tools .ui-icon,html body .rest-hub-tools>button>.ui-icon{--ui-size:32px!important}
+html body .event-outcome-art .ui-icon{--ui-size:48px!important}
+/* Rest actions and Workshop services: icon in front of the action name. */
+html body .rest-action-icon{display:inline-flex;align-items:center;justify-content:center;gap:6px}
+html body .rest-action-icon>.ui-icon{--ui-size:32px!important}
+html body .rest-life-service>.life-heart,html body .rest-heart-result .life-heart{--ui-size:16px!important}
+html body .retry-lives .life-heart,html body .result-lives .life-heart{--ui-size:32px!important}
+html body .death-heart-scene .life-heart{--ui-size:96px!important;display:block}
+html body .mock-toggle>.ui-icon,html body .route-entry-rest>.ui-icon{--ui-size:24px!important}
+/* Map stops: 24-grid art at 24, 48, 72 or 96. */
+html body .support-symbol>.map-stop-icon{--ui-size:72px!important}
+html body .support-context>.support-symbol>.map-stop-icon{--ui-size:48px!important}
+html body .practice-stop-place>.map-stop-icon{--ui-size:72px!important}
+html body .preview-payout>.map-stop-icon,html body .preview-payout>.condensed-icon,html body .preview-payout .condensed-icon{--ui-size:48px!important}
+html body .rest-place-art .map-stop-icon{--ui-size:48px!important}
+html body .route-inspection-art .map-stop-icon{--ui-size:144px!important}
+html body .passage-art>.map-stop-icon{--ui-size:192px!important}
+html body .passage-art>.boss-sigil{--ui-size:96px!important;position:absolute;left:calc(50% - 48px)}
+html body .map-clear-screen .boss-sigil,html body .compact-briefing.boss-brief .encounter-art>.boss-sigil{--ui-size:96px!important}
+html body .campaign-map-marks .boss-sigil{--ui-size:24px!important}
+html body :is(.passage-choice .route-consequences b,.wallet-rest-marker,.skill-purchase,.tree-rest-notice,.tree-selection-status.rest-required)>.map-stop-icon{--ui-size:24px!important}
+html body .flight-reward-event-identity .map-stop-icon,html body .menu-debug-controls .mock-toggle>.ui-icon{--ui-size:24px!important}
+html body .map-support-symbol .map-stop-icon{--ui-size:48px!important}
+@media(orientation:landscape) and (max-height:350px){
+ html body .preview-payout>.map-stop-icon,html body .preview-payout .condensed-icon{--ui-size:32px!important}
+ html body .death-heart-scene .life-heart{--ui-size:64px!important}
+ html body .support-symbol>.map-stop-icon,html body .practice-stop-place>.map-stop-icon{--ui-size:48px!important}
+ html body .route-inspection-art .map-stop-icon{--ui-size:96px!important}
+ html body .passage-art>.map-stop-icon{--ui-size:144px!important}
+}
+/* Map route: stops sit on the dark map, so no outline filter; the next stop keeps its light. */
+.game-map-screen .landscape-route .route-landmark{filter:none}
+.game-map-screen .landscape-route .route-state-future .route-landmark{opacity:.72}
+.game-map-screen .landscape-route .route-state-complete .route-landmark{opacity:.85}
+/* Teaching cards: the vocabulary cue shows the real icon at 48 (16-grid art) or 48 (map stops); compact and wide cards follow the old 32 and 80 steps. */
+html body .tutorial-coach-visual .coach-term>.ui-icon{--ui-size:48px!important}
+@media(orientation:landscape) and (max-height:350px){html body .tutorial-coach-visual .coach-term>.ui-icon{--ui-size:32px!important}html body .tutorial-coach-visual .coach-term>.map-stop-icon{--ui-size:24px!important}}
+@media(min-width:600px){html body .tutorial-coach-visual .coach-term>.ui-icon{--ui-size:80px!important}html body .tutorial-coach-visual .coach-term>.map-stop-icon{--ui-size:72px!important}}
+/* Field Guide topic tiles: the cue icon is 32 (16-grid art) or 24 (map stops). */
+html body .guide-topics .coach-term>.ui-icon{--ui-size:32px!important}
+html body .guide-topics .coach-term>.map-stop-icon{--ui-size:24px!important}

@@ -19,7 +19,7 @@ Building the lab demo (`/design-lab/engine.html`) showed where the rules above w
 1. **Events flow to the right. Only a Timer sends its event back to the first Slot.** A card's event is heard by cards to its right, in order. Nothing travels left on its own. So a circle can only close through a Timer, which makes rule 2 automatic: a Chain without a Timer simply runs once, and the Chain screen says "Runs once. Add a Timer to keep it turning." (The demo's earlier "nearest hearer to the right, wrapping round" is gone; the return track is drawn from the Timer.)
 2. **A Pulse made by a card is heard by the next card to its right that waits for a Pulse**, not by every such card. Spark gains and Overfill are heard by all cards to the right that wait for them.
 3. **Slow Wick's Trigger is Pulse**: "3 s after a Pulse reaches it: send a Pulse to the first Slot."
-4. **Metronome is armed by any event reaching it**, then fires the card to its right every 1.5 s while that card can act; it stops when that card cannot (meter full) and is re-armed by the next event.
+4. **Metronome is armed by any event reaching it**, then fires the card to its right every 3 s (1.5 s with Heartbeat; changed from 1.5 s in Phase 2, see below) while that card can act; it stops when that card cannot (meter full) and is re-armed by the next event.
 5. **Overflow Bell**: "Overfill → send a Pulse; up to 2 spilled Sparks become Stored Sparks." (Kept Sparks leave the meter economy, so no Boost touches them.)
 6. **Engines live off the meter falling.** In a real flight Lift spends Sparks, so the meter drops by itself and "stop when full" engines restart on the next event. The demo fakes this with a 1 Spark per second burn.
 7. **Boosts in an engine** multiply each Spark gain made by cards to their left, every Turn. (Same as today: a Boost strengthens every card to its left.)
@@ -45,7 +45,7 @@ Format: **Name** (rarity) · Trigger → what it does. One input, one output, so
 | **Spark Chime** (Common) | Pulse → gain 1 Spark |
 | **Ember Bell** (Common) | Gain Sparks (any source) → send a Pulse. Once per turn |
 | **Flash Tinder** (Rare) | Collect → start a short Flash (1 s) |
-| **Homing Thread** (Rare) | Delivery → Collector fetches again at once (uses charge) |
+| **Homing Thread** (Rare) | Delivery → Collector fetches the nearest Spark in reach, if it has charge (a normal fetch; it may take a Spark still ahead of you) |
 | **Overflow Bell** (Rare) | Overfill → send a Pulse and keep 2 of the spilled Sparks |
 | **Afterglow** (Common) | Flash ends → gain 2 Sparks |
 
@@ -54,7 +54,7 @@ Format: **Name** (rarity) · Trigger → what it does. One input, one output, so
 | Card | Effect |
 | --- | --- |
 | **Slow Wick** (Common) | 3 s after it is lit by any card to its left: send a Pulse |
-| **Metronome** (Rare) | Every 1.5 s while the meter is not full: fire the card to its right once |
+| **Metronome** (Rare) | Every 3 s (1.5 s with Heartbeat) while the card to its right can act: fire it once |
 | **Long Fuse** (Rare) | 5 s after a Pulse: repeat the whole Chain's last firing |
 | **Heartbeat** (Legendary) | Timers in this Chain wait half as long |
 
@@ -71,7 +71,8 @@ Format: **Name** (rarity) · Trigger → what it does. One input, one output, so
 | Card | Effect |
 | --- | --- |
 | **Third Beat** (Rare) | Every third Turn counts twice |
-| **Momentum** (Legendary) | After 5 Turns without a stop: Luminance +1 until the engine stops |
+| **Momentum** (Legendary) | After 5 Turns in a row (no stop between them): +20% Luminance until the engine stops |
+| **Wave Loom** (Legendary) | Each Turn of an engine: send a light Pulse (a real world Pulse, at most one per Turn). Came back from retirement; old copies stay paid out |
 
 ### Pack cards
 
@@ -130,3 +131,9 @@ The dial is the wait, never a ceiling. The simulation gets a clock (it has none 
 1. Approve the three rules and the card list as a start: `v1.0-engine`.
 2. Black Hole: growth for the run (default) or across runs?
 3. Black Hole: keep the name?
+
+## Phase 2 changes (17 November, engine UI worker)
+
+- **Tempo is the dial.** Metronome waits 3 s (Heartbeat 1.5 s). Sweep (`node scripts/balance/simulate.mjs --engine`, now with every Chain of 1 to 3 cards that holds a Metronome, all orders, whole pool): no Chain of 2 or fewer cards pays for all its own Lift; 34 Chains of 3 cards still do (a starter, Metronome, then a +5 or +6 card such as Courier Tip III, Downbeat III or Flash Handling). Measured: 4 s leaves 34, 5 s 23, 6 s 8, 6.5 s 0. The brief's rule (lengthen only while 2-card Chains are unlosable) stops at 3 s; whether to go to 6.5 s is an owner call. 71 of 52569 Chains in all pay for their Lift (was 145 of 41600 at 1.5 s).
+- Medallion numbers now: Chime loop 1 per Turn, 3.3 Turns per 10 s (Heartbeat 6.7); Overflow mill 2 per Turn, 3.3 Turns per 10 s (Heartbeat 6.7).
+- Homing Thread, Momentum and Wave Loom are in the catalog (unreleased). Trigger chips for every engine card: Card Pulse, On gain, Any event, Skim, Low Lift, Each Turn, Timers, Pack, Take-off.

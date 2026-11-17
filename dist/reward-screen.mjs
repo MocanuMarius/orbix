@@ -10,7 +10,9 @@ const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&
 export const rewardDescription=(a,run)=>{const c=artifactDescription(a,run,{fresh:true});return [c.effect,[c.trigger,c.limit].filter(Boolean).join(' ')];};
 export function rewardEarnings(run){
  const f=run?.lastFlight||{},rows=[
-  ['Clear reward',f.completionBonus],['Overflow',f.pickupCondensedGlow],['Exit packing',f.exitPacking?.amount],
+  // Pack cards' share of the exit packing gets its own line; the two still add up to the packing (engine cards only).
+  ['Clear reward',f.completionBonus],['Overflow',f.pickupCondensedGlow],['Exit packing',(f.exitPacking?.amount||0)-(f.cardPack?.stored||0)],
+  ['Pack cards',f.cardPack?.stored],['Engine cards',f.cardEngineStored],
   ['Pact',f.pactBonus],['Seal',f.treasureWager?.reward],['Vow',f.vow?.reward],
   ['Route bonus',f.routeBonus?.amount],['Chest gifts',f.chestIncome?.amount],
   ['Kept Light',f.keptLightDividend],['Storage perk',f.storageBonus],['Tight Packing',f.cardPackingBonus],

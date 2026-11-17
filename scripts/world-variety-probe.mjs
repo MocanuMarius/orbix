@@ -23,5 +23,5 @@ for(let seed=0;seed<30;seed++){
  for(const node of run.map.flat().filter(n=>n.type!=='support'))(byTerrain[node.terrain]??=[]).push(node.levelId);
  for(const ids of Object.values(byTerrain))assert.equal(new Set(ids.slice(0,5)).size,Math.min(5,ids.length));
 }
-assert.match(mapStopIconMarkup('rest'),/M2 11 12 3l10 8/);
+assert.match(mapStopIconMarkup('rest'),/data-ui-icon="stop-rest"/);
 console.log(JSON.stringify({locations:LEVELS.length,newLocations:EXTRA_LEVELS.length,layouts,packets,blocked,uniqueGeometry:geometry.size,props:[...kinds],mapDecks:30}));

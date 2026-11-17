@@ -1778,3 +1778,35 @@ html body .card-slot-pick.card-effect-blocked .card-slot-copy{filter:grayscale(1
 html body .card-config-partial{--status-bg:#604523;--status-ink:#fff0bb;--status-edge:#d3ae65}
 .card-read-config-partial strong{color:#f1d399}
 .deck-verdict-partial{color:#f4d18d;background:#463d24;padding:7px;border-left:3px solid #d9b469}
+
+/* Trigger badge (v1.0-engine Phase 2): the card's Trigger is read first, top left of the picture, on every face.
+   Paper well with the 16px icon, leather name strip; same colours on the Deck tile, the Chain tile and the Chain track.
+   Rarity without words: 1, 2 or 3 gems bottom right of the picture (the owner's 17 Nov request). */
+.tbadge{display:inline-flex;align-items:stretch;max-width:100%;height:20px;box-sizing:border-box;border:2px solid #2a1d12;background:#5a4632;color:#f6ebcc;font:400 11px/16px var(--pixel,monospace);letter-spacing:0;white-space:nowrap;overflow:hidden;text-shadow:1px 1px #2a1d12;box-shadow:0 1px 0 #2a1d1266;vertical-align:middle}
+.tbadge-i{flex:none;display:grid;place-items:center;width:18px;height:16px;background:#f3e6b9;border-right:2px solid #2a1d12;font-style:normal}
+.tbadge-i>svg{display:block;width:16px;height:16px;image-rendering:pixelated}
+.tbadge-n{display:block;min-width:0;padding:0 5px 0 4px;overflow:hidden;text-overflow:ellipsis;font-weight:400}
+.tbadge-mini .tbadge-i{border-right:0}
+.tbadge-sr{position:absolute!important;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0 0 0 0)}
+html body .skill-card .card-illustration{position:relative}
+html body .skill-card .card-tbadge-row{position:absolute;z-index:5;left:3px;top:3px;right:3px;display:flex;pointer-events:none}
+html body .card-readable .card-tbadge-row{left:6px;top:6px}
+html body .card-readable .tbadge{height:24px;font-size:13px;line-height:20px}
+html body .card-readable .tbadge-i{width:22px;height:20px}
+.rpips{display:inline-flex;gap:1px;align-items:center}
+.rpips>svg{display:block;width:8px;height:8px}
+html body .skill-card .card-illustration>.rpips{position:absolute;z-index:5;right:3px;bottom:3px;padding:2px;background:#2a1d12cc;pointer-events:none}
+html body .card-readable .card-illustration>.rpips{right:6px;bottom:6px;padding:3px;gap:2px}
+html body .card-readable .card-illustration>.rpips>svg{width:10px;height:10px}
+html body .skill-card .card-bh-tally{position:absolute;z-index:5;left:3px;right:3px;bottom:18px;padding:2px 4px;background:#3a1512e6;border:2px solid #7a2f2a;color:#fff1c5;font:400 11px/13px var(--pixel,monospace);text-align:center;white-space:normal;pointer-events:none}
+html body .card-readable .card-bh-tally{bottom:26px;font-size:13px;line-height:16px}
+html body .skill-card .card-bh-tally>b{font-weight:400}
+/* Engine cue in the card strip (v1.0-engine): a Timer ring, a pulse per Turn, dim when stopped. No text. */
+.card-row-engine{position:relative;display:block;flex:none;width:23px;height:23px;border-radius:50%;box-sizing:border-box;border:2px solid #2a1d12;background:#1a2d22}
+.card-row-engine[hidden]{display:none!important}
+.card-row-ring{position:absolute;inset:1px;border-radius:50%;background:conic-gradient(#d9ecc1 var(--k,0deg),#3f5a3a 0)}
+.card-row-ring::after{content:"";position:absolute;inset:5px;border-radius:50%;background:#f0c86a;box-shadow:inset -1px -1px #b98f4a}
+html body button.flight-card-row.card-row-stopped{filter:saturate(.3) brightness(.65)}
+@media(prefers-reduced-motion:reduce){.card-row-ring{transition:none}}
+.flight-reward-chip{display:inline-grid;place-items:center;width:20px;height:20px;margin-right:4px;vertical-align:middle;background:#f3e6b9;border:2px solid #2a1d12;box-sizing:border-box}
+.flight-reward-chip>svg{display:block;width:16px;height:16px;image-rendering:pixelated}

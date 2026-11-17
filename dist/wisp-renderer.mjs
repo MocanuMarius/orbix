@@ -39,7 +39,8 @@ import {drawWispWake} from './wisp-wake.mjs?v=guide-clarity-1';
 import {drawFlightForks,drawFlightForkBackdrops} from './flight-forks.mjs?v=guide-clarity-1';
 import {drawFallWarning} from './fall-chain-art.mjs?v=guide-clarity-1';
 import {castTerrainLight,releaseTerrainLight,prepareTerrainLight} from './terrain-light.mjs?v=guide-clarity-1';
-// v1.0-level scenery (frost, pinewood). Null unless ?scenery=2 or {scenery:2}.
+import {lanternField} from './lantern-layout.mjs?v=guide-clarity-1';
+// v1.1-level ground and growth (frost, pinewood). On by default; null with ?scenery=1 or {scenery:1}.
 import {createLevelSceneryTwo} from './level-scenery-two.mjs?v=guide-clarity-1';
 
 const TAU = Math.PI * 2;
@@ -105,6 +106,15 @@ const SIDES = [true, false];
 const WIDTH = 240;
 const WORLD_RASTER_SCALE = WIDTH / 390;
 const ART_SCALE = WIDTH / 195;
+// v1.1 edge light (all biomes): peak opacity of the contact rim, its floor away
+// from the wisp's light, and how far (as a share of the light radius) it stays bright.
+export const EDGE_LIGHT = Object.freeze({ peak: .72, floor: .45, reach: .75 });
+// Solid rock behind its exposed face during scene-wide reveals: [half-depth in
+// world units, share of darkness removed]. The face band (snow caps, moss,
+// the top of the ground texture) stays lit; deeper rock falls away into shade.
+const SOLID_FACE_BANDS = Object.freeze([[30, .35], [20, .4], [12, .5], [5, .6]]);
+// Deep rock keeps a trace of its texture instead of turning into a cut-out.
+const SOLID_SHADE_MAX = .86;
 const clamp = (n, lo, hi) => Math.max(lo, Math.min(hi, n));
 const hash = (x, y = 0, seed = 0) => {
   let n = Math.imul(x | 0, 374761393) ^ Math.imul(y | 0, 668265263) ^ Math.imul(seed | 0, 1274126177);
@@ -231,15 +241,8 @@ export class WispFlightView {
   }
 
   terrainKey(obstacle, top) {
-    // The scenery suffix only exists when v1.0-level is on, so flag-off keys are unchanged.
+    // The scenery suffix only exists when v1.1-level ground is on, so off-switch keys are unchanged.
     return `${this.identity.id}:${obstacle.sectionId || ''}:${obstacle.id}:${top ? 'top' : 'floor'}:${this.buffer.height}${this.scenery ? ':s2' : ''}`;
-  }
-
-  sceneryFrame(e, t, distance) {
-    const f = this.sceneryFrameState ??= {};
-    f.document = this.document; f.width = this.buffer.width; f.height = this.buffer.height;
-    f.distance = distance; f.time = t; f.scale = this.scale; f.reducedMotion = e.reducedMotion;
-    return f;
   }
 
   drawSceneryGrowth(e, t, distance, palette) {
@@ -614,7 +617,7 @@ export class WispFlightView {
     const surface = shape.slice(2).reverse().map(([x, y]) => [Math.round(x * s + ox), Math.round(y * s + oy)]);
     const section = e.layout.sections?.find(item => item.id === obstacle.sectionId);
     const hardEntry = Boolean(section?.hard && e.layout.obstacles.find(item => item.sectionId === section.id) === obstacle);
-    if (this.scenery) this.scenery.bakeMaterial(c, { document: this.document, surface, top, width: canvas.width, height: canvas.height, obstacle });
+    if (this.scenery) this.scenery.bakeMaterial(c, { document: this.document, surface, top, width: canvas.width, height: canvas.height, obstacle, ox, oy, scale: s });
     else drawIdentityMaterial(c, { identity, surface, top, palette, width: canvas.width,
       height: canvas.height, obstacle, hardEntry }, { line: pixelLine, polygon: path });
     const inward = top ? -1 : 1;
@@ -876,13 +879,32 @@ export class WispFlightView {
     this.lightRadius = Math.max(24, Number(light.radius) || baseRadius);
     this.lightIntensity = clamp(Number.isFinite(light.intensity) ? light.intensity : 1, 0, 1);
     this.lightDimScale = clamp(this.lightRadius / baseRadius, .6, 1);
-    if (light.rehearsing) return;
+    const legacy = e.options?.legacyLook === true;
+    if (light.rehearsing) {
+      // The rehearsal view shows the whole scene; rock bodies still stay solid.
+      if (!legacy) { c.globalAlpha = SOLID_SHADE_MAX; c.drawImage(this.solidShade(e), 0, 0); c.globalAlpha = 1; }
+      return;
+    }
+    const completion = e.completionProgress || 0;
+    const fogAlpha = (1 - completion * completion * (3 - 2 * completion)) * (1 - sceneRevealStrength(light));
+    // Scene-wide reveals (Flash pickup, Edging, tether, the finish) and the
+    // reveals that ignore rock (Luminance rings, Flash prisms, lantern wake)
+    // would light terrain interiors as if nothing blocked them. Where any of
+    // them is active, solid rock is re-darkened behind its exposed face.
+    const unblocked = !legacy && (e.luminanceWaves?.revealCount > 0 || lanternField(e.layout)?.shutters?.length > 0 || this.flashPropsInView(e));
+    const shade = !legacy && (unblocked || fogAlpha < 1) ? this.solidShade(e) : null;
     f.setTransform(1, 0, 0, 1, 0, 0); f.globalCompositeOperation = 'source-over'; f.globalAlpha = 1;
     f.clearRect(0, 0, W, H); f.fillStyle = '#000000'; f.fillRect(0, 0, W, H);
     f.globalCompositeOperation = 'destination-out';
     const mask = this.lightMask();
+    if (shade) {
+      castFlightFlashLights(f,mask,e,light,s,distanceOf(e),yOf(e));
+      revealLuminanceWaves(f,e,{distance:distanceOf(e),scale:s});
+      revealLanternWake(f,e,{distance:distanceOf(e),playerY:yOf(e),scale:s,light});
+      f.globalCompositeOperation = 'source-over'; f.globalAlpha = SOLID_SHADE_MAX; f.drawImage(shade, 0, 0); f.globalAlpha = 1; f.globalCompositeOperation = 'destination-out';
+    }
     // Baseline light is circular. Forward scouting is earned through skills,
-    // the Flash Powerup and artifacts.
+    // the Flash Powerup and artifacts. These casts are ray-traced through rock.
     castTerrainLight(f,mask,e,{x:playerX/s,y:playerY/s,radius:this.lightRadius,alpha:this.lightIntensity,scale:s,channel:'main'});
     const forward = light.forwardLight || e.forwardLight;
     if (forward?.active && forward.radius > 0) {
@@ -891,17 +913,88 @@ export class WispFlightView {
     }
     if(light.landmarkLight){const lamp=light.landmarkLight;
       castTerrainLight(f,mask,e,{x:lamp.x,y:lamp.y,radius:lamp.radius,alpha:lamp.intensity,scale:s,channel:'landmark'});}
-    castFlightFlashLights(f,mask,e,light,s,distanceOf(e),yOf(e));
-    revealLuminanceWaves(f,e,{distance:distanceOf(e),scale:s});
-    revealLanternWake(f,e,{distance:distanceOf(e),playerY:yOf(e),scale:s,light});
+    if (!shade) {
+      castFlightFlashLights(f,mask,e,light,s,distanceOf(e),yOf(e));
+      revealLuminanceWaves(f,e,{distance:distanceOf(e),scale:s});
+      revealLanternWake(f,e,{distance:distanceOf(e),playerY:yOf(e),scale:s,light});
+    }
     for (let i = 0; i < fleet.length && i < 3; i++) {
       const orb=fleet[i],glow=companionTerrainLight(orb,this.lightDimScale,this.lightIntensity);
       castTerrainLight(f,mask,e,{x:orb.x,y:orb.y,...glow,scale:s,channel:`fleet${i}`});
     }
     f.globalAlpha = 1; f.globalCompositeOperation = 'source-over';
-    const reveal=e.completionProgress||0;
-    c.globalAlpha=(1-reveal*reveal*(3-2*reveal))*(1-sceneRevealStrength(light));
-    c.drawImage(this.fog, 0, 0);c.globalAlpha=1;
+    c.globalAlpha=fogAlpha;
+    c.drawImage(this.fog, 0, 0);
+    // The fog was faded by the scene-wide reveal; rock interiors are not.
+    if (shade && fogAlpha < 1) { c.globalAlpha = (1 - fogAlpha) * SOLID_SHADE_MAX; c.drawImage(shade, 0, 0); }
+    c.globalAlpha=1;
+  }
+
+  flashPropsInView(e) {
+    const distance = distanceOf(e);
+    for (const prop of e.flashProps || []) if (!prop.collected && !prop.carried && prop.x - distance > -78 && prop.x - distance < e.width + 78) return true;
+    return false;
+  }
+
+  // Black over every solid terrain body, cleared in stepped bands along the
+  // exposed contact so only the lit face (about one wisp radius deep) remains
+  // open. Built only in frames that need it; deterministic for a given frame.
+  solidShade(e) {
+    const W = this.buffer.width, H = this.buffer.height, s = this.scale, t = timeOf(e), distance = distanceOf(e);
+    const canvas = this.shadeCanvas ??= this.document.createElement('canvas');
+    if (canvas.width !== W || canvas.height !== H) { canvas.width = W; canvas.height = H; }
+    const g = this.shadeContext ??= canvas.getContext('2d'), camera = Math.round(distance * s);
+    g.setTransform(1, 0, 0, 1, 0, 0); g.globalCompositeOperation = 'source-over'; g.globalAlpha = 1;
+    g.clearRect(0, 0, W, H); g.fillStyle = '#000000';
+    for (const o of this.visibleObstacles) {
+      if (o.destroyed || o.x + o.width * 2.5 < distance - 10 || o.x - o.width > distance + e.width + 10) continue;
+      const center = o.center + Math.sin(t * .9 + (o.phase || 0)) * (o.motion || 0);
+      for (const top of SIDES) {
+        const shape = top ? o.topShape : o.bottomShape; if (!shape?.length) continue;
+        const anchor = center + (top ? -1 : 1) * o.gap / 2;
+        g.beginPath();
+        for (let i = 0; i < shape.length; i++) { const x = Math.round((o.x + shape[i][0]) * s) - camera, y = Math.round((anchor + shape[i][1]) * s); if (i) g.lineTo(x, y); else g.moveTo(x, y); }
+        g.closePath(); g.fill();
+      }
+    }
+    const { segments } = terrainBoundary(e, t);
+    g.globalCompositeOperation = 'destination-out'; g.lineCap = 'round'; g.lineJoin = 'round'; g.strokeStyle = '#000000';
+    for (const [depth, alpha] of SOLID_FACE_BANDS) {
+      g.globalAlpha = alpha; g.lineWidth = depth * 2 * s; g.beginPath();
+      for (const segment of segments) {
+        const [ax, ay] = segment.a, [bx, by] = segment.b;
+        if (Math.max(ax, bx) < distance - 24 || Math.min(ax, bx) > distance + e.width + 24) continue;
+        g.moveTo(ax * s - camera, ay * s); g.lineTo(bx * s - camera, by * s);
+      }
+      g.stroke();
+    }
+    g.globalCompositeOperation = 'source-over'; g.globalAlpha = 1;
+    return canvas;
+  }
+
+  // v1.1 edge light: the contact rim is a soft catch-light, strongest inside
+  // the wisp's own light and settling to a calm floor elsewhere, never a
+  // uniform white wire. One place for every biome; deterministic per frame.
+  compositeEdgeLight(edge, c, e) {
+    if (e.options?.legacyLook === true) { edge.composite(c); return; }
+    const W = this.buffer.width, H = this.buffer.height, s = this.scale;
+    const layer = this.edgeLayer ??= this.document.createElement('canvas');
+    if (layer.width !== W || layer.height !== H) { layer.width = W; layer.height = H; }
+    const g = this.edgeLayerContext ??= layer.getContext('2d');
+    g.setTransform(1, 0, 0, 1, 0, 0); g.globalCompositeOperation = 'source-over'; g.globalAlpha = 1; g.clearRect(0, 0, W, H);
+    edge.composite(g);
+    const strength = this.edgeStrength ??= this.document.createElement('canvas');
+    if (strength.width !== W || strength.height !== H) { strength.width = W; strength.height = H; }
+    const m = this.edgeStrengthContext ??= strength.getContext('2d');
+    const light = renderLightState(e), intensity = light.rehearsing ? 1 : clamp(Number.isFinite(light.intensity) ? light.intensity : 1, 0, 1);
+    const radius = Math.max(24, Number(light.radius) || Number(light.baseRadius) || 145) * EDGE_LIGHT.reach * LIGHT_EXTENT * s;
+    m.setTransform(1, 0, 0, 1, 0, 0); m.globalCompositeOperation = 'source-over'; m.clearRect(0, 0, W, H);
+    m.globalAlpha = EDGE_LIGHT.floor; m.fillStyle = '#ffffff'; m.fillRect(0, 0, W, H);
+    m.globalCompositeOperation = 'lighter'; m.globalAlpha = (1 - EDGE_LIGHT.floor) * intensity;
+    m.drawImage(this.lightMask(), e.player.x * s - radius, yOf(e) * s - radius, radius * 2, radius * 2);
+    m.globalCompositeOperation = 'source-over'; m.globalAlpha = 1;
+    g.globalCompositeOperation = 'destination-in'; g.drawImage(strength, 0, 0); g.globalCompositeOperation = 'source-over';
+    c.globalAlpha = EDGE_LIGHT.peak; c.drawImage(layer, 0, 0); c.globalAlpha = 1;
   }
 
   glow(x, y, radius, ink, strength = .12) {
@@ -1193,19 +1286,15 @@ export class WispFlightView {
     if (this.canvas.dataset.levelIdentity !== identity.id) this.canvas.dataset.levelIdentity = identity.id;
     c.setTransform(1, 0, 0, 1, 0, 0); c.globalAlpha = 1; c.globalCompositeOperation = 'source-over';
     this.updateVisible(e, distance);
-    const scenery = this.scenery, sceneryStart = scenery ? performance.now() : 0, sceneryFrame = scenery ? this.sceneryFrame(e, t, distance) : null;
-    if (scenery) scenery.drawSky(c, sceneryFrame);
-    else this.drawSky(e, t, distance, palette);
+    const scenery = this.scenery;
+    this.drawSky(e, t, distance, palette);
     // Authored parallax supplies the major depth layers in the new art pass.
     c.globalAlpha = rehearsing ? .1 : .34; c.fillStyle = '#03080b'; c.fillRect(0, 0, this.buffer.width, this.buffer.height); c.globalAlpha = 1;
     const boss = this.bossOptions; boss.height = this.buffer.height; boss.distance = distance; boss.time = t; boss.scale = s; boss.pass = 'silhouette';
-    if (scenery) scenery.drawBackdrop(c, sceneryFrame);
-    else drawHabitatBackdrop(c,e,{scale:s,distance,time:t});
-    if (!scenery || !scenery.hidesCourseArt) {
-      drawCourseArt(c,e,{scale:s,distance});
-      drawNearLandscape(c,e,{scale:s,distance});
-      drawCourseArt(c,e,{scale:s,distance,pass:'near'});
-    }
+    drawHabitatBackdrop(c,e,{scale:s,distance,time:t});
+    drawCourseArt(c,e,{scale:s,distance});
+    drawNearLandscape(c,e,{scale:s,distance});
+    drawCourseArt(c,e,{scale:s,distance,pass:'near'});
     drawFlightForkBackdrops(c,e,{distance,scale:s});
     // The world-anchored guardian stays behind solid ground, but is no longer
     // buried under opaque background layers or the new course landmarks.
@@ -1215,14 +1304,16 @@ export class WispFlightView {
     this.drawTerrain(e, t, distance, palette);
     boss.pass = 'hands'; drawBoss(c, boss);
     this.drawSceneProps(e, t, distance);
-    drawTerrainEcology(c,e,{scale:s,distance,time:t});
+    // v1.2-level growth replaces the shared ecology plants and loose stones
+    // (e.g. no lichen tufts on ice); Oldgrowth Pines keeps them.
+    if (!scenery || scenery.keepsEcology) drawTerrainEcology(c,e,{scale:s,distance,time:t});
     if(e.boundaryStyle==='spectral'&&this.edgeRasterEnabled!==false){
       const edge=this.contactEdgeRaster??=new ContactEdgeRaster(this.document);
       edge.begin(this.buffer.width,this.buffer.height);
       drawTerrainBoundary(edge,e,{scale:s,distance,time:t,line:pixelLine});
       this.bufferContext=edge;
       try { this.drawScenePropContacts(e,t,distance); } finally { this.bufferContext=c; }
-      edge.composite(c);
+      this.compositeEdgeLight(edge, c, e);
     }else{
       drawTerrainBoundary(c,e,{scale:s,distance,time:t,line:pixelLine});
       this.drawScenePropContacts(e,t,distance);
@@ -1235,8 +1326,7 @@ export class WispFlightView {
     this.drawBurstEffects(e, MAIN_LIGHT);
     this.drawMist(e, t, distance, palette);
     const life = this.lifeOptions; life.height = this.buffer.height; life.distance = distance; life.time = t; life.reducedMotion = e.reducedMotion;
-    if (scenery) scenery.drawParticles(c, sceneryFrame);
-    else drawIdentityLife(c, life, SCENERY_HELPERS);
+    drawIdentityLife(c, life, SCENERY_HELPERS);
     let fleet = e.getCompanionStates?.(yOf(e), t,e.renderBlend);
     if (!fleet?.length) {
       const wisp = e.getWispState?.(yOf(e), t), fallback = this.fallbackFleet[0];
@@ -1297,7 +1387,6 @@ export class WispFlightView {
     this.context.imageSmoothingEnabled = false;
     this.context.drawImage(this.buffer, 0, 0, this.canvas.width, this.canvas.height);
     if (!this.backgroundRepainted) this.prewarmSurfaces(e, distance);
-    if (scenery) scenery.noteFrame(performance.now() - sceneryStart);
     } finally { endTerrainBoundaryFrame(e); }
   }
 

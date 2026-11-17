@@ -140,7 +140,7 @@ test('Forge never gives a card already owned until every card of that rarity is 
   for (const rarity of ['common', 'rare', 'legendary']) {
     const state = fresh(`forge-unique-${rarity}`), run = state.run;
     run.condensedGlow = 1e6;
-    const pool = Object.values(SKILL_CARDS).filter(def => def.rarity === rarity && !def.starterOnly && !def.retired);
+    const pool = Object.values(SKILL_CARDS).filter(def => def.rarity === rarity && !def.starterOnly && !def.retired && !def.unreleased);
     const got = [];
     // A fresh Rest for each forge keeps the price at its first value.
     for (let i = 0; i < pool.length; i++) { delete run.cardForgePricing; got.push(M.forgeOwnedCard(state, rarity, M.getCardForgePreview(run, rarity).token).cardId); }

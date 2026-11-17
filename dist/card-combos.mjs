@@ -27,7 +27,7 @@ function shuffled(values, random) {
   return result;
 }
 export function createComboSample(seed = DEFAULT_COMBO_SEED) {
-  const random = seededRandom(seed), catalog = Object.keys(SKILL_CARDS).filter(id => !SKILL_CARDS[id].retired);
+  const random = seededRandom(seed), catalog = Object.keys(SKILL_CARDS).filter(id => !SKILL_CARDS[id].retired && !SKILL_CARDS[id].unreleased);
   // One shuffled catalog guarantees coverage; the remaining draws stay independent.
   let pool = catalog.length <= 45 ? [...catalog, ...Array.from({length:45 - catalog.length}, () => catalog[Math.floor(random() * catalog.length)])] : shuffled(catalog, random).slice(0,45);
   do { pool = shuffled(pool, random); }
@@ -100,11 +100,11 @@ if (typeof document !== 'undefined') {
   const pinned = createPinnedCombo((params.get('combo') || '').split(','),pinnedRow);
   let samples = [];
   const render = () => {
-    document.getElementById('combo-catalog-count').textContent = Object.keys(SKILL_CARDS).length;
+    document.getElementById('combo-catalog-count').textContent = Object.values(SKILL_CARDS).filter(card => !card.unreleased).length;
     samples = createComboSample(seed);
     if (pinned) samples[pinnedRow] = pinned;
     document.getElementById('combo-rows').innerHTML = comboRowsMarkup(samples);
-    document.getElementById('combo-coverage-note').textContent = Object.keys(SKILL_CARDS).length <= 45 ? 'Every card appears in this sample.' : '45 sampled slots. Browse every card below.';
+    document.getElementById('combo-coverage-note').textContent = Object.values(SKILL_CARDS).filter(card => !card.unreleased).length <= 45 ? 'Every card appears in this sample.' : '45 sampled slots. Browse every card below.';
     document.getElementById('combo-sample-note').textContent = `Sample ${seed} · reload keeps these combinations${pinned ? ` · Combination ${pinnedRow + 1} uses the shared card IDs` : ''}`;
   };
   document.getElementById('combo-glossary').dataset.cardTerms = Object.keys(CARD_TERMS).join(' ');
@@ -130,7 +130,7 @@ if (typeof document !== 'undefined') {
   const renderCatalog = () => {
     const query = document.getElementById('combo-catalog-search').value.trim().toLowerCase();
     const tier = document.getElementById('combo-catalog-rarity').value;
-    const cards = Object.values(SKILL_CARDS).filter(card=>(!tier||card.rarity===tier)&&(!query||`${card.name} ${card.kind} ${card.id}`.toLowerCase().includes(query)));
+    const cards = Object.values(SKILL_CARDS).filter(card=>!card.unreleased&&(!tier||card.rarity===tier)&&(!query||`${card.name} ${card.kind} ${card.id}`.toLowerCase().includes(query)));
     document.getElementById('combo-catalog-result').textContent = `${cards.length} cards`;
     document.getElementById('combo-catalog').innerHTML = cards.map(card=>`<div class="combo-slot">${cardFace(getMountedCards({skillSystem:CARD_SYSTEM,cardSlots:3,mountedCards:[makeSkillCard(card.id,`catalog:${card.id}`)]})[0])}</div>`).join('');
   };

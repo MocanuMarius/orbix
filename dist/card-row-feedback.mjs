@@ -64,6 +64,11 @@ export function createCardRowFeedback(root, {onInspect = () => {}} = {}) {
   });
   const replay=doc.createElement('span');replay.className='card-row-replay';replay.setAttribute('aria-hidden','true');replay.textContent='↶';replay.hidden=true;button.append(replay);
   const bonus=doc.createElement('span');bonus.className='card-row-bonus';button.append(bonus);
+  // Engine cue (v1.0-engine): no words, no numbers. A Timer ring that fills, one pulse of the strip per Turn, and the
+  // strip dims when the engine has stopped. Built once; updated on a new Turn and at most 10 times a second.
+  const cue=doc.createElement('span');cue.className='card-row-engine';cue.hidden=true;cue.setAttribute('aria-hidden','true');
+  const ring=doc.createElement('i');ring.className='card-row-ring';cue.append(ring);if(button.prepend)button.prepend(cue);else button.append(cue);
+  let turns=0,ringAt=0,ringK=-1,stopped=false;
   (root.querySelector('.flight-effect-space')||root.querySelector('.canvas-wrap')||root).append(button);
   let trace=null,sequence=-1,dialog=null;
   const close=()=>{dialog?.close();dialog?.remove();dialog=null;if(button.isConnected)button.focus({preventScroll:true});};
@@ -74,7 +79,16 @@ export function createCardRowFeedback(root, {onInspect = () => {}} = {}) {
     dialog.querySelectorAll('button').forEach(node=>node.addEventListener('click',close));dialog.addEventListener('cancel',event=>{event.preventDefault();close();});
     doc.body.append(dialog);dialog.showModal();dialog.querySelector('button').focus();
   });
+  const engineCue=snapshot=>{
+    const eng=snapshot?.cardEngine;if(!eng)return;
+    if(cue.hidden&&(eng.turns>0||eng.running)){cue.hidden=false;button.hidden=false;if(!trace)button.setAttribute('aria-label','Card engine. Pause to inspect your chain.');}
+    if(eng.turns!==turns){const more=eng.turns>turns;turns=eng.turns;if(more&&!snapshot.reducedMotion&&typeof button.animate==='function')button.animate([{filter:'brightness(1)'},{filter:'brightness(1.9)',offset:.3},{filter:'brightness(1)'}],{duration:420,easing:'ease-out'});}
+    const now=snapshot.time??0;
+    if(Math.abs(now-ringAt)>=.1||now<ringAt){ringAt=now;const k=Math.round((eng.timers?.[0]?.progress??0)*36)*10;if(k!==ringK){ringK=k;ring.style.setProperty('--k',`${k}deg`);}}
+    const off=!eng.running&&eng.stops>0;if(off!==stopped){stopped=off;button.classList.toggle('card-row-stopped',off);}
+  };
   return {destroy(){dialog?.remove();button.remove();},update(snapshot){
+    engineCue(snapshot);
     const next=snapshot?.cardRowTrace,nextSequence=Number(snapshot?.cardRowSequence);
     if(!next?.steps?.length||next===trace||nextSequence===sequence)return;
     sequence=nextSequence;

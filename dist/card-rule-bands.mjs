@@ -25,7 +25,19 @@ export const CARD_TRIGGERS = Object.freeze({
   next: Object.freeze({id: 'next', label: 'Next card', event: null, meaning: 'The card fires when the card to its right fires.'}),
   'always-on': Object.freeze({id: 'always-on', label: 'Always on', event: null, meaning: 'The card works outside the chain, so order does not fire it. Boosts to its right still strengthen its bonus.'}),
   rest: Object.freeze({id: 'rest', label: 'At Rest', event: null, meaning: 'A Rest card: it works from the Deck at Rest and never goes in the chain.'}),
+  // Engine chips (v1.0-engine, docs/engine-cards.md). Heard through dist/card-engine.mjs, not the chain walker.
+  'engine-pulse': Object.freeze({id: 'engine-pulse', label: 'Card Pulse', event: null, engine: true, meaning: 'A card to its left sends a Pulse.'}),
+  'engine-gain': Object.freeze({id: 'engine-gain', label: 'On gain', event: null, engine: true, meaning: 'A card to its left, or your Collect, gives Sparks.'}),
+  'engine-any': Object.freeze({id: 'engine-any', label: 'Any event', event: null, engine: true, meaning: 'Any card event to its left: a Pulse, Sparks given, an Overfill or a Flash.'}),
+  'engine-skim': Object.freeze({id: 'engine-skim', label: 'Skim', event: null, engine: true, meaning: 'You fly close to terrain until Proximity fills.'}),
+  'engine-lift': Object.freeze({id: 'engine-lift', label: 'Low Lift', event: null, engine: true, meaning: 'You Lift while your meter is under a quarter.'}),
+  'engine-turn': Object.freeze({id: 'engine-turn', label: 'Each Turn', event: null, engine: true, meaning: 'An engine in your chain goes round once.'}),
+  timers: Object.freeze({id: 'timers', label: 'Timers', event: null, engine: true, meaning: 'It changes every Timer card in your chain.'}),
+  pack: Object.freeze({id: 'pack', label: 'Pack', event: null, engine: true, meaning: 'You clear a flight and your spare Sparks are packed.'}),
+  'take-off': Object.freeze({id: 'take-off', label: 'Take-off', event: null, engine: true, meaning: 'You start a flight.'}),
 });
+/** The 16-grid icon (dist/ui/trigger-icons.mjs › TRIGGER_ART) for a chip: its flight event's art, else its own. */
+export const triggerArtKey = id => CARD_TRIGGERS[id]?.event || ({swipe: 'field-swipe'})[id] || id;
 const triggerForEvent = Object.freeze(Object.fromEntries(Object.values(CARD_TRIGGERS).filter(t => t.event).map(t => [t.event, t.id])));
 
 /** The chip a card shows: {id, label, condition}. Cards without catalog data fall back to

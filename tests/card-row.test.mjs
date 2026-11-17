@@ -224,7 +224,7 @@ test('new Common never changes the established seeded starter pool',()=>{
 });
 
 test('every declarative catalog rule executes with its exact approved event and conditions',()=>{
-  assert.equal(Object.keys(SKILL_CARDS).length,87);
+  assert.equal(Object.values(SKILL_CARDS).filter(def=>!def.unreleased).length,86);
   const payer={
     'body-spark':'body-spark','wave-crossing':'harvest-common','flash-pickup':'flash-handling',
     'downbeat-lift':'downbeat','collector-delivery':'courier-tip','rhythm-phrase':'toll-bell',
@@ -297,7 +297,8 @@ test('Rhythm, directional Field and guard rewards pay from actual physical succe
   const field=flight(['field-impulse','springboard','tailwind','wave-loom','refrain'],{collectorFieldImpulse:true});
   try{
     field.flame=0;assert.ok(field.activateFieldImpulse('right'));near(field.flame,0);
-    assert.equal(field.luminanceWaves.waves.length,1);assert.equal(field.cardRowTrace,null);
+    // Wave Loom no longer answers a swipe: it came back as an engine card (one light Pulse per Turn).
+    assert.equal(field.luminanceWaves.waves.length,0);assert.equal(field.cardRowTrace,null);
     const sequence=field.cardRowSequence;assert.equal(field.activateFieldImpulse('up'),false);assert.equal(field.cardRowSequence,sequence);
   }finally{field.destroy();}
   const guard=flight(['watchlight','home-beacon','last-light','prism-lens','refrain']);

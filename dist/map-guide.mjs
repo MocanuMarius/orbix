@@ -2,7 +2,8 @@ import {FLIGHT_PACTS} from './flight-pacts.mjs?v=guide-clarity-1';
 import {getBiome} from './biomes.mjs?v=guide-clarity-1';
 import {sparkHabitat} from './spark-fields.mjs?v=guide-clarity-1';
 import {getFlightClearReward} from './checkpoint-rewards.mjs?v=guide-clarity-1';
-import {landmarkArt,landmarkCategory,guardianNames} from './map-landmarks.mjs?v=guide-clarity-1';
+import {landmarkCategory,guardianNames} from './map-landmarks.mjs?v=guide-clarity-1';
+import {uiIcon} from './ui-icons.mjs?v=guide-clarity-1';
 import {glowText} from './vitality.mjs?v=guide-clarity-1';
 const stop=(kind,label,name,summary)=>Object.freeze({kind,label,name,summary,icon:kind});
 export const MAP_STOP_TYPES=Object.freeze({
@@ -52,11 +53,15 @@ export function getMapStopInfo(node={},maxGlow=100){
  const detail=kind==='boss'?(node.mapIndex>=2?'Reach the waylight to complete the Ascension.':`A guardian ends this map: ${getFlightClearReward(node)} Stored Sparks and one of two run artifacts.`):elite?'Choose one automatic artifact. Both offers retire from this run; melting is available later at Rest.':event?.detail||summary;
  return{...base,label:kind==='boss'?'GUARDIAN':elite?'ELITE':exit?'EXIT':base.label,name:kind==='boss'?guardian:event?.name||(node.type==='support'?node.name:node.locationName||node.name)||base.name,summary:event?summary:glowText(summary,maxGlow),detail:event?detail:glowText(detail,maxGlow),eventIndex:event?.index??null,scenarioId:event?.id||null};
 }
-const colors={dark:'#10231e',body:'#80917c',face:'#c0c7a3',fire:'#efd59a',glint:'#fff4cf',edge:'#d3d6b0',rune:'#e4d6a9'};
-export function mapStopIconMarkup(kindOrNode){
+// Stop icons are the approved v2.0-icons set (ui-icons.mjs). Elite and Guardian share the boss family but keep their own drawings.
+const STOP_ICON={flight:'stop-flight',rest:'stop-rest',encounter:'stop-encounter',treasure:'stop-chest',boss:'stop-boss',elite:'stop-elite'};
+export const MAP_STOP_ICON_NAMES=Object.freeze([...Object.values(STOP_ICON),'stop-workshop','stop-unknown']);
+/** Map stop icon (24-grid art): 48 px by default, ask for 24, 72, 96... through size. The Lantern Workshop encounter has its own icon. */
+export function mapStopIconMarkup(kindOrNode,{size=48}={}){
  const artCategory=landmarkCategory(kindOrNode),category=artCategory==='elite'?'boss':artCategory;
- const art=landmarkArt(kindOrNode).replace(/class="landmark-(\w+)"/g,(_,part)=>part==='edge'||part==='rune'?`fill="none" stroke="${colors[part]}" stroke-width="1.8"`:`fill="${colors[part]||colors.body}" stroke="none"`);
- return `<svg class="map-stop-icon map-symbol-${artCategory}" data-map-category="${category}" viewBox="-42 -39 84 78" xmlns="http://www.w3.org/2000/svg" shape-rendering="crispEdges" aria-hidden="true" focusable="false">${art}</svg>`;
+ const workshop=artCategory==='encounter'&&typeof kindOrNode==='object'&&(kindOrNode?.scenarioId==='workshop'||kindOrNode?.eventIndex===10);
+ const name=workshop?'stop-workshop':STOP_ICON[artCategory]||'stop-flight';
+ return uiIcon(name,{size,className:`map-stop-icon map-symbol-${artCategory}`}).replace('<svg ',`<svg data-map-category="${category}" `);
 }
 
 /** Only the currently linked route is disclosed, from the same biome data as play. */

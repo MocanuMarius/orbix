@@ -32,16 +32,11 @@
 </style>
 </head>
 <body>
-<h1>Levels: ice and forest as real places <span class="code">v1.0-level</span></h1>
-<p class="lead">Each pair is the real flight renderer, paused. Left: today (scenery off). Right: <b>v1.0-level</b> (scenery 2). Top row fully lit, bottom row in normal flight darkness with the wisp's light. Collision, courses, hazards and pickups are unchanged; the new art is decoration only. In the game it stays off unless the URL has <code>&amp;scenery=2</code>.</p>
-<div class="bar">
- <label>Position <input id="at" type="range" min="2" max="94" value="30"></label>
- <button id="pan" aria-pressed="false">Pan</button>
- <button id="still" aria-pressed="false">Freeze time</button>
- <span id="status">Loading…</span>
-</div>
+<h1>Levels: ground, boulders and growth for all twelve biomes <span class="code">v1.2-level</span></h1>
+<p class="lead">The real flight renderer, paused, in real flight lighting only: the wisp's own light at two places along each course, then a Flash pickup moment. Left: <b>before</b>, the game with the ground dressing off (<code>?scenery=1</code>: the original terrain material and the shared ecology plants). Right: <b>after</b>, what the game ships now: each biome's own top lip, strata and half-buried boulders inside the ground, and surface growth that fits the place. Background, edge light, collision, courses, hazards and pickups are the same in both columns. Each biome has its own code (<code>v1.2-level-&lt;biome&gt;</code>) for approval.</p>
+<div class="bar"><button id="redraw">Redraw</button> <span id="status">Loading…</span></div>
 <div id="sections"></div>
 <div id="hosts" aria-hidden="true"></div>
-<script type="module" src="design-lab/level.mjs?v=1"></script>
+<script type="module" src="design-lab/level.mjs?v=3"></script>
 </body>
 </html>

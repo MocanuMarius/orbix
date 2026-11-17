@@ -13,8 +13,14 @@ import {cardFace, cardArt, getCardFaceAvailability} from '../card-ui.mjs?v=guide
 import {getEquippedCardStatuses} from '../card-status.mjs?v=guide-clarity-1';
 import {glowGaugeMarkup, glowGaugeUnits} from '../glow-ui.mjs?v=guide-clarity-1';
 import {cardTileLine, SPARK_ICON_SRC, WISP_ORB_SRC} from '../card-tile-lines.mjs?v=guide-clarity-1';
-import {resolveChain, slotInfo, hereLine, plateWords, whenOf, markOf, TRIGGER_BY, triggerName, RARITY_WORD, rarityOf, nameOf, shortName, isRest, num, METER_MAX, START_FLAME} from './chain-model.mjs?v=guide-clarity-1';
-import {triggerIcon, pixelArt, CHEVRON, gem, EYE, WARN, PLUS, NEXT, FIRE, medalUrl, frameVars} from './trigger-icons.mjs?v=guide-clarity-1';
+import {resolveChain, slotInfo, hereLine, plateWords, whenOf, markOf, TRIGGER_BY, triggerName, RARITY_WORD, rarityOf, nameOf, shortName, isRest, num, METER_MAX, START_FLAME,
+  chipOf, triggerBook, enginePlate, holeTally} from './chain-model.mjs?v=guide-clarity-1';
+import {triggerIcon, pixelArt, CHEVRON, gem, EYE, WARN, PLUS, NEXT, FIRE, medalUrl, frameVars, chipBadge, chipIcon, rarityPips} from './trigger-icons.mjs?v=guide-clarity-1';
+import {CARD_TRIGGERS} from '../card-rule-bands.mjs?v=guide-clarity-1';
+import {CARD_TERMS} from '../card-terms.mjs?v=guide-clarity-1';
+import {SKILL_CARDS} from '../skill-cards.mjs?v=guide-clarity-1';
+import {simulateEngineChain, engineStarts} from '../card-engine.mjs?v=guide-clarity-1';
+import {GLOW_DISPLAY_SCALE} from '../vitality.mjs?v=guide-clarity-1';
 
 const esc = v => String(v ?? '').replace(/[&<>"']/g, c => ({'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'}[c]));
 const SPARK_SRC = SPARK_ICON_SRC;
@@ -25,7 +31,7 @@ const RANK = {legendary: 0, rare: 1, common: 2};
 /** The screen's own state. It belongs to the open Deck only; nothing here enters a save. */
 export function createDeckView() {
   return {tab: 'chain', pick: null, placing: null, filter: 'all', sort: 'rarity', trigger: null, reading: null, readingReturn: null,
-    melting: null, note: '', noteTone: '', scroll: 0, focus: null, announce: ''};
+    melting: null, note: '', noteTone: '', scroll: 0, focus: null, announce: '', bookFrom: 'chain'};
 }
 
 // ── Data ─────────────────────────────────────────────────────────────────────
@@ -54,7 +60,27 @@ function termBtn(kind, {icon = true, cls = '', glossary = true} = {}) {
   const help = glossary && term ? `data-card-term="${esc(term)}" aria-haspopup="dialog" aria-label="${esc(triggerName(kind))}: what it means"` : `aria-label="${esc(triggerName(kind))}"`;
   return `<button type="button" class="dk2-btn dk22-term ${cls}" data-term="${esc(kind)}" ${help}>${icon ? triggerIcon(kind, 16) : ''}<span class="dk22-word">${esc(triggerName(kind))}</span></button>`;
 }
-const inert = html => html.replace(/<button type="button"/g, '<span').replace(/<\/button>/g, '</span>').replace(/ aria-haspopup="dialog"/g, '').replace(/: help"/g, '"');
+/** A Trigger chip as a glossary keyword (chips that are not a flight event too: Card Pulse, Pack, Always on...). */
+const chipTerm = id => id === 'any' ? 'any-trigger' : id;
+function chipTermBtn(id, {icon = true, cls = '', size = 16} = {}) {
+  const label = CARD_TRIGGERS[id]?.label || id, term = chipTerm(id);
+  const help = CARD_TERMS[term] ? `data-card-term="${esc(term)}" aria-haspopup="dialog" aria-label="${esc(label)}: what it means"` : `aria-label="${esc(label)}"`;
+  return `<button type="button" class="dk2-btn dk22-term ${cls}" data-chip="${esc(id)}" ${help}>${icon ? chipIcon(id, size) : ''}<span class="dk22-word">${esc(label)}</span></button>`;
+}
+/** Engine cards that pass events along (the ones a circle is made of); Pack, Black Hole and governors are not. */
+const passesEvents = c => {const s = SKILL_CARDS[c?.cardId]?.engine;return !!s && s.family !== 'pack' && (s.does?.includes('pulse') || !!s.timer || (s.hears || []).some(h => ['pulse', 'gain'].includes(h)));};
+/** The engine view of a Chain: a circle (Timer), "runs once", or nothing to show. */
+function engineView(chain) {
+  const e = chain.engine;
+  if (!e) return null;
+  const loop = !e.runsOnce && (e.returns.length || e.timers.length);
+  const once = e.runsOnce && chain.row.filter(passesEvents).length > 0;
+  if (!loop && !once) return null;
+  const from = e.returns.length ? e.returns[0] : e.timers[0];
+  const metronome = loop && !e.returns.length;
+  return {loop: !!loop, once, from, to: loop ? (metronome ? from + 1 : 0) : -1, metronome, perTurn: e.sparksPerTurn, per10: e.turnsPer10s, starts: e.starts || []};
+}
+const inert = html =>html.replace(/<button type="button"/g, '<span').replace(/<\/button>/g, '</span>').replace(/ aria-haspopup="dialog"/g, '').replace(/: help"/g, '"');
 
 function plateHTML(info) {
   const n = num;
@@ -85,17 +111,28 @@ function stationsHTML(d, view, opts) {
     }
     const mark = markOf(c);
     const availability = getCardFaceAvailability(d.run, printed[i], d.statuses[i]);
+    // Engine wording, Black Hole's meal and its victim replace the ordinary plate (chain-model.mjs › enginePlate).
+    const meal = chain.blackHole?.find(m => m.slot === i), hole = SKILL_CARDS[c.cardId]?.kind === 'black-hole';
+    const holeMeal = hole ? chain.blackHole?.find(m => m.holeSlot === i) : null;
+    const eng = !meal && !hole && chain.engine ? enginePlate(chain.row, i) : null;
+    const special = meal ? {cls: 'dk-plate-wine', long: 'Eaten at take-off', short: 'Eaten'} : hole ? (holeMeal ? {cls: 'dk-plate-hole', long: 'Eats the next card', short: 'Eats next'} : {cls: 'dk-plate-hole', long: 'Nothing to eat', short: 'Nothing'}) : eng ? {cls: 'dk-plate-eng', ...eng} : null;
+    const words = special ? special.long : plateWords(info);
     const label = placing ? `Put ${nameOf(placing)} in slot ${i + 1}. ${nameOf(c)} goes back to the Deck`
-      : `Slot ${i + 1}: ${nameOf(c)}, ${RARITY_WORD[rarityOf(c)]}. On ${triggerName(chain.trigger)}: ${plateWords(info)}.${availability.state !== 'active' && availability.reason ? ` ${availability.reason}` : ''}${editable ? ' Drag to trade slots, or open it' : ' Open it to read'}`;
+      : `Slot ${i + 1}: ${nameOf(c)}, ${RARITY_WORD[rarityOf(c)]}. Trigger: ${chipOf(c).label}. ${special ? words : `On ${triggerName(chain.trigger)}: ${words}`}.${availability.state !== 'active' && availability.reason ? ` ${availability.reason}` : ''}${editable ? ' Drag to trade slots, or open it' : ' Open it to read'}`;
     const face = cardFace(printed[i], {compact: true, ...(availability.state !== 'active' ? {availability} : {})});
-    return `<div class="dk2-station dk2-k-${info.kind}${lit}" data-slot="${i}" style="${col}">
+    const timer = opts.engineView && (i === opts.engineView.from) ? dialHTML(c, chain.row) : '';
+    const plate = special ? `<span class="dk2-plate dk21-plate dk2-plate-word ${special.cls}" aria-hidden="true"><b class="pl-long">${esc(special.long)}</b><b class="pl-short">${esc(special.short)}</b></span>`
+      : `<span class="dk2-plate dk21-plate dk2-plate-${info.kind}${info.role === 'add' || info.role === 'mul' ? '' : ' dk2-plate-word'}${info.changed ? ' dk21-plate-changed' : ''}" aria-hidden="true">${plateHTML(info)}</span>`;
+    return `<div class="dk2-station dk2-k-${special ? 'eng' : info.kind}${meal ? ' dk-eaten' : ''}${lit}" data-slot="${i}" style="${col}">
       <span class="dk2-eyerow">${eyeBtn(`data-slot="${i}"`, `Read ${nameOf(c)}`)}</span>
-      <button type="button" class="dk2-btn dk2-card" data-slot="${i}" aria-label="${esc(label)}">${mark && ['add', 'mul', 'repeat'].includes(mark.cls) ? `<span class="dk2-mark dk-mark-${mark.cls}" aria-hidden="true">${mark.glyph}</span>` : ''}${face}${placing ? '<span class="dk2-puthere" aria-hidden="true">Put here</span>' : ''}</button>
-      <span class="dk2-plate dk21-plate dk2-plate-${info.kind}${info.role === 'add' || info.role === 'mul' ? '' : ' dk2-plate-word'}${info.changed ? ' dk21-plate-changed' : ''}" aria-hidden="true">${plateHTML(info)}</span></div>${notch}${swap}`;
+      <button type="button" class="dk2-btn dk2-card" data-slot="${i}" aria-label="${esc(label)}">${mark && ['add', 'mul', 'repeat'].includes(mark.cls) ? `<span class="dk2-mark dk-mark-${mark.cls}" aria-hidden="true">${mark.glyph}</span>` : ''}${face}${timer}${placing ? '<span class="dk2-puthere" aria-hidden="true">Put here</span>' : ''}</button>
+      ${plate}</div>${notch}${swap}`;
   }).join('');
 }
-function chipsHTML(d) {
+function chipsHTML(d, ev = null) {
   const {chain} = d, short = shortScreen();
+  // An engine that no ordinary Trigger fires: the flying that starts it, as glossary keywords (the first is shown).
+  if (!chain.trigs.length && ev?.starts?.length) return ev.starts.map((id, i) => `<div class="dk22-trow${i ? '' : ' dk22-on'}"><i class="dk22-dot" aria-hidden="true"></i>${chipTermBtn(id)}</div>`).join('');
   if (!chain.trigs.length) return '<p class="dk21-none">Nothing triggers this chain yet.</p>';
   const rows = chain.trigs.map(t => {
     const on = t.kind === chain.trigger;
@@ -107,19 +144,40 @@ function chipsHTML(d) {
   const help = shown?.term ? `<button type="button" class="dk2-btn dk23-help" data-card-term="${esc(shown.term)}" aria-haspopup="dialog" aria-label="What is ${esc(shown.name)}?"><b>?</b></button>` : '';
   return rows + help;
 }
+function dialHTML(c, row) {
+  const spec = SKILL_CARDS[c?.cardId]?.engine;
+  if (!spec?.wait) return '';
+  const wait = spec.wait * (row.some(x => SKILL_CARDS[x?.cardId]?.engine?.timerScale) ? .5 : 1);
+  return `<span class="dk-dial" aria-hidden="true"><i class="dk-dial-ring"></i><b>${esc(num(wait))} s</b></span>`;
+}
 function chainPanelHTML(d, view, opts) {
   const {chain} = d, sol = chain.sol, tr = TRIGGER_BY[chain.trigger] || {name: 'this Trigger'};
-  const has = chain.trigs.length > 0;
-  const text = sol.sparks > 0 ? `+${num(sol.sparks)}` : '0';
+  const ev = engineView(chain);
+  opts = {...opts, engineView: ev};
+  const has = chain.trigs.length > 0, start = !has && ev?.starts?.[0];
+  // A chain that runs once shows what one run gives (the engine's own rules), not the ordinary walker's 0.
+  const once = ev?.once ? simulateEngineChain(d.row, {horizon: 10, events: engineStarts(d.row), log: false}).asked : 0;
+  const text = sol.sparks > 0 ? `+${num(sol.sparks)}` : once > 0 ? `+${num(once)}` : '0';
   const passes = chain.passes.length ? chain.passes.join(' + ') : '';
-  const sumLabel = `Equals ${passes ? `${chain.passes.join(' plus ')}, ` : ''}${sol.sparks > 0 ? `plus ${num(sol.sparks)}` : 'zero'} Sparks on ${tr.name}`;
-  return `<div class="dk2-stage dk21-stage${view.placing ? ' dk2-placing' : ''}" id="dk2-stage" role="group" aria-label="Your chain. On a Trigger, your cards fire left to right." style="--n:${d.row.length}">
+  const twoNumbers = ev?.loop && ev.perTurn !== null && ev.per10 !== null;
+  const sumLabel = twoNumbers ? `Engine: ${num(ev.perTurn)} Sparks per Turn, ${num(Math.round(ev.per10 * 10) / 10)} Turns every 10 seconds`
+    : `Equals ${passes ? `${chain.passes.join(' plus ')}, ` : ''}${sol.sparks > 0 ? `plus ${num(sol.sparks)}` : 'zero'} Sparks on ${tr.name}`;
+  const medal = twoNumbers
+    ? `<span class="dk22-medal dk-medal2" id="dk22-medal"><span class="dk-m-row"><b id="dk22-num">${esc(num(ev.perTurn))}</b><small>per Turn</small></span><span class="dk-m-row"><b>${esc(num(Math.round(ev.per10 * 10) / 10))}</b><small>Turns per 10&nbsp;s</small></span></span>`
+    : `<span class="dk22-medal${text.length > 3 ? ' dk22-long' : ''}" id="dk22-medal"><b id="dk22-num">${esc(text)}</b><small>Sparks</small></span>`;
+  const origin = has ? triggerIcon(chain.trigger, 32) : start ? chipIcon(start, 32) : `<img src="${WISP_ORB_SRC}" width="32" height="32" alt="">`;
+  const originName = has ? termBtn(chain.trigger, {icon: false, cls: 'dk22-term-origin'}) : start ? chipTermBtn(start, {icon: false, cls: 'dk22-term-origin'}) : 'No Trigger';
+  const playName = has ? tr.name : start ? CARD_TRIGGERS[start].label : 'this Trigger';
+  const engineRow = ev?.once ? `<p class="dk-runs" id="dk-runs" style="grid-column:2/span ${d.row.length}"><i class="dk2-warn" aria-hidden="true">${WARN}</i><b>Runs once. Add a Timer to keep it turning.</b></p>` : '';
+  return `<div class="dk2-stage dk21-stage${view.placing ? ' dk2-placing' : ''}${ev ? ` dk-eng${ev.once ? ' dk-eng-once' : ''}` : ''}" id="dk2-stage" role="group" aria-label="Your chain. On a Trigger, your cards fire left to right.${ev?.loop ? ' It is an engine: a Timer sends it round again.' : ''}" style="--n:${d.row.length}">
     <div class="dk2-track" id="dk2-track" aria-hidden="true"></div>
-    <div class="dk21-left" id="dk21-left"><h2 class="dk21-thead" id="dk21-thead">Triggers</h2><div class="dk21-chips" id="dk21-chips" role="radiogroup" aria-labelledby="dk21-thead">${chipsHTML(d)}</div>
-     <button type="button" class="wb-sign wb-sign-primary dk2-play dk21-play" id="dk2-play" aria-pressed="false" aria-label="${esc(`Play ${tr.name}: watch a Spark pass through your chain. Result: ${sol.sparks > 0 ? `+${num(sol.sparks)}` : 'no'} Bonus`)}"><span class="wb-sign-text"><b>Play</b></span></button></div>
-    <div class="dk2-anchor dk2-start dk21-start" aria-hidden="${has ? 'false' : 'true'}"><span class="dk21-origin" id="dk21-origin">${has ? triggerIcon(chain.trigger, 32) : `<img src="${WISP_ORB_SRC}" width="32" height="32" alt="">`}</span><span class="dk2-start-label" id="dk21-origin-name">${has ? termBtn(chain.trigger, {icon: false, cls: 'dk22-term-origin'}) : 'No Trigger'}</span></div>
+    ${ev?.loop ? '<i class="dk-ret dk-ret-a" aria-hidden="true"></i><i class="dk-ret dk-ret-b" aria-hidden="true"></i><i class="dk-ret dk-ret-c" aria-hidden="true"></i>' : ''}
+    <div class="dk21-left" id="dk21-left"><h2 class="dk21-thead" id="dk21-thead">Triggers</h2><div class="dk21-chips" id="dk21-chips" role="radiogroup" aria-labelledby="dk21-thead">${chipsHTML(d, ev)}</div>
+     <button type="button" class="wb-sign wb-sign-primary dk2-play dk21-play" id="dk2-play" aria-pressed="false" aria-label="${esc(ev ? `Play the engine from ${playName}: watch it turn, one card at a time` : `Play ${tr.name}: watch a Spark pass through your chain. Result: ${sol.sparks > 0 ? `+${num(sol.sparks)}` : 'no'} Bonus`)}"><span class="wb-sign-text"><b>Play</b></span></button></div>
+    <div class="dk2-anchor dk2-start dk21-start" aria-hidden="${has || start ? 'false' : 'true'}"><span class="dk21-origin" id="dk21-origin">${origin}</span><span class="dk2-start-label" id="dk21-origin-name">${originName}</span></div>
     <div class="dk2-stations" id="dk2-stations">${stationsHTML(d, view, opts)}</div>
-    <div class="dk22-sum" id="dk22-sum" role="img" aria-label="${esc(sumLabel)}"><i class="dk22-eq" aria-hidden="true"></i><small class="dk23-passes" id="dk23-passes" aria-hidden="true">${esc(passes)}</small><span class="dk22-medal${text.length > 3 ? ' dk22-long' : ''}" id="dk22-medal"><b id="dk22-num">${esc(text)}</b><small>Sparks</small></span></div>
+    ${engineRow}
+    <div class="dk22-sum${twoNumbers ? ' dk-sum2' : ''}" id="dk22-sum" role="img" aria-label="${esc(sumLabel)}"><i class="dk22-eq" aria-hidden="true"></i><small class="dk23-passes" id="dk23-passes" aria-hidden="true">${twoNumbers ? '' : esc(passes)}</small>${medal}</div>
     <div class="dk2-track dk23-track2" id="dk23-track2" aria-hidden="true"></div>
     <div class="dk2-anchor dk2-meter" id="dk2-meter"><span class="dk2-meter-label" aria-hidden="true">Spark Meter</span><div class="dk2-gauge" id="dk2-gauge" aria-hidden="true">${gaugeHTML(chain, false)}</div>
      <div class="dk2-meter-info"><b id="dk2-meter-value">${esc(meterValue(chain, false))}</b><small id="dk2-meter-gain"></small></div></div>
@@ -145,8 +203,10 @@ function groups(d, view) {
   ].filter(g => g.cards.length);
 }
 function tileHTML(d, view, c) {
-  const r = rarityOf(c), mark = markOf(c), at = d.slotOf(c), rest = isRest(c), w = whenOf(c), u = usesOf(c), effect = cardTileLine(c);
-  let label = `${nameOf(c)}. ${RARITY_WORD[r]}. ${effect}.${w.kind ? ` Trigger: ${w.text}.` : ''}${at >= 0 ? ` In your chain, slot ${at + 1}.` : rest ? ' Rest card.' : ' Not in your chain.'}${u ? ` Uses ${u.now} of ${u.max}.` : ''}`;
+  const r = rarityOf(c), mark = markOf(c), at = d.slotOf(c), rest = isRest(c), u = usesOf(c), chip = chipOf(c);
+  const tally = SKILL_CARDS[c.cardId]?.kind === 'black-hole' ? holeTally(c) : null;
+  const effect = tally?.eaten ? `Eaten ${tally.eaten} · +${tally.growth} max Sparks` : cardTileLine(c);
+  let label = `${nameOf(c)}. ${RARITY_WORD[r]}. Trigger: ${chip.label}. ${effect}.${at >= 0 ? ` In your chain, slot ${at + 1}.` : rest ? ' Rest card.' : ' Not in your chain.'}${u ? ` Uses ${u.now} of ${u.max}.` : ''}`;
   let cls = '', sub = '', disabled = false;
   if (view.pick !== null) {
     const p = view.pick, here = d.row[p];
@@ -158,10 +218,9 @@ function tileHTML(d, view, c) {
   const frame = rest ? 'rest' : at >= 0 ? `chain${RARITY_WORD[r]}` : r;
   return `<div class="dk2-tile dk21-tile dc-r-${r}${rest ? ' dk21-rest' : ''}${at >= 0 ? ' dk21-inchain' : ''}${cls}" data-uid="${esc(c.instanceId)}" style="--fr:var(--fr-${frame})">
     <button type="button" class="dk2-btn dk2-tilemain dk21-tilemain" data-uid="${esc(c.instanceId)}" aria-label="${esc(label)}" ${disabled ? 'aria-disabled="true"' : ''}>
-     <span class="dk21-top"><span class="dk21-rtab">${gem(r)}<b>${RARITY_WORD[r]}</b></span>
-      ${rest ? `<span class="dk21-resttag">${FIRE}<b>Rest</b></span>` : at >= 0 ? `<span class="dk21-slot"><b>Slot ${at + 1}</b></span>` : ''}</span>
+     <span class="dk21-top">${chipBadge(chip, {cls: 'dk-tbadge'})}<span class="dk-topr">${rarityPips(r)}${at >= 0 ? `<span class="dk21-slot"><b>Slot ${at + 1}</b></span>` : ''}</span></span>
      <span class="dk2-body dk21-body"><span class="dk2-art dk21-art">${cardArt(c, {compact: true})}${mark && !rest && ['add', 'mul', 'repeat'].includes(mark.cls) ? `<span class="dk2-mark dk-mark-${mark.cls}" aria-hidden="true">${mark.glyph}</span>` : ''}${u ? `<span class="dk2-uses" aria-hidden="true">${u.now}/${u.max}</span>` : ''}</span>
-      <span class="dk2-text"><b class="dk2-name">${esc(nameOf(c))}</b>${sub ? `<small class="dk2-sub">${esc(sub)}</small>` : `<b class="dk2-effect">${esc(effect)}</b>`}${w.kind ? `<span class="dk23-when">${triggerIcon(w.kind, 16)}<span>${esc(triggerName(w.kind))}</span></span>` : ''}</span></span>
+      <span class="dk2-text"><b class="dk2-name">${esc(nameOf(c))}</b>${sub ? `<small class="dk2-sub">${esc(sub)}</small>` : `<b class="dk2-effect">${esc(effect)}</b>`}</span></span>
     </button>
     ${eyeBtn(`data-uid="${esc(c.instanceId)}"`, `Read ${nameOf(c)}`)}</div>`;
 }
@@ -184,6 +243,19 @@ function deckPanelHTML(d, view, opts) {
   return `<div class="dk2-bar" id="dk2-bar">${barHTML(d, view, opts)}</div>
    <div class="dk21-gridwrap" id="dk21-gridwrap"><div class="dk2-grid dk21-grid${view.pick !== null ? ' dk2-picking' : ''}" id="dk2-grid" role="group" aria-label="All your cards">${gridHTML(d, view)}</div>
     <span class="dk21-more" id="dk21-more" aria-hidden="true">${pixelArt(CHEVRON, {size: 16})}</span></div>`;
+}
+
+// ── Triggers tab: the collection of Triggers ─────────────────────────────────
+function bookPanelHTML(d, view, opts) {
+  const rows = triggerBook(d.run), mine = rows.filter(r => r.owned).length;
+  const row = r => `<li class="tb-row${r.owned ? '' : ' tb-none'}" data-chip="${esc(r.id)}">
+     <span class="tb-icon" aria-hidden="true">${chipIcon(r.id, 32)}</span>
+     <span class="tb-text"><span class="tb-name">${chipTermBtn(r.id, {icon: false, cls: 'tb-term'})}<small class="tb-often">${esc(r.often)}</small></span><span class="tb-does">${esc(r.does)}</span></span>
+     <span class="tb-cards">${r.owned ? r.cards.map(k => `<button type="button" class="dk2-btn tb-card dc-r-${rarityOf(k.card)}${k.inChain ? ' tb-inchain' : ''}" data-uid="${esc(k.card.instanceId)}" aria-label="${esc(`${nameOf(k.card)}, ${RARITY_WORD[rarityOf(k.card)]}${k.count > 1 ? `, ${k.count} owned` : ''}${k.inChain ? ', in your chain' : ''}. Open it`)}">${cardArt(k.card, {compact: true})}${k.count > 1 ? `<b class="tb-count" aria-hidden="true">×${k.count}</b>` : ''}</button>`).join('') : '<small class="tb-nocard">No card yet</small>'}</span></li>`;
+  const back = view.bookFrom === 'outside' ? 'Close' : 'Back';
+  return `<div class="tb-bar"><button type="button" class="wb-sign wb-sign-quiet tb-back" id="tb-back" aria-label="${back === 'Close' ? 'Close the Triggers' : `Back to the ${view.bookFrom === 'deck' ? 'Deck' : 'Chain'}`}"><span class="wb-sign-text"><b>${back}</b></span></button>
+    <p class="tb-intro">What fires your cards. <span>You have cards for ${mine} of ${rows.length}.</span></p></div>
+   <div class="tb-scroll" id="tb-scroll"><ul class="tb-list" id="tb-list" aria-label="Every Trigger">${[...rows.filter(r => r.owned), ...rows.filter(r => !r.owned)].map(row).join('')}</ul></div>`;
 }
 
 // ── The opened card ──────────────────────────────────────────────────────────
@@ -217,7 +289,7 @@ function readerHTML(d, view, opts) {
     <div class="dk2-info">
      <h2 class="dk-sr" id="dk2-read-name">${esc(nameOf(c))}</h2>
      <p class="dk2-rar dc-r-${r}">${gem(r)}<span>${RARITY_WORD[r]}</span></p>
-     <p class="dk21-on"><small>Triggers on</small>${w.kind ? termBtn(w.kind) : `${rest ? FIRE : ''}<b>${esc(w.text)}</b>`}</p>
+     <p class="dk21-on"><small>Trigger</small>${chipTermBtn(chipOf(c).id)}</p>
      <p class="dk2-here${idle ? ' dk2-here-idle' : ''}">${idle ? `<i class="dk2-warn">${WARN}</i>` : ''}<span>${esc(hereLine(d.chain, c))}</span></p>
      ${acts}
      <button type="button" class="wb-sign wb-sign-quiet dk2-close" id="dk2-close" aria-label="Close ${esc(nameOf(c))}"><span class="wb-sign-text"><b>Close</b></span></button>
@@ -232,6 +304,7 @@ function headHTML(d, view, opts) {
    <div class="dk2-tabs" role="tablist" aria-label="${opts.loaned ? 'Loaned cards' : 'Deck screens'}">
     <button type="button" class="dk2-btn dk2-tab" role="tab" id="dk2-tab-chain" aria-controls="dk2-rowpanel" data-tab="chain" aria-selected="${view.tab === 'chain'}" tabindex="${view.tab === 'chain' ? 0 : -1}"><span>Chain</span></button>
     <button type="button" class="dk2-btn dk2-tab" role="tab" id="dk2-tab-deck" aria-controls="dk2-deckpanel" data-tab="deck" aria-selected="${view.tab === 'deck'}" tabindex="${view.tab === 'deck' ? 0 : -1}"><span>Deck</span></button>
+    <button type="button" class="dk2-btn dk2-tab dk-tab-book" role="tab" id="dk2-tab-triggers" aria-controls="dk2-bookpanel" data-tab="triggers" aria-selected="${view.tab === 'triggers'}" tabindex="${view.tab === 'triggers' ? 0 : -1}"><span>Triggers</span></button>
    </div>
    <div class="dk2-context" id="dk2-context"><p class="dk2-note ${placing ? 'dk2-note-mode' : esc(view.noteTone)}" id="dk2-note">${esc(note || (opts.loaned ? 'Loaned cards for practice' : opts.paused ? 'Flight paused' : ''))}</p>
     <button type="button" class="wb-sign wb-sign-quiet dk2-cancel" id="dk2-placecancel" ${placing ? `aria-label="Cancel: keep ${esc(nameOf(placing))} where it is"` : 'hidden'}><span class="wb-sign-text"><b>Cancel</b></span></button></div>`;
@@ -248,6 +321,7 @@ export function deckScreenMarkup(run, view = createDeckView(), opts = {}) {
    <header class="dk2-head dk21-head" id="dk2-head"${view.reading ? ' inert' : ''}>${headHTML(d, view, opts)}</header>
    <section class="dk2-panel dk2-rowpanel" id="dk2-rowpanel" role="tabpanel" aria-labelledby="dk2-tab-chain"${view.tab !== 'chain' ? ' hidden' : ''}${view.reading ? ' inert' : ''}>${view.tab === 'chain' ? chainPanelHTML(d, view, opts) : ''}</section>
    <section class="dk2-panel dk2-deckpanel" id="dk2-deckpanel" role="tabpanel" aria-labelledby="dk2-tab-deck"${view.tab !== 'deck' ? ' hidden' : ''}${view.reading ? ' inert' : ''}>${view.tab === 'deck' ? deckPanelHTML(d, view, opts) : ''}</section>
+   <section class="dk2-panel dk-bookpanel" id="dk2-bookpanel" role="tabpanel" aria-labelledby="dk2-tab-triggers"${view.tab !== 'triggers' ? ' hidden' : ''}${view.reading ? ' inert' : ''}>${view.tab === 'triggers' ? bookPanelHTML(d, view, opts) : ''}</section>
    ${readerHTML(d, view, opts)}
   </div>
   <p class="dk-sr" id="dk-live" role="status" aria-live="polite"></p>
@@ -292,16 +366,23 @@ export function mountDeckScreen(host, {run, view, opts = {}, actions = {}}) {
       face.querySelectorAll('[tabindex]').forEach(el => el.removeAttribute('tabindex'));
       face.querySelectorAll('[role="img"]:not(.card-sight-warning)').forEach(el => el.removeAttribute('role'));
     }
-    if (view.tab === 'chain') {sizeStage();paintMedal();} else hint();
+    if (view.tab === 'chain') {sizeStage();paintMedal();fitNames();} else hint();
     sizeFace();
   }
 
+  // A one-word name wider than a narrow Chain tile ellipsizes instead of being cut off mid-letter.
+  function fitNames() {
+    root.querySelectorAll('.dk2-card .card-face-heading h3').forEach(h => {
+      h.classList.remove('dk-name-cut');
+      if (h.scrollWidth > h.clientWidth + 1) h.classList.add('dk-name-cut');
+    });
+  }
   // ── Chain geometry, medallion, crossed figures, Play ───────────────────────
   function sizeStage() {
     const stage = $('dk2-stage');
     if (!stage || view.tab !== 'chain') return;
     const cs = getComputedStyle(stage);
-    const fixed = ['--eye', '--plate', '--ga', '--gb', '--swap'].reduce((sum, v) => sum + (parseFloat(cs.getPropertyValue(v)) || 0), 0);
+    const fixed = ['--eye', '--plate', '--ga', '--gb', '--eng', '--swap'].reduce((sum, v) => sum + (parseFloat(cs.getPropertyValue(v)) || 0), 0);
     const h = stage.clientHeight, w = stage.clientWidth;
     const endl = parseFloat(cs.getPropertyValue('--endl')) || 96, endr = parseFloat(cs.getPropertyValue('--endr')) || 120;
     const medw = parseFloat(cs.getPropertyValue('--medw')) || 0;
@@ -327,6 +408,19 @@ export function mountDeckScreen(host, {run, view, opts = {}, actions = {}}) {
     const track = $('dk2-track'), t2 = $('dk23-track2');
     track.style.left = `${icon.r}px`;track.style.width = `${Math.max(0, eq.l - 8 - icon.r)}px`;track.style.top = `${geo.y - 3}px`;
     t2.style.left = `${medal.r}px`;t2.style.width = `${Math.max(0, gauge.l - 4 - medal.r)}px`;t2.style.top = `${geo.y - 3}px`;
+    // The engine's return path: a stepped line under the cards, from the Timer back to the first Slot (or, for a
+    // Metronome, from the card it fires back to the Metronome), in the row between the track and the Swap plaques.
+    geo.ret = null;
+    const ev = engineView(d.chain), a = stage.querySelector('.dk-ret-a');
+    if (ev?.loop && a && geo.notches[ev.from] && geo.notches[ev.to]) {
+      const cs = getComputedStyle(stage), yR = Math.round(geo.y + (parseFloat(cs.getPropertyValue('--gb')) || 10) + (parseFloat(cs.getPropertyValue('--eng')) || 16) / 2);
+      const xa = Math.min(geo.notches[ev.from].x, geo.notches[ev.to].x), xb = Math.max(geo.notches[ev.from].x, geo.notches[ev.to].x);
+      geo.ret = {y: yR, xa, xb};
+      const b = stage.querySelector('.dk-ret-b'), c = stage.querySelector('.dk-ret-c');
+      a.style.cssText = `left:${xa - 3}px;top:${geo.y + 5}px;height:${yR - geo.y - 2}px`;
+      c.style.cssText = `left:${xb - 3}px;top:${geo.y + 5}px;height:${yR - geo.y - 2}px`;
+      b.style.cssText = `left:${xa - 3}px;top:${yR - 3}px;width:${xb - xa + 6}px`;
+    }
     if (!playing) parkSpark();
   }
   function paintMedal() {
@@ -372,12 +466,115 @@ export function mountDeckScreen(host, {run, view, opts = {}, actions = {}}) {
     $('dk2-meter').classList.toggle('dk2-meter-on', full);
   }
   function stopPlay() {
-    clearTimeout(playTimer);playing = 0;
+    clearTimeout(playTimer);playing = 0;engineToken++;cancelAnimationFrame(dialRaf);
     $('dk2-play')?.setAttribute('aria-pressed', 'false');
-    root.querySelectorAll('.dk2-firing').forEach(el => el.classList.remove('dk2-firing'));
+    const label = $('dk2-play')?.querySelector('b');if (label) label.textContent = 'Play';
+    $('dk2-stage')?.classList.remove('dk-playing');
+    root.querySelectorAll('.dk2-swap,.dk2-card,.dk21-eye').forEach(el => el.removeAttribute('aria-disabled'));
+    root.querySelectorAll('.dk2-firing,.dk-dial-on').forEach(el => el.classList.remove('dk2-firing', 'dk-dial-on'));
+  }
+  // ── Engine Play: the flight's own engine (card-engine.mjs) on a capped meter, played back one card at a time ──
+  // Events in one instant: one step each (320 ms). A Timer's wait: shown three times faster, its real seconds printed.
+  const ENGINE_STEP = 320, ENGINE_SPEED = 3, ENGINE_TURNS = 8;
+  let engineToken = 0, dialRaf = 0;
+  const STOP_WORDS = {'meter-full': 'Meter full', 'cannot-act': 'Meter full', 'nothing-to-repeat': 'Nothing to repeat'};
+  function engineSteps(ev) {
+    const maxP = Math.round(METER_MAX * GLOW_DISPLAY_SCALE), per = Math.max(1, Number(ev.perTurn) || 1);
+    const start = ev.loop ? Math.max(0, maxP - Math.ceil(4 * per)) : Math.round(START_FLAME * GLOW_DISPLAY_SCALE);
+    const run = simulateEngineChain(d.row, {horizon: 40, events: engineStarts(d.row), meter: {start, max: maxP}, log: true});
+    const scale = d.row.some(c => SKILL_CARDS[c?.cardId]?.engine?.timerScale) ? .5 : 1;
+    const steps = [];let meter = start, lastTimer = -1, stop = null;
+    for (const e of run.log) {
+      if (e.k === 'trigger' && e.type !== 'gain' && e.type !== 'overfill') steps.push({t: e.t, kind: 'start', type: e.type});
+      else if (e.k === 'hit' || e.k === 'fired') steps.push({t: e.t, kind: 'hit', slot: e.slot});
+      else if (e.k === 'gain') {meter = Math.min(maxP, meter + (Number(e.real) || 0));steps.push({t: e.t, kind: 'gain', slot: e.slot, amount: e.amount, real: e.real, meter});}
+      else if (e.k === 'lit' || e.k === 'armed') {const w = (SKILL_CARDS[d.row[e.slot]?.cardId]?.engine?.wait || 1) * scale;steps.push({t: e.t, kind: 'wait', slot: e.slot, wait: w});}
+      else if (e.k === 'turn') {lastTimer = e.slot;steps.push({t: e.t, kind: 'turn', slot: e.slot, n: e.turn});if (e.turn > ENGINE_TURNS) {stop = 'Keeps turning';break;}}
+      else if (e.k === 'pulse' && e.slot === -1) steps.push({t: e.t, kind: 'back', from: lastTimer, to: e.to});
+      else if (e.k === 'keep') steps.push({t: e.t, kind: 'keep', slot: e.slot, amount: e.amount});
+      else if (e.k === 'stop') {stop = STOP_WORDS[e.reason] || 'It stopped';steps.push({t: e.t, kind: 'stop', reason: stop});break;}
+    }
+    if (!steps.some(s => s.kind === 'stop')) steps.push({t: steps.at(-1)?.t || 0, kind: 'stop', reason: stop || (ev.loop ? 'Keeps turning' : 'Ran once')});
+    return {steps, start, maxP};
+  }
+  function engineMeter(printed, maxP, gained) {
+    const g = $('dk2-gauge');
+    if (!g) return;
+    const flame = printed / GLOW_DISPLAY_SCALE;
+    g.innerHTML = glowGaugeMarkup({flame, skillSystem: CARD_SYSTEM, isTutorial: true});
+    $('dk2-meter-value').textContent = `${Math.round(printed)}/${maxP}`;
+    $('dk2-meter-gain').textContent = gained ? `+${num(gained)}` : '';
+    $('dk2-meter').classList.toggle('dk2-meter-on', gained > 0);
+  }
+  const notchX = slot => slot < 0 ? geo.orb.x + 26 : geo.notches[slot]?.x ?? geo.orb.x;
+  function engineSparkPath(points, ms) {
+    const spark = $('dk2-spark');
+    if (!spark) return Promise.resolve();
+    spark.classList.remove('dk2-moving', 'dk23-resting', 'dk2-poured', 'dk2-notag');
+    if (reduced() || points.length < 2) {const p = points.at(-1);spark.style.transform = `translate(${p.x}px,${p.y}px)`;return Promise.resolve();}
+    let len = 0;const segs = points.slice(1).map((p, i) => (len += Math.abs(p.x - points[i].x) + Math.abs(p.y - points[i].y)));
+    const frames = points.map((p, i) => ({offset: i ? segs[i - 1] / (len || 1) : 0, transform: `translate(${p.x}px,${p.y}px)`}));
+    spark.style.transform = frames.at(-1).transform;
+    return spark.animate(frames, {duration: ms, easing: 'steps(10,end)'}).finished.catch(() => {});
+  }
+  const later = (ms, token) => new Promise(res => {playTimer = setTimeout(() => res(token === engineToken), ms);});
+  function waitDial(slot, from, to, token) {
+    // The Timer's own dial fills in sped-up time; its label keeps the real seconds.
+    const dial = root.querySelector(`.dk2-station[data-slot="${slot}"] .dk-dial`);
+    const ms = Math.max(0, (to - from) / ENGINE_SPEED * 1000);
+    if (!dial || reduced()) return later(ms, token);
+    dial.classList.add('dk-dial-on');
+    const t0 = performance.now();
+    return new Promise(res => {
+      const tick = now => {
+        if (token !== engineToken) return res(false);
+        const k = Math.min(1, (now - t0) / (ms || 1));dial.style.setProperty('--k', `${Math.round(k * 360)}deg`);
+        if (k >= 1) {dial.classList.remove('dk-dial-on');dial.style.setProperty('--k', '0deg');return res(true);}
+        dialRaf = requestAnimationFrame(tick);
+      };
+      dialRaf = requestAnimationFrame(tick);
+    });
+  }
+  async function enginePlay(ev) {
+    stopPlay();measure();
+    const token = ++engineToken, {steps, start, maxP} = engineSteps(ev), stage = $('dk2-stage');
+    playing = 1;stage.classList.remove('dk-stopped');stage.classList.add('dk-playing');
+    root.querySelectorAll('.dk2-swap,.dk2-card,.dk21-eye').forEach(el => el.setAttribute('aria-disabled', 'true'));
+    $('dk2-play').setAttribute('aria-pressed', 'true');$('dk2-play').querySelector('b').textContent = 'Stop';
+    let gained = 0, turn = 0, lastT = 0, waiting = null;
+    engineMeter(start, maxP, 0);
+    const note = text => {const el = $('dk2-note');if (el) {el.textContent = text;el.className = 'dk2-note dk-note-play';}};
+    const light = slot => {root.querySelectorAll('.dk2-firing').forEach(el => el.classList.remove('dk2-firing'));if (slot >= 0) root.querySelector(`.dk2-station[data-slot="${slot}"]`)?.classList.add('dk2-firing');};
+    const y = geo.y, yR = geo.ret?.y ?? y + 14;
+    for (const s of steps) {
+      if (token !== engineToken) return;
+      if (s.t > lastT + 1e-9) {
+        if (waiting) note(`${turn ? `Turn ${turn} · ` : ''}${shortName(d.row[waiting.slot])} waits ${num(waiting.wait)} s, shown ${ENGINE_SPEED}× faster`);
+        if (!(await (waiting ? waitDial(waiting.slot, lastT, s.t, token) : later((s.t - lastT) / ENGINE_SPEED * 1000, token)))) return;
+        lastT = s.t;waiting = null;
+      }
+      if (s.kind === 'start') {light(-1);engineSparkPath([{x: geo.orb.x, y}, {x: geo.orb.x + 26, y}], 1);note(`${CARD_TRIGGERS[ev.starts[0]]?.label || 'Start'}: the engine starts`);}
+      else if (s.kind === 'hit') {light(s.slot);await engineSparkPath([{x: notchX(s.slot), y}], 1);}
+      else if (s.kind === 'gain') {light(s.slot);gained += Number(s.real) || 0;engineMeter(s.meter, maxP, gained);$('dk2-tag').textContent = `+${num(s.amount)}`;}
+      else if (s.kind === 'wait') {light(s.slot);waiting = s;await engineSparkPath([{x: notchX(s.slot), y}], 1);}
+      else if (s.kind === 'turn') {turn = s.n;light(s.slot);note(`Turn ${turn}`);}
+      else if (s.kind === 'back') {
+        const from = notchX(s.from), to = notchX(s.to);
+        await engineSparkPath([{x: from, y}, {x: from, y: yR}, {x: notchX(engineView(d.chain)?.to ?? 0), y: yR}, {x: notchX(engineView(d.chain)?.to ?? 0), y}, {x: to, y}], ENGINE_STEP * 1.6);
+        continue;
+      } else if (s.kind === 'keep') {$('dk2-tag').textContent = `Keeps ${num(s.amount)}`;}
+      else if (s.kind === 'stop') {
+        light(-1);parkSpark();stage.classList.add('dk-stopped');note(`Stopped: ${s.reason}${turn ? ` · ${turn} Turn${turn === 1 ? '' : 's'}` : ''}`);
+        stopPlay();announce(`The engine stopped: ${s.reason}. ${turn} Turns, plus ${num(gained)} Sparks.`);
+        return;
+      }
+      if (!(await later(ENGINE_STEP, token))) return;
+    }
   }
   function play() {
     if (!$('dk2-stage')) return;
+    const ev = engineView(d.chain);
+    if (ev) {if (playing) {stopPlay();return;} enginePlay(ev);return;}
     stopPlay();meter(false);measure();
     const sol = d.chain.sol, acts = sol.steps.filter(st => st.success);
     const frames = [{x: geo.orb.x + 26, size: 16, bonus: 0}];
@@ -422,8 +619,9 @@ export function mountDeckScreen(host, {run, view, opts = {}, actions = {}}) {
   }
 
   // ── Moves ───────────────────────────────────────────────────────────────────
-  function showTab(tab, {focus = true} = {}) {
+  function showTab(tab, {focus = true, from = null} = {}) {
     if (tab === view.tab) return;
+    if (tab === 'triggers') {view.bookFrom = from || view.tab;view.pick = null;view.placing = null;}
     if (tab === 'chain') view.pick = null;
     if (tab === 'deck') view.placing = null;
     view.tab = tab;renderAll();
@@ -482,7 +680,7 @@ export function mountDeckScreen(host, {run, view, opts = {}, actions = {}}) {
 
   // ── The opened card ─────────────────────────────────────────────────────────
   let opener = null;
-  const openerKey = el => el?.dataset?.slot !== undefined && el.closest('.dk2-station') ? `[data-slot="${el.dataset.slot}"].${el.classList.contains('dk21-eye') ? 'dk21-eye' : 'dk2-card'}` : el?.dataset?.uid ? `.${el.classList.contains('dk21-eye') ? 'dk21-eye' : 'dk2-tilemain'}[data-uid="${CSS.escape(el.dataset.uid)}"]` : null;
+  const openerKey = el => el?.classList?.contains('tb-card') ? `.tb-card[data-uid="${CSS.escape(el.dataset.uid)}"]` : el?.dataset?.slot !== undefined && el.closest('.dk2-station') ?`[data-slot="${el.dataset.slot}"].${el.classList.contains('dk21-eye') ? 'dk21-eye' : 'dk2-card'}` : el?.dataset?.uid ? `.${el.classList.contains('dk21-eye') ? 'dk21-eye' : 'dk2-tilemain'}[data-uid="${CSS.escape(el.dataset.uid)}"]` : null;
   function openCard(c, from) {
     if (!c || view.reading) return;
     view.reading = c.instanceId;view.melting = null;opener = openerKey(from);
@@ -544,8 +742,12 @@ export function mountDeckScreen(host, {run, view, opts = {}, actions = {}}) {
       }
       return;
     }
+    if ($('dk2-stage')?.classList.contains('dk-playing') && t.closest('.dk2-swap,.dk2-card,.dk21-eye,.dk22-tsel,.dk2-tab')) {if (t.closest('.dk2-tab')) stopPlay(); else return;}
     const tab = t.closest('.dk2-tab');
     if (tab) {showTab(tab.dataset.tab);return;}
+    if (t.closest('#tb-back')) {if (view.bookFrom === 'outside') actions.done?.(); else showTab(view.bookFrom === 'deck' ? 'deck' : 'chain');return;}
+    const bookCard = t.closest('.tb-card');
+    if (bookCard) {openCard(d.byUid(bookCard.dataset.uid), bookCard);return;}
     if (t.closest('#dk2-done')) {actions.done?.();return;}
     if (t.closest('#dk2-placecancel')) {cancelPlacing();return;}
     if (t.closest('#dk2-pickcancel')) {cancelPick();return;}
@@ -596,7 +798,10 @@ export function mountDeckScreen(host, {run, view, opts = {}, actions = {}}) {
       return;
     }
     const tab = event.target.closest?.('[role="tab"]');
-    if (tab && (event.key === 'ArrowLeft' || event.key === 'ArrowRight')) {event.preventDefault();showTab(view.tab === 'chain' ? 'deck' : 'chain');return;}
+    if (tab && (event.key === 'ArrowLeft' || event.key === 'ArrowRight')) {
+      event.preventDefault();const tabs = ['chain', 'deck', 'triggers'];
+      showTab(tabs[(tabs.indexOf(view.tab) + (event.key === 'ArrowLeft' ? 2 : 1)) % 3]);return;
+    }
     const chip = event.target.closest?.('.dk22-tsel');
     const trigs = d.chain.trigs;
     if (chip && ['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'].includes(event.key) && trigs.length > 1) {
@@ -641,13 +846,17 @@ export function mountDeckScreen(host, {run, view, opts = {}, actions = {}}) {
   window.addEventListener('pointerup', endDrag);window.addEventListener('pointercancel', endDrag);
   root.addEventListener('scroll', event => {if (event.target.id === 'dk2-grid') hint();}, {capture: true, passive: true});
 
-  const relayout = () => {if (!root.isConnected) return;if (view.tab === 'chain') sizeStage(); else hint();sizeFace();};
+  const relayout = () => {if (!root.isConnected) return;if (view.tab === 'chain') {sizeStage();fitNames();} else hint();sizeFace();};
   const resize = new ResizeObserver(relayout);resize.observe(root);
   const short = typeof matchMedia === 'function' ? matchMedia(SHORT_QUERY) : null;
   const onShort = () => {if (root.isConnected && view.tab === 'chain') renderAll();};
   short?.addEventListener?.('change', onShort);
   document.fonts?.ready.then(relayout);
+  // "All Triggers" in the glossary (card-terms.mjs) opens the collection here.
+  const onBook = () => {if (!root.isConnected) return;view.reading = null;view.melting = null;if (view.tab !== 'triggers') showTab('triggers'); else renderAll();};
+  document.addEventListener('trigger-book', onBook);
   host.addEventListener('close', () => {
+    document.removeEventListener('trigger-book', onBook);
     stopPlay();resize.disconnect();short?.removeEventListener?.('change', onShort);
     window.removeEventListener('pointermove', onMove);window.removeEventListener('pointerup', endDrag);window.removeEventListener('pointercancel', endDrag);
   }, {once: true});

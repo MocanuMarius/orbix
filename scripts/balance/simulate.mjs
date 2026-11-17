@@ -5,6 +5,9 @@ import {writeFileSync, mkdirSync} from 'node:fs';
 import {LIVE_CARDS, getCardRowRule, makeSkillCard, previewCardRow, hasCardRowEvent} from '../../dist/skill-cards.mjs';
 import {TRIGGERS, solveTrigger, START_FLAME, METER_MAX, shortName} from '../../dist/ui/chain-model.mjs';
 
+// Engine mode (v1.0-engine): a clock, engine Chains of 3 to 5 cards, Sparks per 10 s -> outputs/balance/engines.md.
+if (process.argv.includes('--engine')) { await import('./engine-sweep.mjs'); process.exit(0); }
+
 // ---------------------------------------------------------------- firing model
 // One flight = 30 seconds. Each Trigger fires a fixed number of times per flight (assumption, not measured).
 // The events below are a fixed, repeating schedule: they vary the pickup kind, meter level and Collector state so

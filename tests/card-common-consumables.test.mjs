@@ -81,7 +81,7 @@ test('Return Spring and Haul Winch act once at real attachment before one genuin
 });
 
 test('roughly half the Common catalog has charges without consuming persistent build enablers',()=>{
-  const common=Object.values(SKILL_CARDS).filter(def=>def.rarity==='common'),droppable=common.filter(def=>!def.starterOnly);
+  const common=Object.values(SKILL_CARDS).filter(def=>def.rarity==='common'&&!def.unreleased),droppable=common.filter(def=>!def.starterOnly);
   // Prism Lens joined the Commons (ladder 2026-11-17) and Double Lift was added; neither has charges.
   assert.equal(common.length,48);assert.equal(common.filter(def=>def.charges).length,22);
   assert.equal(droppable.length,47);assert.equal(droppable.filter(def=>def.charges).length,22);

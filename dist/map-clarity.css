@@ -313,7 +313,6 @@ dialog.power-sheet.map-key-sheet {
 .game-map-screen .landscape-route .world-map-node[role=button]:focus-visible .route-node-art{opacity:1}
 
 /* Artwork emerges from cool darkness; there is no plaque around each stop. */
-.game-map-screen .landscape-route .route-landmark{filter:drop-shadow(1px 0 #040b0d) drop-shadow(-1px 0 #040b0d) drop-shadow(0 1px #040b0d) drop-shadow(0 -1px #040b0d)}
 .game-map-screen .landscape-route .route-state-future .route-landmark{--landmark-stone:#6b7d77;--landmark-face:#a1b6ad;--landmark-edge:#bed0c4;--landmark-fire:#c9c7a0}
 .game-map-screen .landscape-route .route-state-complete .route-landmark{--landmark-stone:#697a73;--landmark-face:#a5b8aa;--landmark-edge:#bac7b4;--landmark-fire:#bcb88e}
 .game-map-screen .landscape-route .route-state-current .route-landmark{--landmark-stone:#9b8961;--landmark-face:#e2c98d;--landmark-edge:#fff0bd;--landmark-fire:#ffe3a2}
@@ -413,13 +412,6 @@ html body .game-map-screen .landscape-route .route-here-caption{fill:#fff1af}
 .minimal-map .map-build-dock{border-top:2px solid #8a6d44}
 .map-build-dock .mini-card,.minimal-map .map-build-dock .mini-card{background:#33261a;border-color:#8a6d44}
 .minimal-map .map-build-dock .mini-card.empty b{color:#8a6d44}
-/* Header icon carvings were drawn for dark stone; recolour them for leather (cream) and the paper slip (ink). */
-html body[data-screen]:not([data-screen=home]):not([data-screen=flight]):not([data-screen=death]) #header .game-menu-trigger>svg>path:first-child{fill:#a58c57}
-html body[data-screen]:not([data-screen=home]):not([data-screen=flight]):not([data-screen=death]) #header .game-menu-trigger>svg>path:nth-child(2){fill:#f6ebcc}
-html body[data-screen]:not([data-screen=home]):not([data-screen=flight]):not([data-screen=death]) #header .game-menu-trigger>svg>.carving-light{fill:#fff6d8}
-html body[data-screen]:not([data-screen=home]):not([data-screen=flight]):not([data-screen=death]) #header .game-round>svg>path:first-child{fill:#8a6d44}
-html body[data-screen]:not([data-screen=home]):not([data-screen=flight]):not([data-screen=death]) #header .game-round>svg>path:nth-child(2){fill:#3b2d20}
-html body[data-screen]:not([data-screen=home]):not([data-screen=flight]):not([data-screen=death]) #header .game-round>svg>.carving-light{fill:#3b2d20}
 /* The kit plaque border is 6px (it was 1px): trim the padding so the chip keeps its old width and nothing beside it moves. */
 html body[data-screen]:not([data-screen=home]):not([data-screen=flight]):not([data-screen=death]) #header .saved-wallet-bank:not(.home-command):not(.book-perk){padding-inline:4px!important}
 @media(orientation:landscape) and (max-width:740px){html body[data-screen]:not([data-screen=home]):not([data-screen=flight]):not([data-screen=death]) #header .saved-wallet-bank:not(.home-command):not(.book-perk){padding-inline:0!important}}

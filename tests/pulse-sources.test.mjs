@@ -4,6 +4,7 @@ import {WispFlight} from '../dist/flight.mjs';
 import {LuminanceWaves,luminanceWaveCrossing} from '../dist/luminance-waves.mjs';
 import {CARD_SYSTEM,CARD_UNIT,getCardModifiers,makeSkillCard} from '../dist/skill-cards.mjs';
 import {updatePrismWick} from '../dist/card-standalone.mjs';
+import {syncFlightEngine,raiseFlightEngine,stepFlightEngine} from '../dist/card-engine-flight.mjs';
 
 function flight(ids=['harvest-common'],extra={},options={}){
   const modifiers={...getCardModifiers({skillSystem:CARD_SYSTEM,mountedCards:ids.map((id,i)=>makeSkillCard(id,`pulse:${i}`))}),...extra};
@@ -44,12 +45,17 @@ test('Flash, active sight, map contacts and explicit relic flashes all dispatch 
 
 test('Rhythm, Wave Loom, Overfill and Prism Wick use the shared pulse dispatcher with card identity',()=>{
   for(const kind of ['rhythm','wave-loom','overfill','prism-wick']){
-    const ids=['harvest-common',...(kind==='overfill'?[]:kind==='wave-loom'?['wave-loom','field-impulse']:[kind==='prism-wick'?'diving-bell':kind])];
-    const e=flight(ids,{collectorFieldImpulse:kind==='wave-loom'},{cardPilot:kind==='overfill'});
+    // Wave Loom is an engine card now: each Turn of an engine sends its light Pulse (First Catch lights Slow Wick).
+    const ids=['harvest-common',...(kind==='overfill'?[]:kind==='wave-loom'?['first-catch','slow-wick','wave-loom']:[kind==='prism-wick'?'diving-bell':kind])];
+    const engineRow=kind==='wave-loom'?{cardPilot:true,cardExecution:{cards:ids.map((id,i)=>makeSkillCard(id,`pulse:${i}`))}}:{};
+    const e=flight(ids,engineRow,{cardPilot:kind==='overfill'||kind==='wave-loom'});
     try{
       if(kind==='rhythm'){
         for(const at of [0,.6,1.2]){e.time=at;assert.equal(e.beginLiftInput(),true);e.endLiftInput();}
-      }else if(kind==='wave-loom')assert.equal(e.activateFieldImpulse('right'),true);
+      }else if(kind==='wave-loom'){
+        syncFlightEngine(e);e.flame=0;raiseFlightEngine(e,'collect',{pickupKind:'light'});e.time=3.01;stepFlightEngine(e);
+        assert.equal(e.cardEngine.turns,1);assert.equal(e.luminanceWaves.waves.length,1,'one light Pulse for the Turn');
+      }
       else if(kind==='overfill')for(let i=0;i<3;i++){e.flame=e.maxFlame;e.collect({kind:'light'});}
       else{
         e.collect({kind:'sight',x:e.distance+e.player.x,y:e.player.y});e.time=e.sightUntil;e.luminanceWaves.clear();

@@ -114,7 +114,6 @@ html body .wb-ground .wb-sound{display:grid;gap:0;justify-items:center}
 html body .wb-ground .wb-level{display:flex;align-items:center;justify-content:center;gap:4px}
 html body .wb-ground .wb-level-icon{display:grid!important;place-items:center;width:44px;height:44px;min-width:44px!important;min-height:44px!important;margin:0!important;padding:0!important;border:0!important;border-image:none!important;border-radius:0!important;background:none!important;box-shadow:none!important;clip-path:none!important;color:var(--wb-text);cursor:pointer;touch-action:manipulation}
 html body .wb-ground .wb-level-icon>svg{width:32px;height:32px;image-rendering:pixelated}
-html body .wb-ground .wb-level-icon>svg.menu-carving{width:24px;height:24px}
 html body .wb-ground .wb-level[data-level="0"] .wb-level-icon>svg{opacity:.4}
 html body .wb-ground .wb-level-bars{display:flex;align-items:flex-end;gap:4px;height:44px;padding:6px 4px;box-sizing:border-box;cursor:pointer;touch-action:manipulation}
 html body .wb-ground .wb-level-bars>i{display:block;width:12px;background:var(--wb-bar);box-shadow:0 0 0 2px var(--wb-bar-edge),inset 0 2px 0 var(--wb-bar-highlight);transform-origin:bottom}

@@ -58,7 +58,7 @@ test('bonus reminder and mock note sit under the sound tab; mock headings', () =
 test('run status tab shows only real values', () => {
   const html=pauseMenuMarkup({status:{lives:2,maxLives:3,spark:'18',sparkMax:'30',stored:8}});
   assert.match(html,/aria-label="2 of 3 hearts"/);
-  assert.equal((html.match(/class="life-heart spent"/g)||[]).length,1);
+  assert.equal((html.match(/data-ui-icon="heart-empty"/g)||[]).length,1);assert.equal((html.match(/data-ui-icon="heart-full"/g)||[]).length,2);
   assert.match(html,/Spark Meter 18 of 30/);assert.match(html,/<b>18 \/ 30<\/b>/);
   assert.match(html,/8 Stored Sparks/);
   const practice=pauseMenuMarkup({practice:true,status:{lives:2,maxLives:3,spark:'18',sparkMax:'30',stored:null}});

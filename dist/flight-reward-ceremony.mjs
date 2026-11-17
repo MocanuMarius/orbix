@@ -1,4 +1,5 @@
 import {ARTIFACTS,SKILL_CARDS,getCardDraft} from './model.mjs?v=guide-clarity-1';
+import {chipIcon} from './ui/trigger-icons.mjs?v=guide-clarity-1';
 import {cardDraftMarkup,cardDraftOffersMarkup} from './card-ui.mjs?v=guide-clarity-1';
 import {rewardEarnings} from './reward-screen.mjs?v=guide-clarity-1';
 import {resourceSymbol} from './game-symbols.mjs?v=guide-clarity-1';
@@ -41,11 +42,14 @@ export function flightRewardCeremonyReceipt(run){
  const sourceLabel=(fallback,names)=>names.length?names.join(' + '):fallback;
  const challengeName=ROUTE_BONUSES[flight.routeBonus?.id]?.name;
  const labels={Pact:FLIGHT_PACTS[flight.flightPact]?.name||'Pact','Route bonus':challengeName?`Challenge · ${challengeName}`:'Route bonus',
-  'Chest gifts':sourceLabel('Chest gifts',flight.chestIncome?.sources||[]),'Cards on clear':sourceLabel('Cards on clear',sourceNames('stored'))};
+  'Chest gifts':sourceLabel('Chest gifts',flight.chestIncome?.sources||[]),'Cards on clear':sourceLabel('Cards on clear',sourceNames('stored')),
+  // Engine cards (v1.0-engine): the Trigger icon leads, the words say where the Stored Sparks came from.
+  'Pack cards':'Pack cards','Engine cards':'Kept by your engine'};
+ const chips={'Pack cards':'pack','Engine cards':'engine-turn'};
  // Do not display queued or invented income as banked currency.
  const total=Math.min(earnings.total,secured),rows=[];
  let remaining=total;
- for(const row of earnings.rows){const amount=Math.min(row.amount,remaining);if(amount)rows.push({...row,amount,detailKey:FLIGHT_REWARD_SOURCE_DETAILS[row.label],optional:optionalLabels.has(row.label),label:labels[row.label]||row.label});remaining-=amount;}
+ for(const row of earnings.rows){const amount=Math.min(row.amount,remaining);if(amount)rows.push({...row,amount,detailKey:FLIGHT_REWARD_SOURCE_DETAILS[row.label],optional:optionalLabels.has(row.label),label:labels[row.label]||row.label,chip:chips[row.label]||null});remaining-=amount;}
  const bonusRows=rows.filter(row=>row.optional),baseRows=rows.filter(row=>!row.optional);
  const routeNote=routeBonusReceiptText(flight.routeBonus);
  const challengePayoutOnly = flight.routeBonus?.amount > 0 && routeNote === `+${count(flight.routeBonus.amount)} Stored Sparks`;
@@ -64,7 +68,7 @@ export function flightRewardCeremonyReceipt(run){
 }
 const receiptDetailAttributes=(key,label)=>`type="button" class="flight-reward-detail-trigger" data-action="flight-reward-detail" data-receipt-detail="${esc(key)}" aria-haspopup="dialog" aria-label="Inspect ${esc(label)}"`;
 function renderReceiptSourceRows(rows){
- return rows.map(row=>`<span class="flight-reward-source-row"><button ${receiptDetailAttributes(row.detailKey,row.label)}><span>${esc(row.label)}</span><span class="flight-reward-detail-affordance" aria-hidden="true">ⓘ</span></button><b>+${row.amount}</b></span>`).join('');
+ return rows.map(row=>`<span class="flight-reward-source-row"><button ${receiptDetailAttributes(row.detailKey,row.label)}>${row.chip?`<span class="flight-reward-chip" aria-hidden="true">${chipIcon(row.chip,16)}</span>`:''}<span>${esc(row.label)}</span><span class="flight-reward-detail-affordance" aria-hidden="true">ⓘ</span></button><b>+${row.amount}</b></span>`).join('');
 }
 function renderReceiptEffectRows(entries){
  return entries.map(entry=>`<p><button ${receiptDetailAttributes(entry.detailKey,entry.text)}>${entry.artifactId?`<span class="flight-reward-effect-icon" aria-hidden="true">${artifactIcon(entry.artifactId)}</span>`:''}<span>${esc(entry.text)}</span><span class="flight-reward-detail-affordance" aria-hidden="true">ⓘ</span></button></p>`).join('');

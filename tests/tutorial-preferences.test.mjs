@@ -31,7 +31,7 @@ test('each departure begins paused with its own disabled start action until the 
   const markup=flightEntryMarkup(run,node);
   assert.match(markup,/<button[^>]+data-action="wake-flight"[^>]*disabled/);
   assert.doesNotMatch(markup,/entry-resources|entry-artifacts/);
-  assert.match(markup,/Preparing passage/);assert.match(markup,/Starts paused/);
+  assert.match(markup,/Preparing passage/);assert.match(markup,/<b>Preparing…<\/b>/);assert.match(markup,/Field note/);assert.doesNotMatch(markup,/Starts paused|entry-tip/);
   assert.match(markup,/cancel-flight-entry/);
  }
  assert.match(flightEntryMarkup(run,{}, {dream:true}),/Preparing Dream/);

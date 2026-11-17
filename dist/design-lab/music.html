@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Lo-fi album · Design lab</title>
+<link rel="icon" href="../assets/favicon.svg">
+<style>
+/* v1.1-music · design-lab only. Paper page, leather plates, moss Play: the engine/deck lab look. */
+@font-face{font-family:Pixelify;src:url(../assets/fonts/pixelify-sans.ttf) format('truetype');font-display:swap}
+:root{--ink:#2a2118;--ink-soft:#5a4632;--rule:#6b5335;--moss:#536430;--paper:#dcc693;--slip:#e8d6a4;--wine:#7a2f2a;--pixel:Pixelify,'Courier New',monospace}
+*{box-sizing:border-box}
+html,body{margin:0;background:#0c0907;color:var(--ink);font:400 13px/1.3 var(--pixel)}
+body{min-height:100vh;position:relative}
+.mu-world{position:fixed;inset:0;width:100%;height:100%;object-fit:cover;filter:brightness(.42) saturate(.8);z-index:0}
+.mu-shade{position:fixed;inset:0;background:linear-gradient(#0c090766,#0c0907cc);z-index:0}
+.mu{position:relative;z-index:1;max-width:1180px;margin:0 auto;padding:6px 8px 20px}
+h1,h2,p{margin:0}
+button{font:inherit;color:inherit}
+.mu-head{display:flex;flex-wrap:wrap;align-items:center;gap:4px 10px;min-height:46px;padding:0 4px;color:#f6ebcc}
+.mu-head h1{font:400 18px/22px var(--pixel);text-shadow:2px 2px #2a1d12;white-space:nowrap}
+.mu-code{display:inline-block;margin-left:6px;padding:2px 8px;border:2px solid #2a1d12;background:#e6c77c;color:#2a1d12;font:400 13px/16px var(--pixel);text-shadow:none;vertical-align:2px}
+.mu-tools{display:flex;flex-wrap:wrap;gap:6px;margin-left:auto}
+.mu-sheet{padding:6px 10px 8px;border:3px solid #2a1d12;background:var(--paper);box-shadow:inset 0 0 0 2px #e8d7a6,inset 0 -6px 0 #cdb77f}
+.mu-btn{height:44px;min-width:44px;padding:0 10px;border:2px solid var(--rule);background:var(--slip);color:var(--ink);font:400 13px/1 var(--pixel);cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:6px;box-shadow:inset 0 -2px 0 #d2b97f;white-space:nowrap}
+.mu-btn[aria-pressed="true"]{background:#5a4632;border-color:#2a1d12;color:#f6ebcc;text-shadow:1px 1px #2a1d12;box-shadow:inset 0 0 0 2px #7a6146}
+.mu-btn.go{background:var(--moss);border-color:#2a1d12;color:#f6ebcc;text-shadow:1px 1px #2a1d12;box-shadow:inset 0 0 0 2px #7a8a48,inset 0 -3px 0 #3d4a22}
+.mu-btn:focus-visible{outline:3px solid #f6ebcc;outline-offset:2px}
+.mu-sheet .mu-btn:focus-visible{outline-color:var(--ink)}
+.mu-status{display:flex;flex-wrap:wrap;gap:4px 14px;align-items:center;min-height:30px;padding:2px 2px 6px;border-bottom:2px dashed #b9a06a;color:var(--ink)}
+.mu-status b{font-weight:400;color:var(--wine)}
+.mu-status small{color:var(--ink-soft);font-size:12px}
+.mu-rows{list-style:none;margin:0;padding:0}
+.mu-row{display:grid;grid-template-columns:minmax(140px,200px) minmax(170px,1fr) auto;gap:4px 10px;align-items:center;padding:6px 0;border-bottom:2px dashed #b9a06a}
+.mu-row.playing{background:#e8d7a6;box-shadow:inset 4px 0 0 var(--moss)}
+.mu-name{display:grid;gap:1px;padding-left:6px;min-width:0}
+.mu-name b{font:400 15px/17px var(--pixel)}
+.mu-name small{font:400 11px/13px var(--pixel);color:var(--ink-soft)}
+.mu-name i{font:400 12px/14px var(--pixel);font-style:normal;color:var(--ink)}
+.mu-line{position:relative;display:flex;height:34px;border:2px solid #2a1d12;background:#cdb77f;overflow:hidden}
+.mu-line span{display:flex;align-items:center;justify-content:center;min-width:0;padding:0 2px;border-right:2px solid #8a6d44;font:400 11px/12px var(--pixel);color:var(--ink);overflow:hidden;text-align:center}
+.mu-line span:last-of-type{border-right:0}
+.mu-line span.s0{background:#d9c58f}.mu-line span.s1{background:#cfb87d}.mu-line span.s2{background:#c4ab6c}.mu-line span.s3{background:#b89c5c}.mu-line span.s4{background:#cdb77f}
+.mu-line .mu-head-mark{position:absolute;top:0;bottom:0;width:3px;margin-left:-1px;background:var(--wine);box-shadow:0 0 0 1px #f6ebcc;display:none}
+.mu-row.playing .mu-head-mark{display:block}
+.mu-acts{display:flex;flex-wrap:wrap;gap:4px;justify-content:flex-end}
+.mu-acts{flex-wrap:nowrap}.mu-acts .mu-btn{padding:0 7px;min-width:44px}.mu-acts .lv{min-width:48px}
+.mu-row.ref{background:#e6d4a2}
+.mu-tag{display:inline-block;margin-left:6px;padding:1px 6px;border:2px solid #2a1d12;background:var(--moss);color:#f6ebcc;font:400 11px/13px var(--pixel);font-style:normal;vertical-align:2px}
+.mu-flash{position:fixed;right:12px;bottom:12px;z-index:5;width:56px;height:56px;border:3px solid #2a1d12;border-radius:50%;background:#4a3828;box-shadow:0 0 0 2px #8a6d44;display:grid;place-items:center;color:#f6ebcc;font:400 11px/1 var(--pixel)}
+.mu-flash.on{background:#e6c77c;color:#2a1d12;box-shadow:0 0 0 2px #fff6d8,0 0 18px 6px #f3d98a}
+.mu-flash[hidden]{display:none}
+.mu-foot{margin-top:6px;font:400 12px/16px var(--pixel);color:var(--ink-soft)}
+.mu-foot b{font-weight:400;color:var(--ink)}
+@media (max-width:760px){.mu-row{grid-template-columns:1fr}.mu-acts{justify-content:flex-start}}
+</style>
+</head>
+<body>
+<img class="mu-world" src="../assets/moonwell-title.webp" alt="" draggable="false">
+<div class="mu-shade" aria-hidden="true"></div>
+<main class="mu">
+ <header class="mu-head">
+  <h1>Lo-fi album <span class="mu-code">v1.1-music</span></h1>
+  <div class="mu-tools">
+   <button type="button" class="mu-btn go" id="rotation">Play rotation</button>
+   <button type="button" class="mu-btn" id="stop">Stop</button>
+   <button type="button" class="mu-btn" id="current" aria-pressed="false">Reference (v0)</button>
+   <button type="button" class="mu-btn" id="beats" aria-pressed="false">Show Lift beats</button>
+   <button type="button" class="mu-btn" id="cue-old">Lift cue: old</button>
+   <button type="button" class="mu-btn" id="cue-new">Lift cue: new</button>
+  </div>
+ </header>
+ <section class="mu-sheet" aria-label="Pieces">
+  <p class="mu-status" id="status" role="status" aria-live="polite">The first row is the reference, today's music. The four new pieces are its lo-fi siblings. Press Play, or A/B to compare with the reference. Calm, Flow and Urgent are the three intensity levels.</p>
+  <ol class="mu-rows" id="rows"></ol>
+  <p class="mu-foot"><b>Lift beat:</b> every new piece runs at 87.8 bpm, one Lift every two beats (1.367 s, the time a Lift takes to return you to your take-off height). The kick plays on every Lift beat at every level; Show Lift beats flashes it. When a flight starts or resumes, the music shifts its beat by at most 6% over two bars to meet the Lift guide. <b>How the game uses it:</b> map, Rest and pause play Calm (pause also turns the music down); flight plays Flow; a Guardian, the last heart, low Sparks, a near Black Hole or Flash play Urgent. Changes land on a bar line and fade over 1 to 3 seconds; falls wait 6 seconds. Each piece hands over to the next over about 8 seconds, on the beat. In the game this is off unless the address ends in <b>?music=2</b>.</p>
+ </section>
+</main>
+<div class="mu-flash" id="flash" hidden aria-hidden="true">Lift</div>
+<script type="module" src="music-lab.mjs?v=2"></script>
+</body>
+</html>

@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import * as M from '../dist/model.mjs';
 import {SKILL_CARDS,CARD_ECONOMY,LIVE_CARDS,makeSkillCard,drawSkillCard,drawSkillCardDraft,drawForgeCard,getCardStarterOffers,getCardMeltValue,cleanCardRun} from '../dist/skill-cards.mjs';
 
-const RETIRED = ['field-impulse', 'wave-loom'];
+const RETIRED = ['field-impulse'];
 
 test('the catalog keeps retired entries but the live pool excludes them', () => {
   for (const id of RETIRED) {
@@ -32,6 +32,21 @@ test('retired cards never appear in starter choices or any offer pool over many 
     }
   }
   for (const id of RETIRED) assert.ok(!seen.has(id), `${id} was offered`);
+});
+
+test('Wave Loom came back as an engine card: old copies (no edition) are still paid out on load, new copies stay', () => {
+  assert.equal(SKILL_CARDS['wave-loom'].retiredBefore, 2);
+  assert.ok(!LIVE_CARDS.some(def => def.id === 'wave-loom'), 'unreleased: still never offered');
+  const state = M.newState(), run = state.run = M.createRun(state.profile, 'loom-save', 1, { cards: true });
+  run.mountedCards = [{ instanceId: 'loom:old', cardId: 'wave-loom', rank: 1 }, makeSkillCard('wave-loom', 'loom:new'), null];
+  run.reserveCards = [];
+  const before = run.condensedGlow || 0, melt = getCardMeltValue({ instanceId: 'p', cardId: 'wave-loom', rank: 1 });
+  let text;
+  assert.ok(M.saveState(state, { setItem: (_, value) => { text = value; } }));
+  const loaded = M.loadState({ getItem: () => text, setItem() {} }).run;
+  assert.deepEqual(loaded.mountedCards.filter(Boolean).map(card => card.instanceId), ['loom:new']);
+  assert.equal(loaded.mountedCards[1].edition, 2, 'the edition survives a save');
+  assert.equal(loaded.condensedGlow, before + melt, 'the old copy pays once, as before');
 });
 
 test('a saved starter offer naming a retired card is re-rolled without it', () => {

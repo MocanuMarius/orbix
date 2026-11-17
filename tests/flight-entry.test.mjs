@@ -17,15 +17,15 @@ test('entry waits only for actual renderer readiness and propagates preparation 
 });
 
 function entryFixture(){
- const handlers={},button={disabled:true,textContent:'Preparing…',addEventListener(type,callback){handlers[type]=callback;}},status={},note={};
+ const handlers={},label={textContent:'Preparing…'},button={disabled:true,querySelector:selector=>selector==='b'?label:null,addEventListener(type,callback){handlers[type]=callback;}},status={},note={};
  const element={dataset:{},setAttribute(){},querySelector(selector){return selector==='.entry-depart'?button:selector==='[data-entry-status]'?status:note;}};
- return {element,handlers,button,status,note};
+ return {element,handlers,button,label,status,note};
 }
 
 test('readiness preserves the tip and requires a fresh departure gesture',()=>{
- const {element,handlers,button,status}=entryFixture();
+ const {element,handlers,button,label,status}=entryFixture();
  const accept=prepareFlightDeparture(element);
- assert.equal(element.dataset.ready,'true');assert.equal(button.disabled,false);assert.equal(status.textContent,'Ready to depart');
+ assert.equal(element.dataset.ready,'true');assert.equal(button.disabled,false);assert.equal(status.textContent,'Ready to depart');assert.equal(label.textContent,'Tap to depart','the plaque keeps its one size, only the words change');
  assert.equal(accept({type:'click',detail:1,pointerId:7}),false,'a press begun while loading does not depart');
  handlers.pointerdown({pointerId:7,button:0});
  assert.equal(accept({type:'click',detail:1,pointerId:7}),true,'one fresh ready tap departs');

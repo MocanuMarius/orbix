@@ -165,8 +165,6 @@ export function getEquippedCardStatuses(run = {}, native = null) {
       return shared('Keeps its use for now','A second Collector is already here. Twin Wick keeps its use until it can unlock one for this journey.','use-kept');
     if(kind==='collector-range'&&copy)
       return shared('Reach already covered','Copying the same reach card adds no reach or catches. The real card keeps its uses.','reach-covered');
-    if (kind === 'wave-loom' && !context.field)
-      return blocked('Needs Field Impulse', 'Wave Loom sends its Pulse after a Field Impulse swipe, and this build cannot swipe.', 'Learn the Collector Field Impulse skill.', 'needs-field');
     if (kind === 'camp-grow' && run.cardGrowUses >= 3)
       return shared('Grow limit reached', 'All 3 Grows for this journey are used. Every Growth Seed shares that limit.', 'grow-limit');
     if (['guide', 'rhythm', 'dream', 'cache-handling', 'wave-loom', 'watchlight', 'springboard', 'proximity'].includes(kind) && sources.some(entry => entry.index < slot && entry.def.kind === kind))

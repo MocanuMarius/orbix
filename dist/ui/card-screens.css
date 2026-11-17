@@ -485,3 +485,118 @@ html body dialog.game-sheet.card-deck-sheet::backdrop{background:#0c0907}
  #dk-root.dk23 .dk2-plate:has(.dk23-m2){gap:1px;padding:0 3px;letter-spacing:0}
  #dk-root.dk23 .dk23-m2>b{font-size:14px;letter-spacing:-1px}
 }
+
+/* ── v1.0-engine Phase 2: Trigger badges, rarity by colour, engines on the Chain tab, the Trigger collection ── */
+/* Grid: an engine row between the track and the Swap plaques (the return path, or "Runs once"). */
+#dk-root .dk2-stage{--eng:0px;grid-template-rows:var(--eye) var(--card,120px) var(--plate) var(--ga) 0 var(--gb) var(--eng) var(--swap)}
+#dk-root.dk.wb-t2 .dk2-swap{grid-row:8}
+#dk-root .dk2-result{grid-row:8}
+#dk-root .dk2-stage.dk-eng{--eng:14px}
+#dk-root .dk2-stage.dk-eng-once{--eng:26px}
+/* The return path: the track's own leather, stepped corners. */
+#dk-root .dk-ret{position:absolute;z-index:0;box-sizing:border-box;width:6px;border-left:2px solid #3b2d20;border-right:2px solid #e8d7a6;background:#6b5335;pointer-events:none}
+#dk-root .dk-ret-b{height:6px;width:auto;border:0;border-top:2px solid #3b2d20;border-bottom:2px solid #e8d7a6}
+#dk-root .dk-ret-b::before,#dk-root .dk-ret-b::after{content:'';position:absolute;top:-4px;width:10px;height:10px;box-sizing:border-box;background:#5a4632;border:2px solid #2a1d12;box-shadow:inset 2px 2px #a58c57}
+#dk-root .dk-ret-b::before{left:-2px}#dk-root .dk-ret-b::after{right:-2px}
+/* Runs once: a calm grey plate under the track. */
+#dk-root .dk-runs{grid-row:7;align-self:center;justify-self:center;display:flex;align-items:center;gap:6px;max-width:calc(100% - 8px);margin:0;padding:2px 8px 2px 6px;box-sizing:border-box;border:2px solid #6f6a5d;background:#cdc6b0;color:#3f3b30;font:400 11px/14px var(--pixel,monospace);white-space:nowrap;overflow:hidden}
+#dk-root .dk-runs>b{font-weight:400;overflow:hidden;text-overflow:ellipsis}
+/* The Timer's dial on its tile: the wait in real seconds; the ring fills (sped up) while it waits. */
+#dk-root .dk-dial{position:absolute;z-index:8;right:2px;top:24px;width:32px;height:32px;display:grid;place-items:center;border-radius:50%;box-sizing:border-box;border:2px solid #2a1d12;background:#efe0b4;box-shadow:0 1px 0 #2a1d1299;pointer-events:none}
+#dk-root .dk-dial-ring{position:absolute;inset:2px;border-radius:50%;background:conic-gradient(#536430 var(--k,0deg),#cdb77f 0)}
+#dk-root .dk-dial>b{position:relative;display:grid;place-items:center;width:22px;height:22px;border-radius:50%;background:#efe0b4;font:400 11px/1 var(--pixel,monospace);font-weight:400;color:#2a1d12;white-space:nowrap;letter-spacing:-1px}
+#dk-root .dk-dial-on{box-shadow:0 0 0 2px #fff6d8,0 0 10px #f3d98a}
+/* Engine and Black Hole plates. */
+#dk-root.dk21 .dk21-plate.dk-plate-eng{border-image-source:var(--fr-plate);height:auto;min-height:calc(var(--plate) - 2px);padding:1px 5px}
+#dk-root .dk-plate-eng>b{font:400 12px/13px var(--pixel,monospace);white-space:normal;color:#2a1d12}
+#dk-root.dk21 .dk21-plate.dk-plate-wine{border:2px solid #3a1512;border-image:none;background:#7a2f2a;color:#fff1c5;text-shadow:1px 1px #3a1512;height:auto;min-height:calc(var(--plate) - 2px);padding:1px 6px}
+#dk-root .dk-plate-wine>b{font:400 12px/13px var(--pixel,monospace);white-space:normal;color:#fff1c5}
+#dk-root.dk21 .dk21-plate.dk-plate-hole{border-image-source:var(--fr-plate);height:auto;min-height:calc(var(--plate) - 2px);padding:1px 5px}
+#dk-root .dk-plate-hole>b{font:400 12px/13px var(--pixel,monospace);white-space:normal;color:#3a1512}
+#dk-root .dk-plate-eng .pl-short,#dk-root .dk-plate-wine .pl-short,#dk-root .dk-plate-hole .pl-short{display:none}
+@container (max-width:88px){
+ #dk-root .dk-plate-eng .pl-long,#dk-root .dk-plate-wine .pl-long,#dk-root .dk-plate-hole .pl-long{display:none}
+ #dk-root .dk-plate-eng b.pl-short,#dk-root .dk-plate-wine b.pl-short,#dk-root .dk-plate-hole b.pl-short{display:inline}
+}
+#dk-root .dk-eaten .dk2-card>.skill-card{box-shadow:0 0 0 2px #7a2f2a!important}
+/* Engine medallion: two numbers on one tablet, per Turn over Turns per 10 s. */
+#dk-root .dk22-medal.dk-medal2{border-radius:0;width:calc(var(--medw) - 30px);height:auto;left:calc((var(--medw) - 30px) / -2 + 10px);top:auto;transform:translateY(-50%);display:grid;gap:0;padding:2px 0;background:#f7ecc9!important;border:2px solid #2a1d12;box-shadow:inset 0 0 0 2px #f0c86a,0 2px 0 #2a1d1259;filter:none}
+#dk-root .dk-m-row{display:grid;justify-items:center;padding:2px 4px}
+#dk-root .dk-m-row+.dk-m-row{border-top:2px dashed #b9a06a}
+#dk-root .dk-m-row>b{font:400 20px/22px var(--pixel,monospace);color:#2a1d12}
+#dk-root .dk-m-row>small{font:400 11px/12px var(--pixel,monospace);color:#5a4632;text-align:center}
+/* Play and Stop. */
+#dk-root .dk-playing .dk2-swap,#dk-root .dk-playing .dk21-eye{opacity:.45;pointer-events:none}
+#dk-root .dk-stopped .dk2-station:not(.dk2-firing) .dk2-card>.skill-card{filter:saturate(.45) brightness(.92)}
+#dk-root .dk-stopped .dk-ret,#dk-root .dk-stopped .dk2-track{opacity:.6}
+#dk-root .dk-note-play{color:var(--ink);font-size:13px;line-height:15px}
+#dk-root .dk2-tag:empty{display:none}
+/* Chain tiles: the badge sits top left on the picture; the kind mark moves below it. */
+#dk-root .dk2-card .card-thumbnail .card-tbadge-row{left:3px;top:3px;right:3px}
+#dk-root.dk2 .dk2-card .dk2-mark{top:26px;left:5px;width:18px;height:18px;font-size:14px}
+#dk-root .dk2-card .skill-card.card-thumbnail .card-use-counter{top:26px!important}
+#dk-root .dk2-card .card-thumbnail .tbadge{width:100%;height:20px}
+#dk-root .dk2-card .card-thumbnail .tbadge-i{width:18px}
+#dk-root .dk2-card .card-thumbnail .tbadge-n{padding:0 3px;letter-spacing:-.5px}
+@container (max-width:84px){#dk-root .dk2-card .card-thumbnail .tbadge{width:auto}#dk-root .dk2-card .tbadge-n{display:none}#dk-root .dk2-card .tbadge-i{border-right:0}}
+#dk-root .dk2-card .card-thumbnail .card-face-heading h3{letter-spacing:-.5px!important}
+@media(max-height:380px){#dk-root .dk-dial{width:26px;height:26px;top:22px;right:1px}#dk-root .dk-dial>b{width:18px;height:18px;font-size:11px;letter-spacing:-1px}}
+@media(max-height:380px){
+ #dk-root .dk2-stage.dk-eng{--plate:32px}
+ #dk-root .dk-plate-eng>b,#dk-root .dk-plate-wine>b,#dk-root .dk-plate-hole>b{font-size:11px;line-height:12px}
+ #dk-root .dk-m-row{padding:1px 2px}
+ #dk-root .dk-m-row>b{font-size:16px;line-height:17px}
+}
+/* Deck tiles: the Trigger badge replaces the rarity word; rarity is the frame, a tinted ground and 1 to 3 gems. */
+#dk-root .dk21-top{gap:6px;height:22px;padding:1px 2px 0}
+#dk-root .dk-tbadge{flex:0 1 auto;min-width:0}
+#dk-root .dk-topr{margin-left:auto;display:flex;align-items:center;gap:6px;flex:none}
+#dk-root .dk2-tile .dk2-name{color:#3b2d20}
+#dk-root .dk2-tile .dk2-effect{color:#1f160d}
+#dk-root .dk21-tile .rpips{padding:2px 3px;background:#2a1d12d9}
+/* Opened card: the Trigger keyword line. */
+#dk-root .dk21-on .dk22-term svg{width:16px;height:16px}
+/* Third tab. */
+#dk-root.dk.dk2 .dk-tab-book{min-width:104px}
+@media(max-height:380px){#dk-root.dk.dk2 .dk-tab-book{min-width:96px}}
+/* Triggers tab: every Trigger, what you do, how often, your cards. */
+#dk-root .dk-bookpanel{display:grid;grid-template-rows:44px minmax(0,1fr);gap:6px}
+#dk-root .tb-bar{display:flex;align-items:center;gap:12px;min-width:0}
+#dk-root.dk.wb-t2 .tb-back{flex:none;width:auto;min-width:92px;height:44px;padding:0 12px!important}
+#dk-root .tb-intro{margin:0;min-width:0;font:400 13px/16px var(--pixel,monospace);color:var(--ink)}
+#dk-root .tb-intro>span{color:var(--ink-soft)}
+#dk-root .tb-scroll{min-height:0;overflow-y:auto;overflow-x:hidden;padding:0 6px 8px 0;scrollbar-width:thin;scrollbar-color:#6b5335 #0000;overscroll-behavior:contain}
+#dk-root .tb-list{list-style:none;margin:0;padding:0;display:grid;gap:6px}
+#dk-root .tb-row{display:grid;grid-template-columns:40px minmax(150px,1.1fr) minmax(0,1.6fr);align-items:center;gap:8px;min-height:52px;padding:4px 8px 4px 4px;box-sizing:border-box;border:4px solid transparent;border-image:var(--fr-plate) 4 fill / 4px stretch}
+#dk-root .tb-icon{display:grid;place-items:center;width:40px;height:40px;background:#f3e6b9;border:2px solid #2a1d12;box-sizing:border-box}
+#dk-root .tb-icon>svg{display:block;width:32px;height:32px;image-rendering:pixelated}
+#dk-root .tb-text{display:grid;gap:2px;min-width:0}
+#dk-root .tb-name{display:flex;align-items:center;gap:8px;min-width:0;flex-wrap:wrap}
+#dk-root.dk.dk22 .tb-term{min-height:44px;margin:-9px 0 -8px;min-width:44px;font-size:14px;line-height:16px;justify-content:flex-start}
+#dk-root .tb-often{padding:1px 5px;border:1px solid #6b5335;background:#efe2bc;font:400 11px/13px var(--pixel,monospace);color:var(--ink-soft);white-space:nowrap}
+#dk-root .tb-does{font:400 12px/15px var(--pixel,monospace);color:#2a2118}
+#dk-root .tb-cards{display:flex;flex-wrap:wrap;gap:6px;justify-content:flex-start;min-width:0}
+#dk-root.dk.dk2 .tb-card{position:relative;width:44px;height:44px;box-sizing:border-box;border:2px solid var(--rd,#2a1d12);background:#14241e;box-shadow:0 0 0 1px #fffbe8,0 2px 0 #2a1d1259}
+#dk-root .tb-card>svg{display:block;width:100%!important;height:100%!important;image-rendering:pixelated}
+#dk-root.dk.dk2 .tb-card.dc-r-rare{border-color:#42768f;box-shadow:0 0 0 1px #d9ebf2,0 2px 0 #2a1d1259}
+#dk-root.dk.dk2 .tb-card.dc-r-legendary{border-color:#5b4f73;box-shadow:0 0 0 2px #f0c86a,0 2px 0 #2a1d1259}
+#dk-root .tb-inchain::after{content:'';position:absolute;left:2px;top:2px;width:6px;height:6px;background:#536430;border:1px solid #fff6d8}
+#dk-root .tb-count{position:absolute;right:-4px;bottom:-4px;padding:0 3px;border:1px solid #2a1d12;background:#f3e6b9;font:400 11px/12px var(--pixel,monospace);color:#2a1d12}
+#dk-root.dk.dk2 .tb-card:focus-visible{outline:3px solid var(--ink);outline-offset:2px}
+#dk-root .tb-nocard{font:400 12px/14px var(--pixel,monospace);color:#5a4632}
+#dk-root .tb-none{filter:saturate(.35);opacity:.72}
+#dk-root .tb-none .tb-icon{background:#ddd2b0}
+@media(max-height:380px){
+ #dk-root .tb-row{grid-template-columns:40px minmax(140px,1fr) minmax(0,1.5fr);min-height:48px;gap:6px}
+ #dk-root .tb-does{font-size:11px;line-height:13px}
+ #dk-root .tb-intro{font-size:12px;line-height:14px}
+}
+@media(max-width:700px){#dk-root .tb-row{grid-template-columns:40px minmax(128px,1fr) minmax(0,1.4fr)}}
+/* Black Hole take-off question (app.mjs › askBlackHole), in the kit dialog skin: wine Fly, paper-slip Cancel. */
+html body dialog.wb-dlg.bh-confirm{width:min(440px,calc(100vw - 32px));max-width:none;padding:14px 16px!important;display:grid;gap:8px}
+html body dialog.wb-dlg.bh-confirm[open]{display:grid}
+html body dialog.wb-dlg.bh-confirm .bh-confirm-q{margin:0;font:400 17px/22px var(--pixel,monospace);text-align:center;color:#2a2118!important}
+html body dialog.wb-dlg.bh-confirm .bh-confirm-sub{margin:0;font:400 13px/16px var(--pixel,monospace);text-align:center}
+html body dialog.wb-dlg.bh-confirm .bh-confirm-acts{display:flex;justify-content:center;gap:12px;border:0;padding:4px 0 0;margin:0}
+html body dialog.wb-dlg.bh-confirm .bh-confirm-acts>button{min-width:120px;min-height:46px;font:400 15px/1 var(--pixel,monospace)}
+#dk-root .dk2-card .card-face-heading h3.dk-name-cut{white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important;max-width:100%;display:block}

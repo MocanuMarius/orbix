@@ -4,6 +4,11 @@ import {createLevelStore,levelGain} from './sound-level.mjs?v=guide-clarity-1';
 import {createLiftGuideAudio} from './lift-guide-audio.mjs?v=guide-clarity-1';
 const TRACKS=['./assets/audio/lantern-drift.mp3','./assets/audio/lantern-pulse.mp3','./assets/audio/lantern-storm.mp3'];
 const unit=n=>Math.max(0,Math.min(1,Number(n)||0));
+// v1.1-music (the lo-fi rotation) is OFF by default: `?music=2`, read once
+// when this module loads. With the flag off nothing below changes and the new
+// modules are never fetched.
+const URL_MUSIC=(()=>{try{return new URLSearchParams(globalThis.location?.search||'').get('music');}catch{return null;}})();
+export const musicVersion=()=>Number(URL_MUSIC)===2?2:1;
 export function musicReactivity(s){
  const flying=!s.paused&&!s.dying&&!s.completing&&s.dream?.mode!=='record';
  if(!flying)return {hole:0,pulse:0};
@@ -26,9 +31,24 @@ export function musicMix(mode='menu',danger=0){
  // identity, while heavier percussion remains reserved for actual pressure.
  return [.25,.19,0];
 }
-export function createMusic({storage=globalThis.localStorage,document=globalThis.document,AudioClass=globalThis.Audio,schedule=globalThis.setInterval,cancel=globalThis.clearInterval,createGuide=createLiftGuideAudio}={}){
+export function createMusic(options={}){return musicVersion()===2?createDeferredMusicTwo(options):createMusicOne(options);}
+// The rotation loads on demand; calls made before it arrives are replayed.
+function createDeferredMusicTwo(options){
+ let engine=null,destroyed=false,gestured=false;const calls=[];
+ const forward=(name,...args)=>{if(engine)return engine[name](...args);calls.push([name,args]);};
+ const doc=options.document||globalThis.document,early=e=>{if(!e?.target?.closest?.('[data-action="music"],[data-level-mute="music"],[data-level-bars="music"]'))gestured=true;};
+ doc?.addEventListener?.('pointerdown',early,{capture:true,passive:true});doc?.addEventListener?.('keydown',early,{capture:true});
+ const dropEarly=()=>{doc?.removeEventListener?.('pointerdown',early,true);doc?.removeEventListener?.('keydown',early,true);};
+ const readLevel=()=>{try{const raw=(options.storage||globalThis.localStorage)?.getItem('wispbound-music-level');return raw==null||raw===''?3:Number(raw);}catch{return 3;}};
+ import('./music-two.mjs?v=music-two-2').then(m=>{if(destroyed)return;engine=m.createMusicTwo(options);globalThis.__wispMusicTwo=engine;for(const [name,args] of calls.splice(0))engine[name](...args);dropEarly();if(gestured)engine.unlock();}).catch(()=>{});
+ return {get enabled(){return engine?engine.enabled:readLevel()>0},get level(){return engine?engine.level:readLevel()},get lastLevel(){return engine?engine.lastLevel:3},get mode(){return engine?.mode||'menu'},
+  getTransport(){return engine?.getTransport()||{time:0,rate:1,bpm:88};},
+  setScene:(...a)=>forward('setScene',...a),setFlight:s=>{if(engine)engine.setFlight(s);},setEnabled:v=>forward('setEnabled',v),setLevel:v=>forward('setLevel',v),setFxGain:v=>forward('setFxGain',v),
+  destroy(){destroyed=true;dropEarly();engine?.destroy();}};
+}
+function createMusicOne({storage=globalThis.localStorage,document=globalThis.document,AudioClass=globalThis.Audio,schedule=globalThis.setInterval,cancel=globalThis.clearInterval,createGuide=createLiftGuideAudio}={}){
  const key='wispbound-music-enabled';let unlocked=false,players=[],timer=null,mode='menu',danger=0;
- let targets=musicMix(mode),destroyed=false,holeTarget=0,pulseTarget=0,focusTarget=0,hole=0,pulse=0,focus=0,rate=1;
+ let targets=musicMix(mode),destroyed=false,fxGain=1,holeTarget=0,pulseTarget=0,focusTarget=0,hole=0,pulse=0,focus=0,rate=1;
  const levels=[0,0,0],pendingPlays=new Map();
  const clearReaction=()=>{holeTarget=0;pulseTarget=0;focusTarget=0;};
  // Five volume steps (0 off to 4); the legacy on/off key stays in step for older readers.
@@ -36,7 +56,7 @@ export function createMusic({storage=globalThis.localStorage,document=globalThis
  let masterGain=levelGain(volume.level);
  const guide=createGuide();let guideSnapshot=null;
  const transport=()=>({time:Number(players[0]?.currentTime)||0,rate,bpm:88});
- const updateGuide=()=>guide.update(guideSnapshot,{enabled:volume.level>0&&unlocked&&!destroyed&&rate>0,gain:masterGain,hidden:document.hidden,transport:transport()});
+ const updateGuide=()=>guide.update(guideSnapshot,{enabled:volume.level>0&&unlocked&&!destroyed&&rate>0,gain:masterGain*fxGain,hidden:document.hidden,transport:transport()});
  const enabled=()=>volume.level>0;
  const canPlay=()=>enabled()&&unlocked&&!document.hidden&&!destroyed&&rate>0;
  const stop=()=>{guide.stop();pendingPlays.clear();for(const p of players)p.pause();if(timer!==null){cancel(timer);timer=null;}};
@@ -98,6 +118,8 @@ export function createMusic({storage=globalThis.localStorage,document=globalThis
   setScene(next,pressure=0){if(destroyed)return;guideSnapshot=null;guide.stop();scene(next,pressure);if(next==='pause')setRate(0);else if(!['flight','boss','dream'].includes(next))setRate(1);},
   setFlight(s){if(destroyed)return;guideSnapshot=s;scene(s.dream?.mode==='record'?'dream':s.dying?'loss':s.completing?'clear':s.paused?'pause':s.boss?'boss':'flight',Math.max(Math.min(1,(s.blackHole?.rate||0)/20),Math.max(0,1-(s.flame||0)/Math.max(1,(s.maxFlame||100)*.3)),s.boss?Math.min(1,(s.boss.phase||1)/3):0));setRate(Number.isFinite(s.worldRate)?s.worldRate:s.paused||s.tutorialAwaitingLift||s.dying||s.completing||s.finished?0:1);updateGuide();if(enabled()&&!document.hidden){const reaction=musicReactivity(s);holeTarget=reaction.hole;pulseTarget=reaction.pulse;if(mode==='flight'||mode==='boss')focusTarget=unit(s.audioFocus);}},
   setEnabled(value){if(destroyed)return;volume.setEnabled(!!value);applyLevel();},
+  // The Lift cue is an effect: it also follows the FX level (1 = default).
+  setFxGain(value){fxGain=Math.max(0,Number(value)||0);},
   setLevel(value){if(destroyed)return;volume.set(value);applyLevel();},
   destroy(){destroyed=true;guideSnapshot=null;stop();guide.destroy();document.removeEventListener('pointerdown',gesture,true);document.removeEventListener('keydown',gesture,true);document.removeEventListener('visibilitychange',visibility)}
  };

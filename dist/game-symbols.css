@@ -12,10 +12,10 @@
 
 .flight-control.flap-control{color:#eff1cc!important;text-shadow:1px 1px #10261e}.flap-control>.resource-symbol{width:26px;height:26px;flex:0 0 26px}.flap-control #flap-label{font-size:13px!important;color:inherit}
 /* Short local glints keep the silhouette and touch target still. */
-.carving-light,.heart-glint,.bonus-glint,.resource-facet{animation:rune-glint 3.2s ease-in-out infinite}
+.bonus-glint,.resource-facet{animation:rune-glint 3.2s ease-in-out infinite}
 @keyframes rune-glint{0%,60%,100%{opacity:.78}78%{opacity:1}87%{opacity:.90}}
-@media(prefers-reduced-motion:reduce){.carving-light,.heart-glint,.bonus-glint,.resource-facet{animation:none!important}}
-[data-reduced-motion="true"] :is(.carving-light,.heart-glint,.bonus-glint,.resource-facet){animation:none!important}
+@media(prefers-reduced-motion:reduce){.bonus-glint,.resource-facet{animation:none!important}}
+[data-reduced-motion="true"] :is(.bonus-glint,.resource-facet){animation:none!important}
 /* These glints are decoration only (no game state rides on them). Hold them on
    the flight screen so the HUD does not restyle every frame during flight. */
-body.playing :is(.carving-light,.heart-glint,.bonus-glint,.resource-facet){animation-play-state:paused}
+body.playing :is(.bonus-glint,.resource-facet){animation-play-state:paused}

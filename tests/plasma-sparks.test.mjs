@@ -149,7 +149,10 @@ test('small menu and wallet glyphs share the flight Spark shell, branches and co
   const fuelImages = images(pickupArtSvg('light'));
   assert.equal(fuelImages.length, 2);
   assert.equal(resourceSymbol('energy'), resourceSymbol('glow'));
-  for(const kind of ['energy','packed']) {
+  // Stored Sparks is the approved v2.0-icons jar (it holds the approved Spark); the Spark Meter symbol keeps the flight Spark motif.
+  assert.match(resourceSymbol('packed'),/data-ui-icon="stored"/);
+  assert.deepEqual(images(resourceSymbol('packed')),[]);
+  for(const kind of ['energy']) {
     const symbol=resourceSymbol(kind);
     assert.match(symbol,/class="spark-glyph-shell"/);
     assert.match(symbol,/class="spark-glyph-arcs"/);
