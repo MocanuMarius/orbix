@@ -72,7 +72,7 @@ export const CHEVRON = pad16([BLANK, BLANK, BLANK, BLANK, BLANK, '..OO........OO
 const GEM_ROWS = ['...OO...', '..OHAO..', '.OHAAAO.', 'OHAAAAZO', 'OAAAAZZO', '.OAAZZO.', '..OAZO..', '...OO...'];
 const GEM_PAL = {common: {A: '#d8dacd', Z: '#8d9187', H: '#ffffff'}, rare: {A: '#6fa3bd', Z: '#31546f', H: '#f0d68a'}, legendary: {A: '#b9a6d6', Z: '#5b4f73', H: '#f3d6f7'}};
 export const gem = r => pixelArt(GEM_ROWS, {size: 8, pal: {O: '#2a1d12', ...GEM_PAL[r]}, cls: 'dk21-gem'});
-import {triggerArtKey} from '../card-rule-bands.mjs?v=cards-hidden-2';
+import {triggerArtKey} from '../card-rule-bands.mjs?v=triggers-1';
 // 9-slice frames: 12×12, stepped 2-pixel corners, outline · rim · one-pixel bevel (light top/left, dark bottom/right) · fill.
 export function frameUrl({outline = '#2a1d12', rim, light, dark, fill}) {
   const paths = {};
@@ -112,8 +112,9 @@ const escB = v => String(v ?? '').replace(/[&<>"']/g, c => ({'&': '&amp;', '<': 
 /** The Trigger badge every card shows first (face, Deck tile, Chain tile): the chip's icon in a paper well and its
  * name on leather. Same place and colours everywhere; `mini` keeps the icon only (the name stays for readers). */
 export function chipBadge(chip, {cls = '', mini = false} = {}) {
-  const label = chip?.label || 'Always on';
-  return `<span class="tbadge${mini ? ' tbadge-mini' : ''}${cls ? ` ${cls}` : ''}" data-chip="${escB(chip?.id || 'always-on')}"><i class="tbadge-i" aria-hidden="true">${chipIcon(chip?.id || 'always-on', 16)}</i><b class="tbadge-n${mini ? ' tbadge-sr' : ''}">${escB(label)}</b></span>`;
+  const label = chip ? chip.label : 'Passive';
+  if (!label) return '';
+  return `<span class="tbadge${mini ? ' tbadge-mini' : ''}${cls ? ` ${cls}` : ''}" data-chip="${escB(chip?.id || 'always-on')}"${chip?.kind === 'role' ? ' data-chip-kind="role"' : ''}><i class="tbadge-i" aria-hidden="true">${chipIcon(chip?.id || 'always-on', 16)}</i><b class="tbadge-n${mini ? ' tbadge-sr' : ''}">${escB(label)}</b></span>`;
 }
 /** Rarity without words: 1, 2 or 3 small gems (Common, Rare, Legendary), for players who cannot rely on colour. */
 export const rarityPips = r => `<span class="rpips rpips-${r}" aria-hidden="true">${Array.from({length: r === 'legendary' ? 3 : r === 'rare' ? 2 : 1}, () => gem(r)).join('')}</span>`;

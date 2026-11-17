@@ -1,6 +1,6 @@
-import {getLifeCapacity} from './vitality.mjs?v=cards-hidden-2';
-import {grantPassageBoon} from './passage-preparations.mjs?v=cards-hidden-2';
-import {getCardModifiers,isCardRun} from './skill-cards.mjs?v=cards-hidden-2';
+import {getLifeCapacity} from './vitality.mjs?v=triggers-1';
+import {grantPassageBoon} from './passage-preparations.mjs?v=triggers-1';
+import {getCardModifiers,isCardRun} from './skill-cards.mjs?v=triggers-1';
 
 function bonus(id, name, condition, reward, target, hint='', boonId=null) {
   return Object.freeze({id, name, condition, reward, target, hint, ...(boonId?{boonId}:{})});

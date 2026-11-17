@@ -1,6 +1,7 @@
 /** Typed face copy. Catalog metadata takes precedence over these legacy cards.
  * Every card face reads: a Trigger chip (with an optional short condition), one short
  * "what" line, and an optional small tag (uses or a limit). Wording: docs/card-text-rewrite.md. */
+import {triggerDisplay} from './card-trigger-labels.mjs';
 const band = (type, text, extra = {}) => ({type, text, ...extra});
 const condition = (text, trigger) => band('condition', text, trigger ? {trigger} : {});
 const effect = text => band('effect', text);
@@ -51,29 +52,31 @@ export function getCardTrigger(card = {}, definition = {}) {
     || (values.row?.event === '*' ? 'any' : triggerForEvent[values.row?.event])
     || (['camp-grow', 'camp-extra'].includes(values.kind) ? 'rest' : ['echo', 'chameleon'].includes(values.kind) ? 'next' : 'always-on');
   const trigger = CARD_TRIGGERS[id] || CARD_TRIGGERS['always-on'];
-  return {id: trigger.id, label: trigger.label, condition: first?.detail || ''};
+  // Players see the display layer's words (card-trigger-labels.mjs); `id` stays the internal key the engine uses.
+  const shown = triggerDisplay(trigger.id);
+  return {id: trigger.id, label: shown ? shown.label : trigger.label, group: shown?.group ?? trigger.id, kind: shown?.kind || 'trigger', condition: first?.detail || ''};
 }
 
 const legacy = {
   body: card => [condition('Collect', 'collect'), effect(`+${card.amount} Sparks`), ...(card.charges != null ? [note('{uses}')] : [])],
-  capacity: card => [condition('Always on', 'always-on'), effect(`+${card.amount} max Sparks`)],
-  packing: card => [condition('Always on', 'always-on'), effect(`+${card.amount || 50}% Stored Sparks from packing`)],
-  echo: () => [condition('Next card', 'next'), effect('Repeats the next card')],
-  chameleon: () => [condition('Next card', 'next'), effect('Acts as the next card')],
-  field: () => [condition('Always on · Collector home, ¼ charge', 'always-on'), effect('Swipe: float, dive or speed up, 0.8 s')],
-  guide: () => [condition('Always on', 'always-on'), effect('An arrow shows when a Lift regains height')],
-  rhythm: () => [condition('Always on', 'always-on'), effect('3 even Lifts send out a Pulse')],
+  capacity: card => [condition('Passive', 'always-on'), effect(`+${card.amount} max Sparks`)],
+  packing: card => [condition('Passive', 'always-on'), effect(`+${card.amount || 50}% Stored Sparks from packing`)],
+  echo: () => [condition('Repeat', 'next'), effect('Repeats the next card')],
+  chameleon: () => [condition('Repeat', 'next'), effect('Acts as the next card')],
+  field: () => [condition('Passive · Collector home, ¼ charge', 'always-on'), effect('Swipe: float, dive or speed up, 0.8 s')],
+  guide: () => [condition('Passive', 'always-on'), effect('An arrow shows when a Lift regains height')],
+  rhythm: () => [condition('Passive', 'always-on'), effect('3 even Lifts send out a Pulse')],
   harvest: (card, def) => [condition('Pulse', 'wave'), effect(`+${card.amount} Sparks${def.stored || card.rarity === 'legendary' ? `, +${def.stored || 1} Stored on its 1st Spark` : ''}`)],
   'camp-extra': () => [condition('At Rest', 'rest'), effect('Take 2 different Rest actions'), note('1 use')],
   'camp-grow': (card, def) => [condition('At Rest · Grow', 'rest'), effect(`+${card.amount ?? def.amount ?? 3} max Sparks and a full meter`), note('3 Grows per journey')],
-  'cache-handling': () => [condition('Always on', 'always-on'), effect('Collector fetches Caches: +12 Sparks each')],
+  'cache-handling': () => [condition('Passive', 'always-on'), effect('Collector fetches Caches: +12 Sparks each')],
   'flash-handling': () => [condition('Flash', 'flash'), effect('+6 Sparks; Collector can fetch Flash')],
-  prism: card => [condition('Any Trigger', 'any'), effect(`Every card before it ×${card.amount || 1.25}`)],
-  crescendo: () => [condition('Any Trigger', 'any'), effect('Double every card before it')],
-  refrain: () => [condition('Any Trigger', 'any'), effect('Encore: the chain fires once more')],
-  downbeat: card => [condition('Falling Lift', 'falling-lift'), effect(`+${card.amount || 2} Sparks`)],
+  prism: card => [condition('Boost', 'any'), effect(`Every card before it ×${card.amount || 1.25}`)],
+  crescendo: () => [condition('Boost', 'any'), effect('Double every card before it')],
+  refrain: () => [condition('Boost', 'any'), effect('Encore: the chain fires once more')],
+  downbeat: card => [condition('Lift while falling', 'falling-lift'), effect(`+${card.amount || 2} Sparks`)],
   'ring-spring': card => [condition('Overfill', 'overfill'), effect(`Collector ready ${card.amount || 1} s sooner`)],
-  watchlight: () => [condition('Always on · Collector home, full charge', 'always-on'), effect('Collector catches a fatal crash, sends a Pulse'), note('1 per flight · then 4× recovery')],
+  watchlight: () => [condition('Passive · Collector home, full charge', 'always-on'), effect('Collector catches a fatal crash, sends a Pulse'), note('1 per flight · then 4× recovery')],
 };
 
 /** Shared face tokens: {amount}, {charges}, {fedCapacity}, {replayAmount}, {name}, plus

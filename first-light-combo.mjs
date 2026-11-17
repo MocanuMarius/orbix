@@ -1,9 +1,9 @@
 // Edition 3 only. First Light Edition 4 teaches cards at its camp (stop 5) and no longer
 // lends this pair on the first flight; this module stays so an unfinished Edition 3
 // practice save finishes as it began. It can be deleted once those saves are gone.
-import {isPlayablePractice,loanPracticeCards,practiceModifiers} from './practice-route.mjs?v=cards-hidden-2';
-import {makeSkillCard} from './skill-cards.mjs?v=cards-hidden-2';
-import {cardArt} from './card-art.mjs?v=cards-hidden-2';
+import {isPlayablePractice,loanPracticeCards,practiceModifiers} from './practice-route.mjs?v=triggers-1';
+import {makeSkillCard} from './skill-cards.mjs?v=triggers-1';
+import {cardArt} from './card-art.mjs?v=triggers-1';
 
 export const FIRST_LIGHT_COMBO='practice:early-combo';
 export const FIRST_LIGHT_COMBO_GAP=1.35;

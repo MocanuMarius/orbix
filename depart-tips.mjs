@@ -14,10 +14,10 @@
 //   low-hearts                  one heart left          first-flights   flights 1 to 3 of the run
 //   collector                   the Collector companion is along   empty-slot   the Chain has a free Slot
 //   has-stored-sparks           Stored Sparks in the wallet        after-death  the last flight was lost
-import {CARD_CATALOG} from './card-catalog.mjs?v=cards-hidden-2';
-import {getBiome} from './biomes.mjs?v=cards-hidden-2';
-import {isCardRun,isInventoryOnlyCard} from './skill-cards.mjs?v=cards-hidden-2';
-import {onboardingFlightPlan} from './onboarding.mjs?v=cards-hidden-2';
+import {CARD_CATALOG} from './card-catalog.mjs?v=triggers-1';
+import {getBiome} from './biomes.mjs?v=triggers-1';
+import {isCardRun,isInventoryOnlyCard} from './skill-cards.mjs?v=triggers-1';
+import {onboardingFlightPlan} from './onboarding.mjs?v=triggers-1';
 
 export const TIPS = Object.freeze([
  // ── General: fine in any run ──────────────────────────────────────────────────────────────
@@ -55,10 +55,10 @@ export const TIPS = Object.freeze([
  {id:'delivery-not-collect',context:'trigger:delivery',icon:'collector',headline:'Delivery is not Collect',text:'A pickup Collector brings you fires Delivery cards, not Collect cards.'},
  {id:'pulse-uncollected',context:'trigger:pulse',icon:'pulse',headline:'Cross, then collect',text:'A Pulse crossing an uncollected Spark fires Pulse cards. The Spark stays; pick it up.'},
  {id:'overfill-two',context:'trigger:overfill',icon:'spark',headline:'One touch, two Triggers',text:'A Spark that overfills your meter fires Overfill first, then Collect.'},
- {id:'falling-lift',context:'trigger:falling-lift',icon:'wisp',headline:'Wait, fall, then Lift',text:'A Falling Lift is a paid Lift while falling, at least 0.75 s after your last.'},
+ {id:'falling-lift',context:'trigger:falling-lift',icon:'wisp',headline:'Wait, fall, then Lift',text:'Lift while falling: a paid Lift, at least 0.75 s after your last.'},
  {id:'flash-trigger',context:'trigger:flash',icon:'flash',headline:'Flash is a Trigger too',text:'Touching a Flash triangle fires your Flash cards as well as lighting the passage.'},
  // The Rhythm Trigger only fires from the Rhythm card's three even Lifts, so the card is part of the context.
- {id:'rhythm-trigger',context:'trigger:rhythm&card:rhythm',icon:'beat',headline:'Rhythm fires a Trigger',text:'Cards on the Rhythm Trigger fire each time your three even Lifts complete.'},
+ {id:'rhythm-trigger',context:'trigger:rhythm&card:rhythm',icon:'beat',headline:'Lift on the beat',text:'Cards that say Lift on the beat fire each time your three even Lifts complete.'},
  // ── Place-specific: biome hints from biomes.mjs, kept to its own wording ──────────────────
  {id:'biome-moonruins',context:'biome:moonruins',icon:'arch',headline:'Loose stones tremble',text:'Cracked masonry shakes, then falls. Do not linger under it.'},
  {id:'biome-frost',context:'biome:frost',icon:'peaks',headline:'Ice melts in your light',text:'Your light melts hanging ice into falling shards. Keep clear below it.'},
@@ -153,7 +153,7 @@ export function pickTip(run, history = [], rand = Math.random, {recent = 8, cont
 
 // Plain words for the small context line ("For your Rhythm").
 const cardName = id => CARD_CATALOG[id]?.name || id;
-const TRIG_NAME = {collect: 'Collect', delivery: 'Delivery', pulse: 'Pulse', flash: 'Flash', overfill: 'Overfill', rhythm: 'Rhythm', 'falling-lift': 'Falling Lift'};
+const TRIG_NAME = {collect: 'Collect', delivery: 'Delivery', pulse: 'Pulse', flash: 'Flash', overfill: 'Overfill', rhythm: 'Lift', 'falling-lift': 'Lift'};
 export function whyLabel(tip, run) {
   const f = runFacts(run), parts = tip.context.split('&'), first = parts.find(p => p !== 'always' && p !== 'collector') || parts[0];
   const [key, value = ''] = first.split(':');

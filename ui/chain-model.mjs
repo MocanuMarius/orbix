@@ -7,11 +7,12 @@
 // LEFT did to it (an Echo repeating it). Later Boosts and the Encore keep their own plates. Honesty rule: the
 // plates read left to right (+ adds, × multiplies the running figure, Encore repeats the line, each firing
 // rounded down to whole Sparks) must give the resolver's total; when they do not, plates show plain figures.
-import {SKILL_CARDS, CARD_UNIT, getCardRowRule, hasCardRowEvent, previewCardRow, isInventoryOnlyCard, describeSkillCard, cardAmount} from '../skill-cards.mjs?v=cards-hidden-2';
-import {getGlowCapacity, glowPoints, GLOW_DISPLAY_SCALE} from '../vitality.mjs?v=cards-hidden-2';
-import {CARD_TRIGGERS, getCardTrigger} from '../card-rule-bands.mjs?v=cards-hidden-2';
-import {hasEngineCards, engineMetrics, findEngineLoop, engineStarts} from '../card-engine.mjs?v=cards-hidden-2';
-import {previewBlackHoleMeals, devourTally} from '../card-black-hole.mjs?v=cards-hidden-2';
+import {SKILL_CARDS, CARD_UNIT, getCardRowRule, hasCardRowEvent, previewCardRow, isInventoryOnlyCard, describeSkillCard, cardAmount} from '../skill-cards.mjs?v=triggers-1';
+import {getGlowCapacity, glowPoints, GLOW_DISPLAY_SCALE} from '../vitality.mjs?v=triggers-1';
+import {CARD_TRIGGERS, getCardTrigger} from '../card-rule-bands.mjs?v=triggers-1';
+import {DISPLAY_GROUPS, GROUP_TERM} from '../card-trigger-labels.mjs';
+import {hasEngineCards, engineMetrics, findEngineLoop, engineStarts} from '../card-engine.mjs?v=triggers-1';
+import {previewBlackHoleMeals, devourTally} from '../card-black-hole.mjs?v=triggers-1';
 
 /** The Triggers in the designer's order, with the game's names and glossary keys (card-terms.mjs). */
 export const TRIGGERS = Object.freeze([
@@ -42,7 +43,7 @@ export function markOf(c) {
   const rule = getCardRowRule(def, c);
   if (rule?.operation === 'multiply') return {cls: 'mul', glyph: '×', text: 'Multiplies'};
   if (rule?.operation === 'add-sparks' || rule?.operation === 'add-last-payout') return {cls: 'add', glyph: '+', text: 'Adds'};
-  if (!rule) return {cls: 'always', glyph: 'Always on', text: 'Always on'};
+  if (!rule) return {cls: 'always', glyph: 'Passive', text: 'Passive'};
   return null;
 }
 /** Which Trigger the card itself listens to: the WHEN of its real row rule. */
@@ -50,10 +51,10 @@ export function whenOf(c) {
   const def = SKILL_CARDS[c?.cardId], rule = def ? getCardRowRule(def, c) : null;
   if (isRest(c)) return {text: 'At Rest'};
   if (rule?.event && TRIGGER_BY[rule.event]) return {kind: rule.event, text: TRIGGER_BY[rule.event].name};
-  if (rule?.event === '*') return {text: 'Any Trigger'};
+  if (rule?.event === '*') return {text: 'Boost'};
   if (def?.kind === 'echo' || def?.kind === 'chameleon') return {text: 'Same as the card it repeats'};
   if (def?.kind === 'refrain') return {text: 'Any Trigger, after a Bonus'};
-  return {text: 'Always on'};
+  return {text: 'Passive'};
 }
 
 // The preview event: a natural Spark with the meter at 6 of the base 30 Sparks (as in the approved preview).
@@ -119,7 +120,7 @@ export function slotInfo(ctx, slot, {plain} = {}) {
   const noEff = plain ?? ctx.plain;
   const def = SKILL_CARDS[c.cardId], rule = getCardRowRule(def, c);
   const fires = !!rule || ['echo', 'chameleon', 'refrain'].includes(def?.kind);
-  if (!fires) return {kind: 'passive', plate: 'Always on'};
+  if (!fires) return {kind: 'passive', plate: 'Passive'};
   const steps = sol.steps.filter(st => st.slot === slot), ok = steps.find(st => st.success);
   if (!ok) {
     const last = steps.filter(st => !st.success).pop();
@@ -199,32 +200,8 @@ export const chipOf = c => getCardTrigger(c || {}, SKILL_CARDS[c?.cardId || c?.i
 /** How often each Trigger fires in a flight, in words, from the firing model of scripts/balance/simulate.mjs
  * (Collect 10, Pulse 6, Falling Lift 8 per 30 s flight: often; Delivery 4, Latch 3, Flash 3, Flash ends 3, Rhythm 4,
  * Overfill 2, skims 2 to 3, low Lifts a few: a few times; Save, Clear, Pack, Take-off: once). */
-export const TRIGGER_BOOK = Object.freeze([
-  ['collect', 'You touch a Spark with your wisp.', 'often'],
-  ['delivery', 'Collector brings you a pickup.', 'a few times'],
-  ['latch', 'Collector grabs a pickup you missed.', 'a few times'],
-  ['wave', 'A Pulse crosses a Spark you have not taken.', 'often'],
-  ['flash', 'You or Collector pick up a Flash.', 'a few times'],
-  ['flash-ends', 'A Flash’s light runs out.', 'a few times'],
-  ['falling-lift', 'You Lift while falling.', 'often'],
-  ['overfill', 'A Spark brings more than your meter holds.', 'a few times'],
-  ['rhythm', 'You Lift 3 times at an even pace.', 'a few times'],
-  ['engine-skim', 'You fly close to terrain until Proximity fills.', 'a few times'],
-  ['engine-lift', 'You Lift with your meter under a quarter.', 'a few times'],
-  ['save', 'Collector stops a crash that would end the flight.', 'once'],
-  ['take-off', 'You start a flight.', 'once'],
-  ['clear', 'You clear a flight.', 'once'],
-  ['pack', 'You clear a flight; spare Sparks are packed.', 'once'],
-  ['engine-pulse', 'A card to its left sends a Pulse.', 'each Turn'],
-  ['engine-gain', 'A card to its left gives Sparks.', 'each Turn'],
-  ['engine-any', 'Any card event reaches it.', 'each Turn'],
-  ['engine-turn', 'Your engine goes round once.', 'each Turn'],
-  ['timers', 'It changes the Timers in your chain.', 'always'],
-  ['any', 'It fires with whatever Trigger fires your chain.', 'with every Trigger'],
-  ['next', 'It fires when the card to its right fires.', 'with that card'],
-  ['always-on', 'It works the whole time it is in your chain.', 'always'],
-  ['rest', 'You use it from your Deck at Rest.', 'at Rest'],
-].map(([id, does, often]) => Object.freeze({id, label: CARD_TRIGGERS[id].label, does, often, term: id === 'any' ? 'any-trigger' : id === 'wave' ? 'wave' : id})));
+export const TRIGGER_BOOK = Object.freeze(DISPLAY_GROUPS.map(g => Object.freeze({id: g.id, group: g.group, label: g.label, kind: g.kind,
+  does: g.does, often: g.often, term: GROUP_TERM[g.group]})));
 /** The Trigger collection for one run: every Trigger, with the player's own cards that use it (a tile per card
  * kind, with a count). `owned` false rows read "No card yet". */
 export function triggerBook(run) {
@@ -232,7 +209,7 @@ export function triggerBook(run) {
   return TRIGGER_BOOK.map(entry => {
     const kinds = new Map();
     for (const card of owned) {
-      if (chipOf(card).id !== entry.id) continue;
+      if (chipOf(card).group !== entry.group) continue;
       const k = kinds.get(card.cardId) || {cardId: card.cardId, card, count: 0, inChain: false};
       k.count++; if ((run?.mountedCards || []).includes(card)) {k.inChain = true;k.card = card;}
       kinds.set(card.cardId, k);

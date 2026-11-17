@@ -1,7 +1,7 @@
-import {WispFlight} from './flight.mjs?v=cards-hidden-2';
-import {getRunModifiers} from './model.mjs?v=cards-hidden-2';
-import {wispOrbit} from './wisp.mjs?v=cards-hidden-2';
-import {formatGlow, glowPoints} from './vitality.mjs?v=cards-hidden-2';
+import {WispFlight} from './flight.mjs?v=triggers-1';
+import {getRunModifiers} from './model.mjs?v=triggers-1';
+import {wispOrbit} from './wisp.mjs?v=triggers-1';
+import {formatGlow, glowPoints} from './vitality.mjs?v=triggers-1';
 
 const frame=document.querySelector('#flight-frame'),gate=document.querySelector('#gate');
 const status=document.querySelector('#status'),meter=document.querySelector('meter'),amount=document.querySelector('#meter');

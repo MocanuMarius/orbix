@@ -1,5 +1,5 @@
-import {CARD_SYSTEM,makeSkillCard,getCardModifiers,getMountedCards} from './skill-cards.mjs?v=cards-hidden-2';
-import {practiceCourseLesson,PRACTICE_CHAIN_CARDS} from './practice-course.mjs?v=cards-hidden-2';
+import {CARD_SYSTEM,makeSkillCard,getCardModifiers,getMountedCards} from './skill-cards.mjs?v=triggers-1';
+import {practiceCourseLesson,PRACTICE_CHAIN_CARDS} from './practice-course.mjs?v=triggers-1';
 
 // Edition 4 (17 November 2026): seven stops through real courses, one idea per
 // paused lesson. A saved Edition 3 practice in progress finishes as Edition 3.
