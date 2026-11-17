@@ -28,12 +28,20 @@ test('Glide Prism: "Lift: double every reward before it", on a falling Lift and 
   assert.equal(hasCardRowEvent(createCardExecution(row(['glide-prism'])), 'rhythm-phrase'), true);
 });
 
+const PLAIN = {kind: 'plain-lift', meterFraction: 0.5};
+test('Glide Prism doubles a Kindled-slot card on a plain Lift (not falling, off the beat)', () => {
+  assert.equal(fire(['body-spark'], PLAIN, ['kindled']).sparks, 2, 'Kindled: the card fires on every Lift');
+  assert.equal(fire(['body-spark', 'glide-prism'], PLAIN, ['kindled']).sparks, 4);
+  assert.equal(fire(['body-spark', 'glide-prism'], PLAIN).sparks, 0, 'no Kindled, no firing');
+  assert.equal(fire(['downbeat', 'glide-prism'], PLAIN).sparks, 0, 'Downbeat needs a falling Lift');
+});
+
 test('Glide Prism: does nothing for other Triggers, only for cards before it, never for Stored Sparks or growth', () => {
   assert.equal(fire(['body-spark', 'glide-prism'], COLLECT).sparks, fire(['body-spark'], COLLECT).sparks, 'a Collect is not doubled');
   assert.equal(fire(['downbeat', 'glide-prism'], {kind: 'wave-crossing', firstCrossing: true, pickupKind: 'light'}).sparks, 0);
   assert.equal(fire(['glide-prism', 'downbeat'], LIFT).sparks, 2, 'order matters: a card after it is not doubled');
   assert.equal(fire(['downbeat', 'glide-prism', 'downbeat'], LIFT).sparks, 4 + 2);
-  assert.deepEqual(getCardRowRule(SKILL_CARDS['glide-prism'], makeSkillCard('glide-prism', 'x')).alsoEvents, ['rhythm-phrase']);
+  assert.deepEqual(getCardRowRule(SKILL_CARDS['glide-prism'], makeSkillCard('glide-prism', 'x')).alsoEvents, ['rhythm-phrase', 'plain-lift']);
   const WAVE = {kind: 'wave-crossing', firstCrossing: true, pickupKind: 'light'}, harvest = fire(['harvest-legendary', 'glide-prism'], WAVE);
   assert.equal(harvest.sparks, 2); assert.equal(harvest.stored, 1, 'a Pulse is not a Lift: nothing is doubled, Stored least of all');
   const mixed = fire(['downbeat', 'glide-prism'], LIFT);

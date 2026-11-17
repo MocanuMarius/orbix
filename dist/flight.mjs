@@ -1367,7 +1367,7 @@ export class WispFlight {
     if(effort>0&&descendingBeforeLift&&sincePreviousLift>=.75-1e-9){
       this.resolveCardRowEvent(CARD_ROW_EVENTS.lift,cardLiftContext);
       this.undertowCollect(cardLiftContext);
-    }
+    }else this.resolveCardRowEvent(CARD_ROW_EVENTS.plainLift,cardLiftContext);
     this.lastFlapTime = this.time;
     this.liftGuide?.clear();
     this.cardRhythm?.lift(this.time,cardLiftContext);
