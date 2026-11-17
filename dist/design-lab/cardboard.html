@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Card review board · Design lab</title>
+<link rel="icon" href="../assets/favicon.svg">
+<link rel="stylesheet" href="cardart.css">
+<link rel="stylesheet" href="cardboard.css?v=1">
+</head>
+<body class="ca cb">
+<div id="cb-root">
+<header class="ca-head">
+ <p class="ca-kicker">Design lab · review board</p>
+ <h1>New card proposals <code class="ca-code">v1.0-cards</code></h1>
+ <p class="ca-lede">Every card from the written proposal, drawn the way the game would show it: the opened card, the Deck tile, and a worked example in the Chain. <b>Click a card to approve it</b>, or use the three buttons: Approve, Deny, or Change… to write what you would like different. Your choices are saved as you click. Pictures are rough sketches; final art follows once a card is approved.</p>
+ <p class="ca-count" id="cb-count"></p>
+ <p class="cb-legend"><b>New Trigger chips</b> (the game has no icon for these yet): <span id="cb-legend-new"></span></p>
+ <p class="cb-legend"><button type="button" class="cb-mini" id="cb-expand">Open all families</button> <button type="button" class="cb-mini" id="cb-collapse">Close all families</button></p>
+</header>
+<div class="cb-barwrap"><div id="cb-bar" class="cb-bar"></div></div>
+<section class="cb-tenwrap" aria-labelledby="cb-tenh"><h2 id="cb-tenh">My ten to build first</h2><p class="ca-note">The coordinator's pick. Tap a tile to jump to the card; the two small buttons set the same decision.</p><div id="cb-ten" class="cb-ten"></div></section>
+<main id="cb-main"></main>
+<section class="cb-buildwrap" aria-labelledby="cb-bh"><h2 id="cb-bh">Builds these cards would make</h2><p class="ca-note">From the proposal. Tap a proposed card to jump to it. Cards marked "engine" belong to the engine proposal and are not built yet.</p><div id="cb-builds"></div></section>
+<p class="ca-note cb-foot">Source: docs/card-proposals.md. Numbers are first guesses for the simulation. Decisions are saved in <code>localStorage["orbix.cardboard.v1"]</code> and mirrored in <code>window.__cardboardDecisions</code>.</p>
+<div id="cb-toast" class="cb-toast" role="status" aria-live="polite"></div>
+</div>
+<script type="module" src="cardboard.mjs?v=1"></script>
+</body>
+</html>
