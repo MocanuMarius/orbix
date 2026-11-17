@@ -1,98 +1,98 @@
-import {FIRST_LIGHT_COMBO,firstLightComboLesson,armFirstLightCombo,firstLightComboQuiet,createFirstLightComboFeedback} from './first-light-combo.mjs?v=reskin-4';
-import {isPlayablePractice,isPracticeCourseRun,practiceCardFaces,practiceCardRun,loanPracticeCards,practicePurpose,nextPracticeLesson,reorderPracticeCards} from './practice-route.mjs?v=reskin-4';
-import {practiceCampLesson,practiceLessonStep} from './practice-course.mjs?v=reskin-4';
-import {cardFace} from './card-ui.mjs?v=reskin-4';
-import {completedGameScore} from './game-score.mjs?v=reskin-4';
-import {gameResultMarkup} from './score-result.mjs?v=reskin-4';
-import {scorecardLink,scorecardPNG,downloadScorecard,shareScorecard} from './scorecard.mjs?v=reskin-4';
-import {createCardRowFeedback} from './card-row-feedback.mjs?v=reskin-4';
-import {createActivationFeedback} from './activation-feedback.mjs?v=reskin-4';
-import {createRhythmScore} from './rhythm-score.mjs?v=reskin-4';
-import {bindFlightPointerControls} from './flight-input.mjs?v=reskin-4';
-import {bindDeckDragging} from './deck-drag.mjs?v=reskin-4';
-import {setCollectorPreference} from './model.mjs?v=reskin-4';
-import {menuIcon as icon} from './menu-icons.mjs?v=reskin-4';
-import {installationState,installationInstructions,onInstallationChange,requestInstall,refreshBuild,registerUpdateClient,updateCheckpoint} from './pwa.mjs?v=reskin-4';
-import {prepareRouteOffer} from './route-offers.mjs?v=reskin-4';
-import {ROUTE_BONUSES} from './route-bonuses.mjs?v=reskin-4';
-import {updateBonusGauge,bonusProgressText} from './route-bonus-ui.mjs?v=reskin-4';
-import {forecastCheckpointMarkup} from './night-atlas.mjs?v=reskin-4';
-import {markFlightAttemptStarted,previewAtlasMap,CAMPAIGN_MAP_NAMES} from './model.mjs?v=reskin-4';
-import {getBossPreview} from './boss.mjs?v=reskin-4';
-import {flightPreviewMarkup} from './flight-preview.mjs?v=reskin-4';
-import {collectionMarkup,COLLECTION_PAGE_SIZE} from './collection-view.mjs?v=reskin-4';
-import {restBenefitsMarkup} from './rest-choice-view.mjs?v=reskin-4';
-import {treasureView} from './treasure-view.mjs?v=reskin-4';
-import {getFlightClearReward} from './checkpoint-rewards.mjs?v=reskin-4';
-import {artifactDescription} from './artifact-copy.mjs?v=reskin-4';
-import {showNightmare} from './nightmare.mjs?v=reskin-4';
-import {startResumeCountdown} from './resume-countdown.mjs?v=reskin-4';
-import {automaticTipsEnabled,nextOnboardingLesson,markOnboardingSeen,resetOnboarding,noteOnboardingPrompt,noteOnboardingProgress,onboardingFeatureAvailable,onboardingFlightPlan,lanternEntryLesson,giantBlackHoleEntryLesson} from './onboarding.mjs?v=reskin-4';
-import {flightRewardMarkup,rewardEarningsDetailMarkup} from './reward-screen.mjs?v=reskin-4';
-import {hasFlightRewardCeremony,flightRewardCeremonyStage,advanceFlightRewardCeremony,flightRewardCeremonyMarkup,mountFlightRewardCeremony,mountReceiptInspector} from './flight-reward-ceremony.mjs?v=reskin-4';
-import {flightEntryMarkup,prepareFlightDeparture,resumeGateMarkup,waitForFlightEntry,preloadFlightEntry} from './flight-entry.mjs?v=reskin-4';
-import {TUTORIAL_TOPICS,topicSteps} from './tutorial-curriculum.mjs?v=reskin-4';
-import {resourceCycleSteps} from './resource-cycle.mjs?v=reskin-4';
-import {tutorialVisualMarkup} from './tutorial-visuals.mjs?v=reskin-4';
-import {deathScreenMarkup} from './death-screen.mjs?v=reskin-4';
-import {createRestInspectorState,createTreasureInspectorState} from './rest-inspector.mjs?v=reskin-4';
-import {createLanternMapInspectorState} from './lantern-map-inspector.mjs?v=reskin-4';
-import {createBoundaryInspectorState,frameBoundaryInspection} from './boundary-run-inspector.mjs?v=reskin-4';
-import {LANTERN_THEME,LANTERN_CHAPTER} from './map-theme.mjs?v=reskin-4';
-import {choiceScene} from './choice-art.mjs?v=reskin-4';
-import {contextualFlightNotice} from './contextual-events.mjs?v=reskin-4';
-import {createMusic} from './music.mjs?v=reskin-4';
-import {createFxLevel,levelGain,levelForKey,levelFromPointer} from './sound-level.mjs?v=reskin-4';
-import {pauseMenuMarkup,settingsMarkup,pauseContextLine,updateLevelControl} from './ui/pause-menu.mjs?v=reskin-4';
-import {GAME_VERSION} from './build-version.mjs?v=reskin-4';
-import {resourceSymbol} from './game-symbols.mjs?v=reskin-4';
-import {nextArtifactNotice,artifactUseLesson} from './artifact-lessons.mjs?v=reskin-4';
-import {getArtifactInfo,CONSUMABLE_ARTIFACTS,EVOLVING_ARTIFACTS} from './artifact-info.mjs?v=reskin-4';
-import {checkpointTutorialLesson,observedFlightLesson,flightEffectLesson} from './tutorial-steps.mjs?v=reskin-4';
-import {ARTIFACT_ENGINE_RULES} from './artifact-effects.mjs?v=reskin-4';
-import {rewardThemeMarkup,encounterIntent,encounterIntentMarkup,artifactOfferMarkup,artifactDetailMarkup,artifactRarityLabel,artifactSummaryMarkup,artifactLifetimeMarkup} from './replay-ui.mjs?v=reskin-4';
-import {installLandscapeMode} from './landscape.mjs?v=reskin-4';
-import {drawLandscapeMap} from './landscape-map.mjs?v=reskin-4';
-import {attachDream,canDreamAt,dreamEye,prepareDreamHandoff,updateDreamIndicator,validateDreamPreset} from './dream.mjs?v=reskin-4';
-import {chooseFlightReward,getAvailableUpgrades,acknowledgeVictory,takeClearRewardReceipt} from './model.mjs?v=reskin-4';
-import {formatGlow,glowPercent,getGlowCapacity,glowText,getLifeCapacity} from './vitality.mjs?v=reskin-4';
-import {glowGaugeMarkup,updateGlowGauge} from './glow-ui.mjs?v=reskin-4';
-import {edgingPulseMarkup,updateEdgingPulse} from './edging-ui.mjs?v=reskin-4';
-import {skillBookMarkup,skillBookChapter} from './skill-book.mjs?v=reskin-4';
-import {livesMarkup,lifeHeartSvg} from './lives.mjs?v=reskin-4';
-import {attachFlightPerformance,downloadPerformanceReport} from './flight-performance.mjs?v=reskin-4';
-import {getChallengePreview} from './flight-challenges.mjs?v=reskin-4';
-import {homeMenuMarkup,runProgressMarkup,companionLockIcon} from './run-menu.mjs?v=reskin-4';
-import {skillIcon,artifactIcon} from './upgrade-icons.mjs?v=reskin-4';
-import {TERRAINS,SKILLS,ARTIFACTS,newState,loadState,saveState,createRun,getStartingArtifact,getStartingGiftOffers,canChooseStartingGift,getStartingGiftPreview,chooseStartingGift,chooseStartingSkill,setTestOverride,grantTestCondensedGlow,getStartingCompanion,setStartingCompanion,startTutorial,leaveTutorial,shouldStartTutorial,getChoices,getRouteMapState,selectNode,beginFlightAttempt,retryFlight,finishFlight,getSupportChoices,resolveSupport,settleCheckpoint,bankRun,advanceMap,previewGlowReward,getSkillCost,getSkillPrice,getSkillWallet,getSkillLockReason,suspendRun,abandonRun,isSkillRevealed,canBuyCheckpointSkills,buyCheckpointSkill,getRunModifiers,canChangeCompanion,setCompanions,sellArtifact,canSellArtifact,getArtifactSalvageValue} from './model.mjs?v=reskin-4';
-import {WispFlight} from './flight.mjs?v=reskin-4';
-import {COMPANION_ABILITIES,getCompanionAbility,getCompanionUnlock,normalizeCompanionRole} from './companion-abilities.mjs?v=reskin-4';
-import {companionArtSvg} from './companion-art.mjs?v=reskin-4';
-import {boostControlMarkup,updateBoostControl} from './boost-control.mjs?v=reskin-4';
-import {campaignStrip,bossSigil,guardianRitualMarkup} from './campaign-ui.mjs?v=reskin-4';
-import {resolveLevelIdentity} from './level-catalog.mjs?v=reskin-4';
-import {levelMapGlyph,levelMapPreview} from './level-map-art.mjs?v=reskin-4';
-import {getAscentInfo} from './ascent.mjs?v=reskin-4';
-import {getRouteForecast} from './route-forecast.mjs?v=reskin-4';
-import {MAP_STOP_TYPES,getMapStopInfo,mapStopIconMarkup,getEventScenarios,mapBiomeGuideMarkup} from './map-guide.mjs?v=reskin-4';
-import {formatFlightDuration} from './level-length.mjs?v=reskin-4';
-import {condensedIconMarkup} from './afterglow-ui.mjs?v=reskin-4';
-import {pickupGuideMarkup,pickupLesson} from './pickup-guide.mjs?v=reskin-4';
-import {pickupArtSvg} from './pickup-art.mjs?v=reskin-4';
-import {createTutorialCoach} from './tutorial-coach.mjs?v=reskin-4';
-import {getTutorialWorldFocus,demonstratedTutorialTopics,tutorialEntryLesson,notePracticeHint,hasPracticeHint,takePracticeHint,carryPracticeHints,takeCarriedPracticeHint,deferPracticeLesson,FIRST_FLIGHT_STOPS} from './tutorial.mjs?v=reskin-4';
-import {isInventoryOnlyCard} from './skill-cards.mjs?v=reskin-4';
-import {isCardRun,getCardCampPreview,getMountedCards,getOwnedCards,getCardReward,getCardDraft,chooseCardDraft,equipOwnedCard,unequipMountedCard,getCardMeltPreview,meltOwnedCards,getCardImprovePreview,improveOwnedCard,getCardForgePreview,forgeOwnedCard,canManageCards,syncCardFlightForEdit,applyCardFlightEdits,closeCardFlightEdit,commitCardCharges} from './model.mjs?v=reskin-4';
-import {CARD_GUIDE_TOPICS} from './card-guide.mjs?v=reskin-4';
-import {installComboLessons} from './combo-lesson.mjs?v=reskin-4';
-import {starterCardsMarkup,starterGiftConfirmationMarkup,cardDraftMarkup,cardRewardMarkup,cardSwapMarkup,cardsBenchMarkup,cardMeltSelectionMarkup,cardExchangeMarkup,cardRestMarkup,cardGrowConfirmationMarkup,cardForgeMarkup,cardVictoryRecap,cardArt,cardName} from './card-ui.mjs?v=reskin-4';
-import {getCardRefillPreview,refillOwnedCard,canUseCardCampServices} from './model.mjs?v=reskin-4';
-import {cardWorkshopMarkup,cardRefillMarkup} from './card-workshop.mjs?v=reskin-4';
-import {createCardInspectorState,prepareCardInspectorReward} from './card-inspector.mjs?v=reskin-4';
-import {installCardTermHelp} from './card-terms.mjs?v=reskin-4';
-import {resolveCardHelpContext} from './card-row-help.mjs?v=reskin-4';
+import {FIRST_LIGHT_COMBO,firstLightComboLesson,armFirstLightCombo,firstLightComboQuiet,createFirstLightComboFeedback} from './first-light-combo.mjs?v=perf-1';
+import {isPlayablePractice,isPracticeCourseRun,practiceCardFaces,practiceCardRun,loanPracticeCards,practicePurpose,nextPracticeLesson,reorderPracticeCards} from './practice-route.mjs?v=perf-1';
+import {practiceCampLesson,practiceLessonStep} from './practice-course.mjs?v=perf-1';
+import {cardFace} from './card-ui.mjs?v=perf-1';
+import {completedGameScore} from './game-score.mjs?v=perf-1';
+import {gameResultMarkup} from './score-result.mjs?v=perf-1';
+import {scorecardLink,scorecardPNG,downloadScorecard,shareScorecard} from './scorecard.mjs?v=perf-1';
+import {createCardRowFeedback} from './card-row-feedback.mjs?v=perf-1';
+import {createActivationFeedback} from './activation-feedback.mjs?v=perf-1';
+import {createRhythmScore} from './rhythm-score.mjs?v=perf-1';
+import {bindFlightPointerControls} from './flight-input.mjs?v=perf-1';
+import {bindDeckDragging} from './deck-drag.mjs?v=perf-1';
+import {setCollectorPreference} from './model.mjs?v=perf-1';
+import {menuIcon as icon} from './menu-icons.mjs?v=perf-1';
+import {installationState,installationInstructions,onInstallationChange,requestInstall,refreshBuild,registerUpdateClient,updateCheckpoint} from './pwa.mjs?v=perf-1';
+import {prepareRouteOffer} from './route-offers.mjs?v=perf-1';
+import {ROUTE_BONUSES} from './route-bonuses.mjs?v=perf-1';
+import {updateBonusGauge,bonusProgressText} from './route-bonus-ui.mjs?v=perf-1';
+import {forecastCheckpointMarkup} from './night-atlas.mjs?v=perf-1';
+import {markFlightAttemptStarted,previewAtlasMap,CAMPAIGN_MAP_NAMES} from './model.mjs?v=perf-1';
+import {getBossPreview} from './boss.mjs?v=perf-1';
+import {flightPreviewMarkup} from './flight-preview.mjs?v=perf-1';
+import {collectionMarkup,COLLECTION_PAGE_SIZE} from './collection-view.mjs?v=perf-1';
+import {restBenefitsMarkup} from './rest-choice-view.mjs?v=perf-1';
+import {treasureView} from './treasure-view.mjs?v=perf-1';
+import {getFlightClearReward} from './checkpoint-rewards.mjs?v=perf-1';
+import {artifactDescription} from './artifact-copy.mjs?v=perf-1';
+import {showNightmare} from './nightmare.mjs?v=perf-1';
+import {startResumeCountdown} from './resume-countdown.mjs?v=perf-1';
+import {automaticTipsEnabled,nextOnboardingLesson,markOnboardingSeen,resetOnboarding,noteOnboardingPrompt,noteOnboardingProgress,onboardingFeatureAvailable,onboardingFlightPlan,lanternEntryLesson,giantBlackHoleEntryLesson} from './onboarding.mjs?v=perf-1';
+import {flightRewardMarkup,rewardEarningsDetailMarkup} from './reward-screen.mjs?v=perf-1';
+import {hasFlightRewardCeremony,flightRewardCeremonyStage,advanceFlightRewardCeremony,flightRewardCeremonyMarkup,mountFlightRewardCeremony,mountReceiptInspector} from './flight-reward-ceremony.mjs?v=perf-1';
+import {flightEntryMarkup,prepareFlightDeparture,resumeGateMarkup,waitForFlightEntry,preloadFlightEntry} from './flight-entry.mjs?v=perf-1';
+import {TUTORIAL_TOPICS,topicSteps} from './tutorial-curriculum.mjs?v=perf-1';
+import {resourceCycleSteps} from './resource-cycle.mjs?v=perf-1';
+import {tutorialVisualMarkup} from './tutorial-visuals.mjs?v=perf-1';
+import {deathScreenMarkup} from './death-screen.mjs?v=perf-1';
+import {createRestInspectorState,createTreasureInspectorState} from './rest-inspector.mjs?v=perf-1';
+import {createLanternMapInspectorState} from './lantern-map-inspector.mjs?v=perf-1';
+import {createBoundaryInspectorState,frameBoundaryInspection} from './boundary-run-inspector.mjs?v=perf-1';
+import {LANTERN_THEME,LANTERN_CHAPTER} from './map-theme.mjs?v=perf-1';
+import {choiceScene} from './choice-art.mjs?v=perf-1';
+import {contextualFlightNotice} from './contextual-events.mjs?v=perf-1';
+import {createMusic} from './music.mjs?v=perf-1';
+import {createFxLevel,levelGain,levelForKey,levelFromPointer} from './sound-level.mjs?v=perf-1';
+import {pauseMenuMarkup,settingsMarkup,pauseContextLine,updateLevelControl} from './ui/pause-menu.mjs?v=perf-1';
+import {GAME_VERSION} from './build-version.mjs?v=perf-1';
+import {resourceSymbol} from './game-symbols.mjs?v=perf-1';
+import {nextArtifactNotice,artifactUseLesson} from './artifact-lessons.mjs?v=perf-1';
+import {getArtifactInfo,CONSUMABLE_ARTIFACTS,EVOLVING_ARTIFACTS} from './artifact-info.mjs?v=perf-1';
+import {checkpointTutorialLesson,observedFlightLesson,flightEffectLesson} from './tutorial-steps.mjs?v=perf-1';
+import {ARTIFACT_ENGINE_RULES} from './artifact-effects.mjs?v=perf-1';
+import {rewardThemeMarkup,encounterIntent,encounterIntentMarkup,artifactOfferMarkup,artifactDetailMarkup,artifactRarityLabel,artifactSummaryMarkup,artifactLifetimeMarkup} from './replay-ui.mjs?v=perf-1';
+import {installLandscapeMode} from './landscape.mjs?v=perf-1';
+import {drawLandscapeMap} from './landscape-map.mjs?v=perf-1';
+import {attachDream,canDreamAt,dreamEye,prepareDreamHandoff,updateDreamIndicator,validateDreamPreset} from './dream.mjs?v=perf-1';
+import {chooseFlightReward,getAvailableUpgrades,acknowledgeVictory,takeClearRewardReceipt} from './model.mjs?v=perf-1';
+import {formatGlow,glowPercent,getGlowCapacity,glowText,getLifeCapacity} from './vitality.mjs?v=perf-1';
+import {glowGaugeMarkup,updateGlowGauge} from './glow-ui.mjs?v=perf-1';
+import {edgingPulseMarkup,updateEdgingPulse} from './edging-ui.mjs?v=perf-1';
+import {skillBookMarkup,skillBookChapter} from './skill-book.mjs?v=perf-1';
+import {livesMarkup,lifeHeartSvg} from './lives.mjs?v=perf-1';
+import {attachFlightPerformance,downloadPerformanceReport} from './flight-performance.mjs?v=perf-1';
+import {getChallengePreview} from './flight-challenges.mjs?v=perf-1';
+import {homeMenuMarkup,runProgressMarkup,companionLockIcon} from './run-menu.mjs?v=perf-1';
+import {skillIcon,artifactIcon} from './upgrade-icons.mjs?v=perf-1';
+import {TERRAINS,SKILLS,ARTIFACTS,newState,loadState,saveState,createRun,getStartingArtifact,getStartingGiftOffers,canChooseStartingGift,getStartingGiftPreview,chooseStartingGift,chooseStartingSkill,setTestOverride,grantTestCondensedGlow,getStartingCompanion,setStartingCompanion,startTutorial,leaveTutorial,shouldStartTutorial,getChoices,getRouteMapState,selectNode,beginFlightAttempt,retryFlight,finishFlight,getSupportChoices,resolveSupport,settleCheckpoint,bankRun,advanceMap,previewGlowReward,getSkillCost,getSkillPrice,getSkillWallet,getSkillLockReason,suspendRun,abandonRun,isSkillRevealed,canBuyCheckpointSkills,buyCheckpointSkill,getRunModifiers,canChangeCompanion,setCompanions,sellArtifact,canSellArtifact,getArtifactSalvageValue} from './model.mjs?v=perf-1';
+import {WispFlight} from './flight.mjs?v=perf-1';
+import {COMPANION_ABILITIES,getCompanionAbility,getCompanionUnlock,normalizeCompanionRole} from './companion-abilities.mjs?v=perf-1';
+import {companionArtSvg} from './companion-art.mjs?v=perf-1';
+import {boostControlMarkup,updateBoostControl} from './boost-control.mjs?v=perf-1';
+import {campaignStrip,bossSigil,guardianRitualMarkup} from './campaign-ui.mjs?v=perf-1';
+import {resolveLevelIdentity} from './level-catalog.mjs?v=perf-1';
+import {levelMapGlyph,levelMapPreview} from './level-map-art.mjs?v=perf-1';
+import {getAscentInfo} from './ascent.mjs?v=perf-1';
+import {getRouteForecast} from './route-forecast.mjs?v=perf-1';
+import {MAP_STOP_TYPES,getMapStopInfo,mapStopIconMarkup,getEventScenarios,mapBiomeGuideMarkup} from './map-guide.mjs?v=perf-1';
+import {formatFlightDuration} from './level-length.mjs?v=perf-1';
+import {condensedIconMarkup} from './afterglow-ui.mjs?v=perf-1';
+import {pickupGuideMarkup,pickupLesson} from './pickup-guide.mjs?v=perf-1';
+import {pickupArtSvg} from './pickup-art.mjs?v=perf-1';
+import {createTutorialCoach} from './tutorial-coach.mjs?v=perf-1';
+import {getTutorialWorldFocus,demonstratedTutorialTopics,tutorialEntryLesson,notePracticeHint,hasPracticeHint,takePracticeHint,carryPracticeHints,takeCarriedPracticeHint,deferPracticeLesson,FIRST_FLIGHT_STOPS} from './tutorial.mjs?v=perf-1';
+import {isInventoryOnlyCard} from './skill-cards.mjs?v=perf-1';
+import {isCardRun,getCardCampPreview,getMountedCards,getOwnedCards,getCardReward,getCardDraft,chooseCardDraft,equipOwnedCard,unequipMountedCard,getCardMeltPreview,meltOwnedCards,getCardImprovePreview,improveOwnedCard,getCardForgePreview,forgeOwnedCard,canManageCards,syncCardFlightForEdit,applyCardFlightEdits,closeCardFlightEdit,commitCardCharges} from './model.mjs?v=perf-1';
+import {CARD_GUIDE_TOPICS} from './card-guide.mjs?v=perf-1';
+import {installComboLessons} from './combo-lesson.mjs?v=perf-1';
+import {starterCardsMarkup,starterGiftConfirmationMarkup,cardDraftMarkup,cardRewardMarkup,cardSwapMarkup,cardsBenchMarkup,cardMeltSelectionMarkup,cardExchangeMarkup,cardRestMarkup,cardGrowConfirmationMarkup,cardForgeMarkup,cardVictoryRecap,cardArt,cardName} from './card-ui.mjs?v=perf-1';
+import {getCardRefillPreview,refillOwnedCard,canUseCardCampServices} from './model.mjs?v=perf-1';
+import {cardWorkshopMarkup,cardRefillMarkup} from './card-workshop.mjs?v=perf-1';
+import {createCardInspectorState,prepareCardInspectorReward} from './card-inspector.mjs?v=perf-1';
+import {installCardTermHelp} from './card-terms.mjs?v=perf-1';
+import {resolveCardHelpContext} from './card-row-help.mjs?v=perf-1';
 // v2.3-deck: the Chain and Deck screens. Play on the Chain tab replaces the old Try row.
-import {createDeckView,deckScreenMarkup,mountDeckScreen} from './ui/deck-screen.mjs?v=reskin-4';
+import {createDeckView,deckScreenMarkup,mountDeckScreen} from './ui/deck-screen.mjs?v=perf-1';
 installCardTermHelp(document,{
  resolveCardContext:button=>resolveCardHelpContext(button,state.run,{example:cardInspector,snapshot:engine?lastSnapshot:null}),
  resolveProximityContext:button=>({run:state.run,instanceId:button.closest('[data-card-instance]')?.dataset.cardInstance,example:cardInspector})
@@ -731,7 +731,9 @@ function dreamFinished(result){
 function acceptDream(){
  if(!dreamReady||engine?.dream?.mode!=='record')return;
  const preset=dreamReady.preset;
- const source=document.querySelector('#flight-canvas');
+ // The pixel renderer's canvas is the one on screen; #flight-canvas is only
+ // drawn by the fallback renderer (and is 1x1 while the pixel renderer runs).
+ const source=document.querySelector('.canvas-wrap .pixel-flight-canvas')||document.querySelector('#flight-canvas');
  const memory=document.createElement('canvas');
  memory.width=source.width;memory.height=source.height;
  memory.getContext('2d').drawImage(source,0,0);
@@ -851,7 +853,7 @@ function practiceHintLesson(){
 }
 function wakeFlight(event){if(!engine||flightLoading||!resumeArmed||lesson||document.hidden)return;if(pendingDeparture&&(!pendingDeparture.element.isConnected||!pendingDeparture.accept?.(event)))return;pendingDeparture=null;activeFlightEntry=null;stopCountdown();resumeArmed=false;document.querySelector('#pause-layer').innerHTML='';paused=false;if(engine.dream?.mode!=='record'&&markFlightAttemptStarted(state.run,engine))persist();if(engine.dream?.phase==='awakening')engine.dream.resume();else engine.resume();}
 
-import {getCruisingSpeed,setCruisingSpeed} from './model.mjs?v=reskin-4';
+import {getCruisingSpeed,setCruisingSpeed} from './model.mjs?v=perf-1';
 
 let settingsPanel='main',settingsOrigin=null,guideReturnSettings=false;
 const settingsScroll={main:0,advanced:0};
@@ -1284,7 +1286,17 @@ function worldLesson(){if(isPlayablePractice(state.run))return practiceWorldLess
 function mapLabelLines(value,max=14){const words=String(value||'').split(/\s+/),lines=[];let line='';for(const word of words){if((line+' '+word).trim().length>max&&line){lines.push(line);line=word}else line=(line+' '+word).trim()}if(line)lines.push(line);return lines.slice(0,2).map(v=>v.length>max?v.slice(0,max-1)+'…':v)}
 function mapPositionMarker(x,y,label){return `<g class="map-position-marker map-orb-marker" transform="translate(${x},${y})"><circle r="12" fill="#dce8d1" opacity=".25"/><circle r="6" fill="#f2f0d5"/><text y="24" text-anchor="middle">${label}</text></g>`}
 
+// While the map waits for a choice, pre-render the pickup sprite atlas and load
+// the pixel renderer in idle time, so the next flight's entry does less work.
+// preloadFlightEntry caches per document; repeated calls are cheap.
+let flightWarmupScheduled=false;
+function warmFlightWhenIdle(){
+ if(flightWarmupScheduled||typeof window==='undefined')return;flightWarmupScheduled=true;
+ const warm=()=>{flightWarmupScheduled=false;if(screen==='map'&&!engine)void preloadFlightEntry(state.settings.reducedMotion).catch(()=>{});};
+ if(typeof window.requestIdleCallback==='function')window.requestIdleCallback(warm,{timeout:3000});else setTimeout(warm,1000);
+}
 function drawMap(){
+  warmFlightWhenIdle();
   if(window.matchMedia('(orientation: landscape)').matches){for(const n of getChoices(state.run))if(n.type!=='support')prepareOffer(state.run,n);drawLandscapeMap(document.querySelector('#journey-map'),document.querySelector('#map-viewport'),state.run);return;}
   const r=state.run,height=mapHeight(r),origin=height-57,svg=document.querySelector('#journey-map');if(!svg)return;
   const routeState=getRouteMapState(r),choices=getChoices(r),available=new Set(routeState.availableIds),visited=new Set(routeState.completedIds),positions={},byId=new Map(r.map.flat().map(n=>[n.id,n]));

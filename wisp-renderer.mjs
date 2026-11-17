@@ -1,46 +1,46 @@
-import {prepareEnvironmentArt,prepareNearLandscape,prepareCourseArt,drawCourseArt,drawNearLandscape,drawTerrainForeground,releaseTerrainForeground} from './authored-environment.mjs?v=reskin-4';
-import {drawTerrainEcology,drawHabitatBackdrop} from './terrain-ecology.mjs?v=reskin-4';
-import {drawTerrainBoundary,terrainBoundary,beginTerrainBoundaryFrame,endTerrainBoundaryFrame,releaseTerrainBoundaryFrame} from './terrain-boundary.mjs?v=reskin-4';
-import {spacetimeBaseShape,drawSpacetimeTerrain} from './spacetime.mjs?v=reskin-4';
-import {paintContactEdge,isContactEdgeStyle,contactEdgeInk} from './contact-edge-art.mjs?v=reskin-4';
-import {ContactEdgeRaster} from './contact-edge-raster.mjs?v=reskin-4';
-import {getContactEdgePalette} from './contact-edge-palettes.mjs?v=reskin-4';
-import {drawAtlasFlight} from './atlas-flight.mjs?v=reskin-4';
-import {drawGuardianPresence} from './guardian-presence.mjs?v=reskin-4';
-import { drawGuardianWarnings } from './guardian-art.mjs?v=reskin-4';
-import { drawShutters } from './shutter-cone.mjs?v=reskin-4';
-import {drawProximityMeter} from './proximity-meter.mjs?v=reskin-4';
-import {drawFourthBeat} from './fourth-beat-art.mjs?v=reskin-4';
-import {drawCollectorField} from './collector-field-art.mjs?v=reskin-4';
-import {drawObjectiveMarks} from './flight-objectives.mjs?v=reskin-4';
-import {drawFlightProjection,drawLiftGuide} from './flight-projection.mjs?v=reskin-4';
-import {revealLuminanceWaves} from './luminance-waves.mjs?v=reskin-4';
-import {drawGlowSense} from './glow-sense.mjs?v=reskin-4';
-import {drawLastGlimmer} from './last-glimmer.mjs?v=reskin-4';
-import {formatGlow} from './vitality.mjs?v=reskin-4';
-import {LOCATION_PALETTES} from './world-expansion.mjs?v=reskin-4';
-import {biomePalette} from './biome-art.mjs?v=reskin-4';
-import { sceneryIdentity, drawIdentityBackground, drawIdentityMaterial, drawIdentityLife } from './level-scenery.mjs?v=reskin-4';
-import { getCompanionAbility, normalizeCompanionRole } from './companion-abilities.mjs?v=reskin-4';
-import { companionPalette, makeCompanionSprite, makeWispSprite } from './companion-art.mjs?v=reskin-4';
-import { createScenePropArt } from './scene-prop-art.mjs?v=reskin-4';
-import { drawBoss } from './boss.mjs?v=reskin-4';
-import {drawFlashTether} from './flash-tether.mjs?v=reskin-4';
-import { drawPickup, drawSparkSymbol } from './pickup-art.mjs?v=reskin-4';
-import {pickupHookAnchor} from './pickup-handling-cue.mjs?v=reskin-4';
-import {sparkBodyRadius,sparkArtScale,sparkMass} from './spark-size.mjs?v=reskin-4';
-import { pickupKind, getPickupSpec } from './pickups.mjs?v=reskin-4';
-import { LIGHT_EXTENT,lightAttenuation,lightVisibility,createLightMaskCanvas,castFlightFlashLights,revealLanternWake,sceneRevealStrength,renderLightState,lightDreamScenery,companionTerrainLight } from './light-field.mjs?v=reskin-4';
-import {drawExitLandmark} from './exit-landmark.mjs?v=reskin-4';
-import {drawBlackHoles} from './black-hole-art.mjs?v=reskin-4';
-import {drawCapture, drawShellPuff, drawCarriedSpark,drawCollectorGrip} from './capture-art.mjs?v=reskin-4';
-import {drawShellArcs} from './shell-arcs.mjs?v=reskin-4';
-import {drawWispWake} from './wisp-wake.mjs?v=reskin-4';
-import {drawFlightForks,drawFlightForkBackdrops} from './flight-forks.mjs?v=reskin-4';
-import {drawFallWarning} from './fall-chain-art.mjs?v=reskin-4';
-import {castTerrainLight,releaseTerrainLight,prepareTerrainLight} from './terrain-light.mjs?v=reskin-4';
+import {prepareEnvironmentArt,prepareNearLandscape,prepareCourseArt,drawCourseArt,drawNearLandscape,drawTerrainForeground,releaseTerrainForeground} from './authored-environment.mjs?v=perf-1';
+import {drawTerrainEcology,drawHabitatBackdrop} from './terrain-ecology.mjs?v=perf-1';
+import {drawTerrainBoundary,terrainBoundary,beginTerrainBoundaryFrame,endTerrainBoundaryFrame,releaseTerrainBoundaryFrame} from './terrain-boundary.mjs?v=perf-1';
+import {spacetimeBaseShape,drawSpacetimeTerrain} from './spacetime.mjs?v=perf-1';
+import {paintContactEdge,isContactEdgeStyle,contactEdgeInk} from './contact-edge-art.mjs?v=perf-1';
+import {ContactEdgeRaster} from './contact-edge-raster.mjs?v=perf-1';
+import {getContactEdgePalette} from './contact-edge-palettes.mjs?v=perf-1';
+import {drawAtlasFlight} from './atlas-flight.mjs?v=perf-1';
+import {drawGuardianPresence} from './guardian-presence.mjs?v=perf-1';
+import { drawGuardianWarnings } from './guardian-art.mjs?v=perf-1';
+import { drawShutters } from './shutter-cone.mjs?v=perf-1';
+import {drawProximityMeter} from './proximity-meter.mjs?v=perf-1';
+import {drawFourthBeat} from './fourth-beat-art.mjs?v=perf-1';
+import {drawCollectorField} from './collector-field-art.mjs?v=perf-1';
+import {drawObjectiveMarks} from './flight-objectives.mjs?v=perf-1';
+import {drawFlightProjection,drawLiftGuide} from './flight-projection.mjs?v=perf-1';
+import {revealLuminanceWaves} from './luminance-waves.mjs?v=perf-1';
+import {drawGlowSense} from './glow-sense.mjs?v=perf-1';
+import {drawLastGlimmer} from './last-glimmer.mjs?v=perf-1';
+import {formatGlow} from './vitality.mjs?v=perf-1';
+import {LOCATION_PALETTES} from './world-expansion.mjs?v=perf-1';
+import {biomePalette,hasBiomeBackground,biomeBackgroundPlacement,drawBiomeBackgroundStrip} from './biome-art.mjs?v=perf-1';
+import { sceneryIdentity, drawIdentityBackground, drawIdentityMaterial, drawIdentityLife } from './level-scenery.mjs?v=perf-1';
+import { getCompanionAbility, normalizeCompanionRole } from './companion-abilities.mjs?v=perf-1';
+import { companionPalette, makeCompanionSprite, makeWispSprite } from './companion-art.mjs?v=perf-1';
+import { createScenePropArt } from './scene-prop-art.mjs?v=perf-1';
+import { drawBoss } from './boss.mjs?v=perf-1';
+import {drawFlashTether} from './flash-tether.mjs?v=perf-1';
+import { drawPickup, drawSparkSymbol } from './pickup-art.mjs?v=perf-1';
+import {pickupHookAnchor} from './pickup-handling-cue.mjs?v=perf-1';
+import {sparkBodyRadius,sparkArtScale,sparkMass} from './spark-size.mjs?v=perf-1';
+import { pickupKind, getPickupSpec } from './pickups.mjs?v=perf-1';
+import { LIGHT_EXTENT,lightAttenuation,lightVisibility,createLightMaskCanvas,castFlightFlashLights,revealLanternWake,sceneRevealStrength,renderLightState,lightDreamScenery,companionTerrainLight } from './light-field.mjs?v=perf-1';
+import {drawExitLandmark} from './exit-landmark.mjs?v=perf-1';
+import {drawBlackHoles} from './black-hole-art.mjs?v=perf-1';
+import {drawCapture, drawShellPuff, drawCarriedSpark,drawCollectorGrip} from './capture-art.mjs?v=perf-1';
+import {drawShellArcs} from './shell-arcs.mjs?v=perf-1';
+import {drawWispWake} from './wisp-wake.mjs?v=perf-1';
+import {drawFlightForks,drawFlightForkBackdrops} from './flight-forks.mjs?v=perf-1';
+import {drawFallWarning} from './fall-chain-art.mjs?v=perf-1';
+import {castTerrainLight,releaseTerrainLight,prepareTerrainLight} from './terrain-light.mjs?v=perf-1';
 // v1.0-level scenery (frost, pinewood). Null unless ?scenery=2 or {scenery:2}.
-import {createLevelSceneryTwo} from './level-scenery-two.mjs?v=reskin-4';
+import {createLevelSceneryTwo} from './level-scenery-two.mjs?v=perf-1';
 
 const TAU = Math.PI * 2;
 const propContactCache=new WeakMap();
@@ -328,6 +328,7 @@ export class WispFlightView {
     this.skyCanvas = null;
     if (this.backgroundCanvas) this.backgroundCanvas.width = this.backgroundCanvas.height = 1;
     this.backgroundCanvas = null; this.backgroundSample = NaN;
+    this.releaseBackgroundStrips();
     this.propBounds = new WeakMap();
     this.obstacleCursor = 0; this.lastVisibleDistance = -1;
     this.context.imageSmoothingEnabled = false;
@@ -376,7 +377,9 @@ export class WispFlightView {
     const c = this.bufferContext, W = this.buffer.width, H = this.buffer.height;
     const sceneId = this.identity.scene, scroll = distance * .025;
     const sample = Math.floor(scroll * 2) / 2, pad = 4;
-    if (!this.backgroundCanvas) {
+    const strips = this.backgroundStrips(W, H, sample);
+    if (!strips && !this.backgroundCanvas) {
+      this.backgroundSample = NaN;
       this.backgroundCanvas = this.document.createElement('canvas');
       this.backgroundCanvas.width = W + pad * 2; this.backgroundCanvas.height = H;
       // Rasterize cached art once on the CPU. Thousands of tiny deferred GPU
@@ -385,8 +388,8 @@ export class WispFlightView {
       this.backgroundContext = this.backgroundCanvas.getContext('2d', { willReadFrequently: true });
       this.backgroundContext.imageSmoothingEnabled = false;
     }
-    this.backgroundRepainted = sample !== this.backgroundSample;
-    if (this.backgroundRepainted) {
+    this.backgroundRepainted = strips ? strips.repainted : sample !== this.backgroundSample;
+    if (!strips && this.backgroundRepainted) {
       const b = this.backgroundContext;
       b.setTransform(1, 0, 0, 1, pad, 0); b.globalAlpha = 1;
       b.clearRect(-pad, 0, W + pad * 2, H);
@@ -404,8 +407,51 @@ export class WispFlightView {
     if (sceneId !== 'chasm') pixelDisc(c, Math.round(moonX + 5), Math.round(moonY - 3), 13, palette.sky[0]);
     else { c.globalAlpha = .32; pixelDisc(c, Math.round(W * .28), Math.round(H * .26), 9, '#9aa5b0'); }
     c.globalAlpha = 1;
-    c.drawImage(this.backgroundCanvas, -pad - (scroll - sample), 0);
+    if (strips) for (const strip of strips.layers) c.drawImage(strip.canvas, strip.x - (scroll - sample), 0);
+    else c.drawImage(this.backgroundCanvas, -pad - (scroll - sample), 0);
     c.restore();
+  }
+
+  // Biome backdrops: each parallax layer is baked once into its own strip and
+  // scrolled, instead of redrawing both layers element by element whenever the
+  // half-unit scroll sample changes. A strip holds exactly the elements the
+  // full redraw draws for its first element index, at the same pixel spacing,
+  // and is rebaked only when that index changes. If rounding would space one
+  // element differently from the others at this sample, the full redraw runs.
+  backgroundStrips(W, H, sample) {
+    if (!hasBiomeBackground(this.identity)) return null;
+    // The full redraw is given distance sample/.025; replicate its arithmetic.
+    const distance = sample / .025, origin = 40, layers = [];
+    let repainted = false;
+    const strips = this.backgroundStripCache ??= [];
+    for (let layer = 0; layer < 2; layer++) {
+      const { span, first, xs } = biomeBackgroundPlacement(layer, distance, W);
+      const shift = xs[0] + span;
+      for (let k = 1; k < xs.length; k++) if (xs[k] - (k - 1) * span !== shift) return null;
+      let strip = strips[layer];
+      const width = origin + W + span + 2;
+      if (!strip || strip.canvas.width !== width || strip.canvas.height !== H) {
+        if (strip) strip.canvas.width = strip.canvas.height = 1;
+        const canvas = this.document.createElement('canvas'); canvas.width = width; canvas.height = H;
+        // CPU raster, like the full-redraw canvas.
+        const context = canvas.getContext('2d', { willReadFrequently: true }); context.imageSmoothingEnabled = false;
+        strip = strips[layer] = { canvas, context, first: NaN };
+      }
+      if (strip.first !== first) {
+        const b = strip.context;
+        b.setTransform(1, 0, 0, 1, 0, 0); b.globalAlpha = 1; b.clearRect(0, 0, strip.canvas.width, H);
+        const scene = this.lifeOptions; scene.height = H; scene.distance = distance;
+        drawBiomeBackgroundStrip(b, scene, BACKGROUND_HELPERS, { layer, first, count: xs.length, originX: origin });
+        strip.first = first; repainted = true;
+      }
+      layers.push({ canvas: strip.canvas, x: shift - origin });
+    }
+    return { layers, repainted };
+  }
+
+  releaseBackgroundStrips() {
+    for (const strip of this.backgroundStripCache || []) if (strip) strip.canvas.width = strip.canvas.height = 1;
+    this.backgroundStripCache = null;
   }
 
   drawDeadForest(t, distance, palette) {
@@ -1279,6 +1325,7 @@ export class WispFlightView {
     if (this.skyCanvas) this.skyCanvas.width = this.skyCanvas.height = 1;
     if (this.backgroundCanvas) this.backgroundCanvas.width = this.backgroundCanvas.height = 1;
     this.backgroundCanvas = this.backgroundContext = null;
+    this.releaseBackgroundStrips();
     this.depthLayers=null;
     this.fogPixels = null; this.context = null; this.bufferContext = null; this.fogContext = null;
   }

@@ -1,12 +1,12 @@
-import {artifactLimitSummary,effectMarkup} from '../artifact-copy.mjs?v=reskin-4';
-import {resourceSymbol} from '../game-symbols.mjs?v=reskin-4';
-import {artifactRarityLabel} from '../replay-ui.mjs?v=reskin-4';
-import {ROUTE_BONUSES} from '../route-bonuses.mjs?v=reskin-4';
-import {bonusIcon} from '../route-bonus-ui.mjs?v=reskin-4';
-import {routeBonusReceiptText} from '../route-bonus-copy.mjs?v=reskin-4';
-import {reliquaryNicheMarkup} from './reliquary-art.mjs?v=reskin-4';
-import {relicRulesButton} from './relic-primitives.mjs?v=reskin-4';
-import {actionButton,escapeHtml as esc} from './primitives.mjs?v=reskin-4';
+import {artifactLimitSummary,effectMarkup} from '../artifact-copy.mjs?v=perf-1';
+import {resourceSymbol} from '../game-symbols.mjs?v=perf-1';
+import {artifactRarityLabel} from '../replay-ui.mjs?v=perf-1';
+import {ROUTE_BONUSES} from '../route-bonuses.mjs?v=perf-1';
+import {bonusIcon} from '../route-bonus-ui.mjs?v=perf-1';
+import {routeBonusReceiptText} from '../route-bonus-copy.mjs?v=perf-1';
+import {reliquaryNicheMarkup} from './reliquary-art.mjs?v=perf-1';
+import {relicRulesButton} from './relic-primitives.mjs?v=perf-1';
+import {actionButton,escapeHtml as esc} from './primitives.mjs?v=perf-1';
 
 // Claimed relics share this production layout with the comparison recipes.
 function horizonMarkup(){

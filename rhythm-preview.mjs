@@ -1,9 +1,9 @@
-import {WispFlight} from './flight.mjs?v=reskin-4';
-import {bindFlightPointerControls} from './flight-input.mjs?v=reskin-4';
-import {createRhythmScore} from './rhythm-score.mjs?v=reskin-4';
-import {artifactIcon} from './upgrade-icons.mjs?v=reskin-4';
-import {BLACK_HOLE_TUNING} from './black-holes.mjs?v=reskin-4';
-import {attachFlightPerformance} from './flight-performance.mjs?v=reskin-4';
+import {WispFlight} from './flight.mjs?v=perf-1';
+import {bindFlightPointerControls} from './flight-input.mjs?v=perf-1';
+import {createRhythmScore} from './rhythm-score.mjs?v=perf-1';
+import {artifactIcon} from './upgrade-icons.mjs?v=perf-1';
+import {BLACK_HOLE_TUNING} from './black-holes.mjs?v=perf-1';
+import {attachFlightPerformance} from './flight-performance.mjs?v=perf-1';
 
 const root=document.querySelector('.flight-device'),canvas=root.querySelector('canvas'),status=document.querySelector('#preview-status'),reduced=document.querySelector('#reduced'),pause=document.querySelector('#pause');
 const blackHole=document.querySelector('#black-hole'),rate=document.querySelector('#preview-rate');

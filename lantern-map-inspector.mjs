@@ -1,4 +1,4 @@
-import {newState,createRun,chooseStartingGift} from './model.mjs?v=reskin-4';
+import {newState,createRun,chooseStartingGift} from './model.mjs?v=perf-1';
 
 export function createLanternMapInspectorState() {
  const state=newState();

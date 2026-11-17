@@ -1,6 +1,6 @@
-import {sparkImageArt,sparkSymbolArt} from './spark-symbol.mjs?v=reskin-4';
-import {condensedIconMarkup} from './afterglow-ui.mjs?v=reskin-4';
-import {fineTreasureObject} from './fine-treasure-art.mjs?v=reskin-4';
+import {sparkImageArt,sparkSymbolArt} from './spark-symbol.mjs?v=perf-1';
+import {condensedIconMarkup} from './afterglow-ui.mjs?v=perf-1';
+import {fineTreasureObject} from './fine-treasure-art.mjs?v=perf-1';
 
 // Three material tones sit above a shared dark contour. Keep light and shadow
 // readable at the tree's smallest size, even with all motion switched off.

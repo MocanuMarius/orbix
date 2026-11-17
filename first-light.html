@@ -35,7 +35,7 @@
     const query=new URLSearchParams(location.search);
     for(const key of ['cards','legacy','collectorArt','display','zoom'])if(query.has(key))target.searchParams.set(key,query.get(key));
     const back=new URL('./',root);back.search=target.search;back.searchParams.delete('tutorial');document.querySelector('a').href=back.href;
-    target.searchParams.set('v','reskin-4');
+    target.searchParams.set('v','perf-1');
     const open=()=>location.replace(target.href);
     function waitFor(worker,states){
       return new Promise((resolve,reject)=>{

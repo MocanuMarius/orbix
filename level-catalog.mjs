@@ -1,6 +1,6 @@
-import {EXTRA_LEVELS} from './world-expansion.mjs?v=reskin-4';
-import {BIOME_LEVELS,getBiome} from './biomes.mjs?v=reskin-4';
-export {BIOME_LEVELS} from './biomes.mjs?v=reskin-4';
+import {EXTRA_LEVELS} from './world-expansion.mjs?v=perf-1';
+import {BIOME_LEVELS,getBiome} from './biomes.mjs?v=perf-1';
+export {BIOME_LEVELS} from './biomes.mjs?v=perf-1';
 // Location identities are shared by route previews, terrain and scenery.
 // Shapes and challenge windows are authored by the flight generator.
 export const LEVELS = Object.freeze([

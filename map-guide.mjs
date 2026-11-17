@@ -1,9 +1,9 @@
-import {FLIGHT_PACTS} from './flight-pacts.mjs?v=reskin-4';
-import {getBiome} from './biomes.mjs?v=reskin-4';
-import {sparkHabitat} from './spark-fields.mjs?v=reskin-4';
-import {getFlightClearReward} from './checkpoint-rewards.mjs?v=reskin-4';
-import {landmarkArt,landmarkCategory,guardianNames} from './map-landmarks.mjs?v=reskin-4';
-import {glowText} from './vitality.mjs?v=reskin-4';
+import {FLIGHT_PACTS} from './flight-pacts.mjs?v=perf-1';
+import {getBiome} from './biomes.mjs?v=perf-1';
+import {sparkHabitat} from './spark-fields.mjs?v=perf-1';
+import {getFlightClearReward} from './checkpoint-rewards.mjs?v=perf-1';
+import {landmarkArt,landmarkCategory,guardianNames} from './map-landmarks.mjs?v=perf-1';
+import {glowText} from './vitality.mjs?v=perf-1';
 const stop=(kind,label,name,summary)=>Object.freeze({kind,label,name,summary,icon:kind});
 export const MAP_STOP_TYPES=Object.freeze({
 flight:stop('flight','FLIGHT','Flight','Flight length sets its Stored Sparks reward; overflow adds a bonus. Ordinary flights do not drop artifacts.'),

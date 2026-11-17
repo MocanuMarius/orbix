@@ -23,7 +23,7 @@ html body #app .atlas-checkpoint .forecast-hollow-moon{border-color:#79758e;back
 @media(orientation:landscape) and (max-height:360px){.atlas-checkpoint .atlas-clear-choice{min-height:38px}.atlas-choice h2{margin:0 0 4px}.atlas-choice .atlas-sites{padding-top:3px}}
 @media(max-width:570px){.atlas-checkpoint header{display:block}.atlas-checkpoint header p{text-align:left}.atlas-choice .atlas-scene{max-width:68px}html body #app .atlas-checkpoint .atlas-choice{grid-template-columns:1fr;grid-template-rows:auto 1fr auto}}
 html body #app .atlas-checkpoint .atlas-choice{
- position:relative;border-width:3px 3px 5px;border-image:url('assets/rough-frame.svg?v=reskin-4') 8 / 3px / 0 stretch;
+ position:relative;border-width:3px 3px 5px;border-image:url('assets/rough-frame.svg?v=perf-1') 8 / 3px / 0 stretch;
  box-shadow:inset 0 -3px #0a1419;
  clip-path:polygon(0 6px,3px 6px,3px 3px,8px 3px,8px 0,calc(100% - 5px) 0,calc(100% - 5px) 3px,100% 3px,100% calc(100% - 5px),calc(100% - 4px) calc(100% - 5px),calc(100% - 4px) 100%,5px 100%,5px calc(100% - 3px),0 calc(100% - 3px));
 }
