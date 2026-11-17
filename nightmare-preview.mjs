@@ -1,8 +1,8 @@
-import {showNightmare} from './nightmare.mjs?v=cardart-1';
-import {WispFlight,FLIGHT_TUNING,circleHitsObstacle} from './flight.mjs?v=cardart-1';
-import {FlightProjection} from './flight-projection.mjs?v=cardart-1';
-import {getRunModifiers} from './model.mjs?v=cardart-1';
-import {glowPoints} from './vitality.mjs?v=cardart-1';
+import {showNightmare} from './nightmare.mjs?v=courses-1';
+import {WispFlight,FLIGHT_TUNING,circleHitsObstacle} from './flight.mjs?v=courses-1';
+import {FlightProjection} from './flight-projection.mjs?v=courses-1';
+import {getRunModifiers} from './model.mjs?v=courses-1';
+import {glowPoints} from './vitality.mjs?v=courses-1';
 const $=id=>document.getElementById(id),canvas=document.querySelector('canvas');
 const forecast=new FlightProjection(FLIGHT_TUNING,circleHitsObstacle);
 let phase='loading',spent=false,flashStart=-Infinity;
