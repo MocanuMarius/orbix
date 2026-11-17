@@ -58,7 +58,7 @@ test('every curated Rare and Dream really equips from a production New Game offe
     const state=fresh(`starter-useful-${seed}`);
     for(const gift of M.getStartingGiftOffers(state.run))if(pending.has(gift.cardId)){
       const selected=structuredClone(state);assert.ok(M.chooseStartingGift(selected,gift.id));
-      assert.deepEqual(selected.run.mountedCards.filter(Boolean).map(card=>card.cardId),[gift.cardId,'lift-guide']);
+      assert.deepEqual(selected.run.mountedCards.filter(Boolean).map(card=>card.cardId),gift.cardId==='dream'?['lift-guide','dream']:[gift.cardId,'lift-guide']); // Dream starts last: nothing to its right to Devour
       const mods=M.getRunModifiers(selected.run);
       if(gift.cardId==='rhythm')assert.ok(mods.cardRhythm);
       if(gift.cardId==='cache-handling')assert.ok(mods.cardCacheHandling);
