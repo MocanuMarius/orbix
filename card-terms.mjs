@@ -1,16 +1,16 @@
 /** Contextual card vocabulary. Native modal dialogs keep help above the Deck. */
-import { resourceSymbol } from './game-symbols.mjs?v=strip-2';
-import {lifeHeartSvg} from './lives.mjs?v=strip-2';
-import {duskGlyphArt} from './spark-symbol.mjs?v=strip-2';
-import {getGlowCapacity,formatGlow} from './vitality.mjs?v=strip-2';
-import {glowGaugeUnits} from './glow-ui.mjs?v=strip-2';
-import {getRunModifiers} from './model.mjs?v=strip-2';
-import {cardAmount,makeSkillCard,SKILL_CARDS} from './skill-cards.mjs?v=strip-2';
-import {cardRowTermHelpMarkup} from './card-row-help.mjs?v=strip-2';
-import {dreamEye} from './dream.mjs?v=strip-2';
-import {FLASH_BASE_DURATION} from './pickups.mjs?v=strip-2';
-import {INSCRIPTIONS} from './inscriptions.mjs?v=strip-2';
-import {inscriptionGlyph} from './inscription-glyphs.mjs?v=strip-2';
+import { resourceSymbol } from './game-symbols.mjs?v=clips-1';
+import {lifeHeartSvg} from './lives.mjs?v=clips-1';
+import {duskGlyphArt} from './spark-symbol.mjs?v=clips-1';
+import {getGlowCapacity,formatGlow} from './vitality.mjs?v=clips-1';
+import {glowGaugeUnits} from './glow-ui.mjs?v=clips-1';
+import {getRunModifiers} from './model.mjs?v=clips-1';
+import {cardAmount,makeSkillCard,SKILL_CARDS} from './skill-cards.mjs?v=clips-1';
+import {cardRowTermHelpMarkup} from './card-row-help.mjs?v=clips-1';
+import {dreamEye} from './dream.mjs?v=clips-1';
+import {FLASH_BASE_DURATION} from './pickups.mjs?v=clips-1';
+import {INSCRIPTIONS} from './inscriptions.mjs?v=clips-1';
+import {inscriptionGlyph} from './inscription-glyphs.mjs?v=clips-1';
 const esc = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 export const CARD_TERMS = Object.freeze({
   inscription: ['Inscription', 'An effect written on a Chain slot, not on a card. It stays on the slot when cards move, swap or leave. Some change the card on that slot; some work on any slot, even an empty one. Get one from the Scribe after an Elite or Guardian. One per slot; writing again replaces it.'],
@@ -205,6 +205,62 @@ const termPictures = Object.freeze({
   proximity: {src:'./assets/help/wave-flight.png', alt:'The revealing Pulse used by Proximity, rendered in the passage.', caption:'Skimming terrain can send this revealing Pulse. The live example below shows the required distance.'},
   collector: {src:'./assets/previews/collector-tether/reel-front.png', video:'./assets/previews/collector-tether/reel.mp4', alt:'The small green Collector tows a swinging Spark through seven Lifts, then delivers it to the larger white wisp.', caption:'Actual flight: the trailing Spark swings as you Lift. Collector reels it in; Sparks arrive on contact.'},
 });
+// Gameplay clips for glossary terms (recorded from the real game by scripts/term-clips.mjs; docs/term-clips.md).
+// The clip comes first in a term's dialog, then ONE short line; the full text moves under "More details".
+// Paths are built from this directory string on purpose: pwa-assets.mjs follows literal asset paths into the offline
+// list, and these clips are fetched on demand instead (offline, the poster or just the text shows).
+const TERM_CLIP_DIR = './assets/terms/';
+export const TERM_CLIP_LINES = Object.freeze({
+  luminance: ['More Luminance lights more of the passage around your wisp.', 'Light around the wisp: a small radius, then a larger one.'],
+  flash: ['Take the white triangle: your light jumps and a Pulse leaves every 2 seconds.', 'The wisp takes a Flare; the light jumps and rings of light follow.'],
+  wave: ['A ring of light. Cards that listen for Pulses pay when it crosses a Spark.', 'A Pulse ring crossing Sparks while a card pays.'],
+  collect: ['Touch a Spark and every card waiting for Collect fires.', 'The wisp touches a Spark and the Chain pays.'],
+  'falling-lift': ['Lift while you are falling to fire the cards that wait for it.', 'The wisp falls, Lifts, and the Chain fires.'],
+  rhythm: ['Three evenly spaced Lifts send one Pulse.', 'Three even Lifts, then a Pulse leaves the wisp.'],
+  'engine-skim': ['Fly close to terrain until Proximity fills; it then sends a Pulse.', 'The wisp hugs terrain, Proximity fills, and a Pulse follows.'],
+  delivery: ['Your Collector brings a missed Spark home and cards fire.', 'The Collector fetches a missed Spark and delivers it.'],
+  overfill: ['A Spark that does not fit in the full Meter spills over and fires cards.', 'The Meter is full; the extra Sparks spill and are kept.'],
+  save: ['Watchlight stops a fatal crash, and cards waiting for a Save fire.', 'A crash into the ground is stopped.'],
+  devour: ['At take-off this card eats the card on its right and grows.', 'The Chain screen marks the card that take-off will eat.'],
+  inscription: ['A mark on the slot, not on the card: the slot changes the card it holds.', 'A branded slot and the card on it firing.'],
+  next: ['Fires again whenever the card on its right fires.', 'Echo repeats the card on its right.'],
+  boost: ['Multiplies every card to its left.', 'Boosts multiply the cards on their left.'],
+});
+export const termClipFor = key => TERM_CLIP_LINES[key] ? {key, src: `${TERM_CLIP_DIR}${key}.mp4`, poster: `${TERM_CLIP_DIR}${key}.webp`, line: TERM_CLIP_LINES[key][0], alt: TERM_CLIP_LINES[key][1]} : null;
+/** Clip first: autoplaying muted loop (a poster with a play button when motion is reduced), then the one-line summary. */
+export function termClipMarkup(key, {reducedMotion = false} = {}) {
+  const clip = termClipFor(key);
+  if (!clip) return '';
+  return `<figure class="card-term-clip" data-card-term-clip="${esc(key)}"><video src="${esc(clip.src)}" poster="${esc(clip.poster)}" muted loop playsinline preload="metadata"${reducedMotion ? '' : ' autoplay'} aria-label="${esc(clip.alt)}"></video><button type="button" class="card-term-clip-play" aria-label="Play clip"${reducedMotion ? '' : ' hidden'}>&#9654;</button></figure>`;
+}
+const CLIP_CSS = `.card-term-dialog.card-term-has-clip{width:min(450px,calc(100vw - 24px))}
+.card-term-clip{position:relative;margin:6px 0 8px;background:#101d18;border:1px solid #6f8265;line-height:0}
+.card-term-clip video,.card-term-clip>img{display:block;width:100%;height:auto;max-height:min(44vh,190px);object-fit:contain;background:#101d18;image-rendering:pixelated}
+.card-term-clip-play{position:absolute;inset:0;margin:auto;width:56px;height:56px;min-height:56px;border-radius:50%;border:2px solid #f4e7b9;background:#101d18d9;color:#f4e7b9;font:22px/1 var(--pixel,monospace);cursor:pointer;padding:0}
+.card-term-clip-play[hidden]{display:none}
+.card-term-short{margin:0 0 6px}
+.card-term-extra .card-term-long{margin:0 0 8px}
+@media(max-height:420px){.card-term-clip video,.card-term-clip>img{max-height:min(32vh,128px)}.card-term-clip{margin:4px 0 6px}}`;
+function ensureClipStyles(doc) {
+  if (doc.getElementById('card-term-clip-style')) return;
+  const style = doc.createElement('style'); style.id = 'card-term-clip-style'; style.textContent = CLIP_CSS; (doc.head || doc.body).appendChild(style);
+}
+const prefersReducedMotion = doc => !!(globalThis.matchMedia?.('(prefers-reduced-motion: reduce)').matches || doc.documentElement?.dataset.reducedMotion === 'true');
+/** Autoplay (or the play button), and the offline fallback: no clip -> the poster if it loads, else just the text. */
+function armTermClips(dialog) {
+  for (const figure of dialog.querySelectorAll('.card-term-clip')) {
+    const video = figure.querySelector('video'), button = figure.querySelector('.card-term-clip-play');
+    const showPlay = () => { if (button) button.hidden = false; };
+    button?.addEventListener('click', () => { button.hidden = true; video.play().catch(showPlay); });
+    video.addEventListener('error', () => {
+      const poster = new Image(); poster.alt = video.getAttribute('aria-label') || '';
+      poster.onload = () => video.replaceWith(poster); poster.onerror = () => figure.remove();
+      button?.remove(); poster.src = video.getAttribute('poster');
+    }, {once: true});
+    if (!video.hasAttribute('autoplay')) continue;
+    video.play?.()?.catch?.(showPlay);
+  }
+}
 function termPictureMarkup(key) {
   const picture = termPictures[key];
   return picture?.video ? `<figure class="card-term-picture"><video src="${esc(picture.video)}" poster="${esc(picture.src)}" controls muted playsinline preload="metadata" aria-label="${esc(picture.alt)}"></video><figcaption>${esc(picture.caption)}</figcaption></figure>` : picture ? `<figure class="card-term-picture"><img src="${esc(picture.src)}" alt="${esc(picture.alt)}" width="320" height="160"><figcaption>${esc(picture.caption)}</figcaption></figure>` : '';
@@ -267,7 +323,7 @@ export function cardTermExampleMarkup(key, context = {}) {
     const picture=termPictures.spark;
     return `<figure class="card-term-example card-term-card-example"><figcaption>${current===card?'This card':'Base example'} · ${esc(definition.name.replace(/ \+\d+$/,''))} · rank ${rank}</figcaption><div class="card-term-spark-demo"><img src="${esc(picture.src)}" alt="${esc(picture.alt)}" width="96" height="84"><div><div class="card-term-action-condition">Your wisp touches a Spark</div><div class="card-term-action-effect">${cardTermTextMarkup(`+${bonus} Sparks`,{sparkContext:'meter'})}</div></div></div><p>The touch triggers the card; the green bonus refills your ${cardTermMarkup('meter')}.</p></figure>`;
   }
-  const picture=termPictureMarkup(key), text=termExamples[key];
+  const picture=TERM_CLIP_LINES[key]?'':termPictureMarkup(key), text=termExamples[key];
   return `${picture}${text?`<figure class="card-term-example"><figcaption>Example</figcaption><p>${cardTermTextMarkup(text,{exclude:[key]})}</p></figure>`:''}`;
 }
 
@@ -292,11 +348,17 @@ const bookButton = () => `<button type="button" class="card-term-book" data-trig
 function inscriptionLegendMarkup() {
   return `<details class="card-term-extra ins-legend"><summary>All Inscriptions and their marks</summary><ul class="ins-legend-list">${Object.values(INSCRIPTIONS).map(i => `<li data-ins-legend="${esc(i.id)}">${inscriptionGlyph(i.id, {size: 32})}<span><b>${esc(i.name)}</b> ${esc(i.text)}</span></li>`).join('')}</ul></details>`;
 }
-function termDetailsMarkup(key) {
+function termDetailsMarkup(key, lead = '') {
   const details=CARD_TERM_DETAILS[key], related=relatedTerms[key] || [];
-  return `${key === 'inscription' ? inscriptionLegendMarkup() : ''}${details ? `<details class="card-term-extra"><summary>${key === 'packing-efficiency' ? 'Rounding, copies and exclusions' : 'More details'}</summary><p>${cardTermTextMarkup(details,{exclude:[key]})}</p></details>` : ''}${related.length ? `<nav class="card-term-related" aria-label="Related terms">${related.map(key=>cardTermMarkup(key)).join('')}</nav>` : ''}`;
+  return `${key === 'inscription' ? inscriptionLegendMarkup() : ''}${details||lead ? `<details class="card-term-extra"><summary>${key === 'packing-efficiency' ? 'Rounding, copies and exclusions' : 'More details'}</summary>${lead}${details?`<p>${cardTermTextMarkup(details,{exclude:[key]})}</p>`:''}</details>` : ''}${related.length ? `<nav class="card-term-related" aria-label="Related terms">${related.map(key=>cardTermMarkup(key)).join('')}</nav>` : ''}`;
 }
 
+/** One term's section of the term dialog. With a clip: the clip, ONE short line, then everything else under More details. */
+export function termSectionMarkup(key, cardContext = {}, {reducedMotion = false} = {}) {
+  return TERM_CLIP_LINES[key]
+    ? `<section data-card-term-section="${esc(key)}" class="card-term-clipped">${termClipMarkup(key,{reducedMotion})}<p class="card-term-definition card-term-short">${cardTermTextMarkup(TERM_CLIP_LINES[key][0],{exclude:[key]})}</p>${termDetailsMarkup(key,`<p class="card-term-long">${cardTermTextMarkup(CARD_TERMS[key][1],{exclude:[key]})}</p><div data-card-term-example="${esc(key)}">${cardTermExampleMarkup(key,cardContext)}</div>`)}${TRIGGER_TERM_KEYS.includes(key)?bookButton():''}</section>`
+    : `<section data-card-term-section="${esc(key)}"><p class="card-term-definition">${cardTermTextMarkup(CARD_TERMS[key][1],{exclude:[key]})}</p><div data-card-term-example="${esc(key)}">${cardTermExampleMarkup(key,cardContext)}</div>${termDetailsMarkup(key)}${TRIGGER_TERM_KEYS.includes(key)?bookButton():''}</section>`;
+}
 export function installCardTermHelp(doc = document, {resolveProximityContext,resolveCardContext} = {}) {
   const layers = [];
   let serial = 0, hoverTimer, hoverCloseTimer, hover;
@@ -379,11 +441,15 @@ export function installCardTermHelp(doc = document, {resolveProximityContext,res
     const heading = `card-term-heading-${++serial}`, dialog = doc.createElement('dialog');
     dialog.className = 'card-term-dialog wb-dlg';
     dialog.setAttribute('aria-labelledby', heading);
+    const reducedMotion = prefersReducedMotion(doc), hasClip = items.some(key => TERM_CLIP_LINES[key]);
+    if (hasClip) ensureClipStyles(doc);
     const content = button.dataset.cardTerm
-      ? items.map(key => `<section data-card-term-section="${esc(key)}"><p class="card-term-definition">${cardTermTextMarkup(CARD_TERMS[key][1],{exclude:[key]})}</p><div data-card-term-example="${esc(key)}">${cardTermExampleMarkup(key,cardContext)}</div>${termDetailsMarkup(key)}${TRIGGER_TERM_KEYS.includes(key)?bookButton():''}</section>`).join('')
+      ? items.map(key => termSectionMarkup(key,cardContext,{reducedMotion})).join('')
       : `<section data-card-help-rules><p>${cardTermTextMarkup(description)}</p></section>${note && note !== description ? `<details class="card-term-extra"><summary>Card details</summary><p>${cardTermTextMarkup(note)}</p></details>` : ''}${items.length ? `<nav class="card-term-related" aria-label="Card keywords">${items.map(key=>cardTermMarkup(key)).join('')}</nav>` : ''}`;
     dialog.innerHTML = `<header><h2 id="${heading}">${button.dataset.cardTerm ? cardTermIcon(items[0]) : ''}${esc(title)}</h2><button type="button" data-card-term-close aria-label="Close card help">×</button></header><div class="card-term-content">${content}</div><footer><button type="button" data-card-term-close>Back</button></footer>`;
+    if (hasClip) dialog.classList.add('card-term-has-clip');
     const layer = mount(dialog,opener,cardContext); layer.termKey = button.dataset.cardTerm || null;
+    if (hasClip) armTermClips(dialog);
     const appendDisposer=dispose=>{const previous=layer.disposePreview;layer.disposePreview=()=>{previous?.();dispose?.();};};
     if(['uses','shared','copy','repeat','pass'].includes(button.dataset.cardTerm)){
       const host=dialog.querySelector('[data-card-term-example]');
@@ -395,7 +461,7 @@ export function installCardTermHelp(doc = document, {resolveProximityContext,res
       dialog.classList.add('card-cache-dialog');
       const host=button.dataset.cardTerm?dialog.querySelector('[data-card-term-example]'):doc.createElement('div');
       if(!button.dataset.cardTerm){host.className='cache-card-example';dialog.querySelector('[data-card-help-rules]').append(host);}
-      import('./cache-card-help.mjs?v=strip-2').then(({mountCacheCardHelp})=>{
+      import('./cache-card-help.mjs?v=clips-1').then(({mountCacheCardHelp})=>{
         if(layers.includes(layer))appendDisposer(mountCacheCardHelp(host,{focus:cardKind==='harvest'?'cross':cardKind==='cache-handling'?'deliver':'touch',harvestCard:cardKind==='harvest'?cardContext.card:undefined}));
       });
     }
@@ -406,7 +472,7 @@ export function installCardTermHelp(doc = document, {resolveProximityContext,res
         const host=doc.createElement('section');host.className='proximity-card-help';
         const example=dialog.querySelector('[data-card-term-example="proximity"]');
         if(example)example.replaceChildren(host);else dialog.querySelector('.card-term-content').prepend(host);
-        import('./proximity-card-help.mjs?v=strip-2').then(({mountProximityCardHelp})=>{
+        import('./proximity-card-help.mjs?v=clips-1').then(({mountProximityCardHelp})=>{
           if(layers.includes(layer))appendDisposer(mountProximityCardHelp(host,previewContext));
         });
       }

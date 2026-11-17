@@ -1,13 +1,13 @@
-import {FLIGHT_PACTS} from './flight-pacts.mjs?v=strip-2';
-import {temporaryLine,durationWords} from './temporary-inscriptions.mjs?v=strip-2';
-import {getTemporary} from './inscriptions.mjs?v=strip-2';
-import {getBiome} from './biomes.mjs?v=strip-2';
-import {sparkHabitat} from './spark-fields.mjs?v=strip-2';
-import {getFlightClearReward} from './checkpoint-rewards.mjs?v=strip-2';
-import {landmarkCategory,guardianNames} from './map-landmarks.mjs?v=strip-2';
-import {uiIcon} from './ui-icons.mjs?v=strip-2';
-import {inscriptionGlyph} from './inscription-glyphs.mjs?v=strip-2';
-import {glowText} from './vitality.mjs?v=strip-2';
+import {FLIGHT_PACTS} from './flight-pacts.mjs?v=clips-1';
+import {temporaryLine,durationWords} from './temporary-inscriptions.mjs?v=clips-1';
+import {getTemporary} from './inscriptions.mjs?v=clips-1';
+import {getBiome} from './biomes.mjs?v=clips-1';
+import {sparkHabitat} from './spark-fields.mjs?v=clips-1';
+import {getFlightClearReward} from './checkpoint-rewards.mjs?v=clips-1';
+import {landmarkCategory,guardianNames} from './map-landmarks.mjs?v=clips-1';
+import {uiIcon} from './ui-icons.mjs?v=clips-1';
+import {inscriptionGlyph} from './inscription-glyphs.mjs?v=clips-1';
+import {glowText} from './vitality.mjs?v=clips-1';
 const stop=(kind,label,name,summary)=>Object.freeze({kind,label,name,summary,icon:kind});
 export const MAP_STOP_TYPES=Object.freeze({
 flight:stop('flight','FLIGHT','Flight','Flight length sets its Stored Sparks reward; overflow adds a bonus. Ordinary flights do not offer an Inscription.'),

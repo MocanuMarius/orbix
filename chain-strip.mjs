@@ -5,8 +5,8 @@
 //   spent card    dim hollow outline;  empty slot  faint hollow outline
 //   Inscription   2 px bar under the shape (dashed = temporary); flashes white when the Inscription itself acts
 // This file is the pure part (no DOM): slot colours, the firing marks the flight raises, and the state machine the view reads.
-import {SKILL_CARDS} from './skill-cards.mjs?v=strip-2';
-import {getInscription} from './inscriptions.mjs?v=strip-2';
+import {SKILL_CARDS} from './skill-cards.mjs?v=clips-1';
+import {getInscription} from './inscriptions.mjs?v=clips-1';
 
 export const STRIP = Object.freeze({flashMs: 450, reducedFlashMs: 200, doubleMs: 560, idleMs: 3000, fadeMs: 600, idleOpacity: 0.12, maxMarks: 32});
 export const STRIP_COLORS = Object.freeze({

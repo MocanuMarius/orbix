@@ -1,5 +1,5 @@
-import {iceShardPoints,ICE_GUIDE_FACETS} from './guardian-geometry.mjs?v=strip-2';
-import {stormZoneState} from './storm-encounter.mjs?v=strip-2';
+import {iceShardPoints,ICE_GUIDE_FACETS} from './guardian-geometry.mjs?v=clips-1';
+import {stormZoneState} from './storm-encounter.mjs?v=clips-1';
 
 // Draw in world units inside the same camera transform for the pixel buffer and canvas fallback.
 const TAU=Math.PI*2;

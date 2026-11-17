@@ -1,8 +1,8 @@
-import {createMusic} from './music.mjs?v=strip-2';
+import {createMusic} from './music.mjs?v=clips-1';
 
-import {createFlightFX} from './reactive-fx.mjs?v=strip-2';
+import {createFlightFX} from './reactive-fx.mjs?v=clips-1';
 
-import {LuminanceWaves} from './luminance-waves.mjs?v=strip-2';
+import {LuminanceWaves} from './luminance-waves.mjs?v=clips-1';
 
 // Deliberately isolated: the audition never reads or writes a saved game.
 
