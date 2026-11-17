@@ -450,7 +450,8 @@ async function browser() {
       // Fixtures are written by the previous release's own model. Update this block if its API changes.
       await b.ev(`(async()=>{const M=await import('./model.mjs?v=${old}'),{createComponentFixture}=await import('./ui/gallery-fixtures.mjs?v=${old}');
         const legacy=M.newState();legacy.run=M.createRun(legacy.profile,'release-legacy-kept');legacy.profile.stats.completedRuns=1;M.saveState(legacy,localStorage);
-        const s=createComponentFixture('route','wayfinder');s.settings.skipTutorial=true;M.chooseStartingGift(s,M.getStartingGiftOffers(s.run)[0].id);s.profile.tutorialComplete=false;s.profile.stats.completedRuns=Math.max(1,s.profile.stats.completedRuns||0);
+        let s;try{s=createComponentFixture('route','wayfinder')}catch{s=createComponentFixture('route','plain')} // courses-1 shipped a wayfinder fixture that throws on the new layouts
+        s.settings.skipTutorial=true;M.chooseStartingGift(s,M.getStartingGiftOffers(s.run)[0].id);s.profile.tutorialComplete=false;s.profile.stats.completedRuns=Math.max(1,s.profile.stats.completedRuns||0);
         M.saveState(s,{setItem:(k,v)=>localStorage.setItem('cards-pilot:'+k,v)});})()`);
       await b.visit(server.base + 'game.html?cards=1&display=native');
       await until(() => b.ev(`document.readyState==='complete'&&!!document.querySelector('.front-continue')`), 'previous release shows Continue', 60);
