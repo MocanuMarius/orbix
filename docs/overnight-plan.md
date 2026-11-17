@@ -28,14 +28,19 @@ The 5-hour limit resets at **09:30 local** (07:30 UTC). At 06:05 it stood at 66%
 
 ### Pause note
 
-**Written 2026-11-17 08:25, usage 87%, reset 09:30.** Nothing is running; no worker is paused; the tree is clean (only untracked studies and captures). Live: `reskin-2` (`ade3103c`). After the reset, start in this order:
+**Written 2026-11-17 about 16:25, usage about 91%, reset at 19:30 local.** Nothing is running, no worker is paused, the tree is clean and pushed. Live: `biomes-1` (`a4d1820f`). (Earlier pause notes are superseded by this one.)
 
-**Update 09:40, usage 92%: PAUSED.** Nothing running, tree clean, all pushed (`13ca5e66`). Step 1 below is DONE (art, icon, level, balance audits; see Status log). After the reset start at: (a) Opus showcases in the design lab: `v1.0-cardart` (6 cards from `outputs/art-audit/cards.md`), `v1.0-level` (Frostbound Reach and Oldgrowth Pines, levers 1 and 2 from `outputs/level-audit/levels.md`); (b) Sonnet: `v2.0-icons` sheet redraw (menu carvings, hearts, map icons) and reskin leftovers (step 3); (c) coordinator: biome proposal, `v1.0-engine` card list with Pack Trigger and Black Hole (BACKLOG.md top), using `docs/card-balance-2.md`; (d) goals 5, 7, 9; performance last.
+Wake-ups in this session: the hourly self-check (minute 41, shifted; expires 24 November: renew before then) and a one-shot at 19:36 today. If both are lost (app closed), any new session starts from this note.
 
-1. Read-only audits together (Sonnet): card art (goal 11 step 1), level rendering per location (goal 12 step 1), icon sheet (goal 15 step 1), card balance simulation and summary (goal 14, analysis only, no game changes).
-2. Coordinator: biome proposal (goal 13) once the level audit is back.
-3. Reskin leftovers (Sonnet, small): title treatment on Rest/Collection/Forge/Deck, the scorecard image (canvas, cold green), pause primary button focus look (subtitle hard to read when focused), `dist/ui/gallery-fixtures.mjs` still equips Field Impulse, `swipe` Trigger left in `dist/ui/chain-model.mjs:16` and `card-terms.mjs`, screenshots never taken of result/reward/Rest headers after `v2.6`.
-4. Goals 5, 7, 9; then showcases for 11 and 12 (Opus); performance last.
+After the reset, in this order:
+1. Read the owner's answers: `outputs/cardboard/decisions.json` (`d-…` ids = decisions board, the choice is in the note as `choice=<option>`; other ids = card proposals: 52 approved; Storm Glass and Brimming were reworded and wait for a tap). Act only on what is answered; unanswered items keep waiting (the "My pick" defaults are NOT approvals).
+2. Approved card proposals (`docs/card-proposals.md`): numbers from `scripts/balance/simulate.mjs`, pictures in `v1.0-cardart-B` (kit `dist/design-lab/assets/cardart/kit.mjs`), build in batches by family, `unreleased` until tested. Opus for cards that change firing, position or oath rules; Sonnet for plain adders.
+3. Trigger compression (24 → 11, "Always on" → "Passive", Timers and "Each Turn" as text not badges, card Pulses become real Pulses): only if the owner said "do it".
+4. Card art into the game: `cardArt()` in `dist/card-art.mjs` to per-card SVG, art windows to whole multiples of 48 (table in the 17 November log entry for the art unification).
+5. Release engine cards, Pack and Black Hole to players (remove `unreleased`, offer weights, Metronome stays 3 s unless answered otherwise).
+6. If approved on the board: convert all 48 courses with `dist/course-landforms.mjs` and build floating rock (`terrain-boundary.mjs`); the high-ground cue; lo-fi music default and trimming its scheduler cost; the reference track's tempo.
+7. Small: remove plant silhouettes from frost's foreground plates (`terrain-foreground.mjs`, `authored-environment.mjs`); deeper lit band on terrain if the owner wants more ground visible; `rest-inspector.mjs` out of the offline list.
+8. Ship in small releases as each lands (`node scripts/release.mjs all --source <commit> --version <label> --publish`).
 
 ## Goals, in order
 
