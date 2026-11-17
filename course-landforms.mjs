@@ -1293,3 +1293,27 @@ export function buildLandformCourse({ levelId, seed = 1, height = FRAME, duratio
   return { obstacles, sections, embers, meta: { generation: 2, recipeId: recipe.id, type: recipe.type, name: recipe.name, valid: validation.ok,
     errors: validation.errors, metrics: validation.metrics, profile: courseProfile(course, validation) } };
 }
+
+/** Open-air spots for a Flash pickup along a landform profile: well clear of floor and
+ * ceiling over a window as wide as the clearance, on level ground (no cliff or blind
+ * drop within the window) and near the validated flight line so it is reachable and
+ * seen from the approach. Returns { x, y } in world units at `height`, best first. */
+export function landformFlashSites(profile, { height = FRAME, clearance = 100, step = 60 } = {}) {
+  if (!profile?.line) return [];
+  const s = height / FRAME, { x0, dx, floor, ceil, line } = profile, out = [];
+  const at = i => Math.max(0, Math.min(floor.length - 1, i)), reach = Math.ceil(clearance / dx), span = Math.ceil(240 / dx);
+  const ceilAt = i => Number.isFinite(ceil[at(i)]) ? ceil[at(i)] : 0;
+  for (let i = 0; i < floor.length; i += Math.round(step / dx)) {
+    if (!Number.isFinite(line[i]) || !Number.isFinite(floor[i])) continue;
+    let lo = Infinity, hi = -Infinity;
+    for (let d = -span; d <= span; d++) { const f = floor[at(i + d)]; lo = Math.min(lo, f); hi = Math.max(hi, f); }
+    if (hi - lo > 200) continue;                       // slope, cliff or blind drop in view
+    for (const offset of [0, -40, 40, -80, 80]) {
+      const y = line[i] + offset;
+      let ok = y >= 80;
+      for (let d = -reach; ok && d <= reach; d++) ok = floor[at(i + d)] - y >= clearance && y - ceilAt(i + d) >= clearance;
+      if (ok) { out.push({ x: x0 + i * dx, y: y * s, rank: Math.abs(offset) }); break; }
+    }
+  }
+  return out.sort((a, b) => a.rank - b.rank || a.x - b.x).map(({ x, y }) => ({ x, y, anchor: null, pocket: false, sideLane: true }));
+}

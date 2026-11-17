@@ -1,5 +1,5 @@
-import {getGlowCapacity,getLifeCapacity} from './vitality.mjs?v=triggers-1';
-import {getCompanionAbility} from './companion-abilities.mjs?v=triggers-1';
+import {getGlowCapacity,getLifeCapacity} from './vitality.mjs?v=flash-1';
+import {getCompanionAbility} from './companion-abilities.mjs?v=flash-1';
 
 // Values in descriptions are player-facing. Effects use the existing simulation units.
 export const EVENT_EDITION=3;
