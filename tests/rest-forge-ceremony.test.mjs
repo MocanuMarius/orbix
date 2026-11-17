@@ -25,10 +25,10 @@ test('Forge is a Rest option, ready when Stored Sparks cover a price', () => {
   const html = render(run), option = forgeOption(run);
   assert.equal(option.ready, true);
   assert.equal(option.possible, 3);
-  assert.match(html, /class="card-camp-choice card-camp-forge forge-ready/);
+  assert.match(html, /class="card-camp-choice rest-opt card-camp-forge forge-ready/);
   assert.match(html, /data-action="card-workshop-forge" data-rarity="common"/);
   assert.match(html, /Ready · 3 possible/);
-  assert.match(html, /Pay Stored Sparks for a surprise card/);
+  assert.match(html, /Surprise card/);
   assert.match(html, /data-ui-icon="rest-forge"/);
   assert.match(html, /Forge uses no Rest action/);
 });
@@ -41,7 +41,7 @@ test('Forge stays visible and tappable, saying what is needed, when nothing is a
   assert.ok(option.need > 0);
   assert.match(html, /forge-needs/);
   assert.match(card, new RegExp(`Needs ${option.price} Stored Sparks`));
-  assert.match(card, /Melt for more/);
+  assert.match(card, /Melt a card for more/);
   assert.doesNotMatch(card.slice(0, card.indexOf('</article>')), /disabled/, 'not a dead end: the Forge screen explains prices and offers Melt');
   assert.match(card, /class="secondary" data-action="card-workshop-forge"/);
 });
