@@ -138,13 +138,13 @@ test('a Boost strengthens Sparks and Collector time to its left, never Stored Sp
 test('several Boosts multiply together, and Echo or Encore firings are boosted and credited to the real card',()=>{
   const stacked=quote(['body-spark','prism-lens','crescendo'],body);
   assert.equal(stacked.sparks,5);assert.deepEqual(stacked.cards[0].boostedBy,[1,2]);
-  assert.equal(quote(['body-spark','prism-lens','prism-lens-ii','crescendo','closing-chord'],body).sparks,Math.floor(2*1.25*3*2*2.5),'37.5 rounds down');
+  assert.equal(quote(['body-spark','prism-lens','prism-lens-ii','crescendo','closing-chord'],body).sparks,Math.ceil(2*1.25*3*2*2.5-1e-9),'37.5 rounds up');
   const echo=quote(['echo','spark-cache','prism-lens'],body);
   assert.equal(echo.sparks,10);assert.equal(echo.cards[1].base.sparks,4);assert.equal(echo.cards[1].effective.sparks,10);
   assert.equal(echo.cards[0].effective.sparks,0);assert.equal(echo.cards[1].fired,2);
   assert.deepEqual(echo.steps.filter(step=>step.success).map(step=>step.creditSlot),[1,1,2]);
   const encore=quote(['harvest-rare','prism-lens','refrain'],{kind:CARD_ROW_EVENTS.wave,firstCrossing:true});
-  assert.equal(encore.sparks,4);assert.equal(encore.cards[0].effective.sparks,4);assert.equal(encore.sparksExact,5); // 2.5 → 2 per firing
+  assert.equal(encore.sparks,6);assert.equal(encore.cards[0].effective.sparks,6);assert.equal(encore.sparksExact,5); // 2.5 → 3 per firing
   // A Boost only reaches cards to its LEFT.
   assert.equal(quote(['prism-lens-ii','body-spark'],body).sparks,2);
 });
@@ -267,17 +267,17 @@ test('wave reach has no ceiling: boosted copies keep their full value',()=>{
   near(getProximityClearance(getCardModifiers(five)),EDGING_PULSE_TUNING.clearance*3.5);
 });
 
-// Whole Sparks (2026-11-17): a firing's Spark total rounds DOWN once, at its end.
-test('a fractional firing rounds down, keeps the exact figure, and the cards still add up',()=>{
+// Whole Sparks (2026-11-17): a firing's Spark total rounds UP once (owner: always round up), at its end.
+test('a fractional firing rounds up, keeps the exact figure, and the cards still add up',()=>{
   const half=quote(['body-spark','prism-lens'],body);
-  assert.deepEqual([half.sparks,half.sparksExact],[2,2.5]);
-  assert.deepEqual(half.firings,[{pass:1,sparksExact:2.5,sparks:2}]);
-  assert.deepEqual([half.cards[0].effective.sparks,half.cards[0].sparksExact],[2,2.5]);
+  assert.deepEqual([half.sparks,half.sparksExact],[3,2.5]);
+  assert.deepEqual(half.firings,[{pass:1,sparksExact:2.5,sparks:3}]);
+  assert.deepEqual([half.cards[0].effective.sparks,half.cards[0].sparksExact],[3,2.5]);
   assert.equal(quote(['spark-cache','prism-lens'],body).sparks,5,'4 × 1.25 = 5 stays 5');
-  // The loss comes off the last card that changed the total; the others keep their share.
+  // The rounding gain goes onto the last card that changed the total; the others keep their share.
   const two=quote(['echo','body-spark','body-spark','prism-lens'],body);
-  assert.equal(two.sparksExact,7.5);assert.equal(two.sparks,7);
-  assert.deepEqual(two.cards.map(card=>card.effective.sparks),[0,5,2,0]);
+  assert.equal(two.sparksExact,7.5);assert.equal(two.sparks,8);
+  assert.deepEqual(two.cards.map(card=>card.effective.sparks),[0,5,3,0]);
   assert.equal(two.cards.reduce((sum,card)=>sum+card.effective.sparks,0),two.sparks);
   // Collector seconds keep their decimals.
   near(quote(['glass-spool','prism-lens'],{kind:CARD_ROW_EVENTS.body,availableRecovery:5}).recoverySeconds,.625);
@@ -285,8 +285,8 @@ test('a fractional firing rounds down, keeps the exact figure, and the cards sti
 
 test('an Encore rounds its own firing, and the event total is the sum of the rounded firings',()=>{
   const r=quote(['harvest-common','prism-lens','second-sun','refrain'],{kind:CARD_ROW_EVENTS.wave,firstCrossing:true});
-  // Firing 1: 1 × 1.25 × 2 = 2.5 → 2. Encore: 1 × 1.25 × 3 = 3.75 → 3.
-  assert.deepEqual(r.firings,[{pass:1,sparksExact:2.5,sparks:2},{pass:2,sparksExact:3.75,sparks:3}]);
-  assert.equal(r.sparks,5);assert.equal(r.sparksExact,6.25);
-  assert.equal(r.cards[0].effective.sparks,5);assert.equal(r.cards[0].sparksExact,6.25);
+  // Firing 1: 1 × 1.25 × 2 = 2.5 → 3. Encore: 1 × 1.25 × 3 = 3.75 → 4.
+  assert.deepEqual(r.firings,[{pass:1,sparksExact:2.5,sparks:3},{pass:2,sparksExact:3.75,sparks:4}]);
+  assert.equal(r.sparks,7);assert.equal(r.sparksExact,6.25);
+  assert.equal(r.cards[0].effective.sparks,7);assert.equal(r.cards[0].sparksExact,6.25);
 });

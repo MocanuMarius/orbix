@@ -51,7 +51,7 @@ test('Gilded: +2 Sparks each firing, a Boost to the right sees it, nothing on an
   assert.equal(sparks(['body-spark'], ['gilded']), BS + 2);
   assert.equal(sparks(['body-spark'], ['gilded'], WAVE), 0, 'the card does not fire on a Pulse');
   assert.equal(sparks(['body-spark', null], [null, 'gilded']), BS);
-  assert.equal(sparks(['body-spark', 'prism-lens'], ['gilded', null]), Math.floor((BS + 2) * 1.25), 'Boost multiplies it, rounded down');
+  assert.equal(sparks(['body-spark', 'prism-lens'], ['gilded', null]), Math.ceil((BS + 2) * 1.25 - 1e-9), 'Boost multiplies it, rounded up');
 });
 
 test('also-fires Inscriptions: the card here answers one more Trigger, and not an unrelated one', () => {
@@ -309,11 +309,13 @@ test('dev scene: ?mock=cards&scenario=scribe opens the Scribe', async () => {
   assert.deepEqual(reward.offers, ['bell', 'gilded']); assert.equal(run.victoryPending, true); assert.equal(reward.kind, 'inscription');
 });
 
-test('only a map guardian offers the Scribe, never an Elite, and a run offers at most 7', () => {
+test('only a map guardian or a Scribe stop offers the Scribe, never an Elite, and a run offers at most 6 (2 per map)', () => {
   const run = cardState('scribe-source', ['body-spark', null, null]).run;
   assert.equal(M.flightRewardKind(run, {elite: true, mapIndex: 0}), null);
   assert.equal(M.flightRewardKind(run, {boss: true, mapIndex: 0}), 'inscription');
   assert.equal(M.flightRewardKind(run, {boss: true, mapIndex: 2}), null, 'the last guardian ends the expedition');
+  assert.equal(M.SCRIBE_MAX_PER_RUN, 6);
+  assert.equal(M.flightRewardKind(run, {kind: 'scribe', mapIndex: 1}), 'inscription');
   run.scribesOffered = M.SCRIBE_MAX_PER_RUN;
   assert.equal(M.flightRewardKind(run, {boss: true, mapIndex: 0}), null);
 });

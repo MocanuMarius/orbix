@@ -277,7 +277,7 @@ const cards = [
     ruleBands: [{ type: 'condition', text: 'Boost · exactly 2 cards before it', trigger: 'any', detail: 'exactly 2 cards before it' }, { type: 'effect', text: 'Every card before it ×{amount}' }] },
   { id: 'spill-jar', name: 'Spill Jar', rarity: 'common', kind: 'spill-jar', unreleased: true, amount: 0, copyable: true, maxRank: 1, excludeStarter: true, artFamily: 'deep-vessel', trigger: 'overfill',
     engine: { family: 'maker', hears: ['overfill'], does: ['keep'], keepShare: 0.5 },
-    help: 'Kept Sparks become Stored Sparks, so no Boost changes them. Half is rounded down. A Spark you collect that overfills keeps nothing more: its spill already packs.',
+    help: 'Kept Sparks become Stored Sparks, so no Boost changes them. Half is rounded up. A Spark you collect that overfills keeps nothing more: its spill already packs.',
     ruleBands: [{ type: 'condition', text: 'Overfill', trigger: 'overfill' }, { type: 'effect', text: 'Half of every spilled Spark becomes a Stored Spark' }] },
   // Batch 2 (docs/card-proposals.md sections 6 and 7). Unreleased, no picture yet. What a card counts is its `tally`,
   // stored on the card instance and gone when the card leaves the Chain (tallyEvent counts; perTally / growEvery pay).

@@ -1000,7 +1000,7 @@ function baseRewards(def, card, rule, event) {
  *   own factor in pass 1 (Boost cards only), boostedBy: slots of the Boosts that raised
  *   this card's rewards, boostedByKind: the same per reward kind (always empty for stored,
  *   futureCapacity and cruisingSpeed, which Boosts never touch) }.
- * - Whole Sparks: each firing's Spark total rounds DOWN at its end. `sparks` and every
+ * - Whole Sparks: each firing's Spark total rounds UP at its end. `sparks` and every
  *   cards[*].effective.sparks are whole-number results (the loss comes off the last card
  *   that changed the total); `sparksExact` (receipt and per card) keeps the unrounded value,
  *   and firings[] lists {pass, sparksExact, sparks} per firing. Steps keep exact amounts,
@@ -1212,18 +1212,18 @@ export function resolveCardRow(runtime, event = {}) {
       }
     }
     if (pass === 1 && kind === CARD_ROW_EVENTS.clear) standalone.stored += emberBedStored(runtime, topology);
-    // Whole Sparks (2026-11-17): each firing's Spark total rounds DOWN once, at its end.
-    // The rounding loss comes off the last card that changed that total, so the per-card
-    // effective amounts still add up; the unrounded figures stay in sparksExact.
-    const exact = total("sparks", pass), whole = Math.floor(exact + 1e-9), loss = exact - whole;
+    // Whole Sparks (2026-11-17, owner: "always round up"): each firing's Spark total rounds UP once, at its end
+    // (an exact whole number stays; zero stays zero). The rounding gain goes onto the last card that changed that
+    // total, so the per-card effective amounts still add up; the unrounded figures stay in sparksExact.
+    const exact = total("sparks", pass), whole = Math.max(0, Math.ceil(exact - 1e-9)), loss = exact - whole;
     for (const entry of entries) if (entry.pass === pass && entry.kind === "sparks" && ledgerCards[entry.slot])
       ledgerCards[entry.slot].sparksExact = (ledgerCards[entry.slot].sparksExact || 0) + entry.value;
-    if (loss > 1e-9 && lastSparkSlot !== null) {
+    if (Math.abs(loss) > 1e-9 && lastSparkSlot !== null) {
       const own = entries.filter(entry => entry.pass === pass && entry.kind === "sparks" && entry.slot === lastSparkSlot)
         .sort((a, b) => b.value - a.value)[0];
       if (own) own.value -= loss;
     }
-    if (loss > 1e-9 && Math.abs(total("sparks", pass) - whole) > 1e-9) // safety: never leave a fraction behind
+    if (Math.abs(loss) > 1e-9 && Math.abs(total("sparks", pass) - whole) > 1e-9) // safety: never leave a fraction behind
       for (const entry of entries.filter(entry => entry.pass === pass && entry.kind === "sparks").reverse()) {
         const cut = Math.min(entry.value, total("sparks", pass) - whole); entry.value -= cut; if (total("sparks", pass) - whole <= 1e-9) break;
       }

@@ -69,7 +69,7 @@ test('Keystone: the cards on both sides fire twice, not itself, no stacking, use
   assert.equal(runtime.cards[0].charges, before - 2, 'each firing spends a use');
 });
 
-test('Spill Jar: half of a spill (rounded down) becomes Stored Sparks while mounted', () => {
+test('Spill Jar: half of a spill (rounded up) becomes Stored Sparks while mounted', () => {
   const run = list => {
     const runtime = createCardExecution(row(list)), host = createMeterHost({start: 10, max: 10}); host.runtime = runtime;
     const engine = new CardEngine(runtime, host);
@@ -77,6 +77,6 @@ test('Spill Jar: half of a spill (rounded down) becomes Stored Sparks while moun
     return host.storedTotal;
   };
   assert.equal(run(['body-spark', 'spill-jar']), 1, 'a 2-Spark spill keeps 1');
-  assert.equal(run(['vanguard', 'body-spark', 'spill-jar']), 2, 'the whole chain spills 5; half rounded down is 2');
+  assert.equal(run(['vanguard', 'body-spark', 'spill-jar']), 3, 'the whole chain spills 5; half rounded up is 3');
   assert.equal(run(['body-spark', null]), 0, 'nothing kept when unmounted');
 });

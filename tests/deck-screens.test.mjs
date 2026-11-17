@@ -118,7 +118,7 @@ test('the opened card holds Put in chain and Melt on the Deck tab; loaned cards 
 
 test('tile lines: the 54 approved short forms live next to the card text and fit a tile', () => {
   const ids = Object.keys(CARD_TILE_LINES);
-  assert.equal(ids.length, 54);
+  assert.ok(ids.length >= 54, 'the approved short forms, plus the cards added since');
   for (const id of ids) {
     assert.ok(SKILL_CARDS[id], `${id} exists`);
     assert.ok(CARD_TILE_LINES[id].length <= 22, `${id}: "${CARD_TILE_LINES[id]}"`);

@@ -26,13 +26,13 @@ const waveFeedback=e=>{
 
 test('one ordered walker drives exact previews, fractions, reversal and bounded full replay',()=>{
   for(const [ids,want] of [
-    // Whole Sparks (2026-11-17): each firing's total rounds down, so 2 × 1.25 = 2.5 pays 2.
-    [['rhythm','harvest-rare','prism-lens'],2],
-    [['harvest-rare','prism-lens','refrain'],4],
+    // Whole Sparks (2026-11-17): each firing's total rounds UP (owner: always round up), so 2 × 1.25 = 2.5 pays 3.
+    [['rhythm','harvest-rare','prism-lens'],3],
+    [['harvest-rare','prism-lens','refrain'],6],
     [['prism-lens','harvest-rare','refrain'],4],
     [['echo','harvest-rare','crescendo'],8],
     [['harvest-rare','harvest-rare','crescendo','prism-lens','refrain'],20],
-    [['refrain','harvest-common','refrain','prism-lens','refrain'],2],
+    [['refrain','harvest-common','refrain','prism-lens','refrain'],4],
   ]){
     const runtime=createCardExecution(cards(ids)),event={kind:CARD_ROW_EVENTS.wave,firstCrossing:true};
     const predicted=previewCardRow(runtime,event),actual=resolveCardRow(runtime,event);
@@ -62,9 +62,9 @@ test('real Rhythm pulse applies 2.5 per uncollected organic crossing with one ph
     for(const at of [0,.6,1.2]){now=at;e.time=at;assert.ok(e.beginLiftInput());e.endLiftInput();}
     assert.equal(e.luminanceWaves.waves.length,1);e.flame=0;
     const packet={kind:'light',x:e.distance+e.player.x+90,y:e.player.y};e.layout.embers=[packet];e.getNearbyPickups=()=>[packet];
-    e.luminanceWaves.update(.3);near(e.flame,2*CARD_UNIT); // whole Sparks: each firing rounds down (2026-11-17)
-    assert.equal(packet.collected,undefined);assert.equal(e.cardRowTrace.sparks,2);assert.equal(e.cardRowTrace.sparksExact,2.5);assert.equal(e.cardRhythm.waves,1);
-    e.luminanceWaves.update(.1);near(e.flame,2*CARD_UNIT);
+    e.luminanceWaves.update(.3);near(e.flame,3*CARD_UNIT); // whole Sparks: each firing rounds UP
+    assert.equal(packet.collected,undefined);assert.equal(e.cardRowTrace.sparks,3);assert.equal(e.cardRowTrace.sparksExact,2.5);assert.equal(e.cardRhythm.waves,1);
+    e.luminanceWaves.update(.1);near(e.flame,3*CARD_UNIT);
   }finally{e.destroy();}
 });
 
@@ -72,7 +72,7 @@ test('replayed Harvest pays capped meter and original-pass Stored once, without 
   const e=flight(['harvest-legendary','prism-lens','refrain']);
   try{
     e.flame=e.maxFlame-1;const packets=cross(e);
-    near(e.flame,e.maxFlame);assert.equal(e.resonanceStored,1);assert.equal(e.cardRowTrace.sparks,4); // whole Sparks: each firing rounds down (2026-11-17)
+    near(e.flame,e.maxFlame);assert.equal(e.resonanceStored,1);assert.equal(e.cardRowTrace.sparks,6); // whole Sparks: each firing rounds UP
     assert.equal(e.luminanceWaves.waves.length,1);assert.equal(packets[0].collected,undefined);
     assert.equal(e.pickupOverflow,0);assert.equal(e.condensedGlow,0);
     e.flame=0;cross(e,[{kind:'light',x:e.player.x+90,y:e.player.y,generated:true}]);
@@ -118,16 +118,16 @@ test('live capped receipts preserve raw arithmetic and retain a meaningful full-
   try{
     e.flame=e.maxFlame-CARD_UNIT;cross(e);
     const partial=e.cardRowTrace,raw=e.cardExecution.lastTrace;
-    assert.equal(partial.sparks,4);near(partial.restoredSparks,1);near(e.flame,e.maxFlame); // whole Sparks: each firing rounds down (2026-11-17)
+    assert.equal(partial.sparks,6);near(partial.restoredSparks,1);near(e.flame,e.maxFlame); // whole Sparks: each firing rounds UP
     assert.ok(Object.isFrozen(partial));assert.ok(Object.isFrozen(partial.event));assert.ok(Object.isFrozen(partial.steps));
     assert.ok(partial.steps.every(Object.isFrozen));assert.equal(partial.steps,raw.steps);
-    assert.equal(raw.sparks,4);assert.equal(raw.restoredSparks,undefined);
+    assert.equal(raw.sparks,6);assert.equal(raw.restoredSparks,undefined);
     assert.deepEqual(partial.steps.filter(step=>step.operation==='multiply').map(step=>[step.before,step.after]),[[2,2.5],[2,2.5]]);
     cross(e);const full=e.cardRowTrace;
     assert.notEqual(full,partial);assert.ok(full.event.id>partial.event.id);
-    assert.equal(full.sparks,4);assert.equal(full.restoredSparks,0);near(e.flame,e.maxFlame);
+    assert.equal(full.sparks,6);assert.equal(full.restoredSparks,0);near(e.flame,e.maxFlame);
     assert.ok(full.steps.some(step=>step.success&&step.operation==='add-sparks'));
-    assert.equal(e.cardExecution.lastTrace.sparks,4);near(partial.restoredSparks,1);
+    assert.equal(e.cardExecution.lastTrace.sparks,6);near(partial.restoredSparks,1);
     assert.equal(e.pickupOverflow,0);assert.equal(e.resonanceStored,0);assert.equal(e.luminanceWaves.waves.length,2);
   }finally{e.destroy();}
 });
@@ -135,7 +135,7 @@ test('live capped receipts preserve raw arithmetic and retain a meaningful full-
 test('body and Flare replay numeric gain without new collection, overflow, waves or Dream rewards',()=>{
   const e=flight(['body-spark','prism-lens','refrain']);
   try{
-    e.flame=0;e.collect({kind:'light'});near(e.flame,20+4*CARD_UNIT); // whole Sparks: each firing rounds down (2026-11-17)
+    e.flame=0;e.collect({kind:'light'});near(e.flame,20+6*CARD_UNIT); // whole Sparks: each firing rounds UP
     assert.equal(e.bodyPickups,1);assert.equal(e.pickupOverflow,0);assert.equal(e.condensedGlow,0);
     const seq=e.cardRowSequence;e.flame=0;e.collect({kind:'light',generated:true});assert.equal(e.cardRowSequence,seq);
     e.collect({kind:'light',deliveredByWisp:true});assert.equal(e.cardRowSequence,seq);
@@ -145,7 +145,7 @@ test('body and Flare replay numeric gain without new collection, overflow, waves
   try{
     let physical=0;const original=flash.radiateLight.bind(flash);flash.radiateLight=options=>{physical++;return original(options);};
     flash.flame=0;const packet={kind:'sight',x:flash.player.x,y:flash.player.y};flash.collect(packet);flash.collect(packet);
-    near(flash.flame,14*CARD_UNIT);assert.equal(physical,1);assert.equal(flash.cardRowTrace.passes,2); // whole Sparks: each firing rounds down (2026-11-17)
+    near(flash.flame,16*CARD_UNIT);assert.equal(physical,1);assert.equal(flash.cardRowTrace.passes,2); // whole Sparks: each firing rounds UP
   }finally{flash.destroy();}
 });
 
@@ -155,7 +155,7 @@ test('Downbeat uses pre-impulse descent and previous accepted simulation Lift, e
   try{
     e.flame=80;assert.ok(lift(0));assert.equal(e.cardRowTrace,null);
     assert.ok(lift(.74));assert.equal(e.cardRowTrace,null);
-    e.flame=80;assert.ok(lift(1.49));near(e.flame,80-e.flapCost+4*CARD_UNIT); // whole Sparks: each firing rounds down (2026-11-17)
+    e.flame=80;assert.ok(lift(1.49));near(e.flame,80-e.flapCost+6*CARD_UNIT); // whole Sparks: each firing rounds UP
     assert.equal(e.cardRowTrace.event.kind,CARD_ROW_EVENTS.lift);const sequence=e.cardRowSequence;
     assert.ok(lift(2.3,-2));assert.equal(e.cardRowSequence,sequence);
     e.artifactEffects.freeLift=true;assert.ok(lift(3.1));assert.equal(e.cardRowSequence,sequence);
@@ -211,10 +211,10 @@ test('Watchlight reuses safe rescue once per flight, emits from relocated positi
 test('paused reorder changes next event only, preserving charge ledger, immutable receipt and pending earnings',()=>{
   const e=flight(['harvest-rare','prism-lens','refrain']);
   try{
-    e.flame=0;cross(e);near(e.flame,4*CARD_UNIT);const trace=e.cardRowTrace; // whole Sparks: each firing rounds down (2026-11-17)
+    e.flame=0;cross(e);near(e.flame,6*CARD_UNIT);const trace=e.cardRowTrace; // whole Sparks: each firing rounds UP
     e.paused=true;const next=getCardModifiers({skillSystem:CARD_SYSTEM,mountedCards:cards(['prism-lens','harvest-rare','refrain'])});
     assert.ok(e.reconcileCardLoadout({modifiers:next,condensedGlow:0}));assert.equal(e.cardRowTrace,trace);
-    e.paused=false;e.flame=0;cross(e);near(e.flame,4*CARD_UNIT);assert.equal(trace.sparks,4);
+    e.paused=false;e.flame=0;cross(e);near(e.flame,4*CARD_UNIT);assert.equal(trace.sparks,6);
     assert.ok(e.cardRowSequence>trace.event.id);
   }finally{e.destroy();}
 });
@@ -306,7 +306,7 @@ test('Rhythm, directional Field and guard rewards pay from actual physical succe
   const guard=flight(['watchlight','home-beacon','last-light','prism-lens','refrain']);
   try{
     guard.flame=0;guard.player.y=-20;guard.hit(null);assert.equal(guard.dying,false);
-    assert.equal(guard.cardRowTrace.sparks,44);assert.equal(guard.cardRowTrace.event.meterFraction,0); // whole Sparks: each firing rounds down (2026-11-17)
+    assert.equal(guard.cardRowTrace.sparks,46);assert.equal(guard.cardRowTrace.event.meterFraction,0); // whole Sparks: each firing rounds UP
     assert.equal(guard.flame,guard.maxFlame);assert.equal(guard.luminanceWaves.waves.length,1);
   }finally{guard.destroy();}
 });
@@ -327,8 +327,21 @@ test('Spillway changes the next natural overfill only and strongest duplicate em
 test('meta rules use pass-local earlier payers, last additive payout, rightmost slot and replay scalar',()=>{
   const event={kind:CARD_ROW_EVENTS.body};
   assert.equal(previewCardRow(cards(['kindling-bead','body-spark','kindling-bead-iii']),event).sparks,6);
-  assert.equal(previewCardRow(cards(['body-spark','prism-lens','mirror-grain']),event).sparks,4,'2.5 + 2 = 4.5 rounds down');
+  assert.equal(previewCardRow(cards(['body-spark','prism-lens','mirror-grain']),event).sparks,5,'2.5 + 2 = 4.5 rounds up');
   assert.equal(previewCardRow(cards(['body-spark','closing-chord',null,null,null]),event).sparks,5,'Closing Chord ×2.5 (ladder 2026-11-17)');
   assert.equal(previewCardRow(cards(['body-spark','closing-chord','lift-guide']),event).sparks,2);
   assert.equal(previewCardRow(cards(['body-spark','second-sun','refrain']),event).sparks,10,'Second Sun ×2, ×3 in the Encore (ladder 2026-11-17)');
+});
+
+test('Always round up (owner, 2026-11-17): fractions round up, integers stay, zero stays zero, Stored Sparks are not boosted',()=>{
+  const body={kind:CARD_ROW_EVENTS.body},wave={kind:CARD_ROW_EVENTS.wave,firstCrossing:true};
+  assert.equal(previewCardRow(cards(['body-spark']),body).sparks,2);
+  assert.equal(previewCardRow(cards(['body-spark','prism-lens']),body).sparks,3,'Prism Lens x1.25 on +2 = 2.5 rounds up to 3');
+  assert.equal(previewCardRow(cards(['body-spark','crescendo']),body).sparks,4,'an exact whole number stays exact');
+  assert.equal(previewCardRow(cards(['prism-lens','body-spark']),body).sparks,2,'a Boost left of the card does nothing');
+  assert.equal(previewCardRow(cards(['prism-lens',null]),body).sparks,0,'zero stays zero');
+  assert.equal(previewCardRow(cards(['prism-lens','prism-lens']),body).sparks,0,'Boosts alone stay zero');
+  const plain=previewCardRow(cards(['harvest-legendary']),wave),boosted=previewCardRow(cards(['harvest-legendary','prism-lens']),wave);
+  assert.ok(plain.stored>0);assert.equal(boosted.stored,plain.stored,'Boosts never multiply Stored Sparks');
+  assert.equal(boosted.sparks,3);
 });

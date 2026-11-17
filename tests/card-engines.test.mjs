@@ -135,8 +135,8 @@ test('a Timer returns its Pulse to the first Slot but never to itself', () => {
   assert.equal(host.meter, 1);
 });
 
-test('Boosts multiply each card-made gain to their left, rounded down; Stored Sparks are never boosted', () => {
-  for (const [ids, gain] of [[[...CHIME, 'prism-lens'], 1], [[...CHIME, 'crescendo'], 2], [['crescendo', ...CHIME], 1], [[...CHIME, 'prism-lens-ii'], 3]]) {
+test('Boosts multiply each card-made gain to their left, rounded up; Stored Sparks are never boosted', () => {
+  for (const [ids, gain] of [[[...CHIME, 'prism-lens'], 2], [[...CHIME, 'crescendo'], 2], [['crescendo', ...CHIME], 1], [[...CHIME, 'prism-lens-ii'], 3]]) {
     const {engine, at} = rig(ids);
     at('collect', 0); engine.advance(6.01);
     assert.deepEqual(hits(engine, 'gain').map(g => g.amount), [gain, gain], ids.join(','));
@@ -368,7 +368,7 @@ test('Pack: Full Satchel adds before packing; Echo repeats it; a Boost strengthe
   const last = previewPack(row(['last-round', 'spark-chime', 'metronome']));
   assert.equal(last.sparks, 1); assert.equal(last.turns, 1, 'one last Turn; the Metronome cannot wait');
   assert.ok(last.log.some(entry => entry.k === 'no-time'));
-  assert.equal(previewPack(row(['harvest-home', 'body-spark', 'dusk-wick', 'prism-lens'])).sparks, 2, 'every Collect card once, a plain Spark');
+  assert.equal(previewPack(row(['harvest-home', 'body-spark', 'dusk-wick', 'prism-lens'])).sparks, 3, 'every Collect card once, a plain Spark (2.5 rounds up)');
   assert.equal(previewPack(row(['body-spark', 'spark-chime'])).sparks, 0, 'no Pack card: nothing');
 });
 
@@ -480,4 +480,14 @@ test('old saves load byte-identical and an ordinary flight writes none of the ne
     assert.ok(!first.includes(`"${key}"`), `${key} written to an ordinary save`);
   const copy = structuredClone(run); cleanCardRun(copy); assert.equal(JSON.stringify(copy), JSON.stringify(run));
   assert.equal(hasEngineCards(run.mountedCards), false);
+});
+
+test('Always round up (owner, 2026-11-17): an engine gain of +1 under Prism Lens x1.25 pays 2; exact stays exact; Stored Sparks are not boosted', () => {
+  const {engine, at} = rig([...CHIME, 'prism-lens']);
+  at('collect', 0); engine.advance(6.01);
+  assert.ok(hits(engine, 'gain').every(g => g.amount === 2), '1.25 rounds up to 2');
+  const exact = rig([...CHIME, 'crescendo']); exact.at('collect', 0); exact.engine.advance(6.01);
+  assert.ok(hits(exact.engine, 'gain').every(g => g.amount === 2), 'x2 on +1 is exactly 2');
+  const none = rig(['crescendo', ...CHIME]); none.at('collect', 0); none.engine.advance(6.01);
+  assert.ok(hits(none.engine, 'gain').every(g => g.amount === 1), 'a Boost to the left of the card changes nothing');
 });

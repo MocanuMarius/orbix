@@ -93,7 +93,7 @@ test('Delivery: Courier Tip, Haul Winch (Cluster) and Echo repeating a Delivery 
   assert.ok(clusters >= 1); assert.equal(wf, Math.min(clusters, 5 * seeds.length)); assert.equal(slotSum(w, 0, 'nextReel'), 3 * wf);
   note('Delivery', 'Haul Winch (Cluster deliveries)', `${clusters} Cluster deliveries`, wf, `${slotSum(w, 0, 'nextReel')} s off the next reel`, 'works');
   const e = flights({ ids: ['echo', 'haul-winch', ...set] }, seeds), ef = slotSum(e, 1, 'fired');
-  assert.ok(ef >= 2); assert.equal(ef % 2, 0); assert.equal(slotSum(e, 1, 'nextReel'), 3 * ef);
+  assert.ok(ef >= 2); e.forEach(f => { const n = slotSum([f], 1, 'fired'); assert.ok(n % 2 === 0 || n === 5, 'twice per delivery, unless the 5 uses run out mid-pair'); }); assert.equal(slotSum(e, 1, 'nextReel'), 3 * ef);
   note('Repeat + Delivery', 'Echo left of Haul Winch', `${sum(e, f => f.log.occurred.delivery.cluster || 0)} Cluster deliveries`, ef, `${slotSum(e, 1, 'nextReel')} s (twice per delivery)`, 'works');
   const rev = flights({ ids: ['haul-winch', 'echo', ...set] }, seeds);
   assert.equal(slotSum(rev, 0, 'fired'), slotSum(w, 0, 'fired'), 'Echo to the RIGHT of Haul Winch adds nothing');
@@ -151,8 +151,8 @@ test('Boost and Repeat roles; order matters (Echo, Boost, Twin Mark, Gilded, Mir
   const boostR = per(['body-spark', 'crescendo']), boostL = per(['crescendo', 'body-spark']);
   assert.equal(boostR.paid, 4); assert.equal(boostL.paid, 2);
   note('Boost', 'Crescendo right of Body Spark / left of it', boostR.c, 'x1', `${boostR.paid} / ${boostL.paid} per Collect`, 'works', 'A Boost only strengthens cards on its LEFT.');
-  const prism = per(['body-spark', 'prism-lens']); assert.equal(prism.paid, 2);
-  note('Boost', 'Prism Lens (x1.25) right of Body Spark', prism.c, 'x1', '2 per Collect (2.5 rounds down)', 'works', 'Design note: x1.25 on +2 gives nothing; each firing rounds down.');
+  const prism = per(['body-spark', 'prism-lens']); assert.equal(prism.paid, 3);
+  note('Boost', 'Prism Lens (x1.25) right of Body Spark', prism.c, 'x1', '3 per Collect (2.5 rounds up)', 'works', 'Design note: x1.25 on +2 gives 3; every firing rounds up.');
   const twin = per(['body-spark'], ['twin-mark']), gilded = per(['body-spark'], ['gilded']);
   assert.equal(twin.paid, 4); assert.equal(gilded.paid, 4);
   note('Inscription', 'Twin Mark on Body Spark', twin.c, `${2 * twin.c}`, '4 per Collect', 'works');

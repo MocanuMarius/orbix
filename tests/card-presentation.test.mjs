@@ -7,7 +7,7 @@ const row=ids=>createCardExecution(ids.map((id,index)=>id?makeSkillCard(id,'pres
 test('flight portraits reflect successful acting slots and one productive replay',()=>{
  const trace=resolveCardRow(row(['harvest-rare','prism-lens','refrain']),{kind:CARD_ROW_EVENTS.wave,firstCrossing:true});
  assert.deepEqual(productiveCardSources(trace),{sources:[{slot:0,cardId:'harvest-rare'},{slot:1,cardId:'prism-lens'}],replayed:true});
- assert.equal(trace.passes,2);assert.equal(trace.sparks,4); // whole Sparks: each firing rounds down (2026-11-17)
+ assert.equal(trace.passes,2);assert.equal(trace.sparks,6); // whole Sparks: each firing rounds up
 });
 test('empty checks and an unproductive replay never invent a portrait or replay cue',()=>{
  const trace=resolveCardRow(row(['body-spark','prism-lens','refrain']),{kind:CARD_ROW_EVENTS.wave,firstCrossing:true});

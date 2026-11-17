@@ -100,7 +100,7 @@ test('nonrow physical consumers and passives never execute or consume in the pre
 test('default chooses a productive real scenario while an explicit no-pay choice stays selected', () => {
   const run = row(['harvest-common','prism-lens','refrain']);
   const p = previewEquippedCardRow(run);
-  assert.equal(p.event.kind,CARD_ROW_EVENTS.wave);assert.equal(p.trace.sparks,2); // whole Sparks: each firing rounds down (2026-11-17)
+  assert.equal(p.event.kind,CARD_ROW_EVENTS.wave);assert.equal(p.trace.sparks,4); // whole Sparks: each firing rounds up
   const explicit = previewEquippedCardRow(run,option(run,CARD_ROW_EVENTS.body).id);
   assert.equal(explicit.event.kind,CARD_ROW_EVENTS.body);assert.equal(explicit.passes,0);
   assert.match(explicit.noPayReason,/chain does not fire/);

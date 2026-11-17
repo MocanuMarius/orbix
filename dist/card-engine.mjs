@@ -12,7 +12,7 @@
 // - Only a Timer sends its event back to the first Slot (ruling 1); that, and each Metronome tick, starts a Turn
 //   (ruling 8). A card never answers an event it made itself in the same Turn.
 // - Boosts (Any Trigger multipliers without uses) multiply each Spark gain made by cards to their left, every Turn,
-//   and each gain rounds down to whole Sparks, as a firing does today (ruling 7). Stored Sparks are never boosted.
+//   and each gain rounds UP to whole Sparks (2026-11-17), as a firing does today (ruling 7). Stored Sparks are never boosted.
 // - An engine stops when a card cannot do its job (ruling 6 of the proposal's rule 3): a gain into a full meter with
 //   no Overfill hearer, a Metronome whose next card cannot act, a Long Fuse with nothing to repeat.
 // - Events only move right and each Timer holds at most one pending wait, so one instant always terminates; a hard
@@ -233,9 +233,9 @@ export class CardEngine {
         if (spec.lastTurn) { if (this.pulseTarget(j, mask) >= 0) { this.beginTurn(j); this.pack.turns++; } }
         this.sendPulse(j, mask);
       } else if (what === 'keep') {
-        // Spill Jar: half of the spill (rounded down) becomes Stored Sparks. A collected pickup's own spill already packs.
+        // Spill Jar: half of the spill (rounded up) becomes Stored Sparks. A collected pickup's own spill already packs.
         if (ev?.type === 'overfill' && !ev.natural) {
-          const keep = Math.floor((Number(ev.spill) || 0) * (Number(spec.keepShare) || 0.5) + EPS);
+          const keep = Math.max(0, Math.ceil((Number(ev.spill) || 0) * (Number(spec.keepShare) || 0.5) - EPS));
           if (keep > 0) { this.host.store?.(keep, j); this.stored += keep; if (this.inPack) this.pack.stored += keep; this.record({ k: 'keep', slot: j, amount: keep }); }
         }
       } else if (what === 'tithe') {
@@ -262,10 +262,10 @@ export class CardEngine {
       }
     }
   }
-  /** One card-made Spark gain at `slot`: Boosts to its right, Third Beat, rounded down; Overfill to the right. */
+  /** One card-made Spark gain at `slot`: Boosts to its right, Third Beat, rounded up; Overfill to the right. */
   gain(slot, base, mask) {
     const { multiplier } = engineBoostAt(this.cards, slot, this.pass);
-    const amount = Math.floor(Math.max(0, Number(base) || 0) * multiplier * this.thirdBeat() + EPS);
+    const amount = Math.max(0, Math.ceil(Math.max(0, Number(base) || 0) * multiplier * this.thirdBeat() - EPS));
     if (!(amount > 0)) return { real: 0, spill: 0 };
     const room = this.room();
     const added = this.host.gain ? Number(this.host.gain(amount, slot)) || 0 : Math.min(amount, room);
