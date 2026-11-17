@@ -394,3 +394,13 @@ Flight entry keeps one illustrated tip visible while rendering prepares and afte
 - Public release: `card-rules-1` from commit `d811737d` (plain card text, Boost rules, Forge 15/40/150 with +50% per craft at a Rest, Pulse naming, whole Sparks, Spark Meter cap 100, plus the second tool's reward ceremony, loading tips, Lift cards and scenery changes as they stood).
 - In progress: a stabilise pass over the second tool's scenery and flight changes (all biomes against `85b57c38`), and building the approved Chain and Deck screens (`v2.3-deck`, see `docs/design-versions.md`) into the game. Uncommitted in the tree: the rest of the "wave" to "Pulse" rename in tutorial, help and HUD text.
 - Decisions of 16–17 November live in `docs/design-versions.md`, `docs/boost-rules.md`, `docs/card-balance-changes.md`, `docs/card-text-rewrite.md` and `docs/card-teaching-plan.md`. Releases use `scripts/release.mjs` and `docs/release-checklist.md`.
+
+## State on 17 November 2026, 13:40 (Claude, autonomous day)
+
+- **Live:** `perf-1` (source `b0c069b8`). Releases today, in order: `chain-deck-1`, `reskin-1`, `reskin-2`, `reskin-3`, `reskin-4`, `perf-1`.
+- **In the game now:** book skin (`v2.6-theme`) on every screen, dialog and header; Chain and Deck screens (`v2.3-deck`); First Light Edition 4 (7 stops, about 4.5 minutes); Field Impulse and Wave Loom retired (held copies paid at melt value on load); Swipe Trigger removed; shareable scorecard on leather; performance fixes; ice and forest scenery present but off (`?scenery=2`).
+- **Release tool:** serves the artifact under `/orbix/`, audits requests on the main screens, retries public verification on 5xx, builds the offline list from player pages only (406 files). Command: `node scripts/release.mjs all --source <commit> --version <label> --publish`. See `docs/release-checklist.md`.
+- **Waiting for the owner's code** (design lab index, top box): `v1.0-cardart-A/B`, `v2.0-icons`, `v1.0-engine`, `v1.0-level-ice/forest`. Registry: `docs/design-versions.md`.
+- **Documents written today:** `docs/overnight-plan.md` (full log and open items), `docs/engine-cards.md`, `docs/card-balance-2.md`, `outputs/perf/report.md`, `outputs/art-audit/`, `outputs/level-audit/`, `BACKLOG.md` top (engines chapter, Black Hole, Packing as a Chain event).
+- **Daily performance check:** `node scripts/perf/daily.mjs` (not per release).
+
