@@ -2,14 +2,16 @@ import {getCompanionAbility} from './companion-abilities.mjs?v=guide-clarity-1';
 import {pickupHandlingCue} from './pickup-handling-cue.mjs?v=guide-clarity-1';
 import {lightVisibility} from './light-field.mjs?v=guide-clarity-1';
 import {formatGlow} from './vitality.mjs?v=guide-clarity-1';
+import {isCourseLesson,shapePracticeCourse,updatePracticeCourse,practiceCollectorResting,practiceCourseEntryLesson,pendingCourseLesson} from './practice-course.mjs?v=guide-clarity-1';
 // Practice is an authored flight using the same controls, fuel and colliders.
 // This module contains guidance and lesson scenery; it never grants rewards.
 const clamp = (n, lo, hi) => Math.min(hi, Math.max(lo, n));
 const collects = engine => engine.hasCompanion?.('collector') ?? getCompanionAbility(engine.companionRole).collects;
 
 export function createTutorialState(node = {}) {
-  if (!['glide', 'wind', 'hazards', 'proximity', 'black-hole', 'guardian', 'rhythm'].includes(node.tutorialLesson)) return null;
-  return { lesson: node.tutorialLesson, practiceCards:node.practiceCards===true, directPickups: 0, carrierDeliveries: 0,
+  const course = isCourseLesson(node.tutorialLesson);
+  if (!course && !['glide', 'wind', 'hazards', 'proximity', 'black-hole', 'guardian', 'rhythm'].includes(node.tutorialLesson)) return null;
+  return { lesson: node.tutorialLesson, course, practiceCards:node.practiceCards===true, directPickups: 0, carrierDeliveries: 0,
     firstDirectAt: null, firstDeliveryAt: null, glideSeconds: 0,
     sawWind: false, sawWindWarning: false, windRevealed: false, finishedWind: false,
     avoidedWind: false, sawCooldown: false, sawReel: false, toolObserved: false,
@@ -118,6 +120,7 @@ export function tuneTutorialGuardian(layout,height){
  return layout;
 }
 export function configureTutorialScene(engine){
+ if(engine.tutorial?.course)return shapePracticeCourse(engine);
  const lesson=engine.tutorial?.lesson;if(!['glide','proximity','black-hole','guardian','rhythm'].includes(lesson))return;
  engine.drafts.zones=[];engine.biomeDynamics.items=[];engine.blackHoles.items=[];
  if(['proximity','black-hole'].includes(lesson)){
@@ -162,6 +165,7 @@ export function updateTutorial(engine, dt, gust) {
   const state = engine.tutorial;
   if (!state) return;
   if (engine.time - engine.lastFlapTime > .2) state.glideSeconds += dt;
+  if (state.course) updatePracticeCourse(engine, dt);
   if (engine.wisp.phase === 'cooldown') state.sawCooldown = true;
   if (['returning','reeling'].includes(engine.wisp.phase) && engine.wisp.cargo) state.sawReel = true;
   const ability = getCompanionAbility(engine.companionRole || engine.options?.companionRole);
@@ -188,7 +192,7 @@ export function updateTutorialCompanion(engine, dt) {
   // Follow the usual orbit without searching until the player has made a
   // direct pickup. The real item list and its collection state stay untouched.
   if (collects(engine)
-    && engine.tutorial?.lesson === 'glide' && !engine.tutorial.directPickups) {
+    && (engine.tutorial?.lesson === 'glide' && !engine.tutorial.directPickups || practiceCollectorResting(engine))) {
     const view = Object.create(engine);
     view.layout = { ...engine.layout, embers: [] };
     view.getNearbyPickups = () => [];
@@ -197,7 +201,8 @@ export function updateTutorialCompanion(engine, dt) {
 }
 
 export function getTutorialHint(engine) {
-  const state=engine?.tutorial;if(!state)return null;
+  // Edition 4 courses have no live or queued hint text: only paused lessons.
+  const state=engine?.tutorial;if(!state||state.course)return null;
   const collector=collects(engine),active=engine.hasActiveCompanions;
   const hint=(id,title,text,step)=>({id,title,text,step,total:4,waitingForLift:Boolean(engine.tutorialAwaitingLift),
     worldFocus:getTutorialWorldFocus(engine),observed:{directPickups:state.directPickups,carrierDeliveries:state.carrierDeliveries,
@@ -266,6 +271,7 @@ const hintStep=(id,title,text,extra={})=>({id,title,text,contextual:true,allowTa
 /** The entry hint as a paused coach step, once per lesson per practice run. */
 export function tutorialEntryLesson(engine,run={}){
   const state=engine?.tutorial;if(!state||!engine.tutorialAwaitingLift||run?.guideSkipped)return null;
+  if(state.course)return practiceCourseEntryLesson(engine,run);
   const id=PRACTICE_ENTRY_PREFIX+state.lesson;if(run?.guideSeen?.[id])return null;
   const hint=getTutorialHint(engine);if(hint?.id!=='launch')return null;
   const teachesLift=state.lesson==='glide';
@@ -296,6 +302,7 @@ export function takePracticeHint(engine,run={}){
 }
 /** Hints still queued when a flight ends wait for the next checkpoint. */
 export function carryPracticeHints(engine,run){
+  if(engine?.tutorial?.course){const step=pendingCourseLesson(engine,run);if(step)deferPracticeLesson(run,step);return;}
   const queue=engine?.tutorial?.hintQueue;if(!run||!queue?.length)return;
   const carried=run.pendingPracticeHints||=[];
   for(const item of queue)if(!FLIGHT_ONLY_HINTS.has(item.id)&&!run.guideSeen?.[keyOf(item)]&&!carried.some(c=>keyOf(c)===keyOf(item)))carried.push(item);

@@ -9,8 +9,9 @@ import {FIRST_LIGHT_COMBO,firstLightComboLesson,armFirstLightCombo,firstLightCom
 import {nextPracticeLesson} from '../dist/practice-route.mjs';
 import {tutorialEntryLesson,FIRST_FLIGHT_STOPS} from '../dist/tutorial.mjs';
 const near=(a,b)=>assert.ok(Math.abs(a-b)<1e-7,`${a} != ${b}`);
+// Edition 3 only: an unfinished Edition 3 practice save still lends this pair on its first flight.
 function setup(width=900,height=405){
- const state=newState();startTutorial(state);const run=state.run,node=run.map[0][0];
+ const state=newState();startTutorial(state,{edition:3});const run=state.run,node=run.map[0][0];
  const engine=new WispFlight({canvas:{getContext:()=>({setTransform(){}}),getBoundingClientRect:()=>({width,height})},preflight:true,node,duration:node.duration,flame:100,companions:['collector'],modifiers:getRunModifiers(run)});
  engine.running=true;run.guideSeen={'practice:lift':true};engine.beginLiftInput();engine.endLiftInput();
  // The same player inputs and production integrator obtain the prerequisite.
@@ -83,6 +84,15 @@ test('production coach pauses before lending and waits for the explicit Try it a
  }finally{e.destroy();}
 });
 
+
+test('Edition 4 never lends the pair on its first flight: cards wait for the camp',()=>{
+ const state=newState();startTutorial(state);const run=state.run,node=run.map[0][0];
+ assert.equal(run.tutorialEdition,4);assert.deepEqual(run.practiceCards,[]);
+ const engine=new WispFlight({canvas:{getContext:()=>({setTransform(){}}),getBoundingClientRect:()=>({width:900,height:405})},preflight:true,node,duration:node.duration,flame:100,companions:['collector'],modifiers:getRunModifiers(run)});
+ try{engine.running=true;engine.tutorialAwaitingLift=false;engine.time=6;engine.paused=true;
+  assert.equal(firstLightComboLesson(engine,{...run,guideSeen:{'practice:sparks':true}}),null);assert.equal(armFirstLightCombo(engine,run),false);
+  assert.deepEqual(run.practiceCards,[]);}finally{engine.destroy();}
+});
 
 test('primary pixel renderer consumes the real target flash flag at the pickup scale, including reduced motion',()=>{
  const arcs=[],c={save(){},restore(){},beginPath(){},stroke(){},arc(...args){arcs.push(args);}};

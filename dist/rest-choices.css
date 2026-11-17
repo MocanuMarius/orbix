@@ -15,29 +15,275 @@
 .rest-outcome-track{display:flex;align-items:center;justify-content:center;gap:5px;min-height:25px;flex-wrap:wrap;font:16px/1.2 var(--pixel);color:#e6ebc1}.rest-outcome-track b{font-weight:400;white-space:nowrap}.rest-outcome-track b small{font-size:10px;color:#9eae95}.rest-outcome-track>i{font:14px var(--pixel);font-style:normal;color:#8fa180}.rest-outcome-track>svg{width:17px;height:17px;flex:0 0 17px}.rest-outcome-track .boon-resource-value{display:inline-flex;align-items:center;gap:4px;padding:0;border:0;background:none!important}.rest-outcome-track .boon-resource-value b{font-size:17px}.rest-outcome-track .resource-symbol-packed{color:#e8c990}
 .rest-capacity-gain{display:flex;gap:3px;align-items:center;justify-content:center;color:#b3d39b;font:10px/1.3 var(--pixel);white-space:nowrap}.rest-capacity-gain .resource-symbol{width:12px;height:12px;flex-basis:12px}.rest-pick-cue{display:flex;align-items:center;gap:4px;font:9px/1.2 var(--pixel);letter-spacing:1px;color:#bbbd94;margin-top:auto;padding-top:5px}.rest-pick-cue svg{width:14px;height:14px}
 .rest-rules{margin-top:4px;font:11px/1.5 var(--pixel);width:100%;z-index:5}.rest-rules summary{display:inline-flex;min-height:36px;align-items:center;justify-content:center;gap:5px;cursor:pointer;color:#b4c4a4;list-style:none}.rest-rules summary::-webkit-details-marker{display:none}.rest-rules summary .ico{width:15px;height:15px}.rest-rules[open] summary{color:#fff1bf}.rest-rules>div{position:absolute;left:0;bottom:38px;width:min(420px,calc(100vw - 40px));max-height:calc(100dvh - 100px);overflow:auto;background:#14231df7;border:2px solid #8f9d76;padding:12px;text-align:left;box-shadow:8px 8px #0008}.rest-rules p{font:11px/1.45 var(--pixel);margin:0 0 9px;color:#cbd7bd}.rest-rules p:last-child{margin-bottom:0}.rest-rules p b{display:block;margin-bottom:3px;color:#e6d7ac;font-weight:400}
-.rest-preparation-area{grid-template-rows:23px minmax(0,1fr) 65px 44px}.rest-service-cards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;min-height:0;min-width:0}.rest-service-cards>button{position:relative;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:4px;min-width:0;min-height:0;padding:5px!important;background:linear-gradient(#273c2b77,#13241c33)!important;border:0!important;border-radius:0!important;box-shadow:none!important;color:#e1dfb7!important;transition:transform 120ms steps(3,end)}.rest-service-cards>button:hover,.rest-service-cards>button:focus-visible{transform:translateY(-2px);outline:2px solid #d3d59c;outline-offset:1px}.rest-service-cards>button:active{transform:translateY(1px)}.rest-service-cards>button>.choice-scene{width:100%;height:clamp(40px,14dvh,76px);min-height:35px;max-width:145px;flex:0 1 auto}.rest-service-cards strong{font:14px/1.2 var(--pixel);font-weight:400;max-width:100%;white-space:nowrap}.rest-service-cards small{display:flex;align-items:center;gap:4px;font:9px/1.2 var(--pixel);color:#a9bd9a}.rest-service-cards small .resource-symbol{width:11px;height:11px;flex-basis:11px}
 .rest-camp-scene{width:100%;max-width:190px;height:clamp(45px,20dvh,90px);flex:0 1 auto}.rest-camp-scene .choice-scene{height:100%;width:100%}.rest-receipt{display:inline-flex;align-items:center;gap:5px;font:10px/1.4 var(--pixel);color:#a7c396}.rest-receipt svg{width:13px;height:13px}.rest-route-link{min-height:40px!important;margin:0!important;padding:6px 9px!important;font:10px/1.2 var(--pixel);display:flex;align-items:center;justify-content:center;gap:6px;border:0!important;background:transparent!important;color:#bfd0b1!important;box-shadow:none!important}.rest-route-link .ico{width:16px;height:16px}
-.rest-dream-passage{display:grid;grid-template-columns:minmax(0,1fr) 125px;gap:10px;min-height:0;border-top:1px solid #75846666;padding-top:5px}.rest-dream-passage>.rest-next{display:flex!important;align-items:center;justify-content:flex-start;gap:9px;margin:0!important;padding:0!important;background:none!important;border:0!important;min-width:0;min-height:0}.rest-dream-passage .rest-next>svg{width:58px!important;height:52px!important;flex:0 0 58px}.rest-next>div{min-width:0}.rest-dream-passage .rest-next small{font:8px/1.3 var(--pixel);color:#9db08e}.rest-dream-passage .rest-next h2{font:14px/1.16 var(--pixel);color:#d3d5ad;margin:4px 0 0;text-wrap:balance}.rest-dream-passage>.rest-dream{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;min-width:0;min-height:0!important;padding:3px 6px!important;border:1px solid #637659!important;background:#21332b!important;color:#e0dcbe!important;box-shadow:none!important}.rest-dream>svg{width:29px!important;height:20px!important}.rest-dream>span{font:11px/1.2 var(--pixel)}.rest-dream>small{font:8px/1.2 var(--pixel);color:#acbb9e}.rest-depart{height:44px;min-height:44px!important;padding:6px 10px!important;font:13px/1.3 var(--pixel)!important;display:flex;align-items:center;justify-content:center;gap:9px;box-sizing:border-box;color:#f3ebc8!important;background:#304635!important;border:2px solid #9caa79!important;border-radius:0!important;box-shadow:inset 0 -3px #152d22!important}
-/* A real exchange: intact item over the furnace, named loss, exact payout. */
-dialog.forge-ritual-sheet[open]{width:min(720px,calc(100vw - 28px));max-width:none;max-height:calc(100dvh - 24px);height:min(360px,calc(100dvh - 24px));padding:14px 18px!important;display:grid!important;grid-template-rows:auto minmax(0,1fr) 46px;gap:10px;overflow:visible!important;box-sizing:border-box;background:#14221cfb;color:#dfe4c0;position:fixed}
-.forge-ritual-heading{text-align:center}.forge-ritual-heading>span{font:9px/1.25 var(--pixel);color:#9fad92;letter-spacing:1px}.forge-ritual-heading h2{font:22px/1.2 var(--pixel)!important;color:#e5d5a9;margin:5px 0 0!important;text-wrap:balance}.forge-ritual-body{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);gap:16px;align-items:center;min-height:0}.forge-ritual-body>.choice-scene{width:100%;height:100%;min-height:0;max-height:200px}.forge-exchange{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;min-width:0;min-height:0;text-align:center}.forge-loss{display:flex;align-items:center;justify-content:center;gap:7px;flex-wrap:wrap;color:#e9b49b}.forge-loss>.upgrade-glyph{width:30px;height:30px}.forge-loss strong{font:15px/1.2 var(--pixel);font-weight:400}.forge-loss small{flex-basis:100%;font:10px/1.3 var(--pixel);color:#c3ab92}.forge-exchange-arrow{font:20px/1 var(--pixel);color:#b1a788}.forge-gain{display:flex;align-items:center;justify-content:center;gap:6px;color:#e8df9f}.forge-gain .condensed-icon{width:28px;height:28px}.forge-gain strong{font:25px/1.15 var(--pixel)}.forge-gain>span{font:11px/1.3 var(--pixel);max-width:75px;text-align:left}.forge-exchange>p{font:10px/1.4 var(--pixel);color:#b1bba5;margin:3px 0 0;max-width:250px}.forge-ritual-actions{display:grid;grid-template-columns:1fr 1fr;gap:12px;min-height:0}.forge-ritual-actions button{display:flex;align-items:center;justify-content:center;gap:6px;min-width:0;min-height:44px!important;height:46px;padding:6px 10px!important;font:12px/1.2 var(--pixel)!important;color:#e7e3c0!important}.forge-ritual-actions .primary{background:#5a4a2d!important;border-color:#c9b77c!important}.forge-ritual-actions .secondary{background:#263a2d!important}
-.forge-completion{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);z-index:100;width:min(330px,70vw);pointer-events:none;display:flex;align-items:center;flex-direction:column;background:#11221cf2;border:2px solid #839565;padding:8px;box-shadow:0 0 0 8px #08131099;animation:forge-receipt 1.45s steps(6,end) both}.forge-completion>.choice-scene{width:100%;height:130px}.forge-completion>span{font:11px/1.5 var(--pixel);color:#d1be9f;text-align:center}.forge-completion b{display:inline-flex;gap:3px;align-items:center;color:#eee4a5;font-weight:400}.forge-completion .resource-symbol{width:13px;height:13px;flex-basis:13px}
-@keyframes forge-receipt{0%{opacity:0}8%,80%{opacity:1}100%{opacity:0}}
 @media(orientation:landscape) and (max-height:370px){.rest-choice-screen,.rest-preparation-screen{grid-template-columns:minmax(140px,.62fr) minmax(0,2fr);gap:12px;padding:1px 4px}.rest-rail{gap:6px}.rest-rail h1{font-size:20px}.rest-place-art{height:42px;width:48px}.rest-place-art svg{height:40px;width:46px}.rest-eyebrow{font-size:8px}.rest-choice-caption>span{font-size:8px}.rest-benefit{padding:7px 5px 5px!important;gap:6px}.rest-benefit>.choice-scene{height:67px}.rest-benefit h2{font-size:14px!important;min-height:32px}.rest-outcome-track{font-size:14px;gap:3px}.rest-outcome-track b small{font-size:9px}.rest-outcome-track .boon-resource-value b{font-size:16px}.rest-capacity-gain{font-size:9px}.rest-preparation-area{grid-template-rows:19px minmax(0,1fr) 56px 44px;gap:5px}.rest-service-cards>button>.choice-scene{height:46px}.rest-service-cards strong{font-size:12px}.rest-service-cards small{font-size:8px}.rest-camp-scene{height:56px}.rest-dream-passage{grid-template-columns:minmax(0,1fr) 112px;padding-top:3px;gap:5px}.rest-dream-passage .rest-next>svg{height:42px!important;width:44px!important;flex-basis:44px}.rest-dream-passage .rest-next h2{font-size:12px}.rest-dream-passage .rest-next small{font-size:7px}.rest-dream>small{font-size:7px}.rest-dream>svg{height:17px!important}.rest-route-link{min-height:35px!important}.forge-ritual-heading h2{font-size:19px!important}.forge-ritual-sheet[open]{padding:10px 14px!important;gap:7px}.forge-loss strong{font-size:13px}.forge-exchange{gap:3px}.forge-exchange>p{font-size:9px}.forge-gain strong{font-size:22px}}
 @media(orientation:portrait){.rest-choice-screen,.rest-preparation-screen{height:auto;min-height:100%;grid-template-columns:1fr;gap:12px}.rest-rail{gap:6px}.rest-place-art,.rest-camp-scene{display:none}.rest-rail h1{font-size:24px}.rest-benefit-area{grid-template-rows:24px minmax(210px,1fr)}.rest-preparation-area{grid-template-rows:24px 120px 70px 44px}.rest-benefit h2{font-size:13px!important}.rest-benefit>.choice-scene{height:65px}.rest-outcome-track{font-size:12px}.rest-rules{margin:0}.rest-rules>div{bottom:0;top:36px;max-height:250px}.forge-ritual-body{grid-template-columns:1fr 1fr;gap:6px}.forge-loss strong{font-size:12px}.forge-exchange>p{font-size:9px}}
 @media(prefers-reduced-motion:reduce){.rest-benefit,.rest-service-cards>button{transition:none}.rest-benefit:hover,.rest-benefit:active,.rest-service-cards>button:hover,.rest-service-cards>button:active{transform:none}.forge-completion{animation:forge-receipt 1.2s steps(1,end) both}}
 
-.rest-recharge-outcome{display:flex;flex-direction:column;gap:4px;font:12px var(--pixel)}
-.rest-recharge-outcome>span{display:flex;align-items:center;justify-content:center;gap:5px}.rest-recharge-outcome svg{width:22px;height:22px}.rest-recharge-outcome small{font-size:9px;color:#abb5a7}
-/* The generic Dream card has its own height/margins. Inside the Rest footer it
-   must fit its grid track, rather than extending over the departure action. */
-.rest-dream-passage{grid-template-rows:minmax(0,1fr)}
-.rest-dream-passage>.rest-next{height:100%;max-height:100%;box-sizing:border-box}
-.rest-dream-passage>.rest-dream{height:100%;max-height:100%;margin:0;box-sizing:border-box;display:grid;grid-template-columns:28px minmax(0,1fr);grid-template-rows:1fr 1fr;column-gap:4px;row-gap:0}
-.rest-dream-passage>.rest-dream>svg{grid-column:1;grid-row:1/3;align-self:center}
-.rest-dream-passage>.rest-dream>span{grid-column:2;grid-row:1;align-self:end}
-.rest-dream-passage>.rest-dream>small{grid-column:2;grid-row:2;align-self:start;line-height:1.1}
 .rest-benefit-cards:has(>button:nth-child(4)){gap:6px}.rest-benefit-cards:has(>button:nth-child(4)) h2{font-size:14px!important}
 .rest-benefit-cards:has(>button:nth-child(4)) .rest-outcome-track{font-size:13px;gap:3px}
 
 @media(orientation:landscape) and (max-height:340px){.rest-rules p{font-size:10px;line-height:1.3;margin-bottom:6px}.rest-rules>div{padding:9px}}
+
+/* ═══ Card Rest · v2.5-theme (kit: ui/waystone.css) ═══════════════════════════════════════════════
+   The Recover / Add slot / Grow screen is drawn by card-ui.mjs (cardRestMarkup) and its base styles live in
+   card-ui.css; this stylesheet owns the reskin so the markup stays as it is. Art is named directly (this file
+   is outside dist/ui/, so the kit's art variables would break on the published site). Roles: the three
+   actions are the decision of the screen (moss); Deck and Workshop open something (leather); Leave Rest steps
+   back to the route (paper slip), and once the Rest is done "Choose next route" is the way forward (moss).
+   The :not(#k):not(#j) keeps these above the generic production button rules, which use !important. */
+html body .card-rest-screen:not(#k){position:relative;isolation:isolate;box-sizing:border-box;width:calc(100% - 8px);height:calc(100% - 8px);margin:4px;padding:3px max(14px,env(safe-area-inset-right)) 3px max(14px,env(safe-area-inset-left));border:12px solid transparent;border-image:url('assets/ui/waystone/plaque-page.svg') 6 fill / 12px stretch;background:none;color:#2a2118;overflow:hidden;text-shadow:none}
+html body .card-rest-screen:not(#k)::after{content:'';position:absolute;top:-12px;right:8px;width:52px;height:64px;background:url('assets/ui/waystone/ribbon-wine.svg') left top/24px 64px no-repeat,url('assets/ui/waystone/ribbon-olive.svg') right top/24px 48px no-repeat;image-rendering:pixelated;pointer-events:none}
+html body .card-rest-screen .card-rest-rail>small{font:400 11px/13px var(--pixel,monospace);letter-spacing:1px;text-transform:uppercase;color:#6b5335}
+html body .card-rest-screen .card-rest-rail>small:last-child{font-size:11px;line-height:13px;letter-spacing:0;text-transform:none;color:#6b5335}
+html body .card-rest-screen .card-rest-rail>h1{margin:0;font:400 23px/25px var(--pixel,monospace);letter-spacing:1px;text-transform:uppercase;color:#2a2118;text-wrap:balance}
+html body .card-rest-screen .card-rest-vitals>span{color:#2a2118}
+html body .card-rest-screen .card-rest-deck-links{flex-direction:column;align-self:stretch;gap:6px}
+html body .card-rest-screen .card-camp-main>.card-heading{position:relative;padding:0 64px 6px 0;min-height:0}
+html body .card-rest-screen .card-camp-main>.card-heading::after{content:'';position:absolute;left:0;right:0;bottom:0;height:2px;background:linear-gradient(90deg,transparent 0 4px,#8a6d44 4px calc(50% - 5px),transparent calc(50% - 5px) calc(50% - 2px),#7a2f2a calc(50% - 2px) calc(50% + 2px),transparent calc(50% + 2px) calc(50% + 5px),#8a6d44 calc(50% + 5px) calc(100% - 4px),transparent calc(100% - 4px))}
+html body .card-rest-screen .card-camp-main>.card-heading h2{margin:0;font:400 21px/23px var(--pixel,monospace);letter-spacing:1px;text-transform:uppercase;color:#2a2118}
+html body .card-rest-screen .card-camp-main>.card-heading p{color:#6b5335}
+html body .card-rest-screen .card-camp-alternatives{font:400 11px/13px var(--pixel,monospace);color:#6b5335}
+html body .card-rest-screen .card-camp-alternatives>span{font-size:11px;color:#7a2f2a}
+html body .card-rest-screen .card-camp-choices .card-camp-choice:not(#k){background:#efdcab!important;border:2px solid #8a6d44!important;color:#2a2118}
+html body .card-rest-screen .card-camp-choice.unavailable:not(#k){background:#e3d09f!important;border-color:#a58c57!important}
+html body .card-rest-screen .card-camp-choice h3{font:400 20px/22px var(--pixel,monospace);letter-spacing:1px;text-transform:uppercase;color:#2a2118}
+html body .card-rest-screen .card-camp-choice.unavailable h3{color:#6b5335}
+html body .card-rest-screen .card-camp-choice p,html body .card-rest-screen .card-camp-choice .card-camp-note{color:#6b5335}
+html body .card-rest-screen .card-camp-consequence b{color:#2a2118}
+html body .card-rest-screen .card-camp-choice.card-camp-taken .card-camp-note{color:#3d4a22}
+html body .card-rest-screen .card-camp-footer p{font-size:12px;color:#6b5335}
+/* Plaques */
+html body .card-rest-screen button:not(#k):not(#j){box-sizing:border-box;border:12px solid transparent!important;border-image:url('assets/ui/waystone/plaque-leather.svg') 6 / 12px stretch!important;border-radius:0!important;clip-path:none!important;box-shadow:none!important;background:#5a4632 padding-box!important;background-image:none!important;color:#f6ebcc!important;-webkit-text-fill-color:currentColor!important;font:400 15px/15px var(--pixel,monospace)!important;letter-spacing:1px!important;text-transform:uppercase;text-shadow:1px 2px #2a1d12!important;image-rendering:pixelated;white-space:nowrap;width:auto;min-width:96px;height:44px;min-height:44px!important;padding:0 10px!important;margin:0;cursor:pointer;touch-action:manipulation}
+html body .card-rest-screen .card-camp-choice>button.primary:not(#k):not(#j){border-image-source:url('assets/ui/waystone/plaque-moss.svg')!important;background:#536430 padding-box!important;color:#fff6d8!important;text-shadow:1px 2px #1c230f!important;width:100%}
+html body .card-rest-screen .card-camp-choice>button.secondary:not(#k):not(#j){border-image-source:url('assets/ui/waystone/plaque-slip.svg')!important;background:#e0c98f padding-box!important;color:#3b2d20!important;text-shadow:none!important;width:100%;opacity:.7}
+html body .card-rest-screen .card-camp-footer>button[data-action="view-route"]:not(#k):not(#j),html body .card-rest-screen .card-camp-footer>button[data-action="node"]:not(#k):not(#j){border-image-source:url('assets/ui/waystone/plaque-moss.svg')!important;background:#536430 padding-box!important;color:#fff6d8!important;text-shadow:1px 2px #1c230f!important}
+html body .card-rest-screen .card-camp-footer>button[data-action="support"]:not(#k):not(#j){border-image-source:url('assets/ui/waystone/plaque-slip.svg')!important;background:#e0c98f padding-box!important;color:#3b2d20!important;text-shadow:none!important}
+html body .card-rest-screen button.card-camp-help:not(#k):not(#j){min-width:44px;width:44px;padding:0!important;border-image-source:url('assets/ui/waystone/plaque-slip.svg')!important;background:#e0c98f padding-box!important;color:#3b2d20!important;text-shadow:none!important}
+html body .card-rest-screen button:not(#k):not(#j):focus-visible{outline:3px solid #2a2118!important;outline-offset:2px}
+html body .card-rest-screen button:not(#k):not(#j):active:not(:disabled){transform:translateY(2px)}
+html body .card-rest-screen .card-rest-deck-links>button:not(#k):not(#j){width:100%}
+@media(orientation:landscape) and (max-height:350px){
+ html body .card-rest-screen:not(#k){margin:2px;width:calc(100% - 4px);height:calc(100% - 4px);padding-block:0}
+ html body .card-rest-screen .card-rest-rail>h1{font-size:19px;line-height:21px}
+ html body .card-rest-screen .card-camp-main>.card-heading h2{font-size:18px;line-height:20px}
+ html body .card-rest-screen .card-camp-choice h3{font-size:17px;line-height:19px}
+ html body .card-rest-screen button:not(#k):not(#j){font-size:14px!important;letter-spacing:.5px!important;min-width:80px}
+}
+/* Compact Rest: the page (12px border) and 44px plaques leave less room, so the decorative stop icon goes first,
+   then the scenes on the shortest screens. Nothing readable or tappable is removed. */
+@media(orientation:landscape) and (max-height:430px){
+ html body .card-rest-screen .card-rest-rail>svg{display:none}
+ html body .card-rest-screen .card-rest-rail{gap:5px}
+ html body .card-rest-screen .card-camp-main{gap:6px}
+ html body .card-rest-screen .card-camp-choice>.choice-scene{max-height:56px}
+ html body .card-rest-screen .card-camp-choice:not(#k){grid-template-rows:minmax(0,1fr) auto auto auto 44px;gap:3px;padding:6px!important}
+ html body .card-rest-screen .card-camp-footer{min-height:0}
+ html body .card-rest-screen .card-camp-choice .card-camp-note{font-size:11px}
+}
+@media(orientation:landscape) and (max-height:350px){
+ html body .card-rest-screen .card-camp-choice>.choice-scene{display:none}
+ html body .card-rest-screen .card-camp-choice:not(#k){grid-template-rows:auto auto auto 44px;align-content:space-between;padding:4px 6px!important}
+ html body .card-rest-screen .card-camp-choice p{font-size:12px;line-height:14px}
+ html body .card-rest-screen .card-camp-main>.card-heading{padding-bottom:3px}
+ html body .card-rest-screen .card-camp-footer p{font-size:11px;line-height:13px}
+ html body .card-rest-screen .card-rest-rail{gap:3px}
+ html body .card-rest-screen .card-rest-rail>small:last-child{font-size:11px;line-height:12px}
+}
+@media(orientation:landscape) and (max-height:350px){
+ html body .card-rest-screen .card-camp-main>.card-heading>div{display:flex;align-items:baseline;gap:12px;flex-wrap:nowrap}
+ html body .card-rest-screen .card-camp-main>.card-heading{align-items:center}
+ html body .card-rest-screen .card-camp-main>.card-heading p{margin:0}
+ html body .card-rest-screen .card-camp-alternatives{display:none}
+ html body .card-rest-screen .card-camp-main>.card-heading h2{white-space:nowrap}
+ html body .card-rest-screen .card-camp-choices{overflow:visible}
+}
+@media(orientation:landscape) and (max-height:350px){
+ html body .card-rest-screen .card-camp-main{gap:4px}
+ html body .card-rest-screen .card-camp-main>.card-heading{padding-bottom:0}
+ html body .card-rest-screen .card-camp-main>.card-heading::after{bottom:-2px}
+ html body .card-rest-screen .card-camp-choice:not(#k){padding:3px 5px!important;gap:2px}
+ html body .card-rest-screen .card-camp-choice h3{font-size:17px;line-height:18px}
+ html body .card-rest-screen .card-camp-choice p{font-size:12px;line-height:13px}
+ html body .card-rest-screen .card-camp-choices{gap:8px}
+}
+@media(orientation:landscape) and (max-height:350px){
+ html body .card-rest-screen:not(#k){grid-template-columns:152px minmax(0,1fr);gap:10px}
+ html body .card-rest-screen .card-rest-rail{justify-content:flex-start}
+ html body .card-rest-screen .card-rest-rail>small:last-child{font-size:11px;line-height:12px}
+}
+@media(orientation:landscape) and (max-height:350px){
+ html body .card-rest-screen .card-camp-choice p,html body .card-rest-screen .card-camp-choice .card-camp-note{font-size:11px;line-height:13px;letter-spacing:-.2px}
+ html body .card-rest-screen .card-camp-choices{gap:6px}
+}
+@media(orientation:landscape) and (max-height:350px){
+ /* An action that cannot be taken keeps its reason, not numbers for a change that will not happen. */
+ html body .card-rest-screen .card-camp-choice.unavailable .card-camp-consequence{display:none}
+ html body .card-rest-screen .card-camp-choice.unavailable:not(#k){grid-template-rows:auto minmax(0,1fr) 44px}
+}
+@media(orientation:landscape) and (max-height:350px){
+ html body .card-rest-screen .card-rest-rail>small:first-of-type{display:none}
+ html body .card-rest-screen .card-rest-rail>h1{font-size:17px;line-height:19px}
+}
+
+/* ═══ Rest choice screen (Recover / Grow, and the preparation area after it) · v2.5-theme ═══════════════
+   rest-choice-view.mjs puts the kit's inline paper page on the root (wb-reskin wb-ground wb-inline wb-framed;
+   shared pieces in artifact-collection.css). The two benefits stay whole-card buttons, drawn as paper panels with a
+   2px rule instead of the old clipped green frames; the plaques are the kit's roles: the way on is moss,
+   Skills / Collection / View route are leather, Back is the paper slip. */
+html body .rest-choice-screen.wb-framed{grid-template-columns:minmax(155px,.7fr) minmax(0,2fr);gap:16px;color:#2a2118;font-family:var(--pixel,monospace)}
+html body .rest-choice-screen.wb-framed:before{display:none}
+html body .rest-choice-screen.wb-framed .rest-rail h1{font:400 23px/25px var(--pixel,monospace);letter-spacing:1px;text-transform:uppercase;color:#2a2118}
+html body .rest-choice-screen.wb-framed .rest-eyebrow{font:400 11px/13px var(--pixel,monospace);letter-spacing:1px;color:#6b5335}
+html body .rest-choice-screen.wb-framed .rest-vitals,html body .rest-choice-screen.wb-framed .rest-glow{color:#2a2118}
+html body .rest-choice-screen.wb-framed .rest-glow b small{color:#6b5335}
+html body .rest-choice-screen.wb-framed .rest-receipt{font-size:12px;color:#3d4a22}
+html body .rest-choice-screen.wb-framed .rest-choice-caption{color:#6b5335;font-size:11px}
+html body .rest-choice-screen.wb-framed .rest-choice-caption b{font-size:12px;color:#2a2118}
+html body .rest-choice-screen.wb-framed .rest-choice-caption>span{font-size:11px;color:#6b5335}
+html body .rest-choice-screen.wb-framed .rest-benefit:not(#k){background:#efdcab!important;border:2px solid #8a6d44!important;color:#2a2118!important;transition:none}
+html body .rest-choice-screen.wb-framed .rest-benefit:before{display:none!important}
+html body .rest-choice-screen.wb-framed button.rest-benefit:hover:not(#k),html body .rest-choice-screen.wb-framed button.rest-benefit:focus-visible:not(#k){transform:none;background:#f5e6bb!important;outline:3px solid #2a2118;outline-offset:2px}
+html body .rest-choice-screen.wb-framed .rest-benefit h2{font:400 19px/22px var(--pixel,monospace)!important;letter-spacing:1px;text-transform:uppercase;color:#2a2118!important}
+html body .rest-choice-screen.wb-framed .rest-outcome-track,html body .rest-choice-screen.wb-framed .rest-full-sparks{color:#2a2118}
+html body .rest-choice-screen.wb-framed .rest-full-sparks small,html body .rest-choice-screen.wb-framed .rest-heart-result i,html body .rest-choice-screen.wb-framed .rest-outcome-track b small{color:#6b5335}
+html body .rest-choice-screen.wb-framed .rest-capacity-gain{color:#3d4a22;font-size:14px}
+html body .rest-choice-screen.wb-framed .rest-pick-cue{font-size:12px;letter-spacing:1px;color:#3d4a22}
+html body .rest-choice-screen.wb-framed .rest-disabled-reason{color:#6b5335}
+html body .rest-choice-screen.wb-framed .rest-chosen-mark{font-size:12px;color:#3d4a22}
+html body .rest-choice-screen.wb-framed .rest-one-scene .rest-boon-chosen,html body .rest-choice-screen.wb-framed .rest-boon-chosen:not(#k){border-color:#536430!important;box-shadow:inset 0 0 0 2px #536430!important}
+html body .rest-choice-screen.wb-framed .rest-benefit.rest-boon-passed:not(#k){opacity:.55;background:#e3d09f!important}
+html body .rest-choice-screen.wb-framed .rest-leave-row>span{font-size:12px;color:#6b5335}
+html body .rest-choice-screen.wb-framed .rest-rules{font-size:12px}
+html body .rest-choice-screen.wb-framed .rest-rules summary{min-height:44px;min-width:44px;color:#2a2118}
+html body .rest-choice-screen.wb-framed .rest-rules>div{background:#efdcab;border:2px solid #8a6d44;box-shadow:0 4px 0 #0006;color:#2a2118}
+html body .rest-choice-screen.wb-framed .rest-rules p{font-size:12px;color:#2a2118}
+/* Plaques (the generic production button rules use !important, so these carry two ids of specificity). */
+html body .rest-choice-screen.wb-framed .wb-sign:not(#k):not(#j){box-sizing:border-box;width:auto;min-width:96px;height:44px;min-height:44px!important;margin:0;padding:0 12px!important;border:12px solid transparent!important;border-image:url('assets/ui/waystone/plaque-leather.svg') 6 / 12px stretch!important;border-radius:0!important;box-shadow:none!important;background:#5a4632 padding-box!important;background-image:none!important;color:#f6ebcc!important;-webkit-text-fill-color:currentColor!important;font:400 15px/15px var(--pixel,monospace)!important;letter-spacing:1px!important;text-transform:uppercase;text-shadow:1px 2px #2a1d12!important;white-space:nowrap;image-rendering:pixelated}
+html body .rest-choice-screen.wb-framed .wb-sign-primary:not(#k):not(#j){border-image-source:url('assets/ui/waystone/plaque-moss.svg')!important;background:#536430 padding-box!important;color:#fff6d8!important;text-shadow:1px 2px #1c230f!important}
+html body .rest-choice-screen.wb-framed .wb-sign-quiet:not(#k):not(#j){border-image-source:url('assets/ui/waystone/plaque-slip.svg')!important;background:#e0c98f padding-box!important;color:#3b2d20!important;text-shadow:none!important}
+html body .rest-choice-screen.wb-framed .rest-optional-tools>.wb-sign:not(#k):not(#j){display:flex!important;align-items:center;justify-content:center;gap:8px;width:100%;padding:0 8px!important}
+html body .rest-choice-screen.wb-framed .rest-optional-tools>.wb-sign svg{width:22px!important;height:22px!important}
+html body .rest-choice-screen.wb-framed .rest-leave-row>.wb-sign:not(#k):not(#j){flex:0 0 auto;min-width:150px;height:46px}
+html body .rest-choice-screen.wb-framed .rest-route-link.wb-sign:not(#k):not(#j){display:flex;min-width:96px;height:44px;margin-top:2px!important}
+html body .rest-choice-screen.wb-framed .wb-sign:focus-visible{outline:3px solid #2a2118!important;outline-offset:2px}
+@media(orientation:landscape) and (max-height:370px){
+ html body .rest-choice-screen.wb-framed .rest-rail h1{font-size:19px;line-height:21px}
+ html body .rest-choice-screen.wb-framed .rest-benefit h2{font-size:16px!important;line-height:18px}
+ html body .rest-choice-screen.wb-framed .wb-sign:not(#k):not(#j){font-size:14px!important;letter-spacing:.5px!important;min-width:80px}
+ html body .rest-choice-screen.wb-framed .rest-leave-row>.wb-sign:not(#k):not(#j){height:44px;min-width:120px}
+}
+/* Production contrast rules (ui-contrast.css) force light text on a dark rail; restate ink on paper. */
+html body .rest-choice-screen.wb-framed .rest-rail:not(#k){background:none}
+html body .rest-choice-screen.wb-framed :is(.rest-eyebrow,.rest-refill-note,.rest-choice-caption>span,.rest-leave-row>span,.rest-pick-cue,.rest-receipt,.rest-rules summary):not(#k){color:#6b5335!important;text-shadow:none}
+html body .rest-choice-screen.wb-framed :is(.rest-pick-cue,.rest-receipt):not(#k){color:#3d4a22!important}
+html body .rest-choice-screen.wb-framed :is(.rest-benefit h2,.rest-full-sparks):not(#k){color:#2a2118!important;text-shadow:none}
+html body .rest-choice-screen.wb-framed .rest-chosen-mark:not(#k){color:#3d4a22}
+html body .rest-choice-screen.wb-framed .rest-rules>div:not(#k){background:#efdcab;color:#2a2118}
+html body .rest-choice-screen.wb-framed .rest-capacity-gain:not(#k){color:#3d4a22}
+html body .rest-choice-screen.wb-framed .rest-boon-passed:not(#k){opacity:.6!important;border-color:#a58c57!important}
+html body .rest-choice-screen.wb-framed .rest-vitals:not(#k){color:#2a2118}
+html body .rest-choice-screen.wb-framed .rest-rail h1:not(#k){font-size:23px!important}
+@media(orientation:landscape) and (max-height:370px){html body .rest-choice-screen.wb-framed .rest-rail h1:not(#k){font-size:19px!important}}
+html body .rest-choice-screen.wb-framed .rest-choice-caption{padding-right:62px}
+html body .rest-choice-screen.wb-framed .rest-glow b:not(#k){color:#2a2118}
+html body .rest-choice-screen.wb-framed .rest-vitals .hearts svg,html body .rest-choice-screen.wb-framed .rest-heart-result svg{filter:drop-shadow(1px 0 0 #2a2118) drop-shadow(-1px 0 0 #2a2118) drop-shadow(0 1px 0 #2a2118) drop-shadow(0 -1px 0 #2a2118)}
+@media(orientation:landscape) and (max-height:370px){
+ html body .rest-choice-screen.wb-framed .rest-place-art{display:none}
+ html body .rest-choice-screen.wb-framed .rest-rail{gap:4px;justify-content:flex-start}
+}
+html body .rest-choice-screen.wb-framed .rest-rules summary:not(#k){min-height:44px!important}
+@media(orientation:landscape) and (max-height:370px){html body .rest-choice-screen.wb-framed .rest-benefit h2:not(#k){line-height:22px!important;min-height:0}}
+html body .rest-choice-screen.wb-framed .rest-benefit h2:not(#k){flex:none}
+
+/* ═══ Workshop and Forge sheets · v2.5-theme (kit: ui/waystone.css) ═══════════════════════════════════
+   Full-screen paper book over the dimmed woods, Back at the top left (as on the Deck), wallet as a leather tab clear
+   of the bookmark ribbons. Covers the Workshop (card-workshop.mjs), Forge, Refill (card-workshop.mjs) and the Improve
+   and Grow confirmations opened from them (card-ui.mjs; restyled here, markup untouched). The base styles are in
+   card-ui.css, whose button rules use !important, hence :not(#k):not(#j). Art is named directly: this file is outside
+   dist/ui/. Roles: moss = the one way forward (Forge, Refill, Improve, Grow), leather = open something (offers, View
+   card, Melt for Sparks), paper slip = back, and the rarity tabs that are not selected. */
+html body dialog.game-sheet:has(>:is(.card-workshop,.card-forge-preview,.card-refill-confirm,.card-improve-confirm,.card-grow-confirm)):not(#k):not(#j){position:fixed!important;inset:0!important;width:100%!important;max-width:none!important;height:100%!important;max-height:none!important;margin:0!important;padding:0!important;border:0!important;border-image:none!important;border-radius:0!important;background:transparent!important;background-image:none!important;box-shadow:none!important;overflow:hidden!important;transform:none!important;outline:0!important;box-sizing:border-box!important}
+html body dialog.game-sheet[open]:has(>:is(.card-workshop,.card-forge-preview,.card-refill-confirm,.card-improve-confirm,.card-grow-confirm)):not(#k):not(#j){display:block!important}
+html body dialog.game-sheet:has(>:is(.card-workshop,.card-forge-preview,.card-refill-confirm,.card-improve-confirm,.card-grow-confirm))::backdrop{background:linear-gradient(#0c090794,#0c090794),url('assets/moonwell-title.webp') center 49%/cover no-repeat;image-rendering:pixelated}
+html body :is(.card-workshop,.card-forge-preview,.card-refill-confirm,.card-improve-confirm,.card-grow-confirm):not(#k):not(#j){position:absolute;top:4px;bottom:4px;left:6px;right:6px;width:auto;height:auto;box-sizing:border-box;display:flex;flex-direction:column;gap:8px;padding:0 12px;border:12px solid transparent;border-image:url('assets/ui/waystone/plaque-page.svg') 6 fill / 12px stretch;background:none;color:#2a2118;overflow:visible;text-shadow:none;text-align:left}
+html body :is(.card-workshop,.card-forge-preview,.card-refill-confirm,.card-improve-confirm,.card-grow-confirm)::after{content:'';position:absolute;top:-12px;right:14px;width:52px;height:56px;background:url('assets/ui/waystone/ribbon-wine.svg') left top/24px 56px no-repeat,url('assets/ui/waystone/ribbon-olive.svg') right top/24px 44px no-repeat;image-rendering:pixelated;pointer-events:none}
+/* Header: Back (when there is one) · context line and title · wallet, clear of the ribbons */
+html body :is(.card-workshop,.card-forge-preview,.card-refill-confirm,.card-improve-confirm,.card-grow-confirm)>.card-heading{flex:none;display:flex;align-items:center;gap:12px;min-width:0;min-height:44px;padding:0 62px 0 0;margin:0}
+html body :is(.card-workshop,.card-forge-preview,.card-refill-confirm,.card-improve-confirm,.card-grow-confirm)>.card-heading>div{flex:1;min-width:0}
+html body :is(.card-workshop,.card-forge-preview,.card-refill-confirm,.card-improve-confirm,.card-grow-confirm)>.card-heading small{display:block;font:400 11px/13px var(--pixel,monospace);letter-spacing:1px;text-transform:uppercase;color:#6b5335}
+html body :is(.card-workshop,.card-forge-preview,.card-refill-confirm,.card-improve-confirm,.card-grow-confirm)>.card-heading h2{margin:2px 0 0;font:400 22px/24px var(--pixel,monospace);letter-spacing:1px;text-transform:uppercase;color:#2a2118;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+html body :is(.card-workshop,.card-forge-preview,.card-refill-confirm,.card-improve-confirm,.card-grow-confirm) .card-bench-wallet{flex:none;box-sizing:border-box;height:44px;padding:0 6px;border:10px solid transparent;border-image:url('assets/ui/waystone/plaque-leather.svg') 6 fill / 10px stretch;color:#f6ebcc;font:400 18px/20px var(--pixel,monospace);text-shadow:1px 2px #2a1d12;image-rendering:pixelated}
+html body :is(.card-workshop,.card-forge-preview,.card-refill-confirm,.card-improve-confirm,.card-grow-confirm) .card-bench-wallet small{color:#e2d0a6;font-size:11px;line-height:11px;max-width:64px}
+/* Workshop */
+html body .card-workshop-services{gap:10px;min-height:0;flex:1}
+html body .card-workshop-services>article:not(#k){padding:8px;gap:6px;background:#efdcab;border:2px solid #8a6d44;color:#2a2118}
+html body .card-workshop-services h3{margin:0 0 2px;padding-bottom:4px;border-bottom:2px solid #8a6d44;font:400 13px/16px var(--pixel,monospace);letter-spacing:2px;text-transform:uppercase;text-align:center;color:#2a2118}
+html body .card-workshop-services p{font:400 12px/15px var(--pixel,monospace);color:#6b5335;margin:0}
+html body .card-workshop-services p.card-workshop-empty{color:#6b5335}
+html body .card-workshop-list{gap:6px;padding:0 3px 2px}
+html body .card-workshop-notice{margin:0;font:400 12px/15px var(--pixel,monospace);color:#3d4a22}
+html body .card-workshop .card-dialog-actions{flex:none;min-height:0}
+html body .card-workshop .card-dialog-actions>p,html body :is(.card-forge-preview,.card-refill-confirm,.card-improve-confirm,.card-grow-confirm) .card-dialog-actions>p{margin:0 auto 0 0;max-width:none;font:400 12px/15px var(--pixel,monospace);color:#6b5335}
+/* Forge, Refill, Improve and Grow bodies */
+html body :is(.card-forge-preview,.card-refill-confirm,.card-improve-confirm,.card-grow-confirm) .card-exchange-body{gap:20px}
+html body :is(.card-forge-preview,.card-refill-confirm,.card-grow-confirm) .card-exchange-result{color:#2a2118;gap:6px}
+html body :is(.card-forge-preview,.card-refill-confirm,.card-improve-confirm,.card-grow-confirm) .card-exchange-result h3{margin:0;font:400 20px/22px var(--pixel,monospace);letter-spacing:1px;color:#2a2118}
+html body :is(.card-forge-preview,.card-refill-confirm,.card-improve-confirm,.card-grow-confirm) .card-exchange-result>strong{font:400 22px/24px var(--pixel,monospace);color:#2a2118}
+html body :is(.card-forge-preview,.card-refill-confirm,.card-improve-confirm,.card-grow-confirm) .card-exchange-result>small,html body :is(.card-forge-preview,.card-refill-confirm,.card-grow-confirm) .card-exchange-result p,html body .card-kept-uses,html body .card-improve-tier,html body .card-exchange-tag{font:400 12px/15px var(--pixel,monospace);color:#6b5335}
+html body .card-forge-destination{font:400 12px/15px var(--pixel,monospace);color:#6b5335}
+html body .card-forge-status{font:400 14px/18px var(--pixel,monospace);color:#2a2118}
+html body .card-forge-receipt{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+html body .card-forge-receipt strong{font:400 14px/18px var(--pixel,monospace);color:#3d4a22}
+html body .card-forge-tiers{gap:6px;flex-wrap:wrap}
+html body .card-forge-mystery{display:grid;place-items:center;align-content:center;gap:4px;min-height:96px;padding:10px;border:2px solid #8a6d44;background:#efdcab;color:#2a2118;text-align:center}
+html body .card-forge-mystery>strong{font:400 40px/44px var(--pixel,monospace);color:#2a2118}
+html body .card-forge-mystery>span{font:400 15px/18px var(--pixel,monospace);letter-spacing:1px;text-transform:uppercase}
+html body .card-forge-mystery>small{font:400 12px/15px var(--pixel,monospace);color:#6b5335}
+html body .card-improve-wallet{font:400 12px/15px var(--pixel,monospace);color:#6b5335;margin:0}
+/* Plaques */
+html body :is(.card-workshop,.card-forge-preview,.card-refill-confirm,.card-improve-confirm,.card-grow-confirm) button:not(.skill-card *):not(#k):not(#j){box-sizing:border-box;width:auto;min-width:96px;height:44px;min-height:44px!important;margin:0;padding:0 12px!important;border:12px solid transparent!important;border-image:url('assets/ui/waystone/plaque-slip.svg') 6 / 12px stretch!important;border-radius:0!important;clip-path:none!important;box-shadow:none!important;background:#e0c98f padding-box!important;background-image:none!important;color:#3b2d20!important;-webkit-text-fill-color:currentColor!important;font:400 15px/15px var(--pixel,monospace)!important;letter-spacing:1px!important;text-transform:uppercase;text-shadow:none!important;white-space:nowrap;image-rendering:pixelated;cursor:pointer;touch-action:manipulation}
+html body :is(.card-workshop,.card-forge-preview,.card-refill-confirm,.card-improve-confirm,.card-grow-confirm) button.primary:not(.skill-card *):not(#k):not(#j){border-image-source:url('assets/ui/waystone/plaque-moss.svg')!important;background:#536430 padding-box!important;color:#fff6d8!important;text-shadow:1px 2px #1c230f!important}
+html body :is(.card-forge-preview,.card-refill-confirm) :is(.card-forge-receipt button,button[data-action="card-melt-mode"]):not(.skill-card *):not(#k):not(#j){border-image-source:url('assets/ui/waystone/plaque-leather.svg')!important;background:#5a4632 padding-box!important;color:#f6ebcc!important;text-shadow:1px 2px #2a1d12!important}
+html body .card-forge-tiers button.selected:not(.skill-card *):not(#k):not(#j){border-image-source:url('assets/ui/waystone/plaque-leather.svg')!important;background:#5a4632 padding-box!important;color:#f6ebcc!important;text-shadow:1px 2px #2a1d12!important}
+html body :is(.card-workshop,.card-forge-preview,.card-refill-confirm,.card-improve-confirm,.card-grow-confirm) button:disabled:not(.skill-card *):not(#k):not(#j){opacity:.6}
+html body :is(.card-workshop,.card-forge-preview,.card-refill-confirm,.card-improve-confirm,.card-grow-confirm) button:not(.skill-card *):not(#k):not(#j):focus-visible{outline:3px solid #2a2118!important;outline-offset:2px}
+html body :is(.card-workshop,.card-forge-preview,.card-refill-confirm,.card-improve-confirm,.card-grow-confirm) button:not(.skill-card *):not(#k):not(#j):active:not(:disabled){transform:translateY(2px)}
+/* The Workshop's offers: leather rows that name the card, the change and the price; unavailable ones are paper slips. */
+html body .card-workshop .card-workshop-offer:not(.skill-card *):not(#k):not(#j){display:flex;flex-direction:column;align-items:flex-start;justify-content:center;gap:2px;width:100%;height:auto;min-height:44px!important;padding:2px 6px!important;border-image-source:url('assets/ui/waystone/plaque-leather.svg')!important;background:#5a4632 padding-box!important;color:#f6ebcc!important;text-align:left;text-transform:none;letter-spacing:0!important;text-shadow:1px 2px #2a1d12!important;white-space:normal;font:400 13px/15px var(--pixel,monospace)!important}
+html body .card-workshop .card-workshop-offer>strong{font:400 15px/17px var(--pixel,monospace);color:#fff1c5}
+html body .card-workshop .card-workshop-offer>span{font:400 12px/14px var(--pixel,monospace);color:#e2d0a6}
+html body .card-workshop .card-workshop-offer>b{font:400 13px/15px var(--pixel,monospace);color:#e6c77c;letter-spacing:.5px}
+html body .card-workshop .card-workshop-offer>small{font:400 11px/13px var(--pixel,monospace);color:#e2d0a6}
+html body .card-workshop .card-workshop-unavailable:not(.skill-card *):not(#k):not(#j){border-image-source:url('assets/ui/waystone/plaque-slip.svg')!important;background:#e0c98f padding-box!important;color:#3b2d20!important;text-shadow:none!important}
+html body .card-workshop .card-workshop-unavailable>strong{color:#2a2118}
+html body .card-workshop .card-workshop-unavailable>span,html body .card-workshop .card-workshop-unavailable>small{color:#6b5335}
+html body .card-workshop .card-workshop-unavailable>b{color:#7a2f2a}
+/* Short screens: the page border and 44px plaques leave less room. */
+@media(orientation:landscape) and (max-height:350px){
+ html body :is(.card-workshop,.card-forge-preview,.card-refill-confirm,.card-improve-confirm,.card-grow-confirm):not(#k):not(#j){top:2px;bottom:2px;left:4px;right:4px;gap:4px}
+ html body :is(.card-workshop,.card-forge-preview,.card-refill-confirm,.card-improve-confirm,.card-grow-confirm)>.card-heading h2{font-size:19px;line-height:21px}
+ html body .card-workshop-services{gap:6px}
+ html body .card-workshop-services>article:not(#k){padding:5px;gap:3px}
+ html body .card-workshop-services h3{font-size:12px;line-height:14px;padding-bottom:2px}
+ html body .card-workshop-services p{font-size:11px;line-height:13px}
+ html body :is(.card-forge-preview,.card-refill-confirm,.card-improve-confirm,.card-grow-confirm) .card-exchange-body{gap:14px}
+ html body :is(.card-forge-preview,.card-refill-confirm,.card-improve-confirm,.card-grow-confirm) .card-exchange-result>strong{font-size:18px;line-height:20px}
+ html body :is(.card-forge-preview,.card-refill-confirm,.card-improve-confirm,.card-grow-confirm) .card-exchange-result h3{font-size:17px;line-height:22px}
+ html body :is(.card-workshop,.card-forge-preview,.card-refill-confirm,.card-improve-confirm,.card-grow-confirm) button:not(.skill-card *):not(#k):not(#j){font-size:14px!important;letter-spacing:.5px!important;min-width:80px;padding:0 8px!important}
+}
+html body :is(.card-forge-preview,.card-refill-confirm,.card-improve-confirm,.card-grow-confirm) .card-exchange-body{flex:1;min-height:0}
+html body :is(.card-workshop,.card-forge-preview,.card-refill-confirm,.card-improve-confirm,.card-grow-confirm)>.card-heading h2:not(#k):not(#j){color:#2a2118!important;background:none!important;background-image:none!important;text-shadow:none!important;-webkit-text-fill-color:currentColor!important;filter:none!important;line-height:26px;padding:0;min-height:0}
+html body :is(.card-forge-preview,.card-refill-confirm,.card-improve-confirm,.card-grow-confirm)>.card-dialog-actions{flex:none}
+html body .card-improve-confirm .card-improve-pair{flex:1;min-height:0}
+@media(orientation:landscape) and (max-height:350px){
+ /* Long titles ("Improve Body Spark +2 → Body Spark +3") take two lines instead of an ellipsis; the context line yields. */
+ html body :is(.card-refill-confirm,.card-improve-confirm,.card-grow-confirm,.card-forge-preview)>.card-heading small{display:none}
+ html body :is(.card-workshop,.card-forge-preview,.card-refill-confirm,.card-improve-confirm,.card-grow-confirm)>.card-heading h2:not(#k):not(#j){white-space:normal;overflow:visible;text-overflow:clip;font-size:17px;line-height:19px}
+}
+html body .card-improve-version>small:not(#k){font:400 12px/15px var(--pixel,monospace);color:#6b5335!important}
+html body .card-improve-wallet:not(#k){font:400 12px/15px var(--pixel,monospace);color:#6b5335!important}
+html body .card-workshop-services p:not(#k),html body .card-workshop .card-dialog-actions>p:not(#k),html body :is(.card-forge-preview,.card-refill-confirm,.card-improve-confirm,.card-grow-confirm) .card-dialog-actions>p:not(#k){color:#6b5335!important}
+html body .card-workshop-notice:not(#k){color:#3d4a22!important}
+html body :is(.card-forge-preview,.card-refill-confirm,.card-improve-confirm,.card-grow-confirm) .card-exchange-result :is(small,p,.card-forge-destination):not(#k){color:#6b5335!important}
+html body :is(.card-forge-preview,.card-refill-confirm,.card-improve-confirm,.card-grow-confirm) .card-exchange-result :is(strong,h3,.card-forge-status):not(#k){color:#2a2118!important}

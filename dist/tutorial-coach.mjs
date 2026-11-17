@@ -1,5 +1,12 @@
 import {tutorialTarget,tutorialTextMarkup,tutorialExampleMarkup} from './tutorial-context.mjs?v=guide-clarity-1';
 import {tutorialVisualMarkup} from './tutorial-visuals.mjs?v=guide-clarity-1';
+import {CARD_TERMS} from './card-terms.mjs?v=guide-clarity-1';
+const escText=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+/** Glossary links for a lesson: the same keyword buttons the cards use (card-terms.mjs opens them). */
+export function coachTermsMarkup(terms=[]){
+  const keys=(terms||[]).filter(key=>CARD_TERMS[key]);
+  return keys.length?`<span class="tutorial-coach-terms-label">Glossary</span>${keys.map(key=>`<button type="button" class="tutorial-coach-term" data-card-term="${escText(key)}" aria-haspopup="dialog" aria-label="${escText(CARD_TERMS[key][0])}: glossary">${escText(CARD_TERMS[key][0])}</button>`).join('')}`:'';
+}
 let coachId = 0;
 const clamp = (value, low, high) => Math.max(low, Math.min(high, value));
 const focusable = 'button:not(:disabled),a[href],input:not(:disabled),select:not(:disabled),textarea:not(:disabled),[tabindex]:not([tabindex="-1"])';
@@ -31,12 +38,13 @@ export function createTutorialCoach({ onNext, onBack, onSkip } = {}) {
     <div class="tutorial-coach-blocker coach-block-bottom" aria-hidden="true"></div>
     <div class="tutorial-coach-blocker coach-block-target" aria-hidden="true"></div>
     <section class="tutorial-coach-card" role="region" aria-labelledby="${id}-title" aria-describedby="${id}-text" tabindex="-1">
-      <div class="tutorial-coach-visual" hidden></div><div class="tutorial-coach-copy"><span class="tutorial-coach-progress"></span><h2 id="${id}-title"></h2><p id="${id}-text"></p></div>
+      <div class="tutorial-coach-visual" hidden></div><div class="tutorial-coach-copy"><span class="tutorial-coach-progress"></span><h2 id="${id}-title"></h2><p id="${id}-text"></p><p class="tutorial-coach-terms" hidden></p></div>
       <div class="tutorial-coach-actions"><button type="button" data-coach="back">BACK</button><button type="button" class="tutorial-coach-next" data-coach="next">NEXT</button><button type="button" data-coach="skip">SKIP</button></div>
     </section>`;
   const card = root.querySelector('.tutorial-coach-card'),pointer=root.querySelector('.coach-pointer'),pointerPath=pointer.querySelector('path');
   const spotlight = root.querySelector('.tutorial-coach-spotlight');
-  const title = root.querySelector('h2'), text = root.querySelector('p');
+  const title = root.querySelector('h2'), text = root.querySelector('p'), termsLine = root.querySelector('.tutorial-coach-terms');
+  const glossaryOpen = () => !!document.querySelector('dialog.card-term-dialog[open]');
   const progress = root.querySelector('.tutorial-coach-progress'), visual=root.querySelector('.tutorial-coach-visual');
   const back = root.querySelector('[data-coach="back"]'), next = root.querySelector('[data-coach="next"]');
   const blocks = ['top', 'left', 'right', 'bottom', 'target'].map(name => root.querySelector(`.coach-block-${name}`));
@@ -68,7 +76,8 @@ export function createTutorialCoach({ onNext, onBack, onSkip } = {}) {
     frame = null;
     if (!step || destroyed || root.hidden) return;
     target = resolveTarget();
-    const host = target?.closest?.('dialog[open]') || document.querySelector('dialog[open]') || document.body;
+    // A glossary opened from the card sits above the coach; the coach never moves into it.
+    const host = target?.closest?.('dialog[open]:not(.card-term-dialog)') || document.querySelector('dialog[open]:not(.card-term-dialog)') || document.body;
     if (root.parentElement !== host) host.appendChild(root);
     const width = document.documentElement.clientWidth || window.innerWidth;
     const height = window.visualViewport?.height || window.innerHeight;
@@ -132,7 +141,7 @@ export function createTutorialCoach({ onNext, onBack, onSkip } = {}) {
     previousFocus = null;
   };
   const keydown = event => {
-    if (!step || root.hidden || destroyed) return;
+    if (!step || root.hidden || destroyed || glossaryOpen()) return;
     if (event.key === 'Escape') {
       event.preventDefault(); event.stopImmediatePropagation();
       if (typeof onSkip === 'function') onSkip(step); else hide();
@@ -191,6 +200,7 @@ export function createTutorialCoach({ onNext, onBack, onSkip } = {}) {
       const info = progressInfo(step.progress);
       title.textContent = String(step.title || 'Learn the way');
       text.innerHTML = tutorialTextMarkup(step.text);
+      termsLine.innerHTML = coachTermsMarkup(step.terms); termsLine.hidden = !termsLine.innerHTML;
       root.dataset.contextual=String(step.contextual===true);
       const art=step.contextual?'':tutorialVisualMarkup(step),example=step.contextual?'':tutorialExampleMarkup(step,document,target);visual.innerHTML=example+`<div class="coach-vocabulary">${art}</div>`;visual.hidden=!art&&!example;root.dataset.hasExample=String(!!example);root.dataset.hasVisual=String(!!art||!!example);
       progress.textContent = info.label;

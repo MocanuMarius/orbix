@@ -6,10 +6,10 @@ import {newState,createRun,startTutorial,leaveTutorial,getChoices,selectNode,beg
 import {TUTORIAL_TOPICS} from '../dist/tutorial-curriculum.mjs';
 import {deathScreenMarkup} from '../dist/death-screen.mjs';
 const clear=state=>{const r=state.run;assert.ok(beginFlightAttempt(r));assert.ok(finishFlight(r,{success:true,flame:70,collected:5}));if(r.victoryPending){assert.ok(chooseFlightReward(state,r.flightReward.offers[0]));assert.ok(acknowledgeVictory(state));}};
-test('seven-stop prologue loans real cards, restores Rest resources and preserves the suspended run',()=>{
+test('an Edition 3 save keeps its seven-stop prologue: real card loans, Rest resources and the suspended run',()=>{
  const state=newState();state.profile.ownedArtifacts=['sunheart-engine'];state.profile.equippedArtifacts=['sunheart-engine'];
  state.run=createRun(state.profile,'real-run');const original=structuredClone(state.run),profile=structuredClone(state.profile);
- assert.ok(startTutorial(state));const r=state.run;assert.equal(r.map.length,7);assert.equal(r.companionRole,'collector');
+ assert.ok(startTutorial(state,{edition:3}));const r=state.run;assert.equal(r.map.length,7);assert.equal(r.companionRole,'collector');
  assert.deepEqual(r.map.map(row=>row[0].tutorialLesson||row[0].kind),['glide','treasure','proximity','camp','rhythm','black-hole','guardian']);
  assert.equal(r.practiceCondensedGlow,0);assert.ok(!r.skills['proximity-awakening']);
  assert.ok(selectNode(r,getChoices(r)[0].id));clear(state);
@@ -33,7 +33,7 @@ test('seven-stop prologue loans real cards, restores Rest resources and preserve
  assert.deepEqual(state.profile.onboarding.seen,['rest'],'unobserved flight mechanics still receive later contextual lessons');
 });
 test('practice forging spends only practice artifacts and pays only the practice wallet',()=>{
- const s=newState();s.profile.ownedArtifacts=['glow-wick'];s.profile.equippedArtifacts=['glow-wick'];startTutorial(s);
+ const s=newState();s.profile.ownedArtifacts=['glow-wick'];s.profile.equippedArtifacts=['glow-wick'];startTutorial(s,{edition:3});
  const r=s.run;r.step=3;r.phase='support';r.current=r.map[3][0];r.artifacts=['glow-wick'];r.artifactCharges={'glow-wick':3};
  assert.equal(canSellArtifact(s,'glow-wick'),false);assert.ok(resolveSupport(r,0,s.profile));
  const before=r.practiceCondensedGlow;assert.ok(canSellArtifact(s,'glow-wick'));assert.ok(sellArtifact(s,'glow-wick'));

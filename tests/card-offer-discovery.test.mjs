@@ -68,7 +68,7 @@ test('seeded drafts increase executable body-row opportunities while retaining t
   }
   assert.ok(actual>ordinary+drafts*.06,`executable combos ${actual}/${drafts} vs ordinary ${ordinary}/${drafts}`);
   assert.ok(newCards>drafts*.05,'new cards retain visible acquisition opportunities');
-  for(const def of Object.values(SKILL_CARDS).filter(def=>!def.starterOnly))assert.ok(seen.has(def.id),`${def.id} remains obtainable`);
+  for(const def of Object.values(SKILL_CARDS).filter(def=>!def.starterOnly&&!def.retired))assert.ok(seen.has(def.id),`${def.id} remains obtainable`);
 });
 
 test('Forge broad-chain circulation is seeded independently of inventory, ordering and map changes', () => {
@@ -94,7 +94,7 @@ test('Forge broad-chain circulation is seeded independently of inventory, orderi
       assert.equal(SKILL_CARDS[card.cardId].rarity,rarity);
     }
     assert.ok(favored>ordinary+1800*.15,`${rarity} broad chains ${favored}/1800 vs ordinary ${ordinary}/1800`);
-    for(const def of Object.values(SKILL_CARDS).filter(def=>def.rarity===rarity&&!def.starterOnly))assert.ok(seen.has(def.id),`${def.id} still forges`);
+    for(const def of Object.values(SKILL_CARDS).filter(def=>def.rarity===rarity&&!def.starterOnly&&!def.retired))assert.ok(seen.has(def.id),`${def.id} still forges`);
   }
 });
 

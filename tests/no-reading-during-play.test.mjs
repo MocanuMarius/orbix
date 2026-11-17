@@ -8,6 +8,7 @@ import { getTutorialHint, tutorialEntryLesson, notePracticeHint, hasPracticeHint
   carryPracticeHints, takeCarriedPracticeHint } from '../dist/tutorial.mjs';
 import { nextPracticeLesson } from '../dist/practice-route.mjs';
 import { deferPracticeLesson, FIRST_FLIGHT_STOPS } from '../dist/tutorial.mjs';
+import { practiceLessonStep } from '../dist/practice-course.mjs';
 
 // Rule: never require reading during active play. Hint text appears only while
 // the simulation is stopped, and play resumes only through a player action.
@@ -16,9 +17,10 @@ const source = readFileSync(new URL('../dist/app.mjs', import.meta.url), 'utf8')
 const plain = value => JSON.parse(JSON.stringify(value));
 const slice = (from, to) => { const a = source.indexOf(from), b = source.indexOf(to, a); assert.ok(a >= 0 && b > a, `${from} exists`); return source.slice(a, b); };
 
-function practiceFlight(row = 0) {
-  const state = newState(); startTutorial(state);
-  const r = state.run, node = r.map[row][0];
+// Edition 4 by default; edition 3 recreates an unfinished Edition 3 save (its hint queue).
+function practiceFlight(row = 0, edition = 4) {
+  const state = newState(); startTutorial(state, { edition });
+  const r = state.run, node = r.map[row][0]; r.current = node;
   const e = new WispFlight({ canvas, preflight: true, node, duration: 24, flame: 100, companions: ['collector'], modifiers: getRunModifiers(r) });
   return { state, r, e };
 }
@@ -47,12 +49,14 @@ test('the entry hint is a paused coach card with its own focused Got it button',
   try {
     assert.equal(e.tutorialAwaitingLift, true);
     const step = tutorialEntryLesson(e, r);
-    assert.equal(step.title, getTutorialHint(e).title);
+    // Edition 4: the entry lesson teaches Lift and glide only; the cost waits for the Sparks lesson.
+    assert.equal(step.id, 'practice:lift'); assert.equal(step.title, 'Lift and glide');
+    assert.equal(getTutorialHint(e), null, 'Edition 4 has no live or queued hint text');
     assert.equal(step.actionLabel, 'Got it');
     assert.equal(step.skipLabel, false, 'no second button competes with Got it');
     assert.equal(step.focusAction, true, 'the Got it button takes focus when the hint opens');
     assert.equal(step.teachesLift, true);
-    assert.ok(step.text.endsWith(`Each Lift spends ${Math.round(e.flapCost * .3)} Sparks.`), 'the Lift cost comes from the live Lift cost');
+    assert.ok(practiceLessonStep('practice:sparks', { engine: e }).text.endsWith(`Each Lift costs ${Math.round(e.flapCost * .3)} Sparks.`), 'the Lift cost comes from the live Lift cost');
     assert.equal(tutorialEntryLesson(e, { ...r, guideSeen: { [step.id]: true } }), null, 'shown once per lesson');
     assert.equal(tutorialEntryLesson(e, { ...r, guideSkipped: true }), null);
   } finally { e.destroy(); }
@@ -75,8 +79,8 @@ test('while the entry hint is open the flight stays frozen; only Got it opens th
   } finally { e.destroy(); }
 });
 
-test('the redundant Lift coach card is skipped once the entry hint taught Lift', () => {
-  const { r, e } = practiceFlight();
+test('Edition 3 save: the redundant Lift coach card is skipped once the entry hint taught Lift', () => {
+  const { r, e } = practiceFlight(0, 3);
   try {
     e.tutorialAwaitingLift = false; e.time = 2;
     assert.equal(nextPracticeLesson(e, r).id, 'practice:lift', 'baseline: Lift card would show at 1.2 s');
@@ -91,7 +95,11 @@ test('practice hints never render live; they pause safely, queue when unsafe and
   // The first (glide) flight defers its hints to the checkpoint, so use the proximity flight.
   assert.equal(/tutorial-hint[^;]*hidden\s*=\s*false/.test(source) || source.includes('hint.hidden=false'), false,
     'the live hint panel is never un-hidden');
-  const { r, e } = practiceFlight(2);
+  // Edition 4 queues nothing: its courses produce no hint text at all.
+  { const { r, e } = practiceFlight(2); e.tutorialAwaitingLift = false; e.running = true; e.time = 5;
+    assert.equal(notePracticeHint(e, r, getTutorialHint(e)), false); assert.equal(hasPracticeHint(e, r), false); e.destroy(); }
+  // The queue below belongs to unfinished Edition 3 saves.
+  const { r, e } = practiceFlight(2, 3);
   try {
     e.tutorialAwaitingLift = false; e.running = true; e.paused = false; e.time = 5;
     const hint = getTutorialHint(e);
@@ -111,7 +119,7 @@ test('practice hints never render live; they pause safely, queue when unsafe and
 });
 
 test('hints left without a safe pause wait for the next checkpoint and are taught once', () => {
-  const { r, e } = practiceFlight();
+  const { r, e } = practiceFlight(0, 3);
   try {
     e.tutorialAwaitingLift = false;
     notePracticeHint(e, r, { id: 'glide-ready', title: 'Small Lifts, long glides', text: 'Time your last Lift.' });
@@ -126,8 +134,8 @@ test('hints left without a safe pause wait for the next checkpoint and are taugh
   } finally { e.destroy(); }
 });
 
-test('one stop per topic: the first flight keeps only the Sparks, Collector and Luminance coach cards', () => {
-  const { r, e } = practiceFlight();
+test('Edition 3 save: one stop per topic, the first flight keeps only the Sparks, Collector and Luminance coach cards', () => {
+  const { r, e } = practiceFlight(0, 3);
   try {
     e.tutorialAwaitingLift = false; e.running = true; e.paused = false; e.time = 5;
     for (const id of ['direct', 'carrier', 'luminance'])

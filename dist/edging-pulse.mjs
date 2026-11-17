@@ -8,7 +8,6 @@ export const EDGING_PULSE_TUNING = Object.freeze({ clearance: 48, chargeSeconds:
   graceSeconds: 1.25, decayPerSecond: .08, duration: 5, recovery: 2, waves: 3 });
 /** World-space body-to-solid clearance; card sources add normal reach, never multiply each other. */
 export function getProximityClearance(modifiers = {}) {
-  // Boosted Edge Reach counts as a fractional source (+50% x1.25 = +62.5%).
   // Boosted Edge Reach counts as a fractional source (+50% x1.25 = +62.5%). No ceiling (designer, 2026-11-17).
   const sources = Math.max(0, Number(modifiers.cardProximitySources) || 0);
   return EDGING_PULSE_TUNING.clearance * (1 + .5 * sources);

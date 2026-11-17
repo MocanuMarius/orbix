@@ -55,7 +55,7 @@ export function getCardRowTriggerIssue(rule, context) {
   if (rule?.event === CARD_ROW_EVENTS.rhythm && !context.rhythm)
     return blocked('Needs Rhythm in the chain', 'Its Trigger is Rhythm: 3 even Lifts with the Rhythm card. Nothing in this chain makes that happen.', 'Put Rhythm anywhere in your chain.', 'needs-rhythm');
   if (rule?.event === CARD_ROW_EVENTS.field && !context.field)
-    return blocked('Needs Field Impulse', 'It needs a Field Impulse swipe, and this build cannot swipe.', 'Put Field Impulse in your chain, or learn the Collector Field Impulse skill.', 'needs-field');
+    return blocked('Needs Field Impulse', 'It needs a Field Impulse swipe, and this build cannot swipe.', 'Learn the Collector Field Impulse skill.', 'needs-field');
   if ((rule?.event === CARD_ROW_EVENTS.guard || rule?.when?.guardRecovering) && !context.guard)
     return blocked('Needs Watchlight or Last Orbit', 'Its Trigger is Save, or the recovery after a save. This build cannot make a save.', 'Put Watchlight in your chain, or learn the Collector Last Orbit skill.', 'needs-save');
   if (rule?.event === CARD_ROW_EVENTS.delivery && !context.collector)
@@ -166,7 +166,7 @@ export function getEquippedCardStatuses(run = {}, native = null) {
     if(kind==='collector-range'&&copy)
       return shared('Reach already covered','Copying the same reach card adds no reach or catches. The real card keeps its uses.','reach-covered');
     if (kind === 'wave-loom' && !context.field)
-      return blocked('Needs Field Impulse', 'Wave Loom sends its Pulse after a Field Impulse swipe, and this build cannot swipe.', 'Put Field Impulse in your chain, or learn the Collector Field Impulse skill.', 'needs-field');
+      return blocked('Needs Field Impulse', 'Wave Loom sends its Pulse after a Field Impulse swipe, and this build cannot swipe.', 'Learn the Collector Field Impulse skill.', 'needs-field');
     if (kind === 'camp-grow' && run.cardGrowUses >= 3)
       return shared('Grow limit reached', 'All 3 Grows for this journey are used. Every Growth Seed shares that limit.', 'grow-limit');
     if (['guide', 'rhythm', 'dream', 'cache-handling', 'wave-loom', 'watchlight', 'springboard', 'proximity'].includes(kind) && sources.some(entry => entry.index < slot && entry.def.kind === kind))

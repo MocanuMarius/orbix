@@ -10,7 +10,7 @@ async function size(width,height,mobile=false){
  await browser.send('Emulation.setTouchEmulationEnabled',{enabled:mobile});
 }
 async function inspect(label){
- await until(()=>browser.ev(`!!document.querySelector('#game-frame')?.contentDocument?.querySelector('.card-deck,.front-new-button,[data-action="new-game"],[data-action="play"]')`),label,200);
+ await until(()=>browser.ev(`!!document.querySelector('#game-frame')?.contentDocument?.querySelector('#dk-root,.front-new-button,[data-action="new-game"],[data-action="play"]')`),label,200);
  await until(()=>browser.ev(`(()=>{const p=document.querySelector('#phone-window').getBoundingClientRect(),s=document.querySelector('#desktop-stage').getBoundingClientRect(),expected=Math.min(900,s.width-48,(s.height-48)*20/9);return p.width>0&&Math.abs(p.width-expected)<.1})()`),label+' fitted',50);
  const view=await browser.ev(`(()=>{
   const phone=document.querySelector('#phone-window'),stage=document.querySelector('#desktop-stage'),frame=document.querySelector('#game-frame'),p=phone.getBoundingClientRect(),s=stage.getBoundingClientRect();
@@ -45,7 +45,7 @@ try{
  assert.equal(await browser.ev(`document.querySelector('#embedded-host').contentDocument.querySelector('#game-frame').contentWindow.innerWidth`),900);
  results.push({label:'embedded desktop host',viewport:900});
  await browser.ev(`document.querySelector('#embedded-host').src='/game.html?mock=cards&cards=1'`);
- await until(()=>browser.ev(`!!document.querySelector('#embedded-host')?.contentDocument?.querySelector('.card-deck')`),'intentional game embedding',200);
+ await until(()=>browser.ev(`!!document.querySelector('#embedded-host')?.contentDocument?.querySelector('#dk-root')`),'intentional game embedding',200);
  assert.equal(await browser.ev(`!!document.querySelector('#embedded-host').contentDocument.querySelector('#game-frame')`),false);
  results.push({label:'intentional engine embedding',nested:false});
  await browser.visit(base+'/game.html?display=native');

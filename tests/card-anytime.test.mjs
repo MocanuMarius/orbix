@@ -71,7 +71,7 @@ test('Forge previews anywhere but purchases only at Rest with exact offers and s
   const second = M.getCardForgePreview(run);
   assert.notEqual(second.card.instanceId, first.card.instanceId);
   assert.ok(M.forgeOwnedCard(state, 'rare', second.token));
-  assert.equal(run.condensedGlow, 140);
+  assert.equal(run.condensedGlow, 100, 'two Rare forges at one Rest cost 40 then 60');
   assert.equal(run.cardReward, undefined);
   assert.equal(run.reserveCards.length, 2);
   state = reload(state); run = state.run;
@@ -79,12 +79,14 @@ test('Forge previews anywhere but purchases only at Rest with exact offers and s
   assert.equal(new Set(M.getOwnedCards(run).map((card) => card.instanceId)).size, 2);
   assert.equal(M.forgeOwnedCard(state, 'rare', second.token), false);
   assert.notEqual(M.getCardForgePreview(run).token, second.token);
-  assert.match(M.getCardForgePreview(run, 'legendary').reason, /Mount a Rare/);
+  assert.match(M.getCardForgePreview(run, 'legendary').reason, /Not enough Stored Sparks/);
   assert.ok(M.equipOwnedCard(run, first.card.instanceId, 0));
   const legendary = M.getCardForgePreview(run, 'legendary');
-  assert.equal(legendary.price, 60);
+  assert.equal(legendary.price, 150);
+  assert.equal(M.forgeOwnedCard(state, 'legendary', legendary.token), false, '100 Sparks cannot buy a 150 Legendary');
+  run.condensedGlow = 200;
   assert.ok(M.forgeOwnedCard(state, 'legendary', legendary.token));
-  assert.equal(run.condensedGlow, 80);
+  assert.equal(run.condensedGlow, 50);
 });
 
 test('Forge previews and purchases reject invalid, unaffordable, terminal and non-card runs without mutations', () => {

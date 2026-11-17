@@ -1,4 +1,4 @@
-import http from 'node:http';
+﻿import http from 'node:http';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import assert from 'node:assert/strict';
@@ -7,14 +7,14 @@ import {chrome,until} from './browser-probe.mjs';
 const root=path.resolve('dist'),out=path.resolve('work/closed-eye-lighting-proof');
 await fs.mkdir(out,{recursive:true});
 const mime={'.html':'text/html','.mjs':'text/javascript','.js':'text/javascript','.css':'text/css','.png':'image/png','.jpg':'image/jpeg','.webp':'image/webp','.svg':'image/svg+xml','.woff2':'font/woff2','.mp3':'audio/mpeg'};
-const bridge=`window.__closedEye={get engine(){return engine},get state(){return state},closeSheet,openDeck,async prepare({closedEye=true,mounted=['lantern-lens','rhythm','slip-feather','diving-bell','body-spark'],reserve=['watchlight','climb','harvest-rare']}={}){pauseFlight();document.querySelector('#pause-layer').replaceChildren();const C=await import('./skill-cards.mjs?v=guide-clarity-1'),r=state.run;r.attemptActive=true;r.attemptEntry={...r.attemptEntry,flightPact:closedEye?'blind-pilgrim':null};r.cardSlots=5;r.mountedCards=mounted.map((id,i)=>C.makeSkillCard(id,'closed-eye:'+i));r.reserveCards=reserve.map((id,i)=>C.makeSkillCard(id,'closed-eye:reserve:'+i));Object.assign(engine.mod,getRunModifiers(r));openDeck();},browse(){cardBrowsing=true;showCards();}};`;
-const treatmentExpression=`[...document.querySelectorAll('.skill-card:not(.empty-card)')].map(card=>({name:card.dataset.cardName,id:card.dataset.cardHelp,state:card.dataset.cardEffectState,classes:card.className,filter:getComputedStyle(card.querySelector('.skill-card-art')).filter,titleFilter:getComputedStyle(card.querySelector('h3')).filter,opacity:getComputedStyle(card).opacity,pointerEvents:getComputedStyle(card).pointerEvents,warning:card.querySelector('.card-sight-warning')?.getAttribute('aria-label')||'',status:card.querySelector('.card-config-status')?.getAttribute('aria-label')||'',statusSymbol:card.querySelector('.card-config-symbol')?.textContent||''}))`;
+const bridge=`window.__closedEye={get engine(){return engine},get state(){return state},closeSheet,openDeck,async prepare({closedEye=true,mounted=['lantern-lens','rhythm','slip-feather','diving-bell','body-spark'],reserve=['watchlight','climb','harvest-rare']}={}){pauseFlight();document.querySelector('#pause-layer').replaceChildren();const C=await import('./skill-cards.mjs?v=guide-clarity-1'),r=state.run;r.attemptActive=true;r.attemptEntry={...r.attemptEntry,flightPact:closedEye?'blind-pilgrim':null};r.cardSlots=5;r.mountedCards=mounted.map((id,i)=>C.makeSkillCard(id,'closed-eye:'+i));r.reserveCards=reserve.map((id,i)=>C.makeSkillCard(id,'closed-eye:reserve:'+i));Object.assign(engine.mod,getRunModifiers(r));openDeck();},browse(){cardBrowsing=true;deckView.tab='deck';deckView.reading=null;showCards();},chain(){cardBrowsing=false;deckView.tab='chain';deckView.reading=null;showCards();},read(id){cardBrowsing=true;deckView.reading=id;showCards();}};`;
+const treatmentExpression=`[...document.querySelectorAll('.skill-card:not(.empty-card)')].map(card=>({name:card.dataset.cardName,id:card.dataset.cardHelp,state:card.dataset.cardEffectState,classes:card.className,filter:getComputedStyle(card.querySelector('.skill-card-art')).filter,titleFilter:getComputedStyle(card.querySelector('h3')).filter,opacity:getComputedStyle(card).opacity,pointerEvents:getComputedStyle(card.closest('button')||card).pointerEvents,readOnly:!!card.closest('#dk2-face'),warning:card.querySelector('.card-sight-warning')?.getAttribute('aria-label')||'',status:card.querySelector('.card-config-status')?.getAttribute('aria-label')||'',statusSymbol:card.querySelector('.card-config-symbol')?.textContent||''}))`;
 function assertTreatment(cards,id,state){
   const card=cards.find(card=>card.id===id);assert.ok(card,`Missing ${id}: ${JSON.stringify(cards)}`);
   const grayscale=Number(card.filter.match(/grayscale\(([\d.]+)\)/)?.[1]||0);
   assert.equal(card.state,state,JSON.stringify(card));
   assert.equal(card.opacity,'1',JSON.stringify(card));
-  assert.notEqual(card.pointerEvents,'none',JSON.stringify(card));
+  if(!card.readOnly)assert.notEqual(card.pointerEvents,'none',JSON.stringify(card));
   if(state!=='active'&&card.statusSymbol)assert.notEqual(card.statusSymbol,'✓',JSON.stringify(card));
   assert.equal(card.classes.includes('card-effect-blocked'),state==='blocked',JSON.stringify(card));
   assert.equal(card.classes.includes('card-effect-partial'),state==='partial',JSON.stringify(card));
@@ -43,7 +43,7 @@ try{
       const warnings=[...document.querySelectorAll('.card-sight-warning')];
       return warnings.map(w=>{const r=w.getBoundingClientRect(),art=w.closest('.card-illustration').getBoundingClientRect(),card=w.closest('.skill-card'),overlaps=[...card.querySelectorAll('.card-config-status,.card-use-counter')].some(b=>{const q=b.getBoundingClientRect();return r.left<q.right&&r.right>q.left&&r.top<q.bottom&&r.bottom>q.top;});return {name:card.dataset.cardName,label:w.getAttribute('aria-label'),role:w.getAttribute('role'),text:w.innerText,rect:r.toJSON(),art:art.toJSON(),inside:r.left>=art.left&&r.right<=art.right&&r.top>=art.top&&r.bottom<=art.bottom,visible:r.width>0&&r.height>0,overlaps};});
     })()`);
-    assert.equal(deck.length,4);assert.ok(deck.every(w=>w.visible&&w.inside&&!w.overlaps&&w.role==='img'),JSON.stringify(deck));
+    assert.equal(deck.length,4);assert.ok(deck.every(w=>w.visible&&w.inside&&!w.overlaps&&w.role==='img'&&w.label),JSON.stringify(deck));
     const treatments=await b.ev(treatmentExpression);
     assertTreatment(treatments,'lantern-lens','blocked');
     assertTreatment(treatments,'rhythm','partial');
@@ -51,22 +51,28 @@ try{
     await b.shot(path.join(out,`deck-${width}x${height}.png`));
     await b.ev('__closedEye.browse()');
     await b.shot(path.join(out,`reserve-${width}x${height}.png`));
-    const reserve=await b.ev('[...document.querySelectorAll(".card-deck-gallery .card-sight-warning,.card-reserve-gallery .card-sight-warning,.card-collection-grid .card-sight-warning")].map(w=>w.closest(".skill-card").dataset.cardName)');
+    // The rebuilt Deck grid lists compact tiles; Closed Eye treatment shows on the opened card face.
+    const reserve=[];
+    for(const [i,id,state] of [[0,'watchlight','partial'],[1,'climb','partial'],[2,'harvest-rare','active']]){
+      await b.ev(`__closedEye.read('closed-eye:reserve:${i}')`);
+      const face=await b.ev(treatmentExpression);
+      assertTreatment(face,id,state);
+      if(state!=='active')reserve.push(face.find(card=>card.id===id).name);
+      else assert.equal(face.find(card=>card.id===id).warning,'');
+    }
     assert.deepEqual(reserve,['Watchlight','Climb']);
     const reserveTreatments=await b.ev(treatmentExpression);
-    assertTreatment(reserveTreatments,'watchlight','partial');
-    assertTreatment(reserveTreatments,'climb','partial');
-    assertTreatment(reserveTreatments,'harvest-rare','active');
-    const slots=await b.ev(`[...document.querySelectorAll('.card-slot-pick')].map(slot=>({classes:slot.className,state:slot.dataset.cardEffectState,filter:getComputedStyle(slot.querySelector('.skill-card-art')).filter,disabled:slot.disabled}))`);
+    await b.ev('__closedEye.chain()');
+    const slots=await b.ev(`[...document.querySelectorAll('.dk2-stations .skill-card')].map(card=>({classes:card.className,state:card.dataset.cardEffectState,filter:getComputedStyle(card.querySelector('.skill-card-art')).filter,disabled:!!card.closest('button')?.disabled}))`);
     assert.equal(slots[0].state,'blocked');assert.match(slots[0].classes,/card-effect-blocked/);assert.match(slots[0].filter,/grayscale\(1\)/);
     assert.equal(slots[1].state,'partial');assert.match(slots[1].classes,/card-effect-partial/);assert.match(slots[1].filter,/grayscale\(0\.6\)/);
     assert.equal(slots[4].state,'active');assert.doesNotMatch(slots[4].classes,/card-effect-(blocked|partial)/);assert.doesNotMatch(slots[4].filter,/grayscale/);
     assert.ok(slots.every(slot=>!slot.disabled));
-    await b.ev(`document.querySelector('[data-action="card-collection-back"]').click();document.querySelector('[data-action="card-slot"][data-index="0"]').click();document.querySelector('[data-action="card-inspect"]').click()`);
+    await b.ev(`__closedEye.read('closed-eye:0')`);
     const reader=await b.ev(treatmentExpression);
     assertTreatment(reader,'lantern-lens','blocked');
-    const readerText=await b.ev('document.querySelector(".card-reading-body").innerText');
-    assert.match(readerText,/Luminance blocked/);assert.doesNotMatch(readerText,/\bReady\b/);
+    const readerText=await b.ev('document.querySelector("#dk2-read").innerText');
+    assert.match(readerText,/Sight blocked/);assert.doesNotMatch(readerText,/\bReady\b/);
     await b.shot(path.join(out,`reader-${width}x${height}.png`));
     reports.push({width,height,deck,reserve,treatments,reserveTreatments,reader,slots});
   }

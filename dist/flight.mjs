@@ -910,7 +910,10 @@ export class WispFlight {
     this.syncCollectors();
     this.previousPlayerY = this.player.y; this.previousDistance = this.distance;
     this.visualBank = 0; this.wingPhase = 0;
-    this.layout = this.tutorial && !this.bossEncounter
+    // First Light Edition 4 flies the real catalog course; the practice hooks
+    // in practice-course.mjs calm it and place the lesson's element afterwards.
+    const practiceCourse=this.tutorial?.course===true;
+    this.layout = this.tutorial && !this.bossEncounter && !practiceCourse
       ? buildTutorialLayout({ lesson: this.tutorial.lesson, duration: this.duration,
         height: this.height, speed: FLIGHT_TUNING.forwardSpeed })
       : this.bossEncounter ? buildBossLayout({ seed: this.seed, terrain: this.terrain,
@@ -924,7 +927,7 @@ export class WispFlight {
           lift:FLIGHT_TUNING.flapImpulse*this.scaleY*clamp(Number(this.mod.flap)||1,.8,1.2),
           terminal:FLIGHT_TUNING.terminalFall*this.scaleY*clamp(Number(this.mod.terminalFall)||1,1,1.15)},
         levelId: this.levelIdentity.id, stage: this.ascentInfo.row,
-        difficulty: this.ascentInfo.difficulty, mapIndex:Number(route.mapIndex)||0, lengthScale: this.lengthScale,encounterFamily:this.onboardingPlan?.gentleOpening?null:route.encounterFamily,gentleOpening:!!this.onboardingPlan?.gentleOpening });
+        difficulty: this.ascentInfo.difficulty, mapIndex:Number(route.mapIndex)||0, lengthScale: this.lengthScale,encounterFamily:this.onboardingPlan?.gentleOpening||practiceCourse?null:route.encounterFamily,gentleOpening:!!this.onboardingPlan?.gentleOpening||practiceCourse });
     if(this.tutorial?.lesson==='guardian')tuneTutorialGuardian(this.layout,this.height);
     this.totalDistance = flightEndDistance(this.layout, this.player.x, this.totalDistance,{height:this.height});
     this.layout.embers = this.layout.embers.filter(packet => packet.x <= this.totalDistance + this.player.x - 24);

@@ -93,11 +93,15 @@ test("pilot is explicit; old saves and standard tutorial keep the book", () => {
   assert.equal(M.canBuyCheckpointSkills(pilot), false);
   assert.equal(pilot.run.cardSlots, 3);
   assert.deepEqual(pilot.run.mountedCards, [null, null, null]);
+  // First Light Edition 4 lends no Lift Guide (cards come at its camp); an unfinished Edition 3 save still does.
   M.startTutorial(state);
   state.run.current = state.run.map[0][0];
-  assert.equal(M.getRunModifiers(state.run).cardLiftGuide, false);
   state.run.cardPilot = true;
-  assert.equal(M.getRunModifiers(state.run).cardLiftGuide, true);
+  assert.equal(M.getRunModifiers(state.run).cardLiftGuide, false);
+  const legacy = M.newState(); M.startTutorial(legacy, { edition: 3 });
+  legacy.run.current = legacy.run.map[0][0];
+  legacy.run.cardPilot = true;
+  assert.equal(M.getRunModifiers(legacy.run).cardLiftGuide, true);
 });
 
 test("starter offers three seeded cards and equips the choice plus one guaranteed working Lift Guide", () => {

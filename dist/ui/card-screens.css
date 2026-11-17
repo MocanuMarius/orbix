@@ -102,6 +102,7 @@ html body dialog.game-sheet.card-deck-sheet::backdrop{background:#0c0907}
 #dk-root .dk2-card .card-thumbnail .card-face-heading h3{font-size:11px!important;line-height:12px!important;letter-spacing:0!important}
 #dk-root .dk2-card .card-thumbnail .card-rarity{display:none!important}
 #dk-root .dk2-card .skill-card.card-thumbnail .card-use-counter{z-index:6;right:6px!important;left:auto!important;top:6px!important;bottom:auto!important;transform:none!important;min-width:28px!important;height:16px!important;min-height:16px!important;padding:0 3px!important;font-size:11px!important;line-height:14px!important;box-sizing:border-box}
+#dk-root .dk2-card .skill-card.card-thumbnail .card-sight-warning{left:2px!important;bottom:2px!important;width:14px;height:14px;min-width:0;padding:0!important;font-size:12px;line-height:1;transform:none!important}
 #dk-root.dk.dk2 .dk2-card:focus-visible{outline:3px solid var(--ink);outline-offset:3px}
 #dk-root .dk2-mark{position:absolute;z-index:7;top:5px;left:5px;display:grid;place-items:center;width:20px;height:20px;box-sizing:border-box;border:2px solid #2a1d12;font:400 16px/1 var(--pixel,monospace);pointer-events:none}
 #dk-root .dk2-mark>svg{width:12px;height:12px}

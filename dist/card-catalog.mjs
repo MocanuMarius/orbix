@@ -1,6 +1,8 @@
 /** Literal card rules shared by the flight engine, Deck and inspection gallery.
  * Art families reuse the original sixteen scenes; no new art is implied.
  * New cards stay outside the established starter pool.
+ * `retired: true` keeps the entry so old saves and history can name the card, but skill-cards.mjs
+ * never offers it and strips held copies on load (Field Impulse and Wave Loom, 2026-11-17).
  */
 const cards = [
   { id: 'body-spark', name: 'Body Spark +2', rarity: 'common', kind: 'body', amount: 2, copyable: true, maxRank: 3, artFamily: 'body-spark', trigger: 'collect',
@@ -15,7 +17,7 @@ const cards = [
     ruleBands: [{ type: 'condition', text: 'Next card', trigger: 'next' }, { type: 'effect', text: 'Repeats the next card' }] },
   { id: 'chameleon', name: 'Chameleon', rarity: 'rare', kind: 'chameleon', amount: 0, copyable: false, maxRank: 1, artFamily: 'chameleon', help: 'Spends the next card’s uses. Can borrow always-on cards, not × cards, Rest cards or other copy cards.', trigger: 'next',
     ruleBands: [{ type: 'condition', text: 'Next card', trigger: 'next' }, { type: 'effect', text: 'Acts as the next card' }] },
-  { id: 'field-impulse', name: 'Field Impulse', rarity: 'common', kind: 'field', amount: 0, copyable: true, maxRank: 1, artFamily: 'field-impulse', help: 'Each Field Impulse in your chain, or copy of one, adds up to 0.8 s at full Collector charge. One swipe spends the charge once.', trigger: 'always-on',
+  { id: 'field-impulse', name: 'Field Impulse', rarity: 'common', kind: 'field', retired: true, amount: 0, copyable: true, maxRank: 1, artFamily: 'field-impulse', help: 'Each Field Impulse in your chain, or copy of one, adds up to 0.8 s at full Collector charge. One swipe spends the charge once.', trigger: 'always-on',
     ruleBands: [{ type: 'condition', text: 'Always on · Collector home, ¼ charge', trigger: 'always-on', detail: 'Collector home, ¼ charge' }, { type: 'effect', text: 'Swipe: float, dive or speed up, 0.8 s' }] },
   { id: 'lift-guide', name: 'Lift Guide', rarity: 'common', kind: 'guide', amount: 0, copyable: false, maxRank: 1, starterOnly: true, artFamily: 'lift-guide', help: 'Motion only: read the terrain and choose when to Lift.', trigger: 'always-on',
     ruleBands: [{ type: 'condition', text: 'Always on', trigger: 'always-on' }, { type: 'effect', text: 'An arrow shows when a Lift regains height' }] },
@@ -81,7 +83,7 @@ const cards = [
     ruleBands: [{ type: 'condition', text: 'Pulse · its 2nd Spark onward', trigger: 'wave', detail: 'its 2nd Spark onward' }, { type: 'effect', text: 'Double every reward before it' }] },
   { id: 'toll-bell', name: 'Toll Bell', rarity: 'common', kind: 'toll-bell', amount: 2, copyable: true, maxRank: 2, rankStep: 2, excludeStarter: true, artFamily: 'rhythm', row: { event: 'rhythm-phrase', operation: 'add-sparks', amount: 2 }, trigger: 'rhythm',
     ruleBands: [{ type: 'condition', text: 'Rhythm', trigger: 'rhythm' }, { type: 'effect', text: '+{amountSparks}' }] },
-  { id: 'wave-loom', name: 'Wave Loom', rarity: 'legendary', kind: 'wave-loom', amount: 0, copyable: false, maxRank: 1, excludeStarter: true, artFamily: 'rhythm', help: 'Extra cards and Encores keep one Pulse.', trigger: 'always-on',
+  { id: 'wave-loom', name: 'Wave Loom', rarity: 'legendary', kind: 'wave-loom', retired: true, amount: 0, copyable: false, maxRank: 1, excludeStarter: true, artFamily: 'rhythm', help: 'Extra cards and Encores keep one Pulse.', trigger: 'always-on',
     ruleBands: [{ type: 'condition', text: 'Always on', trigger: 'always-on' }, { type: 'effect', text: 'Each Field Impulse swipe sends a Pulse' }] },
   { id: 'slip-feather', name: 'Proximity', rarity: 'common', kind: 'proximity', amount: 0, passive: true, copyable: true, maxRank: 1, excludeStarter: true, artFamily: 'lift-guide', help: 'Works without Collector. Brief gaps keep the charge; touching terrain does not charge it. Extra copies share one meter.', trigger: 'always-on',
     ruleBands: [{ type: 'condition', text: 'Always on · near terrain for 2 s', trigger: 'always-on', detail: 'near terrain for 2 s' }, { type: 'effect', text: 'Sends out a revealing Pulse' }] },
@@ -160,7 +162,7 @@ const cards = [
     ruleBands: [{ type: 'condition', text: 'Collect', trigger: 'collect' }, { type: 'effect', text: 'Double every reward before it' }, { type: 'note', text: '{uses}' }] },
   { id: 'fast-spool', name: 'Fast Spool', rarity: 'common', kind: 'fast-spool', amount: 3, charges: 3, copyable: true, maxRank: 1, excludeStarter: true, artFamily: 'cache-handling', row: { event: 'body-spark', operation: 'shorten-reel', amount: 3, when: { collectorReeling: true } }, trigger: 'collect',
     ruleBands: [{ type: 'condition', text: 'Collect · while Collector reels in', trigger: 'collect', detail: 'while Collector reels in' }, { type: 'effect', text: 'Collector reels in 3 s sooner' }, { type: 'note', text: '{uses}' }] },
-  { id: 'twin-orbit', name: 'Twin Orbit', rarity: 'rare', kind: 'twin-orbit', amount: 1, passive: true, copyable: false, maxRank: 1, excludeStarter: true, artFamily: 'field-impulse', help: 'At most 2 Collectors; each reels its own pickup. The first keeps Field Impulse and saves.', trigger: 'always-on',
+  { id: 'twin-orbit', name: 'Twin Orbit', rarity: 'rare', kind: 'twin-orbit', amount: 1, passive: true, copyable: false, maxRank: 1, excludeStarter: true, artFamily: 'field-impulse', help: 'At most 2 Collectors; each reels its own pickup. Only the first keeps fatal-impact saves.', trigger: 'always-on',
     ruleBands: [{ type: 'condition', text: 'Always on', trigger: 'always-on' }, { type: 'effect', text: 'A 2nd Collector fetches too' }] },
   { id: 'twin-wick', name: 'Twin Wick', rarity: 'common', kind: 'twin-wick', amount: 1, charges: 1, passive: true, copyable: false, maxRank: 1, excludeStarter: true, artFamily: 'field-impulse', help: 'At most 2 Collectors. Keeps its use while Twin Orbit already gives the second.', trigger: 'always-on',
     ruleBands: [{ type: 'condition', text: 'Always on · flight start with Collector', trigger: 'always-on', detail: 'flight start with Collector' }, { type: 'effect', text: 'Unlocks a 2nd Collector for this journey' }, { type: 'note', text: '1 use' }] },

@@ -178,3 +178,33 @@
 .flight-dock #boost-btn[data-fleet=true]:not(.flight-passive-indicator){--ability-ink:#ebe7cd;--ability-edge:#b9bb9c;--ability-glow:190,196,159;--ability-base:#444c37}
 .flight-dock #boost-btn[data-boost-state=release]{border-color:#a7e8df;background:linear-gradient(#365a54,#283c36);box-shadow:inset 0 0 0 3px #243b32,0 0 20px #64b8b74d}
 #boost-btn[data-boost-state=release] .boost-status{color:#b8ecdf}
+
+/* ── Book skin (v2.5-theme) for the flight HUD chrome ────────────────────────────────────────────
+   Warm leather and cream instead of cold green; the kit's moss marks the one control to press (Lift).
+   Only frames, grounds and button bodies change: sizes, positions, hit areas and meter logic are
+   untouched. Text grounds stay dark and calm over the playfield. Art paths are named directly (this
+   sheet is outside dist/ui/). */
+html body[data-screen=flight] .flight-hud{background:linear-gradient(#140e09e6,#140e0911)!important}
+html body[data-screen=flight] .flight-condensed-counter{color:#e6c77c}
+html body[data-screen=flight] .flight-condensed-counter>b{color:#f6ebcc;text-shadow:1px 2px #140e09}
+html body[data-screen=flight] .flight-deck-label{color:#e2d0a6;text-shadow:1px 1px #140e09}
+html body[data-screen=flight] .flight-bonus-counter,html body[data-screen=flight] .flight-bonus-counter>b{color:#fff1af;text-shadow:1px 2px #140e09}
+html body[data-screen=flight] #app .flight-menu-slot>.game-menu-trigger:not(.home-command):not(.book-perk){box-sizing:border-box;border:6px solid transparent!important;border-image:url('assets/ui/waystone/plaque-leather.svg') 6 fill / 6px stretch!important;border-radius:0!important;background:none!important;background-image:none!important;box-shadow:none!important;clip-path:none!important;padding:0!important;image-rendering:pixelated;color:#f6ebcc!important;text-shadow:none!important}
+html body[data-screen=flight] #app .flight-menu-slot>.game-menu-trigger>svg>path:first-child{fill:#a58c57}
+html body[data-screen=flight] #app .flight-menu-slot>.game-menu-trigger>svg>path:nth-child(2){fill:#f6ebcc}
+html body[data-screen=flight] #app .flight-menu-slot>.game-menu-trigger>svg>.carving-light{fill:#fff6d8}
+html body[data-screen=flight] #app .flight-menu-slot>.game-menu-trigger:not(.home-command):not(.book-perk):focus-visible{outline:2px solid #fff1af!important;outline-offset:2px}
+@media(hover:hover){html body[data-screen=flight] #app .flight-menu-slot>.game-menu-trigger:not(.home-command):not(.book-perk):hover{filter:brightness(1.14)}}
+/* Lift: the moss plaque, cream lettering. */
+html body[data-screen=flight] .flight-dock #flap-btn{box-sizing:border-box;border:12px solid transparent!important;border-image:url('assets/ui/waystone/plaque-moss.svg') 6 fill / 12px stretch!important;border-radius:0!important;background:#536430 padding-box!important;background-image:none!important;box-shadow:none!important;clip-path:none!important;image-rendering:pixelated;color:#fff6d8!important;text-shadow:1px 2px #1c230f!important}
+html body[data-screen=flight] .flight-dock #flap-btn:focus-visible{outline:2px solid #fff1af!important;outline-offset:3px}
+html body[data-screen=flight] .flight-dock #flap-btn:active{filter:brightness(.95)}
+/* Spark Meter: warm unlit slots, cream lit slots (the low and drain warnings keep their own hues). */
+html body[data-screen=flight] .glow-gauge-v3 .glow-unit{background:#3a2c1e}
+html body[data-screen=flight] .glow-gauge-v3 .glow-unit.lit{background:#efe3b8;box-shadow:inset 1px 0 #c9ad74}
+html body[data-screen=flight] .glow-gauge-v3 .glow-unit.lit:nth-child(5n){background:#fff6d8}
+html body[data-screen=flight] .glow-gauge-v3.low-glow .glow-unit.lit{background:#d5a27f;box-shadow:inset 1px 0 #9b7b65}
+html body[data-screen=flight] .glow-gauge-v3.black-hole-drain .glow-unit.lit{background:#e2b8ac;box-shadow:inset 1px 0 #967d80}
+html body[data-screen=flight] .edging-pulse-meter{background:#3a2c1e}
+html body[data-screen=flight] .flight-progress{background:#2a1d12}
+html body[data-screen=flight] .flight-progress>i{background:#e6c77c}

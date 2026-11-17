@@ -8,8 +8,8 @@ import {SKILL_CARDS, describeSkillCard} from './skill-cards.mjs?v=guide-clarity-
 export const CARD_TILE_LINES = Object.freeze({
   'climb': 'Lifts 2 and 3 free', 'watchlight': 'Collector saves you', 'springboard': 'Collect: free bounce',
   'lift-guide': 'Shows when to Lift', 'cache-handling': 'Fetches Caches: +12', 'second-sun': '×2 before, ×3 Encore',
-  'twin-wick': 'Unlocks 2nd Collector', 'field-impulse': 'Swipe to float, dive', 'harvest-legendary': '+2 Sparks, +1 Stored',
-  'wave-loom': 'Swipes send a Pulse', 'nest-egg': '+1 Stored per 10', 'flash-handling': '+6; fetches Flash',
+  'twin-wick': 'Unlocks 2nd Collector', 'harvest-legendary': '+2 Sparks, +1 Stored',
+  'nest-egg': '+1 Stored per 10', 'flash-handling': '+6; fetches Flash',
   'dream': 'Practise first 8 s', 'spillway': '2nd Overfill: a Pulse', 'mirror-grain': 'Adds last + again',
   'ember-feeder': 'Eats 2: +1 max Spark', 'refrain': 'Encore: fires again', 'devourer': 'Eats a Rare: +1 heart',
   'tight-packing': '+50% from packing', 'tight-packing-ii': '+75% from packing', 'tight-packing-iii': '+100% from packing',

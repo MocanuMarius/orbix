@@ -9,8 +9,9 @@ import {resetOnboarding} from '../dist/onboarding.mjs';
 import {treasureView} from '../dist/treasure-view.mjs';
 
 const storage=()=>{let data;return {setItem:(_,v)=>{data=v},getItem:()=>data};};
+// Edition 3 mechanics: an unfinished Edition 3 practice save still flies these authored lessons.
 function makeFlight(lesson,{height=430,skills={}}={}){
- const state=M.newState();M.startTutorial(state);
+ const state=M.newState();M.startTutorial(state,{edition:3});
  const node=state.run.map.flat().find(n=>n.tutorialLesson===lesson);
  const context=new Proxy({},{get:(o,k)=>o[k]??(String(k).includes('Gradient')?()=>({addColorStop(){}}):()=>{}),set:(o,k,v)=>(o[k]=v,true)});
  const canvas={width:900,height,style:{},getContext:()=>context,getBoundingClientRect:()=>({width:900,height})};
@@ -36,7 +37,7 @@ test('New Game gates the prologue only when requested and retains its continuati
 });
 
 test('unlimited practice failures restore the exact entrance fuel, wallet, skill and artifact state',()=>{
- const s=M.newState();M.startTutorial(s);const r=s.run;
+ const s=M.newState();M.startTutorial(s,{edition:3});const r=s.run;
  M.selectNode(r,M.getChoices(r)[0].id);
  r.practiceCondensedGlow=91;r.artifacts=['glow-wick'];r.artifactCharges={'glow-wick':3};r.skills['main-efficiency']=1;
  const before={flame:r.flame,wallet:r.practiceCondensedGlow,skills:{...r.skills},charges:{...r.artifactCharges},lives:r.lives};
@@ -116,7 +117,7 @@ test('the finale keeps the recognizable real Warden with broad, slow warned hand
 });
 
 test('lesson cues never open flight cards and the loan has one canonical skill action',()=>{
- const s=M.newState();M.startTutorial(s);const r=s.run;
+ const s=M.newState();M.startTutorial(s,{edition:3});const r=s.run;
  for(const view of ['map','flight','support','victory'])assert.equal(checkpointTutorialLesson(view,{run:r}),null);
  const loan=r.map[1][0],markup=treasureView(r,loan);
  assert.match(markup,/PRACTICE LOAN/);assert.match(markup,/Borrow Proximity/);assert.match(markup,/prologue-loan/);
@@ -128,7 +129,7 @@ test('lesson cues never open flight cards and the loan has one canonical skill a
 
 test('a successful guardian hands back the campaign before one ordinary fresh gift',()=>{
  const s=M.newState();s.run=M.createRun(s.profile,'guardian-handoff');const original=structuredClone(s.run);
- M.startTutorial(s,{forNewGame:true,difficulty:1});const r=s.run;
+ M.startTutorial(s,{forNewGame:true,difficulty:1,edition:3});const r=s.run;
  assert.equal(r.map.length,7,'seven practice stops');r.step=6;r.path=r.map.slice(0,6).map(row=>row[0].id);r.phase='map';
  assert.ok(M.selectNode(r,M.getChoices(r)[0].id));assert.ok(M.beginFlightAttempt(r));
  assert.ok(M.finishFlight(r,{success:true,flame:80,practiceTopics:['lift','collector']}));
@@ -145,7 +146,7 @@ test('a successful guardian hands back the campaign before one ordinary fresh gi
 test('three delayed human input sequences clear all six stops from actual checkpoint fuel',async()=>{
  process.argv.push('--importOnly');const {simulate}=await import('../scripts/balance-current-flight.mjs');
  for(let controllerSeed=0;controllerSeed<3;controllerSeed++){
-  const s=M.newState();M.startTutorial(s);
+  const s=M.newState();M.startTutorial(s,{edition:3});
   for(let stop=0;stop<6;stop++){
    const r=s.run,n=M.getChoices(r)[0];assert.ok(M.selectNode(r,n.id));
    if(n.type==='support'){assert.ok(M.resolveSupport(r,0,s.profile));continue;}

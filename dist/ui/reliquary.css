@@ -1,36 +1,35 @@
-/* The production Collection and UI gallery share one lit display cabinet.
-   Relics keep their game sprites; the chest casing belongs to reward offers. */
-html body .artifact-collection.collection-flat{
- grid-template-rows:30px minmax(0,1fr) 50px;gap:8px;
-}
-html body .artifact-collection.collection-flat>.collection-workbench{
- grid-template-columns:minmax(255px,.95fr) minmax(0,1.3fr);gap:18px;
-}
-.collection-shelves{min-height:0;display:grid;grid-template-rows:minmax(0,1fr) auto;gap:4px}
-.collection-shelf-scene{position:relative;min-height:0;isolation:isolate}
+/* The Collection's display cabinet (also shown in the UI gallery). It is furniture on the paper page: dark
+   painted shelves with the relics' own pixel sprites, drawn on whole-pixel scales (relics at 1x, 40px).
+   The sheet, header and selected-relic panel are skinned in artifact-collection.css with the Waystone kit.
+   Backdrop contract with reliquary-art.mjs: open shelf rows are y 13-104 and 126-218, planks 104-120 and
+   218-234, columns split x 19-341 in thirds. The grid rows below mirror that (13 / 91 / 22 / 92 / 22 of
+   240) so a name never prints across a plank or a mortar seam. */
+.collection-shelves{min-width:0;min-height:0;display:grid;place-items:center}
+.collection-shelf-scene{position:relative;isolation:isolate;box-sizing:border-box;width:min(50cqw,150cqh);max-width:100%;aspect-ratio:3/2}
 .reliquary-backdrop{position:absolute;inset:0;width:100%;height:100%;z-index:-1;pointer-events:none;filter:drop-shadow(0 4px 0 #040c0c)}
 html body .artifact-collection.collection-flat .artifact-collection-grid{
- position:relative;box-sizing:border-box;width:100%;height:100%;
- grid-template-columns:repeat(3,minmax(0,1fr));grid-template-rows:repeat(2,minmax(0,1fr));
- gap:5px 2px;padding:8px 10px 10px;align-items:stretch;
+ position:relative;box-sizing:border-box;display:grid;width:100%;height:100%;margin:0;
+ grid-template-columns:repeat(3,minmax(0,1fr));grid-template-rows:13fr 91fr 22fr 92fr 22fr;gap:0;padding:0 5.28%;align-items:stretch;
 }
+html body .artifact-collection.collection-flat .collection-artifact:nth-child(-n+3){grid-row:2}
+html body .artifact-collection.collection-flat .collection-artifact:nth-child(n+4){grid-row:4}
 html body .artifact-collection.collection-flat .collection-artifact{
- display:flex;align-items:center;justify-content:center;gap:0;
- padding:0 3px 2px!important;min-height:44px!important;
+ display:flex;flex-direction:column;align-items:center;justify-content:flex-start;gap:0;
+ margin:0!important;padding:1px 4px 0!important;min-width:0;min-height:44px!important;
  border:0!important;background:none!important;box-shadow:none!important;outline:0;overflow:visible;
- color:#e7ddbb;touch-action:manipulation;isolation:isolate;
+ color:#e7ddbb;touch-action:manipulation;isolation:isolate;cursor:pointer;
 }
 html body .artifact-collection.collection-flat .collection-artifact>b{
- font:12px/1.15 var(--pixel);text-wrap:balance;color:#e6ddbd;
+ max-width:100%;margin-top:3px;font:12px/1.1 var(--pixel);text-wrap:balance;color:#e6ddbd;
  text-shadow:1px 1px #050a0b,-1px -1px #050a0b;position:relative;z-index:1;
 }
 html body .artifact-collection.collection-flat .collection-artifact>small{
- font:10px/1.15 var(--pixel);color:#cddcb7;position:relative;z-index:1;
+ max-width:100%;margin-top:1px;font:11px/1.1 var(--pixel);color:#cddcb7;position:relative;z-index:1;
 }
-.collection-relic-object{position:relative;display:grid;place-items:start center;width:100%;height:60px;flex:none;pointer-events:none}
+.collection-relic-object{position:relative;display:grid;place-items:start center;width:76px;max-width:100%;height:44px;margin-bottom:-6px;flex:none;pointer-events:none}
 .collection-relic-object>.reliquary-niche{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:-1}
 html body .artifact-collection.collection-flat .collection-relic-object>.artifact-portrait{
- display:block;position:relative;margin:3px 0 0;width:52px;height:52px;
+ display:block;position:relative;margin:2px 0 0;width:40px;height:40px;
  min-height:0;background:none;box-shadow:none;filter:drop-shadow(0 2px 1px #000c);
 }
 .collection-flat :is(.collection-relic-object,.collection-inspection-art) .artifact-chest-casing,
@@ -39,162 +38,34 @@ html body .artifact-collection.collection-flat .collection-relic-object>.artifac
 .niche-selection{opacity:0}
 .collection-artifact.is-selected .niche-selection{opacity:1}
 .collection-artifact.is-selected .niche-light{opacity:.3}
-html body .artifact-collection.collection-flat .collection-artifact.is-selected{
- outline:0;outline-offset:0;border:0!important;box-shadow:none!important;background:none!important;
-}
 html body .artifact-collection.collection-flat .collection-artifact.is-selected>b{color:#fff4bf}
 html body .artifact-collection.collection-flat .collection-artifact.is-selected .artifact-portrait{
  filter:drop-shadow(0 0 4px var(--relic-aura)) drop-shadow(0 2px 0 #080e0c);
 }
-html body .artifact-collection.collection-flat .collection-artifact:focus-visible{
- outline:2px solid #fff1bd;outline-offset:1px;background:#b8d49915!important;
-}
+html body .artifact-collection.collection-flat .collection-artifact:focus-visible{outline:2px solid #fff1bd;outline-offset:1px;background:#b8d49915!important}
 html body .artifact-collection.collection-flat .collection-artifact:hover .niche-light{opacity:.24}
 html body .artifact-collection.collection-flat .collection-artifact:active .collection-relic-object{transform:translateY(1px)}
-html body .artifact-collection.collection-flat .collection-shelf-nav{
- display:grid;grid-template-columns:50px minmax(0,1fr) 50px;gap:8px;
- align-items:center;min-height:46px;padding:0 3px;
+/* The selected relic's portrait sits in the same open niche. */
+html body .artifact-collection.collection-flat .collection-inspection-art{
+ position:relative;isolation:isolate;display:grid;place-items:start center;flex:none;
+ padding:0;width:68px;height:62px;background:none;border:0;
 }
-.collection-shelf-nav>span{text-align:center;color:#bfc5ac;font:12px/1.2 var(--pixel)}
-html body .artifact-collection.collection-flat .collection-shelf-nav>button{
- box-sizing:border-box;margin:0!important;width:50px;min-width:44px;min-height:46px;
- padding:0!important;font:23px/1 var(--pixel);color:#eee4ba;
- background:linear-gradient(#53604c 0 2px,#2c3b32 2px calc(100% - 5px),#182721 calc(100% - 5px))!important;
- border:1px solid #68765b!important;box-shadow:inset 0 0 0 2px #13221e,0 2px #030c0a!important;
- clip-path:polygon(4px 0,calc(100% - 4px) 0,calc(100% - 4px) 2px,100% 2px,100% calc(100% - 4px),calc(100% - 3px) calc(100% - 4px),calc(100% - 3px) 100%,3px 100%,3px calc(100% - 3px),0 calc(100% - 3px),0 3px,4px 3px);
-}
-html body .artifact-collection.collection-flat .collection-shelf-nav>button:disabled{opacity:.35}
-html body .artifact-collection.collection-flat .collection-selected{
- border-left:1px solid #68725b66;padding-left:18px;gap:8px;
-}
-html body .artifact-collection.collection-flat .collection-selected>header{gap:10px;min-height:54px}
-html body .artifact-collection.collection-flat .collection-selected .collection-inspection-art{
- position:relative;isolation:isolate;display:grid;place-items:start center;
- padding:0;width:68px;height:62px;background:none;flex:none;
-}
-html body .artifact-collection.collection-flat .collection-inspection-art>.reliquary-niche{
- position:absolute;inset:0;width:100%;height:100%;z-index:-1;
-}
+html body .artifact-collection.collection-flat .collection-inspection-art>.reliquary-niche{position:absolute;inset:0;width:100%;height:100%;z-index:-1}
 html body .artifact-collection.collection-flat .collection-inspection-art>.artifact-portrait{
  width:56px;height:56px;background:none;box-shadow:none;margin:1px 0 0;filter:drop-shadow(0 0 5px #e6d18e33);
 }
-html body .artifact-collection.collection-flat .collection-selected-action{
- display:flex;align-items:center;gap:10px;min-height:48px;justify-content:space-between;
-}
-html body .artifact-collection.collection-flat .collection-selected-action>.artifact-rules{
- min-height:48px!important;padding:7px 12px!important;flex:none;color:#e6e2c4!important;
- border-color:#70816b!important;background:linear-gradient(#34483a,#1c3028)!important;
-}
-html body .artifact-collection.collection-flat .collection-melt{
- flex:none;display:flex;align-items:center;justify-content:center;gap:7px;
- min-height:48px!important;min-width:0;width:auto;margin:0!important;padding:4px 11px!important;
- background:linear-gradient(#4b4936 0 2px,#2d332b 2px calc(100% - 5px),#171f1b calc(100% - 5px))!important;
- border:1px solid #8c8160!important;color:#f0d9ae!important;box-shadow:inset 0 0 0 2px #13211c,0 2px #050c0b!important;
- font:14px/1.2 var(--pixel);white-space:nowrap;
-}
-html body .artifact-collection.collection-flat .collection-selected-action>.collection-melt{flex:0 0 auto;min-width:0;max-width:100%}
-.collection-melt .furnace-glyph{display:block;width:32px;height:32px;flex:none;filter:drop-shadow(0 0 3px #dba25a22)}
-.collection-melt-value{display:flex;align-items:center;gap:4px;font:14px/1.2 var(--pixel);color:#f5dca5}
-.collection-melt-value>.resource-symbol{width:21px;height:21px;flex:none}
-html body .artifact-collection.collection-flat .collection-selected-action .collection-melt-actions{
- display:flex;flex-wrap:nowrap;justify-content:flex-end;
-}
-html body .artifact-collection.collection-flat .collection-melt-actions>.secondary{min-height:48px;min-width:90px}
-html body .artifact-collection.collection-flat .collection-melt-actions>button{
- box-sizing:border-box;height:48px!important;min-height:48px!important;padding:4px 10px!important;font:13px/1.2 var(--pixel);
-}
-html body .artifact-collection.collection-flat>footer{min-height:48px;gap:12px}
-html body .artifact-collection.collection-flat>footer>button{
- width:118px;min-height:48px;font:15px/1.2 var(--pixel);
- background:linear-gradient(#3b5240,#20382d)!important;color:#f0e8c1!important;border-color:#8d9d73!important;
-}
-html body .artifact-collection.collection-flat :is(button.collection-melt,button.artifact-rules,.collection-shelf-nav>button,footer>button):focus-visible{
- outline:2px solid #fff0b8;outline-offset:2px;
-}
 @media(orientation:landscape) and (max-height:350px){
- html body .artifact-collection.collection-flat{grid-template-rows:26px minmax(0,1fr) 48px;gap:5px}
- html body .artifact-collection.collection-flat>.collection-workbench{grid-template-columns:minmax(255px,.9fr) minmax(0,1.3fr);gap:12px}
- html body .artifact-collection.collection-flat .artifact-collection-grid{padding:5px 8px 7px;gap:2px}
- html body .artifact-collection.collection-flat .collection-artifact{padding:0 2px 1px!important}
- .collection-relic-object{height:43px}
- html body .artifact-collection.collection-flat .collection-relic-object>.artifact-portrait{width:39px;height:39px;margin:1px 0 0}
- html body .artifact-collection.collection-flat .collection-artifact>b{font:11px/1.1 var(--pixel)}
- html body .artifact-collection.collection-flat .collection-artifact>small{font-size:9px}
- html body .artifact-collection.collection-flat .collection-shelf-nav{min-height:44px;grid-template-columns:48px minmax(0,1fr) 48px;gap:5px}
- html body .artifact-collection.collection-flat .collection-shelf-nav>button{min-height:44px;width:48px}
- html body .artifact-collection.collection-flat .collection-selected{padding-left:12px;gap:5px}
- html body .artifact-collection.collection-flat .collection-selected>header{min-height:47px;gap:9px}
- html body .artifact-collection.collection-flat .collection-selected>header>div:last-child{gap:4px}
- html body .artifact-collection.collection-flat .collection-selected .collection-inspection-art{width:56px;height:48px}
+ html body .artifact-collection.collection-flat .collection-artifact{padding:0 1px!important}
+ html body .artifact-collection.collection-flat .collection-artifact>b{margin-top:2px;font:11px/1.05 var(--pixel);letter-spacing:-.3px}
+ html body .artifact-collection.collection-flat .collection-artifact>small{font-size:11px;line-height:1}
+ .collection-relic-object{width:70px;height:40px}
+ html body .artifact-collection.collection-flat .collection-relic-object>.artifact-portrait{margin:0}
+ html body .artifact-collection.collection-flat .collection-inspection-art{width:56px;height:48px}
  html body .artifact-collection.collection-flat .collection-inspection-art>.artifact-portrait{width:44px;height:44px;margin:0}
- html body .artifact-collection.collection-flat .collection-selected h3{font-size:19px}
- html body .artifact-collection.collection-flat .collection-selected-rule>p{font-size:12px;line-height:1.25;margin-bottom:4px}
- html body .artifact-collection.collection-flat .collection-selected-rule>strong{font-size:15px;line-height:1.2}
- html body .artifact-collection.collection-flat .collection-selected-rule>.collection-selected-limit{font-size:11px;line-height:1.25;margin-top:4px}
- html body .artifact-collection.collection-flat .collection-selected-action>.artifact-rules{font-size:12px;padding:6px 9px!important}
- html body .artifact-collection.collection-flat .collection-melt{font-size:13px;padding:4px 8px!important;gap:5px}
- .collection-melt-value{font-size:13px}
- .collection-melt .furnace-glyph{width:28px;height:28px}
 }
 @media(orientation:portrait){
- html body .artifact-collection.collection-flat>.collection-workbench{grid-template-columns:1fr;grid-template-rows:140px minmax(0,1fr);gap:12px}
- .collection-shelves{grid-template-columns:minmax(0,1fr) 54px;grid-template-rows:1fr;gap:5px}
- html body .artifact-collection.collection-flat .collection-shelf-nav{grid-template-columns:1fr;grid-template-rows:44px 1fr 44px;gap:2px;padding:0}
- html body .artifact-collection.collection-flat .collection-shelf-nav>button{width:100%;min-height:44px}
- .collection-shelf-nav>span{font-size:10px}
- html body .artifact-collection.collection-flat .artifact-collection-grid{grid-template-columns:repeat(3,minmax(0,1fr));grid-template-rows:repeat(2,minmax(0,1fr));overflow:visible;padding:4px 8px 6px}
+ .collection-shelf-scene{width:100%;aspect-ratio:auto;height:100%}
  .collection-relic-object{height:38px}
  html body .artifact-collection.collection-flat .collection-relic-object>.artifact-portrait{width:34px;height:34px;margin:0}
- html body .artifact-collection.collection-flat .collection-artifact>b{font-size:10px}
- html body .artifact-collection.collection-flat .collection-artifact>small{font-size:8px}
- html body .artifact-collection.collection-flat .collection-selected{padding-left:0;padding-top:10px;border-left:0;border-top:1px solid #68725b66}
-}
-/* On the shortest landscape screens the shared bottom baseline holds all
-   actions. The description keeps its full type size and gains a reading row. */
-@media(orientation:landscape) and (max-height:320px){
- html body .artifact-collection.collection-flat{position:relative}
- html body .artifact-collection.collection-flat .collection-selected{grid-template-rows:auto minmax(0,1fr)}
- html body .artifact-collection.collection-flat .collection-selected-action{
-  position:absolute;left:0;right:130px;bottom:0;height:48px;z-index:2;justify-content:flex-end;
- }
- html body .artifact-collection.collection-flat .collection-inline-melt{
-  display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:10px;
- }
- html body .artifact-collection.collection-flat .collection-inline-melt>p{font:11px/1.25 var(--pixel);margin:0;max-width:220px}
- html body .artifact-collection.collection-flat:has(.is-confirming)>footer>span{visibility:hidden}
- html body .artifact-collection.collection-flat .collection-melt-actions{gap:8px}
-}
-
-/* Shelf labels live in the open niche space above each plank. In landscape the
-   grid rows mirror the backdrop (13 / 91 / 22 / 92 / 22 of its 240 rows) and its
-   columns the inner wall (x 19-341 of 360; see reliquary-art.mjs), so a name never
-   prints across a plank or a mortar seam. Every niche starts its label at the same
-   height. Relics draw at 1x (40px) so the sprites stay crisp. */
-@media(orientation:landscape){
- html body .artifact-collection.collection-flat .artifact-collection-grid{
-  grid-template-rows:13fr 91fr 22fr 92fr 22fr;gap:0;padding:0 5.28%;
- }
- html body .artifact-collection.collection-flat .collection-artifact:nth-child(-n+3){grid-row:2}
- html body .artifact-collection.collection-flat .collection-artifact:nth-child(n+4){grid-row:4}
- html body .artifact-collection.collection-flat .collection-artifact{
-  flex-direction:column;justify-content:flex-start;gap:0;padding:1px 4px 0!important;min-width:0;
- }
- html body .artifact-collection.collection-flat .collection-relic-object{width:76px;max-width:100%;height:44px;margin-bottom:-6px}
- html body .artifact-collection.collection-flat .collection-relic-object>.artifact-portrait{width:40px;height:40px;margin:2px 0 0}
- html body .artifact-collection.collection-flat .collection-artifact>b{max-width:100%;margin-top:3px;font:12px/1.1 var(--pixel)}
- html body .artifact-collection.collection-flat .collection-artifact>small{max-width:100%;margin-top:1px;font:10px/1.1 var(--pixel)}
-}
-/* Short landscape screens move the shelf pager to a slim column beside the
-   cabinet, giving each shelf the height its label needs. */
-@media(orientation:landscape) and (max-height:350px){
- html body .artifact-collection.collection-flat>.collection-workbench{grid-template-columns:minmax(330px,1fr) minmax(0,1.15fr)}
- html body .artifact-collection.collection-flat .collection-shelves{grid-template-columns:minmax(0,1fr) 48px;grid-template-rows:minmax(0,1fr);gap:5px}
- html body .artifact-collection.collection-flat .collection-shelf-nav{grid-template-columns:1fr;grid-template-rows:44px minmax(0,1fr) 44px;gap:2px;min-height:0;padding:0}
- html body .artifact-collection.collection-flat .collection-shelf-nav>button{width:100%;min-height:44px}
- html body .artifact-collection.collection-flat .collection-shelf-nav>span{font-size:10px;line-height:1.3}
- html body .artifact-collection.collection-flat .collection-artifact{padding:0 4px!important}
- html body .artifact-collection.collection-flat .collection-relic-object{width:70px;height:40px;margin-bottom:-6px}
- html body .artifact-collection.collection-flat .collection-relic-object>.artifact-portrait{margin:0}
- html body .artifact-collection.collection-flat .collection-artifact>b{margin-top:2px;font:11px/1.05 var(--pixel)}
- html body .artifact-collection.collection-flat .collection-artifact>small{font-size:9px}
+ html body .artifact-collection.collection-flat .collection-artifact>b{font-size:11px}
 }

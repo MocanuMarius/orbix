@@ -27,7 +27,7 @@ function shuffled(values, random) {
   return result;
 }
 export function createComboSample(seed = DEFAULT_COMBO_SEED) {
-  const random = seededRandom(seed), catalog = Object.keys(SKILL_CARDS);
+  const random = seededRandom(seed), catalog = Object.keys(SKILL_CARDS).filter(id => !SKILL_CARDS[id].retired);
   // One shuffled catalog guarantees coverage; the remaining draws stay independent.
   let pool = catalog.length <= 45 ? [...catalog, ...Array.from({length:45 - catalog.length}, () => catalog[Math.floor(random() * catalog.length)])] : shuffled(catalog, random).slice(0,45);
   do { pool = shuffled(pool, random); }

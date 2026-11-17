@@ -83,7 +83,7 @@ export const TUTORIAL_TOPICS={
   s('Bad Sparks','Red rings warn of a cost. Dark Sparks reduce Luminance; Dusk Sparks drain up to 3 Sparks and dim Luminance by 20% for 4 seconds. Collector leaves them alone.','pickup:dark'),
   s('Black Hole','A black core is a hazard, not a pickup. It continuously steals Sparks nearby; closer means much faster drain. Give it space, even with a shield.','black-hole'),
   s('Giant Black Hole','A giant hangs over the roof or rises through the floor. Its field steadily drains Sparks as you pass. Fly on the far side, then collect the recovery Sparks beyond its rim.','giant-hole'),
-  s('Proximity · an earned skill','Buy the first Proximity skill to unlock surface charging. Skim solid terrain without touching it; full charge reveals the scene. Its separate tree offers recovery and a temporary light shield. Open sky never charges it.','edge')]},
+  s('Proximity','A Proximity card or skill unlocks surface charging. Skim solid terrain without touching it to fill the meter; full, it sends a Pulse that reveals the scene. Open sky never charges it.','edge')]},
  progression:{name:'Runs & Ascension',visual:'route',steps:[
   s('Three maps make a run','Your hearts, Sparks and build carry over between maps. Starting a new run resets skills and artifacts. Later guardians chain their attacks, leaving fewer breaks to recover.','route'),
   s('Ascension','Clear all three maps to unlock the next difficulty. Higher Ascensions make the journey harder. Winning ends the run. Start a separate New Game to try another Ascension; run fuel, skills, currency and artifacts never carry over.','site:boss'),

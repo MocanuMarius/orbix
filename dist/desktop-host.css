@@ -1,18 +1,18 @@
 @font-face{font-family:WispNumbers;src:url('assets/fonts/silkscreen-numbers.ttf') format('truetype');font-display:swap;unicode-range:U+0030-0039}
 @font-face{font-family:WispPixel;src:url('assets/fonts/pixelify-sans.ttf') format('truetype');font-display:swap}
-*{box-sizing:border-box}html,body{width:100%;height:100%;margin:0;overflow:hidden;background:#070f0c;color:#dbe3cb}
-body{font-family:WispNumbers,WispPixel,monospace}.desktop-layout{width:100%;height:100dvh;display:grid;grid-template-rows:52px minmax(0,1fr);background:radial-gradient(ellipse at 50% 45%,#18271f55,transparent 65%),#070f0c;min-width:0}
-.display-toolbar{display:flex;align-items:center;justify-content:space-between;width:100%;max-width:1440px;justify-self:center;gap:20px;padding:4px 20px;color:#a6b99c}
-.display-caption{display:flex;align-items:center;gap:10px;font-size:12px;letter-spacing:1px;min-width:0}.display-caption>svg{width:30px;height:16px;flex:none}.display-resolution{display:block;margin-top:3px;font-size:10px;letter-spacing:0;color:#82987b}
+*{box-sizing:border-box}html,body{width:100%;height:100%;margin:0;overflow:hidden;background:#120c08;color:#f6ebcc}
+body{font-family:WispNumbers,WispPixel,monospace}.desktop-layout{width:100%;height:100dvh;display:grid;grid-template-rows:52px minmax(0,1fr);background:radial-gradient(ellipse at 50% 45%,#3a2c1e55,transparent 65%),#120c08;min-width:0}
+.display-toolbar{display:flex;align-items:center;justify-content:space-between;width:100%;max-width:1440px;justify-self:center;gap:20px;padding:4px 20px;color:#e2d0a6}
+.display-caption{display:flex;align-items:center;gap:10px;font-size:12px;letter-spacing:1px;min-width:0}.display-caption>svg{width:30px;height:16px;flex:none}.display-resolution{display:block;margin-top:3px;font-size:11px;letter-spacing:0;color:#c9b78d}
 .display-options{display:flex;align-items:center;gap:5px}.display-options button,.display-options select{font:14px/1.2 WispNumbers,WispPixel,monospace;color:#dbe3cb;background:#14251c;border:1px solid #475b43;min-height:38px;margin:0;padding:5px 10px;border-radius:0;cursor:pointer}
 .display-options button{min-width:38px;display:grid;place-items:center}.display-options select{width:126px;padding:5px 7px}.display-options option{background:#12221a;color:#edf0d6}
 .display-options button:hover,.display-options select:hover{border-color:#b5bf91;background:#273c2a}.display-options button:focus-visible,.display-options select:focus-visible{outline:2px solid #e5d6a3;outline-offset:2px}
 .display-options button:active{background:#3d4d32}.display-options svg{height:18px;width:18px}
 .desktop-stage{min-width:0;min-height:0;display:grid;place-items:center;overflow:hidden;padding:0}
-.phone-window{position:relative;flex:none;overflow:hidden;background:#08130e;outline:1px solid #92a882;box-shadow:0 14px 42px #0009,0 0 0 5px #142119,0 0 0 6px #39533b;isolation:isolate}
-.phone-window>iframe{display:block;position:absolute;left:0;top:0;border:0;transform-origin:0 0;background:#08130e;image-rendering:pixelated}
+.phone-window{position:relative;flex:none;overflow:hidden;background:#0c0907;outline:1px solid #8a6d44;box-shadow:0 14px 42px #0009,0 0 0 5px #33261a,0 0 0 6px #8a6d44;isolation:isolate}
+.phone-window>iframe{display:block;position:absolute;left:0;top:0;border:0;transform-origin:0 0;background:#0c0907;image-rendering:pixelated}
 .sr-only{position:absolute!important;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap;border:0}
-.desktop-layout:fullscreen{height:100dvh;background:#040a07}
+.desktop-layout:fullscreen{height:100dvh;background:#0c0907}
 @media(max-width:600px){.desktop-layout{grid-template-rows:46px minmax(0,1fr)}.display-toolbar{padding:3px 10px;gap:8px}.display-caption{font-size:10px;gap:5px;letter-spacing:0}.display-caption>svg{width:24px}.display-options select{width:105px;font-size:12px}.display-options button{font-size:13px;padding:3px 7px;min-width:32px;min-height:34px}.display-options{gap:3px}.phone-window{box-shadow:0 8px 28px #0009,0 0 0 3px #142119}}
 @media(max-width:760px){.display-resolution{display:none}}
 @media(max-width:480px){.display-caption>svg{display:none}.display-caption{max-width:96px;line-height:1.3}}
@@ -20,3 +20,20 @@ body{font-family:WispNumbers,WispPixel,monospace}.desktop-layout{width:100%;heig
 #app{width:100%;height:100%;min-width:0}
 
 .desktop-layout{visibility:hidden}.desktop-host .desktop-layout{visibility:visible}
+
+/* ── Book skin (v2.5-theme) for the desktop shell ────────────────────────────────────────────────
+   Warm leather ground; the toolbar buttons are small kit plaques (leather, stepped corners, cream
+   lettering). Behaviour and layout are unchanged; on wide windows the buttons reach 44px so a mouse or
+   touchpad target is comfortable. Art paths are named directly. */
+.display-options button,.display-options select{border:6px solid transparent;border-image:url('assets/ui/waystone/plaque-leather.svg') 6 fill / 6px stretch;border-radius:0;background:none;image-rendering:pixelated;color:#f6ebcc;text-shadow:1px 2px #2a1d12;padding:0 8px}
+.display-options select{padding:0 4px}
+.display-options option{background:#33261a;color:#f6ebcc}
+.display-options button:hover,.display-options select:hover{border-color:transparent;background:none;filter:brightness(1.14)}
+.display-options button:focus-visible,.display-options select:focus-visible{outline:2px solid #fff1af;outline-offset:2px}
+.display-options button:active{background:none;transform:translateY(2px);filter:brightness(.95)}
+@media(min-width:601px){.display-options button,.display-options select{min-height:44px}.display-options button{min-width:44px}}
+@media(prefers-reduced-motion:reduce){.display-options button:active{transform:none}}
+/* The scale picker keeps a small stepped caret so it still reads as a menu (the native one goes with the plaque). */
+.display-options select{appearance:none;-webkit-appearance:none;padding-right:24px}
+.zoom-label{position:relative;display:block}
+.zoom-label::after{content:'';position:absolute;right:14px;top:50%;width:12px;height:6px;margin-top:-3px;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='6' height='3' shape-rendering='crispEdges'%3E%3Cpath fill='%23f6ebcc' d='M0 0h6v1H0zM1 1h4v1H1zM2 2h2v1H2z'/%3E%3C/svg%3E") center/12px 6px no-repeat;pointer-events:none}

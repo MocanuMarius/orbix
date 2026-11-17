@@ -1,4 +1,5 @@
-import {PRACTICE_EDITION,isPlayablePractice,loanPracticeCards,practiceModifiers} from './practice-route.mjs?v=guide-clarity-1';
+import {PRACTICE_EDITION,LEGACY_PRACTICE_EDITION,isPlayablePractice,isPracticeCourseRun,loanPracticeCards,practiceModifiers,preparePracticeStop} from './practice-route.mjs?v=guide-clarity-1';
+import {PRACTICE_STOPS,practiceLessonTopics} from './practice-course.mjs?v=guide-clarity-1';
 import {prepareScoreLedger,awardScoreStores,awardSettledScoreStores,freezeCompletedGameScore,recordCompletedGameScore} from './game-score.mjs?v=guide-clarity-1';
 import {getCardChargeCapacity,getCardFeederCapacity,getEmberFeederTargets,consumeCardUseDoublers} from './skill-cards.mjs?v=guide-clarity-1';
 import {collectorPreference,learnedCollectorPreferences} from './collector-preferences.mjs?v=guide-clarity-1';
@@ -879,10 +880,21 @@ export function getCardForgePreview(run, rarity = "rare") {
     reason,
   };
 }
+/** A quote made away from a Rest carries no Rest key. It is honoured at a Rest only when every
+ * other field still matches (same run, rarity, forge count, craft count, surprise card and
+ * price). A quote made at a Rest must match exactly, so another Rest's quote is refused. */
+function forgeQuoteHonoured(expected, preview) {
+  if (expected === preview.token) return true;
+  try {
+    const quoted = JSON.parse(expected), actual = JSON.parse(preview.token);
+    if (!Array.isArray(quoted) || quoted.length !== actual.length || quoted[1] !== null) return false;
+    return actual.every((part, index) => index === 1 || quoted[index] === part);
+  } catch { return false; }
+}
 /** Pays, then reveals: returns the forged card (truthy) or false. Uses no Rest action. */
 export function forgeOwnedCard(state, rarity = "rare", expectedPreviewToken) {
   const run = state?.run, preview = getCardForgePreview(run, rarity);
-  if (!preview.eligible || (expectedPreviewToken !== undefined && expectedPreviewToken !== preview.token)) return false;
+  if (!preview.eligible || (expectedPreviewToken !== undefined && !forgeQuoteHonoured(expectedPreviewToken, preview))) return false;
   const card = drawForgeCard(run, rarity, preview.forged);
   if (!card || card.instanceId !== preview.card?.instanceId) return false;
   run.condensedGlow -= preview.price;
@@ -1132,7 +1144,7 @@ export function getRouteMapState(run){
  for(const n of frontier){if(lastElite&&n.elite)continue;addEdge(currentId,n.id);visit(n,lastElite);}
  return{currentId,selectedId:selected?.id||null,availableIds,reachableIds:[...reachableIds],completedIds,pathEdges,reachableEdges};
 }
-export function selectNode(run,nodeId){if(run?.victoryPending||run?.flightReward&&!run.flightReward.claimed||!cardRewardResolved(run))return false;const n=getChoices(run).find(n=>n.id===nodeId);if(!n)return false;if(n.type!=='support'&&!run.isTutorial)n.bonusId=getRouteBonus(run,n)?.id??null;run.path=run.path.filter(id=>nodes(run).some(p=>p.id===id&&p.row<run.step));run.path.push(n.id);if(n.type!=='support')n.flightNumber=run.path.map(id=>nodes(run).find(p=>p.id===id)).filter(p=>p.type!=='support').length;run.current=n;run.lastEvent=null;run.phase=n.type==='support'?'support':'briefing';if(isCardRun(run)&&n.kind==='camp')ensureCardRest(run);return true;}
+export function selectNode(run,nodeId){if(run?.victoryPending||run?.flightReward&&!run.flightReward.claimed||!cardRewardResolved(run))return false;const n=getChoices(run).find(n=>n.id===nodeId);if(!n)return false;if(n.type!=='support'&&!run.isTutorial)n.bonusId=getRouteBonus(run,n)?.id??null;run.path=run.path.filter(id=>nodes(run).some(p=>p.id===id&&p.row<run.step));run.path.push(n.id);if(n.type!=='support')n.flightNumber=run.path.map(id=>nodes(run).find(p=>p.id===id)).filter(p=>p.type!=='support').length;run.current=n;run.lastEvent=null;run.phase=n.type==='support'?'support':'briefing';if(isCardRun(run)&&n.kind==='camp')ensureCardRest(run);preparePracticeStop(run,n);return true;}
 function nextStop(run){run.step++;run.current=null;run.phase=run.step>=run.map.length?'ended':'map';}
 function reattempt(run){return run.phase==='briefing'&&run.current&&run.lastAttempt?.nodeId===run.current.id&&run.lastAttempt.success!==true;}
 function canPrepareAtCheckpoint(run){const starter=run?.mapIndex===0&&run?.step===0&&run?.phase==='map'&&!run.path?.length;return!!run&&(run.testMode===true||run.restReady===true||starter)&&!run.attemptActive&&!run.banked&&run.lives>0&&['support','map','briefing'].includes(run.phase)&&!reattempt(run);}
@@ -1621,6 +1633,7 @@ function inRefundBranch(id,root,seen=new Set()){
 function rawSupportChoices(run,profile=null){
  if(run?.phase!=='support')return[];const n=run.current;
  if(n.kind==='camp'){
+  if(isPracticeCourseRun(run))return [choice('practice-chain-ready','Fly with your Chain','Refill your Spark Meter and take the loaned Chain, in the order you set, into the next passage.',{flame:100})];
   if(isPlayablePractice(run))return [choice('practice-recover','Recover & borrow a combination','Restore missing hearts and all Sparks. Borrow Rhythm and Resonant Harvest for the next passage.',{lives:Math.max(0,getLifeCapacity(run)-run.lives),flame:100,rest:'recover',practiceCombo:true})];
   const growth=Math.min(REST_GLOW_TUNING.capacityStep,REST_GLOW_TUNING.capacityLimit-getRestGlowBonus(run)),hearts=Math.max(0,getLifeCapacity(run)-run.lives),fuel=Math.max(0,getGlowCapacity(run)-run.flame),recover=hearts>0||fuel>0;
   const offers=[
@@ -1823,13 +1836,21 @@ export function getRunModifiers(run={}){const rank=skillProgress,companion=norma
 // The prologue has its own run wallet and entry checkpoints. Only learned
 // tutorial preferences survive leaving it; campaign resources never cross.
 export function shouldStartTutorial(state){return !!state?.profile&&!state.settings?.skipTutorial&&!state.profile.tutorialComplete;}
-function createTutorial(profile){
+function createTutorial(profile,edition=PRACTICE_EDITION){
+ const legacy=edition===LEGACY_PRACTICE_EDITION;
  const r=createRun(profile,`practice-${freshSeed()}`);
- Object.assign(r,{isTutorial:true,tutorialEdition:PRACTICE_EDITION,mapIndex:0,mapName:'First Light · Seven stops',difficulty:1,
+ Object.assign(r,{isTutorial:true,tutorialEdition:legacy?LEGACY_PRACTICE_EDITION:PRACTICE_EDITION,mapIndex:0,mapName:'First Light · Seven stops',difficulty:1,
   skills:{'main-sight':1},artifacts:[],artifactCharges:{},companions:['collector'],companionRole:'collector',
-  practiceCondensedGlow:0,condensedGlow:0,condensedRemainder:0,lives:2,maxLives:3,flame:100,unlockedCompanionDifficulty:1});
+  practiceCondensedGlow:0,condensedGlow:0,condensedRemainder:0,lives:legacy?2:3,maxLives:3,flame:100,unlockedCompanionDifficulty:1});
  const base={mapIndex:0,difficulty:1,elite:false,boss:false,bossId:null,...ROUTE_PROFILES.refuge,flightLengthScale:1,challengeId:'',challengeTarget:0,challengeBonus:0,practiceCards:true};
  const node=(row,id,type,kind,terrain,name,nextIds,extra={})=>({...base,row,id,type,kind,terrain,name,locationName:name,lane:1,duration:0,nextIds,...extra});
+ if(!legacy){
+  // Edition 4: real courses in six biomes and one camp, one idea per paused lesson (practice-course.mjs).
+  r.map=PRACTICE_STOPS.map((stop,row)=>[node(row,stop.id,stop.type,stop.kind||(stop.type==='finale'?'finale':'normal'),stop.terrain,stop.name,
+   PRACTICE_STOPS[row+1]?[PRACTICE_STOPS[row+1].id]:[],{...(stop.levelId?{levelId:stop.levelId,tutorialLesson:stop.lesson,duration:stop.duration}:{}),
+   ...(stop.practiceProximity?{practiceProximity:true}:{}),...(stop.practiceShield?{practiceShield:true}:{}),...(stop.practiceChain?{practiceChain:true}:{})})]);
+  r.practiceCards=[];return r;
+ }
  r.map=[
   [node(0,'practice-glide','flight','normal','ruins','Lift & Sparks',['practice-chest'],{levelId:'ruins-aqueduct',tutorialLesson:'glide',duration:22})],
   [node(1,'practice-chest','support','treasure','ruins','A Borrowed Pulse',['practice-proximity'],{treasureKind:'vessel',practiceLoan:true})],
@@ -1840,18 +1861,20 @@ function createTutorial(profile){
   [node(6,'practice-guardian','finale','finale','ruins','Meet the Hollow Warden',[],{levelId:'ruins-aqueduct',tutorialLesson:'guardian',boss:true,bossId:'hollow-warden',duration:36})]
  ];loanPracticeCards(r,['lift-guide']);return r;
 }
-export function startTutorial(state,{forNewGame=false,difficulty=1}={}){
+/** `edition` exists for tests that recreate an unfinished Edition 3 save; play always starts the current edition. */
+export function startTutorial(state,{forNewGame=false,difficulty=1,edition=PRACTICE_EDITION}={}){
  if(!state?.profile)return false;const old=state.run;
  if(old?.isTutorial&&old.phase!=='ended'){
+  // A saved Edition 3 (or 4) practice in progress continues in its own edition.
   if(isPlayablePractice(old))return false;
-  const continuation=old.tutorialContinuation;state.run=createTutorial(state.profile);
+  const continuation=old.tutorialContinuation;state.run=createTutorial(state.profile,edition);
   if(continuation)state.run.tutorialContinuation=copy(continuation);
   else if(forNewGame)state.run.tutorialContinuation={difficulty:Math.max(1,Math.floor(Number(difficulty)||1))};
   return true;
  }
  if(old?.isTutorial)bankRun(state);
  else{state.suspendedRun=old&&old.phase!=='ended'&&!old.banked?copy(old):null;if(state.suspendedRun?.attemptActive)interrupt(state.suspendedRun);}
- state.run=createTutorial(state.profile);
+ state.run=createTutorial(state.profile,edition);
  if(forNewGame)state.run.tutorialContinuation={difficulty:Math.max(1,Math.floor(Number(difficulty)||1))};
  return true;
 }
@@ -1862,7 +1885,8 @@ export function leaveTutorial(state,{remember=false}={}){
  bankRun(state);
  if(completed||remember){
   state.profile.tutorialComplete=true;
-  for(const topic of remember?['lift','luminance','collector','collector-recovery','packed','rest','black-hole','edging']:(practice.practiceTopics||[]))markOnboardingSeen(state.profile,topic);
+  const taught=isPracticeCourseRun(practice)?practiceLessonTopics(practice.guideSeen):[];
+  for(const topic of remember?['lift','luminance','collector','collector-recovery','packed','rest','black-hole','edging']:[...new Set([...(practice.practiceTopics||[]),...taught])])markOnboardingSeen(state.profile,topic);
  }
  state.run=state.suspendedRun||null;state.suspendedRun=null;return true;
 }

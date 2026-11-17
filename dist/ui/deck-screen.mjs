@@ -210,7 +210,8 @@ function readerHTML(d, view, opts) {
       ${at >= 0 ? `<button type="button" class="wb-sign wb-sign-quiet" id="dk2-takeout" aria-label="Take ${esc(nameOf(c))} out of slot ${at + 1}. It stays in your Deck"><span class="wb-sign-text"><b>Take out</b></span></button>` : ''}
       <button type="button" class="wb-sign wb-sign-quiet" id="dk2-melt" aria-label="Melt ${esc(nameOf(c))}: shows what you get first"><span class="wb-sign-text"><b>Melt…</b></span></button></div>`;
   }
-  const face = inert(cardFace(printed, {compact: false}));
+  const availability = getCardFaceAvailability(d.run, printed, at >= 0 ? d.statuses[at] : null);
+  const face = inert(cardFace(printed, {compact: false, ...(availability.state !== 'active' ? {availability} : {})}));
   return `<div class="dk2-read" id="dk2-read"><div class="dk2-dialog" role="dialog" aria-modal="true" aria-labelledby="dk2-read-name">
     <div class="dk2-face" id="dk2-face" aria-hidden="true">${face}</div>
     <div class="dk2-info">
@@ -281,7 +282,7 @@ export function mountDeckScreen(host, {run, view, opts = {}, actions = {}}) {
     afterRender();
   }
   function afterRender() {
-    root.querySelectorAll('.dk2-stations .skill-card, #dk2-grid .skill-card').forEach(node => {node.setAttribute('aria-hidden', 'true');node.querySelectorAll('[role="img"]').forEach(el => el.removeAttribute('role'));});
+    root.querySelectorAll('.dk2-stations .skill-card, #dk2-grid .skill-card').forEach(node => {node.setAttribute('aria-hidden', 'true');node.querySelectorAll('[role="img"]:not(.card-sight-warning)').forEach(el => el.removeAttribute('role'));});
     root.querySelectorAll('#dk2-grid svg[role="img"]').forEach(svg => {svg.removeAttribute('role');svg.setAttribute('aria-hidden', 'true');});
     // The opened card: the real full face, read-only; the approved Spark icon (16px grid) replaces the old symbol.
     const face = $('dk2-face');
@@ -289,7 +290,7 @@ export function mountDeckScreen(host, {run, view, opts = {}, actions = {}}) {
       face.querySelector('.card-help')?.remove();
       face.querySelectorAll('.card-term-icon-spark, .card-term-icon-meter').forEach(icon => {icon.innerHTML = SPARK_IMG;});
       face.querySelectorAll('[tabindex]').forEach(el => el.removeAttribute('tabindex'));
-      face.querySelectorAll('[role="img"]').forEach(el => el.removeAttribute('role'));
+      face.querySelectorAll('[role="img"]:not(.card-sight-warning)').forEach(el => el.removeAttribute('role'));
     }
     if (view.tab === 'chain') {sizeStage();paintMedal();} else hint();
     sizeFace();

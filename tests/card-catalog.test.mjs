@@ -238,7 +238,8 @@ test('drop tier uses the first seeded roll, keeps Forge forced tiers and exposes
       seen.add(forged.cardId);
     }
   }
-  for (const def of Object.values(CARD_CATALOG).filter(def => !def.starterOnly)) assert.ok(seen.has(def.id), `${def.id} can drop directly`);
+  for (const def of Object.values(CARD_CATALOG).filter(def => !def.starterOnly && !def.retired)) assert.ok(seen.has(def.id), `${def.id} can drop directly`);
+  for (const def of Object.values(CARD_CATALOG).filter(def => def.retired)) assert.ok(!seen.has(def.id), `${def.id} is retired and never drops`);
 });
 
 test('seeded rarity distributions follow each node tier and an exact 75/20/5 node mix', () => {

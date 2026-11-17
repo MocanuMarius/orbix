@@ -75,7 +75,7 @@ test('full vitals and unavailable upgrades explain their limits and keep Leave r
   assert.match(html, /Hearts and meter full/);
   assert.match(html, /All 5 slots unlocked/);
   assert.match(html, /Find a Growth Seed to Grow/);
-  assert.match(html, /Leave Rest →/);
+  assert.match(html, /Leave Rest/);
   assert.ok(M.resolveSupport(run, quote.actions.find(choice => choice.effect?.restContinue).index));
   assert.equal(run.phase, 'map');
 });

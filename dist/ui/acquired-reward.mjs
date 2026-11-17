@@ -26,14 +26,14 @@ export function acquiredRewardMarkup({artifact,copy,run,title,earned,receiptAvai
  const boon=bonus&&detail?`<aside class="acquired-boon">${bonusIcon(bonus.id)}<span>${esc(detail)}</span><b aria-label="Optional challenge completed">✓</b></aside>`:'';
  const buildAvailable=deckAvailable||skillsAvailable;
  const longCopy=copy.effect.length>65||copy.trigger?.length>60||copy.limit?.length>80;
- return `<section class="acquired-reward acquired-${presentation} ${boon?'acquired-has-boon':'acquired-no-boon'} ${buildAvailable?'acquired-has-build':'acquired-no-build'} ${longCopy?'acquired-long-copy':''}" data-acquired-presentation="${presentation}">
- <header class="acquired-clear"><h1>${esc(title)}</h1>${receiptAvailable?actionButton(`+${earned}`,{labelMarkup:`${resourceSymbol('packed')}<b>+${earned}</b>`,className:'secondary acquired-earnings',action:'reward-earnings',ariaLabel:`${earned} Stored Sparks earned. View breakdown.`}):''}</header>
+ return `<section class="acquired-reward acquired-${presentation} wb-reskin wb-ground wb-inline wb-framed ${boon?'acquired-has-boon':'acquired-no-boon'} ${buildAvailable?'acquired-has-build':'acquired-no-build'} ${longCopy?'acquired-long-copy':''}" data-acquired-presentation="${presentation}">
+ <header class="acquired-clear wbf-head"><div class="wbf-titles"><h1 class="wb-title">${esc(title)}</h1></div>${receiptAvailable?actionButton(`+${earned}`,{labelMarkup:`${resourceSymbol('packed')}<b>+${earned}</b>`,className:'wb-sign wb-sign-standard acquired-earnings',action:'reward-earnings',ariaLabel:`${earned} Stored Sparks earned. View breakdown.`}):''}</header>
  <article class="acquired-hero ${artifact.rarity}" data-reward-artifact="${artifact.id}" aria-label="Acquired relic">
  <div class="acquired-art">${horizonMarkup()}${reliquaryNicheMarkup()}${artifactArt(artifact.id)}</div>
  <div class="acquired-copy"><header class="acquired-identity"><p>${esc(artifactRarityLabel(artifact))} relic acquired</p><h2>${esc(artifact.name)}</h2></header>
  <div class="acquired-rules">${copy.trigger?`<p class="acquired-trigger">${esc(copy.trigger)}</p>`:''}<p class="acquired-effect">${effectMarkup(copy.effect)}</p>${copy.limit?`<p class="acquired-limit">${esc(artifactLimitSummary(copy))}</p>`:''}</div></div>
  </article>
  ${boon}
- <footer class="acquired-actions">${buildAvailable?actionButton(deckAvailable?'Deck':upgradeCount?'Upgrade':'Skills',{className:`secondary ${!deckAvailable&&upgradeCount?'upgrade-ready':''}`,action:deckAvailable?'cards':'skills'}):''}${relicRulesButton(artifact)}${actionButton('Continue →',{className:'primary',action:'victory-next'})}</footer>
+ <footer class="acquired-actions">${buildAvailable?actionButton(deckAvailable?'Deck':upgradeCount?'Upgrade':'Skills',{className:`wb-sign wb-sign-standard ${!deckAvailable&&upgradeCount?'upgrade-ready':''}`,action:deckAvailable?'cards':'skills'}):''}${relicRulesButton(artifact,{sign:true})}${actionButton('Continue',{className:'wb-sign wb-sign-primary',action:'victory-next'})}</footer>
  </section>`;
 }
