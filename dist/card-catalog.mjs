@@ -259,6 +259,26 @@ const cards = [
     growth: { common: 1, rare: 2, legendary: 3 },
     help: 'The card is lost for good. Nothing to its right, or a loaned practice card: nothing happens. Boosts do not change the growth; the meter never holds more than 100.',
     ruleBands: [{ type: 'condition', text: 'Take-off', trigger: 'take-off' }, { type: 'effect', text: 'Eats the card to its right: +1, +2 or +3 max Sparks for good' }] },
+  // Batch 1 of the approved v1.0-cards proposals (docs/card-proposals.md section 1 and Spill Jar). Unreleased, no picture yet.
+  // Position rules read the Chain's shape in the card walker (skill-cards.mjs > matchesRowShape, positionAmount, isNextToKeystone).
+  { id: 'keystone', name: 'Keystone', rarity: 'rare', kind: 'keystone', unreleased: true, amount: 0, copyable: false, maxRank: 1, excludeStarter: true, artFamily: 'rhythm', trigger: 'any',
+    help: 'Each neighbour fires twice on every Trigger it answers, and spends its uses each time. Two Keystones do not make it three.',
+    ruleBands: [{ type: 'condition', text: 'Any Trigger', trigger: 'any' }, { type: 'effect', text: 'The cards on both sides of it fire twice' }] },
+  { id: 'vanguard', name: 'Vanguard', rarity: 'common', kind: 'vanguard', unreleased: true, amount: 1, copyable: true, maxRank: 1, excludeStarter: true, artFamily: 'rhythm', row: { event: '*', operation: 'add-sparks', amount: 1, firstSlotAmount: 3 }, trigger: 'any',
+    ruleBands: [{ type: 'condition', text: 'Any Trigger', trigger: 'any' }, { type: 'effect', text: 'In Slot 1: +3 Sparks. In any other Slot: +1 Spark' }] },
+  { id: 'bookends', name: 'Bookends', rarity: 'rare', kind: 'bookends', unreleased: true, amount: 2, copyable: false, maxRank: 1, excludeStarter: true, artFamily: 'rhythm', row: { event: '*', operation: 'multiply', amount: 2, when: { endsShareTrigger: true } }, trigger: 'any',
+    help: 'The first and last cards are the first and last other cards in your Chain, not counting Bookends. It needs at least two other cards to compare.',
+    ruleBands: [{ type: 'condition', text: 'Any Trigger · first and last cards share a Trigger', trigger: 'any', detail: 'first and last cards share a Trigger' }, { type: 'effect', text: 'Every card before it ×{amount}' }] },
+  { id: 'empty-chair', name: 'Empty Chair', rarity: 'common', kind: 'empty-chair', unreleased: true, amount: 2, copyable: true, maxRank: 1, excludeStarter: true, artFamily: 'rhythm', row: { event: '*', operation: 'add-sparks', amount: 2, perEmptySlot: 2 }, trigger: 'any',
+    ruleBands: [{ type: 'condition', text: 'Any Trigger', trigger: 'any' }, { type: 'effect', text: '+2 Sparks for each empty Slot' }] },
+  { id: 'ladder', name: 'Ladder', rarity: 'rare', kind: 'ladder', unreleased: true, amount: 1, copyable: true, maxRank: 1, excludeStarter: true, artFamily: 'rhythm', row: { event: '*', operation: 'add-sparks', amount: 1, perCardLeft: 1 }, trigger: 'any',
+    ruleBands: [{ type: 'condition', text: 'Any Trigger', trigger: 'any' }, { type: 'effect', text: '+1 Spark for each card to its left' }] },
+  { id: 'twin-flame', name: 'Twin Flame', rarity: 'rare', kind: 'twin-flame', unreleased: true, amount: 3, copyable: false, maxRank: 1, excludeStarter: true, artFamily: 'rhythm', row: { event: '*', operation: 'multiply', amount: 3, when: { exactlyEarlier: 2 } }, trigger: 'any',
+    ruleBands: [{ type: 'condition', text: 'Any Trigger · exactly 2 cards before it', trigger: 'any', detail: 'exactly 2 cards before it' }, { type: 'effect', text: 'Every card before it ×{amount}' }] },
+  { id: 'spill-jar', name: 'Spill Jar', rarity: 'common', kind: 'spill-jar', unreleased: true, amount: 0, copyable: true, maxRank: 1, excludeStarter: true, artFamily: 'deep-vessel', trigger: 'overfill',
+    engine: { family: 'maker', hears: ['overfill'], does: ['keep'], keepShare: 0.5 },
+    help: 'Kept Sparks become Stored Sparks, so no Boost changes them. Half is rounded down. A Spark you collect that overfills keeps nothing more: its spill already packs.',
+    ruleBands: [{ type: 'condition', text: 'Overfill', trigger: 'overfill' }, { type: 'effect', text: 'Half of every spilled Spark becomes a Stored Spark' }] },
 ];
 
 const freeze = value => {

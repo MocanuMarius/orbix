@@ -233,10 +233,12 @@ test('every declarative catalog rule executes with its exact approved event and 
   for(const def of Object.values(SKILL_CARDS).filter(d=>d.row)){
     const kind=def.row.event==='*'?CARD_ROW_EVENTS.body:def.row.event;
     const rows=[];
-    if(['multiply','add-last-payout','multiply-future-capacity'].includes(def.row.operation)||def.row.minimumEarlierPayers){
-      for(let i=0;i<Math.max(1,def.row.minimumEarlierPayers||0);i++)rows.push(payer[kind]);
+    if(['multiply','add-last-payout','multiply-future-capacity'].includes(def.row.operation)||def.row.minimumEarlierPayers||def.row.perCardLeft){
+      const need=Math.max(1,def.row.minimumEarlierPayers||0,def.row.when?.exactlyEarlier||0,def.row.when?.endsShareTrigger?2:0);
+      for(let i=0;i<need;i++)rows.push(payer[kind]);
     }
     rows.push(def.id);
+    if(def.row.perEmptySlot)rows.push(null);
     const event={kind,carriedStored:100,availableRecovery:10,availableReel:10,collectorReeling:true,meterFraction:.2,pickupKind:def.row.when?.pickupKind||'light',
       firstCrossing:def.row.when?.firstCrossing??true,direction:def.row.when?.direction||'up',guardRecovering:true};
     const result=previewCardRow(cards(rows),event);

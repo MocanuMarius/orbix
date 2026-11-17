@@ -893,6 +893,25 @@ export function matchesRowCondition(when = {}, event, pass, slot, lastOccupied) 
   if (when.pass !== undefined && pass !== when.pass) return false;
   return true;
 }
+/** Position rules (docs/card-proposals.md section 1, batch 1): `when.exactlyEarlier` (Twin Flame) and `when.endsShareTrigger`
+ * (Bookends: the first and last OTHER cards wait for the same Trigger, at least two of them) read the Chain's shape. */
+export function matchesRowShape(when = {}, cards = [], slot = 0) {
+  if (when.exactlyEarlier !== undefined && cards.slice(0, slot).filter(Boolean).length !== when.exactlyEarlier) return false;
+  if (when.endsShareTrigger) {
+    const others = cards.filter((card, index) => card && index !== slot);
+    if (others.length < 2 || SKILL_CARDS[others[0].cardId]?.trigger !== SKILL_CARDS[others[others.length - 1].cardId]?.trigger) return false;
+  }
+  return true;
+}
+/** Amount of a position adder: Vanguard (`firstSlotAmount`), Empty Chair (`perEmptySlot`), Ladder (`perCardLeft`). */
+export function positionAmount(rule, cards, slot, amount) {
+  if (rule.firstSlotAmount !== undefined && slot === 0) amount = Number(rule.firstSlotAmount) || 0;
+  if (rule.perEmptySlot) amount = rule.perEmptySlot * cards.filter(card => !card).length;
+  if (rule.perCardLeft) amount = rule.perCardLeft * cards.slice(0, slot).filter(Boolean).length;
+  return amount;
+}
+/** Keystone: a card next to one fires twice. */
+export const isNextToKeystone = (cards, slot) => [cards[slot - 1], cards[slot + 1]].some(card => SKILL_CARDS[card?.cardId]?.kind === 'keystone');
 const freezeReceipt = (receipt) => {
   for (const step of receipt.steps) Object.freeze(step);
   Object.freeze(receipt.steps);Object.freeze(receipt.event);Object.freeze(receipt.charges);
@@ -1039,7 +1058,7 @@ export function resolveCardRow(runtime, event = {}) {
       const source = live.get(target?.instanceId);
       const creditSlot = copy ? slot + 1 : slot;
       receipt.slotVisits++;
-      const repeats = copy && ownDef.kind === "echo" ? Math.max(1,integer(ownDef.repeatCount || 1,CARD_ROW_LIMITS.repeats)) : 1;
+      const repeats = (copy && ownDef.kind === "echo" ? Math.max(1,integer(ownDef.repeatCount || 1,CARD_ROW_LIMITS.repeats)) : 1) * (isNextToKeystone(topology, slot) ? 2 : 1);
       for (let repeatIndex = 0; repeatIndex < repeats; repeatIndex++) {
       const subtotal = total("sparks", pass), futureSubtotal = total("futureCapacity", pass);
       const step = { eventId: receipt.event.id, eventKind: kind, pass, slot, repeatIndex, creditSlot,
@@ -1074,9 +1093,9 @@ export function resolveCardRow(runtime, event = {}) {
       const wildcard = rule?.event === "*" && (rule.operation === "multiply"
         ? kind !== CARD_ROW_EVENTS.victory
         : ![CARD_ROW_EVENTS.victory,CARD_ROW_EVENTS.clear,CARD_ROW_EVENTS.attach].includes(kind));
-      if (rule && (rule.event === kind || wildcard) && matchesRowCondition(rule.when,event,pass,slot,lastOccupied)) {
+      if (rule && (rule.event === kind || wildcard) && matchesRowCondition(rule.when,event,pass,slot,lastOccupied) && matchesRowShape(rule.when,topology,slot)) {
       const operation = rule.operation;
-      const amount = Math.max(0,Number(pass === 2 && rule.replayAmount !== undefined ? rule.replayAmount : rule.amount) || 0);
+      const amount = Math.max(0,positionAmount(rule,topology,slot,Number(pass === 2 && rule.replayAmount !== undefined ? rule.replayAmount : rule.amount) || 0));
       const payout = operation === "add-last-payout" ? lastPayout : amount;
       if ((operation === "add-sparks" || operation === "add-last-payout") && payout > 0 && payers >= (Number(rule.minimumEarlierPayers)||0)) {
         step.operation = operation;succeed();

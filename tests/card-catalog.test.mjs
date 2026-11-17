@@ -102,10 +102,10 @@ test('every numeric catalog rule produces its declared effect on a matching exec
       event = { kind, firstCrossing: rule.when?.firstCrossing ?? true,
         pickupKind: rule.when?.pickupKind || 'light', meterFraction: 0.1,
         direction: rule.when?.direction || 'up', guardRecovering: true, availableRecovery: 10, collectorReeling: true, availableReel: 10, carriedStored:100 },
-      prefix = Array.from({ length: Math.max(rule.minimumEarlierPayers || 0,
+      prefix = Array.from({ length: Math.max(rule.minimumEarlierPayers || 0, rule.when?.exactlyEarlier || 0, rule.when?.endsShareTrigger ? 2 : 0, rule.perCardLeft ? 1 : 0,
         ['multiply', 'add-last-payout', 'multiply-future-capacity'].includes(rule.operation) ? 1 : 0) }, (_, i) =>
         makeSkillCard(additive[kind] || 'body-spark', `prefix:${i}`)),
-      receipt = resolveCardRow(createCardExecution([...prefix, card]), event),
+      receipt = resolveCardRow(createCardExecution([...prefix, card, ...(rule.perEmptySlot ? [null] : [])]), event),
       steps = receipt.steps.filter(step => step.actingInstanceId === card.instanceId);
     assert.ok(steps.some(step => step.success), `${def.id}: its matching event works`);
     assert.ok(steps.some(step => step.operation === rule.operation), `${def.id}: declared operation executes`);

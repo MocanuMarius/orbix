@@ -17,7 +17,9 @@ import {rewardEarnings} from '../dist/reward-screen.mjs';
 const row = ids => ids.map((id, i) => id ? makeSkillCard(id, `e${i}`) : null);
 const CHIME = ['first-catch', 'spark-chime', 'ember-bell', 'slow-wick'];
 const MILL = ['close-call', 'metronome', 'body-spark', 'overflow-bell'];
-const UNRELEASED = Object.values(SKILL_CARDS).filter(def => def.unreleased).map(def => def.id);
+// Batch 1 position cards (tests/cards-batch-1.test.mjs) are unreleased too but are ordinary Chain cards, not engine cards.
+const BATCH_1 = ['keystone', 'vanguard', 'bookends', 'empty-chair', 'ladder', 'twin-flame', 'spill-jar'];
+const UNRELEASED = Object.values(SKILL_CARDS).filter(def => def.unreleased && !BATCH_1.includes(def.id)).map(def => def.id);
 const near = (a, b, eps = 1e-6, msg) => assert.ok(Math.abs(a - b) < eps, msg || `${a} != ${b}`);
 /** A pure engine on an uncapped (or given) meter, driven by hand. */
 function rig(ids, meter = {start: 0, max: Infinity}) {
@@ -63,7 +65,7 @@ test('unreleased cards never appear in any starter, reward draw, draft or Forge 
       }
     }
   }
-  for (const id of UNRELEASED) assert.ok(!seen.has(id), `${id} was offered`);
+  for (const id of [...UNRELEASED, ...BATCH_1]) assert.ok(!seen.has(id), `${id} was offered`);
   assert.ok(seen.size > 40, 'the sample really covers the live pool');
 });
 
